@@ -2,331 +2,117 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8FAB6C4708D
-	for <linux-s390@archiver.kernel.org>; Wed, 23 Nov 2022 15:56:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8310CC4332F
+	for <linux-s390@archiver.kernel.org>; Wed, 23 Nov 2022 16:07:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239012AbiKWP4O (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 23 Nov 2022 10:56:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46378 "EHLO
+        id S238720AbiKWQHd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 23 Nov 2022 11:07:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238316AbiKWPzY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Nov 2022 10:55:24 -0500
-Received: from out30-44.freemail.mail.aliyun.com (out30-44.freemail.mail.aliyun.com [115.124.30.44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43A12C9A90;
-        Wed, 23 Nov 2022 07:55:07 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0VVXZuKk_1669218903;
-Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VVXZuKk_1669218903)
-          by smtp.aliyun-inc.com;
-          Wed, 23 Nov 2022 23:55:03 +0800
-From:   "D.Wythe" <alibuda@linux.alibaba.com>
-To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-Subject: [PATCH net-next v5 10/10] net/smc: replace mutex rmbs_lock and sndbufs_lock with rw_semaphore
-Date:   Wed, 23 Nov 2022 23:54:50 +0800
-Message-Id: <1669218890-115854-11-git-send-email-alibuda@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1669218890-115854-1-git-send-email-alibuda@linux.alibaba.com>
-References: <1669218890-115854-1-git-send-email-alibuda@linux.alibaba.com>
+        with ESMTP id S238729AbiKWQHc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Nov 2022 11:07:32 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C7B0BB9;
+        Wed, 23 Nov 2022 08:07:27 -0800 (PST)
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2ANEbDXa002372;
+        Wed, 23 Nov 2022 16:07:26 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : content-transfer-encoding
+ : mime-version; s=pp1; bh=nRklbZ+rJiirAx94wRklHtjRr/Bmlm9o2s4m9AxA7xk=;
+ b=ErArvUOmA1u24QiP1v50szV9IU17qYfwctma0JHAbTcrsV4qjBJwgpeDTE7KcMRrCycU
+ 4/zSB1BUWaEsJLHHK7bj3UIIlMYei8tKG9UgjbMyvtxdUXUL0/XE0xkab7j/6TWBTR+g
+ ziNAlZLIAig+KZsITpwqok9HTEBr7KZtWCAXY0qhq5OU++cym4s6bsnHylRkbciDl+oW
+ DmNFsEFh/qy6sXqLH3Gj9hOtyNSlRZL3qRD/oNr8AUpl4B37ZUuBQAnM1Zcd5XjmO7iv
+ l/RcmdEvmFpB06W58l5ATlQrmDvAJcCuvC4ILIR7mnokdc13zMM5+CiIo2ZTQseQKLHp Ig== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3m100t38nw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 23 Nov 2022 16:07:26 +0000
+Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2ANEbnND005350;
+        Wed, 23 Nov 2022 16:07:26 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3m100t38nd-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 23 Nov 2022 16:07:26 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2ANG7Mra021827;
+        Wed, 23 Nov 2022 16:07:24 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma03fra.de.ibm.com with ESMTP id 3kxps94rp3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 23 Nov 2022 16:07:24 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2ANG7KKO57672116
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 23 Nov 2022 16:07:20 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3E609AE064;
+        Wed, 23 Nov 2022 16:07:20 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2D11CAE056;
+        Wed, 23 Nov 2022 16:07:20 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Wed, 23 Nov 2022 16:07:20 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 20191)
+        id E4C30E029C; Wed, 23 Nov 2022 17:07:19 +0100 (CET)
+From:   Stefan Haberland <sth@linux.ibm.com>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Colin Ian King <colin.i.king@gmail.com>
+Subject: [PATCH 1/4] s390/dasd: Fix spelling mistake "Ivalid" -> "Invalid"
+Date:   Wed, 23 Nov 2022 17:07:16 +0100
+Message-Id: <20221123160719.3002694-2-sth@linux.ibm.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20221123160719.3002694-1-sth@linux.ibm.com>
+References: <20221123160719.3002694-1-sth@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Z_VmGKriz-uTwPnhQL58WKSe2MhmsC9C
+X-Proofpoint-ORIG-GUID: dABXkQM0ybOQSAMwakI2KtYxx3ENikX3
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-11-23_08,2022-11-23_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 suspectscore=0
+ mlxlogscore=999 adultscore=0 lowpriorityscore=0 priorityscore=1501
+ impostorscore=0 spamscore=0 clxscore=1011 bulkscore=0 malwarescore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211230114
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: "D. Wythe" <alibuda@linux.alibaba.com>
+From: Colin Ian King <colin.i.king@gmail.com>
 
-It's clear that rmbs_lock and sndbufs_lock are aims to protect the
-rmbs list or the sndbufs list.
+There is a spelling mistake in a pr_warn message. Fix it.
 
-During connection establieshment, smc_buf_get_slot() will always
-be invoked, and it only performs read semantics in rmbs list and
-sndbufs list.
-
-Based on the above considerations, we replace mutex with rw_semaphore.
-Only smc_buf_get_slot() use down_read() to allow smc_buf_get_slot()
-run concurrently, other part use down_write() to keep exclusive
-semantics.
-
-Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+Signed-off-by: Colin Ian King <colin.i.king@gmail.com>
+Link: https://lore.kernel.org/r/20220923132103.2486724-1-colin.i.king@gmail.com
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
 ---
- net/smc/smc_core.c | 55 +++++++++++++++++++++++++++---------------------------
- net/smc/smc_core.h |  4 ++--
- net/smc/smc_llc.c  | 16 ++++++++--------
- 3 files changed, 38 insertions(+), 37 deletions(-)
+ drivers/s390/block/dasd_ioctl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 217d83d2..9a0929c 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -1133,8 +1133,8 @@ static int smc_lgr_create(struct smc_sock *smc, struct smc_init_info *ini)
- 	lgr->freeing = 0;
- 	lgr->vlan_id = ini->vlan_id;
- 	refcount_set(&lgr->refcnt, 1); /* set lgr refcnt to 1 */
--	mutex_init(&lgr->sndbufs_lock);
--	mutex_init(&lgr->rmbs_lock);
-+	init_rwsem(&lgr->sndbufs_lock);
-+	init_rwsem(&lgr->rmbs_lock);
- 	rwlock_init(&lgr->conns_lock);
- 	for (i = 0; i < SMC_RMBE_SIZES; i++) {
- 		INIT_LIST_HEAD(&lgr->sndbufs[i]);
-@@ -1380,7 +1380,7 @@ struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
- static void smcr_buf_unuse(struct smc_buf_desc *buf_desc, bool is_rmb,
- 			   struct smc_link_group *lgr)
- {
--	struct mutex *lock;	/* lock buffer list */
-+	struct rw_semaphore *lock;	/* lock buffer list */
- 	int rc;
- 
- 	if (is_rmb && buf_desc->is_conf_rkey && !list_empty(&lgr->list)) {
-@@ -1400,9 +1400,9 @@ static void smcr_buf_unuse(struct smc_buf_desc *buf_desc, bool is_rmb,
- 		/* buf registration failed, reuse not possible */
- 		lock = is_rmb ? &lgr->rmbs_lock :
- 				&lgr->sndbufs_lock;
--		mutex_lock(lock);
-+		down_write(lock);
- 		list_del(&buf_desc->list);
--		mutex_unlock(lock);
-+		up_write(lock);
- 
- 		smc_buf_free(lgr, is_rmb, buf_desc);
- 	} else {
-@@ -1505,15 +1505,16 @@ static void smcr_buf_unmap_lgr(struct smc_link *lnk)
- 	int i;
- 
- 	for (i = 0; i < SMC_RMBE_SIZES; i++) {
--		mutex_lock(&lgr->rmbs_lock);
-+		down_write(&lgr->rmbs_lock);
- 		list_for_each_entry_safe(buf_desc, bf, &lgr->rmbs[i], list)
- 			smcr_buf_unmap_link(buf_desc, true, lnk);
--		mutex_unlock(&lgr->rmbs_lock);
--		mutex_lock(&lgr->sndbufs_lock);
-+		up_write(&lgr->rmbs_lock);
-+
-+		down_write(&lgr->sndbufs_lock);
- 		list_for_each_entry_safe(buf_desc, bf, &lgr->sndbufs[i],
- 					 list)
- 			smcr_buf_unmap_link(buf_desc, false, lnk);
--		mutex_unlock(&lgr->sndbufs_lock);
-+		up_write(&lgr->sndbufs_lock);
+diff --git a/drivers/s390/block/dasd_ioctl.c b/drivers/s390/block/dasd_ioctl.c
+index d0ddf2cc9786..9327dcdd6e5e 100644
+--- a/drivers/s390/block/dasd_ioctl.c
++++ b/drivers/s390/block/dasd_ioctl.c
+@@ -401,7 +401,7 @@ dasd_ioctl_copy_pair_swap(struct block_device *bdev, void __user *argp)
+ 		return -EFAULT;
  	}
- }
- 
-@@ -2388,19 +2389,19 @@ int smc_uncompress_bufsize(u8 compressed)
-  * buffer size; if not available, return NULL
-  */
- static struct smc_buf_desc *smc_buf_get_slot(int compressed_bufsize,
--					     struct mutex *lock,
-+					     struct rw_semaphore *lock,
- 					     struct list_head *buf_list)
- {
- 	struct smc_buf_desc *buf_slot;
- 
--	mutex_lock(lock);
-+	down_read(lock);
- 	list_for_each_entry(buf_slot, buf_list, list) {
- 		if (cmpxchg(&buf_slot->used, 0, 1) == 0) {
--			mutex_unlock(lock);
-+			up_read(lock);
- 			return buf_slot;
- 		}
- 	}
--	mutex_unlock(lock);
-+	up_read(lock);
- 	return NULL;
- }
- 
-@@ -2509,13 +2510,13 @@ int smcr_link_reg_buf(struct smc_link *link, struct smc_buf_desc *buf_desc)
- 	return 0;
- }
- 
--static int _smcr_buf_map_lgr(struct smc_link *lnk, struct mutex *lock,
-+static int _smcr_buf_map_lgr(struct smc_link *lnk, struct rw_semaphore *lock,
- 			     struct list_head *lst, bool is_rmb)
- {
- 	struct smc_buf_desc *buf_desc, *bf;
- 	int rc = 0;
- 
--	mutex_lock(lock);
-+	down_write(lock);
- 	list_for_each_entry_safe(buf_desc, bf, lst, list) {
- 		if (!buf_desc->used)
- 			continue;
-@@ -2524,7 +2525,7 @@ static int _smcr_buf_map_lgr(struct smc_link *lnk, struct mutex *lock,
- 			goto out;
- 	}
- out:
--	mutex_unlock(lock);
-+	up_write(lock);
- 	return rc;
- }
- 
-@@ -2557,37 +2558,37 @@ int smcr_buf_reg_lgr(struct smc_link *lnk)
- 	int i, rc = 0;
- 
- 	/* reg all RMBs for a new link */
--	mutex_lock(&lgr->rmbs_lock);
-+	down_write(&lgr->rmbs_lock);
- 	for (i = 0; i < SMC_RMBE_SIZES; i++) {
- 		list_for_each_entry_safe(buf_desc, bf, &lgr->rmbs[i], list) {
- 			if (!buf_desc->used)
- 				continue;
- 			rc = smcr_link_reg_buf(lnk, buf_desc);
- 			if (rc) {
--				mutex_unlock(&lgr->rmbs_lock);
-+				up_write(&lgr->rmbs_lock);
- 				return rc;
- 			}
- 		}
- 	}
--	mutex_unlock(&lgr->rmbs_lock);
-+	up_write(&lgr->rmbs_lock);
- 
- 	if (lgr->buf_type == SMCR_PHYS_CONT_BUFS)
- 		return rc;
- 
- 	/* reg all vzalloced sndbufs for a new link */
--	mutex_lock(&lgr->sndbufs_lock);
-+	down_write(&lgr->sndbufs_lock);
- 	for (i = 0; i < SMC_RMBE_SIZES; i++) {
- 		list_for_each_entry_safe(buf_desc, bf, &lgr->sndbufs[i], list) {
- 			if (!buf_desc->used || !buf_desc->is_vm)
- 				continue;
- 			rc = smcr_link_reg_buf(lnk, buf_desc);
- 			if (rc) {
--				mutex_unlock(&lgr->sndbufs_lock);
-+				up_write(&lgr->sndbufs_lock);
- 				return rc;
- 			}
- 		}
- 	}
--	mutex_unlock(&lgr->sndbufs_lock);
-+	up_write(&lgr->sndbufs_lock);
- 	return rc;
- }
- 
-@@ -2708,7 +2709,7 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
- 	struct list_head *buf_list;
- 	int bufsize, bufsize_short;
- 	bool is_dgraded = false;
--	struct mutex *lock;	/* lock buffer list */
-+	struct rw_semaphore *lock;	/* lock buffer list */
- 	int sk_buf_size;
- 
- 	if (is_rmb)
-@@ -2756,9 +2757,9 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
- 		SMC_STAT_RMB_ALLOC(smc, is_smcd, is_rmb);
- 		SMC_STAT_RMB_SIZE(smc, is_smcd, is_rmb, bufsize);
- 		buf_desc->used = 1;
--		mutex_lock(lock);
-+		down_write(lock);
- 		list_add(&buf_desc->list, buf_list);
--		mutex_unlock(lock);
-+		up_write(lock);
- 		break; /* found */
- 	}
- 
-@@ -2832,9 +2833,9 @@ int smc_buf_create(struct smc_sock *smc, bool is_smcd)
- 	/* create rmb */
- 	rc = __smc_buf_create(smc, is_smcd, true);
- 	if (rc) {
--		mutex_lock(&smc->conn.lgr->sndbufs_lock);
-+		down_write(&smc->conn.lgr->sndbufs_lock);
- 		list_del(&smc->conn.sndbuf_desc->list);
--		mutex_unlock(&smc->conn.lgr->sndbufs_lock);
-+		up_write(&smc->conn.lgr->sndbufs_lock);
- 		smc_buf_free(smc->conn.lgr, false, smc->conn.sndbuf_desc);
- 		smc->conn.sndbuf_desc = NULL;
- 	}
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index 3bbf159..4df16da 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -260,9 +260,9 @@ struct smc_link_group {
- 	unsigned short		vlan_id;	/* vlan id of link group */
- 
- 	struct list_head	sndbufs[SMC_RMBE_SIZES];/* tx buffers */
--	struct mutex		sndbufs_lock;	/* protects tx buffers */
-+	struct rw_semaphore	sndbufs_lock;	/* protects tx buffers */
- 	struct list_head	rmbs[SMC_RMBE_SIZES];	/* rx buffers */
--	struct mutex		rmbs_lock;	/* protects rx buffers */
-+	struct rw_semaphore	rmbs_lock;	/* protects rx buffers */
- 	u8					first_contact_done; /* if first contact succeed */
- 
- 	u8			id[SMC_LGR_ID_SIZE];	/* unique lgr id */
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index 4426642..449e61e 100644
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -644,7 +644,7 @@ static int smc_llc_fill_ext_v2(struct smc_llc_msg_add_link_v2_ext *ext,
- 
- 	prim_lnk_idx = link->link_idx;
- 	lnk_idx = link_new->link_idx;
--	mutex_lock(&lgr->rmbs_lock);
-+	down_write(&lgr->rmbs_lock);
- 	ext->num_rkeys = lgr->conns_num;
- 	if (!ext->num_rkeys)
- 		goto out;
-@@ -664,7 +664,7 @@ static int smc_llc_fill_ext_v2(struct smc_llc_msg_add_link_v2_ext *ext,
- 	}
- 	len += i * sizeof(ext->rt[0]);
- out:
--	mutex_unlock(&lgr->rmbs_lock);
-+	up_write(&lgr->rmbs_lock);
- 	return len;
- }
- 
-@@ -925,7 +925,7 @@ static int smc_llc_cli_rkey_exchange(struct smc_link *link,
- 	int rc = 0;
- 	int i;
- 
--	mutex_lock(&lgr->rmbs_lock);
-+	down_write(&lgr->rmbs_lock);
- 	num_rkeys_send = lgr->conns_num;
- 	buf_pos = smc_llc_get_first_rmb(lgr, &buf_lst);
- 	do {
-@@ -952,7 +952,7 @@ static int smc_llc_cli_rkey_exchange(struct smc_link *link,
- 			break;
- 	} while (num_rkeys_send || num_rkeys_recv);
- 
--	mutex_unlock(&lgr->rmbs_lock);
-+	up_write(&lgr->rmbs_lock);
- 	return rc;
- }
- 
-@@ -1035,14 +1035,14 @@ static void smc_llc_save_add_link_rkeys(struct smc_link *link,
- 	ext = (struct smc_llc_msg_add_link_v2_ext *)((u8 *)lgr->wr_rx_buf_v2 +
- 						     SMC_WR_TX_SIZE);
- 	max = min_t(u8, ext->num_rkeys, SMC_LLC_RKEYS_PER_MSG_V2);
--	mutex_lock(&lgr->rmbs_lock);
-+	down_write(&lgr->rmbs_lock);
- 	for (i = 0; i < max; i++) {
- 		smc_rtoken_set(lgr, link->link_idx, link_new->link_idx,
- 			       ext->rt[i].rmb_key,
- 			       ext->rt[i].rmb_vaddr_new,
- 			       ext->rt[i].rmb_key_new);
- 	}
--	mutex_unlock(&lgr->rmbs_lock);
-+	up_write(&lgr->rmbs_lock);
- }
- 
- static void smc_llc_save_add_link_info(struct smc_link *link,
-@@ -1349,7 +1349,7 @@ static int smc_llc_srv_rkey_exchange(struct smc_link *link,
- 	int rc = 0;
- 	int i;
- 
--	mutex_lock(&lgr->rmbs_lock);
-+	down_write(&lgr->rmbs_lock);
- 	num_rkeys_send = lgr->conns_num;
- 	buf_pos = smc_llc_get_first_rmb(lgr, &buf_lst);
- 	do {
-@@ -1374,7 +1374,7 @@ static int smc_llc_srv_rkey_exchange(struct smc_link *link,
- 		smc_llc_flow_qentry_del(&lgr->llc_flow_lcl);
- 	} while (num_rkeys_send || num_rkeys_recv);
- out:
--	mutex_unlock(&lgr->rmbs_lock);
-+	up_write(&lgr->rmbs_lock);
- 	return rc;
- }
- 
+ 	if (memchr_inv(data.reserved, 0, sizeof(data.reserved))) {
+-		pr_warn("%s: Ivalid swap data specified.\n",
++		pr_warn("%s: Invalid swap data specified\n",
+ 			dev_name(&device->cdev->dev));
+ 		dasd_put_device(device);
+ 		return DASD_COPYPAIRSWAP_INVALID;
 -- 
-1.8.3.1
+2.34.1
 
