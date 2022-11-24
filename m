@@ -2,105 +2,149 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 27179C4321E
-	for <linux-s390@archiver.kernel.org>; Thu, 24 Nov 2022 10:47:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F21CC43219
+	for <linux-s390@archiver.kernel.org>; Thu, 24 Nov 2022 11:48:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229754AbiKXKrl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 24 Nov 2022 05:47:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37786 "EHLO
+        id S230247AbiKXLsg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 24 Nov 2022 06:48:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229874AbiKXKrk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Nov 2022 05:47:40 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 684A21647B5
-        for <linux-s390@vger.kernel.org>; Thu, 24 Nov 2022 02:46:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1669286803;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=meOlUg5MwMVHhaGR+idYAm5TqDEXqBJj0zANbpF8wbk=;
-        b=SvswAlx1GhLqE1a0gq9TVQKkmYZkJrxG8RttmdB868AwLKR9Ih/ZFMFTTaOOCOC+rstyZV
-        /nIqlgpHIgOlTrj1nGfKHcKD9yzZQS/kFQxiFV3F9fAemCRg/vvkst5Y795hXOt5FLZL4j
-        lPBBMKkIxIhfN8ovF5aafajRp4hCkC0=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-26-8aIt13OaPLGHqw_b4_-MIQ-1; Thu, 24 Nov 2022 05:46:42 -0500
-X-MC-Unique: 8aIt13OaPLGHqw_b4_-MIQ-1
-Received: by mail-wm1-f71.google.com with SMTP id c10-20020a7bc84a000000b003cf81c2d3efso476173wml.7
-        for <linux-s390@vger.kernel.org>; Thu, 24 Nov 2022 02:46:41 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=meOlUg5MwMVHhaGR+idYAm5TqDEXqBJj0zANbpF8wbk=;
-        b=DVidndKPL4qyqwpB5QcYd0a6X58vRD8egYdV65LXQ3r5GNbwOSae7msHhplrQdIKdy
-         vVz5Z4XvOohhQmvcaxnAgMjyZH0mVMePNpVg2hPmJtGguZ/vBLAmRrnhGS5sWDMyvHVC
-         GOUiHxDB1JlEuMl6Ohs1dxIupwpHPuFcx//s1vxTj41KXx8LAH+MQFhNU7V/0DPn79dc
-         DGgdSQ05zIWFKj1j5hBZ3jvcNi/OI3l0rtdVl6UZtHMDXh31fwAH57O431i5LLxFtnMO
-         D4ezy+Wbj3mATx+taIhlVQqgvudOkIz5Q638ibbct1z9gAkuuPwFKQCQV3XZl/3DKda6
-         OwtQ==
-X-Gm-Message-State: ANoB5pnkIQYYC6KGlKcF9UM6kFKNhP0/VHla16IIa8qCN1Y6yoE48w9x
-        ynbZ9RJxpDLld7RDkYwcoFzp5+tjI6VXtylv5Lk5YUUmkk5LBvHrPW716BFxodNQHP0AWaOq49H
-        kfkx7TD/gQ1vJqFgWhtg/kg==
-X-Received: by 2002:a5d:4ec7:0:b0:241:e27f:840e with SMTP id s7-20020a5d4ec7000000b00241e27f840emr7459986wrv.690.1669286801107;
-        Thu, 24 Nov 2022 02:46:41 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf5pwj5K0xvKVmdTQVnmmXoBI1L5Ykv5hwXvwBuBFvXNl68vB2n20Hl/zZh/FDl0FMsQUPjmcQ==
-X-Received: by 2002:a5d:4ec7:0:b0:241:e27f:840e with SMTP id s7-20020a5d4ec7000000b00241e27f840emr7459977wrv.690.1669286800876;
-        Thu, 24 Nov 2022 02:46:40 -0800 (PST)
-Received: from [192.168.0.5] (ip-109-43-177-190.web.vodafone.de. [109.43.177.190])
-        by smtp.gmail.com with ESMTPSA id n8-20020a05600c4f8800b003cfd64b6be1sm6445455wmq.27.2022.11.24.02.46.39
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 24 Nov 2022 02:46:40 -0800 (PST)
-Message-ID: <ef6d7ca6-e896-b554-6a30-05113114713d@redhat.com>
-Date:   Thu, 24 Nov 2022 11:46:38 +0100
+        with ESMTP id S230225AbiKXLs1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Nov 2022 06:48:27 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9DAB24942;
+        Thu, 24 Nov 2022 03:48:25 -0800 (PST)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AOB5SVD031005;
+        Thu, 24 Nov 2022 11:48:25 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=GE+dInWB62dCO4fJN5fiwaVHCERwFhdmXPivlRbPRzU=;
+ b=nJEa/3+9tWIU/l8mnCHtBdzX1IfiF/XGclvYWtxy/w4IyI5AzAd0hsNHDdAC9A3E/k6F
+ ZeQac/UTTQdls4eCyQ6w4ctM+zOOzgRwdA9BGjObkU12m75/Nf/qH3iiMW8z9fc2bnFF
+ ebLPy/Pt0QUJr+pTEZ4xo0MuCygAOPcXWQFSkrnbgCyCqvEY5f+0Pylh5wmNPKe7tOzr
+ 5LBXxLkjotLTXWQWq5LIe4oPwQ7qIxcom1kCM9l4BnI1XLEG37/GwPFOEo9TcefeLeYO
+ r0JhikxpPcID1W0ZmWauUnttx+xrNLopZvySjCEaILlRDCHYSlvlDHQ2Fht9Tq371ki8 9Q== 
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m1n2w979g-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 24 Nov 2022 11:48:25 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AOBbUuS010030;
+        Thu, 24 Nov 2022 11:48:22 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma03fra.de.ibm.com with ESMTP id 3kxps95vbn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 24 Nov 2022 11:48:22 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AOBmJch21824070
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 24 Nov 2022 11:48:19 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9001FA405C;
+        Thu, 24 Nov 2022 11:48:19 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 35C84A4054;
+        Thu, 24 Nov 2022 11:48:19 +0000 (GMT)
+Received: from [9.152.224.160] (unknown [9.152.224.160])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 24 Nov 2022 11:48:19 +0000 (GMT)
+Message-ID: <eb4d17ad-b042-33da-8a2a-bc6b966e570e@linux.ibm.com>
+Date:   Thu, 24 Nov 2022 12:48:18 +0100
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.13.0
-Subject: Re: [PATCH] KVM: s390: vsie: Fix the initialization of the epoch
- extension (epdx) field
-Content-Language: en-US
-To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        "Collin L. Walling" <walling@linux.ibm.com>,
-        Jason J Herne <jjherne@linux.ibm.com>
-References: <20221123090833.292938-1-thuth@redhat.com>
- <4d46020f-f33a-474c-b791-be11c2ce2aa6@linux.ibm.com>
-From:   Thomas Huth <thuth@redhat.com>
-In-Reply-To: <4d46020f-f33a-474c-b791-be11c2ce2aa6@linux.ibm.com>
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.4.1
+Subject: Re: [PATCH v1] KVM: s390: GISA: sort out physical vs virtual pointers
+ usage
+To:     Nico Boehr <nrb@linux.ibm.com>, borntraeger@linux.ibm.com,
+        frankja@linux.ibm.com, imbrenda@linux.ibm.com
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        pasic@linux.ibm.com, akrowiak@linux.ibm.com, jjherne@linux.ibm.com,
+        vneethv@linux.ibm.com, oberpar@linux.ibm.com
+References: <20221107085727.1533792-1-nrb@linux.ibm.com>
+From:   Michael Mueller <mimu@linux.ibm.com>
+In-Reply-To: <20221107085727.1533792-1-nrb@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: OGgKvPCHRsR33XYRB7znHq-8pcLxiZ99
+X-Proofpoint-GUID: OGgKvPCHRsR33XYRB7znHq-8pcLxiZ99
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-11-24_09,2022-11-24_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 impostorscore=0
+ adultscore=0 suspectscore=0 spamscore=0 mlxscore=0 bulkscore=0
+ phishscore=0 malwarescore=0 mlxlogscore=999 lowpriorityscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211240087
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 24/11/2022 11.27, Janosch Frank wrote:
-> On 11/23/22 10:08, Thomas Huth wrote:
->> We recently experienced some weird huge time jumps in nested guests when
->> rebooting them in certain cases. After adding some debug code to the epoch
->> handling in vsie.c (thanks to David Hildenbrand for the idea!), it was
->> obvious that the "epdx" field (the multi-epoch extension) did not get set
->> to 0xff in case the "epoch" field was negative.
->> Seems like the code misses to copy the value from the epdx field from
->> the guest to the shadow control block. By doing so, the weird time
->> jumps are gone in our scenarios.
->>
->> Link: https://bugzilla.redhat.com/show_bug.cgi?id=2140899
->> Fixes: 8fa1696ea781 ("KVM: s390: Multiple Epoch Facility support")
->> Signed-off-by: Thomas Huth <thuth@redhat.com>
+
+
+Am 07.11.22 um 09:57 schrieb Nico Boehr:
+> Fix virtual vs physical address confusion (which currently are the same).
 > 
-> Could you please add a test for this to the KVM unit tests?
-> I'd guess you might already have some code for it from your debugging sessions.
+> In chsc_sgib(), do the virtual-physical conversion in the caller since
+> the caller needs to make sure it is a 31-bit address and zero has a
+> special meaning (disassociating the GIB).
+> 
+> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
 
-I don't have some test code for this yet - I was only testing with the 
-scenario that is described in the bugzilla ticket. But sure, I can have a 
-try to come up with a k-u-t test.
 
-  Thomas
+Looks good to me!
 
+Reviewed-by: Michael Mueller <mimu@linux.ibm.com>
+
+> ---
+>   arch/s390/kvm/interrupt.c | 11 +++++++----
+>   1 file changed, 7 insertions(+), 4 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+> index ab569faf0df2..ae018217eac8 100644
+> --- a/arch/s390/kvm/interrupt.c
+> +++ b/arch/s390/kvm/interrupt.c
+> @@ -3104,9 +3104,9 @@ static enum hrtimer_restart gisa_vcpu_kicker(struct hrtimer *timer)
+>   static void process_gib_alert_list(void)
+>   {
+>   	struct kvm_s390_gisa_interrupt *gi;
+> +	u32 final, gisa_phys, origin = 0UL;
+>   	struct kvm_s390_gisa *gisa;
+>   	struct kvm *kvm;
+> -	u32 final, origin = 0UL;
+>   
+>   	do {
+>   		/*
+> @@ -3132,9 +3132,10 @@ static void process_gib_alert_list(void)
+>   		 * interruptions asap.
+>   		 */
+>   		while (origin & GISA_ADDR_MASK) {
+> -			gisa = (struct kvm_s390_gisa *)(u64)origin;
+> +			gisa_phys = origin;
+> +			gisa = phys_to_virt(gisa_phys);
+>   			origin = gisa->next_alert;
+> -			gisa->next_alert = (u32)(u64)gisa;
+> +			gisa->next_alert = gisa_phys;
+>   			kvm = container_of(gisa, struct sie_page2, gisa)->kvm;
+>   			gi = &kvm->arch.gisa_int;
+>   			if (hrtimer_active(&gi->timer))
+> @@ -3418,6 +3419,7 @@ void kvm_s390_gib_destroy(void)
+>   
+>   int kvm_s390_gib_init(u8 nisc)
+>   {
+> +	u32 gib_origin;
+>   	int rc = 0;
+>   
+>   	if (!css_general_characteristics.aiv) {
+> @@ -3439,7 +3441,8 @@ int kvm_s390_gib_init(u8 nisc)
+>   	}
+>   
+>   	gib->nisc = nisc;
+> -	if (chsc_sgib((u32)(u64)gib)) {
+> +	gib_origin = virt_to_phys(gib);
+> +	if (chsc_sgib(gib_origin)) {
+>   		pr_err("Associating the GIB with the AIV facility failed\n");
+>   		free_page((unsigned long)gib);
+>   		gib = NULL;
