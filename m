@@ -2,140 +2,205 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 32A7AC43219
-	for <linux-s390@archiver.kernel.org>; Thu, 24 Nov 2022 19:53:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 63FE2C43219
+	for <linux-s390@archiver.kernel.org>; Thu, 24 Nov 2022 20:43:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229628AbiKXTxn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 24 Nov 2022 14:53:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54176 "EHLO
+        id S229468AbiKXUnE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 24 Nov 2022 15:43:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229452AbiKXTxn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Nov 2022 14:53:43 -0500
-Received: from out30-54.freemail.mail.aliyun.com (out30-54.freemail.mail.aliyun.com [115.124.30.54])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 399AF18B28;
-        Thu, 24 Nov 2022 11:53:40 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R611e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0VVc68Ih_1669319617;
-Received: from 30.120.174.82(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VVc68Ih_1669319617)
-          by smtp.aliyun-inc.com;
-          Fri, 25 Nov 2022 03:53:38 +0800
-Message-ID: <4f6d8e70-b3f2-93cd-ae83-77ee733cf716@linux.alibaba.com>
-Date:   Fri, 25 Nov 2022 03:53:36 +0800
+        with ESMTP id S229452AbiKXUnC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Nov 2022 15:43:02 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61F6379E16;
+        Thu, 24 Nov 2022 12:43:01 -0800 (PST)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AOIuWxW034217;
+        Thu, 24 Nov 2022 20:43:00 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=7v7MAozaEptcbSRz3nhq2mbACETYE/3fYJB2l1xWFbw=;
+ b=MCRAN2T2Sm5ikz7+b1xahKyJu/McbZdxBFuiz3Nw0jbRgYA6Zv8JU4+MnoYExdLKpaDO
+ s3YdBwTiyO0wEFVlCZcfDU9qs4yzO4OWaDC5FsmWsUuLkGpO4X6xHoOBA927YHppfq1P
+ y8Quf3wGXEztFHm9MQZ7JoYGeswaPxfsOwtpsJOa5HIliFU1fJPT7pX1o4CQ3hdyoVsC
+ tmHK5CVAu7OuKj/e4kh32QXDx4n0bVcA+uSNRqHfQlev87pNn4u5ZYW3cEe0YVgogrNW
+ cBvc/hhm+Y29Y/W5erdtZ6BXBhwZheHD+8eDbSMZg7Y2DoUxopAybY08pid7gUMhOIlD 9Q== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m2eb7hkgb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 24 Nov 2022 20:43:00 +0000
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2AOKeEJO022076;
+        Thu, 24 Nov 2022 20:43:00 GMT
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m2eb7hkfy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 24 Nov 2022 20:42:59 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AOKZOY4010633;
+        Thu, 24 Nov 2022 20:42:58 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma05fra.de.ibm.com with ESMTP id 3kxps8p7pq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 24 Nov 2022 20:42:58 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AOKgsAE7930572
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 24 Nov 2022 20:42:54 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 81E52A4054;
+        Thu, 24 Nov 2022 20:42:54 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 204ECA405C;
+        Thu, 24 Nov 2022 20:42:54 +0000 (GMT)
+Received: from li-7e0de7cc-2d9d-11b2-a85c-de26c016e5ad.ibm.com (unknown [9.171.83.22])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 24 Nov 2022 20:42:54 +0000 (GMT)
+Message-ID: <2803564dcc325f716548ea3a8938d8c0b7814a33.camel@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH 1/5] s390x: Add a linker script to
+ assembly snippets
+From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        david@redhat.com, thuth@redhat.com, seiden@linux.ibm.com,
+        nrb@linux.ibm.com
+Date:   Thu, 24 Nov 2022 21:42:48 +0100
+In-Reply-To: <20221123084656.19864-2-frankja@linux.ibm.com>
+References: <20221123084656.19864-1-frankja@linux.ibm.com>
+         <20221123084656.19864-2-frankja@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.42.4 (3.42.4-2.fc35) 
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.13.1
-Subject: Re: [PATCH net-next v5 00/10] optimize the parallelism of SMC-R
- connections
-Content-Language: en-US
-To:     Jan Karcher <jaka@linux.ibm.com>, kgraul@linux.ibm.com,
-        wenjia@linux.ibm.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-References: <1669218890-115854-1-git-send-email-alibuda@linux.alibaba.com>
- <c98a8f04-c696-c9e0-4d7e-bc31109a0e04@linux.alibaba.com>
- <352b1e15-3c6d-a398-3fe6-0f438e0e8406@linux.ibm.com>
- <1f87a8c2-7a47-119a-1141-250d05678546@linux.alibaba.com>
- <11182feb-0f41-e9a4-e866-8f917c745a48@linux.ibm.com>
-From:   "D. Wythe" <alibuda@linux.alibaba.com>
-In-Reply-To: <11182feb-0f41-e9a4-e866-8f917c745a48@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: SQnMERe7_npsOdoEECW5JfN3NFxtb43I
+X-Proofpoint-GUID: DZuohBVXRsIhJ3fXr9nZgDyvZaTDekct
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-11-24_12,2022-11-24_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxscore=0
+ lowpriorityscore=0 mlxlogscore=999 suspectscore=0 malwarescore=0
+ adultscore=0 priorityscore=1501 spamscore=0 phishscore=0 impostorscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211240153
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Wed, 2022-11-23 at 08:46 +0000, Janosch Frank wrote:
+> A linker script has a few benefits:
+> - Random data doesn't end up in the binary breaking tests
+> - We can easily define a lowcore and load the snippet from 0x0 instead
+> of 0x4000 which makes asm snippets behave like c snippets
+> - We can easily define an invalid PGM new PSW to ensure an exit on a
+> guest PGM
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
+>  lib/s390x/snippet.h         |  3 +--
+>  s390x/Makefile              |  5 +++--
+>  s390x/mvpg-sie.c            |  2 +-
+>  s390x/pv-diags.c            |  6 +++---
+>  s390x/snippets/asm/flat.lds | 43 +++++++++++++++++++++++++++++++++++++
+>  5 files changed, 51 insertions(+), 8 deletions(-)
+>  create mode 100644 s390x/snippets/asm/flat.lds
+> 
+> diff --git a/lib/s390x/snippet.h b/lib/s390x/snippet.h
+> index b17b2a4c..57045994 100644
+> --- a/lib/s390x/snippet.h
+> +++ b/lib/s390x/snippet.h
+> @@ -32,8 +32,7 @@
+> 
+>  #define SNIPPET_PV_TWEAK0	0x42UL
+>  #define SNIPPET_PV_TWEAK1	0UL
+> -#define SNIPPET_OFF_C		0
+> -#define SNIPPET_OFF_ASM		0x4000
+> +#define SNIPPET_UNPACK_OFF	0
 
-
-On 11/24/22 9:30 PM, Jan Karcher wrote:
+You could also get rid of the offset parameter, couldn't you?
 > 
 > 
-> On 24/11/2022 09:53, D. Wythe wrote:
->>
->>
->> On 11/24/22 4:33 PM, Jan Karcher wrote:
->>>
->>>
->>> On 24/11/2022 06:55, D. Wythe wrote:
->>>>
->>>>
->>>> On 11/23/22 11:54 PM, D.Wythe wrote:
->>>>> From: "D.Wythe" <alibuda@linux.alibaba.com>
->>>>>
->>>>> This patch set attempts to optimize the parallelism of SMC-R connections,
->>>>> mainly to reduce unnecessary blocking on locks, and to fix exceptions that
->>>>> occur after thoses optimization.
->>>>>
->>>>
->>>>> D. Wythe (10):
->>>>>    net/smc: Fix potential panic dues to unprotected
->>>>>      smc_llc_srv_add_link()
->>>>>    net/smc: fix application data exception
->>>>>    net/smc: fix SMC_CLC_DECL_ERR_REGRMB without smc_server_lgr_pending
->>>>>    net/smc: remove locks smc_client_lgr_pending and
->>>>>      smc_server_lgr_pending
->>>>>    net/smc: allow confirm/delete rkey response deliver multiplex
->>>>>    net/smc: make SMC_LLC_FLOW_RKEY run concurrently
->>>>>    net/smc: llc_conf_mutex refactor, replace it with rw_semaphore
->>>>>    net/smc: use read semaphores to reduce unnecessary blocking in
->>>>>      smc_buf_create() & smcr_buf_unuse()
->>>>>    net/smc: reduce unnecessary blocking in smcr_lgr_reg_rmbs()
->>>>>    net/smc: replace mutex rmbs_lock and sndbufs_lock with rw_semaphore
->>>>>
->>>>>   net/smc/af_smc.c   |  74 ++++----
->>>>>   net/smc/smc_core.c | 541 +++++++++++++++++++++++++++++++++++++++++++++++------
->>>>>   net/smc/smc_core.h |  53 +++++-
->>>>>   net/smc/smc_llc.c  | 285 ++++++++++++++++++++--------
->>>>>   net/smc/smc_llc.h  |   6 +
->>>>>   net/smc/smc_wr.c   |  10 -
->>>>>   net/smc/smc_wr.h   |  10 +
->>>>>   7 files changed, 801 insertions(+), 178 deletions(-)
->>>>>
->>>>
->>>> Hi Jan and Wenjia,
->>>>
->>>> I'm wondering whether the bug fix patches need to be put together in this series. I'm considering
->>>> sending these bug fix patches separately now, which may be better, in case that our patch
->>>> might have other problems. These bug fix patches are mainly independent, even without my other
->>>> patches, they may be triggered theoretically.
->>>
->>> Hi D.
->>>
->>> Wenjia and i just talked about that. For us it would be better separating the fixes and the new logic.
->>> If the fixes are independent feel free to post them to net.
->>
->>
->> Got it, I will remove those bug fix patches in the next series and send them separately.
->> And thanks a lot for your test, no matter what the final test results are, I will send a new series
->> to separate them after your test finished.
+>  /*
+> diff --git a/s390x/Makefile b/s390x/Makefile
+> index bf1504f9..bb0f9eb8 100644
+> --- a/s390x/Makefile
+> +++ b/s390x/Makefile
+> @@ -135,7 +135,8 @@ $(SNIPPET_DIR)/c/%.o: $(SNIPPET_DIR)/c/%.c $(asm-offsets)
+>  	$(CC) $(CFLAGS) -c -nostdlib -o $@ $<
 > 
-> Hi D.,
+>  $(SNIPPET_DIR)/asm/%.gbin: $(SNIPPET_DIR)/asm/%.o
+> -	$(OBJCOPY) -O binary -j ".rodata" -j ".text" -j ".data" -j ".bss" --set-section-flags .bss=alloc,load,contents $(patsubst %.gbin,%.o,$@) $@
+> +	$(CC) $(LDFLAGS) -o $@ -T $(SRCDIR)/s390x/snippets/asm/flat.lds $(patsubst %.gbin,%.o,$@)
+> +	$(OBJCOPY) -O binary -j ".rodata" -j ".lowcore" -j ".text" -j ".data" -j ".bss" --set-section-flags .bss=alloc,load,contents $@ $@
+
+I assume .bss=alloc allocates the bss in the binary...
+
+>  	truncate -s '%4096' $@
 > 
-> I have some troubles applying your patches.
+>  $(SNIPPET_DIR)/c/%.gbin: $(SNIPPET_DIR)/c/%.o $(snippet_lib) $(FLATLIBS)
+> @@ -144,7 +145,7 @@ $(SNIPPET_DIR)/c/%.gbin: $(SNIPPET_DIR)/c/%.o $(snippet_lib) $(FLATLIBS)
+>  	truncate -s '%4096' $@
 > 
->      error: sha1 information is lacking or useless (net/smc/smc_core.c).
->      error: could not build fake ancestor
->      Patch failed at 0001 optimize the parallelism of SMC-R connections
+>  $(SNIPPET_DIR)/asm/%.hdr: $(SNIPPET_DIR)/asm/%.gbin $(HOST_KEY_DOCUMENT)
+> -	$(GEN_SE_HEADER) -k $(HOST_KEY_DOCUMENT) -c $<,0x4000,0x00000000000000420000000000000000 --psw-addr 0x4000 -o $@
+> +	$(GEN_SE_HEADER) -k $(HOST_KEY_DOCUMENT) -c $<,0x0,0x00000000000000420000000000000000 --psw-addr 0x4000 -o $@
 > 
-> Before merging them by hand could you please send the v6 with the fixes separated and verify that you are basing on the latest net / net-next tree?
+>  $(SNIPPET_DIR)/c/%.hdr: $(SNIPPET_DIR)/c/%.gbin $(HOST_KEY_DOCUMENT)
+>  	$(GEN_SE_HEADER) -k $(HOST_KEY_DOCUMENT) -c $<,0x0,0x00000000000000420000000000000000 --psw-addr 0x4000 -o $@
 > 
-> That would make it easier for us to test them.
-> 
-> Thank you
-> - Jan
-> 
+[...]
 
-Hi Jan,
+> diff --git a/s390x/snippets/asm/flat.lds b/s390x/snippets/asm/flat.lds
+> new file mode 100644
+> index 00000000..366d2d78
+> --- /dev/null
+> +++ b/s390x/snippets/asm/flat.lds
+> @@ -0,0 +1,43 @@
+> +SECTIONS
+> +{
+> +	.lowcore : {
+> +		/*
+> +		 * Initial short psw for disk boot, with 31 bit addressing for
+> +		 * non z/Arch environment compatibility and the instruction
+> +		 * address 0x4000.
+> +		 */
+> +		. = 0;
+> +		 LONG(0x00080000)
+> +		 LONG(0x80004000)
+> +		 /* Restart new PSW for booting via PSW restart. */
+> +		 . = 0x1a0;
+> +		 QUAD(0x0000000180000000)
+> +		 QUAD(0x0000000000004000)
+> +		 /*
+> +		  * Invalid PGM new PSW so we hopefully get a code 8
+> +		  * intercept on a PGM
+> +		  */
+> +		 . = 0x1d0;
+> +		 QUAD(0x0008000000000000)
+> +		 QUAD(0x0000000000000001)
+> +	}
+> +	. = 0x4000;
+> +	.text : {
+> +		*(.text)
+> +		*(.text.*)
+> +	}
+> +	. = ALIGN(64K);
+> +	etext = .;
+> +	. = ALIGN(16);
+> +	.data : {
+> +		*(.data)
+> +		*(.data.rel*)
+> +	}
+> +	. = ALIGN(16);
+> +	.rodata : { *(.rodata) *(.rodata.*) }
+> +	. = ALIGN(16);
+> +	__bss_start = .;
 
-It's quite weird, it seems that my patch did based on the latest net-next tree.
-And I try apply it the latest net tree, it's seems work to me too. Maybe there
-is something wrong with the mirror I use. Can you show me the conflict described
-in the .rej file？
-
-Thanks.
-D. Wythe
-
-
-
-
-
-
+.. so the __bss symbols are not necessary.
+But then, the c flat.lds has them too.
+> +	.bss : { *(.bss) }
+> +	__bss_end = .;
+> +	. = ALIGN(64K);
+> +}
 
