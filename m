@@ -2,119 +2,185 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 99BFAC43217
-	for <linux-s390@archiver.kernel.org>; Fri, 25 Nov 2022 12:43:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2CA97C4332F
+	for <linux-s390@archiver.kernel.org>; Fri, 25 Nov 2022 16:17:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230057AbiKYMnQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 25 Nov 2022 07:43:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44496 "EHLO
+        id S229720AbiKYQRV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 25 Nov 2022 11:17:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230117AbiKYMnO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 25 Nov 2022 07:43:14 -0500
+        with ESMTP id S229564AbiKYQRU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 25 Nov 2022 11:17:20 -0500
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DA841B1D3;
-        Fri, 25 Nov 2022 04:43:12 -0800 (PST)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2APBsW2t011432;
-        Fri, 25 Nov 2022 12:43:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=2CqgAaLh3fYGzHXPsebYmCTiXSfXycfzn/cC3hiy7ws=;
- b=ix9FdMKigEWmFxQxXP6+gxwM13UCVjUoPiPOli80tzqnUf70Dk0gyXtjE6a27o/AHpjt
- iHeSnWZxWHDSCL/j415jTRRJbchyE4PCvAQGj9cRvn6vE/HyfnZxdtak7pdoIGO6wY5Y
- viuYCBEDQqfuEjdcz1DI/XsVseXif/9wAd1Edxu9qFCAweSKIWQ3XcxxI7cgRZfS1djG
- ZoDqoLIsBINToHjwEkiRRK3iZr6Zylp0HNq+u9y1vKdc+eYinTqkpwWea+177wMjYCgv
- Hy1pIpUq6pYgCf8QM+mY4MyRMnF09YXNbFzUtnlAa9bAaW8nHEXZ/VwPjocudXrHf64P dw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m2w7ys24u-1
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2933C4D5DE;
+        Fri, 25 Nov 2022 08:17:19 -0800 (PST)
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2APFVb8i001097;
+        Fri, 25 Nov 2022 16:17:18 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : content-type : mime-version; s=pp1;
+ bh=Dm84lYHUP0DCKGATEPbPqGGKJYxOWWrfEoqzOe9vTes=;
+ b=pfqra83C68oOxuAPY4Qw7hA/AG1BK3JsWcS+Em6DS2ByQJodIKsHDx8OB27EsX0amlXT
+ ncf8TlJxsUyFpRLkixozw9vKq/jnQxg1aW0u1ix9GVAyoO6PPDD9zuVd4xq3FSeNEbcs
+ 3/i7v2TZX8uoii0R5jEZwIlouSjiUEglyZ42zfZbS1JjkZ2y/IsjfAULkUGkbcwqdiaF
+ ldsn6oTtTtJ23URaeqtH6JcZIj5l+GhYfPqE0v2SgPrKL+mp49zELdBkWCtm4ylYtNJW
+ J4Si6WUihPhrtBI7LPDdx+1yKfnKzAcuRG2BKVkwfkybVlYhqWMrXxg1JpLC1p1IGBR/ 0g== 
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m30e5h0eh-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 25 Nov 2022 12:43:11 +0000
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2APCcIM9006515;
-        Fri, 25 Nov 2022 12:43:11 GMT
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m2w7ys23k-1
+        Fri, 25 Nov 2022 16:17:17 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2APG73qM017524;
+        Fri, 25 Nov 2022 16:17:15 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma01fra.de.ibm.com with ESMTP id 3kxps973w6-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 25 Nov 2022 12:43:11 +0000
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2APCaVhx014323;
-        Fri, 25 Nov 2022 12:43:07 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma06fra.de.ibm.com with ESMTP id 3kxpdj6xap-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 25 Nov 2022 12:43:06 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2APCh3f73736202
+        Fri, 25 Nov 2022 16:17:15 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2APGAr2b10289900
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 25 Nov 2022 12:43:03 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D14FE4C046;
-        Fri, 25 Nov 2022 12:43:03 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 484674C044;
-        Fri, 25 Nov 2022 12:43:03 +0000 (GMT)
-Received: from li-9fd7f64c-3205-11b2-a85c-df942b00d78d.ibm.com.com (unknown [9.171.63.115])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri, 25 Nov 2022 12:43:03 +0000 (GMT)
-From:   Janosch Frank <frankja@linux.ibm.com>
-To:     pbonzini@redhat.com
-Cc:     kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com,
-        borntraeger@de.ibm.com, cohuck@redhat.com,
-        linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        Nico Boehr <nrb@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>
-Subject: [GIT PULL 14/15] s390/vfio-ap: GISA: sort out physical vs virtual pointers usage
-Date:   Fri, 25 Nov 2022 13:39:46 +0100
-Message-Id: <20221125123947.31047-15-frankja@linux.ibm.com>
-X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221125123947.31047-1-frankja@linux.ibm.com>
-References: <20221125123947.31047-1-frankja@linux.ibm.com>
+        Fri, 25 Nov 2022 16:10:53 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 69ED5AE053;
+        Fri, 25 Nov 2022 16:17:12 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 00C2EAE051;
+        Fri, 25 Nov 2022 16:17:12 +0000 (GMT)
+Received: from li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com (unknown [9.179.2.228])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Fri, 25 Nov 2022 16:17:11 +0000 (GMT)
+Date:   Fri, 25 Nov 2022 17:17:09 +0100
+From:   Alexander Gordeev <agordeev@linux.ibm.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [GIT PULL] s390 updates for 6.1-rc7
+Message-ID: <Y4DqhTPzzIz+GiyO@li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 6MqvOSi40gnfEYziSdjs6rAw5VeFhqno
-X-Proofpoint-GUID: lo7wQ860--gRQbIxyvFgr3fVMNoTvm86
-Content-Transfer-Encoding: 8bit
+X-Proofpoint-ORIG-GUID: RFsnbeWG6TqJUeNHo-vMJ8TqibcL1ZhI
+X-Proofpoint-GUID: RFsnbeWG6TqJUeNHo-vMJ8TqibcL1ZhI
 X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-11-25_04,2022-11-25_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 spamscore=0
- suspectscore=0 adultscore=0 mlxlogscore=999 priorityscore=1501 mlxscore=0
- malwarescore=0 impostorscore=0 clxscore=1015 phishscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2210170000 definitions=main-2211250098
+ definitions=2022-11-25_08,2022-11-25_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 adultscore=0
+ bulkscore=0 lowpriorityscore=0 suspectscore=0 malwarescore=0
+ mlxlogscore=999 clxscore=1015 priorityscore=1501 spamscore=0
+ impostorscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2210170000 definitions=main-2211250126
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Nico Boehr <nrb@linux.ibm.com>
+Hello Linus,
 
-Fix virtual vs physical address confusion (which currently are the same)
-for the GISA when enabling the IRQ.
+please pull s390 changes for 6.1-rc7.
 
-Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
-Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Link: https://lore.kernel.org/r/20221118100429.70453-1-nrb@linux.ibm.com
-Message-Id: <20221118100429.70453-1-nrb@linux.ibm.com>
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
----
- drivers/s390/crypto/vfio_ap_ops.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Thank you,
+Alexander
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 0b4cc8c597ae..205a00105858 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -429,7 +429,7 @@ static struct ap_queue_status vfio_ap_irq_enable(struct vfio_ap_queue *q,
+The following changes since commit e3c11025bcd2142a61abe5806b2f86a0e78118df:
+
+  s390: avoid using global register for current_stack_pointer (2022-11-04 12:06:47 +0100)
+
+are available in the Git repository at e3c11025bcd2142a61abe5806b2f86a0e78118df:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.1-6
+
+for you to fetch changes up to adba1a9b81d5020a9bf8332fee9ff0171fe7623d:
+
+  MAINTAINERS: add S390 MM section (2022-11-17 20:23:30 +0100)
+
+----------------------------------------------------------------
+s390 updates for 6.1-rc7
+
+- Fix size of incorrectly increased from four to eight bytes 
+  TOD field of crash dump save area. As result in case of
+  kdump NT_S390_TODPREG ELF notes section contains correct
+  value and "detected read beyond size of field" compiler
+  warning goes away.
+
+- Fix memory leak in cryptographic Adjunct Processors (AP)
+  module on initialization failure path.
+
+- Add Gerald Schaefer <gerald.schaefer@linux.ibm.com> and
+  Alexander Gordeev <agordeev@linux.ibm.com> as S390 memory
+  management maintainers. Also rename the S390 section to
+  S390 ARCHITECTURE to be a bit more precise.
+
+----------------------------------------------------------------
+Heiko Carstens (2):
+  s390/crashdump: fix TOD programmable field size
+  MAINTAINERS: add S390 MM section
+
+Wei Yongjun (1):
+  s390/ap: fix memory leak in ap_init_qci_info()
+
+ MAINTAINERS                   | 11 ++++++++++-
+ arch/s390/kernel/crash_dump.c |  2 +-
+ drivers/s390/crypto/ap_bus.c  |  5 ++++-
+ 3 files changed, 15 insertions(+), 3 deletions(-)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index ea5fcf9047ea..c4f6d3490d13 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -17987,7 +17987,7 @@ L:	linux-fbdev@vger.kernel.org
+ S:	Maintained
+ F:	drivers/video/fbdev/savage/
  
- 	aqic_gisa.isc = nisc;
- 	aqic_gisa.ir = 1;
--	aqic_gisa.gisa = (uint64_t)gisa >> 4;
-+	aqic_gisa.gisa = virt_to_phys(gisa) >> 4;
+-S390
++S390 ARCHITECTURE
+ M:	Heiko Carstens <hca@linux.ibm.com>
+ M:	Vasily Gorbik <gor@linux.ibm.com>
+ M:	Alexander Gordeev <agordeev@linux.ibm.com>
+@@ -18042,6 +18042,15 @@ L:	netdev@vger.kernel.org
+ S:	Supported
+ F:	drivers/s390/net/
  
- 	status = ap_aqic(q->apqn, aqic_gisa, h_nib);
- 	switch (status.response_code) {
--- 
-2.38.1
-
++S390 MM
++M:	Alexander Gordeev <agordeev@linux.ibm.com>
++M:	Gerald Schaefer <gerald.schaefer@linux.ibm.com>
++L:	linux-s390@vger.kernel.org
++S:	Supported
++T:	git git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git
++F:	arch/s390/include/asm/pgtable.h
++F:	arch/s390/mm
++
+ S390 PCI SUBSYSTEM
+ M:	Niklas Schnelle <schnelle@linux.ibm.com>
+ M:	Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+diff --git a/arch/s390/kernel/crash_dump.c b/arch/s390/kernel/crash_dump.c
+index dd74fe664ed1..e4ef67e4da0a 100644
+--- a/arch/s390/kernel/crash_dump.c
++++ b/arch/s390/kernel/crash_dump.c
+@@ -46,7 +46,7 @@ struct save_area {
+ 	u64 fprs[16];
+ 	u32 fpc;
+ 	u32 prefix;
+-	u64 todpreg;
++	u32 todpreg;
+ 	u64 timer;
+ 	u64 todcmp;
+ 	u64 vxrs_low[16];
+diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
+index 59ac98f2bd27..b02c631f3b71 100644
+--- a/drivers/s390/crypto/ap_bus.c
++++ b/drivers/s390/crypto/ap_bus.c
+@@ -233,8 +233,11 @@ static void __init ap_init_qci_info(void)
+ 	if (!ap_qci_info)
+ 		return;
+ 	ap_qci_info_old = kzalloc(sizeof(*ap_qci_info_old), GFP_KERNEL);
+-	if (!ap_qci_info_old)
++	if (!ap_qci_info_old) {
++		kfree(ap_qci_info);
++		ap_qci_info = NULL;
+ 		return;
++	}
+ 	if (ap_fetch_qci_info(ap_qci_info) != 0) {
+ 		kfree(ap_qci_info);
+ 		kfree(ap_qci_info_old);
