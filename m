@@ -2,131 +2,221 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 80C19C4321E
-	for <linux-s390@archiver.kernel.org>; Fri, 25 Nov 2022 08:55:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A75B0C4321E
+	for <linux-s390@archiver.kernel.org>; Fri, 25 Nov 2022 10:07:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229677AbiKYIz2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 25 Nov 2022 03:55:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40510 "EHLO
+        id S229774AbiKYKHV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 25 Nov 2022 05:07:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229648AbiKYIz0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 25 Nov 2022 03:55:26 -0500
+        with ESMTP id S229542AbiKYKHU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 25 Nov 2022 05:07:20 -0500
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E869E31F96;
-        Fri, 25 Nov 2022 00:55:23 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67B3B27FC8;
+        Fri, 25 Nov 2022 02:07:19 -0800 (PST)
 Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AP8b5np014183;
-        Fri, 25 Nov 2022 08:55:23 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=id6Jg8I7w0STngEpJYuiJ5AtIFfIVvrCx6SbzczTnH0=;
- b=XGD9Q5jPTSignhE8/V20hvAoG2XwX5Z5bg0C/OVGrZmluDqu4CL1ezc4ibVr2qeJrx7/
- wLAz4DACQ/87OMui/J9SY0vUTX1dCZ+SBgcTI2rGiUi+yVCem/YoHF5wkOVpymgiwfPW
- MLptgAEdouJ3Mpt5YvbZ116KO/ZhGtS2wdN2PxbInNvzgpCEtfv6z08m02lpMLlf6kM5
- 7hf3FNqUrmz8zZz6rRf3zzuEWGWUvy7I6RgFWbv2TYIQ0DxjvVohstzZNv1po6DzGSXo
- 6R21olm1Kzh5u/HQ7fW6/YDBqGuUz0JW1G6ygAIztbC2NMfJ4Yzp03UKRge2xmcVOu63 dA== 
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AP9ig2G040098;
+        Fri, 25 Nov 2022 10:07:19 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=FuqcNtVIVN4EHIA2Dpxhvl8jpYZh+s2DgY6HhhPrh/0=;
+ b=e5s1+tlAuY4hHG7xKUBQfN39UzdTYFVJ26g9PUWDCsTSTfWLIsJblMALpOaA4oGdcsMi
+ W8jrhAmw/cs8j5X04jtBG/PrZx3NVp+EDAUT3lNr6WD5ZtvWr1TEr0+jCucBYAoEGxrg
+ 0nTEGVf0hdG6Cv6O7Xj5/PZ610BZVPZQMVZ0HJpdXo9aaAQYwSH4W+4pXtLXrB615zgu
+ D1OeEbaDCzLcANue8tm0BZMDueR8SnT1FjZQNGiTULmv6nUYUKT2/EFo9LzFQSAjgd6q
+ 2nbOhohmIP/ytoCwbpO5oBnnF2HH49NH0nDQ/NnrtwOW5pRxz5rf7SL4MqPVQ5Q91Krh DQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m2rg42v3a-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m2ubhgfwu-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 25 Nov 2022 08:55:23 +0000
+        Fri, 25 Nov 2022 10:07:18 +0000
 Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2AP8eBHS027950;
-        Fri, 25 Nov 2022 08:55:23 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m2rg42v2e-1
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2APA16Ho014459;
+        Fri, 25 Nov 2022 10:07:18 GMT
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m2ubhgfvv-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 25 Nov 2022 08:55:23 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AP8p1vF017564;
-        Fri, 25 Nov 2022 08:55:20 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 3kxps91aur-1
+        Fri, 25 Nov 2022 10:07:18 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2APA77sQ031177;
+        Fri, 25 Nov 2022 10:07:16 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma05fra.de.ibm.com with ESMTP id 3kxps8prr8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 25 Nov 2022 08:55:20 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AP8tHRS54722956
+        Fri, 25 Nov 2022 10:07:16 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2APA7sMJ24183116
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 25 Nov 2022 08:55:17 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6B4F35204E;
-        Fri, 25 Nov 2022 08:55:17 +0000 (GMT)
-Received: from li-9fd7f64c-3205-11b2-a85c-df942b00d78d.ibm.com.com (unknown [9.171.63.115])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id E2A4552050;
-        Fri, 25 Nov 2022 08:55:16 +0000 (GMT)
-From:   Janosch Frank <frankja@linux.ibm.com>
-To:     pbonzini@redhat.com
-Cc:     kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com,
-        borntraeger@de.ibm.com, cohuck@redhat.com,
-        linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        Thomas Huth <thuth@redhat.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        stable@vger.kernel.org
-Subject: [GIT PULL 1/1] KVM: s390: vsie: Fix the initialization of the epoch extension (epdx) field
-Date:   Fri, 25 Nov 2022 09:54:54 +0100
-Message-Id: <20221125085454.16673-2-frankja@linux.ibm.com>
-X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221125085454.16673-1-frankja@linux.ibm.com>
-References: <20221125085454.16673-1-frankja@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: boZ2AoLnRbLJn4H8BdHuLgggWoDHVraO
-X-Proofpoint-GUID: QkTnaEyxF0vew9G7DtUtghUBlxWPtM6E
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        Fri, 25 Nov 2022 10:07:54 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F22BE42041;
+        Fri, 25 Nov 2022 10:07:12 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8F93B4203F;
+        Fri, 25 Nov 2022 10:07:12 +0000 (GMT)
+Received: from [9.171.63.115] (unknown [9.171.63.115])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 25 Nov 2022 10:07:12 +0000 (GMT)
+Message-ID: <76c9dbfe-a570-667d-37e9-8d1bc710b58f@linux.ibm.com>
+Date:   Fri, 25 Nov 2022 11:07:12 +0100
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.5.0
+Subject: Re: [kvm-unit-tests PATCH 1/5] s390x: Add a linker script to assembly
+ snippets
+To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        david@redhat.com, thuth@redhat.com, seiden@linux.ibm.com,
+        nrb@linux.ibm.com
+References: <20221123084656.19864-1-frankja@linux.ibm.com>
+ <20221123084656.19864-2-frankja@linux.ibm.com>
+ <2803564dcc325f716548ea3a8938d8c0b7814a33.camel@linux.ibm.com>
+Content-Language: en-US
+From:   Janosch Frank <frankja@linux.ibm.com>
+In-Reply-To: <2803564dcc325f716548ea3a8938d8c0b7814a33.camel@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: WDqXyYpPlPBeT5k9cE5DMl3jqri6SSXD
+X-Proofpoint-GUID: Vv9oImV2gUlE0MketFukBJYxydeT9vq6
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-11-25_02,2022-11-24_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 impostorscore=0
- lowpriorityscore=0 malwarescore=0 mlxscore=0 spamscore=0 clxscore=1011
- suspectscore=0 priorityscore=1501 mlxlogscore=813 bulkscore=0 phishscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2210170000
- definitions=main-2211250069
+ definitions=2022-11-25_02,2022-11-25_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
+ lowpriorityscore=0 suspectscore=0 mlxscore=0 phishscore=0 malwarescore=0
+ adultscore=0 clxscore=1015 mlxlogscore=999 spamscore=0 impostorscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211250075
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Thomas Huth <thuth@redhat.com>
+On 11/24/22 21:42, Janis Schoetterl-Glausch wrote:
+> On Wed, 2022-11-23 at 08:46 +0000, Janosch Frank wrote:
+>> A linker script has a few benefits:
+>> - Random data doesn't end up in the binary breaking tests
+>> - We can easily define a lowcore and load the snippet from 0x0 instead
+>> of 0x4000 which makes asm snippets behave like c snippets
+>> - We can easily define an invalid PGM new PSW to ensure an exit on a
+>> guest PGM
+>>
+>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>> ---
+>>   lib/s390x/snippet.h         |  3 +--
+>>   s390x/Makefile              |  5 +++--
+>>   s390x/mvpg-sie.c            |  2 +-
+>>   s390x/pv-diags.c            |  6 +++---
+>>   s390x/snippets/asm/flat.lds | 43 +++++++++++++++++++++++++++++++++++++
+>>   5 files changed, 51 insertions(+), 8 deletions(-)
+>>   create mode 100644 s390x/snippets/asm/flat.lds
+>>
+>> diff --git a/lib/s390x/snippet.h b/lib/s390x/snippet.h
+>> index b17b2a4c..57045994 100644
+>> --- a/lib/s390x/snippet.h
+>> +++ b/lib/s390x/snippet.h
+>> @@ -32,8 +32,7 @@
+>>
+>>   #define SNIPPET_PV_TWEAK0	0x42UL
+>>   #define SNIPPET_PV_TWEAK1	0UL
+>> -#define SNIPPET_OFF_C		0
+>> -#define SNIPPET_OFF_ASM		0x4000
+>> +#define SNIPPET_UNPACK_OFF	0
+> 
+> You could also get rid of the offset parameter, couldn't you?
 
-We recently experienced some weird huge time jumps in nested guests when
-rebooting them in certain cases. After adding some debug code to the epoch
-handling in vsie.c (thanks to David Hildenbrand for the idea!), it was
-obvious that the "epdx" field (the multi-epoch extension) did not get set
-to 0xff in case the "epoch" field was negative.
-Seems like the code misses to copy the value from the epdx field from
-the guest to the shadow control block. By doing so, the weird time
-jumps are gone in our scenarios.
+Right
 
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=2140899
-Fixes: 8fa1696ea781 ("KVM: s390: Multiple Epoch Facility support")
-Signed-off-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Cc: stable@vger.kernel.org # 4.19+
-Link: https://lore.kernel.org/r/20221123090833.292938-1-thuth@redhat.com
-Message-Id: <20221123090833.292938-1-thuth@redhat.com>
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
----
- arch/s390/kvm/vsie.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+>>
+>>
+>>   /*
+>> diff --git a/s390x/Makefile b/s390x/Makefile
+>> index bf1504f9..bb0f9eb8 100644
+>> --- a/s390x/Makefile
+>> +++ b/s390x/Makefile
+>> @@ -135,7 +135,8 @@ $(SNIPPET_DIR)/c/%.o: $(SNIPPET_DIR)/c/%.c $(asm-offsets)
+>>   	$(CC) $(CFLAGS) -c -nostdlib -o $@ $<
+>>
+>>   $(SNIPPET_DIR)/asm/%.gbin: $(SNIPPET_DIR)/asm/%.o
+>> -	$(OBJCOPY) -O binary -j ".rodata" -j ".text" -j ".data" -j ".bss" --set-section-flags .bss=alloc,load,contents $(patsubst %.gbin,%.o,$@) $@
+>> +	$(CC) $(LDFLAGS) -o $@ -T $(SRCDIR)/s390x/snippets/asm/flat.lds $(patsubst %.gbin,%.o,$@)
+>> +	$(OBJCOPY) -O binary -j ".rodata" -j ".lowcore" -j ".text" -j ".data" -j ".bss" --set-section-flags .bss=alloc,load,contents $@ $@
+> 
+> I assume .bss=alloc allocates the bss in the binary...
 
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index 94138f8f0c1c..ace2541ababd 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -546,8 +546,10 @@ static int shadow_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 	if (test_kvm_cpu_feat(vcpu->kvm, KVM_S390_VM_CPU_FEAT_CEI))
- 		scb_s->eca |= scb_o->eca & ECA_CEI;
- 	/* Epoch Extension */
--	if (test_kvm_facility(vcpu->kvm, 139))
-+	if (test_kvm_facility(vcpu->kvm, 139)) {
- 		scb_s->ecd |= scb_o->ecd & ECD_MEF;
-+		scb_s->epdx = scb_o->epdx;
-+	}
- 
- 	/* etoken */
- 	if (test_kvm_facility(vcpu->kvm, 156))
--- 
-2.38.1
+And that's fine since I don't want to handle 0x3E PGMs/faults.
+
+If bss is in the binary then it'll be made secure on initial image 
+unpack, if it isn't, then we need a handler to import pages on a 0x3E. 
+And I don't really want to do that since a 0x3E could also mean that we 
+have an issue with the test or HW/FW.
+
+> 
+>>   	truncate -s '%4096' $@
+>>
+>>   $(SNIPPET_DIR)/c/%.gbin: $(SNIPPET_DIR)/c/%.o $(snippet_lib) $(FLATLIBS)
+>> @@ -144,7 +145,7 @@ $(SNIPPET_DIR)/c/%.gbin: $(SNIPPET_DIR)/c/%.o $(snippet_lib) $(FLATLIBS)
+>>   	truncate -s '%4096' $@
+>>
+>>   $(SNIPPET_DIR)/asm/%.hdr: $(SNIPPET_DIR)/asm/%.gbin $(HOST_KEY_DOCUMENT)
+>> -	$(GEN_SE_HEADER) -k $(HOST_KEY_DOCUMENT) -c $<,0x4000,0x00000000000000420000000000000000 --psw-addr 0x4000 -o $@
+>> +	$(GEN_SE_HEADER) -k $(HOST_KEY_DOCUMENT) -c $<,0x0,0x00000000000000420000000000000000 --psw-addr 0x4000 -o $@
+>>
+>>   $(SNIPPET_DIR)/c/%.hdr: $(SNIPPET_DIR)/c/%.gbin $(HOST_KEY_DOCUMENT)
+>>   	$(GEN_SE_HEADER) -k $(HOST_KEY_DOCUMENT) -c $<,0x0,0x00000000000000420000000000000000 --psw-addr 0x4000 -o $@
+>>
+> [...]
+> 
+>> diff --git a/s390x/snippets/asm/flat.lds b/s390x/snippets/asm/flat.lds
+>> new file mode 100644
+>> index 00000000..366d2d78
+>> --- /dev/null
+>> +++ b/s390x/snippets/asm/flat.lds
+>> @@ -0,0 +1,43 @@
+>> +SECTIONS
+>> +{
+>> +	.lowcore : {
+>> +		/*
+>> +		 * Initial short psw for disk boot, with 31 bit addressing for
+>> +		 * non z/Arch environment compatibility and the instruction
+>> +		 * address 0x4000.
+>> +		 */
+>> +		. = 0;
+>> +		 LONG(0x00080000)
+>> +		 LONG(0x80004000)
+>> +		 /* Restart new PSW for booting via PSW restart. */
+>> +		 . = 0x1a0;
+>> +		 QUAD(0x0000000180000000)
+>> +		 QUAD(0x0000000000004000)
+>> +		 /*
+>> +		  * Invalid PGM new PSW so we hopefully get a code 8
+>> +		  * intercept on a PGM
+>> +		  */
+>> +		 . = 0x1d0;
+>> +		 QUAD(0x0008000000000000)
+>> +		 QUAD(0x0000000000000001)
+>> +	}
+>> +	. = 0x4000;
+>> +	.text : {
+>> +		*(.text)
+>> +		*(.text.*)
+>> +	}
+>> +	. = ALIGN(64K);
+>> +	etext = .;
+>> +	. = ALIGN(16);
+>> +	.data : {
+>> +		*(.data)
+>> +		*(.data.rel*)
+>> +	}
+>> +	. = ALIGN(16);
+>> +	.rodata : { *(.rodata) *(.rodata.*) }
+>> +	. = ALIGN(16);
+>> +	__bss_start = .;
+> 
+> .. so the __bss symbols are not necessary.
+> But then, the c flat.lds has them too.
+>> +	.bss : { *(.bss) }
+>> +	__bss_end = .;
+>> +	. = ALIGN(64K);
+>> +}
+> 
 
