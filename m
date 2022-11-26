@@ -2,69 +2,114 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 94159C4332F
-	for <linux-s390@archiver.kernel.org>; Fri, 25 Nov 2022 20:48:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A092C4332F
+	for <linux-s390@archiver.kernel.org>; Sat, 26 Nov 2022 08:23:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229973AbiKYUsi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 25 Nov 2022 15:48:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40792 "EHLO
+        id S229495AbiKZIWz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 26 Nov 2022 03:22:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229940AbiKYUsh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 25 Nov 2022 15:48:37 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C1B727147;
-        Fri, 25 Nov 2022 12:48:35 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1AA0360E9C;
-        Fri, 25 Nov 2022 20:48:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 79C78C433D6;
-        Fri, 25 Nov 2022 20:48:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1669409314;
-        bh=TATGHwB7xBd9ArAnJsTaMk1P+5Zzj5vCxD/NRTaBBL4=;
-        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-        b=XrcQf7nWMEAJ1N88RUjCqAJxBXPPrA2+P8wpUXoaibfxxeT+D87xI5QWcrB4n6g0o
-         VwDyUL3vEnjtADBQ9FB9V9gdfuB6z3yTvgVqRC02I1qoYoo1mVVJpFaEDZqt//hXjN
-         kCM3w6++k/fndbocPozJanGEdVxPqTLffhHwcGvOAIthqNKRXfEu3tl4WlHcAsCnWW
-         jLon8YXRb/neZbIV1MitlA9RfHGYl9Sl524I6Ej1xpavCEpcvwY6yArPRgDRCYFsiI
-         kRIVzav9UoVlS1Kqka2Kr0PKpNY8u/X3lvQlZqytSKz9Fk6UIfMb55sFVz6Gcp9Psu
-         +5XNCSRZrubAQ==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 64B20E270C7;
-        Fri, 25 Nov 2022 20:48:34 +0000 (UTC)
-Subject: Re: [GIT PULL] s390 updates for 6.1-rc7
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <Y4DqhTPzzIz+GiyO@li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com>
-References: <Y4DqhTPzzIz+GiyO@li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com>
-X-PR-Tracked-List-Id: <linux-s390.vger.kernel.org>
-X-PR-Tracked-Message-Id: <Y4DqhTPzzIz+GiyO@li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.1-6
-X-PR-Tracked-Commit-Id: adba1a9b81d5020a9bf8332fee9ff0171fe7623d
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: e3ebac80b6e9efe47b0ac3bf4b2d800b0b1958ff
-Message-Id: <166940931440.23524.16829188065171648049.pr-tracker-bot@kernel.org>
-Date:   Fri, 25 Nov 2022 20:48:34 +0000
-To:     Alexander Gordeev <agordeev@linux.ibm.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
+        with ESMTP id S229498AbiKZIWy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 26 Nov 2022 03:22:54 -0500
+Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA13F1274A;
+        Sat, 26 Nov 2022 00:22:46 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0VViBYM1_1669450951;
+Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VViBYM1_1669450951)
+          by smtp.aliyun-inc.com;
+          Sat, 26 Nov 2022 16:22:44 +0800
+From:   "D.Wythe" <alibuda@linux.alibaba.com>
+To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+Subject: [PATCH net] net/smc: fix application data exception
+Date:   Sat, 26 Nov 2022 16:22:30 +0800
+Message-Id: <1669450950-27681-1-git-send-email-alibuda@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The pull request you sent on Fri, 25 Nov 2022 17:17:09 +0100:
+From: "D. Wythe" <alibuda@linux.alibaba.com>
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.1-6
+There is a certain probability that following
+exceptions will occur in the wrk benchmark test:
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/e3ebac80b6e9efe47b0ac3bf4b2d800b0b1958ff
+Running 10s test @ http://11.213.45.6:80
+  8 threads and 64 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     3.72ms   13.94ms 245.33ms   94.17%
+    Req/Sec     1.96k   713.67     5.41k    75.16%
+  155262 requests in 10.10s, 23.10MB read
+Non-2xx or 3xx responses: 3
 
-Thank you!
+We will find that the error is HTTP 400 error, which is a serious
+exception in our test, which means the application data was
+corrupted.
 
+Consider the following scenarios:
+
+CPU0                            CPU1
+
+buf_desc->used = 0;
+                                cmpxchg(buf_desc->used, 0, 1)
+                                deal_with(buf_desc)
+
+memset(buf_desc->cpu_addr,0);
+
+This will cause the data received by a victim connection to be cleared,
+thus triggering an HTTP 400 error in the server.
+
+This patch exchange the order between clear used and memset, add
+barrier to ensure memory consistency.
+
+Fixes: 1c5526968e27 ("net/smc: Clear memory when release and reuse buffer")
+Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+---
+ net/smc/smc_core.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
+
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index c305d8d..c19d4b7 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -1120,8 +1120,9 @@ static void smcr_buf_unuse(struct smc_buf_desc *buf_desc, bool is_rmb,
+ 
+ 		smc_buf_free(lgr, is_rmb, buf_desc);
+ 	} else {
+-		buf_desc->used = 0;
+-		memset(buf_desc->cpu_addr, 0, buf_desc->len);
++		/* memzero_explicit provides potential memory barrier semantics */
++		memzero_explicit(buf_desc->cpu_addr, buf_desc->len);
++		WRITE_ONCE(buf_desc->used, 0);
+ 	}
+ }
+ 
+@@ -1132,19 +1133,17 @@ static void smc_buf_unuse(struct smc_connection *conn,
+ 		if (!lgr->is_smcd && conn->sndbuf_desc->is_vm) {
+ 			smcr_buf_unuse(conn->sndbuf_desc, false, lgr);
+ 		} else {
+-			conn->sndbuf_desc->used = 0;
+-			memset(conn->sndbuf_desc->cpu_addr, 0,
+-			       conn->sndbuf_desc->len);
++			memzero_explicit(conn->sndbuf_desc->cpu_addr, conn->sndbuf_desc->len);
++			WRITE_ONCE(conn->sndbuf_desc->used, 0);
+ 		}
+ 	}
+ 	if (conn->rmb_desc) {
+ 		if (!lgr->is_smcd) {
+ 			smcr_buf_unuse(conn->rmb_desc, true, lgr);
+ 		} else {
+-			conn->rmb_desc->used = 0;
+-			memset(conn->rmb_desc->cpu_addr, 0,
+-			       conn->rmb_desc->len +
+-			       sizeof(struct smcd_cdc_msg));
++			memzero_explicit(conn->rmb_desc->cpu_addr,
++					 conn->rmb_desc->len + sizeof(struct smcd_cdc_msg));
++			WRITE_ONCE(conn->rmb_desc->used, 0);
+ 		}
+ 	}
+ }
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+1.8.3.1
+
