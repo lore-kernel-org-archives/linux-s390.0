@@ -2,133 +2,242 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E311EC433FE
-	for <linux-s390@archiver.kernel.org>; Mon, 28 Nov 2022 11:11:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C2F50C43217
+	for <linux-s390@archiver.kernel.org>; Mon, 28 Nov 2022 11:47:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229999AbiK1LL1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 28 Nov 2022 06:11:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60230 "EHLO
+        id S229956AbiK1LrB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 28 Nov 2022 06:47:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231164AbiK1LLO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Nov 2022 06:11:14 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CE901B1F3;
-        Mon, 28 Nov 2022 03:11:10 -0800 (PST)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2ASAYfW8024017;
-        Mon, 28 Nov 2022 11:10:47 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=GZxdR9uOa7Jfqv5qjaWw+OASw4kW7TdlBzs0BV9Y63I=;
- b=NnLEKwp6jhgEH9iAgFVxC6c5Yoq3vpWGUJdy7ZRnn/KMNhZeRVUh6niyFpyzwOkrhkht
- JBbumZr1oVtjBT3DJHu36CbZkjSoUA3J2bVTK9VoeV7k0cxqfo9dJeBSQ3joXDEJoB2K
- qzrBMvuTM94UHsIe9B0omtanwu7g3bwg7/JgYhJqQNsUbSn+YvqmitLkI78VHBY5PNyG
- wO6kzEtSc4DU7nQFQh1+LSQDUYQQaKIWmKp+zqCwiyra24vK2aAvbfC+0/uwmJ1+f9qT
- ZFeKfWQTxqLRCcM8ZU+ZvpRYDRvseKnSAC/0aTf1kjSrsmfhk5QrQ8WDB+2HTV1ZQY9I Pw== 
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m3v8je1vs-1
+        with ESMTP id S231240AbiK1LrB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Nov 2022 06:47:01 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5A2F62FD;
+        Mon, 28 Nov 2022 03:46:59 -0800 (PST)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2ASBjxv2017399;
+        Mon, 28 Nov 2022 11:46:54 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=WrcMnrXS+2PfWvsWUTG8vxeyMDLCDRem5QfUw94Abws=;
+ b=hwlvBdoFQyVNOkRFsLRpIpEx3Dm8Gc/Y2MjdzZd1NVKveTkdlv+BXbWOdpS/hgeV9KkI
+ pNC99yuvpnbksrqX8RRFJ3j/HNtC1cmdU/+CqZl94uWIkHfDPXfiG4IWNB9aqJPRHr39
+ R4f3pG8phoGcY7lYWOAdVEGumH2G/pbvTFZoVdjnhXJWyHCSSUL7ysKxpUv0Zpr9h6CG
+ vn+XyHIbGraatIXYtV060UM/qHdx7+ZaFTTTFwl6Mqq8LQ4kGKK+ZNWHaMGAmNsdQWPa
+ t/sXqYNOolG3CzPqHoikNl1h3dRbiMD3s3sZNkLrG0OH/+NoF2btlEW/jLQg0hXg75Nb OQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m3vn75yx7-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 28 Nov 2022 11:10:46 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2ASB5fK7032001;
-        Mon, 28 Nov 2022 11:10:44 GMT
+        Mon, 28 Nov 2022 11:46:54 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2ASBkIfL018880;
+        Mon, 28 Nov 2022 11:46:54 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m3vn75ywj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 28 Nov 2022 11:46:53 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2ASBbu3k021646;
+        Mon, 28 Nov 2022 11:46:51 GMT
 Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma04ams.nl.ibm.com with ESMTP id 3m3ae9acrt-1
+        by ppma03ams.nl.ibm.com with ESMTP id 3m3ae9ae54-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 28 Nov 2022 11:10:44 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2ASBBNCG4522680
+        Mon, 28 Nov 2022 11:46:51 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2ASBlVBb60752294
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 28 Nov 2022 11:11:23 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0F0F042045;
-        Mon, 28 Nov 2022 11:10:41 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 295854203F;
-        Mon, 28 Nov 2022 11:10:40 +0000 (GMT)
-Received: from sig-9-145-47-38.uk.ibm.com (unknown [9.145.47.38])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 28 Nov 2022 11:10:40 +0000 (GMT)
-Message-ID: <9163440eb6a47fe02730638bbdf72fda5ee5ad2c.camel@linux.ibm.com>
-Subject: Re: [PATCH v2 4/7] iommu: Let iommu.strict override
- ops->def_domain_type
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Baolu Lu <baolu.lu@linux.intel.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Gerd Bayer <gbayer@linux.ibm.com>, iommu@lists.linux.dev,
-        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>
-Cc:     Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org,
-        borntraeger@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, linux-kernel@vger.kernel.org,
-        Julian Ruess <julianr@linux.ibm.com>
-Date:   Mon, 28 Nov 2022 12:10:39 +0100
-In-Reply-To: <33eea9bd-e101-4836-19e8-d4b191b78b00@linux.intel.com>
-References: <20221116171656.4128212-1-schnelle@linux.ibm.com>
-         <20221116171656.4128212-5-schnelle@linux.ibm.com>
-         <33eea9bd-e101-4836-19e8-d4b191b78b00@linux.intel.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+        Mon, 28 Nov 2022 11:47:31 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CC0D34C044;
+        Mon, 28 Nov 2022 11:46:48 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 632034C040;
+        Mon, 28 Nov 2022 11:46:48 +0000 (GMT)
+Received: from [9.179.3.171] (unknown [9.179.3.171])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 28 Nov 2022 11:46:48 +0000 (GMT)
+Message-ID: <4ff2d5a0-5586-90be-7f7c-05f43b0deb1f@linux.ibm.com>
+Date:   Mon, 28 Nov 2022 12:46:42 +0100
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.5.0
+Subject: Re: [PATCH net-next v5 00/10] optimize the parallelism of SMC-R
+ connections
+To:     "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
+        wenjia@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <1669218890-115854-1-git-send-email-alibuda@linux.alibaba.com>
+ <c98a8f04-c696-c9e0-4d7e-bc31109a0e04@linux.alibaba.com>
+ <352b1e15-3c6d-a398-3fe6-0f438e0e8406@linux.ibm.com>
+ <1f87a8c2-7a47-119a-1141-250d05678546@linux.alibaba.com>
+ <11182feb-0f41-e9a4-e866-8f917c745a48@linux.ibm.com>
+ <4f6d8e70-b3f2-93cd-ae83-77ee733cf716@linux.alibaba.com>
+ <22f468cb-106b-1797-0496-e9108773ab9d@linux.ibm.com>
+ <029f80b3-1392-b307-ddbd-2db536431a23@linux.alibaba.com>
+From:   Jan Karcher <jaka@linux.ibm.com>
+Organization: IBM - Network Linux on Z
+In-Reply-To: <029f80b3-1392-b307-ddbd-2db536431a23@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: CyGuCoWUou6f4zl4TQXWvmAEwOC89LIy
-X-Proofpoint-ORIG-GUID: CyGuCoWUou6f4zl4TQXWvmAEwOC89LIy
+X-Proofpoint-GUID: Q2PTJkX-w8ZD7ZIZWmXrAhfeHSijaBt5
+X-Proofpoint-ORIG-GUID: DPJvul1SLMsrWBY14YIWI3HqNHYoLH34
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-11-28_09,2022-11-28_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- bulkscore=0 impostorscore=0 mlxlogscore=793 malwarescore=0
- priorityscore=1501 spamscore=0 suspectscore=0 adultscore=0 clxscore=1011
- mlxscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2210170000 definitions=main-2211280085
+ definitions=2022-11-28_09,2022-11-28_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 mlxscore=0
+ suspectscore=0 adultscore=0 priorityscore=1501 lowpriorityscore=0
+ mlxlogscore=999 phishscore=0 clxscore=1015 bulkscore=0 malwarescore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211280089
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 2022-11-17 at 09:55 +0800, Baolu Lu wrote:
-> On 2022/11/17 1:16, Niklas Schnelle wrote:
-> > When iommu.strict=1 is set or iommu_set_dma_strict() was called we
-> > should use IOMMU_DOMAIN_DMA irrespective of ops->def_domain_type.
-> > 
-> > Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> > ---
-> >   drivers/iommu/iommu.c | 3 +++
-> >   1 file changed, 3 insertions(+)
-> > 
-> > diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-> > index 65a3b3d886dc..d9bf94d198df 100644
-> > --- a/drivers/iommu/iommu.c
-> > +++ b/drivers/iommu/iommu.c
-> > @@ -1562,6 +1562,9 @@ static int iommu_get_def_domain_type(struct device *dev)
-> >   {
-> >   	const struct iommu_ops *ops = dev_iommu_ops(dev);
-> >   
-> > +	if (iommu_dma_strict)
-> > +		return IOMMU_DOMAIN_DMA;
+
+
+On 26/11/2022 10:08, D. Wythe wrote:
 > 
-> If any quirky device must work in IOMMU identity mapping mode, this
-> might introduce functional regression. At least for VT-d platforms, some
-> devices do require IOMMU identity mapping mode for functionality.
+> 
+> On 11/25/22 2:54 PM, Jan Karcher wrote:
+>>
+>>
+>> On 24/11/2022 20:53, D. Wythe wrote:
+>>>
+>>>
+>>> On 11/24/22 9:30 PM, Jan Karcher wrote:
+>>>>
+>>>>
+>>>> On 24/11/2022 09:53, D. Wythe wrote:
+>>>>>
+>>>>>
+>>>>> On 11/24/22 4:33 PM, Jan Karcher wrote:
+>>>>>>
+>>>>>>
+>>>>>> On 24/11/2022 06:55, D. Wythe wrote:
+>>>>>>>
+>>>>>>>
+>>>>>>> On 11/23/22 11:54 PM, D.Wythe wrote:
+>>>>>>>> From: "D.Wythe" <alibuda@linux.alibaba.com>
+>>>>>>>>
+>>>>>>>> This patch set attempts to optimize the parallelism of SMC-R 
+>>>>>>>> connections,
+>>>>>>>> mainly to reduce unnecessary blocking on locks, and to fix 
+>>>>>>>> exceptions that
+>>>>>>>> occur after thoses optimization.
+>>>>>>>>
+>>>>>>>
+>>>>>>>> D. Wythe (10):
+>>>>>>>>    net/smc: Fix potential panic dues to unprotected
+>>>>>>>>      smc_llc_srv_add_link()
+>>>>>>>>    net/smc: fix application data exception
+>>>>>>>>    net/smc: fix SMC_CLC_DECL_ERR_REGRMB without 
+>>>>>>>> smc_server_lgr_pending
+>>>>>>>>    net/smc: remove locks smc_client_lgr_pending and
+>>>>>>>>      smc_server_lgr_pending
+>>>>>>>>    net/smc: allow confirm/delete rkey response deliver multiplex
+>>>>>>>>    net/smc: make SMC_LLC_FLOW_RKEY run concurrently
+>>>>>>>>    net/smc: llc_conf_mutex refactor, replace it with rw_semaphore
+>>>>>>>>    net/smc: use read semaphores to reduce unnecessary blocking in
+>>>>>>>>      smc_buf_create() & smcr_buf_unuse()
+>>>>>>>>    net/smc: reduce unnecessary blocking in smcr_lgr_reg_rmbs()
+>>>>>>>>    net/smc: replace mutex rmbs_lock and sndbufs_lock with 
+>>>>>>>> rw_semaphore
+>>>>>>>>
+>>>>>>>>   net/smc/af_smc.c   |  74 ++++----
+>>>>>>>>   net/smc/smc_core.c | 541 
+>>>>>>>> +++++++++++++++++++++++++++++++++++++++++++++++------
+>>>>>>>>   net/smc/smc_core.h |  53 +++++-
+>>>>>>>>   net/smc/smc_llc.c  | 285 ++++++++++++++++++++--------
+>>>>>>>>   net/smc/smc_llc.h  |   6 +
+>>>>>>>>   net/smc/smc_wr.c   |  10 -
+>>>>>>>>   net/smc/smc_wr.h   |  10 +
+>>>>>>>>   7 files changed, 801 insertions(+), 178 deletions(-)
+>>>>>>>>
+>>>>>>>
+>>>>>>> Hi Jan and Wenjia,
+>>>>>>>
+>>>>>>> I'm wondering whether the bug fix patches need to be put together 
+>>>>>>> in this series. I'm considering
+>>>>>>> sending these bug fix patches separately now, which may be 
+>>>>>>> better, in case that our patch
+>>>>>>> might have other problems. These bug fix patches are mainly 
+>>>>>>> independent, even without my other
+>>>>>>> patches, they may be triggered theoretically.
+>>>>>>
+>>>>>> Hi D.
+>>>>>>
+>>>>>> Wenjia and i just talked about that. For us it would be better 
+>>>>>> separating the fixes and the new logic.
+>>>>>> If the fixes are independent feel free to post them to net.
+>>>>>
+>>>>>
+>>>>> Got it, I will remove those bug fix patches in the next series and 
+>>>>> send them separately.
+>>>>> And thanks a lot for your test, no matter what the final test 
+>>>>> results are, I will send a new series
+>>>>> to separate them after your test finished.
+>>>>
+>>>> Hi D.,
+>>>>
+>>>> I have some troubles applying your patches.
+>>>>
+>>>>      error: sha1 information is lacking or useless 
+>>>> (net/smc/smc_core.c).
+>>>>      error: could not build fake ancestor
+>>>>      Patch failed at 0001 optimize the parallelism of SMC-R connections
+>>>>
+>>>> Before merging them by hand could you please send the v6 with the 
+>>>> fixes separated and verify that you are basing on the latest net / 
+>>>> net-next tree?
+>>>>
+>>>> That would make it easier for us to test them.
+>>>>
+>>>> Thank you
+>>>> - Jan
+>>>>
+>>>
+>>> Hi Jan,
+>>>
+>>> It's quite weird, it seems that my patch did based on the latest 
+>>> net-next tree.
+>>> And I try apply it the latest net tree, it's seems work to me too. 
+>>> Maybe there
+>>> is something wrong with the mirror I use. Can you show me the 
+>>> conflict described
+>>> in the .rej file？
+>>
+>> Hi D.,
+>>
+>> sorry for the delayed reply:
+>> I just re-tried it with path instead of git am and i think i messed it 
+>> up yesterday.
+>> Mea culpa. With patch your changes *can* be applied to the latest 
+>> net-next.
+>> I'm very sorry for the inconvenience. Could you still please send the 
+>> v6. That way i can verify the fixes separate and we can - if the tests 
+>> succeed - already apply them.
+>>
+>> Sorry and thank you
+>> - Jan
+> 
+> 
+> Hi Jan,
+> 
+> I have sent the v6 with the fixes patches separated, if you have any 
+> suggestion or
+> advise, please let us know.
+Hi D.,
 
-That's a good point. How about instead of unconditionally returning
-IOMMU_DOMAIN_DMA we just do so if the domain type returned by ops-
->def_domain_type uses a flush queue (i.e. the __IOMMU_DOMAIN_DMA_FQ bit
-is set). That way a device that only supports identity mapping gets to
-set that but iommu_dma_strict at least always prevents use of an IOVA
-flush queue.
+we are reviewing and testing the fixes and the series.
+
+Thank you
+- Jan
 
 > 
-> > +
-> >   	if (dev_is_pci(dev) && to_pci_dev(dev)->untrusted)
-> >   		return IOMMU_DOMAIN_DMA;
-> >   
+> Thanks.
+> D. Wythe
 > 
-> Best regards,
-> baolu
-
-
+> 
