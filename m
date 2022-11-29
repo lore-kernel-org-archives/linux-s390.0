@@ -2,217 +2,157 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B4D6CC4321E
-	for <linux-s390@archiver.kernel.org>; Tue, 29 Nov 2022 11:06:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 78DBCC47089
+	for <linux-s390@archiver.kernel.org>; Tue, 29 Nov 2022 11:09:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233043AbiK2LGF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 29 Nov 2022 06:06:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43760 "EHLO
+        id S232559AbiK2LJe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 29 Nov 2022 06:09:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229759AbiK2LFe (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Nov 2022 06:05:34 -0500
-Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C41216457A;
-        Tue, 29 Nov 2022 03:02:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1669719748; x=1701255748;
-  h=message-id:date:subject:to:cc:references:from:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=P1rsohAXUDdXQXoysDqKPyeJaoekRF8TU1DIoU1mSOw=;
-  b=DhVZCStMK8MYpjBw6I5dniIcMhZjQwxJ44l4GzLxeXWcB2hZwQBWlOPf
-   BLTHk0/QmWGHSWwk/YatAI388sGAQJ/Lt9phf+Tx0CCdDMiwgE3rwHTYA
-   Em2goqmKO7lKIiWCTD3QArLh/yFwdq61oV5ziAs+C4hXveyRkLEZubB5U
-   28Lp7BAJR4vcELT3UB5Cg0mJ0soEgI+S35cBBjGRuCoaCE7U7I4MDbml4
-   0tKUB0CcEXSB+cYzqkcQXgNt1g185hNjHbi1IFbcGJjRmShPpGfgwtBbo
-   NWbts+LQWIeT6spiOoIjzqnHMXr0xxvuZe2X6xqLKFeuUvvPBIX6fNtSg
-   Q==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10545"; a="295458011"
-X-IronPort-AV: E=Sophos;i="5.96,202,1665471600"; 
-   d="scan'208";a="295458011"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Nov 2022 03:01:20 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10545"; a="785998399"
-X-IronPort-AV: E=Sophos;i="5.96,202,1665471600"; 
-   d="scan'208";a="785998399"
-Received: from fmsmsx602.amr.corp.intel.com ([10.18.126.82])
-  by fmsmga001.fm.intel.com with ESMTP; 29 Nov 2022 03:01:19 -0800
-Received: from fmsmsx610.amr.corp.intel.com (10.18.126.90) by
- fmsmsx602.amr.corp.intel.com (10.18.126.82) with Microsoft SMTP Server
+        with ESMTP id S232400AbiK2LJd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Nov 2022 06:09:33 -0500
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D88F12BCF;
+        Tue, 29 Nov 2022 03:09:30 -0800 (PST)
+Received: from canpemm500009.china.huawei.com (unknown [172.30.72.53])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4NM02T6VXhzRpc6;
+        Tue, 29 Nov 2022 19:08:49 +0800 (CST)
+Received: from [10.67.102.169] (10.67.102.169) by
+ canpemm500009.china.huawei.com (7.192.105.203) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.16; Tue, 29 Nov 2022 03:01:19 -0800
-Received: from fmsedg602.ED.cps.intel.com (10.1.192.136) by
- fmsmsx610.amr.corp.intel.com (10.18.126.90) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.16 via Frontend Transport; Tue, 29 Nov 2022 03:01:19 -0800
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com (104.47.57.171)
- by edgegateway.intel.com (192.55.55.71) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.16; Tue, 29 Nov 2022 03:01:17 -0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=cfb2fEizRivypNIdY9EhR7asHNrXeG1kPq0Cd0/KCImEHuXBE11FFuXJa87z/2S/Cc/62mCc2b4kZ9Z2+GCoNtIyA7pcdKmyaLmXzcqt4UKV0DJKFv/wTygrmNGIh96DrIEm193aX7lsftjufRpAH0ZzLUPK78Ub1Gt0AZz/Sr+gYjRfbto+y3ywFOWp6YJj1qFMeL7/lkvKe4Tf65p9zzlTeMf0gqvzd5wwx1tBR+cTDa7cKIXzee2wPIBNVg7CEraNCvEyv+BRFR1yxaYFDqBeZDvlrGnQSZ3vjF6OhA7FDpgZWrQAdqeIsshnM4PHj3HS/dnOGHa5S4LLRu7wAA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=I8catvdf7N0yILFzA+1YZTURWsIn5D/VgnOyFhS4azc=;
- b=emSTptd4D4MUpgoKzxfKmEzWdJ2dt9apVwaD2mhbPqb1105AzoCg4mOG/WVGDRxLBhgB1A97241DoVfuN8rNUiuNUZeSEjgSqgJchjqrOQDqw10IjboolO3MCYlCz50tkJTvc1tlzQxAZfRq+ijI9vzUSClC8lEPP8iDS4Wp5XIafB4y92F4ZURT21vOPHrfCZO6ZzQcPXcX3krpoyghlbFP+il8r/TGCBVr/XHzLdUZEGkr8aTE7bfMc7DGU7wykfFSvA48thfClKCUZEt13co35hBATeA60YYJ0HCA7CHf0bLYDlDD10qVff5ZfSxPHQTnvgBifNed4CJVSooTpA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-Received: from DS0PR11MB7529.namprd11.prod.outlook.com (2603:10b6:8:141::20)
- by BN9PR11MB5557.namprd11.prod.outlook.com (2603:10b6:408:102::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5857.23; Tue, 29 Nov
- 2022 11:01:10 +0000
-Received: from DS0PR11MB7529.namprd11.prod.outlook.com
- ([fe80::61c3:c221:e785:ce13]) by DS0PR11MB7529.namprd11.prod.outlook.com
- ([fe80::61c3:c221:e785:ce13%7]) with mapi id 15.20.5857.020; Tue, 29 Nov 2022
- 11:01:10 +0000
-Message-ID: <debb397f-916c-b5b5-2905-dc7159843c75@intel.com>
-Date:   Tue, 29 Nov 2022 19:01:47 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Firefox/91.0 Thunderbird/91.11.0
-Subject: Re: [iommufd PATCH v2 0/2] Make mdev driver dma_unmap callback
- tolerant to unmaps come before device open
-Content-Language: en-US
-To:     <jgg@nvidia.com>
-CC:     <alex.williamson@redhat.com>, <kevin.tian@intel.com>,
-        <kvm@vger.kernel.org>, <mjrosato@linux.ibm.com>,
-        <chao.p.peng@linux.intel.com>, <yi.y.sun@linux.intel.com>,
-        <intel-gvt-dev@lists.freedesktop.org>,
-        <linux-s390@vger.kernel.org>,
-        "Tony Krowiak" <akrowiak@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        "Jason Herne" <jjherne@linux.ibm.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        "Zhi Wang" <zhi.a.wang@intel.com>
-References: <20221129093535.359357-1-yi.l.liu@intel.com>
-From:   Yi Liu <yi.l.liu@intel.com>
-In-Reply-To: <20221129093535.359357-1-yi.l.liu@intel.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: SI1PR02CA0003.apcprd02.prod.outlook.com
- (2603:1096:4:1f7::20) To DS0PR11MB7529.namprd11.prod.outlook.com
- (2603:10b6:8:141::20)
+ 15.1.2375.31; Tue, 29 Nov 2022 19:09:28 +0800
+CC:     <anshuman.khandual@arm.com>, <corbet@lwn.net>,
+        <peterz@infradead.org>, <arnd@arndb.de>,
+        <punit.agrawal@bytedance.com>, <linux-kernel@vger.kernel.org>,
+        <darren@os.amperecomputing.com>, <yangyicong@hisilicon.com>,
+        <huzhanyuan@oppo.com>, <lipeifeng@oppo.com>,
+        <zhangshiming@oppo.com>, <guojian@oppo.com>, <realmz6@gmail.com>,
+        <linux-mips@vger.kernel.org>, <openrisc@lists.librecores.org>,
+        <linuxppc-dev@lists.ozlabs.org>, <linux-riscv@lists.infradead.org>,
+        <linux-s390@vger.kernel.org>, Barry Song <21cnbao@gmail.com>,
+        <wangkefeng.wang@huawei.com>, <xhao@linux.alibaba.com>,
+        <prime.zeng@hisilicon.com>, <linux-mm@kvack.org>,
+        <linux-arm-kernel@lists.infradead.org>, <x86@kernel.org>,
+        <linux-doc@vger.kernel.org>
+Subject: Re: [PATCH v7 0/2] arm64: support batched/deferred tlb shootdown
+ during page reclamation
+From:   Yicong Yang <yangyicong@huawei.com>
+To:     <akpm@linux-foundation.org>, <catalin.marinas@arm.com>,
+        <will@kernel.org>
+References: <20221117082648.47526-1-yangyicong@huawei.com>
+Message-ID: <938c4c00-8cf9-b37a-d70e-04262d86f01c@huawei.com>
+Date:   Tue, 29 Nov 2022 19:09:28 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.5.1
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS0PR11MB7529:EE_|BN9PR11MB5557:EE_
-X-MS-Office365-Filtering-Correlation-Id: 8f1867bd-d2aa-4d95-59b8-08dad1f905a8
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 7Pw1Pn8ccKsKZA8NDdM97Ij/DDY9N0Uq+yvEhNUFOe6p0R4/UwYbtsuqCKOf3WSiCKyTSpdZ+0jwEPg4MFlDEMK9W1nojSzfNDl1S/2oGCqsr3WdzlRY1rdt6XpgFSm48DETquGJ7yRJsOee0jZk/hj7XA4QxblAMcVj4g8CcUl2dHeGH/D5Avx/DhFVGztYRCFIDleb4HmvQDMUjLi1/HzlBn9HsM7hTVdC6+xdAVzAwavX5Ttujiz6e6FNaOFb+OpPdV15YGiGmIB3V06QsqElnRZ8V1ksXvX930xi2bD4Sm/EusFXPTo+nhaldRbaQXaifovQpE4mHv+OcY4lfifyphQBe/8T9Hf3yExSLUmfx1Ca1wuftfISPV6IGQ7T0syGadv4IHO2E4pperdS68Tkz8sfWQ/6/KdZ9Zk8/pWvpyLAAWRBpktDRX1ypONRdVVVIAtUwzWXE5McjxTKFl+ZYub6ztHnmhNr+ZkZFv9URDIrUnIo353dDyo6HTmPzZd4EIqKvyr2/KvHKR6LXAzHbrpMNjgJrJQZTeqkcZqxWAcfeBrVypiqFBSzaT72+Iskla0/lrrcop8xDCHd/KW8HpoGbvi9oPVizgAkbT9aGVvhQKT3fDc2zoX79l2YiDLsujeMbloc5407QGGN3zb+b+G2HUo9/Gr4y7LnGvnVQbO/ogPBMJHSXZhAmpMpDvuqtjSkFMGoKSisTmPMI+v2q20yhsn3UQWG+bYU+zk2O4uu8AobK3y31efYAspKKIEpu4OUJVAE5QGThEv++sKXOcTwMiQJ30sQSV9OY4A=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR11MB7529.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(39860400002)(366004)(396003)(376002)(346002)(136003)(451199015)(31686004)(186003)(6506007)(31696002)(4326008)(26005)(53546011)(66476007)(8676002)(8936002)(41300700001)(86362001)(6916009)(6512007)(66556008)(6486002)(966005)(66946007)(2616005)(6666004)(478600001)(54906003)(316002)(82960400001)(38100700002)(7416002)(2906002)(83380400001)(5660300002)(36756003)(45980500001)(43740500002);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?L2hCMVdrSDFkMWUvTnFmdTgvQ3lFMnkvNkkyTmdjRW1oR0plS1ZTcjNOZnlX?=
- =?utf-8?B?Y0g2Y2ZUeXoxaEtiUDkvaGVaNDY0V1NTMTdVTk1uS0hBblFxM1h2a2M3UCtB?=
- =?utf-8?B?YlRXclVlU2cxTGwxY09DNlZ6TkNXYmpVS1hObXd2ZXVnUFhCdThtRjhxZFFE?=
- =?utf-8?B?NjllaVEvTGFEai9NOEZESFIxbG9MeEJVbEdWZm5OVFZyei81ZVo2WDZtTWpn?=
- =?utf-8?B?ZG9rQmR0bU5BbjVXZTlSYTJhZmpxRjNaL0lNdzNkdXRVaTJRckxZREs1bGtO?=
- =?utf-8?B?dU5qZi9vRUh0NDFBWGE2cytyMExVZWFtQ1I2ZDNkOHVuNlVjMUd3c2ZPbzJ5?=
- =?utf-8?B?SThMUDRFeE10QW14ZUZGSXFndFJlZFhjbDZ0Yi9teEx6Y29JYkVOQzZYYkNJ?=
- =?utf-8?B?R1F2OVRINlZiMVdkUG54T0U0SGZBTXM1Z3RZTjJqN2gyRDd3TDA1aFRnSXdL?=
- =?utf-8?B?UXdnRTRNeEp2c1BhelkxTHZaWlIrTWp5cUtWOC95TjlBd3FnMFdXbENhb0FK?=
- =?utf-8?B?RjcvNExPUzNEN2NvOWlCRGdFYWZ2RnJoMjJzR1ZHelJWajlObUtCNkdsM1U4?=
- =?utf-8?B?cktjRlc4SC90UkVxTFFBZmRQbFVVNzJDRm5mc0x4TTlXYWU1ZFhJdGhBblYx?=
- =?utf-8?B?RllCWFB2QUpzQlZtODBGUER0NXRDQ2JXa3JWTnc3RjNCSW00dUxqSzFLVG5w?=
- =?utf-8?B?eGs2M0dyMncwTjY1YkNPYkJDY0o5WGFiZk9aZ3VnRW53L0Z1K2U0Y1Z3OFBL?=
- =?utf-8?B?bGFucGZhc2M3ZEFmUFB3UnZ6OWdSRVFLUktCcW9vaVdaS2pYVzhVM2l3TTdM?=
- =?utf-8?B?Y2RpMTkxVzV5YTRnbTNBSzRZWEwvZkpiM2JHRmJxQ0E3RmdEaFhrdEY3Umtu?=
- =?utf-8?B?cUJzU2dOVFVBUkFTYzN2WmY3TTY5ekF4Slk0ajNuaFRyT0NuWCtpOTVBY2ta?=
- =?utf-8?B?cnAvc3Y2dVRpU3pJTzBOYTc1WVJCbVFwTTBGajlzajVobkdvQUF0Qk1WbnVr?=
- =?utf-8?B?NmVsR3dTTk9KamcxMTZkQTloNlVqNHdzZDJBWVp1U0VZNDN6R3REWmc1U3VN?=
- =?utf-8?B?YzJ4ZDFQaGg5cDhuaE1aWVVBVlgzNUdDbUxDYXJVTHh2K2w1RUlhd2dPbXNL?=
- =?utf-8?B?dGhQRDNuL3BVYUtaRGJNK3UxUU4rd1p3NDJhYlUyRDEybkxDTHdRMUlDUm5Y?=
- =?utf-8?B?MWUzblB1YkRUMTlFS0VyZWVIL2hBYmI4VTFtRGJjcEN1em0yVmdqWmx6dEJS?=
- =?utf-8?B?UUsxWmRMTFJUOTVLVU8xWE9vM0lWRWJtMFRqOVpubm1HZXBHOTMyTytqWmp5?=
- =?utf-8?B?aGVBZFZCSWs4anlwVnFhOTBnODJJNEVISTBBSGhNOTRLclhKSUc1Mjh2dWR0?=
- =?utf-8?B?RzBvOG93bUVGVVVxNXgrYVZwQUF0MFFvZ3AzSTkveHo0NVpGclRJdDlpSEpO?=
- =?utf-8?B?d3dSL2VTZDk1dGVoTmR4ZEQ5TUM0d01QcE94RXRnRTFlSjM1RVE1MW9wUnl0?=
- =?utf-8?B?MzJIYkx4Tlp4dUF3T2hsRWtyeGxvUlprM21RTHN2TmtsamtnTVBZdEQ4ZW9i?=
- =?utf-8?B?Znd5ZmFBb21IRWJtMHlURkZ6ajNoc09MWk5IR0tPbC9uTUpPVzFjUW12RVpa?=
- =?utf-8?B?WVFka0VyTEY1YnRaTjM2dDR1Y2J5alBBcm9CcDFmQmZqYXFIdVJBU1E3Wjdt?=
- =?utf-8?B?TWJEM1BVNmpFaTd6RVN5VTZCa1dWVUN5c1RjU2I1VDFqeFllcWZadFRUNm1w?=
- =?utf-8?B?bmM2Q2E2WHRBYTl4MXdzb0szaHdDOHNKamRJMUR5TmZ2ZjlQWGNrQm94anVM?=
- =?utf-8?B?VWdtTEtyQXdXSjZiU1FIV0t1YTVNQTV6NnRZbjBJU0RhM0VadlJkdG9YZXlu?=
- =?utf-8?B?cklJOWFBZjhxc2RXZnNSeWMrRkszZlJYZVRpRUJuTlFaZU1WWlRSdzlYbWp1?=
- =?utf-8?B?clBaeWIxc0hOaFJwTjdUOVduOTRkbm9WZWxKaXNJZjhuK05jSG5ZdlM1RGNE?=
- =?utf-8?B?bzY2N09KKzJSY3JiKzhjUmk1bmNkdUNkaWc0WUhBS0I1emdxay9BbDFBOUVO?=
- =?utf-8?B?dTJTZW91RlJYdFdFZWRuMCtkdzhDM1crM0MxUmtaeFhHeC92N3hVY1pheit4?=
- =?utf-8?Q?5BDfTftTUALynT+ncMqchi5p3?=
-X-MS-Exchange-CrossTenant-Network-Message-Id: 8f1867bd-d2aa-4d95-59b8-08dad1f905a8
-X-MS-Exchange-CrossTenant-AuthSource: DS0PR11MB7529.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Nov 2022 11:01:10.1451
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: m/vogz7v5To/U5I1c4ONcn51RPxgCduixlr1rVTu4SN2RA1EiANs1m1vV/HBh3sdt5cqpcdWNTtCelnIth8RIQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN9PR11MB5557
-X-OriginatorOrg: intel.com
+In-Reply-To: <20221117082648.47526-1-yangyicong@huawei.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.67.102.169]
+X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
+ canpemm500009.china.huawei.com (7.192.105.203)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2022/11/29 17:35, Yi Liu wrote:
-> Jason's "Connect VFIO to IOMMUFD" introduces vfio iommufd compat mode. Under
-> this mode, vfio_iommufd_bind() creates an access which has an unmap callback,
-> which can be called immediately. This means mdev drivers may receive unmap
-> requests before the mdev is opened. For now, there are only three drivers
-> (gvt, vfio-ap and vfio-ccw) providing dma_unmap(). vfio-ccw is fine with
-> such requests. While gvt-g and vfio-ap may have potential problem with such
-> requests due to internal implementation. This series tries to enhance the two
-> drivers.
-> 
-> This series is based on Jason's below branch.
-> 
-> https://github.com/jgunthorpe/linux/tree/iommufd
-> 
-> (commit: 41973418f6c8c241ed5647d1408d5b917f24dfd8)
+a gentle ping...
 
-it's resent as below link. Please ignore this series.
+Hi Andrew, Will and Catalin,
 
-https://lore.kernel.org/kvm/20221129105831.466954-1-yi.l.liu@intel.com/
+is it ok to pick this series?
 
-> Change:
-> v2:
->   - Refine the cover letter and commit message of patch 0001 (Kevin)
->   - Rename patch 0001 to better fit the commit message
->   - Add r-b from Zhi for patch 0001
->   - tweak iova range test to assume page-aligned for patch 0002 (Jason)
->   - Remove break so all queues within range are removed for patch 0002 (Kevin)
-> 
-> v1: https://lore.kernel.org/kvm/20221123134832.429589-1-yi.l.liu@intel.com/
-> 
-> Cc: Tony Krowiak <akrowiak@linux.ibm.com>
-> Cc: Halil Pasic <pasic@linux.ibm.com>
-> Cc: Jason Herne <jjherne@linux.ibm.com>
-> Cc: linux-s390@vger.kernel.org
-> Cc: Zhenyu Wang <zhenyuw@linux.intel.com>
-> Cc: Zhi Wang <zhi.a.wang@intel.com>
-> Cc: Kevin Tian <kevin.tian@intel.com>
-> Cc: intel-gvt-dev@lists.freedesktop.org
-> 
-> Regards,
-> 	Yi Liu
-> 
-> Matthew Rosato (1):
->    vfio/ap: validate iova during dma_unmap and trigger irq disable
-> 
-> Yi Liu (1):
->    i915/gvt: Move gvt mapping cache initialization to vGPU creation
-> 
->   drivers/gpu/drm/i915/gvt/gvt.h    |  2 ++
->   drivers/gpu/drm/i915/gvt/kvmgt.c  |  7 ++-----
->   drivers/gpu/drm/i915/gvt/vgpu.c   |  2 ++
->   drivers/s390/crypto/vfio_ap_ops.c | 18 +++++++++++++++++-
->   4 files changed, 23 insertions(+), 6 deletions(-)
-> 
+Thanks.
 
--- 
-Regards,
-Yi Liu
+On 2022/11/17 16:26, Yicong Yang wrote:
+> From: Yicong Yang <yangyicong@hisilicon.com>
+> 
+> Though ARM64 has the hardware to do tlb shootdown, the hardware
+> broadcasting is not free.
+> A simplest micro benchmark shows even on snapdragon 888 with only
+> 8 cores, the overhead for ptep_clear_flush is huge even for paging
+> out one page mapped by only one process:
+> 5.36%  a.out    [kernel.kallsyms]  [k] ptep_clear_flush
+> 
+> While pages are mapped by multiple processes or HW has more CPUs,
+> the cost should become even higher due to the bad scalability of
+> tlb shootdown.
+> 
+> The same benchmark can result in 16.99% CPU consumption on ARM64
+> server with around 100 cores according to Yicong's test on patch
+> 4/4.
+> 
+> This patchset leverages the existing BATCHED_UNMAP_TLB_FLUSH by
+> 1. only send tlbi instructions in the first stage -
+> 	arch_tlbbatch_add_mm()
+> 2. wait for the completion of tlbi by dsb while doing tlbbatch
+> 	sync in arch_tlbbatch_flush()
+> Testing on snapdragon shows the overhead of ptep_clear_flush
+> is removed by the patchset. The micro benchmark becomes 5% faster
+> even for one page mapped by single process on snapdragon 888.
+> 
+> With this support we're possible to do more optimization for memory
+> reclamation and migration[*].
+> 
+> [*] https://lore.kernel.org/lkml/393d6318-aa38-01ed-6ad8-f9eac89bf0fc@linux.alibaba.com/
+> 
+> -v7:
+> 1. rename arch_tlbbatch_add_mm() to arch_tlbbatch_add_pending() as suggested, since it
+>    takes an extra address for arm64, per Nadav and Anshuman. Also mentioned in the commit.
+> 2. add tags from Xin Hao, thanks.
+> Link: https://lore.kernel.org/lkml/20221115031425.44640-1-yangyicong@huawei.com/
+> 
+> -v6:
+> 1. comment we don't defer TLB flush on platforms affected by ARM64_WORKAROUND_REPEAT_TLBI
+> 2. use cpus_have_const_cap() instead of this_cpu_has_cap()
+> 3. add tags from Punit, Thanks.
+> 4. default enable the feature when cpus >= 8 rather than > 8, since the original
+>    improvement is observed on snapdragon 888 with 8 cores.
+> Link: https://lore.kernel.org/lkml/20221028081255.19157-1-yangyicong@huawei.com/
+> 
+> -v5:
+> 1. Make ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH depends on EXPERT for this stage on arm64.
+> 2. Make a threshold of CPU numbers for enabling batched TLP flush on arm64
+> Link: https://lore.kernel.org/linux-arm-kernel/20220921084302.43631-1-yangyicong@huawei.com/T/
+> 
+> -v4:
+> 1. Add tags from Kefeng and Anshuman, Thanks.
+> 2. Limit the TLB batch/defer on systems with >4 CPUs, per Anshuman
+> 3. Merge previous Patch 1,2-3 into one, per Anshuman
+> Link: https://lore.kernel.org/linux-mm/20220822082120.8347-1-yangyicong@huawei.com/
+> 
+> -v3:
+> 1. Declare arch's tlbbatch defer support by arch_tlbbatch_should_defer() instead
+>    of ARCH_HAS_MM_CPUMASK, per Barry and Kefeng
+> 2. Add Tested-by from Xin Hao
+> Link: https://lore.kernel.org/linux-mm/20220711034615.482895-1-21cnbao@gmail.com/
+> 
+> -v2:
+> 1. Collected Yicong's test result on kunpeng920 ARM64 server;
+> 2. Removed the redundant vma parameter in arch_tlbbatch_add_mm()
+>    according to the comments of Peter Zijlstra and Dave Hansen
+> 3. Added ARCH_HAS_MM_CPUMASK rather than checking if mm_cpumask
+>    is empty according to the comments of Nadav Amit
+> 
+> Thanks, Peter, Dave and Nadav for your testing or reviewing
+> , and comments.
+> 
+> -v1:
+> https://lore.kernel.org/lkml/20220707125242.425242-1-21cnbao@gmail.com/
+> 
+> Anshuman Khandual (1):
+>   mm/tlbbatch: Introduce arch_tlbbatch_should_defer()
+> 
+> Barry Song (1):
+>   arm64: support batched/deferred tlb shootdown during page reclamation
+> 
+>  .../features/vm/TLB/arch-support.txt          |  2 +-
+>  arch/arm64/Kconfig                            |  6 +++
+>  arch/arm64/include/asm/tlbbatch.h             | 12 +++++
+>  arch/arm64/include/asm/tlbflush.h             | 52 ++++++++++++++++++-
+>  arch/x86/include/asm/tlbflush.h               | 17 +++++-
+>  include/linux/mm_types_task.h                 |  4 +-
+>  mm/rmap.c                                     | 19 +++----
+>  7 files changed, 93 insertions(+), 19 deletions(-)
+>  create mode 100644 arch/arm64/include/asm/tlbbatch.h
+> 
