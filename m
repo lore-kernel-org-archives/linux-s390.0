@@ -2,164 +2,112 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BB18EC4321E
-	for <linux-s390@archiver.kernel.org>; Mon, 28 Nov 2022 21:02:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A93EC4332F
+	for <linux-s390@archiver.kernel.org>; Tue, 29 Nov 2022 09:35:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234365AbiK1VCD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 28 Nov 2022 16:02:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37600 "EHLO
+        id S230129AbiK2Jfu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 29 Nov 2022 04:35:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233965AbiK1VB4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Nov 2022 16:01:56 -0500
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E49A32CDE7;
-        Mon, 28 Nov 2022 13:01:54 -0800 (PST)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 00C61D6E;
-        Mon, 28 Nov 2022 13:02:01 -0800 (PST)
-Received: from [10.57.71.118] (unknown [10.57.71.118])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 861FE3F67D;
-        Mon, 28 Nov 2022 13:01:51 -0800 (PST)
-Message-ID: <6c4c3a3e-1d8d-7994-3c03-388ef63dddb3@arm.com>
-Date:   Mon, 28 Nov 2022 21:01:43 +0000
+        with ESMTP id S231883AbiK2Jfs (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Nov 2022 04:35:48 -0500
+Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7E285C768;
+        Tue, 29 Nov 2022 01:35:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1669714545; x=1701250545;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=shWxgKsdB1GFAq34prMvhlGT559Htyp40wmiBBeqxdI=;
+  b=ADfI6Al7OSr+jbUe+jFZBAT4rgmNbZ0jv/hrLzmuvSCji5xKMI6YajLC
+   gZCHPTTKzyqAH/cpTNW48B3LYtWWfv4Y4E2jcFv2et+eqavQjoV0aNmwq
+   IpY7MCTr02f6QLA1xP8AzQ4Apj0g+a6fGgEx6wgmhDdbnXVXfD70dScxJ
+   7cdv6AWjGkxEFYqA0XDgDle73p8cAhjs5g5zmzPN0Nh0BHDG32pkCFvF3
+   CcHa5S7XhQVY8+TnkCU8tgjtIqYDdLTr3tHSc7N3Ulv9vDXtk5i01P6FD
+   gXik7r4INkjAVvjQkN+7WeUz3fY5hKCn1G+svYgqh9aEqPltR140fjT/Y
+   A==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10545"; a="295442186"
+X-IronPort-AV: E=Sophos;i="5.96,202,1665471600"; 
+   d="scan'208";a="295442186"
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Nov 2022 01:35:39 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10545"; a="818156887"
+X-IronPort-AV: E=Sophos;i="5.96,202,1665471600"; 
+   d="scan'208";a="818156887"
+Received: from 984fee00a4c6.jf.intel.com ([10.165.58.231])
+  by orsmga005.jf.intel.com with ESMTP; 29 Nov 2022 01:35:37 -0800
+From:   Yi Liu <yi.l.liu@intel.com>
+To:     jgg@nvidia.com
+Cc:     alex.williamson@redhat.com, kevin.tian@intel.com,
+        kvm@vger.kernel.org, mjrosato@linux.ibm.com,
+        chao.p.peng@linux.intel.com, yi.l.liu@intel.com,
+        yi.y.sun@linux.intel.com, intel-gvt-dev@lists.freedesktop.org,
+        linux-s390@vger.kernel.org, Tony Krowiak <akrowiak@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>
+Subject: [iommufd PATCH v2 0/2] Make mdev driver dma_unmap callback tolerant to unmaps come before device open
+Date:   Tue, 29 Nov 2022 01:35:33 -0800
+Message-Id: <20221129093535.359357-1-yi.l.liu@intel.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101
- Thunderbird/102.5.0
-Subject: Re: [PATCH v2 4/7] iommu: Let iommu.strict override
- ops->def_domain_type
-Content-Language: en-GB
-To:     Jason Gunthorpe <jgg@nvidia.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>
-Cc:     Baolu Lu <baolu.lu@linux.intel.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Gerd Bayer <gbayer@linux.ibm.com>, iommu@lists.linux.dev,
-        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, linux-kernel@vger.kernel.org,
-        Julian Ruess <julianr@linux.ibm.com>
-References: <20221116171656.4128212-1-schnelle@linux.ibm.com>
- <20221116171656.4128212-5-schnelle@linux.ibm.com>
- <33eea9bd-e101-4836-19e8-d4b191b78b00@linux.intel.com>
- <9163440eb6a47fe02730638bbdf72fda5ee5ad2c.camel@linux.ibm.com>
- <Y4S3z6IpeDHmdUs/@nvidia.com>
- <52fe7769ca5b66523c2c93c7d46ebc17dc144aca.camel@linux.ibm.com>
- <Y4TjWOXYD+DK+d/B@nvidia.com>
-From:   Robin Murphy <robin.murphy@arm.com>
-In-Reply-To: <Y4TjWOXYD+DK+d/B@nvidia.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2022-11-28 16:35, Jason Gunthorpe wrote:
-> On Mon, Nov 28, 2022 at 04:54:03PM +0100, Niklas Schnelle wrote:
-> 
->> I agree that there is currently a lack of distinction between what
->> domain types can be used (capability) and which should be used as
->> default (iommu.strict=<x>, iommu_set_...(), CONFIG_IOMMU_DEFAULT_DMA,
->> ops->def_domain_type.).
-> 
-> What I would like to get to is the drivers only expose UNMANAGED,
-> IDENTITY and BLOCKING domains. Everything that the DMA/FQ/etc domains
-> were doing should be handled as some kind of cap.
-> 
-> Eg, after Lu's series:
-> 
-> https://lore.kernel.org/linux-iommu/20221128064648.1934720-1-baolu.lu@linux.intel.com/
-> 
-> We should be able to remove IOMMU_DOMAIN_DMA and its related from the
-> drivers entirely. Instead drivers will provide UNMANAGED domains and
-> dma-iommu.c will operate the UNMANAGED domain to provide the dma
-> api. We can detect if the driver supports this by set_platform_dma()
-> being NULL.
-> 
-> A statement that a driver performs better using SQ/FQ/none should be
-> something that is queried from the UNMANAGED domain as a guidance to
-> dma-iommu.c what configuration to pick if not overriden.
+Jason's "Connect VFIO to IOMMUFD" introduces vfio iommufd compat mode. Under
+this mode, vfio_iommufd_bind() creates an access which has an unmap callback,
+which can be called immediately. This means mdev drivers may receive unmap
+requests before the mdev is opened. For now, there are only three drivers
+(gvt, vfio-ap and vfio-ccw) providing dma_unmap(). vfio-ccw is fine with
+such requests. While gvt-g and vfio-ap may have potential problem with such
+requests due to internal implementation. This series tries to enhance the two
+drivers.
 
-Ack, I'm sure it could be cleaner overall if the driver capabilities 
-didn't come in right at the end of the process with the .domain_alloc 
-dance. As I've said before, I would still like to keep the domain types 
-in the core code (since they already work as a set of capability flags), 
-but drivers not having to deal with them directly would be good. Maybe 
-we dedicate .domain_alloc to paging domains, and have separate device 
-ops for .get_{blocking,identity}_domain, given that optimised 
-implementations of those are likely to be static or at least per-instance.
+This series is based on Jason's below branch.
 
-> So, I would say what you want is some option flag, perhaps on the
-> domain ops: 'domain performs better with SQ or FQ'
+https://github.com/jgunthorpe/linux/tree/iommufd
 
-Although for something that's likely to be global based on whether 
-running virtualised or not, I'd be inclined to try pulling that as far 
-as reasonably possible towards core code.
+(commit: 41973418f6c8c241ed5647d1408d5b917f24dfd8)
 
->> My case though is about the latter which I think has some undocumented
->> and surprising precedences built in at the moment. With this series we
->> can use all of IOMMU_DOMAIN_DMA(_FQ, _SQ) on any PCI device but we want
->> to default to either IOMMU_DOMAIN_DMA_FQ or IOMMU_DOMAIN_SQ based on
->> whether we're running in a paging hypervisor (z/VM or KVM) to get the
->> best performance. From a semantic point of view I felt that this is a
->> good match for ops->def_domain_type in that we pick a default but it's
->> still possible to change the domain type e.g. via sysfs. Now this had
->> the problem that ops->def_domain_type would cause IOMMU_DOMAIN_DMA_FQ
->> to be used even if iommu_set_dma_strict() was called (via
->> iommu.strict=1) because there is a undocumented override of ops-
->>> def_domain_type over iommu_def_domain_type which I believe comes from
->> the mixing of capability and default you also point at.
-> 
-> Yeah, this does sounds troubled.
+Change:
+v2:
+ - Refine the cover letter and commit message of patch 0001 (Kevin)
+ - Rename patch 0001 to better fit the commit message
+ - Add r-b from Zhi for patch 0001
+ - tweak iova range test to assume page-aligned for patch 0002 (Jason)
+ - Remove break so all queues within range are removed for patch 0002 (Kevin)
 
-The initial assumption about .def_domain_type is incorrect, though. From 
-there it's a straightforward path to the conclusion that introducing 
-inconsistency (by using the wrong mechanism) leads to the presence of 
-inconsistency.
+v1: https://lore.kernel.org/kvm/20221123134832.429589-1-yi.l.liu@intel.com/
 
->> I think ideally we need two separate mechanism to determine which
->> domain types can be used for a particular device (capability) and for
->> which one to default to with the latter part having a clear precedence
->> between the options. Put together I think iommu.strict=1 should
->> override a device's preference (ops->def_domain_type) and
->> CONFIG_IOMMU_DEFAULT_DMA to use IOMMU_DOMAIN_DMA but of course only if
->> the device is capable of that. Does that sound reasonable?
-> 
-> Using the language above, if someone asks for strict then the
-> infrastructure should try to allocate an UNMANAGED domain, not an
-> identity domain,
+Cc: Tony Krowiak <akrowiak@linux.ibm.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>
+Cc: Jason Herne <jjherne@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org
+Cc: Zhenyu Wang <zhenyuw@linux.intel.com>
+Cc: Zhi Wang <zhi.a.wang@intel.com>
+Cc: Kevin Tian <kevin.tian@intel.com>
+Cc: intel-gvt-dev@lists.freedesktop.org
 
-Careful, "iommu.strict" refers specifically to the invalidation policy 
-for DMA API domains, and I've tried to be careful to document it as 
-such. It has never been defined to have any impact on anything other 
-than DMA API domains, so I don't think any should be assumed. Control of 
-the basic domain type (identity vs. translation) on the command line has 
-always been via separate parameters, which I think have always had 
-higher priority anyway. With sysfs you can ask for anything, but you'll 
-still only get it if it's safe and guaranteed to work.
+Regards,
+	Yi Liu
 
-> and not use the lazy flush algorithms in dma-iommu.c
-> 
-> Similarly if sysfs asks for lazy flush or identity maps then it should
-> get it, always.
+Matthew Rosato (1):
+  vfio/ap: validate iova during dma_unmap and trigger irq disable
 
-I'm hardly an advocate for trying to save users from themselves, but I 
-honestly can't see any justifiable reason for not having sysfs respect 
-iommu_get_def_domain_type(). If a privileged user wants to screw up the 
-system they're hardly short of options already. Far worse, though, is 
-that someone nefarious would only need to popularise a "make external 
-dGPUs and/or other popular accelerators faster on laptops" udev rule 
-that forces identity domains via sysfs, and bye bye Thunderclap mitigations.
+Yi Liu (1):
+  i915/gvt: Move gvt mapping cache initialization to vGPU creation
 
-> The driver should have no say in how dma-iommu.c works beyond if it
-> provides the required ops functionalities, and hint(s) as to what
-> gives best performance.
+ drivers/gpu/drm/i915/gvt/gvt.h    |  2 ++
+ drivers/gpu/drm/i915/gvt/kvmgt.c  |  7 ++-----
+ drivers/gpu/drm/i915/gvt/vgpu.c   |  2 ++
+ drivers/s390/crypto/vfio_ap_ops.c | 18 +++++++++++++++++-
+ 4 files changed, 23 insertions(+), 6 deletions(-)
 
-That should already be the case today, as outlined in my other mail. 
-It's just somewhat more evolved than designed, so may not be so clear to 
-everyone.
+-- 
+2.34.1
 
-Thanks,
-Robin.
