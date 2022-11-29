@@ -2,34 +2,64 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 54436C4321E
-	for <linux-s390@archiver.kernel.org>; Tue, 29 Nov 2022 12:54:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 40CBCC46467
+	for <linux-s390@archiver.kernel.org>; Tue, 29 Nov 2022 13:52:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231499AbiK2MyD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 29 Nov 2022 07:54:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40940 "EHLO
+        id S234278AbiK2NwS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 29 Nov 2022 08:52:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234639AbiK2MyD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Nov 2022 07:54:03 -0500
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id A30822AC7D;
-        Tue, 29 Nov 2022 04:54:01 -0800 (PST)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 8579BD6E;
-        Tue, 29 Nov 2022 04:54:07 -0800 (PST)
-Received: from [10.57.71.118] (unknown [10.57.71.118])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 366043F73D;
-        Tue, 29 Nov 2022 04:53:58 -0800 (PST)
-Message-ID: <6cd52999-7b01-a613-a9fb-f09a845a27b3@arm.com>
-Date:   Tue, 29 Nov 2022 12:53:54 +0000
+        with ESMTP id S234303AbiK2NwP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Nov 2022 08:52:15 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9908303ED;
+        Tue, 29 Nov 2022 05:52:14 -0800 (PST)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2ATDgTLZ004179;
+        Tue, 29 Nov 2022 13:52:00 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=6QamOlBxwf8aERyTMvj6oT7s7/nhNFkpZpteMjXFw5Y=;
+ b=MZ8zHta/Euri9J9ybpGDC2zJH6VduWBAbYl1KudKA+1a0uOltf2jKptTZiEo8B7EOixc
+ 2PS0qnUZpxmmE7MRtqx74+cWaLNxVcMw28gWtZWgiBM7oxtJjiSdVEYKCs1dSyeEsWrK
+ 5hrvJe+8cOCmqbJfWbS9wcJnktkQpmrw0gdJ5wEe1y4xLOVEODpRlY+vsCfU3A33FoDt
+ hU/wnGeq9qYXRteh64DpVYokdFNERtn1xQUmNJr/k+EJYxjVVKT6JMU5BvJ9aZhnmA1w
+ WTPRZwqCY6LakzjOneNUwe+mKlCY540QLsoMGYtOQbcaQClwHuKaLA1z8nXV8nTR3vSe tA== 
+Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m5k6q088c-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 29 Nov 2022 13:52:00 +0000
+Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
+        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2ATDppHJ007877;
+        Tue, 29 Nov 2022 13:51:59 GMT
+Received: from b03cxnp07028.gho.boulder.ibm.com (b03cxnp07028.gho.boulder.ibm.com [9.17.130.15])
+        by ppma03dal.us.ibm.com with ESMTP id 3m3ae9hye3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 29 Nov 2022 13:51:59 +0000
+Received: from smtpav02.dal12v.mail.ibm.com ([9.208.128.128])
+        by b03cxnp07028.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2ATDpxrR63111812
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 29 Nov 2022 13:52:00 GMT
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CDFA65805C;
+        Tue, 29 Nov 2022 13:51:57 +0000 (GMT)
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 602E45805F;
+        Tue, 29 Nov 2022 13:51:56 +0000 (GMT)
+Received: from [9.160.4.194] (unknown [9.160.4.194])
+        by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
+        Tue, 29 Nov 2022 13:51:56 +0000 (GMT)
+Message-ID: <b72234f9-bc65-2032-7d1a-91028e12ea74@linux.ibm.com>
+Date:   Tue, 29 Nov 2022 08:51:55 -0500
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
  Thunderbird/102.5.0
 Subject: Re: [PATCH v2 7/7] iommu/s390: flush queued IOVAs on RPCIT out of
  resource indication
-Content-Language: en-GB
+Content-Language: en-US
 To:     Niklas Schnelle <schnelle@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Robin Murphy <robin.murphy@arm.com>,
         Gerd Bayer <gbayer@linux.ibm.com>, iommu@lists.linux.dev,
         Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
         Jason Gunthorpe <jgg@nvidia.com>,
@@ -43,15 +73,26 @@ References: <20221116171656.4128212-1-schnelle@linux.ibm.com>
  <20221116171656.4128212-8-schnelle@linux.ibm.com>
  <cf0fed35-2d9d-3d19-3538-1ddcbfd563b0@arm.com>
  <8ae4c9b196aec34df4644ffecb66cfa4ce953244.camel@linux.ibm.com>
-From:   Robin Murphy <robin.murphy@arm.com>
+From:   Matthew Rosato <mjrosato@linux.ibm.com>
 In-Reply-To: <8ae4c9b196aec34df4644ffecb66cfa4ce953244.camel@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: XvtNPxnxOgINUuIfHdiplClwOkfNwyv6
+X-Proofpoint-GUID: XvtNPxnxOgINUuIfHdiplClwOkfNwyv6
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-11-29_08,2022-11-29_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 clxscore=1011
+ mlxlogscore=999 spamscore=0 mlxscore=0 lowpriorityscore=0 impostorscore=0
+ priorityscore=1501 phishscore=0 malwarescore=0 adultscore=0 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2210170000
+ definitions=main-2211290078
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2022-11-29 12:00, Niklas Schnelle wrote:
+On 11/29/22 7:00 AM, Niklas Schnelle wrote:
 > On Mon, 2022-11-28 at 14:52 +0000, Robin Murphy wrote:
 >> On 2022-11-16 17:16, Niklas Schnelle wrote:
 >>> When RPCIT indicates that the underlying hypervisor has run out of
@@ -60,9 +101,9 @@ On 2022-11-29 12:00, Niklas Schnelle wrote:
 >>> IOVA queue we can get the queued IOVAs freed and also get the new
 >>> mapping established during the global flush.
 >>
->> Shouldn't iommu_dma_alloc_iova() already see that the IOVA space is
->> exhausted and fail the DMA API call before even getting as far as
->> iommu_map(), though? Or is there some less obvious limitation like a
+>> Shouldn't iommu_dma_alloc_iova() already see that the IOVA space is 
+>> exhausted and fail the DMA API call before even getting as far as 
+>> iommu_map(), though? Or is there some less obvious limitation like a 
 >> maximum total number of distinct IOVA regions regardless of size?
 > 
 > Well, yes and no. Your thinking is of course correct if the advertised
@@ -75,169 +116,7 @@ On 2022-11-29 12:00, Niklas Schnelle wrote:
 > existing DMA API implementation where this just triggers an early cycle
 > of freeing all unused IOVAs followed by a global flush. On z/VM I know
 > of no situations where this is triggered. That said this signalling is
-> architected so z/VM may have corner cases where it does this. On our
-> bare metal hypervisor (no paging) this return code is unused and IOTLB
-> flushes are simply hardware cache flushes as on bare metal platforms.
-> 
-> [0]
-> https://lore.kernel.org/qemu-devel/20221028194758.204007-4-mjrosato@linux.ibm.com/
 
-That sheds a bit more light, thanks, although I'm still not confident I 
-fully understand the whole setup. AFAICS that patch looks to me like 
-it's putting a fixed limit on the size of the usable address space. That 
-in turn implies that "free some IOVAs and try again" might be a red 
-herring and never going to work; for your current implementation, what 
-that presumably means in reality is "free some IOVAs, resetting the 
-allocator to start allocating lower down in the address space where it 
-will happen to be below that limit, and try again", but the iommu-dma 
-allocator won't do that. If it doesn't know that some arbitrary range 
-below the top of the driver-advertised aperture is unusable, it will 
-just keep allocating IOVAs up there and mappings will always fail.
+While the QEMU case made for an easily-reproducible scenario, the indication was really provided to handle a scenario where you have multiple pageable guests whose sum of total memory is overcommitted as compared to the hypervisor's resources.  The intent is for the entire advertised guest aperture to be usable and generally-speaking it is, but it's possible to find yourself in a (poorly tuned) scenario where the hypervisor is unable to pin additional pages (basically an OOM condition) -- the hypervisor (qemu/kvm or z/VM) can use this as a cry for help to say "stop what you're doing and flush your queues immediately so I can unpin as much as possible", and then after that the guest(s) can continue using their aperture.  
 
-If the driver can't accurately represent the usable IOVA space via the 
-aperture and/or reserved regions, then this whole approach seems doomed. 
-If on the other hand I've misunderstood and you can actually still use 
-any address, just not all of them at the same time, then it might in 
-fact be considerably easier to skip the flush queue mechanism entirely 
-and implement this internally to the driver - basically make .iotlb_sync 
-a no-op for non-strict DMA domains, put the corresponding RPCIT flush 
-and retry in .sync_map, then allow that to propagate an error back to 
-iommu_map() if the new mapping still hasn't taken.
-
-Thanks,
-Robin.
-
->> Other than the firmware reserved region helpers which are necessarily a
->> bit pick-and-mix, I've been trying to remove all the iommu-dma details
->> from drivers, so I'd really like to maintain that separation if at all
->> possible.
-> 
-> Hmm, tough one. Having a flush queue implies that we're holding on to
-> IOVAs that we could free and this is kind of directly architected into
-> our IOTLB flush with this "free some IOVAs and try again" error return.
-> 
->>
->>> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
->>> ---
->>>    drivers/iommu/dma-iommu.c  | 14 +++++++++-----
->>>    drivers/iommu/dma-iommu.h  |  1 +
->>>    drivers/iommu/s390-iommu.c |  7 +++++--
->>>    3 files changed, 15 insertions(+), 7 deletions(-)
->>>
->>> diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
->>> index 3801cdf11aa8..54e7f63fd0d9 100644
->>> --- a/drivers/iommu/dma-iommu.c
->>> +++ b/drivers/iommu/dma-iommu.c
->>> @@ -188,19 +188,23 @@ static void fq_flush_single(struct iommu_dma_cookie *cookie)
->>>    	spin_unlock_irqrestore(&fq->lock, flags);
->>>    }
->>>    
->>> -static void fq_flush_timeout(struct timer_list *t)
->>> +void iommu_dma_flush_fq(struct iommu_dma_cookie *cookie)
->>>    {
->>> -	struct iommu_dma_cookie *cookie = from_timer(cookie, t, fq_timer);
->>> -
->>> -	atomic_set(&cookie->fq_timer_on, 0);
->>>    	fq_flush_iotlb(cookie);
->>> -
->>>    	if (cookie->fq_domain->type == IOMMU_DOMAIN_DMA_FQ)
->>>    		fq_flush_percpu(cookie);
->>>    	else
->>>    		fq_flush_single(cookie);
->>>    }
->>>    
->>> +static void fq_flush_timeout(struct timer_list *t)
->>> +{
->>> +	struct iommu_dma_cookie *cookie = from_timer(cookie, t, fq_timer);
->>> +
->>> +	atomic_set(&cookie->fq_timer_on, 0);
->>> +	iommu_dma_flush_fq(cookie);
->>> +}
->>> +
->>>    static void queue_iova(struct iommu_dma_cookie *cookie,
->>>    		unsigned long pfn, unsigned long pages,
->>>    		struct list_head *freelist)
->>> diff --git a/drivers/iommu/dma-iommu.h b/drivers/iommu/dma-iommu.h
->>> index 942790009292..cac06030aa26 100644
->>> --- a/drivers/iommu/dma-iommu.h
->>> +++ b/drivers/iommu/dma-iommu.h
->>> @@ -13,6 +13,7 @@ int iommu_get_dma_cookie(struct iommu_domain *domain);
->>>    void iommu_put_dma_cookie(struct iommu_domain *domain);
->>>    
->>>    int iommu_dma_init_fq(struct iommu_domain *domain);
->>> +void iommu_dma_flush_fq(struct iommu_dma_cookie *cookie);
->>>    
->>>    void iommu_dma_get_resv_regions(struct device *dev, struct list_head *list);
->>>    
->>> diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
->>> index 087bb2acff30..9c2782c4043e 100644
->>> --- a/drivers/iommu/s390-iommu.c
->>> +++ b/drivers/iommu/s390-iommu.c
->>> @@ -538,14 +538,17 @@ static void s390_iommu_iotlb_sync_map(struct iommu_domain *domain,
->>>    {
->>>    	struct s390_domain *s390_domain = to_s390_domain(domain);
->>>    	struct zpci_dev *zdev;
->>> +	int rc;
->>>    
->>>    	rcu_read_lock();
->>>    	list_for_each_entry_rcu(zdev, &s390_domain->devices, iommu_list) {
->>>    		if (!zdev->tlb_refresh)
->>>    			continue;
->>>    		atomic64_inc(&s390_domain->ctrs.sync_map_rpcits);
->>> -		zpci_refresh_trans((u64)zdev->fh << 32,
->>> -				   iova, size);
->>> +		rc = zpci_refresh_trans((u64)zdev->fh << 32,
->>> +					iova, size);
->>> +		if (rc == -ENOMEM)
->>> +			iommu_dma_flush_fq(domain->iova_cookie);
->>
->> Could -ENOMEM ever be returned for some reason on an IOMMU_DOMAIN_DMA or
->> IOMMU_DOMAIN_UNMANAGED domain?
-> 
-> In theory yes and then iommu_dma_flush_fq() still does the
-> .flush_iotlb_all to give the hypervisor a chance to look for freed
-> IOVAs but without flush queues you're really just running out of IOVA
-> space and that's futile.
-> 
-> This does highlight an important missed issue though. As we don't
-> return the resulting error from the subsequent .flush_iotlb_all we only
-> find out if this didn't work once the mapping is used while in our
-> current DMA API implementation we correctly return DMA_MAPPING_ERROR in
-> this case. I guess this means we do need error returns from the IOTLB
-> helpers since in a paged guest this is where we finally find out that
-> our mapping couldn't be synced to the hypervisor's  shadow table and I
-> don't really see a way around that. Also there are other error
-> conditions implied in this shadowing too, for example the hypervisor
-> could simply fail to pin guest memory and while we can't do anything
-> about that at least we should fail the mapping operation.
-> 
->>
->> However I can't figure out how this is supposed to work anyway -
->> .sync_map only gets called if .map claimed that the actual mapping(s)
->> succeeded, it can't fail itself, and even if it does free up some IOVAs
->> at this point by draining the flush queue, I don't see how the mapping
->> then gets retried, or what happens if it still fails after that :/
->>
->> Thanks,
->> Robin.
-> 
-> Yeah, this is a bit non obvious and you are correct in that the
-> architecture requires a subseqeunt IOTLB flush i.e. retry for the range
-> that returned the error. And your last point is then exactly the issue
-> above that we miss if the retry still failed.
-> 
-> As for the good path, in the mapping operation but before the .sync_map
-> we have updated the IOMMU translation table so the translation is the
-> recorded but not synced to the hypervisor's shadow table. Now when the
-> .sync_map is called and the IOTLB flush returns -ENOMEM then
-> iommu_dma_flush_fq() will call .flush_iotlb_all which causes the
-> hypervisor to look at the entire guest translation table and shadow all
-> translations that were not yet shadowed. I.e. the .flush_iotlb_all
-> "retries" the failed .sync_map.
-> 
->>
->>>    	}
->>>    	rcu_read_unlock();
->>>    }
-> 
-> 
+This is unnecessary for the no-paging bare metal hypervisor because there you aren't over-committing memory.
