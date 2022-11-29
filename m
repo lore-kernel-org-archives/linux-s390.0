@@ -2,155 +2,132 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5482EC433FE
-	for <linux-s390@archiver.kernel.org>; Tue, 29 Nov 2022 22:02:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A05AC4167B
+	for <linux-s390@archiver.kernel.org>; Tue, 29 Nov 2022 23:23:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236549AbiK2WCk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 29 Nov 2022 17:02:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42066 "EHLO
+        id S229544AbiK2XXK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 29 Nov 2022 18:23:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236298AbiK2WCh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Nov 2022 17:02:37 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97F232AD5;
-        Tue, 29 Nov 2022 14:02:34 -0800 (PST)
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2ATLo9So011304;
-        Tue, 29 Nov 2022 22:02:27 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=Lcetb9RicIcWglNgifjgHubk9ZhIypVPUet+BElnXMA=;
- b=sXtEemQR0Qv/A7TEgG2UhLXWTWwwzwZIEmAAzjZNJGhuW+6q1FZEnnFaH//Yfqy3su+C
- gPOiQFSD5jhJjNIZCRhZ4CtdmRBuGLSWXcD2xSBWf+r+In80pbYVa5a0FUGe82kjokIr
- RJ7hSmvETKKxNeS4vGZlTA3FPrgvldcpMGSWVKcJ56Ys6frp6ixgTcopPPwwhVybYhMf
- eUwOkzyIGQJBS3rLOq3lHfauh5QwaAwFSSOc+c2AaWMeWDxxD1NZw/TqP9yoozyy/0QP
- NljpUgAPrH5mmyTB3QsDXmf3NDw2lC3oVSXQvZ7wPXfHYRrTM4D9lFeuOMdy1zPD/S/T 6Q== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m5qr1v7ds-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 29 Nov 2022 22:02:27 +0000
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2ATLrILs022914;
-        Tue, 29 Nov 2022 22:02:26 GMT
-Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m5qr1v7dj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 29 Nov 2022 22:02:26 +0000
-Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
-        by ppma05wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2ATLpMvp008691;
-        Tue, 29 Nov 2022 22:02:26 GMT
-Received: from b03cxnp08027.gho.boulder.ibm.com (b03cxnp08027.gho.boulder.ibm.com [9.17.130.19])
-        by ppma05wdc.us.ibm.com with ESMTP id 3m3t71kpnv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 29 Nov 2022 22:02:26 +0000
-Received: from smtpav06.dal12v.mail.ibm.com ([9.208.128.130])
-        by b03cxnp08027.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2ATM2LR554657332
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 29 Nov 2022 22:02:21 GMT
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 89B265805F;
-        Tue, 29 Nov 2022 22:02:24 +0000 (GMT)
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id AE63E58055;
-        Tue, 29 Nov 2022 22:02:23 +0000 (GMT)
-Received: from [9.65.217.194] (unknown [9.65.217.194])
-        by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 29 Nov 2022 22:02:23 +0000 (GMT)
-Message-ID: <69fd3f57-4589-2d9e-3aa1-7959cc1711e6@linux.ibm.com>
-Date:   Tue, 29 Nov 2022 17:02:23 -0500
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.0
-Subject: Re: [[RESEND] iommufd PATCH v2 2/2] vfio/ap: validate iova during
- dma_unmap and trigger irq disable
-To:     Yi Liu <yi.l.liu@intel.com>, jgg@nvidia.com
-Cc:     alex.williamson@redhat.com, kevin.tian@intel.com,
-        kvm@vger.kernel.org, mjrosato@linux.ibm.com,
-        chao.p.peng@linux.intel.com, yi.y.sun@linux.intel.com,
-        intel-gvt-dev@lists.freedesktop.org, linux-s390@vger.kernel.org,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>
-References: <20221129105831.466954-1-yi.l.liu@intel.com>
- <20221129105831.466954-3-yi.l.liu@intel.com>
-Content-Language: en-US
-From:   Anthony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <20221129105831.466954-3-yi.l.liu@intel.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+        with ESMTP id S229449AbiK2XXK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Nov 2022 18:23:10 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9ED885289E;
+        Tue, 29 Nov 2022 15:23:09 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1BFC06195D;
+        Tue, 29 Nov 2022 23:23:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A426C433C1;
+        Tue, 29 Nov 2022 23:23:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1669764188;
+        bh=0fdNX9QhucmvGYsJWGOg9jQeFn+znvsZsA3GeeD73CM=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=oBPkt6FJJWfvsgtGvs6SjxHs/2kYEDb40oxeDjWBuNGLbmZH0jVfpuraJ/TrV9+F4
+         hqoAFA2+L/RlQ1wICENr1s9GsmPkIDc9zBUGenqCJRgb4PHm3qYEnMhYXx+xLEakLb
+         I+GNCiUTX4XFglOckyjmCJUxKp2DIu33twwtFObY=
+Date:   Tue, 29 Nov 2022 15:23:06 -0800
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     Yicong Yang <yangyicong@huawei.com>
+Cc:     <linux-mm@kvack.org>, <linux-arm-kernel@lists.infradead.org>,
+        <x86@kernel.org>, <catalin.marinas@arm.com>, <will@kernel.org>,
+        <anshuman.khandual@arm.com>, <linux-doc@vger.kernel.org>,
+        <corbet@lwn.net>, <peterz@infradead.org>, <arnd@arndb.de>,
+        <punit.agrawal@bytedance.com>, <linux-kernel@vger.kernel.org>,
+        <darren@os.amperecomputing.com>, <yangyicong@hisilicon.com>,
+        <huzhanyuan@oppo.com>, <lipeifeng@oppo.com>,
+        <zhangshiming@oppo.com>, <guojian@oppo.com>, <realmz6@gmail.com>,
+        <linux-mips@vger.kernel.org>, <openrisc@lists.librecores.org>,
+        <linuxppc-dev@lists.ozlabs.org>, <linux-riscv@lists.infradead.org>,
+        <linux-s390@vger.kernel.org>, Barry Song <21cnbao@gmail.com>,
+        <wangkefeng.wang@huawei.com>, <xhao@linux.alibaba.com>,
+        <prime.zeng@hisilicon.com>,
+        Anshuman Khandual <khandual@linux.vnet.ibm.com>,
+        Barry Song <baohua@kernel.org>
+Subject: Re: [PATCH v7 1/2] mm/tlbbatch: Introduce
+ arch_tlbbatch_should_defer()
+Message-Id: <20221129152306.54b6d439e2a0ca7ece1d1afa@linux-foundation.org>
+In-Reply-To: <20221117082648.47526-2-yangyicong@huawei.com>
+References: <20221117082648.47526-1-yangyicong@huawei.com>
+        <20221117082648.47526-2-yangyicong@huawei.com>
+X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: plbhbYOf4vNN-hd8idCHfl5ZOPcO-zZ6
-X-Proofpoint-ORIG-GUID: T-dzPpbJb3dB6B702_08VyItjyj50BjP
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-11-29_13,2022-11-29_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 suspectscore=0
- malwarescore=0 bulkscore=0 mlxlogscore=999 spamscore=0 adultscore=0
- clxscore=1011 priorityscore=1501 mlxscore=0 lowpriorityscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2210170000 definitions=main-2211290127
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-LGTM:
+On Thu, 17 Nov 2022 16:26:47 +0800 Yicong Yang <yangyicong@huawei.com> wrote:
 
-Reviewed-by: Tony Krowiak <akrowiak@linux.ibm.com>
-
-On 11/29/22 5:58 AM, Yi Liu wrote:
-> From: Matthew Rosato <mjrosato@linux.ibm.com>
+> From: Anshuman Khandual <khandual@linux.vnet.ibm.com>
+> 
+> The entire scheme of deferred TLB flush in reclaim path rests on the
+> fact that the cost to refill TLB entries is less than flushing out
+> individual entries by sending IPI to remote CPUs. But architecture
+> can have different ways to evaluate that. Hence apart from checking
+> TTU_BATCH_FLUSH in the TTU flags, rest of the decision should be
+> architecture specific.
+> 
+> ...
 >
-> Currently, each mapped iova is stashed in its associated vfio_ap_queue;
-> when we get an unmap request, validate that it matches with one or more
-> of these stashed values before attempting unpins.
->
-> Each stashed iova represents IRQ that was enabled for a queue.  Therefore,
-> if a match is found, trigger IRQ disable for this queue to ensure that
-> underlying firmware will no longer try to use the associated pfn after
-> the page is unpinned. IRQ disable will also handle the associated unpin.
->
-> Cc: Tony Krowiak <akrowiak@linux.ibm.com>
-> Cc: Halil Pasic <pasic@linux.ibm.com>
-> Cc: Jason Herne <jjherne@linux.ibm.com>
-> Cc: linux-s390@vger.kernel.org
-> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> Signed-off-by: Yi Liu <yi.l.liu@intel.com>
-> ---
->   drivers/s390/crypto/vfio_ap_ops.c | 18 +++++++++++++++++-
->   1 file changed, 17 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> index 0b4cc8c597ae..8bf353d46820 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -1535,13 +1535,29 @@ static int vfio_ap_mdev_set_kvm(struct ap_matrix_mdev *matrix_mdev,
->   	return 0;
->   }
->   
-> +static void unmap_iova(struct ap_matrix_mdev *matrix_mdev, u64 iova, u64 length)
+> --- a/arch/x86/include/asm/tlbflush.h
+> +++ b/arch/x86/include/asm/tlbflush.h
+> @@ -240,6 +240,18 @@ static inline void flush_tlb_page(struct vm_area_struct *vma, unsigned long a)
+>  	flush_tlb_mm_range(vma->vm_mm, a, a + PAGE_SIZE, PAGE_SHIFT, false);
+>  }
+>  
+> +static inline bool arch_tlbbatch_should_defer(struct mm_struct *mm)
 > +{
-> +	struct ap_queue_table *qtable = &matrix_mdev->qtable;
-> +	struct vfio_ap_queue *q;
-> +	int loop_cursor;
+> +	bool should_defer = false;
 > +
-> +	hash_for_each(qtable->queues, loop_cursor, q, mdev_qnode) {
-> +		if (q->saved_iova >= iova && q->saved_iova < iova + length)
-> +			vfio_ap_irq_disable(q);
-> +	}
+> +	/* If remote CPUs need to be flushed then defer batch the flush */
+> +	if (cpumask_any_but(mm_cpumask(mm), get_cpu()) < nr_cpu_ids)
+> +		should_defer = true;
+> +	put_cpu();
+> +
+> +	return should_defer;
 > +}
 > +
->   static void vfio_ap_mdev_dma_unmap(struct vfio_device *vdev, u64 iova,
->   				   u64 length)
->   {
->   	struct ap_matrix_mdev *matrix_mdev =
->   		container_of(vdev, struct ap_matrix_mdev, vdev);
->   
-> -	vfio_unpin_pages(&matrix_mdev->vdev, iova, 1);
-> +	mutex_lock(&matrix_dev->mdevs_lock);
-> +
-> +	unmap_iova(matrix_mdev, iova, length);
-> +
-> +	mutex_unlock(&matrix_dev->mdevs_lock);
->   }
->   
->   /**
+>  static inline u64 inc_mm_tlb_gen(struct mm_struct *mm)
+>  {
+>  	/*
+> diff --git a/mm/rmap.c b/mm/rmap.c
+> index 2ec925e5fa6a..a9ab10bc0144 100644
+> --- a/mm/rmap.c
+> +++ b/mm/rmap.c
+> @@ -685,17 +685,10 @@ static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable)
+>   */
+>  static bool should_defer_flush(struct mm_struct *mm, enum ttu_flags flags)
+>  {
+> -	bool should_defer = false;
+> -
+>  	if (!(flags & TTU_BATCH_FLUSH))
+>  		return false;
+>  
+> -	/* If remote CPUs need to be flushed then defer batch the flush */
+> -	if (cpumask_any_but(mm_cpumask(mm), get_cpu()) < nr_cpu_ids)
+> -		should_defer = true;
+> -	put_cpu();
+> -
+> -	return should_defer;
+> +	return arch_tlbbatch_should_defer(mm);
+>  }
+
+I think this conversion could have been done better.
+
+should_defer_flush() is compiled if
+CONFIG_ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH.  So the patch implicitly
+assumes that only x86 implements
+CONFIG_ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH.  Presently true, but what
+happens if sparc (for example) wants to set
+CONFIG_ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH?  Now sparc needs its private
+version of arch_tlbbatch_should_defer(), even if that is identical to
+x86's.
+
+Wouldn't it be better to make arch_tlbbatch_should_defer() a __weak
+function in rmap.c, or a static inline inside #ifndef
+ARCH_HAS_ARCH_TLBBATCH_SHOULD_DEFER, or whatever technique best fits?
+
