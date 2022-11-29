@@ -2,157 +2,256 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 78DBCC47089
-	for <linux-s390@archiver.kernel.org>; Tue, 29 Nov 2022 11:09:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B0FEC4167B
+	for <linux-s390@archiver.kernel.org>; Tue, 29 Nov 2022 12:02:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232559AbiK2LJe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 29 Nov 2022 06:09:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51340 "EHLO
+        id S231991AbiK2MCU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 29 Nov 2022 07:02:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232400AbiK2LJd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Nov 2022 06:09:33 -0500
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D88F12BCF;
-        Tue, 29 Nov 2022 03:09:30 -0800 (PST)
-Received: from canpemm500009.china.huawei.com (unknown [172.30.72.53])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4NM02T6VXhzRpc6;
-        Tue, 29 Nov 2022 19:08:49 +0800 (CST)
-Received: from [10.67.102.169] (10.67.102.169) by
- canpemm500009.china.huawei.com (7.192.105.203) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Tue, 29 Nov 2022 19:09:28 +0800
-CC:     <anshuman.khandual@arm.com>, <corbet@lwn.net>,
-        <peterz@infradead.org>, <arnd@arndb.de>,
-        <punit.agrawal@bytedance.com>, <linux-kernel@vger.kernel.org>,
-        <darren@os.amperecomputing.com>, <yangyicong@hisilicon.com>,
-        <huzhanyuan@oppo.com>, <lipeifeng@oppo.com>,
-        <zhangshiming@oppo.com>, <guojian@oppo.com>, <realmz6@gmail.com>,
-        <linux-mips@vger.kernel.org>, <openrisc@lists.librecores.org>,
-        <linuxppc-dev@lists.ozlabs.org>, <linux-riscv@lists.infradead.org>,
-        <linux-s390@vger.kernel.org>, Barry Song <21cnbao@gmail.com>,
-        <wangkefeng.wang@huawei.com>, <xhao@linux.alibaba.com>,
-        <prime.zeng@hisilicon.com>, <linux-mm@kvack.org>,
-        <linux-arm-kernel@lists.infradead.org>, <x86@kernel.org>,
-        <linux-doc@vger.kernel.org>
-Subject: Re: [PATCH v7 0/2] arm64: support batched/deferred tlb shootdown
- during page reclamation
-From:   Yicong Yang <yangyicong@huawei.com>
-To:     <akpm@linux-foundation.org>, <catalin.marinas@arm.com>,
-        <will@kernel.org>
-References: <20221117082648.47526-1-yangyicong@huawei.com>
-Message-ID: <938c4c00-8cf9-b37a-d70e-04262d86f01c@huawei.com>
-Date:   Tue, 29 Nov 2022 19:09:28 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.5.1
-MIME-Version: 1.0
-In-Reply-To: <20221117082648.47526-1-yangyicong@huawei.com>
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S233603AbiK2MAx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Nov 2022 07:00:53 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE6E45C77C;
+        Tue, 29 Nov 2022 04:00:37 -0800 (PST)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2ATBv2w7037071;
+        Tue, 29 Nov 2022 12:00:21 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=SC4NjYRDh9M0bE+neU+qz5RfH5uhNsCyUt7mDJNsJ0M=;
+ b=JQCIrsokkfpt0Nj6T7Snef1uIfTb74LfWHiVL0f+ggj4Y2gpCabVScewRmLEpfZ/w3y4
+ v3rf7hrdDVY/yZELfT0PvNy6iM14g9jTbq+jScb9r7BnVelGDKm3LHa/3Fg13dUc5c1h
+ CAZl+74yKogx2JD+aak375UQn6zhznSaqpHRVSubqo5SWBGoyd17AF+MlZkOhoIgFgLb
+ PuiFSIlSygNNe+AAVasi+kw0FfEjQYqTtznqOr++cLyAXX1buTT8sVfpowrvrCNxJNFw
+ /5zRlp8d5Sgsot8qDmTlFuGDulOYggtPtuRmUholC6oRsl7QxvvauM5zhU88spU0buU9 3w== 
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m5dfs6ye4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 29 Nov 2022 12:00:20 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2ATBprha013383;
+        Tue, 29 Nov 2022 12:00:18 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma04fra.de.ibm.com with ESMTP id 3m3ae92w0e-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 29 Nov 2022 12:00:18 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2ATC0EMZ35586500
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 29 Nov 2022 12:00:15 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CB94B4C046;
+        Tue, 29 Nov 2022 12:00:14 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EC4AE4C040;
+        Tue, 29 Nov 2022 12:00:13 +0000 (GMT)
+Received: from sig-9-145-33-31.uk.ibm.com (unknown [9.145.33.31])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 29 Nov 2022 12:00:13 +0000 (GMT)
+Message-ID: <8ae4c9b196aec34df4644ffecb66cfa4ce953244.camel@linux.ibm.com>
+Subject: Re: [PATCH v2 7/7] iommu/s390: flush queued IOVAs on RPCIT out of
+ resource indication
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Robin Murphy <robin.murphy@arm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Gerd Bayer <gbayer@linux.ibm.com>, iommu@lists.linux.dev,
+        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>
+Cc:     Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org,
+        borntraeger@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, linux-kernel@vger.kernel.org,
+        Julian Ruess <julianr@linux.ibm.com>
+Date:   Tue, 29 Nov 2022 13:00:13 +0100
+In-Reply-To: <cf0fed35-2d9d-3d19-3538-1ddcbfd563b0@arm.com>
+References: <20221116171656.4128212-1-schnelle@linux.ibm.com>
+         <20221116171656.4128212-8-schnelle@linux.ibm.com>
+         <cf0fed35-2d9d-3d19-3538-1ddcbfd563b0@arm.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: aZjav8jqBHp_kQGzX-L0-4nmky5F3HT_
+X-Proofpoint-ORIG-GUID: aZjav8jqBHp_kQGzX-L0-4nmky5F3HT_
 Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.67.102.169]
-X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
- canpemm500009.china.huawei.com (7.192.105.203)
-X-CFilter-Loop: Reflected
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-11-29_07,2022-11-29_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ malwarescore=0 phishscore=0 spamscore=0 adultscore=0 clxscore=1015
+ mlxscore=0 mlxlogscore=999 priorityscore=1501 bulkscore=0 suspectscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211290069
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-a gentle ping...
+On Mon, 2022-11-28 at 14:52 +0000, Robin Murphy wrote:
+> On 2022-11-16 17:16, Niklas Schnelle wrote:
+> > When RPCIT indicates that the underlying hypervisor has run out of
+> > resources it often means that its IOVA space is exhausted and IOVAs need
+> > to be freed before new ones can be created. By triggering a flush of the
+> > IOVA queue we can get the queued IOVAs freed and also get the new
+> > mapping established during the global flush.
+> 
+> Shouldn't iommu_dma_alloc_iova() already see that the IOVA space is 
+> exhausted and fail the DMA API call before even getting as far as 
+> iommu_map(), though? Or is there some less obvious limitation like a 
+> maximum total number of distinct IOVA regions regardless of size?
 
-Hi Andrew, Will and Catalin,
+Well, yes and no. Your thinking is of course correct if the advertised
+available IOVA space can be fully utilized without exhausting
+hypervisor resources we won't trigger this case. However sadly there
+are complications. The most obvious being that in QEMU/KVM the
+restriction of the IOVA space to what QEMU can actually have mapped at
+once was just added recently[0] prior to that we would regularly go
+through this "I'm out of resources free me some IOVAs" dance with our
+existing DMA API implementation where this just triggers an early cycle
+of freeing all unused IOVAs followed by a global flush. On z/VM I know
+of no situations where this is triggered. That said this signalling is
+architected so z/VM may have corner cases where it does this. On our
+bare metal hypervisor (no paging) this return code is unused and IOTLB
+flushes are simply hardware cache flushes as on bare metal platforms. 
 
-is it ok to pick this series?
+[0] 
+https://lore.kernel.org/qemu-devel/20221028194758.204007-4-mjrosato@linux.ibm.com/
 
-Thanks.
+> 
+> Other than the firmware reserved region helpers which are necessarily a 
+> bit pick-and-mix, I've been trying to remove all the iommu-dma details 
+> from drivers, so I'd really like to maintain that separation if at all 
+> possible.
 
-On 2022/11/17 16:26, Yicong Yang wrote:
-> From: Yicong Yang <yangyicong@hisilicon.com>
+Hmm, tough one. Having a flush queue implies that we're holding on to
+IOVAs that we could free and this is kind of directly architected into
+our IOTLB flush with this "free some IOVAs and try again" error return.
+
 > 
-> Though ARM64 has the hardware to do tlb shootdown, the hardware
-> broadcasting is not free.
-> A simplest micro benchmark shows even on snapdragon 888 with only
-> 8 cores, the overhead for ptep_clear_flush is huge even for paging
-> out one page mapped by only one process:
-> 5.36%  a.out    [kernel.kallsyms]  [k] ptep_clear_flush
+> > Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> > ---
+> >   drivers/iommu/dma-iommu.c  | 14 +++++++++-----
+> >   drivers/iommu/dma-iommu.h  |  1 +
+> >   drivers/iommu/s390-iommu.c |  7 +++++--
+> >   3 files changed, 15 insertions(+), 7 deletions(-)
+> > 
+> > diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
+> > index 3801cdf11aa8..54e7f63fd0d9 100644
+> > --- a/drivers/iommu/dma-iommu.c
+> > +++ b/drivers/iommu/dma-iommu.c
+> > @@ -188,19 +188,23 @@ static void fq_flush_single(struct iommu_dma_cookie *cookie)
+> >   	spin_unlock_irqrestore(&fq->lock, flags);
+> >   }
+> >   
+> > -static void fq_flush_timeout(struct timer_list *t)
+> > +void iommu_dma_flush_fq(struct iommu_dma_cookie *cookie)
+> >   {
+> > -	struct iommu_dma_cookie *cookie = from_timer(cookie, t, fq_timer);
+> > -
+> > -	atomic_set(&cookie->fq_timer_on, 0);
+> >   	fq_flush_iotlb(cookie);
+> > -
+> >   	if (cookie->fq_domain->type == IOMMU_DOMAIN_DMA_FQ)
+> >   		fq_flush_percpu(cookie);
+> >   	else
+> >   		fq_flush_single(cookie);
+> >   }
+> >   
+> > +static void fq_flush_timeout(struct timer_list *t)
+> > +{
+> > +	struct iommu_dma_cookie *cookie = from_timer(cookie, t, fq_timer);
+> > +
+> > +	atomic_set(&cookie->fq_timer_on, 0);
+> > +	iommu_dma_flush_fq(cookie);
+> > +}
+> > +
+> >   static void queue_iova(struct iommu_dma_cookie *cookie,
+> >   		unsigned long pfn, unsigned long pages,
+> >   		struct list_head *freelist)
+> > diff --git a/drivers/iommu/dma-iommu.h b/drivers/iommu/dma-iommu.h
+> > index 942790009292..cac06030aa26 100644
+> > --- a/drivers/iommu/dma-iommu.h
+> > +++ b/drivers/iommu/dma-iommu.h
+> > @@ -13,6 +13,7 @@ int iommu_get_dma_cookie(struct iommu_domain *domain);
+> >   void iommu_put_dma_cookie(struct iommu_domain *domain);
+> >   
+> >   int iommu_dma_init_fq(struct iommu_domain *domain);
+> > +void iommu_dma_flush_fq(struct iommu_dma_cookie *cookie);
+> >   
+> >   void iommu_dma_get_resv_regions(struct device *dev, struct list_head *list);
+> >   
+> > diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
+> > index 087bb2acff30..9c2782c4043e 100644
+> > --- a/drivers/iommu/s390-iommu.c
+> > +++ b/drivers/iommu/s390-iommu.c
+> > @@ -538,14 +538,17 @@ static void s390_iommu_iotlb_sync_map(struct iommu_domain *domain,
+> >   {
+> >   	struct s390_domain *s390_domain = to_s390_domain(domain);
+> >   	struct zpci_dev *zdev;
+> > +	int rc;
+> >   
+> >   	rcu_read_lock();
+> >   	list_for_each_entry_rcu(zdev, &s390_domain->devices, iommu_list) {
+> >   		if (!zdev->tlb_refresh)
+> >   			continue;
+> >   		atomic64_inc(&s390_domain->ctrs.sync_map_rpcits);
+> > -		zpci_refresh_trans((u64)zdev->fh << 32,
+> > -				   iova, size);
+> > +		rc = zpci_refresh_trans((u64)zdev->fh << 32,
+> > +					iova, size);
+> > +		if (rc == -ENOMEM)
+> > +			iommu_dma_flush_fq(domain->iova_cookie);
 > 
-> While pages are mapped by multiple processes or HW has more CPUs,
-> the cost should become even higher due to the bad scalability of
-> tlb shootdown.
+> Could -ENOMEM ever be returned for some reason on an IOMMU_DOMAIN_DMA or 
+> IOMMU_DOMAIN_UNMANAGED domain?
+
+In theory yes and then iommu_dma_flush_fq() still does the
+.flush_iotlb_all to give the hypervisor a chance to look for freed
+IOVAs but without flush queues you're really just running out of IOVA
+space and that's futile.
+
+This does highlight an important missed issue though. As we don't
+return the resulting error from the subsequent .flush_iotlb_all we only
+find out if this didn't work once the mapping is used while in our
+current DMA API implementation we correctly return DMA_MAPPING_ERROR in
+this case. I guess this means we do need error returns from the IOTLB
+helpers since in a paged guest this is where we finally find out that
+our mapping couldn't be synced to the hypervisor's  shadow table and I
+don't really see a way around that. Also there are other error
+conditions implied in this shadowing too, for example the hypervisor
+could simply fail to pin guest memory and while we can't do anything
+about that at least we should fail the mapping operation.
+
 > 
-> The same benchmark can result in 16.99% CPU consumption on ARM64
-> server with around 100 cores according to Yicong's test on patch
-> 4/4.
+> However I can't figure out how this is supposed to work anyway - 
+> .sync_map only gets called if .map claimed that the actual mapping(s) 
+> succeeded, it can't fail itself, and even if it does free up some IOVAs 
+> at this point by draining the flush queue, I don't see how the mapping 
+> then gets retried, or what happens if it still fails after that :/
 > 
-> This patchset leverages the existing BATCHED_UNMAP_TLB_FLUSH by
-> 1. only send tlbi instructions in the first stage -
-> 	arch_tlbbatch_add_mm()
-> 2. wait for the completion of tlbi by dsb while doing tlbbatch
-> 	sync in arch_tlbbatch_flush()
-> Testing on snapdragon shows the overhead of ptep_clear_flush
-> is removed by the patchset. The micro benchmark becomes 5% faster
-> even for one page mapped by single process on snapdragon 888.
+> Thanks,
+> Robin.
+
+Yeah, this is a bit non obvious and you are correct in that the
+architecture requires a subseqeunt IOTLB flush i.e. retry for the range
+that returned the error. And your last point is then exactly the issue
+above that we miss if the retry still failed.
+
+As for the good path, in the mapping operation but before the .sync_map
+we have updated the IOMMU translation table so the translation is the
+recorded but not synced to the hypervisor's shadow table. Now when the
+.sync_map is called and the IOTLB flush returns -ENOMEM then
+iommu_dma_flush_fq() will call .flush_iotlb_all which causes the
+hypervisor to look at the entire guest translation table and shadow all
+translations that were not yet shadowed. I.e. the .flush_iotlb_all
+"retries" the failed .sync_map.
+
 > 
-> With this support we're possible to do more optimization for memory
-> reclamation and migration[*].
-> 
-> [*] https://lore.kernel.org/lkml/393d6318-aa38-01ed-6ad8-f9eac89bf0fc@linux.alibaba.com/
-> 
-> -v7:
-> 1. rename arch_tlbbatch_add_mm() to arch_tlbbatch_add_pending() as suggested, since it
->    takes an extra address for arm64, per Nadav and Anshuman. Also mentioned in the commit.
-> 2. add tags from Xin Hao, thanks.
-> Link: https://lore.kernel.org/lkml/20221115031425.44640-1-yangyicong@huawei.com/
-> 
-> -v6:
-> 1. comment we don't defer TLB flush on platforms affected by ARM64_WORKAROUND_REPEAT_TLBI
-> 2. use cpus_have_const_cap() instead of this_cpu_has_cap()
-> 3. add tags from Punit, Thanks.
-> 4. default enable the feature when cpus >= 8 rather than > 8, since the original
->    improvement is observed on snapdragon 888 with 8 cores.
-> Link: https://lore.kernel.org/lkml/20221028081255.19157-1-yangyicong@huawei.com/
-> 
-> -v5:
-> 1. Make ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH depends on EXPERT for this stage on arm64.
-> 2. Make a threshold of CPU numbers for enabling batched TLP flush on arm64
-> Link: https://lore.kernel.org/linux-arm-kernel/20220921084302.43631-1-yangyicong@huawei.com/T/
-> 
-> -v4:
-> 1. Add tags from Kefeng and Anshuman, Thanks.
-> 2. Limit the TLB batch/defer on systems with >4 CPUs, per Anshuman
-> 3. Merge previous Patch 1,2-3 into one, per Anshuman
-> Link: https://lore.kernel.org/linux-mm/20220822082120.8347-1-yangyicong@huawei.com/
-> 
-> -v3:
-> 1. Declare arch's tlbbatch defer support by arch_tlbbatch_should_defer() instead
->    of ARCH_HAS_MM_CPUMASK, per Barry and Kefeng
-> 2. Add Tested-by from Xin Hao
-> Link: https://lore.kernel.org/linux-mm/20220711034615.482895-1-21cnbao@gmail.com/
-> 
-> -v2:
-> 1. Collected Yicong's test result on kunpeng920 ARM64 server;
-> 2. Removed the redundant vma parameter in arch_tlbbatch_add_mm()
->    according to the comments of Peter Zijlstra and Dave Hansen
-> 3. Added ARCH_HAS_MM_CPUMASK rather than checking if mm_cpumask
->    is empty according to the comments of Nadav Amit
-> 
-> Thanks, Peter, Dave and Nadav for your testing or reviewing
-> , and comments.
-> 
-> -v1:
-> https://lore.kernel.org/lkml/20220707125242.425242-1-21cnbao@gmail.com/
-> 
-> Anshuman Khandual (1):
->   mm/tlbbatch: Introduce arch_tlbbatch_should_defer()
-> 
-> Barry Song (1):
->   arm64: support batched/deferred tlb shootdown during page reclamation
-> 
->  .../features/vm/TLB/arch-support.txt          |  2 +-
->  arch/arm64/Kconfig                            |  6 +++
->  arch/arm64/include/asm/tlbbatch.h             | 12 +++++
->  arch/arm64/include/asm/tlbflush.h             | 52 ++++++++++++++++++-
->  arch/x86/include/asm/tlbflush.h               | 17 +++++-
->  include/linux/mm_types_task.h                 |  4 +-
->  mm/rmap.c                                     | 19 +++----
->  7 files changed, 93 insertions(+), 19 deletions(-)
->  create mode 100644 arch/arm64/include/asm/tlbbatch.h
-> 
+> >   	}
+> >   	rcu_read_unlock();
+> >   }
+
+
