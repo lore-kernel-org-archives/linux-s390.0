@@ -2,59 +2,58 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5CD1CC47088
-	for <linux-s390@archiver.kernel.org>; Wed, 30 Nov 2022 23:11:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B05BC47089
+	for <linux-s390@archiver.kernel.org>; Wed, 30 Nov 2022 23:11:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229928AbiK3XLE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 30 Nov 2022 18:11:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47614 "EHLO
+        id S229892AbiK3XLU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 30 Nov 2022 18:11:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229863AbiK3XKZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 30 Nov 2022 18:10:25 -0500
-Received: from mail-pj1-x104a.google.com (mail-pj1-x104a.google.com [IPv6:2607:f8b0:4864:20::104a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 534ED9803C
-        for <linux-s390@vger.kernel.org>; Wed, 30 Nov 2022 15:09:55 -0800 (PST)
-Received: by mail-pj1-x104a.google.com with SMTP id ep17-20020a17090ae65100b00219702c495cso179066pjb.2
-        for <linux-s390@vger.kernel.org>; Wed, 30 Nov 2022 15:09:55 -0800 (PST)
+        with ESMTP id S229894AbiK3XK2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 30 Nov 2022 18:10:28 -0500
+Received: from mail-pl1-x649.google.com (mail-pl1-x649.google.com [IPv6:2607:f8b0:4864:20::649])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4E415C743
+        for <linux-s390@vger.kernel.org>; Wed, 30 Nov 2022 15:09:59 -0800 (PST)
+Received: by mail-pl1-x649.google.com with SMTP id u6-20020a170903124600b00188cd4769bcso18980164plh.0
+        for <linux-s390@vger.kernel.org>; Wed, 30 Nov 2022 15:09:59 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:reply-to:from:to:cc:subject:date:message-id:reply-to;
-        bh=GJ+yfhkspt7ZNo22OgQpawec1Ei4RCTiEbe5vknIrT0=;
-        b=B3425sD5ssEx57pTtG98b8HpTdxzwssCBDuFcB0njTKI/XsYVhIlUT7t8VxfTZyCaj
-         rNNcjy7ZkLO7sRu1croI6V17oM3JUWZ66KJz3dPOFnS6ZNXt9vF/ufrGiEJRrVh1rawx
-         jBIyIycJ1nYQ/Tln+uKRdhBxUMbn2zrY+g01yeSgTRVjheiz5bWBhhhmJyUaJsAkE6GE
-         dL6EhA0QNU/VHGk45s0/jNhjn17XdiiiF1JWKkMNdSlcYBJTXiZUBYEqCsiTUua4xdbH
-         Vsh2/Hg502nb0uGz/tvW1rhibXANnp+7b1r3Lx8wxi+xiH/bRTNX1OQgA8zn4Jd+xIMD
-         ResQ==
+        bh=MJave+Z+CqVOQlKYNh+9u1XLbNgTtvhVtL4XdeBXq3U=;
+        b=ZO3Ftedng5ZXtAj1HLjLejIkXeEuGF++TCmzhSGUO/jffRhjc4H+xBEcj7yIeqEdat
+         0U3Y+Ads6LzFvxNp27Uo8B2HMacUCZIv0pSE92rlIHxzWTi7f9KsRULC+bwhGX87ZVPR
+         vnMRqpKsuzzrvEbFNarvM7whj/3tQRNLMCHwuLgw98CUXaVYGXJOn+GNNpcbHsAkPmeN
+         tXU852Btu7ns0KpVR55ygwmLkYJEnvUvyvy5iEVsL5b//kXV7FWMRdutGQwiv7w9+h2Y
+         WeYcLiKtjVQOAjeb0ZzTx4wnLQ7dUbOEoRqTrEQ9fS/dnvpncahogy2siy31VVqOiND3
+         XFqA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:reply-to:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=GJ+yfhkspt7ZNo22OgQpawec1Ei4RCTiEbe5vknIrT0=;
-        b=t7e1nAGZ7JcNPug+JlTO67R67WVmJqy9ucB2vkU57HgytpZw4eNfxapZPrJ9OeHxEG
-         /B6PF7X1R/mt8Y5On80+P/LGR6zjPZh3G5rjxaoWs9mJ6GZCGnoUlucFa9UaCW2SSzl2
-         CcBU18xEELo9vvVTHXloj3kBPdJKRH99wnoJ3BB4t21Y1BbZ70nU/GwAp9cbU//XYeF1
-         gelKk0FKU1zRr8BwQ3hy6ZwQTmTNDNQcekHWmCH1nNms9D5Wk1wS2kfFnDjpqBcVQK/J
-         tAKJz83QsDp7ZJw0VCGX3k9xEmmOebhzJ4SvS7vDZvdA149J0UGxo4z/H77oMbgs6cna
-         D8GA==
-X-Gm-Message-State: ANoB5pnkVSRM0Tu6lhhcOQRfr1q0IUdpgSEgwRl4fynrDLcrEzS+RGUN
-        QKLni+9nuZNBYcKdj1RgIaHPZiumDsU=
-X-Google-Smtp-Source: AA0mqf7QiNOgWP00XAD7anVxRZ3dDrQeLQqiZYyRJhfOxzgfK7hENIJxdqXXKq1jBfur3SWcS0zGNy7/Bfo=
+        bh=MJave+Z+CqVOQlKYNh+9u1XLbNgTtvhVtL4XdeBXq3U=;
+        b=E8WjhC1zYxhT2XBf6vJKT6H9esZy/EOMm8A0ZaI40oEE8jrTXZRQE2JAR1ja5Y0/eW
+         DRGF7/iSOtdmtea89rZf1OFushmX3QOr0Q9WKeWhS5Qcm7JdQvI/ZiX82D11luHPIB1r
+         YZeU0CfMVwpSR1Kf/OAnC0V/2rjVL+C1cmoSJ1R9rQCdCI4XcoZTqcuObcAzktORmLZz
+         6KlEJXBX0IffmITKXCPFBgbVXBBX9SRGdrr/a4k31UJGBWXao/u25rw2nKVVjEz/rDB4
+         K4ibDHGP3V/U91LOy7q8hCRR8RAuivDKE2FAyGLl5IwJ0gLwP2qu2tnEGQ6+GKe5pCly
+         QmxQ==
+X-Gm-Message-State: ANoB5plg9F6jVqNzCyPU/ZtALA8VdcPtzCSQmLlczqM6nawtwhq0Q0X3
+        BeTebosd/FDtu1mbwY7doGru4F+7wlQ=
+X-Google-Smtp-Source: AA0mqf5OF5+sS7pzLlgqnJtqaKfzLdsx3EOQi2ZpWetSPzJEZYu9zjdDHGwAbdG5EGES6Cvu/KbnbnXMVFE=
 X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5c37])
- (user=seanjc job=sendgmr) by 2002:a05:6a00:27ab:b0:56c:71a4:efe with SMTP id
- bd43-20020a056a0027ab00b0056c71a40efemr48704277pfb.84.1669849794774; Wed, 30
- Nov 2022 15:09:54 -0800 (PST)
+ (user=seanjc job=sendgmr) by 2002:aa7:8090:0:b0:575:4e92:189e with SMTP id
+ v16-20020aa78090000000b005754e92189emr14689428pff.59.1669849799328; Wed, 30
+ Nov 2022 15:09:59 -0800 (PST)
 Reply-To: Sean Christopherson <seanjc@google.com>
-Date:   Wed, 30 Nov 2022 23:08:54 +0000
+Date:   Wed, 30 Nov 2022 23:08:57 +0000
 In-Reply-To: <20221130230934.1014142-1-seanjc@google.com>
 Mime-Version: 1.0
 References: <20221130230934.1014142-1-seanjc@google.com>
 X-Mailer: git-send-email 2.38.1.584.g0f3c55d4c2-goog
-Message-ID: <20221130230934.1014142-11-seanjc@google.com>
-Subject: [PATCH v2 10/50] KVM: VMX: Reset eVMCS controls in VP assist page
- during hardware disabling
+Message-ID: <20221130230934.1014142-14-seanjc@google.com>
+Subject: [PATCH v2 13/50] KVM: x86: Move guts of kvm_arch_init() to standalone helper
 From:   Sean Christopherson <seanjc@google.com>
 To:     Paolo Bonzini <pbonzini@redhat.com>, Marc Zyngier <maz@kernel.org>,
         Huacai Chen <chenhuacai@kernel.org>,
@@ -95,101 +94,173 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Reset the eVMCS controls in the per-CPU VP assist page during hardware
-disabling instead of waiting until kvm-intel's module exit.  The controls
-are activated if and only if KVM creates a VM, i.e. don't need to be
-reset if hardware is never enabled.
+Move the guts of kvm_arch_init() to a new helper, kvm_x86_vendor_init(),
+so that VMX can do _all_ arch and vendor initialization before calling
+kvm_init().  Calling kvm_init() must be the _very_ last step during init,
+as kvm_init() exposes /dev/kvm to userspace, i.e. allows creating VMs.
 
-Doing the reset during hardware disabling will naturally fix a potential
-NULL pointer deref bug once KVM disables CPU hotplug while enabling and
-disabling hardware (which is necessary to fix a variety of bugs).  If the
-kernel is running as the root partition, the VP assist page is unmapped
-during CPU hot unplug, and so KVM's clearing of the eVMCS controls needs
-to occur with CPU hot(un)plug disabled, otherwise KVM could attempt to
-write to a CPU's VP assist page after it's unmapped.
+No functional change intended.
 
-Reported-by: Vitaly Kuznetsov <vkuznets@redhat.com>
 Signed-off-by: Sean Christopherson <seanjc@google.com>
 ---
- arch/x86/kvm/vmx/vmx.c | 50 +++++++++++++++++++++++++-----------------
- 1 file changed, 30 insertions(+), 20 deletions(-)
+ arch/x86/include/asm/kvm_host.h |  3 +++
+ arch/x86/kvm/svm/svm.c          | 23 +++++++++++++++++++++--
+ arch/x86/kvm/vmx/vmx.c          | 21 +++++++++++++++------
+ arch/x86/kvm/x86.c              | 15 +++++++++++++--
+ 4 files changed, 52 insertions(+), 10 deletions(-)
 
+diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
+index 70af7240a1d5..04a9ae66fb8d 100644
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -1758,6 +1758,9 @@ extern struct kvm_x86_ops kvm_x86_ops;
+ #define KVM_X86_OP_OPTIONAL_RET0 KVM_X86_OP
+ #include <asm/kvm-x86-ops.h>
+ 
++int kvm_x86_vendor_init(struct kvm_x86_init_ops *ops);
++void kvm_x86_vendor_exit(void);
++
+ #define __KVM_HAVE_ARCH_VM_ALLOC
+ static inline struct kvm *kvm_arch_alloc_vm(void)
+ {
+diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
+index 91352d692845..19e81a99c58f 100644
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -5091,15 +5091,34 @@ static struct kvm_x86_init_ops svm_init_ops __initdata = {
+ 
+ static int __init svm_init(void)
+ {
++	int r;
++
+ 	__unused_size_checks();
+ 
+-	return kvm_init(&svm_init_ops, sizeof(struct vcpu_svm),
+-			__alignof__(struct vcpu_svm), THIS_MODULE);
++	r = kvm_x86_vendor_init(&svm_init_ops);
++	if (r)
++		return r;
++
++	/*
++	 * Common KVM initialization _must_ come last, after this, /dev/kvm is
++	 * exposed to userspace!
++	 */
++	r = kvm_init(&svm_init_ops, sizeof(struct vcpu_svm),
++		     __alignof__(struct vcpu_svm), THIS_MODULE);
++	if (r)
++		goto err_kvm_init;
++
++	return 0;
++
++err_kvm_init:
++	kvm_x86_vendor_exit();
++	return r;
+ }
+ 
+ static void __exit svm_exit(void)
+ {
+ 	kvm_exit();
++	kvm_x86_vendor_exit();
+ }
+ 
+ module_init(svm_init)
 diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index cea8c07f5229..d85d175dca70 100644
+index b8bf95b9710d..8e81cd94407d 100644
 --- a/arch/x86/kvm/vmx/vmx.c
 +++ b/arch/x86/kvm/vmx/vmx.c
-@@ -551,6 +551,33 @@ static int hv_enable_l2_tlb_flush(struct kvm_vcpu *vcpu)
- 	return 0;
- }
- 
-+static void hv_reset_evmcs(void)
-+{
-+	struct hv_vp_assist_page *vp_ap;
-+
-+	if (!static_branch_unlikely(&enable_evmcs))
-+		return;
-+
-+	/*
-+	 * KVM should enable eVMCS if and only if all CPUs have a VP assist
-+	 * page, and should reject CPU onlining if eVMCS is enabled the CPU
-+	 * doesn't have a VP assist page allocated.
-+	 */
-+	vp_ap = hv_get_vp_assist_page(smp_processor_id());
-+	if (WARN_ON_ONCE(!vp_ap))
-+		return;
-+
-+	/*
-+	 * Reset everything to support using non-enlightened VMCS access later
-+	 * (e.g. when we reload the module with enlightened_vmcs=0)
-+	 */
-+	vp_ap->nested_control.features.directhypercall = 0;
-+	vp_ap->current_nested_vmcs = 0;
-+	vp_ap->enlighten_vmentry = 0;
-+}
-+
-+#else /* IS_ENABLED(CONFIG_HYPERV) */
-+static void hv_reset_evmcs(void) {}
- #endif /* IS_ENABLED(CONFIG_HYPERV) */
- 
- /*
-@@ -2496,6 +2523,8 @@ static void vmx_hardware_disable(void)
- 	if (cpu_vmxoff())
- 		kvm_spurious_fault();
- 
-+	hv_reset_evmcs();
-+
- 	intel_pt_handle_vmx(0);
- }
- 
-@@ -8462,27 +8491,8 @@ static void vmx_exit(void)
- 	kvm_exit();
- 
- #if IS_ENABLED(CONFIG_HYPERV)
--	if (static_branch_unlikely(&enable_evmcs)) {
--		int cpu;
--		struct hv_vp_assist_page *vp_ap;
--		/*
--		 * Reset everything to support using non-enlightened VMCS
--		 * access later (e.g. when we reload the module with
--		 * enlightened_vmcs=0)
--		 */
--		for_each_online_cpu(cpu) {
--			vp_ap =	hv_get_vp_assist_page(cpu);
--
--			if (!vp_ap)
--				continue;
--
--			vp_ap->nested_control.features.directhypercall = 0;
--			vp_ap->current_nested_vmcs = 0;
--			vp_ap->enlighten_vmentry = 0;
--		}
--
-+	if (static_branch_unlikely(&enable_evmcs))
- 		static_branch_disable(&enable_evmcs);
--	}
+@@ -8529,6 +8529,7 @@ static void vmx_exit(void)
  #endif
+ 
+ 	kvm_exit();
++	kvm_x86_vendor_exit();
+ 
  	vmx_cleanup_l1d_flush();
  
+@@ -8546,23 +8547,25 @@ static int __init vmx_init(void)
+ 	 */
+ 	hv_init_evmcs();
+ 
++	r = kvm_x86_vendor_init(&vmx_init_ops);
++	if (r)
++		return r;
++
+ 	r = kvm_init(&vmx_init_ops, sizeof(struct vcpu_vmx),
+ 		     __alignof__(struct vcpu_vmx), THIS_MODULE);
+ 	if (r)
+-		return r;
++		goto err_kvm_init;
+ 
+ 	/*
+-	 * Must be called after kvm_init() so enable_ept is properly set
++	 * Must be called after common x86 init so enable_ept is properly set
+ 	 * up. Hand the parameter mitigation value in which was stored in
+ 	 * the pre module init parser. If no parameter was given, it will
+ 	 * contain 'auto' which will be turned into the default 'cond'
+ 	 * mitigation mode.
+ 	 */
+ 	r = vmx_setup_l1d_flush(vmentry_l1d_flush_param);
+-	if (r) {
+-		vmx_exit();
+-		return r;
+-	}
++	if (r)
++		goto err_l1d_flush;
+ 
+ 	vmx_setup_fb_clear_ctrl();
+ 
+@@ -8587,5 +8590,11 @@ static int __init vmx_init(void)
+ 		allow_smaller_maxphyaddr = true;
+ 
+ 	return 0;
++
++err_l1d_flush:
++	vmx_exit();
++err_kvm_init:
++	kvm_x86_vendor_exit();
++	return r;
+ }
+ module_init(vmx_init);
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 915d57c3b41d..b33932fca36e 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -9278,7 +9278,16 @@ static inline void kvm_ops_update(struct kvm_x86_init_ops *ops)
+ 
+ int kvm_arch_init(void *opaque)
+ {
+-	struct kvm_x86_init_ops *ops = opaque;
++	return 0;
++}
++
++void kvm_arch_exit(void)
++{
++
++}
++
++int kvm_x86_vendor_init(struct kvm_x86_init_ops *ops)
++{
+ 	u64 host_pat;
+ 	int r;
+ 
+@@ -9410,8 +9419,9 @@ int kvm_arch_init(void *opaque)
+ 	kmem_cache_destroy(x86_emulator_cache);
+ 	return r;
+ }
++EXPORT_SYMBOL_GPL(kvm_x86_vendor_init);
+ 
+-void kvm_arch_exit(void)
++void kvm_x86_vendor_exit(void)
+ {
+ 	kvm_unregister_perf_callbacks();
+ 
+@@ -9440,6 +9450,7 @@ void kvm_arch_exit(void)
+ 	WARN_ON(static_branch_unlikely(&kvm_xen_enabled.key));
+ #endif
+ }
++EXPORT_SYMBOL_GPL(kvm_x86_vendor_exit);
+ 
+ static int __kvm_emulate_halt(struct kvm_vcpu *vcpu, int state, int reason)
+ {
 -- 
 2.38.1.584.g0f3c55d4c2-goog
 
