@@ -2,59 +2,59 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 73986C47088
-	for <linux-s390@archiver.kernel.org>; Wed, 30 Nov 2022 23:13:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A7A62C4321E
+	for <linux-s390@archiver.kernel.org>; Wed, 30 Nov 2022 23:13:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229842AbiK3XNd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 30 Nov 2022 18:13:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47100 "EHLO
+        id S229996AbiK3XNf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 30 Nov 2022 18:13:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229957AbiK3XMw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 30 Nov 2022 18:12:52 -0500
+        with ESMTP id S229994AbiK3XM7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 30 Nov 2022 18:12:59 -0500
 Received: from mail-pl1-x649.google.com (mail-pl1-x649.google.com [IPv6:2607:f8b0:4864:20::649])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFF1F9C619
-        for <linux-s390@vger.kernel.org>; Wed, 30 Nov 2022 15:10:38 -0800 (PST)
-Received: by mail-pl1-x649.google.com with SMTP id u6-20020a170903124600b00188cd4769bcso18982084plh.0
-        for <linux-s390@vger.kernel.org>; Wed, 30 Nov 2022 15:10:38 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3931B9C62A
+        for <linux-s390@vger.kernel.org>; Wed, 30 Nov 2022 15:10:40 -0800 (PST)
+Received: by mail-pl1-x649.google.com with SMTP id h3-20020a170902f54300b00189af47afd0so1594938plf.9
+        for <linux-s390@vger.kernel.org>; Wed, 30 Nov 2022 15:10:40 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:reply-to:from:to:cc:subject:date:message-id:reply-to;
-        bh=sHcyHjJ8KuW26EmyMG2GCKXDxJlY2ojJURA0kcfw/9k=;
-        b=VFFqhuPme1m1eQU16n2iG/J4RAGy2zrHzndrwcDa2UqPCuhmGJAJUoqWiUJ0hBawNj
-         h+1PCcwEa7TWtGKSi7eE+1ph58rOUBv3xDHOkx/n95w6cUeiQfhXEh79gM7EIyUtnO0y
-         ioN8O+FtRJeTVR0iP2uSqqMMZ5ce7bBX8TmoSKstA2185sSr20JSkv0QaUPbyNWz1HPN
-         V+igGOZxxi1EiiIK8zOP02RlczC9ypmTY7mqbv223oTCKi8YwUrElYdikisBH1Zh971w
-         Fr2k5IgU2gcv415RYRumMziSQSo+TFWu1mQkGuJbocDRmVfBg+o1I6JFksOzDsAHNWBN
-         gCrw==
+        h=content-transfer-encoding:cc:to:from:subject:message-id:references
+         :mime-version:in-reply-to:date:reply-to:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=5yXQhNujyCn0BKG7v31c4OGaNv+fuibQffzvzfRXOMY=;
+        b=h6rsUUCphQInF8YIuJSydp7y3K+kWTxAbyRCfeyJQKJ+Y6qbtiTSAEs1qGlDllqT/J
+         MMyCWI1z6QQ9M7p7Zu6QpSl/9m1uIwFhUqPqC0VY2dNxBAtSmKEBK4CCdgkZqO6Ul8Kx
+         fACOhEYDJb6v1xuMAezabk8g2ZSsJuhT+lDS/T3ozQuYyR/lRYpg7LUF046Tas5T+NY5
+         CeL2ERbYxquxucrniWQA910RogetkvuImYcNKj0ET57pNLum/MqlKCc6KP+V5OUAEk8P
+         PnX37vQ/dZrpTC3Oabzm833Uf9cuKd5yhE1OeJVb9W6pQwUrjh0B5ijm+gc3WgDVn+HL
+         6XjQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:reply-to:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=sHcyHjJ8KuW26EmyMG2GCKXDxJlY2ojJURA0kcfw/9k=;
-        b=7r6ndhI0gaV8l/z+kKd1vzjEuGZdZ1RhWmE99ZWkhQBQA7ZXWT7QO4j0I/wnA2IU2u
-         3jvlwYHrpGvpTBR/8n5P3o72mxYNTpCEEllUSlp17i55oMif5bZ9iMF6KqhSM4R47JpS
-         OuAymyAHo8SXmZhbAdpjIYgGoL4wn1d/nr+gjnuTGL6+/PoP93mqXH3OAkXgmntxoWr1
-         sWjU6cDrfQ0Zvd9eLYSytfDK9s9+cimk54ACWji6W9CecJOOwr+ZDXJbUFSxCuyWMwx/
-         LAXs8o/m+w+nCdFQv/ErKFBH9hGM6h5+irzAEWnqhgnbpJAiHtmwP/l7C0m8oWeMe75b
-         oqdw==
-X-Gm-Message-State: ANoB5pnZs3BdZdHOOIqXVFBR2v/T/SuAHhPkzfHicmdiSIYwqE8YJ0Ml
-        GkzYnNZhA6ZfN/sSX87kNiG519ezfT4=
-X-Google-Smtp-Source: AA0mqf6iPCX6KyjCp3cF1IRt5Mv13lZJWlEm0jsHehxUqphsE1Cogz37ZNgUSTWxB9XNJiT56sIeMfxkVVA=
+        h=content-transfer-encoding:cc:to:from:subject:message-id:references
+         :mime-version:in-reply-to:date:reply-to:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=5yXQhNujyCn0BKG7v31c4OGaNv+fuibQffzvzfRXOMY=;
+        b=xTbMuw8C8DVHWddAk7dmcRsP7u3bpAVybIelJZRqw3ZxLTIvVNvLooYgV/GIY2mLwP
+         kYy3Hqk7e1qZIgpunL/UiLRzjFmGo2Vq75JYV2Ph6ZAH08e51hPqApOzM00NPp9JINKJ
+         pkN1s9ASYq6iKKx5FXk9R2BGwKCMIyLD39kpgiJgPFaBf/twuxjWjX2UBDBSw4YZtUeD
+         TXDyC1B83DWBNCArKEVmyP/cSAr3M3UzdNGV3F34P/8fs44vmRKGJD59eSWl9teGWUT1
+         gC4smJpZzFm1EK1uZKtzOIggcqhlIPlZYt8HRf1YVwc1U5OA5ONGAy9ISgcDJ1Uelbuh
+         z2Dg==
+X-Gm-Message-State: ANoB5pkY1XXZ+fE/FpfA35Ju5/TQcm/F48DC1LH3ff/hTJoSPG/2t7+w
+        xNwyx5ZHEjnespjrzTd/t0dKclAHZLY=
+X-Google-Smtp-Source: AA0mqf4uayK8uJVSnmaHjmcUzYqE9zwUJpBZYJxTpzlvsNbotM7JFJFGgIIUFhNbqetWZOK5ykPGKeuQP1w=
 X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5c37])
- (user=seanjc job=sendgmr) by 2002:a65:63d8:0:b0:477:172b:c350 with SMTP id
- n24-20020a6563d8000000b00477172bc350mr40707643pgv.313.1669849838234; Wed, 30
- Nov 2022 15:10:38 -0800 (PST)
+ (user=seanjc job=sendgmr) by 2002:a17:902:ec8a:b0:188:640f:f400 with SMTP id
+ x10-20020a170902ec8a00b00188640ff400mr45576276plg.143.1669849818577; Wed, 30
+ Nov 2022 15:10:18 -0800 (PST)
 Reply-To: Sean Christopherson <seanjc@google.com>
-Date:   Wed, 30 Nov 2022 23:09:19 +0000
+Date:   Wed, 30 Nov 2022 23:09:08 +0000
 In-Reply-To: <20221130230934.1014142-1-seanjc@google.com>
 Mime-Version: 1.0
 References: <20221130230934.1014142-1-seanjc@google.com>
 X-Mailer: git-send-email 2.38.1.584.g0f3c55d4c2-goog
-Message-ID: <20221130230934.1014142-36-seanjc@google.com>
-Subject: [PATCH v2 35/50] KVM: VMX: Use current CPU's info to perform
- "disabled by BIOS?" checks
+Message-ID: <20221130230934.1014142-25-seanjc@google.com>
+Subject: [PATCH v2 24/50] KVM: RISC-V: Do arch init directly in riscv_kvm_init()
 From:   Sean Christopherson <seanjc@google.com>
 To:     Paolo Bonzini <pbonzini@redhat.com>, Marc Zyngier <maz@kernel.org>,
         Huacai Chen <chenhuacai@kernel.org>,
@@ -91,44 +91,66 @@ Cc:     James Morse <james.morse@arm.com>,
         Kai Huang <kai.huang@intel.com>, Chao Gao <chao.gao@intel.com>,
         Thomas Gleixner <tglx@linutronix.de>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Use this_cpu_has() instead of boot_cpu_has() to perform the effective
-"disabled by BIOS?" checks for VMX.  This will allow consolidating code
-between vmx_disabled_by_bios() and vmx_check_processor_compat().
+Fold the guts of kvm_arch_init() into riscv_kvm_init() instead of
+bouncing through kvm_init()=3D>kvm_arch_init().  Functionally, this is a
+glorified nop as invoking kvm_arch_init() is the very first action
+performed by kvm_init().
 
-Checking the boot CPU isn't a strict requirement as any divergence in VMX
-enabling between the boot CPU and other CPUs will result in KVM refusing
-to load thanks to the aforementioned vmx_check_processor_compat().
+Moving setup to riscv_kvm_init(), which is tagged __init, will allow
+tagging more functions and data with __init and __ro_after_init.  And
+emptying kvm_arch_init() will allow dropping the hook entirely once all
+architecture implementations are nops.
 
-Furthermore, using the boot CPU was an unintentional change introduced by
-commit a4d0b2fdbcf7 ("KVM: VMX: Use VMX feature flag to query BIOS
-enabling").  Prior to using the feature flags, KVM checked the raw MSR
-value from the current CPU.
+No functional change intended.
 
-Reported-by: Kai Huang <kai.huang@intel.com>
 Signed-off-by: Sean Christopherson <seanjc@google.com>
+Reviewed-by: Philippe Mathieu-Daud=C3=A9 <philmd@linaro.org>
+Acked-by: Anup Patel <anup@brainfault.org>
 ---
- arch/x86/kvm/vmx/vmx.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/riscv/kvm/main.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index e859d2b7daa4..3f7d9f88b314 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -2492,8 +2492,8 @@ static __init int cpu_has_kvm_support(void)
- 
- static __init int vmx_disabled_by_bios(void)
- {
--	return !boot_cpu_has(X86_FEATURE_MSR_IA32_FEAT_CTL) ||
--	       !boot_cpu_has(X86_FEATURE_VMX);
-+	return !this_cpu_has(X86_FEATURE_MSR_IA32_FEAT_CTL) ||
-+	       !this_cpu_has(X86_FEATURE_VMX);
+diff --git a/arch/riscv/kvm/main.c b/arch/riscv/kvm/main.c
+index a146fa0ce4d2..cb063b8a9a0f 100644
+--- a/arch/riscv/kvm/main.c
++++ b/arch/riscv/kvm/main.c
+@@ -66,6 +66,15 @@ void kvm_arch_hardware_disable(void)
  }
- 
- static int kvm_cpu_vmxon(u64 vmxon_pointer)
--- 
+=20
+ int kvm_arch_init(void *opaque)
++{
++	return 0;
++}
++
++void kvm_arch_exit(void)
++{
++}
++
++static int __init riscv_kvm_init(void)
+ {
+ 	const char *str;
+=20
+@@ -110,15 +119,6 @@ int kvm_arch_init(void *opaque)
+=20
+ 	kvm_info("VMID %ld bits available\n", kvm_riscv_gstage_vmid_bits());
+=20
+-	return 0;
+-}
+-
+-void kvm_arch_exit(void)
+-{
+-}
+-
+-static int __init riscv_kvm_init(void)
+-{
+ 	return kvm_init(NULL, sizeof(struct kvm_vcpu), 0, THIS_MODULE);
+ }
+ module_init(riscv_kvm_init);
+--=20
 2.38.1.584.g0f3c55d4c2-goog
 
