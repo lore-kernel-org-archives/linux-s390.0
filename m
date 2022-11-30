@@ -2,59 +2,59 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 12B54C352A1
-	for <linux-s390@archiver.kernel.org>; Wed, 30 Nov 2022 23:13:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DED9CC4321E
+	for <linux-s390@archiver.kernel.org>; Wed, 30 Nov 2022 23:13:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229890AbiK3XNR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 30 Nov 2022 18:13:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46904 "EHLO
+        id S229934AbiK3XN1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 30 Nov 2022 18:13:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229893AbiK3XMd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 30 Nov 2022 18:12:33 -0500
-Received: from mail-pj1-x1049.google.com (mail-pj1-x1049.google.com [IPv6:2607:f8b0:4864:20::1049])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E53898018
-        for <linux-s390@vger.kernel.org>; Wed, 30 Nov 2022 15:10:33 -0800 (PST)
-Received: by mail-pj1-x1049.google.com with SMTP id w2-20020a17090a8a0200b002119ea856edso3787800pjn.5
-        for <linux-s390@vger.kernel.org>; Wed, 30 Nov 2022 15:10:33 -0800 (PST)
+        with ESMTP id S229936AbiK3XMm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 30 Nov 2022 18:12:42 -0500
+Received: from mail-pl1-x649.google.com (mail-pl1-x649.google.com [IPv6:2607:f8b0:4864:20::649])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CFFE9C606
+        for <linux-s390@vger.kernel.org>; Wed, 30 Nov 2022 15:10:35 -0800 (PST)
+Received: by mail-pl1-x649.google.com with SMTP id u15-20020a170902e5cf00b001899d29276eso7519192plf.10
+        for <linux-s390@vger.kernel.org>; Wed, 30 Nov 2022 15:10:35 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
-        h=content-transfer-encoding:cc:to:from:subject:message-id:references
-         :mime-version:in-reply-to:date:reply-to:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=uj+BMG24gpugAApyuMjfHhGTokqhj/HfOHcPzx/7Ixc=;
-        b=rXveYksPcbHAdLQWx0Se3mgCcQvIusgWV2YBwsk350kO+gwstaEEoshUZTFpuvac++
-         pLds7vX8HQyFV+EXcCsNs4Huph1CvEcQOXAAAxG85uCm3rCCbxscdft2ZxjRveL1foHX
-         Lrax89MRhf3bE1bAwMOLphkpziYLo/XzKTjZtkj0KrWsaZWT2gVodfm1c5joltsrB5eF
-         W0icMxnX0hgljPZjSz6UkymZcq3fcWnGh4feMzJb8fuOAJykHj0A+tcjteTkrK4SYiHc
-         +b7l66OJ0teH4JUbB2xCLD5wxFKLZ8CELPJsM7W7cN4l69kYm6xFX8ZvCrFTJGzWVhEq
-         HM9A==
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:reply-to:from:to:cc:subject:date:message-id:reply-to;
+        bh=Vo4Z77dzNvKrehTzYt4K2iI8Cmx6h54XHztU8GehcL8=;
+        b=hivL5TC6LdtOW2OmuNQou4Gy4U4tXiu2+6M2wfmsMZujN2ItoQgS8dZtbchvpp7Sy7
+         gQP8KJQ85CZqnMEDc6KXPFPpNulQ0aQGew3NpHF0ryb6ACX+mCcZQj6XUPxiNhI1xHp0
+         rD08FH6W6Tc9mMBWGEmLcFaU5I8qQn9La/dT9kb2EVRIeOnNi6kCex/5Q2SGr2bRQoGy
+         G1EteOn3rd3vULZF1PgE4auaSNRlpUDh4ixH2iWSNr973dhsYVWWF6gRbX3Yo5SuVqh0
+         qNdORoE9jtDj45oUX7KBmjx++vi1W+JogYW4rHwuh1tKXtb0Sz6z/D5a80vr3bmmUG42
+         8e0Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:cc:to:from:subject:message-id:references
-         :mime-version:in-reply-to:date:reply-to:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=uj+BMG24gpugAApyuMjfHhGTokqhj/HfOHcPzx/7Ixc=;
-        b=syjUdPPu6/LWhbGheRMLjvTMmDOXpTeOEDp2CgDWvCa400HZUVD8TvpOwj0V+syrPM
-         lxlTgDOWb58hUSjfyhZKMr1mg4meSJ7ltOT8iss4UGMVDDLCwtxTVmhV7+bYlOh4LuQO
-         Yeazj9LgtAiKHTn/7++IP+ilfJ7xgisNWyhAFsPmwzpd6I5OFgT8DvZN7d8l542nJK38
-         WSyM7q4g98y5/Y+tS++nlwmEHi9pJUBslTIrTGje5fUOrS3mhqzMPfkC1IeoPfsP1fdM
-         U+HpyKaCNBwmJxWN95G26myVspcuMqvaZfCMfhTL7mYmKRoGahlpfjVkw8iQYLhof+bp
-         qLMA==
-X-Gm-Message-State: ANoB5pkJqm5i651YVcNTBxWVkKrUufG/9VJtAxphZcFbowum6A7TfnPN
-        dLeo1iuMCHvYqLHpDgSwcwY5dsSigVg=
-X-Google-Smtp-Source: AA0mqf4xYnJCkXbWk/N31ZRo5enbQfT7p8hAsoCQiyumsmQYs6alw3yUJytbRmVQwuUcUkB1fPIndjJ7nUc=
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:reply-to:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Vo4Z77dzNvKrehTzYt4K2iI8Cmx6h54XHztU8GehcL8=;
+        b=GCObWqPfk0TBsiT0x8flU0KRMdNOkclMap2M/pDt8ztryVsxVsYeNx4ZzodAVBBuon
+         nW+vfaAqZVogA7Vbkh7XEywMj5pCLmPbvt7g59nTH8kBU1vT70TmhRTOVDep40yf8F2u
+         FFtd21BqfeEUnlP0F5VnHYfhvvZKy8a9iK7toC2WTjQwIsBcX8vltdh+Syv7XgHulk05
+         tI/B0g+pKzoCnQl24ba8Xf0m0HtFlg2khSPVZFmTjLaH95lCvQkGn/D9XGY8P3D/VNqx
+         7cr5jWJYOMxdlWXE0Gauxsnz5Lhfx0X42x0xYM/dAGmkECgl4T4u9P2toMgR+UYm3afJ
+         hL2Q==
+X-Gm-Message-State: ANoB5pneNaTKdT5OR2ZqcDEQa4eWw8pIML/QQEGQ+1/7oRzwWn7wprKw
+        rhGQasjItsadQ1AlOS6dCi2DKEMSSiY=
+X-Google-Smtp-Source: AA0mqf57HeX+xXTuMleSA1eLy2x+uTa7n6xyJaGs3rJOB3hWgy2t3owM2xuaTXoQ+YAD0k4pCSHrJ5hlSv0=
 X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5c37])
- (user=seanjc job=sendgmr) by 2002:a05:6a00:1624:b0:573:993b:ea6d with SMTP id
- e4-20020a056a00162400b00573993bea6dmr46050829pfc.10.1669849814934; Wed, 30
- Nov 2022 15:10:14 -0800 (PST)
+ (user=seanjc job=sendgmr) by 2002:a17:90b:f89:b0:219:5b3b:2b9f with SMTP id
+ ft9-20020a17090b0f8900b002195b3b2b9fmr848562pjb.2.1669849834864; Wed, 30 Nov
+ 2022 15:10:34 -0800 (PST)
 Reply-To: Sean Christopherson <seanjc@google.com>
-Date:   Wed, 30 Nov 2022 23:09:06 +0000
+Date:   Wed, 30 Nov 2022 23:09:17 +0000
 In-Reply-To: <20221130230934.1014142-1-seanjc@google.com>
 Mime-Version: 1.0
 References: <20221130230934.1014142-1-seanjc@google.com>
 X-Mailer: git-send-email 2.38.1.584.g0f3c55d4c2-goog
-Message-ID: <20221130230934.1014142-23-seanjc@google.com>
-Subject: [PATCH v2 22/50] KVM: MIPS: Setup VZ emulation? directly from kvm_mips_init()
+Message-ID: <20221130230934.1014142-34-seanjc@google.com>
+Subject: [PATCH v2 33/50] KVM: x86: Use KBUILD_MODNAME to specify vendor
+ module name
 From:   Sean Christopherson <seanjc@google.com>
 To:     Paolo Bonzini <pbonzini@redhat.com>, Marc Zyngier <maz@kernel.org>,
         Huacai Chen <chenhuacai@kernel.org>,
@@ -91,52 +91,50 @@ Cc:     James Morse <james.morse@arm.com>,
         Kai Huang <kai.huang@intel.com>, Chao Gao <chao.gao@intel.com>,
         Thomas Gleixner <tglx@linutronix.de>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Invoke kvm_mips_emulation_init() directly from kvm_mips_init() instead
-of bouncing through kvm_init()=3D>kvm_arch_init().  Functionally, this is
-a glorified nop as invoking kvm_arch_init() is the very first action
-performed by kvm_init().
-
-Emptying kvm_arch_init() will allow dropping the hook entirely once all
-architecture implementations are nops.
+Use KBUILD_MODNAME to specify the vendor module name instead of manually
+writing out the name to make it a bit more obvious that the name isn't
+completely arbitrary.  A future patch will also use KBUILD_MODNAME to
+define pr_fmt, at which point using KBUILD_MODNAME for kvm_x86_ops.name
+further reinforces the intended usage of kvm_x86_ops.name.
 
 No functional change intended.
 
 Signed-off-by: Sean Christopherson <seanjc@google.com>
-Reviewed-by: Philippe Mathieu-Daud=C3=A9 <philmd@linaro.org>
 ---
- arch/mips/kvm/mips.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/x86/kvm/svm/svm.c | 2 +-
+ arch/x86/kvm/vmx/vmx.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/mips/kvm/mips.c b/arch/mips/kvm/mips.c
-index f0a6c245d1ff..75681281e2df 100644
---- a/arch/mips/kvm/mips.c
-+++ b/arch/mips/kvm/mips.c
-@@ -1012,7 +1012,7 @@ long kvm_arch_vm_ioctl(struct file *filp, unsigned in=
-t ioctl, unsigned long arg)
-=20
- int kvm_arch_init(void *opaque)
- {
--	return kvm_mips_emulation_init();
-+	return 0;
+diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
+index d9a54590591d..a875cf7b2942 100644
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -4695,7 +4695,7 @@ static int svm_vm_init(struct kvm *kvm)
  }
-=20
- void kvm_arch_exit(void)
-@@ -1636,6 +1636,10 @@ static int __init kvm_mips_init(void)
- 	if (ret)
- 		return ret;
-=20
-+	ret =3D kvm_mips_emulation_init();
-+	if (ret)
-+		return ret;
-+
- 	ret =3D kvm_init(NULL, sizeof(struct kvm_vcpu), 0, THIS_MODULE);
-=20
- 	if (ret)
---=20
+ 
+ static struct kvm_x86_ops svm_x86_ops __initdata = {
+-	.name = "kvm_amd",
++	.name = KBUILD_MODNAME,
+ 
+ 	.hardware_unsetup = svm_hardware_unsetup,
+ 	.hardware_enable = svm_hardware_enable,
+diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+index b6f08a0a1435..229a9cf485f0 100644
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -8102,7 +8102,7 @@ static void vmx_vm_destroy(struct kvm *kvm)
+ }
+ 
+ static struct kvm_x86_ops vmx_x86_ops __initdata = {
+-	.name = "kvm_intel",
++	.name = KBUILD_MODNAME,
+ 
+ 	.hardware_unsetup = vmx_hardware_unsetup,
+ 
+-- 
 2.38.1.584.g0f3c55d4c2-goog
 
