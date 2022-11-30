@@ -2,59 +2,58 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 96D60C352A1
-	for <linux-s390@archiver.kernel.org>; Wed, 30 Nov 2022 23:11:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7BCE8C4321E
+	for <linux-s390@archiver.kernel.org>; Wed, 30 Nov 2022 23:11:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229778AbiK3XLX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 30 Nov 2022 18:11:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46860 "EHLO
+        id S229969AbiK3XLs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 30 Nov 2022 18:11:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229820AbiK3XKm (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 30 Nov 2022 18:10:42 -0500
-Received: from mail-pg1-x54a.google.com (mail-pg1-x54a.google.com [IPv6:2607:f8b0:4864:20::54a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DC869454F
-        for <linux-s390@vger.kernel.org>; Wed, 30 Nov 2022 15:10:03 -0800 (PST)
-Received: by mail-pg1-x54a.google.com with SMTP id n11-20020a634d4b000000b00477c4f50b79so49804pgl.22
-        for <linux-s390@vger.kernel.org>; Wed, 30 Nov 2022 15:10:03 -0800 (PST)
+        with ESMTP id S229662AbiK3XK6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 30 Nov 2022 18:10:58 -0500
+Received: from mail-pl1-x64a.google.com (mail-pl1-x64a.google.com [IPv6:2607:f8b0:4864:20::64a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD88299F54
+        for <linux-s390@vger.kernel.org>; Wed, 30 Nov 2022 15:10:08 -0800 (PST)
+Received: by mail-pl1-x64a.google.com with SMTP id k18-20020a170902c41200b001896d523dc8so15759268plk.19
+        for <linux-s390@vger.kernel.org>; Wed, 30 Nov 2022 15:10:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:reply-to:from:to:cc:subject:date:message-id:reply-to;
-        bh=DDPlKttPz95bIPigIbsZnvNedazYOn7GaaeDonhS6tI=;
-        b=Z6nLxfTzgTUuiwpAG8cvYQa+dN+u8gdYDmvalMupYvTiyNB08ya32PPN3JMi5MQ+zn
-         CKFON4bHGY9uO+OU5rvKypZLm5hBqJSLnUUDK1HFwnV5UgI7QftrXIwrcqqGD/J7JfqE
-         CFBmidj59C7V6og88vcOwpoym4GNhD2bRgcqaNBUXoe/misowqQibWZd3vr8QsfUhhwX
-         i4uWK4yeRp3DB4lRFiuIJyrUfchRtOmsamHvLHwY72jxQuWnDEt5quvvWruAYj+4E7Dq
-         3qk+oHrWcenEcx4E4wlD8i3c5crP7WSMTS/kUAiUvOcd3cx88naWVp5yOAiefRxYVySU
-         2z9A==
+        bh=7yWYfpXTDQbZLx47MbNcDj0N66CBaR6qG+PnY/I15CM=;
+        b=bT3dL2RNgcw1MpeUO77l7FsTfdHMpEPlJatekk/DzFXJMm693HavywTCaGv6OqR75P
+         CEGSx4lH9Jtd0fa2semdatuM2+6/GtUmIUJQimOKEXQM8pMgCWT8njsrI/UOhbCPveML
+         q4zrbtboaVnIfVEgvLRQEAam2V+r4+zAGV7lL18Zl2LduEOPaMTpPlFnw/B6EsrXnukj
+         2pbaAxvJ9zg/7eNsW555x3IFXEMVva/FgAmoY74Di0SuLoDCFLXDc3bBoL6HnnnAq35N
+         reo1l2pMb3FCDaYjA4+6K/LTtV98kIt8jz3I1oCTyDyB/5twL2Ezyrmfizfy7s3Xbw19
+         DN3w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:reply-to:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=DDPlKttPz95bIPigIbsZnvNedazYOn7GaaeDonhS6tI=;
-        b=l1MmIRs3foMynzRfIizK8Eg7E2vc/HxlsNe6gJGKGLnzD1MkNGF93eZBsxakDI+BrX
-         4xpin6JDz09dEkgQqVf6I0n8Vu1LfYkRBHibw2baBwTo/VPwa6l4Izq4fvfvAcxCd742
-         0txxnKODlKMnSeOsgURLwIl25fuu+4YHcLmF9dqBYMGlW9ttFTM99WzuFo4cOR4qd5l9
-         sZSMhMHM0Dg5ra6H4UAtKryPOUDcYt8x+/OmMCpTXxCWAvTrx4MJx+zESiVqM7TLt19/
-         /J8qtXwnGFpWzBgnXgGPgL26qY2WfC3ZAnwZp9jb+rjQ3JjH+5TbB6LE3LOWza9JP3XI
-         27aA==
-X-Gm-Message-State: ANoB5pkUDp+p53Kh4ra851iN+YaD7qHyLViZd/6zUQbugSpfjNca7DNn
-        0mHIy7JHNovg7KQvLa69YJn4qaiBLrU=
-X-Google-Smtp-Source: AA0mqf5zruXq4Znt6GWyW9YI72qBn8AYfe7bpB45wh6N7oxAIVQAewpSb0tYUlF1SUbzH3yBDOmCkMMzIcM=
+        bh=7yWYfpXTDQbZLx47MbNcDj0N66CBaR6qG+PnY/I15CM=;
+        b=fmnD/6mmqwuObcBrJnAwBp1hW3pQGV0BgVxiTvuPDN6HMbzb7z37AjFKX26vCOb+J7
+         HYGvmyGn66pUzE+7Dyhbj2fiPYMv5WmK+kz5KMVtv8K7FV7QA7Da4cFtsUwmeTYX8mtJ
+         ek0tu4iy1eTyFPmU1v76L1ryMN8NArp8KfYD1BqrpbsDXbY56krVJc7bj/3EV7QeFIXc
+         bB05HrHqzVM+k69E/MmDo9N7R82PC9Y0B1dqlvNO7NT4Bi8gj3V/mPmfKqFxZ7iO5CIL
+         PrPcXiSPV+2bEEHUjXSIHtil644MfSl4u+a3XTAFkbaZGMjUZW3mdhkjXkzhCNi0Gc9I
+         T9MQ==
+X-Gm-Message-State: ANoB5plvwF8oSeHvGC8/pqn+uHjRa2bz4KeBqdGoAf8/xZfPOWGe5l1x
+        LhZ4c04Uc7atpoIpbPL9BgnmgmBzSjE=
+X-Google-Smtp-Source: AA0mqf63J5CYVyPrHNleGtfRjvZIjPjkTqLR79wPGUIq9AORVm0CVLKuvvqzhbFB0T9FDbVeahYix13Gv4o=
 X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5c37])
- (user=seanjc job=sendgmr) by 2002:a17:902:b691:b0:17e:fb19:63ba with SMTP id
- c17-20020a170902b69100b0017efb1963bamr47034838pls.160.1669849802860; Wed, 30
- Nov 2022 15:10:02 -0800 (PST)
+ (user=seanjc job=sendgmr) by 2002:a17:902:ee55:b0:176:a16a:417d with SMTP id
+ 21-20020a170902ee5500b00176a16a417dmr47218439plo.46.1669849797761; Wed, 30
+ Nov 2022 15:09:57 -0800 (PST)
 Reply-To: Sean Christopherson <seanjc@google.com>
-Date:   Wed, 30 Nov 2022 23:08:59 +0000
+Date:   Wed, 30 Nov 2022 23:08:56 +0000
 In-Reply-To: <20221130230934.1014142-1-seanjc@google.com>
 Mime-Version: 1.0
 References: <20221130230934.1014142-1-seanjc@google.com>
 X-Mailer: git-send-email 2.38.1.584.g0f3c55d4c2-goog
-Message-ID: <20221130230934.1014142-16-seanjc@google.com>
-Subject: [PATCH v2 15/50] KVM: x86: Serialize vendor module initialization
- (hardware setup)
+Message-ID: <20221130230934.1014142-13-seanjc@google.com>
+Subject: [PATCH v2 12/50] KVM: VMX: Move Hyper-V eVMCS initialization to helper
 From:   Sean Christopherson <seanjc@google.com>
 To:     Paolo Bonzini <pbonzini@redhat.com>, Marc Zyngier <maz@kernel.org>,
         Huacai Chen <chenhuacai@kernel.org>,
@@ -95,174 +94,124 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Acquire a new mutex, vendor_module_lock, in kvm_x86_vendor_init() while
-doing hardware setup to ensure that concurrent calls are fully serialized.
-KVM rejects attempts to load vendor modules if a different module has
-already been loaded, but doesn't handle the case where multiple vendor
-modules are loaded at the same time, and module_init() doesn't run under
-the global module_mutex.
+Move Hyper-V's eVMCS initialization to a dedicated helper to clean up
+vmx_init(), and add a comment to call out that the Hyper-V init code
+doesn't need to be unwound if vmx_init() ultimately fails.
 
-Note, in practice, this is likely a benign bug as no platform exists that
-supports both SVM and VMX, i.e. barring a weird VM setup, one of the
-vendor modules is guaranteed to fail a support check before modifying
-common KVM state.
-
-Alternatively, KVM could perform an atomic CMPXCHG on .hardware_enable,
-but that comes with its own ugliness as it would require setting
-.hardware_enable before success is guaranteed, e.g. attempting to load
-the "wrong" could result in spurious failure to load the "right" module.
-
-Introduce a new mutex as using kvm_lock is extremely deadlock prone due
-to kvm_lock being taken under cpus_write_lock(), and in the future, under
-under cpus_read_lock().  Any operation that takes cpus_read_lock() while
-holding kvm_lock would potentially deadlock, e.g. kvm_timer_init() takes
-cpus_read_lock() to register a callback.  In theory, KVM could avoid
-such problematic paths, i.e. do less setup under kvm_lock, but avoiding
-all calls to cpus_read_lock() is subtly difficult and thus fragile.  E.g.
-updating static calls also acquires cpus_read_lock().
-
-Inverting the lock ordering, i.e. always taking kvm_lock outside
-cpus_read_lock(), is not a viable option as kvm_lock is taken in various
-callbacks that may be invoked under cpus_read_lock(), e.g. x86's
-kvmclock_cpufreq_notifier().
-
-The lockdep splat below is dependent on future patches to take
-cpus_read_lock() in hardware_enable_all(), but as above, deadlock is
-already is already possible.
-
-  ======================================================
-  WARNING: possible circular locking dependency detected
-  6.0.0-smp--7ec93244f194-init2 #27 Tainted: G           O
-  ------------------------------------------------------
-  stable/251833 is trying to acquire lock:
-  ffffffffc097ea28 (kvm_lock){+.+.}-{3:3}, at: hardware_enable_all+0x1f/0xc0 [kvm]
-
-               but task is already holding lock:
-  ffffffffa2456828 (cpu_hotplug_lock){++++}-{0:0}, at: hardware_enable_all+0xf/0xc0 [kvm]
-
-               which lock already depends on the new lock.
-
-               the existing dependency chain (in reverse order) is:
-
-               -> #1 (cpu_hotplug_lock){++++}-{0:0}:
-         cpus_read_lock+0x2a/0xa0
-         __cpuhp_setup_state+0x2b/0x60
-         __kvm_x86_vendor_init+0x16a/0x1870 [kvm]
-         kvm_x86_vendor_init+0x23/0x40 [kvm]
-         0xffffffffc0a4d02b
-         do_one_initcall+0x110/0x200
-         do_init_module+0x4f/0x250
-         load_module+0x1730/0x18f0
-         __se_sys_finit_module+0xca/0x100
-         __x64_sys_finit_module+0x1d/0x20
-         do_syscall_64+0x3d/0x80
-         entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-               -> #0 (kvm_lock){+.+.}-{3:3}:
-         __lock_acquire+0x16f4/0x30d0
-         lock_acquire+0xb2/0x190
-         __mutex_lock+0x98/0x6f0
-         mutex_lock_nested+0x1b/0x20
-         hardware_enable_all+0x1f/0xc0 [kvm]
-         kvm_dev_ioctl+0x45e/0x930 [kvm]
-         __se_sys_ioctl+0x77/0xc0
-         __x64_sys_ioctl+0x1d/0x20
-         do_syscall_64+0x3d/0x80
-         entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-               other info that might help us debug this:
-
-   Possible unsafe locking scenario:
-
-         CPU0                    CPU1
-         ----                    ----
-    lock(cpu_hotplug_lock);
-                                 lock(kvm_lock);
-                                 lock(cpu_hotplug_lock);
-    lock(kvm_lock);
-
-                *** DEADLOCK ***
-
-  1 lock held by stable/251833:
-   #0: ffffffffa2456828 (cpu_hotplug_lock){++++}-{0:0}, at: hardware_enable_all+0xf/0xc0 [kvm]
+No functional change intended.
 
 Signed-off-by: Sean Christopherson <seanjc@google.com>
 ---
- Documentation/virt/kvm/locking.rst |  6 ++++++
- arch/x86/kvm/x86.c                 | 18 ++++++++++++++++--
- 2 files changed, 22 insertions(+), 2 deletions(-)
+ arch/x86/kvm/vmx/vmx.c | 73 +++++++++++++++++++++++++-----------------
+ 1 file changed, 43 insertions(+), 30 deletions(-)
 
-diff --git a/Documentation/virt/kvm/locking.rst b/Documentation/virt/kvm/locking.rst
-index 845a561629f1..132a9e5436e5 100644
---- a/Documentation/virt/kvm/locking.rst
-+++ b/Documentation/virt/kvm/locking.rst
-@@ -282,3 +282,9 @@ time it will be set using the Dirty tracking mechanism described above.
- 		wakeup notification event since external interrupts from the
- 		assigned devices happens, we will find the vCPU on the list to
- 		wakeup.
+diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+index c0de7160700b..b8bf95b9710d 100644
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -523,6 +523,8 @@ static inline void vmx_segment_cache_clear(struct vcpu_vmx *vmx)
+ static unsigned long host_idt_base;
+ 
+ #if IS_ENABLED(CONFIG_HYPERV)
++static struct kvm_x86_ops vmx_x86_ops __initdata;
 +
-+``vendor_module_lock``
-+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-+:Type:		mutex
-+:Arch:		x86
-+:Protects:	loading a vendor module (kvm_amd or kvm_intel)
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index b33932fca36e..45184ca89317 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -128,6 +128,7 @@ static int kvm_vcpu_do_singlestep(struct kvm_vcpu *vcpu);
- static int __set_sregs2(struct kvm_vcpu *vcpu, struct kvm_sregs2 *sregs2);
- static void __get_sregs2(struct kvm_vcpu *vcpu, struct kvm_sregs2 *sregs2);
+ static bool __read_mostly enlightened_vmcs = true;
+ module_param(enlightened_vmcs, bool, 0444);
  
-+static DEFINE_MUTEX(vendor_module_lock);
- struct kvm_x86_ops kvm_x86_ops __read_mostly;
- 
- #define KVM_X86_OP(func)					     \
-@@ -9286,7 +9287,7 @@ void kvm_arch_exit(void)
- 
+@@ -551,6 +553,43 @@ static int hv_enable_l2_tlb_flush(struct kvm_vcpu *vcpu)
+ 	return 0;
  }
  
--int kvm_x86_vendor_init(struct kvm_x86_init_ops *ops)
-+static int __kvm_x86_vendor_init(struct kvm_x86_init_ops *ops)
- {
- 	u64 host_pat;
- 	int r;
-@@ -9419,6 +9420,17 @@ int kvm_x86_vendor_init(struct kvm_x86_init_ops *ops)
- 	kmem_cache_destroy(x86_emulator_cache);
- 	return r;
- }
-+
-+int kvm_x86_vendor_init(struct kvm_x86_init_ops *ops)
++static __init void hv_init_evmcs(void)
 +{
-+	int r;
++	int cpu;
 +
-+	mutex_lock(&vendor_module_lock);
-+	r = __kvm_x86_vendor_init(ops);
-+	mutex_unlock(&vendor_module_lock);
++	if (!enlightened_vmcs)
++		return;
 +
-+	return r;
++	/*
++	 * Enlightened VMCS usage should be recommended and the host needs
++	 * to support eVMCS v1 or above.
++	 */
++	if (ms_hyperv.hints & HV_X64_ENLIGHTENED_VMCS_RECOMMENDED &&
++	    (ms_hyperv.nested_features & HV_X64_ENLIGHTENED_VMCS_VERSION) >=
++	     KVM_EVMCS_VERSION) {
++
++		/* Check that we have assist pages on all online CPUs */
++		for_each_online_cpu(cpu) {
++			if (!hv_get_vp_assist_page(cpu)) {
++				enlightened_vmcs = false;
++				break;
++			}
++		}
++
++		if (enlightened_vmcs) {
++			pr_info("KVM: vmx: using Hyper-V Enlightened VMCS\n");
++			static_branch_enable(&enable_evmcs);
++		}
++
++		if (ms_hyperv.nested_features & HV_X64_NESTED_DIRECT_FLUSH)
++			vmx_x86_ops.enable_l2_tlb_flush
++				= hv_enable_l2_tlb_flush;
++
++	} else {
++		enlightened_vmcs = false;
++	}
 +}
- EXPORT_SYMBOL_GPL(kvm_x86_vendor_init);
- 
- void kvm_x86_vendor_exit(void)
-@@ -9441,7 +9453,6 @@ void kvm_x86_vendor_exit(void)
- 	cancel_work_sync(&pvclock_gtod_work);
- #endif
- 	static_call(kvm_x86_hardware_unsetup)();
--	kvm_x86_ops.hardware_enable = NULL;
- 	kvm_mmu_vendor_module_exit();
- 	free_percpu(user_return_msrs);
- 	kmem_cache_destroy(x86_emulator_cache);
-@@ -9449,6 +9460,9 @@ void kvm_x86_vendor_exit(void)
- 	static_key_deferred_flush(&kvm_xen_enabled);
- 	WARN_ON(static_branch_unlikely(&kvm_xen_enabled.key));
- #endif
-+	mutex_lock(&vendor_module_lock);
-+	kvm_x86_ops.hardware_enable = NULL;
-+	mutex_unlock(&vendor_module_lock);
++
+ static void hv_reset_evmcs(void)
+ {
+ 	struct hv_vp_assist_page *vp_ap;
+@@ -577,6 +616,7 @@ static void hv_reset_evmcs(void)
  }
- EXPORT_SYMBOL_GPL(kvm_x86_vendor_exit);
  
+ #else /* IS_ENABLED(CONFIG_HYPERV) */
++static void hv_init_evmcs(void) {}
+ static void hv_reset_evmcs(void) {}
+ #endif /* IS_ENABLED(CONFIG_HYPERV) */
+ 
+@@ -8500,38 +8540,11 @@ static int __init vmx_init(void)
+ {
+ 	int r, cpu;
+ 
+-#if IS_ENABLED(CONFIG_HYPERV)
+ 	/*
+-	 * Enlightened VMCS usage should be recommended and the host needs
+-	 * to support eVMCS v1 or above. We can also disable eVMCS support
+-	 * with module parameter.
++	 * Note, hv_init_evmcs() touches only VMX knobs, i.e. there's nothing
++	 * to unwind if a later step fails.
+ 	 */
+-	if (enlightened_vmcs &&
+-	    ms_hyperv.hints & HV_X64_ENLIGHTENED_VMCS_RECOMMENDED &&
+-	    (ms_hyperv.nested_features & HV_X64_ENLIGHTENED_VMCS_VERSION) >=
+-	    KVM_EVMCS_VERSION) {
+-
+-		/* Check that we have assist pages on all online CPUs */
+-		for_each_online_cpu(cpu) {
+-			if (!hv_get_vp_assist_page(cpu)) {
+-				enlightened_vmcs = false;
+-				break;
+-			}
+-		}
+-
+-		if (enlightened_vmcs) {
+-			pr_info("KVM: vmx: using Hyper-V Enlightened VMCS\n");
+-			static_branch_enable(&enable_evmcs);
+-		}
+-
+-		if (ms_hyperv.nested_features & HV_X64_NESTED_DIRECT_FLUSH)
+-			vmx_x86_ops.enable_l2_tlb_flush
+-				= hv_enable_l2_tlb_flush;
+-
+-	} else {
+-		enlightened_vmcs = false;
+-	}
+-#endif
++	hv_init_evmcs();
+ 
+ 	r = kvm_init(&vmx_init_ops, sizeof(struct vcpu_vmx),
+ 		     __alignof__(struct vcpu_vmx), THIS_MODULE);
 -- 
 2.38.1.584.g0f3c55d4c2-goog
 
