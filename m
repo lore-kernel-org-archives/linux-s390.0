@@ -2,58 +2,58 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 41515C4708D
-	for <linux-s390@archiver.kernel.org>; Wed, 30 Nov 2022 23:16:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 74B0EC4708D
+	for <linux-s390@archiver.kernel.org>; Wed, 30 Nov 2022 23:16:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230115AbiK3XQQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 30 Nov 2022 18:16:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59844 "EHLO
+        id S230210AbiK3XQT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 30 Nov 2022 18:16:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230128AbiK3XPo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 30 Nov 2022 18:15:44 -0500
+        with ESMTP id S229763AbiK3XPx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 30 Nov 2022 18:15:53 -0500
 Received: from mail-pg1-x54a.google.com (mail-pg1-x54a.google.com [IPv6:2607:f8b0:4864:20::54a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18A10A1A3B
-        for <linux-s390@vger.kernel.org>; Wed, 30 Nov 2022 15:11:24 -0800 (PST)
-Received: by mail-pg1-x54a.google.com with SMTP id i19-20020a63e913000000b004705d1506a6so77823pgh.13
-        for <linux-s390@vger.kernel.org>; Wed, 30 Nov 2022 15:11:24 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D4CAA320E
+        for <linux-s390@vger.kernel.org>; Wed, 30 Nov 2022 15:11:26 -0800 (PST)
+Received: by mail-pg1-x54a.google.com with SMTP id m9-20020a63ed49000000b00477f449365fso70712pgk.15
+        for <linux-s390@vger.kernel.org>; Wed, 30 Nov 2022 15:11:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:reply-to:from:to:cc:subject:date:message-id:reply-to;
-        bh=/jaxWTFPxmj21+X8Hbtmuwlu7GhNr4CXW1v8XgKCn2o=;
-        b=jQgxp+u6SHc5NMy81OYePF88zDxKuqUxtOVxluvPTQI3MEuiQG2uqtD9RQG6VmOJ8F
-         kk/Pbv5hy6CTAGXGAAE4oRsWW1h1FNSdzY+gt8AUeNr14OcCE+UIvjb6UQ7TpiTMFIF0
-         izlNrD0kV5SMk0eBnY4nR4B5h0mn3eoylpGXZ25XCA4WeenN75ctGGp49AtZXHGvUS+T
-         qZhLro5p9fp3cB2diacdo0hy8LHABjsSmVzRqwSHAFnoRTmJG580sa0oMGIlwLbpLirz
-         qqtAn0DlcrzmZfTLixcwk1Q4OO5vUHO9P7L17dYxokTmYYn2YF9q+ofLTjNmrrQIy8bI
-         XJdQ==
+        bh=X0tmq9TjsMbdzf016NYPEZWLDrtJgEerkZwlPByjvHs=;
+        b=ffiAil8tYfi3nQXQblraVPD6jbdbOOCVG7uQkkKJrYkDL25R/TkQAeFRDogqa/QMMv
+         6wZOWt9R/eeSPWTlpWV3IYmrtl04WJOPJAhS7DhGuKTgLTJnehBcyBsLWlgRsCVFi/Ix
+         ksxZjkBOqqqo9hOr9qKhrYgS8WLlfTE4UM6Vkkhhf880kZVvVEdvLhl4X0FaFYBb/6vC
+         1lACz1AHExA2AbJQILx7vCyuTDoL44EAFEV/X6CifJwvfMkGg0ai47n8Yg94c4IO+cHQ
+         jlRTeSXfVKpq0j3GPFNIBJZpOCvznvIZyM5DfqXmXJnRlhyCma48IFWCHmjS0A3NCAbs
+         hdMw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:reply-to:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=/jaxWTFPxmj21+X8Hbtmuwlu7GhNr4CXW1v8XgKCn2o=;
-        b=af7YRvkujcjZrN1ULmMUc9Kq5/7Tpq+K6ExuU/h8i9MO34GVviU5teddD031+gmCLT
-         q05KAPHKV6fijsoMJg2zfFsZMEog5RXOhyk83X3maIGdGBkcrkRPj3ie8Ss0gurkpTtG
-         GR0MCeKmhzSLfJBx6uZrglFPUkknhJHLVEGLP7eY7PxkxlciQwIfx94KOuBmfN2hLE/B
-         kXA0WQ/gkAXlnrWbqKS4Ht9CMPSNUTWGESkV4afMBGBAvIrv+WUL6iKct8SWdVwQaqGF
-         s8JvHonEjuDLVJdvn8uzmxoAceOC91vmXysbrEwbfxAAT5ZNIV/LU9Hf6REKh+IXauAD
-         hdOQ==
-X-Gm-Message-State: ANoB5pmc6gm1EnukM7FFWsqgmhdI5LvDdKkDaoC7iyLUur08j+3mMwdQ
-        JcPe4Mfwo120FwRDvVbebd4qamOzsZE=
-X-Google-Smtp-Source: AA0mqf6+Bap4v8ExdEec6znsKgSVG1g77x3d69DLe55WoTiV/xIM01OoU5c9uuVoqdfTkLa+0jZkKz1t3dk=
+        bh=X0tmq9TjsMbdzf016NYPEZWLDrtJgEerkZwlPByjvHs=;
+        b=yf7Fnrtej6K4vDefB4JCdHjT5NCjlldVv/Erw4gm9zptd1TsEnxMGLo/TxZLsd3oMF
+         SYN0l2z28q4D2W8xSMO84mCci4tMEfziBQvNNZguEeNEXisJE0eoGlJN0cWUsJocGRKN
+         uFAOAI3pmtnUd3S7X/Jdqw1zOvlbjQU9uyT+tuQwdd+KYX10lK4r7b0z7wDtQPWT/Egu
+         BJqC9/P5x2vslPINWyrsEvch8VhTHmXdfWrqEItXB36XpLu2Z4/ZzhNyoT8XdzrHLOxH
+         BwcKbCNPuDl3+us6YZbuHBfDqm9us3kwVDKZ3GlUS8MRpyNMYhq7qKrBr5+QQv6kv8bc
+         cziA==
+X-Gm-Message-State: ANoB5pmXoW+lIEP+ASoBMsgSoUhcUMyI10QIVOH8ro7t+3lpFHjZOpVX
+        sYqlncbTrbaeb2+0DloSOTcdeJ+9qPA=
+X-Google-Smtp-Source: AA0mqf4tYdOmumtBwzOsj2b757evhXiqjnmJBxVweHABwP7YhX6XXp+28OecLtWsiEbLYyMEiAceUWRYidE=
 X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5c37])
- (user=seanjc job=sendgmr) by 2002:a17:902:6904:b0:185:3f7a:50cc with SMTP id
- j4-20020a170902690400b001853f7a50ccmr43659852plk.99.1669849850498; Wed, 30
- Nov 2022 15:10:50 -0800 (PST)
+ (user=seanjc job=sendgmr) by 2002:aa7:8487:0:b0:56c:3bb4:28a8 with SMTP id
+ u7-20020aa78487000000b0056c3bb428a8mr44633084pfn.83.1669849852226; Wed, 30
+ Nov 2022 15:10:52 -0800 (PST)
 Reply-To: Sean Christopherson <seanjc@google.com>
-Date:   Wed, 30 Nov 2022 23:09:26 +0000
+Date:   Wed, 30 Nov 2022 23:09:27 +0000
 In-Reply-To: <20221130230934.1014142-1-seanjc@google.com>
 Mime-Version: 1.0
 References: <20221130230934.1014142-1-seanjc@google.com>
 X-Mailer: git-send-email 2.38.1.584.g0f3c55d4c2-goog
-Message-ID: <20221130230934.1014142-43-seanjc@google.com>
-Subject: [PATCH v2 42/50] KVM: Disable CPU hotplug during hardware enabling/disabling
+Message-ID: <20221130230934.1014142-44-seanjc@google.com>
+Subject: [PATCH v2 43/50] KVM: Ensure CPU is stable during low level hardware enable/disable
 From:   Sean Christopherson <seanjc@google.com>
 To:     Paolo Bonzini <pbonzini@redhat.com>, Marc Zyngier <maz@kernel.org>,
         Huacai Chen <chenhuacai@kernel.org>,
@@ -94,101 +94,38 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Chao Gao <chao.gao@intel.com>
+Use the non-raw smp_processor_id() in the low hardware enable/disable
+helpers as KVM absolutely relies on the CPU being stable, e.g. KVM would
+end up with incorrect state if the task were migrated between accessing
+cpus_hardware_enabled and actually enabling/disabling hardware.
 
-Disable CPU hotplug when enabling/disabling hardware to prevent the
-corner case where if the following sequence occurs:
-
-  1. A hotplugged CPU marks itself online in cpu_online_mask
-  2. The hotplugged CPU enables interrupt before invoking KVM's ONLINE
-     callback
-  3  hardware_{en,dis}able_all() is invoked on another CPU
-
-the hotplugged CPU will be included in on_each_cpu() and thus get sent
-through hardware_{en,dis}able_nolock() before kvm_online_cpu() is called.
-
-        start_secondary { ...
-                set_cpu_online(smp_processor_id(), true); <- 1
-                ...
-                local_irq_enable();  <- 2
-                ...
-                cpu_startup_entry(CPUHP_AP_ONLINE_IDLE); <- 3
-        }
-
-KVM currently fudges around this race by keeping track of which CPUs have
-done hardware enabling (see commit 1b6c016818a5 "KVM: Keep track of which
-cpus have virtualization enabled"), but that's an inefficient, convoluted,
-and hacky solution.
-
-Signed-off-by: Chao Gao <chao.gao@intel.com>
-[sean: split to separate patch, write changelog]
 Signed-off-by: Sean Christopherson <seanjc@google.com>
 ---
- arch/x86/kvm/x86.c  | 11 ++++++++++-
- virt/kvm/kvm_main.c | 12 ++++++++++++
- 2 files changed, 22 insertions(+), 1 deletion(-)
+ virt/kvm/kvm_main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index dad30097f0c3..d2ad383da998 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -9281,7 +9281,16 @@ static inline void kvm_ops_update(struct kvm_x86_init_ops *ops)
- 
- static int kvm_x86_check_processor_compatibility(void)
- {
--	struct cpuinfo_x86 *c = &cpu_data(smp_processor_id());
-+	int cpu = smp_processor_id();
-+	struct cpuinfo_x86 *c = &cpu_data(cpu);
-+
-+	/*
-+	 * Compatibility checks are done when loading KVM and when enabling
-+	 * hardware, e.g. during CPU hotplug, to ensure all online CPUs are
-+	 * compatible, i.e. KVM should never perform a compatibility check on
-+	 * an offline CPU.
-+	 */
-+	WARN_ON(!cpu_online(cpu));
- 
- 	if (__cr4_reserved_bits(cpu_has, c) !=
- 	    __cr4_reserved_bits(cpu_has, &boot_cpu_data))
 diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index f26ea779710a..d985b24c423b 100644
+index d985b24c423b..a46d61e9c053 100644
 --- a/virt/kvm/kvm_main.c
 +++ b/virt/kvm/kvm_main.c
-@@ -5098,15 +5098,26 @@ static void hardware_disable_all_nolock(void)
+@@ -5028,7 +5028,7 @@ static struct miscdevice kvm_dev = {
  
- static void hardware_disable_all(void)
+ static void hardware_enable_nolock(void *junk)
  {
-+	cpus_read_lock();
- 	raw_spin_lock(&kvm_count_lock);
- 	hardware_disable_all_nolock();
- 	raw_spin_unlock(&kvm_count_lock);
-+	cpus_read_unlock();
- }
+-	int cpu = raw_smp_processor_id();
++	int cpu = smp_processor_id();
+ 	int r;
  
- static int hardware_enable_all(void)
+ 	if (cpumask_test_cpu(cpu, cpus_hardware_enabled))
+@@ -5070,7 +5070,7 @@ static int kvm_online_cpu(unsigned int cpu)
+ 
+ static void hardware_disable_nolock(void *junk)
  {
- 	int r = 0;
+-	int cpu = raw_smp_processor_id();
++	int cpu = smp_processor_id();
  
-+	/*
-+	 * When onlining a CPU, cpu_online_mask is set before kvm_online_cpu()
-+	 * is called, and so on_each_cpu() between them includes the CPU that
-+	 * is being onlined.  As a result, hardware_enable_nolock() may get
-+	 * invoked before kvm_online_cpu(), which also enables hardware if the
-+	 * usage count is non-zero.  Disable CPU hotplug to avoid attempting to
-+	 * enable hardware multiple times.
-+	 */
-+	cpus_read_lock();
- 	raw_spin_lock(&kvm_count_lock);
- 
- 	kvm_usage_count++;
-@@ -5121,6 +5132,7 @@ static int hardware_enable_all(void)
- 	}
- 
- 	raw_spin_unlock(&kvm_count_lock);
-+	cpus_read_unlock();
- 
- 	return r;
- }
+ 	if (!cpumask_test_cpu(cpu, cpus_hardware_enabled))
+ 		return;
 -- 
 2.38.1.584.g0f3c55d4c2-goog
 
