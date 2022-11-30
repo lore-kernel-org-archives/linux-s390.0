@@ -2,58 +2,59 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7BCE8C4321E
-	for <linux-s390@archiver.kernel.org>; Wed, 30 Nov 2022 23:11:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 494C2C47089
+	for <linux-s390@archiver.kernel.org>; Wed, 30 Nov 2022 23:12:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229969AbiK3XLs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 30 Nov 2022 18:11:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46976 "EHLO
+        id S229770AbiK3XMG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 30 Nov 2022 18:12:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229662AbiK3XK6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 30 Nov 2022 18:10:58 -0500
-Received: from mail-pl1-x64a.google.com (mail-pl1-x64a.google.com [IPv6:2607:f8b0:4864:20::64a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD88299F54
-        for <linux-s390@vger.kernel.org>; Wed, 30 Nov 2022 15:10:08 -0800 (PST)
-Received: by mail-pl1-x64a.google.com with SMTP id k18-20020a170902c41200b001896d523dc8so15759268plk.19
-        for <linux-s390@vger.kernel.org>; Wed, 30 Nov 2022 15:10:08 -0800 (PST)
+        with ESMTP id S229796AbiK3XLP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 30 Nov 2022 18:11:15 -0500
+Received: from mail-pj1-x104a.google.com (mail-pj1-x104a.google.com [IPv6:2607:f8b0:4864:20::104a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D62C3975DA
+        for <linux-s390@vger.kernel.org>; Wed, 30 Nov 2022 15:10:16 -0800 (PST)
+Received: by mail-pj1-x104a.google.com with SMTP id m2-20020a17090a730200b0021020cce6adso3800845pjk.3
+        for <linux-s390@vger.kernel.org>; Wed, 30 Nov 2022 15:10:16 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:reply-to:from:to:cc:subject:date:message-id:reply-to;
-        bh=7yWYfpXTDQbZLx47MbNcDj0N66CBaR6qG+PnY/I15CM=;
-        b=bT3dL2RNgcw1MpeUO77l7FsTfdHMpEPlJatekk/DzFXJMm693HavywTCaGv6OqR75P
-         CEGSx4lH9Jtd0fa2semdatuM2+6/GtUmIUJQimOKEXQM8pMgCWT8njsrI/UOhbCPveML
-         q4zrbtboaVnIfVEgvLRQEAam2V+r4+zAGV7lL18Zl2LduEOPaMTpPlFnw/B6EsrXnukj
-         2pbaAxvJ9zg/7eNsW555x3IFXEMVva/FgAmoY74Di0SuLoDCFLXDc3bBoL6HnnnAq35N
-         reo1l2pMb3FCDaYjA4+6K/LTtV98kIt8jz3I1oCTyDyB/5twL2Ezyrmfizfy7s3Xbw19
-         DN3w==
+        bh=di4GPfaF6WKRfgW0XqJub+upfuRM26VzAsGaqEV4LGw=;
+        b=Zp0X+tvqlodbVDmXJAlHsgiG3eKVrrt9FqJ/G91Ka+FyaPGocW43mHdutS/PZpQE36
+         Iieu9/BWXmUBsCNeoXw2w6AGd8PrG42NkgB6lU08wcdcc8UwAyPwoD57C6YJX6W8d8L6
+         zT+J1YBLZIf8EiLqUI0I1OI8MzvM21Wx5gQBxNbTBtyOAXzto+GobOper+U00pyFgXJf
+         UdMZA+TjdcslZ9rB8fGS/EHatJp3upDo3FA+0llGAcT+1sttGOmsewFGvBZuTST5TDKg
+         atyPT5DCNi18z7jSv+tnMdXu5HV1aXplTTP+Szmkxtce4LN+raVvUsuQA85wOwn+8uqH
+         psnA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:reply-to:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=7yWYfpXTDQbZLx47MbNcDj0N66CBaR6qG+PnY/I15CM=;
-        b=fmnD/6mmqwuObcBrJnAwBp1hW3pQGV0BgVxiTvuPDN6HMbzb7z37AjFKX26vCOb+J7
-         HYGvmyGn66pUzE+7Dyhbj2fiPYMv5WmK+kz5KMVtv8K7FV7QA7Da4cFtsUwmeTYX8mtJ
-         ek0tu4iy1eTyFPmU1v76L1ryMN8NArp8KfYD1BqrpbsDXbY56krVJc7bj/3EV7QeFIXc
-         bB05HrHqzVM+k69E/MmDo9N7R82PC9Y0B1dqlvNO7NT4Bi8gj3V/mPmfKqFxZ7iO5CIL
-         PrPcXiSPV+2bEEHUjXSIHtil644MfSl4u+a3XTAFkbaZGMjUZW3mdhkjXkzhCNi0Gc9I
-         T9MQ==
-X-Gm-Message-State: ANoB5plvwF8oSeHvGC8/pqn+uHjRa2bz4KeBqdGoAf8/xZfPOWGe5l1x
-        LhZ4c04Uc7atpoIpbPL9BgnmgmBzSjE=
-X-Google-Smtp-Source: AA0mqf63J5CYVyPrHNleGtfRjvZIjPjkTqLR79wPGUIq9AORVm0CVLKuvvqzhbFB0T9FDbVeahYix13Gv4o=
+        bh=di4GPfaF6WKRfgW0XqJub+upfuRM26VzAsGaqEV4LGw=;
+        b=vhUj0CL3wkRuEe+0amkyla0Eg42xqvI/9T/PO8JZCjx1V91JoGsvMrceYivaW25mIj
+         mmxxALh/B/UW56N5ukwlRLq5MD/XVl0xdlsc9QJVQc7QuxmQFeAsC6JYwcvLF+Gp3Q3E
+         w5gfk5QYr/1KyYmkpQSJGcut8Pm5K+KEg6U4JFr2HUqsjUo2Av6D9mEsZlGx5H7x0Bz6
+         gQNs7i8d3K+INl5T3+sPObp5DCNNandUHtWeBsY1bZNyaeh/cspWxs0e+Kfy3f5kU8Oy
+         eeP8p94ae5Mf/glCk5YJfz+/N2qhGXu82bwGNMseo4D5ArR2GChbPb77sPq7q6YdJ4hr
+         kTWA==
+X-Gm-Message-State: ANoB5pnHuAkoEyiZ+LW1sPvV9DlzrJ2kMQxBKiwMHpxIS0D+prLTeVK4
+        B6UP0U65ZEij+WWShIVdKHAcDZ/FYxc=
+X-Google-Smtp-Source: AA0mqf4OklfcBkfFMEfVjeAO6z8Tg9xRFY+PEerZY3OMpeOrjrDiJtxtxuLC1x65bjbuGkZn4Pd66WRIuco=
 X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5c37])
- (user=seanjc job=sendgmr) by 2002:a17:902:ee55:b0:176:a16a:417d with SMTP id
- 21-20020a170902ee5500b00176a16a417dmr47218439plo.46.1669849797761; Wed, 30
- Nov 2022 15:09:57 -0800 (PST)
+ (user=seanjc job=sendgmr) by 2002:a05:6a00:1409:b0:56b:e1d8:e7a1 with SMTP id
+ l9-20020a056a00140900b0056be1d8e7a1mr44197245pfu.28.1669849801157; Wed, 30
+ Nov 2022 15:10:01 -0800 (PST)
 Reply-To: Sean Christopherson <seanjc@google.com>
-Date:   Wed, 30 Nov 2022 23:08:56 +0000
+Date:   Wed, 30 Nov 2022 23:08:58 +0000
 In-Reply-To: <20221130230934.1014142-1-seanjc@google.com>
 Mime-Version: 1.0
 References: <20221130230934.1014142-1-seanjc@google.com>
 X-Mailer: git-send-email 2.38.1.584.g0f3c55d4c2-goog
-Message-ID: <20221130230934.1014142-13-seanjc@google.com>
-Subject: [PATCH v2 12/50] KVM: VMX: Move Hyper-V eVMCS initialization to helper
+Message-ID: <20221130230934.1014142-15-seanjc@google.com>
+Subject: [PATCH v2 14/50] KVM: VMX: Do _all_ initialization before exposing
+ /dev/kvm to userspace
 From:   Sean Christopherson <seanjc@google.com>
 To:     Paolo Bonzini <pbonzini@redhat.com>, Marc Zyngier <maz@kernel.org>,
         Huacai Chen <chenhuacai@kernel.org>,
@@ -94,124 +95,109 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Move Hyper-V's eVMCS initialization to a dedicated helper to clean up
-vmx_init(), and add a comment to call out that the Hyper-V init code
-doesn't need to be unwound if vmx_init() ultimately fails.
+Call kvm_init() only after _all_ setup is complete, as kvm_init() exposes
+/dev/kvm to userspace and thus allows userspace to create VMs (and call
+other ioctls).  E.g. KVM will encounter a NULL pointer when attempting to
+add a vCPU to the per-CPU loaded_vmcss_on_cpu list if userspace is able to
+create a VM before vmx_init() configures said list.
 
-No functional change intended.
+ BUG: kernel NULL pointer dereference, address: 0000000000000008
+ #PF: supervisor write access in kernel mode
+ #PF: error_code(0x0002) - not-present page
+ PGD 0 P4D 0
+ Oops: 0002 [#1] SMP
+ CPU: 6 PID: 1143 Comm: stable Not tainted 6.0.0-rc7+ #988
+ Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
+ RIP: 0010:vmx_vcpu_load_vmcs+0x68/0x230 [kvm_intel]
+  <TASK>
+  vmx_vcpu_load+0x16/0x60 [kvm_intel]
+  kvm_arch_vcpu_load+0x32/0x1f0 [kvm]
+  vcpu_load+0x2f/0x40 [kvm]
+  kvm_arch_vcpu_create+0x231/0x310 [kvm]
+  kvm_vm_ioctl+0x79f/0xe10 [kvm]
+  ? handle_mm_fault+0xb1/0x220
+  __x64_sys_ioctl+0x80/0xb0
+  do_syscall_64+0x2b/0x50
+  entry_SYSCALL_64_after_hwframe+0x46/0xb0
+ RIP: 0033:0x7f5a6b05743b
+  </TASK>
+ Modules linked in: vhost_net vhost vhost_iotlb tap kvm_intel(+) kvm irqbypass
 
+Cc: stable@vger.kernel.org
 Signed-off-by: Sean Christopherson <seanjc@google.com>
 ---
- arch/x86/kvm/vmx/vmx.c | 73 +++++++++++++++++++++++++-----------------
- 1 file changed, 43 insertions(+), 30 deletions(-)
+ arch/x86/kvm/vmx/vmx.c | 34 +++++++++++++++++++++-------------
+ 1 file changed, 21 insertions(+), 13 deletions(-)
 
 diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index c0de7160700b..b8bf95b9710d 100644
+index 8e81cd94407d..76185a7a7ded 100644
 --- a/arch/x86/kvm/vmx/vmx.c
 +++ b/arch/x86/kvm/vmx/vmx.c
-@@ -523,6 +523,8 @@ static inline void vmx_segment_cache_clear(struct vcpu_vmx *vmx)
- static unsigned long host_idt_base;
- 
- #if IS_ENABLED(CONFIG_HYPERV)
-+static struct kvm_x86_ops vmx_x86_ops __initdata;
-+
- static bool __read_mostly enlightened_vmcs = true;
- module_param(enlightened_vmcs, bool, 0444);
- 
-@@ -551,6 +553,43 @@ static int hv_enable_l2_tlb_flush(struct kvm_vcpu *vcpu)
- 	return 0;
+@@ -8521,19 +8521,23 @@ static void vmx_cleanup_l1d_flush(void)
+ 	l1tf_vmx_mitigation = VMENTER_L1D_FLUSH_AUTO;
  }
  
-+static __init void hv_init_evmcs(void)
-+{
-+	int cpu;
+-static void vmx_exit(void)
++static void __vmx_exit(void)
+ {
++	allow_smaller_maxphyaddr = false;
 +
-+	if (!enlightened_vmcs)
-+		return;
-+
-+	/*
-+	 * Enlightened VMCS usage should be recommended and the host needs
-+	 * to support eVMCS v1 or above.
-+	 */
-+	if (ms_hyperv.hints & HV_X64_ENLIGHTENED_VMCS_RECOMMENDED &&
-+	    (ms_hyperv.nested_features & HV_X64_ENLIGHTENED_VMCS_VERSION) >=
-+	     KVM_EVMCS_VERSION) {
-+
-+		/* Check that we have assist pages on all online CPUs */
-+		for_each_online_cpu(cpu) {
-+			if (!hv_get_vp_assist_page(cpu)) {
-+				enlightened_vmcs = false;
-+				break;
-+			}
-+		}
-+
-+		if (enlightened_vmcs) {
-+			pr_info("KVM: vmx: using Hyper-V Enlightened VMCS\n");
-+			static_branch_enable(&enable_evmcs);
-+		}
-+
-+		if (ms_hyperv.nested_features & HV_X64_NESTED_DIRECT_FLUSH)
-+			vmx_x86_ops.enable_l2_tlb_flush
-+				= hv_enable_l2_tlb_flush;
-+
-+	} else {
-+		enlightened_vmcs = false;
-+	}
+ #ifdef CONFIG_KEXEC_CORE
+ 	RCU_INIT_POINTER(crash_vmclear_loaded_vmcss, NULL);
+ 	synchronize_rcu();
+ #endif
+-
+-	kvm_exit();
+-	kvm_x86_vendor_exit();
+-
+ 	vmx_cleanup_l1d_flush();
 +}
+ 
+-	allow_smaller_maxphyaddr = false;
++static void vmx_exit(void)
++{
++	kvm_exit();
++	kvm_x86_vendor_exit();
 +
- static void hv_reset_evmcs(void)
- {
- 	struct hv_vp_assist_page *vp_ap;
-@@ -577,6 +616,7 @@ static void hv_reset_evmcs(void)
++	__vmx_exit();
  }
+ module_exit(vmx_exit);
  
- #else /* IS_ENABLED(CONFIG_HYPERV) */
-+static void hv_init_evmcs(void) {}
- static void hv_reset_evmcs(void) {}
- #endif /* IS_ENABLED(CONFIG_HYPERV) */
+@@ -8551,11 +8555,6 @@ static int __init vmx_init(void)
+ 	if (r)
+ 		return r;
  
-@@ -8500,38 +8540,11 @@ static int __init vmx_init(void)
- {
- 	int r, cpu;
- 
--#if IS_ENABLED(CONFIG_HYPERV)
+-	r = kvm_init(&vmx_init_ops, sizeof(struct vcpu_vmx),
+-		     __alignof__(struct vcpu_vmx), THIS_MODULE);
+-	if (r)
+-		goto err_kvm_init;
+-
  	/*
--	 * Enlightened VMCS usage should be recommended and the host needs
--	 * to support eVMCS v1 or above. We can also disable eVMCS support
--	 * with module parameter.
-+	 * Note, hv_init_evmcs() touches only VMX knobs, i.e. there's nothing
-+	 * to unwind if a later step fails.
- 	 */
--	if (enlightened_vmcs &&
--	    ms_hyperv.hints & HV_X64_ENLIGHTENED_VMCS_RECOMMENDED &&
--	    (ms_hyperv.nested_features & HV_X64_ENLIGHTENED_VMCS_VERSION) >=
--	    KVM_EVMCS_VERSION) {
--
--		/* Check that we have assist pages on all online CPUs */
--		for_each_online_cpu(cpu) {
--			if (!hv_get_vp_assist_page(cpu)) {
--				enlightened_vmcs = false;
--				break;
--			}
--		}
--
--		if (enlightened_vmcs) {
--			pr_info("KVM: vmx: using Hyper-V Enlightened VMCS\n");
--			static_branch_enable(&enable_evmcs);
--		}
--
--		if (ms_hyperv.nested_features & HV_X64_NESTED_DIRECT_FLUSH)
--			vmx_x86_ops.enable_l2_tlb_flush
--				= hv_enable_l2_tlb_flush;
--
--	} else {
--		enlightened_vmcs = false;
--	}
--#endif
-+	hv_init_evmcs();
+ 	 * Must be called after common x86 init so enable_ept is properly set
+ 	 * up. Hand the parameter mitigation value in which was stored in
+@@ -8589,11 +8588,20 @@ static int __init vmx_init(void)
+ 	if (!enable_ept)
+ 		allow_smaller_maxphyaddr = true;
  
- 	r = kvm_init(&vmx_init_ops, sizeof(struct vcpu_vmx),
- 		     __alignof__(struct vcpu_vmx), THIS_MODULE);
++	/*
++	 * Common KVM initialization _must_ come last, after this, /dev/kvm is
++	 * exposed to userspace!
++	 */
++	r = kvm_init(&vmx_init_ops, sizeof(struct vcpu_vmx),
++		     __alignof__(struct vcpu_vmx), THIS_MODULE);
++	if (r)
++		goto err_kvm_init;
++
+ 	return 0;
+ 
+-err_l1d_flush:
+-	vmx_exit();
+ err_kvm_init:
++	__vmx_exit();
++err_l1d_flush:
+ 	kvm_x86_vendor_exit();
+ 	return r;
+ }
 -- 
 2.38.1.584.g0f3c55d4c2-goog
 
