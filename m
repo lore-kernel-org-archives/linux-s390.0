@@ -2,163 +2,161 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E6EC1C47088
-	for <linux-s390@archiver.kernel.org>; Thu,  1 Dec 2022 05:21:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E6885C43217
+	for <linux-s390@archiver.kernel.org>; Thu,  1 Dec 2022 07:22:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229674AbiLAFVl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 1 Dec 2022 00:21:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42164 "EHLO
+        id S229497AbiLAHWn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 1 Dec 2022 02:22:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229593AbiLAFVk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Dec 2022 00:21:40 -0500
-Received: from gandalf.ozlabs.org (mail.ozlabs.org [IPv6:2404:9400:2221:ea00::3])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FC39A13F9;
-        Wed, 30 Nov 2022 21:21:38 -0800 (PST)
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 4NN4Dq6Zmxz4x1V;
-        Thu,  1 Dec 2022 16:21:31 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
-        s=201909; t=1669872096;
-        bh=N0orzYmQiDoqaJ7NYGjlM3UnNxlX/cknbPTGfPB6WFM=;
-        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-        b=J5OxG6kIMoR1klHiq+pJUaSgDwQrXyp2IQVExgmmPNs6d5M2zalc/rFARJpzB6LCF
-         mIrvgM+Yk6zmcYrbL1HL6byl4gygucjhaR6xhicDvgiER8ov5k6cvGvblLKfkLL79G
-         Qr4K7TgrY7ozLHH4Rz1BcWO+Y6BxcTIrY8j51NIdM6oHGO3QrlQNIe919bNypOKqe4
-         YHuJsYYV/nFeRurQTMfOCln/DE+Mz3BkBkR/vDvI86w1ePXtODUCbkiSWEC3PK7pVj
-         7hgwt5pYqLFahDmf67Gs9PQJ8p24LtR4/LQuAP00TNjl2lawnoAD2XkoV81D7xf9C5
-         T4FWO6qMAX8YQ==
-From:   Michael Ellerman <mpe@ellerman.id.au>
-To:     Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Anup Patel <anup@brainfault.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Paul Durrant <paul@xen.org>
-Cc:     James Morse <james.morse@arm.com>,
-        Alexandru Elisei <alexandru.elisei@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Oliver Upton <oliver.upton@linux.dev>,
-        Atish Patra <atishp@atishpatra.org>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev,
-        kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, kvm-riscv@lists.infradead.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Yuan Yao <yuan.yao@intel.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Isaku Yamahata <isaku.yamahata@intel.com>,
-        Philippe =?utf-8?Q?Mathieu-Daud=C3=A9?= <philmd@linaro.org>,
-        Fabiano Rosas <farosas@linux.ibm.com>,
-        Kai Huang <kai.huang@intel.com>, Chao Gao <chao.gao@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH v2 26/50] KVM: PPC: Move processor compatibility check
- to module init
-In-Reply-To: <20221130230934.1014142-27-seanjc@google.com>
-References: <20221130230934.1014142-1-seanjc@google.com>
- <20221130230934.1014142-27-seanjc@google.com>
-Date:   Thu, 01 Dec 2022 16:21:31 +1100
-Message-ID: <87cz93snqc.fsf@mpe.ellerman.id.au>
+        with ESMTP id S229476AbiLAHWm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Dec 2022 02:22:42 -0500
+Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D385263C6;
+        Wed, 30 Nov 2022 23:22:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1669879359; x=1701415359;
+  h=date:from:to:cc:subject:message-id:reply-to:references:
+   mime-version:in-reply-to;
+  bh=8iutSBSwv2isV04FKcwf/O2ymTiTu3KDIqYbJFYhJZg=;
+  b=FNc/NRsamBPdYMNk17MieJm8n0Ci8JYPvJEbmMF3CN2Zqa+tPLomJUdl
+   OhgTYjNgwzx9rTgzargikXUfUfaKwKdRO/LmoRoCNrlE2Xvp7w14mFdrE
+   RsiCOwUVos59pnQGxMHMgVkkujNXvhjYu6rBiUxyCDI7YPpQHF3RrjLFT
+   CDUlFSecKxsXO/mSDvuHszoWmub2lJPdM+oLwh+j++xwdB+dAavTppua/
+   Kyv3ta43Olu3Eqzic6erIvOtMgvlJWjhMRzIQEncOW0RN07GTZ518MewY
+   3MSj4feKSeC7QQaCFlOeQ9RYk601rimpMtgPLT486RugAtGxpB6NkQWCY
+   Q==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10547"; a="303217131"
+X-IronPort-AV: E=Sophos;i="5.96,207,1665471600"; 
+   d="asc'?scan'208";a="303217131"
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Nov 2022 23:22:38 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10547"; a="707961135"
+X-IronPort-AV: E=Sophos;i="5.96,207,1665471600"; 
+   d="asc'?scan'208";a="707961135"
+Received: from zhen-hp.sh.intel.com (HELO zhen-hp) ([10.239.159.108])
+  by fmsmga008.fm.intel.com with ESMTP; 30 Nov 2022 23:22:35 -0800
+Date:   Thu, 1 Dec 2022 15:21:19 +0800
+From:   Zhenyu Wang <zhenyuw@linux.intel.com>
+To:     Yi Liu <yi.l.liu@intel.com>
+Cc:     jgg@nvidia.com, alex.williamson@redhat.com, kevin.tian@intel.com,
+        kvm@vger.kernel.org, mjrosato@linux.ibm.com,
+        chao.p.peng@linux.intel.com, yi.y.sun@linux.intel.com,
+        intel-gvt-dev@lists.freedesktop.org, linux-s390@vger.kernel.org,
+        Zhi Wang <zhi.a.wang@intel.com>
+Subject: Re: [[RESEND] iommufd PATCH v2 1/2] i915/gvt: Move gvt mapping cache
+ initialization to intel_vgpu_init_dev()
+Message-ID: <20221201072119.GZ30028@zhen-hp.sh.intel.com>
+Reply-To: Zhenyu Wang <zhenyuw@linux.intel.com>
+References: <20221129105831.466954-1-yi.l.liu@intel.com>
+ <20221129105831.466954-2-yi.l.liu@intel.com>
+ <20221201032531.GY30028@zhen-hp.sh.intel.com>
+ <47b0f601-5022-c083-44e8-4048031dddd4@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="vru7fAags9pVPvn5"
+Content-Disposition: inline
+In-Reply-To: <47b0f601-5022-c083-44e8-4048031dddd4@intel.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Sean Christopherson <seanjc@google.com> writes:
-> Move KVM PPC's compatibility checks to their respective module_init()
-> hooks, there's no need to wait until KVM's common compat check, nor is
-> there a need to perform the check on every CPU (provided by common KVM's
-> hook), as the compatibility checks operate on global data.
+
+--vru7fAags9pVPvn5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On 2022.12.01 12:18:29 +0800, Yi Liu wrote:
+> On 2022/12/1 11:25, Zhenyu Wang wrote:
+> > On 2022.11.29 02:58:30 -0800, Yi Liu wrote:
+> > > vfio container registers .dma_unmap() callback after the device is op=
+ened.
+> > > So it's fine for mdev drivers to initialize internal mapping cache in
+> > > .open_device(). See vfio_device_container_register().
+> > >=20
+> > > Now with iommufd an access ops with an unmap callback is registered
+> > > when the device is bound to iommufd which is before .open_device()
+> > > is called. This implies gvt's .dma_unmap() could be called before its
+> > > internal mapping cache is initialized.
+> > >=20
+> > > The fix is moving gvt mapping cache initialization to vGPU init. While
+> > > at it also move ptable initialization together.
+> > >=20
+> > > Cc: Zhenyu Wang <zhenyuw@linux.intel.com>
+> > > Cc: Zhi Wang <zhi.a.wang@intel.com>
+> > > Cc: Kevin Tian <kevin.tian@intel.com>
+> > > Cc: intel-gvt-dev@lists.freedesktop.org
+> > > Reviewed-by: Zhi Wang <zhi.a.wang@intel.com>
+> > > Signed-off-by: Yi Liu <yi.l.liu@intel.com>
+> > > ---
+> > >   drivers/gpu/drm/i915/gvt/kvmgt.c | 13 +++++++++----
+> > >   1 file changed, 9 insertions(+), 4 deletions(-)
+> > >=20
+> > > diff --git a/drivers/gpu/drm/i915/gvt/kvmgt.c b/drivers/gpu/drm/i915/=
+gvt/kvmgt.c
+> > > index 7a45e5360caf..f563e5dbe66f 100644
+> > > --- a/drivers/gpu/drm/i915/gvt/kvmgt.c
+> > > +++ b/drivers/gpu/drm/i915/gvt/kvmgt.c
+> > > @@ -671,9 +671,6 @@ static int intel_vgpu_open_device(struct vfio_dev=
+ice *vfio_dev)
+> > >   	vgpu->attached =3D true;
+> > > -	kvmgt_protect_table_init(vgpu);
+> > > -	gvt_cache_init(vgpu);
+> > > -
+> > >   	vgpu->track_node.track_write =3D kvmgt_page_track_write;
+> > >   	vgpu->track_node.track_flush_slot =3D kvmgt_page_track_flush_slot;
+> > >   	kvm_page_track_register_notifier(vgpu->vfio_device.kvm,
+> > > @@ -1451,9 +1448,17 @@ static int intel_vgpu_init_dev(struct vfio_dev=
+ice *vfio_dev)
+> > >   	struct intel_vgpu *vgpu =3D vfio_dev_to_vgpu(vfio_dev);
+> > >   	struct intel_vgpu_type *type =3D
+> > >   		container_of(mdev->type, struct intel_vgpu_type, type);
+> > > +	int ret;
+> > >   	vgpu->gvt =3D kdev_to_i915(mdev->type->parent->dev)->gvt;
+> > > -	return intel_gvt_create_vgpu(vgpu, type->conf);
+> > > +	ret =3D intel_gvt_create_vgpu(vgpu, type->conf);
+> > > +	if (ret)
+> > > +		return ret;
+> > > +
+> > > +	kvmgt_protect_table_init(vgpu);
+> > > +	gvt_cache_init(vgpu);
+> > > +
+> > > +	return 0;
+> >=20
+> > I'm fine with this change, but could we add some sanity check at close
+> > time to ensure we clean up any internal cache? Btw, do we need to reset
+> > rbtree root pointer?
+>=20
+> I noticed there is gvt_cache_destroy() in intel_vgpu_close_device(). This
+> cleans up the internal cache. So even the rbtree root is valid, it is an
+> empty per close_device(). isn't it?
 >
->   arch/powerpc/include/asm/cputable.h: extern struct cpu_spec *cur_cpu_sp=
-ec;
->   arch/powerpc/kvm/book3s.c: return 0
->   arch/powerpc/kvm/e500.c: strcmp(cur_cpu_spec->cpu_name, "e500v2")
->   arch/powerpc/kvm/e500mc.c: strcmp(cur_cpu_spec->cpu_name, "e500mc")
->                              strcmp(cur_cpu_spec->cpu_name, "e5500")
->                              strcmp(cur_cpu_spec->cpu_name, "e6500")
 
-I'm not sure that output is really useful in the change log unless you
-explain more about what it is.
+I'd like to see an explicit sanity check on vgpu->nr_cache_entries and
+reset rb root at close time, which matches current code behavior, but
+not need to do re-init.
 
-> diff --git a/arch/powerpc/kvm/e500mc.c b/arch/powerpc/kvm/e500mc.c
-> index 57e0ad6a2ca3..795667f7ebf0 100644
-> --- a/arch/powerpc/kvm/e500mc.c
-> +++ b/arch/powerpc/kvm/e500mc.c
-> @@ -388,6 +388,10 @@ static int __init kvmppc_e500mc_init(void)
->  {
->  	int r;
->=20=20
-> +	r =3D kvmppc_e500mc_check_processor_compat();
-> +	if (r)
-> +		return kvmppc_e500mc;
-=20
-This doesn't build:
+> > >   }
+> > >   static void intel_vgpu_release_dev(struct vfio_device *vfio_dev)
+> > > --=20
+> > > 2.34.1
+> > >=20
+>=20
+> --=20
+> Regards,
+> Yi Liu
 
-linux/arch/powerpc/kvm/e500mc.c: In function =E2=80=98kvmppc_e500mc_init=E2=
-=80=99:
-linux/arch/powerpc/kvm/e500mc.c:391:13: error: implicit declaration of func=
-tion =E2=80=98kvmppc_e500mc_check_processor_compat=E2=80=99; did you mean =
-=E2=80=98kvmppc_core_check_processor_compat=E2=80=99? [-Werror=3Dimplicit-f=
-unction-declaration]
-  391 |         r =3D kvmppc_e500mc_check_processor_compat();
-      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      |             kvmppc_core_check_processor_compat
-linux/arch/powerpc/kvm/e500mc.c:393:24: error: =E2=80=98kvmppc_e500mc=E2=80=
-=99 undeclared (first use in this function); did you mean =E2=80=98kvm_ops_=
-e500mc=E2=80=99?
-  393 |                 return kvmppc_e500mc;
-      |                        ^~~~~~~~~~~~~
-      |                        kvm_ops_e500mc
-linux/arch/powerpc/kvm/e500mc.c:393:24: note: each undeclared identifier is=
- reported only once for each function it appears in
+--vru7fAags9pVPvn5
+Content-Type: application/pgp-signature; name="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
 
-It needs the delta below to compile.
+iF0EARECAB0WIQTXuabgHDW6LPt9CICxBBozTXgYJwUCY4hV6gAKCRCxBBozTXgY
+J8/aAJ9kQlNMWvwUjNrY85ogji/JzmD/1gCeM/7UbFQNw5OwbodmZrFSaoj96ZQ=
+=BUv/
+-----END PGP SIGNATURE-----
 
-With that:
-
-Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
-
-cheers
-
-
-diff --git a/arch/powerpc/kvm/e500mc.c b/arch/powerpc/kvm/e500mc.c
-index 795667f7ebf0..4564aa27edcf 100644
---- a/arch/powerpc/kvm/e500mc.c
-+++ b/arch/powerpc/kvm/e500mc.c
-@@ -168,7 +168,7 @@ static void kvmppc_core_vcpu_put_e500mc(struct kvm_vcpu=
- *vcpu)
- 	kvmppc_booke_vcpu_put(vcpu);
- }
-=20
--int kvmppc_core_check_processor_compat(void)
-+int kvmppc_e500mc_check_processor_compat(void)
- {
- 	int r;
-=20
-@@ -390,7 +390,7 @@ static int __init kvmppc_e500mc_init(void)
-=20
- 	r =3D kvmppc_e500mc_check_processor_compat();
- 	if (r)
--		return kvmppc_e500mc;
-+		goto err_out;
-=20
- 	r =3D kvmppc_booke_init();
- 	if (r)
+--vru7fAags9pVPvn5--
