@@ -2,453 +2,217 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 95518C47088
-	for <linux-s390@archiver.kernel.org>; Fri,  2 Dec 2022 13:10:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CFB10C4167B
+	for <linux-s390@archiver.kernel.org>; Fri,  2 Dec 2022 13:36:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232776AbiLBNKq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 2 Dec 2022 08:10:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43674 "EHLO
+        id S233701AbiLBNgM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 2 Dec 2022 08:36:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232761AbiLBNKp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Dec 2022 08:10:45 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 460B3AE4E1;
-        Fri,  2 Dec 2022 05:10:44 -0800 (PST)
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2B2Be6aw005360;
-        Fri, 2 Dec 2022 13:10:32 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=qTxX9HLkYisQMoa2kpUF/faaLqEg20WLHuafSFUkVTM=;
- b=bI8Cu6eGcJ311SvmtoCpuxYfP89dSXytlD+V1t2WqFJgu5Ln3QiCEp1XNDT1RM+HiVT7
- qTPZihJ3W1mG7S6Sv5heagfktRlkVv7uy3sAM4X27hjwpZEUF16tWWaIKUKDwsIMKxT8
- oGK1fPGT0HsiiNY3NcbcxB3o7XvEzPY8v9VGKT5Vfq4dTimE2f0nccmbJP13mwlFyiSS
- iZwS060cbpcePtZO85w4K0e1yWP7rPvMx3x+B3u6v8Grlv1d1DwxizBeFvkYn8Ofxdv0
- g+RMf4SjSSXmqWKDANo6yfYmNfyqiK045l8FrDHXnUs4NQOkBGYWn9mqeOOpCS1E6eUs yw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3m7ce4gaew-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 02 Dec 2022 13:10:32 +0000
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2B2Co0VG024715;
-        Fri, 2 Dec 2022 13:10:31 GMT
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3m7ce4gae4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 02 Dec 2022 13:10:31 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2B2D66KS016091;
-        Fri, 2 Dec 2022 13:10:29 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma05fra.de.ibm.com with ESMTP id 3m3ae9epnc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 02 Dec 2022 13:10:28 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2B2D3pQO9896642
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 2 Dec 2022 13:03:51 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A18844C044;
-        Fri,  2 Dec 2022 13:10:25 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E9A114C046;
-        Fri,  2 Dec 2022 13:10:24 +0000 (GMT)
-Received: from [9.179.10.167] (unknown [9.179.10.167])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri,  2 Dec 2022 13:10:24 +0000 (GMT)
-Message-ID: <a43b501c-2ab6-8a20-703a-670c70cba57a@linux.ibm.com>
-Date:   Fri, 2 Dec 2022 14:10:22 +0100
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.5.0
-Subject: Re: [PATCH net] net/smc: Fix expected buffersizes and sync logic
-To:     Alexandra Winter <wintera@linux.ibm.com>,
-        Tony Lu <tonylu@linux.alibaba.com>
-Cc:     David Miller <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Thorsten Winkler <twinkler@linux.ibm.com>,
-        Stefan Raspl <raspl@linux.ibm.com>,
-        Karsten Graul <kgraul@linux.ibm.com>
-References: <20221123104907.14624-1-jaka@linux.ibm.com>
- <Y34JxFWBdUxvLQb4@TonyMac-Alibaba>
- <40428548-59b9-379c-857c-172db92afc0c@linux.ibm.com>
- <Y34i8nmJIeIiFuOP@TonyMac-Alibaba>
- <f5237afd-d57b-f317-4263-31b4bb3d0d17@linux.ibm.com>
- <1a36b6ba-e7bb-6f2a-c460-cf158cb64b1d@linux.ibm.com>
- <a6e57be8-48e3-acf7-8474-fc9b81cd6615@linux.ibm.com>
- <Y4BpNfg7yxRiYQuU@TonyMac-Alibaba>
- <7e0baa06-74e3-e00a-861a-afa8fe1fbdff@linux.ibm.com>
-From:   Jan Karcher <jaka@linux.ibm.com>
-Organization: IBM - Network Linux on Z
-In-Reply-To: <7e0baa06-74e3-e00a-861a-afa8fe1fbdff@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: OQwamAKu9MDrof0tK4pUMWWOkTBeA74B
-X-Proofpoint-GUID: sLoGITGC63VukNvkgDqAQ5RpbrJxhbGW
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        with ESMTP id S233357AbiLBNgL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Dec 2022 08:36:11 -0500
+Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B111C5126;
+        Fri,  2 Dec 2022 05:36:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1669988170; x=1701524170;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-id:content-transfer-encoding:
+   mime-version;
+  bh=CUCsSwry0AyZSbat2uywJSF1+QktcPCKkbbdFdXSBsI=;
+  b=DfY/cQR4rt6tXeYUR6WA+Vx5/7MwZmasmMGpp8y2pXBegpVOqQjABxGN
+   wVs0W/HJp0mqsf87+r3gghlRaGRF6eUgxs7Q/xjxdlAnt9UeMUprV7NAi
+   0S/ZGPpiWkdW7XS+9mRdtNLE+EQwIiyrxr0j/ES9UGq3TpnVqFWUk40cl
+   NJTVKkrQgJMmS+CkqQ7gIZlxCL1/FlPXjuLIXtk5oy/FV258ueCVgk1qE
+   Yevix5RQvaGpyFQDMLxyQAda9uKv/GJ0Iwv78XcHAEOkyNj2rxG39LOHA
+   DSvuLs1eLmgUkbSGgt60LG70dBhyNTHJDWP5KHhIJ6cMixdqaU0KISI/d
+   w==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10548"; a="303557383"
+X-IronPort-AV: E=Sophos;i="5.96,212,1665471600"; 
+   d="scan'208";a="303557383"
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Dec 2022 05:36:09 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10548"; a="733813173"
+X-IronPort-AV: E=Sophos;i="5.96,212,1665471600"; 
+   d="scan'208";a="733813173"
+Received: from fmsmsx602.amr.corp.intel.com ([10.18.126.82])
+  by FMSMGA003.fm.intel.com with ESMTP; 02 Dec 2022 05:36:09 -0800
+Received: from fmsmsx610.amr.corp.intel.com (10.18.126.90) by
+ fmsmsx602.amr.corp.intel.com (10.18.126.82) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.16; Fri, 2 Dec 2022 05:36:08 -0800
+Received: from fmsedg602.ED.cps.intel.com (10.1.192.136) by
+ fmsmsx610.amr.corp.intel.com (10.18.126.90) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.16 via Frontend Transport; Fri, 2 Dec 2022 05:36:08 -0800
+Received: from NAM04-DM6-obe.outbound.protection.outlook.com (104.47.73.41) by
+ edgegateway.intel.com (192.55.55.71) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.16; Fri, 2 Dec 2022 05:36:08 -0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=AHOYRGY5Yru7s14jnS/Djx6Ms+8e0lMZYERQwszs+UrWSOoSE3if0SpaldkVuZVSoDJ6wI6AZ/ye5NztAlRksJ8tq9cVzpmy/OUOay1xMl02BkBoFJzQ+X8jm+CG6CPyoDf0dz9yyDg0/+K0uPj000VrmHl3qDNVzHpaPbIHq98jcbyu+fYEEL28OxyECCUBPrkGW3b7pWRBVxsQFEYrf2lgxs9cKmgI4QTK8LJPP1vHjP+gVIkLF/Y9WnWWhWNBUKAPcIFq1QTpZ5C6cTLeo8AJSU5zpaR3boGM6aChVqDE1GYj5D9Ggim09/7eUemcac86J7PivZyWaCSj+WAcbw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=CUCsSwry0AyZSbat2uywJSF1+QktcPCKkbbdFdXSBsI=;
+ b=fS2TftXYtcbtrqlanEvvVK3IDwnzc9J9HzelntamOG3YzpptGS/uZ9Kc1rPPuYQpybfOxO2R9d7Zw3MZ7wa8/0zMtwNPve7dskJGA/Kc4MIrD7xFZOnEOBoJK6/57bZM1Znl/2VTDZapL+UTmakugX9xR7PnlOeMkDZRLkFihx28eLMR9C5Xfxpe6m5uDB4C0SibcRSbX58hcwcTOFyU+mu8lLG27ygt7db2egOGu9SeVfx0n7nUnZHWZMG1aa9zxw0z4R6mzpts1cppCjwSwafN6YScIKTD2+U9DUBuikjRMIHli10LK4brW53Q3saMXeABwq9t8F+C6gJmFPKVxA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from BL1PR11MB5978.namprd11.prod.outlook.com (2603:10b6:208:385::18)
+ by CO1PR11MB4963.namprd11.prod.outlook.com (2603:10b6:303:91::14) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5880.10; Fri, 2 Dec
+ 2022 13:36:05 +0000
+Received: from BL1PR11MB5978.namprd11.prod.outlook.com
+ ([fe80::2fb7:be18:a20d:9b6e]) by BL1PR11MB5978.namprd11.prod.outlook.com
+ ([fe80::2fb7:be18:a20d:9b6e%9]) with mapi id 15.20.5857.023; Fri, 2 Dec 2022
+ 13:36:05 +0000
+From:   "Huang, Kai" <kai.huang@intel.com>
+To:     "chenhuacai@kernel.org" <chenhuacai@kernel.org>,
+        "maz@kernel.org" <maz@kernel.org>,
+        "frankja@linux.ibm.com" <frankja@linux.ibm.com>,
+        "borntraeger@linux.ibm.com" <borntraeger@linux.ibm.com>,
+        "farman@linux.ibm.com" <farman@linux.ibm.com>,
+        "aou@eecs.berkeley.edu" <aou@eecs.berkeley.edu>,
+        "palmer@dabbelt.com" <palmer@dabbelt.com>,
+        "Christopherson,, Sean" <seanjc@google.com>,
+        "paul.walmsley@sifive.com" <paul.walmsley@sifive.com>,
+        "pbonzini@redhat.com" <pbonzini@redhat.com>,
+        "dwmw2@infradead.org" <dwmw2@infradead.org>,
+        "aleksandar.qemu.devel@gmail.com" <aleksandar.qemu.devel@gmail.com>,
+        "imbrenda@linux.ibm.com" <imbrenda@linux.ibm.com>,
+        "paul@xen.org" <paul@xen.org>,
+        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
+        "vkuznets@redhat.com" <vkuznets@redhat.com>,
+        "anup@brainfault.org" <anup@brainfault.org>
+CC:     "oliver.upton@linux.dev" <oliver.upton@linux.dev>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "farosas@linux.ibm.com" <farosas@linux.ibm.com>,
+        "david@redhat.com" <david@redhat.com>,
+        "james.morse@arm.com" <james.morse@arm.com>,
+        "Yao, Yuan" <yuan.yao@intel.com>,
+        "alexandru.elisei@arm.com" <alexandru.elisei@arm.com>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "mpe@ellerman.id.au" <mpe@ellerman.id.au>,
+        "Yamahata, Isaku" <isaku.yamahata@intel.com>,
+        "kvmarm@lists.linux.dev" <kvmarm@lists.linux.dev>,
+        "tglx@linutronix.de" <tglx@linutronix.de>,
+        "suzuki.poulose@arm.com" <suzuki.poulose@arm.com>,
+        "kvm-riscv@lists.infradead.org" <kvm-riscv@lists.infradead.org>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
+        "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>,
+        "philmd@linaro.org" <philmd@linaro.org>,
+        "atishp@atishpatra.org" <atishp@atishpatra.org>,
+        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
+        "Gao, Chao" <chao.gao@intel.com>
+Subject: Re: [PATCH v2 40/50] KVM: x86: Do compatibility checks when onlining
+ CPU
+Thread-Topic: [PATCH v2 40/50] KVM: x86: Do compatibility checks when onlining
+ CPU
+Thread-Index: AQHZBREUXZvrwOe3yEGmbvrorekRL65am+oA
+Date:   Fri, 2 Dec 2022 13:36:05 +0000
+Message-ID: <cf755389c21c73e8367d8162cabc83629d3f9a74.camel@intel.com>
+References: <20221130230934.1014142-1-seanjc@google.com>
+         <20221130230934.1014142-41-seanjc@google.com>
+In-Reply-To: <20221130230934.1014142-41-seanjc@google.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+user-agent: Evolution 3.44.4 (3.44.4-2.fc36) 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: BL1PR11MB5978:EE_|CO1PR11MB4963:EE_
+x-ms-office365-filtering-correlation-id: 0055b87e-6981-41cc-11f4-08dad46a297c
+x-ld-processed: 46c98d88-e344-4ed4-8496-4ed7712e255d,ExtAddr
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: SYmv3ivNPIscQvD7wglIO6JXW0lFszlPa/9TDsrC7R9++sZg7x5RUCiEgaoNPKKgd762mCEoScvj3TTNnN+eeTZqUGbsGiT2QN+WI8PhJVg9YZwPZ0FLRs3Mdl5U6jCF3nruyNfLVa2jrb9Nf3/XEeWeo5y78zRT+48QhDB9MhtRMqxgp1Ms6pLh1J8vNzMKpS16WpXq7zjebu3fykOe80yiIxVWi68um9jUHGv6Pm+6jFonEEuSwodxYDNznzmBaH6DewBBHhhfb8gCuFQ4YA++lwL0rP4U4ZU+1RVLgE77PUp1Mseh2WNoZnrWMVBcwpKogSx5c8yOdzmdBgIdK40sht6kxbmY07vDBFC9AWKlLNHBzrwCEbepCRlC6t/CsDJhRngpXqBJdpwQrEGuOzb4cms2/MAlcmhT3jnlowK6Li0TE1WiyW5SVZvWXq88rT90iUVeTSNGtRpmg82MDMh9na1ffCL8L9F1x2mi7Gh7rHgjsH2bSinXiCxvFc3wmj8LLLtaMrnj0m/tC+ExA6SwvSCet+cfPvedlLqg7v/XSSTXAtf9C2i0UFhGwBFigY7C8t/B97Sfb47D8xqYIWojP4WspwZHx/mzymMoTMPO2hOc9Vg/eTmdPAyZSa29pg617UBDHjlwU4mtjmmLH4TjwDosM6v5n7wXz8FHmrejJ8ric7zbVijUP+BpcHNOemdgB315iAZi9OmiSRFBS3d9g4e7piBE0hc42owwrT4=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL1PR11MB5978.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(39860400002)(136003)(396003)(376002)(366004)(346002)(451199015)(82960400001)(6512007)(36756003)(38100700002)(122000001)(38070700005)(921005)(86362001)(316002)(110136005)(54906003)(76116006)(64756008)(66476007)(8676002)(66556008)(91956017)(6486002)(66946007)(478600001)(107886003)(66446008)(186003)(26005)(6506007)(71200400001)(2906002)(4001150100001)(83380400001)(41300700001)(2616005)(4326008)(7406005)(7416002)(5660300002)(8936002);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?utf-8?B?RUZvZG8xaDFiaWlnTU9lbEFvdCs0ZFdseUZwZm00czRML0xpVGFSL2wvUENO?=
+ =?utf-8?B?bWtKZTNveEFkeVN3cmlMMnVhWkE4VnQvV1hqOFZpV0xXUUxScm9WNkRycjNy?=
+ =?utf-8?B?MHhtdVFqRWxIYXhST2hMQXFacW93Tnc0SlU5Tks3T211N1VFUFR2dDcrNFAr?=
+ =?utf-8?B?QmlHVDJCZzl2VWNSdWV2cDZqZk9xN1A5OWhqOVNCUEsxeFdUYXZEN3VudVo1?=
+ =?utf-8?B?eW5EN3dUMXppLy9hMUZCWlNxb0RiN3VKSlpUSkZKQkVKL3JTVDZtaC9GeWJk?=
+ =?utf-8?B?VDVpQ28xOFpWdVJFMlEycWtBR0kvZWlzRnRvaVg4d0ZHSjh6Wnpka2lqMXdt?=
+ =?utf-8?B?L2JBQitaRS9HZTFzQytuRFFPdysvcitHck9TcE1uTzZDVXVNaDBINVUrbG5P?=
+ =?utf-8?B?ZyswN1B3QUFmRWNkQ2Fxd1pWemN5ZDUwb1NWQ2hQbHNkMXZtMml4M3RudjA2?=
+ =?utf-8?B?bUlPM0JyZldtOENiT244Ym4yZGY4ZCs3aGZTQ2FKNFh2UU1UQ3lxQTRqQVJ6?=
+ =?utf-8?B?bTNWc3dBb09mcUdscUtCbllnNDhSZ0VkRDVZcjM0SU9GZmNvOVQ4M2VhdGQw?=
+ =?utf-8?B?UDNsV1RZZDhEb24yVlkrdnVWREMySi94eFNGcFFsYmpIb0o5aW1GL3hwZ09Z?=
+ =?utf-8?B?cjhOZTRKRWxGcURLK0RQR3BhK1pVWWNrbVVhZ24zemx0a3NHQ1grVlo0ajBE?=
+ =?utf-8?B?SlZaUFhsYklFNTh4WHlqb0NnaytCV1ErSWtNZU9EY3FaT0xYUWxlV0llblBj?=
+ =?utf-8?B?UDFySmJIMmxQMlhUQmJ5WE1melZhL0RJUTZWeEpmd3p5VDV0REpxLzAybkFD?=
+ =?utf-8?B?MHM2ZVMyRW0xT0htTGhLRjl1RytXNTJia3QzUmdKSW9SZzV0WmU0QUF5L0Qw?=
+ =?utf-8?B?SmR1U3VyeXdBRExWb25IR1VWSWxEdk1XS1VMTkpSQzNhUHJaQTd1OEpJaHN6?=
+ =?utf-8?B?RmZVRDBZRUJ2dVJ1VDZRVXdveDlUNzcrdWRpdmZFSUFMK1Nka0oyK2NvT2tG?=
+ =?utf-8?B?Wk8reDlObTd3eFNBekY4a2NVQW1LMWlIOUJEQlJFSTdvT2JMRHdCSnJzY04x?=
+ =?utf-8?B?eVNYaEdZdlpmREErRTNUSmhDZXdFTlhmWWl2NTYyU0NDeWMvQVFaTG00TVNU?=
+ =?utf-8?B?ZzRSYkRjbFJOdisvTkdxNHJlZHB1SnZxUkY0ZkwrWE42TURNL1Z4N1R6MHBK?=
+ =?utf-8?B?NitKbUQ5UUZZZzNtQmV6MWlQbGx0c2s3dTltWEVnSkpEQmNTK2ZhcTBycjNh?=
+ =?utf-8?B?QTRpdTZ2NlJhMmoxS2hnR2c2dXBSRk56NG84T0xOT3krQnpVRm9GYXkwOStm?=
+ =?utf-8?B?TzJWSkM5OWd2ZXBkb04weGo4bXVJeUthOXhsVVV2KzlQM214NldUTFgvYkRh?=
+ =?utf-8?B?dXU5QzBhQ1J1UVFSOTJuOGE5TjM0WVhMcmptWlBPQTA0c0Zsd0Y3QXRzT3Qz?=
+ =?utf-8?B?NWFkRG9wWkNDWVozaUsrUDhMd0RjaVVnZi9vNHM0SFVvOG5CZTlPSXlwQ280?=
+ =?utf-8?B?QitKQ0k1Ymp6Qk9LTkJTS1BFZVpBWXFFS2hRMFJBcERNUDhWQzh3YzZKMFdv?=
+ =?utf-8?B?aS9sWWFGamVPUUtCeDd5cG1HYW5GYys2UXY4TWFpOFRZRE9YdFNtcDdIeUZr?=
+ =?utf-8?B?RHgvQURFTEVHUW80dC9nZnBRZjRFc0xWcDJlOTFoUVJYY2E4T0dOVU9Vc2M5?=
+ =?utf-8?B?Z1dRR212VUkwelUzaUtHWHlReTlPMEh6dUcrTDFtc3UwdC9WR0NhWGR2ZXhu?=
+ =?utf-8?B?RVVaSHVRMkxOUFJYU1hmRVF6MWRYVlJRdkttdVBYWUt1UGxvMFJzRHhFd1ZQ?=
+ =?utf-8?B?eTYvWTdyTzBYNTFCT1JaT3Q4QWlXWTAweVBzUDJuakE4djZWZVZJTlg0OTNT?=
+ =?utf-8?B?T0lSQlRKSnhkempEcGtoem5OTGRKQXhGeTZySzdPY2RQVzY4YVMrUDRkMnhx?=
+ =?utf-8?B?ZDAwKzZJdWRBcklqT1ZwUjVCaDV4dC81S0E4OXE0ejJzcTNjU0YrYzVEdGI0?=
+ =?utf-8?B?ckl5a3R4WlNTbnd1aWx5eldqTHl2WWEzOFozYjJFRWhiVVpCanJHdDlTQklG?=
+ =?utf-8?B?Z0JUZVpnTjBabUNsTktxUENYVTdsc2lUYlJoTmVrZjhQd3EyalFiVFhGdmZK?=
+ =?utf-8?B?ZjlzbUsyQVplV0ZJWThnRzBRM1ZXVThGZ2xmWk1takliRUFHRWdpUmpybnY5?=
+ =?utf-8?B?TFE9PQ==?=
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <A08AE9BD82A808478F3C97D41B08AE69@namprd11.prod.outlook.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-12-02_06,2022-12-01_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- mlxlogscore=999 phishscore=0 suspectscore=0 lowpriorityscore=0 spamscore=0
- malwarescore=0 adultscore=0 impostorscore=0 mlxscore=0 bulkscore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2210170000 definitions=main-2212020103
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BL1PR11MB5978.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 0055b87e-6981-41cc-11f4-08dad46a297c
+X-MS-Exchange-CrossTenant-originalarrivaltime: 02 Dec 2022 13:36:05.3496
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: l5jNqFHUKVDxPCOpy3Ep/SJzk8ew+lNQ8Pe6NMX3hAzsOxhAtWcESJX8yqReLxmGGQCVBZuFjOY+ZwsXTeRDbA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CO1PR11MB4963
+X-OriginatorOrg: intel.com
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-On 25/11/2022 11:59, Alexandra Winter wrote:
-> 
-> 
-> On 25.11.22 08:05, Tony Lu wrote:
->> On Fri, Nov 25, 2022 at 07:15:33AM +0100, Jan Karcher wrote:
->>>
->>>
->>> On 24/11/2022 15:07, Alexandra Winter wrote:
->>>>
->>>>
->>>> On 24.11.22 14:00, Alexandra Winter wrote:
->>>>>
->>>>>
->>> [ ... ]>>>>> On Wed, Nov 23, 2022 at 11:49:07AM +0100, Jan Karcher wrote:
->>>>>>>>> The fixed commit changed the expected behavior of buffersizes
->>>>>>>>> set by the user using the setsockopt mechanism.
->>>>>>>>> Before the fixed patch the logic for determining the buffersizes used
->>>>>>>>> was the following:
->>>>>>>>>
->>>>>>>>> default  = net.ipv4.tcp_{w|r}mem[1]
->>>> Jan, you explained to me: "the minima is 16Kib. This is enforced in smc_compress_bufsize
->>>> which would move any value <= 16Kib into bucket 0 - which is 16KiB "
->>>> net.ipv4.tcp_wmem[1] defaults to 8Kib. So in the default case (unchanged net.ipv4.tcp_wmem[1])
->>>> the default for the send path is not net.ipv4.tcp_wmem[1]. Should be clarified here.
->>>
->>> The default value is still set to the net.ipv4.tcp_{w|r}mem[1]. This is a
->>> *very* top level overview about what is happening and *not* a documentation.
->>> I don't really want to explain the full code flow here.
->>>
->>> What we still should do - as Tony aggreed on - is documenting the SMC
->>> behavior. This is a follow up on my list.
->>
->> Hello Jan and Alexandra,
->>
->> It looks like the misalignment of information is causing some trouble,
->> which is introduced by my patch. Maybe we could have an off-maillist and
->> online meeting to discussion?
->>
->> We have some progress updates of scalability, and we are really like the
->> extension of SMC-D. Also we have some ideas for SMC, in case of
->> misalignment of information, we'd like to put them on the table and
->> discuss them earlier. Maybe an online meeting is an efficient way. What
->> do you think?
->>
->> If possible, I would prepared the meetings and topics and send them to
->> everyone first.
->>
->> Cheers,
->> Tony Lu
->>
-
-Hello everyone,
-
-Tony +1. I think working closer together is something both parties can 
-benefit of.
-
-> 
-> Thanks a lot for your constructive proposals Tony. Yes, we should have a discussion off-mailinglist
-> about future topics.
-> 
-> My remaining concern for this fix is the default values (user does not use setsockopt, nor
-> changes the new sysfs parameters, nor changes tcp defaults):
->>>>> before 0227f058aa29 ("net/smc: Unbind r/w buffer size from clcsock and make them tunable")
-> 	    send: 16k recv: 64k
->>>>> after net/smc: Fix expected buffersizes and sync logic   (this patch)
->>>>>        send: 16k recv: 128k
-> 
-> @Jan, as this is the only patch you want to send to net, please change the default size of
-> the receive buffers back to 64k (I don't care how).
-> 
-
-Thanks for your comments, I've spent some time reading and re-evaluating.
-
-The concern that Alexandra mentioned (recv 64KiB vs recv 128KiB) is a 
-valid point and leaves the question if I want to, and if yes, how I want 
-to address the concern.
-I sure want to address it, so I did revisit how to resolve the concern.
-My way to address this concern is rather easy since I based my actions 
-on one wrong assumption.
-The reason I split the logic can be found here [1]:
-
-      I decided to split those two separate in favor of the user. While
-      the fix corrects specific behavior this patch does provides a new
-      functionality and could be used without the fixed patch.
-
-Which is simply not true since the patch [1] still requires the fixing 
-patch. This was the misassumption I made and caused all the confusion.
-There is going to follow a v2 with some changes (the wrong formatting) 
-and the v2 is going to be the sum of both (this and [1]) patches. Since 
-the second [1] patch sets the initial value of the smc sysctl to 16KiB 
-send and 64KiB recv buffer size the fix is complete and all concerns in 
-this regard should be addressed.
-
-As soon as the v2 is out I'm going to update the other patch[1] one last 
-time pointing onto the v2.
-
-If you have any objections please let me know.
-
-Thank you
-  - Jan
-
-[1] 
-https://lore.kernel.org/netdev/0d22034d-28cd-7721-e210-651750549a1c@linux.ibm.com/
-
-> 
->>>
->>>>>>>>> sockopt  = the setsockopt mechanism
->>>>>>>>> val      = the value assigned in default or via setsockopt
->>>>>>>>> sk_buf   = short for sk_{snd|rcv}buf
->>>>>>>>> real_buf = the real size of the buffer (sk_buf_size in __smc_buf_create)
->>>>>>>>>
->>>>>>>>>      exposed   | net/core/sock.c  |    af_smc.c    |  smc_core.c
->>>>>>>>>                |                  |                |
->>>>>>>>> +---------+ |                  | +------------+ | +-------------------+
->>>>>>>>> | default |----------------------| sk_buf=val |---| real_buf=sk_buf/2 |
->>>>>>>>> +---------+ |                  | +------------+ | +-------------------+
->>>>>>>>>                |                  |                |    ^
->>>>>>>>>                |                  |                |    |
->>>>>>>>> +---------+ | +--------------+ |                |    |
->>>>>>>>> | sockopt |---| sk_buf=val*2 |-----------------------|
->>>>>>>>> +---------+ | +--------------+ |                |
->>>>>>>>>                |                  |                |
->>>>>>>>>
->>>>>>>>> The fixed patch introduced a dedicated sysctl for smc
->>>>>>>>> and removed the /2 in smc_core.c resulting in the following flow:
->>>>>>>>>
->>>>>>>>> default  = net.smc.{w|r}mem (which defaults to net.ipv4.tcp_{w|r}mem[1])
->>>>>>>>> sockopt  = the setsockopt mechanism
->>>>>>>>> val      = the value assigned in default or via setsockopt
->>>>>>>>> sk_buf   = short for sk_{snd|rcv}buf
->>>>>>>>> real_buf = the real size of the buffer (sk_buf_size in __smc_buf_create)
->>>>>>>>>
->>>>>>>>>      exposed   | net/core/sock.c  |    af_smc.c    |  smc_core.c
->>>>>>>>>                |                  |                |
->>>>>>>>> +---------+ |                  | +------------+ | +-----------------+
->>>>>>>>> | default |----------------------| sk_buf=val |---| real_buf=sk_buf |
->>>>>>>>> +---------+ |                  | +------------+ | +-----------------+
->>>>>>>>>                |                  |                |    ^
->>>>>>>>>                |                  |                |    |
->>>>>>>>> +---------+ | +--------------+ |                |    |
->>>>>>>>> | sockopt |---| sk_buf=val*2 |-----------------------|
->>>>>>>>> +---------+ | +--------------+ |                |
->>>>>>>>>                |                  |                |
->>>>>>>>>
->>>>>>>>> This would result in double of memory used for existing configurations
->>>>>>>>> that are using setsockopt.
->>>>>>>>
->>>>>>>> Firstly, thanks for your detailed diagrams :-)
->>>>>>>>
->>>>>>>> And the original decision to use user-provided values rather than
->>>>>>>> value/2 to follow the instructions of the socket manual [1].
->>>>>>>>
->>>>>>>>      SO_RCVBUF
->>>>>>>>             Sets or gets the maximum socket receive buffer in bytes.
->>>>>>>>             The kernel doubles this value (to allow space for
->>>>>>>>             bookkeeping overhead) when it is set using setsockopt(2),
->>>>>>>>             and this doubled value is returned by getsockopt(2).  The
->>>>>>>>             default value is set by the
->>>>>>>>             /proc/sys/net/core/rmem_default file, and the maximum
->>>>>>>>             allowed value is set by the /proc/sys/net/core/rmem_max
->>>>>>>>             file.  The minimum (doubled) value for this option is 256.
->>>>>>>>
->>>>>>>> [1] https://man7.org/linux/man-pages/man7/socket.7.html
->>>>>>>>
->>>>>>>> The user of SMC should know that setsockopt() with SO_{RCV|SND}BUF will
->>>>>>>
->>>>>>> I totally agree that an educated user of SMC should know about that behavior
->>>>>>> if they decide to use it.
->>>>>>> We do provide our users preload libraries where they can pass preferred
->>>>>>> buffersizes via arguments and we handle the Sockopts for them.
->>>>>>>
->>>>>>>> double the values in kernel, and getsockopt() will return the doubled
->>>>>>>> values. So that they should use half of the values which are passed to
->>>>>>>> setsockopt(). The original patch tries to make things easier in SMC and
->>>>>>>> let user-space to handle them following the socket manual.
->>>>>>>>
->>>>>>>>> SMC historically decided to use the explicit value given by the user
->>>>>>>>> to allocate the memory. This is why we used the /2 in smc_core.c.
->>>>>>>>> That logic was not applied to the default value.
->>>>>>>>
->>>>>>>> Yep, let back to the patch which introduced smc_{w|r}mem knobs, it's a
->>>>>>>> trade-off to follow original logic of SMC, or follow the socket manual.
->>>>>>>> We decides to follow the instruction of manuals in the end.
->>>>>>>
->>>>>>> I understand the point. I spend a lot of time trying to decide what to do.
->>>>>>>
->>>>>>> Since it was an intentional decision to not follow the general socket
->>>>>>> option, and we do not have anyone complaining we do not really have a reason
->>>>>>> to change it.
->>>>>>> Changing it means that users with existing configurations would have to
->>>>>>> change their configs on an update or suddenly expect double the memory
->>>>>>> consumption.
->>>>>>> That's why we in the end preffered to stay with the current logic.
->>>>>>
->>>>>> I can't agree with you more with the points to follow the historic logic
->>>>>> and not break the user-space applications.
->>>>>>
->>>>>>> I'm thinking that maybe - if we stay with the historic logic - we should
->>>>>>> document that desicion somewhere. So that in the future, if a user that
->>>>>>> expects the man page behavior, has a way to understand what SMC is doing.
->>>>>>> What do oyu think?
->>>>>>
->>>>>> Yep, we _really_ need to document it if we change the convention.
->>>>>> Actually, I spent a lot of time to find the history about the logic of
->>>>>> buffer (/2 and *2) in SMC. So I'm really in favor of adding
->>>>>> documentation, at least code comments to help others to understand them.
->>>>>>
->>>>>> Cheers,
->>>>>> Tony Lu
->>>>> Iiuc you are changing the default values in this a patch and your other patch:
->>>>> Default values for real_buf for send and receive:
->>>>>
->>>>> before 0227f058aa29 ("net/smc: Unbind r/w buffer size from clcsock and make them tunable")
->>>>>       real_buf=net.ipv4.tcp_{w|r}mem[1]/2   send: 8k  recv: 64k
->>>>         see above: 			    send: 16k recv: 64k
->>>>> after 0227f058aa29 ("net/smc: Unbind r/w buffer size from clcsock and make them tunable")
->>>>> real_buf=net.ipv4.tcp_{w|r}mem[1]   send: 16k (16*1024) recv: 128k (131072)
->>>>>
->>>>> after net/smc: Fix expected buffersizes and sync logic
->>>>> real_buf=net.ipv4.tcp_{w|r}mem[1]   send: 16k (16*1024) recv: 128k (131072)
->>>>>
->>>>> after net/smc: Unbind smc control from tcp control
->>>>> real_buf=SMC_*BUF_INIT_SIZE   send: 16k (16384) recv: 64k (65536)
->>>>>
->>>>> If my understanding is correct, then I nack this.
->>>>> Defaults should be restored to the values before 0227f058aa29.
->>>>> Otherwise users will notice a change in memory usage that needs to
->>>>> be avoided or announced more explicitely. (and don't change them twice)
->>>> See above, I stand corrected. However this patch fixes/restores the buffersize
->>>> for setsockopt, but not for the default recieve path.
->>>> Could you please clarify that in the title and description?
->>>>
->>>
->>> I am trying to keep the commit title as crisp as possible while providing
->>> enough information and set the context in the commit message:
->>>
->>> "The fixed commit changed the expected behavior of buffersizes set by the
->>> user using the setsockopt mechanism."
->>>
->>>   + There is now a whole e-mail thread to consult in case of any further
->>> questions.
->>>
->>> Thank you for your comments
->>> - Jan
->>>
->>>> Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
->>>>>>> - Jan
->>>>>>>
->>>>>>>>
->>>>>>>> Cheers,
->>>>>>>> Tony Lu
->>>>>>>>
->>>>>>>>> Since we now have our own sysctl, which is also exposed to the user,
->>>>>>>>> we should sync the logic in a way that both values are the real value
->>>>>>>>> used by our code and shown by smc_stats. To achieve this this patch
->>>>>>>>> changes the behavior to:
->>>>>>>>>
->>>>>>>>> default  = net.smc.{w|r}mem (which defaults to net.ipv4.tcp_{w|r}mem[1])
->>>>>>>>> sockopt  = the setsockopt mechanism
->>>>>>>>> val      = the value assigned in default or via setsockopt
->>>>>>>>> sk_buf   = short for sk_{snd|rcv}buf
->>>>>>>>> real_buf = the real size of the buffer (sk_buf_size in __smc_buf_create)
->>>>>>>>>
->>>>>>>>>      exposed   | net/core/sock.c  |    af_smc.c     |  smc_core.c
->>>>>>>>>                |                  |                 |
->>>>>>>>> +---------+ |                  | +-------------+ | +-----------------+
->>>>>>>>> | default |----------------------| sk_buf=val*2|---|real_buf=sk_buf/2|
->>>>>>>>> +---------+ |                  | +-------------+ | +-----------------+
->>>>>>>>>                |                  |                 |    ^
->>>>>>>>>                |                  |                 |    |
->>>>>>>>> +---------+ | +--------------+ |                 |    |
->>>>>>>>> | sockopt |---| sk_buf=val*2 |------------------------|
->>>>>>>>> +---------+ | +--------------+ |                 |
->>>>>>>>>                |                  |                 |
->>>>>>>>>
->>>>>>>>> This way both paths follow the same pattern and the expected behavior
->>>>>>>>> is re-established.
->>>>>>>>>
->>>>>>>>> Fixes: 0227f058aa29 ("net/smc: Unbind r/w buffer size from clcsock and make them tunable")
->>>>>>>>> Signed-off-by: Jan Karcher <jaka@linux.ibm.com>
->>>>>>>>> Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
->>>>>>>>> ---
->>>>>>>>>     net/smc/af_smc.c   | 9 +++++++--
->>>>>>>>>     net/smc/smc_core.c | 8 ++++----
->>>>>>>>>     2 files changed, 11 insertions(+), 6 deletions(-)
->>>>>>>>>
->>>>>>>>> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
->>>>>>>>> index 036532cf39aa..a8c84e7bac99 100644
->>>>>>>>> --- a/net/smc/af_smc.c
->>>>>>>>> +++ b/net/smc/af_smc.c
->>>>>>>>> @@ -366,6 +366,7 @@ static void smc_destruct(struct sock *sk)
->>>>>>>>>     static struct sock *smc_sock_alloc(struct net *net, struct socket *sock,
->>>>>>>>>     				   int protocol)
->>>>>>>>>     {
->>>>>>>>> +	int buffersize_without_overhead;
->>>>>>>>>     	struct smc_sock *smc;
->>>>>>>>>     	struct proto *prot;
->>>>>>>>>     	struct sock *sk;
->>>>>>>>> @@ -379,8 +380,12 @@ static struct sock *smc_sock_alloc(struct net *net, struct socket *sock,
->>>>>>>>>     	sk->sk_state = SMC_INIT;
->>>>>>>>>     	sk->sk_destruct = smc_destruct;
->>>>>>>>>     	sk->sk_protocol = protocol;
->>>>>>>>> -	WRITE_ONCE(sk->sk_sndbuf, READ_ONCE(net->smc.sysctl_wmem));
->>>>>>>>> -	WRITE_ONCE(sk->sk_rcvbuf, READ_ONCE(net->smc.sysctl_rmem));
->>>>>>>>> +	buffersize_without_overhead =
->>>>>>>>> +		min_t(int, READ_ONCE(net->smc.sysctl_wmem), INT_MAX / 2);
->>>>>>>>> +	WRITE_ONCE(sk->sk_sndbuf, buffersize_without_overhead * 2);
->>>>>>>>> +	buffersize_without_overhead =
->>>>>>>>> +		min_t(int, READ_ONCE(net->smc.sysctl_rmem), INT_MAX / 2);
->>>>>>>>> +	WRITE_ONCE(sk->sk_rcvbuf, buffersize_without_overhead * 2);
->>>>>>>>>     	smc = smc_sk(sk);
->>>>>>>>>     	INIT_WORK(&smc->tcp_listen_work, smc_tcp_listen_work);
->>>>>>>>>     	INIT_WORK(&smc->connect_work, smc_connect_work);
->>>>>>>>> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
->>>>>>>>> index 00fb352c2765..36850a2ae167 100644
->>>>>>>>> --- a/net/smc/smc_core.c
->>>>>>>>> +++ b/net/smc/smc_core.c
->>>>>>>>> @@ -2314,10 +2314,10 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
->>>>>>>>>     	if (is_rmb)
->>>>>>>>>     		/* use socket recv buffer size (w/o overhead) as start value */
->>>>>>>>> -		sk_buf_size = smc->sk.sk_rcvbuf;
->>>>>>>>> +		sk_buf_size = smc->sk.sk_rcvbuf / 2;
->>>>>>>>>     	else
->>>>>>>>>     		/* use socket send buffer size (w/o overhead) as start value */
->>>>>>>>> -		sk_buf_size = smc->sk.sk_sndbuf;
->>>>>>>>> +		sk_buf_size = smc->sk.sk_sndbuf / 2;
->>>>>>>>>     	for (bufsize_short = smc_compress_bufsize(sk_buf_size, is_smcd, is_rmb);
->>>>>>>>>     	     bufsize_short >= 0; bufsize_short--) {
->>>>>>>>> @@ -2376,7 +2376,7 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
->>>>>>>>>     	if (is_rmb) {
->>>>>>>>>     		conn->rmb_desc = buf_desc;
->>>>>>>>>     		conn->rmbe_size_short = bufsize_short;
->>>>>>>>> -		smc->sk.sk_rcvbuf = bufsize;
->>>>>>>>> +		smc->sk.sk_rcvbuf = bufsize * 2;
->>>>>>>>>     		atomic_set(&conn->bytes_to_rcv, 0);
->>>>>>>>>     		conn->rmbe_update_limit =
->>>>>>>>>     			smc_rmb_wnd_update_limit(buf_desc->len);
->>>>>>>>> @@ -2384,7 +2384,7 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
->>>>>>>>>     			smc_ism_set_conn(conn); /* map RMB/smcd_dev to conn */
->>>>>>>>>     	} else {
->>>>>>>>>     		conn->sndbuf_desc = buf_desc;
->>>>>>>>> -		smc->sk.sk_sndbuf = bufsize;
->>>>>>>>> +		smc->sk.sk_sndbuf = bufsize * 2;
->>>>>>>>>     		atomic_set(&conn->sndbuf_space, bufsize);
->>>>>>>>>     	}
->>>>>>>>>     	return 0;
->>>>>>>>> -- 
->>>>>>>>> 2.34.1
+T24gV2VkLCAyMDIyLTExLTMwIGF0IDIzOjA5ICswMDAwLCBTZWFuIENocmlzdG9waGVyc29uIHdy
+b3RlOg0KPiAtLS0gYS9hcmNoL3g4Ni9rdm0veDg2LmMNCj4gKysrIGIvYXJjaC94ODYva3ZtL3g4
+Ni5jDQo+IEBAIC0xMTk2Nyw2ICsxMTk2NywxMSBAQCBpbnQga3ZtX2FyY2hfaGFyZHdhcmVfZW5h
+YmxlKHZvaWQpDQo+IMKgCWJvb2wgc3RhYmxlLCBiYWNrd2FyZHNfdHNjID0gZmFsc2U7DQo+IMKg
+DQo+IMKgCWt2bV91c2VyX3JldHVybl9tc3JfY3B1X29ubGluZSgpOw0KPiArDQo+ICsJcmV0ID0g
+a3ZtX3g4Nl9jaGVja19wcm9jZXNzb3JfY29tcGF0aWJpbGl0eSgpOw0KPiArCWlmIChyZXQpDQo+
+ICsJCXJldHVybiByZXQ7DQo+ICsNCj4gwqAJcmV0ID0gc3RhdGljX2NhbGwoa3ZtX3g4Nl9oYXJk
+d2FyZV9lbmFibGUpKCk7DQo+IMKgCWlmIChyZXQgIT0gMCkNCj4gwqAJCXJldHVybiByZXQ7DQoN
+ClRoaW5raW5nIG1vcmUsIEFGQUlDVCwga3ZtX3g4Nl92ZW5kb3JfaW5pdCgpIHNvIGZhciBzdGls
+bCBkb2VzIHRoZSBjb21wYXRpYmlsaXR5DQpjaGVjayBvbiBhbGwgb25saW5lIGNwdXMuICBTaW5j
+ZSBub3cga3ZtX2FyY2hfaGFyZHdhcmVfZW5hYmxlKCkgYWxzbyBkb2VzIHRoZQ0KY29tcGF0aWJp
+bGl0eSBjaGVjaywgSUlVQyB0aGUgY29tcGF0aWJpbGl0eSBjaGVjayB3aWxsIGJlIGRvbmUgdHdp
+Y2UgLS0gb25lIGluDQprdm1feDg2X3ZlbmRvcl9pbml0KCkgYW5kIG9uZSBpbiBoYXJkd2FyZV9l
+bmFibGVfYWxsKCkgd2hlbiBjcmVhdGluZyB0aGUgZmlyc3QNClZNLg0KDQpEbyB5b3UgdGhpbmsg
+aXQncyBzdGlsbCB3b3J0aCB0byBkbyBjb21wYXRpYmlsaXR5IGNoZWNrIGluIHZtX3g4Nl92ZW5k
+b3JfaW5pdCgpPw0KDQpUaGUgYmVoYXZpb3VyIGRpZmZlcmVuY2Ugc2hvdWxkIGJlICJLVk0gbW9k
+dWxlIGZhaWwgdG8gbG9hZCIgdnMgImZhaWxpbmcgdG8NCmNyZWF0ZSB0aGUgZmlyc3QgVk0iIElJ
+VUMuICBJIGRvbid0IGtub3cgd2hldGhlciB0aGUgZm9ybWVyIGlzIGJldHRlciB0aGFuIHRoZQ0K
+YmV0dGVyLCBidXQgaXQgc2VlbXMgZHVwbGljYXRlZCBjb21wYXRpYmlsaXR5IGNoZWNraW5nIGlz
+bid0IG5lZWRlZD8NCg0KDQo=
