@@ -2,217 +2,128 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B3ED2C47089
-	for <linux-s390@archiver.kernel.org>; Fri,  2 Dec 2022 16:32:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 11E00C47089
+	for <linux-s390@archiver.kernel.org>; Fri,  2 Dec 2022 16:33:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234088AbiLBQbz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 2 Dec 2022 11:31:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48752 "EHLO
+        id S233679AbiLBQdd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 2 Dec 2022 11:33:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233998AbiLBQb3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Dec 2022 11:31:29 -0500
-Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08DB760B55
-        for <linux-s390@vger.kernel.org>; Fri,  2 Dec 2022 08:31:23 -0800 (PST)
-Received: by mail-pg1-x52b.google.com with SMTP id h193so4769793pgc.10
-        for <linux-s390@vger.kernel.org>; Fri, 02 Dec 2022 08:31:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=RsaZyzKJOuyFVoAfYZw39HCTNem7JcJUeEd5tgG0e8Y=;
-        b=JuBGytq8t5tr5SVnzdgiUWfOnnv3YoaxJ/EPOkhREUxf0Lu7Q36UoNdircCDscdJe1
-         Ne3pPvJP46804SbaTNQC7CD0nyOf+6DUf7RttT6MnjeqYf2tKeLulPmMzXN6C0vzpI5a
-         kmqZ1b2nEnQBpLkucgI+K9CNuj0M6idXU9Z/tpGiUmJvFfSAKZUEJ0tYDDD5QTm1XgZh
-         KUg4c1fCmmWL1AfPqQe/Q+7M8gt59bLLwzR5wrgb2mkyqnFKW9rqK8zn1jiKosWg6tGN
-         xvGvpF7x1Z6otoY0Ddi4ibaMdJj9vaSCpFDZW9nFUZDm9ecAOG+G1OAJWfl9eXVsVqrU
-         2Qew==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=RsaZyzKJOuyFVoAfYZw39HCTNem7JcJUeEd5tgG0e8Y=;
-        b=WWxVXKZG41PXTmmhQsIN/aHLytn+c//P/+Oi8eZ5CcSttufz9YLegs3VB3/eryglYB
-         d15+ffuAyuMn3bwlKT3kooxckMocll+tywKMMahMxbhfS/Icly3TfO6HCVye023MXq6h
-         OL8qhFzJxeMAWxuyoxkEbAF5dyN2oeOfSSPYyEu5HyvvRGui9jgIgCgsemUoIzjLDYeZ
-         81yaWww3EEfqmszX9qI9SfuxkMmLGPIKm6Po1mWx3uOYY44eE+zWT5qTUYWE2Wb2hIbH
-         ia7sMtobn5+F3hHw9YbXgQ72jqRqRfWb2+2JDzgP3W4ziOt8174ST++TLIZxNywU4pio
-         gC1Q==
-X-Gm-Message-State: ANoB5pk65ktLWR5waWVHeVMyA2kxBrXv7BxS1gT5O2e3vyX78048Z4mv
-        mzXoDNBCtsxIFBfKIfNkFLHCoQ==
-X-Google-Smtp-Source: AA0mqf5YDkgE2z83Sno75+zaFki0bhnK0sTw98u0yDu/SzUnzr69GggIhlhUBJVYlhlyDIQeZ9Y6nA==
-X-Received: by 2002:a65:5601:0:b0:43c:4eef:bac7 with SMTP id l1-20020a655601000000b0043c4eefbac7mr46619641pgs.356.1669998682344;
-        Fri, 02 Dec 2022 08:31:22 -0800 (PST)
-Received: from google.com (7.104.168.34.bc.googleusercontent.com. [34.168.104.7])
-        by smtp.gmail.com with ESMTPSA id g204-20020a6252d5000000b005756a67e227sm5438977pfb.90.2022.12.02.08.31.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 02 Dec 2022 08:31:21 -0800 (PST)
-Date:   Fri, 2 Dec 2022 16:31:18 +0000
-From:   Sean Christopherson <seanjc@google.com>
-To:     "Huang, Kai" <kai.huang@intel.com>
-Cc:     "chenhuacai@kernel.org" <chenhuacai@kernel.org>,
-        "maz@kernel.org" <maz@kernel.org>,
-        "frankja@linux.ibm.com" <frankja@linux.ibm.com>,
-        "borntraeger@linux.ibm.com" <borntraeger@linux.ibm.com>,
-        "farman@linux.ibm.com" <farman@linux.ibm.com>,
-        "aou@eecs.berkeley.edu" <aou@eecs.berkeley.edu>,
-        "palmer@dabbelt.com" <palmer@dabbelt.com>,
-        "paul.walmsley@sifive.com" <paul.walmsley@sifive.com>,
-        "pbonzini@redhat.com" <pbonzini@redhat.com>,
-        "dwmw2@infradead.org" <dwmw2@infradead.org>,
-        "aleksandar.qemu.devel@gmail.com" <aleksandar.qemu.devel@gmail.com>,
-        "imbrenda@linux.ibm.com" <imbrenda@linux.ibm.com>,
-        "paul@xen.org" <paul@xen.org>,
-        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
-        "vkuznets@redhat.com" <vkuznets@redhat.com>,
-        "anup@brainfault.org" <anup@brainfault.org>,
-        "oliver.upton@linux.dev" <oliver.upton@linux.dev>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "cohuck@redhat.com" <cohuck@redhat.com>,
-        "farosas@linux.ibm.com" <farosas@linux.ibm.com>,
-        "david@redhat.com" <david@redhat.com>,
-        "james.morse@arm.com" <james.morse@arm.com>,
-        "Yao, Yuan" <yuan.yao@intel.com>,
-        "alexandru.elisei@arm.com" <alexandru.elisei@arm.com>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "mpe@ellerman.id.au" <mpe@ellerman.id.au>,
-        "Yamahata, Isaku" <isaku.yamahata@intel.com>,
-        "kvmarm@lists.linux.dev" <kvmarm@lists.linux.dev>,
-        "tglx@linutronix.de" <tglx@linutronix.de>,
-        "suzuki.poulose@arm.com" <suzuki.poulose@arm.com>,
-        "kvm-riscv@lists.infradead.org" <kvm-riscv@lists.infradead.org>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-        "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>,
-        "philmd@linaro.org" <philmd@linaro.org>,
-        "atishp@atishpatra.org" <atishp@atishpatra.org>,
-        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
-        "Gao, Chao" <chao.gao@intel.com>
-Subject: Re: [PATCH v2 42/50] KVM: Disable CPU hotplug during hardware
- enabling/disabling
-Message-ID: <Y4ooVrDTkscy68vg@google.com>
-References: <20221130230934.1014142-1-seanjc@google.com>
- <20221130230934.1014142-43-seanjc@google.com>
- <8b1053781e859aa95a08c10b0e8a06912a2b42a2.camel@intel.com>
-MIME-Version: 1.0
+        with ESMTP id S233633AbiLBQdb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Dec 2022 11:33:31 -0500
+Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on2066.outbound.protection.outlook.com [40.107.244.66])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95DE573F78;
+        Fri,  2 Dec 2022 08:33:29 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=jHvizAvQiuCPZgKo7mbzLXhmnuybA4iFlTzUgZg9zU9fPQgzKE81B5MiB9pcouqc7CDdW7gA5qjyMCMcj1ayIBBxRFzqs3+D331sV60vWDcvqowTMqbtTFwqAsrF9uC3bV61mJ8K05F4KwTRvRYhSwOdmiJJgHsNY1tB0ihS7uGPdfirjcxptfahloddY+EO/40xIcfMFsNSP69mnqj2zI6fC8EvOuvJheLKlO8bjj0SNC5ojzlILBdHRucCJkDoF+COhTuZhYQEcAiMN/Pfdg4Y8ikiEw8vDj5pjJ2YN2hD53QqyrgyvEone9Ov9xFC3dDD76S8ZxHq/Ug4ZoU6Rg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=HNW8oFnpYAndvfoVVucXJq2TqB8jr2Z2VUBAeMZbRws=;
+ b=b1lj086kHuN4DXRDj0Q5HrEQL18RaoELEi0Z0RP807GQiDN5kz3mpqVsH/xpeguYwFxzcf0DBa+oebB6pHISqbR/Ec6zQN5BRDJRZ3bktVBqdz2q5rZ7ETVJTuT4j86luJo3eRnLu/Vmb4jfr0I4eUwvsahEBTzdRGOLmT8dgEGymuathDdEKHCM46kTmRCN9R/zFaWlVLZd7y/ah8ZEQyh//Fmf7h/V5XAKhPzmceZA74lY4Ih3JThXmWAa8cI0TFL0tu6rRDzKqkN3d4Wjiuvn+CjLiMp6pZbm7My6wmeoWRFcgNzin5IJBhL9KAhTp/rs98yNuI2j1BAPkKF0sg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=HNW8oFnpYAndvfoVVucXJq2TqB8jr2Z2VUBAeMZbRws=;
+ b=AOwEaIhtm0Xdzv1qsxOD2H/C+2MwAjh/nsnmlMNVWbMq6+OQuxbaEt+N2nDHwPboZVfEOsMA4tcrwdgbgD7SJz8HraAscq+6JScqf/T+vw9DcCe7pjaEODEn6+eXVfOtm/8F0r/luRep7sKebLjC+6cSbqMkFB3z+7DH8ljEja52HFOAJR/HV1bBqQdirKMxu+b4zzx55t5DYu0Hx8qJIP8PD7J34Itd1hMOMJJNbydpj0hDz/3FCcSeLflO14FZ6AH+hK5vmjljuFPKDNoSWP6+xeIV9C+WxR+HyrE38kfvobqTsw52DyYJztpIfmnQtrFHehZOONv/DRj6BUCB2g==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by MN0PR12MB5977.namprd12.prod.outlook.com (2603:10b6:208:37c::22) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5857.23; Fri, 2 Dec
+ 2022 16:33:27 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::f8b0:df13:5f8d:12a]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::f8b0:df13:5f8d:12a%8]) with mapi id 15.20.5857.023; Fri, 2 Dec 2022
+ 16:33:27 +0000
+Date:   Fri, 2 Dec 2022 12:33:24 -0400
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Yi Liu <yi.l.liu@intel.com>
+Cc:     alex.williamson@redhat.com, kevin.tian@intel.com,
+        kvm@vger.kernel.org, mjrosato@linux.ibm.com,
+        chao.p.peng@linux.intel.com, yi.y.sun@linux.intel.com,
+        intel-gvt-dev@lists.freedesktop.org, linux-s390@vger.kernel.org,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>
+Subject: Re: [[iommufd] PATCH v3 0/2] Make mdev driver dma_unmap callback
+ tolerant to unmaps come before device open
+Message-ID: <Y4oo1DEuxFGeoYzy@nvidia.com>
+References: <20221202135402.756470-1-yi.l.liu@intel.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <8b1053781e859aa95a08c10b0e8a06912a2b42a2.camel@intel.com>
+In-Reply-To: <20221202135402.756470-1-yi.l.liu@intel.com>
+X-ClientProxiedBy: BL1PR13CA0327.namprd13.prod.outlook.com
+ (2603:10b6:208:2c1::32) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|MN0PR12MB5977:EE_
+X-MS-Office365-Filtering-Correlation-Id: 393c24d2-7900-4486-ce73-08dad482f0c1
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: CZ1RjQsjKT1YSjwFdp49Z3RMzZQjr5X62y4BpLbLB8/gFczq7fhPjTcjQ612wOc68ddYQHxtjKaO2YTEsVzMyV1GNF8rJroIAWgN1mOI6K2UGRgGn1Q75iFqEnUGWGuEyg0sv0yEdPuBmR7uGeSwg5hGJsJsYRUqXcy8luFs6BsagLhMu64GU2W0EsvC+ersHVRzkNmFjc4lTrIFvxPRUto2ddO647t1F+qbFnj5oZi077t5pq6HlDB78J4PShuuDXPcQdwRy6VCVZkec+7rlwXjASYhBVJbNBtR21KKIaPSkHYmLrnQmJy3GVqOVmqtX3ExWaqbeM73Sml8NUHBcFxM+kCIsxb/OgUAoPmSXSLsTLqTYTycc38uqdRIkKfU/hmuV+BKyzoZtFOJ4EP8fXUlW/leIBhKfnFPrQ/rtMaa+/c1bYwP/l47JtMl6oJv09K0q6qhu3rtHW5o5AaLOi0gTrFOpP2sr5An1BkVcOAeR/yQPVptdfrh4o9unpE6Y3s2R2wR3ccaRCDmQyeJ84gOXg1ufcluB+94zwrXItwy8JG8neCFqMTxx4dy4lLkTxh+1kJG1Wr0YMkdJZKPrxrZMu+Gin9SbRcQY/aoF11KU8+a667pPhFs0X8+JgJv+rQv16cYHCPw4Qd82rpjmA==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(136003)(346002)(39860400002)(366004)(396003)(376002)(451199015)(26005)(6486002)(2616005)(6512007)(5660300002)(186003)(41300700001)(86362001)(66946007)(6506007)(4326008)(36756003)(2906002)(54906003)(316002)(6916009)(38100700002)(8936002)(478600001)(66476007)(8676002)(66556008)(7416002)(6666004)(4744005)(83380400001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?S8bfP1sxzNN2S+eBbDxHsQ4IVAaHT1KYdHylEFPp30kqXwH7uRKRz2++k33U?=
+ =?us-ascii?Q?vvckUzcmjSZPU3luJD5bfVVLwL9AnFxryKMlz99p722CfmgSxyYTvLhhTq+v?=
+ =?us-ascii?Q?kuwFxjqvX6JQAoapNqIEhiMG+CkwaE0XdR5u/edT4ixbgWdtbxy/bacq0J5H?=
+ =?us-ascii?Q?cgmqmIFXVj/AH9/r8TqBSI0yXTYKgmXdZpZi0Z3+3fnufaSwRd7RKMipTrqI?=
+ =?us-ascii?Q?Q9Q8FfNPVkxb+1oeuImF2s8LJgHhVE9FLSe6KB/wX8dvypZHwxz3D8AuORG1?=
+ =?us-ascii?Q?XSbAN0zEsxFj+t/aATq4E0AKY3+qraqYIdJI2alwokRlUOAICcqpnHk8HG8n?=
+ =?us-ascii?Q?cl6Gaw6Jall0zaP66TUITXXGqXJYUUG8POU/XSX8YqfsST9RHfmrl2WSMrP9?=
+ =?us-ascii?Q?BklHRKy7piMf05okkReYTTrGoBCzX60Oi82W89jbxzR9gUycpgAmm3Cdr6Wc?=
+ =?us-ascii?Q?8j3zhXIxwWn8w1T9MMzMtV35iQqR1CyBw1RMvuCG5CvmbxsirqbyCPp/gDDt?=
+ =?us-ascii?Q?vLnaHh1SLVuzDTMtiTpONKd/iUC17g3fjpD8RNClqN5VvVUY3wye3VS2HFX8?=
+ =?us-ascii?Q?hsxSa8Yx7PkztDVtnyWtCZgWuOru5pMXCEtdtDhH98RAyf+Jiqrt/p8Hh2+P?=
+ =?us-ascii?Q?ZNm6GU2qdczfFrN5HxFo42aRoyBFbC1F9Ed4XNmo196aiDx2TBtfyakjzzpl?=
+ =?us-ascii?Q?IcNZ6lO/fOD0K0mNow+ylEFLv6pHdoIfntC8Qv/Epnrn7odCIU6NqAkEI6TC?=
+ =?us-ascii?Q?ZXRpeNMt+0YupkcakWElMIDycU6GehRHufOkqVzcBuoO4cjzuoMMjWgJmePV?=
+ =?us-ascii?Q?hTjU86Ae/VObmiDbAbKTWrCjj38u3WoWGyj7LXL0XMTdvbFwpMwcGI00v9wY?=
+ =?us-ascii?Q?r49XWxEw+xMX1Ushabfqi1B02TrcCJEohvWdvRF4XAbPYHqZFR50H3g2THT8?=
+ =?us-ascii?Q?ohUJ+9DF3piX1PN1tGdDgvCvH9oabWs91Y2S/2LII6dk7gFe+e9ivQnkQP8I?=
+ =?us-ascii?Q?jj+lKgvRGxXsvJzLes6ykp/sWYGkSmL+xiTyeXcyb8KzZJgRWAl0UPxrW7Qy?=
+ =?us-ascii?Q?ZY2HcI5tOVj7IZnjmog852va3LtfkJTMC2FUDc0mhyYNZwX/StpWjlApMFYk?=
+ =?us-ascii?Q?RpXoRqgIUbHQkVvs73EnDkL18o29u/YoPrBkrAeu8h0YYMpOtz6Z2IbxLCa8?=
+ =?us-ascii?Q?LxNeQDHg8NNssUW1akes/7MJe1tVKC0wgqGZqIIlqoGZik27Tasgt6445ky6?=
+ =?us-ascii?Q?tKWYhTpvPeyKDKjG5Iz+RbenA9H4pgH3sXitwmyZO9P77SxsRiXzCur/vtaT?=
+ =?us-ascii?Q?gW39I1lsTfgU/UxPGLYBsyKLWvYs7npx5Dqfwbdjp/pWSe1j5z+8vodgrB/d?=
+ =?us-ascii?Q?Ny5z/Xa5nVG5ay4AnQOlPCM4f9aFiCwpXCwMIcF/LAlt/nu2L+UOwIluQS50?=
+ =?us-ascii?Q?J3AZRTMGcG+aCNlF6B2Je7dhVNwod7nDWyV+E+0IVxYAjomy0CsEGkDHIAW2?=
+ =?us-ascii?Q?96y9qaWMBUvQqr04MhsCAiy6djwErL4BRbOB3FGVZFLt1tiMCFIcXUSlq15/?=
+ =?us-ascii?Q?jDzEXhjOHsBfW1y6W5M=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 393c24d2-7900-4486-ce73-08dad482f0c1
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Dec 2022 16:33:27.7822
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: UkamLsJVlZs25yhmc0h0qGOY5F8bvWhok3YszIE9tvFwk4UVkaLduvmFckLGzkQ1
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN0PR12MB5977
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Dec 02, 2022, Huang, Kai wrote:
-> On Wed, 2022-11-30 at 23:09 +0000, Sean Christopherson wrote:
-> > From: Chao Gao <chao.gao@intel.com>
-> > 
-> > Disable CPU hotplug when enabling/disabling hardware to prevent the
-> > corner case where if the following sequence occurs:
-> > 
-> >   1. A hotplugged CPU marks itself online in cpu_online_mask
-> >   2. The hotplugged CPU enables interrupt before invoking KVM's ONLINE
-> >      callback
-> >   3  hardware_{en,dis}able_all() is invoked on another CPU
-> > 
-> > the hotplugged CPU will be included in on_each_cpu() and thus get sent
-> > through hardware_{en,dis}able_nolock() before kvm_online_cpu() is called.
+On Fri, Dec 02, 2022 at 05:54:00AM -0800, Yi Liu wrote:
+
+> Matthew Rosato (1):
+>   iommufd PATCH v2 2/2] vfio/ap: validate iova during dma_unmap and
+>     trigger irq disable
 > 
-> Should we explicitly call out what is the consequence of such case, otherwise
-> it's hard to tell whether this truly is an issue?
->
-> IIUC, since now the compatibility check has already been moved to
-> kvm_arch_hardware_enable(), the consequence is hardware_enable_all() will fail
-> if the now online cpu isn't compatible, which will results in failing to create
-> the first VM.  This isn't ideal since the incompatible cpu should be rejected to
-> go online instead.
+> Yi Liu (1):
+>   i915/gvt: Move gvt mapping cache initialization to
+>     intel_vgpu_init_dev()
 
-Actually, in that specific scenario, KVM should not reject the CPU.  E.g. if KVM
-is autoloaded (common with systemd and/or qemu-kvm installed), but not used by
-userspace, then KVM is overstepping by rejecting the incompatible CPU since the
-user likely cares more about onlining a CPU than they do about KVM.
+I refreshed the patches with this version
 
-> > KVM currently fudges around this race by keeping track of which CPUs have
-> > done hardware enabling (see commit 1b6c016818a5 "KVM: Keep track of which
-> > cpus have virtualization enabled"), but that's an inefficient, convoluted,
-> > and hacky solution.
-
-...
-
-> > +	/*
-> > +	 * Compatibility checks are done when loading KVM and when enabling
-> > +	 * hardware, e.g. during CPU hotplug, to ensure all online CPUs are
-> > +	 * compatible, i.e. KVM should never perform a compatibility check on
-> > +	 * an offline CPU.
-> > +	 */
-> > +	WARN_ON(!cpu_online(cpu));
-> 
-> IMHO this chunk logically should belong to previous patch.  IIUC disabling CPU
-> hotplug during hardware_enable_all() doesn't have relationship to this WARN().
-
-Hmm, yeah, I agree.  I'll move it.
-
-> >  static int hardware_enable_all(void)
-> >  {
-> >  	int r = 0;
-> >  
-> > +	/*
-> > +	 * When onlining a CPU, cpu_online_mask is set before kvm_online_cpu()
-> > +	 * is called, and so on_each_cpu() between them includes the CPU that
-> > +	 * is being onlined.  As a result, hardware_enable_nolock() may get
-> > +	 * invoked before kvm_online_cpu(), which also enables hardware if the
-> > +	 * usage count is non-zero.  Disable CPU hotplug to avoid attempting to
-> > +	 * enable hardware multiple times.
-> 
-> It won't enable hardware multiple times, right?  Since hardware_enable_nolock()
-> has below check:
-> 
->         if (cpumask_test_cpu(cpu, cpus_hardware_enabled))                      
->                 return;                                                        
->                                                                                                                                                    
->         cpumask_set_cpu(cpu, cpus_hardware_enabled);     
-> 
-> IIUC the only issue is the one that I replied in the changelog.
-> 
-> Or perhaps I am missing something?
-
-You're not missing anything in terms of code.  What the comment means by "attempting"
-in this case is calling hardware_enable_nolock().  As called out in the changelog,
-guarding against this race with cpus_hardware_enabled is a hack, i.e. KVM should
-not have to rely on a per-CPU flag.
-
- : KVM currently fudges around this race by keeping track of which CPUs have
- : done hardware enabling (see commit 1b6c016818a5 "KVM: Keep track of which
- : cpus have virtualization enabled"), but that's an inefficient, convoluted,
- : and hacky solution.
-
-I actually considered removing the per-CPU flag, but decided not to because it's
-simpler to blast
-
-	on_each_cpu(hardware_disable_nolock, ...)
-
-in kvm_reboot() and if enabling hardware fails on one or more CPUs, and taking a
-#UD on VMXOFF in the latter case is really unnecessary, i.e. the flag is nice to
-have for other reasons.
-
-That said, after this patch, KVM should be able to WARN in the enable path.  I'll
-test that and do a more thorough audit; unless I'm missing something, I'll add a
-patch to do:
-
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index b8c6bfb46066..ee896fa2f196 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -5027,7 +5027,7 @@ static int kvm_usage_count;
- 
- static int __hardware_enable_nolock(void)
- {
--       if (__this_cpu_read(hardware_enabled))
-+       if (WARN_ON_ONCE(__this_cpu_read(hardware_enabled)))
-                return 0;
- 
-        if (kvm_arch_hardware_enable()) {
-
+Jason
