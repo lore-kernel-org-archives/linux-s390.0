@@ -2,134 +2,249 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 439E1C4321E
-	for <linux-s390@archiver.kernel.org>; Fri,  2 Dec 2022 15:24:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 766B8C4321E
+	for <linux-s390@archiver.kernel.org>; Fri,  2 Dec 2022 15:59:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232860AbiLBPYw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 2 Dec 2022 10:24:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59290 "EHLO
+        id S232839AbiLBP7w (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 2 Dec 2022 10:59:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232450AbiLBPYv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Dec 2022 10:24:51 -0500
-Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on2041.outbound.protection.outlook.com [40.107.236.41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 988F5CEFAB;
-        Fri,  2 Dec 2022 07:24:50 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=aSMevba3P0q9cx1brwutyuX1663uooTe+2G6lgrEBQ1tmPjFuQkB7NczHKU23GXp3XMjYPqlKzgl2J7Ft05JVoFSW0lK+HVa50h+KyYBX0Z7fRAnJsDS4k70AgcLG/8XBXH/wLVIxtnFC0QAeLvD6B66Di0aKJWWtdGemqof/+Jy5PCXxSi3L66Wm6i9+2gMny3iNMPe3NSTCj4iSMBR6H4cHpiLGJjgR0BBuKtYSWYPhftMQ1C01r9mJMQIAFHrdlU1CRv4Z7N6iimgd33bnUydh0PjeaeVVPskhsmd0YHY8O4gOntAYTGSbHGBVJkwYi5CBqFxfTE9meiT5JBPAQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=72OWx+MHWW9dAjHOv8ZIaFV7ZJqhTk8SzpWfB5vqRMI=;
- b=m82MPtrF5mugf6CwqaAN0dEt20vqkDQ6Rs+SNab6MoqNmb25aCqqpdAC0043t0YPsi9oN72LBsE/Fyis3dmMIWDtzgAiwcGMWOXYfCwNjvvHCJG17xE/nvE8wo1EanX2RJQawzIbS88jshwSay75/le88CN+tCmUwYe3k5zatW7MV54SGVwMiXIp1WPI6d9klKaa7cqEVjujgO/Pt94ne4xUGKojJpUCeNKZH0OX+jAYf404st92PsMrOWX7c1qEsFOllI9PeewDw158tFeuA2HjtUMvz7VpmL0Q+E9zommn2HCGEllkStPeWpt0DPwY5WKsTfuF1sSFKW0jrfzoqQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=72OWx+MHWW9dAjHOv8ZIaFV7ZJqhTk8SzpWfB5vqRMI=;
- b=H8hM4kmwa2R0QVkBiJsiH7UwBalaGdlkpiLsbKoAqiJRVrXIEcYphZNxjRejXCZZEkdFsDye76npeov8MFssBD0lR5xWMNKE4Z2we3WgCqrUzcvES/ADuulzMYQplxq3IgVvOHOPpglwjRLkqfTc6ndWdRoZemDaPHPFUaRPTpdxnedf0KInr9K90yjJ7HEiNOhIe2u9ZYJxPSUmZ3ZCyxftJYvruuq3HMWLuoPZgMK9m/qYIToUfHs2ziqf9pkbGZ3XZHUERyPoqRC6R18BYeWVw39/5A3OvojmeowsBv6WLlJlYImtM8AGg1v3Esxxgb0kd2kNYgTB7yqooU6SMw==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
- by CH3PR12MB7642.namprd12.prod.outlook.com (2603:10b6:610:14a::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5880.10; Fri, 2 Dec
- 2022 15:24:49 +0000
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::f8b0:df13:5f8d:12a]) by LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::f8b0:df13:5f8d:12a%8]) with mapi id 15.20.5857.023; Fri, 2 Dec 2022
- 15:24:49 +0000
-Date:   Fri, 2 Dec 2022 11:24:48 -0400
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Niklas Schnelle <schnelle@linux.ibm.com>
-Cc:     Robin Murphy <robin.murphy@arm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Gerd Bayer <gbayer@linux.ibm.com>, iommu@lists.linux.dev,
-        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, linux-kernel@vger.kernel.org,
-        Julian Ruess <julianr@linux.ibm.com>
-Subject: Re: [PATCH v2 7/7] iommu/s390: flush queued IOVAs on RPCIT out of
- resource indication
-Message-ID: <Y4oYwOnRpWhtwwww@nvidia.com>
-References: <20221116171656.4128212-1-schnelle@linux.ibm.com>
- <20221116171656.4128212-8-schnelle@linux.ibm.com>
- <cf0fed35-2d9d-3d19-3538-1ddcbfd563b0@arm.com>
- <8ae4c9b196aec34df4644ffecb66cfa4ce953244.camel@linux.ibm.com>
- <6cd52999-7b01-a613-a9fb-f09a845a27b3@arm.com>
- <c6c4458bb49d1144a304e34c65a70dc2ebbb4082.camel@linux.ibm.com>
- <c06dc451129127b660d40886afe89c92471a913a.camel@linux.ibm.com>
- <Y4oO8O4wCnWAeoGS@nvidia.com>
- <175d97e1a9d29d712f0334e37fc207a50c3ac5e7.camel@linux.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <175d97e1a9d29d712f0334e37fc207a50c3ac5e7.camel@linux.ibm.com>
-X-ClientProxiedBy: BL1PR13CA0022.namprd13.prod.outlook.com
- (2603:10b6:208:256::27) To LV2PR12MB5869.namprd12.prod.outlook.com
- (2603:10b6:408:176::16)
+        with ESMTP id S232011AbiLBP7w (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Dec 2022 10:59:52 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE1689A4D3
+        for <linux-s390@vger.kernel.org>; Fri,  2 Dec 2022 07:58:51 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1669996731;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=B+hXh5P61A2DdBxK6OLw+4jPvT0r9cthvTrIhcW2QOA=;
+        b=EYRrJ/7Tnfiik66TD9aVJvX80fRiwrXSxj65HJ7hGVQ4ok4LcN+o7+gBwmJlYZUkTOZrGk
+        xxTTIMBoPwj1spekoh6LDRRkTcSQeM8ynaB06VVuUyPqhMrWaGKjyy3n9pS8kKTmWlGrco
+        ZuVa2rVUIymkRD1oKY5Sg0qSbKiPmBk=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-411-aad4T597M-uqDalSOOGakQ-1; Fri, 02 Dec 2022 10:58:50 -0500
+X-MC-Unique: aad4T597M-uqDalSOOGakQ-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com [10.11.54.4])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 471C8800B23;
+        Fri,  2 Dec 2022 15:58:48 +0000 (UTC)
+Received: from vschneid.remote.csb (unknown [10.33.36.77])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 437932028CE4;
+        Fri,  2 Dec 2022 15:58:42 +0000 (UTC)
+From:   Valentin Schneider <vschneid@redhat.com>
+To:     linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
+        openrisc@lists.librecores.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org,
+        x86@kernel.org
+Cc:     "Paul E. McKenney" <paulmck@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Marcelo Tosatti <mtosatti@redhat.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Marc Zyngier <maz@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Guo Ren <guoren@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH v3 0/8] Generic IPI sending tracepoint
+Date:   Fri,  2 Dec 2022 15:58:09 +0000
+Message-Id: <20221202155817.2102944-1-vschneid@redhat.com>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|CH3PR12MB7642:EE_
-X-MS-Office365-Filtering-Correlation-Id: 61fc5d2f-f78f-49d5-b8f6-08dad47959cb
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: y+8YZ/SrIKT/9RrbdihxvxJyprJQqydPF85fDzwWQD/3GBMex4zjBhfgvWHW0KcMxKsUJsKR3WuX3Vjv/oaAJqToDDHXQOeI9FQ0sutVNEjRE49N0FlI3h3K1WmyIT7I4Xyw6NCVfvE7jmLNA0hEimD8Gll4+OZ2hrmfb/Ak8/NWV2JytZ1h+EIUpr2eeIMEJknqHYBiUIYdS4jfA4dmZn+qZO5qV2hIADUf3eVMueq1/4Tev3h0bJHhGeFivsBqQ79gdW9mB3D3CZOggpyj86y/ohsp0CQn1SFQZObkX0pZo4VYYE+PRxcp72Y0CKkHJ6eowExl3rZJelB4H+Azmpacl/4AIOxYhwpMk0w7H7txq//pfffJdxHlwwNW+BHpzbDPfTOdshnIi4vau506/Vh7Ba1g5lgRJeeZ9X/2btskbr+k8T+H8awqcsea4tBFKQSQTLzkQJE5OMdBLfVctwV4NK9sEpQlOHFv/SJP8d9EjquNhFAhzxjSoQtYtgmxBjCTnW7p9iUf2/ErcG+Bjns1m1KbOVgRF0LlJycVi3G/8tvlru8cofsYpK8Nebl0vNV5awhmMhNPq8WX3GFp2NTWmqpDY/QOTyiM86y3b4NPKZ69XbPz9mrOLUiVDziMJr0UN2dYQ+d/CvsDvCRREwxvovl6ar1U233sRXVs8yW8lt5jbTe5bHwm5xG39kUH+lUE/ziM7Znu+VEafbIstw==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(136003)(396003)(39860400002)(346002)(376002)(366004)(451199015)(36756003)(38100700002)(6512007)(86362001)(316002)(6916009)(54906003)(66946007)(8676002)(66556008)(66476007)(6486002)(966005)(478600001)(26005)(186003)(6506007)(2906002)(83380400001)(2616005)(41300700001)(4326008)(5660300002)(4744005)(8936002)(7416002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?KeI9hGHkxbXKTz1jiQIFnj6nNW0VcWJvSlP++KDvxoMpxcsez/hZ+9IrWDES?=
- =?us-ascii?Q?cAqkWaKGOKi2/Q7HNq8j7Q9ehJ6z/ZU1wyLIsKOpfEUNtpz+7Y9rmGaQwytD?=
- =?us-ascii?Q?9Z0bgoBR+QV0fcej1H2BRPpi5b66eJPEfd9DsF1g/+R0/ltYx23Y17iRLC8o?=
- =?us-ascii?Q?WMEclQqSl+PDT44q9jcrs0Qioe2y+Hbcj3yiciAyv26oACeOvV1CerC0bbpe?=
- =?us-ascii?Q?sd1RzAQLx1YcaSVV6Zd99ZVU6S3QBnxUAk6T637NY1fji+GipvveynxS07hH?=
- =?us-ascii?Q?BJdve09CQ8ONhIzfP/YOeRNsWC0+yxgsmD4NpBKInbwI0hbF7KYgLiYIxH+r?=
- =?us-ascii?Q?HoO4NFRnnwzKrZ71JiK2pHG2FA9/o9RfiOhbb0Orb58GAvD6v9mTwXQEM/zG?=
- =?us-ascii?Q?snF9ZoK71VF6VbW196LySAepuEdDXW5SHeTGCeNfDJlOI7v+avbUA5KFcPAr?=
- =?us-ascii?Q?VwzXs1abXvvbjkXSTlCutmwEnyo/BY3Dtgx6Pl0yggeH7N/wyZus44FQr0gS?=
- =?us-ascii?Q?Yj2x+sG5zRwrMumqVwfQJsJiP9yrDRW4dd1uwggOusjw4OtzFLoawChqKlRO?=
- =?us-ascii?Q?iMo16jXugI9GJGblpaw+6oEMLnLeINM3e8HB4xkniNW/dg0+ZWWDU6twUgVe?=
- =?us-ascii?Q?SwTzRr6avIApTwwnHEhHyiVPd914/YjpNka2tYncP4F1SRlMZWBe0ss509IE?=
- =?us-ascii?Q?576qwop357dfj1NXZTNTLwo57iT/GYwC7yhIjy2MoYmXy4MD85PnUSgGe+p1?=
- =?us-ascii?Q?ms8aSiiwXoKtyhMmsduQMfpu/bLxsF87HOSajHC0bNdBzn4WKb2OFXT0wNvY?=
- =?us-ascii?Q?VkHLGc0u5PODoahh3asW1yG1QP0MER/Anz+pS3mLZWPy/AQ4g7CeZLBe5o8V?=
- =?us-ascii?Q?qWAuE1mAEOXk3vHg12AnnwZt4XX2IDYlGLoZ0PaGeXSE0X9F+vL7G2xV4jWB?=
- =?us-ascii?Q?giYwVzD5DYAM/9giXSjkWNZZEfQ20CuGqZ6zjtj87uyXrWVR8QMfgo1/x2O6?=
- =?us-ascii?Q?ke171luXqsiToMnB+LJrC8BPWrwWkD6mMhs7n+d+kBERm9C587dsW8frLNKM?=
- =?us-ascii?Q?nbQBeb/fGQBa7FL6sRAGPQQjaWOHUeOpN51GIarbCHXOwd8q5TByC1os4ncp?=
- =?us-ascii?Q?HOAAK22vDeOPd+4vx1zEfQYNeDrhirzeYw8HwypuDC95/Dsq+1FR0TtTvMoL?=
- =?us-ascii?Q?VvMtyvj6EhLjQVS4tbd0IAZYqictbKipK00Sr7q6PJLb7GWLudEwK3ORmumo?=
- =?us-ascii?Q?nYdbiSFHrZd+f6DBwc9g+a/74oK658joEnOnLc3bQS5rsgISosVKQVW9feQF?=
- =?us-ascii?Q?ICc+WuPPvid3mXN0+PCm3rbEvUmUToAlo7rhcI8QfiLVaBzUgWpbQ9DqWL1Q?=
- =?us-ascii?Q?a5mUo240W1wWGL0U8/EsMWYv8jYoCCF7TQ2Gq58jZBLPkgOknEZ7KgvN9G2V?=
- =?us-ascii?Q?PSziWH+h1N1F5+W5/c2x9NknkAY8pzrGpoke1IZMwLSVThLm+lF6MHM3omlI?=
- =?us-ascii?Q?mPl0T/52wWIgghnAc/xcWZM+u/xLYPjNanGSQPcqNeVwtv23AhAzPZuqEmLa?=
- =?us-ascii?Q?4qLQEdl3UP1x6X05/vc=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 61fc5d2f-f78f-49d5-b8f6-08dad47959cb
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Dec 2022 15:24:48.9938
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: ZbAYJrolmxE6DOk6MX+74XW1Q/gYQosjWRfr3Z356q3XFf23NEfMdGC623BKeUzk
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR12MB7642
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.4
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Dec 02, 2022 at 04:12:50PM +0100, Niklas Schnelle wrote:
+Background
+==========
 
-> https://git.kernel.org/pub/scm/linux/kernel/git/niks/linux.git/commit/?h=dma_iommu_v3&id=a2aecd821fe3c5e2549946a68d8b07e05b288a9b
+Detecting IPI *reception* is relatively easy, e.g. using
+trace_irq_handler_{entry,exit} or even just function-trace
+flush_smp_call_function_queue() for SMP calls.  
 
-This patch makes sense to me, if the sync-map is optimally a
-hypervisor call and the hypervisor is allowed to fail it, then
-propagating the failure seems necessary.
+Figuring out their *origin*, is trickier as there is no generic tracepoint tied
+to e.g. smp_call_function():
 
-Jason
+o AFAIA x86 has no tracepoint tied to sending IPIs, only receiving them
+  (cf. trace_call_function{_single}_entry()).
+o arm/arm64 do have trace_ipi_raise(), which gives us the target cpus but also a
+  mostly useless string (smp_calls will all be "Function call interrupts").
+o Other architectures don't seem to have any IPI-sending related tracepoint.  
+
+I believe one reason those tracepoints used by arm/arm64 ended up as they were
+is because these archs used to handle IPIs differently from regular interrupts
+(the IRQ driver would directly invoke an IPI-handling routine), which meant they 
+never showed up in trace_irq_handler_{entry, exit}. The trace_ipi_{entry,exit}
+tracepoints gave a way to trace IPI reception but those have become redundant as
+of: 
+
+      56afcd3dbd19 ("ARM: Allow IPIs to be handled as normal interrupts")
+      d3afc7f12987 ("arm64: Allow IPIs to be handled as normal interrupts")
+
+which gave IPIs a "proper" handler function used through
+generic_handle_domain_irq(), which makes them show up via
+trace_irq_handler_{entry, exit}.
+
+Changing stuff up
+=================
+
+Per the above, it would make sense to reshuffle trace_ipi_raise() and move it
+into generic code. This also came up during Daniel's talk on Osnoise at the CPU
+isolation MC of LPC 2022 [1]. 
+
+Now, to be useful, such a tracepoint needs to export:
+o targeted CPU(s)
+o calling context
+
+The only way to get the calling context with trace_ipi_raise() is to trigger a
+stack dump, e.g. $(trace-cmd -e ipi* -T echo 42).
+
+This is instead introducing a new tracepoint which exports the relevant context
+(callsite, and requested callback for when the callsite isn't helpful), and is
+usable by all architectures as it sits in generic code. 
+
+Another thing worth mentioning is that depending on the callsite, the _RET_IP_
+fed to the tracepoint is not always useful - generic_exec_single() doesn't tell
+you much about the actual callback being sent via IPI, which is why the new
+tracepoint also has a @callback argument.
+
+Patches
+=======
+
+o Patch 1 is included for convenience and will be merged independently. FYI I
+  have libtraceevent patches [2] to improve the 
+  pretty-printing of cpumasks using the new type, which look like:
+  <...>-3322  [021]   560.402583: ipi_send_cpumask:     cpumask=14,17,21 callsite=on_each_cpu_cond_mask+0x40 callback=flush_tlb_func+0x0
+  <...>-187   [010]   562.590584: ipi_send_cpumask:     cpumask=0-23 callsite=on_each_cpu_cond_mask+0x40 callback=do_sync_core+0x0
+
+o Patches 2-6 spread out the tracepoint across relevant sites.
+  Patch 6 ends up sprinkling lots of #include <trace/events/ipi.h> which I'm not
+  the biggest fan of, but is the least horrible solution I've been able to come
+  up with so far.
+  
+o Patch 8 is trying to be smart about tracing the callback associated with the
+  IPI.
+
+This results in having IPI trace events for:
+
+o smp_call_function*()
+o smp_send_reschedule()
+o irq_work_queue*()
+o standalone uses of __smp_call_single_queue()
+
+This is incomplete, just looking at arm64 there's more IPI types that aren't
+covered: 
+
+  IPI_CPU_STOP,
+  IPI_CPU_CRASH_STOP,
+  IPI_TIMER,
+  IPI_WAKEUP,
+
+... But it feels like a good starting point.
+
+Links
+=====
+
+[1]: https://youtu.be/5gT57y4OzBM?t=14234
+[2]: https://lore.kernel.org/all/20221116144154.3662923-1-vschneid@redhat.com/
+
+Revisions
+=========
+
+v2 -> v3
+++++++++
+
+o Dropped the generic export of smp_send_reschedule(), turned it into a macro
+  and a bunch of imports
+o Dropped the send_call_function_single_ipi() macro madness, split it into sched
+  and smp bits using some of Peter's suggestions
+
+v1 -> v2
+++++++++
+
+o Ditched single-CPU tracepoint
+o Changed tracepoint signature to include callback
+o Changed tracepoint callsite field to void *; the parameter is still UL to save
+  up on casts due to using _RET_IP_.
+o Fixed linking failures due to not exporting smp_send_reschedule()
+
+Steven Rostedt (Google) (1):
+  tracing: Add __cpumask to denote a trace event field that is a
+    cpumask_t
+
+Valentin Schneider (7):
+  trace: Add trace_ipi_send_cpumask()
+  sched, smp: Trace IPIs sent via send_call_function_single_ipi()
+  smp: Trace IPIs sent via arch_send_call_function_ipi_mask()
+  irq_work: Trace self-IPIs sent via arch_irq_work_raise()
+  treewide: Trace IPIs sent via smp_send_reschedule()
+  smp: reword smp call IPI comment
+  sched, smp: Trace smp callback causing an IPI
+
+ arch/alpha/kernel/smp.c                      |  2 +-
+ arch/arc/kernel/smp.c                        |  2 +-
+ arch/arm/kernel/smp.c                        |  5 +-
+ arch/arm/mach-actions/platsmp.c              |  2 +
+ arch/arm64/kernel/smp.c                      |  3 +-
+ arch/csky/kernel/smp.c                       |  2 +-
+ arch/hexagon/kernel/smp.c                    |  2 +-
+ arch/ia64/kernel/smp.c                       |  4 +-
+ arch/loongarch/include/asm/smp.h             |  2 +-
+ arch/mips/include/asm/smp.h                  |  2 +-
+ arch/mips/kernel/rtlx-cmp.c                  |  2 +
+ arch/openrisc/kernel/smp.c                   |  2 +-
+ arch/parisc/kernel/smp.c                     |  4 +-
+ arch/powerpc/kernel/smp.c                    |  6 +-
+ arch/powerpc/kvm/book3s_hv.c                 |  3 +
+ arch/powerpc/platforms/powernv/subcore.c     |  2 +
+ arch/riscv/kernel/smp.c                      |  4 +-
+ arch/s390/kernel/smp.c                       |  2 +-
+ arch/sh/kernel/smp.c                         |  2 +-
+ arch/sparc/kernel/smp_32.c                   |  2 +-
+ arch/sparc/kernel/smp_64.c                   |  2 +-
+ arch/x86/include/asm/smp.h                   |  2 +-
+ arch/x86/kvm/svm/svm.c                       |  4 +
+ arch/x86/kvm/x86.c                           |  2 +
+ arch/xtensa/kernel/smp.c                     |  2 +-
+ include/linux/smp.h                          |  8 +-
+ include/trace/bpf_probe.h                    |  6 ++
+ include/trace/events/ipi.h                   | 22 ++++++
+ include/trace/perf.h                         |  6 ++
+ include/trace/stages/stage1_struct_define.h  |  6 ++
+ include/trace/stages/stage2_data_offsets.h   |  6 ++
+ include/trace/stages/stage3_trace_output.h   |  6 ++
+ include/trace/stages/stage4_event_fields.h   |  6 ++
+ include/trace/stages/stage5_get_offsets.h    |  6 ++
+ include/trace/stages/stage6_event_callback.h | 20 +++++
+ include/trace/stages/stage7_class_define.h   |  2 +
+ kernel/irq_work.c                            | 14 +++-
+ kernel/sched/core.c                          | 19 +++--
+ kernel/sched/smp.h                           |  2 +-
+ kernel/smp.c                                 | 78 ++++++++++++++++----
+ samples/trace_events/trace-events-sample.c   |  2 +-
+ samples/trace_events/trace-events-sample.h   | 34 +++++++--
+ virt/kvm/kvm_main.c                          |  1 +
+ 43 files changed, 250 insertions(+), 61 deletions(-)
+
+--
+2.31.1
+
