@@ -2,42 +2,42 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 032DEC4321E
-	for <linux-s390@archiver.kernel.org>; Fri,  2 Dec 2022 13:54:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C2FA7C47088
+	for <linux-s390@archiver.kernel.org>; Fri,  2 Dec 2022 13:54:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233499AbiLBNyN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 2 Dec 2022 08:54:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54448 "EHLO
+        id S233510AbiLBNyO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 2 Dec 2022 08:54:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233535AbiLBNyL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Dec 2022 08:54:11 -0500
+        with ESMTP id S232952AbiLBNyM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Dec 2022 08:54:12 -0500
 Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 403FFC3FE0;
-        Fri,  2 Dec 2022 05:54:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EB8CC2D35;
+        Fri,  2 Dec 2022 05:54:11 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1669989250; x=1701525250;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=7n0SkAtXNEP54Rvy3eAXZE7g3DEKAPeKCMLcGkCqZks=;
-  b=oCJgPUER6HGtT3V27zsJlML7QNTkbsKM9KtJ0MRq/8uXfZv04Hejw0CV
-   Nt0UcEqHOC200+mHw/+emG+PSDzX0QhD4SAm2d9YORjF6kE0Iq8EcAE2X
-   uUNqoOC7qaYyZu7xspsUZEOX0FbMAZHS8OP47PGXJuZmuBcXEtL1m3bK/
-   +aChi2Hyn2N0pMcw8C8xTWNXetref/9YxbhDR/wzFB4mTeIq6oZudZ0tG
-   CljLwxzeekGvI0JUgb5NjGeisJARSn1qfFi+yd+CECk2XtD3Xjnuu08Ib
-   slkS+z1BhDLpAoLEmoWxQAYHzPsk4pRVWDjJ1Bj52PycxQQgV9VOsYUiq
-   w==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10548"; a="315983400"
+  t=1669989251; x=1701525251;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=mZIn3iA9hB0ufQkshFC/gLDQ3B4MqgSSFSJ29jdd7vo=;
+  b=C12KZkBgBKSG+FMvMsCF8V+JvJ8RrqD+SH4pJ3CoVotAT4UnP8Prc2Eo
+   RgoTjrlAcv0HaPp0r1nlpoQZRzoQRdIAtu15q/82l3J0jmNwklv0Cp1TE
+   JMksJBqiOrV98MR5A5/vOjwgNp/IWDyD6RHvmb5O0zyjhxjcoCRDu9dwg
+   aZEgGJ8cKB8u9gXt5mBsGOsr95skBOFgywnLxFDhGaSfsHmQSUTmD/f8t
+   zFkpff69DIWnVEuCi914lC1vWwVwN07e+cKEVwfXilw113cQJoU4L0zuo
+   83Bd8crV3JKaNg7+HXDgswobOWarI6E/PvrK3P7cmgYzcEwDXHl1GmiSs
+   Q==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10548"; a="315983412"
 X-IronPort-AV: E=Sophos;i="5.96,212,1665471600"; 
-   d="scan'208";a="315983400"
+   d="scan'208";a="315983412"
 Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Dec 2022 05:54:04 -0800
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Dec 2022 05:54:05 -0800
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10548"; a="675834126"
+X-IronPort-AV: E=McAfee;i="6500,9779,10548"; a="675834138"
 X-IronPort-AV: E=Sophos;i="5.96,212,1665471600"; 
-   d="scan'208";a="675834126"
+   d="scan'208";a="675834138"
 Received: from 984fee00a4c6.jf.intel.com ([10.165.58.231])
-  by orsmga008.jf.intel.com with ESMTP; 02 Dec 2022 05:54:03 -0800
+  by orsmga008.jf.intel.com with ESMTP; 02 Dec 2022 05:54:05 -0800
 From:   Yi Liu <yi.l.liu@intel.com>
 To:     jgg@nvidia.com
 Cc:     alex.williamson@redhat.com, kevin.tian@intel.com,
@@ -46,72 +46,76 @@ Cc:     alex.williamson@redhat.com, kevin.tian@intel.com,
         yi.y.sun@linux.intel.com, intel-gvt-dev@lists.freedesktop.org,
         linux-s390@vger.kernel.org, Tony Krowiak <akrowiak@linux.ibm.com>,
         Halil Pasic <pasic@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>
-Subject: [[iommufd] PATCH v3 0/2] Make mdev driver dma_unmap callback tolerant to unmaps come before device open
-Date:   Fri,  2 Dec 2022 05:54:00 -0800
-Message-Id: <20221202135402.756470-1-yi.l.liu@intel.com>
+        Jason Herne <jjherne@linux.ibm.com>
+Subject: [[iommufd] PATCH v3 2/2] iommufd PATCH v2 2/2] vfio/ap: validate iova during dma_unmap and trigger irq disable
+Date:   Fri,  2 Dec 2022 05:54:02 -0800
+Message-Id: <20221202135402.756470-3-yi.l.liu@intel.com>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20221202135402.756470-1-yi.l.liu@intel.com>
+References: <20221202135402.756470-1-yi.l.liu@intel.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Jason's "Connect VFIO to IOMMUFD" introduces vfio iommufd compat mode. Under
-this mode, vfio_iommufd_bind() creates an access which has an unmap callback,
-which can be called immediately. This means mdev drivers may receive unmap
-requests before the mdev is opened. For now, there are only three drivers
-(gvt, vfio-ap and vfio-ccw) providing dma_unmap(). vfio-ccw is fine with
-such requests. While gvt-g and vfio-ap may have potential problem with such
-requests due to internal implementation. This series tries to enhance the two
-drivers.
+From: Matthew Rosato <mjrosato@linux.ibm.com>
 
-This series is based on Jason's below branch.
+Currently, each mapped iova is stashed in its associated vfio_ap_queue;
+when we get an unmap request, validate that it matches with one or more
+of these stashed values before attempting unpins.
 
-https://github.com/jgunthorpe/linux/tree/iommufd
-
-(commit: 2079f24ce168f580a30e8eea94e660461d7d0d7a)
-
-Change:
-v3:
- - Add explicit check on vgpu->nr_cache_entries, explicitly reset gvt cache (Zhenyu)
- - Add Tony Krowiak's r-b for patch 0002
-
-v2: https://lore.kernel.org/kvm/20221129105831.466954-1-yi.l.liu@intel.com/
- - Refine the cover letter and commit message of patch 0001 (Kevin)
- - Rename patch 0001 to better fit the commit message
- - Add r-b from Zhi for patch 0001
- - Tweak iova range test to assume page-aligned for patch 0002 (Jason)
- - Remove break so all queues within range are removed for patch 0002 (Kevin)
-
-v1: https://lore.kernel.org/kvm/20221123134832.429589-1-yi.l.liu@intel.com/
+Each stashed iova represents IRQ that was enabled for a queue.  Therefore,
+if a match is found, trigger IRQ disable for this queue to ensure that
+underlying firmware will no longer try to use the associated pfn after
+the page is unpinned. IRQ disable will also handle the associated unpin.
 
 Cc: Tony Krowiak <akrowiak@linux.ibm.com>
 Cc: Halil Pasic <pasic@linux.ibm.com>
 Cc: Jason Herne <jjherne@linux.ibm.com>
 Cc: linux-s390@vger.kernel.org
-Cc: Zhenyu Wang <zhenyuw@linux.intel.com>
-Cc: Zhi Wang <zhi.a.wang@intel.com>
-Cc: Kevin Tian <kevin.tian@intel.com>
-Cc: intel-gvt-dev@lists.freedesktop.org
-
-Regards,
-	Yi Liu
-
-Matthew Rosato (1):
-  iommufd PATCH v2 2/2] vfio/ap: validate iova during dma_unmap and
-    trigger irq disable
-
-Yi Liu (1):
-  i915/gvt: Move gvt mapping cache initialization to
-    intel_vgpu_init_dev()
-
- drivers/gpu/drm/i915/gvt/kvmgt.c  | 18 ++++++++++++++----
+Reviewed-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+Signed-off-by: Yi Liu <yi.l.liu@intel.com>
+---
  drivers/s390/crypto/vfio_ap_ops.c | 18 +++++++++++++++++-
- 2 files changed, 31 insertions(+), 5 deletions(-)
+ 1 file changed, 17 insertions(+), 1 deletion(-)
 
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index 0b4cc8c597ae..8bf353d46820 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -1535,13 +1535,29 @@ static int vfio_ap_mdev_set_kvm(struct ap_matrix_mdev *matrix_mdev,
+ 	return 0;
+ }
+ 
++static void unmap_iova(struct ap_matrix_mdev *matrix_mdev, u64 iova, u64 length)
++{
++	struct ap_queue_table *qtable = &matrix_mdev->qtable;
++	struct vfio_ap_queue *q;
++	int loop_cursor;
++
++	hash_for_each(qtable->queues, loop_cursor, q, mdev_qnode) {
++		if (q->saved_iova >= iova && q->saved_iova < iova + length)
++			vfio_ap_irq_disable(q);
++	}
++}
++
+ static void vfio_ap_mdev_dma_unmap(struct vfio_device *vdev, u64 iova,
+ 				   u64 length)
+ {
+ 	struct ap_matrix_mdev *matrix_mdev =
+ 		container_of(vdev, struct ap_matrix_mdev, vdev);
+ 
+-	vfio_unpin_pages(&matrix_mdev->vdev, iova, 1);
++	mutex_lock(&matrix_dev->mdevs_lock);
++
++	unmap_iova(matrix_mdev, iova, length);
++
++	mutex_unlock(&matrix_dev->mdevs_lock);
+ }
+ 
+ /**
 -- 
 2.34.1
 
