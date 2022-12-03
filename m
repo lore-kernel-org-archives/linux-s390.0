@@ -2,56 +2,56 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B5738C47089
-	for <linux-s390@archiver.kernel.org>; Sat,  3 Dec 2022 03:05:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F487C47088
+	for <linux-s390@archiver.kernel.org>; Sat,  3 Dec 2022 03:05:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231549AbiLCDFt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 2 Dec 2022 22:05:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56898 "EHLO
+        id S235088AbiLCDFu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 2 Dec 2022 22:05:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231669AbiLCDFq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Dec 2022 22:05:46 -0500
-Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BF52F4EA3
-        for <linux-s390@vger.kernel.org>; Fri,  2 Dec 2022 19:05:45 -0800 (PST)
-Received: by mail-pj1-x1030.google.com with SMTP id w15-20020a17090a380f00b0021873113cb4so6760155pjb.0
-        for <linux-s390@vger.kernel.org>; Fri, 02 Dec 2022 19:05:45 -0800 (PST)
+        with ESMTP id S232004AbiLCDFr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Dec 2022 22:05:47 -0500
+Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A49D0F818E
+        for <linux-s390@vger.kernel.org>; Fri,  2 Dec 2022 19:05:46 -0800 (PST)
+Received: by mail-pl1-x633.google.com with SMTP id y4so6295180plb.2
+        for <linux-s390@vger.kernel.org>; Fri, 02 Dec 2022 19:05:46 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=rivosinc-com.20210112.gappssmtp.com; s=20210112;
         h=to:from:cc:content-transfer-encoding:mime-version:references
          :in-reply-to:message-id:date:subject:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=OhR/DvZbp+3vR9eB4A5wFYKGQTjA+LqOJxd/xHKwNw4=;
-        b=KpJKmzUqKuY7RNz1zoEByIJW90y1Livh3n8yRVCtF7Wr2SNUWd5EFqo0EjjNi6loJv
-         TlFuL2eEbd8DZ8FBCGv2ReWj958YzPC2Tt8AZagpgWofFTbPz3N9Aoss5wquaRZv35pt
-         zf534yNV0g0gfKF8Bxz3qsNDzOBS2wJGcO2gP6yGN2p/yU3fATEm0f/qdKSMHwBwAsqk
-         jnSfc+OaPsVevmGerR1dP9afYP2sPSSOlwlnAwWpFHuq0XqOLftSexffps5iSRlfBRFT
-         fJHeyOjJR8qw7F5Bxhqn6UBDRAZfg680T48PHv4bOtksy7UlERFx7XNKzkB4IIToom71
-         zAjg==
+        bh=nXyyhDtl8c7AV1KDvPOaTLsEEraDYLnRgQTRKevMxLE=;
+        b=J9nA5zFzEgIt8zsxxMPn+sGlIH86WVlgcK5M4y+MnARF9MADgB6h9QisIFpQgAX5Xc
+         gT+JZZbSYIwNPr5lPusi+V73ZxiVkLhM81QZ6t8o4/bUs0p7dwivbSNGIto+U0W3vJje
+         odd1RyOpgxE8uPgVe+OvIiemZQ8s/XdQJhhr+yDr90iN2d2hOZAsbJWqu8yYBosqrxer
+         9lITxlUrsZAUjRZJKcN0IbJ2m0ZjxM8c9gapj57wHECA6g4hNRl0vKRmp3L5kzuNEkTN
+         fw8pU5isxRHsgpJlmPJcoUscGfiLE65hETmvjd9z7oAjQb+boL6+grwCz+iNw1swFZvZ
+         utXw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=to:from:cc:content-transfer-encoding:mime-version:references
          :in-reply-to:message-id:date:subject:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=OhR/DvZbp+3vR9eB4A5wFYKGQTjA+LqOJxd/xHKwNw4=;
-        b=lmynZNynrT6H2gj1LoR7soGxcfOJDoRh1VUemYcjIo28STMF8IErIbpzlFP7X8DG4l
-         be0oJ/r4RkPlLQsjdcLZpxTUmYiqUlIkC4NLGUFNmN11lm1Vt+2UOon/uPuwc13USzn3
-         5+CloBln67wSuNwVhlWKaomGJsV2DT4KSYSMbKMJt5NIP7LD+fmeFCNux9WRdVxMFWSa
-         3hEipZMXrl4FlgIDE7sGD+BW5QGWiSO9AwMN/aURMh/CSgbPJtGMZHgluyVHFX9QrnE2
-         eA6pMp3ABpSqejAbwXnxFlPdZfOnvgIpiKcfQka1W6N8HyYEq2LISUcD+QKcjo5wk+ai
-         LaLw==
-X-Gm-Message-State: ANoB5pnLnr2swFdgiebEMeKrRG9HVIAql5FYknjMcsRnRH5J+KZZCOnk
-        8Kq8xzQzGwfvHmW1N6gFqlMHEg==
-X-Google-Smtp-Source: AA0mqf7bOAyepA04ituLKXHZJH3uQ4cqneDkfqNEF7GDlldsPNuzsJMKn7BDVi7Zx/YGZ+BpcYq8AA==
-X-Received: by 2002:a17:902:bf06:b0:188:d3b1:dbfc with SMTP id bi6-20020a170902bf0600b00188d3b1dbfcmr57933988plb.127.1670036744950;
-        Fri, 02 Dec 2022 19:05:44 -0800 (PST)
+        bh=nXyyhDtl8c7AV1KDvPOaTLsEEraDYLnRgQTRKevMxLE=;
+        b=Q8YMW4d/8dtg086UbCAsN/sz0m+HWWbHnZ+hf0HBSj+65s27HXNVXxHjrzqDcVUNh4
+         AQl5fQh4YjWz5GijUXo74wNfeXNdXjWnq3kIUm8KLjDSax6Y4KFSW+ABS362R3qZ++hA
+         ca9wdyqXNuOumUohHSUFD1qxLMuucLfJbuaIeclwXfi10gsG6YL0+YGnrhtIxKl3FyS1
+         0//mo4q5AhYx2KBrlfYbQC7oTQ4V+OluYmQTrjqRe5d8Pk50Yg8EPyJVzx7pra70SkeV
+         CXvquhOLZlSoWqc1TwfNeMjMvF4+nc8ZN1qETsfmdGazvxRUbAGNoSZ8gVJS5B1SMjKI
+         aF3A==
+X-Gm-Message-State: ANoB5pmAaqhOkPZ9J4u4VU3NFRJohHUzR5bYqivizqaPoqTpTkCWHe5d
+        OQWEZD6ObOzuqQmCNaSVYgf2Ow==
+X-Google-Smtp-Source: AA0mqf7g0g8qmEYMQvaaJVG+LEYazPjzCbvT60LuJ6AU8Q984Tt5DyiX5U2wTDFpAbMwx/ydl7UUTA==
+X-Received: by 2002:a17:902:ce8e:b0:174:b537:266d with SMTP id f14-20020a170902ce8e00b00174b537266dmr54845874plg.144.1670036746128;
+        Fri, 02 Dec 2022 19:05:46 -0800 (PST)
 Received: from localhost ([50.221.140.188])
-        by smtp.gmail.com with ESMTPSA id c11-20020a170903234b00b00186c3afb49esm6182561plh.209.2022.12.02.19.05.44
+        by smtp.gmail.com with ESMTPSA id b12-20020a1709027e0c00b001886ff822ffsm6147005plm.186.2022.12.02.19.05.45
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 02 Dec 2022 19:05:44 -0800 (PST)
-Subject: [PATCH 3/5] arm: fault: Convert to VM_FAULT_ARCH_* codes
-Date:   Fri,  2 Dec 2022 19:03:54 -0800
-Message-Id: <20221203030356.3917-4-palmer@rivosinc.com>
+        Fri, 02 Dec 2022 19:05:45 -0800 (PST)
+Subject: [PATCH 4/5] s390: fault: Convert to VM_FAULT_ARCH_* codes
+Date:   Fri,  2 Dec 2022 19:03:55 -0800
+Message-Id: <20221203030356.3917-5-palmer@rivosinc.com>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221203030356.3917-1-palmer@rivosinc.com>
 References: <20221203030356.3917-1-palmer@rivosinc.com>
@@ -70,24 +70,30 @@ arch-specific values.
 
 Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 ---
- arch/arm/mm/fault.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/s390/mm/fault.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/mm/fault.c b/arch/arm/mm/fault.c
-index 46cccd6bf705..7063b875b05f 100644
---- a/arch/arm/mm/fault.c
-+++ b/arch/arm/mm/fault.c
-@@ -201,8 +201,8 @@ void do_bad_area(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
- }
+diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
+index 9649d9382e0a..464a74e52465 100644
+--- a/arch/s390/mm/fault.c
++++ b/arch/s390/mm/fault.c
+@@ -46,11 +46,11 @@
+ #define __SUBCODE_MASK 0x0600
+ #define __PF_RES_FIELD 0x8000000000000000ULL
  
- #ifdef CONFIG_MMU
--#define VM_FAULT_BADMAP		((__force vm_fault_t)0x010000)
--#define VM_FAULT_BADACCESS	((__force vm_fault_t)0x020000)
-+#define VM_FAULT_BADMAP		VM_FAULT_ARCH_0
-+#define VM_FAULT_BADACCESS	VM_FAULT_ARCH_1
+-#define VM_FAULT_BADCONTEXT	((__force vm_fault_t) 0x010000)
+-#define VM_FAULT_BADMAP		((__force vm_fault_t) 0x020000)
+-#define VM_FAULT_BADACCESS	((__force vm_fault_t) 0x040000)
+-#define VM_FAULT_SIGNAL		((__force vm_fault_t) 0x080000)
+-#define VM_FAULT_PFAULT		((__force vm_fault_t) 0x100000)
++#define VM_FAULT_BADCONTEXT	VM_FAULT_ARCH_0
++#define VM_FAULT_BADMAP		VM_FAULT_ARCH_1
++#define VM_FAULT_BADACCESS	VM_FAULT_ARCH_2
++#define VM_FAULT_SIGNAL		VM_FAULT_ARCH_3
++#define VM_FAULT_PFAULT		VM_FAULT_ARCH_4
  
- static inline bool is_permission_fault(unsigned int fsr)
- {
+ enum fault_type {
+ 	KERNEL_FAULT,
 -- 
 2.38.1
 
