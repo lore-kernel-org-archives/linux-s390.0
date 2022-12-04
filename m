@@ -2,92 +2,136 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D56CBC4708E
-	for <linux-s390@archiver.kernel.org>; Sat,  3 Dec 2022 03:05:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 16CFDC4708E
+	for <linux-s390@archiver.kernel.org>; Sun,  4 Dec 2022 04:51:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233561AbiLCDFx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 2 Dec 2022 22:05:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56966 "EHLO
+        id S229984AbiLDEu7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 3 Dec 2022 23:50:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232144AbiLCDFt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Dec 2022 22:05:49 -0500
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A16AFF7A1E
-        for <linux-s390@vger.kernel.org>; Fri,  2 Dec 2022 19:05:47 -0800 (PST)
-Received: by mail-pj1-x102a.google.com with SMTP id x13-20020a17090a46cd00b00218f611b6e9so6733865pjg.1
-        for <linux-s390@vger.kernel.org>; Fri, 02 Dec 2022 19:05:47 -0800 (PST)
+        with ESMTP id S229956AbiLDEuz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 3 Dec 2022 23:50:55 -0500
+Received: from mail-yb1-xb35.google.com (mail-yb1-xb35.google.com [IPv6:2607:f8b0:4864:20::b35])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1884A1AD81
+        for <linux-s390@vger.kernel.org>; Sat,  3 Dec 2022 20:50:53 -0800 (PST)
+Received: by mail-yb1-xb35.google.com with SMTP id b16so1826630yba.0
+        for <linux-s390@vger.kernel.org>; Sat, 03 Dec 2022 20:50:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rivosinc-com.20210112.gappssmtp.com; s=20210112;
-        h=to:from:cc:content-transfer-encoding:mime-version:references
-         :in-reply-to:message-id:date:subject:from:to:cc:subject:date
+        d=google.com; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=tSVgH09qEnpbMDCTLASqX2OMVKXLGyPI/rjfeHRIKu4=;
-        b=wrC9Di4g/FkQry/CsUbIzu4ShoQtDm632rHMb1y98183Vkm7GE+1KgGiQeiqPRu746
-         EpOqc9dOuSYQ+KgbsAL0f0eaO3YxXVARb1Qy/aZlLGx5xT8FJkymkARbubJV3UJhsZIH
-         X0s2m87BWl0Nk7Bcfhw39dO5P0B7WZR3xG8jCR7ylvOfUZJOlQHN0djD0b5b36wlrQxo
-         jgkGiA62CEcQWD//xV7j8pXqM1WcnxGbE2honL5gHULuNRyMkT1dxPj0xOx1vMDLAewW
-         AXdhismtJx65svzL/lahWs98kLQcqmbFwviKntKjqxOCAmGqWokX22ZxG9BANL1F6/V3
-         RqCQ==
+        bh=ll505mTuuhfLc1+XZSIHO0whLDL6v0gWWrPnec0ii4Y=;
+        b=k5mVMRjqX7Si5uG9z+Uscvrtps9Lm4l+J08vtkBLLMictjduN7yw83tsE++Hu+Y+Aj
+         tzGMjHp1B1DVBsHBeaAno3yi2BVO1izqPQNjfE9efhoNad2WkUqtmN+u5ck7CRIJRDjF
+         YM/dl+7BGD8/nxeEUA1XSJ81WAfcs6vkCLEGMF0P2bL6CTiqD6TUfX0qPUwprGQelNlI
+         Y8aZ2lCfq+dEaYid+X7MscI8qzgPVVQAZJUwygBrxro7blbU3pOBNekJtI9+G2UshZ3G
+         GHc7S9u550foOhzqlp8cvkhkpghQSTF1P8bew1u3cg2NPkmwUqUch+maLgoYjzwwvL3H
+         yPNA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=to:from:cc:content-transfer-encoding:mime-version:references
-         :in-reply-to:message-id:date:subject:x-gm-message-state:from:to:cc
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=tSVgH09qEnpbMDCTLASqX2OMVKXLGyPI/rjfeHRIKu4=;
-        b=qySs82pAEqgoL+/hEevUzAyW1EULNBQjTd5owmhHohh2Q7Sjo6WJQfetouKHGTagUv
-         0rgiyWtH90Jbe2JuM9PrwCw5SuweA09GNRjorbmbtCg1X+3REU+cb1oQTf/JP2yI7F0G
-         dDja00l0qkJZ98qknsIoK3WUN/2Eh2FIf6eFYtN8Ui5pW4dWK2TfTDVdyuJopJZFWhrt
-         lpQGbHwVQmnPdah8iB5K9AzQJDT2yVpRyQ9UM98LrC25LACyNj623zLquij9DYLeq4oH
-         BNJI0hF5BE66MvMu9BgJ3XDwHnAsRzEsZVJbVsO1Dv+DMIueKlisWFQ7YyaZCbYsvHUB
-         Mh/w==
-X-Gm-Message-State: ANoB5pnrcOAYCNv7UdZE01nPDvrlykt1ulezfzn5l0Th/+Chk1OPjhuM
-        1WwjrrKmGVmXJfY+whTqR8FALg==
-X-Google-Smtp-Source: AA0mqf4XSUxHT34o8cfUz81MqLg2uR3iZhKmjmdLNRSRwmN3btpX4jv5Kh1mNew10ARt+0Rl1idwLg==
-X-Received: by 2002:a17:90a:2b88:b0:219:a1e4:20e2 with SMTP id u8-20020a17090a2b8800b00219a1e420e2mr2146067pjd.182.1670036747139;
-        Fri, 02 Dec 2022 19:05:47 -0800 (PST)
-Received: from localhost ([50.221.140.188])
-        by smtp.gmail.com with ESMTPSA id z27-20020aa7949b000000b00575fbe1cf31sm4894634pfk.67.2022.12.02.19.05.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 02 Dec 2022 19:05:46 -0800 (PST)
-Subject: [PATCH 5/5] RISC-V: fault: Convert to VM_FAULT_ARCH_* codes
-Date:   Fri,  2 Dec 2022 19:03:56 -0800
-Message-Id: <20221203030356.3917-6-palmer@rivosinc.com>
-X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221203030356.3917-1-palmer@rivosinc.com>
-References: <20221203030356.3917-1-palmer@rivosinc.com>
+        bh=ll505mTuuhfLc1+XZSIHO0whLDL6v0gWWrPnec0ii4Y=;
+        b=dceJWxrH/h180aqlrf0q2e0O6gmfxWxewzNyq9CnK6fIgUkDLnLMaFGYw/IKJw6cwi
+         MTfBFyq8Vt5aed1H9GCSPMEd1xATzGPCPPyKuL69YdNb/KTOdbhQui9uqq/MMGwZbQ2s
+         U0X7tjEiE+HWXmN5A01VxdAJN0EG77CauVbMOnJ0aVqN1Yg3wE6wm4s3dZB9VnYAMlMg
+         /tgINcGSw1KeStVrT+hrKFCuGWaIApBWdAFcCP4QtOSlOCbKYb235T3rNUTM347wnKst
+         Uq/ok4U0pJS/gPHf1gudHPUt+QvmYWWZMmZuKuCzmGg94YIW3ZVy/ysFSHrVj0gC3iqa
+         EW2A==
+X-Gm-Message-State: ANoB5pkOWMR/VZ11L7/NrSLMkOSJJ/UP+1y72IQGML05RsQ9yLIQw3SE
+        Lq+wDJ5dA8LQ/l2fe8WI7cqm4TA70Og30N/dt7Q7RfeU8D2fOg==
+X-Google-Smtp-Source: AA0mqf52pBcclC9lDKWIBghKNsRoQBaHiaJZlm0JdUCM7v2WBwAs6EPMpN3sOutADe/7qyKy21QWPgWJqBBadM6ij9I=
+X-Received: by 2002:a25:ae08:0:b0:6fc:e336:3785 with SMTP id
+ a8-20020a25ae08000000b006fce3363785mr10299755ybj.166.1670129451952; Sat, 03
+ Dec 2022 20:50:51 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Cc:     Palmer Dabbelt <palmer@rivosinc.com>
-From:   Palmer Dabbelt <palmer@rivosinc.com>
-To:        linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org,
-           linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+References: <20220830193701.1702962-1-maskray@google.com> <20220910075316.no72fdyqjvunomwm@google.com>
+ <CAFP8O3+OwanSJdzd5V3oGJ_MOJOSVdbn+4iBJJKm2LCR8mCA0Q@mail.gmail.com>
+ <9ce45cd2-dcd8-11f8-e496-7efe3649e241@csgroup.eu> <20221115004625.x4wl6zbg4iiuxl5t@google.com>
+In-Reply-To: <20221115004625.x4wl6zbg4iiuxl5t@google.com>
+From:   Fangrui Song <maskray@google.com>
+Date:   Sat, 3 Dec 2022 20:50:40 -0800
+Message-ID: <CAFP8O3LdSJCChGEwT57e=iZopceYkBFuW9XD=yhO1ZszVZGm4g@mail.gmail.com>
+Subject: Re: [PATCH] vdso: Improve cmd_vdso_check to check all dynamic relocations
+To:     Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Andy Lutomirski <luto@kernel.org>
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
+        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
+        "loongarch@lists.linux.dev" <loongarch@lists.linux.dev>,
+        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-These conflict with VM_FAULT_HINDEX_MASK, so move to some designated
-arch-specific values.
+On Mon, Nov 14, 2022 at 4:46 PM Fangrui Song <maskray@google.com> wrote:
+>
+> On 2022-11-14, Christophe Leroy wrote:
+> >
+> >
+> >Le 28/09/2022 =C3=A0 07:25, Fangrui Song a =C3=A9crit :
+> >> On Sat, Sep 10, 2022 at 12:53 AM Fangrui Song <maskray@google.com> wro=
+te:
+> >>>
+> >>> On 2022-08-30, Fangrui Song wrote:
+> >>>> The actual intention is that no dynamic relocation exists. However, =
+some
+> >>>> GNU ld ports produce unneeded R_*_NONE. (If a port is not care enoug=
+h to
+> >>>> determine the exact .rel[a].dyn size, the trailing zeros become R_*_=
+NONE
+> >>>> relocations. E.g. powerpc64le ld as of 2.38 has the issue with
+> >>>> defconfig.) R_*_NONE are generally no-op in the dynamic loaders. So =
+just
+> >>>> ignore them.
+> >>>>
+> >>>> With the change, we can remove ARCH_REL_TYPE_ABS. ARCH_REL_TYPE_ABS =
+is a
+> >>>> bit misnomer as ports may check RELAVETIVE/GLOB_DAT/JUMP_SLOT which =
+are
+> >>>> not called "absolute relocations". (The patch is motivated by the ar=
+m64
+> >>>> port missing R_AARCH64_RELATIVE.)
+> >>>>
+> >>>> While here, replace "egrep" with "grep" as "egrep" is deprecated in =
+GNU
+> >>>> grep 3.7.
+> >>>>
+> >>>> Signed-off-by: Fangrui Song <maskray@google.com>
+> >>>> ---
+> >>>> [...]
+> >>>>
+> >>>
+> >>> Ping.
+> >>
+> >> Ping^2 :)
+> >
+> >Can you explain which ARCH_REL_TYPE_ABS can be removed with this change =
+?
+> >How is the verification done if ARCH_REL_TYPE_ABS is removed ?
+>
+> All ARCH_REL_TYPE_ABS relocation types can be removed. As explained, the
+> real intention is to check no dynamic relocation, and this is done by
+> the new
+>
+>    cmd_vdso_check =3D if $(READELF) -rW $@ | grep -v _NONE | grep -q "R_\=
+w*_"; \
+>
+> in this patch.
+>
+> grep -v _NONE is to work around some GNU ld ports (and likely older relea=
+ses
+> of some ports even if their latest versions are fixed) which produce
+> unneeded R_*_NONE dynamic relocations.
 
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
----
- arch/riscv/mm/fault.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/arch/riscv/mm/fault.c b/arch/riscv/mm/fault.c
-index 3fdc2eebdd36..bd990735aa90 100644
---- a/arch/riscv/mm/fault.c
-+++ b/arch/riscv/mm/fault.c
-@@ -202,8 +202,8 @@ static inline bool access_error(unsigned long cause, struct vm_area_struct *vma)
- 	return false;
- }
- 
--#define VM_FAULT_BADMAP		((__force vm_fault_t)0x010000)
--#define VM_FAULT_BADACCESS	((__force vm_fault_t)0x020000)
-+#define VM_FAULT_BADMAP		VM_FAULT_ARCH_0
-+#define VM_FAULT_BADACCESS	VM_FAULT_ARCH_1
- 
- static vm_fault_t __do_page_fault(struct mm_struct *mm, unsigned long addr,
- 				unsigned int mm_flags, struct pt_regs *regs)
--- 
-2.38.1
-
+Ping :)
