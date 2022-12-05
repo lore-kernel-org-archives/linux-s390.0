@@ -2,204 +2,240 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 229AEC4332F
-	for <linux-s390@archiver.kernel.org>; Mon,  5 Dec 2022 18:24:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 77830C47089
+	for <linux-s390@archiver.kernel.org>; Mon,  5 Dec 2022 20:52:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232169AbiLESY2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 5 Dec 2022 13:24:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38886 "EHLO
+        id S232724AbiLEUww (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 5 Dec 2022 15:52:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232018AbiLESY1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 5 Dec 2022 13:24:27 -0500
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id BAE9F1F2D0;
-        Mon,  5 Dec 2022 10:24:23 -0800 (PST)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 71ACED6E;
-        Mon,  5 Dec 2022 10:24:23 -0800 (PST)
-Received: from [10.57.71.118] (unknown [10.57.71.118])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 5B37F3F73B;
-        Mon,  5 Dec 2022 10:24:10 -0800 (PST)
-Message-ID: <fa9729b7-5d20-fb3d-4bf9-e073d18235b3@arm.com>
-Date:   Mon, 5 Dec 2022 18:24:04 +0000
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101
- Thunderbird/102.5.0
-Subject: Re: [PATCH v2 7/7] iommu/s390: flush queued IOVAs on RPCIT out of
- resource indication
-Content-Language: en-GB
-To:     Niklas Schnelle <schnelle@linux.ibm.com>,
+        with ESMTP id S232516AbiLEUwv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 5 Dec 2022 15:52:51 -0500
+Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82760B1FD;
+        Mon,  5 Dec 2022 12:52:49 -0800 (PST)
+Received: by mail-pf1-x430.google.com with SMTP id g1so4543092pfk.2;
+        Mon, 05 Dec 2022 12:52:49 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=N16dq1CjYHOw+jv6Di6rohy5xmWMqcOUPt5c96rryYM=;
+        b=YfFvmGBbFyecNX7HuYSwK+aGIglSOKNXdG/GyCa5qUzLMOe/bS3LGfF0q9vWX+ZfHt
+         3Z92dtbJE772PsZ/NJy5FRdBdPEPZm5rcU7jdu4sFmCGP/7IKFYS0/CsqrcgEPVmen5V
+         y6ej8cIOWvXwaBIve/M5ONQiyIWsJPUuFBVbweXevgwwGb/E9u9wEIP6iF6QJbkluoas
+         PAiChapsuF6enaxC+tqdFRIctA1WbhgM/AjJeBOJlUlozWnDnw8Sd2pTj6YzSHsPtsBl
+         J/2/tufxjQZdaKhz5ClxSt9r4yMQhCI1VtASfuD1Pfedea9GvzKUkPwh7azEivUucBcM
+         puDw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=N16dq1CjYHOw+jv6Di6rohy5xmWMqcOUPt5c96rryYM=;
+        b=AnCXOHGZg3yVONehfxPsFq78G4U5wkuLHE1fkuG890QT2bDBB889jV9ifdTJQQobn5
+         jLczRYoQcbqnigJy5QV2ODs7n3AlqxCkWre2i4LK9Uppu32NjRd9PXdqhpLJj2S1JA5i
+         x6mCoILwWBuSUuHOFw+oszkI2PToYoQZ1xNfjLkFOf692dhw7VsxQ6+UrF+P94ZV4qSs
+         9vty0B6edBRjFk+CNOl5/WmqBEO3I7J5IOfi8q5dwLWCqfvDutJGfWkaqeckajrmN1R1
+         aPykmfoolFcJvXtJxKsGM5gjvmOpwFZOibbs6hlROGuC37oorL10j8aW0LrFq+UB/hZ4
+         nvEA==
+X-Gm-Message-State: ANoB5pk1U104SMWUZlf30dOcuMJknrTvnJMJv2DgjXbX/rW34krpKe/A
+        JSw4E7JyVzY70Jmr2yCsuCY=
+X-Google-Smtp-Source: AA0mqf4HpL3/0El3PrCiEsjkXuyAuKLQ7k5vbcFuFyn7/o3SL661WsLVyVHRUVAGEIBg3Ob2/Ax1ug==
+X-Received: by 2002:a05:6a00:4097:b0:576:cadf:16cc with SMTP id bw23-20020a056a00409700b00576cadf16ccmr9458181pfb.55.1670273568627;
+        Mon, 05 Dec 2022 12:52:48 -0800 (PST)
+Received: from localhost ([192.55.54.55])
+        by smtp.gmail.com with ESMTPSA id f3-20020a170902ce8300b001780e4e6b65sm11105896plg.114.2022.12.05.12.52.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 05 Dec 2022 12:52:47 -0800 (PST)
+Date:   Mon, 5 Dec 2022 12:52:46 -0800
+From:   Isaku Yamahata <isaku.yamahata@gmail.com>
+To:     Sean Christopherson <seanjc@google.com>
+Cc:     Paolo Bonzini <pbonzini@redhat.com>, Marc Zyngier <maz@kernel.org>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
+        Anup Patel <anup@brainfault.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
         Matthew Rosato <mjrosato@linux.ibm.com>,
-        Gerd Bayer <gbayer@linux.ibm.com>, iommu@lists.linux.dev,
-        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>
-Cc:     Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org,
-        borntraeger@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, linux-kernel@vger.kernel.org,
-        Julian Ruess <julianr@linux.ibm.com>
-References: <20221116171656.4128212-1-schnelle@linux.ibm.com>
- <20221116171656.4128212-8-schnelle@linux.ibm.com>
- <cf0fed35-2d9d-3d19-3538-1ddcbfd563b0@arm.com>
- <8ae4c9b196aec34df4644ffecb66cfa4ce953244.camel@linux.ibm.com>
- <6cd52999-7b01-a613-a9fb-f09a845a27b3@arm.com>
- <c6c4458bb49d1144a304e34c65a70dc2ebbb4082.camel@linux.ibm.com>
- <c06dc451129127b660d40886afe89c92471a913a.camel@linux.ibm.com>
-From:   Robin Murphy <robin.murphy@arm.com>
-In-Reply-To: <c06dc451129127b660d40886afe89c92471a913a.camel@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+        Eric Farman <farman@linux.ibm.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Paul Durrant <paul@xen.org>, James Morse <james.morse@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Oliver Upton <oliver.upton@linux.dev>,
+        Atish Patra <atishp@atishpatra.org>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev,
+        kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, kvm-riscv@lists.infradead.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Yuan Yao <yuan.yao@intel.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Isaku Yamahata <isaku.yamahata@intel.com>,
+        Philippe =?utf-8?Q?Mathieu-Daud=C3=A9?= <philmd@linaro.org>,
+        Fabiano Rosas <farosas@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Kai Huang <kai.huang@intel.com>, Chao Gao <chao.gao@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>, isaku.yamahata@gmail.com
+Subject: Re: [PATCH v2 31/50] KVM: x86: Do CPU compatibility checks in x86
+ code
+Message-ID: <20221205205246.GA3630770@ls.amr.corp.intel.com>
+References: <20221130230934.1014142-1-seanjc@google.com>
+ <20221130230934.1014142-32-seanjc@google.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20221130230934.1014142-32-seanjc@google.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2022-12-02 14:29, Niklas Schnelle wrote:
-> On Tue, 2022-11-29 at 15:40 +0100, Niklas Schnelle wrote:
->> On Tue, 2022-11-29 at 12:53 +0000, Robin Murphy wrote:
->>> On 2022-11-29 12:00, Niklas Schnelle wrote:
->>>> On Mon, 2022-11-28 at 14:52 +0000, Robin Murphy wrote:
->>>>> On 2022-11-16 17:16, Niklas Schnelle wrote:
->>>>>> When RPCIT indicates that the underlying hypervisor has run out of
->>>>>> resources it often means that its IOVA space is exhausted and IOVAs need
->>>>>> to be freed before new ones can be created. By triggering a flush of the
->>>>>> IOVA queue we can get the queued IOVAs freed and also get the new
->>>>>> mapping established during the global flush.
->>>>>
->>>>> Shouldn't iommu_dma_alloc_iova() already see that the IOVA space is
->>>>> exhausted and fail the DMA API call before even getting as far as
->>>>> iommu_map(), though? Or is there some less obvious limitation like a
->>>>> maximum total number of distinct IOVA regions regardless of size?
->>>>
->>>> Well, yes and no. Your thinking is of course correct if the advertised
->>>> available IOVA space can be fully utilized without exhausting
->>>> hypervisor resources we won't trigger this case. However sadly there
->>>> are complications. The most obvious being that in QEMU/KVM the
->>>> restriction of the IOVA space to what QEMU can actually have mapped at
->>>> once was just added recently[0] prior to that we would regularly go
->>>> through this "I'm out of resources free me some IOVAs" dance with our
->>>> existing DMA API implementation where this just triggers an early cycle
->>>> of freeing all unused IOVAs followed by a global flush. On z/VM I know
->>>> of no situations where this is triggered. That said this signalling is
->>>> architected so z/VM may have corner cases where it does this. On our
->>>> bare metal hypervisor (no paging) this return code is unused and IOTLB
->>>> flushes are simply hardware cache flushes as on bare metal platforms.
->>>>
->>>> [0]
->>>> https://lore.kernel.org/qemu-devel/20221028194758.204007-4-mjrosato@linux.ibm.com/
->>>
->>> That sheds a bit more light, thanks, although I'm still not confident I
->>> fully understand the whole setup. AFAICS that patch looks to me like
->>> it's putting a fixed limit on the size of the usable address space. That
->>> in turn implies that "free some IOVAs and try again" might be a red
->>> herring and never going to work; for your current implementation, what
->>> that presumably means in reality is "free some IOVAs, resetting the
->>> allocator to start allocating lower down in the address space where it
->>> will happen to be below that limit, and try again", but the iommu-dma
->>> allocator won't do that. If it doesn't know that some arbitrary range
->>> below the top of the driver-advertised aperture is unusable, it will
->>> just keep allocating IOVAs up there and mappings will always fail.
->>>
->>> If the driver can't accurately represent the usable IOVA space via the
->>> aperture and/or reserved regions, then this whole approach seems doomed.
->>> If on the other hand I've misunderstood and you can actually still use
->>> any address, just not all of them at the same time,
->>
->>
->> This is exactly it, the problem is a limit on the number of IOVAs that
->> are concurrently mapped. In QEMU pass-through the tightest limit is
->> usually the one set by the host kernel parameter
->> vfio_iommu_type1.dma_entry_limit which defaults to 65535 mappings. With
->> IOMMU_DOMAIN_DMA we stay under this limit without extra action but once
->> there is a flush queue (including the existing per-CPU one) where each
->> entry may keep many pages lazily unmapped this is easly hit with fio
->> bandwidth tests on an NVMe. For this case this patch works reliably
->> because of course the number of actually active mappings without the
->> lazily freed ones is similar to the number of active ones with
->> IOMMU_DOMAIN_DMA.
->>
->>>   then it might in
->>> fact be considerably easier to skip the flush queue mechanism entirely
->>> and implement this internally to the driver - basically make .iotlb_sync
->>> a no-op for non-strict DMA domains,
->>
->> I'm assuming you mean .iotlb_sync_map above.
+On Wed, Nov 30, 2022 at 11:09:15PM +0000,
+Sean Christopherson <seanjc@google.com> wrote:
 
-No, I did mean .iotlb_sync, however on reflection that was under the 
-assumption that it's OK for the hypervisor to see a new mapping for a 
-previously-used IOVA without having seen it explicitly unmapped in 
-between. Fair enough if that isn't the case, but if it is then your 
-pagetable can essentially act as the "flush queue" by itself.
-
->>>   put the corresponding RPCIT flush
->>> and retry in .sync_map, then allow that to propagate an error back to
->>> iommu_map() if the new mapping still hasn't taken.
->>>
->>> Thanks,
->>> Robin.
->>
->> Hmm, interesting. This would leave the IOVAs in the flush queue lazily
->> unmapped and thus still block their re-use but free their host
->> resources via a global RPCIT allowing the guest to use a different
->> porition of the IOVA space with those resources. It could work, though
->> I need to test it, but it feels a bit clunky.
->>
->> Maybe we can go cleaner while using this idea of not having to flush
->> the queue but just freeing their host side resources. If we allowed
->> .iotlb_sync_map to return an error that fails the mapping operation,
->> then we could do it all in there. In the normal case it just does the
->> RPCIT but if that returns that the hypervisor ran out of resources it
->> does another global RPCIT allowing the hypervisor to free IOVAs that
->> were lazily unmapped. If the latter succeeds all is good if not then
->> the mapping operation failed. Logically it makes sense too,
->> .iotlb_sync_map is the final step of syncing the mapping to the host
->> which can fail just like the mapping operation itself.
->>
->> Apart from the out of active IOVAs case this would also handle the
->> other useful error case when using .iotlb_sync_map for shadowing where
->> it fails because the host ran against a pinned pages limit or out of
->> actual memory. Not by fixing it but at least we would get a failed
->> mapping operation.
->>
->> The other callbacks .flush_iotlb_all and .iotlb_sync
->> could stay the same as they are only used for unmapped pages where we
->> can't reasonably run out of resources in the host neither active IOVAs
->> nor pinned pages.
->>
+> Move the CPU compatibility checks to pure x86 code, i.e. drop x86's use
+> of the common kvm_x86_check_cpu_compat() arch hook.  x86 is the only
+> architecture that "needs" to do per-CPU compatibility checks, moving
+> the logic to x86 will allow dropping the common code, and will also
+> give x86 more control over when/how the compatibility checks are
+> performed, e.g. TDX will need to enable hardware (do VMXON) in order to
+> perform compatibility checks.
 > 
-> Ok, I've done some testing with the above idea and this seems to work
-> great. I've verified that my version of QEMU (without Matt's IOVA
-> aperture resrtriction patch) creates the RPCIT out of resource
-> indications and then the global flush in .iotlb_sync_map is triggered
-> and allows QEMU to unpin pages and free IOVAs while the guest still has
-> them lazily unpapeg (sitting in the flush queue) and thus uses
-> different IOVAs.
+> Signed-off-by: Sean Christopherson <seanjc@google.com>
+> ---
+>  arch/x86/kvm/svm/svm.c |  2 +-
+>  arch/x86/kvm/vmx/vmx.c |  2 +-
+>  arch/x86/kvm/x86.c     | 49 ++++++++++++++++++++++++++++++++----------
+>  3 files changed, 40 insertions(+), 13 deletions(-)
 > 
-> @Robin @Joerg, if you are open to changing .iotlb_sync_map such that it
-> can return and error and then failing the mapping operation I think
-> this is a great approach. One advantage over the previous approach of
-> flushing the queue isthat this should work for the pure IOMMU API too.
+> diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
+> index 19e81a99c58f..d7ea1c1175c2 100644
+> --- a/arch/x86/kvm/svm/svm.c
+> +++ b/arch/x86/kvm/svm/svm.c
+> @@ -5103,7 +5103,7 @@ static int __init svm_init(void)
+>  	 * Common KVM initialization _must_ come last, after this, /dev/kvm is
+>  	 * exposed to userspace!
+>  	 */
+> -	r = kvm_init(&svm_init_ops, sizeof(struct vcpu_svm),
+> +	r = kvm_init(NULL, sizeof(struct vcpu_svm),
+>  		     __alignof__(struct vcpu_svm), THIS_MODULE);
+>  	if (r)
+>  		goto err_kvm_init;
+> diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+> index 654d81f781da..8deb1bd60c10 100644
+> --- a/arch/x86/kvm/vmx/vmx.c
+> +++ b/arch/x86/kvm/vmx/vmx.c
+> @@ -8592,7 +8592,7 @@ static int __init vmx_init(void)
+>  	 * Common KVM initialization _must_ come last, after this, /dev/kvm is
+>  	 * exposed to userspace!
+>  	 */
+> -	r = kvm_init(&vmx_init_ops, sizeof(struct vcpu_vmx),
+> +	r = kvm_init(NULL, sizeof(struct vcpu_vmx),
+>  		     __alignof__(struct vcpu_vmx), THIS_MODULE);
+>  	if (r)
+>  		goto err_kvm_init;
+> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+> index 66f16458aa97..3571bc968cf8 100644
+> --- a/arch/x86/kvm/x86.c
+> +++ b/arch/x86/kvm/x86.c
+> @@ -9277,10 +9277,36 @@ static inline void kvm_ops_update(struct kvm_x86_init_ops *ops)
+>  	kvm_pmu_ops_update(ops->pmu_ops);
+>  }
+>  
+> +struct kvm_cpu_compat_check {
+> +	struct kvm_x86_init_ops *ops;
+> +	int *ret;
 
-Whatever happens I think allowing .iotlb_sync_map to propagate an error 
-out through iommu_map() is an appropriate thing to do - it sounds like 
-s390 might technically need that for regular IOMMU API correctness in 
-some circumstances anyway. Besides, even in the cases where it 
-represents "simple" TLB maintenance, there are potentially ways that 
-could fail (like timing out if the IOMMU has gone completely wrong), so 
-it wouldn't seem entirely unreasonable if a driver might want to report 
-overall failure if it can't guarantee that the new mapping will actually 
-be usable.
+minor nitpick: just int ret. I don't see the necessity of the pointer.
+Anyway overall it looks good to me.
 
-Thanks,
-Robin.
+Reviewed-by: Isaku Yamahata <isaku.yamahata@intel.com>
 
-> If you don't want to change the signature of .iotlb_sync_map I think we
-> can do Robin's idea and have .iotlb_sync_map as a no-op and do the
-> RPCIT sync as part of the s390_iommu_map_pages(). This would hide what
-> really is our variant of .iotlb_sync_map in the mapping code though
-> which I don't super like. Besides that it would also cause more RPCITs
-> in __iommu_map_sg() as we could no longer use a single RPCIT for the
-> entire range.
+> +};
+> +
+> +static int kvm_x86_check_processor_compatibility(struct kvm_x86_init_ops *ops)
+> +{
+> +	struct cpuinfo_x86 *c = &cpu_data(smp_processor_id());
+> +
+> +	WARN_ON(!irqs_disabled());
+> +
+> +	if (__cr4_reserved_bits(cpu_has, c) !=
+> +	    __cr4_reserved_bits(cpu_has, &boot_cpu_data))
+> +		return -EIO;
+> +
+> +	return ops->check_processor_compatibility();
+> +}
+> +
+> +static void kvm_x86_check_cpu_compat(void *data)
+> +{
+> +	struct kvm_cpu_compat_check *c = data;
+> +
+> +	*c->ret = kvm_x86_check_processor_compatibility(c->ops);
+> +}
+> +
+>  static int __kvm_x86_vendor_init(struct kvm_x86_init_ops *ops)
+>  {
+> +	struct kvm_cpu_compat_check c;
+>  	u64 host_pat;
+> -	int r;
+> +	int r, cpu;
+>  
+>  	if (kvm_x86_ops.hardware_enable) {
+>  		pr_err("kvm: already loaded vendor module '%s'\n", kvm_x86_ops.name);
+> @@ -9360,6 +9386,14 @@ static int __kvm_x86_vendor_init(struct kvm_x86_init_ops *ops)
+>  	if (r != 0)
+>  		goto out_mmu_exit;
+>  
+> +	c.ret = &r;
+> +	c.ops = ops;
+> +	for_each_online_cpu(cpu) {
+> +		smp_call_function_single(cpu, kvm_x86_check_cpu_compat, &c, 1);
+> +		if (r < 0)
+
+Here it can be "c.ret < 0".
+
+> +			goto out_hardware_unsetup;
+> +	}
+> +
+>  	/*
+>  	 * Point of no return!  DO NOT add error paths below this point unless
+>  	 * absolutely necessary, as most operations from this point forward
+> @@ -9402,6 +9436,8 @@ static int __kvm_x86_vendor_init(struct kvm_x86_init_ops *ops)
+>  	kvm_init_msr_list();
+>  	return 0;
+>  
+> +out_hardware_unsetup:
+> +	ops->runtime_ops->hardware_unsetup();
+>  out_mmu_exit:
+>  	kvm_mmu_vendor_module_exit();
+>  out_free_percpu:
+> @@ -12037,16 +12073,7 @@ void kvm_arch_hardware_disable(void)
+>  
+>  int kvm_arch_check_processor_compat(void *opaque)
+>  {
+> -	struct cpuinfo_x86 *c = &cpu_data(smp_processor_id());
+> -	struct kvm_x86_init_ops *ops = opaque;
+> -
+> -	WARN_ON(!irqs_disabled());
+> -
+> -	if (__cr4_reserved_bits(cpu_has, c) !=
+> -	    __cr4_reserved_bits(cpu_has, &boot_cpu_data))
+> -		return -EIO;
+> -
+> -	return ops->check_processor_compatibility();
+> +	return 0;
+>  }
+>  
+>  bool kvm_vcpu_is_reset_bsp(struct kvm_vcpu *vcpu)
+> -- 
+> 2.38.1.584.g0f3c55d4c2-goog
 > 
-> Thanks,
-> Niklas
+
+-- 
+Isaku Yamahata <isaku.yamahata@gmail.com>
