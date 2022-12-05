@@ -2,158 +2,86 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5171DC4332F
-	for <linux-s390@archiver.kernel.org>; Mon,  5 Dec 2022 02:08:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 044E7C4321E
+	for <linux-s390@archiver.kernel.org>; Mon,  5 Dec 2022 03:53:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230470AbiLECIq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 4 Dec 2022 21:08:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54200 "EHLO
+        id S231411AbiLEDxH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 4 Dec 2022 22:53:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230307AbiLECIp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 4 Dec 2022 21:08:45 -0500
-Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8FD71263E;
-        Sun,  4 Dec 2022 18:08:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1670206124; x=1701742124;
-  h=date:from:to:cc:subject:message-id:reply-to:references:
-   mime-version:in-reply-to;
-  bh=Uwb0j0vOSLTTI1yh+/S8G5w86vEZ102AbpppaI2wcK8=;
-  b=Q5pMd1DyjTQg+tjoqnIluCjVH/XQDK4IfVdxI2+6CIZi6vhL+onXFV5S
-   aPfC3159xUTGNwP+m/eoItS5xv2rFjmG1e00tnQIztgFnRi9DF7e1xFyU
-   RVnF7XsX8mw/JkCzlYxlBdx3BUep1V/H9Cfx43/OEodzdVJAU+Y/bu3/+
-   +brtgexhcpPIdT2lgZHimTGUIS/StwvbABGofBRZqc1D5cZQcwXajFLVZ
-   n3YDABmUKkJsCIPFzd0nlbHn6r3LRIToWg8iKCFDE4UD6RebXFIk4dmLV
-   f72UYGqNrxEBhipOqmAZ+bOGyZQAZIYf2Sbi2oGR0DteVvbCtgNwudnh6
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10551"; a="343232989"
-X-IronPort-AV: E=Sophos;i="5.96,218,1665471600"; 
-   d="asc'?scan'208";a="343232989"
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Dec 2022 18:08:36 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10551"; a="596028083"
-X-IronPort-AV: E=Sophos;i="5.96,218,1665471600"; 
-   d="asc'?scan'208";a="596028083"
-Received: from zhen-hp.sh.intel.com (HELO zhen-hp) ([10.239.159.108])
-  by orsmga003.jf.intel.com with ESMTP; 04 Dec 2022 18:08:32 -0800
-Date:   Mon, 5 Dec 2022 10:07:08 +0800
-From:   Zhenyu Wang <zhenyuw@linux.intel.com>
-To:     Yi Liu <yi.l.liu@intel.com>
-Cc:     jgg@nvidia.com, alex.williamson@redhat.com, kevin.tian@intel.com,
-        kvm@vger.kernel.org, mjrosato@linux.ibm.com,
-        chao.p.peng@linux.intel.com, yi.y.sun@linux.intel.com,
-        intel-gvt-dev@lists.freedesktop.org, linux-s390@vger.kernel.org,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>
-Subject: Re: [[iommufd] PATCH v3 1/2] i915/gvt: Move gvt mapping cache
- initialization to intel_vgpu_init_dev()
-Message-ID: <20221205020708.GA30028@zhen-hp.sh.intel.com>
-Reply-To: Zhenyu Wang <zhenyuw@linux.intel.com>
-References: <20221202135402.756470-1-yi.l.liu@intel.com>
- <20221202135402.756470-2-yi.l.liu@intel.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="f6M9UaX53EEZorp0"
-Content-Disposition: inline
-In-Reply-To: <20221202135402.756470-2-yi.l.liu@intel.com>
+        with ESMTP id S231415AbiLEDxE (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 4 Dec 2022 22:53:04 -0500
+Received: from mxhk.zte.com.cn (mxhk.zte.com.cn [63.216.63.40])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA7149580;
+        Sun,  4 Dec 2022 19:53:03 -0800 (PST)
+Received: from mse-fl2.zte.com.cn (unknown [10.5.228.133])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mxhk.zte.com.cn (FangMail) with ESMTPS id 4NQV4s2BVyz8R03d;
+        Mon,  5 Dec 2022 11:53:01 +0800 (CST)
+Received: from xaxapp01.zte.com.cn ([10.88.40.50])
+        by mse-fl2.zte.com.cn with SMTP id 2B53qtAN034087;
+        Mon, 5 Dec 2022 11:52:55 +0800 (+08)
+        (envelope-from ye.xingchen@zte.com.cn)
+Received: from mapi (xaxapp01[null])
+        by mapi (Zmail) with MAPI id mid31;
+        Mon, 5 Dec 2022 11:52:56 +0800 (CST)
+Date:   Mon, 5 Dec 2022 11:52:56 +0800 (CST)
+X-Zmail-TransId: 2af9638d6b186bfdc340
+X-Mailer: Zmail v1.0
+Message-ID: <202212051152565871940@zte.com.cn>
+Mime-Version: 1.0
+From:   <ye.xingchen@zte.com.cn>
+To:     <wintera@linux.ibm.com>
+Cc:     <wenjia@linux.ibm.com>, <hca@linux.ibm.com>, <gor@linux.ibm.com>,
+        <agordeev@linux.ibm.com>, <borntraeger@linux.ibm.com>,
+        <svens@linux.ibm.com>, <linux-s390@vger.kernel.org>,
+        <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: =?UTF-8?B?W1BBVENIIG5ldC1uZXh0XSBzMzkwL3FldGg6IHVzZSBzeXNmc19lbWl0KCkgdG8gaW5zdGVhZCBvZiBzY25wcmludGYoKQ==?=
+Content-Type: text/plain;
+        charset="UTF-8"
+X-MAIL: mse-fl2.zte.com.cn 2B53qtAN034087
+X-Fangmail-Gw-Spam-Type: 0
+X-FangMail-Miltered: at cgslv5.04-192.168.250.137.novalocal with ID 638D6B1D.000 by FangMail milter!
+X-FangMail-Envelope: 1670212381/4NQV4s2BVyz8R03d/638D6B1D.000/10.5.228.133/[10.5.228.133]/mse-fl2.zte.com.cn/<ye.xingchen@zte.com.cn>
+X-Fangmail-Anti-Spam-Filtered: true
+X-Fangmail-MID-QID: 638D6B1D.000/4NQV4s2BVyz8R03d
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+From: ye xingchen <ye.xingchen@zte.com.cn>
 
---f6M9UaX53EEZorp0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Follow the advice of the Documentation/filesystems/sysfs.rst and show()
+should only use sysfs_emit() or sysfs_emit_at() when formatting the
+value to be returned to user space.
 
-On 2022.12.02 05:54:01 -0800, Yi Liu wrote:
-> vfio container registers .dma_unmap() callback after the device is opened.
-> So it's fine for mdev drivers to initialize internal mapping cache in
-> .open_device(). See vfio_device_container_register().
->=20
-> Now with iommufd an access ops with an unmap callback is registered
-> when the device is bound to iommufd which is before .open_device()
-> is called. This implies gvt's .dma_unmap() could be called before its
-> internal mapping cache is initialized.
->=20
-> The fix is moving gvt mapping cache initialization to vGPU init. While
-> at it also move ptable initialization together.
->=20
-> Cc: Zhenyu Wang <zhenyuw@linux.intel.com>
-> Cc: Zhi Wang <zhi.a.wang@intel.com>
-> Cc: Kevin Tian <kevin.tian@intel.com>
-> Cc: intel-gvt-dev@lists.freedesktop.org
-> Reviewed-by: Zhi Wang <zhi.a.wang@intel.com>
-> Signed-off-by: Yi Liu <yi.l.liu@intel.com>
-> ---
->  drivers/gpu/drm/i915/gvt/kvmgt.c | 18 ++++++++++++++----
->  1 file changed, 14 insertions(+), 4 deletions(-)
->=20
-> diff --git a/drivers/gpu/drm/i915/gvt/kvmgt.c b/drivers/gpu/drm/i915/gvt/=
-kvmgt.c
-> index 7a45e5360caf..aaf0d9e8da95 100644
-> --- a/drivers/gpu/drm/i915/gvt/kvmgt.c
-> +++ b/drivers/gpu/drm/i915/gvt/kvmgt.c
-> @@ -671,9 +671,6 @@ static int intel_vgpu_open_device(struct vfio_device =
-*vfio_dev)
-> =20
->  	vgpu->attached =3D true;
-> =20
-> -	kvmgt_protect_table_init(vgpu);
-> -	gvt_cache_init(vgpu);
-> -
->  	vgpu->track_node.track_write =3D kvmgt_page_track_write;
->  	vgpu->track_node.track_flush_slot =3D kvmgt_page_track_flush_slot;
->  	kvm_page_track_register_notifier(vgpu->vfio_device.kvm,
-> @@ -718,6 +715,11 @@ static void intel_vgpu_close_device(struct vfio_devi=
-ce *vfio_dev)
->  	kvmgt_protect_table_destroy(vgpu);
->  	gvt_cache_destroy(vgpu);
-> =20
-> +	WARN_ON(vgpu->nr_cache_entries);
-> +
-> +	vgpu->gfn_cache =3D RB_ROOT;
-> +	vgpu->dma_addr_cache =3D RB_ROOT;
-> +
->  	intel_vgpu_release_msi_eventfd_ctx(vgpu);
-> =20
->  	vgpu->attached =3D false;
-> @@ -1451,9 +1453,17 @@ static int intel_vgpu_init_dev(struct vfio_device =
-*vfio_dev)
->  	struct intel_vgpu *vgpu =3D vfio_dev_to_vgpu(vfio_dev);
->  	struct intel_vgpu_type *type =3D
->  		container_of(mdev->type, struct intel_vgpu_type, type);
-> +	int ret;
-> =20
->  	vgpu->gvt =3D kdev_to_i915(mdev->type->parent->dev)->gvt;
-> -	return intel_gvt_create_vgpu(vgpu, type->conf);
-> +	ret =3D intel_gvt_create_vgpu(vgpu, type->conf);
-> +	if (ret)
-> +		return ret;
-> +
-> +	kvmgt_protect_table_init(vgpu);
-> +	gvt_cache_init(vgpu);
-> +
-> +	return 0;
->  }
-> =20
->  static void intel_vgpu_release_dev(struct vfio_device *vfio_dev)
-> --=20
+Signed-off-by: ye xingchen <ye.xingchen@zte.com.cn>
+---
+ drivers/s390/net/qeth_l3_sys.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Reviewed-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+diff --git a/drivers/s390/net/qeth_l3_sys.c b/drivers/s390/net/qeth_l3_sys.c
+index 1082380b21f8..65eea667e469 100644
+--- a/drivers/s390/net/qeth_l3_sys.c
++++ b/drivers/s390/net/qeth_l3_sys.c
+@@ -395,7 +395,7 @@ static ssize_t qeth_l3_dev_ipato_add_show(char *buf, struct qeth_card *card,
+ 	}
+ 	mutex_unlock(&card->ip_lock);
 
-thanks!
+-	return str_len ? str_len : scnprintf(buf, PAGE_SIZE, "\n");
++	return str_len ? str_len : sysfs_emit(buf, "\n");
+ }
 
---f6M9UaX53EEZorp0
-Content-Type: application/pgp-signature; name="signature.asc"
+ static ssize_t qeth_l3_dev_ipato_add4_show(struct device *dev,
+@@ -614,7 +614,7 @@ static ssize_t qeth_l3_dev_ip_add_show(struct device *dev, char *buf,
+ 	}
+ 	mutex_unlock(&card->ip_lock);
 
------BEGIN PGP SIGNATURE-----
+-	return str_len ? str_len : scnprintf(buf, PAGE_SIZE, "\n");
++	return str_len ? str_len : sysfs_emit(buf, "\n");
+ }
 
-iF0EARECAB0WIQTXuabgHDW6LPt9CICxBBozTXgYJwUCY41SRgAKCRCxBBozTXgY
-Jz/rAKCf2XCkaQP0WhdwmGPDUwLtuGdwAgCfekY0SY9P43VoLP1yapxS6J6QSro=
-=Ndmv
------END PGP SIGNATURE-----
-
---f6M9UaX53EEZorp0--
+ static ssize_t qeth_l3_dev_vipa_add4_show(struct device *dev,
+-- 
+2.25.1
