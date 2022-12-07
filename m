@@ -2,47 +2,49 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C553EC352A1
-	for <linux-s390@archiver.kernel.org>; Wed,  7 Dec 2022 13:18:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F3A6C352A1
+	for <linux-s390@archiver.kernel.org>; Wed,  7 Dec 2022 13:23:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229709AbiLGNSw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 7 Dec 2022 08:18:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50810 "EHLO
+        id S229952AbiLGNXx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 7 Dec 2022 08:23:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229944AbiLGNSa (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 7 Dec 2022 08:18:30 -0500
-Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 679B1EE23;
-        Wed,  7 Dec 2022 05:18:26 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1670419106; x=1701955106;
-  h=message-id:date:mime-version:cc:to:references:from:
-   subject:in-reply-to:content-transfer-encoding;
-  bh=Lb5STIL8Ik7pLbD8CfdBIKK+PIMIjQezB8pSNdxlqFg=;
-  b=c/qLsLi4yxabq/iixHwoAx/8Sa1DAxD1LMcpKgqHYnlK84Oe69SBADAX
-   SnqEsAR9cmO6/o3J+hY6KoVxG6a6EhqVf2s0sPjb+aTXyINiIBH3P12Uj
-   z+QKvxsLbsq11J4Mqc1Ypg0WqXAEgrIwQ7iBj4eXh6V38AGeD54pWRPGK
-   GvUynQNy9ww5bBkjJrdVUhtHrvze8F0CGhJ25vvq4pke+/F1VmKjsQb6P
-   odPnBVk3JjbhU9yYibFXPUEmhl3sdJrIeG+qJuki6exR1hO52/VjFAITZ
-   lVTn8mcR+0xqC8uu0pj1UMzgUy5dWnPaokwvJYCNtGzdNMx1LPl+wxtU3
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10553"; a="403158348"
-X-IronPort-AV: E=Sophos;i="5.96,225,1665471600"; 
-   d="scan'208";a="403158348"
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Dec 2022 05:18:25 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10553"; a="648731486"
-X-IronPort-AV: E=Sophos;i="5.96,225,1665471600"; 
-   d="scan'208";a="648731486"
-Received: from liming1-mobl1.ccr.corp.intel.com (HELO [10.254.215.192]) ([10.254.215.192])
-  by fmsmga007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Dec 2022 05:18:21 -0800
-Message-ID: <f9433a12-eacd-9e6b-a517-c3be438193d1@linux.intel.com>
-Date:   Wed, 7 Dec 2022 21:18:19 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.5.1
-Cc:     baolu.lu@linux.intel.com, Robin Murphy <robin.murphy@arm.com>,
+        with ESMTP id S229982AbiLGNXv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 7 Dec 2022 08:23:51 -0500
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2085.outbound.protection.outlook.com [40.107.223.85])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D59259177;
+        Wed,  7 Dec 2022 05:23:49 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=RQryyM8WXCJqimCqrjsP8kkuTWwqbxzDE6wxPXXfzCK9/YTMs3IC23XO6yZsq99Sk0Qjvg71KU10zAbWtahytTb2d+iC/M17HJkMZ5ewaqd7Bf74MPzpEQiumEJf9zretXHjCifQOxcRKojkFeknYgiPtjtbFdlYNB7tnn75NNSenXPUom+3gDOgMeLaqTIr0I/lYa63VDnAoGjJEMslRUV+Qpb2NhQryvMTPyLXVm8p6Ck8gRKiQmvSpVFvNmbyPYjkme+uK7jDa7QdtCxG4BXBYtP8Ix9EATWzH3zp9YVzuroMrLg3hp4iqnV5+zLFWFH48IT0ClDxmGoANTx8mw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=TbSciM4inIhGX6Kp4lwBdn2OzijwnzcsLqUy3hK9ENI=;
+ b=N4uGkRNEU4+kUPxFsIYBbz9kLVMVnjWEfR01CfHvkycNTf/0YkO1u2l/f0bujSID2PkcIHO5zQGIEVGN4rXF6tt1ler7rbHTmQwPkLAvUU8tuFBSnKAVMQuL3cuMRWj6eS15WJthZ3Rja2lkPg6z3m+3ATDGd/4aijHat7LHhMg4Fi+OoJfRnJVrgN4j/oZpa7sJB3dAb4zpXMPy5C5utyQd2nVuvXN886970h2wdAcwrsF/D9eRIgiJCc3DXH2lJlst/glVYevQZGaSLJt1/rggSHeo53/JnpinqMTVszekhNObYmLM3VuP/O5lD3AMJhefkKaqGJvGMzVDA/uJVg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=TbSciM4inIhGX6Kp4lwBdn2OzijwnzcsLqUy3hK9ENI=;
+ b=Z/2wHl1N4R8ksfdECZqYlIXjT285w+TPdJlC7ave8x2g0TXmPTZobEwZQQpVIq5yeBAHVaIhHzGQhUsgjWuUsBPr1bEiU+iXmv+8H9RwQ3SZCuOwPnXL4POwNKgGyPUQy+dzT1Nam8xR4LUILBXbs5evWg1dXLIOY/WoFE7cgKU2eP7M/98uVH4/7agea40qujlLWoN+6eLubZFQ56HZWQ3+lhNCfwCD5OaVQAYK+mvsYnCrKxlc4xXJQVc4Xu+GnATJJGvqhv+P6CYQlIyvC3a4LyYNKzOQRehQU2givGA1YTVFHadJ/3uVr2VNhB4IZhazMfjCAUktZ2WGFs8R6g==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by SJ0PR12MB5636.namprd12.prod.outlook.com (2603:10b6:a03:42b::20) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5880.14; Wed, 7 Dec
+ 2022 13:23:45 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::f8b0:df13:5f8d:12a]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::f8b0:df13:5f8d:12a%7]) with mapi id 15.20.5880.014; Wed, 7 Dec 2022
+ 13:23:45 +0000
+Date:   Wed, 7 Dec 2022 09:23:44 -0400
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Baolu Lu <baolu.lu@linux.intel.com>
+Cc:     Niklas Schnelle <schnelle@linux.ibm.com>,
+        Robin Murphy <robin.murphy@arm.com>,
         Matthew Rosato <mjrosato@linux.ibm.com>,
         Gerd Bayer <gbayer@linux.ibm.com>, iommu@lists.linux.dev,
         Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
@@ -53,138 +55,97 @@ Cc:     baolu.lu@linux.intel.com, Robin Murphy <robin.murphy@arm.com>,
         gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
         svens@linux.ibm.com, linux-kernel@vger.kernel.org,
         Julian Ruess <julianr@linux.ibm.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>
-References: <33eea9bd-e101-4836-19e8-d4b191b78b00@linux.intel.com>
- <9163440eb6a47fe02730638bbdf72fda5ee5ad2c.camel@linux.ibm.com>
- <Y4S3z6IpeDHmdUs/@nvidia.com>
+Subject: Re: [PATCH v2 4/7] iommu: Let iommu.strict override
+ ops->def_domain_type
+Message-ID: <Y5CT4BBO9hsmjJfD@nvidia.com>
+References: <Y4S3z6IpeDHmdUs/@nvidia.com>
  <52fe7769ca5b66523c2c93c7d46ebc17dc144aca.camel@linux.ibm.com>
- <Y4TjWOXYD+DK+d/B@nvidia.com> <6c4c3a3e-1d8d-7994-3c03-388ef63dddb3@arm.com>
- <Y4ZCVgLO9AHatwXe@nvidia.com> <eb30ad63-92d4-2af4-22e7-d82cdf08565e@arm.com>
+ <Y4TjWOXYD+DK+d/B@nvidia.com>
+ <6c4c3a3e-1d8d-7994-3c03-388ef63dddb3@arm.com>
+ <Y4ZCVgLO9AHatwXe@nvidia.com>
+ <eb30ad63-92d4-2af4-22e7-d82cdf08565e@arm.com>
  <Y4Zm53o1ovdIAqr/@nvidia.com>
  <4b34be4433856d9a3a5bf13dad7a77c1ba93db13.camel@linux.ibm.com>
  <Y4/LsZKmR3iWFphU@nvidia.com>
-Content-Language: en-US
-From:   Baolu Lu <baolu.lu@linux.intel.com>
-Subject: Re: [PATCH v2 4/7] iommu: Let iommu.strict override
- ops->def_domain_type
-In-Reply-To: <Y4/LsZKmR3iWFphU@nvidia.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+ <f9433a12-eacd-9e6b-a517-c3be438193d1@linux.intel.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <f9433a12-eacd-9e6b-a517-c3be438193d1@linux.intel.com>
+X-ClientProxiedBy: BL1PR13CA0314.namprd13.prod.outlook.com
+ (2603:10b6:208:2c1::19) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|SJ0PR12MB5636:EE_
+X-MS-Office365-Filtering-Correlation-Id: 910c307c-1454-4812-d86a-08dad856445f
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: cRnZSWeqRyJF8SFZni6hJT7fol6oV2wwiMSSmzG9lITbGBYG7pH5L5f9LTMSgWqmjLc4X8gtlCNeqZYgF4NPRCb/nAkWooiG0/RRfEyHS+PIOql8orYiO4O5qANatxkvrInCBbM0fgwnIqOlPL4SIyLj9JSwpq8qHttFhoUrMngAVcnLNqyD9Yn2TK1Zol2OTCimDffFHr5lBzzU3TNwu5cPW510kbvcd/p5KIPSe4wFXWBxJrZXX1wYzcruzwR6q4P5Hv2TbeFSfdTsEUx1q4ozB7JyVMJpiXDgtq0BPTp9us5VeQGikTmViCN/IxeHFaLfXW+tMVE59O6oA0UTRw8B10MvYYUI84sm/ScgwEsJH0LW7i30TqdbQvmIj2+7Z4Z4fq4iZnCB2zU+8hu9ACjSfP6KoZ3y37JovAZH9Mm7CXeElaOj/IWTq0Y2w18gLmlTDW2zWpZghDP5IaCypik6wbfdYEn9PxshzMfko3xin60k6FqN9I5ENm1Nr5uZak5++MrYIRepn4066I5mMueRIZSNmnEgzwOE889FFFu/2wx09KE7WVtTuXsUCNWxmD+E0ainkJuS4VlJymuJq3pOPujREDvNJJF/VkaTxUOSTsD9f0soOT0uprpJWoAF
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(396003)(136003)(39860400002)(366004)(346002)(376002)(451199015)(7416002)(5660300002)(66899015)(4744005)(8936002)(316002)(2906002)(38100700002)(54906003)(83380400001)(6916009)(478600001)(6486002)(66556008)(86362001)(66946007)(66476007)(36756003)(6512007)(8676002)(4326008)(26005)(186003)(41300700001)(2616005)(6506007);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?OqRFA3W6Q2bAeCpz07KZP0Rjmahn+CRJEGHqZCULh2k44tFYRWy1IzgW9piG?=
+ =?us-ascii?Q?lLbjX6cSgPFm+2H76fjrNSZ/jOkkhGAAZ01NUDS5e+FS7S3EJO0PkkRFssGd?=
+ =?us-ascii?Q?FBTKriAq5SNyRcj/lv7A51gpeMeenK6mGqz8ipqFIOR89UGHc07rlOq/mFL7?=
+ =?us-ascii?Q?lDi0WsEKhJ7AzN8V0DR0h3APLpOu89Fvy9p5gGxMKDMTi4v+DL1lcUYS4tL+?=
+ =?us-ascii?Q?Y+JdPWenMoWWv/pO98MvYIV2qTtBt/Bo82wWSRDjfAUziLI/QMM0LTEw5bH9?=
+ =?us-ascii?Q?KZ6PCscy8dIcXlqkb1Sm4jSMExzNdaM6odeV9XUrUOaWoRUeXcv1qJrQpGwa?=
+ =?us-ascii?Q?nqWAeC2vXKTHRenUjwaGKp8r41VWgz9InuueaOxbyMa4rYKJtpmv+qn2YQjy?=
+ =?us-ascii?Q?Xq7dQ988/fOzUEJqLrGYEEaO2f/Q2w9xQ6ZmLVsITuLilTiusKsaeoJKpbic?=
+ =?us-ascii?Q?tv2+UO0bAmPgLhTLRuQzu9YwVRX4x095Y1DjjeOFsYQs4QlzziHqAkHUdvh2?=
+ =?us-ascii?Q?hvamwfpR0RYyywRXSR1GjgiL7FIWVRCvQoPXoEk/Tq/b+DTpoYvLQnmxM9Im?=
+ =?us-ascii?Q?Kftxp/HpszR48LcikBNVGMrdG+C6HBdiCks+vCR+oZ5QfU186f9DjUtsXD5S?=
+ =?us-ascii?Q?oYA279tvUpowsCDaYnZVIoWuXjHIosfO7IyzdbBqR1tGZwEgvj1GEjAwdVwP?=
+ =?us-ascii?Q?gX1uWlBvxdZ4zFmBtK74sX9hrE5Z30nK+shox6ifTt+vzzT+0IPAx9wB1b1j?=
+ =?us-ascii?Q?dGE9mDGsu9nFAyjfqGkuyt/K1UTpLQ9+8F1nO95Fc8HJUfhy0B6R9ZRyF40v?=
+ =?us-ascii?Q?kI/FQc4JosgTjcihhxlHrOISHZOY1FrXWcqBSlFTUzvwy9b3VlUbYaV2E17U?=
+ =?us-ascii?Q?avRn6ZY6FtruSVg0bMyqBQcofXghAGqf8Ew13mpPkWVscggqntK+s7uj8k6M?=
+ =?us-ascii?Q?yz91UkK+OHx8H3gm6qFaCefMM3VaThK5mtUHOJoINCfF2nK9fRV8WnNvkEKO?=
+ =?us-ascii?Q?KwGjeFEPmbS7sFCEolsNvP1L10pY6RFlNzXIKpv3B6dvimsTZpPuBWL5Rd+E?=
+ =?us-ascii?Q?YbME/p7crUIPc7DefAiPFxXCJPGH/lkG9fOvc/LSg1DeL2mQoXpMD8bNIazP?=
+ =?us-ascii?Q?IQB/AGnpAvIbtBxSmVdOGFdh7KBVBKyUAO6Dlyp9SWIzlg2OmQAeyUBntpD3?=
+ =?us-ascii?Q?TwkLeW6LUrPnBljpQky6PJ7SrAZkNwrnoAtijwyxbX+0EaUe68GZIq3eT+Lc?=
+ =?us-ascii?Q?wfxiQFHNUvoteDLpawImTYa/lX79euY2nh8/9k7W08sieHLk3427mwVkFhan?=
+ =?us-ascii?Q?XtxmhevJ1kGrl68Kxl3KfkQr7YKeyMMryo/fs1YMjqqwG8GYAdyC/YRoi7Zv?=
+ =?us-ascii?Q?EqelSpBdqAOf/gzHoAZ2RiYU4m6+VhCQdApVJEzmxSKnMli9pPxiLMWvDgqh?=
+ =?us-ascii?Q?ktHWuzFVV0ityj21+bZdfxgKoDyOlIP1OSw1tcQerrSAHdtu5oY7W4CA8jhQ?=
+ =?us-ascii?Q?GYpQr3tGrclw8tod1xDDXAkx/rtcB1Ld9i6wzpENx3MW20Cden0UgqDpovXO?=
+ =?us-ascii?Q?/+pL0uU0TYpbb4O034U=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 910c307c-1454-4812-d86a-08dad856445f
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Dec 2022 13:23:45.3996
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: ZM3ZpEQYQ17/JAyNdNB0mnD3dwhoy3NKI4zVWI/TkjKxpYBbFsXICbwiwhonOqQ7
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR12MB5636
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2022/12/7 7:09, Jason Gunthorpe wrote:
->   static ssize_t iommu_group_store_type(struct iommu_group *group,
->   				      const char *buf, size_t count)
->   {
-> -	struct group_device *grp_dev;
-> -	struct device *dev;
-> -	int ret, req_type;
-> +	enum dma_api_policy policy;
-> +	int ret;
->   
->   	if (!capable(CAP_SYS_ADMIN) || !capable(CAP_SYS_RAWIO))
->   		return -EACCES;
-> @@ -2977,77 +2907,30 @@ static ssize_t iommu_group_store_type(struct iommu_group *group,
->   		return -EINVAL;
->   
->   	if (sysfs_streq(buf, "identity"))
-> -		req_type = IOMMU_DOMAIN_IDENTITY;
-> +		policy = DMA_API_POLICY_IDENTITY;
->   	else if (sysfs_streq(buf, "DMA"))
-> -		req_type = IOMMU_DOMAIN_DMA;
-> +		policy = DMA_API_POLICY_STRICT;
->   	else if (sysfs_streq(buf, "DMA-FQ"))
-> -		req_type = IOMMU_DOMAIN_DMA_FQ;
-> +		policy = DMA_API_POLICY_LAZY;
->   	else if (sysfs_streq(buf, "auto"))
-> -		req_type = 0;
-> +		policy = DMA_API_POLICY_ANY;
->   	else
->   		return -EINVAL;
->   
->   	/*
-> -	 * Lock/Unlock the group mutex here before device lock to
-> -	 * 1. Make sure that the iommu group has only one device (this is a
-> -	 *    prerequisite for step 2)
-> -	 * 2. Get struct *dev which is needed to lock device
-> -	 */
-> -	mutex_lock(&group->mutex);
-> -	if (iommu_group_device_count(group) != 1) {
-> -		mutex_unlock(&group->mutex);
-> -		pr_err_ratelimited("Cannot change default domain: Group has more than one device\n");
-> -		return -EINVAL;
-> -	}
-> -
-> -	/* Since group has only one device */
-> -	grp_dev = list_first_entry(&group->devices, struct group_device, list);
-> -	dev = grp_dev->dev;
-> -	get_device(dev);
-> -
-> -	/*
-> -	 * Don't hold the group mutex because taking group mutex first and then
-> -	 * the device lock could potentially cause a deadlock as below. Assume
-> -	 * two threads T1 and T2. T1 is trying to change default domain of an
-> -	 * iommu group and T2 is trying to hot unplug a device or release [1] VF
-> -	 * of a PCIe device which is in the same iommu group. T1 takes group
-> -	 * mutex and before it could take device lock assume T2 has taken device
-> -	 * lock and is yet to take group mutex. Now, both the threads will be
-> -	 * waiting for the other thread to release lock. Below, lock order was
-> -	 * suggested.
-> -	 * device_lock(dev);
-> -	 *	mutex_lock(&group->mutex);
-> -	 *		iommu_change_dev_def_domain();
-> -	 *	mutex_unlock(&group->mutex);
-> -	 * device_unlock(dev);
-> -	 *
-> -	 * [1] Typical device release path
-> -	 * device_lock() from device/driver core code
-> -	 *  -> bus_notifier()
-> -	 *   -> iommu_bus_notifier()
-> -	 *    -> iommu_release_device()
-> -	 *     -> ops->release_device() vendor driver calls back iommu core code
-> -	 *      -> mutex_lock() from iommu core code
-> +	 * Taking ownership disables the DMA API domain, prevents drivers from
-> +	 * being attached, and switches to a blocking domain. Releasing
-> +	 * ownership will put back the new or original DMA API domain.
->   	 */
-> -	mutex_unlock(&group->mutex);
-> -
-> -	/* Check if the device in the group still has a driver bound to it */
-> -	device_lock(dev);
+On Wed, Dec 07, 2022 at 09:18:19PM +0800, Baolu Lu wrote:
 
-With device_lock() removed, this probably races with the
-iommu_release_device() path? group->mutex seems insufficient to avoid
-the race. Perhaps I missed anything.
+> > -	/* Check if the device in the group still has a driver bound to it */
+> > -	device_lock(dev);
+> 
+> With device_lock() removed, this probably races with the
+> iommu_release_device() path? group->mutex seems insufficient to avoid
+> the race. Perhaps I missed anything.
 
-> -	if (device_is_bound(dev) && !(req_type == IOMMU_DOMAIN_DMA_FQ &&
-> -	    group->default_domain->type == IOMMU_DOMAIN_DMA)) {
-> -		pr_err_ratelimited("Device is still bound to driver\n");
-> -		ret = -EBUSY;
-> -		goto out;
-> -	}
-> -
-> -	ret = iommu_change_dev_def_domain(group, dev, req_type);
-> -	ret = ret ?: count;
-> -
-> -out:
-> -	device_unlock(dev);
-> -	put_device(dev);
-> +	ret = iommu_group_claim_dma_owner(group, &ret);
-> +	if (ret)
-> +		return ret;
->   
-> -	return ret;
-> +	ret = iommu_change_group_dma_api_policy(group, policy);
-> +	iommu_group_release_dma_owner(group);
-> +	if (ret)
-> +		return ret;
-> +	return count;
->   }
->   
->   static bool iommu_is_default_domain(struct iommu_group *group)
+This path only deals with group, so there is no 'dev' and no race with
+removal.
 
-Best regards,
-baolu
+Later on we obtain the group mutex and then extract the first device
+from the group list as a representative device of the group - eg to
+perform iommu_domain allocation.
+
+Under the group mutex devices on the device list cannot become
+invalid.
+
+It is the same reasoning we use in other places that iterate over the
+group device list under lock.
+
+Jason
