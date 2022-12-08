@@ -2,180 +2,205 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3EDA9C4332F
-	for <linux-s390@archiver.kernel.org>; Thu,  8 Dec 2022 17:20:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C109BC4332F
+	for <linux-s390@archiver.kernel.org>; Thu,  8 Dec 2022 20:26:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229720AbiLHRUT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 8 Dec 2022 12:20:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41866 "EHLO
+        id S229818AbiLHU0m (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 8 Dec 2022 15:26:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229773AbiLHRUS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 8 Dec 2022 12:20:18 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 806A58C6BD;
-        Thu,  8 Dec 2022 09:20:17 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0862461FBA;
-        Thu,  8 Dec 2022 17:20:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 45001C433EF;
-        Thu,  8 Dec 2022 17:20:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1670520016;
-        bh=Myhj7x3OBvgAFVFPmiOWGlclDdnOshK5/oKIeoY96S0=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=q+VZhW2RgvDiCw1aAq6X7BsbeOSUz8A9+NpsavnwH/41iKJ4XirEdjn1duYMsdGI8
-         eb5clJ94Ea3hAjG+WuevC/Mp94QZyDaCXPpjrVgzxtDc0Rgkun2+LJwd4c386iu7DP
-         gkBhY01vY63VAml3ZTPmqiOoFmHHDp6Q4oWXNxCG7gg78cIc1aU4kLJjuPTr4KTrbV
-         gSFLICJXX4wBBM8tVUyXlZ7q0YoMNsWZWCA7xfoi04fJUYWo4B3qZ8KjKzHVbKVDY4
-         Aq13mvDgxqXsKEqY3H58QtPtWVMOmmYlNFgj+ylmXUbAYj9L2NjA8rUVHZ58xRbFiZ
-         3/MU/UQ4d04zQ==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 17853C41606;
-        Thu,  8 Dec 2022 17:20:16 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
+        with ESMTP id S229558AbiLHU0k (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 8 Dec 2022 15:26:40 -0500
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2059.outbound.protection.outlook.com [40.107.223.59])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1A367E822;
+        Thu,  8 Dec 2022 12:26:39 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=QhcXLu9wVIAKMNCINipB03dSiHfXWDF7vykTYYX29lc0LE5lG258ZdabLuapA8bC22e0tCO9nI3JUjBXtbfPZdUlJP/lVxniQtEyonXzOeq4qGfUVJC8SVvFzmpvZ1xPHNJZam2My/HCRsD7xT8B+FLzzLclBKkG5PDhmRrcQeZ/VV3oLx4mfswjGQVpwqZVY0KPhjLBCqTLhjyqke/WKhVzsnBfTGLteR6tjDdNHeoT1eRLshjux3RR99i29vczkwg58IhDVN8UZoQCFAxmYFFSwnAihPJRuqUOV/Hx/TdVe5xlAih073OiLQY8KgIVWjBtUOCpKzaKFqshs5O87g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=pNiIOfQKqm5Z65VrC0HyT+g1vKabh/68FnRnr6UQsIo=;
+ b=dV4VCPZ+QLPHjBJfX0dluhQCYJq34TDwMArCGHAHWpB2HHFPn/ru5rtepECSb91SvTLmTlVJlwMr6tLWn19TOO1EUCxb0wjRx50blWQ+6cQgcgMj/saajNfQuy+12QDlaWpP5Vhjv8Ooja8yH/ovARmb9JPQiDYBauXBZydqUm462jdXHxVO7mFB/hl14sFteyM6va0cKKv1pMK5ZrA3G+L+dIQPz1n/bZgSjIneTWz+UEIeDrfQAs8wM/ZmsYDaxjLmopmvnfCY8in+H4+oBx7cNcMpOX5ZAkHJ700WbS1IHga9EFKVLBVWK45SZpqFhFuzqsJIQBnoLRb/acL7/A==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=pNiIOfQKqm5Z65VrC0HyT+g1vKabh/68FnRnr6UQsIo=;
+ b=Fb+NsUORR1OSARm94QCTMNCmdcwtKrBvBE8VQMRqVrb50hwaikntXXm4sziQh4zi1OpEHYIvUIohUoLmdKSEdXszItIfRA+kkmUsnCobCv37dbLgE96OF0l+XsjVrCSlojzo+8RtRImYsZqGirzw24DsIVRYmVbAALNwtB4Zo91pw6R//+xCC6wRgz4qiXVSoEkjQenTlIdIu55oYRpv3PG5WhSjGS+A3W1JKBnu0cJXzMXYOBQp2bdNXtWnRlKWjtDLENHanNXoV7+oc+xVZF0Z4m4LksmGKYCdv3cP3ui5t7eRT10jBPIbo4GR4tY1tfp/QrV/8n2kE7jN6lQGig==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by IA1PR12MB6163.namprd12.prod.outlook.com (2603:10b6:208:3e9::22) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5880.14; Thu, 8 Dec
+ 2022 20:26:38 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::f8b0:df13:5f8d:12a]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::f8b0:df13:5f8d:12a%7]) with mapi id 15.20.5880.014; Thu, 8 Dec 2022
+ 20:26:37 +0000
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Alexander Gordeev <agordeev@linux.ibm.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, iommu@lists.linux.dev,
+        Joerg Roedel <joro@8bytes.org>,
+        Kevin Tian <kevin.tian@intel.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will@kernel.org>
+Cc:     Bharat Bhushan <bharat.bhushan@nxp.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Eric Auger <eric.auger@redhat.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Tomasz Nowicki <tomasz.nowicki@caviumnetworks.com>,
+        Will Deacon <will.deacon@arm.com>
+Subject: [PATCH iommufd 0/9] Remove IOMMU_CAP_INTR_REMAP
+Date:   Thu,  8 Dec 2022 16:26:27 -0400
+Message-Id: <0-v1-9e466539c244+47b5-secure_msi_jgg@nvidia.com>
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net v2] s390/qeth: fix use-after-free in hsci
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <167052001608.19571.16534020446500665478.git-patchwork-notify@kernel.org>
-Date:   Thu, 08 Dec 2022 17:20:16 +0000
-References: <20221207105304.20494-1-wintera@linux.ibm.com>
-In-Reply-To: <20221207105304.20494-1-wintera@linux.ibm.com>
-To:     Alexandra Winter <wintera@linux.ibm.com>
-Cc:     davem@davemloft.net, kuba@kernel.org, leon@kernel.org,
-        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        hca@linux.ibm.com, twinkler@linux.ibm.com, wenjia@linux.ibm.com
+Content-Type: text/plain
+X-ClientProxiedBy: MN2PR17CA0024.namprd17.prod.outlook.com
+ (2603:10b6:208:15e::37) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|IA1PR12MB6163:EE_
+X-MS-Office365-Filtering-Correlation-Id: fb9ff81c-a301-4f29-8d6d-08dad95a81e2
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: jLtguAAUyiBmAtlTDi9EEZPsRsVFhS+lAOkUcXvTPucIO+KNIxkS614MjcL19a2jmrgIjtorgtzSqsqr5YHCW2Y0RXqcJtXLAfEG6Or307XdsY4SHZ5LC/ifB89QlrYDekUOZAbqx6nef/A+m1hwXP1Eanj77lG1xD+kKEkq4M3d+SWoNwK/rtzKNYBehqZaMgXvd7Sy9UV2dHQlSEE/rTchz48p621tkm6GsCbsuVaQD1bRk3x6A+dlhHdjGOuvM1ULbHoU6sAC1NNl9oEneBPWA+Ck//T/zl6ghCxQybYJxza0aj3Zpgss2dMUMwspVWiooGBxGic4n0dkgR/rB9os82Y2rCNMGZCKFkLn2OfU6/NBG77PzMLj5b10qPEHyt5N/0+Za+EpHjiATL2We7yvJyYr4ov4+bGJsXRNmLMPuYw4ozY53pT/b099fA8g9iWi47adVhhohOOeuw3J4FVV7lL6Ru7KbSPaiQ6NDTJ/WwoSKj0VpW/+KEMPm9eJwkTxkipx1P5/nMbJaWpInJwb/5Njtc9DFPj8IWyLbIeLt7fm9VDFfKahWvhtsOGfgLIX3A2q9vm4Qxyun1fpG0FifM/4Hck1I0zcRXjx4NxVrh4LtQzQRUca8VeUv+ARv8knDPSXa0vGa9eRt+/cUJhJeukKVvlpvjAQ/1F4VyyoeQNm+AmC7gJOmHzO3Uek/tS6cZFiwGCyBizqEioTdh04FooI6P+3ALfsoQN+yqZ2QvO/tgfCOmkHmUtLWzkNlqEcKhqA++3NesN9Vj4fAbUh+SL6Hv2k2GSyvX9BkvE=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(39860400002)(366004)(346002)(396003)(376002)(136003)(451199015)(41300700001)(7416002)(8936002)(2616005)(66946007)(5660300002)(110136005)(8676002)(66556008)(186003)(36756003)(66476007)(4326008)(54906003)(316002)(38100700002)(921005)(83380400001)(2906002)(6486002)(966005)(6506007)(6666004)(86362001)(478600001)(26005)(6512007)(4216001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?JEMBo5XmgtPKr0Dfn1HneIRS+oJFLDPi2SQTNv24LxUp3U18bV2Dirswmevp?=
+ =?us-ascii?Q?eIKcSo9yj3zfGrVGBrfobNnaOlFuc/t9GKD/Pgve+/+mx1lkh65T6wkW6hNf?=
+ =?us-ascii?Q?YnKV2LRY4sexu82/bjR6AvCQhTHJZXMlH+S1yOMl4hOMxSghpu0S7X+hiKof?=
+ =?us-ascii?Q?oKAKLDdOtMA/WNT3z1Bhy6KdLZj4jNHlKWZ5Ed4TBv9Rgb8qLerP/Gj7iYS0?=
+ =?us-ascii?Q?loNDO7EtFutfM3Ii7vY8KnMKfGwoiuxwgxzhTP0V/rA6ZC2qMaZecKZZGpR7?=
+ =?us-ascii?Q?tYnbTTu9uVtTaXQ+3RqvbYuKYD7aYeAhets8hGHYIiLdXJhbQ4+NGgthCRUT?=
+ =?us-ascii?Q?DfFK35ye3Z9q/cyeO/NzfYRA0Esd9skQj/gr8F0pAxmZq1ztfhHxxgWRMATK?=
+ =?us-ascii?Q?q15ymM4K4t/6zpB0+4cCfhAZ59ZabrocPNkQ4tOVQZsffHaqSE85Hms5aZzE?=
+ =?us-ascii?Q?EdPifxT4WakQ7tWO+P53SztPDmMSCSfCNWb24YU38TAlvp3W2kc3YziGnD7B?=
+ =?us-ascii?Q?AqG+aeUOmk/6MZjtqhPsq1givBB3nc6sOt/gysascnkgIYZs/nwnezVG/elM?=
+ =?us-ascii?Q?X3u9pqXWDnvaVqeGl7vZOrLD3yRfVIVvM0NX77172gn9xBy5T/D/xvXUKSSb?=
+ =?us-ascii?Q?XtYmZ2jbXXhbcnE875HBWUWk1CHgO0HZnL/48zqPq56oL2Hck+gGrnjvnvLe?=
+ =?us-ascii?Q?wdGfX7esePzOQW3N8roUm5GRAw9MUui9x4+7Mur7NKBuTq1HM09aHqEYxh0r?=
+ =?us-ascii?Q?dg806Tt3a6JOivv1ZeFHfVc9y8TEwbcJMf+JBhSVZREGEh25N/lpvo6HDDEa?=
+ =?us-ascii?Q?cGXE1KrHHsHTVbDOg7UVc4Lzn/m15o0GhuWsvULLo+vl51ZmhOazU8uSYtz9?=
+ =?us-ascii?Q?GL8ZKy+GVHiURJDEYmhA9zho1TNQEDIGmk1xUA+TlNBoLv3gA1YHn+u+p5UZ?=
+ =?us-ascii?Q?pjV5MDpMlmwe5l4OT2RZ8fIzEuw3unZYtNyb+Q2sqwEQkjFnwFAkYjVLW6I9?=
+ =?us-ascii?Q?hsUA4b0PgSyA2qMNbBu6yLLynSeUAhDI+4y6Au1hGEhh1x0VbbP95XVHCq1s?=
+ =?us-ascii?Q?b1btSzAAEt09jPo5PAtAxGGpBxaQIawkITcdIxvPbsA1HQYgMaWAJ0cFiPL9?=
+ =?us-ascii?Q?ijj3ea8CWpiiGNXPQKzMlrwVgAgaq0bWHbKkly4ESu+1w/90zlPOHR+qRIho?=
+ =?us-ascii?Q?FrnKqpaeYV0CaKy3U7SKHgACpXmn3nYngaibeTP1FoFKOQ0xW1krUo4d9ctu?=
+ =?us-ascii?Q?2wcprGb88JkSuGCr2rr5MLykaIlNtQe6ig3Yp4VA3blunltJuV/cHwUEUp8A?=
+ =?us-ascii?Q?k+Gj6vA+lp9EcZKQ8IEhr1rhEubRxqEoLT3UZ2J3gkiiufk5pSWNF/ENHnms?=
+ =?us-ascii?Q?EqOBMdzETyPa6boydwwaJiweSC8zX3r8EZLmJF4uxG/8KerJIHNBhnBQvOg9?=
+ =?us-ascii?Q?aNzVqeQ6xbv6KTY8n3Eir/+0H2rgsDcEF0SMRpxDThA1eovpiWo6lTvYZqDf?=
+ =?us-ascii?Q?NfDmkdsqy2nlfykoOVui2J2kZv09FQbDk7KAnMlAs8LeLDlpnmPRpvdkaKOm?=
+ =?us-ascii?Q?9cNQ76g8slgQy8dzcug=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: fb9ff81c-a301-4f29-8d6d-08dad95a81e2
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Dec 2022 20:26:37.7925
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: efHjGZV5cUQ2cdcKS7y4Ev75JHh0AnA0KMOHkyVWoKNcsECC/yMjg7KmtLxxF4HO
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR12MB6163
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello:
+[ This would be for v6.3, the series depends on a bunch of stuff in
+linux-next. I would be happy to merge it through the iommfd tree ]
 
-This patch was applied to netdev/net.git (master)
-by Jakub Kicinski <kuba@kernel.org>:
+Currently the kernel has two ways to signal the "secure MSI" concept that
+IOMMU_CAP_INTR_REMAP and irq_domain_check_msi_remap() both lay claim to.
 
-On Wed,  7 Dec 2022 11:53:04 +0100 you wrote:
-> KASAN found that addr was dereferenced after br2dev_event_work was freed.
-> 
-> ==================================================================
-> BUG: KASAN: use-after-free in qeth_l2_br2dev_worker+0x5ba/0x6b0
-> Read of size 1 at addr 00000000fdcea440 by task kworker/u760:4/540
-> CPU: 17 PID: 540 Comm: kworker/u760:4 Tainted: G            E      6.1.0-20221128.rc7.git1.5aa3bed4ce83.300.fc36.s390x+kasan #1
-> Hardware name: IBM 8561 T01 703 (LPAR)
-> Workqueue: 0.0.8000_event qeth_l2_br2dev_worker
-> Call Trace:
->  [<000000016944d4ce>] dump_stack_lvl+0xc6/0xf8
->  [<000000016942cd9c>] print_address_description.constprop.0+0x34/0x2a0
->  [<000000016942d118>] print_report+0x110/0x1f8
->  [<0000000167a7bd04>] kasan_report+0xfc/0x128
->  [<000000016938d79a>] qeth_l2_br2dev_worker+0x5ba/0x6b0
->  [<00000001673edd1e>] process_one_work+0x76e/0x1128
->  [<00000001673ee85c>] worker_thread+0x184/0x1098
->  [<000000016740718a>] kthread+0x26a/0x310
->  [<00000001672c606a>] __ret_from_fork+0x8a/0xe8
->  [<00000001694711da>] ret_from_fork+0xa/0x40
-> Allocated by task 108338:
->  kasan_save_stack+0x40/0x68
->  kasan_set_track+0x36/0x48
->  __kasan_kmalloc+0xa0/0xc0
->  qeth_l2_switchdev_event+0x25a/0x738
->  atomic_notifier_call_chain+0x9c/0xf8
->  br_switchdev_fdb_notify+0xf4/0x110
->  fdb_notify+0x122/0x180
->  fdb_add_entry.constprop.0.isra.0+0x312/0x558
->  br_fdb_add+0x59e/0x858
->  rtnl_fdb_add+0x58a/0x928
->  rtnetlink_rcv_msg+0x5f8/0x8d8
->  netlink_rcv_skb+0x1f2/0x408
->  netlink_unicast+0x570/0x790
->  netlink_sendmsg+0x752/0xbe0
->  sock_sendmsg+0xca/0x110
->  ____sys_sendmsg+0x510/0x6a8
->  ___sys_sendmsg+0x12a/0x180
->  __sys_sendmsg+0xe6/0x168
->  __do_sys_socketcall+0x3c8/0x468
->  do_syscall+0x22c/0x328
->  __do_syscall+0x94/0xf0
->  system_call+0x82/0xb0
-> Freed by task 540:
->  kasan_save_stack+0x40/0x68
->  kasan_set_track+0x36/0x48
->  kasan_save_free_info+0x4c/0x68
->  ____kasan_slab_free+0x14e/0x1a8
->  __kasan_slab_free+0x24/0x30
->  __kmem_cache_free+0x168/0x338
->  qeth_l2_br2dev_worker+0x154/0x6b0
->  process_one_work+0x76e/0x1128
->  worker_thread+0x184/0x1098
->  kthread+0x26a/0x310
->  __ret_from_fork+0x8a/0xe8
->  ret_from_fork+0xa/0x40
-> Last potentially related work creation:
->  kasan_save_stack+0x40/0x68
->  __kasan_record_aux_stack+0xbe/0xd0
->  insert_work+0x56/0x2e8
->  __queue_work+0x4ce/0xd10
->  queue_work_on+0xf4/0x100
->  qeth_l2_switchdev_event+0x520/0x738
->  atomic_notifier_call_chain+0x9c/0xf8
->  br_switchdev_fdb_notify+0xf4/0x110
->  fdb_notify+0x122/0x180
->  fdb_add_entry.constprop.0.isra.0+0x312/0x558
->  br_fdb_add+0x59e/0x858
->  rtnl_fdb_add+0x58a/0x928
->  rtnetlink_rcv_msg+0x5f8/0x8d8
->  netlink_rcv_skb+0x1f2/0x408
->  netlink_unicast+0x570/0x790
->  netlink_sendmsg+0x752/0xbe0
->  sock_sendmsg+0xca/0x110
->  ____sys_sendmsg+0x510/0x6a8
->  ___sys_sendmsg+0x12a/0x180
->  __sys_sendmsg+0xe6/0x168
->  __do_sys_socketcall+0x3c8/0x468
->  do_syscall+0x22c/0x328
->  __do_syscall+0x94/0xf0
->  system_call+0x82/0xb0
-> Second to last potentially related work creation:
->  kasan_save_stack+0x40/0x68
->  __kasan_record_aux_stack+0xbe/0xd0
->  kvfree_call_rcu+0xb2/0x760
->  kernfs_unlink_open_file+0x348/0x430
->  kernfs_fop_release+0xc2/0x320
->  __fput+0x1ae/0x768
->  task_work_run+0x1bc/0x298
->  exit_to_user_mode_prepare+0x1a0/0x1a8
->  __do_syscall+0x94/0xf0
->  system_call+0x82/0xb0
-> The buggy address belongs to the object at 00000000fdcea400
->  which belongs to the cache kmalloc-96 of size 96
-> The buggy address is located 64 bytes inside of
->  96-byte region [00000000fdcea400, 00000000fdcea460)
-> The buggy address belongs to the physical page:
-> page:000000005a9c26e8 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0xfdcea
-> flags: 0x3ffff00000000200(slab|node=0|zone=1|lastcpupid=0x1ffff)
-> raw: 3ffff00000000200 0000000000000000 0000000100000122 000000008008cc00
-> raw: 0000000000000000 0020004100000000 ffffffff00000001 0000000000000000
-> page dumped because: kasan: bad access detected
-> Memory state around the buggy address:
->  00000000fdcea300: fb fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc
->  00000000fdcea380: fb fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc
-> >00000000fdcea400: fa fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc
->                                            ^
->  00000000fdcea480: fb fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc
->  00000000fdcea500: fb fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc
-> ==================================================================
-> 
-> [...]
+Harmonize these into a single irq_domain based check under
+msi_device_has_secure_msi().
 
-Here is the summary with links:
-  - [net,v2] s390/qeth: fix use-after-free in hsci
-    https://git.kernel.org/netdev/net/c/ebaaadc332cd
+In real HW "secure MSI" is implemented in a few different ways:
 
-You are awesome, thank you!
+ - x86 uses "interrupt remapping" which is a block that sits between
+   the device and APIC, that can "remap" the MSI MemWr using per-RID
+   tables. Part of the remapping is discarding, the per-RID tables
+   will not contain vectors that have not been enabled for the device.
+
+ - ARM GICv3 ITS integrates the concept of an out-of-band "device ID"
+   directly into the interrupt controller logic. The tables the GIC checks
+   that determine how to deliver the interrupt through the ITS device table
+   and interrupt translation tables allow limiting which interrupts device
+   IDs can trigger.
+
+ - S390 has unconditionally claimed it has secure MSI through the iommu
+   driver. I'm not sure how it works, or if it even does. Perhaps
+   zpci_set_airq() pushes the "zdev->gias" to the hypervisor which
+   limits a device's MSI to only certain KVM contexts (though if true
+   this would be considered insecure by VFIO)
+
+After this series the "secure MSI" is tagged based only on the irq_domains
+that the interrupt travels through. For x86 enabling interrupt remapping
+causes IR irq_domains to be installed in the path, and they can carry the
+IRQ_DOMAIN_FLAG_SECURE_MSI. For ARM the GICv3 ITS itself already sets the
+flag when it is running in a secure mode, and S390 simply sets it always
+through an arch hook since it doesn't use irq_domains at all.
+
+This removes the intrusion of entirely IRQ subsystem information into the
+iommu layer. Linux's iommu_domains abstraction has no bearing at all on
+the security of MSI. Even if HW linked to the IOMMU may implement the
+security on x86 implementations, Linux models that HW through the
+irq_domain, not the iommu_domain.
+
+This is on github: https://github.com/jgunthorpe/linux/commits/secure_msi
+
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+
+Jason Gunthorpe (9):
+  irq: Add msi_device_has_secure_msi()
+  vfio/type1: Check that every device supports IOMMU_CAP_INTR_REMAP
+  vfio/type1: Convert to msi_device_has_secure_msi()
+  iommufd: Convert to msi_device_has_secure_msi()
+  irq: Remove unused irq_domain_check_msi_remap() code
+  irq: Rename MSI_REMAP to SECURE_MSI
+  iommu/x86: Replace IOMMU_CAP_INTR_REMAP with
+    IRQ_DOMAIN_FLAG_SECURE_MSI
+  irq/s390: Add arch_is_secure_msi() for s390
+  iommu: Remove IOMMU_CAP_INTR_REMAP
+
+ arch/s390/include/asm/msi.h         | 12 +++++++++
+ drivers/iommu/amd/iommu.c           |  5 ++--
+ drivers/iommu/intel/iommu.c         |  2 --
+ drivers/iommu/intel/irq_remapping.c |  3 ++-
+ drivers/iommu/iommufd/device.c      |  5 ++--
+ drivers/iommu/s390-iommu.c          |  2 --
+ drivers/irqchip/irq-gic-v3-its.c    |  4 +--
+ drivers/vfio/vfio_iommu_type1.c     | 16 ++++++------
+ include/linux/iommu.h               |  1 -
+ include/linux/irqdomain.h           | 27 ++------------------
+ include/linux/msi.h                 | 17 +++++++++++++
+ kernel/irq/irqdomain.c              | 39 -----------------------------
+ kernel/irq/msi.c                    | 25 ++++++++++++++++++
+ 13 files changed, 73 insertions(+), 85 deletions(-)
+ create mode 100644 arch/s390/include/asm/msi.h
+
+
+base-commit: 644f4ef9a6ea0e0c65f949bd6b80857d4223c476
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+2.38.1
 
