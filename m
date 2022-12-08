@@ -2,47 +2,63 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 47717C4167B
-	for <linux-s390@archiver.kernel.org>; Thu,  8 Dec 2022 20:26:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 875B5C4332F
+	for <linux-s390@archiver.kernel.org>; Thu,  8 Dec 2022 21:49:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229948AbiLHU0u (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 8 Dec 2022 15:26:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59092 "EHLO
+        id S229677AbiLHVth (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 8 Dec 2022 16:49:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229951AbiLHU0s (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 8 Dec 2022 15:26:48 -0500
-Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2071.outbound.protection.outlook.com [40.107.92.71])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D36F84B45;
-        Thu,  8 Dec 2022 12:26:47 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Qa+qSYS5B7PjrxBMqnOj4Wuo6rQGdSjuv7jsEx6vVFhMrGLhtWg2orCY/TgvUZMGq6CAUAymBje+2W22RlpxtYb9nMuqsG/QzzKwJTcSI6bw5HxhJMfrxQI0b4ihgGGJDwmBNApfNhFB8teemoMNOmSn/epIGWAABK+6FXijNGg/wuDYYX4MIjeVDR3f79slOWMusM6bQ2OAA/uOTMYDCak1dI4WGUQTG5EUuHjHLb5ep0ebLsB9lcjeSZXGkqhZfJ8pf+0FMgZ9LtAPoTwLHPxi0zeW5zrUANTmceRQ5Ek2o5DbZR4TnYF9Kjp9xktCbHlfgLI+7ob+iJmqHOqmfA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=qiUrLGYpRHRvTN0nQtivy752j9/niuZ54a2UFBQQNBc=;
- b=nIIvEU2pJhqj5hMvWXNfRDqYInSKJTxl1FdI9rnj7nC8VnV7hjvM4euC2eDVA0hrqiUqL8sckFqsouiu1I32uxVkTXHMWipovhHPSBaGG1Bl67ZTAwlzmPcB6oRFAcjhULyXkHCWKO5rdYxafdsOhRNWNHWNZbiogpeHclV0tzi22ECZz/FoL+enhmUAeAOsvli5lGrjXZcuTRQ+8+XIHwB8gHq937DbLBrcX/kkyG25UNoRvxmp4JsoJlyhUtcmpaQxecx1+zsx1Pypnm57kqdGwHjNC7aZif7mwlAZyxecxyMt3CJiShNxawFXlp70vhxRftKStKQWIyHN8cug3A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=qiUrLGYpRHRvTN0nQtivy752j9/niuZ54a2UFBQQNBc=;
- b=RYRRoL9ZvCpKRLAFlkC471Wi4nY9rRGpKIr+U7BQyuBYPQpcjCxRC6ED99Dm2k3voSAjzyT0QML92t7w70xuMKvOPuJzmF5WrisKglYAk97lDQ6Uex4Rklc24h49/ow/KLGLbWhuz2g6R4Tnaoevzqbpa+vvPUl0iw6LgeeQgpJV3nnVLutJlGHYcdI0AsEjl0hYOE5G+uf7wOFJPuyIRQ+fuoOKObqFASUfrXN2GtGOy/ZXIQ6ADLa01yYcr9JHuhhLnj7l9vNgrHRFUnnCVnRqI0vN2NERn/zt6DyLyyB/1cXTZ1fizIzjXdeY70RndRz6g8F2fD3mU4sHic6CAg==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
- by SJ0PR12MB6966.namprd12.prod.outlook.com (2603:10b6:a03:449::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5880.14; Thu, 8 Dec
- 2022 20:26:43 +0000
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::f8b0:df13:5f8d:12a]) by LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::f8b0:df13:5f8d:12a%7]) with mapi id 15.20.5880.014; Thu, 8 Dec 2022
- 20:26:43 +0000
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Alexander Gordeev <agordeev@linux.ibm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
+        with ESMTP id S229568AbiLHVtg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 8 Dec 2022 16:49:36 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE7D584DE3
+        for <linux-s390@vger.kernel.org>; Thu,  8 Dec 2022 13:48:31 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1670536110;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=JlSLHZU0UyP1zXnoWLl9wrALkHazYkzcA1gB5b/QBD4=;
+        b=h8gJQMxyvGsKoHS5lScHZNQS2cRBg/WEEe6illL3JvtXb8QU1kG7lreELn4yw/hkQInxBq
+        v3aASESWuF4iHEQ+zn3lIzLgpt0v2KSvfAJ94F3mpnxDgopE+zPeF2wKRyHrT2Aqqg9w5+
+        BDXW5eK7BY+Za/IDjxEha5vcOV7d2YY=
+Received: from mail-il1-f200.google.com (mail-il1-f200.google.com
+ [209.85.166.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-147-kWX9VxMMMoukDCfNre-i0A-1; Thu, 08 Dec 2022 16:48:29 -0500
+X-MC-Unique: kWX9VxMMMoukDCfNre-i0A-1
+Received: by mail-il1-f200.google.com with SMTP id g4-20020a92cda4000000b00301ff06da14so2415672ild.11
+        for <linux-s390@vger.kernel.org>; Thu, 08 Dec 2022 13:48:29 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=JlSLHZU0UyP1zXnoWLl9wrALkHazYkzcA1gB5b/QBD4=;
+        b=Ip1zR4JGggYFU+f9cOO9ix90TSIHids1SeMtj2/MC+ZBvyfkXEnllNBSxS5uFLJTTh
+         mGuzfErjfbMy7dPK9KBQRCYTIfA4uH1tAjEHjKA5rmGbjWGgSi46t4uo4J4DJxYkTLNq
+         GC+9sJ8hvK9rTDmzQtRgBJnC6/r5TItsR2bcIqU46iJr8J3Qe4VYGQjFcDB7WlAos4UA
+         1nPqH0+7RcZm8uGea5UxeBzmL6jPuSpBi08DPp753k1VU+Abi4jPpplmZuuP198kCPkY
+         ZGCEpsAFZ/CESgcsKtL5wLgdRalEUofG5yFPYlgNy2vuiVOp70XyWP5g0vo+1c8V+VmT
+         MVcg==
+X-Gm-Message-State: ANoB5plxiGxTre9GQ7A9wozoJ2MTcUXuHdT8a0/7tbUA92lrOZCAYfAt
+        DCOt+Lxw0dRD8j7cN7LTCut1bYdQEY9MTp6PTeTEWQ+Sn23DsgbyiOXg+MSR/q/N8JNIc3Ht2P3
+        fUEG6Acso1Y/P8YjcHJpVMg==
+X-Received: by 2002:a02:caa9:0:b0:38a:4f3e:a8f3 with SMTP id e9-20020a02caa9000000b0038a4f3ea8f3mr7633694jap.118.1670536108937;
+        Thu, 08 Dec 2022 13:48:28 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf5z9amCYid4VD2QKF39+LEnq0/gOoAHkRrex2ThE5am1xPidFCUVQZkXXRQS46wsmIHSMDr3g==
+X-Received: by 2002:a02:caa9:0:b0:38a:4f3e:a8f3 with SMTP id e9-20020a02caa9000000b0038a4f3ea8f3mr7633686jap.118.1670536108715;
+        Thu, 08 Dec 2022 13:48:28 -0800 (PST)
+Received: from redhat.com ([38.15.36.239])
+        by smtp.gmail.com with ESMTPSA id q18-20020a927512000000b00302bb083c2bsm1115985ilc.21.2022.12.08.13.48.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 08 Dec 2022 13:48:28 -0800 (PST)
+Date:   Thu, 8 Dec 2022 14:48:25 -0700
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
         Lu Baolu <baolu.lu@linux.intel.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Cornelia Huck <cohuck@redhat.com>,
@@ -57,8 +73,8 @@ To:     Alexander Gordeev <agordeev@linux.ibm.com>,
         Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
         Sven Schnelle <svens@linux.ibm.com>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will@kernel.org>
-Cc:     Bharat Bhushan <bharat.bhushan@nxp.com>,
+        Will Deacon <will@kernel.org>,
+        Bharat Bhushan <bharat.bhushan@nxp.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
         Eric Auger <eric.auger@redhat.com>,
         Eric Farman <farman@linux.ibm.com>,
@@ -66,132 +82,88 @@ Cc:     Bharat Bhushan <bharat.bhushan@nxp.com>,
         Matthew Rosato <mjrosato@linux.ibm.com>,
         Tomasz Nowicki <tomasz.nowicki@caviumnetworks.com>,
         Will Deacon <will.deacon@arm.com>
-Subject: [PATCH iommufd 6/9] irq: Rename MSI_REMAP to SECURE_MSI
-Date:   Thu,  8 Dec 2022 16:26:33 -0400
-Message-Id: <6-v1-9e466539c244+47b5-secure_msi_jgg@nvidia.com>
-In-Reply-To: <0-v1-9e466539c244+47b5-secure_msi_jgg@nvidia.com>
-References: 
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: BL1PR13CA0156.namprd13.prod.outlook.com
- (2603:10b6:208:2bd::11) To LV2PR12MB5869.namprd12.prod.outlook.com
- (2603:10b6:408:176::16)
+Subject: Re: [PATCH iommufd 2/9] vfio/type1: Check that every device
+ supports IOMMU_CAP_INTR_REMAP
+Message-ID: <20221208144825.33823739.alex.williamson@redhat.com>
+In-Reply-To: <2-v1-9e466539c244+47b5-secure_msi_jgg@nvidia.com>
+References: <0-v1-9e466539c244+47b5-secure_msi_jgg@nvidia.com>
+        <2-v1-9e466539c244+47b5-secure_msi_jgg@nvidia.com>
+X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|SJ0PR12MB6966:EE_
-X-MS-Office365-Filtering-Correlation-Id: 202133c4-97d3-4c0e-a3e0-08dad95a8345
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 8jI+2z6vReTtsSMwxuj49dOm+459j0lGRMAb+7oVGJkQw1SFyz9IG6+SQO1kaPDSe9ppfIUU1XbtkV9LfrcAPVNrv9LS41WXEAtlj0PxdrkJ3HKfuTWLh2fQo13FPfuHOQLXPXL1xqCYogqfuNqo86bIWT7mNK85FwSYlZ7+rIzwp8hC/+u8VOu+TCZCaGf9hsvaePu3/uej8zA6HVzqiiDRmRsHWmhOUbcc1V1Df1TVTQA9/0v6Zar0QZZ6YetM20uEMbizQ8Kt4TDS8ntM6FdRgYHly7Z+7DRiL/gBUAuExl66wmaU0l1YvSXUotRJegYJn5SvzYLEJ7rf1km4UTkIT0fGqi29FwKUgCHDLaFGZU/fW24MR+F4vTm1n+eEsPm6mnYFkaKh4sne9EA2mA4Lr7Plv/yu4hTiSAoq14ibZkmbUPqhlGxXQzT61JP9VeMloiPJlnIj3LXL2JRGgYU84QmuiqP6WRgyWR0+8A6R38FeECf2TfzJ7NOAg41HZzv7sqjhxIP2xoNUmNV7rQghhAus3HCePO/syxN+CLv2HsE5ErKqm3GaOXxCzkeo49ZF4GtlgGKfo3HuIYZ6YSsDq82+Uu6TPSqghRBjKVjBOt0it++kTCxwCrkSU0eD3kPev0yQpSNrvZsjD+72T+CnPy93MJP+W0ecz7MeUjJPHDFaqkTPn6zPDFQRvBNnQZ4CPCCJf+6fSeK4prD5BQ==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(396003)(39860400002)(376002)(346002)(366004)(136003)(451199015)(38100700002)(36756003)(86362001)(5660300002)(921005)(41300700001)(4326008)(2906002)(8936002)(66556008)(7416002)(83380400001)(66946007)(316002)(66476007)(54906003)(6486002)(110136005)(2616005)(478600001)(8676002)(186003)(6506007)(6666004)(26005)(6512007)(4216001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?rU5+azCyF2eZXxj0Qhf1PNkpbooTAf+gD7W5Ut1xLXUJHtu3M9qKJd1eGaFq?=
- =?us-ascii?Q?RbZZW4qJOBu+EgYgR7rAqe8ccEDjw06t3anBy+fxKeEGbfrjT5yZE+X9yE+a?=
- =?us-ascii?Q?G/Vlib06yZlzko1MVTaVmUJs1H+2X072cFUnL5RM0c88bsQ20uMJmCNP1gDL?=
- =?us-ascii?Q?LqT8sAzxR2XQmIhBQCtzgMMpa+FRbQkTqUgt1/VGBNyGRwECiJeFWHJjIFPF?=
- =?us-ascii?Q?C5PKnPHWvgL9lIv5ZkNKdwVw7DW3j+4ukWlwB9yDLgCF51asC/hjYSMeXDMg?=
- =?us-ascii?Q?xQXK4jtMzzrrO+hzJ8u2qJR4KDB1q6opYwY/Wzh8sQn8l395REDRtO9cV20K?=
- =?us-ascii?Q?weU4TnMGhsyXI0GYUC7BYcS3CMcSi3LHPFQcIFa/R8RHAlsgxmNdTPutfDTr?=
- =?us-ascii?Q?LiKYC/ZpeXkMnuyZUnj1FS/dP5jH2XkujhgHbetJYeqDXZiQ1ZNdZSJ59GTu?=
- =?us-ascii?Q?YZ8dIPs+S6kMw1VA+GEajciFNIwbOMZSOp58X54dYZAQBITNAyy32kG1X8MB?=
- =?us-ascii?Q?X8iHrSv89lRgwHzlKrAx9SQEsZB2Z75C/TROn8gUW5RK1XwTgi5/9eInOMS5?=
- =?us-ascii?Q?M8bvVlZBVTCmcLZ+zhlfIS9vtsxYDgII56BchqOXl3EDRqF8hxC9ktt0B4/m?=
- =?us-ascii?Q?Sh9iWJCt21yVP2AuqdbXD0MbWD2N3kE2y2ty/W0hizPLRtwhrVP/wU585p7E?=
- =?us-ascii?Q?EB1w3IASYVnA6fEBXebMMOJ8HemNXwfK9fZaw5V7kpahJX39NbMqq6Mvil5y?=
- =?us-ascii?Q?iz0eylC204/FGfwqSK2hzeLokSIAAtacQ0mCD4Uye+qpw5BWHeEQjBZIkuRi?=
- =?us-ascii?Q?PMeNz5N7e+IcOWNYm7y4P76Ipc+NEZNZ7S1EPe5Tafx8nbNUQgoTGgqs+Waa?=
- =?us-ascii?Q?0qGdoiCMG9kEkMzXx7RS6Vvtefl4YBqWcvQFr+L5uazboPR+HcuHsvVx3nDq?=
- =?us-ascii?Q?kpelRPlf0Lb8FXoDogu/cpTThsx8tLJWOhoalNMiQnqAgcal0PTCq5vpT9NG?=
- =?us-ascii?Q?SsPHvQ/kCuAYkK2md+UE9SH1++t+PlwTTEidBCHd4Ax+jxuXwy9f6mcubcfv?=
- =?us-ascii?Q?z1wLBDDyOTZQEJxWoWUYfiMplzGpy3rNvOocILFweyK8aNFKgu75GzxOxz/n?=
- =?us-ascii?Q?b8L8FVm8GhI+7wabjXDE/dfWpo9BNN2YDUUzVZSjO33tTz9Z90G89/DNpdoO?=
- =?us-ascii?Q?lsKenT319A01UKpUwsitLWjJx4EK4HLvlw6J6XPNdbyScJA5r6qRxpgJ6pai?=
- =?us-ascii?Q?Ni6T31ME3YHXdtoUVkaWJUvrLJpA87lhmL4Kz1/JSKhwldTNRl4JweM8QCPK?=
- =?us-ascii?Q?h/WYbBQuwhlLA6mGGMBqckKB5luns3R+iw+9hHS6yjKI/NBj3/vLJU/mnsnV?=
- =?us-ascii?Q?eqs2cxMdYnersV9jDaBoZAxS6EZcC0GL3djjKB4WwSzdKz9/D6EJeVx5OcdW?=
- =?us-ascii?Q?UZ7Zoh4rjj+R5VTbvyN9yjQ1KtYKzCoIoln8XJCYNRAMDMv2jlRnyrz6AJM7?=
- =?us-ascii?Q?fcNR1cTP1dFZF7Q3AZwSL3e3xdHPBeFpLlFFW+pZJQs+0agj67PjZkP5vwii?=
- =?us-ascii?Q?qsYMFIr5woEhT0TlrRY=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 202133c4-97d3-4c0e-a3e0-08dad95a8345
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Dec 2022 20:26:40.1353
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: w19QouSlfb0hbzN8zGBO46VLZqeSCSocgJzBcle1ESyewFDj2rO+W3Ott9DsnAem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR12MB6966
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-What x86 calls "interrupt remapping" is one way to achieve secure MSI,
-make it clear this is talking about secure MSI, no matter how it is
-achieved. This matches the new driver facing API name of
-msi_device_has_secure_msi()
+On Thu,  8 Dec 2022 16:26:29 -0400
+Jason Gunthorpe <jgg@nvidia.com> wrote:
 
-No functional change.
+> iommu_group_for_each_dev() exits the loop at the first callback that
+> returns 1 - thus returning 1 fails to check the rest of the devices in the
+> group.
+> 
+> msi_remap (aka secure MSI) requires that all the devices in the group
+> support it, not just any one. This is only a theoretical problem as no
+> current drivers will have different secure MSI properties within a group.
 
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
----
- drivers/irqchip/irq-gic-v3-its.c | 4 ++--
- include/linux/irqdomain.h        | 4 ++--
- kernel/irq/msi.c                 | 2 +-
- 3 files changed, 5 insertions(+), 5 deletions(-)
+Which is exactly how Robin justified the behavior in the referenced
+commit:
 
-diff --git a/drivers/irqchip/irq-gic-v3-its.c b/drivers/irqchip/irq-gic-v3-its.c
-index 973ede0197e36f..bb1aa5367ada6a 100644
---- a/drivers/irqchip/irq-gic-v3-its.c
-+++ b/drivers/irqchip/irq-gic-v3-its.c
-@@ -4692,7 +4692,7 @@ static bool __maybe_unused its_enable_quirk_socionext_synquacer(void *data)
- 		}
- 
- 		/* the pre-ITS breaks isolation, so disable MSI remapping */
--		its->msi_domain_flags &= ~IRQ_DOMAIN_FLAG_MSI_REMAP;
-+		its->msi_domain_flags &= ~IRQ_DOMAIN_FLAG_SECURE_MSI;
- 		return true;
- 	}
- 	return false;
-@@ -5074,7 +5074,7 @@ static int __init its_probe_one(struct resource *res,
- 	its->cmd_write = its->cmd_base;
- 	its->fwnode_handle = handle;
- 	its->get_msi_base = its_irq_get_msi_base;
--	its->msi_domain_flags = IRQ_DOMAIN_FLAG_MSI_REMAP;
-+	its->msi_domain_flags = IRQ_DOMAIN_FLAG_SECURE_MSI;
- 
- 	its_enable_quirks(its);
- 
-diff --git a/include/linux/irqdomain.h b/include/linux/irqdomain.h
-index b04ce03d3bb69f..cc6238bfa9ed06 100644
---- a/include/linux/irqdomain.h
-+++ b/include/linux/irqdomain.h
-@@ -192,8 +192,8 @@ enum {
- 	/* Irq domain implements MSIs */
- 	IRQ_DOMAIN_FLAG_MSI		= (1 << 4),
- 
--	/* Irq domain implements MSI remapping */
--	IRQ_DOMAIN_FLAG_MSI_REMAP	= (1 << 5),
-+	/* Irq domain implements secure MSI, see msi_device_has_secure_msi() */
-+	IRQ_DOMAIN_FLAG_SECURE_MSI	= (1 << 5),
- 
- 	/* Irq domain doesn't translate anything */
- 	IRQ_DOMAIN_FLAG_NO_MAP		= (1 << 6),
-diff --git a/kernel/irq/msi.c b/kernel/irq/msi.c
-index 7a7d9f969001c7..18264bddf63b89 100644
---- a/kernel/irq/msi.c
-+++ b/kernel/irq/msi.c
-@@ -1642,7 +1642,7 @@ bool msi_device_has_secure_msi(struct device *dev)
- 	struct irq_domain *domain = dev_get_msi_domain(dev);
- 
- 	for (; domain; domain = domain->parent)
--		if (domain->flags & IRQ_DOMAIN_FLAG_MSI_REMAP)
-+		if (domain->flags & IRQ_DOMAIN_FLAG_SECURE_MSI)
- 			return true;
- 	return false;
- }
--- 
-2.38.1
+  As with domains, any capability must in practice be consistent for
+  devices in a given group - and after all it's still the same
+  capability which was expected to be consistent across an entire bus!
+  - so there's no need for any complicated validation.
+
+That suggests to me that it's intentional that we break if any device
+supports the capability and therefore this isn't so much a "Fixes:", as
+it is a refactoring expressly to support msi_device_has_secure_msi(),
+which cannot make these sort of assumptions as a non-group API.  Thanks,
+
+Alex
+
+> Make vfio_iommu_device_secure_msi() reduce AND across all the devices.
+> 
+> Fixes: eed20c782aea ("vfio/type1: Simplify bus_type determination")
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> ---
+>  drivers/vfio/vfio_iommu_type1.c | 17 +++++++++++------
+>  1 file changed, 11 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/vfio/vfio_iommu_type1.c b/drivers/vfio/vfio_iommu_type1.c
+> index 23c24fe98c00d4..3025b4e643c135 100644
+> --- a/drivers/vfio/vfio_iommu_type1.c
+> +++ b/drivers/vfio/vfio_iommu_type1.c
+> @@ -2160,10 +2160,12 @@ static void vfio_iommu_iova_insert_copy(struct vfio_iommu *iommu,
+>  	list_splice_tail(iova_copy, iova);
+>  }
+>  
+> -/* Redundantly walks non-present capabilities to simplify caller */
+> -static int vfio_iommu_device_capable(struct device *dev, void *data)
+> +static int vfio_iommu_device_secure_msi(struct device *dev, void *data)
+>  {
+> -	return device_iommu_capable(dev, (enum iommu_cap)data);
+> +	bool *secure_msi = data;
+> +
+> +	*secure_msi &= device_iommu_capable(dev, IOMMU_CAP_INTR_REMAP);
+> +	return 0;
+>  }
+>  
+>  static int vfio_iommu_domain_alloc(struct device *dev, void *data)
+> @@ -2278,9 +2280,12 @@ static int vfio_iommu_type1_attach_group(void *iommu_data,
+>  	INIT_LIST_HEAD(&domain->group_list);
+>  	list_add(&group->next, &domain->group_list);
+>  
+> -	msi_remap = irq_domain_check_msi_remap() ||
+> -		    iommu_group_for_each_dev(iommu_group, (void *)IOMMU_CAP_INTR_REMAP,
+> -					     vfio_iommu_device_capable);
+> +	msi_remap = irq_domain_check_msi_remap();
+> +	if (!msi_remap) {
+> +		msi_remap = true;
+> +		iommu_group_for_each_dev(iommu_group, &msi_remap,
+> +					 vfio_iommu_device_secure_msi);
+> +	}
+>  
+>  	if (!allow_unsafe_interrupts && !msi_remap) {
+>  		pr_warn("%s: No interrupt remapping support.  Use the module param \"allow_unsafe_interrupts\" to enable VFIO IOMMU support on this platform\n",
 
