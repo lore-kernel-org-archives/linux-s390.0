@@ -2,189 +2,206 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CF24FC4332F
-	for <linux-s390@archiver.kernel.org>; Fri,  9 Dec 2022 06:01:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 13EE3C4332F
+	for <linux-s390@archiver.kernel.org>; Fri,  9 Dec 2022 07:17:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229619AbiLIGBX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 9 Dec 2022 01:01:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39564 "EHLO
+        id S229863AbiLIHRz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 9 Dec 2022 02:17:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229554AbiLIGBV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 9 Dec 2022 01:01:21 -0500
-Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9B6A7D087;
-        Thu,  8 Dec 2022 22:01:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1670565680; x=1702101680;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=a8UeOeUAdHY4JHwWOA/dhzvoOG2Cd5Z8Oeqx5AlFy3M=;
-  b=Wws8hNFzLeV0Y7oTYjhBpaNA91xnwByKB7JGqX2Zr2LssWVA/xvxAzOV
-   Ae/AzVYFgpAyBrY/Fdz5gHpoaajd1dE5oZrUnkA7v4VwJ8Ix62ajDG8Kx
-   g14KktRd1rN2htbc4murXz89Ulwjlorq6320K/Y9pBZmC0NrTDqegLLUx
-   nETACiKDHpyOxEcdPh4Q07CEYWKYKUUnZOiU5d2IurHuMeyQ1NPi/3lRY
-   u+1QXI21kIJ5rNzN2TO2gFihlqw9qx6T4nOAXpp3zf+ynJkooNbDgkM6i
-   cJs7LCxk2021Bq3a3JG7oxEad8LLtQAr423X/gkp+GEsz2nEX2A+lD1tV
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10555"; a="305030209"
-X-IronPort-AV: E=Sophos;i="5.96,230,1665471600"; 
-   d="scan'208";a="305030209"
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Dec 2022 22:01:19 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10555"; a="892543111"
-X-IronPort-AV: E=Sophos;i="5.96,230,1665471600"; 
-   d="scan'208";a="892543111"
-Received: from orsmsx603.amr.corp.intel.com ([10.22.229.16])
-  by fmsmga006.fm.intel.com with ESMTP; 08 Dec 2022 22:01:18 -0800
-Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
- ORSMSX603.amr.corp.intel.com (10.22.229.16) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.16; Thu, 8 Dec 2022 22:01:17 -0800
-Received: from orsedg603.ED.cps.intel.com (10.7.248.4) by
- orsmsx610.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.16 via Frontend Transport; Thu, 8 Dec 2022 22:01:17 -0800
-Received: from NAM10-BN7-obe.outbound.protection.outlook.com (104.47.70.103)
- by edgegateway.intel.com (134.134.137.100) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.16; Thu, 8 Dec 2022 22:01:16 -0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ONe/9L9qER61+hIJDPcAyuow2UPsY0tofsADxAjxyhf0bNF8OnubHAdsvwfYMIgNhYkKW70amU4u+d285SQqWTQB0t3b73Zq+17H8YaeSL4d2R1FpsVnL4zPoe3FFPIREaU1WGav31U18JFi2AAY7tHhWg8ZjQwlI4GSLy9lCb8HRVnYNv5qWPIZWNvGoCVXV/oZCxoucbnsBUSqHE0sNJppeqCyWu9p2FOb+hB/srspYVW56gChE2ZDuea8gb3CE+nJvmHPvM2Lw58wL0ag+jpKwvyZ5PvSNpngCEWWRJFyVWbZocOHFg/vlTIywT+xSE8RgNNbaYZQCyQXYg1SGg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=7Rc0iFPaix923aSJAIvjspDjXnhPo2q6FfOItbWQkkg=;
- b=X9/udtk+X7Vq8CVUNBx1dbBJwpqYd+iJhbFsO80H+CZQ7RsQ0yty0egX47uUc+O0NWR3q92trnDF99u0FeazVIJSt7INh114CwfLCbNGn2XuOXWJ21p5bCGYC1wuLflHuDMT4kJHmBwHOWdgB1tqnl5L3q9yccDsuTgPgNfh55jqyjH4bin6aSt7mMxwCdoUdROB2VsQE/rPKzSNsf5b/XPWnLXioGHfsParbEhgtMOvYFJ5HiSGssdm4k6soIl01RAdj24dAYLw9/TiLknAZehqDOBa0pUNd2yy7K1UQ3d/MkSTHdoanposwoXpdgMxntHREp32UOut5mW2MdwPGw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com (2603:10b6:408:135::18)
- by DS0PR11MB7788.namprd11.prod.outlook.com (2603:10b6:8:f5::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5880.14; Fri, 9 Dec
- 2022 06:01:15 +0000
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::c9ee:bc36:6cf4:c6fb]) by BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::c9ee:bc36:6cf4:c6fb%5]) with mapi id 15.20.5880.016; Fri, 9 Dec 2022
- 06:01:14 +0000
-From:   "Tian, Kevin" <kevin.tian@intel.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        "Lu Baolu" <baolu.lu@linux.intel.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        "David Woodhouse" <dwmw2@infradead.org>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        "Heiko Carstens" <hca@linux.ibm.com>,
-        "iommu@lists.linux.dev" <iommu@lists.linux.dev>,
-        Joerg Roedel <joro@8bytes.org>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        Marc Zyngier <maz@kernel.org>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        "Thomas Gleixner" <tglx@linutronix.de>,
-        Will Deacon <will@kernel.org>
-CC:     Bharat Bhushan <bharat.bhushan@nxp.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Eric Auger <eric.auger@redhat.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Tomasz Nowicki <tomasz.nowicki@caviumnetworks.com>,
-        Will Deacon <will.deacon@arm.com>
-Subject: RE: [PATCH iommufd 4/9] iommufd: Convert to
- msi_device_has_secure_msi()
-Thread-Topic: [PATCH iommufd 4/9] iommufd: Convert to
- msi_device_has_secure_msi()
-Thread-Index: AQHZC0NrusaNOCpuL0i34U+ryXeZF65lD9ww
-Date:   Fri, 9 Dec 2022 06:01:14 +0000
-Message-ID: <BN9PR11MB5276522F9FA4D4A486C5F60A8C1C9@BN9PR11MB5276.namprd11.prod.outlook.com>
-References: <0-v1-9e466539c244+47b5-secure_msi_jgg@nvidia.com>
- <4-v1-9e466539c244+47b5-secure_msi_jgg@nvidia.com>
-In-Reply-To: <4-v1-9e466539c244+47b5-secure_msi_jgg@nvidia.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: BN9PR11MB5276:EE_|DS0PR11MB7788:EE_
-x-ms-office365-filtering-correlation-id: 1c977d45-397c-48a9-262f-08dad9aac7bd
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: u8ess2cFRWstqaPfWSF4ZcHmedJREyu4r+LUpOTZ8QGGjUHEz2QkBcJqvnA4+1nnAFBh3oFwn0EePs+cKb7WNF3ZLf6DIpUmaddOQGR1mtIDdaK/fSC6KVjdvhhqouygGHYk6o2i4lYgCoVE7DNOffs+wL8NXOJKNyv6DbqYrXwytcdl5AYemHB7/vxFJGC3Mtwfy7xIhR26G6Otqfb2kCw3DiDvbWx0+3eBgz0JftQHMSZEwfZ6XPtAYAt3anFCJpEx3vGYFd4eABKQ7KsOKDZOvWATTc/BDvYAmw9ubXvQ+L2MeiYESGnkt41oS9WS2QNZ9rq/nINZGHof1Ir2qn/LddeX50MejN8idyquQ35u4aMOw1zmMDJ/HT8JEJ+Nh1rgTChXwB60rpeUyDaxF6RPBGw70Lq/xHVMljKEn3lBsDX+Ap0tJ0DT3mmgcUTI/Uq1BbrqCgKaQaIeymxGnnF6X1EdxrqFr5jdKNxKxwSJz2MqhFsIeoXvphmY83VZUXIlmZaPs8oMIR/2llesj+Nmc+OHxgIQuVoTOHitl+n+FAdb0XyI96L7yAWYJ/Zni5ynqtXejsiYMXS3+ACb6zl+tTxyWZzF+r0/qqtYMEE0qbnAE0+UAci7tI6PPQuWFx1FOjS2StLOyp2yr/x+B7YOO7v5IG5YE+hjIv83tgay+Mv0Jx3gozjodTAHUU5F+Z+mAYmW7sBR7y3INx3c6Q==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR11MB5276.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(376002)(346002)(396003)(366004)(39860400002)(136003)(451199015)(110136005)(33656002)(26005)(7696005)(6506007)(9686003)(38100700002)(122000001)(41300700001)(54906003)(82960400001)(4744005)(5660300002)(8936002)(55016003)(38070700005)(921005)(52536014)(2906002)(7416002)(316002)(66446008)(86362001)(64756008)(76116006)(66946007)(66556008)(186003)(66476007)(8676002)(4326008)(478600001)(71200400001);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?f3F9oSQI2JcLwqe86wixJjE2oGLhyHcuArzJG583qykslXOrx9emaDGuyECq?=
- =?us-ascii?Q?F5Y2ppKnR5ERtXb/anvVF0EeLYAiQm16TmVdWbRFGugXRqx/GE/liS8tvoi4?=
- =?us-ascii?Q?f+IGJvF2ZTkCDvQ/sPy8BvRfQgyK6UQXUr5t3QSSxrZiPqPw3VKzzHQ4ve1m?=
- =?us-ascii?Q?k2GpfAg3+mkDeyjQsD+/sS0B4WeeDbIzy0LnqU6iagfAETv7HB0fH9Bogcyd?=
- =?us-ascii?Q?KBKzmmzw05Ix/OPP8Exjr1ay2ePiAsook/sbpNYOYxjlJYa4u0uD/tjkRy/8?=
- =?us-ascii?Q?VOg+rsWSZxhAJvDtB5P5CXSZjca/qu6mf2fsA3Da/ZugvYG0ErpW0ZdP20G5?=
- =?us-ascii?Q?8RW0RJkZDkQojBC6mmP8pfixnGJ5Wbh7h8Z2BQoaKbCj/M0gaLPtaV+217B6?=
- =?us-ascii?Q?7wsng/p0ww6uovHuSIck0ZxWIFfqu3Ke62qctHHE363lxGGJvHObPFt85t4n?=
- =?us-ascii?Q?Ck5cQaYnME/JdYCeZT32J3hmyl3gJVEquRL4JXVqU4pVlI6Xrc0z6fzJR8sy?=
- =?us-ascii?Q?wxo1Alz5KsXIVqsFAB48QSCaD73v4QVNN12CcAXV0WDf+v1SQkb9nxnwgxxJ?=
- =?us-ascii?Q?O4bU1SOfljbJDBy91q8s5NnE5fyZgjZg0BfJ8IdbQj13yiBVzAMvmtQ/J0k9?=
- =?us-ascii?Q?sv8Ka+r2VxBpqX5ThT+4lRvmYT5LFFdQ7e0UhI55Dvdb0qm1SMKAcpKH55rE?=
- =?us-ascii?Q?30EefiS7hy+o4JVSd+vY+ZtTXUpNca3/9MrBMKCPmfXyhlGCRdigXgWLrAQS?=
- =?us-ascii?Q?fzY1Il3JB7i9B64cLgJttERBYpVdDZMNT5sMRbccOrZ+mWbwFMAWjVt1TRD+?=
- =?us-ascii?Q?j1RHWCBoDdbnDgIO+mMsORStK5A5MAJz+PSLhfesiLARxjqy6YwOVcXRm8SN?=
- =?us-ascii?Q?tNrlqHlvnhmv6e9QFMcafEhUrU3jz53h6P2c4FtJsZvYltNx1BQCjlCMzIK2?=
- =?us-ascii?Q?7Y0UAICxwfqHDRSNkklhqWp+vToJf944rt5+B2174/MZ8T2VLmnXf/G260eR?=
- =?us-ascii?Q?gxUrI3ohrw6YX6mMfkJCZs+oJAqz9GWAEuFOC2zC1bQvZ0hVNIFpIxhmPKsy?=
- =?us-ascii?Q?8AW0jG4cY1CjEhi+JRND9MJsAhFa/F403Tt5YzKmWe3O8PhRGfRsevc63EYK?=
- =?us-ascii?Q?JG/Ba3rvjcM/qpiYsRrOh4Y7SE3pzGE74PLJfaYryShNuD/+XkFVzFkpf9+F?=
- =?us-ascii?Q?jsC632y9122C93GSF+ayYNcmnHJBSl2NJEnddlW8MWxI9CZpTDwDdEckE8/c?=
- =?us-ascii?Q?7aisfSjSFaDk1gPqd/6vuG2hmk16U4gE/efSojb+ziK6NAthcbngLKynIVr6?=
- =?us-ascii?Q?0GQi0t6PJyGdJErd6yBYlbACwlGziOspRyP+bZsfQDOxnuvOLZLFC9J9FHTa?=
- =?us-ascii?Q?lhJMK/LyNvUz6MxOQrG2cCKLgIg0YJOzN4fBYqS1/X/YYc/eC1erA7KNPlwI?=
- =?us-ascii?Q?CSPEyr9gxHihyBkBXRluAfyZIVbG0a9grHgXMY/LUhd2sfF6bQmWBeGqltWj?=
- =?us-ascii?Q?7HX8/L2/ZclXhM5Q47ko4GzUUJijZS+V1JQNi5f+8PLYUYQP8SPb9ZGowZCj?=
- =?us-ascii?Q?yZ+H8jA/74sqCAV2ecai3UShEjM78K+s9FNPpvRP?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S229628AbiLIHRx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 9 Dec 2022 02:17:53 -0500
+Received: from mail-wr1-f47.google.com (mail-wr1-f47.google.com [209.85.221.47])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E8971AA11;
+        Thu,  8 Dec 2022 23:17:50 -0800 (PST)
+Received: by mail-wr1-f47.google.com with SMTP id bx10so4317784wrb.0;
+        Thu, 08 Dec 2022 23:17:50 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=V+yITXud0X/ZAcTv3o4ks1/uA+y77wuhRyG/xgZE2LM=;
+        b=ztZK5WJ4fFy9wb0115QUvY9u51YgPPp4QrC1Xj+InENdHtda5WpUBYHnWCs6RF35vm
+         WwL7P0znonO9525UUJ/DtwN6A8634q97mXiQl/XtyEaN+MfpGR73bUW8Yh2tAwa+j5jm
+         /ReCa7oJnKBQLrl90/Y8W3k4+57m9VfwsFZpNpMGXPmDYC1BiMuJbwAGrwIYyOCWuTD4
+         GT67Nyxhr3HH79pC5lt5F8V+Tro3l7Cx0qXld/nD+RpjS62Zr6gkCyoxDwbE81dlI61p
+         VB7oyDoKNbzSNnbtJrDIwUT0PzBHguGuJ6kqOq+zaCaldzTlaTqfz3pfVw8WP5LDCEFu
+         xlEw==
+X-Gm-Message-State: ANoB5pnCjXugRC+TKSbwgfCyD5xt7EU70Eul9aVghThIYSHe/TDftwnf
+        p5fXH0bFvaVTBuZYZffj6mQ=
+X-Google-Smtp-Source: AA0mqf7KNUQWA1LeH8AdJxZntwBQ9+UtMRooxbZdwDVjn6ZA9ejUX6pZ6aMDIfnKejffcCVHUgsWxg==
+X-Received: by 2002:a5d:6f15:0:b0:242:bef:80a1 with SMTP id ay21-20020a5d6f15000000b002420bef80a1mr4943379wrb.2.1670570268813;
+        Thu, 08 Dec 2022 23:17:48 -0800 (PST)
+Received: from ?IPV6:2a0b:e7c0:0:107::aaaa:49? ([2a0b:e7c0:0:107::aaaa:49])
+        by smtp.gmail.com with ESMTPSA id e20-20020a5d5954000000b0023657e1b980sm615350wri.53.2022.12.08.23.17.47
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 08 Dec 2022 23:17:48 -0800 (PST)
+Message-ID: <6614f5d2-d99b-ea8a-f660-7a3433499a9f@kernel.org>
+Date:   Fri, 9 Dec 2022 08:17:47 +0100
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BN9PR11MB5276.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 1c977d45-397c-48a9-262f-08dad9aac7bd
-X-MS-Exchange-CrossTenant-originalarrivaltime: 09 Dec 2022 06:01:14.4607
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 7fM2G3KhTHSAs6/oxDZHJO70T4ktg4PNh9DTWL8gx6o2v5iThLxMwzZCj5NgiVWdOyrrKX31oZyIFGMW/F/RKw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR11MB7788
-X-OriginatorOrg: intel.com
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.5.0
+Subject: Re: [PATCH 1/1] tty: fix out-of-bounds access in
+ tty_driver_lookup_tty()
+Content-Language: en-US
+To:     Sven Schnelle <svens@linux.ibm.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Christian Borntraeger <borntraeger@de.ibm.com>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20221207075236.23171-1-svens@linux.ibm.com>
+ <20221207075236.23171-2-svens@linux.ibm.com>
+From:   Jiri Slaby <jirislaby@kernel.org>
+In-Reply-To: <20221207075236.23171-2-svens@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-> From: Jason Gunthorpe <jgg@nvidia.com>
-> Sent: Friday, December 9, 2022 4:27 AM
->
-> @@ -170,7 +170,7 @@ static int iommufd_device_setup_msi(struct
-> iommufd_device *idev,
->  	 * interrupt outside this iommufd context.
->  	 */
->  	if (!device_iommu_capable(idev->dev, IOMMU_CAP_INTR_REMAP)
-> &&
-> -	    !irq_domain_check_msi_remap()) {
-> +	    !msi_device_has_secure_msi(idev->dev)) {
->  		if (!allow_unsafe_interrupts)
->  			return -EPERM;
->=20
+On 07. 12. 22, 8:52, Sven Schnelle wrote:
+> When specifying an invalid console= device like console=tty3270,
+> tty_driver_lookup_tty() returns the tty struct without checking
+> whether index is a valid number.
+> 
+> To reproduce:
+> 
+> qemu-system-x86_64 -enable-kvm -nographic -serial mon:stdio \
+> -kernel ../linux-build-x86/arch/x86/boot/bzImage \
+> -append "console=ttyS0 console=tty3270"
+> 
+> This crashes with:
+> 
+> [    0.748921]   No soundcards found.
+> [    0.749293] platform regulatory.0: Direct firmware load for regulatory.db failed with error -2
+> [    0.750125] cfg80211: failed to load regulatory.db
+> [    0.750611] ------------[ cut here ]------------
+> [    0.751100] refcount_t: saturated; leaking memory.
+> [    0.751603] WARNING: CPU: 0 PID: 1 at lib/refcount.c:22 refcount_warn_saturate+0x51/0x110
+> [    0.752438] Modules linked in:
+> [    0.752772] CPU: 0 PID: 1 Comm: swapper/0 Not tainted 6.1.0-rc7-00194-gc911e8eba40a-dirty #15
+> [    0.753609] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.16.0-2.fc37 04/01/2014
+> [..]
+> [    0.763352] Call Trace:
+> [    0.763648]  <TASK>
+> [    0.763907]  tty_open+0x5be/0x6f0
+> [    0.764304]  chrdev_open+0xbd/0x230
+> [    0.764694]  ? cdev_device_add+0x80/0x80
+> [    0.765217]  do_dentry_open+0x1e0/0x410
+> [    0.765719]  path_openat+0xca9/0x1050
+> [    0.766224]  do_filp_open+0xaa/0x150
+> [    0.766694]  file_open_name+0x133/0x1b0
+> [    0.767260]  filp_open+0x27/0x50
+> [    0.767674]  console_on_rootfs+0x14/0x4d
+> [    0.768189]  kernel_init_freeable+0x1e4/0x20d
+> [    0.768726]  ? rest_init+0xc0/0xc0
+> [    0.769108]  kernel_init+0x11/0x120
+> [    0.769480]  ret_from_fork+0x22/0x30
+> [    0.769863]  </TASK>
+> [    0.770128] ---[ end trace 0000000000000000 ]---
+> [    0.770599] BUG: kernel NULL pointer dereference, address: 00000000000000ef
+> [    0.771265] #PF: supervisor read access in kernel mode
+> [    0.771773] #PF: error_code(0x0000) - not-present page
+> [    0.772311] PGD 0 P4D 0·
+> [    0.772609] Oops: 0000 [#1] PREEMPT SMP PTI
+> [    0.773066] CPU: 0 PID: 1 Comm: swapper/0 Tainted: G        W          6.1.0-rc7-00194-gc911e8eba40a-dirty #15
+> [    0.774027] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.16.0-2.fc37 04/01/2014
+> [    0.774878] RIP: 0010:tty_open+0x268/0x6f0
+> [..]
+> [    0.783386] Call Trace:
+> [    0.783715]  <TASK>
+> [    0.784013]  chrdev_open+0xbd/0x230
+> [    0.784444]  ? cdev_device_add+0x80/0x80
+> [    0.784920]  do_dentry_open+0x1e0/0x410
+> [    0.785389]  path_openat+0xca9/0x1050
+> [    0.785813]  do_filp_open+0xaa/0x150
+> [    0.786240]  file_open_name+0x133/0x1b0
+> [    0.786746]  filp_open+0x27/0x50
+> [    0.787244]  console_on_rootfs+0x14/0x4d
+> [    0.787800]  kernel_init_freeable+0x1e4/0x20d
+> [    0.788383]  ? rest_init+0xc0/0xc0
+> [    0.788881]  kernel_init+0x11/0x120
+> [    0.789356]  ret_from_fork+0x22/0x30
+> [    0.789842]  </TASK>
+> [    0.790163] Modules linked in:
+> [    0.790502] CR2: 00000000000000ef
+> [    0.790861] ---[ end trace 0000000000000000 ]---
+> [    0.791332] RIP: 0010:tty_open+0x268/0x6f0
+> [..]
+> [    0.799648] Kernel panic - not syncing: Attempted to kill init! exitcode=0x00000009
+> [    0.800479] Kernel Offset: 0x10400000 from 0xffffffff81000000 (relocation range: 0xffffffff80000000-0xffffffffbfffffff)
+> [    0.801534] ---[ end Kernel panic - not syncing: Attempted to kill init! exitcode=0x00000009 ]---
 
-this is where iommufd and vfio diverge.
+Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
 
-vfio has a check to ensure all devices in the group has secure_msi.
+Yes, this makes sense as a sanity check for all drivers. But I would 
+_also_ disallow registering such a console in vt:
+--- a/drivers/tty/vt/vt.c
++++ b/drivers/tty/vt/vt.c
+@@ -3075,6 +3075,11 @@ int vt_kmsg_redirect(int new)
+   * The console must be locked when we get here.
+   */
 
-but iommufd only imposes the check per device.
++static int vt_console_setup(struct console *co, char *options)
++{
++       return co->index >= MAX_NR_CONSOLES ? -EINVAL : 0;
++}
++
+  static void vt_console_print(struct console *co, const char *b, 
+unsigned count)
+  {
+         struct vc_data *vc = vc_cons[fg_console].d;
+@@ -3158,6 +3163,7 @@ static struct tty_driver *vt_console_device(struct 
+console *c, int *index)
+
+  static struct console vt_console_driver = {
+         .name           = "tty",
++       .setup          = vt_console_setup,
+         .write          = vt_console_print,
+         .device         = vt_console_device,
+         .unblank        = unblank_screen,
+
+That means dmesg would say:
+   Console: colour dummy device 80x25
+   printk: console [ttyS0] enabled
+
+And not:
+   Console: colour dummy device 80x25
+   printk: console [tty3270] enabled
+   printk: console [ttyS0] enabled
+
+> Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+> ---
+>   drivers/tty/tty_io.c | 8 +++++---
+>   1 file changed, 5 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/tty/tty_io.c b/drivers/tty/tty_io.c
+> index de06c3c2ff70..1ac6784ea1f9 100644
+> --- a/drivers/tty/tty_io.c
+> +++ b/drivers/tty/tty_io.c
+> @@ -1224,14 +1224,16 @@ static struct tty_struct *tty_driver_lookup_tty(struct tty_driver *driver,
+>   {
+>   	struct tty_struct *tty;
+>   
+> -	if (driver->ops->lookup)
+> +	if (driver->ops->lookup) {
+>   		if (!file)
+>   			tty = ERR_PTR(-EIO);
+>   		else
+>   			tty = driver->ops->lookup(driver, file, idx);
+> -	else
+> +	} else {
+> +		if (idx >= driver->num)
+> +			return ERR_PTR(-EINVAL);
+>   		tty = driver->ttys[idx];
+> -
+> +	}
+>   	if (!IS_ERR(tty))
+>   		tty_kref_get(tty);
+>   	return tty;
+
+thanks,
+-- 
+js
+suse labs
+
