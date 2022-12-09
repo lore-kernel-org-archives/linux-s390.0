@@ -2,101 +2,100 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C65C2C4332F
-	for <linux-s390@archiver.kernel.org>; Fri,  9 Dec 2022 10:24:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BAF24C4332F
+	for <linux-s390@archiver.kernel.org>; Fri,  9 Dec 2022 11:28:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229816AbiLIKY1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 9 Dec 2022 05:24:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46358 "EHLO
+        id S230020AbiLIL2D (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 9 Dec 2022 06:28:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229762AbiLIKY0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 9 Dec 2022 05:24:26 -0500
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 48D7661770;
-        Fri,  9 Dec 2022 02:24:25 -0800 (PST)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 6E4B423A;
-        Fri,  9 Dec 2022 02:24:31 -0800 (PST)
-Received: from [10.57.87.116] (unknown [10.57.87.116])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 6B5CA3F73B;
-        Fri,  9 Dec 2022 02:24:16 -0800 (PST)
-Message-ID: <a8eb848f-3755-6f64-43d8-3f3dc9926979@arm.com>
-Date:   Fri, 9 Dec 2022 10:24:10 +0000
+        with ESMTP id S229948AbiLIL14 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 9 Dec 2022 06:27:56 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BAAE43ADD;
+        Fri,  9 Dec 2022 03:27:54 -0800 (PST)
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2B995JPf018605;
+        Fri, 9 Dec 2022 11:27:50 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=lr8FlHb5L+VJR40kJ/GrAGAAjLPIS+pgH6GTe2l/4GQ=;
+ b=jJQjgDXqW6cyantg7+629A6yXn3sUCBjw/ozNQlBBPbfPW6d+N5+Tvbt2xI4NVfCckC1
+ QA+GGFYwhCZVIBP0tJD/J+vXfsD00XwDuayarRDrraiXG3X7qfeMzV+V3qxuE+L4NZmR
+ ASOSq3ccKJ3f1l4J3jRtHYdx6uLNUinbsJo0+9CNWt5w+Iqn87mxq64z2M54Qvs4Uq01
+ WMEYwjMowOsDx1kfRFkYlUH7XXUzYm8PoFE/u8wNvegc4LM4vTtJnU0d/RsSd4MO5HL9
+ zVmA2vKtjiqKTcJfwkabUMUuE5ft8sAur4JfoKS1p/kWejbD2wMjAE+iDKoGAdOXK7Ak qQ== 
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3mbuw92rxg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 09 Dec 2022 11:27:50 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.17.1.19/8.16.1.2) with ESMTP id 2B98JYw8018447;
+        Fri, 9 Dec 2022 11:27:48 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+        by ppma05fra.de.ibm.com (PPS) with ESMTPS id 3m9m7rca37-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 09 Dec 2022 11:27:47 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2B9BRj5F43516408
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 9 Dec 2022 11:27:45 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 906A820043;
+        Fri,  9 Dec 2022 11:27:45 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 81DC420040;
+        Fri,  9 Dec 2022 11:27:45 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Fri,  9 Dec 2022 11:27:45 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55390)
+        id 5241BE027E; Fri,  9 Dec 2022 12:27:45 +0100 (CET)
+From:   Sven Schnelle <svens@linux.ibm.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jirislaby@kernel.org>
+Cc:     Christian Borntraeger <borntraeger@de.ibm.com>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [PATCH v2 0/2] fix out-of-bounds access when specifying invalid console
+Date:   Fri,  9 Dec 2022 12:27:35 +0100
+Message-Id: <20221209112737.3222509-1-svens@linux.ibm.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101
- Thunderbird/102.5.1
-Subject: Re: [PATCH iommufd 2/9] vfio/type1: Check that every device supports
- IOMMU_CAP_INTR_REMAP
-To:     Jason Gunthorpe <jgg@nvidia.com>,
-        Alex Williamson <alex.williamson@redhat.com>
-Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, iommu@lists.linux.dev,
-        Joerg Roedel <joro@8bytes.org>,
-        Kevin Tian <kevin.tian@intel.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will@kernel.org>,
-        Bharat Bhushan <bharat.bhushan@nxp.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Eric Auger <eric.auger@redhat.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Tomasz Nowicki <tomasz.nowicki@caviumnetworks.com>,
-        Will Deacon <will.deacon@arm.com>
-References: <0-v1-9e466539c244+47b5-secure_msi_jgg@nvidia.com>
- <2-v1-9e466539c244+47b5-secure_msi_jgg@nvidia.com>
- <20221208144825.33823739.alex.williamson@redhat.com>
- <Y5KE/ikRGKnuaFAQ@nvidia.com>
-Content-Language: en-GB
-From:   Robin Murphy <robin.murphy@arm.com>
-In-Reply-To: <Y5KE/ikRGKnuaFAQ@nvidia.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 2sUlgT5ZT9mzptxguIx4hfPZIB8c9Fcz
+X-Proofpoint-ORIG-GUID: 2sUlgT5ZT9mzptxguIx4hfPZIB8c9Fcz
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-12-09_04,2022-12-08_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ impostorscore=0 suspectscore=0 bulkscore=0 mlxscore=0 clxscore=1015
+ lowpriorityscore=0 adultscore=0 spamscore=0 mlxlogscore=661 phishscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2212090066
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2022-12-09 00:44, Jason Gunthorpe wrote:
-> On Thu, Dec 08, 2022 at 02:48:25PM -0700, Alex Williamson wrote:
->> On Thu,  8 Dec 2022 16:26:29 -0400
->> Jason Gunthorpe <jgg@nvidia.com> wrote:
->>
->>> iommu_group_for_each_dev() exits the loop at the first callback that
->>> returns 1 - thus returning 1 fails to check the rest of the devices in the
->>> group.
->>>
->>> msi_remap (aka secure MSI) requires that all the devices in the group
->>> support it, not just any one. This is only a theoretical problem as no
->>> current drivers will have different secure MSI properties within a group.
->>
->> Which is exactly how Robin justified the behavior in the referenced
->> commit:
->>
->>    As with domains, any capability must in practice be consistent for
->>    devices in a given group - and after all it's still the same
->>    capability which was expected to be consistent across an entire bus!
->>    - so there's no need for any complicated validation.
->>
->> That suggests to me that it's intentional that we break if any device
->> supports the capability and therefore this isn't so much a "Fixes:", as
->> it is a refactoring expressly to support msi_device_has_secure_msi(),
->> which cannot make these sort of assumptions as a non-group API.  Thanks,
-> 
-> Sure, lets drop the fixes and your analysis seems correct
+Hi,
 
-Yup, Alex is spot on - the fact is that all the IOMMU drivers supporting 
-this cap have always returned global values, and continue to do so right 
-up until we remove it later, so there's really no benefit in pretending 
-otherwise. I'd say just fold this into patch #3 to keep it even simpler.
+these two patches fix a crash in the tty driver when a user specifies an
+invalid console like 'console=tty3000'. The first patch adds a check to
+tty_driver_lookup_tty(), the second one prevents that such a console gets
+registered in the vt driver.
 
-Thanks,
-Robin.
+Changes in v2:
+- trim commit message in first patch
+- add second patch as suggested by Jiri Slaby
+
+Sven Schnelle (2):
+  tty: fix out-of-bounds access in tty_driver_lookup_tty()
+  tty/vt: prevent registration of console with invalid number
+
+ drivers/tty/tty_io.c | 8 +++++---
+ drivers/tty/vt/vt.c  | 6 ++++++
+ 2 files changed, 11 insertions(+), 3 deletions(-)
+
+-- 
+2.34.1
+
