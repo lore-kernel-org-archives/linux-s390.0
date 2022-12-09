@@ -2,112 +2,154 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 89300C04FDE
-	for <linux-s390@archiver.kernel.org>; Fri,  9 Dec 2022 11:28:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EE2A7C4332F
+	for <linux-s390@archiver.kernel.org>; Fri,  9 Dec 2022 12:47:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230057AbiLIL2K (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 9 Dec 2022 06:28:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51984 "EHLO
+        id S229886AbiLIMr5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 9 Dec 2022 07:47:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229968AbiLIL2A (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 9 Dec 2022 06:28:00 -0500
+        with ESMTP id S229696AbiLIMr4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 9 Dec 2022 07:47:56 -0500
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E72A045A3A;
-        Fri,  9 Dec 2022 03:27:57 -0800 (PST)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2B9B9iT0003641;
-        Fri, 9 Dec 2022 11:27:54 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=ZSlPhvT/Gwt3QBnevDKmiLdO/2ODroa0WQHJW/W3Nzs=;
- b=fxrW5YkcLRZnVzvUH6NfcsrYkynmfHCYiZkVsCXD9HGXtvlyjxBth+Zc4INNV40Kysht
- saP5obwcZcsh2jqduzG0rBxqm8XOzY9JmVuZ1T92+fLDLzMm9xw9LCeTwujmJMFwb+pw
- RE86tCTXEzPzFMDW8sOKYUhgFHgEMZEDUN7gSWiCUrOwLoXXacCw2cM2lj3xZUbMjFoM
- l+DV1EyGZsUU68fd28UaJDp1YeyKa9MJ0FhgC0quVfQ7oOIJw5sDQlx98CO0Uc4PqUn0
- CRIU0ywV7gqcl/p/zkqZ+kL8+sSXspr/gWQpNPmZrfXjv2WhyJRwozfU9x3u0R3XezwF ug== 
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mbxakfuf8-1
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A03F23E8E;
+        Fri,  9 Dec 2022 04:47:55 -0800 (PST)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2B9CFUKo022393;
+        Fri, 9 Dec 2022 12:47:54 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=soxIt6cUquCeTNSAbrMSQAEcvR5vm+ZbNFOKQrTRtu8=;
+ b=ADSTGcyTTEIgS8F/7GE5844tcF0DkcDI6lA1O9GSeiBccC/2FYk64LrI17TGH+8qQy6F
+ 2AmOxlgtkrlmXjHtk/tHsQhMhsvkFOhHexRJHNvix/sL4oVcVfwB19ck9n6ikSnNlxO4
+ anLoTr7HT4h6sO5VnPzaOAgDZ9rVanmcOlbBxO02JF/MKZOQD/RNI91qDjZANiVZShrP
+ DLR+0WTPHB2QQ3Uy0H0V6PMxcLTHT1xx/yQ6KMXn0im8HO4cWFWValbyrMZAhWWxLysK
+ HdTR1tr4as8ml5Nsmf5l4ZeLSJ0GmP0BQ4yTLgC4iuLZ+Gzw/ZsOtlDVCBUFRlonGetb 9A== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mc29ycc1g-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 09 Dec 2022 11:27:53 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 2B8Kw6Mh004817;
-        Fri, 9 Dec 2022 11:27:51 GMT
+        Fri, 09 Dec 2022 12:47:54 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2B9CN6uQ014888;
+        Fri, 9 Dec 2022 12:47:54 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mc29ycc0r-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 09 Dec 2022 12:47:54 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 2B9C2Z2w016506;
+        Fri, 9 Dec 2022 12:47:51 GMT
 Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3m9kvbdvx8-1
+        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3m9m5y5yn6-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 09 Dec 2022 11:27:51 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2B9BRlsV44827088
+        Fri, 09 Dec 2022 12:47:51 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2B9Cln0c43778428
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 9 Dec 2022 11:27:48 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D524620040;
-        Fri,  9 Dec 2022 11:27:47 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C43DA2004D;
-        Fri,  9 Dec 2022 11:27:47 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Fri,  9 Dec 2022 11:27:47 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55390)
-        id 8656BE027E; Fri,  9 Dec 2022 12:27:47 +0100 (CET)
-From:   Sven Schnelle <svens@linux.ibm.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jirislaby@kernel.org>
-Cc:     Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [PATCH v2 2/2] tty/vt: prevent registration of console with invalid number
-Date:   Fri,  9 Dec 2022 12:27:37 +0100
-Message-Id: <20221209112737.3222509-3-svens@linux.ibm.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20221209112737.3222509-1-svens@linux.ibm.com>
-References: <20221209112737.3222509-1-svens@linux.ibm.com>
+        Fri, 9 Dec 2022 12:47:49 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6D93220043;
+        Fri,  9 Dec 2022 12:47:49 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 126B520040;
+        Fri,  9 Dec 2022 12:47:49 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.171.67.167])
+        by smtpav01.fra02v.mail.ibm.com (Postfix) with SMTP;
+        Fri,  9 Dec 2022 12:47:48 +0000 (GMT)
+Date:   Fri, 9 Dec 2022 13:47:47 +0100
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Thomas Huth <thuth@redhat.com>
+Cc:     kvm@vger.kernel.org, Janosch Frank <frankja@linux.ibm.com>,
+        linux-s390@vger.kernel.org, David Hildenbrand <david@redhat.com>
+Subject: Re: [kvm-unit-tests v2 PATCH] s390x: sie: Test whether the epoch
+ extension field is working as expected
+Message-ID: <20221209134747.489ccf94@p-imbrenda>
+In-Reply-To: <20221208170502.17984-1-thuth@redhat.com>
+References: <20221208170502.17984-1-thuth@redhat.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 2CbJFMTMhpsNEWfV2R6OLT-wR3N1LIQk
-X-Proofpoint-ORIG-GUID: 2CbJFMTMhpsNEWfV2R6OLT-wR3N1LIQk
+X-Proofpoint-ORIG-GUID: TTMsNvqnlphQF0Ff_DeufyEkRz77qqn8
+X-Proofpoint-GUID: O2ZJj9yeQDYAd-tFzYvyCJ6p_5GtaQr_
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-12-09_04,2022-12-08_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 clxscore=1015
- mlxlogscore=774 impostorscore=0 mlxscore=0 lowpriorityscore=0 phishscore=0
- priorityscore=1501 adultscore=0 suspectscore=0 spamscore=0 bulkscore=0
+ definitions=2022-12-09_07,2022-12-08_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 malwarescore=0
+ adultscore=0 mlxlogscore=999 priorityscore=1501 clxscore=1015 phishscore=0
+ bulkscore=0 mlxscore=0 lowpriorityscore=0 impostorscore=0 suspectscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2210170000
- definitions=main-2212090066
+ definitions=main-2212090098
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-If a user specifies an invalid console like 'console=tty3000',
-the vt driver should prevent setting up a vt entry for that.
+On Thu,  8 Dec 2022 18:05:02 +0100
+Thomas Huth <thuth@redhat.com> wrote:
 
-Suggested-by: Jiri Slaby <jirislaby@kernel.org>
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
----
- drivers/tty/vt/vt.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+> We recently discovered a bug with the time management in nested scenarios
+> which got fixed by kernel commit "KVM: s390: vsie: Fix the initialization
+> of the epoch extension (epdx) field". This adds a simple test for this
+> bug so that it is easier to determine whether the host kernel of a machine
+> has already been fixed or not.
+> 
+> Signed-off-by: Thomas Huth <thuth@redhat.com>
 
-diff --git a/drivers/tty/vt/vt.c b/drivers/tty/vt/vt.c
-index 981d2bfcf9a5..62c8a45ad731 100644
---- a/drivers/tty/vt/vt.c
-+++ b/drivers/tty/vt/vt.c
-@@ -3156,8 +3156,14 @@ static struct tty_driver *vt_console_device(struct console *c, int *index)
- 	return console_driver;
- }
- 
-+static int vt_console_setup(struct console *co, char *options)
-+{
-+	return co->index >= MAX_NR_CONSOLES ? -EINVAL : 0;
-+}
-+
- static struct console vt_console_driver = {
- 	.name		= "tty",
-+	.setup		= vt_console_setup,
- 	.write		= vt_console_print,
- 	.device		= vt_console_device,
- 	.unblank	= unblank_screen,
--- 
-2.34.1
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+
+> ---
+>  v2: Remove the spurious "2" from the diag 44 opcode
+> 
+>  s390x/sie.c | 28 ++++++++++++++++++++++++++++
+>  1 file changed, 28 insertions(+)
+> 
+> diff --git a/s390x/sie.c b/s390x/sie.c
+> index 87575b29..cd3cea10 100644
+> --- a/s390x/sie.c
+> +++ b/s390x/sie.c
+> @@ -58,6 +58,33 @@ static void test_diags(void)
+>  	}
+>  }
+>  
+> +static void test_epoch_ext(void)
+> +{
+> +	u32 instr[] = {
+> +		0xb2780000,	/* STCKE 0 */
+> +		0x83000044	/* DIAG 0x44 to intercept */
+> +	};
+> +
+> +	if (!test_facility(139)) {
+> +		report_skip("epdx: Multiple Epoch Facility is not available");
+> +		return;
+> +	}
+> +
+> +	guest[0] = 0x00;
+> +	memcpy(guest_instr, instr, sizeof(instr));
+> +
+> +	vm.sblk->gpsw.addr = PAGE_SIZE * 2;
+> +	vm.sblk->gpsw.mask = PSW_MASK_64;
+> +
+> +	vm.sblk->ecd |= ECD_MEF;
+> +	vm.sblk->epdx = 0x47;	/* Setting the epoch extension here ... */
+> +
+> +	sie(&vm);
+> +
+> +	/* ... should result in the same epoch extension here: */
+> +	report(guest[0] == 0x47, "epdx: different epoch is visible in the guest");
+> +}
+> +
+>  static void setup_guest(void)
+>  {
+>  	setup_vm();
+> @@ -80,6 +107,7 @@ int main(void)
+>  
+>  	setup_guest();
+>  	test_diags();
+> +	test_epoch_ext();
+>  	sie_guest_destroy(&vm);
+>  
+>  done:
 
