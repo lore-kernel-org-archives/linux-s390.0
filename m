@@ -2,381 +2,123 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EFF25C4332F
-	for <linux-s390@archiver.kernel.org>; Tue, 13 Dec 2022 15:40:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BBAEEC4332F
+	for <linux-s390@archiver.kernel.org>; Tue, 13 Dec 2022 15:44:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235639AbiLMPkl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 13 Dec 2022 10:40:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38842 "EHLO
+        id S236241AbiLMPoq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 13 Dec 2022 10:44:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235737AbiLMPkj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 13 Dec 2022 10:40:39 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CDC36350;
-        Tue, 13 Dec 2022 07:40:38 -0800 (PST)
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2BDEuUOs013522;
-        Tue, 13 Dec 2022 15:40:18 GMT
+        with ESMTP id S236147AbiLMPoo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 13 Dec 2022 10:44:44 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96B7A5F61;
+        Tue, 13 Dec 2022 07:44:43 -0800 (PST)
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2BDF9Y5n028455;
+        Tue, 13 Dec 2022 15:44:41 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=KmdS9rUzjesq1B709Sm7Kwl2XLfu6My20QnZdfuetHQ=;
- b=XvsEjWBbXYIcaSRMji2zFA1RCNs9YKD1LNZx5CguOA4zMGj/xiWG4Vt8BjGdv4L8PUhZ
- iASavKteoyuxXSuzj+I9nzqO8GJ6TpRqoObdrgrvkTDEJiBtKZRwgQ7MmqGEP81Xr9AV
- +MdtDibxmHbOCFcNKLPuYMYMYcNMo8W0yARxrem2pnFwsv2uFJQSpAez35MLY5ICFrsi
- uMu12KhD/VBaut0Tu2IetrWp6yuHd7eIaiCEzHz4p49B6ho5MOjV7kHt6PEPIZ2sauEJ
- MGnl7WyOxFaf7VfeTVFVWCcC8XEnMRKndIVVjaFQxinAtPXYszaTH2lWXsOF2vFpQhgf JA== 
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3meukp9cen-1
+ bh=vUIvTfnfTAj8T26MaoLAUf7I4zk2YP28InrrSR0U0F8=;
+ b=qRVZDKVjtEfzvSI9rWB+6KIVonLhE/WcYA0UrBtAaagOC+ZG9K45SgTHgC9fQgv20J21
+ TC8KUaMg/r+pZwoHCCjo/2w8Z4s3rq+vE/sGKggvHSQHkdJuab6IIh6pJaSh02WjJ8wC
+ jNqXa1dAXc2cyg8HMxv5DYJRwhWWVyozXH4yVOlr0kDCQRa/Q4TPqjtZafSCZjPRbFY6
+ kw0b16T5qq4MCAijH0VTp9zB5YM/WnpocFdWGcg0sOfYxw1FlIoHWS1nQYIZNYx3Qlf8
+ hrRQXMkTcgTEHyTQ5iO+4JF2evfEqFxK5Cxv8tAqB4nhnNrZmKT1owSxnToU2RSDwnMf Lw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3mesmxd4fb-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 13 Dec 2022 15:40:18 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 2BD5UJt5007832;
-        Tue, 13 Dec 2022 15:40:16 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3mchcf4dmf-1
+        Tue, 13 Dec 2022 15:44:41 +0000
+Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2BDFRj9j005717;
+        Tue, 13 Dec 2022 15:44:41 GMT
+Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3mesmxd4ey-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 13 Dec 2022 15:40:15 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2BDFeC3443712988
+        Tue, 13 Dec 2022 15:44:41 +0000
+Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
+        by ppma03dal.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 2BDF01Fn014276;
+        Tue, 13 Dec 2022 15:44:39 GMT
+Received: from smtprelay03.dal12v.mail.ibm.com ([9.208.130.98])
+        by ppma03dal.us.ibm.com (PPS) with ESMTPS id 3mchr71aqm-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 13 Dec 2022 15:44:39 +0000
+Received: from smtpav01.dal12v.mail.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
+        by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2BDFic0G2163368
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 13 Dec 2022 15:40:12 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E40FA20040;
-        Tue, 13 Dec 2022 15:40:11 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7B1652004E;
-        Tue, 13 Dec 2022 15:40:11 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 13 Dec 2022 15:40:11 +0000 (GMT)
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Matthew Rosato <mjrosato@linux.ibm.com>, iommu@lists.linux.dev,
-        Joerg Roedel <joro@8bytes.org>
-Cc:     Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, borntraeger@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, will@kernel.org,
-        Robin Murphy <robin.murphy@arm.com>,
-        Jason Gunthorpe <jgg@nvidia.com>, linux-kernel@vger.kernel.org,
-        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-        Sven Peter <sven@svenpeter.dev>
-Subject: [PATCH v2] iommu: Allow .iotlb_sync_map to fail and handle s390's -ENOMEM return
-Date:   Tue, 13 Dec 2022 16:40:11 +0100
-Message-Id: <20221213154011.2889260-1-schnelle@linux.ibm.com>
-X-Mailer: git-send-email 2.34.1
+        Tue, 13 Dec 2022 15:44:38 GMT
+Received: from smtpav01.dal12v.mail.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 73BA958058;
+        Tue, 13 Dec 2022 15:44:38 +0000 (GMT)
+Received: from smtpav01.dal12v.mail.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9FCC658061;
+        Tue, 13 Dec 2022 15:44:37 +0000 (GMT)
+Received: from li-2c1e724c-2c76-11b2-a85c-ae42eaf3cb3d.endicott.ibm.com (unknown [9.60.85.43])
+        by smtpav01.dal12v.mail.com (Postfix) with ESMTP;
+        Tue, 13 Dec 2022 15:44:37 +0000 (GMT)
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+To:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc:     jjherne@linux.ibm.com, freude@linux.ibm.com,
+        borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com,
+        pasic@linux.ibm.com, alex.williamson@redhat.com,
+        kwankhede@nvidia.com, fiuczy@linux.ibm.com
+Subject: [PATCH 0/7] improve AP queue reset processing
+Date:   Tue, 13 Dec 2022 10:44:30 -0500
+Message-Id: <20221213154437.15480-1-akrowiak@linux.ibm.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: BiLhIZJFhEWVB7e9rF2_Nm6oCHIaTyaK
-X-Proofpoint-ORIG-GUID: BiLhIZJFhEWVB7e9rF2_Nm6oCHIaTyaK
+X-Proofpoint-GUID: XZQ9b_nuV_Ulm5p9MGiE1wsaW7sA2ljH
+X-Proofpoint-ORIG-GUID: vTHPHg9cmRvLuTFeAAMOY-Kd4joDitx0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2022-12-13_03,2022-12-13_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 phishscore=0
- malwarescore=0 mlxlogscore=999 suspectscore=0 bulkscore=0 spamscore=0
- mlxscore=0 clxscore=1015 priorityscore=1501 adultscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ malwarescore=0 bulkscore=0 clxscore=1015 mlxscore=0 lowpriorityscore=0
+ mlxlogscore=771 priorityscore=1501 phishscore=0 suspectscore=0 spamscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2210170000 definitions=main-2212130137
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On s390 .iotlb_sync_map is used to sync mappings to an underlying
-hypervisor by letting the hypervisor inspect the synced IOVA range and
-updating its shadow table. This however means that it can fail as the
-hypervisor may run out of resources. This can be due to the hypervisor
-being unable to pin guest pages, due to a limit on concurrently mapped
-addresses such as vfio_iommu_type1.dma_entry_limit or other resources.
-Either way such a failure to sync a mapping should result in
-a DMA_MAPPING_EROR.
+This series introduces several improvements to the function that performs
+AP queue resets:
 
-Now especially when running with batched IOTLB flushes for unmap it may
-be that some IOVAs have already been invalidated but not yet synced via
-.iotlb_sync_map. Thus if the hypervisor indicates running out of
-resources, first do a global flush allowing the hypervisor to free
-resources associated with these mappings and only if that also fails
-report this error to callers.
+* Breaks up reset processing into multiple smaller, more concise functions.
 
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
----
-v1 -> v2:
-- Add missing return in gart_iommu_sync_map() (Jason)
+* Use TAPQ to verify completion of a reset in progress rather than mulitple
+  invocations of ZAPQ.
 
- drivers/iommu/amd/iommu.c   |  5 +++--
- drivers/iommu/apple-dart.c  |  5 +++--
- drivers/iommu/intel/iommu.c |  5 +++--
- drivers/iommu/iommu.c       | 20 ++++++++++++++++----
- drivers/iommu/msm_iommu.c   |  5 +++--
- drivers/iommu/mtk_iommu.c   |  5 +++--
- drivers/iommu/s390-iommu.c  | 29 ++++++++++++++++++++++++-----
- drivers/iommu/sprd-iommu.c  |  5 +++--
- drivers/iommu/tegra-gart.c  |  5 +++--
- include/linux/iommu.h       |  4 ++--
- 10 files changed, 63 insertions(+), 25 deletions(-)
+* Check TAPQ response codes when verifying successful completion of ZAPQ.
 
-diff --git a/drivers/iommu/amd/iommu.c b/drivers/iommu/amd/iommu.c
-index d3b39d0416fa..35476eb389a1 100644
---- a/drivers/iommu/amd/iommu.c
-+++ b/drivers/iommu/amd/iommu.c
-@@ -2189,14 +2189,15 @@ static int amd_iommu_attach_device(struct iommu_domain *dom,
- 	return ret;
- }
- 
--static void amd_iommu_iotlb_sync_map(struct iommu_domain *dom,
--				     unsigned long iova, size_t size)
-+static int amd_iommu_iotlb_sync_map(struct iommu_domain *dom,
-+				    unsigned long iova, size_t size)
- {
- 	struct protection_domain *domain = to_pdomain(dom);
- 	struct io_pgtable_ops *ops = &domain->iop.iop.ops;
- 
- 	if (ops->map_pages)
- 		domain_flush_np_cache(domain, iova, size);
-+	return 0;
- }
- 
- static int amd_iommu_map_pages(struct iommu_domain *dom, unsigned long iova,
-diff --git a/drivers/iommu/apple-dart.c b/drivers/iommu/apple-dart.c
-index 4f4a323be0d0..4a76f4d95459 100644
---- a/drivers/iommu/apple-dart.c
-+++ b/drivers/iommu/apple-dart.c
-@@ -344,10 +344,11 @@ static void apple_dart_iotlb_sync(struct iommu_domain *domain,
- 	apple_dart_domain_flush_tlb(to_dart_domain(domain));
- }
- 
--static void apple_dart_iotlb_sync_map(struct iommu_domain *domain,
--				      unsigned long iova, size_t size)
-+static int apple_dart_iotlb_sync_map(struct iommu_domain *domain,
-+				     unsigned long iova, size_t size)
- {
- 	apple_dart_domain_flush_tlb(to_dart_domain(domain));
-+	return 0;
- }
- 
- static phys_addr_t apple_dart_iova_to_phys(struct iommu_domain *domain,
-diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
-index 48cdcd0a5cf3..8299517e0f8b 100644
---- a/drivers/iommu/intel/iommu.c
-+++ b/drivers/iommu/intel/iommu.c
-@@ -4699,8 +4699,8 @@ static bool risky_device(struct pci_dev *pdev)
- 	return false;
- }
- 
--static void intel_iommu_iotlb_sync_map(struct iommu_domain *domain,
--				       unsigned long iova, size_t size)
-+static int intel_iommu_iotlb_sync_map(struct iommu_domain *domain,
-+				      unsigned long iova, size_t size)
- {
- 	struct dmar_domain *dmar_domain = to_dmar_domain(domain);
- 	unsigned long pages = aligned_nrpages(iova, size);
-@@ -4710,6 +4710,7 @@ static void intel_iommu_iotlb_sync_map(struct iommu_domain *domain,
- 
- 	xa_for_each(&dmar_domain->iommu_array, i, info)
- 		__mapping_notify_one(info->iommu, dmar_domain, pfn, pages);
-+	return 0;
- }
- 
- const struct iommu_ops intel_iommu_ops = {
-diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index 65a3b3d886dc..7e72ec9ab367 100644
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -2300,8 +2300,17 @@ static int _iommu_map(struct iommu_domain *domain, unsigned long iova,
- 	int ret;
- 
- 	ret = __iommu_map(domain, iova, paddr, size, prot, gfp);
--	if (ret == 0 && ops->iotlb_sync_map)
--		ops->iotlb_sync_map(domain, iova, size);
-+	if (ret == 0 && ops->iotlb_sync_map) {
-+		ret = ops->iotlb_sync_map(domain, iova, size);
-+		if (ret)
-+			goto out_err;
-+	}
-+
-+	return ret;
-+
-+out_err:
-+	/* undo mappings already done */
-+	iommu_unmap(domain, iova, size);
- 
- 	return ret;
- }
-@@ -2449,8 +2458,11 @@ static ssize_t __iommu_map_sg(struct iommu_domain *domain, unsigned long iova,
- 			sg = sg_next(sg);
- 	}
- 
--	if (ops->iotlb_sync_map)
--		ops->iotlb_sync_map(domain, iova, mapped);
-+	if (ops->iotlb_sync_map) {
-+		ret = ops->iotlb_sync_map(domain, iova, mapped);
-+		if (ret)
-+			goto out_err;
-+	}
- 	return mapped;
- 
- out_err:
-diff --git a/drivers/iommu/msm_iommu.c b/drivers/iommu/msm_iommu.c
-index 16179a9a7283..415b7008dd2f 100644
---- a/drivers/iommu/msm_iommu.c
-+++ b/drivers/iommu/msm_iommu.c
-@@ -484,12 +484,13 @@ static int msm_iommu_map(struct iommu_domain *domain, unsigned long iova,
- 	return ret;
- }
- 
--static void msm_iommu_sync_map(struct iommu_domain *domain, unsigned long iova,
--			       size_t size)
-+static int msm_iommu_sync_map(struct iommu_domain *domain, unsigned long iova,
-+			      size_t size)
- {
- 	struct msm_priv *priv = to_msm_priv(domain);
- 
- 	__flush_iotlb_range(iova, size, SZ_4K, false, priv);
-+	return 0;
- }
- 
- static size_t msm_iommu_unmap(struct iommu_domain *domain, unsigned long iova,
-diff --git a/drivers/iommu/mtk_iommu.c b/drivers/iommu/mtk_iommu.c
-index 2ab2ecfe01f8..d437946231bf 100644
---- a/drivers/iommu/mtk_iommu.c
-+++ b/drivers/iommu/mtk_iommu.c
-@@ -749,12 +749,13 @@ static void mtk_iommu_iotlb_sync(struct iommu_domain *domain,
- 	mtk_iommu_tlb_flush_range_sync(gather->start, length, dom->bank);
- }
- 
--static void mtk_iommu_sync_map(struct iommu_domain *domain, unsigned long iova,
--			       size_t size)
-+static int mtk_iommu_sync_map(struct iommu_domain *domain, unsigned long iova,
-+			      size_t size)
- {
- 	struct mtk_iommu_domain *dom = to_mtk_domain(domain);
- 
- 	mtk_iommu_tlb_flush_range_sync(iova, size, dom->bank);
-+	return 0;
- }
- 
- static phys_addr_t mtk_iommu_iova_to_phys(struct iommu_domain *domain,
-diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
-index ed33c6cce083..6ba38b4f5b37 100644
---- a/drivers/iommu/s390-iommu.c
-+++ b/drivers/iommu/s390-iommu.c
-@@ -210,6 +210,14 @@ static void s390_iommu_release_device(struct device *dev)
- 		__s390_iommu_detach_device(zdev);
- }
- 
-+
-+static int zpci_refresh_all(struct zpci_dev *zdev)
-+{
-+	return zpci_refresh_trans((u64)zdev->fh << 32, zdev->start_dma,
-+				  zdev->end_dma - zdev->start_dma + 1);
-+
-+}
-+
- static void s390_iommu_flush_iotlb_all(struct iommu_domain *domain)
- {
- 	struct s390_domain *s390_domain = to_s390_domain(domain);
-@@ -217,8 +225,7 @@ static void s390_iommu_flush_iotlb_all(struct iommu_domain *domain)
- 
- 	rcu_read_lock();
- 	list_for_each_entry_rcu(zdev, &s390_domain->devices, iommu_list) {
--		zpci_refresh_trans((u64)zdev->fh << 32, zdev->start_dma,
--				   zdev->end_dma - zdev->start_dma + 1);
-+		zpci_refresh_all(zdev);
- 	}
- 	rcu_read_unlock();
- }
-@@ -242,20 +249,32 @@ static void s390_iommu_iotlb_sync(struct iommu_domain *domain,
- 	rcu_read_unlock();
- }
- 
--static void s390_iommu_iotlb_sync_map(struct iommu_domain *domain,
-+static int s390_iommu_iotlb_sync_map(struct iommu_domain *domain,
- 				      unsigned long iova, size_t size)
- {
- 	struct s390_domain *s390_domain = to_s390_domain(domain);
- 	struct zpci_dev *zdev;
-+	int ret = 0;
- 
- 	rcu_read_lock();
- 	list_for_each_entry_rcu(zdev, &s390_domain->devices, iommu_list) {
- 		if (!zdev->tlb_refresh)
- 			continue;
--		zpci_refresh_trans((u64)zdev->fh << 32,
--				   iova, size);
-+		ret = zpci_refresh_trans((u64)zdev->fh << 32,
-+					 iova, size);
-+		/*
-+		 * let the hypervisor disover invalidated entries
-+		 * allowing it to free IOVAs and unpin pages
-+		 */
-+		if (ret == -ENOMEM) {
-+			ret = zpci_refresh_all(zdev);
-+			if (ret)
-+				break;
-+		}
- 	}
- 	rcu_read_unlock();
-+
-+	return ret;
- }
- 
- static int s390_iommu_validate_trans(struct s390_domain *s390_domain,
-diff --git a/drivers/iommu/sprd-iommu.c b/drivers/iommu/sprd-iommu.c
-index fadd2c907222..08c25f6e7157 100644
---- a/drivers/iommu/sprd-iommu.c
-+++ b/drivers/iommu/sprd-iommu.c
-@@ -329,8 +329,8 @@ static size_t sprd_iommu_unmap(struct iommu_domain *domain, unsigned long iova,
- 	return 0;
- }
- 
--static void sprd_iommu_sync_map(struct iommu_domain *domain,
--				unsigned long iova, size_t size)
-+static int sprd_iommu_sync_map(struct iommu_domain *domain,
-+			       unsigned long iova, size_t size)
- {
- 	struct sprd_iommu_domain *dom = to_sprd_domain(domain);
- 	unsigned int reg;
-@@ -342,6 +342,7 @@ static void sprd_iommu_sync_map(struct iommu_domain *domain,
- 
- 	/* clear IOMMU TLB buffer after page table updated */
- 	sprd_iommu_write(dom->sdev, reg, 0xffffffff);
-+	return 0;
- }
- 
- static void sprd_iommu_sync(struct iommu_domain *domain,
-diff --git a/drivers/iommu/tegra-gart.c b/drivers/iommu/tegra-gart.c
-index e5ca3cf1a949..19b79150e459 100644
---- a/drivers/iommu/tegra-gart.c
-+++ b/drivers/iommu/tegra-gart.c
-@@ -252,10 +252,11 @@ static int gart_iommu_of_xlate(struct device *dev,
- 	return 0;
- }
- 
--static void gart_iommu_sync_map(struct iommu_domain *domain, unsigned long iova,
--				size_t size)
-+static int gart_iommu_sync_map(struct iommu_domain *domain, unsigned long iova,
-+			       size_t size)
- {
- 	FLUSH_GART_REGS(gart_handle);
-+	return 0;
- }
- 
- static void gart_iommu_sync(struct iommu_domain *domain,
-diff --git a/include/linux/iommu.h b/include/linux/iommu.h
-index 3c9da1f8979e..359f471f9ef8 100644
---- a/include/linux/iommu.h
-+++ b/include/linux/iommu.h
-@@ -300,8 +300,8 @@ struct iommu_domain_ops {
- 			      struct iommu_iotlb_gather *iotlb_gather);
- 
- 	void (*flush_iotlb_all)(struct iommu_domain *domain);
--	void (*iotlb_sync_map)(struct iommu_domain *domain, unsigned long iova,
--			       size_t size);
-+	int (*iotlb_sync_map)(struct iommu_domain *domain, unsigned long iova,
-+			      size_t size);
- 	void (*iotlb_sync)(struct iommu_domain *domain,
- 			   struct iommu_iotlb_gather *iotlb_gather);
- 
+* Fix erroneous handling of some error response codes.
+
+* Increase the maximum amount of time to wait for successful completion of
+  ZAPQ.
+
+* Always clean up IRQ resources when the ZAPQ response code indicates an
+  error.
+
+* Consider reset complete when ZAPQ response code indicates the adapter to
+  which a queue is connected is deconfigured. All queues associated with an
+  adapter are reset when it is deconfigured. 
+
+Tony Krowiak (7):
+  s390/vfio-ap: verify reset complete in separate function
+  s390/vfio_ap: check TAPQ response code when waiting for queue reset
+  s390/vfio_ap: use TAPQ to verify reset in progress completes
+  s390/vfio_ap: verify ZAPQ completion after return of response code
+    zero
+  s390/vfio_ap: fix handling of error response codes
+  s390/vfio_ap: increase max wait time for reset verification
+  s390/vfio_ap: always clean up IRQ resources
+
+ drivers/s390/crypto/vfio_ap_ops.c | 106 ++++++++++++++++++++----------
+ 1 file changed, 73 insertions(+), 33 deletions(-)
+
 -- 
-2.34.1
+2.31.1
 
