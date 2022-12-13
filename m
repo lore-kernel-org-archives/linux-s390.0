@@ -2,112 +2,254 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 53A49C25B04
-	for <linux-s390@archiver.kernel.org>; Tue, 13 Dec 2022 15:45:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 689EFC4708D
+	for <linux-s390@archiver.kernel.org>; Tue, 13 Dec 2022 16:18:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236323AbiLMPpX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 13 Dec 2022 10:45:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42948 "EHLO
+        id S235932AbiLMQSS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 13 Dec 2022 11:18:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236317AbiLMPpA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 13 Dec 2022 10:45:00 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10E0620BF6;
-        Tue, 13 Dec 2022 07:44:51 -0800 (PST)
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2BDE94u7024712;
-        Tue, 13 Dec 2022 15:44:48 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=dYhjc5kWligafOgB8GuVnFGfTxaEiO4j/8IIwD5XiyY=;
- b=kRFtQSZVJXvCGvpxfXK0gZgaEBMy625C0R0wvE+6K/UckxoFkOfyz5jkf5kZ6KDi0N4l
- x80IMvjEdX6W1od2vTYwF6WVMvKgdVYwtwD9X1gxrWkUFWmW9zcKcWqKS2F9lxe1N4CO
- ks7MnPBor2ffacjvN5QsdXXZWlqehVPqm3Wx9zb1ZKY2klH2BKNoc9tCuuuYqHIgpddv
- ohPEiL5fhK3IyT/rymossDtQfDsJ7GJNX3hBE8vtrpgiDcaoE8OD2jLerfa8YkGVXWtY
- j/lNkluZW/4oPWXS0pMdUvrrd8yagGYADL2xZhwLZAx2uMOSeyKklH2f8tk//yC4PFIZ GA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3merrwx62t-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 13 Dec 2022 15:44:48 +0000
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2BDE9Ita025290;
-        Tue, 13 Dec 2022 15:44:47 GMT
-Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3merrwx62g-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 13 Dec 2022 15:44:47 +0000
-Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
-        by ppma03dal.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 2BDF0AV9014246;
-        Tue, 13 Dec 2022 15:44:47 GMT
-Received: from smtprelay03.wdc07v.mail.ibm.com ([9.208.129.113])
-        by ppma03dal.us.ibm.com (PPS) with ESMTPS id 3mchr71ark-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 13 Dec 2022 15:44:47 +0000
-Received: from smtpav01.dal12v.mail.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-        by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2BDFijPL12386904
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 13 Dec 2022 15:44:45 GMT
-Received: from smtpav01.dal12v.mail.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E66E458062;
-        Tue, 13 Dec 2022 15:44:44 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1756A58061;
-        Tue, 13 Dec 2022 15:44:44 +0000 (GMT)
-Received: from li-2c1e724c-2c76-11b2-a85c-ae42eaf3cb3d.endicott.ibm.com (unknown [9.60.85.43])
-        by smtpav01.dal12v.mail.com (Postfix) with ESMTP;
-        Tue, 13 Dec 2022 15:44:43 +0000 (GMT)
-From:   Tony Krowiak <akrowiak@linux.ibm.com>
-To:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc:     jjherne@linux.ibm.com, freude@linux.ibm.com,
-        borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com,
-        pasic@linux.ibm.com, alex.williamson@redhat.com,
-        kwankhede@nvidia.com, fiuczy@linux.ibm.com
-Subject: [PATCH 7/7] s390/vfio_ap: always clean up IRQ resources
-Date:   Tue, 13 Dec 2022 10:44:37 -0500
-Message-Id: <20221213154437.15480-8-akrowiak@linux.ibm.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20221213154437.15480-1-akrowiak@linux.ibm.com>
-References: <20221213154437.15480-1-akrowiak@linux.ibm.com>
-MIME-Version: 1.0
+        with ESMTP id S235505AbiLMQSR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 13 Dec 2022 11:18:17 -0500
+Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 468D21F2F0
+        for <linux-s390@vger.kernel.org>; Tue, 13 Dec 2022 08:18:15 -0800 (PST)
+Received: by mail-pj1-x102f.google.com with SMTP id gt4so3929915pjb.1
+        for <linux-s390@vger.kernel.org>; Tue, 13 Dec 2022 08:18:15 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=dabbelt-com.20210112.gappssmtp.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:to:from:cc
+         :in-reply-to:subject:date:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=wj/NGKhLAYwhK6Lvw/Db918GBFSie4zjOTu3uFrT1gA=;
+        b=NkSnMp/V8AsX4vC30wzvTBDvSWE+M7qqraskr+aX6eDcBuYgYQHiZpd5PHFEtwmlex
+         b9sLXADwP2UKefS8URj7BbPzAGmqFf6Sql8Lry6ArNmBxIQqSRNMuMWf8z5+Hg1gJY0V
+         G/j7FdqVWjtps7jKHZujuEhFxXfcZ0TNsoRlDztocQW2ESX1R86PBEikNrfuO5gPc7mJ
+         6/Qoufhc+OUK8D5gU0LfvQQ/f14L5j2fbz4FLayl4GcS/rdSdchyCT6nat7Pvthexifo
+         5a34Jkw09BPh2fSzhpIrcgjFsOBxfZOpzDvRra+RnQyxHfSXNAOYkh3mU13qpd7fHBn3
+         z4dA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:to:from:cc
+         :in-reply-to:subject:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=wj/NGKhLAYwhK6Lvw/Db918GBFSie4zjOTu3uFrT1gA=;
+        b=7rBvArT4jrfBbAj24mhHBRG425dJMz2pJaCbWG3csZSPz1Vijc2Qq1PuBvHZ2Y6JZn
+         c/xrulKHKpzBo/Oxnm83IliL5NKi66MkgN60ccYHOPpS1j6wU9rIhzX1BAgV0O7uY63h
+         aG6UscTq3IP+zcEhvg9o5B++XO26M6b64BPp09ZTl1f5PWgjBW8M4EU66JForo8DREgF
+         53qZu90PvJVUYbpLSFpT9aoiaEHDOg/hHSqZlMzGJmOZdClbtW30JZAuJbgp3bd2cM9m
+         RCaFVWDYVE0mzPzWW7jnwRhJaAMDD10YkW54UjSY3aQfeXqV0KTMMax4aIb3mqQLm4ku
+         WZ9g==
+X-Gm-Message-State: ANoB5pmKQ14++rCU6IifNaIEuIZp5839kA5f14Mv7fQI+5SFZhWMbtpl
+        I6lLrdPWgmqnQJneBK19yblEnA==
+X-Google-Smtp-Source: AA0mqf6JTPFlbgzI8iGusijASEg0Bt+tpHInO5Z4ANoXa2VKfVyLMA6BDQNt3aTd/y7ttlWwr47bgg==
+X-Received: by 2002:a17:902:ccc8:b0:188:640f:f41e with SMTP id z8-20020a170902ccc800b00188640ff41emr24115756ple.4.1670948294373;
+        Tue, 13 Dec 2022 08:18:14 -0800 (PST)
+Received: from localhost ([135.180.226.51])
+        by smtp.gmail.com with ESMTPSA id 13-20020a170902c24d00b001898ca438fcsm39047plg.282.2022.12.13.08.18.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 13 Dec 2022 08:18:13 -0800 (PST)
+Date:   Tue, 13 Dec 2022 08:18:13 -0800 (PST)
+X-Google-Original-Date: Tue, 13 Dec 2022 08:18:09 PST (-0800)
+Subject:     Re: [PATCH v3 0/8] Generic IPI sending tracepoint
+In-Reply-To: <20221202155817.2102944-1-vschneid@redhat.com>
+CC:     linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
+        openrisc@lists.librecores.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org,
+        x86@kernel.org, paulmck@kernel.org, rostedt@goodmis.org,
+        peterz@infradead.org, tglx@linutronix.de, bigeasy@linutronix.de,
+        juri.lelli@redhat.com, bristot@redhat.com, mtosatti@redhat.com,
+        frederic@kernel.org, mingo@redhat.com, bp@alien8.de,
+        dave.hansen@linux.intel.com, hpa@zytor.com,
+        Marc Zyngier <maz@kernel.org>, mark.rutland@arm.com,
+        linux@armlinux.org.uk, npiggin@gmail.com, guoren@kernel.org,
+        davem@davemloft.net
+From:   Palmer Dabbelt <palmer@dabbelt.com>
+To:     vschneid@redhat.com
+Message-ID: <mhng-ed30efdc-5b5b-40fa-8661-f99d4e2991ed@palmer-ri-x1c9>
+Mime-Version: 1.0 (MHng)
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 0bc9XSk5zSCN7iKKkVrxs2D9oINrkIKo
-X-Proofpoint-GUID: jtn6kGRV9ID3adBZ7aPC5x3iDqPs2fcn
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-12-13_03,2022-12-13_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxlogscore=999
- impostorscore=0 suspectscore=0 adultscore=0 priorityscore=1501
- phishscore=0 mlxscore=0 clxscore=1015 malwarescore=0 lowpriorityscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2210170000 definitions=main-2212130137
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Clean up IRQ resources even when a PQAP(ZAPQ) function fails with an error
-not handled by a case statement.
+On Fri, 02 Dec 2022 07:58:09 PST (-0800), vschneid@redhat.com wrote:
+> Background
+> ==========
+>
+> Detecting IPI *reception* is relatively easy, e.g. using
+> trace_irq_handler_{entry,exit} or even just function-trace
+> flush_smp_call_function_queue() for SMP calls.
+>
+> Figuring out their *origin*, is trickier as there is no generic tracepoint tied
+> to e.g. smp_call_function():
+>
+> o AFAIA x86 has no tracepoint tied to sending IPIs, only receiving them
+>   (cf. trace_call_function{_single}_entry()).
+> o arm/arm64 do have trace_ipi_raise(), which gives us the target cpus but also a
+>   mostly useless string (smp_calls will all be "Function call interrupts").
+> o Other architectures don't seem to have any IPI-sending related tracepoint.
+>
+> I believe one reason those tracepoints used by arm/arm64 ended up as they were
+> is because these archs used to handle IPIs differently from regular interrupts
+> (the IRQ driver would directly invoke an IPI-handling routine), which meant they
+> never showed up in trace_irq_handler_{entry, exit}. The trace_ipi_{entry,exit}
+> tracepoints gave a way to trace IPI reception but those have become redundant as
+> of:
+>
+>       56afcd3dbd19 ("ARM: Allow IPIs to be handled as normal interrupts")
+>       d3afc7f12987 ("arm64: Allow IPIs to be handled as normal interrupts")
+>
+> which gave IPIs a "proper" handler function used through
+> generic_handle_domain_irq(), which makes them show up via
+> trace_irq_handler_{entry, exit}.
+>
+> Changing stuff up
+> =================
+>
+> Per the above, it would make sense to reshuffle trace_ipi_raise() and move it
+> into generic code. This also came up during Daniel's talk on Osnoise at the CPU
+> isolation MC of LPC 2022 [1].
+>
+> Now, to be useful, such a tracepoint needs to export:
+> o targeted CPU(s)
+> o calling context
+>
+> The only way to get the calling context with trace_ipi_raise() is to trigger a
+> stack dump, e.g. $(trace-cmd -e ipi* -T echo 42).
+>
+> This is instead introducing a new tracepoint which exports the relevant context
+> (callsite, and requested callback for when the callsite isn't helpful), and is
+> usable by all architectures as it sits in generic code.
+>
+> Another thing worth mentioning is that depending on the callsite, the _RET_IP_
+> fed to the tracepoint is not always useful - generic_exec_single() doesn't tell
+> you much about the actual callback being sent via IPI, which is why the new
+> tracepoint also has a @callback argument.
+>
+> Patches
+> =======
+>
+> o Patch 1 is included for convenience and will be merged independently. FYI I
+>   have libtraceevent patches [2] to improve the
+>   pretty-printing of cpumasks using the new type, which look like:
+>   <...>-3322  [021]   560.402583: ipi_send_cpumask:     cpumask=14,17,21 callsite=on_each_cpu_cond_mask+0x40 callback=flush_tlb_func+0x0
+>   <...>-187   [010]   562.590584: ipi_send_cpumask:     cpumask=0-23 callsite=on_each_cpu_cond_mask+0x40 callback=do_sync_core+0x0
+>
+> o Patches 2-6 spread out the tracepoint across relevant sites.
+>   Patch 6 ends up sprinkling lots of #include <trace/events/ipi.h> which I'm not
+>   the biggest fan of, but is the least horrible solution I've been able to come
+>   up with so far.
+>
+> o Patch 8 is trying to be smart about tracing the callback associated with the
+>   IPI.
+>
+> This results in having IPI trace events for:
+>
+> o smp_call_function*()
+> o smp_send_reschedule()
+> o irq_work_queue*()
+> o standalone uses of __smp_call_single_queue()
+>
+> This is incomplete, just looking at arm64 there's more IPI types that aren't
+> covered:
+>
+>   IPI_CPU_STOP,
+>   IPI_CPU_CRASH_STOP,
+>   IPI_TIMER,
+>   IPI_WAKEUP,
+>
+> ... But it feels like a good starting point.
+>
+> Links
+> =====
+>
+> [1]: https://youtu.be/5gT57y4OzBM?t=14234
+> [2]: https://lore.kernel.org/all/20221116144154.3662923-1-vschneid@redhat.com/
+>
+> Revisions
+> =========
+>
+> v2 -> v3
+> ++++++++
+>
+> o Dropped the generic export of smp_send_reschedule(), turned it into a macro
+>   and a bunch of imports
+> o Dropped the send_call_function_single_ipi() macro madness, split it into sched
+>   and smp bits using some of Peter's suggestions
+>
+> v1 -> v2
+> ++++++++
+>
+> o Ditched single-CPU tracepoint
+> o Changed tracepoint signature to include callback
+> o Changed tracepoint callsite field to void *; the parameter is still UL to save
+>   up on casts due to using _RET_IP_.
+> o Fixed linking failures due to not exporting smp_send_reschedule()
+>
+> Steven Rostedt (Google) (1):
+>   tracing: Add __cpumask to denote a trace event field that is a
+>     cpumask_t
+>
+> Valentin Schneider (7):
+>   trace: Add trace_ipi_send_cpumask()
+>   sched, smp: Trace IPIs sent via send_call_function_single_ipi()
+>   smp: Trace IPIs sent via arch_send_call_function_ipi_mask()
+>   irq_work: Trace self-IPIs sent via arch_irq_work_raise()
+>   treewide: Trace IPIs sent via smp_send_reschedule()
+>   smp: reword smp call IPI comment
+>   sched, smp: Trace smp callback causing an IPI
+>
+>  arch/alpha/kernel/smp.c                      |  2 +-
+>  arch/arc/kernel/smp.c                        |  2 +-
+>  arch/arm/kernel/smp.c                        |  5 +-
+>  arch/arm/mach-actions/platsmp.c              |  2 +
+>  arch/arm64/kernel/smp.c                      |  3 +-
+>  arch/csky/kernel/smp.c                       |  2 +-
+>  arch/hexagon/kernel/smp.c                    |  2 +-
+>  arch/ia64/kernel/smp.c                       |  4 +-
+>  arch/loongarch/include/asm/smp.h             |  2 +-
+>  arch/mips/include/asm/smp.h                  |  2 +-
+>  arch/mips/kernel/rtlx-cmp.c                  |  2 +
+>  arch/openrisc/kernel/smp.c                   |  2 +-
+>  arch/parisc/kernel/smp.c                     |  4 +-
+>  arch/powerpc/kernel/smp.c                    |  6 +-
+>  arch/powerpc/kvm/book3s_hv.c                 |  3 +
+>  arch/powerpc/platforms/powernv/subcore.c     |  2 +
+>  arch/riscv/kernel/smp.c                      |  4 +-
+>  arch/s390/kernel/smp.c                       |  2 +-
+>  arch/sh/kernel/smp.c                         |  2 +-
+>  arch/sparc/kernel/smp_32.c                   |  2 +-
+>  arch/sparc/kernel/smp_64.c                   |  2 +-
+>  arch/x86/include/asm/smp.h                   |  2 +-
+>  arch/x86/kvm/svm/svm.c                       |  4 +
+>  arch/x86/kvm/x86.c                           |  2 +
+>  arch/xtensa/kernel/smp.c                     |  2 +-
+>  include/linux/smp.h                          |  8 +-
+>  include/trace/bpf_probe.h                    |  6 ++
+>  include/trace/events/ipi.h                   | 22 ++++++
+>  include/trace/perf.h                         |  6 ++
+>  include/trace/stages/stage1_struct_define.h  |  6 ++
+>  include/trace/stages/stage2_data_offsets.h   |  6 ++
+>  include/trace/stages/stage3_trace_output.h   |  6 ++
+>  include/trace/stages/stage4_event_fields.h   |  6 ++
+>  include/trace/stages/stage5_get_offsets.h    |  6 ++
+>  include/trace/stages/stage6_event_callback.h | 20 +++++
+>  include/trace/stages/stage7_class_define.h   |  2 +
+>  kernel/irq_work.c                            | 14 +++-
+>  kernel/sched/core.c                          | 19 +++--
+>  kernel/sched/smp.h                           |  2 +-
+>  kernel/smp.c                                 | 78 ++++++++++++++++----
+>  samples/trace_events/trace-events-sample.c   |  2 +-
+>  samples/trace_events/trace-events-sample.h   | 34 +++++++--
+>  virt/kvm/kvm_main.c                          |  1 +
+>  43 files changed, 250 insertions(+), 61 deletions(-)
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
----
- drivers/s390/crypto/vfio_ap_ops.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index e80c5a6b91be..2dd8db9ddb39 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -1676,7 +1676,7 @@ static int vfio_ap_mdev_reset_queue(struct vfio_ap_queue *q)
- 		     "PQAP/ZAPQ for %02x.%04x failed with invalid rc=%u\n",
- 		     AP_QID_CARD(q->apqn), AP_QID_QUEUE(q->apqn),
- 		     status.response_code);
--		return -EIO;
-+		break;
- 	}
- 
- 	vfio_ap_free_aqic_resources(q);
--- 
-2.31.1
-
+Acked-by: Palmer Dabbelt <palmer@rivosinc.com> # riscv
