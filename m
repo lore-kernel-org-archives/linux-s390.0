@@ -2,191 +2,198 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 01518C4167B
-	for <linux-s390@archiver.kernel.org>; Wed, 14 Dec 2022 11:23:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A13BDC25B04
+	for <linux-s390@archiver.kernel.org>; Wed, 14 Dec 2022 13:13:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238226AbiLNLXj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 14 Dec 2022 06:23:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41832 "EHLO
+        id S238275AbiLNNNc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 14 Dec 2022 08:13:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237708AbiLNLXi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 14 Dec 2022 06:23:38 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDD392DF9
-        for <linux-s390@vger.kernel.org>; Wed, 14 Dec 2022 03:22:56 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1671016975;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=yxc01zNwMiugjthmgVOlTrtXQnLfLvXjRGMFtbZZLpc=;
-        b=TRsRFy5HWKRJqqxwbSC38MkkVL+pzQVaN48RIhRUvbQBZyedt24vDxP9faiB3QhLUvtPSW
-        jUDazLShTTjthZ9qY/reRE4y5Cap5trYiKq0KlvknrQ+4PgoYPXpD9HQWOo6Qg6rAtYfiW
-        /1ZfU7LhfXDdM3IHhUpPVAiJXEkDOlY=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-561-Mzm_I14nOEOYhZXH8mPi9Q-1; Wed, 14 Dec 2022 06:22:54 -0500
-X-MC-Unique: Mzm_I14nOEOYhZXH8mPi9Q-1
-Received: by mail-wr1-f72.google.com with SMTP id o8-20020adfba08000000b00241e80f08e0so3473328wrg.12
-        for <linux-s390@vger.kernel.org>; Wed, 14 Dec 2022 03:22:54 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:organization:from:references
-         :cc:to:content-language:subject:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=yxc01zNwMiugjthmgVOlTrtXQnLfLvXjRGMFtbZZLpc=;
-        b=BdOsalJpO5RIjF6jbb8jqqK4JbkOtiA3LKkqKfGQV+ntIJZoTpj28UjfzpHih37IP1
-         D9SZXC0r1bNtaZ2makqD0Bm4jTBL2/9ZpQNIUxbTc8NRWEFv6zlmVeUzUtIImVXKbnfa
-         M0ShU5/hMtApXQm/gLb2kqI8SX8vpgjGIIxn/XFdY0JBgRCwYgUvTsprk2ZGc0hFQHwX
-         tM36EWhhCitW67E0h5PRFqN+9bg022z2oSg45P22u/8d+aDaKrv72VHFWpvzgrQdDG49
-         3fFunRUbunwsfu3IFJXxxuJS9RvXmeI1CRtbn+fG27i8oicvYNSfqolKIGuOb7Ps9Bi3
-         W45A==
-X-Gm-Message-State: ANoB5pkovJUHVJsoRrc6+6jM/e6NIzSgPNoqD7senV5KOd4YSZr/UnYi
-        9rqsWXJ7jJ6GSKA78gDu1RBDr+qavrXPqWMcbIUnalZbQHHc1VS219p/CEhRfsp0/LVacFq2uHS
-        IpD2vSLzIr8MZB/XGlHPxsg==
-X-Received: by 2002:a05:600c:1da2:b0:3cf:5fd2:87a0 with SMTP id p34-20020a05600c1da200b003cf5fd287a0mr17488483wms.40.1671016973450;
-        Wed, 14 Dec 2022 03:22:53 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf4UNUk6/OXN07sN3FMRll3MrS2ehO8GnTfEO+JQv3BigUvXvNgLJLKqkas5vWijxjr/1KiucA==
-X-Received: by 2002:a05:600c:1da2:b0:3cf:5fd2:87a0 with SMTP id p34-20020a05600c1da200b003cf5fd287a0mr17488468wms.40.1671016973157;
-        Wed, 14 Dec 2022 03:22:53 -0800 (PST)
-Received: from ?IPV6:2003:cb:c703:7700:dd7c:92f8:481f:b96b? (p200300cbc7037700dd7c92f8481fb96b.dip0.t-ipconnect.de. [2003:cb:c703:7700:dd7c:92f8:481f:b96b])
-        by smtp.gmail.com with ESMTPSA id o3-20020a05600c510300b003cfa3a12660sm8504320wms.1.2022.12.14.03.22.49
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 14 Dec 2022 03:22:52 -0800 (PST)
-Message-ID: <10bd4fc0-4fc0-bd98-6926-7d721a3bb12e@redhat.com>
-Date:   Wed, 14 Dec 2022 12:22:49 +0100
+        with ESMTP id S238559AbiLNNNF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 14 Dec 2022 08:13:05 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 579481DDF4;
+        Wed, 14 Dec 2022 05:13:03 -0800 (PST)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2BED9o6K016302;
+        Wed, 14 Dec 2022 13:13:00 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=+X8vBTXhuJayZi+n5xcerhZSBoMD6FPhYzBBkxSWiBY=;
+ b=qJAtllIL9P+/nSSguVKGi8/bzPD1syOKwH+gMHLqRZJSHhkXKyoiFbfRcpekm3XN0gTc
+ JYc7SL/XJrttJF/hD5QYmlOyNh5kf78oL2AG4BnMezz+Era8yqcwciwX5m8fue/g42IT
+ B1/yzQmQgt3tJycw3+hxk5rhnY8r0Za5fsEJNSWYNuoJTQ+MFOG9D+Vox6raJNM2HfWT
+ XHsQMsCzWFay5nu334pxyynSfDYIZZ1AURV0gRcEibLKCPLSlFAcLaXvDzh4PHBRUb+f
+ INfqspsvcVEHaCA+gf+BE908N0m2SoF8VAOfHzge8yfDIO28FaVCULRJku3w6SiMNkXz gg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mff4cg32k-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 14 Dec 2022 13:12:59 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2BEDAQAC020179;
+        Wed, 14 Dec 2022 13:12:59 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mff4cg31r-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 14 Dec 2022 13:12:59 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 2BEA7NSh001252;
+        Wed, 14 Dec 2022 13:12:57 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3meyyeha0n-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 14 Dec 2022 13:12:56 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2BEDCrdT22348110
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 14 Dec 2022 13:12:53 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9389C2004D;
+        Wed, 14 Dec 2022 13:12:53 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3DAF320049;
+        Wed, 14 Dec 2022 13:12:53 +0000 (GMT)
+Received: from li-7e0de7cc-2d9d-11b2-a85c-de26c016e5ad.ibm.com (unknown [9.152.224.238])
+        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 14 Dec 2022 13:12:53 +0000 (GMT)
+Message-ID: <ef18716114c13a932aad195441bb0b79007bdc7b.camel@linux.ibm.com>
+Subject: Re: [PATCH v4 1/9] KVM: s390: Extend MEM_OP ioctl by storage key
+ checked cmpxchg
+From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+To:     Thomas Huth <thuth@redhat.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Cc:     David Hildenbrand <david@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Sven Schnelle <svens@linux.ibm.com>
+Date:   Wed, 14 Dec 2022 14:12:53 +0100
+In-Reply-To: <44816a09-8567-b2be-84ef-ada621d1beb4@redhat.com>
+References: <20221213165405.2953539-1-scgl@linux.ibm.com>
+         <20221213165405.2953539-2-scgl@linux.ibm.com>
+         <44816a09-8567-b2be-84ef-ada621d1beb4@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.46.2 (3.46.2-1.fc37) 
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.5.1
-Subject: Re: [PATCH mm-unstable RFC 00/26] mm: support
- __HAVE_ARCH_PTE_SWP_EXCLUSIVE on all architectures with swap PTEs
-Content-Language: en-US
-To:     linux-kernel@vger.kernel.org
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Hugh Dickins <hughd@google.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Nadav Amit <namit@vmware.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Peter Xu <peterx@redhat.com>, linux-mm@kvack.org,
-        x86@kernel.org, linux-alpha@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@quicinc.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Chris Zankel <chris@zankel.net>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Greg Ungerer <gerg@linux-m68k.org>,
-        Guo Ren <guoren@kernel.org>, Helge Deller <deller@gmx.de>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Matt Turner <mattst88@gmail.com>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Michal Simek <monstr@monstr.eu>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Richard Henderson <richard.henderson@linaro.org>,
-        Richard Weinberger <richard@nod.at>,
-        Rich Felker <dalias@libc.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Stafford Horne <shorne@gmail.com>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vineet Gupta <vgupta@kernel.org>,
-        WANG Xuerui <kernel@xen0n.name>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>
-References: <20221206144730.163732-1-david@redhat.com>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-In-Reply-To: <20221206144730.163732-1-david@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: osTXaTYPV9eohzN8cZlshfkjKvsoiaGx
+X-Proofpoint-ORIG-GUID: p-7tYJ10CsiWo2h-0h_xUHH5B28Rh3VQ
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-12-14_06,2022-12-14_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 phishscore=0
+ adultscore=0 clxscore=1015 lowpriorityscore=0 mlxscore=0 bulkscore=0
+ priorityscore=1501 spamscore=0 impostorscore=0 malwarescore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2212140102
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 06.12.22 15:47, David Hildenbrand wrote:
-> This is the follow-up on [1]:
-> 	[PATCH v2 0/8] mm: COW fixes part 3: reliable GUP R/W FOLL_GET of
-> 	anonymous pages
-> 
-> After we implemented __HAVE_ARCH_PTE_SWP_EXCLUSIVE on most prominent
-> enterprise architectures, implement __HAVE_ARCH_PTE_SWP_EXCLUSIVE on all
-> remaining architectures that support swap PTEs.
-> 
-> This makes sure that exclusive anonymous pages will stay exclusive, even
-> after they were swapped out -- for example, making GUP R/W FOLL_GET of
-> anonymous pages reliable. Details can be found in [1].
-> 
-> This primarily fixes remaining known O_DIRECT memory corruptions that can
-> happen on concurrent swapout, whereby we can lose DMA reads to a page
-> (modifying the user page by writing to it).
-> 
-> To verify, there are two test cases (requiring swap space, obviously):
-> (1) The O_DIRECT+swapout test case [2] from Andrea. This test case tries
->      triggering a race condition.
-> (2) My vmsplice() test case [3] that tries to detect if the exclusive
->      marker was lost during swapout, not relying on a race condition.
-> 
-> 
-> For example, on 32bit x86 (with and without PAE), my test case fails
-> without these patches:
-> 	$ ./test_swp_exclusive
-> 	FAIL: page was replaced during COW
-> But succeeds with these patches:
-> 	$ ./test_swp_exclusive
-> 	PASS: page was not replaced during COW
-> 
-> 
-> Why implement __HAVE_ARCH_PTE_SWP_EXCLUSIVE for all architectures, even
-> the ones where swap support might be in a questionable state? This is the
-> first step towards removing "readable_exclusive" migration entries, and
-> instead using pte_swp_exclusive() also with (readable) migration entries
-> instead (as suggested by Peter). The only missing piece for that is
-> supporting pmd_swp_exclusive() on relevant architectures with THP
-> migration support.
-> 
-> As all relevant architectures now implement __HAVE_ARCH_PTE_SWP_EXCLUSIVE,,
-> we can drop __HAVE_ARCH_PTE_SWP_EXCLUSIVE in the last patch.
-> 
-> 
-> RFC because some of the swap PTE layouts are really tricky and I really
-> need some feedback related to deciphering these layouts and "using yet
-> unused PTE bits in swap PTEs". I tried cross-compiling all relevant setups
-> (phew, I might only miss some power/nohash variants), but only tested on
-> x86 so far.
+On Wed, 2022-12-14 at 10:19 +0100, Thomas Huth wrote:
+> On 13/12/2022 17.53, Janis Schoetterl-Glausch wrote:
+> > User space can use the MEM_OP ioctl to make storage key checked reads
+> > and writes to the guest, however, it has no way of performing atomic,
+> > key checked, accesses to the guest.
+> > Extend the MEM_OP ioctl in order to allow for this, by adding a cmpxchg
+> > mode. For now, support this mode for absolute accesses only.
+> >=20
+> > This mode can be use, for example, to set the device-state-change
+> > indicator and the adapter-local-summary indicator atomically.
+> >=20
+> > Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+> > ---
+> >   include/uapi/linux/kvm.h |   7 +++
+> >   arch/s390/kvm/gaccess.h  |   3 ++
+> >   arch/s390/kvm/gaccess.c  | 102 ++++++++++++++++++++++++++++++++++++++=
++
+> >   arch/s390/kvm/kvm-s390.c |  39 ++++++++++++++-
+> >   4 files changed, 149 insertions(+), 2 deletions(-)
+> >=20
+[...]
+> >=20
+> > @@ -2714,12 +2721,19 @@ static bool access_key_invalid(u8 access_key)
+> >   static int kvm_s390_vm_mem_op(struct kvm *kvm, struct kvm_s390_mem_op=
+ *mop)
+> >   {
+> >   	void __user *uaddr =3D (void __user *)mop->buf;
+> > +	void __user *old_addr =3D (void __user *)mop->old_addr;
+> > +	union {
+> > +		__uint128_t quad;
+> > +		char raw[sizeof(__uint128_t)];
+> > +	} old =3D { .quad =3D 0}, new =3D { .quad =3D 0 };
+> > +	unsigned int off_in_quad =3D sizeof(new) - mop->size;
+> >   	u64 supported_flags;
+> >   	void *tmpbuf =3D NULL;
+> >   	int r, srcu_idx;
+> >  =20
+> >   	supported_flags =3D KVM_S390_MEMOP_F_SKEY_PROTECTION
+> > -			  | KVM_S390_MEMOP_F_CHECK_ONLY;
+> > +			  | KVM_S390_MEMOP_F_CHECK_ONLY
+> > +			  | KVM_S390_MEMOP_F_CMPXCHG;
+> >   	if (mop->flags & ~supported_flags || !mop->size)
+> >   		return -EINVAL;
+> >   	if (mop->size > MEM_OP_MAX_SIZE)
+> > @@ -2741,6 +2755,19 @@ static int kvm_s390_vm_mem_op(struct kvm *kvm, s=
+truct kvm_s390_mem_op *mop)
+> >   	} else {
+> >   		mop->key =3D 0;
+> >   	}
+> > +	if (mop->flags & KVM_S390_MEMOP_F_CMPXCHG) {
+> > +		/*
+> > +		 * This validates off_in_quad. Checking that size is a power
+> > +		 * of two is not necessary, as cmpxchg_guest_abs_with_key
+> > +		 * takes care of that
+> > +		 */
+> > +		if (mop->size > sizeof(new))
+> > +			return -EINVAL;
+>=20
+> I'd maybe add a check for mop->op =3D=3D KVM_S390_MEMOP_ABSOLUTE_WRITE he=
+re,=20
+> since calling the _READ function with the F_CMPXCHG flag set does not mak=
+e=20
+> too much sense.
 
-As I was messing with sparc64 either way and got debian to boot under 
-QEMU, I verified that the sparc64 change also seems to work as expected 
-(under sun4u).
+Good point.
+>=20
+> Anyway, patch looks good to me, so with or without that additional check:
+> Reviewed-by: Thomas Huth <thuth@redhat.com>
 
--- 
-Thanks,
-
-David / dhildenb
+Thanks!
+>=20
+> > +		if (copy_from_user(&new.raw[off_in_quad], uaddr, mop->size))
+> > +			return -EFAULT;
+> > +		if (copy_from_user(&old.raw[off_in_quad], old_addr, mop->size))
+> > +			return -EFAULT;
+> > +	}
+> >   	if (!(mop->flags & KVM_S390_MEMOP_F_CHECK_ONLY)) {
+> >   		tmpbuf =3D vmalloc(mop->size);
+> >   		if (!tmpbuf)
+> > @@ -2771,6 +2798,14 @@ static int kvm_s390_vm_mem_op(struct kvm *kvm, s=
+truct kvm_s390_mem_op *mop)
+> >   	case KVM_S390_MEMOP_ABSOLUTE_WRITE: {
+> >   		if (mop->flags & KVM_S390_MEMOP_F_CHECK_ONLY) {
+> >   			r =3D check_gpa_range(kvm, mop->gaddr, mop->size, GACC_STORE, mop-=
+>key);
+> > +		} else if (mop->flags & KVM_S390_MEMOP_F_CMPXCHG) {
+> > +			r =3D cmpxchg_guest_abs_with_key(kvm, mop->gaddr, mop->size,
+> > +						       &old.quad, new.quad, mop->key);
+> > +			if (r =3D=3D 1) {
+> > +				r =3D KVM_S390_MEMOP_R_NO_XCHG;
+> > +				if (copy_to_user(old_addr, &old.raw[off_in_quad], mop->size))
+> > +					r =3D -EFAULT;
+> > +			}
+> >   		} else {
+> >   			if (copy_from_user(tmpbuf, uaddr, mop->size)) {
+> >   				r =3D -EFAULT;
+>=20
 
