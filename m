@@ -2,120 +2,126 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B02B7C4332F
-	for <linux-s390@archiver.kernel.org>; Thu, 15 Dec 2022 11:00:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 07D69C4332F
+	for <linux-s390@archiver.kernel.org>; Thu, 15 Dec 2022 20:55:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229602AbiLOLAc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 15 Dec 2022 06:00:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58402 "EHLO
+        id S229675AbiLOUzI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 15 Dec 2022 15:55:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229783AbiLOK74 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 15 Dec 2022 05:59:56 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 050012E9FA;
-        Thu, 15 Dec 2022 02:58:59 -0800 (PST)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2BFAgGMw017303;
-        Thu, 15 Dec 2022 10:58:58 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=mime-version : date :
- from : to : cc : subject : reply-to : in-reply-to : references :
- message-id : content-type : content-transfer-encoding; s=pp1;
- bh=zBcCnQdL4Aa84x8reCSO+1pHTGxiQl6Arhke7gOXq5A=;
- b=mj/Gxe9GRYNTeY9A03Xo8w2Cx2Jgh2EFi87cwBNJNMPA4o9MMYI/BEjUFXQClJxvkCy/
- YCztk5EPj8cjDwHkrfiUFWdS7kWlYh5DnXC8Zqs/7H+1y5JxxaiAHoTWp74b3wX/09dG
- V3ZB/K+AsurVaUX/eBduzPlbUa02oASGCGYcQShYwqPjivWFWGxey9czcwAbkbC8Qbg4
- wlT2roK4IyqALsc2k3ib7OM5nNy9M6O2lYU1DQvwP2E92MIKqFns5SnouOPK5zW/g4ni
- CJBHd/XewRPZM9kzhmnGyudFizsY3g0rVUjY+tF0ExYxMSdIRbbSNVjkYlamD9GoZO5S zw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mg22egbv1-1
+        with ESMTP id S229611AbiLOUzG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 15 Dec 2022 15:55:06 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5EC850D65;
+        Thu, 15 Dec 2022 12:55:05 -0800 (PST)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2BFKDe5b020391;
+        Thu, 15 Dec 2022 20:55:05 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=1r/aOm9/5uyOuLRLkgVpzu43C+5VnVD3kixD47+A/VY=;
+ b=HuVClZeh2rvQUgEa/UrhqKqLNkw7A61ri0zoHEVfKFdFM/PJzgMGYxkEToGH/Cy4QUKI
+ yAc5aApdp7q5aTJ1iu94uxBSuVXRG/Fnu6Xdww8FNNif7LezC+rI4PQXehXXGF0JJfLa
+ 3BXCGrqhq+IhLpB4tXJsdZYZFX9c1qAcfgDHoFCV1vHIEfb1pCx+uCT99h/+eq18Mc/c
+ paNaaPPqJjNQMbKr9xgy0vHJjPuVnthmRcPQRt+aGnVGBYzZPwUPmJ5eHb8E8K3O9sNj
+ EEH5xVa+HFryL57f+VEn0TAqALuP0o4z4qo79zKT2fV+Y41Fdb0376PBwkCmXRIoIJtt JQ== 
+Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mgae4gv0p-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 15 Dec 2022 10:58:57 +0000
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2BFAiQrT025608;
-        Thu, 15 Dec 2022 10:58:57 GMT
-Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mg22egbun-1
+        Thu, 15 Dec 2022 20:55:04 +0000
+Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
+        by ppma03wdc.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 2BFKBdSG006767;
+        Thu, 15 Dec 2022 20:55:04 GMT
+Received: from smtprelay03.dal12v.mail.ibm.com ([9.208.130.98])
+        by ppma03wdc.us.ibm.com (PPS) with ESMTPS id 3mf08ewe48-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 15 Dec 2022 10:58:57 +0000
-Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
-        by ppma03dal.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 2BFAOnM1005694;
-        Thu, 15 Dec 2022 10:58:56 GMT
-Received: from smtprelay03.wdc07v.mail.ibm.com ([9.208.129.113])
-        by ppma03dal.us.ibm.com (PPS) with ESMTPS id 3meyfdwc99-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 15 Dec 2022 10:58:56 +0000
-Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
-        by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2BFAwsCb60031460
+        Thu, 15 Dec 2022 20:55:04 +0000
+Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
+        by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2BFKt2CA49611136
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 15 Dec 2022 10:58:54 GMT
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 028C658059;
-        Thu, 15 Dec 2022 10:58:54 +0000 (GMT)
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7C31458043;
-        Thu, 15 Dec 2022 10:58:53 +0000 (GMT)
-Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
-        by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
-        Thu, 15 Dec 2022 10:58:53 +0000 (GMT)
+        Thu, 15 Dec 2022 20:55:03 GMT
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C1F4B58062;
+        Thu, 15 Dec 2022 20:55:02 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6320858058;
+        Thu, 15 Dec 2022 20:55:01 +0000 (GMT)
+Received: from [9.160.114.181] (unknown [9.160.114.181])
+        by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Thu, 15 Dec 2022 20:55:01 +0000 (GMT)
+Message-ID: <6d29131a-bf0d-060a-2247-b3d15583320e@linux.ibm.com>
+Date:   Thu, 15 Dec 2022 15:55:00 -0500
 MIME-Version: 1.0
-Date:   Thu, 15 Dec 2022 11:58:53 +0100
-From:   Harald Freudenberger <freude@linux.ibm.com>
-To:     Tony Krowiak <akrowiak@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, jjherne@linux.ibm.com, borntraeger@de.ibm.com,
-        cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com,
-        alex.williamson@redhat.com, kwankhede@nvidia.com,
-        fiuczy@linux.ibm.com
-Subject: Re: [PATCH 7/7] s390/vfio_ap: always clean up IRQ resources
-Reply-To: freude@linux.ibm.com
-Mail-Reply-To: freude@linux.ibm.com
-In-Reply-To: <20221213154437.15480-8-akrowiak@linux.ibm.com>
-References: <20221213154437.15480-1-akrowiak@linux.ibm.com>
- <20221213154437.15480-8-akrowiak@linux.ibm.com>
-Message-ID: <5e94ac7e0f7ec09885814df46eea0003@linux.ibm.com>
-X-Sender: freude@linux.ibm.com
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.5.1
+Subject: Re: [PATCH v1 03/16] vfio/ccw: allow non-zero storage keys
+Content-Language: en-US
+To:     Eric Farman <farman@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org
+References: <20221121214056.1187700-1-farman@linux.ibm.com>
+ <20221121214056.1187700-4-farman@linux.ibm.com>
+From:   Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <20221121214056.1187700-4-farman@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: oFXujXkphW6EObymnea5rEDQyo-PQoLj
-X-Proofpoint-ORIG-GUID: jZf_4mSWLy3miL3ruoEz-xn0vEodFZhS
+X-Proofpoint-ORIG-GUID: IEroFwxGRhUpDerLiJvrJYN4-kkTwICh
+X-Proofpoint-GUID: IEroFwxGRhUpDerLiJvrJYN4-kkTwICh
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-12-15_05,2022-12-14_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
- mlxscore=0 bulkscore=0 mlxlogscore=999 spamscore=0 phishscore=0
- adultscore=0 impostorscore=0 clxscore=1015 priorityscore=1501
+ definitions=2022-12-15_11,2022-12-15_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ phishscore=0 clxscore=1015 impostorscore=0 malwarescore=0 spamscore=0
+ mlxlogscore=999 adultscore=0 mlxscore=0 bulkscore=0 suspectscore=0
  lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2212150082
+ engine=8.12.0-2212070000 definitions=main-2212150172
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2022-12-13 16:44, Tony Krowiak wrote:
-> Clean up IRQ resources even when a PQAP(ZAPQ) function fails with an 
-> error
-> not handled by a case statement.
+On 11/21/22 4:40 PM, Eric Farman wrote:
+> Currently, vfio-ccw copies the ORB from the io_region to the
+> channel_program struct being built. It then adjusts various
+> pieces of that ORB to the values needed to be used by the
+> SSCH issued by vfio-ccw in the host.
 > 
-> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-> ---
->  drivers/s390/crypto/vfio_ap_ops.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> This includes setting the subchannel key to the default,
+> presumably because Linux doesn't do anything with non-zero
+> storage keys itself. But it seems wrong to convert every I/O
+> to the default key if the guest itself requested a non-zero
+> subchannel (access) key.
 > 
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c
-> b/drivers/s390/crypto/vfio_ap_ops.c
-> index e80c5a6b91be..2dd8db9ddb39 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -1676,7 +1676,7 @@ static int vfio_ap_mdev_reset_queue(struct
-> vfio_ap_queue *q)
->  		     "PQAP/ZAPQ for %02x.%04x failed with invalid rc=%u\n",
->  		     AP_QID_CARD(q->apqn), AP_QID_QUEUE(q->apqn),
->  		     status.response_code);
-> -		return -EIO;
-> +		break;
->  	}
+> Any channel program that sets a non-zero key would expect the
+> same key returned in the SCSW of the IRB, not zero, so best to
+> allow that to occur unimpeded.
 > 
->  	vfio_ap_free_aqic_resources(q);
+> Signed-off-by: Eric Farman <farman@linux.ibm.com>
 
-Reviewed-by: Harald Freudenberger <freude@linux.ibm.com>
+Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+
+> ---
+>  drivers/s390/cio/vfio_ccw_cp.c | 1 -
+>  1 file changed, 1 deletion(-)
+> 
+> diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+> index a0060ef1119e..268a90252521 100644
+> --- a/drivers/s390/cio/vfio_ccw_cp.c
+> +++ b/drivers/s390/cio/vfio_ccw_cp.c
+> @@ -836,7 +836,6 @@ union orb *cp_get_orb(struct channel_program *cp, struct subchannel *sch)
+>  
+>  	orb->cmd.intparm = (u32)virt_to_phys(sch);
+>  	orb->cmd.fmt = 1;
+> -	orb->cmd.key = PAGE_DEFAULT_KEY >> 4;
+>  
+>  	if (orb->cmd.lpm == 0)
+>  		orb->cmd.lpm = sch->lpm;
+
