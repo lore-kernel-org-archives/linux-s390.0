@@ -2,326 +2,127 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9536CC4332F
-	for <linux-s390@archiver.kernel.org>; Sun, 18 Dec 2022 10:00:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 06A05C10F1E
+	for <linux-s390@archiver.kernel.org>; Sun, 18 Dec 2022 16:06:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230195AbiLRKAq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 18 Dec 2022 05:00:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58714 "EHLO
+        id S231469AbiLRQGp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 18 Dec 2022 11:06:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229509AbiLRKAo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 18 Dec 2022 05:00:44 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A46ECBF65
-        for <linux-s390@vger.kernel.org>; Sun, 18 Dec 2022 01:59:56 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1671357595;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=40GRUdlRAtUxb7WD8Kqf+Ugi5NyUS71hS5wP23U0j54=;
-        b=FHijKChx3aZpXromaDnostPOrHQZJeT/FO1pC5794/PGvoy0ssJcPB7/U7ULxDBD09p2Qi
-        RF8irYLx2WHs0j+LgQGKsjLkS1U7Rk9DuPRB5rqIUx/m4FQh0tjVYBhI1yT1mbjfMxDZvi
-        LVqZZTLML7xPb4G5frz5H37Pjdv4ayU=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-202-fuRt-ZIjO4eeCIDRrRb1Cg-1; Sun, 18 Dec 2022 04:59:54 -0500
-X-MC-Unique: fuRt-ZIjO4eeCIDRrRb1Cg-1
-Received: by mail-wm1-f69.google.com with SMTP id i132-20020a1c3b8a000000b003d0f49bc21bso5079171wma.6
-        for <linux-s390@vger.kernel.org>; Sun, 18 Dec 2022 01:59:54 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:subject:organization:from
-         :content-language:references:cc:to:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=40GRUdlRAtUxb7WD8Kqf+Ugi5NyUS71hS5wP23U0j54=;
-        b=UJIz0Ga2jWJbXAR8H9L5W+AnLjsN/STOLoiaqsir95Nuc8MNoDHqgXCw30wk1wp5Jg
-         76ogx/lSZ6w90O/Js51aBL+nj4P/tmsbRwN1DL6vdoYCZ2wtnnpcVuZ31oiRNLbHDHMH
-         IP2TC9Pw0oXJ+wlRNTAbKswwna7gJOPRd/JimCQkgvhdSKBn+XX1Pi2qdojooCx8U9vO
-         Gh9c6GgvdDUpEN/pda9ZAV4heXqVU0CCZPzlSYZ68ks3nZWV7t3inWCYfUnAWyNEk5ey
-         4o+kzG6RkyGocmyCRA6UmrgkpnDBh50nzcg7ggpdGawgeVVAfyuKt4t4CGIz+3FUSm0r
-         VZkQ==
-X-Gm-Message-State: ANoB5plnjo4B2/XKuHqsY1Y1p+xUd0cGGkaJ/8EEgUvQjaguwDCJxc/C
-        wGLYr7smNBypGObLbjEr3ORhFHH6/9i6sVVNKO8IzU9tJ5fy1oCgEPHpCBT75wT23aPl07qWYrI
-        dz9sIUaU2H1OYdyzaYqoYHA==
-X-Received: by 2002:a05:600c:3c9a:b0:3c6:c6c9:d75e with SMTP id bg26-20020a05600c3c9a00b003c6c6c9d75emr40381309wmb.0.1671357592954;
-        Sun, 18 Dec 2022 01:59:52 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf70XdZ3J+8X2dl3DqxLL1m33RuokYuq1g5n3SN2j/YJfgNLpd1gHw4S/kM2L8bQXXp7f0cgIg==
-X-Received: by 2002:a05:600c:3c9a:b0:3c6:c6c9:d75e with SMTP id bg26-20020a05600c3c9a00b003c6c6c9d75emr40381246wmb.0.1671357592548;
-        Sun, 18 Dec 2022 01:59:52 -0800 (PST)
-Received: from ?IPV6:2003:cb:c728:2000:3aca:8d08:a617:1f69? (p200300cbc72820003aca8d08a6171f69.dip0.t-ipconnect.de. [2003:cb:c728:2000:3aca:8d08:a617:1f69])
-        by smtp.gmail.com with ESMTPSA id n17-20020a05600c4f9100b003d351a9db76sm2594565wmq.30.2022.12.18.01.59.49
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 18 Dec 2022 01:59:52 -0800 (PST)
-Message-ID: <b3b90a8e-16e9-a314-8531-e225f8a52817@redhat.com>
-Date:   Sun, 18 Dec 2022 10:59:49 +0100
+        with ESMTP id S231309AbiLRQFC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 18 Dec 2022 11:05:02 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2626DBC28;
+        Sun, 18 Dec 2022 08:03:56 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BA0D060DB4;
+        Sun, 18 Dec 2022 16:03:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A894FC43392;
+        Sun, 18 Dec 2022 16:03:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1671379435;
+        bh=DKr64WckgIW2dLR6t26/DLHMVUh43L9F8ZqatYT76Jk=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=jPf52j7GGUsFmB/9GwVSauoKyl+/4zv17MoturdR/1kzLzTOc9oLyr3t/M0P3fba5
+         y+097DIMhgPXyHcxUpAB6pkz+ZcciGXgx1RE1XLFjapR2X5HV3rB8BhuGSdwKDIyaJ
+         /8T/lQfdwXXWWFPGbnNdR4huKNRC2EIgf1PPehozApDSN7DQiBO20cenLqWxTG8wg6
+         LNNgVRjSOoAjtqLcHDvx7y1ZcpJjQbnof1MZxc1WDGh8E3lUy5ovzQzXTEKxlZAcUs
+         /liCgbtw8nK+p8jXGq1ia2eP7I2ID2+vlcqXagaMWJmUEFYPMj4jZsKxSJ+Lhp4N8a
+         49s1pvjx+OHQA==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Nathan Chancellor <nathan@kernel.org>,
+        Alexandra Winter <wintera@linux.ibm.com>,
+        Kees Cook <keescook@chromium.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, wenjia@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        ndesaulniers@google.com, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, llvm@lists.linux.dev
+Subject: [PATCH AUTOSEL 6.1 33/85] s390/ctcm: Fix return type of ctc{mp,}m_tx()
+Date:   Sun, 18 Dec 2022 11:00:50 -0500
+Message-Id: <20221218160142.925394-33-sashal@kernel.org>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20221218160142.925394-1-sashal@kernel.org>
+References: <20221218160142.925394-1-sashal@kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.5.1
-To:     Huacai Chen <chenhuacai@kernel.org>
-Cc:     linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Hugh Dickins <hughd@google.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Nadav Amit <namit@vmware.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Peter Xu <peterx@redhat.com>, linux-mm@kvack.org,
-        x86@kernel.org, linux-alpha@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@quicinc.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Chris Zankel <chris@zankel.net>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Greg Ungerer <gerg@linux-m68k.org>,
-        Guo Ren <guoren@kernel.org>, Helge Deller <deller@gmx.de>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Matt Turner <mattst88@gmail.com>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Michal Simek <monstr@monstr.eu>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Richard Henderson <richard.henderson@linaro.org>,
-        Richard Weinberger <richard@nod.at>,
-        Rich Felker <dalias@libc.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Stafford Horne <shorne@gmail.com>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vineet Gupta <vgupta@kernel.org>,
-        WANG Xuerui <kernel@xen0n.name>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>
-References: <20221206144730.163732-1-david@redhat.com>
- <CAAhV-H4bU7JnAPyf9Mv1m+WGR5NWmHJLva3d9_CsRd4Q_OHVpg@mail.gmail.com>
-Content-Language: en-US
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-Subject: Re: [PATCH mm-unstable RFC 00/26] mm: support
- __HAVE_ARCH_PTE_SWP_EXCLUSIVE on all architectures with swap PTEs
-In-Reply-To: <CAAhV-H4bU7JnAPyf9Mv1m+WGR5NWmHJLva3d9_CsRd4Q_OHVpg@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 18.12.22 04:32, Huacai Chen wrote:
-> Hi, David,
-> 
-> What is the opposite of exclusive here? Shared or inclusive? I prefer
-> pte_swp_mkshared() or pte_swp_mkinclusive() rather than
-> pte_swp_clear_exclusive(). Existing examples: dirty/clean, young/old
-> ...
+From: Nathan Chancellor <nathan@kernel.org>
 
-Hi Huacai,
+[ Upstream commit aa5bf80c3c067b82b4362cd6e8e2194623bcaca6 ]
 
-thanks for having a look!
+With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
+indirect call targets are validated against the expected function
+pointer prototype to make sure the call target is valid to help mitigate
+ROP attacks. If they are not identical, there is a failure at run time,
+which manifests as either a kernel panic or thread getting killed. A
+proposed warning in clang aims to catch these at compile time, which
+reveals:
 
-Please note that this series doesn't add these primitives but merely 
-implements them on all remaining architectures.
+  drivers/s390/net/ctcm_main.c:1064:21: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
+          .ndo_start_xmit         = ctcm_tx,
+                                    ^~~~~~~
+  drivers/s390/net/ctcm_main.c:1072:21: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
+          .ndo_start_xmit         = ctcmpc_tx,
+                                    ^~~~~~~~~
 
-Having that said, the semantics are "exclusive" vs. "maybe shared", not 
-"exclusive" vs. "shared" or sth. else. It would have to be 
-pte_swp_mkmaybe_shared().
+->ndo_start_xmit() in 'struct net_device_ops' expects a return type of
+'netdev_tx_t', not 'int'. Adjust the return type of ctc{mp,}m_tx() to
+match the prototype's to resolve the warning and potential CFI failure,
+should s390 select ARCH_SUPPORTS_CFI_CLANG in the future.
 
+Additionally, while in the area, remove a comment block that is no
+longer relevant.
 
-Note that this naming matches just the way we handle it for the other 
-pte_swp_ flags we have, namely:
+Link: https://github.com/ClangBuiltLinux/linux/issues/1750
+Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/s390/net/ctcm_main.c | 11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
 
-pte_swp_mksoft_dirty()
-pte_swp_soft_dirty()
-pte_swp_clear_soft_dirty()
-
-and
-
-pte_swp_mkuffd_wp()
-pte_swp_uffd_wp()
-pte_swp_clear_uffd_wp()
-
-
-For example, we also (thankfully) didn't call it pte_mksoft_clean().
-Grepping for "pte_swp.*soft_dirty" gives you the full picture.
-
-Thanks!
-
-David
-
-> 
-> Huacai
-> 
-> On Tue, Dec 6, 2022 at 10:48 PM David Hildenbrand <david@redhat.com> wrote:
->>
->> This is the follow-up on [1]:
->>          [PATCH v2 0/8] mm: COW fixes part 3: reliable GUP R/W FOLL_GET of
->>          anonymous pages
->>
->> After we implemented __HAVE_ARCH_PTE_SWP_EXCLUSIVE on most prominent
->> enterprise architectures, implement __HAVE_ARCH_PTE_SWP_EXCLUSIVE on all
->> remaining architectures that support swap PTEs.
->>
->> This makes sure that exclusive anonymous pages will stay exclusive, even
->> after they were swapped out -- for example, making GUP R/W FOLL_GET of
->> anonymous pages reliable. Details can be found in [1].
->>
->> This primarily fixes remaining known O_DIRECT memory corruptions that can
->> happen on concurrent swapout, whereby we can lose DMA reads to a page
->> (modifying the user page by writing to it).
->>
->> To verify, there are two test cases (requiring swap space, obviously):
->> (1) The O_DIRECT+swapout test case [2] from Andrea. This test case tries
->>      triggering a race condition.
->> (2) My vmsplice() test case [3] that tries to detect if the exclusive
->>      marker was lost during swapout, not relying on a race condition.
->>
->>
->> For example, on 32bit x86 (with and without PAE), my test case fails
->> without these patches:
->>          $ ./test_swp_exclusive
->>          FAIL: page was replaced during COW
->> But succeeds with these patches:
->>          $ ./test_swp_exclusive
->>          PASS: page was not replaced during COW
->>
->>
->> Why implement __HAVE_ARCH_PTE_SWP_EXCLUSIVE for all architectures, even
->> the ones where swap support might be in a questionable state? This is the
->> first step towards removing "readable_exclusive" migration entries, and
->> instead using pte_swp_exclusive() also with (readable) migration entries
->> instead (as suggested by Peter). The only missing piece for that is
->> supporting pmd_swp_exclusive() on relevant architectures with THP
->> migration support.
->>
->> As all relevant architectures now implement __HAVE_ARCH_PTE_SWP_EXCLUSIVE,,
->> we can drop __HAVE_ARCH_PTE_SWP_EXCLUSIVE in the last patch.
->>
->>
->> RFC because some of the swap PTE layouts are really tricky and I really
->> need some feedback related to deciphering these layouts and "using yet
->> unused PTE bits in swap PTEs". I tried cross-compiling all relevant setups
->> (phew, I might only miss some power/nohash variants), but only tested on
->> x86 so far.
->>
->> CCing arch maintainers only on this cover letter and on the respective
->> patch(es).
->>
->>
->> [1] https://lkml.kernel.org/r/20220329164329.208407-1-david@redhat.com
->> [2] https://gitlab.com/aarcange/kernel-testcases-for-v5.11/-/blob/main/page_count_do_wp_page-swap.c
->> [3] https://gitlab.com/davidhildenbrand/scratchspace/-/blob/main/test_swp_exclusive.c
->>
->> David Hildenbrand (26):
->>    mm/debug_vm_pgtable: more pte_swp_exclusive() sanity checks
->>    alpha/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
->>    arc/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
->>    arm/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
->>    csky/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
->>    hexagon/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
->>    ia64/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
->>    loongarch/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
->>    m68k/mm: remove dummy __swp definitions for nommu
->>    m68k/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
->>    microblaze/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
->>    mips/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
->>    nios2/mm: refactor swap PTE layout
->>    nios2/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
->>    openrisc/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
->>    parisc/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
->>    powerpc/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE on 32bit book3s
->>    powerpc/nohash/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
->>    riscv/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
->>    sh/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
->>    sparc/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE on 32bit
->>    sparc/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE on 64bit
->>    um/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
->>    x86/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE also on 32bit
->>    xtensa/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
->>    mm: remove __HAVE_ARCH_PTE_SWP_EXCLUSIVE
->>
->>   arch/alpha/include/asm/pgtable.h              | 40 ++++++++-
->>   arch/arc/include/asm/pgtable-bits-arcv2.h     | 26 +++++-
->>   arch/arm/include/asm/pgtable-2level.h         |  3 +
->>   arch/arm/include/asm/pgtable-3level.h         |  3 +
->>   arch/arm/include/asm/pgtable.h                | 34 ++++++--
->>   arch/arm64/include/asm/pgtable.h              |  1 -
->>   arch/csky/abiv1/inc/abi/pgtable-bits.h        | 13 ++-
->>   arch/csky/abiv2/inc/abi/pgtable-bits.h        | 19 ++--
->>   arch/csky/include/asm/pgtable.h               | 17 ++++
->>   arch/hexagon/include/asm/pgtable.h            | 36 ++++++--
->>   arch/ia64/include/asm/pgtable.h               | 31 ++++++-
->>   arch/loongarch/include/asm/pgtable-bits.h     |  4 +
->>   arch/loongarch/include/asm/pgtable.h          | 38 +++++++-
->>   arch/m68k/include/asm/mcf_pgtable.h           | 35 +++++++-
->>   arch/m68k/include/asm/motorola_pgtable.h      | 37 +++++++-
->>   arch/m68k/include/asm/pgtable_no.h            |  6 --
->>   arch/m68k/include/asm/sun3_pgtable.h          | 38 +++++++-
->>   arch/microblaze/include/asm/pgtable.h         | 44 +++++++---
->>   arch/mips/include/asm/pgtable-32.h            | 86 ++++++++++++++++---
->>   arch/mips/include/asm/pgtable-64.h            | 23 ++++-
->>   arch/mips/include/asm/pgtable.h               | 35 ++++++++
->>   arch/nios2/include/asm/pgtable-bits.h         |  3 +
->>   arch/nios2/include/asm/pgtable.h              | 37 ++++++--
->>   arch/openrisc/include/asm/pgtable.h           | 40 +++++++--
->>   arch/parisc/include/asm/pgtable.h             | 40 ++++++++-
->>   arch/powerpc/include/asm/book3s/32/pgtable.h  | 37 ++++++--
->>   arch/powerpc/include/asm/book3s/64/pgtable.h  |  1 -
->>   arch/powerpc/include/asm/nohash/32/pgtable.h  | 22 +++--
->>   arch/powerpc/include/asm/nohash/32/pte-40x.h  |  6 +-
->>   arch/powerpc/include/asm/nohash/32/pte-44x.h  | 18 +---
->>   arch/powerpc/include/asm/nohash/32/pte-85xx.h |  4 +-
->>   arch/powerpc/include/asm/nohash/64/pgtable.h  | 24 +++++-
->>   arch/powerpc/include/asm/nohash/pgtable.h     | 15 ++++
->>   arch/powerpc/include/asm/nohash/pte-e500.h    |  1 -
->>   arch/riscv/include/asm/pgtable-bits.h         |  3 +
->>   arch/riscv/include/asm/pgtable.h              | 28 ++++--
->>   arch/s390/include/asm/pgtable.h               |  1 -
->>   arch/sh/include/asm/pgtable_32.h              | 53 +++++++++---
->>   arch/sparc/include/asm/pgtable_32.h           | 26 +++++-
->>   arch/sparc/include/asm/pgtable_64.h           | 37 +++++++-
->>   arch/sparc/include/asm/pgtsrmmu.h             | 14 +--
->>   arch/um/include/asm/pgtable.h                 | 36 +++++++-
->>   arch/x86/include/asm/pgtable-2level.h         | 26 ++++--
->>   arch/x86/include/asm/pgtable-3level.h         | 26 +++++-
->>   arch/x86/include/asm/pgtable.h                |  3 -
->>   arch/xtensa/include/asm/pgtable.h             | 31 +++++--
->>   include/linux/pgtable.h                       | 29 -------
->>   mm/debug_vm_pgtable.c                         | 25 +++++-
->>   mm/memory.c                                   |  4 -
->>   mm/rmap.c                                     | 11 ---
->>   50 files changed, 943 insertions(+), 227 deletions(-)
->>
->> --
->> 2.38.1
->>
->>
-> 
-
+diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
+index 37b551bd43bf..bdfab9ea0046 100644
+--- a/drivers/s390/net/ctcm_main.c
++++ b/drivers/s390/net/ctcm_main.c
+@@ -825,16 +825,9 @@ static int ctcmpc_transmit_skb(struct channel *ch, struct sk_buff *skb)
+ /*
+  * Start transmission of a packet.
+  * Called from generic network device layer.
+- *
+- *  skb		Pointer to buffer containing the packet.
+- *  dev		Pointer to interface struct.
+- *
+- * returns 0 if packet consumed, !0 if packet rejected.
+- *         Note: If we return !0, then the packet is free'd by
+- *               the generic network layer.
+  */
+ /* first merge version - leaving both functions separated */
+-static int ctcm_tx(struct sk_buff *skb, struct net_device *dev)
++static netdev_tx_t ctcm_tx(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	struct ctcm_priv *priv = dev->ml_priv;
+ 
+@@ -877,7 +870,7 @@ static int ctcm_tx(struct sk_buff *skb, struct net_device *dev)
+ }
+ 
+ /* unmerged MPC variant of ctcm_tx */
+-static int ctcmpc_tx(struct sk_buff *skb, struct net_device *dev)
++static netdev_tx_t ctcmpc_tx(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	int len = 0;
+ 	struct ctcm_priv *priv = dev->ml_priv;
 -- 
-Thanks,
-
-David / dhildenb
+2.35.1
 
