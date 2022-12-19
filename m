@@ -2,217 +2,346 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EFCA3C4332F
-	for <linux-s390@archiver.kernel.org>; Mon, 19 Dec 2022 21:00:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 20A16C001B2
+	for <linux-s390@archiver.kernel.org>; Mon, 19 Dec 2022 21:25:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232302AbiLSVAT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 19 Dec 2022 16:00:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39566 "EHLO
+        id S232799AbiLSVZI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 19 Dec 2022 16:25:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232372AbiLSVAS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 19 Dec 2022 16:00:18 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51DBE6551;
-        Mon, 19 Dec 2022 13:00:14 -0800 (PST)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2BJKhhpR020979;
-        Mon, 19 Dec 2022 21:00:13 GMT
+        with ESMTP id S232776AbiLSVZA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 19 Dec 2022 16:25:00 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 589EB13F09;
+        Mon, 19 Dec 2022 13:24:56 -0800 (PST)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2BJLE3Tg031484;
+        Mon, 19 Dec 2022 21:24:43 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
  from : to : cc : date : in-reply-to : references : content-type :
  content-transfer-encoding : mime-version; s=pp1;
- bh=8XL1/KCqPFLJ5PiV0W9F6A3h6wzdRR7DU/nJQmNlFeo=;
- b=NWJ0LuZkuFsWH3bcvDcfkJrXi4RrdBBAZkCK6TVMWsEGGEvaf/wr7AlqzJmluXYq5mmd
- 2ccUMavPRPfuj1np+kyHuRuQZsnBxjaQa2ve4FMO9avz+4+4jZd9/z3+FIJmV+WMoxjH
- eokRuMWSVLOWBioiQxGcuUqaHG2/yLgmocCmMzjid6hv+2hxBdaDNNYBmqcShPArsoWt
- DbM1VmZwWiGQMTNpIXZGNJ4scntcTqQKYZN+2l5oi//RiavvpGprA3ckPXcN+rCiQO7e
- vBTfe93WT0wZKO028kV2T2z+X6tzgq8QaBVdkIh70nXgUQEIFJRC5yjcAVL/bKFxf78p Qw== 
-Received: from ppma01wdc.us.ibm.com (fd.55.37a9.ip4.static.sl-reverse.com [169.55.85.253])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3mjy85ga4c-1
+ bh=QP9Uka1TmzuRxHJX00LBjpwrqeQxRd737K2aT1PXO1g=;
+ b=SnhjLYwJsaGt26EPpcfMeIIUGfJU+pmCWsax5JZgG0yLR8boAcFeZdUzPw/WXUUP7KLO
+ H5C52t13e+XsEytxjQiUxvZr37q0517Xm01RvOX2gc3gODbJGKAPkK44Zl1U/h84xj99
+ T8fJ4G0UvqW9bXQ75fXK0Lu6Si1P1vyvjoP8NcGV+lw2dw72eB9B6frpSUx6zk88MJYF
+ jUE9O0YRpiYbGVQYRaNlsmuWzc08KcWfwsTJ6AKkTxIJRzZfYlUjkxpy6GBGylkHTWou
+ jN8MLRVljGjxU6Nbbjkc2Pn6q846wPNPHuzyvWhCq97geO46ABfFbu8LxjCn+6RZR9TS Cw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mjypk89dc-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 19 Dec 2022 21:00:13 +0000
-Received: from pps.filterd (ppma01wdc.us.ibm.com [127.0.0.1])
-        by ppma01wdc.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 2BJKwDk8016851;
-        Mon, 19 Dec 2022 21:00:12 GMT
-Received: from smtprelay03.wdc07v.mail.ibm.com ([9.208.129.113])
-        by ppma01wdc.us.ibm.com (PPS) with ESMTPS id 3mh6yxfse6-1
+        Mon, 19 Dec 2022 21:24:42 +0000
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2BJLE8ui032046;
+        Mon, 19 Dec 2022 21:24:42 GMT
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mjypk89cu-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 19 Dec 2022 21:00:12 +0000
-Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
-        by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2BJL0BZ513501042
+        Mon, 19 Dec 2022 21:24:42 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 2BJB9X9G026099;
+        Mon, 19 Dec 2022 21:24:40 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+        by ppma06fra.de.ibm.com (PPS) with ESMTPS id 3mh6yxj8na-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 19 Dec 2022 21:24:40 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2BJLOYWZ47579526
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 19 Dec 2022 21:00:11 GMT
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0108B5805B;
-        Mon, 19 Dec 2022 21:00:11 +0000 (GMT)
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D116058059;
-        Mon, 19 Dec 2022 21:00:09 +0000 (GMT)
-Received: from li-479af74c-31f9-11b2-a85c-e4ddee11713b.ibm.com (unknown [9.60.89.68])
-        by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Mon, 19 Dec 2022 21:00:09 +0000 (GMT)
-Message-ID: <44d2f997494d39a9a4f529e676faa082fbfbc577.camel@linux.ibm.com>
-Subject: Re: [PATCH v1 13/16] vfio/ccw: allocate/populate the guest idal
-From:   Eric Farman <farman@linux.ibm.com>
-To:     Matthew Rosato <mjrosato@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Mon, 19 Dec 2022 21:24:34 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8553C20043;
+        Mon, 19 Dec 2022 21:24:34 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1091420040;
+        Mon, 19 Dec 2022 21:24:34 +0000 (GMT)
+Received: from li-7e0de7cc-2d9d-11b2-a85c-de26c016e5ad.ibm.com (unknown [9.171.132.54])
+        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Mon, 19 Dec 2022 21:24:33 +0000 (GMT)
+Message-ID: <4b96b112d5415d08a81d30657feec2c8c3000f7c.camel@linux.ibm.com>
+Subject: Re: [PATCH v4 1/9] KVM: s390: Extend MEM_OP ioctl by storage key
+ checked cmpxchg
+From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+To:     kernel test robot <lkp@intel.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Date:   Mon, 19 Dec 2022 16:00:09 -0500
-In-Reply-To: <b6542dba-5645-f1f2-12a0-203e1187dd31@linux.ibm.com>
-References: <20221121214056.1187700-1-farman@linux.ibm.com>
-         <20221121214056.1187700-14-farman@linux.ibm.com>
-         <b6542dba-5645-f1f2-12a0-203e1187dd31@linux.ibm.com>
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Cc:     oe-kbuild-all@lists.linux.dev,
+        David Hildenbrand <david@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sven Schnelle <svens@linux.ibm.com>
+Date:   Mon, 19 Dec 2022 22:24:33 +0100
+In-Reply-To: <202212141025.6iR1ex8g-lkp@intel.com>
+References: <20221213165405.2953539-2-scgl@linux.ibm.com>
+         <202212141025.6iR1ex8g-lkp@intel.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: base64
-User-Agent: Evolution 3.44.4 (3.44.4-2.fc36) 
-MIME-Version: 1.0
+User-Agent: Evolution 3.46.2 (3.46.2-1.fc37) 
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Og5-9Ie9lu6cHO_PTXMrDte7LqH24sPv
-X-Proofpoint-GUID: Og5-9Ie9lu6cHO_PTXMrDte7LqH24sPv
+X-Proofpoint-GUID: r-29NuhBeO7LkKh-TX35kle0CICPUgiy
+X-Proofpoint-ORIG-GUID: eXjQ--XeMjxovhxa2oYPtE_r9i17ZbA8
+Content-Transfer-Encoding: quoted-printable
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2022-12-19_01,2022-12-15_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- lowpriorityscore=0 adultscore=0 priorityscore=1501 impostorscore=0
- malwarescore=0 phishscore=0 clxscore=1015 spamscore=0 mlxlogscore=999
- bulkscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2212190181
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 mlxscore=0
+ malwarescore=0 phishscore=0 impostorscore=0 priorityscore=1501 spamscore=0
+ adultscore=0 mlxlogscore=999 lowpriorityscore=0 suspectscore=0 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
+ definitions=main-2212190186
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-T24gTW9uLCAyMDIyLTEyLTE5IGF0IDE1OjE0IC0wNTAwLCBNYXR0aGV3IFJvc2F0byB3cm90ZToK
-PiBPbiAxMS8yMS8yMiA0OjQwIFBNLCBFcmljIEZhcm1hbiB3cm90ZToKPiA+IFRvZGF5LCB3ZSBh
-bGxvY2F0ZSBtZW1vcnkgZm9yIGEgbGlzdCBvZiBJREFXcywgYW5kIGlmIHRoZSBDQ1cKPiA+IGJl
-aW5nIHByb2Nlc3NlZCBjb250YWlucyBhbiBJREFMIHdlIHJlYWQgdGhhdCBkYXRhIGZyb20gdGhl
-IGd1ZXN0Cj4gPiBpbnRvIHRoYXQgc3BhY2UuIFdlIHRoZW4gY29weSBlYWNoIElEQVcgaW50byB0
-aGUgcGFfaW92YSBhcnJheSwKPiA+IG9yIGZhYnJpY2F0ZSB0aGF0IHBhX2lvdmEgYXJyYXkgd2l0
-aCBhIGxpc3Qgb2YgYWRkcmVzc2VzIGJhc2VkCj4gPiBvbiBhIGRpcmVjdC1hZGRyZXNzZWQgQ0NX
-Lgo+ID4gCj4gPiBDb21iaW5lIHRoZSByZWFkaW5nIG9mIHRoZSBndWVzdCBJREFMIHdpdGggdGhl
-IGNyZWF0aW9uIG9mIGEKPiA+IHBzZXVkby1JREFMIGZvciBkaXJlY3QtYWRkcmVzc2VkIENDV3Ms
-IHNvIHRoYXQgYm90aCBDQ1cgdHlwZXMKPiA+IGhhdmUgYSAiZ3Vlc3QiIElEQUwgdGhhdCBjYW4g
-YmUgcG9wdWxhdGVkIHN0cmFpZ2h0IGludG8gdGhlCj4gPiBwYV9pb3ZhIGFycmF5Lgo+ID4gCj4g
-PiBTaWduZWQtb2ZmLWJ5OiBFcmljIEZhcm1hbiA8ZmFybWFuQGxpbnV4LmlibS5jb20+Cj4gPiAt
-LS0KPiA+IMKgZHJpdmVycy9zMzkwL2Npby92ZmlvX2Njd19jcC5jIHwgNzIgKysrKysrKysrKysr
-KysrKysrKysrKystLS0tLS0tCj4gPiAtLS0tCj4gPiDCoDEgZmlsZSBjaGFuZ2VkLCA1MCBpbnNl
-cnRpb25zKCspLCAyMiBkZWxldGlvbnMoLSkKPiA+IAo+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMv
-czM5MC9jaW8vdmZpb19jY3dfY3AuYwo+ID4gYi9kcml2ZXJzL3MzOTAvY2lvL3ZmaW9fY2N3X2Nw
-LmMKPiA+IGluZGV4IDY4MzllNzE5NTE4Mi4uOTA2ODVjZWU4NWRiIDEwMDY0NAo+ID4gLS0tIGEv
-ZHJpdmVycy9zMzkwL2Npby92ZmlvX2Njd19jcC5jCj4gPiArKysgYi9kcml2ZXJzL3MzOTAvY2lv
-L3ZmaW9fY2N3X2NwLmMKPiA+IEBAIC0xOTIsMTEgKzE5MiwxMiBAQCBzdGF0aWMgaW5saW5lIHZv
-aWQKPiA+IHBhZ2VfYXJyYXlfaWRhbF9jcmVhdGVfd29yZHMoc3RydWN0IHBhZ2VfYXJyYXkgKnBh
-LAo+ID4gwqDCoMKgwqDCoMKgwqDCoCAqIGlkYXcuCj4gPiDCoMKgwqDCoMKgwqDCoMKgICovCj4g
-PiDCoAo+ID4gLcKgwqDCoMKgwqDCoMKgZm9yIChpID0gMDsgaSA8IHBhLT5wYV9ucjsgaSsrKQo+
-ID4gK8KgwqDCoMKgwqDCoMKgZm9yIChpID0gMDsgaSA8IHBhLT5wYV9ucjsgaSsrKSB7Cj4gPiDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGlkYXdzW2ldID0gcGFnZV90b19waHlzKHBh
-LT5wYV9wYWdlW2ldKTsKPiA+IMKgCj4gPiAtwqDCoMKgwqDCoMKgwqAvKiBBZGp1c3QgdGhlIGZp
-cnN0IElEQVcsIHNpbmNlIGl0IG1heSBub3Qgc3RhcnQgb24gYSBwYWdlCj4gPiBib3VuZGFyeSAq
-Lwo+ID4gLcKgwqDCoMKgwqDCoMKgaWRhd3NbMF0gKz0gcGEtPnBhX2lvdmFbMF0gJiAoUEFHRV9T
-SVpFIC0gMSk7Cj4gPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgLyogSW5jb3Jwb3Jh
-dGUgYW55IG9mZnNldCBmcm9tIGVhY2ggc3RhcnRpbmcKPiA+IGFkZHJlc3MgKi8KPiA+ICvCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBpZGF3c1tpXSArPSBwYS0+cGFfaW92YVtpXSAmIChQ
-QUdFX1NJWkUgLSAxKTsKPiA+ICvCoMKgwqDCoMKgwqDCoH0KPiA+IMKgfQo+ID4gwqAKPiA+IMKg
-c3RhdGljIHZvaWQgY29udmVydF9jY3cwX3RvX2NjdzEoc3RydWN0IGNjdzEgKnNvdXJjZSwgdW5z
-aWduZWQKPiA+IGxvbmcgbGVuKQo+ID4gQEAgLTQ5Niw2ICs0OTcsNDQgQEAgc3RhdGljIGludCBj
-Y3djaGFpbl9mZXRjaF90aWMoc3RydWN0IGNjdzEKPiA+ICpjY3csCj4gPiDCoMKgwqDCoMKgwqDC
-oMKgcmV0dXJuIC1FRkFVTFQ7Cj4gPiDCoH0KPiA+IMKgCj4gPiArc3RhdGljIHVuc2lnbmVkIGxv
-bmcgKmdldF9ndWVzdF9pZGFsKHN0cnVjdCBjY3cxICpjY3csCj4gPiArwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBz
-dHJ1Y3QgY2hhbm5lbF9wcm9ncmFtICpjcCwKPiA+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGludCBpZGF3X25y
-KQo+ID4gK3sKPiA+ICvCoMKgwqDCoMKgwqDCoHN0cnVjdCB2ZmlvX2RldmljZSAqdmRldiA9Cj4g
-PiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgJmNvbnRhaW5lcl9vZihjcCwgc3RydWN0
-IHZmaW9fY2N3X3ByaXZhdGUsIGNwKS0KPiA+ID52ZGV2Owo+ID4gK8KgwqDCoMKgwqDCoMKgdW5z
-aWduZWQgbG9uZyAqaWRhd3M7Cj4gPiArwqDCoMKgwqDCoMKgwqBpbnQgaWRhbF9sZW4gPSBpZGF3
-X25yICogc2l6ZW9mKCppZGF3cyk7Cj4gPiArwqDCoMKgwqDCoMKgwqBpbnQgaWRhd19zaXplID0g
-UEFHRV9TSVpFOwo+ID4gK8KgwqDCoMKgwqDCoMKgaW50IGlkYXdfbWFzayA9IH4oaWRhd19zaXpl
-IC0gMSk7Cj4gPiArwqDCoMKgwqDCoMKgwqBpbnQgaSwgcmV0Owo+ID4gKwo+ID4gK8KgwqDCoMKg
-wqDCoMKgaWRhd3MgPSBrY2FsbG9jKGlkYXdfbnIsIHNpemVvZigqaWRhd3MpLCBHRlBfRE1BIHwK
-PiA+IEdGUF9LRVJORUwpOwo+ID4gK8KgwqDCoMKgwqDCoMKgaWYgKCFpZGF3cykKPiA+ICvCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqByZXR1cm4gTlVMTDsKPiA+ICsKPiA+ICvCoMKgwqDC
-oMKgwqDCoGlmIChjY3dfaXNfaWRhbChjY3cpKSB7Cj4gPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgLyogQ29weSBJREFMIGZyb20gZ3Vlc3QgKi8KPiA+ICvCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqByZXQgPSB2ZmlvX2RtYV9ydyh2ZGV2LCBjY3ctPmNkYSwgaWRhd3MsIGlk
-YWxfbGVuLAo+ID4gZmFsc2UpOwo+ID4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGlm
-IChyZXQpIHsKPiA+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKga2ZyZWUoaWRhd3MpOwo+ID4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqByZXR1cm4gTlVMTDsKPiAKPiBBcyBkaXNjdXNzZWQgb2ZmLWxpc3QsIGZvciBk
-ZWJ1ZyBwdXJwb3NlcyBjb25zaWRlciB1c2luZyBzb21ldGhpbmcKPiBsaWtlIEVSUl9QVFIgb2Yg
-dGhlIHZmaW9fZG1hX3J3IGVycm9yIHJldHVybiBoZXJlIHJhdGhlciB0aGFuIE5VTEwuIAoKWWVz
-LCBnb29kIGlkZWEuCgo+IAo+ID4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoH0KPiA+
-ICvCoMKgwqDCoMKgwqDCoH0gZWxzZSB7Cj4gPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgLyogRmFicmljYXRlIGFuIElEQUwgYmFzZWQgb2ZmIENDVyBkYXRhIGFkZHJlc3MgKi8KPiA+
-ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBpZiAoY3AtPm9yYi5jbWQuYzY0KSB7Cj4g
-PiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGlkYXdzWzBd
-ID0gY2N3LT5jZGE7Cj4gPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoGZvciAoaSA9IDE7IGkgPCBpZGF3X25yOyBpKyspCj4gPiArwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBpZGF3c1tpXSA9
-IChpZGF3c1tpIC0gMV0gKwo+ID4gaWRhd19zaXplKSAmIGlkYXdfbWFzazsKPiA+ICvCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqB9IGVsc2Ugewo+IAo+IElmIGFueW9uZSBlbHNlIGlzIHJl
-dmlld2luZyBhbmQgc3R1bWJsZXMgb24gdGhpcywgSSB3YXMgaW5pdGlhbGx5Cj4gd29uZGVyaW5n
-IHdoeSB3ZSBiYWlsIGhlcmUgd2l0aCBubyBvYnZpb3VzIGV4cGxhbmF0aW9uIC0gd2FzIGdvaW5n
-IHRvCj4gYXNrIGZvciBhIGNvbW1lbnQgaGVyZSBidXQgaXQgbG9va3MgbGlrZSB0aGlzIGVsc2Ug
-Z2V0cyByZXBsYWNlZCBuZXh0Cj4gcGF0Y2ggd2l0aCBpbXBsZW1lbnRhdGlvbiBmb3IgZm9ybWF0
-LTEuCgpBcyB5b3Ugbm90ZSwgdGhpcyBnb2VzIGF3YXkgaW4gdGhlIG5leHQgcGF0Y2ggc28gSSBk
-aWRuJ3QgcHV0IGEgY29tbWVudAppbiBwbGFjZS4gQnV0IHdoaWxlIHB1dHRpbmcgaW4gdGhlIEVS
-Ul9QVFIvUFRSX0VSUiBzdHVmZiwgSSBvcHRlZCB0bwpyZXR1cm4gRU9QTk9UU1VQUCBoZXJlIGlu
-c3RlYWQgb2YgTlVMTCwgc28gd2UgZ2V0IGFuIGVycm9yIGVxdWFsIHRvIHRoZQpjdXJyZW50IGZl
-bmNlIGluc3RlYWQgb2YgYW4gRU5PTUVNLiBTbyB0aGF0J2xsIGJlIGluIHYyLgoKVGhhbmtzLApF
-cmljCgo+IAo+ID4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqBrZnJlZShpZGF3cyk7Cj4gPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoHJldHVybiBOVUxMOwo+ID4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oH0KPiA+ICvCoMKgwqDCoMKgwqDCoH0KPiA+ICsKPiA+ICvCoMKgwqDCoMKgwqDCoHJldHVybiBp
-ZGF3czsKPiA+ICt9Cj4gPiArCj4gPiDCoC8qCj4gPiDCoCAqIGNjd19jb3VudF9pZGF3cygpIC0g
-Q2FsY3VsYXRlIHRoZSBudW1iZXIgb2YgSURBV3MgbmVlZGVkIHRvCj4gPiB0cmFuc2Zlcgo+ID4g
-wqAgKiBhIHNwZWNpZmllZCBhbW91bnQgb2YgZGF0YQo+ID4gQEAgLTU1NSw3ICs1OTQsNyBAQCBz
-dGF0aWMgaW50IGNjd2NoYWluX2ZldGNoX2NjdyhzdHJ1Y3QgY2N3MSAqY2N3LAo+ID4gwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAmY29udGFpbmVyX29mKGNwLCBzdHJ1Y3QgdmZpb19j
-Y3dfcHJpdmF0ZSwgY3ApLQo+ID4gPnZkZXY7Cj4gPiDCoMKgwqDCoMKgwqDCoMKgdW5zaWduZWQg
-bG9uZyAqaWRhd3M7Cj4gPiDCoMKgwqDCoMKgwqDCoMKgaW50IHJldDsKPiA+IC3CoMKgwqDCoMKg
-wqDCoGludCBpZGF3X25yLCBpZGFsX2xlbjsKPiA+ICvCoMKgwqDCoMKgwqDCoGludCBpZGF3X25y
-Owo+ID4gwqDCoMKgwqDCoMKgwqDCoGludCBpOwo+ID4gwqAKPiA+IMKgwqDCoMKgwqDCoMKgwqAv
-KiBDYWxjdWxhdGUgc2l6ZSBvZiBJREFMICovCj4gPiBAQCAtNTYzLDEwICs2MDIsOCBAQCBzdGF0
-aWMgaW50IGNjd2NoYWluX2ZldGNoX2NjdyhzdHJ1Y3QgY2N3MQo+ID4gKmNjdywKPiA+IMKgwqDC
-oMKgwqDCoMKgwqBpZiAoaWRhd19uciA8IDApCj4gPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoHJldHVybiBpZGF3X25yOwo+ID4gwqAKPiA+IC3CoMKgwqDCoMKgwqDCoGlkYWxfbGVu
-ID0gaWRhd19uciAqIHNpemVvZigqaWRhd3MpOwo+ID4gLQo+ID4gwqDCoMKgwqDCoMKgwqDCoC8q
-IEFsbG9jYXRlIGFuIElEQUwgZnJvbSBob3N0IHN0b3JhZ2UgKi8KPiA+IC3CoMKgwqDCoMKgwqDC
-oGlkYXdzID0ga2NhbGxvYyhpZGF3X25yLCBzaXplb2YoKmlkYXdzKSwgR0ZQX0RNQSB8Cj4gPiBH
-RlBfS0VSTkVMKTsKPiA+ICvCoMKgwqDCoMKgwqDCoGlkYXdzID0gZ2V0X2d1ZXN0X2lkYWwoY2N3
-LCBjcCwgaWRhd19ucik7Cj4gPiDCoMKgwqDCoMKgwqDCoMKgaWYgKCFpZGF3cykgewo+ID4gwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqByZXQgPSAtRU5PTUVNOwo+ID4gwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBnb3RvIG91dF9pbml0Owo+ID4gQEAgLTU4MiwyMiArNjE5
-LDEzIEBAIHN0YXRpYyBpbnQgY2N3Y2hhaW5fZmV0Y2hfY2N3KHN0cnVjdCBjY3cxCj4gPiAqY2N3
-LAo+ID4gwqDCoMKgwqDCoMKgwqDCoGlmIChyZXQgPCAwKQo+ID4gwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqBnb3RvIG91dF9mcmVlX2lkYXdzOwo+ID4gwqAKPiA+IC3CoMKgwqDCoMKg
-wqDCoGlmIChjY3dfaXNfaWRhbChjY3cpKSB7Cj4gPiAtwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgLyogQ29weSBndWVzdCBJREFMIGludG8gaG9zdCBJREFMICovCj4gPiAtwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgcmV0ID0gdmZpb19kbWFfcncodmRldiwgY2N3LT5jZGEsIGlk
-YXdzLCBpZGFsX2xlbiwKPiA+IGZhbHNlKTsKPiA+IC3CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqBpZiAocmV0KQo+ID4gLcKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqBnb3RvIG91dF91bnBpbjsKPiA+IC0KPiA+IC3CoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqAvKgo+ID4gLcKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCAqIENvcHkgZ3Vl
-c3QgSURBV3MgaW50byBwYWdlX2FycmF5LCBpbiBjYXNlIHRoZQo+ID4gbWVtb3J5IHRoZXkKPiA+
-IC3CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgKiBvY2N1cHkgaXMgbm90IGNvbnRpZ3Vv
-dXMuCj4gPiAtwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgICovCj4gPiAtwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgZm9yIChpID0gMDsgaSA8IGlkYXdfbnI7IGkrKykKPiA+ICvC
-oMKgwqDCoMKgwqDCoC8qCj4gPiArwqDCoMKgwqDCoMKgwqAgKiBDb3B5IGd1ZXN0IElEQVdzIGlu
-dG8gcGFnZV9hcnJheSwgaW4gY2FzZSB0aGUgbWVtb3J5Cj4gPiB0aGV5Cj4gPiArwqDCoMKgwqDC
-oMKgwqAgKiBvY2N1cHkgaXMgbm90IGNvbnRpZ3VvdXMuCj4gPiArwqDCoMKgwqDCoMKgwqAgKi8K
-PiA+ICvCoMKgwqDCoMKgwqDCoGZvciAoaSA9IDA7IGkgPCBpZGF3X25yOyBpKyspIHsKPiA+ICvC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBpZiAoY3AtPm9yYi5jbWQuYzY0KQo+ID4gwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgcGEtPnBhX2lvdmFb
-aV0gPSBpZGF3c1tpXTsKPiA+IC3CoMKgwqDCoMKgwqDCoH0gZWxzZSB7Cj4gPiAtwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgcGEtPnBhX2lvdmFbMF0gPSBjY3ctPmNkYTsKPiA+IC3CoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBmb3IgKGkgPSAxOyBpIDwgcGEtPnBhX25yOyBpKysp
-Cj4gPiAtwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoHBhLT5w
-YV9pb3ZhW2ldID0gcGEtPnBhX2lvdmFbaSAtIDFdICsKPiA+IFBBR0VfU0laRTsKPiA+IMKgwqDC
-oMKgwqDCoMKgwqB9Cj4gPiDCoAo+ID4gwqDCoMKgwqDCoMKgwqDCoGlmIChjY3dfZG9lc19kYXRh
-X3RyYW5zZmVyKGNjdykpIHsKPiAKCg==
+On Wed, 2022-12-14 at 10:23 +0800, kernel test robot wrote:
+> Hi Janis,
+>=20
+> Thank you for the patch! Yet something to improve:
+>=20
+> [auto build test ERROR on 739ad2e4e15b585a0eaf98b7bdee62b2dd9588c9]
+>=20
+> url:    https://github.com/intel-lab-lkp/linux/commits/Janis-Schoetterl-G=
+lausch/KVM-s390-Extend-MEM_OP-ioctl-by-storage-key-checked-cmpxchg/20221214=
+-005540
+> base:   739ad2e4e15b585a0eaf98b7bdee62b2dd9588c9
+> patch link:    https://lore.kernel.org/r/20221213165405.2953539-2-scgl%40=
+linux.ibm.com
+> patch subject: [PATCH v4 1/9] KVM: s390: Extend MEM_OP ioctl by storage k=
+ey checked cmpxchg
+> config: s390-randconfig-r004-20221213
+> compiler: s390-linux-gcc (GCC) 12.1.0
+> reproduce (this is a W=3D1 build):
+>         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbi=
+n/make.cross -O ~/bin/make.cross
+>         chmod +x ~/bin/make.cross
+>         # https://github.com/intel-lab-lkp/linux/commit/4e0991bd47ba30c75=
+88e042da7a84d84b9f84056
+>         git remote add linux-review https://github.com/intel-lab-lkp/linux
+>         git fetch --no-tags linux-review Janis-Schoetterl-Glausch/KVM-s39=
+0-Extend-MEM_OP-ioctl-by-storage-key-checked-cmpxchg/20221214-005540
+>         git checkout 4e0991bd47ba30c7588e042da7a84d84b9f84056
+>         # save the config file
+>         mkdir build_dir && cp config build_dir/.config
+>         COMPILER_INSTALL_PATH=3D$HOME/0day COMPILER=3Dgcc-12.1.0 make.cro=
+ss W=3D1 O=3Dbuild_dir ARCH=3Ds390 SHELL=3D/bin/bash
+>=20
+> If you fix the issue, kindly add following tag where applicable
+> > Reported-by: kernel test robot <lkp@intel.com>
+>=20
+> All errors (new ones prefixed by >>):
+>=20
+>    s390-linux-ld: arch/s390/kvm/gaccess.o: in function `__cmpxchg_user_ke=
+y':
+> > > arch/s390/include/asm/uaccess.h:410: undefined reference to `__ashlti=
+3'
+> > > s390-linux-ld: arch/s390/include/asm/uaccess.h:411: undefined referen=
+ce to `__ashlti3'
+>    s390-linux-ld: arch/s390/include/asm/uaccess.h:458: undefined referenc=
+e to `__ashlti3'
+>    s390-linux-ld: arch/s390/include/asm/uaccess.h:459: undefined referenc=
+e to `__ashlti3'
+>=20
+>=20
+> vim +410 arch/s390/include/asm/uaccess.h
+>=20
+> 739ad2e4e15b58 Janis Schoetterl-Glausch 2022-11-17  396=20=20
+> 4148575abe1e14 Heiko Carstens           2022-11-02  397  static __always_=
+inline int __cmpxchg_user_key(unsigned long address, void *uval,
+> 4148575abe1e14 Heiko Carstens           2022-11-02  398  					      __uin=
+t128_t old, __uint128_t new,
+> 4148575abe1e14 Heiko Carstens           2022-11-02  399  					      unsig=
+ned long key, int size)
+> 4148575abe1e14 Heiko Carstens           2022-11-02  400  {
+> 4148575abe1e14 Heiko Carstens           2022-11-02  401  	int rc =3D 0;
+> 4148575abe1e14 Heiko Carstens           2022-11-02  402=20=20
+> 4148575abe1e14 Heiko Carstens           2022-11-02  403  	switch (size) {
+> 4148575abe1e14 Heiko Carstens           2022-11-02  404  	case 1: {
+> 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16  405  		unsigned int p=
+rev, shift, mask, _old, _new;
+> 739ad2e4e15b58 Janis Schoetterl-Glausch 2022-11-17  406  		unsigned long =
+count;
+> 4148575abe1e14 Heiko Carstens           2022-11-02  407=20=20
+> 4148575abe1e14 Heiko Carstens           2022-11-02  408  		shift =3D (3 ^=
+ (address & 3)) << 3;
+> 4148575abe1e14 Heiko Carstens           2022-11-02  409  		address ^=3D a=
+ddress & 3;
+> 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16 @410  		_old =3D (old =
+& 0xff) << shift;
+> 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16 @411  		_new =3D (new =
+& 0xff) << shift;
 
+Not sure what it is in this config that causes gcc to emit this symbol inst=
+ead of a shift instruction, but casting old/new to 32 bit fixes
+the error.
+
+> 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16  412  		mask =3D ~(0xf=
+f << shift);
+> 4148575abe1e14 Heiko Carstens           2022-11-02  413  		asm volatile(
+> 4148575abe1e14 Heiko Carstens           2022-11-02  414  			"	spka	0(%[ke=
+y])\n"
+> 4148575abe1e14 Heiko Carstens           2022-11-02  415  			"	sacf	256\n"
+> 739ad2e4e15b58 Janis Schoetterl-Glausch 2022-11-17  416  			"	llill	%[cou=
+nt],%[max_loops]\n"
+> 4148575abe1e14 Heiko Carstens           2022-11-02  417  			"0:	l	%[prev]=
+,%[address]\n"
+> 4148575abe1e14 Heiko Carstens           2022-11-02  418  			"1:	nr	%[prev=
+],%[mask]\n"
+> 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16  419  			"	xilf	%[mask=
+],0xffffffff\n"
+> 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16  420  			"	or	%[new],%=
+[prev]\n"
+> 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16  421  			"	or	%[prev],=
+%[tmp]\n"
+> 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16  422  			"2:	lr	%[tmp]=
+,%[prev]\n"
+> 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16  423  			"3:	cs	%[prev=
+],%[new],%[address]\n"
+> 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16  424  			"4:	jnl	5f\n"
+> 4148575abe1e14 Heiko Carstens           2022-11-02  425  			"	xr	%[tmp],%=
+[prev]\n"
+> 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16  426  			"	xr	%[new],%=
+[tmp]\n"
+> 4148575abe1e14 Heiko Carstens           2022-11-02  427  			"	nr	%[tmp],%=
+[mask]\n"
+> 739ad2e4e15b58 Janis Schoetterl-Glausch 2022-11-17  428  			"	jnz	5f\n"
+> 739ad2e4e15b58 Janis Schoetterl-Glausch 2022-11-17  429  			"	brct	%[coun=
+t],2b\n"
+> 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16  430  			"5:	sacf	768\=
+n"
+> 4148575abe1e14 Heiko Carstens           2022-11-02  431  			"	spka	%[defa=
+ult_key]\n"
+> 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16  432  			EX_TABLE_UA_L=
+OAD_REG(0b, 5b, %[rc], %[prev])
+> 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16  433  			EX_TABLE_UA_L=
+OAD_REG(1b, 5b, %[rc], %[prev])
+> 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16  434  			EX_TABLE_UA_L=
+OAD_REG(3b, 5b, %[rc], %[prev])
+> 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16  435  			EX_TABLE_UA_L=
+OAD_REG(4b, 5b, %[rc], %[prev])
+> 4148575abe1e14 Heiko Carstens           2022-11-02  436  			: [rc] "+&d" =
+(rc),
+> 4148575abe1e14 Heiko Carstens           2022-11-02  437  			  [prev] "=3D=
+&d" (prev),
+> 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16  438  			  [address] "=
++Q" (*(int *)address),
+> 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16  439  			  [tmp] "+&d"=
+ (_old),
+> 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16  440  			  [new] "+&d"=
+ (_new),
+> 739ad2e4e15b58 Janis Schoetterl-Glausch 2022-11-17  441  			  [mask] "+&d=
+" (mask),
+> 739ad2e4e15b58 Janis Schoetterl-Glausch 2022-11-17  442  			  [count] "=
+=3Da" (count)
+> 739ad2e4e15b58 Janis Schoetterl-Glausch 2022-11-17  443  			: [key] "%[co=
+unt]" (key << 4),
+> 739ad2e4e15b58 Janis Schoetterl-Glausch 2022-11-17  444  			  [default_ke=
+y] "J" (PAGE_DEFAULT_KEY),
+> 739ad2e4e15b58 Janis Schoetterl-Glausch 2022-11-17  445  			  [max_loops]=
+ "J" (CMPXCHG_USER_KEY_MAX_LOOPS)
+> 4148575abe1e14 Heiko Carstens           2022-11-02  446  			: "memory", "=
+cc");
+> 4148575abe1e14 Heiko Carstens           2022-11-02  447  		*(unsigned cha=
+r *)uval =3D prev >> shift;
+> 739ad2e4e15b58 Janis Schoetterl-Glausch 2022-11-17  448  		if (!count)
+> 739ad2e4e15b58 Janis Schoetterl-Glausch 2022-11-17  449  			rc =3D -EAGAI=
+N;
+> 4148575abe1e14 Heiko Carstens           2022-11-02  450  		return rc;
+> 4148575abe1e14 Heiko Carstens           2022-11-02  451  	}
+> 4148575abe1e14 Heiko Carstens           2022-11-02  452  	case 2: {
+> 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16  453  		unsigned int p=
+rev, shift, mask, _old, _new;
+> 739ad2e4e15b58 Janis Schoetterl-Glausch 2022-11-17  454  		unsigned long =
+count;
+> 4148575abe1e14 Heiko Carstens           2022-11-02  455=20=20
+> 4148575abe1e14 Heiko Carstens           2022-11-02  456  		shift =3D (2 ^=
+ (address & 2)) << 3;
+> 4148575abe1e14 Heiko Carstens           2022-11-02  457  		address ^=3D a=
+ddress & 2;
+> 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16  458  		_old =3D (old =
+& 0xffff) << shift;
+> 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16  459  		_new =3D (new =
+& 0xffff) << shift;
+
+Same here.
+
+> 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16  460  		mask =3D ~(0xf=
+fff << shift);
+> 4148575abe1e14 Heiko Carstens           2022-11-02  461  		asm volatile(
+> 4148575abe1e14 Heiko Carstens           2022-11-02  462  			"	spka	0(%[ke=
+y])\n"
+> 4148575abe1e14 Heiko Carstens           2022-11-02  463  			"	sacf	256\n"
+> 739ad2e4e15b58 Janis Schoetterl-Glausch 2022-11-17  464  			"	llill	%[cou=
+nt],%[max_loops]\n"
+> 4148575abe1e14 Heiko Carstens           2022-11-02  465  			"0:	l	%[prev]=
+,%[address]\n"
+> 4148575abe1e14 Heiko Carstens           2022-11-02  466  			"1:	nr	%[prev=
+],%[mask]\n"
+> 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16  467  			"	xilf	%[mask=
+],0xffffffff\n"
+> 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16  468  			"	or	%[new],%=
+[prev]\n"
+> 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16  469  			"	or	%[prev],=
+%[tmp]\n"
+> 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16  470  			"2:	lr	%[tmp]=
+,%[prev]\n"
+> 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16  471  			"3:	cs	%[prev=
+],%[new],%[address]\n"
+> 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16  472  			"4:	jnl	5f\n"
+> 4148575abe1e14 Heiko Carstens           2022-11-02  473  			"	xr	%[tmp],%=
+[prev]\n"
+> 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16  474  			"	xr	%[new],%=
+[tmp]\n"
+> 4148575abe1e14 Heiko Carstens           2022-11-02  475  			"	nr	%[tmp],%=
+[mask]\n"
+> 739ad2e4e15b58 Janis Schoetterl-Glausch 2022-11-17  476  			"	jnz	5f\n"
+> 739ad2e4e15b58 Janis Schoetterl-Glausch 2022-11-17  477  			"	brct	%[coun=
+t],2b\n"
+> 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16  478  			"5:	sacf	768\=
+n"
+> 4148575abe1e14 Heiko Carstens           2022-11-02  479  			"	spka	%[defa=
+ult_key]\n"
+> 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16  480  			EX_TABLE_UA_L=
+OAD_REG(0b, 5b, %[rc], %[prev])
+> 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16  481  			EX_TABLE_UA_L=
+OAD_REG(1b, 5b, %[rc], %[prev])
+> 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16  482  			EX_TABLE_UA_L=
+OAD_REG(3b, 5b, %[rc], %[prev])
+> 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16  483  			EX_TABLE_UA_L=
+OAD_REG(4b, 5b, %[rc], %[prev])
+> 4148575abe1e14 Heiko Carstens           2022-11-02  484  			: [rc] "+&d" =
+(rc),
+> 4148575abe1e14 Heiko Carstens           2022-11-02  485  			  [prev] "=3D=
+&d" (prev),
+> 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16  486  			  [address] "=
++Q" (*(int *)address),
+> 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16  487  			  [tmp] "+&d"=
+ (_old),
+> 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16  488  			  [new] "+&d"=
+ (_new),
+> 739ad2e4e15b58 Janis Schoetterl-Glausch 2022-11-17  489  			  [mask] "+&d=
+" (mask),
+> 739ad2e4e15b58 Janis Schoetterl-Glausch 2022-11-17  490  			  [count] "=
+=3Da" (count)
+> 739ad2e4e15b58 Janis Schoetterl-Glausch 2022-11-17  491  			: [key] "%[co=
+unt]" (key << 4),
+> 739ad2e4e15b58 Janis Schoetterl-Glausch 2022-11-17  492  			  [default_ke=
+y] "J" (PAGE_DEFAULT_KEY),
+> 739ad2e4e15b58 Janis Schoetterl-Glausch 2022-11-17  493  			  [max_loops]=
+ "J" (CMPXCHG_USER_KEY_MAX_LOOPS)
+> 4148575abe1e14 Heiko Carstens           2022-11-02  494  			: "memory", "=
+cc");
+> 4148575abe1e14 Heiko Carstens           2022-11-02  495  		*(unsigned sho=
+rt *)uval =3D prev >> shift;
+> 739ad2e4e15b58 Janis Schoetterl-Glausch 2022-11-17  496  		if (!count)
+> 739ad2e4e15b58 Janis Schoetterl-Glausch 2022-11-17  497  			rc =3D -EAGAI=
+N;
+> 4148575abe1e14 Heiko Carstens           2022-11-02  498  		return rc;
+
+[...]
