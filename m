@@ -2,310 +2,376 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E052C3DA71
-	for <linux-s390@archiver.kernel.org>; Mon, 19 Dec 2022 01:40:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 27B26C4332F
+	for <linux-s390@archiver.kernel.org>; Mon, 19 Dec 2022 12:07:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231167AbiLSBkq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 18 Dec 2022 20:40:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45552 "EHLO
+        id S231136AbiLSMHT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 19 Dec 2022 07:07:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230483AbiLSBkn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 18 Dec 2022 20:40:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29161D9F;
-        Sun, 18 Dec 2022 17:40:42 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S231700AbiLSMHB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 19 Dec 2022 07:07:01 -0500
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC1BCCD2;
+        Mon, 19 Dec 2022 04:06:59 -0800 (PST)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AC2C760DF3;
-        Mon, 19 Dec 2022 01:40:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0516FC43396;
-        Mon, 19 Dec 2022 01:40:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671414041;
-        bh=9nyV2VLryTNQ2RWGz3ZIj4+lGtx6hnYLztBjAV0zvPk=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=PATNVhgdHjYWGiZiASI0bBaWPGO5qTJR2J725H79e6EhmAT4XY1N6hsV0m/tQJEp7
-         a/2WvulFJ6gOCpeo5QTXLzunPUQjlh2it+91pkfEEgDCo6RRGWx0krLoQTsVX7gm9R
-         EVdLgzQN6omHyhybQOq0Ih61Cy92rrRlJTIMKPPQ05AzuTaeoo0eXxzs5b9a/1j2Pe
-         cbjteZLbAKsUC5nPsrAsxmzdAcCBOcZpfEX5kvBGMV5m1XRhGlo26443cbMEi9DMsc
-         DM2vxo07g5jBYvi3+mwzcTrBmo8h2hYFNguAYLVO1Y7c/iAYn7ysl1MKA9AbHfYbS/
-         rYDwQhhKDNexw==
-Received: by mail-ej1-f48.google.com with SMTP id gh17so18217484ejb.6;
-        Sun, 18 Dec 2022 17:40:40 -0800 (PST)
-X-Gm-Message-State: ANoB5pliy0uXeCIT40in7JX5PtJMjRrkS3+K0Tj7AwhOX1Q+poH34EEK
-        UR5ypjwjOYGAzc940zUkrbmCcjia8mbEZzva7Bk=
-X-Google-Smtp-Source: AA0mqf7fa22WDTII8PuIoosVINgEu5ldbNcdzS6oKOztHUJ2Qlsma3hMLsf/nMU+opz2u3k/iVMluUrTunlVexMitRk=
-X-Received: by 2002:a17:906:f116:b0:7c1:764:5e08 with SMTP id
- gv22-20020a170906f11600b007c107645e08mr12961272ejb.72.1671414039185; Sun, 18
- Dec 2022 17:40:39 -0800 (PST)
-MIME-Version: 1.0
-References: <20221206144730.163732-1-david@redhat.com> <CAAhV-H4bU7JnAPyf9Mv1m+WGR5NWmHJLva3d9_CsRd4Q_OHVpg@mail.gmail.com>
- <b3b90a8e-16e9-a314-8531-e225f8a52817@redhat.com>
-In-Reply-To: <b3b90a8e-16e9-a314-8531-e225f8a52817@redhat.com>
-From:   Huacai Chen <chenhuacai@kernel.org>
-Date:   Mon, 19 Dec 2022 09:40:31 +0800
-X-Gmail-Original-Message-ID: <CAAhV-H74np_5BZ0s=z-bV1OLhRf4cEOAOp4d3kNfBLWNkY33_A@mail.gmail.com>
-Message-ID: <CAAhV-H74np_5BZ0s=z-bV1OLhRf4cEOAOp4d3kNfBLWNkY33_A@mail.gmail.com>
-Subject: Re: [PATCH mm-unstable RFC 00/26] mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
- on all architectures with swap PTEs
-To:     David Hildenbrand <david@redhat.com>
-Cc:     linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Hugh Dickins <hughd@google.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Yang Shi <shy828301@gmail.com>,
+        by smtp-out1.suse.de (Postfix) with ESMTPS id 5B91837873;
+        Mon, 19 Dec 2022 12:06:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1671451618; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=VRA2aH5S0Ze0sw4rTGnG/RKjsdW74LSqAB0FgYf7/K8=;
+        b=rtQCYUPC8WG9/Y5v90R4udOxE0QwjIrtVYsJ2DeTM7KFOrFdLtyfRJ3ckh0cHle6ymJjvZ
+        SLhg2vR3pHJTHuLh0PXwellD9PtLPD1FpdN1GIJjnCPWLz8KnsY1qk+FJLZsVigvT89Rhe
+        5xoSAvalOeCWpZ5NgbA7bRkP9qRL3M8=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 4173113910;
+        Mon, 19 Dec 2022 12:06:58 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id vvTvD+JToGMtbwAAMHmgww
+        (envelope-from <mhocko@suse.com>); Mon, 19 Dec 2022 12:06:58 +0000
+Date:   Mon, 19 Dec 2022 13:06:57 +0100
+From:   Michal Hocko <mhocko@suse.com>
+To:     Mike Kravetz <mike.kravetz@oracle.com>
+Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        David Hildenbrand <david@redhat.com>,
+        Peter Xu <peterx@redhat.com>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        Matthew Wilcox <willy@infradead.org>,
         Vlastimil Babka <vbabka@suse.cz>,
-        Nadav Amit <namit@vmware.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Peter Xu <peterx@redhat.com>, linux-mm@kvack.org,
-        x86@kernel.org, linux-alpha@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@quicinc.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Chris Zankel <chris@zankel.net>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Greg Ungerer <gerg@linux-m68k.org>,
-        Guo Ren <guoren@kernel.org>, Helge Deller <deller@gmx.de>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Matt Turner <mattst88@gmail.com>,
-        Max Filippov <jcmvbkbc@gmail.com>,
+        Rik van Riel <riel@surriel.com>,
+        Will Deacon <will@kernel.org>,
         Michael Ellerman <mpe@ellerman.id.au>,
-        Michal Simek <monstr@monstr.eu>,
-        Nicholas Piggin <npiggin@gmail.com>,
         Palmer Dabbelt <palmer@dabbelt.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Richard Henderson <richard.henderson@linaro.org>,
-        Richard Weinberger <richard@nod.at>,
-        Rich Felker <dalias@libc.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Stafford Horne <shorne@gmail.com>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vineet Gupta <vgupta@kernel.org>,
-        WANG Xuerui <kernel@xen0n.name>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>
-Content-Type: text/plain; charset="UTF-8"
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Christian Brauner <brauner@kernel.org>,
+        Eric Dumazet <edumazet@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [RFC PATCH] mm: remove zap_page_range and change callers to use
+ zap_vma_page_range
+Message-ID: <Y6A6KqXObGKxvDrX@dhcp22.suse.cz>
+References: <20221216192012.13562-1-mike.kravetz@oracle.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221216192012.13562-1-mike.kravetz@oracle.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sun, Dec 18, 2022 at 5:59 PM David Hildenbrand <david@redhat.com> wrote:
->
-> On 18.12.22 04:32, Huacai Chen wrote:
-> > Hi, David,
-> >
-> > What is the opposite of exclusive here? Shared or inclusive? I prefer
-> > pte_swp_mkshared() or pte_swp_mkinclusive() rather than
-> > pte_swp_clear_exclusive(). Existing examples: dirty/clean, young/old
-> > ...
->
-> Hi Huacai,
->
-> thanks for having a look!
->
-> Please note that this series doesn't add these primitives but merely
-> implements them on all remaining architectures.
->
-> Having that said, the semantics are "exclusive" vs. "maybe shared", not
-> "exclusive" vs. "shared" or sth. else. It would have to be
-> pte_swp_mkmaybe_shared().
->
->
-> Note that this naming matches just the way we handle it for the other
-> pte_swp_ flags we have, namely:
->
-> pte_swp_mksoft_dirty()
-> pte_swp_soft_dirty()
-> pte_swp_clear_soft_dirty()
->
-> and
->
-> pte_swp_mkuffd_wp()
-> pte_swp_uffd_wp()
-> pte_swp_clear_uffd_wp()
->
->
-> For example, we also (thankfully) didn't call it pte_mksoft_clean().
-> Grepping for "pte_swp.*soft_dirty" gives you the full picture.
->
-> Thanks!
-OK, got it.
+On Fri 16-12-22 11:20:12, Mike Kravetz wrote:
+> zap_page_range was originally designed to unmap pages within an address
+> range that could span multiple vmas.  While working on [1], it was
+> discovered that all callers of zap_page_range pass a range entirely within
+> a single vma.  In addition, the mmu notification call within zap_page
+> range does not correctly handle ranges that span multiple vmas as calls
+> should be vma specific.
 
-Huacai
->
-> David
->
-> >
-> > Huacai
-> >
-> > On Tue, Dec 6, 2022 at 10:48 PM David Hildenbrand <david@redhat.com> wrote:
-> >>
-> >> This is the follow-up on [1]:
-> >>          [PATCH v2 0/8] mm: COW fixes part 3: reliable GUP R/W FOLL_GET of
-> >>          anonymous pages
-> >>
-> >> After we implemented __HAVE_ARCH_PTE_SWP_EXCLUSIVE on most prominent
-> >> enterprise architectures, implement __HAVE_ARCH_PTE_SWP_EXCLUSIVE on all
-> >> remaining architectures that support swap PTEs.
-> >>
-> >> This makes sure that exclusive anonymous pages will stay exclusive, even
-> >> after they were swapped out -- for example, making GUP R/W FOLL_GET of
-> >> anonymous pages reliable. Details can be found in [1].
-> >>
-> >> This primarily fixes remaining known O_DIRECT memory corruptions that can
-> >> happen on concurrent swapout, whereby we can lose DMA reads to a page
-> >> (modifying the user page by writing to it).
-> >>
-> >> To verify, there are two test cases (requiring swap space, obviously):
-> >> (1) The O_DIRECT+swapout test case [2] from Andrea. This test case tries
-> >>      triggering a race condition.
-> >> (2) My vmsplice() test case [3] that tries to detect if the exclusive
-> >>      marker was lost during swapout, not relying on a race condition.
-> >>
-> >>
-> >> For example, on 32bit x86 (with and without PAE), my test case fails
-> >> without these patches:
-> >>          $ ./test_swp_exclusive
-> >>          FAIL: page was replaced during COW
-> >> But succeeds with these patches:
-> >>          $ ./test_swp_exclusive
-> >>          PASS: page was not replaced during COW
-> >>
-> >>
-> >> Why implement __HAVE_ARCH_PTE_SWP_EXCLUSIVE for all architectures, even
-> >> the ones where swap support might be in a questionable state? This is the
-> >> first step towards removing "readable_exclusive" migration entries, and
-> >> instead using pte_swp_exclusive() also with (readable) migration entries
-> >> instead (as suggested by Peter). The only missing piece for that is
-> >> supporting pmd_swp_exclusive() on relevant architectures with THP
-> >> migration support.
-> >>
-> >> As all relevant architectures now implement __HAVE_ARCH_PTE_SWP_EXCLUSIVE,,
-> >> we can drop __HAVE_ARCH_PTE_SWP_EXCLUSIVE in the last patch.
-> >>
-> >>
-> >> RFC because some of the swap PTE layouts are really tricky and I really
-> >> need some feedback related to deciphering these layouts and "using yet
-> >> unused PTE bits in swap PTEs". I tried cross-compiling all relevant setups
-> >> (phew, I might only miss some power/nohash variants), but only tested on
-> >> x86 so far.
-> >>
-> >> CCing arch maintainers only on this cover letter and on the respective
-> >> patch(es).
-> >>
-> >>
-> >> [1] https://lkml.kernel.org/r/20220329164329.208407-1-david@redhat.com
-> >> [2] https://gitlab.com/aarcange/kernel-testcases-for-v5.11/-/blob/main/page_count_do_wp_page-swap.c
-> >> [3] https://gitlab.com/davidhildenbrand/scratchspace/-/blob/main/test_swp_exclusive.c
-> >>
-> >> David Hildenbrand (26):
-> >>    mm/debug_vm_pgtable: more pte_swp_exclusive() sanity checks
-> >>    alpha/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> >>    arc/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> >>    arm/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> >>    csky/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> >>    hexagon/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> >>    ia64/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> >>    loongarch/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> >>    m68k/mm: remove dummy __swp definitions for nommu
-> >>    m68k/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> >>    microblaze/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> >>    mips/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> >>    nios2/mm: refactor swap PTE layout
-> >>    nios2/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> >>    openrisc/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> >>    parisc/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> >>    powerpc/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE on 32bit book3s
-> >>    powerpc/nohash/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> >>    riscv/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> >>    sh/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> >>    sparc/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE on 32bit
-> >>    sparc/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE on 64bit
-> >>    um/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> >>    x86/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE also on 32bit
-> >>    xtensa/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> >>    mm: remove __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> >>
-> >>   arch/alpha/include/asm/pgtable.h              | 40 ++++++++-
-> >>   arch/arc/include/asm/pgtable-bits-arcv2.h     | 26 +++++-
-> >>   arch/arm/include/asm/pgtable-2level.h         |  3 +
-> >>   arch/arm/include/asm/pgtable-3level.h         |  3 +
-> >>   arch/arm/include/asm/pgtable.h                | 34 ++++++--
-> >>   arch/arm64/include/asm/pgtable.h              |  1 -
-> >>   arch/csky/abiv1/inc/abi/pgtable-bits.h        | 13 ++-
-> >>   arch/csky/abiv2/inc/abi/pgtable-bits.h        | 19 ++--
-> >>   arch/csky/include/asm/pgtable.h               | 17 ++++
-> >>   arch/hexagon/include/asm/pgtable.h            | 36 ++++++--
-> >>   arch/ia64/include/asm/pgtable.h               | 31 ++++++-
-> >>   arch/loongarch/include/asm/pgtable-bits.h     |  4 +
-> >>   arch/loongarch/include/asm/pgtable.h          | 38 +++++++-
-> >>   arch/m68k/include/asm/mcf_pgtable.h           | 35 +++++++-
-> >>   arch/m68k/include/asm/motorola_pgtable.h      | 37 +++++++-
-> >>   arch/m68k/include/asm/pgtable_no.h            |  6 --
-> >>   arch/m68k/include/asm/sun3_pgtable.h          | 38 +++++++-
-> >>   arch/microblaze/include/asm/pgtable.h         | 44 +++++++---
-> >>   arch/mips/include/asm/pgtable-32.h            | 86 ++++++++++++++++---
-> >>   arch/mips/include/asm/pgtable-64.h            | 23 ++++-
-> >>   arch/mips/include/asm/pgtable.h               | 35 ++++++++
-> >>   arch/nios2/include/asm/pgtable-bits.h         |  3 +
-> >>   arch/nios2/include/asm/pgtable.h              | 37 ++++++--
-> >>   arch/openrisc/include/asm/pgtable.h           | 40 +++++++--
-> >>   arch/parisc/include/asm/pgtable.h             | 40 ++++++++-
-> >>   arch/powerpc/include/asm/book3s/32/pgtable.h  | 37 ++++++--
-> >>   arch/powerpc/include/asm/book3s/64/pgtable.h  |  1 -
-> >>   arch/powerpc/include/asm/nohash/32/pgtable.h  | 22 +++--
-> >>   arch/powerpc/include/asm/nohash/32/pte-40x.h  |  6 +-
-> >>   arch/powerpc/include/asm/nohash/32/pte-44x.h  | 18 +---
-> >>   arch/powerpc/include/asm/nohash/32/pte-85xx.h |  4 +-
-> >>   arch/powerpc/include/asm/nohash/64/pgtable.h  | 24 +++++-
-> >>   arch/powerpc/include/asm/nohash/pgtable.h     | 15 ++++
-> >>   arch/powerpc/include/asm/nohash/pte-e500.h    |  1 -
-> >>   arch/riscv/include/asm/pgtable-bits.h         |  3 +
-> >>   arch/riscv/include/asm/pgtable.h              | 28 ++++--
-> >>   arch/s390/include/asm/pgtable.h               |  1 -
-> >>   arch/sh/include/asm/pgtable_32.h              | 53 +++++++++---
-> >>   arch/sparc/include/asm/pgtable_32.h           | 26 +++++-
-> >>   arch/sparc/include/asm/pgtable_64.h           | 37 +++++++-
-> >>   arch/sparc/include/asm/pgtsrmmu.h             | 14 +--
-> >>   arch/um/include/asm/pgtable.h                 | 36 +++++++-
-> >>   arch/x86/include/asm/pgtable-2level.h         | 26 ++++--
-> >>   arch/x86/include/asm/pgtable-3level.h         | 26 +++++-
-> >>   arch/x86/include/asm/pgtable.h                |  3 -
-> >>   arch/xtensa/include/asm/pgtable.h             | 31 +++++--
-> >>   include/linux/pgtable.h                       | 29 -------
-> >>   mm/debug_vm_pgtable.c                         | 25 +++++-
-> >>   mm/memory.c                                   |  4 -
-> >>   mm/rmap.c                                     | 11 ---
-> >>   50 files changed, 943 insertions(+), 227 deletions(-)
-> >>
-> >> --
-> >> 2.38.1
-> >>
-> >>
-> >
->
-> --
-> Thanks,
->
-> David / dhildenb
->
+Could you spend a sentence or two explaining what is wrong here?
+
+> Instead of fixing zap_page_range, change all callers to use the new
+> routine zap_vma_page_range.  zap_vma_page_range is just a wrapper around
+> zap_page_range_single passing in NULL zap details.  The name is also
+> more in line with other exported routines that operate within a vma.
+> We can then remove zap_page_range.
+
+I would stick with zap_page_range_single rather than adding a new
+wrapper but nothing really critical.
+
+> Also, change madvise_dontneed_single_vma to use this new routine.
+> 
+> [1] https://lore.kernel.org/linux-mm/20221114235507.294320-2-mike.kravetz@oracle.com/
+> Suggested-by: Peter Xu <peterx@redhat.com>
+> Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+
+Other than that LGTM
+Acked-by: Michal Hocko <mhocko@suse.com>
+
+Thanks!
+
+> ---
+>  arch/arm64/kernel/vdso.c                |  4 ++--
+>  arch/powerpc/kernel/vdso.c              |  2 +-
+>  arch/powerpc/platforms/book3s/vas-api.c |  2 +-
+>  arch/powerpc/platforms/pseries/vas.c    |  2 +-
+>  arch/riscv/kernel/vdso.c                |  4 ++--
+>  arch/s390/kernel/vdso.c                 |  2 +-
+>  arch/s390/mm/gmap.c                     |  2 +-
+>  arch/x86/entry/vdso/vma.c               |  2 +-
+>  drivers/android/binder_alloc.c          |  2 +-
+>  include/linux/mm.h                      |  7 ++++--
+>  mm/madvise.c                            |  4 ++--
+>  mm/memory.c                             | 30 -------------------------
+>  mm/page-writeback.c                     |  2 +-
+>  net/ipv4/tcp.c                          |  6 ++---
+>  14 files changed, 22 insertions(+), 49 deletions(-)
+> 
+> diff --git a/arch/arm64/kernel/vdso.c b/arch/arm64/kernel/vdso.c
+> index e59a32aa0c49..a7b10e182f78 100644
+> --- a/arch/arm64/kernel/vdso.c
+> +++ b/arch/arm64/kernel/vdso.c
+> @@ -141,10 +141,10 @@ int vdso_join_timens(struct task_struct *task, struct time_namespace *ns)
+>  		unsigned long size = vma->vm_end - vma->vm_start;
+>  
+>  		if (vma_is_special_mapping(vma, vdso_info[VDSO_ABI_AA64].dm))
+> -			zap_page_range(vma, vma->vm_start, size);
+> +			zap_vma_page_range(vma, vma->vm_start, size);
+>  #ifdef CONFIG_COMPAT_VDSO
+>  		if (vma_is_special_mapping(vma, vdso_info[VDSO_ABI_AA32].dm))
+> -			zap_page_range(vma, vma->vm_start, size);
+> +			zap_vma_page_range(vma, vma->vm_start, size);
+>  #endif
+>  	}
+>  
+> diff --git a/arch/powerpc/kernel/vdso.c b/arch/powerpc/kernel/vdso.c
+> index 507f8228f983..479d70fe8c55 100644
+> --- a/arch/powerpc/kernel/vdso.c
+> +++ b/arch/powerpc/kernel/vdso.c
+> @@ -123,7 +123,7 @@ int vdso_join_timens(struct task_struct *task, struct time_namespace *ns)
+>  		unsigned long size = vma->vm_end - vma->vm_start;
+>  
+>  		if (vma_is_special_mapping(vma, &vvar_spec))
+> -			zap_page_range(vma, vma->vm_start, size);
+> +			zap_vma_page_range(vma, vma->vm_start, size);
+>  	}
+>  	mmap_read_unlock(mm);
+>  
+> diff --git a/arch/powerpc/platforms/book3s/vas-api.c b/arch/powerpc/platforms/book3s/vas-api.c
+> index eb5bed333750..8f57388b760b 100644
+> --- a/arch/powerpc/platforms/book3s/vas-api.c
+> +++ b/arch/powerpc/platforms/book3s/vas-api.c
+> @@ -414,7 +414,7 @@ static vm_fault_t vas_mmap_fault(struct vm_fault *vmf)
+>  	/*
+>  	 * When the LPAR lost credits due to core removal or during
+>  	 * migration, invalidate the existing mapping for the current
+> -	 * paste addresses and set windows in-active (zap_page_range in
+> +	 * paste addresses and set windows in-active (zap_vma_page_range in
+>  	 * reconfig_close_windows()).
+>  	 * New mapping will be done later after migration or new credits
+>  	 * available. So continue to receive faults if the user space
+> diff --git a/arch/powerpc/platforms/pseries/vas.c b/arch/powerpc/platforms/pseries/vas.c
+> index 4ad6e510d405..2aef8d9295a2 100644
+> --- a/arch/powerpc/platforms/pseries/vas.c
+> +++ b/arch/powerpc/platforms/pseries/vas.c
+> @@ -760,7 +760,7 @@ static int reconfig_close_windows(struct vas_caps *vcap, int excess_creds,
+>  		 * is done before the original mmap() and after the ioctl.
+>  		 */
+>  		if (vma)
+> -			zap_page_range(vma, vma->vm_start,
+> +			zap_vma_page_range(vma, vma->vm_start,
+>  					vma->vm_end - vma->vm_start);
+>  
+>  		mmap_write_unlock(task_ref->mm);
+> diff --git a/arch/riscv/kernel/vdso.c b/arch/riscv/kernel/vdso.c
+> index e410275918ac..a405119da2c0 100644
+> --- a/arch/riscv/kernel/vdso.c
+> +++ b/arch/riscv/kernel/vdso.c
+> @@ -127,10 +127,10 @@ int vdso_join_timens(struct task_struct *task, struct time_namespace *ns)
+>  		unsigned long size = vma->vm_end - vma->vm_start;
+>  
+>  		if (vma_is_special_mapping(vma, vdso_info.dm))
+> -			zap_page_range(vma, vma->vm_start, size);
+> +			zap_vma_page_range(vma, vma->vm_start, size);
+>  #ifdef CONFIG_COMPAT
+>  		if (vma_is_special_mapping(vma, compat_vdso_info.dm))
+> -			zap_page_range(vma, vma->vm_start, size);
+> +			zap_vma_page_range(vma, vma->vm_start, size);
+>  #endif
+>  	}
+>  
+> diff --git a/arch/s390/kernel/vdso.c b/arch/s390/kernel/vdso.c
+> index ff7bf4432229..eccfcd505403 100644
+> --- a/arch/s390/kernel/vdso.c
+> +++ b/arch/s390/kernel/vdso.c
+> @@ -63,7 +63,7 @@ int vdso_join_timens(struct task_struct *task, struct time_namespace *ns)
+>  
+>  		if (!vma_is_special_mapping(vma, &vvar_mapping))
+>  			continue;
+> -		zap_page_range(vma, vma->vm_start, size);
+> +		zap_vma_page_range(vma, vma->vm_start, size);
+>  		break;
+>  	}
+>  	mmap_read_unlock(mm);
+> diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+> index 74e1d873dce0..67d998152142 100644
+> --- a/arch/s390/mm/gmap.c
+> +++ b/arch/s390/mm/gmap.c
+> @@ -722,7 +722,7 @@ void gmap_discard(struct gmap *gmap, unsigned long from, unsigned long to)
+>  		if (is_vm_hugetlb_page(vma))
+>  			continue;
+>  		size = min(to - gaddr, PMD_SIZE - (gaddr & ~PMD_MASK));
+> -		zap_page_range(vma, vmaddr, size);
+> +		zap_vma_page_range(vma, vmaddr, size);
+>  	}
+>  	mmap_read_unlock(gmap->mm);
+>  }
+> diff --git a/arch/x86/entry/vdso/vma.c b/arch/x86/entry/vdso/vma.c
+> index b8f3f9b9e53c..5aafbd19e869 100644
+> --- a/arch/x86/entry/vdso/vma.c
+> +++ b/arch/x86/entry/vdso/vma.c
+> @@ -116,7 +116,7 @@ int vdso_join_timens(struct task_struct *task, struct time_namespace *ns)
+>  		unsigned long size = vma->vm_end - vma->vm_start;
+>  
+>  		if (vma_is_special_mapping(vma, &vvar_mapping))
+> -			zap_page_range(vma, vma->vm_start, size);
+> +			zap_vma_page_range(vma, vma->vm_start, size);
+>  	}
+>  	mmap_read_unlock(mm);
+>  
+> diff --git a/drivers/android/binder_alloc.c b/drivers/android/binder_alloc.c
+> index 4ad42b0f75cd..f7f10248c742 100644
+> --- a/drivers/android/binder_alloc.c
+> +++ b/drivers/android/binder_alloc.c
+> @@ -1019,7 +1019,7 @@ enum lru_status binder_alloc_free_page(struct list_head *item,
+>  	if (vma) {
+>  		trace_binder_unmap_user_start(alloc, index);
+>  
+> -		zap_page_range(vma, page_addr, PAGE_SIZE);
+> +		zap_vma_page_range(vma, page_addr, PAGE_SIZE);
+>  
+>  		trace_binder_unmap_user_end(alloc, index);
+>  	}
+> diff --git a/include/linux/mm.h b/include/linux/mm.h
+> index 6b28eb9c6ea2..706efaf95783 100644
+> --- a/include/linux/mm.h
+> +++ b/include/linux/mm.h
+> @@ -1980,10 +1980,13 @@ struct page *vm_normal_page_pmd(struct vm_area_struct *vma, unsigned long addr,
+>  
+>  void zap_vma_ptes(struct vm_area_struct *vma, unsigned long address,
+>  		  unsigned long size);
+> -void zap_page_range(struct vm_area_struct *vma, unsigned long address,
+> -		    unsigned long size);
+>  void zap_page_range_single(struct vm_area_struct *vma, unsigned long address,
+>  			   unsigned long size, struct zap_details *details);
+> +static inline void zap_vma_page_range(struct vm_area_struct *vma,
+> +				 unsigned long address, unsigned long size)
+> +{
+> +	zap_page_range_single(vma, address, size, NULL);
+> +}
+>  void unmap_vmas(struct mmu_gather *tlb, struct maple_tree *mt,
+>  		struct vm_area_struct *start_vma, unsigned long start,
+>  		unsigned long end);
+> diff --git a/mm/madvise.c b/mm/madvise.c
+> index 87703a19bbef..3c4d9829d4e1 100644
+> --- a/mm/madvise.c
+> +++ b/mm/madvise.c
+> @@ -787,7 +787,7 @@ static int madvise_free_single_vma(struct vm_area_struct *vma,
+>   * Application no longer needs these pages.  If the pages are dirty,
+>   * it's OK to just throw them away.  The app will be more careful about
+>   * data it wants to keep.  Be sure to free swap resources too.  The
+> - * zap_page_range_single call sets things up for shrink_active_list to actually
+> + * zap_vma_page_range call sets things up for shrink_active_list to actually
+>   * free these pages later if no one else has touched them in the meantime,
+>   * although we could add these pages to a global reuse list for
+>   * shrink_active_list to pick up before reclaiming other pages.
+> @@ -805,7 +805,7 @@ static int madvise_free_single_vma(struct vm_area_struct *vma,
+>  static long madvise_dontneed_single_vma(struct vm_area_struct *vma,
+>  					unsigned long start, unsigned long end)
+>  {
+> -	zap_page_range_single(vma, start, end - start, NULL);
+> +	zap_vma_page_range(vma, start, end - start);
+>  	return 0;
+>  }
+>  
+> diff --git a/mm/memory.c b/mm/memory.c
+> index 5b2c137dfb2a..e953a0108278 100644
+> --- a/mm/memory.c
+> +++ b/mm/memory.c
+> @@ -1687,36 +1687,6 @@ void unmap_vmas(struct mmu_gather *tlb, struct maple_tree *mt,
+>  	mmu_notifier_invalidate_range_end(&range);
+>  }
+>  
+> -/**
+> - * zap_page_range - remove user pages in a given range
+> - * @vma: vm_area_struct holding the applicable pages
+> - * @start: starting address of pages to zap
+> - * @size: number of bytes to zap
+> - *
+> - * Caller must protect the VMA list
+> - */
+> -void zap_page_range(struct vm_area_struct *vma, unsigned long start,
+> -		unsigned long size)
+> -{
+> -	struct maple_tree *mt = &vma->vm_mm->mm_mt;
+> -	unsigned long end = start + size;
+> -	struct mmu_notifier_range range;
+> -	struct mmu_gather tlb;
+> -	MA_STATE(mas, mt, vma->vm_end, vma->vm_end);
+> -
+> -	lru_add_drain();
+> -	mmu_notifier_range_init(&range, MMU_NOTIFY_CLEAR, 0, vma, vma->vm_mm,
+> -				start, start + size);
+> -	tlb_gather_mmu(&tlb, vma->vm_mm);
+> -	update_hiwater_rss(vma->vm_mm);
+> -	mmu_notifier_invalidate_range_start(&range);
+> -	do {
+> -		unmap_single_vma(&tlb, vma, start, range.end, NULL);
+> -	} while ((vma = mas_find(&mas, end - 1)) != NULL);
+> -	mmu_notifier_invalidate_range_end(&range);
+> -	tlb_finish_mmu(&tlb);
+> -}
+> -
+>  /**
+>   * zap_page_range_single - remove user pages in a given range
+>   * @vma: vm_area_struct holding the applicable pages
+> diff --git a/mm/page-writeback.c b/mm/page-writeback.c
+> index ad608ef2a243..bd9fe6ff6557 100644
+> --- a/mm/page-writeback.c
+> +++ b/mm/page-writeback.c
+> @@ -2713,7 +2713,7 @@ void folio_account_cleaned(struct folio *folio, struct bdi_writeback *wb)
+>   *
+>   * The caller must hold lock_page_memcg().  Most callers have the folio
+>   * locked.  A few have the folio blocked from truncation through other
+> - * means (eg zap_page_range() has it mapped and is holding the page table
+> + * means (eg zap_vma_page_range() has it mapped and is holding the page table
+>   * lock).  This can also be called from mark_buffer_dirty(), which I
+>   * cannot prove is always protected against truncate.
+>   */
+> diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
+> index c567d5e8053e..afaad3cfed00 100644
+> --- a/net/ipv4/tcp.c
+> +++ b/net/ipv4/tcp.c
+> @@ -2092,7 +2092,7 @@ static int tcp_zerocopy_vm_insert_batch_error(struct vm_area_struct *vma,
+>  		maybe_zap_len = total_bytes_to_map -  /* All bytes to map */
+>  				*length + /* Mapped or pending */
+>  				(pages_remaining * PAGE_SIZE); /* Failed map. */
+> -		zap_page_range(vma, *address, maybe_zap_len);
+> +		zap_vma_page_range(vma, *address, maybe_zap_len);
+>  		err = 0;
+>  	}
+>  
+> @@ -2100,7 +2100,7 @@ static int tcp_zerocopy_vm_insert_batch_error(struct vm_area_struct *vma,
+>  		unsigned long leftover_pages = pages_remaining;
+>  		int bytes_mapped;
+>  
+> -		/* We called zap_page_range, try to reinsert. */
+> +		/* We called zap_vma_page_range, try to reinsert. */
+>  		err = vm_insert_pages(vma, *address,
+>  				      pending_pages,
+>  				      &pages_remaining);
+> @@ -2234,7 +2234,7 @@ static int tcp_zerocopy_receive(struct sock *sk,
+>  	total_bytes_to_map = avail_len & ~(PAGE_SIZE - 1);
+>  	if (total_bytes_to_map) {
+>  		if (!(zc->flags & TCP_RECEIVE_ZEROCOPY_FLAG_TLB_CLEAN_HINT))
+> -			zap_page_range(vma, address, total_bytes_to_map);
+> +			zap_vma_page_range(vma, address, total_bytes_to_map);
+>  		zc->length = total_bytes_to_map;
+>  		zc->recv_skip_hint = 0;
+>  	} else {
+> -- 
+> 2.38.1
+
+-- 
+Michal Hocko
+SUSE Labs
