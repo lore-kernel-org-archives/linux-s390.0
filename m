@@ -2,105 +2,156 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81752C4332F
-	for <linux-s390@archiver.kernel.org>; Mon, 19 Dec 2022 15:58:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 69D00C10F1B
+	for <linux-s390@archiver.kernel.org>; Mon, 19 Dec 2022 16:14:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232719AbiLSP6R (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 19 Dec 2022 10:58:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42816 "EHLO
+        id S231693AbiLSQOO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 19 Dec 2022 11:14:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232268AbiLSP5p (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 19 Dec 2022 10:57:45 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 451BAFAFB;
-        Mon, 19 Dec 2022 07:56:48 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 01156B80EDA;
-        Mon, 19 Dec 2022 15:56:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83A4CC433F0;
-        Mon, 19 Dec 2022 15:56:41 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="QAL5Ft+C"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1671465399;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=81vP/WZfkabtKBEFH0+IkYNddzD7C35Ot4O6pKjKCUI=;
-        b=QAL5Ft+CRVjgFazjSaWQke+om0MPkMazc/xZcVmBYAxpw5EucxYhwoG/jqyorloH07JPIh
-        2Co8/IsFgaYX3B26tsS1uLsDb+oqNgS2m4jTopzXzp2LXtEDmXqpF16eNAmTppVsKLepWa
-        UX8TRJrd/Jvnf1V6FSWgDbH69/XNoow=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 4929dc98 (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
-        Mon, 19 Dec 2022 15:56:39 +0000 (UTC)
-Date:   Mon, 19 Dec 2022 16:56:33 +0100
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     torvalds@linux-foundation.org, corbet@lwn.net, will@kernel.org,
-        boqun.feng@gmail.com, mark.rutland@arm.com,
-        catalin.marinas@arm.com, dennis@kernel.org, tj@kernel.org,
-        cl@linux.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, Herbert Xu <herbert@gondor.apana.org.au>,
-        davem@davemloft.net, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
-        hpa@zytor.com, joro@8bytes.org, suravee.suthikulpanit@amd.com,
-        robin.murphy@arm.com, dwmw2@infradead.org,
-        baolu.lu@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
-        penberg@kernel.org, rientjes@google.com, iamjoonsoo.kim@lge.com,
-        Andrew Morton <akpm@linux-foundation.org>, vbabka@suse.cz,
-        roman.gushchin@linux.dev, 42.hyeyoo@gmail.com,
+        with ESMTP id S231812AbiLSQOC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 19 Dec 2022 11:14:02 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6EE2DF46;
+        Mon, 19 Dec 2022 08:14:01 -0800 (PST)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2BJGD177026411;
+        Mon, 19 Dec 2022 16:13:51 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=ZsydaWwORy2lc4YtcUfyBIIbjUIfDmjxIjEgD4QMMpg=;
+ b=tZCi6XA9crFra2SZQSW+VcfqM0OcrCkWB6INgwJR3EUetKUUt/meawuj7CrJsz2uzmNE
+ tRYyXu269XALwp6F8eil82lFFGqkZt4zJdWlseSurxzuLZIlCV86/2x9MyshgU1LWprp
+ wI7RM42L4ZP5BEyq/wN5rttLFdRdnbvc4hL5tNsWaOStGRQdrVUUdVSsPmSM5Tj9/Hrr
+ 36wmTP7o2GDIiAM0yImHilpZClgnAGhkRZ1IZ7chXyFnzfvOoZvPRr4aClFrlgFQSU68
+ YVyLv3C9KSybNlKHNpJjhMq5dmzCtfJcGINV+tn6gdYqYmZjgrbp0IfH/knZs3VqNky6 /g== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mju9eg3fu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 19 Dec 2022 16:13:47 +0000
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2BJGDBA9028467;
+        Mon, 19 Dec 2022 16:13:42 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mju9eg2u0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 19 Dec 2022 16:13:42 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 2BJE7c6s024486;
+        Mon, 19 Dec 2022 16:13:24 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3mh6ywjsym-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 19 Dec 2022 16:13:24 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2BJGDLrK25559646
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 19 Dec 2022 16:13:21 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 051062004E;
+        Mon, 19 Dec 2022 16:13:21 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9ACC620040;
+        Mon, 19 Dec 2022 16:13:20 +0000 (GMT)
+Received: from li-7e0de7cc-2d9d-11b2-a85c-de26c016e5ad.ibm.com (unknown [9.171.170.124])
+        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Mon, 19 Dec 2022 16:13:20 +0000 (GMT)
+Message-ID: <fbe79380237a2d6f4aca0c6b6909afd20b35a058.camel@linux.ibm.com>
+Subject: Re: [PATCH v4 5/9] KVM: s390: selftest: memop: Move testlist into
+ main
+From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Cc:     David Hildenbrand <david@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
         linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, linux-s390@vger.kernel.org,
-        linux-crypto@vger.kernel.org, iommu@lists.linux.dev,
-        linux-arch@vger.kernel.org
-Subject: Re: [RFC][PATCH 01/12] crypto: Remove u128 usage
-Message-ID: <Y6CJsWBhcbKatZNg@zx2c4.com>
-References: <20221219153525.632521981@infradead.org>
- <20221219154118.889543494@infradead.org>
+        linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Huth <thuth@redhat.com>
+Date:   Mon, 19 Dec 2022 17:13:20 +0100
+In-Reply-To: <20221213165405.2953539-6-scgl@linux.ibm.com>
+References: <20221213165405.2953539-1-scgl@linux.ibm.com>
+         <20221213165405.2953539-6-scgl@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.46.2 (3.46.2-1.fc37) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20221219154118.889543494@infradead.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: NATjA8NPGe-CT4G3UaXDW_WsM-6vcUjA
+X-Proofpoint-GUID: LZKs_1CA8sNAPc1PXH-HZy3FrXVqtTCy
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-12-19_01,2022-12-15_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
+ bulkscore=0 clxscore=1015 suspectscore=0 priorityscore=1501 phishscore=0
+ spamscore=0 mlxlogscore=999 adultscore=0 malwarescore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
+ definitions=main-2212190142
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Dec 19, 2022 at 04:35:26PM +0100, Peter Zijlstra wrote:
-> As seems to be the common (majority) usage in crypto, use __uint128_t
-> instead of u128.
-> 
-> This frees up u128 for definition in linux/types.h.
-> 
-> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+On Tue, 2022-12-13 at 17:54 +0100, Janis Schoetterl-Glausch wrote:
+> This allows checking if the necessary requirements for a test case are
+> met via an arbitrary expression. In particular, it is easy to check if
+> certain bits are set in the memop extension capability.
+>=20
+> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+> Reviewed-by: Thomas Huth <thuth@redhat.com>
 > ---
->  lib/crypto/curve25519-hacl64.c |  142 ++++++++++++++++++++---------------------
->  lib/crypto/poly1305-donna64.c  |   22 ++----
->  2 files changed, 80 insertions(+), 84 deletions(-)
-> 
-> --- a/lib/crypto/curve25519-hacl64.c
-> +++ b/lib/crypto/curve25519-hacl64.c
-> @@ -14,8 +14,6 @@
->  #include <crypto/curve25519.h>
->  #include <linux/string.h>
->  
-> -typedef __uint128_t u128;
-> -
->  static __always_inline u64 u64_eq_mask(u64 a, u64 b)
->  {
->  	u64 x = a ^ b;
-> @@ -50,77 +48,77 @@ static __always_inline void modulo_carry
->  	b[0] = b0_;
+>  tools/testing/selftests/kvm/s390x/memop.c | 132 +++++++++++-----------
+>  1 file changed, 66 insertions(+), 66 deletions(-)
+>=20
+> diff --git a/tools/testing/selftests/kvm/s390x/memop.c b/tools/testing/se=
+lftests/kvm/s390x/memop.c
+> index 286185a59238..10f34c629cac 100644
+> --- a/tools/testing/selftests/kvm/s390x/memop.c
+> +++ b/tools/testing/selftests/kvm/s390x/memop.c
+> @@ -690,87 +690,87 @@ static void test_errors(void)
+>  	kvm_vm_free(t.kvm_vm);
 >  }
->  
-> -static __always_inline void fproduct_copy_from_wide_(u64 *output, u128 *input)
-> +static __always_inline void fproduct_copy_from_wide_(u64 *output, __uint128_t *input)
+> =20
+[...]
+> =20
+>  int main(int argc, char *argv[])
 >  {
->  	{
-> -		u128 xi = input[0];
-> +		__uint128_t xi = input[0];
+>  	int extension_cap, idx;
+> =20
+> +	setbuf(stdout, NULL);	/* Tell stdout not to buffer its content */
+>  	TEST_REQUIRE(kvm_has_cap(KVM_CAP_S390_MEM_OP));
+> +	extension_cap =3D kvm_check_cap(KVM_CAP_S390_MEM_OP_EXTENSION);
+> =20
+[...]
+> =20
+>  	ksft_print_header();
+> -
+>  	ksft_set_plan(ARRAY_SIZE(testlist));
+> =20
+> -	extension_cap =3D kvm_check_cap(KVM_CAP_S390_MEM_OP_EXTENSION);
+>  	for (idx =3D 0; idx < ARRAY_SIZE(testlist); idx++) {
+> -		if (extension_cap >=3D testlist[idx].extension) {
+> +		if (testlist[idx].requirements_met) {
+>  			testlist[idx].test();
+>  			ksft_test_result_pass("%s\n", testlist[idx].name);
+>  		} else {
+> -			ksft_test_result_skip("%s - extension level %d not supported\n",
+> -					      testlist[idx].name,
+> -					      testlist[idx].extension);
+> +			ksft_test_result_skip("%s - requirements not met (kernel has extensio=
+n cap %#x\n)",
 
-Why not just use `u128` from types.h in this file?
+                                                                           =
+     oops, should be )\n ofc ^
 
-Jason
+> +					      testlist[idx].name, extension_cap);
+>  		}
+>  	}
+> =20
+
