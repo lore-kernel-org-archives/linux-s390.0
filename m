@@ -2,134 +2,95 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C463C4332F
-	for <linux-s390@archiver.kernel.org>; Tue, 20 Dec 2022 14:33:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DC32C4167B
+	for <linux-s390@archiver.kernel.org>; Tue, 20 Dec 2022 15:11:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233980AbiLTOdu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 20 Dec 2022 09:33:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59322 "EHLO
+        id S233069AbiLTPKz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 20 Dec 2022 10:10:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234035AbiLTOdZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Dec 2022 09:33:25 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 379361C11A;
-        Tue, 20 Dec 2022 06:33:10 -0800 (PST)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2BKEDQd8019938;
-        Tue, 20 Dec 2022 14:33:08 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=61qzrL76S8t3r1ILt15BKCcihcZ3i9gih8qEAWJeto8=;
- b=DCUpX4lo1OOlKGSfgEG4gC6kPs6sqQ6kiqO3J3Oj3qBJ3lypbDwD5P6slvsJajQXQ/Es
- 7LM1Xf3Zy/EC0ljFlQmO8EvwoYlkLh6NigvEf8Q/PnE3yEMuKf7yhRAZM7GRttJEbMEM
- 9c4/vV0l2wAeWLYxPRH8JSGmBSu5bbbZftPVL8yVG3ytihG2ePY0phg2k/x047l54ozG
- jWHaSzHjddAtwOmnK39n+QInS+4qGoOP04a1FHyeqpF1OM3NdoHMYoNxFeo4N+4HJL+9
- DkV5mUaR0J/6QrUow1V2yF4sMrFSrRk0hkcm7I31TXbBAgGf2s/XJF20Nwp9XGN6b/tS Yw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mkemdgksq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 20 Dec 2022 14:33:08 +0000
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2BKEX7oo025563;
-        Tue, 20 Dec 2022 14:33:07 GMT
-Received: from ppma02wdc.us.ibm.com (aa.5b.37a9.ip4.static.sl-reverse.com [169.55.91.170])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mkemdgks2-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 20 Dec 2022 14:33:07 +0000
-Received: from pps.filterd (ppma02wdc.us.ibm.com [127.0.0.1])
-        by ppma02wdc.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 2BKCOa1R010167;
-        Tue, 20 Dec 2022 14:33:07 GMT
-Received: from smtprelay07.wdc07v.mail.ibm.com ([9.208.129.116])
-        by ppma02wdc.us.ibm.com (PPS) with ESMTPS id 3mh6yuvu5n-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 20 Dec 2022 14:33:06 +0000
-Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
-        by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2BKEX5oC6750876
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 20 Dec 2022 14:33:05 GMT
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 12FF258060;
-        Tue, 20 Dec 2022 14:33:05 +0000 (GMT)
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 18AB65805D;
-        Tue, 20 Dec 2022 14:33:04 +0000 (GMT)
-Received: from [9.160.121.75] (unknown [9.160.121.75])
-        by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 20 Dec 2022 14:33:03 +0000 (GMT)
-Message-ID: <7b6d7e91-ba00-6486-39ae-91fca30b2cfb@linux.ibm.com>
-Date:   Tue, 20 Dec 2022 09:33:03 -0500
+        with ESMTP id S233257AbiLTPKt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Dec 2022 10:10:49 -0500
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C53A62EA;
+        Tue, 20 Dec 2022 07:10:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=FFNeZkVqnyoGozFMwV8suZuO15qmhw0RI08pyhsvplQ=; b=aj3xUuejuA9YH7oE/tMQbHxDrC
+        5p9yKMxF2BMunnN+3aFfpuq4xvQtgL6Mtrf776Ph7v2oiGV9BjVApUkzIjk/WfaM1JFNiL/d3uNFt
+        Cv73DfWGBBk8PaAlwJVSwfYr3hfq3P/tA8V8DL1kjpeeNx7zhonlT8kvfC88Q40rDC5AGMpqylyTa
+        hPk5u9253JZPrw4gklKKy0rEjWbNLpr/vX9MLoGk1h4JsNN6FMYf6ULtZxxqymlZtiTpJmvNfyRE+
+        Vda14xeiFfnUBjl0zdQiemuszxdTFOeh76ZedxboR2+ROwt3pEguOkI7xDP9FcJk8q2/NS7Axhz1z
+        OnVJkmTA==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1p7eFb-001u7k-I3; Tue, 20 Dec 2022 15:09:52 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 3BE3F300193;
+        Tue, 20 Dec 2022 16:09:38 +0100 (CET)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 0457E223694AF; Tue, 20 Dec 2022 16:09:37 +0100 (CET)
+Date:   Tue, 20 Dec 2022 16:09:37 +0100
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Boqun Feng <boqun.feng@gmail.com>, corbet@lwn.net, will@kernel.org,
+        mark.rutland@arm.com, catalin.marinas@arm.com, dennis@kernel.org,
+        tj@kernel.org, cl@linux.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, Herbert Xu <herbert@gondor.apana.org.au>,
+        davem@davemloft.net, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+        hpa@zytor.com, joro@8bytes.org, suravee.suthikulpanit@amd.com,
+        robin.murphy@arm.com, dwmw2@infradead.org,
+        baolu.lu@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
+        penberg@kernel.org, rientjes@google.com, iamjoonsoo.kim@lge.com,
+        Andrew Morton <akpm@linux-foundation.org>, vbabka@suse.cz,
+        roman.gushchin@linux.dev, 42.hyeyoo@gmail.com,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, linux-s390@vger.kernel.org,
+        linux-crypto@vger.kernel.org, iommu@lists.linux.dev,
+        linux-arch@vger.kernel.org
+Subject: Re: [RFC][PATCH 05/12] arch: Introduce
+ arch_{,try_}_cmpxchg128{,_local}()
+Message-ID: <Y6HQMVz041V7NruP@hirez.programming.kicks-ass.net>
+References: <20221219153525.632521981@infradead.org>
+ <20221219154119.154045458@infradead.org>
+ <Y6DEfQXymYVgL3oJ@boqun-archlinux>
+ <Y6GXoO4qmH9OIZ5Q@hirez.programming.kicks-ass.net>
+ <CAHk-=wi493ukLwziiqofe=WCSfUU8Qa+LK0mp_GrGWKV3NnTpQ@mail.gmail.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.0
-Subject: Re: [PATCH 7/7] s390/vfio_ap: always clean up IRQ resources
-Content-Language: en-US
-To:     Halil Pasic <pasic@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, jjherne@linux.ibm.com, freude@linux.ibm.com,
-        borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com,
-        alex.williamson@redhat.com, kwankhede@nvidia.com,
-        fiuczy@linux.ibm.com
-References: <20221213154437.15480-1-akrowiak@linux.ibm.com>
- <20221213154437.15480-8-akrowiak@linux.ibm.com>
- <20221219151007.639dff5f.pasic@linux.ibm.com>
-From:   Anthony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <20221219151007.639dff5f.pasic@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: HqdGExhJLlCZC92VegDST_sgE8xCtxjO
-X-Proofpoint-ORIG-GUID: 6J7Pzu2NTymBs9MW6X2kRexfWNvTjcAZ
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-12-20_05,2022-12-20_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- malwarescore=0 mlxscore=0 bulkscore=0 adultscore=0 spamscore=0
- suspectscore=0 priorityscore=1501 clxscore=1015 phishscore=0
- mlxlogscore=999 impostorscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2212070000 definitions=main-2212200116
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHk-=wi493ukLwziiqofe=WCSfUU8Qa+LK0mp_GrGWKV3NnTpQ@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Tue, Dec 20, 2022 at 08:31:19AM -0600, Linus Torvalds wrote:
+> On Tue, Dec 20, 2022 at 5:09 AM Peter Zijlstra <peterz@infradead.org> wrote:
+> >
+> > On Mon, Dec 19, 2022 at 12:07:25PM -0800, Boqun Feng wrote:
+> > >
+> > > I wonder whether we should use "(*(u128 *)ptr)" instead of "(*(unsigned
+> > > long *) ptr)"? Because compilers may think only 64bit value pointed by
+> > > "ptr" gets modified, and they are allowed to do "useful" optimization.
+> >
+> > In this I've copied the existing cmpxchg_double() code; I'll have to let
+> > the arch folks speak here, I've no clue.
+> 
+> It does sound like the right thing to do. I doubt it ends up making a
+> difference in practice, but yes, the asm doesn't have a memory
+> clobber, so the input/output types should be the right ones for the
+> compiler to not possibly do something odd and cache the part that it
+> doesn't see as being accessed.
 
-On 12/19/22 9:10 AM, Halil Pasic wrote:
-> On Tue, 13 Dec 2022 10:44:37 -0500
-> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
->
->> Clean up IRQ resources even when a PQAP(ZAPQ) function fails with an error
->> not handled by a case statement.
-> Why?
+Right, and x86 does just *ptr, without trying to cast away the volatile
+even.
 
-
-If the ZAPQ failed, then instructions submitted to the same queue will 
-likewise fail. Are you saying it's not safe to assume, therefore, that 
-interrupts will not be occurring?
-
-
->
-> I'm afraid this is a step in the wrong direction...
-
-
-Please explain why.
-
-
->
->> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
->> ---
->>   drivers/s390/crypto/vfio_ap_ops.c | 2 +-
->>   1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
->> index e80c5a6b91be..2dd8db9ddb39 100644
->> --- a/drivers/s390/crypto/vfio_ap_ops.c
->> +++ b/drivers/s390/crypto/vfio_ap_ops.c
->> @@ -1676,7 +1676,7 @@ static int vfio_ap_mdev_reset_queue(struct vfio_ap_queue *q)
->>   		     "PQAP/ZAPQ for %02x.%04x failed with invalid rc=%u\n",
->>   		     AP_QID_CARD(q->apqn), AP_QID_QUEUE(q->apqn),
->>   		     status.response_code);
->> -		return -EIO;
->> +		break;
->>   	}
->>   
->>   	vfio_ap_free_aqic_resources(q);
+I've pushed out a *(u128 *)ptr variant for arm64 and s390, then at least
+we'll know if the compiler objects.
