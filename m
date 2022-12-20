@@ -2,56 +2,56 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C5F2C4708D
-	for <linux-s390@archiver.kernel.org>; Tue, 20 Dec 2022 17:10:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E6D8C3DA7A
+	for <linux-s390@archiver.kernel.org>; Tue, 20 Dec 2022 17:10:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234072AbiLTRKr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 20 Dec 2022 12:10:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52056 "EHLO
+        id S230128AbiLTRKt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 20 Dec 2022 12:10:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234029AbiLTRKi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Dec 2022 12:10:38 -0500
+        with ESMTP id S234036AbiLTRKj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Dec 2022 12:10:39 -0500
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 854FD60F5;
-        Tue, 20 Dec 2022 09:10:37 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A55763D1;
+        Tue, 20 Dec 2022 09:10:38 -0800 (PST)
 Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2BKGrlde011841;
-        Tue, 20 Dec 2022 17:10:37 GMT
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2BKGrlgF011848;
+        Tue, 20 Dec 2022 17:10:38 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=85qsS3n2ZzYKkr3My/SxofR3yQv+a1zgR+pibE4T25c=;
- b=jzLsPgUtF/4IvTbhntgU9y409WDI2P4sO7qcyAr5UXfmbb3gHAo+ifMeS7anDOwweEgN
- vYAg3k/PLv3OzgSX5HDBLGvth9HqJ5oXh1Lykwz7fWNy6gs38VCE8HjbfhGpoIIIjAs2
- tHeRe3uACOzitVsJJ+TgCsTY2P+4nP3i33KGHcLaIEEjpL7Br5ZOAy/+sC4MADWIxcbN
- fqhYcXbmVGAeurfhLz/xZXFSoIMmmucNIu/3Ffj54/6F7Nppmo+/iZxbcoYn7PjHyMVh
- qPF+FbpwuuFzYw0xS/9uU3FpsZRHvZSE1MgMKUD59Oy2x1W4R0JHqEIJS30kBojKEIuK kA== 
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mkgyp170b-1
+ bh=X2baz4aYirGZzn8Tjagt+jxYT6ZsFiOiEn/E1+WlobQ=;
+ b=YSeL82qqjqIbbuC/nWC/gIb8lZPh4sQt57BZTH0AoZi8WYT8Z4t4GeEAW2//gDjGI31X
+ RsD7653CxVFGIhsWiVrEBebEe4IErUYRz0zVZ6KSW3z6QmqYHJ45Fa996GSkYv93pO/c
+ HvOnSeUjn/TsF8F97wnLzjpPwd15fL7St/rRc+PytaLMBW0C/R1CC+SMMciF+Co0o06T
+ FW9vqJyU0usdaWokiT9Q8aeuxPSt0GAogVYo7z6ldf7RtHof/iKZZxJvtPT0/FWe2iht
+ tGTnMxE+ZQpNI2qzZd0WAds93SnQZgDaKtk1+z4jeV+S4yIc1n1jzYTInXM7CxgYUgVP dg== 
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mkgyp170k-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 20 Dec 2022 17:10:36 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 2BK6GDJ0024576;
+        Tue, 20 Dec 2022 17:10:37 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 2BKGXX7b016895;
         Tue, 20 Dec 2022 17:10:13 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3mh6ywmacn-1
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma04fra.de.ibm.com (PPS) with ESMTPS id 3mh6yw34h3-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Tue, 20 Dec 2022 17:10:13 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2BKHA9sb8585694
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2BKHAAi742074400
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
         Tue, 20 Dec 2022 17:10:10 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DC41B2004B;
-        Tue, 20 Dec 2022 17:10:09 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CA3DC2004E;
-        Tue, 20 Dec 2022 17:10:09 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 19CE62004B;
+        Tue, 20 Dec 2022 17:10:10 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 113122004E;
+        Tue, 20 Dec 2022 17:10:10 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Tue, 20 Dec 2022 17:10:09 +0000 (GMT)
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Tue, 20 Dec 2022 17:10:10 +0000 (GMT)
 Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 4958)
-        id 7FDFCE07B5; Tue, 20 Dec 2022 18:10:09 +0100 (CET)
+        id A1D3BE08FD; Tue, 20 Dec 2022 18:10:09 +0100 (CET)
 From:   Eric Farman <farman@linux.ibm.com>
 To:     Matthew Rosato <mjrosato@linux.ibm.com>,
         Halil Pasic <pasic@linux.ibm.com>
@@ -64,106 +64,124 @@ Cc:     Heiko Carstens <hca@linux.ibm.com>,
         Peter Oberparleiter <oberpar@linux.ibm.com>,
         linux-s390@vger.kernel.org, kvm@vger.kernel.org,
         Eric Farman <farman@linux.ibm.com>
-Subject: [PATCH v2 02/16] vfio/ccw: simplify the cp_get_orb interface
-Date:   Tue, 20 Dec 2022 18:09:54 +0100
-Message-Id: <20221220171008.1362680-3-farman@linux.ibm.com>
+Subject: [PATCH v2 14/16] vfio/ccw: handle a guest Format-1 IDAL
+Date:   Tue, 20 Dec 2022 18:10:06 +0100
+Message-Id: <20221220171008.1362680-15-farman@linux.ibm.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20221220171008.1362680-1-farman@linux.ibm.com>
 References: <20221220171008.1362680-1-farman@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: hg_9tLh3ClI9OV75QV5aTH7VeneEyvuq
-X-Proofpoint-ORIG-GUID: hg_9tLh3ClI9OV75QV5aTH7VeneEyvuq
+X-Proofpoint-GUID: BXvIcwkpBwH1apNTg1azUbHulP2DV4Fm
+X-Proofpoint-ORIG-GUID: BXvIcwkpBwH1apNTg1azUbHulP2DV4Fm
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2022-12-20_06,2022-12-20_01,2022-06-22_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 malwarescore=0
  priorityscore=1501 lowpriorityscore=0 suspectscore=0 mlxscore=0
- impostorscore=0 spamscore=0 clxscore=1015 adultscore=0 mlxlogscore=886
+ impostorscore=0 spamscore=0 clxscore=1015 adultscore=0 mlxlogscore=999
  phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2212070000 definitions=main-2212200141
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-There's no need to send in both the address of the subchannel
-struct, and an element within it, to populate the ORB.
+There are two scenarios that need to be addressed here.
 
-Pass the whole pointer and let cp_get_orb() take the pieces
-that are needed.
+First, an ORB that does NOT have the Format-2 IDAL bit set could
+have both a direct-addressed CCW and an indirect-data-address CCW
+chained together. This means that the IDA CCW will contain a
+Format-1 IDAL, and can be easily converted to a 2K Format-2 IDAL.
+But it also means that the direct-addressed CCW needs to be
+converted to the same 2K Format-2 IDAL for consistency with the
+ORB settings.
 
-Suggested-by: Matthew Rosato <mjrosato@linux.ibm.com>
+Secondly, a Format-1 IDAL is comprised of 31-bit addresses.
+Thus, we need to cast this IDAL to a pointer of ints while
+populating the list of addresses that are sent to vfio.
+
+Since the result of both of these is the use of the 2K IDAL
+variants, and the output of vfio-ccw is always a Format-2 IDAL
+(in order to use 64-bit addresses), make sure that the correct
+control bit gets set in the ORB when these scenarios occur.
+
 Signed-off-by: Eric Farman <farman@linux.ibm.com>
 Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
 ---
- drivers/s390/cio/vfio_ccw_cp.c  | 9 ++++-----
- drivers/s390/cio/vfio_ccw_cp.h  | 2 +-
- drivers/s390/cio/vfio_ccw_fsm.c | 2 +-
- 3 files changed, 6 insertions(+), 7 deletions(-)
+ drivers/s390/cio/vfio_ccw_cp.c | 19 ++++++++++++++++---
+ 1 file changed, 16 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-index 9e6df1f2fbee..a0060ef1119e 100644
+index 477835b5e5b8..52e5abce5827 100644
 --- a/drivers/s390/cio/vfio_ccw_cp.c
 +++ b/drivers/s390/cio/vfio_ccw_cp.c
-@@ -816,14 +816,13 @@ int cp_prefetch(struct channel_program *cp)
- /**
-  * cp_get_orb() - get the orb of the channel program
-  * @cp: channel_program on which to perform the operation
-- * @intparm: new intparm for the returned orb
-- * @lpm: candidate value of the logical-path mask for the returned orb
-+ * @sch: subchannel the operation will be performed against
-  *
-  * This function returns the address of the updated orb of the channel
-  * program. Channel I/O device drivers could use this orb to issue a
-  * ssch.
+@@ -222,6 +222,8 @@ static void convert_ccw0_to_ccw1(struct ccw1 *source, unsigned long len)
+ 	}
+ }
+ 
++#define idal_is_2k(_cp) (!(_cp)->orb.cmd.c64 || (_cp)->orb.cmd.i2k)
++
+ /*
+  * Helpers to operate ccwchain.
   */
--union orb *cp_get_orb(struct channel_program *cp, u32 intparm, u8 lpm)
-+union orb *cp_get_orb(struct channel_program *cp, struct subchannel *sch)
- {
- 	union orb *orb;
- 	struct ccwchain *chain;
-@@ -835,12 +834,12 @@ union orb *cp_get_orb(struct channel_program *cp, u32 intparm, u8 lpm)
+@@ -504,8 +506,9 @@ static unsigned long *get_guest_idal(struct ccw1 *ccw,
+ 	struct vfio_device *vdev =
+ 		&container_of(cp, struct vfio_ccw_private, cp)->vdev;
+ 	unsigned long *idaws;
++	unsigned int *idaws_f1;
+ 	int idal_len = idaw_nr * sizeof(*idaws);
+-	int idaw_size = PAGE_SIZE;
++	int idaw_size = idal_is_2k(cp) ? PAGE_SIZE / 2 : PAGE_SIZE;
+ 	int idaw_mask = ~(idaw_size - 1);
+ 	int i, ret;
  
- 	orb = &cp->orb;
+@@ -527,8 +530,10 @@ static unsigned long *get_guest_idal(struct ccw1 *ccw,
+ 			for (i = 1; i < idaw_nr; i++)
+ 				idaws[i] = (idaws[i - 1] + idaw_size) & idaw_mask;
+ 		} else {
+-			kfree(idaws);
+-			return ERR_PTR(-EOPNOTSUPP);
++			idaws_f1 = (unsigned int *)idaws;
++			idaws_f1[0] = ccw->cda;
++			for (i = 1; i < idaw_nr; i++)
++				idaws_f1[i] = (idaws_f1[i - 1] + idaw_size) & idaw_mask;
+ 		}
+ 	}
  
--	orb->cmd.intparm = intparm;
-+	orb->cmd.intparm = (u32)virt_to_phys(sch);
- 	orb->cmd.fmt = 1;
- 	orb->cmd.key = PAGE_DEFAULT_KEY >> 4;
+@@ -595,6 +600,7 @@ static int ccwchain_fetch_ccw(struct ccw1 *ccw,
+ 	struct vfio_device *vdev =
+ 		&container_of(cp, struct vfio_ccw_private, cp)->vdev;
+ 	unsigned long *idaws;
++	unsigned int *idaws_f1;
+ 	int ret;
+ 	int idaw_nr;
+ 	int i;
+@@ -625,9 +631,12 @@ static int ccwchain_fetch_ccw(struct ccw1 *ccw,
+ 	 * Copy guest IDAWs into page_array, in case the memory they
+ 	 * occupy is not contiguous.
+ 	 */
++	idaws_f1 = (unsigned int *)idaws;
+ 	for (i = 0; i < idaw_nr; i++) {
+ 		if (cp->orb.cmd.c64)
+ 			pa->pa_iova[i] = idaws[i];
++		else
++			pa->pa_iova[i] = idaws_f1[i];
+ 	}
+ 
+ 	if (ccw_does_data_transfer(ccw)) {
+@@ -848,7 +857,11 @@ union orb *cp_get_orb(struct channel_program *cp, struct subchannel *sch)
+ 
+ 	/*
+ 	 * Everything built by vfio-ccw is a Format-2 IDAL.
++	 * If the input was a Format-1 IDAL, indicate that
++	 * 2K Format-2 IDAWs were created here.
+ 	 */
++	if (!orb->cmd.c64)
++		orb->cmd.i2k = 1;
+ 	orb->cmd.c64 = 1;
  
  	if (orb->cmd.lpm == 0)
--		orb->cmd.lpm = lpm;
-+		orb->cmd.lpm = sch->lpm;
- 
- 	chain = list_first_entry(&cp->ccwchain_list, struct ccwchain, next);
- 	cpa = chain->ch_ccw;
-diff --git a/drivers/s390/cio/vfio_ccw_cp.h b/drivers/s390/cio/vfio_ccw_cp.h
-index 16138a654fdd..fc31eb699807 100644
---- a/drivers/s390/cio/vfio_ccw_cp.h
-+++ b/drivers/s390/cio/vfio_ccw_cp.h
-@@ -43,7 +43,7 @@ struct channel_program {
- int cp_init(struct channel_program *cp, union orb *orb);
- void cp_free(struct channel_program *cp);
- int cp_prefetch(struct channel_program *cp);
--union orb *cp_get_orb(struct channel_program *cp, u32 intparm, u8 lpm);
-+union orb *cp_get_orb(struct channel_program *cp, struct subchannel *sch);
- void cp_update_scsw(struct channel_program *cp, union scsw *scsw);
- bool cp_iova_pinned(struct channel_program *cp, u64 iova, u64 length);
- 
-diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fsm.c
-index 2784a4e4d2be..757b73141246 100644
---- a/drivers/s390/cio/vfio_ccw_fsm.c
-+++ b/drivers/s390/cio/vfio_ccw_fsm.c
-@@ -27,7 +27,7 @@ static int fsm_io_helper(struct vfio_ccw_private *private)
- 
- 	spin_lock_irqsave(sch->lock, flags);
- 
--	orb = cp_get_orb(&private->cp, (u32)virt_to_phys(sch), sch->lpm);
-+	orb = cp_get_orb(&private->cp, sch);
- 	if (!orb) {
- 		ret = -EIO;
- 		goto out;
 -- 
 2.34.1
 
