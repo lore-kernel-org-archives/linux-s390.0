@@ -2,55 +2,56 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4BFDCC10F1E
-	for <linux-s390@archiver.kernel.org>; Tue, 20 Dec 2022 17:10:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4EC2FC4332F
+	for <linux-s390@archiver.kernel.org>; Tue, 20 Dec 2022 17:10:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233794AbiLTRKW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 20 Dec 2022 12:10:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51794 "EHLO
+        id S234004AbiLTRKq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 20 Dec 2022 12:10:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231151AbiLTRKV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Dec 2022 12:10:21 -0500
+        with ESMTP id S234005AbiLTRKh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Dec 2022 12:10:37 -0500
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80BD463D1;
-        Tue, 20 Dec 2022 09:10:20 -0800 (PST)
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2BKH8UAW020187;
-        Tue, 20 Dec 2022 17:10:20 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DCF82AEF;
+        Tue, 20 Dec 2022 09:10:37 -0800 (PST)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2BKGrldc011841;
+        Tue, 20 Dec 2022 17:10:37 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : content-transfer-encoding : mime-version; s=pp1;
- bh=7vu1oYuOCK2brgIcuVNCjFaC2Fv9+nxVUKRiCzIlMp4=;
- b=N5Xt0fQ/ycu3HojKLW5/aXPi3gJXv8GnV5pLTDad5Xvdih5uWYRUeQ+yksBUBs85E9Wc
- SlfYga3rVb8BWNgThh3xOzLecQhvyrDk+UGdW+MhY2WNi3aVfymBCaot0ko8hw1Y1J+K
- paMLht7AgGrTpVm2R4QBMKe2r8f2EtFj1TJMBWSST6rnLcCAgXFB6Tx7HzBNnReW2gDZ
- 5NEYzGz62Wl6Ava4WTM0oDOUrIwjks7FFbyctPNKEZ3CXOXYODH7XaL4/UFi+Y6TQauf
- ydzbhRgD5QMo2l23ypXXFHgFFxrYIu80tu/bsKhZl1xyL7yv3zyLo/L/fgCqQr2weTOT fg== 
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mkgbw9x1g-1
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=KxxynLEkXUDLBGcC83g11gQfMmRclh+wXGs7GGV5Erg=;
+ b=PsLlNXrfCvjqJJmYn7kHNP41CBgK9QitzJ6qugNEXLSLCheO5qigKuqh0Tg4bdq4Rx0H
+ oxgiIkRmHXhW8b4iGkF+WR9C5gf+7s7CtYl996dVsyoSOgNY3T3qZrwwjHix7nXMbXTI
+ mJEKzx0m2uLRF/1CmxfADtUQLsJ9gB54RCC5rFMAyZIHCJTGYW91urM/2Ps+YU3ZP1tk
+ yhNxOCfglq4cLi9jamuaWUEOhgljAZ9nbvkgXPWlQ0bgY0wZVspp7ChHYanV9qQVJxeK
+ GOa+eFSkRpZpLpMMXc38tJFnbR6BXFIExT54yP4a1w+1BmyYuBRG6kSZ6bbmX3mQSqpU Fg== 
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mkgyp1708-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 20 Dec 2022 17:10:18 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 2BK6igdt020586;
+        Tue, 20 Dec 2022 17:10:36 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 2BK7N1Tt018666;
         Tue, 20 Dec 2022 17:10:13 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3mh6yy4amt-1
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma01fra.de.ibm.com (PPS) with ESMTPS id 3mh6yuk47j-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Tue, 20 Dec 2022 17:10:13 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2BKHAAgG23724384
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2BKHAAZ448169402
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
         Tue, 20 Dec 2022 17:10:10 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E235020043;
-        Tue, 20 Dec 2022 17:10:09 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C8AEF20040;
-        Tue, 20 Dec 2022 17:10:09 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1329120043;
+        Tue, 20 Dec 2022 17:10:10 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0295520040;
+        Tue, 20 Dec 2022 17:10:10 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
         Tue, 20 Dec 2022 17:10:09 +0000 (GMT)
 Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 4958)
-        id 7AF79E0614; Tue, 20 Dec 2022 18:10:09 +0100 (CET)
+        id 9128DE08BF; Tue, 20 Dec 2022 18:10:09 +0100 (CET)
 From:   Eric Farman <farman@linux.ibm.com>
 To:     Matthew Rosato <mjrosato@linux.ibm.com>,
         Halil Pasic <pasic@linux.ibm.com>
@@ -63,148 +64,104 @@ Cc:     Heiko Carstens <hca@linux.ibm.com>,
         Peter Oberparleiter <oberpar@linux.ibm.com>,
         linux-s390@vger.kernel.org, kvm@vger.kernel.org,
         Eric Farman <farman@linux.ibm.com>
-Subject: [PATCH v2 00/16] vfio/ccw: channel program cleanup
-Date:   Tue, 20 Dec 2022 18:09:52 +0100
-Message-Id: <20221220171008.1362680-1-farman@linux.ibm.com>
+Subject: [PATCH v2 08/16] vfio/ccw: pass page count to page_array struct
+Date:   Tue, 20 Dec 2022 18:10:00 +0100
+Message-Id: <20221220171008.1362680-9-farman@linux.ibm.com>
 X-Mailer: git-send-email 2.34.1
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Z-sEJV4LEL-o5A2UCY7jpqtK06FEozIp
-X-Proofpoint-ORIG-GUID: Z-sEJV4LEL-o5A2UCY7jpqtK06FEozIp
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+In-Reply-To: <20221220171008.1362680-1-farman@linux.ibm.com>
+References: <20221220171008.1362680-1-farman@linux.ibm.com>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: DHEBeV_Xxr3THjOWqBa9hCjd17OYP6lB
+X-Proofpoint-ORIG-GUID: DHEBeV_Xxr3THjOWqBa9hCjd17OYP6lB
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2022-12-20_06,2022-12-20_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 spamscore=0
- impostorscore=0 adultscore=0 lowpriorityscore=0 mlxlogscore=999 mlxscore=0
- priorityscore=1501 malwarescore=0 clxscore=1015 phishscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 malwarescore=0
+ priorityscore=1501 lowpriorityscore=0 suspectscore=0 mlxscore=0
+ impostorscore=0 spamscore=0 clxscore=1015 adultscore=0 mlxlogscore=999
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2212070000 definitions=main-2212200141
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Matt, et al,
+The allocation of our page_array struct calculates the number
+of 4K pages that would be needed to hold a certain number of
+bytes. But, since the number of pages that will be pinned is
+also calculated by the length of the IDAL, this logic is
+unnecessary. Let's pass that information in directly, and
+avoid the math within the allocator.
 
-(Apologies for sending this out right before the holiday, again;
-but I have this in a state where it's unlikely to change further.)
+Also, let's make this two allocations instead of one,
+to make it apparent what's happening within here.
 
-Here is a new version of the first batch of the vfio-ccw channel
-program handler rework, which I'm referring to as "the IDA code."
-Most of it is rearrangement to make it more readable, and to remove
-restrictions in place since commit 0a19e61e6d4c ("vfio: ccw: introduce
-channel program interfaces"). My hope is that with this off the plate,
-it will be easier to extend this logic for newer, more modern, features.
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+---
+ drivers/s390/cio/vfio_ccw_cp.c | 23 +++++++++++++----------
+ 1 file changed, 13 insertions(+), 10 deletions(-)
 
-Some background:
-
-A Format-1 Channel Command Word (CCW) contains a 31-bit data address,
-meaning any I/O transfer is limited to the first 2GB of memory.
-The concept of an Indirect Data Address (IDA) was introduced long ago
-to allow for non-contiguous memory to be used for data transfers,
-while still using 31-bit data addresses.
-
-The initial z/Architecture extended the definition of ESA/390's IDA
-concept to include a new IDA format that allows for 64-bit data
-addresses [1]. The result is three distinct IDA flavors:
-
- - Format-1 IDA (31-bit addresses), each IDAW moves up to 2K of data
- - Format-2 IDA (64-bit addresses), each IDAW moves up to 2K of data
- - Format-2 IDA (64-bit addresses), each IDAW moves up to 4K of data
-
-The selection of these three possibilities is done by bits within the
-Operation-Request Block (ORB), though it should not be a surprise
-that the last one is far-and-away the most common these days.
-
-While newer features can be masked off (by a CPU model or equivalent),
-and guarded by a defensive check in a driver (such as our check for
-a Transport Mode ORB in fsm_io_request()), all three of these
-possibilities are available by the base z/Architecture, and cannot
-be "hidden." So while it might be unlikely for a guest to issue
-such an I/O, it's not impossible.
-
-vfio-ccw was written to only support the third of these options,
-while the first two are rejected by a check buried in
-ccwchain_calc_length(). While a Transport Mode ORB gets a
-distinct message logged, no such announcement as to the cause
-of the problem is done here, except for a generic -EOPNOTSUPP
-return code in the prefetch codepath.
-
-The goal of this series is to rework the channel program handler
-such that any of the above IDA formats can be processed and sent
-to the hardware. Any Format-1 IDA issued by a guest will be
-converted to the 2K Format-2 variety, such that it is able to
-use the full 64-bit addressing. One change from today is that any
-direct-addressed CCW can only converted to a 4K Format-2 IDA if
-the ORB settings permit this. Otherwise, those CCWs would need to
-be converted to a 2K Format-2 IDA to maintain compatibility with
-potential IDA CCWs elsewhere in the chain.
-
-The first few patches at the start of this series are improvements
-that could stand alone, regardless of the rework that follows.
-The remainder of the series is intended to do the code movement
-that would enable these older IDA formats, but the restriction
-itself isn't removed until the end.
-
-Thanks in advance, I look forward to the feedback...
-
-Eric
-
-[1] See most recent Principles of Operation, page 1-6
-
-v1->v2:
- - [EF] Rebased to current upstream master (with s390/vfio patches merged)
- - [MR, JG] Collected r-b's (Thank you!)
- - Patch 1:
-   [MR] Drop Fixes tag
- - Patch 6:
-   [MR] Fix typo in commit message
- - Patch 7:
-   [MR] Convert forgotten "ch_pa + i" to "&ch_pa[i]" notation for consistency
- - Patch 8:
-   [MR] Change "!len" to "len == 0" since it's not a pointer
- - Patch 11:
-   [MR] Only read 4 bytes for a Format-1 IDA, instead of 8 bytes
- - Patch 12:
-   [MR] Remove unnecessary else in ccw_count_idals
-   [EF (checkpatch.pl --strict)] Whitespace changes
- - Patch 13:
-   [MR] Return ERR_PTR for errors in get_guest_idal(), instead of NULL, and check
-   appropriately in caller
- - Patch 14:
-   [EF (checkpatch.pl --strict)] Wrap "_cp" in parentheses in definition of idal_is_2k
- - Patch 15:
-   [MR] Add comments for "unaligned" parameter on page_array_{alloc|unpin}
- - Patch 16:
-   [MR] Drop unnecessary comma from Documentation/s390/vfio-ccw.rst
-v1: https://lore.kernel.org/kvm/20221121214056.1187700-1-farman@linux.ibm.com/
-
-Eric Farman (16):
-  vfio/ccw: cleanup some of the mdev commentary
-  vfio/ccw: simplify the cp_get_orb interface
-  vfio/ccw: allow non-zero storage keys
-  vfio/ccw: move where IDA flag is set in ORB
-  vfio/ccw: replace copy_from_iova with vfio_dma_rw
-  vfio/ccw: simplify CCW chain fetch routines
-  vfio/ccw: remove unnecessary malloc alignment
-  vfio/ccw: pass page count to page_array struct
-  vfio/ccw: populate page_array struct inline
-  vfio/ccw: refactor the idaw counter
-  vfio/ccw: read only one Format-1 IDAW
-  vfio/ccw: calculate number of IDAWs regardless of format
-  vfio/ccw: allocate/populate the guest idal
-  vfio/ccw: handle a guest Format-1 IDAL
-  vfio/ccw: don't group contiguous pages on 2K IDAWs
-  vfio/ccw: remove old IDA format restrictions
-
- Documentation/s390/vfio-ccw.rst |   4 +-
- arch/s390/include/asm/idals.h   |  12 ++
- drivers/s390/cio/vfio_ccw_cp.c  | 362 +++++++++++++++++---------------
- drivers/s390/cio/vfio_ccw_cp.h  |   3 +-
- drivers/s390/cio/vfio_ccw_fsm.c |   2 +-
- 5 files changed, 210 insertions(+), 173 deletions(-)
-
+diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+index 99332c6f6010..b1436736b7b6 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.c
++++ b/drivers/s390/cio/vfio_ccw_cp.c
+@@ -43,7 +43,7 @@ struct ccwchain {
+  * page_array_alloc() - alloc memory for page array
+  * @pa: page_array on which to perform the operation
+  * @iova: target guest physical address
+- * @len: number of bytes that should be pinned from @iova
++ * @len: number of pages that should be pinned from @iova
+  *
+  * Attempt to allocate memory for page array.
+  *
+@@ -63,18 +63,20 @@ static int page_array_alloc(struct page_array *pa, u64 iova, unsigned int len)
+ 	if (pa->pa_nr || pa->pa_iova)
+ 		return -EINVAL;
+ 
+-	pa->pa_nr = ((iova & ~PAGE_MASK) + len + (PAGE_SIZE - 1)) >> PAGE_SHIFT;
+-	if (!pa->pa_nr)
++	if (len == 0)
+ 		return -EINVAL;
+ 
+-	pa->pa_iova = kcalloc(pa->pa_nr,
+-			      sizeof(*pa->pa_iova) + sizeof(*pa->pa_page),
+-			      GFP_KERNEL);
+-	if (unlikely(!pa->pa_iova)) {
+-		pa->pa_nr = 0;
++	pa->pa_nr = len;
++
++	pa->pa_iova = kcalloc(len, sizeof(*pa->pa_iova), GFP_KERNEL);
++	if (!pa->pa_iova)
++		return -ENOMEM;
++
++	pa->pa_page = kcalloc(len, sizeof(*pa->pa_page), GFP_KERNEL);
++	if (!pa->pa_page) {
++		kfree(pa->pa_iova);
+ 		return -ENOMEM;
+ 	}
+-	pa->pa_page = (struct page **)&pa->pa_iova[pa->pa_nr];
+ 
+ 	pa->pa_iova[0] = iova;
+ 	pa->pa_page[0] = NULL;
+@@ -167,6 +169,7 @@ static int page_array_pin(struct page_array *pa, struct vfio_device *vdev)
+ static void page_array_unpin_free(struct page_array *pa, struct vfio_device *vdev)
+ {
+ 	page_array_unpin(pa, vdev, pa->pa_nr);
++	kfree(pa->pa_page);
+ 	kfree(pa->pa_iova);
+ }
+ 
+@@ -545,7 +548,7 @@ static int ccwchain_fetch_ccw(struct ccw1 *ccw,
+ 	 * required for the data transfer, since we only only support
+ 	 * 4K IDAWs today.
+ 	 */
+-	ret = page_array_alloc(pa, iova, bytes);
++	ret = page_array_alloc(pa, iova, idaw_nr);
+ 	if (ret < 0)
+ 		goto out_free_idaws;
+ 
 -- 
 2.34.1
 
