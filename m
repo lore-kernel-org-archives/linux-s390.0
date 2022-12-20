@@ -2,197 +2,164 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 34114C4332F
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B479C001B2
 	for <linux-s390@archiver.kernel.org>; Tue, 20 Dec 2022 03:22:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233192AbiLTDWO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 19 Dec 2022 22:22:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52880 "EHLO
+        id S232964AbiLTDWP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 19 Dec 2022 22:22:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233022AbiLTDWA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 19 Dec 2022 22:22:00 -0500
-Received: from out30-57.freemail.mail.aliyun.com (out30-57.freemail.mail.aliyun.com [115.124.30.57])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F01A010FF4;
-        Mon, 19 Dec 2022 19:21:55 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R961e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0VXjKPoy_1671506506;
-Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VXjKPoy_1671506506)
+        with ESMTP id S233053AbiLTDWC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 19 Dec 2022 22:22:02 -0500
+Received: from out30-8.freemail.mail.aliyun.com (out30-8.freemail.mail.aliyun.com [115.124.30.8])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D560A1A1;
+        Mon, 19 Dec 2022 19:22:00 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0VXjKPrz_1671506516;
+Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VXjKPrz_1671506516)
           by smtp.aliyun-inc.com;
-          Tue, 20 Dec 2022 11:21:53 +0800
+          Tue, 20 Dec 2022 11:21:58 +0800
 From:   Wen Gu <guwen@linux.alibaba.com>
 To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
         davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
         pabeni@redhat.com
 Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [RFC PATCH net-next v2 0/5] net/smc:Introduce SMC-D based loopback acceleration
-Date:   Tue, 20 Dec 2022 11:21:40 +0800
-Message-Id: <1671506505-104676-1-git-send-email-guwen@linux.alibaba.com>
+Subject: [RFC PATCH net-next v2 2/5] net/smc: choose loopback device in SMC-D communication
+Date:   Tue, 20 Dec 2022 11:21:42 +0800
+Message-Id: <1671506505-104676-3-git-send-email-guwen@linux.alibaba.com>
 X-Mailer: git-send-email 1.8.3.1
+In-Reply-To: <1671506505-104676-1-git-send-email-guwen@linux.alibaba.com>
+References: <1671506505-104676-1-git-send-email-guwen@linux.alibaba.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi, all
+This patch allows SMC-D to use loopback device.
 
-# Background
+But noted that the implementation here is quiet simple and informal.
+Loopback device will always be firstly chosen, and fallback happens
+if loopback communication is impossible.
 
-As previously mentioned in [1], we (Alibaba Cloud) are trying to use SMC
-to accelerate TCP applications in cloud environment, improving inter-host
-or inter-VM communication.
+It needs to be discussed how client indicates to peer that multiple
+SMC-D devices are available and how server picks a suitable one.
 
-In addition of these, we also found the value of SMC-D in scenario of local
-inter-process communication, such as accelerate communication between containers
-within the same host. So this RFC tries to provide a SMC-D loopback solution
-in such scenario, to bring a significant improvement in latency and throughput
-compared to TCP loopback.
+Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+---
+ net/smc/af_smc.c  | 55 +++++++++++++++++++++++++++++++++++++++++++++++++------
+ net/smc/smc_clc.c |  4 +++-
+ net/smc/smc_ism.c |  3 ++-
+ 3 files changed, 54 insertions(+), 8 deletions(-)
 
-# Design
-
-This patch set provides a kind of SMC-D loopback solution.
-
-Patch #1/5 and #2/5 provide an SMC-D based dummy device, preparing for the
-inter-process communication acceleration. Except for loopback acceleration,
-the dummy device can also meet the requirements mentioned in [2], which is
-providing a way to test SMC-D logic for broad community without ISM device.
-
- +------------------------------------------+
- |  +-----------+           +-----------+   |
- |  | process A |           | process B |   |
- |  +-----------+           +-----------+   |
- |       ^                        ^         |
- |       |    +---------------+   |         |
- |       |    |   SMC stack   |   |         |
- |       +--->| +-----------+ |<--|         |
- |            | |   dummy   | |             |
- |            | |   device  | |             |
- |            +-+-----------+-+             |
- |                   VM                     |
- +------------------------------------------+
-
-Patch #3/5, #4/5, #5/5 provides a way to avoid data copy from sndbuf to RMB
-and improve SMC-D loopback performance. Through extending smcd_ops with two
-new semantic: attach_dmb and detach_dmb, sender's sndbuf shares the same
-physical memory region with receiver's RMB. The data copied from userspace
-to sender's sndbuf directly reaches the receiver's RMB without unnecessary
-memory copy in the same kernel.
-
- +----------+                     +----------+
- | socket A |                     | socket B |
- +----------+                     +----------+
-       |                               ^
-       |         +---------+           |
-  regard as      |         | ----------|
-  local sndbuf   |  B's    |     regard as
-       |         |  RMB    |     local RMB
-       |-------> |         |
-                 +---------+
-
-# Benchmark Test
-
- * Test environments:
-      - VM with Intel Xeon Platinum 8 core 2.50GHz, 16 GiB mem.
-      - SMC sndbuf/RMB size 1MB.
-
- * Test object:
-      - TCP: run on TCP loopback.
-      - domain: run on UNIX domain.
-      - SMC lo: run on SMC loopback device with patch #1/5 ~ #2/5.
-      - SMC lo-nocpy: run on SMC loopback device with patch #1/5 ~ #5/5.
-
-1. ipc-benchmark (see [3])
-
- - ./<foo> -c 1000000 -s 100
-
-                       TCP              domain              SMC-lo             SMC-lo-nocpy
-Message
-rate (msg/s)         75140      129548(+72.41)    152266(+102.64%)         151914(+102.17%)
-
-2. sockperf
-
- - serv: <smc_run> taskset -c <cpu> sockperf sr --tcp
- - clnt: <smc_run> taskset -c <cpu> sockperf { tp | pp } --tcp --msg-size={ 64000 for tp | 14 for pp } -i 127.0.0.1 -t 30
-
-                       TCP                  SMC-lo             SMC-lo-nocpy
-Bandwidth(MBps)   4943.359        4936.096(-0.15%)        8239.624(+66.68%)
-Latency(us)          6.372          3.359(-47.28%)            3.25(-49.00%)
-
-3. iperf3
-
- - serv: <smc_run> taskset -c <cpu> iperf3 -s
- - clnt: <smc_run> taskset -c <cpu> iperf3 -c 127.0.0.1 -t 15
-
-                       TCP                  SMC-lo             SMC-lo-nocpy
-Bitrate(Gb/s)         40.5            41.4(+2.22%)            76.4(+88.64%)
-
-4. nginx/wrk
-
- - serv: <smc_run> nginx
- - clnt: <smc_run> wrk -t 8 -c 500 -d 30 http://127.0.0.1:80
-
-                       TCP                  SMC-lo             SMC-lo-nocpy
-Requests/s       154643.22      220894.03(+42.84%)        226754.3(+46.63%)
-
-
-# Discussion
-
-1. API between SMC-D and ISM device
-
-As Jan mentioned in [2], IBM are working on placing an API between SMC-D
-and the ISM device for easier use of different "devices" for SMC-D.
-
-So, considering that the introduction of attach_dmb or detach_dmb can
-effectively avoid data copying from sndbuf to RMB and brings obvious
-throughput advantages in inter-VM or inter-process scenarios, can the
-attach/detach semantics be taken into consideration when designing the
-API to make it a standard ISM device behavior?
-
-Maybe our RFC of SMC-D based inter-process acceleration (this one) and
-inter-VM acceleration (will coming soon, which is the update of [1])
-can provide some examples for new API design. And we are very glad to
-discuss this on the mail list.
-
-2. Way to select different ISM-like devices
-
-With the proposal of SMC-D loopback 'device' (this RFC) and incoming
-device used for inter-VM acceleration as update of [1], SMC-D has more
-options to choose from. So we need to consider that how to indicate
-supported devices, how to determine which one to use, and their priority...
-
-IMHO, this may require an update of CLC message and negotiation mechanism.
-Again, we are very glad to discuss this with you on the mailing list.
-
-[1] https://lore.kernel.org/netdev/20220720170048.20806-1-tonylu@linux.alibaba.com/
-[2] https://lore.kernel.org/netdev/35d14144-28f7-6129-d6d3-ba16dae7a646@linux.ibm.com/
-[3] https://github.com/goldsborough/ipc-bench
-
-v1->v2
- 1. Fix some build WARNINGs complained by kernel test rebot
-    Reported-by: kernel test robot <lkp@intel.com>
- 2. Add iperf3 test data.
-
-Wen Gu (5):
-  net/smc: introduce SMC-D loopback device
-  net/smc: choose loopback device in SMC-D communication
-  net/smc: add dmb attach and detach interface
-  net/smc: avoid data copy from sndbuf to peer RMB in SMC-D loopback
-  net/smc: logic of cursors update in SMC-D loopback connections
-
- include/net/smc.h      |   3 +
- net/smc/Makefile       |   2 +-
- net/smc/af_smc.c       |  88 +++++++++++-
- net/smc/smc_cdc.c      |  59 ++++++--
- net/smc/smc_cdc.h      |   1 +
- net/smc/smc_clc.c      |   4 +-
- net/smc/smc_core.c     |  62 +++++++++
- net/smc/smc_core.h     |   2 +
- net/smc/smc_ism.c      |  39 +++++-
- net/smc/smc_ism.h      |   2 +
- net/smc/smc_loopback.c | 358 +++++++++++++++++++++++++++++++++++++++++++++++++
- net/smc/smc_loopback.h |  63 +++++++++
- 12 files changed, 662 insertions(+), 21 deletions(-)
- create mode 100644 net/smc/smc_loopback.c
- create mode 100644 net/smc/smc_loopback.h
-
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 9546c02..b9884c8 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -979,6 +979,28 @@ static int smc_find_ism_device(struct smc_sock *smc, struct smc_init_info *ini)
+ 	return 0;
+ }
+ 
++/* check if there is a lo device available for this connection. */
++static int smc_find_lo_device(struct smc_sock *smc, struct smc_init_info *ini)
++{
++	struct smcd_dev *sdev;
++
++	mutex_lock(&smcd_dev_list.mutex);
++	list_for_each_entry(sdev, &smcd_dev_list.list, list) {
++		if (sdev->is_loopback && !sdev->going_away &&
++		    (!ini->ism_peer_gid[0] ||
++		     !smc_ism_cantalk(ini->ism_peer_gid[0], ini->vlan_id,
++				      sdev))) {
++			ini->ism_dev[0] = sdev;
++			break;
++		}
++	}
++	mutex_unlock(&smcd_dev_list.mutex);
++	if (!ini->ism_dev[0])
++		return SMC_CLC_DECL_NOSMCDDEV;
++	ini->ism_chid[0] = smc_ism_get_chid(ini->ism_dev[0]);
++	return 0;
++}
++
+ /* is chid unique for the ism devices that are already determined? */
+ static bool smc_find_ism_v2_is_unique_chid(u16 chid, struct smc_init_info *ini,
+ 					   int cnt)
+@@ -1044,10 +1066,20 @@ static int smc_find_proposal_devices(struct smc_sock *smc,
+ {
+ 	int rc = 0;
+ 
+-	/* check if there is an ism device available */
++	/* TODO:
++	 * How to indicate to peer if ism device and loopback
++	 * device are both available ?
++	 *
++	 * The RFC patch hasn't resolved this, just simply always
++	 * chooses loopback device first, and fallback if loopback
++	 * communication is impossible.
++	 *
++	 */
++	/* check if there is an ism or loopback device available */
+ 	if (!(ini->smcd_version & SMC_V1) ||
+-	    smc_find_ism_device(smc, ini) ||
+-	    smc_connect_ism_vlan_setup(smc, ini))
++	    (smc_find_lo_device(smc, ini) &&
++	    (smc_find_ism_device(smc, ini) ||
++	    smc_connect_ism_vlan_setup(smc, ini))))
+ 		ini->smcd_version &= ~SMC_V1;
+ 	/* else ISM V1 is supported for this connection */
+ 
+@@ -2135,9 +2167,20 @@ static void smc_find_ism_v1_device_serv(struct smc_sock *new_smc,
+ 		goto not_found;
+ 	ini->is_smcd = true; /* prepare ISM check */
+ 	ini->ism_peer_gid[0] = ntohll(pclc_smcd->ism.gid);
+-	rc = smc_find_ism_device(new_smc, ini);
+-	if (rc)
+-		goto not_found;
++
++	/* TODO:
++	 * How to know that peer has both loopback and ism device ?
++	 *
++	 * The RFC patch hasn't resolved this, simply tries loopback
++	 * device first, then ism device.
++	 */
++	/* find available loopback or ism device */
++	if (smc_find_lo_device(new_smc, ini)) {
++		rc = smc_find_ism_device(new_smc, ini);
++		if (rc)
++			goto not_found;
++	}
++
+ 	ini->ism_selected = 0;
+ 	rc = smc_listen_ism_init(new_smc, ini);
+ 	if (!rc)
+diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
+index dfb9797..3887692 100644
+--- a/net/smc/smc_clc.c
++++ b/net/smc/smc_clc.c
+@@ -486,7 +486,9 @@ static int smc_clc_prfx_set4_rcu(struct dst_entry *dst, __be32 ipv4,
+ 		return -ENODEV;
+ 
+ 	in_dev_for_each_ifa_rcu(ifa, in_dev) {
+-		if (!inet_ifa_match(ipv4, ifa))
++		/* add loopback support */
++		if (inet_addr_type(dev_net(dst->dev), ipv4) != RTN_LOCAL &&
++		    !inet_ifa_match(ipv4, ifa))
+ 			continue;
+ 		prop->prefix_len = inet_mask_len(ifa->ifa_mask);
+ 		prop->outgoing_subnet = ifa->ifa_address & ifa->ifa_mask;
+diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
+index 911fe08..1d10435 100644
+--- a/net/smc/smc_ism.c
++++ b/net/smc/smc_ism.c
+@@ -227,7 +227,8 @@ static int smc_nl_handle_smcd_dev(struct smcd_dev *smcd,
+ 	if (nla_put_u8(skb, SMC_NLA_DEV_IS_CRIT, use_cnt > 0))
+ 		goto errattr;
+ 	memset(&smc_pci_dev, 0, sizeof(smc_pci_dev));
+-	smc_set_pci_values(to_pci_dev(smcd->dev.parent), &smc_pci_dev);
++	if (!smcd->is_loopback)
++		smc_set_pci_values(to_pci_dev(smcd->dev.parent), &smc_pci_dev);
+ 	if (nla_put_u32(skb, SMC_NLA_DEV_PCI_FID, smc_pci_dev.pci_fid))
+ 		goto errattr;
+ 	if (nla_put_u16(skb, SMC_NLA_DEV_PCI_CHID, smc_pci_dev.pci_pchid))
 -- 
 1.8.3.1
 
