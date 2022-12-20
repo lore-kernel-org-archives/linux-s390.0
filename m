@@ -2,144 +2,114 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D45F2C4332F
-	for <linux-s390@archiver.kernel.org>; Tue, 20 Dec 2022 17:25:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 390D1C4332F
+	for <linux-s390@archiver.kernel.org>; Tue, 20 Dec 2022 17:39:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233862AbiLTRZD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 20 Dec 2022 12:25:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60974 "EHLO
+        id S229906AbiLTRja (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 20 Dec 2022 12:39:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233883AbiLTRY5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Dec 2022 12:24:57 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7D931C91B;
-        Tue, 20 Dec 2022 09:24:56 -0800 (PST)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2BKHEM9Q003354;
-        Tue, 20 Dec 2022 17:24:56 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=GZhDvTuq3qLE5y8U8Ix7im0PsUQrLPc5BuJpvNfAjLk=;
- b=IYTVZ6gqO/HhfGmETQIl0dcMEOOoRek2iXdkoYz9saJA02JfDfT5V5NF/wL5iwuPrp4A
- qUoViGBafACHSKPqCSrq4X+WS8RPa5iOt1ZQnhizH60CkskRNOtu/lqJyK5walxLO38b
- TC1E1WZpTiMw65fJzWGDV19qFhpND4VnQ6m/EowZEAGG6196B9h12kuU4pn90HscHOUa
- yFhEt4w/5f2qIjo0LZ4IKpIjE1w4EhtXclkOgeJ90fNF5RBiGVlyjMxmtQGHd+hTZcd+
- vpPPK1JfqVwc5hM57fxgsupnnzfjtvIYP4DJlnkWSkOOB2BVk+12km4vyHFMJZcBcQ9s xQ== 
-Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mkh92g8wm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 20 Dec 2022 17:24:55 +0000
-Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
-        by ppma01dal.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 2BKFQMBT032666;
-        Tue, 20 Dec 2022 17:24:55 GMT
-Received: from smtprelay05.wdc07v.mail.ibm.com ([9.208.129.117])
-        by ppma01dal.us.ibm.com (PPS) with ESMTPS id 3mh6yyu3cs-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 20 Dec 2022 17:24:54 +0000
-Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
-        by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2BKHOquc4063818
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 20 Dec 2022 17:24:53 GMT
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B60F058043;
-        Tue, 20 Dec 2022 17:24:52 +0000 (GMT)
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CB1E05805D;
-        Tue, 20 Dec 2022 17:24:51 +0000 (GMT)
-Received: from [9.160.107.82] (unknown [9.160.107.82])
-        by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 20 Dec 2022 17:24:51 +0000 (GMT)
-Message-ID: <d3f130b3-5196-6a02-9b6b-162c3082396b@linux.ibm.com>
-Date:   Tue, 20 Dec 2022 12:24:51 -0500
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.5.1
-Subject: Re: [PATCH v2 11/16] vfio/ccw: read only one Format-1 IDAW
-Content-Language: en-US
-To:     Eric Farman <farman@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
+        with ESMTP id S229741AbiLTRj3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Dec 2022 12:39:29 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A8C1FF1
+        for <linux-s390@vger.kernel.org>; Tue, 20 Dec 2022 09:38:42 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1671557920;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=fEfc8sJnHm7K9aruHy33BZirM4UCmBd1CuSTlZNxnWo=;
+        b=f378FLiCTEU48S5bhGhS0vPelNpWAsXVKBiOL2+Jok6qlwUrLKBwmC/e2wJhw/BIznkufV
+        GjiCC5iCGaVAyOlZ8UD0nPkdLvY9pFmHnUPb16gQ/1VQUXjsmOZv29m0tWZwyh6+GbKJny
+        78bwLCFoqyG+rNkcp9/GgJwX+ktk3GE=
+Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
+ [209.85.160.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-102-58Nedo68OSyQboYwxhDmew-1; Tue, 20 Dec 2022 12:38:39 -0500
+X-MC-Unique: 58Nedo68OSyQboYwxhDmew-1
+Received: by mail-qt1-f197.google.com with SMTP id bb12-20020a05622a1b0c00b003a98dd528f0so2381592qtb.13
+        for <linux-s390@vger.kernel.org>; Tue, 20 Dec 2022 09:38:39 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=fEfc8sJnHm7K9aruHy33BZirM4UCmBd1CuSTlZNxnWo=;
+        b=CDUnfaWRZBgu4e4nVoD0x9l+5miHxfbxdzCP0aP9qLkVroQBRSAKDwgAuaHXT4slhA
+         v9hK5KBtx+sty5rfn5U/QkMQZF+2AP9yYRaZiPUQgM3MGkjiRcpKtU8suZwXSTcHX9zZ
+         1B5LKVYmK9i4afRijNjgETKIV5krUDAunsa8ho9U3BblKPKjGMyPAFsiIwWik5TxTeoj
+         feB4XQbCFE+RaQCaYS2qfNm69DKGnWqxVvc+ITsAipuEHUEDKLjZ3lqO+ve3roD/HZ68
+         71mdFMDv6HQRoVDA7KfcT3jGMZSyEZBnMi6R8eeZB9kGVjM43xN1tO8T27RuMcant/0E
+         CyyQ==
+X-Gm-Message-State: AFqh2krMaV5US66RawRzQxVwQKmgT6nvUng7iqiScfmB4iqY0wym3fpp
+        Q/E5VARhB40C7+pYZuMxxV03Gwo4rDBcb07GvNL4/oqaw8BDcZ5QQlbOpqUk2e/P8glmcmOnRj9
+        lN+h0N8acndwOeanBmBQMXw==
+X-Received: by 2002:ac8:7404:0:b0:3a9:8610:f9af with SMTP id p4-20020ac87404000000b003a98610f9afmr4892463qtq.14.1671557918844;
+        Tue, 20 Dec 2022 09:38:38 -0800 (PST)
+X-Google-Smtp-Source: AMrXdXtg5R2YbTU53YK6jcMnW9vCQk+xxP9JBp96j27cdKzorbZMYmsqPt75wVleU8oFZr+Onr1Sjg==
+X-Received: by 2002:ac8:7404:0:b0:3a9:8610:f9af with SMTP id p4-20020ac87404000000b003a98610f9afmr4892421qtq.14.1671557918568;
+        Tue, 20 Dec 2022 09:38:38 -0800 (PST)
+Received: from x1n (bras-base-aurron9127w-grc-45-70-31-26-132.dsl.bell.ca. [70.31.26.132])
+        by smtp.gmail.com with ESMTPSA id r17-20020a05620a299100b006fb8239db65sm9360534qkp.43.2022.12.20.09.38.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 20 Dec 2022 09:38:37 -0800 (PST)
+Date:   Tue, 20 Dec 2022 12:38:36 -0500
+From:   Peter Xu <peterx@redhat.com>
+To:     Mike Kravetz <mike.kravetz@oracle.com>
+Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        David Hildenbrand <david@redhat.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Rik van Riel <riel@surriel.com>,
+        Will Deacon <will@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org
-References: <20221220171008.1362680-1-farman@linux.ibm.com>
- <20221220171008.1362680-12-farman@linux.ibm.com>
-From:   Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <20221220171008.1362680-12-farman@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: v3fU35OFsO4drwm9z1YrWgmIqct-Mrea
-X-Proofpoint-ORIG-GUID: v3fU35OFsO4drwm9z1YrWgmIqct-Mrea
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-12-20_06,2022-12-20_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- suspectscore=0 impostorscore=0 mlxlogscore=999 mlxscore=0 clxscore=1015
- spamscore=0 phishscore=0 malwarescore=0 lowpriorityscore=0 bulkscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2212200141
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Christian Brauner <brauner@kernel.org>,
+        Eric Dumazet <edumazet@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [RFC PATCH] mm: remove zap_page_range and change callers to use
+ zap_vma_page_range
+Message-ID: <Y6HzHFdXB02Roa7q@x1n>
+References: <20221216192012.13562-1-mike.kravetz@oracle.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20221216192012.13562-1-mike.kravetz@oracle.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 12/20/22 12:10 PM, Eric Farman wrote:
-> The intention is to read the first IDAW to determine the starting
-> location of an I/O operation, knowing that the second and any/all
-> subsequent IDAWs will be aligned per architecture. But, this read
-> receives 64-bits of data, which is the size of a Format-2 IDAW.
+On Fri, Dec 16, 2022 at 11:20:12AM -0800, Mike Kravetz wrote:
+> zap_page_range was originally designed to unmap pages within an address
+> range that could span multiple vmas.  While working on [1], it was
+> discovered that all callers of zap_page_range pass a range entirely within
+> a single vma.  In addition, the mmu notification call within zap_page
+> range does not correctly handle ranges that span multiple vmas as calls
+> should be vma specific.
 > 
-> In the event that Format-1 IDAWs are presented, adjust the size
-> of the read to 32-bits. The data will end up occupying the upper
-> word of the target iova variable, so shift it down to the lower
-> word for use as an adddress. (By definition, this IDAW format
-> uses a 31-bit address, so the "sign" bit will always be off and
-> there is no concern about sign extension.)
+> Instead of fixing zap_page_range, change all callers to use the new
+> routine zap_vma_page_range.  zap_vma_page_range is just a wrapper around
+> zap_page_range_single passing in NULL zap details.  The name is also
+> more in line with other exported routines that operate within a vma.
+> We can then remove zap_page_range.
 > 
-> Signed-off-by: Eric Farman <farman@linux.ibm.com>
-> ---
->  drivers/s390/cio/vfio_ccw_cp.c | 11 ++++++++---
->  1 file changed, 8 insertions(+), 3 deletions(-)
+> Also, change madvise_dontneed_single_vma to use this new routine.
 > 
-> diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-> index 9d74e0b74da7..29d1e418b2e2 100644
-> --- a/drivers/s390/cio/vfio_ccw_cp.c
-> +++ b/drivers/s390/cio/vfio_ccw_cp.c
-> @@ -509,6 +509,7 @@ static int ccw_count_idaws(struct ccw1 *ccw,
->  	struct vfio_device *vdev =
->  		&container_of(cp, struct vfio_ccw_private, cp)->vdev;
->  	u64 iova;
-> +	int size = cp->orb.cmd.c64 ? sizeof(u64) : sizeof(u32);
->  	int ret;
->  	int bytes = 1;
->  
-> @@ -516,11 +517,15 @@ static int ccw_count_idaws(struct ccw1 *ccw,
->  		bytes = ccw->count;
->  
->  	if (ccw_is_idal(ccw)) {
-> -		/* Read first IDAW to see if it's 4K-aligned or not. */
-> -		/* All subsequent IDAws will be 4K-aligned. */
-> -		ret = vfio_dma_rw(vdev, ccw->cda, &iova, sizeof(iova), false);
-> +		/* Read first IDAW to check its starting address. */
-> +		/* All subsequent IDAWs will be 2K- or 4K-aligned. */
-> +		ret = vfio_dma_rw(vdev, ccw->cda, &iova, size, false);
->  		if (ret)
->  			return ret;
-> +
-> +		/* Format-1 IDAWs only occupy the first int */
+> [1] https://lore.kernel.org/linux-mm/20221114235507.294320-2-mike.kravetz@oracle.com/
+> Suggested-by: Peter Xu <peterx@redhat.com>
+> Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
 
-nit: s/int/32 bits/
+Acked-by: Peter Xu <peterx@redhat.com>
 
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+Thanks!
 
-> +		if (!cp->orb.cmd.c64)
-> +			iova = iova >> 32;
->  	} else {
->  		iova = ccw->cda;
->  	}
+-- 
+Peter Xu
 
