@@ -2,225 +2,69 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F364C4167B
-	for <linux-s390@archiver.kernel.org>; Tue, 20 Dec 2022 03:22:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E4493C4332F
+	for <linux-s390@archiver.kernel.org>; Tue, 20 Dec 2022 03:52:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233022AbiLTDWV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 19 Dec 2022 22:22:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52950 "EHLO
+        id S229895AbiLTDwL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 19 Dec 2022 22:52:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233111AbiLTDWI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 19 Dec 2022 22:22:08 -0500
-Received: from out199-15.us.a.mail.aliyun.com (out199-15.us.a.mail.aliyun.com [47.90.199.15])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CF9AA1A1;
-        Mon, 19 Dec 2022 19:22:05 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R801e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0VXjWttj_1671506520;
-Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VXjWttj_1671506520)
-          by smtp.aliyun-inc.com;
-          Tue, 20 Dec 2022 11:22:02 +0800
-From:   Wen Gu <guwen@linux.alibaba.com>
-To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [RFC PATCH net-next v2 4/5] net/smc: avoid data copy from sndbuf to peer RMB in SMC-D loopback
-Date:   Tue, 20 Dec 2022 11:21:44 +0800
-Message-Id: <1671506505-104676-5-git-send-email-guwen@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1671506505-104676-1-git-send-email-guwen@linux.alibaba.com>
-References: <1671506505-104676-1-git-send-email-guwen@linux.alibaba.com>
+        with ESMTP id S229500AbiLTDwK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 19 Dec 2022 22:52:10 -0500
+Received: from formenos.hmeau.com (helcar.hmeau.com [216.24.177.18])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 543B312D1C;
+        Mon, 19 Dec 2022 19:52:08 -0800 (PST)
+Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
+        by formenos.hmeau.com with smtp (Exim 4.94.2 #2 (Debian))
+        id 1p7TeR-008kBl-SS; Tue, 20 Dec 2022 11:50:48 +0800
+Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Tue, 20 Dec 2022 11:50:47 +0800
+Date:   Tue, 20 Dec 2022 11:50:47 +0800
+From:   Herbert Xu <herbert@gondor.apana.org.au>
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        torvalds@linux-foundation.org, corbet@lwn.net, will@kernel.org,
+        boqun.feng@gmail.com, mark.rutland@arm.com,
+        catalin.marinas@arm.com, dennis@kernel.org, tj@kernel.org,
+        cl@linux.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, davem@davemloft.net, tglx@linutronix.de,
+        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
+        x86@kernel.org, hpa@zytor.com, joro@8bytes.org,
+        suravee.suthikulpanit@amd.com, robin.murphy@arm.com,
+        dwmw2@infradead.org, baolu.lu@linux.intel.com,
+        Arnd Bergmann <arnd@arndb.de>, penberg@kernel.org,
+        rientjes@google.com, iamjoonsoo.kim@lge.com,
+        Andrew Morton <akpm@linux-foundation.org>, vbabka@suse.cz,
+        roman.gushchin@linux.dev, 42.hyeyoo@gmail.com,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, linux-s390@vger.kernel.org,
+        linux-crypto@vger.kernel.org, iommu@lists.linux.dev,
+        linux-arch@vger.kernel.org
+Subject: Re: [RFC][PATCH 01/12] crypto: Remove u128 usage
+Message-ID: <Y6ExF8mchgYiiRB0@gondor.apana.org.au>
+References: <20221219153525.632521981@infradead.org>
+ <20221219154118.889543494@infradead.org>
+ <Y6CJsWBhcbKatZNg@zx2c4.com>
+ <Y6CYu4skFFMopU+g@hirez.programming.kicks-ass.net>
+ <CAHmME9oCBgNCfYFxirA-fdarGip5MvOG-iUxT=2HC=iSXRMH-Q@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHmME9oCBgNCfYFxirA-fdarGip5MvOG-iUxT=2HC=iSXRMH-Q@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This patch aims to improve SMC-D loopback performance by avoiding
-data copy from local sndbuf to peer RMB. The main idea is to let
-local sndbuf and peer RMB share the same physical memory.
+On Mon, Dec 19, 2022 at 06:03:04PM +0100, Jason A. Donenfeld wrote:
+>
+> Is there a patch at the end of the series that adds it back in to use u128?
 
- +----------+                     +----------+
- | socket A |                     | socket B |
- +----------+                     +----------+
-       |                               ^
-       |         +---------+           |
-  regard as      |         | ----------|
-  local sndbuf   |  B's    |     regard as
-       |         |  RMB    |     local RMB
-       |-------> |         |
-                 +---------+
+Could we do some ifdef trickery to reduce the amount of code churn
+please? Changing everything away from u128 and then back to it seems
+silly.
 
-For connections using smcd loopback device:
-
-1. Only create and maintain local RMB.
-        a. Create or reuse RMB when create connection;
-        b. Free RMB when lgr free;
-
-2. Attach local sndbuf to peer RMB.
-        a. sndbuf_desc describes the same memory region as peer rmb_desc.
-        b. sndbuf_desc is exclusive to specific connection and won't be
-           added to lgr buffer pool for reuse.
-        c. sndbuf is attached to peer RMB when receive remote token after
-           CLC accept/confirm message.
-        d. sndbuf is detached from peer RMB when connection is freed.
-
-Therefore, the data copied from the userspace to local sndbuf directly
-reaches the peer RMB.
-
-Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
----
- net/smc/af_smc.c   | 23 +++++++++++++++++++-
- net/smc/smc_core.c | 62 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
- net/smc/smc_core.h |  2 ++
- 3 files changed, 86 insertions(+), 1 deletion(-)
-
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index b9884c8..c7de566 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -1073,7 +1073,6 @@ static int smc_find_proposal_devices(struct smc_sock *smc,
- 	 * The RFC patch hasn't resolved this, just simply always
- 	 * chooses loopback device first, and fallback if loopback
- 	 * communication is impossible.
--	 *
- 	 */
- 	/* check if there is an ism or loopback device available */
- 	if (!(ini->smcd_version & SMC_V1) ||
-@@ -1397,6 +1396,17 @@ static int smc_connect_ism(struct smc_sock *smc,
- 	}
- 
- 	smc_conn_save_peer_info(smc, aclc);
-+
-+	/* special for smcd loopback
-+	 * conns above smcd loopback dev only create their rmbs.
-+	 * their sndbufs are 'maps' of peer rmbs.
-+	 */
-+	if (smc->conn.lgr->smcd->is_loopback) {
-+		rc = smcd_buf_attach(&smc->conn);
-+		if (rc)
-+			goto connect_abort;
-+		smc->sk.sk_sndbuf = 2 * (smc->conn.sndbuf_desc->len);
-+	}
- 	smc_close_init(smc);
- 	smc_rx_init(smc);
- 	smc_tx_init(smc);
-@@ -2464,6 +2474,17 @@ static void smc_listen_work(struct work_struct *work)
- 		mutex_unlock(&smc_server_lgr_pending);
- 	}
- 	smc_conn_save_peer_info(new_smc, cclc);
-+
-+	/* special for smcd loopback
-+	 * conns above smcd loopback dev only create their rmbs.
-+	 * their sndbufs are 'maps' of peer rmbs.
-+	 */
-+	if (ini->is_smcd && new_smc->conn.lgr->smcd->is_loopback) {
-+		rc = smcd_buf_attach(&new_smc->conn);
-+		if (rc)
-+			goto out_decl;
-+		new_smc->sk.sk_sndbuf = 2 * (new_smc->conn.sndbuf_desc->len);
-+	}
- 	smc_listen_out_connected(new_smc);
- 	SMC_STAT_SERV_SUCC_INC(sock_net(newclcsock->sk), ini);
- 	goto out_free;
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index c305d8d..bf40ad3 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -1171,6 +1171,10 @@ void smc_conn_free(struct smc_connection *conn)
- 		if (!list_empty(&lgr->list))
- 			smc_ism_unset_conn(conn);
- 		tasklet_kill(&conn->rx_tsklet);
-+
-+		/* detach sndbuf from peer rmb */
-+		if (lgr->smcd->is_loopback)
-+			smcd_buf_detach(conn);
- 	} else {
- 		smc_cdc_wait_pend_tx_wr(conn);
- 		if (current_work() != &conn->abort_work)
-@@ -2423,6 +2427,14 @@ int smc_buf_create(struct smc_sock *smc, bool is_smcd)
- {
- 	int rc;
- 
-+	if (is_smcd && smc->conn.lgr->smcd->is_loopback) {
-+		/* Conns above smcd loopback device only create and maintain
-+		 * their RMBs. The sndbufs will be attached to peer RMBs once
-+		 * getting the tokens.
-+		 */
-+		return __smc_buf_create(smc, is_smcd, true);
-+	}
-+
- 	/* create send buffer */
- 	rc = __smc_buf_create(smc, is_smcd, false);
- 	if (rc)
-@@ -2439,6 +2451,56 @@ int smc_buf_create(struct smc_sock *smc, bool is_smcd)
- 	return rc;
- }
- 
-+/* for smcd loopback conns, attach local sndbuf to peer RMB.
-+ * The data copy to sndbuf is equal to data copy to peer RMB.
-+ */
-+int smcd_buf_attach(struct smc_connection *conn)
-+{
-+	struct smcd_dev *smcd = conn->lgr->smcd;
-+	u64 peer_token = conn->peer_token;
-+	struct smc_buf_desc *buf_desc;
-+	int rc;
-+
-+	buf_desc = kzalloc(sizeof(*buf_desc), GFP_KERNEL);
-+	if (!buf_desc)
-+		return -ENOMEM;
-+	rc = smc_ism_attach_dmb(smcd, peer_token, buf_desc);
-+	if (rc) {
-+		rc = SMC_CLC_DECL_ERR_RTOK;
-+		goto free;
-+	}
-+
-+	/* attach local sndbuf to peer RMB.
-+	 * refer to local sndbuf is equal to refer to peer RMB.
-+	 */
-+	/* align with peer rmb */
-+	buf_desc->cpu_addr = (u8 *)buf_desc->cpu_addr + sizeof(struct smcd_cdc_msg);
-+	buf_desc->len -=  sizeof(struct smcd_cdc_msg);
-+	conn->sndbuf_desc = buf_desc;
-+	conn->sndbuf_desc->used = 1;
-+	//smc->sk.sk_sndbuf = 2 * (smc->conn->sndbuf_desc->len);
-+	atomic_set(&conn->sndbuf_space, conn->sndbuf_desc->len);
-+	return 0;
-+
-+free:
-+	kfree(buf_desc);
-+	return rc;
-+}
-+
-+void smcd_buf_detach(struct smc_connection *conn)
-+{
-+	struct smcd_dev *smcd = conn->lgr->smcd;
-+	u64 peer_token = conn->peer_token;
-+
-+	if (!conn->sndbuf_desc)
-+		return;
-+
-+	smc_ism_detach_dmb(smcd, peer_token);
-+
-+	kfree(conn->sndbuf_desc);
-+	conn->sndbuf_desc = NULL;
-+}
-+
- static inline int smc_rmb_reserve_rtoken_idx(struct smc_link_group *lgr)
- {
- 	int i;
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index 285f9bd..b51b020 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -518,6 +518,8 @@ void smc_smcd_terminate(struct smcd_dev *dev, u64 peer_gid,
- void smc_smcd_terminate_all(struct smcd_dev *dev);
- void smc_smcr_terminate_all(struct smc_ib_device *smcibdev);
- int smc_buf_create(struct smc_sock *smc, bool is_smcd);
-+int smcd_buf_attach(struct smc_connection *conn);
-+void smcd_buf_detach(struct smc_connection *conn);
- int smc_uncompress_bufsize(u8 compressed);
- int smc_rmb_rtoken_handling(struct smc_connection *conn, struct smc_link *link,
- 			    struct smc_clc_msg_accept_confirm *clc);
+Thanks,
 -- 
-1.8.3.1
-
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
