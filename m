@@ -2,184 +2,197 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 00F53C4332F
-	for <linux-s390@archiver.kernel.org>; Mon, 19 Dec 2022 21:57:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 34114C4332F
+	for <linux-s390@archiver.kernel.org>; Tue, 20 Dec 2022 03:22:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231702AbiLSV5k (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 19 Dec 2022 16:57:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59628 "EHLO
+        id S233192AbiLTDWO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 19 Dec 2022 22:22:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231344AbiLSV5i (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 19 Dec 2022 16:57:38 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD0F611A3E;
-        Mon, 19 Dec 2022 13:57:37 -0800 (PST)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2BJLegXT007879;
-        Mon, 19 Dec 2022 21:57:37 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=uo0o5cRrd99tXnRzsrcLelDjyeHLvsP4Q5z7NRrGoCI=;
- b=ANLlY2E+QODxAd/xaIPWxNTHRQDKrdTD3//83jgqnmcdk0HnLj2fi7DxyE7zmt8w9UZV
- tm6BIyela6bBP2sAu7cu2a1gva3wTaqizESzKp9uWcZ4pyzt9OXhxmeK6nj7q8m6HNwe
- ceSiaMSncZKCYVujU66Z6xpPfmIvntiN1q7DR/0KSvWPNQYXrCJqVx/kD87Q5kaxsprT
- fffwgitu4/Hl0k0HhjiW9S+NSPBQtcTiwVUTUHk85QmpcKRd5Sx+cOtCQ86KrQrqrOjh
- UX9jnftMfgo7qsm8xWzxJUZpcFBK/aFr059jHmxlB4bfL3zhJh7rPqfYI3INwVZlj+iB IQ== 
-Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mjynm91t2-26
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 19 Dec 2022 21:57:37 +0000
-Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
-        by ppma01dal.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 2BJJpQwL032663;
-        Mon, 19 Dec 2022 21:04:44 GMT
-Received: from smtprelay07.dal12v.mail.ibm.com ([9.208.130.99])
-        by ppma01dal.us.ibm.com (PPS) with ESMTPS id 3mh6yykpj7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 19 Dec 2022 21:04:44 +0000
-Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
-        by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2BJL4hUn31064638
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 19 Dec 2022 21:04:43 GMT
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4C25A5804C;
-        Mon, 19 Dec 2022 21:04:43 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 80A1E58065;
-        Mon, 19 Dec 2022 21:04:42 +0000 (GMT)
-Received: from li-479af74c-31f9-11b2-a85c-e4ddee11713b.ibm.com (unknown [9.60.89.68])
-        by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
-        Mon, 19 Dec 2022 21:04:42 +0000 (GMT)
-Message-ID: <32e781d00d2d1296fb4d36dd4f55a7ba873f62fe.camel@linux.ibm.com>
-Subject: Re: [PATCH v1 14/16] vfio/ccw: handle a guest Format-1 IDAL
-From:   Eric Farman <farman@linux.ibm.com>
-To:     Matthew Rosato <mjrosato@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Date:   Mon, 19 Dec 2022 16:04:42 -0500
-In-Reply-To: <4bebf8f9-5d19-b86b-b16c-ed3ea384c214@linux.ibm.com>
-References: <20221121214056.1187700-1-farman@linux.ibm.com>
-         <20221121214056.1187700-15-farman@linux.ibm.com>
-         <4bebf8f9-5d19-b86b-b16c-ed3ea384c214@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: base64
-User-Agent: Evolution 3.44.4 (3.44.4-2.fc36) 
-MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: GmGypcpJI4G_TJzWHMB1OjfrYP1PHsqD
-X-Proofpoint-GUID: GmGypcpJI4G_TJzWHMB1OjfrYP1PHsqD
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-12-19_01,2022-12-15_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
- priorityscore=1501 mlxscore=0 bulkscore=0 spamscore=0 lowpriorityscore=0
- adultscore=0 suspectscore=0 mlxlogscore=999 malwarescore=0 impostorscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2212190189
+        with ESMTP id S233022AbiLTDWA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 19 Dec 2022 22:22:00 -0500
+Received: from out30-57.freemail.mail.aliyun.com (out30-57.freemail.mail.aliyun.com [115.124.30.57])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F01A010FF4;
+        Mon, 19 Dec 2022 19:21:55 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R961e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0VXjKPoy_1671506506;
+Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VXjKPoy_1671506506)
+          by smtp.aliyun-inc.com;
+          Tue, 20 Dec 2022 11:21:53 +0800
+From:   Wen Gu <guwen@linux.alibaba.com>
+To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [RFC PATCH net-next v2 0/5] net/smc:Introduce SMC-D based loopback acceleration
+Date:   Tue, 20 Dec 2022 11:21:40 +0800
+Message-Id: <1671506505-104676-1-git-send-email-guwen@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-T24gTW9uLCAyMDIyLTEyLTE5IGF0IDE1OjI5IC0wNTAwLCBNYXR0aGV3IFJvc2F0byB3cm90ZToK
-PiBPbiAxMS8yMS8yMiA0OjQwIFBNLCBFcmljIEZhcm1hbiB3cm90ZToKPiA+IFRoZXJlIGFyZSB0
-d28gc2NlbmFyaW9zIHRoYXQgbmVlZCB0byBiZSBhZGRyZXNzZWQgaGVyZS4KPiA+IAo+ID4gRmly
-c3QsIGFuIE9SQiB0aGF0IGRvZXMgTk9UIGhhdmUgdGhlIEZvcm1hdC0yIElEQUwgYml0IHNldCBj
-b3VsZAo+ID4gaGF2ZSBib3RoIGEgZGlyZWN0LWFkZHJlc3NlZCBDQ1cgYW5kIGFuIGluZGlyZWN0
-LWRhdGEtYWRkcmVzcyBDQ1cKPiA+IGNoYWluZWQgdG9nZXRoZXIuIFRoaXMgbWVhbnMgdGhhdCB0
-aGUgSURBIENDVyB3aWxsIGNvbnRhaW4gYQo+ID4gRm9ybWF0LTEgSURBTCwgYW5kIGNhbiBiZSBl
-YXNpbHkgY29udmVydGVkIHRvIGEgMksgRm9ybWF0LTIgSURBTC4KPiA+IEJ1dCBpdCBhbHNvIG1l
-YW5zIHRoYXQgdGhlIGRpcmVjdC1hZGRyZXNzZWQgQ0NXIG5lZWRzIHRvIGJlCj4gPiBjb252ZXJ0
-ZWQgdG8gdGhlIHNhbWUgMksgRm9ybWF0LTIgSURBTCBmb3IgY29uc2lzdGVuY3kgd2l0aCB0aGUK
-PiA+IE9SQiBzZXR0aW5ncy4KPiA+IAo+ID4gU2Vjb25kbHksIGEgRm9ybWF0LTEgSURBTCBpcyBj
-b21wcmlzZWQgb2YgMzEtYml0IGFkZHJlc3Nlcy4KPiA+IFRodXMsIHdlIG5lZWQgdG8gY2FzdCB0
-aGlzIElEQUwgdG8gYSBwb2ludGVyIG9mIGludHMgd2hpbGUKPiA+IHBvcHVsYXRpbmcgdGhlIGxp
-c3Qgb2YgYWRkcmVzc2VzIHRoYXQgYXJlIHNlbnQgdG8gdmZpby4KPiA+IAo+ID4gU2luY2UgdGhl
-IHJlc3VsdCBvZiBib3RoIG9mIHRoZXNlIGlzIHRoZSB1c2Ugb2YgdGhlIDJLIElEQUwKPiA+IHZh
-cmlhbnRzLCBhbmQgdGhlIG91dHB1dCBvZiB2ZmlvLWNjdyBpcyBhbHdheXMgYSBGb3JtYXQtMiBJ
-REFMCj4gPiAoaW4gb3JkZXIgdG8gdXNlIDY0LWJpdCBhZGRyZXNzZXMpLCBtYWtlIHN1cmUgdGhh
-dCB0aGUgY29ycmVjdAo+ID4gY29udHJvbCBiaXQgZ2V0cyBzZXQgaW4gdGhlIE9SQiB3aGVuIHRo
-ZXNlIHNjZW5hcmlvcyBvY2N1ci4KPiA+IAo+ID4gU2lnbmVkLW9mZi1ieTogRXJpYyBGYXJtYW4g
-PGZhcm1hbkBsaW51eC5pYm0uY29tPgo+ID4gLS0tCj4gPiDCoGRyaXZlcnMvczM5MC9jaW8vdmZp
-b19jY3dfY3AuYyB8IDE5ICsrKysrKysrKysrKysrKystLS0KPiA+IMKgMSBmaWxlIGNoYW5nZWQs
-IDE2IGluc2VydGlvbnMoKyksIDMgZGVsZXRpb25zKC0pCj4gPiAKPiA+IGRpZmYgLS1naXQgYS9k
-cml2ZXJzL3MzOTAvY2lvL3ZmaW9fY2N3X2NwLmMKPiA+IGIvZHJpdmVycy9zMzkwL2Npby92Zmlv
-X2Njd19jcC5jCj4gPiBpbmRleCA5MDY4NWNlZTg1ZGIuLjk1MjdmM2Q4ZGE3NyAxMDA2NDQKPiA+
-IC0tLSBhL2RyaXZlcnMvczM5MC9jaW8vdmZpb19jY3dfY3AuYwo+ID4gKysrIGIvZHJpdmVycy9z
-MzkwL2Npby92ZmlvX2Njd19jcC5jCj4gPiBAQCAtMjIyLDYgKzIyMiw4IEBAIHN0YXRpYyB2b2lk
-IGNvbnZlcnRfY2N3MF90b19jY3cxKHN0cnVjdCBjY3cxCj4gPiAqc291cmNlLCB1bnNpZ25lZCBs
-b25nIGxlbikKPiA+IMKgwqDCoMKgwqDCoMKgwqB9Cj4gPiDCoH0KPiA+IMKgCj4gPiArI2RlZmlu
-ZSBpZGFsX2lzXzJrKF9jcCkgKCFfY3AtPm9yYi5jbWQuYzY0IHx8IF9jcC0+b3JiLmNtZC5pMmsp
-Cj4gPiArCj4gPiDCoC8qCj4gPiDCoCAqIEhlbHBlcnMgdG8gb3BlcmF0ZSBjY3djaGFpbi4KPiA+
-IMKgICovCj4gPiBAQCAtNTA0LDggKzUwNiw5IEBAIHN0YXRpYyB1bnNpZ25lZCBsb25nICpnZXRf
-Z3Vlc3RfaWRhbChzdHJ1Y3QKPiA+IGNjdzEgKmNjdywKPiA+IMKgwqDCoMKgwqDCoMKgwqBzdHJ1
-Y3QgdmZpb19kZXZpY2UgKnZkZXYgPQo+ID4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqAmY29udGFpbmVyX29mKGNwLCBzdHJ1Y3QgdmZpb19jY3dfcHJpdmF0ZSwgY3ApLQo+ID4gPnZk
-ZXY7Cj4gPiDCoMKgwqDCoMKgwqDCoMKgdW5zaWduZWQgbG9uZyAqaWRhd3M7Cj4gPiArwqDCoMKg
-wqDCoMKgwqB1bnNpZ25lZCBpbnQgKmlkYXdzX2YxOwo+IAo+IEkgd29uZGVyIGlmIHdlIHNob3Vs
-ZCBiZSB1c2luZyBleHBsaWNpdCB1NjQvdTMyIGhlcmUgc2luY2Ugd2UgYXJlCj4gZGVhbGluZyB3
-aXRoIGhhcmR3YXJlLWFyY2hpdGVjdGVkIGRhdGEgc2l6ZXMgYW5kIHNwZWNpZmljYWxseSB3YW50
-IHRvCj4gaW5kZXggYnkgMzItIG9yIDY0LWJpdHMuwqAgSG9uZXN0bHksIHRoZXJlJ3MgcHJvYmFi
-bHkgYSBudW1iZXIgb2YKPiBvdGhlciBzcG90cyBpbiB2ZmlvLWNjdyB3aGVyZSB0aGF0IG1pZ2h0
-IG1ha2Ugc2Vuc2Ugc28gaXQgd291bGQgYWxzbwo+IGJlIE9LIHRvIGxvb2sgaW50byB0aGF0IGFz
-IGEgZm9sbG93LW9uLgoKVGhpcyBpcyBhIGZhaXIgcG9pbnQuIEkgaGF2ZSBzb21lIGZvbGxvdy1v
-biB3b3JrIHRvIHRoaXMgc2VyaWVzIGZvcgphZnRlciB0aGUgaG9saWRheXMsIHNvIEknbSBnb2lu
-ZyB0byBwdXQgdGhpcyBzdWdnZXN0aW9uIG9uIHRoYXQgdG9kbwpsaXN0LgoKPiAKPiBPdGhlcndp
-c2UsIExHVE0KPiAKPiBSZXZpZXdlZC1ieTogTWF0dGhldyBSb3NhdG8gPG1qcm9zYXRvQGxpbnV4
-LmlibS5jb20+Cj4gCj4gPiDCoMKgwqDCoMKgwqDCoMKgaW50IGlkYWxfbGVuID0gaWRhd19uciAq
-IHNpemVvZigqaWRhd3MpOwo+ID4gLcKgwqDCoMKgwqDCoMKgaW50IGlkYXdfc2l6ZSA9IFBBR0Vf
-U0laRTsKPiA+ICvCoMKgwqDCoMKgwqDCoGludCBpZGF3X3NpemUgPSBpZGFsX2lzXzJrKGNwKSA/
-IFBBR0VfU0laRSAvIDIgOiBQQUdFX1NJWkU7Cj4gPiDCoMKgwqDCoMKgwqDCoMKgaW50IGlkYXdf
-bWFzayA9IH4oaWRhd19zaXplIC0gMSk7Cj4gPiDCoMKgwqDCoMKgwqDCoMKgaW50IGksIHJldDsK
-PiA+IMKgCj4gPiBAQCAtNTI3LDggKzUzMCwxMCBAQCBzdGF0aWMgdW5zaWduZWQgbG9uZyAqZ2V0
-X2d1ZXN0X2lkYWwoc3RydWN0Cj4gPiBjY3cxICpjY3csCj4gPiDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBmb3IgKGkgPSAxOyBpIDwgaWRhd19ucjsgaSsr
-KQo+ID4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoGlkYXdzW2ldID0gKGlkYXdzW2kgLSAxXSArCj4gPiBpZGF3X3NpemUpICYg
-aWRhd19tYXNrOwo+ID4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqB9IGVsc2Ugewo+
-ID4gLcKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBrZnJlZShp
-ZGF3cyk7Cj4gPiAtwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oHJldHVybiBOVUxMOwo+ID4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqBpZGF3c19mMSA9ICh1bnNpZ25lZCBpbnQgKilpZGF3czsKPiA+ICvCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgaWRhd3NfZjFbMF0gPSBjY3ctPmNk
-YTsKPiA+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgZm9y
-IChpID0gMTsgaSA8IGlkYXdfbnI7IGkrKykKPiA+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGlkYXdzX2YxW2ldID0gKGlkYXdz
-X2YxW2kgLSAxXSArCj4gPiBpZGF3X3NpemUpICYgaWRhd19tYXNrOwo+ID4gwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqB9Cj4gPiDCoMKgwqDCoMKgwqDCoMKgfQo+ID4gwqAKPiA+IEBA
-IC01OTMsNiArNTk4LDcgQEAgc3RhdGljIGludCBjY3djaGFpbl9mZXRjaF9jY3coc3RydWN0IGNj
-dzEgKmNjdywKPiA+IMKgwqDCoMKgwqDCoMKgwqBzdHJ1Y3QgdmZpb19kZXZpY2UgKnZkZXYgPQo+
-ID4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAmY29udGFpbmVyX29mKGNwLCBzdHJ1
-Y3QgdmZpb19jY3dfcHJpdmF0ZSwgY3ApLQo+ID4gPnZkZXY7Cj4gPiDCoMKgwqDCoMKgwqDCoMKg
-dW5zaWduZWQgbG9uZyAqaWRhd3M7Cj4gPiArwqDCoMKgwqDCoMKgwqB1bnNpZ25lZCBpbnQgKmlk
-YXdzX2YxOwo+ID4gwqDCoMKgwqDCoMKgwqDCoGludCByZXQ7Cj4gPiDCoMKgwqDCoMKgwqDCoMKg
-aW50IGlkYXdfbnI7Cj4gPiDCoMKgwqDCoMKgwqDCoMKgaW50IGk7Cj4gPiBAQCAtNjIzLDkgKzYy
-OSwxMiBAQCBzdGF0aWMgaW50IGNjd2NoYWluX2ZldGNoX2NjdyhzdHJ1Y3QgY2N3MQo+ID4gKmNj
-dywKPiA+IMKgwqDCoMKgwqDCoMKgwqAgKiBDb3B5IGd1ZXN0IElEQVdzIGludG8gcGFnZV9hcnJh
-eSwgaW4gY2FzZSB0aGUgbWVtb3J5Cj4gPiB0aGV5Cj4gPiDCoMKgwqDCoMKgwqDCoMKgICogb2Nj
-dXB5IGlzIG5vdCBjb250aWd1b3VzLgo+ID4gwqDCoMKgwqDCoMKgwqDCoCAqLwo+ID4gK8KgwqDC
-oMKgwqDCoMKgaWRhd3NfZjEgPSAodW5zaWduZWQgaW50ICopaWRhd3M7Cj4gPiDCoMKgwqDCoMKg
-wqDCoMKgZm9yIChpID0gMDsgaSA8IGlkYXdfbnI7IGkrKykgewo+ID4gwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqBpZiAoY3AtPm9yYi5jbWQuYzY0KQo+ID4gwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgcGEtPnBhX2lvdmFbaV0gPSBpZGF3c1tp
-XTsKPiA+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBlbHNlCj4gPiArwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoHBhLT5wYV9pb3ZhW2ldID0gaWRh
-d3NfZjFbaV07Cj4gPiDCoMKgwqDCoMKgwqDCoMKgfQo+ID4gwqAKPiA+IMKgwqDCoMKgwqDCoMKg
-wqBpZiAoY2N3X2RvZXNfZGF0YV90cmFuc2ZlcihjY3cpKSB7Cj4gPiBAQCAtODQ2LDcgKzg1NSwx
-MSBAQCB1bmlvbiBvcmIgKmNwX2dldF9vcmIoc3RydWN0IGNoYW5uZWxfcHJvZ3JhbQo+ID4gKmNw
-LCBzdHJ1Y3Qgc3ViY2hhbm5lbCAqc2NoKQo+ID4gwqAKPiA+IMKgwqDCoMKgwqDCoMKgwqAvKgo+
-ID4gwqDCoMKgwqDCoMKgwqDCoCAqIEV2ZXJ5dGhpbmcgYnVpbHQgYnkgdmZpby1jY3cgaXMgYSBG
-b3JtYXQtMiBJREFMLgo+ID4gK8KgwqDCoMKgwqDCoMKgICogSWYgdGhlIGlucHV0IHdhcyBhIEZv
-cm1hdC0xIElEQUwsIGluZGljYXRlIHRoYXQKPiA+ICvCoMKgwqDCoMKgwqDCoCAqIDJLIEZvcm1h
-dC0yIElEQVdzIHdlcmUgY3JlYXRlZCBoZXJlLgo+ID4gwqDCoMKgwqDCoMKgwqDCoCAqLwo+ID4g
-K8KgwqDCoMKgwqDCoMKgaWYgKCFvcmItPmNtZC5jNjQpCj4gPiArwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgb3JiLT5jbWQuaTJrID0gMTsKPiA+IMKgwqDCoMKgwqDCoMKgwqBvcmItPmNt
-ZC5jNjQgPSAxOwo+ID4gwqAKPiA+IMKgwqDCoMKgwqDCoMKgwqBpZiAob3JiLT5jbWQubHBtID09
-IDApCj4gCgo=
+Hi, all
+
+# Background
+
+As previously mentioned in [1], we (Alibaba Cloud) are trying to use SMC
+to accelerate TCP applications in cloud environment, improving inter-host
+or inter-VM communication.
+
+In addition of these, we also found the value of SMC-D in scenario of local
+inter-process communication, such as accelerate communication between containers
+within the same host. So this RFC tries to provide a SMC-D loopback solution
+in such scenario, to bring a significant improvement in latency and throughput
+compared to TCP loopback.
+
+# Design
+
+This patch set provides a kind of SMC-D loopback solution.
+
+Patch #1/5 and #2/5 provide an SMC-D based dummy device, preparing for the
+inter-process communication acceleration. Except for loopback acceleration,
+the dummy device can also meet the requirements mentioned in [2], which is
+providing a way to test SMC-D logic for broad community without ISM device.
+
+ +------------------------------------------+
+ |  +-----------+           +-----------+   |
+ |  | process A |           | process B |   |
+ |  +-----------+           +-----------+   |
+ |       ^                        ^         |
+ |       |    +---------------+   |         |
+ |       |    |   SMC stack   |   |         |
+ |       +--->| +-----------+ |<--|         |
+ |            | |   dummy   | |             |
+ |            | |   device  | |             |
+ |            +-+-----------+-+             |
+ |                   VM                     |
+ +------------------------------------------+
+
+Patch #3/5, #4/5, #5/5 provides a way to avoid data copy from sndbuf to RMB
+and improve SMC-D loopback performance. Through extending smcd_ops with two
+new semantic: attach_dmb and detach_dmb, sender's sndbuf shares the same
+physical memory region with receiver's RMB. The data copied from userspace
+to sender's sndbuf directly reaches the receiver's RMB without unnecessary
+memory copy in the same kernel.
+
+ +----------+                     +----------+
+ | socket A |                     | socket B |
+ +----------+                     +----------+
+       |                               ^
+       |         +---------+           |
+  regard as      |         | ----------|
+  local sndbuf   |  B's    |     regard as
+       |         |  RMB    |     local RMB
+       |-------> |         |
+                 +---------+
+
+# Benchmark Test
+
+ * Test environments:
+      - VM with Intel Xeon Platinum 8 core 2.50GHz, 16 GiB mem.
+      - SMC sndbuf/RMB size 1MB.
+
+ * Test object:
+      - TCP: run on TCP loopback.
+      - domain: run on UNIX domain.
+      - SMC lo: run on SMC loopback device with patch #1/5 ~ #2/5.
+      - SMC lo-nocpy: run on SMC loopback device with patch #1/5 ~ #5/5.
+
+1. ipc-benchmark (see [3])
+
+ - ./<foo> -c 1000000 -s 100
+
+                       TCP              domain              SMC-lo             SMC-lo-nocpy
+Message
+rate (msg/s)         75140      129548(+72.41)    152266(+102.64%)         151914(+102.17%)
+
+2. sockperf
+
+ - serv: <smc_run> taskset -c <cpu> sockperf sr --tcp
+ - clnt: <smc_run> taskset -c <cpu> sockperf { tp | pp } --tcp --msg-size={ 64000 for tp | 14 for pp } -i 127.0.0.1 -t 30
+
+                       TCP                  SMC-lo             SMC-lo-nocpy
+Bandwidth(MBps)   4943.359        4936.096(-0.15%)        8239.624(+66.68%)
+Latency(us)          6.372          3.359(-47.28%)            3.25(-49.00%)
+
+3. iperf3
+
+ - serv: <smc_run> taskset -c <cpu> iperf3 -s
+ - clnt: <smc_run> taskset -c <cpu> iperf3 -c 127.0.0.1 -t 15
+
+                       TCP                  SMC-lo             SMC-lo-nocpy
+Bitrate(Gb/s)         40.5            41.4(+2.22%)            76.4(+88.64%)
+
+4. nginx/wrk
+
+ - serv: <smc_run> nginx
+ - clnt: <smc_run> wrk -t 8 -c 500 -d 30 http://127.0.0.1:80
+
+                       TCP                  SMC-lo             SMC-lo-nocpy
+Requests/s       154643.22      220894.03(+42.84%)        226754.3(+46.63%)
+
+
+# Discussion
+
+1. API between SMC-D and ISM device
+
+As Jan mentioned in [2], IBM are working on placing an API between SMC-D
+and the ISM device for easier use of different "devices" for SMC-D.
+
+So, considering that the introduction of attach_dmb or detach_dmb can
+effectively avoid data copying from sndbuf to RMB and brings obvious
+throughput advantages in inter-VM or inter-process scenarios, can the
+attach/detach semantics be taken into consideration when designing the
+API to make it a standard ISM device behavior?
+
+Maybe our RFC of SMC-D based inter-process acceleration (this one) and
+inter-VM acceleration (will coming soon, which is the update of [1])
+can provide some examples for new API design. And we are very glad to
+discuss this on the mail list.
+
+2. Way to select different ISM-like devices
+
+With the proposal of SMC-D loopback 'device' (this RFC) and incoming
+device used for inter-VM acceleration as update of [1], SMC-D has more
+options to choose from. So we need to consider that how to indicate
+supported devices, how to determine which one to use, and their priority...
+
+IMHO, this may require an update of CLC message and negotiation mechanism.
+Again, we are very glad to discuss this with you on the mailing list.
+
+[1] https://lore.kernel.org/netdev/20220720170048.20806-1-tonylu@linux.alibaba.com/
+[2] https://lore.kernel.org/netdev/35d14144-28f7-6129-d6d3-ba16dae7a646@linux.ibm.com/
+[3] https://github.com/goldsborough/ipc-bench
+
+v1->v2
+ 1. Fix some build WARNINGs complained by kernel test rebot
+    Reported-by: kernel test robot <lkp@intel.com>
+ 2. Add iperf3 test data.
+
+Wen Gu (5):
+  net/smc: introduce SMC-D loopback device
+  net/smc: choose loopback device in SMC-D communication
+  net/smc: add dmb attach and detach interface
+  net/smc: avoid data copy from sndbuf to peer RMB in SMC-D loopback
+  net/smc: logic of cursors update in SMC-D loopback connections
+
+ include/net/smc.h      |   3 +
+ net/smc/Makefile       |   2 +-
+ net/smc/af_smc.c       |  88 +++++++++++-
+ net/smc/smc_cdc.c      |  59 ++++++--
+ net/smc/smc_cdc.h      |   1 +
+ net/smc/smc_clc.c      |   4 +-
+ net/smc/smc_core.c     |  62 +++++++++
+ net/smc/smc_core.h     |   2 +
+ net/smc/smc_ism.c      |  39 +++++-
+ net/smc/smc_ism.h      |   2 +
+ net/smc/smc_loopback.c | 358 +++++++++++++++++++++++++++++++++++++++++++++++++
+ net/smc/smc_loopback.h |  63 +++++++++
+ 12 files changed, 662 insertions(+), 21 deletions(-)
+ create mode 100644 net/smc/smc_loopback.c
+ create mode 100644 net/smc/smc_loopback.h
+
+-- 
+1.8.3.1
 
