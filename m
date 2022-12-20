@@ -2,95 +2,100 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DC32C4167B
-	for <linux-s390@archiver.kernel.org>; Tue, 20 Dec 2022 15:11:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F3338C4332F
+	for <linux-s390@archiver.kernel.org>; Tue, 20 Dec 2022 15:44:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233069AbiLTPKz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 20 Dec 2022 10:10:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55726 "EHLO
+        id S233943AbiLTPoc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 20 Dec 2022 10:44:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233257AbiLTPKt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Dec 2022 10:10:49 -0500
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C53A62EA;
-        Tue, 20 Dec 2022 07:10:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=FFNeZkVqnyoGozFMwV8suZuO15qmhw0RI08pyhsvplQ=; b=aj3xUuejuA9YH7oE/tMQbHxDrC
-        5p9yKMxF2BMunnN+3aFfpuq4xvQtgL6Mtrf776Ph7v2oiGV9BjVApUkzIjk/WfaM1JFNiL/d3uNFt
-        Cv73DfWGBBk8PaAlwJVSwfYr3hfq3P/tA8V8DL1kjpeeNx7zhonlT8kvfC88Q40rDC5AGMpqylyTa
-        hPk5u9253JZPrw4gklKKy0rEjWbNLpr/vX9MLoGk1h4JsNN6FMYf6ULtZxxqymlZtiTpJmvNfyRE+
-        Vda14xeiFfnUBjl0zdQiemuszxdTFOeh76ZedxboR2+ROwt3pEguOkI7xDP9FcJk8q2/NS7Axhz1z
-        OnVJkmTA==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1p7eFb-001u7k-I3; Tue, 20 Dec 2022 15:09:52 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 3BE3F300193;
-        Tue, 20 Dec 2022 16:09:38 +0100 (CET)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 0457E223694AF; Tue, 20 Dec 2022 16:09:37 +0100 (CET)
-Date:   Tue, 20 Dec 2022 16:09:37 +0100
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Boqun Feng <boqun.feng@gmail.com>, corbet@lwn.net, will@kernel.org,
-        mark.rutland@arm.com, catalin.marinas@arm.com, dennis@kernel.org,
-        tj@kernel.org, cl@linux.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, Herbert Xu <herbert@gondor.apana.org.au>,
-        davem@davemloft.net, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
-        hpa@zytor.com, joro@8bytes.org, suravee.suthikulpanit@amd.com,
-        robin.murphy@arm.com, dwmw2@infradead.org,
-        baolu.lu@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
-        penberg@kernel.org, rientjes@google.com, iamjoonsoo.kim@lge.com,
-        Andrew Morton <akpm@linux-foundation.org>, vbabka@suse.cz,
-        roman.gushchin@linux.dev, 42.hyeyoo@gmail.com,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, linux-s390@vger.kernel.org,
-        linux-crypto@vger.kernel.org, iommu@lists.linux.dev,
-        linux-arch@vger.kernel.org
-Subject: Re: [RFC][PATCH 05/12] arch: Introduce
- arch_{,try_}_cmpxchg128{,_local}()
-Message-ID: <Y6HQMVz041V7NruP@hirez.programming.kicks-ass.net>
-References: <20221219153525.632521981@infradead.org>
- <20221219154119.154045458@infradead.org>
- <Y6DEfQXymYVgL3oJ@boqun-archlinux>
- <Y6GXoO4qmH9OIZ5Q@hirez.programming.kicks-ass.net>
- <CAHk-=wi493ukLwziiqofe=WCSfUU8Qa+LK0mp_GrGWKV3NnTpQ@mail.gmail.com>
+        with ESMTP id S233910AbiLTPoP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Dec 2022 10:44:15 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6174518358
+        for <linux-s390@vger.kernel.org>; Tue, 20 Dec 2022 07:44:13 -0800 (PST)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2BKFg5UM016742
+        for <linux-s390@vger.kernel.org>; Tue, 20 Dec 2022 15:44:13 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=G7hzihla+TaYA4Z0LIAYhwbXJO1D6Q3V12GZkInqOyE=;
+ b=bJaDjBQqF17eKi/2MBm3UcD9Ru3lvRLT/9pG8L3rf5ilVV2mRXHHGIpcbJBgbi7ZbTMW
+ /sUcMXfnPMBOG+KHKiaMCE/HftyyQ7v5jMWdAk+CKxk1YOOw9DjqJhVW8p+UAJyYgELt
+ ISDEVqddPrBmlKcRn6dR/9BQsyVDtWHxvr9vkzWn4NcmFn8rU/fBZs4xE3fvQ1oLCOJZ
+ D1C5c7e1Ua/y2P8RmpYU9gR2R47RP+AoTaqiDwNntssc+zpXT+r/vZutyj5MO9gFPaJI
+ K/qxwouMCB1uvsKV7n7oiYDI3atnh5o35nhK9o/4DZgaFKZzK/BD/2WBDi6AegHN6v9y rA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mkfwu81vu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 20 Dec 2022 15:44:12 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2BKFglRU021062
+        for <linux-s390@vger.kernel.org>; Tue, 20 Dec 2022 15:44:12 GMT
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mkfwu81v5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 20 Dec 2022 15:44:12 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 2BKDFe8M024764;
+        Tue, 20 Dec 2022 15:44:10 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+        by ppma04fra.de.ibm.com (PPS) with ESMTPS id 3mh6yw328b-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 20 Dec 2022 15:44:09 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2BKFi6M730867794
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 20 Dec 2022 15:44:06 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id ED50120049;
+        Tue, 20 Dec 2022 15:44:05 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 921E720040;
+        Tue, 20 Dec 2022 15:44:05 +0000 (GMT)
+Received: from li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com (unknown [9.171.72.32])
+        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Tue, 20 Dec 2022 15:44:05 +0000 (GMT)
+Date:   Tue, 20 Dec 2022 16:44:04 +0100
+From:   Alexander Gordeev <agordeev@linux.ibm.com>
+To:     Nicholas Piggin <npiggin@gmail.com>
+Cc:     Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: Re: [PATCH] s390: remove the last remnants of cputime_t
+Message-ID: <Y6HYRNyeZbzC9AGN@li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com>
+References: <20221006105635.115775-1-npiggin@gmail.com>
+ <yt9dpmf5ywl6.fsf@linux.ibm.com>
+ <CP6FLJIUUT95.3NPVEMSCSRA28@bobo>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAHk-=wi493ukLwziiqofe=WCSfUU8Qa+LK0mp_GrGWKV3NnTpQ@mail.gmail.com>
+In-Reply-To: <CP6FLJIUUT95.3NPVEMSCSRA28@bobo>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: SOhFV0tN3F2qJumMB-_IKkr9Wo5SnkYP
+X-Proofpoint-ORIG-GUID: gRW0E8WdOrGWNvzIyZ5iQLraHHJTDm_k
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-12-20_06,2022-12-20_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
+ adultscore=0 spamscore=0 mlxscore=0 lowpriorityscore=0 bulkscore=0
+ phishscore=0 suspectscore=0 malwarescore=0 priorityscore=1501
+ mlxlogscore=651 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2212200124
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Dec 20, 2022 at 08:31:19AM -0600, Linus Torvalds wrote:
-> On Tue, Dec 20, 2022 at 5:09 AM Peter Zijlstra <peterz@infradead.org> wrote:
+On Tue, Dec 20, 2022 at 04:29:31PM +1000, Nicholas Piggin wrote:
+> > > Sorry this isn't build or compile tested, I'm doing the same for powerpc
+> > > then we can remove the cputime_to_nsecs fallback from core code too.
 > >
-> > On Mon, Dec 19, 2022 at 12:07:25PM -0800, Boqun Feng wrote:
-> > >
-> > > I wonder whether we should use "(*(u128 *)ptr)" instead of "(*(unsigned
-> > > long *) ptr)"? Because compilers may think only 64bit value pointed by
-> > > "ptr" gets modified, and they are allowed to do "useful" optimization.
+> > I just tested this, looks good. Thanks!
 > >
-> > In this I've copied the existing cmpxchg_double() code; I'll have to let
-> > the arch folks speak here, I've no clue.
+> > Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
 > 
-> It does sound like the right thing to do. I doubt it ends up making a
-> difference in practice, but yes, the asm doesn't have a memory
-> clobber, so the input/output types should be the right ones for the
-> compiler to not possibly do something odd and cache the part that it
-> doesn't see as being accessed.
+> Thanks Sven. I think the core code fallback can be removed independently
+> of this s390 change, so it can go via s390 tree in your own good time.
 
-Right, and x86 does just *ptr, without trying to cast away the volatile
-even.
+Applied, thanks!
 
-I've pushed out a *(u128 *)ptr variant for arm64 and s390, then at least
-we'll know if the compiler objects.
+> Thanks,
+> Nick
