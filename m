@@ -1,338 +1,297 @@
-Return-Path: <linux-s390-owner@kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F4B1C4332F
-	for <linux-s390@archiver.kernel.org>; Wed, 21 Dec 2022 13:14:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A6FC8C4332F
+	for <linux-s390@archiver.kernel.org>; Wed, 21 Dec 2022 23:51:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229476AbiLUNOp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 21 Dec 2022 08:14:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58424 "EHLO
+        id S234412AbiLUXvy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 21 Dec 2022 18:51:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229880AbiLUNOo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 21 Dec 2022 08:14:44 -0500
-Received: from out30-57.freemail.mail.aliyun.com (out30-57.freemail.mail.aliyun.com [115.124.30.57])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DD1FF7D;
-        Wed, 21 Dec 2022 05:14:41 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R361e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0VXpWPTh_1671628478;
-Received: from 30.120.179.217(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VXpWPTh_1671628478)
-          by smtp.aliyun-inc.com;
-          Wed, 21 Dec 2022 21:14:39 +0800
-Message-ID: <4a9b0ff0-8f03-1bfd-d09c-6deb3a9bb39e@linux.alibaba.com>
-Date:   Wed, 21 Dec 2022 21:14:35 +0800
+        with ESMTP id S229620AbiLUXvx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 21 Dec 2022 18:51:53 -0500
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE2AF1AF08
+        for <linux-s390@vger.kernel.org>; Wed, 21 Dec 2022 15:51:51 -0800 (PST)
+Received: by mail-pj1-x1035.google.com with SMTP id u5so178106pjy.5
+        for <linux-s390@vger.kernel.org>; Wed, 21 Dec 2022 15:51:51 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=aRolca1xLJYStXB4O+QjEQI7hBejIakh3i9Q1ikiuAU=;
+        b=OwGD5+m2wcB5oZr3QQy4jQh4vye04wDMOltND8p76SrMT+vKiFD6FYB6L03PDrcIWk
+         wJ/QQShugUcQKxUrdAB6BoRTqMWW5TZ/RiQM4DHgAN0p/uBL9bJSbY9a/TivzJ2DLJIr
+         7KxPEPusddga+MyaPsRjLxb3qzj/El+ZGQ8QqrxAhk9WWtQchNYOzaOer7JRKMlOlWYf
+         bY4OZabUVBlIF7KYhvxhRhJSlqIsobu9eXFKDaR/yqHIiKTTOffW2puHpx/yWO237nfw
+         6/2LGqYQ56ON3yJufIpCvnKrE15uq5FdlkLgviTDPZn23sSuoJ/oLIAGUmvs/83qqbNm
+         dtbQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=aRolca1xLJYStXB4O+QjEQI7hBejIakh3i9Q1ikiuAU=;
+        b=CrFgmPXQN7c5YLqyVOreaBorVgkYRzsQ1e60KRnzNcaNS+Bxrd4z4S2vfmNxQet9jU
+         3by2luagVH9kfMBk3cIrAhx3BvQtrM1TUvMfOav6Y3MrAZEcC4t0hHIPkQdhdnwWJupu
+         SolowAVsqNKElJdCfpUVGlTjqz5Cwu3llfB13NeueXN0mecR8SoAmd9/Ju0bWSRNZZPB
+         kxCm/bSebNN5vWBFh6VZVZ0KVEiMncFUpChjSck7E5g7l24UjaP2LOIVKY0+W1pcBbfP
+         MzZc3fHlXaxhFWCKQsLycHjqMxzkLHRLAj7J4N+SbNFTk7Coa0guKC2ju8W9SN+NBaW6
+         wfwg==
+X-Gm-Message-State: AFqh2kr2BewZlP9dvXlXUT1OP7XxoI022JDVS2VuJeGQdpYhIrQSP1VK
+        UN//h3vNFbhM1ZOb4Kc6iHg5Vw==
+X-Google-Smtp-Source: AMrXdXtYlPG/xjTcFb+fb2sHAhxGlovOZc1Z+Aw4PiNu9XnLCiZLq6rvraXNAyFjtQZMpDZerR+EPw==
+X-Received: by 2002:a17:902:d4d1:b0:189:3a04:4466 with SMTP id o17-20020a170902d4d100b001893a044466mr928493plg.2.1671666711203;
+        Wed, 21 Dec 2022 15:51:51 -0800 (PST)
+Received: from google.com (25.11.145.34.bc.googleusercontent.com. [34.145.11.25])
+        by smtp.gmail.com with ESMTPSA id n9-20020a170902d2c900b00176b84eb29asm11994070plc.301.2022.12.21.15.51.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 21 Dec 2022 15:51:50 -0800 (PST)
+Date:   Wed, 21 Dec 2022 23:51:47 +0000
+From:   Fangrui Song <maskray@google.com>
+To:     Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Andy Lutomirski <luto@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Arnd Bergmann <arnd@arndb.de>
+Cc:     "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
+        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
+        "loongarch@lists.linux.dev" <loongarch@lists.linux.dev>,
+        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>
+Subject: [PATCH v2] vdso: Improve cmd_vdso_check to check all dynamic
+ relocations
+Message-ID: <20221221235147.45lkqmosndritfpe@google.com>
+References: <20220830193701.1702962-1-maskray@google.com>
+ <20220910075316.no72fdyqjvunomwm@google.com>
+ <CAFP8O3+OwanSJdzd5V3oGJ_MOJOSVdbn+4iBJJKm2LCR8mCA0Q@mail.gmail.com>
+ <9ce45cd2-dcd8-11f8-e496-7efe3649e241@csgroup.eu>
+ <20221115004625.x4wl6zbg4iiuxl5t@google.com>
+ <CAFP8O3LdSJCChGEwT57e=iZopceYkBFuW9XD=yhO1ZszVZGm4g@mail.gmail.com>
+ <3ec9737e-3d1a-c014-b91a-0e2d406a3b3d@csgroup.eu>
+ <CAFP8O3KZTkSbxXJ2yWt4w-F3xWHY_owCs03wN3Bhss57O-E_JQ@mail.gmail.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.13.1
-Subject: Re: [RFC PATCH net-next v2 0/5] net/smc:Introduce SMC-D based
- loopback acceleration
-To:     Niklas Schnelle <schnelle@linux.ibm.com>, kgraul@linux.ibm.com,
-        wenjia@linux.ibm.com, jaka@linux.ibm.com, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <1671506505-104676-1-git-send-email-guwen@linux.alibaba.com>
- <42f2972f1dfe45a2741482f36fbbda5b5a56d8f1.camel@linux.ibm.com>
-From:   Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <42f2972f1dfe45a2741482f36fbbda5b5a56d8f1.camel@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <CAFP8O3KZTkSbxXJ2yWt4w-F3xWHY_owCs03wN3Bhss57O-E_JQ@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+The actual intention is that no dynamic relocation exists. However, some
+GNU ld ports produce unneeded R_*_NONE. (If a port fails to determine
+the exact .rel[a].dyn size, the trailing zeros become R_*_NONE
+relocations. E.g. ld's powerpc port recently fixed
+https://sourceware.org/bugzilla/show_bug.cgi?id=29540) R_*_NONE are
+generally no-op in the dynamic loaders. So just ignore them.
 
+With the change, we can remove ARCH_REL_TYPE_ABS. ARCH_REL_TYPE_ABS is a
+bit misnomer as ports may check RELAVETIVE/GLOB_DAT/JUMP_SLOT which are
+not called "absolute relocations". (The patch is motivated by the arm64
+port missing R_AARCH64_RELATIVE.)
 
-On 2022/12/20 22:02, Niklas Schnelle wrote:
+Signed-off-by: Fangrui Song <maskray@google.com>
+Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+---
+Change from v1:
+* rebase after 8ac3b5cd3e0521d92f9755e90d140382fc292510 (lib/vdso: use "grep -E" instead of "egrep")
+* change the commit message to mention an example GNU ld bug; no longer say the patch fixes a deprecated egrep use
+---
+  arch/arm/vdso/Makefile            |  3 ---
+  arch/arm64/kernel/vdso/Makefile   |  3 ---
+  arch/arm64/kernel/vdso32/Makefile |  3 ---
+  arch/csky/kernel/vdso/Makefile    |  3 ---
+  arch/loongarch/vdso/Makefile      |  3 ---
+  arch/mips/vdso/Makefile           |  3 ---
+  arch/powerpc/kernel/vdso/Makefile |  1 -
+  arch/riscv/kernel/vdso/Makefile   |  3 ---
+  arch/s390/kernel/vdso32/Makefile  |  2 --
+  arch/s390/kernel/vdso64/Makefile  |  2 --
+  arch/x86/entry/vdso/Makefile      |  4 ----
+  lib/vdso/Makefile                 | 13 ++++---------
+  12 files changed, 4 insertions(+), 39 deletions(-)
 
-> On Tue, 2022-12-20 at 11:21 +0800, Wen Gu wrote:
->> Hi, all
->>
->> # Background
->>
->> As previously mentioned in [1], we (Alibaba Cloud) are trying to use SMC
->> to accelerate TCP applications in cloud environment, improving inter-host
->> or inter-VM communication.
->>
->> In addition of these, we also found the value of SMC-D in scenario of local
->> inter-process communication, such as accelerate communication between containers
->> within the same host. So this RFC tries to provide a SMC-D loopback solution
->> in such scenario, to bring a significant improvement in latency and throughput
->> compared to TCP loopback.
->>
->> # Design
->>
->> This patch set provides a kind of SMC-D loopback solution.
->>
->> Patch #1/5 and #2/5 provide an SMC-D based dummy device, preparing for the
->> inter-process communication acceleration. Except for loopback acceleration,
->> the dummy device can also meet the requirements mentioned in [2], which is
->> providing a way to test SMC-D logic for broad community without ISM device.
->>
->>   +------------------------------------------+
->>   |  +-----------+           +-----------+   |
->>   |  | process A |           | process B |   |
->>   |  +-----------+           +-----------+   |
->>   |       ^                        ^         |
->>   |       |    +---------------+   |         |
->>   |       |    |   SMC stack   |   |         |
->>   |       +--->| +-----------+ |<--|         |
->>   |            | |   dummy   | |             |
->>   |            | |   device  | |             |
->>   |            +-+-----------+-+             |
->>   |                   VM                     |
->>   +------------------------------------------+
->>
->> Patch #3/5, #4/5, #5/5 provides a way to avoid data copy from sndbuf to RMB
->> and improve SMC-D loopback performance. Through extending smcd_ops with two
->> new semantic: attach_dmb and detach_dmb, sender's sndbuf shares the same
->> physical memory region with receiver's RMB. The data copied from userspace
->> to sender's sndbuf directly reaches the receiver's RMB without unnecessary
->> memory copy in the same kernel.
->>
->>   +----------+                     +----------+
->>   | socket A |                     | socket B |
->>   +----------+                     +----------+
->>         |                               ^
->>         |         +---------+           |
->>    regard as      |         | ----------|
->>    local sndbuf   |  B's    |     regard as
->>         |         |  RMB    |     local RMB
->>         |-------> |         |
->>                   +---------+
-> 
-> Hi Wen Gu,
-> 
-> I maintain the s390 specific PCI support in Linux and would like to
-> provide a bit of background on this. You're surely wondering why we
-> even have a copy in there for our ISM virtual PCI device. To understand
-> why this copy operation exists and why we need to keep it working, one
-> needs a bit of s390 aka mainframe background.
-> 
-> On s390 all (currently supported) native machines have a mandatory
-> machine level hypervisor. All OSs whether z/OS or Linux run either on
-> this machine level hypervisor as so called Logical Partitions (LPARs)
-> or as second/third/… level guests on e.g. a KVM or z/VM hypervisor that
-> in turn runs in an LPAR. Now, in terms of memory this machine level
-> hypervisor sometimes called PR/SM unlike KVM, z/VM, or VMWare is a
-> partitioning hypervisor without paging. This is one of the main reasons
-> for the very-near-native performance of the machine hypervisor as the
-> memory of its guests acts just like native RAM on other systems. It is
-> never paged out and always accessible to IOMMU translated DMA from
-> devices without the need for pinning pages and besides a trivial
-> offset/limit adjustment an LPAR's MMU does the same amount of work as
-> an MMU on a bare metal x86_64/ARM64 box.
-> 
-> It also means however that when SMC-D is used to communicate between
-> LPARs via an ISM device there is  no way of mapping the DMBs to the
-> same physical memory as there exists no MMU-like layer spanning
-> partitions that could do such a mapping. Meanwhile for machine level
-> firmware including the ISM virtual PCI device it is still possible to
-> _copy_ memory between different memory partitions. So yeah while I do
-> see the appeal of skipping the memcpy() for loopback or even between
-> guests of a paging hypervisor such as KVM, which can map the DMBs on
-> the same physical memory, we must keep in mind this original use case
-> requiring a copy operation.
-> 
-> Thanks,
-> Niklas
-> 
+diff --git a/arch/arm/vdso/Makefile b/arch/arm/vdso/Makefile
+index a7ec06ce3785..e58197bba776 100644
+--- a/arch/arm/vdso/Makefile
++++ b/arch/arm/vdso/Makefile
+@@ -1,8 +1,5 @@
+  # SPDX-License-Identifier: GPL-2.0
+  
+-# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
+-# the inclusion of generic Makefile.
+-ARCH_REL_TYPE_ABS := R_ARM_JUMP_SLOT|R_ARM_GLOB_DAT|R_ARM_ABS32
+  include $(srctree)/lib/vdso/Makefile
+  
+  hostprogs := vdsomunge
+diff --git a/arch/arm64/kernel/vdso/Makefile b/arch/arm64/kernel/vdso/Makefile
+index beaf9586338f..1f2427b13410 100644
+--- a/arch/arm64/kernel/vdso/Makefile
++++ b/arch/arm64/kernel/vdso/Makefile
+@@ -6,9 +6,6 @@
+  # Heavily based on the vDSO Makefiles for other archs.
+  #
+  
+-# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
+-# the inclusion of generic Makefile.
+-ARCH_REL_TYPE_ABS := R_AARCH64_JUMP_SLOT|R_AARCH64_GLOB_DAT|R_AARCH64_ABS64
+  include $(srctree)/lib/vdso/Makefile
+  
+  obj-vdso := vgettimeofday.o note.o sigreturn.o
+diff --git a/arch/arm64/kernel/vdso32/Makefile b/arch/arm64/kernel/vdso32/Makefile
+index f59bd1a4ead6..d014162c5c71 100644
+--- a/arch/arm64/kernel/vdso32/Makefile
++++ b/arch/arm64/kernel/vdso32/Makefile
+@@ -3,9 +3,6 @@
+  # Makefile for vdso32
+  #
+  
+-# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
+-# the inclusion of generic Makefile.
+-ARCH_REL_TYPE_ABS := R_ARM_JUMP_SLOT|R_ARM_GLOB_DAT|R_ARM_ABS32
+  include $(srctree)/lib/vdso/Makefile
+  
+  # Same as cc-*option, but using CC_COMPAT instead of CC
+diff --git a/arch/csky/kernel/vdso/Makefile b/arch/csky/kernel/vdso/Makefile
+index 0b6909f10667..86c8c4de1b0f 100644
+--- a/arch/csky/kernel/vdso/Makefile
++++ b/arch/csky/kernel/vdso/Makefile
+@@ -1,8 +1,5 @@
+  # SPDX-License-Identifier: GPL-2.0-only
+  
+-# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
+-# the inclusion of generic Makefile.
+-ARCH_REL_TYPE_ABS := R_CKCORE_ADDR32|R_CKCORE_JUMP_SLOT
+  include $(srctree)/lib/vdso/Makefile
+  
+  # Symbols present in the vdso
+diff --git a/arch/loongarch/vdso/Makefile b/arch/loongarch/vdso/Makefile
+index d89e2ac75f7b..1b2e0f149f55 100644
+--- a/arch/loongarch/vdso/Makefile
++++ b/arch/loongarch/vdso/Makefile
+@@ -1,9 +1,6 @@
+  # SPDX-License-Identifier: GPL-2.0
+  # Objects to go into the VDSO.
+  
+-# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
+-# the inclusion of generic Makefile.
+-ARCH_REL_TYPE_ABS := R_LARCH_32|R_LARCH_64|R_LARCH_MARK_LA|R_LARCH_JUMP_SLOT
+  include $(srctree)/lib/vdso/Makefile
+  
+  obj-vdso-y := elf.o vgetcpu.o vgettimeofday.o sigreturn.o
+diff --git a/arch/mips/vdso/Makefile b/arch/mips/vdso/Makefile
+index 1f7d5c6c10b0..c060f3596304 100644
+--- a/arch/mips/vdso/Makefile
++++ b/arch/mips/vdso/Makefile
+@@ -4,9 +4,6 @@
+  # Sanitizer runtimes are unavailable and cannot be linked here.
+   KCSAN_SANITIZE			:= n
+  
+-# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
+-# the inclusion of generic Makefile.
+-ARCH_REL_TYPE_ABS := R_MIPS_JUMP_SLOT|R_MIPS_GLOB_DAT
+  include $(srctree)/lib/vdso/Makefile
+  
+  obj-vdso-y := elf.o vgettimeofday.o sigreturn.o
+diff --git a/arch/powerpc/kernel/vdso/Makefile b/arch/powerpc/kernel/vdso/Makefile
+index 6a977b0d8ffc..83c347e9136f 100644
+--- a/arch/powerpc/kernel/vdso/Makefile
++++ b/arch/powerpc/kernel/vdso/Makefile
+@@ -2,7 +2,6 @@
+  
+  # List of files in the vdso, has to be asm only for now
+  
+-ARCH_REL_TYPE_ABS := R_PPC_JUMP_SLOT|R_PPC_GLOB_DAT|R_PPC_ADDR32|R_PPC_ADDR24|R_PPC_ADDR16|R_PPC_ADDR16_LO|R_PPC_ADDR16_HI|R_PPC_ADDR16_HA|R_PPC_ADDR14|R_PPC_ADDR14_BRTAKEN|R_PPC_ADDR14_BRNTAKEN|R_PPC_REL24
+  include $(srctree)/lib/vdso/Makefile
+  
+  obj-vdso32 = sigtramp32-32.o gettimeofday-32.o datapage-32.o cacheflush-32.o note-32.o getcpu-32.o
+diff --git a/arch/riscv/kernel/vdso/Makefile b/arch/riscv/kernel/vdso/Makefile
+index 06e6b27f3bcc..d85c37e11b21 100644
+--- a/arch/riscv/kernel/vdso/Makefile
++++ b/arch/riscv/kernel/vdso/Makefile
+@@ -1,9 +1,6 @@
+  # SPDX-License-Identifier: GPL-2.0-only
+  # Copied from arch/tile/kernel/vdso/Makefile
+  
+-# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
+-# the inclusion of generic Makefile.
+-ARCH_REL_TYPE_ABS := R_RISCV_32|R_RISCV_64|R_RISCV_JUMP_SLOT
+  include $(srctree)/lib/vdso/Makefile
+  # Symbols present in the vdso
+  vdso-syms  = rt_sigreturn
+diff --git a/arch/s390/kernel/vdso32/Makefile b/arch/s390/kernel/vdso32/Makefile
+index 245bddfe9bc0..e795fdbbf484 100644
+--- a/arch/s390/kernel/vdso32/Makefile
++++ b/arch/s390/kernel/vdso32/Makefile
+@@ -2,8 +2,6 @@
+  # List of files in the vdso
+  
+  KCOV_INSTRUMENT := n
+-ARCH_REL_TYPE_ABS := R_390_COPY|R_390_GLOB_DAT|R_390_JMP_SLOT|R_390_RELATIVE
+-ARCH_REL_TYPE_ABS += R_390_GOT|R_390_PLT
+  
+  include $(srctree)/lib/vdso/Makefile
+  obj-vdso32 = vdso_user_wrapper-32.o note-32.o
+diff --git a/arch/s390/kernel/vdso64/Makefile b/arch/s390/kernel/vdso64/Makefile
+index 9e2b95a222a9..47dbbfdfad68 100644
+--- a/arch/s390/kernel/vdso64/Makefile
++++ b/arch/s390/kernel/vdso64/Makefile
+@@ -2,8 +2,6 @@
+  # List of files in the vdso
+  
+  KCOV_INSTRUMENT := n
+-ARCH_REL_TYPE_ABS := R_390_COPY|R_390_GLOB_DAT|R_390_JMP_SLOT|R_390_RELATIVE
+-ARCH_REL_TYPE_ABS += R_390_GOT|R_390_PLT
+  
+  include $(srctree)/lib/vdso/Makefile
+  obj-vdso64 = vdso_user_wrapper.o note.o
+diff --git a/arch/x86/entry/vdso/Makefile b/arch/x86/entry/vdso/Makefile
+index 838613ac15b8..b292c24acb8e 100644
+--- a/arch/x86/entry/vdso/Makefile
++++ b/arch/x86/entry/vdso/Makefile
+@@ -3,10 +3,6 @@
+  # Building vDSO images for x86.
+  #
+  
+-# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
+-# the inclusion of generic Makefile.
+-ARCH_REL_TYPE_ABS := R_X86_64_JUMP_SLOT|R_X86_64_GLOB_DAT|R_X86_64_RELATIVE|
+-ARCH_REL_TYPE_ABS += R_386_GLOB_DAT|R_386_JMP_SLOT|R_386_RELATIVE
+  include $(srctree)/lib/vdso/Makefile
+  
+  # Sanitizer runtimes are unavailable and cannot be linked here.
+diff --git a/lib/vdso/Makefile b/lib/vdso/Makefile
+index e814061d6aa0..9f031eafc465 100644
+--- a/lib/vdso/Makefile
++++ b/lib/vdso/Makefile
+@@ -5,18 +5,13 @@ GENERIC_VDSO_DIR := $(dir $(GENERIC_VDSO_MK_PATH))
+  
+  c-gettimeofday-$(CONFIG_GENERIC_GETTIMEOFDAY) := $(addprefix $(GENERIC_VDSO_DIR), gettimeofday.c)
+  
+-# This cmd checks that the vdso library does not contain absolute relocation
++# This cmd checks that the vdso library does not contain dynamic relocations.
+  # It has to be called after the linking of the vdso library and requires it
+  # as a parameter.
+  #
+-# $(ARCH_REL_TYPE_ABS) is defined in the arch specific makefile and corresponds
+-# to the absolute relocation types printed by "objdump -R" and accepted by the
+-# dynamic linker.
+-ifndef ARCH_REL_TYPE_ABS
+-$(error ARCH_REL_TYPE_ABS is not set)
+-endif
+-
++# As a workaround for some GNU ld ports which produce unneeded R_*_NONE
++# dynamic relocations, ignore R_*_NONE.
+  quiet_cmd_vdso_check = VDSOCHK $@
+-      cmd_vdso_check = if $(OBJDUMP) -R $@ | grep -E -h "$(ARCH_REL_TYPE_ABS)"; \
++      cmd_vdso_check = if $(READELF) -rW $@ | grep -v _NONE | grep -q " R_\w*_"; \
+  		       then (echo >&2 "$@: dynamic relocations are not supported"; \
+  			     rm -f $@; /bin/false); fi
+-- 
+2.39.0.314.g84b9a713c41-goog
 
-Hi Niklas,
-
-Thank you so much for the complete and detailed explanation! This provides
-me a brand new perspective of s390 device that we hadn't dabbled in before.
-Now I understand why shared memory is unavailable between different LPARs.
-
-Our original intention of proposing loopback device and the incoming device
-(virtio-ism) for inter-VM is to use SMC-D to accelerate communication in the
-case with no existing s390 ISM devices. In our conception, s390 ISM device,
-loopback device and virtio-ism device are parallel and are abstracted by smcd_ops.
-
-  +------------------------+
-  |          SMC-D         |
-  +------------------------+
-  -------- smcd_ops ---------
-  +------+ +------+ +------+
-  | s390 | | loop | |virtio|
-  | ISM  | | back | | -ism |
-  | dev  | | dev  | | dev  |
-  +------+ +------+ +------+
-
-We also believe that keeping the existing design and behavior of s390 ISM
-device is unshaken. What we want to get support for is some smcd_ops extension
-for devices with optional beneficial capability, such as nocopy here (Let's call
-it this for now), which is really helpful for us in inter-process and inter-VM
-scenario.
-
-And coincided with IBM's intention to add APIs between SMC-D and devices to
-support various devices for SMC-D, as mentioned in [2], we send out this RFC and
-the incoming virio-ism RFC, to provide some examples.
-
->>
->> # Benchmark Test
->>
->>   * Test environments:
->>        - VM with Intel Xeon Platinum 8 core 2.50GHz, 16 GiB mem.
->>        - SMC sndbuf/RMB size 1MB.
->>
->>   * Test object:
->>        - TCP: run on TCP loopback.
->>        - domain: run on UNIX domain.
->>        - SMC lo: run on SMC loopback device with patch #1/5 ~ #2/5.
->>        - SMC lo-nocpy: run on SMC loopback device with patch #1/5 ~ #5/5.
->>
->> 1. ipc-benchmark (see [3])
->>
->>   - ./<foo> -c 1000000 -s 100
->>
->>                         TCP              domain              SMC-lo             SMC-lo-nocpy
->> Message
->> rate (msg/s)         75140      129548(+72.41)    152266(+102.64%)         151914(+102.17%)
-> 
-> Interesting that it does beat UNIX domain sockets. Also, see my below
-> comment for nginx/wrk as this seems very similar.
-> 
->>
->> 2. sockperf
->>
->>   - serv: <smc_run> taskset -c <cpu> sockperf sr --tcp
->>   - clnt: <smc_run> taskset -c <cpu> sockperf { tp | pp } --tcp --msg-size={ 64000 for tp | 14 for pp } -i 127.0.0.1 -t 30
->>
->>                         TCP                  SMC-lo             SMC-lo-nocpy
->> Bandwidth(MBps)   4943.359        4936.096(-0.15%)        8239.624(+66.68%)
->> Latency(us)          6.372          3.359(-47.28%)            3.25(-49.00%)
->>
->> 3. iperf3
->>
->>   - serv: <smc_run> taskset -c <cpu> iperf3 -s
->>   - clnt: <smc_run> taskset -c <cpu> iperf3 -c 127.0.0.1 -t 15
->>
->>                         TCP                  SMC-lo             SMC-lo-nocpy
->> Bitrate(Gb/s)         40.5            41.4(+2.22%)            76.4(+88.64%)
->>
->> 4. nginx/wrk
->>
->>   - serv: <smc_run> nginx
->>   - clnt: <smc_run> wrk -t 8 -c 500 -d 30 http://127.0.0.1:80
->>
->>                         TCP                  SMC-lo             SMC-lo-nocpy
->> Requests/s       154643.22      220894.03(+42.84%)        226754.3(+46.63%)
-> 
-> 
-> This result is very interesting indeed. So with the much more realistic
-> nginx/wrk workload it seems to copy hurts much less than the
-> iperf3/sockperf would suggest while SMC-D itself seems to help more.
-> I'd hope that this translates to actual applications as well. Maybe
-> this makes SMC-D based loopback interesting even while keeping the
-> copy, at least until we can come up with a sane way to work a no-copy
-> variant into SMC-D?
-> 
-
-I agree, nginx/wrk workload is much more realistic for many applications.
-
-But we also encounter many other cases similar to sockperf on the cloud, which
-requires high throughput, such as AI training and big data.
-
-So avoidance of copying between DMBs can help these cases a lot :)
-
->>
->>
->> # Discussion
->>
->> 1. API between SMC-D and ISM device
->>
->> As Jan mentioned in [2], IBM are working on placing an API between SMC-D
->> and the ISM device for easier use of different "devices" for SMC-D.
->>
->> So, considering that the introduction of attach_dmb or detach_dmb can
->> effectively avoid data copying from sndbuf to RMB and brings obvious
->> throughput advantages in inter-VM or inter-process scenarios, can the
->> attach/detach semantics be taken into consideration when designing the
->> API to make it a standard ISM device behavior?
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 
-> Due to the reasons explained above this behavior can't be emulated by
-> ISM devices at least not when crossing partitions. Not sure if we can
-> still incorporate it in the API and allow for both copying and
-> remapping SMC-D like devices, it definitely needs careful consideration
-> and I think also a better understanding of the benefit for real world
-> workloads.
-> 
-
-Here I am not rigorous.
-
-Nocopy shouldn't be a standard ISM device behavior indeed. Actually we hope it be a
-standard optional _SMC-D_ device behavior and defined by smcd_ops.
-
-For devices don't support these options, like ISM device on s390 architecture,
-.attach_dmb/.detach_dmb and other reasonable extensions (which will be proposed to
-discuss in incoming virtio-ism RFC) can be set to NULL or return invalid. And for
-devices do support, they may be used for improving performance in some cases.
-
-In addition, can I know more latest news about the API design? :) , like its scale, will
-it be a almost refactor of existing interface or incremental patching? and its object,
-will it be tailored for exact ISM behavior or to reserve some options for other devices,
-like nocopy here? From my understanding of [2], it might be the latter?
-
->>
->> Maybe our RFC of SMC-D based inter-process acceleration (this one) and
->> inter-VM acceleration (will coming soon, which is the update of [1])
->> can provide some examples for new API design. And we are very glad to
->> discuss this on the mail list.
->>
->> 2. Way to select different ISM-like devices
->>
->> With the proposal of SMC-D loopback 'device' (this RFC) and incoming
->> device used for inter-VM acceleration as update of [1], SMC-D has more
->> options to choose from. So we need to consider that how to indicate
->> supported devices, how to determine which one to use, and their priority...
-> 
-> Agree on this part, though it is for the SMC maintainers to decide, I
-> think we would definitely want to be able to use any upcoming inter-VM
-> devices on s390 possibly also in conjunction with ISM devices for
-> communication across partitions.
-> 
-
-Yes, this part needs to be discussed with SMC maintainers. And thank you, we are very glad
-if our devices can be applied on s390 through the efforts.
-
-
-Best Regards,
-Wen Gu
-
->>
->> IMHO, this may require an update of CLC message and negotiation mechanism.
->> Again, we are very glad to discuss this with you on the mailing list.
->>
->> [1] https://lore.kernel.org/netdev/20220720170048.20806-1-tonylu@linux.alibaba.com/
->> [2] https://lore.kernel.org/netdev/35d14144-28f7-6129-d6d3-ba16dae7a646@linux.ibm.com/
->> [3] https://github.com/goldsborough/ipc-bench
->>
->> v1->v2
->>   1. Fix some build WARNINGs complained by kernel test rebot
->>      Reported-by: kernel test robot <lkp@intel.com>
->>   2. Add iperf3 test data.
->>
->> Wen Gu (5):
->>    net/smc: introduce SMC-D loopback device
->>    net/smc: choose loopback device in SMC-D communication
->>    net/smc: add dmb attach and detach interface
->>    net/smc: avoid data copy from sndbuf to peer RMB in SMC-D loopback
->>    net/smc: logic of cursors update in SMC-D loopback connections
->>
->>   include/net/smc.h      |   3 +
->>   net/smc/Makefile       |   2 +-
->>   net/smc/af_smc.c       |  88 +++++++++++-
->>   net/smc/smc_cdc.c      |  59 ++++++--
->>   net/smc/smc_cdc.h      |   1 +
->>   net/smc/smc_clc.c      |   4 +-
->>   net/smc/smc_core.c     |  62 +++++++++
->>   net/smc/smc_core.h     |   2 +
->>   net/smc/smc_ism.c      |  39 +++++-
->>   net/smc/smc_ism.h      |   2 +
->>   net/smc/smc_loopback.c | 358 +++++++++++++++++++++++++++++++++++++++++++++++++
->>   net/smc/smc_loopback.h |  63 +++++++++
->>   12 files changed, 662 insertions(+), 21 deletions(-)
->>   create mode 100644 net/smc/smc_loopback.c
->>   create mode 100644 net/smc/smc_loopback.h
->>
