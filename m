@@ -2,133 +2,130 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 53C60C4332F
-	for <linux-s390@archiver.kernel.org>; Thu, 22 Dec 2022 13:17:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C909C4708D
+	for <linux-s390@archiver.kernel.org>; Thu, 22 Dec 2022 14:15:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235374AbiLVNR2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 22 Dec 2022 08:17:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47658 "EHLO
+        id S235552AbiLVOPA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 22 Dec 2022 09:15:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235372AbiLVNR1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 22 Dec 2022 08:17:27 -0500
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5CA72B247;
-        Thu, 22 Dec 2022 05:17:26 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=2XcHZF1PZLR2wIWpbwHYxjPC+APViKRD8vA3VUxcIvg=; b=KCXj9vIla9OYqKdFn9cR8kvNM7
-        aFCQeC8riSg8V400TR89vezYQDYLiis4eNRLNs8TpTaXaw65hlSoAk1r6vPtZd+exgqLf0ix1mWk/
-        7mD3VAmxpBkRslmasRJRs+fKtYpKnU1ADefum9T6WSCkywkO5VAsLjiapOTmMfHm3hWA+ZnPwbN/x
-        w/QRGrx3Tff9U3N5qrWzRNVImBPIIWUH62fHNh4gOn/lh1uA85Bq4VekD+WTPjngLVS9jAhxdeZUl
-        IsMAPZLgwBX86nVypWOAboNnZASXp2L/Ju1gXccS53q3KAKJFdUiOmNk/uvedjpjQbE+kHWV+JJwu
-        O+7WKnuA==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
-        by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
-        id 1p8LR1-00Dq0t-2q;
-        Thu, 22 Dec 2022 13:16:32 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits))
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id D4E3C30006D;
-        Thu, 22 Dec 2022 14:16:28 +0100 (CET)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 5D8FC2CEAF0FB; Thu, 22 Dec 2022 14:16:28 +0100 (CET)
-Date:   Thu, 22 Dec 2022 14:16:28 +0100
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Boqun Feng <boqun.feng@gmail.com>
-Cc:     torvalds@linux-foundation.org, corbet@lwn.net, will@kernel.org,
-        mark.rutland@arm.com, catalin.marinas@arm.com, dennis@kernel.org,
-        tj@kernel.org, cl@linux.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, Herbert Xu <herbert@gondor.apana.org.au>,
-        davem@davemloft.net, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
-        hpa@zytor.com, joro@8bytes.org, suravee.suthikulpanit@amd.com,
-        robin.murphy@arm.com, dwmw2@infradead.org,
-        baolu.lu@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
-        penberg@kernel.org, rientjes@google.com, iamjoonsoo.kim@lge.com,
-        Andrew Morton <akpm@linux-foundation.org>, vbabka@suse.cz,
-        roman.gushchin@linux.dev, 42.hyeyoo@gmail.com,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, linux-s390@vger.kernel.org,
-        linux-crypto@vger.kernel.org, iommu@lists.linux.dev,
-        linux-arch@vger.kernel.org
-Subject: Re: [RFC][PATCH 05/12] arch: Introduce
- arch_{,try_}_cmpxchg128{,_local}()
-Message-ID: <Y6RYrHV3PK+FwW2p@hirez.programming.kicks-ass.net>
-References: <20221219153525.632521981@infradead.org>
- <20221219154119.154045458@infradead.org>
- <Y6OyAL2epKPHj+tr@boqun-archlinux>
+        with ESMTP id S235497AbiLVOOU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 22 Dec 2022 09:14:20 -0500
+Received: from mail-yw1-f180.google.com (mail-yw1-f180.google.com [209.85.128.180])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0E0530F7E;
+        Thu, 22 Dec 2022 06:12:34 -0800 (PST)
+Received: by mail-yw1-f180.google.com with SMTP id 00721157ae682-417b63464c6so28097417b3.8;
+        Thu, 22 Dec 2022 06:12:34 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=DaSeJ7b4XoTWS2Tt6rTxmu6n/STTyq8+F8PwIAXlFPg=;
+        b=snwQPrziDRvHxYKwMTri99AuykkorHMSGwRWWjC6+ozExMNLXWJ5Rln9GYRJtpHZsl
+         IcKwp9Kyisk+I3BxcTvZDzmL8WzfNI9fcabWHHA1g0Olsrlm5fc2tVouDvlImCPiN6bS
+         uIIRWe1zIuO5ecJM+KnyDtl4GvH4CJuBBEfY2m/8tclpBIWkA7X710HSx8xtTqn66GfC
+         hNKuCh14czT+PfDFRv1T+LERV+P/M7iM0GEpdyWTwV04MhrkY+WKhAaO9rr0PFLNtX9U
+         itnFt2OEMQngcOVwKZmJTeM1svVNJR4fAag8r4palaN+lhoxeBpZGhiOR3jBKkDQDgRx
+         IUBg==
+X-Gm-Message-State: AFqh2koC4Bippk+Xu08JITVMh+VCf98MNEDFJOreN2kGca2NbzSh5DOX
+        J1Ou1NuO82bBC3BdgpK4W7AgSyZgLNCPkg==
+X-Google-Smtp-Source: AMrXdXt6fHpDrv2KsLe47Nfxc/RUhFejpc4iFMyyhA6hT+y9cNFyLJJP3SQ6K1c4OhoPuQbueDLMkA==
+X-Received: by 2002:a05:7500:3107:b0:ea:b360:b46 with SMTP id bg7-20020a057500310700b000eab3600b46mr383884gab.23.1671718353407;
+        Thu, 22 Dec 2022 06:12:33 -0800 (PST)
+Received: from mail-yb1-f180.google.com (mail-yb1-f180.google.com. [209.85.219.180])
+        by smtp.gmail.com with ESMTPSA id u2-20020a37ab02000000b006fc92cf4703sm316216qke.132.2022.12.22.06.12.31
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 22 Dec 2022 06:12:31 -0800 (PST)
+Received: by mail-yb1-f180.google.com with SMTP id c124so2042737ybb.13;
+        Thu, 22 Dec 2022 06:12:31 -0800 (PST)
+X-Received: by 2002:a25:d243:0:b0:702:90b4:2e24 with SMTP id
+ j64-20020a25d243000000b0070290b42e24mr417369ybg.365.1671718351056; Thu, 22
+ Dec 2022 06:12:31 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Y6OyAL2epKPHj+tr@boqun-archlinux>
+References: <20221222114635.1251934-1-andrzej.hajda@intel.com>
+In-Reply-To: <20221222114635.1251934-1-andrzej.hajda@intel.com>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Thu, 22 Dec 2022 15:12:19 +0100
+X-Gmail-Original-Message-ID: <CAMuHMdUE-a6SffG1PH=WfrMx-CNLB9EfUr4qmL_USBP31YGoNg@mail.gmail.com>
+Message-ID: <CAMuHMdUE-a6SffG1PH=WfrMx-CNLB9EfUr4qmL_USBP31YGoNg@mail.gmail.com>
+Subject: Re: [PATCH 00/19] Introduce __xchg, non-atomic xchg
+To:     Andrzej Hajda <andrzej.hajda@intel.com>
+Cc:     linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        linux-xtensa@linux-xtensa.org, intel-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org, Arnd Bergmann <arnd@arndb.de>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        Mark Rutland <mark.rutland@arm.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Dec 21, 2022 at 05:25:20PM -0800, Boqun Feng wrote:
+Hi Andrzej,
 
-> > +#define __CMPXCHG128(name, mb, cl...)					\
-> > +static __always_inline u128						\
-> > +__lse__cmpxchg128##name(volatile u128 *ptr, u128 old, u128 new)		\
-> > +{									\
-> > +	union __u128_halves r, o = { .full = (old) },			\
-> > +			       n = { .full = (new) };			\
-> > +	register unsigned long x0 asm ("x0") = o.low;			\
-> > +	register unsigned long x1 asm ("x1") = o.high;			\
-> > +	register unsigned long x2 asm ("x2") = n.low;			\
-> > +	register unsigned long x3 asm ("x3") = n.high;			\
-> > +	register unsigned long x4 asm ("x4") = (unsigned long)ptr;	\
-> > +									\
-> > +	asm volatile(							\
-> > +	__LSE_PREAMBLE							\
-> > +	"	casp" #mb "\t%[old1], %[old2], %[new1], %[new2], %[v]\n"\
-> > +	: [old1] "+&r" (x0), [old2] "+&r" (x1),				\
-> > +	  [v] "+Q" (*(unsigned long *)ptr)				\
-> > +	: [new1] "r" (x2), [new2] "r" (x3), [ptr] "r" (x4),		\
-> 
-> Issue #1: the line below can be removed, otherwise..
-> 
-> > +	  [oldval1] "r" (r.low), [oldval2] "r" (r.high)			\
-> 
-> warning:
-> 
-> 	./arch/arm64/include/asm/atomic_lse.h: In function '__lse__cmpxchg128_mb':
-> 	./arch/arm64/include/asm/atomic_lse.h:309:27: warning: 'r.<U97b8>.low' is used uninitialized [-Wuninitialized]
-> 	  309 |           [oldval1] "r" (r.low), [oldval2] "r" (r.high)
-> 
-> 
-> > +	: cl);								\
-> > +									\
-> > +	r.low = x0; r.high = x1;					\
-> > +									\
-> > +	return r.full;							\
-> > +}
-> > +
-> > +__CMPXCHG128(   ,   )
-> > +__CMPXCHG128(_mb, al, "memory")
-> > +
-> > +#undef __CMPXCHG128
-> > +
-> >  #endif	/* __ASM_ATOMIC_LSE_H */
-> > --- a/arch/arm64/include/asm/cmpxchg.h
-> > +++ b/arch/arm64/include/asm/cmpxchg.h
-> > @@ -147,6 +147,19 @@ __CMPXCHG_DBL(_mb)
-> >  
-> >  #undef __CMPXCHG_DBL
-> >  
-> > +#define __CMPXCHG128(name)						\
-> > +static inline long __cmpxchg128##name(volatile u128 *ptr,		\
-> 
-> Issue #2: this should be
-> 
-> static inline u128 __cmpxchg128##name(..)
-> 
-> because cmpxchg* needs to return the old value.
+Thanks for your series!
 
-Duh.. fixed both. Pushed out to queue/core/wip-u128. I'll probably
-continue all this in two weeks (yay xmas break!).
+On Thu, Dec 22, 2022 at 12:49 PM Andrzej Hajda <andrzej.hajda@intel.com> wrote:
+> I hope there will be place for such tiny helper in kernel.
+> Quick cocci analyze shows there is probably few thousands places
+> where it could be useful.
+> I am not sure who is good person to review/ack such patches,
+> so I've used my intuition to construct to/cc lists, sorry for mistakes.
+> This is the 2nd approach of the same idea, with comments addressed[0].
+>
+> The helper is tiny and there are advices we can leave without it, so
+> I want to present few arguments why it would be good to have it:
+>
+> 1. Code readability/simplification/number of lines:
+>
+> Real example from drivers/net/ethernet/mellanox/mlx5/core/esw/qos.c:
+> -       previous_min_rate = evport->qos.min_rate;
+> -       evport->qos.min_rate = min_rate;
+> +       previous_min_rate = __xchg(evport->qos.min_rate, min_rate);
+
+Upon closer look, shouldn't that be
+
+    previous_min_rate = __xchg(&evport->qos.min_rate, min_rate);
+
+?
+
+> For sure the code is more compact, and IMHO more readable.
+>
+> 2. Presence of similar helpers in other somehow related languages/libs:
+>
+> a) Rust[1]: 'replace' from std::mem module, there is also 'take'
+>     helper (__xchg(&x, 0)), which is the same as private helper in
+>     i915 - fetch_and_zero, see latest patch.
+> b) C++ [2]: 'exchange' from utility header.
+>
+> If the idea is OK there are still 2 qestions to answer:
+>
+> 1. Name of the helper, __xchg follows kernel conventions,
+>     but for me Rust names are also OK.
+
+Before I realized the missing "&", I wondered how this is different
+from swap(), so naming is important.
+https://elixir.bootlin.com/linux/latest/source/include/linux/minmax.h#L139
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
