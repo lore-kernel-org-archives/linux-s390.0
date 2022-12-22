@@ -2,41 +2,41 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A4CAC001B2
-	for <linux-s390@archiver.kernel.org>; Thu, 22 Dec 2022 11:48:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F3D2C4167B
+	for <linux-s390@archiver.kernel.org>; Thu, 22 Dec 2022 11:48:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235643AbiLVLsf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 22 Dec 2022 06:48:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47916 "EHLO
+        id S235655AbiLVLs4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 22 Dec 2022 06:48:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235557AbiLVLr6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 22 Dec 2022 06:47:58 -0500
+        with ESMTP id S235559AbiLVLsB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 22 Dec 2022 06:48:01 -0500
 Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6A182936D;
-        Thu, 22 Dec 2022 03:47:51 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4EA02A269;
+        Thu, 22 Dec 2022 03:47:55 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1671709672; x=1703245672;
+  t=1671709675; x=1703245675;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=/UDTi8Vls0g/+nnPnB+HCzMyNgpTxrVUoGQF5kbhC34=;
-  b=L/UNgQOY1hkOhED9qCOJYCMyjFWmp8LXn3SHYDDiDxAyy/mGRWM9hf3l
-   2ct3OUk8mIovo1OslQRnV7+8dK9u8A/jcHV2tqkDYrj0fg5FAeq4XTGwF
-   +6cUDasfDV8mWxEmfvcMS0856EVHTMK3ePSNLin7/2aiLlbxVbapF17Tm
-   QFjrNyxaTp3CYWX5Di+cCcR3LIWd4yJtW8NSKcqRd1dvRbDzAvwR3OgcU
-   Zp+uemdcAnoghHGBrXqvDBgW47+E8DhrRi9PfIpgG1ls4NuWrgyyiyBv2
-   mk9Zjk8tBFmKIF3/xSTg2RPnRbQ8sZGf65nFU7HsTNx3zpNhVyVmM9jFG
+  bh=Ny1bXKB2lDS7ORqsLpbz2Aii9/RWYD0L24Yi6PLk6aE=;
+  b=mL5mmHGPzxXtiEbuGu4JfDwqQHiBT8sjfdAQbtFnrhOF5lSjD/uU4ntc
+   njP/60KtF9G4YDcMileACtoFRFNN2S1MOdp7D7yCZCCIDyw6pyQ9nMQCl
+   b44QojejGjDKtzpMHZcMiqa0Laat7WceBH+IReaFFEuLEp2cANV+PZs/d
+   PrCUoRxDN9ZBNTnbn1Edq5lexr7dpt6isxJGBQ8z7FZCVTrJ1+/7AlRxG
+   GISlQdmCiQ6KJqSA2qlQI1pbpL1rKlAO+M1tFS+prPALNLsiFoK7JnSG3
+   8+zylmeS5+t4gv0N8sRNr4Jh3aAGCHN3URl5RI/K3jTPBl1fZi2oRiQ5B
    w==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10568"; a="318804473"
+X-IronPort-AV: E=McAfee;i="6500,9779,10568"; a="318804566"
 X-IronPort-AV: E=Sophos;i="5.96,265,1665471600"; 
-   d="scan'208";a="318804473"
+   d="scan'208";a="318804566"
 Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Dec 2022 03:47:36 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10568"; a="629504368"
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Dec 2022 03:47:54 -0800
+X-IronPort-AV: E=McAfee;i="6500,9779,10568"; a="629504515"
 X-IronPort-AV: E=Sophos;i="5.96,265,1665471600"; 
-   d="scan'208";a="629504368"
+   d="scan'208";a="629504515"
 Received: from lab-ah.igk.intel.com ([10.91.215.196])
-  by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Dec 2022 03:47:30 -0800
+  by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Dec 2022 03:47:48 -0800
 From:   Andrzej Hajda <andrzej.hajda@intel.com>
 To:     linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-snps-arc@lists.infradead.org,
@@ -57,9 +57,9 @@ Cc:     Andrzej Hajda <andrzej.hajda@intel.com>,
         Peter Zijlstra <peterz@infradead.org>,
         Boqun Feng <boqun.feng@gmail.com>,
         Mark Rutland <mark.rutland@arm.com>
-Subject: [PATCH 02/19] arch/arc: rename internal name __xchg to __arch_xchg
-Date:   Thu, 22 Dec 2022 12:46:18 +0100
-Message-Id: <20221222114635.1251934-3-andrzej.hajda@intel.com>
+Subject: [PATCH 05/19] arch/hexagon: rename internal name __xchg to __arch_xchg
+Date:   Thu, 22 Dec 2022 12:46:21 +0100
+Message-Id: <20221222114635.1251934-6-andrzej.hajda@intel.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20221222114635.1251934-1-andrzej.hajda@intel.com>
 References: <20221222114635.1251934-1-andrzej.hajda@intel.com>
@@ -74,31 +74,40 @@ __xchg will be used for non-atomic xchg macro.
 
 Signed-off-by: Andrzej Hajda <andrzej.hajda@intel.com>
 ---
- arch/arc/include/asm/cmpxchg.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/hexagon/include/asm/cmpxchg.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arc/include/asm/cmpxchg.h b/arch/arc/include/asm/cmpxchg.h
-index c5b544a5fe8106..e138fde067dea5 100644
---- a/arch/arc/include/asm/cmpxchg.h
-+++ b/arch/arc/include/asm/cmpxchg.h
-@@ -85,7 +85,7 @@
-  */
- #ifdef CONFIG_ARC_HAS_LLSC
+diff --git a/arch/hexagon/include/asm/cmpxchg.h b/arch/hexagon/include/asm/cmpxchg.h
+index cdb705e1496af8..92dc5e5f836f3b 100644
+--- a/arch/hexagon/include/asm/cmpxchg.h
++++ b/arch/hexagon/include/asm/cmpxchg.h
+@@ -9,7 +9,7 @@
+ #define _ASM_CMPXCHG_H
  
--#define __xchg(ptr, val)						\
-+#define __arch_xchg(ptr, val)						\
- ({									\
- 	__asm__ __volatile__(						\
- 	"	ex  %0, [%1]	\n"	/* set new value */	        \
-@@ -102,7 +102,7 @@
- 									\
- 	switch(sizeof(*(_p_))) {					\
- 	case 4:								\
--		_val_ = __xchg(_p_, _val_);				\
-+		_val_ = __arch_xchg(_p_, _val_);			\
- 		break;							\
- 	default:							\
- 		BUILD_BUG();						\
+ /*
+- * __xchg - atomically exchange a register and a memory location
++ * __arch_xchg - atomically exchange a register and a memory location
+  * @x: value to swap
+  * @ptr: pointer to memory
+  * @size:  size of the value
+@@ -19,7 +19,7 @@
+  * Note:  there was an errata for V2 about .new's and memw_locked.
+  *
+  */
+-static inline unsigned long __xchg(unsigned long x, volatile void *ptr,
++static inline unsigned long __arch_xchg(unsigned long x, volatile void *ptr,
+ 				   int size)
+ {
+ 	unsigned long retval;
+@@ -42,7 +42,7 @@ static inline unsigned long __xchg(unsigned long x, volatile void *ptr,
+  * Atomically swap the contents of a register with memory.  Should be atomic
+  * between multiple CPU's and within interrupts on the same CPU.
+  */
+-#define arch_xchg(ptr, v) ((__typeof__(*(ptr)))__xchg((unsigned long)(v), (ptr), \
++#define arch_xchg(ptr, v) ((__typeof__(*(ptr)))__arch_xchg((unsigned long)(v), (ptr), \
+ 	sizeof(*(ptr))))
+ 
+ /*
 -- 
 2.34.1
 
