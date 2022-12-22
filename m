@@ -2,296 +2,248 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A6FC8C4332F
-	for <linux-s390@archiver.kernel.org>; Wed, 21 Dec 2022 23:51:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 63EDAC10F1B
+	for <linux-s390@archiver.kernel.org>; Thu, 22 Dec 2022 01:21:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234412AbiLUXvy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 21 Dec 2022 18:51:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40354 "EHLO
+        id S234894AbiLVBVj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 21 Dec 2022 20:21:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229620AbiLUXvx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 21 Dec 2022 18:51:53 -0500
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE2AF1AF08
-        for <linux-s390@vger.kernel.org>; Wed, 21 Dec 2022 15:51:51 -0800 (PST)
-Received: by mail-pj1-x1035.google.com with SMTP id u5so178106pjy.5
-        for <linux-s390@vger.kernel.org>; Wed, 21 Dec 2022 15:51:51 -0800 (PST)
+        with ESMTP id S229601AbiLVBVh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 21 Dec 2022 20:21:37 -0500
+Received: from mail-qv1-xf2a.google.com (mail-qv1-xf2a.google.com [IPv6:2607:f8b0:4864:20::f2a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D09E013F79;
+        Wed, 21 Dec 2022 17:21:36 -0800 (PST)
+Received: by mail-qv1-xf2a.google.com with SMTP id mn15so327743qvb.13;
+        Wed, 21 Dec 2022 17:21:36 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
+        d=gmail.com; s=20210112;
         h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=aRolca1xLJYStXB4O+QjEQI7hBejIakh3i9Q1ikiuAU=;
-        b=OwGD5+m2wcB5oZr3QQy4jQh4vye04wDMOltND8p76SrMT+vKiFD6FYB6L03PDrcIWk
-         wJ/QQShugUcQKxUrdAB6BoRTqMWW5TZ/RiQM4DHgAN0p/uBL9bJSbY9a/TivzJ2DLJIr
-         7KxPEPusddga+MyaPsRjLxb3qzj/El+ZGQ8QqrxAhk9WWtQchNYOzaOer7JRKMlOlWYf
-         bY4OZabUVBlIF7KYhvxhRhJSlqIsobu9eXFKDaR/yqHIiKTTOffW2puHpx/yWO237nfw
-         6/2LGqYQ56ON3yJufIpCvnKrE15uq5FdlkLgviTDPZn23sSuoJ/oLIAGUmvs/83qqbNm
-         dtbQ==
+         :subject:cc:to:from:date:feedback-id:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=1vQ+zYR3T/MLmRvx1y4HrhYHCm/YFhPZhfUkcUcESfM=;
+        b=l2fa+q+FEd2XVftJdKunAWsH1HG7S8dBsHb+pyQnkCSX1TXkuXti8JKHEfARmsSWRT
+         xQebS6MZkDhnAZE1A3MSyIEK1eUPZUe1gprb22RcFQ//PuymRzd8BLNOtFAGp/a61FTx
+         57JSoFp9tNTtN1QcKe76hmTtf/9LzGx+KUuDqVsOlyBa3P8Z9dneruz+vGAafZacrKIF
+         5D4qdPPjWSMkoveXI7RPaxRIbWKtRPn50A747wMHhLLoo8U+VfMCok3edYL+wnhGBTCJ
+         v8NDSlV/3lrChQ+UVwl5AoSSDCCE4tVU9WZAvbYyVr00y/GTw1B5kOj7gmspi/N26quY
+         /XKQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=aRolca1xLJYStXB4O+QjEQI7hBejIakh3i9Q1ikiuAU=;
-        b=CrFgmPXQN7c5YLqyVOreaBorVgkYRzsQ1e60KRnzNcaNS+Bxrd4z4S2vfmNxQet9jU
-         3by2luagVH9kfMBk3cIrAhx3BvQtrM1TUvMfOav6Y3MrAZEcC4t0hHIPkQdhdnwWJupu
-         SolowAVsqNKElJdCfpUVGlTjqz5Cwu3llfB13NeueXN0mecR8SoAmd9/Ju0bWSRNZZPB
-         kxCm/bSebNN5vWBFh6VZVZ0KVEiMncFUpChjSck7E5g7l24UjaP2LOIVKY0+W1pcBbfP
-         MzZc3fHlXaxhFWCKQsLycHjqMxzkLHRLAj7J4N+SbNFTk7Coa0guKC2ju8W9SN+NBaW6
-         wfwg==
-X-Gm-Message-State: AFqh2kr2BewZlP9dvXlXUT1OP7XxoI022JDVS2VuJeGQdpYhIrQSP1VK
-        UN//h3vNFbhM1ZOb4Kc6iHg5Vw==
-X-Google-Smtp-Source: AMrXdXtYlPG/xjTcFb+fb2sHAhxGlovOZc1Z+Aw4PiNu9XnLCiZLq6rvraXNAyFjtQZMpDZerR+EPw==
-X-Received: by 2002:a17:902:d4d1:b0:189:3a04:4466 with SMTP id o17-20020a170902d4d100b001893a044466mr928493plg.2.1671666711203;
-        Wed, 21 Dec 2022 15:51:51 -0800 (PST)
-Received: from google.com (25.11.145.34.bc.googleusercontent.com. [34.145.11.25])
-        by smtp.gmail.com with ESMTPSA id n9-20020a170902d2c900b00176b84eb29asm11994070plc.301.2022.12.21.15.51.50
+         :subject:cc:to:from:date:feedback-id:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=1vQ+zYR3T/MLmRvx1y4HrhYHCm/YFhPZhfUkcUcESfM=;
+        b=ND/UE2/JXNEUI2dbIlyjr+6uvgO468uX1HSE31ty6dmzK2iEajgB8OSbC9UrYKhY5B
+         sFtjxhy6lZ4oxKvEArvHXP0/1b7lc+uL2K5cpzzczLFPLSAWEVTZj4C0OTbe+g/5pngu
+         FBX9WligWtHJSHfD4J05anJYiYxNBCt6TULddwWpJU09OergDPLe46Pc/I1p0Lqtto02
+         /IkHUklQlQgQ1LVGhmCM2Mk8yVdF4YyLkVbFzHHLQON/ydq/guQ2P/4GgpgDD9L4h7i7
+         jEay9HiP6V55/NoGe/1+yY0vkhJK5ymJ8ij2822+6FMpHofo0qJZlJQkyjdLeb03IaHs
+         qmQw==
+X-Gm-Message-State: AFqh2krEZcDhWY5NtkbyXM/mE6/cesNt2DUZpl1Fyf7nvq3NMpR0WZro
+        HVoB95PpGvaL1DrWLC8Ss4s=
+X-Google-Smtp-Source: AMrXdXsShUh4L0yNGW8xONTed3Jku8Vj2tplYIwpahvEr5EHAURbNPUd/5CxhDGXUPZFyuLmJTm1qQ==
+X-Received: by 2002:a05:6214:1bcd:b0:4c7:595c:993b with SMTP id m13-20020a0562141bcd00b004c7595c993bmr7380408qvc.40.1671672095984;
+        Wed, 21 Dec 2022 17:21:35 -0800 (PST)
+Received: from auth2-smtp.messagingengine.com (auth2-smtp.messagingengine.com. [66.111.4.228])
+        by smtp.gmail.com with ESMTPSA id x18-20020a05620a259200b006fc2b672950sm11762886qko.37.2022.12.21.17.21.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 Dec 2022 15:51:50 -0800 (PST)
-Date:   Wed, 21 Dec 2022 23:51:47 +0000
-From:   Fangrui Song <maskray@google.com>
-To:     Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Andy Lutomirski <luto@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Arnd Bergmann <arnd@arndb.de>
-Cc:     "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
-        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-        "loongarch@lists.linux.dev" <loongarch@lists.linux.dev>,
-        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>
-Subject: [PATCH v2] vdso: Improve cmd_vdso_check to check all dynamic
- relocations
-Message-ID: <20221221235147.45lkqmosndritfpe@google.com>
-References: <20220830193701.1702962-1-maskray@google.com>
- <20220910075316.no72fdyqjvunomwm@google.com>
- <CAFP8O3+OwanSJdzd5V3oGJ_MOJOSVdbn+4iBJJKm2LCR8mCA0Q@mail.gmail.com>
- <9ce45cd2-dcd8-11f8-e496-7efe3649e241@csgroup.eu>
- <20221115004625.x4wl6zbg4iiuxl5t@google.com>
- <CAFP8O3LdSJCChGEwT57e=iZopceYkBFuW9XD=yhO1ZszVZGm4g@mail.gmail.com>
- <3ec9737e-3d1a-c014-b91a-0e2d406a3b3d@csgroup.eu>
- <CAFP8O3KZTkSbxXJ2yWt4w-F3xWHY_owCs03wN3Bhss57O-E_JQ@mail.gmail.com>
+        Wed, 21 Dec 2022 17:21:35 -0800 (PST)
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailauth.nyi.internal (Postfix) with ESMTP id 53E7F27C0054;
+        Wed, 21 Dec 2022 20:21:34 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute3.internal (MEProxy); Wed, 21 Dec 2022 20:21:34 -0500
+X-ME-Sender: <xms:HLGjY9HklIzv77_Ct9lMRDUUZb6eQZa3yWh170mrFyW89x0jtHNjOA>
+    <xme:HLGjYyVPmxd67lgBprsePVUHyTIbmxYBuswvDpnSE1LaX4Fk0VtZwvRh0xyufIUfo
+    Z4CcOSYLSo3jI-gsA>
+X-ME-Received: <xmr:HLGjY_JIuJnH4DJCOG6szjiAGggRCSJAEb8Iwik3CXE1nqxc07XdZPwLNC4>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrgeelgdefhecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvvefukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpeeuohhquhhn
+    ucfhvghnghcuoegsohhquhhnrdhfvghnghesghhmrghilhdrtghomheqnecuggftrfgrth
+    htvghrnhephfetvdfgtdeukedvkeeiteeiteejieehvdetheduudejvdektdekfeegvddv
+    hedtnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiiigvpe
+    dtnecurfgrrhgrmhepmhgrihhlfhhrohhmpegsohhquhhnodhmvghsmhhtphgruhhthhhp
+    vghrshhonhgrlhhithihqdeiledvgeehtdeigedqudejjeekheehhedvqdgsohhquhhnrd
+    hfvghngheppehgmhgrihhlrdgtohhmsehfihigmhgvrdhnrghmvg
+X-ME-Proxy: <xmx:HLGjYzHn-2QPGDrrRW8mLT94tasGENTscfk3B9t1nA3LK58a-ZZAMw>
+    <xmx:HLGjYzU6ZywxNOeGu02VYyDqSSw-TM6buuzedUbIQ3Dz8ouTDzdx1Q>
+    <xmx:HLGjY-MCAsYWrrwM_UVYF3caK2jVGszAVuVLkzMGsuXrqP9hm8VU4w>
+    <xmx:HrGjY1HNBcK7WC41nwtRf2BlnZ2Rer4p-OxYjeo5j3vOumT9YXfVdghNAUc>
+Feedback-ID: iad51458e:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
+ 21 Dec 2022 20:21:31 -0500 (EST)
+Date:   Wed, 21 Dec 2022 17:21:09 -0800
+From:   Boqun Feng <boqun.feng@gmail.com>
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     torvalds@linux-foundation.org, corbet@lwn.net, will@kernel.org,
+        mark.rutland@arm.com, catalin.marinas@arm.com, dennis@kernel.org,
+        tj@kernel.org, cl@linux.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, Herbert Xu <herbert@gondor.apana.org.au>,
+        davem@davemloft.net, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+        hpa@zytor.com, joro@8bytes.org, suravee.suthikulpanit@amd.com,
+        robin.murphy@arm.com, dwmw2@infradead.org,
+        baolu.lu@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
+        penberg@kernel.org, rientjes@google.com, iamjoonsoo.kim@lge.com,
+        Andrew Morton <akpm@linux-foundation.org>, vbabka@suse.cz,
+        roman.gushchin@linux.dev, 42.hyeyoo@gmail.com,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, linux-s390@vger.kernel.org,
+        linux-crypto@vger.kernel.org, iommu@lists.linux.dev,
+        linux-arch@vger.kernel.org
+Subject: Re: [RFC][PATCH 00/12] Introduce cmpxchg128() -- aka. the demise of
+ cmpxchg_double()
+Message-ID: <Y6OxBW5F/ZF5wocE@boqun-archlinux>
+References: <20221219153525.632521981@infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAFP8O3KZTkSbxXJ2yWt4w-F3xWHY_owCs03wN3Bhss57O-E_JQ@mail.gmail.com>
+In-Reply-To: <20221219153525.632521981@infradead.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The actual intention is that no dynamic relocation exists. However, some
-GNU ld ports produce unneeded R_*_NONE. (If a port fails to determine
-the exact .rel[a].dyn size, the trailing zeros become R_*_NONE
-relocations. E.g. ld's powerpc port recently fixed
-https://sourceware.org/bugzilla/show_bug.cgi?id=29540) R_*_NONE are
-generally no-op in the dynamic loaders. So just ignore them.
+Hi Peter,
 
-With the change, we can remove ARCH_REL_TYPE_ABS. ARCH_REL_TYPE_ABS is a
-bit misnomer as ports may check RELAVETIVE/GLOB_DAT/JUMP_SLOT which are
-not called "absolute relocations". (The patch is motivated by the arm64
-port missing R_AARCH64_RELATIVE.)
+On Mon, Dec 19, 2022 at 04:35:25PM +0100, Peter Zijlstra wrote:
+> Hi,
+> 
+> Since Linus hated on cmpxchg_double(), a few patches to get rid of it, as proposed here:
+> 
+>   https://lkml.kernel.org/r/Y2U3WdU61FvYlpUh@hirez.programming.kicks-ass.net
+> 
+> based on tip/master because Linus' tree is moving a wee bit fast at the moment.
+> 
+> 0day robot is all green for building, very limited testing on arm64/s390
+> for obvious raisins -- I tried to get the asm right, but please, double
+> check.
+> 
 
-Signed-off-by: Fangrui Song <maskray@google.com>
-Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+I added some test cases for cmpxcgh128 APIs, and found two issues. I
+will reply separately in the patches. The test cases themselves are at
+the end, let me know if you want to me to send a proper patch.
+
+Regards,
+Boqun
+
+------------------------------------------------------------>8
+Subject: [PATCH] atomic: Add test cases for cmpxchg128 family
+
+Besides for 32bit and 64bit cmpxchg, we only test via atomic_cmpxchg_*
+APIs, add tests via cmpxchg* APIs while we are at it.
+
+Signed-off-by: Boqun Feng <boqun.feng@gmail.com>
 ---
-Change from v1:
-* rebase after 8ac3b5cd3e0521d92f9755e90d140382fc292510 (lib/vdso: use "grep -E" instead of "egrep")
-* change the commit message to mention an example GNU ld bug; no longer say the patch fixes a deprecated egrep use
----
-  arch/arm/vdso/Makefile            |  3 ---
-  arch/arm64/kernel/vdso/Makefile   |  3 ---
-  arch/arm64/kernel/vdso32/Makefile |  3 ---
-  arch/csky/kernel/vdso/Makefile    |  3 ---
-  arch/loongarch/vdso/Makefile      |  3 ---
-  arch/mips/vdso/Makefile           |  3 ---
-  arch/powerpc/kernel/vdso/Makefile |  1 -
-  arch/riscv/kernel/vdso/Makefile   |  3 ---
-  arch/s390/kernel/vdso32/Makefile  |  2 --
-  arch/s390/kernel/vdso64/Makefile  |  2 --
-  arch/x86/entry/vdso/Makefile      |  4 ----
-  lib/vdso/Makefile                 | 13 ++++---------
-  12 files changed, 4 insertions(+), 39 deletions(-)
+ lib/atomic64_test.c | 41 ++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 40 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/vdso/Makefile b/arch/arm/vdso/Makefile
-index a7ec06ce3785..e58197bba776 100644
---- a/arch/arm/vdso/Makefile
-+++ b/arch/arm/vdso/Makefile
-@@ -1,8 +1,5 @@
-  # SPDX-License-Identifier: GPL-2.0
-  
--# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
--# the inclusion of generic Makefile.
--ARCH_REL_TYPE_ABS := R_ARM_JUMP_SLOT|R_ARM_GLOB_DAT|R_ARM_ABS32
-  include $(srctree)/lib/vdso/Makefile
-  
-  hostprogs := vdsomunge
-diff --git a/arch/arm64/kernel/vdso/Makefile b/arch/arm64/kernel/vdso/Makefile
-index beaf9586338f..1f2427b13410 100644
---- a/arch/arm64/kernel/vdso/Makefile
-+++ b/arch/arm64/kernel/vdso/Makefile
-@@ -6,9 +6,6 @@
-  # Heavily based on the vDSO Makefiles for other archs.
-  #
-  
--# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
--# the inclusion of generic Makefile.
--ARCH_REL_TYPE_ABS := R_AARCH64_JUMP_SLOT|R_AARCH64_GLOB_DAT|R_AARCH64_ABS64
-  include $(srctree)/lib/vdso/Makefile
-  
-  obj-vdso := vgettimeofday.o note.o sigreturn.o
-diff --git a/arch/arm64/kernel/vdso32/Makefile b/arch/arm64/kernel/vdso32/Makefile
-index f59bd1a4ead6..d014162c5c71 100644
---- a/arch/arm64/kernel/vdso32/Makefile
-+++ b/arch/arm64/kernel/vdso32/Makefile
-@@ -3,9 +3,6 @@
-  # Makefile for vdso32
-  #
-  
--# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
--# the inclusion of generic Makefile.
--ARCH_REL_TYPE_ABS := R_ARM_JUMP_SLOT|R_ARM_GLOB_DAT|R_ARM_ABS32
-  include $(srctree)/lib/vdso/Makefile
-  
-  # Same as cc-*option, but using CC_COMPAT instead of CC
-diff --git a/arch/csky/kernel/vdso/Makefile b/arch/csky/kernel/vdso/Makefile
-index 0b6909f10667..86c8c4de1b0f 100644
---- a/arch/csky/kernel/vdso/Makefile
-+++ b/arch/csky/kernel/vdso/Makefile
-@@ -1,8 +1,5 @@
-  # SPDX-License-Identifier: GPL-2.0-only
-  
--# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
--# the inclusion of generic Makefile.
--ARCH_REL_TYPE_ABS := R_CKCORE_ADDR32|R_CKCORE_JUMP_SLOT
-  include $(srctree)/lib/vdso/Makefile
-  
-  # Symbols present in the vdso
-diff --git a/arch/loongarch/vdso/Makefile b/arch/loongarch/vdso/Makefile
-index d89e2ac75f7b..1b2e0f149f55 100644
---- a/arch/loongarch/vdso/Makefile
-+++ b/arch/loongarch/vdso/Makefile
-@@ -1,9 +1,6 @@
-  # SPDX-License-Identifier: GPL-2.0
-  # Objects to go into the VDSO.
-  
--# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
--# the inclusion of generic Makefile.
--ARCH_REL_TYPE_ABS := R_LARCH_32|R_LARCH_64|R_LARCH_MARK_LA|R_LARCH_JUMP_SLOT
-  include $(srctree)/lib/vdso/Makefile
-  
-  obj-vdso-y := elf.o vgetcpu.o vgettimeofday.o sigreturn.o
-diff --git a/arch/mips/vdso/Makefile b/arch/mips/vdso/Makefile
-index 1f7d5c6c10b0..c060f3596304 100644
---- a/arch/mips/vdso/Makefile
-+++ b/arch/mips/vdso/Makefile
-@@ -4,9 +4,6 @@
-  # Sanitizer runtimes are unavailable and cannot be linked here.
-   KCSAN_SANITIZE			:= n
-  
--# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
--# the inclusion of generic Makefile.
--ARCH_REL_TYPE_ABS := R_MIPS_JUMP_SLOT|R_MIPS_GLOB_DAT
-  include $(srctree)/lib/vdso/Makefile
-  
-  obj-vdso-y := elf.o vgettimeofday.o sigreturn.o
-diff --git a/arch/powerpc/kernel/vdso/Makefile b/arch/powerpc/kernel/vdso/Makefile
-index 6a977b0d8ffc..83c347e9136f 100644
---- a/arch/powerpc/kernel/vdso/Makefile
-+++ b/arch/powerpc/kernel/vdso/Makefile
-@@ -2,7 +2,6 @@
-  
-  # List of files in the vdso, has to be asm only for now
-  
--ARCH_REL_TYPE_ABS := R_PPC_JUMP_SLOT|R_PPC_GLOB_DAT|R_PPC_ADDR32|R_PPC_ADDR24|R_PPC_ADDR16|R_PPC_ADDR16_LO|R_PPC_ADDR16_HI|R_PPC_ADDR16_HA|R_PPC_ADDR14|R_PPC_ADDR14_BRTAKEN|R_PPC_ADDR14_BRNTAKEN|R_PPC_REL24
-  include $(srctree)/lib/vdso/Makefile
-  
-  obj-vdso32 = sigtramp32-32.o gettimeofday-32.o datapage-32.o cacheflush-32.o note-32.o getcpu-32.o
-diff --git a/arch/riscv/kernel/vdso/Makefile b/arch/riscv/kernel/vdso/Makefile
-index 06e6b27f3bcc..d85c37e11b21 100644
---- a/arch/riscv/kernel/vdso/Makefile
-+++ b/arch/riscv/kernel/vdso/Makefile
-@@ -1,9 +1,6 @@
-  # SPDX-License-Identifier: GPL-2.0-only
-  # Copied from arch/tile/kernel/vdso/Makefile
-  
--# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
--# the inclusion of generic Makefile.
--ARCH_REL_TYPE_ABS := R_RISCV_32|R_RISCV_64|R_RISCV_JUMP_SLOT
-  include $(srctree)/lib/vdso/Makefile
-  # Symbols present in the vdso
-  vdso-syms  = rt_sigreturn
-diff --git a/arch/s390/kernel/vdso32/Makefile b/arch/s390/kernel/vdso32/Makefile
-index 245bddfe9bc0..e795fdbbf484 100644
---- a/arch/s390/kernel/vdso32/Makefile
-+++ b/arch/s390/kernel/vdso32/Makefile
-@@ -2,8 +2,6 @@
-  # List of files in the vdso
-  
-  KCOV_INSTRUMENT := n
--ARCH_REL_TYPE_ABS := R_390_COPY|R_390_GLOB_DAT|R_390_JMP_SLOT|R_390_RELATIVE
--ARCH_REL_TYPE_ABS += R_390_GOT|R_390_PLT
-  
-  include $(srctree)/lib/vdso/Makefile
-  obj-vdso32 = vdso_user_wrapper-32.o note-32.o
-diff --git a/arch/s390/kernel/vdso64/Makefile b/arch/s390/kernel/vdso64/Makefile
-index 9e2b95a222a9..47dbbfdfad68 100644
---- a/arch/s390/kernel/vdso64/Makefile
-+++ b/arch/s390/kernel/vdso64/Makefile
-@@ -2,8 +2,6 @@
-  # List of files in the vdso
-  
-  KCOV_INSTRUMENT := n
--ARCH_REL_TYPE_ABS := R_390_COPY|R_390_GLOB_DAT|R_390_JMP_SLOT|R_390_RELATIVE
--ARCH_REL_TYPE_ABS += R_390_GOT|R_390_PLT
-  
-  include $(srctree)/lib/vdso/Makefile
-  obj-vdso64 = vdso_user_wrapper.o note.o
-diff --git a/arch/x86/entry/vdso/Makefile b/arch/x86/entry/vdso/Makefile
-index 838613ac15b8..b292c24acb8e 100644
---- a/arch/x86/entry/vdso/Makefile
-+++ b/arch/x86/entry/vdso/Makefile
-@@ -3,10 +3,6 @@
-  # Building vDSO images for x86.
-  #
-  
--# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
--# the inclusion of generic Makefile.
--ARCH_REL_TYPE_ABS := R_X86_64_JUMP_SLOT|R_X86_64_GLOB_DAT|R_X86_64_RELATIVE|
--ARCH_REL_TYPE_ABS += R_386_GLOB_DAT|R_386_JMP_SLOT|R_386_RELATIVE
-  include $(srctree)/lib/vdso/Makefile
-  
-  # Sanitizer runtimes are unavailable and cannot be linked here.
-diff --git a/lib/vdso/Makefile b/lib/vdso/Makefile
-index e814061d6aa0..9f031eafc465 100644
---- a/lib/vdso/Makefile
-+++ b/lib/vdso/Makefile
-@@ -5,18 +5,13 @@ GENERIC_VDSO_DIR := $(dir $(GENERIC_VDSO_MK_PATH))
-  
-  c-gettimeofday-$(CONFIG_GENERIC_GETTIMEOFDAY) := $(addprefix $(GENERIC_VDSO_DIR), gettimeofday.c)
-  
--# This cmd checks that the vdso library does not contain absolute relocation
-+# This cmd checks that the vdso library does not contain dynamic relocations.
-  # It has to be called after the linking of the vdso library and requires it
-  # as a parameter.
-  #
--# $(ARCH_REL_TYPE_ABS) is defined in the arch specific makefile and corresponds
--# to the absolute relocation types printed by "objdump -R" and accepted by the
--# dynamic linker.
--ifndef ARCH_REL_TYPE_ABS
--$(error ARCH_REL_TYPE_ABS is not set)
--endif
--
-+# As a workaround for some GNU ld ports which produce unneeded R_*_NONE
-+# dynamic relocations, ignore R_*_NONE.
-  quiet_cmd_vdso_check = VDSOCHK $@
--      cmd_vdso_check = if $(OBJDUMP) -R $@ | grep -E -h "$(ARCH_REL_TYPE_ABS)"; \
-+      cmd_vdso_check = if $(READELF) -rW $@ | grep -v _NONE | grep -q " R_\w*_"; \
-  		       then (echo >&2 "$@: dynamic relocations are not supported"; \
-  			     rm -f $@; /bin/false); fi
+diff --git a/lib/atomic64_test.c b/lib/atomic64_test.c
+index d9d170238165..7f79d0704ba8 100644
+--- a/lib/atomic64_test.c
++++ b/lib/atomic64_test.c
+@@ -76,12 +76,19 @@ do {								\
+ 	BUG_ON(atomic##bit##_read(&v) != expect);		\
+ } while (0)
+ 
++#define TEST_ARGS_PLAIN(_, op, init, ret, expect, args...)	\
++do {								\
++	__WRITE_ONCE(n, init);					\
++	BUG_ON(op(&n, ##args) != ret);				\
++	BUG_ON(__READ_ONCE(n) != expect);			\
++} while (0)
++
+ #define XCHG_FAMILY_TEST(bit, init, new)				\
+ do {									\
+ 	FAMILY_TEST(TEST_ARGS, bit, xchg, init, init, new, new);	\
+ } while (0)
+ 
+-#define CMPXCHG_FAMILY_TEST(bit, init, new, wrong)			\
++#define ATOMIC_CMPXCHG_FAMILY_TEST(bit, init, new, wrong)		\
+ do {									\
+ 	FAMILY_TEST(TEST_ARGS, bit, cmpxchg, 				\
+ 			init, init, new, init, new);			\
+@@ -89,6 +96,14 @@ do {									\
+ 			init, init, init, wrong, new);			\
+ } while (0)
+ 
++#define CMPXCHG_FAMILY_TEST(bit, init, new, wrong)			\
++do {									\
++	FAMILY_TEST(TEST_ARGS_PLAIN, _, cmpxchg##bit, 			\
++			init, init, new, init, new);			\
++	FAMILY_TEST(TEST_ARGS_PLAIN, _, cmpxchg##bit,			\
++			init, init, init, wrong, new);			\
++} while (0)
++
+ #define INC_RETURN_FAMILY_TEST(bit, i)			\
+ do {							\
+ 	FAMILY_TEST(TEST_ARGS, bit, inc_return,		\
+@@ -109,6 +124,7 @@ static __init void test_atomic(void)
+ 	int one = 1;
+ 
+ 	atomic_t v;
++	int n;
+ 	int r;
+ 
+ 	TEST(, add, +=, onestwos);
+@@ -139,6 +155,7 @@ static __init void test_atomic(void)
+ 	DEC_RETURN_FAMILY_TEST(, v0);
+ 
+ 	XCHG_FAMILY_TEST(, v0, v1);
++	ATOMIC_CMPXCHG_FAMILY_TEST(, v0, v1, onestwos);
+ 	CMPXCHG_FAMILY_TEST(, v0, v1, onestwos);
+ 
+ }
+@@ -155,6 +172,7 @@ static __init void test_atomic64(void)
+ 	int r_int;
+ 
+ 	atomic64_t v = ATOMIC64_INIT(v0);
++	long long n = 0;
+ 	long long r = v0;
+ 	BUG_ON(v.counter != r);
+ 
+@@ -201,6 +219,7 @@ static __init void test_atomic64(void)
+ 	DEC_RETURN_FAMILY_TEST(64, v0);
+ 
+ 	XCHG_FAMILY_TEST(64, v0, v1);
++	ATOMIC_CMPXCHG_FAMILY_TEST(64, v0, v1, v2);
+ 	CMPXCHG_FAMILY_TEST(64, v0, v1, v2);
+ 
+ 	INIT(v0);
+@@ -245,10 +264,30 @@ static __init void test_atomic64(void)
+ 	BUG_ON(!r_int);
+ }
+ 
++#ifdef system_has_cmpxchg128
++static __init void test_atomic128(void)
++{
++	long long v0 = 0xaaa31337c001d00dLL;
++	long long v1 = 0xdeadbeefdeafcafeLL;
++	long long v2 = 0xfaceabadf00df001LL;
++	long long v3 = 0x8000000000000000LL;
++
++	s128 init = ((s128)v0 << 64) + v1;
++	s128 new = ((s128)v1 << 64) + v0;
++	s128 wrong = ((s128)v2 << 64) + v3;
++	s128 n = 1;
++
++	CMPXCHG_FAMILY_TEST(128, init, new, wrong);
++}
++#else
++static __init void test_atomic128(void) {}
++#endif
++
+ static __init int test_atomics_init(void)
+ {
+ 	test_atomic();
+ 	test_atomic64();
++	test_atomic128();
+ 
+ #ifdef CONFIG_X86
+ 	pr_info("passed for %s platform %s CX8 and %s SSE\n",
 -- 
-2.39.0.314.g84b9a713c41-goog
+2.38.1
 
