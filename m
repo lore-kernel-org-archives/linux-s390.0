@@ -2,124 +2,133 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9FF3FC4332F
-	for <linux-s390@archiver.kernel.org>; Thu, 22 Dec 2022 12:47:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 53C60C4332F
+	for <linux-s390@archiver.kernel.org>; Thu, 22 Dec 2022 13:17:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235143AbiLVMry (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 22 Dec 2022 07:47:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37714 "EHLO
+        id S235374AbiLVNR2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 22 Dec 2022 08:17:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230134AbiLVMrx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 22 Dec 2022 07:47:53 -0500
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41D9E22B;
-        Thu, 22 Dec 2022 04:47:52 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1671713272; x=1703249272;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=UPM8RDFaM30ZmFrIb8CKMZ1JANhWUp662jbH45qLr6M=;
-  b=U7Ti5gM7uX2hSBxzWafGGZSDBcDqjumI2csrgPUV3Gmaxw1BNaf3z8Ro
-   FF6neieM8V/SA6HrQxhmet6cGsg8V1Pn4Ot+4KX3fglxDxDH1pnW3PVoK
-   9YZRCSIZn28az1kCO6XUr5BdCTW0FvwIqD4SViceQ6X0gdg6zF7f5QLxR
-   /Bo00h41XDF2crkrb9MNAQZgCN8wXjmgNq51blBh7KNfBIdJYH2/+Rvm3
-   /zv4/jpzOePRSdt+y2oFm4ceGTgMmphSDzSce147uOX4vF6brBHpliEaY
-   BbIViYm6PVSbzGpAKVyuCm0/IWoVcd4nQbwgISsWEK4Ox8GcXvIGwMOIB
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10568"; a="322031547"
-X-IronPort-AV: E=Sophos;i="5.96,265,1665471600"; 
-   d="scan'208";a="322031547"
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Dec 2022 04:47:51 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10568"; a="897213732"
-X-IronPort-AV: E=Sophos;i="5.96,265,1665471600"; 
-   d="scan'208";a="897213732"
-Received: from smile.fi.intel.com ([10.237.72.54])
-  by fmsmga006.fm.intel.com with ESMTP; 22 Dec 2022 04:47:45 -0800
-Received: from andy by smile.fi.intel.com with local (Exim 4.96)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1p8Kz8-00Duf4-1e;
-        Thu, 22 Dec 2022 14:47:42 +0200
-Date:   Thu, 22 Dec 2022 14:47:42 +0200
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Andrzej Hajda <andrzej.hajda@intel.com>
-Cc:     linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-xtensa@linux-xtensa.org, intel-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org, Arnd Bergmann <arnd@arndb.de>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Mark Rutland <mark.rutland@arm.com>
-Subject: Re: [PATCH 18/19] linux/include: add non-atomic version of xchg
-Message-ID: <Y6RR7hPZUN22ytap@smile.fi.intel.com>
-References: <20221222114635.1251934-1-andrzej.hajda@intel.com>
- <20221222114635.1251934-19-andrzej.hajda@intel.com>
+        with ESMTP id S235372AbiLVNR1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 22 Dec 2022 08:17:27 -0500
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5CA72B247;
+        Thu, 22 Dec 2022 05:17:26 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=2XcHZF1PZLR2wIWpbwHYxjPC+APViKRD8vA3VUxcIvg=; b=KCXj9vIla9OYqKdFn9cR8kvNM7
+        aFCQeC8riSg8V400TR89vezYQDYLiis4eNRLNs8TpTaXaw65hlSoAk1r6vPtZd+exgqLf0ix1mWk/
+        7mD3VAmxpBkRslmasRJRs+fKtYpKnU1ADefum9T6WSCkywkO5VAsLjiapOTmMfHm3hWA+ZnPwbN/x
+        w/QRGrx3Tff9U3N5qrWzRNVImBPIIWUH62fHNh4gOn/lh1uA85Bq4VekD+WTPjngLVS9jAhxdeZUl
+        IsMAPZLgwBX86nVypWOAboNnZASXp2L/Ju1gXccS53q3KAKJFdUiOmNk/uvedjpjQbE+kHWV+JJwu
+        O+7WKnuA==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
+        by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
+        id 1p8LR1-00Dq0t-2q;
+        Thu, 22 Dec 2022 13:16:32 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits))
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id D4E3C30006D;
+        Thu, 22 Dec 2022 14:16:28 +0100 (CET)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 5D8FC2CEAF0FB; Thu, 22 Dec 2022 14:16:28 +0100 (CET)
+Date:   Thu, 22 Dec 2022 14:16:28 +0100
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Boqun Feng <boqun.feng@gmail.com>
+Cc:     torvalds@linux-foundation.org, corbet@lwn.net, will@kernel.org,
+        mark.rutland@arm.com, catalin.marinas@arm.com, dennis@kernel.org,
+        tj@kernel.org, cl@linux.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, Herbert Xu <herbert@gondor.apana.org.au>,
+        davem@davemloft.net, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+        hpa@zytor.com, joro@8bytes.org, suravee.suthikulpanit@amd.com,
+        robin.murphy@arm.com, dwmw2@infradead.org,
+        baolu.lu@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
+        penberg@kernel.org, rientjes@google.com, iamjoonsoo.kim@lge.com,
+        Andrew Morton <akpm@linux-foundation.org>, vbabka@suse.cz,
+        roman.gushchin@linux.dev, 42.hyeyoo@gmail.com,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, linux-s390@vger.kernel.org,
+        linux-crypto@vger.kernel.org, iommu@lists.linux.dev,
+        linux-arch@vger.kernel.org
+Subject: Re: [RFC][PATCH 05/12] arch: Introduce
+ arch_{,try_}_cmpxchg128{,_local}()
+Message-ID: <Y6RYrHV3PK+FwW2p@hirez.programming.kicks-ass.net>
+References: <20221219153525.632521981@infradead.org>
+ <20221219154119.154045458@infradead.org>
+ <Y6OyAL2epKPHj+tr@boqun-archlinux>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221222114635.1251934-19-andrzej.hajda@intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+In-Reply-To: <Y6OyAL2epKPHj+tr@boqun-archlinux>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Dec 22, 2022 at 12:46:34PM +0100, Andrzej Hajda wrote:
-> The pattern of setting variable with new value and returning old
-> one is very common in kernel. Usually atomicity of the operation
-> is not required, so xchg seems to be suboptimal and confusing in
-> such cases.
+On Wed, Dec 21, 2022 at 05:25:20PM -0800, Boqun Feng wrote:
 
-FWIW,
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-
-> Signed-off-by: Andrzej Hajda <andrzej.hajda@intel.com>
-> ---
->  include/linux/non-atomic/xchg.h | 19 +++++++++++++++++++
->  1 file changed, 19 insertions(+)
->  create mode 100644 include/linux/non-atomic/xchg.h
+> > +#define __CMPXCHG128(name, mb, cl...)					\
+> > +static __always_inline u128						\
+> > +__lse__cmpxchg128##name(volatile u128 *ptr, u128 old, u128 new)		\
+> > +{									\
+> > +	union __u128_halves r, o = { .full = (old) },			\
+> > +			       n = { .full = (new) };			\
+> > +	register unsigned long x0 asm ("x0") = o.low;			\
+> > +	register unsigned long x1 asm ("x1") = o.high;			\
+> > +	register unsigned long x2 asm ("x2") = n.low;			\
+> > +	register unsigned long x3 asm ("x3") = n.high;			\
+> > +	register unsigned long x4 asm ("x4") = (unsigned long)ptr;	\
+> > +									\
+> > +	asm volatile(							\
+> > +	__LSE_PREAMBLE							\
+> > +	"	casp" #mb "\t%[old1], %[old2], %[new1], %[new2], %[v]\n"\
+> > +	: [old1] "+&r" (x0), [old2] "+&r" (x1),				\
+> > +	  [v] "+Q" (*(unsigned long *)ptr)				\
+> > +	: [new1] "r" (x2), [new2] "r" (x3), [ptr] "r" (x4),		\
 > 
-> diff --git a/include/linux/non-atomic/xchg.h b/include/linux/non-atomic/xchg.h
-> new file mode 100644
-> index 00000000000000..f7fa5dd746f37d
-> --- /dev/null
-> +++ b/include/linux/non-atomic/xchg.h
-> @@ -0,0 +1,19 @@
-> +/* SPDX-License-Identifier: GPL-2.0 */
-> +#ifndef _LINUX_NON_ATOMIC_XCHG_H
-> +#define _LINUX_NON_ATOMIC_XCHG_H
-> +
-> +/**
-> + * __xchg - set variable pointed by @ptr to @val, return old value
-> + * @ptr: pointer to affected variable
-> + * @val: value to be written
-> + *
-> + * This is non-atomic variant of xchg.
-> + */
-> +#define __xchg(ptr, val) ({		\
-> +	__auto_type __ptr = ptr;	\
-> +	__auto_type __t = *__ptr;	\
-> +	*__ptr = (val);			\
-> +	__t;				\
-> +})
-> +
-> +#endif
-> -- 
-> 2.34.1
+> Issue #1: the line below can be removed, otherwise..
 > 
+> > +	  [oldval1] "r" (r.low), [oldval2] "r" (r.high)			\
+> 
+> warning:
+> 
+> 	./arch/arm64/include/asm/atomic_lse.h: In function '__lse__cmpxchg128_mb':
+> 	./arch/arm64/include/asm/atomic_lse.h:309:27: warning: 'r.<U97b8>.low' is used uninitialized [-Wuninitialized]
+> 	  309 |           [oldval1] "r" (r.low), [oldval2] "r" (r.high)
+> 
+> 
+> > +	: cl);								\
+> > +									\
+> > +	r.low = x0; r.high = x1;					\
+> > +									\
+> > +	return r.full;							\
+> > +}
+> > +
+> > +__CMPXCHG128(   ,   )
+> > +__CMPXCHG128(_mb, al, "memory")
+> > +
+> > +#undef __CMPXCHG128
+> > +
+> >  #endif	/* __ASM_ATOMIC_LSE_H */
+> > --- a/arch/arm64/include/asm/cmpxchg.h
+> > +++ b/arch/arm64/include/asm/cmpxchg.h
+> > @@ -147,6 +147,19 @@ __CMPXCHG_DBL(_mb)
+> >  
+> >  #undef __CMPXCHG_DBL
+> >  
+> > +#define __CMPXCHG128(name)						\
+> > +static inline long __cmpxchg128##name(volatile u128 *ptr,		\
+> 
+> Issue #2: this should be
+> 
+> static inline u128 __cmpxchg128##name(..)
+> 
+> because cmpxchg* needs to return the old value.
 
--- 
-With Best Regards,
-Andy Shevchenko
-
-
+Duh.. fixed both. Pushed out to queue/core/wip-u128. I'll probably
+continue all this in two weeks (yay xmas break!).
