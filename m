@@ -2,172 +2,124 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 599E3C4332F
-	for <linux-s390@archiver.kernel.org>; Thu, 22 Dec 2022 12:33:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9FF3FC4332F
+	for <linux-s390@archiver.kernel.org>; Thu, 22 Dec 2022 12:47:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235432AbiLVMdG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 22 Dec 2022 07:33:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55026 "EHLO
+        id S235143AbiLVMry (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 22 Dec 2022 07:47:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235542AbiLVMdA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 22 Dec 2022 07:33:00 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1694F25EB9;
-        Thu, 22 Dec 2022 04:32:50 -0800 (PST)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2BMCFHvE025679;
-        Thu, 22 Dec 2022 12:32:49 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=2Ud7qlUcdnoe8KhA2+Hd9TL+vFSLoW/2hQIjB8zlhco=;
- b=DIxAS70DDeNC2o9rYvyGkVlIbe9AP60vixNvQlykBJsDbbp4X6KBa2w+ABgq/jPWswgL
- dy6N8XGuOufxZQjJPx0eLabyHu9VAN1KkKAoYMjok/EXt+GyQ3eLXISzO2vTgKP5zXVW
- 2HIvnK62RWsKRn9upUSqQc/RAAreCIn3R/kdK1zNM3JCyS6/a26Ray8G5lStu1qa5LlI
- mHyQDtRl5GANY98N7FRTbIQGBeaG1wDV+2fKwXhhdCfSRLcJQFlF81Jy7wj53iZU0IOO
- cLUQPl6tdolOt8rsHQR5TD61Xibn/u0YJsHqHI3QHzgsUYY3z8o8RmufAu2dbG51an1b VA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mmq2t8cs2-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 22 Dec 2022 12:32:49 +0000
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2BMCLtvB019064;
-        Thu, 22 Dec 2022 12:32:48 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mmq2t8cq7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 22 Dec 2022 12:32:48 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 2BM2j3jR027376;
-        Thu, 22 Dec 2022 12:32:46 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3mh6ywq268-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 22 Dec 2022 12:32:46 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2BMCWhKq52429198
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 22 Dec 2022 12:32:43 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EB50720040;
-        Thu, 22 Dec 2022 12:32:42 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A2E6F20049;
-        Thu, 22 Dec 2022 12:32:42 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Thu, 22 Dec 2022 12:32:42 +0000 (GMT)
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Alex Williamson <alex.williamson@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>
-Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        =?UTF-8?q?Christian=20Borntr=C3=A4ger?= <borntraeger@linux.ibm.com>,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] vfio/type1: Respect IOMMU reserved regions in vfio_test_domain_fgsp()
-Date:   Thu, 22 Dec 2022 13:32:42 +0100
-Message-Id: <20221222123242.1598848-1-schnelle@linux.ibm.com>
-X-Mailer: git-send-email 2.34.1
+        with ESMTP id S230134AbiLVMrx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 22 Dec 2022 07:47:53 -0500
+Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41D9E22B;
+        Thu, 22 Dec 2022 04:47:52 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1671713272; x=1703249272;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=UPM8RDFaM30ZmFrIb8CKMZ1JANhWUp662jbH45qLr6M=;
+  b=U7Ti5gM7uX2hSBxzWafGGZSDBcDqjumI2csrgPUV3Gmaxw1BNaf3z8Ro
+   FF6neieM8V/SA6HrQxhmet6cGsg8V1Pn4Ot+4KX3fglxDxDH1pnW3PVoK
+   9YZRCSIZn28az1kCO6XUr5BdCTW0FvwIqD4SViceQ6X0gdg6zF7f5QLxR
+   /Bo00h41XDF2crkrb9MNAQZgCN8wXjmgNq51blBh7KNfBIdJYH2/+Rvm3
+   /zv4/jpzOePRSdt+y2oFm4ceGTgMmphSDzSce147uOX4vF6brBHpliEaY
+   BbIViYm6PVSbzGpAKVyuCm0/IWoVcd4nQbwgISsWEK4Ox8GcXvIGwMOIB
+   A==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10568"; a="322031547"
+X-IronPort-AV: E=Sophos;i="5.96,265,1665471600"; 
+   d="scan'208";a="322031547"
+Received: from fmsmga006.fm.intel.com ([10.253.24.20])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Dec 2022 04:47:51 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10568"; a="897213732"
+X-IronPort-AV: E=Sophos;i="5.96,265,1665471600"; 
+   d="scan'208";a="897213732"
+Received: from smile.fi.intel.com ([10.237.72.54])
+  by fmsmga006.fm.intel.com with ESMTP; 22 Dec 2022 04:47:45 -0800
+Received: from andy by smile.fi.intel.com with local (Exim 4.96)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1p8Kz8-00Duf4-1e;
+        Thu, 22 Dec 2022 14:47:42 +0200
+Date:   Thu, 22 Dec 2022 14:47:42 +0200
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Andrzej Hajda <andrzej.hajda@intel.com>
+Cc:     linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        linux-xtensa@linux-xtensa.org, intel-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org, Arnd Bergmann <arnd@arndb.de>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        Mark Rutland <mark.rutland@arm.com>
+Subject: Re: [PATCH 18/19] linux/include: add non-atomic version of xchg
+Message-ID: <Y6RR7hPZUN22ytap@smile.fi.intel.com>
+References: <20221222114635.1251934-1-andrzej.hajda@intel.com>
+ <20221222114635.1251934-19-andrzej.hajda@intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: GxQMyUlwK-kb4nWNrV1hL-BuInFrstTt
-X-Proofpoint-ORIG-GUID: X-Vh0qEZCrKQc7pK-0xInN1iuH8WTD8z
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-12-22_06,2022-12-22_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- malwarescore=0 impostorscore=0 priorityscore=1501 phishscore=0 spamscore=0
- mlxscore=0 bulkscore=0 mlxlogscore=961 clxscore=1011 adultscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2212220100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221222114635.1251934-19-andrzej.hajda@intel.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Since commit cbf7827bc5dc ("iommu/s390: Fix potential s390_domain
-aperture shrinking") the s390 IOMMU driver uses a reserved region
-instead of an artificially shrunk aperture to restrict IOMMU use based
-on the system provided DMA ranges of devices. In particular on current
-machines this prevents use of DMA addresses below 2^32 for all devices.
-While usually just IOMMU mapping below these addresses is
-harmless. However our virtual ISM PCI device looks at new mappings on
-IOTLB flush and immediately goes into the error state if such a mapping
-violates its allowed DMA ranges. This then breaks pass-through of the
-ISM device to a KVM guest.
+On Thu, Dec 22, 2022 at 12:46:34PM +0100, Andrzej Hajda wrote:
+> The pattern of setting variable with new value and returning old
+> one is very common in kernel. Usually atomicity of the operation
+> is not required, so xchg seems to be suboptimal and confusing in
+> such cases.
 
-Analysing this we found that vfio_test_domain_fgsp() maps 2 pages at DMA
-address 0 irrespective of the IOMMUs reserved regions. Even if usually
-harmless this seems wrong in the general case so instead go through the
-freshly updated IOVA list and try to find a range that isn't reserved
-and fits 2 pages and use that for testing for fine grained super pages.
+FWIW,
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Fixes: 6fe1010d6d9c ("vfio/type1: DMA unmap chunking")
-Reported-by: Matthew Rosato <mjrosato@linux.ibm.com>
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
----
-- Testing: I tested this based on current master on both on s390 where it skips
-  the reserved 0x0-0x100000000 range and on AMD Vi where it continues to do the
-  test on DMA address 0 and sets domain->fgsp to true.
+> Signed-off-by: Andrzej Hajda <andrzej.hajda@intel.com>
+> ---
+>  include/linux/non-atomic/xchg.h | 19 +++++++++++++++++++
+>  1 file changed, 19 insertions(+)
+>  create mode 100644 include/linux/non-atomic/xchg.h
+> 
+> diff --git a/include/linux/non-atomic/xchg.h b/include/linux/non-atomic/xchg.h
+> new file mode 100644
+> index 00000000000000..f7fa5dd746f37d
+> --- /dev/null
+> +++ b/include/linux/non-atomic/xchg.h
+> @@ -0,0 +1,19 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +#ifndef _LINUX_NON_ATOMIC_XCHG_H
+> +#define _LINUX_NON_ATOMIC_XCHG_H
+> +
+> +/**
+> + * __xchg - set variable pointed by @ptr to @val, return old value
+> + * @ptr: pointer to affected variable
+> + * @val: value to be written
+> + *
+> + * This is non-atomic variant of xchg.
+> + */
+> +#define __xchg(ptr, val) ({		\
+> +	__auto_type __ptr = ptr;	\
+> +	__auto_type __t = *__ptr;	\
+> +	*__ptr = (val);			\
+> +	__t;				\
+> +})
+> +
+> +#endif
+> -- 
+> 2.34.1
+> 
 
- drivers/vfio/vfio_iommu_type1.c | 29 ++++++++++++++++++-----------
- 1 file changed, 18 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/vfio/vfio_iommu_type1.c b/drivers/vfio/vfio_iommu_type1.c
-index 23c24fe98c00..9395097897b8 100644
---- a/drivers/vfio/vfio_iommu_type1.c
-+++ b/drivers/vfio/vfio_iommu_type1.c
-@@ -1856,24 +1856,31 @@ static int vfio_iommu_replay(struct vfio_iommu *iommu,
-  * significantly boosts non-hugetlbfs mappings and doesn't seem to hurt when
-  * hugetlbfs is in use.
-  */
--static void vfio_test_domain_fgsp(struct vfio_domain *domain)
-+static void vfio_test_domain_fgsp(struct vfio_domain *domain, struct list_head *regions)
- {
--	struct page *pages;
- 	int ret, order = get_order(PAGE_SIZE * 2);
-+	struct vfio_iova *region;
-+	struct page *pages;
- 
- 	pages = alloc_pages(GFP_KERNEL | __GFP_ZERO, order);
- 	if (!pages)
- 		return;
- 
--	ret = iommu_map(domain->domain, 0, page_to_phys(pages), PAGE_SIZE * 2,
--			IOMMU_READ | IOMMU_WRITE | IOMMU_CACHE);
--	if (!ret) {
--		size_t unmapped = iommu_unmap(domain->domain, 0, PAGE_SIZE);
-+	list_for_each_entry(region, regions, list) {
-+		if (region->end - region->start < PAGE_SIZE * 2)
-+			continue;
- 
--		if (unmapped == PAGE_SIZE)
--			iommu_unmap(domain->domain, PAGE_SIZE, PAGE_SIZE);
--		else
--			domain->fgsp = true;
-+		ret = iommu_map(domain->domain, region->start, page_to_phys(pages), PAGE_SIZE * 2,
-+				IOMMU_READ | IOMMU_WRITE | IOMMU_CACHE);
-+		if (!ret) {
-+			size_t unmapped = iommu_unmap(domain->domain, region->start, PAGE_SIZE);
-+
-+			if (unmapped == PAGE_SIZE)
-+				iommu_unmap(domain->domain, region->start + PAGE_SIZE, PAGE_SIZE);
-+			else
-+				domain->fgsp = true;
-+		}
-+		break;
- 	}
- 
- 	__free_pages(pages, order);
-@@ -2326,7 +2333,7 @@ static int vfio_iommu_type1_attach_group(void *iommu_data,
- 		}
- 	}
- 
--	vfio_test_domain_fgsp(domain);
-+	vfio_test_domain_fgsp(domain, &iova_copy);
- 
- 	/* replay mappings on new domains */
- 	ret = vfio_iommu_replay(iommu, domain);
 -- 
-2.34.1
+With Best Regards,
+Andy Shevchenko
+
 
