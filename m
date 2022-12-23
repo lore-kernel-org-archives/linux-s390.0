@@ -2,113 +2,88 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AD609C10F1D
-	for <linux-s390@archiver.kernel.org>; Thu, 22 Dec 2022 17:21:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 611DBC4332F
+	for <linux-s390@archiver.kernel.org>; Fri, 23 Dec 2022 02:45:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230183AbiLVRVy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 22 Dec 2022 12:21:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34102 "EHLO
+        id S235814AbiLWCp2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 22 Dec 2022 21:45:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229583AbiLVRVw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 22 Dec 2022 12:21:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E54795BC;
-        Thu, 22 Dec 2022 09:21:51 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        with ESMTP id S235788AbiLWCp1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 22 Dec 2022 21:45:27 -0500
+Received: from mxhk.zte.com.cn (mxhk.zte.com.cn [63.216.63.35])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B3CD1F636;
+        Thu, 22 Dec 2022 18:45:26 -0800 (PST)
+Received: from mse-fl2.zte.com.cn (unknown [10.5.228.133])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3F708B81CFB;
-        Thu, 22 Dec 2022 17:21:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11A31C433D2;
-        Thu, 22 Dec 2022 17:21:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1671729708;
-        bh=gMuNx/ETzj/pkU8IgNrRcwRUZ5VOS050gceZG8hotd0=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=oaxbYeHTTs0NTDHc1u4zsA/7HQBinJcPSMs3s/KVnxc//k0Ntz1pPgpR2Dmr88gAU
-         WZZBXxDL6Tc0QjJMc73INnk/0KOkuFbF7iNB59sbgWiBpJYnibIJSSo4sqTI8wPaJQ
-         JdMD0wV8Cbb5JpT60P63Yh/T9dCr1NIuxhm2H/M4=
-Date:   Thu, 22 Dec 2022 09:21:47 -0800
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     Andrzej Hajda <andrzej.hajda@intel.com>
-Cc:     linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@vger.kernel.org,
-        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-xtensa@linux-xtensa.org, intel-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org, Arnd Bergmann <arnd@arndb.de>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Mark Rutland <mark.rutland@arm.com>
-Subject: Re: [PATCH 00/19] Introduce __xchg, non-atomic xchg
-Message-Id: <20221222092147.d2bb177c67870884f2e59a9b@linux-foundation.org>
-In-Reply-To: <20221222114635.1251934-1-andrzej.hajda@intel.com>
-References: <20221222114635.1251934-1-andrzej.hajda@intel.com>
-X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+        by mxhk.zte.com.cn (FangMail) with ESMTPS id 4NdWkY0ZPNz4xVnH;
+        Fri, 23 Dec 2022 10:45:25 +0800 (CST)
+Received: from szxlzmapp06.zte.com.cn ([10.5.230.252])
+        by mse-fl2.zte.com.cn with SMTP id 2BN2jKLi054716;
+        Fri, 23 Dec 2022 10:45:20 +0800 (+08)
+        (envelope-from yang.yang29@zte.com.cn)
+Received: from mapi (szxlzmapp02[null])
+        by mapi (Zmail) with MAPI id mid14;
+        Fri, 23 Dec 2022 10:45:21 +0800 (CST)
+Date:   Fri, 23 Dec 2022 10:45:21 +0800 (CST)
+X-Zmail-TransId: 2b0463a5164112d9a219
+X-Mailer: Zmail v1.0
+Message-ID: <202212231045217042473@zte.com.cn>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From:   <yang.yang29@zte.com.cn>
+To:     <freude@linux.ibm.com>
+Cc:     <hca@linux.ibm.com>, <gor@linux.ibm.com>, <agordeev@linux.ibm.com>,
+        <borntraeger@linux.ibm.com>, <svens@linux.ibm.com>,
+        <linux-s390@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <xu.panda@zte.com.cn>, <yang.yang29@zte.com.cn>
+Subject: =?UTF-8?B?W1BBVENIIGxpbnV4LW5leHRdIHMzOTAvemNyeXB0OiB1c2Ugc3Ryc2NweSgpIHRvIGluc3RlYWQgb2Ygc3RybmNweSgp?=
+Content-Type: text/plain;
+        charset="UTF-8"
+X-MAIL: mse-fl2.zte.com.cn 2BN2jKLi054716
+X-Fangmail-Gw-Spam-Type: 0
+X-FangMail-Miltered: at cgslv5.04-192.168.250.138.novalocal with ID 63A51645.001 by FangMail milter!
+X-FangMail-Envelope: 1671763525/4NdWkY0ZPNz4xVnH/63A51645.001/10.5.228.133/[10.5.228.133]/mse-fl2.zte.com.cn/<yang.yang29@zte.com.cn>
+X-Fangmail-Anti-Spam-Filtered: true
+X-Fangmail-MID-QID: 63A51645.001/4NdWkY0ZPNz4xVnH
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 22 Dec 2022 12:46:16 +0100 Andrzej Hajda <andrzej.hajda@intel.com> wrote:
+From: Xu Panda <xu.panda@zte.com.cn>
 
-> Hi all,
-> 
-> I hope there will be place for such tiny helper in kernel.
-> Quick cocci analyze shows there is probably few thousands places
-> where it could be useful.
+The implementation of strscpy() is more robust and safer.
+That's now the recommended way to copy NUL-terminated strings.
 
-So to clarify, the intent here is a simple readability cleanup for
-existing open-coded exchange operations.  The intent is *not* to
-identify existing xchg() sites which are unnecessarily atomic and to
-optimize them by using the non-atomic version.
+Signed-off-by: Xu Panda <xu.panda@zte.com.cn>
+Signed-off-by: Yang Yang <yang.yang29@zte.com>
+---
+ drivers/s390/crypto/zcrypt_api.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-Have you considered the latter?
+diff --git a/drivers/s390/crypto/zcrypt_api.c b/drivers/s390/crypto/zcrypt_api.c
+index 4bf36e53fe3e..6fe05bb82c77 100644
+--- a/drivers/s390/crypto/zcrypt_api.c
++++ b/drivers/s390/crypto/zcrypt_api.c
+@@ -347,8 +347,7 @@ static ssize_t zcdn_create_store(struct class *class,
+ 	int rc;
+ 	char name[ZCDN_MAX_NAME];
 
-> I am not sure who is good person to review/ack such patches,
+-	strncpy(name, skip_spaces(buf), sizeof(name));
+-	name[sizeof(name) - 1] = '\0';
++	strscpy(name, skip_spaces(buf), sizeof(name));
 
-I can take 'em.
+ 	rc = zcdn_create(strim(name));
 
-> so I've used my intuition to construct to/cc lists, sorry for mistakes.
-> This is the 2nd approach of the same idea, with comments addressed[0].
-> 
-> The helper is tiny and there are advices we can leave without it, so
-> I want to present few arguments why it would be good to have it:
-> 
-> 1. Code readability/simplification/number of lines:
-> 
-> Real example from drivers/net/ethernet/mellanox/mlx5/core/esw/qos.c:
-> -       previous_min_rate = evport->qos.min_rate;
-> -       evport->qos.min_rate = min_rate;
-> +       previous_min_rate = __xchg(evport->qos.min_rate, min_rate);
-> 
-> For sure the code is more compact, and IMHO more readable.
-> 
-> 2. Presence of similar helpers in other somehow related languages/libs:
-> 
-> a) Rust[1]: 'replace' from std::mem module, there is also 'take'
->     helper (__xchg(&x, 0)), which is the same as private helper in
->     i915 - fetch_and_zero, see latest patch.
-> b) C++ [2]: 'exchange' from utility header.
-> 
-> If the idea is OK there are still 2 qestions to answer:
-> 
-> 1. Name of the helper, __xchg follows kernel conventions,
->     but for me Rust names are also OK.
+@@ -365,8 +364,7 @@ static ssize_t zcdn_destroy_store(struct class *class,
+ 	int rc;
+ 	char name[ZCDN_MAX_NAME];
 
-I like replace(), or, shockingly, exchange().
+-	strncpy(name, skip_spaces(buf), sizeof(name));
+-	name[sizeof(name) - 1] = '\0';
++	strscpy(name, skip_spaces(buf), sizeof(name));
 
-But...   Can we simply make swap() return the previous value?
+ 	rc = zcdn_destroy(strim(name));
 
-	previous_min_rate = swap(&evport->qos.min_rate, min_rate);
-
-
+-- 
+2.15.2
