@@ -2,206 +2,113 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 11525C4167B
-	for <linux-s390@archiver.kernel.org>; Mon, 26 Dec 2022 10:46:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55079C46467
+	for <linux-s390@archiver.kernel.org>; Tue, 27 Dec 2022 11:03:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229484AbiLZKqS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 26 Dec 2022 05:46:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49276 "EHLO
+        id S229445AbiL0LDw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 27 Dec 2022 06:03:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231789AbiLZKqP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Dec 2022 05:46:15 -0500
-Received: from out30-7.freemail.mail.aliyun.com (out30-7.freemail.mail.aliyun.com [115.124.30.7])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3CBCD53;
-        Mon, 26 Dec 2022 02:46:12 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0VY8Jq1L_1672051568;
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0VY8Jq1L_1672051568)
-          by smtp.aliyun-inc.com;
-          Mon, 26 Dec 2022 18:46:09 +0800
-Date:   Mon, 26 Dec 2022 18:46:08 +0800
-From:   Dust Li <dust.li@linux.alibaba.com>
-To:     Niklas Schnelle <schnelle@linux.ibm.com>,
-        Wen Gu <guwen@linux.alibaba.com>, kgraul@linux.ibm.com,
-        wenjia@linux.ibm.com, jaka@linux.ibm.com, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
+        with ESMTP id S229550AbiL0LDu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 27 Dec 2022 06:03:50 -0500
+Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC50EA477;
+        Tue, 27 Dec 2022 03:03:47 -0800 (PST)
+Received: by mail-pj1-x102f.google.com with SMTP id o1-20020a17090a678100b00219cf69e5f0so16956802pjj.2;
+        Tue, 27 Dec 2022 03:03:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=rgu6mM4Jqs66vBJ1eVaVAeL/gltzz7QwmhdjdBu7Ti8=;
+        b=QpPu3NphcdtA7vXQLMbNoD05acMughBTynihyWef+NBpXlxok81SW4MrpqCjkLO/ll
+         Y1Ri8WqDZYc34DNVw+iekBqZKPLaKFnJI2USEFOYR+bpq6uFTPTHgaYcfQfI9PViD0w6
+         r1HZWRxqNE2aKgh7jyEJ0XhhVaruVRF9tAM/o21IZdoQISAv80BJmz/BVh8cbKCIY1Gz
+         nQflNgKwfwPCABJiRwCeptducnWEu7hoDOOGLTUFlwG3bFhq0IJvuzlrSwudILWh7ozN
+         pKbZ5yy51+Jr2qVTTFJWnpVj3PVLDhM5Ktw5sI6YLzACmWgJ36m/vMMf9tFYVYi/CfOM
+         LJtQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=rgu6mM4Jqs66vBJ1eVaVAeL/gltzz7QwmhdjdBu7Ti8=;
+        b=jiSwo43LayBaBCIzvLj2iF1zRo0+PpVv8vYxDv08RidcSA8b5eFeD7LO9NuuHku4TD
+         KQ4+pQB1Kequ2FzeKPVUAChOz/BQPYIeQp2MBqLm8k0JbebWxpsXZx8svxqYxhGRdSuZ
+         HhKG4KiYZeoVRZWn2PEDe3QVbNE3Igh4YNQwxqdirgXPCPlYc74UClGqp93MkMtuCuvD
+         vFwowMQVWa8RIJpP7DjAMJpNe9eYx7V99rmTXiaXUEV4IdUqag2W/bP6MCj2MuMbNFjk
+         ZjwbfAV0NLZqObI4BXyX1nANIs1saeGpsYdjrlfrcF94laoL5lRlw7u8jnGeY4fbdb/H
+         z+3A==
+X-Gm-Message-State: AFqh2kq3gRu28ZH1SY3mhZYFm/6q4UFZtM3hN4mDLsqnKjvKTHDx3joe
+        OhC26K3IR0tmrdNg3JK+Mru4yvi2hGMB/w==
+X-Google-Smtp-Source: AMrXdXvt9yPn1cy8MN+ikp3ZONU+ZMLcpJUo5lIDJXXhd7CslhLFPhhX3tyRKqdD1b3S2FJYUICq1A==
+X-Received: by 2002:a17:903:1c1:b0:191:271f:47be with SMTP id e1-20020a17090301c100b00191271f47bemr35769960plh.35.1672139027479;
+        Tue, 27 Dec 2022 03:03:47 -0800 (PST)
+Received: from carlis-virtual-machine.localdomain ([156.236.96.164])
+        by smtp.gmail.com with ESMTPSA id u2-20020a170902714200b001865c298588sm8683764plm.258.2022.12.27.03.03.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 27 Dec 2022 03:03:47 -0800 (PST)
+From:   Xuezhi Zhang <zhangxuezhi3@gmail.com>
+To:     zhangxuezhi1@coolpad.com, wintera@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com
 Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: Re: [RFC PATCH net-next v2 0/5] net/smc:Introduce SMC-D based
- loopback acceleration
-Message-ID: <20221226104608.GD40720@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <1671506505-104676-1-git-send-email-guwen@linux.alibaba.com>
- <42f2972f1dfe45a2741482f36fbbda5b5a56d8f1.camel@linux.ibm.com>
+Subject: [PATCH] s390/qeth: convert sysfs snprintf to sysfs_emit
+Date:   Tue, 27 Dec 2022 19:03:42 +0800
+Message-Id: <20221227110342.1436070-1-zhangxuezhi3@gmail.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <42f2972f1dfe45a2741482f36fbbda5b5a56d8f1.camel@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Dec 20, 2022 at 03:02:45PM +0100, Niklas Schnelle wrote:
->On Tue, 2022-12-20 at 11:21 +0800, Wen Gu wrote:
->> Hi, all
->> 
->> # Background
->> 
->> As previously mentioned in [1], we (Alibaba Cloud) are trying to use SMC
->> to accelerate TCP applications in cloud environment, improving inter-host
->> or inter-VM communication.
->> 
->> In addition of these, we also found the value of SMC-D in scenario of local
->> inter-process communication, such as accelerate communication between containers
->> within the same host. So this RFC tries to provide a SMC-D loopback solution
->> in such scenario, to bring a significant improvement in latency and throughput
->> compared to TCP loopback.
->> 
->> # Design
->> 
->> This patch set provides a kind of SMC-D loopback solution.
->> 
->> Patch #1/5 and #2/5 provide an SMC-D based dummy device, preparing for the
->> inter-process communication acceleration. Except for loopback acceleration,
->> the dummy device can also meet the requirements mentioned in [2], which is
->> providing a way to test SMC-D logic for broad community without ISM device.
->> 
->>  +------------------------------------------+
->>  |  +-----------+           +-----------+   |
->>  |  | process A |           | process B |   |
->>  |  +-----------+           +-----------+   |
->>  |       ^                        ^         |
->>  |       |    +---------------+   |         |
->>  |       |    |   SMC stack   |   |         |
->>  |       +--->| +-----------+ |<--|         |
->>  |            | |   dummy   | |             |
->>  |            | |   device  | |             |
->>  |            +-+-----------+-+             |
->>  |                   VM                     |
->>  +------------------------------------------+
->> 
->> Patch #3/5, #4/5, #5/5 provides a way to avoid data copy from sndbuf to RMB
->> and improve SMC-D loopback performance. Through extending smcd_ops with two
->> new semantic: attach_dmb and detach_dmb, sender's sndbuf shares the same
->> physical memory region with receiver's RMB. The data copied from userspace
->> to sender's sndbuf directly reaches the receiver's RMB without unnecessary
->> memory copy in the same kernel.
->> 
->>  +----------+                     +----------+
->>  | socket A |                     | socket B |
->>  +----------+                     +----------+
->>        |                               ^
->>        |         +---------+           |
->>   regard as      |         | ----------|
->>   local sndbuf   |  B's    |     regard as
->>        |         |  RMB    |     local RMB
->>        |-------> |         |
->>                  +---------+
->
->Hi Wen Gu,
->
->I maintain the s390 specific PCI support in Linux and would like to
->provide a bit of background on this. You're surely wondering why we
->even have a copy in there for our ISM virtual PCI device. To understand
->why this copy operation exists and why we need to keep it working, one
->needs a bit of s390 aka mainframe background.
->
->On s390 all (currently supported) native machines have a mandatory
->machine level hypervisor. All OSs whether z/OS or Linux run either on
->this machine level hypervisor as so called Logical Partitions (LPARs)
->or as second/third/… level guests on e.g. a KVM or z/VM hypervisor that
->in turn runs in an LPAR. Now, in terms of memory this machine level
->hypervisor sometimes called PR/SM unlike KVM, z/VM, or VMWare is a
->partitioning hypervisor without paging. This is one of the main reasons
->for the very-near-native performance of the machine hypervisor as the
->memory of its guests acts just like native RAM on other systems. It is
->never paged out and always accessible to IOMMU translated DMA from
->devices without the need for pinning pages and besides a trivial
->offset/limit adjustment an LPAR's MMU does the same amount of work as
->an MMU on a bare metal x86_64/ARM64 box.
->
->It also means however that when SMC-D is used to communicate between
->LPARs via an ISM device there is  no way of mapping the DMBs to the
->same physical memory as there exists no MMU-like layer spanning
->partitions that could do such a mapping. Meanwhile for machine level
->firmware including the ISM virtual PCI device it is still possible to
->_copy_ memory between different memory partitions. So yeah while I do
->see the appeal of skipping the memcpy() for loopback or even between
->guests of a paging hypervisor such as KVM, which can map the DMBs on
->the same physical memory, we must keep in mind this original use case
->requiring a copy operation.
->
->Thanks,
->Niklas
->
->> 
->> # Benchmark Test
->> 
->>  * Test environments:
->>       - VM with Intel Xeon Platinum 8 core 2.50GHz, 16 GiB mem.
->>       - SMC sndbuf/RMB size 1MB.
->> 
->>  * Test object:
->>       - TCP: run on TCP loopback.
->>       - domain: run on UNIX domain.
->>       - SMC lo: run on SMC loopback device with patch #1/5 ~ #2/5.
->>       - SMC lo-nocpy: run on SMC loopback device with patch #1/5 ~ #5/5.
->> 
->> 1. ipc-benchmark (see [3])
->> 
->>  - ./<foo> -c 1000000 -s 100
->> 
->>                        TCP              domain              SMC-lo             SMC-lo-nocpy
->> Message
->> rate (msg/s)         75140      129548(+72.41)    152266(+102.64%)         151914(+102.17%)
->
->Interesting that it does beat UNIX domain sockets. Also, see my below
->comment for nginx/wrk as this seems very similar.
->
->> 
->> 2. sockperf
->> 
->>  - serv: <smc_run> taskset -c <cpu> sockperf sr --tcp
->>  - clnt: <smc_run> taskset -c <cpu> sockperf { tp | pp } --tcp --msg-size={ 64000 for tp | 14 for pp } -i 127.0.0.1 -t 30
->> 
->>                        TCP                  SMC-lo             SMC-lo-nocpy
->> Bandwidth(MBps)   4943.359        4936.096(-0.15%)        8239.624(+66.68%)
->> Latency(us)          6.372          3.359(-47.28%)            3.25(-49.00%)
->> 
->> 3. iperf3
->> 
->>  - serv: <smc_run> taskset -c <cpu> iperf3 -s
->>  - clnt: <smc_run> taskset -c <cpu> iperf3 -c 127.0.0.1 -t 15
->> 
->>                        TCP                  SMC-lo             SMC-lo-nocpy
->> Bitrate(Gb/s)         40.5            41.4(+2.22%)            76.4(+88.64%)
->> 
->> 4. nginx/wrk
->> 
->>  - serv: <smc_run> nginx
->>  - clnt: <smc_run> wrk -t 8 -c 500 -d 30 http://127.0.0.1:80
->> 
->>                        TCP                  SMC-lo             SMC-lo-nocpy
->> Requests/s       154643.22      220894.03(+42.84%)        226754.3(+46.63%)
->
->
->This result is very interesting indeed. So with the much more realistic
->nginx/wrk workload it seems to copy hurts much less than the
->iperf3/sockperf would suggest while SMC-D itself seems to help more.
->I'd hope that this translates to actual applications as well. Maybe
->this makes SMC-D based loopback interesting even while keeping the
->copy, at least until we can come up with a sane way to work a no-copy
->variant into SMC-D?
+From: Xuezhi Zhang <zhangxuezhi1@coolpad.com>
 
-Yes, SMC-D based loopback shows great advantages over TCP loopback, with
-or without copy.
+Follow the advice of the Documentation/filesystems/sysfs.rst
+and show() should only use sysfs_emit() or sysfs_emit_at()
+when formatting the value to be returned to user space.
 
-The advantage of zero-copy should be observed when we need to transfer
-a large mount of data. But here in this wrk/nginx case, the test file
-transferred from server to client is a small file. So we didn't see much gain.
-If we use a large file(e.g >=1MB file), I think we should observe a much
-different result.
+Signed-off-by: Xuezhi Zhang <zhangxuezhi1@coolpad.com>
+---
+ drivers/s390/net/qeth_core_sys.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-Thinks!
-
+diff --git a/drivers/s390/net/qeth_core_sys.c b/drivers/s390/net/qeth_core_sys.c
+index 406be169173c..d1adc4b83193 100644
+--- a/drivers/s390/net/qeth_core_sys.c
++++ b/drivers/s390/net/qeth_core_sys.c
+@@ -410,13 +410,13 @@ static ssize_t qeth_dev_isolation_show(struct device *dev,
+ 
+ 	switch (card->options.isolation) {
+ 	case ISOLATION_MODE_NONE:
+-		return snprintf(buf, 6, "%s\n", ATTR_QETH_ISOLATION_NONE);
++		return sysfs_emit(buf, "%s\n", ATTR_QETH_ISOLATION_NONE);
+ 	case ISOLATION_MODE_FWD:
+-		return snprintf(buf, 9, "%s\n", ATTR_QETH_ISOLATION_FWD);
++		return sysfs_emit(buf, "%s\n", ATTR_QETH_ISOLATION_FWD);
+ 	case ISOLATION_MODE_DROP:
+-		return snprintf(buf, 6, "%s\n", ATTR_QETH_ISOLATION_DROP);
++		return sysfs_emit(buf, "%s\n", ATTR_QETH_ISOLATION_DROP);
+ 	default:
+-		return snprintf(buf, 5, "%s\n", "N/A");
++		return sysfs_emit(buf, "%s\n", "N/A");
+ 	}
+ }
+ 
+@@ -500,9 +500,9 @@ static ssize_t qeth_hw_trap_show(struct device *dev,
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+ 	if (card->info.hwtrap)
+-		return snprintf(buf, 5, "arm\n");
++		return sysfs_emit(buf, "arm\n");
+ 	else
+-		return snprintf(buf, 8, "disarm\n");
++		return sysfs_emit(buf, "disarm\n");
+ }
+ 
+ static ssize_t qeth_hw_trap_store(struct device *dev,
+-- 
+2.25.1
 
