@@ -2,113 +2,90 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0FF0BC46467
-	for <linux-s390@archiver.kernel.org>; Tue, 27 Dec 2022 11:04:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A4D60C4332F
+	for <linux-s390@archiver.kernel.org>; Tue, 27 Dec 2022 13:04:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229711AbiL0LEG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 27 Dec 2022 06:04:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53922 "EHLO
+        id S231608AbiL0NEc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 27 Dec 2022 08:04:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231220AbiL0LEC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 27 Dec 2022 06:04:02 -0500
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46526AE45;
-        Tue, 27 Dec 2022 03:03:59 -0800 (PST)
-Received: by mail-pl1-x62c.google.com with SMTP id t2so12952402ply.2;
-        Tue, 27 Dec 2022 03:03:59 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=rgu6mM4Jqs66vBJ1eVaVAeL/gltzz7QwmhdjdBu7Ti8=;
-        b=YGv2EoxKtGKsK4vzLZZ9ZDdUasxdFDHKXA1DkT8M8nbn/CkOUehjMVv3gb0XGgr/u+
-         fapTR27fbCWbAn9Ap4MNFrAmssqFjEMqe7ZpnjUwRtKXhTZs8dHY8sAVWqPkVi004gKm
-         QhaTKvgwbn9zZzZVKsAVyZg1tyhk8qtjieFxXuTz4qIUdlCm/XTTBsyAZmzrBlY6BwiY
-         sluno+rvfAC3FKpa5uI7Zhxpmhg95Vk2cfJ6xKgBPmVTrlcoKyc1hE3TZmUzT86eFef4
-         j+wOaIuJzuttpsNKXJ7MtPXOeTEWeqguOqNUsxrOMhPDYvkTiWrPQDZ6cnrtfN4PEKgU
-         hQvw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=rgu6mM4Jqs66vBJ1eVaVAeL/gltzz7QwmhdjdBu7Ti8=;
-        b=ZRiJvnlG0Y5wKuirDLsy35Cby/OJZh/2dSOA+U89eUVJVDK0Mexb5YVde8UZFyAZjv
-         uYIL5/aSO8yBLZw6AymzfRt5qAd4Lx8CPF8u1xM8mXV65KESLsqHrlRSJvklqjW0MkD5
-         VYYzy4GclSMH0W4UaP6n3hgxsN2nxp8s+BbpjVGmoD8HW1kahDAjrZBmY2AmIKEarvhL
-         gf+BflKS1JsIL/QGN/e9sd2pR4ivX9MBW+pTp4s1DWu1F7wuzVmAUwWfZPjDSI3vN0s/
-         AmfjLaHWWGEmF013fea7tXhvUI7XEpJ4v4NZ/cd9CMW45Msn5Ez1eywXzxhXlEODAHZu
-         hqYg==
-X-Gm-Message-State: AFqh2kqq72CGzKlAPFZGaPkfwnbJLaTyc1oKPWI6dTvst3RQzg9JMz+m
-        j9BCqUem/zLOP996Zn9wViS1ikH4gK0FDg==
-X-Google-Smtp-Source: AMrXdXuz++twZ5maPvpwAmAyHMKpEoujELivOJCY8XWaNVyFLdaTCW5fvWeg9kn0Q+oB4RTTVlU5wg==
-X-Received: by 2002:a17:902:d590:b0:192:90b1:9007 with SMTP id k16-20020a170902d59000b0019290b19007mr345578plh.27.1672139038467;
-        Tue, 27 Dec 2022 03:03:58 -0800 (PST)
-Received: from carlis-virtual-machine.localdomain ([156.236.96.164])
-        by smtp.gmail.com with ESMTPSA id s1-20020a170902ea0100b00178143a728esm8816103plg.275.2022.12.27.03.03.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 27 Dec 2022 03:03:58 -0800 (PST)
-From:   Xuezhi Zhang <zhangxuezhi3@gmail.com>
-To:     zhangxuezhi1@coolpad.com, wintera@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] s390/qeth: convert sysfs snprintf to sysfs_emit
-Date:   Tue, 27 Dec 2022 19:03:52 +0800
-Message-Id: <20221227110352.1436120-1-zhangxuezhi3@gmail.com>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S229789AbiL0NEb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 27 Dec 2022 08:04:31 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BA25267C
+        for <linux-s390@vger.kernel.org>; Tue, 27 Dec 2022 05:03:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1672146226;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=itmwXqUo01mTV85no/9ZNLho2BNM+XUgesQju+SpFwM=;
+        b=UeITphuNzGnkuWLOPV2kIiLlXY5SgMJ5WGlM/3Ak+hJ9JTqJI6ot9OmW8vTIXWJAcpLMKy
+        sac0GMq8kiZZe9v4S7Kl2EBD5a9ad8IIKsgohjKa1T+TzuosgLjpzN0S2aNcoXmw8nVdHi
+        9Vg7d8eyz8Z+GnSIjDVkF5UYObD/uH8=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-359-al1j6ULROiyc5y_rGIER3A-1; Tue, 27 Dec 2022 08:03:41 -0500
+X-MC-Unique: al1j6ULROiyc5y_rGIER3A-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com [10.11.54.8])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id C26A0101A521;
+        Tue, 27 Dec 2022 13:03:38 +0000 (UTC)
+Received: from virtlab701.virt.lab.eng.bos.redhat.com (virtlab701.virt.lab.eng.bos.redhat.com [10.19.152.228])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 2C14DC15BA0;
+        Tue, 27 Dec 2022 13:03:37 +0000 (UTC)
+From:   Paolo Bonzini <pbonzini@redhat.com>
+To:     Sean Christopherson <seanjc@google.com>
+Cc:     Marc Zyngier <maz@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
+        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
+        Anup Patel <anup@brainfault.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Paul Durrant <paul@xen.org>, James Morse <james.morse@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Oliver Upton <oliver.upton@linux.dev>,
+        Atish Patra <atishp@atishpatra.org>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev,
+        kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, kvm-riscv@lists.infradead.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Yuan Yao <yuan.yao@intel.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Isaku Yamahata <isaku.yamahata@intel.com>,
+        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@linaro.org>,
+        Fabiano Rosas <farosas@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Kai Huang <kai.huang@intel.com>, Chao Gao <chao.gao@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH v2 00/50] KVM: Rework kvm_init() and hardware enabling
+Date:   Tue, 27 Dec 2022 08:02:50 -0500
+Message-Id: <20221227130249.1650197-1-pbonzini@redhat.com>
+In-Reply-To: <20221130230934.1014142-1-seanjc@google.com>
+References: 
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.8
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Xuezhi Zhang <zhangxuezhi1@coolpad.com>
+Queued, thanks.  I will leave this in kvm/queue after testing everything
+else and moving it to kvm/next; this way, we can wait for test results
+on other architectures.
 
-Follow the advice of the Documentation/filesystems/sysfs.rst
-and show() should only use sysfs_emit() or sysfs_emit_at()
-when formatting the value to be returned to user space.
+Paolo
 
-Signed-off-by: Xuezhi Zhang <zhangxuezhi1@coolpad.com>
----
- drivers/s390/net/qeth_core_sys.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/s390/net/qeth_core_sys.c b/drivers/s390/net/qeth_core_sys.c
-index 406be169173c..d1adc4b83193 100644
---- a/drivers/s390/net/qeth_core_sys.c
-+++ b/drivers/s390/net/qeth_core_sys.c
-@@ -410,13 +410,13 @@ static ssize_t qeth_dev_isolation_show(struct device *dev,
- 
- 	switch (card->options.isolation) {
- 	case ISOLATION_MODE_NONE:
--		return snprintf(buf, 6, "%s\n", ATTR_QETH_ISOLATION_NONE);
-+		return sysfs_emit(buf, "%s\n", ATTR_QETH_ISOLATION_NONE);
- 	case ISOLATION_MODE_FWD:
--		return snprintf(buf, 9, "%s\n", ATTR_QETH_ISOLATION_FWD);
-+		return sysfs_emit(buf, "%s\n", ATTR_QETH_ISOLATION_FWD);
- 	case ISOLATION_MODE_DROP:
--		return snprintf(buf, 6, "%s\n", ATTR_QETH_ISOLATION_DROP);
-+		return sysfs_emit(buf, "%s\n", ATTR_QETH_ISOLATION_DROP);
- 	default:
--		return snprintf(buf, 5, "%s\n", "N/A");
-+		return sysfs_emit(buf, "%s\n", "N/A");
- 	}
- }
- 
-@@ -500,9 +500,9 @@ static ssize_t qeth_hw_trap_show(struct device *dev,
- 	struct qeth_card *card = dev_get_drvdata(dev);
- 
- 	if (card->info.hwtrap)
--		return snprintf(buf, 5, "arm\n");
-+		return sysfs_emit(buf, "arm\n");
- 	else
--		return snprintf(buf, 8, "disarm\n");
-+		return sysfs_emit(buf, "disarm\n");
- }
- 
- static ssize_t qeth_hw_trap_store(struct device *dev,
--- 
-2.25.1
 
