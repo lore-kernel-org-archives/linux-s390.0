@@ -2,105 +2,136 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F3CAAC3DA7C
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Dec 2022 11:22:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1CBA3C4332F
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Dec 2022 11:45:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229976AbiL1LWr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 28 Dec 2022 06:22:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57360 "EHLO
+        id S232587AbiL1Lpd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 28 Dec 2022 06:45:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232796AbiL1LWS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 28 Dec 2022 06:22:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 423F325FB;
-        Wed, 28 Dec 2022 03:22:16 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CDC02B81636;
-        Wed, 28 Dec 2022 11:22:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C988C433EF;
-        Wed, 28 Dec 2022 11:22:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672226533;
-        bh=g/ko60RCUy62mgwJX+BHqh4+FybNochgcGqfnbFgn1s=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=bkySoNrEPygYgl5QF2mbRvdQP90/TfV81MHuS96aaZXlQcngUJ3MnPH6eA7QDx4Th
-         9qys9DmCGwyeY+hU2x+2CaIsq4ffMaWs2Andkc5MUnCRyhe2gJL1UT52VEPs78jq5D
-         4F1Tuo0nQj1sMGDBh/MID5iNoErPu3cmtJOLrAi9mragNuaOC3UExlhvrMtXFgnRzt
-         wrjQrwIdzHmXG2C/xHTzuK1MlUOE4h7gPaZmWOD7ADqmpxfpX3FjjQu/1lKSa6NQ2/
-         OpnrZhXA+oWI8B3m33i+IQsklsKqkL22FNLezHwLuMeZmbP3lDV+wqKLg9C8uYzdJ+
-         KTTyjywJXPOvw==
-Received: from disco-boy.misterjones.org ([51.254.78.96] helo=www.loen.fr)
-        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.95)
-        (envelope-from <maz@kernel.org>)
-        id 1pAUVf-00FXTE-4f;
-        Wed, 28 Dec 2022 11:22:11 +0000
+        with ESMTP id S229708AbiL1Lpc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 28 Dec 2022 06:45:32 -0500
+Received: from mail-vk1-xa2d.google.com (mail-vk1-xa2d.google.com [IPv6:2607:f8b0:4864:20::a2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43D041178
+        for <linux-s390@vger.kernel.org>; Wed, 28 Dec 2022 03:45:31 -0800 (PST)
+Received: by mail-vk1-xa2d.google.com with SMTP id h4so2428173vkn.3
+        for <linux-s390@vger.kernel.org>; Wed, 28 Dec 2022 03:45:31 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=DO8ZjPmBlydgmvZZ1N7cloiBjSVhW28qONM3ineUNkY=;
+        b=RQQw2KzUCAlDJWVTPFD29bqw1sySDUqJF8euKg62rXfSaeS6iBhYQ5FEPk/lnlsrjP
+         axi1ZT6824deTtNyMTYr6t16cpndy+wc89gDYZKJS3iJuhww4zi7OimebT1Sn9AleXhY
+         zpnnJqWYAcjdbXY8tCdNOejArNtn6kJi87DZqoG8yvHrChDcJHJYKKnBYutx7qJArVN8
+         qdeWAqf7e4jGS2m6lPtNAgomNeeMzncHrShaRJJqpaXpKbnihyM7de+xu094JLHu9f7A
+         8BOCXgPZkURPiHy31h26QMMGZ7fuCD4SjdR8Cg2A5vvoVesJDjEulWEt/9ih17AGG0pA
+         /FhQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=DO8ZjPmBlydgmvZZ1N7cloiBjSVhW28qONM3ineUNkY=;
+        b=GxFfy2Wxppi2TiLnBVaCRGSfXqC74+n6ewEqiy25zeDpuH2vPAWbz3Gp61jYok7yVN
+         y/KY0CCtNV5bUv3vEGS1SCDTHr4znEBfAEaaMAwH/WdpAXHUg0X+L3G5WxFKMHD81xTh
+         m/RXPeknM1HZ1UTpfvJuwIqI+DNm8qcgRU2VTY2WVSkVNeE21ZB4PbJav3SRmqzMzQ7M
+         5+SuLQDNEImiE0pdUiTNGTDlxxYVVD6v2Rj9Pc3vvy8kiqCmRSEvRckBFqdIhczT+owb
+         pkEliIcSjhyEveuwL020OaqbTtE1sfvs6o0QVWMgOX9j20iypHyRtIYFoAkizU3R8uWh
+         0czA==
+X-Gm-Message-State: AFqh2krutz+3Entn0OJutQN54hZqBzacw5ZQxV2Tug3EOF8GlEG843TB
+        qDZq8vJkEQMd+5Baluy+m0K9GULhrCsb8+eRUk9rDA==
+X-Google-Smtp-Source: AMrXdXvHRKwjhq5h3eeEdb8RJBes/abyIF7ZhjsnC0XXCJe0wqsCQLNYhWPLa5qA3e4LQ4H6bLRje0w4zltjSTgOU0A=
+X-Received: by 2002:a1f:3215:0:b0:3d5:86ff:6638 with SMTP id
+ y21-20020a1f3215000000b003d586ff6638mr122357vky.30.1672227930232; Wed, 28 Dec
+ 2022 03:45:30 -0800 (PST)
 MIME-Version: 1.0
-Date:   Wed, 28 Dec 2022 11:22:10 +0000
-From:   Marc Zyngier <maz@kernel.org>
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     Sean Christopherson <seanjc@google.com>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Anup Patel <anup@brainfault.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Paul Durrant <paul@xen.org>, James Morse <james.morse@arm.com>,
-        Alexandru Elisei <alexandru.elisei@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Oliver Upton <oliver.upton@linux.dev>,
-        Atish Patra <atishp@atishpatra.org>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev,
-        kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, kvm-riscv@lists.infradead.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Yuan Yao <yuan.yao@intel.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Isaku Yamahata <isaku.yamahata@intel.com>,
-        =?UTF-8?Q?Philippe_Mathieu-Daud=C3=A9?= <philmd@linaro.org>,
-        Fabiano Rosas <farosas@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Kai Huang <kai.huang@intel.com>, Chao Gao <chao.gao@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH v2 00/50] KVM: Rework kvm_init() and hardware enabling
-In-Reply-To: <20221227130249.1650197-1-pbonzini@redhat.com>
-References: <20221227130249.1650197-1-pbonzini@redhat.com>
-User-Agent: Roundcube Webmail/1.4.13
-Message-ID: <9acea262dec3511e9cf63081506f0bd7@kernel.org>
-X-Sender: maz@kernel.org
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Connect-IP: 51.254.78.96
-X-SA-Exim-Rcpt-To: pbonzini@redhat.com, seanjc@google.com, chenhuacai@kernel.org, aleksandar.qemu.devel@gmail.com, anup@brainfault.org, paul.walmsley@sifive.com, palmer@dabbelt.com, aou@eecs.berkeley.edu, borntraeger@linux.ibm.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com, mjrosato@linux.ibm.com, farman@linux.ibm.com, vkuznets@redhat.com, dwmw2@infradead.org, paul@xen.org, james.morse@arm.com, alexandru.elisei@arm.com, suzuki.poulose@arm.com, oliver.upton@linux.dev, atishp@atishpatra.org, david@redhat.com, kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev, kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, yuan.yao@intel.com, cohuck@redhat.com, isaku.yamahata@intel.com, philmd@linaro.org, farosas@linux.ibm.com, mpe@ellerman.id.au, kai.huang@intel.com, chao.gao@intel.com, tglx@linutronix.de
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 28 Dec 2022 17:15:19 +0530
+Message-ID: <CA+G9fYv1ZbtQKOmHX_mBOVqoK0P3tOL1bcb_z4eMkAZTXtzbNQ@mail.gmail.com>
+Subject: stable-rc: 4.19: s390x-linux-gnu-ld: drivers/base/platform.o: in
+ function `devm_platform_get_and_ioremap_resource': platform.c:(.text+0x43a):
+ undefined reference to `devm_ioremap_resource'
+To:     linux-stable <stable@vger.kernel.org>,
+        lkft-triage@lists.linaro.org, linux-s390@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Dejin Zheng <zhengdejin5@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2022-12-27 13:02, Paolo Bonzini wrote:
-> Queued, thanks.  I will leave this in kvm/queue after testing 
-> everything
-> else and moving it to kvm/next; this way, we can wait for test results
-> on other architectures.
+Following s390 build warnings / errors noticed on stable-rc 4.19 queue.
 
-Can you please make this a topic branch, and if possible based
-on a released -rc? It would make it a lot easier for everyone.
+Regressions found on s390:
+   - build/gcc-11-tinyconfig
+   - build/gcc-10-tinyconfig
 
-Thanks,
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-         M.
--- 
-Jazz is not dead. It just smells funny...
+git_repo: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc-queues
+git_describe: v4.19.269-363-g176f3d59718e
+Build: v4.19.269-363-g176f3d59718e
+Details: https://qa-reports.linaro.org/lkft/linux-stable-rc-queues-queue_4.19-sanity/build/v4.19.269-363-g176f3d59718e
+
+make --silent --keep-going --jobs=8
+O=/home/tuxbuild/.cache/tuxmake/builds/1/build ARCH=s390
+CROSS_COMPILE=s390x-linux-gnu- 'CC=sccache s390x-linux-gnu-gcc'
+'HOSTCC=sccache gcc'
+
+In function 'setup_lowcore_dat_off',
+    inlined from 'setup_arch' at /builds/linux/arch/s390/kernel/setup.c:958:2:
+/builds/linux/arch/s390/kernel/setup.c:342:9: warning: 'memcpy'
+reading 128 bytes from a region of size 0 [-Wstringop-overread]
+  342 |         memcpy(lc->stfle_fac_list, S390_lowcore.stfle_fac_list,
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  343 |                sizeof(lc->stfle_fac_list));
+      |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/builds/linux/arch/s390/kernel/setup.c:344:9: warning: 'memcpy'
+reading 128 bytes from a region of size 0 [-Wstringop-overread]
+  344 |         memcpy(lc->alt_stfle_fac_list, S390_lowcore.alt_stfle_fac_list,
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  345 |                sizeof(lc->alt_stfle_fac_list));
+      |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /builds/linux/arch/s390/kernel/lgr.c:13:
+In function 'stfle',
+    inlined from 'lgr_info_get' at /builds/linux/arch/s390/kernel/lgr.c:122:2:
+/builds/linux/arch/s390/include/asm/facility.h:88:9: warning: 'memcpy'
+reading 4 bytes from a region of size 0 [-Wstringop-overread]
+   88 |         memcpy(stfle_fac_list, &S390_lowcore.stfl_fac_list, 4);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+s390x-linux-gnu-ld: drivers/base/platform.o: in function
+`devm_platform_get_and_ioremap_resource':
+platform.c:(.text+0x43a): undefined reference to `devm_ioremap_resource'
+s390x-linux-gnu-ld: drivers/base/platform.o: in function
+`devm_platform_ioremap_resource':
+platform.c:(.text+0x478): undefined reference to `devm_ioremap_resource'
+make[1]: *** [/builds/linux/Makefile:1055: vmlinux] Error 1
+
+
+Build details,
+https://qa-reports.linaro.org/lkft/linux-stable-rc-queues-queue_4.19-sanity/build/v4.19.269-363-g176f3d59718e/testrun/13836893/suite/build/test/gcc-11-tinyconfig/details/
+https://qa-reports.linaro.org/lkft/linux-stable-rc-queues-queue_4.19-sanity/build/v4.19.269-363-g176f3d59718e/testrun/13836893/suite/build/test/gcc-11-tinyconfig/history/
+
+Build logs,
+https://storage.tuxsuite.com/public/linaro/lkft/builds/2JXXJr2fBrwWGJISB1IcJiW15jL/
+
+Steps to reproduce:
+--------------------
+# To install tuxmake on your system globally:
+# sudo pip3 install -U tuxmake
+#
+# See https://docs.tuxmake.org/ for complete documentation.
+# Original tuxmake command with fragments listed below.
+# tuxmake --runtime podman --target-arch s390 --toolchain gcc-11
+--kconfig tinyconfig
+
+
+--
+Linaro LKFT
+https://lkft.linaro.org
