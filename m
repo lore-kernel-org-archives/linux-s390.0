@@ -2,136 +2,112 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7BDB1C4332F
-	for <linux-s390@archiver.kernel.org>; Thu, 29 Dec 2022 08:28:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 15DD1C4332F
+	for <linux-s390@archiver.kernel.org>; Thu, 29 Dec 2022 08:30:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229721AbiL2I2H (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 29 Dec 2022 03:28:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45786 "EHLO
+        id S233086AbiL2Iaz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 29 Dec 2022 03:30:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233182AbiL2I2F (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 29 Dec 2022 03:28:05 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 057D013CFD;
-        Thu, 29 Dec 2022 00:28:04 -0800 (PST)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2BT7oqFU016562;
-        Thu, 29 Dec 2022 08:27:59 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=wjJ5A55QHwsfPZQp8Vf+s/5C+qsAdXyaDEykbbEtsfc=;
- b=AbD7zVtCwL3lWUNR+DuBDGdTG+4Bf4psOe1A4DPdTSyoa1W9kgfVQFQwyPeLv17YAiY1
- 5A3wR/3sm/3NAXRYs1+QtwXCZ6FUOVSQElZb4sR0Du/N1tntN7U2jGuwxXLmg6tjEijL
- AvEgsy5Rt07NfpXgveztfS482Q4K90vp1VCRB6bs1k6nKuYQg2xuRiG6PrhuNgh8GPDg
- PFOtjReB+Tjgi74RwclWgdQVtHDcBteCM9dz5UhtP1JfQOrm5kGdw6L4d5jz2BV3gGjs
- 0b35lxmb1Q8Ae5eLNorGWPyZ84hUMH/H7EqfCGtxM43EFFIxQ9xgOfIp/r6fqmbWTQ0Q xg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ms6v48mke-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 29 Dec 2022 08:27:59 +0000
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2BT89CDo022649;
-        Thu, 29 Dec 2022 08:27:58 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ms6v48mju-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 29 Dec 2022 08:27:58 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 2BT2lCJx003970;
-        Thu, 29 Dec 2022 08:27:56 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3mnrpfpjhp-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 29 Dec 2022 08:27:56 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2BT8Rq9I21692804
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 29 Dec 2022 08:27:52 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 58D7720043;
-        Thu, 29 Dec 2022 08:27:52 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BC40C20040;
-        Thu, 29 Dec 2022 08:27:51 +0000 (GMT)
-Received: from [9.171.17.172] (unknown [9.171.17.172])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Thu, 29 Dec 2022 08:27:51 +0000 (GMT)
-Message-ID: <d58b5b49-aea6-c980-fc4d-6eab596ddc9d@linux.ibm.com>
-Date:   Thu, 29 Dec 2022 09:27:51 +0100
+        with ESMTP id S229535AbiL2Iay (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 29 Dec 2022 03:30:54 -0500
+Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0A2EBF2;
+        Thu, 29 Dec 2022 00:30:52 -0800 (PST)
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 31BDD1C09F6; Thu, 29 Dec 2022 09:30:50 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ucw.cz; s=gen1;
+        t=1672302650;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=GMDiP+si500La00phNcMqFDqIk07ZuaffuXl6TOuXZk=;
+        b=hreBY2Gq0qPdVV2AreCvib6znrR+veQn1XOcjer0BGSek7nBorfHy6PV3r6geAMyF4RJPR
+        GcW1vrsHK6cVVfsIysL8GTR+Gdakje/O8QKG/HSFjWyjMQU1LG3teBsW6NYHF7Bg8R10yH
+        RE/j7iwL7oq4Qo381iDimzr4wrPrCyY=
+Date:   Thu, 29 Dec 2022 09:30:49 +0100
+From:   Pavel Machek <pavel@ucw.cz>
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     torvalds@linux-foundation.org, corbet@lwn.net, will@kernel.org,
+        boqun.feng@gmail.com, mark.rutland@arm.com,
+        catalin.marinas@arm.com, dennis@kernel.org, tj@kernel.org,
+        cl@linux.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, Herbert Xu <herbert@gondor.apana.org.au>,
+        davem@davemloft.net, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+        hpa@zytor.com, joro@8bytes.org, suravee.suthikulpanit@amd.com,
+        robin.murphy@arm.com, dwmw2@infradead.org,
+        baolu.lu@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
+        penberg@kernel.org, rientjes@google.com, iamjoonsoo.kim@lge.com,
+        Andrew Morton <akpm@linux-foundation.org>, vbabka@suse.cz,
+        roman.gushchin@linux.dev, 42.hyeyoo@gmail.com,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, linux-s390@vger.kernel.org,
+        linux-crypto@vger.kernel.org, iommu@lists.linux.dev,
+        linux-arch@vger.kernel.org
+Subject: Re: [RFC][PATCH 04/12] types: Introduce [us]128
+Message-ID: <Y61QOe8XG5sUAXoc@duo.ucw.cz>
+References: <20221219153525.632521981@infradead.org>
+ <20221219154119.087799661@infradead.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.6.1
-Subject: Re: [RFC net] net/mlx5: Fix performance regression for
- request-response workloads
-To:     Saeed Mahameed <saeedm@nvidia.com>
-Cc:     David Miller <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        netdev <netdev@vger.kernel.org>, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Eric Dumazet <edumazet@google.com>
-References: <20220907122505.26953-1-wintera@linux.ibm.com>
- <CANn89iLP15xQjmPHxvQBQ=bWbbVk4_41yLC8o5E97TQWFmRioQ@mail.gmail.com>
- <375efe42-910d-69ae-e48d-cff0298dd104@linux.ibm.com>
- <CANn89iKjxMMDEcOCKiqWiMybiYVd7ZqspnEkT0-puqxrknLtRA@mail.gmail.com>
- <886c690b-cc35-39a0-8397-834e70fb329b@linux.ibm.com>
- <20220930233708.kfxhgn2ytmraqhg7@sfedora>
-Content-Language: en-US
-From:   Alexandra Winter <wintera@linux.ibm.com>
-In-Reply-To: <20220930233708.kfxhgn2ytmraqhg7@sfedora>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: ioc97oN9n8t1Sv7nqaaFtNH9SAv34mnI
-X-Proofpoint-ORIG-GUID: phwJUaREPl4tnk_K8bC2LEqNy6gSd5YK
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-12-29_04,2022-12-28_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxlogscore=985
- spamscore=0 priorityscore=1501 impostorscore=0 mlxscore=0
- lowpriorityscore=0 clxscore=1011 phishscore=0 suspectscore=0 bulkscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2212290066
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="fTFbN55brR9qMT+p"
+Content-Disposition: inline
+In-Reply-To: <20221219154119.087799661@infradead.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 
+--fTFbN55brR9qMT+p
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On 01.10.22 01:37, Saeed Mahameed wrote:
-> On 26 Sep 12:06, Alexandra Winter wrote:
->>
-> 
-> [ ... ]
-> 
->> [...]
->>
->> Saeed,
->> As discussed at LPC, could you please consider adding a workaround to the
->> Mellanox driver, to use non-SG SKBs for small messages? As mentioned above
->> we are seeing 13% throughput degradation, if 2 pages need to be mapped
->> instead of 1.
->>
->> While Eric's ideas sound very promising, just using non-SG in these cases
->> should be enough to mitigate the performance regression we see.
-> 
-> Hi Alexandra, sorry for the late response.
-> 
-> Yeas linearizing small messages makes sense, but will require some careful
-> perf testing.
-> 
-> We will do our best to include this in the next kernel release cycle.
-> I will take it with the mlx5e team next week, everybody is on vacation this
-> time of year :).
-> 
-> Thanks,
-> Saeed.
+Hi!
 
-Hello Saeed,
-may I ask whether you had a chance to include such a patch in the 6.2 kernel?
-Or is this still on your ToDo list?
-I haven't seen anything like this on the mailing list, but I may have overlooked it.
-All the best for 2023
-Alexandra
+> Introduce [us]128 (when available). Unlike [us]64, ensure they are
+> always naturally aligned.
+>=20
+> This also enables 128bit wide atomics (which require natural
+> alignment) such as cmpxchg128().
+>=20
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> ---
+>  include/linux/types.h      |    5 +++++
+>  include/uapi/linux/types.h |    4 ++++
+>  2 files changed, 9 insertions(+)
+>=20
+> --- a/include/linux/types.h
+> +++ b/include/linux/types.h
+> @@ -10,6 +10,11 @@
+>  #define DECLARE_BITMAP(name,bits) \
+>  	unsigned long name[BITS_TO_LONGS(bits)]
+> =20
+> +#ifdef __SIZEOF_INT128__
+> +typedef __s128 s128;
+> +typedef __u128 u128;
+> +#endif
+
+Should this come as a note here?
+
+> Introduce [us]128 (when available). Unlike [us]64, ensure they are
+> always naturally aligned.
+
+BR,
+							Pavel
+--=20
+People of Russia, stop Putin before his war on Ukraine escalates.
+
+--fTFbN55brR9qMT+p
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCY61QOQAKCRAw5/Bqldv6
+8vQtAJ9J9UDlQpqaRV7DVlgZctKi1W8mygCfRehrcFJV2fHBfVb6C4cplLPxxog=
+=Yely
+-----END PGP SIGNATURE-----
+
+--fTFbN55brR9qMT+p--
