@@ -2,112 +2,115 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 15DD1C4332F
-	for <linux-s390@archiver.kernel.org>; Thu, 29 Dec 2022 08:30:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E97DFC4708D
+	for <linux-s390@archiver.kernel.org>; Thu, 29 Dec 2022 09:38:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233086AbiL2Iaz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 29 Dec 2022 03:30:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46894 "EHLO
+        id S233144AbiL2Jiy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 29 Dec 2022 04:38:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229535AbiL2Iay (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 29 Dec 2022 03:30:54 -0500
-Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0A2EBF2;
-        Thu, 29 Dec 2022 00:30:52 -0800 (PST)
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 31BDD1C09F6; Thu, 29 Dec 2022 09:30:50 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ucw.cz; s=gen1;
-        t=1672302650;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=GMDiP+si500La00phNcMqFDqIk07ZuaffuXl6TOuXZk=;
-        b=hreBY2Gq0qPdVV2AreCvib6znrR+veQn1XOcjer0BGSek7nBorfHy6PV3r6geAMyF4RJPR
-        GcW1vrsHK6cVVfsIysL8GTR+Gdakje/O8QKG/HSFjWyjMQU1LG3teBsW6NYHF7Bg8R10yH
-        RE/j7iwL7oq4Qo381iDimzr4wrPrCyY=
-Date:   Thu, 29 Dec 2022 09:30:49 +0100
-From:   Pavel Machek <pavel@ucw.cz>
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     torvalds@linux-foundation.org, corbet@lwn.net, will@kernel.org,
-        boqun.feng@gmail.com, mark.rutland@arm.com,
-        catalin.marinas@arm.com, dennis@kernel.org, tj@kernel.org,
-        cl@linux.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, Herbert Xu <herbert@gondor.apana.org.au>,
-        davem@davemloft.net, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
-        hpa@zytor.com, joro@8bytes.org, suravee.suthikulpanit@amd.com,
-        robin.murphy@arm.com, dwmw2@infradead.org,
-        baolu.lu@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
-        penberg@kernel.org, rientjes@google.com, iamjoonsoo.kim@lge.com,
-        Andrew Morton <akpm@linux-foundation.org>, vbabka@suse.cz,
-        roman.gushchin@linux.dev, 42.hyeyoo@gmail.com,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, linux-s390@vger.kernel.org,
-        linux-crypto@vger.kernel.org, iommu@lists.linux.dev,
-        linux-arch@vger.kernel.org
-Subject: Re: [RFC][PATCH 04/12] types: Introduce [us]128
-Message-ID: <Y61QOe8XG5sUAXoc@duo.ucw.cz>
-References: <20221219153525.632521981@infradead.org>
- <20221219154119.087799661@infradead.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="fTFbN55brR9qMT+p"
-Content-Disposition: inline
-In-Reply-To: <20221219154119.087799661@infradead.org>
+        with ESMTP id S233114AbiL2Jgt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 29 Dec 2022 04:36:49 -0500
+Received: from out3-smtp.messagingengine.com (out3-smtp.messagingengine.com [66.111.4.27])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A73413D41;
+        Thu, 29 Dec 2022 01:32:41 -0800 (PST)
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.47])
+        by mailout.nyi.internal (Postfix) with ESMTP id A20595C022E;
+        Thu, 29 Dec 2022 04:32:40 -0500 (EST)
+Received: from imap51 ([10.202.2.101])
+  by compute6.internal (MEProxy); Thu, 29 Dec 2022 04:32:40 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to; s=fm1; t=1672306360; x=1672392760; bh=dQitIKz9Zv
+        Mk4oytHD9JLdnkBzb2SNyrpGTj/IDH57g=; b=V/5Cv1VhfpH5iTFAIPNbee37+7
+        fGRfQGhS2cfvaoU5prjYmzEkJOixzWrHBayYA/LAbI8aGtT5NUL+owTmoaFj3n3B
+        LJoHwRocbJtfuMEyHSx/wyanvvQ13DDzevGclpYyw7qeYNEVViTXINcAj0D9vgsh
+        7pfvXG5yZXolmbAG1xnYy8Ot//4tvH7LNGG1PIQsV13T27gAt8TnwFw1loQa0vbD
+        oPcv9yAU1hrNnDzJ4hHBOxfksO9Tu+rLYKEWw8IH2L2YS5xRATHewhb6Zy3ABb5W
+        Th9HksHzXkv0qeIqDaZbZW8EtN2KMBSeSVjD4popm9MiVXhAr8il3YStrrLA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
+        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
+        :mime-version:references:reply-to:sender:subject:subject:to:to
+        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+        fm2; t=1672306360; x=1672392760; bh=dQitIKz9ZvMk4oytHD9JLdnkBzb2
+        SNyrpGTj/IDH57g=; b=iDQJHK36vHwWh1wRKl4E4QER7+DQKeClUsyglmglgxkg
+        EljL62jR2iZg18aei0CuCeH832VH529cwGFTM79QLvISe5DOGQCCaE9a5nVoNcdT
+        vRyncomABgBeJ3SsaAqCusYLubSRqSwkWTAzvRqkgUp7P/uDuSrSC8oJAPjjHwnG
+        Zd0Dd9LmkVGzRX1+/eSzkb96N8eNNz/u/R6Fm30nUUZjYR3EyVzLMio8jHJyXxIj
+        iQzshYRj6uSLjiurv3YD4ZUHN8c2WtRhXRw4+fHy6C13RBukmzzaZvqF15WJiEkO
+        SQyTebTGPXArLBywDKO2H+WZBi9s4A/HPkn50Hzk8Q==
+X-ME-Sender: <xms:t16tY_xTXyOBxZzRlwIxGAjI2ettOKadK7A9iMGmJP2qRljOTcBayg>
+    <xme:t16tY3RGUfHsWbJR8Ja2QCw0SFyKp0uowcI1CysTjogMdtCluR5C8uHqieGWGVAVH
+    SG9ndtEeyJsrl3xTZI>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrieeggddthecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpefofgggkfgjfhffhffvvefutgesthdtredtreertdenucfhrhhomhepfdetrhhn
+    ugcuuegvrhhgmhgrnhhnfdcuoegrrhhnugesrghrnhgusgdruggvqeenucggtffrrghtth
+    gvrhhnpeffheeugeetiefhgeethfejgfdtuefggeejleehjeeutefhfeeggefhkedtkeet
+    ffenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpegrrh
+    hnugesrghrnhgusgdruggv
+X-ME-Proxy: <xmx:t16tY5WPN0eRhQuqkXR1eQBdMOuAo-5nAJJ36hmRXP0lPVn6iv5ojg>
+    <xmx:t16tY5hs5xXyUOxLtmXCD1t9iRdCyPGN1E3t5Pc7uUgssA87nClWZw>
+    <xmx:t16tYxCRfWeK3MQh1NvH9n9BHNHyKE86lXXcTf6N2kZ0kJveeEq2-A>
+    <xmx:uF6tY2yAnrmYZFHKR9Art5c4-CoKhKbO440aSm6r1v3bh4Mq4Q8mmQ>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.nyi.internal (Postfix, from userid 501)
+        id AA077B60086; Thu, 29 Dec 2022 04:32:39 -0500 (EST)
+X-Mailer: MessagingEngine.com Webmail Interface
+User-Agent: Cyrus-JMAP/3.7.0-alpha0-1185-g841157300a-fm-20221208.002-g84115730
+Mime-Version: 1.0
+Message-Id: <78b23407-bdd0-4b1b-bf6e-ecd4c00294ab@app.fastmail.com>
+In-Reply-To: <20221222114635.1251934-3-andrzej.hajda@intel.com>
+References: <20221222114635.1251934-1-andrzej.hajda@intel.com>
+ <20221222114635.1251934-3-andrzej.hajda@intel.com>
+Date:   Thu, 29 Dec 2022 10:32:19 +0100
+From:   "Arnd Bergmann" <arnd@arndb.de>
+To:     "Andrzej Hajda" <andrzej.hajda@intel.com>,
+        linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        linux-xtensa@linux-xtensa.org, intel-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Cc:     "Rodrigo Vivi" <rodrigo.vivi@intel.com>,
+        "Andrew Morton" <akpm@linux-foundation.org>,
+        "Andy Shevchenko" <andriy.shevchenko@linux.intel.com>,
+        "Peter Zijlstra" <peterz@infradead.org>,
+        "Boqun Feng" <boqun.feng@gmail.com>,
+        "Mark Rutland" <mark.rutland@arm.com>
+Subject: Re: [PATCH 02/19] arch/arc: rename internal name __xchg to __arch_xchg
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
---fTFbN55brR9qMT+p
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi!
-
-> Introduce [us]128 (when available). Unlike [us]64, ensure they are
-> always naturally aligned.
->=20
-> This also enables 128bit wide atomics (which require natural
-> alignment) such as cmpxchg128().
->=20
-> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+On Thu, Dec 22, 2022, at 12:46, Andrzej Hajda wrote:
+> __xchg will be used for non-atomic xchg macro.
+>
+> Signed-off-by: Andrzej Hajda <andrzej.hajda@intel.com>
 > ---
->  include/linux/types.h      |    5 +++++
->  include/uapi/linux/types.h |    4 ++++
->  2 files changed, 9 insertions(+)
->=20
-> --- a/include/linux/types.h
-> +++ b/include/linux/types.h
-> @@ -10,6 +10,11 @@
->  #define DECLARE_BITMAP(name,bits) \
->  	unsigned long name[BITS_TO_LONGS(bits)]
-> =20
-> +#ifdef __SIZEOF_INT128__
-> +typedef __s128 s128;
-> +typedef __u128 u128;
-> +#endif
+>  arch/arc/include/asm/cmpxchg.h | 4 ++--
 
-Should this come as a note here?
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
 
-> Introduce [us]128 (when available). Unlike [us]64, ensure they are
-> always naturally aligned.
+for all the arch/*/include/asm/cmpxchg.h changes.
 
-BR,
-							Pavel
---=20
-People of Russia, stop Putin before his war on Ukraine escalates.
+Since these patches are all the same, and they have identical
+subject and description texts, I would suggest combining them
+into a single patch to keep the series more compact.
 
---fTFbN55brR9qMT+p
-Content-Type: application/pgp-signature; name="signature.asc"
+Having them separate would allow merging the patches through
+the individual architecture maintainer trees, but that in turn
+would mean waiting longer to get it all merged, but in this
+case it seems way easier to go through the asm-generic
+tree.
 
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCY61QOQAKCRAw5/Bqldv6
-8vQtAJ9J9UDlQpqaRV7DVlgZctKi1W8mygCfRehrcFJV2fHBfVb6C4cplLPxxog=
-=Yely
------END PGP SIGNATURE-----
-
---fTFbN55brR9qMT+p--
+     Arnd
