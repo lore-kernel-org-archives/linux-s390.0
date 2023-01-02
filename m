@@ -2,61 +2,121 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9164BC3DA7A
-	for <linux-s390@archiver.kernel.org>; Mon,  2 Jan 2023 11:03:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5285AC46467
+	for <linux-s390@archiver.kernel.org>; Mon,  2 Jan 2023 11:56:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231886AbjABLDN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 2 Jan 2023 06:03:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34698 "EHLO
+        id S232603AbjABL4p (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 2 Jan 2023 06:56:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229923AbjABLDL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 Jan 2023 06:03:11 -0500
-Received: from 1wt.eu (wtarreau.pck.nerim.net [62.212.114.60])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 4B2BFE70;
-        Mon,  2 Jan 2023 03:03:08 -0800 (PST)
-Received: (from willy@localhost)
-        by pcw.home.local (8.15.2/8.15.2/Submit) id 302B2qlI030935;
-        Mon, 2 Jan 2023 12:02:52 +0100
-Date:   Mon, 2 Jan 2023 12:02:52 +0100
-From:   Willy Tarreau <w@1wt.eu>
-To:     Sven Schnelle <svens@linux.ibm.com>
-Cc:     "Paul E . McKenney" <paulmck@kernel.org>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Lai Jiangshan <jiangshanlai@gmail.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v2 0/5] add s390 support to nolibc and rcutorture
-Message-ID: <20230102110252.GE29287@1wt.eu>
-References: <20230102105112.1661651-1-svens@linux.ibm.com>
+        with ESMTP id S232573AbjABL4n (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 Jan 2023 06:56:43 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 674D425C4;
+        Mon,  2 Jan 2023 03:56:40 -0800 (PST)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3028Eebh022345;
+        Mon, 2 Jan 2023 11:56:26 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=x1CQIPTFGI4XvF4eZXRQn4xVZA4mx39SnnoYF2uy778=;
+ b=bxj1RgM0Ic/thEz9uFeDmQlsJLqfPqF89TyZOtkHaq8P3xGWhWxQ7/xHiFc158lVg/5Y
+ FAuzSClKd4mYhYglt/cLq9l8KB96lnY/5jQARatKOhCdaoDg2vlUFxdw2p025JYAQOwQ
+ h1RYKPPV90i3/f2APtXRQ5iDm9xdILf454Jol2tTBIFzfcjLnv5C8cGfGJ4cayz9oiHJ
+ UcAFM6/Ziz69v3wedxFU8ssz7mZz3rSkfetTHeQvrh91gJbpetqxOtr14Bzui0ZWuycy
+ FJybwKUK3MVAPh/y3ShlBpkvyIMx3bCO/vRe9ReTWqZw7vrJXmknurr14wkYK8nyVLjN Qw== 
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3mty10yj31-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 02 Jan 2023 11:56:26 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30180E11032663;
+        Mon, 2 Jan 2023 11:56:24 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+        by ppma05fra.de.ibm.com (PPS) with ESMTPS id 3mtcq6hrts-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 02 Jan 2023 11:56:24 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 302BuKMn42926418
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 2 Jan 2023 11:56:20 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8AB8620043;
+        Mon,  2 Jan 2023 11:56:20 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2C0DC2004B;
+        Mon,  2 Jan 2023 11:56:20 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Mon,  2 Jan 2023 11:56:20 +0000 (GMT)
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>
+Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
+        Gerd Bayer <gbayer@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>, iommu@lists.linux.dev,
+        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, linux-kernel@vger.kernel.org,
+        Julian Ruess <julianr@linux.ibm.com>
+Subject: [PATCH v3 1/7] s390/ism: Set DMA coherent mask
+Date:   Mon,  2 Jan 2023 12:56:13 +0100
+Message-Id: <20230102115619.2088685-2-schnelle@linux.ibm.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20230102115619.2088685-1-schnelle@linux.ibm.com>
+References: <20230102115619.2088685-1-schnelle@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230102105112.1661651-1-svens@linux.ibm.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: sr0IXvfJQmwYVheqH3Wc8v2N4k7c9ufn
+X-Proofpoint-ORIG-GUID: sr0IXvfJQmwYVheqH3Wc8v2N4k7c9ufn
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2023-01-02_06,2022-12-30_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 suspectscore=0
+ mlxlogscore=971 mlxscore=0 lowpriorityscore=0 malwarescore=0 phishscore=0
+ bulkscore=0 adultscore=0 impostorscore=0 priorityscore=1501 spamscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
+ definitions=main-2301020105
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Jan 02, 2023 at 11:51:07AM +0100, Sven Schnelle wrote:
-> Hi,
-> 
-> these patches add support for the s390 architecture both to nolibc
-> and rcutorture. Note that this only adds support for the 64 bit
-> version, no support for 31 bit (compat) is added. For nolibc it
-> includes one bugfix to make the fd_set datatype match the kernel
-> type.
-> 
-> Changes in v2:
-> 
-> - use __attribute__((unused)) instead of __maybe_unused
-> - prefer aghi over lay, as lay is not present in all architecure levels
-> - add -m64 CFLAG to force 64 bit mode for compiler that can do 31bit and 64bit mode
+A future change will convert the DMA API implementation from the
+architecture specific arch/s390/pci/pci_dma.c to using the common code
+drivers/iommu/dma-iommu.c which the utilizes the same IOMMU hardware
+through the s390-iommu driver. Unlike the s390 specific DMA API this
+requires devices to correctly call set the coherent mask to be allowed
+to use IOVAs >2^32 in dma_alloc_coherent(). This was however not done
+for ISM devices. ISM requires such addresses since currently the DMA
+aperture for PCI devices starts at 2^32 and all calls to
+dma_alloc_coherent() would thus fail.
 
-Excellent, now works out of the box for me, thank you Sven!.
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+---
+v1 -> v2:
+- Use dma_set_mask_and_coherent() (Christoph Hellwig)
 
-Paul, would you mind taking these ones for your dev branch instead
-of the previous ones ?
+ drivers/s390/net/ism_drv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thanks!
-Willy
+diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
+index dfd401d9e362..aba03b613296 100644
+--- a/drivers/s390/net/ism_drv.c
++++ b/drivers/s390/net/ism_drv.c
+@@ -557,7 +557,7 @@ static int ism_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	if (ret)
+ 		goto err_disable;
+ 
+-	ret = dma_set_mask(&pdev->dev, DMA_BIT_MASK(64));
++	ret = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
+ 	if (ret)
+ 		goto err_resource;
+ 
+-- 
+2.34.1
+
