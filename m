@@ -2,258 +2,195 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 98672C54EBD
-	for <linux-s390@archiver.kernel.org>; Tue,  3 Jan 2023 14:04:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DD87BC46467
+	for <linux-s390@archiver.kernel.org>; Tue,  3 Jan 2023 15:42:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237763AbjACOEJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 3 Jan 2023 09:04:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53460 "EHLO
+        id S233135AbjACPmR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 3 Jan 2023 10:42:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236918AbjACOEF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Jan 2023 09:04:05 -0500
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id D3B3510B6C;
-        Tue,  3 Jan 2023 06:03:57 -0800 (PST)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 1B1831595;
-        Tue,  3 Jan 2023 06:04:39 -0800 (PST)
-Received: from FVFF77S0Q05N (unknown [10.57.37.13])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 9306B3F587;
-        Tue,  3 Jan 2023 06:03:51 -0800 (PST)
-Date:   Tue, 3 Jan 2023 14:03:37 +0000
-From:   Mark Rutland <mark.rutland@arm.com>
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     Boqun Feng <boqun.feng@gmail.com>, torvalds@linux-foundation.org,
-        corbet@lwn.net, will@kernel.org, catalin.marinas@arm.com,
-        dennis@kernel.org, tj@kernel.org, cl@linux.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        Herbert Xu <herbert@gondor.apana.org.au>, davem@davemloft.net,
-        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
-        dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
-        joro@8bytes.org, suravee.suthikulpanit@amd.com,
-        robin.murphy@arm.com, dwmw2@infradead.org,
-        baolu.lu@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
-        penberg@kernel.org, rientjes@google.com, iamjoonsoo.kim@lge.com,
-        Andrew Morton <akpm@linux-foundation.org>, vbabka@suse.cz,
-        roman.gushchin@linux.dev, 42.hyeyoo@gmail.com,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, linux-s390@vger.kernel.org,
-        linux-crypto@vger.kernel.org, iommu@lists.linux.dev,
-        linux-arch@vger.kernel.org
-Subject: Re: [RFC][PATCH 05/12] arch: Introduce
- arch_{,try_}_cmpxchg128{,_local}()
-Message-ID: <Y7Q1uexv6DrxCASB@FVFF77S0Q05N>
-References: <20221219153525.632521981@infradead.org>
- <20221219154119.154045458@infradead.org>
- <Y6DEfQXymYVgL3oJ@boqun-archlinux>
- <Y6GXoO4qmH9OIZ5Q@hirez.programming.kicks-ass.net>
- <Y7QszyTEG2+WiI/C@FVFF77S0Q05N>
+        with ESMTP id S237990AbjACPmI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Jan 2023 10:42:08 -0500
+Received: from www62.your-server.de (www62.your-server.de [213.133.104.62])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5D3211C02;
+        Tue,  3 Jan 2023 07:42:06 -0800 (PST)
+Received: from sslproxy06.your-server.de ([78.46.172.3])
+        by www62.your-server.de with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <daniel@iogearbox.net>)
+        id 1pCjQN-000MYy-O6; Tue, 03 Jan 2023 16:41:59 +0100
+Received: from [85.1.206.226] (helo=linux.home)
+        by sslproxy06.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <daniel@iogearbox.net>)
+        id 1pCjQN-00068a-1Y; Tue, 03 Jan 2023 16:41:59 +0100
+Subject: Re: [bpf-next v1] bpf: drop deprecated bpf_jit_enable == 2
+To:     xxmy@infragraf.org, bpf@vger.kernel.org, netdev@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.or, loongarch@lists.linux.dev,
+        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        sparclinux@vger.kernel.org
+Cc:     Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <martin.lau@linux.dev>,
+        Song Liu <song@kernel.org>, Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>,
+        Stanislav Fomichev <sdf@google.com>,
+        Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
+        Hou Tao <houtao1@huawei.com>
+References: <20230103132454.94242-1-xxmy@infragraf.org>
+From:   Daniel Borkmann <daniel@iogearbox.net>
+Message-ID: <cf475fe0-9961-d768-fae3-04f640855dab@iogearbox.net>
+Date:   Tue, 3 Jan 2023 16:41:58 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Y7QszyTEG2+WiI/C@FVFF77S0Q05N>
+In-Reply-To: <20230103132454.94242-1-xxmy@infragraf.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Authenticated-Sender: daniel@iogearbox.net
+X-Virus-Scanned: Clear (ClamAV 0.103.7/26770/Tue Jan  3 09:59:01 2023)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jan 03, 2023 at 01:25:35PM +0000, Mark Rutland wrote:
-> On Tue, Dec 20, 2022 at 12:08:16PM +0100, Peter Zijlstra wrote:
-> > On Mon, Dec 19, 2022 at 12:07:25PM -0800, Boqun Feng wrote:
-> > > On Mon, Dec 19, 2022 at 04:35:30PM +0100, Peter Zijlstra wrote:
-> > > > For all architectures that currently support cmpxchg_double()
-> > > > implement the cmpxchg128() family of functions that is basically the
-> > > > same but with a saner interface.
-> > > > 
-> > > > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> > > > ---
-> > > >  arch/arm64/include/asm/atomic_ll_sc.h |   38 +++++++++++++++++++++++
-> > > >  arch/arm64/include/asm/atomic_lse.h   |   33 +++++++++++++++++++-
-> > > >  arch/arm64/include/asm/cmpxchg.h      |   26 ++++++++++++++++
-> > > >  arch/s390/include/asm/cmpxchg.h       |   33 ++++++++++++++++++++
-> > > >  arch/x86/include/asm/cmpxchg_32.h     |    3 +
-> > > >  arch/x86/include/asm/cmpxchg_64.h     |   55 +++++++++++++++++++++++++++++++++-
-> > > >  6 files changed, 185 insertions(+), 3 deletions(-)
-> > > > 
-> > > > --- a/arch/arm64/include/asm/atomic_ll_sc.h
-> > > > +++ b/arch/arm64/include/asm/atomic_ll_sc.h
-> > > > @@ -326,6 +326,44 @@ __CMPXCHG_DBL(   ,        ,  ,         )
-> > > >  __CMPXCHG_DBL(_mb, dmb ish, l, "memory")
-> > > >  
-> > > >  #undef __CMPXCHG_DBL
-> > > > +
-> > > > +union __u128_halves {
-> > > > +	u128 full;
-> > > > +	struct {
-> > > > +		u64 low, high;
-> > > > +	};
-> > > > +};
-> > > > +
-> > > > +#define __CMPXCHG128(name, mb, rel, cl)					\
-> > > > +static __always_inline u128						\
-> > > > +__ll_sc__cmpxchg128##name(volatile u128 *ptr, u128 old, u128 new)	\
-> > > > +{									\
-> > > > +	union __u128_halves r, o = { .full = (old) },			\
-> > > > +			       n = { .full = (new) };			\
-> > > > +									\
-> > > > +	asm volatile("// __cmpxchg128" #name "\n"			\
-> > > > +	"	prfm	pstl1strm, %2\n"				\
-> > > > +	"1:	ldxp	%0, %1, %2\n"					\
-> > > > +	"	eor	%3, %0, %3\n"					\
-> > > > +	"	eor	%4, %1, %4\n"					\
-> > > > +	"	orr	%3, %4, %3\n"					\
-> > > > +	"	cbnz	%3, 2f\n"					\
-> > > > +	"	st" #rel "xp	%w3, %5, %6, %2\n"			\
-> > > > +	"	cbnz	%w3, 1b\n"					\
-> > > > +	"	" #mb "\n"						\
-> > > > +	"2:"								\
-> > > > +	: "=&r" (r.low), "=&r" (r.high), "+Q" (*(unsigned long *)ptr)	\
-> > > 
-> > > I wonder whether we should use "(*(u128 *)ptr)" instead of "(*(unsigned
-> > > long *) ptr)"? Because compilers may think only 64bit value pointed by
-> > > "ptr" gets modified, and they are allowed to do "useful" optimization.
-> > 
-> > In this I've copied the existing cmpxchg_double() code; I'll have to let
-> > the arch folks speak here, I've no clue.
+On 1/3/23 2:24 PM, xxmy@infragraf.org wrote:
+> From: Tonghao Zhang <xxmy@infragraf.org>
 > 
-> We definitely need to ensure the compiler sees we poke the whole thing, or it
-> can get this horribly wrong, so that is a latent bug.
+> The x86_64 can't dump the valid insn in this way. A test BPF prog
+> which include subprog:
 > 
-> See commit:
+> $ llvm-objdump -d subprog.o
+> Disassembly of section .text:
+> 0000000000000000 <subprog>:
+>         0:	18 01 00 00 73 75 62 70 00 00 00 00 72 6f 67 00	r1 = 29114459903653235 ll
+>         2:	7b 1a f8 ff 00 00 00 00	*(u64 *)(r10 - 8) = r1
+>         3:	bf a1 00 00 00 00 00 00	r1 = r10
+>         4:	07 01 00 00 f8 ff ff ff	r1 += -8
+>         5:	b7 02 00 00 08 00 00 00	r2 = 8
+>         6:	85 00 00 00 06 00 00 00	call 6
+>         7:	95 00 00 00 00 00 00 00	exit
+> Disassembly of section raw_tp/sys_enter:
+> 0000000000000000 <entry>:
+>         0:	85 10 00 00 ff ff ff ff	call -1
+>         1:	b7 00 00 00 00 00 00 00	r0 = 0
+>         2:	95 00 00 00 00 00 00 00	exit
 > 
->   fee960bed5e857eb ("arm64: xchg: hazard against entire exchange variable")
+> kernel print message:
+> [  580.775387] flen=8 proglen=51 pass=3 image=ffffffffa000c20c from=kprobe-load pid=1643
+> [  580.777236] JIT code: 00000000: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc
+> [  580.779037] JIT code: 00000010: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc
+> [  580.780767] JIT code: 00000020: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc
+> [  580.782568] JIT code: 00000030: cc cc cc
 > 
-> ... for examples of GCC being clever, where I overlooked the *_double() cases.
+> $ bpf_jit_disasm
+> 51 bytes emitted from JIT compiler (pass:3, flen:8)
+> ffffffffa000c20c + <x>:
+>     0:	int3
+>     1:	int3
+>     2:	int3
+>     3:	int3
+>     4:	int3
+>     5:	int3
+>     ...
+> 
+> Until bpf_jit_binary_pack_finalize is invoked, we copy rw_header to header
+> and then image/insn is valid. BTW, we can use the "bpftool prog dump" JITed instructions.
+> 
+> * clean up the doc
+> * remove bpf_jit_disasm tool
+> * set bpf_jit_enable only 0 or 1.
+> 
+> Signed-off-by: Tonghao Zhang <xxmy@infragraf.org>
+> Suggested-by: Alexei Starovoitov <ast@kernel.org>
+> Cc: Alexei Starovoitov <ast@kernel.org>
+> Cc: Daniel Borkmann <daniel@iogearbox.net>
+> Cc: Andrii Nakryiko <andrii@kernel.org>
+> Cc: Martin KaFai Lau <martin.lau@linux.dev>
+> Cc: Song Liu <song@kernel.org>
+> Cc: Yonghong Song <yhs@fb.com>
+> Cc: John Fastabend <john.fastabend@gmail.com>
+> Cc: KP Singh <kpsingh@kernel.org>
+> Cc: Stanislav Fomichev <sdf@google.com>
+> Cc: Hao Luo <haoluo@google.com>
+> Cc: Jiri Olsa <jolsa@kernel.org>
+> Cc: Hou Tao <houtao1@huawei.com>
+> ---
+>   Documentation/admin-guide/sysctl/net.rst |   2 +-
+>   Documentation/networking/filter.rst      |  98 +------
+>   arch/arm/net/bpf_jit_32.c                |   4 -
+>   arch/arm64/net/bpf_jit_comp.c            |   4 -
+>   arch/loongarch/net/bpf_jit.c             |   4 -
+>   arch/mips/net/bpf_jit_comp.c             |   3 -
+>   arch/powerpc/net/bpf_jit_comp.c          |  11 -
+>   arch/riscv/net/bpf_jit_core.c            |   3 -
+>   arch/s390/net/bpf_jit_comp.c             |   4 -
+>   arch/sparc/net/bpf_jit_comp_32.c         |   3 -
+>   arch/sparc/net/bpf_jit_comp_64.c         |  13 -
+>   arch/x86/net/bpf_jit_comp.c              |   3 -
+>   arch/x86/net/bpf_jit_comp32.c            |   3 -
+>   net/core/sysctl_net_core.c               |  14 +-
+>   tools/bpf/.gitignore                     |   1 -
+>   tools/bpf/Makefile                       |  10 +-
+>   tools/bpf/bpf_jit_disasm.c               | 332 -----------------------
+>   17 files changed, 8 insertions(+), 504 deletions(-)
+>   delete mode 100644 tools/bpf/bpf_jit_disasm.c
+> 
+> diff --git a/Documentation/admin-guide/sysctl/net.rst b/Documentation/admin-guide/sysctl/net.rst
+> index 6394f5dc2303..45d3d965276c 100644
+> --- a/Documentation/admin-guide/sysctl/net.rst
+> +++ b/Documentation/admin-guide/sysctl/net.rst
+> @@ -87,7 +87,7 @@ Values:
+>   
+>   	- 0 - disable the JIT (default value)
+>   	- 1 - enable the JIT
+> -	- 2 - enable the JIT and ask the compiler to emit traces on kernel log.
+> +	- 2 - deprecated in linux 6.2
 
-Ugh; with GCC 12.1.0, arm64 defconfig, and the following:
+I'd make it more clear in the docs and reword it as follows (also, it'll be in 6.3, not 6.2):
 
-| struct big {
-|         u64 lo, hi;
-| } __aligned(128);
-| 
-| unsigned long foo(struct big *b)
-| {
-|         u64 hi_old, hi_new;
-| 
-|         hi_old = b->hi;
-| 
-|         cmpxchg_double_local(&b->lo, &b->hi, 0x12, 0x34, 0x56, 0x78);
-| 
-|         hi_new = b->hi;
-| 
-|         return hi_old ^ hi_new;
-| }
+	- 2 - enable the JIT and ask the compiler to emit traces on kernel log.
+	      (deprecated since v6.3, use ``bpftool prog dump jited id <id>`` instead)
 
-GCC clearly figures out the high half isn't modified, and constant folds hi_old
-^ hi_new down to zero, regardless of whether we use LL/SC or LSE:
+>   
+>   bpf_jit_harden
+>   --------------
+[...]
+> diff --git a/net/core/sysctl_net_core.c b/net/core/sysctl_net_core.c
+> index 5b1ce656baa1..731a2eb0f68e 100644
+> --- a/net/core/sysctl_net_core.c
+> +++ b/net/core/sysctl_net_core.c
+> @@ -275,16 +275,8 @@ static int proc_dointvec_minmax_bpf_enable(struct ctl_table *table, int write,
+>   
+>   	tmp.data = &jit_enable;
+>   	ret = proc_dointvec_minmax(&tmp, write, buffer, lenp, ppos);
+> -	if (write && !ret) {
+> -		if (jit_enable < 2 ||
+> -		    (jit_enable == 2 && bpf_dump_raw_ok(current_cred()))) {
+> -			*(int *)table->data = jit_enable;
+> -			if (jit_enable == 2)
+> -				pr_warn("bpf_jit_enable = 2 was set! NEVER use this in production, only for JIT debugging!\n");
+> -		} else {
+> -			ret = -EPERM;
+> -		}
+> -	}
+> +	if (write && !ret)
+> +		*(int *)table->data = jit_enable;
+>   
+>   	if (write && ret && min == max)
+>   		pr_info_once("CONFIG_BPF_JIT_ALWAYS_ON is enabled, bpf_jit_enable is permanently set to 1.\n");
+> @@ -395,7 +387,7 @@ static struct ctl_table net_core_table[] = {
+>   		.extra2		= SYSCTL_ONE,
+>   # else
+>   		.extra1		= SYSCTL_ZERO,
+> -		.extra2		= SYSCTL_TWO,
+> +		.extra2		= SYSCTL_ONE,
 
-<foo>:
-   0:   d503233f        paciasp
-   4:   aa0003e4        mov     x4, x0
-   8:   1400000e        b       40 <foo+0x40>
-   c:   d2800240        mov     x0, #0x12                       // #18
-  10:   d2800681        mov     x1, #0x34                       // #52
-  14:   aa0003e5        mov     x5, x0
-  18:   aa0103e6        mov     x6, x1
-  1c:   d2800ac2        mov     x2, #0x56                       // #86
-  20:   d2800f03        mov     x3, #0x78                       // #120
-  24:   48207c82        casp    x0, x1, x2, x3, [x4]
-  28:   ca050000        eor     x0, x0, x5
-  2c:   ca060021        eor     x1, x1, x6
-  30:   aa010000        orr     x0, x0, x1
-  34:   d2800000        mov     x0, #0x0                        // #0    <--- BANG
-  38:   d50323bf        autiasp
-  3c:   d65f03c0        ret
-  40:   d2800240        mov     x0, #0x12                       // #18
-  44:   d2800681        mov     x1, #0x34                       // #52
-  48:   d2800ac2        mov     x2, #0x56                       // #86
-  4c:   d2800f03        mov     x3, #0x78                       // #120
-  50:   f9800091        prfm    pstl1strm, [x4]
-  54:   c87f1885        ldxp    x5, x6, [x4]
-  58:   ca0000a5        eor     x5, x5, x0
-  5c:   ca0100c6        eor     x6, x6, x1
-  60:   aa0600a6        orr     x6, x5, x6
-  64:   b5000066        cbnz    x6, 70 <foo+0x70>
-  68:   c8250c82        stxp    w5, x2, x3, [x4]
-  6c:   35ffff45        cbnz    w5, 54 <foo+0x54>
-  70:   d2800000        mov     x0, #0x0                        // #0     <--- BANG
-  74:   d50323bf        autiasp
-  78:   d65f03c0        ret
-  7c:   d503201f        nop
+I'd leave it at SYSCTL_TWO to avoid breakage, just that the semantics of 2 will be the same
+as 1 going forward.
 
-... so we *definitely* need to fix that.
-
-Using __uint128_t instead, e.g.
-
-diff --git a/arch/arm64/include/asm/atomic_ll_sc.h b/arch/arm64/include/asm/atomic_ll_sc.h
-index 0890e4f568fb7..cbb3d961123b1 100644
---- a/arch/arm64/include/asm/atomic_ll_sc.h
-+++ b/arch/arm64/include/asm/atomic_ll_sc.h
-@@ -315,7 +315,7 @@ __ll_sc__cmpxchg_double##name(unsigned long old1,                   \
-        "       cbnz    %w0, 1b\n"                                      \
-        "       " #mb "\n"                                              \
-        "2:"                                                            \
--       : "=&r" (tmp), "=&r" (ret), "+Q" (*(unsigned long *)ptr)        \
-+       : "=&r" (tmp), "=&r" (ret), "+Q" (*(__uint128_t *)ptr)          \
-        : "r" (old1), "r" (old2), "r" (new1), "r" (new2)                \
-        : cl);                                                          \
-                                                                        \
-diff --git a/arch/arm64/include/asm/atomic_lse.h b/arch/arm64/include/asm/atomic_lse.h
-index 52075e93de6c0..a94d6dacc0292 100644
---- a/arch/arm64/include/asm/atomic_lse.h
-+++ b/arch/arm64/include/asm/atomic_lse.h
-@@ -311,7 +311,7 @@ __lse__cmpxchg_double##name(unsigned long old1,                             \
-        "       eor     %[old2], %[old2], %[oldval2]\n"                 \
-        "       orr     %[old1], %[old1], %[old2]"                      \
-        : [old1] "+&r" (x0), [old2] "+&r" (x1),                         \
--         [v] "+Q" (*(unsigned long *)ptr)                              \
-+         [v] "+Q" (*(__uint128_t *)ptr)                                \
-        : [new1] "r" (x2), [new2] "r" (x3), [ptr] "r" (x4),             \
-          [oldval1] "r" (oldval1), [oldval2] "r" (oldval2)              \
-        : cl);                                                          \
-
-... makes GCC much happier:
-
-<foo>:
-   0:   f9400407        ldr     x7, [x0, #8]
-   4:   d503233f        paciasp
-   8:   aa0003e4        mov     x4, x0
-   c:   1400000f        b       48 <foo+0x48>
-  10:   d2800240        mov     x0, #0x12                       // #18
-  14:   d2800681        mov     x1, #0x34                       // #52
-  18:   aa0003e5        mov     x5, x0
-  1c:   aa0103e6        mov     x6, x1
-  20:   d2800ac2        mov     x2, #0x56                       // #86
-  24:   d2800f03        mov     x3, #0x78                       // #120
-  28:   48207c82        casp    x0, x1, x2, x3, [x4]
-  2c:   ca050000        eor     x0, x0, x5
-  30:   ca060021        eor     x1, x1, x6
-  34:   aa010000        orr     x0, x0, x1
-  38:   f9400480        ldr     x0, [x4, #8]
-  3c:   d50323bf        autiasp
-  40:   ca0000e0        eor     x0, x7, x0
-  44:   d65f03c0        ret
-  48:   d2800240        mov     x0, #0x12                       // #18
-  4c:   d2800681        mov     x1, #0x34                       // #52
-  50:   d2800ac2        mov     x2, #0x56                       // #86
-  54:   d2800f03        mov     x3, #0x78                       // #120
-  58:   f9800091        prfm    pstl1strm, [x4]
-  5c:   c87f1885        ldxp    x5, x6, [x4]
-  60:   ca0000a5        eor     x5, x5, x0
-  64:   ca0100c6        eor     x6, x6, x1
-  68:   aa0600a6        orr     x6, x5, x6
-  6c:   b5000066        cbnz    x6, 78 <foo+0x78>
-  70:   c8250c82        stxp    w5, x2, x3, [x4]
-  74:   35ffff45        cbnz    w5, 5c <foo+0x5c>
-  78:   f9400480        ldr     x0, [x4, #8]
-  7c:   d50323bf        autiasp
-  80:   ca0000e0        eor     x0, x7, x0
-  84:   d65f03c0        ret
-  88:   d503201f        nop
-  8c:   d503201f        nop
-
-... I'll go check whether clang is happy with that, and how far back that can
-go, otherwise we'll need to blat the high half with a separate constaint that
-(ideally) doesn't end up allocating a pointless address register.
-
-Mark.
+>   # endif
+>   	},
+>   # ifdef CONFIG_HAVE_EBPF_JIT
