@@ -2,132 +2,208 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ED143C4708E
-	for <linux-s390@archiver.kernel.org>; Tue,  3 Jan 2023 08:15:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F148C4708E
+	for <linux-s390@archiver.kernel.org>; Tue,  3 Jan 2023 08:17:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237008AbjACIPm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 3 Jan 2023 03:15:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40580 "EHLO
+        id S237086AbjACIRI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 3 Jan 2023 03:17:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236990AbjACIPg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Jan 2023 03:15:36 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E86C8DF47;
-        Tue,  3 Jan 2023 00:15:33 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 88BB7611F0;
-        Tue,  3 Jan 2023 08:15:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F5A7C433EF;
-        Tue,  3 Jan 2023 08:15:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672733733;
-        bh=a/FcX1DrHi4fYlfYvL75m1mDjOg30lklyzaTQTcHWe8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bruXIDIVE0Xl/omtX1abJolrerYTaRsMyjB/TvXqH4sy/Cn3OY57+dB2a/ZSmue5H
-         y53DJXLtHL4842sVmBEHyYKjx/7MRHiYdTn46MhMhK62KWu/+Zb294t6ogQdMxvuJk
-         np+Ozfd5di8OvtkXNnSzE+bHlrBYCd5Eq/yKRwGg=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.10 25/63] s390: add support for TIF_NOTIFY_SIGNAL
-Date:   Tue,  3 Jan 2023 09:13:55 +0100
-Message-Id: <20230103081310.082733700@linuxfoundation.org>
-X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230103081308.548338576@linuxfoundation.org>
-References: <20230103081308.548338576@linuxfoundation.org>
-User-Agent: quilt/0.67
+        with ESMTP id S237087AbjACIQs (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Jan 2023 03:16:48 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 312F3DFAD;
+        Tue,  3 Jan 2023 00:16:43 -0800 (PST)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3037NEbt023737;
+        Tue, 3 Jan 2023 08:16:30 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=vE3f+g6jNIfN6+BlLEsrhzsv386gONtSa2XiID9LICU=;
+ b=flBtWJaC3lfy+TcBguVOKa2SgpazpatnsR3h2bYvt1I7Mjj3BXIMITxFatW5SrTwEe+Q
+ 0TZfQnowaL+KNltr9gstE8Di/y4pvKu0Gh7vkoSWimGiwGlVEKdVAOIP7CyNksOem4tK
+ 2iuu/DqkanuZkBvQnjKQSQ1YAzMTLeWDadUAeq66TaEeu+yHvNOnPC6o9bs6xUNj+KaN
+ lnADidQRyIBTBeYYE4eOI7fm1a7BsRI9FYknlbQt4+cUd9ktVSINtNiYTPcDEPUVG79K
+ VNP4MhiH88gsQ9W2x/3TSFlr+G8Ie6xtez77ptlfctgZbwwv8UuwRTJUdupY94pJPalm XQ== 
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mvfx7ru0c-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 03 Jan 2023 08:16:30 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3037VdQq004235;
+        Tue, 3 Jan 2023 08:16:28 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+        by ppma05fra.de.ibm.com (PPS) with ESMTPS id 3mtcq6jjd0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 03 Jan 2023 08:16:28 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3038GO3I40763764
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 3 Jan 2023 08:16:24 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 18A5020043;
+        Tue,  3 Jan 2023 08:16:24 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F2A7E20049;
+        Tue,  3 Jan 2023 08:16:22 +0000 (GMT)
+Received: from [9.179.26.205] (unknown [9.179.26.205])
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Tue,  3 Jan 2023 08:16:22 +0000 (GMT)
+Message-ID: <3e363da787126a4e8f779988ced92ae4624e3ec3.camel@linux.ibm.com>
+Subject: Re: [PATCH v3 2/7] iommu: Allow .iotlb_sync_map to fail and handle
+ s390's -ENOMEM return
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Alexandra Winter <wintera@linux.ibm.com>,
+        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>
+Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
+        Gerd Bayer <gbayer@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>, iommu@lists.linux.dev,
+        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, linux-kernel@vger.kernel.org,
+        Julian Ruess <julianr@linux.ibm.com>
+Date:   Tue, 03 Jan 2023 09:16:22 +0100
+In-Reply-To: <2f1beb15-e9e4-d8ab-1b68-c83f1a53c5c5@linux.ibm.com>
+References: <20230102115619.2088685-1-schnelle@linux.ibm.com>
+         <20230102115619.2088685-3-schnelle@linux.ibm.com>
+         <2f1beb15-e9e4-d8ab-1b68-c83f1a53c5c5@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.46.2 (3.46.2-1.fc37) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: uHRBgn4kQsM34u_CAwsP_2DzjSZW2DkT
+X-Proofpoint-ORIG-GUID: uHRBgn4kQsM34u_CAwsP_2DzjSZW2DkT
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2023-01-02_14,2022-12-30_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxscore=0
+ mlxlogscore=999 spamscore=0 lowpriorityscore=0 bulkscore=0 suspectscore=0
+ adultscore=0 phishscore=0 malwarescore=0 impostorscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2301030071
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+On Mon, 2023-01-02 at 19:25 +0100, Alexandra Winter wrote:
+>=20
+> On 02.01.23 12:56, Niklas Schnelle wrote:
+> > On s390 .iotlb_sync_map is used to sync mappings to an underlying
+> > hypervisor by letting the hypervisor inspect the synced IOVA range and
+> > updating its shadow table. This however means that it can fail as the
+> > hypervisor may run out of resources. This can be due to the hypervisor
+> > being unable to pin guest pages, due to a limit on concurrently mapped
+> > addresses such as vfio_iommu_type1.dma_entry_limit or other resources.
+> > Either way such a failure to sync a mapping should result in
+> > a DMA_MAPPING_EROR.
+> >=20
+> > Now especially when running with batched IOTLB flushes for unmap it may
+> > be that some IOVAs have already been invalidated but not yet synced via
+> > .iotlb_sync_map. Thus if the hypervisor indicates running out of
+> > resources, first do a global flush allowing the hypervisor to free
+> > resources associated with these mappings and only if that also fails
+> > report this error to callers.
+> >=20
+> > Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> > ---
+> Just a small typo, I noticed
+> [...]
 
-[ Upstream commit 75309018a24ddfb930c51bad8f4070b9bc2c923b ]
+You mean the misspelled DMA_MAPPING_ERROR, right? Either way I did edit
+the commit message for a bit more clarity on some of the details:
 
-Wire up TIF_NOTIFY_SIGNAL handling for s390.
+On s390 when using a paging hypervisor, .iotlb_sync_map is used to sync
+mappings by letting the hypervisor inspect the synced IOVA range and
+updating a shadow table. This however means that .iotlb_sync_map can
+fail as the hypervisor may run out of resources while doing the sync.
+This can be due to the hypervisor being unable to pin guest pages, due
+to a limit on mapped addresses such as vfio_iommu_type1.dma_entry_limit
+or lack of other resources. Either way such a failure to sync a mapping
+should result in a DMA_MAPPING_ERROR.
 
-Cc: linux-s390@vger.kernel.org
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
-Acked-by: Sven Schnelle <svens@linux.ibm.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/s390/include/asm/thread_info.h |    2 ++
- arch/s390/kernel/entry.S            |   11 ++++++-----
- arch/s390/kernel/signal.c           |    2 +-
- 3 files changed, 9 insertions(+), 6 deletions(-)
+Now especially when running with batched IOTLB flushes for unmap it may
+be that some IOVAs have already been invalidated but not yet synced via
+.iotlb_sync_map. Thus if the hypervisor indicates running out of
+resources, first do a global flush allowing the hypervisor to free
+resources associated with these mappings as well a retry creating the
+new mappings and only if that also fails report this error to callers.
 
---- a/arch/s390/include/asm/thread_info.h
-+++ b/arch/s390/include/asm/thread_info.h
-@@ -65,6 +65,7 @@ void arch_setup_new_exec(void);
- #define TIF_GUARDED_STORAGE	4	/* load guarded storage control block */
- #define TIF_PATCH_PENDING	5	/* pending live patching update */
- #define TIF_PGSTE		6	/* New mm's will use 4K page tables */
-+#define TIF_NOTIFY_SIGNAL	7	/* signal notifications exist */
- #define TIF_ISOLATE_BP		8	/* Run process with isolated BP */
- #define TIF_ISOLATE_BP_GUEST	9	/* Run KVM guests with isolated BP */
- 
-@@ -82,6 +83,7 @@ void arch_setup_new_exec(void);
- #define TIF_SYSCALL_TRACEPOINT	27	/* syscall tracepoint instrumentation */
- 
- #define _TIF_NOTIFY_RESUME	BIT(TIF_NOTIFY_RESUME)
-+#define _TIF_NOTIFY_SIGNAL	BIT(TIF_NOTIFY_SIGNAL)
- #define _TIF_SIGPENDING		BIT(TIF_SIGPENDING)
- #define _TIF_NEED_RESCHED	BIT(TIF_NEED_RESCHED)
- #define _TIF_UPROBE		BIT(TIF_UPROBE)
---- a/arch/s390/kernel/entry.S
-+++ b/arch/s390/kernel/entry.S
-@@ -52,7 +52,8 @@ STACK_SIZE  = 1 << STACK_SHIFT
- STACK_INIT = STACK_SIZE - STACK_FRAME_OVERHEAD - __PT_SIZE
- 
- _TIF_WORK	= (_TIF_SIGPENDING | _TIF_NOTIFY_RESUME | _TIF_NEED_RESCHED | \
--		   _TIF_UPROBE | _TIF_GUARDED_STORAGE | _TIF_PATCH_PENDING)
-+		   _TIF_UPROBE | _TIF_GUARDED_STORAGE | _TIF_PATCH_PENDING | \
-+		   _TIF_NOTIFY_SIGNAL)
- _TIF_TRACE	= (_TIF_SYSCALL_TRACE | _TIF_SYSCALL_AUDIT | _TIF_SECCOMP | \
- 		   _TIF_SYSCALL_TRACEPOINT)
- _CIF_WORK	= (_CIF_ASCE_PRIMARY | _CIF_ASCE_SECONDARY | _CIF_FPU)
-@@ -481,8 +482,8 @@ ENTRY(system_call)
- #endif
- 	TSTMSK	__PT_FLAGS(%r11),_PIF_SYSCALL_RESTART
- 	jo	.Lsysc_syscall_restart
--	TSTMSK	__TI_flags(%r12),_TIF_SIGPENDING
--	jo	.Lsysc_sigpending
-+	TSTMSK	__TI_flags(%r12),(_TIF_SIGPENDING|_TIF_NOTIFY_SIGNAL)
-+	jnz	.Lsysc_sigpending
- 	TSTMSK	__TI_flags(%r12),_TIF_NOTIFY_RESUME
- 	jo	.Lsysc_notify_resume
- 	TSTMSK	__LC_CPU_FLAGS,(_CIF_ASCE_PRIMARY|_CIF_ASCE_SECONDARY)
-@@ -863,8 +864,8 @@ ENTRY(io_int_handler)
- 	TSTMSK	__TI_flags(%r12),_TIF_PATCH_PENDING
- 	jo	.Lio_patch_pending
- #endif
--	TSTMSK	__TI_flags(%r12),_TIF_SIGPENDING
--	jo	.Lio_sigpending
-+	TSTMSK	__TI_flags(%r12),(_TIF_SIGPENDING|_TIF_NOTIFY_SIGNAL)
-+	jnz	.Lio_sigpending
- 	TSTMSK	__TI_flags(%r12),_TIF_NOTIFY_RESUME
- 	jo	.Lio_notify_resume
- 	TSTMSK	__TI_flags(%r12),_TIF_GUARDED_STORAGE
---- a/arch/s390/kernel/signal.c
-+++ b/arch/s390/kernel/signal.c
-@@ -472,7 +472,7 @@ void do_signal(struct pt_regs *regs)
- 	current->thread.system_call =
- 		test_pt_regs_flag(regs, PIF_SYSCALL) ? regs->int_code : 0;
- 
--	if (get_signal(&ksig)) {
-+	if (test_thread_flag(TIF_SIGPENDING) && get_signal(&ksig)) {
- 		/* Whee!  Actually deliver the signal.  */
- 		if (current->thread.system_call) {
- 			regs->int_code = current->thread.system_call;
 
+
+> > diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
+> > index ed33c6cce083..6ba38b4f5b37 100644
+> > --- a/drivers/iommu/s390-iommu.c
+> > +++ b/drivers/iommu/s390-iommu.c
+> > @@ -210,6 +210,14 @@ static void s390_iommu_release_device(struct devic=
+e *dev)
+> >  		__s390_iommu_detach_device(zdev);
+> >  }
+> > =20
+> > +
+> > +static int zpci_refresh_all(struct zpci_dev *zdev)
+> > +{
+> > +	return zpci_refresh_trans((u64)zdev->fh << 32, zdev->start_dma,
+> > +				  zdev->end_dma - zdev->start_dma + 1);
+> > +
+> > +}
+> > +
+> >  static void s390_iommu_flush_iotlb_all(struct iommu_domain *domain)
+> >  {
+> >  	struct s390_domain *s390_domain =3D to_s390_domain(domain);
+> > @@ -217,8 +225,7 @@ static void s390_iommu_flush_iotlb_all(struct iommu=
+_domain *domain)
+> > =20
+> >  	rcu_read_lock();
+> >  	list_for_each_entry_rcu(zdev, &s390_domain->devices, iommu_list) {
+> > -		zpci_refresh_trans((u64)zdev->fh << 32, zdev->start_dma,
+> > -				   zdev->end_dma - zdev->start_dma + 1);
+> > +		zpci_refresh_all(zdev);
+> >  	}
+> >  	rcu_read_unlock();
+> >  }
+> > @@ -242,20 +249,32 @@ static void s390_iommu_iotlb_sync(struct iommu_do=
+main *domain,
+> >  	rcu_read_unlock();
+> >  }
+> > =20
+> > -static void s390_iommu_iotlb_sync_map(struct iommu_domain *domain,
+> > +static int s390_iommu_iotlb_sync_map(struct iommu_domain *domain,
+> >  				      unsigned long iova, size_t size)
+> >  {
+> >  	struct s390_domain *s390_domain =3D to_s390_domain(domain);
+> >  	struct zpci_dev *zdev;
+> > +	int ret =3D 0;
+> > =20
+> >  	rcu_read_lock();
+> >  	list_for_each_entry_rcu(zdev, &s390_domain->devices, iommu_list) {
+> >  		if (!zdev->tlb_refresh)
+> >  			continue;
+> > -		zpci_refresh_trans((u64)zdev->fh << 32,
+> > -				   iova, size);
+> > +		ret =3D zpci_refresh_trans((u64)zdev->fh << 32,
+> > +					 iova, size);
+> > +		/*
+> > +		 * let the hypervisor disover invalidated entries
+> 			typo: s/disover/discover/g
+> > +		 * allowing it to free IOVAs and unpin pages
+> > +		 */
+> > +		if (ret =3D=3D -ENOMEM) {
+> > +			ret =3D zpci_refresh_all(zdev);
+> > +			if (ret)
+> > +				break;
+> > +		}
+> >  	}
+> >  	rcu_read_unlock();
+> > +
+> > +	return ret;
+> >  }
+> > =20
+> >  static int s390_iommu_validate_trans(struct s390_domain *s390_domain,
+> [...]
 
