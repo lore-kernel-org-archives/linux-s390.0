@@ -2,137 +2,128 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E09BC53210
-	for <linux-s390@archiver.kernel.org>; Tue,  3 Jan 2023 10:05:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 443CDC4708E
+	for <linux-s390@archiver.kernel.org>; Tue,  3 Jan 2023 13:25:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237301AbjACKFv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 3 Jan 2023 05:05:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39974 "EHLO
+        id S237423AbjACNZu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 3 Jan 2023 08:25:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232179AbjACKFu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Jan 2023 05:05:50 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AE2E11E;
-        Tue,  3 Jan 2023 02:05:48 -0800 (PST)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3037hcSP015068;
-        Tue, 3 Jan 2023 10:02:20 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=dMHVtFosqWThDyY5SftMoOPjqDlLusCntZAFShOz2mY=;
- b=KQ8gHflm592WlbRAgwdQmZyTRlHDWh9M3ZAPFV+EMcsIOXJ461PiMpCp5cUVt9BL1e6j
- zqllDR5Fb/gxAm41jRkoRbn7AyAsUGSUMf7knMuu/spo09IOUdLrV2GM4nc+OlkQbkE7
- IJzG4uvffHGaWIteJBPi+B7FHAqQUQN3AtsThHUAZCqJQIQDHXbgZuAeeqSo9WeDmPJj
- eEQnkInKW+xzSa/aKKaqEDcmxJK5+xsGNpjiHiXPohV0tqVjzNS2xI1QFRZv2I9KIldN
- wQ9mkHaOJ5pKdofCP9qAqPj5s8umAAK+tXrV9dZ+20maLxpkr4T38HkHLw9ablzK3SFk /w== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mvbt6xp9k-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 03 Jan 2023 10:02:20 +0000
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3039LwDp027251;
-        Tue, 3 Jan 2023 10:02:19 GMT
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mvbt6xp8p-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 03 Jan 2023 10:02:19 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 302CL8aj017444;
-        Tue, 3 Jan 2023 10:02:16 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-        by ppma02fra.de.ibm.com (PPS) with ESMTPS id 3mtcq6tmts-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 03 Jan 2023 10:02:16 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 303A2EKB49938694
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 3 Jan 2023 10:02:14 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3B14420071;
-        Tue,  3 Jan 2023 10:02:14 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F230A20069;
-        Tue,  3 Jan 2023 10:02:12 +0000 (GMT)
-Received: from osiris (unknown [9.171.83.23])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Tue,  3 Jan 2023 10:02:12 +0000 (GMT)
-Date:   Tue, 3 Jan 2023 11:02:09 +0100
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Andrzej Hajda <andrzej.hajda@intel.com>
-Cc:     linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-xtensa@linux-xtensa.org, intel-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org, Arnd Bergmann <arnd@arndb.de>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Mark Rutland <mark.rutland@arm.com>
-Subject: Re: [PATCH v3] arch: rename all internal names __xchg to __arch_xchg
-Message-ID: <Y7P9IcR7/jgYWMcq@osiris>
-References: <202212300642.6pdgegGO-lkp@intel.com>
- <20221230141552.128508-1-andrzej.hajda@intel.com>
+        with ESMTP id S237372AbjACNZt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Jan 2023 08:25:49 -0500
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 047D6CD;
+        Tue,  3 Jan 2023 05:25:47 -0800 (PST)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 4809B2F4;
+        Tue,  3 Jan 2023 05:26:28 -0800 (PST)
+Received: from FVFF77S0Q05N (unknown [10.57.37.13])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id CA5683F587;
+        Tue,  3 Jan 2023 05:25:40 -0800 (PST)
+Date:   Tue, 3 Jan 2023 13:25:35 +0000
+From:   Mark Rutland <mark.rutland@arm.com>
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     Boqun Feng <boqun.feng@gmail.com>, torvalds@linux-foundation.org,
+        corbet@lwn.net, will@kernel.org, catalin.marinas@arm.com,
+        dennis@kernel.org, tj@kernel.org, cl@linux.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        Herbert Xu <herbert@gondor.apana.org.au>, davem@davemloft.net,
+        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
+        joro@8bytes.org, suravee.suthikulpanit@amd.com,
+        robin.murphy@arm.com, dwmw2@infradead.org,
+        baolu.lu@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
+        penberg@kernel.org, rientjes@google.com, iamjoonsoo.kim@lge.com,
+        Andrew Morton <akpm@linux-foundation.org>, vbabka@suse.cz,
+        roman.gushchin@linux.dev, 42.hyeyoo@gmail.com,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, linux-s390@vger.kernel.org,
+        linux-crypto@vger.kernel.org, iommu@lists.linux.dev,
+        linux-arch@vger.kernel.org
+Subject: Re: [RFC][PATCH 05/12] arch: Introduce
+ arch_{,try_}_cmpxchg128{,_local}()
+Message-ID: <Y7QszyTEG2+WiI/C@FVFF77S0Q05N>
+References: <20221219153525.632521981@infradead.org>
+ <20221219154119.154045458@infradead.org>
+ <Y6DEfQXymYVgL3oJ@boqun-archlinux>
+ <Y6GXoO4qmH9OIZ5Q@hirez.programming.kicks-ass.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221230141552.128508-1-andrzej.hajda@intel.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: JUKgavQnlJumrUvi-CztUW8Qob9IZFEg
-X-Proofpoint-GUID: 0ZquoQ4B0WHjt8os5pwnxRNooiQSYFH8
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2023-01-03_01,2023-01-03_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 clxscore=1011
- lowpriorityscore=0 mlxlogscore=712 priorityscore=1501 bulkscore=0
- spamscore=0 adultscore=0 phishscore=0 suspectscore=0 mlxscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2301030088
+In-Reply-To: <Y6GXoO4qmH9OIZ5Q@hirez.programming.kicks-ass.net>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Dec 30, 2022 at 03:15:52PM +0100, Andrzej Hajda wrote:
-> __xchg will be used for non-atomic xchg macro.
+On Tue, Dec 20, 2022 at 12:08:16PM +0100, Peter Zijlstra wrote:
+> On Mon, Dec 19, 2022 at 12:07:25PM -0800, Boqun Feng wrote:
+> > On Mon, Dec 19, 2022 at 04:35:30PM +0100, Peter Zijlstra wrote:
+> > > For all architectures that currently support cmpxchg_double()
+> > > implement the cmpxchg128() family of functions that is basically the
+> > > same but with a saner interface.
+> > > 
+> > > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> > > ---
+> > >  arch/arm64/include/asm/atomic_ll_sc.h |   38 +++++++++++++++++++++++
+> > >  arch/arm64/include/asm/atomic_lse.h   |   33 +++++++++++++++++++-
+> > >  arch/arm64/include/asm/cmpxchg.h      |   26 ++++++++++++++++
+> > >  arch/s390/include/asm/cmpxchg.h       |   33 ++++++++++++++++++++
+> > >  arch/x86/include/asm/cmpxchg_32.h     |    3 +
+> > >  arch/x86/include/asm/cmpxchg_64.h     |   55 +++++++++++++++++++++++++++++++++-
+> > >  6 files changed, 185 insertions(+), 3 deletions(-)
+> > > 
+> > > --- a/arch/arm64/include/asm/atomic_ll_sc.h
+> > > +++ b/arch/arm64/include/asm/atomic_ll_sc.h
+> > > @@ -326,6 +326,44 @@ __CMPXCHG_DBL(   ,        ,  ,         )
+> > >  __CMPXCHG_DBL(_mb, dmb ish, l, "memory")
+> > >  
+> > >  #undef __CMPXCHG_DBL
+> > > +
+> > > +union __u128_halves {
+> > > +	u128 full;
+> > > +	struct {
+> > > +		u64 low, high;
+> > > +	};
+> > > +};
+> > > +
+> > > +#define __CMPXCHG128(name, mb, rel, cl)					\
+> > > +static __always_inline u128						\
+> > > +__ll_sc__cmpxchg128##name(volatile u128 *ptr, u128 old, u128 new)	\
+> > > +{									\
+> > > +	union __u128_halves r, o = { .full = (old) },			\
+> > > +			       n = { .full = (new) };			\
+> > > +									\
+> > > +	asm volatile("// __cmpxchg128" #name "\n"			\
+> > > +	"	prfm	pstl1strm, %2\n"				\
+> > > +	"1:	ldxp	%0, %1, %2\n"					\
+> > > +	"	eor	%3, %0, %3\n"					\
+> > > +	"	eor	%4, %1, %4\n"					\
+> > > +	"	orr	%3, %4, %3\n"					\
+> > > +	"	cbnz	%3, 2f\n"					\
+> > > +	"	st" #rel "xp	%w3, %5, %6, %2\n"			\
+> > > +	"	cbnz	%w3, 1b\n"					\
+> > > +	"	" #mb "\n"						\
+> > > +	"2:"								\
+> > > +	: "=&r" (r.low), "=&r" (r.high), "+Q" (*(unsigned long *)ptr)	\
+> > 
+> > I wonder whether we should use "(*(u128 *)ptr)" instead of "(*(unsigned
+> > long *) ptr)"? Because compilers may think only 64bit value pointed by
+> > "ptr" gets modified, and they are allowed to do "useful" optimization.
 > 
-> Signed-off-by: Andrzej Hajda <andrzej.hajda@intel.com>
-> Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-> ---
-> v2: squashed all arch patches into one
-> v3: fixed alpha/xchg_local, thx to lkp@intel.com
-> ---
-...
->  arch/s390/include/asm/cmpxchg.h      | 4 ++--
-> diff --git a/arch/s390/include/asm/cmpxchg.h b/arch/s390/include/asm/cmpxchg.h
-> index 84c3f0d576c5b1..efc16f4aac8643 100644
-> --- a/arch/s390/include/asm/cmpxchg.h
-> +++ b/arch/s390/include/asm/cmpxchg.h
-> @@ -14,7 +14,7 @@
->  
->  void __xchg_called_with_bad_pointer(void);
->  
-> -static __always_inline unsigned long __xchg(unsigned long x,
-> +static __always_inline unsigned long __arch_xchg(unsigned long x,
->  					    unsigned long address, int size)
+> In this I've copied the existing cmpxchg_double() code; I'll have to let
+> the arch folks speak here, I've no clue.
 
-Please adjust the alignment of the second line.
+We definitely need to ensure the compiler sees we poke the whole thing, or it
+can get this horribly wrong, so that is a latent bug.
 
-> @@ -77,7 +77,7 @@ static __always_inline unsigned long __xchg(unsigned long x,
->  	__typeof__(*(ptr)) __ret;					\
->  									\
->  	__ret = (__typeof__(*(ptr)))					\
-> -		__xchg((unsigned long)(x), (unsigned long)(ptr),	\
-> +		__arch_xchg((unsigned long)(x), (unsigned long)(ptr),	\
->  		       sizeof(*(ptr)));					\
+See commit:
 
-Same here.
+  fee960bed5e857eb ("arm64: xchg: hazard against entire exchange variable")
 
-The same is true for a couple of other architectures - not sure if
-they care however.
+... for examples of GCC being clever, where I overlooked the *_double() cases.
+
+I'll go spin a quick fix for that so that we can have something go to stable
+before we rejig the API.
+
+Mark.
