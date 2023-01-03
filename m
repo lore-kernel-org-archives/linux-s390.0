@@ -2,107 +2,128 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 54B9DC3DA7D
-	for <linux-s390@archiver.kernel.org>; Tue,  3 Jan 2023 19:04:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 45D7CC3DA7D
+	for <linux-s390@archiver.kernel.org>; Tue,  3 Jan 2023 19:09:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233839AbjACTEH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 3 Jan 2023 14:04:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41326 "EHLO
+        id S233817AbjACTJG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 3 Jan 2023 14:09:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238784AbjACTEA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Jan 2023 14:04:00 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85E4D12AFA;
-        Tue,  3 Jan 2023 11:03:59 -0800 (PST)
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 303IFEO6025375;
-        Tue, 3 Jan 2023 19:03:30 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=74AI/ynE6YGffYmhdsZlb/SD/hZgGQK0DkgHQIeRABg=;
- b=N5l2QpQ/9eoFRqHaA+tkkCy93Rr1o01/gVuBQf0JpEiNthVmeFeprGWfzXu8ZlpeQYnT
- KMa7Fc+TnpI4I7fA8LZiZrA+/txAJZYEBJrH6OUd7maJcmg1fQuGhLD/D8zdmSUIhoUF
- wKFeagOSGI/VhH6SePmwfg2s9cR3BW73VflAjTNpRSGmRwuxdDnnxRVDsEvILpso43ZX
- WVaotSbERrf02aXCOCIwPHp1Pimu7Pfi3WW30y/vGRdM5rHERoNQUusZKu0meQwOufUS
- mbmtiqykSxod8oLWI/Wv6m4MOpazHcOcwRWHmxPukXk3PE067L4mrT+61Ne7uABUjWvH /w== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mvjvf3am4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 03 Jan 2023 19:03:29 +0000
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 303IYupC003388;
-        Tue, 3 Jan 2023 19:03:29 GMT
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mvjvf3ak4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 03 Jan 2023 19:03:29 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 303AGuqM017352;
-        Tue, 3 Jan 2023 19:03:27 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-        by ppma02fra.de.ibm.com (PPS) with ESMTPS id 3mtcq6u3bm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 03 Jan 2023 19:03:27 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 303J3O6b42467742
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 3 Jan 2023 19:03:24 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C60B420043;
-        Tue,  3 Jan 2023 19:03:24 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 32C0220040;
-        Tue,  3 Jan 2023 19:03:24 +0000 (GMT)
-Received: from osiris (unknown [9.171.65.115])
-        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Tue,  3 Jan 2023 19:03:24 +0000 (GMT)
-Date:   Tue, 3 Jan 2023 20:03:20 +0100
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Sven Schnelle <svens@linux.ibm.com>
-Cc:     Willy Tarreau <w@1wt.eu>, "Paul E . McKenney" <paulmck@kernel.org>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Lai Jiangshan <jiangshanlai@gmail.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v3 3/5] selftests/nolibc: add s390 support
-Message-ID: <Y7R7+BIEvFdxMJIu@osiris>
-References: <20230103071957.222360-1-svens@linux.ibm.com>
- <20230103071957.222360-4-svens@linux.ibm.com>
+        with ESMTP id S238270AbjACTI7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Jan 2023 14:08:59 -0500
+Received: from mail-qv1-xf2c.google.com (mail-qv1-xf2c.google.com [IPv6:2607:f8b0:4864:20::f2c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 451F313E0B
+        for <linux-s390@vger.kernel.org>; Tue,  3 Jan 2023 11:08:58 -0800 (PST)
+Received: by mail-qv1-xf2c.google.com with SMTP id h10so22058955qvq.7
+        for <linux-s390@vger.kernel.org>; Tue, 03 Jan 2023 11:08:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=dfSqSd0mxRLyCP4JPwoGgPSv4V5DgFE+NWQibLY7nHY=;
+        b=LQt5OMztUt6H+6pe/VIHwx3Jz4d08J1ZZ7gv40yLS2RfQ9FYAN2BdqaHFaDSeqruh5
+         UdriUa0s5l2hHmuDgCVQyqdP1mZma/3SqbLGsgMr+3W5DNoGaGK3GwMdoJI3ZUgmswPc
+         hfRjTsp+o7b/O9CFRqovudaZXidsusavosKQY=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=dfSqSd0mxRLyCP4JPwoGgPSv4V5DgFE+NWQibLY7nHY=;
+        b=DOAh3qIllxc9th+jzrTZ+Z683mjGRvGSxJp0Gf5Ytl+2BlPnyys+ieM2Mf5v1ozc3L
+         edFOeBVaF512XSeRHX2Qj3uA9jJOUJS0zv2D3oUhMKWXD7Oo6b/h0RFO4uy+3eFYBcyL
+         ToGfYxeLzp9/wDaPRBcXsCsLypNcYyggrJ8gr8FWEiNPMme4tfBnu7q+m80lxYWDV4IW
+         8Ws+Nj/ytdy93B3GGs+bAFvobb9+AANTB2mYYO1rpBIKvkdIIy6WBfJ320Y1LRTCN7Gl
+         1iXkBimwIqau+InmQykGkZKHJNGbixA6dewm7a4LrXbIv/jpSaephzHswikUUPjo0Ce2
+         b/dQ==
+X-Gm-Message-State: AFqh2koHI8VHDhrBgQfeja6PUn++muTcbdmci4BevcNqLpF5HkKXgElb
+        43gbTV+Fq0AJ48cyY/+uDdw+G7EjAvroQ1To
+X-Google-Smtp-Source: AMrXdXvguJJU1sRyY+FBBysO8D1L0DY4z3H8XVodFc/LqgjS1aP9/iHDenFLCdGrgvgZSvjxgioOiQ==
+X-Received: by 2002:a0c:8143:0:b0:531:bf63:57d0 with SMTP id 61-20020a0c8143000000b00531bf6357d0mr15502084qvc.28.1672772937404;
+        Tue, 03 Jan 2023 11:08:57 -0800 (PST)
+Received: from mail-qt1-f170.google.com (mail-qt1-f170.google.com. [209.85.160.170])
+        by smtp.gmail.com with ESMTPSA id y17-20020a05620a25d100b00705377347b9sm8010444qko.70.2023.01.03.11.08.56
+        for <linux-s390@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 03 Jan 2023 11:08:57 -0800 (PST)
+Received: by mail-qt1-f170.google.com with SMTP id i20so25278373qtw.9
+        for <linux-s390@vger.kernel.org>; Tue, 03 Jan 2023 11:08:56 -0800 (PST)
+X-Received: by 2002:a05:620a:1379:b0:6fc:c48b:8eab with SMTP id
+ d25-20020a05620a137900b006fcc48b8eabmr1650146qkl.216.1672772925520; Tue, 03
+ Jan 2023 11:08:45 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230103071957.222360-4-svens@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Rh_xE76xdcJyWjlZIFvAR_MVLEmgDkYo
-X-Proofpoint-GUID: LBFaDc2BbovnaaxdhXWgjphnmmBK7p7p
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2023-01-03_07,2023-01-03_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- spamscore=0 suspectscore=0 lowpriorityscore=0 bulkscore=0 mlxlogscore=788
- adultscore=0 impostorscore=0 mlxscore=0 phishscore=0 malwarescore=0
- clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2301030163
+References: <20221219153525.632521981@infradead.org> <20221219154119.550996611@infradead.org>
+ <Y7Ri+Uij1GFkI/LB@osiris>
+In-Reply-To: <Y7Ri+Uij1GFkI/LB@osiris>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Tue, 3 Jan 2023 11:08:29 -0800
+X-Gmail-Original-Message-ID: <CAHk-=wj9nK825MyHXu7zkegc7Va+ZxcperdOtRMZBCLHqGrr=g@mail.gmail.com>
+Message-ID: <CAHk-=wj9nK825MyHXu7zkegc7Va+ZxcperdOtRMZBCLHqGrr=g@mail.gmail.com>
+Subject: Re: [RFC][PATCH 11/12] slub: Replace cmpxchg_double()
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     Peter Zijlstra <peterz@infradead.org>, corbet@lwn.net,
+        will@kernel.org, boqun.feng@gmail.com, mark.rutland@arm.com,
+        catalin.marinas@arm.com, dennis@kernel.org, tj@kernel.org,
+        cl@linux.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        Herbert Xu <herbert@gondor.apana.org.au>, davem@davemloft.net,
+        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
+        joro@8bytes.org, suravee.suthikulpanit@amd.com,
+        robin.murphy@arm.com, dwmw2@infradead.org,
+        baolu.lu@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
+        penberg@kernel.org, rientjes@google.com, iamjoonsoo.kim@lge.com,
+        Andrew Morton <akpm@linux-foundation.org>, vbabka@suse.cz,
+        roman.gushchin@linux.dev, 42.hyeyoo@gmail.com,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, linux-s390@vger.kernel.org,
+        linux-crypto@vger.kernel.org, iommu@lists.linux.dev,
+        linux-arch@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jan 03, 2023 at 08:19:55AM +0100, Sven Schnelle wrote:
-> Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
-> Acked-by: Heiko Carstens <hca@linux.ibm.com>
-> ---
->  tools/testing/selftests/nolibc/Makefile | 7 ++++++-
->  1 file changed, 6 insertions(+), 1 deletion(-)
-...
-> -CFLAGS  ?= -Os -fno-ident -fno-asynchronous-unwind-tables
-> +CFLAGS_s390 = -m64
-> +CFLAGS  ?= -Os -fno-ident -fno-asynchronous-unwind-tables $(CFLAGS_$(ARCH))
+On Tue, Jan 3, 2023 at 9:17 AM Heiko Carstens <hca@linux.ibm.com> wrote:
+>
+> On Mon, Dec 19, 2022 at 04:35:36PM +0100, Peter Zijlstra wrote:
+> >
+> > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> > ---
+> >  include/linux/slub_def.h |   12 ++-
+> >  mm/slab.h                |   41 +++++++++++--
+> >  mm/slub.c                |  146 ++++++++++++++++++++++++++++-------------------
+> >  3 files changed, 135 insertions(+), 64 deletions(-)
+>
+> Does this actually work? Just wondering since I end up with an instant
+> list corruption on s390. Might be endianness related, but I can't see
+> anything obvious at a first glance.
 
-Since this adds support for architecture specific compile flags, you
-might as well want to add -march=z10, since that's the minimum
-architecture level for the kernel we support anyway.
+I don't see anything that looks related to endianness, because while
+there is that 128-bit union member, it's always either used in full,
+or it's accessed as other union members.
 
-That way you won't end up with problems like the lay instruction, and
-could also use cghsi for zero comparison. Not that I'm proposing that
-you should change the asm code again, it is fine as it is now.
+But I *do* note that this patch seems to be the only one that depends
+on the new this_cpu_cmpxchg() updates to make it just automatically do
+the right thing for a 128-bit value. And I have to admit that all
+those games with __pcpu_cast_128() make no sense to me. Why isn't it
+just using "u128" everywhere without any odd _Generic() games?
+
+I could also easily see that if the asm constraints are wrong (like
+the "cast pointer to (unsigned long *) instead of keeping it pointing
+to a 128-bit type" thing discussed earlier), then code like this:
+
++       freelist_aba_t old = { .freelist = freelist_old, .counter = tid };
++       freelist_aba_t new = { .freelist = freelist_new, .counter =
+next_tid(tid) };
++
++       return this_cpu_cmpxchg(s->cpu_slab->freelist_tid.full,
++                               old.full, new.full) == old.full;
+
+would easily make the compiler go "the second word of 'old' is never
+used by the asm, so I won't initialize it".
+
+But yeah, that patch is hard to read, so hard to say. Does everything
+leading up to it work fine?
+
+                 Linus
