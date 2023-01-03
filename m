@@ -2,128 +2,116 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 45D7CC3DA7D
-	for <linux-s390@archiver.kernel.org>; Tue,  3 Jan 2023 19:09:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 043B2C4708E
+	for <linux-s390@archiver.kernel.org>; Tue,  3 Jan 2023 23:39:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233817AbjACTJG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 3 Jan 2023 14:09:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43726 "EHLO
+        id S234227AbjACXjG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 3 Jan 2023 18:39:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238270AbjACTI7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Jan 2023 14:08:59 -0500
-Received: from mail-qv1-xf2c.google.com (mail-qv1-xf2c.google.com [IPv6:2607:f8b0:4864:20::f2c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 451F313E0B
-        for <linux-s390@vger.kernel.org>; Tue,  3 Jan 2023 11:08:58 -0800 (PST)
-Received: by mail-qv1-xf2c.google.com with SMTP id h10so22058955qvq.7
-        for <linux-s390@vger.kernel.org>; Tue, 03 Jan 2023 11:08:58 -0800 (PST)
+        with ESMTP id S229685AbjACXjF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Jan 2023 18:39:05 -0500
+Received: from mail-qt1-x82d.google.com (mail-qt1-x82d.google.com [IPv6:2607:f8b0:4864:20::82d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 798261DE
+        for <linux-s390@vger.kernel.org>; Tue,  3 Jan 2023 15:39:04 -0800 (PST)
+Received: by mail-qt1-x82d.google.com with SMTP id x11so25851077qtv.13
+        for <linux-s390@vger.kernel.org>; Tue, 03 Jan 2023 15:39:04 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=dfSqSd0mxRLyCP4JPwoGgPSv4V5DgFE+NWQibLY7nHY=;
-        b=LQt5OMztUt6H+6pe/VIHwx3Jz4d08J1ZZ7gv40yLS2RfQ9FYAN2BdqaHFaDSeqruh5
-         UdriUa0s5l2hHmuDgCVQyqdP1mZma/3SqbLGsgMr+3W5DNoGaGK3GwMdoJI3ZUgmswPc
-         hfRjTsp+o7b/O9CFRqovudaZXidsusavosKQY=
+        d=ziepe.ca; s=google;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=4IcK9nCCJcWx4DXnUq9jN3aJ923JmnvuRI8XJBFIY/0=;
+        b=AinaOJu6/IFu11c89krxqHstp+Qx6bg/GaS+/T4HG1pBBDurgbVIkkpQhX5l5tMvqb
+         Dt1aixulGN49hn0TCZDfJL7P2ujEI3Sb32Da2Ad7RzLbA8dzxkEYLQq3GZQcrenecSyI
+         FUTCfOup8/4qyfgTpAhOtrWipWNbIm0VnCSVdwFYngsL8nHD9rkzKFRezi0Kl7Q3hvbA
+         wfliVsDb7QqWxrnaKcP0ps9OCvq8tpOVmKmO7wCblz0d6e8uNpGAskXpNHAZ3s+sAcAQ
+         h+10YPQxw7ir5wvpzI0aHOfOWM7euZeizl49b4id9HdeFXirSJK4GNlbhtO17TXeoseg
+         BCdQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=dfSqSd0mxRLyCP4JPwoGgPSv4V5DgFE+NWQibLY7nHY=;
-        b=DOAh3qIllxc9th+jzrTZ+Z683mjGRvGSxJp0Gf5Ytl+2BlPnyys+ieM2Mf5v1ozc3L
-         edFOeBVaF512XSeRHX2Qj3uA9jJOUJS0zv2D3oUhMKWXD7Oo6b/h0RFO4uy+3eFYBcyL
-         ToGfYxeLzp9/wDaPRBcXsCsLypNcYyggrJ8gr8FWEiNPMme4tfBnu7q+m80lxYWDV4IW
-         8Ws+Nj/ytdy93B3GGs+bAFvobb9+AANTB2mYYO1rpBIKvkdIIy6WBfJ320Y1LRTCN7Gl
-         1iXkBimwIqau+InmQykGkZKHJNGbixA6dewm7a4LrXbIv/jpSaephzHswikUUPjo0Ce2
-         b/dQ==
-X-Gm-Message-State: AFqh2koHI8VHDhrBgQfeja6PUn++muTcbdmci4BevcNqLpF5HkKXgElb
-        43gbTV+Fq0AJ48cyY/+uDdw+G7EjAvroQ1To
-X-Google-Smtp-Source: AMrXdXvguJJU1sRyY+FBBysO8D1L0DY4z3H8XVodFc/LqgjS1aP9/iHDenFLCdGrgvgZSvjxgioOiQ==
-X-Received: by 2002:a0c:8143:0:b0:531:bf63:57d0 with SMTP id 61-20020a0c8143000000b00531bf6357d0mr15502084qvc.28.1672772937404;
-        Tue, 03 Jan 2023 11:08:57 -0800 (PST)
-Received: from mail-qt1-f170.google.com (mail-qt1-f170.google.com. [209.85.160.170])
-        by smtp.gmail.com with ESMTPSA id y17-20020a05620a25d100b00705377347b9sm8010444qko.70.2023.01.03.11.08.56
-        for <linux-s390@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 03 Jan 2023 11:08:57 -0800 (PST)
-Received: by mail-qt1-f170.google.com with SMTP id i20so25278373qtw.9
-        for <linux-s390@vger.kernel.org>; Tue, 03 Jan 2023 11:08:56 -0800 (PST)
-X-Received: by 2002:a05:620a:1379:b0:6fc:c48b:8eab with SMTP id
- d25-20020a05620a137900b006fcc48b8eabmr1650146qkl.216.1672772925520; Tue, 03
- Jan 2023 11:08:45 -0800 (PST)
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=4IcK9nCCJcWx4DXnUq9jN3aJ923JmnvuRI8XJBFIY/0=;
+        b=OLE5seRAfYhICbXdTkxiv9M0wScTpi6gM5huLWeUrY72RGT+2sVQXMsG33UU0BBgqc
+         tiwENuT9lhelm4yngmnJCPBmu8qAX4i36RU4rTNpyIPEmI6ht92xoasN4t0XRFwn4rl0
+         kgOzF4eHpIZG+jpw8eBx9ja5NAav2WL8zt89b0bUlOI7+vQgC2Kp48LakqVUekoJgxkC
+         Ak69WasYDxSIivieIuLNgSQlkrYL0LST15+kMleJxS7AcovIC4/ujBU1gL8rwmVQhSO8
+         WewTq2U8UL7W54XHEDNe2snbPd8wWnDbgMj7+p4wtw53vsJs1rwIEqhIkC7pOYEUe5VL
+         I7tg==
+X-Gm-Message-State: AFqh2kq1xTFMpEhXAphADDXrlNgv9sYBgoJ5YGe5Ui00b7GkK9VTxrMy
+        SgWFPelaXURZP3/xHQKhErhngQ==
+X-Google-Smtp-Source: AMrXdXvvM0guVyAor9xuEVWRu39rmqbdPOUOe8zG+/P2s+Pkb0RWQqNWBIKUyv6DWLfpgnETi66GRw==
+X-Received: by 2002:ac8:73c7:0:b0:3a7:f3e7:5149 with SMTP id v7-20020ac873c7000000b003a7f3e75149mr59471515qtp.61.1672789143621;
+        Tue, 03 Jan 2023 15:39:03 -0800 (PST)
+Received: from ziepe.ca (hlfxns017vw-142-68-50-193.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.50.193])
+        by smtp.gmail.com with ESMTPSA id m10-20020a05620a220a00b006eeca296c00sm22545055qkh.104.2023.01.03.15.39.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 03 Jan 2023 15:39:03 -0800 (PST)
+Received: from jgg by wakko with local (Exim 4.95)
+        (envelope-from <jgg@ziepe.ca>)
+        id 1pCqs2-001cNC-IA;
+        Tue, 03 Jan 2023 19:39:02 -0400
+Date:   Tue, 3 Jan 2023 19:39:02 -0400
+From:   Jason Gunthorpe <jgg@ziepe.ca>
+To:     Niklas Schnelle <schnelle@linux.ibm.com>
+Cc:     Alex Williamson <alex.williamson@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        Christian =?utf-8?Q?Borntr=C3=A4ger?= <borntraeger@linux.ibm.com>
+Subject: Re: [PATCH 1/1] vfio/type1: Respect IOMMU reserved regions in
+ vfio_test_domain_fgsp()
+Message-ID: <Y7S8loyvHyjAmNdh@ziepe.ca>
+References: <20230102093452.761185-1-schnelle@linux.ibm.com>
+ <20230102093452.761185-2-schnelle@linux.ibm.com>
 MIME-Version: 1.0
-References: <20221219153525.632521981@infradead.org> <20221219154119.550996611@infradead.org>
- <Y7Ri+Uij1GFkI/LB@osiris>
-In-Reply-To: <Y7Ri+Uij1GFkI/LB@osiris>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Tue, 3 Jan 2023 11:08:29 -0800
-X-Gmail-Original-Message-ID: <CAHk-=wj9nK825MyHXu7zkegc7Va+ZxcperdOtRMZBCLHqGrr=g@mail.gmail.com>
-Message-ID: <CAHk-=wj9nK825MyHXu7zkegc7Va+ZxcperdOtRMZBCLHqGrr=g@mail.gmail.com>
-Subject: Re: [RFC][PATCH 11/12] slub: Replace cmpxchg_double()
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Peter Zijlstra <peterz@infradead.org>, corbet@lwn.net,
-        will@kernel.org, boqun.feng@gmail.com, mark.rutland@arm.com,
-        catalin.marinas@arm.com, dennis@kernel.org, tj@kernel.org,
-        cl@linux.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        Herbert Xu <herbert@gondor.apana.org.au>, davem@davemloft.net,
-        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
-        dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
-        joro@8bytes.org, suravee.suthikulpanit@amd.com,
-        robin.murphy@arm.com, dwmw2@infradead.org,
-        baolu.lu@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
-        penberg@kernel.org, rientjes@google.com, iamjoonsoo.kim@lge.com,
-        Andrew Morton <akpm@linux-foundation.org>, vbabka@suse.cz,
-        roman.gushchin@linux.dev, 42.hyeyoo@gmail.com,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, linux-s390@vger.kernel.org,
-        linux-crypto@vger.kernel.org, iommu@lists.linux.dev,
-        linux-arch@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230102093452.761185-2-schnelle@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jan 3, 2023 at 9:17 AM Heiko Carstens <hca@linux.ibm.com> wrote:
->
-> On Mon, Dec 19, 2022 at 04:35:36PM +0100, Peter Zijlstra wrote:
-> >
-> > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> > ---
-> >  include/linux/slub_def.h |   12 ++-
-> >  mm/slab.h                |   41 +++++++++++--
-> >  mm/slub.c                |  146 ++++++++++++++++++++++++++++-------------------
-> >  3 files changed, 135 insertions(+), 64 deletions(-)
->
-> Does this actually work? Just wondering since I end up with an instant
-> list corruption on s390. Might be endianness related, but I can't see
-> anything obvious at a first glance.
+On Mon, Jan 02, 2023 at 10:34:52AM +0100, Niklas Schnelle wrote:
+> Since commit cbf7827bc5dc ("iommu/s390: Fix potential s390_domain
+> aperture shrinking") the s390 IOMMU driver uses a reserved region
+> instead of an artificially shrunk aperture to restrict IOMMU use based
+> on the system provided DMA ranges of devices. In particular on current
+> machines this prevents use of DMA addresses below 2^32 for all devices.
+> While usually just IOMMU mapping below these addresses is
+> harmless. However our virtual ISM PCI device looks at new mappings on
+> IOTLB flush and immediately goes into the error state if such a mapping
+> violates its allowed DMA ranges. This then breaks pass-through of the
+> ISM device to a KVM guest.
+> 
+> Analysing this we found that vfio_test_domain_fgsp() maps 2 pages at DMA
+> address 0 irrespective of the IOMMUs reserved regions. Even if usually
+> harmless this seems wrong in the general case so instead go through the
+> freshly updated IOVA list and try to find a range that isn't reserved
+> and fits 2 pages and use that for testing for fine grained super pages.
 
-I don't see anything that looks related to endianness, because while
-there is that 128-bit union member, it's always either used in full,
-or it's accessed as other union members.
+Why does it matter? The s390 driver will not set fgsp=true, so if it
+fails because map fails or does a proper detection it shouldn't make a
+difference.
 
-But I *do* note that this patch seems to be the only one that depends
-on the new this_cpu_cmpxchg() updates to make it just automatically do
-the right thing for a 128-bit value. And I have to admit that all
-those games with __pcpu_cast_128() make no sense to me. Why isn't it
-just using "u128" everywhere without any odd _Generic() games?
+IOW how does this actualy manifest into a failure?
 
-I could also easily see that if the asm constraints are wrong (like
-the "cast pointer to (unsigned long *) instead of keeping it pointing
-to a 128-bit type" thing discussed earlier), then code like this:
+> -	if (!ret) {
+> -		size_t unmapped = iommu_unmap(domain->domain, 0, PAGE_SIZE);
+> +	list_for_each_entry(region, regions, list) {
+> +		if (region->end - region->start < PAGE_SIZE * 2)
+> +			continue;
+>  
+> -		if (unmapped == PAGE_SIZE)
+> -			iommu_unmap(domain->domain, PAGE_SIZE, PAGE_SIZE);
+> -		else
+> -			domain->fgsp = true;
+> +		ret = iommu_map(domain->domain, region->start, page_to_phys(pages), PAGE_SIZE * 2,
+> +				IOMMU_READ | IOMMU_WRITE | IOMMU_CACHE);
 
-+       freelist_aba_t old = { .freelist = freelist_old, .counter = tid };
-+       freelist_aba_t new = { .freelist = freelist_new, .counter =
-next_tid(tid) };
-+
-+       return this_cpu_cmpxchg(s->cpu_slab->freelist_tid.full,
-+                               old.full, new.full) == old.full;
+The region also needs to have 'region->start % (PAGE_SIZE*2) == 0' for the
+test to work
 
-would easily make the compiler go "the second word of 'old' is never
-used by the asm, so I won't initialize it".
-
-But yeah, that patch is hard to read, so hard to say. Does everything
-leading up to it work fine?
-
-                 Linus
+Jason
