@@ -2,91 +2,145 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7FA71C3DA7A
-	for <linux-s390@archiver.kernel.org>; Tue,  3 Jan 2023 02:03:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 541FDC3DA7D
+	for <linux-s390@archiver.kernel.org>; Tue,  3 Jan 2023 07:21:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236589AbjACCCl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 2 Jan 2023 21:02:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59186 "EHLO
+        id S236780AbjACHUo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 3 Jan 2023 02:20:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236336AbjACCCU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 Jan 2023 21:02:20 -0500
-Received: from mxct.zte.com.cn (mxct.zte.com.cn [183.62.165.209])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 253291039;
-        Mon,  2 Jan 2023 18:02:19 -0800 (PST)
-Received: from mse-fl1.zte.com.cn (unknown [10.5.228.132])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mxct.zte.com.cn (FangMail) with ESMTPS id 4NmGFj0ylcz501Sr;
-        Tue,  3 Jan 2023 10:02:17 +0800 (CST)
-Received: from szxlzmapp05.zte.com.cn ([10.5.230.85])
-        by mse-fl1.zte.com.cn with SMTP id 303226xk053280;
-        Tue, 3 Jan 2023 10:02:06 +0800 (+08)
-        (envelope-from yang.yang29@zte.com.cn)
-Received: from mapi (szxlzmapp01[null])
-        by mapi (Zmail) with MAPI id mid14;
-        Tue, 3 Jan 2023 10:02:07 +0800 (CST)
-Date:   Tue, 3 Jan 2023 10:02:07 +0800 (CST)
-X-Zmail-TransId: 2b0363b38c9f6a036ac0
-X-Mailer: Zmail v1.0
-Message-ID: <202301031002076571212@zte.com.cn>
-Mime-Version: 1.0
-From:   <yang.yang29@zte.com.cn>
-To:     <freude@linux.ibm.com>, <hca@linux.ibm.com>
-Cc:     <gor@linux.ibm.com>, <agordeev@linux.ibm.com>,
-        <borntraeger@linux.ibm.com>, <svens@linux.ibm.com>,
-        <linux-s390@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <xu.panda@zte.com.cn>, <yang.yang29@zte.com.cn>
-Subject: =?UTF-8?B?W1BBVENIIGxpbnV4LW5leHQgdjJdIHMzOTAvemNyeXB0OiB1c2Ugc3Ryc2NweSgpIHRvIGluc3RlYWQgb2Ygc3RybmNweSgp?=
-Content-Type: text/plain;
-        charset="UTF-8"
-X-MAIL: mse-fl1.zte.com.cn 303226xk053280
-X-Fangmail-Gw-Spam-Type: 0
-X-FangMail-Miltered: at cgslv5.04-192.168.251.13.novalocal with ID 63B38CA9.001 by FangMail milter!
-X-FangMail-Envelope: 1672711337/4NmGFj0ylcz501Sr/63B38CA9.001/10.5.228.132/[10.5.228.132]/mse-fl1.zte.com.cn/<yang.yang29@zte.com.cn>
-X-Fangmail-Anti-Spam-Filtered: true
-X-Fangmail-MID-QID: 63B38CA9.001/4NmGFj0ylcz501Sr
+        with ESMTP id S230474AbjACHUi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Jan 2023 02:20:38 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32A3EA47C;
+        Mon,  2 Jan 2023 23:20:38 -0800 (PST)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3032ftfb015083;
+        Tue, 3 Jan 2023 07:20:08 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=0WI9esVpndro8n3pvm3y/FeUtSxwl2+r+I4pJj3DJ9U=;
+ b=I5GCGanL7C1q9vLCPD2vIXYzBysKkZ9RcJyoH3ZCFnOabGLK6JavXnwDwJnMjJ8G/4He
+ xtLa4aH+gQHkN89WRblCzi4BkXXQZuboGHDHFxxxTv5krv+9xkhX0gwBUnlaVH1u0y6+
+ KHGP3nkQa1+I0uj/BxT06COUoioOBUm+NhJ3Mo/QlqtLqiJKBRZbqB25Edp1v6ghK2vp
+ 87LB39MONflhrUWbrPR6iQX5JFtW+7/SEpBmu5XtZ6iXb/xEmluSe5hq/eR/TGQ7nKp5
+ a10pawy9iDmcYGnsPTwC5ruThHqmycnMunu4I9E6WudqlbJ04AoSMvfYFOERbyAYano+ hQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mvbt6utey-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 03 Jan 2023 07:20:08 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3037ARwD016089;
+        Tue, 3 Jan 2023 07:20:07 GMT
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mvbt6ute9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 03 Jan 2023 07:20:07 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 302La9fB012120;
+        Tue, 3 Jan 2023 07:20:05 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+        by ppma01fra.de.ibm.com (PPS) with ESMTPS id 3mtcq6aggf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 03 Jan 2023 07:20:04 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3037K2vI45285644
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 3 Jan 2023 07:20:02 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 759F22004D;
+        Tue,  3 Jan 2023 07:20:02 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6669A20040;
+        Tue,  3 Jan 2023 07:20:02 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Tue,  3 Jan 2023 07:20:02 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55390)
+        id 36533E0959; Tue,  3 Jan 2023 08:20:02 +0100 (CET)
+From:   Sven Schnelle <svens@linux.ibm.com>
+To:     Willy Tarreau <w@1wt.eu>, "Paul E . McKenney" <paulmck@kernel.org>,
+        Josh Triplett <josh@joshtriplett.org>
+Cc:     Steven Rostedt <rostedt@goodmis.org>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Lai Jiangshan <jiangshanlai@gmail.com>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [PATCH v3 3/5] selftests/nolibc: add s390 support
+Date:   Tue,  3 Jan 2023 08:19:55 +0100
+Message-Id: <20230103071957.222360-4-svens@linux.ibm.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20230103071957.222360-1-svens@linux.ibm.com>
+References: <20230103071957.222360-1-svens@linux.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: Tfo8WX7ZY92X5D8TbsiUw4Y_5a98V869
+X-Proofpoint-GUID: AS9_LeugtFfdSvXZSAV3QP8RK9_5Z3YH
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2023-01-02_14,2022-12-30_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 clxscore=1015
+ lowpriorityscore=0 mlxlogscore=999 priorityscore=1501 bulkscore=0
+ spamscore=0 adultscore=0 phishscore=0 suspectscore=0 mlxscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2301030062
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Yang Yang <yang.yang29@zte.com>
-
-The implementation of strscpy() is more robust and safer.
-That's now the recommended way to copy NUL-terminated strings.
-
-Signed-off-by: Yang Yang <yang.yang29@zte.com>
-Signed-off-by: Xu Panda <xu.panda@zte.com.cn>
+Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
 ---
-chang for v2
- - match the FROM with the Email
----
- drivers/s390/crypto/zcrypt_api.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ tools/testing/selftests/nolibc/Makefile | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/s390/crypto/zcrypt_api.c b/drivers/s390/crypto/zcrypt_api.c
-index 4bf36e53fe3e..6fe05bb82c77 100644
---- a/drivers/s390/crypto/zcrypt_api.c
-+++ b/drivers/s390/crypto/zcrypt_api.c
-@@ -347,8 +347,7 @@ static ssize_t zcdn_create_store(struct class *class,
- 	int rc;
- 	char name[ZCDN_MAX_NAME];
-
--	strncpy(name, skip_spaces(buf), sizeof(name));
--	name[sizeof(name) - 1] = '\0';
-+	strscpy(name, skip_spaces(buf), sizeof(name));
-
- 	rc = zcdn_create(strim(name));
-
-@@ -365,8 +364,7 @@ static ssize_t zcdn_destroy_store(struct class *class,
- 	int rc;
- 	char name[ZCDN_MAX_NAME];
-
--	strncpy(name, skip_spaces(buf), sizeof(name));
--	name[sizeof(name) - 1] = '\0';
-+	strscpy(name, skip_spaces(buf), sizeof(name));
-
- 	rc = zcdn_destroy(strim(name));
-
+diff --git a/tools/testing/selftests/nolibc/Makefile b/tools/testing/selftests/nolibc/Makefile
+index 22f1e1d73fa8..2bf613ee363d 100644
+--- a/tools/testing/selftests/nolibc/Makefile
++++ b/tools/testing/selftests/nolibc/Makefile
+@@ -19,6 +19,7 @@ IMAGE_arm64   = arch/arm64/boot/Image
+ IMAGE_arm     = arch/arm/boot/zImage
+ IMAGE_mips    = vmlinuz
+ IMAGE_riscv   = arch/riscv/boot/Image
++IMAGE_s390    = arch/s390/boot/bzImage
+ IMAGE         = $(IMAGE_$(ARCH))
+ IMAGE_NAME    = $(notdir $(IMAGE))
+ 
+@@ -29,6 +30,7 @@ DEFCONFIG_arm64   = defconfig
+ DEFCONFIG_arm     = multi_v7_defconfig
+ DEFCONFIG_mips    = malta_defconfig
+ DEFCONFIG_riscv   = defconfig
++DEFCONFIG_s390    = defconfig
+ DEFCONFIG         = $(DEFCONFIG_$(ARCH))
+ 
+ # optional tests to run (default = all)
+@@ -41,6 +43,7 @@ QEMU_ARCH_arm64   = aarch64
+ QEMU_ARCH_arm     = arm
+ QEMU_ARCH_mips    = mipsel  # works with malta_defconfig
+ QEMU_ARCH_riscv   = riscv64
++QEMU_ARCH_s390    = s390x
+ QEMU_ARCH         = $(QEMU_ARCH_$(ARCH))
+ 
+ # QEMU_ARGS : some arch-specific args to pass to qemu
+@@ -50,6 +53,7 @@ QEMU_ARGS_arm64   = -M virt -cpu cortex-a53 -append "panic=-1 $(TEST:%=NOLIBC_TE
+ QEMU_ARGS_arm     = -M virt -append "panic=-1 $(TEST:%=NOLIBC_TEST=%)"
+ QEMU_ARGS_mips    = -M malta -append "panic=-1 $(TEST:%=NOLIBC_TEST=%)"
+ QEMU_ARGS_riscv   = -M virt -append "console=ttyS0 panic=-1 $(TEST:%=NOLIBC_TEST=%)"
++QEMU_ARGS_s390    = -M s390-ccw-virtio -m 1G -append "console=ttyS0 panic=-1 $(TEST:%=NOLIBC_TEST=%)"
+ QEMU_ARGS         = $(QEMU_ARGS_$(ARCH))
+ 
+ # OUTPUT is only set when run from the main makefile, otherwise
+@@ -62,7 +66,8 @@ else
+ Q=@
+ endif
+ 
+-CFLAGS  ?= -Os -fno-ident -fno-asynchronous-unwind-tables
++CFLAGS_s390 = -m64
++CFLAGS  ?= -Os -fno-ident -fno-asynchronous-unwind-tables $(CFLAGS_$(ARCH))
+ LDFLAGS := -s
+ 
+ help:
 -- 
-2.15.2
+2.34.1
+
