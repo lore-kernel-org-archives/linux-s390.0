@@ -2,143 +2,317 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 168E7C4332F
-	for <linux-s390@archiver.kernel.org>; Wed,  4 Jan 2023 13:55:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B30EC46467
+	for <linux-s390@archiver.kernel.org>; Wed,  4 Jan 2023 15:16:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235105AbjADNzb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 4 Jan 2023 08:55:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52564 "EHLO
+        id S239410AbjADPQG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 4 Jan 2023 10:16:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233373AbjADNza (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 4 Jan 2023 08:55:30 -0500
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 517007657;
-        Wed,  4 Jan 2023 05:55:29 -0800 (PST)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 9C3741FB;
-        Wed,  4 Jan 2023 05:56:10 -0800 (PST)
-Received: from FVFF77S0Q05N (unknown [10.57.37.146])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 297963F587;
-        Wed,  4 Jan 2023 05:55:23 -0800 (PST)
-Date:   Wed, 4 Jan 2023 13:55:20 +0000
-From:   Mark Rutland <mark.rutland@arm.com>
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>, dennis@kernel.org,
-        Tejun Heo <tj@kernel.org>, Christoph Lameter <cl@linux.com>,
-        Heiko Carstens <hca@linux.ibm.com>, gor@linux.ibm.com,
+        with ESMTP id S235077AbjADPPw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 4 Jan 2023 10:15:52 -0500
+Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B836CF0B;
+        Wed,  4 Jan 2023 07:15:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1672845350; x=1704381350;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=7kdvxV8bGJ6fYhD0Pgzv2x5Bo+g5OmbI4MqMtYfDL1o=;
+  b=QzEVuGpx60cs/cQuR/H+ocgEi4YJG7U8jRVeNFx47Kkh9+e6FGZq9+iS
+   36ujmSujJX2mSoQ/TihvASciIxxTjJ6h8UPcQdbyC77kUdL8fFQjkhvCF
+   VEXfnnnbGcBtdS4eHBQ0kVhMTXr9aFHPHsqw71qLpMkEHyvb7ZRbMPiwZ
+   Jvw9TPKM6BQhfGfXzacxkHvF+EB8npSBTcpA0aGmJjeAsQlK+CElCx7nA
+   gKB5ql6A70CmPmu8+SusiZspo+DBRVkyGMyhSu18stGuoLbP6Egpf/jUA
+   sfH5W+bsUbQkZ4fZhY94UCPRSELE0pi4yZ3w/kukTAYcF8J5mzDQIe0dp
+   w==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10580"; a="301644304"
+X-IronPort-AV: E=Sophos;i="5.96,300,1665471600"; 
+   d="scan'208";a="301644304"
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Jan 2023 07:15:50 -0800
+X-IronPort-AV: E=McAfee;i="6500,9779,10580"; a="762700676"
+X-IronPort-AV: E=Sophos;i="5.96,300,1665471600"; 
+   d="scan'208";a="762700676"
+Received: from msvoboda-mobl.ger.corp.intel.com (HELO ijarvine-MOBL2.ger.corp.intel.com) ([10.252.48.119])
+  by fmsmga002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Jan 2023 07:15:43 -0800
+From:   =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+To:     linux-serial@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Samuel Iglesias Gonsalvez <siglesias@igalia.com>,
+        Jens Taprogge <jens.taprogge@taprogge.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S . Miller" <davem@davemloft.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>, joro@8bytes.org,
-        suravee.suthikulpanit@amd.com, Robin Murphy <robin.murphy@arm.com>,
-        dwmw2@infradead.org, baolu.lu@linux.intel.com,
-        Pekka Enberg <penberg@kernel.org>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Roman Gushchin <roman.gushchin@linux.dev>,
-        Hyeonggon Yoo <42.hyeyoo@gmail.com>, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        linux-s390@vger.kernel.org, linux-crypto@vger.kernel.org,
-        iommu@lists.linux.dev, Linux-Arch <linux-arch@vger.kernel.org>
-Subject: Re: [RFC][PATCH 05/12] arch: Introduce
- arch_{,try_}_cmpxchg128{,_local}()
-Message-ID: <Y7WFSAcbSsMI/0eh@FVFF77S0Q05N>
-References: <20221219153525.632521981@infradead.org>
- <20221219154119.154045458@infradead.org>
- <Y6DEfQXymYVgL3oJ@boqun-archlinux>
- <Y6GXoO4qmH9OIZ5Q@hirez.programming.kicks-ass.net>
- <Y7QszyTEG2+WiI/C@FVFF77S0Q05N>
- <Y7Q1uexv6DrxCASB@FVFF77S0Q05N>
- <Y7RVkjDC3EjQUCzM@FVFF77S0Q05N>
- <8fea3494-1d1f-4f64-b525-279152cf430b@app.fastmail.com>
- <Y7Vksr9OLZeL3qmU@FVFF77S0Q05N>
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Johan Hovold <johan@kernel.org>, linux-kernel@vger.kernel.org,
+        industrypack-devel@lists.sourceforge.net,
+        linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-usb@vger.kernel.org
+Cc:     =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+Subject: [PATCH 01/10] tty: Cleanup tty_port_set_initialized() bool parameter
+Date:   Wed,  4 Jan 2023 17:15:22 +0200
+Message-Id: <20230104151531.73994-2-ilpo.jarvinen@linux.intel.com>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20230104151531.73994-1-ilpo.jarvinen@linux.intel.com>
+References: <20230104151531.73994-1-ilpo.jarvinen@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Y7Vksr9OLZeL3qmU@FVFF77S0Q05N>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jan 04, 2023 at 11:36:18AM +0000, Mark Rutland wrote:
-> On Tue, Jan 03, 2023 at 05:50:00PM +0100, Arnd Bergmann wrote:
-> > On Tue, Jan 3, 2023, at 17:19, Mark Rutland wrote:
-> > > On Tue, Jan 03, 2023 at 02:03:37PM +0000, Mark Rutland wrote:
-> > >> On Tue, Jan 03, 2023 at 01:25:35PM +0000, Mark Rutland wrote:
-> > >> > On Tue, Dec 20, 2022 at 12:08:16PM +0100, Peter Zijlstra wrote:
-> > 
-> > >> ... makes GCC much happier:
-> > >
-> > >> ... I'll go check whether clang is happy with that, and how far back that can
-> > >> go, otherwise we'll need to blat the high half with a separate constaint that
-> > >> (ideally) doesn't end up allocating a pointless address register.
-> > >
-> > > Hmm... from the commit history it looks like GCC prior to 5.1 might not be
-> > > happy with that, but that *might* just be if we actually do arithmetic on the
-> > > value, and we might be ok just using it for memroy effects. I can't currently
-> > > get such an old GCC to run on my machines so I haven't been able to check.
-> > 
-> > gcc-5.1 is the oldest (barely) supported compiler, the minimum was
-> > last raised from gcc-4.9 in linux-5.15. If only gcc-4.9 and older are
-> > affected, we're good on mainline but may still want a fix for stable
-> > kernels.
-> 
-> Yup; I just wanted something that would easily backport to stable, at least as
-> far as linux-4.9.y (where I couldn't find the minimum GCC version when I looked
-> yesterday).
+Make callers pass true/false consistently for bool val.
 
-I'd missed that we backported commit:
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+---
+ drivers/char/pcmcia/synclink_cs.c | 4 ++--
+ drivers/ipack/devices/ipoctal.c   | 4 ++--
+ drivers/s390/char/con3215.c       | 4 ++--
+ drivers/tty/amiserial.c           | 4 ++--
+ drivers/tty/moxa.c                | 2 +-
+ drivers/tty/mxser.c               | 2 +-
+ drivers/tty/n_gsm.c               | 4 ++--
+ drivers/tty/serial/serial_core.c  | 6 +++---
+ drivers/tty/synclink_gt.c         | 4 ++--
+ drivers/tty/tty_port.c            | 4 ++--
+ drivers/usb/serial/console.c      | 2 +-
+ 11 files changed, 20 insertions(+), 20 deletions(-)
 
-  dca5244d2f5b94f1 ("compiler.h: Raise minimum version of GCC to 5.1 for arm64")
+diff --git a/drivers/char/pcmcia/synclink_cs.c b/drivers/char/pcmcia/synclink_cs.c
+index b2735be81ab2..baa46e8a094b 100644
+--- a/drivers/char/pcmcia/synclink_cs.c
++++ b/drivers/char/pcmcia/synclink_cs.c
+@@ -1309,7 +1309,7 @@ static int startup(MGSLPC_INFO * info, struct tty_struct *tty)
+ 	if (tty)
+ 		clear_bit(TTY_IO_ERROR, &tty->flags);
+ 
+-	tty_port_set_initialized(&info->port, 1);
++	tty_port_set_initialized(&info->port, true);
+ 
+ 	return 0;
+ }
+@@ -1359,7 +1359,7 @@ static void shutdown(MGSLPC_INFO * info, struct tty_struct *tty)
+ 	if (tty)
+ 		set_bit(TTY_IO_ERROR, &tty->flags);
+ 
+-	tty_port_set_initialized(&info->port, 0);
++	tty_port_set_initialized(&info->port, false);
+ }
+ 
+ static void mgslpc_program_hw(MGSLPC_INFO *info, struct tty_struct *tty)
+diff --git a/drivers/ipack/devices/ipoctal.c b/drivers/ipack/devices/ipoctal.c
+index fc00274070b6..103fce0c49e6 100644
+--- a/drivers/ipack/devices/ipoctal.c
++++ b/drivers/ipack/devices/ipoctal.c
+@@ -647,7 +647,7 @@ static void ipoctal_hangup(struct tty_struct *tty)
+ 	tty_port_hangup(&channel->tty_port);
+ 
+ 	ipoctal_reset_channel(channel);
+-	tty_port_set_initialized(&channel->tty_port, 0);
++	tty_port_set_initialized(&channel->tty_port, false);
+ 	wake_up_interruptible(&channel->tty_port.open_wait);
+ }
+ 
+@@ -659,7 +659,7 @@ static void ipoctal_shutdown(struct tty_struct *tty)
+ 		return;
+ 
+ 	ipoctal_reset_channel(channel);
+-	tty_port_set_initialized(&channel->tty_port, 0);
++	tty_port_set_initialized(&channel->tty_port, false);
+ }
+ 
+ static void ipoctal_cleanup(struct tty_struct *tty)
+diff --git a/drivers/s390/char/con3215.c b/drivers/s390/char/con3215.c
+index 72ba83c1bc79..0b05cd76b7d0 100644
+--- a/drivers/s390/char/con3215.c
++++ b/drivers/s390/char/con3215.c
+@@ -629,7 +629,7 @@ static int raw3215_startup(struct raw3215_info *raw)
+ 	if (tty_port_initialized(&raw->port))
+ 		return 0;
+ 	raw->line_pos = 0;
+-	tty_port_set_initialized(&raw->port, 1);
++	tty_port_set_initialized(&raw->port, true);
+ 	spin_lock_irqsave(get_ccwdev_lock(raw->cdev), flags);
+ 	raw3215_try_io(raw);
+ 	spin_unlock_irqrestore(get_ccwdev_lock(raw->cdev), flags);
+@@ -659,7 +659,7 @@ static void raw3215_shutdown(struct raw3215_info *raw)
+ 		spin_lock_irqsave(get_ccwdev_lock(raw->cdev), flags);
+ 		remove_wait_queue(&raw->empty_wait, &wait);
+ 		set_current_state(TASK_RUNNING);
+-		tty_port_set_initialized(&raw->port, 1);
++		tty_port_set_initialized(&raw->port, true);
+ 	}
+ 	spin_unlock_irqrestore(get_ccwdev_lock(raw->cdev), flags);
+ }
+diff --git a/drivers/tty/amiserial.c b/drivers/tty/amiserial.c
+index f52266766df9..f8cdce1626cb 100644
+--- a/drivers/tty/amiserial.c
++++ b/drivers/tty/amiserial.c
+@@ -502,7 +502,7 @@ static int startup(struct tty_struct *tty, struct serial_state *info)
+ 	 */
+ 	change_speed(tty, info, NULL);
+ 
+-	tty_port_set_initialized(port, 1);
++	tty_port_set_initialized(port, true);
+ 	local_irq_restore(flags);
+ 	return 0;
+ 
+@@ -556,7 +556,7 @@ static void shutdown(struct tty_struct *tty, struct serial_state *info)
+ 
+ 	set_bit(TTY_IO_ERROR, &tty->flags);
+ 
+-	tty_port_set_initialized(&info->tport, 0);
++	tty_port_set_initialized(&info->tport, false);
+ 	local_irq_restore(flags);
+ }
+ 
+diff --git a/drivers/tty/moxa.c b/drivers/tty/moxa.c
+index 35b6fddf0341..bc474f3c3f8f 100644
+--- a/drivers/tty/moxa.c
++++ b/drivers/tty/moxa.c
+@@ -1484,7 +1484,7 @@ static int moxa_open(struct tty_struct *tty, struct file *filp)
+ 		MoxaPortLineCtrl(ch, 1, 1);
+ 		MoxaPortEnable(ch);
+ 		MoxaSetFifo(ch, ch->type == PORT_16550A);
+-		tty_port_set_initialized(&ch->port, 1);
++		tty_port_set_initialized(&ch->port, true);
+ 	}
+ 	mutex_unlock(&ch->port.mutex);
+ 	mutex_unlock(&moxa_openlock);
+diff --git a/drivers/tty/mxser.c b/drivers/tty/mxser.c
+index 2436e0b10f9a..2926a831727d 100644
+--- a/drivers/tty/mxser.c
++++ b/drivers/tty/mxser.c
+@@ -1063,7 +1063,7 @@ static int mxser_set_serial_info(struct tty_struct *tty,
+ 	} else {
+ 		retval = mxser_activate(port, tty);
+ 		if (retval == 0)
+-			tty_port_set_initialized(port, 1);
++			tty_port_set_initialized(port, true);
+ 	}
+ 	mutex_unlock(&port->mutex);
+ 	return retval;
+diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
+index daf12132deb1..631539c17d85 100644
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -2059,7 +2059,7 @@ static void gsm_dlci_close(struct gsm_dlci *dlci)
+ 		tty_port_tty_hangup(&dlci->port, false);
+ 		gsm_dlci_clear_queues(dlci->gsm, dlci);
+ 		/* Ensure that gsmtty_open() can return. */
+-		tty_port_set_initialized(&dlci->port, 0);
++		tty_port_set_initialized(&dlci->port, false);
+ 		wake_up_interruptible(&dlci->port.open_wait);
+ 	} else
+ 		dlci->gsm->dead = true;
+@@ -3880,7 +3880,7 @@ static int gsmtty_open(struct tty_struct *tty, struct file *filp)
+ 	dlci->modem_rx = 0;
+ 	/* We could in theory open and close before we wait - eg if we get
+ 	   a DM straight back. This is ok as that will have caused a hangup */
+-	tty_port_set_initialized(port, 1);
++	tty_port_set_initialized(port, true);
+ 	/* Start sending off SABM messages */
+ 	if (gsm->initiator)
+ 		gsm_dlci_begin_open(dlci);
+diff --git a/drivers/tty/serial/serial_core.c b/drivers/tty/serial/serial_core.c
+index b9fbbee598b8..e049c760b738 100644
+--- a/drivers/tty/serial/serial_core.c
++++ b/drivers/tty/serial/serial_core.c
+@@ -290,7 +290,7 @@ static void uart_shutdown(struct tty_struct *tty, struct uart_state *state)
+ 		set_bit(TTY_IO_ERROR, &tty->flags);
+ 
+ 	if (tty_port_initialized(port)) {
+-		tty_port_set_initialized(port, 0);
++		tty_port_set_initialized(port, false);
+ 
+ 		/*
+ 		 * Turn off DTR and RTS early.
+@@ -2347,7 +2347,7 @@ int uart_suspend_port(struct uart_driver *drv, struct uart_port *uport)
+ 		unsigned int mctrl;
+ 
+ 		tty_port_set_suspended(port, 1);
+-		tty_port_set_initialized(port, 0);
++		tty_port_set_initialized(port, false);
+ 
+ 		spin_lock_irq(&uport->lock);
+ 		ops->stop_tx(uport);
+@@ -2458,7 +2458,7 @@ int uart_resume_port(struct uart_driver *drv, struct uart_port *uport)
+ 					uart_rs485_config(uport);
+ 				ops->start_tx(uport);
+ 				spin_unlock_irq(&uport->lock);
+-				tty_port_set_initialized(port, 1);
++				tty_port_set_initialized(port, true);
+ 			} else {
+ 				/*
+ 				 * Failed to resume - maybe hardware went away?
+diff --git a/drivers/tty/synclink_gt.c b/drivers/tty/synclink_gt.c
+index 72b76cdde534..2b96bf0ecafb 100644
+--- a/drivers/tty/synclink_gt.c
++++ b/drivers/tty/synclink_gt.c
+@@ -2354,7 +2354,7 @@ static int startup(struct slgt_info *info)
+ 	if (info->port.tty)
+ 		clear_bit(TTY_IO_ERROR, &info->port.tty->flags);
+ 
+-	tty_port_set_initialized(&info->port, 1);
++	tty_port_set_initialized(&info->port, true);
+ 
+ 	return 0;
+ }
+@@ -2401,7 +2401,7 @@ static void shutdown(struct slgt_info *info)
+ 	if (info->port.tty)
+ 		set_bit(TTY_IO_ERROR, &info->port.tty->flags);
+ 
+-	tty_port_set_initialized(&info->port, 0);
++	tty_port_set_initialized(&info->port, false);
+ }
+ 
+ static void program_hw(struct slgt_info *info)
+diff --git a/drivers/tty/tty_port.c b/drivers/tty/tty_port.c
+index dce08a6d7b5e..0c00d5bd6c88 100644
+--- a/drivers/tty/tty_port.c
++++ b/drivers/tty/tty_port.c
+@@ -367,7 +367,7 @@ static void tty_port_shutdown(struct tty_port *port, struct tty_struct *tty)
+ 		goto out;
+ 
+ 	if (tty_port_initialized(port)) {
+-		tty_port_set_initialized(port, 0);
++		tty_port_set_initialized(port, false);
+ 		/*
+ 		 * Drop DTR/RTS if HUPCL is set. This causes any attached
+ 		 * modem to hang up the line.
+@@ -788,7 +788,7 @@ int tty_port_open(struct tty_port *port, struct tty_struct *tty,
+ 				return retval;
+ 			}
+ 		}
+-		tty_port_set_initialized(port, 1);
++		tty_port_set_initialized(port, true);
+ 	}
+ 	mutex_unlock(&port->mutex);
+ 	return tty_port_block_til_ready(port, tty, filp);
+diff --git a/drivers/usb/serial/console.c b/drivers/usb/serial/console.c
+index da19a5fa414f..c3ea3a46ed76 100644
+--- a/drivers/usb/serial/console.c
++++ b/drivers/usb/serial/console.c
+@@ -169,7 +169,7 @@ static int usb_console_setup(struct console *co, char *options)
+ 			tty_save_termios(tty);
+ 			tty_kref_put(tty);
+ 		}
+-		tty_port_set_initialized(&port->port, 1);
++		tty_port_set_initialized(&port->port, true);
+ 	}
+ 	/* Now that any required fake tty operations are completed restore
+ 	 * the tty port count */
+-- 
+2.30.2
 
-... all the way back to v4.4.y, so we can assume v5.1 even in stable.
-
-The earliest toolchain I could get running was GCC 4.8.5, and that was happy
-with the __uint128_t cast for the asm,
-
-Looking back through the history, the reason for the GCC 5.1 check was that
-prior to GCC 5.1 GCC would output library calls for arithmetic on 128-bit
-types, as noted in commit:
-
-  fb8722735f50cd51 ("arm64: support __int128 on gcc 5+")
-
-... but since we're not doing any actual manipulation of the value, that should
-be fine.
-
-I'll go write a commit message and send that out as a fix.
-
-> > I checked that the cross-compiler binaries from [1] still work, but I noticed
-> > that this version is missing the native aarch64-to-aarch64 compiler (x86 to
-> > aarch64 and vice versa are there), and you need to install libmpfr4 [2]
-> > as a dependency. The newer compilers (6.5.0 and up) don't have these problems.
-> 
-> I was trying the old kernel.org crosstool binaries, but I was either missing a
-> library (or I have an incompatible version) on my x86_64 host. I'll have
-> another look today -- thanks for the pointers!
-
-It turns out I'd just missed that at some point the prefix used by the
-kernel.org cross compilers changed from:
-
-  aarch64-linux-gnu-
-
-to:
-
-  aarch64-linux-
-
-... and I'd become so used to the latter that I was trying to invoke a binary
-that didn't exist. With the older prefix I could use the kernel.org GCC 4.8.5
-without issue.
-
-Thanks,
-Mark.
