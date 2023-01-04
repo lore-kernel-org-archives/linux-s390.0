@@ -2,124 +2,110 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C34FC53210
-	for <linux-s390@archiver.kernel.org>; Wed,  4 Jan 2023 17:27:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6CFB2C4332F
+	for <linux-s390@archiver.kernel.org>; Wed,  4 Jan 2023 18:00:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239839AbjADR15 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 4 Jan 2023 12:27:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39768 "EHLO
+        id S235346AbjADSAL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 4 Jan 2023 13:00:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235317AbjADR1z (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 4 Jan 2023 12:27:55 -0500
+        with ESMTP id S235296AbjADSAA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 4 Jan 2023 13:00:00 -0500
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D74711180D;
-        Wed,  4 Jan 2023 09:27:53 -0800 (PST)
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 304FxpWL005636;
-        Wed, 4 Jan 2023 17:27:42 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : content-type : in-reply-to :
- mime-version; s=pp1; bh=hgVLBZKjQjTK22ngbI2KF/s8rDVwlOYDUeR6IOpssyI=;
- b=RsEyVRoN/Dt65oj0xs+/rZT3XhPHrvf4taxqt6Q+VGZOSxhvWGtdXKMWTlTzxzVLsfIU
- 0IT1hJ/a0wr6rCepX8eQ9FZ2cOtYJ87v2FNgIOvvzTAXBJ5//N0lgLjJfIGgUwUNy8tX
- iEhi3pKt5V7Mm0tnJxy3EZl3DmO20hpU1VLKtSfjV0oHFMG7k7u54ErNsTUdt+Aq6lrd
- +0yTflB9fuvpJO4U2F4PDZLNVKgmOeiNnSyoN+CuEtNpYDvMhWMmpQIaaJYfGiwuRkl5
- bHVrd00mHt4vOkRElCzHeuIjC7f+aKxtOsNu1D03daH5tFr51HOJwdP0TuGP6WR8m+Aq 2A== 
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3211EC5;
+        Wed,  4 Jan 2023 10:00:00 -0800 (PST)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 304GhYJT007825;
+        Wed, 4 Jan 2023 17:59:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=sc47u3Z+RbHwcenEQCYadPXvc7mLDEKgKoTJEM1TTjU=;
+ b=qDUq7fiHxOLLYtPOMjv7vKxAVlE33oNhT5NvURmK76pVKHIl0onp2WDpO+lXmh5MHG7D
+ Yam4lbHdjiTbWYc6CATTigpFzmVbZpzgXKIoqBdmo4WufrAex0jQtk/FRKxQL2fHl0dn
+ jBG4QPFZDeEm6c/9uyfDX9oadD/WpmToOWwkR9We8e/TaTlkOheIGupCczzSx+GveiWg
+ IVm8OAxjonozDf6nGizrDC9EezIQJeYD6U2OovOm5jTn2aQ6EhQXPsnp4QUGfn4XmcUb
+ 8VL93P44Dq4HNZ+c9W/xAkBiDf6to81vYn4LDvf+dL037V3jUwZB6z6H8YNSjDmDgOhN AQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mwckda26h-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mwd7n1puq-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 04 Jan 2023 17:27:41 +0000
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 304GqTod002027;
-        Wed, 4 Jan 2023 17:27:41 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mwckda261-1
+        Wed, 04 Jan 2023 17:59:59 +0000
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 304GhfUP007960;
+        Wed, 4 Jan 2023 17:59:58 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mwd7n1pu2-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 04 Jan 2023 17:27:41 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 304CbDI6021071;
-        Wed, 4 Jan 2023 17:27:39 GMT
+        Wed, 04 Jan 2023 17:59:58 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30486XiR001864;
+        Wed, 4 Jan 2023 17:59:56 GMT
 Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3mtcq6dmkw-1
+        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3mtcbfdp0w-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 04 Jan 2023 17:27:39 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 304HRZkB23790010
+        Wed, 04 Jan 2023 17:59:56 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 304HxrKQ16449980
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 4 Jan 2023 17:27:35 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7371220043;
-        Wed,  4 Jan 2023 17:27:35 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 91B7C2004B;
-        Wed,  4 Jan 2023 17:27:34 +0000 (GMT)
-Received: from osiris (unknown [9.179.28.126])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Wed,  4 Jan 2023 17:27:34 +0000 (GMT)
-Date:   Wed, 4 Jan 2023 18:27:33 +0100
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-Cc:     kernel test robot <lkp@intel.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Wed, 4 Jan 2023 17:59:53 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2225920043;
+        Wed,  4 Jan 2023 17:59:53 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D9CF520040;
+        Wed,  4 Jan 2023 17:59:52 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed,  4 Jan 2023 17:59:52 +0000 (GMT)
+From:   Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+To:     Thomas Huth <thuth@redhat.com>,
         Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        oe-kbuild-all@lists.linux.dev,
-        David Hildenbrand <david@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sven Schnelle <svens@linux.ibm.com>
-Subject: Re: [PATCH v4 1/9] KVM: s390: Extend MEM_OP ioctl by storage key
- checked cmpxchg
-Message-ID: <Y7W3BR4WmaapBQMT@osiris>
-References: <20221213165405.2953539-2-scgl@linux.ibm.com>
- <202212141025.6iR1ex8g-lkp@intel.com>
- <4b96b112d5415d08a81d30657feec2c8c3000f7c.camel@linux.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4b96b112d5415d08a81d30657feec2c8c3000f7c.camel@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: pcbH_lpASS6ZxiHwImdail8xfvFZjMVk
-X-Proofpoint-GUID: 9YIMm65j_RIPiBtOH8fjcOAsdFTGrxS5
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: [kvm-unit-tests PATCH v1] s390x: Fix integer literal in skey.c
+Date:   Wed,  4 Jan 2023 18:59:50 +0100
+Message-Id: <20230104175950.731988-1-nsg@linux.ibm.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: y_PO-LvEtO166hlBLKtE5qEleju2D26P
+X-Proofpoint-ORIG-GUID: 40mwZw9aLX5ZnWdy-oNRAYDtZ5xO_m48
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2023-01-04_07,2023-01-04_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0 mlxscore=0
- suspectscore=0 bulkscore=0 mlxlogscore=923 clxscore=1011
- priorityscore=1501 malwarescore=0 adultscore=0 impostorscore=0 spamscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2301040142
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011
+ lowpriorityscore=0 malwarescore=0 suspectscore=0 priorityscore=1501
+ bulkscore=0 mlxlogscore=999 mlxscore=0 impostorscore=0 spamscore=0
+ adultscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2301040146
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Dec 19, 2022 at 10:24:33PM +0100, Janis Schoetterl-Glausch wrote:
-> On Wed, 2022-12-14 at 10:23 +0800, kernel test robot wrote:
-> > Hi Janis,
-> > 
-> > Thank you for the patch! Yet something to improve:
-> > All errors (new ones prefixed by >>):
-> > 
-> >    s390-linux-ld: arch/s390/kvm/gaccess.o: in function `__cmpxchg_user_key':
-> > > > arch/s390/include/asm/uaccess.h:410: undefined reference to `__ashlti3'
-> > > > s390-linux-ld: arch/s390/include/asm/uaccess.h:411: undefined reference to `__ashlti3'
-> >    s390-linux-ld: arch/s390/include/asm/uaccess.h:458: undefined reference to `__ashlti3'
-> >    s390-linux-ld: arch/s390/include/asm/uaccess.h:459: undefined reference to `__ashlti3'
-> > 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16 @410  		_old = (old & 0xff) << shift;
-> > 51098f0eb22e2f Janis Schoetterl-Glausch 2022-11-16 @411  		_new = (new & 0xff) << shift;
-> 
-> Not sure what it is in this config that causes gcc to emit this
-> symbol instead of a shift instruction, but casting old/new to 32 bit
-> fixes the error.
+The code is a 64bit number of which the upper 48 bits must be 0.
 
-Right.. now we have the same fun with 128 bit arithmetics that we had
-with 64 bit arithmetics on 32 bit. I really missed that :)
+Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+---
+ s390x/skey.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Fixed the way you proposed it:
-https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git/commit/?h=cmpxchg_user_key&id=b33d59fb37ddcb6ee65d4fa23cc3d58793d13c5b
+diff --git a/s390x/skey.c b/s390x/skey.c
+index 1167e4d3..7c7a8090 100644
+--- a/s390x/skey.c
++++ b/s390x/skey.c
+@@ -320,7 +320,7 @@ static void test_diag_308(void)
+ 		"lr	%[response],%%r3\n"
+ 		: [response] "=d" (response)
+ 		: [ipib] "d" (ipib),
+-		  [code] "d" (5)
++		  [code] "d" (5L)
+ 		: "%r2", "%r3"
+ 	);
+ 	report(response == 0x402, "no exception on fetch, response: invalid IPIB");
+
+base-commit: 73d9d850f1c2c9f0df321967e67acda0d2c305ea
+-- 
+2.36.1
+
