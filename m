@@ -2,102 +2,129 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4714CC4708E
-	for <linux-s390@archiver.kernel.org>; Wed,  4 Jan 2023 12:16:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E1CCAC46467
+	for <linux-s390@archiver.kernel.org>; Wed,  4 Jan 2023 13:10:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239005AbjADMQn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 4 Jan 2023 07:16:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44008 "EHLO
+        id S237024AbjADNKp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 4 Jan 2023 08:10:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239054AbjADMQY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 4 Jan 2023 07:16:24 -0500
-Received: from mail-vs1-xe2c.google.com (mail-vs1-xe2c.google.com [IPv6:2607:f8b0:4864:20::e2c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59CAB12AEB
-        for <linux-s390@vger.kernel.org>; Wed,  4 Jan 2023 04:16:22 -0800 (PST)
-Received: by mail-vs1-xe2c.google.com with SMTP id i10so12964020vsr.12
-        for <linux-s390@vger.kernel.org>; Wed, 04 Jan 2023 04:16:22 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=tMTz73H2HiKDVHeJUWHzZGOUv0E67l6Qx4QTwGQGXow=;
-        b=Y+GY413mSjalVDt8GwNEovY++Wnm/pe/LxKzzYoVVgXNo3AUWlnhvQJ/rhPEPc73hc
-         MQMIOIND2igjxN+/5ejzg357Sx5alm6B+fuk7b6e7VxRLBxMhttW6KEXf8f0wRf+PvAA
-         g9Xpi/WTHbgNAjtqF77viDgW+lLworl9sL/pIxCIqdCW96ibuM0ouQgO9x2VQ4WANuLN
-         AHmkfnQUOZ6KVnmbhtg6fBasSBTj/ZPKURLZ+sMhOcsW0eRXxwZKJyHj56+g3qzntRj8
-         u2YsLjEgyS1m++vj0biOYUka/68qrJpGwr5/prDMxKKyRN/7TCMH3FEgqFXxpqCa3fnF
-         9iMA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=tMTz73H2HiKDVHeJUWHzZGOUv0E67l6Qx4QTwGQGXow=;
-        b=lX0HcAjgCVp6y+stpjr6nYSDGfEgtG5wGMRo3bJaailJPghQViXHM2mQc6GQAauK+S
-         bjBWsHw88V+7k9tbbDkonMy7eMnG9SNHYXFak8qubFPhIK/qLEWQgwn2xxwcS6wDSKfN
-         GxW9AClFa3TTKXFvRO0F6CmkXIvjH6bTn/rvAmvP7QwxrU0LIk1fZjcg3/4iRCSGFYHX
-         PoTG+7ioviYb/pk9k6o9oC6G3O1v6N2trFhKVuxsiTLcqqV2BMpTMBRdad2W9f299qnJ
-         c+zK8X/9t5Nwgn/0xrbkeZZW4vwn6EmW2HHBjoxaey9ABWKrmGuXQMTYvuZXUPPj9pUg
-         ydqw==
-X-Gm-Message-State: AFqh2kpdhxBnfNnwxfd+JTV+O+6TP1Ul4R1ZFKOJdyuwheWeHg0NHlML
-        efi0Aun9tO444IFFoXBjwPx+Kw==
-X-Google-Smtp-Source: AMrXdXsI7IQb2hPC4bpp9sMd36je7bb9SmI3NUdx/zQE9URIoZtVn86xJGR7y0ZiqwKhRydoyR0k+A==
-X-Received: by 2002:a67:ad10:0:b0:3c6:2c4:8cd1 with SMTP id t16-20020a67ad10000000b003c602c48cd1mr17585654vsl.9.1672834581480;
-        Wed, 04 Jan 2023 04:16:21 -0800 (PST)
-Received: from ziepe.ca (hlfxns017vw-142-68-50-193.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.50.193])
-        by smtp.gmail.com with ESMTPSA id bs7-20020a05620a470700b006b61b2cb1d2sm24239206qkb.46.2023.01.04.04.16.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 Jan 2023 04:16:20 -0800 (PST)
-Received: from jgg by wakko with local (Exim 4.95)
-        (envelope-from <jgg@ziepe.ca>)
-        id 1pD2gu-001iia-1v;
-        Wed, 04 Jan 2023 08:16:20 -0400
-Date:   Wed, 4 Jan 2023 08:16:20 -0400
-From:   Jason Gunthorpe <jgg@ziepe.ca>
-To:     Niklas Schnelle <schnelle@linux.ibm.com>
+        with ESMTP id S239358AbjADNKZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 4 Jan 2023 08:10:25 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 889F93B921;
+        Wed,  4 Jan 2023 05:08:51 -0800 (PST)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 304BevXa002179;
+        Wed, 4 Jan 2023 13:08:51 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=9rW9D4bKG1AYqSLVRir+QNP3LNiG0x+xb+IzrxVzjqc=;
+ b=saSqHReT18X5kzdwEgE80spO9akrd1tJRrXgWQI4xphg5AimHdAf5x1zmG1KMldl1X8f
+ vO6+rgqQutKMOnzQYWZRQatdi/Xt8GgOaR/4rR1mJw1iS5DuHKzx+MFJoBJpw++D4WW9
+ mbYBRDsq+2dMo4ZN7/zFdqfbXGuY2vPTZif+CT2iFMeST4ggkUW2lkTRKN1fSsk6TFGj
+ LYf8DcH/bfsoylgsOpNFDqrP1kmFMeU/lCOfeNxnN1miYNbVqAXxE/1DYtgENgRGDDYI
+ OSnZg5oJQPieZisSnksKOYL2tHnlYuEMof7HRErPq+8BRGLM0vA0rVs68L9X6el+nyZ4 7Q== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mw83xat49-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 04 Jan 2023 13:08:50 +0000
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 304Co51D033666;
+        Wed, 4 Jan 2023 13:08:50 GMT
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mw83xat3r-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 04 Jan 2023 13:08:50 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 303J3anK006506;
+        Wed, 4 Jan 2023 13:08:47 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+        by ppma04fra.de.ibm.com (PPS) with ESMTPS id 3mtcq6bw32-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 04 Jan 2023 13:08:47 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 304D8hpj46006752
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 4 Jan 2023 13:08:44 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D6D3F20043;
+        Wed,  4 Jan 2023 13:08:43 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 41CA520040;
+        Wed,  4 Jan 2023 13:08:43 +0000 (GMT)
+Received: from [9.171.35.166] (unknown [9.171.35.166])
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed,  4 Jan 2023 13:08:43 +0000 (GMT)
+Message-ID: <d2e13511df130c3d4824a78ed0aa24c49e7137e5.camel@linux.ibm.com>
+Subject: Re: [PATCH 1/1] vfio/type1: Respect IOMMU reserved regions in
+ vfio_test_domain_fgsp()
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Jason Gunthorpe <jgg@ziepe.ca>
 Cc:     Alex Williamson <alex.williamson@redhat.com>,
         Cornelia Huck <cohuck@redhat.com>, kvm@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
         Matthew Rosato <mjrosato@linux.ibm.com>,
         Pierre Morel <pmorel@linux.ibm.com>,
-        Christian =?utf-8?Q?Borntr=C3=A4ger?= <borntraeger@linux.ibm.com>
-Subject: Re: [PATCH 1/1] vfio/type1: Respect IOMMU reserved regions in
- vfio_test_domain_fgsp()
-Message-ID: <Y7VuFJFUHtkqA9ZM@ziepe.ca>
+        Christian =?ISO-8859-1?Q?Borntr=E4ger?= 
+        <borntraeger@linux.ibm.com>
+Date:   Wed, 04 Jan 2023 14:08:42 +0100
+In-Reply-To: <Y7VuFJFUHtkqA9ZM@ziepe.ca>
 References: <20230102093452.761185-1-schnelle@linux.ibm.com>
- <20230102093452.761185-2-schnelle@linux.ibm.com>
- <Y7S8loyvHyjAmNdh@ziepe.ca>
- <4e8d3f53af2f73a464e4ffc4a9a28c8d31692369.camel@linux.ibm.com>
+         <20230102093452.761185-2-schnelle@linux.ibm.com>
+         <Y7S8loyvHyjAmNdh@ziepe.ca>
+         <4e8d3f53af2f73a464e4ffc4a9a28c8d31692369.camel@linux.ibm.com>
+         <Y7VuFJFUHtkqA9ZM@ziepe.ca>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.46.2 (3.46.2-1.fc37) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4e8d3f53af2f73a464e4ffc4a9a28c8d31692369.camel@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: _OXaFNEQjnbWGa5dpbnehKOorelZPU2V
+X-Proofpoint-GUID: r_yVo2XLt-HKe7O2EE04fC2dJ0P9p6Lt
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2023-01-04_07,2023-01-04_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 phishscore=0
+ priorityscore=1501 suspectscore=0 spamscore=0 bulkscore=0
+ lowpriorityscore=0 impostorscore=0 mlxscore=0 mlxlogscore=724
+ malwarescore=0 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2212070000 definitions=main-2301040110
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jan 04, 2023 at 10:52:55AM +0100, Niklas Schnelle wrote:
+On Wed, 2023-01-04 at 08:16 -0400, Jason Gunthorpe wrote:
+> On Wed, Jan 04, 2023 at 10:52:55AM +0100, Niklas Schnelle wrote:
+>=20
+> > The problem manifests only with ISM devices which are a special s390
+> > virtual PCI device that is implemented in the machine hypervisor. This
+> > device is used for high speed cross-LPAR (Logical Partition)
+> > communication, basically it allows two LPARs that previously exchanged
+> > an authentication token to memcpy between their partitioned memory
+> > using the virtual device. For copying a receiving LPAR will IOMMU map a
+> > region of memory for the ISM device that it will allow DMAing into
+> > (memcpy by the hypervisor). All other regions remain unmapped and thus
+> > inaccessible. In preparation the device  emulation in the machine
+> > hypervisor intercepts the IOTLB flush and looks at the IOMMU
+> > translation tables performing e.g. size and alignment checks I presume,
+> > one of these checks against the start/end DMA boundaries. This check
+> > fails which leads to the virtual ISM device being put into an error
+> > state. Being in an error state it then fails to be initialized by the
+> > guest driver later on.
+>=20
+> You could rephrase this as saying that the S390 map operation doesn't
+> check for bounds so mapping in a reserved region doesn't fail, but
+> errors the HW.
+>=20
+> Which seems reasonable to me
+>=20
+> Jason
 
-> The problem manifests only with ISM devices which are a special s390
-> virtual PCI device that is implemented in the machine hypervisor. This
-> device is used for high speed cross-LPAR (Logical Partition)
-> communication, basically it allows two LPARs that previously exchanged
-> an authentication token to memcpy between their partitioned memory
-> using the virtual device. For copying a receiving LPAR will IOMMU map a
-> region of memory for the ISM device that it will allow DMAing into
-> (memcpy by the hypervisor). All other regions remain unmapped and thus
-> inaccessible. In preparation the device  emulation in the machine
-> hypervisor intercepts the IOTLB flush and looks at the IOMMU
-> translation tables performing e.g. size and alignment checks I presume,
-> one of these checks against the start/end DMA boundaries. This check
-> fails which leads to the virtual ISM device being put into an error
-> state. Being in an error state it then fails to be initialized by the
-> guest driver later on.
-
-You could rephrase this as saying that the S390 map operation doesn't
-check for bounds so mapping in a reserved region doesn't fail, but
-errors the HW.
-
-Which seems reasonable to me
-
-Jason
+Kind of yes, before the recent IOMMU changes the IOMMU code did check
+on map failing early but now handles the limits via reserved regions.
+The IOMMU hardware would only check the limits once an actual DMA uses
+them but of course no DMA will be triggered for this test mapping. For
+this specific virtual device though there is an extra check as part of
+an intercepted IOTLB flush (RPCIT instruction in S390).
