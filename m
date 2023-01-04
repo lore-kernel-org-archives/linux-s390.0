@@ -2,105 +2,115 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 965C6C46467
-	for <linux-s390@archiver.kernel.org>; Wed,  4 Jan 2023 07:21:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B7598C4332F
+	for <linux-s390@archiver.kernel.org>; Wed,  4 Jan 2023 07:46:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233424AbjADHVK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 4 Jan 2023 02:21:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36948 "EHLO
+        id S233557AbjADHq2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 4 Jan 2023 02:46:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230287AbjADHVI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 4 Jan 2023 02:21:08 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19957E99;
-        Tue,  3 Jan 2023 23:20:58 -0800 (PST)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30453MQO023989;
-        Wed, 4 Jan 2023 07:20:55 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : references : date : in-reply-to : message-id : mime-version :
- content-type; s=pp1; bh=rDjGqkVgd6zk9OUmcD2sbF0qmef7zF+caei8zGo4y8w=;
- b=ZlVGfdJGNoiaMCf9rp/bm+kaOZnd3gP4LEZY82Q9V82suM2qNim87OEK0mDeF8QQl8ep
- HdgbwVbZx1Z2wUPVJQIn7mtRD/UOht7Ymwl9pbtk4jY1r3+Q45TavBDetDwVFA7SjlbT
- HfW37B2d8c+7oZTvje8hpJg0kKb0NGeXYivHQ6EnfYnop9BQp3VfF8Zhcr550lsfcXjy
- Yv+cU4aykEoUCePIaHiAoys8uVBT2idEs0rnaRgjj9fdcuJfNG0r6uILXzH6AJKeUIEw
- vnG3YYLYH4v3MnWknTcKllxJzvc45Awy5tFCQ0iiGZ4pc6qTUFKlVpY30LyKS8x4qYAA ew== 
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mvhh51hu4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 04 Jan 2023 07:20:54 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 303Mh0ID003741;
-        Wed, 4 Jan 2023 07:20:52 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3mtcbfcwak-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 04 Jan 2023 07:20:52 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3047KnEA33751328
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 4 Jan 2023 07:20:49 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C86F92004B;
-        Wed,  4 Jan 2023 07:20:49 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id ABAA120040;
-        Wed,  4 Jan 2023 07:20:49 +0000 (GMT)
-Received: from tuxmaker.linux.ibm.com (unknown [9.152.85.9])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Wed,  4 Jan 2023 07:20:49 +0000 (GMT)
-From:   Sven Schnelle <svens@linux.ibm.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Jiri Slaby <jirislaby@kernel.org>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v2 0/2] fix out-of-bounds access when specifying invalid
- console
-References: <20221209112737.3222509-1-svens@linux.ibm.com>
-Date:   Wed, 04 Jan 2023 08:20:49 +0100
-In-Reply-To: <20221209112737.3222509-1-svens@linux.ibm.com> (Sven Schnelle's
-        message of "Fri, 9 Dec 2022 12:27:35 +0100")
-Message-ID: <yt9dh6x6n4tq.fsf@linux.ibm.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.0.50 (gnu/linux)
+        with ESMTP id S233436AbjADHq1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 4 Jan 2023 02:46:27 -0500
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 923DF101E4;
+        Tue,  3 Jan 2023 23:46:24 -0800 (PST)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id B3AAE38CE3;
+        Wed,  4 Jan 2023 07:46:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1672818382; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=AlUS4rFMq/APir3cFferSBeDNPK/ORyz2z3RjBS+Um4=;
+        b=kveBcYfoIUBtm3F0Ar3Wt0T3ZwXS220F+aCXcfEt2trlB9EBAJ7qi0tZCSyVz9Jy394vRi
+        bIuf4P+Yn+4Jd+aASe+doB5O3LBOQ7JR8s7BLXkkgluwrr98grKK2n4HmMHlAGF69yc/5M
+        zuCrK+UYdOn2OzeZlK/la6hCRvOh7Cc=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 93117133D1;
+        Wed,  4 Jan 2023 07:46:22 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id LFCDIM4utWORBgAAMHmgww
+        (envelope-from <mhocko@suse.com>); Wed, 04 Jan 2023 07:46:22 +0000
+Date:   Wed, 4 Jan 2023 08:46:21 +0100
+From:   Michal Hocko <mhocko@suse.com>
+To:     Mike Kravetz <mike.kravetz@oracle.com>
+Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        Christoph Hellwig <hch@infradead.org>,
+        David Hildenbrand <david@redhat.com>,
+        Peter Xu <peterx@redhat.com>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Rik van Riel <riel@surriel.com>,
+        Will Deacon <will@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Christian Brauner <brauner@kernel.org>,
+        Eric Dumazet <edumazet@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH] mm: remove zap_page_range and create zap_vma_pages
+Message-ID: <Y7UuzV94Yo59PwTa@dhcp22.suse.cz>
+References: <20230104002732.232573-1-mike.kravetz@oracle.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: UwaY8cH2TmC-LY2GUG3Jfnf0jygc6mif
-X-Proofpoint-GUID: UwaY8cH2TmC-LY2GUG3Jfnf0jygc6mif
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2023-01-04_04,2023-01-03_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 suspectscore=0
- adultscore=0 mlxscore=0 phishscore=0 spamscore=0 bulkscore=0
- impostorscore=0 lowpriorityscore=0 priorityscore=1501 malwarescore=0
- mlxlogscore=458 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2301040054
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230104002732.232573-1-mike.kravetz@oracle.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Sven Schnelle <svens@linux.ibm.com> writes:
+On Tue 03-01-23 16:27:32, Mike Kravetz wrote:
+> zap_page_range was originally designed to unmap pages within an address
+> range that could span multiple vmas.  While working on [1], it was
+> discovered that all callers of zap_page_range pass a range entirely within
+> a single vma.  In addition, the mmu notification call within zap_page
+> range does not correctly handle ranges that span multiple vmas.  When
+> crossing a vma boundary, a new mmu_notifier_range_init/end call pair
+> with the new vma should be made.
+> 
+> Instead of fixing zap_page_range, do the following:
+> - Create a new routine zap_vma_pages() that will remove all pages within
+>   the passed vma.  Most users of zap_page_range pass the entire vma and
+>   can use this new routine.
+> - For callers of zap_page_range not passing the entire vma, instead call
+>   zap_page_range_single().
+> - Remove zap_page_range.
+> 
+> [1] https://lore.kernel.org/linux-mm/20221114235507.294320-2-mike.kravetz@oracle.com/
+> Suggested-by: Peter Xu <peterx@redhat.com>
+> Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
 
-> Hi,
->
-> these two patches fix a crash in the tty driver when a user specifies an
-> invalid console like 'console=tty3000'. The first patch adds a check to
-> tty_driver_lookup_tty(), the second one prevents that such a console gets
-> registered in the vt driver.
->
-> Changes in v2:
-> - trim commit message in first patch
-> - add second patch as suggested by Jiri Slaby
->
-> Sven Schnelle (2):
->   tty: fix out-of-bounds access in tty_driver_lookup_tty()
->   tty/vt: prevent registration of console with invalid number
->
->  drivers/tty/tty_io.c | 8 +++++---
->  drivers/tty/vt/vt.c  | 6 ++++++
->  2 files changed, 11 insertions(+), 3 deletions(-)
+This looks even better than the previous version.
+Acked-by: Michal Hocko <mhocko@suse.com>
 
-Gentle ping... I couldn't find that this was applied anywhere?
+minor nit
 
-Thanks
-Sven
+[...]
+> diff --git a/mm/page-writeback.c b/mm/page-writeback.c
+> index ad608ef2a243..ffa36cfe5884 100644
+> --- a/mm/page-writeback.c
+> +++ b/mm/page-writeback.c
+> @@ -2713,7 +2713,7 @@ void folio_account_cleaned(struct folio *folio, struct bdi_writeback *wb)
+>   *
+>   * The caller must hold lock_page_memcg().  Most callers have the folio
+>   * locked.  A few have the folio blocked from truncation through other
+> - * means (eg zap_page_range() has it mapped and is holding the page table
+> + * means (eg zap_vma_pages() has it mapped and is holding the page table
+>   * lock).  This can also be called from mark_buffer_dirty(), which I
+>   * cannot prove is always protected against truncate.
+
+strictly speaking this should be unmap_page_range
+-- 
+Michal Hocko
+SUSE Labs
