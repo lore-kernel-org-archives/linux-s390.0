@@ -2,54 +2,54 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 293D2C46467
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A3EDC54EBD
 	for <linux-s390@archiver.kernel.org>; Wed,  4 Jan 2023 12:06:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234844AbjADMGU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 4 Jan 2023 07:06:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38538 "EHLO
+        id S234789AbjADMGW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 4 Jan 2023 07:06:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239224AbjADMGH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 4 Jan 2023 07:06:07 -0500
+        with ESMTP id S239240AbjADMGL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 4 Jan 2023 07:06:11 -0500
 Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A612FF016;
-        Wed,  4 Jan 2023 04:06:06 -0800 (PST)
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 304BU6Vu024833;
-        Wed, 4 Jan 2023 12:05:50 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85DB2321B2;
+        Wed,  4 Jan 2023 04:06:09 -0800 (PST)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 304B3rGB018598;
+        Wed, 4 Jan 2023 12:05:53 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=Y8VBjRvV24ZOr5vf91CRoI3eBsQ9iJZ+ieVPUApSt6s=;
- b=GDKlHu4XIoyp5M7BhIlRzEO7FkBkgdC8jTBYeomKCGnfalWlXc3jNUh1jOZzMX/MGWRQ
- uqvaCB8MgwMKhOJFCmXxxeoeXGKqshmNQ1Y1RX8e6y7l7np01VR76Lz5RVKJN7O03uGK
- 4RZ3+FO5OzWxzp9mU9vO64+uoqZztw3MQXuvLonhjLhKU3xIYjRbpjzvEAYvz36WZyZh
- aa5Bb40G0vkw6c+HT0U99fSXDjpYLy602aGrz/ZL2OI6dt6Gls2Ugewpsy11fqbWH2dL
- E/zI/afMxHSF+ZfsaSQyKSexYnBZUADEcaJuyVZ8zTWQYqhNRSJBQ53Ra/wosX7iGTGN 9w== 
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3mw8mp8pmd-1
+ bh=55Jijw4Mf0fbuCrJUkQBHTis6CK/B1W9VDrHYcvsqqg=;
+ b=H3ot3Um45bJMl6CId/DgXuJKTXLEs8R8r+2RwRHcOO8Yu1aytnDcw/tMrdfOS8LDSB+3
+ ELyS+zGau2q8HYvYBRdMlJuKXlFQ0Htw2IQLg9bPwSGrEeGIgcarvBcFXcpvzyRd+vo4
+ 8RuLPwVSw687LGxdQxs9aM2VqR8xfnCHAVXC4dkHbfrDvmAxumzV78djJCdSImPp1YHK
+ 5Pz4R0kZlfXVRFesbERViMQMNYV6FFAWzFkPRoYDj9VxuRVr5zEbrYKmwCNsbxQmjv3U
+ qJBmcC1sW1wiJcyQPT5z8oHY4koRazlKjy3QxjEh/fCLkxxNhhDPQcKp2q97WmAA7zcd ag== 
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3mw88n98qu-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 04 Jan 2023 12:05:50 +0000
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3046p9N8008371;
-        Wed, 4 Jan 2023 12:05:48 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma06fra.de.ibm.com (PPS) with ESMTPS id 3mtcbfkuup-1
+        Wed, 04 Jan 2023 12:05:52 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 303MIvwf000962;
+        Wed, 4 Jan 2023 12:05:51 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3mtcbfd8km-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 04 Jan 2023 12:05:48 +0000
+        Wed, 04 Jan 2023 12:05:51 +0000
 Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 304C5inr52560316
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 304C5lir48628004
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 4 Jan 2023 12:05:44 GMT
+        Wed, 4 Jan 2023 12:05:47 GMT
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 965EE20040;
-        Wed,  4 Jan 2023 12:05:44 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 5BC3B20040;
+        Wed,  4 Jan 2023 12:05:47 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 28C9D20049;
-        Wed,  4 Jan 2023 12:05:44 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id EE4BC2004D;
+        Wed,  4 Jan 2023 12:05:46 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
         by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed,  4 Jan 2023 12:05:44 +0000 (GMT)
+        Wed,  4 Jan 2023 12:05:46 +0000 (GMT)
 From:   Niklas Schnelle <schnelle@linux.ibm.com>
 To:     Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
         Robin Murphy <robin.murphy@arm.com>,
@@ -63,58 +63,125 @@ Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
         gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
         svens@linux.ibm.com, linux-kernel@vger.kernel.org,
         Julian Ruess <julianr@linux.ibm.com>
-Subject: [PATCH v4 1/7] s390/ism: Set DMA coherent mask
-Date:   Wed,  4 Jan 2023 13:05:37 +0100
-Message-Id: <20230104120543.308933-2-schnelle@linux.ibm.com>
+Subject: [PATCH v4 7/7] iommu/dma: Add IOMMU op to choose lazy domain type
+Date:   Wed,  4 Jan 2023 13:05:43 +0100
+Message-Id: <20230104120543.308933-8-schnelle@linux.ibm.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20230104120543.308933-1-schnelle@linux.ibm.com>
 References: <20230104120543.308933-1-schnelle@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: mKRQM8-IgqhP_sITPFPNOI6OXTI1Tchz
-X-Proofpoint-GUID: mKRQM8-IgqhP_sITPFPNOI6OXTI1Tchz
+X-Proofpoint-ORIG-GUID: 7GKvseKBxjM3a5fEqrQR2V94O1yjbu-E
+X-Proofpoint-GUID: 7GKvseKBxjM3a5fEqrQR2V94O1yjbu-E
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2023-01-04_06,2023-01-04_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 malwarescore=0
- adultscore=0 clxscore=1015 suspectscore=0 lowpriorityscore=0
- priorityscore=1501 mlxlogscore=999 mlxscore=0 impostorscore=0 bulkscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2301040102
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 malwarescore=0
+ bulkscore=0 phishscore=0 lowpriorityscore=0 priorityscore=1501
+ adultscore=0 mlxscore=0 mlxlogscore=858 suspectscore=0 impostorscore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2301040097
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-A future change will convert the DMA API implementation from the
-architecture specific arch/s390/pci/pci_dma.c to using the common code
-drivers/iommu/dma-iommu.c which the utilizes the same IOMMU hardware
-through the s390-iommu driver. Unlike the s390 specific DMA API this
-requires devices to correctly call set the coherent mask to be allowed
-to use IOVAs >2^32 in dma_alloc_coherent(). This was however not done
-for ISM devices. ISM requires such addresses since currently the DMA
-aperture for PCI devices starts at 2^32 and all calls to
-dma_alloc_coherent() would thus fail.
+With two flush queue variants add an IOMMU operation that allows the
+IOMMU driver to choose its preferred flush queue variant on a per device
+basis. For s390 use this callback to choose the single queue variant
+whenever the device requires explicit IOTLB flushes on map indicating
+that we're running in a paged memory guest with expensive IOTLB flushes.
 
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
 Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
 ---
- drivers/s390/net/ism_drv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iommu/iommu.c      | 13 +++++++++++++
+ drivers/iommu/s390-iommu.c | 11 +++++++++++
+ include/linux/iommu.h      |  5 +++++
+ 3 files changed, 29 insertions(+)
 
-diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
-index dfd401d9e362..aba03b613296 100644
---- a/drivers/s390/net/ism_drv.c
-+++ b/drivers/s390/net/ism_drv.c
-@@ -557,7 +557,7 @@ static int ism_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 	if (ret)
- 		goto err_disable;
+diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+index 7ae2ff35b88e..c4699a0e5feb 100644
+--- a/drivers/iommu/iommu.c
++++ b/drivers/iommu/iommu.c
+@@ -1616,6 +1616,16 @@ static int iommu_get_def_domain_type(struct device *dev)
+ 	return 0;
+ }
  
--	ret = dma_set_mask(&pdev->dev, DMA_BIT_MASK(64));
-+	ret = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
- 	if (ret)
- 		goto err_resource;
++static int iommu_get_lazy_domain_type(struct device *dev)
++{
++	const struct iommu_ops *ops = dev_iommu_ops(dev);
++
++	if (ops->lazy_domain_type)
++		return ops->lazy_domain_type(dev);
++
++	return 0;
++}
++
+ static int iommu_group_alloc_default_domain(struct bus_type *bus,
+ 					    struct iommu_group *group,
+ 					    unsigned int type)
+@@ -1649,6 +1659,9 @@ static int iommu_alloc_default_domain(struct iommu_group *group,
  
+ 	type = iommu_get_def_domain_type(dev) ? : iommu_def_domain_type;
+ 
++	if (!!(type & __IOMMU_DOMAIN_DMA_LAZY))
++		type = iommu_get_lazy_domain_type(dev) ? : type;
++
+ 	return iommu_group_alloc_default_domain(dev->bus, group, type);
+ }
+ 
+diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
+index ff73b75be886..b8aab37e8b15 100644
+--- a/drivers/iommu/s390-iommu.c
++++ b/drivers/iommu/s390-iommu.c
+@@ -459,6 +459,16 @@ static void s390_iommu_get_resv_regions(struct device *dev,
+ 	}
+ }
+ 
++static int s390_iommu_lazy_domain_type(struct device *dev)
++{
++	struct zpci_dev *zdev = to_zpci_dev(dev);
++
++	if (zdev->tlb_refresh)
++		return IOMMU_DOMAIN_DMA_SQ;
++
++	return IOMMU_DOMAIN_DMA_FQ;
++}
++
+ static struct iommu_device *s390_iommu_probe_device(struct device *dev)
+ {
+ 	struct zpci_dev *zdev;
+@@ -798,6 +808,7 @@ static const struct iommu_ops s390_iommu_ops = {
+ 	.device_group = generic_device_group,
+ 	.pgsize_bitmap = SZ_4K,
+ 	.get_resv_regions = s390_iommu_get_resv_regions,
++	.lazy_domain_type = s390_iommu_lazy_domain_type,
+ 	.default_domain_ops = &(const struct iommu_domain_ops) {
+ 		.attach_dev	= s390_iommu_attach_device,
+ 		.detach_dev	= s390_iommu_detach_device,
+diff --git a/include/linux/iommu.h b/include/linux/iommu.h
+index 74cee59516aa..aec895087f63 100644
+--- a/include/linux/iommu.h
++++ b/include/linux/iommu.h
+@@ -250,6 +250,10 @@ struct iommu_iotlb_gather {
+  *		- IOMMU_DOMAIN_IDENTITY: must use an identity domain
+  *		- IOMMU_DOMAIN_DMA: must use a dma domain
+  *		- 0: use the default setting
++ * @lazy_domain_type: Domain type for lazy TLB invalidation, return value:
++ *		- IOMMU_DOMAIN_DMA_FQ: Use per-CPU flush queue
++ *		- IOMMU_DOMAIN_DMA_SQ: Use single flush queue
++ *		- 0: use the default setting
+  * @default_domain_ops: the default ops for domains
+  * @remove_dev_pasid: Remove any translation configurations of a specific
+  *                    pasid, so that any DMA transactions with this pasid
+@@ -283,6 +287,7 @@ struct iommu_ops {
+ 			     struct iommu_page_response *msg);
+ 
+ 	int (*def_domain_type)(struct device *dev);
++	int (*lazy_domain_type)(struct device *dev);
+ 	void (*remove_dev_pasid)(struct device *dev, ioasid_t pasid);
+ 
+ 	const struct iommu_domain_ops *default_domain_ops;
 -- 
 2.34.1
 
