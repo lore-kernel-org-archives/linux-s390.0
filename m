@@ -2,206 +2,105 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4990DC4708E
-	for <linux-s390@archiver.kernel.org>; Wed,  4 Jan 2023 01:55:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 965C6C46467
+	for <linux-s390@archiver.kernel.org>; Wed,  4 Jan 2023 07:21:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238063AbjADBzy convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 3 Jan 2023 20:55:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44550 "EHLO
+        id S233424AbjADHVK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 4 Jan 2023 02:21:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237952AbjADBzx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Jan 2023 20:55:53 -0500
-Received: from bg4.exmail.qq.com (bg4.exmail.qq.com [43.155.67.158])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6437E38BB;
-        Tue,  3 Jan 2023 17:55:50 -0800 (PST)
-X-QQ-mid: bizesmtp80t1672797303tpxq3we0
-Received: from [172.24.140.10] ( [1.202.165.115])
-        by bizesmtp.qq.com (ESMTP) with 
-        id ; Wed, 04 Jan 2023 09:55:00 +0800 (CST)
-X-QQ-SSF: 00000000000000205000000A0000000
-X-QQ-FEAT: kExHUVduNfMHXYoAZ0KwordvHWIS8zW8ykQ1uHIaKwO6NGGijqcCUgQN0DrdQ
-        l8d/bG7BCFKtphlIojBeiwGMriuC3L+o+8cMGXf7oSaSi9vuHMrHJjCBF0hBq/FJQRxWDO7
-        HPdNNhSEh/EppxubL8H4SFiXL4kjZ/WBQ3SHKVxxGZmvK9xJaCBFJliBVxgkSQQayaO0yuH
-        u346JiXohp9+dgzg5ynFlCkulLL0ezmGcpQfhr567evjLy/hXC3EMFPnQAGf08yW7d/4b5o
-        5/zC7wd2TYz/OnP+FG4HNzT/cJAlH5mb1Hl6oLoL6hp32FZEfBmGcpg2ENpAyAl0uZRQn7C
-        H6mZqfp46KYrBNxj2Dam/vcpx/qEnLNo/s5TFR6
-X-QQ-GoodBg: 0
-User-Agent: Microsoft-MacOutlook/16.66.22102801
-Date:   Wed, 04 Jan 2023 09:54:59 +0800
-Subject: Re: [bpf-next v1] bpf: drop deprecated bpf_jit_enable == 2
-From:   Tonghao Zhang <xxmy@infragraf.org>
-To:     Daniel Borkmann <daniel@iogearbox.net>, <bpf@vger.kernel.org>,
-        <netdev@vger.kernel.org>, <linux-arm-kernel@lists.infradead.or>,
-        <loongarch@lists.linux.dev>, <linux-mips@vger.kernel.org>,
-        <linuxppc-dev@lists.ozlabs.org>, <linux-riscv@lists.infradead.org>,
-        <linux-s390@vger.kernel.org>, <sparclinux@vger.kernel.org>
-CC:     Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Martin KaFai Lau <martin.lau@linux.dev>,
-        Song Liu <song@kernel.org>, Yonghong Song <yhs@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>,
-        Stanislav Fomichev <sdf@google.com>,
-        Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
-        Hou Tao <houtao1@huawei.com>
-Message-ID: <95D9D9F97BCE5963+4FF780FB-E30D-44F1-A7B4-BB40E96E4515@infragraf.org>
-Thread-Topic: [bpf-next v1] bpf: drop deprecated bpf_jit_enable == 2
-References: <20230103132454.94242-1-xxmy@infragraf.org>
- <cf475fe0-9961-d768-fae3-04f640855dab@iogearbox.net>
-In-Reply-To: <cf475fe0-9961-d768-fae3-04f640855dab@iogearbox.net>
-Mime-version: 1.0
-Content-type: text/plain;
-        charset="UTF-8"
-Content-transfer-encoding: 8BIT
-X-QQ-SENDSIZE: 520
-Feedback-ID: bizesmtp:infragraf.org:qybglogicsvr:qybglogicsvr6
+        with ESMTP id S230287AbjADHVI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 4 Jan 2023 02:21:08 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19957E99;
+        Tue,  3 Jan 2023 23:20:58 -0800 (PST)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30453MQO023989;
+        Wed, 4 Jan 2023 07:20:55 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : references : date : in-reply-to : message-id : mime-version :
+ content-type; s=pp1; bh=rDjGqkVgd6zk9OUmcD2sbF0qmef7zF+caei8zGo4y8w=;
+ b=ZlVGfdJGNoiaMCf9rp/bm+kaOZnd3gP4LEZY82Q9V82suM2qNim87OEK0mDeF8QQl8ep
+ HdgbwVbZx1Z2wUPVJQIn7mtRD/UOht7Ymwl9pbtk4jY1r3+Q45TavBDetDwVFA7SjlbT
+ HfW37B2d8c+7oZTvje8hpJg0kKb0NGeXYivHQ6EnfYnop9BQp3VfF8Zhcr550lsfcXjy
+ Yv+cU4aykEoUCePIaHiAoys8uVBT2idEs0rnaRgjj9fdcuJfNG0r6uILXzH6AJKeUIEw
+ vnG3YYLYH4v3MnWknTcKllxJzvc45Awy5tFCQ0iiGZ4pc6qTUFKlVpY30LyKS8x4qYAA ew== 
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mvhh51hu4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 04 Jan 2023 07:20:54 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 303Mh0ID003741;
+        Wed, 4 Jan 2023 07:20:52 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3mtcbfcwak-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 04 Jan 2023 07:20:52 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3047KnEA33751328
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 4 Jan 2023 07:20:49 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C86F92004B;
+        Wed,  4 Jan 2023 07:20:49 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id ABAA120040;
+        Wed,  4 Jan 2023 07:20:49 +0000 (GMT)
+Received: from tuxmaker.linux.ibm.com (unknown [9.152.85.9])
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Wed,  4 Jan 2023 07:20:49 +0000 (GMT)
+From:   Sven Schnelle <svens@linux.ibm.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Jiri Slaby <jirislaby@kernel.org>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v2 0/2] fix out-of-bounds access when specifying invalid
+ console
+References: <20221209112737.3222509-1-svens@linux.ibm.com>
+Date:   Wed, 04 Jan 2023 08:20:49 +0100
+In-Reply-To: <20221209112737.3222509-1-svens@linux.ibm.com> (Sven Schnelle's
+        message of "Fri, 9 Dec 2022 12:27:35 +0100")
+Message-ID: <yt9dh6x6n4tq.fsf@linux.ibm.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.0.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: UwaY8cH2TmC-LY2GUG3Jfnf0jygc6mif
+X-Proofpoint-GUID: UwaY8cH2TmC-LY2GUG3Jfnf0jygc6mif
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2023-01-04_04,2023-01-03_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 suspectscore=0
+ adultscore=0 mlxscore=0 phishscore=0 spamscore=0 bulkscore=0
+ impostorscore=0 lowpriorityscore=0 priorityscore=1501 malwarescore=0
+ mlxlogscore=458 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2301040054
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Sven Schnelle <svens@linux.ibm.com> writes:
 
+> Hi,
+>
+> these two patches fix a crash in the tty driver when a user specifies an
+> invalid console like 'console=tty3000'. The first patch adds a check to
+> tty_driver_lookup_tty(), the second one prevents that such a console gets
+> registered in the vt driver.
+>
+> Changes in v2:
+> - trim commit message in first patch
+> - add second patch as suggested by Jiri Slaby
+>
+> Sven Schnelle (2):
+>   tty: fix out-of-bounds access in tty_driver_lookup_tty()
+>   tty/vt: prevent registration of console with invalid number
+>
+>  drivers/tty/tty_io.c | 8 +++++---
+>  drivers/tty/vt/vt.c  | 6 ++++++
+>  2 files changed, 11 insertions(+), 3 deletions(-)
 
-﻿在 2023/1/3 下午11:42，“Daniel Borkmann”<daniel@iogearbox.net> 写入:
+Gentle ping... I couldn't find that this was applied anywhere?
 
-    On 1/3/23 2:24 PM, xxmy@infragraf.org wrote:
-    > From: Tonghao Zhang <xxmy@infragraf.org>
-    > 
-    > The x86_64 can't dump the valid insn in this way. A test BPF prog
-    > which include subprog:
-    > 
-    > $ llvm-objdump -d subprog.o
-    > Disassembly of section .text:
-    > 0000000000000000 <subprog>:
-    >         0:	18 01 00 00 73 75 62 70 00 00 00 00 72 6f 67 00	r1 = 29114459903653235 ll
-    >         2:	7b 1a f8 ff 00 00 00 00	*(u64 *)(r10 - 8) = r1
-    >         3:	bf a1 00 00 00 00 00 00	r1 = r10
-    >         4:	07 01 00 00 f8 ff ff ff	r1 += -8
-    >         5:	b7 02 00 00 08 00 00 00	r2 = 8
-    >         6:	85 00 00 00 06 00 00 00	call 6
-    >         7:	95 00 00 00 00 00 00 00	exit
-    > Disassembly of section raw_tp/sys_enter:
-    > 0000000000000000 <entry>:
-    >         0:	85 10 00 00 ff ff ff ff	call -1
-    >         1:	b7 00 00 00 00 00 00 00	r0 = 0
-    >         2:	95 00 00 00 00 00 00 00	exit
-    > 
-    > kernel print message:
-    > [  580.775387] flen=8 proglen=51 pass=3 image=ffffffffa000c20c from=kprobe-load pid=1643
-    > [  580.777236] JIT code: 00000000: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc
-    > [  580.779037] JIT code: 00000010: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc
-    > [  580.780767] JIT code: 00000020: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc
-    > [  580.782568] JIT code: 00000030: cc cc cc
-    > 
-    > $ bpf_jit_disasm
-    > 51 bytes emitted from JIT compiler (pass:3, flen:8)
-    > ffffffffa000c20c + <x>:
-    >     0:	int3
-    >     1:	int3
-    >     2:	int3
-    >     3:	int3
-    >     4:	int3
-    >     5:	int3
-    >     ...
-    > 
-    > Until bpf_jit_binary_pack_finalize is invoked, we copy rw_header to header
-    > and then image/insn is valid. BTW, we can use the "bpftool prog dump" JITed instructions.
-    > 
-    > * clean up the doc
-    > * remove bpf_jit_disasm tool
-    > * set bpf_jit_enable only 0 or 1.
-    > 
-    > Signed-off-by: Tonghao Zhang <xxmy@infragraf.org>
-    > Suggested-by: Alexei Starovoitov <ast@kernel.org>
-    > Cc: Alexei Starovoitov <ast@kernel.org>
-    > Cc: Daniel Borkmann <daniel@iogearbox.net>
-    > Cc: Andrii Nakryiko <andrii@kernel.org>
-    > Cc: Martin KaFai Lau <martin.lau@linux.dev>
-    > Cc: Song Liu <song@kernel.org>
-    > Cc: Yonghong Song <yhs@fb.com>
-    > Cc: John Fastabend <john.fastabend@gmail.com>
-    > Cc: KP Singh <kpsingh@kernel.org>
-    > Cc: Stanislav Fomichev <sdf@google.com>
-    > Cc: Hao Luo <haoluo@google.com>
-    > Cc: Jiri Olsa <jolsa@kernel.org>
-    > Cc: Hou Tao <houtao1@huawei.com>
-    > ---
-    >   Documentation/admin-guide/sysctl/net.rst |   2 +-
-    >   Documentation/networking/filter.rst      |  98 +------
-    >   arch/arm/net/bpf_jit_32.c                |   4 -
-    >   arch/arm64/net/bpf_jit_comp.c            |   4 -
-    >   arch/loongarch/net/bpf_jit.c             |   4 -
-    >   arch/mips/net/bpf_jit_comp.c             |   3 -
-    >   arch/powerpc/net/bpf_jit_comp.c          |  11 -
-    >   arch/riscv/net/bpf_jit_core.c            |   3 -
-    >   arch/s390/net/bpf_jit_comp.c             |   4 -
-    >   arch/sparc/net/bpf_jit_comp_32.c         |   3 -
-    >   arch/sparc/net/bpf_jit_comp_64.c         |  13 -
-    >   arch/x86/net/bpf_jit_comp.c              |   3 -
-    >   arch/x86/net/bpf_jit_comp32.c            |   3 -
-    >   net/core/sysctl_net_core.c               |  14 +-
-    >   tools/bpf/.gitignore                     |   1 -
-    >   tools/bpf/Makefile                       |  10 +-
-    >   tools/bpf/bpf_jit_disasm.c               | 332 -----------------------
-    >   17 files changed, 8 insertions(+), 504 deletions(-)
-    >   delete mode 100644 tools/bpf/bpf_jit_disasm.c
-    > 
-    > diff --git a/Documentation/admin-guide/sysctl/net.rst b/Documentation/admin-guide/sysctl/net.rst
-    > index 6394f5dc2303..45d3d965276c 100644
-    > --- a/Documentation/admin-guide/sysctl/net.rst
-    > +++ b/Documentation/admin-guide/sysctl/net.rst
-    > @@ -87,7 +87,7 @@ Values:
-    >   
-    >   	- 0 - disable the JIT (default value)
-    >   	- 1 - enable the JIT
-    > -	- 2 - enable the JIT and ask the compiler to emit traces on kernel log.
-    > +	- 2 - deprecated in linux 6.2
-
-    I'd make it more clear in the docs and reword it as follows (also, it'll be in 6.3, not 6.2):
-
-    	- 2 - enable the JIT and ask the compiler to emit traces on kernel log.
-    	      (deprecated since v6.3, use ``bpftool prog dump jited id <id>`` instead)
-
-    >   
-    >   bpf_jit_harden
-    >   --------------
-    [...]
-    > diff --git a/net/core/sysctl_net_core.c b/net/core/sysctl_net_core.c
-    > index 5b1ce656baa1..731a2eb0f68e 100644
-    > --- a/net/core/sysctl_net_core.c
-    > +++ b/net/core/sysctl_net_core.c
-    > @@ -275,16 +275,8 @@ static int proc_dointvec_minmax_bpf_enable(struct ctl_table *table, int write,
-    >   
-    >   	tmp.data = &jit_enable;
-    >   	ret = proc_dointvec_minmax(&tmp, write, buffer, lenp, ppos);
-    > -	if (write && !ret) {
-    > -		if (jit_enable < 2 ||
-    > -		    (jit_enable == 2 && bpf_dump_raw_ok(current_cred()))) {
-    > -			*(int *)table->data = jit_enable;
-    > -			if (jit_enable == 2)
-    > -				pr_warn("bpf_jit_enable = 2 was set! NEVER use this in production, only for JIT debugging!\n");
-    > -		} else {
-    > -			ret = -EPERM;
-    > -		}
-    > -	}
-    > +	if (write && !ret)
-    > +		*(int *)table->data = jit_enable;
-    >   
-    >   	if (write && ret && min == max)
-    >   		pr_info_once("CONFIG_BPF_JIT_ALWAYS_ON is enabled, bpf_jit_enable is permanently set to 1.\n");
-    > @@ -395,7 +387,7 @@ static struct ctl_table net_core_table[] = {
-    >   		.extra2		= SYSCTL_ONE,
-    >   # else
-    >   		.extra1		= SYSCTL_ZERO,
-    > -		.extra2		= SYSCTL_TWO,
-    > +		.extra2		= SYSCTL_ONE,
-
-    I'd leave it at SYSCTL_TWO to avoid breakage, just that the semantics of 2 will be the same
-    as 1 going forward.
-Thanks Daniel, v2 will fix that.
-    >   # endif
-    >   	},
-    >   # ifdef CONFIG_HAVE_EBPF_JIT
-
-
-
+Thanks
+Sven
