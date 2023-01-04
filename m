@@ -2,317 +2,118 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B30EC46467
-	for <linux-s390@archiver.kernel.org>; Wed,  4 Jan 2023 15:16:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 171C5C4332F
+	for <linux-s390@archiver.kernel.org>; Wed,  4 Jan 2023 15:42:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239410AbjADPQG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 4 Jan 2023 10:16:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56132 "EHLO
+        id S239606AbjADPmN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 4 Jan 2023 10:42:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235077AbjADPPw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 4 Jan 2023 10:15:52 -0500
-Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B836CF0B;
-        Wed,  4 Jan 2023 07:15:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1672845350; x=1704381350;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=7kdvxV8bGJ6fYhD0Pgzv2x5Bo+g5OmbI4MqMtYfDL1o=;
-  b=QzEVuGpx60cs/cQuR/H+ocgEi4YJG7U8jRVeNFx47Kkh9+e6FGZq9+iS
-   36ujmSujJX2mSoQ/TihvASciIxxTjJ6h8UPcQdbyC77kUdL8fFQjkhvCF
-   VEXfnnnbGcBtdS4eHBQ0kVhMTXr9aFHPHsqw71qLpMkEHyvb7ZRbMPiwZ
-   Jvw9TPKM6BQhfGfXzacxkHvF+EB8npSBTcpA0aGmJjeAsQlK+CElCx7nA
-   gKB5ql6A70CmPmu8+SusiZspo+DBRVkyGMyhSu18stGuoLbP6Egpf/jUA
-   sfH5W+bsUbQkZ4fZhY94UCPRSELE0pi4yZ3w/kukTAYcF8J5mzDQIe0dp
-   w==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10580"; a="301644304"
-X-IronPort-AV: E=Sophos;i="5.96,300,1665471600"; 
-   d="scan'208";a="301644304"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Jan 2023 07:15:50 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10580"; a="762700676"
-X-IronPort-AV: E=Sophos;i="5.96,300,1665471600"; 
-   d="scan'208";a="762700676"
-Received: from msvoboda-mobl.ger.corp.intel.com (HELO ijarvine-MOBL2.ger.corp.intel.com) ([10.252.48.119])
-  by fmsmga002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Jan 2023 07:15:43 -0800
-From:   =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-To:     linux-serial@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Samuel Iglesias Gonsalvez <siglesias@igalia.com>,
-        Jens Taprogge <jens.taprogge@taprogge.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Johan Hovold <johan@kernel.org>, linux-kernel@vger.kernel.org,
-        industrypack-devel@lists.sourceforge.net,
-        linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-usb@vger.kernel.org
-Cc:     =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Subject: [PATCH 01/10] tty: Cleanup tty_port_set_initialized() bool parameter
-Date:   Wed,  4 Jan 2023 17:15:22 +0200
-Message-Id: <20230104151531.73994-2-ilpo.jarvinen@linux.intel.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20230104151531.73994-1-ilpo.jarvinen@linux.intel.com>
-References: <20230104151531.73994-1-ilpo.jarvinen@linux.intel.com>
+        with ESMTP id S233812AbjADPmL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 4 Jan 2023 10:42:11 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 829381B1D0;
+        Wed,  4 Jan 2023 07:42:10 -0800 (PST)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 304FBjxC035752;
+        Wed, 4 Jan 2023 15:42:10 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=hzdIPsHOHJXcUVKMFhjURC+BqA8lXi2B5863P44BNdA=;
+ b=DEgmcK/ndJtCzUiprBCpwIJaReDsv/3xsFUB60kl0LPoykWeB1XEKUk53rtE7ICPjxho
+ EHTR7UCeBwdRS+8+A8C55TupJvQo1TxpTxV3qZ1R9pyBsDjIOGbOQ+pj8jLC9AG0HfEK
+ wbMRU7SBeeEI81EvH08Ad53V6C8bFAowlBC/WJhCgZ3Hr1hNxc/f/oVz71rMMaOtiZym
+ CTtgAafa3jCcqX2A42yPi5MgTeSIjLkvM22C9ytrXlsoH6r/pG05IzbDb62LXCqR2kL+
+ Bc2PVqOCP3zL+r5aMdd64SdW1mB2qwnbKxVaUzZpIbjNARuAbNXLTQsWQ9jn9G3lixjD AA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mwbvr0s8p-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 04 Jan 2023 15:42:09 +0000
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 304Fg9EZ029613;
+        Wed, 4 Jan 2023 15:42:09 GMT
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mwbvr0s7p-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 04 Jan 2023 15:42:09 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3049ctYr009626;
+        Wed, 4 Jan 2023 15:42:07 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma06fra.de.ibm.com (PPS) with ESMTPS id 3mtcbfm261-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 04 Jan 2023 15:42:06 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 304Fg3gl51183980
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 4 Jan 2023 15:42:03 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0D58F2004D;
+        Wed,  4 Jan 2023 15:42:03 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A9BD220043;
+        Wed,  4 Jan 2023 15:42:02 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed,  4 Jan 2023 15:42:02 +0000 (GMT)
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Alex Williamson <alex.williamson@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>
+Cc:     Jason Gunthorpe <jgg@ziepe.ca>, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        =?UTF-8?q?Christian=20Borntr=C3=A4ger?= <borntraeger@linux.ibm.com>
+Subject: [PATCH v2 0/1] vfio/type1: Fix vfio-pci pass-through of ISM devices
+Date:   Wed,  4 Jan 2023 16:42:01 +0100
+Message-Id: <20230104154202.1152198-1-schnelle@linux.ibm.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: sys2aJXcLW9NJ81VHPID0KbvzNk8qQY2
+X-Proofpoint-GUID: OGdhn91Kk3zCE4EVPHFMicgyoLVfqx1u
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2023-01-04_07,2023-01-04_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ priorityscore=1501 bulkscore=0 spamscore=0 lowpriorityscore=0
+ suspectscore=0 mlxscore=0 mlxlogscore=999 clxscore=1015 adultscore=0
+ impostorscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2212070000 definitions=main-2301040130
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Make callers pass true/false consistently for bool val.
+Hi Alex,
 
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
----
- drivers/char/pcmcia/synclink_cs.c | 4 ++--
- drivers/ipack/devices/ipoctal.c   | 4 ++--
- drivers/s390/char/con3215.c       | 4 ++--
- drivers/tty/amiserial.c           | 4 ++--
- drivers/tty/moxa.c                | 2 +-
- drivers/tty/mxser.c               | 2 +-
- drivers/tty/n_gsm.c               | 4 ++--
- drivers/tty/serial/serial_core.c  | 6 +++---
- drivers/tty/synclink_gt.c         | 4 ++--
- drivers/tty/tty_port.c            | 4 ++--
- drivers/usb/serial/console.c      | 2 +-
- 11 files changed, 20 insertions(+), 20 deletions(-)
+This is v2 of my attempt of fixing an issue we have on s390 with vfio-pci
+pass-through of the s390 specific virtual PCI device called ISM and used for
+cross LPAR communication. As the patch tries to explain the fact that
+vfio_test_domain_fgsp() uses an IOMMU mapping at IOVA 0 irrespective of any
+reserved regions causes the ISM device to go into an error state and thus
+becomes unusable for a KVM guest breaking pass-through. I tried to improve
+the background and explanation compared to v1 hope its more clear now.
 
-diff --git a/drivers/char/pcmcia/synclink_cs.c b/drivers/char/pcmcia/synclink_cs.c
-index b2735be81ab2..baa46e8a094b 100644
---- a/drivers/char/pcmcia/synclink_cs.c
-+++ b/drivers/char/pcmcia/synclink_cs.c
-@@ -1309,7 +1309,7 @@ static int startup(MGSLPC_INFO * info, struct tty_struct *tty)
- 	if (tty)
- 		clear_bit(TTY_IO_ERROR, &tty->flags);
- 
--	tty_port_set_initialized(&info->port, 1);
-+	tty_port_set_initialized(&info->port, true);
- 
- 	return 0;
- }
-@@ -1359,7 +1359,7 @@ static void shutdown(MGSLPC_INFO * info, struct tty_struct *tty)
- 	if (tty)
- 		set_bit(TTY_IO_ERROR, &tty->flags);
- 
--	tty_port_set_initialized(&info->port, 0);
-+	tty_port_set_initialized(&info->port, false);
- }
- 
- static void mgslpc_program_hw(MGSLPC_INFO *info, struct tty_struct *tty)
-diff --git a/drivers/ipack/devices/ipoctal.c b/drivers/ipack/devices/ipoctal.c
-index fc00274070b6..103fce0c49e6 100644
---- a/drivers/ipack/devices/ipoctal.c
-+++ b/drivers/ipack/devices/ipoctal.c
-@@ -647,7 +647,7 @@ static void ipoctal_hangup(struct tty_struct *tty)
- 	tty_port_hangup(&channel->tty_port);
- 
- 	ipoctal_reset_channel(channel);
--	tty_port_set_initialized(&channel->tty_port, 0);
-+	tty_port_set_initialized(&channel->tty_port, false);
- 	wake_up_interruptible(&channel->tty_port.open_wait);
- }
- 
-@@ -659,7 +659,7 @@ static void ipoctal_shutdown(struct tty_struct *tty)
- 		return;
- 
- 	ipoctal_reset_channel(channel);
--	tty_port_set_initialized(&channel->tty_port, 0);
-+	tty_port_set_initialized(&channel->tty_port, false);
- }
- 
- static void ipoctal_cleanup(struct tty_struct *tty)
-diff --git a/drivers/s390/char/con3215.c b/drivers/s390/char/con3215.c
-index 72ba83c1bc79..0b05cd76b7d0 100644
---- a/drivers/s390/char/con3215.c
-+++ b/drivers/s390/char/con3215.c
-@@ -629,7 +629,7 @@ static int raw3215_startup(struct raw3215_info *raw)
- 	if (tty_port_initialized(&raw->port))
- 		return 0;
- 	raw->line_pos = 0;
--	tty_port_set_initialized(&raw->port, 1);
-+	tty_port_set_initialized(&raw->port, true);
- 	spin_lock_irqsave(get_ccwdev_lock(raw->cdev), flags);
- 	raw3215_try_io(raw);
- 	spin_unlock_irqrestore(get_ccwdev_lock(raw->cdev), flags);
-@@ -659,7 +659,7 @@ static void raw3215_shutdown(struct raw3215_info *raw)
- 		spin_lock_irqsave(get_ccwdev_lock(raw->cdev), flags);
- 		remove_wait_queue(&raw->empty_wait, &wait);
- 		set_current_state(TASK_RUNNING);
--		tty_port_set_initialized(&raw->port, 1);
-+		tty_port_set_initialized(&raw->port, true);
- 	}
- 	spin_unlock_irqrestore(get_ccwdev_lock(raw->cdev), flags);
- }
-diff --git a/drivers/tty/amiserial.c b/drivers/tty/amiserial.c
-index f52266766df9..f8cdce1626cb 100644
---- a/drivers/tty/amiserial.c
-+++ b/drivers/tty/amiserial.c
-@@ -502,7 +502,7 @@ static int startup(struct tty_struct *tty, struct serial_state *info)
- 	 */
- 	change_speed(tty, info, NULL);
- 
--	tty_port_set_initialized(port, 1);
-+	tty_port_set_initialized(port, true);
- 	local_irq_restore(flags);
- 	return 0;
- 
-@@ -556,7 +556,7 @@ static void shutdown(struct tty_struct *tty, struct serial_state *info)
- 
- 	set_bit(TTY_IO_ERROR, &tty->flags);
- 
--	tty_port_set_initialized(&info->tport, 0);
-+	tty_port_set_initialized(&info->tport, false);
- 	local_irq_restore(flags);
- }
- 
-diff --git a/drivers/tty/moxa.c b/drivers/tty/moxa.c
-index 35b6fddf0341..bc474f3c3f8f 100644
---- a/drivers/tty/moxa.c
-+++ b/drivers/tty/moxa.c
-@@ -1484,7 +1484,7 @@ static int moxa_open(struct tty_struct *tty, struct file *filp)
- 		MoxaPortLineCtrl(ch, 1, 1);
- 		MoxaPortEnable(ch);
- 		MoxaSetFifo(ch, ch->type == PORT_16550A);
--		tty_port_set_initialized(&ch->port, 1);
-+		tty_port_set_initialized(&ch->port, true);
- 	}
- 	mutex_unlock(&ch->port.mutex);
- 	mutex_unlock(&moxa_openlock);
-diff --git a/drivers/tty/mxser.c b/drivers/tty/mxser.c
-index 2436e0b10f9a..2926a831727d 100644
---- a/drivers/tty/mxser.c
-+++ b/drivers/tty/mxser.c
-@@ -1063,7 +1063,7 @@ static int mxser_set_serial_info(struct tty_struct *tty,
- 	} else {
- 		retval = mxser_activate(port, tty);
- 		if (retval == 0)
--			tty_port_set_initialized(port, 1);
-+			tty_port_set_initialized(port, true);
- 	}
- 	mutex_unlock(&port->mutex);
- 	return retval;
-diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
-index daf12132deb1..631539c17d85 100644
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -2059,7 +2059,7 @@ static void gsm_dlci_close(struct gsm_dlci *dlci)
- 		tty_port_tty_hangup(&dlci->port, false);
- 		gsm_dlci_clear_queues(dlci->gsm, dlci);
- 		/* Ensure that gsmtty_open() can return. */
--		tty_port_set_initialized(&dlci->port, 0);
-+		tty_port_set_initialized(&dlci->port, false);
- 		wake_up_interruptible(&dlci->port.open_wait);
- 	} else
- 		dlci->gsm->dead = true;
-@@ -3880,7 +3880,7 @@ static int gsmtty_open(struct tty_struct *tty, struct file *filp)
- 	dlci->modem_rx = 0;
- 	/* We could in theory open and close before we wait - eg if we get
- 	   a DM straight back. This is ok as that will have caused a hangup */
--	tty_port_set_initialized(port, 1);
-+	tty_port_set_initialized(port, true);
- 	/* Start sending off SABM messages */
- 	if (gsm->initiator)
- 		gsm_dlci_begin_open(dlci);
-diff --git a/drivers/tty/serial/serial_core.c b/drivers/tty/serial/serial_core.c
-index b9fbbee598b8..e049c760b738 100644
---- a/drivers/tty/serial/serial_core.c
-+++ b/drivers/tty/serial/serial_core.c
-@@ -290,7 +290,7 @@ static void uart_shutdown(struct tty_struct *tty, struct uart_state *state)
- 		set_bit(TTY_IO_ERROR, &tty->flags);
- 
- 	if (tty_port_initialized(port)) {
--		tty_port_set_initialized(port, 0);
-+		tty_port_set_initialized(port, false);
- 
- 		/*
- 		 * Turn off DTR and RTS early.
-@@ -2347,7 +2347,7 @@ int uart_suspend_port(struct uart_driver *drv, struct uart_port *uport)
- 		unsigned int mctrl;
- 
- 		tty_port_set_suspended(port, 1);
--		tty_port_set_initialized(port, 0);
-+		tty_port_set_initialized(port, false);
- 
- 		spin_lock_irq(&uport->lock);
- 		ops->stop_tx(uport);
-@@ -2458,7 +2458,7 @@ int uart_resume_port(struct uart_driver *drv, struct uart_port *uport)
- 					uart_rs485_config(uport);
- 				ops->start_tx(uport);
- 				spin_unlock_irq(&uport->lock);
--				tty_port_set_initialized(port, 1);
-+				tty_port_set_initialized(port, true);
- 			} else {
- 				/*
- 				 * Failed to resume - maybe hardware went away?
-diff --git a/drivers/tty/synclink_gt.c b/drivers/tty/synclink_gt.c
-index 72b76cdde534..2b96bf0ecafb 100644
---- a/drivers/tty/synclink_gt.c
-+++ b/drivers/tty/synclink_gt.c
-@@ -2354,7 +2354,7 @@ static int startup(struct slgt_info *info)
- 	if (info->port.tty)
- 		clear_bit(TTY_IO_ERROR, &info->port.tty->flags);
- 
--	tty_port_set_initialized(&info->port, 1);
-+	tty_port_set_initialized(&info->port, true);
- 
- 	return 0;
- }
-@@ -2401,7 +2401,7 @@ static void shutdown(struct slgt_info *info)
- 	if (info->port.tty)
- 		set_bit(TTY_IO_ERROR, &info->port.tty->flags);
- 
--	tty_port_set_initialized(&info->port, 0);
-+	tty_port_set_initialized(&info->port, false);
- }
- 
- static void program_hw(struct slgt_info *info)
-diff --git a/drivers/tty/tty_port.c b/drivers/tty/tty_port.c
-index dce08a6d7b5e..0c00d5bd6c88 100644
---- a/drivers/tty/tty_port.c
-+++ b/drivers/tty/tty_port.c
-@@ -367,7 +367,7 @@ static void tty_port_shutdown(struct tty_port *port, struct tty_struct *tty)
- 		goto out;
- 
- 	if (tty_port_initialized(port)) {
--		tty_port_set_initialized(port, 0);
-+		tty_port_set_initialized(port, false);
- 		/*
- 		 * Drop DTR/RTS if HUPCL is set. This causes any attached
- 		 * modem to hang up the line.
-@@ -788,7 +788,7 @@ int tty_port_open(struct tty_port *port, struct tty_struct *tty,
- 				return retval;
- 			}
- 		}
--		tty_port_set_initialized(port, 1);
-+		tty_port_set_initialized(port, true);
- 	}
- 	mutex_unlock(&port->mutex);
- 	return tty_port_block_til_ready(port, tty, filp);
-diff --git a/drivers/usb/serial/console.c b/drivers/usb/serial/console.c
-index da19a5fa414f..c3ea3a46ed76 100644
---- a/drivers/usb/serial/console.c
-+++ b/drivers/usb/serial/console.c
-@@ -169,7 +169,7 @@ static int usb_console_setup(struct console *co, char *options)
- 			tty_save_termios(tty);
- 			tty_kref_put(tty);
- 		}
--		tty_port_set_initialized(&port->port, 1);
-+		tty_port_set_initialized(&port->port, true);
- 	}
- 	/* Now that any required fake tty operations are completed restore
- 	 * the tty port count */
+As for testing, I tested this based on current master on both on s390 where it
+skips the reserved 0x0-0x100000000 range and on an AMD Ryzen 3990X where it
+continues to do the test on DMA address 0 and sets domain->fgsp to true.
+
+Thanks,
+Niklas Schnelle
+
+Changes since v1:
+- Reworded commit message to hopefully explain things a bit better and
+  highlight that usually just mapping but not issuing DMAs for IOVAs in
+  a resverved region is harmless but still breaks things with ISM devices.
+- Added a check for PAGE_SIZE * 2 alignment (Jason)
+
+Niklas Schnelle (1):
+  vfio/type1: Respect IOMMU reserved regions in vfio_test_domain_fgsp()
+
+ drivers/vfio/vfio_iommu_type1.c | 30 +++++++++++++++++++-----------
+ 1 file changed, 19 insertions(+), 11 deletions(-)
+
 -- 
-2.30.2
+2.34.1
 
