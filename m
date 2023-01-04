@@ -2,131 +2,102 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74493C5479D
-	for <linux-s390@archiver.kernel.org>; Wed,  4 Jan 2023 12:10:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4714CC4708E
+	for <linux-s390@archiver.kernel.org>; Wed,  4 Jan 2023 12:16:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234378AbjADMKI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 4 Jan 2023 07:10:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40428 "EHLO
+        id S239005AbjADMQn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 4 Jan 2023 07:16:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229600AbjADMKB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 4 Jan 2023 07:10:01 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 056CF3476D;
-        Wed,  4 Jan 2023 04:09:59 -0800 (PST)
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 304BUDcm025186;
-        Wed, 4 Jan 2023 12:09:27 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=RSYhdqTpMfykqc1ctl3BKtFuCm8inJnwJpeRspp9ONY=;
- b=WAY+yTiyqrC0H8nHA99N8GOhbtvysVlsp+R2PZkxQv/54AlHHBRZHekzaTqR5be2E1R3
- L7xZyLM/oqTgp/twEaYJRB4NOlfP99IN0XguZux5AXg3Ea5eHFhp7lbpy3qFJIBmejk9
- XbeLvtPSeoLzRFRn4bkFUSzubVFJgswEPxVtKtqP0Vxx26IVfRTY3iIYisHWrxQhndP5
- q16YnO97n04MLUE21A536mcKpY0iwXftD8Gy6h3KS5ZKPcpY0WCx/RfFglTBxkysQ5TQ
- iQPPjUcOuHnJhtyx4SFnoalJUzXWkIXwPfn3ZsDwv2P0Sjq6AKeVuS3FzR47u5HrlWUc /Q== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3mw8mp8su2-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 04 Jan 2023 12:09:26 +0000
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 304Bn1l4000794;
-        Wed, 4 Jan 2023 12:09:25 GMT
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3mw8mp8stf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 04 Jan 2023 12:09:25 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 303H2vOL028210;
-        Wed, 4 Jan 2023 12:09:23 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-        by ppma02fra.de.ibm.com (PPS) with ESMTPS id 3mtcq6uu67-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 04 Jan 2023 12:09:23 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 304C9JKt44171612
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 4 Jan 2023 12:09:19 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 858F520049;
-        Wed,  4 Jan 2023 12:09:19 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BEC312004E;
-        Wed,  4 Jan 2023 12:09:17 +0000 (GMT)
-Received: from osiris (unknown [9.179.28.126])
-        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Wed,  4 Jan 2023 12:09:17 +0000 (GMT)
-Date:   Wed, 4 Jan 2023 13:09:16 +0100
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     torvalds@linux-foundation.org, corbet@lwn.net, will@kernel.org,
-        boqun.feng@gmail.com, mark.rutland@arm.com,
-        catalin.marinas@arm.com, dennis@kernel.org, tj@kernel.org,
-        cl@linux.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        Herbert Xu <herbert@gondor.apana.org.au>, davem@davemloft.net,
-        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
-        dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
-        joro@8bytes.org, suravee.suthikulpanit@amd.com,
-        robin.murphy@arm.com, dwmw2@infradead.org,
-        baolu.lu@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
-        penberg@kernel.org, rientjes@google.com, iamjoonsoo.kim@lge.com,
-        Andrew Morton <akpm@linux-foundation.org>, vbabka@suse.cz,
-        roman.gushchin@linux.dev, 42.hyeyoo@gmail.com,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, linux-s390@vger.kernel.org,
-        linux-crypto@vger.kernel.org, iommu@lists.linux.dev,
-        linux-arch@vger.kernel.org
-Subject: Re: [RFC][PATCH 07/12] percpu: Wire up cmpxchg128
-Message-ID: <Y7VsbM4ada2KkAdx@osiris>
-References: <20221219153525.632521981@infradead.org>
- <20221219154119.286760562@infradead.org>
+        with ESMTP id S239054AbjADMQY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 4 Jan 2023 07:16:24 -0500
+Received: from mail-vs1-xe2c.google.com (mail-vs1-xe2c.google.com [IPv6:2607:f8b0:4864:20::e2c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59CAB12AEB
+        for <linux-s390@vger.kernel.org>; Wed,  4 Jan 2023 04:16:22 -0800 (PST)
+Received: by mail-vs1-xe2c.google.com with SMTP id i10so12964020vsr.12
+        for <linux-s390@vger.kernel.org>; Wed, 04 Jan 2023 04:16:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=tMTz73H2HiKDVHeJUWHzZGOUv0E67l6Qx4QTwGQGXow=;
+        b=Y+GY413mSjalVDt8GwNEovY++Wnm/pe/LxKzzYoVVgXNo3AUWlnhvQJ/rhPEPc73hc
+         MQMIOIND2igjxN+/5ejzg357Sx5alm6B+fuk7b6e7VxRLBxMhttW6KEXf8f0wRf+PvAA
+         g9Xpi/WTHbgNAjtqF77viDgW+lLworl9sL/pIxCIqdCW96ibuM0ouQgO9x2VQ4WANuLN
+         AHmkfnQUOZ6KVnmbhtg6fBasSBTj/ZPKURLZ+sMhOcsW0eRXxwZKJyHj56+g3qzntRj8
+         u2YsLjEgyS1m++vj0biOYUka/68qrJpGwr5/prDMxKKyRN/7TCMH3FEgqFXxpqCa3fnF
+         9iMA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=tMTz73H2HiKDVHeJUWHzZGOUv0E67l6Qx4QTwGQGXow=;
+        b=lX0HcAjgCVp6y+stpjr6nYSDGfEgtG5wGMRo3bJaailJPghQViXHM2mQc6GQAauK+S
+         bjBWsHw88V+7k9tbbDkonMy7eMnG9SNHYXFak8qubFPhIK/qLEWQgwn2xxwcS6wDSKfN
+         GxW9AClFa3TTKXFvRO0F6CmkXIvjH6bTn/rvAmvP7QwxrU0LIk1fZjcg3/4iRCSGFYHX
+         PoTG+7ioviYb/pk9k6o9oC6G3O1v6N2trFhKVuxsiTLcqqV2BMpTMBRdad2W9f299qnJ
+         c+zK8X/9t5Nwgn/0xrbkeZZW4vwn6EmW2HHBjoxaey9ABWKrmGuXQMTYvuZXUPPj9pUg
+         ydqw==
+X-Gm-Message-State: AFqh2kpdhxBnfNnwxfd+JTV+O+6TP1Ul4R1ZFKOJdyuwheWeHg0NHlML
+        efi0Aun9tO444IFFoXBjwPx+Kw==
+X-Google-Smtp-Source: AMrXdXsI7IQb2hPC4bpp9sMd36je7bb9SmI3NUdx/zQE9URIoZtVn86xJGR7y0ZiqwKhRydoyR0k+A==
+X-Received: by 2002:a67:ad10:0:b0:3c6:2c4:8cd1 with SMTP id t16-20020a67ad10000000b003c602c48cd1mr17585654vsl.9.1672834581480;
+        Wed, 04 Jan 2023 04:16:21 -0800 (PST)
+Received: from ziepe.ca (hlfxns017vw-142-68-50-193.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.50.193])
+        by smtp.gmail.com with ESMTPSA id bs7-20020a05620a470700b006b61b2cb1d2sm24239206qkb.46.2023.01.04.04.16.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 04 Jan 2023 04:16:20 -0800 (PST)
+Received: from jgg by wakko with local (Exim 4.95)
+        (envelope-from <jgg@ziepe.ca>)
+        id 1pD2gu-001iia-1v;
+        Wed, 04 Jan 2023 08:16:20 -0400
+Date:   Wed, 4 Jan 2023 08:16:20 -0400
+From:   Jason Gunthorpe <jgg@ziepe.ca>
+To:     Niklas Schnelle <schnelle@linux.ibm.com>
+Cc:     Alex Williamson <alex.williamson@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        Christian =?utf-8?Q?Borntr=C3=A4ger?= <borntraeger@linux.ibm.com>
+Subject: Re: [PATCH 1/1] vfio/type1: Respect IOMMU reserved regions in
+ vfio_test_domain_fgsp()
+Message-ID: <Y7VuFJFUHtkqA9ZM@ziepe.ca>
+References: <20230102093452.761185-1-schnelle@linux.ibm.com>
+ <20230102093452.761185-2-schnelle@linux.ibm.com>
+ <Y7S8loyvHyjAmNdh@ziepe.ca>
+ <4e8d3f53af2f73a464e4ffc4a9a28c8d31692369.camel@linux.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221219154119.286760562@infradead.org>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: v6Cdb3q06drLPDoMeGnxfYaUTPnm6fUF
-X-Proofpoint-GUID: VZjraPk3cBZ_DLGZSw4eYM75PJm0BhwW
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2023-01-04_06,2023-01-04_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 malwarescore=0
- adultscore=0 clxscore=1015 suspectscore=0 lowpriorityscore=0
- priorityscore=1501 mlxlogscore=683 mlxscore=0 impostorscore=0 bulkscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2301040102
+In-Reply-To: <4e8d3f53af2f73a464e4ffc4a9a28c8d31692369.camel@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Dec 19, 2022 at 04:35:32PM +0100, Peter Zijlstra wrote:
-> In order to replace cmpxchg_double() with the newly minted
-> cmpxchg128() family of functions, wire it up in this_cpu_cmpxchg().
-> 
-> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-...
-> --- a/arch/s390/include/asm/percpu.h
-> +++ b/arch/s390/include/asm/percpu.h
-> +#define this_cpu_cmpxchg_16(pcp, oval, nval)				\
-> +({									\
-> +	u128 old__ = __pcpu_cast_128((nval), (nval));			\
-> +	u128 new__ = __pcpu_cast_128((oval), (oval));			\
+On Wed, Jan 04, 2023 at 10:52:55AM +0100, Niklas Schnelle wrote:
 
-spot the bug... please merge the below into this patch.
+> The problem manifests only with ISM devices which are a special s390
+> virtual PCI device that is implemented in the machine hypervisor. This
+> device is used for high speed cross-LPAR (Logical Partition)
+> communication, basically it allows two LPARs that previously exchanged
+> an authentication token to memcpy between their partitioned memory
+> using the virtual device. For copying a receiving LPAR will IOMMU map a
+> region of memory for the ISM device that it will allow DMAing into
+> (memcpy by the hypervisor). All other regions remain unmapped and thus
+> inaccessible. In preparation the device  emulation in the machine
+> hypervisor intercepts the IOTLB flush and looks at the IOMMU
+> translation tables performing e.g. size and alignment checks I presume,
+> one of these checks against the start/end DMA boundaries. This check
+> fails which leads to the virtual ISM device being put into an error
+> state. Being in an error state it then fails to be initialized by the
+> guest driver later on.
 
-diff --git a/arch/s390/include/asm/percpu.h b/arch/s390/include/asm/percpu.h
-index 24a4d9d644c0..d1997d01892a 100644
---- a/arch/s390/include/asm/percpu.h
-+++ b/arch/s390/include/asm/percpu.h
-@@ -156,8 +156,8 @@
- 
- #define this_cpu_cmpxchg_16(pcp, oval, nval)				\
- ({									\
--	u128 old__ = __pcpu_cast_128((nval), (nval));			\
--	u128 new__ = __pcpu_cast_128((oval), (oval));			\
-+	u128 old__ = __pcpu_cast_128((oval), (oval));			\
-+	u128 new__ = __pcpu_cast_128((nval), (nval));			\
- 	typedef typeof(pcp) pcp_op_T__;					\
- 	pcp_op_T__ *ptr__;						\
- 	u128 ret__;							\
+You could rephrase this as saying that the S390 map operation doesn't
+check for bounds so mapping in a reserved region doesn't fail, but
+errors the HW.
+
+Which seems reasonable to me
+
+Jason
