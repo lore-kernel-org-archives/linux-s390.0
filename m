@@ -2,129 +2,143 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E1CCAC46467
-	for <linux-s390@archiver.kernel.org>; Wed,  4 Jan 2023 13:10:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 168E7C4332F
+	for <linux-s390@archiver.kernel.org>; Wed,  4 Jan 2023 13:55:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237024AbjADNKp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 4 Jan 2023 08:10:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44478 "EHLO
+        id S235105AbjADNzb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 4 Jan 2023 08:55:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239358AbjADNKZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 4 Jan 2023 08:10:25 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 889F93B921;
-        Wed,  4 Jan 2023 05:08:51 -0800 (PST)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 304BevXa002179;
-        Wed, 4 Jan 2023 13:08:51 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=9rW9D4bKG1AYqSLVRir+QNP3LNiG0x+xb+IzrxVzjqc=;
- b=saSqHReT18X5kzdwEgE80spO9akrd1tJRrXgWQI4xphg5AimHdAf5x1zmG1KMldl1X8f
- vO6+rgqQutKMOnzQYWZRQatdi/Xt8GgOaR/4rR1mJw1iS5DuHKzx+MFJoBJpw++D4WW9
- mbYBRDsq+2dMo4ZN7/zFdqfbXGuY2vPTZif+CT2iFMeST4ggkUW2lkTRKN1fSsk6TFGj
- LYf8DcH/bfsoylgsOpNFDqrP1kmFMeU/lCOfeNxnN1miYNbVqAXxE/1DYtgENgRGDDYI
- OSnZg5oJQPieZisSnksKOYL2tHnlYuEMof7HRErPq+8BRGLM0vA0rVs68L9X6el+nyZ4 7Q== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mw83xat49-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 04 Jan 2023 13:08:50 +0000
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 304Co51D033666;
-        Wed, 4 Jan 2023 13:08:50 GMT
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mw83xat3r-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 04 Jan 2023 13:08:50 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 303J3anK006506;
-        Wed, 4 Jan 2023 13:08:47 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-        by ppma04fra.de.ibm.com (PPS) with ESMTPS id 3mtcq6bw32-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 04 Jan 2023 13:08:47 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 304D8hpj46006752
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 4 Jan 2023 13:08:44 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D6D3F20043;
-        Wed,  4 Jan 2023 13:08:43 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 41CA520040;
-        Wed,  4 Jan 2023 13:08:43 +0000 (GMT)
-Received: from [9.171.35.166] (unknown [9.171.35.166])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed,  4 Jan 2023 13:08:43 +0000 (GMT)
-Message-ID: <d2e13511df130c3d4824a78ed0aa24c49e7137e5.camel@linux.ibm.com>
-Subject: Re: [PATCH 1/1] vfio/type1: Respect IOMMU reserved regions in
- vfio_test_domain_fgsp()
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Jason Gunthorpe <jgg@ziepe.ca>
-Cc:     Alex Williamson <alex.williamson@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        Christian =?ISO-8859-1?Q?Borntr=E4ger?= 
-        <borntraeger@linux.ibm.com>
-Date:   Wed, 04 Jan 2023 14:08:42 +0100
-In-Reply-To: <Y7VuFJFUHtkqA9ZM@ziepe.ca>
-References: <20230102093452.761185-1-schnelle@linux.ibm.com>
-         <20230102093452.761185-2-schnelle@linux.ibm.com>
-         <Y7S8loyvHyjAmNdh@ziepe.ca>
-         <4e8d3f53af2f73a464e4ffc4a9a28c8d31692369.camel@linux.ibm.com>
-         <Y7VuFJFUHtkqA9ZM@ziepe.ca>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.46.2 (3.46.2-1.fc37) 
+        with ESMTP id S233373AbjADNza (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 4 Jan 2023 08:55:30 -0500
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 517007657;
+        Wed,  4 Jan 2023 05:55:29 -0800 (PST)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 9C3741FB;
+        Wed,  4 Jan 2023 05:56:10 -0800 (PST)
+Received: from FVFF77S0Q05N (unknown [10.57.37.146])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 297963F587;
+        Wed,  4 Jan 2023 05:55:23 -0800 (PST)
+Date:   Wed, 4 Jan 2023 13:55:20 +0000
+From:   Mark Rutland <mark.rutland@arm.com>
+To:     Arnd Bergmann <arnd@arndb.de>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>, dennis@kernel.org,
+        Tejun Heo <tj@kernel.org>, Christoph Lameter <cl@linux.com>,
+        Heiko Carstens <hca@linux.ibm.com>, gor@linux.ibm.com,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S . Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>, joro@8bytes.org,
+        suravee.suthikulpanit@amd.com, Robin Murphy <robin.murphy@arm.com>,
+        dwmw2@infradead.org, baolu.lu@linux.intel.com,
+        Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Hyeonggon Yoo <42.hyeyoo@gmail.com>, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org, linux-crypto@vger.kernel.org,
+        iommu@lists.linux.dev, Linux-Arch <linux-arch@vger.kernel.org>
+Subject: Re: [RFC][PATCH 05/12] arch: Introduce
+ arch_{,try_}_cmpxchg128{,_local}()
+Message-ID: <Y7WFSAcbSsMI/0eh@FVFF77S0Q05N>
+References: <20221219153525.632521981@infradead.org>
+ <20221219154119.154045458@infradead.org>
+ <Y6DEfQXymYVgL3oJ@boqun-archlinux>
+ <Y6GXoO4qmH9OIZ5Q@hirez.programming.kicks-ass.net>
+ <Y7QszyTEG2+WiI/C@FVFF77S0Q05N>
+ <Y7Q1uexv6DrxCASB@FVFF77S0Q05N>
+ <Y7RVkjDC3EjQUCzM@FVFF77S0Q05N>
+ <8fea3494-1d1f-4f64-b525-279152cf430b@app.fastmail.com>
+ <Y7Vksr9OLZeL3qmU@FVFF77S0Q05N>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: _OXaFNEQjnbWGa5dpbnehKOorelZPU2V
-X-Proofpoint-GUID: r_yVo2XLt-HKe7O2EE04fC2dJ0P9p6Lt
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2023-01-04_07,2023-01-04_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 phishscore=0
- priorityscore=1501 suspectscore=0 spamscore=0 bulkscore=0
- lowpriorityscore=0 impostorscore=0 mlxscore=0 mlxlogscore=724
- malwarescore=0 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2212070000 definitions=main-2301040110
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Y7Vksr9OLZeL3qmU@FVFF77S0Q05N>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 2023-01-04 at 08:16 -0400, Jason Gunthorpe wrote:
-> On Wed, Jan 04, 2023 at 10:52:55AM +0100, Niklas Schnelle wrote:
->=20
-> > The problem manifests only with ISM devices which are a special s390
-> > virtual PCI device that is implemented in the machine hypervisor. This
-> > device is used for high speed cross-LPAR (Logical Partition)
-> > communication, basically it allows two LPARs that previously exchanged
-> > an authentication token to memcpy between their partitioned memory
-> > using the virtual device. For copying a receiving LPAR will IOMMU map a
-> > region of memory for the ISM device that it will allow DMAing into
-> > (memcpy by the hypervisor). All other regions remain unmapped and thus
-> > inaccessible. In preparation the device  emulation in the machine
-> > hypervisor intercepts the IOTLB flush and looks at the IOMMU
-> > translation tables performing e.g. size and alignment checks I presume,
-> > one of these checks against the start/end DMA boundaries. This check
-> > fails which leads to the virtual ISM device being put into an error
-> > state. Being in an error state it then fails to be initialized by the
-> > guest driver later on.
->=20
-> You could rephrase this as saying that the S390 map operation doesn't
-> check for bounds so mapping in a reserved region doesn't fail, but
-> errors the HW.
->=20
-> Which seems reasonable to me
->=20
-> Jason
+On Wed, Jan 04, 2023 at 11:36:18AM +0000, Mark Rutland wrote:
+> On Tue, Jan 03, 2023 at 05:50:00PM +0100, Arnd Bergmann wrote:
+> > On Tue, Jan 3, 2023, at 17:19, Mark Rutland wrote:
+> > > On Tue, Jan 03, 2023 at 02:03:37PM +0000, Mark Rutland wrote:
+> > >> On Tue, Jan 03, 2023 at 01:25:35PM +0000, Mark Rutland wrote:
+> > >> > On Tue, Dec 20, 2022 at 12:08:16PM +0100, Peter Zijlstra wrote:
+> > 
+> > >> ... makes GCC much happier:
+> > >
+> > >> ... I'll go check whether clang is happy with that, and how far back that can
+> > >> go, otherwise we'll need to blat the high half with a separate constaint that
+> > >> (ideally) doesn't end up allocating a pointless address register.
+> > >
+> > > Hmm... from the commit history it looks like GCC prior to 5.1 might not be
+> > > happy with that, but that *might* just be if we actually do arithmetic on the
+> > > value, and we might be ok just using it for memroy effects. I can't currently
+> > > get such an old GCC to run on my machines so I haven't been able to check.
+> > 
+> > gcc-5.1 is the oldest (barely) supported compiler, the minimum was
+> > last raised from gcc-4.9 in linux-5.15. If only gcc-4.9 and older are
+> > affected, we're good on mainline but may still want a fix for stable
+> > kernels.
+> 
+> Yup; I just wanted something that would easily backport to stable, at least as
+> far as linux-4.9.y (where I couldn't find the minimum GCC version when I looked
+> yesterday).
 
-Kind of yes, before the recent IOMMU changes the IOMMU code did check
-on map failing early but now handles the limits via reserved regions.
-The IOMMU hardware would only check the limits once an actual DMA uses
-them but of course no DMA will be triggered for this test mapping. For
-this specific virtual device though there is an extra check as part of
-an intercepted IOTLB flush (RPCIT instruction in S390).
+I'd missed that we backported commit:
+
+  dca5244d2f5b94f1 ("compiler.h: Raise minimum version of GCC to 5.1 for arm64")
+
+... all the way back to v4.4.y, so we can assume v5.1 even in stable.
+
+The earliest toolchain I could get running was GCC 4.8.5, and that was happy
+with the __uint128_t cast for the asm,
+
+Looking back through the history, the reason for the GCC 5.1 check was that
+prior to GCC 5.1 GCC would output library calls for arithmetic on 128-bit
+types, as noted in commit:
+
+  fb8722735f50cd51 ("arm64: support __int128 on gcc 5+")
+
+... but since we're not doing any actual manipulation of the value, that should
+be fine.
+
+I'll go write a commit message and send that out as a fix.
+
+> > I checked that the cross-compiler binaries from [1] still work, but I noticed
+> > that this version is missing the native aarch64-to-aarch64 compiler (x86 to
+> > aarch64 and vice versa are there), and you need to install libmpfr4 [2]
+> > as a dependency. The newer compilers (6.5.0 and up) don't have these problems.
+> 
+> I was trying the old kernel.org crosstool binaries, but I was either missing a
+> library (or I have an incompatible version) on my x86_64 host. I'll have
+> another look today -- thanks for the pointers!
+
+It turns out I'd just missed that at some point the prefix used by the
+kernel.org cross compilers changed from:
+
+  aarch64-linux-gnu-
+
+to:
+
+  aarch64-linux-
+
+... and I'd become so used to the latter that I was trying to invoke a binary
+that didn't exist. With the older prefix I could use the kernel.org GCC 4.8.5
+without issue.
+
+Thanks,
+Mark.
