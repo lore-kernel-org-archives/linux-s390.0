@@ -2,105 +2,137 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A5FD3C3DA7D
-	for <linux-s390@archiver.kernel.org>; Thu,  5 Jan 2023 10:06:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4CCD3C54EBD
+	for <linux-s390@archiver.kernel.org>; Thu,  5 Jan 2023 12:02:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230471AbjAEKGy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 5 Jan 2023 05:06:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35192 "EHLO
+        id S231761AbjAEMCM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 5 Jan 2023 07:02:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231570AbjAEKGx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 Jan 2023 05:06:53 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A942513CE4
-        for <linux-s390@vger.kernel.org>; Thu,  5 Jan 2023 02:06:08 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1672913167;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=KoUWBAnd6FL/mfG+yeIEH93rjbYXLkBdS2xnTNfB3pY=;
-        b=Sxk4Ed6X7aTCI67G8c2ObfpBT7XS/TncZN9Px5LCZeb9raYyfs/MRIRG1MNTBEmMv/vxbc
-        MYNP1pPPLAo87+occxJvJfvDGjiLXfJ6cos7pTTffT1f+VoLTtKhjVT2V4jV3uzz0KKtR4
-        uknZUrAQ1KIvXIeyix2kFdi9Dt3KlBY=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-580-NhQeHayPOE6FSyWrmxsm3Q-1; Thu, 05 Jan 2023 05:06:03 -0500
-X-MC-Unique: NhQeHayPOE6FSyWrmxsm3Q-1
-Received: by mail-wm1-f72.google.com with SMTP id l31-20020a05600c1d1f00b003d9720d2a0eso778304wms.7
-        for <linux-s390@vger.kernel.org>; Thu, 05 Jan 2023 02:06:03 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=KoUWBAnd6FL/mfG+yeIEH93rjbYXLkBdS2xnTNfB3pY=;
-        b=LK1P57U44vitpzolMEPucjZBtsNIPn2I3oerkgx+0B/WFUiN3HFqH5tJw4t7AHeyp8
-         RD+uR7JFR77HhbNQBFu//lWw7lEqy4+0ugS8dM+YUSSONol2VSYIGNqFyCngbUgwHYJC
-         2emzWhBJhOYO+wq1mtZGYYUCH9G97RuIbQHq/JO4XRxeHMOAGBJHJ3Sel8r/3VAR8/ew
-         PcKi+lBs72i0hskKO0Ym2XqjSNWCFiaxuzXG9NOM5zAlJxZKx91gLhmjJ3GimX5N2tqu
-         zaZQAZ5X4azx/LONzjWalLiuETiA7i527lz8pFaJ3LG91acbaLNCRUJaBUJe8TgY+78O
-         13Pw==
-X-Gm-Message-State: AFqh2kqb0UDEZNe+ZNgTZpg9VXmA4kGWsJjtxBeWfO6fOeNFbt4J7o/D
-        iUzjBFh1spFAcu1jEzAbl8lnGvRHcXDGpYltMpkE0EEM2l8bRAn1wbDTQOOl01ALxb00W6xd3dm
-        VLnhtaOe/16uA20RDjuUXaA==
-X-Received: by 2002:adf:da43:0:b0:250:779a:7391 with SMTP id r3-20020adfda43000000b00250779a7391mr29791936wrl.47.1672913162374;
-        Thu, 05 Jan 2023 02:06:02 -0800 (PST)
-X-Google-Smtp-Source: AMrXdXslGiIC8LlWUvexD9DQVF/QXglT71Bff5vDHiNPVqNKVgctXDR1uE8+JWvwz1ZoveMRfeRsFA==
-X-Received: by 2002:adf:da43:0:b0:250:779a:7391 with SMTP id r3-20020adfda43000000b00250779a7391mr29791923wrl.47.1672913162195;
-        Thu, 05 Jan 2023 02:06:02 -0800 (PST)
-Received: from [192.168.0.5] (ip-109-43-176-239.web.vodafone.de. [109.43.176.239])
-        by smtp.gmail.com with ESMTPSA id r15-20020a0560001b8f00b002709e616fa2sm36058437wru.64.2023.01.05.02.06.01
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 05 Jan 2023 02:06:01 -0800 (PST)
-Message-ID: <6aac5837-221b-9f1a-347d-a44156c07bcb@redhat.com>
-Date:   Thu, 5 Jan 2023 11:05:59 +0100
+        with ESMTP id S231147AbjAEMCL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 Jan 2023 07:02:11 -0500
+Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on2113.outbound.protection.outlook.com [40.107.243.113])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 434EC559CA;
+        Thu,  5 Jan 2023 04:02:11 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=D1FGe/l/7ISr2/7zQMAEcZZek6V5tQyRxH41jNxLW092nffmm4p7tA8nj/tnrR9AJyw1iO7CrLbIuc4Urn8yMyctmESvodU4GMWMxhSaRfeOYzWu+h55liz8sLgn+UHR5VKyfQmyCMnxfRH4pIIarOZ+mA20QZOr22xlLc8veOXa3pMgSVE0F+Hw2iMn360VUj2ioxO2Ne9/YXKDbiK1XqWYMShY3botbPVKra7j8cHFE+fyB6slTac+RosVrZX8r/I30Nj5N/uoywkQ9lBnSQcpDvoXxmWW1Df/d7j6oPfxngHFx6upvSE+rZv5PR5I/PlPSNsh/VcgZTjXQCV8rQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=0u8AGfw1luMnkIJZhnEOh6KdICin9MAZ9lNMgS5ylTE=;
+ b=l2VA8gmDC0F8cyhKAkWyH8GuaJpGtpyQmrLxT6MMcWAadUEf4RjFGf/vVrRXbnC6deQY1/bC8UjK+pvuPViY7T1i0HivJ4eAhgnesxTAWDN5FFBRyfSGCvl0QdMfVsMPzbnLrmnxEfiskyRd56sgSmOq5KasW2AfQ73vbyGq6AsaR1cY/fO7bkjiBpwbAE1srXdBbex0P7WjANrhXyd586GOB+oF4flhVYzZLQ0ZS5ziIvTR6hlm2T+O1q2ahZB3dFFyfirqY56rJi12Q3XmlwsG5Jz1uUy1G7sLQTr+0i/KEHt56X7XbO8MdsrxJbDUFkF9+T0KntnWTmkYtzpB4Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=corigine.com; dmarc=pass action=none header.from=corigine.com;
+ dkim=pass header.d=corigine.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=corigine.onmicrosoft.com; s=selector2-corigine-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=0u8AGfw1luMnkIJZhnEOh6KdICin9MAZ9lNMgS5ylTE=;
+ b=Dl9BItK2vL7sM9qfi/NR+LozCjZsF+N2FIgaUXRzeahTp6psuNdxPTV2Ozy/44qUpGtxiigiVVA4TR1XCTd9U/tF3A8dM+eLDVzJ6zoSB7nzSGcMkohDvBkU6zBAUJh1brOxNFWzLX6COP4K510tltWq/hO1e+Hd3T5itcmS1Ks=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=corigine.com;
+Received: from PH0PR13MB4842.namprd13.prod.outlook.com (2603:10b6:510:78::6)
+ by PH0PR13MB4969.namprd13.prod.outlook.com (2603:10b6:510:92::19) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5944.19; Thu, 5 Jan
+ 2023 12:02:09 +0000
+Received: from PH0PR13MB4842.namprd13.prod.outlook.com
+ ([fe80::eb5c:910f:3730:fd65]) by PH0PR13MB4842.namprd13.prod.outlook.com
+ ([fe80::eb5c:910f:3730:fd65%6]) with mapi id 15.20.5944.019; Thu, 5 Jan 2023
+ 12:02:09 +0000
+Date:   Thu, 5 Jan 2023 13:02:01 +0100
+From:   Simon Horman <simon.horman@corigine.com>
+To:     patchwork-bot+netdevbpf@kernel.org
+Cc:     Xuezhi Zhang <zhangxuezhi3@gmail.com>, zhangxuezhi1@coolpad.com,
+        wintera@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] s390/qeth: convert sysfs snprintf to sysfs_emit
+Message-ID: <Y7a8OaOnQtRmGLIu@corigine.com>
+References: <20221227110352.1436120-1-zhangxuezhi3@gmail.com>
+ <167223001583.30539.3371420401703338150.git-patchwork-notify@kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <167223001583.30539.3371420401703338150.git-patchwork-notify@kernel.org>
+X-ClientProxiedBy: AM9P250CA0010.EURP250.PROD.OUTLOOK.COM
+ (2603:10a6:20b:21c::15) To PH0PR13MB4842.namprd13.prod.outlook.com
+ (2603:10b6:510:78::6)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.13.0
-Subject: Re: [kvm-unit-tests PATCH v1] s390x: Fix integer literal in skey.c
-Content-Language: en-US
-To:     Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-References: <20230104175950.731988-1-nsg@linux.ibm.com>
-From:   Thomas Huth <thuth@redhat.com>
-In-Reply-To: <20230104175950.731988-1-nsg@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: PH0PR13MB4842:EE_|PH0PR13MB4969:EE_
+X-MS-Office365-Filtering-Correlation-Id: d7b59cd5-b979-4e07-7006-08daef14abf4
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: syZM1ezfOA6wu4Zm5C5rUpNpg0ub0MDgCrik9gG4j1e0tn7K/QvRQ1wnHFiUzN4RVfh39J1WnAYN3hRIiW1iwK3vq24EU02l+REwIzfz+fCHEhIa5fZvqwg8dMul5dGCrSh+ZG+r4FMjK2GA7+o06BoV9RYH8xsEK8SQBMrgrlSqKdQB5zl8ZUi8bpzMlzCm9BUgOemWR4glUhHp4O0gP3N6lf4t/I7uKNhI+3glZwHd5E6ueBIUuFpx95PMR4rCZJNM2Gdci11J9QKRNiYPdDEDczgUS08Sp6UANt3I/tBbDAi1S0aXFeo67adv2AzfxNuX8lht7RyqYiXs8KPnd3zYXoO6EABtVRTe40wgqXsV09E7hu/dKNdvyLDWiNP9KlODrnOCtWUnlj2iWgy7omFMfBCc4/SnYFWX4IEvBb0wy0wqcbZ+U9kp4iEb3Vws4YMiOEr/bdsoGD0YvO1Ek3Srgm3apWXvQTX2D0a7SOKoX6VIIuII+4mNPSjEOfcEeEiz6NszKnS2jhABv5YXKH/hMF5/0L+b54fcr8gd0QjxvNEm61Ow7lOyVlMeyZ6372BYCzoO0TAg6R2xfO7qA4y5NzXp68c+zbeo0Wb+dQLRpsPPQbJtAm8grD3u7UsvVvZ6XcB0YU23gRmLzZnBNpDgfOmW0MIiWyqxrHC3FrS71Ov1VG2xV52fKwRlQ87/Z431mP99e1Yh9jYPwkHaLw==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR13MB4842.namprd13.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(346002)(376002)(136003)(396003)(39840400004)(366004)(451199015)(8676002)(36756003)(4744005)(44832011)(5660300002)(8936002)(2906002)(7416002)(38100700002)(41300700001)(83380400001)(86362001)(6486002)(966005)(66946007)(66556008)(478600001)(6506007)(6666004)(6512007)(4326008)(186003)(2616005)(316002)(66476007);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?3KeFHtthyyVlPjq2xkP1ZNH01cIkPgnc16iOVB3tmtK94yd/++lQl6Mqitii?=
+ =?us-ascii?Q?d4ximrQ6d3Ebq/ZXCeQB+OQXyJ+4kdCgsRhTgDzFTlsVDpexpsBvy/v+LM0s?=
+ =?us-ascii?Q?bAo3XgBoifijAeVJUbAYVQrKKUmL1EKhaLqqJ50GsM+up/aQKKgN/zi774fk?=
+ =?us-ascii?Q?vNA/Oi3uEys7SIM0kWcC2VK+iiBPcwThxVjQFYSkJUvGonxiysHYCz8eRJC2?=
+ =?us-ascii?Q?0vcCez3de9vQKhdTH3zClwYwoYqpRiSn4xdWRd2LwdjdXfjf/WSmmDtLwrU5?=
+ =?us-ascii?Q?+vlYHANOQHGTlrJV570nyy9OyW5nRqnT5aJKUWEJ+bboYptGUkso0dNWLSBd?=
+ =?us-ascii?Q?Q3f38FNXGIuw0VniV0AZsdOD7ZTBvI7fPnVO1KnF7t7zWlQWWDn4gCMSLs3D?=
+ =?us-ascii?Q?FMphaQ7aTNzRTxV5bTtPPkMkq7aaTF3h4m/hCCo5vLmpNDi0ekdiMLSQPVn9?=
+ =?us-ascii?Q?fDRjWKpr7pF77NwQH1cbKDZmMoCIYl1eHgp8ztSwhHKkyRi8GpmCkmbnZ1Bt?=
+ =?us-ascii?Q?MG9BCLZHnK2tTDo87TMA8OuO3B4A5Vkd/AhNKMfR/a3i+8hDmykTxv2LI2eZ?=
+ =?us-ascii?Q?xhRApLkRGuocLAPgKejdo6G5wlW2WYsNIM0YMicTwxU0rRauNt5x7H8V8Zwj?=
+ =?us-ascii?Q?WznpmapAetWvpSIG+E4io52lh326TSTu3RF7SVGOsOkqGPvfU+iXC2rCm4mp?=
+ =?us-ascii?Q?6biuRifmVWL2zukSeKUvCaSyfbrOwaFao94/Mw3b8HiUFWoJ3tZcO7Uy95q6?=
+ =?us-ascii?Q?F52H1LHkqoXrK7aivwaThjA3ram8CtHfCNs3KbyxQDiAYmP7mj8gq78e7k/9?=
+ =?us-ascii?Q?CxkKfupQRnkfIpbQKgoNvkKyvsmZvpcthO7gEUR8QlgLldxQ/Hjpyj/9mXoX?=
+ =?us-ascii?Q?TlX1rLaqJxNiGoL6eu1y47UE5oWuRF8xsJRg6GMQJytdGJrna0O03yBOOB9t?=
+ =?us-ascii?Q?hRBHhmJHM6dwlLGZboGaCs1fQ85B4wbKTc4akEjHYSmfqa9DLZ/1OpAgjKd/?=
+ =?us-ascii?Q?0sew+bOw+6t/jzP7H2fF6Sx+Mu2ULEaNe6207IU4ySqRBx+HGiFDSTNQ3kAX?=
+ =?us-ascii?Q?7bgFVgcfiC2r1rDg+BM9EnMKYllVEQD/DiGKG4OzU8qi59zkQKQ70WeQVY+D?=
+ =?us-ascii?Q?BAEw6UW0fK7Rppff0ma88L56/ItyEZGyRIzKxka9lZNh5aprxTFmuqc2JWzU?=
+ =?us-ascii?Q?d4X382/+Egf3Yq5S/yqsWocxBh4LgrDrJInTk/fTKqEmjuxgCpWFUmF6ionT?=
+ =?us-ascii?Q?2rmEHrWhhtmYdl30bxxWBNQce2ODmNxTi+7ui0wRWBlATOs+Cy6I03r5hNQJ?=
+ =?us-ascii?Q?4yMTc2dPSeyaqdbn7r4NUagbmplmM4oELcZ87KG8/foH5xH7iNxNYRqL0xFA?=
+ =?us-ascii?Q?ErANrghjzh+agyYF7TWnpwuPk8oVecFBDXwNirAkipsFwlOY+fpk6FvycQDE?=
+ =?us-ascii?Q?xyfgS7pkuc9+4YBjr7LpTngGt2nFNShItS1yP02bYxhgs4rzr9TvqUw4CCjn?=
+ =?us-ascii?Q?x/0LKF4sFvV89NFcjboYaiL+ZIuX/NvHzhobfiUon+UGKlDLHTX57QfwmPwW?=
+ =?us-ascii?Q?wLsScD7Ex587MIfGPSFZStQYgi8NVeLAFd7t8WaPLNQixuhLC3pUCwutV92Y?=
+ =?us-ascii?Q?1LxgiFTvf6aHJrOdJ/4iAbmO8CcXOA02uZ96edBiwRRE6niBu/dfq1GLpokw?=
+ =?us-ascii?Q?AZX37g=3D=3D?=
+X-OriginatorOrg: corigine.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: d7b59cd5-b979-4e07-7006-08daef14abf4
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR13MB4842.namprd13.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Jan 2023 12:02:09.1060
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: fe128f2c-073b-4c20-818e-7246a585940c
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: yo9uBCJr/vMSUqkkuYFra2Md4MuXAY16TGQYMaJJsw1s/BB3R63EfTKh7T+T03PAnYoLpdCngP5GO/hk32wpKkZcvv27RrALC6O0J7yfNUo=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR13MB4969
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 04/01/2023 18.59, Nina Schoetterl-Glausch wrote:
-> The code is a 64bit number of which the upper 48 bits must be 0.
+On Wed, Dec 28, 2022 at 12:20:15PM +0000, patchwork-bot+netdevbpf@kernel.org wrote:
+> Hello:
 > 
-> Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-> ---
->   s390x/skey.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
+> This patch was applied to netdev/net.git (master)
+> by David S. Miller <davem@davemloft.net>:
 > 
-> diff --git a/s390x/skey.c b/s390x/skey.c
-> index 1167e4d3..7c7a8090 100644
-> --- a/s390x/skey.c
-> +++ b/s390x/skey.c
-> @@ -320,7 +320,7 @@ static void test_diag_308(void)
->   		"lr	%[response],%%r3\n"
->   		: [response] "=d" (response)
->   		: [ipib] "d" (ipib),
-> -		  [code] "d" (5)
-> +		  [code] "d" (5L)
->   		: "%r2", "%r3"
->   	);
->   	report(response == 0x402, "no exception on fetch, response: invalid IPIB");
+> On Tue, 27 Dec 2022 19:03:52 +0800 you wrote:
+> > From: Xuezhi Zhang <zhangxuezhi1@coolpad.com>
+> > 
+> > Follow the advice of the Documentation/filesystems/sysfs.rst
+> > and show() should only use sysfs_emit() or sysfs_emit_at()
+> > when formatting the value to be returned to user space.
+> > 
+> > Signed-off-by: Xuezhi Zhang <zhangxuezhi1@coolpad.com>
+> > 
+> > [...]
 > 
-> base-commit: 73d9d850f1c2c9f0df321967e67acda0d2c305ea
+> Here is the summary with links:
+>   - s390/qeth: convert sysfs snprintf to sysfs_emit
+>     https://git.kernel.org/netdev/net/c/c2052189f19b
 
-Thanks, I've pushed it directly as a trivial fix.
-
-  Thomas
+I'm a little late to the party here, but should the use of sprintf() in
+show functions elsewhere in the qeth_core_sys.c also be updated?
 
