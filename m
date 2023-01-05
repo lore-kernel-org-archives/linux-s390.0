@@ -2,93 +2,125 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 94802C3DA7A
-	for <linux-s390@archiver.kernel.org>; Thu,  5 Jan 2023 12:24:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 428C6C54E76
+	for <linux-s390@archiver.kernel.org>; Thu,  5 Jan 2023 14:02:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231712AbjAEMYq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 5 Jan 2023 07:24:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56618 "EHLO
+        id S234234AbjAEOCr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 5 Jan 2023 09:02:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231616AbjAEMYp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 Jan 2023 07:24:45 -0500
-Received: from mxhk.zte.com.cn (mxhk.zte.com.cn [63.216.63.40])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B5E84E404;
-        Thu,  5 Jan 2023 04:24:44 -0800 (PST)
-Received: from mse-fl2.zte.com.cn (unknown [10.5.228.133])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mxhk.zte.com.cn (FangMail) with ESMTPS id 4Nnlyy4l7hz8QrkZ;
-        Thu,  5 Jan 2023 20:24:42 +0800 (CST)
-Received: from szxlzmapp06.zte.com.cn ([10.5.230.252])
-        by mse-fl2.zte.com.cn with SMTP id 305COVcF068055;
-        Thu, 5 Jan 2023 20:24:31 +0800 (+08)
-        (envelope-from yang.yang29@zte.com.cn)
-Received: from mapi (szxlzmapp01[null])
-        by mapi (Zmail) with MAPI id mid14;
-        Thu, 5 Jan 2023 20:24:34 +0800 (CST)
-Date:   Thu, 5 Jan 2023 20:24:34 +0800 (CST)
-X-Zmail-TransId: 2b0363b6c1823267991f
-X-Mailer: Zmail v1.0
-Message-ID: <202301052024349365834@zte.com.cn>
-Mime-Version: 1.0
-From:   <yang.yang29@zte.com.cn>
-To:     <freude@linux.ibm.com>, <hca@linux.ibm.com>
-Cc:     <gor@linux.ibm.com>, <agordeev@linux.ibm.com>,
-        <borntraeger@linux.ibm.com>, <svens@linux.ibm.com>,
-        <linux-s390@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <xu.panda@zte.com.cn>, <yang.yang29@zte.com.cn>
-Subject: =?UTF-8?B?W1BBVENIIGxpbnV4LW5leHQgdjNdIHMzOTAvemNyeXB0OiB1c2Ugc3Ryc2NweSgpIHRvIGluc3RlYWQgb2Ygc3RybmNweSgp?=
-Content-Type: text/plain;
-        charset="UTF-8"
-X-MAIL: mse-fl2.zte.com.cn 305COVcF068055
-X-Fangmail-Gw-Spam-Type: 0
-X-FangMail-Miltered: at cgslv5.04-192.168.250.137.novalocal with ID 63B6C18A.001 by FangMail milter!
-X-FangMail-Envelope: 1672921482/4Nnlyy4l7hz8QrkZ/63B6C18A.001/10.5.228.133/[10.5.228.133]/mse-fl2.zte.com.cn/<yang.yang29@zte.com.cn>
-X-Fangmail-Anti-Spam-Filtered: true
-X-Fangmail-MID-QID: 63B6C18A.001/4Nnlyy4l7hz8QrkZ
+        with ESMTP id S232361AbjAEOBp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 Jan 2023 09:01:45 -0500
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 158A658318;
+        Thu,  5 Jan 2023 06:01:19 -0800 (PST)
+Received: by mail-pj1-x1036.google.com with SMTP id o8-20020a17090a9f8800b00223de0364beso2080716pjp.4;
+        Thu, 05 Jan 2023 06:01:19 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=rZPqnw94bwf3KSF4c58t6GNXHQRK1QCZZyLGdvhFtgU=;
+        b=nR5jklJYM4uAOdxK56Sl/iBxjrBg/EXYEgg/TVrvz9o/GwSFnH83knikqnmK55yfZw
+         /RKWWCURQhFO+RX8l0goFhwPBMHT7akg9F0qOBM1BYljrpbNqx4OEHrxpWe96QfmA8Bs
+         f2IDQ5ieIH/HnNpGmQCzTQTW1N7DhQ1gKvdrU0Pfo1vcEgEV72za4ReFpUUjWS5LvJOA
+         fo/ZDX1reGdqiQNGxjQqyxJkCqr1iMYiKk9EEV1MEB/dG2u3aFZaD6+SQhndDEsPRcvD
+         smr0PfxGtAZlvRvB0CKsLCY19wEHIt2GN488wKf1kXwNY2CDPplEf0Nb4oiu+XoWwwBy
+         bpmg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=rZPqnw94bwf3KSF4c58t6GNXHQRK1QCZZyLGdvhFtgU=;
+        b=8Chj8YNNYCcedJM8YDj+ALx6iylO0bAP1JGhX/kzM94KzrmzrHKnoqbVnHY9nuzzJK
+         fKClDOadjlVG4fHwfIKnucMavoDSSCJGNUyBEnrXF0KImYkbXK2sZPUgtpBds7DbX+cr
+         52XdkpCIppVwdzo9bxU2krEYrdbYGckOHVCxN5CD3UJTrlsN0JjCSNPMmtH+AZ4y1ClQ
+         aSlNlthRmJ3hEvtLHLSIOOuX58NGnc8WIWPRERtYf4+OaDqPgzvJuv8ndxbDPhbPaxfT
+         4BE0FB1IEq96KLmNbwrWpSi7TrBhsTj4WflwHymXPAbq4iMIRKVFSUt06rF/c6EhOY8S
+         h0jQ==
+X-Gm-Message-State: AFqh2kqplPDppnhR9Kf1cBrboPngKdYj0IghzVghRAHd71kztjauGZ/+
+        QZH+q6g7gnFYdgc435Jsbc4=
+X-Google-Smtp-Source: AMrXdXula8sfngBHs5QXT5nJ0jqXPgGyNszqj0iVq64x8mR+shYO8h4t8S6nIYcNDQpxfJ3WVDBFLA==
+X-Received: by 2002:a17:90a:7849:b0:226:3a7c:f248 with SMTP id y9-20020a17090a784900b002263a7cf248mr27033707pjl.24.1672927278496;
+        Thu, 05 Jan 2023 06:01:18 -0800 (PST)
+Received: from debian.me (subs02-180-214-232-68.three.co.id. [180.214.232.68])
+        by smtp.gmail.com with ESMTPSA id ei4-20020a17090ae54400b00225daca646csm1436852pjb.34.2023.01.05.06.01.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 05 Jan 2023 06:01:17 -0800 (PST)
+Received: by debian.me (Postfix, from userid 1000)
+        id 0E21710381D; Thu,  5 Jan 2023 21:01:14 +0700 (WIB)
+Date:   Thu, 5 Jan 2023 21:01:14 +0700
+From:   Bagas Sanjaya <bagasdotme@gmail.com>
+To:     Heiko Carstens <hca@linux.ibm.com>, yang.yang29@zte.com.cn
+Cc:     freude@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        xu.panda@zte.com.cn
+Subject: Re: [PATCH linux-next v2] s390/zcrypt: use strscpy() to instead of
+ strncpy()
+Message-ID: <Y7bYKgjYSG09OD0f@debian.me>
+References: <202301031002076571212@zte.com.cn>
+ <Y7P6mSuYkmP8g8Ot@osiris>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="OpWV2mU/05KOlxs5"
+Content-Disposition: inline
+In-Reply-To: <Y7P6mSuYkmP8g8Ot@osiris>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Xu Panda <xu.panda@zte.com.cn>
 
-The implementation of strscpy() is more robust and safer.
-That's now the recommended way to copy NUL-terminated strings.
+--OpWV2mU/05KOlxs5
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Xu Panda <xu.panda@zte.com.cn>
-Signed-off-by: Yang Yang <yang.yang29@zte.com.cn>
----
-chang for v3
- - fix the sign-off Email address
-chang for v2
- - match the FROM with the Email
----
- drivers/s390/crypto/zcrypt_api.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+On Tue, Jan 03, 2023 at 10:51:21AM +0100, Heiko Carstens wrote:
+> On Tue, Jan 03, 2023 at 10:02:07AM +0800, yang.yang29@zte.com.cn wrote:
+> > From: Yang Yang <yang.yang29@zte.com>
+> >=20
+> > The implementation of strscpy() is more robust and safer.
+> > That's now the recommended way to copy NUL-terminated strings.
+> >=20
+> > Signed-off-by: Yang Yang <yang.yang29@zte.com>
+> > Signed-off-by: Xu Panda <xu.panda@zte.com.cn>
+> > ---
+> > chang for v2
+> >  - match the FROM with the Email
+>=20
+> You sent this from yang.yang29@zte.com.cn, but the sign-off is without the
+> ".cn" suffix. Can you please make sure that your sign-off chain actually
+> follows the rules as outlined in Documentation/process/submitting-patches=
+=2Erst?
+>=20
+> If you read that then the sign-off line from Xu Panda shouldn't be there,
+> since the patch was not authored or routed via Xu Panda.
 
-diff --git a/drivers/s390/crypto/zcrypt_api.c b/drivers/s390/crypto/zcrypt_api.c
-index 4bf36e53fe3e..6fe05bb82c77 100644
---- a/drivers/s390/crypto/zcrypt_api.c
-+++ b/drivers/s390/crypto/zcrypt_api.c
-@@ -347,8 +347,7 @@ static ssize_t zcdn_create_store(struct class *class,
- 	int rc;
- 	char name[ZCDN_MAX_NAME];
+Specifically, the second SoB from Xu should only be included if he was
+in From: mail header (that is, he should have sent the patch instead of
+Yang).
 
--	strncpy(name, skip_spaces(buf), sizeof(name));
--	name[sizeof(name) - 1] = '\0';
-+	strscpy(name, skip_spaces(buf), sizeof(name));
+Ah! Thanks for reminding me of this trivial issue that I always missed
+when reviewing ZTE patches.
 
- 	rc = zcdn_create(strim(name));
+Xu, are you really transporting Yang's patch?
 
-@@ -365,8 +364,7 @@ static ssize_t zcdn_destroy_store(struct class *class,
- 	int rc;
- 	char name[ZCDN_MAX_NAME];
+Thanks.
 
--	strncpy(name, skip_spaces(buf), sizeof(name));
--	name[sizeof(name) - 1] = '\0';
-+	strscpy(name, skip_spaces(buf), sizeof(name));
+--=20
+An old man doll... just what I always wanted! - Clara
 
- 	rc = zcdn_destroy(strim(name));
+--OpWV2mU/05KOlxs5
+Content-Type: application/pgp-signature; name="signature.asc"
 
--- 
-2.15.2
+-----BEGIN PGP SIGNATURE-----
+
+iHUEARYKAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCY7bYJwAKCRD2uYlJVVFO
+o5S4AP95j5Jj6Yu5/m76VPdoMVaMFkwkB6k44b5xhsPWdopqBwEAglth7VekCRz5
+oOf+gf5FpLY6cLn7z2CRuX/MNzLNnwQ=
+=01JV
+-----END PGP SIGNATURE-----
+
+--OpWV2mU/05KOlxs5--
