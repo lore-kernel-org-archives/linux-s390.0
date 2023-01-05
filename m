@@ -2,100 +2,154 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 84130C4332F
-	for <linux-s390@archiver.kernel.org>; Wed,  4 Jan 2023 19:56:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E910FC53210
+	for <linux-s390@archiver.kernel.org>; Thu,  5 Jan 2023 00:14:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240244AbjADTzi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 4 Jan 2023 14:55:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52556 "EHLO
+        id S235380AbjAEAOm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 4 Jan 2023 19:14:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240113AbjADTzG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 4 Jan 2023 14:55:06 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A49743E0CA;
-        Wed,  4 Jan 2023 11:55:05 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 39C80B818CA;
-        Wed,  4 Jan 2023 19:55:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30D45C433D2;
-        Wed,  4 Jan 2023 19:55:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672862102;
-        bh=Wq2xy5rFWf75vfk6CLmeCRvK7xMzUB8bK7uoSW9gNDQ=;
-        h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-        b=kowh49BE0vlyOeGqVIEX40KPeHVEcDwAr6nyxSIsrGz3fErLZJ/U57mzRd7bHUO2v
-         KJcxJQxr4Iu+UOaNjlbKkD3F1Mk/WeMZ3mQIgZlFKAJC9IvMeWcQE2qmw4VPku8DvO
-         gv4rBxjsuKEqwKjSXUr3O8F4s5ZVc8bFQ7zJyBl3zrIHfVV01fLuQP731+ZlVxf3iM
-         LEXQ0nboH+JrxYEEYqu9fYyeNc/i6D3cFwCMXwh52iXQAxsD/8RisCiZX8/Uqkt3Kv
-         kmQycMaZqy7oRpoqnhx2EvcxQCV7gmLC+EnHh0xdZ8sAlGJKKqTN5Wgc+K/eUf6u5V
-         uuKUMPFcbMeUg==
-From:   Nathan Chancellor <nathan@kernel.org>
-Date:   Wed, 04 Jan 2023 12:54:28 -0700
-Subject: [PATCH 11/14] s390/purgatory: Remove unused '-MD' and unnecessary '-c' flags
+        with ESMTP id S235515AbjAEAOP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 4 Jan 2023 19:14:15 -0500
+Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on2087.outbound.protection.outlook.com [40.107.243.87])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 251BB17436;
+        Wed,  4 Jan 2023 16:13:25 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=gl26cj2uvA7y4u/Exnkm2TGUIKsNr9vZWQdH+nm8MixkSuUOq1n5xOLzNfWYM274T1gPI68nIERBLaZU8dLUQzZwv3nE5GSnpmklahJ9wi4FOT8EqYYLh0avN/Akhb5aU7yceaCo1VxTsmU4xM7xbdo+zvbXS9MA+nSkKZiS/gEuIVQrL2xhleRvPKlAMdT6zyqRxxMaHTJ2ssuE44Z7nQKgx3wk0vYf3ZGpoG+9eFXjPd7DaYyKirjcRCX2W7b0SQAzJxVQfuzbjjjYZFduzYqIAgo09lGwot6g24fXJM4ZOqAZ+82ZQ6kwwdU2LotkqQsRaLGrz+5I1bk4gE9kwg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=V89MiAqblwWs32Xcy+/gCRrOegqPK6G0klisDcitduo=;
+ b=OyWgaRIy/X96NxHXNQSHFTwLYYPh5IkiHRAmrymQ36IY4iBhCsUiT0HfA0yqvjbEgQZ/lJ7DE3ka8ANcAsjC7F8PlXVyM0EwFI/QQEcYJTjMNiKvW48LgNTaUnEeOFOvNAOydmpCR3j2IBCPNdUFeiW1d7/dgu1Ja+bv/O7rbnLOsR4rfjrP6SNaVQvAt6Gxmh7SsY6zk9YX7AoZspMDgs0yPjjNo4bLE93z7n89VbjeTtyA6KJb6XSNb7wy7Km1FWISAyQ1gQBGfyD/sC0YHUted3nBYvtXhOWxXkUgC+tpMgVrWQN8Mcm+YeSs/JdSFHQ2o56h7gJb+fl4VUf2gQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=V89MiAqblwWs32Xcy+/gCRrOegqPK6G0klisDcitduo=;
+ b=B4XSBBWTDYs8gTn7fse4NDsStRmsliyGkqWzAkivcKrqMO4MoVSBWHZ1dVBTkmp7P/I2X0qgklTGJEME3J22w64OC2Y8GCeNv8PlUmGFwWvWQ/21qTBGWOE7iC4+cayOqmpZUcvLLoG0BkHB3oVN7EVpxmDYoO6K6BsKtm7qjHQIyBZKlC4hSvrwbH4zeyEH5UrWubJAdXfMcVE+je5HikArhX8iSsn+NMAlaRRmOdr6tanZ05dzzDYXV8r3Nh0KvECi7vuEQrkM32P1zjjN3gFHfzLExVfQUdv31Y79IZen2Takg9Ker2JJz85aVY6FDWaBA+bZ6rSkmPo1euvOQA==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by IA1PR12MB6260.namprd12.prod.outlook.com (2603:10b6:208:3e4::17) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5944.19; Thu, 5 Jan
+ 2023 00:13:22 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::f8b0:df13:5f8d:12a]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::f8b0:df13:5f8d:12a%9]) with mapi id 15.20.5944.019; Thu, 5 Jan 2023
+ 00:13:22 +0000
+Date:   Wed, 4 Jan 2023 20:13:20 -0400
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     "Tian, Kevin" <kevin.tian@intel.com>
+Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        "iommu@lists.linux.dev" <iommu@lists.linux.dev>,
+        Joerg Roedel <joro@8bytes.org>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        Marc Zyngier <maz@kernel.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will@kernel.org>,
+        Bharat Bhushan <bharat.bhushan@nxp.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Eric Auger <eric.auger@redhat.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Tomasz Nowicki <tomasz.nowicki@caviumnetworks.com>,
+        Will Deacon <will.deacon@arm.com>
+Subject: Re: [PATCH iommufd v2 8/9] irq/s390: Add arch_is_isolated_msi() for
+ s390
+Message-ID: <Y7YWIFxyl8gD7J47@nvidia.com>
+References: <0-v2-10ad79761833+40588-secure_msi_jgg@nvidia.com>
+ <8-v2-10ad79761833+40588-secure_msi_jgg@nvidia.com>
+ <BN9PR11MB527666D2192E2C25FF8A36AA8CE19@BN9PR11MB5276.namprd11.prod.outlook.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <BN9PR11MB527666D2192E2C25FF8A36AA8CE19@BN9PR11MB5276.namprd11.prod.outlook.com>
+X-ClientProxiedBy: MN2PR05CA0002.namprd05.prod.outlook.com
+ (2603:10b6:208:c0::15) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20221228-drop-qunused-arguments-v1-11-658cbc8fc592@kernel.org>
-References: <20221228-drop-qunused-arguments-v1-0-658cbc8fc592@kernel.org>
-In-Reply-To: <20221228-drop-qunused-arguments-v1-0-658cbc8fc592@kernel.org>
-To:     masahiroy@kernel.org, ndesaulniers@google.com
-Cc:     nicolas@fjasle.eu, trix@redhat.com, linux-kbuild@vger.kernel.org,
-        llvm@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
-        kernel test robot <lkp@intel.com>, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        linux-s390@vger.kernel.org
-X-Mailer: b4 0.11.1
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1532; i=nathan@kernel.org;
- h=from:subject:message-id; bh=Wq2xy5rFWf75vfk6CLmeCRvK7xMzUB8bK7uoSW9gNDQ=;
- b=owGbwMvMwCEmm602sfCA1DTG02pJDMlbb3b7ZBf/rn1s+nZr5eJ2yd8LEiWKcwNmRk34Xbvz1Laf
- FevaO0pZGMQ4GGTFFFmqH6seNzScc5bxxqlJMHNYmUCGMHBxCsBEbHwZGX5afPM8fnO9+KX1YeXbtD
- PDo+M4rjWu1izN4BLf/Fsmponhf4lvgOKFPQ8Zy7gvTT+W8oTX+LLVkQY2mXbeCxtObJzOzQEA
-X-Developer-Key: i=nathan@kernel.org; a=openpgp;
- fpr=2437CB76E544CB6AB3D9DFD399739260CB6CB716
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|IA1PR12MB6260:EE_
+X-MS-Office365-Filtering-Correlation-Id: d9c29a63-15a0-4483-825a-08daeeb1a7c9
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: d1aw08gMFsgPa/rD5REhje0OLKg12mKCE94v72V43K9LWeEM8NF0Ol1+f0x/LEuUt6S+65NdMyra9J4f9+BNVHcf7JWrukrYWq9D7Zd3kZgYQwCxT6lKt2i5/piLKcIzzUXNXCTP9NI+vZhxaJT74rEf+wDGECtX7slkq+v65RlcS3H/lsU847BPvZNosYC8nagdF+AiVcZeh1a2ebonq6tcBWz66FbSL3ayj3fsWl+9sOl8Qv4bidscqEGkDF8nKQNAlH3yEEuIl57yUXsTE56D82qDVWyUGOKhG+BcS/nJCVrNQcCvKxVwKUh7rwiDSTasmh9iSo+Os5Hi7YV394BbXnvASHjViu33F9OT8YlwCW0BmSX10JEO2LsTTOc2DaZftEnLfbX7JTIkokMjic0P0hcDaVpG67W1HIjTys4uqo5AGMApNQG4BKKhYPgOa9KmIAgQEczm7zsO978ajUOO3+jKL4U5tGO83AZY8juPAmmC+R07ZTXF+fO1GPpqIpwK87EwnDnjJcEZjieod5a3gp+sVZoXOIPa6ZWCjICCeix2wJvnfi5F7xtG8NimywKIfPDB0jUAuyYcBkBtTC0y5hlIJr3hGW9uEH/r1AeNJ3Uq1fXFzsAZZCPc5UHo/3FgA8EtReb7SetrsChRQA==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(346002)(376002)(396003)(39860400002)(136003)(366004)(451199015)(83380400001)(2906002)(86362001)(38100700002)(8936002)(7416002)(4744005)(41300700001)(5660300002)(66556008)(478600001)(2616005)(316002)(26005)(186003)(6512007)(8676002)(4326008)(6506007)(54906003)(6486002)(66946007)(6916009)(66476007)(36756003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?Y3rqCIej3xgvhLDe7agbhVsLmuJSCEbsdgyyg/vgZdS/lNUZt4EGGoPBH8SG?=
+ =?us-ascii?Q?Kma7R+K8jvjy1mg1UKapIeTq/M7/SRmwV/S+o8zf/2zy/3SYENwqsdU2eueB?=
+ =?us-ascii?Q?uT7ZeEknPq1PTK2GlXL9MUeaL0ZJX1EgOAcLNkUCstz8vp3uGgFunVGTbtj6?=
+ =?us-ascii?Q?XOX/Vh4UHq8zWP+SYooMA6i/BZV02W2FNO3vfEHl+pNdvpenEuOxvFSU6bti?=
+ =?us-ascii?Q?vu76J7wQMUJp3NSiA2ppyiIM/QloA+2O4l3wmc57Ry3/v2KL/HKn7ZlEfGdF?=
+ =?us-ascii?Q?adJwHXHPdaKxyiiJ7/UkbArQAF/H0S7eg6xWHpXIVbWsPerfjJWhQij5LSk0?=
+ =?us-ascii?Q?3S13e/2SdRxoRLvON5eFMvmn8Z6ES4rZxXnrfsS53fgugPsFxgtNs+Jw1Rzl?=
+ =?us-ascii?Q?bf4nuYa7k3rqW/HD1mY0LDkO6TNX5F4ZTITNHLNOGuTPOmDE4t6cUfxAbvxO?=
+ =?us-ascii?Q?EWA06igHhnR/daqbtkTDKjxp9xIqtk5YpbqsQqb3NWxazraNaeXSK0WfK8+l?=
+ =?us-ascii?Q?Ii2mHhxv/1YcharhhJHdcOa7zSpH2sUz2SmsM1EJQKseT6fGoYofFygOTS06?=
+ =?us-ascii?Q?lKAVGFTP8NbwAFt/F+Pfp6gQwewpssqqCncZ3wOToge/MLQP4uiMla5y+pPw?=
+ =?us-ascii?Q?1yJWQw0kSjhkLgCL9d21KM6lNxxMrPV2MdUyVj8zA35ftlwR1J2R6oJWwV2l?=
+ =?us-ascii?Q?XiOMOvB7qeSubuiJl7tmkZglI7DEMNyLkBotNIXQPRcsD0mahI3gVCT92+l8?=
+ =?us-ascii?Q?JoIrhdGKGRc7otANvJBefpuh5dDh/dxhiwfrDxIOghlvaVgfNI3u0Cyr4OfL?=
+ =?us-ascii?Q?jU/EeTKKiuT+nmphTYaMD5I2qnkEj+rFbedMNnH+qEr5SRZxpW6ILoRNdzNs?=
+ =?us-ascii?Q?bI0W36XUNefYiYTD+gk+Y8ITY8eq6khDmK2cx35volMgSDur5OG30tE2zicP?=
+ =?us-ascii?Q?v01mcHsJcAzP4Op1hNdSllQoeQS7wJ7vVE4DUFeNStZ7qeGIVj8ZRnqplTng?=
+ =?us-ascii?Q?idOEhYWdzoWQQB/g2sb2j+W07Ivl4oA5g4whNAbggquXwd1XJjJZNqXGeMJm?=
+ =?us-ascii?Q?9Pwj194aUV8VO7gK0NO+/gCDhrso5svi/Bus54s9rpglrgLMiA/+uUt8fAbR?=
+ =?us-ascii?Q?y/r8TxmvaomY1r2mQd8B4yCpkvjpn/IysodhmBdZIKl10knhecEirpTwjiW5?=
+ =?us-ascii?Q?+KSixA5AyxsJgwUhjWiWzusoolDGPgyTZezbTtxsFhQ5ZsNjdDVuUTG/sigw?=
+ =?us-ascii?Q?hgrD/D7CQaq3n1P2BuQVT/+LJQOpoegxFkxRsQfDU4QoJpJ9y6jRuETuC7mn?=
+ =?us-ascii?Q?/CCZJ3ERdocjmpuoOX+AcNfxOxAhr7DuWsCB71MRqc4topVVReLDsX/vbVfK?=
+ =?us-ascii?Q?S+oJHnNCIWRCPOIlx/3aDb+Fw6fsTVwsXZMB6kxjnZawS9e+pjEJ0HOBWm27?=
+ =?us-ascii?Q?hG70d7AExhxk1TmQQ+kFMsV4DurdnJKtT0sLmcV7DlgY84IxluGErYBtIX10?=
+ =?us-ascii?Q?ny0mb9m0GvrBWeKVUXtzYOxo5BLKuq9cWW4AITDYb6OlXEOB7lVunWuAL4uj?=
+ =?us-ascii?Q?mU3TOiHSw++FMS9JZPLOB681wSIAHORzkQx6mu2n?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: d9c29a63-15a0-4483-825a-08daeeb1a7c9
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Jan 2023 00:13:22.0292
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: RNcaSrcKVthIvmSKcQw0/wioCCbJkhdzShiABPxvjt1ASCJOOkfua1P5UFCzHw4/
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR12MB6260
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-When clang's -Qunused-arguments is dropped from KBUILD_CPPFLAGS, it
-warns while building objects in the purgatory folder:
+On Thu, Dec 15, 2022 at 07:39:25AM +0000, Tian, Kevin wrote:
+> > From: Jason Gunthorpe <jgg@nvidia.com>
+> > Sent: Tuesday, December 13, 2022 2:46 AM
+> > @@ -660,7 +664,7 @@ static inline bool msi_device_has_isolated_msi(struct
+> > device *dev)
+> >  	 * is inherently isolated by our definition. As nobody seems to needs
+> >  	 * this be conservative and return false anyhow.
+> 
+> Also update the comment given the returned value is arch specific
+> now.
 
-  clang-16: error: argument unused during compilation: '-MD' [-Werror,-Wunused-command-line-argument]
+	/*
+	 * Arguably if the platform does not enable MSI support then it has
+	 * "isolated MSI", as an interrupt controller that cannot receive MSIs
+	 * is inherently isolated by our definition. The default definition for
+	 * arch_is_isolated_msi() is conservative and returns false anyhow.
+	 */
 
-'-MMD' is always passed to the preprocessor via c_flags, even when
-KBUILD_CFLAGS is overridden in a folder, so clang complains the addition
-of '-MD' will be unused. Remove '-MD' to clear up this warning, as it is
-unnecessary with '-MMD'.
-
-Additionally, '-c' is also unnecessary, remove it while in the area.
-
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
----
-Cc: hca@linux.ibm.com
-Cc: gor@linux.ibm.com
-Cc: agordeev@linux.ibm.com
-Cc: borntraeger@linux.ibm.com
-Cc: svens@linux.ibm.com
-Cc: linux-s390@vger.kernel.org
----
- arch/s390/purgatory/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/s390/purgatory/Makefile b/arch/s390/purgatory/Makefile
-index d237bc6841cb..32573b4f9bd2 100644
---- a/arch/s390/purgatory/Makefile
-+++ b/arch/s390/purgatory/Makefile
-@@ -24,7 +24,7 @@ KCSAN_SANITIZE := n
- KBUILD_CFLAGS := -fno-strict-aliasing -Wall -Wstrict-prototypes
- KBUILD_CFLAGS += -Wno-pointer-sign -Wno-sign-compare
- KBUILD_CFLAGS += -fno-zero-initialized-in-bss -fno-builtin -ffreestanding
--KBUILD_CFLAGS += -c -MD -Os -m64 -msoft-float -fno-common
-+KBUILD_CFLAGS += -Os -m64 -msoft-float -fno-common
- KBUILD_CFLAGS += -fno-stack-protector
- KBUILD_CFLAGS += $(CLANG_FLAGS)
- KBUILD_CFLAGS += $(call cc-option,-fno-PIE)
-
--- 
-2.39.0
+Jason
