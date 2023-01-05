@@ -2,127 +2,192 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C5CBC3DA7D
-	for <linux-s390@archiver.kernel.org>; Thu,  5 Jan 2023 16:06:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 035A5C54EBC
+	for <linux-s390@archiver.kernel.org>; Thu,  5 Jan 2023 16:30:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231452AbjAEQGw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 5 Jan 2023 11:06:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49804 "EHLO
+        id S231997AbjAEQaS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 5 Jan 2023 11:30:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234951AbjAEQGj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 Jan 2023 11:06:39 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2917D32E81;
-        Thu,  5 Jan 2023 08:06:37 -0800 (PST)
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 305Fg5kZ008104;
-        Thu, 5 Jan 2023 16:06:37 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=3z89m38tZ00stHG2meV21eS5wjurrMFlvqCdg83PPxY=;
- b=RQr3M+SkWWsOaZEdJxrMNwcn16L4tY2p1c736V7rOnD+BEM1XtC4+iMN8Z4bErVTbmG6
- aCkOJTAzS9gY8waeTlwBqML2X9Kg+Rj9b2/xDXBP+BZyq0ph0l3LootESGsGgLKQxcHM
- Blt8bfJsBQpoPSfGfouFNfxTY1UuDIN1OViU9/4Av00PjxOOAJrjtxR1EN3LvikC0rq3
- r0uv4HkJe24R/jRNfc6kjhATtwskn4h/aXR9gRiMujkcMQlpEe1wfY0yHvmCb1vudOQ2
- tBxGvo1WWzY2h7ukCuvxSizsaplhuWBHFotYvcxIZvvzkezMfMyGlPaSTIoZz4NUF/M1 Kw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mx1dsgp29-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 05 Jan 2023 16:06:36 +0000
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 305FtJMa025563;
-        Thu, 5 Jan 2023 16:06:36 GMT
-Received: from ppma02wdc.us.ibm.com (aa.5b.37a9.ip4.static.sl-reverse.com [169.55.91.170])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mx1dsgp1n-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 05 Jan 2023 16:06:36 +0000
-Received: from pps.filterd (ppma02wdc.us.ibm.com [127.0.0.1])
-        by ppma02wdc.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 305DLs8L019434;
-        Thu, 5 Jan 2023 16:06:34 GMT
-Received: from smtprelay04.wdc07v.mail.ibm.com ([9.208.129.114])
-        by ppma02wdc.us.ibm.com (PPS) with ESMTPS id 3mtcq7xnrw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 05 Jan 2023 16:06:34 +0000
-Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
-        by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 305G6Wxd43450854
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 5 Jan 2023 16:06:33 GMT
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A1F635803F;
-        Thu,  5 Jan 2023 16:06:32 +0000 (GMT)
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BE92758060;
-        Thu,  5 Jan 2023 16:06:31 +0000 (GMT)
-Received: from [9.160.126.91] (unknown [9.160.126.91])
-        by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
-        Thu,  5 Jan 2023 16:06:31 +0000 (GMT)
-Message-ID: <dcd428a4-aaed-060e-34e0-69f931986ae6@linux.ibm.com>
-Date:   Thu, 5 Jan 2023 11:06:31 -0500
+        with ESMTP id S233812AbjAEQ36 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 Jan 2023 11:29:58 -0500
+Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0489659D31
+        for <linux-s390@vger.kernel.org>; Thu,  5 Jan 2023 08:29:56 -0800 (PST)
+Received: by mail-wr1-x430.google.com with SMTP id bk16so23452598wrb.11
+        for <linux-s390@vger.kernel.org>; Thu, 05 Jan 2023 08:29:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ffwll.ch; s=google;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:mail-followup-to:message-id:subject:cc:to
+         :from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=hriix7PNjl3Fx5Lwj5vGvmpV6J+F4oqIBHmzWDNV1zY=;
+        b=Xkf28zaruVrLmqa0GfGmuAvqQQX+dB8u4vBIZu3Zqzswl7V0McjDKsYjGqvgAnDPVt
+         JAfXVw2P8vm4NtD5ER0v9cpo5fq34lBw+gZ7lyOmQSBDrvgtT42XqrYiXIz43PC1aoqp
+         dm4offnZy34FIeCS0B3FEa0zUz3dEn5dYFCKk=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:mail-followup-to:message-id:subject:cc:to
+         :from:date:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=hriix7PNjl3Fx5Lwj5vGvmpV6J+F4oqIBHmzWDNV1zY=;
+        b=Ax8ePZnlpQHYL2AiENLIkPNSqP6YiLdA60kLm2aUl3D9Ugc354om0CEWT5CuQxcHCY
+         TbK0Bdkkzb5aJg4ieUqapk8+T5xh558Kb+H22MmYZUqYQ64cpRyRKiS5E8jJXzy90Sam
+         O80ZjLPTRlMraGGllHgIJN6pHWbo+JDlWJ+oK624Bxxcoq1BQlX/TvF0dWCNPKMJqiNe
+         iPzcYTkpiZhDYY2MTInbJxfhmkpibcA6Q/RkrTgTVjYLvNzp+T0kFmWKrfj9AbxwMKgV
+         BFLveeUlhMoKLkIA2qtH9KDUEV4Jal5aUCDYujqxEuM42lONGjimCjNxPNV+eN4ybWwu
+         dcLA==
+X-Gm-Message-State: AFqh2kp4Rdfz/NGYXv2YrZAaJKN6D3GDC62bjuA9xArgLXLobzgOZ6aQ
+        haVrwCm9/1k2mdqfKZgMAhMF3Q==
+X-Google-Smtp-Source: AMrXdXvytt3BictUpSrNMsVMjqYxBg9ULQXEcgl2Nkqae4pxiPmHRRghamOTQFr1zyRYajkEyGj8ag==
+X-Received: by 2002:adf:f9cb:0:b0:285:d0ba:92e2 with SMTP id w11-20020adff9cb000000b00285d0ba92e2mr22521193wrr.47.1672936194547;
+        Thu, 05 Jan 2023 08:29:54 -0800 (PST)
+Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
+        by smtp.gmail.com with ESMTPSA id x15-20020a5d490f000000b00236883f2f5csm36488463wrq.94.2023.01.05.08.29.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 05 Jan 2023 08:29:53 -0800 (PST)
+Date:   Thu, 5 Jan 2023 17:29:51 +0100
+From:   Daniel Vetter <daniel@ffwll.ch>
+To:     Andrzej Hajda <andrzej.hajda@intel.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        linux-m68k@vger.kernel.org, linux-ia64@vger.kernel.org,
+        linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+        dri-devel@lists.freedesktop.org, linux-mips@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        Boqun Feng <boqun.feng@gmail.com>,
+        linux-xtensa@linux-xtensa.org, Arnd Bergmann <arnd@arndb.de>,
+        intel-gfx@lists.freedesktop.org, openrisc@lists.librecores.org,
+        loongarch@lists.linux.dev, Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        linux-arm-kernel@lists.infradead.org, linux-parisc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org
+Subject: Re: [PATCH 00/19] Introduce __xchg, non-atomic xchg
+Message-ID: <Y7b6/7coJEVlTVxK@phenom.ffwll.local>
+Mail-Followup-To: Andrzej Hajda <andrzej.hajda@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Mark Rutland <mark.rutland@arm.com>, linux-m68k@vger.kernel.org,
+        linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org,
+        Peter Zijlstra <peterz@infradead.org>,
+        dri-devel@lists.freedesktop.org, linux-mips@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        Boqun Feng <boqun.feng@gmail.com>, linux-xtensa@linux-xtensa.org,
+        Arnd Bergmann <arnd@arndb.de>, intel-gfx@lists.freedesktop.org,
+        openrisc@lists.librecores.org, loongarch@lists.linux.dev,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        linux-arm-kernel@lists.infradead.org, linux-parisc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org
+References: <20221222114635.1251934-1-andrzej.hajda@intel.com>
+ <20221222092147.d2bb177c67870884f2e59a9b@linux-foundation.org>
+ <6e727952-3ad0-fcc3-82f1-c465dcffd56f@intel.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.5.1
-Subject: Re: [PATCH v2 1/1] vfio/type1: Respect IOMMU reserved regions in
- vfio_test_domain_fgsp()
-To:     Niklas Schnelle <schnelle@linux.ibm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>
-Cc:     Jason Gunthorpe <jgg@ziepe.ca>, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        =?UTF-8?Q?Christian_Borntr=c3=a4ger?= <borntraeger@linux.ibm.com>
-References: <20230104154202.1152198-1-schnelle@linux.ibm.com>
- <20230104154202.1152198-2-schnelle@linux.ibm.com>
-Content-Language: en-US
-From:   Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <20230104154202.1152198-2-schnelle@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: CL4dAM2FqwkSC6SaXCgGGiElCX_NhQyz
-X-Proofpoint-ORIG-GUID: 12IPlv6-R3GtNBaqqw7hLyhslFOQewSl
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2023-01-05_06,2023-01-05_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 phishscore=0
- impostorscore=0 lowpriorityscore=0 malwarescore=0 bulkscore=0 adultscore=0
- mlxscore=0 priorityscore=1501 spamscore=0 clxscore=1015 mlxlogscore=999
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
- definitions=main-2301050126
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <6e727952-3ad0-fcc3-82f1-c465dcffd56f@intel.com>
+X-Operating-System: Linux phenom 5.19.0-2-amd64 
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 1/4/23 10:42 AM, Niklas Schnelle wrote:
-> Since commit cbf7827bc5dc ("iommu/s390: Fix potential s390_domain
-> aperture shrinking") the s390 IOMMU driver uses reserved regions for the
-> system provided DMA ranges of PCI devices. Previously it reduced the
-> size of the IOMMU aperture and checked it on each mapping operation.
-> On current machines the system denies use of DMA addresses below 2^32 for
-> all PCI devices.
+On Thu, Dec 29, 2022 at 10:54:50AM +0100, Andrzej Hajda wrote:
+> Forgive me late response - Holidays,
 > 
-> Usually mapping IOVAs in a reserved regions is harmless until a DMA
-> actually tries to utilize the mapping. However on s390 there is
-> a virtual PCI device called ISM which is implemented in firmware and
-> used for cross LPAR communication. Unlike real PCI devices this device
-> does not use the hardware IOMMU but inspects IOMMU translation tables
-> directly on IOTLB flush (s390 RPCIT instruction). If it detects IOVA
-> mappings outside the allowed ranges it goes into an error state. This
-> error state then causes the device to be unavailable to the KVM guest.
+> On 22.12.2022 18:21, Andrew Morton wrote:
+> > On Thu, 22 Dec 2022 12:46:16 +0100 Andrzej Hajda <andrzej.hajda@intel.com> wrote:
+> > 
+> > > Hi all,
+> > > 
+> > > I hope there will be place for such tiny helper in kernel.
+> > > Quick cocci analyze shows there is probably few thousands places
+> > > where it could be useful.
+> > So to clarify, the intent here is a simple readability cleanup for
+> > existing open-coded exchange operations.
 > 
-> Analysing this we found that vfio_test_domain_fgsp() maps 2 pages at DMA
-> address 0 irrespective of the IOMMUs reserved regions. Even if usually
-> harmless this seems wrong in the general case so instead go through the
-> freshly updated IOVA list and try to find a range that isn't reserved,
-> and fits 2 pages, is PAGE_SIZE * 2 aligned. If found use that for
-> testing for fine grained super pages.
+> And replace private helpers with common one, see the last patch - the
+> ultimate goal
+> would be to replace all occurrences of fetch_and_zero with __xchg.
 > 
-> Fixes: 6fe1010d6d9c ("vfio/type1: DMA unmap chunking")
-> Reported-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> > The intent is *not* to
+> > identify existing xchg() sites which are unnecessarily atomic and to
+> > optimize them by using the non-atomic version.
+> > 
+> > Have you considered the latter?
+> 
+> If you mean some way of (semi-)automatic detection of such cases, then no.
+> Anyway this could be quite interesting challenge.
 
-Thanks, this fixes the issue I'm seeing with ISM.
+My take is that unless there is very clear demand for this macro from
+outside of i915, it's not worth it. All that fetch_and_zero zero achieved
+is make i915 code a lot more confusing to read for people who don't know
+this thing. And it replaces 2 entirely standard lines of 0, every often
+clearing pointers in data structures where you really want the verbosity
+to have a reminder and thinking about the locking.
 
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+Plus it smells way too much like the cmpxchg family of atomic functions,
+addig further to the locking confuion.
 
+Imo the right approach is to just open code this macro in i915 and then
+drop it. Again, unless enough people outside of i915 really really want
+this, and want to lift this to a kernel idiom.
+-Daniel
 
+> 
+> > 
+> > > I am not sure who is good person to review/ack such patches,
+> > I can take 'em.
+> > 
+> > > so I've used my intuition to construct to/cc lists, sorry for mistakes.
+> > > This is the 2nd approach of the same idea, with comments addressed[0].
+> > > 
+> > > The helper is tiny and there are advices we can leave without it, so
+> > > I want to present few arguments why it would be good to have it:
+> > > 
+> > > 1. Code readability/simplification/number of lines:
+> > > 
+> > > Real example from drivers/net/ethernet/mellanox/mlx5/core/esw/qos.c:
+> > > -       previous_min_rate = evport->qos.min_rate;
+> > > -       evport->qos.min_rate = min_rate;
+> > > +       previous_min_rate = __xchg(evport->qos.min_rate, min_rate);
+> > > 
+> > > For sure the code is more compact, and IMHO more readable.
+> > > 
+> > > 2. Presence of similar helpers in other somehow related languages/libs:
+> > > 
+> > > a) Rust[1]: 'replace' from std::mem module, there is also 'take'
+> > >      helper (__xchg(&x, 0)), which is the same as private helper in
+> > >      i915 - fetch_and_zero, see latest patch.
+> > > b) C++ [2]: 'exchange' from utility header.
+> > > 
+> > > If the idea is OK there are still 2 qestions to answer:
+> > > 
+> > > 1. Name of the helper, __xchg follows kernel conventions,
+> > >      but for me Rust names are also OK.
+> > I like replace(), or, shockingly, exchange().
+> > 
+> > But...   Can we simply make swap() return the previous value?
+> > 
+> > 	previous_min_rate = swap(&evport->qos.min_rate, min_rate);
+> 
+> As Alexander already pointed out, swap requires 'references' to two
+> variables,
+> in contrast to xchg which requires reference to variable and value.
+> So we cannot use swap for cases:
+>     old_value = __xchg(&x, new_value);
+> 
+> Regards
+> Andrzej
+> 
+
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
