@@ -2,119 +2,114 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A2748C5479D
-	for <linux-s390@archiver.kernel.org>; Thu,  5 Jan 2023 08:01:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 71998C5479D
+	for <linux-s390@archiver.kernel.org>; Thu,  5 Jan 2023 08:07:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230282AbjAEIBD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 5 Jan 2023 03:01:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48126 "EHLO
+        id S230433AbjAEIHG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 5 Jan 2023 03:07:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230185AbjAEIBB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 Jan 2023 03:01:01 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EDB317597;
-        Thu,  5 Jan 2023 00:00:59 -0800 (PST)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3057m6nE036979;
-        Thu, 5 Jan 2023 08:00:14 GMT
+        with ESMTP id S229839AbjAEIHF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 Jan 2023 03:07:05 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CDF7544F3;
+        Thu,  5 Jan 2023 00:07:05 -0800 (PST)
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3057kGWt005426;
+        Thu, 5 Jan 2023 08:06:35 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
  subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=5zKaQOA6IGKVjD/e3CeInd78n2sD2CM5QMQ3/3xpoGk=;
- b=EW9DXA6n2b01/pIeafCvQxNtyVXERMmUKUcexO4zlYK5qRyuT9us8zoLA1/5lQbJ5qy1
- /ynaFOc6HqsRRtM5cMcTDaEcpaDP3cNwOJZOuVePS8htJeyrPbhJ8rQ2ZgmFJgwv1kp7
- +ie99xvIvOusHkzPu9qCmrCY0hSNGXBHH83tQloT802o/xA3CQsVRQahUm92P4+4x1py
- ZpGD0hOq3cQHnX10/yPwafM6UobAeQxrhuzUBtCNnb/PdsaDsxNCVkeQxgeb5EEozmRK
- fI3YcoD3kZG7G9vDTutVltfhiRsvVrWe3mOPf6qZd93S/XvTZt8+Zab06nqszpW27rnA dw== 
+ in-reply-to; s=pp1; bh=em0hYjDj0abFWoDkUwKCbrdF0k41o839F18VwMFiLbQ=;
+ b=r5SbpYYMV7SfkmKmBgrnFjKFuMAC3R7tY8OfcVgbKHy5sBghZmuk5jiky1sc4AuE4bbL
+ wfM5lrCKuQE6qW2wwEqM37nEstHy7n0ACWgNED9hPp0r4S8yO5GwcvjTCAakDODz7b1z
+ zSQsC6GsHgnBd9zEeFYtgDrOMJFq+yU2f2sEBV9ZMWyWYd7e6bnSBrpzPJrJTEC5ha2x
+ BOpAauydOjlX8dI0VD1aIhTtMYeRrm6IPGSVWO8ehDFb/fV/wJpBgocd96Dvqw+Emo8p
+ mDpZjVHLC4P3T5/CSA+a5WDqgAnN++VXbe7hWgh2b4XjgW124lvm5GaFLUxCix2HC4Su YQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mwtfm06tp-1
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3mwtf18ejp-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 05 Jan 2023 08:00:14 +0000
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3057mKYR037398;
-        Thu, 5 Jan 2023 08:00:13 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mwtfm06qu-1
+        Thu, 05 Jan 2023 08:06:34 +0000
+Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3057vaZ9013612;
+        Thu, 5 Jan 2023 08:06:34 GMT
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3mwtf18ej1-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 05 Jan 2023 08:00:13 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3051RcWN000986;
-        Thu, 5 Jan 2023 08:00:10 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-        by ppma03fra.de.ibm.com (PPS) with ESMTPS id 3mtcq6mpf0-1
+        Thu, 05 Jan 2023 08:06:34 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30518CNv008371;
+        Thu, 5 Jan 2023 08:06:32 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+        by ppma06fra.de.ibm.com (PPS) with ESMTPS id 3mtcbfmqxw-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 05 Jan 2023 08:00:10 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 305806Vv45351190
+        Thu, 05 Jan 2023 08:06:32 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30586SbA24510954
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 5 Jan 2023 08:00:06 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 69A8E2005A;
-        Thu,  5 Jan 2023 08:00:06 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A2D7920043;
-        Thu,  5 Jan 2023 08:00:04 +0000 (GMT)
+        Thu, 5 Jan 2023 08:06:28 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9A3F720043;
+        Thu,  5 Jan 2023 08:06:28 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BFE4420040;
+        Thu,  5 Jan 2023 08:06:27 +0000 (GMT)
 Received: from osiris (unknown [9.171.68.186])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Thu,  5 Jan 2023 08:00:04 +0000 (GMT)
-Date:   Thu, 5 Jan 2023 09:00:03 +0100
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Thu,  5 Jan 2023 08:06:27 +0000 (GMT)
+Date:   Thu, 5 Jan 2023 09:06:26 +0100
 From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Nathan Chancellor <nathan@kernel.org>
-Cc:     masahiroy@kernel.org, ndesaulniers@google.com, nicolas@fjasle.eu,
-        trix@redhat.com, linux-kbuild@vger.kernel.org,
-        llvm@lists.linux.dev, kernel test robot <lkp@intel.com>,
-        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
-        dave.hansen@linux.intel.com, x86@kernel.org,
-        tsbogend@alpha.franken.de, linux-mips@vger.kernel.org,
-        mpe@ellerman.id.au, npiggin@gmail.com, christophe.leroy@csgroup.eu,
-        linuxppc-dev@lists.ozlabs.org, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, linux-s390@vger.kernel.org,
-        harry.wentland@amd.com, sunpeng.li@amd.com,
-        Rodrigo.Siqueira@amd.com, alexander.deucher@amd.com,
-        christian.koenig@amd.com, Xinhui.Pan@amd.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: Re: [PATCH 00/14] Remove clang's -Qunused-arguments from
- KBUILD_CPPFLAGS
-Message-ID: <Y7aDg5BqjRDZrOR/@osiris>
-References: <20221228-drop-qunused-arguments-v1-0-658cbc8fc592@kernel.org>
+To:     "Paul E. McKenney" <paulmck@kernel.org>
+Cc:     rcu@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kernel-team@meta.com, rostedt@goodmis.org,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH rcu 06/27] arch/s390/kvm: Remove "select SRCU"
+Message-ID: <Y7aFAqmgF4eu6SNH@osiris>
+References: <20230105003759.GA1769545@paulmck-ThinkPad-P17-Gen-1>
+ <20230105003813.1770367-6-paulmck@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221228-drop-qunused-arguments-v1-0-658cbc8fc592@kernel.org>
+In-Reply-To: <20230105003813.1770367-6-paulmck@kernel.org>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: HN0SRG90u-IN-eEqiy_9QPgOJjfvpn1A
-X-Proofpoint-ORIG-GUID: AWGhRIIBoEln5sOF-oxHHjt5w7QDkV0-
+X-Proofpoint-GUID: bFKzjL5BSCYr32RZTpDpfBd6VwtgBcQx
+X-Proofpoint-ORIG-GUID: YJxYUOCrB21-BA5binzfh_-OHRIhi9Jk
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2023-01-05_02,2023-01-04_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- priorityscore=1501 adultscore=0 bulkscore=0 malwarescore=0 mlxlogscore=670
- mlxscore=0 suspectscore=0 phishscore=0 impostorscore=0 clxscore=1011
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2301050062
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ clxscore=1015 phishscore=0 mlxlogscore=361 impostorscore=0 spamscore=0
+ suspectscore=0 adultscore=0 lowpriorityscore=0 malwarescore=0 bulkscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2301050066
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jan 04, 2023 at 12:54:18PM -0700, Nathan Chancellor wrote:
-> Hi all,
-...
-> This series has seen my personal test framework, which tests several different
-> configurations and architectures, with LLVM tip of tree (16.0.0). I have done
-> defconfig, allmodconfig, and allnoconfig builds for arm, arm64, i386, mips,
-> powerpc, riscv, s390, and x86_64 with GCC 12.2.0 as well but I am hoping the
-> rest of the test infrastructure will catch any lurking problems.
+On Wed, Jan 04, 2023 at 04:37:52PM -0800, Paul E. McKenney wrote:
+> Now that the SRCU Kconfig option is unconditionally selected, there is
+> no longer any point in selecting it.  Therefore, remove the "select SRCU"
+> Kconfig statements.
 > 
-> I would like this series to stay together so that there is no opportunity for
-> breakage so please consider giving acks so that this can be carried via the
-> kbuild tree.
-...
->       s390/vdso: Drop unused '-s' flag from KBUILD_AFLAGS_64
->       s390/vdso: Drop '-shared' from KBUILD_CFLAGS_64
->       s390/purgatory: Remove unused '-MD' and unnecessary '-c' flags
-...
->  arch/s390/kernel/vdso64/Makefile            |  4 +--
->  arch/s390/purgatory/Makefile                |  2 +-
+> Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+> Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+> Cc: Janosch Frank <frankja@linux.ibm.com>
+> Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Cc: David Hildenbrand <david@redhat.com>
+> Cc: Heiko Carstens <hca@linux.ibm.com>
+> Cc: Vasily Gorbik <gor@linux.ibm.com>
+> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+> Cc: Sven Schnelle <svens@linux.ibm.com>
+> Cc: <kvm@vger.kernel.org>
+> Cc: <linux-s390@vger.kernel.org>
+> ---
+>  arch/s390/kvm/Kconfig | 1 -
+>  1 file changed, 1 deletion(-)
 
-For the s390 bits:
 Acked-by: Heiko Carstens <hca@linux.ibm.com>
