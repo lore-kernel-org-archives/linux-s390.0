@@ -2,137 +2,125 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4CCD3C54EBD
-	for <linux-s390@archiver.kernel.org>; Thu,  5 Jan 2023 12:02:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 31C22C3DA7A
+	for <linux-s390@archiver.kernel.org>; Thu,  5 Jan 2023 12:17:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231761AbjAEMCM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 5 Jan 2023 07:02:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44594 "EHLO
+        id S231646AbjAEMRz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 5 Jan 2023 07:17:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231147AbjAEMCL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 Jan 2023 07:02:11 -0500
-Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on2113.outbound.protection.outlook.com [40.107.243.113])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 434EC559CA;
-        Thu,  5 Jan 2023 04:02:11 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=D1FGe/l/7ISr2/7zQMAEcZZek6V5tQyRxH41jNxLW092nffmm4p7tA8nj/tnrR9AJyw1iO7CrLbIuc4Urn8yMyctmESvodU4GMWMxhSaRfeOYzWu+h55liz8sLgn+UHR5VKyfQmyCMnxfRH4pIIarOZ+mA20QZOr22xlLc8veOXa3pMgSVE0F+Hw2iMn360VUj2ioxO2Ne9/YXKDbiK1XqWYMShY3botbPVKra7j8cHFE+fyB6slTac+RosVrZX8r/I30Nj5N/uoywkQ9lBnSQcpDvoXxmWW1Df/d7j6oPfxngHFx6upvSE+rZv5PR5I/PlPSNsh/VcgZTjXQCV8rQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=0u8AGfw1luMnkIJZhnEOh6KdICin9MAZ9lNMgS5ylTE=;
- b=l2VA8gmDC0F8cyhKAkWyH8GuaJpGtpyQmrLxT6MMcWAadUEf4RjFGf/vVrRXbnC6deQY1/bC8UjK+pvuPViY7T1i0HivJ4eAhgnesxTAWDN5FFBRyfSGCvl0QdMfVsMPzbnLrmnxEfiskyRd56sgSmOq5KasW2AfQ73vbyGq6AsaR1cY/fO7bkjiBpwbAE1srXdBbex0P7WjANrhXyd586GOB+oF4flhVYzZLQ0ZS5ziIvTR6hlm2T+O1q2ahZB3dFFyfirqY56rJi12Q3XmlwsG5Jz1uUy1G7sLQTr+0i/KEHt56X7XbO8MdsrxJbDUFkF9+T0KntnWTmkYtzpB4Q==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=corigine.com; dmarc=pass action=none header.from=corigine.com;
- dkim=pass header.d=corigine.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=corigine.onmicrosoft.com; s=selector2-corigine-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=0u8AGfw1luMnkIJZhnEOh6KdICin9MAZ9lNMgS5ylTE=;
- b=Dl9BItK2vL7sM9qfi/NR+LozCjZsF+N2FIgaUXRzeahTp6psuNdxPTV2Ozy/44qUpGtxiigiVVA4TR1XCTd9U/tF3A8dM+eLDVzJ6zoSB7nzSGcMkohDvBkU6zBAUJh1brOxNFWzLX6COP4K510tltWq/hO1e+Hd3T5itcmS1Ks=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=corigine.com;
-Received: from PH0PR13MB4842.namprd13.prod.outlook.com (2603:10b6:510:78::6)
- by PH0PR13MB4969.namprd13.prod.outlook.com (2603:10b6:510:92::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5944.19; Thu, 5 Jan
- 2023 12:02:09 +0000
-Received: from PH0PR13MB4842.namprd13.prod.outlook.com
- ([fe80::eb5c:910f:3730:fd65]) by PH0PR13MB4842.namprd13.prod.outlook.com
- ([fe80::eb5c:910f:3730:fd65%6]) with mapi id 15.20.5944.019; Thu, 5 Jan 2023
- 12:02:09 +0000
-Date:   Thu, 5 Jan 2023 13:02:01 +0100
-From:   Simon Horman <simon.horman@corigine.com>
-To:     patchwork-bot+netdevbpf@kernel.org
+        with ESMTP id S232896AbjAEMRx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 Jan 2023 07:17:53 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D485A58FB4;
+        Thu,  5 Jan 2023 04:17:51 -0800 (PST)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 305BgmS3032003;
+        Thu, 5 Jan 2023 12:17:34 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=5F/YFHehYM03qImAEfUwzbfjgcKlIcmRxOHpxAMS35Y=;
+ b=kh1uwG9SzqbSrIny/6jaB1cOo5q8ujbocUEqcoGebSk7Ihs3kQzlxqa3C23BqDxKdTO5
+ Rxf/HGuwQHru083xWgkOpL8TdbGzTHWGC3sFLAJuUV8H71fcIX9Qsh0vXwCPPUbIdr9G
+ QbPtA2nNlhkAXFJHHcbq2WS5B0YNw3M8RIXFxDlRVq4CbUsASCkPDOJbyXvNagzTKWJX
+ 4qzYH1Ch4NBguC3aRRvO5H8cPSErE8HprDl+hoqhlXrTNZPhEH+6o+SPbpfSuK/kB9E3
+ +lo+gmhCbeSmGG5RM7dnoYfucK0AHlsMEujFVCVk9+S26HohOGVCHbTceLEPRfIHEKYt 2g== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mwwwvrpy4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 05 Jan 2023 12:17:34 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 305BmeA2019021;
+        Thu, 5 Jan 2023 12:17:33 GMT
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mwwwvrpx5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 05 Jan 2023 12:17:33 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 304NvbIW000998;
+        Thu, 5 Jan 2023 12:17:31 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+        by ppma06fra.de.ibm.com (PPS) with ESMTPS id 3mtcbfmy8n-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 05 Jan 2023 12:17:31 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 305CHR7739453130
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 5 Jan 2023 12:17:27 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7A42120043;
+        Thu,  5 Jan 2023 12:17:27 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DAC6220040;
+        Thu,  5 Jan 2023 12:17:26 +0000 (GMT)
+Received: from [9.171.49.209] (unknown [9.171.49.209])
+        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Thu,  5 Jan 2023 12:17:26 +0000 (GMT)
+Message-ID: <645e311c-9aca-b42d-c13c-b4365635e4c2@linux.ibm.com>
+Date:   Thu, 5 Jan 2023 13:17:26 +0100
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.6.1
+Subject: Re: [PATCH] s390/qeth: convert sysfs snprintf to sysfs_emit
+Content-Language: en-US
+To:     Simon Horman <simon.horman@corigine.com>,
+        patchwork-bot+netdevbpf@kernel.org
 Cc:     Xuezhi Zhang <zhangxuezhi3@gmail.com>, zhangxuezhi1@coolpad.com,
-        wintera@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com,
         borntraeger@linux.ibm.com, svens@linux.ibm.com,
         linux-s390@vger.kernel.org, netdev@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] s390/qeth: convert sysfs snprintf to sysfs_emit
-Message-ID: <Y7a8OaOnQtRmGLIu@corigine.com>
 References: <20221227110352.1436120-1-zhangxuezhi3@gmail.com>
  <167223001583.30539.3371420401703338150.git-patchwork-notify@kernel.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <167223001583.30539.3371420401703338150.git-patchwork-notify@kernel.org>
-X-ClientProxiedBy: AM9P250CA0010.EURP250.PROD.OUTLOOK.COM
- (2603:10a6:20b:21c::15) To PH0PR13MB4842.namprd13.prod.outlook.com
- (2603:10b6:510:78::6)
+ <Y7a8OaOnQtRmGLIu@corigine.com>
+From:   Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <Y7a8OaOnQtRmGLIu@corigine.com>
+Content-Type: text/plain; charset=UTF-8
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: M11VbWyu_4CvEv5Gi_wAcKVgdFqizTHo
+X-Proofpoint-ORIG-GUID: cQ-NWJcSjYMQYGzEbJvV0x9tvpIN-92K
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PH0PR13MB4842:EE_|PH0PR13MB4969:EE_
-X-MS-Office365-Filtering-Correlation-Id: d7b59cd5-b979-4e07-7006-08daef14abf4
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: syZM1ezfOA6wu4Zm5C5rUpNpg0ub0MDgCrik9gG4j1e0tn7K/QvRQ1wnHFiUzN4RVfh39J1WnAYN3hRIiW1iwK3vq24EU02l+REwIzfz+fCHEhIa5fZvqwg8dMul5dGCrSh+ZG+r4FMjK2GA7+o06BoV9RYH8xsEK8SQBMrgrlSqKdQB5zl8ZUi8bpzMlzCm9BUgOemWR4glUhHp4O0gP3N6lf4t/I7uKNhI+3glZwHd5E6ueBIUuFpx95PMR4rCZJNM2Gdci11J9QKRNiYPdDEDczgUS08Sp6UANt3I/tBbDAi1S0aXFeo67adv2AzfxNuX8lht7RyqYiXs8KPnd3zYXoO6EABtVRTe40wgqXsV09E7hu/dKNdvyLDWiNP9KlODrnOCtWUnlj2iWgy7omFMfBCc4/SnYFWX4IEvBb0wy0wqcbZ+U9kp4iEb3Vws4YMiOEr/bdsoGD0YvO1Ek3Srgm3apWXvQTX2D0a7SOKoX6VIIuII+4mNPSjEOfcEeEiz6NszKnS2jhABv5YXKH/hMF5/0L+b54fcr8gd0QjxvNEm61Ow7lOyVlMeyZ6372BYCzoO0TAg6R2xfO7qA4y5NzXp68c+zbeo0Wb+dQLRpsPPQbJtAm8grD3u7UsvVvZ6XcB0YU23gRmLzZnBNpDgfOmW0MIiWyqxrHC3FrS71Ov1VG2xV52fKwRlQ87/Z431mP99e1Yh9jYPwkHaLw==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR13MB4842.namprd13.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(346002)(376002)(136003)(396003)(39840400004)(366004)(451199015)(8676002)(36756003)(4744005)(44832011)(5660300002)(8936002)(2906002)(7416002)(38100700002)(41300700001)(83380400001)(86362001)(6486002)(966005)(66946007)(66556008)(478600001)(6506007)(6666004)(6512007)(4326008)(186003)(2616005)(316002)(66476007);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?3KeFHtthyyVlPjq2xkP1ZNH01cIkPgnc16iOVB3tmtK94yd/++lQl6Mqitii?=
- =?us-ascii?Q?d4ximrQ6d3Ebq/ZXCeQB+OQXyJ+4kdCgsRhTgDzFTlsVDpexpsBvy/v+LM0s?=
- =?us-ascii?Q?bAo3XgBoifijAeVJUbAYVQrKKUmL1EKhaLqqJ50GsM+up/aQKKgN/zi774fk?=
- =?us-ascii?Q?vNA/Oi3uEys7SIM0kWcC2VK+iiBPcwThxVjQFYSkJUvGonxiysHYCz8eRJC2?=
- =?us-ascii?Q?0vcCez3de9vQKhdTH3zClwYwoYqpRiSn4xdWRd2LwdjdXfjf/WSmmDtLwrU5?=
- =?us-ascii?Q?+vlYHANOQHGTlrJV570nyy9OyW5nRqnT5aJKUWEJ+bboYptGUkso0dNWLSBd?=
- =?us-ascii?Q?Q3f38FNXGIuw0VniV0AZsdOD7ZTBvI7fPnVO1KnF7t7zWlQWWDn4gCMSLs3D?=
- =?us-ascii?Q?FMphaQ7aTNzRTxV5bTtPPkMkq7aaTF3h4m/hCCo5vLmpNDi0ekdiMLSQPVn9?=
- =?us-ascii?Q?fDRjWKpr7pF77NwQH1cbKDZmMoCIYl1eHgp8ztSwhHKkyRi8GpmCkmbnZ1Bt?=
- =?us-ascii?Q?MG9BCLZHnK2tTDo87TMA8OuO3B4A5Vkd/AhNKMfR/a3i+8hDmykTxv2LI2eZ?=
- =?us-ascii?Q?xhRApLkRGuocLAPgKejdo6G5wlW2WYsNIM0YMicTwxU0rRauNt5x7H8V8Zwj?=
- =?us-ascii?Q?WznpmapAetWvpSIG+E4io52lh326TSTu3RF7SVGOsOkqGPvfU+iXC2rCm4mp?=
- =?us-ascii?Q?6biuRifmVWL2zukSeKUvCaSyfbrOwaFao94/Mw3b8HiUFWoJ3tZcO7Uy95q6?=
- =?us-ascii?Q?F52H1LHkqoXrK7aivwaThjA3ram8CtHfCNs3KbyxQDiAYmP7mj8gq78e7k/9?=
- =?us-ascii?Q?CxkKfupQRnkfIpbQKgoNvkKyvsmZvpcthO7gEUR8QlgLldxQ/Hjpyj/9mXoX?=
- =?us-ascii?Q?TlX1rLaqJxNiGoL6eu1y47UE5oWuRF8xsJRg6GMQJytdGJrna0O03yBOOB9t?=
- =?us-ascii?Q?hRBHhmJHM6dwlLGZboGaCs1fQ85B4wbKTc4akEjHYSmfqa9DLZ/1OpAgjKd/?=
- =?us-ascii?Q?0sew+bOw+6t/jzP7H2fF6Sx+Mu2ULEaNe6207IU4ySqRBx+HGiFDSTNQ3kAX?=
- =?us-ascii?Q?7bgFVgcfiC2r1rDg+BM9EnMKYllVEQD/DiGKG4OzU8qi59zkQKQ70WeQVY+D?=
- =?us-ascii?Q?BAEw6UW0fK7Rppff0ma88L56/ItyEZGyRIzKxka9lZNh5aprxTFmuqc2JWzU?=
- =?us-ascii?Q?d4X382/+Egf3Yq5S/yqsWocxBh4LgrDrJInTk/fTKqEmjuxgCpWFUmF6ionT?=
- =?us-ascii?Q?2rmEHrWhhtmYdl30bxxWBNQce2ODmNxTi+7ui0wRWBlATOs+Cy6I03r5hNQJ?=
- =?us-ascii?Q?4yMTc2dPSeyaqdbn7r4NUagbmplmM4oELcZ87KG8/foH5xH7iNxNYRqL0xFA?=
- =?us-ascii?Q?ErANrghjzh+agyYF7TWnpwuPk8oVecFBDXwNirAkipsFwlOY+fpk6FvycQDE?=
- =?us-ascii?Q?xyfgS7pkuc9+4YBjr7LpTngGt2nFNShItS1yP02bYxhgs4rzr9TvqUw4CCjn?=
- =?us-ascii?Q?x/0LKF4sFvV89NFcjboYaiL+ZIuX/NvHzhobfiUon+UGKlDLHTX57QfwmPwW?=
- =?us-ascii?Q?wLsScD7Ex587MIfGPSFZStQYgi8NVeLAFd7t8WaPLNQixuhLC3pUCwutV92Y?=
- =?us-ascii?Q?1LxgiFTvf6aHJrOdJ/4iAbmO8CcXOA02uZ96edBiwRRE6niBu/dfq1GLpokw?=
- =?us-ascii?Q?AZX37g=3D=3D?=
-X-OriginatorOrg: corigine.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d7b59cd5-b979-4e07-7006-08daef14abf4
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR13MB4842.namprd13.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Jan 2023 12:02:09.1060
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: fe128f2c-073b-4c20-818e-7246a585940c
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: yo9uBCJr/vMSUqkkuYFra2Md4MuXAY16TGQYMaJJsw1s/BB3R63EfTKh7T+T03PAnYoLpdCngP5GO/hk32wpKkZcvv27RrALC6O0J7yfNUo=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR13MB4969
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2023-01-05_04,2023-01-04_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 clxscore=1011
+ priorityscore=1501 malwarescore=0 mlxscore=0 mlxlogscore=483 bulkscore=0
+ phishscore=0 suspectscore=0 adultscore=0 lowpriorityscore=0 spamscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
+ definitions=main-2301050095
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Dec 28, 2022 at 12:20:15PM +0000, patchwork-bot+netdevbpf@kernel.org wrote:
-> Hello:
-> 
-> This patch was applied to netdev/net.git (master)
-> by David S. Miller <davem@davemloft.net>:
-> 
-> On Tue, 27 Dec 2022 19:03:52 +0800 you wrote:
-> > From: Xuezhi Zhang <zhangxuezhi1@coolpad.com>
-> > 
-> > Follow the advice of the Documentation/filesystems/sysfs.rst
-> > and show() should only use sysfs_emit() or sysfs_emit_at()
-> > when formatting the value to be returned to user space.
-> > 
-> > Signed-off-by: Xuezhi Zhang <zhangxuezhi1@coolpad.com>
-> > 
-> > [...]
-> 
-> Here is the summary with links:
->   - s390/qeth: convert sysfs snprintf to sysfs_emit
->     https://git.kernel.org/netdev/net/c/c2052189f19b
 
-I'm a little late to the party here, but should the use of sprintf() in
-show functions elsewhere in the qeth_core_sys.c also be updated?
 
+On 05.01.23 13:02, Simon Horman wrote:
+> On Wed, Dec 28, 2022 at 12:20:15PM +0000, patchwork-bot+netdevbpf@kernel.org wrote:
+>> Hello:
+>>
+>> This patch was applied to netdev/net.git (master)
+>> by David S. Miller <davem@davemloft.net>:
+>>
+>> On Tue, 27 Dec 2022 19:03:52 +0800 you wrote:
+>>> From: Xuezhi Zhang <zhangxuezhi1@coolpad.com>
+>>>
+>>> Follow the advice of the Documentation/filesystems/sysfs.rst
+>>> and show() should only use sysfs_emit() or sysfs_emit_at()
+>>> when formatting the value to be returned to user space.
+>>>
+>>> Signed-off-by: Xuezhi Zhang <zhangxuezhi1@coolpad.com>
+>>>
+>>> [...]
+>>
+>> Here is the summary with links:
+>>   - s390/qeth: convert sysfs snprintf to sysfs_emit
+>>     https://git.kernel.org/netdev/net/c/c2052189f19b
+> 
+> I'm a little late to the party here, but should the use of sprintf() in
+> show functions elsewhere in the qeth_core_sys.c also be updated?
+> 
+
+Yes, we are working on this. Several patches will come soon, that cleanup whole files.
+No need to send additional small patches on this topic at the moment.
