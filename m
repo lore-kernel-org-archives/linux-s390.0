@@ -2,118 +2,106 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F2F4C3DA7D
-	for <linux-s390@archiver.kernel.org>; Thu,  5 Jan 2023 18:06:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 539ABC5479D
+	for <linux-s390@archiver.kernel.org>; Thu,  5 Jan 2023 18:15:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235537AbjAESGD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 5 Jan 2023 13:06:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36090 "EHLO
+        id S233485AbjAESPK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 5 Jan 2023 13:15:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235581AbjAESFO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 Jan 2023 13:05:14 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4C765BA37;
-        Thu,  5 Jan 2023 10:04:30 -0800 (PST)
+        with ESMTP id S232101AbjAESPI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 Jan 2023 13:15:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DE2F4FCCF;
+        Thu,  5 Jan 2023 10:15:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1D557B81BAE;
-        Thu,  5 Jan 2023 18:04:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56603C433EF;
-        Thu,  5 Jan 2023 18:04:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672941865;
-        bh=qgLRdj60mW8eOCCU8IOIvx4YirE72RALiIrG9dhDlsI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=NZeOPl0nlhGR+rHDtz9tedHiTqc/L3K1MVUN1WY6RAiunwqvgZ8Gqb/9S8jsWIUjy
-         Z+/ThuUlri5WUDMU6mmdzZ0lZw4/jhroRoWbuKL62e3LUUnVxQrG+YIHmzorKbeR41
-         eNEqNqUmFZIaYj7/OFsGdZgpH1c5gTEJTQYcrKgZdS8HUQWgIE1AMZqpu7aCBiqh6D
-         K67Hj55YGC+dWIsjh+AK/1oBC4ogj9scScF+yoHd2yWZlNhtLZNBjhfRROoexxMmgB
-         Py0Rvx5mZQykzQG4VeCbQzdVS7Yj64G0jqtemSJsNilk7GiTpdxSsaO0ygPc/HGGK4
-         R3A6LkwaJ5mIw==
-Date:   Thu, 5 Jan 2023 11:04:23 -0700
-From:   Nathan Chancellor <nathan@kernel.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     linux-s390@vger.kernel.org,
-        open list <linux-kernel@vger.kernel.org>,
-        Linux-Next Mailing List <linux-next@vger.kernel.org>,
-        lkft-triage@lists.linaro.org, llvm@lists.linux.dev,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>
-Subject: Re: next: clang-15: s390x-linux-gnu-ld: BFD (GNU Binutils for
- Debian) 2.35.2 assertion fail ../../bfd/elf64-s390.c:3349
-Message-ID: <Y7cRJ8xh/LLT9kk0@dev-arch.thelio-3990X>
-References: <CA+G9fYu6=N4OU11CcHqh5auVJ4WdrR4QmovHjni-z88N41y8zw@mail.gmail.com>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3498761BEC;
+        Thu,  5 Jan 2023 18:15:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52EDBC433D2;
+        Thu,  5 Jan 2023 18:15:01 +0000 (UTC)
+Date:   Thu, 5 Jan 2023 18:14:58 +0000
+From:   Catalin Marinas <catalin.marinas@arm.com>
+To:     Yicong Yang <yangyicong@huawei.com>
+Cc:     akpm@linux-foundation.org, linux-mm@kvack.org,
+        linux-arm-kernel@lists.infradead.org, x86@kernel.org,
+        will@kernel.org, anshuman.khandual@arm.com,
+        linux-doc@vger.kernel.org, corbet@lwn.net, peterz@infradead.org,
+        arnd@arndb.de, punit.agrawal@bytedance.com,
+        linux-kernel@vger.kernel.org, darren@os.amperecomputing.com,
+        yangyicong@hisilicon.com, huzhanyuan@oppo.com, lipeifeng@oppo.com,
+        zhangshiming@oppo.com, guojian@oppo.com, realmz6@gmail.com,
+        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, Barry Song <21cnbao@gmail.com>,
+        wangkefeng.wang@huawei.com, xhao@linux.alibaba.com,
+        prime.zeng@hisilicon.com, Barry Song <v-songbaohua@oppo.com>,
+        Nadav Amit <namit@vmware.com>, Mel Gorman <mgorman@suse.de>
+Subject: Re: [PATCH v7 2/2] arm64: support batched/deferred tlb shootdown
+ during page reclamation
+Message-ID: <Y7cToj5mWd1ZbMyQ@arm.com>
+References: <20221117082648.47526-1-yangyicong@huawei.com>
+ <20221117082648.47526-3-yangyicong@huawei.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CA+G9fYu6=N4OU11CcHqh5auVJ4WdrR4QmovHjni-z88N41y8zw@mail.gmail.com>
+In-Reply-To: <20221117082648.47526-3-yangyicong@huawei.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Naresh,
+On Thu, Nov 17, 2022 at 04:26:48PM +0800, Yicong Yang wrote:
+> It is tested on 4,8,128 CPU platforms and shows to be beneficial on
+> large systems but may not have improvement on small systems like on
+> a 4 CPU platform. So make ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH depends
+> on CONFIG_EXPERT for this stage and make this disabled on systems
+> with less than 8 CPUs. User can modify this threshold according to
+> their own platforms by CONFIG_NR_CPUS_FOR_BATCHED_TLB.
 
-On Thu, Jan 05, 2023 at 10:19:23PM +0530, Naresh Kamboju wrote:
-> The s390 clang-15 build failures on Linux next-20230105 due to following
-> errors / warnings.
-> 
-> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-> 
-> `.exit.text' referenced in section `__jump_table' of fs/fuse/inode.o:
-> defined in discarded section `.exit.text' of fs/fuse/inode.o
-> `.exit.text' referenced in section `__jump_table' of fs/fuse/inode.o:
-> defined in discarded section `.exit.text' of fs/fuse/inode.o
-> `.exit.text' referenced in section `__bug_table' of crypto/algboss.o:
-> defined in discarded section `.exit.text' of crypto/algboss.o
-> `.exit.text' referenced in section `__bug_table' of drivers/scsi/sd.o:
-> defined in discarded section `.exit.text' of drivers/scsi/sd.o
-> `.exit.text' referenced in section `__jump_table' of drivers/md/md.o:
-> defined in discarded section `.exit.text' of drivers/md/md.o
-> `.exit.text' referenced in section `__jump_table' of drivers/md/md.o:
-> defined in discarded section `.exit.text' of drivers/md/md.o
-> `.exit.text' referenced in section `.altinstructions' of
-> drivers/md/md.o: defined in discarded section `.exit.text' of
-> drivers/md/md.o
-> `.exit.text' referenced in section `.altinstructions' of
-> drivers/md/md.o: defined in discarded section `.exit.text' of
-> drivers/md/md.o
-> `.exit.text' referenced in section `.altinstructions' of
-> net/iucv/iucv.o: defined in discarded section `.exit.text' of
-> net/iucv/iucv.o
-> `.exit.text' referenced in section `__bug_table' of
-> drivers/s390/cio/qdio_thinint.o: defined in discarded section
-> `.exit.text' of drivers/s390/cio/qdio_thinint.o
-> `.exit.text' referenced in section `__bug_table' of
-> drivers/s390/net/qeth_l3_main.o: defined in discarded section
-> `.exit.text' of drivers/s390/net/qeth_l3_main.o
-> `.exit.text' referenced in section `__bug_table' of
-> drivers/s390/net/qeth_l3_main.o: defined in discarded section
-> `.exit.text' of drivers/s390/net/qeth_l3_main.o
-> s390x-linux-gnu-ld: BFD (GNU Binutils for Debian) 2.35.2 assertion
-> fail ../../bfd/elf64-s390.c:3349
-> make[2]: *** [scripts/Makefile.vmlinux:34: vmlinux] Error 1
-> make[2]: Target '__default' not remade because of errors.
-> make[1]: *** [Makefile:1252: vmlinux] Error 2
+What's the overhead of such batching on systems with 4 or fewer CPUs? If
+it isn't noticeable, I'd rather have it always on than some number
+chosen on whichever SoC you tested.
 
-Thank you for the report! This has been reported and discussed in a few
-different places on the mailing list with various solutions:
+Another option would be to make this a sysctl tunable.
 
-https://lore.kernel.org/Y7Jal56f6UBh1abE@dev-arch.thelio-3990X/
-https://lore.kernel.org/20230102225656.GA3532398@roeck-us.net/
+>  .../features/vm/TLB/arch-support.txt          |  2 +-
+>  arch/arm64/Kconfig                            |  6 +++
+>  arch/arm64/include/asm/tlbbatch.h             | 12 +++++
+>  arch/arm64/include/asm/tlbflush.h             | 52 ++++++++++++++++++-
+>  arch/x86/include/asm/tlbflush.h               |  5 +-
+>  include/linux/mm_types_task.h                 |  4 +-
+>  mm/rmap.c                                     | 10 ++--
 
-https://lore.kernel.org/20230105031306.1455409-1-masahiroy@kernel.org/
-https://lore.kernel.org/20230105132349.384666-1-mpe@ellerman.id.au/
-https://lore.kernel.org/CAMj1kXHqQoqoys83nEp=Q6oT68+-GpCuMjfnYK9pMy-X_+jjKw@mail.gmail.com/
+Please keep any function prototype changes in a preparatory patch so
+that the arm64 one only introduces the arch specific changes. Easier to
+review.
 
-For the future, if you are able to bisect to the change that caused the
-failure, you can devise a more targeted Cc list and potentially find
-some of this information out beforehand, which would allow more threads
-to stay together.
+> +static inline bool arch_tlbbatch_should_defer(struct mm_struct *mm)
+> +{
+> +	/*
+> +	 * TLB batched flush is proved to be beneficial for systems with large
+> +	 * number of CPUs, especially system with more than 8 CPUs. TLB shutdown
+> +	 * is cheap on small systems which may not need this feature. So use
+> +	 * a threshold for enabling this to avoid potential side effects on
+> +	 * these platforms.
+> +	 */
+> +	if (num_online_cpus() < CONFIG_ARM64_NR_CPUS_FOR_BATCHED_TLB)
+> +		return false;
 
-The PowerPC build failure that you reported around the same time as this
-one has the same root cause.
+The x86 implementation tracks the cpumask of where a task has run. We
+don't have such tracking on arm64 and I don't think it matters. As
+noticed/described in this series, the bottleneck is the actual DSB
+synchronisation (which sends a DVM Sync message to all the other CPUs
+and waits for a DVM Complete response). So I think it makes sense not to
+bother with an mm_cpumask(). What this patch aims to optimise is
+actually the number of DSBs issued on an SMP system by
+ptep_clear_flush().
 
-Cheers,
-Nathan
+The DVM is not an architected concept (well, it's part of AMBA AXI). I'd
+be curious to know how such patch behaves on Apple's M1/M2 hardware. My
+preference would be to have this always on for num_online_cpus() > 1 if
+there's no overhead.
+
+-- 
+Catalin
