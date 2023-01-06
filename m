@@ -2,901 +2,141 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 18B93C4708D
-	for <linux-s390@archiver.kernel.org>; Fri,  6 Jan 2023 13:24:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A5FDC4708D
+	for <linux-s390@archiver.kernel.org>; Fri,  6 Jan 2023 14:30:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229869AbjAFNYQ convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 6 Jan 2023 08:24:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58852 "EHLO
+        id S235108AbjAFOaw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 6 Jan 2023 09:30:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233592AbjAFNYM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 Jan 2023 08:24:12 -0500
-Received: from smtpbg151.qq.com (smtpbg151.qq.com [18.169.211.239])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE84C76830;
-        Fri,  6 Jan 2023 05:24:07 -0800 (PST)
-X-QQ-mid: bizesmtp64t1673011332tjxj7woq
-Received: from smtpclient.apple ( [1.202.165.115])
-        by bizesmtp.qq.com (ESMTP) with 
-        id ; Fri, 06 Jan 2023 21:22:09 +0800 (CST)
-X-QQ-SSF: 00000000006000509000B00A0000000
-X-QQ-FEAT: 7YFKcddXaghPqCkYhq10UvUIaEiPyyRVVf51fiVt8VtICWVgf9xlGdRK/ekye
-        omw6Mh6hTOeYg3E9K2+tSvqaAudwxpY/nUHvsa9eDLLFywQdZ2B0bt1Ufcju9IvYHGLj6AN
-        Fyfv9+YFhdoQaCEe5axLJHsgwKAkvOK/u9RVtiVf+VdFapqfeUsmhIhTLsJjMFymJKGNAzh
-        TeircP+0tvFM21L3OvL/sK61biDohj3xeaMdhr5h62XTwNmJY1tUDPSh7bDQqf1hwqxLel2
-        Fd2A/kfG/M6YGdUuezHQRoF0DI3gUd0I4QO/RoNMRBYACJFkh7tLQKmYs5w0gXPtuvfDZWS
-        6w46eNalTlk5BkC4W1RZrFlZS2q1/JBSMOQiIl/6CKibkXPsJ4qBBDrKf/1irgdz4u9PW+8
-        e6lUlnaKtbM=
-X-QQ-GoodBg: 0
-Content-Type: text/plain;
-        charset=utf-8
-Mime-Version: 1.0 (Mac OS X Mail 15.0 \(3693.20.0.1.32\))
-Subject: Re: [bpf-next v2] bpf: drop deprecated bpf_jit_enable == 2
-From:   Tonghao Zhang <tong@infragraf.org>
-In-Reply-To: <ea7673e1-40ec-18be-af89-5f4fd0f71742@csgroup.eu>
-Date:   Fri, 6 Jan 2023 21:22:09 +0800
-Cc:     "bpf@vger.kernel.org" <bpf@vger.kernel.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "loongarch@lists.linux.dev" <loongarch@lists.linux.dev>,
-        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
-        Hao Luo <haoluo@google.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Song Liu <song@kernel.org>,
-        Stanislav Fomichev <sdf@google.com>,
-        Jiri Olsa <jolsa@kernel.org>, Hou Tao <houtao1@huawei.com>,
-        KP Singh <kpsingh@kernel.org>, Yonghong Song <yhs@fb.com>,
-        Martin KaFai Lau <martin.lau@linux.dev>
-Content-Transfer-Encoding: 8BIT
-Message-Id: <AFB09E5D-31F1-410F-9FF4-F71576622474@infragraf.org>
-References: <20230105030614.26842-1-tong@infragraf.org>
- <ea7673e1-40ec-18be-af89-5f4fd0f71742@csgroup.eu>
-To:     Christophe Leroy <christophe.leroy@csgroup.eu>
-X-Mailer: Apple Mail (2.3693.20.0.1.32)
-X-QQ-SENDSIZE: 520
-Feedback-ID: bizesmtp:infragraf.org:qybglogicsvr:qybglogicsvr5
+        with ESMTP id S235351AbjAFOaI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 Jan 2023 09:30:08 -0500
+Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on2068.outbound.protection.outlook.com [40.107.243.68])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A35A1A059;
+        Fri,  6 Jan 2023 06:29:58 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=TH3mqtH9ewsZKwzg6hoXjvF/5PIplCqHOjEkTw3wCxy9H2/bds27kRVziZCGkAsi8rL2NLqIfZY0qyHxwnD65Cbljhy5fEK2hVRMctZjgWjTfDQd426MSzIqUwxnY2Drb2XElJ5Pq2+e27zcn4eFHdnhvWajIzbkqXxv2/x9EkmUtROr3dFMmqZb3MLeIVPHpqRfy9mTQKlqvw8pPWW44DIJY9FFTwaZIVLxHaQq8jJ63vvgOR1hs+wpj9rjYhutQ5qzVBIkuqP6nw4lcuahtSx5M97DcTdQHvn7JR23RogX7fXiNBgnvcqeNyuagtIdoSm3uNBrGWDdvofCTgzoHA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=MW013pNInwM8hEzFpLewBm6TyBkltMayJcGbQm1JEZs=;
+ b=aPlVsA3MBPbriTVxSJhB71soboPUTa7DoBUirId5tpEJ1z3I2SmLooB7HJq8dzy3r4t00i/la3DBwi/Zd8vikzMHVGuNOO3m/UPnim5Y4LrOXdJEec0kgSeqZ7ECTTXI/I/CKf2LkiicDvMG+8QivsgansUPe2jDAWjYqWlo+OS6Yc84tVzmfsYPbxgWHmKG/J+6zBIrTUr/DX3XUICoQh0oyvm67ZAVFoktfDCdYAOYVH6VAjDnb+DKINoVODLn16JGicdUsu0N5ddUXcDAk1e9Cc4JM63TFKjewhhkXGIaxgciUBFhWDhJfIvuvPbCdBJ+3mKR5xjVwPCysNXViw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=MW013pNInwM8hEzFpLewBm6TyBkltMayJcGbQm1JEZs=;
+ b=m5ZPw0qBbsfLa408XRAwVvadlwOUZTe5eqrMYM7rt8mXtHc4vRBQFEwLRlPxrfCcx87GQEpXaEGV/ZvnRBVE75nzDJu/adQwmlbniIvjwxOh46wocAqxsleuPlEedjX3uv80vtnP9LTT3+5BihaDzrWTQxbU+h1jkGSHSeZhutXuHnKHknQ6IWtJZkqNPa1qmWHNVecDI9cB9AHVVn1V6xv0L5xx5aGpIdi3GZIlHSk6kLvMASHxSy8FAGaNTVvEK5yUbPFzKpGmq5cISNydWQxiPjHR0ll4CmPfijkQjx/DwGR7QY/pYIgBjQUjJ/lyrgonjitlrias02Jxln4w5g==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by MN2PR12MB4391.namprd12.prod.outlook.com (2603:10b6:208:269::21) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5944.19; Fri, 6 Jan
+ 2023 14:29:56 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::f8b0:df13:5f8d:12a]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::f8b0:df13:5f8d:12a%9]) with mapi id 15.20.5944.019; Fri, 6 Jan 2023
+ 14:29:56 +0000
+Date:   Fri, 6 Jan 2023 10:29:55 -0400
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Matthew Rosato <mjrosato@linux.ibm.com>
+Cc:     Alex Williamson <alex.williamson@redhat.com>, cohuck@redhat.com,
+        borntraeger@linux.ibm.com, jjherne@linux.ibm.com,
+        akrowiak@linux.ibm.com, pasic@linux.ibm.com,
+        zhenyuw@linux.intel.com, zhi.a.wang@intel.com, hch@infradead.org,
+        intel-gfx@lists.freedesktop.org,
+        intel-gvt-dev@lists.freedesktop.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Kevin Tian <kevin.tian@intel.com>,
+        Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH v3 1/1] vfio: remove VFIO_GROUP_NOTIFY_SET_KVM
+Message-ID: <Y7gwY1UJq3DNbjRu@nvidia.com>
+References: <20220519183311.582380-1-mjrosato@linux.ibm.com>
+ <20220519183311.582380-2-mjrosato@linux.ibm.com>
+ <20230105150930.6ee65182.alex.williamson@redhat.com>
+ <Y7dehnZSC6ukNxKU@nvidia.com>
+ <5e17a35d-2a94-f482-c466-521afcab80b8@linux.ibm.com>
+ <Y7dsJpudKGtM0kbl@nvidia.com>
+ <d0e55400-d749-23a2-c88f-a2272723bc65@linux.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d0e55400-d749-23a2-c88f-a2272723bc65@linux.ibm.com>
+X-ClientProxiedBy: MN2PR07CA0001.namprd07.prod.outlook.com
+ (2603:10b6:208:1a0::11) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|MN2PR12MB4391:EE_
+X-MS-Office365-Filtering-Correlation-Id: f06921e3-ae92-4f1b-2a52-08daeff27bd0
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: sWj6iaz47DyNBFX1ZEnfSin7N/BMflzn3nYMwnryMjXWMLlG+LyoiiR/uvV21WRiKpGVEj8bmrz5BU1FZYYN8iCy6KoSIYMr5Hr52mNHKmx8mG6bg5tlF8V1gbK+IUeooFe2BsFB3J/UbFglDxxMgslvBgC8isibCpcOwOTbKORTfQ6vWIbH6DWHyIgzuh5etyYyzZwSooeBHfyyuK0N0Mwpo4NXZvZuksOLD2KwHvgVtu4TULx/aLegRP2Ym9zGAHsGjRpk7tI3ZwtyTU7kRs3P7S/vPgXl44EJ6iJ8f5uNqpYoyoG1zW+O/7YsnEfXCEiIOr+RXcsZfPhY1eRt/DthVTLdZJ4uX5o6Mu2TZD8hAwlotktNzUonlBUjlo8VIvwjf58+h/RAK4RvUVtbAQ5r6vh9HrMO4x7QQHOaEBWWJr/kuPqg6OyTdJko7wyFuwrUV3JNiWYrGZaelD6afHhdMhT/ud7sqd+I7S7uMahKsySUa3yERg/rsTHeAxACUeZyS4AIt3LEfn+oaPz5XBZz5eZ8t+ORTNaj5i0hwD81mEOHWv8u8aAzwInZYlEqhQCPp/GfbmTFuPdGTv7IN9JhK8kKzO7pKMYS9paScoR8+wwZDfTBWX5RLecBiImxkY6dJhUX7kAVONpWdjU9wA==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(39860400002)(366004)(396003)(136003)(376002)(346002)(451199015)(36756003)(41300700001)(66946007)(66476007)(6916009)(4326008)(53546011)(86362001)(8676002)(54906003)(66556008)(8936002)(38100700002)(2616005)(26005)(6512007)(6486002)(478600001)(6506007)(5660300002)(316002)(83380400001)(7416002)(2906002)(186003)(4744005);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?p/Ck18YA0Qlf8SBSeNSZwyccZOw7awuTLlCV83esfcTdpgXUuQAK4PLc2JCY?=
+ =?us-ascii?Q?6olzRWKQnrN3eAPoUX+E7OiZP/wNYWcvzlM1ATMhK9XJ6hcC56xoKfN6zP8b?=
+ =?us-ascii?Q?1DbUqn8Ladf3sUKBL8qb6+ZJFzQtB5eS7M+9PIn4i9ZHAFf5tcvANBXtVt3P?=
+ =?us-ascii?Q?nKHg07S8FAkE7JIrDVyrBFzp3am8SmsnCXaiuDb+WMzKiCChMz/1kTI8a9GH?=
+ =?us-ascii?Q?rzFeQ2kRIoze3u4ThJKzAYdTKiF4E84ntsgCTaZOxb8g+ZmOFqdzrbRw9MtQ?=
+ =?us-ascii?Q?HTurduO8HGctzjkpN2qXC/aDYwzkF1RguI6RVAEoqqu1AnQRREW62VOM+ugh?=
+ =?us-ascii?Q?2Ik6/WQDgi97xvBmDiaq6NOr3fb+WfixAHrPXXys7JmihUGX5z387iD7gk01?=
+ =?us-ascii?Q?kcZxIrI7mhJiXs/UCLbIvTFdHoIvWDRpFwev+MBdLdxO3/2+1L+v86DNXLJS?=
+ =?us-ascii?Q?b9eI6zCsTQMT0Sa2PEi3+ihozCUci0a3RHCEB2DesdY/+rYbNyIaSfr++zaV?=
+ =?us-ascii?Q?1l1klS1obfgX14W7ql0Gv2PQQQij9l14jcoYVmJxq41AYbJM0m//wKpI8mLx?=
+ =?us-ascii?Q?cPqv2FSW86kAn6JdOphxe2K77bMyHSPHLqyWwYkZyG5W+5zNR6lx9vgADwlh?=
+ =?us-ascii?Q?m1ff9h8Su94p9NjLExmbGtlq+yTLfVbW504oS0r4nr7DMnnut1QCCX/FdTqM?=
+ =?us-ascii?Q?PYg04g2UrMawggMQ1xMbEZ5RESaduY5PjMjZ0aIJ09lmwcjkxv7c0GIaQsXp?=
+ =?us-ascii?Q?jG0e5zOStqsHWoUNjaarB7OvdQtede9nV2N1cKBx/ovJXVV8wZDnvDKzCcG1?=
+ =?us-ascii?Q?WCW7VPomkSKCPZ7Zg+0hIdo1eMaakTcfbv/642rddjLxEa4PpuWf2ui0tC/C?=
+ =?us-ascii?Q?FxdNpCQFVgacu2ddp8Wt/5w98SeqXfXKO4yaC+J3KxNRpLUJe0EqM6Rzfsyf?=
+ =?us-ascii?Q?a7TDmng+Ug30AJKolQB9HoY0Dm6gwG6/KEtngxFg2sasYkUhV21qtOSGDTwi?=
+ =?us-ascii?Q?4ltJZiZWhbkwratq9ZkOPZKRphtN0dPU6PtWDl2yl1v3P+U2s/TOnXmRwJjB?=
+ =?us-ascii?Q?XX5oNXvzIOuICvpw/cbK1FxP0jDxzxBRkeARcDrke+7Qbhn0Ir40aZs3z42X?=
+ =?us-ascii?Q?hm/rg90xr36FnCafbZkK44k8uO/99gU2ndGoMLt3QChbd8nBvQT47gCuBbYZ?=
+ =?us-ascii?Q?nr2THZjjDXFbcNDpN51lR9n/ZW5Lp3y09C8iwLUpXxtE+e0XSfq9dct4H3tD?=
+ =?us-ascii?Q?EaZ7iT3a443ZOSEgi5Qaspjc2TxCl+ajgi3d9DD8QpWnbSPwBj4i5HEw5jfB?=
+ =?us-ascii?Q?R/RtG9O9BbqAeMRBY6cc4bSxuDtSn6NFm7A2ayPYK/U2p/q94s2AxGTM+whi?=
+ =?us-ascii?Q?oqirvinfw0sKz1i7X/lXvpXu8Y+OMEIV/MQWS8LvO3qTBtnmm6I0q4sXqUci?=
+ =?us-ascii?Q?NPL3d4vKpzae1MHVMMGRo4LeidgpBa4xTCI4Wzk2eFSzF//T1nFet9eFcdPe?=
+ =?us-ascii?Q?YslMdHY3WB8Wrz8BBSS3erCUAZTwD5/UGe9a4ajs5zsVK0Y6JWQJmItK+SS3?=
+ =?us-ascii?Q?Gii+4Ay0a+QbgjCxCQ4dz3ARvrwkV+8JNZ1B/V6U?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: f06921e3-ae92-4f1b-2a52-08daeff27bd0
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Jan 2023 14:29:56.6116
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: ZWWFMHqorgxaYqXJOxLd0rDilPOubodAyp1a11KsadCX8Jyuvdtc0z9BYmchE5dv
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB4391
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Thu, Jan 05, 2023 at 08:03:32PM -0500, Matthew Rosato wrote:
+> On 1/5/23 7:32 PM, Jason Gunthorpe wrote:
+> > On Thu, Jan 05, 2023 at 07:16:37PM -0500, Matthew Rosato wrote:
+> > 
+> >> Yeah, this is also what I was thinking, replace the direct
+> >> kvm_put_kvm calls with, say, schedule_delayed_work in each driver,
+> >> where the delayed task just does the kvm_put_kvm (along with a brief
+> >> comment explaining why we handle the put asynchronously).
+> > 
+> > Don't put that in every driver, do something like mmput_async() where
+> > the core code has all of this.
+> > 
+> 
+> If the core vfio code were to add logic to invoke kvm_put_kvm and
+> kvm_get_kvm, won't this introduce a vfio dependency on kvm?  If I
+> recall, we have the drivers handling the kvm reference today in
+> order to avoid that..
 
+Not in vfio, put it in kvm 'kvm_put_async()'
 
-> On Jan 6, 2023, at 1:53 AM, Christophe Leroy <christophe.leroy@csgroup.eu> wrote:
-> 
-> 
-> 
-> Le 05/01/2023 à 04:06, tong@infragraf.org a écrit :
->> From: Tonghao Zhang <tong@infragraf.org>
->> 
->> The x86_64 can't dump the valid insn in this way. A test BPF prog
->> which include subprog:
->> 
->> $ llvm-objdump -d subprog.o
->> Disassembly of section .text:
->> 0000000000000000 <subprog>:
->>        0:       18 01 00 00 73 75 62 70 00 00 00 00 72 6f 67 00 r1 = 29114459903653235 ll
->>        2:       7b 1a f8 ff 00 00 00 00 *(u64 *)(r10 - 8) = r1
->>        3:       bf a1 00 00 00 00 00 00 r1 = r10
->>        4:       07 01 00 00 f8 ff ff ff r1 += -8
->>        5:       b7 02 00 00 08 00 00 00 r2 = 8
->>        6:       85 00 00 00 06 00 00 00 call 6
->>        7:       95 00 00 00 00 00 00 00 exit
->> Disassembly of section raw_tp/sys_enter:
->> 0000000000000000 <entry>:
->>        0:       85 10 00 00 ff ff ff ff call -1
->>        1:       b7 00 00 00 00 00 00 00 r0 = 0
->>        2:       95 00 00 00 00 00 00 00 exit
->> 
->> kernel print message:
->> [  580.775387] flen=8 proglen=51 pass=3 image=ffffffffa000c20c from=kprobe-load pid=1643
->> [  580.777236] JIT code: 00000000: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc
->> [  580.779037] JIT code: 00000010: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc
->> [  580.780767] JIT code: 00000020: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc
->> [  580.782568] JIT code: 00000030: cc cc cc
->> 
->> $ bpf_jit_disasm
->> 51 bytes emitted from JIT compiler (pass:3, flen:8)
->> ffffffffa000c20c + <x>:
->>    0:   int3
->>    1:   int3
->>    2:   int3
->>    3:   int3
->>    4:   int3
->>    5:   int3
->>    ...
->> 
->> Until bpf_jit_binary_pack_finalize is invoked, we copy rw_header to header
->> and then image/insn is valid. BTW, we can use the "bpftool prog dump" JITed instructions.
-> 
-> NACK.
-> 
-> Because the feature is buggy on x86_64, you remove it for all 
-> architectures ?
-> 
-> On powerpc bpf_jit_enable == 2 works and is very usefull.
-> 
-> Last time I tried to use bpftool on powerpc/32 it didn't work. I don't 
-> remember the details, I think it was an issue with endianess. Maybe it 
-> is fixed now, but it needs to be verified.
-> 
-[so sorry, email is always rejected]
-Hi
-I think bpftool may dump the jited insn too.
-
-> So please, before removing a working and usefull feature, make sure 
-> there is an alternative available to it for all architectures in all 
-> configurations.
-> 
-> Also, I don't think bpftool is usable to dump kernel BPF selftests. 
-> That's vital when a selftest fails if you want to have a chance to 
-> understand why it fails.
-Why bpftool does’t work for you ? I think this is a core function for bpf. If you can dump the jited insn using bpf_jit_enable == 2, you should
-dump the inns tool, while in selftest case.
-
-Alexei any thoughts?
-
-> Thanks
-> Christophe
-> 
->> 
->> Signed-off-by: Tonghao Zhang <tong@infragraf.org>
->> Suggested-by: Alexei Starovoitov <ast@kernel.org>
->> Cc: Alexei Starovoitov <ast@kernel.org>
->> Cc: Daniel Borkmann <daniel@iogearbox.net>
->> Cc: Andrii Nakryiko <andrii@kernel.org>
->> Cc: Martin KaFai Lau <martin.lau@linux.dev>
->> Cc: Song Liu <song@kernel.org>
->> Cc: Yonghong Song <yhs@fb.com>
->> Cc: John Fastabend <john.fastabend@gmail.com>
->> Cc: KP Singh <kpsingh@kernel.org>
->> Cc: Stanislav Fomichev <sdf@google.com>
->> Cc: Hao Luo <haoluo@google.com>
->> Cc: Jiri Olsa <jolsa@kernel.org>
->> Cc: Hou Tao <houtao1@huawei.com>
->> ---
->>  Documentation/admin-guide/sysctl/net.rst |   1 +
->>  Documentation/networking/filter.rst      |  98 +------
->>  arch/arm/net/bpf_jit_32.c                |   4 -
->>  arch/arm64/net/bpf_jit_comp.c            |   4 -
->>  arch/loongarch/net/bpf_jit.c             |   4 -
->>  arch/mips/net/bpf_jit_comp.c             |   3 -
->>  arch/powerpc/net/bpf_jit_comp.c          |  11 -
->>  arch/riscv/net/bpf_jit_core.c            |   3 -
->>  arch/s390/net/bpf_jit_comp.c             |   4 -
->>  arch/sparc/net/bpf_jit_comp_32.c         |   3 -
->>  arch/sparc/net/bpf_jit_comp_64.c         |  13 -
->>  arch/x86/net/bpf_jit_comp.c              |   3 -
->>  arch/x86/net/bpf_jit_comp32.c            |   3 -
->>  net/core/sysctl_net_core.c               |  12 +-
->>  tools/bpf/.gitignore                     |   1 -
->>  tools/bpf/Makefile                       |  10 +-
->>  tools/bpf/bpf_jit_disasm.c               | 332 -----------------------
->>  17 files changed, 9 insertions(+), 500 deletions(-)
->>  delete mode 100644 tools/bpf/bpf_jit_disasm.c
->> 
->> diff --git a/Documentation/admin-guide/sysctl/net.rst b/Documentation/admin-guide/sysctl/net.rst
->> index 6394f5dc2303..82ca05ca6ed0 100644
->> --- a/Documentation/admin-guide/sysctl/net.rst
->> +++ b/Documentation/admin-guide/sysctl/net.rst
->> @@ -88,6 +88,7 @@ Values:
->>         - 0 - disable the JIT (default value)
->>         - 1 - enable the JIT
->>         - 2 - enable the JIT and ask the compiler to emit traces on kernel log.
->> +              (deprecated since v6.3, use ``bpftool prog dump jited id <id>`` instead)
->> 
->>  bpf_jit_harden
->>  --------------
->> diff --git a/Documentation/networking/filter.rst b/Documentation/networking/filter.rst
->> index f69da5074860..5f51c050e88f 100644
->> --- a/Documentation/networking/filter.rst
->> +++ b/Documentation/networking/filter.rst
->> @@ -520,102 +520,8 @@ been previously enabled by root::
->> 
->>    echo 1 > /proc/sys/net/core/bpf_jit_enable
->> 
->> -For JIT developers, doing audits etc, each compile run can output the generated
->> -opcode image into the kernel log via::
->> -
->> -  echo 2 > /proc/sys/net/core/bpf_jit_enable
->> -
->> -Example output from dmesg::
->> -
->> -    [ 3389.935842] flen=6 proglen=70 pass=3 image=ffffffffa0069c8f
->> -    [ 3389.935847] JIT code: 00000000: 55 48 89 e5 48 83 ec 60 48 89 5d f8 44 8b 4f 68
->> -    [ 3389.935849] JIT code: 00000010: 44 2b 4f 6c 4c 8b 87 d8 00 00 00 be 0c 00 00 00
->> -    [ 3389.935850] JIT code: 00000020: e8 1d 94 ff e0 3d 00 08 00 00 75 16 be 17 00 00
->> -    [ 3389.935851] JIT code: 00000030: 00 e8 28 94 ff e0 83 f8 01 75 07 b8 ff ff 00 00
->> -    [ 3389.935852] JIT code: 00000040: eb 02 31 c0 c9 c3
->> -
->> -When CONFIG_BPF_JIT_ALWAYS_ON is enabled, bpf_jit_enable is permanently set to 1 and
->> -setting any other value than that will return in failure. This is even the case for
->> -setting bpf_jit_enable to 2, since dumping the final JIT image into the kernel log
->> -is discouraged and introspection through bpftool (under tools/bpf/bpftool/) is the
->> -generally recommended approach instead.
->> -
->> -In the kernel source tree under tools/bpf/, there's bpf_jit_disasm for
->> -generating disassembly out of the kernel log's hexdump::
->> -
->> -       # ./bpf_jit_disasm
->> -       70 bytes emitted from JIT compiler (pass:3, flen:6)
->> -       ffffffffa0069c8f + <x>:
->> -       0:      push   %rbp
->> -       1:      mov    %rsp,%rbp
->> -       4:      sub    $0x60,%rsp
->> -       8:      mov    %rbx,-0x8(%rbp)
->> -       c:      mov    0x68(%rdi),%r9d
->> -       10:     sub    0x6c(%rdi),%r9d
->> -       14:     mov    0xd8(%rdi),%r8
->> -       1b:     mov    $0xc,%esi
->> -       20:     callq  0xffffffffe0ff9442
->> -       25:     cmp    $0x800,%eax
->> -       2a:     jne    0x0000000000000042
->> -       2c:     mov    $0x17,%esi
->> -       31:     callq  0xffffffffe0ff945e
->> -       36:     cmp    $0x1,%eax
->> -       39:     jne    0x0000000000000042
->> -       3b:     mov    $0xffff,%eax
->> -       40:     jmp    0x0000000000000044
->> -       42:     xor    %eax,%eax
->> -       44:     leaveq
->> -       45:     retq
->> -
->> -       Issuing option `-o` will "annotate" opcodes to resulting assembler
->> -       instructions, which can be very useful for JIT developers:
->> -
->> -       # ./bpf_jit_disasm -o
->> -       70 bytes emitted from JIT compiler (pass:3, flen:6)
->> -       ffffffffa0069c8f + <x>:
->> -       0:      push   %rbp
->> -               55
->> -       1:      mov    %rsp,%rbp
->> -               48 89 e5
->> -       4:      sub    $0x60,%rsp
->> -               48 83 ec 60
->> -       8:      mov    %rbx,-0x8(%rbp)
->> -               48 89 5d f8
->> -       c:      mov    0x68(%rdi),%r9d
->> -               44 8b 4f 68
->> -       10:     sub    0x6c(%rdi),%r9d
->> -               44 2b 4f 6c
->> -       14:     mov    0xd8(%rdi),%r8
->> -               4c 8b 87 d8 00 00 00
->> -       1b:     mov    $0xc,%esi
->> -               be 0c 00 00 00
->> -       20:     callq  0xffffffffe0ff9442
->> -               e8 1d 94 ff e0
->> -       25:     cmp    $0x800,%eax
->> -               3d 00 08 00 00
->> -       2a:     jne    0x0000000000000042
->> -               75 16
->> -       2c:     mov    $0x17,%esi
->> -               be 17 00 00 00
->> -       31:     callq  0xffffffffe0ff945e
->> -               e8 28 94 ff e0
->> -       36:     cmp    $0x1,%eax
->> -               83 f8 01
->> -       39:     jne    0x0000000000000042
->> -               75 07
->> -       3b:     mov    $0xffff,%eax
->> -               b8 ff ff 00 00
->> -       40:     jmp    0x0000000000000044
->> -               eb 02
->> -       42:     xor    %eax,%eax
->> -               31 c0
->> -       44:     leaveq
->> -               c9
->> -       45:     retq
->> -               c3
->> -
->> -For BPF JIT developers, bpf_jit_disasm, bpf_asm and bpf_dbg provides a useful
->> -toolchain for developing and testing the kernel's JIT compiler.
->> +For JIT developers, doing audits etc, should use `bpftool prog dump` to
->> +veiw the JIT generated opcode image.
->> 
->>  BPF kernel internals
->>  --------------------
->> diff --git a/arch/arm/net/bpf_jit_32.c b/arch/arm/net/bpf_jit_32.c
->> index 6a1c9fca5260..39301d59b537 100644
->> --- a/arch/arm/net/bpf_jit_32.c
->> +++ b/arch/arm/net/bpf_jit_32.c
->> @@ -1999,10 +1999,6 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *prog)
->>         }
->>         flush_icache_range((u32)header, (u32)(ctx.target + ctx.idx));
->> 
->> -       if (bpf_jit_enable > 1)
->> -               /* there are 2 passes here */
->> -               bpf_jit_dump(prog->len, image_size, 2, ctx.target);
->> -
->>         bpf_jit_binary_lock_ro(header);
->>         prog->bpf_func = (void *)ctx.target;
->>         prog->jited = 1;
->> diff --git a/arch/arm64/net/bpf_jit_comp.c b/arch/arm64/net/bpf_jit_comp.c
->> index 62f805f427b7..59c35b4d77b7 100644
->> --- a/arch/arm64/net/bpf_jit_comp.c
->> +++ b/arch/arm64/net/bpf_jit_comp.c
->> @@ -1567,10 +1567,6 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *prog)
->>                 goto out_off;
->>         }
->> 
->> -       /* And we're done. */
->> -       if (bpf_jit_enable > 1)
->> -               bpf_jit_dump(prog->len, prog_size, 2, ctx.image);
->> -
->>         bpf_flush_icache(header, ctx.image + ctx.idx);
->> 
->>         if (!prog->is_func || extra_pass) {
->> diff --git a/arch/loongarch/net/bpf_jit.c b/arch/loongarch/net/bpf_jit.c
->> index bdcd0c7719a9..ea37f52faa6e 100644
->> --- a/arch/loongarch/net/bpf_jit.c
->> +++ b/arch/loongarch/net/bpf_jit.c
->> @@ -1123,10 +1123,6 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *prog)
->>                 goto out_offset;
->>         }
->> 
->> -       /* And we're done */
->> -       if (bpf_jit_enable > 1)
->> -               bpf_jit_dump(prog->len, image_size, 2, ctx.image);
->> -
->>         /* Update the icache */
->>         flush_icache_range((unsigned long)header, (unsigned long)(ctx.image + ctx.idx));
->> 
->> diff --git a/arch/mips/net/bpf_jit_comp.c b/arch/mips/net/bpf_jit_comp.c
->> index b17130d510d4..ccbb7c231cb0 100644
->> --- a/arch/mips/net/bpf_jit_comp.c
->> +++ b/arch/mips/net/bpf_jit_comp.c
->> @@ -1012,9 +1012,6 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *prog)
->>         flush_icache_range((unsigned long)header,
->>                            (unsigned long)&ctx.target[ctx.jit_index]);
->> 
->> -       if (bpf_jit_enable > 1)
->> -               bpf_jit_dump(prog->len, image_size, 2, ctx.target);
->> -
->>         prog->bpf_func = (void *)ctx.target;
->>         prog->jited = 1;
->>         prog->jited_len = image_size;
->> diff --git a/arch/powerpc/net/bpf_jit_comp.c b/arch/powerpc/net/bpf_jit_comp.c
->> index 43e634126514..f0f7d8ff2022 100644
->> --- a/arch/powerpc/net/bpf_jit_comp.c
->> +++ b/arch/powerpc/net/bpf_jit_comp.c
->> @@ -262,20 +262,9 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *fp)
->>                         goto out_addrs;
->>                 }
->>                 bpf_jit_build_epilogue(code_base, &cgctx);
->> -
->> -               if (bpf_jit_enable > 1)
->> -                       pr_info("Pass %d: shrink = %d, seen = 0x%x\n", pass,
->> -                               proglen - (cgctx.idx * 4), cgctx.seen);
->>         }
->> 
->>  skip_codegen_passes:
->> -       if (bpf_jit_enable > 1)
->> -               /*
->> -                * Note that we output the base address of the code_base
->> -                * rather than image, since opcodes are in code_base.
->> -                */
->> -               bpf_jit_dump(flen, proglen, pass, code_base);
->> -
->>  #ifdef CONFIG_PPC64_ELF_ABI_V1
->>         /* Function descriptor nastiness: Address + TOC */
->>         ((u64 *)image)[0] = (u64)code_base;
->> diff --git a/arch/riscv/net/bpf_jit_core.c b/arch/riscv/net/bpf_jit_core.c
->> index 737baf8715da..ff168c50d46a 100644
->> --- a/arch/riscv/net/bpf_jit_core.c
->> +++ b/arch/riscv/net/bpf_jit_core.c
->> @@ -151,9 +151,6 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *prog)
->>         }
->>         bpf_jit_build_epilogue(ctx);
->> 
->> -       if (bpf_jit_enable > 1)
->> -               bpf_jit_dump(prog->len, prog_size, pass, ctx->insns);
->> -
->>         prog->bpf_func = (void *)ctx->insns;
->>         prog->jited = 1;
->>         prog->jited_len = prog_size;
->> diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
->> index af35052d06ed..13d996e27602 100644
->> --- a/arch/s390/net/bpf_jit_comp.c
->> +++ b/arch/s390/net/bpf_jit_comp.c
->> @@ -1831,10 +1831,6 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *fp)
->>                 fp = orig_fp;
->>                 goto free_addrs;
->>         }
->> -       if (bpf_jit_enable > 1) {
->> -               bpf_jit_dump(fp->len, jit.size, pass, jit.prg_buf);
->> -               print_fn_code(jit.prg_buf, jit.size_prg);
->> -       }
->>         if (!fp->is_func || extra_pass) {
->>                 bpf_jit_binary_lock_ro(header);
->>         } else {
->> diff --git a/arch/sparc/net/bpf_jit_comp_32.c b/arch/sparc/net/bpf_jit_comp_32.c
->> index a74e5004c6c8..08de0ed84831 100644
->> --- a/arch/sparc/net/bpf_jit_comp_32.c
->> +++ b/arch/sparc/net/bpf_jit_comp_32.c
->> @@ -743,9 +743,6 @@ cond_branch:                        f_offset = addrs[i + filter[i].jf];
->>                 oldproglen = proglen;
->>         }
->> 
->> -       if (bpf_jit_enable > 1)
->> -               bpf_jit_dump(flen, proglen, pass + 1, image);
->> -
->>         if (image) {
->>                 fp->bpf_func = (void *)image;
->>                 fp->jited = 1;
->> diff --git a/arch/sparc/net/bpf_jit_comp_64.c b/arch/sparc/net/bpf_jit_comp_64.c
->> index fa0759bfe498..14c9e5ce4100 100644
->> --- a/arch/sparc/net/bpf_jit_comp_64.c
->> +++ b/arch/sparc/net/bpf_jit_comp_64.c
->> @@ -1549,16 +1549,6 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *prog)
->>                 }
->>                 build_epilogue(&ctx);
->> 
->> -               if (bpf_jit_enable > 1)
->> -                       pr_info("Pass %d: size = %u, seen = [%c%c%c%c%c%c]\n", pass,
->> -                               ctx.idx * 4,
->> -                               ctx.tmp_1_used ? '1' : ' ',
->> -                               ctx.tmp_2_used ? '2' : ' ',
->> -                               ctx.tmp_3_used ? '3' : ' ',
->> -                               ctx.saw_frame_pointer ? 'F' : ' ',
->> -                               ctx.saw_call ? 'C' : ' ',
->> -                               ctx.saw_tail_call ? 'T' : ' ');
->> -
->>                 if (ctx.idx * 4 == prev_image_size)
->>                         break;
->>                 prev_image_size = ctx.idx * 4;
->> @@ -1596,9 +1586,6 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *prog)
->>                 goto out_off;
->>         }
->> 
->> -       if (bpf_jit_enable > 1)
->> -               bpf_jit_dump(prog->len, image_size, pass, ctx.image);
->> -
->>         bpf_flush_icache(header, (u8 *)header + header->size);
->> 
->>         if (!prog->is_func || extra_pass) {
->> diff --git a/arch/x86/net/bpf_jit_comp.c b/arch/x86/net/bpf_jit_comp.c
->> index e3e2b57e4e13..197ff8651a56 100644
->> --- a/arch/x86/net/bpf_jit_comp.c
->> +++ b/arch/x86/net/bpf_jit_comp.c
->> @@ -2551,9 +2551,6 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *prog)
->>                 cond_resched();
->>         }
->> 
->> -       if (bpf_jit_enable > 1)
->> -               bpf_jit_dump(prog->len, proglen, pass + 1, image);
->> -
->>         if (image) {
->>                 if (!prog->is_func || extra_pass) {
->>                         /*
->> diff --git a/arch/x86/net/bpf_jit_comp32.c b/arch/x86/net/bpf_jit_comp32.c
->> index 429a89c5468b..ca53f20aca73 100644
->> --- a/arch/x86/net/bpf_jit_comp32.c
->> +++ b/arch/x86/net/bpf_jit_comp32.c
->> @@ -2597,9 +2597,6 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *prog)
->>                 cond_resched();
->>         }
->> 
->> -       if (bpf_jit_enable > 1)
->> -               bpf_jit_dump(prog->len, proglen, pass + 1, image);
->> -
->>         if (image) {
->>                 bpf_jit_binary_lock_ro(header);
->>                 prog->bpf_func = (void *)image;
->> diff --git a/net/core/sysctl_net_core.c b/net/core/sysctl_net_core.c
->> index 5b1ce656baa1..562ace48e1c9 100644
->> --- a/net/core/sysctl_net_core.c
->> +++ b/net/core/sysctl_net_core.c
->> @@ -276,14 +276,10 @@ static int proc_dointvec_minmax_bpf_enable(struct ctl_table *table, int write,
->>         tmp.data = &jit_enable;
->>         ret = proc_dointvec_minmax(&tmp, write, buffer, lenp, ppos);
->>         if (write && !ret) {
->> -               if (jit_enable < 2 ||
->> -                   (jit_enable == 2 && bpf_dump_raw_ok(current_cred()))) {
->> -                       *(int *)table->data = jit_enable;
->> -                       if (jit_enable == 2)
->> -                               pr_warn("bpf_jit_enable = 2 was set! NEVER use this in production, only for JIT debugging!\n");
->> -               } else {
->> -                       ret = -EPERM;
->> -               }
->> +               *(int *)table->data = jit_enable;
->> +
->> +               if (jit_enable == 2)
->> +                       pr_warn_once("bpf_jit_enable == 2 was deprecated! Use bpftool prog dump instead.\n");
->>         }
->> 
->>         if (write && ret && min == max)
->> diff --git a/tools/bpf/.gitignore b/tools/bpf/.gitignore
->> index cf53342175e7..5c70cfb9092e 100644
->> --- a/tools/bpf/.gitignore
->> +++ b/tools/bpf/.gitignore
->> @@ -4,4 +4,3 @@ feature
->>  bpf_asm
->>  bpf_dbg
->>  bpf_exp.yacc.*
->> -bpf_jit_disasm
->> diff --git a/tools/bpf/Makefile b/tools/bpf/Makefile
->> index 243b79f2b451..9264d7b0edf6 100644
->> --- a/tools/bpf/Makefile
->> +++ b/tools/bpf/Makefile
->> @@ -74,14 +74,10 @@ $(OUTPUT)%.yacc.o: $(OUTPUT)%.yacc.c
->>  $(OUTPUT)%.lex.o: $(OUTPUT)%.lex.c
->>         $(QUIET_CC)$(CC) $(CFLAGS) -c -o $@ $<
->> 
->> -PROGS = $(OUTPUT)bpf_jit_disasm $(OUTPUT)bpf_dbg $(OUTPUT)bpf_asm
->> +PROGS = $(OUTPUT)bpf_dbg $(OUTPUT)bpf_asm
->> 
->>  all: $(PROGS) bpftool runqslower
->> 
->> -$(OUTPUT)bpf_jit_disasm: CFLAGS += -DPACKAGE='bpf_jit_disasm'
->> -$(OUTPUT)bpf_jit_disasm: $(OUTPUT)bpf_jit_disasm.o
->> -       $(QUIET_LINK)$(CC) $(CFLAGS) -o $@ $^ -lopcodes -lbfd -ldl
->> -
->>  $(OUTPUT)bpf_dbg: $(OUTPUT)bpf_dbg.o
->>         $(QUIET_LINK)$(CC) $(CFLAGS) -o $@ $^ -lreadline
->> 
->> @@ -94,16 +90,14 @@ $(OUTPUT)bpf_exp.lex.o: $(OUTPUT)bpf_exp.lex.c
->> 
->>  clean: bpftool_clean runqslower_clean resolve_btfids_clean
->>         $(call QUIET_CLEAN, bpf-progs)
->> -       $(Q)$(RM) -r -- $(OUTPUT)*.o $(OUTPUT)bpf_jit_disasm $(OUTPUT)bpf_dbg \
->> +       $(Q)$(RM) -r -- $(OUTPUT)*.o $(OUTPUT)bpf_dbg \
->>                $(OUTPUT)bpf_asm $(OUTPUT)bpf_exp.yacc.* $(OUTPUT)bpf_exp.lex.*
->>         $(call QUIET_CLEAN, core-gen)
->>         $(Q)$(RM) -- $(OUTPUT)FEATURE-DUMP.bpf
->>         $(Q)$(RM) -r -- $(OUTPUT)feature
->> 
->>  install: $(PROGS) bpftool_install
->> -       $(call QUIET_INSTALL, bpf_jit_disasm)
->>         $(Q)$(INSTALL) -m 0755 -d $(DESTDIR)$(prefix)/bin
->> -       $(Q)$(INSTALL) $(OUTPUT)bpf_jit_disasm $(DESTDIR)$(prefix)/bin/bpf_jit_disasm
->>         $(call QUIET_INSTALL, bpf_dbg)
->>         $(Q)$(INSTALL) $(OUTPUT)bpf_dbg $(DESTDIR)$(prefix)/bin/bpf_dbg
->>         $(call QUIET_INSTALL, bpf_asm)
->> diff --git a/tools/bpf/bpf_jit_disasm.c b/tools/bpf/bpf_jit_disasm.c
->> deleted file mode 100644
->> index a90a5d110f92..000000000000
->> --- a/tools/bpf/bpf_jit_disasm.c
->> +++ /dev/null
->> @@ -1,332 +0,0 @@
->> -// SPDX-License-Identifier: GPL-2.0-only
->> -/*
->> - * Minimal BPF JIT image disassembler
->> - *
->> - * Disassembles BPF JIT compiler emitted opcodes back to asm insn's for
->> - * debugging or verification purposes.
->> - *
->> - * To get the disassembly of the JIT code, do the following:
->> - *
->> - *  1) `echo 2 > /proc/sys/net/core/bpf_jit_enable`
->> - *  2) Load a BPF filter (e.g. `tcpdump -p -n -s 0 -i eth1 host 192.168.20.0/24`)
->> - *  3) Run e.g. `bpf_jit_disasm -o` to read out the last JIT code
->> - *
->> - * Copyright 2013 Daniel Borkmann <borkmann@redhat.com>
->> - */
->> -
->> -#include <stdint.h>
->> -#include <stdio.h>
->> -#include <stdlib.h>
->> -#include <assert.h>
->> -#include <unistd.h>
->> -#include <string.h>
->> -#include <bfd.h>
->> -#include <dis-asm.h>
->> -#include <regex.h>
->> -#include <fcntl.h>
->> -#include <sys/klog.h>
->> -#include <sys/types.h>
->> -#include <sys/stat.h>
->> -#include <limits.h>
->> -#include <tools/dis-asm-compat.h>
->> -
->> -#define CMD_ACTION_SIZE_BUFFER         10
->> -#define CMD_ACTION_READ_ALL            3
->> -
->> -static void get_exec_path(char *tpath, size_t size)
->> -{
->> -       char *path;
->> -       ssize_t len;
->> -
->> -       snprintf(tpath, size, "/proc/%d/exe", (int) getpid());
->> -       tpath[size - 1] = 0;
->> -
->> -       path = strdup(tpath);
->> -       assert(path);
->> -
->> -       len = readlink(path, tpath, size);
->> -       tpath[len] = 0;
->> -
->> -       free(path);
->> -}
->> -
->> -static void get_asm_insns(uint8_t *image, size_t len, int opcodes)
->> -{
->> -       int count, i, pc = 0;
->> -       char tpath[PATH_MAX];
->> -       struct disassemble_info info;
->> -       disassembler_ftype disassemble;
->> -       bfd *bfdf;
->> -
->> -       memset(tpath, 0, sizeof(tpath));
->> -       get_exec_path(tpath, sizeof(tpath));
->> -
->> -       bfdf = bfd_openr(tpath, NULL);
->> -       assert(bfdf);
->> -       assert(bfd_check_format(bfdf, bfd_object));
->> -
->> -       init_disassemble_info_compat(&info, stdout,
->> -                                    (fprintf_ftype) fprintf,
->> -                                    fprintf_styled);
->> -       info.arch = bfd_get_arch(bfdf);
->> -       info.mach = bfd_get_mach(bfdf);
->> -       info.buffer = image;
->> -       info.buffer_length = len;
->> -
->> -       disassemble_init_for_target(&info);
->> -
->> -#ifdef DISASM_FOUR_ARGS_SIGNATURE
->> -       disassemble = disassembler(info.arch,
->> -                                  bfd_big_endian(bfdf),
->> -                                  info.mach,
->> -                                  bfdf);
->> -#else
->> -       disassemble = disassembler(bfdf);
->> -#endif
->> -       assert(disassemble);
->> -
->> -       do {
->> -               printf("%4x:\t", pc);
->> -
->> -               count = disassemble(pc, &info);
->> -
->> -               if (opcodes) {
->> -                       printf("\n\t");
->> -                       for (i = 0; i < count; ++i)
->> -                               printf("%02x ", (uint8_t) image[pc + i]);
->> -               }
->> -               printf("\n");
->> -
->> -               pc += count;
->> -       } while(count > 0 && pc < len);
->> -
->> -       bfd_close(bfdf);
->> -}
->> -
->> -static char *get_klog_buff(unsigned int *klen)
->> -{
->> -       int ret, len;
->> -       char *buff;
->> -
->> -       len = klogctl(CMD_ACTION_SIZE_BUFFER, NULL, 0);
->> -       if (len < 0)
->> -               return NULL;
->> -
->> -       buff = malloc(len);
->> -       if (!buff)
->> -               return NULL;
->> -
->> -       ret = klogctl(CMD_ACTION_READ_ALL, buff, len);
->> -       if (ret < 0) {
->> -               free(buff);
->> -               return NULL;
->> -       }
->> -
->> -       *klen = ret;
->> -       return buff;
->> -}
->> -
->> -static char *get_flog_buff(const char *file, unsigned int *klen)
->> -{
->> -       int fd, ret, len;
->> -       struct stat fi;
->> -       char *buff;
->> -
->> -       fd = open(file, O_RDONLY);
->> -       if (fd < 0)
->> -               return NULL;
->> -
->> -       ret = fstat(fd, &fi);
->> -       if (ret < 0 || !S_ISREG(fi.st_mode))
->> -               goto out;
->> -
->> -       len = fi.st_size + 1;
->> -       buff = malloc(len);
->> -       if (!buff)
->> -               goto out;
->> -
->> -       memset(buff, 0, len);
->> -       ret = read(fd, buff, len - 1);
->> -       if (ret <= 0)
->> -               goto out_free;
->> -
->> -       close(fd);
->> -       *klen = ret;
->> -       return buff;
->> -out_free:
->> -       free(buff);
->> -out:
->> -       close(fd);
->> -       return NULL;
->> -}
->> -
->> -static char *get_log_buff(const char *file, unsigned int *klen)
->> -{
->> -       return file ? get_flog_buff(file, klen) : get_klog_buff(klen);
->> -}
->> -
->> -static void put_log_buff(char *buff)
->> -{
->> -       free(buff);
->> -}
->> -
->> -static uint8_t *get_last_jit_image(char *haystack, size_t hlen,
->> -                                  unsigned int *ilen)
->> -{
->> -       char *ptr, *pptr, *tmp;
->> -       off_t off = 0;
->> -       unsigned int proglen;
->> -       int ret, flen, pass, ulen = 0;
->> -       regmatch_t pmatch[1];
->> -       unsigned long base;
->> -       regex_t regex;
->> -       uint8_t *image;
->> -
->> -       if (hlen == 0)
->> -               return NULL;
->> -
->> -       ret = regcomp(&regex, "flen=[[:alnum:]]+ proglen=[[:digit:]]+ "
->> -                     "pass=[[:digit:]]+ image=[[:xdigit:]]+", REG_EXTENDED);
->> -       assert(ret == 0);
->> -
->> -       ptr = haystack;
->> -       memset(pmatch, 0, sizeof(pmatch));
->> -
->> -       while (1) {
->> -               ret = regexec(&regex, ptr, 1, pmatch, 0);
->> -               if (ret == 0) {
->> -                       ptr += pmatch[0].rm_eo;
->> -                       off += pmatch[0].rm_eo;
->> -                       assert(off < hlen);
->> -               } else
->> -                       break;
->> -       }
->> -
->> -       ptr = haystack + off - (pmatch[0].rm_eo - pmatch[0].rm_so);
->> -       ret = sscanf(ptr, "flen=%d proglen=%u pass=%d image=%lx",
->> -                    &flen, &proglen, &pass, &base);
->> -       if (ret != 4) {
->> -               regfree(&regex);
->> -               return NULL;
->> -       }
->> -       if (proglen > 1000000) {
->> -               printf("proglen of %d too big, stopping\n", proglen);
->> -               return NULL;
->> -       }
->> -
->> -       image = malloc(proglen);
->> -       if (!image) {
->> -               printf("Out of memory\n");
->> -               return NULL;
->> -       }
->> -       memset(image, 0, proglen);
->> -
->> -       tmp = ptr = haystack + off;
->> -       while ((ptr = strtok(tmp, "\n")) != NULL && ulen < proglen) {
->> -               tmp = NULL;
->> -               if (!strstr(ptr, "JIT code"))
->> -                       continue;
->> -               pptr = ptr;
->> -               while ((ptr = strstr(pptr, ":")))
->> -                       pptr = ptr + 1;
->> -               ptr = pptr;
->> -               do {
->> -                       image[ulen++] = (uint8_t) strtoul(pptr, &pptr, 16);
->> -                       if (ptr == pptr) {
->> -                               ulen--;
->> -                               break;
->> -                       }
->> -                       if (ulen >= proglen)
->> -                               break;
->> -                       ptr = pptr;
->> -               } while (1);
->> -       }
->> -
->> -       assert(ulen == proglen);
->> -       printf("%u bytes emitted from JIT compiler (pass:%d, flen:%d)\n",
->> -              proglen, pass, flen);
->> -       printf("%lx + <x>:\n", base);
->> -
->> -       regfree(&regex);
->> -       *ilen = ulen;
->> -       return image;
->> -}
->> -
->> -static void usage(void)
->> -{
->> -       printf("Usage: bpf_jit_disasm [...]\n");
->> -       printf("       -o          Also display related opcodes (default: off).\n");
->> -       printf("       -O <file>   Write binary image of code to file, don't disassemble to stdout.\n");
->> -       printf("       -f <file>   Read last image dump from file or stdin (default: klog).\n");
->> -       printf("       -h          Display this help.\n");
->> -}
->> -
->> -int main(int argc, char **argv)
->> -{
->> -       unsigned int len, klen, opt, opcodes = 0;
->> -       char *kbuff, *file = NULL;
->> -       char *ofile = NULL;
->> -       int ofd;
->> -       ssize_t nr;
->> -       uint8_t *pos;
->> -       uint8_t *image = NULL;
->> -
->> -       while ((opt = getopt(argc, argv, "of:O:")) != -1) {
->> -               switch (opt) {
->> -               case 'o':
->> -                       opcodes = 1;
->> -                       break;
->> -               case 'O':
->> -                       ofile = optarg;
->> -                       break;
->> -               case 'f':
->> -                       file = optarg;
->> -                       break;
->> -               default:
->> -                       usage();
->> -                       return -1;
->> -               }
->> -       }
->> -
->> -       bfd_init();
->> -
->> -       kbuff = get_log_buff(file, &klen);
->> -       if (!kbuff) {
->> -               fprintf(stderr, "Could not retrieve log buffer!\n");
->> -               return -1;
->> -       }
->> -
->> -       image = get_last_jit_image(kbuff, klen, &len);
->> -       if (!image) {
->> -               fprintf(stderr, "No JIT image found!\n");
->> -               goto done;
->> -       }
->> -       if (!ofile) {
->> -               get_asm_insns(image, len, opcodes);
->> -               goto done;
->> -       }
->> -
->> -       ofd = open(ofile, O_WRONLY | O_CREAT | O_TRUNC, DEFFILEMODE);
->> -       if (ofd < 0) {
->> -               fprintf(stderr, "Could not open file %s for writing: ", ofile);
->> -               perror(NULL);
->> -               goto done;
->> -       }
->> -       pos = image;
->> -       do {
->> -               nr = write(ofd, pos, len);
->> -               if (nr < 0) {
->> -                       fprintf(stderr, "Could not write data to %s: ", ofile);
->> -                       perror(NULL);
->> -                       goto done;
->> -               }
->> -               len -= nr;
->> -               pos += nr;
->> -       } while (len);
->> -       close(ofd);
->> -
->> -done:
->> -       put_log_buff(kbuff);
->> -       free(image);
->> -       return 0;
->> -}
->> --
->> 2.27.0
-
+Jason
