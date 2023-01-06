@@ -2,141 +2,145 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A5FDC4708D
-	for <linux-s390@archiver.kernel.org>; Fri,  6 Jan 2023 14:30:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 91CB3C4708D
+	for <linux-s390@archiver.kernel.org>; Fri,  6 Jan 2023 15:37:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235108AbjAFOaw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 6 Jan 2023 09:30:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34956 "EHLO
+        id S235441AbjAFPhq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 6 Jan 2023 10:37:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235351AbjAFOaI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 Jan 2023 09:30:08 -0500
-Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on2068.outbound.protection.outlook.com [40.107.243.68])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A35A1A059;
-        Fri,  6 Jan 2023 06:29:58 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=TH3mqtH9ewsZKwzg6hoXjvF/5PIplCqHOjEkTw3wCxy9H2/bds27kRVziZCGkAsi8rL2NLqIfZY0qyHxwnD65Cbljhy5fEK2hVRMctZjgWjTfDQd426MSzIqUwxnY2Drb2XElJ5Pq2+e27zcn4eFHdnhvWajIzbkqXxv2/x9EkmUtROr3dFMmqZb3MLeIVPHpqRfy9mTQKlqvw8pPWW44DIJY9FFTwaZIVLxHaQq8jJ63vvgOR1hs+wpj9rjYhutQ5qzVBIkuqP6nw4lcuahtSx5M97DcTdQHvn7JR23RogX7fXiNBgnvcqeNyuagtIdoSm3uNBrGWDdvofCTgzoHA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=MW013pNInwM8hEzFpLewBm6TyBkltMayJcGbQm1JEZs=;
- b=aPlVsA3MBPbriTVxSJhB71soboPUTa7DoBUirId5tpEJ1z3I2SmLooB7HJq8dzy3r4t00i/la3DBwi/Zd8vikzMHVGuNOO3m/UPnim5Y4LrOXdJEec0kgSeqZ7ECTTXI/I/CKf2LkiicDvMG+8QivsgansUPe2jDAWjYqWlo+OS6Yc84tVzmfsYPbxgWHmKG/J+6zBIrTUr/DX3XUICoQh0oyvm67ZAVFoktfDCdYAOYVH6VAjDnb+DKINoVODLn16JGicdUsu0N5ddUXcDAk1e9Cc4JM63TFKjewhhkXGIaxgciUBFhWDhJfIvuvPbCdBJ+3mKR5xjVwPCysNXViw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=MW013pNInwM8hEzFpLewBm6TyBkltMayJcGbQm1JEZs=;
- b=m5ZPw0qBbsfLa408XRAwVvadlwOUZTe5eqrMYM7rt8mXtHc4vRBQFEwLRlPxrfCcx87GQEpXaEGV/ZvnRBVE75nzDJu/adQwmlbniIvjwxOh46wocAqxsleuPlEedjX3uv80vtnP9LTT3+5BihaDzrWTQxbU+h1jkGSHSeZhutXuHnKHknQ6IWtJZkqNPa1qmWHNVecDI9cB9AHVVn1V6xv0L5xx5aGpIdi3GZIlHSk6kLvMASHxSy8FAGaNTVvEK5yUbPFzKpGmq5cISNydWQxiPjHR0ll4CmPfijkQjx/DwGR7QY/pYIgBjQUjJ/lyrgonjitlrias02Jxln4w5g==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
- by MN2PR12MB4391.namprd12.prod.outlook.com (2603:10b6:208:269::21) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5944.19; Fri, 6 Jan
- 2023 14:29:56 +0000
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::f8b0:df13:5f8d:12a]) by LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::f8b0:df13:5f8d:12a%9]) with mapi id 15.20.5944.019; Fri, 6 Jan 2023
- 14:29:56 +0000
-Date:   Fri, 6 Jan 2023 10:29:55 -0400
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Matthew Rosato <mjrosato@linux.ibm.com>
-Cc:     Alex Williamson <alex.williamson@redhat.com>, cohuck@redhat.com,
-        borntraeger@linux.ibm.com, jjherne@linux.ibm.com,
-        akrowiak@linux.ibm.com, pasic@linux.ibm.com,
-        zhenyuw@linux.intel.com, zhi.a.wang@intel.com, hch@infradead.org,
-        intel-gfx@lists.freedesktop.org,
-        intel-gvt-dev@lists.freedesktop.org, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Kevin Tian <kevin.tian@intel.com>,
-        Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH v3 1/1] vfio: remove VFIO_GROUP_NOTIFY_SET_KVM
-Message-ID: <Y7gwY1UJq3DNbjRu@nvidia.com>
-References: <20220519183311.582380-1-mjrosato@linux.ibm.com>
- <20220519183311.582380-2-mjrosato@linux.ibm.com>
- <20230105150930.6ee65182.alex.williamson@redhat.com>
- <Y7dehnZSC6ukNxKU@nvidia.com>
- <5e17a35d-2a94-f482-c466-521afcab80b8@linux.ibm.com>
- <Y7dsJpudKGtM0kbl@nvidia.com>
- <d0e55400-d749-23a2-c88f-a2272723bc65@linux.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d0e55400-d749-23a2-c88f-a2272723bc65@linux.ibm.com>
-X-ClientProxiedBy: MN2PR07CA0001.namprd07.prod.outlook.com
- (2603:10b6:208:1a0::11) To LV2PR12MB5869.namprd12.prod.outlook.com
- (2603:10b6:408:176::16)
+        with ESMTP id S231374AbjAFPhp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 Jan 2023 10:37:45 -0500
+Received: from www62.your-server.de (www62.your-server.de [213.133.104.62])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBEAB73E3A;
+        Fri,  6 Jan 2023 07:37:44 -0800 (PST)
+Received: from sslproxy03.your-server.de ([88.198.220.132])
+        by www62.your-server.de with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <daniel@iogearbox.net>)
+        id 1pDomj-0001nf-BJ; Fri, 06 Jan 2023 16:37:33 +0100
+Received: from [85.1.206.226] (helo=linux.home)
+        by sslproxy03.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <daniel@iogearbox.net>)
+        id 1pDomi-000T50-HK; Fri, 06 Jan 2023 16:37:32 +0100
+Subject: Re: [bpf-next v2] bpf: drop deprecated bpf_jit_enable == 2
+To:     Christophe Leroy <christophe.leroy@csgroup.eu>,
+        "tong@infragraf.org" <tong@infragraf.org>,
+        "bpf@vger.kernel.org" <bpf@vger.kernel.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "linux-arm-kernel@lists.infradead.or" 
+        <linux-arm-kernel@lists.infradead.or>,
+        "loongarch@lists.linux.dev" <loongarch@lists.linux.dev>,
+        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>
+Cc:     Hao Luo <haoluo@google.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Song Liu <song@kernel.org>,
+        Stanislav Fomichev <sdf@google.com>,
+        Jiri Olsa <jolsa@kernel.org>, Hou Tao <houtao1@huawei.com>,
+        KP Singh <kpsingh@kernel.org>, Yonghong Song <yhs@fb.com>,
+        Martin KaFai Lau <martin.lau@linux.dev>,
+        naveen.n.rao@linux.ibm.com, mpe@ellerman.id.au
+References: <20230105030614.26842-1-tong@infragraf.org>
+ <ea7673e1-40ec-18be-af89-5f4fd0f71742@csgroup.eu>
+From:   Daniel Borkmann <daniel@iogearbox.net>
+Message-ID: <71c83f39-f85f-d990-95b7-ab6068839e6c@iogearbox.net>
+Date:   Fri, 6 Jan 2023 16:37:31 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.2
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|MN2PR12MB4391:EE_
-X-MS-Office365-Filtering-Correlation-Id: f06921e3-ae92-4f1b-2a52-08daeff27bd0
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: sWj6iaz47DyNBFX1ZEnfSin7N/BMflzn3nYMwnryMjXWMLlG+LyoiiR/uvV21WRiKpGVEj8bmrz5BU1FZYYN8iCy6KoSIYMr5Hr52mNHKmx8mG6bg5tlF8V1gbK+IUeooFe2BsFB3J/UbFglDxxMgslvBgC8isibCpcOwOTbKORTfQ6vWIbH6DWHyIgzuh5etyYyzZwSooeBHfyyuK0N0Mwpo4NXZvZuksOLD2KwHvgVtu4TULx/aLegRP2Ym9zGAHsGjRpk7tI3ZwtyTU7kRs3P7S/vPgXl44EJ6iJ8f5uNqpYoyoG1zW+O/7YsnEfXCEiIOr+RXcsZfPhY1eRt/DthVTLdZJ4uX5o6Mu2TZD8hAwlotktNzUonlBUjlo8VIvwjf58+h/RAK4RvUVtbAQ5r6vh9HrMO4x7QQHOaEBWWJr/kuPqg6OyTdJko7wyFuwrUV3JNiWYrGZaelD6afHhdMhT/ud7sqd+I7S7uMahKsySUa3yERg/rsTHeAxACUeZyS4AIt3LEfn+oaPz5XBZz5eZ8t+ORTNaj5i0hwD81mEOHWv8u8aAzwInZYlEqhQCPp/GfbmTFuPdGTv7IN9JhK8kKzO7pKMYS9paScoR8+wwZDfTBWX5RLecBiImxkY6dJhUX7kAVONpWdjU9wA==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(39860400002)(366004)(396003)(136003)(376002)(346002)(451199015)(36756003)(41300700001)(66946007)(66476007)(6916009)(4326008)(53546011)(86362001)(8676002)(54906003)(66556008)(8936002)(38100700002)(2616005)(26005)(6512007)(6486002)(478600001)(6506007)(5660300002)(316002)(83380400001)(7416002)(2906002)(186003)(4744005);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?p/Ck18YA0Qlf8SBSeNSZwyccZOw7awuTLlCV83esfcTdpgXUuQAK4PLc2JCY?=
- =?us-ascii?Q?6olzRWKQnrN3eAPoUX+E7OiZP/wNYWcvzlM1ATMhK9XJ6hcC56xoKfN6zP8b?=
- =?us-ascii?Q?1DbUqn8Ladf3sUKBL8qb6+ZJFzQtB5eS7M+9PIn4i9ZHAFf5tcvANBXtVt3P?=
- =?us-ascii?Q?nKHg07S8FAkE7JIrDVyrBFzp3am8SmsnCXaiuDb+WMzKiCChMz/1kTI8a9GH?=
- =?us-ascii?Q?rzFeQ2kRIoze3u4ThJKzAYdTKiF4E84ntsgCTaZOxb8g+ZmOFqdzrbRw9MtQ?=
- =?us-ascii?Q?HTurduO8HGctzjkpN2qXC/aDYwzkF1RguI6RVAEoqqu1AnQRREW62VOM+ugh?=
- =?us-ascii?Q?2Ik6/WQDgi97xvBmDiaq6NOr3fb+WfixAHrPXXys7JmihUGX5z387iD7gk01?=
- =?us-ascii?Q?kcZxIrI7mhJiXs/UCLbIvTFdHoIvWDRpFwev+MBdLdxO3/2+1L+v86DNXLJS?=
- =?us-ascii?Q?b9eI6zCsTQMT0Sa2PEi3+ihozCUci0a3RHCEB2DesdY/+rYbNyIaSfr++zaV?=
- =?us-ascii?Q?1l1klS1obfgX14W7ql0Gv2PQQQij9l14jcoYVmJxq41AYbJM0m//wKpI8mLx?=
- =?us-ascii?Q?cPqv2FSW86kAn6JdOphxe2K77bMyHSPHLqyWwYkZyG5W+5zNR6lx9vgADwlh?=
- =?us-ascii?Q?m1ff9h8Su94p9NjLExmbGtlq+yTLfVbW504oS0r4nr7DMnnut1QCCX/FdTqM?=
- =?us-ascii?Q?PYg04g2UrMawggMQ1xMbEZ5RESaduY5PjMjZ0aIJ09lmwcjkxv7c0GIaQsXp?=
- =?us-ascii?Q?jG0e5zOStqsHWoUNjaarB7OvdQtede9nV2N1cKBx/ovJXVV8wZDnvDKzCcG1?=
- =?us-ascii?Q?WCW7VPomkSKCPZ7Zg+0hIdo1eMaakTcfbv/642rddjLxEa4PpuWf2ui0tC/C?=
- =?us-ascii?Q?FxdNpCQFVgacu2ddp8Wt/5w98SeqXfXKO4yaC+J3KxNRpLUJe0EqM6Rzfsyf?=
- =?us-ascii?Q?a7TDmng+Ug30AJKolQB9HoY0Dm6gwG6/KEtngxFg2sasYkUhV21qtOSGDTwi?=
- =?us-ascii?Q?4ltJZiZWhbkwratq9ZkOPZKRphtN0dPU6PtWDl2yl1v3P+U2s/TOnXmRwJjB?=
- =?us-ascii?Q?XX5oNXvzIOuICvpw/cbK1FxP0jDxzxBRkeARcDrke+7Qbhn0Ir40aZs3z42X?=
- =?us-ascii?Q?hm/rg90xr36FnCafbZkK44k8uO/99gU2ndGoMLt3QChbd8nBvQT47gCuBbYZ?=
- =?us-ascii?Q?nr2THZjjDXFbcNDpN51lR9n/ZW5Lp3y09C8iwLUpXxtE+e0XSfq9dct4H3tD?=
- =?us-ascii?Q?EaZ7iT3a443ZOSEgi5Qaspjc2TxCl+ajgi3d9DD8QpWnbSPwBj4i5HEw5jfB?=
- =?us-ascii?Q?R/RtG9O9BbqAeMRBY6cc4bSxuDtSn6NFm7A2ayPYK/U2p/q94s2AxGTM+whi?=
- =?us-ascii?Q?oqirvinfw0sKz1i7X/lXvpXu8Y+OMEIV/MQWS8LvO3qTBtnmm6I0q4sXqUci?=
- =?us-ascii?Q?NPL3d4vKpzae1MHVMMGRo4LeidgpBa4xTCI4Wzk2eFSzF//T1nFet9eFcdPe?=
- =?us-ascii?Q?YslMdHY3WB8Wrz8BBSS3erCUAZTwD5/UGe9a4ajs5zsVK0Y6JWQJmItK+SS3?=
- =?us-ascii?Q?Gii+4Ay0a+QbgjCxCQ4dz3ARvrwkV+8JNZ1B/V6U?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: f06921e3-ae92-4f1b-2a52-08daeff27bd0
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Jan 2023 14:29:56.6116
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: ZWWFMHqorgxaYqXJOxLd0rDilPOubodAyp1a11KsadCX8Jyuvdtc0z9BYmchE5dv
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB4391
+In-Reply-To: <ea7673e1-40ec-18be-af89-5f4fd0f71742@csgroup.eu>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-Authenticated-Sender: daniel@iogearbox.net
+X-Virus-Scanned: Clear (ClamAV 0.103.7/26773/Fri Jan  6 09:48:44 2023)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jan 05, 2023 at 08:03:32PM -0500, Matthew Rosato wrote:
-> On 1/5/23 7:32 PM, Jason Gunthorpe wrote:
-> > On Thu, Jan 05, 2023 at 07:16:37PM -0500, Matthew Rosato wrote:
-> > 
-> >> Yeah, this is also what I was thinking, replace the direct
-> >> kvm_put_kvm calls with, say, schedule_delayed_work in each driver,
-> >> where the delayed task just does the kvm_put_kvm (along with a brief
-> >> comment explaining why we handle the put asynchronously).
-> > 
-> > Don't put that in every driver, do something like mmput_async() where
-> > the core code has all of this.
-> > 
+On 1/5/23 6:53 PM, Christophe Leroy wrote:
+> Le 05/01/2023 à 04:06, tong@infragraf.org a écrit :
+>> From: Tonghao Zhang <tong@infragraf.org>
+>>
+>> The x86_64 can't dump the valid insn in this way. A test BPF prog
+>> which include subprog:
+>>
+>> $ llvm-objdump -d subprog.o
+>> Disassembly of section .text:
+>> 0000000000000000 <subprog>:
+>>          0:       18 01 00 00 73 75 62 70 00 00 00 00 72 6f 67 00 r1 = 29114459903653235 ll
+>>          2:       7b 1a f8 ff 00 00 00 00 *(u64 *)(r10 - 8) = r1
+>>          3:       bf a1 00 00 00 00 00 00 r1 = r10
+>>          4:       07 01 00 00 f8 ff ff ff r1 += -8
+>>          5:       b7 02 00 00 08 00 00 00 r2 = 8
+>>          6:       85 00 00 00 06 00 00 00 call 6
+>>          7:       95 00 00 00 00 00 00 00 exit
+>> Disassembly of section raw_tp/sys_enter:
+>> 0000000000000000 <entry>:
+>>          0:       85 10 00 00 ff ff ff ff call -1
+>>          1:       b7 00 00 00 00 00 00 00 r0 = 0
+>>          2:       95 00 00 00 00 00 00 00 exit
+>>
+>> kernel print message:
+>> [  580.775387] flen=8 proglen=51 pass=3 image=ffffffffa000c20c from=kprobe-load pid=1643
+>> [  580.777236] JIT code: 00000000: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc
+>> [  580.779037] JIT code: 00000010: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc
+>> [  580.780767] JIT code: 00000020: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc
+>> [  580.782568] JIT code: 00000030: cc cc cc
+>>
+>> $ bpf_jit_disasm
+>> 51 bytes emitted from JIT compiler (pass:3, flen:8)
+>> ffffffffa000c20c + <x>:
+>>      0:   int3
+>>      1:   int3
+>>      2:   int3
+>>      3:   int3
+>>      4:   int3
+>>      5:   int3
+>>      ...
+>>
+>> Until bpf_jit_binary_pack_finalize is invoked, we copy rw_header to header
+>> and then image/insn is valid. BTW, we can use the "bpftool prog dump" JITed instructions.
 > 
-> If the core vfio code were to add logic to invoke kvm_put_kvm and
-> kvm_get_kvm, won't this introduce a vfio dependency on kvm?  If I
-> recall, we have the drivers handling the kvm reference today in
-> order to avoid that..
+> NACK.
+> 
+> Because the feature is buggy on x86_64, you remove it for all
+> architectures ?
+> 
+> On powerpc bpf_jit_enable == 2 works and is very usefull.
+> 
+> Last time I tried to use bpftool on powerpc/32 it didn't work. I don't
+> remember the details, I think it was an issue with endianess. Maybe it
+> is fixed now, but it needs to be verified.
+> 
+> So please, before removing a working and usefull feature, make sure
+> there is an alternative available to it for all architectures in all
+> configurations.
+> 
+> Also, I don't think bpftool is usable to dump kernel BPF selftests.
+> That's vital when a selftest fails if you want to have a chance to
+> understand why it fails.
 
-Not in vfio, put it in kvm 'kvm_put_async()'
+If this is actively used by JIT developers and considered useful, I'd be
+ok to leave it for the time being. Overall goal is to reach feature parity
+among (at least major arch) JITs and not just have most functionality only
+available on x86-64 JIT. Could you however check what is not working with
+bpftool on powerpc/32? Perhaps it's not too much effort to just fix it,
+but details would be useful otherwise 'it didn't work' is too fuzzy.
 
-Jason
+Also, with regards to the last statement that bpftool is not usable to
+dump kernel BPF selftests. Could you elaborate some more? I haven't used
+bpf_jit_enable == 2 in a long time and for debugging always relied on
+bpftool to dump xlated insns or JIT. Or do you mean by BPF selftests
+the test_bpf.ko module? Given it has a big batch with kernel-only tests,
+there I can see it's probably still useful.
+
+Cheers,
+Daniel
