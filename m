@@ -2,102 +2,123 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8565BC5479D
-	for <linux-s390@archiver.kernel.org>; Sat,  7 Jan 2023 02:19:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3EF81C64981
+	for <linux-s390@archiver.kernel.org>; Sat,  7 Jan 2023 11:04:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229550AbjAGCTw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 6 Jan 2023 21:19:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54750 "EHLO
+        id S231421AbjAGLE4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 7 Jan 2023 06:04:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229521AbjAGCTu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 Jan 2023 21:19:50 -0500
-Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9DFE93;
-        Fri,  6 Jan 2023 18:19:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1673057989; x=1704593989;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=uqRXSv+w2S4+7Q/28oxX65phfR+wQelpxsc+b44OilQ=;
-  b=YhT88yCfF9JuA5S2SIrDg9szqh+wFVD/baEd2XlIRU315t1vAadmtdsA
-   Mzrb4XC6FCRavVIRM2tFIolYN+OJX2PPUL0O2M38Cl/xompvfe1CV5ru0
-   jKzt2QUlRy7/q9aJyVJpxYJ9BTA9+9tDfEcvaxEC9KEkCLhtO/Wvi18MO
-   ihk2eNoYkbCjxji+WBtg1P76hLYRbGdtoOWmStRuHbVSrYlY08Pvs2wMg
-   z2ECavMbMc1orG81IiUrPqB333vFIqRhrWfL4s5dGYxjFLW+MI1Y627Z3
-   Y3hJJNcyzbD5AAiEG00XXGr39ylJE7ZFICzQOc5iKwYdoiiQU22bZY5J7
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10582"; a="321305976"
-X-IronPort-AV: E=Sophos;i="5.96,307,1665471600"; 
-   d="scan'208";a="321305976"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jan 2023 18:19:49 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10582"; a="763702557"
-X-IronPort-AV: E=Sophos;i="5.96,307,1665471600"; 
-   d="scan'208";a="763702557"
-Received: from yiweihua-mobl1.ccr.corp.intel.com (HELO [10.254.209.158]) ([10.254.209.158])
-  by fmsmga002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jan 2023 18:19:43 -0800
-Message-ID: <e06f65a5-11e9-527e-97fd-857abe7e2e16@linux.intel.com>
-Date:   Sat, 7 Jan 2023 10:19:40 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.1
-Subject: Re: [PATCH iommufd v3 2/9] iommu: Add iommu_group_has_isolated_msi()
-To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, iommu@lists.linux.dev,
-        Joerg Roedel <joro@8bytes.org>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
+        with ESMTP id S230135AbjAGLEz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 7 Jan 2023 06:04:55 -0500
+Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com [IPv6:2a00:1450:4864:20::32e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9879F4F124;
+        Sat,  7 Jan 2023 03:04:54 -0800 (PST)
+Received: by mail-wm1-x32e.google.com with SMTP id ay40so2704294wmb.2;
+        Sat, 07 Jan 2023 03:04:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=jV2yBF+mbkDE0BvyOwe05ARE6EO7XhtOfB/KJLMsfFA=;
+        b=BzPTx+ODS2RwGu5d9Av3CGI6XJ0NbmKP1pStUzg0M0m6+VF6wu2vf0tqTwK0k6q0qV
+         Fbx7Y4Wluy9p+k8PZjL3FOoLufHJHxtq2K/BaarEwd/dPtd/DgO4uDiDqLUXCcfzSy4g
+         Wd0wz4xfpZYGbxR/O6enZWRjIhs25ZrrKgwvTGouDcupcbkSfLeRveiApotbcr4XMgph
+         w/4+08uhP/RwKAozhcyw6lYPvScMk8zL6fmWwbkyxQOkT9WdSUz8lze9ta3Mlh7zLg9k
+         cM2v76pe7iQT/2ZR+EkGweLVXlhhfTIoWJwjo2u32vXfi3qjeDrWte72tROnSs3wxhtS
+         1Wwg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=jV2yBF+mbkDE0BvyOwe05ARE6EO7XhtOfB/KJLMsfFA=;
+        b=f6beJaoz3jCOL/c6eOjf3eeUBcHKDVUaH0Uw7trbB+q3preXNB8XQN+BgMEgXIqyrg
+         ztQ0YAwwQaBudBMFT671W0eam+CskRUARfQ2XtTMgg7PiwB16C4qvG0b2DGR8BAeYCdV
+         bjE0ugK+fesG9oz6KyRgSvF1+EPPvRlWpElpDIRlqjl3n5CE931DsOVRR67+Oc0OvvUU
+         qarRyALAo/0CgrsP1WoMbvFscUnStpWk5q7ULbXRDwxCcfn2VYXgqtcJFerXS2Z6O5F8
+         beGTpGvDntwL4xWdS5LKe1BVCIIzmFG6ZI1prA001YwkI8usgU5FZC7q8O2rG9nMPSjr
+         Vt0w==
+X-Gm-Message-State: AFqh2kp6KNn7SZRVsi7FHGQnApV2HTmVi/cE5A8/t+/ipcJNN8L/Cf0I
+        P0aGIHmiHJAhWmac1ay0yUU=
+X-Google-Smtp-Source: AMrXdXuUafS1AFxogNrZXZJj6k6oC1QjVGeJmfZCRFdf2sgwNHMbrVBUD4+y7GGme2gWJhcqxBhA0A==
+X-Received: by 2002:a05:600c:601e:b0:3c6:e61e:ae71 with SMTP id az30-20020a05600c601e00b003c6e61eae71mr50341357wmb.1.1673089493118;
+        Sat, 07 Jan 2023 03:04:53 -0800 (PST)
+Received: from gmail.com (1F2EF507.nat.pool.telekom.hu. [31.46.245.7])
+        by smtp.gmail.com with ESMTPSA id o9-20020a05600c510900b003c6f8d30e40sm10657278wms.31.2023.01.07.03.04.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 07 Jan 2023 03:04:50 -0800 (PST)
+Sender: Ingo Molnar <mingo.kernel.org@gmail.com>
+Date:   Sat, 7 Jan 2023 12:04:47 +0100
+From:   Ingo Molnar <mingo@kernel.org>
+To:     Valentin Schneider <vschneid@redhat.com>
+Cc:     linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
+        openrisc@lists.librecores.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org,
+        x86@kernel.org, Steven Rostedt <rostedt@goodmis.org>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will@kernel.org>,
-        Bharat Bhushan <bharat.bhushan@nxp.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Eric Auger <eric.auger@redhat.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Tomasz Nowicki <tomasz.nowicki@caviumnetworks.com>,
-        Will Deacon <will.deacon@arm.com>
-References: <2-v3-3313bb5dd3a3+10f11-secure_msi_jgg@nvidia.com>
- <2c12143b-eaa9-2f6b-d367-e55d6f1e180d@linux.intel.com>
- <Y7geJZkCdXmgaD8V@nvidia.com>
-Content-Language: en-US
-From:   Baolu Lu <baolu.lu@linux.intel.com>
-In-Reply-To: <Y7geJZkCdXmgaD8V@nvidia.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Marcelo Tosatti <mtosatti@redhat.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Marc Zyngier <maz@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Guo Ren <guoren@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH v3 3/8] sched, smp: Trace IPIs sent via
+ send_call_function_single_ipi()
+Message-ID: <Y7lRz7oCaAmAhoqS@gmail.com>
+References: <20221202155817.2102944-1-vschneid@redhat.com>
+ <20221202155817.2102944-4-vschneid@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221202155817.2102944-4-vschneid@redhat.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 1/6/2023 9:12 PM, Jason Gunthorpe wrote:
-> On Fri, Jan 06, 2023 at 07:28:46PM +0800, Baolu Lu wrote:
+
+* Valentin Schneider <vschneid@redhat.com> wrote:
+
+> send_call_function_single_ipi() is the thing that sends IPIs at the bottom
+> of smp_call_function*() via either generic_exec_single() or
+> smp_call_function_many_cond(). Give it an IPI-related tracepoint.
 > 
->>> diff --git a/include/linux/iommu.h b/include/linux/iommu.h
->>> index 46e1347bfa2286..9b7a9fa5ad28d3 100644
->>> --- a/include/linux/iommu.h
->>> +++ b/include/linux/iommu.h
->>> @@ -455,6 +455,7 @@ static inline const struct iommu_ops *dev_iommu_ops(struct device *dev)
->>>    extern int bus_iommu_probe(struct bus_type *bus);
->>>    extern bool iommu_present(struct bus_type *bus);
->>>    extern bool device_iommu_capable(struct device *dev, enum iommu_cap cap);
->>> +extern bool iommu_group_has_isolated_msi(struct iommu_group *group);
->> This lacks a static inline definition when CONFIG_IOMMU_API is false?
-> It is not needed, the call sites are all compilation protected by
-> CONFIG_IOMMU_API already.
+> Note that this ends up tracing any IPI sent via __smp_call_single_queue(),
+> which covers __ttwu_queue_wakelist() and irq_work_queue_on() "for free".
+> 
+> Signed-off-by: Valentin Schneider <vschneid@redhat.com>
+> Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-Thanks for the explanation. It's okay to me as it has been considered.
+Acked-by: Ingo Molnar <mingo@kernel.org>
 
---
-Best regards,
-baolu
+Patch series logistics:
+
+ - No objections from the scheduler side, this feature looks pretty useful.
+
+ - Certain patches are incomplete, others are noted as being merged 
+   separately, so I presume you'll send an updated/completed series 
+   eventually?
+
+ - We can merge this via the scheduler tree I suspect, as most callbacks 
+   affected relate to tip:sched/core and tmp:smp/core - but if you have 
+   some other preferred tree that's fine too.
+
+Thanks,
+
+	Ingo
