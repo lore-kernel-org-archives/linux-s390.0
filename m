@@ -2,166 +2,216 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 67503C5479D
-	for <linux-s390@archiver.kernel.org>; Mon,  9 Jan 2023 19:41:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 97953C54EBD
+	for <linux-s390@archiver.kernel.org>; Mon,  9 Jan 2023 20:11:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232429AbjAITkl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 9 Jan 2023 14:40:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44226 "EHLO
+        id S237616AbjAIULH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 9 Jan 2023 15:11:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236629AbjAITkj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Jan 2023 14:40:39 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 887A176801;
-        Mon,  9 Jan 2023 11:40:36 -0800 (PST)
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 309INvA5005048;
-        Mon, 9 Jan 2023 19:40:34 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=QyKqcW400I7fdGBwWxCZ2QGqWWUUfCAvtddLjZAuzhM=;
- b=WthHWu2Ty/j5+16LcQpum2P2laRu3PBjiDNgPGzaw9nPTSN3R7g9ZvjPT6dJPU058R+t
- f1UuJNWNKK6zdf44ZX0sScqYOLKtJwrbFwEBCBLY13jj4RVrHfuACV7XtdR78eD93EQv
- Z2rur9frkyBZeP8ftPt8B7UteMWL8FAGUqdugD4Z2/iK1HOUjn3uQkE9bXisdcyfc4Gr
- FHmDS4Y6z/gZwMt8Cyp7lrBw13e7Ul8SOw725PHR5Rh2hKTP3H3qvo56tXVkQ40qA5b5
- HyxzaXpFR3kHCDV+oStUV1kiwTFOG/SB5rhFS1/xcNzoZx/FME5d6soUseKE5B/Aprv7 Mg== 
+        with ESMTP id S237591AbjAIUKz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Jan 2023 15:10:55 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72BCEDF4;
+        Mon,  9 Jan 2023 12:10:51 -0800 (PST)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 309JI64o031270;
+        Mon, 9 Jan 2023 20:10:47 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=vHxtIZVNhh1Xt+rXy3HWXJ4MJLBlSbXgyKBEB0LRDyA=;
+ b=So2+siRKzoLNWU/BTwDQgxfOT/hhxrjoI263w98bub0CrYm1zQqvY81F5lW/u2Oo2BPk
+ Fa9y+UUeaiXma8p4bP5jEq/+4sJv8C4snheoW+/KAbHBBJQEqtsvL+Zga+QBY6lUc4eu
+ sQbHZ3C76glHCVdtVNvzwiXT34CACjgeFAoYzoUDCTj41NWojtJCQCKMOHH4bvnmwRWL
+ lkAdgUsUYYjIxRfis0m+racwNvWqLZloHmq37gDvqCRMsIi1lrgLwMPWaRp9jDAMaLi+
+ 3xKqtYpSKN9S0fx0FxTfPDaPoCTxzmlAqOJMPCDAteU5LW0GnTp4/KIU6k47w/mNFREH EQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3myjasyefw-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n0rya14dy-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 09 Jan 2023 19:40:33 +0000
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 309J8lxv021500;
-        Mon, 9 Jan 2023 19:40:33 GMT
-Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3myjasyefq-1
+        Mon, 09 Jan 2023 20:10:47 +0000
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 309Jw26E002748;
+        Mon, 9 Jan 2023 20:10:46 GMT
+Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n0rya14df-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 09 Jan 2023 19:40:33 +0000
-Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
-        by ppma03dal.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 309IxVms029729;
-        Mon, 9 Jan 2023 19:40:32 GMT
+        Mon, 09 Jan 2023 20:10:46 +0000
+Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
+        by ppma01dal.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 309Ipw3X021901;
+        Mon, 9 Jan 2023 20:10:45 GMT
 Received: from smtprelay06.wdc07v.mail.ibm.com ([9.208.129.118])
-        by ppma03dal.us.ibm.com (PPS) with ESMTPS id 3my0c7gy6v-1
+        by ppma01dal.us.ibm.com (PPS) with ESMTPS id 3my0c7s31c-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 09 Jan 2023 19:40:32 +0000
-Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
-        by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 309JeUsZ4063868
+        Mon, 09 Jan 2023 20:10:45 +0000
+Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
+        by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 309KAhYx8520276
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 9 Jan 2023 19:40:30 GMT
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 44EAF58054;
-        Mon,  9 Jan 2023 19:40:30 +0000 (GMT)
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D1F3658045;
-        Mon,  9 Jan 2023 19:40:28 +0000 (GMT)
-Received: from [9.160.171.221] (unknown [9.160.171.221])
-        by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Mon,  9 Jan 2023 19:40:28 +0000 (GMT)
-Message-ID: <3a1863b1-f0f2-92a6-09c4-eab1faafcd41@linux.ibm.com>
-Date:   Mon, 9 Jan 2023 14:40:28 -0500
+        Mon, 9 Jan 2023 20:10:43 GMT
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 52F4E5804E;
+        Mon,  9 Jan 2023 20:10:43 +0000 (GMT)
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 263735803F;
+        Mon,  9 Jan 2023 20:10:41 +0000 (GMT)
+Received: from li-2311da4c-2e09-11b2-a85c-c003041e9174.ibm.com.com (unknown [9.65.251.44])
+        by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Mon,  9 Jan 2023 20:10:41 +0000 (GMT)
+From:   Matthew Rosato <mjrosato@linux.ibm.com>
+To:     alex.williamson@redhat.com, pbonzini@redhat.com
+Cc:     jgg@nvidia.com, cohuck@redhat.com, farman@linux.ibm.com,
+        pmorel@linux.ibm.com, borntraeger@linux.ibm.com,
+        frankja@linux.ibm.com, imbrenda@linux.ibm.com, david@redhat.com,
+        akrowiak@linux.ibm.com, jjherne@linux.ibm.com, pasic@linux.ibm.com,
+        zhenyuw@linux.intel.com, zhi.a.wang@intel.com,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 1/2] KVM: async kvm_destroy_vm for vfio devices
+Date:   Mon,  9 Jan 2023 15:10:36 -0500
+Message-Id: <20230109201037.33051-2-mjrosato@linux.ibm.com>
+X-Mailer: git-send-email 2.39.0
+In-Reply-To: <20230109201037.33051-1-mjrosato@linux.ibm.com>
+References: <20230109201037.33051-1-mjrosato@linux.ibm.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.0
-Subject: Re: [PATCH 7/7] s390/vfio_ap: always clean up IRQ resources
-Content-Language: en-US
-To:     Halil Pasic <pasic@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, jjherne@linux.ibm.com, freude@linux.ibm.com,
-        borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com,
-        alex.williamson@redhat.com, kwankhede@nvidia.com,
-        fiuczy@linux.ibm.com
-References: <20221213154437.15480-1-akrowiak@linux.ibm.com>
- <20221213154437.15480-8-akrowiak@linux.ibm.com>
- <20221219151007.639dff5f.pasic@linux.ibm.com>
- <7b6d7e91-ba00-6486-39ae-91fca30b2cfb@linux.ibm.com>
- <20221220182407.5959a4b6.pasic@linux.ibm.com>
-From:   Anthony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <20221220182407.5959a4b6.pasic@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: aXW4Uzq5MvLmCkoZBv9Qd31NJIr6vMUx
-X-Proofpoint-ORIG-GUID: _YGSmIYlAhw2DvPq9EdmY1vbisvdMPDp
+X-Proofpoint-ORIG-GUID: tdfzrYQRmVh1fRlcbDJIR3XrFlvpcnTo
+X-Proofpoint-GUID: 7iW8hCGahZOrmV06uujJOxGDrV1T4EEc
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2023-01-09_13,2023-01-09_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
- lowpriorityscore=0 mlxlogscore=999 clxscore=1015 spamscore=0 bulkscore=0
- suspectscore=0 priorityscore=1501 adultscore=0 malwarescore=0
- impostorscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2301090136
+ definitions=2023-01-09_14,2023-01-09_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 mlxscore=0
+ clxscore=1015 adultscore=0 priorityscore=1501 lowpriorityscore=0
+ impostorscore=0 spamscore=0 phishscore=0 mlxlogscore=999 malwarescore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2301090141
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Currently it is possible that the final put of a KVM reference comes from
+vfio during its device close operation.  This occurs while the vfio group
+lock is held; however, if the vfio device is still in the kvm device list,
+then the following call chain could result in a deadlock:
 
-On 12/20/22 12:24 PM, Halil Pasic wrote:
-> On Tue, 20 Dec 2022 09:33:03 -0500
-> Anthony Krowiak <akrowiak@linux.ibm.com> wrote:
->
->> On 12/19/22 9:10 AM, Halil Pasic wrote:
->>> On Tue, 13 Dec 2022 10:44:37 -0500
->>> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
->>>   
->>>> Clean up IRQ resources even when a PQAP(ZAPQ) function fails with an error
->>>> not handled by a case statement.
->>> Why?
->>
->> If the ZAPQ failed, then instructions submitted to the same queue will
->> likewise fail. Are you saying it's not safe to assume, therefore, that
->> interrupts will not be occurring?
-> Right. We are talking about the default branch here, and I suppose, the
-> codes where we know that it is safe to assume that no reset is needed
-> handled separately (AP_RESPONSE_DECONFIGURED).
->
-> I'm not convinced that if we take the default branch we can safely
-> assume, that we won't see any interrupts.
->
-> For example consider hot-unplug as done by KVM. We modify the
-> CRYCB/APCB with all vCPUS take out of SIE, but we don't keep
-> the vCPUs out of SIE until the resets of the unpugged queues
-> are done, and we don't do any extra interrupt disablement
-> with all vCPUs keept out of SIE. So I believe currently there
-> may be a window where the guest can observe a 01 but the
-> interrupts are still live. That may be a bug, but IMHO it ain't clear
-> cut.
->
-> But it is not just about interrupts. Before we returned an error
-> code, which gets propagated to the userspace if this reset was
-> triggered via the ioctl.
->
-> With this change, ret seems to be uninitialized when returned
-> if we take the code path which you change here. So we would
-> end up logging a warning and returning garbage?
+kvm_put_kvm
+ -> kvm_destroy_vm
+  -> kvm_destroy_devices
+   -> kvm_vfio_destroy
+    -> kvm_vfio_file_set_kvm
+     -> vfio_file_set_kvm
+      -> group->group_lock/group_rwsem
 
+Avoid this scenario by adding kvm_put_kvm_async which will perform the
+kvm_destroy_vm asynchronously if the refcount reaches 0.
 
-That was an oversight. The -EIO value was returned previously, so the 
-ret = -EIO should be set in the default case.
+Fixes: 421cfe6596f6 ("vfio: remove VFIO_GROUP_NOTIFY_SET_KVM")
+Reported-by: Alex Williamson <alex.williamson@redhat.com>
+Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+---
+ drivers/gpu/drm/i915/gvt/kvmgt.c  |  6 +++++-
+ drivers/s390/crypto/vfio_ap_ops.c |  7 ++++++-
+ include/linux/kvm_host.h          |  3 +++
+ virt/kvm/kvm_main.c               | 22 ++++++++++++++++++++++
+ 4 files changed, 36 insertions(+), 2 deletions(-)
 
+diff --git a/drivers/gpu/drm/i915/gvt/kvmgt.c b/drivers/gpu/drm/i915/gvt/kvmgt.c
+index 8ae7039b3683..24511c877572 100644
+--- a/drivers/gpu/drm/i915/gvt/kvmgt.c
++++ b/drivers/gpu/drm/i915/gvt/kvmgt.c
+@@ -703,7 +703,11 @@ static void intel_vgpu_close_device(struct vfio_device *vfio_dev)
+ 
+ 	kvm_page_track_unregister_notifier(vgpu->vfio_device.kvm,
+ 					   &vgpu->track_node);
+-	kvm_put_kvm(vgpu->vfio_device.kvm);
++	/*
++	 * Avoid possible deadlock on any currently-held vfio lock by
++	 * ensuring the potential kvm_destroy_vm call is done asynchronously
++	 */
++	kvm_put_kvm_async(vgpu->vfio_device.kvm);
+ 
+ 	kvmgt_protect_table_destroy(vgpu);
+ 	gvt_cache_destroy(vgpu);
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index e93bb9c468ce..a37b2baefb36 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -1574,7 +1574,12 @@ static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev)
+ 
+ 		kvm_arch_crypto_clear_masks(kvm);
+ 		vfio_ap_mdev_reset_queues(&matrix_mdev->qtable);
+-		kvm_put_kvm(kvm);
++		/*
++		 * Avoid possible deadlock on any currently-held vfio lock by
++		 * ensuring the potential kvm_destroy_vm call is done
++		 * asynchronously
++		 */
++		kvm_put_kvm_async(kvm);
+ 		matrix_mdev->kvm = NULL;
+ 
+ 		release_update_locks_for_kvm(kvm);
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index 4f26b244f6d0..2ef6a5102265 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -34,6 +34,7 @@
+ #include <linux/instrumentation.h>
+ #include <linux/interval_tree.h>
+ #include <linux/rbtree.h>
++#include <linux/workqueue.h>
+ #include <linux/xarray.h>
+ #include <asm/signal.h>
+ 
+@@ -793,6 +794,7 @@ struct kvm {
+ 	struct kvm_stat_data **debugfs_stat_data;
+ 	struct srcu_struct srcu;
+ 	struct srcu_struct irq_srcu;
++	struct work_struct async_work;
+ 	pid_t userspace_pid;
+ 	bool override_halt_poll_ns;
+ 	unsigned int max_halt_poll_ns;
+@@ -963,6 +965,7 @@ void kvm_exit(void);
+ void kvm_get_kvm(struct kvm *kvm);
+ bool kvm_get_kvm_safe(struct kvm *kvm);
+ void kvm_put_kvm(struct kvm *kvm);
++void kvm_put_kvm_async(struct kvm *kvm);
+ bool file_is_kvm(struct file *file);
+ void kvm_put_kvm_no_destroy(struct kvm *kvm);
+ 
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 13e88297f999..fbe8d127028b 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -1353,6 +1353,28 @@ void kvm_put_kvm(struct kvm *kvm)
+ }
+ EXPORT_SYMBOL_GPL(kvm_put_kvm);
+ 
++static void kvm_put_async_fn(struct work_struct *work)
++{
++	struct kvm *kvm = container_of(work, struct kvm,
++				       async_work);
++
++	kvm_destroy_vm(kvm);
++}
++
++/*
++ * Put a reference but only destroy the vm asynchronously.  Can be used in
++ * cases where the caller holds a mutex that could cause deadlock if
++ * kvm_destroy_vm is triggered
++ */
++void kvm_put_kvm_async(struct kvm *kvm)
++{
++	if (refcount_dec_and_test(&kvm->users_count)) {
++		INIT_WORK(&kvm->async_work, kvm_put_async_fn);
++		schedule_work(&kvm->async_work);
++	}
++}
++EXPORT_SYMBOL_GPL(kvm_put_kvm_async);
++
+ /*
+  * Used to put a reference that was taken on behalf of an object associated
+  * with a user-visible file descriptor, e.g. a vcpu or device, if installation
+-- 
+2.39.0
 
->
-> One could also debate, whether RCs introduced down the road
-> can affect the logic here (even if the statement "if we
-> see an RC other that 00 and 02, we don't need to pursue a
-> reset any further, and interrpts are disabled" were to be
-> guaranteed to be true now, new RCs could theoretically mess
-> this up).
-
-
-I think that would be the case regardless of this change. If new RCs are 
-introduced, this function ought to be revisited anyway and appropriate 
-changes made.
-
-
->
->   
->>
->>> I'm afraid this is a step in the wrong direction...
->>
->> Please explain why.
->>
-> Sorry, I kept this brief because IMHO it is your job to tell us why
-> this needs to be changed. But I gave in, as you see.
->
-> Regards,
-> Halil
