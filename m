@@ -2,188 +2,127 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 247EDC54EBE
-	for <linux-s390@archiver.kernel.org>; Mon,  9 Jan 2023 21:29:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0535AC54EBD
+	for <linux-s390@archiver.kernel.org>; Mon,  9 Jan 2023 22:03:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237206AbjAIV3W (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 9 Jan 2023 16:29:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38898 "EHLO
+        id S235462AbjAIWDE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 9 Jan 2023 17:03:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237862AbjAIV3J (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Jan 2023 16:29:09 -0500
-Received: from mail-vs1-xe2d.google.com (mail-vs1-xe2d.google.com [IPv6:2607:f8b0:4864:20::e2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22D8B25F8;
-        Mon,  9 Jan 2023 13:29:08 -0800 (PST)
-Received: by mail-vs1-xe2d.google.com with SMTP id s127so10225119vsb.5;
-        Mon, 09 Jan 2023 13:29:08 -0800 (PST)
+        with ESMTP id S235561AbjAIWDB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Jan 2023 17:03:01 -0500
+Received: from mail-qv1-xf31.google.com (mail-qv1-xf31.google.com [IPv6:2607:f8b0:4864:20::f31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E080313F45
+        for <linux-s390@vger.kernel.org>; Mon,  9 Jan 2023 14:03:00 -0800 (PST)
+Received: by mail-qv1-xf31.google.com with SMTP id o17so7277119qvn.4
+        for <linux-s390@vger.kernel.org>; Mon, 09 Jan 2023 14:03:00 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
+        d=linux-foundation.org; s=google;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=unEz8Po80qyvgT7TDUJc75ZwwHShIf6/y2xqGnG0MLw=;
-        b=iCotF84fyU6WecJRaYkXs3vK3d7x9b8Nj+HbTmHBstmHAOMZ6wu+fHC/f2BCes33RA
-         5Fex5jkaX4wZyn1EVHLh4oXxBe3d0BIv3ScUHRW8XjHZwT6wW1BIxT9WOy2NCE0uv+xi
-         PLlTpj1j71eEzTVt4GNqWdM4k/zlutRaSDhJ+huyga2k/sVU947d+CQcmJ0o2Kn/wWrh
-         N3ZH599DUjSeyBwoo+dD7R3dzvW99iMSiiHe5FTO+O6oNTGlVY2PLme/QJwE/M+iFpJZ
-         ou86QYiECR/qaRGKBBSprOValMlbWr0mGDwDFYrVmap0Q30KY9DkgX3d+50qdeKqpyZB
-         YkBg==
+        bh=k0nIhdmoq2YN+8CYmcGGz5g09uBL17k5HRqIgJjfUJU=;
+        b=F4QSW1fmPta1SdZoMgqppkBUl/S595vxphelnA2n0Z8L7+V9JICv9+FhFq2SezihUL
+         AZzzhDrgCA39Hc/bNA+TttzJcb5t9eNeDk24AJ2XPx+BNVsLNoozshq0sopE0CVIK+mb
+         mldZC1Aw99FFSuOlyX98h9PUcGiDBvSvEDfSQ=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=unEz8Po80qyvgT7TDUJc75ZwwHShIf6/y2xqGnG0MLw=;
-        b=51pJeEGVddSS9r32HN0Rn+l4WLh0pAX/ZbU8joAz4L9XQ17Lm8du1kdvqV2ZpGzR9S
-         wC0niF7vsk6e6+VT56vozurSmbivW0wdXkJAlNRDPpP2A7a4Peew411ro5Wa9w+BdM3B
-         71PYjz9sUYlX1Zr7PIde+ujhokVfAsxciCGkD6nKTurH375A+JWc/nNhYQT0lvwrIClc
-         cLpzEyNOYWyvkY6FP7ifh5Hs6F4R7HeyOPCOFBFuoSFOs9GAh0qp7fTb3HWdHKMV0h+l
-         N+HP9/VIMUB4d5tMrTBWGyOz34UWPrWbexh9b5Kh+j9Pqa/awR4xrJEz7SwOVBSRFNpm
-         +Uaw==
-X-Gm-Message-State: AFqh2kqrgszQUCDWuXl7I7+5ApIK8pKTZeT7Zdz2wg/wUrNQhDTnjuTq
-        ltuHcNzDZU7cXSZeQrzKAFQ/JA9aKKVASkhNFw4=
-X-Google-Smtp-Source: AMrXdXsg6Ko/alWOI1aCE8iGkx65RtschN8kfdrjibAvlZRKWqyjgef2aFot9xS0Y4dCZHNtV0kQ5ZBQglrZ6/auzas=
-X-Received: by 2002:a67:5e01:0:b0:3ce:d776:30b6 with SMTP id
- s1-20020a675e01000000b003ced77630b6mr3170503vsb.33.1673299747173; Mon, 09 Jan
- 2023 13:29:07 -0800 (PST)
+        bh=k0nIhdmoq2YN+8CYmcGGz5g09uBL17k5HRqIgJjfUJU=;
+        b=dD0mfFPHnkWKYYyejJC4+AIdRp4O0t6d41r2NHSIi75OtQGt1kn5P/RCs4lVyou8HL
+         d4ag18iCRaB7hVXdltCTJo6lB5MI+nPpLfQN3a5/xVBD1S0GsFp+UXV++88Aahky9sLs
+         stQQBPdCR+WcWr1QlZ2/5Z/ckwljKWuIA6A5ZnVM1ecy365Ys68Ealurb9qYKD9b4pwG
+         Y1UVjELSC9W1VmmlVFWcztMcTlKYWFAILR3rJaKAwxPJ5f/4yI4DS9bo+Hc2OZCBwSIF
+         t6t1VGu3fRMJ8GC16hcrdzi49lwrZ1e7xMb8ULUmhci8EgStc9G+vmarCop/ScnxWc26
+         ZoLA==
+X-Gm-Message-State: AFqh2krwselciH0vyOI8l48bxvJCqQ4MaFYdTRvWLDugluUq+mZEGz5n
+        rStQQHOrl1f93anPY1kB1NWffMAKccKbDF8AKKA=
+X-Google-Smtp-Source: AMrXdXv1B18Puio10Q9lDNliHoygtF9NxHjQlDQYvnA8B65+U7dYHAqtVoOsKm5H4/Prg5mMDCGv+Q==
+X-Received: by 2002:a0c:bf4b:0:b0:531:c196:3dfb with SMTP id b11-20020a0cbf4b000000b00531c1963dfbmr41389526qvj.25.1673301779921;
+        Mon, 09 Jan 2023 14:02:59 -0800 (PST)
+Received: from mail-qv1-f52.google.com (mail-qv1-f52.google.com. [209.85.219.52])
+        by smtp.gmail.com with ESMTPSA id br43-20020a05620a462b00b006ec771d8f89sm6056575qkb.112.2023.01.09.14.02.59
+        for <linux-s390@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 09 Jan 2023 14:02:59 -0800 (PST)
+Received: by mail-qv1-f52.google.com with SMTP id h10so7262984qvq.7
+        for <linux-s390@vger.kernel.org>; Mon, 09 Jan 2023 14:02:59 -0800 (PST)
+X-Received: by 2002:ad4:4150:0:b0:531:7593:f551 with SMTP id
+ z16-20020ad44150000000b005317593f551mr1338900qvp.89.1673301769392; Mon, 09
+ Jan 2023 14:02:49 -0800 (PST)
 MIME-Version: 1.0
-References: <20221117082648.47526-1-yangyicong@huawei.com> <20221117082648.47526-3-yangyicong@huawei.com>
- <Y7cToj5mWd1ZbMyQ@arm.com> <CAGsJ_4yC0i6MYwvosRSrdQ1iT7n88ypmK3aOQJkuusqNKtddtg@mail.gmail.com>
- <Y7xMhPTAwcUT4O6b@arm.com>
-In-Reply-To: <Y7xMhPTAwcUT4O6b@arm.com>
-From:   Barry Song <21cnbao@gmail.com>
-Date:   Tue, 10 Jan 2023 05:28:55 +0800
-Message-ID: <CAGsJ_4zrff5vtS0WP4Q8VH8vhBma8bzMqyY5c0mxjQ_qjFbO-Q@mail.gmail.com>
-Subject: Re: [PATCH v7 2/2] arm64: support batched/deferred tlb shootdown
- during page reclamation
-To:     Catalin Marinas <catalin.marinas@arm.com>,
-        Nadav Amit <namit@vmware.com>, Mel Gorman <mgorman@suse.de>
-Cc:     Yicong Yang <yangyicong@huawei.com>, akpm@linux-foundation.org,
-        linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org,
-        x86@kernel.org, will@kernel.org, anshuman.khandual@arm.com,
-        linux-doc@vger.kernel.org, corbet@lwn.net, peterz@infradead.org,
-        arnd@arndb.de, punit.agrawal@bytedance.com,
-        linux-kernel@vger.kernel.org, darren@os.amperecomputing.com,
-        yangyicong@hisilicon.com, huzhanyuan@oppo.com, lipeifeng@oppo.com,
-        zhangshiming@oppo.com, guojian@oppo.com, realmz6@gmail.com,
-        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, wangkefeng.wang@huawei.com,
-        xhao@linux.alibaba.com, prime.zeng@hisilicon.com,
-        Barry Song <v-songbaohua@oppo.com>
+References: <20221219153525.632521981@infradead.org> <20221219154119.550996611@infradead.org>
+ <Y7Ri+Uij1GFkI/LB@osiris> <CAHk-=wj9nK825MyHXu7zkegc7Va+ZxcperdOtRMZBCLHqGrr=g@mail.gmail.com>
+ <Y7xAsELYo4srs/z/@hirez.programming.kicks-ass.net>
+In-Reply-To: <Y7xAsELYo4srs/z/@hirez.programming.kicks-ass.net>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Mon, 9 Jan 2023 16:02:33 -0600
+X-Gmail-Original-Message-ID: <CAHk-=whm+u8YoUaE9PKugYBxujhDL5twz6HqzqLP8OTXjKuT4g@mail.gmail.com>
+Message-ID: <CAHk-=whm+u8YoUaE9PKugYBxujhDL5twz6HqzqLP8OTXjKuT4g@mail.gmail.com>
+Subject: Re: [RFC][PATCH 11/12] slub: Replace cmpxchg_double()
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     Heiko Carstens <hca@linux.ibm.com>, corbet@lwn.net,
+        will@kernel.org, boqun.feng@gmail.com, mark.rutland@arm.com,
+        catalin.marinas@arm.com, dennis@kernel.org, tj@kernel.org,
+        cl@linux.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        Herbert Xu <herbert@gondor.apana.org.au>, davem@davemloft.net,
+        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
+        joro@8bytes.org, suravee.suthikulpanit@amd.com,
+        robin.murphy@arm.com, dwmw2@infradead.org,
+        baolu.lu@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
+        penberg@kernel.org, rientjes@google.com, iamjoonsoo.kim@lge.com,
+        Andrew Morton <akpm@linux-foundation.org>, vbabka@suse.cz,
+        roman.gushchin@linux.dev, 42.hyeyoo@gmail.com,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, linux-s390@vger.kernel.org,
+        linux-crypto@vger.kernel.org, iommu@lists.linux.dev,
+        linux-arch@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jan 10, 2023 at 1:19 AM Catalin Marinas <catalin.marinas@arm.com> wrote:
+On Mon, Jan 9, 2023 at 10:29 AM Peter Zijlstra <peterz@infradead.org> wrote:
 >
-> On Sun, Jan 08, 2023 at 06:48:41PM +0800, Barry Song wrote:
-> > On Fri, Jan 6, 2023 at 2:15 AM Catalin Marinas <catalin.marinas@arm.com> wrote:
-> > > On Thu, Nov 17, 2022 at 04:26:48PM +0800, Yicong Yang wrote:
-> > > > It is tested on 4,8,128 CPU platforms and shows to be beneficial on
-> > > > large systems but may not have improvement on small systems like on
-> > > > a 4 CPU platform. So make ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH depends
-> > > > on CONFIG_EXPERT for this stage and make this disabled on systems
-> > > > with less than 8 CPUs. User can modify this threshold according to
-> > > > their own platforms by CONFIG_NR_CPUS_FOR_BATCHED_TLB.
-> > >
-> > > What's the overhead of such batching on systems with 4 or fewer CPUs? If
-> > > it isn't noticeable, I'd rather have it always on than some number
-> > > chosen on whichever SoC you tested.
-> >
-> > On the one hand, tlb flush is cheap on a small system. so batching tlb flush
-> > helps very minorly.
->
-> Yes, it probably won't help on small systems but I don't like config
-> options choosing the threshold, which may be different from system to
-> system even if they have the same number of CPUs. A run-time tunable
-> would be a better option.
->
-> > On the other hand, since we have batched the tlb flush, new PTEs might be
-> > invisible to others before the final broadcast is done and Ack-ed.
->
-> The new PTEs could indeed be invisible at the TLB level but not at the
-> memory (page table) level since this is done under the PTL IIUC.
->
-> > thus, there
-> > is a risk someone else might do mprotect or similar things  on those deferred
-> > pages which will ask for read-modify-write on those deferred PTEs.
->
-> And this should be fine, we have things like the PTL in place for the
-> actual memory access to the page table.
->
-> > in this
-> > case, mm will do an explicit flush by flush_tlb_batched_pending which is
-> > not required if tlb flush is not deferred.
->
-> I don't fully understand why it's needed, or at least why it would be
-> needed on arm64. At the end of an mprotect(), we have the final PTEs in
-> place and we just need to issue a TLBI for that range.
-> change_pte_range() for example has a tlb_flush_pte_range() if the PTE
-> was present and that won't be done lazily. If there are other TLBIs
-> pending for the same range, they'll be done later though likely
-> unnecessarily but still cheaper than issuing a flush_tlb_mm().
+> I ran into a ton of casting trouble when compiling kernel/fork.c which
+> uses this_cpu_cmpxchg() on a pointer type and the compiler hates casting
+> pointers to an integer that is not the exact same size.
 
-Thanks! I'd like to ask for some comments from Nadav and Mel from the x86 side.
-Revisiting the code of flush_tlb_batched_pending shows we still have races even
-under PTL.
+Ahh. Yeah - not because that code needs or wants the 128-bit case, but
+because the macro expands to all sizes in a switch statement, so the
+compiler sees all the cases even if only one is then statically
+picked.
 
-/*
- * Reclaim unmaps pages under the PTL but do not flush the TLB prior to
- * releasing the PTL if TLB flushes are batched. It's possible for a parallel
- * operation such as mprotect or munmap to race between reclaim unmapping
- * the page and flushing the page. If this race occurs, it potentially allows
- * access to data via a stale TLB entry. Tracking all mm's that have TLB
- * batching in flight would be expensive during reclaim so instead track
- * whether TLB batching occurred in the past and if so then do a flush here
- * if required. This will cost one additional flush per reclaim cycle paid
- * by the first operation at risk such as mprotect and mumap.
- *
- * This must be called under the PTL so that an access to tlb_flush_batched
- * that is potentially a "reclaim vs mprotect/munmap/etc" race will synchronise
- * via the PTL.
- */
-void flush_tlb_batched_pending(struct mm_struct *mm)
-{
-}
+So the silly casts are for all the cases that never matter.
 
-According to Catalin's comment, it seems over-cautious since we can make sure
-people see updated TLB after mprotect and munmap are done as they have tlb
-flush.  We can also make sure mprotect see updated "memory" of PTEs from
-reclamation though pte is not visible in TLB level.
+Annoying.
 
-Hi Mel, Nadav, would you please help clarify the exact sequence of how this race
-is going to happen?
+I wonder if the "this_cpu_cmpxchg()" macro could be made to use
+_Generic() to pick out the pointer case first, and then only use
+'sizeof()' for the integer types, so that we don't have this kind of
+"every architecture needs to deal with the nasty situation" code.
 
->
-> > void flush_tlb_batched_pending(struct mm_struct *mm)
-> > {
-> >        int batch = atomic_read(&mm->tlb_flush_batched);
-> >        int pending = batch & TLB_FLUSH_BATCH_PENDING_MASK;
-> >        int flushed = batch >> TLB_FLUSH_BATCH_FLUSHED_SHIFT;
-> >
-> >        if (pending != flushed) {
-> >                flush_tlb_mm(mm);
-> >         /*
-> >          * If the new TLB flushing is pending during flushing, leave
-> >          * mm->tlb_flush_batched as is, to avoid losing flushing.
-> >         */
-> >       atomic_cmpxchg(&mm->tlb_flush_batched, batch,
-> >            pending | (pending << TLB_FLUSH_BATCH_FLUSHED_SHIFT));
-> >      }
-> > }
->
-> I guess this works on x86 better as it avoids the IPIs if this flush
-> already happened. But on arm64 we already issued the TLBI, we just
-> didn't wait for it to complete via a DSB.
->
-> > I believe Anshuman has contributed many points on this in those previous
-> > discussions.
->
-> Yeah, I should re-read the old threads.
->
-> --
-> Catalin
+Ok, it's not actually the this_cpu_cmpxchg() macro, it's
+__pcpu_size_call_return() and friends, but whatever.
 
-Thanks
-Barry
+Another alternative is to try to avoid casting to "u64" as long as
+humanly possible, and use only "typeof((*ptr))" everywhere. Then when
+the type actually *is* 128-bit, it all works out fine, because it
+won't be a pointer. That's the approach the uaccess macros tend to
+take, and then they hit the reverse issue on clang, where using the
+"byte register" constraints would cause warnings for non-byte
+accesses, and we had to do
+
+                unsigned char x_u8__;
+                __get_user_asm(x_u8__, ptr, "b", "=q", label);
+                (x) = x_u8__;
+
+because using '(x)' directly would then warn when 'x' wasn't a
+char-sized thing - even if that asm case never actually was _used_ for
+that case, since it was all inside a "switch (sizeof) case 1:"
+statement.
+
+            Linus
