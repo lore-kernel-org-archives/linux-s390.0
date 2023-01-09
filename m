@@ -2,155 +2,84 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 33E75C5479D
-	for <linux-s390@archiver.kernel.org>; Mon,  9 Jan 2023 16:03:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EE003C677F1
+	for <linux-s390@archiver.kernel.org>; Mon,  9 Jan 2023 16:29:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232635AbjAIQDy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 9 Jan 2023 11:03:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42660 "EHLO
+        id S234203AbjAIQ35 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 9 Jan 2023 11:29:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231341AbjAIQDw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Jan 2023 11:03:52 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9AD31D0D4;
-        Mon,  9 Jan 2023 08:03:50 -0800 (PST)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 309FL7Xc015963;
-        Mon, 9 Jan 2023 16:03:50 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=foMnHzTcJhE1OB25m5g2nN/Qijb9TqQf2o1tQuw9Dac=;
- b=sTR4ZxQlqjqlT88dFiweZBW+z7dOsNcyH0Mj+jCVquhb8IFZOiOcvRy97zN0McZiYwTP
- 47uyAOp6yjN6GTLX8XeZ79hiLYhzxdRQLKrk8XEJRAfOGYj8FRpZZk/Cz6uoVpPUBkUR
- TQnoJaSVtNkS+qC36m/5bBlv3g//klBTzUQH4lQHrTiZUHedB8x1laiY171lmezqHtsu
- tL/clSnxtGqsOqdZKT25V4rqvJdejCn1OJgAjJTTFSjwi8sBjGn1bJMyL2rZU73STmmQ
- dMOKHGV+MV++BsSxKmmLKWtSP1jMv81M2HVnu2Xiq03+TFGb/fPUfOsCmKIEDFRBTVFp UQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3myj6jjpqv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 09 Jan 2023 16:03:50 +0000
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 309FtOkI024134;
-        Mon, 9 Jan 2023 16:03:49 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3myj6jjpp9-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 09 Jan 2023 16:03:49 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3098ti3b024704;
-        Mon, 9 Jan 2023 16:03:47 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3my0c6k665-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 09 Jan 2023 16:03:47 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 309G3hmO49152340
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 9 Jan 2023 16:03:43 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A6AFE20049;
-        Mon,  9 Jan 2023 16:03:43 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1BA3C20043;
-        Mon,  9 Jan 2023 16:03:43 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.179.4.251])
-        by smtpav01.fra02v.mail.ibm.com (Postfix) with SMTP;
-        Mon,  9 Jan 2023 16:03:43 +0000 (GMT)
-Date:   Mon, 9 Jan 2023 17:03:41 +0100
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] KVM: s390: interrupt: use READ_ONCE() before
- cmpxchg()
-Message-ID: <20230109170341.6d3edc7b@p-imbrenda>
-In-Reply-To: <20230109145456.2895385-1-hca@linux.ibm.com>
-References: <20230109145456.2895385-1-hca@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
+        with ESMTP id S234894AbjAIQ3b (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Jan 2023 11:29:31 -0500
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6784213F6B;
+        Mon,  9 Jan 2023 08:29:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=K4iLiuKEPTIMOSfy85ssWj3jx3GEEqdcGwlKwLODXMM=; b=JAy3f3pJzS7zKtbCVYppxBykTw
+        GRrOsT8QXwJeRAVJnKjXkPNTTrYhLcKd6x7KX7Er5l5FnRJxlkrKavnOuiiKBcLrxI98sFeLSzlTi
+        X/RCB/4g03Emt/oA33OuwJ7Lw67aPct5WDU5KbEI7+Ne1z3NJAUQI20zlsNXrvVUojTYfNprA1iXA
+        qsasYrCJDKcBRXJrcZy+4PPXepvCbRYEFhzkYd8UwLYw3lJtlTLXRLSP1xUFW+luM9Gy2E3q3nme1
+        1wLhOXUv6PRulcIOv6OJIpLIL5TyVk1QvInXtFnA+/iKh9bXbBkNptb3lVtD9eTuWxYl63jk0dz8i
+        fH0nr+GQ==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
+        by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
+        id 1pEv0g-002mMs-0C;
+        Mon, 09 Jan 2023 16:28:30 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id DEE513001E5;
+        Mon,  9 Jan 2023 17:28:32 +0100 (CET)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 8A07E20086EAB; Mon,  9 Jan 2023 17:28:32 +0100 (CET)
+Date:   Mon, 9 Jan 2023 17:28:32 +0100
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Heiko Carstens <hca@linux.ibm.com>, corbet@lwn.net,
+        will@kernel.org, boqun.feng@gmail.com, mark.rutland@arm.com,
+        catalin.marinas@arm.com, dennis@kernel.org, tj@kernel.org,
+        cl@linux.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        Herbert Xu <herbert@gondor.apana.org.au>, davem@davemloft.net,
+        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
+        joro@8bytes.org, suravee.suthikulpanit@amd.com,
+        robin.murphy@arm.com, dwmw2@infradead.org,
+        baolu.lu@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
+        penberg@kernel.org, rientjes@google.com, iamjoonsoo.kim@lge.com,
+        Andrew Morton <akpm@linux-foundation.org>, vbabka@suse.cz,
+        roman.gushchin@linux.dev, 42.hyeyoo@gmail.com,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, linux-s390@vger.kernel.org,
+        linux-crypto@vger.kernel.org, iommu@lists.linux.dev,
+        linux-arch@vger.kernel.org
+Subject: Re: [RFC][PATCH 11/12] slub: Replace cmpxchg_double()
+Message-ID: <Y7xAsELYo4srs/z/@hirez.programming.kicks-ass.net>
+References: <20221219153525.632521981@infradead.org>
+ <20221219154119.550996611@infradead.org>
+ <Y7Ri+Uij1GFkI/LB@osiris>
+ <CAHk-=wj9nK825MyHXu7zkegc7Va+ZxcperdOtRMZBCLHqGrr=g@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 5T46g9dGXCgn6OyAowMtmuMtyNQ7Z96M
-X-Proofpoint-GUID: SqoaB9pIu61Qn1_q_Bvu7ue_YjBHWEbu
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2023-01-09_09,2023-01-09_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011
- lowpriorityscore=0 mlxlogscore=844 phishscore=0 adultscore=0 mlxscore=0
- suspectscore=0 impostorscore=0 priorityscore=1501 bulkscore=0 spamscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2301090116
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHk-=wj9nK825MyHXu7zkegc7Va+ZxcperdOtRMZBCLHqGrr=g@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon,  9 Jan 2023 15:54:56 +0100
-Heiko Carstens <hca@linux.ibm.com> wrote:
+On Tue, Jan 03, 2023 at 11:08:29AM -0800, Linus Torvalds wrote:
 
-> Use READ_ONCE() before cmpxchg() to prevent that the compiler generates
-> code that fetches the to be compared old value several times from memory.
-> 
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+> But I *do* note that this patch seems to be the only one that depends
+> on the new this_cpu_cmpxchg() updates to make it just automatically do
+> the right thing for a 128-bit value. And I have to admit that all
+> those games with __pcpu_cast_128() make no sense to me. Why isn't it
+> just using "u128" everywhere without any odd _Generic() games?
 
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-
-> ---
-> 
-> v2: make it compile
-> 
-> arch/s390/kvm/interrupt.c | 12 ++++++++----
->  1 file changed, 8 insertions(+), 4 deletions(-)
-> 
-> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-> index 1dae78deddf2..ab26aa53ee37 100644
-> --- a/arch/s390/kvm/interrupt.c
-> +++ b/arch/s390/kvm/interrupt.c
-> @@ -83,8 +83,9 @@ static int sca_inject_ext_call(struct kvm_vcpu *vcpu, int src_id)
->  		struct esca_block *sca = vcpu->kvm->arch.sca;
->  		union esca_sigp_ctrl *sigp_ctrl =
->  			&(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
-> -		union esca_sigp_ctrl new_val = {0}, old_val = *sigp_ctrl;
-> +		union esca_sigp_ctrl new_val = {0}, old_val;
->  
-> +		old_val = READ_ONCE(*sigp_ctrl);
->  		new_val.scn = src_id;
->  		new_val.c = 1;
->  		old_val.c = 0;
-> @@ -95,8 +96,9 @@ static int sca_inject_ext_call(struct kvm_vcpu *vcpu, int src_id)
->  		struct bsca_block *sca = vcpu->kvm->arch.sca;
->  		union bsca_sigp_ctrl *sigp_ctrl =
->  			&(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
-> -		union bsca_sigp_ctrl new_val = {0}, old_val = *sigp_ctrl;
-> +		union bsca_sigp_ctrl new_val = {0}, old_val;
->  
-> +		old_val = READ_ONCE(*sigp_ctrl);
->  		new_val.scn = src_id;
->  		new_val.c = 1;
->  		old_val.c = 0;
-> @@ -126,16 +128,18 @@ static void sca_clear_ext_call(struct kvm_vcpu *vcpu)
->  		struct esca_block *sca = vcpu->kvm->arch.sca;
->  		union esca_sigp_ctrl *sigp_ctrl =
->  			&(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
-> -		union esca_sigp_ctrl old = *sigp_ctrl;
-> +		union esca_sigp_ctrl old;
->  
-> +		old = READ_ONCE(*sigp_ctrl);
->  		expect = old.value;
->  		rc = cmpxchg(&sigp_ctrl->value, old.value, 0);
->  	} else {
->  		struct bsca_block *sca = vcpu->kvm->arch.sca;
->  		union bsca_sigp_ctrl *sigp_ctrl =
->  			&(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
-> -		union bsca_sigp_ctrl old = *sigp_ctrl;
-> +		union bsca_sigp_ctrl old;
->  
-> +		old = READ_ONCE(*sigp_ctrl);
->  		expect = old.value;
->  		rc = cmpxchg(&sigp_ctrl->value, old.value, 0);
->  	}
+I ran into a ton of casting trouble when compiling kernel/fork.c which
+uses this_cpu_cmpxchg() on a pointer type and the compiler hates casting
+pointers to an integer that is not the exact same size.
 
