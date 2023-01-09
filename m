@@ -2,223 +2,188 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B072FC67871
-	for <linux-s390@archiver.kernel.org>; Mon,  9 Jan 2023 21:12:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 247EDC54EBE
+	for <linux-s390@archiver.kernel.org>; Mon,  9 Jan 2023 21:29:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237892AbjAIVMN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 9 Jan 2023 16:12:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51302 "EHLO
+        id S237206AbjAIV3W (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 9 Jan 2023 16:29:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237981AbjAIVL4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Jan 2023 16:11:56 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FE02496C3;
-        Mon,  9 Jan 2023 13:07:23 -0800 (PST)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 309K9mPl026312;
-        Mon, 9 Jan 2023 21:07:20 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=jgCllVXKBovBeAakrrqrf5mxYMPBZUP00hFtFhdb/mQ=;
- b=pxgsknqa88806adoXThtybPH0KCeIosY4aVgFPG5StiL6yjUpCY8ixUi3L8cWyItD2ze
- AGuYVf1s5Pj7Gk+XT2KKIUQjv/UeKUoEXLSmJBv+MHPWPJn1o1ZYxOvqqFObGezCXnJL
- j/Y5b6fULPr3VGSuCAhCxCTgMUdy+o4GVp1fdXRyGbmZp8j9y32xR7kTIjvDAIclVXS8
- 37vBz2vJd9tUogRAs3HFzrax7iUyy3elJ5KZbdlEtVdvaYOWGEsEfY3xNFddEVq8JGmS
- n7OROcA4gJJt/gAo+rBn3yOCNwm/yXRBaCspG15cgO2jjTKmsXkQqwuapQzn0ys2m/Ym Fg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3myjhtss57-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 09 Jan 2023 21:07:20 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 309L0IC0016057;
-        Mon, 9 Jan 2023 21:07:19 GMT
-Received: from ppma02wdc.us.ibm.com (aa.5b.37a9.ip4.static.sl-reverse.com [169.55.91.170])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3myjhtss4c-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 09 Jan 2023 21:07:19 +0000
-Received: from pps.filterd (ppma02wdc.us.ibm.com [127.0.0.1])
-        by ppma02wdc.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 309IK0VI017937;
-        Mon, 9 Jan 2023 21:07:18 GMT
-Received: from smtprelay07.dal12v.mail.ibm.com ([9.208.130.99])
-        by ppma02wdc.us.ibm.com (PPS) with ESMTPS id 3my0c7p03g-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 09 Jan 2023 21:07:18 +0000
-Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
-        by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 309L7H4038142416
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 9 Jan 2023 21:07:17 GMT
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EDE6858050;
-        Mon,  9 Jan 2023 21:07:16 +0000 (GMT)
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BBFFA58045;
-        Mon,  9 Jan 2023 21:07:14 +0000 (GMT)
-Received: from [9.160.171.221] (unknown [9.160.171.221])
-        by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Mon,  9 Jan 2023 21:07:14 +0000 (GMT)
-Message-ID: <53a8dd61-0f50-da2a-6594-2a5920af3024@linux.ibm.com>
-Date:   Mon, 9 Jan 2023 16:07:14 -0500
+        with ESMTP id S237862AbjAIV3J (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Jan 2023 16:29:09 -0500
+Received: from mail-vs1-xe2d.google.com (mail-vs1-xe2d.google.com [IPv6:2607:f8b0:4864:20::e2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22D8B25F8;
+        Mon,  9 Jan 2023 13:29:08 -0800 (PST)
+Received: by mail-vs1-xe2d.google.com with SMTP id s127so10225119vsb.5;
+        Mon, 09 Jan 2023 13:29:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=unEz8Po80qyvgT7TDUJc75ZwwHShIf6/y2xqGnG0MLw=;
+        b=iCotF84fyU6WecJRaYkXs3vK3d7x9b8Nj+HbTmHBstmHAOMZ6wu+fHC/f2BCes33RA
+         5Fex5jkaX4wZyn1EVHLh4oXxBe3d0BIv3ScUHRW8XjHZwT6wW1BIxT9WOy2NCE0uv+xi
+         PLlTpj1j71eEzTVt4GNqWdM4k/zlutRaSDhJ+huyga2k/sVU947d+CQcmJ0o2Kn/wWrh
+         N3ZH599DUjSeyBwoo+dD7R3dzvW99iMSiiHe5FTO+O6oNTGlVY2PLme/QJwE/M+iFpJZ
+         ou86QYiECR/qaRGKBBSprOValMlbWr0mGDwDFYrVmap0Q30KY9DkgX3d+50qdeKqpyZB
+         YkBg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=unEz8Po80qyvgT7TDUJc75ZwwHShIf6/y2xqGnG0MLw=;
+        b=51pJeEGVddSS9r32HN0Rn+l4WLh0pAX/ZbU8joAz4L9XQ17Lm8du1kdvqV2ZpGzR9S
+         wC0niF7vsk6e6+VT56vozurSmbivW0wdXkJAlNRDPpP2A7a4Peew411ro5Wa9w+BdM3B
+         71PYjz9sUYlX1Zr7PIde+ujhokVfAsxciCGkD6nKTurH375A+JWc/nNhYQT0lvwrIClc
+         cLpzEyNOYWyvkY6FP7ifh5Hs6F4R7HeyOPCOFBFuoSFOs9GAh0qp7fTb3HWdHKMV0h+l
+         N+HP9/VIMUB4d5tMrTBWGyOz34UWPrWbexh9b5Kh+j9Pqa/awR4xrJEz7SwOVBSRFNpm
+         +Uaw==
+X-Gm-Message-State: AFqh2kqrgszQUCDWuXl7I7+5ApIK8pKTZeT7Zdz2wg/wUrNQhDTnjuTq
+        ltuHcNzDZU7cXSZeQrzKAFQ/JA9aKKVASkhNFw4=
+X-Google-Smtp-Source: AMrXdXsg6Ko/alWOI1aCE8iGkx65RtschN8kfdrjibAvlZRKWqyjgef2aFot9xS0Y4dCZHNtV0kQ5ZBQglrZ6/auzas=
+X-Received: by 2002:a67:5e01:0:b0:3ce:d776:30b6 with SMTP id
+ s1-20020a675e01000000b003ced77630b6mr3170503vsb.33.1673299747173; Mon, 09 Jan
+ 2023 13:29:07 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.0
-Subject: Re: [PATCH 1/2] KVM: async kvm_destroy_vm for vfio devices
-Content-Language: en-US
-To:     Matthew Rosato <mjrosato@linux.ibm.com>,
-        alex.williamson@redhat.com, pbonzini@redhat.com
-Cc:     jgg@nvidia.com, cohuck@redhat.com, farman@linux.ibm.com,
-        pmorel@linux.ibm.com, borntraeger@linux.ibm.com,
-        frankja@linux.ibm.com, imbrenda@linux.ibm.com, david@redhat.com,
-        jjherne@linux.ibm.com, pasic@linux.ibm.com,
-        zhenyuw@linux.intel.com, zhi.a.wang@intel.com,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        intel-gvt-dev@lists.freedesktop.org,
-        intel-gfx@lists.freedesktop.org, linux-kernel@vger.kernel.org
-References: <20230109201037.33051-1-mjrosato@linux.ibm.com>
- <20230109201037.33051-2-mjrosato@linux.ibm.com>
-From:   Anthony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <20230109201037.33051-2-mjrosato@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: opPe6bdDLiFW0dlDCj2gwRingo5DzijG
-X-Proofpoint-GUID: 9m1l2zTVko2RMlVZbAV7gLXS0gf5YgCr
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2023-01-09_14,2023-01-09_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- impostorscore=0 lowpriorityscore=0 bulkscore=0 adultscore=0 mlxscore=0
- suspectscore=0 malwarescore=0 clxscore=1011 phishscore=0 mlxlogscore=999
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2301090147
+References: <20221117082648.47526-1-yangyicong@huawei.com> <20221117082648.47526-3-yangyicong@huawei.com>
+ <Y7cToj5mWd1ZbMyQ@arm.com> <CAGsJ_4yC0i6MYwvosRSrdQ1iT7n88ypmK3aOQJkuusqNKtddtg@mail.gmail.com>
+ <Y7xMhPTAwcUT4O6b@arm.com>
+In-Reply-To: <Y7xMhPTAwcUT4O6b@arm.com>
+From:   Barry Song <21cnbao@gmail.com>
+Date:   Tue, 10 Jan 2023 05:28:55 +0800
+Message-ID: <CAGsJ_4zrff5vtS0WP4Q8VH8vhBma8bzMqyY5c0mxjQ_qjFbO-Q@mail.gmail.com>
+Subject: Re: [PATCH v7 2/2] arm64: support batched/deferred tlb shootdown
+ during page reclamation
+To:     Catalin Marinas <catalin.marinas@arm.com>,
+        Nadav Amit <namit@vmware.com>, Mel Gorman <mgorman@suse.de>
+Cc:     Yicong Yang <yangyicong@huawei.com>, akpm@linux-foundation.org,
+        linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org,
+        x86@kernel.org, will@kernel.org, anshuman.khandual@arm.com,
+        linux-doc@vger.kernel.org, corbet@lwn.net, peterz@infradead.org,
+        arnd@arndb.de, punit.agrawal@bytedance.com,
+        linux-kernel@vger.kernel.org, darren@os.amperecomputing.com,
+        yangyicong@hisilicon.com, huzhanyuan@oppo.com, lipeifeng@oppo.com,
+        zhangshiming@oppo.com, guojian@oppo.com, realmz6@gmail.com,
+        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, wangkefeng.wang@huawei.com,
+        xhao@linux.alibaba.com, prime.zeng@hisilicon.com,
+        Barry Song <v-songbaohua@oppo.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-LGTM
+On Tue, Jan 10, 2023 at 1:19 AM Catalin Marinas <catalin.marinas@arm.com> wrote:
+>
+> On Sun, Jan 08, 2023 at 06:48:41PM +0800, Barry Song wrote:
+> > On Fri, Jan 6, 2023 at 2:15 AM Catalin Marinas <catalin.marinas@arm.com> wrote:
+> > > On Thu, Nov 17, 2022 at 04:26:48PM +0800, Yicong Yang wrote:
+> > > > It is tested on 4,8,128 CPU platforms and shows to be beneficial on
+> > > > large systems but may not have improvement on small systems like on
+> > > > a 4 CPU platform. So make ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH depends
+> > > > on CONFIG_EXPERT for this stage and make this disabled on systems
+> > > > with less than 8 CPUs. User can modify this threshold according to
+> > > > their own platforms by CONFIG_NR_CPUS_FOR_BATCHED_TLB.
+> > >
+> > > What's the overhead of such batching on systems with 4 or fewer CPUs? If
+> > > it isn't noticeable, I'd rather have it always on than some number
+> > > chosen on whichever SoC you tested.
+> >
+> > On the one hand, tlb flush is cheap on a small system. so batching tlb flush
+> > helps very minorly.
+>
+> Yes, it probably won't help on small systems but I don't like config
+> options choosing the threshold, which may be different from system to
+> system even if they have the same number of CPUs. A run-time tunable
+> would be a better option.
+>
+> > On the other hand, since we have batched the tlb flush, new PTEs might be
+> > invisible to others before the final broadcast is done and Ack-ed.
+>
+> The new PTEs could indeed be invisible at the TLB level but not at the
+> memory (page table) level since this is done under the PTL IIUC.
+>
+> > thus, there
+> > is a risk someone else might do mprotect or similar things  on those deferred
+> > pages which will ask for read-modify-write on those deferred PTEs.
+>
+> And this should be fine, we have things like the PTL in place for the
+> actual memory access to the page table.
+>
+> > in this
+> > case, mm will do an explicit flush by flush_tlb_batched_pending which is
+> > not required if tlb flush is not deferred.
+>
+> I don't fully understand why it's needed, or at least why it would be
+> needed on arm64. At the end of an mprotect(), we have the final PTEs in
+> place and we just need to issue a TLBI for that range.
+> change_pte_range() for example has a tlb_flush_pte_range() if the PTE
+> was present and that won't be done lazily. If there are other TLBIs
+> pending for the same range, they'll be done later though likely
+> unnecessarily but still cheaper than issuing a flush_tlb_mm().
 
-Reviewed-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Thanks! I'd like to ask for some comments from Nadav and Mel from the x86 side.
+Revisiting the code of flush_tlb_batched_pending shows we still have races even
+under PTL.
 
-On 1/9/23 3:10 PM, Matthew Rosato wrote:
-> Currently it is possible that the final put of a KVM reference comes from
-> vfio during its device close operation.  This occurs while the vfio group
-> lock is held; however, if the vfio device is still in the kvm device list,
-> then the following call chain could result in a deadlock:
+/*
+ * Reclaim unmaps pages under the PTL but do not flush the TLB prior to
+ * releasing the PTL if TLB flushes are batched. It's possible for a parallel
+ * operation such as mprotect or munmap to race between reclaim unmapping
+ * the page and flushing the page. If this race occurs, it potentially allows
+ * access to data via a stale TLB entry. Tracking all mm's that have TLB
+ * batching in flight would be expensive during reclaim so instead track
+ * whether TLB batching occurred in the past and if so then do a flush here
+ * if required. This will cost one additional flush per reclaim cycle paid
+ * by the first operation at risk such as mprotect and mumap.
+ *
+ * This must be called under the PTL so that an access to tlb_flush_batched
+ * that is potentially a "reclaim vs mprotect/munmap/etc" race will synchronise
+ * via the PTL.
+ */
+void flush_tlb_batched_pending(struct mm_struct *mm)
+{
+}
+
+According to Catalin's comment, it seems over-cautious since we can make sure
+people see updated TLB after mprotect and munmap are done as they have tlb
+flush.  We can also make sure mprotect see updated "memory" of PTEs from
+reclamation though pte is not visible in TLB level.
+
+Hi Mel, Nadav, would you please help clarify the exact sequence of how this race
+is going to happen?
+
 >
-> kvm_put_kvm
->   -> kvm_destroy_vm
->    -> kvm_destroy_devices
->     -> kvm_vfio_destroy
->      -> kvm_vfio_file_set_kvm
->       -> vfio_file_set_kvm
->        -> group->group_lock/group_rwsem
+> > void flush_tlb_batched_pending(struct mm_struct *mm)
+> > {
+> >        int batch = atomic_read(&mm->tlb_flush_batched);
+> >        int pending = batch & TLB_FLUSH_BATCH_PENDING_MASK;
+> >        int flushed = batch >> TLB_FLUSH_BATCH_FLUSHED_SHIFT;
+> >
+> >        if (pending != flushed) {
+> >                flush_tlb_mm(mm);
+> >         /*
+> >          * If the new TLB flushing is pending during flushing, leave
+> >          * mm->tlb_flush_batched as is, to avoid losing flushing.
+> >         */
+> >       atomic_cmpxchg(&mm->tlb_flush_batched, batch,
+> >            pending | (pending << TLB_FLUSH_BATCH_FLUSHED_SHIFT));
+> >      }
+> > }
 >
-> Avoid this scenario by adding kvm_put_kvm_async which will perform the
-> kvm_destroy_vm asynchronously if the refcount reaches 0.
+> I guess this works on x86 better as it avoids the IPIs if this flush
+> already happened. But on arm64 we already issued the TLBI, we just
+> didn't wait for it to complete via a DSB.
 >
-> Fixes: 421cfe6596f6 ("vfio: remove VFIO_GROUP_NOTIFY_SET_KVM")
-> Reported-by: Alex Williamson <alex.williamson@redhat.com>
-> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> ---
->   drivers/gpu/drm/i915/gvt/kvmgt.c  |  6 +++++-
->   drivers/s390/crypto/vfio_ap_ops.c |  7 ++++++-
->   include/linux/kvm_host.h          |  3 +++
->   virt/kvm/kvm_main.c               | 22 ++++++++++++++++++++++
->   4 files changed, 36 insertions(+), 2 deletions(-)
+> > I believe Anshuman has contributed many points on this in those previous
+> > discussions.
 >
-> diff --git a/drivers/gpu/drm/i915/gvt/kvmgt.c b/drivers/gpu/drm/i915/gvt/kvmgt.c
-> index 8ae7039b3683..24511c877572 100644
-> --- a/drivers/gpu/drm/i915/gvt/kvmgt.c
-> +++ b/drivers/gpu/drm/i915/gvt/kvmgt.c
-> @@ -703,7 +703,11 @@ static void intel_vgpu_close_device(struct vfio_device *vfio_dev)
->   
->   	kvm_page_track_unregister_notifier(vgpu->vfio_device.kvm,
->   					   &vgpu->track_node);
-> -	kvm_put_kvm(vgpu->vfio_device.kvm);
-> +	/*
-> +	 * Avoid possible deadlock on any currently-held vfio lock by
-> +	 * ensuring the potential kvm_destroy_vm call is done asynchronously
-> +	 */
-> +	kvm_put_kvm_async(vgpu->vfio_device.kvm);
->   
->   	kvmgt_protect_table_destroy(vgpu);
->   	gvt_cache_destroy(vgpu);
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> index e93bb9c468ce..a37b2baefb36 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -1574,7 +1574,12 @@ static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev)
->   
->   		kvm_arch_crypto_clear_masks(kvm);
->   		vfio_ap_mdev_reset_queues(&matrix_mdev->qtable);
-> -		kvm_put_kvm(kvm);
-> +		/*
-> +		 * Avoid possible deadlock on any currently-held vfio lock by
-> +		 * ensuring the potential kvm_destroy_vm call is done
-> +		 * asynchronously
-> +		 */
-> +		kvm_put_kvm_async(kvm);
->   		matrix_mdev->kvm = NULL;
->   
->   		release_update_locks_for_kvm(kvm);
-> diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-> index 4f26b244f6d0..2ef6a5102265 100644
-> --- a/include/linux/kvm_host.h
-> +++ b/include/linux/kvm_host.h
-> @@ -34,6 +34,7 @@
->   #include <linux/instrumentation.h>
->   #include <linux/interval_tree.h>
->   #include <linux/rbtree.h>
-> +#include <linux/workqueue.h>
->   #include <linux/xarray.h>
->   #include <asm/signal.h>
->   
-> @@ -793,6 +794,7 @@ struct kvm {
->   	struct kvm_stat_data **debugfs_stat_data;
->   	struct srcu_struct srcu;
->   	struct srcu_struct irq_srcu;
-> +	struct work_struct async_work;
->   	pid_t userspace_pid;
->   	bool override_halt_poll_ns;
->   	unsigned int max_halt_poll_ns;
-> @@ -963,6 +965,7 @@ void kvm_exit(void);
->   void kvm_get_kvm(struct kvm *kvm);
->   bool kvm_get_kvm_safe(struct kvm *kvm);
->   void kvm_put_kvm(struct kvm *kvm);
-> +void kvm_put_kvm_async(struct kvm *kvm);
->   bool file_is_kvm(struct file *file);
->   void kvm_put_kvm_no_destroy(struct kvm *kvm);
->   
-> diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-> index 13e88297f999..fbe8d127028b 100644
-> --- a/virt/kvm/kvm_main.c
-> +++ b/virt/kvm/kvm_main.c
-> @@ -1353,6 +1353,28 @@ void kvm_put_kvm(struct kvm *kvm)
->   }
->   EXPORT_SYMBOL_GPL(kvm_put_kvm);
->   
-> +static void kvm_put_async_fn(struct work_struct *work)
-> +{
-> +	struct kvm *kvm = container_of(work, struct kvm,
-> +				       async_work);
-> +
-> +	kvm_destroy_vm(kvm);
-> +}
-> +
-> +/*
-> + * Put a reference but only destroy the vm asynchronously.  Can be used in
-> + * cases where the caller holds a mutex that could cause deadlock if
-> + * kvm_destroy_vm is triggered
-> + */
-> +void kvm_put_kvm_async(struct kvm *kvm)
-> +{
-> +	if (refcount_dec_and_test(&kvm->users_count)) {
-> +		INIT_WORK(&kvm->async_work, kvm_put_async_fn);
-> +		schedule_work(&kvm->async_work);
-> +	}
-> +}
-> +EXPORT_SYMBOL_GPL(kvm_put_kvm_async);
-> +
->   /*
->    * Used to put a reference that was taken on behalf of an object associated
->    * with a user-visible file descriptor, e.g. a vcpu or device, if installation
+> Yeah, I should re-read the old threads.
+>
+> --
+> Catalin
+
+Thanks
+Barry
