@@ -2,142 +2,111 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 73CEFC54EBD
-	for <linux-s390@archiver.kernel.org>; Mon,  9 Jan 2023 12:52:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 87680C5479D
+	for <linux-s390@archiver.kernel.org>; Mon,  9 Jan 2023 14:52:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231226AbjAIMwC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 9 Jan 2023 07:52:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38244 "EHLO
+        id S234812AbjAIOwe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 9 Jan 2023 09:52:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230499AbjAIMvx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Jan 2023 07:51:53 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40D55B06;
-        Mon,  9 Jan 2023 04:51:51 -0800 (PST)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 309BP0E7016670;
-        Mon, 9 Jan 2023 12:51:51 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=OacVvB18McZxLNMXZ4NRfCDUji0la1y9ALJrNWFwFLE=;
- b=h51lh38MrlTHkSBeIFmNSJfQxPpDxyFPlQwMWOCQ5yJSDP5XbETnwGe29+5J11EphkTU
- RkZ/QMuFCbJe1fFerXbN7ocRbeLHROZY7eEFP+nfJPhSu4LJPXjqjf9IVVOKXgeNVVYY
- rmkhud7aSuiI8Ta32ZluwdlZGimZjwv3Eo4WK7ZuJdCeoVViWxQ2WuXkfHf6f4sM0pyc
- FcYd2u2o9N3yCy18Vxb8jPlBfSZ6wON05TZHIYF/Mbj3Wi+Nk6bNNfyeUd3M8/1bQoIC
- vKuCBb3k7ITGIMoF6X62fhFA9//dUeqbUNYA0tjna60G8g280eW180/Ef52iPQn03BHL Ww== 
+        with ESMTP id S234146AbjAIOwG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Jan 2023 09:52:06 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A25AD373AA;
+        Mon,  9 Jan 2023 06:50:41 -0800 (PST)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 309DLcBA020828;
+        Mon, 9 Jan 2023 14:50:40 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=FHx/pK7UbHd7cF/C7/sPVqB5iCoXCLVTjdEuHXQA9mg=;
+ b=CiLnUYulcd3Y2FXk5Lj5WAh4KgxsfZcYKjxfCQ08zGWcNBqLvTSEqOgEDQKQGyTK9VcX
+ BGDmbrW07oViNhu/TsJ6VkK+ta4f5V7BNRo4EWtEm/eFh+LFf/ru6aVuI3mqLsGu3+8L
+ 1EcK6JeiyqXdsSeBXwcdasCFXOf6DXR86xRFvd4rkGU0ixTBA1w+QOZ52pMEe9ufLsqd
+ tm+Zzg+56oLusXSwc+NJEXmkI1ZR3x+p+xdUEU+wsYY+yvVy1r136SZK8w1uvRkL9KeL
+ qd6R2az87Gp5cPIrfzaX2GENftn2xDngAV8MgiFVKu/GpOSgaLc7db9STQK77mx5FT/n +Q== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3myj6jdbsm-1
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3myjasrgbp-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 09 Jan 2023 12:51:50 +0000
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 309Bi1tx029590;
-        Mon, 9 Jan 2023 12:51:42 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3myj6jdbs7-1
+        Mon, 09 Jan 2023 14:50:40 +0000
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 309EJob6023203;
+        Mon, 9 Jan 2023 14:50:39 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3myjasrgbc-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 09 Jan 2023 12:51:42 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3098Vw80015062;
-        Mon, 9 Jan 2023 12:51:39 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3my00fjybq-1
+        Mon, 09 Jan 2023 14:50:39 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3096uNxd021763;
+        Mon, 9 Jan 2023 14:50:38 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+        by ppma03fra.de.ibm.com (PPS) with ESMTPS id 3my0c6a78w-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 09 Jan 2023 12:51:39 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 309CpaVX43581774
+        Mon, 09 Jan 2023 14:50:38 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 309EoYss48300328
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 9 Jan 2023 12:51:36 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 15E6A20040;
-        Mon,  9 Jan 2023 12:51:36 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C86BB20049;
-        Mon,  9 Jan 2023 12:51:35 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon,  9 Jan 2023 12:51:35 +0000 (GMT)
+        Mon, 9 Jan 2023 14:50:34 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 40FD120043;
+        Mon,  9 Jan 2023 14:50:34 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C6C7020040;
+        Mon,  9 Jan 2023 14:50:33 +0000 (GMT)
+Received: from osiris (unknown [9.179.30.90])
+        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Mon,  9 Jan 2023 14:50:33 +0000 (GMT)
+Date:   Mon, 9 Jan 2023 15:50:32 +0100
 From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
         Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
         linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] KVM: s390: interrupt: use READ_ONCE() before cmpxchg()
-Date:   Mon,  9 Jan 2023 13:51:35 +0100
-Message-Id: <20230109125135.393784-1-hca@linux.ibm.com>
-X-Mailer: git-send-email 2.34.1
+Subject: Re: [PATCH] KVM: s390: interrupt: use READ_ONCE() before cmpxchg()
+Message-ID: <Y7wpuAArn1Al6c9v@osiris>
+References: <20230109125135.393784-1-hca@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230109125135.393784-1-hca@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: AzKIpn3LWjZZNpfB9gis_V1SVAfvtPpx
-X-Proofpoint-GUID: -aFgml4fVU3jhLtYfr56yl_d8uZadMCI
+X-Proofpoint-GUID: E0byUrtvdsaVDdFIqd8wf89HkzzhtxVg
+X-Proofpoint-ORIG-GUID: A517Jdb_YGqdvI4fVmwSzimZXdRCWZKs
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2023-01-09_06,2023-01-09_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
- lowpriorityscore=0 mlxlogscore=712 phishscore=0 adultscore=0 mlxscore=0
- suspectscore=0 impostorscore=0 priorityscore=1501 bulkscore=0 spamscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2301090090
+ definitions=2023-01-09_08,2023-01-09_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
+ lowpriorityscore=0 mlxlogscore=623 clxscore=1015 spamscore=0 bulkscore=0
+ suspectscore=0 priorityscore=1501 adultscore=0 malwarescore=0
+ impostorscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2301090105
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Use READ_ONCE() before cmpxchg() to prevent that the compiler generates
-code that fetches the to be compared old value several times from memory.
+On Mon, Jan 09, 2023 at 01:51:35PM +0100, Heiko Carstens wrote:
+> Use READ_ONCE() before cmpxchg() to prevent that the compiler generates
+> code that fetches the to be compared old value several times from memory.
+> 
+> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+> ---
+>  arch/s390/kvm/interrupt.c | 12 ++++++++----
+>  1 file changed, 8 insertions(+), 4 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+> index 1dae78deddf2..a3bf1b6a7962 100644
+> --- a/arch/s390/kvm/interrupt.c
+> +++ b/arch/s390/kvm/interrupt.c
+> @@ -83,8 +83,9 @@ static int sca_inject_ext_call(struct kvm_vcpu *vcpu, int src_id)
+>  		struct esca_block *sca = vcpu->kvm->arch.sca;
+>  		union esca_sigp_ctrl *sigp_ctrl =
+>  			&(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
+> -		union esca_sigp_ctrl new_val = {0}, old_val = *sigp_ctrl;
+> +		union esca_sigp_ctrl new_val = {0};
+>  
+> +		old_val = READ_ONCE(*sigp_ctrl);
 
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
----
- arch/s390/kvm/interrupt.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
-
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 1dae78deddf2..a3bf1b6a7962 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -83,8 +83,9 @@ static int sca_inject_ext_call(struct kvm_vcpu *vcpu, int src_id)
- 		struct esca_block *sca = vcpu->kvm->arch.sca;
- 		union esca_sigp_ctrl *sigp_ctrl =
- 			&(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
--		union esca_sigp_ctrl new_val = {0}, old_val = *sigp_ctrl;
-+		union esca_sigp_ctrl new_val = {0};
- 
-+		old_val = READ_ONCE(*sigp_ctrl);
- 		new_val.scn = src_id;
- 		new_val.c = 1;
- 		old_val.c = 0;
-@@ -95,8 +96,9 @@ static int sca_inject_ext_call(struct kvm_vcpu *vcpu, int src_id)
- 		struct bsca_block *sca = vcpu->kvm->arch.sca;
- 		union bsca_sigp_ctrl *sigp_ctrl =
- 			&(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
--		union bsca_sigp_ctrl new_val = {0}, old_val = *sigp_ctrl;
-+		union bsca_sigp_ctrl new_val = {0};
- 
-+		old_val = READ_ONCE(*sigp_ctrl);
- 		new_val.scn = src_id;
- 		new_val.c = 1;
- 		old_val.c = 0;
-@@ -126,16 +128,18 @@ static void sca_clear_ext_call(struct kvm_vcpu *vcpu)
- 		struct esca_block *sca = vcpu->kvm->arch.sca;
- 		union esca_sigp_ctrl *sigp_ctrl =
- 			&(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
--		union esca_sigp_ctrl old = *sigp_ctrl;
-+		union esca_sigp_ctrl old;
- 
-+		old = READ_ONCE(*sigp_ctrl);
- 		expect = old.value;
- 		rc = cmpxchg(&sigp_ctrl->value, old.value, 0);
- 	} else {
- 		struct bsca_block *sca = vcpu->kvm->arch.sca;
- 		union bsca_sigp_ctrl *sigp_ctrl =
- 			&(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
--		union bsca_sigp_ctrl old = *sigp_ctrl;
-+		union bsca_sigp_ctrl old;
- 
-+		old = READ_ONCE(*sigp_ctrl);
- 		expect = old.value;
- 		rc = cmpxchg(&sigp_ctrl->value, old.value, 0);
- 	}
--- 
-2.34.1
-
+FWIW, Claudio pointed out that this doesn't even compile.
+Sending a new version - sorry about this!
