@@ -2,79 +2,98 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D7E22C46467
-	for <linux-s390@archiver.kernel.org>; Tue, 10 Jan 2023 16:51:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CED43C54EBE
+	for <linux-s390@archiver.kernel.org>; Tue, 10 Jan 2023 17:07:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233851AbjAJQvy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 10 Jan 2023 11:51:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34416 "EHLO
+        id S234350AbjAJRHC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 10 Jan 2023 12:07:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238775AbjAJQvb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 Jan 2023 11:51:31 -0500
-Received: from mail-qt1-x82f.google.com (mail-qt1-x82f.google.com [IPv6:2607:f8b0:4864:20::82f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63B9C1DDDE
-        for <linux-s390@vger.kernel.org>; Tue, 10 Jan 2023 08:51:29 -0800 (PST)
-Received: by mail-qt1-x82f.google.com with SMTP id h16so305qtu.2
-        for <linux-s390@vger.kernel.org>; Tue, 10 Jan 2023 08:51:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=nD2L+nouQmYkYUXiElXuWDWGgbRqZvOgB6YtZyQAtHQ=;
-        b=AN8zcHl7ntfjRnJWS+1I6Gb2ig79s8638IrmdTtJOsAsVMB8UbvoEfyouuGxS4Ez0I
-         H+sCGjun+6oIGTuzZurJUdkwXK550WAon7TZx66V8f1fkRoDQDqSrao9NJ15Ubmmwa54
-         br8mBPdwhRm1n1FiUa25ctcJYzgzFsA5OMAWNmg6lSEjQmQX0xa9R94QsBNnSbR8R8uE
-         ra0lhLPiYyKyuxXXn8EqhUkfIYGzdkf5ws6prCnPyt6BydG9BnuWQy6b87D1gOd2YSNB
-         mdKb2MtCN47ruH5M/7TI82RPLg65wfruJPS4S8nNHOjJ612Dkkt9LmY8Pq146CtyMJrl
-         UKFQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=nD2L+nouQmYkYUXiElXuWDWGgbRqZvOgB6YtZyQAtHQ=;
-        b=coBpCsJWfXbZllzWhGd90L01li86vT3eSl1MNn3Z4p91U4G8h0giW7hoheTZS+CyTP
-         daZaBAhtZD0KOJgpAaIVHCFe7YNFBLLCy/c1VpbqVgOqM52kezyUzOPgowYf7n3Y78d/
-         MXgqxTThlo1dhwktzl9foAF46cwqbwwX/Gqarcul9koDmlrH80JuWkSmEl8ykfx+UI27
-         LNcKQ5onf9bhTrDHtnxjScUX+gIeS3ADvSpBZlQcKV7Wuukh3vn4GGTl1TLL/XeEe+9Y
-         DakO2mCr8/sq2iS0MdpHtQN1LCH+KKCNKSclH69FEO7sjbm0SCZLEeUCcXlOv/KsBmhq
-         6nvQ==
-X-Gm-Message-State: AFqh2koB+QBwaAAdTwURYcKNTgD/LTcD2Jq10wJ2zP2us97BLSYgIccY
-        02MFxA/l7JukscY63QYHdeP1YQ==
-X-Google-Smtp-Source: AMrXdXvBzw2T1NVzHMnn9YSgyUplc8voY4BFvMnwrodQwtlWtdIt2VQe6jIFScX+wXR34rqdOr0mvg==
-X-Received: by 2002:a05:622a:4d06:b0:3a9:9217:9e6c with SMTP id fd6-20020a05622a4d0600b003a992179e6cmr109805668qtb.55.1673369472890;
-        Tue, 10 Jan 2023 08:51:12 -0800 (PST)
-Received: from ziepe.ca (hlfxns017vw-142-68-50-193.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.50.193])
-        by smtp.gmail.com with ESMTPSA id v24-20020ac87498000000b003abf6eb5a51sm2987520qtq.88.2023.01.10.08.51.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Jan 2023 08:51:12 -0800 (PST)
-Received: from jgg by wakko with local (Exim 4.95)
-        (envelope-from <jgg@ziepe.ca>)
-        id 1pFHqB-008R3X-S0;
-        Tue, 10 Jan 2023 12:51:11 -0400
-Date:   Tue, 10 Jan 2023 12:51:11 -0400
-From:   Jason Gunthorpe <jgg@ziepe.ca>
-To:     Niklas Schnelle <schnelle@linux.ibm.com>
-Cc:     Alex Williamson <alex.williamson@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        Christian =?utf-8?Q?Borntr=C3=A4ger?= <borntraeger@linux.ibm.com>
+        with ESMTP id S238817AbjAJRGz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 Jan 2023 12:06:55 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAF8BBC2B;
+        Tue, 10 Jan 2023 09:06:52 -0800 (PST)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30AGi0x5030801;
+        Tue, 10 Jan 2023 17:06:52 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=JEZKDsHye+5DNZwvd4SgqJv6bDzIu4dPvAE9HnYNqTA=;
+ b=XVuxvV/fSAs7q3f1RbDPpgTFJRSeK8DJfgGZOoH521ZBlywXTDRRHUozLrwVbFiI1ZZM
+ Y0vK63JzDTd1MmHXkZo++Xh5NEasd0Q1kbCemJO5jA+Nd+rbNrihz89L5tlB33B6XoV5
+ Sk/EOauVxYfTTVAjyLFuB16MbACM5GcKKL8w06cjG53wzbpJSQqTJzlvHuA3Scargztx
+ WGNzYhZtA4mlNTh25RglMVx8zZppr8PfOpviogBUKx4OqyZcjxTkWxFzh3mZXpuXvHot
+ 55foCz8cAJIveA95i7ph4g0mBKt0dSwcdGQlW7zcsOMVi0Fy4YsJvv5c07cqQ6K3ian6 rg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n1bsyrju5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 10 Jan 2023 17:06:51 +0000
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 30AGjA4G000557;
+        Tue, 10 Jan 2023 17:06:51 GMT
+Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n1bsyrjtm-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 10 Jan 2023 17:06:51 +0000
+Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
+        by ppma03dal.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30AF0u9A029629;
+        Tue, 10 Jan 2023 17:06:50 GMT
+Received: from smtprelay02.dal12v.mail.ibm.com ([9.208.130.97])
+        by ppma03dal.us.ibm.com (PPS) with ESMTPS id 3my0c7qk21-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 10 Jan 2023 17:06:50 +0000
+Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
+        by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30AH6nEr44696300
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 10 Jan 2023 17:06:49 GMT
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0F7B358058;
+        Tue, 10 Jan 2023 17:06:49 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0D78F5805D;
+        Tue, 10 Jan 2023 17:06:48 +0000 (GMT)
+Received: from [9.60.89.243] (unknown [9.60.89.243])
+        by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Tue, 10 Jan 2023 17:06:47 +0000 (GMT)
+Message-ID: <b652c69f-96e4-3584-7559-33cb8a8ca4f0@linux.ibm.com>
+Date:   Tue, 10 Jan 2023 12:06:47 -0500
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.0
 Subject: Re: [PATCH v3 1/1] vfio/type1: Respect IOMMU reserved regions in
  vfio_test_domain_fgsp()
-Message-ID: <Y72Xf878jBYrigHI@ziepe.ca>
+To:     Niklas Schnelle <schnelle@linux.ibm.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>
+Cc:     Jason Gunthorpe <jgg@ziepe.ca>, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        =?UTF-8?Q?Christian_Borntr=c3=a4ger?= <borntraeger@linux.ibm.com>
 References: <20230110164427.4051938-1-schnelle@linux.ibm.com>
  <20230110164427.4051938-2-schnelle@linux.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Language: en-US
+From:   Matthew Rosato <mjrosato@linux.ibm.com>
 In-Reply-To: <20230110164427.4051938-2-schnelle@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: JWHntO9-_doEBCU1__hDZwU8bA9svm6-
+X-Proofpoint-ORIG-GUID: vMTb1Q7sOUbGAzmomPq14DrYSdMMqn1s
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2023-01-10_06,2023-01-10_03,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
+ mlxlogscore=999 lowpriorityscore=0 suspectscore=0 impostorscore=0
+ malwarescore=0 priorityscore=1501 spamscore=0 phishscore=0 adultscore=0
+ clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2301100104
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jan 10, 2023 at 05:44:27PM +0100, Niklas Schnelle wrote:
+On 1/10/23 11:44 AM, Niklas Schnelle wrote:
 > Since commit cbf7827bc5dc ("iommu/s390: Fix potential s390_domain
 > aperture shrinking") the s390 IOMMU driver uses reserved regions for the
 > system provided DMA ranges of PCI devices. Previously it reduced the
@@ -100,21 +119,8 @@ On Tue, Jan 10, 2023 at 05:44:27PM +0100, Niklas Schnelle wrote:
 > 
 > Fixes: af029169b8fd ("vfio/type1: Check reserved region conflict and update iova list")
 > Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> ---
-> v2 -> v3:
-> - Don't require region->start to be aligned but instead just that we can fit an
->   aligned allocation (Alex)
-> - Use Fixes tag for the introduction of reserved regions as that came
->   after the fine grained super pages test (Alex)
-> v1 -> v2:
-> - Reworded commit message to hopefully explain things a bit better and
->   highlight that usually just mapping but not issuing DMAs for IOVAs in
->   a resverved region is harmless but still breaks things with ISM devices.
-> - Added a check for PAGE_SIZE * 2 alignment (Jason)
-> 
->  drivers/vfio/vfio_iommu_type1.c | 31 ++++++++++++++++++++-----------
->  1 file changed, 20 insertions(+), 11 deletions(-)
 
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+Looks good to me still (also re-tested ISM passthrough on s390).  Thanks!
 
-Jason
+Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+
