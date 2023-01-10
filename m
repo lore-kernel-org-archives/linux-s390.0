@@ -2,111 +2,133 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 76DE3C63797
-	for <linux-s390@archiver.kernel.org>; Tue, 10 Jan 2023 13:53:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 343FDC54EBC
+	for <linux-s390@archiver.kernel.org>; Tue, 10 Jan 2023 14:50:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234141AbjAJNxs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 10 Jan 2023 08:53:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44850 "EHLO
+        id S238466AbjAJOuS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 10 Jan 2023 09:50:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237663AbjAJNxU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 Jan 2023 08:53:20 -0500
-Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EF098BF38;
-        Tue, 10 Jan 2023 05:52:31 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1673358752; x=1704894752;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=Tp8Z9Ay/HrlqQE0qDFK7p4Fost9+vU0ggkXvi/hfbkY=;
-  b=kO8ox8CR+uhilfo5/X2nxkaV4R1ebPsPUWkdF4QsFnqdZi0+9yMqWhfv
-   PKlzD1J/dYnz4SJUbaTjjtC0QteypDLuv9UL2ilJKOJseLb3blbbDRgKR
-   /alyOqQ4wC48vEI6zM+ZbMmNStQiJjb/yC4L96pos2WPad5aLaWdyVG4l
-   uSLI+r8CIVKKNrMjXpOdrBxFuVBLBGOGy9vjBUTE3wgpx9dSS06FYtC+A
-   FnrdBVP/dZdOHbJka0bOPO00rFLSmTMw/1SY2fd3RmEgzglcdIq9JPESj
-   +zfCtPa5XOVBH9lR3c6QkN7FDo4tDCyPTRSCV6yON/XMy6W476qcBtwWn
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10585"; a="387599277"
-X-IronPort-AV: E=Sophos;i="5.96,315,1665471600"; 
-   d="scan'208";a="387599277"
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jan 2023 05:52:31 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10585"; a="830995823"
-X-IronPort-AV: E=Sophos;i="5.96,315,1665471600"; 
-   d="scan'208";a="830995823"
-Received: from smile.fi.intel.com ([10.237.72.54])
-  by orsmga005.jf.intel.com with ESMTP; 10 Jan 2023 05:52:23 -0800
-Received: from andy by smile.fi.intel.com with local (Exim 4.96)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1pFF36-0073E7-37;
-        Tue, 10 Jan 2023 15:52:20 +0200
-Date:   Tue, 10 Jan 2023 15:52:20 +0200
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Andrzej Hajda <andrzej.hajda@intel.com>
-Cc:     Mark Rutland <mark.rutland@arm.com>, linux-ia64@vger.kernel.org,
-        linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
-        dri-devel@lists.freedesktop.org, linux-mips@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org,
-        Boqun Feng <boqun.feng@gmail.com>,
-        linux-xtensa@linux-xtensa.org, Arnd Bergmann <arnd@arndb.de>,
-        intel-gfx@lists.freedesktop.org, linux-m68k@lists.linux-m68k.org,
-        openrisc@lists.librecores.org, loongarch@lists.linux.dev,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        linux-arm-kernel@lists.infradead.org, linux-parisc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Daniel Vetter <daniel@ffwll.ch>,
-        linux-alpha@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linuxppc-dev@lists.ozlabs.org
-Subject: Re: [Intel-gfx] [RFC DO NOT MERGE] treewide: use __xchg in most
- obvious places
-Message-ID: <Y71tlG23t0gH9K1t@smile.fi.intel.com>
-References: <Y7b6/7coJEVlTVxK@phenom.ffwll.local>
- <20230110105306.3973122-1-andrzej.hajda@intel.com>
- <Y71G1tkmUzM4BLxn@smile.fi.intel.com>
- <1bfae3d0-8c0b-ea83-7184-db847a4a969f@intel.com>
+        with ESMTP id S233819AbjAJOuB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 Jan 2023 09:50:01 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F3A85015C;
+        Tue, 10 Jan 2023 06:49:59 -0800 (PST)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30ADipNe024684;
+        Tue, 10 Jan 2023 14:49:49 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=WPPgsTqVXw3MYWcGCbj/p1qXM+CUpnBLnqM1ocA+3LQ=;
+ b=S9lNqo0mPrKZDmiBEfC1yDwHf1DD/vimO1Ta1wWoy46bTFUHoieKCze/h6ba3w0i/M1D
+ jP2w4AtdRzxStWeG7jyTkTZLX9tMgXL6TpiAMUt65AOLjRceux7PU4eUd3LVby4cHy+x
+ wbwYItggB1Y+ARH/yLmg4IkrNhyUKkqH8NHA4jDmFBpPGGkQXkM1+oqBDiQ2VKAs1Cd6
+ rKcZLwLpLtiw/+pcXXAnWi5TaIHBKtaZC2/yaxB+L2uoo5ExcKntcZCoVvjsCLT+OBU/
+ 7R/V1JpmqRY8KOs2Ks7rN9SxH2ygY42wUil4Py6SW7TFloNiY2FPevflPg/IbXAJEbUb 9Q== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3n19649x3g-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 10 Jan 2023 14:49:49 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 30AEKGN9018273;
+        Tue, 10 Jan 2023 14:49:48 GMT
+Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3n19649x2v-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 10 Jan 2023 14:49:48 +0000
+Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
+        by ppma03wdc.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30ACI4pc010657;
+        Tue, 10 Jan 2023 14:49:48 GMT
+Received: from smtprelay05.dal12v.mail.ibm.com ([9.208.130.101])
+        by ppma03wdc.us.ibm.com (PPS) with ESMTPS id 3my0c7a96n-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 10 Jan 2023 14:49:48 +0000
+Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
+        by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30AEnkcm65732896
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 10 Jan 2023 14:49:47 GMT
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AB27658050;
+        Tue, 10 Jan 2023 14:49:46 +0000 (GMT)
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 813555805E;
+        Tue, 10 Jan 2023 14:49:45 +0000 (GMT)
+Received: from [9.160.171.221] (unknown [9.160.171.221])
+        by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Tue, 10 Jan 2023 14:49:45 +0000 (GMT)
+Message-ID: <625de375-562d-3a72-830b-4c4835ab93e6@linux.ibm.com>
+Date:   Tue, 10 Jan 2023 09:49:44 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1bfae3d0-8c0b-ea83-7184-db847a4a969f@intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.0
+Subject: Re: [PATCH 4/4] vfio-mdev: remove an non-existing driver from
+ vfio-mediated-device
+Content-Language: en-US
+To:     Christoph Hellwig <hch@lst.de>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Kirti Wankhede <kwankhede@nvidia.com>
+Cc:     Halil Pasic <pasic@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, intel-gfx@lists.freedesktop.org
+References: <20230110091009.474427-1-hch@lst.de>
+ <20230110091009.474427-5-hch@lst.de>
+From:   Anthony Krowiak <akrowiak@linux.ibm.com>
+In-Reply-To: <20230110091009.474427-5-hch@lst.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: KanNLKOwomRin1ekOSHGZJTf_TGnxGqB
+X-Proofpoint-ORIG-GUID: CeWU-G6IoEbhfJ0tOVAv6T45AV40UWsq
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2023-01-10_06,2023-01-10_03,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
+ lowpriorityscore=0 clxscore=1015 suspectscore=0 bulkscore=0
+ mlxlogscore=999 adultscore=0 phishscore=0 impostorscore=0 malwarescore=0
+ priorityscore=1501 mlxscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2212070000 definitions=main-2301100090
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jan 10, 2023 at 01:46:37PM +0100, Andrzej Hajda wrote:
-> On 10.01.2023 12:07, Andy Shevchenko wrote:
-> > On Tue, Jan 10, 2023 at 11:53:06AM +0100, Andrzej Hajda wrote:
+LGTM
 
-...
+Reviewed-by: Tony Krowiak <akrowiak@linux.ibm.com>
 
-> > > +	return __xchg(&p_chain->p_prod_elem,
-> > > +		      (void *)(((u8 *)p_chain->p_prod_elem) + p_chain->elem_size));
-> > 
-> > Wondering if you still need a (void *) casting after the change. Ditto for the
-> > rest of similar cases.
-> 
-> IMHO it is not needed also before the change and IIRC gcc has an extension
-> which allows to drop (u8 *) cast as well [1].
-
-I guess you can drop at least the former one.
-
-> [1]: https://gcc.gnu.org/onlinedocs/gcc/Pointer-Arith.html
-
-...
-
-> > Btw, is it done by coccinelle? If no, why not providing the script?
-> 
-> Yes I have used cocci. My cocci skills are far from perfect, so I did not
-> want to share my dirty code, but this is nothing secret:
-
-Thank you! It's not about secrecy, it's about automation / error proofness.
-
--- 
-With Best Regards,
-Andy Shevchenko
-
-
+On 1/10/23 4:10 AM, Christoph Hellwig wrote:
+> The nvidia mdev driver does not actually exist anywhere in the tree.
+>
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+>   Documentation/driver-api/vfio-mediated-device.rst | 8 +-------
+>   1 file changed, 1 insertion(+), 7 deletions(-)
+>
+> diff --git a/Documentation/driver-api/vfio-mediated-device.rst b/Documentation/driver-api/vfio-mediated-device.rst
+> index d4267243b4f525..bbd548b66b4255 100644
+> --- a/Documentation/driver-api/vfio-mediated-device.rst
+> +++ b/Documentation/driver-api/vfio-mediated-device.rst
+> @@ -60,7 +60,7 @@ devices as examples, as these devices are the first devices to use this module::
+>        |   mdev.ko     |
+>        | +-----------+ |  mdev_register_parent() +--------------+
+>        | |           | +<------------------------+              |
+> -     | |           | |                         |  nvidia.ko   |<-> physical
+> +     | |           | |                         | ccw_device.ko|<-> physical
+>        | |           | +------------------------>+              |    device
+>        | |           | |        callbacks        +--------------+
+>        | | Physical  | |
+> @@ -69,12 +69,6 @@ devices as examples, as these devices are the first devices to use this module::
+>        | |           | |                         |  i915.ko     |<-> physical
+>        | |           | +------------------------>+              |    device
+>        | |           | |        callbacks        +--------------+
+> -     | |           | |
+> -     | |           | |  mdev_register_parent() +--------------+
+> -     | |           | +<------------------------+              |
+> -     | |           | |                         | ccw_device.ko|<-> physical
+> -     | |           | +------------------------>+              |    device
+> -     | |           | |        callbacks        +--------------+
+>        | +-----------+ |
+>        +---------------+
+>   
