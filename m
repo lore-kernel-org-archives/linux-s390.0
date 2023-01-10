@@ -2,189 +2,119 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A4D80C46467
-	for <linux-s390@archiver.kernel.org>; Tue, 10 Jan 2023 16:44:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D7E22C46467
+	for <linux-s390@archiver.kernel.org>; Tue, 10 Jan 2023 16:51:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234682AbjAJQop (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 10 Jan 2023 11:44:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57302 "EHLO
+        id S233851AbjAJQvy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 10 Jan 2023 11:51:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234054AbjAJQog (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 Jan 2023 11:44:36 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16C516B5EF;
-        Tue, 10 Jan 2023 08:44:35 -0800 (PST)
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30AFl9gF036555;
-        Tue, 10 Jan 2023 16:44:34 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=Hr8KyA79ZU+vuXyPWHbyJzgZiFjZHCGAIXdAWFyYiDA=;
- b=PXDu+9G0FL2MwcDuFzuOnaXR3hInN5ZZt3FmiK8Uekm18Z34wwmH97PmbcXf325mCYbM
- 9fnIp1vEjM2zYhdBiPNB7L8DSxn8EhxwcYh+4im/0DOG697cxvnO43JS43bBgb8r7RnY
- 54J9YEGgYUxLQ5gq6BsFKXmhsw0gxTczXTnH/kYBjyA2WFiUDxhaGh3Q6Lc7AW+8tosh
- y/5y1NUvQMbE2LphGp/hU5kvkcluIthXxF10e7yuxo5stnfr5Jx9pPW0oQPIbPtyJ2kU
- UEO0I7KpkF5kVnDBn7F6b3yzPcNhN1jLvAm4sZ3N8d8+MomLr3SavH/JpmndILuwa5IR hg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n1ay61gqu-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 10 Jan 2023 16:44:34 +0000
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 30AFmuCP003117;
-        Tue, 10 Jan 2023 16:44:33 GMT
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n1ay61gqa-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 10 Jan 2023 16:44:33 +0000
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30AE4Thj029818;
-        Tue, 10 Jan 2023 16:44:31 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma06fra.de.ibm.com (PPS) with ESMTPS id 3my00fkraq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 10 Jan 2023 16:44:31 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30AGiS5W44695992
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 10 Jan 2023 16:44:28 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 11E7520049;
-        Tue, 10 Jan 2023 16:44:28 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B81952004D;
-        Tue, 10 Jan 2023 16:44:27 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 10 Jan 2023 16:44:27 +0000 (GMT)
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Alex Williamson <alex.williamson@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>
-Cc:     Jason Gunthorpe <jgg@ziepe.ca>, kvm@vger.kernel.org,
+        with ESMTP id S238775AbjAJQvb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 Jan 2023 11:51:31 -0500
+Received: from mail-qt1-x82f.google.com (mail-qt1-x82f.google.com [IPv6:2607:f8b0:4864:20::82f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63B9C1DDDE
+        for <linux-s390@vger.kernel.org>; Tue, 10 Jan 2023 08:51:29 -0800 (PST)
+Received: by mail-qt1-x82f.google.com with SMTP id h16so305qtu.2
+        for <linux-s390@vger.kernel.org>; Tue, 10 Jan 2023 08:51:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=nD2L+nouQmYkYUXiElXuWDWGgbRqZvOgB6YtZyQAtHQ=;
+        b=AN8zcHl7ntfjRnJWS+1I6Gb2ig79s8638IrmdTtJOsAsVMB8UbvoEfyouuGxS4Ez0I
+         H+sCGjun+6oIGTuzZurJUdkwXK550WAon7TZx66V8f1fkRoDQDqSrao9NJ15Ubmmwa54
+         br8mBPdwhRm1n1FiUa25ctcJYzgzFsA5OMAWNmg6lSEjQmQX0xa9R94QsBNnSbR8R8uE
+         ra0lhLPiYyKyuxXXn8EqhUkfIYGzdkf5ws6prCnPyt6BydG9BnuWQy6b87D1gOd2YSNB
+         mdKb2MtCN47ruH5M/7TI82RPLg65wfruJPS4S8nNHOjJ612Dkkt9LmY8Pq146CtyMJrl
+         UKFQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=nD2L+nouQmYkYUXiElXuWDWGgbRqZvOgB6YtZyQAtHQ=;
+        b=coBpCsJWfXbZllzWhGd90L01li86vT3eSl1MNn3Z4p91U4G8h0giW7hoheTZS+CyTP
+         daZaBAhtZD0KOJgpAaIVHCFe7YNFBLLCy/c1VpbqVgOqM52kezyUzOPgowYf7n3Y78d/
+         MXgqxTThlo1dhwktzl9foAF46cwqbwwX/Gqarcul9koDmlrH80JuWkSmEl8ykfx+UI27
+         LNcKQ5onf9bhTrDHtnxjScUX+gIeS3ADvSpBZlQcKV7Wuukh3vn4GGTl1TLL/XeEe+9Y
+         DakO2mCr8/sq2iS0MdpHtQN1LCH+KKCNKSclH69FEO7sjbm0SCZLEeUCcXlOv/KsBmhq
+         6nvQ==
+X-Gm-Message-State: AFqh2koB+QBwaAAdTwURYcKNTgD/LTcD2Jq10wJ2zP2us97BLSYgIccY
+        02MFxA/l7JukscY63QYHdeP1YQ==
+X-Google-Smtp-Source: AMrXdXvBzw2T1NVzHMnn9YSgyUplc8voY4BFvMnwrodQwtlWtdIt2VQe6jIFScX+wXR34rqdOr0mvg==
+X-Received: by 2002:a05:622a:4d06:b0:3a9:9217:9e6c with SMTP id fd6-20020a05622a4d0600b003a992179e6cmr109805668qtb.55.1673369472890;
+        Tue, 10 Jan 2023 08:51:12 -0800 (PST)
+Received: from ziepe.ca (hlfxns017vw-142-68-50-193.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.50.193])
+        by smtp.gmail.com with ESMTPSA id v24-20020ac87498000000b003abf6eb5a51sm2987520qtq.88.2023.01.10.08.51.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 10 Jan 2023 08:51:12 -0800 (PST)
+Received: from jgg by wakko with local (Exim 4.95)
+        (envelope-from <jgg@ziepe.ca>)
+        id 1pFHqB-008R3X-S0;
+        Tue, 10 Jan 2023 12:51:11 -0400
+Date:   Tue, 10 Jan 2023 12:51:11 -0400
+From:   Jason Gunthorpe <jgg@ziepe.ca>
+To:     Niklas Schnelle <schnelle@linux.ibm.com>
+Cc:     Alex Williamson <alex.williamson@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>, kvm@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
         Matthew Rosato <mjrosato@linux.ibm.com>,
         Pierre Morel <pmorel@linux.ibm.com>,
-        =?UTF-8?q?Christian=20Borntr=C3=A4ger?= <borntraeger@linux.ibm.com>
-Subject: [PATCH v3 1/1] vfio/type1: Respect IOMMU reserved regions in vfio_test_domain_fgsp()
-Date:   Tue, 10 Jan 2023 17:44:27 +0100
-Message-Id: <20230110164427.4051938-2-schnelle@linux.ibm.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20230110164427.4051938-1-schnelle@linux.ibm.com>
+        Christian =?utf-8?Q?Borntr=C3=A4ger?= <borntraeger@linux.ibm.com>
+Subject: Re: [PATCH v3 1/1] vfio/type1: Respect IOMMU reserved regions in
+ vfio_test_domain_fgsp()
+Message-ID: <Y72Xf878jBYrigHI@ziepe.ca>
 References: <20230110164427.4051938-1-schnelle@linux.ibm.com>
+ <20230110164427.4051938-2-schnelle@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: otQvjHaeYQ4O8WRmMErDR3uEoSeZjVA-
-X-Proofpoint-ORIG-GUID: pcMWbnCo2Hz0BKcnrU_AH0BpZFj3ke0U
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2023-01-10_06,2023-01-10_03,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 suspectscore=0
- phishscore=0 priorityscore=1501 impostorscore=0 spamscore=0
- mlxlogscore=999 malwarescore=0 mlxscore=0 bulkscore=0 adultscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2301100104
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230110164427.4051938-2-schnelle@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Since commit cbf7827bc5dc ("iommu/s390: Fix potential s390_domain
-aperture shrinking") the s390 IOMMU driver uses reserved regions for the
-system provided DMA ranges of PCI devices. Previously it reduced the
-size of the IOMMU aperture and checked it on each mapping operation.
-On current machines the system denies use of DMA addresses below 2^32 for
-all PCI devices.
+On Tue, Jan 10, 2023 at 05:44:27PM +0100, Niklas Schnelle wrote:
+> Since commit cbf7827bc5dc ("iommu/s390: Fix potential s390_domain
+> aperture shrinking") the s390 IOMMU driver uses reserved regions for the
+> system provided DMA ranges of PCI devices. Previously it reduced the
+> size of the IOMMU aperture and checked it on each mapping operation.
+> On current machines the system denies use of DMA addresses below 2^32 for
+> all PCI devices.
+> 
+> Usually mapping IOVAs in a reserved regions is harmless until a DMA
+> actually tries to utilize the mapping. However on s390 there is
+> a virtual PCI device called ISM which is implemented in firmware and
+> used for cross LPAR communication. Unlike real PCI devices this device
+> does not use the hardware IOMMU but inspects IOMMU translation tables
+> directly on IOTLB flush (s390 RPCIT instruction). If it detects IOVA
+> mappings outside the allowed ranges it goes into an error state. This
+> error state then causes the device to be unavailable to the KVM guest.
+> 
+> Analysing this we found that vfio_test_domain_fgsp() maps 2 pages at DMA
+> address 0 irrespective of the IOMMUs reserved regions. Even if usually
+> harmless this seems wrong in the general case so instead go through the
+> freshly updated IOVA list and try to find a range that isn't reserved,
+> and fits 2 pages, is PAGE_SIZE * 2 aligned. If found use that for
+> testing for fine grained super pages.
+> 
+> Fixes: af029169b8fd ("vfio/type1: Check reserved region conflict and update iova list")
+> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> ---
+> v2 -> v3:
+> - Don't require region->start to be aligned but instead just that we can fit an
+>   aligned allocation (Alex)
+> - Use Fixes tag for the introduction of reserved regions as that came
+>   after the fine grained super pages test (Alex)
+> v1 -> v2:
+> - Reworded commit message to hopefully explain things a bit better and
+>   highlight that usually just mapping but not issuing DMAs for IOVAs in
+>   a resverved region is harmless but still breaks things with ISM devices.
+> - Added a check for PAGE_SIZE * 2 alignment (Jason)
+> 
+>  drivers/vfio/vfio_iommu_type1.c | 31 ++++++++++++++++++++-----------
+>  1 file changed, 20 insertions(+), 11 deletions(-)
 
-Usually mapping IOVAs in a reserved regions is harmless until a DMA
-actually tries to utilize the mapping. However on s390 there is
-a virtual PCI device called ISM which is implemented in firmware and
-used for cross LPAR communication. Unlike real PCI devices this device
-does not use the hardware IOMMU but inspects IOMMU translation tables
-directly on IOTLB flush (s390 RPCIT instruction). If it detects IOVA
-mappings outside the allowed ranges it goes into an error state. This
-error state then causes the device to be unavailable to the KVM guest.
+Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
 
-Analysing this we found that vfio_test_domain_fgsp() maps 2 pages at DMA
-address 0 irrespective of the IOMMUs reserved regions. Even if usually
-harmless this seems wrong in the general case so instead go through the
-freshly updated IOVA list and try to find a range that isn't reserved,
-and fits 2 pages, is PAGE_SIZE * 2 aligned. If found use that for
-testing for fine grained super pages.
-
-Fixes: af029169b8fd ("vfio/type1: Check reserved region conflict and update iova list")
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
----
-v2 -> v3:
-- Don't require region->start to be aligned but instead just that we can fit an
-  aligned allocation (Alex)
-- Use Fixes tag for the introduction of reserved regions as that came
-  after the fine grained super pages test (Alex)
-v1 -> v2:
-- Reworded commit message to hopefully explain things a bit better and
-  highlight that usually just mapping but not issuing DMAs for IOVAs in
-  a resverved region is harmless but still breaks things with ISM devices.
-- Added a check for PAGE_SIZE * 2 alignment (Jason)
-
- drivers/vfio/vfio_iommu_type1.c | 31 ++++++++++++++++++++-----------
- 1 file changed, 20 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/vfio/vfio_iommu_type1.c b/drivers/vfio/vfio_iommu_type1.c
-index 23c24fe98c00..2209372f236d 100644
---- a/drivers/vfio/vfio_iommu_type1.c
-+++ b/drivers/vfio/vfio_iommu_type1.c
-@@ -1856,24 +1856,33 @@ static int vfio_iommu_replay(struct vfio_iommu *iommu,
-  * significantly boosts non-hugetlbfs mappings and doesn't seem to hurt when
-  * hugetlbfs is in use.
-  */
--static void vfio_test_domain_fgsp(struct vfio_domain *domain)
-+static void vfio_test_domain_fgsp(struct vfio_domain *domain, struct list_head *regions)
- {
--	struct page *pages;
- 	int ret, order = get_order(PAGE_SIZE * 2);
-+	struct vfio_iova *region;
-+	struct page *pages;
-+	dma_addr_t start;
- 
- 	pages = alloc_pages(GFP_KERNEL | __GFP_ZERO, order);
- 	if (!pages)
- 		return;
- 
--	ret = iommu_map(domain->domain, 0, page_to_phys(pages), PAGE_SIZE * 2,
--			IOMMU_READ | IOMMU_WRITE | IOMMU_CACHE);
--	if (!ret) {
--		size_t unmapped = iommu_unmap(domain->domain, 0, PAGE_SIZE);
-+	list_for_each_entry(region, regions, list) {
-+		start = ALIGN(region->start, PAGE_SIZE * 2);
-+		if (start >= region->end || (region->end - start < PAGE_SIZE * 2))
-+			continue;
- 
--		if (unmapped == PAGE_SIZE)
--			iommu_unmap(domain->domain, PAGE_SIZE, PAGE_SIZE);
--		else
--			domain->fgsp = true;
-+		ret = iommu_map(domain->domain, start, page_to_phys(pages), PAGE_SIZE * 2,
-+				IOMMU_READ | IOMMU_WRITE | IOMMU_CACHE);
-+		if (!ret) {
-+			size_t unmapped = iommu_unmap(domain->domain, start, PAGE_SIZE);
-+
-+			if (unmapped == PAGE_SIZE)
-+				iommu_unmap(domain->domain, start + PAGE_SIZE, PAGE_SIZE);
-+			else
-+				domain->fgsp = true;
-+		}
-+		break;
- 	}
- 
- 	__free_pages(pages, order);
-@@ -2326,7 +2335,7 @@ static int vfio_iommu_type1_attach_group(void *iommu_data,
- 		}
- 	}
- 
--	vfio_test_domain_fgsp(domain);
-+	vfio_test_domain_fgsp(domain, &iova_copy);
- 
- 	/* replay mappings on new domains */
- 	ret = vfio_iommu_replay(iommu, domain);
--- 
-2.34.1
-
+Jason
