@@ -2,321 +2,192 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F592C54EBE
-	for <linux-s390@archiver.kernel.org>; Tue, 10 Jan 2023 12:03:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E4CCCC54EBC
+	for <linux-s390@archiver.kernel.org>; Tue, 10 Jan 2023 12:46:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238199AbjAJMDC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 10 Jan 2023 07:03:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49060 "EHLO
+        id S238079AbjAJMqz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 10 Jan 2023 07:46:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238153AbjAJMDB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 Jan 2023 07:03:01 -0500
-Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4C241BE98;
-        Tue, 10 Jan 2023 04:02:59 -0800 (PST)
+        with ESMTP id S232488AbjAJMqy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 Jan 2023 07:46:54 -0500
+Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C65A4FCE9;
+        Tue, 10 Jan 2023 04:46:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1673352179; x=1704888179;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=Bs/QxT4h0CrR67dsOJolQlUz/QoNMMNB9GCwsyLDTrY=;
-  b=LeSJaBIoVLXGiUZ6L4qZFCW9Bper4U6NHi5ixjxSFBfIGvsPEi+tF2lS
-   Yb40/odlgX1WqLOFIEF2m/JgrznW5mfDNz85+NJMJE6W6iwxl/g7aM6Pb
-   BOUh6FH9FL6iJ7doXnXwB9ud8TounDEc1l5EU88eWUhjEsAKwY8Q4OrEy
-   yFT+AbfbMtNB//HVQSlweWtGaDDKpwisUPTg5tGLCBODPnwjozngjReYK
-   /Hjj0fcrKG+f6qP1E39kC6YGm5Th8sPX/rlWUlgIBWnBk1mtNsKk4/z5K
-   8UdiQzyOkOUxm0WCgwTkEuUGMzdszxhael9FtkhpnnPRAckLNayfBfdYs
-   w==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10585"; a="350349976"
+  t=1673354813; x=1704890813;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=JjCURNXFRNcYm6qc3FnZISad0UB5+7XjMdbu/B0f1Fo=;
+  b=dBrSK8pUnAS9DlR5De4m4pGHPecuaVHYMOsvE9RqaUG3SSw2qPeWTZfs
+   W+PrO6Po2RHkqnb+9zT21BLK6wIzaPP8OsUZVMw8KFYBiNTXPXWMHIJpx
+   AWF0Dj8pgsKkrLSvE1PjW87tU4ZXbtx2Ca9i3OezaoCL8hipF4R5Y9+O5
+   +PiifomgFNqirtFV9/ZIAuElGDzY1ncKdp5K1AqZke6sDbq5g8nI5vZdn
+   QVNsAyernmi3Pbmbx9/MuV9liHxBZNFcbOchudK/9+WZXXOSCo0oys6ZB
+   tdGdxNHzBAZzhJcmSH4eL9FBj7NvhMMWoE+MpU32zpeciq0FrBr/GYkPc
+   Q==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10585"; a="302834344"
 X-IronPort-AV: E=Sophos;i="5.96,315,1665471600"; 
-   d="scan'208";a="350349976"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jan 2023 04:02:59 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10585"; a="799406770"
+   d="scan'208";a="302834344"
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jan 2023 04:46:46 -0800
+X-IronPort-AV: E=McAfee;i="6500,9779,10585"; a="689393555"
 X-IronPort-AV: E=Sophos;i="5.96,315,1665471600"; 
-   d="scan'208";a="799406770"
-Received: from gbocanex-mobl.ger.corp.intel.com (HELO ijarvine-MOBL2.ger.corp.intel.com) ([10.249.44.115])
-  by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jan 2023 04:02:53 -0800
-From:   =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-To:     linux-serial@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Johan Hovold <johan@kernel.org>,
-        =?UTF-8?q?Samuel=20Iglesias=20Gons=C3=A1lvez?= 
-        <siglesias@igalia.com>, Rodolfo Giometti <giometti@enneenne.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Jens Taprogge <jens.taprogge@taprogge.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        linux-kernel@vger.kernel.org,
-        industrypack-devel@lists.sourceforge.net,
-        linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-usb@vger.kernel.org
-Cc:     =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Subject: [PATCH v2 01/13] tty: Cleanup tty_port_set_initialized() bool parameter
-Date:   Tue, 10 Jan 2023 14:02:14 +0200
-Message-Id: <20230110120226.14972-2-ilpo.jarvinen@linux.intel.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20230110120226.14972-1-ilpo.jarvinen@linux.intel.com>
-References: <20230110120226.14972-1-ilpo.jarvinen@linux.intel.com>
+   d="scan'208";a="689393555"
+Received: from ahajda-mobl.ger.corp.intel.com (HELO [10.213.8.19]) ([10.213.8.19])
+  by orsmga001-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jan 2023 04:46:39 -0800
+Message-ID: <1bfae3d0-8c0b-ea83-7184-db847a4a969f@intel.com>
+Date:   Tue, 10 Jan 2023 13:46:37 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Firefox/102.0 Thunderbird/102.6.1
+Subject: Re: [Intel-gfx] [RFC DO NOT MERGE] treewide: use __xchg in most
+ obvious places
+Content-Language: en-US
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc:     Mark Rutland <mark.rutland@arm.com>, linux-ia64@vger.kernel.org,
+        linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+        dri-devel@lists.freedesktop.org, linux-mips@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        Boqun Feng <boqun.feng@gmail.com>,
+        linux-xtensa@linux-xtensa.org, Arnd Bergmann <arnd@arndb.de>,
+        intel-gfx@lists.freedesktop.org, linux-m68k@lists.linux-m68k.org,
+        openrisc@lists.librecores.org, loongarch@lists.linux.dev,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        linux-arm-kernel@lists.infradead.org, linux-parisc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Daniel Vetter <daniel@ffwll.ch>,
+        linux-alpha@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        linuxppc-dev@lists.ozlabs.org
+References: <Y7b6/7coJEVlTVxK@phenom.ffwll.local>
+ <20230110105306.3973122-1-andrzej.hajda@intel.com>
+ <Y71G1tkmUzM4BLxn@smile.fi.intel.com>
+From:   Andrzej Hajda <andrzej.hajda@intel.com>
+Organization: Intel Technology Poland sp. z o.o. - ul. Slowackiego 173, 80-298
+ Gdansk - KRS 101882 - NIP 957-07-52-316
+In-Reply-To: <Y71G1tkmUzM4BLxn@smile.fi.intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Make callers pass true/false consistently for bool val.
+On 10.01.2023 12:07, Andy Shevchenko wrote:
+> On Tue, Jan 10, 2023 at 11:53:06AM +0100, Andrzej Hajda wrote:
+>> This patch tries to show usability of __xchg helper.
+>> It is not intended to be merged, but I can convert
+>> it to proper patchset if necessary.
+>>
+>> There are many more places where __xchg can be used.
+>> This demo shows the most spectacular cases IMHO:
+>> - previous value is returned from function,
+>> - temporary variables are in use.
+>>
+>> As a result readability is much better and diffstat is quite
+>> nice, less local vars to look at.
+>> In many cases whole body of functions is replaced
+>> with __xchg(ptr, val), so as further refactoring the whole
+>> function can be removed and __xchg can be called directly.
+> 
+> ...
+> 
+>>   arch_uretprobe_hijack_return_addr(unsigned long trampoline_vaddr,
+>>   				  struct pt_regs *regs)
+>>   {
+>> -	unsigned long orig_ret_vaddr;
+>> -
+>> -	orig_ret_vaddr = regs->ARM_lr;
+>> -	/* Replace the return addr with trampoline addr */
+>> -	regs->ARM_lr = trampoline_vaddr;
+>> -	return orig_ret_vaddr;
+>> +	return __xchg(&regs->ARM_lr, trampoline_vaddr);
+>>   }
+> 
+> If it's not a callback, the entire function can be killed.
+> And this is a good example of the function usage.
+> OTOH, these places might have a side effect (if it's in deep CPU
+> handlers), means we need to do this carefully.
+> 
+> ...
+> 
+>>   static inline void *qed_chain_produce(struct qed_chain *p_chain)
+>>   {
+>> -	void *p_ret = NULL, *p_prod_idx, *p_prod_page_idx;
+>> +	void *p_prod_idx, *p_prod_page_idx;
+>>   
+>>   	if (is_chain_u16(p_chain)) {
+>>   		if ((p_chain->u.chain16.prod_idx &
+>> @@ -390,11 +391,8 @@ static inline void *qed_chain_produce(struct qed_chain *p_chain)
+>>   		p_chain->u.chain32.prod_idx++;
+>>   	}
+>>   
+>> -	p_ret = p_chain->p_prod_elem;
+>> -	p_chain->p_prod_elem = (void *)(((u8 *)p_chain->p_prod_elem) +
+>> -					p_chain->elem_size);
+>> -
+>> -	return p_ret;
+>> +	return __xchg(&p_chain->p_prod_elem,
+>> +		      (void *)(((u8 *)p_chain->p_prod_elem) + p_chain->elem_size));
+> 
+> Wondering if you still need a (void *) casting after the change. Ditto for the
+> rest of similar cases.
 
-Reviewed-by: Samuel Iglesias Gonsalvez <siglesias@igalia.com>
-Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
----
- drivers/char/pcmcia/synclink_cs.c | 4 ++--
- drivers/ipack/devices/ipoctal.c   | 4 ++--
- drivers/s390/char/con3215.c       | 4 ++--
- drivers/tty/amiserial.c           | 4 ++--
- drivers/tty/moxa.c                | 2 +-
- drivers/tty/mxser.c               | 2 +-
- drivers/tty/n_gsm.c               | 4 ++--
- drivers/tty/serial/serial_core.c  | 6 +++---
- drivers/tty/synclink_gt.c         | 4 ++--
- drivers/tty/tty_port.c            | 4 ++--
- drivers/usb/serial/console.c      | 2 +-
- 11 files changed, 20 insertions(+), 20 deletions(-)
+IMHO it is not needed also before the change and IIRC gcc has an 
+extension which allows to drop (u8 *) cast as well [1].
 
-diff --git a/drivers/char/pcmcia/synclink_cs.c b/drivers/char/pcmcia/synclink_cs.c
-index b2735be81ab2..baa46e8a094b 100644
---- a/drivers/char/pcmcia/synclink_cs.c
-+++ b/drivers/char/pcmcia/synclink_cs.c
-@@ -1309,7 +1309,7 @@ static int startup(MGSLPC_INFO * info, struct tty_struct *tty)
- 	if (tty)
- 		clear_bit(TTY_IO_ERROR, &tty->flags);
- 
--	tty_port_set_initialized(&info->port, 1);
-+	tty_port_set_initialized(&info->port, true);
- 
- 	return 0;
- }
-@@ -1359,7 +1359,7 @@ static void shutdown(MGSLPC_INFO * info, struct tty_struct *tty)
- 	if (tty)
- 		set_bit(TTY_IO_ERROR, &tty->flags);
- 
--	tty_port_set_initialized(&info->port, 0);
-+	tty_port_set_initialized(&info->port, false);
- }
- 
- static void mgslpc_program_hw(MGSLPC_INFO *info, struct tty_struct *tty)
-diff --git a/drivers/ipack/devices/ipoctal.c b/drivers/ipack/devices/ipoctal.c
-index fc00274070b6..103fce0c49e6 100644
---- a/drivers/ipack/devices/ipoctal.c
-+++ b/drivers/ipack/devices/ipoctal.c
-@@ -647,7 +647,7 @@ static void ipoctal_hangup(struct tty_struct *tty)
- 	tty_port_hangup(&channel->tty_port);
- 
- 	ipoctal_reset_channel(channel);
--	tty_port_set_initialized(&channel->tty_port, 0);
-+	tty_port_set_initialized(&channel->tty_port, false);
- 	wake_up_interruptible(&channel->tty_port.open_wait);
- }
- 
-@@ -659,7 +659,7 @@ static void ipoctal_shutdown(struct tty_struct *tty)
- 		return;
- 
- 	ipoctal_reset_channel(channel);
--	tty_port_set_initialized(&channel->tty_port, 0);
-+	tty_port_set_initialized(&channel->tty_port, false);
- }
- 
- static void ipoctal_cleanup(struct tty_struct *tty)
-diff --git a/drivers/s390/char/con3215.c b/drivers/s390/char/con3215.c
-index 72ba83c1bc79..0b05cd76b7d0 100644
---- a/drivers/s390/char/con3215.c
-+++ b/drivers/s390/char/con3215.c
-@@ -629,7 +629,7 @@ static int raw3215_startup(struct raw3215_info *raw)
- 	if (tty_port_initialized(&raw->port))
- 		return 0;
- 	raw->line_pos = 0;
--	tty_port_set_initialized(&raw->port, 1);
-+	tty_port_set_initialized(&raw->port, true);
- 	spin_lock_irqsave(get_ccwdev_lock(raw->cdev), flags);
- 	raw3215_try_io(raw);
- 	spin_unlock_irqrestore(get_ccwdev_lock(raw->cdev), flags);
-@@ -659,7 +659,7 @@ static void raw3215_shutdown(struct raw3215_info *raw)
- 		spin_lock_irqsave(get_ccwdev_lock(raw->cdev), flags);
- 		remove_wait_queue(&raw->empty_wait, &wait);
- 		set_current_state(TASK_RUNNING);
--		tty_port_set_initialized(&raw->port, 1);
-+		tty_port_set_initialized(&raw->port, true);
- 	}
- 	spin_unlock_irqrestore(get_ccwdev_lock(raw->cdev), flags);
- }
-diff --git a/drivers/tty/amiserial.c b/drivers/tty/amiserial.c
-index f52266766df9..f8cdce1626cb 100644
---- a/drivers/tty/amiserial.c
-+++ b/drivers/tty/amiserial.c
-@@ -502,7 +502,7 @@ static int startup(struct tty_struct *tty, struct serial_state *info)
- 	 */
- 	change_speed(tty, info, NULL);
- 
--	tty_port_set_initialized(port, 1);
-+	tty_port_set_initialized(port, true);
- 	local_irq_restore(flags);
- 	return 0;
- 
-@@ -556,7 +556,7 @@ static void shutdown(struct tty_struct *tty, struct serial_state *info)
- 
- 	set_bit(TTY_IO_ERROR, &tty->flags);
- 
--	tty_port_set_initialized(&info->tport, 0);
-+	tty_port_set_initialized(&info->tport, false);
- 	local_irq_restore(flags);
- }
- 
-diff --git a/drivers/tty/moxa.c b/drivers/tty/moxa.c
-index 35b6fddf0341..bc474f3c3f8f 100644
---- a/drivers/tty/moxa.c
-+++ b/drivers/tty/moxa.c
-@@ -1484,7 +1484,7 @@ static int moxa_open(struct tty_struct *tty, struct file *filp)
- 		MoxaPortLineCtrl(ch, 1, 1);
- 		MoxaPortEnable(ch);
- 		MoxaSetFifo(ch, ch->type == PORT_16550A);
--		tty_port_set_initialized(&ch->port, 1);
-+		tty_port_set_initialized(&ch->port, true);
- 	}
- 	mutex_unlock(&ch->port.mutex);
- 	mutex_unlock(&moxa_openlock);
-diff --git a/drivers/tty/mxser.c b/drivers/tty/mxser.c
-index 2436e0b10f9a..2926a831727d 100644
---- a/drivers/tty/mxser.c
-+++ b/drivers/tty/mxser.c
-@@ -1063,7 +1063,7 @@ static int mxser_set_serial_info(struct tty_struct *tty,
- 	} else {
- 		retval = mxser_activate(port, tty);
- 		if (retval == 0)
--			tty_port_set_initialized(port, 1);
-+			tty_port_set_initialized(port, true);
- 	}
- 	mutex_unlock(&port->mutex);
- 	return retval;
-diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
-index daf12132deb1..631539c17d85 100644
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -2059,7 +2059,7 @@ static void gsm_dlci_close(struct gsm_dlci *dlci)
- 		tty_port_tty_hangup(&dlci->port, false);
- 		gsm_dlci_clear_queues(dlci->gsm, dlci);
- 		/* Ensure that gsmtty_open() can return. */
--		tty_port_set_initialized(&dlci->port, 0);
-+		tty_port_set_initialized(&dlci->port, false);
- 		wake_up_interruptible(&dlci->port.open_wait);
- 	} else
- 		dlci->gsm->dead = true;
-@@ -3880,7 +3880,7 @@ static int gsmtty_open(struct tty_struct *tty, struct file *filp)
- 	dlci->modem_rx = 0;
- 	/* We could in theory open and close before we wait - eg if we get
- 	   a DM straight back. This is ok as that will have caused a hangup */
--	tty_port_set_initialized(port, 1);
-+	tty_port_set_initialized(port, true);
- 	/* Start sending off SABM messages */
- 	if (gsm->initiator)
- 		gsm_dlci_begin_open(dlci);
-diff --git a/drivers/tty/serial/serial_core.c b/drivers/tty/serial/serial_core.c
-index b9fbbee598b8..e049c760b738 100644
---- a/drivers/tty/serial/serial_core.c
-+++ b/drivers/tty/serial/serial_core.c
-@@ -290,7 +290,7 @@ static void uart_shutdown(struct tty_struct *tty, struct uart_state *state)
- 		set_bit(TTY_IO_ERROR, &tty->flags);
- 
- 	if (tty_port_initialized(port)) {
--		tty_port_set_initialized(port, 0);
-+		tty_port_set_initialized(port, false);
- 
- 		/*
- 		 * Turn off DTR and RTS early.
-@@ -2347,7 +2347,7 @@ int uart_suspend_port(struct uart_driver *drv, struct uart_port *uport)
- 		unsigned int mctrl;
- 
- 		tty_port_set_suspended(port, 1);
--		tty_port_set_initialized(port, 0);
-+		tty_port_set_initialized(port, false);
- 
- 		spin_lock_irq(&uport->lock);
- 		ops->stop_tx(uport);
-@@ -2458,7 +2458,7 @@ int uart_resume_port(struct uart_driver *drv, struct uart_port *uport)
- 					uart_rs485_config(uport);
- 				ops->start_tx(uport);
- 				spin_unlock_irq(&uport->lock);
--				tty_port_set_initialized(port, 1);
-+				tty_port_set_initialized(port, true);
- 			} else {
- 				/*
- 				 * Failed to resume - maybe hardware went away?
-diff --git a/drivers/tty/synclink_gt.c b/drivers/tty/synclink_gt.c
-index 72b76cdde534..2b96bf0ecafb 100644
---- a/drivers/tty/synclink_gt.c
-+++ b/drivers/tty/synclink_gt.c
-@@ -2354,7 +2354,7 @@ static int startup(struct slgt_info *info)
- 	if (info->port.tty)
- 		clear_bit(TTY_IO_ERROR, &info->port.tty->flags);
- 
--	tty_port_set_initialized(&info->port, 1);
-+	tty_port_set_initialized(&info->port, true);
- 
- 	return 0;
- }
-@@ -2401,7 +2401,7 @@ static void shutdown(struct slgt_info *info)
- 	if (info->port.tty)
- 		set_bit(TTY_IO_ERROR, &info->port.tty->flags);
- 
--	tty_port_set_initialized(&info->port, 0);
-+	tty_port_set_initialized(&info->port, false);
- }
- 
- static void program_hw(struct slgt_info *info)
-diff --git a/drivers/tty/tty_port.c b/drivers/tty/tty_port.c
-index dce08a6d7b5e..0c00d5bd6c88 100644
---- a/drivers/tty/tty_port.c
-+++ b/drivers/tty/tty_port.c
-@@ -367,7 +367,7 @@ static void tty_port_shutdown(struct tty_port *port, struct tty_struct *tty)
- 		goto out;
- 
- 	if (tty_port_initialized(port)) {
--		tty_port_set_initialized(port, 0);
-+		tty_port_set_initialized(port, false);
- 		/*
- 		 * Drop DTR/RTS if HUPCL is set. This causes any attached
- 		 * modem to hang up the line.
-@@ -788,7 +788,7 @@ int tty_port_open(struct tty_port *port, struct tty_struct *tty,
- 				return retval;
- 			}
- 		}
--		tty_port_set_initialized(port, 1);
-+		tty_port_set_initialized(port, true);
- 	}
- 	mutex_unlock(&port->mutex);
- 	return tty_port_block_til_ready(port, tty, filp);
-diff --git a/drivers/usb/serial/console.c b/drivers/usb/serial/console.c
-index da19a5fa414f..c3ea3a46ed76 100644
---- a/drivers/usb/serial/console.c
-+++ b/drivers/usb/serial/console.c
-@@ -169,7 +169,7 @@ static int usb_console_setup(struct console *co, char *options)
- 			tty_save_termios(tty);
- 			tty_kref_put(tty);
- 		}
--		tty_port_set_initialized(&port->port, 1);
-+		tty_port_set_initialized(&port->port, true);
- 	}
- 	/* Now that any required fake tty operations are completed restore
- 	 * the tty port count */
--- 
-2.30.2
+[1]: https://gcc.gnu.org/onlinedocs/gcc/Pointer-Arith.html
+
+> 
+>>   }
+> 
+> ...
+> 
+> Btw, is it done by coccinelle? If no, why not providing the script?
+> 
+
+Yes I have used cocci. My cocci skills are far from perfect, so I did 
+not want to share my dirty code, but this is nothing secret:
+
+@r1@
+expression x, v;
+local idexpression p;
+@@
+-       p = x;
+-       x = v;
+-       return p;
++       return __xchg(&x, v);
+
+@depends on r1@
+expression e;
+@@
+         __xchg(
+-       &*e,
++       e,
+         ...)
+
+@depends on r1@
+expression t;
+@@
+-       if (t) {
++       if (t)
+                 return __xchg(...);
+-       }
+
+@depends on r1@
+type t;
+identifier p;
+expression e;
+@@
+(
+-       t p;
+|
+-       t p = e;
+)
+         ... when != p
+
+Regards
+Andrzej
 
