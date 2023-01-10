@@ -2,88 +2,125 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C9D60C54EBC
-	for <linux-s390@archiver.kernel.org>; Tue, 10 Jan 2023 16:13:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3171CC54EBC
+	for <linux-s390@archiver.kernel.org>; Tue, 10 Jan 2023 16:44:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238466AbjAJQNY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 10 Jan 2023 11:13:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38228 "EHLO
+        id S233851AbjAJQoj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 10 Jan 2023 11:44:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57292 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233017AbjAJQNX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 Jan 2023 11:13:23 -0500
-Received: from mail-qt1-x82d.google.com (mail-qt1-x82d.google.com [IPv6:2607:f8b0:4864:20::82d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8504D58D06
-        for <linux-s390@vger.kernel.org>; Tue, 10 Jan 2023 08:13:20 -0800 (PST)
-Received: by mail-qt1-x82d.google.com with SMTP id v14so11281980qtq.3
-        for <linux-s390@vger.kernel.org>; Tue, 10 Jan 2023 08:13:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=x8HdjYl9d3A5UtRZZkaER81XKdNBCzjQfeC6yGsuOrE=;
-        b=glorSvP3ZSYKGS7bWfRrFsfu0+VqZWJfDLXm9Nu4k+vbYlF5rvIImpO6BFuNNI9FF0
-         yxC8H9WniS/t3aDYYeHak6HeFWKKQRlUyKZjToSVBYQourQc8HqrbHTdJRmakOUA9UU8
-         8xAnSM6cWKd50XBmlr9eilRJ7JcTT+u6l1Gnop/7GnaGY1Laq0fd9WlpPorODYhxVfcs
-         LrJbgGpFOwFd0uHBdKblaiO9SVAEJoS4B7/Zku31cpyFHy875YbOK3Qpg7cFeK684Rsa
-         JaAif+UKa/lR95ogFltO1kC09ec26jdxDDjt7D15Kyw47ul/Wjpi/POQxZDHuPNOvKmA
-         An1A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=x8HdjYl9d3A5UtRZZkaER81XKdNBCzjQfeC6yGsuOrE=;
-        b=fO/WcAuE/meI8Gn+KNjCCdiQHc41krRmeOlrqdqquGh7gqlbKD4F3aW2e1UpvG6BDj
-         oWfoY12xqf7RzR8gO6bmWy/MK3uwPY0BMFVe9Iqke37WhFQg3jTXD8ZoGQMA2Oi9VpUz
-         M8HeKtocmF4uga+PE9SV1iL1Ms7Ye+SvqMxuQt7bdY5t9C2sil/KHrmDr5uWzxqPgFET
-         jN7eQ8I4HR4liLwmTXhNN0SqPK+DN2KGBmapcwPMO0u2DkDLDxqO0ni9AuTKXjq5uF4h
-         IF2rgUTfZY1C0sSKHUtwT9Y16Tc4zJO/aI7/wqsS28ycFk3Id5+/U2b5TkQrJBVyR647
-         sMuw==
-X-Gm-Message-State: AFqh2kpCpRFgH5t9Be1DYqf+JhMUWQgeqpnDEgrZz1sOWD34L6XB6UGs
-        Ar++3m1Crdcrf5esBmovB7/dAQ==
-X-Google-Smtp-Source: AMrXdXtMTCcpIMSNjkZMw3QSJmgRN4agNH6+vzFUc4k0HFtCs58JlRHYTzMqvszrW5N4t34mYrT2fw==
-X-Received: by 2002:ac8:6f0d:0:b0:3ad:fdb5:46c3 with SMTP id bs13-20020ac86f0d000000b003adfdb546c3mr9489350qtb.8.1673367199720;
-        Tue, 10 Jan 2023 08:13:19 -0800 (PST)
-Received: from ziepe.ca (hlfxns017vw-142-68-50-193.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.50.193])
-        by smtp.gmail.com with ESMTPSA id m19-20020ac84453000000b003a6847d6386sm6146855qtn.68.2023.01.10.08.13.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Jan 2023 08:13:19 -0800 (PST)
-Received: from jgg by wakko with local (Exim 4.95)
-        (envelope-from <jgg@ziepe.ca>)
-        id 1pFHFW-008QNo-NC;
-        Tue, 10 Jan 2023 12:13:18 -0400
-Date:   Tue, 10 Jan 2023 12:13:18 -0400
-From:   Jason Gunthorpe <jgg@ziepe.ca>
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Alex Williamson <alex.williamson@redhat.com>,
-        Kirti Wankhede <kwankhede@nvidia.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, intel-gfx@lists.freedesktop.org
-Subject: Re: [PATCH 4/4] vfio-mdev: remove an non-existing driver from
- vfio-mediated-device
-Message-ID: <Y72Onk1zCjXoVD47@ziepe.ca>
-References: <20230110091009.474427-1-hch@lst.de>
- <20230110091009.474427-5-hch@lst.de>
+        with ESMTP id S233940AbjAJQof (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 Jan 2023 11:44:35 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA00A5133B;
+        Tue, 10 Jan 2023 08:44:34 -0800 (PST)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30AFsx4p008198;
+        Tue, 10 Jan 2023 16:44:34 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=Mm7QiQfcrQlNd7aT1hRWE0ugWylBhxP28PV93dzYYoU=;
+ b=EJZEVBUm3trPACAm/3U9Vs4ue8TxyysUTVDuTMAJsz6Kwhr2/8SDB5qkMu19nTNEdeqU
+ w1eARs6n+m3us13rTe8ibxdsArVhEzSuFQ7MjUsswhsa6j9xa4IUYbg+EwtKN6A+7zfY
+ qThSLI2Dbr7Y4iIKaOb9VPefpVBl2P7g8EgBsTImUhtnqm0xkahhF3J7PgxJsLQ5fQW2
+ YzlQ9kx9I8iWhgAZynsvtcaRp+KAI1CkXX3kQvbyHvvYpkFwzbq5YVFIbvtji7jbAbUa
+ O8XadmLNIorzvtyHLkTNRkRso5u/z4dwP3Xjw6rNvd1v4wxQkJzGf52XNNYVnE+MmGGd OA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3n1b339dc2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 10 Jan 2023 16:44:33 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 30AFu1Ft012082;
+        Tue, 10 Jan 2023 16:44:33 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3n1b339dbj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 10 Jan 2023 16:44:33 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30A83ahp014076;
+        Tue, 10 Jan 2023 16:44:31 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3my00fn750-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 10 Jan 2023 16:44:31 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30AGiRVM51511614
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 10 Jan 2023 16:44:27 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AC3D82004F;
+        Tue, 10 Jan 2023 16:44:27 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5EC0A20043;
+        Tue, 10 Jan 2023 16:44:27 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Tue, 10 Jan 2023 16:44:27 +0000 (GMT)
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Alex Williamson <alex.williamson@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>
+Cc:     Jason Gunthorpe <jgg@ziepe.ca>, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        =?UTF-8?q?Christian=20Borntr=C3=A4ger?= <borntraeger@linux.ibm.com>
+Subject: [PATCH v3 0/1] vfio/type1: Fix vfio-pci pass-through of ISM devices
+Date:   Tue, 10 Jan 2023 17:44:26 +0100
+Message-Id: <20230110164427.4051938-1-schnelle@linux.ibm.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230110091009.474427-5-hch@lst.de>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: hWDIigv2QrdBU7DJ_jTp_MdeZKvfnCnq
+X-Proofpoint-ORIG-GUID: qWBQ2p0Jec6qGatUywr1X1RA7NBi3YaU
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2023-01-10_06,2023-01-10_03,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 suspectscore=0
+ bulkscore=0 clxscore=1015 mlxscore=0 malwarescore=0 spamscore=0
+ priorityscore=1501 mlxlogscore=999 phishscore=0 lowpriorityscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2301100104
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jan 10, 2023 at 10:10:09AM +0100, Christoph Hellwig wrote:
-> The nvidia mdev driver does not actually exist anywhere in the tree.
-> 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->  Documentation/driver-api/vfio-mediated-device.rst | 8 +-------
->  1 file changed, 1 insertion(+), 7 deletions(-)
+Hi Alex,
 
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+This is v2 of my attempt of fixing an issue we have on s390 with vfio-pci
+pass-through of the s390 specific virtual PCI device called ISM and used for
+cross LPAR communication. As the patch tries to explain the fact that
+vfio_test_domain_fgsp() uses an IOMMU mapping at IOVA 0 irrespective of any
+reserved regions causes the ISM device to go into an error state and thus
+becomes unusable for a KVM guest breaking pass-through. I tried to improve
+the background and explanation compared to v1 hope its more clear now.
 
-Jason
+As for testing, I tested this based on current master on both on s390 where it
+skips the reserved 0x0-0x100000000 range and on an AMD Ryzen 3990X where it
+continues to do the test on DMA address 0 and sets domain->fgsp to true.
+
+Thanks,
+Niklas Schnelle
+
+Changes since v2:
+- Don't require region->start to be aligned but instead just that we can fit an
+  aligned allocation (Alex)
+- Use Fixes tag for the introduction of reserved regions as that came
+  after the fine grained super pages test (Alex)
+
+Changes since v1:
+- Reworded commit message to hopefully explain things a bit better and
+  highlight that usually just mapping but not issuing DMAs for IOVAs in
+  a resverved region is harmless but still breaks things with ISM devices.
+- Added a check for PAGE_SIZE * 2 alignment (Jason)
+
+
+Niklas Schnelle (1):
+  vfio/type1: Respect IOMMU reserved regions in vfio_test_domain_fgsp()
+
+ drivers/vfio/vfio_iommu_type1.c | 31 ++++++++++++++++++++-----------
+ 1 file changed, 20 insertions(+), 11 deletions(-)
+
+-- 
+2.34.1
+
