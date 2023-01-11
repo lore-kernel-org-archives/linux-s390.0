@@ -2,70 +2,68 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F301C5479D
-	for <linux-s390@archiver.kernel.org>; Wed, 11 Jan 2023 08:01:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D00C4C54EBE
+	for <linux-s390@archiver.kernel.org>; Wed, 11 Jan 2023 09:38:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232055AbjAKIBS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 11 Jan 2023 03:01:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59064 "EHLO
+        id S230507AbjAKJiA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 11 Jan 2023 04:38:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235801AbjAKIAu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 Jan 2023 03:00:50 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7980F5BB
-        for <linux-s390@vger.kernel.org>; Wed, 11 Jan 2023 00:00:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1673424002;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=ryKP4Syb0QxMHTHezxVFEI/PQgexEWoWhCwUcUgI3Bs=;
-        b=HrRlBA5VKo9MbGx/wbnwz+8S5Lsjq4O5cNeY5TjGi3smoR/RKAIKvM1AAEIdgx8wuK6wy5
-        2LTMC+25OtSXVPcJkhO/SX1JzKpGt79hqJqefcgiQN/+s6MlG/TYaij2QCkkumc/s0Mcnn
-        ruD9stLpQLAM/mLU29ketCmh88ZQTKQ=
-Received: from mail-qv1-f70.google.com (mail-qv1-f70.google.com
- [209.85.219.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-663-R7Sy2FPfOqO7AOn9N3Xprw-1; Wed, 11 Jan 2023 03:00:00 -0500
-X-MC-Unique: R7Sy2FPfOqO7AOn9N3Xprw-1
-Received: by mail-qv1-f70.google.com with SMTP id cx11-20020a056214188b00b00531cacde854so7993010qvb.6
-        for <linux-s390@vger.kernel.org>; Wed, 11 Jan 2023 00:00:00 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=ryKP4Syb0QxMHTHezxVFEI/PQgexEWoWhCwUcUgI3Bs=;
-        b=Ja1LUbMMnRfruC5kLZBIUCmoA5iqagAwUhIdN7dTzshY3aAFHykPOLeZquu7drywsV
-         Wxs8XaP7QXSdsWn3IeBLWgVi3jBY93PjLVfBzLA9R5R29pFFLMTTVwsWdKB8fItVHzrD
-         MWTISZSi1qAqkmeTm8OjHYykSkcdc6vBZbc8+D1/D/fKmbdjhVst2qSadwPSqjO+YgXh
-         QTfsrrAaVcZUn0vWnia+tRzwL8i2OOqouJ9Z8m84tvHBeO2Td+wem0d+Av0Wpu1m6UHB
-         BrQgimoLIzrosji3GMhNZoMHUKi+DuPLBrGc7wUdbesc4rErEYO6mG1QEqjv0GqFLybE
-         KvCA==
-X-Gm-Message-State: AFqh2krkKmQqsrWbjGnW82TpTM1mEhpYyeZkhEqOfbCVkNbgAefAXmHz
-        4wMmum53eIsumnd0rZNQqfTCI0I/X3iUPm122iTqU97P+gpJvH1d+NhVMygUEnU0bSXCBqpPIUa
-        qhZiFx3TmA1UxiCdo0DQNmg==
-X-Received: by 2002:ac8:1386:0:b0:3ac:57b4:8af1 with SMTP id h6-20020ac81386000000b003ac57b48af1mr17407493qtj.48.1673424000208;
-        Wed, 11 Jan 2023 00:00:00 -0800 (PST)
-X-Google-Smtp-Source: AMrXdXuCxMYAF0XtzpQS+jcWvPGgAusQLEHTTzEMCOqWd8k+VpNsYPzqN2dh6WTpHkbgSTx6FIB2Qw==
-X-Received: by 2002:ac8:1386:0:b0:3ac:57b4:8af1 with SMTP id h6-20020ac81386000000b003ac57b48af1mr17407472qtj.48.1673423999824;
-        Tue, 10 Jan 2023 23:59:59 -0800 (PST)
-Received: from [192.168.0.2] (ip-109-43-176-91.web.vodafone.de. [109.43.176.91])
-        by smtp.gmail.com with ESMTPSA id hj4-20020a05622a620400b003995f6513b9sm7141809qtb.95.2023.01.10.23.59.56
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 10 Jan 2023 23:59:59 -0800 (PST)
-Message-ID: <d124764c-f221-98d8-a286-79efe176515c@redhat.com>
-Date:   Wed, 11 Jan 2023 08:59:55 +0100
+        with ESMTP id S234190AbjAKJhQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 Jan 2023 04:37:16 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 684C95FB9;
+        Wed, 11 Jan 2023 01:35:59 -0800 (PST)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30B8ESKJ028778;
+        Wed, 11 Jan 2023 09:35:55 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : to : cc : references : from : subject : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=cMeLYwUHJaBzrxiVs1Yme3g+08qNmcBVEEaCE/QuFuE=;
+ b=BPhgPtd8LSHcE4dDX1aEWS9D+0j0Djq2phhfyFH+7c9hDzbDxXm/x1S9dkZdiGieGZTl
+ xxnMZGtsqpd/fIHAxvk7LUXf7csuUuABLiKzBVk/7vwsLTIDGEF1H5lGS1WDKeyByUZk
+ l3AH9Elz0Nqki/kAGQhpuIHqHHsOe6xYrJt3Bjm1aKpjI83wXRxE4ksdkz+mQoFADaAy
+ zmXZx3k1ALkx03MNkZJ8SQnugEhiTLrIR9h1qXplhuc4gSIR0O7yD9A/WmqdGghJ6XOS
+ +Zpb6jM1ZmM/vSc3CRjJaWDOB8xsunzz3rC3yuxVSD4/SQo8UtQ+k3h07esy9z+AgPBi YQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n1se8spw7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 11 Jan 2023 09:35:55 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 30B8lSZt027166;
+        Wed, 11 Jan 2023 09:35:54 GMT
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n1se8spvr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 11 Jan 2023 09:35:54 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30B1cr7K001499;
+        Wed, 11 Jan 2023 09:35:52 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+        by ppma01fra.de.ibm.com (PPS) with ESMTPS id 3n1kmrrdfh-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 11 Jan 2023 09:35:52 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30B9ZmHm44564878
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 11 Jan 2023 09:35:48 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8172620049;
+        Wed, 11 Jan 2023 09:35:48 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CC36820040;
+        Wed, 11 Jan 2023 09:35:47 +0000 (GMT)
+Received: from [9.171.7.243] (unknown [9.171.7.243])
+        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 11 Jan 2023 09:35:47 +0000 (GMT)
+Message-ID: <02b34aa1-d71a-99cc-77db-3613f881b1a8@linux.ibm.com>
+Date:   Wed, 11 Jan 2023 10:35:47 +0100
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.13.0
-Subject: Re: [PATCH v5 01/10] KVM: s390: Extend MEM_OP ioctl by storage key
- checked cmpxchg
-Content-Language: en-US
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.0
 To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
         Claudio Imbrenda <imbrenda@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
@@ -79,15 +77,29 @@ Cc:     David Hildenbrand <david@redhat.com>,
         Sven Schnelle <svens@linux.ibm.com>
 References: <20230110202632.2533978-1-scgl@linux.ibm.com>
  <20230110202632.2533978-2-scgl@linux.ibm.com>
-From:   Thomas Huth <thuth@redhat.com>
+Content-Language: en-US
+From:   Janosch Frank <frankja@linux.ibm.com>
+Subject: Re: [PATCH v5 01/10] KVM: s390: Extend MEM_OP ioctl by storage key
+ checked cmpxchg
 In-Reply-To: <20230110202632.2533978-2-scgl@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: R-wYDDAboRiZQoxtd8tpSPq3PipSCmYE
+X-Proofpoint-ORIG-GUID: Nn_TKUpmqH_yDJdF5Ziso0mC49lII-sd
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2023-01-11_04,2023-01-10_03,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 adultscore=0
+ mlxlogscore=999 suspectscore=0 spamscore=0 phishscore=0 priorityscore=1501
+ lowpriorityscore=0 mlxscore=0 clxscore=1011 malwarescore=0 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
+ definitions=main-2301110073
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 10/01/2023 21.26, Janis Schoetterl-Glausch wrote:
+On 1/10/23 21:26, Janis Schoetterl-Glausch wrote:
 > User space can use the MEM_OP ioctl to make storage key checked reads
 > and writes to the guest, however, it has no way of performing atomic,
 > key checked, accesses to the guest.
@@ -124,7 +136,14 @@ On 10/01/2023 21.26, Janis Schoetterl-Glausch wrote:
 >   #define KVM_S390_MEMOP_F_SKEY_PROTECTION	(1ULL << 2)
 > +#define KVM_S390_MEMOP_F_CMPXCHG		(1ULL << 3)
 > +/* flags specifying extension support */
+
+Would that fit behind the bit shifts without getting into the "line too 
+long" territory?
+
 > +#define KVM_S390_MEMOP_EXTENSION_CAP_CMPXCHG 0x2
+
+\n please
+
 > +/* Non program exception return codes (pgm codes are 16 bit) */
 > +#define KVM_S390_MEMOP_R_NO_XCHG		(1 << 16)
 >   
@@ -172,18 +191,17 @@ On 10/01/2023 21.26, Janis Schoetterl-Glausch wrote:
 > + *         * a program interruption code indicating the reason cmpxchg could
 > + *           not be attempted
 
-PGM_OPERATION has also the value 1 ... can we be sure that it never happens 
-here? ... maybe it would make sense to use KVM_S390_MEMOP_R_NO_XCHG for 
-return value here instead of 1, too, just to be on the safe side?
+ > 1 Access related program interruption code indicating the reason 
+cmpxchg could not be attempted
 
-Apart from that, patch looks fine to me.
-
-  Thomas
-
+< 1 Kernel / input data error codes
 
 > + *         * -EINVAL: address misaligned or len not power of two
 > + *         * -EAGAIN: transient failure (len 1 or 2)
 > + *         * -EOPNOTSUPP: read-only memslot (should never occur)
+
+Would PGM_PROTECTED also make sense here instead of EOPNOTSUPP?
+
 > + */
 > +int cmpxchg_guest_abs_with_key(struct kvm *kvm, gpa_t gpa, int len,
 > +			       __uint128_t *old_addr, __uint128_t new,
@@ -209,61 +227,7 @@ Apart from that, patch looks fine to me.
 > +	if (!writable)
 > +		return -EOPNOTSUPP;
 > +
-> +	hva += offset_in_page(gpa);
-> +	switch (len) {
-> +	case 1: {
-> +		u8 old;
-> +
-> +		ret = cmpxchg_user_key((u8 *)hva, &old, *old_addr, new, access_key);
-> +		ret = ret < 0 ? ret : old != *old_addr;
-> +		*old_addr = old;
-> +		break;
-> +	}
-> +	case 2: {
-> +		u16 old;
-> +
-> +		ret = cmpxchg_user_key((u16 *)hva, &old, *old_addr, new, access_key);
-> +		ret = ret < 0 ? ret : old != *old_addr;
-> +		*old_addr = old;
-> +		break;
-> +	}
-> +	case 4: {
-> +		u32 old;
-> +
-> +		ret = cmpxchg_user_key((u32 *)hva, &old, *old_addr, new, access_key);
-> +		ret = ret < 0 ? ret : old != *old_addr;
-> +		*old_addr = old;
-> +		break;
-> +	}
-> +	case 8: {
-> +		u64 old;
-> +
-> +		ret = cmpxchg_user_key((u64 *)hva, &old, *old_addr, new, access_key);
-> +		ret = ret < 0 ? ret : old != *old_addr;
-> +		*old_addr = old;
-> +		break;
-> +	}
-> +	case 16: {
-> +		__uint128_t old;
-> +
-> +		ret = cmpxchg_user_key((__uint128_t *)hva, &old, *old_addr, new, access_key);
-> +		ret = ret < 0 ? ret : old != *old_addr;
-> +		*old_addr = old;
-> +		break;
-> +	}
-> +	default:
-> +		return -EINVAL;
-> +	}
-> +	mark_page_dirty_in_slot(kvm, slot, gfn);
-> +	/*
-> +	 * Assume that the fault is caused by protection, either key protection
-> +	 * or user page write protection.
-> +	 */
-> +	if (ret == -EFAULT)
-> +		ret = PGM_PROTECTION;
-> +	return ret;
-> +}
-> +
+[...]
 >   /**
 >    * guest_translate_address_with_key - translate guest logical into guest absolute address
 >    * @vcpu: virtual cpu
@@ -327,6 +291,10 @@ Apart from that, patch looks fine to me.
 > +		 */
 > +		if (mop->size > sizeof(new))
 > +			return -EINVAL;
+
+!mop->size || mop->size > sizeof(new)
+
+
 > +		if (mop->op != KVM_S390_MEMOP_ABSOLUTE_WRITE)
 > +			return -EINVAL;
 > +		if (copy_from_user(&new.raw[off_in_quad], uaddr, mop->size))
@@ -346,6 +314,10 @@ Apart from that, patch looks fine to me.
 > +						       &old.quad, new.quad, mop->key);
 > +			if (r == 1) {
 > +				r = KVM_S390_MEMOP_R_NO_XCHG;
+
+Why don't we return KVM_S390_MEMOP_R_NO_XCHG from 
+cmpxchg_guest_abs_with_key instead of aliasing 1 here?
+
 > +				if (copy_to_user(old_addr, &old.raw[off_in_quad], mop->size))
 > +					r = -EFAULT;
 > +			}
