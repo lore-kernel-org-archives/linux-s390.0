@@ -2,95 +2,175 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C64B6C5479D
-	for <linux-s390@archiver.kernel.org>; Wed, 11 Jan 2023 18:23:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 228BFC46467
+	for <linux-s390@archiver.kernel.org>; Wed, 11 Jan 2023 19:55:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234263AbjAKSXy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 11 Jan 2023 13:23:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34258 "EHLO
+        id S229935AbjAKTy6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 11 Jan 2023 14:54:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234623AbjAKSXw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 Jan 2023 13:23:52 -0500
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C56C42AD6;
-        Wed, 11 Jan 2023 10:23:51 -0800 (PST)
-From:   Thomas Gleixner <tglx@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1673461430;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=0XdYOxf5IvaZ791CzYFKpi5kuwlt+Hcy+whwpGU2iKA=;
-        b=Ae+LlW3Q3ok6fnWD1oXZO6e7mjhEwgy8OG8OT6aa6okKgmmZGi5m4/VhaY7q1wDQlaUQCy
-        Sc8RUZgerGHje/p9jr/sAoCBMGiQqKM40DTMujxoL9JvCY9tcN6hFal+54kQYhxnMDFMfe
-        f4vGHqHJrYNmbsQmxYrjZ5ixAJ9CDCOmfy2iJ7C99mZWpzwv3KgYq/1253iuh7s50W7z39
-        HQVCbPOzkk0D5SjqY20anpfSoNVWK9qFZuE8YbIK8fwlZTxFWzptgKwJZQi+a9dc7lXm2e
-        BBLcdtf9wjtjpeGqJxBDDTN3CseX4nfnOqUx+oeVTVMK9hM9IWqBuE6boNIyww==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1673461430;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=0XdYOxf5IvaZ791CzYFKpi5kuwlt+Hcy+whwpGU2iKA=;
-        b=0Czc8KM7MVVZOR6h6RaYKGhrxCjjedxX3menb6s4MyXluhbbb2RMzuDUcbd5TYOT18d/ra
-        7PAmVwHPUc96CNAg==
-To:     Jason Gunthorpe <jgg@nvidia.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, iommu@lists.linux.dev,
-        Joerg Roedel <joro@8bytes.org>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Will Deacon <will@kernel.org>
-Cc:     Bharat Bhushan <bharat.bhushan@nxp.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Eric Auger <eric.auger@redhat.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Tomasz Nowicki <tomasz.nowicki@caviumnetworks.com>,
-        Will Deacon <will.deacon@arm.com>
-Subject: Re: [PATCH iommufd v3 7/9] iommu/x86: Replace IOMMU_CAP_INTR_REMAP
- with IRQ_DOMAIN_FLAG_ISOLATED_MSI
-In-Reply-To: <7-v3-3313bb5dd3a3+10f11-secure_msi_jgg@nvidia.com>
-References: <7-v3-3313bb5dd3a3+10f11-secure_msi_jgg@nvidia.com>
-Date:   Wed, 11 Jan 2023 19:23:49 +0100
-Message-ID: <875yddhqve.ffs@tglx>
+        with ESMTP id S230325AbjAKTy4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 Jan 2023 14:54:56 -0500
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2DAD1F6
+        for <linux-s390@vger.kernel.org>; Wed, 11 Jan 2023 11:54:55 -0800 (PST)
+Received: by mail-pj1-x1030.google.com with SMTP id o7-20020a17090a0a0700b00226c9b82c3aso18399694pjo.3
+        for <linux-s390@vger.kernel.org>; Wed, 11 Jan 2023 11:54:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=Ee/v08QHfLLFjdeXhNUw+rKnRh9GF2x4adAxhgB0GYM=;
+        b=mUty29aJZngvM3haGgNz0VtX+oT1nq5NwGEIr+ywfTh11/SN5fAx8wJb3/AxwaV1IB
+         4fOLCF8Gt45RMnvd0FJPDGVCRtB65sGAnTnl2gvNSr25eaYWay+OCHLe12RQxNxI+uJ7
+         5kYKYjDUcHYnrs6l3M6L1KbEQhYV5D62TF38qCYkTXwjaK+f5NtvUlZlCgscCq8J7O5a
+         cFrNZdYpUthCuh4JWxIaHdv6KkGy7YvA0hNl80XsdOfzgo+Wyt1R1n7GaAcPdN90cK1L
+         tDvuY4iQ5Oi8XKJAFnLQc0Wu9A0lE/lOWo/eVhjs/O0IKSk8JTk8UHczuiPeZ6NLNiPn
+         S1Ug==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Ee/v08QHfLLFjdeXhNUw+rKnRh9GF2x4adAxhgB0GYM=;
+        b=hS/1ZfpWhYyw2aJks8QK+A3JL/pFIT3xNW/GbyYuF1G4xoHcY5p1HzywLpVpFewExM
+         BJ4B4bQorf83hB8xvrZbiYTBEZcTbshLj+RZgg7K7Hmvdl5Cm8qVZsFQVtlQ5YigWMaw
+         s0d+YX1KY/37b0LR/kCy0Yq3DGbDzeo74qeyB7cOdcVwySoFa9u9mKKDcJ0VkdHLq5kS
+         mH4CAMDkl8FpRVL7LEb0R+aPH4aXkDCIjS8nd5A+uBb+Ufd8i0EoqwQyVoJfdYf9k71K
+         DXOihqKxKzZ//Ml3GFXMqgqDuCPG2Gg6oo0LEh5bATY+7VuTmCYlbbF8coFpulQvhGSo
+         GfNA==
+X-Gm-Message-State: AFqh2kqJGZFFx0amffQxtqKEQQXSi+1omzFLKp1ViH/gQ81UVXRUenuc
+        kZfwRs3c9LgpsOlg04SaT5vsYg==
+X-Google-Smtp-Source: AMrXdXsUGcan4Od1kkbsywDEb3Eqlo0h8a16FR71K8XMA8z2GmZHxW9H5FaMeLYfZPUCz0pASaTbQw==
+X-Received: by 2002:a05:6a20:c527:b0:9d:c38f:9bdd with SMTP id gm39-20020a056a20c52700b0009dc38f9bddmr557202pzb.2.1673466895257;
+        Wed, 11 Jan 2023 11:54:55 -0800 (PST)
+Received: from google.com (7.104.168.34.bc.googleusercontent.com. [34.168.104.7])
+        by smtp.gmail.com with ESMTPSA id t18-20020a62d152000000b00580f445d1easm10245195pfl.216.2023.01.11.11.54.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 Jan 2023 11:54:54 -0800 (PST)
+Date:   Wed, 11 Jan 2023 19:54:51 +0000
+From:   Sean Christopherson <seanjc@google.com>
+To:     Matthew Rosato <mjrosato@linux.ibm.com>
+Cc:     alex.williamson@redhat.com, pbonzini@redhat.com, jgg@nvidia.com,
+        cohuck@redhat.com, farman@linux.ibm.com, pmorel@linux.ibm.com,
+        borntraeger@linux.ibm.com, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com, david@redhat.com, akrowiak@linux.ibm.com,
+        jjherne@linux.ibm.com, pasic@linux.ibm.com,
+        zhenyuw@linux.intel.com, zhi.a.wang@intel.com,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] KVM: async kvm_destroy_vm for vfio devices
+Message-ID: <Y78UCz5oeuntSQtK@google.com>
+References: <20230109201037.33051-1-mjrosato@linux.ibm.com>
+ <20230109201037.33051-2-mjrosato@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230109201037.33051-2-mjrosato@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jan 05 2023 at 15:33, Jason Gunthorpe wrote:
-> On x86 platforms when the HW can support interrupt remapping the iommu
-> driver creates an irq_domain for the IR hardware and creates a child MSI
-> irq_domain.
->
-> When the global irq_remapping_enabled is set, the IR MSI domain is
-> assigned to the PCI devices (by intel_irq_remap_add_device(), or
-> amd_iommu_set_pci_msi_domain()) making those devices have the isolated MSI
-> property.
->
-> Due to how interrupt domains work, setting IRQ_DOMAIN_FLAG_ISOLATED_MSI on
-> the parent IR domain will cause all struct devices attached to it to
-> return true from msi_device_has_isolated_msi(). This replaces the
-> IOMMU_CAP_INTR_REMAP flag as all places using IOMMU_CAP_INTR_REMAP also
-> call msi_device_has_isolated_msi()
->
-> Set the flag and delete the cap.
->
-> Tested-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+On Mon, Jan 09, 2023, Matthew Rosato wrote:
+> Currently it is possible that the final put of a KVM reference comes from
+> vfio during its device close operation.  This occurs while the vfio group
+> lock is held; however, if the vfio device is still in the kvm device list,
+> then the following call chain could result in a deadlock:
+> 
+> kvm_put_kvm
+>  -> kvm_destroy_vm
+>   -> kvm_destroy_devices
+>    -> kvm_vfio_destroy
+>     -> kvm_vfio_file_set_kvm
+>      -> vfio_file_set_kvm
+>       -> group->group_lock/group_rwsem
+> 
+> Avoid this scenario by adding kvm_put_kvm_async which will perform the
+> kvm_destroy_vm asynchronously if the refcount reaches 0.
 
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
+Something feels off.  If KVM's refcount is 0, then accessing device->group->kvm
+in vfio_device_open() can't happen unless there's a refcounting bug somewhere.
+
+E.g. if this snippet holds group_lock
+
+		mutex_lock(&device->group->group_lock);
+		device->kvm = device->group->kvm;
+
+		if (device->ops->open_device) {
+			ret = device->ops->open_device(device);
+			if (ret)
+				goto err_undo_count;
+		}
+		vfio_device_container_register(device);
+		mutex_unlock(&device->group->group_lock);
+
+and kvm_vfio_destroy() has already been invoked and is waiting on group_lock in
+vfio_file_set_kvm(), then device->ops->open_device() is being called with a
+non-NULL device->kvm that has kvm->users_count==0.  And intel_vgpu_open_device()
+at least uses kvm_get_kvm(), i.e. assumes kvm->users_count > 0.
+
+If there's no refcounting bug then kvm_vfio_destroy() doesn't need to call
+kvm_vfio_file_set_kvm() since the only way there isn't a refcounting bug is if
+group->kvm is unreachable.  This seems unlikely.
+
+Assuming there is indeed a refcounting issue, one solution would be to harden all
+->open_device() implementations to use kvm_get_kvm_safe().  I'd prefer not to have
+to do that since it will complicate those implementations and also requires KVM
+to support an async put.
+
+Rather than force devices to get KVM references, why not handle that in common
+VFIO code and drop KVM refcountin from devices?  Worst case scenario KVM is pinned
+by a device that doesn't need KVM but is in a group associated with KVM.  If that's
+a concern, it seems easy enough to add a flag to vfio_device_ops to enumerate
+whether or not the device depends on KVM.
+
+---
+ drivers/vfio/vfio_main.c | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
+index 6e8804fe0095..fb43212d77a0 100644
+--- a/drivers/vfio/vfio_main.c
++++ b/drivers/vfio/vfio_main.c
+@@ -772,6 +772,13 @@ static struct file *vfio_device_open(struct vfio_device *device)
+ 		 * reference and release it during close_device.
+ 		 */
+ 		mutex_lock(&device->group->group_lock);
++
++		if (device->group->kvm &&
++		    !kvm_get_kvm_safe(device->group->kvm->kvm)) {
++			ret = -ENODEV;
++			goto err_undo_count;
++		}
++
+ 		device->kvm = device->group->kvm;
+ 
+ 		if (device->ops->open_device) {
+@@ -823,8 +830,10 @@ static struct file *vfio_device_open(struct vfio_device *device)
+ err_undo_count:
+ 	mutex_unlock(&device->group->group_lock);
+ 	device->open_count--;
+-	if (device->open_count == 0 && device->kvm)
++	if (device->open_count == 0 && device->kvm) {
++		kvm_put_kvm(device->kvm);
+ 		device->kvm = NULL;
++	}
+ 	mutex_unlock(&device->dev_set->lock);
+ 	module_put(device->dev->driver->owner);
+ err_unassign_container:
+@@ -1039,8 +1048,10 @@ static int vfio_device_fops_release(struct inode *inode, struct file *filep)
+ 	}
+ 	mutex_unlock(&device->group->group_lock);
+ 	device->open_count--;
+-	if (device->open_count == 0)
++	if (device->open_count == 0 && device->kvm) {
++		kvm_put_kvm(device->kvm);
+ 		device->kvm = NULL;
++	}
+ 	mutex_unlock(&device->dev_set->lock);
+ 
+ 	module_put(device->dev->driver->owner);
+
+base-commit: d52444c7a90fc551b4c3b0bda7d3f0b2ca9fc84d
+-- 
