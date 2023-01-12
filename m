@@ -2,241 +2,185 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 05937C678D7
-	for <linux-s390@archiver.kernel.org>; Thu, 12 Jan 2023 17:54:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A3B42C63797
+	for <linux-s390@archiver.kernel.org>; Thu, 12 Jan 2023 18:01:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233335AbjALRyI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 12 Jan 2023 12:54:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36456 "EHLO
+        id S237200AbjALSB1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 12 Jan 2023 13:01:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230150AbjALRx2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 Jan 2023 12:53:28 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32D457458F;
-        Thu, 12 Jan 2023 09:14:14 -0800 (PST)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30CG8UIm027852;
-        Thu, 12 Jan 2023 17:14:13 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
+        with ESMTP id S233122AbjALSAh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 Jan 2023 13:00:37 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93D2D2DF;
+        Thu, 12 Jan 2023 09:21:33 -0800 (PST)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30CGc4pQ004029;
+        Thu, 12 Jan 2023 17:21:28 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=tBXnjkCvUZ2CTH2mRPBfWSn0wbwvjmmOWRaTlKS0ZP0=;
- b=bqLwFlMRwlISMpLEpv24/8Ai16x+H5vE4pR8itGB+zNm1LXP5VZ6WfiDJbVaS1w1IbIY
- 2YbYo4ee1LL4xKiQsCAYYZ4tZkAba39ve5s1LS/pAtkeMVb+7hC3I7GESu6zmkcYsCRj
- hZqJnZPf4XykNRZIlOyG5H5pB0I9tOK4ek2MhBB17rPb5mV+/0Cf6acmNm5YWPyNPh1b
- NZApGnnS+pO1p3DlDriNf8SpXw3pXwLieP+QNf3vd3Rquw+PwPYuZdmvv74B84e8gvFP
- rSjjrfx+vpSgHuKcMAbji/u4+lET2YC3Wx0nQKoSJiehGARFpqVnQnz9n8xmGJTLLE9y xA== 
+ bh=gfW87/uYI6us7+NGhazZyPMGA5ouuXyjorEjax+ui4A=;
+ b=az011qUTBMf27qV/NadZkidpcv8mfRalizOsHE4vdM3HBGs6vlhIMOtFdN0imzR37eF1
+ St0NPIzMZ0GgEoNj12DQfTsRo+fQd6B4yRB2/jpB7grmLP1o17NdsZgjn8HYSe1uye44
+ DHeAk0xqWWcDfWUrIY6LwkmOk2IkWKycqyo61j/Ht5Rkj9elATMbndbkoXd0rv7CzDAq
+ ZTX7AiSMb6XNeBP/v+ndJaAHMIjaG73v5eGt43Ya+iX87co0GbDWbcHlTTmbnRrJgYfp
+ +EKWMJEmypvAKtOOoXU0LKnMTQZBOvf09RgKDEEmFBtN9dsHz9KUXFkcDCWF9nEncfPU MA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3n2marbf5v-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n2n7ja603-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 12 Jan 2023 17:14:13 +0000
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 30CH930M030353;
-        Thu, 12 Jan 2023 17:14:12 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3n2marbf5a-1
+        Thu, 12 Jan 2023 17:21:28 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 30CGdNha006968;
+        Thu, 12 Jan 2023 17:21:27 GMT
+Received: from ppma02wdc.us.ibm.com (aa.5b.37a9.ip4.static.sl-reverse.com [169.55.91.170])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n2n7ja5xx-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 12 Jan 2023 17:14:12 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30CFMRdA030858;
-        Thu, 12 Jan 2023 17:14:11 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3n1kf7jss3-1
+        Thu, 12 Jan 2023 17:21:27 +0000
+Received: from pps.filterd (ppma02wdc.us.ibm.com [127.0.0.1])
+        by ppma02wdc.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30CESXV0018910;
+        Thu, 12 Jan 2023 17:21:24 GMT
+Received: from smtprelay02.dal12v.mail.ibm.com ([9.208.130.97])
+        by ppma02wdc.us.ibm.com (PPS) with ESMTPS id 3n1knv2g8u-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 12 Jan 2023 17:14:10 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30CHE7L342860926
+        Thu, 12 Jan 2023 17:21:24 +0000
+Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
+        by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30CHLNDC30802406
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 12 Jan 2023 17:14:07 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 694A22004D;
-        Thu, 12 Jan 2023 17:14:07 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 26D722004B;
-        Thu, 12 Jan 2023 17:14:07 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.152.224.56])
-        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Thu, 12 Jan 2023 17:14:07 +0000 (GMT)
-Date:   Thu, 12 Jan 2023 18:05:21 +0100
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Janosch Frank <frankja@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org, thuth@redhat.com,
-        david@redhat.com, nsg@linux.ibm.com, nrb@linux.ibm.com
-Subject: Re: [kvm-unit-tests PATCH v2 3/7] s390x: Add a linker script to
- assembly snippets
-Message-ID: <20230112180521.4ac17929@p-imbrenda>
-In-Reply-To: <20230112154548.163021-4-frankja@linux.ibm.com>
-References: <20230112154548.163021-1-frankja@linux.ibm.com>
-        <20230112154548.163021-4-frankja@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
+        Thu, 12 Jan 2023 17:21:23 GMT
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 923E658056;
+        Thu, 12 Jan 2023 17:21:20 +0000 (GMT)
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E5A1258054;
+        Thu, 12 Jan 2023 17:21:17 +0000 (GMT)
+Received: from [9.160.94.233] (unknown [9.160.94.233])
+        by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Thu, 12 Jan 2023 17:21:17 +0000 (GMT)
+Message-ID: <f7c39317-92a4-520e-8e69-a8606cd40e9a@linux.ibm.com>
+Date:   Thu, 12 Jan 2023 12:21:17 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.0
+Subject: Re: [PATCH 1/2] KVM: async kvm_destroy_vm for vfio devices
+To:     Jason Gunthorpe <jgg@nvidia.com>,
+        Sean Christopherson <seanjc@google.com>
+Cc:     alex.williamson@redhat.com, pbonzini@redhat.com, cohuck@redhat.com,
+        farman@linux.ibm.com, pmorel@linux.ibm.com,
+        borntraeger@linux.ibm.com, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com, david@redhat.com, akrowiak@linux.ibm.com,
+        jjherne@linux.ibm.com, pasic@linux.ibm.com,
+        zhenyuw@linux.intel.com, zhi.a.wang@intel.com,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, linux-kernel@vger.kernel.org
+References: <20230109201037.33051-1-mjrosato@linux.ibm.com>
+ <20230109201037.33051-2-mjrosato@linux.ibm.com> <Y78UCz5oeuntSQtK@google.com>
+ <Y78Wk2/P5+gLMdpk@nvidia.com> <Y78hzsHiwaFpL60+@google.com>
+ <Y8AA8r5MzKQIF8I7@nvidia.com>
+Content-Language: en-US
+From:   Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <Y8AA8r5MzKQIF8I7@nvidia.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 0S7KYzqboejd5Up3xzL2CD4ia58AL3M7
-X-Proofpoint-ORIG-GUID: pzpFSUhUsmSiCEBYVi6JoKkCcnLOi6Mo
+X-Proofpoint-GUID: D5QRdGewSwIIbZrg8weuonUZQlbVEvfJ
+X-Proofpoint-ORIG-GUID: O6lWfjrcKzZuxoIawFlmJvS5sh-bb7-X
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2023-01-12_08,2023-01-12_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 spamscore=0
- clxscore=1015 mlxlogscore=999 adultscore=0 impostorscore=0 phishscore=0
- malwarescore=0 bulkscore=0 priorityscore=1501 lowpriorityscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2301120124
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 phishscore=0
+ adultscore=0 priorityscore=1501 malwarescore=0 impostorscore=0 mlxscore=0
+ bulkscore=0 suspectscore=0 spamscore=0 clxscore=1015 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
+ definitions=main-2301120124
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 12 Jan 2023 15:45:44 +0000
-Janosch Frank <frankja@linux.ibm.com> wrote:
-
-> A linker script has a few benefits:
-> - Random data doesn't end up in the binary breaking tests
-> - We can easily define a lowcore and load the snippet from 0x0 instead
-> of 0x4000 which makes asm snippets behave like c snippets
-> - We can easily define an invalid PGM new PSW to ensure an exit on a
-> guest PGM
+On 1/12/23 7:45 AM, Jason Gunthorpe wrote:
+> On Wed, Jan 11, 2023 at 08:53:34PM +0000, Sean Christopherson wrote:
+>> On Wed, Jan 11, 2023, Jason Gunthorpe wrote:
+>>> On Wed, Jan 11, 2023 at 07:54:51PM +0000, Sean Christopherson wrote:
+>>>
+>>>> Something feels off.  If KVM's refcount is 0, then accessing device->group->kvm
+>>>> in vfio_device_open() can't happen unless there's a refcounting bug somewhere.
+>>>
+>>> The problem is in close, not open.
+>>
+>> The deadlock problem is, yes.  My point is that if group_lock needs to be taken
+>> when nullifying group->kvm during kvm_vfio_destroy(), then there is also a refcounting
+>> prolem with respect to open().  If there is no refcounting problem, then nullifying
+>> group->kvm during kvm_vfio_destroy() is unnecessary (but again, I doubt this is
+>> the case).
 > 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-
-> ---
->  lib/s390x/snippet.h         |  3 +--
->  s390x/Makefile              |  5 +++--
->  s390x/mvpg-sie.c            |  2 +-
->  s390x/pv-diags.c            |  6 +++---
->  s390x/snippets/asm/flat.lds | 41 +++++++++++++++++++++++++++++++++++++
->  5 files changed, 49 insertions(+), 8 deletions(-)
->  create mode 100644 s390x/snippets/asm/flat.lds
+> IIRC the drivers are supposed to use one of the refcount not zero
+> incrs to counteract this, but I never checked they do..
 > 
-> diff --git a/lib/s390x/snippet.h b/lib/s390x/snippet.h
-> index b17b2a4c..57045994 100644
-> --- a/lib/s390x/snippet.h
-> +++ b/lib/s390x/snippet.h
-> @@ -32,8 +32,7 @@
->  
->  #define SNIPPET_PV_TWEAK0	0x42UL
->  #define SNIPPET_PV_TWEAK1	0UL
-> -#define SNIPPET_OFF_C		0
-> -#define SNIPPET_OFF_ASM		0x4000
-> +#define SNIPPET_UNPACK_OFF	0
->  
->  
->  /*
-> diff --git a/s390x/Makefile b/s390x/Makefile
-> index 52a9d821..97a61611 100644
-> --- a/s390x/Makefile
-> +++ b/s390x/Makefile
-> @@ -136,7 +136,8 @@ $(SNIPPET_DIR)/c/%.o: $(SNIPPET_DIR)/c/%.c $(asm-offsets)
->  	$(CC) $(CFLAGS) -c -nostdlib -o $@ $<
->  
->  $(SNIPPET_DIR)/asm/%.gbin: $(SNIPPET_DIR)/asm/%.o
-> -	$(OBJCOPY) -O binary -j ".rodata" -j ".text" -j ".data" -j ".bss" --set-section-flags .bss=alloc,load,contents $(patsubst %.gbin,%.o,$@) $@
-> +	$(CC) $(LDFLAGS) -o $@ -T $(SRCDIR)/s390x/snippets/asm/flat.lds $<
-> +	$(OBJCOPY) -O binary -j ".rodata" -j ".lowcore" -j ".text" -j ".data" -j ".bss" --set-section-flags .bss=alloc,load,contents $@ $@
->  	truncate -s '%4096' $@
->  
->  $(SNIPPET_DIR)/c/%.gbin: $(SNIPPET_DIR)/c/%.o $(snippet_lib) $(FLATLIBS)
-> @@ -145,7 +146,7 @@ $(SNIPPET_DIR)/c/%.gbin: $(SNIPPET_DIR)/c/%.o $(snippet_lib) $(FLATLIBS)
->  	truncate -s '%4096' $@
->  
->  $(SNIPPET_DIR)/asm/%.hdr: $(SNIPPET_DIR)/asm/%.gbin $(HOST_KEY_DOCUMENT)
-> -	$(GEN_SE_HEADER) -k $(HOST_KEY_DOCUMENT) -c $<,0x4000,0x00000000000000420000000000000000 --psw-addr 0x4000 -o $@
-> +	$(GEN_SE_HEADER) -k $(HOST_KEY_DOCUMENT) -c $<,0x0,0x00000000000000420000000000000000 --psw-addr 0x4000 -o $@
->  
->  $(SNIPPET_DIR)/c/%.hdr: $(SNIPPET_DIR)/c/%.gbin $(HOST_KEY_DOCUMENT)
->  	$(GEN_SE_HEADER) -k $(HOST_KEY_DOCUMENT) -c $<,0x0,0x00000000000000420000000000000000 --psw-addr 0x4000 -o $@
-> diff --git a/s390x/mvpg-sie.c b/s390x/mvpg-sie.c
-> index 46a2edb6..99f4859b 100644
-> --- a/s390x/mvpg-sie.c
-> +++ b/s390x/mvpg-sie.c
-> @@ -87,7 +87,7 @@ static void setup_guest(void)
->  
->  	snippet_setup_guest(&vm, false);
->  	snippet_init(&vm, SNIPPET_NAME_START(c, mvpg_snippet),
-> -		     SNIPPET_LEN(c, mvpg_snippet), SNIPPET_OFF_C);
-> +		     SNIPPET_LEN(c, mvpg_snippet), SNIPPET_UNPACK_OFF);
->  
->  	/* Enable MVPG interpretation as we want to test KVM and not ourselves */
->  	vm.sblk->eca = ECA_MVPGI;
-> diff --git a/s390x/pv-diags.c b/s390x/pv-diags.c
-> index 9ced68c7..5165937a 100644
-> --- a/s390x/pv-diags.c
-> +++ b/s390x/pv-diags.c
-> @@ -28,7 +28,7 @@ static void test_diag_500(void)
->  
->  	snippet_pv_init(&vm, SNIPPET_NAME_START(asm, snippet_pv_diag_500),
->  			SNIPPET_HDR_START(asm, snippet_pv_diag_500),
-> -			size_gbin, size_hdr, SNIPPET_OFF_ASM);
-> +			size_gbin, size_hdr, SNIPPET_UNPACK_OFF);
->  
->  	sie(&vm);
->  	report(vm.sblk->icptcode == ICPT_PV_INSTR && vm.sblk->ipa == 0x8302 &&
-> @@ -83,7 +83,7 @@ static void test_diag_288(void)
->  
->  	snippet_pv_init(&vm, SNIPPET_NAME_START(asm, snippet_pv_diag_288),
->  			SNIPPET_HDR_START(asm, snippet_pv_diag_288),
-> -			size_gbin, size_hdr, SNIPPET_OFF_ASM);
-> +			size_gbin, size_hdr, SNIPPET_UNPACK_OFF);
->  
->  	sie(&vm);
->  	report(vm.sblk->icptcode == ICPT_PV_INSTR && vm.sblk->ipa == 0x8302 &&
-> @@ -124,7 +124,7 @@ static void test_diag_yield(void)
->  
->  	snippet_pv_init(&vm, SNIPPET_NAME_START(asm, snippet_pv_diag_yield),
->  			SNIPPET_HDR_START(asm, snippet_pv_diag_yield),
-> -			size_gbin, size_hdr, SNIPPET_OFF_ASM);
-> +			size_gbin, size_hdr, SNIPPET_UNPACK_OFF);
->  
->  	/* 0x44 */
->  	report_prefix_push("0x44");
-> diff --git a/s390x/snippets/asm/flat.lds b/s390x/snippets/asm/flat.lds
-> new file mode 100644
-> index 00000000..ab0031ac
-> --- /dev/null
-> +++ b/s390x/snippets/asm/flat.lds
-> @@ -0,0 +1,41 @@
-> +SECTIONS
-> +{
-> +	.lowcore : {
-> +		/*
-> +		 * Initial short psw for disk boot, with 31 bit addressing for
-> +		 * non z/Arch environment compatibility and the instruction
-> +		 * address 0x4000.
-> +		 */
-> +		. = 0;
-> +		 LONG(0x00080000)
-> +		 LONG(0x80004000)
-> +		 /* Restart new PSW for booting via PSW restart. */
-> +		 . = 0x1a0;
-> +		 QUAD(0x0000000180000000)
-> +		 QUAD(0x0000000000004000)
-> +		 /*
-> +		  * Invalid PGM new PSW so we hopefully get a code 8
-> +		  * intercept on a PGM
-> +		  */
-> +		 . = 0x1d0;
-> +		 QUAD(0x0008000000000000)
-> +		 QUAD(0x0000000000000001)
-> +	}
-> +	. = 0x4000;
-> +	/* Start text 0x4000 */
-> +	.text : {
-> +		*(.text)
-> +		*(.text.*)
-> +	}
-> +	. = ALIGN(16);
-> +	etext = .;
-> +	/* End text */
-> +	/* Start data */
-> +	.data : {
-> +		*(.data)
-> +		*(.data.rel*)
-> +	}
-> +	. = ALIGN(16);
-> +	.rodata : { *(.rodata) *(.rodata.*) }
-> +	/* End data */
-> +}
+> Yi is working on a patch to change things so vfio drops the kvm
+> pointer when the kvm file closes, not when the reference goes to 0
+> to avoid a refcount cycle problem which should also solve that.
+> 
+>> diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
+>> index 6e8804fe0095..b3a84d65baa6 100644
+>> --- a/drivers/vfio/vfio_main.c
+>> +++ b/drivers/vfio/vfio_main.c
+>> @@ -772,7 +772,12 @@ static struct file *vfio_device_open(struct vfio_device *device)
+>>  		 * reference and release it during close_device.
+>>  		 */
+>>  		mutex_lock(&device->group->group_lock);
+>> -		device->kvm = device->group->kvm;
+>> +
+>> +		if (device->kvm_ops && device->group->kvm) {
+>> +			ret = device->kvm_ops->get_kvm(device->group->kvm);
+> 
+> At this point I'd rather just use the symbol get stuff like kvm does
+> and call the proper functions.
+> 
+
+So should I work up a v2 that does symbol gets for kvm_get_kvm_safe and kvm_put_kvm from vfio_main and drop kvm_put_kvm_async?  Or is the patch Yi is working on changing things such that will also address the deadlock issue?
+ 
+If so, something like the following (where vfio_kvm_get symbol gets kvm_get_kvm_safe and vfio_kvm_put symbol gets kvm_put_kvm):
+
+diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
+index 5177bb061b17..a49bf1080f0a 100644
+--- a/drivers/vfio/vfio_main.c
++++ b/drivers/vfio/vfio_main.c
+@@ -361,16 +361,22 @@ static int vfio_device_first_open(struct vfio_device *device,
+        if (ret)
+                goto err_module_put;
+ 
++       if (kvm && !vfio_kvm_get(kvm)) {
++               ret = -ENOENT;
++               goto err_unuse_iommu;
++       }
+        device->kvm = kvm;
+        if (device->ops->open_device) {
+                ret = device->ops->open_device(device);
+                if (ret)
+-                       goto err_unuse_iommu;
++                       goto err_put_kvm;
+        }
+        return 0;
+ 
+-err_unuse_iommu:
++err_put_kvm:
++       vfio_put_kvm(kvm);
+        device->kvm = NULL;
++err_unuse_iommu:
+        if (iommufd)
+                vfio_iommufd_unbind(device);
+        else
+@@ -465,6 +471,9 @@ static int vfio_device_fops_release(struct inode *inode, struct file *filep)
+ 
+        vfio_device_group_close(device);
+ 
++       if (device->open_count == 0 && device->group->kvm)
++               vfio_kvm_put(device->group->kvm);
++
+        vfio_device_put_registration(device);
+ 
+        return 0;
+
+
 
