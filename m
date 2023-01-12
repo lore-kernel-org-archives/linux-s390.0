@@ -2,42 +2,43 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81796C678D8
-	for <linux-s390@archiver.kernel.org>; Thu, 12 Jan 2023 20:12:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B522AC678D9
+	for <linux-s390@archiver.kernel.org>; Thu, 12 Jan 2023 20:12:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241727AbjALUM1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 12 Jan 2023 15:12:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44156 "EHLO
+        id S241957AbjALUM3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 12 Jan 2023 15:12:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232397AbjALT7N (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 Jan 2023 14:59:13 -0500
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9970BCDF;
+        with ESMTP id S232226AbjALT7M (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 Jan 2023 14:59:12 -0500
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97EE5B8D;
         Thu, 12 Jan 2023 11:58:05 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
+        d=infradead.org; s=desiato.20200630; h=Content-Type:MIME-Version:References:
         Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
         Content-ID:Content-Description:In-Reply-To;
-        bh=Un035BTYhsjREpZ4dpy/MHkkoifcKtLiH3nYidAuKL8=; b=P5c8UU2jghR82uJHaUsCbEyZY2
-        1BjYkq3jeF5ewbeuBixxGQ1MFHR9TCeHAHBjDMgt+hkRsw0FFt2ppNujpZmDy3BclS1Ums/sHfSGF
-        DsoLRzOAcjZb0YeI2dan/xzDO4bLczNXAS9bGqKX112iGbxaDbC1pmZnnUukuGv1RP3YOO+mA12eY
-        yRYq2ks+V6tltY12SJ/UDL++Q4qZeEYg7ljBwFyVCutcyQJ/H9pzwWVke2dKUZwwKrXgIGXwZmcPJ
-        pPt48ptlxwCsahE0v4HXTBqWzoIi9klWddYcc0T3lFrQ7of2NxwaFmInlnyrFVz5DKbqBazXyVs9+
-        ZpRfznRA==;
+        bh=tPOdw9LFGiPCDTfwXmDjC03yH+Atd2yWpwgqK4SP6Bs=; b=MCFGk/zfAQ1MOxe655CfrxSndB
+        KMsj8OM47QEIEF+dE7LPbkmxg/PQAts31gFJ5Xz3no3m62IuisxdrSXrLN8SYgr1mtDIwtR8p1Foy
+        vgMnbz7h6ch5F50b53yunuqk9MFEuX5uEMORRcRhTqQRFnQzXIgNjlWLrzQ8IyZodgjiEI5j/hfm2
+        jtsLGmSu2xYww6Em1c+Sd7XPqSMSM0BgTy1Y9iUSaQMsmpIltEMs2Z+FvPcdV8LPGTs0uCR8XY70j
+        Jdml4OVol/2E06Nb6eijodGglka4wn0K9TaSFCWA1YgF/306McxeUsk6Jgniwje3STV7G1K2gesSb
+        SZObcOlw==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1pG3hu-005P7i-Rf; Thu, 12 Jan 2023 19:57:50 +0000
+        by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
+        id 1pG3hA-0045no-1f;
+        Thu, 12 Jan 2023 19:57:05 +0000
 Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (4096 bits))
         (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 4EAB5303484;
-        Thu, 12 Jan 2023 20:57:14 +0100 (CET)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 6D3F6301D8A;
+        Thu, 12 Jan 2023 20:57:11 +0100 (CET)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
-        id 7C19A2CD066F8; Thu, 12 Jan 2023 20:57:08 +0100 (CET)
-Message-ID: <20230112195542.397238052@infradead.org>
+        id 9180D2CCF0C22; Thu, 12 Jan 2023 20:57:07 +0100 (CET)
+Message-ID: <20230112195539.453613251@infradead.org>
 User-Agent: quilt/0.66
-Date:   Thu, 12 Jan 2023 20:44:04 +0100
+Date:   Thu, 12 Jan 2023 20:43:16 +0100
 From:   Peter Zijlstra <peterz@infradead.org>
 To:     peterz@infradead.org
 Cc:     richard.henderson@linaro.org, ink@jurassic.park.msu.ru,
@@ -101,8 +102,10 @@ Cc:     richard.henderson@linaro.org, ink@jurassic.park.msu.ru,
         linux-pm@vger.kernel.org, linux-clk@vger.kernel.org,
         linux-arm-msm@vger.kernel.org, linux-tegra@vger.kernel.org,
         linux-arch@vger.kernel.org, linux-mm@kvack.org,
-        linux-trace-kernel@vger.kernel.org, kasan-dev@googlegroups.com
-Subject: [PATCH v3 50/51] cpuidle: Comments about noinstr/__cpuidle
+        linux-trace-kernel@vger.kernel.org, kasan-dev@googlegroups.com,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH v3 02/51] x86/idle: Replace x86_idle with a static_call
 References: <20230112194314.845371875@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -110,53 +113,119 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Add a few words on noinstr / __cpuidle usage.
+Typical boot time setup; no need to suffer an indirect call for that.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
+Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Tested-by: Tony Lindgren <tony@atomide.com>
+Tested-by: Ulf Hansson <ulf.hansson@linaro.org>
 ---
- drivers/cpuidle/cpuidle.c      |   12 ++++++++++++
- include/linux/compiler_types.h |   10 ++++++++++
- 2 files changed, 22 insertions(+)
+ arch/x86/kernel/process.c |   50 +++++++++++++++++++++++++---------------------
+ 1 file changed, 28 insertions(+), 22 deletions(-)
 
---- a/drivers/cpuidle/cpuidle.c
-+++ b/drivers/cpuidle/cpuidle.c
-@@ -252,6 +252,18 @@ noinstr int cpuidle_enter_state(struct c
- 		instrumentation_begin();
- 	}
+--- a/arch/x86/kernel/process.c
++++ b/arch/x86/kernel/process.c
+@@ -24,6 +24,7 @@
+ #include <linux/cpuidle.h>
+ #include <linux/acpi.h>
+ #include <linux/elf-randomize.h>
++#include <linux/static_call.h>
+ #include <trace/events/power.h>
+ #include <linux/hw_breakpoint.h>
+ #include <asm/cpu.h>
+@@ -692,7 +693,23 @@ void __switch_to_xtra(struct task_struct
+ unsigned long boot_option_idle_override = IDLE_NO_OVERRIDE;
+ EXPORT_SYMBOL(boot_option_idle_override);
  
-+	/*
-+	 * NOTE!!
-+	 *
-+	 * For cpuidle_state::enter() methods that do *NOT* set
-+	 * CPUIDLE_FLAG_RCU_IDLE RCU will be disabled here and these functions
-+	 * must be marked either noinstr or __cpuidle.
-+	 *
-+	 * For cpuidle_state::enter() methods that *DO* set
-+	 * CPUIDLE_FLAG_RCU_IDLE this isn't required, but they must mark the
-+	 * function calling ct_cpuidle_enter() as noinstr/__cpuidle and all
-+	 * functions called within the RCU-idle region.
-+	 */
- 	entered_state = target_state->enter(dev, drv, index);
- 
- 	if (WARN_ONCE(!irqs_disabled(), "%ps leaked IRQ state", target_state->enter))
---- a/include/linux/compiler_types.h
-+++ b/include/linux/compiler_types.h
-@@ -233,6 +233,16 @@ struct ftrace_likely_data {
- 
- #define noinstr __noinstr_section(".noinstr.text")
- 
+-static void (*x86_idle)(void);
 +/*
-+ * The __cpuidle section is used twofold:
-+ *
-+ *  1) the original use -- identifying if a CPU is 'stuck' in idle state based
-+ *     on it's instruction pointer. See cpu_in_idle().
-+ *
-+ *  2) supressing instrumentation around where cpuidle disables RCU; where the
-+ *     function isn't strictly required for #1, this is interchangeable with
-+ *     noinstr.
++ * We use this if we don't have any better idle routine..
 + */
- #define __cpuidle __noinstr_section(".cpuidle.text")
++void __cpuidle default_idle(void)
++{
++	raw_safe_halt();
++}
++#if defined(CONFIG_APM_MODULE) || defined(CONFIG_HALTPOLL_CPUIDLE_MODULE)
++EXPORT_SYMBOL(default_idle);
++#endif
++
++DEFINE_STATIC_CALL_NULL(x86_idle, default_idle);
++
++static bool x86_idle_set(void)
++{
++	return !!static_call_query(x86_idle);
++}
  
- #endif /* __KERNEL__ */
+ #ifndef CONFIG_SMP
+ static inline void play_dead(void)
+@@ -715,28 +732,17 @@ void arch_cpu_idle_dead(void)
+ /*
+  * Called from the generic idle code.
+  */
+-void arch_cpu_idle(void)
+-{
+-	x86_idle();
+-}
+-
+-/*
+- * We use this if we don't have any better idle routine..
+- */
+-void __cpuidle default_idle(void)
++void __cpuidle arch_cpu_idle(void)
+ {
+-	raw_safe_halt();
++	static_call(x86_idle)();
+ }
+-#if defined(CONFIG_APM_MODULE) || defined(CONFIG_HALTPOLL_CPUIDLE_MODULE)
+-EXPORT_SYMBOL(default_idle);
+-#endif
+ 
+ #ifdef CONFIG_XEN
+ bool xen_set_default_idle(void)
+ {
+-	bool ret = !!x86_idle;
++	bool ret = x86_idle_set();
+ 
+-	x86_idle = default_idle;
++	static_call_update(x86_idle, default_idle);
+ 
+ 	return ret;
+ }
+@@ -859,20 +865,20 @@ void select_idle_routine(const struct cp
+ 	if (boot_option_idle_override == IDLE_POLL && smp_num_siblings > 1)
+ 		pr_warn_once("WARNING: polling idle and HT enabled, performance may degrade\n");
+ #endif
+-	if (x86_idle || boot_option_idle_override == IDLE_POLL)
++	if (x86_idle_set() || boot_option_idle_override == IDLE_POLL)
+ 		return;
+ 
+ 	if (boot_cpu_has_bug(X86_BUG_AMD_E400)) {
+ 		pr_info("using AMD E400 aware idle routine\n");
+-		x86_idle = amd_e400_idle;
++		static_call_update(x86_idle, amd_e400_idle);
+ 	} else if (prefer_mwait_c1_over_halt(c)) {
+ 		pr_info("using mwait in idle threads\n");
+-		x86_idle = mwait_idle;
++		static_call_update(x86_idle, mwait_idle);
+ 	} else if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST)) {
+ 		pr_info("using TDX aware idle routine\n");
+-		x86_idle = tdx_safe_halt;
++		static_call_update(x86_idle, tdx_safe_halt);
+ 	} else
+-		x86_idle = default_idle;
++		static_call_update(x86_idle, default_idle);
+ }
+ 
+ void amd_e400_c1e_apic_setup(void)
+@@ -925,7 +931,7 @@ static int __init idle_setup(char *str)
+ 		 * To continue to load the CPU idle driver, don't touch
+ 		 * the boot_option_idle_override.
+ 		 */
+-		x86_idle = default_idle;
++		static_call_update(x86_idle, default_idle);
+ 		boot_option_idle_override = IDLE_HALT;
+ 	} else if (!strcmp(str, "nomwait")) {
+ 		/*
 
 
