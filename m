@@ -2,43 +2,43 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 797EFC77B74
-	for <linux-s390@archiver.kernel.org>; Thu, 12 Jan 2023 20:05:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B0136C71132
+	for <linux-s390@archiver.kernel.org>; Thu, 12 Jan 2023 20:05:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241955AbjALUF0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 12 Jan 2023 15:05:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44318 "EHLO
+        id S241968AbjALUFa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 12 Jan 2023 15:05:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237286AbjALT7U (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 Jan 2023 14:59:20 -0500
+        with ESMTP id S232528AbjALT7N (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 Jan 2023 14:59:13 -0500
 Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62E5F2DE8;
-        Thu, 12 Jan 2023 11:58:11 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 515C7DFE;
+        Thu, 12 Jan 2023 11:58:06 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=desiato.20200630; h=Content-Type:MIME-Version:References:
         Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
         Content-ID:Content-Description:In-Reply-To;
-        bh=JTqeKYECYSubBnJX/J9QEXdDkgA0NkIECFSZWgBtZ5c=; b=Bz7q8sFysVrJ+qtuhahBXb/Lab
-        5j8XAIyOlOfJ4KikOFYWZKZdHI7rMXfaG+faM2dOEPZ9nv8ZEhxsgK1wIIhAhZqm+PcmRRep500ve
-        YZevbAQg2/uTP2amFaBshSo0Mlhs5hJfCpbYdKYEsfbUoDPlGcS/urMFlIgoVKsG98QYMkN18IGdT
-        z5GHZqMDB9lYeNqIBvRG7PG4iBenea3s9AxTRSg4/aj43YQXFRi/ink2Xr4nHrniaxNtLTRiCBghP
-        vlMN4LFj9qBDiL1lPWuGU/Tv0ulIHIVuBnmVRmKNT37An3OMOuY9Rk3xwDkd8UCZzZTO2VvOqCMAP
-        DOsNio+Q==;
+        bh=VEFTHHrPJN8MUcU5Q+nJT8cn7XDeQYtM8FLMMPm5jQc=; b=KkymT6fnEbdrqizXmWSH2cuOVn
+        jQjLDtcvao8QQM1CDAK23eOtDc3kGN8afBk6jSjfUisCkP/gFLTRKyHuWxXNN647u5J77e9UXxs4t
+        Nxxuk35lQLxa93CmttzHSiwgU7o+eq1l/NDUJPW0u/204PTmRFYkZtbGrRnibXXVYKxBvO5GiUx5C
+        Ls/TdpMiBxMJCS6bvNyUYXqq4XdSVNVmiIEQu6E5gXUs4CphL1YhVZIEKwPAIa9s2+nPr/nrqytbH
+        mC8VuqJNuDqfhjqJCiCzJnptubyVuLBm6bAA/aC0BGih+Kw2mq2OB93VPKPrJHR/xS9q1LgFbp1c/
+        ElutY9cQ==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
         by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
-        id 1pG3hN-0045qQ-0k;
-        Thu, 12 Jan 2023 19:57:29 +0000
+        id 1pG3hH-0045pD-1z;
+        Thu, 12 Jan 2023 19:57:17 +0000
 Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (4096 bits))
         (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 1C7DB30346F;
-        Thu, 12 Jan 2023 20:57:14 +0100 (CET)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id A48BF303441;
+        Thu, 12 Jan 2023 20:57:13 +0100 (CET)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
-        id 5B5522CD066C2; Thu, 12 Jan 2023 20:57:08 +0100 (CET)
-Message-ID: <20230112195541.967699392@infradead.org>
+        id 20F0F2CCF62B3; Thu, 12 Jan 2023 20:57:08 +0100 (CET)
+Message-ID: <20230112195541.111485720@infradead.org>
 User-Agent: quilt/0.66
-Date:   Thu, 12 Jan 2023 20:43:57 +0100
+Date:   Thu, 12 Jan 2023 20:43:43 +0100
 From:   Peter Zijlstra <peterz@infradead.org>
 To:     peterz@infradead.org
 Cc:     richard.henderson@linaro.org, ink@jurassic.park.msu.ru,
@@ -105,7 +105,7 @@ Cc:     richard.henderson@linaro.org, ink@jurassic.park.msu.ru,
         linux-trace-kernel@vger.kernel.org, kasan-dev@googlegroups.com,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH v3 43/51] intel_idle: Add force_irq_on module param
+Subject: [PATCH v3 29/51] cpuidle,tdx: Make tdx noinstr clean
 References: <20230112194314.845371875@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -113,7 +113,9 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-For testing purposes.
+vmlinux.o: warning: objtool: __halt+0x2c: call to hcall_func.constprop.0() leaves .noinstr.text section
+vmlinux.o: warning: objtool: __halt+0x3f: call to __tdx_hypercall() leaves .noinstr.text section
+vmlinux.o: warning: objtool: __tdx_hypercall+0x66: call to __tdx_hypercall_failed() leaves .noinstr.text section
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
@@ -121,32 +123,53 @@ Acked-by: Frederic Weisbecker <frederic@kernel.org>
 Tested-by: Tony Lindgren <tony@atomide.com>
 Tested-by: Ulf Hansson <ulf.hansson@linaro.org>
 ---
- drivers/idle/intel_idle.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ arch/x86/boot/compressed/vmlinux.lds.S |    1 +
+ arch/x86/coco/tdx/tdcall.S             |    2 ++
+ arch/x86/coco/tdx/tdx.c                |    5 +++--
+ 3 files changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/idle/intel_idle.c
-+++ b/drivers/idle/intel_idle.c
-@@ -1787,6 +1787,9 @@ static bool __init intel_idle_verify_cst
- 	return true;
+--- a/arch/x86/boot/compressed/vmlinux.lds.S
++++ b/arch/x86/boot/compressed/vmlinux.lds.S
+@@ -34,6 +34,7 @@ SECTIONS
+ 		_text = .; 	/* Text */
+ 		*(.text)
+ 		*(.text.*)
++		*(.noinstr.text)
+ 		_etext = . ;
+ 	}
+ 	.rodata : {
+--- a/arch/x86/coco/tdx/tdcall.S
++++ b/arch/x86/coco/tdx/tdcall.S
+@@ -31,6 +31,8 @@
+ 					  TDX_R12 | TDX_R13 | \
+ 					  TDX_R14 | TDX_R15 )
+ 
++.section .noinstr.text, "ax"
++
+ /*
+  * __tdx_module_call()  - Used by TDX guests to request services from
+  * the TDX module (does not include VMM services) using TDCALL instruction.
+--- a/arch/x86/coco/tdx/tdx.c
++++ b/arch/x86/coco/tdx/tdx.c
+@@ -53,8 +53,9 @@ static inline u64 _tdx_hypercall(u64 fn,
  }
  
-+static bool force_irq_on __read_mostly;
-+module_param(force_irq_on, bool, 0444);
-+
- static void __init intel_idle_init_cstates_icpu(struct cpuidle_driver *drv)
+ /* Called from __tdx_hypercall() for unrecoverable failure */
+-void __tdx_hypercall_failed(void)
++noinstr void __tdx_hypercall_failed(void)
  {
- 	int cstate;
-@@ -1838,8 +1841,10 @@ static void __init intel_idle_init_cstat
- 		/* Structure copy. */
- 		drv->states[drv->state_count] = cpuidle_state_table[cstate];
++	instrumentation_begin();
+ 	panic("TDVMCALL failed. TDX module bug?");
+ }
  
--		if (cpuidle_state_table[cstate].flags & CPUIDLE_FLAG_IRQ_ENABLE)
-+		if ((cpuidle_state_table[cstate].flags & CPUIDLE_FLAG_IRQ_ENABLE) || force_irq_on) {
-+			printk("intel_idle: forced intel_idle_irq for state %d\n", cstate);
- 			drv->states[drv->state_count].enter = intel_idle_irq;
-+		}
- 
- 		if (cpu_feature_enabled(X86_FEATURE_KERNEL_IBRS) &&
- 		    cpuidle_state_table[cstate].flags & CPUIDLE_FLAG_IBRS) {
+@@ -64,7 +65,7 @@ void __tdx_hypercall_failed(void)
+  * Reusing the KVM EXIT_REASON macros makes it easier to connect the host and
+  * guest sides of these calls.
+  */
+-static u64 hcall_func(u64 exit_reason)
++static __always_inline u64 hcall_func(u64 exit_reason)
+ {
+ 	return exit_reason;
+ }
 
 
