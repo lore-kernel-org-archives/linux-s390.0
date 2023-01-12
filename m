@@ -2,161 +2,249 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 77DE2C678D6
-	for <linux-s390@archiver.kernel.org>; Thu, 12 Jan 2023 20:12:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A7CF8C61DB3
+	for <linux-s390@archiver.kernel.org>; Thu, 12 Jan 2023 20:57:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240593AbjALUMc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 12 Jan 2023 15:12:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44240 "EHLO
+        id S240216AbjALU5A (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 12 Jan 2023 15:57:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232685AbjALT7O (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 Jan 2023 14:59:14 -0500
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A72CEB0;
-        Thu, 12 Jan 2023 11:58:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
-        Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
-        Content-ID:Content-Description:In-Reply-To;
-        bh=cMg3ptdf90ideilc5ESAExVXsDzvqUAUHPnoGLTznE4=; b=AQVbLNGLAYLI5glCIBdfN2BTr/
-        Gz/Reu1wlylo5D1rPRX3tYfuclMb30JqVrgGLY+i8h5Xf4OY4kfQXs65r/W3Q+cYwmERZwJKdYyGu
-        dOIJbUu55LP0s2WpAnsehl0pUa57AJ3Lq0DpQp5D7jIwVSFDXKmJmnOiTcPJuwyIZF8b0FkqntpIC
-        b8LadvLyxjnkWpOvABXtsz53rhvZOuGgIQLV6FRFQ1goVxCxypfG444hWrorgBNhddOaBK6ge/aAD
-        GocMGlGGl5ycw4gr25/L6Jb+p3aQyhRh2wg9Sdn3uYmPp24GCT0nLRuVL3vNNcZ0HKYejgio/4ncJ
-        cUAaLzFw==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1pG3hd-005Ofs-RT; Thu, 12 Jan 2023 19:57:33 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits))
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id C0E86303451;
-        Thu, 12 Jan 2023 20:57:13 +0100 (CET)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
-        id 31AC02CCF62BB; Thu, 12 Jan 2023 20:57:08 +0100 (CET)
-Message-ID: <20230112195541.355283994@infradead.org>
-User-Agent: quilt/0.66
-Date:   Thu, 12 Jan 2023 20:43:47 +0100
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     peterz@infradead.org
-Cc:     richard.henderson@linaro.org, ink@jurassic.park.msu.ru,
-        mattst88@gmail.com, vgupta@kernel.org, linux@armlinux.org.uk,
-        nsekhar@ti.com, brgl@bgdev.pl, ulli.kroll@googlemail.com,
-        linus.walleij@linaro.org, shawnguo@kernel.org,
-        Sascha Hauer <s.hauer@pengutronix.de>, kernel@pengutronix.de,
-        festevam@gmail.com, linux-imx@nxp.com, tony@atomide.com,
-        khilman@kernel.org, krzysztof.kozlowski@linaro.org,
-        alim.akhtar@samsung.com, catalin.marinas@arm.com, will@kernel.org,
-        guoren@kernel.org, bcain@quicinc.com, chenhuacai@kernel.org,
-        kernel@xen0n.name, geert@linux-m68k.org, sammy@sammy.net,
-        monstr@monstr.eu, tsbogend@alpha.franken.de, dinguyen@kernel.org,
-        jonas@southpole.se, stefan.kristiansson@saunalahti.fi,
-        shorne@gmail.com, James.Bottomley@HansenPartnership.com,
-        deller@gmx.de, mpe@ellerman.id.au, npiggin@gmail.com,
-        christophe.leroy@csgroup.eu, paul.walmsley@sifive.com,
-        palmer@dabbelt.com, aou@eecs.berkeley.edu, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net,
-        richard@nod.at, anton.ivanov@cambridgegreys.com,
-        johannes@sipsolutions.net, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
-        hpa@zytor.com, acme@kernel.org, mark.rutland@arm.com,
-        alexander.shishkin@linux.intel.com, jolsa@kernel.org,
-        namhyung@kernel.org, jgross@suse.com, srivatsa@csail.mit.edu,
-        amakhalov@vmware.com, pv-drivers@vmware.com,
-        boris.ostrovsky@oracle.com, chris@zankel.net, jcmvbkbc@gmail.com,
-        rafael@kernel.org, lenb@kernel.org, pavel@ucw.cz,
-        gregkh@linuxfoundation.org, mturquette@baylibre.com,
-        sboyd@kernel.org, daniel.lezcano@linaro.org, lpieralisi@kernel.org,
-        sudeep.holla@arm.com, agross@kernel.org, andersson@kernel.org,
-        konrad.dybcio@linaro.org, anup@brainfault.org,
-        thierry.reding@gmail.com, jonathanh@nvidia.com,
-        jacob.jun.pan@linux.intel.com, atishp@atishpatra.org,
-        Arnd Bergmann <arnd@arndb.de>, yury.norov@gmail.com,
-        andriy.shevchenko@linux.intel.com, linux@rasmusvillemoes.dk,
-        dennis@kernel.org, tj@kernel.org, cl@linux.com,
-        rostedt@goodmis.org, mhiramat@kernel.org, frederic@kernel.org,
-        paulmck@kernel.org, pmladek@suse.com, senozhatsky@chromium.org,
-        john.ogness@linutronix.de, juri.lelli@redhat.com,
-        vincent.guittot@linaro.org, dietmar.eggemann@arm.com,
-        bsegall@google.com, mgorman@suse.de, bristot@redhat.com,
-        vschneid@redhat.com, ryabinin.a.a@gmail.com, glider@google.com,
-        andreyknvl@gmail.com, dvyukov@google.com,
-        vincenzo.frascino@arm.com,
-        Andrew Morton <akpm@linux-foundation.org>, jpoimboe@kernel.org,
-        linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org, linux-omap@vger.kernel.org,
-        linux-samsung-soc@vger.kernel.org, linux-csky@vger.kernel.org,
-        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-perf-users@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        linux-xtensa@linux-xtensa.org, linux-acpi@vger.kernel.org,
-        linux-pm@vger.kernel.org, linux-clk@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org, linux-tegra@vger.kernel.org,
-        linux-arch@vger.kernel.org, linux-mm@kvack.org,
-        linux-trace-kernel@vger.kernel.org, kasan-dev@googlegroups.com
-Subject: [PATCH v3 33/51] trace: Remove trace_hardirqs_{on,off}_caller()
-References: <20230112194314.845371875@infradead.org>
+        with ESMTP id S232908AbjALUxo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 Jan 2023 15:53:44 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F282EF71;
+        Thu, 12 Jan 2023 12:38:55 -0800 (PST)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30CKZvhP008303;
+        Thu, 12 Jan 2023 20:38:50 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=UdCiGlNJ+LRFp1gVmwoz1AZyKt4og7nqktaY/n5eyh0=;
+ b=lWRgnNjeOb0eqTrC14hJSYxXFqOazAscHlr4/PR4MWUZyV9EgUNGVqIsQnN+6JptXb7s
+ pRbouktUFoj2WKqa7UNqM1qZVnjbXMLmu3EYGaDrZeqD1ACNA9uxFAQtIP9pFX+zjELx
+ sYWm1vVD616dkj9LFkLxptU7DEn8+tHSJcUHdBF+xGEA1oC7b22Y54uu5M8w2TP8CXeZ
+ 1yaxIxX3qXurYulKUiIYRea0/9pDjdEukT/woDkqvUALXOwF1WTTKHTxei7GTZUbUqaz
+ 2W8QIDyQQrnYlwwVv78NuktjV1WK/Ew+tSomMMpVUuSp+4o8NR6ogPYzx5gqhGG60rfG CA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n2s8sr69m-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 12 Jan 2023 20:38:50 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 30CKZvKe008228;
+        Thu, 12 Jan 2023 20:38:49 GMT
+Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n2s8sr696-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 12 Jan 2023 20:38:49 +0000
+Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
+        by ppma05wdc.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30CHp5QC004524;
+        Thu, 12 Jan 2023 20:38:48 GMT
+Received: from smtprelay06.dal12v.mail.ibm.com ([9.208.130.100])
+        by ppma05wdc.us.ibm.com (PPS) with ESMTPS id 3n1kk7kcmm-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 12 Jan 2023 20:38:48 +0000
+Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
+        by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30CKcleT524908
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 12 Jan 2023 20:38:47 GMT
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3CACD58056;
+        Thu, 12 Jan 2023 20:38:47 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 755E35804E;
+        Thu, 12 Jan 2023 20:38:45 +0000 (GMT)
+Received: from li-2311da4c-2e09-11b2-a85c-c003041e9174.ibm.com.com (unknown [9.160.94.233])
+        by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
+        Thu, 12 Jan 2023 20:38:45 +0000 (GMT)
+From:   Matthew Rosato <mjrosato@linux.ibm.com>
+To:     alex.williamson@redhat.com, pbonzini@redhat.com
+Cc:     jgg@nvidia.com, cohuck@redhat.com, farman@linux.ibm.com,
+        pmorel@linux.ibm.com, borntraeger@linux.ibm.com,
+        frankja@linux.ibm.com, imbrenda@linux.ibm.com, david@redhat.com,
+        akrowiak@linux.ibm.com, jjherne@linux.ibm.com, pasic@linux.ibm.com,
+        zhenyuw@linux.intel.com, zhi.a.wang@intel.com, seanjc@google.com,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v2] vfio: fix potential deadlock on vfio group lock
+Date:   Thu, 12 Jan 2023 15:38:44 -0500
+Message-Id: <20230112203844.41179-1-mjrosato@linux.ibm.com>
+X-Mailer: git-send-email 2.39.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: U7gFq-EUrjV2Z9EY4ZwhqzpKbM3o8jrR
+X-Proofpoint-ORIG-GUID: R9uTHkQKN3zdwXH1Q6C-sB7bVKb_RBTZ
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2023-01-12_12,2023-01-12_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
+ phishscore=0 adultscore=0 impostorscore=0 malwarescore=0
+ lowpriorityscore=0 spamscore=0 suspectscore=0 clxscore=1015
+ priorityscore=1501 mlxlogscore=999 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2212070000 definitions=main-2301120146
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Per commit 56e62a737028 ("s390: convert to generic entry") the last
-and only callers of trace_hardirqs_{on,off}_caller() went away, clean
-up.
+Currently it is possible that the final put of a KVM reference comes from
+vfio during its device close operation.  This occurs while the vfio group
+lock is held; however, if the vfio device is still in the kvm device list,
+then the following call chain could result in a deadlock:
 
-Cc: Sven Schnelle <svens@linux.ibm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+kvm_put_kvm
+ -> kvm_destroy_vm
+  -> kvm_destroy_devices
+   -> kvm_vfio_destroy
+    -> kvm_vfio_file_set_kvm
+     -> vfio_file_set_kvm
+      -> group->group_lock/group_rwsem
+
+Avoid this scenario by having vfio core code acquire a KVM reference
+the first time a device is opened and hold that reference until the
+device fd is closed, at a point after the group lock has been released.
+
+Fixes: 421cfe6596f6 ("vfio: remove VFIO_GROUP_NOTIFY_SET_KVM")
+Reported-by: Alex Williamson <alex.williamson@redhat.com>
+Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
 ---
- kernel/trace/trace_preemptirq.c |   29 -----------------------------
- 1 file changed, 29 deletions(-)
+Changes from v1:
+* Re-write using symbol get logic to get kvm ref during first device
+  open, release the ref during device fd close after group lock is
+  released
+* Drop kvm get/put changes to drivers; now that vfio core holds a
+  kvm ref until sometime after the device_close op is called, it
+  should be fine for drivers to get and put their own references to it.
+---
+ drivers/vfio/group.c     |  6 ++---
+ drivers/vfio/vfio_main.c | 48 +++++++++++++++++++++++++++++++++++++---
+ include/linux/vfio.h     |  1 -
+ 3 files changed, 48 insertions(+), 7 deletions(-)
 
---- a/kernel/trace/trace_preemptirq.c
-+++ b/kernel/trace/trace_preemptirq.c
-@@ -84,35 +84,6 @@ void trace_hardirqs_off(void)
- }
- EXPORT_SYMBOL(trace_hardirqs_off);
- NOKPROBE_SYMBOL(trace_hardirqs_off);
--
--__visible void trace_hardirqs_on_caller(unsigned long caller_addr)
--{
--	if (this_cpu_read(tracing_irq_cpu)) {
--		if (!in_nmi())
--			trace_irq_enable_rcuidle(CALLER_ADDR0, caller_addr);
--		tracer_hardirqs_on(CALLER_ADDR0, caller_addr);
--		this_cpu_write(tracing_irq_cpu, 0);
--	}
--
--	lockdep_hardirqs_on_prepare();
--	lockdep_hardirqs_on(caller_addr);
--}
--EXPORT_SYMBOL(trace_hardirqs_on_caller);
--NOKPROBE_SYMBOL(trace_hardirqs_on_caller);
--
--__visible void trace_hardirqs_off_caller(unsigned long caller_addr)
--{
--	lockdep_hardirqs_off(caller_addr);
--
--	if (!this_cpu_read(tracing_irq_cpu)) {
--		this_cpu_write(tracing_irq_cpu, 1);
--		tracer_hardirqs_off(CALLER_ADDR0, caller_addr);
--		if (!in_nmi())
--			trace_irq_disable_rcuidle(CALLER_ADDR0, caller_addr);
--	}
--}
--EXPORT_SYMBOL(trace_hardirqs_off_caller);
--NOKPROBE_SYMBOL(trace_hardirqs_off_caller);
- #endif /* CONFIG_TRACE_IRQFLAGS */
+diff --git a/drivers/vfio/group.c b/drivers/vfio/group.c
+index bb24b2f0271e..2b0da82f82f4 100644
+--- a/drivers/vfio/group.c
++++ b/drivers/vfio/group.c
+@@ -165,9 +165,9 @@ static int vfio_device_group_open(struct vfio_device *device)
+ 	}
  
- #ifdef CONFIG_TRACE_PREEMPT_TOGGLE
-
+ 	/*
+-	 * Here we pass the KVM pointer with the group under the lock.  If the
+-	 * device driver will use it, it must obtain a reference and release it
+-	 * during close_device.
++	 * Here we pass the KVM pointer with the group under the lock.  A
++	 * reference will be obtained the first time the device is opened and
++	 * will be held until the device fd is closed.
+ 	 */
+ 	ret = vfio_device_open(device, device->group->iommufd,
+ 			       device->group->kvm);
+diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
+index 5177bb061b17..c969e2a0ecd3 100644
+--- a/drivers/vfio/vfio_main.c
++++ b/drivers/vfio/vfio_main.c
+@@ -16,6 +16,7 @@
+ #include <linux/fs.h>
+ #include <linux/idr.h>
+ #include <linux/iommu.h>
++#include <linux/kvm_host.h>
+ #include <linux/list.h>
+ #include <linux/miscdevice.h>
+ #include <linux/module.h>
+@@ -344,6 +345,35 @@ static bool vfio_assert_device_open(struct vfio_device *device)
+ 	return !WARN_ON_ONCE(!READ_ONCE(device->open_count));
+ }
+ 
++static bool vfio_kvm_get_kvm_safe(struct kvm *kvm)
++{
++	bool (*fn)(struct kvm *kvm);
++	bool ret;
++
++	fn = symbol_get(kvm_get_kvm_safe);
++	if (WARN_ON(!fn))
++		return false;
++
++	ret = fn(kvm);
++
++	symbol_put(kvm_get_kvm_safe);
++
++	return ret;
++}
++
++static void vfio_kvm_put_kvm(struct kvm *kvm)
++{
++	void (*fn)(struct kvm *kvm);
++
++	fn = symbol_get(kvm_put_kvm);
++	if (WARN_ON(!fn))
++		return;
++
++	fn(kvm);
++
++	symbol_put(kvm_put_kvm);
++}
++
+ static int vfio_device_first_open(struct vfio_device *device,
+ 				  struct iommufd_ctx *iommufd, struct kvm *kvm)
+ {
+@@ -361,16 +391,24 @@ static int vfio_device_first_open(struct vfio_device *device,
+ 	if (ret)
+ 		goto err_module_put;
+ 
++	if (kvm && !vfio_kvm_get_kvm_safe(kvm)) {
++		ret = -ENOENT;
++		goto err_unuse_iommu;
++	}
+ 	device->kvm = kvm;
+ 	if (device->ops->open_device) {
+ 		ret = device->ops->open_device(device);
+ 		if (ret)
+-			goto err_unuse_iommu;
++			goto err_put_kvm;
+ 	}
+ 	return 0;
+ 
++err_put_kvm:
++	if (kvm) {
++		vfio_kvm_put_kvm(kvm);
++		device->kvm = NULL;
++	}
+ err_unuse_iommu:
+-	device->kvm = NULL;
+ 	if (iommufd)
+ 		vfio_iommufd_unbind(device);
+ 	else
+@@ -387,7 +425,6 @@ static void vfio_device_last_close(struct vfio_device *device,
+ 
+ 	if (device->ops->close_device)
+ 		device->ops->close_device(device);
+-	device->kvm = NULL;
+ 	if (iommufd)
+ 		vfio_iommufd_unbind(device);
+ 	else
+@@ -465,6 +502,11 @@ static int vfio_device_fops_release(struct inode *inode, struct file *filep)
+ 
+ 	vfio_device_group_close(device);
+ 
++	if (device->open_count == 0 && device->kvm) {
++		vfio_kvm_put_kvm(device->kvm);
++		device->kvm = NULL;
++	}
++
+ 	vfio_device_put_registration(device);
+ 
+ 	return 0;
+diff --git a/include/linux/vfio.h b/include/linux/vfio.h
+index 35be78e9ae57..3ff7e9302cc1 100644
+--- a/include/linux/vfio.h
++++ b/include/linux/vfio.h
+@@ -46,7 +46,6 @@ struct vfio_device {
+ 	struct vfio_device_set *dev_set;
+ 	struct list_head dev_set_list;
+ 	unsigned int migration_flags;
+-	/* Driver must reference the kvm during open_device or never touch it */
+ 	struct kvm *kvm;
+ 
+ 	/* Members below here are private, not for driver use */
+-- 
+2.39.0
 
