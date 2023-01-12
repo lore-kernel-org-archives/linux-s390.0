@@ -2,42 +2,43 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D88EFC7EE24
-	for <linux-s390@archiver.kernel.org>; Thu, 12 Jan 2023 20:04:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1BBF6C71134
+	for <linux-s390@archiver.kernel.org>; Thu, 12 Jan 2023 20:05:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241772AbjALUE5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 12 Jan 2023 15:04:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44314 "EHLO
+        id S241783AbjALUE7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 12 Jan 2023 15:04:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237088AbjALT7U (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 Jan 2023 14:59:20 -0500
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80F252DDA;
-        Thu, 12 Jan 2023 11:58:10 -0800 (PST)
+        with ESMTP id S232908AbjALT7P (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 Jan 2023 14:59:15 -0500
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 031DA10B2;
+        Thu, 12 Jan 2023 11:58:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
+        d=infradead.org; s=desiato.20200630; h=Content-Type:MIME-Version:References:
         Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
         Content-ID:Content-Description:In-Reply-To;
-        bh=1NaK9G2/I/OTlb13IaE2Tqn3F/yijw+kp1Wy55f7+Ak=; b=d9VgDAL2fWp2M2wxA7J9NgpFTT
-        2pG2qOlYmRDNCuzGSRUBqoo9hMDtSgVzgVID6gFby7pOIrlbQNFtimg6GKmL90aKS1vg2lYRpe6E6
-        S50bRd4JCG17JCzCaWBBkWkX3v2Clfdjl01hTLfMxi/Kdtf8TxtDe2XST56gTJTH8NeJMqeihArR8
-        XcEZk4Z/I8fpUGsOtTlAneoT7X5OaEcAPvRQEER0lr8m6A3mwQn1+QXc8ME5pao1f5nnwssK44DRU
-        EUlFxQhJpcHlwX2ret9+B92moOLu8UBxS4OPT7RcvdlONjNMGjsPHDbl2769rXFicjenGXiSAmJvx
-        Q+I8zi6w==;
+        bh=Z3KKcWa6kIo8XxnBPrwezUQgJ6x9WmWZQX/flafg2tU=; b=dnEhyaW7XOsB2YpOBoTADjeNXQ
+        IXWZxR75snHap90Lr08HV1maU619oZJ1GEpbol5ZYaRPOl7n1+/PvdCAoFHzr1VZngOtd9tNu4AJe
+        JbYbWWZoHTUblYzvKKIyp4M57vZhpHuHd0Qs6KEabiRHw/69zaV9V8IuAR0xkXGYUGgdZ/D3KW0Lw
+        gZ1sfOKMV7qOsNX44ylTMfUurHULzuKa+krQs21KzN3l/jzFulIFs7OC9ndnx7SQSLZ/MB9yBmTZ0
+        owPgCsZudd1AQ3nEET8reWiJHLFNoTu8ipZ2iIpJw6ty3XIl5y8q2CG+vptuCmh4HW/vqXxlviMme
+        vbPP3xtw==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1pG3hZ-005Odc-MG; Thu, 12 Jan 2023 19:57:29 +0000
+        by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
+        id 1pG3hC-0045o8-1S;
+        Thu, 12 Jan 2023 19:57:07 +0000
 Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (4096 bits))
         (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 4894230341A;
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 016B13033ED;
         Thu, 12 Jan 2023 20:57:13 +0100 (CET)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
-        id DAA122CCF1F62; Thu, 12 Jan 2023 20:57:07 +0100 (CET)
-Message-ID: <20230112195540.312601331@infradead.org>
+        id A39622CCF1F58; Thu, 12 Jan 2023 20:57:07 +0100 (CET)
+Message-ID: <20230112195539.699546331@infradead.org>
 User-Agent: quilt/0.66
-Date:   Thu, 12 Jan 2023 20:43:30 +0100
+Date:   Thu, 12 Jan 2023 20:43:20 +0100
 From:   Peter Zijlstra <peterz@infradead.org>
 To:     peterz@infradead.org
 Cc:     richard.henderson@linaro.org, ink@jurassic.park.msu.ru,
@@ -104,7 +105,7 @@ Cc:     richard.henderson@linaro.org, ink@jurassic.park.msu.ru,
         linux-trace-kernel@vger.kernel.org, kasan-dev@googlegroups.com,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH v3 16/51] cpuidle: Annotate poll_idle()
+Subject: [PATCH v3 06/51] cpuidle,tegra: Push RCU-idle into driver
 References: <20230112194314.845371875@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -112,39 +113,89 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The __cpuidle functions will become a noinstr class, as such they need
-explicit annotations.
+Doing RCU-idle outside the driver, only to then temporarily enable it
+again, at least twice, before going idle is daft.
+
+Notably once implicitly through the cpu_pm_*() calls and once
+explicitly doing RCU_NONIDLE().
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Acked-by: Frederic Weisbecker <frederic@kernel.org>
+Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Tested-by: Tony Lindgren <tony@atomide.com>
 Tested-by: Ulf Hansson <ulf.hansson@linaro.org>
 ---
- drivers/cpuidle/poll_state.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/cpuidle/cpuidle-tegra.c |   21 ++++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
 
---- a/drivers/cpuidle/poll_state.c
-+++ b/drivers/cpuidle/poll_state.c
-@@ -13,7 +13,10 @@
- static int __cpuidle poll_idle(struct cpuidle_device *dev,
- 			       struct cpuidle_driver *drv, int index)
- {
--	u64 time_start = local_clock();
-+	u64 time_start;
+--- a/drivers/cpuidle/cpuidle-tegra.c
++++ b/drivers/cpuidle/cpuidle-tegra.c
+@@ -180,9 +180,11 @@ static int tegra_cpuidle_state_enter(str
+ 	}
+ 
+ 	local_fiq_disable();
+-	RCU_NONIDLE(tegra_pm_set_cpu_in_lp2());
++	tegra_pm_set_cpu_in_lp2();
+ 	cpu_pm_enter();
+ 
++	ct_idle_enter();
 +
-+	instrumentation_begin();
-+	time_start = local_clock();
+ 	switch (index) {
+ 	case TEGRA_C7:
+ 		err = tegra_cpuidle_c7_enter();
+@@ -197,8 +199,10 @@ static int tegra_cpuidle_state_enter(str
+ 		break;
+ 	}
  
- 	dev->poll_time_limit = false;
++	ct_idle_exit();
++
+ 	cpu_pm_exit();
+-	RCU_NONIDLE(tegra_pm_clear_cpu_in_lp2());
++	tegra_pm_clear_cpu_in_lp2();
+ 	local_fiq_enable();
  
-@@ -39,6 +42,7 @@ static int __cpuidle poll_idle(struct cp
- 	raw_local_irq_disable();
+ 	return err ?: index;
+@@ -226,6 +230,7 @@ static int tegra_cpuidle_enter(struct cp
+ 			       struct cpuidle_driver *drv,
+ 			       int index)
+ {
++	bool do_rcu = drv->states[index].flags & CPUIDLE_FLAG_RCU_IDLE;
+ 	unsigned int cpu = cpu_logical_map(dev->cpu);
+ 	int ret;
  
- 	current_clr_polling();
-+	instrumentation_end();
+@@ -233,9 +238,13 @@ static int tegra_cpuidle_enter(struct cp
+ 	if (dev->states_usage[index].disable)
+ 		return -1;
  
- 	return index;
- }
+-	if (index == TEGRA_C1)
++	if (index == TEGRA_C1) {
++		if (do_rcu)
++			ct_idle_enter();
+ 		ret = arm_cpuidle_simple_enter(dev, drv, index);
+-	else
++		if (do_rcu)
++			ct_idle_exit();
++	} else
+ 		ret = tegra_cpuidle_state_enter(dev, index, cpu);
+ 
+ 	if (ret < 0) {
+@@ -285,7 +294,8 @@ static struct cpuidle_driver tegra_idle_
+ 			.exit_latency		= 2000,
+ 			.target_residency	= 2200,
+ 			.power_usage		= 100,
+-			.flags			= CPUIDLE_FLAG_TIMER_STOP,
++			.flags			= CPUIDLE_FLAG_TIMER_STOP |
++						  CPUIDLE_FLAG_RCU_IDLE,
+ 			.name			= "C7",
+ 			.desc			= "CPU core powered off",
+ 		},
+@@ -295,6 +305,7 @@ static struct cpuidle_driver tegra_idle_
+ 			.target_residency	= 10000,
+ 			.power_usage		= 0,
+ 			.flags			= CPUIDLE_FLAG_TIMER_STOP |
++						  CPUIDLE_FLAG_RCU_IDLE   |
+ 						  CPUIDLE_FLAG_COUPLED,
+ 			.name			= "CC6",
+ 			.desc			= "CPU cluster powered off",
 
 
