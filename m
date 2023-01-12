@@ -2,212 +2,178 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C8B19C46467
-	for <linux-s390@archiver.kernel.org>; Wed, 11 Jan 2023 20:53:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A71D0C46467
+	for <linux-s390@archiver.kernel.org>; Thu, 12 Jan 2023 03:05:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233974AbjAKUxm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 11 Jan 2023 15:53:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55328 "EHLO
+        id S230231AbjALDFi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 11 Jan 2023 22:05:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234899AbjAKUxk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 Jan 2023 15:53:40 -0500
-Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F01833DBCA
-        for <linux-s390@vger.kernel.org>; Wed, 11 Jan 2023 12:53:38 -0800 (PST)
-Received: by mail-pl1-x634.google.com with SMTP id 17so18104960pll.0
-        for <linux-s390@vger.kernel.org>; Wed, 11 Jan 2023 12:53:38 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=0ltp+seogK+PxaVsEYogy95r8h77BHMwLLlXz9DiN8w=;
-        b=ZkKElg+8IcsEScy6KU15ENBM4hY2OLh2JUmXtCiQe9D357/FhbWQQdTbJ+XgevOLlQ
-         eZWwyGY8JM8invv4+POFOm46+9jGIVnHl7vXs4qg8G3YJh+ukYRpWYpSdKzWqldYdRag
-         Iuf2HPbQaTOscBk6xESwqqLMjSShui4NJxKzidDiJuFixDGvCf5v0LD7uVodNAW+2KUx
-         SbP0aqJY7HzBnc9JRoNoGs/f86bvYvaRMrkMrolcBaBu6QTt34OHz9uDQrqfCQ7AhQsp
-         Nn0A0msUsx1Z16wvpmKtG8iKTJopRdDqNCgbtFp3Zt36U360mVfWc0WG+obDtljR4h9+
-         jOBw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=0ltp+seogK+PxaVsEYogy95r8h77BHMwLLlXz9DiN8w=;
-        b=1xi2EBwfMO+8kSOOjZHjLCUkzJ9LYiFCXzMgYe5A7Ryjo/hcKELRZ1KcWItVBMiFoi
-         xOHiGLAeUcqjozrigXA2/03D+MLv7EcjfI5yawOMMrU87NxVJB/mTb7VZl8F50W/Aoat
-         Fa2sQVKTCRsC0034iLDl5zTjrLi7PBe0KY82TRJYi1s4IfBFbxrsKZpXdXg5rEjeX3J5
-         v5qL/7gm/vi/IwlVretb0AESyJgEdVAIxtxZAX91oP6IbK5tgPqAla8IYYhaHAcYhqOF
-         Z5ZJLXGhVXiuiEDS0GUXdoPKWgfq/QrgGYeHsEHdYYJThW2/qz67alqfEPYP7pWAS0OT
-         LHSQ==
-X-Gm-Message-State: AFqh2kqnuIFy72uKUAAooeSrL/3FOlqtaYtKPztVBU7p/8agUCC3AJgg
-        spS+m9Y/sUswD5M3ENLcxHu5UQ==
-X-Google-Smtp-Source: AMrXdXtc4CpOFmwV1Hw4NH/1QoEjdUGEehsu8+s0heNHbjQKL27VEfPV1Z8tPmwPD/xRgsHw1J4USA==
-X-Received: by 2002:a05:6a20:c527:b0:9d:c38f:9bdd with SMTP id gm39-20020a056a20c52700b0009dc38f9bddmr581152pzb.2.1673470418329;
-        Wed, 11 Jan 2023 12:53:38 -0800 (PST)
-Received: from google.com (7.104.168.34.bc.googleusercontent.com. [34.168.104.7])
-        by smtp.gmail.com with ESMTPSA id d11-20020a170902654b00b001895d87225csm10569179pln.182.2023.01.11.12.53.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Jan 2023 12:53:37 -0800 (PST)
-Date:   Wed, 11 Jan 2023 20:53:34 +0000
-From:   Sean Christopherson <seanjc@google.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
-        alex.williamson@redhat.com, pbonzini@redhat.com, cohuck@redhat.com,
-        farman@linux.ibm.com, pmorel@linux.ibm.com,
-        borntraeger@linux.ibm.com, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, david@redhat.com, akrowiak@linux.ibm.com,
-        jjherne@linux.ibm.com, pasic@linux.ibm.com,
-        zhenyuw@linux.intel.com, zhi.a.wang@intel.com,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        intel-gvt-dev@lists.freedesktop.org,
-        intel-gfx@lists.freedesktop.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] KVM: async kvm_destroy_vm for vfio devices
-Message-ID: <Y78hzsHiwaFpL60+@google.com>
-References: <20230109201037.33051-1-mjrosato@linux.ibm.com>
- <20230109201037.33051-2-mjrosato@linux.ibm.com>
- <Y78UCz5oeuntSQtK@google.com>
- <Y78Wk2/P5+gLMdpk@nvidia.com>
+        with ESMTP id S234465AbjALDFg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 Jan 2023 22:05:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5963948823;
+        Wed, 11 Jan 2023 19:05:35 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E3D7261F3B;
+        Thu, 12 Jan 2023 03:05:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C58AFC433EF;
+        Thu, 12 Jan 2023 03:05:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1673492734;
+        bh=tjeAZoKw1mOoMptQAuKcbF8k/AUUGPcfSREGH+E1K8E=;
+        h=From:Subject:Date:To:Cc:From;
+        b=C8KcFlFEKpxaPVj1ID08JYJGd/HSESQUWvTx3iRpDJXnBO5exAD9oBlPszma7sBP0
+         ikeCyk6YvZ+3VSYKqN3XvLzh8EF4KZUfsD/5crcjKNlnZ4RbBJD4hL6eE412yaIe7w
+         QMyZgJoPUVjFOvdo5/b/azZqLoUvLcrUAK79zzhnrU2pFApUcDcwDYvUZd7PT0wNED
+         fpVqt09RpULoE/JXu1PT14VOF9yfpwBR6rtpQ2nJyKSsR0FeoBaOkCXb9RqAPNmBwa
+         E+yCX+MfRyxjSc6+NWCaVUlt+7cKM98NuNP4canjHd46NdWrEuxfDYA19QSyhEOWmg
+         HcC1Opc9WyS3w==
+From:   Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH v2 00/14] Remove clang's -Qunused-arguments from
+ KBUILD_CPPFLAGS
+Date:   Wed, 11 Jan 2023 20:04:58 -0700
+Message-Id: <20221228-drop-qunused-arguments-v2-0-9adbddd20d86@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Y78Wk2/P5+gLMdpk@nvidia.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIANp4v2MC/4WOTQ6CMBCFr0K6dgw0VtGV9zAs+jNAo7Q4U4iGc
+ HcLF3D5vZcv7y2CkTyyuBWLIJw9+xgyyEMhbK9Dh+BdZiFLKSspa3AUR3hPYWJ0oKmbBgyJobT
+ KXpxGdWqNyLLRjGBIB9tv+qA5IW3FSNj6z774aDL3nlOk735grrb079ZcQQlnVVtj69aqq7w/k
+ QK+jpE60azr+gM6vV+z1gAAAA==
+To:     masahiroy@kernel.org
+Cc:     ndesaulniers@google.com, nicolas@fjasle.eu, trix@redhat.com,
+        linux-kbuild@vger.kernel.org, llvm@lists.linux.dev,
+        Nathan Chancellor <nathan@kernel.org>, tglx@linutronix.de,
+        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
+        x86@kernel.org, kernel test robot <lkp@intel.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        =?utf-8?q?Philippe_Mathieu-Daud=C3=A9?= <philmd@linaro.org>,
+        linux-mips@vger.kernel.org, mpe@ellerman.id.au, npiggin@gmail.com,
+        christophe.leroy@csgroup.eu, linuxppc-dev@lists.ozlabs.org,
+        Segher Boessenkool <segher@kernel.crashing.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        linux-s390@vger.kernel.org,
+        Alex Deucher <alexander.deucher@amd.com>,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+X-Mailer: b4 0.12-dev-78c63
+X-Developer-Signature: v=1; a=openpgp-sha256; l=5385; i=nathan@kernel.org;
+ h=from:subject:message-id; bh=tjeAZoKw1mOoMptQAuKcbF8k/AUUGPcfSREGH+E1K8E=;
+ b=owGbwMvMwCEmm602sfCA1DTG02pJDMn7K36VdwkoxTMnRB4/f6DP+oZzTbX1HEXTN1O2Mjuq7jPX
+ zt3cUcrCIMbBICumyFL9WPW4oeGcs4w3Tk2CmcPKBDKEgYtTACbCbM7wV2qGw/H7k8OviNw/GpPfG7
+ Ep7O6fbzsPz/hmy2rwpfCGkw3D/4Ip/676bq/LfcSTs8L4+JngqQ83evUcuf/fVyznbp5/IC8A
+X-Developer-Key: i=nathan@kernel.org; a=openpgp;
+ fpr=2437CB76E544CB6AB3D9DFD399739260CB6CB716
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jan 11, 2023, Jason Gunthorpe wrote:
-> On Wed, Jan 11, 2023 at 07:54:51PM +0000, Sean Christopherson wrote:
-> 
-> > Something feels off.  If KVM's refcount is 0, then accessing device->group->kvm
-> > in vfio_device_open() can't happen unless there's a refcounting bug somewhere.
-> 
-> The problem is in close, not open.
+Hi all,
 
-The deadlock problem is, yes.  My point is that if group_lock needs to be taken
-when nullifying group->kvm during kvm_vfio_destroy(), then there is also a refcounting
-prolem with respect to open().  If there is no refcounting problem, then nullifying
-group->kvm during kvm_vfio_destroy() is unnecessary (but again, I doubt this is
-the case).
+Clang can emit a few different warnings when it encounters a flag that it
+recognizes but does not support internally. These warnings are elevated to
+errors within {as,cc}-option via -Werror to catch unsupported flags that should
+not be added to KBUILD_{A,C}FLAGS; see commit c3f0d0bc5b01 ("kbuild, LLVMLinux:
+Add -Werror to cc-option to support clang").
 
-The two things aren't directly related, but it seems possible to solve both while
-making this all slightly less ugly.  Well, at least from KVM's perspective, whether
-or not it'd be an improvement on the VFIO side is definitely debatable.
+If an unsupported flag is unconditionally to KBUILD_{A,C}FLAGS, all subsequent
+{as,cc}-option will always fail, preventing supported and even potentially
+necessary flags from getting adding to the tool flags.
 
-> Specifically it would be very hard to avoid holding the group_lock
-> during close which is when the put is done.
-> 
-> > Rather than force devices to get KVM references, why not handle that in common
-> > VFIO code and drop KVM refcountin from devices?  Worst case scenario KVM is pinned
-> > by a device that doesn't need KVM but is in a group associated with KVM.  If that's
-> > a concern, it seems easy enough to add a flag to vfio_device_ops to enumerate
-> > whether or not the device depends on KVM.
-> 
-> We can't make cross-dependencies between kvm and core VFIO - it is why
-> so much of this is soo ugly.
+One would expect these warnings to be visible in the kernel build logs since
+they are added to KBUILD_{A,C}FLAGS but unfortunately, these warnings are
+hidden with clang's -Qunused-arguments flag, which is added to KBUILD_CPPFLAGS
+and used for both compiling and assembling files.
 
-Ugh, right, modules for everyone.
+Patches 1-4 address the internal inconsistencies of invoking the assembler
+within kbuild by using KBUILD_AFLAGS consistently and using '-x
+assembler-with-cpp' over '-x assembler'. This matches how assembly files are
+built across the kernel and helps avoid problems in situations where macro
+definitions or warning flags are present in KBUILD_AFLAGS, which cause
+instances of -Wunused-command-line-argument when the preprocessor is not called
+to consume them. There were a couple of places in architecture code where this
+change would break things so those are fixed first.
 
-> The few device drivers that unavoidably have KVM involvment already
-> have a KVM module dependency, so they can safely do the get/put
+Patches 5-12 clean up warnings that will show up when -Qunused-argument is
+dropped. I hope none of these are controversial.
 
-Rather than store a "struct kvm *" in vfio_device, what about adding a new set
-of optional ops to get/put KVM references?  Having dedicated KVM ops is gross,
-but IMO it's less gross than backdooring the KVM pointer into open_device() by
-stashing KVM into the device, e.g. it formalizes the VFIO API for devices that
-depend on KVM instead of making devices pinky-swear to grab a reference during
-open_device().
+Patch 13 turns two warnings into errors so that the presence of unused flags
+cannot be easily ignored.
 
-To further harden things, KVM could export only kvm_get_safe_kvm() if there are
-no vendor modules.  I.e. make kvm_get_kvm() an internal-only helper when possible
-and effectively force VFIO devices to use the safe variant.  That would work even
-x86, as kvm_get_kvm() wouldn't be exported if neither KVM_AMD nor KVM_INTEL is
-built as a module.
+Patch 14 drops -Qunused-argument. This is done last so that it can be easily
+reverted if need be.
+
+This series has seen my personal test framework, which tests several different
+configurations and architectures, with LLVM tip of tree (16.0.0). I have done
+defconfig, allmodconfig, and allnoconfig builds for arm, arm64, i386, mips,
+powerpc, riscv, s390, and x86_64 with GCC 12.2.0 as well but I am hoping the
+rest of the test infrastructure will catch any lurking problems.
+
+I would like this series to stay together so that there is no opportunity for
+breakage so please consider giving acks so that this can be carried via the
+kbuild tree (and many thanks to the people who have already provided such
+tags).
 
 ---
- drivers/vfio/vfio_main.c | 20 +++++++++++++-------
- include/linux/vfio.h     |  9 +++++++--
- 2 files changed, 20 insertions(+), 9 deletions(-)
+Changes in v2:
+- Pick up tags where provided (thank you everyone!)
+- Patch 6 and 9: Clarify that '-s' is a compiler flag that is only relevant to
+  the linking phase and remove all mention of the assembler's '-s' flag, as the
+  assembler is never directly invoked (Nick, Segher)
+- Patch 7: Move '-z noexecstack' into new ldflags-y variable (Nick)
+- Patch 8: Reword commit message to explain the problem in a clearer manner
+  (Nick)
+- Link to v1: https://lore.kernel.org/r/20221228-drop-qunused-arguments-v1-0-658cbc8fc592@kernel.org
 
-diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
-index 6e8804fe0095..b3a84d65baa6 100644
---- a/drivers/vfio/vfio_main.c
-+++ b/drivers/vfio/vfio_main.c
-@@ -772,7 +772,12 @@ static struct file *vfio_device_open(struct vfio_device *device)
- 		 * reference and release it during close_device.
- 		 */
- 		mutex_lock(&device->group->group_lock);
--		device->kvm = device->group->kvm;
-+
-+		if (device->kvm_ops && device->group->kvm) {
-+			ret = device->kvm_ops->get_kvm(device->group->kvm);
-+			if (ret)
-+				goto err_undo_count;
-+		}
- 
- 		if (device->ops->open_device) {
- 			ret = device->ops->open_device(device);
-@@ -823,8 +828,9 @@ static struct file *vfio_device_open(struct vfio_device *device)
- err_undo_count:
- 	mutex_unlock(&device->group->group_lock);
- 	device->open_count--;
--	if (device->open_count == 0 && device->kvm)
--		device->kvm = NULL;
-+	if (device->open_count == 0 && device->kvm_ops)
-+		device->kvm_ops->put_kvm();
-+
- 	mutex_unlock(&device->dev_set->lock);
- 	module_put(device->dev->driver->owner);
- err_unassign_container:
-@@ -1039,8 +1045,8 @@ static int vfio_device_fops_release(struct inode *inode, struct file *filep)
- 	}
- 	mutex_unlock(&device->group->group_lock);
- 	device->open_count--;
--	if (device->open_count == 0)
--		device->kvm = NULL;
-+	if (device->open_count == 0 && device->kvm_ops)
-+		device->kvm_ops->put_kvm();
- 	mutex_unlock(&device->dev_set->lock);
- 
- 	module_put(device->dev->driver->owner);
-@@ -1656,8 +1662,8 @@ EXPORT_SYMBOL_GPL(vfio_file_enforced_coherent);
-  * @file: VFIO group file
-  * @kvm: KVM to link
-  *
-- * When a VFIO device is first opened the KVM will be available in
-- * device->kvm if one was associated with the group.
-+ * When a VFIO device is first opened, the device's kvm_ops->get_kvm() will be
-+ * invoked with the KVM instance associated with the group (if applicable).
-  */
- void vfio_file_set_kvm(struct file *file, struct kvm *kvm)
- {
-diff --git a/include/linux/vfio.h b/include/linux/vfio.h
-index fdd393f70b19..d6dcbe0546bf 100644
---- a/include/linux/vfio.h
-+++ b/include/linux/vfio.h
-@@ -18,6 +18,11 @@
- 
- struct kvm;
- 
-+struct vfio_device_kvm_ops {
-+	int (*get_kvm)(struct kvm *kvm);
-+	void (*put_kvm)(void);
-+};
-+
- /*
-  * VFIO devices can be placed in a set, this allows all devices to share this
-  * structure and the VFIO core will provide a lock that is held around
-@@ -43,8 +48,8 @@ struct vfio_device {
- 	struct vfio_device_set *dev_set;
- 	struct list_head dev_set_list;
- 	unsigned int migration_flags;
--	/* Driver must reference the kvm during open_device or never touch it */
--	struct kvm *kvm;
-+
-+	const struct vfio_device_kvm_ops *kvm_ops;
- 
- 	/* Members below here are private, not for driver use */
- 	unsigned int index;
+---
+Nathan Chancellor (12):
+      MIPS: Always use -Wa,-msoft-float and eliminate GAS_HAS_SET_HARDFLOAT
+      MIPS: Prefer cc-option for additions to cflags
+      powerpc: Remove linker flag from KBUILD_AFLAGS
+      powerpc/vdso: Remove unused '-s' flag from ASFLAGS
+      powerpc/vdso: Improve linker flags
+      powerpc/vdso: Remove an unsupported flag from vgettimeofday-32.o with clang
+      s390/vdso: Drop unused '-s' flag from KBUILD_AFLAGS_64
+      s390/vdso: Drop '-shared' from KBUILD_CFLAGS_64
+      s390/purgatory: Remove unused '-MD' and unnecessary '-c' flags
+      drm/amd/display: Do not add '-mhard-float' to dml_ccflags for clang
+      kbuild: Turn a couple more of clang's unused option warnings into errors
+      kbuild: Stop using '-Qunused-arguments' with clang
 
-base-commit: d52444c7a90fc551b4c3b0bda7d3f0b2ca9fc84d
+Nick Desaulniers (2):
+      x86/boot/compressed: prefer cc-option for CFLAGS additions
+      kbuild: Update assembler calls to use proper flags and language target
+
+ Makefile                                    |  1 -
+ arch/mips/Makefile                          | 13 ++-------
+ arch/mips/include/asm/asmmacro-32.h         |  4 +--
+ arch/mips/include/asm/asmmacro.h            | 42 ++++++++++++++---------------
+ arch/mips/include/asm/fpregdef.h            | 14 ----------
+ arch/mips/include/asm/mipsregs.h            | 20 +++-----------
+ arch/mips/kernel/genex.S                    |  2 +-
+ arch/mips/kernel/r2300_fpu.S                |  4 +--
+ arch/mips/kernel/r4k_fpu.S                  | 12 ++++-----
+ arch/mips/kvm/fpu.S                         |  6 ++---
+ arch/mips/loongson2ef/Platform              |  2 +-
+ arch/powerpc/Makefile                       |  2 +-
+ arch/powerpc/kernel/vdso/Makefile           | 25 +++++++++++------
+ arch/s390/kernel/vdso64/Makefile            |  4 +--
+ arch/s390/purgatory/Makefile                |  2 +-
+ arch/x86/boot/compressed/Makefile           |  2 +-
+ drivers/gpu/drm/amd/display/dc/dml/Makefile |  3 ++-
+ scripts/Kconfig.include                     |  2 +-
+ scripts/Makefile.clang                      |  2 ++
+ scripts/Makefile.compiler                   |  8 +++---
+ scripts/as-version.sh                       |  2 +-
+ 21 files changed, 74 insertions(+), 98 deletions(-)
+---
+base-commit: 88603b6dc419445847923fcb7fe5080067a30f98
+change-id: 20221228-drop-qunused-arguments-0c5c7dae54fb
+
+Best regards,
 -- 
+Nathan Chancellor <nathan@kernel.org>
 
