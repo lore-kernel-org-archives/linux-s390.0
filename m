@@ -2,42 +2,42 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E26AC7112F
-	for <linux-s390@archiver.kernel.org>; Thu, 12 Jan 2023 20:04:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F7D9C77B7C
+	for <linux-s390@archiver.kernel.org>; Thu, 12 Jan 2023 20:04:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241729AbjALUEr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 12 Jan 2023 15:04:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44160 "EHLO
+        id S241739AbjALUEs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 12 Jan 2023 15:04:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232103AbjALT6b (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 Jan 2023 14:58:31 -0500
+        with ESMTP id S237409AbjALT7U (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 Jan 2023 14:59:20 -0500
 Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0F3D24E;
-        Thu, 12 Jan 2023 11:58:02 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06A3C2DD1;
+        Thu, 12 Jan 2023 11:58:10 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
         Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
         Content-ID:Content-Description:In-Reply-To;
-        bh=dY+sZF8zXVTImEusizdFam+mvD2uBaZ1sCttd0zpvx8=; b=j8TQ8t09IgELQKWksGBtI2ytKh
-        pl1eHvaCJsnvxEv3UZnAHZzXY8/DatsPW/DvWOzGfrp159hq9PkH1R2mk80AkUwNnV23MbM3VXk9S
-        aHTCDYPoAWwhIXCDoOhwZadFG8TpQgXTBYmBr06QAE/dQt/rsGspfhVNq70IDTtZ4SyL9C86jhQ8O
-        iPmiqmKtWMiye8NF1XSccdlAXxBY2ADAcQ88Cq6GtXfD8ft+VpJQpX97vOLZQ2G+cqUvN1wEE5T0R
-        eGidhLHEBJsPp8wG+NJ5bnTlafvqHcjiTkEwNapZjYTA4Pu5AO87/liDLgzA9SW6Le+OtcYoOojwJ
-        RdV1d5uw==;
+        bh=Y7pmXu6dfTZxDcbDXfqgJM0mS6VL3mXOpIjOPL8GveM=; b=qX6YjF7gO/MPwPtcPx0NhV1Ufk
+        GyzKfoLIeIvjnz6bfozXzUoKsEK7V2vnIb67mqT6Dg07dD6w91/Q3MGHYIJzuj+4tzeyXzg8pRv4u
+        G8kEMdIkxoEbfIr3MD19nyv9bg//wyY0H6+1G7ZI4FkOT+PhsWXDz9wI5QT+NsArvq+tJXaAEkhfy
+        Yv3IUv0DQB87nGRwUvNNkcQTSs8WtB+6ASOtNGWFiIRpgcr4zBjlMxURErvmkpmDKjXUiZr8q8oo+
+        h+3ZbWqMHYHHCuauv0XHmOXQLZRHtrlpCFzHxEL7Pb1UBeBcLn+OxSKbAhCD9OnyRl2BKR2vES4dC
+        JAZ8H1lQ==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
         by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1pG3he-005OgC-FK; Thu, 12 Jan 2023 19:57:34 +0000
+        id 1pG3hc-005Oeh-CC; Thu, 12 Jan 2023 19:57:32 +0000
 Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (4096 bits))
         (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id D0FBA303457;
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 99E9630343E;
         Thu, 12 Jan 2023 20:57:13 +0100 (CET)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
-        id 3A2002CCF62BF; Thu, 12 Jan 2023 20:57:08 +0100 (CET)
-Message-ID: <20230112195541.477416709@infradead.org>
+        id 1D1292CCF62B1; Thu, 12 Jan 2023 20:57:08 +0100 (CET)
+Message-ID: <20230112195541.050542952@infradead.org>
 User-Agent: quilt/0.66
-Date:   Thu, 12 Jan 2023 20:43:49 +0100
+Date:   Thu, 12 Jan 2023 20:43:42 +0100
 From:   Peter Zijlstra <peterz@infradead.org>
 To:     peterz@infradead.org
 Cc:     richard.henderson@linaro.org, ink@jurassic.park.msu.ru,
@@ -101,8 +101,10 @@ Cc:     richard.henderson@linaro.org, ink@jurassic.park.msu.ru,
         linux-pm@vger.kernel.org, linux-clk@vger.kernel.org,
         linux-arm-msm@vger.kernel.org, linux-tegra@vger.kernel.org,
         linux-arch@vger.kernel.org, linux-mm@kvack.org,
-        linux-trace-kernel@vger.kernel.org, kasan-dev@googlegroups.com
-Subject: [PATCH v3 35/51] trace,hardirq: No moar _rcuidle() tracing
+        linux-trace-kernel@vger.kernel.org, kasan-dev@googlegroups.com,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH v3 28/51] cpuidle,mwait: Make noinstr clean
 References: <20230112194314.845371875@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -110,75 +112,81 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Robot reported that trace_hardirqs_{on,off}() tickle the forbidden
-_rcuidle() tracepoint through local_irq_{en,dis}able().
+vmlinux.o: warning: objtool: intel_idle_s2idle+0x6e: call to __monitor.constprop.0() leaves .noinstr.text section
+vmlinux.o: warning: objtool: intel_idle_irq+0x8c: call to __monitor.constprop.0() leaves .noinstr.text section
+vmlinux.o: warning: objtool: intel_idle+0x73: call to __monitor.constprop.0() leaves .noinstr.text section
 
-For 'sane' configs, these calls will only happen with RCU enabled and
-as such can use the regular tracepoint. This also means it's possible
-to trace them from NMI context again.
+vmlinux.o: warning: objtool: mwait_idle+0x88: call to clflush() leaves .noinstr.text section
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Acked-by: Frederic Weisbecker <frederic@kernel.org>
+Tested-by: Tony Lindgren <tony@atomide.com>
+Tested-by: Ulf Hansson <ulf.hansson@linaro.org>
 ---
- kernel/trace/trace_preemptirq.c |   21 +++++++++++++--------
- 1 file changed, 13 insertions(+), 8 deletions(-)
+ arch/x86/include/asm/mwait.h         |   12 ++++++------
+ arch/x86/include/asm/special_insns.h |    2 +-
+ 2 files changed, 7 insertions(+), 7 deletions(-)
 
---- a/kernel/trace/trace_preemptirq.c
-+++ b/kernel/trace/trace_preemptirq.c
-@@ -20,6 +20,15 @@
- static DEFINE_PER_CPU(int, tracing_irq_cpu);
+--- a/arch/x86/include/asm/mwait.h
++++ b/arch/x86/include/asm/mwait.h
+@@ -25,7 +25,7 @@
+ #define TPAUSE_C01_STATE		1
+ #define TPAUSE_C02_STATE		0
  
- /*
-+ * ...
-+ */
-+#ifdef CONFIG_ARCH_WANTS_NO_INSTR
-+#define trace(point)	trace_##point
-+#else
-+#define trace(point)	if (!in_nmi()) trace_##point##_rcuidle
-+#endif
-+
-+/*
-  * Like trace_hardirqs_on() but without the lockdep invocation. This is
-  * used in the low level entry code where the ordering vs. RCU is important
-  * and lockdep uses a staged approach which splits the lockdep hardirq
-@@ -28,8 +37,7 @@ static DEFINE_PER_CPU(int, tracing_irq_c
- void trace_hardirqs_on_prepare(void)
+-static inline void __monitor(const void *eax, unsigned long ecx,
++static __always_inline void __monitor(const void *eax, unsigned long ecx,
+ 			     unsigned long edx)
  {
- 	if (this_cpu_read(tracing_irq_cpu)) {
--		if (!in_nmi())
--			trace_irq_enable(CALLER_ADDR0, CALLER_ADDR1);
-+		trace(irq_enable)(CALLER_ADDR0, CALLER_ADDR1);
- 		tracer_hardirqs_on(CALLER_ADDR0, CALLER_ADDR1);
- 		this_cpu_write(tracing_irq_cpu, 0);
- 	}
-@@ -40,8 +48,7 @@ NOKPROBE_SYMBOL(trace_hardirqs_on_prepar
- void trace_hardirqs_on(void)
- {
- 	if (this_cpu_read(tracing_irq_cpu)) {
--		if (!in_nmi())
--			trace_irq_enable_rcuidle(CALLER_ADDR0, CALLER_ADDR1);
-+		trace(irq_enable)(CALLER_ADDR0, CALLER_ADDR1);
- 		tracer_hardirqs_on(CALLER_ADDR0, CALLER_ADDR1);
- 		this_cpu_write(tracing_irq_cpu, 0);
- 	}
-@@ -63,8 +70,7 @@ void trace_hardirqs_off_finish(void)
- 	if (!this_cpu_read(tracing_irq_cpu)) {
- 		this_cpu_write(tracing_irq_cpu, 1);
- 		tracer_hardirqs_off(CALLER_ADDR0, CALLER_ADDR1);
--		if (!in_nmi())
--			trace_irq_disable(CALLER_ADDR0, CALLER_ADDR1);
-+		trace(irq_disable)(CALLER_ADDR0, CALLER_ADDR1);
- 	}
+ 	/* "monitor %eax, %ecx, %edx;" */
+@@ -33,7 +33,7 @@ static inline void __monitor(const void
+ 		     :: "a" (eax), "c" (ecx), "d"(edx));
+ }
  
+-static inline void __monitorx(const void *eax, unsigned long ecx,
++static __always_inline void __monitorx(const void *eax, unsigned long ecx,
+ 			      unsigned long edx)
+ {
+ 	/* "monitorx %eax, %ecx, %edx;" */
+@@ -41,7 +41,7 @@ static inline void __monitorx(const void
+ 		     :: "a" (eax), "c" (ecx), "d"(edx));
  }
-@@ -78,8 +84,7 @@ void trace_hardirqs_off(void)
- 	if (!this_cpu_read(tracing_irq_cpu)) {
- 		this_cpu_write(tracing_irq_cpu, 1);
- 		tracer_hardirqs_off(CALLER_ADDR0, CALLER_ADDR1);
--		if (!in_nmi())
--			trace_irq_disable_rcuidle(CALLER_ADDR0, CALLER_ADDR1);
-+		trace(irq_disable)(CALLER_ADDR0, CALLER_ADDR1);
- 	}
+ 
+-static inline void __mwait(unsigned long eax, unsigned long ecx)
++static __always_inline void __mwait(unsigned long eax, unsigned long ecx)
+ {
+ 	mds_idle_clear_cpu_buffers();
+ 
+@@ -76,8 +76,8 @@ static inline void __mwait(unsigned long
+  * EAX                     (logical) address to monitor
+  * ECX                     #GP if not zero
+  */
+-static inline void __mwaitx(unsigned long eax, unsigned long ebx,
+-			    unsigned long ecx)
++static __always_inline void __mwaitx(unsigned long eax, unsigned long ebx,
++				     unsigned long ecx)
+ {
+ 	/* No MDS buffer clear as this is AMD/HYGON only */
+ 
+@@ -86,7 +86,7 @@ static inline void __mwaitx(unsigned lon
+ 		     :: "a" (eax), "b" (ebx), "c" (ecx));
  }
- EXPORT_SYMBOL(trace_hardirqs_off);
+ 
+-static inline void __sti_mwait(unsigned long eax, unsigned long ecx)
++static __always_inline void __sti_mwait(unsigned long eax, unsigned long ecx)
+ {
+ 	mds_idle_clear_cpu_buffers();
+ 	/* "mwait %eax, %ecx;" */
+--- a/arch/x86/include/asm/special_insns.h
++++ b/arch/x86/include/asm/special_insns.h
+@@ -196,7 +196,7 @@ static inline void load_gs_index(unsigne
+ 
+ #endif /* CONFIG_PARAVIRT_XXL */
+ 
+-static inline void clflush(volatile void *__p)
++static __always_inline void clflush(volatile void *__p)
+ {
+ 	asm volatile("clflush %0" : "+m" (*(volatile char __force *)__p));
+ }
 
 
