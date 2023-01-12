@@ -2,178 +2,97 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A71D0C46467
-	for <linux-s390@archiver.kernel.org>; Thu, 12 Jan 2023 03:05:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C5BCC54EBC
+	for <linux-s390@archiver.kernel.org>; Thu, 12 Jan 2023 03:05:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230231AbjALDFi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 11 Jan 2023 22:05:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55754 "EHLO
+        id S232509AbjALDFo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 11 Jan 2023 22:05:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234465AbjALDFg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 Jan 2023 22:05:36 -0500
+        with ESMTP id S235706AbjALDFm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 Jan 2023 22:05:42 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5963948823;
-        Wed, 11 Jan 2023 19:05:35 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74CA54882A;
+        Wed, 11 Jan 2023 19:05:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E3D7261F3B;
-        Thu, 12 Jan 2023 03:05:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C58AFC433EF;
-        Thu, 12 Jan 2023 03:05:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0FFDE61F24;
+        Thu, 12 Jan 2023 03:05:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8E07C433EF;
+        Thu, 12 Jan 2023 03:05:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1673492734;
-        bh=tjeAZoKw1mOoMptQAuKcbF8k/AUUGPcfSREGH+E1K8E=;
-        h=From:Subject:Date:To:Cc:From;
-        b=C8KcFlFEKpxaPVj1ID08JYJGd/HSESQUWvTx3iRpDJXnBO5exAD9oBlPszma7sBP0
-         ikeCyk6YvZ+3VSYKqN3XvLzh8EF4KZUfsD/5crcjKNlnZ4RbBJD4hL6eE412yaIe7w
-         QMyZgJoPUVjFOvdo5/b/azZqLoUvLcrUAK79zzhnrU2pFApUcDcwDYvUZd7PT0wNED
-         fpVqt09RpULoE/JXu1PT14VOF9yfpwBR6rtpQ2nJyKSsR0FeoBaOkCXb9RqAPNmBwa
-         E+yCX+MfRyxjSc6+NWCaVUlt+7cKM98NuNP4canjHd46NdWrEuxfDYA19QSyhEOWmg
-         HcC1Opc9WyS3w==
+        s=k20201202; t=1673492741;
+        bh=Q6J0MPxHgB97C1dlcB1nqGDmiSZvc4LEaiCPSbsj0DE=;
+        h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
+        b=ZlFcLYS0+ijYK9R8go6A0m8VLWC1AF4RKCZ4Efd/fPyMsIMWGGYW63marO1wUTLq/
+         y15XwYoeTNC878nuNHIBiEVPWvwnVOlSM+HE1JssMM4V2AmHQZkm3yzfkxTudXbrFL
+         0/N/gmUakImYb0hiWnmwrfnVX/k9MQFYPafMy90jV2L5Ufl7mXuhHr5BzqnrrAZ7kX
+         HXzrWP01sikH+51KjBO5eAB7Jyn14BU4re3Htv3cG55yx+LdOvIE1/6/63jyNAfcr2
+         iwnremta4JEbQKvSMZ2zm7JgxbHlUNpfrdduP7feH1h0IIUlgM0Myhfe4P1D5HYNzn
+         e+ehAZLBVa/Xw==
 From:   Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH v2 00/14] Remove clang's -Qunused-arguments from
- KBUILD_CPPFLAGS
-Date:   Wed, 11 Jan 2023 20:04:58 -0700
-Message-Id: <20221228-drop-qunused-arguments-v2-0-9adbddd20d86@kernel.org>
+Date:   Wed, 11 Jan 2023 20:05:06 -0700
+Subject: [PATCH v2 09/14] s390/vdso: Drop unused '-s' flag from
+ KBUILD_AFLAGS_64
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIANp4v2MC/4WOTQ6CMBCFr0K6dgw0VtGV9zAs+jNAo7Q4U4iGc
- HcLF3D5vZcv7y2CkTyyuBWLIJw9+xgyyEMhbK9Dh+BdZiFLKSspa3AUR3hPYWJ0oKmbBgyJobT
- KXpxGdWqNyLLRjGBIB9tv+qA5IW3FSNj6z774aDL3nlOk735grrb079ZcQQlnVVtj69aqq7w/k
- QK+jpE60azr+gM6vV+z1gAAAA==
+Message-Id: <20221228-drop-qunused-arguments-v2-9-9adbddd20d86@kernel.org>
+References: <20221228-drop-qunused-arguments-v2-0-9adbddd20d86@kernel.org>
+In-Reply-To: <20221228-drop-qunused-arguments-v2-0-9adbddd20d86@kernel.org>
 To:     masahiroy@kernel.org
 Cc:     ndesaulniers@google.com, nicolas@fjasle.eu, trix@redhat.com,
         linux-kbuild@vger.kernel.org, llvm@lists.linux.dev,
-        Nathan Chancellor <nathan@kernel.org>, tglx@linutronix.de,
-        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
-        x86@kernel.org, kernel test robot <lkp@intel.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        =?utf-8?q?Philippe_Mathieu-Daud=C3=A9?= <philmd@linaro.org>,
-        linux-mips@vger.kernel.org, mpe@ellerman.id.au, npiggin@gmail.com,
-        christophe.leroy@csgroup.eu, linuxppc-dev@lists.ozlabs.org,
-        Segher Boessenkool <segher@kernel.crashing.org>,
+        Nathan Chancellor <nathan@kernel.org>,
         Heiko Carstens <hca@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        linux-s390@vger.kernel.org,
-        Alex Deucher <alexander.deucher@amd.com>,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
 X-Mailer: b4 0.12-dev-78c63
-X-Developer-Signature: v=1; a=openpgp-sha256; l=5385; i=nathan@kernel.org;
- h=from:subject:message-id; bh=tjeAZoKw1mOoMptQAuKcbF8k/AUUGPcfSREGH+E1K8E=;
- b=owGbwMvMwCEmm602sfCA1DTG02pJDMn7K36VdwkoxTMnRB4/f6DP+oZzTbX1HEXTN1O2Mjuq7jPX
- zt3cUcrCIMbBICumyFL9WPW4oeGcs4w3Tk2CmcPKBDKEgYtTACbCbM7wV2qGw/H7k8OviNw/GpPfG7
- Ep7O6fbzsPz/hmy2rwpfCGkw3D/4Ip/676bq/LfcSTs8L4+JngqQ83evUcuf/fVyznbp5/IC8A
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1359; i=nathan@kernel.org;
+ h=from:subject:message-id; bh=Q6J0MPxHgB97C1dlcB1nqGDmiSZvc4LEaiCPSbsj0DE=;
+ b=owGbwMvMwCEmm602sfCA1DTG02pJDMn7K34HaJktqq3dp2i5tFOxNaf+8xv7CSLMxXv8DtzR18+p
+ CrLpKGVhEONgkBVTZKl+rHrc0HDOWcYbpybBzGFlAhnCwMUpABPJ3cjw30XtuFj8ooe5/9U4t61bxD
+ r3lxa70e2f1sFhpdtPRF57IsLIcLPBxd107WlZ7ZKtyxuOym2PELeVZKvvfF7pM982TOEiMwA=
 X-Developer-Key: i=nathan@kernel.org; a=openpgp;
  fpr=2437CB76E544CB6AB3D9DFD399739260CB6CB716
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi all,
+When clang's -Qunused-arguments is dropped from KBUILD_CPPFLAGS, it
+warns:
 
-Clang can emit a few different warnings when it encounters a flag that it
-recognizes but does not support internally. These warnings are elevated to
-errors within {as,cc}-option via -Werror to catch unsupported flags that should
-not be added to KBUILD_{A,C}FLAGS; see commit c3f0d0bc5b01 ("kbuild, LLVMLinux:
-Add -Werror to cc-option to support clang").
+  clang-16: error: argument unused during compilation: '-s' [-Werror,-Wunused-command-line-argument]
 
-If an unsupported flag is unconditionally to KBUILD_{A,C}FLAGS, all subsequent
-{as,cc}-option will always fail, preventing supported and even potentially
-necessary flags from getting adding to the tool flags.
+The compiler's '-s' flag is a linking option (it is passed along to the
+linker directly), which means it does nothing when the linker is not
+invoked by the compiler. The kernel builds all .o files with '-c', which
+stops the compilation pipeline before linking, so '-s' can be safely
+dropped from KBUILD_AFLAGS_64.
 
-One would expect these warnings to be visible in the kernel build logs since
-they are added to KBUILD_{A,C}FLAGS but unfortunately, these warnings are
-hidden with clang's -Qunused-arguments flag, which is added to KBUILD_CPPFLAGS
-and used for both compiling and assembling files.
-
-Patches 1-4 address the internal inconsistencies of invoking the assembler
-within kbuild by using KBUILD_AFLAGS consistently and using '-x
-assembler-with-cpp' over '-x assembler'. This matches how assembly files are
-built across the kernel and helps avoid problems in situations where macro
-definitions or warning flags are present in KBUILD_AFLAGS, which cause
-instances of -Wunused-command-line-argument when the preprocessor is not called
-to consume them. There were a couple of places in architecture code where this
-change would break things so those are fixed first.
-
-Patches 5-12 clean up warnings that will show up when -Qunused-argument is
-dropped. I hope none of these are controversial.
-
-Patch 13 turns two warnings into errors so that the presence of unused flags
-cannot be easily ignored.
-
-Patch 14 drops -Qunused-argument. This is done last so that it can be easily
-reverted if need be.
-
-This series has seen my personal test framework, which tests several different
-configurations and architectures, with LLVM tip of tree (16.0.0). I have done
-defconfig, allmodconfig, and allnoconfig builds for arm, arm64, i386, mips,
-powerpc, riscv, s390, and x86_64 with GCC 12.2.0 as well but I am hoping the
-rest of the test infrastructure will catch any lurking problems.
-
-I would like this series to stay together so that there is no opportunity for
-breakage so please consider giving acks so that this can be carried via the
-kbuild tree (and many thanks to the people who have already provided such
-tags).
-
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
+Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
 ---
-Changes in v2:
-- Pick up tags where provided (thank you everyone!)
-- Patch 6 and 9: Clarify that '-s' is a compiler flag that is only relevant to
-  the linking phase and remove all mention of the assembler's '-s' flag, as the
-  assembler is never directly invoked (Nick, Segher)
-- Patch 7: Move '-z noexecstack' into new ldflags-y variable (Nick)
-- Patch 8: Reword commit message to explain the problem in a clearer manner
-  (Nick)
-- Link to v1: https://lore.kernel.org/r/20221228-drop-qunused-arguments-v1-0-658cbc8fc592@kernel.org
-
+Cc: linux-s390@vger.kernel.org
 ---
-Nathan Chancellor (12):
-      MIPS: Always use -Wa,-msoft-float and eliminate GAS_HAS_SET_HARDFLOAT
-      MIPS: Prefer cc-option for additions to cflags
-      powerpc: Remove linker flag from KBUILD_AFLAGS
-      powerpc/vdso: Remove unused '-s' flag from ASFLAGS
-      powerpc/vdso: Improve linker flags
-      powerpc/vdso: Remove an unsupported flag from vgettimeofday-32.o with clang
-      s390/vdso: Drop unused '-s' flag from KBUILD_AFLAGS_64
-      s390/vdso: Drop '-shared' from KBUILD_CFLAGS_64
-      s390/purgatory: Remove unused '-MD' and unnecessary '-c' flags
-      drm/amd/display: Do not add '-mhard-float' to dml_ccflags for clang
-      kbuild: Turn a couple more of clang's unused option warnings into errors
-      kbuild: Stop using '-Qunused-arguments' with clang
+ arch/s390/kernel/vdso64/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Nick Desaulniers (2):
-      x86/boot/compressed: prefer cc-option for CFLAGS additions
-      kbuild: Update assembler calls to use proper flags and language target
+diff --git a/arch/s390/kernel/vdso64/Makefile b/arch/s390/kernel/vdso64/Makefile
+index 9e2b95a222a9..a2fe9383d452 100644
+--- a/arch/s390/kernel/vdso64/Makefile
++++ b/arch/s390/kernel/vdso64/Makefile
+@@ -22,7 +22,7 @@ KBUILD_AFLAGS += -DBUILD_VDSO
+ KBUILD_CFLAGS += -DBUILD_VDSO -DDISABLE_BRANCH_PROFILING
+ 
+ KBUILD_AFLAGS_64 := $(filter-out -m64,$(KBUILD_AFLAGS))
+-KBUILD_AFLAGS_64 += -m64 -s
++KBUILD_AFLAGS_64 += -m64
+ 
+ KBUILD_CFLAGS_64 := $(filter-out -m64,$(KBUILD_CFLAGS))
+ KBUILD_CFLAGS_64 += -m64 -fPIC -shared -fno-common -fno-builtin
 
- Makefile                                    |  1 -
- arch/mips/Makefile                          | 13 ++-------
- arch/mips/include/asm/asmmacro-32.h         |  4 +--
- arch/mips/include/asm/asmmacro.h            | 42 ++++++++++++++---------------
- arch/mips/include/asm/fpregdef.h            | 14 ----------
- arch/mips/include/asm/mipsregs.h            | 20 +++-----------
- arch/mips/kernel/genex.S                    |  2 +-
- arch/mips/kernel/r2300_fpu.S                |  4 +--
- arch/mips/kernel/r4k_fpu.S                  | 12 ++++-----
- arch/mips/kvm/fpu.S                         |  6 ++---
- arch/mips/loongson2ef/Platform              |  2 +-
- arch/powerpc/Makefile                       |  2 +-
- arch/powerpc/kernel/vdso/Makefile           | 25 +++++++++++------
- arch/s390/kernel/vdso64/Makefile            |  4 +--
- arch/s390/purgatory/Makefile                |  2 +-
- arch/x86/boot/compressed/Makefile           |  2 +-
- drivers/gpu/drm/amd/display/dc/dml/Makefile |  3 ++-
- scripts/Kconfig.include                     |  2 +-
- scripts/Makefile.clang                      |  2 ++
- scripts/Makefile.compiler                   |  8 +++---
- scripts/as-version.sh                       |  2 +-
- 21 files changed, 74 insertions(+), 98 deletions(-)
----
-base-commit: 88603b6dc419445847923fcb7fe5080067a30f98
-change-id: 20221228-drop-qunused-arguments-0c5c7dae54fb
-
-Best regards,
 -- 
-Nathan Chancellor <nathan@kernel.org>
+2.39.0
 
