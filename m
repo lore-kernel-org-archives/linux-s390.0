@@ -2,172 +2,739 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 97C27C61DB3
-	for <linux-s390@archiver.kernel.org>; Thu, 12 Jan 2023 18:05:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 25347C63797
+	for <linux-s390@archiver.kernel.org>; Thu, 12 Jan 2023 18:21:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240245AbjALSFE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 12 Jan 2023 13:05:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45304 "EHLO
+        id S240604AbjALSVZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 12 Jan 2023 13:21:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240250AbjALSDl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 Jan 2023 13:03:41 -0500
-Received: from NAM02-BN1-obe.outbound.protection.outlook.com (mail-bn1nam02on2064.outbound.protection.outlook.com [40.107.212.64])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F7E25C914;
-        Thu, 12 Jan 2023 09:27:44 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=nDMxsEuoY5b/D8HBIH/+I6dRcg8oH2hSe6jlHC1ZIbTtPogWLUbE13PS12Y/6MGIQa6kXpte/RF3p4guwH6FOgCPrlIrNeT7fc25i1lUPYtiPaWua7kQPAMKuaKBkrGd4IIfPzdiz/SNUDNEYUI4hTNQZHoKLL/eAoEVkViEBKKpP+QCtb3Gdnb2Tnss1mbEO9rgvv7HrUAIH4m2VJ5bR8tnu64DjFFguFQN4Pa4HTAk4MQLccXx9yl0fWtV2UgAHFD4WtTjyKg3C19frHhOmytpN+3pgWQp1ICEclKzdkp8Y0DBVc3i0wEzhbS7bD8zSlNjKakBHnK9DEKddY3Tfw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=KgG8s95c5VJmO34B6QjgfBvoCz1p0SQOx5xuTgtIwWI=;
- b=XSGjjGAWoqtsG0OtqHW/Bm7eZWZb+vJh6MIvOYE/xHi29s/hhH5K2fOja52283uEuO6cSE4N42WLqOcO/iPLqR3vOYB19+55LUf0LYHta3cl8KAm+G+6gVZtXguJDr7BVwLD2ARPLei43r8swGw0VnX0PWB1BpkRXeem1j0c045KlHfLKgPUf7ym1Mml+pbbpK0RHXeSxV2ZYY2rKM7z7usfsezb6b3GH75Iq7BcRV9l6A2GIL1s3jwzzupxK0hYZnQLqeKAYvma+JmLvEhizbn6pwT+Ef4qMXZ8jA1N+pS4flQ7RSh5QXx1SXk3/xn6LC3Hq7d+7k31Lnhnddkp/Q==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=KgG8s95c5VJmO34B6QjgfBvoCz1p0SQOx5xuTgtIwWI=;
- b=uUdT2yYrRxuy9kV6JfAra6Zbj3yZspNNWqmDGTpQNlCVXNkmxCYHz74coU68B+XB8EN8Qi/7N8Zc502EZqmYG/xMJv6bvKbHaWUD0zZL6JwcY1+h3AaEYo0Fac9A+esJ2Hy1HhMVe0laS1pphtbH8BVP4NAdCWlEee2lVcrxPHM0F0yS0Pr1XPqK507dF0E9JHadmPvkjBHXH/6fUYqE3FQTjlrSRnaN6ymnHh9RbNmBSrwokic8zHqPAAZSaUM0CZlanHwuXdyMDIS8VNwRhoOS3FqBbmJMMPWpHewb7F+8yw5efxKbgzJPdFavJS/j59O0cIpAjEq2+XNxxv1iYA==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
- by SA0PR12MB7463.namprd12.prod.outlook.com (2603:10b6:806:24b::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6002.10; Thu, 12 Jan
- 2023 17:27:42 +0000
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::f8b0:df13:5f8d:12a]) by LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::f8b0:df13:5f8d:12a%9]) with mapi id 15.20.6002.013; Thu, 12 Jan 2023
- 17:27:42 +0000
-Date:   Thu, 12 Jan 2023 13:27:41 -0400
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Matthew Rosato <mjrosato@linux.ibm.com>
-Cc:     Sean Christopherson <seanjc@google.com>,
-        alex.williamson@redhat.com, pbonzini@redhat.com, cohuck@redhat.com,
-        farman@linux.ibm.com, pmorel@linux.ibm.com,
-        borntraeger@linux.ibm.com, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, david@redhat.com, akrowiak@linux.ibm.com,
-        jjherne@linux.ibm.com, pasic@linux.ibm.com,
-        zhenyuw@linux.intel.com, zhi.a.wang@intel.com,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        intel-gvt-dev@lists.freedesktop.org,
-        intel-gfx@lists.freedesktop.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] KVM: async kvm_destroy_vm for vfio devices
-Message-ID: <Y8BDDQi9W86UfszF@nvidia.com>
-References: <20230109201037.33051-1-mjrosato@linux.ibm.com>
- <20230109201037.33051-2-mjrosato@linux.ibm.com>
- <Y78UCz5oeuntSQtK@google.com>
- <Y78Wk2/P5+gLMdpk@nvidia.com>
- <Y78hzsHiwaFpL60+@google.com>
- <Y8AA8r5MzKQIF8I7@nvidia.com>
- <f7c39317-92a4-520e-8e69-a8606cd40e9a@linux.ibm.com>
+        with ESMTP id S240615AbjALSU6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 Jan 2023 13:20:58 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A098C8FC9;
+        Thu, 12 Jan 2023 09:56:21 -0800 (PST)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30CHpmYH029888;
+        Thu, 12 Jan 2023 17:56:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : content-type : mime-version; s=pp1;
+ bh=SgG9BzkX4eYPd2MronYCwrFbfeRdo2SJ/63VG2BIZy4=;
+ b=SVSy9+LEg8c6SdF4tmDJTxECMaSxog5HhXoFLEHQ4TGtY+zjVpes4VvxqgA2NqILnEz2
+ f3+trEzgYaTZ3UeyyjSup9fHPmvZqOz3wbPXHaaa74vjWpmsV/vVNgsry6/qmjap+Fsf
+ rhfTtvSD+IZf+NTe8e4EbPeZ7SOPpIAcRsbwojVzobR7OPRny/acqhSCtj747EX5GIYn
+ 34GqOiQ7R6zOxTvEsXW2Uegh/dpSjtiSLTLTMWIFWbnbUsxnAmc5E9DsbvZ137Ov+7Sz
+ Ehv6XRyo1fDbzjgTyCnMYnnhzRqxVyTP3ZtVLpqkk9wVzwavH+yLMfeo5YyNXtWiLRbC +w== 
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n2pyng2s0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 12 Jan 2023 17:56:10 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30CG303w032022;
+        Thu, 12 Jan 2023 17:56:09 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+        by ppma05fra.de.ibm.com (PPS) with ESMTPS id 3n1kuc226u-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 12 Jan 2023 17:56:09 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30CHu5uM24379788
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 12 Jan 2023 17:56:05 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1411620043;
+        Thu, 12 Jan 2023 17:56:05 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9313020040;
+        Thu, 12 Jan 2023 17:56:04 +0000 (GMT)
+Received: from osiris (unknown [9.171.95.183])
+        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Thu, 12 Jan 2023 17:56:04 +0000 (GMT)
+Date:   Thu, 12 Jan 2023 18:56:03 +0100
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [GIT PULL] s390 updates for 6.2-rc4
+Message-ID: <Y8BJs/dL1gwtOtqd@osiris>
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <f7c39317-92a4-520e-8e69-a8606cd40e9a@linux.ibm.com>
-X-ClientProxiedBy: BL1P221CA0011.NAMP221.PROD.OUTLOOK.COM
- (2603:10b6:208:2c5::23) To LV2PR12MB5869.namprd12.prod.outlook.com
- (2603:10b6:408:176::16)
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: r73Hdm9miLw_h1rVyRH6YOLcGKiqGYG-
+X-Proofpoint-GUID: r73Hdm9miLw_h1rVyRH6YOLcGKiqGYG-
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|SA0PR12MB7463:EE_
-X-MS-Office365-Filtering-Correlation-Id: 7f46d4fe-62cb-4b14-8df2-08daf4c24f6d
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: tNeLnxMM39MrrWEa4uEn8eEcAbGVCUonAJJR48nXUsHdr2mpyBiCzvKTaqRcQUq1B63Cu93KYscGooK3q1rjP9hbjUGv32SVctsq2cxsW8pAVXLlU4e1dSAVwE1mbVjLez7cfI19oBKFCztyBFu8xpjSYy0mldOFvZdLrQD1PUHZvp4cj6rQuZHO4K/hVdwDtH2Cq2LVp3P7f1jr2lcgPkN64SiHB6RhHbiUFnd5jbulnGFqyBB2YY/DJO5MUFfUcNdQT3A4pQ436B6bpGqSLg9Z+vtWQmvUP7obk5W4jRrsfzb19SvyAd4ezJwQIVQxPfiKxT11ooazeCvBv0eBhsnGBcvhOSS6K6Vq2JDrWaa7ue1B83e/qwuYRJwhArc1Zl1P+W6m9o2q/9a0lZfc3opr8qkMvSv7h4tKpafg3slfw2eiXL1q6suJDmb995x1iPkpwBAymUmnHjEsNZQSK6ZVLSr3HpD9kooZK1SayBQHi4HdSMJ9oVx7WLnZaEW3V7/Z/jDpR6lLivdeY4UC/UJHNSPx5ubvI0kXjoQWrmgMU7Mva0705wVlO7WUwzCPCiRctpQsO+50RF19zW9YhGJiuPVKVpcELl9MPpyYqItYcAuU1/0nydVAiZI4u0SOcQdFUxiMnFwAr7Dgr1pr2A==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(366004)(136003)(39860400002)(396003)(346002)(376002)(451199015)(6486002)(478600001)(316002)(2906002)(36756003)(86362001)(186003)(6506007)(6512007)(83380400001)(2616005)(26005)(38100700002)(8936002)(66476007)(8676002)(66556008)(4326008)(6916009)(7416002)(66946007)(5660300002)(41300700001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?O6P/K9OMRkVNoyLk6BMATJ58EfNc6TAkKgpJJ5CG1dQYo1wuEYKORv5D2euR?=
- =?us-ascii?Q?z91zqL5R3xeua7W2UcimdehzehqBkUVWNAeCVLAMpCeklNV/bksDOQVrKZ1u?=
- =?us-ascii?Q?/hxIgKRX81cXgWR+BAooauqr5A2KboMrihaeVKn+2qjAZlIXaOf9G3llz0XX?=
- =?us-ascii?Q?ZrngCaL8G3e3e/voOvd96XCA5uRP0+9sbSXn0CqBpIm80HxKvRbAKJuHzmji?=
- =?us-ascii?Q?Yl0hFvzEHdK2xGp7JTAowmjn76T6d2DkpB1/dJapOO1Dzd+NmkATFRQQmSQ1?=
- =?us-ascii?Q?XAd574O6YrSxse39AUDtblpd5OdyGLl96BljkGIrw+6PfQMreJE1S2cNeQon?=
- =?us-ascii?Q?ckHzuWaAL/mv17lK+nxkPsnBvrbCcLnCFyk0oE8Nolbjb5nI7stexzHAwSj9?=
- =?us-ascii?Q?SpWcEv91uTh6/J+C2Nkxb1HEz8oHNiOXGejcKyYYT82dyQ4jKNHcGIIiVZE5?=
- =?us-ascii?Q?ZUOL9s16z8ESDfr794B1kNvxTTaE55hw+Rt/AiQFeb9UDkVRG5fs/YRPzNno?=
- =?us-ascii?Q?I26mWmXCFSmIOlOc46+D9I+SepIwjd6IryYF6YSypND0nQs/ibchUvvo92KS?=
- =?us-ascii?Q?zVdVh6pdV2asLRsyd+qf0H6j+HUL91roT7Mral3D5J0gTDiniqf4jXtxd3TJ?=
- =?us-ascii?Q?hj1a+6SVjhjj2TRzau3x3/KCPqfiYhjgPl7m9sOY6yazPGPhe23MoClNCD9d?=
- =?us-ascii?Q?i//lgIeFnzkSdvdQFAscTl8bHdGCo9gNmVTqICg+okVxm46+dVpF6WrGOzv5?=
- =?us-ascii?Q?e8YIBdf9R2WKFUr6OQ6WGKLxXjGIgvyFhqk+KMBvzZl/Cwh5sAeOfctPhNW1?=
- =?us-ascii?Q?Zd8a6pRyqfsHKf/mm2uS7V+8wJ/po/ui72CFhh8g1E9jS6jLEDK49fpF6ZfF?=
- =?us-ascii?Q?PBEDT3c4ZVUTOXZwQd0haCz9Z/HAa9a2C2Zjikn3nnbcNVCliVFWG0dRuV8z?=
- =?us-ascii?Q?/yFBjzCXu0TrldDxkG6gBCyls/EoFSQ9glx0T4utjv49NksyKXzy2jNzcWo6?=
- =?us-ascii?Q?7f4U+WgnOirSBMFr4G60LMEl2OgUTNCjTPYPGuPO2cWio0nfyqlfo6z7y39P?=
- =?us-ascii?Q?5NtXo/04tMea+Gzab94cSEPpvdsOEsLsxqApu7KIu94owy2HakamIdI7ONAd?=
- =?us-ascii?Q?97YZMjI6ZnUqalY0aK5cpG3+sGUJR5/+efJcAfhJvqYZPWDOp7en3dKHMb+K?=
- =?us-ascii?Q?t5mr2w9LtzL6+hhkBc1aC6bSfBDx7NJH+bYOCAzMCeB8bf45XBgaiOq514ac?=
- =?us-ascii?Q?jYaBRar0htmJ+Ku2mH92vySF78xD3sfx68r8LxTiKyFq6ROm0kohyiQ3FXUy?=
- =?us-ascii?Q?RbYAMuPRmJbadDg/zUy+AsxYZk44y7ou1cKsC2pm420jNU397LGDqU2u69DH?=
- =?us-ascii?Q?I2ItXrbH9nVFXYcE3oWxeX/BRM8llsUx8zlZ4v8z3Ppyj8Z/EJrdtfBk2YSp?=
- =?us-ascii?Q?nC9b9JnrGuicWS6iq0o2kT3vge731Yb2IOzLvYAPcfqvskBtDfBGZ8jI9YSe?=
- =?us-ascii?Q?ehBTeIPT9MEA08/une6/xj5W4x+T5oENHo79/F1ybmbBz/KN6mf4VLFME6wH?=
- =?us-ascii?Q?gjpU8vUmZuFZKVHpikF98Y73Fe52Oc24rAlx1A4B?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7f46d4fe-62cb-4b14-8df2-08daf4c24f6d
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Jan 2023 17:27:42.2740
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: ++ipFJ8JeXQ26INqwLyhOglearOHip6ePI6X/XAw1w/mNmErT2SxLOD7MchR2qzz
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA0PR12MB7463
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2023-01-12_10,2023-01-12_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 clxscore=1015
+ mlxscore=0 malwarescore=0 bulkscore=0 impostorscore=0 spamscore=0
+ mlxlogscore=999 priorityscore=1501 lowpriorityscore=0 adultscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2301120124
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jan 12, 2023 at 12:21:17PM -0500, Matthew Rosato wrote:
+Hello Linus,
 
-> So should I work up a v2 that does symbol gets for kvm_get_kvm_safe
-> and kvm_put_kvm from vfio_main and drop kvm_put_kvm_async?  Or is
-> the patch Yi is working on changing things such that will also
-> address the deadlock issue?
+please pull s390 updates for 6.2-rc4.
 
-I don't think Yi's part will help
+Thanks,
+Heiko
 
-> +361,22 @@ static int vfio_device_first_open(struct vfio_device
-> *device, if (ret) goto err_module_put;
->  
-> +       if (kvm && !vfio_kvm_get(kvm)) {
+The following changes since commit 88603b6dc419445847923fcb7fe5080067a30f98:
 
-Do call it kvm_get_safe though
+  Linux 6.2-rc2 (2023-01-01 13:53:16 -0800)
 
-> +               ret = -ENOENT;
-> +               goto err_unuse_iommu;
-> +       }
->         device->kvm = kvm;
->         if (device->ops->open_device) {
->                 ret = device->ops->open_device(device);
->                 if (ret)
-> -                       goto err_unuse_iommu;
-> +                       goto err_put_kvm;
->         }
->         return 0;
->  
-> -err_unuse_iommu:
-> +err_put_kvm:
-> +       vfio_put_kvm(kvm);
->         device->kvm = NULL;
-> +err_unuse_iommu:
->         if (iommufd)
->                 vfio_iommufd_unbind(device);
->         else
-> @@ -465,6 +471,9 @@ static int vfio_device_fops_release(struct inode *inode, struct file *filep)
->  
->         vfio_device_group_close(device);
->  
-> +       if (device->open_count == 0 && device->group->kvm)
-> +               vfio_kvm_put(device->group->kvm);
-> +
+are available in the Git repository at:
 
-No, you can't touch group->kvm without holding the group lock,
-that is the whole point of the problem..
+  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.2-2
 
-This has to be device->kvm
+for you to fetch changes up to 1ecf7bd9c267ab85aff3c4a17fe56bc9754a13be:
 
-Jason
+  s390: update defconfigs (2023-01-11 21:26:40 +0100)
 
+----------------------------------------------------------------
+s390 updates for 6.2-rc4
+
+- Add various missing READ_ONCE() to cmpxchg() loops prevent the compiler
+  from potentially generating incorrect code. This includes a rather large
+  change to the s390 specific hardware sampling code and its current use of
+  cmpxchg_double().
+  Do the fix now to get it out of the way of Peter Zijlstra's cmpxchg128()
+  work, and have something that can be backported. The added new code
+  includes a private 128 bit cmpxchg variant which will be removed again
+  after Peter's rework is available. Also note that this 128 bit cmpxchg
+  variant is used to implement 128 bit READ_ONCE(), while strictly speaking
+  it wouldn't be necessary, and _READ_ONCE() should also be sufficient;
+  even though it isn't obvious for all converted locations that this is the
+  case. Therefore use this implementation for for the sake of clarity and
+  consistency for now.
+
+- Fix ipl report address handling to avoid kdump failures/hangs.
+
+- Fix misuse of #(el)if in kernel decompressor.
+
+- Define RUNTIME_DISCARD_EXIT to fix link error with GNU ld < 2.36, caused
+  by the recently changed discard behaviour.
+
+- Make sure _edata and _end symbols are always page aligned.
+
+- The current header guard DEBUG_H in one of the s390 specific header files
+  is too generic and conflicts with the ath9k wireless driver. Add an
+  _ASM_S390_ prefix to the guard to make it unique.
+
+- Update defconfigs.
+
+----------------------------------------------------------------
+Alexander Egorenkov (1):
+      s390/kexec: fix ipl report address for kdump
+
+Alexander Gordeev (1):
+      s390: expicitly align _edata and _end symbols on page boundary
+
+Heiko Carstens (4):
+      s390/cpum_sf: add READ_ONCE() semantics to compare and swap loops
+      s390/percpu: add READ_ONCE() to arch_this_cpu_to_op_simple()
+      KVM: s390: interrupt: use READ_ONCE() before cmpxchg()
+      s390: update defconfigs
+
+Masahiro Yamada (2):
+      s390: define RUNTIME_DISCARD_EXIT to fix link error with GNU ld < 2.36
+      s390: fix -Wundef warning for CONFIG_KERNEL_ZSTD
+
+Niklas Schnelle (1):
+      s390/debug: add _ASM_S390_ prefix to header guard
+
+ arch/s390/boot/decompressor.c         |   4 +-
+ arch/s390/configs/debug_defconfig     |   7 ++-
+ arch/s390/configs/defconfig           |   6 +-
+ arch/s390/configs/zfcpdump_defconfig  |   2 +-
+ arch/s390/include/asm/cpu_mf.h        |  31 +++++------
+ arch/s390/include/asm/debug.h         |   6 +-
+ arch/s390/include/asm/percpu.h        |   2 +-
+ arch/s390/kernel/machine_kexec_file.c |   5 +-
+ arch/s390/kernel/perf_cpum_sf.c       | 101 +++++++++++++++++++++-------------
+ arch/s390/kernel/vmlinux.lds.S        |   4 ++
+ arch/s390/kvm/interrupt.c             |  12 ++--
+ 11 files changed, 107 insertions(+), 73 deletions(-)
+
+diff --git a/arch/s390/boot/decompressor.c b/arch/s390/boot/decompressor.c
+index e27c2140d620..8dcd7af2911a 100644
+--- a/arch/s390/boot/decompressor.c
++++ b/arch/s390/boot/decompressor.c
+@@ -23,9 +23,9 @@
+ #define memmove memmove
+ #define memzero(s, n) memset((s), 0, (n))
+ 
+-#ifdef CONFIG_KERNEL_BZIP2
++#if defined(CONFIG_KERNEL_BZIP2)
+ #define BOOT_HEAP_SIZE	0x400000
+-#elif CONFIG_KERNEL_ZSTD
++#elif defined(CONFIG_KERNEL_ZSTD)
+ #define BOOT_HEAP_SIZE	0x30000
+ #else
+ #define BOOT_HEAP_SIZE	0x10000
+diff --git a/arch/s390/configs/debug_defconfig b/arch/s390/configs/debug_defconfig
+index a7b4e1d82758..74b35ec2ad28 100644
+--- a/arch/s390/configs/debug_defconfig
++++ b/arch/s390/configs/debug_defconfig
+@@ -190,7 +190,6 @@ CONFIG_NFT_CT=m
+ CONFIG_NFT_LOG=m
+ CONFIG_NFT_LIMIT=m
+ CONFIG_NFT_NAT=m
+-CONFIG_NFT_OBJREF=m
+ CONFIG_NFT_REJECT=m
+ CONFIG_NFT_COMPAT=m
+ CONFIG_NFT_HASH=m
+@@ -569,6 +568,7 @@ CONFIG_INPUT_EVDEV=y
+ # CONFIG_INPUT_MOUSE is not set
+ # CONFIG_SERIO is not set
+ CONFIG_LEGACY_PTY_COUNT=0
++# CONFIG_LEGACY_TIOCSTI is not set
+ CONFIG_VIRTIO_CONSOLE=m
+ CONFIG_HW_RANDOM_VIRTIO=m
+ CONFIG_HANGCHECK_TIMER=m
+@@ -660,6 +660,7 @@ CONFIG_CONFIGFS_FS=m
+ CONFIG_ECRYPT_FS=m
+ CONFIG_CRAMFS=m
+ CONFIG_SQUASHFS=m
++CONFIG_SQUASHFS_CHOICE_DECOMP_BY_MOUNT=y
+ CONFIG_SQUASHFS_XATTR=y
+ CONFIG_SQUASHFS_LZ4=y
+ CONFIG_SQUASHFS_LZO=y
+@@ -705,6 +706,7 @@ CONFIG_SECURITY_LOCKDOWN_LSM_EARLY=y
+ CONFIG_SECURITY_LANDLOCK=y
+ CONFIG_INTEGRITY_SIGNATURE=y
+ CONFIG_INTEGRITY_ASYMMETRIC_KEYS=y
++CONFIG_INTEGRITY_PLATFORM_KEYRING=y
+ CONFIG_IMA=y
+ CONFIG_IMA_DEFAULT_HASH_SHA256=y
+ CONFIG_IMA_WRITE_POLICY=y
+@@ -781,6 +783,7 @@ CONFIG_ZCRYPT=m
+ CONFIG_PKEY=m
+ CONFIG_CRYPTO_PAES_S390=m
+ CONFIG_CRYPTO_DEV_VIRTIO=m
++CONFIG_SYSTEM_BLACKLIST_KEYRING=y
+ CONFIG_CORDIC=m
+ CONFIG_CRYPTO_LIB_CURVE25519=m
+ CONFIG_CRYPTO_LIB_CHACHA20POLY1305=m
+@@ -848,7 +851,6 @@ CONFIG_PREEMPT_TRACER=y
+ CONFIG_SCHED_TRACER=y
+ CONFIG_FTRACE_SYSCALLS=y
+ CONFIG_BLK_DEV_IO_TRACE=y
+-CONFIG_BPF_KPROBE_OVERRIDE=y
+ CONFIG_HIST_TRIGGERS=y
+ CONFIG_FTRACE_STARTUP_TEST=y
+ # CONFIG_EVENT_TRACE_STARTUP_TEST is not set
+@@ -870,7 +872,6 @@ CONFIG_FAIL_MAKE_REQUEST=y
+ CONFIG_FAIL_IO_TIMEOUT=y
+ CONFIG_FAIL_FUTEX=y
+ CONFIG_FAULT_INJECTION_DEBUG_FS=y
+-CONFIG_FAIL_FUNCTION=y
+ CONFIG_FAULT_INJECTION_STACKTRACE_FILTER=y
+ CONFIG_LKDTM=m
+ CONFIG_TEST_MIN_HEAP=y
+diff --git a/arch/s390/configs/defconfig b/arch/s390/configs/defconfig
+index 2bc2d0fe5774..cec71268e3bc 100644
+--- a/arch/s390/configs/defconfig
++++ b/arch/s390/configs/defconfig
+@@ -181,7 +181,6 @@ CONFIG_NFT_CT=m
+ CONFIG_NFT_LOG=m
+ CONFIG_NFT_LIMIT=m
+ CONFIG_NFT_NAT=m
+-CONFIG_NFT_OBJREF=m
+ CONFIG_NFT_REJECT=m
+ CONFIG_NFT_COMPAT=m
+ CONFIG_NFT_HASH=m
+@@ -559,6 +558,7 @@ CONFIG_INPUT_EVDEV=y
+ # CONFIG_INPUT_MOUSE is not set
+ # CONFIG_SERIO is not set
+ CONFIG_LEGACY_PTY_COUNT=0
++# CONFIG_LEGACY_TIOCSTI is not set
+ CONFIG_VIRTIO_CONSOLE=m
+ CONFIG_HW_RANDOM_VIRTIO=m
+ CONFIG_HANGCHECK_TIMER=m
+@@ -645,6 +645,7 @@ CONFIG_CONFIGFS_FS=m
+ CONFIG_ECRYPT_FS=m
+ CONFIG_CRAMFS=m
+ CONFIG_SQUASHFS=m
++CONFIG_SQUASHFS_CHOICE_DECOMP_BY_MOUNT=y
+ CONFIG_SQUASHFS_XATTR=y
+ CONFIG_SQUASHFS_LZ4=y
+ CONFIG_SQUASHFS_LZO=y
+@@ -688,6 +689,7 @@ CONFIG_SECURITY_LOCKDOWN_LSM_EARLY=y
+ CONFIG_SECURITY_LANDLOCK=y
+ CONFIG_INTEGRITY_SIGNATURE=y
+ CONFIG_INTEGRITY_ASYMMETRIC_KEYS=y
++CONFIG_INTEGRITY_PLATFORM_KEYRING=y
+ CONFIG_IMA=y
+ CONFIG_IMA_DEFAULT_HASH_SHA256=y
+ CONFIG_IMA_WRITE_POLICY=y
+@@ -766,6 +768,7 @@ CONFIG_ZCRYPT=m
+ CONFIG_PKEY=m
+ CONFIG_CRYPTO_PAES_S390=m
+ CONFIG_CRYPTO_DEV_VIRTIO=m
++CONFIG_SYSTEM_BLACKLIST_KEYRING=y
+ CONFIG_CORDIC=m
+ CONFIG_PRIME_NUMBERS=m
+ CONFIG_CRYPTO_LIB_CURVE25519=m
+@@ -798,7 +801,6 @@ CONFIG_STACK_TRACER=y
+ CONFIG_SCHED_TRACER=y
+ CONFIG_FTRACE_SYSCALLS=y
+ CONFIG_BLK_DEV_IO_TRACE=y
+-CONFIG_BPF_KPROBE_OVERRIDE=y
+ CONFIG_HIST_TRIGGERS=y
+ CONFIG_SAMPLES=y
+ CONFIG_SAMPLE_TRACE_PRINTK=m
+diff --git a/arch/s390/configs/zfcpdump_defconfig b/arch/s390/configs/zfcpdump_defconfig
+index ae14ab0b864d..a9c0c81d1de9 100644
+--- a/arch/s390/configs/zfcpdump_defconfig
++++ b/arch/s390/configs/zfcpdump_defconfig
+@@ -13,7 +13,6 @@ CONFIG_TUNE_ZEC12=y
+ # CONFIG_COMPAT is not set
+ CONFIG_NR_CPUS=2
+ CONFIG_HZ_100=y
+-# CONFIG_RELOCATABLE is not set
+ # CONFIG_CHSC_SCH is not set
+ # CONFIG_SCM_BUS is not set
+ CONFIG_CRASH_DUMP=y
+@@ -50,6 +49,7 @@ CONFIG_ZFCP=y
+ # CONFIG_INPUT_KEYBOARD is not set
+ # CONFIG_INPUT_MOUSE is not set
+ # CONFIG_SERIO is not set
++# CONFIG_LEGACY_TIOCSTI is not set
+ # CONFIG_HVC_IUCV is not set
+ # CONFIG_HW_RANDOM_S390 is not set
+ # CONFIG_HMC_DRV is not set
+diff --git a/arch/s390/include/asm/cpu_mf.h b/arch/s390/include/asm/cpu_mf.h
+index feaba12dbecb..efa103b52a1a 100644
+--- a/arch/s390/include/asm/cpu_mf.h
++++ b/arch/s390/include/asm/cpu_mf.h
+@@ -131,19 +131,21 @@ struct hws_combined_entry {
+ 	struct hws_diag_entry	diag;	/* Diagnostic-sampling data entry */
+ } __packed;
+ 
+-struct hws_trailer_entry {
+-	union {
+-		struct {
+-			unsigned int f:1;	/* 0 - Block Full Indicator   */
+-			unsigned int a:1;	/* 1 - Alert request control  */
+-			unsigned int t:1;	/* 2 - Timestamp format	      */
+-			unsigned int :29;	/* 3 - 31: Reserved	      */
+-			unsigned int bsdes:16;	/* 32-47: size of basic SDE   */
+-			unsigned int dsdes:16;	/* 48-63: size of diagnostic SDE */
+-		};
+-		unsigned long long flags;	/* 0 - 63: All indicators     */
++union hws_trailer_header {
++	struct {
++		unsigned int f:1;	/* 0 - Block Full Indicator   */
++		unsigned int a:1;	/* 1 - Alert request control  */
++		unsigned int t:1;	/* 2 - Timestamp format	      */
++		unsigned int :29;	/* 3 - 31: Reserved	      */
++		unsigned int bsdes:16;	/* 32-47: size of basic SDE   */
++		unsigned int dsdes:16;	/* 48-63: size of diagnostic SDE */
++		unsigned long long overflow; /* 64 - Overflow Count   */
+ 	};
+-	unsigned long long overflow;	 /* 64 - sample Overflow count	      */
++	__uint128_t val;
++};
++
++struct hws_trailer_entry {
++	union hws_trailer_header header; /* 0 - 15 Flags + Overflow Count     */
+ 	unsigned char timestamp[16];	 /* 16 - 31 timestamp		      */
+ 	unsigned long long reserved1;	 /* 32 -Reserved		      */
+ 	unsigned long long reserved2;	 /*				      */
+@@ -290,14 +292,11 @@ static inline unsigned long sample_rate_to_freq(struct hws_qsi_info_block *qsi,
+ 	return USEC_PER_SEC * qsi->cpu_speed / rate;
+ }
+ 
+-#define SDB_TE_ALERT_REQ_MASK	0x4000000000000000UL
+-#define SDB_TE_BUFFER_FULL_MASK 0x8000000000000000UL
+-
+ /* Return TOD timestamp contained in an trailer entry */
+ static inline unsigned long long trailer_timestamp(struct hws_trailer_entry *te)
+ {
+ 	/* TOD in STCKE format */
+-	if (te->t)
++	if (te->header.t)
+ 		return *((unsigned long long *) &te->timestamp[1]);
+ 
+ 	/* TOD in STCK format */
+diff --git a/arch/s390/include/asm/debug.h b/arch/s390/include/asm/debug.h
+index 77f24262c25c..ac665b9670c5 100644
+--- a/arch/s390/include/asm/debug.h
++++ b/arch/s390/include/asm/debug.h
+@@ -4,8 +4,8 @@
+  *
+  *    Copyright IBM Corp. 1999, 2020
+  */
+-#ifndef DEBUG_H
+-#define DEBUG_H
++#ifndef _ASM_S390_DEBUG_H
++#define _ASM_S390_DEBUG_H
+ 
+ #include <linux/string.h>
+ #include <linux/spinlock.h>
+@@ -487,4 +487,4 @@ void debug_register_static(debug_info_t *id, int pages_per_area, int nr_areas);
+ 
+ #endif /* MODULE */
+ 
+-#endif /* DEBUG_H */
++#endif /* _ASM_S390_DEBUG_H */
+diff --git a/arch/s390/include/asm/percpu.h b/arch/s390/include/asm/percpu.h
+index cb5fc0690435..081837b391e3 100644
+--- a/arch/s390/include/asm/percpu.h
++++ b/arch/s390/include/asm/percpu.h
+@@ -31,7 +31,7 @@
+ 	pcp_op_T__ *ptr__;						\
+ 	preempt_disable_notrace();					\
+ 	ptr__ = raw_cpu_ptr(&(pcp));					\
+-	prev__ = *ptr__;						\
++	prev__ = READ_ONCE(*ptr__);					\
+ 	do {								\
+ 		old__ = prev__;						\
+ 		new__ = old__ op (val);					\
+diff --git a/arch/s390/kernel/machine_kexec_file.c b/arch/s390/kernel/machine_kexec_file.c
+index fc6d5f58debe..2df94d32140c 100644
+--- a/arch/s390/kernel/machine_kexec_file.c
++++ b/arch/s390/kernel/machine_kexec_file.c
+@@ -187,8 +187,6 @@ static int kexec_file_add_ipl_report(struct kimage *image,
+ 
+ 	data->memsz = ALIGN(data->memsz, PAGE_SIZE);
+ 	buf.mem = data->memsz;
+-	if (image->type == KEXEC_TYPE_CRASH)
+-		buf.mem += crashk_res.start;
+ 
+ 	ptr = (void *)ipl_cert_list_addr;
+ 	end = ptr + ipl_cert_list_size;
+@@ -225,6 +223,9 @@ static int kexec_file_add_ipl_report(struct kimage *image,
+ 		data->kernel_buf + offsetof(struct lowcore, ipl_parmblock_ptr);
+ 	*lc_ipl_parmblock_ptr = (__u32)buf.mem;
+ 
++	if (image->type == KEXEC_TYPE_CRASH)
++		buf.mem += crashk_res.start;
++
+ 	ret = kexec_add_buffer(&buf);
+ out:
+ 	return ret;
+diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
+index 332a49965130..ce886a03545a 100644
+--- a/arch/s390/kernel/perf_cpum_sf.c
++++ b/arch/s390/kernel/perf_cpum_sf.c
+@@ -163,14 +163,15 @@ static void free_sampling_buffer(struct sf_buffer *sfb)
+ 
+ static int alloc_sample_data_block(unsigned long *sdbt, gfp_t gfp_flags)
+ {
+-	unsigned long sdb, *trailer;
++	struct hws_trailer_entry *te;
++	unsigned long sdb;
+ 
+ 	/* Allocate and initialize sample-data-block */
+ 	sdb = get_zeroed_page(gfp_flags);
+ 	if (!sdb)
+ 		return -ENOMEM;
+-	trailer = trailer_entry_ptr(sdb);
+-	*trailer = SDB_TE_ALERT_REQ_MASK;
++	te = (struct hws_trailer_entry *)trailer_entry_ptr(sdb);
++	te->header.a = 1;
+ 
+ 	/* Link SDB into the sample-data-block-table */
+ 	*sdbt = sdb;
+@@ -1206,7 +1207,7 @@ static void hw_collect_samples(struct perf_event *event, unsigned long *sdbt,
+ 					    "%s: Found unknown"
+ 					    " sampling data entry: te->f %i"
+ 					    " basic.def %#4x (%p)\n", __func__,
+-					    te->f, sample->def, sample);
++					    te->header.f, sample->def, sample);
+ 			/* Sample slot is not yet written or other record.
+ 			 *
+ 			 * This condition can occur if the buffer was reused
+@@ -1217,7 +1218,7 @@ static void hw_collect_samples(struct perf_event *event, unsigned long *sdbt,
+ 			 * that are not full.  Stop processing if the first
+ 			 * invalid format was detected.
+ 			 */
+-			if (!te->f)
++			if (!te->header.f)
+ 				break;
+ 		}
+ 
+@@ -1227,6 +1228,16 @@ static void hw_collect_samples(struct perf_event *event, unsigned long *sdbt,
+ 	}
+ }
+ 
++static inline __uint128_t __cdsg(__uint128_t *ptr, __uint128_t old, __uint128_t new)
++{
++	asm volatile(
++		"	cdsg	%[old],%[new],%[ptr]\n"
++		: [old] "+d" (old), [ptr] "+QS" (*ptr)
++		: [new] "d" (new)
++		: "memory", "cc");
++	return old;
++}
++
+ /* hw_perf_event_update() - Process sampling buffer
+  * @event:	The perf event
+  * @flush_all:	Flag to also flush partially filled sample-data-blocks
+@@ -1243,10 +1254,11 @@ static void hw_collect_samples(struct perf_event *event, unsigned long *sdbt,
+  */
+ static void hw_perf_event_update(struct perf_event *event, int flush_all)
+ {
++	unsigned long long event_overflow, sampl_overflow, num_sdb;
++	union hws_trailer_header old, prev, new;
+ 	struct hw_perf_event *hwc = &event->hw;
+ 	struct hws_trailer_entry *te;
+ 	unsigned long *sdbt;
+-	unsigned long long event_overflow, sampl_overflow, num_sdb, te_flags;
+ 	int done;
+ 
+ 	/*
+@@ -1266,25 +1278,25 @@ static void hw_perf_event_update(struct perf_event *event, int flush_all)
+ 		te = (struct hws_trailer_entry *) trailer_entry_ptr(*sdbt);
+ 
+ 		/* Leave loop if no more work to do (block full indicator) */
+-		if (!te->f) {
++		if (!te->header.f) {
+ 			done = 1;
+ 			if (!flush_all)
+ 				break;
+ 		}
+ 
+ 		/* Check the sample overflow count */
+-		if (te->overflow)
++		if (te->header.overflow)
+ 			/* Account sample overflows and, if a particular limit
+ 			 * is reached, extend the sampling buffer.
+ 			 * For details, see sfb_account_overflows().
+ 			 */
+-			sampl_overflow += te->overflow;
++			sampl_overflow += te->header.overflow;
+ 
+ 		/* Timestamps are valid for full sample-data-blocks only */
+ 		debug_sprintf_event(sfdbg, 6, "%s: sdbt %#lx "
+ 				    "overflow %llu timestamp %#llx\n",
+-				    __func__, (unsigned long)sdbt, te->overflow,
+-				    (te->f) ? trailer_timestamp(te) : 0ULL);
++				    __func__, (unsigned long)sdbt, te->header.overflow,
++				    (te->header.f) ? trailer_timestamp(te) : 0ULL);
+ 
+ 		/* Collect all samples from a single sample-data-block and
+ 		 * flag if an (perf) event overflow happened.  If so, the PMU
+@@ -1294,12 +1306,16 @@ static void hw_perf_event_update(struct perf_event *event, int flush_all)
+ 		num_sdb++;
+ 
+ 		/* Reset trailer (using compare-double-and-swap) */
++		/* READ_ONCE() 16 byte header */
++		prev.val = __cdsg(&te->header.val, 0, 0);
+ 		do {
+-			te_flags = te->flags & ~SDB_TE_BUFFER_FULL_MASK;
+-			te_flags |= SDB_TE_ALERT_REQ_MASK;
+-		} while (!cmpxchg_double(&te->flags, &te->overflow,
+-					 te->flags, te->overflow,
+-					 te_flags, 0ULL));
++			old.val = prev.val;
++			new.val = prev.val;
++			new.f = 0;
++			new.a = 1;
++			new.overflow = 0;
++			prev.val = __cdsg(&te->header.val, old.val, new.val);
++		} while (prev.val != old.val);
+ 
+ 		/* Advance to next sample-data-block */
+ 		sdbt++;
+@@ -1384,7 +1400,7 @@ static void aux_output_end(struct perf_output_handle *handle)
+ 	range_scan = AUX_SDB_NUM_ALERT(aux);
+ 	for (i = 0, idx = aux->head; i < range_scan; i++, idx++) {
+ 		te = aux_sdb_trailer(aux, idx);
+-		if (!(te->flags & SDB_TE_BUFFER_FULL_MASK))
++		if (!te->header.f)
+ 			break;
+ 	}
+ 	/* i is num of SDBs which are full */
+@@ -1392,7 +1408,7 @@ static void aux_output_end(struct perf_output_handle *handle)
+ 
+ 	/* Remove alert indicators in the buffer */
+ 	te = aux_sdb_trailer(aux, aux->alert_mark);
+-	te->flags &= ~SDB_TE_ALERT_REQ_MASK;
++	te->header.a = 0;
+ 
+ 	debug_sprintf_event(sfdbg, 6, "%s: SDBs %ld range %ld head %ld\n",
+ 			    __func__, i, range_scan, aux->head);
+@@ -1437,9 +1453,9 @@ static int aux_output_begin(struct perf_output_handle *handle,
+ 		idx = aux->empty_mark + 1;
+ 		for (i = 0; i < range_scan; i++, idx++) {
+ 			te = aux_sdb_trailer(aux, idx);
+-			te->flags &= ~(SDB_TE_BUFFER_FULL_MASK |
+-				       SDB_TE_ALERT_REQ_MASK);
+-			te->overflow = 0;
++			te->header.f = 0;
++			te->header.a = 0;
++			te->header.overflow = 0;
+ 		}
+ 		/* Save the position of empty SDBs */
+ 		aux->empty_mark = aux->head + range - 1;
+@@ -1448,7 +1464,7 @@ static int aux_output_begin(struct perf_output_handle *handle,
+ 	/* Set alert indicator */
+ 	aux->alert_mark = aux->head + range/2 - 1;
+ 	te = aux_sdb_trailer(aux, aux->alert_mark);
+-	te->flags = te->flags | SDB_TE_ALERT_REQ_MASK;
++	te->header.a = 1;
+ 
+ 	/* Reset hardware buffer head */
+ 	head = AUX_SDB_INDEX(aux, aux->head);
+@@ -1475,14 +1491,17 @@ static int aux_output_begin(struct perf_output_handle *handle,
+ static bool aux_set_alert(struct aux_buffer *aux, unsigned long alert_index,
+ 			  unsigned long long *overflow)
+ {
+-	unsigned long long orig_overflow, orig_flags, new_flags;
++	union hws_trailer_header old, prev, new;
+ 	struct hws_trailer_entry *te;
+ 
+ 	te = aux_sdb_trailer(aux, alert_index);
++	/* READ_ONCE() 16 byte header */
++	prev.val = __cdsg(&te->header.val, 0, 0);
+ 	do {
+-		orig_flags = te->flags;
+-		*overflow = orig_overflow = te->overflow;
+-		if (orig_flags & SDB_TE_BUFFER_FULL_MASK) {
++		old.val = prev.val;
++		new.val = prev.val;
++		*overflow = old.overflow;
++		if (old.f) {
+ 			/*
+ 			 * SDB is already set by hardware.
+ 			 * Abort and try to set somewhere
+@@ -1490,10 +1509,10 @@ static bool aux_set_alert(struct aux_buffer *aux, unsigned long alert_index,
+ 			 */
+ 			return false;
+ 		}
+-		new_flags = orig_flags | SDB_TE_ALERT_REQ_MASK;
+-	} while (!cmpxchg_double(&te->flags, &te->overflow,
+-				 orig_flags, orig_overflow,
+-				 new_flags, 0ULL));
++		new.a = 1;
++		new.overflow = 0;
++		prev.val = __cdsg(&te->header.val, old.val, new.val);
++	} while (prev.val != old.val);
+ 	return true;
+ }
+ 
+@@ -1522,8 +1541,9 @@ static bool aux_set_alert(struct aux_buffer *aux, unsigned long alert_index,
+ static bool aux_reset_buffer(struct aux_buffer *aux, unsigned long range,
+ 			     unsigned long long *overflow)
+ {
+-	unsigned long long orig_overflow, orig_flags, new_flags;
+ 	unsigned long i, range_scan, idx, idx_old;
++	union hws_trailer_header old, prev, new;
++	unsigned long long orig_overflow;
+ 	struct hws_trailer_entry *te;
+ 
+ 	debug_sprintf_event(sfdbg, 6, "%s: range %ld head %ld alert %ld "
+@@ -1554,17 +1574,20 @@ static bool aux_reset_buffer(struct aux_buffer *aux, unsigned long range,
+ 	idx_old = idx = aux->empty_mark + 1;
+ 	for (i = 0; i < range_scan; i++, idx++) {
+ 		te = aux_sdb_trailer(aux, idx);
++		/* READ_ONCE() 16 byte header */
++		prev.val = __cdsg(&te->header.val, 0, 0);
+ 		do {
+-			orig_flags = te->flags;
+-			orig_overflow = te->overflow;
+-			new_flags = orig_flags & ~SDB_TE_BUFFER_FULL_MASK;
++			old.val = prev.val;
++			new.val = prev.val;
++			orig_overflow = old.overflow;
++			new.f = 0;
++			new.overflow = 0;
+ 			if (idx == aux->alert_mark)
+-				new_flags |= SDB_TE_ALERT_REQ_MASK;
++				new.a = 1;
+ 			else
+-				new_flags &= ~SDB_TE_ALERT_REQ_MASK;
+-		} while (!cmpxchg_double(&te->flags, &te->overflow,
+-					 orig_flags, orig_overflow,
+-					 new_flags, 0ULL));
++				new.a = 0;
++			prev.val = __cdsg(&te->header.val, old.val, new.val);
++		} while (prev.val != old.val);
+ 		*overflow += orig_overflow;
+ 	}
+ 
+diff --git a/arch/s390/kernel/vmlinux.lds.S b/arch/s390/kernel/vmlinux.lds.S
+index 5ea3830af0cc..cbf9c1b0beda 100644
+--- a/arch/s390/kernel/vmlinux.lds.S
++++ b/arch/s390/kernel/vmlinux.lds.S
+@@ -17,6 +17,8 @@
+ /* Handle ro_after_init data on our own. */
+ #define RO_AFTER_INIT_DATA
+ 
++#define RUNTIME_DISCARD_EXIT
++
+ #define EMITS_PT_NOTE
+ 
+ #include <asm-generic/vmlinux.lds.h>
+@@ -79,6 +81,7 @@ SECTIONS
+ 		_end_amode31_refs = .;
+ 	}
+ 
++	. = ALIGN(PAGE_SIZE);
+ 	_edata = .;		/* End of data section */
+ 
+ 	/* will be freed after init */
+@@ -193,6 +196,7 @@ SECTIONS
+ 
+ 	BSS_SECTION(PAGE_SIZE, 4 * PAGE_SIZE, PAGE_SIZE)
+ 
++	. = ALIGN(PAGE_SIZE);
+ 	_end = . ;
+ 
+ 	/*
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index 1dae78deddf2..ab26aa53ee37 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -83,8 +83,9 @@ static int sca_inject_ext_call(struct kvm_vcpu *vcpu, int src_id)
+ 		struct esca_block *sca = vcpu->kvm->arch.sca;
+ 		union esca_sigp_ctrl *sigp_ctrl =
+ 			&(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
+-		union esca_sigp_ctrl new_val = {0}, old_val = *sigp_ctrl;
++		union esca_sigp_ctrl new_val = {0}, old_val;
+ 
++		old_val = READ_ONCE(*sigp_ctrl);
+ 		new_val.scn = src_id;
+ 		new_val.c = 1;
+ 		old_val.c = 0;
+@@ -95,8 +96,9 @@ static int sca_inject_ext_call(struct kvm_vcpu *vcpu, int src_id)
+ 		struct bsca_block *sca = vcpu->kvm->arch.sca;
+ 		union bsca_sigp_ctrl *sigp_ctrl =
+ 			&(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
+-		union bsca_sigp_ctrl new_val = {0}, old_val = *sigp_ctrl;
++		union bsca_sigp_ctrl new_val = {0}, old_val;
+ 
++		old_val = READ_ONCE(*sigp_ctrl);
+ 		new_val.scn = src_id;
+ 		new_val.c = 1;
+ 		old_val.c = 0;
+@@ -126,16 +128,18 @@ static void sca_clear_ext_call(struct kvm_vcpu *vcpu)
+ 		struct esca_block *sca = vcpu->kvm->arch.sca;
+ 		union esca_sigp_ctrl *sigp_ctrl =
+ 			&(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
+-		union esca_sigp_ctrl old = *sigp_ctrl;
++		union esca_sigp_ctrl old;
+ 
++		old = READ_ONCE(*sigp_ctrl);
+ 		expect = old.value;
+ 		rc = cmpxchg(&sigp_ctrl->value, old.value, 0);
+ 	} else {
+ 		struct bsca_block *sca = vcpu->kvm->arch.sca;
+ 		union bsca_sigp_ctrl *sigp_ctrl =
+ 			&(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
+-		union bsca_sigp_ctrl old = *sigp_ctrl;
++		union bsca_sigp_ctrl old;
+ 
++		old = READ_ONCE(*sigp_ctrl);
+ 		expect = old.value;
+ 		rc = cmpxchg(&sigp_ctrl->value, old.value, 0);
+ 	}
