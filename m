@@ -2,57 +2,57 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B59BC54EBD
-	for <linux-s390@archiver.kernel.org>; Thu, 12 Jan 2023 15:57:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 769C2C63797
+	for <linux-s390@archiver.kernel.org>; Thu, 12 Jan 2023 15:57:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239204AbjALP5S (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 12 Jan 2023 10:57:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38656 "EHLO
+        id S231673AbjALP5W (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 12 Jan 2023 10:57:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239955AbjALP4c (ORCPT
+        with ESMTP id S230390AbjALP4c (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Thu, 12 Jan 2023 10:56:32 -0500
 Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C8D35F51;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 365FDCF3;
         Thu, 12 Jan 2023 07:46:43 -0800 (PST)
 Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30CFMVnT007188;
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30CFMi0W007486;
         Thu, 12 Jan 2023 15:46:42 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=QDKrRVqYm2//ElF5qsIbukRrYfV3hJ5VB07SX8s8rTI=;
- b=ghqTlScWwtFCyxgZfydWrqK3FcYJ3ZobFCiBXaZAjWWPzTGnE0ezmCaJCe01Mi2LopzF
- isg6wAk4Wh57n2hxLPpg7+TLdb/II3tzIUBnGuHbFjiApqpWoIZJd/sXR2gLmUH/XMai
- UmUjMhkUZ+e+WF6QY/OAoGkrXQyFfVUiZqzKNGcsVHRbTYetbfp6nZivZjW0emvICyds
- I9aPd6TyQZpC/vdMHVbN80BrZRTzKqXWS/mM2FZnJdtXd0TBzTexzR4jI3AQ7U/sYj8v
- Ih7EZn/wtKXavYhGqE9i8u9z3w+4rebe35ry5hecM+y5Dh5aeJKwmn5XIRg1aB3OI+7t yg== 
+ bh=FymxuNJ0TKR8x2t9YRt0aljKT6E83V80FCzzVLfyHYA=;
+ b=JDM/+1dgnWcSft66esu/ymY1EKG47wHBJ/xA25V28ZzWskKJ9bs6421sjNC8ISlhgWga
+ sz/msk52tDNCBbarv7DQ0FLlhJ1o70YqXu1F5lpuIByKHWeWQ7SWvIij60pe/frusMBA
+ NrOQVYCrSCFfhcmWaiet9aaqQObD+Mh3r3DW+fok/fWKSGgS5zPOUo+DkS9KLt2Dua8m
+ 0+Xh0KcOhmcOSuaoxdrFxiRg031PtJTh5ewVN3NGmxQOHX4IxtioQkKZJw8eU90wU7W1
+ 3PyG5q9K3FCUUwt2y3CgoTuDX7NIJ9TZvCUpMuaY/NVTBDM2Ucm1qJIy3WKnUb3Qz8iE ig== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3n2msmgqdn-1
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3n2msmgqd6-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Thu, 12 Jan 2023 15:46:42 +0000
 Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 30CFfEXE030740;
-        Thu, 12 Jan 2023 15:46:42 GMT
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3n2msmgqcu-1
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 30CFPOVA015365;
+        Thu, 12 Jan 2023 15:46:41 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3n2msmgqcp-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 12 Jan 2023 15:46:42 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30CBNuMm022367;
+        Thu, 12 Jan 2023 15:46:41 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30CFMRWe030858;
         Thu, 12 Jan 2023 15:46:40 GMT
 Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma04fra.de.ibm.com (PPS) with ESMTPS id 3n1k5ua049-1
+        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3n1kf7jprh-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 12 Jan 2023 15:46:40 +0000
+        Thu, 12 Jan 2023 15:46:39 +0000
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30CFkalO22937930
+        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30CFkaIe23658988
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
         Thu, 12 Jan 2023 15:46:36 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CEF2F20040;
+        by IMSVA (Postfix) with ESMTP id 501B52004B;
         Thu, 12 Jan 2023 15:46:36 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9836D20049;
+        by IMSVA (Postfix) with ESMTP id 2B14820049;
         Thu, 12 Jan 2023 15:46:36 +0000 (GMT)
 Received: from a46lp67.. (unknown [9.152.108.100])
         by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
@@ -62,17 +62,17 @@ To:     kvm@vger.kernel.org
 Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
         thuth@redhat.com, david@redhat.com, nsg@linux.ibm.com,
         nrb@linux.ibm.com
-Subject: [kvm-unit-tests PATCH v2 5/7] lib: s390x: sie: Set guest memory pointer
-Date:   Thu, 12 Jan 2023 15:45:46 +0000
-Message-Id: <20230112154548.163021-6-frankja@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v2 3/7] s390x: Add a linker script to assembly snippets
+Date:   Thu, 12 Jan 2023 15:45:44 +0000
+Message-Id: <20230112154548.163021-4-frankja@linux.ibm.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20230112154548.163021-1-frankja@linux.ibm.com>
 References: <20230112154548.163021-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: CmwL4Qgd-SAS3J4q7Oa9ZqFW0PphM6VF
-X-Proofpoint-ORIG-GUID: bNRD-T39_5XUxn-qvYxUnpgoodiJAWQN
+X-Proofpoint-GUID: 3UkvUpH6VqIWiNMO3FDwOICAq064bH4r
+X-Proofpoint-ORIG-GUID: 4aL5t40ysSw1doeZfAd5zV6gpDXBXsUO
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2023-01-12_08,2023-01-12_01,2022-06-22_01
@@ -85,28 +85,151 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Seems like it was introduced but never set. It's nicer to have a
-pointer than to cast the MSO of a VM.
+A linker script has a few benefits:
+- Random data doesn't end up in the binary breaking tests
+- We can easily define a lowcore and load the snippet from 0x0 instead
+of 0x4000 which makes asm snippets behave like c snippets
+- We can easily define an invalid PGM new PSW to ensure an exit on a
+guest PGM
 
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 ---
- lib/s390x/sie.c | 1 +
- 1 file changed, 1 insertion(+)
+ lib/s390x/snippet.h         |  3 +--
+ s390x/Makefile              |  5 +++--
+ s390x/mvpg-sie.c            |  2 +-
+ s390x/pv-diags.c            |  6 +++---
+ s390x/snippets/asm/flat.lds | 41 +++++++++++++++++++++++++++++++++++++
+ 5 files changed, 49 insertions(+), 8 deletions(-)
+ create mode 100644 s390x/snippets/asm/flat.lds
 
-diff --git a/lib/s390x/sie.c b/lib/s390x/sie.c
-index a71985b6..9241b4b4 100644
---- a/lib/s390x/sie.c
-+++ b/lib/s390x/sie.c
-@@ -93,6 +93,7 @@ void sie_guest_create(struct vm *vm, uint64_t guest_mem, uint64_t guest_mem_len)
+diff --git a/lib/s390x/snippet.h b/lib/s390x/snippet.h
+index b17b2a4c..57045994 100644
+--- a/lib/s390x/snippet.h
++++ b/lib/s390x/snippet.h
+@@ -32,8 +32,7 @@
  
- 	/* Guest memory chunks are always 1MB */
- 	assert(!(guest_mem_len & ~HPAGE_MASK));
-+	vm->guest_mem = (uint8_t *)guest_mem;
- 	/* For non-PV guests we re-use the host's ASCE for ease of use */
- 	vm->save_area.guest.asce = stctg(1);
- 	/* Currently MSO/MSL is the easiest option */
+ #define SNIPPET_PV_TWEAK0	0x42UL
+ #define SNIPPET_PV_TWEAK1	0UL
+-#define SNIPPET_OFF_C		0
+-#define SNIPPET_OFF_ASM		0x4000
++#define SNIPPET_UNPACK_OFF	0
+ 
+ 
+ /*
+diff --git a/s390x/Makefile b/s390x/Makefile
+index 52a9d821..97a61611 100644
+--- a/s390x/Makefile
++++ b/s390x/Makefile
+@@ -136,7 +136,8 @@ $(SNIPPET_DIR)/c/%.o: $(SNIPPET_DIR)/c/%.c $(asm-offsets)
+ 	$(CC) $(CFLAGS) -c -nostdlib -o $@ $<
+ 
+ $(SNIPPET_DIR)/asm/%.gbin: $(SNIPPET_DIR)/asm/%.o
+-	$(OBJCOPY) -O binary -j ".rodata" -j ".text" -j ".data" -j ".bss" --set-section-flags .bss=alloc,load,contents $(patsubst %.gbin,%.o,$@) $@
++	$(CC) $(LDFLAGS) -o $@ -T $(SRCDIR)/s390x/snippets/asm/flat.lds $<
++	$(OBJCOPY) -O binary -j ".rodata" -j ".lowcore" -j ".text" -j ".data" -j ".bss" --set-section-flags .bss=alloc,load,contents $@ $@
+ 	truncate -s '%4096' $@
+ 
+ $(SNIPPET_DIR)/c/%.gbin: $(SNIPPET_DIR)/c/%.o $(snippet_lib) $(FLATLIBS)
+@@ -145,7 +146,7 @@ $(SNIPPET_DIR)/c/%.gbin: $(SNIPPET_DIR)/c/%.o $(snippet_lib) $(FLATLIBS)
+ 	truncate -s '%4096' $@
+ 
+ $(SNIPPET_DIR)/asm/%.hdr: $(SNIPPET_DIR)/asm/%.gbin $(HOST_KEY_DOCUMENT)
+-	$(GEN_SE_HEADER) -k $(HOST_KEY_DOCUMENT) -c $<,0x4000,0x00000000000000420000000000000000 --psw-addr 0x4000 -o $@
++	$(GEN_SE_HEADER) -k $(HOST_KEY_DOCUMENT) -c $<,0x0,0x00000000000000420000000000000000 --psw-addr 0x4000 -o $@
+ 
+ $(SNIPPET_DIR)/c/%.hdr: $(SNIPPET_DIR)/c/%.gbin $(HOST_KEY_DOCUMENT)
+ 	$(GEN_SE_HEADER) -k $(HOST_KEY_DOCUMENT) -c $<,0x0,0x00000000000000420000000000000000 --psw-addr 0x4000 -o $@
+diff --git a/s390x/mvpg-sie.c b/s390x/mvpg-sie.c
+index 46a2edb6..99f4859b 100644
+--- a/s390x/mvpg-sie.c
++++ b/s390x/mvpg-sie.c
+@@ -87,7 +87,7 @@ static void setup_guest(void)
+ 
+ 	snippet_setup_guest(&vm, false);
+ 	snippet_init(&vm, SNIPPET_NAME_START(c, mvpg_snippet),
+-		     SNIPPET_LEN(c, mvpg_snippet), SNIPPET_OFF_C);
++		     SNIPPET_LEN(c, mvpg_snippet), SNIPPET_UNPACK_OFF);
+ 
+ 	/* Enable MVPG interpretation as we want to test KVM and not ourselves */
+ 	vm.sblk->eca = ECA_MVPGI;
+diff --git a/s390x/pv-diags.c b/s390x/pv-diags.c
+index 9ced68c7..5165937a 100644
+--- a/s390x/pv-diags.c
++++ b/s390x/pv-diags.c
+@@ -28,7 +28,7 @@ static void test_diag_500(void)
+ 
+ 	snippet_pv_init(&vm, SNIPPET_NAME_START(asm, snippet_pv_diag_500),
+ 			SNIPPET_HDR_START(asm, snippet_pv_diag_500),
+-			size_gbin, size_hdr, SNIPPET_OFF_ASM);
++			size_gbin, size_hdr, SNIPPET_UNPACK_OFF);
+ 
+ 	sie(&vm);
+ 	report(vm.sblk->icptcode == ICPT_PV_INSTR && vm.sblk->ipa == 0x8302 &&
+@@ -83,7 +83,7 @@ static void test_diag_288(void)
+ 
+ 	snippet_pv_init(&vm, SNIPPET_NAME_START(asm, snippet_pv_diag_288),
+ 			SNIPPET_HDR_START(asm, snippet_pv_diag_288),
+-			size_gbin, size_hdr, SNIPPET_OFF_ASM);
++			size_gbin, size_hdr, SNIPPET_UNPACK_OFF);
+ 
+ 	sie(&vm);
+ 	report(vm.sblk->icptcode == ICPT_PV_INSTR && vm.sblk->ipa == 0x8302 &&
+@@ -124,7 +124,7 @@ static void test_diag_yield(void)
+ 
+ 	snippet_pv_init(&vm, SNIPPET_NAME_START(asm, snippet_pv_diag_yield),
+ 			SNIPPET_HDR_START(asm, snippet_pv_diag_yield),
+-			size_gbin, size_hdr, SNIPPET_OFF_ASM);
++			size_gbin, size_hdr, SNIPPET_UNPACK_OFF);
+ 
+ 	/* 0x44 */
+ 	report_prefix_push("0x44");
+diff --git a/s390x/snippets/asm/flat.lds b/s390x/snippets/asm/flat.lds
+new file mode 100644
+index 00000000..ab0031ac
+--- /dev/null
++++ b/s390x/snippets/asm/flat.lds
+@@ -0,0 +1,41 @@
++SECTIONS
++{
++	.lowcore : {
++		/*
++		 * Initial short psw for disk boot, with 31 bit addressing for
++		 * non z/Arch environment compatibility and the instruction
++		 * address 0x4000.
++		 */
++		. = 0;
++		 LONG(0x00080000)
++		 LONG(0x80004000)
++		 /* Restart new PSW for booting via PSW restart. */
++		 . = 0x1a0;
++		 QUAD(0x0000000180000000)
++		 QUAD(0x0000000000004000)
++		 /*
++		  * Invalid PGM new PSW so we hopefully get a code 8
++		  * intercept on a PGM
++		  */
++		 . = 0x1d0;
++		 QUAD(0x0008000000000000)
++		 QUAD(0x0000000000000001)
++	}
++	. = 0x4000;
++	/* Start text 0x4000 */
++	.text : {
++		*(.text)
++		*(.text.*)
++	}
++	. = ALIGN(16);
++	etext = .;
++	/* End text */
++	/* Start data */
++	.data : {
++		*(.data)
++		*(.data.rel*)
++	}
++	. = ALIGN(16);
++	.rodata : { *(.rodata) *(.rodata.*) }
++	/* End data */
++}
 -- 
 2.34.1
 
