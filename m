@@ -2,140 +2,280 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3539CC3DA78
-	for <linux-s390@archiver.kernel.org>; Fri, 13 Jan 2023 20:18:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0188CC6379F
+	for <linux-s390@archiver.kernel.org>; Fri, 13 Jan 2023 21:02:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231241AbjAMUSR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 13 Jan 2023 15:18:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47852 "EHLO
+        id S229904AbjAMVB5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 13 Jan 2023 16:01:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231267AbjAMUSI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 13 Jan 2023 15:18:08 -0500
-Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on2063.outbound.protection.outlook.com [40.107.94.63])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E014A69B18;
-        Fri, 13 Jan 2023 12:18:02 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=iSVHNHJwSDtB0FYitro+6EglwAGzpsMnQ+GJyp6JtLGhBhRlWkRVw2j8tOX7Y/zmQba70y/+RPidJHduXTFct8VuYi/Ld8a1Dl4ISGg1cINWwl72/0yIFYg9eZ8V2+Hl5xydllLiMz5SZ2UZpi051VpQ/upi0oDYg4C4Txa/InQ0zcJbPmVatwE75A2N09zoMhOF+HBcNuR6adRpuPpb5RRQ9dOtu8FsWlNXmY5Kwgb93PujvkY87JIK+ytI40gSZ3QLq2q5gTEr5dKtnpvoqOxFhgM5xrJfBgj3CQ9puKeBKtJZQIY/ziIEXSEBbRiysfqy//DMBte2mraiEvBxhg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=JGSVvLsmKeKHUTfqcEowAbOhOQ6JEBQGcyGI4Eexqx0=;
- b=Io4Srk98M3As99GOsHx4u0sdqgM4rJnhXndkBQV3gEzBIUYSB5ziqilVR4o5/Qv+EgClmXZlxyfwWZWJ+s5Wdm7S166Z0WNewb7+ojQ139H7PwbnVEMFlZoV6yYnR73/zL4bTjySq/hUfbryCrhggNyWcyBN6i1/SymQjL384C15xdwGSBshhobrSmLskI8tYlF46EIrTt66Khz0UOEy/mFQTLOS04UdsvvXaIG8jcWExUNqqM53+Bu7GNy++lTkyF/HrI6Io7JexDogrogcyECf9x3tM+458dJb0dKY5Px2Pat/+tXQn9ldR95xbNcdl6gevBThQVdmLHMwqZZZBA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=JGSVvLsmKeKHUTfqcEowAbOhOQ6JEBQGcyGI4Eexqx0=;
- b=Hw32Yie2EFRWwJ/GLPkJ9YaX7S8p2QqyvZzP51mrEoKOEi30MuBcqZ8xXNh5Qk0WJWvBWCwgYbLLGTDy6w2uUjIxJPEjpWq0Cog7I/FDwuzDX1On2G1TarxbNofBKsx6S/c4xpHm4LrfZ7Ajt+Robs2cpebASL+7l9iGNK11DrfPcKFOjf1HuglSeIj0CFTNhxwdu/NQ/WxRyGmQ1KIL8dprAF52WB8HS4mzydBMpZJJnenIDBe49NpOCaZWUrjZyv/YfRSri5Mv349tUA/Pa5uu3t28pLcdPi2uCbRzdU/Pupxjl9yD1Ot9VB9cJPj833opr/CaufIoR9StQyYBcQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
- by MN6PR12MB8565.namprd12.prod.outlook.com (2603:10b6:208:47d::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5986.18; Fri, 13 Jan
- 2023 20:18:01 +0000
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::f8b0:df13:5f8d:12a]) by LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::f8b0:df13:5f8d:12a%9]) with mapi id 15.20.6002.013; Fri, 13 Jan 2023
- 20:18:01 +0000
-Date:   Fri, 13 Jan 2023 16:18:00 -0400
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Matthew Rosato <mjrosato@linux.ibm.com>
-Cc:     alex.williamson@redhat.com, pbonzini@redhat.com, cohuck@redhat.com,
-        farman@linux.ibm.com, pmorel@linux.ibm.com,
-        borntraeger@linux.ibm.com, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, david@redhat.com, akrowiak@linux.ibm.com,
-        jjherne@linux.ibm.com, pasic@linux.ibm.com,
-        zhenyuw@linux.intel.com, zhi.a.wang@intel.com, seanjc@google.com,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        intel-gvt-dev@lists.freedesktop.org,
-        intel-gfx@lists.freedesktop.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3] vfio: fix potential deadlock on vfio group lock
-Message-ID: <Y8G8eNhmjc1QK4tC@nvidia.com>
-References: <20230113171132.86057-1-mjrosato@linux.ibm.com>
- <Y8GoiCBQNiAuVcNw@nvidia.com>
- <e7ddd054-72dc-81c0-609a-59e98e2f835c@linux.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <e7ddd054-72dc-81c0-609a-59e98e2f835c@linux.ibm.com>
-X-ClientProxiedBy: BL1PR13CA0091.namprd13.prod.outlook.com
- (2603:10b6:208:2b9::6) To LV2PR12MB5869.namprd12.prod.outlook.com
- (2603:10b6:408:176::16)
+        with ESMTP id S230289AbjAMVBm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 13 Jan 2023 16:01:42 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D50B44164C;
+        Fri, 13 Jan 2023 13:01:39 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 63B2261F6D;
+        Fri, 13 Jan 2023 21:01:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C17D4C433EF;
+        Fri, 13 Jan 2023 21:01:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1673643698;
+        bh=XjYPLJaT3KR8UfCRsn7ZqO0p/NzuDlzpBsbT6/lbX50=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=JnRpLeX/zzbpJeZ0g4/Wp3eorkFYBP9ywXWK+IwEfz30TDHCLsIHR8rWBxA+tmrpR
+         UCIqdDgfsj/1G8pwJyODygp8GuljXX7YBO87TbOn4u8cFJ8DLowG1Bo+5Oy+gV6e4K
+         y2sx7456RlcuQ8Kh+28mRe17FPEETDR7IV9TWvkPMsW1WTo29bLX+aLNvitTITNURD
+         nj7fQRauwuTvQ/WMgYAO0r931eZnUeS5tTxeiUmkZQqML30eLGnJbccYEjSp2NkeIm
+         pGMWZTzKeAWKkvi6zazrJ125GyLclZTI8AxKLyvS6ZbREBJBVYSWs6LKU09akkjvPe
+         ZvFe6ubaGXImQ==
+Received: by mail-lf1-f47.google.com with SMTP id j17so34801196lfr.3;
+        Fri, 13 Jan 2023 13:01:38 -0800 (PST)
+X-Gm-Message-State: AFqh2kqA7jNGYGn30lcGwbBUTLkxzBrTXtmEvvBTbUUXYo098qGthlCh
+        /kwFOt1skR5LyQgEWkuitGgBTyJMICUj8FySMFI=
+X-Google-Smtp-Source: AMrXdXu0AQ1CejJDQB1Ha12dgDJkYFpVpZVgZaVKqEX9YHnSxYx/LwcDB18gh51pVND3DS6eYIkawuC090NzqnufMz8=
+X-Received: by 2002:a05:6512:2987:b0:4b5:8f03:a2b6 with SMTP id
+ du7-20020a056512298700b004b58f03a2b6mr8848083lfb.643.1673643696772; Fri, 13
+ Jan 2023 13:01:36 -0800 (PST)
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|MN6PR12MB8565:EE_
-X-MS-Office365-Filtering-Correlation-Id: 694cf65f-d010-422a-0975-08daf5a344d7
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: l+zIr7/y7UmBJmik0tt3SK8LIlIqzNrTVQtT8LEW+lheJZLXB13s3AegtFI0L+bE5kbSrTbiuPCGGhoC69/wE3B2sOkcb+e1gqzcBh7S7UgQ5d4ptVWUmP8rfyKCJSL2mbvOSOhUfkdBxsJM41RVf6Eer8lZi9qeVbe0xTEnJNhfMhF8C8OA+5wJ0QEbmOvLw+1v7Hxfl03OmDuSQyEldRnja5GR5igz/IVIOuQO9Ssm8bswSrpbKNW300qezyfhHvcnWFf7eMDToZ016ygkLzZVjKJ+xugMyO6NvUjudppTAB0E0CjChmHVp7lgmNUuaSQ8Fsk4bAttt3bOmro/FIBTai7Rfqr3DrP5uaLJ7cet5B+lDKoYgyi9Hjq83em4/k0T06jk2b3g+D/v+Vs+/2bqDbLrfAFOaxbiC+5GZURN0JipwMTN7MxiGP18teA11mqjU/kyQROcVxdhTN8DtkM00+ABYXxDx5U+cZlDp+hGi/10iVyKMdi3Ve5CzCOcaI5igTpmQcPCXBDinCoL6LiK+m0Ool8pUZtjZqr2IJqYP+qiwMPMx07zQw/nCyp2NHeDTQd/zKS1ZfPSMpCk+tfCNKk782avWhlg+vYi1rwMKlpA6THbdcd7VOWzdd+Aa7S4VNjkvSyUVbdWAK6ZRg==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(346002)(396003)(39860400002)(136003)(366004)(376002)(451199015)(66556008)(41300700001)(36756003)(8676002)(2616005)(66946007)(316002)(6916009)(66476007)(86362001)(38100700002)(8936002)(83380400001)(4326008)(5660300002)(4744005)(7416002)(2906002)(6506007)(6486002)(186003)(478600001)(26005)(6512007);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?GG5hS+BRWuWoFZEF6y7YvyMjNk7YIA2Sv+w1MA3XJSV9jN26WXGLjCdT/56B?=
- =?us-ascii?Q?ZjbpSSCDHs+6fkhf1tTptD2n+kDQ6tJiFj1bNpbRMQXy/KtlLoQ8HkiRBXLw?=
- =?us-ascii?Q?9qlrcquAc+xHWDiGiS1VyTP5yhrntsFNPLKau2COzfjRhVonD/xPj6VJxbKD?=
- =?us-ascii?Q?o+F+I/+tBl0MqtpQJ8/N3WVpjjk3Pthl1IYf6U/33HDqK604Docm76PvYpfU?=
- =?us-ascii?Q?MdDjT9mtPJR5DQ2cwituOAQuct5XGbHMoMR5BGbGqKthFjM0rHuOT8hdi9kU?=
- =?us-ascii?Q?t34y8+VCc0oDZpbVB+aczYnruCaC1WGDvJzwBKfbUe2EO98xS8WKFBZ4VxtD?=
- =?us-ascii?Q?I/87ONw04Z/EJ6BjH138w78M7w5GyZpeKs41N8AfneK+oOyNcaYc3vq2EQY3?=
- =?us-ascii?Q?pSQxkTAje3QtxdTClZi2GaerpzDR1iMPSgPqzZyqEkMvv4SjQrH47piaNmJ0?=
- =?us-ascii?Q?mkz96znEVo1W22UUW/iBppeSR1W7tlHFDyoSmkUxHwbnYYWvqBAMRx3JpvJP?=
- =?us-ascii?Q?NTg/fqg8nbjiHQ3Hq99d6OzB5A0LLYaDqJOy7o2eZBbNqjmXQZ2hy6rLsWe+?=
- =?us-ascii?Q?xftOQv4ZDiDcuz74i998kr2xdJdh0NOsqpGOEcEhUJtluvNoZIeN3WRXhyhk?=
- =?us-ascii?Q?Bihh+2z90/rcU2AZLalYaz4gDy5OydKLFNphKn4n+gdz13LFbEKoOWOQqdNI?=
- =?us-ascii?Q?IKpGA9H75KLhIxQDFePySxOBvkhOkx2EjI7JBpKMpAifbFoUpO7DBaH0sBx4?=
- =?us-ascii?Q?fT7XEdCx6beWLU5wFLydJtHSSbgZ0g8drBlgyVmrHxq1oYN5d0S3JC0NUkKj?=
- =?us-ascii?Q?bW2b7y6NRcrjuXr0LpfJ46zgom1KeH7+ZsTCyOXPsYosYj6BPfGKSMEZ4F+j?=
- =?us-ascii?Q?D+X+7+McDoV34oO/iVrdEQty9J4aqHn2vXnMN0XvzJILXd9I8b3IdTys3lbs?=
- =?us-ascii?Q?DkIE45Zuh0/+dTIgxWseWEXbIcqiY0dL8FvVQuZERd91L18JZQAXGoet+KiN?=
- =?us-ascii?Q?AjbwBfPB7c6gv3uszxDZAJLbqmtm7S1uhGryX/mj/9EBaRgdVUtgpR2E2tRM?=
- =?us-ascii?Q?ko5idHu9C3Qoq5KBerX4dHytzY69QwoApQyxVy6o47nYKlod1Qn3h1gQ3ohH?=
- =?us-ascii?Q?ihPm7PVSMQgHTl+4s0LrtD2DDuBO1t7lTUOSmEcStTGMwifCPwV3SKqKseS6?=
- =?us-ascii?Q?CfSVJKvdcRhkQ6sK9Nf2JDURGo0JkuHzf+mtlV6+rjPfEsQVQlAZe8I+gTYq?=
- =?us-ascii?Q?TrNmsak3jeJ9BNZcse5QLlU29J9ON9J70GM5SNshydMlaeiiSMOxIaUvhN32?=
- =?us-ascii?Q?c/SxBtiKaCjE+zUG+SSQD/yz7xvvZx0hHXbono3YHOKDnN6dYlv4Hv8meflj?=
- =?us-ascii?Q?2aFpVtIIgUK/VYK7af1HlpNNkjGLSurt+jaV5Yy7siYm1vW5Bmz3IpfawzA+?=
- =?us-ascii?Q?928UEb7SfJaxLDXvgnsKJ5fHJWpp19uXbWFzj6t/+sACSb/BXsz/OoIq40mI?=
- =?us-ascii?Q?O6PSolnLfViKT1aHEgECJFEEnCsgq8frrZKbx7mVHJO8mUptcfwwY3Gvn3u4?=
- =?us-ascii?Q?zxtjT3ehuiQrzv5j+Sg=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 694cf65f-d010-422a-0975-08daf5a344d7
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Jan 2023 20:18:01.1638
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 7C5pYTSSlIKmWMkhAc7hzcPMZ0EShYmjElBu5ltaAOf/c4gBb1lHDEbhEeJKosIt
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN6PR12MB8565
+References: <20230112214015.1014857-1-namhyung@kernel.org> <20230112214015.1014857-4-namhyung@kernel.org>
+In-Reply-To: <20230112214015.1014857-4-namhyung@kernel.org>
+From:   Song Liu <song@kernel.org>
+Date:   Fri, 13 Jan 2023 13:01:24 -0800
+X-Gmail-Original-Message-ID: <CAPhsuW71GHAayZmGFfSrpCARiD3YEO1C8QBy1cc1ZEuSFJB=sA@mail.gmail.com>
+Message-ID: <CAPhsuW71GHAayZmGFfSrpCARiD3YEO1C8QBy1cc1ZEuSFJB=sA@mail.gmail.com>
+Subject: Re: [PATCH 3/8] perf/core: Add perf_sample_save_raw_data() helper
+To:     Namhyung Kim <namhyung@kernel.org>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Jiri Olsa <jolsa@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>, linux-s390@vger.kernel.org,
+        x86@kernel.org, bpf@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Jan 13, 2023 at 03:09:01PM -0500, Matthew Rosato wrote:
+On Thu, Jan 12, 2023 at 1:40 PM Namhyung Kim <namhyung@kernel.org> wrote:
+>
+> When it saves the raw_data to the perf sample data, it needs to update
+> the sample flags and the dynamic size.  To make sure this, add the
+> perf_sample_save_raw_data() helper and convert all call sites.
+>
+> Cc: linux-s390@vger.kernel.org
+> Cc: x86@kernel.org
+> Cc: bpf@vger.kernel.org
+> Suggested-by: Peter Zijlstra <peterz@infradead.org>
+> Signed-off-by: Namhyung Kim <namhyung@kernel.org>
+> ---
+>  arch/s390/kernel/perf_cpum_cf.c    |  4 +---
+>  arch/s390/kernel/perf_pai_crypto.c |  4 +---
+>  arch/s390/kernel/perf_pai_ext.c    |  4 +---
+>  arch/x86/events/amd/ibs.c          |  3 +--
+>  include/linux/perf_event.h         | 33 +++++++++++++++++++++++++-----
+>  kernel/events/core.c               | 31 +++++-----------------------
+>  kernel/trace/bpf_trace.c           |  6 ++----
+>  7 files changed, 39 insertions(+), 46 deletions(-)
+>
+> diff --git a/arch/s390/kernel/perf_cpum_cf.c b/arch/s390/kernel/perf_cpum_cf.c
+> index f043a7ff220b..aa38649c7c27 100644
+> --- a/arch/s390/kernel/perf_cpum_cf.c
+> +++ b/arch/s390/kernel/perf_cpum_cf.c
+> @@ -662,9 +662,7 @@ static int cfdiag_push_sample(struct perf_event *event,
+>         if (event->attr.sample_type & PERF_SAMPLE_RAW) {
+>                 raw.frag.size = cpuhw->usedss;
+>                 raw.frag.data = cpuhw->stop;
+> -               raw.size = raw.frag.size;
+> -               data.raw = &raw;
+> -               data.sample_flags |= PERF_SAMPLE_RAW;
+> +               perf_sample_save_raw_data(&data, &raw);
+>         }
+>
+>         overflow = perf_event_overflow(event, &data, &regs);
+> diff --git a/arch/s390/kernel/perf_pai_crypto.c b/arch/s390/kernel/perf_pai_crypto.c
+> index 985e243a2ed8..a7b339c4fd7c 100644
+> --- a/arch/s390/kernel/perf_pai_crypto.c
+> +++ b/arch/s390/kernel/perf_pai_crypto.c
+> @@ -362,9 +362,7 @@ static int paicrypt_push_sample(void)
+>         if (event->attr.sample_type & PERF_SAMPLE_RAW) {
+>                 raw.frag.size = rawsize;
+>                 raw.frag.data = cpump->save;
+> -               raw.size = raw.frag.size;
+> -               data.raw = &raw;
+> -               data.sample_flags |= PERF_SAMPLE_RAW;
+> +               perf_sample_save_raw_data(&data, &raw);
+>         }
+>
+>         overflow = perf_event_overflow(event, &data, &regs);
+> diff --git a/arch/s390/kernel/perf_pai_ext.c b/arch/s390/kernel/perf_pai_ext.c
+> index 1138f57baae3..555597222bad 100644
+> --- a/arch/s390/kernel/perf_pai_ext.c
+> +++ b/arch/s390/kernel/perf_pai_ext.c
+> @@ -451,9 +451,7 @@ static int paiext_push_sample(void)
+>         if (event->attr.sample_type & PERF_SAMPLE_RAW) {
+>                 raw.frag.size = rawsize;
+>                 raw.frag.data = cpump->save;
+> -               raw.size = raw.frag.size;
+> -               data.raw = &raw;
+> -               data.sample_flags |= PERF_SAMPLE_RAW;
+> +               perf_sample_save_raw_data(&data, &raw);
+>         }
+>
+>         overflow = perf_event_overflow(event, &data, &regs);
+> diff --git a/arch/x86/events/amd/ibs.c b/arch/x86/events/amd/ibs.c
+> index 417c80bd3274..64582954b5f6 100644
+> --- a/arch/x86/events/amd/ibs.c
+> +++ b/arch/x86/events/amd/ibs.c
+> @@ -1110,8 +1110,7 @@ static int perf_ibs_handle_irq(struct perf_ibs *perf_ibs, struct pt_regs *iregs)
+>                                 .data = ibs_data.data,
+>                         },
+>                 };
+> -               data.raw = &raw;
+> -               data.sample_flags |= PERF_SAMPLE_RAW;
+> +               perf_sample_save_raw_data(&data, &raw);
+>         }
+>
+>         if (perf_ibs == &perf_ibs_op)
+> diff --git a/include/linux/perf_event.h b/include/linux/perf_event.h
+> index a9419608402b..569dfac5887f 100644
+> --- a/include/linux/perf_event.h
+> +++ b/include/linux/perf_event.h
+> @@ -95,6 +95,11 @@ struct perf_raw_record {
+>         u32                             size;
+>  };
+>
+> +static __always_inline bool perf_raw_frag_last(const struct perf_raw_frag *frag)
+> +{
+> +       return frag->pad < sizeof(u64);
+> +}
+> +
+>  /*
+>   * branch stack layout:
+>   *  nr: number of taken branches stored in entries[]
+> @@ -1182,6 +1187,29 @@ static inline void perf_sample_save_callchain(struct perf_sample_data *data,
+>         data->sample_flags |= PERF_SAMPLE_CALLCHAIN;
+>  }
+>
+> +static inline void perf_sample_save_raw_data(struct perf_sample_data *data,
+> +                                            struct perf_raw_record *raw)
+> +{
+> +       struct perf_raw_frag *frag = &raw->frag;
+> +       u32 sum = 0;
+> +       int size;
+> +
+> +       do {
+> +               sum += frag->size;
+> +               if (perf_raw_frag_last(frag))
+> +                       break;
+> +               frag = frag->next;
+> +       } while (1);
+> +
+> +       size = round_up(sum + sizeof(u32), sizeof(u64));
+> +       raw->size = size - sizeof(u32);
+> +       frag->pad = raw->size - sum;
+> +
+> +       data->raw = raw;
+> +       data->dyn_size += size;
+> +       data->sample_flags |= PERF_SAMPLE_RAW;
+> +}
+> +
+>  /*
+>   * Clear all bitfields in the perf_branch_entry.
+>   * The to and from fields are not cleared because they are
+> @@ -1690,11 +1718,6 @@ extern void perf_restore_debug_store(void);
+>  static inline void perf_restore_debug_store(void)                      { }
+>  #endif
+>
+> -static __always_inline bool perf_raw_frag_last(const struct perf_raw_frag *frag)
+> -{
+> -       return frag->pad < sizeof(u64);
+> -}
+> -
+>  #define perf_output_put(handle, x) perf_output_copy((handle), &(x), sizeof(x))
+>
+>  struct perf_pmu_events_attr {
+> diff --git a/kernel/events/core.c b/kernel/events/core.c
+> index 0fba98b9cd65..133894ae5e30 100644
+> --- a/kernel/events/core.c
+> +++ b/kernel/events/core.c
+> @@ -7588,30 +7588,10 @@ void perf_prepare_sample(struct perf_event_header *header,
+>         if (filtered_sample_type & PERF_SAMPLE_CALLCHAIN)
+>                 perf_sample_save_callchain(data, event, regs);
+>
+> -       if (sample_type & PERF_SAMPLE_RAW) {
+> -               struct perf_raw_record *raw = data->raw;
+> -               int size;
+> -
+> -               if (raw && (data->sample_flags & PERF_SAMPLE_RAW)) {
+> -                       struct perf_raw_frag *frag = &raw->frag;
+> -                       u32 sum = 0;
+> -
+> -                       do {
+> -                               sum += frag->size;
+> -                               if (perf_raw_frag_last(frag))
+> -                                       break;
+> -                               frag = frag->next;
+> -                       } while (1);
+> -
+> -                       size = round_up(sum + sizeof(u32), sizeof(u64));
+> -                       raw->size = size - sizeof(u32);
+> -                       frag->pad = raw->size - sum;
+> -               } else {
+> -                       size = sizeof(u64);
+> -                       data->raw = NULL;
+> -               }
+> -
+> -               data->dyn_size += size;
+> +       if (filtered_sample_type & PERF_SAMPLE_RAW) {
+> +               data->raw = NULL;
+> +               data->dyn_size += sizeof(u64);
+> +               data->sample_flags |= PERF_SAMPLE_RAW;
+>         }
 
-> > This still doesn't seem right, another thread could have incr'd the
-> > open_count already 
-> > 
-> > This has to be done at the moment open_count is decremented to zero,
-> > while still under the original lock.
-> 
-> Hmm..  Fair.  Well, we can go back to clearing of device->kvm in
-> vfio_device_last_close but the group lock is held then so we can't
-> immediately do the kvm_put at that time -- unless we go back to the
-> notion of stacking the kvm_put on a workqueue, but now from vfio.
-> If we do that, I think we also have to scrap the idea of putting the
-> kvm_put_kvm function pointer into device->put_kvm too (or otherwise
-> stash it along with the kvm value to be picked up by the scheduled
-> work).
+I don't quite follow this change, and the commit log doesn't seem
+to cover this part.
 
-Well, you have to keep the same sort of design, the
-vfio_device_last_close() has to put the kvm on the stack until the
-group lock is unlocked.
-
-It is messy due to how the functions are nested, but not hard.
-
-Jason
+>
+>         if (sample_type & PERF_SAMPLE_BRANCH_STACK) {
+> @@ -10127,8 +10107,7 @@ void perf_tp_event(u16 event_type, u64 count, void *record, int entry_size,
+>         };
+>
+>         perf_sample_data_init(&data, 0, 0);
+> -       data.raw = &raw;
+> -       data.sample_flags |= PERF_SAMPLE_RAW;
+> +       perf_sample_save_raw_data(&data, &raw);
+>
+>         perf_trace_buf_update(record, event_type);
+>
+> diff --git a/kernel/trace/bpf_trace.c b/kernel/trace/bpf_trace.c
+> index 3bbd3f0c810c..ad37608afc35 100644
+> --- a/kernel/trace/bpf_trace.c
+> +++ b/kernel/trace/bpf_trace.c
+> @@ -687,8 +687,7 @@ BPF_CALL_5(bpf_perf_event_output, struct pt_regs *, regs, struct bpf_map *, map,
+>         }
+>
+>         perf_sample_data_init(sd, 0, 0);
+> -       sd->raw = &raw;
+> -       sd->sample_flags |= PERF_SAMPLE_RAW;
+> +       perf_sample_save_raw_data(sd, &raw);
+>
+>         err = __bpf_perf_event_output(regs, map, flags, sd);
+>
+> @@ -746,8 +745,7 @@ u64 bpf_event_output(struct bpf_map *map, u64 flags, void *meta, u64 meta_size,
+>
+>         perf_fetch_caller_regs(regs);
+>         perf_sample_data_init(sd, 0, 0);
+> -       sd->raw = &raw;
+> -       sd->sample_flags |= PERF_SAMPLE_RAW;
+> +       perf_sample_save_raw_data(sd, &raw);
+>
+>         ret = __bpf_perf_event_output(regs, map, flags, sd);
+>  out:
+> --
+> 2.39.0.314.g84b9a713c41-goog
+>
