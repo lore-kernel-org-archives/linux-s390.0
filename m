@@ -2,128 +2,249 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DA7A6C54EBD
-	for <linux-s390@archiver.kernel.org>; Fri, 13 Jan 2023 15:00:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E35DFC54EBD
+	for <linux-s390@archiver.kernel.org>; Fri, 13 Jan 2023 16:00:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230110AbjAMPAh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 13 Jan 2023 10:00:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53632 "EHLO
+        id S229926AbjAMQAU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 13 Jan 2023 11:00:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230046AbjAMO7t (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 13 Jan 2023 09:59:49 -0500
-Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2067.outbound.protection.outlook.com [40.107.237.67])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DADE472797;
-        Fri, 13 Jan 2023 06:50:31 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=PR4FikugF4holigJwFhQfYa39c1faTpK86g/mZ9GOwUxJ/ztsJL+kP9P5XrbY2wW4lsPKp/wj4VfLIcFIk//KfwW3P8QGedJWGnVKR9nuEL/+CGdBzEpiSTW2/hkBglWKoJMOqUXsUUC9dNBMy5Z+ZgRWVhODoidIRMCjctIEo+7iZt1MLV0d6Z5u1NKyYRpdxFZep56sQPnZsGlxMjuGKagy7kh0V8g10Qlvu9f/M1N1yhWRCpqVIAl8TVxWapt8X3WKllhKVObpvIhkCjr6Z895Cyh8loJyzXMbCoM56os1EoQBVYm3WOw6WccwFa/eohZ09JwwsE2etR8X/wGig==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Yxxf816EJv7FxyOgGwLix7zF2lcdpj6h/ed2O+GrU1Y=;
- b=VwMuUWPf4GBaq0LC7Gqzv6HUGgYygjUcG1WNP45X4eexwaoOlHNE0P/bU9GSOQHTwQSHY4EWUlaMlmGH/X0B5EQx4qvfLN20eIejW4FvonWDxyLYBNfFm/hKhoLFX9pDZnStk7rgMtOAOS/JWlUrFkI70QMOQ8OeRDYn1dHwLlasF22fR8Y54yvdkw2tid2k7wyeC4IW89xj+jJyPH7+gbbdEFv5w3iS1G/vcWE35t+DPuFl4m52IiyYt6LftvegaPuz7xQHSvB+hBgZQdCiqMrRTUfQVBlKzhLcqeKnBVEbbsLcIBNQMEbPF45ek+NR+vR3Nj2pXn1f1bUqF6wxTw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Yxxf816EJv7FxyOgGwLix7zF2lcdpj6h/ed2O+GrU1Y=;
- b=KVV5lznnKE6aO7lnmHnArxs/xVVuHsOoEqNv7Q5uHw3TuqMkJUzhz3sX7qvj6iWU7W4OZ+55iPRs/Uub5pXBOYGcsv097deere0UI868URzp7STmkQSJNtPr3Sh96yNxY9m/P3sdP4Dt4WR1tzXJEd2M42kHMQe3KwMQ3Dc9OFryKWTgNFXjGkLJPZCPExFCzKmyKL+WUhXxEtaFJdfaLt9SiFwwkYmgzwfboHWqjHwkwRi9gTeiS3DoPtxoeIERyxwTLjz91N1RPeppkOIx8wDDz/VZ1T4aZDEr1QMoFJyAQdc8B9XH8gefLCOhOPYki8daWjEmMr1w0/OCdUEtAg==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
- by DM4PR12MB5182.namprd12.prod.outlook.com (2603:10b6:5:395::24) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6002.13; Fri, 13 Jan
- 2023 14:50:30 +0000
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::f8b0:df13:5f8d:12a]) by LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::f8b0:df13:5f8d:12a%9]) with mapi id 15.20.6002.013; Fri, 13 Jan 2023
- 14:50:30 +0000
-Date:   Fri, 13 Jan 2023 10:50:29 -0400
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Matthew Rosato <mjrosato@linux.ibm.com>
-Cc:     Alex Williamson <alex.williamson@redhat.com>, pbonzini@redhat.com,
-        cohuck@redhat.com, farman@linux.ibm.com, pmorel@linux.ibm.com,
-        borntraeger@linux.ibm.com, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, david@redhat.com, akrowiak@linux.ibm.com,
-        jjherne@linux.ibm.com, pasic@linux.ibm.com,
-        zhenyuw@linux.intel.com, zhi.a.wang@intel.com, seanjc@google.com,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        intel-gvt-dev@lists.freedesktop.org,
-        intel-gfx@lists.freedesktop.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] vfio: fix potential deadlock on vfio group lock
-Message-ID: <Y8FvtS3uOFUnSxss@nvidia.com>
-References: <20230112203844.41179-1-mjrosato@linux.ibm.com>
- <20230112140517.6db5b346.alex.williamson@redhat.com>
- <bce7912a-f904-b5a3-d234-c3e2c42d9e54@linux.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <bce7912a-f904-b5a3-d234-c3e2c42d9e54@linux.ibm.com>
-X-ClientProxiedBy: MN2PR16CA0010.namprd16.prod.outlook.com
- (2603:10b6:208:134::23) To LV2PR12MB5869.namprd12.prod.outlook.com
- (2603:10b6:408:176::16)
+        with ESMTP id S229615AbjAMP7v (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 13 Jan 2023 10:59:51 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6869987F0A;
+        Fri, 13 Jan 2023 07:50:59 -0800 (PST)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30DDoQuZ002132;
+        Fri, 13 Jan 2023 15:50:58 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : to : cc : references : from : subject : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=cDWn1RrhvVZPuvzMVd/sPKgSgYJZoF/XmQR8FUP84vs=;
+ b=MY6gdg6hJqaxzqo1kbhkR3tQMTXWuwi2lzmUlEw9CYCgxifBTriJuS/efITndyVcGPS6
+ n8cNphLWxD/rrT1MSNzRLZ62tb5hHqOfQ8tP79YIv4hupfmxNQR2DLCiCiDFTEI5JvTp
+ 5u+XFX5vlPEEiNsM0mVk20QOjnzNuKqbCZhXCqNpF5+I56+jnQguOjZ+3eUfK2TR6SUB
+ uzNmgF1ENYpN10Kp/fZeCXpNEhrDPvHZ+K7Z2mb1nSx5Glfc11lrKEk45w7SllHHwCX/
+ /a8sYm6sqAR0zOV0oXBwMmM5NMoGyVqV6Y7f1DffaT48oJ55pbDrg3OYnM4dTtszyw5y Vg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3n36u3numv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 13 Jan 2023 15:50:58 +0000
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 30DEnGDg000636;
+        Fri, 13 Jan 2023 15:50:57 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3n36u3numd-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 13 Jan 2023 15:50:57 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30D7jax0030869;
+        Fri, 13 Jan 2023 15:50:55 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3n1kf7m5n5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 13 Jan 2023 15:50:55 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30DFoqbj38535656
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 13 Jan 2023 15:50:52 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1F7082004B;
+        Fri, 13 Jan 2023 15:50:52 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B241E20040;
+        Fri, 13 Jan 2023 15:50:51 +0000 (GMT)
+Received: from [9.171.1.52] (unknown [9.171.1.52])
+        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Fri, 13 Jan 2023 15:50:51 +0000 (GMT)
+Message-ID: <54e21150-714c-4a06-59ba-a599bae76bbf@linux.ibm.com>
+Date:   Fri, 13 Jan 2023 16:50:51 +0100
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|DM4PR12MB5182:EE_
-X-MS-Office365-Filtering-Correlation-Id: 6d357c83-bc9a-4a5e-6bf0-08daf57583f7
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: xFHFuothd0pY4AeqjEe8viHtvlUbs3vamZRPnjqVXjLVzB3P7fZwxLnbKIBWfjTeY3xa23mWin3ekc1bGyR0mRrW5mukOrXZ1MKtYHptDs6k4rlWr3Xjt2m+FtF5dJEr+IUn4VEOT/Wf2JixCZBRLY4CVgRNyFYhX0ZDeLe0/VRAG+l4LzKv9GOQ1EEY7eBAl0m8CO9kY8Hhcp0a4pH+CufYJ8b7GRlt9+ssvb6XRP5WkmSkQjs2OAIsEeZGSSDzIsgizbozkb1YS1nBXvrI1yt1EcxypWhxk4lomgOhjr+5g2EIrBXa/EuqDjlro6GB7ix4iLtiqRX7IfNedcdymuK4ZKtPcgxiRBDuqINsPTd0yOq9PzsLpsKg6H/uGCNDZHDoEHJ1MWktXzYDlPMWTFaoVrEJq//M9prlhS7aQvTlu/TEF356J90i69M/nx+Qzv5zdFDjz0eMwoInJztpG0JmOGFCwS6h1VEbQz8xUE2ONc3iFn5p6at0lSxgTRPDr34vPwi92yWpgV6/05pImMwnAF9zbPWmndORSEPAPT3/qfitIxMusNDB5Sryxdycf5vXYFJQ0Qaf+w/UoVpgpWdCfLoY65x2zufmkQDojwyHjqfNgdZ5bYAfB9mcr9ns+cwMt2WMu69wk+QbGKveVQ==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(136003)(346002)(376002)(39860400002)(396003)(366004)(451199015)(6506007)(26005)(186003)(6512007)(36756003)(6486002)(478600001)(38100700002)(86362001)(83380400001)(2616005)(4744005)(7416002)(8936002)(5660300002)(2906002)(66556008)(66476007)(66946007)(8676002)(6916009)(4326008)(41300700001)(316002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?RRPzaDZxWKNrHJfnTnqPLlDOGXyovR/CE8iztf15z4MTROsm44AEwuMiGZ6w?=
- =?us-ascii?Q?K1PWQCcbFB5Xw7jRgyWaGYqNkiftLwBOgfrPeAfumCbYy/ZMC9GENyekIAIP?=
- =?us-ascii?Q?Ub27CL+tDse5oJyCTAUUNnTED6SiCYyKF8PYuUYr+qvJxu9rk2M/0XHLn6Hp?=
- =?us-ascii?Q?K4RaA1/iFPJFkpxZoqcvyMeoYNdmW1i3tMQm2tQZHSyAPMrPaw7o0hFw5pU+?=
- =?us-ascii?Q?9kOYc1Klsa5gdfzVHu8/cRLyotaVhrGGWztXso/Sp0THj4Yp0wVGHz6lZnbW?=
- =?us-ascii?Q?zmkPmEvwiKDCbUsK4IYJ+vxuHwpa01Gw/3apTIEYPvLUZVyoLr98ldJNYBEy?=
- =?us-ascii?Q?erq5OVDH4ov6Sl2mqv8Am8B4e47/xAXJXd1X1kDrLkj209bCzvXJ+Y4vFPLM?=
- =?us-ascii?Q?A07LdyfIFrV250+QrYKdwyD/qZCqXhC4xYI8dFi6VUgHTJgaVBHr7i/CnNQ7?=
- =?us-ascii?Q?yZnxjYevaZLwUp7+zWamAmgTqfraXjK0ROC+qMsBhy6aFlFrtXxciWaxZeMa?=
- =?us-ascii?Q?bCAIiK8q8l6qMUEr9ox8+eO4YM8p3RwGCf2twNVHz6i7FsJFXFaipx+MPu0J?=
- =?us-ascii?Q?wHjb1idtACsbndV5Qbh6bCc6JXYEVzM5OWjSbYgEoHMshjSQ1wCuLCdmXZvO?=
- =?us-ascii?Q?SmHqhNMCSEbaPJFMqCsl/L+odfJO3VMuL1EaRUxQ6RnnCzNY9W74Mm56zVbq?=
- =?us-ascii?Q?v3rTQQ3FA2XbApSZAkdN2GnH1k/7ylkxKefc4r6toutoZdZhy/SUQVNUB9bb?=
- =?us-ascii?Q?ReEfTky6crGCA6d+egJeoBV+/4eKHzsodSodtmtgjKZUdGyQfBtzyDFpkzaP?=
- =?us-ascii?Q?rkKWWe4CvOWWRy0yQ24DNyKyf7FbT2azkCaafH1PaZoZKQlsk/3QGEquei8z?=
- =?us-ascii?Q?p4lvu3r39CZMue4W+jZpEo22rOHjqFzWsvrkoDeUo2IwR6vu4l+KZG7HwzGi?=
- =?us-ascii?Q?LlWIXIKBRJ50KkmFsGGKStYhAxy356nPIK8BaqpaABmxmIdUP5HeSAZjxTiD?=
- =?us-ascii?Q?qwD4FhWAb2vbfi54qyfaQbq1xtMVZbZDo/vEm+V4rqdNRNvbxVv8hPe4Sw6V?=
- =?us-ascii?Q?y0HeGYu1tksMer6lelQQC0LIh7ygjjm2WePjtUxsLOfjy1QKTyM/wYQ441l3?=
- =?us-ascii?Q?xC59pId/O62XDesSNVc00RWI8cVTVv0IDSZ8f6PpOVvl+Sp2DWA3XRSbg8cA?=
- =?us-ascii?Q?pH5Z7XGV5rJTCR7XWY1SbvG9SFWZfJ+lDMOz47FuLFLVYZjpIXv4e5SxroAC?=
- =?us-ascii?Q?HPl8Jn4vD44l7IxrH0xW8QUGfu58N1+GHZ4BtJ524nWW+NOCbnYXRBohfj0v?=
- =?us-ascii?Q?cblqd9h/0KEJMfTRYv2a2Stoyo0e+mWlUyeuWMfeG1KJ1fGOX/M58lyABXE9?=
- =?us-ascii?Q?xyVmlf13YXbk4Xsm6CY9nW+bC/tk2Xli1V4ZshD/fbkypjST0pl+/PPOQXn1?=
- =?us-ascii?Q?aYKLnm/4zNa7GritTSxk4mvHZHvwOMP5e3kfrX0Zb+xQNFQvytTPsvwfcpzu?=
- =?us-ascii?Q?wDZJ2efNMPuT5iBz0kuIRPI7thhaKLo5c9b3bWzD0KS8zpoSraAHT1MQ2VhF?=
- =?us-ascii?Q?9EYBbdBT2b3tgYv2s3AQ4ey+QkUZZMdZcwXiMYyA?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6d357c83-bc9a-4a5e-6bf0-08daf57583f7
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Jan 2023 14:50:30.2386
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: boyu7JErkwvBrol5k3J9FQKmQL5uo0f88whPAc+9JWS59911aIrC5rnnPzxUwPtO
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB5182
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.0
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org, thuth@redhat.com,
+        david@redhat.com, nsg@linux.ibm.com, nrb@linux.ibm.com
+References: <20230112154548.163021-1-frankja@linux.ibm.com>
+ <20230112154548.163021-8-frankja@linux.ibm.com>
+ <20230112181353.0ed31250@p-imbrenda>
+Content-Language: en-US
+From:   Janosch Frank <frankja@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v2 7/7] lib: s390x: Handle debug prints for
+ SIE exceptions correctly
+In-Reply-To: <20230112181353.0ed31250@p-imbrenda>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: ANkHdpBMQdquBqbRwzV84cmNOx4ok3N8
+X-Proofpoint-ORIG-GUID: EeRyJrnnPoInUVgfx9HExjjhI3M8QFW7
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.923,Hydra:6.0.562,FMLib:17.11.122.1
+ definitions=2023-01-13_07,2023-01-13_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ malwarescore=0 spamscore=0 clxscore=1015 priorityscore=1501 suspectscore=0
+ bulkscore=0 impostorscore=0 mlxlogscore=999 phishscore=0 adultscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2301130103
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jan 12, 2023 at 04:51:36PM -0500, Matthew Rosato wrote:
-
-> Yep, thanks.  I will surround this bit of code with
+On 1/12/23 18:13, Claudio Imbrenda wrote:
+> On Thu, 12 Jan 2023 15:45:48 +0000
+> Janosch Frank <frankja@linux.ibm.com> wrote:
 > 
-> mutex_lock(&device->dev_set->lock);
-> ..
-> mutex_unlock(&device->dev_set->lock);
+>> When we leave SIE due to an exception, we'll still have guest values
+>> in registers 0 - 13 and that's not clearly portraied in our debug
+>> prints. So let's fix that.
+>>
+>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>> ---
+>>   lib/s390x/interrupt.c | 46 ++++++++++++++++++++++++++++++++++++++-----
+>>   lib/s390x/sie.h       |  2 ++
+>>   s390x/cpu.S           |  6 ++++--
+>>   3 files changed, 47 insertions(+), 7 deletions(-)
+>>
+>> diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
+>> index dadb7415..ff47c2c2 100644
+>> --- a/lib/s390x/interrupt.c
+>> +++ b/lib/s390x/interrupt.c
+>> @@ -9,6 +9,7 @@
+>>    */
+>>   #include <libcflat.h>
+>>   #include <asm/barrier.h>
+>> +#include <asm/asm-offsets.h>
+>>   #include <sclp.h>
+>>   #include <interrupt.h>
+>>   #include <sie.h>
+>> @@ -188,9 +189,12 @@ static void print_storage_exception_information(void)
+>>   	}
+>>   }
+>>   
+>> -static void print_int_regs(struct stack_frame_int *stack)
+>> +static void print_int_regs(struct stack_frame_int *stack, bool sie)
+>>   {
+>> +	struct kvm_s390_sie_block *sblk;
+>> +
+>>   	printf("\n");
+>> +	printf("%s\n", sie ? "Guest registers:" : "Host registers:");
+>>   	printf("GPRS:\n");
+>>   	printf("%016lx %016lx %016lx %016lx\n",
+>>   	       stack->grs1[0], stack->grs1[1], stack->grs0[0], stack->grs0[1]);
+>> @@ -198,24 +202,56 @@ static void print_int_regs(struct stack_frame_int *stack)
+>>   	       stack->grs0[2], stack->grs0[3], stack->grs0[4], stack->grs0[5]);
+>>   	printf("%016lx %016lx %016lx %016lx\n",
+>>   	       stack->grs0[6], stack->grs0[7], stack->grs0[8], stack->grs0[9]);
+>> -	printf("%016lx %016lx %016lx %016lx\n",
+>> -	       stack->grs0[10], stack->grs0[11], stack->grs0[12], stack->grs0[13]);
+>> +
+>> +	if (sie) {
+>> +		sblk = (struct kvm_s390_sie_block *)stack->grs0[12];
+>> +		printf("%016lx %016lx %016lx %016lx\n",
+>> +		       stack->grs0[10], stack->grs0[11], sblk->gg14, sblk->gg15);
+>> +	} else {
+>> +		printf("%016lx %016lx %016lx %016lx\n",
+>> +		       stack->grs0[10], stack->grs0[11], stack->grs0[12], stack->grs0[13]);
+>> +	}
+>> +
+>>   	printf("\n");
+>>   }
+>>   
+>>   static void print_pgm_info(struct stack_frame_int *stack)
+>>   
+>>   {
+>> -	bool in_sie;
+>> +	bool in_sie, in_sie_gregs;
+>> +	struct vm_save_area *vregs;
+>>   
+>>   	in_sie = (lowcore.pgm_old_psw.addr >= (uintptr_t)sie_entry &&
+>>   		  lowcore.pgm_old_psw.addr <= (uintptr_t)sie_exit);
+>> +	in_sie_gregs = (lowcore.pgm_old_psw.addr >= (uintptr_t)sie_entry_gregs &&
+>> +			lowcore.pgm_old_psw.addr <= (uintptr_t)sie_exit_gregs);
+> 
+> can you explain why <= instead of < ? (I think I know why, but a
+> comment would not hurt)
 
-Don't do it like that, copy the kvm out of the struct device to the
-stack and NULL it. Then do the put without holding any locks.
+This might be wrong now that the exit label points behind a lmg which 
+can only cause the operation or the addressing exception.
 
-Jason
+The operation exception can only happen on a LMY without the long 
+displacement HW support and the addressing exception should only happen 
+in circumstances where any processed instruction will likely result in a 
+new exception being thrown.
+
+> 
+> with that fixed:
+> 
+> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> 
+>>   
+>>   	printf("\n");
+>>   	printf("Unexpected program interrupt %s: %#x on cpu %d at %#lx, ilen %d\n",
+>>   	       in_sie ? "in SIE" : "",
+>>   	       lowcore.pgm_int_code, stap(), lowcore.pgm_old_psw.addr, lowcore.pgm_int_id);
+>> -	print_int_regs(stack);
+>> +
+>> +	/*
+>> +	 * If we fall out of SIE before loading the host registers,
+>> +	 * then we need to do it here so we print the host registers
+>> +	 * and not the guest registers.
+>> +	 *
+>> +	 * Back tracing is actually not a problem since SIE restores gr15.
+>> +	 */
+>> +	if (in_sie_gregs) {
+>> +		print_int_regs(stack, true);
+>> +		vregs = *((struct vm_save_area **)(stack->grs0[13] + __SF_SIE_SAVEAREA));
+>> +
+>> +		/*
+>> +		 * The grs are not linear on the interrupt stack frame.
+>> +		 * We copy 0 and 1 here and 2 - 15 with the memcopy below.
+>> +		 */
+>> +		stack->grs1[0] = vregs->host.grs[0];
+>> +		stack->grs1[1] = vregs->host.grs[1];
+>> +		/*  2 - 15 */
+>> +		memcpy(stack->grs0, &vregs->host.grs[2], sizeof(stack->grs0) - 8);
+>> +	}
+>> +	print_int_regs(stack, false);
+>>   	dump_stack();
+>>   
+>>   	/* Dump stack doesn't end with a \n so we add it here instead */
+>> diff --git a/lib/s390x/sie.h b/lib/s390x/sie.h
+>> index a27a8401..147cb0f2 100644
+>> --- a/lib/s390x/sie.h
+>> +++ b/lib/s390x/sie.h
+>> @@ -273,6 +273,8 @@ struct vm {
+>>   
+>>   extern void sie_entry(void);
+>>   extern void sie_exit(void);
+>> +extern void sie_entry_gregs(void);
+>> +extern void sie_exit_gregs(void);
+>>   extern void sie64a(struct kvm_s390_sie_block *sblk, struct vm_save_area *save_area);
+>>   void sie(struct vm *vm);
+>>   void sie_expect_validity(struct vm *vm);
+>> diff --git a/s390x/cpu.S b/s390x/cpu.S
+>> index 45bd551a..9155b044 100644
+>> --- a/s390x/cpu.S
+>> +++ b/s390x/cpu.S
+>> @@ -82,7 +82,8 @@ sie64a:
+>>   	# Store scb and save_area pointer into stack frame
+>>   	stg	%r2,__SF_SIE_CONTROL(%r15)	# save control block pointer
+>>   	stg	%r3,__SF_SIE_SAVEAREA(%r15)	# save guest register save area
+>> -
+>> +.globl sie_entry_gregs
+>> +sie_entry_gregs:
+>>   	# Load guest's gprs, fprs and fpc
+>>   	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+>>   	ld	\i, \i * 8 + SIE_SAVEAREA_GUEST_FPRS(%r3)
+>> @@ -121,7 +122,8 @@ sie_exit:
+>>   	.endr
+>>   	lfpc	SIE_SAVEAREA_HOST_FPC(%r14)
+>>   	lmg	%r0,%r14,SIE_SAVEAREA_HOST_GRS(%r14)	# restore kernel registers
+>> -
+>> +.globl sie_exit_gregs
+>> +sie_exit_gregs:
+>>   	br	%r14
+>>   
+>>   	.align	8
+> 
+
