@@ -2,52 +2,47 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 78DEAC6379F
-	for <linux-s390@archiver.kernel.org>; Fri, 13 Jan 2023 21:06:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 75E46C3DA78
+	for <linux-s390@archiver.kernel.org>; Fri, 13 Jan 2023 21:56:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229690AbjAMVGd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 13 Jan 2023 16:06:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45392 "EHLO
+        id S231294AbjAMV4u (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 13 Jan 2023 16:56:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230037AbjAMVGc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 13 Jan 2023 16:06:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52D82714B5;
-        Fri, 13 Jan 2023 13:06:30 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E25F560E0B;
-        Fri, 13 Jan 2023 21:06:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D5FCC433F2;
-        Fri, 13 Jan 2023 21:06:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1673643989;
-        bh=0FVzf6yMOJV1/lWKf4eOppKwRrG1u9c/xElEn+pOW6g=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=XHW+II8VTmjDd2IjPOkub6Sbny6KV7fcE1GKLhfmF4wxH32SaE/L0Nr4V9fPzPNcA
-         ORhsWdDhwzS3HcxfEhvFLFXNjCEJPV8NzJpn2eWIwDkAzoraBQiSEt8UB0xfvlt5dH
-         WeELJa+ZO444KTNou+IgQ74LFJoNB+2Nh6zk5/absoROUeW0EtvChXzMGBHGUEWvQo
-         QdKtVROVQTsbDa2XZVl5yDirZeyye+bJ3fraLLng27j4ZxWYHp1Lhq3UHBs5GGklPP
-         Y/97fEgv7t7zeiNujgCeD0KYWyUvhKSRbHo4g3BZlQOxWQkWl6OLr1Z5jaRlAMf+88
-         9R2LL6hFd3O6Q==
-Received: by mail-lf1-f43.google.com with SMTP id bf43so34800428lfb.6;
-        Fri, 13 Jan 2023 13:06:29 -0800 (PST)
-X-Gm-Message-State: AFqh2koVTjWl3Z01eLVB1WqSiRitZUZEok++Uk6eVe9Qpet/9DCO48ys
-        MVo+jIA6W3Yzyb7iDnT4nXFr+ssx3YBfdyHh3YY=
-X-Google-Smtp-Source: AMrXdXt/+1bp2sKLbWDXGOcsOqhQeifNegNbRSku++OJEbjShpqxBwNCmy5aW34mTrRwGlqqaitVroip9icQtPFsXJA=
-X-Received: by 2002:ac2:4a8d:0:b0:4a2:4282:89c7 with SMTP id
- l13-20020ac24a8d000000b004a2428289c7mr6165278lfp.437.1673643987303; Fri, 13
- Jan 2023 13:06:27 -0800 (PST)
+        with ESMTP id S229505AbjAMV4t (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 13 Jan 2023 16:56:49 -0500
+Received: from mail-vk1-f180.google.com (mail-vk1-f180.google.com [209.85.221.180])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21798892CD;
+        Fri, 13 Jan 2023 13:56:49 -0800 (PST)
+Received: by mail-vk1-f180.google.com with SMTP id q141so8201821vkb.13;
+        Fri, 13 Jan 2023 13:56:49 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Cn5WaIR2kYHfvSAn6aGjThopDJINdcdLaEEO7lYUz7s=;
+        b=jt3l9jzeq4haX5c4B8Vtb7v7kpt2w3BctPHaRmBcSCqTdwF2h7ZilY696eylJx0Rr8
+         o3SOOgmAjWnGtJij2Q9aEmERh656Liz2UYVxM0hHkSVoRm/VYnOEW5A2JpMRc7ajkEuc
+         YIlFevLxxUnEUr3hnygom6EziZUX16lDj687SlSdrJnmF9oE6FSqrqVyZFw167N2kWtu
+         KMc+wluMwt3aDeY/wmmIiluO7nK+Vf54T1MQ35qjsWOU/zVlrFaPkvRmqvghmOgDPbVy
+         HdewqsS+u9zIOHgqxVw41FOO8zkPDB+fMDE+oukXJA4UrvO0J3RiIhEEka2Nd08ZNls0
+         SrSw==
+X-Gm-Message-State: AFqh2kqfewquwT0J+AtyW+WXNpcii1DOwoqitYFxMj0UH4UsK+Dref0d
+        PJR6vlZIbcW3qmpUVfZ/+lALfrxvNiC21MWFmoF+pDwg
+X-Google-Smtp-Source: AMrXdXsyz01JvYnrA7ongeX2V/NY8FwJtxhNN6Gq7WoTmKfST4Yz2gOETp14D6rsA56A9zPBSZXYdfUuKmK5T9r+8Z4=
+X-Received: by 2002:a05:6122:d9e:b0:3d5:3ee8:6603 with SMTP id
+ bc30-20020a0561220d9e00b003d53ee86603mr9014889vkb.7.1673647008141; Fri, 13
+ Jan 2023 13:56:48 -0800 (PST)
 MIME-Version: 1.0
-References: <20230112214015.1014857-1-namhyung@kernel.org> <20230112214015.1014857-8-namhyung@kernel.org>
-In-Reply-To: <20230112214015.1014857-8-namhyung@kernel.org>
-From:   Song Liu <song@kernel.org>
-Date:   Fri, 13 Jan 2023 13:06:14 -0800
-X-Gmail-Original-Message-ID: <CAPhsuW4D9E84J1v=KHePQxSaw+DAbJipPuHaBGdAJRay2zp6YA@mail.gmail.com>
-Message-ID: <CAPhsuW4D9E84J1v=KHePQxSaw+DAbJipPuHaBGdAJRay2zp6YA@mail.gmail.com>
-Subject: Re: [PATCH 7/8] perf/core: Introduce perf_prepare_header()
-To:     Namhyung Kim <namhyung@kernel.org>
+References: <20230112214015.1014857-1-namhyung@kernel.org> <20230112214015.1014857-4-namhyung@kernel.org>
+ <CAPhsuW71GHAayZmGFfSrpCARiD3YEO1C8QBy1cc1ZEuSFJB=sA@mail.gmail.com>
+In-Reply-To: <CAPhsuW71GHAayZmGFfSrpCARiD3YEO1C8QBy1cc1ZEuSFJB=sA@mail.gmail.com>
+From:   Namhyung Kim <namhyung@kernel.org>
+Date:   Fri, 13 Jan 2023 13:56:36 -0800
+Message-ID: <CAM9d7ciPAocvOvspzfrq2hym-u2+Fbg2A6WJhOQqxwG7CGiuJg@mail.gmail.com>
+Subject: Re: [PATCH 3/8] perf/core: Add perf_sample_save_raw_data() helper
+To:     Song Liu <song@kernel.org>
 Cc:     Peter Zijlstra <peterz@infradead.org>,
         Ingo Molnar <mingo@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
@@ -55,23 +50,75 @@ Cc:     Peter Zijlstra <peterz@infradead.org>,
         Arnaldo Carvalho de Melo <acme@kernel.org>,
         Jiri Olsa <jolsa@kernel.org>,
         LKML <linux-kernel@vger.kernel.org>, linux-s390@vger.kernel.org,
-        x86@kernel.org
+        x86@kernel.org, bpf@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jan 12, 2023 at 1:40 PM Namhyung Kim <namhyung@kernel.org> wrote:
->
-> Factor out perf_prepare_header() so that it can call
-> perf_prepare_sample() without a header if not needed.
->
-> Also it checks the filtered_sample_type to avoid duplicate
-> work when perf_prepare_sample() is called twice (or more).
->
-> Cc: linux-s390@vger.kernel.org
-> Cc: x86@kernel.org
-> Suggested-by: Peter Zijlstr <peterz@infradead.org>
-> Signed-off-by: Namhyung Kim <namhyung@kernel.org>
+Hi Song,
 
-Acked-by: Song Liu <song@kernel.org>
+On Fri, Jan 13, 2023 at 1:01 PM Song Liu <song@kernel.org> wrote:
+>
+> On Thu, Jan 12, 2023 at 1:40 PM Namhyung Kim <namhyung@kernel.org> wrote:
+> >
+> > When it saves the raw_data to the perf sample data, it needs to update
+> > the sample flags and the dynamic size.  To make sure this, add the
+> > perf_sample_save_raw_data() helper and convert all call sites.
+> >
+> > Cc: linux-s390@vger.kernel.org
+> > Cc: x86@kernel.org
+> > Cc: bpf@vger.kernel.org
+> > Suggested-by: Peter Zijlstra <peterz@infradead.org>
+> > Signed-off-by: Namhyung Kim <namhyung@kernel.org>
+> > ---
+
+[SNIP]
+> > diff --git a/kernel/events/core.c b/kernel/events/core.c
+> > index 0fba98b9cd65..133894ae5e30 100644
+> > --- a/kernel/events/core.c
+> > +++ b/kernel/events/core.c
+> > @@ -7588,30 +7588,10 @@ void perf_prepare_sample(struct perf_event_header *header,
+> >         if (filtered_sample_type & PERF_SAMPLE_CALLCHAIN)
+> >                 perf_sample_save_callchain(data, event, regs);
+> >
+> > -       if (sample_type & PERF_SAMPLE_RAW) {
+> > -               struct perf_raw_record *raw = data->raw;
+> > -               int size;
+> > -
+> > -               if (raw && (data->sample_flags & PERF_SAMPLE_RAW)) {
+> > -                       struct perf_raw_frag *frag = &raw->frag;
+> > -                       u32 sum = 0;
+> > -
+> > -                       do {
+> > -                               sum += frag->size;
+> > -                               if (perf_raw_frag_last(frag))
+> > -                                       break;
+> > -                               frag = frag->next;
+> > -                       } while (1);
+> > -
+> > -                       size = round_up(sum + sizeof(u32), sizeof(u64));
+> > -                       raw->size = size - sizeof(u32);
+> > -                       frag->pad = raw->size - sum;
+> > -               } else {
+> > -                       size = sizeof(u64);
+> > -                       data->raw = NULL;
+> > -               }
+> > -
+> > -               data->dyn_size += size;
+> > +       if (filtered_sample_type & PERF_SAMPLE_RAW) {
+> > +               data->raw = NULL;
+> > +               data->dyn_size += sizeof(u64);
+> > +               data->sample_flags |= PERF_SAMPLE_RAW;
+> >         }
+>
+> I don't quite follow this change, and the commit log doesn't seem
+> to cover this part.
+
+It's for when the user requested RAW but no actual data.
+It assumes PMU drivers call perf_sample_save_raw_data()
+before perf_prepare_sample() if there's RAW data.
+So we can only handle the 'else' part in the original code.
+
+Thanks,
+Namhyung
