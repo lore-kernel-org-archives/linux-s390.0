@@ -2,296 +2,137 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A289BC678D4
-	for <linux-s390@archiver.kernel.org>; Fri, 13 Jan 2023 18:16:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B59A0C3DA78
+	for <linux-s390@archiver.kernel.org>; Fri, 13 Jan 2023 18:53:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230303AbjAMSQU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 13 Jan 2023 13:16:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54708 "EHLO
+        id S229525AbjAMSxC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 13 Jan 2023 13:53:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230088AbjAMSPi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 13 Jan 2023 13:15:38 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77D0E6DB8A;
-        Fri, 13 Jan 2023 10:06:41 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 555DACE2122;
-        Fri, 13 Jan 2023 18:06:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DD93C433F1;
-        Fri, 13 Jan 2023 18:06:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1673633197;
-        bh=9JM2l3wQvAeTEYaZAWr5I3gZoNrgDAq2iaamsrQXne0=;
-        h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
-        b=d/TyPrfu3TMN3RDQxpqP5fajACgLxUzrO1o0lviquPae0CCREqyfMhbNaFpmIDnAD
-         gc9rcn8tXi7SZ4Sa6feTIN2Ae1ZeCBFbV5dmTzybf+txFmSo/tzOIYxAQ5C/w8Dqvn
-         lUFscWLbHB7PxSvBS0qnt6QQanZXshhTtjgmZdd4dd7UYrIROlbOAFQjGgiw28eaXg
-         ZWAP2DT2ukYPCwIGpUnzoCfZFD2NIBDmWoE7vSQ2LoozWiuoZLz82Zhhis8k4Jr+Bj
-         yNgUqYimkNr/a2hjrvrPsnsWtLyOCrg7bz13Vy3HC3zIgb+UrU6VBUs4Zs2yFiDWYy
-         hI2RWs0YaghDg==
-Received: by paulmck-ThinkPad-P17-Gen-1.home (Postfix, from userid 1000)
-        id D78905C06D0; Fri, 13 Jan 2023 10:06:36 -0800 (PST)
-Date:   Fri, 13 Jan 2023 10:06:36 -0800
-From:   "Paul E. McKenney" <paulmck@kernel.org>
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     richard.henderson@linaro.org, ink@jurassic.park.msu.ru,
-        mattst88@gmail.com, vgupta@kernel.org, linux@armlinux.org.uk,
-        nsekhar@ti.com, brgl@bgdev.pl, ulli.kroll@googlemail.com,
-        linus.walleij@linaro.org, shawnguo@kernel.org,
-        Sascha Hauer <s.hauer@pengutronix.de>, kernel@pengutronix.de,
-        festevam@gmail.com, linux-imx@nxp.com, tony@atomide.com,
-        khilman@kernel.org, krzysztof.kozlowski@linaro.org,
-        alim.akhtar@samsung.com, catalin.marinas@arm.com, will@kernel.org,
-        guoren@kernel.org, bcain@quicinc.com, chenhuacai@kernel.org,
-        kernel@xen0n.name, geert@linux-m68k.org, sammy@sammy.net,
-        monstr@monstr.eu, tsbogend@alpha.franken.de, dinguyen@kernel.org,
-        jonas@southpole.se, stefan.kristiansson@saunalahti.fi,
-        shorne@gmail.com, James.Bottomley@HansenPartnership.com,
-        deller@gmx.de, mpe@ellerman.id.au, npiggin@gmail.com,
-        christophe.leroy@csgroup.eu, paul.walmsley@sifive.com,
-        palmer@dabbelt.com, aou@eecs.berkeley.edu, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net,
-        richard@nod.at, anton.ivanov@cambridgegreys.com,
-        johannes@sipsolutions.net, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
-        hpa@zytor.com, acme@kernel.org, mark.rutland@arm.com,
-        alexander.shishkin@linux.intel.com, jolsa@kernel.org,
-        namhyung@kernel.org, jgross@suse.com, srivatsa@csail.mit.edu,
-        amakhalov@vmware.com, pv-drivers@vmware.com,
-        boris.ostrovsky@oracle.com, chris@zankel.net, jcmvbkbc@gmail.com,
-        rafael@kernel.org, lenb@kernel.org, pavel@ucw.cz,
-        gregkh@linuxfoundation.org, mturquette@baylibre.com,
-        sboyd@kernel.org, daniel.lezcano@linaro.org, lpieralisi@kernel.org,
-        sudeep.holla@arm.com, agross@kernel.org, andersson@kernel.org,
-        konrad.dybcio@linaro.org, anup@brainfault.org,
-        thierry.reding@gmail.com, jonathanh@nvidia.com,
-        jacob.jun.pan@linux.intel.com, atishp@atishpatra.org,
-        Arnd Bergmann <arnd@arndb.de>, yury.norov@gmail.com,
-        andriy.shevchenko@linux.intel.com, linux@rasmusvillemoes.dk,
-        dennis@kernel.org, tj@kernel.org, cl@linux.com,
-        rostedt@goodmis.org, mhiramat@kernel.org, frederic@kernel.org,
-        pmladek@suse.com, senozhatsky@chromium.org,
-        john.ogness@linutronix.de, juri.lelli@redhat.com,
-        vincent.guittot@linaro.org, dietmar.eggemann@arm.com,
-        bsegall@google.com, mgorman@suse.de, bristot@redhat.com,
-        vschneid@redhat.com, ryabinin.a.a@gmail.com, glider@google.com,
-        andreyknvl@gmail.com, dvyukov@google.com,
-        vincenzo.frascino@arm.com,
-        Andrew Morton <akpm@linux-foundation.org>, jpoimboe@kernel.org,
-        linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org, linux-omap@vger.kernel.org,
-        linux-samsung-soc@vger.kernel.org, linux-csky@vger.kernel.org,
-        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-perf-users@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        linux-xtensa@linux-xtensa.org, linux-acpi@vger.kernel.org,
-        linux-pm@vger.kernel.org, linux-clk@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org, linux-tegra@vger.kernel.org,
-        linux-arch@vger.kernel.org, linux-mm@kvack.org,
-        linux-trace-kernel@vger.kernel.org, kasan-dev@googlegroups.com
-Subject: Re: [PATCH v3 00/51] cpuidle,rcu: Clean up the mess
-Message-ID: <20230113180636.GA4028633@paulmck-ThinkPad-P17-Gen-1>
-Reply-To: paulmck@kernel.org
-References: <20230112194314.845371875@infradead.org>
-MIME-Version: 1.0
+        with ESMTP id S229562AbjAMSxA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 13 Jan 2023 13:53:00 -0500
+Received: from NAM02-BN1-obe.outbound.protection.outlook.com (mail-bn1nam02on2041.outbound.protection.outlook.com [40.107.212.41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DC2F53706;
+        Fri, 13 Jan 2023 10:52:59 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=nvLBVGcBeupYCjijsIN+FHYb2FBBPKCJJxpUcwocVp2DsAr3ZiS41vG3DZClVagICjtbSD0p1RQKF6spVxrgTxNQrpTZq8y77kluvRJCowtBR2DB97vA2i/alCWSNcPtX4rthvouokTSmdyi1EpQ3sAPBYf+qQitpEceqOhr95VXDTpT+MCYhb8X68GVspta4KHAsepvn5u2EKJkyjRzllO+quDiy2etpS5eGrWWVYrSFdtArsmo3f0OA3Cihl5R7ecupkO101pMmU5VDloNQfUleLcuBLMylDtUbEG9rXs7DSo5LMxjzeXcWwQ3ZqZ0mbA+mHVbYBS+haqDdxxZ2w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=tSnVaVzwRzi5/Y6iGq6bdWY3VspgrXK1BwMadvyf8uQ=;
+ b=c/xmtuIcGZyePgcHZ7on1y+5vIeFKmuN4n1Y3YuW/joyE30wOOQGakUNvU+b9hG6K/9bakvWuGmoyCxIfqs6cq4IQ2BVRgHiYlwHhkci3Zy9xNcC4kD1wvJj4f3Daj/7TvLyBIK7D14UxcZkBlmwc+7N/GM6TaX6VgnYffVr7cHZkNZ4pI8ZC/G5yHZZrA68zcrPQ95kw1VwydPEc52yNubactocVI4uWJwloCOOwU40Xsd/hxadkExwsT1t+a+Pn9kM9NcPyNY0cT2EFa03cSkqzpSOZnvarZNP/tzNWr6V3VAdZFnHEICJNBwZiDVr0KoVubAsjF64LuPr2iuHXg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=tSnVaVzwRzi5/Y6iGq6bdWY3VspgrXK1BwMadvyf8uQ=;
+ b=hsDwVA0O7RSy48Mhe7NWMb8tjn15TWEJoVlt3QzkzavAnaXOL8kEGS01VnU9cLjhCRRPPcSfoDzeMzJXYhOMOuox/Ot4I12ZYCdzsk/GjBnBITzcUsTQP7xN3s8/8Sv/UDVM5/xApqXFM+WVsSCdOnXfIz4zy1D3mAOS7Y8SNemMQsUxXtxTKEaT0HRbgbO9p7qsvsW/eE2+eT00vBlSi0E/01JxVszazTvISYG0Wfanvt1EvktpUrsZ0JjwNoW+Tilv5KeD7M06rdYN+4BSEBrQunQlXoIBDZR2qnMAqTNNYxoTtmYti4bZWLqDIYk2sm0FuOGclYXgNl2w+/WTbA==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by SN7PR12MB7129.namprd12.prod.outlook.com (2603:10b6:806:2a1::16) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6002.13; Fri, 13 Jan
+ 2023 18:52:57 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::f8b0:df13:5f8d:12a]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::f8b0:df13:5f8d:12a%9]) with mapi id 15.20.6002.013; Fri, 13 Jan 2023
+ 18:52:57 +0000
+Date:   Fri, 13 Jan 2023 14:52:56 -0400
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Matthew Rosato <mjrosato@linux.ibm.com>
+Cc:     alex.williamson@redhat.com, pbonzini@redhat.com, cohuck@redhat.com,
+        farman@linux.ibm.com, pmorel@linux.ibm.com,
+        borntraeger@linux.ibm.com, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com, david@redhat.com, akrowiak@linux.ibm.com,
+        jjherne@linux.ibm.com, pasic@linux.ibm.com,
+        zhenyuw@linux.intel.com, zhi.a.wang@intel.com, seanjc@google.com,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3] vfio: fix potential deadlock on vfio group lock
+Message-ID: <Y8GoiCBQNiAuVcNw@nvidia.com>
+References: <20230113171132.86057-1-mjrosato@linux.ibm.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230112194314.845371875@infradead.org>
+In-Reply-To: <20230113171132.86057-1-mjrosato@linux.ibm.com>
+X-ClientProxiedBy: BL1PR13CA0181.namprd13.prod.outlook.com
+ (2603:10b6:208:2be::6) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|SN7PR12MB7129:EE_
+X-MS-Office365-Filtering-Correlation-Id: f3ee1e7a-0170-44d6-6458-08daf59762b6
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: E7ydpYnXQmh9K31D3wl4tzrdkCKlrkGRBZGa4WgXUHoPQXJldi2dyctCm7GT9xyt7cMw5R9Mc3tj7JnwXEGfM0Ws2nD9sb0voZ4sUV1AojPjhaXmpLr6qewNGJ2E1z4YgaTisBvW/P11JqKCBi+PgtrLa6tvaEMz7o1yJdZEL8mVAuIO1aNjy2WCgk7RC1YFHmKsPGJhdTQlRxOKAwTc64DzbVxH4hn602sMCc6eXyoNRL6SozXVJI6RWuH8niz2kKnV1IBz0CL9VQNngUrM+B8n3YgdNhmhxIlA4Fg5LFWxTHUIev260xlRiIj/01IaMgEX84Mkfp6cZKboAaE3ZlSmefhoZfPKWx85mGfRr8x3FE8XKUd55JkfLsFovGOHmQmxCFkOhw+B6zZJXDTHUIOyjtVCYd7OAPrmy4oBDcCmx9cP309DqXDsyvcZnZxRYT3b5KT+dsUAoVm7kpCMhDngr+c0LMlHuNssLTyOpWMXpFJpK8cremFBFdSOjWiibGxMqZDOZXwO7kb5JMKHXEsvn5gmEpY66TfTPWLQMBIZSD8k4axvHu0lIZrnAKWY1Wzy4BSJnE1UJoPAudBkXMkbivWTzf+XUgrpQUet8/LiLmh854/ma1OMZTqltdrIB2GzzxBfEUNQ3kC6c3F69A==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(39860400002)(396003)(136003)(346002)(366004)(376002)(451199015)(6506007)(7416002)(36756003)(2906002)(5660300002)(83380400001)(8936002)(4744005)(6916009)(4326008)(8676002)(38100700002)(6512007)(6486002)(41300700001)(478600001)(66946007)(66556008)(186003)(66476007)(26005)(86362001)(2616005)(316002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?xrLkPnGGNn+PcR00I/9tYoYSk9RB1brWY24QGJYS1bAN26dqbfMFywwuYari?=
+ =?us-ascii?Q?8JAZDbf9oPvDC622gGOsb3Bo7HX5jm/nK54j1zX7EEAr0zU4tMC82Zxq3TRZ?=
+ =?us-ascii?Q?QEysvzfraaQfAWOLAwSsxW1IdHbPeh+djNq4XXZNMTbA7HKxLdbKFwAO6wP0?=
+ =?us-ascii?Q?4CDc3CVHprYqcpvYSDTX8uaYavs3+pXz+T88QTQoiDYVerjknANOWOj2Ecjp?=
+ =?us-ascii?Q?hD90a7CJwrqgyGflFvAJ7qABSRLm6LqmGYgQ+ysdjZSqVQkoabWjccn0ibGW?=
+ =?us-ascii?Q?EJYsQQWuOylSc9ydktJbNzrozu1mqBfgmP3FgWr2+rJ6wbJ/KSZT8w3spOS+?=
+ =?us-ascii?Q?8ReMD4E92+Ql/QgLmN7ESIG2Bo0bz/8iDm7UGYSzQXG8foXTD4PiiSsi0BWS?=
+ =?us-ascii?Q?pqxPUVNwq2LRhQWhi75TSW5KaizrJWEW43YqD2nm73hqPX7giaLH/VV33NEd?=
+ =?us-ascii?Q?EzmgjLAJ51XRfXIucqsbvEFaJYdHfYhtFft8C49XDfsx37UBRVnHeqAenlL1?=
+ =?us-ascii?Q?agyXQMd+3UkUo8XZqAgYYW3cSBU6gdXtNUBlirnxtAUiGa/gDP/MVm6VONbw?=
+ =?us-ascii?Q?ypopkSDGGSl+5gGHSVcukbQgqsqIkhVBxkd0f1sQgaYvL+qFQwPhYpYeklAh?=
+ =?us-ascii?Q?BC5WNhWwmKjs7x2Zub6NBYSIFZh6TfDKDakkarZg0uEh3Mq8rC4tkxvqwoZj?=
+ =?us-ascii?Q?KOrkpAoaAZLI6aE+HVvvW10Wr1uxdqb8B1NX5/9J2+s3YGLznCs4EGjihNGn?=
+ =?us-ascii?Q?u04sbgrRKdha1svnuDOd5DM4j9Qro5FFVMuSj11DHrkvatgR3WGtfOyfuixk?=
+ =?us-ascii?Q?ZgISldEE4F8hjuoiFv99WFwaZXs75nwTt33/U28aL1nsc/xZkC+ZeStFaUub?=
+ =?us-ascii?Q?/Y3w4wLDkHUx3X+kco7R78UqmB3qI0lml+X76KmpGdV71gLEOfwG0YQts7Cg?=
+ =?us-ascii?Q?lh4fX2JPCv2OXBt9ZHxe0rCwQsKaJ/qUfRHZhUChVCybdTnfgaDD9VVl8QGm?=
+ =?us-ascii?Q?zGWbeoFNrd89MobHqwWfaIXTGKE5J9vJ7Fe5+Y84+mweAN8slPFx1/AayHy/?=
+ =?us-ascii?Q?on6w2/zNZixCwRo4fxZgrPANr8rUrJILgTS2nYnquSeo/V/r/guNall3mbsj?=
+ =?us-ascii?Q?FVWilGUpyP3QqSq79PeDaTlOXHTFgOuGpBYMRnOyGclw2/FT/4b5FuEyFQad?=
+ =?us-ascii?Q?ZunLqpLjdU1LYX9a804yatBft560OZCZ0foJr5+WWixYEnzEi64hXw4Wglp7?=
+ =?us-ascii?Q?iFO1uri956GsJpiLDe0DYu8jit8d6sWqKEraJY2muKjwHmdcYM9YPiHhs3eW?=
+ =?us-ascii?Q?Fb/x4znYl1d5FSH8/GZaS4GDunnI/OgJOAtKNw4Wkfych3JqrNpQe2KAgVf5?=
+ =?us-ascii?Q?ATF4AxwKXMBiwaCCI6qKew4dY0nWEGu8QuilnIBniLQsKslf2GFoghpeU+BN?=
+ =?us-ascii?Q?LUilpeyQuVsx/gCOElzZ7C9IZEYE42bXw6ZAEUWdqsPDFjBkqvO2TOR9djkz?=
+ =?us-ascii?Q?jam4aNh7MXbR651Y8DCsBzKG0AfXNsc6yR2UdSOvZf9GE6OGo7b2z25CS/Ca?=
+ =?us-ascii?Q?GdFKL0iJ++dQtkc0P1Bl8LGfCAXImHm/6qxuZZZ1?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: f3ee1e7a-0170-44d6-6458-08daf59762b6
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Jan 2023 18:52:57.3833
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: LxeqD03n/2RS/HBYEjNeoOWYcOzMBYVX7D+CvGBA75Y6jUSuQXRwy6AwA2va0jOT
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR12MB7129
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jan 12, 2023 at 08:43:14PM +0100, Peter Zijlstra wrote:
-> Hi All!
-> 
-> The (hopefully) final respin of cpuidle vs rcu cleanup patches. Barring any
-> objections I'll be queueing these patches in tip/sched/core in the next few
-> days.
-> 
-> v2: https://lkml.kernel.org/r/20220919095939.761690562@infradead.org
-> 
-> These here patches clean up the mess that is cpuidle vs rcuidle.
-> 
-> At the end of the ride there's only on RCU_NONIDLE user left:
-> 
->   arch/arm64/kernel/suspend.c:            RCU_NONIDLE(__cpu_suspend_exit());
-> 
-> And I know Mark has been prodding that with something sharp.
-> 
-> The last version was tested by a number of people and I'm hoping to not have
-> broken anything in the meantime ;-)
-> 
-> 
-> Changes since v2:
+On Fri, Jan 13, 2023 at 12:11:32PM -0500, Matthew Rosato wrote:
+> @@ -462,9 +520,19 @@ static inline void vfio_device_pm_runtime_put(struct vfio_device *device)
+>  static int vfio_device_fops_release(struct inode *inode, struct file *filep)
+>  {
+>  	struct vfio_device *device = filep->private_data;
+> +	struct kvm *kvm = NULL;
+>  
+>  	vfio_device_group_close(device);
+>  
+> +	mutex_lock(&device->dev_set->lock);
+> +	if (device->open_count == 0 && device->kvm) {
+> +		kvm = device->kvm;
+> +		device->kvm = NULL;
+> +	}
+> +	mutex_unlock(&device->dev_set->lock);
 
-150 rcutorture hours on each of the default scenarios passed.  This
-is qemu/KVM on x86:
+This still doesn't seem right, another thread could have incr'd the
+open_count already 
 
-Tested-by: Paul E. McKenney <paulmck@kernel.org>
+This has to be done at the moment open_count is decremented to zero,
+while still under the original lock.
 
->  - rebased to v6.2-rc3; as available at:
->      git://git.kernel.org/pub/scm/linux/kernel/git/peterz/queue.git sched/idle
-> 
->  - folded: https://lkml.kernel.org/r/Y3UBwYNY15ETUKy9@hirez.programming.kicks-ass.net
->    which makes the ARM cpuidle index 0 consistently not use
->    CPUIDLE_FLAG_RCU_IDLE, as requested by Ulf.
-> 
->  - added a few more __always_inline to empty stub functions as found by the
->    robot.
-> 
->  - Used _RET_IP_ instead of _THIS_IP_ in a few placed because of:
->    https://github.com/ClangBuiltLinux/linux/issues/263
-> 
->  - Added new patches to address various robot reports:
-> 
->      #35:  trace,hardirq: No moar _rcuidle() tracing
->      #47:  cpuidle: Ensure ct_cpuidle_enter() is always called from noinstr/__cpuidle
->      #48:  cpuidle,arch: Mark all ct_cpuidle_enter() callers __cpuidle
->      #49:  cpuidle,arch: Mark all regular cpuidle_state::enter methods __cpuidle
->      #50:  cpuidle: Comments about noinstr/__cpuidle
->      #51:  context_tracking: Fix noinstr vs KASAN
-> 
-> 
-> ---
->  arch/alpha/kernel/process.c               |  1 -
->  arch/alpha/kernel/vmlinux.lds.S           |  1 -
->  arch/arc/kernel/process.c                 |  3 ++
->  arch/arc/kernel/vmlinux.lds.S             |  1 -
->  arch/arm/include/asm/vmlinux.lds.h        |  1 -
->  arch/arm/kernel/cpuidle.c                 |  4 +-
->  arch/arm/kernel/process.c                 |  1 -
->  arch/arm/kernel/smp.c                     |  6 +--
->  arch/arm/mach-davinci/cpuidle.c           |  4 +-
->  arch/arm/mach-gemini/board-dt.c           |  3 +-
->  arch/arm/mach-imx/cpuidle-imx5.c          |  4 +-
->  arch/arm/mach-imx/cpuidle-imx6q.c         |  8 ++--
->  arch/arm/mach-imx/cpuidle-imx6sl.c        |  4 +-
->  arch/arm/mach-imx/cpuidle-imx6sx.c        |  9 ++--
->  arch/arm/mach-imx/cpuidle-imx7ulp.c       |  4 +-
->  arch/arm/mach-omap2/common.h              |  6 ++-
->  arch/arm/mach-omap2/cpuidle34xx.c         | 16 ++++++-
->  arch/arm/mach-omap2/cpuidle44xx.c         | 29 +++++++------
->  arch/arm/mach-omap2/omap-mpuss-lowpower.c | 12 +++++-
->  arch/arm/mach-omap2/pm.h                  |  2 +-
->  arch/arm/mach-omap2/pm24xx.c              | 51 +---------------------
->  arch/arm/mach-omap2/pm34xx.c              | 14 +++++--
->  arch/arm/mach-omap2/pm44xx.c              |  2 +-
->  arch/arm/mach-omap2/powerdomain.c         | 10 ++---
->  arch/arm/mach-s3c/cpuidle-s3c64xx.c       |  5 +--
->  arch/arm64/kernel/cpuidle.c               |  2 +-
->  arch/arm64/kernel/idle.c                  |  1 -
->  arch/arm64/kernel/smp.c                   |  4 +-
->  arch/arm64/kernel/vmlinux.lds.S           |  1 -
->  arch/csky/kernel/process.c                |  1 -
->  arch/csky/kernel/smp.c                    |  2 +-
->  arch/csky/kernel/vmlinux.lds.S            |  1 -
->  arch/hexagon/kernel/process.c             |  1 -
->  arch/hexagon/kernel/vmlinux.lds.S         |  1 -
->  arch/ia64/kernel/process.c                |  1 +
->  arch/ia64/kernel/vmlinux.lds.S            |  1 -
->  arch/loongarch/kernel/idle.c              |  1 +
->  arch/loongarch/kernel/vmlinux.lds.S       |  1 -
->  arch/m68k/kernel/vmlinux-nommu.lds        |  1 -
->  arch/m68k/kernel/vmlinux-std.lds          |  1 -
->  arch/m68k/kernel/vmlinux-sun3.lds         |  1 -
->  arch/microblaze/kernel/process.c          |  1 -
->  arch/microblaze/kernel/vmlinux.lds.S      |  1 -
->  arch/mips/kernel/idle.c                   | 14 +++----
->  arch/mips/kernel/vmlinux.lds.S            |  1 -
->  arch/nios2/kernel/process.c               |  1 -
->  arch/nios2/kernel/vmlinux.lds.S           |  1 -
->  arch/openrisc/kernel/process.c            |  1 +
->  arch/openrisc/kernel/vmlinux.lds.S        |  1 -
->  arch/parisc/kernel/process.c              |  2 -
->  arch/parisc/kernel/vmlinux.lds.S          |  1 -
->  arch/powerpc/kernel/idle.c                |  5 +--
->  arch/powerpc/kernel/vmlinux.lds.S         |  1 -
->  arch/riscv/kernel/process.c               |  1 -
->  arch/riscv/kernel/vmlinux-xip.lds.S       |  1 -
->  arch/riscv/kernel/vmlinux.lds.S           |  1 -
->  arch/s390/kernel/idle.c                   |  1 -
->  arch/s390/kernel/vmlinux.lds.S            |  1 -
->  arch/sh/kernel/idle.c                     |  1 +
->  arch/sh/kernel/vmlinux.lds.S              |  1 -
->  arch/sparc/kernel/leon_pmc.c              |  4 ++
->  arch/sparc/kernel/process_32.c            |  1 -
->  arch/sparc/kernel/process_64.c            |  3 +-
->  arch/sparc/kernel/vmlinux.lds.S           |  1 -
->  arch/um/kernel/dyn.lds.S                  |  1 -
->  arch/um/kernel/process.c                  |  1 -
->  arch/um/kernel/uml.lds.S                  |  1 -
->  arch/x86/boot/compressed/vmlinux.lds.S    |  1 +
->  arch/x86/coco/tdx/tdcall.S                | 15 +------
->  arch/x86/coco/tdx/tdx.c                   | 25 ++++-------
->  arch/x86/events/amd/brs.c                 | 13 +++---
->  arch/x86/include/asm/fpu/xcr.h            |  4 +-
->  arch/x86/include/asm/irqflags.h           | 11 ++---
->  arch/x86/include/asm/mwait.h              | 14 +++----
->  arch/x86/include/asm/nospec-branch.h      |  2 +-
->  arch/x86/include/asm/paravirt.h           |  6 ++-
->  arch/x86/include/asm/perf_event.h         |  2 +-
->  arch/x86/include/asm/shared/io.h          |  4 +-
->  arch/x86/include/asm/shared/tdx.h         |  1 -
->  arch/x86/include/asm/special_insns.h      |  8 ++--
->  arch/x86/include/asm/xen/hypercall.h      |  2 +-
->  arch/x86/kernel/cpu/bugs.c                |  2 +-
->  arch/x86/kernel/fpu/core.c                |  4 +-
->  arch/x86/kernel/paravirt.c                | 14 ++++++-
->  arch/x86/kernel/process.c                 | 65 ++++++++++++++--------------
->  arch/x86/kernel/vmlinux.lds.S             |  1 -
->  arch/x86/lib/memcpy_64.S                  |  5 +--
->  arch/x86/lib/memmove_64.S                 |  4 +-
->  arch/x86/lib/memset_64.S                  |  4 +-
->  arch/x86/xen/enlighten_pv.c               |  2 +-
->  arch/x86/xen/irq.c                        |  2 +-
->  arch/xtensa/kernel/process.c              |  1 +
->  arch/xtensa/kernel/vmlinux.lds.S          |  1 -
->  drivers/acpi/processor_idle.c             | 28 ++++++++-----
->  drivers/base/power/runtime.c              | 24 +++++------
->  drivers/clk/clk.c                         |  8 ++--
->  drivers/cpuidle/cpuidle-arm.c             |  4 +-
->  drivers/cpuidle/cpuidle-big_little.c      | 12 ++++--
->  drivers/cpuidle/cpuidle-mvebu-v7.c        | 13 ++++--
->  drivers/cpuidle/cpuidle-psci.c            | 26 +++++-------
->  drivers/cpuidle/cpuidle-qcom-spm.c        |  4 +-
->  drivers/cpuidle/cpuidle-riscv-sbi.c       | 19 +++++----
->  drivers/cpuidle/cpuidle-tegra.c           | 31 +++++++++-----
->  drivers/cpuidle/cpuidle.c                 | 70 ++++++++++++++++++++++---------
->  drivers/cpuidle/dt_idle_states.c          |  2 +-
->  drivers/cpuidle/poll_state.c              | 10 ++++-
->  drivers/idle/intel_idle.c                 | 19 ++++-----
->  drivers/perf/arm_pmu.c                    | 11 +----
->  drivers/perf/riscv_pmu_sbi.c              |  8 +---
->  include/asm-generic/vmlinux.lds.h         |  9 ++--
->  include/linux/clockchips.h                |  4 +-
->  include/linux/compiler_types.h            | 18 +++++++-
->  include/linux/cpu.h                       |  3 --
->  include/linux/cpuidle.h                   | 32 ++++++++++++++
->  include/linux/cpumask.h                   |  4 +-
->  include/linux/percpu-defs.h               |  2 +-
->  include/linux/sched/idle.h                | 40 +++++++++++++-----
->  include/linux/thread_info.h               | 18 +++++++-
->  include/linux/tracepoint.h                | 15 ++++++-
->  kernel/context_tracking.c                 | 12 +++---
->  kernel/cpu_pm.c                           |  9 ----
->  kernel/printk/printk.c                    |  2 +-
->  kernel/sched/idle.c                       | 47 ++++++---------------
->  kernel/time/tick-broadcast-hrtimer.c      | 29 ++++++-------
->  kernel/time/tick-broadcast.c              |  6 ++-
->  kernel/trace/trace.c                      |  3 ++
->  kernel/trace/trace_preemptirq.c           | 50 ++++++----------------
->  lib/ubsan.c                               |  5 ++-
->  mm/kasan/kasan.h                          |  4 ++
->  mm/kasan/shadow.c                         | 38 +++++++++++++++++
->  tools/objtool/check.c                     | 17 ++++++++
->  131 files changed, 617 insertions(+), 523 deletions(-)
-> 
+Jason
