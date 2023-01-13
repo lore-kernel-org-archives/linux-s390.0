@@ -2,249 +2,248 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E35DFC54EBD
-	for <linux-s390@archiver.kernel.org>; Fri, 13 Jan 2023 16:00:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 77593C54EBE
+	for <linux-s390@archiver.kernel.org>; Fri, 13 Jan 2023 17:11:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229926AbjAMQAU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 13 Jan 2023 11:00:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49640 "EHLO
+        id S229543AbjAMRLk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 13 Jan 2023 12:11:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229615AbjAMP7v (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 13 Jan 2023 10:59:51 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6869987F0A;
-        Fri, 13 Jan 2023 07:50:59 -0800 (PST)
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30DDoQuZ002132;
-        Fri, 13 Jan 2023 15:50:58 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : to : cc : references : from : subject : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=cDWn1RrhvVZPuvzMVd/sPKgSgYJZoF/XmQR8FUP84vs=;
- b=MY6gdg6hJqaxzqo1kbhkR3tQMTXWuwi2lzmUlEw9CYCgxifBTriJuS/efITndyVcGPS6
- n8cNphLWxD/rrT1MSNzRLZ62tb5hHqOfQ8tP79YIv4hupfmxNQR2DLCiCiDFTEI5JvTp
- 5u+XFX5vlPEEiNsM0mVk20QOjnzNuKqbCZhXCqNpF5+I56+jnQguOjZ+3eUfK2TR6SUB
- uzNmgF1ENYpN10Kp/fZeCXpNEhrDPvHZ+K7Z2mb1nSx5Glfc11lrKEk45w7SllHHwCX/
- /a8sYm6sqAR0zOV0oXBwMmM5NMoGyVqV6Y7f1DffaT48oJ55pbDrg3OYnM4dTtszyw5y Vg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3n36u3numv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 13 Jan 2023 15:50:58 +0000
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 30DEnGDg000636;
-        Fri, 13 Jan 2023 15:50:57 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3n36u3numd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 13 Jan 2023 15:50:57 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30D7jax0030869;
-        Fri, 13 Jan 2023 15:50:55 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3n1kf7m5n5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 13 Jan 2023 15:50:55 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30DFoqbj38535656
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 13 Jan 2023 15:50:52 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1F7082004B;
-        Fri, 13 Jan 2023 15:50:52 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B241E20040;
-        Fri, 13 Jan 2023 15:50:51 +0000 (GMT)
-Received: from [9.171.1.52] (unknown [9.171.1.52])
-        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Fri, 13 Jan 2023 15:50:51 +0000 (GMT)
-Message-ID: <54e21150-714c-4a06-59ba-a599bae76bbf@linux.ibm.com>
-Date:   Fri, 13 Jan 2023 16:50:51 +0100
+        with ESMTP id S229626AbjAMRLi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 13 Jan 2023 12:11:38 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DA176E404
+        for <linux-s390@vger.kernel.org>; Fri, 13 Jan 2023 09:10:49 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1673629848;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=ckKqRBtsefZM1JDfoCvf0Xxq+48ay8EjXnX8re+vcnw=;
+        b=YXxN+nWFcJ4qhkfa4OGIiHqUUme/YHJOSz2u+wJQt2yg2ydHs9HymvX/j9h8hRGCXcUY1c
+        zYhYG5bcFiukATXw3qwYq2rODu4NB0RpW/5pWuEbXszayPzdHgFQZbbOtKpQh0pxZPHJRS
+        a5rvHP1Xqud1FoD3i4ori8e5eoDogAY=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-635-AC9lyTUMPqafMM3-Wo5Sqg-1; Fri, 13 Jan 2023 12:10:45 -0500
+X-MC-Unique: AC9lyTUMPqafMM3-Wo5Sqg-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 25E25858F09;
+        Fri, 13 Jan 2023 17:10:44 +0000 (UTC)
+Received: from t480s.fritz.box (unknown [10.39.193.196])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 2951C40C2064;
+        Fri, 13 Jan 2023 17:10:27 +0000 (UTC)
+From:   David Hildenbrand <david@redhat.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Hugh Dickins <hughd@google.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Nadav Amit <namit@vmware.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Peter Xu <peterx@redhat.com>, linux-mm@kvack.org,
+        x86@kernel.org, linux-alpha@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
+        David Hildenbrand <david@redhat.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@quicinc.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Chris Zankel <chris@zankel.net>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Greg Ungerer <gerg@linux-m68k.org>,
+        Guo Ren <guoren@kernel.org>, Helge Deller <deller@gmx.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Matt Turner <mattst88@gmail.com>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Michal Simek <monstr@monstr.eu>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Richard Henderson <richard.henderson@linaro.org>,
+        Richard Weinberger <richard@nod.at>,
+        Rich Felker <dalias@libc.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Stafford Horne <shorne@gmail.com>,
+        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vineet Gupta <vgupta@kernel.org>,
+        WANG Xuerui <kernel@xen0n.name>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>
+Subject: [PATCH mm-unstable v1 00/26] mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE on all architectures with swap PTEs
+Date:   Fri, 13 Jan 2023 18:10:00 +0100
+Message-Id: <20230113171026.582290-1-david@redhat.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.0
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org, thuth@redhat.com,
-        david@redhat.com, nsg@linux.ibm.com, nrb@linux.ibm.com
-References: <20230112154548.163021-1-frankja@linux.ibm.com>
- <20230112154548.163021-8-frankja@linux.ibm.com>
- <20230112181353.0ed31250@p-imbrenda>
-Content-Language: en-US
-From:   Janosch Frank <frankja@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v2 7/7] lib: s390x: Handle debug prints for
- SIE exceptions correctly
-In-Reply-To: <20230112181353.0ed31250@p-imbrenda>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: ANkHdpBMQdquBqbRwzV84cmNOx4ok3N8
-X-Proofpoint-ORIG-GUID: EeRyJrnnPoInUVgfx9HExjjhI3M8QFW7
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.923,Hydra:6.0.562,FMLib:17.11.122.1
- definitions=2023-01-13_07,2023-01-13_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- malwarescore=0 spamscore=0 clxscore=1015 priorityscore=1501 suspectscore=0
- bulkscore=0 impostorscore=0 mlxlogscore=999 phishscore=0 adultscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2301130103
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.1
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 1/12/23 18:13, Claudio Imbrenda wrote:
-> On Thu, 12 Jan 2023 15:45:48 +0000
-> Janosch Frank <frankja@linux.ibm.com> wrote:
-> 
->> When we leave SIE due to an exception, we'll still have guest values
->> in registers 0 - 13 and that's not clearly portraied in our debug
->> prints. So let's fix that.
->>
->> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
->> ---
->>   lib/s390x/interrupt.c | 46 ++++++++++++++++++++++++++++++++++++++-----
->>   lib/s390x/sie.h       |  2 ++
->>   s390x/cpu.S           |  6 ++++--
->>   3 files changed, 47 insertions(+), 7 deletions(-)
->>
->> diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
->> index dadb7415..ff47c2c2 100644
->> --- a/lib/s390x/interrupt.c
->> +++ b/lib/s390x/interrupt.c
->> @@ -9,6 +9,7 @@
->>    */
->>   #include <libcflat.h>
->>   #include <asm/barrier.h>
->> +#include <asm/asm-offsets.h>
->>   #include <sclp.h>
->>   #include <interrupt.h>
->>   #include <sie.h>
->> @@ -188,9 +189,12 @@ static void print_storage_exception_information(void)
->>   	}
->>   }
->>   
->> -static void print_int_regs(struct stack_frame_int *stack)
->> +static void print_int_regs(struct stack_frame_int *stack, bool sie)
->>   {
->> +	struct kvm_s390_sie_block *sblk;
->> +
->>   	printf("\n");
->> +	printf("%s\n", sie ? "Guest registers:" : "Host registers:");
->>   	printf("GPRS:\n");
->>   	printf("%016lx %016lx %016lx %016lx\n",
->>   	       stack->grs1[0], stack->grs1[1], stack->grs0[0], stack->grs0[1]);
->> @@ -198,24 +202,56 @@ static void print_int_regs(struct stack_frame_int *stack)
->>   	       stack->grs0[2], stack->grs0[3], stack->grs0[4], stack->grs0[5]);
->>   	printf("%016lx %016lx %016lx %016lx\n",
->>   	       stack->grs0[6], stack->grs0[7], stack->grs0[8], stack->grs0[9]);
->> -	printf("%016lx %016lx %016lx %016lx\n",
->> -	       stack->grs0[10], stack->grs0[11], stack->grs0[12], stack->grs0[13]);
->> +
->> +	if (sie) {
->> +		sblk = (struct kvm_s390_sie_block *)stack->grs0[12];
->> +		printf("%016lx %016lx %016lx %016lx\n",
->> +		       stack->grs0[10], stack->grs0[11], sblk->gg14, sblk->gg15);
->> +	} else {
->> +		printf("%016lx %016lx %016lx %016lx\n",
->> +		       stack->grs0[10], stack->grs0[11], stack->grs0[12], stack->grs0[13]);
->> +	}
->> +
->>   	printf("\n");
->>   }
->>   
->>   static void print_pgm_info(struct stack_frame_int *stack)
->>   
->>   {
->> -	bool in_sie;
->> +	bool in_sie, in_sie_gregs;
->> +	struct vm_save_area *vregs;
->>   
->>   	in_sie = (lowcore.pgm_old_psw.addr >= (uintptr_t)sie_entry &&
->>   		  lowcore.pgm_old_psw.addr <= (uintptr_t)sie_exit);
->> +	in_sie_gregs = (lowcore.pgm_old_psw.addr >= (uintptr_t)sie_entry_gregs &&
->> +			lowcore.pgm_old_psw.addr <= (uintptr_t)sie_exit_gregs);
-> 
-> can you explain why <= instead of < ? (I think I know why, but a
-> comment would not hurt)
+This is the follow-up on [1]:
+	[PATCH v2 0/8] mm: COW fixes part 3: reliable GUP R/W FOLL_GET of
+	anonymous pages
 
-This might be wrong now that the exit label points behind a lmg which 
-can only cause the operation or the addressing exception.
+After we implemented __HAVE_ARCH_PTE_SWP_EXCLUSIVE on most prominent
+enterprise architectures, implement __HAVE_ARCH_PTE_SWP_EXCLUSIVE on all
+remaining architectures that support swap PTEs.
 
-The operation exception can only happen on a LMY without the long 
-displacement HW support and the addressing exception should only happen 
-in circumstances where any processed instruction will likely result in a 
-new exception being thrown.
+This makes sure that exclusive anonymous pages will stay exclusive, even
+after they were swapped out -- for example, making GUP R/W FOLL_GET of
+anonymous pages reliable. Details can be found in [1].
 
-> 
-> with that fixed:
-> 
-> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> 
->>   
->>   	printf("\n");
->>   	printf("Unexpected program interrupt %s: %#x on cpu %d at %#lx, ilen %d\n",
->>   	       in_sie ? "in SIE" : "",
->>   	       lowcore.pgm_int_code, stap(), lowcore.pgm_old_psw.addr, lowcore.pgm_int_id);
->> -	print_int_regs(stack);
->> +
->> +	/*
->> +	 * If we fall out of SIE before loading the host registers,
->> +	 * then we need to do it here so we print the host registers
->> +	 * and not the guest registers.
->> +	 *
->> +	 * Back tracing is actually not a problem since SIE restores gr15.
->> +	 */
->> +	if (in_sie_gregs) {
->> +		print_int_regs(stack, true);
->> +		vregs = *((struct vm_save_area **)(stack->grs0[13] + __SF_SIE_SAVEAREA));
->> +
->> +		/*
->> +		 * The grs are not linear on the interrupt stack frame.
->> +		 * We copy 0 and 1 here and 2 - 15 with the memcopy below.
->> +		 */
->> +		stack->grs1[0] = vregs->host.grs[0];
->> +		stack->grs1[1] = vregs->host.grs[1];
->> +		/*  2 - 15 */
->> +		memcpy(stack->grs0, &vregs->host.grs[2], sizeof(stack->grs0) - 8);
->> +	}
->> +	print_int_regs(stack, false);
->>   	dump_stack();
->>   
->>   	/* Dump stack doesn't end with a \n so we add it here instead */
->> diff --git a/lib/s390x/sie.h b/lib/s390x/sie.h
->> index a27a8401..147cb0f2 100644
->> --- a/lib/s390x/sie.h
->> +++ b/lib/s390x/sie.h
->> @@ -273,6 +273,8 @@ struct vm {
->>   
->>   extern void sie_entry(void);
->>   extern void sie_exit(void);
->> +extern void sie_entry_gregs(void);
->> +extern void sie_exit_gregs(void);
->>   extern void sie64a(struct kvm_s390_sie_block *sblk, struct vm_save_area *save_area);
->>   void sie(struct vm *vm);
->>   void sie_expect_validity(struct vm *vm);
->> diff --git a/s390x/cpu.S b/s390x/cpu.S
->> index 45bd551a..9155b044 100644
->> --- a/s390x/cpu.S
->> +++ b/s390x/cpu.S
->> @@ -82,7 +82,8 @@ sie64a:
->>   	# Store scb and save_area pointer into stack frame
->>   	stg	%r2,__SF_SIE_CONTROL(%r15)	# save control block pointer
->>   	stg	%r3,__SF_SIE_SAVEAREA(%r15)	# save guest register save area
->> -
->> +.globl sie_entry_gregs
->> +sie_entry_gregs:
->>   	# Load guest's gprs, fprs and fpc
->>   	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
->>   	ld	\i, \i * 8 + SIE_SAVEAREA_GUEST_FPRS(%r3)
->> @@ -121,7 +122,8 @@ sie_exit:
->>   	.endr
->>   	lfpc	SIE_SAVEAREA_HOST_FPC(%r14)
->>   	lmg	%r0,%r14,SIE_SAVEAREA_HOST_GRS(%r14)	# restore kernel registers
->> -
->> +.globl sie_exit_gregs
->> +sie_exit_gregs:
->>   	br	%r14
->>   
->>   	.align	8
-> 
+This primarily fixes remaining known O_DIRECT memory corruptions that can
+happen on concurrent swapout, whereby we can lose DMA reads to a page
+(modifying the user page by writing to it).
+
+To verify, there are two test cases (requiring swap space, obviously):
+(1) The O_DIRECT+swapout test case [2] from Andrea. This test case tries
+    triggering a race condition.
+(2) My vmsplice() test case [3] that tries to detect if the exclusive
+    marker was lost during swapout, not relying on a race condition.
+
+
+For example, on 32bit x86 (with and without PAE), my test case fails
+without these patches:
+	$ ./test_swp_exclusive
+	FAIL: page was replaced during COW
+But succeeds with these patches:
+	$ ./test_swp_exclusive
+	PASS: page was not replaced during COW
+
+
+Why implement __HAVE_ARCH_PTE_SWP_EXCLUSIVE for all architectures, even
+the ones where swap support might be in a questionable state? This is the
+first step towards removing "readable_exclusive" migration entries, and
+instead using pte_swp_exclusive() also with (readable) migration entries
+instead (as suggested by Peter). The only missing piece for that is
+supporting pmd_swp_exclusive() on relevant architectures with THP
+migration support.
+
+As all relevant architectures now implement __HAVE_ARCH_PTE_SWP_EXCLUSIVE,,
+we can drop __HAVE_ARCH_PTE_SWP_EXCLUSIVE in the last patch.
+
+I tried cross-compiling all relevant setups and tested on x86 and sparc64
+so far.
+
+CCing arch maintainers only on this cover letter and on the respective
+patch(es).
+
+[1] https://lkml.kernel.org/r/20220329164329.208407-1-david@redhat.com
+[2] https://gitlab.com/aarcange/kernel-testcases-for-v5.11/-/blob/main/page_count_do_wp_page-swap.c
+[3] https://gitlab.com/davidhildenbrand/scratchspace/-/blob/main/test_swp_exclusive.c
+
+
+RFC -> v1:
+* Some smaller comment+patch description changes
+* "powerpc/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE on 32bit book3s"
+ -> Fixup swap PTE description
+
+
+David Hildenbrand (26):
+  mm/debug_vm_pgtable: more pte_swp_exclusive() sanity checks
+  alpha/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+  arc/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+  arm/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+  csky/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+  hexagon/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+  ia64/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+  loongarch/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+  m68k/mm: remove dummy __swp definitions for nommu
+  m68k/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+  microblaze/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+  mips/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+  nios2/mm: refactor swap PTE layout
+  nios2/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+  openrisc/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+  parisc/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+  powerpc/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE on 32bit book3s
+  powerpc/nohash/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+  riscv/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+  sh/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+  sparc/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE on 32bit
+  sparc/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE on 64bit
+  um/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+  x86/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE also on 32bit
+  xtensa/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+  mm: remove __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+
+ arch/alpha/include/asm/pgtable.h              | 40 ++++++++-
+ arch/arc/include/asm/pgtable-bits-arcv2.h     | 26 +++++-
+ arch/arm/include/asm/pgtable-2level.h         |  3 +
+ arch/arm/include/asm/pgtable-3level.h         |  3 +
+ arch/arm/include/asm/pgtable.h                | 34 +++++--
+ arch/arm64/include/asm/pgtable.h              |  1 -
+ arch/csky/abiv1/inc/abi/pgtable-bits.h        | 13 ++-
+ arch/csky/abiv2/inc/abi/pgtable-bits.h        | 19 ++--
+ arch/csky/include/asm/pgtable.h               | 17 ++++
+ arch/hexagon/include/asm/pgtable.h            | 36 ++++++--
+ arch/ia64/include/asm/pgtable.h               | 31 ++++++-
+ arch/loongarch/include/asm/pgtable-bits.h     |  4 +
+ arch/loongarch/include/asm/pgtable.h          | 38 +++++++-
+ arch/m68k/include/asm/mcf_pgtable.h           | 35 +++++++-
+ arch/m68k/include/asm/motorola_pgtable.h      | 37 +++++++-
+ arch/m68k/include/asm/pgtable_no.h            |  6 --
+ arch/m68k/include/asm/sun3_pgtable.h          | 38 +++++++-
+ arch/microblaze/include/asm/pgtable.h         | 44 +++++++---
+ arch/mips/include/asm/pgtable-32.h            | 88 ++++++++++++++++---
+ arch/mips/include/asm/pgtable-64.h            | 23 ++++-
+ arch/mips/include/asm/pgtable.h               | 35 ++++++++
+ arch/nios2/include/asm/pgtable-bits.h         |  3 +
+ arch/nios2/include/asm/pgtable.h              | 37 ++++++--
+ arch/openrisc/include/asm/pgtable.h           | 40 +++++++--
+ arch/parisc/include/asm/pgtable.h             | 40 ++++++++-
+ arch/powerpc/include/asm/book3s/32/pgtable.h  | 37 ++++++--
+ arch/powerpc/include/asm/book3s/64/pgtable.h  |  1 -
+ arch/powerpc/include/asm/nohash/32/pgtable.h  | 22 +++--
+ arch/powerpc/include/asm/nohash/32/pte-40x.h  |  6 +-
+ arch/powerpc/include/asm/nohash/32/pte-44x.h  | 18 +---
+ arch/powerpc/include/asm/nohash/32/pte-85xx.h |  4 +-
+ arch/powerpc/include/asm/nohash/64/pgtable.h  | 24 ++++-
+ arch/powerpc/include/asm/nohash/pgtable.h     | 15 ++++
+ arch/powerpc/include/asm/nohash/pte-e500.h    |  1 -
+ arch/riscv/include/asm/pgtable-bits.h         |  3 +
+ arch/riscv/include/asm/pgtable.h              | 28 ++++--
+ arch/s390/include/asm/pgtable.h               |  1 -
+ arch/sh/include/asm/pgtable_32.h              | 53 ++++++++---
+ arch/sparc/include/asm/pgtable_32.h           | 26 +++++-
+ arch/sparc/include/asm/pgtable_64.h           | 37 +++++++-
+ arch/sparc/include/asm/pgtsrmmu.h             | 14 +--
+ arch/um/include/asm/pgtable.h                 | 36 +++++++-
+ arch/x86/include/asm/pgtable-2level.h         | 26 ++++--
+ arch/x86/include/asm/pgtable-3level.h         | 26 +++++-
+ arch/x86/include/asm/pgtable.h                |  3 -
+ arch/xtensa/include/asm/pgtable.h             | 31 +++++--
+ include/linux/pgtable.h                       | 29 ------
+ mm/debug_vm_pgtable.c                         | 25 +++++-
+ mm/memory.c                                   |  4 -
+ mm/rmap.c                                     | 11 ---
+ 50 files changed, 944 insertions(+), 228 deletions(-)
+
+-- 
+2.39.0
 
