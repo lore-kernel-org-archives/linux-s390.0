@@ -2,47 +2,69 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B59A0C3DA78
-	for <linux-s390@archiver.kernel.org>; Fri, 13 Jan 2023 18:53:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2DDF7C3DA78
+	for <linux-s390@archiver.kernel.org>; Fri, 13 Jan 2023 20:09:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229525AbjAMSxC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 13 Jan 2023 13:53:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54272 "EHLO
+        id S229768AbjAMUJP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 13 Jan 2023 15:09:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229562AbjAMSxA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 13 Jan 2023 13:53:00 -0500
-Received: from NAM02-BN1-obe.outbound.protection.outlook.com (mail-bn1nam02on2041.outbound.protection.outlook.com [40.107.212.41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DC2F53706;
-        Fri, 13 Jan 2023 10:52:59 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=nvLBVGcBeupYCjijsIN+FHYb2FBBPKCJJxpUcwocVp2DsAr3ZiS41vG3DZClVagICjtbSD0p1RQKF6spVxrgTxNQrpTZq8y77kluvRJCowtBR2DB97vA2i/alCWSNcPtX4rthvouokTSmdyi1EpQ3sAPBYf+qQitpEceqOhr95VXDTpT+MCYhb8X68GVspta4KHAsepvn5u2EKJkyjRzllO+quDiy2etpS5eGrWWVYrSFdtArsmo3f0OA3Cihl5R7ecupkO101pMmU5VDloNQfUleLcuBLMylDtUbEG9rXs7DSo5LMxjzeXcWwQ3ZqZ0mbA+mHVbYBS+haqDdxxZ2w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=tSnVaVzwRzi5/Y6iGq6bdWY3VspgrXK1BwMadvyf8uQ=;
- b=c/xmtuIcGZyePgcHZ7on1y+5vIeFKmuN4n1Y3YuW/joyE30wOOQGakUNvU+b9hG6K/9bakvWuGmoyCxIfqs6cq4IQ2BVRgHiYlwHhkci3Zy9xNcC4kD1wvJj4f3Daj/7TvLyBIK7D14UxcZkBlmwc+7N/GM6TaX6VgnYffVr7cHZkNZ4pI8ZC/G5yHZZrA68zcrPQ95kw1VwydPEc52yNubactocVI4uWJwloCOOwU40Xsd/hxadkExwsT1t+a+Pn9kM9NcPyNY0cT2EFa03cSkqzpSOZnvarZNP/tzNWr6V3VAdZFnHEICJNBwZiDVr0KoVubAsjF64LuPr2iuHXg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=tSnVaVzwRzi5/Y6iGq6bdWY3VspgrXK1BwMadvyf8uQ=;
- b=hsDwVA0O7RSy48Mhe7NWMb8tjn15TWEJoVlt3QzkzavAnaXOL8kEGS01VnU9cLjhCRRPPcSfoDzeMzJXYhOMOuox/Ot4I12ZYCdzsk/GjBnBITzcUsTQP7xN3s8/8Sv/UDVM5/xApqXFM+WVsSCdOnXfIz4zy1D3mAOS7Y8SNemMQsUxXtxTKEaT0HRbgbO9p7qsvsW/eE2+eT00vBlSi0E/01JxVszazTvISYG0Wfanvt1EvktpUrsZ0JjwNoW+Tilv5KeD7M06rdYN+4BSEBrQunQlXoIBDZR2qnMAqTNNYxoTtmYti4bZWLqDIYk2sm0FuOGclYXgNl2w+/WTbA==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
- by SN7PR12MB7129.namprd12.prod.outlook.com (2603:10b6:806:2a1::16) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6002.13; Fri, 13 Jan
- 2023 18:52:57 +0000
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::f8b0:df13:5f8d:12a]) by LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::f8b0:df13:5f8d:12a%9]) with mapi id 15.20.6002.013; Fri, 13 Jan 2023
- 18:52:57 +0000
-Date:   Fri, 13 Jan 2023 14:52:56 -0400
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Matthew Rosato <mjrosato@linux.ibm.com>
+        with ESMTP id S230007AbjAMUJO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 13 Jan 2023 15:09:14 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D30B95471C;
+        Fri, 13 Jan 2023 12:09:13 -0800 (PST)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30DJETN9028868;
+        Fri, 13 Jan 2023 20:09:08 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=5xGgPO/DQXyp6NO1eNW6XYFpT2xDoaEFxLkLz30opnc=;
+ b=q9J4KqyCPKpN9dILgQctn7FdBIgWpTcv6ZCVqNscyhXCMISurvZy3A0ZqkMc+oNgQE29
+ 5gDNoQTRpb8vyV0eIbWCULJixj0KBPfJuTMm0dH2mbt7o67SkeB17sPH/PPT6LAGH/PS
+ d8J9XJfXinsKAyg3hIU2yHJk4NCt4xGI/LCNU6GNL4WpQhbV4/FjeqV3I3YsnMZX4b3C
+ zfoyG4oL8xqkOF1RyJtVO7LT7H6HGBFWRgfaHZ5WC2Ryy2Q01uWASSZ3drUjMTDSnO4R
+ qgEZbor4Ilkmpkb3S0H+i0Cr9LpTIpSGuelENTVjtp9ElLK0jc2hZFBti9dVuucw0hXt 0g== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n3d9c90ad-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 13 Jan 2023 20:09:07 +0000
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 30DJifkg020349;
+        Fri, 13 Jan 2023 20:09:07 GMT
+Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n3d9c90a2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 13 Jan 2023 20:09:07 +0000
+Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
+        by ppma03wdc.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30DJMvfC013176;
+        Fri, 13 Jan 2023 20:09:06 GMT
+Received: from smtprelay07.wdc07v.mail.ibm.com ([9.208.129.116])
+        by ppma03wdc.us.ibm.com (PPS) with ESMTPS id 3n1k941r9h-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 13 Jan 2023 20:09:06 +0000
+Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
+        by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30DK947a2753036
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 13 Jan 2023 20:09:04 GMT
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C228B58060;
+        Fri, 13 Jan 2023 20:09:04 +0000 (GMT)
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 66AC35805A;
+        Fri, 13 Jan 2023 20:09:02 +0000 (GMT)
+Received: from [9.160.94.233] (unknown [9.160.94.233])
+        by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Fri, 13 Jan 2023 20:09:02 +0000 (GMT)
+Message-ID: <e7ddd054-72dc-81c0-609a-59e98e2f835c@linux.ibm.com>
+Date:   Fri, 13 Jan 2023 15:09:01 -0500
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.0
+Subject: Re: [PATCH v3] vfio: fix potential deadlock on vfio group lock
+Content-Language: en-US
+To:     Jason Gunthorpe <jgg@nvidia.com>
 Cc:     alex.williamson@redhat.com, pbonzini@redhat.com, cohuck@redhat.com,
         farman@linux.ibm.com, pmorel@linux.ibm.com,
         borntraeger@linux.ibm.com, frankja@linux.ibm.com,
@@ -52,87 +74,58 @@ Cc:     alex.williamson@redhat.com, pbonzini@redhat.com, cohuck@redhat.com,
         linux-s390@vger.kernel.org, kvm@vger.kernel.org,
         intel-gvt-dev@lists.freedesktop.org,
         intel-gfx@lists.freedesktop.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3] vfio: fix potential deadlock on vfio group lock
-Message-ID: <Y8GoiCBQNiAuVcNw@nvidia.com>
 References: <20230113171132.86057-1-mjrosato@linux.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230113171132.86057-1-mjrosato@linux.ibm.com>
-X-ClientProxiedBy: BL1PR13CA0181.namprd13.prod.outlook.com
- (2603:10b6:208:2be::6) To LV2PR12MB5869.namprd12.prod.outlook.com
- (2603:10b6:408:176::16)
-MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|SN7PR12MB7129:EE_
-X-MS-Office365-Filtering-Correlation-Id: f3ee1e7a-0170-44d6-6458-08daf59762b6
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: E7ydpYnXQmh9K31D3wl4tzrdkCKlrkGRBZGa4WgXUHoPQXJldi2dyctCm7GT9xyt7cMw5R9Mc3tj7JnwXEGfM0Ws2nD9sb0voZ4sUV1AojPjhaXmpLr6qewNGJ2E1z4YgaTisBvW/P11JqKCBi+PgtrLa6tvaEMz7o1yJdZEL8mVAuIO1aNjy2WCgk7RC1YFHmKsPGJhdTQlRxOKAwTc64DzbVxH4hn602sMCc6eXyoNRL6SozXVJI6RWuH8niz2kKnV1IBz0CL9VQNngUrM+B8n3YgdNhmhxIlA4Fg5LFWxTHUIev260xlRiIj/01IaMgEX84Mkfp6cZKboAaE3ZlSmefhoZfPKWx85mGfRr8x3FE8XKUd55JkfLsFovGOHmQmxCFkOhw+B6zZJXDTHUIOyjtVCYd7OAPrmy4oBDcCmx9cP309DqXDsyvcZnZxRYT3b5KT+dsUAoVm7kpCMhDngr+c0LMlHuNssLTyOpWMXpFJpK8cremFBFdSOjWiibGxMqZDOZXwO7kb5JMKHXEsvn5gmEpY66TfTPWLQMBIZSD8k4axvHu0lIZrnAKWY1Wzy4BSJnE1UJoPAudBkXMkbivWTzf+XUgrpQUet8/LiLmh854/ma1OMZTqltdrIB2GzzxBfEUNQ3kC6c3F69A==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(39860400002)(396003)(136003)(346002)(366004)(376002)(451199015)(6506007)(7416002)(36756003)(2906002)(5660300002)(83380400001)(8936002)(4744005)(6916009)(4326008)(8676002)(38100700002)(6512007)(6486002)(41300700001)(478600001)(66946007)(66556008)(186003)(66476007)(26005)(86362001)(2616005)(316002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?xrLkPnGGNn+PcR00I/9tYoYSk9RB1brWY24QGJYS1bAN26dqbfMFywwuYari?=
- =?us-ascii?Q?8JAZDbf9oPvDC622gGOsb3Bo7HX5jm/nK54j1zX7EEAr0zU4tMC82Zxq3TRZ?=
- =?us-ascii?Q?QEysvzfraaQfAWOLAwSsxW1IdHbPeh+djNq4XXZNMTbA7HKxLdbKFwAO6wP0?=
- =?us-ascii?Q?4CDc3CVHprYqcpvYSDTX8uaYavs3+pXz+T88QTQoiDYVerjknANOWOj2Ecjp?=
- =?us-ascii?Q?hD90a7CJwrqgyGflFvAJ7qABSRLm6LqmGYgQ+ysdjZSqVQkoabWjccn0ibGW?=
- =?us-ascii?Q?EJYsQQWuOylSc9ydktJbNzrozu1mqBfgmP3FgWr2+rJ6wbJ/KSZT8w3spOS+?=
- =?us-ascii?Q?8ReMD4E92+Ql/QgLmN7ESIG2Bo0bz/8iDm7UGYSzQXG8foXTD4PiiSsi0BWS?=
- =?us-ascii?Q?pqxPUVNwq2LRhQWhi75TSW5KaizrJWEW43YqD2nm73hqPX7giaLH/VV33NEd?=
- =?us-ascii?Q?EzmgjLAJ51XRfXIucqsbvEFaJYdHfYhtFft8C49XDfsx37UBRVnHeqAenlL1?=
- =?us-ascii?Q?agyXQMd+3UkUo8XZqAgYYW3cSBU6gdXtNUBlirnxtAUiGa/gDP/MVm6VONbw?=
- =?us-ascii?Q?ypopkSDGGSl+5gGHSVcukbQgqsqIkhVBxkd0f1sQgaYvL+qFQwPhYpYeklAh?=
- =?us-ascii?Q?BC5WNhWwmKjs7x2Zub6NBYSIFZh6TfDKDakkarZg0uEh3Mq8rC4tkxvqwoZj?=
- =?us-ascii?Q?KOrkpAoaAZLI6aE+HVvvW10Wr1uxdqb8B1NX5/9J2+s3YGLznCs4EGjihNGn?=
- =?us-ascii?Q?u04sbgrRKdha1svnuDOd5DM4j9Qro5FFVMuSj11DHrkvatgR3WGtfOyfuixk?=
- =?us-ascii?Q?ZgISldEE4F8hjuoiFv99WFwaZXs75nwTt33/U28aL1nsc/xZkC+ZeStFaUub?=
- =?us-ascii?Q?/Y3w4wLDkHUx3X+kco7R78UqmB3qI0lml+X76KmpGdV71gLEOfwG0YQts7Cg?=
- =?us-ascii?Q?lh4fX2JPCv2OXBt9ZHxe0rCwQsKaJ/qUfRHZhUChVCybdTnfgaDD9VVl8QGm?=
- =?us-ascii?Q?zGWbeoFNrd89MobHqwWfaIXTGKE5J9vJ7Fe5+Y84+mweAN8slPFx1/AayHy/?=
- =?us-ascii?Q?on6w2/zNZixCwRo4fxZgrPANr8rUrJILgTS2nYnquSeo/V/r/guNall3mbsj?=
- =?us-ascii?Q?FVWilGUpyP3QqSq79PeDaTlOXHTFgOuGpBYMRnOyGclw2/FT/4b5FuEyFQad?=
- =?us-ascii?Q?ZunLqpLjdU1LYX9a804yatBft560OZCZ0foJr5+WWixYEnzEi64hXw4Wglp7?=
- =?us-ascii?Q?iFO1uri956GsJpiLDe0DYu8jit8d6sWqKEraJY2muKjwHmdcYM9YPiHhs3eW?=
- =?us-ascii?Q?Fb/x4znYl1d5FSH8/GZaS4GDunnI/OgJOAtKNw4Wkfych3JqrNpQe2KAgVf5?=
- =?us-ascii?Q?ATF4AxwKXMBiwaCCI6qKew4dY0nWEGu8QuilnIBniLQsKslf2GFoghpeU+BN?=
- =?us-ascii?Q?LUilpeyQuVsx/gCOElzZ7C9IZEYE42bXw6ZAEUWdqsPDFjBkqvO2TOR9djkz?=
- =?us-ascii?Q?jam4aNh7MXbR651Y8DCsBzKG0AfXNsc6yR2UdSOvZf9GE6OGo7b2z25CS/Ca?=
- =?us-ascii?Q?GdFKL0iJ++dQtkc0P1Bl8LGfCAXImHm/6qxuZZZ1?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: f3ee1e7a-0170-44d6-6458-08daf59762b6
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Jan 2023 18:52:57.3833
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: LxeqD03n/2RS/HBYEjNeoOWYcOzMBYVX7D+CvGBA75Y6jUSuQXRwy6AwA2va0jOT
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR12MB7129
+ <Y8GoiCBQNiAuVcNw@nvidia.com>
+From:   Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <Y8GoiCBQNiAuVcNw@nvidia.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: FKkc_v4Lu3Dz1BDyFdUKcG-g6uPBeO54
+X-Proofpoint-GUID: 1aIDvMavySf7-jfAduYIs_mRsxlS96Zn
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.923,Hydra:6.0.562,FMLib:17.11.122.1
+ definitions=2023-01-13_10,2023-01-13_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 phishscore=0
+ lowpriorityscore=0 mlxscore=0 spamscore=0 adultscore=0 bulkscore=0
+ impostorscore=0 mlxlogscore=999 suspectscore=0 malwarescore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2301130137
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Jan 13, 2023 at 12:11:32PM -0500, Matthew Rosato wrote:
-> @@ -462,9 +520,19 @@ static inline void vfio_device_pm_runtime_put(struct vfio_device *device)
->  static int vfio_device_fops_release(struct inode *inode, struct file *filep)
->  {
->  	struct vfio_device *device = filep->private_data;
-> +	struct kvm *kvm = NULL;
->  
->  	vfio_device_group_close(device);
->  
-> +	mutex_lock(&device->dev_set->lock);
-> +	if (device->open_count == 0 && device->kvm) {
-> +		kvm = device->kvm;
-> +		device->kvm = NULL;
-> +	}
-> +	mutex_unlock(&device->dev_set->lock);
+On 1/13/23 1:52 PM, Jason Gunthorpe wrote:
+> On Fri, Jan 13, 2023 at 12:11:32PM -0500, Matthew Rosato wrote:
+>> @@ -462,9 +520,19 @@ static inline void vfio_device_pm_runtime_put(struct vfio_device *device)
+>>  static int vfio_device_fops_release(struct inode *inode, struct file *filep)
+>>  {
+>>  	struct vfio_device *device = filep->private_data;
+>> +	struct kvm *kvm = NULL;
+>>  
+>>  	vfio_device_group_close(device);
+>>  
+>> +	mutex_lock(&device->dev_set->lock);
+>> +	if (device->open_count == 0 && device->kvm) {
+>> +		kvm = device->kvm;
+>> +		device->kvm = NULL;
+>> +	}
+>> +	mutex_unlock(&device->dev_set->lock);
+> 
+> This still doesn't seem right, another thread could have incr'd the
+> open_count already 
+> 
+> This has to be done at the moment open_count is decremented to zero,
+> while still under the original lock.
 
-This still doesn't seem right, another thread could have incr'd the
-open_count already 
+Hmm..  Fair.  Well, we can go back to clearing of device->kvm in vfio_device_last_close but the group lock is held then so we can't immediately do the kvm_put at that time -- unless we go back to the notion of stacking the kvm_put on a workqueue, but now from vfio.  If we do that, I think we also have to scrap the idea of putting the kvm_put_kvm function pointer into device->put_kvm too (or otherwise stash it along with the kvm value to be picked up by the scheduled work).
 
-This has to be done at the moment open_count is decremented to zero,
-while still under the original lock.
+Another thought would be passing the device->open_count that was read while holding the dev_set->lock back on vfio_close_device() / vfio_device_group_close() as an indicator of whether vfio_device_last_close() was called - then you could use the stashed kvm value because it doesn't matter what's currently in device->kvm or what the current device->open_count is, you know that kvm reference needs to be put.
 
-Jason
+e.g.:
+struct *kvm = device->kvm;
+void (*put)(struct kvm *kvm) = device->put_kvm;
+opened = vfio_device_group_close(device);
+if (opened == 0 && kvm)
+	put(kvm);
+
