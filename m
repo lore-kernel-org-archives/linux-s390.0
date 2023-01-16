@@ -2,49 +2,47 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D0849C46467
-	for <linux-s390@archiver.kernel.org>; Mon, 16 Jan 2023 14:07:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 598FEC46467
+	for <linux-s390@archiver.kernel.org>; Mon, 16 Jan 2023 14:11:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232071AbjAPOHw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 16 Jan 2023 09:07:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45332 "EHLO
+        id S231961AbjAPOLQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 16 Jan 2023 09:11:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232011AbjAPOGq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 Jan 2023 09:06:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CE92241C4;
-        Mon, 16 Jan 2023 06:03:32 -0800 (PST)
+        with ESMTP id S232147AbjAPOJv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 Jan 2023 09:09:51 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1376C2A9AD;
+        Mon, 16 Jan 2023 06:04:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4BDF4B80E93;
-        Mon, 16 Jan 2023 14:03:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D75EAC433EF;
-        Mon, 16 Jan 2023 14:03:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 44F1CB80F98;
+        Mon, 16 Jan 2023 14:04:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 378ECC433F0;
+        Mon, 16 Jan 2023 14:04:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1673877810;
-        bh=MZA7xSPsiPFWBe56xzCddWPtCG01sh+hk7C2rptTjPA=;
+        s=k20201202; t=1673877854;
+        bh=RRf7L9aD0O2MwG9AXEtXVL/Un4z7IwC8Hb90Z2CxOmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZWgtbJdWtmVYpqq1q9AK2L+tArbSdR48vVDtesWc53sL97UeLDljdrrqAFoPTAeqQ
-         otY+KcLPcsdG6LUefLv6mdmrBtSrpS5kB/HZu+19AOqWLIm5vXADM438+8Sgzlks13
-         lBEn9yvgUB49vWXrWcmmUoK67xMvx3YLkQz1m4zZA/ytJmzDN1dy3V5SgdWzQFrGMD
-         7EpXyEtvvk/88/suY5jOn1GzegK3PBU2pmDekL7XTAwvxd34QrYpo39WiN3/EsLcUJ
-         y29tMV3fO6ueO5oWpf23Am4R0T2P1ncD41hoDWvuNK/VcKwsgRFmktwCky/Zh0FA7h
-         mILzdl2MKNjdQ==
+        b=ZJdih9UP5wWF08NeCfgJW8WI70k+tM0Xocyh4AnEO0ICHp6lOadKct+9jEiKKGjwp
+         v7v0UbsaYVs3Ik2vNRCsOhDM6elXDp1Ge+/f+ciOLsjOl7AXCyhqjENECnDXBODngu
+         2KKZeT2omDctVhG585zEgFQnzLPsSw0H7K4F5w98DRseO7pQkfT3u4AdiZegSTE5Xs
+         N5hCkHYlU7uUMOtHIp/RdB9xuCAfRadyboAxoO4Yv9DhsCLt4BFXiXeDok4R6aKpyt
+         vaTGESxlPcDabFeOvBbbffigKkz0RXabpKHWrgw0s7R1P50XMldVpVLMkjmEVqS2Wx
+         o3/pDiIxvbK/w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, frankja@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 40/53] KVM: s390: interrupt: use READ_ONCE() before cmpxchg()
-Date:   Mon, 16 Jan 2023 09:01:40 -0500
-Message-Id: <20230116140154.114951-40-sashal@kernel.org>
+Cc:     Niklas Schnelle <schnelle@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 08/24] s390/debug: add _ASM_S390_ prefix to header guard
+Date:   Mon, 16 Jan 2023 09:03:43 -0500
+Message-Id: <20230116140359.115716-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20230116140154.114951-1-sashal@kernel.org>
-References: <20230116140154.114951-1-sashal@kernel.org>
+In-Reply-To: <20230116140359.115716-1-sashal@kernel.org>
+References: <20230116140359.115716-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -53,70 +51,44 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Niklas Schnelle <schnelle@linux.ibm.com>
 
-[ Upstream commit 42400d99e9f0728c17240edb9645637ead40f6b9 ]
+[ Upstream commit 0d4d52361b6c29bf771acd4fa461f06d78fb2fac ]
 
-Use READ_ONCE() before cmpxchg() to prevent that the compiler generates
-code that fetches the to be compared old value several times from memory.
+Using DEBUG_H without a prefix is very generic and inconsistent with
+other header guards in arch/s390/include/asm. In fact it collides with
+the same name in the ath9k wireless driver though that depends on !S390
+via disabled wireless support. Let's just use a consistent header guard
+name and prevent possible future trouble.
 
-Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Acked-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Link: https://lore.kernel.org/r/20230109145456.2895385-1-hca@linux.ibm.com
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
 Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kvm/interrupt.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ arch/s390/include/asm/debug.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index ab569faf0df2..6d74acea5e85 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -83,8 +83,9 @@ static int sca_inject_ext_call(struct kvm_vcpu *vcpu, int src_id)
- 		struct esca_block *sca = vcpu->kvm->arch.sca;
- 		union esca_sigp_ctrl *sigp_ctrl =
- 			&(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
--		union esca_sigp_ctrl new_val = {0}, old_val = *sigp_ctrl;
-+		union esca_sigp_ctrl new_val = {0}, old_val;
+diff --git a/arch/s390/include/asm/debug.h b/arch/s390/include/asm/debug.h
+index 19a55e1e3a0c..5fc91a90657e 100644
+--- a/arch/s390/include/asm/debug.h
++++ b/arch/s390/include/asm/debug.h
+@@ -4,8 +4,8 @@
+  *
+  *    Copyright IBM Corp. 1999, 2020
+  */
+-#ifndef DEBUG_H
+-#define DEBUG_H
++#ifndef _ASM_S390_DEBUG_H
++#define _ASM_S390_DEBUG_H
  
-+		old_val = READ_ONCE(*sigp_ctrl);
- 		new_val.scn = src_id;
- 		new_val.c = 1;
- 		old_val.c = 0;
-@@ -95,8 +96,9 @@ static int sca_inject_ext_call(struct kvm_vcpu *vcpu, int src_id)
- 		struct bsca_block *sca = vcpu->kvm->arch.sca;
- 		union bsca_sigp_ctrl *sigp_ctrl =
- 			&(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
--		union bsca_sigp_ctrl new_val = {0}, old_val = *sigp_ctrl;
-+		union bsca_sigp_ctrl new_val = {0}, old_val;
+ #include <linux/string.h>
+ #include <linux/spinlock.h>
+@@ -487,4 +487,4 @@ void debug_register_static(debug_info_t *id, int pages_per_area, int nr_areas);
  
-+		old_val = READ_ONCE(*sigp_ctrl);
- 		new_val.scn = src_id;
- 		new_val.c = 1;
- 		old_val.c = 0;
-@@ -126,16 +128,18 @@ static void sca_clear_ext_call(struct kvm_vcpu *vcpu)
- 		struct esca_block *sca = vcpu->kvm->arch.sca;
- 		union esca_sigp_ctrl *sigp_ctrl =
- 			&(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
--		union esca_sigp_ctrl old = *sigp_ctrl;
-+		union esca_sigp_ctrl old;
+ #endif /* MODULE */
  
-+		old = READ_ONCE(*sigp_ctrl);
- 		expect = old.value;
- 		rc = cmpxchg(&sigp_ctrl->value, old.value, 0);
- 	} else {
- 		struct bsca_block *sca = vcpu->kvm->arch.sca;
- 		union bsca_sigp_ctrl *sigp_ctrl =
- 			&(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
--		union bsca_sigp_ctrl old = *sigp_ctrl;
-+		union bsca_sigp_ctrl old;
- 
-+		old = READ_ONCE(*sigp_ctrl);
- 		expect = old.value;
- 		rc = cmpxchg(&sigp_ctrl->value, old.value, 0);
- 	}
+-#endif /* DEBUG_H */
++#endif /* _ASM_S390_DEBUG_H */
 -- 
 2.35.1
 
