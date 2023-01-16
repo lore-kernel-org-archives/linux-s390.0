@@ -2,45 +2,46 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DBE3DC677F1
-	for <linux-s390@archiver.kernel.org>; Mon, 16 Jan 2023 14:05:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D0849C46467
+	for <linux-s390@archiver.kernel.org>; Mon, 16 Jan 2023 14:07:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231876AbjAPOFC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 16 Jan 2023 09:05:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44538 "EHLO
+        id S232071AbjAPOHw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 16 Jan 2023 09:07:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231936AbjAPODx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 Jan 2023 09:03:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83E1222DE3;
-        Mon, 16 Jan 2023 06:03:00 -0800 (PST)
+        with ESMTP id S232011AbjAPOGq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 Jan 2023 09:06:46 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CE92241C4;
+        Mon, 16 Jan 2023 06:03:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F41760FB1;
-        Mon, 16 Jan 2023 14:03:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5C46C433EF;
-        Mon, 16 Jan 2023 14:02:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4BDF4B80E93;
+        Mon, 16 Jan 2023 14:03:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D75EAC433EF;
+        Mon, 16 Jan 2023 14:03:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1673877779;
-        bh=NfQtcefd4FkiildNJKyvjyUC1tXyo0+gjkZjYL7g3n4=;
+        s=k20201202; t=1673877810;
+        bh=MZA7xSPsiPFWBe56xzCddWPtCG01sh+hk7C2rptTjPA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kjMRM4AkfpcSHQlLhlKINVdAWZl+tbzjT8SOPdXM1zuUMxAQRYj8twypwop09lkRU
-         RxDsFUgN7gDxsnzlizt8EtZoVOoL1omwo1/jSg9P7ndUNPqKq9r5tlXMlhO+OaX6YM
-         YQ2vr2h29BKgzJTnubAu7a1PFl1I37FbbdynJ3tKlT7o5Jxh3+10r2xI9TxZQJwd7J
-         fkM+repcBF7XsH+MPthi+CAr2D9OXd/S0kxMt/RWUooRBRs73+l65hmJqOkzxKIkVr
-         dnu5f2XJQCudaTI6uJ4T5OwBYWTijBLqka2RzdOOG9t+/9okQ5gYGr04ElMmC5Ripa
-         Ra44d8uCT907w==
+        b=ZWgtbJdWtmVYpqq1q9AK2L+tArbSdR48vVDtesWc53sL97UeLDljdrrqAFoPTAeqQ
+         otY+KcLPcsdG6LUefLv6mdmrBtSrpS5kB/HZu+19AOqWLIm5vXADM438+8Sgzlks13
+         lBEn9yvgUB49vWXrWcmmUoK67xMvx3YLkQz1m4zZA/ytJmzDN1dy3V5SgdWzQFrGMD
+         7EpXyEtvvk/88/suY5jOn1GzegK3PBU2pmDekL7XTAwvxd34QrYpo39WiN3/EsLcUJ
+         y29tMV3fO6ueO5oWpf23Am4R0T2P1ncD41hoDWvuNK/VcKwsgRFmktwCky/Zh0FA7h
+         mILzdl2MKNjdQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, gor@linux.ibm.com,
-        masahiroy@kernel.org, jpoimboe@kernel.org,
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, frankja@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com, kvm@vger.kernel.org,
         linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 20/53] s390: expicitly align _edata and _end symbols on page boundary
-Date:   Mon, 16 Jan 2023 09:01:20 -0500
-Message-Id: <20230116140154.114951-20-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1 40/53] KVM: s390: interrupt: use READ_ONCE() before cmpxchg()
+Date:   Mon, 16 Jan 2023 09:01:40 -0500
+Message-Id: <20230116140154.114951-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20230116140154.114951-1-sashal@kernel.org>
 References: <20230116140154.114951-1-sashal@kernel.org>
@@ -52,54 +53,70 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Alexander Gordeev <agordeev@linux.ibm.com>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit 45d619bdaf799196d702a9ae464b07066d6db2f9 ]
+[ Upstream commit 42400d99e9f0728c17240edb9645637ead40f6b9 ]
 
-Symbols _edata and _end in the linker script are the
-only unaligned expicitly on page boundary. Although
-_end is aligned implicitly by BSS_SECTION macro that
-is still inconsistent and could lead to a bug if a tool
-or function would assume that _edata is as aligned as
-others.
+Use READ_ONCE() before cmpxchg() to prevent that the compiler generates
+code that fetches the to be compared old value several times from memory.
 
-For example, vmem_map_init() function does not align
-symbols _etext, _einittext etc. Should these symbols
-be unaligned as well, the size of ranges to update
-were short on one page.
-
-Instead of fixing every occurrence of this kind in the
-code and external tools just force the alignment on
-these two symbols.
-
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Acked-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Link: https://lore.kernel.org/r/20230109145456.2895385-1-hca@linux.ibm.com
 Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/vmlinux.lds.S | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/s390/kvm/interrupt.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/kernel/vmlinux.lds.S b/arch/s390/kernel/vmlinux.lds.S
-index 5ea3830af0cc..f81d96710595 100644
---- a/arch/s390/kernel/vmlinux.lds.S
-+++ b/arch/s390/kernel/vmlinux.lds.S
-@@ -79,6 +79,7 @@ SECTIONS
- 		_end_amode31_refs = .;
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index ab569faf0df2..6d74acea5e85 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -83,8 +83,9 @@ static int sca_inject_ext_call(struct kvm_vcpu *vcpu, int src_id)
+ 		struct esca_block *sca = vcpu->kvm->arch.sca;
+ 		union esca_sigp_ctrl *sigp_ctrl =
+ 			&(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
+-		union esca_sigp_ctrl new_val = {0}, old_val = *sigp_ctrl;
++		union esca_sigp_ctrl new_val = {0}, old_val;
+ 
++		old_val = READ_ONCE(*sigp_ctrl);
+ 		new_val.scn = src_id;
+ 		new_val.c = 1;
+ 		old_val.c = 0;
+@@ -95,8 +96,9 @@ static int sca_inject_ext_call(struct kvm_vcpu *vcpu, int src_id)
+ 		struct bsca_block *sca = vcpu->kvm->arch.sca;
+ 		union bsca_sigp_ctrl *sigp_ctrl =
+ 			&(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
+-		union bsca_sigp_ctrl new_val = {0}, old_val = *sigp_ctrl;
++		union bsca_sigp_ctrl new_val = {0}, old_val;
+ 
++		old_val = READ_ONCE(*sigp_ctrl);
+ 		new_val.scn = src_id;
+ 		new_val.c = 1;
+ 		old_val.c = 0;
+@@ -126,16 +128,18 @@ static void sca_clear_ext_call(struct kvm_vcpu *vcpu)
+ 		struct esca_block *sca = vcpu->kvm->arch.sca;
+ 		union esca_sigp_ctrl *sigp_ctrl =
+ 			&(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
+-		union esca_sigp_ctrl old = *sigp_ctrl;
++		union esca_sigp_ctrl old;
+ 
++		old = READ_ONCE(*sigp_ctrl);
+ 		expect = old.value;
+ 		rc = cmpxchg(&sigp_ctrl->value, old.value, 0);
+ 	} else {
+ 		struct bsca_block *sca = vcpu->kvm->arch.sca;
+ 		union bsca_sigp_ctrl *sigp_ctrl =
+ 			&(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
+-		union bsca_sigp_ctrl old = *sigp_ctrl;
++		union bsca_sigp_ctrl old;
+ 
++		old = READ_ONCE(*sigp_ctrl);
+ 		expect = old.value;
+ 		rc = cmpxchg(&sigp_ctrl->value, old.value, 0);
  	}
- 
-+	. = ALIGN(PAGE_SIZE);
- 	_edata = .;		/* End of data section */
- 
- 	/* will be freed after init */
-@@ -193,6 +194,7 @@ SECTIONS
- 
- 	BSS_SECTION(PAGE_SIZE, 4 * PAGE_SIZE, PAGE_SIZE)
- 
-+	. = ALIGN(PAGE_SIZE);
- 	_end = . ;
- 
- 	/*
 -- 
 2.35.1
 
