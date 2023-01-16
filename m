@@ -2,47 +2,47 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E66DC678D9
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EFCBAC678DA
 	for <linux-s390@archiver.kernel.org>; Mon, 16 Jan 2023 14:14:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232201AbjAPOOv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 16 Jan 2023 09:14:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58530 "EHLO
+        id S232223AbjAPOOw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 16 Jan 2023 09:14:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232196AbjAPONC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 Jan 2023 09:13:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38AF32CFFF;
-        Mon, 16 Jan 2023 06:05:02 -0800 (PST)
+        with ESMTP id S232690AbjAPOOS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 Jan 2023 09:14:18 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B50923323;
+        Mon, 16 Jan 2023 06:05:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CD782B80F93;
-        Mon, 16 Jan 2023 14:05:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7A8BC433F0;
-        Mon, 16 Jan 2023 14:04:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C22E6B80F96;
+        Mon, 16 Jan 2023 14:05:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5911C433D2;
+        Mon, 16 Jan 2023 14:05:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1673877900;
-        bh=RKVJTrAZUkG6t/A0BPaHjKKMK0/SXQKHA1NcmFyW9k8=;
+        s=k20201202; t=1673877928;
+        bh=fCc1ZIGwnzSGrNW9UT9Jpe9vE2V6MYYeskQM/8Kg97Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dLBl84ITZJsK7USJLUkFnZjhKQtenTL69xl+HNIW7hWLsLTYSgLM42a7GkTfwzqOq
-         vA25TtEP0DdjrKpR+RyeW3lUH1AbnvV3bhCd7akZJyu5KQoo+MEWx58VwcInQStG4e
-         31P0Rar2gaBaHh8zpFavqRiyetScl1q4kQwwVfo38wnC/Gl5wqMGnw/TSTdNJrX5Jq
-         dCQNAHUwMGMZePjwBCaNui/vgsFZdi5xKj+PYwoisVsbUU0CZp4WhKdF7KTEkVOGm8
-         Rnf7cGJ4ekgGCwv5co+U3aGzgAk/fUdwPQmOmsXINxX2RSCX0la7IDE70l2yzdy6KU
-         KDwenPAqL3LfQ==
+        b=ohy6n1ppA8vkgF0v/EOLE43nqLJ64D5SiqaY9jolsh7VEGaCIMJs5PeMjioRnPb56
+         0r0RI9WWwkHp5doqntdq1wQGprxqpHeDPPYjQ7/85oaTW4+7hfN96K/empMkiIbEy4
+         wWtdcKo9HVgTrQU5Tavn6AdDJIL/P0YR0EYGPbe3n77x+1uVZOkUSsru4CUjUQ9G8g
+         t1SmAx3EduVkqDO1ejUty9GmTu15h+1JfZbUzlr/4MeK8raNHlJvzksk4dR4SK3Mct
+         3/zxeB8n74VAX1nsIfRSpJ9XIb+uHf7IkG/XuNsQ78D0+nNjyM0VnEIRaMRQrw5jQq
+         PDNDs7SFYP9aA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Niklas Schnelle <schnelle@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>, gor@linux.ibm.com,
         agordeev@linux.ibm.com, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 06/17] s390/debug: add _ASM_S390_ prefix to header guard
-Date:   Mon, 16 Jan 2023 09:04:37 -0500
-Message-Id: <20230116140448.116034-6-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 04/16] s390/debug: add _ASM_S390_ prefix to header guard
+Date:   Mon, 16 Jan 2023 09:05:07 -0500
+Message-Id: <20230116140520.116257-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20230116140448.116034-1-sashal@kernel.org>
-References: <20230116140448.116034-1-sashal@kernel.org>
+In-Reply-To: <20230116140520.116257-1-sashal@kernel.org>
+References: <20230116140520.116257-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -69,12 +69,12 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/arch/s390/include/asm/debug.h b/arch/s390/include/asm/debug.h
-index c1b82bcc017c..29a1badbe2f5 100644
+index 310134015541..54f4bc5d1108 100644
 --- a/arch/s390/include/asm/debug.h
 +++ b/arch/s390/include/asm/debug.h
 @@ -4,8 +4,8 @@
   *
-  *    Copyright IBM Corp. 1999, 2020
+  *    Copyright IBM Corp. 1999, 2000
   */
 -#ifndef DEBUG_H
 -#define DEBUG_H
@@ -83,7 +83,7 @@ index c1b82bcc017c..29a1badbe2f5 100644
  
  #include <linux/string.h>
  #include <linux/spinlock.h>
-@@ -425,4 +425,4 @@ int debug_unregister_view(debug_info_t *id, struct debug_view *view);
+@@ -416,4 +416,4 @@ int debug_unregister_view(debug_info_t *id, struct debug_view *view);
  #define PRINT_FATAL(x...)	printk(KERN_DEBUG PRINTK_HEADER x)
  #endif /* DASD_DEBUG */
  
