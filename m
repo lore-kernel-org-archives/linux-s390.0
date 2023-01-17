@@ -2,137 +2,322 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0118BC3DA78
-	for <linux-s390@archiver.kernel.org>; Tue, 17 Jan 2023 09:10:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D57C5C678D7
+	for <linux-s390@archiver.kernel.org>; Tue, 17 Jan 2023 09:11:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236414AbjAQJKG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 17 Jan 2023 04:10:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44566 "EHLO
+        id S236468AbjAQJLp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 17 Jan 2023 04:11:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236454AbjAQJJl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 Jan 2023 04:09:41 -0500
-Received: from mail-oi1-x233.google.com (mail-oi1-x233.google.com [IPv6:2607:f8b0:4864:20::233])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A613302A4;
-        Tue, 17 Jan 2023 01:03:46 -0800 (PST)
-Received: by mail-oi1-x233.google.com with SMTP id p185so4281152oif.2;
-        Tue, 17 Jan 2023 01:03:46 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=0NAtipYSyTW+GwDFf12zqOPhjTjzg7AWvFqV0EBka+Q=;
-        b=eN26VWG15wRzfEmyfbgEpgrnkd+1vEg9MtMA4OwJsJffJd9jrJ+X/urBex/z60kcXE
-         QSbODoslFuO3oZPzu8gv46JFExd0s/znOcTeQ32KB2yUlI2VGUUvZ0W0cgcfRslIyf1p
-         i5B5FHmvWmflMFjGJtmRHFLfsxp9l5/cQy9QNFnLZpz62TtUQ1G5cAhLWKPEVURtM6Ri
-         2RQjwCP6qJPCcUaW0AWToJaLi7+SuNOLpKAaFELXqpbDQNqnQ0tAscuSJhuh/wXkSqg5
-         TWhlFURWN08stm1Jk3H/GhuZ8iwulvTkygpjA6LxXGgAlWeANY2EZLIT56vCAw8t1m1i
-         GV+A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :sender:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=0NAtipYSyTW+GwDFf12zqOPhjTjzg7AWvFqV0EBka+Q=;
-        b=EvqC3pakVdFZU1S5vYXhCd+qpS0wK5GWuw9emJ5qQgxM/uO75cyA4zRofedaAvl0rx
-         Eu8sMNlUq7tR5ZmKMTVgifajPggNeIbwDhBGawPZuaT+hzIftZTbefMxsE+V/0wJh9Yv
-         K/0/1YxXzlhs7gRgHeV9xVcOmp3Vvvh4cCy1hRug62v8Ev2ikQq6MbU/8ngpncPfvt2W
-         UdIq60/3Y2CcN7yKumnzlVPsO/5YJLvpO6mSpFe4YtOkJQ1JiuhyK7fLdFlWhD2cN4Kf
-         UJlMapTtfaLGlNEHQ//oH+jxuWq1Amd+FIAEw2yIX5TMj5Vv1fGIgselCibF/Q3+rCfh
-         6v9Q==
-X-Gm-Message-State: AFqh2kr3/xx7B7oVNo6lqJ6hZRGaPe1a2JmSE8dG5LzakShvaqtkx2xA
-        wsgSwh/IFvtn6Gg/LXtZYSkk490CCBU=
-X-Google-Smtp-Source: AMrXdXuyuk41ifaJojeX4IsRrNf98cQzYgZjR7zyulKHdhUtsWWWQukx9Ch3bOZcdsg3yFr9AxI26g==
-X-Received: by 2002:a05:6808:6d7:b0:360:c338:b958 with SMTP id m23-20020a05680806d700b00360c338b958mr1024178oih.55.1673946225861;
-        Tue, 17 Jan 2023 01:03:45 -0800 (PST)
-Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id v63-20020acaac42000000b003670342726fsm2108210oie.12.2023.01.17.01.03.43
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 17 Jan 2023 01:03:44 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <bdcef623-58c0-fd59-f833-79b3e117604a@roeck-us.net>
-Date:   Tue, 17 Jan 2023 01:03:43 -0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.2
-Subject: Re: Build regressions/improvements in v6.2-rc4
-Content-Language: en-US
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Geert Uytterhoeven <geert@linux-m68k.org>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        with ESMTP id S236179AbjAQJLW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 Jan 2023 04:11:22 -0500
+Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E933D3B3DA;
+        Tue, 17 Jan 2023 01:05:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1673946310; x=1705482310;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=Bs/QxT4h0CrR67dsOJolQlUz/QoNMMNB9GCwsyLDTrY=;
+  b=VrHeGQoBL9yrTb7lJ8tGxzTqrcmFvYuTgqRtd2GJgDDecxT6rkLR1Jao
+   qzGSRwbRnc6jNnDnUQAkErOKmKBKne4d5u34dbKRiY+j2vvEhX3mxu1iz
+   MDJIAyqvIXBZE6Ok+Nmd6fX6olNEx3IE6GhtUlmzYeF48kBzMPgZibLog
+   +FCVXpBadTaZEGMyIc1IgLpVCq99YLYmCz+Kqb6ybjvnGy07sGft+2mIl
+   Es5dEf4k3el3hTCvB5XivOyyC3yqx6CVyUYeg5zK2JQkeOeGriM3cwqbE
+   XXr/K9+6vi1Pm/crLOsnRkLT6uyvZK3F83ZIaUF56XGG/vLcg0yxGRbr0
+   w==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10592"; a="324700937"
+X-IronPort-AV: E=Sophos;i="5.97,222,1669104000"; 
+   d="scan'208";a="324700937"
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Jan 2023 01:04:34 -0800
+X-IronPort-AV: E=McAfee;i="6500,9779,10592"; a="783174010"
+X-IronPort-AV: E=Sophos;i="5.97,222,1669104000"; 
+   d="scan'208";a="783174010"
+Received: from tronach-mobl1.ger.corp.intel.com (HELO ijarvine-MOBL2.ger.corp.intel.com) ([10.252.40.3])
+  by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Jan 2023 01:04:26 -0800
+From:   =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+To:     linux-serial@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Rodolfo Giometti <giometti@enneenne.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Johan Hovold <johan@kernel.org>,
+        Samuel Iglesias Gonsalvez <siglesias@igalia.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Jens Taprogge <jens.taprogge@taprogge.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-References: <CAHk-=wgcOEWvT-WjmRf-zCCXyFJaVVFH=26BPQ+N1OFTTnN=RA@mail.gmail.com>
- <20230116122924.116745-1-geert@linux-m68k.org>
- <46ba7912-3df6-dff9-792-49f4eaadefec@linux-m68k.org>
- <Y8V94PKtaWO3yRS4@osiris> <20230116184127.GA1721129@roeck-us.net>
- <Y8Zi89nN+ONOEki7@osiris>
-From:   Guenter Roeck <linux@roeck-us.net>
-In-Reply-To: <Y8Zi89nN+ONOEki7@osiris>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        linux-kernel@vger.kernel.org,
+        industrypack-devel@lists.sourceforge.net,
+        linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-usb@vger.kernel.org
+Cc:     =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+Subject: [PATCH v4 01/12] tty: Cleanup tty_port_set_initialized() bool parameter
+Date:   Tue, 17 Jan 2023 11:03:47 +0200
+Message-Id: <20230117090358.4796-2-ilpo.jarvinen@linux.intel.com>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20230117090358.4796-1-ilpo.jarvinen@linux.intel.com>
+References: <20230117090358.4796-1-ilpo.jarvinen@linux.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 1/17/23 00:57, Heiko Carstens wrote:
-> On Mon, Jan 16, 2023 at 10:41:27AM -0800, Guenter Roeck wrote:
->> On Mon, Jan 16, 2023 at 05:40:00PM +0100, Heiko Carstens wrote:
->>> On Mon, Jan 16, 2023 at 01:36:34PM +0100, Geert Uytterhoeven wrote:
->>>> On Mon, 16 Jan 2023, Geert Uytterhoeven wrote:
->>>>> JFYI, when comparing v6.2-rc4[1] to v6.2-rc3-8-g1fe4fd6f5cad346e[3], the summaries are:
->>>>>   - build errors: +1/-5
->>>>
->>>>    + /kisskb/src/include/linux/fortify-string.h: error: '__builtin_memcpy' reading 128 bytes from a region of size 0 [-Werror=stringop-overread]:  => 57:33
->>>>
->>>> s390x-gcc11/s390-allmodconfig
->>>>
->>>> /kisskb/src/arch/s390/kernel/setup.c: In function 'setup_lowcore_dat_on':
->>>> /kisskb/src/include/linux/fortify-string.h:57:33: error: '__builtin_memcpy' reading 128 bytes from a region of size 0 [-Werror=stringop-overread]
->>>>     57 | #define __underlying_memcpy     __builtin_memcpy
->>>>        |                                 ^
->>>> /kisskb/src/include/linux/fortify-string.h:578:9: note: in expansion of macro '__underlying_memcpy'
->>>>    578 |         __underlying_##op(p, q, __fortify_size);                        \
->>>>        |         ^~~~~~~~~~~~~
->>>> /kisskb/src/include/linux/fortify-string.h:623:26: note: in expansion of macro '__fortify_memcpy_chk'
->>>>    623 | #define memcpy(p, q, s)  __fortify_memcpy_chk(p, q, s,                  \
->>>>        |                          ^~~~~~~~~~~~~~~~~~~~
->>>> /kisskb/src/arch/s390/kernel/setup.c:526:9: note: in expansion of macro 'memcpy'
->>>>    526 |         memcpy(abs_lc->cregs_save_area, S390_lowcore.cregs_save_area,
->>>>        |         ^~~~~~
->>>>
->>>> Looks like this was "'__builtin_memcpy' offset [0, 127] is out of the bounds
->>>> [0, 0]" before.
->>>
->>> Thanks for reporting. Of course this doesn't happen with gcc-12, and
->>> this code will be rewritten with the next merge window anyway.
->>> But to workaround this with gcc-11, we could go with the below:
->>>
->>
->> This is because of
->>
->> #define S390_lowcore (*((struct lowcore *) 0))
->>
->> and is fixed with something like
->>
->> #define S390_lowcore (*((struct lowcore *) absolute_pointer(0)))
->>
->> See commit f6b5f1a56987 ("compiler.h: Introduce absolute_pointer macro").
-> 
-> Yes, I'm aware of that. However absolute_pointer() is not an option for
-> S390_lowcore. See also commit f0be87c42cbd ("gcc-12: disable
-> '-Warray-bounds' universally for now") and the referenced s390 commit.
-> 
+Make callers pass true/false consistently for bool val.
 
-Interesting. It works (builds) just fine for me after the above suggested
-change.
+Reviewed-by: Samuel Iglesias Gonsalvez <siglesias@igalia.com>
+Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+---
+ drivers/char/pcmcia/synclink_cs.c | 4 ++--
+ drivers/ipack/devices/ipoctal.c   | 4 ++--
+ drivers/s390/char/con3215.c       | 4 ++--
+ drivers/tty/amiserial.c           | 4 ++--
+ drivers/tty/moxa.c                | 2 +-
+ drivers/tty/mxser.c               | 2 +-
+ drivers/tty/n_gsm.c               | 4 ++--
+ drivers/tty/serial/serial_core.c  | 6 +++---
+ drivers/tty/synclink_gt.c         | 4 ++--
+ drivers/tty/tty_port.c            | 4 ++--
+ drivers/usb/serial/console.c      | 2 +-
+ 11 files changed, 20 insertions(+), 20 deletions(-)
 
-Guenter
-
->> The problem is only seen with gcc 11.2. I don't see it with 11.3 or 12.2.
-> 
-> FWIW, the compile warning is seen with gcc 11.1 and 11.2, but not with any
-> other compiler. Given that this isn't the first report, I'm tempted to
-> workaround this now.
+diff --git a/drivers/char/pcmcia/synclink_cs.c b/drivers/char/pcmcia/synclink_cs.c
+index b2735be81ab2..baa46e8a094b 100644
+--- a/drivers/char/pcmcia/synclink_cs.c
++++ b/drivers/char/pcmcia/synclink_cs.c
+@@ -1309,7 +1309,7 @@ static int startup(MGSLPC_INFO * info, struct tty_struct *tty)
+ 	if (tty)
+ 		clear_bit(TTY_IO_ERROR, &tty->flags);
+ 
+-	tty_port_set_initialized(&info->port, 1);
++	tty_port_set_initialized(&info->port, true);
+ 
+ 	return 0;
+ }
+@@ -1359,7 +1359,7 @@ static void shutdown(MGSLPC_INFO * info, struct tty_struct *tty)
+ 	if (tty)
+ 		set_bit(TTY_IO_ERROR, &tty->flags);
+ 
+-	tty_port_set_initialized(&info->port, 0);
++	tty_port_set_initialized(&info->port, false);
+ }
+ 
+ static void mgslpc_program_hw(MGSLPC_INFO *info, struct tty_struct *tty)
+diff --git a/drivers/ipack/devices/ipoctal.c b/drivers/ipack/devices/ipoctal.c
+index fc00274070b6..103fce0c49e6 100644
+--- a/drivers/ipack/devices/ipoctal.c
++++ b/drivers/ipack/devices/ipoctal.c
+@@ -647,7 +647,7 @@ static void ipoctal_hangup(struct tty_struct *tty)
+ 	tty_port_hangup(&channel->tty_port);
+ 
+ 	ipoctal_reset_channel(channel);
+-	tty_port_set_initialized(&channel->tty_port, 0);
++	tty_port_set_initialized(&channel->tty_port, false);
+ 	wake_up_interruptible(&channel->tty_port.open_wait);
+ }
+ 
+@@ -659,7 +659,7 @@ static void ipoctal_shutdown(struct tty_struct *tty)
+ 		return;
+ 
+ 	ipoctal_reset_channel(channel);
+-	tty_port_set_initialized(&channel->tty_port, 0);
++	tty_port_set_initialized(&channel->tty_port, false);
+ }
+ 
+ static void ipoctal_cleanup(struct tty_struct *tty)
+diff --git a/drivers/s390/char/con3215.c b/drivers/s390/char/con3215.c
+index 72ba83c1bc79..0b05cd76b7d0 100644
+--- a/drivers/s390/char/con3215.c
++++ b/drivers/s390/char/con3215.c
+@@ -629,7 +629,7 @@ static int raw3215_startup(struct raw3215_info *raw)
+ 	if (tty_port_initialized(&raw->port))
+ 		return 0;
+ 	raw->line_pos = 0;
+-	tty_port_set_initialized(&raw->port, 1);
++	tty_port_set_initialized(&raw->port, true);
+ 	spin_lock_irqsave(get_ccwdev_lock(raw->cdev), flags);
+ 	raw3215_try_io(raw);
+ 	spin_unlock_irqrestore(get_ccwdev_lock(raw->cdev), flags);
+@@ -659,7 +659,7 @@ static void raw3215_shutdown(struct raw3215_info *raw)
+ 		spin_lock_irqsave(get_ccwdev_lock(raw->cdev), flags);
+ 		remove_wait_queue(&raw->empty_wait, &wait);
+ 		set_current_state(TASK_RUNNING);
+-		tty_port_set_initialized(&raw->port, 1);
++		tty_port_set_initialized(&raw->port, true);
+ 	}
+ 	spin_unlock_irqrestore(get_ccwdev_lock(raw->cdev), flags);
+ }
+diff --git a/drivers/tty/amiserial.c b/drivers/tty/amiserial.c
+index f52266766df9..f8cdce1626cb 100644
+--- a/drivers/tty/amiserial.c
++++ b/drivers/tty/amiserial.c
+@@ -502,7 +502,7 @@ static int startup(struct tty_struct *tty, struct serial_state *info)
+ 	 */
+ 	change_speed(tty, info, NULL);
+ 
+-	tty_port_set_initialized(port, 1);
++	tty_port_set_initialized(port, true);
+ 	local_irq_restore(flags);
+ 	return 0;
+ 
+@@ -556,7 +556,7 @@ static void shutdown(struct tty_struct *tty, struct serial_state *info)
+ 
+ 	set_bit(TTY_IO_ERROR, &tty->flags);
+ 
+-	tty_port_set_initialized(&info->tport, 0);
++	tty_port_set_initialized(&info->tport, false);
+ 	local_irq_restore(flags);
+ }
+ 
+diff --git a/drivers/tty/moxa.c b/drivers/tty/moxa.c
+index 35b6fddf0341..bc474f3c3f8f 100644
+--- a/drivers/tty/moxa.c
++++ b/drivers/tty/moxa.c
+@@ -1484,7 +1484,7 @@ static int moxa_open(struct tty_struct *tty, struct file *filp)
+ 		MoxaPortLineCtrl(ch, 1, 1);
+ 		MoxaPortEnable(ch);
+ 		MoxaSetFifo(ch, ch->type == PORT_16550A);
+-		tty_port_set_initialized(&ch->port, 1);
++		tty_port_set_initialized(&ch->port, true);
+ 	}
+ 	mutex_unlock(&ch->port.mutex);
+ 	mutex_unlock(&moxa_openlock);
+diff --git a/drivers/tty/mxser.c b/drivers/tty/mxser.c
+index 2436e0b10f9a..2926a831727d 100644
+--- a/drivers/tty/mxser.c
++++ b/drivers/tty/mxser.c
+@@ -1063,7 +1063,7 @@ static int mxser_set_serial_info(struct tty_struct *tty,
+ 	} else {
+ 		retval = mxser_activate(port, tty);
+ 		if (retval == 0)
+-			tty_port_set_initialized(port, 1);
++			tty_port_set_initialized(port, true);
+ 	}
+ 	mutex_unlock(&port->mutex);
+ 	return retval;
+diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
+index daf12132deb1..631539c17d85 100644
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -2059,7 +2059,7 @@ static void gsm_dlci_close(struct gsm_dlci *dlci)
+ 		tty_port_tty_hangup(&dlci->port, false);
+ 		gsm_dlci_clear_queues(dlci->gsm, dlci);
+ 		/* Ensure that gsmtty_open() can return. */
+-		tty_port_set_initialized(&dlci->port, 0);
++		tty_port_set_initialized(&dlci->port, false);
+ 		wake_up_interruptible(&dlci->port.open_wait);
+ 	} else
+ 		dlci->gsm->dead = true;
+@@ -3880,7 +3880,7 @@ static int gsmtty_open(struct tty_struct *tty, struct file *filp)
+ 	dlci->modem_rx = 0;
+ 	/* We could in theory open and close before we wait - eg if we get
+ 	   a DM straight back. This is ok as that will have caused a hangup */
+-	tty_port_set_initialized(port, 1);
++	tty_port_set_initialized(port, true);
+ 	/* Start sending off SABM messages */
+ 	if (gsm->initiator)
+ 		gsm_dlci_begin_open(dlci);
+diff --git a/drivers/tty/serial/serial_core.c b/drivers/tty/serial/serial_core.c
+index b9fbbee598b8..e049c760b738 100644
+--- a/drivers/tty/serial/serial_core.c
++++ b/drivers/tty/serial/serial_core.c
+@@ -290,7 +290,7 @@ static void uart_shutdown(struct tty_struct *tty, struct uart_state *state)
+ 		set_bit(TTY_IO_ERROR, &tty->flags);
+ 
+ 	if (tty_port_initialized(port)) {
+-		tty_port_set_initialized(port, 0);
++		tty_port_set_initialized(port, false);
+ 
+ 		/*
+ 		 * Turn off DTR and RTS early.
+@@ -2347,7 +2347,7 @@ int uart_suspend_port(struct uart_driver *drv, struct uart_port *uport)
+ 		unsigned int mctrl;
+ 
+ 		tty_port_set_suspended(port, 1);
+-		tty_port_set_initialized(port, 0);
++		tty_port_set_initialized(port, false);
+ 
+ 		spin_lock_irq(&uport->lock);
+ 		ops->stop_tx(uport);
+@@ -2458,7 +2458,7 @@ int uart_resume_port(struct uart_driver *drv, struct uart_port *uport)
+ 					uart_rs485_config(uport);
+ 				ops->start_tx(uport);
+ 				spin_unlock_irq(&uport->lock);
+-				tty_port_set_initialized(port, 1);
++				tty_port_set_initialized(port, true);
+ 			} else {
+ 				/*
+ 				 * Failed to resume - maybe hardware went away?
+diff --git a/drivers/tty/synclink_gt.c b/drivers/tty/synclink_gt.c
+index 72b76cdde534..2b96bf0ecafb 100644
+--- a/drivers/tty/synclink_gt.c
++++ b/drivers/tty/synclink_gt.c
+@@ -2354,7 +2354,7 @@ static int startup(struct slgt_info *info)
+ 	if (info->port.tty)
+ 		clear_bit(TTY_IO_ERROR, &info->port.tty->flags);
+ 
+-	tty_port_set_initialized(&info->port, 1);
++	tty_port_set_initialized(&info->port, true);
+ 
+ 	return 0;
+ }
+@@ -2401,7 +2401,7 @@ static void shutdown(struct slgt_info *info)
+ 	if (info->port.tty)
+ 		set_bit(TTY_IO_ERROR, &info->port.tty->flags);
+ 
+-	tty_port_set_initialized(&info->port, 0);
++	tty_port_set_initialized(&info->port, false);
+ }
+ 
+ static void program_hw(struct slgt_info *info)
+diff --git a/drivers/tty/tty_port.c b/drivers/tty/tty_port.c
+index dce08a6d7b5e..0c00d5bd6c88 100644
+--- a/drivers/tty/tty_port.c
++++ b/drivers/tty/tty_port.c
+@@ -367,7 +367,7 @@ static void tty_port_shutdown(struct tty_port *port, struct tty_struct *tty)
+ 		goto out;
+ 
+ 	if (tty_port_initialized(port)) {
+-		tty_port_set_initialized(port, 0);
++		tty_port_set_initialized(port, false);
+ 		/*
+ 		 * Drop DTR/RTS if HUPCL is set. This causes any attached
+ 		 * modem to hang up the line.
+@@ -788,7 +788,7 @@ int tty_port_open(struct tty_port *port, struct tty_struct *tty,
+ 				return retval;
+ 			}
+ 		}
+-		tty_port_set_initialized(port, 1);
++		tty_port_set_initialized(port, true);
+ 	}
+ 	mutex_unlock(&port->mutex);
+ 	return tty_port_block_til_ready(port, tty, filp);
+diff --git a/drivers/usb/serial/console.c b/drivers/usb/serial/console.c
+index da19a5fa414f..c3ea3a46ed76 100644
+--- a/drivers/usb/serial/console.c
++++ b/drivers/usb/serial/console.c
+@@ -169,7 +169,7 @@ static int usb_console_setup(struct console *co, char *options)
+ 			tty_save_termios(tty);
+ 			tty_kref_put(tty);
+ 		}
+-		tty_port_set_initialized(&port->port, 1);
++		tty_port_set_initialized(&port->port, true);
+ 	}
+ 	/* Now that any required fake tty operations are completed restore
+ 	 * the tty port count */
+-- 
+2.30.2
 
