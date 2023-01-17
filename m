@@ -2,102 +2,166 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9CFEBC63797
-	for <linux-s390@archiver.kernel.org>; Tue, 17 Jan 2023 15:11:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B98D4C678D7
+	for <linux-s390@archiver.kernel.org>; Tue, 17 Jan 2023 15:35:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233040AbjAQPLI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 17 Jan 2023 10:11:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48222 "EHLO
+        id S233234AbjAQPfo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 17 Jan 2023 10:35:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233390AbjAQPKm (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 Jan 2023 10:10:42 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 311633EFE6;
-        Tue, 17 Jan 2023 07:10:41 -0800 (PST)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30HEvE2s019631;
-        Tue, 17 Jan 2023 15:10:18 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=z9O9zPZkDqrnCuhkDxkogy0nY3SrET9KftAHRkcEYcQ=;
- b=p5Wwt+KegwJmNq4O+QjUnQtD7Z2aqlPjZ/1Po7cxFBc7jdIhGp1PrR1AtYYUE4w8yVW3
- rx2UDOx89pO/tqwIO2v1GI8nNnpZCMeGn3gUINtnrOBjVcYwBlcjFu8Xn+YwawQBBZnf
- MCQrlqBNXibZrFtB6WUcvefp6sCTw8IJJgwIL/m8w20euOxjxo6/gA6eL/cvE8vNXwww
- a6wHNVvnt173QPzyFvsx0AmTPpm1NpXY35zWi1gLzDg/sxhNZbzuncwo8DseAAbm1/qx
- 8xMVD5XfNr7nqL6tAhmutBHJRUh7y8sF147j+53X6Ee5TJaVCCTW4E9qsHPct5tCe8d6 aQ== 
-Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n5ww1rc3u-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 17 Jan 2023 15:10:17 +0000
-Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
-        by ppma01dal.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30HD87pv009261;
-        Tue, 17 Jan 2023 15:10:16 GMT
-Received: from smtprelay04.wdc07v.mail.ibm.com ([9.208.129.114])
-        by ppma01dal.us.ibm.com (PPS) with ESMTPS id 3n3m17nx8s-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 17 Jan 2023 15:10:16 +0000
-Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-        by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30HFAEOC24511042
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 17 Jan 2023 15:10:14 GMT
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 68FDB5805D;
-        Tue, 17 Jan 2023 15:10:14 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 180DE58057;
-        Tue, 17 Jan 2023 15:10:13 +0000 (GMT)
-Received: from [9.160.180.199] (unknown [9.160.180.199])
-        by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 17 Jan 2023 15:10:12 +0000 (GMT)
-Message-ID: <5989dc61-d589-aa66-bded-2d30dca4d0df@linux.ibm.com>
-Date:   Tue, 17 Jan 2023 10:10:12 -0500
+        with ESMTP id S232536AbjAQPfh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 Jan 2023 10:35:37 -0500
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 78EE341B52;
+        Tue, 17 Jan 2023 07:35:35 -0800 (PST)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 9822A165C;
+        Tue, 17 Jan 2023 07:36:16 -0800 (PST)
+Received: from FVFF77S0Q05N.cambridge.arm.com (FVFF77S0Q05N.cambridge.arm.com [10.1.31.153])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id ACA663F67D;
+        Tue, 17 Jan 2023 07:35:17 -0800 (PST)
+Date:   Tue, 17 Jan 2023 15:35:10 +0000
+From:   Mark Rutland <mark.rutland@arm.com>
+To:     Sudeep Holla <sudeep.holla@arm.com>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        richard.henderson@linaro.org, ink@jurassic.park.msu.ru,
+        mattst88@gmail.com, vgupta@kernel.org, linux@armlinux.org.uk,
+        nsekhar@ti.com, brgl@bgdev.pl, ulli.kroll@googlemail.com,
+        linus.walleij@linaro.org, shawnguo@kernel.org,
+        Sascha Hauer <s.hauer@pengutronix.de>, kernel@pengutronix.de,
+        festevam@gmail.com, linux-imx@nxp.com, tony@atomide.com,
+        khilman@kernel.org, krzysztof.kozlowski@linaro.org,
+        alim.akhtar@samsung.com, catalin.marinas@arm.com, will@kernel.org,
+        guoren@kernel.org, bcain@quicinc.com, chenhuacai@kernel.org,
+        kernel@xen0n.name, geert@linux-m68k.org, sammy@sammy.net,
+        monstr@monstr.eu, tsbogend@alpha.franken.de, dinguyen@kernel.org,
+        jonas@southpole.se, stefan.kristiansson@saunalahti.fi,
+        shorne@gmail.com, James.Bottomley@hansenpartnership.com,
+        deller@gmx.de, mpe@ellerman.id.au, npiggin@gmail.com,
+        christophe.leroy@csgroup.eu, paul.walmsley@sifive.com,
+        palmer@dabbelt.com, aou@eecs.berkeley.edu, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net,
+        richard@nod.at, anton.ivanov@cambridgegreys.com,
+        johannes@sipsolutions.net, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+        hpa@zytor.com, acme@kernel.org, alexander.shishkin@linux.intel.com,
+        jolsa@kernel.org, namhyung@kernel.org, jgross@suse.com,
+        srivatsa@csail.mit.edu, amakhalov@vmware.com,
+        pv-drivers@vmware.com, boris.ostrovsky@oracle.com,
+        chris@zankel.net, jcmvbkbc@gmail.com, rafael@kernel.org,
+        lenb@kernel.org, pavel@ucw.cz, gregkh@linuxfoundation.org,
+        mturquette@baylibre.com, sboyd@kernel.org,
+        daniel.lezcano@linaro.org, lpieralisi@kernel.org,
+        agross@kernel.org, andersson@kernel.org, konrad.dybcio@linaro.org,
+        anup@brainfault.org, thierry.reding@gmail.com,
+        jonathanh@nvidia.com, jacob.jun.pan@linux.intel.com,
+        atishp@atishpatra.org, Arnd Bergmann <arnd@arndb.de>,
+        yury.norov@gmail.com, andriy.shevchenko@linux.intel.com,
+        linux@rasmusvillemoes.dk, dennis@kernel.org, tj@kernel.org,
+        cl@linux.com, rostedt@goodmis.org, mhiramat@kernel.org,
+        frederic@kernel.org, paulmck@kernel.org, pmladek@suse.com,
+        senozhatsky@chromium.org, john.ogness@linutronix.de,
+        juri.lelli@redhat.com, vincent.guittot@linaro.org,
+        dietmar.eggemann@arm.com, bsegall@google.com, mgorman@suse.de,
+        bristot@redhat.com, vschneid@redhat.com, ryabinin.a.a@gmail.com,
+        glider@google.com, andreyknvl@gmail.com, dvyukov@google.com,
+        vincenzo.frascino@arm.com,
+        Andrew Morton <akpm@linux-foundation.org>, jpoimboe@kernel.org,
+        linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org, linux-omap@vger.kernel.org,
+        linux-samsung-soc@vger.kernel.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        linux-um@lists.infradead.org, linux-perf-users@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        linux-xtensa@linux-xtensa.org, linux-acpi@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-clk@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-arch@vger.kernel.org, linux-mm@kvack.org,
+        linux-trace-kernel@vger.kernel.org, kasan-dev@googlegroups.com
+Subject: Re: [PATCH v3 00/51] cpuidle,rcu: Clean up the mess
+Message-ID: <Y8bALvyrPpdg++/J@FVFF77S0Q05N.cambridge.arm.com>
+References: <20230112194314.845371875@infradead.org>
+ <Y8WCWAuQSHN651dA@FVFF77S0Q05N.cambridge.arm.com>
+ <Y8Z31UbzG3LJgAXE@hirez.programming.kicks-ass.net>
+ <Y8afpbHtDOqAHq9M@FVFF77S0Q05N.cambridge.arm.com>
+ <20230117142140.g423hxisv7djudof@bogus>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.0
-Subject: Re: [PATCH v4 3/7] s390/pci: prepare is_passed_through() for
- dma-iommu
-Content-Language: en-US
-To:     Niklas Schnelle <schnelle@linux.ibm.com>,
-        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>
-Cc:     Gerd Bayer <gbayer@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>, iommu@lists.linux.dev,
-        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, linux-kernel@vger.kernel.org,
-        Julian Ruess <julianr@linux.ibm.com>
-References: <20230104120543.308933-1-schnelle@linux.ibm.com>
- <20230104120543.308933-4-schnelle@linux.ibm.com>
-From:   Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <20230104120543.308933-4-schnelle@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: eaaXeWWJhmccxxKXjvDHgfBnhyuw83KD
-X-Proofpoint-ORIG-GUID: eaaXeWWJhmccxxKXjvDHgfBnhyuw83KD
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.923,Hydra:6.0.562,FMLib:17.11.122.1
- definitions=2023-01-17_06,2023-01-17_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
- clxscore=1011 bulkscore=0 phishscore=0 impostorscore=0 spamscore=0
- lowpriorityscore=0 priorityscore=1501 mlxlogscore=687 adultscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2301170122
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230117142140.g423hxisv7djudof@bogus>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 1/4/23 7:05 AM, Niklas Schnelle wrote:
-> With the IOMMU always controlled through the IOMMU driver testing for
-> zdev->s390_domain is not a valid indication of the device being
-> passed-through. Instead test if zdev->kzdev is set.
+On Tue, Jan 17, 2023 at 02:21:40PM +0000, Sudeep Holla wrote:
+> On Tue, Jan 17, 2023 at 01:16:21PM +0000, Mark Rutland wrote:
+> > On Tue, Jan 17, 2023 at 11:26:29AM +0100, Peter Zijlstra wrote:
+> > > On Mon, Jan 16, 2023 at 04:59:04PM +0000, Mark Rutland wrote:
+> > > 
+> > > > I'm sorry to have to bear some bad news on that front. :(
+> > > 
+> > > Moo, something had to give..
+> > > 
+> > > 
+> > > > IIUC what's happenign here is the PSCI cpuidle driver has entered idle and RCU
+> > > > is no longer watching when arm64's cpu_suspend() manipulates DAIF. Our
+> > > > local_daif_*() helpers poke lockdep and tracing, hence the call to
+> > > > trace_hardirqs_off() and the RCU usage.
+> > > 
+> > > Right, strictly speaking not needed at this point, IRQs should have been
+> > > traced off a long time ago.
+> > 
+> > True, but there are some other calls around here that *might* end up invoking
+> > RCU stuff (e.g. the MTE code).
+> > 
+> > That all needs a noinstr cleanup too, which I'll sort out as a follow-up.
+> > 
+> > > > I think we need RCU to be watching all the way down to cpu_suspend(), and it's
+> > > > cpu_suspend() that should actually enter/exit idle context. That and we need to
+> > > > make cpu_suspend() and the low-level PSCI invocation noinstr.
+> > > > 
+> > > > I'm not sure whether 32-bit will have a similar issue or not.
+> > > 
+> > > I'm not seeing 32bit or Risc-V have similar issues here, but who knows,
+> > > maybe I missed somsething.
+> > 
+> > I reckon if they do, the core changes here give us the infrastructure to fix
+> > them if/when we get reports.
+> > 
+> > > In any case, the below ought to cure the ARM64 case and remove that last
+> > > known RCU_NONIDLE() user as a bonus.
+> > 
+> > The below works for me testing on a Juno R1 board with PSCI, using defconfig +
+> > CONFIG_PROVE_LOCKING=y + CONFIG_DEBUG_LOCKDEP=y + CONFIG_DEBUG_ATOMIC_SLEEP=y.
+> > I'm not sure how to test the LPI / FFH part, but it looks good to me.
+> > 
+> > FWIW:
+> > 
+> > Reviewed-by: Mark Rutland <mark.rutland@arm.com>
+> > Tested-by: Mark Rutland <mark.rutland@arm.com>
+> > 
+> > Sudeep, would you be able to give the LPI/FFH side a spin with the kconfig
+> > options above?
+> > 
 > 
-> Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
-> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> Not sure if I have messed up something in my mail setup, but I did reply
+> earlier.
 
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+Sorry, that was my bad; I had been drafting my reply for a while and forgot to
+re-check prior to sending.
 
+> I did test both DT/cpuidle-psci driver and  ACPI/LPI+FFH driver
+> with the fix Peter sent. I was seeing same splat as you in both DT and
+> ACPI boot which the patch fixed it. I used the same config as described by
+> you above.
+
+Perfect; thanks!
+
+Mark.
