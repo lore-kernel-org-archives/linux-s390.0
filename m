@@ -2,160 +2,122 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 678E8C678D7
-	for <linux-s390@archiver.kernel.org>; Tue, 17 Jan 2023 08:45:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 20D02C678D7
+	for <linux-s390@archiver.kernel.org>; Tue, 17 Jan 2023 08:49:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236106AbjAQIpD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 17 Jan 2023 03:45:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49972 "EHLO
+        id S236211AbjAQIt4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 17 Jan 2023 03:49:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53394 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236180AbjAQIow (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 Jan 2023 03:44:52 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20A582CFD3;
-        Tue, 17 Jan 2023 00:44:51 -0800 (PST)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30H7TTl4035730;
-        Tue, 17 Jan 2023 08:44:51 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : content-type : in-reply-to :
- mime-version; s=pp1; bh=leoOOrrw3C3TVawPvKAtBEOU/LpewykLLoPxX0V3vns=;
- b=ZbmOZdk89/eeeqbImIJ9M/nso3ieOIV7YWKlgPEPJYNv95a25Vvykx35fiCH5V8EVXBz
- ciHNiDK/3oUod+u2YkqU7F2klXpQ/1d5pJKVODBnDePN7EmxTMXAzrxEXfN5fjjoGFd2
- QsCrpN/AN6fRBdLtKFP5Kefb8CfCgfx9VJ1STOL0fLkEkVcU/ImcJIIBlYpBR8LqXb1r
- 4dTRl+i4yPpgQcr2mb0UuMmpAz6/7NheNBD5xzRzX0OBotXohGnaBbOX/+tuScVbvFJ5
- Gj8wNuYA5ixM98yvE83c0ibRO3ph3cfCgaclqAS9AMJh479E5SstabXvxGUF4uatOsn9 2Q== 
+        with ESMTP id S235898AbjAQItv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 Jan 2023 03:49:51 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EA74EC47;
+        Tue, 17 Jan 2023 00:49:51 -0800 (PST)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30H7jBg2002153;
+        Tue, 17 Jan 2023 08:49:29 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=H906UnaT+mKc1vvKmTCCEcWqGmxotatY633LkzBqxYU=;
+ b=A6BVq7HNMg+oOk9phju+5wb8NvQ5nhXgUGV4aDzrytllvMMkF1QwAASO805mzs95eZ2n
+ nFKcix/B9tP3yq5RutbLwr2yS0Abm57uKLmBtWu1LQCnzO68gBvKuRAubGf/f3lwbm/t
+ d7yQv+5f0SONkcFHHSaAcX07ZpD4eOvZsvKy1FKh8tdh0yhzrWgHCxFAGAnbCx2hVThN
+ Rond9aWSHw3YaiM/1OecQ05uP252qJXP3SYTDx0h1dBaObZJqgSUfIb/xpcCfRKWX9Px
+ JCMj5JyJGhH44nebnIBpCrl3064gZ9Rc08Ewv1HQn0ismQJBIsB7Inz4PAelp10g6+mT Qw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n5qb5sgwe-1
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3n5hky0gqv-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 17 Jan 2023 08:44:50 +0000
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 30H8a4Dx020878;
-        Tue, 17 Jan 2023 08:44:50 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n5qb5sgvs-1
+        Tue, 17 Jan 2023 08:49:29 +0000
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 30H8ftP6001523;
+        Tue, 17 Jan 2023 08:49:28 GMT
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3n5hky0gq2-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 17 Jan 2023 08:44:49 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30H8ALkb007923;
-        Tue, 17 Jan 2023 08:44:47 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3n3knfkjem-1
+        Tue, 17 Jan 2023 08:49:28 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30GGKqhH025576;
+        Tue, 17 Jan 2023 08:49:26 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+        by ppma05fra.de.ibm.com (PPS) with ESMTPS id 3n3m16ajt5-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 17 Jan 2023 08:44:47 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30H8ihpw52887844
+        Tue, 17 Jan 2023 08:49:26 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30H8nMXa14222046
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 17 Jan 2023 08:44:44 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C4AD62004B;
-        Tue, 17 Jan 2023 08:44:43 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9CC1020040;
-        Tue, 17 Jan 2023 08:44:43 +0000 (GMT)
-Received: from osiris (unknown [9.152.212.250])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Tue, 17 Jan 2023 08:44:43 +0000 (GMT)
-Date:   Tue, 17 Jan 2023 09:44:42 +0100
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
-Cc:     agordeev@linux.ibm.com, gerald.schaefer@linux.ibm.com,
-        gor@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Abaci Robot <abaci@linux.alibaba.com>
-Subject: Re: [PATCH] s390/vmem: Use swap() instead of open coding it
-Message-ID: <Y8Zf+tdh8xr6nviC@osiris>
-References: <20230117060223.58583-1-jiapeng.chong@linux.alibaba.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230117060223.58583-1-jiapeng.chong@linux.alibaba.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: fJJPRg_KhobNAppFZuCJ-29nsCQfji0V
-X-Proofpoint-ORIG-GUID: 87_tvrgf_lYoJLGvoN1oRNkbw5ot0lHV
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        Tue, 17 Jan 2023 08:49:22 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CAED920049;
+        Tue, 17 Jan 2023 08:49:22 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 33E1620040;
+        Tue, 17 Jan 2023 08:49:22 +0000 (GMT)
+Received: from [9.155.211.163] (unknown [9.155.211.163])
+        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Tue, 17 Jan 2023 08:49:22 +0000 (GMT)
+Message-ID: <0bd438b3afa979b9f4d4d1e9c76451a93e7ef7eb.camel@linux.ibm.com>
+Subject: Re: [PATCH 8/8] iommu/s390: Push the gfp parameter to the
+ kmem_cache_alloc()'s
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Robin Murphy <robin.murphy@arm.com>
+Cc:     Alex Williamson <alex.williamson@redhat.com>,
+        ath10k@lists.infradead.org, ath11k@lists.infradead.org,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        dri-devel@lists.freedesktop.org, iommu@lists.linux.dev,
+        kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, linux-media@vger.kernel.org,
+        linux-rdma@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+        linux-s390@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-tegra@vger.kernel.org, linux-wireless@vger.kernel.org,
+        netdev@vger.kernel.org, nouveau@lists.freedesktop.org,
+        virtualization@lists.linux-foundation.org
+Date:   Tue, 17 Jan 2023 09:49:22 +0100
+In-Reply-To: <8-v1-6e8b3997c46d+89e-iommu_map_gfp_jgg@nvidia.com>
+References: <8-v1-6e8b3997c46d+89e-iommu_map_gfp_jgg@nvidia.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.46.3 (3.46.3-1.fc37) 
 MIME-Version: 1.0
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: MKx4-ANHPJUrZonOgwaEaY-EVKsDWzHU
+X-Proofpoint-GUID: SbFxmq8QKSSdWBsgb5noBKiad8Yo5FPz
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.923,Hydra:6.0.562,FMLib:17.11.122.1
  definitions=2023-01-17_04,2023-01-13_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- spamscore=0 clxscore=1015 bulkscore=0 malwarescore=0 mlxlogscore=999
- suspectscore=0 impostorscore=0 adultscore=0 phishscore=0
- priorityscore=1501 mlxscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2212070000 definitions=main-2301170066
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
+ phishscore=0 malwarescore=0 lowpriorityscore=0 mlxlogscore=713 bulkscore=0
+ spamscore=0 impostorscore=0 clxscore=1011 suspectscore=0 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
+ definitions=main-2301170071
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jan 17, 2023 at 02:02:23PM +0800, Jiapeng Chong wrote:
-> Swap is a function interface that provides exchange function. To avoid
-> code duplication, we can use swap function.
-> 
-> ./arch/s390/mm/vmem.c:680:10-11: WARNING opportunity for swap().
-> 
-> Link: https://bugzilla.openanolis.cn/show_bug.cgi?id=3786
-> Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-> Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+On Fri, 2023-01-06 at 12:42 -0400, Jason Gunthorpe wrote:
+> dma_alloc_cpu_table() and dma_alloc_page_table() are eventually called by
+> iommufd through s390_iommu_map_pages() and it should not be forced to
+> atomic. Thread the gfp parameter through the call chain starting from
+> s390_iommu_map_pages().
+>=20
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 > ---
->  arch/s390/mm/vmem.c | 5 +----
->  1 file changed, 1 insertion(+), 4 deletions(-)
-> 
-> diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
-> index 78d7768f93d7..774a71b94f5c 100644
-> --- a/arch/s390/mm/vmem.c
-> +++ b/arch/s390/mm/vmem.c
-> @@ -674,11 +674,8 @@ static void __init memblock_region_swap(void *a, void *b, int size)
->  {
->  	struct memblock_region *r1 = a;
->  	struct memblock_region *r2 = b;
-> -	struct memblock_region swap;
->  
-> -	swap = *r1;
-> -	*r1 = *r2;
-> -	*r2 = swap;
-> +	swap(*r1, *r2);
->  }
+>  arch/s390/include/asm/pci_dma.h |  5 +++--
+>  arch/s390/pci/pci_dma.c         | 31 +++++++++++++++++--------------
+>  drivers/iommu/s390-iommu.c      | 15 +++++++++------
+>  3 files changed, 29 insertions(+), 22 deletions(-)
+>=20
+---8<---
+> =20
 
-Let's remove r1, and r2 as well. I applied the below:
+Looks good to me and I have no objections.
 
-From ff3ebe76f3b9481e6553bc2f05b52a266cd2e4a5 Mon Sep 17 00:00:00 2001
-From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
-Date: Tue, 17 Jan 2023 14:02:23 +0800
-Subject: [PATCH] s390/vmem: use swap() instead of open coding it
-
-Swap is a function interface that provides exchange function. To avoid
-code duplication, we can use swap function.
-
-./arch/s390/mm/vmem.c:680:10-11: WARNING opportunity for swap().
-
-[hca@linux.ibm.com: get rid of all temp variables]
-Link: https://bugzilla.openanolis.cn/show_bug.cgi?id=3786
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
-Link: https://lore.kernel.org/r/20230117060223.58583-1-jiapeng.chong@linux.alibaba.com
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
----
- arch/s390/mm/vmem.c | 8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
-
-diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
-index 78d7768f93d7..15daf777cf41 100644
---- a/arch/s390/mm/vmem.c
-+++ b/arch/s390/mm/vmem.c
-@@ -672,13 +672,7 @@ static int __init memblock_region_cmp(const void *a, const void *b)
- 
- static void __init memblock_region_swap(void *a, void *b, int size)
- {
--	struct memblock_region *r1 = a;
--	struct memblock_region *r2 = b;
--	struct memblock_region swap;
--
--	swap = *r1;
--	*r1 = *r2;
--	*r2 = swap;
-+	swap(*(struct memblock_region *)a, *(struct memblock_region *)b);
- }
- 
- /*
--- 
-2.34.1
+Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
 
