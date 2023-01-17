@@ -2,217 +2,199 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D653C678D4
-	for <linux-s390@archiver.kernel.org>; Tue, 17 Jan 2023 03:39:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 66B07C678D4
+	for <linux-s390@archiver.kernel.org>; Tue, 17 Jan 2023 04:25:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235351AbjAQDi7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 16 Jan 2023 22:38:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43616 "EHLO
+        id S235362AbjAQEZU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 16 Jan 2023 23:25:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235130AbjAQDi6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 Jan 2023 22:38:58 -0500
-Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6BC2233F9;
-        Mon, 16 Jan 2023 19:38:56 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1673926736; x=1705462736;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=BiK8YdWwF7AcMHXjZUMEuSDOFxsXkHG8GIdDW0EY3yo=;
-  b=hYHF/f55vfzA883k+vqGgDJ1Co3zEcj0cPqzXiv+DtH1Kap33Oo+SPCX
-   5dvV8UyXS/ZxpFM3ZjyM8Fy4U2c8l17c1uTxmpJ5mWWTBEFIXA/mN6nLN
-   mUM5TIMV9Pb8siFRb8qpJCuVmyEaBDRD/+YA+rRJYb3mTVP1wAOVHwkVb
-   C27TJjuMb1io3EWPzKZygCUs6RGb5I1tD4OZGZTYqKtSQFMkQoc/He4UF
-   B7VnD8p8WncwSdKKu5ui1bWBmiE1r1RdvC2+djqD1ohw/lK435sTYhr9b
-   HfTbwQbQq/3SGTqhCFSnMDMHdfkooW0ExIVhdNymMH6Ma1boSK37ujX41
-   w==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10592"; a="322292053"
-X-IronPort-AV: E=Sophos;i="5.97,222,1669104000"; 
-   d="scan'208";a="322292053"
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Jan 2023 19:38:55 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10592"; a="691451974"
-X-IronPort-AV: E=Sophos;i="5.97,222,1669104000"; 
-   d="scan'208";a="691451974"
-Received: from fmsmsx603.amr.corp.intel.com ([10.18.126.83])
-  by orsmga001.jf.intel.com with ESMTP; 16 Jan 2023 19:38:55 -0800
-Received: from fmsmsx612.amr.corp.intel.com (10.18.126.92) by
- fmsmsx603.amr.corp.intel.com (10.18.126.83) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.16; Mon, 16 Jan 2023 19:38:54 -0800
-Received: from fmsmsx602.amr.corp.intel.com (10.18.126.82) by
- fmsmsx612.amr.corp.intel.com (10.18.126.92) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.16; Mon, 16 Jan 2023 19:38:54 -0800
-Received: from fmsedg602.ED.cps.intel.com (10.1.192.136) by
- fmsmsx602.amr.corp.intel.com (10.18.126.82) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.16 via Frontend Transport; Mon, 16 Jan 2023 19:38:54 -0800
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com (104.47.57.177)
- by edgegateway.intel.com (192.55.55.71) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.16; Mon, 16 Jan 2023 19:38:53 -0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=c0jE+tw1rcZLc0Iu2b2jNlYHzIF7e1uLs8cxkOa/+bs5hWzn33AxiqSTMuDZNTb1vPvHkSpxzjtQHsyspIphgkqA3GUkXWbnIk2hPIrPQLOvJXdwvYjn/uI1br7eEHCULdwokPPj9ZNg2Yq5KHgqZIie/OKWByQI6BnlNZGTE/7Lr7Mdy1Y9ETAAPk8eYyQ+ty2exineQPy1/nASbJTf+WiWvUd07ojqB6xYdXzRTpFFRR4gREqc5kr1eKpziO1QcW/D6SWSdeDgMHxkwKuMsfdewMD5jdVQ2I1x2LcuYzsuRna2JjP/gadAAm6OMdHtjUmwPoB1JMLY6xzTkmZWEQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=woUXwpPKNw/jd4o61sXa+h5+uy+kD+yYGda+Veo0EBs=;
- b=Gq7vBEERe6PK594qA0qo7R3ZzJmadWV+xLeO7lnIp9T+VtMbiYlq48r9gRsCkqwHlzQKaPgr2DHj3tvjkinF2ZVzqURUV/sdaTdQRNTYV5jOB4v1OJn+Ujjo5yog4skDbGeNP4c14o3AI+I7joPmGi4XfYXeKbafB9irsjWC2pQs3zoHoyTDUu2Buhu9st/FJ+vyXb3VUOeGhuO/fGy0mIyTlnCh6jAyX7ICbekz9iBdQnpqoh8ToDeZ6gihTm+ogR989FIE/TwKHgiHrF3VrUKeiGeWoGBrHZ1TukrhQQRLu8ISY61tSrKHGWqNQO1n24FsoWscYyDdi7AQjf4stQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com (2603:10b6:408:135::18)
- by CO1PR11MB4850.namprd11.prod.outlook.com (2603:10b6:303:9c::7) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5986.23; Tue, 17 Jan
- 2023 03:38:52 +0000
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::6a8d:b95:e1b5:d79d]) by BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::6a8d:b95:e1b5:d79d%9]) with mapi id 15.20.5986.023; Tue, 17 Jan 2023
- 03:38:52 +0000
-From:   "Tian, Kevin" <kevin.tian@intel.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Robin Murphy <robin.murphy@arm.com>
-CC:     Alex Williamson <alex.williamson@redhat.com>,
-        "ath10k@lists.infradead.org" <ath10k@lists.infradead.org>,
-        "ath11k@lists.infradead.org" <ath11k@lists.infradead.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
-        "iommu@lists.linux.dev" <iommu@lists.linux.dev>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>,
-        "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>,
-        "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
-        "linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "linux-stm32@st-md-mailman.stormreply.com" 
-        <linux-stm32@st-md-mailman.stormreply.com>,
-        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
-        "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "nouveau@lists.freedesktop.org" <nouveau@lists.freedesktop.org>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        "virtualization@lists.linux-foundation.org" 
-        <virtualization@lists.linux-foundation.org>
-Subject: RE: [PATCH 7/8] iommu/intel: Support the gfp argument to the
- map_pages op
-Thread-Topic: [PATCH 7/8] iommu/intel: Support the gfp argument to the
- map_pages op
-Thread-Index: AQHZIe3xxYKfQcB18EGoezp52F9yLa6iBZGw
-Date:   Tue, 17 Jan 2023 03:38:51 +0000
-Message-ID: <BN9PR11MB52765EE38CA21BA27EEA06548CC69@BN9PR11MB5276.namprd11.prod.outlook.com>
-References: <0-v1-6e8b3997c46d+89e-iommu_map_gfp_jgg@nvidia.com>
- <7-v1-6e8b3997c46d+89e-iommu_map_gfp_jgg@nvidia.com>
-In-Reply-To: <7-v1-6e8b3997c46d+89e-iommu_map_gfp_jgg@nvidia.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: BN9PR11MB5276:EE_|CO1PR11MB4850:EE_
-x-ms-office365-filtering-correlation-id: f3ca98a3-32d7-458b-685a-08daf83c5a04
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: ddXIrX23S6IYUJ95VRMtW8X3H9o4JLrTFnVjWo2Cj+6at0NVH+YzpwuZn3JdyQ3jb20dC+PGiiYC9X/5iqTDvdrjnFI09FPkNctQhrPdBMbBC6nE7JoFAoVfpfz8P6Dn9VOZOll7zzMwNvdr7zfCq12hNM9aDWj8rggzwq1oBYARgC9fX7CWOCyA11PyTNwLQftYiY5R++7NIwqsMseiJ31yvSfCgYc6x5kRKGkFse+noSQ9Ax7mAq/rIOE0T52IAC8lZDrSDgHxtPzd/2eb7RqPCvKKZmeFA3FCH2O4WdBO4d943jueWaqyBSMvZkftkmzqk8F7Tgd3bOCVDTYy8vca8pXU5ZZBwzJAiayCU7tVpW0dabnxkAyRUSigPYHs7fPiqZKt//81UzN+vWGgFfkxjt3062S+ZOdyLMAU+LnClD4DnnyN3IbNWb2VWMd5y3glQsZG4vf/YojcPUrdbKsHupJ4tRnmVclQ+dgVSvz4SyvSVrBiTN4pR7+FHFpwIUYCcEE3qd6CEUcX/NlcX81a6/Ho/6Q3CNvyWpaBcARIjmFaupwNz8RqhD/UA9PF214TCYe1l8Aa77u6TOss8OnrqMf4AweiswzdSnjjwKIABQ7z/4u6PuHt66UT5shOrzoeaJzcaJLUr0+zUqPRUfq0mE9DeVUdDYvZ9KvzeeHiaEd9rTFLm8+XxX9aisQN4p7XSAWCw9vgxyujm5yEUQ==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR11MB5276.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(346002)(396003)(366004)(136003)(376002)(39860400002)(84040400005)(451199015)(86362001)(33656002)(83380400001)(186003)(9686003)(26005)(41300700001)(4326008)(64756008)(8676002)(66946007)(66556008)(66476007)(76116006)(66446008)(55016003)(71200400001)(316002)(7696005)(2906002)(6506007)(110136005)(54906003)(478600001)(122000001)(7416002)(38070700005)(38100700002)(52536014)(5660300002)(82960400001)(8936002);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?axMmZGetffPayJhQI4BEu0rBCeXVAGXhaqDMSJQTaMxkZ61q8f4BzsYPPmAz?=
- =?us-ascii?Q?CcEJIqpWohKW1U7agt+mxx0xuDN1IXJLHBc4IJdpBgoWInsmFEbFuUqNGWBT?=
- =?us-ascii?Q?TXCT3UR0f+5+C1gs7VHdTI+5fY+bb1TrvcEDmXdhrAM3BVdbxMcdSgKvIzjE?=
- =?us-ascii?Q?sqytLQyri93do+4cNBRqvzL1qqxgx9xVopFO2Rhi80TeJ8D9JcWTEgijNMuU?=
- =?us-ascii?Q?eM33C3jgOSHyl4PMIhznsqeffrSmblUHGGJsPftRQsK7Dp+vfWeKntOVGxeY?=
- =?us-ascii?Q?Qui54QjhKG4qEuQ782Dgj6a3Rql+/1EW85SDyLvAPOSPclNYgyTg9N0Zg+D6?=
- =?us-ascii?Q?ovZG3x+1ZhLFCi4t6DiMMPCJzcY1r47C6lyKC7jDItB5RqsIq7+fpBYeWTyK?=
- =?us-ascii?Q?hmJysCd5BUHaQPEgwhEOF7UTTBE9Qm7DieysbGWJg7CyWeDvhhww+I6ynMGy?=
- =?us-ascii?Q?kQQKEHbh+kqRj0BTh7fESLvbqOR2P84L5AimGbg1L/aspaTS5myHT0jAdgb3?=
- =?us-ascii?Q?wlommvwnE3/F9cMLg0nS58DSFy5TySP0fA9tgRqBfAymOOhhz6RR5dSDc0lF?=
- =?us-ascii?Q?JGOdSQ8wir/hWa40fpQGPp3qWNdY8EbEiz2vh4U1i/YbzeqbYvqFHXzThsoh?=
- =?us-ascii?Q?DzOorFiYbgB5ZfArY8krMNZ6L0OQObcxyQMgnXgvJ+c1PkC2C7ZWwsB9MWDo?=
- =?us-ascii?Q?OmdGtayM/5HpRKGPgW6DFU5M9tirce2y4v0xwzIEOg9U+3Er58a7KarOoCsI?=
- =?us-ascii?Q?78D0485PQjZiH4FCRX2+q37a/fAb+550XpL7Y+6UYR7pbYBQVWCl4s59hQQ6?=
- =?us-ascii?Q?67rnP2DsXJa6MUxERpN0TOh4Im/TLRvU3FOBFDPxzVhnng2W09Qw2aoCZ9tn?=
- =?us-ascii?Q?YBp8BVJ/PuKTM+svLejDtFADZYIyfSssDvwYQY77eqUlrcDEdb/Qx5Vzz+N2?=
- =?us-ascii?Q?FpUnqE4/s+InYETgcDz85sXk8Y3hmgheBszFQxIVdtIQD4gNge6z3VCMCitV?=
- =?us-ascii?Q?78AaemKZ6uCOEatNqH390KM5Qs8sngN3VT5wf7ej8BtGumegF7PGF51J4KXa?=
- =?us-ascii?Q?2WuL4oq+7nPFIF655TWoGROthN5NVh7bzGfmnruDiKbxvi/Tee05uarhI/M4?=
- =?us-ascii?Q?lgjcuy7Dd1bl8x+KCGiqGuvPYFGwJqKzJLzppX40JhKibaae2sEGBq30IoNj?=
- =?us-ascii?Q?K+6le41p7xRolCpETY+2vElH3391wTA/IVWcBgwIogHfqq32/EzRYN61eN76?=
- =?us-ascii?Q?acgUBxOr/hsPavRlfccy+Ne5aITJd8PugREhQCtQexAYlV+o22WqYtdmpOu1?=
- =?us-ascii?Q?HHDIUvoous9Y4kN1U7aCQoi+hwBcjZKapNs9u/jzqII19JKCrDcZeWNHdY4x?=
- =?us-ascii?Q?mbAadvpIhJGNJY095TViMOzKDYZIEmByJb1bFghA3wvHzV1EIwwAXvv6c7QY?=
- =?us-ascii?Q?Y8Bkd3HqrIBcnRGSDqkqeMVRbcdgcN7xeDjth0l2m85hy63KElH+uN9h9d8v?=
- =?us-ascii?Q?NP8QXb0QYitu0IdMxhk/E4fqo7egp+a0zzh9M8/oG7Ilj0vNhzeIG6p3gvEW?=
- =?us-ascii?Q?h0sfMkZLtXG7yF8xAJzMBOXzu1JBR4CFhZQKOzjb?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BN9PR11MB5276.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: f3ca98a3-32d7-458b-685a-08daf83c5a04
-X-MS-Exchange-CrossTenant-originalarrivaltime: 17 Jan 2023 03:38:51.7841
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: WU6JqyvwcWvWut0Q3CyZGbszHiGLzUaoISj2vk8niVKT89+LU7GtH0zndz5Ol6qVc6jVVyDMJ/s1cc7QTmwMgw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CO1PR11MB4850
-X-OriginatorOrg: intel.com
+        with ESMTP id S234808AbjAQEZN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 Jan 2023 23:25:13 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25E1B12F2F;
+        Mon, 16 Jan 2023 20:25:12 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B38D611B3;
+        Tue, 17 Jan 2023 04:25:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0701C433EF;
+        Tue, 17 Jan 2023 04:24:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1673929510;
+        bh=LKPfAbcdavLMCpifQk05Aqw+1tD2xg5qsuB6VorVVnI=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=rvDfVQk7Tsas4+LZFK04iCV/SqfYXmqYXLFi42JOngYW1dOP0QSo6CLiBkpjYosKx
+         nKUcD4fx6Lu1RT5hJ5yblHd47Jqpvv59kmEAKtriWUWkTZ7hmC4Za3q3BgpEtr891G
+         Uhe5azCk4FahsTTDCEc3lE2+MzsUQWKU5CAcTO6IYBsGKCz8NivYw+lk7qeBhykDxt
+         x23XNA0A5LxituWhIHyg6sCe7NTSUKsY2ON6C3g6I/nFT8i/VEH7jmIvKLWoo8AYZN
+         JlOlRfIFLAGKs5+FVWy9q/WwqqbuzK/Mvbqfsgyxm4gYqDdXx2B1Vx+ckQBMj8vEfk
+         ICBnmkeUNpdwg==
+Date:   Tue, 17 Jan 2023 13:24:46 +0900
+From:   Masami Hiramatsu (Google) <mhiramat@kernel.org>
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     richard.henderson@linaro.org, ink@jurassic.park.msu.ru,
+        mattst88@gmail.com, vgupta@kernel.org, linux@armlinux.org.uk,
+        nsekhar@ti.com, brgl@bgdev.pl, ulli.kroll@googlemail.com,
+        linus.walleij@linaro.org, shawnguo@kernel.org,
+        Sascha Hauer <s.hauer@pengutronix.de>, kernel@pengutronix.de,
+        festevam@gmail.com, linux-imx@nxp.com, tony@atomide.com,
+        khilman@kernel.org, krzysztof.kozlowski@linaro.org,
+        alim.akhtar@samsung.com, catalin.marinas@arm.com, will@kernel.org,
+        guoren@kernel.org, bcain@quicinc.com, chenhuacai@kernel.org,
+        kernel@xen0n.name, geert@linux-m68k.org, sammy@sammy.net,
+        monstr@monstr.eu, tsbogend@alpha.franken.de, dinguyen@kernel.org,
+        jonas@southpole.se, stefan.kristiansson@saunalahti.fi,
+        shorne@gmail.com, James.Bottomley@HansenPartnership.com,
+        deller@gmx.de, mpe@ellerman.id.au, npiggin@gmail.com,
+        christophe.leroy@csgroup.eu, paul.walmsley@sifive.com,
+        palmer@dabbelt.com, aou@eecs.berkeley.edu, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net,
+        richard@nod.at, anton.ivanov@cambridgegreys.com,
+        johannes@sipsolutions.net, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+        hpa@zytor.com, acme@kernel.org, mark.rutland@arm.com,
+        alexander.shishkin@linux.intel.com, jolsa@kernel.org,
+        namhyung@kernel.org, jgross@suse.com, srivatsa@csail.mit.edu,
+        amakhalov@vmware.com, pv-drivers@vmware.com,
+        boris.ostrovsky@oracle.com, chris@zankel.net, jcmvbkbc@gmail.com,
+        rafael@kernel.org, lenb@kernel.org, pavel@ucw.cz,
+        gregkh@linuxfoundation.org, mturquette@baylibre.com,
+        sboyd@kernel.org, daniel.lezcano@linaro.org, lpieralisi@kernel.org,
+        sudeep.holla@arm.com, agross@kernel.org, andersson@kernel.org,
+        konrad.dybcio@linaro.org, anup@brainfault.org,
+        thierry.reding@gmail.com, jonathanh@nvidia.com,
+        jacob.jun.pan@linux.intel.com, atishp@atishpatra.org,
+        Arnd Bergmann <arnd@arndb.de>, yury.norov@gmail.com,
+        andriy.shevchenko@linux.intel.com, linux@rasmusvillemoes.dk,
+        dennis@kernel.org, tj@kernel.org, cl@linux.com,
+        rostedt@goodmis.org, mhiramat@kernel.org, frederic@kernel.org,
+        paulmck@kernel.org, pmladek@suse.com, senozhatsky@chromium.org,
+        john.ogness@linutronix.de, juri.lelli@redhat.com,
+        vincent.guittot@linaro.org, dietmar.eggemann@arm.com,
+        bsegall@google.com, mgorman@suse.de, bristot@redhat.com,
+        vschneid@redhat.com, ryabinin.a.a@gmail.com, glider@google.com,
+        andreyknvl@gmail.com, dvyukov@google.com,
+        vincenzo.frascino@arm.com,
+        Andrew Morton <akpm@linux-foundation.org>, jpoimboe@kernel.org,
+        linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org, linux-omap@vger.kernel.org,
+        linux-samsung-soc@vger.kernel.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        linux-um@lists.infradead.org, linux-perf-users@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        linux-xtensa@linux-xtensa.org, linux-acpi@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-clk@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-arch@vger.kernel.org, linux-mm@kvack.org,
+        linux-trace-kernel@vger.kernel.org, kasan-dev@googlegroups.com
+Subject: Re: [PATCH v3 35/51] trace,hardirq: No moar _rcuidle() tracing
+Message-Id: <20230117132446.02ec12e4c10718de27790900@kernel.org>
+In-Reply-To: <20230112195541.477416709@infradead.org>
+References: <20230112194314.845371875@infradead.org>
+        <20230112195541.477416709@infradead.org>
+X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-> From: Jason Gunthorpe <jgg@nvidia.com>
-> Sent: Saturday, January 7, 2023 12:43 AM
->=20
-> @@ -2368,7 +2372,7 @@ static int iommu_domain_identity_map(struct
-> dmar_domain *domain,
->=20
->  	return __domain_mapping(domain, first_vpfn,
->  				first_vpfn, last_vpfn - first_vpfn + 1,
-> -				DMA_PTE_READ|DMA_PTE_WRITE);
-> +				DMA_PTE_READ|DMA_PTE_WRITE,
-> GFP_KERNEL);
+Hi Peter,
+
+On Thu, 12 Jan 2023 20:43:49 +0100
+Peter Zijlstra <peterz@infradead.org> wrote:
+
+> Robot reported that trace_hardirqs_{on,off}() tickle the forbidden
+> _rcuidle() tracepoint through local_irq_{en,dis}able().
+> 
+> For 'sane' configs, these calls will only happen with RCU enabled and
+> as such can use the regular tracepoint. This also means it's possible
+> to trace them from NMI context again.
+> 
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+
+The code looks good to me. I just have a question about comment.
+
+> ---
+>  kernel/trace/trace_preemptirq.c |   21 +++++++++++++--------
+>  1 file changed, 13 insertions(+), 8 deletions(-)
+> 
+> --- a/kernel/trace/trace_preemptirq.c
+> +++ b/kernel/trace/trace_preemptirq.c
+> @@ -20,6 +20,15 @@
+>  static DEFINE_PER_CPU(int, tracing_irq_cpu);
+>  
+>  /*
+> + * ...
+
+Is this intended? Wouldn't you leave any comment here?
+
+Thank you,
+
+> + */
+> +#ifdef CONFIG_ARCH_WANTS_NO_INSTR
+> +#define trace(point)	trace_##point
+> +#else
+> +#define trace(point)	if (!in_nmi()) trace_##point##_rcuidle
+> +#endif
+> +
+> +/*
+>   * Like trace_hardirqs_on() but without the lockdep invocation. This is
+>   * used in the low level entry code where the ordering vs. RCU is important
+>   * and lockdep uses a staged approach which splits the lockdep hardirq
+> @@ -28,8 +37,7 @@ static DEFINE_PER_CPU(int, tracing_irq_c
+>  void trace_hardirqs_on_prepare(void)
+>  {
+>  	if (this_cpu_read(tracing_irq_cpu)) {
+> -		if (!in_nmi())
+> -			trace_irq_enable(CALLER_ADDR0, CALLER_ADDR1);
+> +		trace(irq_enable)(CALLER_ADDR0, CALLER_ADDR1);
+>  		tracer_hardirqs_on(CALLER_ADDR0, CALLER_ADDR1);
+>  		this_cpu_write(tracing_irq_cpu, 0);
+>  	}
+> @@ -40,8 +48,7 @@ NOKPROBE_SYMBOL(trace_hardirqs_on_prepar
+>  void trace_hardirqs_on(void)
+>  {
+>  	if (this_cpu_read(tracing_irq_cpu)) {
+> -		if (!in_nmi())
+> -			trace_irq_enable_rcuidle(CALLER_ADDR0, CALLER_ADDR1);
+> +		trace(irq_enable)(CALLER_ADDR0, CALLER_ADDR1);
+>  		tracer_hardirqs_on(CALLER_ADDR0, CALLER_ADDR1);
+>  		this_cpu_write(tracing_irq_cpu, 0);
+>  	}
+> @@ -63,8 +70,7 @@ void trace_hardirqs_off_finish(void)
+>  	if (!this_cpu_read(tracing_irq_cpu)) {
+>  		this_cpu_write(tracing_irq_cpu, 1);
+>  		tracer_hardirqs_off(CALLER_ADDR0, CALLER_ADDR1);
+> -		if (!in_nmi())
+> -			trace_irq_disable(CALLER_ADDR0, CALLER_ADDR1);
+> +		trace(irq_disable)(CALLER_ADDR0, CALLER_ADDR1);
+>  	}
+>  
 >  }
+> @@ -78,8 +84,7 @@ void trace_hardirqs_off(void)
+>  	if (!this_cpu_read(tracing_irq_cpu)) {
+>  		this_cpu_write(tracing_irq_cpu, 1);
+>  		tracer_hardirqs_off(CALLER_ADDR0, CALLER_ADDR1);
+> -		if (!in_nmi())
+> -			trace_irq_disable_rcuidle(CALLER_ADDR0, CALLER_ADDR1);
+> +		trace(irq_disable)(CALLER_ADDR0, CALLER_ADDR1);
+>  	}
+>  }
+>  EXPORT_SYMBOL(trace_hardirqs_off);
+> 
+> 
 
-Baolu, can you help confirm whether switching from GFP_ATOMIC to
-GFP_KERNEL is OK in this path? it looks fine to me in a quick glance
-but want to be conservative here.
 
-> @@ -4333,7 +4337,8 @@ static size_t intel_iommu_unmap(struct
-> iommu_domain *domain,
->=20
->  	/* Cope with horrid API which requires us to unmap more than the
->  	   size argument if it happens to be a large-page mapping. */
-> -	BUG_ON(!pfn_to_dma_pte(dmar_domain, iova >> VTD_PAGE_SHIFT,
-> &level));
-> +	BUG_ON(!pfn_to_dma_pte(dmar_domain, iova >> VTD_PAGE_SHIFT,
-> &level,
-> +			       GFP_ATOMIC));
-
-with level=3D=3D0 it implies it's only lookup w/o pgtable allocation. From =
-this
-angle it reads better to use a more relaxed gfp e.g. GFP_KERNEL here.
-
-> @@ -4392,7 +4397,8 @@ static phys_addr_t
-> intel_iommu_iova_to_phys(struct iommu_domain *domain,
->  	int level =3D 0;
->  	u64 phys =3D 0;
->=20
-> -	pte =3D pfn_to_dma_pte(dmar_domain, iova >> VTD_PAGE_SHIFT,
-> &level);
-> +	pte =3D pfn_to_dma_pte(dmar_domain, iova >> VTD_PAGE_SHIFT,
-> &level,
-> +			     GFP_ATOMIC);
-
-ditto
+-- 
+Masami Hiramatsu (Google) <mhiramat@kernel.org>
