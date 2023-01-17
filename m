@@ -2,135 +2,187 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DD37FC3DA78
-	for <linux-s390@archiver.kernel.org>; Tue, 17 Jan 2023 07:37:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 559DBC63797
+	for <linux-s390@archiver.kernel.org>; Tue, 17 Jan 2023 07:46:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235021AbjAQHhw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 17 Jan 2023 02:37:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40078 "EHLO
+        id S235937AbjAQHqJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 17 Jan 2023 02:46:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233575AbjAQHhu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 Jan 2023 02:37:50 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DC0223DA9;
-        Mon, 16 Jan 2023 23:37:49 -0800 (PST)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30H6nIl3024415;
-        Tue, 17 Jan 2023 07:37:49 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=JJ8Uq04lNzNLRtSiOMCe+s/f1GwyCHTmUxmoQL4veHI=;
- b=dH/UZEP1vgc0rsvZRubl15UmuSRYEk1DHa0UQLxrlwC9kdnNz2OmQTS9m6vvSdA5xYHx
- gzXJxJYRmcV9x9uVcpEsJk9YY5mJfb5nL9HUQr3rPZFgsztXvyqMxowDg12p7qRImsoT
- iA0bMMVm4CH5rpWrSg7CNbnIWOP4y2oRY1kcwJWO2OnPw+GoH2sac2Y86kbRYAAdFeDQ
- TIVpnl6Vf3Pz/lsBCAy3BPir7rxFfswdQt6tpcr+24oSyvK1S1Bu/VxuSG37zSwGbwZl
- N/HmrRVbH1FtcNneRbOngjFmBizTkC1GVKSLp9FmaDXOCjIhD495vGOKQeM9+hTdCjhm Sg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n5kcamue2-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 17 Jan 2023 07:37:49 +0000
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 30H7SgUH032596;
-        Tue, 17 Jan 2023 07:37:49 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n5kcamudf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 17 Jan 2023 07:37:48 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30GIXH2m007302;
-        Tue, 17 Jan 2023 07:37:46 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma03fra.de.ibm.com (PPS) with ESMTPS id 3n3m16jgx3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 17 Jan 2023 07:37:46 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30H7beYm45678972
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 17 Jan 2023 07:37:40 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2162C204FA;
-        Tue, 17 Jan 2023 07:37:40 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9472B204FB;
-        Tue, 17 Jan 2023 07:37:39 +0000 (GMT)
-Received: from [9.171.77.240] (unknown [9.171.77.240])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 17 Jan 2023 07:37:39 +0000 (GMT)
-Message-ID: <41023c65-16db-5f8b-c2d9-c794b3536896@linux.ibm.com>
-Date:   Tue, 17 Jan 2023 08:37:39 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.0
-Subject: Re: [PATCH] s390/chsc: Switch over to memdup_user()
-To:     Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
-        vneethv@linux.ibm.com
-Cc:     oberpar@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, svens@linux.ibm.com,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Abaci Robot <abaci@linux.alibaba.com>
-References: <20230117060443.62153-1-jiapeng.chong@linux.alibaba.com>
-Content-Language: en-US
-From:   Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20230117060443.62153-1-jiapeng.chong@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: bH7uO0EwjLtfosRsaC3JmTgwamxBU72-
-X-Proofpoint-GUID: CF7s-bEYwHifN6St3WmIUoh4YDk9aRHy
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        with ESMTP id S235245AbjAQHqJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 Jan 2023 02:46:09 -0500
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D382623DA9;
+        Mon, 16 Jan 2023 23:46:04 -0800 (PST)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 6CA0368281;
+        Tue, 17 Jan 2023 07:46:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1673941563; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=gcQSletvhO4wh1U/V7ppDt6OVyPkdg0/EF7pXKdjASg=;
+        b=L8t5asuMW/yt91oRhL/9EEdPplMNjwFtJbKCNVgWplQtJI5RcqLiMkRPrWrZweXFYKAMIJ
+        lIEeYZTASJiL1GUmu9XulcQSy4A5E1GrRZ1ntm8B7CUVE4Scgd2I83oQxSjrS5CF4iJVEJ
+        ExPSm08YAHnrpWgF5HVpF6IPtQSLjR8=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 1781F13357;
+        Tue, 17 Jan 2023 07:46:03 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id XbofBDtSxmMuPgAAMHmgww
+        (envelope-from <mwilck@suse.com>); Tue, 17 Jan 2023 07:46:03 +0000
+Message-ID: <5fd704674fcf7ec08cf7e33b5db5d83078d7c5c2.camel@suse.com>
+Subject: Re: kernel BUG scsi_dh_alua sleeping from invalid context && kernel
+ WARNING do not call blocking ops when !TASK_RUNNING
+From:   Martin Wilck <mwilck@suse.com>
+To:     Bart Van Assche <bvanassche@acm.org>,
+        Steffen Maier <maier@linux.ibm.com>,
+        linux-scsi <linux-scsi@vger.kernel.org>
+Cc:     "Martin K. Petersen" <martin.petersen@oracle.com>,
+        "James E . J . Bottomley" <jejb@linux.ibm.com>,
+        Sachin Sant <sachinp@linux.ibm.com>,
+        Hannes Reinecke <hare@suse.de>,
+        Benjamin Block <bblock@linux.ibm.com>,
+        linux-s390 <linux-s390@vger.kernel.org>
+Date:   Tue, 17 Jan 2023 08:46:02 +0100
+In-Reply-To: <228d2351-e0ff-e743-6005-3ac0f0daf637@acm.org>
+References: <b49e37d5-edfb-4c56-3eeb-62c7d5855c00@linux.ibm.com>
+         <228d2351-e0ff-e743-6005-3ac0f0daf637@acm.org>
+Content-Type: text/plain; charset="ISO-8859-15"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.46.3 
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.923,Hydra:6.0.562,FMLib:17.11.122.1
- definitions=2023-01-17_03,2023-01-13_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 suspectscore=0
- priorityscore=1501 spamscore=0 clxscore=1015 mlxlogscore=999 phishscore=0
- malwarescore=0 impostorscore=0 mlxscore=0 lowpriorityscore=0 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
- definitions=main-2301170062
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Hello Bart,
+
+On Mon, 2023-01-16 at 09:55 -0800, Bart Van Assche wrote:
+> On 1/16/23 06:59, Steffen Maier wrote:
+> > Hi all,
+> >=20
+> > since a few days/weeks, we sometimes see below alua and sleep
+> > related=20
+> > kernel BUG and WARNING (with panic_on_warn) in our CI.
+> >=20
+> > It reminds me of
+> > [PATCH 0/2] Rework how the ALUA driver calls scsi_device_put()
+> > https://lore.kernel.org/linux-scsi/166986602290.2101055.173977343268438=
+53911.b4-ty@oracle.com/
+> >=20
+> > which I thought was the fix and went into 6.2-rc(1?) on 2022-12-14
+> > with
+> > [GIT PULL] first round of SCSI updates for the 6.1+ merge window
+> > https://lore.kernel.org/linux-scsi/b2e824bbd1e40da64d2d01657f2f7a67b989=
+19fb.camel@HansenPartnership.com/T/#u
+> >=20
+> > Due to limited history, I cannot tell exactly when problems started
+> > and=20
+> > whether it really correlates to above.
+> >=20
+> > Test workload are all kinds of coverage tests for zfcp recovery=20
+> > including scsi device removal and/or rescan.
+> >=20
+> > [ 4569.045992] BUG: sleeping function called from invalid context
+> > at=20
+> > drivers/scsi/device_handler/scsi_dh_alua.c:992
+> > [ 4569.046003] in_atomic(): 1, irqs_disabled(): 0, non_block: 0,
+> > pid: 0,=20
+> > name: swapper/8
+> > [ 4569.046013] preempt_count: 101, expected: 0
+> > [ 4569.046023] RCU nest depth: 0, expected: 0
+> > [ 4569.046033] no locks held by swapper/8/0.
+> > [ 4569.046042] Preemption disabled at:
 
 
-Am 17.01.23 um 07:04 schrieb Jiapeng Chong:
-> Use memdup_user rather than duplicating its implementation, this is a
-> little bit restricted to reduce false positives.
-> 
-> ./drivers/s390/cio/chsc_sch.c:703:7-14: WARNING opportunity for memdup_user.
-> 
-> Link: https://bugzilla.openanolis.cn/show_bug.cgi?id=3785
-> Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-> Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
-> ---
->   drivers/s390/cio/chsc_sch.c | 14 +++++---------
->   1 file changed, 5 insertions(+), 9 deletions(-)
-> 
-> diff --git a/drivers/s390/cio/chsc_sch.c b/drivers/s390/cio/chsc_sch.c
-> index 180ab899289c..097769a955c3 100644
-> --- a/drivers/s390/cio/chsc_sch.c
-> +++ b/drivers/s390/cio/chsc_sch.c
-> @@ -700,15 +700,11 @@ static int chsc_ioctl_conf_comp_list(void __user *user_ccl)
->   	sccl_area = (void *)get_zeroed_page(GFP_KERNEL | GFP_DMA);
->   	if (!sccl_area)
->   		return -ENOMEM;
-> -	ccl = kzalloc(sizeof(*ccl), GFP_KERNEL);
-> -	if (!ccl) {
-> -		ret = -ENOMEM;
-> -		goto out_free;
-> -	}
-> -	if (copy_from_user(ccl, user_ccl, sizeof(*ccl))) {
-> -		ret = -EFAULT;
-> -		goto out_free;
-> -	}
-> +
-> +	ccl = memdup_user(user_ccl, sizeof(*ccl));
-> +	if (IS_ERR(ccl))
-> +		return PTR_ERR(ccl);
 
-The old code did free sccl_area your code does not.
 
-> +
->   	sccl_area->request.length = 0x0020;
->   	sccl_area->request.code = 0x0030;
->   	sccl_area->fmt = ccl->req.fmt;
+>=20
+> Thanks,
+>=20
+> Bart.
+
+> > [ 4569.046046] [<000000017e27ce4e>]
+> > __slab_alloc.constprop.0+0x36/0xb8
+> > [ 4569.046072] CPU: 8 PID: 0 Comm: swapper/8 Tainted: G=A0=A0=A0=A0=A0=
+=A0=A0 W=20
+> > 6.2.0-20230114.rc3.git0.46e26dd43df0.300.fc37.s390x+debug #1
+> > [ 4569.046084] Hardware name: IBM 2964 NC9 702 (z/VM 6.4.0)
+> > [ 4569.046094] Call Trace:
+> > [ 4569.046102]=A0 [<000000017ed21bcc>] dump_stack_lvl+0xac/0x100
+> > [ 4569.046118]=A0 [<000000017df9192c>] __might_resched+0x284/0x2c8
+> > [ 4569.046131]=A0 [<000003ff7fb9c874>] alua_rtpg_queue+0x3c/0x98=20
+> > [scsi_dh_alua]
+> > [ 4569.046146]=A0 [<000003ff7fb9cfb2>] alua_check+0x122/0x250
+> > [scsi_dh_alua]
+> > [ 4569.046167]=A0 [<000003ff7fb9d562>] alua_check_sense+0x172/0x228=20
+> > [scsi_dh_alua]
+> > [ 4569.046179]=A0 [<000000017e96b3e2>] scsi_check_sense+0x8a/0x2e0
+> > [ 4569.046191]=A0 [<000000017e96e4b6>]
+> > scsi_decide_disposition+0x286/0x298
+> > [ 4569.046201]=A0 [<000000017e972bca>] scsi_complete+0x6a/0x108
+> > [ 4569.046212]=A0 [<000000017e746906>] blk_complete_reqs+0x6e/0x88
+> > [ 4569.046227]=A0 [<000000017ed3830e>] __do_softirq+0x13e/0x6b8
+> > [ 4569.046238]=A0 [<000000017df57902>] __irq_exit_rcu+0x14a/0x170
+> > [ 4569.046264]=A0 [<000000017df58472>] irq_exit_rcu+0x22/0x50
+> > [ 4569.046275]=A0 [<000000017ed2242a>] do_ext_irq+0x10a/0x1d0
+> > [ 4569.046286]=A0 [<000000017ed36156>] ext_int_handler+0xd6/0x110
+> > [ 4569.046296]=A0 [<000000017ed362e6>] psw_idle_exit+0x0/0xa
+> > [ 4569.046307] ([<000000017defc5da>] arch_cpu_idle+0x52/0xe0)
+> > [ 4569.046318]=A0 [<000000017ed34744>] default_idle_call+0x84/0xd0
+> > [ 4569.046329]=A0 [<000000017dfbe4cc>] do_idle+0xfc/0x1b8
+> > [ 4569.046340]=A0 [<000000017dfbe80e>] cpu_startup_entry+0x36/0x40
+> > [ 4569.046350]=A0 [<000000017df11964>]
+> > smp_start_secondary+0x14c/0x160
+> > [ 4569.046371]=A0 [<000000017ed3658e>] restart_int_handler+0x6e/0x90
+> > [ 4569.046381] no locks held by swapper/8/0.
+> Hi Steffen,
+>=20
+> Thanks for your report and also for having included this call trace.
+> Is=20
+> my understanding correct that alua_rtpg_queue+0x3c refers to the=20
+> might_sleep() near the start of alua_rtpg_queue()? If so, please help
+> with testing the following patch:
+>=20
+> diff --git a/drivers/scsi/device_handler/scsi_dh_alua.c=20
+> b/drivers/scsi/device_handler/scsi_dh_alua.c
+> index 49cc18a87473..79afa7acdfbc 100644
+> --- a/drivers/scsi/device_handler/scsi_dh_alua.c
+> +++ b/drivers/scsi/device_handler/scsi_dh_alua.c
+> @@ -989,8 +989,6 @@ static bool alua_rtpg_queue(struct
+> alua_port_group
+> =A0=A0=A0=A0=A0=A0=A0=A0int start_queue =3D 0;
+> =A0=A0=A0=A0=A0=A0=A0=A0unsigned long flags;
+>=20
+> -=A0=A0=A0=A0=A0=A0=A0might_sleep();
+> -
+> =A0=A0=A0=A0=A0=A0=A0=A0if (WARN_ON_ONCE(!pg) || scsi_device_get(sdev))
+> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0return false;
+>=20
+>=20
+> I'm proposing this change because the context from which a request is
+> queued should hold a reference on 'sdev' while a request is in
+> progress=20
+> so alua_check_sense() should not trigger the scsi_device_put() call
+> in=20
+> alua_rtpg_queue().
+
+alua_rtpg_queue() must take an additional reference in order to make
+sure that the ref survives until the workqueue is started. A possible
+reference hold by the caller doesn't help because the caller might have
+dropped the ref before the workqueue runs.
+
+Please explain. Am I overlooking something?
+
+Regards
+Martin
+
