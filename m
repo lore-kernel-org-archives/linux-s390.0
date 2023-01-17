@@ -2,187 +2,107 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 45942C3DA78
-	for <linux-s390@archiver.kernel.org>; Tue, 17 Jan 2023 15:59:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2DDF1C54E76
+	for <linux-s390@archiver.kernel.org>; Tue, 17 Jan 2023 19:59:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231544AbjAQP7q (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 17 Jan 2023 10:59:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55754 "EHLO
+        id S229957AbjAQT7Y (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 17 Jan 2023 14:59:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231511AbjAQP7n (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 Jan 2023 10:59:43 -0500
-Received: from www62.your-server.de (www62.your-server.de [213.133.104.62])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C12C22B291;
-        Tue, 17 Jan 2023 07:59:39 -0800 (PST)
-Received: from sslproxy04.your-server.de ([78.46.152.42])
-        by www62.your-server.de with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <daniel@iogearbox.net>)
-        id 1pHoN1-0007ZP-51; Tue, 17 Jan 2023 16:59:31 +0100
-Received: from [85.1.206.226] (helo=linux.home)
-        by sslproxy04.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <daniel@iogearbox.net>)
-        id 1pHoN0-0009Hp-CC; Tue, 17 Jan 2023 16:59:30 +0100
-Subject: Re: [bpf-next v2] bpf: drop deprecated bpf_jit_enable == 2
-To:     Tonghao Zhang <tong@infragraf.org>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc:     "bpf@vger.kernel.org" <bpf@vger.kernel.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.or" 
-        <linux-arm-kernel@lists.infradead.or>,
-        "loongarch@lists.linux.dev" <loongarch@lists.linux.dev>,
-        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
-        Hao Luo <haoluo@google.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Song Liu <song@kernel.org>,
-        Stanislav Fomichev <sdf@google.com>,
-        Jiri Olsa <jolsa@kernel.org>, Hou Tao <houtao1@huawei.com>,
-        KP Singh <kpsingh@kernel.org>, Yonghong Song <yhs@fb.com>,
-        Martin KaFai Lau <martin.lau@linux.dev>,
-        "naveen.n.rao@linux.ibm.com" <naveen.n.rao@linux.ibm.com>,
-        "mpe@ellerman.id.au" <mpe@ellerman.id.au>
-References: <20230105030614.26842-1-tong@infragraf.org>
- <ea7673e1-40ec-18be-af89-5f4fd0f71742@csgroup.eu>
- <71c83f39-f85f-d990-95b7-ab6068839e6c@iogearbox.net>
- <5836b464-290e-203f-00f2-fc6632c9f570@csgroup.eu>
- <147A796D-12C0-482F-B48A-16E67120622B@infragraf.org>
- <0b46b813-05f2-5083-9f2e-82d72970dae2@csgroup.eu>
- <4380D454-3ED0-43F4-9A79-102BB0E3577A@infragraf.org>
-From:   Daniel Borkmann <daniel@iogearbox.net>
-Message-ID: <d91bbb9e-484b-d43d-e62d-0474ff21cf91@iogearbox.net>
-Date:   Tue, 17 Jan 2023 16:59:28 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.2
+        with ESMTP id S232377AbjAQT5m (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 Jan 2023 14:57:42 -0500
+Received: from mail-pj1-f41.google.com (mail-pj1-f41.google.com [209.85.216.41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C81394DCC3;
+        Tue, 17 Jan 2023 10:50:41 -0800 (PST)
+Received: by mail-pj1-f41.google.com with SMTP id d8so2165922pjc.3;
+        Tue, 17 Jan 2023 10:50:41 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=/HQGg/8vq5SlsczjXKDNJxmMvwo3J64W2HmBDEDQXxI=;
+        b=y/PlpQs+LAbuxydTDMVvH5V2DVF0/8wtqV1onh7XlWvom6KBsXZ1HzthhKsi2TinN3
+         Hau772Bi2EnP41ptiPWduAXqW+MUrGKC1t4656NvMpIcujsDpT7wtITNWFm7ke4Fnr+5
+         OixaruQ5/zIMf+Ucu5cd2KaHASdA96SVdjQr3wWcWXNrQTRikcnuBHXTEtTtK9b3zo+w
+         41stWHI4t6RPLhifrNU07Ne1Cb5UjDGnTRTrL/wPEtpeXNmlr6mjqN1duf/SHf9ElU6f
+         riIJuKfLcEAq1b+XPZYYK6tWjogr+I+vzgy1cSm8BGBZQecszMIfck3acw7GArWpCvYf
+         u+fA==
+X-Gm-Message-State: AFqh2kqVKLWgSDUPpq51iEWmxIrXJpwS53aKWxEW2TYxs1gBcWQMyr8D
+        JyZhccNU8RSefaHlKkKld0Q=
+X-Google-Smtp-Source: AMrXdXtC63QxLhrrBGZ5gaUkg1Tui5HCgbg5MDGgGgT/75UxeGbHBmIoukfx00Xrj5uTEYxKD9nduA==
+X-Received: by 2002:a17:902:6904:b0:193:3354:1c22 with SMTP id j4-20020a170902690400b0019333541c22mr3354629plk.39.1673981441139;
+        Tue, 17 Jan 2023 10:50:41 -0800 (PST)
+Received: from ?IPV6:2620:15c:211:201:f632:d9f5:6cbb:17d0? ([2620:15c:211:201:f632:d9f5:6cbb:17d0])
+        by smtp.gmail.com with ESMTPSA id c1-20020a170903234100b0017f48a9e2d6sm21427456plh.292.2023.01.17.10.50.38
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 17 Jan 2023 10:50:40 -0800 (PST)
+Message-ID: <c23a6bf4-0b6e-0bbb-b74d-af69756bcf9a@acm.org>
+Date:   Tue, 17 Jan 2023 10:50:37 -0800
 MIME-Version: 1.0
-In-Reply-To: <4380D454-3ED0-43F4-9A79-102BB0E3577A@infragraf.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.5.1
+Subject: Re: kernel BUG scsi_dh_alua sleeping from invalid context && kernel
+ WARNING do not call blocking ops when !TASK_RUNNING
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-Authenticated-Sender: daniel@iogearbox.net
-X-Virus-Scanned: Clear (ClamAV 0.103.7/26784/Tue Jan 17 09:29:12 2023)
+To:     Martin Wilck <mwilck@suse.com>,
+        Steffen Maier <maier@linux.ibm.com>,
+        linux-scsi <linux-scsi@vger.kernel.org>
+Cc:     "Martin K. Petersen" <martin.petersen@oracle.com>,
+        "James E . J . Bottomley" <jejb@linux.ibm.com>,
+        Sachin Sant <sachinp@linux.ibm.com>,
+        Hannes Reinecke <hare@suse.de>,
+        Benjamin Block <bblock@linux.ibm.com>,
+        linux-s390 <linux-s390@vger.kernel.org>
+References: <b49e37d5-edfb-4c56-3eeb-62c7d5855c00@linux.ibm.com>
+ <017b6c73f56505e63519e4b79fe69d66abddf810.camel@suse.com>
+ <a9da2b27-882f-bc8e-3400-cb53440e2159@acm.org>
+ <125f247806396f19fd27dcfa71f530b5b4a529a6.camel@suse.com>
+From:   Bart Van Assche <bvanassche@acm.org>
+In-Reply-To: <125f247806396f19fd27dcfa71f530b5b4a529a6.camel@suse.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 1/17/23 3:22 PM, Tonghao Zhang wrote:
+On 1/17/23 01:28, Martin Wilck wrote:
+> On Mon, 2023-01-16 at 09:48 -0800, Bart Van Assche wrote:
+>> On 1/16/23 08:57, Martin Wilck wrote:
+>>> Can we simply defer the scsi_device_put() to a workqueue?
+>>
+>> I'm concerned that would reintroduce a race condition when LLD kernel
+>> modules are removed.
 > 
+> I don't follow. Normally, alua_rtpg_queue() queues rtpg_work, and
+> alua_rtpg_work() will be called from the work queue and will eventually
+> call scsi_device_put() when the RTPG is finished.
 > 
->> On Jan 17, 2023, at 3:30 PM, Christophe Leroy <christophe.leroy@csgroup.eu> wrote:
->>
->>
->>
->> Le 17/01/2023 à 06:30, Tonghao Zhang a écrit :
->>>
->>>
->>>> On Jan 9, 2023, at 4:15 PM, Christophe Leroy <christophe.leroy@csgroup.eu> wrote:
->>>>
->>>>
->>>>
->>>> Le 06/01/2023 à 16:37, Daniel Borkmann a écrit :
->>>>> On 1/5/23 6:53 PM, Christophe Leroy wrote:
->>>>>> Le 05/01/2023 à 04:06, tong@infragraf.org a écrit :
->>>>>>> From: Tonghao Zhang <tong@infragraf.org>
->>>>>>>
->>>>>>> The x86_64 can't dump the valid insn in this way. A test BPF prog
->>>>>>> which include subprog:
->>>>>>>
->>>>>>> $ llvm-objdump -d subprog.o
->>>>>>> Disassembly of section .text:
->>>>>>> 0000000000000000 <subprog>:
->>>>>>>           0:       18 01 00 00 73 75 62 70 00 00 00 00 72 6f 67 00 r1
->>>>>>> = 29114459903653235 ll
->>>>>>>           2:       7b 1a f8 ff 00 00 00 00 *(u64 *)(r10 - 8) = r1
->>>>>>>           3:       bf a1 00 00 00 00 00 00 r1 = r10
->>>>>>>           4:       07 01 00 00 f8 ff ff ff r1 += -8
->>>>>>>           5:       b7 02 00 00 08 00 00 00 r2 = 8
->>>>>>>           6:       85 00 00 00 06 00 00 00 call 6
->>>>>>>           7:       95 00 00 00 00 00 00 00 exit
->>>>>>> Disassembly of section raw_tp/sys_enter:
->>>>>>> 0000000000000000 <entry>:
->>>>>>>           0:       85 10 00 00 ff ff ff ff call -1
->>>>>>>           1:       b7 00 00 00 00 00 00 00 r0 = 0
->>>>>>>           2:       95 00 00 00 00 00 00 00 exit
->>>>>>>
->>>>>>> kernel print message:
->>>>>>> [  580.775387] flen=8 proglen=51 pass=3 image=ffffffffa000c20c
->>>>>>> from=kprobe-load pid=1643
->>>>>>> [  580.777236] JIT code: 00000000: cc cc cc cc cc cc cc cc cc cc cc
->>>>>>> cc cc cc cc cc
->>>>>>> [  580.779037] JIT code: 00000010: cc cc cc cc cc cc cc cc cc cc cc
->>>>>>> cc cc cc cc cc
->>>>>>> [  580.780767] JIT code: 00000020: cc cc cc cc cc cc cc cc cc cc cc
->>>>>>> cc cc cc cc cc
->>>>>>> [  580.782568] JIT code: 00000030: cc cc cc
->>>>>>>
->>>>>>> $ bpf_jit_disasm
->>>>>>> 51 bytes emitted from JIT compiler (pass:3, flen:8)
->>>>>>> ffffffffa000c20c + <x>:
->>>>>>>       0:   int3
->>>>>>>       1:   int3
->>>>>>>       2:   int3
->>>>>>>       3:   int3
->>>>>>>       4:   int3
->>>>>>>       5:   int3
->>>>>>>       ...
->>>>>>>
->>>>>>> Until bpf_jit_binary_pack_finalize is invoked, we copy rw_header to
->>>>>>> header
->>>>>>> and then image/insn is valid. BTW, we can use the "bpftool prog dump"
->>>>>>> JITed instructions.
->>>>>>
->>>>>> NACK.
->>>>>>
->>>>>> Because the feature is buggy on x86_64, you remove it for all
->>>>>> architectures ?
->>>>>>
->>>>>> On powerpc bpf_jit_enable == 2 works and is very usefull.
->>>>>>
->>>>>> Last time I tried to use bpftool on powerpc/32 it didn't work. I don't
->>>>>> remember the details, I think it was an issue with endianess. Maybe it
->>>>>> is fixed now, but it needs to be verified.
->>>>>>
->>>>>> So please, before removing a working and usefull feature, make sure
->>>>>> there is an alternative available to it for all architectures in all
->>>>>> configurations.
->>>>>>
->>>>>> Also, I don't think bpftool is usable to dump kernel BPF selftests.
->>>>>> That's vital when a selftest fails if you want to have a chance to
->>>>>> understand why it fails.
->>>>>
->>>>> If this is actively used by JIT developers and considered useful, I'd be
->>>>> ok to leave it for the time being. Overall goal is to reach feature parity
->>>>> among (at least major arch) JITs and not just have most functionality only
->>>>> available on x86-64 JIT. Could you however check what is not working with
->>>>> bpftool on powerpc/32? Perhaps it's not too much effort to just fix it,
->>>>> but details would be useful otherwise 'it didn't work' is too fuzzy.
->>>>
->>>> Sure I will try to test bpftool again in the coming days.
->>>>
->>>> Previous discussion about that subject is here:
->>>> https://patchwork.kernel.org/project/linux-riscv/patch/20210415093250.3391257-1-Jianlin.Lv@arm.com/#24176847=
->>> Hi Christophe
->>> Any progress? We discuss to deprecate the bpf_jit_enable == 2 in 2021, but bpftool can not run on powerpc.
->>> Now can we fix this issue?
->>
->> Hi Tong,
->>
->> I have started to look at it but I don't have any fruitfull feedback yet.
->>
->> In the meantime, were you able to confirm that bpftool can also be used
->> to dump jitted tests from test_bpf.ko module on x86_64 ? In that can you
->> tell me how to proceed ?
-> Now I do not test, but we can dump the insn after bpf_prog_select_runtime in test_bpf.ko. bpf_map_get_info_by_fd can copy the insn to userspace, but we can
-> dump them in test_bpf.ko in the same way.
+> alua_rtpg_queue() only calls scsi_device_put() if queueing rtpg_work
+> fails[*]. If we deferred this scsi_device_put() call to a work queue,
+> what would be the difference (wrt a module_put() race condition)
+> compared to the case where queue_delayed_work() succeeds?
+> In both cases, scsi_device_put() would be called from a work queue.
+> 
+> Given that alua_rtpg_queue() must take a reference to the scsi device
+> for the case that queueing succeeds, and that alua_rtpg_queue() is
+> sometimes called in atomic context, I think deferring the
+> scsi_device_put() call is the only option we have.
 
-Issue is that these progs are not consumable from userspace (and therefore not bpftool).
-it's just simple bpf_prog_alloc + copy of test insns + bpf_prog_select_runtime() to test
-JITs (see generate_filter()). Some of them could be converted over to test_verifier, but
-not all might actually pass verifier, iirc. Don't think it's a good idea to allow exposing
-them via fd tbh.
+Hi Martin,
+
+Before commit f93ed747e2c7 ("scsi: core: Release SCSI devices 
+synchronously") the SCSI device release code could continue running 
+asynchronously after the last module_put() call of the LLD associated 
+with the SCSI device.
+
+Since commit f93ed747e2c7 it is guaranteed that freeing device memory 
+(scsi_device_dev_release()) has finished before the last LLD 
+module_put() call happens.
+
+Do you perhaps plan to defer the scsi_device_put() calls in the ALUA 
+device handler to a workqueue?
+
+Thanks,
+
+Bart.
