@@ -2,173 +2,246 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EB28EC678D8
-	for <linux-s390@archiver.kernel.org>; Tue, 17 Jan 2023 13:30:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F0CDC677F1
+	for <linux-s390@archiver.kernel.org>; Tue, 17 Jan 2023 14:19:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231486AbjAQNai (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 17 Jan 2023 08:30:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32932 "EHLO
+        id S231386AbjAQOTh convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 17 Jan 2023 09:19:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230300AbjAQNad (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 Jan 2023 08:30:33 -0500
-Received: from NAM02-BN1-obe.outbound.protection.outlook.com (mail-bn1nam02on2043.outbound.protection.outlook.com [40.107.212.43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8135739B84;
-        Tue, 17 Jan 2023 05:30:29 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=UCvEnLw5KG0qDzBl9xERUBBu7fCC7dpVHSWEMQcx8ACCW0kF0wrer7gfG7dBgr8WNiFJyW1XnX2DvAIpKERyCBgWJyGO8BX5k1fm5bJsehNwMBx9qd+yhsT8az3NNtHNKrvtyg43Wfw7yHIQZSLuU1AUUKnMrEWZJ38sGNNoj3KsGGP+smZKDAa0c1qBHFYv/5m+2DRwp5r9vX1DyfsXs4GioT5Wd4uZc5w9yPSeybRALNi1oOewZY1rAHDIkwKjnq3UkUM9pUsEb46loNSzZvm6sHIXMWdxaAVB7FtT9qlVsEwRu1sR4lehUyceMamow7FozK/vWo6mypW/EaHyVg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=hsytL9wJ1VxKzILKFyD+VW4nBBi6uFgymaKFp2fLMIY=;
- b=UAFYxHTcCYE65PkbZp1MuZkFw17MYwtMm0c6Ovjkv4+iAb67ejtp5pkE2rDu9xoti6xfIQeTE0unJ2pXUJ5jv/4zQBAi/y2N00un7tOi9/n/3vN79I2X8hf88elZa99E4+AmMeglJDH1HmqLCdTsupV3ZESmB60kDumn6+YVZamAH5oPfsRAANcZuaO7RPGIqlegPx4ldesW83hSIon/sXgE4+evkUelIrpRm4A8C0UVuBqYtXmupht1dad0wEvEidL3JoOLCtkU8neHBZ5jZ4GbaVK/5bD+W6Yf2QAINMM3lgdE8bso8V7YroX1yS4orz7sPNvSW0UUEmm5RHzqsw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=hsytL9wJ1VxKzILKFyD+VW4nBBi6uFgymaKFp2fLMIY=;
- b=RCtKIaIpQvvAq8yUs0er0TZJb7VFNDBPkjutc3/CaRv4syn/aRLJCdJ0tKBNDKpAM2BaJaazxor7f4P/AfCuW5DeS2f4xy4rf2fbRBiXGJHcHeyTfAE/lgyxr1VFEjhLvUUIepQBgOxOC8QA+qCI7f0raoseRFc5Oq51nMkwHX33gK/3cBSUsi1vufGdr9iUq0No58TdsbXH83aF/auAhV6EBZzBAu0r4OgR+4fk5s6vtkbrwGQKrQKLWvIz6m+h3DStncYE5sOcPq5rW+rlLoPNsHt3fpLkUSZw93P4tUtSRbgGNwdme8RrMKu7bkiGQyFz+zL8AnGf0srXDLa3yw==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
- by CY8PR12MB7754.namprd12.prod.outlook.com (2603:10b6:930:86::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5986.23; Tue, 17 Jan
- 2023 13:30:27 +0000
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::f8b0:df13:5f8d:12a]) by LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::f8b0:df13:5f8d:12a%9]) with mapi id 15.20.6002.013; Tue, 17 Jan 2023
- 13:30:27 +0000
-Date:   Tue, 17 Jan 2023 09:30:26 -0400
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     "Tian, Kevin" <kevin.tian@intel.com>
-Cc:     Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        "ath10k@lists.infradead.org" <ath10k@lists.infradead.org>,
-        "ath11k@lists.infradead.org" <ath11k@lists.infradead.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
-        "iommu@lists.linux.dev" <iommu@lists.linux.dev>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>,
-        "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>,
-        "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
-        "linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "linux-stm32@st-md-mailman.stormreply.com" 
-        <linux-stm32@st-md-mailman.stormreply.com>,
-        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
-        "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
+        with ESMTP id S229645AbjAQOTg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 Jan 2023 09:19:36 -0500
+Received: from bg4.exmail.qq.com (bg4.exmail.qq.com [43.155.67.158])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A16DE32525;
+        Tue, 17 Jan 2023 06:19:32 -0800 (PST)
+X-QQ-mid: bizesmtp76t1673965119t9zr0wdk
+Received: from smtpclient.apple ( [111.201.151.239])
+        by bizesmtp.qq.com (ESMTP) with 
+        id ; Tue, 17 Jan 2023 22:18:36 +0800 (CST)
+X-QQ-SSF: 00000000002000709000B00A0000000
+X-QQ-FEAT: RmDZc/K2LPFQH6D7eKdHnbXxF7Vo/tbHt61zYTk7DKeN1f41LFpjGOvDKBns/
+        +T7SJ92kEMs1xcyrYX8g385fCNFIfoYhsE1jNG8gMJdrx4D3GrnycxYY6C21ljUxNVK8wcs
+        cXEkHhVcWvzvG7p16YUzNV5Hl8O7GvxPkYVNjiKsETG8+iEKIacpwSEjbAFc63EjYqG//ZB
+        5M9OWuVOTAQmmaWhcY77xsU34OFFZBbmomJFzvXbReXc+iIVRHA1mQIG+zYh9cpJe82TcAa
+        VZdPB43TeK72QsD/0REWsOzRX6ztT/izpNGcydzOAXhVkhyqZi6djBNd605qJ5idzJNNFhT
+        Babc02Esvm4dXThABvioD35UiiaBJrpzwKh1ceuZxpGmLTS3wAfYi66D8POS/Xyt98cCmcm
+X-QQ-GoodBg: 0
+Content-Type: text/plain;
+        charset=utf-8
+Mime-Version: 1.0 (Mac OS X Mail 15.0 \(3693.20.0.1.32\))
+Subject: Re: [bpf-next v2] bpf: drop deprecated bpf_jit_enable == 2
+From:   Tonghao Zhang <tong@infragraf.org>
+In-Reply-To: <0792068b-9aff-d658-5c7d-086e6d394c6c@csgroup.eu>
+Date:   Tue, 17 Jan 2023 22:18:36 +0800
+Cc:     Daniel Borkmann <daniel@iogearbox.net>,
+        "bpf@vger.kernel.org" <bpf@vger.kernel.org>,
         "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "nouveau@lists.freedesktop.org" <nouveau@lists.freedesktop.org>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        "virtualization@lists.linux-foundation.org" 
-        <virtualization@lists.linux-foundation.org>
-Subject: Re: [PATCH 6/8] iommu/intel: Add a gfp parameter to
- alloc_pgtable_page()
-Message-ID: <Y8ai8i2FpW4CuAX6@nvidia.com>
-References: <0-v1-6e8b3997c46d+89e-iommu_map_gfp_jgg@nvidia.com>
- <6-v1-6e8b3997c46d+89e-iommu_map_gfp_jgg@nvidia.com>
- <BN9PR11MB5276A8193DE752CA8D8D89928CC69@BN9PR11MB5276.namprd11.prod.outlook.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <BN9PR11MB5276A8193DE752CA8D8D89928CC69@BN9PR11MB5276.namprd11.prod.outlook.com>
-X-ClientProxiedBy: MN2PR13CA0008.namprd13.prod.outlook.com
- (2603:10b6:208:160::21) To LV2PR12MB5869.namprd12.prod.outlook.com
- (2603:10b6:408:176::16)
-MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|CY8PR12MB7754:EE_
-X-MS-Office365-Filtering-Correlation-Id: 99078ce9-5e35-490b-7427-08daf88eff02
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: qypHGm+neClz/zCECh7tGdQmWpptWD+l4XdJqhvfOpSgMH12xabqMVBLI99fytEZzQQaftQKOFf1EK/U5AQJF5HrQ4mlxQNNnR25+1njD5gN2kyD1ZGoKunpm/OlmKAI9922VnMle0Ke0brer3GNTMoWY4YRjpghiw362Hb/Gs7xl9qvOWRt0g8r88xnMZso31AMBjfWO4+nN9ccIvW693ZWtB1ptXc/D6eoSL/kn4jP/OZgiQyehowKBaQ6XcmVIdXRWjmT4eVny7ta51BSTvKS/1mil7a0EBncuWBDb6mM/JFkEEsseUgdeh0zMvSGmmYk7MS5Yum6zfiBBFftkW5o509mbIDOKUyrNa1EsrlJZY5NIWvzyxWQiC7uIWetgNQf47ea6NntJ6IBoOkWfYI//6h626m14YFZVb5KcaUPKjRQdDLwC9BD00g6pS8plsPajjMYKuq6YQONg8A3exTK6q+p3R5VfWT5GZOq9Zmy2QiNUBA9KxJMIxmz10L8lxS6vbP+7Q+rABwmcC4peys0+TDY+KjB2iaqgbYVro89/FU5I5BYxV4DcpLLlX6rcf4ZV0u2+ubvAOiMJ5CGRMCi5y78Vnr1QPiGl/lKbwqH5cfNPutNlQGpdMT3ccfn/wfJaUWXyJRO+F1fPrexWg==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(39860400002)(136003)(346002)(376002)(366004)(396003)(451199015)(38100700002)(86362001)(7416002)(4744005)(5660300002)(2906002)(8936002)(8676002)(6916009)(4326008)(66476007)(66946007)(66556008)(41300700001)(6512007)(6506007)(186003)(26005)(2616005)(54906003)(316002)(478600001)(6486002)(36756003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?Daxf/0fWTX+SCv/ujbQEaECMLH7OWG5pBEqH1XbO8LdCXrJ+9g1UxY4oVmDW?=
- =?us-ascii?Q?oDWFT606eG7IUvRqbT3TMYUs6w9qXnUyTdMLR5VgWyxIsNfDBof+aFeS0A82?=
- =?us-ascii?Q?/4FFu+QzAi5vRTCCcNk/VRbftPdPggBMV+sjbnc+8TTSyTOzWV2AT5K6fRyw?=
- =?us-ascii?Q?SOO96h7nwzpQceiUyl7DLA+thBhNURe4hvyWF8ayvH9h1kH6zJQeEqOPMod7?=
- =?us-ascii?Q?8SIEsIv3kbJGhHzi8IsrM8UFHVoC714axnHvWlMWnnVL+8dmg3nn/UCzfNpz?=
- =?us-ascii?Q?zXfXG6H+ssCBg6mPavWtqPWMNAoFKju7GwfWUGx9CRIGvTvzXiOqcPg0s5+8?=
- =?us-ascii?Q?SFc1hmHg73h+jVadfZpUIHGn+LmSmC5MEAFCe9w0eJnpTVX/03ixBM1evGbz?=
- =?us-ascii?Q?dm9K69SbcEntjGVUhCvJ8wtQYB93wpS/ffXEhA1OcdXGcQqR86GCQ9RchKsl?=
- =?us-ascii?Q?ZIUIHFGl7BhWW7Jg2pugkTffMn6UGLeX+WL6nmVI0Qwmtg13eXxW/P0mWzsA?=
- =?us-ascii?Q?wq6Xf4X532yRYs1B4GnlIug9qJbDQVMnmnLwpJroUg0FVhkzhYloCnm1tm1C?=
- =?us-ascii?Q?47DBmjmA6dVWbi7t1qCPf7L4umv6NpwV/xx0yZZd2Ssj4zP477wgfKNkvg6m?=
- =?us-ascii?Q?K+3jkHS6B++H1QlhWL0oXojbiDkRZiRjFPuba8v8j0xxbX05z/LBTPwgBaVJ?=
- =?us-ascii?Q?peENjQpfG77ohMVE+xkCpwrOsnk0UAriWpCpQrk07Lj+ZU/KjrvyBx7h8CWI?=
- =?us-ascii?Q?foNU+vkhGu9yMEFZaorpCJK+J4rhHPCgVLJoZv3/Eqqocyt1uUTX1S+7N24u?=
- =?us-ascii?Q?e7fMMyLULiuXXNcM6R7hggE4o2tKuuzJz5dwwlS/wQXs76cvbaPBiMSguMZz?=
- =?us-ascii?Q?rHZKy/75MlpnUCotc4KDjwNgQIpBgKp38wl27wT4gvWzCSpDfrlbUYUxwj4C?=
- =?us-ascii?Q?S6JdseE4F+/zdSakSfdO+00QDoMjpgabYV10+QOlnNWJJcFvB3gOOOwA3NVn?=
- =?us-ascii?Q?maZTXykTApbjrB6O+tjJw0qaY8ilR1EGsuJB+SuuzRzt8AHF6niTiUUYBb+v?=
- =?us-ascii?Q?UHEO+bW07RFZy7jwhbzN28PIX6JPFjkzQhKOPvjp4ViBy1O/ZwEu6nQPUtb7?=
- =?us-ascii?Q?2WrcN+r/lxuMp1oUKtDWS2VGm3WBHbvHbzP6iIqhPL+G/n56DVhKw1gMFCdU?=
- =?us-ascii?Q?qZVqWjCkcUoSxLuz2WhYTU7zRe1n/nQzE6Y1Pl5CVBnK5xrJUeHrtG0CZOxl?=
- =?us-ascii?Q?BOMeRgB6moKW/AsJto8GALrJKzwzOcu03FsRPU03RB1TG8hAJdSq76tmBquH?=
- =?us-ascii?Q?2CiK4ef+DQuK1TlxwHmmrv9354y3VZVAW4nzUHtj6yD6qSk4Ah22Y+rjZqY2?=
- =?us-ascii?Q?b5Nmh8nU2jguxJxwxirX5Ul5nZuafXuiRr3iFKk1cdtb/vR4+6/SgYYVnV0p?=
- =?us-ascii?Q?FFrmTjRBMo26xFpd8f7bX78Oa7Vf8yxkdG83TX0bIfQKBUvGQGq8ovTiJUd3?=
- =?us-ascii?Q?p+EBmo3Y4Ot9EaBIbNgSdrOQdgJuqZ57YVEmUpTPlu7a+uq3hREZ2nN4Vy0x?=
- =?us-ascii?Q?IIgRw7Vf+odqVqPLgwavm78fdh1VuiTw69u2ZCto?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 99078ce9-5e35-490b-7427-08daf88eff02
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Jan 2023 13:30:27.5460
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: KiYEfeCnCtHWcIwHNEH8MCNG3yP0JSRqsOQvJVIFStgJg91AStEssh6QsPw5SbgL
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY8PR12MB7754
+        "linux-arm-kernel@lists.infradead.or" 
+        <linux-arm-kernel@lists.infradead.or>,
+        "loongarch@lists.linux.dev" <loongarch@lists.linux.dev>,
+        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
+        Hao Luo <haoluo@google.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Song Liu <song@kernel.org>,
+        Stanislav Fomichev <sdf@google.com>,
+        Jiri Olsa <jolsa@kernel.org>, Hou Tao <houtao1@huawei.com>,
+        KP Singh <kpsingh@kernel.org>, Yonghong Song <yhs@fb.com>,
+        Martin KaFai Lau <martin.lau@linux.dev>,
+        "naveen.n.rao@linux.ibm.com" <naveen.n.rao@linux.ibm.com>,
+        "mpe@ellerman.id.au" <mpe@ellerman.id.au>
+Content-Transfer-Encoding: 8BIT
+Message-Id: <C811FC00-CE38-4227-B2E8-4CD8989D8B94@infragraf.org>
+References: <20230105030614.26842-1-tong@infragraf.org>
+ <ea7673e1-40ec-18be-af89-5f4fd0f71742@csgroup.eu>
+ <71c83f39-f85f-d990-95b7-ab6068839e6c@iogearbox.net>
+ <5836b464-290e-203f-00f2-fc6632c9f570@csgroup.eu>
+ <147A796D-12C0-482F-B48A-16E67120622B@infragraf.org>
+ <0b46b813-05f2-5083-9f2e-82d72970dae2@csgroup.eu>
+ <0792068b-9aff-d658-5c7d-086e6d394c6c@csgroup.eu>
+To:     Christophe Leroy <christophe.leroy@csgroup.eu>
+X-Mailer: Apple Mail (2.3693.20.0.1.32)
+X-QQ-SENDSIZE: 520
+Feedback-ID: bizesmtp:infragraf.org:qybglogicsvr:qybglogicsvr5
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jan 17, 2023 at 03:35:08AM +0000, Tian, Kevin wrote:
-> > From: Jason Gunthorpe <jgg@nvidia.com>
-> > Sent: Saturday, January 7, 2023 12:43 AM
-> > 
-> > @@ -2676,7 +2676,7 @@ static int copy_context_table(struct intel_iommu
-> > *iommu,
-> >  			if (!old_ce)
-> >  				goto out;
-> > 
-> > -			new_ce = alloc_pgtable_page(iommu->node);
-> > +			new_ce = alloc_pgtable_page(iommu->node,
-> > GFP_KERNEL);
+
+
+> On Jan 17, 2023, at 7:36 PM, Christophe Leroy <christophe.leroy@csgroup.eu> wrote:
 > 
-> GFP_ATOMIC
+> 
+> 
+> Le 17/01/2023 à 08:30, Christophe Leroy a écrit :
+>> 
+>> 
+>> Le 17/01/2023 à 06:30, Tonghao Zhang a écrit :
+>>> 
+>>> 
+>>>> On Jan 9, 2023, at 4:15 PM, Christophe Leroy 
+>>>> <christophe.leroy@csgroup.eu> wrote:
+>>>> 
+>>>> 
+>>>> 
+>>>> Le 06/01/2023 à 16:37, Daniel Borkmann a écrit :
+>>>>> On 1/5/23 6:53 PM, Christophe Leroy wrote:
+>>>>>> Le 05/01/2023 à 04:06, tong@infragraf.org a écrit :
+>>>>>>> From: Tonghao Zhang <tong@infragraf.org>
+>>>>>>> 
+>>>>>>> The x86_64 can't dump the valid insn in this way. A test BPF prog
+>>>>>>> which include subprog:
+>>>>>>> 
+>>>>>>> $ llvm-objdump -d subprog.o
+>>>>>>> Disassembly of section .text:
+>>>>>>> 0000000000000000 <subprog>:
+>>>>>>>           0:       18 01 00 00 73 75 62 70 00 00 00 00 72 6f 67 00 r1
+>>>>>>> = 29114459903653235 ll
+>>>>>>>           2:       7b 1a f8 ff 00 00 00 00 *(u64 *)(r10 - 8) = r1
+>>>>>>>           3:       bf a1 00 00 00 00 00 00 r1 = r10
+>>>>>>>           4:       07 01 00 00 f8 ff ff ff r1 += -8
+>>>>>>>           5:       b7 02 00 00 08 00 00 00 r2 = 8
+>>>>>>>           6:       85 00 00 00 06 00 00 00 call 6
+>>>>>>>           7:       95 00 00 00 00 00 00 00 exit
+>>>>>>> Disassembly of section raw_tp/sys_enter:
+>>>>>>> 0000000000000000 <entry>:
+>>>>>>>           0:       85 10 00 00 ff ff ff ff call -1
+>>>>>>>           1:       b7 00 00 00 00 00 00 00 r0 = 0
+>>>>>>>           2:       95 00 00 00 00 00 00 00 exit
+>>>>>>> 
+>>>>>>> kernel print message:
+>>>>>>> [  580.775387] flen=8 proglen=51 pass=3 image=ffffffffa000c20c
+>>>>>>> from=kprobe-load pid=1643
+>>>>>>> [  580.777236] JIT code: 00000000: cc cc cc cc cc cc cc cc cc cc cc
+>>>>>>> cc cc cc cc cc
+>>>>>>> [  580.779037] JIT code: 00000010: cc cc cc cc cc cc cc cc cc cc cc
+>>>>>>> cc cc cc cc cc
+>>>>>>> [  580.780767] JIT code: 00000020: cc cc cc cc cc cc cc cc cc cc cc
+>>>>>>> cc cc cc cc cc
+>>>>>>> [  580.782568] JIT code: 00000030: cc cc cc
+>>>>>>> 
+>>>>>>> $ bpf_jit_disasm
+>>>>>>> 51 bytes emitted from JIT compiler (pass:3, flen:8)
+>>>>>>> ffffffffa000c20c + <x>:
+>>>>>>>       0:   int3
+>>>>>>>       1:   int3
+>>>>>>>       2:   int3
+>>>>>>>       3:   int3
+>>>>>>>       4:   int3
+>>>>>>>       5:   int3
+>>>>>>>       ...
+>>>>>>> 
+>>>>>>> Until bpf_jit_binary_pack_finalize is invoked, we copy rw_header to
+>>>>>>> header
+>>>>>>> and then image/insn is valid. BTW, we can use the "bpftool prog dump"
+>>>>>>> JITed instructions.
+>>>>>> 
+>>>>>> NACK.
+>>>>>> 
+>>>>>> Because the feature is buggy on x86_64, you remove it for all
+>>>>>> architectures ?
+>>>>>> 
+>>>>>> On powerpc bpf_jit_enable == 2 works and is very usefull.
+>>>>>> 
+>>>>>> Last time I tried to use bpftool on powerpc/32 it didn't work. I don't
+>>>>>> remember the details, I think it was an issue with endianess. Maybe it
+>>>>>> is fixed now, but it needs to be verified.
+>>>>>> 
+>>>>>> So please, before removing a working and usefull feature, make sure
+>>>>>> there is an alternative available to it for all architectures in all
+>>>>>> configurations.
+>>>>>> 
+>>>>>> Also, I don't think bpftool is usable to dump kernel BPF selftests.
+>>>>>> That's vital when a selftest fails if you want to have a chance to
+>>>>>> understand why it fails.
+>>>>> 
+>>>>> If this is actively used by JIT developers and considered useful, 
+>>>>> I'd be
+>>>>> ok to leave it for the time being. Overall goal is to reach feature 
+>>>>> parity
+>>>>> among (at least major arch) JITs and not just have most 
+>>>>> functionality only
+>>>>> available on x86-64 JIT. Could you however check what is not working 
+>>>>> with
+>>>>> bpftool on powerpc/32? Perhaps it's not too much effort to just fix it,
+>>>>> but details would be useful otherwise 'it didn't work' is too fuzzy.
+>>>> 
+>>>> Sure I will try to test bpftool again in the coming days.
+>>>> 
+>>>> Previous discussion about that subject is here:
+>>>> https://patchwork.kernel.org/project/linux-riscv/patch/20210415093250.3391257-1-Jianlin.Lv@arm.com/#24176847=
+>>> Hi Christophe
+>>> Any progress? We discuss to deprecate the bpf_jit_enable == 2 in 2021, 
+>>> but bpftool can not run on powerpc.
+>>> Now can we fix this issue?
+>> 
+>> Hi Tong,
+>> 
+>> I have started to look at it but I don't have any fruitfull feedback yet.
+> 
+> Hi Again,
+> 
+> I tested again, the problem is still the same as one year ago:
+> 
+> root@vgoip:~# ./bpftool prog
+> libbpf: elf: endianness mismatch in pid_iter_bpf.
+It seem to be not right ehdr->e_ident[EI_DATA]. Do we can print the real value?
+/*
+ * e_ident[EI_DATA]
+ */
+#define ELFDATANONE     0
+#define ELFDATA2LSB     1
+#define ELFDATA2MSB     2
+#define ELFDATANUM      3
 
-Can't be:
+bpf_object__elf_init:
+obj->efile.ehdr = ehdr = elf64_getehdr(elf);
 
-			old_ce = memremap(old_ce_phys, PAGE_SIZE,
-					MEMREMAP_WB);
-			if (!old_ce)
-				goto out;
+> libbpf: failed to initialize skeleton BPF object 'pid_iter_bpf': -4003
+> Error: failed to open PID iterator skeleton
+> 
+> root@vgoip:~# uname -a
+> Linux vgoip 6.2.0-rc3-02596-g1c2c9c13e256 #242 PREEMPT Tue Jan 17 
+> 09:36:08 CET 2023 ppc GNU/Linux
+On my pc, elf is little endian.
+# readelf -h tools/bpf/bpftool/pid_iter.bpf.o
+ELF Header:
+  Magic:   7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00
+  Class:                             ELF64
+  Data:                              2's complement, little endian # x86_64
+  Version:                           1 (current)
+  OS/ABI:                            UNIX - System V
+  ABI Version:                       0
+  Type:                              REL (Relocatable file)
+  Machine:                           Linux BPF
+  Version:                           0x1
+  Entry point address:               0x0
+  Start of program headers:          0 (bytes into file)
+  Start of section headers:          64832 (bytes into file)
+  Flags:                             0x0
+  Size of this header:               64 (bytes)
+  Size of program headers:           0 (bytes)
+  Number of program headers:         0
+  Size of section headers:           64 (bytes)
+  Number of section headers:         13
+  Section header string table index: 1
 
-			new_ce = alloc_pgtable_page(iommu->node, GFP_KERNEL);
-			if (!new_ce)
+> 
+>> 
+>> In the meantime, were you able to confirm that bpftool can also be used 
+>> to dump jitted tests from test_bpf.ko module on x86_64 ? In that can you 
+>> tell me how to proceed ?
+>> 
+>> Thanks
+>> Christophe
+>> 
+> 
+> 
+> Christophe
 
-memremap() is sleeping.
-
-And the only caller is:
-
-	ctxt_tbls = kcalloc(ctxt_table_entries, sizeof(void *), GFP_KERNEL);
-	if (!ctxt_tbls)
-		goto out_unmap;
-
-	for (bus = 0; bus < 256; bus++) {
-		ret = copy_context_table(iommu, &old_rt[bus],
-					 ctxt_tbls, bus, ext);
-
-Jason
