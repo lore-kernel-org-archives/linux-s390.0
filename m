@@ -2,342 +2,169 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 94EB0C38147
-	for <linux-s390@archiver.kernel.org>; Tue, 17 Jan 2023 23:27:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DC2FCC38142
+	for <linux-s390@archiver.kernel.org>; Wed, 18 Jan 2023 00:46:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229896AbjAQX1c (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 17 Jan 2023 18:27:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49940 "EHLO
+        id S229904AbjARAqo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 17 Jan 2023 19:46:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229889AbjAQX0d (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 Jan 2023 18:26:33 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A107137570
-        for <linux-s390@vger.kernel.org>; Tue, 17 Jan 2023 13:23:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1673990582;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=QeSklMeMSoVeudTQC5ciHBckx9nBB5Aw6Kjov/8/jjI=;
-        b=N0jBIQMzwaUKUlDJpC0tNDcSfBjWhQs6bz0hlpaKvUMFVZXXLSzKwOwEBTJWvkLapx6yFP
-        iftqU53wiGjvhZZilBL4DT0dga7lThSXS0Gky6VKxs2KE3+0R1HAvXX/j132yD4YI7C10E
-        J2fxwC5A9iHLieWoB1z7WqgH/nyJ/RI=
-Received: from mail-il1-f197.google.com (mail-il1-f197.google.com
- [209.85.166.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-340-CgXwNbxSOTux7N3MQGdC0Q-1; Tue, 17 Jan 2023 16:23:00 -0500
-X-MC-Unique: CgXwNbxSOTux7N3MQGdC0Q-1
-Received: by mail-il1-f197.google.com with SMTP id n18-20020a056e02101200b0030f2b79c2ffso561472ilj.20
-        for <linux-s390@vger.kernel.org>; Tue, 17 Jan 2023 13:23:00 -0800 (PST)
+        with ESMTP id S229481AbjARAq2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 Jan 2023 19:46:28 -0500
+Received: from mail-pg1-f177.google.com (mail-pg1-f177.google.com [209.85.215.177])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D659735BC;
+        Tue, 17 Jan 2023 16:29:57 -0800 (PST)
+Received: by mail-pg1-f177.google.com with SMTP id e10so23309831pgc.9;
+        Tue, 17 Jan 2023 16:29:57 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=QeSklMeMSoVeudTQC5ciHBckx9nBB5Aw6Kjov/8/jjI=;
-        b=dBPnThS9MAlyVtnwZF2VnMaaiROMOFOKgiexqIJ/vQjQYQByyX5X9vVZtdBwKr5VtH
-         bxko9ozWeE/A0OYCe74lKZ09GZQ1nsabELZE9PkD9xXJ1fegCIJeqClcY1/Ro8wlbyXN
-         c9WDqXOQub6jOCjCgdEmGdgiLA8IJ230mIUdhHDWiXi6epZChS+cHX0sOc8lBSQF2vdw
-         R45C+rxlYwFpzoqnTtDsHIezppZojiNnrYShLiRzqTJq8/Mf5VoGqFhsicwYus0FGcsv
-         TnM31pPWgbCHzT8podZ+rzjKm+23TIBhCAnlbwF3BtwoD+51s5Yrna6J91IyEafJvAnU
-         p11A==
-X-Gm-Message-State: AFqh2ko7r1H2f4ebcRBnuBW5/NpuQN0cwXmzI8UpBxd/V7pL3zSkYWl6
-        v2fFHqVx44J7TE9k1ZCzx/E2YZ2oPcJSTM0cUjLKKofeJEQC2X4eOaDrD0bo/qvDVN7y3iT8tV7
-        moAW03UDxQA9d2E4n+3DlKQ==
-X-Received: by 2002:a05:6e02:50e:b0:30e:dcfb:6b9d with SMTP id d14-20020a056e02050e00b0030edcfb6b9dmr3964156ils.3.1673990576371;
-        Tue, 17 Jan 2023 13:22:56 -0800 (PST)
-X-Google-Smtp-Source: AMrXdXuwYzJIi7PTPrlEprlQbMxxydrTJmjaOJ4Q9jFc1jIJdvjOhgIIkYyHBtR5D65vkYIl3IuCsw==
-X-Received: by 2002:a05:6e02:50e:b0:30e:dcfb:6b9d with SMTP id d14-20020a056e02050e00b0030edcfb6b9dmr3964131ils.3.1673990576020;
-        Tue, 17 Jan 2023 13:22:56 -0800 (PST)
-Received: from redhat.com ([38.15.36.239])
-        by smtp.gmail.com with ESMTPSA id f12-20020a056e020c6c00b0030c0217dde6sm9533440ilj.0.2023.01.17.13.22.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 17 Jan 2023 13:22:55 -0800 (PST)
-Date:   Tue, 17 Jan 2023 14:22:52 -0700
-From:   Alex Williamson <alex.williamson@redhat.com>
-To:     Matthew Rosato <mjrosato@linux.ibm.com>
-Cc:     pbonzini@redhat.com, jgg@nvidia.com, cohuck@redhat.com,
-        farman@linux.ibm.com, pmorel@linux.ibm.com,
-        borntraeger@linux.ibm.com, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, david@redhat.com, akrowiak@linux.ibm.com,
-        jjherne@linux.ibm.com, pasic@linux.ibm.com,
-        zhenyuw@linux.intel.com, zhi.a.wang@intel.com, seanjc@google.com,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        intel-gvt-dev@lists.freedesktop.org,
-        intel-gfx@lists.freedesktop.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v4] vfio: fix potential deadlock on vfio group lock
-Message-ID: <20230117142252.70cc85c7.alex.williamson@redhat.com>
-In-Reply-To: <20230114000351.115444-1-mjrosato@linux.ibm.com>
-References: <20230114000351.115444-1-mjrosato@linux.ibm.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=DKfX7vfo7AB9gNq69hOQSXyBEWnASfJj31w1PuuaHj8=;
+        b=pm6lBTGkE0TYLUKwPi32mqNQjY4x6N+Mp5+BHUcTiqcUeh8/oPq1ZHsLM7fgoSv27D
+         o0tn8h1cUprijO1HGC0fnx2WjUqxI9NglghQBTgRl3Or/jCp+3ls1cAa+Naj4YhcNxDx
+         czbHRUNMv2lccO5cdgbaBxPQJTIUYb9Rb8005OLMt5wS/qcDQHhXltTnrYkPRYRWi87r
+         nHlNwmkqB3tImCDMf+5mOr7JPOeKIEgOS8ujeHpqWB6tCZOHAhsKksM4r8p/yXlAVCMR
+         o+5CgiHBv2HQqj8HH5aKdsPCq+v3KU6kBgcmfp0wUDRnwe8ijnER9FRLMTHa0r1nuoYn
+         DpPw==
+X-Gm-Message-State: AFqh2kq0TkPuaILmp1B67mezKKCqHPiJrvdFWRweDJh1Jz4JWQk3aDXK
+        hXDR8xv1ZPhZBUvK0h3gjxk=
+X-Google-Smtp-Source: AMrXdXtwZA9zs4g6ilkFXvaCf3I+7uoJLOFWnfkm0HaSQxepoefASnrsrGN/bgl10QTONsMdNIrMdg==
+X-Received: by 2002:aa7:92d4:0:b0:58d:bb59:7112 with SMTP id k20-20020aa792d4000000b0058dbb597112mr3954294pfa.22.1674001797026;
+        Tue, 17 Jan 2023 16:29:57 -0800 (PST)
+Received: from [192.168.3.219] ([98.51.102.78])
+        by smtp.gmail.com with ESMTPSA id i6-20020aa796e6000000b005884d68d54fsm17090300pfq.1.2023.01.17.16.29.55
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 17 Jan 2023 16:29:56 -0800 (PST)
+Message-ID: <08e7e15e-37e0-0d45-9332-fe4b6e896cb2@acm.org>
+Date:   Tue, 17 Jan 2023 16:29:54 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.1
+Subject: Re: kernel BUG scsi_dh_alua sleeping from invalid context && kernel
+ WARNING do not call blocking ops when !TASK_RUNNING
+Content-Language: en-US
+To:     Martin Wilck <mwilck@suse.com>,
+        Steffen Maier <maier@linux.ibm.com>,
+        linux-scsi <linux-scsi@vger.kernel.org>
+Cc:     "Martin K. Petersen" <martin.petersen@oracle.com>,
+        "James E . J . Bottomley" <jejb@linux.ibm.com>,
+        Sachin Sant <sachinp@linux.ibm.com>,
+        Hannes Reinecke <hare@suse.de>,
+        Benjamin Block <bblock@linux.ibm.com>,
+        linux-s390 <linux-s390@vger.kernel.org>
+References: <b49e37d5-edfb-4c56-3eeb-62c7d5855c00@linux.ibm.com>
+ <017b6c73f56505e63519e4b79fe69d66abddf810.camel@suse.com>
+ <a9da2b27-882f-bc8e-3400-cb53440e2159@acm.org>
+ <125f247806396f19fd27dcfa71f530b5b4a529a6.camel@suse.com>
+ <c23a6bf4-0b6e-0bbb-b74d-af69756bcf9a@acm.org>
+ <ab7d61dd7f7c0289114e36fef6e9f282ad5c976b.camel@suse.com>
+ <2bea9c3e-2a61-a51e-c13b-796adabe6f71@acm.org>
+ <983f47533ee56b2a954de97dc7e02cbcbc4f9841.camel@suse.com>
+From:   Bart Van Assche <bvanassche@acm.org>
+In-Reply-To: <983f47533ee56b2a954de97dc7e02cbcbc4f9841.camel@suse.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 13 Jan 2023 19:03:51 -0500
-Matthew Rosato <mjrosato@linux.ibm.com> wrote:
-
-> Currently it is possible that the final put of a KVM reference comes from
-> vfio during its device close operation.  This occurs while the vfio group
-> lock is held; however, if the vfio device is still in the kvm device list,
-> then the following call chain could result in a deadlock:
+On 1/17/23 14:03, Martin Wilck wrote:
+> On Tue, 2023-01-17 at 13:52 -0800, Bart Van Assche wrote:
+>> On 1/17/23 13:48, Martin Wilck wrote:
+>>> Yes, that was my suggestion. Just defer the scsi_device_put() call
+>>> in
+>>> alua_rtpg_queue() in the case where the actual RTPG handler is not
+>>> queued. I won't have time for that before next week though.
+>>
+>> Hi Martin,
+>>
+>> Do you agree that the call trace shared by Steffen is not sufficient
+>> to
+>> conclude that this change is necessary?
 > 
-> kvm_put_kvm
->  -> kvm_destroy_vm
->   -> kvm_destroy_devices
->    -> kvm_vfio_destroy
->     -> kvm_vfio_file_set_kvm
->      -> vfio_file_set_kvm
->       -> group->group_lock/group_rwsem  
+> Hmm, I suppose I missed your point... to re-iterate my thinking:
 > 
-> Avoid this scenario by having vfio core code acquire a KVM reference
-> the first time a device is opened and hold that reference until right
-> after the group lock is released after the last device is closed.
+>   1 alua_queue_rtpg() must take a ref to the sdev before queueing work,
+>     whether or not the caller already has one
+>   2 queue_delayed_work() can fail
+>   3 if queue_delayed_work() fails, alua_queue_rtpg() must drop the ref
+>     it just took
+>   4 BUT (and this is what I guess I missed) this ref can't be the last
+>     one dropped, because the caller of alua_rtpg_queue() must still hold
+>     a reference. And scsi_device_put() only sleeps if the last ref is
+>     dropped. Therefore the issue in Steffen's call stack should
+>     indeed be fixed just by removing the might_sleep(). If all callers
+>     callers of alua_rtpg_queue() must hold an sdev reference (I believe
+>     they do), we can indeed remove the might_sleep() entirely.
 > 
-> Fixes: 421cfe6596f6 ("vfio: remove VFIO_GROUP_NOTIFY_SET_KVM")
-> Reported-by: Alex Williamson <alex.williamson@redhat.com>
-> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> ---
-> Changes from v3:
-> * Can't check for open_count after the group lock has been dropped because
->   it would be possible for the count to change again once the group lock
->   is dropped (Jason)
->   Solve this by stashing a copy of the kvm and put_kvm while the group
->   lock is held, nullifying the device copies of these in device_close()
->   as soon as the open_count reaches 0, and then checking to see if the
->   device->kvm changed before dropping the group lock.  If it changed
->   during close, we can drop the reference using the stashed kvm and put
->   function after dropping the group lock.
-> 
-> Changes from v2:
-> * Re-arrange vfio_kvm_set_kvm_safe error path to still trigger
->   device_open with device->kvm=NULL (Alex)
-> * get device->dev_set->lock when checking device->open_count (Alex)
-> * but don't hold it over the kvm_put_kvm (Jason)
-> * get kvm_put symbol upfront and stash it in device until close (Jason)
-> * check CONFIG_HAVE_KVM to avoid build errors on architectures without
->   KVM support
-> 
-> Changes from v1:
-> * Re-write using symbol get logic to get kvm ref during first device
->   open, release the ref during device fd close after group lock is
->   released
-> * Drop kvm get/put changes to drivers; now that vfio core holds a
->   kvm ref until sometime after the device_close op is called, it
->   should be fine for drivers to get and put their own references to it.
-> ---
->  drivers/vfio/group.c     | 23 +++++++++++++--
->  drivers/vfio/vfio.h      |  9 ++++++
->  drivers/vfio/vfio_main.c | 61 +++++++++++++++++++++++++++++++++++++---
->  include/linux/vfio.h     |  2 +-
->  4 files changed, 87 insertions(+), 8 deletions(-)
-> 
-> diff --git a/drivers/vfio/group.c b/drivers/vfio/group.c
-> index bb24b2f0271e..b396c17d7390 100644
-> --- a/drivers/vfio/group.c
-> +++ b/drivers/vfio/group.c
-> @@ -165,9 +165,9 @@ static int vfio_device_group_open(struct vfio_device *device)
->  	}
->  
->  	/*
-> -	 * Here we pass the KVM pointer with the group under the lock.  If the
-> -	 * device driver will use it, it must obtain a reference and release it
-> -	 * during close_device.
-> +	 * Here we pass the KVM pointer with the group under the lock.  A
-> +	 * reference will be obtained the first time the device is opened and
-> +	 * will be held until the open_count reaches 0.
->  	 */
->  	ret = vfio_device_open(device, device->group->iommufd,
->  			       device->group->kvm);
-> @@ -179,9 +179,26 @@ static int vfio_device_group_open(struct vfio_device *device)
->  
->  void vfio_device_group_close(struct vfio_device *device)
->  {
-> +	void (*put_kvm)(struct kvm *kvm);
-> +	struct kvm *kvm;
-> +
->  	mutex_lock(&device->group->group_lock);
-> +	kvm = device->kvm;
-> +	put_kvm = device->put_kvm;
->  	vfio_device_close(device, device->group->iommufd);
-> +	if (kvm == device->kvm)
-> +		kvm = NULL;
+> Is this correct reasoning, and what you meant previously? If yes, I
+> agree, and I apologize for not realizing it in the first place.
+> But I think this is subtle enough to deserve a comment in the code.
 
-Hmm, so we're using whether the device->kvm pointer gets cleared in
-last_close to detect whether we should put the kvm reference.  That's a
-bit obscure.  Our get and put is also asymmetric.
+Yes, that's what I'm thinking.
 
-Did we decide that we couldn't do this via a schedule_work() from the
-last_close function, ie. implementing our own version of an async put?
-It seems like that potentially has a cleaner implementation, symmetric
-call points, handling all the storing and clearing of kvm related
-pointers within the get/put wrappers, passing only a vfio_device to the
-put wrapper, using the "vfio_device_" prefix for both.  Potentially
-we'd just want an unconditional flush outside of lock here for
-deterministic release.
+How about the patch below?
 
-What's the downside?  Thanks,
+Thanks,
 
-Alex
+Bart.
 
->  	mutex_unlock(&device->group->group_lock);
-> +
-> +	/*
-> +	 * The last kvm reference will trigger kvm_destroy_vm, which
-> can in
-> +	 * turn re-enter vfio and attempt to acquire the group lock.
->  Therefore
-> +	 * we get a copy of the kvm pointer and the put function
-> under the
-> +	 * group lock but wait to put that reference until after
-> releasing the
-> +	 * lock.
-> +	 */
-> +	if (kvm)
-> +		vfio_kvm_put_kvm(put_kvm, kvm);
->  }
->  
->  static struct file *vfio_device_open_file(struct vfio_device *device)
-> diff --git a/drivers/vfio/vfio.h b/drivers/vfio/vfio.h
-> index f8219a438bfb..08a5a23d6fef 100644
-> --- a/drivers/vfio/vfio.h
-> +++ b/drivers/vfio/vfio.h
-> @@ -251,4 +251,13 @@ extern bool vfio_noiommu __read_mostly;
->  enum { vfio_noiommu = false };
->  #endif
->  
-> +#ifdef CONFIG_HAVE_KVM
-> +void vfio_kvm_put_kvm(void (*put)(struct kvm *kvm), struct kvm *kvm);
-> +#else
-> +static inline void vfio_kvm_put_kvm(void (*put)(struct kvm *kvm),
-> +				    struct kvm *kvm)
-> +{
-> +}
-> +#endif
-> +
->  #endif
-> diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
-> index 5177bb061b17..c6bb07af46b8 100644
-> --- a/drivers/vfio/vfio_main.c
-> +++ b/drivers/vfio/vfio_main.c
-> @@ -16,6 +16,9 @@
->  #include <linux/fs.h>
->  #include <linux/idr.h>
->  #include <linux/iommu.h>
-> +#ifdef CONFIG_HAVE_KVM
-> +#include <linux/kvm_host.h>
-> +#endif
->  #include <linux/list.h>
->  #include <linux/miscdevice.h>
->  #include <linux/module.h>
-> @@ -344,6 +347,49 @@ static bool vfio_assert_device_open(struct
-> vfio_device *device) return
-> !WARN_ON_ONCE(!READ_ONCE(device->open_count)); }
->  
-> +#ifdef CONFIG_HAVE_KVM
-> +static bool vfio_kvm_get_kvm_safe(struct vfio_device *device, struct
-> kvm *kvm) +{
-> +	void (*pfn)(struct kvm *kvm);
-> +	bool (*fn)(struct kvm *kvm);
-> +	bool ret;
-> +
-> +	pfn = symbol_get(kvm_put_kvm);
-> +	if (WARN_ON(!pfn))
-> +		return false;
-> +
-> +	fn = symbol_get(kvm_get_kvm_safe);
-> +	if (WARN_ON(!fn)) {
-> +		symbol_put(kvm_put_kvm);
-> +		return false;
-> +	}
-> +
-> +	ret = fn(kvm);
-> +	if (ret)
-> +		device->put_kvm = pfn;
-> +	else
-> +		symbol_put(kvm_put_kvm);
-> +
-> +	symbol_put(kvm_get_kvm_safe);
-> +
-> +	return ret;
-> +}
-> +
-> +void vfio_kvm_put_kvm(void (*put)(struct kvm *kvm), struct kvm *kvm)
-> +{
-> +	if (WARN_ON(!put))
-> +		return;
-> +
-> +	put(kvm);
-> +	symbol_put(kvm_put_kvm);
-> +}
-> +#else
-> +static bool vfio_kvm_get_kvm_safe(struct vfio_device *device, struct
-> kvm *kvm) +{
-> +	return false;
-> +}
-> +#endif
-> +
->  static int vfio_device_first_open(struct vfio_device *device,
->  				  struct iommufd_ctx *iommufd,
-> struct kvm *kvm) {
-> @@ -361,16 +407,22 @@ static int vfio_device_first_open(struct
-> vfio_device *device, if (ret)
->  		goto err_module_put;
->  
-> -	device->kvm = kvm;
-> +	if (kvm && vfio_kvm_get_kvm_safe(device, kvm))
-> +		device->kvm = kvm;
-> +
->  	if (device->ops->open_device) {
->  		ret = device->ops->open_device(device);
->  		if (ret)
-> -			goto err_unuse_iommu;
-> +			goto err_put_kvm;
->  	}
->  	return 0;
->  
-> -err_unuse_iommu:
-> -	device->kvm = NULL;
-> +err_put_kvm:
-> +	if (device->kvm) {
-> +		vfio_kvm_put_kvm(device->put_kvm, device->kvm);
-> +		device->put_kvm = NULL;
-> +		device->kvm = NULL;
-> +	}
->  	if (iommufd)
->  		vfio_iommufd_unbind(device);
->  	else
-> @@ -388,6 +440,7 @@ static void vfio_device_last_close(struct
-> vfio_device *device, if (device->ops->close_device)
->  		device->ops->close_device(device);
->  	device->kvm = NULL;
-> +	device->put_kvm = NULL;
->  	if (iommufd)
->  		vfio_iommufd_unbind(device);
->  	else
-> diff --git a/include/linux/vfio.h b/include/linux/vfio.h
-> index 35be78e9ae57..87ff862ff555 100644
-> --- a/include/linux/vfio.h
-> +++ b/include/linux/vfio.h
-> @@ -46,7 +46,6 @@ struct vfio_device {
->  	struct vfio_device_set *dev_set;
->  	struct list_head dev_set_list;
->  	unsigned int migration_flags;
-> -	/* Driver must reference the kvm during open_device or never
-> touch it */ struct kvm *kvm;
->  
->  	/* Members below here are private, not for driver use */
-> @@ -58,6 +57,7 @@ struct vfio_device {
->  	struct list_head group_next;
->  	struct list_head iommu_entry;
->  	struct iommufd_access *iommufd_access;
-> +	void (*put_kvm)(struct kvm *kvm);
->  #if IS_ENABLED(CONFIG_IOMMUFD)
->  	struct iommufd_device *iommufd_device;
->  	struct iommufd_ctx *iommufd_ictx;
+[PATCH] scsi: device_handler: alua: Remove a might_sleep() annotation
+
+The might_sleep() annotation in alua_rtpg_queue() is not correct since the
+command completion code may call this function from atomic context.
+Calling alua_rtpg_queue() from atomic context in the command completion
+path is fine since request submitters must hold an sdev reference until
+command execution has completed. This patch fixes the following kernel
+warning:
+
+BUG: sleeping function called from invalid context at drivers/scsi/device_handler/scsi_dh_alua.c:992
+Call Trace:
+  dump_stack_lvl+0xac/0x100
+  __might_resched+0x284/0x2c8
+  alua_rtpg_queue+0x3c/0x98 [scsi_dh_alua]
+  alua_check+0x122/0x250 [scsi_dh_alua]
+  alua_check_sense+0x172/0x228 [scsi_dh_alua]
+  scsi_check_sense+0x8a/0x2e0
+  scsi_decide_disposition+0x286/0x298
+  scsi_complete+0x6a/0x108
+  blk_complete_reqs+0x6e/0x88
+  __do_softirq+0x13e/0x6b8
+  __irq_exit_rcu+0x14a/0x170
+  irq_exit_rcu+0x22/0x50
+  do_ext_irq+0x10a/0x1d0
+
+Reported-by: Steffen Maier <maier@linux.ibm.com>
+Cc: Steffen Maier <maier@linux.ibm.com>
+Cc: Martin Wilck <mwilck@suse.com>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+---
+  drivers/scsi/device_handler/scsi_dh_alua.c | 5 +++--
+  1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/scsi/device_handler/scsi_dh_alua.c b/drivers/scsi/device_handler/scsi_dh_alua.c
+index 55a5073248f8..362fa631f39b 100644
+--- a/drivers/scsi/device_handler/scsi_dh_alua.c
++++ b/drivers/scsi/device_handler/scsi_dh_alua.c
+@@ -987,6 +987,9 @@ static void alua_rtpg_work(struct work_struct *work)
+   *
+   * Returns true if and only if alua_rtpg_work() will be called asynchronously.
+   * That function is responsible for calling @qdata->fn().
++ *
++ * Context: may be called from atomic context (alua_check()) only if the caller
++ *	holds an sdev reference.
+   */
+  static bool alua_rtpg_queue(struct alua_port_group *pg,
+  			    struct scsi_device *sdev,
+@@ -995,8 +998,6 @@ static bool alua_rtpg_queue(struct alua_port_group *pg,
+  	int start_queue = 0;
+  	unsigned long flags;
+
+-	might_sleep();
+-
+  	if (WARN_ON_ONCE(!pg) || scsi_device_get(sdev))
+  		return false;
+
 
