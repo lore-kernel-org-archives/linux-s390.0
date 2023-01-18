@@ -2,41 +2,41 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B2892C678DC
-	for <linux-s390@archiver.kernel.org>; Wed, 18 Jan 2023 15:46:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CCCF9C678DE
+	for <linux-s390@archiver.kernel.org>; Wed, 18 Jan 2023 15:46:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231431AbjARPqc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 18 Jan 2023 10:46:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50552 "EHLO
+        id S231475AbjARPqe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 18 Jan 2023 10:46:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230457AbjARPps (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 18 Jan 2023 10:45:48 -0500
+        with ESMTP id S229923AbjARPqV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 18 Jan 2023 10:46:21 -0500
 Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DB0230B30;
-        Wed, 18 Jan 2023 07:45:31 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 578FB392B4;
+        Wed, 18 Jan 2023 07:45:41 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1674056731; x=1705592731;
+  t=1674056742; x=1705592742;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=5UIRHWiv1nZeLK1bOeYIY8HLBo0tEoLtywnXrKNCGWQ=;
-  b=C3Rpi2TjCKzsSBJYxOLBwXrOybnXCWjfGq8L5dvQq8XBAUx2ptKyko7B
-   8ehOYrLniJSZjRqRfvkvx6A15RdHmx8f0yItH0Y0mHDwmH+DX5x5EdyLd
-   5c6PeY/Zgb5ZNzvZBt7+Grxe96t2/qhTFXn/gme1Rd/1/D8jKrOATF5hs
-   4Nqsscek2yCncrR4Y2uVkMcJiDIxGZ/bRs+7RnEXlxRIyhd9pNcfjTC34
-   8YALgXwokbyaUUDIfGv3M6PQZdnY/wzLaEKTBvdb6XxgUVWuxR/YSlVZk
-   0S3TS7o7L5kxrbeG0jJl/bSWk+oS6qk+Nxdw0uCXsxNAz2SWxPRK+VHS3
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10594"; a="322701316"
+  bh=6s3fA2jhqnAHgwbfGrKCZDIy07cNkborYz0vvTXb80k=;
+  b=ARBxIRa8dOe2aTvANSHwhwDAZb/B9J/CYENY+VceAGs91iYP2hvhVcFL
+   pgbPbT+ghnRyGID5IspmKMbimup3eB+zT+zhYr23FiinwIoC39VoqR9CO
+   wXWJdp5rdit6EftFTiUxYU/k9n8fOTQLrUWxxfsc60GcTdwbP11pce3fO
+   3Fy9/3DHTcxWZbO0cITD88Komsj1sPIq9b+HLiKV87Z1n4yeHxbxtlAvY
+   tgVskRL0vd22R3O1u9u2Ca14pI2UgL7YvOI2YTXrclBAqqjrsJdFeq89n
+   qMUr2FsG8n1SY0NqBwjIZpNc+51WUhmRMOGXsaUejTZSC+jl1nyJOL90P
+   A==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10594"; a="322701411"
 X-IronPort-AV: E=Sophos;i="5.97,226,1669104000"; 
-   d="scan'208";a="322701316"
+   d="scan'208";a="322701411"
 Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jan 2023 07:45:30 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10594"; a="661759330"
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jan 2023 07:45:40 -0800
+X-IronPort-AV: E=McAfee;i="6500,9779,10594"; a="661759384"
 X-IronPort-AV: E=Sophos;i="5.97,226,1669104000"; 
-   d="scan'208";a="661759330"
+   d="scan'208";a="661759384"
 Received: from lab-ah.igk.intel.com ([10.102.42.211])
-  by fmsmga007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jan 2023 07:45:25 -0800
+  by fmsmga007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jan 2023 07:45:35 -0800
 From:   Andrzej Hajda <andrzej.hajda@intel.com>
 To:     linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-snps-arc@lists.infradead.org,
@@ -57,9 +57,9 @@ Cc:     Andrzej Hajda <andrzej.hajda@intel.com>,
         Peter Zijlstra <peterz@infradead.org>,
         Boqun Feng <boqun.feng@gmail.com>,
         Mark Rutland <mark.rutland@arm.com>
-Subject: [PATCH v5 4/7] llist: simplify __llist_del_all
-Date:   Wed, 18 Jan 2023 16:44:47 +0100
-Message-Id: <20230118154450.73842-4-andrzej.hajda@intel.com>
+Subject: [PATCH v5 6/7] qed: use __xchg if possible
+Date:   Wed, 18 Jan 2023 16:44:49 +0100
+Message-Id: <20230118154450.73842-6-andrzej.hajda@intel.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20230118154450.73842-1-andrzej.hajda@intel.com>
 References: <20230118153529.57695-1-andrzej.hajda@intel.com>
@@ -71,37 +71,71 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-llist_del_all uses xchg, let's use __xchg here.
+Recently introduced helper simplifies the code.
 
 Signed-off-by: Andrzej Hajda <andrzej.hajda@intel.com>
 ---
- include/linux/llist.h | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ include/linux/qed/qed_chain.h | 19 +++++++------------
+ 1 file changed, 7 insertions(+), 12 deletions(-)
 
-diff --git a/include/linux/llist.h b/include/linux/llist.h
-index 85bda2d02d65be..4dc1d185ea98ab 100644
---- a/include/linux/llist.h
-+++ b/include/linux/llist.h
-@@ -50,6 +50,7 @@
- 
- #include <linux/atomic.h>
- #include <linux/container_of.h>
+diff --git a/include/linux/qed/qed_chain.h b/include/linux/qed/qed_chain.h
+index a84063492c71ae..6355d558cf01b2 100644
+--- a/include/linux/qed/qed_chain.h
++++ b/include/linux/qed/qed_chain.h
+@@ -11,6 +11,7 @@
+ #include <asm/byteorder.h>
+ #include <linux/kernel.h>
+ #include <linux/list.h>
 +#include <linux/non-atomic/xchg.h>
- #include <linux/stddef.h>
- #include <linux/types.h>
- 
-@@ -241,10 +242,7 @@ static inline struct llist_node *llist_del_all(struct llist_head *head)
- 
- static inline struct llist_node *__llist_del_all(struct llist_head *head)
+ #include <linux/sizes.h>
+ #include <linux/slab.h>
+ #include <linux/qed/common_hsi.h>
+@@ -368,7 +369,7 @@ static inline void qed_chain_return_produced(struct qed_chain *p_chain)
+  */
+ static inline void *qed_chain_produce(struct qed_chain *p_chain)
  {
--	struct llist_node *first = head->first;
+-	void *p_ret = NULL, *p_prod_idx, *p_prod_page_idx;
++	void *p_prod_idx, *p_prod_page_idx;
+ 
+ 	if (is_chain_u16(p_chain)) {
+ 		if ((p_chain->u.chain16.prod_idx &
+@@ -390,11 +391,8 @@ static inline void *qed_chain_produce(struct qed_chain *p_chain)
+ 		p_chain->u.chain32.prod_idx++;
+ 	}
+ 
+-	p_ret = p_chain->p_prod_elem;
+-	p_chain->p_prod_elem = (void *)(((u8 *)p_chain->p_prod_elem) +
+-					p_chain->elem_size);
 -
--	head->first = NULL;
--	return first;
-+	return __xchg(&head->first, NULL);
+-	return p_ret;
++	return __xchg(&p_chain->p_prod_elem,
++		      (u8 *)p_chain->p_prod_elem + p_chain->elem_size);
  }
  
- extern struct llist_node *llist_del_first(struct llist_head *head);
+ /**
+@@ -439,7 +437,7 @@ static inline void qed_chain_recycle_consumed(struct qed_chain *p_chain)
+  */
+ static inline void *qed_chain_consume(struct qed_chain *p_chain)
+ {
+-	void *p_ret = NULL, *p_cons_idx, *p_cons_page_idx;
++	void *p_cons_idx, *p_cons_page_idx;
+ 
+ 	if (is_chain_u16(p_chain)) {
+ 		if ((p_chain->u.chain16.cons_idx &
+@@ -461,11 +459,8 @@ static inline void *qed_chain_consume(struct qed_chain *p_chain)
+ 		p_chain->u.chain32.cons_idx++;
+ 	}
+ 
+-	p_ret = p_chain->p_cons_elem;
+-	p_chain->p_cons_elem = (void *)(((u8 *)p_chain->p_cons_elem) +
+-					p_chain->elem_size);
+-
+-	return p_ret;
++	return __xchg(&p_chain->p_cons_elem,
++		      (u8 *)p_chain->p_cons_elem + p_chain->elem_size);
+ }
+ 
+ /**
 -- 
 2.34.1
 
