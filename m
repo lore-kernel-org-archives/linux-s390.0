@@ -2,70 +2,70 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 49AC4C46467
-	for <linux-s390@archiver.kernel.org>; Wed, 18 Jan 2023 20:32:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2347AC32793
+	for <linux-s390@archiver.kernel.org>; Wed, 18 Jan 2023 20:32:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230167AbjARUch (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 18 Jan 2023 15:32:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37148 "EHLO
+        id S229770AbjARUci (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 18 Jan 2023 15:32:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230198AbjARUbm (ORCPT
+        with ESMTP id S230200AbjARUbm (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Wed, 18 Jan 2023 15:31:42 -0500
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05ABD5F3B5;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46A5D604A6;
         Wed, 18 Jan 2023 12:31:22 -0800 (PST)
 Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30IIaER0014142;
-        Wed, 18 Jan 2023 20:31:21 GMT
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30IISkuU014159;
+        Wed, 18 Jan 2023 20:31:22 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=+YxVYTXd8FjVV1zFFNPP5+lwoxTTu+Ov7bPEzx1bIag=;
- b=D6w/XFBwZeaUiubqS+DRCi2TB6CqIvs6EXVQr3Dmjs0G4fKktuHwNkvBITlaZm+QppyA
- Iu7xY3FqnbCwyRAi/DTGuMKsZBaAuNIYZfKrGvxBq6M97aztuI4HYE+FDEJCBRL9yLwv
- TTU8g4GHS1W+6Y+yJD0nnpPWH/Wixk+C6EU9+5laawHQzXe3s8hnGDmjpwGyYrmmUgyp
- tcDTGNW9FrlcOVOiyO8AyLdYByBwpBBKo/OZfi067VQvdc608rgSZKDrH9jMNTnDZdew
- 4gcHn9Ve2lgoZRP6jc9c0eC5zW8V53MrTZpenOlc6pLUJQou1I1fJJNJNQL9QPbW3Scl Aw== 
+ bh=jdRvS+madd8DlQ5LU7UCAXCRJMtHgcKoZrsJsowupOY=;
+ b=SOQyPi2jnpAJxBk2KGwDN2XeXU6bbH1ZAE0ARDhgoaZ8SoNIcyITJ8APyXD0F51EPX/V
+ eouhDLR/rmSRnKDzPwjX6+4+q0/ZFjfz0sNKxfBZMbLFVhb3PM8OGV2bDWfrTrunCGAM
+ rhUi5Yh2tqIDTqxGUlP2ooVMK4iKc0uYLxIOfBa9FXE61MEOmzDm6S96TX6X5b/ERPsa
+ YGgLer3/uYzSIe73ALklDzfEhtw0VUGyb4rnkwO6xgjZleph9IZOxSL2PNPiyGRnNEMu
+ RRWFgS2o7zObKTe4EnIuTCNFV5Jqs7S/HoQZ0p6b2fQ7J/56Z6EgQqS4CoapC965wNu3 yQ== 
 Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n6hvn9mnm-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n6hvn9mn8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Wed, 18 Jan 2023 20:31:21 +0000
 Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
-        by ppma05wdc.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30IJdcN2024977;
-        Wed, 18 Jan 2023 20:31:16 GMT
-Received: from smtprelay07.dal12v.mail.ibm.com ([9.208.130.99])
-        by ppma05wdc.us.ibm.com (PPS) with ESMTPS id 3n3m17quru-1
+        by ppma05wdc.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30IJdcN0024977;
+        Wed, 18 Jan 2023 20:31:14 GMT
+Received: from smtprelay06.dal12v.mail.ibm.com ([9.208.130.100])
+        by ppma05wdc.us.ibm.com (PPS) with ESMTPS id 3n3m17qurs-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 18 Jan 2023 20:31:16 +0000
+        Wed, 18 Jan 2023 20:31:14 +0000
 Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
-        by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30IKVEKQ35913992
+        by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30IKVD4152560292
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 18 Jan 2023 20:31:15 GMT
+        Wed, 18 Jan 2023 20:31:13 GMT
 Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B946E58043;
-        Wed, 18 Jan 2023 20:31:14 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 817FB58043;
+        Wed, 18 Jan 2023 20:31:13 +0000 (GMT)
 Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3CC4B58059;
-        Wed, 18 Jan 2023 20:31:14 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 04DD058055;
+        Wed, 18 Jan 2023 20:31:13 +0000 (GMT)
 Received: from li-2c1e724c-2c76-11b2-a85c-ae42eaf3cb3d.endicott.ibm.com (unknown [9.60.85.43])
         by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 18 Jan 2023 20:31:14 +0000 (GMT)
+        Wed, 18 Jan 2023 20:31:12 +0000 (GMT)
 From:   Tony Krowiak <akrowiak@linux.ibm.com>
 To:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
         kvm@vger.kernel.org
 Cc:     jjherne@linux.ibm.com, freude@linux.ibm.com,
         borntraeger@de.ibm.com, pasic@linux.ibm.com
-Subject: [PATCH v2 3/6] s390/vfio_ap: use TAPQ to verify reset in progress completes
-Date:   Wed, 18 Jan 2023 15:31:08 -0500
-Message-Id: <20230118203111.529766-4-akrowiak@linux.ibm.com>
+Subject: [PATCH v2 1/6] s390/vfio-ap: verify reset complete in separate function
+Date:   Wed, 18 Jan 2023 15:31:06 -0500
+Message-Id: <20230118203111.529766-2-akrowiak@linux.ibm.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20230118203111.529766-1-akrowiak@linux.ibm.com>
 References: <20230118203111.529766-1-akrowiak@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: xRySWNIXIEBFdWl4UEpJbBc4_iYCbM8p
-X-Proofpoint-ORIG-GUID: xRySWNIXIEBFdWl4UEpJbBc4_iYCbM8p
+X-Proofpoint-GUID: cRCdHxEGCGt_7wf1WT_tnahTRg7G5NRu
+X-Proofpoint-ORIG-GUID: cRCdHxEGCGt_7wf1WT_tnahTRg7G5NRu
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.923,Hydra:6.0.562,FMLib:17.11.122.1
  definitions=2023-01-18_05,2023-01-18_01,2022-06-22_01
@@ -78,82 +78,70 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-To eliminate the repeated calls to the PQAP(ZAPQ) function to verify that
-a reset in progress completed successfully and ensure that error response
-codes get appropriately logged, let's call the apq_reset_check() function
-when the ZAPQ response code indicates that a reset that is already in
-progress.
+The vfio_ap_mdev_reset_queue() function contains a loop to verify that the
+reset successfully completes within 40ms. This patch moves that loop into
+a separate function.
 
 Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
 Reviewed-by: Jason J. Herne <jjherne@linux.ibm.com>
 Reviewed-by: Harald Freudenberger <freude@linux.ibm.com>
 ---
- drivers/s390/crypto/vfio_ap_ops.c | 24 +++++++++++++-----------
- 1 file changed, 13 insertions(+), 11 deletions(-)
+ drivers/s390/crypto/vfio_ap_ops.c | 30 +++++++++++++++++++++---------
+ 1 file changed, 21 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index b27daaaa79b4..a443ee5f7789 100644
+index 9c01957e56b3..7523496bfbae 100644
 --- a/drivers/s390/crypto/vfio_ap_ops.c
 +++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -33,7 +33,7 @@
- static int vfio_ap_mdev_reset_queues(struct ap_queue_table *qtable);
- static struct vfio_ap_queue *vfio_ap_find_queue(int apqn);
- static const struct vfio_device_ops vfio_ap_matrix_dev_ops;
--static int vfio_ap_mdev_reset_queue(struct vfio_ap_queue *q, unsigned int retry);
-+static int vfio_ap_mdev_reset_queue(struct vfio_ap_queue *q);
- 
- /**
-  * get_update_locks_for_kvm: Acquire the locks required to dynamically update a
-@@ -1643,8 +1643,7 @@ static int apq_reset_check(struct vfio_ap_queue *q)
- 	return ret;
+@@ -1598,12 +1598,30 @@ static struct vfio_ap_queue *vfio_ap_find_queue(int apqn)
+ 	return q;
  }
  
--static int vfio_ap_mdev_reset_queue(struct vfio_ap_queue *q,
--				    unsigned int retry)
-+static int vfio_ap_mdev_reset_queue(struct vfio_ap_queue *q)
++static int apq_reset_check(struct vfio_ap_queue *q)
++{
++	int iters = 2;
++	struct ap_queue_status status;
++
++	while (iters--) {
++		msleep(20);
++		status = ap_tapq(q->apqn, NULL);
++		if (status.queue_empty && !status.irq_enabled)
++			return 0;
++	}
++	WARN_ONCE(iters <= 0,
++		  "timeout verifying reset of queue %02x.%04x (%u, %u, %u)",
++		  AP_QID_CARD(q->apqn), AP_QID_QUEUE(q->apqn),
++		  status.queue_empty, status.irq_enabled, status.response_code);
++
++	return -EBUSY;
++}
++
+ static int vfio_ap_mdev_reset_queue(struct vfio_ap_queue *q,
+ 				    unsigned int retry)
  {
  	struct ap_queue_status status;
  	int ret;
-@@ -1659,12 +1658,15 @@ static int vfio_ap_mdev_reset_queue(struct vfio_ap_queue *q,
- 		ret = 0;
- 		break;
- 	case AP_RESPONSE_RESET_IN_PROGRESS:
--		if (retry--) {
--			msleep(20);
--			goto retry_zapq;
--		}
--		ret = -EBUSY;
--		break;
-+		/*
-+		 * There is a reset issued by another process in progress. Let's wait
-+		 * for that to complete. Since we have no idea whether it was a RAPQ or
-+		 * ZAPQ, then if it completes successfully, let's issue the ZAPQ.
-+		 */
-+		ret = apq_reset_check(q);
-+		if (ret)
-+			break;
-+		goto retry_zapq;
- 	case AP_RESPONSE_Q_NOT_AVAIL:
- 	case AP_RESPONSE_DECONFIGURED:
- 	case AP_RESPONSE_CHECKSTOPPED:
-@@ -1699,7 +1701,7 @@ static int vfio_ap_mdev_reset_queues(struct ap_queue_table *qtable)
- 	struct vfio_ap_queue *q;
+-	int retry2 = 2;
  
- 	hash_for_each(qtable->queues, loop_cursor, q, mdev_qnode) {
--		ret = vfio_ap_mdev_reset_queue(q, 1);
-+		ret = vfio_ap_mdev_reset_queue(q);
- 		/*
- 		 * Regardless whether a queue turns out to be busy, or
- 		 * is not operational, we need to continue resetting
-@@ -1944,7 +1946,7 @@ void vfio_ap_mdev_remove_queue(struct ap_device *apdev)
- 		}
+ 	if (!q)
+ 		return 0;
+@@ -1640,14 +1658,8 @@ static int vfio_ap_mdev_reset_queue(struct vfio_ap_queue *q,
  	}
  
--	vfio_ap_mdev_reset_queue(q, 1);
-+	vfio_ap_mdev_reset_queue(q);
- 	dev_set_drvdata(&apdev->device, NULL);
- 	kfree(q);
- 	release_update_locks_for_mdev(matrix_mdev);
+ 	/* wait for the reset to take effect */
+-	while (retry2--) {
+-		if (status.queue_empty && !status.irq_enabled)
+-			break;
+-		msleep(20);
+-		status = ap_tapq(q->apqn, NULL);
+-	}
+-	WARN_ONCE(retry2 <= 0, "unable to verify reset of queue %02x.%04x",
+-		  AP_QID_CARD(q->apqn), AP_QID_QUEUE(q->apqn));
++	if (!(status.queue_empty && !status.irq_enabled))
++		ret = apq_reset_check(q);
+ 
+ free_resources:
+ 	vfio_ap_free_aqic_resources(q);
 -- 
 2.31.1
 
