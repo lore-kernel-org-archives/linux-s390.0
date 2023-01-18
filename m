@@ -2,118 +2,82 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 43C07C004D4
-	for <linux-s390@archiver.kernel.org>; Wed, 18 Jan 2023 10:51:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A0B57C004D4
+	for <linux-s390@archiver.kernel.org>; Wed, 18 Jan 2023 10:51:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230472AbjARKvB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 18 Jan 2023 05:51:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43520 "EHLO
+        id S229606AbjARKvF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 18 Jan 2023 05:51:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229883AbjARKsu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 18 Jan 2023 05:48:50 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 511621CF74;
-        Wed, 18 Jan 2023 01:55:55 -0800 (PST)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30I9BYtA029046;
-        Wed, 18 Jan 2023 09:55:46 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=RwVgZ4gAgChB9dQuFg/BrH3z1bCoNoJ9VOyOuUBY96Y=;
- b=LprhYLJ+Am8oKeerrnGngONd4DmlFlTLoa54EYfTqDK64Gz1+VH5QOntmlO1Vb6YEVQu
- j+2EUq+QRPtnpszxA9mErSZyt68J8cUDCBJpua0Wj0O6Tgkomdj5Y85t8beHVX4nZvkb
- zQMoXPQEXr9UYqOWql7InuRgdu8CDoBxx9yomtrwMaMPVmw0bAhvBy//CRUGQRkrfWsG
- xPhpwZSNMNzwJO1UPqChMcNP/FubKhc0NfSkehMsVUvBY9a6CPWz7Vy/1ad6Kd6Q/+/a
- /RFH+pnfR1EiX5wn0BANMRzFVHLPxUiQh7FJqVbNB5n/u/JZNUf6cLJUrbJzc3GCUICA IQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n6dwv8yhs-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 18 Jan 2023 09:55:46 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 30I9ZwU2023772;
-        Wed, 18 Jan 2023 09:55:46 GMT
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n6dwv8yh7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 18 Jan 2023 09:55:45 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30I2iYqw030244;
-        Wed, 18 Jan 2023 09:55:43 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma02fra.de.ibm.com (PPS) with ESMTPS id 3n3m16kpgu-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 18 Jan 2023 09:55:43 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30I9tdTi50266434
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 18 Jan 2023 09:55:39 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CF01720040;
-        Wed, 18 Jan 2023 09:55:39 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C2D5A2004E;
-        Wed, 18 Jan 2023 09:55:38 +0000 (GMT)
-Received: from [9.179.3.165] (unknown [9.179.3.165])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 18 Jan 2023 09:55:38 +0000 (GMT)
-Message-ID: <d8d9be9e-079a-6c44-647e-cc2afe4578c8@linux.ibm.com>
-Date:   Wed, 18 Jan 2023 10:55:35 +0100
+        with ESMTP id S230356AbjARKug (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 18 Jan 2023 05:50:36 -0500
+Received: from out30-57.freemail.mail.aliyun.com (out30-57.freemail.mail.aliyun.com [115.124.30.57])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7AE448584;
+        Wed, 18 Jan 2023 01:59:14 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R271e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=jiapeng.chong@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0VZpnINn_1674035937;
+Received: from localhost(mailfrom:jiapeng.chong@linux.alibaba.com fp:SMTPD_---0VZpnINn_1674035937)
+          by smtp.aliyun-inc.com;
+          Wed, 18 Jan 2023 17:59:10 +0800
+From:   Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+To:     vneethv@linux.ibm.com
+Cc:     oberpar@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
+        Abaci Robot <abaci@linux.alibaba.com>
+Subject: [PATCH v2] s390/chsc: Switch over to memdup_user()
+Date:   Wed, 18 Jan 2023 17:58:23 +0800
+Message-Id: <20230118095823.18785-1-jiapeng.chong@linux.alibaba.com>
+X-Mailer: git-send-email 2.20.1.7.g153144c
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.1
-Subject: Re: [net-next 8/8] net/smc: De-tangle ism and smc device
- initialization
-To:     Jakub Kicinski <kuba@kernel.org>
-Cc:     David Miller <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Alexandra Winter <wintera@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Thorsten Winkler <twinkler@linux.ibm.com>,
-        Stefan Raspl <raspl@linux.ibm.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Nils Hoppmann <niho@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Tony Lu <tonylu@linux.alibaba.com>,
-        Wen Gu <guwen@linux.alibaba.com>
-References: <20230116092712.10176-1-jaka@linux.ibm.com>
- <20230116092712.10176-9-jaka@linux.ibm.com>
- <20230117192821.6bab7f24@kernel.org>
-From:   Jan Karcher <jaka@linux.ibm.com>
-Organization: IBM - Network Linux on Z
-In-Reply-To: <20230117192821.6bab7f24@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: p1UwZRUjlgGJwcy-K2eKKmn5cFEEAyuL
-X-Proofpoint-GUID: MY8x5FtmeG7hijVJvw6Z1hfzTPZAppZm
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.923,Hydra:6.0.562,FMLib:17.11.122.1
- definitions=2023-01-18_04,2023-01-17_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- priorityscore=1501 spamscore=0 impostorscore=0 bulkscore=0 phishscore=0
- mlxlogscore=849 adultscore=0 clxscore=1015 lowpriorityscore=0 mlxscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2301180082
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Use memdup_user rather than duplicating its implementation, this is a
+little bit restricted to reduce false positives.
 
+./drivers/s390/cio/chsc_sch.c:703:7-14: WARNING opportunity for
+memdup_user.
 
-On 18/01/2023 04:28, Jakub Kicinski wrote:
-> On Mon, 16 Jan 2023 10:27:12 +0100 Jan Karcher wrote:
->> From: Stefan Raspl <raspl@linux.ibm.com>
->>
->> The struct device for ISM devices was part of struct smcd_dev. Move to
->> struct ism_dev, provide a new API call in struct smcd_ops, and convert
->> existing SMCD code accordingly.
->> Furthermore, remove struct smcd_dev from struct ism_dev.
->> This is the final part of a bigger overhaul of the interfaces between SMC
->> and ISM.
-> 
-> breaks allmodconfig build for x86
+Link: https://bugzilla.openanolis.cn/show_bug.cgi?id=3785
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+---
+Changes in v2:
+  -Add free_page((unsigned long)sccl_area); 
 
-Good catch. Found it and working on a fix. Going to send a new version.
+ drivers/s390/cio/chsc_sch.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/s390/cio/chsc_sch.c b/drivers/s390/cio/chsc_sch.c
+index 180ab899289c..09dcce7ff24b 100644
+--- a/drivers/s390/cio/chsc_sch.c
++++ b/drivers/s390/cio/chsc_sch.c
+@@ -700,15 +700,13 @@ static int chsc_ioctl_conf_comp_list(void __user *user_ccl)
+ 	sccl_area = (void *)get_zeroed_page(GFP_KERNEL | GFP_DMA);
+ 	if (!sccl_area)
+ 		return -ENOMEM;
+-	ccl = kzalloc(sizeof(*ccl), GFP_KERNEL);
+-	if (!ccl) {
+-		ret = -ENOMEM;
+-		goto out_free;
+-	}
+-	if (copy_from_user(ccl, user_ccl, sizeof(*ccl))) {
+-		ret = -EFAULT;
+-		goto out_free;
++
++	ccl = memdup_user(user_ccl, sizeof(*ccl));
++	if (IS_ERR(ccl)) {
++		free_page((unsigned long)sccl_area);
++		return PTR_ERR(ccl);
+ 	}
++
+ 	sccl_area->request.length = 0x0020;
+ 	sccl_area->request.code = 0x0030;
+ 	sccl_area->fmt = ccl->req.fmt;
+-- 
+2.20.1.7.g153144c
+
