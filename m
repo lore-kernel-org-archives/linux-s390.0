@@ -2,322 +2,256 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D19A4C46467
-	for <linux-s390@archiver.kernel.org>; Wed, 18 Jan 2023 17:43:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1FC26C678DC
+	for <linux-s390@archiver.kernel.org>; Wed, 18 Jan 2023 18:00:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231231AbjARRnQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 18 Jan 2023 12:43:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39584 "EHLO
+        id S230171AbjARSAu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 18 Jan 2023 13:00:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230144AbjARRmx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 18 Jan 2023 12:42:53 -0500
-Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75CCA3CE01;
-        Wed, 18 Jan 2023 09:42:20 -0800 (PST)
-Received: by mail-ej1-x62e.google.com with SMTP id mp20so38478289ejc.7;
-        Wed, 18 Jan 2023 09:42:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=GpEuzue5d7ygPxB29FruCUnMnsWzWZ3lXy2MX+rDytc=;
-        b=W4GyWlsm8ALFRSIsMwvrTySOOS9hTBdV1OpvndBADGEMCQmWskkBoGTZ10dO14lWCf
-         9s1n4M/XC9OkFc3nvfoiyyKAMYrMlPJ0ppYyY+z8s2eN1loLgOBwv4z6v+2FLlrF90bv
-         6ZQb0cEa3IV6p0ZdEwQIujwy2ozbVyqJAY7e6Yk5uyW9Llgr7+WvB5XW3wcqIg/dx2yT
-         17z5d97RmSdOjf5TThzOxk0Us4hQ4yEz6sdImR7U3ItWvIdR8t6+FSY2EQHJLxcM+eqW
-         5J2agrByKnKRNQN3SrcInPeeW4duGeXWPdMGDvkLB3GJ62GM7FerjTYlFLjh3dYLIy/B
-         FVcw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=GpEuzue5d7ygPxB29FruCUnMnsWzWZ3lXy2MX+rDytc=;
-        b=MrOAbseckeuIlF+d93yPtIBIh5bzjSZjr2kkeaOnVsaPcqc1biF7QA70AzxMvPY5M9
-         +pUylyC8pHHp22cXB9BfYaEaOxVXXL5PBGfEIFAhub3hBVJC4mxcxLpYFDlnlNRFKVuA
-         dEnnWkNW4xeuiHEoII5Mo6jSwjZloXqd7J+uJ4LdWX3KEX04DEhXMMFOCVKZQG+sHaoq
-         csvfweF9KH7U186ywbMBzkQKK/Elp5GFQRe6ke/l55vSkOT2yVj0olC/CsDWJGGQ86yZ
-         Fj/T++Hnb+lxoKgF86Yrec8ioIqk78fJn6A0pM5NC5mWwfZ+ZgCFHNtG84NYSDvVnen5
-         x9Fg==
-X-Gm-Message-State: AFqh2kpIWQHShFBBgEqcIIUARtPIbcNyUlPBRBF4DO/0EzdweJXM62zQ
-        8ols6+2fVvC+jGYzjsgQ7SCXsx9O+I+H2GWmjb8=
-X-Google-Smtp-Source: AMrXdXuMaX0n1Hxu6XGSukmrVfG28F8T8Ib+RkX+SQ8+JvzXGjjDRpkDNnyAZVdVPrYouEW9ECCsgOvI5WFVc49eZlI=
-X-Received: by 2002:a17:906:40d7:b0:836:e897:648a with SMTP id
- a23-20020a17090640d700b00836e897648amr470430ejk.94.1674063739084; Wed, 18 Jan
- 2023 09:42:19 -0800 (PST)
+        with ESMTP id S229507AbjARSAs (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 18 Jan 2023 13:00:48 -0500
+Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on2062.outbound.protection.outlook.com [40.107.243.62])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 964C555290;
+        Wed, 18 Jan 2023 10:00:47 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=hXoTCCFLZnOD9YXHQINsoNJysimNrVNAz3rNG+c2a8vlhmhYnZKx8Vvj5dsCJcNVEc5iBRKd7nmr76JNdkGzgliNRUSsmBWtS8zsDl4TDrNi6waQ0wAo5a/MwbvXVDcpAFHxjyXlFM53uQkNMqeQ1vfDypvRrHrPJ+knizM1bDSm+IhlkCA9apZ8VLrREpIggCSG/B+Et6xkako5nyUpbDGDYwgSSqczuSim6qSftxp0mqZzFt29HmXaOC6jOYZxL7VcR0KoIbjDkEyw2VN3VvAhpFTd8NFwi9ykBW4qF+pDw4UTW85zHEXPaYJxjmi95pt6+M0hHX+Hy/RW0fgoiA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=1rgow5diNk+hVt+Qqw0FXU33IcXQf0aq5YG3bZTDQaI=;
+ b=YJHXP40dKqKDwVDEviHWtEf2+d4oYsiHyB21j7UWWRbiUo1Nkuvs2qZxeA4mscr/7D+HNp8dZjq05MnEiKxKWEilFwAceCsGtrfKiH8KnVPP7aIriRrPxsfvsNo4y5lzVxJbXgSKsb/gW5iIJ/sbLlaT3oaPDyPbIab9zByrLu3aallUoA6lx7MHTCoH2AFQ3Afvzfb1p5cvj0j5we87oVaq3Yzi49KORD5bRbr9rwUcV5eOc488WlKRHjBXZwzbfCBKA97Q27qvt65RNFJLvdgFLPUMhp6IgDzWQXU61MP6Rp9z1TGozcfxbNCdtvAoeMIRncmU6njoqWQkKWvaJg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=1rgow5diNk+hVt+Qqw0FXU33IcXQf0aq5YG3bZTDQaI=;
+ b=tB8X5gTZH+CJRpWO9vB+DaX/UJdLa4S44i9WjPyrM+xIhyf75jrjn/O+2SFjtIpe9FHmJ9SKnJjBU2tmnseVEAhJUnJorjbYTudRDGkDhJE/VZEWU19NvDNXfePEa/bt+F1+VmhYXhYHXyYLCGe05jzXFURA8MqzIAbfu44YL1LokoKuHit7lJ3LwGQQlxmaN68vF+3wB0OTI2yfK4SyixAAryHmVM8TPs+KlcVUf0lfKtQ3h0ZV/aEfl8kpybw17TYv2BvUB0VApGiiO8I/sOnMC8qT4pakH5mykmv4xNRt+JTMh3kYPNGbIzVOfBq0rQzHREE9R0yjWNKbzqw9YQ==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by IA1PR12MB7614.namprd12.prod.outlook.com (2603:10b6:208:429::16) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6002.13; Wed, 18 Jan
+ 2023 18:00:45 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::f8b0:df13:5f8d:12a]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::f8b0:df13:5f8d:12a%9]) with mapi id 15.20.6002.013; Wed, 18 Jan 2023
+ 18:00:45 +0000
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Robin Murphy <robin.murphy@arm.com>
+Cc:     Alex Williamson <alex.williamson@redhat.com>,
+        ath10k@lists.infradead.org, ath11k@lists.infradead.org,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        dri-devel@lists.freedesktop.org, iommu@lists.linux.dev,
+        kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, linux-media@vger.kernel.org,
+        linux-rdma@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+        linux-s390@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-tegra@vger.kernel.org, linux-wireless@vger.kernel.org,
+        netdev@vger.kernel.org, nouveau@lists.freedesktop.org,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        virtualization@lists.linux-foundation.org
+Subject: [PATCH v2 03/10] iommu: Add a gfp parameter to iommu_map_sg()
+Date:   Wed, 18 Jan 2023 14:00:37 -0400
+Message-Id: <3-v2-ce66f632bd0d+484-iommu_map_gfp_jgg@nvidia.com>
+In-Reply-To: <0-v2-ce66f632bd0d+484-iommu_map_gfp_jgg@nvidia.com>
+References: 
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: BLAPR03CA0064.namprd03.prod.outlook.com
+ (2603:10b6:208:329::9) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
 MIME-Version: 1.0
-References: <20230105030614.26842-1-tong@infragraf.org> <ea7673e1-40ec-18be-af89-5f4fd0f71742@csgroup.eu>
- <71c83f39-f85f-d990-95b7-ab6068839e6c@iogearbox.net> <5836b464-290e-203f-00f2-fc6632c9f570@csgroup.eu>
- <147A796D-12C0-482F-B48A-16E67120622B@infragraf.org> <0b46b813-05f2-5083-9f2e-82d72970dae2@csgroup.eu>
- <4380D454-3ED0-43F4-9A79-102BB0E3577A@infragraf.org> <d91bbb9e-484b-d43d-e62d-0474ff21cf91@iogearbox.net>
- <7159E8F8-AE66-4563-8A29-D10D66EFAF3D@infragraf.org> <CAADnVQLf_UhRP76i9+OaLGrmuoM942QebMXT3OA3mgrP_UV0KA@mail.gmail.com>
- <d807b7fb-dbd2-8e4c-812c-48a1a01c190e@csgroup.eu>
-In-Reply-To: <d807b7fb-dbd2-8e4c-812c-48a1a01c190e@csgroup.eu>
-From:   Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Date:   Wed, 18 Jan 2023 09:42:07 -0800
-Message-ID: <CAADnVQKAAhbL-9qGPfRFsfw3oh6KnrEpeYLnfhrKUSzX8VmFuQ@mail.gmail.com>
-Subject: Re: [bpf-next v2] bpf: drop deprecated bpf_jit_enable == 2
-To:     Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc:     Tonghao Zhang <tong@infragraf.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        "bpf@vger.kernel.org" <bpf@vger.kernel.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.or" 
-        <linux-arm-kernel@lists.infradead.or>,
-        "loongarch@lists.linux.dev" <loongarch@lists.linux.dev>,
-        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
-        Hao Luo <haoluo@google.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Song Liu <song@kernel.org>,
-        Stanislav Fomichev <sdf@google.com>,
-        Jiri Olsa <jolsa@kernel.org>, Hou Tao <houtao1@huawei.com>,
-        KP Singh <kpsingh@kernel.org>, Yonghong Song <yhs@fb.com>,
-        Martin KaFai Lau <martin.lau@linux.dev>,
-        "naveen.n.rao@linux.ibm.com" <naveen.n.rao@linux.ibm.com>,
-        "mpe@ellerman.id.au" <mpe@ellerman.id.au>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|IA1PR12MB7614:EE_
+X-MS-Office365-Filtering-Correlation-Id: 3289005d-6cf5-4741-cb9e-08daf97debe6
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: EAquh9wTbVTZvNn7pq2JL2hrLPhCXhIIKiU5KfbQCyQk4TWnAjyEY40G8WU8zObnfa+Vl3YB9E8rXOLTjVp0m1Drz4Kic1KbvCmDgfjjRsR2DJvlxOfJ+SkbtwPur6XFoWQfYD9AURxA0yjdOn7I5IOjKDdfueh3sz6AtUQQWbFRvaBAS4EDKvzUp3rTEa9MRfvGKwB06Ny4MCW5Pu4L+WvqcZxmmd809GDu/XGIakZsqFpDLcKl1HbQtGsmBqEnpmh4s8UI9jMTcRNDowLURHPCPSKLL0V2ltLTHPM0bvfgzZi+ObdeXhiQcuE/YZlzZcgjcLUoWayuOUOTRQWufPe+a0ZTd4mOjwwso9ESUQasoILWH858lzexVI6eIx/H5mQUuMUiVLcUtwJqbyfwGP9vwa/a5cGArI46mS9mflNOzIV7Ei1DjGB2PqQLCFiUZhksRGIEwqW4t30zPtZH7NRrcaJghGcVvsGSFPS7IgQYpVhAJRTV79aPi2HJBK42KbuVrAPKJd7XQpVqqi5eKAjri12Hyd/oUFumCqKr7+ymL4rY+KbY8JCoVlHSAd92Z5gyzMwEVvCQMOtSyi2lj2m5KruireIJRJ8vO+VoBLqYCJDfpxBfxnheo3AkW/XI+dT6xb4S3F4acVohgQrq0qffjgS0x7fZjM3sce39dUfGPKE5BeceJ/72mtC3fQcF
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(346002)(39860400002)(396003)(136003)(366004)(376002)(451199015)(6506007)(186003)(26005)(478600001)(6512007)(6486002)(6666004)(54906003)(316002)(110136005)(4326008)(66946007)(66556008)(8676002)(66476007)(36756003)(2616005)(41300700001)(8936002)(83380400001)(2906002)(7416002)(5660300002)(38100700002)(86362001)(4216001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?7f+aQxlhcqWHrfjoUc+2E6lpzU9E5X6C5dQ/JnnFutQxJSisp2jl5QB+Klo9?=
+ =?us-ascii?Q?JxohTCoUv5u4LiMOTNsIb20mWefqV3alHEu0oje2vWgGxZHHeDt4rczkIGYC?=
+ =?us-ascii?Q?/+a5tRdbxQlJp4B/2Bj79XdTLw6jyGkpOEIv5lPbzZn7jVUi1hyR56r3KnTq?=
+ =?us-ascii?Q?hV5lrPdFKcIAdx37myMNUYO/h8rhMaa7V9HRigmYNHAsX9msFduCX4vQmumr?=
+ =?us-ascii?Q?PC3QtX+rUxCsWAOOg+eoZoDsKhBUdUB2C4vm9RQZUq194e8c39+mltOJI7ql?=
+ =?us-ascii?Q?FaGShFVVQM99j1t1yd5d93XZpraZdUz+r7xcQwIxQ3/iSPbPGWxzbX/dFEkY?=
+ =?us-ascii?Q?+Nmn+Oa3lIpg+GBgRyoalwdeoDWDnD6CkM0IaGQYMBjQQonjxz+XvaB9+k+C?=
+ =?us-ascii?Q?/RBeJjBx8FxA7yFlSuXm0SD6G09CaO0xLHUwrywAJHpQJAXJH9VhEFeerOCZ?=
+ =?us-ascii?Q?QQX1q0ITQWxD8BqDLofugTuRh21bnjgvqUZAxfMSzZo9tTMBR5vSbD2wpB8X?=
+ =?us-ascii?Q?g7fIXAUl8k9uWuS89+FopjZXOCiabvKyoIvY36h0DPgRjI/kwtjNpD5rKJwK?=
+ =?us-ascii?Q?SrfVI0V5RyBxx+lx+gXFzpDeA0VwbeBOEU5sI5CYV3zfeGM3NJQGOpH3Vo36?=
+ =?us-ascii?Q?e6e1eXn1ZcYHhBU0Tn7xZFb8+nNEwcxm3Y1rNe/jOKEXyQ0D86J98F3YZHiY?=
+ =?us-ascii?Q?aitTN6I39iB99qkG0T6UcxqlD3k/qv0Ob55C0aC/qvMUrN1vB8La9e4clQRL?=
+ =?us-ascii?Q?Hi0VutivUxPvAtbURdFEqMsk0eh1+wm6fLJlD+ks7+lV0DXXC2KrYAr8teDF?=
+ =?us-ascii?Q?4+RIOwZmlwJ3OpHL/xsfehiPHrjythoRXADm0vkBEe8K3ci9sbS87yAFYv6l?=
+ =?us-ascii?Q?dmKChfpD3v3MSLHFEO320DIIN+qgWbfsCt/HIHZtgHKhj3Og6U2DYRDrrLpy?=
+ =?us-ascii?Q?mBtnY7nTMfupE5AoFRq/EqhPR4gYS7qpD9972GvVRFh/QKVh/Rtk9e3b/mBo?=
+ =?us-ascii?Q?hMbrpJATKX4WXBrGIQtRkgm4bDaqtuh4Qc4ArAnWAnDsYrNQNT8rpEJP52M8?=
+ =?us-ascii?Q?ok5C1A5J4iGMVWUQNkbqZlmTkz+AbtgWehIQ8vKWUuFuFEUJMTygf8kCZzQ+?=
+ =?us-ascii?Q?l1kIRL8YnGQaiHa7nff7v09Ah+0nZiTkKoYhxL52+NAz74o6tbC47Jv70BQo?=
+ =?us-ascii?Q?or3Cx0bGEHaEXY1iG2iLfRBPqdy6B0jOmG106Pyby8xO/qlFU3Ue5ZdRClRc?=
+ =?us-ascii?Q?xxqybE9MJE/nJjQ6iaGvcj7JClHbZg880quf8K7KHMtW1yUL2jnKrkkSWWy9?=
+ =?us-ascii?Q?ce7uubi8ithEXhJZrvMlbgteuZ/vaOH48/gHmr4MheP6j6P5sapk8HNAOkHU?=
+ =?us-ascii?Q?bHxgC/aVuvDEcMUTQcSKdZV461mBt53e/9dxWnnSGfE6Li/nW95jW8Y7F1Qr?=
+ =?us-ascii?Q?cGPrzVmPxMTh1o/snnk1Fjgk8sTxenPnYdes8DquN/7c8tT337lRCTGeq9eV?=
+ =?us-ascii?Q?MWmVJeHN3uT+HWGZ5Fn+GBIWBLKB6d00p3r+KQja/fpXYRFWejxZKuQhdGIL?=
+ =?us-ascii?Q?asj6glqzU7D8jkj8sVGqWXaF4wEqHdehu9UHWSSL?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 3289005d-6cf5-4741-cb9e-08daf97debe6
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Jan 2023 18:00:45.3015
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: VQ1WX3Ma18fOY83qY8rk8IB+ZaB0YFwzIbDxfHZcEPBDEisJQmbDs0D2J/7qFl9k
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR12MB7614
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jan 17, 2023 at 11:36 PM Christophe Leroy
-<christophe.leroy@csgroup.eu> wrote:
->
->
->
-> Le 18/01/2023 =C3=A0 03:21, Alexei Starovoitov a =C3=A9crit :
-> > On Tue, Jan 17, 2023 at 6:13 PM Tonghao Zhang <tong@infragraf.org> wrot=
-e:
-> >>
-> >>
-> >>
-> >>> On Jan 17, 2023, at 11:59 PM, Daniel Borkmann <daniel@iogearbox.net> =
-wrote:
-> >>>
-> >>> On 1/17/23 3:22 PM, Tonghao Zhang wrote:
-> >>>>> On Jan 17, 2023, at 3:30 PM, Christophe Leroy <christophe.leroy@csg=
-roup.eu> wrote:
-> >>>>>
-> >>>>>
-> >>>>>
-> >>>>> Le 17/01/2023 =C3=A0 06:30, Tonghao Zhang a =C3=A9crit :
-> >>>>>>
-> >>>>>>
-> >>>>>>> On Jan 9, 2023, at 4:15 PM, Christophe Leroy <christophe.leroy@cs=
-group.eu> wrote:
-> >>>>>>>
-> >>>>>>>
-> >>>>>>>
-> >>>>>>> Le 06/01/2023 =C3=A0 16:37, Daniel Borkmann a =C3=A9crit :
-> >>>>>>>> On 1/5/23 6:53 PM, Christophe Leroy wrote:
-> >>>>>>>>> Le 05/01/2023 =C3=A0 04:06, tong@infragraf.org a =C3=A9crit :
-> >>>>>>>>>> From: Tonghao Zhang <tong@infragraf.org>
-> >>>>>>>>>>
-> >>>>>>>>>> The x86_64 can't dump the valid insn in this way. A test BPF p=
-rog
-> >>>>>>>>>> which include subprog:
-> >>>>>>>>>>
-> >>>>>>>>>> $ llvm-objdump -d subprog.o
-> >>>>>>>>>> Disassembly of section .text:
-> >>>>>>>>>> 0000000000000000 <subprog>:
-> >>>>>>>>>>           0:       18 01 00 00 73 75 62 70 00 00 00 00 72 6f 6=
-7 00 r1
-> >>>>>>>>>> =3D 29114459903653235 ll
-> >>>>>>>>>>           2:       7b 1a f8 ff 00 00 00 00 *(u64 *)(r10 - 8) =
-=3D r1
-> >>>>>>>>>>           3:       bf a1 00 00 00 00 00 00 r1 =3D r10
-> >>>>>>>>>>           4:       07 01 00 00 f8 ff ff ff r1 +=3D -8
-> >>>>>>>>>>           5:       b7 02 00 00 08 00 00 00 r2 =3D 8
-> >>>>>>>>>>           6:       85 00 00 00 06 00 00 00 call 6
-> >>>>>>>>>>           7:       95 00 00 00 00 00 00 00 exit
-> >>>>>>>>>> Disassembly of section raw_tp/sys_enter:
-> >>>>>>>>>> 0000000000000000 <entry>:
-> >>>>>>>>>>           0:       85 10 00 00 ff ff ff ff call -1
-> >>>>>>>>>>           1:       b7 00 00 00 00 00 00 00 r0 =3D 0
-> >>>>>>>>>>           2:       95 00 00 00 00 00 00 00 exit
-> >>>>>>>>>>
-> >>>>>>>>>> kernel print message:
-> >>>>>>>>>> [  580.775387] flen=3D8 proglen=3D51 pass=3D3 image=3Dffffffff=
-a000c20c
-> >>>>>>>>>> from=3Dkprobe-load pid=3D1643
-> >>>>>>>>>> [  580.777236] JIT code: 00000000: cc cc cc cc cc cc cc cc cc =
-cc cc
-> >>>>>>>>>> cc cc cc cc cc
-> >>>>>>>>>> [  580.779037] JIT code: 00000010: cc cc cc cc cc cc cc cc cc =
-cc cc
-> >>>>>>>>>> cc cc cc cc cc
-> >>>>>>>>>> [  580.780767] JIT code: 00000020: cc cc cc cc cc cc cc cc cc =
-cc cc
-> >>>>>>>>>> cc cc cc cc cc
-> >>>>>>>>>> [  580.782568] JIT code: 00000030: cc cc cc
-> >>>>>>>>>>
-> >>>>>>>>>> $ bpf_jit_disasm
-> >>>>>>>>>> 51 bytes emitted from JIT compiler (pass:3, flen:8)
-> >>>>>>>>>> ffffffffa000c20c + <x>:
-> >>>>>>>>>>       0:   int3
-> >>>>>>>>>>       1:   int3
-> >>>>>>>>>>       2:   int3
-> >>>>>>>>>>       3:   int3
-> >>>>>>>>>>       4:   int3
-> >>>>>>>>>>       5:   int3
-> >>>>>>>>>>       ...
-> >>>>>>>>>>
-> >>>>>>>>>> Until bpf_jit_binary_pack_finalize is invoked, we copy rw_head=
-er to
-> >>>>>>>>>> header
-> >>>>>>>>>> and then image/insn is valid. BTW, we can use the "bpftool pro=
-g dump"
-> >>>>>>>>>> JITed instructions.
-> >>>>>>>>>
-> >>>>>>>>> NACK.
-> >>>>>>>>>
-> >>>>>>>>> Because the feature is buggy on x86_64, you remove it for all
-> >>>>>>>>> architectures ?
-> >>>>>>>>>
-> >>>>>>>>> On powerpc bpf_jit_enable =3D=3D 2 works and is very usefull.
-> >>>>>>>>>
-> >>>>>>>>> Last time I tried to use bpftool on powerpc/32 it didn't work. =
-I don't
-> >>>>>>>>> remember the details, I think it was an issue with endianess. M=
-aybe it
-> >>>>>>>>> is fixed now, but it needs to be verified.
-> >>>>>>>>>
-> >>>>>>>>> So please, before removing a working and usefull feature, make =
-sure
-> >>>>>>>>> there is an alternative available to it for all architectures i=
-n all
-> >>>>>>>>> configurations.
-> >>>>>>>>>
-> >>>>>>>>> Also, I don't think bpftool is usable to dump kernel BPF selfte=
-sts.
-> >>>>>>>>> That's vital when a selftest fails if you want to have a chance=
- to
-> >>>>>>>>> understand why it fails.
-> >>>>>>>>
-> >>>>>>>> If this is actively used by JIT developers and considered useful=
-, I'd be
-> >>>>>>>> ok to leave it for the time being. Overall goal is to reach feat=
-ure parity
-> >>>>>>>> among (at least major arch) JITs and not just have most function=
-ality only
-> >>>>>>>> available on x86-64 JIT. Could you however check what is not wor=
-king with
-> >>>>>>>> bpftool on powerpc/32? Perhaps it's not too much effort to just =
-fix it,
-> >>>>>>>> but details would be useful otherwise 'it didn't work' is too fu=
-zzy.
-> >>>>>>>
-> >>>>>>> Sure I will try to test bpftool again in the coming days.
-> >>>>>>>
-> >>>>>>> Previous discussion about that subject is here:
-> >>>>>>> https://patchwork.kernel.org/project/linux-riscv/patch/2021041509=
-3250.3391257-1-Jianlin.Lv@arm.com/#24176847=3D
-> >>>>>> Hi Christophe
-> >>>>>> Any progress? We discuss to deprecate the bpf_jit_enable =3D=3D 2 =
-in 2021, but bpftool can not run on powerpc.
-> >>>>>> Now can we fix this issue?
-> >>>>>
-> >>>>> Hi Tong,
-> >>>>>
-> >>>>> I have started to look at it but I don't have any fruitfull feedbac=
-k yet.
-> >>>>>
-> >>>>> In the meantime, were you able to confirm that bpftool can also be =
-used
-> >>>>> to dump jitted tests from test_bpf.ko module on x86_64 ? In that ca=
-n you
-> >>>>> tell me how to proceed ?
-> >>>> Now I do not test, but we can dump the insn after bpf_prog_select_ru=
-ntime in test_bpf.ko. bpf_map_get_info_by_fd can copy the insn to userspace=
-, but we can
-> >>>> dump them in test_bpf.ko in the same way.
-> >>>
-> >>> Issue is that these progs are not consumable from userspace (and ther=
-efore not bpftool).
-> >>> it's just simple bpf_prog_alloc + copy of test insns + bpf_prog_selec=
-t_runtime() to test
-> >>> JITs (see generate_filter()). Some of them could be converted over to=
- test_verifier, but
-> >>> not all might actually pass verifier, iirc. Don't think it's a good i=
-dea to allow exposing
-> >>> them via fd tbh.
-> >> Hi
-> >> I mean that, can we invoke the bpf_jit_dump in test_bpf.ko directly ?.=
- bpf_prog_get_info_by_fd copy the insn to userspace, but we only dump insn =
-in test_bpf.ko
-> >>
-> >>                  if (bpf_dump_raw_ok(file->f_cred)) {// code copied fr=
-om bpf_prog_get_info_by_fd, not tested
-> >>
-> >>                          /* for multi-function programs, copy the JITe=
-d
-> >>                           * instructions for all the functions
-> >>                           */
-> >>                          if (prog->aux->func_cnt) {
-> >>                                  for (i =3D 0; i < prog->aux->func_cnt=
-; i++) {
-> >>                                          len =3D prog->aux->func[i]->j=
-ited_len;
-> >>                                          img =3D (u8 *) prog->aux->fun=
-c[i]->bpf_func;
-> >>                                          bpf_jit_dump(1, len, 1, img);
-> >>                                  }
-> >>                          } else {
-> >>                                  bpf_jit_dump(1, ulen, 1, prog->bpf_fu=
-nc);
-> >>                          }
-> >>                  }
-> >
-> > Let's not reinvent the wheel.
-> > bpftool prog dump jited
-> > is our supported command.
-> > ppc issue with bpftool is related to endianness of embedded skeleton.
-> > which means that none of the bpftool prog commands work on ppc.
-> > It's a bigger issue to address with cross compilation of bpftool.
-> >
-> > bpftool supports gnu and llvm disassembler. It retrieves and
-> > prints BTF, line info and source code along with asm.
-> > The user experience is at different level comparing to bpf_jit_dump.
->
-> Hi Alexei,
->
-> Fair enough, we are going to try and fix bpftool.
->
-> But for test_bpf.ko module, how do you use bpftool to dump the BPF tests
-> ? Even on x86 I have not been able to use bpftool for that until now.
-> Can you tell me how you do ?
+Follow the pattern for iommu_map() and remove iommu_map_sg_atomic().
 
-test_bpf.ko is useful to JIT developers when they're starting
-to work on it, but its test coverage is inadequate for real
-world bpf usage comparing to selftests/bpf.
-Johan Almbladh did some great additions to test_bpf.ko back in 2021.
-Since then there wasn't much.
+This allows __iommu_dma_alloc_noncontiguous() to use a GFP_KERNEL
+allocation here, based on the provided gfp flags.
 
-Here it's important to distinguish the target user.
-Is it a kernel JIT developer or user space bpf prog developer?
-When it's a kernel developer they can easily
-add print_hex_dump() in the right places.
-That's what I did when I was developing bpf trampoline.
-bpf is more than just JIT. There are trampoline, kfuncs, dispatch.
-The kernel devs should not add a debug code.
-Long ago bpf_jit_enable=3D2 was useful to user space bpf developers.
-They wanted to see how JITed code look like to optimize it and what not.
-Now 'perf record' captures bpf asm and annotates it in 'perf report',
-so performance analysis problem is solved that way.
-bpftool prog dump jit addressed the needs of users and admins who
-want to understand what bpf progs are loaded and what are they doing.
-Both 'dump jited' and 'dump xlated' are useful for this case.
-So bpf_jit_enable=3D2 remained useful to kernel developers only and
-in that sense it become a kernel debug feature for a narrow set of
-JIT developers. On x86 bpf_jit_dump() was neglected and broken.
-I suspect the other archs will follow the same fate. If not already.
-Having a sysctl for kernel developers is not something the kernel
-developers should have around. Hence the cleanup of this patch.
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+---
+ drivers/iommu/dma-iommu.c |  5 +++--
+ drivers/iommu/iommu.c     | 26 ++++++++++----------------
+ include/linux/iommu.h     | 18 +++++-------------
+ 3 files changed, 18 insertions(+), 31 deletions(-)
+
+diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
+index 7016db569f81fc..8c2788633c1766 100644
+--- a/drivers/iommu/dma-iommu.c
++++ b/drivers/iommu/dma-iommu.c
+@@ -833,7 +833,8 @@ static struct page **__iommu_dma_alloc_noncontiguous(struct device *dev,
+ 			arch_dma_prep_coherent(sg_page(sg), sg->length);
+ 	}
+ 
+-	ret = iommu_map_sg_atomic(domain, iova, sgt->sgl, sgt->orig_nents, ioprot);
++	ret = iommu_map_sg(domain, iova, sgt->sgl, sgt->orig_nents, ioprot,
++			   gfp);
+ 	if (ret < 0 || ret < size)
+ 		goto out_free_sg;
+ 
+@@ -1281,7 +1282,7 @@ static int iommu_dma_map_sg(struct device *dev, struct scatterlist *sg,
+ 	 * We'll leave any physical concatenation to the IOMMU driver's
+ 	 * implementation - it knows better than we do.
+ 	 */
+-	ret = iommu_map_sg_atomic(domain, iova, sg, nents, prot);
++	ret = iommu_map_sg(domain, iova, sg, nents, prot, GFP_ATOMIC);
+ 	if (ret < 0 || ret < iova_len)
+ 		goto out_free_iova;
+ 
+diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+index 9412b420d07257..cc6e7c6bf72758 100644
+--- a/drivers/iommu/iommu.c
++++ b/drivers/iommu/iommu.c
+@@ -2470,9 +2470,9 @@ size_t iommu_unmap_fast(struct iommu_domain *domain,
+ }
+ EXPORT_SYMBOL_GPL(iommu_unmap_fast);
+ 
+-static ssize_t __iommu_map_sg(struct iommu_domain *domain, unsigned long iova,
+-		struct scatterlist *sg, unsigned int nents, int prot,
+-		gfp_t gfp)
++ssize_t iommu_map_sg(struct iommu_domain *domain, unsigned long iova,
++		     struct scatterlist *sg, unsigned int nents, int prot,
++		     gfp_t gfp)
+ {
+ 	const struct iommu_domain_ops *ops = domain->ops;
+ 	size_t len = 0, mapped = 0;
+@@ -2480,6 +2480,13 @@ static ssize_t __iommu_map_sg(struct iommu_domain *domain, unsigned long iova,
+ 	unsigned int i = 0;
+ 	int ret;
+ 
++	might_sleep_if(gfpflags_allow_blocking(gfp));
++
++	/* Discourage passing strange GFP flags */
++	if (WARN_ON_ONCE(gfp & (__GFP_COMP | __GFP_DMA | __GFP_DMA32 |
++				__GFP_HIGHMEM)))
++		return -EINVAL;
++
+ 	while (i <= nents) {
+ 		phys_addr_t s_phys = sg_phys(sg);
+ 
+@@ -2519,21 +2526,8 @@ static ssize_t __iommu_map_sg(struct iommu_domain *domain, unsigned long iova,
+ 
+ 	return ret;
+ }
+-
+-ssize_t iommu_map_sg(struct iommu_domain *domain, unsigned long iova,
+-		     struct scatterlist *sg, unsigned int nents, int prot)
+-{
+-	might_sleep();
+-	return __iommu_map_sg(domain, iova, sg, nents, prot, GFP_KERNEL);
+-}
+ EXPORT_SYMBOL_GPL(iommu_map_sg);
+ 
+-ssize_t iommu_map_sg_atomic(struct iommu_domain *domain, unsigned long iova,
+-		    struct scatterlist *sg, unsigned int nents, int prot)
+-{
+-	return __iommu_map_sg(domain, iova, sg, nents, prot, GFP_ATOMIC);
+-}
+-
+ /**
+  * report_iommu_fault() - report about an IOMMU fault to the IOMMU framework
+  * @domain: the iommu domain where the fault has happened
+diff --git a/include/linux/iommu.h b/include/linux/iommu.h
+index 521cd79700f4d8..d5c16dc33c87de 100644
+--- a/include/linux/iommu.h
++++ b/include/linux/iommu.h
+@@ -474,10 +474,8 @@ extern size_t iommu_unmap_fast(struct iommu_domain *domain,
+ 			       unsigned long iova, size_t size,
+ 			       struct iommu_iotlb_gather *iotlb_gather);
+ extern ssize_t iommu_map_sg(struct iommu_domain *domain, unsigned long iova,
+-		struct scatterlist *sg, unsigned int nents, int prot);
+-extern ssize_t iommu_map_sg_atomic(struct iommu_domain *domain,
+-				   unsigned long iova, struct scatterlist *sg,
+-				   unsigned int nents, int prot);
++			    struct scatterlist *sg, unsigned int nents,
++			    int prot, gfp_t gfp);
+ extern phys_addr_t iommu_iova_to_phys(struct iommu_domain *domain, dma_addr_t iova);
+ extern void iommu_set_fault_handler(struct iommu_domain *domain,
+ 			iommu_fault_handler_t handler, void *token);
+@@ -791,14 +789,7 @@ static inline size_t iommu_unmap_fast(struct iommu_domain *domain,
+ 
+ static inline ssize_t iommu_map_sg(struct iommu_domain *domain,
+ 				   unsigned long iova, struct scatterlist *sg,
+-				   unsigned int nents, int prot)
+-{
+-	return -ENODEV;
+-}
+-
+-static inline ssize_t iommu_map_sg_atomic(struct iommu_domain *domain,
+-				  unsigned long iova, struct scatterlist *sg,
+-				  unsigned int nents, int prot)
++				   unsigned int nents, int prot, gfp_t gfp)
+ {
+ 	return -ENODEV;
+ }
+@@ -1109,7 +1100,8 @@ iommu_get_domain_for_dev_pasid(struct device *dev, ioasid_t pasid,
+ static inline size_t iommu_map_sgtable(struct iommu_domain *domain,
+ 			unsigned long iova, struct sg_table *sgt, int prot)
+ {
+-	return iommu_map_sg(domain, iova, sgt->sgl, sgt->orig_nents, prot);
++	return iommu_map_sg(domain, iova, sgt->sgl, sgt->orig_nents, prot,
++			    GFP_KERNEL);
+ }
+ 
+ #ifdef CONFIG_IOMMU_DEBUGFS
+-- 
+2.39.0
+
