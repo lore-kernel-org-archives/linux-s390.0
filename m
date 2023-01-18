@@ -2,41 +2,41 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CCCF9C678DE
-	for <linux-s390@archiver.kernel.org>; Wed, 18 Jan 2023 15:46:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E48AFC46467
+	for <linux-s390@archiver.kernel.org>; Wed, 18 Jan 2023 15:46:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231475AbjARPqe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 18 Jan 2023 10:46:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50568 "EHLO
+        id S231520AbjARPqg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 18 Jan 2023 10:46:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229923AbjARPqV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 18 Jan 2023 10:46:21 -0500
+        with ESMTP id S230454AbjARPqE (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 18 Jan 2023 10:46:04 -0500
 Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 578FB392B4;
-        Wed, 18 Jan 2023 07:45:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 910033757D;
+        Wed, 18 Jan 2023 07:45:36 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1674056742; x=1705592742;
+  t=1674056736; x=1705592736;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=6s3fA2jhqnAHgwbfGrKCZDIy07cNkborYz0vvTXb80k=;
-  b=ARBxIRa8dOe2aTvANSHwhwDAZb/B9J/CYENY+VceAGs91iYP2hvhVcFL
-   pgbPbT+ghnRyGID5IspmKMbimup3eB+zT+zhYr23FiinwIoC39VoqR9CO
-   wXWJdp5rdit6EftFTiUxYU/k9n8fOTQLrUWxxfsc60GcTdwbP11pce3fO
-   3Fy9/3DHTcxWZbO0cITD88Komsj1sPIq9b+HLiKV87Z1n4yeHxbxtlAvY
-   tgVskRL0vd22R3O1u9u2Ca14pI2UgL7YvOI2YTXrclBAqqjrsJdFeq89n
-   qMUr2FsG8n1SY0NqBwjIZpNc+51WUhmRMOGXsaUejTZSC+jl1nyJOL90P
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10594"; a="322701411"
+  bh=r4W7l/3g2FF9m+Bbn+8NEkNQ+AUW9MsI1xwl1GBeVcA=;
+  b=kUt88PFkfsOJ3giMyl1qJ69QOXxX8r8xqbhHBG5+LCcHDLHdA1Az/UOB
+   OvGB8c9tJVQzXLI7norMldebbnRo5829I91RzWm300IXr84AtYmTc/xO1
+   pSLfeZlYoWnxeep//m3gNvJoZs5IYdC0jbCVX8o/SVFlWvaDCJJzSidk8
+   GhYQ6QUGV462c3a6pB1c/UUGAA+KxURlkN4cjm5yEyrSWRiM88mZ4Mt5w
+   xUu4skEXgxpVlD+QQPaegoo/0C3TyRkS4Ob164OvzgbA4tTm1u+LI1J69
+   +ScGwodxNqwOoamfhhoD+KlrCT9cEoeJHbQfvXngPNDSfalV8zekXpPYB
+   Q==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10594"; a="322701355"
 X-IronPort-AV: E=Sophos;i="5.97,226,1669104000"; 
-   d="scan'208";a="322701411"
+   d="scan'208";a="322701355"
 Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jan 2023 07:45:40 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10594"; a="661759384"
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jan 2023 07:45:35 -0800
+X-IronPort-AV: E=McAfee;i="6500,9779,10594"; a="661759365"
 X-IronPort-AV: E=Sophos;i="5.97,226,1669104000"; 
-   d="scan'208";a="661759384"
+   d="scan'208";a="661759365"
 Received: from lab-ah.igk.intel.com ([10.102.42.211])
-  by fmsmga007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jan 2023 07:45:35 -0800
+  by fmsmga007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jan 2023 07:45:30 -0800
 From:   Andrzej Hajda <andrzej.hajda@intel.com>
 To:     linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-snps-arc@lists.infradead.org,
@@ -57,9 +57,9 @@ Cc:     Andrzej Hajda <andrzej.hajda@intel.com>,
         Peter Zijlstra <peterz@infradead.org>,
         Boqun Feng <boqun.feng@gmail.com>,
         Mark Rutland <mark.rutland@arm.com>
-Subject: [PATCH v5 6/7] qed: use __xchg if possible
-Date:   Wed, 18 Jan 2023 16:44:49 +0100
-Message-Id: <20230118154450.73842-6-andrzej.hajda@intel.com>
+Subject: [PATCH v5 5/7] io_uring: use __xchg if possible
+Date:   Wed, 18 Jan 2023 16:44:48 +0100
+Message-Id: <20230118154450.73842-5-andrzej.hajda@intel.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20230118154450.73842-1-andrzej.hajda@intel.com>
 References: <20230118153529.57695-1-andrzej.hajda@intel.com>
@@ -75,67 +75,66 @@ Recently introduced helper simplifies the code.
 
 Signed-off-by: Andrzej Hajda <andrzej.hajda@intel.com>
 ---
- include/linux/qed/qed_chain.h | 19 +++++++------------
- 1 file changed, 7 insertions(+), 12 deletions(-)
+ io_uring/io_uring.c | 7 ++-----
+ io_uring/slist.h    | 6 ++----
+ 2 files changed, 4 insertions(+), 9 deletions(-)
 
-diff --git a/include/linux/qed/qed_chain.h b/include/linux/qed/qed_chain.h
-index a84063492c71ae..6355d558cf01b2 100644
---- a/include/linux/qed/qed_chain.h
-+++ b/include/linux/qed/qed_chain.h
-@@ -11,6 +11,7 @@
- #include <asm/byteorder.h>
- #include <linux/kernel.h>
- #include <linux/list.h>
+diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
+index 2ac1cd8d23ea62..2b46a692d69022 100644
+--- a/io_uring/io_uring.c
++++ b/io_uring/io_uring.c
+@@ -54,6 +54,7 @@
+ #include <linux/fdtable.h>
+ #include <linux/mm.h>
+ #include <linux/mman.h>
 +#include <linux/non-atomic/xchg.h>
- #include <linux/sizes.h>
+ #include <linux/percpu.h>
  #include <linux/slab.h>
- #include <linux/qed/common_hsi.h>
-@@ -368,7 +369,7 @@ static inline void qed_chain_return_produced(struct qed_chain *p_chain)
-  */
- static inline void *qed_chain_produce(struct qed_chain *p_chain)
+ #include <linux/bvec.h>
+@@ -1095,8 +1096,6 @@ static void __io_req_find_next_prep(struct io_kiocb *req)
+ 
+ static inline struct io_kiocb *io_req_find_next(struct io_kiocb *req)
  {
--	void *p_ret = NULL, *p_prod_idx, *p_prod_page_idx;
-+	void *p_prod_idx, *p_prod_page_idx;
- 
- 	if (is_chain_u16(p_chain)) {
- 		if ((p_chain->u.chain16.prod_idx &
-@@ -390,11 +391,8 @@ static inline void *qed_chain_produce(struct qed_chain *p_chain)
- 		p_chain->u.chain32.prod_idx++;
- 	}
- 
--	p_ret = p_chain->p_prod_elem;
--	p_chain->p_prod_elem = (void *)(((u8 *)p_chain->p_prod_elem) +
--					p_chain->elem_size);
+-	struct io_kiocb *nxt;
 -
--	return p_ret;
-+	return __xchg(&p_chain->p_prod_elem,
-+		      (u8 *)p_chain->p_prod_elem + p_chain->elem_size);
+ 	/*
+ 	 * If LINK is set, we have dependent requests in this chain. If we
+ 	 * didn't fail this request, queue the first one up, moving any other
+@@ -1105,9 +1104,7 @@ static inline struct io_kiocb *io_req_find_next(struct io_kiocb *req)
+ 	 */
+ 	if (unlikely(req->flags & IO_DISARM_MASK))
+ 		__io_req_find_next_prep(req);
+-	nxt = req->link;
+-	req->link = NULL;
+-	return nxt;
++	return __xchg(&req->link, NULL);
  }
  
- /**
-@@ -439,7 +437,7 @@ static inline void qed_chain_recycle_consumed(struct qed_chain *p_chain)
-  */
- static inline void *qed_chain_consume(struct qed_chain *p_chain)
+ static void ctx_flush_and_put(struct io_ring_ctx *ctx, bool *locked)
+diff --git a/io_uring/slist.h b/io_uring/slist.h
+index f27601fa46607b..d3a743a1adc626 100644
+--- a/io_uring/slist.h
++++ b/io_uring/slist.h
+@@ -2,6 +2,7 @@
+ #define INTERNAL_IO_SLIST_H
+ 
+ #include <linux/io_uring_types.h>
++#include <linux/non-atomic/xchg.h>
+ 
+ #define wq_list_for_each(pos, prv, head)			\
+ 	for (pos = (head)->first, prv = NULL; pos; prv = pos, pos = (pos)->next)
+@@ -121,10 +122,7 @@ static inline void wq_list_del(struct io_wq_work_list *list,
+ static inline
+ struct io_wq_work_node *wq_stack_extract(struct io_wq_work_node *stack)
  {
--	void *p_ret = NULL, *p_cons_idx, *p_cons_page_idx;
-+	void *p_cons_idx, *p_cons_page_idx;
- 
- 	if (is_chain_u16(p_chain)) {
- 		if ((p_chain->u.chain16.cons_idx &
-@@ -461,11 +459,8 @@ static inline void *qed_chain_consume(struct qed_chain *p_chain)
- 		p_chain->u.chain32.cons_idx++;
- 	}
- 
--	p_ret = p_chain->p_cons_elem;
--	p_chain->p_cons_elem = (void *)(((u8 *)p_chain->p_cons_elem) +
--					p_chain->elem_size);
+-	struct io_wq_work_node *node = stack->next;
 -
--	return p_ret;
-+	return __xchg(&p_chain->p_cons_elem,
-+		      (u8 *)p_chain->p_cons_elem + p_chain->elem_size);
+-	stack->next = node->next;
+-	return node;
++	return __xchg(&stack->next, stack->next->next);
  }
  
- /**
+ static inline struct io_wq_work *wq_next_work(struct io_wq_work *work)
 -- 
 2.34.1
 
