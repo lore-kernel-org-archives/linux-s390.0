@@ -2,188 +2,127 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A9F4C00A5A
-	for <linux-s390@archiver.kernel.org>; Thu, 19 Jan 2023 16:25:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C2588C004D4
+	for <linux-s390@archiver.kernel.org>; Thu, 19 Jan 2023 16:34:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230231AbjASQZW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 19 Jan 2023 11:25:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49494 "EHLO
+        id S229520AbjASQeV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 19 Jan 2023 11:34:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230180AbjASQZR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 19 Jan 2023 11:25:17 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 580CC8A729;
-        Thu, 19 Jan 2023 08:25:13 -0800 (PST)
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30JG735k024404;
-        Thu, 19 Jan 2023 16:25:08 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : from : subject : to : cc : references : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=M4DKj8thb84wReVOmS3Yb02SiqMfR9e4zAcHp2KNyOg=;
- b=tKSAH3v5UJn2qGp8Pm4g7b+fXunan1S+KcpUMsiEwbdkZKxtNT+mlCqoIMkTSnw/PVLC
- gtmXYTtqpksAkP2gKirDXoHfWBGGkyTF8EKK+xIP6V0L6COf1nxm17ZzZrrzLmVXXMSa
- PPFqczJz4lRRF7MEjycVhzwVCZF9LO+jqO1h3RQ0sAPoH5unLol1lMVboPvhaTw47LpE
- 9WJee2hlThN1HFWCamBGs5F96HxTmpRghrpV5qY31fGy2xQsFnCMJNQBMk3cCrmZvGSS
- ILp5MQPgJCDoYQ2dcZIflkXzUoX08cb8fzoA5UQrZbsPFB92IcAL+b5PU9czrwtMGGBx pg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n77evbqkr-1
+        with ESMTP id S229630AbjASQeT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 19 Jan 2023 11:34:19 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06C0E273E;
+        Thu, 19 Jan 2023 08:34:01 -0800 (PST)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30JG75kV030492;
+        Thu, 19 Jan 2023 16:33:50 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=gpBeZaKJVwURhx4wdQwWJGpYDQ3EKm5zWBTAAcoaczw=;
+ b=XikSSdojukO+2TdXfcwv1yaBtAeTpzcl+zOPnyDG6vuOCQUtm9uGx4dFTA/vERPZrOD/
+ Ie02vmMg8/Z2SUhxvE2YVWuV2qR8RNr/yssLeXa/TxONZdODCz+OJXQX0kIJv7atz49T
+ PgwNLP9U3z8gE01T0L/YipW0klLqlyX6NLWzjGEwOyr63NoAqLSme+nPH7/3cWhFDuTF
+ rKlfOqlAzLTxKkGu26V4+I4NtZl9SJf7hS+YCRFvDqoznR5d7U2wENhoEXkUNcBkALy2
+ vVfYOSxHqHL+cs9Oq1A2L2oweziyRcpMEXDjlLP0dwKvZgwb2cbIMHe3k5MvpgtoheBS Ig== 
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3n78rwsf03-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 19 Jan 2023 16:25:08 +0000
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 30JG7jxc029126;
-        Thu, 19 Jan 2023 16:25:08 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n77evbqjq-1
+        Thu, 19 Jan 2023 16:33:50 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30J0KLfg025743;
+        Thu, 19 Jan 2023 16:33:48 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma01fra.de.ibm.com (PPS) with ESMTPS id 3n3m16d2f2-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 19 Jan 2023 16:25:07 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30J5WauG004659;
-        Thu, 19 Jan 2023 16:25:06 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3n3m16pwhu-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 19 Jan 2023 16:25:05 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30JGP1qI48628192
+        Thu, 19 Jan 2023 16:33:48 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30JGXi3K42467652
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 19 Jan 2023 16:25:01 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A02652004D;
-        Thu, 19 Jan 2023 16:25:01 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5A64520043;
-        Thu, 19 Jan 2023 16:25:01 +0000 (GMT)
-Received: from [9.152.224.247] (unknown [9.152.224.247])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Thu, 19 Jan 2023 16:25:01 +0000 (GMT)
-Message-ID: <2ff23fc7-c393-46b8-e358-31a39ed2c56b@linux.ibm.com>
-Date:   Thu, 19 Jan 2023 17:25:01 +0100
+        Thu, 19 Jan 2023 16:33:44 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BAF872004D;
+        Thu, 19 Jan 2023 16:33:44 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 81E6620040;
+        Thu, 19 Jan 2023 16:33:43 +0000 (GMT)
+Received: from [9.171.48.94] (unknown [9.171.48.94])
+        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Thu, 19 Jan 2023 16:33:43 +0000 (GMT)
+Message-ID: <69047c319c6cb2afd7331daeb7fc8459fdd34f80.camel@linux.ibm.com>
+Subject: Re: [PATCH v4 4/7] s390/pci: Use dma-iommu layer
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Matthew Rosato <mjrosato@linux.ibm.com>,
+        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>
+Cc:     Gerd Bayer <gbayer@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>, iommu@lists.linux.dev,
+        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, linux-kernel@vger.kernel.org,
+        Julian Ruess <julianr@linux.ibm.com>
+Date:   Thu, 19 Jan 2023 17:33:43 +0100
+In-Reply-To: <71b9e85d-960f-7403-0113-135746127f3b@linux.ibm.com>
+References: <20230104120543.308933-1-schnelle@linux.ibm.com>
+         <20230104120543.308933-5-schnelle@linux.ibm.com>
+         <71b9e85d-960f-7403-0113-135746127f3b@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.46.3 (3.46.3-1.fc37) 
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.6.1
-From:   Alexandra Winter <wintera@linux.ibm.com>
-Subject: Re: [RFC PATCH net-next v2 1/5] net/smc: introduce SMC-D loopback
- device
-To:     Wen Gu <guwen@linux.alibaba.com>, kgraul@linux.ibm.com,
-        wenjia@linux.ibm.com, jaka@linux.ibm.com, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <1671506505-104676-1-git-send-email-guwen@linux.alibaba.com>
- <1671506505-104676-2-git-send-email-guwen@linux.alibaba.com>
-Content-Language: en-US
-In-Reply-To: <1671506505-104676-2-git-send-email-guwen@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Nk29d41S6xM5fND4GPh4PMU0Kvkbd5L2
-X-Proofpoint-ORIG-GUID: b87XHW8Kc8DGT3hAzS22DmiO4c6m2TnP
+X-Proofpoint-GUID: YZOWeBdINlbx0f3T2Q9RjIaVgPDSFmo7
+X-Proofpoint-ORIG-GUID: YZOWeBdINlbx0f3T2Q9RjIaVgPDSFmo7
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
  definitions=2023-01-19_09,2023-01-19_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 adultscore=0
- mlxscore=0 bulkscore=0 mlxlogscore=999 spamscore=0 impostorscore=0
- suspectscore=0 malwarescore=0 lowpriorityscore=0 priorityscore=1501
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2301190130
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
+ phishscore=0 malwarescore=0 spamscore=0 impostorscore=0 bulkscore=0
+ adultscore=0 lowpriorityscore=0 suspectscore=0 clxscore=1015
+ mlxlogscore=726 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2301190134
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Tue, 2023-01-17 at 10:09 -0500, Matthew Rosato wrote:
+> On 1/4/23 7:05 AM, Niklas Schnelle wrote:
+> > While s390 already has a standard IOMMU driver and previous changes hav=
+e
+> > added I/O TLB flushing operations this driver is currently only used fo=
+r
+> > user-space PCI access such as vfio-pci. For the DMA API s390 instead
+> > utilizes its own implementation in arch/s390/pci/pci_dma.c which drives
+> > the same hardware and shares some code but requires a complex and
+> > fragile hand over between DMA API and IOMMU API use of a device and
+> > despite code sharing still leads to significant duplication and
+> > maintenance effort. Let's utilize the common code DMAP API
+> > implementation from drivers/iommu/dma-iommu.c instead allowing us to
+> > get rid of arch/s390/pci/pci_dma.c.
+> >=20
+> > Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> > diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+> > index ef38b1514c77..6b0fe8761509 100644
+> > --- a/arch/s390/pci/pci.c
+> > +++ b/arch/s390/pci/pci.c
+> > @@ -124,7 +124,11 @@ int zpci_register_ioat(struct zpci_dev *zdev, u8 d=
+maas,
+> > =20
+> >  	WARN_ON_ONCE(iota & 0x3fff);
+> >  	fib.pba =3D base;
+> > -	fib.pal =3D limit;
+> > +	/* Work around off by one in ISM virt device */
+> > +	if (zdev->pft =3D=3D 0x5 && limit > base)
+>=20
+> Nit: maybe a named #define for the ISM pft rather than hard-coding 0x5 he=
+re
+>=20
 
-
-On 20.12.22 04:21, Wen Gu wrote:
-> This patch introduces a kind of loopback device for SMC-D, thus
-> enabling the SMC communication between two local sockets in one
-> kernel.
-> 
-> The loopback device supports basic capabilities defined by SMC-D,
-> including registering DMB, unregistering DMB and moving data.
-> 
-> Considering that there is no ism device on other servers expect
-> IBM z13, 
-
-Please use the wording 'on other architectures except s390'.
-That is how IBM Z is referred to in the Linux kernel.
-
-
-> the loopback device can be used as a dummy device to
-> test SMC-D logic for the broad community.
-> 
-> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
-> ---
-
-Hello Wen Gu,
-
-as the general design discussions are ongoing, I didn't
-do a thorough review. But here are some general remarks
-that you may want to consider for future versions.
-
-I would propose to add a module parameter (default off) to enable
-SMC-D loopback.
-
->  include/net/smc.h      |   1 +
->  net/smc/Makefile       |   2 +-
->  net/smc/af_smc.c       |  12 ++-
->  net/smc/smc_cdc.c      |   6 ++
->  net/smc/smc_cdc.h      |   1 +
->  net/smc/smc_loopback.c | 282 +++++++++++++++++++++++++++++++++++++++++++++++++
->  net/smc/smc_loopback.h |  59 +++++++++++
->  7 files changed, 361 insertions(+), 2 deletions(-)
->  create mode 100644 net/smc/smc_loopback.c
->  create mode 100644 net/smc/smc_loopback.h
-> 
-
-I am not convinced that this warrants a separate file.
-
-[...]
->
-> +}
-> +
-> +static int lo_add_vlan_id(struct smcd_dev *smcd, u64 vlan_id)
-> +{
-> +	return 0;
-> +}
-> +
-> +static int lo_del_vlan_id(struct smcd_dev *smcd, u64 vlan_id)
-> +{
-> +	return 0;
-> +}
-> +
-> +static int lo_set_vlan_required(struct smcd_dev *smcd)
-> +{
-> +	return 0;
-> +}
-> +
-> +static int lo_reset_vlan_required(struct smcd_dev *smcd)
-> +{
-> +	return 0;
-> +}
-
-The VLAN functions are only required for SMC-Dv1
-Seems you want to provide v1 support for loopback?
-May be nice for testing v1 VLAN support.
-But then you need proper VLAN support.
-
-[...]
-> +
-> +static u8 *lo_get_system_eid(void)
-> +{
-> +	return &LO_SYSTEM_EID.seid_string[0];
-> +}
-SEID is for the whole system not per device.
-We probably need to register a different function
-for each architecture.
-
-> +
-> +static u16 lo_get_chid(struct smcd_dev *smcd)
-> +{
-> +	return 0;
-> +}
-> +
-
-Shouldn't this return 0xFFFF in your current concept?
-
-
-
+Hmm, I agree in principle but not sure where to put this #define. Maybe
+also important to mention that the off-by-one has actually been fixed
+in current firmware but of course we still have to support broken
+devices and the workaround still works with fixed ISM.
