@@ -2,116 +2,182 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AACC7C004D4
-	for <linux-s390@archiver.kernel.org>; Thu, 19 Jan 2023 22:17:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2D99C46467
+	for <linux-s390@archiver.kernel.org>; Fri, 20 Jan 2023 04:32:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229954AbjASWRE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 19 Jan 2023 17:17:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51002 "EHLO
+        id S230122AbjATEcz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 19 Jan 2023 23:32:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229446AbjASWQZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 19 Jan 2023 17:16:25 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53D30A95AA;
-        Thu, 19 Jan 2023 13:57:13 -0800 (PST)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30JLlbHM030199;
-        Thu, 19 Jan 2023 21:56:57 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=uEw62BCO1kAE3MnqsTANbbpQMbTsLDdWyYH4p4E1DCA=;
- b=JeBeAbeePVqEpUQNApMZ8YIYEPuLwCZ2G/HwUA0cmJLkPk7ui0A5vQFQYJEVqdVbML5U
- e91pt5oFbU7tm1Nh7A8SxsxN045+sZTvEQ5k8ODQuVBWfdMnWWEOx2plljcn1hE/uFx1
- 3c3qdPwGLHTfGV+Xj1XOZLv9pGhrORCY0KStHgA+e6dM1txf3fJgNK7v77HTGl6GazGJ
- vDcd9/OoOTa4KBu/a3iDR5icyiDw5I5jPYFd9BbKlvc9N3qsIOsgjCHSEzgOptqfLcJ/
- HoXfR0nLDnjtgu6JzBG5EYU4milBxTfxfY0/ItTN9LsByz11xbMq6hTzsAZfSsNbZ4cY 7Q== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n7e3d866k-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 19 Jan 2023 21:56:56 +0000
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 30JLuu21027289;
-        Thu, 19 Jan 2023 21:56:56 GMT
-Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n7e3d8667-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 19 Jan 2023 21:56:56 +0000
-Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
-        by ppma04dal.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30JJkuri025991;
-        Thu, 19 Jan 2023 21:56:54 GMT
-Received: from smtprelay05.wdc07v.mail.ibm.com ([9.208.129.117])
-        by ppma04dal.us.ibm.com (PPS) with ESMTPS id 3n3m18897y-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 19 Jan 2023 21:56:54 +0000
-Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
-        by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30JLuqn966453836
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 19 Jan 2023 21:56:52 GMT
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 66B7458059;
-        Thu, 19 Jan 2023 21:56:52 +0000 (GMT)
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9964F5805B;
-        Thu, 19 Jan 2023 21:56:49 +0000 (GMT)
-Received: from [9.160.87.67] (unknown [9.160.87.67])
-        by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Thu, 19 Jan 2023 21:56:49 +0000 (GMT)
-Message-ID: <1c7a7395-dabf-ddbf-00eb-9e7e44910750@linux.ibm.com>
-Date:   Thu, 19 Jan 2023 16:56:49 -0500
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.0
-Subject: Re: [PATCH v2 10/10] iommu/s390: Use GFP_KERNEL in sleepable contexts
-Content-Language: en-US
+        with ESMTP id S230047AbjATEch (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 19 Jan 2023 23:32:37 -0500
+Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5A9AB4E2A;
+        Thu, 19 Jan 2023 20:32:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1674189131; x=1705725131;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=/mkIt2vhwfN2VSKn9ms6FSvLYMlJwY4GFbr58qPL7XM=;
+  b=Tu6dVTnd7mURFOHzcrGJio3/BbFV9s4i1huRTeZ9+PkgrPXvW2V4sYJa
+   2SBfd0JxV0MV90mTFfdYHDspTyNeoZ7V6FArCuCu2S3tX7gty/uSUDT6C
+   kIBPBEsLQD+on/UCN0cAjt8ur2N8/lPF7yREOKGDiqsMA01Xkuwiqf8I1
+   7Ez2da51qg8eSaEns5su5pkXkaSXgveetUPLEkWrTz+ITL9uHHfrVo4n+
+   XlIZXFkrTWaSoUy0psfATNHLTFbG6zjPp0Z8eeOp3cFThXzzR2xxxyqcc
+   5Q9gD91GE72ynAGpgAHLRCcAwhTfGAvZ2D3l90qKAKnoeQi9gm9HqEdiP
+   A==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10594"; a="411423945"
+X-IronPort-AV: E=Sophos;i="5.97,226,1669104000"; 
+   d="scan'208";a="411423945"
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jan 2023 19:49:30 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10594"; a="768029390"
+X-IronPort-AV: E=Sophos;i="5.97,226,1669104000"; 
+   d="scan'208";a="768029390"
+Received: from orsmsx603.amr.corp.intel.com ([10.22.229.16])
+  by fmsmga002.fm.intel.com with ESMTP; 18 Jan 2023 19:49:29 -0800
+Received: from orsmsx611.amr.corp.intel.com (10.22.229.24) by
+ ORSMSX603.amr.corp.intel.com (10.22.229.16) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.16; Wed, 18 Jan 2023 19:49:29 -0800
+Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
+ ORSMSX611.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.16; Wed, 18 Jan 2023 19:49:28 -0800
+Received: from orsedg603.ED.cps.intel.com (10.7.248.4) by
+ orsmsx610.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.16 via Frontend Transport; Wed, 18 Jan 2023 19:49:28 -0800
+Received: from NAM10-BN7-obe.outbound.protection.outlook.com (104.47.70.106)
+ by edgegateway.intel.com (134.134.137.100) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.16; Wed, 18 Jan 2023 19:49:26 -0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=k0dlYIM+PFqjnCPATj440PmpSByf0bLppm9lu66U561KXHkga9f9t1F7RZ1BzBfghlH5F73WS/HpNbrDmzdmSYwToGJlbyfn1vAs7jmc+BBogiGMjn8wo2cn49Cd0sos0hiYbeMUXvB5g6MbK13ciruB1BoQrlZGaIaydNUUo9extVmTpAIlqZXWjRyg2zpkHWDuXUcsgArWGBOQWvQ0r6Z++/5/PcJ2mImIc47QxBLwvfHAqABc0IHNs6tRmCpM3OcW/sn+bygXy3YuQ0nwd6hu4a5KZ42HO+ShvPrKOMTemghT7fsZJF6hR1Uri7T8NaN3TAc6gJ/7Lat42FZRRg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=/mkIt2vhwfN2VSKn9ms6FSvLYMlJwY4GFbr58qPL7XM=;
+ b=geE9Ht+rSsw6IK3jOWgbQ94+Hi8ExdaVpw18K1Mi/+uNR6Qx3rWO4YtGc3HujVJswMCN4XMI2/2yj05rUrtBcJGzCZHcu5a/mX+W+CqzOJ45ulCVAKvoqiM1AQqNy0Z3kwC/jWLdji/50c/npGQ30HeSmy8MDyL41DGLZT0s1CUuljktuCIYlu3aHLBXV5fFXB82uMUIFOo5Tv3yPmhTFZ8YqGO4LTaoSAFzKL8A9okc2fkRPFoHia66yTzp/CkvRPMgUybNyk34uLsfFVnMtMd1p3ybzIJSmCC/NqHmWEEG5vvh71q/brvteXi1z6YRz9YJZq2qMyu4JODgz5Mcag==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from BN9PR11MB5276.namprd11.prod.outlook.com (2603:10b6:408:135::18)
+ by SN7PR11MB6948.namprd11.prod.outlook.com (2603:10b6:806:2ab::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6002.13; Thu, 19 Jan
+ 2023 03:49:17 +0000
+Received: from BN9PR11MB5276.namprd11.prod.outlook.com
+ ([fe80::6a8d:b95:e1b5:d79d]) by BN9PR11MB5276.namprd11.prod.outlook.com
+ ([fe80::6a8d:b95:e1b5:d79d%9]) with mapi id 15.20.6002.025; Thu, 19 Jan 2023
+ 03:49:17 +0000
+From:   "Tian, Kevin" <kevin.tian@intel.com>
 To:     Jason Gunthorpe <jgg@nvidia.com>,
         Lu Baolu <baolu.lu@linux.intel.com>,
         Joerg Roedel <joro@8bytes.org>,
-        Kevin Tian <kevin.tian@intel.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
         Robin Murphy <robin.murphy@arm.com>
-Cc:     Alex Williamson <alex.williamson@redhat.com>,
-        ath10k@lists.infradead.org, ath11k@lists.infradead.org,
+CC:     Alex Williamson <alex.williamson@redhat.com>,
+        "ath10k@lists.infradead.org" <ath10k@lists.infradead.org>,
+        "ath11k@lists.infradead.org" <ath11k@lists.infradead.org>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        dri-devel@lists.freedesktop.org, iommu@lists.linux.dev,
-        kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-media@vger.kernel.org,
-        linux-rdma@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-        linux-s390@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-tegra@vger.kernel.org, linux-wireless@vger.kernel.org,
-        netdev@vger.kernel.org, nouveau@lists.freedesktop.org,
+        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
+        "iommu@lists.linux.dev" <iommu@lists.linux.dev>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>,
+        "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>,
+        "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
+        "linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "linux-stm32@st-md-mailman.stormreply.com" 
+        <linux-stm32@st-md-mailman.stormreply.com>,
+        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
+        "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "nouveau@lists.freedesktop.org" <nouveau@lists.freedesktop.org>,
         Niklas Schnelle <schnelle@linux.ibm.com>,
-        virtualization@lists.linux-foundation.org
-References: <10-v2-ce66f632bd0d+484-iommu_map_gfp_jgg@nvidia.com>
-From:   Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <10-v2-ce66f632bd0d+484-iommu_map_gfp_jgg@nvidia.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: u9tb2Epyw4L_fk2u2w9vs35Q310gGVQW
-X-Proofpoint-ORIG-GUID: CtIEVTzNTPEu57hDSdzSORw4_xg43p3H
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
- definitions=2023-01-19_14,2023-01-19_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- mlxlogscore=773 clxscore=1015 impostorscore=0 mlxscore=0 malwarescore=0
- spamscore=0 priorityscore=1501 lowpriorityscore=0 adultscore=0 bulkscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2301190181
+        "virtualization@lists.linux-foundation.org" 
+        <virtualization@lists.linux-foundation.org>
+Subject: RE: [PATCH v2 06/10] iommu/intel: Add a gfp parameter to
+ alloc_pgtable_page()
+Thread-Topic: [PATCH v2 06/10] iommu/intel: Add a gfp parameter to
+ alloc_pgtable_page()
+Thread-Index: AQHZK2brx6V0vKPMHE+RijLSopzesK6lGx3g
+Date:   Thu, 19 Jan 2023 03:49:17 +0000
+Message-ID: <BN9PR11MB527606E038CE8506ECAFBBCC8CC49@BN9PR11MB5276.namprd11.prod.outlook.com>
+References: <0-v2-ce66f632bd0d+484-iommu_map_gfp_jgg@nvidia.com>
+ <6-v2-ce66f632bd0d+484-iommu_map_gfp_jgg@nvidia.com>
+In-Reply-To: <6-v2-ce66f632bd0d+484-iommu_map_gfp_jgg@nvidia.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: BN9PR11MB5276:EE_|SN7PR11MB6948:EE_
+x-ms-office365-filtering-correlation-id: 45bd557c-0391-435d-a9d5-08daf9d023eb
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: xFB6PO+K8J7PggDYZfQG/clJcBeoTc4ltBNvGk+wkIpluaNkq1AuGvWR1gXiOQ1CGNtSRCG3Zc94c9Dx50/beJyQtCTFFcrac0W5CF0O1Q7Gb0oG2MH4vEFDIRJoWTD+O65uiPY0rF5ZOGwYZKpT/I53k/x/QwaAycVw/MJGuKv54lLN6EbuF9Ki2xvDiJhLhjQhzStQyYwdTYC5Mp44G2SrEu8Ug0PNH/64T1XTMZDwzhOzUU+crWs3vAYthRHSJrv7XJY2LF10hrgOzHYfbEZILjMRwAguVyxfMJ1lHvlXSmFAYP7T344ScPCCB7sTMsMibUkXpLKiltbivypW1fNi8s1gyoQqqdMTb+0MsQ8/4ihdtWPK+xiAj4GNFahiMUcZwfJpflsLyeoihVb1v6BqPVHmXv5LM1A4OdGSrmNup+V7mRRAzf0ed7j//nM6PKgxc7lzjMR5I4zp1rzq1NGXZHZ06FBSZYz40UErGmBotlHf8TilAYpC9uQhmNDqJ0cpAeaEa38gPaMSJzgVRFsOxm1RpnluNw6bogiW+oplyZjFBWScRYpMOVH7fUG0A42VjD8OlkBZ0QLEr758Xd3u5x9gX2z0q8XQCQd2nb6159oBfUrryRsMQQpaa/QbnyXFLG/ParnbcUpYTU7E4K2OZAM/9IjKJBCLW8LYwWlLEC+JcwfGiRPXt5Z2N1FIIcqrnL5vlNnhRfupT+X/cA==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR11MB5276.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(39860400002)(396003)(376002)(346002)(366004)(136003)(451199015)(6506007)(26005)(186003)(9686003)(7696005)(122000001)(71200400001)(33656002)(478600001)(54906003)(316002)(110136005)(76116006)(66946007)(66556008)(64756008)(66446008)(8676002)(4326008)(66476007)(41300700001)(8936002)(52536014)(55016003)(7416002)(2906002)(5660300002)(38070700005)(38100700002)(82960400001)(86362001)(558084003);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?3VaevaxyBhAdtXbT518zU2u+cx50zUvid7/xTrcq+K1PjtwygGxHz2JAVjNs?=
+ =?us-ascii?Q?amu08L93MDaOqSMJaAaf2+rf1OOSfHTjoptlVgR8rpHF5JM6Fl4GRAm+AEeF?=
+ =?us-ascii?Q?wbNwjj8vpGeXvizGBVxfXIqxlZgTa8dQaONknvYNCPP3zOB9VEb5mo8APGQk?=
+ =?us-ascii?Q?EmQoIsz8YgtWdbD0dnE0jQKAqRIKjMw3lenHavOkPcU1hMmIBpH8IYftm8eJ?=
+ =?us-ascii?Q?KNYjkmPaS1xqZlVAO9TrXUWoesvxe77HKtSk1JHB89bD3UM75ErixNdxSE2m?=
+ =?us-ascii?Q?UaZI6Sh1yNusb2TfgW+/Ra8qlxmBqoTK/sz8XOYZhaTo1PEfd4aBOOvQWLp5?=
+ =?us-ascii?Q?x7a8GVM/1a9hWiQkddtORZ8+zfp4/j5KtIKjWzXQu86s+uOBdIK6Vb4umA8p?=
+ =?us-ascii?Q?GWscKtunImsheQAEyM8sqo9LJqpRgIklOH8ZxHGIdcKguld1YRmNltS/crN/?=
+ =?us-ascii?Q?LJgOtwqmtlGt9wKf21JjGSqkHA6IYBMB9CAwKo/NEe7EkTDn9DT6NJDR4xm1?=
+ =?us-ascii?Q?7UKuFnywQg9m7zYBpyzi9C45HFrtC3/+47NX7/Lmw1WLpImzg/hOKM863YMU?=
+ =?us-ascii?Q?D3GumuTYCpaTC9zO8pU5I0+vV0oyu+0Mb0T9DWl0Kj++zOSj2XriBUxMIxk2?=
+ =?us-ascii?Q?JppS4mU07yBIZg7ywbw+Qw7g30DX+UvETK5C5aiuomekRPh3mEn+pmWY8Ezo?=
+ =?us-ascii?Q?VqPUtHqYeahLzTeDoL89QZnXDrj1j0jghdWUIYUV/5FdCn3Us/1k6xWh2m8J?=
+ =?us-ascii?Q?lUb82jUPMMBj4v9D8p62JyHwKyJ9mgrJqThN+kpYtVNDece4AjA1XAjqgo1k?=
+ =?us-ascii?Q?I+KDyW97zmniOhgU0sLFHuMW6EXahBjLbP2vGXycR6PscdbsyzDJLK20MNW0?=
+ =?us-ascii?Q?ZuBBp6VVdnrri/Ragbk1JF91XDTknNaterCQveWr/hAh+Zf/SIJgWuRiAKtW?=
+ =?us-ascii?Q?1Pe4xuVPGFyYdJQeAjczKQ1blmzBwBh2sRMNmTAWaTx8a8A15rvPsa0RdkrD?=
+ =?us-ascii?Q?CATRma0JlCNlBF323uPPcArMV2AdVaZ3ZbGF6OLVVO0IBrzuz4ea6pXSy65C?=
+ =?us-ascii?Q?YFrXHClCVzZhyhUtU18DkoR8QLsCNhY2HFPUm/Eqm7I1NPS5M2inENCW413D?=
+ =?us-ascii?Q?+SGCY0i6Akxn2m2rsV0aLIEEijppmafbFGv5JqQ7d0Cm/UJySYC9Kb3GkxTf?=
+ =?us-ascii?Q?mHraGJvTnDZcVJ+UcF1qAimVpCTjoZnn4x7k3V8ISuKt0POvdDdFV3siWc/u?=
+ =?us-ascii?Q?nuDzFpnbV+QKc7zOnhG/kiBNkmwohj/kX8q+a03zcQRbJ53AQuXzpvpsz8/d?=
+ =?us-ascii?Q?eE9qWpVGDxYfu0CcKlRSVlOWL+Z9mGoqnm/e4ayIvRp3ircfLHwz2Ob5/Ej8?=
+ =?us-ascii?Q?1gllnr9RXH/rHCRjI7JuYdqsmPKq0BKUiqdwGY8VgiwhB/wfVzzcHvEWtm8b?=
+ =?us-ascii?Q?S1RqJi1DzRxHLPFbpMUCQgUwzLQbZhT38RAVd7pNhi0hVsGKmrQI6vsV0Kqe?=
+ =?us-ascii?Q?fN4bvaBgwAWKsNCQbhHEEF2qGqDQlC4oecdNVIhsqSPr+opMCqAzKPNNCw6v?=
+ =?us-ascii?Q?vIU9MZbFQJmptgIL6NmXC/Si/zMHv359VNfyPa1H?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BN9PR11MB5276.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 45bd557c-0391-435d-a9d5-08daf9d023eb
+X-MS-Exchange-CrossTenant-originalarrivaltime: 19 Jan 2023 03:49:17.6882
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: TJTGXoGGGuu5g2cJ/fJZE8gD4ZGfPfOJ1Hop2o8R1UJK8ZaCjBuk4slC4mtymIITrtFQkIAY3GZFEFR6EsBekg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR11MB6948
+X-OriginatorOrg: intel.com
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 1/18/23 1:00 PM, Jason Gunthorpe wrote:
-> These contexts are sleepable, so use the proper annotation. The GFP_ATOMIC
-> was added mechanically in the prior patches.
-> 
-> Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> From: Jason Gunthorpe <jgg@nvidia.com>
+> Sent: Thursday, January 19, 2023 2:01 AM
+>=20
+> This is eventually called by iommufd through intel_iommu_map_pages() and
+> it should not be forced to atomic. Push the GFP_ATOMIC to all callers.
+>=20
 > Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> ---
->  arch/s390/pci/pci_dma.c    | 2 +-
->  drivers/iommu/s390-iommu.c | 2 +-
->  2 files changed, 2 insertions(+), 2 deletions(-)
 
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-
+Reviewed-by: Kevin Tian <kevin.tian@intel.com>
