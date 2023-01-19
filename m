@@ -2,83 +2,135 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C359DC004D4
-	for <linux-s390@archiver.kernel.org>; Thu, 19 Jan 2023 12:01:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EAD20C00A5A
+	for <linux-s390@archiver.kernel.org>; Thu, 19 Jan 2023 12:17:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231214AbjASMBm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 19 Jan 2023 07:01:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35776 "EHLO
+        id S230286AbjASMRA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 19 Jan 2023 07:17:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231258AbjASMA7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 19 Jan 2023 07:00:59 -0500
-Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 560214B76A;
-        Thu, 19 Jan 2023 04:00:53 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1674129653; x=1705665653;
-  h=message-id:date:mime-version:cc:subject:to:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=a0VAKNGfVX7Xb0tncsnGiNJiQB7rZGtxb86sJ68DmJ0=;
-  b=eMBmSPsEDMKrHL99mV9lC4DRORcUPu9bVTFjOEtupFxiWvzdgWQNHTbN
-   /3bEBEfSk7hN2e+1yCxjgnvFK06PbsBGWwzUGBEuzZo+NWwWNaZrYc9qX
-   y5Pod1jLOrz+TojLlBGy+nbc5mZ+upy0M0t4b9zjRMhn0peExivLGmPpd
-   v0JZsiBGnLWViB8UM138SPLlwdUg+mMbQiEBb50549RZY/9hi0w7Fgg4i
-   80W/FIXl2soo6mK6VV582uC/b2G4nLyW4P3C2MCBmD7TTmEnM2wIXFE3y
-   S/ZVdcdKaY1XVXBKohlhyy8vi+x/ROmH+XuSYlFX8Mc5F98XOYn2+oKYN
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10594"; a="305638202"
-X-IronPort-AV: E=Sophos;i="5.97,229,1669104000"; 
-   d="scan'208";a="305638202"
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Jan 2023 04:00:52 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10594"; a="692393552"
-X-IronPort-AV: E=Sophos;i="5.97,229,1669104000"; 
-   d="scan'208";a="692393552"
-Received: from blu2-mobl.ccr.corp.intel.com (HELO [10.252.185.248]) ([10.252.185.248])
-  by orsmga001-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Jan 2023 04:00:46 -0800
-Message-ID: <4f93e58d-2406-6b29-d546-02f90c4815b8@linux.intel.com>
-Date:   Thu, 19 Jan 2023 20:00:44 +0800
+        with ESMTP id S230135AbjASMQ7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 19 Jan 2023 07:16:59 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BCCE59251;
+        Thu, 19 Jan 2023 04:16:58 -0800 (PST)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30JAwEji029001;
+        Thu, 19 Jan 2023 12:16:57 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : content-type : mime-version; s=pp1;
+ bh=PYZGuaygt/CPh3pQjhkjxwSbTblfgOF5OMo2vG0rxcs=;
+ b=is/RLvjtrZdhP9cbtYWgMaa+X7QbwUU6nVvqqdrnO4lZixWByPiHCaJ6nUT/VvyfSMME
+ gtCPfH6p64Nn5nNOAVvGU6t6g3dYfL8IxOlZ0u05A03MrWH2BvF6sGThEivHc+Dup9Hq
+ KWr32v4mkWnCUoD5ypwlwrMiJJvoDlbo74YoIx0V8sR1QH9Kz94eEonkJHSlcOJ2j/ik
+ Y+XHpV9CdtanSGL4hhqnjr/1VNBjgv9DH+CDYqIWEM4mNxNDu+OmxJrOeE8zmGuHHAbm
+ Khh0Wt/5/H0axOQCUYUr/dK2NhEKiHBCoK2UoY0VZppfaRcWIeie8U4Z+1g65+/A1jI/ XA== 
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n717yeeqt-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 19 Jan 2023 12:16:57 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30J5Wac2004659;
+        Thu, 19 Jan 2023 12:16:54 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3n3m16pn6j-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 19 Jan 2023 12:16:54 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30JCGp3j50659748
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 19 Jan 2023 12:16:51 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F05442004E;
+        Thu, 19 Jan 2023 12:16:50 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DE02B2004B;
+        Thu, 19 Jan 2023 12:16:50 +0000 (GMT)
+Received: from osiris (unknown [9.152.212.250])
+        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Thu, 19 Jan 2023 12:16:50 +0000 (GMT)
+Date:   Thu, 19 Jan 2023 13:16:49 +0100
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [GIT PULL] s390 compile fix for 6.2-rc5
+Message-ID: <Y8k0sZthY7L7rINA@osiris>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: KDFSRfHD3Rf_Hv7X5YImoyPdk8VpWSFo
+X-Proofpoint-GUID: KDFSRfHD3Rf_Hv7X5YImoyPdk8VpWSFo
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.1
-Cc:     baolu.lu@linux.intel.com,
-        Alex Williamson <alex.williamson@redhat.com>,
-        ath10k@lists.infradead.org, ath11k@lists.infradead.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        dri-devel@lists.freedesktop.org, iommu@lists.linux.dev,
-        kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-media@vger.kernel.org,
-        linux-rdma@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-        linux-s390@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-tegra@vger.kernel.org, linux-wireless@vger.kernel.org,
-        netdev@vger.kernel.org, nouveau@lists.freedesktop.org,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH v2 08/10] iommu/intel: Use GFP_KERNEL in sleepable
- contexts
-Content-Language: en-US
-To:     Jason Gunthorpe <jgg@nvidia.com>, Joerg Roedel <joro@8bytes.org>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Robin Murphy <robin.murphy@arm.com>
-References: <8-v2-ce66f632bd0d+484-iommu_map_gfp_jgg@nvidia.com>
-From:   Baolu Lu <baolu.lu@linux.intel.com>
-In-Reply-To: <8-v2-ce66f632bd0d+484-iommu_map_gfp_jgg@nvidia.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
+ definitions=2023-01-19_09,2023-01-19_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
+ impostorscore=0 mlxscore=0 clxscore=1015 priorityscore=1501 spamscore=0
+ adultscore=0 malwarescore=0 lowpriorityscore=0 bulkscore=0 suspectscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2301190095
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2023/1/19 2:00, Jason Gunthorpe wrote:
-> These contexts are sleepable, so use the proper annotation. The GFP_ATOMIC
-> was added mechanically in the prior patches.
-> 
-> Signed-off-by: Jason Gunthorpe<jgg@nvidia.com>
+Hello Linus,
 
-Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
+please pull a single compile fix for 6.2-rc5.
 
-Best regards,
-baolu
+Thanks,
+Heiko
+
+The following changes since commit 1ecf7bd9c267ab85aff3c4a17fe56bc9754a13be:
+
+  s390: update defconfigs (2023-01-11 21:26:40 +0100)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.2-3
+
+for you to fetch changes up to 41e1992665a2701fa025a8b76970c43b4148446f:
+
+  s390: workaround invalid gcc-11 out of bounds read warning (2023-01-17 19:00:59 +0100)
+
+----------------------------------------------------------------
+s390 compile fix for 6.2-rc5
+
+- Workaround invalid gcc-11 out of bounds read warning caused by s390's
+  S390_lowcore definition. This happens only with gcc 11.1.0 and 11.2.0.
+  The code which causes this warning will be gone with the next merge
+  window. Therefore just replace the memcpy() with a for loop to get rid of
+  the warning.
+
+----------------------------------------------------------------
+Heiko Carstens (1):
+      s390: workaround invalid gcc-11 out of bounds read warning
+
+ arch/s390/kernel/setup.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+index 2b6091349daa..696c9e007a36 100644
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -508,6 +508,7 @@ static void __init setup_lowcore_dat_on(void)
+ {
+ 	struct lowcore *abs_lc;
+ 	unsigned long flags;
++	int i;
+ 
+ 	__ctl_clear_bit(0, 28);
+ 	S390_lowcore.external_new_psw.mask |= PSW_MASK_DAT;
+@@ -523,8 +524,8 @@ static void __init setup_lowcore_dat_on(void)
+ 	abs_lc = get_abs_lowcore(&flags);
+ 	abs_lc->restart_flags = RESTART_FLAG_CTLREGS;
+ 	abs_lc->program_new_psw = S390_lowcore.program_new_psw;
+-	memcpy(abs_lc->cregs_save_area, S390_lowcore.cregs_save_area,
+-	       sizeof(abs_lc->cregs_save_area));
++	for (i = 0; i < 16; i++)
++		abs_lc->cregs_save_area[i] = S390_lowcore.cregs_save_area[i];
+ 	put_abs_lowcore(abs_lc, flags);
+ }
+ 
