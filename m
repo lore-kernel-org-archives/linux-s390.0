@@ -2,188 +2,121 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 48E46C004D4
-	for <linux-s390@archiver.kernel.org>; Thu, 19 Jan 2023 19:07:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D2FAC678D4
+	for <linux-s390@archiver.kernel.org>; Thu, 19 Jan 2023 22:17:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230093AbjASTHa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 19 Jan 2023 14:07:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48780 "EHLO
+        id S230166AbjASWQ5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 19 Jan 2023 17:16:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230022AbjASTGt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 19 Jan 2023 14:06:49 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51C4A9B11F
-        for <linux-s390@vger.kernel.org>; Thu, 19 Jan 2023 11:05:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1674155118;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=qxwOPOgGhsGm2CilOB8QktAtozAzPUo8tE7EUr+QkN4=;
-        b=Kvw8gAoL+efqv7kwtJtND4o7yvHtTDiuiWPqP+tL80TmQioCjyDPUvCn5QF+/EDOkkIbwq
-        lIGQ68wvDF0qUBBtVA8MYl1U6olzGoJavNWf0v3wdRyZUcTqM3uYw8uk6DQmCIljqURdVh
-        OFQz5fUu7/7BXGjLa05mWIPqewVpQJE=
-Received: from mail-io1-f69.google.com (mail-io1-f69.google.com
- [209.85.166.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-592-Lz9LlBxqPemoiDrdWg4Vag-1; Thu, 19 Jan 2023 14:05:17 -0500
-X-MC-Unique: Lz9LlBxqPemoiDrdWg4Vag-1
-Received: by mail-io1-f69.google.com with SMTP id t3-20020a6bc303000000b006f7844c6298so1636539iof.23
-        for <linux-s390@vger.kernel.org>; Thu, 19 Jan 2023 11:05:16 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=qxwOPOgGhsGm2CilOB8QktAtozAzPUo8tE7EUr+QkN4=;
-        b=0/F9WBbUltJdMpl9r4DILx2C5VylQ/UjuUFQvgtRuJigrAjaEs43kAB0aGtbPrDmWp
-         I7QRvA3jztJLACsuRVoh6wU98cVSSIXUKDk5wiWSh+9TLelZbi+Bt7E04P8t6QakF9Vu
-         J2GgQvMdmvp5Gwy+mn0LJrryjPspmqplRP7UGhYDr45GQlyezy/hI9ALDNZt37DofgrH
-         IXh6d3OEag3YhWDo/fA7XeL5QoqqcEes7U6FRQdTjqtXQj2L31NmvnkmReBuAvK04cfB
-         82Yhn+oRY6gQ7M4AATnE5qJnAlwYkdxNjMMeow80rosdC0aAoR3/BB9BoR2G7b1HehbE
-         OJGg==
-X-Gm-Message-State: AFqh2kqGIWABQEW6E16S2mAWEC7rpR3YnmVlvI3Qw3CGlx9oQR5nKggY
-        C5AXRnYyOy/GtzYZ1E5AhPztyWEorQt9YXdvkyLh7d51z9HexbXD92d7c+zyHpK/RXOfLn9zjpj
-        HAM1mg0kePvnQp/jaKvcRqQ==
-X-Received: by 2002:a6b:dc12:0:b0:707:5b8d:745 with SMTP id s18-20020a6bdc12000000b007075b8d0745mr5702689ioc.15.1674155116316;
-        Thu, 19 Jan 2023 11:05:16 -0800 (PST)
-X-Google-Smtp-Source: AMrXdXtAMnL3Goqn5o+Ir8AcCe1SjWgVNFXCOrdiM/sijKRrcXt8wW9+Bm8x+wiDCw846gf100RgOg==
-X-Received: by 2002:a6b:dc12:0:b0:707:5b8d:745 with SMTP id s18-20020a6bdc12000000b007075b8d0745mr5702666ioc.15.1674155116049;
-        Thu, 19 Jan 2023 11:05:16 -0800 (PST)
-Received: from redhat.com ([38.15.36.239])
-        by smtp.gmail.com with ESMTPSA id m4-20020a056638224400b0036c8a246f54sm11646670jas.142.2023.01.19.11.05.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Jan 2023 11:05:15 -0800 (PST)
-Date:   Thu, 19 Jan 2023 12:05:13 -0700
-From:   Alex Williamson <alex.williamson@redhat.com>
-To:     "Tian, Kevin" <kevin.tian@intel.com>
-Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
-        "akrowiak@linux.ibm.com" <akrowiak@linux.ibm.com>,
-        "jjherne@linux.ibm.com" <jjherne@linux.ibm.com>,
-        "farman@linux.ibm.com" <farman@linux.ibm.com>,
-        "imbrenda@linux.ibm.com" <imbrenda@linux.ibm.com>,
-        "frankja@linux.ibm.com" <frankja@linux.ibm.com>,
-        "pmorel@linux.ibm.com" <pmorel@linux.ibm.com>,
-        "david@redhat.com" <david@redhat.com>,
-        "Christopherson,, Sean" <seanjc@google.com>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "cohuck@redhat.com" <cohuck@redhat.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "zhenyuw@linux.intel.com" <zhenyuw@linux.intel.com>,
-        "pasic@linux.ibm.com" <pasic@linux.ibm.com>,
-        "jgg@nvidia.com" <jgg@nvidia.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "pbonzini@redhat.com" <pbonzini@redhat.com>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "borntraeger@linux.ibm.com" <borntraeger@linux.ibm.com>,
-        "Liu, Yi L" <yi.l.liu@intel.com>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        "Wang, Zhi A" <zhi.a.wang@intel.com>
-Subject: Re: [PATCH v4] vfio: fix potential deadlock on vfio group lock
-Message-ID: <20230119120513.3976cda7.alex.williamson@redhat.com>
-In-Reply-To: <BN9PR11MB5276CC29F17B87D14D1E61FF8CC49@BN9PR11MB5276.namprd11.prod.outlook.com>
-References: <20230114000351.115444-1-mjrosato@linux.ibm.com>
-        <20230117142252.70cc85c7.alex.williamson@redhat.com>
-        <BN9PR11MB52763D861C254248FD33F65C8CC79@BN9PR11MB5276.namprd11.prod.outlook.com>
-        <b5a7efc9-7cfa-3314-fe36-b8da4a25265d@linux.ibm.com>
-        <BN9PR11MB5276CC29F17B87D14D1E61FF8CC49@BN9PR11MB5276.namprd11.prod.outlook.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
+        with ESMTP id S229944AbjASWQZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 19 Jan 2023 17:16:25 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9927FA3154;
+        Thu, 19 Jan 2023 13:57:10 -0800 (PST)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30JLT8bu030467;
+        Thu, 19 Jan 2023 21:56:48 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=xHuzXeNDiIwndNWeKonBxc5KI/X0aMeH30RDkuA23Fg=;
+ b=D0cDcR8t7UzfNGwH0forG3q5QiVPdLRMK1YjkWalcDmqA6U2UGQMCtlCBfemNRT2ntfS
+ SR1PhBUFqr9Ao4MsJnQolfs+mkiDm+H6M4jfKa30SWkI1c5tzG3nk65NlFhDhZK8KqY5
+ 0hlNVGLoMZ7FjiR6VVSLb63oge3vJDIHiUObNV1fzayr8835Bl1L9DNUmsMv9Lh3ZtOv
+ +whCbWcBOmd1ZMKKAYksDP5iicxIibLX+kVbwnWxkMxZqnEzhwQEXDYaAaestpqVbOKw
+ rcbzvJJk4qWz8J/US57JALqxYIx14Nln2nL0zUXcEjye2WlvcDnWLl7vq2IeP02YzvRI mA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3n7dtqrkwq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 19 Jan 2023 21:56:48 +0000
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 30JLulA7031690;
+        Thu, 19 Jan 2023 21:56:47 GMT
+Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3n7dtqrkwj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 19 Jan 2023 21:56:47 +0000
+Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
+        by ppma02dal.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30JJeXoe005711;
+        Thu, 19 Jan 2023 21:56:46 GMT
+Received: from smtprelay05.dal12v.mail.ibm.com ([9.208.130.101])
+        by ppma02dal.us.ibm.com (PPS) with ESMTPS id 3n3m180852-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 19 Jan 2023 21:56:46 +0000
+Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
+        by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30JLuiOH6750758
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 19 Jan 2023 21:56:45 GMT
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D8E7E5804B;
+        Thu, 19 Jan 2023 21:56:44 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3A2C158055;
+        Thu, 19 Jan 2023 21:56:41 +0000 (GMT)
+Received: from [9.160.87.67] (unknown [9.160.87.67])
+        by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Thu, 19 Jan 2023 21:56:41 +0000 (GMT)
+Message-ID: <7eac2ce1-7ee9-7783-a9f2-9ec2f7019096@linux.ibm.com>
+Date:   Thu, 19 Jan 2023 16:56:40 -0500
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.0
+Subject: Re: [PATCH v2 09/10] iommu/s390: Push the gfp parameter to the
+ kmem_cache_alloc()'s
+Content-Language: en-US
+To:     Jason Gunthorpe <jgg@nvidia.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Robin Murphy <robin.murphy@arm.com>
+Cc:     Alex Williamson <alex.williamson@redhat.com>,
+        ath10k@lists.infradead.org, ath11k@lists.infradead.org,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        dri-devel@lists.freedesktop.org, iommu@lists.linux.dev,
+        kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, linux-media@vger.kernel.org,
+        linux-rdma@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+        linux-s390@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-tegra@vger.kernel.org, linux-wireless@vger.kernel.org,
+        netdev@vger.kernel.org, nouveau@lists.freedesktop.org,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        virtualization@lists.linux-foundation.org
+References: <9-v2-ce66f632bd0d+484-iommu_map_gfp_jgg@nvidia.com>
+From:   Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <9-v2-ce66f632bd0d+484-iommu_map_gfp_jgg@nvidia.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: a1NkOyV4AkAwQdPDo6-7oJAzOHK_-aAo
+X-Proofpoint-ORIG-GUID: V_h4SUwdpkFLvdx1u4mhG5SO4ES7urEl
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
+ definitions=2023-01-19_14,2023-01-19_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ impostorscore=0 bulkscore=0 clxscore=1011 adultscore=0 malwarescore=0
+ lowpriorityscore=0 mlxlogscore=853 priorityscore=1501 mlxscore=0
+ spamscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2301190181
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 19 Jan 2023 03:43:36 +0000
-"Tian, Kevin" <kevin.tian@intel.com> wrote:
+On 1/18/23 1:00 PM, Jason Gunthorpe wrote:
+> dma_alloc_cpu_table() and dma_alloc_page_table() are eventually called by
+> iommufd through s390_iommu_map_pages() and it should not be forced to
+> atomic. Thread the gfp parameter through the call chain starting from
+> s390_iommu_map_pages().
+> 
+> Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> ---
+>  arch/s390/include/asm/pci_dma.h |  5 +++--
+>  arch/s390/pci/pci_dma.c         | 31 +++++++++++++++++--------------
+>  drivers/iommu/s390-iommu.c      | 15 +++++++++------
+>  3 files changed, 29 insertions(+), 22 deletions(-)
+> 
 
-> > From: Matthew Rosato <mjrosato@linux.ibm.com>
-> > Sent: Wednesday, January 18, 2023 10:56 PM
-> >=20
-> > On 1/18/23 4:03 AM, Tian, Kevin wrote: =20
-> > >> From: Alex Williamson
-> > >> Sent: Wednesday, January 18, 2023 5:23 AM
-> > >>
-> > >> On Fri, 13 Jan 2023 19:03:51 -0500
-> > >> Matthew Rosato <mjrosato@linux.ibm.com> wrote:
-> > >> =20
-> > >>>  void vfio_device_group_close(struct vfio_device *device)
-> > >>>  {
-> > >>> +	void (*put_kvm)(struct kvm *kvm);
-> > >>> +	struct kvm *kvm;
-> > >>> +
-> > >>>  	mutex_lock(&device->group->group_lock);
-> > >>> +	kvm =3D device->kvm;
-> > >>> +	put_kvm =3D device->put_kvm;
-> > >>>  	vfio_device_close(device, device->group->iommufd);
-> > >>> +	if (kvm =3D=3D device->kvm)
-> > >>> +		kvm =3D NULL; =20
-> > >>
-> > >> Hmm, so we're using whether the device->kvm pointer gets cleared in
-> > >> last_close to detect whether we should put the kvm reference.  That'=
-s a
-> > >> bit obscure.  Our get and put is also asymmetric.
-> > >>
-> > >> Did we decide that we couldn't do this via a schedule_work() from the
-> > >> last_close function, ie. implementing our own version of an async pu=
-t?
-> > >> It seems like that potentially has a cleaner implementation, symmetr=
-ic
-> > >> call points, handling all the storing and clearing of kvm related
-> > >> pointers within the get/put wrappers, passing only a vfio_device to =
-the
-> > >> put wrapper, using the "vfio_device_" prefix for both.  Potentially
-> > >> we'd just want an unconditional flush outside of lock here for
-> > >> deterministic release.
-> > >>
-> > >> What's the downside?  Thanks,
-> > >> =20
-> > >
-> > > btw I guess this can be also fixed by Yi's work here:
-> > >
-> > > https://lore.kernel.org/kvm/20230117134942.101112-6-yi.l.liu@intel.co=
-m/
-> > >
-> > > with set_kvm(NULL) moved to the release callback of kvm_vfio device,
-> > > such circular lock dependency can be avoided too. =20
-> >=20
-> > Oh, interesting...  It seems to me that this would eliminate the report=
-ed call
-> > chain altogether:
-> >=20
-> > kvm_put_kvm =20
-> >  -> kvm_destroy_vm
-> >   -> kvm_destroy_devices
-> >    -> kvm_vfio_destroy (starting here -- this would no longer be execut=
-ed)
-> >     -> kvm_vfio_file_set_kvm
-> >      -> vfio_file_set_kvm
-> >       -> group->group_lock/group_rwsem =20
-> >=20
-> > because kvm_destroy_devices now can't end up calling kvm_vfio_destroy
-> > and friends, it won't try and acquire the group lock a 2nd time making a
-> > kvm_put_kvm while the group lock is held OK to do.  The vfio_file_set_k=
-vm
-> > call will now always come from a separate thread of execution,
-> > kvm_vfio_group_add, kvm_vfio_group_del or the release thread:
-> >=20
-> > kvm_device_release (where the group->group_lock would not be held since
-> > vfio does not trigger closing of the kvm fd) =20
-> >  -> kvm_vfio_destroy (or, kvm_vfio_release)
-> >   -> kvm_vfio_file_set_kvm
-> >    -> vfio_file_set_kvm
-> >     -> group->group_lock/group_rwsem =20
->=20
-> Yes, that's my point. If Alex/Jason are also OK with it probably Yi can
-> send that patch separately as a fix to this issue. It's much simpler. =F0=
-=9F=98=8A
-
-If we can extract that flow separate from the cdev refactoring, ideally
-something that matches the stable kernel backport rules, then that
-sounds like the preferred solution.  Thanks,
-
-Alex
+Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
 
