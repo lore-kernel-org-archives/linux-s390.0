@@ -2,256 +2,120 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A568C52D77
-	for <linux-s390@archiver.kernel.org>; Fri, 20 Jan 2023 09:57:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B0650C05027
+	for <linux-s390@archiver.kernel.org>; Fri, 20 Jan 2023 10:26:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230473AbjATJ5z (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 20 Jan 2023 04:57:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49690 "EHLO
+        id S229590AbjATK0J (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 20 Jan 2023 05:26:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230051AbjATJ5v (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 20 Jan 2023 04:57:51 -0500
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87BEC9028;
-        Fri, 20 Jan 2023 01:57:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:To:From:Date:Sender:Reply-To:Cc:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=5PCjUACeYMR6O3y/YgzV4vR8g0qeDy6mmRm0X3w+etU=; b=UZLTzgFBQJ0CQY6DaI73G+uFss
-        KwqGSOIdxHfJPvAvpX0h5594aYEYuxp9p+5pIYFQiUyoAtjfGblRYGkqNzzC7O97qLGLXKgOA6xcT
-        W2FVpKWX5ry5A3YJ73W5lemSQrX8POUcGFF7oICR8UVyWBARWyply9gPbxYr03MOkT4RNv8a7lsM2
-        GazDd5sT6cIuf+3/HAZqobxVWQ/2ElCMUjfxs3yQvXPFy+TlHZutHnPGN5zaBk3/2GxDDh+Chwiar
-        rw/dMsVd9kwwUKYpn7si4MqeWxgiSIiBAN6g7snkhdi9zBu81hUwPqpAaiLr5X9LZFKT3ZN6B53aD
-        8key49Jw==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
-        by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
-        id 1pIo83-000bhg-2d;
-        Fri, 20 Jan 2023 09:56:12 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits))
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id A8490300750;
-        Fri, 20 Jan 2023 10:56:35 +0100 (CET)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 739372133D202; Fri, 20 Jan 2023 10:56:35 +0100 (CET)
-Date:   Fri, 20 Jan 2023 10:56:35 +0100
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     richard.henderson@linaro.org, ink@jurassic.park.msu.ru,
-        mattst88@gmail.com, vgupta@kernel.org, linux@armlinux.org.uk,
-        nsekhar@ti.com, brgl@bgdev.pl, ulli.kroll@googlemail.com,
-        linus.walleij@linaro.org, shawnguo@kernel.org,
-        Sascha Hauer <s.hauer@pengutronix.de>, kernel@pengutronix.de,
-        festevam@gmail.com, linux-imx@nxp.com, tony@atomide.com,
-        khilman@kernel.org, krzysztof.kozlowski@linaro.org,
-        alim.akhtar@samsung.com, catalin.marinas@arm.com, will@kernel.org,
-        guoren@kernel.org, bcain@quicinc.com, chenhuacai@kernel.org,
-        kernel@xen0n.name, geert@linux-m68k.org, sammy@sammy.net,
-        monstr@monstr.eu, tsbogend@alpha.franken.de, dinguyen@kernel.org,
-        jonas@southpole.se, stefan.kristiansson@saunalahti.fi,
-        shorne@gmail.com, James.Bottomley@hansenpartnership.com,
-        deller@gmx.de, mpe@ellerman.id.au, npiggin@gmail.com,
-        christophe.leroy@csgroup.eu, paul.walmsley@sifive.com,
-        palmer@dabbelt.com, aou@eecs.berkeley.edu, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net,
-        richard@nod.at, anton.ivanov@cambridgegreys.com,
-        johannes@sipsolutions.net, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
-        hpa@zytor.com, acme@kernel.org, mark.rutland@arm.com,
-        alexander.shishkin@linux.intel.com, jolsa@kernel.org,
-        namhyung@kernel.org, jgross@suse.com, srivatsa@csail.mit.edu,
-        amakhalov@vmware.com, pv-drivers@vmware.com,
-        boris.ostrovsky@oracle.com, chris@zankel.net, jcmvbkbc@gmail.com,
-        rafael@kernel.org, lenb@kernel.org, pavel@ucw.cz,
-        gregkh@linuxfoundation.org, mturquette@baylibre.com,
-        sboyd@kernel.org, daniel.lezcano@linaro.org, lpieralisi@kernel.org,
-        sudeep.holla@arm.com, agross@kernel.org, andersson@kernel.org,
-        konrad.dybcio@linaro.org, anup@brainfault.org,
-        thierry.reding@gmail.com, jonathanh@nvidia.com,
-        jacob.jun.pan@linux.intel.com, atishp@atishpatra.org,
-        Arnd Bergmann <arnd@arndb.de>, yury.norov@gmail.com,
-        andriy.shevchenko@linux.intel.com, linux@rasmusvillemoes.dk,
-        dennis@kernel.org, tj@kernel.org, cl@linux.com,
-        rostedt@goodmis.org, mhiramat@kernel.org, frederic@kernel.org,
-        paulmck@kernel.org, pmladek@suse.com, senozhatsky@chromium.org,
-        john.ogness@linutronix.de, juri.lelli@redhat.com,
-        vincent.guittot@linaro.org, dietmar.eggemann@arm.com,
-        bsegall@google.com, mgorman@suse.de, bristot@redhat.com,
-        vschneid@redhat.com, ryabinin.a.a@gmail.com, glider@google.com,
-        andreyknvl@gmail.com, dvyukov@google.com,
-        vincenzo.frascino@arm.com,
-        Andrew Morton <akpm@linux-foundation.org>, jpoimboe@kernel.org,
-        linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org, linux-omap@vger.kernel.org,
-        linux-samsung-soc@vger.kernel.org, linux-csky@vger.kernel.org,
-        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-perf-users@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        linux-xtensa@linux-xtensa.org, linux-acpi@vger.kernel.org,
-        linux-pm@vger.kernel.org, linux-clk@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org, linux-tegra@vger.kernel.org,
-        linux-arch@vger.kernel.org, linux-mm@kvack.org,
-        linux-trace-kernel@vger.kernel.org, kasan-dev@googlegroups.com,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: Re: [PATCH v3 16/51] cpuidle: Annotate poll_idle()
-Message-ID: <Y8plU/f2WsmGG66H@hirez.programming.kicks-ass.net>
-References: <20230112194314.845371875@infradead.org>
- <20230112195540.312601331@infradead.org>
+        with ESMTP id S229568AbjATK0J (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 20 Jan 2023 05:26:09 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1561490853;
+        Fri, 20 Jan 2023 02:26:07 -0800 (PST)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30KANwNV029681;
+        Fri, 20 Jan 2023 10:26:06 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=i4So47I99J+eF/7VBWetdMeZwkPJ6zeJAlepJZdXUFI=;
+ b=PpgqfgysUaFnRlMwdVw9L8Uv9o8jvP2+8+V2G0THOemL/+j8ZoFRahHTkmlRnhgfGr6E
+ fTJN3QsSz3R4VDptN1VUBlnpkwy4t0X4WYGBOrG7IlmKTswFQpZleddsR+P2NLTMUdco
+ cH682Ks58QGhJXcsZywMCIBK5m8PfFw3wuu4OWhCerY0+dCrE1EEl1B4VaS6txzKH8qM
+ 0ntO7QF3LVGCGL4mZDQifGHHSXWNjeLgeDWDba7FyOaDUhtdIUarmgk2g3h1aMJaYrur
+ 7fTPlUdOo7ZB+A/bfT9h17If/N/rj1w0uJ8lFJkWlH/IJEFInLJr03MbaCW+Kxxiokhm sA== 
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n7s5ug151-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 20 Jan 2023 10:26:06 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30K9bHjh013061;
+        Fri, 20 Jan 2023 10:26:04 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+        by ppma04fra.de.ibm.com (PPS) with ESMTPS id 3n3m16nq2t-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 20 Jan 2023 10:26:04 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30KAQ08M24248744
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 20 Jan 2023 10:26:00 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A03702007A;
+        Fri, 20 Jan 2023 10:26:00 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1133620079;
+        Fri, 20 Jan 2023 10:26:00 +0000 (GMT)
+Received: from [9.171.74.205] (unknown [9.171.74.205])
+        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Fri, 20 Jan 2023 10:25:59 +0000 (GMT)
+Message-ID: <d8fe5146-def7-262d-15cb-0bb965102f3c@de.ibm.com>
+Date:   Fri, 20 Jan 2023 11:25:59 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230112195540.312601331@infradead.org>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.0
+Subject: Re: [PATCH v2 0/6] improve AP queue reset processing
+To:     Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc:     jjherne@linux.ibm.com, freude@linux.ibm.com, pasic@linux.ibm.com,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+References: <20230118203111.529766-1-akrowiak@linux.ibm.com>
+Content-Language: en-US
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+In-Reply-To: <20230118203111.529766-1-akrowiak@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: xcvKSQdw7tJvFJE9-kS78h9vQndzAVQY
+X-Proofpoint-ORIG-GUID: xcvKSQdw7tJvFJE9-kS78h9vQndzAVQY
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
+ definitions=2023-01-20_06,2023-01-20_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ bulkscore=0 phishscore=0 priorityscore=1501 adultscore=0 impostorscore=0
+ mlxlogscore=790 clxscore=1011 spamscore=0 mlxscore=0 suspectscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2301200090
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jan 12, 2023 at 08:43:30PM +0100, Peter Zijlstra wrote:
-> The __cpuidle functions will become a noinstr class, as such they need
-> explicit annotations.
+Am 18.01.23 um 21:31 schrieb Tony Krowiak:
+> This series introduces several improvements to the function that performs
+> AP queue resets:
 > 
-> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> Acked-by: Frederic Weisbecker <frederic@kernel.org>
-> Tested-by: Tony Lindgren <tony@atomide.com>
-> Tested-by: Ulf Hansson <ulf.hansson@linaro.org>
-> ---
->  drivers/cpuidle/poll_state.c |    6 +++++-
->  1 file changed, 5 insertions(+), 1 deletion(-)
+> * Breaks up reset processing into multiple smaller, more concise functions.
 > 
-> --- a/drivers/cpuidle/poll_state.c
-> +++ b/drivers/cpuidle/poll_state.c
-> @@ -13,7 +13,10 @@
->  static int __cpuidle poll_idle(struct cpuidle_device *dev,
->  			       struct cpuidle_driver *drv, int index)
->  {
-> -	u64 time_start = local_clock();
-> +	u64 time_start;
-> +
-> +	instrumentation_begin();
-> +	time_start = local_clock();
->  
->  	dev->poll_time_limit = false;
->  
-> @@ -39,6 +42,7 @@ static int __cpuidle poll_idle(struct cp
->  	raw_local_irq_disable();
->  
->  	current_clr_polling();
-> +	instrumentation_end();
->  
->  	return index;
->  }
+> * Use TAPQ to verify completion of a reset in progress rather than mulitple
+>    invocations of ZAPQ.
+> 
+> * Check TAPQ response codes when verifying successful completion of ZAPQ.
+> 
+> * Fix erroneous handling of some error response codes.
+> 
+> * Increase the maximum amount of time to wait for successful completion of
+>    ZAPQ.
+>   
+> Change log v1 => v2:
+> -------------------
+> Remove patch 7/7 to restore original behavior since we don't know whether
+> interrupts are disabled when an unexpected response code is returned from
+> ZAPQ. (Halil)
+> 
+> Tony Krowiak (6):
+>    s390/vfio-ap: verify reset complete in separate function
+>    s390/vfio_ap: check TAPQ response code when waiting for queue reset
+>    s390/vfio_ap: use TAPQ to verify reset in progress completes
+>    s390/vfio_ap: verify ZAPQ completion after return of response code
+>      zero
+>    s390/vfio_ap: fix handling of error response codes
+>    s390/vfio_ap: increase max wait time for reset verification
+> 
+>   drivers/s390/crypto/vfio_ap_ops.c | 104 +++++++++++++++++++++---------
+>   1 file changed, 72 insertions(+), 32 deletions(-)
+> 
 
-Pff, this patch is garbage. However wrote it didn't have his brain
-engaged :/
-
-Something like the below fixes it, but I still need to build me funny
-configs like ia64 and paravirt to see if I didn't wreck me something...
-
-diff --git a/arch/x86/kernel/tsc.c b/arch/x86/kernel/tsc.c
-index a78e73da4a74..70c07e11caa6 100644
---- a/arch/x86/kernel/tsc.c
-+++ b/arch/x86/kernel/tsc.c
-@@ -215,7 +215,7 @@ static void __init cyc2ns_init_secondary_cpus(void)
- /*
-  * Scheduler clock - returns current time in nanosec units.
-  */
--u64 native_sched_clock(void)
-+noinstr u64 native_sched_clock(void)
- {
- 	if (static_branch_likely(&__use_tsc)) {
- 		u64 tsc_now = rdtsc();
-diff --git a/drivers/cpuidle/cpuidle.c b/drivers/cpuidle/cpuidle.c
-index 500d1720421e..0b00f21cefe3 100644
---- a/drivers/cpuidle/cpuidle.c
-+++ b/drivers/cpuidle/cpuidle.c
-@@ -426,7 +426,7 @@ void cpuidle_reflect(struct cpuidle_device *dev, int index)
-  * @dev:   the cpuidle device
-  *
-  */
--u64 cpuidle_poll_time(struct cpuidle_driver *drv,
-+__cpuidle u64 cpuidle_poll_time(struct cpuidle_driver *drv,
- 		      struct cpuidle_device *dev)
- {
- 	int i;
-diff --git a/drivers/cpuidle/poll_state.c b/drivers/cpuidle/poll_state.c
-index d25ec52846e6..bdcfeaecd228 100644
---- a/drivers/cpuidle/poll_state.c
-+++ b/drivers/cpuidle/poll_state.c
-@@ -15,7 +15,6 @@ static int __cpuidle poll_idle(struct cpuidle_device *dev,
- {
- 	u64 time_start;
- 
--	instrumentation_begin();
- 	time_start = local_clock();
- 
- 	dev->poll_time_limit = false;
-@@ -42,7 +41,6 @@ static int __cpuidle poll_idle(struct cpuidle_device *dev,
- 	raw_local_irq_disable();
- 
- 	current_clr_polling();
--	instrumentation_end();
- 
- 	return index;
- }
-diff --git a/include/linux/sched/clock.h b/include/linux/sched/clock.h
-index 867d588314e0..7960f0769884 100644
---- a/include/linux/sched/clock.h
-+++ b/include/linux/sched/clock.h
-@@ -45,7 +45,7 @@ static inline u64 cpu_clock(int cpu)
- 	return sched_clock();
- }
- 
--static inline u64 local_clock(void)
-+static __always_inline u64 local_clock(void)
- {
- 	return sched_clock();
- }
-@@ -79,7 +79,7 @@ static inline u64 cpu_clock(int cpu)
- 	return sched_clock_cpu(cpu);
- }
- 
--static inline u64 local_clock(void)
-+static __always_inline u64 local_clock(void)
- {
- 	return sched_clock_cpu(raw_smp_processor_id());
- }
-diff --git a/kernel/sched/clock.c b/kernel/sched/clock.c
-index e374c0c923da..6b3b0559e53c 100644
---- a/kernel/sched/clock.c
-+++ b/kernel/sched/clock.c
-@@ -260,7 +260,7 @@ notrace static inline u64 wrap_max(u64 x, u64 y)
-  *  - filter out backward motion
-  *  - use the GTOD tick value to create a window to filter crazy TSC values
-  */
--notrace static u64 sched_clock_local(struct sched_clock_data *scd)
-+noinstr static u64 sched_clock_local(struct sched_clock_data *scd)
- {
- 	u64 now, clock, old_clock, min_clock, max_clock, gtod;
- 	s64 delta;
-@@ -287,7 +287,7 @@ notrace static u64 sched_clock_local(struct sched_clock_data *scd)
- 	clock = wrap_max(clock, min_clock);
- 	clock = wrap_min(clock, max_clock);
- 
--	if (!try_cmpxchg64(&scd->clock, &old_clock, clock))
-+	if (!arch_try_cmpxchg64(&scd->clock, &old_clock, clock))
- 		goto again;
- 
- 	return clock;
-@@ -360,7 +360,7 @@ notrace static u64 sched_clock_remote(struct sched_clock_data *scd)
-  *
-  * See cpu_clock().
-  */
--notrace u64 sched_clock_cpu(int cpu)
-+noinstr u64 sched_clock_cpu(int cpu)
- {
- 	struct sched_clock_data *scd;
- 	u64 clock;
+Thanks applied and queued for CI and regression runs. Will likely go via s390 tree.
