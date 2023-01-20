@@ -2,136 +2,136 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B24CBC25B4E
-	for <linux-s390@archiver.kernel.org>; Fri, 20 Jan 2023 14:02:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E1DC6C05027
+	for <linux-s390@archiver.kernel.org>; Fri, 20 Jan 2023 15:05:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230039AbjATOCK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 20 Jan 2023 09:02:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59354 "EHLO
+        id S230376AbjATPFd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 20 Jan 2023 10:05:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229645AbjATOCJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 20 Jan 2023 09:02:09 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D0B4C13F5;
-        Fri, 20 Jan 2023 06:02:08 -0800 (PST)
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30KDrTo0021023;
-        Fri, 20 Jan 2023 14:02:08 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=MHYEeb1An0ddYguIQpgCo9rwIVDQ/HwjjdWBu/m9Rf4=;
- b=j0G6Sl2b5Fs/xSn0s5vfPmWQ6IrZeO4ejxGaOav/Dlc5dODf/69b927lUshyL2nsbXBv
- YVJn3U1treC9VtYU/ezVkD4vc5PZDSO9ymgMJ2HbxU8z82IfHGIIm9ueRFlNyKLcVI+W
- PY4l09q4LY8ZYx3qk3sxGoSVzyVUXlDoFdFYgNupQ2oIMjKYZK7khvPdnZJFQW1DWoD8
- +vdcqQ74w45Q9P3vw5HG81yfkFbCnfyny+avd496Z8FnrSejhLQq6Sdn8JeaYLuOtEql
- gW1rdV3X0+P2BejgDqbqEfUihh47guq6rIhGOItBh6wK7V+6CGNRIXqO7x37pC17KY5E 8Q== 
-Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n7v85r613-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 20 Jan 2023 14:02:07 +0000
-Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
-        by ppma02dal.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30KDQKRX006166;
-        Fri, 20 Jan 2023 14:02:06 GMT
-Received: from smtprelay07.dal12v.mail.ibm.com ([9.208.130.99])
-        by ppma02dal.us.ibm.com (PPS) with ESMTPS id 3n3m185235-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 20 Jan 2023 14:02:06 +0000
-Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
-        by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30KE25m535455350
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 20 Jan 2023 14:02:05 GMT
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7B2285805C;
-        Fri, 20 Jan 2023 14:02:05 +0000 (GMT)
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id ABD325805F;
-        Fri, 20 Jan 2023 14:02:04 +0000 (GMT)
-Received: from [9.160.36.55] (unknown [9.160.36.55])
-        by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
-        Fri, 20 Jan 2023 14:02:04 +0000 (GMT)
-Message-ID: <e51d751f-54c1-b292-7c86-e0b077f138c4@linux.ibm.com>
-Date:   Fri, 20 Jan 2023 09:02:04 -0500
+        with ESMTP id S229907AbjATPFc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 20 Jan 2023 10:05:32 -0500
+Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C888B7CCC1;
+        Fri, 20 Jan 2023 07:05:31 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1674227131; x=1705763131;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=Zn183ElO1bl64Y4pVPfF7h7rDHD+/IuJAJiKiAAXWvc=;
+  b=F/0vIVpVwojTbSAlnf2veNQ3B7J09FMvOPCmAYS/wa+rX8SN9SZwu//F
+   g27XxVYnlUsdx8FXerODDMbpDy6DaRZaL3aC3GBItoxhEjMNzDFtHNiMt
+   gvgmlJVnNEP3sGPBrIwWceEyFKJkIBKb8AVshNFSBOJ73fvqW5FZIHANP
+   iVzvG5cOsXYXT/hrVZKdA7hfxloRxb3FbQ66Vi9qQSaP6b5AJQrI2+/j4
+   0FepJEMCN/xG818aDRDF7mWx8VZKknMtjjRbh1vquc0Zww9VUHaUasmQP
+   5mBp8p7uwepP1pp8+fqrWjgLBj8/WSx/YTOj53x+s05xlsCUlb6HjWlXj
+   A==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10595"; a="309169480"
+X-IronPort-AV: E=Sophos;i="5.97,232,1669104000"; 
+   d="scan'208";a="309169480"
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Jan 2023 07:05:31 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10595"; a="784532388"
+X-IronPort-AV: E=Sophos;i="5.97,232,1669104000"; 
+   d="scan'208";a="784532388"
+Received: from 984fee00a4c6.jf.intel.com ([10.165.58.231])
+  by orsmga004.jf.intel.com with ESMTP; 20 Jan 2023 07:05:30 -0800
+From:   Yi Liu <yi.l.liu@intel.com>
+To:     alex.williamson@redhat.com, pbonzini@redhat.com,
+        mjrosato@linux.ibm.com
+Cc:     yi.l.liu@intel.com, jgg@nvidia.com, kevin.tian@intel.com,
+        cohuck@redhat.com, farman@linux.ibm.com, pmorel@linux.ibm.com,
+        borntraeger@linux.ibm.com, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com, david@redhat.com, akrowiak@linux.ibm.com,
+        jjherne@linux.ibm.com, pasic@linux.ibm.com,
+        zhenyuw@linux.intel.com, zhi.a.wang@intel.com, seanjc@google.com,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] kvm/vfio: Fix potential deadlock on vfio group_lock
+Date:   Fri, 20 Jan 2023 07:05:28 -0800
+Message-Id: <20230120150528.471752-1-yi.l.liu@intel.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.0
-Subject: Re: [PATCH v2 0/6] improve AP queue reset processing
-Content-Language: en-US
-To:     Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc:     jjherne@linux.ibm.com, freude@linux.ibm.com, pasic@linux.ibm.com,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-References: <20230118203111.529766-1-akrowiak@linux.ibm.com>
- <d8fe5146-def7-262d-15cb-0bb965102f3c@de.ibm.com>
-From:   Anthony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <d8fe5146-def7-262d-15cb-0bb965102f3c@de.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: k9FIqbtfj3DyL-buoeHvnG3a-BaNZEWi
-X-Proofpoint-ORIG-GUID: k9FIqbtfj3DyL-buoeHvnG3a-BaNZEWi
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
- definitions=2023-01-20_08,2023-01-20_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- phishscore=0 bulkscore=0 mlxscore=0 clxscore=1015 suspectscore=0
- adultscore=0 priorityscore=1501 mlxlogscore=857 impostorscore=0
- malwarescore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2301200133
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Currently it is possible that the final put of a KVM reference comes from
+vfio during its device close operation.  This occurs while the vfio group
+lock is held; however, if the vfio device is still in the kvm device list,
+then the following call chain could result in a deadlock:
 
-On 1/20/23 5:25 AM, Christian Borntraeger wrote:
-> Am 18.01.23 um 21:31 schrieb Tony Krowiak:
->> This series introduces several improvements to the function that 
->> performs
->> AP queue resets:
->>
->> * Breaks up reset processing into multiple smaller, more concise 
->> functions.
->>
->> * Use TAPQ to verify completion of a reset in progress rather than 
->> mulitple
->>    invocations of ZAPQ.
->>
->> * Check TAPQ response codes when verifying successful completion of 
->> ZAPQ.
->>
->> * Fix erroneous handling of some error response codes.
->>
->> * Increase the maximum amount of time to wait for successful 
->> completion of
->>    ZAPQ.
->>   Change log v1 => v2:
->> -------------------
->> Remove patch 7/7 to restore original behavior since we don't know 
->> whether
->> interrupts are disabled when an unexpected response code is returned 
->> from
->> ZAPQ. (Halil)
->>
->> Tony Krowiak (6):
->>    s390/vfio-ap: verify reset complete in separate function
->>    s390/vfio_ap: check TAPQ response code when waiting for queue reset
->>    s390/vfio_ap: use TAPQ to verify reset in progress completes
->>    s390/vfio_ap: verify ZAPQ completion after return of response code
->>      zero
->>    s390/vfio_ap: fix handling of error response codes
->>    s390/vfio_ap: increase max wait time for reset verification
->>
->>   drivers/s390/crypto/vfio_ap_ops.c | 104 +++++++++++++++++++++---------
->>   1 file changed, 72 insertions(+), 32 deletions(-)
->>
->
-> Thanks applied and queued for CI and regression runs. Will likely go 
-> via s390 tree.
+VFIO holds group->group_lock/group_rwsem
+  -> kvm_put_kvm
+   -> kvm_destroy_vm
+    -> kvm_destroy_devices
+     -> kvm_vfio_destroy
+      -> kvm_vfio_file_set_kvm
+       -> vfio_file_set_kvm
+        -> try to hold group->group_lock/group_rwsem
 
+The key function is the kvm_destroy_devices() which triggers destroy cb
+of kvm_device_ops. It calls back to vfio and try to hold group_lock. So
+if this path doesn't call back to vfio, this dead lock would be fixed.
+Actually, there is a way for it. KVM provides another point to free the
+kvm-vfio device which is the point when the device file descriptor is
+closed. This can be achieved by providing the release cb instead of the
+destroy cb. Also rename kvm_vfio_destroy() to be kvm_vfio_release().
 
-Got it, thanks.
+	/*
+	 * Destroy is responsible for freeing dev.
+	 *
+	 * Destroy may be called before or after destructors are called
+	 * on emulated I/O regions, depending on whether a reference is
+	 * held by a vcpu or other kvm component that gets destroyed
+	 * after the emulated I/O.
+	 */
+	void (*destroy)(struct kvm_device *dev);
 
+	/*
+	 * Release is an alternative method to free the device. It is
+	 * called when the device file descriptor is closed. Once
+	 * release is called, the destroy method will not be called
+	 * anymore as the device is removed from the device list of
+	 * the VM. kvm->lock is held.
+	 */
+	void (*release)(struct kvm_device *dev);
+
+Fixes: 421cfe6596f6 ("vfio: remove VFIO_GROUP_NOTIFY_SET_KVM")
+Reported-by: Alex Williamson <alex.williamson@redhat.com>
+Suggested-by: Kevin Tian <kevin.tian@intel.com>
+Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Yi Liu <yi.l.liu@intel.com>
+---
+ virt/kvm/vfio.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/virt/kvm/vfio.c b/virt/kvm/vfio.c
+index 495ceabffe88..e94f3ea718e5 100644
+--- a/virt/kvm/vfio.c
++++ b/virt/kvm/vfio.c
+@@ -336,7 +336,7 @@ static int kvm_vfio_has_attr(struct kvm_device *dev,
+ 	return -ENXIO;
+ }
+ 
+-static void kvm_vfio_destroy(struct kvm_device *dev)
++static void kvm_vfio_release(struct kvm_device *dev)
+ {
+ 	struct kvm_vfio *kv = dev->private;
+ 	struct kvm_vfio_group *kvg, *tmp;
+@@ -363,7 +363,7 @@ static int kvm_vfio_create(struct kvm_device *dev, u32 type);
+ static struct kvm_device_ops kvm_vfio_ops = {
+ 	.name = "kvm-vfio",
+ 	.create = kvm_vfio_create,
+-	.destroy = kvm_vfio_destroy,
++	.release = kvm_vfio_release,
+ 	.set_attr = kvm_vfio_set_attr,
+ 	.has_attr = kvm_vfio_has_attr,
+ };
+-- 
+2.34.1
 
