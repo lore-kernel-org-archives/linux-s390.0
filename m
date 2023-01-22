@@ -2,201 +2,194 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 48ACBC52D77
-	for <linux-s390@archiver.kernel.org>; Fri, 20 Jan 2023 20:38:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1235EC25B4E
+	for <linux-s390@archiver.kernel.org>; Sun, 22 Jan 2023 17:29:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229863AbjATUi1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 20 Jan 2023 15:38:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44944 "EHLO
+        id S230153AbjAVR3M (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 22 Jan 2023 12:29:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229471AbjATUiZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 20 Jan 2023 15:38:25 -0500
-Received: from NAM04-BN8-obe.outbound.protection.outlook.com (mail-bn8nam04on2048.outbound.protection.outlook.com [40.107.100.48])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDB54966FD;
-        Fri, 20 Jan 2023 12:38:23 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=jgbYVJU626le31ZRWXr2CPdZMKn686BILxA6T/cblLVWEA8mb9NQc/nvXfpTvTDKWF1xsgd/+SXtBdHBPyEkJ/De+O9PHRpaYywFG9rFlR8cXkhyU9UUvLEMvZv7uy/U1WMN0ph41p6d/dKPAocId2OZzgx9KLz8UeT0AE0cAbZyj77BYpbtpsxzLXqwHnyd62F8us6wijWwseNVbx/AsELyJ5rAuGMwX3J2xhml+jLRQzag+85jkXuaQna6Q57eyv/+GE2n+6NjBafW2UrWHHmKQApxSyfee+FL6Rgmfl/9erDISP1z19CNq+jqwC9ZQnY7J8NibC7V/z/tednb7A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=65YIash6zu+NspDmH4rIMcXSTVQi4mw9TTPwHsfeFN0=;
- b=IReNjXRMhtikCvbkuqQ1oo6ufdbweW2MZlDAgVN0MzQH8huEaSx0TITWr/t3AUg40y9qDL8NMJRfwHc7BzhEBk+PU+cUY5QenKjqVwcVg8OH+QUrhO+6feWdg3VRYr8xJryzmXMSzFc3GkX22yzUMpnwvbn4h0stfK99Qr6G5jwuUHjBdbhpGp7ADEnKXUub0aueLvNsoMpw7E0ipXQmeNLYcoW7OVqKBcn9xfIZg615Y+yzh2roR9cL7sdm75WU1h5/nNrswaFsgI4lSfks0K4Sm71Ja0VQOxB7a1xAnsgslJ7jA5Ma7JASwovEH0nVYHYHNqWiYDjQzu+lFL52+g==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=65YIash6zu+NspDmH4rIMcXSTVQi4mw9TTPwHsfeFN0=;
- b=jU4Arc84rMDK1/GY9iwQq9jYNVYBfMlkjBmnuulc3fI9gav5Tydx9c9UmoOU8qTG2EqXZ37JTDfCNZ0AaNgwXOI3fFE+IpTRaIslxzn6i4Ht7qwJfSDJrfZPnXg42j6DQ19ttpBGHTpPbH7e6pWbZG1OhvG8/2Hjcwv7ReuAotaNqH7gInaj4m44wXsdcQIFN6CGT3r+iPf+TISKJeyFe3Jp3JYKmIOXs3c+6/z5JrlrZ6A1dXdmo5/xJ4rwCmDzvBDLqeS9DvXKGFTo79tgU/RkjSQNDCoXeyAbqitNUFUv52TQRcP/QmP+EB9p+m4KYLYDgqHApfwJsWH76sQslQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
- by PH7PR12MB5832.namprd12.prod.outlook.com (2603:10b6:510:1d7::6) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6002.25; Fri, 20 Jan
- 2023 20:38:20 +0000
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::f8b0:df13:5f8d:12a]) by LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::f8b0:df13:5f8d:12a%9]) with mapi id 15.20.6002.013; Fri, 20 Jan 2023
- 20:38:19 +0000
-Date:   Fri, 20 Jan 2023 16:38:18 -0400
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Robin Murphy <robin.murphy@arm.com>
-Cc:     Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        ath10k@lists.infradead.org, ath11k@lists.infradead.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        dri-devel@lists.freedesktop.org, iommu@lists.linux.dev,
-        kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-media@vger.kernel.org,
-        linux-rdma@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-        linux-s390@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-tegra@vger.kernel.org, linux-wireless@vger.kernel.org,
-        netdev@vger.kernel.org, nouveau@lists.freedesktop.org,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH v2 04/10] iommu/dma: Use the gfp parameter in
- __iommu_dma_alloc_noncontiguous()
-Message-ID: <Y8r7ujD8BVgWiIH/@nvidia.com>
-References: <4-v2-ce66f632bd0d+484-iommu_map_gfp_jgg@nvidia.com>
- <f24fcba7-2fcb-ed43-05da-60763dbb07bf@arm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <f24fcba7-2fcb-ed43-05da-60763dbb07bf@arm.com>
-X-ClientProxiedBy: BL1PR13CA0131.namprd13.prod.outlook.com
- (2603:10b6:208:2bb::16) To LV2PR12MB5869.namprd12.prod.outlook.com
- (2603:10b6:408:176::16)
+        with ESMTP id S229880AbjAVR3L (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 22 Jan 2023 12:29:11 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 862EA1DB82;
+        Sun, 22 Jan 2023 09:29:10 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0FA6C60B39;
+        Sun, 22 Jan 2023 17:29:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76580C433AE;
+        Sun, 22 Jan 2023 17:29:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1674408549;
+        bh=I5pV/HoNpTTtkCpHa3T7LwdnAQwwVwXQ/luDQGSOteE=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=L3R3VeuI8b7SphmS83VI3MhZIjgDm6ANfUG/6GLDdAssBf8R7BhAf78erSlDbdCOA
+         SHR+IgQ6/XkSHZgpJfPyQerUVWvlHhmeN4a9pX9i1iiMGQR1NCtYmJ1cXwTwfhZX7o
+         nSUmSWPnPqViFik1ksvVU9V1IDz/9d4RBT2fojd5aUL4rHTIN4194hnchaX8aC+BTF
+         BVqo/UYoMw7a7dCGuw7CuV/Pc986UJI4q+9eT9V3NhMq3b5TVJgU4xKxtdcd/uUXK3
+         PYu79weFDNfEExeZDTIf8YARqxjWnMGBiR5AM+Sg0Tc3PNXSMv1Gk/Hn9eD63agM4/
+         o6TOm8IVHvoHg==
+Received: by mail-oi1-f179.google.com with SMTP id r9so8523019oig.12;
+        Sun, 22 Jan 2023 09:29:09 -0800 (PST)
+X-Gm-Message-State: AFqh2kpwFP9zBxu/eOTY+pL7eQyFODBDtZw4arSHn9F0wTdEOGfjy/HN
+        9AT5UHFhWtH+h52GBVpRD9p9Y9oD+ItKrAwb7MA=
+X-Google-Smtp-Source: AMrXdXv8T6XTJrOgPfMqPTdeIlKFiVnKdMrLMQCnsb/JOpLPDdW3j/ypXqu3QgM9nVl1xzM73W2o7XvcmK9sHyhknFM=
+X-Received: by 2002:a05:6808:1786:b0:35e:7c55:b015 with SMTP id
+ bg6-20020a056808178600b0035e7c55b015mr1279449oib.287.1674408548537; Sun, 22
+ Jan 2023 09:29:08 -0800 (PST)
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|PH7PR12MB5832:EE_
-X-MS-Office365-Filtering-Correlation-Id: c7e236de-7c93-454f-b089-08dafb2643f8
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: HZRZHOHjF1dSv4pXCeo1eko9iM0cmlCnSjGxmQAchQ5Nv+g/kwgiWS8la+MpfnHKGwNmIdLt4tG2jhQROjRYejvJwrUka6rX5kz68qWrJ4snIJ5zcIIBYQplkQFqy9WAptn5Y8AlYKGoD+zjN+3YGT7FuBKDJtwzhPJjb3Ja+Rzf7CF8kpimOaIkYZSBQjYP1zdfA8Zb3quT1sQ0qXZ/qK73t9k0/LtHQANmHxlao2mUmkRKphysfXI4373eF7f0NshfofwG7P11XERGjO2HlqPas6bJKusEaYj6/s6Xu4WRzeBLhTBlUpwHHYbPwQsw0Xay4AOqKj0YC2TSY8JtaqbU0cNcdnIKXES2/yAbnuu+NDSg0bALk0oGaYzXmYjlC8VnkiquCrpT1kbek6+SPHZL6Ow0pxf6FJkDaeGKyGRnTQt5bYGkR/Mw1ZoNAdaHBaarZdTzkPq5TZ4Z4/Du8At7VsAatk8cfAE4GsMSrGq5sFrR+vY2J7tl2QbxQWrF2ThCtDdirPaFrKpo+D9wc9SIIZlDkS758YhRnygHl8BIV1TGa6BcSBP2RtCfOive7BWXSlN6ShWFnM7P7Xzs9/osIWB9yamZVVCIx/Uo/wPiup1e9k4ZbHqcC642yrNw07pjnMPcm2r5R1AUY/uIRg==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(366004)(376002)(346002)(39860400002)(396003)(136003)(451199015)(8936002)(316002)(5660300002)(86362001)(6486002)(478600001)(36756003)(6506007)(53546011)(2906002)(2616005)(83380400001)(6512007)(54906003)(6916009)(4326008)(8676002)(66556008)(7416002)(186003)(26005)(66476007)(66946007)(41300700001)(38100700002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?eLNs2NpejaIlYGQJD7BSOOF8jqxbQLUwSjPxwiqPm8yOsE3TFBuR1dwsqnPh?=
- =?us-ascii?Q?fSjIvvzStUErWKQNWdKaVtTomJbu3DJ7HGP3mDx4NXVdmdMdMIDuh8yNQETW?=
- =?us-ascii?Q?6dsaFX6imCqqI6yte9AmOyJ65Obu8ODrxidy3RXFRLW5qiHg+lPyYmMSsJJL?=
- =?us-ascii?Q?Efi8Xk+wlLKtYpFHiTegMWy+YracsaRIM8voTm/MqHk0fNww5qtLK+3BXzov?=
- =?us-ascii?Q?BxgjBaapmzZVcQAz3rUO5Ba0XFglxDayN+ZRsiM5CQhLZdeubkxRTmfsb0oc?=
- =?us-ascii?Q?7Qf27NMo9/PayC4ppKZxobriQ04T1qglsklGzsSNZ8S3VVBKUsxxTyWl7ryE?=
- =?us-ascii?Q?lDYuOOVGW/ZF/LdSZL9+w/5Vl7jectcLANgN/897PMtVNXTFejPZZGYFqQEx?=
- =?us-ascii?Q?CE+SE3VtS+FoBL7NDv1gma247PitkjyOeTvv6i9nn4vH6I6ChQtzk7Uz+KuT?=
- =?us-ascii?Q?ZhSoJF1IoJ/eoIAGcmY0tM0QKZtgGvFFAkjISNbXyfKZB+4X/sqJAQoEIan3?=
- =?us-ascii?Q?4RL5qt/IPWpbKTMtqB88KFpEb2iPlGo0U1Oj++CZeXv25UG6M8TQQkno5VYA?=
- =?us-ascii?Q?6C27X1MXFwxaqaiTh7RUXoRJTSKvVoD8rxzkUEev8sMvQtZ9NiEUnzaIMeWM?=
- =?us-ascii?Q?N3LccgBMJz83qvT36sQv9Bv8u3CJCeR8RzuuWdwHJ500+tJML73WDk79zqaL?=
- =?us-ascii?Q?WxaR/lb+iaO8BMapdsipnlDUfbJD5i390CNjzbiNMlMdHGIkbB5akvxNrQI0?=
- =?us-ascii?Q?LZNSqwttNY1U+qyfQcGrQftKtNZmubAAEx6dMJEUpF2N7jT4siSQwlP3wPzP?=
- =?us-ascii?Q?ZfCsz4pYxrHjnRCLwjo+ba2MzCEn5PjhbtAoe2CnQjn3RCG8jkcbNNd/Sci2?=
- =?us-ascii?Q?Bzr/oQuAr528RcCjpl5h7H92rsTaq249xOkti/hpkOBBntfVH1qZGKxnNvtT?=
- =?us-ascii?Q?PV/CTrRdFguBy05/4CoSwXQFGIAi9nQkbYSEyhV2CLESw8lZ3QxfKbSBMVGK?=
- =?us-ascii?Q?YmdNkaZwNu8dzToq6GDnxUHsz0oEfid2UdCGQTgyjLiV9dHE03LU+GgjGnyV?=
- =?us-ascii?Q?Jbv60xIkvyiSW+7w6bCRVfyMvsSWGDnpN/60GKCDyilBoVPjYSA4RrWJFfEu?=
- =?us-ascii?Q?CxaqXkEZEclp/ejV33Fh87B5+bSbsXWjkDlDEfzDnleAdEcWTV0G93K5Y2RS?=
- =?us-ascii?Q?++aS9oMY/GdbEkoaVk5wFBMMrRTzg1C/y4RSbAgvmBA7y7mv/fC6kg2oZ/RP?=
- =?us-ascii?Q?MmCnZ8wc911dPtVTwzSCt++84PV/H/7IX4XajxVXivaudWDnRBnLyFjjLW8Q?=
- =?us-ascii?Q?+LgIozmeLyPN/fDPSNn3g3fJjss+oCyJqPhoS8ZaqDeAo6qcWfwvEdKTc9vF?=
- =?us-ascii?Q?4Nn5liLbUJXNAAT1eDk1hyJkhyV26doqKK89SZRAsuTZxutabe5H8sFkyrOA?=
- =?us-ascii?Q?PCMcq6tv2MaNOGTdvpv8qOpDZo9s+so/SzkEKTgZrRIkIT1irrKybAYwvgAS?=
- =?us-ascii?Q?Lp2hwsykuDIXrUtdyqEa+Lz/6EPg079r5+AlImISzXmrPjjq+g1EOES7A3ut?=
- =?us-ascii?Q?JJIDdfGelfYpkRWQJO5zNJEN2+e3reaZsTzzL05X?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: c7e236de-7c93-454f-b089-08dafb2643f8
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Jan 2023 20:38:19.6234
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: K4oTXB2HGiakYi0h1ZGvqDZ0EKLD00yaUn4LwqJEODca1cuxfEW6JYt7EaHjMJ75
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB5832
+References: <20221228-drop-qunused-arguments-v2-0-9adbddd20d86@kernel.org>
+In-Reply-To: <20221228-drop-qunused-arguments-v2-0-9adbddd20d86@kernel.org>
+From:   Masahiro Yamada <masahiroy@kernel.org>
+Date:   Mon, 23 Jan 2023 02:28:32 +0900
+X-Gmail-Original-Message-ID: <CAK7LNAQ-HmyKYAWbF2MHEU1FzBzKOvE2DU7Js6tntszLrtUkDg@mail.gmail.com>
+Message-ID: <CAK7LNAQ-HmyKYAWbF2MHEU1FzBzKOvE2DU7Js6tntszLrtUkDg@mail.gmail.com>
+Subject: Re: [PATCH v2 00/14] Remove clang's -Qunused-arguments from KBUILD_CPPFLAGS
+To:     Nathan Chancellor <nathan@kernel.org>
+Cc:     ndesaulniers@google.com, nicolas@fjasle.eu, trix@redhat.com,
+        linux-kbuild@vger.kernel.org, llvm@lists.linux.dev,
+        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        dave.hansen@linux.intel.com, x86@kernel.org,
+        kernel test robot <lkp@intel.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        =?UTF-8?Q?Philippe_Mathieu=2DDaud=C3=A9?= <philmd@linaro.org>,
+        linux-mips@vger.kernel.org, mpe@ellerman.id.au, npiggin@gmail.com,
+        christophe.leroy@csgroup.eu, linuxppc-dev@lists.ozlabs.org,
+        Segher Boessenkool <segher@kernel.crashing.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        linux-s390@vger.kernel.org,
+        Alex Deucher <alexander.deucher@amd.com>,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Jan 20, 2023 at 07:28:19PM +0000, Robin Murphy wrote:
-> On 2023-01-18 18:00, Jason Gunthorpe wrote:
-> > Change the sg_alloc_table_from_pages() allocation that was hardwired to
-> > GFP_KERNEL to use the gfp parameter like the other allocations in this
-> > function.
-> > 
-> > Auditing says this is never called from an atomic context, so it is safe
-> > as is, but reads wrong.
-> 
-> I think the point may have been that the sgtable metadata is a
-> logically-distinct allocation from the buffer pages themselves. Much like
-> the allocation of the pages array itself further down in
-> __iommu_dma_alloc_pages().
+On Thu, Jan 12, 2023 at 12:05 PM Nathan Chancellor <nathan@kernel.org> wrote:
+>
+> Hi all,
+>
+> Clang can emit a few different warnings when it encounters a flag that it
+> recognizes but does not support internally. These warnings are elevated to
+> errors within {as,cc}-option via -Werror to catch unsupported flags that should
+> not be added to KBUILD_{A,C}FLAGS; see commit c3f0d0bc5b01 ("kbuild, LLVMLinux:
+> Add -Werror to cc-option to support clang").
+>
+> If an unsupported flag is unconditionally to KBUILD_{A,C}FLAGS, all subsequent
+> {as,cc}-option will always fail, preventing supported and even potentially
+> necessary flags from getting adding to the tool flags.
+>
+> One would expect these warnings to be visible in the kernel build logs since
+> they are added to KBUILD_{A,C}FLAGS but unfortunately, these warnings are
+> hidden with clang's -Qunused-arguments flag, which is added to KBUILD_CPPFLAGS
+> and used for both compiling and assembling files.
+>
+> Patches 1-4 address the internal inconsistencies of invoking the assembler
+> within kbuild by using KBUILD_AFLAGS consistently and using '-x
+> assembler-with-cpp' over '-x assembler'. This matches how assembly files are
+> built across the kernel and helps avoid problems in situations where macro
+> definitions or warning flags are present in KBUILD_AFLAGS, which cause
+> instances of -Wunused-command-line-argument when the preprocessor is not called
+> to consume them. There were a couple of places in architecture code where this
+> change would break things so those are fixed first.
+>
+> Patches 5-12 clean up warnings that will show up when -Qunused-argument is
+> dropped. I hope none of these are controversial.
+>
+> Patch 13 turns two warnings into errors so that the presence of unused flags
+> cannot be easily ignored.
+>
+> Patch 14 drops -Qunused-argument. This is done last so that it can be easily
+> reverted if need be.
+>
+> This series has seen my personal test framework, which tests several different
+> configurations and architectures, with LLVM tip of tree (16.0.0). I have done
+> defconfig, allmodconfig, and allnoconfig builds for arm, arm64, i386, mips,
+> powerpc, riscv, s390, and x86_64 with GCC 12.2.0 as well but I am hoping the
+> rest of the test infrastructure will catch any lurking problems.
+>
+> I would like this series to stay together so that there is no opportunity for
+> breakage so please consider giving acks so that this can be carried via the
+> kbuild tree (and many thanks to the people who have already provided such
+> tags).
 
-That makes sense, and it is a good reason to mask off the allocation
-policy flags from the gfp.
 
-On the other hand it also makes sense to continue to pass in things
-like NOWAIT|NOWARN to all the allocations. Even to the iommu driver.
+All applied to linux-kbuild. Thanks.
 
-So I'd prefer to change this to mask and make all the following calls
-consistently use the input gfp
+I left small comments in 07/14.
 
-> I'd say the more confusing thing about this particular context is why we're
-> using iommu_map_sg_atomic() further down - that seems to have been an
-> oversight in 781ca2de89ba, since this particular path has never supported
-> being called in atomic context.
 
-Huh. I had fixed that in v1, this patch was supposed to have that
-hunk, that was the main point of making this patch actually..
 
-> Overall I'm starting to wonder if it might not be better to stick a "use
-> GFP_KERNEL_ACCOUNT if you allocate" flag in the domain for any level of the
-> API internals to pick up as appropriate, rather than propagate per-call gfp
-> flags everywhere. 
 
-We might get to something like that, but it requires more parts that
-are not ready yet. Most likely this would take the form of some kind
-of 'this is an iommufd created domain' indication. This happens
-naturally as part of the nesting patches.
 
-Right now I want to get people to start testing with this because the
-charge from the IOPTEs is far and away the largest memory draw.  Parts
-like fixing the iommu drivers to actually use gfp are necessary to
-make it work.
 
-If we flip the two places using KERNEL_ACCOUNT to something else later
-it doesn't really matter. I think the removal of the two _atomic
-wrappers is still appropriate stand-alone.
 
-> As it stands we're still missing potential pagetable and other
-> domain-related allocations by drivers in .attach_dev and even (in
 
-Yes, I plan to get to those when we add an alloc_domain_iommufd() or
-whatever op. The driver will know the calling context and can set the
-gfp flags for any allocations under alloc_domain under that time.
+> ---
+> Changes in v2:
+> - Pick up tags where provided (thank you everyone!)
+> - Patch 6 and 9: Clarify that '-s' is a compiler flag that is only relevant to
+>   the linking phase and remove all mention of the assembler's '-s' flag, as the
+>   assembler is never directly invoked (Nick, Segher)
+> - Patch 7: Move '-z noexecstack' into new ldflags-y variable (Nick)
+> - Patch 8: Reword commit message to explain the problem in a clearer manner
+>   (Nick)
+> - Link to v1: https://lore.kernel.org/r/20221228-drop-qunused-arguments-v1-0-658cbc8fc592@kernel.org
+>
+> ---
+> Nathan Chancellor (12):
+>       MIPS: Always use -Wa,-msoft-float and eliminate GAS_HAS_SET_HARDFLOAT
+>       MIPS: Prefer cc-option for additions to cflags
+>       powerpc: Remove linker flag from KBUILD_AFLAGS
+>       powerpc/vdso: Remove unused '-s' flag from ASFLAGS
+>       powerpc/vdso: Improve linker flags
+>       powerpc/vdso: Remove an unsupported flag from vgettimeofday-32.o with clang
+>       s390/vdso: Drop unused '-s' flag from KBUILD_AFLAGS_64
+>       s390/vdso: Drop '-shared' from KBUILD_CFLAGS_64
+>       s390/purgatory: Remove unused '-MD' and unnecessary '-c' flags
+>       drm/amd/display: Do not add '-mhard-float' to dml_ccflags for clang
+>       kbuild: Turn a couple more of clang's unused option warnings into errors
+>       kbuild: Stop using '-Qunused-arguments' with clang
+>
+> Nick Desaulniers (2):
+>       x86/boot/compressed: prefer cc-option for CFLAGS additions
+>       kbuild: Update assembler calls to use proper flags and language target
+>
+>  Makefile                                    |  1 -
+>  arch/mips/Makefile                          | 13 ++-------
+>  arch/mips/include/asm/asmmacro-32.h         |  4 +--
+>  arch/mips/include/asm/asmmacro.h            | 42 ++++++++++++++---------------
+>  arch/mips/include/asm/fpregdef.h            | 14 ----------
+>  arch/mips/include/asm/mipsregs.h            | 20 +++-----------
+>  arch/mips/kernel/genex.S                    |  2 +-
+>  arch/mips/kernel/r2300_fpu.S                |  4 +--
+>  arch/mips/kernel/r4k_fpu.S                  | 12 ++++-----
+>  arch/mips/kvm/fpu.S                         |  6 ++---
+>  arch/mips/loongson2ef/Platform              |  2 +-
+>  arch/powerpc/Makefile                       |  2 +-
+>  arch/powerpc/kernel/vdso/Makefile           | 25 +++++++++++------
+>  arch/s390/kernel/vdso64/Makefile            |  4 +--
+>  arch/s390/purgatory/Makefile                |  2 +-
+>  arch/x86/boot/compressed/Makefile           |  2 +-
+>  drivers/gpu/drm/amd/display/dc/dml/Makefile |  3 ++-
+>  scripts/Kconfig.include                     |  2 +-
+>  scripts/Makefile.clang                      |  2 ++
+>  scripts/Makefile.compiler                   |  8 +++---
+>  scripts/as-version.sh                       |  2 +-
+>  21 files changed, 74 insertions(+), 98 deletions(-)
+> ---
+> base-commit: 88603b6dc419445847923fcb7fe5080067a30f98
+> change-id: 20221228-drop-qunused-arguments-0c5c7dae54fb
+>
+> Best regards,
+> --
+> Nathan Chancellor <nathan@kernel.org>
+>
 
-Then we can go and figure out if there are other allocations and if
-all or only some drivers need a flag - eg at attach time. Though this
-is less worrying because you can only scale attach up to num_pasids *
-num open vfios.
 
-iommufd will let userspace create and populate an unlimited number of
-iommu_domains, so everything linked to an unattached iommu_domain
-should be charged.
-
-> probably-shouldn't-really-happen cases) .unmap_pages...
-
-Gah, unmap_pages isn't allow to fail. There is no way to recover from
-this. iommufd will spew a warn and then have a small race where
-userspace can UAF kernel memory.
-
-I'd call such a driver implementation broken. Why would you need to do
-this?? :(
-
-Thanks,
-Jason
+--
+Best Regards
+Masahiro Yamada
