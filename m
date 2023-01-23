@@ -2,61 +2,60 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 10B9FC54EAA
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 558F0C61D97
 	for <linux-s390@archiver.kernel.org>; Mon, 23 Jan 2023 18:18:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232801AbjAWSSl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 23 Jan 2023 13:18:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57354 "EHLO
+        id S232883AbjAWSSm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 23 Jan 2023 13:18:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232755AbjAWSSk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 23 Jan 2023 13:18:40 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A729BB81;
-        Mon, 23 Jan 2023 10:18:39 -0800 (PST)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30NIDXnH000618;
-        Mon, 23 Jan 2023 18:18:34 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=FUBkLCVrXq0V5HEt8zhEPA0jrDtMBtTTJGtr83LAbPg=;
- b=I0d5EUPwRwmGi+2fIluaQbH7YXa4qd4/ZvG/9pND1jUXfdj+ea2jef53E0trgpVamx7f
- yL06QmfiR6AQD/2BvPlyap07MUQp6ycDaizw5jWuldww/fwF6TVUiB40tSct3qN0XN2U
- wanDQYyNBLeAaCHavRQKSKYlR0Zr3JHWcQ8YYSJbFcRE4BuTDoA8XHNiTrbYTtgKmckz
- 1adBihMYULZqL2uaTiiJcUnvnrEzpGjyKS0fDKr5zHKvEoKga3eg5Zar2h8vfwcGLyCi
- RHeZ7P96nb4lzORVboybL7MaxZ+ucVf3mO4vuc+wGnkGrijSUF9ZfVzut6T/6e06zmES hQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3n9xmk923y-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 23 Jan 2023 18:18:33 +0000
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 30NIGuPj012837;
-        Mon, 23 Jan 2023 18:18:33 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3n9xmk922y-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 23 Jan 2023 18:18:33 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30N5ALEB009185;
+        with ESMTP id S229607AbjAWSSm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 23 Jan 2023 13:18:42 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E35CECA28;
+        Mon, 23 Jan 2023 10:18:40 -0800 (PST)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30NGUXJ8013549;
         Mon, 23 Jan 2023 18:18:31 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma03fra.de.ibm.com (PPS) with ESMTPS id 3n87p69y5x-1
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=eijx75EMWzOEnkolUuY7smuZ9FzwWk2aw0VoVKGflFU=;
+ b=mCALP/4xP7A+LqAOXfa75x8zEB7Fj7+yLECpbv8rIDf4PPNc41Vw5RrpVcRGaT1iRjaa
+ MYwDobiW7ETB1lxvmXoV6kNf5fNaWm3w3nLa8p0VdMm/0KuiP5rHZaiXubfFfPeKwEPC
+ 9AIvl+yzU+ybpbBoWHNRRSTcH599OxFOLaDx9yL9j3znlvYx6KU/AkcW2yh+lPjHfGKN
+ h+lNlVAZlg0KeBVdp8NjXtUNrOYaijBCE4H1SoRZcjEu8KFCWl3zhrfkL4tYnLPyb7Ha
+ 4mU5RlVHL7FFj3+dsGY2d+eCWQmV9LXPYsAsvGr7km3pvNZI0OXTtHFxEck8enNKfWA6 /A== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n9wtsjy1v-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Mon, 23 Jan 2023 18:18:31 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 30NGgUuA002329;
+        Mon, 23 Jan 2023 18:18:30 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n9wtsjy0s-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 23 Jan 2023 18:18:30 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30N668XG019104;
+        Mon, 23 Jan 2023 18:18:28 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3n87p6jqbj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 23 Jan 2023 18:18:27 +0000
 Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30NIIRvR24052464
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30NIIOp442008872
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 23 Jan 2023 18:18:27 GMT
+        Mon, 23 Jan 2023 18:18:24 GMT
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 97F182004B;
-        Mon, 23 Jan 2023 18:18:27 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 2261B2004B;
+        Mon, 23 Jan 2023 18:18:24 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9049C20040;
-        Mon, 23 Jan 2023 18:18:26 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 0E0B220040;
+        Mon, 23 Jan 2023 18:18:23 +0000 (GMT)
 Received: from LAPTOP-8S6R7U4L.localdomain (unknown [9.171.0.149])
         by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon, 23 Jan 2023 18:18:26 +0000 (GMT)
+        Mon, 23 Jan 2023 18:18:22 +0000 (GMT)
 From:   Jan Karcher <jaka@linux.ibm.com>
 To:     David Miller <davem@davemloft.net>,
         Jakub Kicinski <kuba@kernel.org>,
@@ -74,157 +73,72 @@ Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
         Halil Pasic <pasic@linux.ibm.com>,
         Tony Lu <tonylu@linux.alibaba.com>,
         Wen Gu <guwen@linux.alibaba.com>
-Subject: [net-next v2 3/8] s390/ism: Introduce struct ism_dmb
-Date:   Mon, 23 Jan 2023 19:17:47 +0100
-Message-Id: <20230123181752.1068-4-jaka@linux.ibm.com>
+Subject: [net-next v2 0/8] drivers/s390/net/ism: Add generalized interface
+Date:   Mon, 23 Jan 2023 19:17:44 +0100
+Message-Id: <20230123181752.1068-1-jaka@linux.ibm.com>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20230123181752.1068-1-jaka@linux.ibm.com>
-References: <20230123181752.1068-1-jaka@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: eTk52u9mZK1nAa4cd7xFFL-4FqQRgaL5
-X-Proofpoint-ORIG-GUID: Vd5BWDA8xG8TQaX-aeV1ArwS6TnbVe5e
+X-Proofpoint-ORIG-GUID: H6Nc3H5l29aSNreBYH78V5mAGi6nWRzH
+X-Proofpoint-GUID: vSF9-UVb_0uOuoTlRaYC44vOekYOq9jU
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
  definitions=2023-01-23_12,2023-01-23_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
- priorityscore=1501 mlxscore=0 phishscore=0 suspectscore=0 impostorscore=0
- mlxlogscore=789 spamscore=0 malwarescore=0 adultscore=0 lowpriorityscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2301230173
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
+ suspectscore=0 mlxlogscore=708 bulkscore=0 phishscore=0 lowpriorityscore=0
+ malwarescore=0 mlxscore=0 priorityscore=1501 adultscore=0 spamscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
+ definitions=main-2301230173
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Stefan Raspl <raspl@linux.ibm.com>
+Previously, there was no clean separation between SMC-D code and the ISM
+device driver.This patch series addresses the situation to make ISM available
+for uses outside of SMC-D.
+In detail: SMC-D offers an interface via struct smcd_ops, which only the
+ISM module implements so far. However, there is no real separation between
+the smcd and ism modules, which starts right with the ISM device
+initialization, which calls directly into the SMC-D code.
+This patch series introduces a new API in the ISM module, which allows
+registration of arbitrary clients via include/linux/ism.h: struct ism_client.
+Furthermore, it introduces a "pure" struct ism_dev (i.e. getting rid of
+dependencies on SMC-D in the device structure), and adds a number of API
+calls for data transfers via ISM (see ism_register_dmb() & friends).
+Still, the ISM module implements the SMC-D API, and therefore has a number
+of internal helper functions for that matter.
+Note that the ISM API is consciously kept thin for now (as compared to the
+SMC-D API calls), as a number of API calls are only used with SMC-D and
+hardly have any meaningful usage beyond SMC-D, e.g. the VLAN-related calls.
 
-Conceptually, a DMB is a structure that belongs to ISM devices. However,
-SMC currently 'owns' this structure. So future exploiters of ISM devices
-would be forced to include SMC headers to work - which is just weird.
-Therefore, we switch ISM to struct ism_dmb, introduce a new public header
-with the definition (will be populated with further API calls later on),
-and, add a thin wrapper to please SMC. Since structs smcd_dmb and ism_dmb
-are identical, we can simply convert between the two for now.
+v1 -> v2:
+  Removed s390x dependency which broke config for other archs.
 
-Signed-off-by: Stefan Raspl <raspl@linux.ibm.com>
-Signed-off-by: Jan Karcher <jaka@linux.ibm.com>
-Signed-off-by: Wenjia Zhang <wenjia@linux.ibm.com>
----
- drivers/s390/net/ism.h     |  1 +
- drivers/s390/net/ism_drv.c | 22 ++++++++++++++++------
- include/linux/ism.h        | 23 +++++++++++++++++++++++
- 3 files changed, 40 insertions(+), 6 deletions(-)
+Stefan Raspl (8):
+  net/smc: Terminate connections prior to device removal
+  net/ism: Add missing calls to disable bus-mastering
+  s390/ism: Introduce struct ism_dmb
+  net/ism: Add new API for client registration
+  net/smc: Register SMC-D as ISM client
+  net/smc: Separate SMC-D and ISM APIs
+  s390/ism: Consolidate SMC-D-related code
+  net/smc: De-tangle ism and smc device initialization
+
+ drivers/s390/net/ism.h     |  19 +-
+ drivers/s390/net/ism_drv.c | 376 ++++++++++++++++++++++++++++++-------
+ include/linux/ism.h        |  98 ++++++++++
+ include/net/smc.h          |  24 +--
+ net/smc/af_smc.c           |   9 +-
+ net/smc/smc_clc.c          |  11 +-
+ net/smc/smc_core.c         |  13 +-
+ net/smc/smc_diag.c         |   3 +-
+ net/smc/smc_ism.c          | 180 ++++++++++--------
+ net/smc/smc_ism.h          |   3 +-
+ net/smc/smc_pnet.c         |  40 ++--
+ 11 files changed, 560 insertions(+), 216 deletions(-)
  create mode 100644 include/linux/ism.h
 
-diff --git a/drivers/s390/net/ism.h b/drivers/s390/net/ism.h
-index 38fe90c2597d..90af51370183 100644
---- a/drivers/s390/net/ism.h
-+++ b/drivers/s390/net/ism.h
-@@ -5,6 +5,7 @@
- #include <linux/spinlock.h>
- #include <linux/types.h>
- #include <linux/pci.h>
-+#include <linux/ism.h>
- #include <net/smc.h>
- #include <asm/pci_insn.h>
- 
-diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
-index e253949aa975..b9f33f411d78 100644
---- a/drivers/s390/net/ism_drv.c
-+++ b/drivers/s390/net/ism_drv.c
-@@ -215,14 +215,14 @@ static int ism_query_rgid(struct smcd_dev *smcd, u64 rgid, u32 vid_valid,
- 	return ism_cmd(ism, &cmd);
- }
- 
--static void ism_free_dmb(struct ism_dev *ism, struct smcd_dmb *dmb)
-+static void ism_free_dmb(struct ism_dev *ism, struct ism_dmb *dmb)
- {
- 	clear_bit(dmb->sba_idx, ism->sba_bitmap);
- 	dma_free_coherent(&ism->pdev->dev, dmb->dmb_len,
- 			  dmb->cpu_addr, dmb->dma_addr);
- }
- 
--static int ism_alloc_dmb(struct ism_dev *ism, struct smcd_dmb *dmb)
-+static int ism_alloc_dmb(struct ism_dev *ism, struct ism_dmb *dmb)
- {
- 	unsigned long bit;
- 
-@@ -251,7 +251,7 @@ static int ism_alloc_dmb(struct ism_dev *ism, struct smcd_dmb *dmb)
- 	return dmb->cpu_addr ? 0 : -ENOMEM;
- }
- 
--static int ism_register_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb)
-+static int ism_register_dmb(struct smcd_dev *smcd, struct ism_dmb *dmb)
- {
- 	struct ism_dev *ism = smcd->priv;
- 	union ism_reg_dmb cmd;
-@@ -282,7 +282,12 @@ static int ism_register_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb)
- 	return ret;
- }
- 
--static int ism_unregister_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb)
-+static int smcd_register_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb)
-+{
-+	return ism_register_dmb(smcd, (struct ism_dmb *)dmb);
-+}
-+
-+static int ism_unregister_dmb(struct smcd_dev *smcd, struct ism_dmb *dmb)
- {
- 	struct ism_dev *ism = smcd->priv;
- 	union ism_unreg_dmb cmd;
-@@ -303,6 +308,11 @@ static int ism_unregister_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb)
- 	return ret;
- }
- 
-+static int smcd_unregister_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb)
-+{
-+	return ism_unregister_dmb(smcd, (struct ism_dmb *)dmb);
-+}
-+
- static int ism_add_vlan_id(struct smcd_dev *smcd, u64 vlan_id)
- {
- 	struct ism_dev *ism = smcd->priv;
-@@ -475,8 +485,8 @@ static irqreturn_t ism_handle_irq(int irq, void *data)
- 
- static const struct smcd_ops ism_ops = {
- 	.query_remote_gid = ism_query_rgid,
--	.register_dmb = ism_register_dmb,
--	.unregister_dmb = ism_unregister_dmb,
-+	.register_dmb = smcd_register_dmb,
-+	.unregister_dmb = smcd_unregister_dmb,
- 	.add_vlan_id = ism_add_vlan_id,
- 	.del_vlan_id = ism_del_vlan_id,
- 	.set_vlan_required = ism_set_vlan_required,
-diff --git a/include/linux/ism.h b/include/linux/ism.h
-new file mode 100644
-index 000000000000..69bfbf0faaa1
---- /dev/null
-+++ b/include/linux/ism.h
-@@ -0,0 +1,23 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ *  Internal Shared Memory
-+ *
-+ *  Definitions for the ISM module
-+ *
-+ *  Copyright IBM Corp. 2022
-+ */
-+#ifndef _ISM_H
-+#define _ISM_H
-+
-+struct ism_dmb {
-+	u64 dmb_tok;
-+	u64 rgid;
-+	u32 dmb_len;
-+	u32 sba_idx;
-+	u32 vlan_valid;
-+	u32 vlan_id;
-+	void *cpu_addr;
-+	dma_addr_t dma_addr;
-+};
-+
-+#endif	/* _ISM_H */
 -- 
 2.25.1
 
