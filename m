@@ -2,60 +2,61 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 558F0C61D97
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F5DDC61D9D
 	for <linux-s390@archiver.kernel.org>; Mon, 23 Jan 2023 18:18:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232883AbjAWSSm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 23 Jan 2023 13:18:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57396 "EHLO
+        id S232894AbjAWSSp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 23 Jan 2023 13:18:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229607AbjAWSSm (ORCPT
+        with ESMTP id S232877AbjAWSSm (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Mon, 23 Jan 2023 13:18:42 -0500
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E35CECA28;
-        Mon, 23 Jan 2023 10:18:40 -0800 (PST)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30NGUXJ8013549;
-        Mon, 23 Jan 2023 18:18:31 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79828CC1C;
+        Mon, 23 Jan 2023 10:18:41 -0800 (PST)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30NHVB7j024504;
+        Mon, 23 Jan 2023 18:18:33 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=eijx75EMWzOEnkolUuY7smuZ9FzwWk2aw0VoVKGflFU=;
- b=mCALP/4xP7A+LqAOXfa75x8zEB7Fj7+yLECpbv8rIDf4PPNc41Vw5RrpVcRGaT1iRjaa
- MYwDobiW7ETB1lxvmXoV6kNf5fNaWm3w3nLa8p0VdMm/0KuiP5rHZaiXubfFfPeKwEPC
- 9AIvl+yzU+ybpbBoWHNRRSTcH599OxFOLaDx9yL9j3znlvYx6KU/AkcW2yh+lPjHfGKN
- h+lNlVAZlg0KeBVdp8NjXtUNrOYaijBCE4H1SoRZcjEu8KFCWl3zhrfkL4tYnLPyb7Ha
- 4mU5RlVHL7FFj3+dsGY2d+eCWQmV9LXPYsAsvGr7km3pvNZI0OXTtHFxEck8enNKfWA6 /A== 
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=Mx4Bncrl5DXxBU+OhNDK8Rb0fMdhzVxzZ9MxR22lOMg=;
+ b=ZdvAnfuZP1NwUrgXGPTukDdVy5nSyQ+7OBlKNIeLcTRQg7SNfpraCP0nB1IIE/8ZbUGz
+ XzCXUOpemt5eYIY8AF5yV2ZKRpCT+kOibUL8SFuTKkUAzJZ281vqfeJr3kooFZTI+LeF
+ yJQXkFZq1/7Zg5sIlGwHYgBtHRACuRXqdHNk/lZNmztBCw/ytEzm7oODCK9d++z9YuZz
+ Pfk2xTRXUTS/lZSG1zpxZRMOSLxk0LP2c0UaMjcYkaeH/lvUHQQrDWlBiIaB0T9vQFl9
+ BQHE5Ys5rM1osxgBnaGf3PzmJxDjV2rn6NhqIs/iXcqWtdeaWK45Qz/BFQzx4FHcSIOo NA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n9wtsjy1v-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n9xpx14j2-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 23 Jan 2023 18:18:31 +0000
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 30NGgUuA002329;
+        Mon, 23 Jan 2023 18:18:33 +0000
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 30NI7we0034524;
+        Mon, 23 Jan 2023 18:18:32 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n9xpx14gs-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 23 Jan 2023 18:18:32 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30NFOjc0005785;
         Mon, 23 Jan 2023 18:18:30 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n9wtsjy0s-1
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+        by ppma03fra.de.ibm.com (PPS) with ESMTPS id 3n87p69y5w-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 23 Jan 2023 18:18:30 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30N668XG019104;
-        Mon, 23 Jan 2023 18:18:28 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3n87p6jqbj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 23 Jan 2023 18:18:27 +0000
+        Mon, 23 Jan 2023 18:18:29 +0000
 Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30NIIOp442008872
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30NIIQpY46072262
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 23 Jan 2023 18:18:24 GMT
+        Mon, 23 Jan 2023 18:18:26 GMT
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2261B2004B;
-        Mon, 23 Jan 2023 18:18:24 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 7735F2004D;
+        Mon, 23 Jan 2023 18:18:26 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0E0B220040;
-        Mon, 23 Jan 2023 18:18:23 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 5C92620040;
+        Mon, 23 Jan 2023 18:18:25 +0000 (GMT)
 Received: from LAPTOP-8S6R7U4L.localdomain (unknown [9.171.0.149])
         by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon, 23 Jan 2023 18:18:22 +0000 (GMT)
+        Mon, 23 Jan 2023 18:18:25 +0000 (GMT)
 From:   Jan Karcher <jaka@linux.ibm.com>
 To:     David Miller <davem@davemloft.net>,
         Jakub Kicinski <kuba@kernel.org>,
@@ -73,72 +74,58 @@ Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
         Halil Pasic <pasic@linux.ibm.com>,
         Tony Lu <tonylu@linux.alibaba.com>,
         Wen Gu <guwen@linux.alibaba.com>
-Subject: [net-next v2 0/8] drivers/s390/net/ism: Add generalized interface
-Date:   Mon, 23 Jan 2023 19:17:44 +0100
-Message-Id: <20230123181752.1068-1-jaka@linux.ibm.com>
+Subject: [net-next v2 2/8] net/ism: Add missing calls to disable bus-mastering
+Date:   Mon, 23 Jan 2023 19:17:46 +0100
+Message-Id: <20230123181752.1068-3-jaka@linux.ibm.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20230123181752.1068-1-jaka@linux.ibm.com>
+References: <20230123181752.1068-1-jaka@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: H6Nc3H5l29aSNreBYH78V5mAGi6nWRzH
-X-Proofpoint-GUID: vSF9-UVb_0uOuoTlRaYC44vOekYOq9jU
+X-Proofpoint-GUID: 2VRydLSTckUhYHiZAvnJXDGEQk-QeTjF
+X-Proofpoint-ORIG-GUID: DEjz34pPtplr8BUGigWjIvR6z6yKLa6l
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
  definitions=2023-01-23_12,2023-01-23_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
- suspectscore=0 mlxlogscore=708 bulkscore=0 phishscore=0 lowpriorityscore=0
- malwarescore=0 mlxscore=0 priorityscore=1501 adultscore=0 spamscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
- definitions=main-2301230173
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=846
+ malwarescore=0 clxscore=1015 suspectscore=0 spamscore=0 adultscore=0
+ bulkscore=0 mlxscore=0 impostorscore=0 phishscore=0 priorityscore=1501
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2301230173
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Previously, there was no clean separation between SMC-D code and the ISM
-device driver.This patch series addresses the situation to make ISM available
-for uses outside of SMC-D.
-In detail: SMC-D offers an interface via struct smcd_ops, which only the
-ISM module implements so far. However, there is no real separation between
-the smcd and ism modules, which starts right with the ISM device
-initialization, which calls directly into the SMC-D code.
-This patch series introduces a new API in the ISM module, which allows
-registration of arbitrary clients via include/linux/ism.h: struct ism_client.
-Furthermore, it introduces a "pure" struct ism_dev (i.e. getting rid of
-dependencies on SMC-D in the device structure), and adds a number of API
-calls for data transfers via ISM (see ism_register_dmb() & friends).
-Still, the ISM module implements the SMC-D API, and therefore has a number
-of internal helper functions for that matter.
-Note that the ISM API is consciously kept thin for now (as compared to the
-SMC-D API calls), as a number of API calls are only used with SMC-D and
-hardly have any meaningful usage beyond SMC-D, e.g. the VLAN-related calls.
+From: Stefan Raspl <raspl@linux.ibm.com>
 
-v1 -> v2:
-  Removed s390x dependency which broke config for other archs.
+Signed-off-by: Stefan Raspl <raspl@linux.ibm.com>
+Signed-off-by: Jan Karcher <jaka@linux.ibm.com>
+Signed-off-by: Wenjia Zhang <wenjia@linux.ibm.com>
+---
+ drivers/s390/net/ism_drv.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Stefan Raspl (8):
-  net/smc: Terminate connections prior to device removal
-  net/ism: Add missing calls to disable bus-mastering
-  s390/ism: Introduce struct ism_dmb
-  net/ism: Add new API for client registration
-  net/smc: Register SMC-D as ISM client
-  net/smc: Separate SMC-D and ISM APIs
-  s390/ism: Consolidate SMC-D-related code
-  net/smc: De-tangle ism and smc device initialization
-
- drivers/s390/net/ism.h     |  19 +-
- drivers/s390/net/ism_drv.c | 376 ++++++++++++++++++++++++++++++-------
- include/linux/ism.h        |  98 ++++++++++
- include/net/smc.h          |  24 +--
- net/smc/af_smc.c           |   9 +-
- net/smc/smc_clc.c          |  11 +-
- net/smc/smc_core.c         |  13 +-
- net/smc/smc_diag.c         |   3 +-
- net/smc/smc_ism.c          | 180 ++++++++++--------
- net/smc/smc_ism.h          |   3 +-
- net/smc/smc_pnet.c         |  40 ++--
- 11 files changed, 560 insertions(+), 216 deletions(-)
- create mode 100644 include/linux/ism.h
-
+diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
+index dfd401d9e362..e253949aa975 100644
+--- a/drivers/s390/net/ism_drv.c
++++ b/drivers/s390/net/ism_drv.c
+@@ -582,6 +582,7 @@ static int ism_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ err_free:
+ 	smcd_free_dev(ism->smcd);
+ err_resource:
++	pci_clear_master(pdev);
+ 	pci_release_mem_regions(pdev);
+ err_disable:
+ 	pci_disable_device(pdev);
+@@ -612,6 +613,7 @@ static void ism_remove(struct pci_dev *pdev)
+ 	ism_dev_exit(ism);
+ 
+ 	smcd_free_dev(ism->smcd);
++	pci_clear_master(pdev);
+ 	pci_release_mem_regions(pdev);
+ 	pci_disable_device(pdev);
+ 	dev_set_drvdata(&pdev->dev, NULL);
 -- 
 2.25.1
 
