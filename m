@@ -2,177 +2,131 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 89C44C05027
-	for <linux-s390@archiver.kernel.org>; Mon, 23 Jan 2023 16:12:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 45F1DC38142
+	for <linux-s390@archiver.kernel.org>; Mon, 23 Jan 2023 18:18:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232186AbjAWQMO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 23 Jan 2023 11:12:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47674 "EHLO
+        id S232815AbjAWSSm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 23 Jan 2023 13:18:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231804AbjAWQMN (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 23 Jan 2023 11:12:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 722FF26858;
-        Mon, 23 Jan 2023 08:12:00 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 243B1B80DF6;
-        Mon, 23 Jan 2023 16:11:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BC20C433EF;
-        Mon, 23 Jan 2023 16:11:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1674490317;
-        bh=45mhFq9YDMVcNdd2xkCq4u+U7UCgDMs1bAiH53dwA5g=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=YjiD3zZtEFJIkA+Nor+5GCqgslFnaX5gEiCIFf0yNlmFHAVZXoLk57mUvhhZFjOaF
-         kWMXW2bDKxSnTvn1pt8WMauceMZhWdbXzymXk94z+XrBUS6HfWdn1TJshmre8OiQZn
-         fOAdnMEXacbTs4G9yC7ZrgvhVHrLdnaTwDqlDnTRvsZZJV4aDg6QKcya511GvE5uq5
-         kZhuhklNnmb3B0aNLy63mtrZalOeiz6gJirUHcUWx+/2Bp9i/LL1rKnDZ2bm2igyJ+
-         I7kRtRgnWJWse7sgv1KSq1G7R68QmB3slY2POODY2LOv2rHYEGOC28wPaEiBp8X6sp
-         HnKIGE9JiGgQQ==
-Date:   Mon, 23 Jan 2023 09:11:54 -0700
-From:   Nathan Chancellor <nathan@kernel.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     masahiroy@kernel.org, ndesaulniers@google.com, nicolas@fjasle.eu,
-        trix@redhat.com, linux-kbuild@vger.kernel.org,
-        llvm@lists.linux.dev, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
-        kernel test robot <lkp@intel.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Philippe =?iso-8859-1?Q?Mathieu-Daud=E9?= <philmd@linaro.org>,
-        linux-mips@vger.kernel.org, mpe@ellerman.id.au, npiggin@gmail.com,
-        christophe.leroy@csgroup.eu, linuxppc-dev@lists.ozlabs.org,
-        Segher Boessenkool <segher@kernel.crashing.org>,
+        with ESMTP id S232778AbjAWSSl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 23 Jan 2023 13:18:41 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB12CC645;
+        Mon, 23 Jan 2023 10:18:40 -0800 (PST)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30NI1iKW032337;
+        Mon, 23 Jan 2023 18:18:32 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=rOduHI9j75NcY66Gt/8WiNTHeUT21xyF119FCQ6qhA8=;
+ b=CtlzphYgylWd15V6ehtZ7uK0793Y/6i7fL1ZPt5wLaEQtIa1cClpVKvv/aRv1Lz8zXI1
+ cMXvWRrddxWqV8BVhrnJyPgJM3WohzATR5M3QCqHBulIvDXnrSPHari+xISRtCg0pTxl
+ e1dvUlG0pS9I8u7MSVemcUyF6EVc8jWmgLoTiuZ2Y4uq2ysdukCZdw/Vk+gr9+TowaJb
+ GHlLIztSOjpk2EONFNq9hUqD5gYpMKsyfdXw5M7+Ja+Cj26acZb4LpaFeI/dPnCNifeo
+ h7ezw4Bwjtfmb+AgOAiyK+uotneB42lryA6WX2ag0+DPNSz67nnso8P6XG+R7tIEfbIq Iw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n9y5frdbu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 23 Jan 2023 18:18:31 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 30NI2FvO001372;
+        Mon, 23 Jan 2023 18:18:31 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n9y5frdaj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 23 Jan 2023 18:18:31 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30N43C1K007960;
+        Mon, 23 Jan 2023 18:18:28 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma03fra.de.ibm.com (PPS) with ESMTPS id 3n87p69y5v-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 23 Jan 2023 18:18:28 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30NIIPZb22020808
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 23 Jan 2023 18:18:25 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 435AB2004B;
+        Mon, 23 Jan 2023 18:18:25 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3B53A20040;
+        Mon, 23 Jan 2023 18:18:24 +0000 (GMT)
+Received: from LAPTOP-8S6R7U4L.localdomain (unknown [9.171.0.149])
+        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Mon, 23 Jan 2023 18:18:24 +0000 (GMT)
+From:   Jan Karcher <jaka@linux.ibm.com>
+To:     David Miller <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Eric Dumazet <edumazet@google.com>,
+        Paolo Abeni <pabeni@redhat.com>
+Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
         Heiko Carstens <hca@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        linux-s390@vger.kernel.org,
-        Alex Deucher <alexander.deucher@amd.com>,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        lkft-triage@lists.linaro.org
-Subject: Re: [PATCH v2 00/14] Remove clang's -Qunused-arguments from
- KBUILD_CPPFLAGS
-Message-ID: <Y86xyqe+Rd9wri7I@dev-arch.thelio-3990X>
-References: <20221228-drop-qunused-arguments-v2-0-9adbddd20d86@kernel.org>
- <CA+G9fYs58vWj705MdaBKomVfHxNJ5ekSTmf53S4=4oVmc43CZg@mail.gmail.com>
+        Alexandra Winter <wintera@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Thorsten Winkler <twinkler@linux.ibm.com>,
+        Stefan Raspl <raspl@linux.ibm.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Jan Karcher <jaka@linux.ibm.com>,
+        Nils Hoppmann <niho@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        Wen Gu <guwen@linux.alibaba.com>
+Subject: [net-next v2 1/8] net/smc: Terminate connections prior to device removal
+Date:   Mon, 23 Jan 2023 19:17:45 +0100
+Message-Id: <20230123181752.1068-2-jaka@linux.ibm.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20230123181752.1068-1-jaka@linux.ibm.com>
+References: <20230123181752.1068-1-jaka@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CA+G9fYs58vWj705MdaBKomVfHxNJ5ekSTmf53S4=4oVmc43CZg@mail.gmail.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: ne-OpfEby41b-QsLFUKKwofqpvlgDshy
+X-Proofpoint-ORIG-GUID: vO7NrBHkMc7Ows4MFDNbLmbQsiXuUGJT
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
+ definitions=2023-01-23_12,2023-01-23_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxlogscore=999
+ impostorscore=0 priorityscore=1501 clxscore=1015 spamscore=0 adultscore=0
+ phishscore=0 suspectscore=0 malwarescore=0 mlxscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
+ definitions=main-2301230173
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Naresh,
+From: Stefan Raspl <raspl@linux.ibm.com>
 
-On Mon, Jan 23, 2023 at 07:28:10PM +0530, Naresh Kamboju wrote:
-> FYI,
-> [ please provide comments, feedback and improvements on build/ ltp smoke tests ]
-> 
-> LKFT test farm have fetched your patch series [1]
-> [PATCH v2 00/14] Remove clang's -Qunused-arguments from KBUILD_CPPFLAGS
->  [1] https://lore.kernel.org/llvm/20221228-drop-qunused-arguments-v2-0-9adbddd20d86@kernel.org/
+Removing an ISM device prior to terminating its associated connections
+doesn't end well.
 
-Thank you a lot for testing this series, it is much appreciated!
+Signed-off-by: Stefan Raspl <raspl@linux.ibm.com>
+Signed-off-by: Jan Karcher <jaka@linux.ibm.com>
+Signed-off-by: Wenjia Zhang <wenjia@linux.ibm.com>
+---
+ net/smc/smc_ism.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-It looks like this was applied on top of 6.2-rc3 if I am reading your
-logs right but your mainline testing is recent, 6.2-rc5. I think the
-errors you are seeing here are just existing mainline regressions that
-were later fixed.
+diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
+index 911fe08bc54b..28e1641f990c 100644
+--- a/net/smc/smc_ism.c
++++ b/net/smc/smc_ism.c
+@@ -462,11 +462,11 @@ void smcd_unregister_dev(struct smcd_dev *smcd)
+ {
+ 	pr_warn_ratelimited("smc: removing smcd device %s\n",
+ 			    dev_name(&smcd->dev));
++	smcd->going_away = 1;
++	smc_smcd_terminate_all(smcd);
+ 	mutex_lock(&smcd_dev_list.mutex);
+ 	list_del_init(&smcd->list);
+ 	mutex_unlock(&smcd_dev_list.mutex);
+-	smcd->going_away = 1;
+-	smc_smcd_terminate_all(smcd);
+ 	destroy_workqueue(smcd->event_wq);
+ 
+ 	device_del(&smcd->dev);
+-- 
+2.25.1
 
-> Following build warnings and errors reported.
-> 
-> sh:
-> gcc-11-defconfig — FAIL
-> gcc-11-shx3_defconfig — FAIL
-> https://qa-reports.linaro.org/~anders.roxell/linux-mainline-patches/build/https___lore_kernel_org_llvm_20221228-drop-qunused-arguments-v2-1-9adbddd20d86_kernel_org/testrun/14221835/suite/build/tests/
-> 
-> mainline getting passed.
-> https://qa-reports.linaro.org/lkft/linux-mainline-master/build/v6.2-rc5/testrun/14298156/suite/build/test/gcc-11-defconfig/history/
-> https://qa-reports.linaro.org/lkft/linux-mainline-master/build/v6.2-rc5/testrun/14298156/suite/build/test/gcc-11-shx3_defconfig/history/
-> 
-> Build error:
-> In function 'follow_pmd_mask',
->     inlined from 'follow_pud_mask' at /builds/linux/mm/gup.c:735:9,
->     inlined from 'follow_p4d_mask' at /builds/linux/mm/gup.c:752:9,
->     inlined from 'follow_page_mask' at /builds/linux/mm/gup.c:809:9:
-> /builds/linux/include/linux/compiler_types.h:358:45: error: call to
-> '__compiletime_assert_263' declared with attribute error: Unsupported
-> access size for {READ,WRITE}_ONCE().
->   358 |         _compiletime_assert(condition, msg,
-> __compiletime_assert_, __COUNTER__)
-
-I think this was fixed with mainline commit 526970be53d5 ("sh/mm: Fix
-pmd_t for real"), released in 6.2-rc4. You can see a previous build
-failing in the same manner:
-
-https://qa-reports.linaro.org/lkft/linux-mainline-master/build/v6.2-rc3-9-g5a41237ad1d4/testrun/14056384/suite/build/tests/
-
-> s390:
-> clang-15-defconfig — FAIL
-> https://qa-reports.linaro.org/~anders.roxell/linux-mainline-patches/build/https___lore_kernel_org_llvm_20221228-drop-qunused-arguments-v2-1-9adbddd20d86_kernel_org/testrun/14221913/suite/build/tests/
-> 
-> mainline getting passed.
-> https://qa-reports.linaro.org/lkft/linux-mainline-master/build/v6.2-rc5/testrun/14300495/suite/build/test/clang-15-defconfig/history/
-> 
-> Build error:
-> make --silent --keep-going --jobs=8
-> O=/home/tuxbuild/.cache/tuxmake/builds/1/build LLVM_IAS=0 ARCH=s390
-> CROSS_COMPILE=s390x-linux-gnu- 'HOSTCC=sccache clang' 'CC=sccache
-> clang'
-> `.exit.text' referenced in section `__jump_table' of fs/fuse/inode.o:
-> defined in discarded section `.exit.text' of fs/fuse/inode.o
-> `.exit.text' referenced in section `__jump_table' of fs/fuse/inode.o:
-> defined in discarded section `.exit.text' of fs/fuse/inode.o
-> `.exit.text' referenced in section `__bug_table' of crypto/algboss.o:
-> defined in discarded section `.exit.text' of crypto/algboss.o
-> `.exit.text' referenced in section `__bug_table' of drivers/scsi/sd.o:
-> defined in discarded section `.exit.text' of drivers/scsi/sd.o
-> `.exit.text' referenced in section `__jump_table' of drivers/md/md.o:
-> defined in discarded section `.exit.text' of drivers/md/md.o
-> `.exit.text' referenced in section `__jump_table' of drivers/md/md.o:
-> defined in discarded section `.exit.text' of drivers/md/md.o
-> `.exit.text' referenced in section `.altinstructions' of
-> drivers/md/md.o: defined in discarded section `.exit.text' of
-> drivers/md/md.o
-> `.exit.text' referenced in section `.altinstructions' of
-> drivers/md/md.o: defined in discarded section `.exit.text' of
-> drivers/md/md.o
-> `.exit.text' referenced in section `.altinstructions' of
-> net/iucv/iucv.o: defined in discarded section `.exit.text' of
-> net/iucv/iucv.o
-> `.exit.text' referenced in section `__bug_table' of
-> drivers/s390/cio/qdio_thinint.o: defined in discarded section
-> `.exit.text' of drivers/s390/cio/qdio_thinint.o
-> `.exit.text' referenced in section `__bug_table' of
-> drivers/s390/net/qeth_l3_main.o: defined in discarded section
-> `.exit.text' of drivers/s390/net/qeth_l3_main.o
-> `.exit.text' referenced in section `__bug_table' of
-> drivers/s390/net/qeth_l3_main.o: defined in discarded section
-> `.exit.text' of drivers/s390/net/qeth_l3_main.o
-> s390x-linux-gnu-ld: BFD (GNU Binutils for Debian) 2.35.2 assertion
-> fail ../../bfd/elf64-s390.c:3349
-> make[2]: *** [/builds/linux/scripts/Makefile.vmlinux:34: vmlinux] Error 1
-
-This should be fixed with mainline commit a494398bde27 ("s390: define
-RUNTIME_DISCARD_EXIT to fix link error with GNU ld < 2.36"), released in
-6.2-rc4 as well. Same as before, visible in mainline at one point
-without this series:
-
-https://qa-reports.linaro.org/lkft/linux-mainline-master/build/v6.2-rc3-9-g5a41237ad1d4/testrun/14057142/suite/build/tests/
-
-> But,
-> Build and boot pass on arm64, arm, x86_64 and i386.
-> Build test performed for mips, parisc, riscv, s390, sh, sparc and
-> powerpc (known build errors for maple_defconfig and cell_defconfig),
-
-Good to hear!
-
-Please consider retesting this series on top of 6.2-rc5 or testing the
-current kbuild tree, which has this series applied in it:
-
-https://git.kernel.org/pub/scm/linux/kernel/git/masahiroy/linux-kbuild.git/log/?h=for-next
-
-Cheers,
-Nathan
