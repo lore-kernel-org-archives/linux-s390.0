@@ -2,337 +2,289 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EECA5C61D97
-	for <linux-s390@archiver.kernel.org>; Mon, 23 Jan 2023 20:37:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D7350C25B4E
+	for <linux-s390@archiver.kernel.org>; Tue, 24 Jan 2023 11:16:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233042AbjAWUhb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 23 Jan 2023 15:37:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37560 "EHLO
+        id S232593AbjAXLQp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 24 Jan 2023 06:16:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233074AbjAWUhH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 23 Jan 2023 15:37:07 -0500
-Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on2046.outbound.protection.outlook.com [40.107.94.46])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7666537F1F;
-        Mon, 23 Jan 2023 12:36:38 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=KgSu0KgCZdgvIhHMfIQLJLlzmqurwH/kG1s2Ibv6mq7Kn0kUYe3dcwqwH/x/bIRnPEnxJUPEcdvjy7ZOsnvWsm6mWXxUKgw1uEALoeKOUOphZ8agUobBuqrQCMFxg4Lhde2TxU9qY0KsgSt7PZvECFgWAnHNG/yaY407Myy0+pJGTKS3sHpRhj3ZWUGwJDXKj33Gf5luddt4ZXvZbqw/OgqrRsU08NFZrTuqTz4gY8uW1u5Ok7zcY9bOzPCnrbZDy81RC5izsY5KFQ0GlWzTVCBWlHJmipMn+yk7Ps3RS5eI4BgvEqUKlEvu0Roe8vaNWPf0LvNcHG6P1gzv0qobiQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=TR3UzV+jM32RAAY4DEyhLcAzLmZzKoYSQnKJfYVwWms=;
- b=Dw/+pxusq+nYFEJeIQN2eEqJSUJ0yFWrjIJKcTsEPY+USzD0QwURM2zFG76VxvJmywpO0VO38SGCkBR7WRsgZ0Jn8BaS8XDeEZVFthmr9noQI2KWHcNFqhdhkKEelGy+RTm0fZ95Gz2UQJT9G2W23rZXOqcM0TLUptDBsxq0wdr+N65qPDqU/SqAhqVzJMHR0TI/UJi/1kHZNheNnqi8A33hog53IQIhh8+FbYNJMcAyjOfyABKn8Jx+FCLHdI7XJ/LufegcYb0IH7cQIuEVVmNBYIw6U2ieLUgpX2uZ3CBJDPv7DNa35MuT+ukMWUx8PiRIR4/HAU1q9/GqfObafw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=TR3UzV+jM32RAAY4DEyhLcAzLmZzKoYSQnKJfYVwWms=;
- b=qXLH3kr9674VpkPa7WxgeuYvhPjm7kFxBZdvl9fDWiqX5VAOq//tqirCH0X3hKvID2x8+pCQI+XFzDDvZZ3wZ6A9quQwyb9J+qx0E6mp5IrM+VeyccNDYE3zskqDcWZqR2hpNu3ZMiegrSq6q2kxC2DBJ0aMxywTKxg8P0kKG2lpyW31OGVAgftZtR7U5D2cOtK260mmSddw1Wd9JFtdupPwd5QHAIrufRsewtVj2VqxIYKybTueh5hXkng5QF0BbKSyxPsxWFIr3UzpJLfnr1kQoVninTpLoP+176FyUuBAoSLP6uiQVs8JoG+Cr86DgLeT84w5iFPGTdJiA1rwxw==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
- by BL3PR12MB6571.namprd12.prod.outlook.com (2603:10b6:208:38e::18) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6002.25; Mon, 23 Jan
- 2023 20:36:07 +0000
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::3cb3:2fce:5c8f:82ee]) by LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::3cb3:2fce:5c8f:82ee%4]) with mapi id 15.20.6002.033; Mon, 23 Jan 2023
- 20:36:07 +0000
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Robin Murphy <robin.murphy@arm.com>
-Cc:     Alex Williamson <alex.williamson@redhat.com>,
-        ath10k@lists.infradead.org, ath11k@lists.infradead.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        dri-devel@lists.freedesktop.org, iommu@lists.linux.dev,
-        kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-media@vger.kernel.org,
-        linux-rdma@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-        linux-s390@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-tegra@vger.kernel.org, linux-wireless@vger.kernel.org,
-        netdev@vger.kernel.org, nouveau@lists.freedesktop.org,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        virtualization@lists.linux-foundation.org
-Subject: [PATCH v3 09/10] iommu/s390: Push the gfp parameter to the kmem_cache_alloc()'s
-Date:   Mon, 23 Jan 2023 16:36:02 -0400
-Message-Id: <9-v3-76b587fe28df+6e3-iommu_map_gfp_jgg@nvidia.com>
-In-Reply-To: <0-v3-76b587fe28df+6e3-iommu_map_gfp_jgg@nvidia.com>
-References: 
+        with ESMTP id S233420AbjAXLQk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 24 Jan 2023 06:16:40 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A5E743440;
+        Tue, 24 Jan 2023 03:16:38 -0800 (PST)
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30O8g8pf000611;
+        Tue, 24 Jan 2023 11:16:28 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : from : to : cc : references : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=rpolTQuwHV1lS3BxGOgvqmpk76zJd3hh4zwl41iU98o=;
+ b=mGE5/iZDV05YkUXRrDqhxK3Fpb4EFPDJJbZE+KVIHCxX6HyFEoUFmTw2LSxbL+P0J2JK
+ wxCS7wShcMtQi/deVWGvi96TFFtuSQ7gfcoq9jPnvhK/C1qOm/B67sEVBKHhFhCguiAI
+ drJaSWl6+tM23qwVhyMXtY4vzoSpOy/dxzW0TsX3Yavns5wXNBn+hlx/1slfeXFZZbQ8
+ I9cGw6BAetJr6Yg1iNoizRawaCsoA9ih9IK2J0svTmjVQiX2SWyDxfznowdHcw8EDmy/
+ B9+1tCUNcqR7Qc8Yaps2+thOrAmBjypC8QpGJc5b8+3y0RXKl4RuGBgCvXJ2VYc/eqQZ Ow== 
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nac1yucfx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 24 Jan 2023 11:16:27 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30O9kJpV014950;
+        Tue, 24 Jan 2023 11:16:25 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3n87afbq58-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 24 Jan 2023 11:16:25 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30OBGLpm21299528
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 24 Jan 2023 11:16:21 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BE23B2004D;
+        Tue, 24 Jan 2023 11:16:21 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6A49120040;
+        Tue, 24 Jan 2023 11:16:21 +0000 (GMT)
+Received: from [9.152.212.243] (unknown [9.152.212.243])
+        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Tue, 24 Jan 2023 11:16:21 +0000 (GMT)
+Message-ID: <55c35e64-a7d4-9072-46fd-e8eae6a90e96@linux.ibm.com>
+Date:   Tue, 24 Jan 2023 12:16:21 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.0
+Subject: Re: kernel BUG scsi_dh_alua sleeping from invalid context && kernel
+ WARNING do not call blocking ops when !TASK_RUNNING
+Content-Language: en-US
+From:   Steffen Maier <maier@linux.ibm.com>
+To:     Bart Van Assche <bvanassche@acm.org>,
+        Martin Wilck <mwilck@suse.com>,
+        linux-scsi <linux-scsi@vger.kernel.org>
+Cc:     "Martin K. Petersen" <martin.petersen@oracle.com>,
+        "James E . J . Bottomley" <jejb@linux.ibm.com>,
+        Sachin Sant <sachinp@linux.ibm.com>,
+        Hannes Reinecke <hare@suse.de>,
+        Benjamin Block <bblock@linux.ibm.com>,
+        linux-s390 <linux-s390@vger.kernel.org>
+References: <b49e37d5-edfb-4c56-3eeb-62c7d5855c00@linux.ibm.com>
+ <017b6c73f56505e63519e4b79fe69d66abddf810.camel@suse.com>
+ <a9da2b27-882f-bc8e-3400-cb53440e2159@acm.org>
+ <125f247806396f19fd27dcfa71f530b5b4a529a6.camel@suse.com>
+ <c23a6bf4-0b6e-0bbb-b74d-af69756bcf9a@acm.org>
+ <ab7d61dd7f7c0289114e36fef6e9f282ad5c976b.camel@suse.com>
+ <2bea9c3e-2a61-a51e-c13b-796adabe6f71@acm.org>
+ <983f47533ee56b2a954de97dc7e02cbcbc4f9841.camel@suse.com>
+ <08e7e15e-37e0-0d45-9332-fe4b6e896cb2@acm.org>
+ <f39fb7d2-f0ec-ea53-a3a9-eb86b8367e82@linux.ibm.com>
+In-Reply-To: <f39fb7d2-f0ec-ea53-a3a9-eb86b8367e82@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 49VS29CHpqpgyYwu9n9qEDWWraxmMPkM
+X-Proofpoint-ORIG-GUID: 49VS29CHpqpgyYwu9n9qEDWWraxmMPkM
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: BL1PR13CA0260.namprd13.prod.outlook.com
- (2603:10b6:208:2ba::25) To LV2PR12MB5869.namprd12.prod.outlook.com
- (2603:10b6:408:176::16)
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|BL3PR12MB6571:EE_
-X-MS-Office365-Filtering-Correlation-Id: 0317d878-3d3c-4b5c-afd5-08dafd81737c
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: BEpA33d/X3CMUalhYrDZ7KOmkyUDHOjA/XqRO7tMy9jFEPQ9yXqcbKwY/a1cwCM/zp2qUfhixTwdeHqTl3Ki/ld5JMdiZ6tNeI0FIQ4txstT2nBzMiTc4TNRdNgKJH3TtkvBYGEG+iW/syKwEUf14n42c+m32YZ3ivai5d9cxr6VNrRm/K+yRF7zUij+UC8s9rmS6vRRxgpyfqmD0HIdUld6OgJEzgW8SJV9TZb7F0ifbwJah5S8O1OKufu6pMar2M8xUXpsgW45DeO6KnoXJv0umpsoE7x7rR8BfR69TiM22vtwHHFQz0pME8SVCyoN4z8gPPJlTPmU+Q3PONgwr/EE672KpE9B+h7i1jIPJ5eQrBbG0jT1iDSTQ61347SSnL0G71rDW3dMlqfnaYpMJk6a3OgK1QcF/G88wTZsMBaf8J/vNyooM+LHoxEzE/vMgdT/80lWWTXmKyXWv5wsInHPmz38f7Xsq+OuWvAyUwAUhWc7XFvs2GtpUqJRk5Ia0CllOaIHobd8wmkR+GyXHXdVp0tpJK2DMXsQjczDGkqAGcfwvaiAGSbCSdo8X+/9xqvksz+k3IAUDO3u2SVJgNJexe+dsDlPkP5It75XlTC8oZ+kzcty7/EtR2NG+REb1uj8xQHZELI92kal1vdbBXZAs8xJnRWggad1uJpDintR47ibUc6KfBQxnDBBvKKu
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(346002)(39860400002)(136003)(366004)(376002)(396003)(451199015)(5660300002)(316002)(8936002)(7416002)(41300700001)(38100700002)(110136005)(36756003)(186003)(83380400001)(478600001)(6666004)(86362001)(6512007)(6506007)(6486002)(26005)(66476007)(8676002)(66946007)(4326008)(2616005)(54906003)(2906002)(66556008)(4216001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?+4MV0tVruWWYmY/SNTn0aDiFayyrs43Eafn9FL6tsOJs70psKgLw/CTuxUjr?=
- =?us-ascii?Q?fG/wO2w7vncC4TaoaYPBlBs6at9QI6hT0UqRQ0Zi/sfcq6Fj3q0wzZXJfnsx?=
- =?us-ascii?Q?/X64EC5aHzOSZr3TMMQEN0tS+Yv14sOscQbrJcMOJYjlLKUuTF2H5quiB/m1?=
- =?us-ascii?Q?GqA7hbKQd0GU7VInbfggjGeO7Hk6H3Pq/1T0L3kqjiszWEpi0s9l8dGYdLPM?=
- =?us-ascii?Q?f5aFfmAOGY8T1lshLa0/J2HdwKKczv/shjcbG2w0JmblKqOAUjNKxEkqzZ3m?=
- =?us-ascii?Q?+9ONnEEXzhhl+9zknTkIDGExJJHpBdUTWhD3iRaZBDcL5M+OlRqqw710p5kS?=
- =?us-ascii?Q?X353Xvdz11zHZQ+UXJQXezbdlSQZeiZ5XVqXbXN+sEvlaeKvRKaWjlN24Bb6?=
- =?us-ascii?Q?ITlbLBHaJUV3hA0FcXduTn4+5uBT2xB1BFvQU7mCzz/h1hqp78tmBHBqoEu7?=
- =?us-ascii?Q?66dp1dZxjFLVOcVlENOHkE/LXdj0wFd+WMP6H+dM0c5zI+wvaMPflNxWz6lN?=
- =?us-ascii?Q?uOFQqV7q+a+0ltxxS8PQI6Q01PWAhD4r+MVFJc3Z+YJASxeN/Wn586Yo9EzL?=
- =?us-ascii?Q?tcVfIurJ1tP1DFz769V/xuGisektswxMaVpqwjAmRy+7ph8rdCdTeii/P4Mk?=
- =?us-ascii?Q?0UC32e22G7qC5QQ+0QYnaf1pnlFZW3SqAdD3kD7NSFqYlJ8Bz3V/OiAYRsyY?=
- =?us-ascii?Q?VwBzbL/hmJI/iUU4kAPr+jL729srv0MEwxMVxbalNSTft+IhEC8XZWNmj6rn?=
- =?us-ascii?Q?jmaeSmItn52hS5dbNkpDv9OSGeSJ4Y9Wu2loueselxuN19795eE3rpZ5Jm/F?=
- =?us-ascii?Q?kEcZO06YdiNZoMhJYvlsBDB2J7w1SqSSuyzI+StY8cmFSUYhotgqaqKC2e62?=
- =?us-ascii?Q?MC+CwRcPD+CQzOuSAhyOxk0Z9+2NUH217lNtmBqgzFv8FpEC8gSZGYW27aeH?=
- =?us-ascii?Q?DMMmCmLSutBhdEfvn1lQSBnR1f5hcxl81b9mjvCwbFDC0I5mowm7H1YUl4to?=
- =?us-ascii?Q?GOfZEXbcNa9X3iiPld8f1nm5XaowWzna6kjXNvICQ7HejGuKToD26EVuGoSc?=
- =?us-ascii?Q?YFs89dTZbGmzixJW5OKjIcE0IzbbHOKWqojg7K/O74LSHfxG7dpVVvZqGJUg?=
- =?us-ascii?Q?2Drq9GFsrVi/he6WIrCbHvDx/tBpf6m2M9GTWX4OjZLF9QZJ0aoExf1dDlBp?=
- =?us-ascii?Q?zTWIF2BH3wc00H8KsFqS6oy6OI/xcX26XaIJlrcWpgoBeLm0s2jCxuHzIIuI?=
- =?us-ascii?Q?J2kax4UFTdCvKobgLII74Ahu43lpVSH1yDEIQg38H18+CODPEJ7iDtKsG1tu?=
- =?us-ascii?Q?migZ09ptnSDxEHheVxI+PIoGYQ4OZV4fHkIza5NeDJPikgWRlewG3LC7k+8r?=
- =?us-ascii?Q?6haYz9QsCEDEy+uP726oe8HcEEmhO/dTvEmG64zS30vGXaz6qJbaedl5kAOL?=
- =?us-ascii?Q?xZHYOylDFO3Lvi1AtEv430F1Pd2OzAC1CgsZapDEFxicXsDpZRFq4elbjIQC?=
- =?us-ascii?Q?bTuv9KHYy/p1rTB84GYP1odI+8AVRMiNB9uh/S0KcFDxnk8ToGSi8vs8hxn2?=
- =?us-ascii?Q?1bmgXU/m/E989nn0CvRT6bsOTT6/emEExRhhy7N/?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 0317d878-3d3c-4b5c-afd5-08dafd81737c
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Jan 2023 20:36:05.8068
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: J9xuC5BZWMz3Lqbq2+2cx3IMwGPZ8SDj8MYsokwgEFMu6zMxW/YKfGkE5RJG+2t0
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL3PR12MB6571
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
+ definitions=2023-01-23_12,2023-01-24_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 bulkscore=0
+ malwarescore=0 mlxscore=0 priorityscore=1501 spamscore=0 clxscore=1015
+ impostorscore=0 mlxlogscore=999 lowpriorityscore=0 adultscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2301240101
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-dma_alloc_cpu_table() and dma_alloc_page_table() are eventually called by
-iommufd through s390_iommu_map_pages() and it should not be forced to
-atomic. Thread the gfp parameter through the call chain starting from
-s390_iommu_map_pages().
+On 1/18/23 17:17, Steffen Maier wrote:
+> On 1/18/23 01:29, Bart Van Assche wrote:
+>> On 1/17/23 14:03, Martin Wilck wrote:
+>>> On Tue, 2023-01-17 at 13:52 -0800, Bart Van Assche wrote:
+>>>> On 1/17/23 13:48, Martin Wilck wrote:
+>>>>> Yes, that was my suggestion. Just defer the scsi_device_put() call
+>>>>> in
+>>>>> alua_rtpg_queue() in the case where the actual RTPG handler is not
+>>>>> queued. I won't have time for that before next week though.
 
-Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
----
- arch/s390/include/asm/pci_dma.h |  5 +++--
- arch/s390/pci/pci_dma.c         | 31 +++++++++++++++++--------------
- drivers/iommu/s390-iommu.c      | 15 +++++++++------
- 3 files changed, 29 insertions(+), 22 deletions(-)
+>> [PATCH] scsi: device_handler: alua: Remove a might_sleep() annotation
+>>
+>> The might_sleep() annotation in alua_rtpg_queue() is not correct since the
+>> command completion code may call this function from atomic context.
+>> Calling alua_rtpg_queue() from atomic context in the command completion
+>> path is fine since request submitters must hold an sdev reference until
+>> command execution has completed. This patch fixes the following kernel
+>> warning:
+>>
+>> BUG: sleeping function called from invalid context at 
+>> drivers/scsi/device_handler/scsi_dh_alua.c:992
+>> Call Trace:
+>>   dump_stack_lvl+0xac/0x100
+>>   __might_resched+0x284/0x2c8
+>>   alua_rtpg_queue+0x3c/0x98 [scsi_dh_alua]
+>>   alua_check+0x122/0x250 [scsi_dh_alua]
+>>   alua_check_sense+0x172/0x228 [scsi_dh_alua]
+>>   scsi_check_sense+0x8a/0x2e0
+>>   scsi_decide_disposition+0x286/0x298
+>>   scsi_complete+0x6a/0x108
+>>   blk_complete_reqs+0x6e/0x88
+>>   __do_softirq+0x13e/0x6b8
+>>   __irq_exit_rcu+0x14a/0x170
+>>   irq_exit_rcu+0x22/0x50
+>>   do_ext_irq+0x10a/0x1d0
+>>
+>> Reported-by: Steffen Maier <maier@linux.ibm.com>
+>> Cc: Steffen Maier <maier@linux.ibm.com>
+>> Cc: Martin Wilck <mwilck@suse.com>
+>> Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+>> ---
+>>   drivers/scsi/device_handler/scsi_dh_alua.c | 5 +++--
+>>   1 file changed, 3 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/drivers/scsi/device_handler/scsi_dh_alua.c 
+>> b/drivers/scsi/device_handler/scsi_dh_alua.c
+>> index 55a5073248f8..362fa631f39b 100644
+>> --- a/drivers/scsi/device_handler/scsi_dh_alua.c
+>> +++ b/drivers/scsi/device_handler/scsi_dh_alua.c
+>> @@ -987,6 +987,9 @@ static void alua_rtpg_work(struct work_struct *work)
+>>    *
+>>    * Returns true if and only if alua_rtpg_work() will be called asynchronously.
+>>    * That function is responsible for calling @qdata->fn().
+>> + *
+>> + * Context: may be called from atomic context (alua_check()) only if the caller
+>> + *    holds an sdev reference.
+>>    */
+>>   static bool alua_rtpg_queue(struct alua_port_group *pg,
+>>                   struct scsi_device *sdev,
+>> @@ -995,8 +998,6 @@ static bool alua_rtpg_queue(struct alua_port_group *pg,
+>>       int start_queue = 0;
+>>       unsigned long flags;
+>>
+>> -    might_sleep();
+>> -
+> 
+> I had removed those two lines yesterday for our CI kernel build.
+> Tonight's run obviously no longer had any related BUG or WARNING.
+> I checked all dumps from that run to see if anything stalled and whether it was 
+> related to ALUA, but I think we're good.
+> 
+> Tested-by: Steffen Maier <maier@linux.ibm.com>
 
-diff --git a/arch/s390/include/asm/pci_dma.h b/arch/s390/include/asm/pci_dma.h
-index 91e63426bdc53f..7119c04c51c5c8 100644
---- a/arch/s390/include/asm/pci_dma.h
-+++ b/arch/s390/include/asm/pci_dma.h
-@@ -186,9 +186,10 @@ static inline unsigned long *get_st_pto(unsigned long entry)
- 
- /* Prototypes */
- void dma_free_seg_table(unsigned long);
--unsigned long *dma_alloc_cpu_table(void);
-+unsigned long *dma_alloc_cpu_table(gfp_t gfp);
- void dma_cleanup_tables(unsigned long *);
--unsigned long *dma_walk_cpu_trans(unsigned long *rto, dma_addr_t dma_addr);
-+unsigned long *dma_walk_cpu_trans(unsigned long *rto, dma_addr_t dma_addr,
-+				  gfp_t gfp);
- void dma_update_cpu_trans(unsigned long *entry, phys_addr_t page_addr, int flags);
- 
- extern const struct dma_map_ops s390_pci_dma_ops;
-diff --git a/arch/s390/pci/pci_dma.c b/arch/s390/pci/pci_dma.c
-index ea478d11fbd132..2f6d05d6da4f76 100644
---- a/arch/s390/pci/pci_dma.c
-+++ b/arch/s390/pci/pci_dma.c
-@@ -27,11 +27,11 @@ static int zpci_refresh_global(struct zpci_dev *zdev)
- 				  zdev->iommu_pages * PAGE_SIZE);
- }
- 
--unsigned long *dma_alloc_cpu_table(void)
-+unsigned long *dma_alloc_cpu_table(gfp_t gfp)
- {
- 	unsigned long *table, *entry;
- 
--	table = kmem_cache_alloc(dma_region_table_cache, GFP_ATOMIC);
-+	table = kmem_cache_alloc(dma_region_table_cache, gfp);
- 	if (!table)
- 		return NULL;
- 
-@@ -45,11 +45,11 @@ static void dma_free_cpu_table(void *table)
- 	kmem_cache_free(dma_region_table_cache, table);
- }
- 
--static unsigned long *dma_alloc_page_table(void)
-+static unsigned long *dma_alloc_page_table(gfp_t gfp)
- {
- 	unsigned long *table, *entry;
- 
--	table = kmem_cache_alloc(dma_page_table_cache, GFP_ATOMIC);
-+	table = kmem_cache_alloc(dma_page_table_cache, gfp);
- 	if (!table)
- 		return NULL;
- 
-@@ -63,7 +63,7 @@ static void dma_free_page_table(void *table)
- 	kmem_cache_free(dma_page_table_cache, table);
- }
- 
--static unsigned long *dma_get_seg_table_origin(unsigned long *rtep)
-+static unsigned long *dma_get_seg_table_origin(unsigned long *rtep, gfp_t gfp)
- {
- 	unsigned long old_rte, rte;
- 	unsigned long *sto;
-@@ -72,7 +72,7 @@ static unsigned long *dma_get_seg_table_origin(unsigned long *rtep)
- 	if (reg_entry_isvalid(rte)) {
- 		sto = get_rt_sto(rte);
- 	} else {
--		sto = dma_alloc_cpu_table();
-+		sto = dma_alloc_cpu_table(gfp);
- 		if (!sto)
- 			return NULL;
- 
-@@ -90,7 +90,7 @@ static unsigned long *dma_get_seg_table_origin(unsigned long *rtep)
- 	return sto;
- }
- 
--static unsigned long *dma_get_page_table_origin(unsigned long *step)
-+static unsigned long *dma_get_page_table_origin(unsigned long *step, gfp_t gfp)
- {
- 	unsigned long old_ste, ste;
- 	unsigned long *pto;
-@@ -99,7 +99,7 @@ static unsigned long *dma_get_page_table_origin(unsigned long *step)
- 	if (reg_entry_isvalid(ste)) {
- 		pto = get_st_pto(ste);
- 	} else {
--		pto = dma_alloc_page_table();
-+		pto = dma_alloc_page_table(gfp);
- 		if (!pto)
- 			return NULL;
- 		set_st_pto(&ste, virt_to_phys(pto));
-@@ -116,18 +116,19 @@ static unsigned long *dma_get_page_table_origin(unsigned long *step)
- 	return pto;
- }
- 
--unsigned long *dma_walk_cpu_trans(unsigned long *rto, dma_addr_t dma_addr)
-+unsigned long *dma_walk_cpu_trans(unsigned long *rto, dma_addr_t dma_addr,
-+				  gfp_t gfp)
- {
- 	unsigned long *sto, *pto;
- 	unsigned int rtx, sx, px;
- 
- 	rtx = calc_rtx(dma_addr);
--	sto = dma_get_seg_table_origin(&rto[rtx]);
-+	sto = dma_get_seg_table_origin(&rto[rtx], gfp);
- 	if (!sto)
- 		return NULL;
- 
- 	sx = calc_sx(dma_addr);
--	pto = dma_get_page_table_origin(&sto[sx]);
-+	pto = dma_get_page_table_origin(&sto[sx], gfp);
- 	if (!pto)
- 		return NULL;
- 
-@@ -170,7 +171,8 @@ static int __dma_update_trans(struct zpci_dev *zdev, phys_addr_t pa,
- 		return -EINVAL;
- 
- 	for (i = 0; i < nr_pages; i++) {
--		entry = dma_walk_cpu_trans(zdev->dma_table, dma_addr);
-+		entry = dma_walk_cpu_trans(zdev->dma_table, dma_addr,
-+					   GFP_ATOMIC);
- 		if (!entry) {
- 			rc = -ENOMEM;
- 			goto undo_cpu_trans;
-@@ -186,7 +188,8 @@ static int __dma_update_trans(struct zpci_dev *zdev, phys_addr_t pa,
- 		while (i-- > 0) {
- 			page_addr -= PAGE_SIZE;
- 			dma_addr -= PAGE_SIZE;
--			entry = dma_walk_cpu_trans(zdev->dma_table, dma_addr);
-+			entry = dma_walk_cpu_trans(zdev->dma_table, dma_addr,
-+						   GFP_ATOMIC);
- 			if (!entry)
- 				break;
- 			dma_update_cpu_trans(entry, page_addr, flags);
-@@ -576,7 +579,7 @@ int zpci_dma_init_device(struct zpci_dev *zdev)
- 
- 	spin_lock_init(&zdev->iommu_bitmap_lock);
- 
--	zdev->dma_table = dma_alloc_cpu_table();
-+	zdev->dma_table = dma_alloc_cpu_table(GFP_ATOMIC);
- 	if (!zdev->dma_table) {
- 		rc = -ENOMEM;
- 		goto out;
-diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
-index ed33c6cce08362..654ec4411fe36c 100644
---- a/drivers/iommu/s390-iommu.c
-+++ b/drivers/iommu/s390-iommu.c
-@@ -52,7 +52,7 @@ static struct iommu_domain *s390_domain_alloc(unsigned domain_type)
- 	if (!s390_domain)
- 		return NULL;
- 
--	s390_domain->dma_table = dma_alloc_cpu_table();
-+	s390_domain->dma_table = dma_alloc_cpu_table(GFP_ATOMIC);
- 	if (!s390_domain->dma_table) {
- 		kfree(s390_domain);
- 		return NULL;
-@@ -260,7 +260,8 @@ static void s390_iommu_iotlb_sync_map(struct iommu_domain *domain,
- 
- static int s390_iommu_validate_trans(struct s390_domain *s390_domain,
- 				     phys_addr_t pa, dma_addr_t dma_addr,
--				     unsigned long nr_pages, int flags)
-+				     unsigned long nr_pages, int flags,
-+				     gfp_t gfp)
- {
- 	phys_addr_t page_addr = pa & PAGE_MASK;
- 	unsigned long *entry;
-@@ -268,7 +269,8 @@ static int s390_iommu_validate_trans(struct s390_domain *s390_domain,
- 	int rc;
- 
- 	for (i = 0; i < nr_pages; i++) {
--		entry = dma_walk_cpu_trans(s390_domain->dma_table, dma_addr);
-+		entry = dma_walk_cpu_trans(s390_domain->dma_table, dma_addr,
-+					   gfp);
- 		if (unlikely(!entry)) {
- 			rc = -ENOMEM;
- 			goto undo_cpu_trans;
-@@ -284,7 +286,7 @@ static int s390_iommu_validate_trans(struct s390_domain *s390_domain,
- 	while (i-- > 0) {
- 		dma_addr -= PAGE_SIZE;
- 		entry = dma_walk_cpu_trans(s390_domain->dma_table,
--					   dma_addr);
-+					   dma_addr, gfp);
- 		if (!entry)
- 			break;
- 		dma_update_cpu_trans(entry, 0, ZPCI_PTE_INVALID);
-@@ -301,7 +303,8 @@ static int s390_iommu_invalidate_trans(struct s390_domain *s390_domain,
- 	int rc = 0;
- 
- 	for (i = 0; i < nr_pages; i++) {
--		entry = dma_walk_cpu_trans(s390_domain->dma_table, dma_addr);
-+		entry = dma_walk_cpu_trans(s390_domain->dma_table, dma_addr,
-+					   GFP_ATOMIC);
- 		if (unlikely(!entry)) {
- 			rc = -EINVAL;
- 			break;
-@@ -339,7 +342,7 @@ static int s390_iommu_map_pages(struct iommu_domain *domain,
- 		flags |= ZPCI_TABLE_PROTECTED;
- 
- 	rc = s390_iommu_validate_trans(s390_domain, paddr, iova,
--				       pgcount, flags);
-+				       pgcount, flags, gfp);
- 	if (!rc)
- 		*mapped = size;
- 
+I'm afraid, that might have been too early.
+Today, I got BUG/WARNING with a slightly different stack trace where 
+alua_rtpg_queue calls scsi_device_put(), which in turn contains a might_sleep 
+but seems called in atomic context:
+
+> [ 2517.231562] sd 13:0:0:1073823768: Power-on or device reset occurred
+> [ 2517.231582] sd 13:0:0:1073823768: [sdax] tag#2787 Done: ADD_TO_MLQUEUE Result: hostbyte=DID_OK driverbyte=DRIVER_OK cmd_age=0s
+> [ 2517.231590] sd 13:0:0:1073823768: [sdax] tag#2787 CDB: Test Unit Ready 00 00 00 00 00 00
+> [ 2517.231598] sd 13:0:0:1073823768: [sdax] tag#2787 Sense Key : Unit Attention [current] 
+> [ 2517.231605] sd 13:0:0:1073823768: [sdax] tag#2787 Add. Sense: Power on, reset, or bus device reset occurred
+> [ 2517.236104] sd 13:0:0:1074348056: Power-on or device reset occurred
+> [ 2517.236124] BUG: sleeping function called from invalid context at drivers/scsi/scsi.c:591
+> [ 2517.236130] in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 166768, name: systemd-udevd
+> [ 2517.236137] preempt_count: 100, expected: 0
+> [ 2517.236143] RCU nest depth: 0, expected: 0
+> [ 2517.236148] no locks held by systemd-udevd/166768.
+> [ 2517.236154] Preemption disabled at:
+> [ 2517.236157] [<000000019704d22e>] __do_softirq+0x5e/0x6b8
+> [ 2517.236177] CPU: 2 PID: 166768 Comm: systemd-udevd Tainted: G              K    6.2.0-20230123.rc5.git2.9dea08313ff5.300.fc37.s390x+debug #1
+> [ 2517.236185] Hardware name: IBM 8561 T01 703 (z/VM 7.3.0)
+> [ 2517.236190] Call Trace:
+> [ 2517.236195]  [<00000001970367cc>] dump_stack_lvl+0xac/0x100 
+> [ 2517.236203]  [<00000001962a590c>] __might_resched+0x284/0x2c8 
+> [ 2517.236213]  [<0000000196c7b34a>] scsi_device_put+0x42/0x60 
+> [ 2517.236224]  [<000003ff7fb9c57e>] alua_rtpg_queue.part.0+0xce/0x348 [scsi_dh_alua] 
+> [ 2517.236234]  [<000003ff7fb9d20a>] alua_check+0x132/0x260 [scsi_dh_alua] 
+> [ 2517.236241]  [<000003ff7fb9d4aa>] alua_check_sense+0x172/0x228 [scsi_dh_alua] 
+> [ 2517.236248]  [<0000000196c7fd0e>] scsi_check_sense+0x86/0x2e0 
+> [ 2517.236256]  [<0000000196c82cc6>] scsi_decide_disposition+0x286/0x298 
+> [ 2517.236262]  [<0000000196c873da>] scsi_complete+0x6a/0x108 
+> [ 2517.236269]  [<0000000196a5aeea>] blk_complete_reqs+0x6a/0x88 
+> [ 2517.236281]  [<000000019704d30a>] __do_softirq+0x13a/0x6b8 
+> [ 2517.236287]  [<000000019626b802>] __irq_exit_rcu+0x14a/0x170 
+> [ 2517.236297]  [<000000019626c372>] irq_exit_rcu+0x22/0x50 
+> [ 2517.236303]  [<0000000197036fda>] do_ext_irq+0xba/0x1d0 
+> [ 2517.236309]  [<000000019704ad06>] ext_int_handler+0xd6/0x110 
+> [ 2517.236315]  [<00000001963accd2>] seccomp_run_filters+0x9a/0x198 
+> [ 2517.236328]  [<00000001963ad5bc>] __seccomp_filter+0x4c/0x3b8 
+> [ 2517.236334]  [<0000000196335f1a>] syscall_trace_enter.constprop.0+0xda/0x310 
+> [ 2517.236345]  [<0000000197036bf0>] __do_syscall+0xf0/0x208 
+> [ 2517.236350]  [<000000019704aa52>] system_call+0x82/0xb0 
+> [ 2517.236356] no locks held by systemd-udevd/166768.
+
+The same can also happen outside of process context, where it happened to run 
+alua_rtpg() before an IRQ happened for :
+
+> [ 2517.249685] ------------[ cut here ]------------
+> [ 2517.249691] do not call blocking ops when !TASK_RUNNING; state=2 set at [<0000000197040cb2>] __wait_for_common+0xa2/0x240
+> [ 2517.249710] WARNING: CPU: 0 PID: 121221 at kernel/sched/core.c:9959 __might_sleep+0x7c/0x98
+> [ 2517.249719] Modules linked in: kvm af_iucv algif_hash af_alg nft_fib_inet nft_fib_ipv4 nft_fib_ipv6 nft_fib nft_reject_inet nf_reject_ipv4 nf_reject_ipv6 nft_reject nft_ct nft_chain_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 ip_set nf_tables nfnetlink dm_service_time sunrpc zfcp scsi_transport_fc s390_trng vfio_ccw mdev vfio_iommu_type1 vfio sch_fq_codel ip6_tables ip_tables x_tables configfs ghash_s390 prng chacha_s390 libchacha aes_s390 des_s390 libdes sha3_512_s390 sha3_256_s390 nvme sha512_s390 sha256_s390 sha1_s390 sha_common nvme_core scsi_dh_rdac scsi_dh_emc scsi_dh_alua pkey zcrypt rng_core dm_multipath autofs4
+> [ 2517.249869] Unloaded tainted modules: test_klp_state3(K):1 test_klp_state2(K):4 test_klp_state(K):3 test_klp_callbacks_demo2(K):2 test_klp_callbacks_demo(K):12 test_klp_atomic_replace(K):2 test_klp_livepatch(K):6 [last unloaded: test_klp_callbacks_demo(K)]
+> [ 2517.249907] CPU: 0 PID: 121221 Comm: kworker/0:1 Tainted: G        W     K    6.2.0-20230123.rc5.git2.9dea08313ff5.300.fc37.s390x+debug #1
+> [ 2517.249915] Hardware name: IBM 8561 T01 703 (z/VM 7.3.0)
+> [ 2517.249921] Workqueue: kaluad alua_rtpg_work [scsi_dh_alua]
+> [ 2517.249931] Krnl PSW : 0704d00180000000 00000001962a59d0 (__might_sleep+0x80/0x98)
+> [ 2517.249944]            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:1 PM:0 RI:0 EA:3
+> [ 2517.249953] Krnl GPRS: c0000000ffffbfff 0000000080000101 000000000000006d 00000001974ae114
+> [ 2517.249960]            0000037ffff339a0 0000037ffff33998 0000000000000000 0000000000000001
+> [ 2517.249966]            0700037ffff33b50 00000000be69c000 000000000000024f 00000001974cb458
+> [ 2517.249973]            00000000a4080100 00000000a5344220 00000001962a59cc 0000037ffff33b30
+> [ 2517.249985] Krnl Code: 00000001962a59c0: c020008c269f	larl	%r2,000000019742a6fe
+>                           00000001962a59c6: c0e5006bbf19	brasl	%r14,000000019701d7f8
+>                          #00000001962a59cc: af000000		mc	0,0
+>                          >00000001962a59d0: a7490000		lghi	%r4,0
+>                           00000001962a59d4: b904003a		lgr	%r3,%r10
+>                           00000001962a59d8: b904002b		lgr	%r2,%r11
+>                           00000001962a59dc: ebaff0a00004	lmg	%r10,%r15,160(%r15)
+>                           00000001962a59e2: c0f4fffffe53	brcl	15,00000001962a5688
+> [ 2517.250023] Call Trace:
+> [ 2517.250028]  [<00000001962a59d0>] __might_sleep+0x80/0x98 
+> [ 2517.250036] ([<00000001962a59cc>] __might_sleep+0x7c/0x98)
+> [ 2517.250043]  [<0000000196c7b34a>] scsi_device_put+0x42/0x60 
+> [ 2517.250050]  [<000003ff7fb9c57e>] alua_rtpg_queue.part.0+0xce/0x348 [scsi_dh_alua] 
+> [ 2517.250058]  [<000003ff7fb9d20a>] alua_check+0x132/0x260 [scsi_dh_alua] 
+> [ 2517.250066]  [<000003ff7fb9d4aa>] alua_check_sense+0x172/0x228 [scsi_dh_alua] 
+> [ 2517.250073]  [<0000000196c7fd0e>] scsi_check_sense+0x86/0x2e0 
+> [ 2517.250080]  [<0000000196c82cc6>] scsi_decide_disposition+0x286/0x298 
+> [ 2517.250087]  [<0000000196c873da>] scsi_complete+0x6a/0x108 
+> [ 2517.250095]  [<0000000196a5aeea>] blk_complete_reqs+0x6a/0x88 
+> [ 2517.250102]  [<000000019704d30a>] __do_softirq+0x13a/0x6b8 
+> [ 2517.250109]  [<000000019626b802>] __irq_exit_rcu+0x14a/0x170 
+> [ 2517.250116]  [<000000019626c372>] irq_exit_rcu+0x22/0x50 
+> [ 2517.250123]  [<0000000197036fda>] do_ext_irq+0xba/0x1d0 
+> [ 2517.250130]  [<000000019704ad06>] ext_int_handler+0xd6/0x110 
+> [ 2517.250136]  [<0000000197049ac2>] _raw_spin_unlock_irq+0x42/0x70 
+> [ 2517.250143] ([<0000000197049abe>] _raw_spin_unlock_irq+0x3e/0x70)
+> [ 2517.250150]  [<0000000197040cdc>] __wait_for_common+0xcc/0x240 
+> [ 2517.250157]  [<0000000196a5bf8e>] blk_execute_rq+0x126/0x1f8 
+> [ 2517.250165]  [<0000000196c84f32>] __scsi_execute+0x112/0x260 
+> [ 2517.250172]  [<000003ff7fb9d698>] alua_rtpg+0x138/0xb10 [scsi_dh_alua] 
+> [ 2517.250179]  [<000003ff7fb9e32c>] alua_rtpg_work+0x2bc/0x4e0 [scsi_dh_alua] 
+> [ 2517.250186]  [<000000019628c244>] process_one_work+0x30c/0x730 
+> [ 2517.250197]  [<000000019628c6ca>] worker_thread+0x62/0x420 
+> [ 2517.250205]  [<0000000196297b08>] kthread+0x138/0x150 
+> [ 2517.250214]  [<000000019620f92c>] __ret_from_fork+0x3c/0x58 
+> [ 2517.250222]  [<000000019704aa8a>] ret_from_fork+0xa/0x40 
+> [ 2517.250229] 2 locks held by kworker/0:1/121221:
+> [ 2517.250235]  #0: 000000008ba79148 ((wq_completion)kaluad){+.+.}-{0:0}, at: process_one_work+0x232/0x730
+> [ 2517.250256]  #1: 000003800695fdc8 ((work_completion)(&(&pg->rtpg_work)->work)){+.+.}-{0:0}, at: process_one_work+0x232/0x730
+> [ 2517.250276] Last Breaking-Event-Address:
+> [ 2517.250281]  [<000000019701d85e>] __warn_printk+0x66/0x70
+> [ 2517.250291] Kernel panic - not syncing: kernel: panic_on_warn set ...
+
+
+
 -- 
-2.39.0
+Mit freundlichen Gruessen / Kind regards
+Steffen Maier
+
+Linux on IBM Z and LinuxONE
+
+https://www.ibm.com/privacy/us/en/
+IBM Deutschland Research & Development GmbH
+Vorsitzender des Aufsichtsrats: Gregor Pillen
+Geschaeftsfuehrung: David Faller
+Sitz der Gesellschaft: Boeblingen
+Registergericht: Amtsgericht Stuttgart, HRB 243294
 
