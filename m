@@ -2,56 +2,56 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 50342C54EED
-	for <linux-s390@archiver.kernel.org>; Wed, 25 Jan 2023 08:39:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E0A8DC636D4
+	for <linux-s390@archiver.kernel.org>; Wed, 25 Jan 2023 08:40:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235126AbjAYIj2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 25 Jan 2023 03:39:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43498 "EHLO
+        id S235056AbjAYIk2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 25 Jan 2023 03:40:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235273AbjAYIjU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 25 Jan 2023 03:39:20 -0500
-Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64ABA4F84A
-        for <linux-s390@vger.kernel.org>; Wed, 25 Jan 2023 00:38:59 -0800 (PST)
-Received: by mail-yb1-xb4a.google.com with SMTP id y66-20020a253245000000b007cb4f1e3e57so19057890yby.8
-        for <linux-s390@vger.kernel.org>; Wed, 25 Jan 2023 00:38:59 -0800 (PST)
+        with ESMTP id S235352AbjAYIjq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 25 Jan 2023 03:39:46 -0500
+Received: from mail-yw1-x1149.google.com (mail-yw1-x1149.google.com [IPv6:2607:f8b0:4864:20::1149])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5691253565
+        for <linux-s390@vger.kernel.org>; Wed, 25 Jan 2023 00:39:06 -0800 (PST)
+Received: by mail-yw1-x1149.google.com with SMTP id 00721157ae682-506466c484fso43567387b3.13
+        for <linux-s390@vger.kernel.org>; Wed, 25 Jan 2023 00:39:06 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=ralp0YsbeintaJ1+3rV0BJxcsbdnu/jVKuNhvnt0T5Y=;
-        b=FpW3ZfeoZ58NaZWfySIfB+f4+MM7GrKuq9uCXe+gfhjrC0bvKaL2kAypJ/pJdIrezU
-         Ru0cU0KNklRfuYrJ3SKXkdPgNjMfodaxcsFUMH2z2VP+LqiGmmBZi4WNjYcaaYQLe2mC
-         v6uAPWcErh2g6vXcpQB3pwh9XmkkPfWLDi2bI5mgZlrfFBGfjeQ9Wv8iIQeddGuuYJGy
-         vGYSJIu//+24XGZjzB+Q3VYOxZ5pJZ/HCGoJ5h7l6e1K0sxINKIjiYRXApyFQ3GXR7xJ
-         ZclVjCWVjm/7Pu3pZxJbkPLxrnDwpix1sMzuU+AEqB9vICm+UZCWtOUOt5GLju8+nccL
-         rTTw==
+        bh=mVuGMhZwlEMXe0FAwC4rLE7OnnAfe6cAroxVvXklBMk=;
+        b=VwtVZ3ffN/XX+4OSphvkCPu5LWSZpevMhnHytsAi7M7gsxKAkKbzq3/Ez6cAZGs+/z
+         JzIcfmxATmRyceN+/Zt8AqltlXqbiRJWNjswPpQNjZE22YwQ3Z8QnOSAOet+uqjmXlIE
+         OyZz8lnbt23bEWFA19bN7QyWM6BlHY9bxVkgVCuFfE21FaJHoilx3LiQj39QBuuIrUeb
+         wQOUdgl76g8l+p4COnuz8oTsyo6A7P+o3cLtEEcXBMjD1VU3kk8/P76KYyyBr91hidcu
+         b/JvxTM3TLDOWOtw79r0Hu/8F/9388RbMrqUiDk2vbRh2AxEmOh9ht/7njQAxt7Q0X5z
+         07nA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=ralp0YsbeintaJ1+3rV0BJxcsbdnu/jVKuNhvnt0T5Y=;
-        b=lh0FKZBPtmTzpNJ/Ymd847epO44bn7pkMDxnrns9ma4wUybPNp8cpxuLODR07HGS39
-         NXAH8akYjyNU/eNjYAjIwArxI2yViuHHgp95NAqMoqBjKgxOBcr58ZFCyMmndDimy2DH
-         KfWdqomb50apZN7DpGr4sDBTqShP8eIXwtjUNCwkHNI8E+xbxrgOD8L156XS6So7zXEI
-         thCOMTbMaxw2BVwBzeAQG8SYEJyf/h/ItBw8Flzua26PYhF0Cbt+krX8rO3ZRbsErGGs
-         tnBCPpoBeyAsdewJ1G3nmxeMTawer/UXZ7LbjM5aOCIVbbhDtDd/7wx7fujUL5EtmhO9
-         HWVQ==
-X-Gm-Message-State: AO0yUKUJHCA8VvqlUicpwUEdGMA3CKfThOpcUrQg11/LQp1BsY2WceRO
-        oBU40w1jOhJflN0Xeg1tboDe7nwx4Hc=
-X-Google-Smtp-Source: AK7set8/stQqnGGz4OB/vqyDOBLoBX54VTTeagu3mMK0HzymWEEvjI0ujOzPLr/zvAsu1DJMDE0YK80W9/s=
+        bh=mVuGMhZwlEMXe0FAwC4rLE7OnnAfe6cAroxVvXklBMk=;
+        b=oRW4/4B9BSKBFBLIK8fF5IMMBLz+tG3XfXZgIKy+kGACQD18DX0bujbNb4l4SE+CaF
+         5azv0JHiOAvXJ/K29PsIPClzLHcXBv0hkBbscky7eJE2tRfxipPEo3IL6oqv9YKrVZOJ
+         l+OoGsyAt3H541YQDvv3AhQ06iMvzy5NLJ8Hx8N/0/Jn5EE8zdZqdVbVqw33f7HzCuLg
+         5m/r12RPht8AiilH3IOW720H36yvFBQWlBxYoFqG/jJBrlMSiuym1Z3xaMpeUcpSBuRo
+         wBD2CJf5zW8HQJZpG+JJF5TDnT/sxnuGGXnFuxHv8b9yLPxbFvMOxEwDnoBl2BpzWSuA
+         leBw==
+X-Gm-Message-State: AO0yUKVbX15Bl//xfhUlLAM7piU0X1crlkexWGRunyXrUMPEWyfDOYdC
+        9e0oDMklhSkG6NdZS8+ilO4/gWGcPUE=
+X-Google-Smtp-Source: AK7set/eGcbmxK47Xow2TUKC1msmny+SAO+Fcyz1BhvcA/uBRY0Kash94Ztfh9nd8yz0OXKqanY9SYPz0MI=
 X-Received: from surenb-desktop.mtv.corp.google.com ([2620:15c:211:200:f7b0:20e8:ce66:f98])
- (user=surenb job=sendgmr) by 2002:a81:3e07:0:b0:506:6185:4fad with SMTP id
- l7-20020a813e07000000b0050661854fadmr450398ywa.451.1674635938431; Wed, 25 Jan
- 2023 00:38:58 -0800 (PST)
-Date:   Wed, 25 Jan 2023 00:38:46 -0800
+ (user=surenb job=sendgmr) by 2002:a25:c247:0:b0:80b:6201:bee7 with SMTP id
+ s68-20020a25c247000000b0080b6201bee7mr702095ybf.340.1674635945821; Wed, 25
+ Jan 2023 00:39:05 -0800 (PST)
+Date:   Wed, 25 Jan 2023 00:38:49 -0800
 In-Reply-To: <20230125083851.27759-1-surenb@google.com>
 Mime-Version: 1.0
 References: <20230125083851.27759-1-surenb@google.com>
 X-Mailer: git-send-email 2.39.1.405.gd4c25cc71f-goog
-Message-ID: <20230125083851.27759-2-surenb@google.com>
-Subject: [PATCH v2 1/6] mm: introduce vma->vm_flags modifier functions
+Message-ID: <20230125083851.27759-5-surenb@google.com>
+Subject: [PATCH v2 4/6] mm: replace vma->vm_flags indirect modification in ksm_madvise
 From:   Suren Baghdasaryan <surenb@google.com>
 To:     akpm@linux-foundation.org
 Cc:     michel@lespinasse.org, jglisse@google.com, mhocko@suse.com,
@@ -129,86 +129,96 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-vm_flags are among VMA attributes which affect decisions like VMA merging
-and splitting. Therefore all vm_flags modifications are performed after
-taking exclusive mmap_lock to prevent vm_flags updates racing with such
-operations. Introduce modifier functions for vm_flags to be used whenever
-flags are updated. This way we can better check and control correct
-locking behavior during these updates.
+Replace indirect modifications to vma->vm_flags with calls to modifier
+functions to be able to track flag changes and to keep vma locking
+correctness. Add a BUG_ON check in ksm_madvise() to catch indirect
+vm_flags modification attempts.
 
 Signed-off-by: Suren Baghdasaryan <surenb@google.com>
 ---
- include/linux/mm.h       | 37 +++++++++++++++++++++++++++++++++++++
- include/linux/mm_types.h |  8 +++++++-
- 2 files changed, 44 insertions(+), 1 deletion(-)
+ arch/powerpc/kvm/book3s_hv_uvmem.c | 5 ++++-
+ arch/s390/mm/gmap.c                | 5 ++++-
+ mm/khugepaged.c                    | 2 ++
+ mm/ksm.c                           | 2 ++
+ 4 files changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index c2f62bdce134..b71f2809caac 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -627,6 +627,43 @@ static inline void vma_init(struct vm_area_struct *vma, struct mm_struct *mm)
- 	INIT_LIST_HEAD(&vma->anon_vma_chain);
- }
- 
-+/* Use when VMA is not part of the VMA tree and needs no locking */
-+static inline void init_vm_flags(struct vm_area_struct *vma,
-+				 unsigned long flags)
-+{
-+	vma->vm_flags = flags;
-+}
-+
-+/* Use when VMA is part of the VMA tree and modifications need coordination */
-+static inline void reset_vm_flags(struct vm_area_struct *vma,
-+				  unsigned long flags)
-+{
-+	mmap_assert_write_locked(vma->vm_mm);
-+	init_vm_flags(vma, flags);
-+}
-+
-+static inline void set_vm_flags(struct vm_area_struct *vma,
-+				unsigned long flags)
-+{
-+	mmap_assert_write_locked(vma->vm_mm);
-+	vma->vm_flags |= flags;
-+}
-+
-+static inline void clear_vm_flags(struct vm_area_struct *vma,
-+				  unsigned long flags)
-+{
-+	mmap_assert_write_locked(vma->vm_mm);
-+	vma->vm_flags &= ~flags;
-+}
-+
-+static inline void mod_vm_flags(struct vm_area_struct *vma,
-+				unsigned long set, unsigned long clear)
-+{
-+	mmap_assert_write_locked(vma->vm_mm);
-+	vma->vm_flags |= set;
-+	vma->vm_flags &= ~clear;
-+}
-+
- static inline void vma_set_anonymous(struct vm_area_struct *vma)
+diff --git a/arch/powerpc/kvm/book3s_hv_uvmem.c b/arch/powerpc/kvm/book3s_hv_uvmem.c
+index 1d67baa5557a..325a7a47d348 100644
+--- a/arch/powerpc/kvm/book3s_hv_uvmem.c
++++ b/arch/powerpc/kvm/book3s_hv_uvmem.c
+@@ -393,6 +393,7 @@ static int kvmppc_memslot_page_merge(struct kvm *kvm,
  {
- 	vma->vm_ops = NULL;
-diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
-index 2d6d790d9bed..6c7c70bf50dd 100644
---- a/include/linux/mm_types.h
-+++ b/include/linux/mm_types.h
-@@ -491,7 +491,13 @@ struct vm_area_struct {
- 	 * See vmf_insert_mixed_prot() for discussion.
- 	 */
- 	pgprot_t vm_page_prot;
--	unsigned long vm_flags;		/* Flags, see mm.h. */
-+
-+	/*
-+	 * Flags, see mm.h.
-+	 * WARNING! Do not modify directly.
-+	 * Use {init|reset|set|clear|mod}_vm_flags() functions instead.
-+	 */
+ 	unsigned long gfn = memslot->base_gfn;
+ 	unsigned long end, start = gfn_to_hva(kvm, gfn);
 +	unsigned long vm_flags;
+ 	int ret = 0;
+ 	struct vm_area_struct *vma;
+ 	int merge_flag = (merge) ? MADV_MERGEABLE : MADV_UNMERGEABLE;
+@@ -409,12 +410,14 @@ static int kvmppc_memslot_page_merge(struct kvm *kvm,
+ 			ret = H_STATE;
+ 			break;
+ 		}
++		vm_flags = vma->vm_flags;
+ 		ret = ksm_madvise(vma, vma->vm_start, vma->vm_end,
+-			  merge_flag, &vma->vm_flags);
++			  merge_flag, &vm_flags);
+ 		if (ret) {
+ 			ret = H_STATE;
+ 			break;
+ 		}
++		reset_vm_flags(vma, vm_flags);
+ 		start = vma->vm_end;
+ 	} while (end > vma->vm_end);
  
- 	/*
- 	 * For areas with an address space and backing store,
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index 3a695b8a1e3c..d5eb47dcdacb 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -2587,14 +2587,17 @@ int gmap_mark_unmergeable(void)
+ {
+ 	struct mm_struct *mm = current->mm;
+ 	struct vm_area_struct *vma;
++	unsigned long vm_flags;
+ 	int ret;
+ 	VMA_ITERATOR(vmi, mm, 0);
+ 
+ 	for_each_vma(vmi, vma) {
++		vm_flags = vma->vm_flags;
+ 		ret = ksm_madvise(vma, vma->vm_start, vma->vm_end,
+-				  MADV_UNMERGEABLE, &vma->vm_flags);
++				  MADV_UNMERGEABLE, &vm_flags);
+ 		if (ret)
+ 			return ret;
++		reset_vm_flags(vma, vm_flags);
+ 	}
+ 	mm->def_flags &= ~VM_MERGEABLE;
+ 	return 0;
+diff --git a/mm/khugepaged.c b/mm/khugepaged.c
+index 8abc59345bf2..76b24cd0c179 100644
+--- a/mm/khugepaged.c
++++ b/mm/khugepaged.c
+@@ -354,6 +354,8 @@ struct attribute_group khugepaged_attr_group = {
+ int hugepage_madvise(struct vm_area_struct *vma,
+ 		     unsigned long *vm_flags, int advice)
+ {
++	/* vma->vm_flags can be changed only using modifier functions */
++	BUG_ON(vm_flags == &vma->vm_flags);
+ 	switch (advice) {
+ 	case MADV_HUGEPAGE:
+ #ifdef CONFIG_S390
+diff --git a/mm/ksm.c b/mm/ksm.c
+index 04f1c8c2df11..992b2be9f5e6 100644
+--- a/mm/ksm.c
++++ b/mm/ksm.c
+@@ -2573,6 +2573,8 @@ int ksm_madvise(struct vm_area_struct *vma, unsigned long start,
+ 	struct mm_struct *mm = vma->vm_mm;
+ 	int err;
+ 
++	/* vma->vm_flags can be changed only using modifier functions */
++	BUG_ON(vm_flags == &vma->vm_flags);
+ 	switch (advice) {
+ 	case MADV_MERGEABLE:
+ 		/*
 -- 
 2.39.1
 
