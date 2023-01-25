@@ -2,85 +2,118 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DB36DC61DA4
-	for <linux-s390@archiver.kernel.org>; Wed, 25 Jan 2023 10:59:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 82833C27C76
+	for <linux-s390@archiver.kernel.org>; Wed, 25 Jan 2023 11:00:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235222AbjAYK7e (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 25 Jan 2023 05:59:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58650 "EHLO
+        id S235056AbjAYLAp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 25 Jan 2023 06:00:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234182AbjAYK7d (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 25 Jan 2023 05:59:33 -0500
-Received: from mail.8bytes.org (mail.8bytes.org [IPv6:2a01:238:42d9:3f00:e505:6202:4f0c:f051])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0343839B95;
-        Wed, 25 Jan 2023 02:59:30 -0800 (PST)
-Received: from 8bytes.org (p200300c27714bc0086ad4f9d2505dd0d.dip0.t-ipconnect.de [IPv6:2003:c2:7714:bc00:86ad:4f9d:2505:dd0d])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mail.8bytes.org (Postfix) with ESMTPSA id EA1A7262E65;
-        Wed, 25 Jan 2023 11:59:28 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=8bytes.org;
-        s=default; t=1674644369;
-        bh=T38KYBmqOO/YysbFxidRcHI2EqxeKT2mSwZbXhYqf1E=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=xjLIYBe2Reb4sUbyDIO/QWp7US6P8C31V+nRPiKC12bUvIf7ZM2sEz6rexMly82MG
-         SdqC2ipNyx624847dznAPsTr5JegX+avBcrYfRuhpCCtUCj00j5UMMKFv2s5yqcp78
-         M0y7wdWzVXQ3svUwvlcuJMoxQJuspChvYRhYbBD4VgYfSxytDzzifVhHBhI3LbACxs
-         T3fe0NZnfc4OI4+mzTVEq4TCO9vBUsWz4/KYFySgVFLjFM48o+FEL/Pas2FYAxM+s5
-         h6WCzD311EPYK4UyWDMAMAz7XrOhVE163Ksfw3L/LtMiYeejlNUntipX85M2JSVOt+
-         8KBgiGtflHGcg==
-Date:   Wed, 25 Jan 2023 11:59:27 +0100
-From:   Joerg Roedel <joro@8bytes.org>
-To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     Lu Baolu <baolu.lu@linux.intel.com>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        ath10k@lists.infradead.org, ath11k@lists.infradead.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        dri-devel@lists.freedesktop.org, iommu@lists.linux.dev,
-        kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-media@vger.kernel.org,
-        linux-rdma@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-        linux-s390@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-tegra@vger.kernel.org, linux-wireless@vger.kernel.org,
-        netdev@vger.kernel.org, nouveau@lists.freedesktop.org,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH v3 00/10] Let iommufd charge IOPTE allocations to the
- memory cgroup
-Message-ID: <Y9ELj1yKsE58mlgi@8bytes.org>
-References: <0-v3-76b587fe28df+6e3-iommu_map_gfp_jgg@nvidia.com>
+        with ESMTP id S229778AbjAYLAo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 25 Jan 2023 06:00:44 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9219436FE7;
+        Wed, 25 Jan 2023 03:00:42 -0800 (PST)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30P9Dxvb006477;
+        Wed, 25 Jan 2023 11:00:23 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : references : date : in-reply-to : message-id : mime-version :
+ content-type; s=pp1; bh=PV97j+QpGtIXyVnJleYyfcWoFSAMpegJ7+MrYuplsz4=;
+ b=c22xrO8UF3Oj/J0XO82E2PvTh+ZiHP0o16b4C+J/g/BGpUYhTCpvN9jkYD3u11f+VRE0
+ Hcpos6E9xH3oY8s+Akt0H/6v4R8IttLlnH0h7cYYEWfkklKMevSa1HH+hBrZfHkB82NB
+ WorVqf4H8sGg42S0cLZu7Rx37ne3kXO3cfrTnpi/tR0aaWBKdDEQm5P27Nf/cw9yP6tS
+ 3QPyn77Ff4JYRS07z9zEqFhFCU3n6dO7zitVzeTgwgEkphcKNrynElNy5Ry+wiOLvd8I
+ wnoQ6LqNrT/JYFfx1vVRkXLi1P3hmVhNuqF7Bv23bt8ellcJYW1tvUHzbD/03kItVzkS Nw== 
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3naakpkdup-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 25 Jan 2023 11:00:22 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30ONDDT2028677;
+        Wed, 25 Jan 2023 11:00:04 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3n87afd0gp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 25 Jan 2023 11:00:04 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30PB01BW18022796
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 25 Jan 2023 11:00:02 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CDBEE20043;
+        Wed, 25 Jan 2023 11:00:01 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 93D2220040;
+        Wed, 25 Jan 2023 11:00:01 +0000 (GMT)
+Received: from tuxmaker.linux.ibm.com (unknown [9.152.85.9])
+        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Wed, 25 Jan 2023 11:00:01 +0000 (GMT)
+From:   Sven Schnelle <svens@linux.ibm.com>
+To:     "Liam R. Howlett" <Liam.Howlett@oracle.com>
+Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        maple-tree@lists.infradead.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v4 15/49] ipc/shm: Use the vma iterator for munmap calls
+References: <20230120162650.984577-1-Liam.Howlett@oracle.com>
+        <20230120162650.984577-16-Liam.Howlett@oracle.com>
+Date:   Wed, 25 Jan 2023 12:00:01 +0100
+In-Reply-To: <20230120162650.984577-16-Liam.Howlett@oracle.com> (Liam
+        R. Howlett's message of "Fri, 20 Jan 2023 11:26:16 -0500")
+Message-ID: <yt9dh6wec21a.fsf@linux.ibm.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.0.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0-v3-76b587fe28df+6e3-iommu_map_gfp_jgg@nvidia.com>
+Content-Type: text/plain
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 1SF-VQ8XaTMWXdqnAj0gHluE9UzoDteO
+X-Proofpoint-GUID: 1SF-VQ8XaTMWXdqnAj0gHluE9UzoDteO
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
+ definitions=2023-01-25_05,2023-01-24_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 clxscore=1015
+ priorityscore=1501 impostorscore=0 mlxlogscore=999 spamscore=0
+ adultscore=0 mlxscore=0 malwarescore=0 bulkscore=0 lowpriorityscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2301250096
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Jan 23, 2023 at 04:35:53PM -0400, Jason Gunthorpe wrote:
-> Jason Gunthorpe (10):
->   iommu: Add a gfp parameter to iommu_map()
->   iommu: Remove iommu_map_atomic()
->   iommu: Add a gfp parameter to iommu_map_sg()
->   iommu/dma: Use the gfp parameter in __iommu_dma_alloc_noncontiguous()
->   iommufd: Use GFP_KERNEL_ACCOUNT for iommu_map()
->   iommu/intel: Add a gfp parameter to alloc_pgtable_page()
->   iommu/intel: Support the gfp argument to the map_pages op
->   iommu/intel: Use GFP_KERNEL in sleepable contexts
->   iommu/s390: Push the gfp parameter to the kmem_cache_alloc()'s
->   iommu/s390: Use GFP_KERNEL in sleepable contexts
+Hi Liam,
 
-Merged into branch iommu-memory-accounting and merged that branch into
-core.
+"Liam R. Howlett" <Liam.Howlett@oracle.com> writes:
 
-The merge commit contains your cover-letter descriptions. Given all
-tests pass I will push it out later today.
+> From: "Liam R. Howlett" <Liam.Howlett@Oracle.com>
+>
+> Pass through the vma iterator to do_vmi_munmap() to handle the iterator
+> state internally
+>
+> Signed-off-by: Liam R. Howlett <Liam.Howlett@oracle.com>
+> ---
+>  ipc/shm.c | 11 +++++------
+>  1 file changed, 5 insertions(+), 6 deletions(-)
 
-Regards,
+git bisect says this breaks the shm* testcase in ltp on (at least) s390:
 
-	Joerg
+# ./test.sh
+tst_test.c:1558: TINFO: Timeout per run is 0h 00m 30s
+shmat01.c:124: TPASS: shmat() succeeded to attach NULL address
+shmat01.c:92: TFAIL: shmat() failed: EINVAL (22)
+shmat01.c:92: TFAIL: shmat() failed: EINVAL (22)
+shmat01.c:92: TFAIL: shmat() failed: EINVAL (22)
+
+Summary:
+passed   1
+failed   3
+broken   0
+skipped  0
+warnings 0
+
+#
+
+Can you take a look? Thanks!
+
+reverting the above commit fixes the issue.
+
+Thanks,
+Sven
