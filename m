@@ -2,155 +2,196 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ABB6BC54EED
-	for <linux-s390@archiver.kernel.org>; Wed, 25 Jan 2023 19:23:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BEE09C54EED
+	for <linux-s390@archiver.kernel.org>; Wed, 25 Jan 2023 21:26:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236247AbjAYTXV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 25 Jan 2023 14:23:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39104 "EHLO
+        id S236691AbjAYV03 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 25 Jan 2023 16:26:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235818AbjAYTXG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 25 Jan 2023 14:23:06 -0500
-Received: from mail-yw1-x1136.google.com (mail-yw1-x1136.google.com [IPv6:2607:f8b0:4864:20::1136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6A5A65B5
-        for <linux-s390@vger.kernel.org>; Wed, 25 Jan 2023 11:22:50 -0800 (PST)
-Received: by mail-yw1-x1136.google.com with SMTP id 00721157ae682-506609635cbso63624077b3.4
-        for <linux-s390@vger.kernel.org>; Wed, 25 Jan 2023 11:22:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=PCnMypYs8jymH6Ufuva+9r/69Y/DZs8kYxwQEYrzQFk=;
-        b=hXTUs83qvSMCw0sqrewtph/1zyRGQA8EwV9VOqASoIhN1O27YlTeLHvU30LwpkaPKE
-         6ZtbduOBpeU0Mk6yScQyxHGjdOZ8W8NbAK7HCSbKR2qQVwpslpoP2Mqh8DnM60UrkSEV
-         Fy/rJx/xAj6ReR1yQheSDvUeiLsUOZe36GsXUe+/pA5dp4+pot+ScO1k5jhTafZOkoJo
-         vEjMe7B3/0BupSIQn5CSlkYjolaKBFMYB73xyId061H8p1ZYZbkvvK9SPdZltanRDpUl
-         vOuM+M/xFo7tmOP85pcv8h038+SVqlBqYWxO3Lgun0O5W06va+PJHK2pFsHgrhvmIiGL
-         lvow==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=PCnMypYs8jymH6Ufuva+9r/69Y/DZs8kYxwQEYrzQFk=;
-        b=k64Ug4gKwhTY1rRA+LdJZYadqIL90Bd6CskcPHc36j3RFmxz0iSDSY7I54ZoXHIE6Y
-         fJAsneQdEeCB3IKRv4ktGHnUEs7huZbKtpAiguqP+TaBYAOccyc2kFrJTqbESyeBBdst
-         WeBXnO9OqiRyjbN9C3XvZzgnCvX8b9YBAxPlspaFXrEzf9Kw9AwnSsrmN7Tf1CJZ2Eho
-         mVYZ1bkjEwRTZc+N0tFzs2qglYbZDTf9YVZMSoX+CPjgJmHNs/aBMc6hoIaZn9ks837I
-         w4Su7r/uHx5FR92FRhXWH4yFMY52EsDAt92QnaJLGdSKw1J5OgCYiK40aJsg8xtLJEsu
-         RRqg==
-X-Gm-Message-State: AO0yUKUlqPi3CbxU6FsN6bo1zgvVp4K+WwrxHtpifu22Ub7n1N24WiNO
-        HWxF4KDWjg8IAoxrNzGbvOcWgdyupxG6LBcU4KxKiw==
-X-Google-Smtp-Source: AK7set/Rj29H3r8vHaYccCmp943Un+QyMRF/w8dcRdt99GFw8apI+/L+5tSmXBTsBLdlTBniti7hA8kyFbpjr3H10kc=
-X-Received: by 2002:a0d:d456:0:b0:507:26dc:ebd with SMTP id
- w83-20020a0dd456000000b0050726dc0ebdmr298632ywd.455.1674674569763; Wed, 25
- Jan 2023 11:22:49 -0800 (PST)
+        with ESMTP id S229905AbjAYV02 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 25 Jan 2023 16:26:28 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D102845BC1;
+        Wed, 25 Jan 2023 13:26:26 -0800 (PST)
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30PKggpA022656;
+        Wed, 25 Jan 2023 21:26:24 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=Es0OSIb4OzYg02qlstLfes3mBw5/BQTxvHU0G9JKb4o=;
+ b=Tj8cZJslKh5Un1LLtlw8MsvAbqBJGQRC/fxxHAXwg4NgL4UPw7k/NzJGMG1Wgv0BuHI9
+ EVMLI9aPDQNt2DZCvGVd7Ny4EudyNxxDqpCdIE4rm36uQVTkMv0wT4WMIfAj7iN4IPde
+ KYYO1LRI5m8Ow1mdrQz1ksu5Ks6KzmD+F0sBjA2zONJfegpc3NXmkxuB9S+hYM2glDqx
+ 0P9I/DY5ikcefEGEDXyGPPcU+4tiD9RhPB6Kncd/5DZCUyGCB8SUj7BePV6gNhNXmQsZ
+ v8le59tGMIkzrDz8qPw3p9hEax33KpHdVODNE2GV28//26x/gJCEwgHMXuLjvkSKhwHq 8g== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3naagv1wq2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 25 Jan 2023 21:26:23 +0000
+Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 30PLQNFF007553;
+        Wed, 25 Jan 2023 21:26:23 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3naagv1wp1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 25 Jan 2023 21:26:23 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30PGU8Ym010790;
+        Wed, 25 Jan 2023 21:26:20 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3n87p6nkn6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 25 Jan 2023 21:26:20 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30PLQHFm24445592
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 25 Jan 2023 21:26:17 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2A31C20043;
+        Wed, 25 Jan 2023 21:26:17 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E7A4E2004D;
+        Wed, 25 Jan 2023 21:26:16 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 25 Jan 2023 21:26:16 +0000 (GMT)
+From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Huth <thuth@redhat.com>
+Subject: [PATCH v6 01/14] KVM: s390: selftest: memop: Pass mop_desc via pointer
+Date:   Wed, 25 Jan 2023 22:25:55 +0100
+Message-Id: <20230125212608.1860251-2-scgl@linux.ibm.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20230125212608.1860251-1-scgl@linux.ibm.com>
+References: <20230125212608.1860251-1-scgl@linux.ibm.com>
 MIME-Version: 1.0
-References: <20230125083851.27759-1-surenb@google.com> <20230125083851.27759-2-surenb@google.com>
- <Y9F19QEDX5d/44EV@casper.infradead.org>
-In-Reply-To: <Y9F19QEDX5d/44EV@casper.infradead.org>
-From:   Suren Baghdasaryan <surenb@google.com>
-Date:   Wed, 25 Jan 2023 11:22:38 -0800
-Message-ID: <CAJuCfpH+LMFX=TT04gSMA05cz_-CXMum6fobRrduWvzm1HWPmQ@mail.gmail.com>
-Subject: Re: [PATCH v2 1/6] mm: introduce vma->vm_flags modifier functions
-To:     Matthew Wilcox <willy@infradead.org>
-Cc:     akpm@linux-foundation.org, michel@lespinasse.org,
-        jglisse@google.com, mhocko@suse.com, vbabka@suse.cz,
-        hannes@cmpxchg.org, mgorman@techsingularity.net, dave@stgolabs.net,
-        liam.howlett@oracle.com, peterz@infradead.org,
-        ldufour@linux.ibm.com, paulmck@kernel.org, luto@kernel.org,
-        songliubraving@fb.com, peterx@redhat.com, david@redhat.com,
-        dhowells@redhat.com, hughd@google.com, bigeasy@linutronix.de,
-        kent.overstreet@linux.dev, punit.agrawal@bytedance.com,
-        lstoakes@gmail.com, peterjung1337@gmail.com, rientjes@google.com,
-        axelrasmussen@google.com, joelaf@google.com, minchan@google.com,
-        jannh@google.com, shakeelb@google.com, tatashin@google.com,
-        edumazet@google.com, gthelen@google.com, gurua@google.com,
-        arjunroy@google.com, soheil@google.com, hughlynch@google.com,
-        leewalsh@google.com, posk@google.com, will@kernel.org,
-        aneesh.kumar@linux.ibm.com, npiggin@gmail.com,
-        chenhuacai@kernel.org, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, richard@nod.at,
-        anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
-        qianweili@huawei.com, wangzhou1@hisilicon.com,
-        herbert@gondor.apana.org.au, davem@davemloft.net, vkoul@kernel.org,
-        airlied@gmail.com, daniel@ffwll.ch,
-        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
-        tzimmermann@suse.de, l.stach@pengutronix.de,
-        krzysztof.kozlowski@linaro.org, patrik.r.jakobsson@gmail.com,
-        matthias.bgg@gmail.com, robdclark@gmail.com,
-        quic_abhinavk@quicinc.com, dmitry.baryshkov@linaro.org,
-        tomba@kernel.org, hjc@rock-chips.com, heiko@sntech.de,
-        ray.huang@amd.com, kraxel@redhat.com, sre@kernel.org,
-        mcoquelin.stm32@gmail.com, alexandre.torgue@foss.st.com,
-        tfiga@chromium.org, m.szyprowski@samsung.com, mchehab@kernel.org,
-        dimitri.sivanich@hpe.com, zhangfei.gao@linaro.org,
-        jejb@linux.ibm.com, martin.petersen@oracle.com,
-        dgilbert@interlog.com, hdegoede@redhat.com, mst@redhat.com,
-        jasowang@redhat.com, alex.williamson@redhat.com, deller@gmx.de,
-        jayalk@intworks.biz, viro@zeniv.linux.org.uk, nico@fluxnic.net,
-        xiang@kernel.org, chao@kernel.org, tytso@mit.edu,
-        adilger.kernel@dilger.ca, miklos@szeredi.hu,
-        mike.kravetz@oracle.com, muchun.song@linux.dev, bhe@redhat.com,
-        andrii@kernel.org, yoshfuji@linux-ipv6.org, dsahern@kernel.org,
-        kuba@kernel.org, pabeni@redhat.com, perex@perex.cz, tiwai@suse.com,
-        haojian.zhuang@gmail.com, robert.jarzmik@free.fr,
-        linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, x86@kernel.org,
-        linux-kernel@vger.kernel.org, linux-graphics-maintainer@vmware.com,
-        linux-ia64@vger.kernel.org, linux-arch@vger.kernel.org,
-        loongarch@lists.linux.dev, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-sgx@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-acpi@vger.kernel.org,
-        linux-crypto@vger.kernel.org, nvdimm@lists.linux.dev,
-        dmaengine@vger.kernel.org, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org, etnaviv@lists.freedesktop.org,
-        linux-samsung-soc@vger.kernel.org, intel-gfx@lists.freedesktop.org,
-        linux-mediatek@lists.infradead.org, linux-arm-msm@vger.kernel.org,
-        freedreno@lists.freedesktop.org,
-        linux-rockchip@lists.infradead.org, linux-tegra@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        xen-devel@lists.xenproject.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-rdma@vger.kernel.org, linux-media@vger.kernel.org,
-        linux-accelerators@lists.ozlabs.org, sparclinux@vger.kernel.org,
-        linux-scsi@vger.kernel.org, linux-staging@lists.linux.dev,
-        target-devel@vger.kernel.org, linux-usb@vger.kernel.org,
-        netdev@vger.kernel.org, linux-fbdev@vger.kernel.org,
-        linux-aio@kvack.org, linux-fsdevel@vger.kernel.org,
-        linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org,
-        devel@lists.orangefs.org, kexec@lists.infradead.org,
-        linux-xfs@vger.kernel.org, bpf@vger.kernel.org,
-        linux-perf-users@vger.kernel.org, kasan-dev@googlegroups.com,
-        selinux@vger.kernel.org, alsa-devel@alsa-project.org,
-        kernel-team@android.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: TUsZW17QGkTIs0jvtZEBWYxr_MGXI-oo
+X-Proofpoint-GUID: cYPAP65_zkcCsU3y-pHFf98qfd1S1_G0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
+ definitions=2023-01-25_13,2023-01-25_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
+ lowpriorityscore=0 spamscore=0 impostorscore=0 phishscore=0
+ priorityscore=1501 adultscore=0 bulkscore=0 mlxscore=0 malwarescore=0
+ mlxlogscore=999 suspectscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2212070000 definitions=main-2301250187
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jan 25, 2023 at 10:33 AM Matthew Wilcox <willy@infradead.org> wrote:
->
-> On Wed, Jan 25, 2023 at 12:38:46AM -0800, Suren Baghdasaryan wrote:
-> > +/* Use when VMA is not part of the VMA tree and needs no locking */
-> > +static inline void init_vm_flags(struct vm_area_struct *vma,
-> > +                              unsigned long flags)
-> > +{
-> > +     vma->vm_flags = flags;
->
-> vm_flags are supposed to have type vm_flags_t.  That's not been
-> fully realised yet, but perhaps we could avoid making it worse?
->
-> >       pgprot_t vm_page_prot;
-> > -     unsigned long vm_flags;         /* Flags, see mm.h. */
-> > +
-> > +     /*
-> > +      * Flags, see mm.h.
-> > +      * WARNING! Do not modify directly.
-> > +      * Use {init|reset|set|clear|mod}_vm_flags() functions instead.
-> > +      */
-> > +     unsigned long vm_flags;
->
-> Including changing this line to vm_flags_t
+The struct is quite large, so this seems nicer.
 
-Good point. Will make the change. Thanks!
+Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+---
+ tools/testing/selftests/kvm/s390x/memop.c | 44 +++++++++++------------
+ 1 file changed, 22 insertions(+), 22 deletions(-)
+
+diff --git a/tools/testing/selftests/kvm/s390x/memop.c b/tools/testing/selftests/kvm/s390x/memop.c
+index 3fd81e58f40c..9c05d1205114 100644
+--- a/tools/testing/selftests/kvm/s390x/memop.c
++++ b/tools/testing/selftests/kvm/s390x/memop.c
+@@ -48,53 +48,53 @@ struct mop_desc {
+ 	uint8_t key;
+ };
+ 
+-static struct kvm_s390_mem_op ksmo_from_desc(struct mop_desc desc)
++static struct kvm_s390_mem_op ksmo_from_desc(const struct mop_desc *desc)
+ {
+ 	struct kvm_s390_mem_op ksmo = {
+-		.gaddr = (uintptr_t)desc.gaddr,
+-		.size = desc.size,
+-		.buf = ((uintptr_t)desc.buf),
++		.gaddr = (uintptr_t)desc->gaddr,
++		.size = desc->size,
++		.buf = ((uintptr_t)desc->buf),
+ 		.reserved = "ignored_ignored_ignored_ignored"
+ 	};
+ 
+-	switch (desc.target) {
++	switch (desc->target) {
+ 	case LOGICAL:
+-		if (desc.mode == READ)
++		if (desc->mode == READ)
+ 			ksmo.op = KVM_S390_MEMOP_LOGICAL_READ;
+-		if (desc.mode == WRITE)
++		if (desc->mode == WRITE)
+ 			ksmo.op = KVM_S390_MEMOP_LOGICAL_WRITE;
+ 		break;
+ 	case SIDA:
+-		if (desc.mode == READ)
++		if (desc->mode == READ)
+ 			ksmo.op = KVM_S390_MEMOP_SIDA_READ;
+-		if (desc.mode == WRITE)
++		if (desc->mode == WRITE)
+ 			ksmo.op = KVM_S390_MEMOP_SIDA_WRITE;
+ 		break;
+ 	case ABSOLUTE:
+-		if (desc.mode == READ)
++		if (desc->mode == READ)
+ 			ksmo.op = KVM_S390_MEMOP_ABSOLUTE_READ;
+-		if (desc.mode == WRITE)
++		if (desc->mode == WRITE)
+ 			ksmo.op = KVM_S390_MEMOP_ABSOLUTE_WRITE;
+ 		break;
+ 	case INVALID:
+ 		ksmo.op = -1;
+ 	}
+-	if (desc.f_check)
++	if (desc->f_check)
+ 		ksmo.flags |= KVM_S390_MEMOP_F_CHECK_ONLY;
+-	if (desc.f_inject)
++	if (desc->f_inject)
+ 		ksmo.flags |= KVM_S390_MEMOP_F_INJECT_EXCEPTION;
+-	if (desc._set_flags)
+-		ksmo.flags = desc.set_flags;
+-	if (desc.f_key) {
++	if (desc->_set_flags)
++		ksmo.flags = desc->set_flags;
++	if (desc->f_key) {
+ 		ksmo.flags |= KVM_S390_MEMOP_F_SKEY_PROTECTION;
+-		ksmo.key = desc.key;
++		ksmo.key = desc->key;
+ 	}
+-	if (desc._ar)
+-		ksmo.ar = desc.ar;
++	if (desc->_ar)
++		ksmo.ar = desc->ar;
+ 	else
+ 		ksmo.ar = 0;
+-	if (desc._sida_offset)
+-		ksmo.sida_offset = desc.sida_offset;
++	if (desc->_sida_offset)
++		ksmo.sida_offset = desc->sida_offset;
+ 
+ 	return ksmo;
+ }
+@@ -183,7 +183,7 @@ static int err_memop_ioctl(struct test_info info, struct kvm_s390_mem_op *ksmo)
+ 		else								\
+ 			__desc.gaddr = __desc.gaddr_v;				\
+ 	}									\
+-	__ksmo = ksmo_from_desc(__desc);					\
++	__ksmo = ksmo_from_desc(&__desc);					\
+ 	print_memop(__info.vcpu, &__ksmo);					\
+ 	err##memop_ioctl(__info, &__ksmo);					\
+ })
+-- 
+2.34.1
+
