@@ -2,156 +2,106 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7078EC54E94
-	for <linux-s390@archiver.kernel.org>; Wed, 25 Jan 2023 09:43:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 88B25C27C76
+	for <linux-s390@archiver.kernel.org>; Wed, 25 Jan 2023 10:00:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235402AbjAYJnv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 25 Jan 2023 04:43:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56934 "EHLO
+        id S235366AbjAYKAV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 25 Jan 2023 05:00:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235371AbjAYJnh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 25 Jan 2023 04:43:37 -0500
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C25D5648B;
-        Wed, 25 Jan 2023 01:43:08 -0800 (PST)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        with ESMTP id S235023AbjAYKAU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 25 Jan 2023 05:00:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD2F853B20;
+        Wed, 25 Jan 2023 02:00:19 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id DD33E21C75;
-        Wed, 25 Jan 2023 09:43:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1674639786; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=/H7fv8j3//amIhsuvsnszBORL7yxYM5gHjte1pGnd6k=;
-        b=cJ84t8+Z/oyAwTTCtaCrRcZJz3vmv0agsy9pwxx1mjpy2wVyb9bbJa/fovrQrusm/Svjk5
-        J6I5Atn+BG/uY1djc0bMaR2EhFHHAjtT6MjckOpioFidRZmoo/SxgZTemFBWI/hmnJ034Z
-        w1GOPFueJOKBcny/L6MDveuVWEd9TYY=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 8FA761358F;
-        Wed, 25 Jan 2023 09:43:06 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id usqPIqr50GPHIgAAMHmgww
-        (envelope-from <mhocko@suse.com>); Wed, 25 Jan 2023 09:43:06 +0000
-Date:   Wed, 25 Jan 2023 10:43:05 +0100
-From:   Michal Hocko <mhocko@suse.com>
-To:     Suren Baghdasaryan <surenb@google.com>
-Cc:     akpm@linux-foundation.org, michel@lespinasse.org,
-        jglisse@google.com, vbabka@suse.cz, hannes@cmpxchg.org,
-        mgorman@techsingularity.net, dave@stgolabs.net,
-        willy@infradead.org, liam.howlett@oracle.com, peterz@infradead.org,
-        ldufour@linux.ibm.com, paulmck@kernel.org, luto@kernel.org,
-        songliubraving@fb.com, peterx@redhat.com, david@redhat.com,
-        dhowells@redhat.com, hughd@google.com, bigeasy@linutronix.de,
-        kent.overstreet@linux.dev, punit.agrawal@bytedance.com,
-        lstoakes@gmail.com, peterjung1337@gmail.com, rientjes@google.com,
-        axelrasmussen@google.com, joelaf@google.com, minchan@google.com,
-        jannh@google.com, shakeelb@google.com, tatashin@google.com,
-        edumazet@google.com, gthelen@google.com, gurua@google.com,
-        arjunroy@google.com, soheil@google.com, hughlynch@google.com,
-        leewalsh@google.com, posk@google.com, will@kernel.org,
-        aneesh.kumar@linux.ibm.com, npiggin@gmail.com,
-        chenhuacai@kernel.org, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, richard@nod.at,
-        anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
-        qianweili@huawei.com, wangzhou1@hisilicon.com,
-        herbert@gondor.apana.org.au, davem@davemloft.net, vkoul@kernel.org,
-        airlied@gmail.com, daniel@ffwll.ch,
-        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
-        tzimmermann@suse.de, l.stach@pengutronix.de,
-        krzysztof.kozlowski@linaro.org, patrik.r.jakobsson@gmail.com,
-        matthias.bgg@gmail.com, robdclark@gmail.com,
-        quic_abhinavk@quicinc.com, dmitry.baryshkov@linaro.org,
-        tomba@kernel.org, hjc@rock-chips.com, heiko@sntech.de,
-        ray.huang@amd.com, kraxel@redhat.com, sre@kernel.org,
-        mcoquelin.stm32@gmail.com, alexandre.torgue@foss.st.com,
-        tfiga@chromium.org, m.szyprowski@samsung.com, mchehab@kernel.org,
-        dimitri.sivanich@hpe.com, zhangfei.gao@linaro.org,
-        jejb@linux.ibm.com, martin.petersen@oracle.com,
-        dgilbert@interlog.com, hdegoede@redhat.com, mst@redhat.com,
-        jasowang@redhat.com, alex.williamson@redhat.com, deller@gmx.de,
-        jayalk@intworks.biz, viro@zeniv.linux.org.uk, nico@fluxnic.net,
-        xiang@kernel.org, chao@kernel.org, tytso@mit.edu,
-        adilger.kernel@dilger.ca, miklos@szeredi.hu,
-        mike.kravetz@oracle.com, muchun.song@linux.dev, bhe@redhat.com,
-        andrii@kernel.org, yoshfuji@linux-ipv6.org, dsahern@kernel.org,
-        kuba@kernel.org, pabeni@redhat.com, perex@perex.cz, tiwai@suse.com,
-        haojian.zhuang@gmail.com, robert.jarzmik@free.fr,
-        linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, x86@kernel.org,
-        linux-kernel@vger.kernel.org, linux-graphics-maintainer@vmware.com,
-        linux-ia64@vger.kernel.org, linux-arch@vger.kernel.org,
-        loongarch@lists.linux.dev, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-sgx@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-acpi@vger.kernel.org,
-        linux-crypto@vger.kernel.org, nvdimm@lists.linux.dev,
-        dmaengine@vger.kernel.org, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org, etnaviv@lists.freedesktop.org,
-        linux-samsung-soc@vger.kernel.org, intel-gfx@lists.freedesktop.org,
-        linux-mediatek@lists.infradead.org, linux-arm-msm@vger.kernel.org,
-        freedreno@lists.freedesktop.org,
-        linux-rockchip@lists.infradead.org, linux-tegra@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        xen-devel@lists.xenproject.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-rdma@vger.kernel.org, linux-media@vger.kernel.org,
-        linux-accelerators@lists.ozlabs.org, sparclinux@vger.kernel.org,
-        linux-scsi@vger.kernel.org, linux-staging@lists.linux.dev,
-        target-devel@vger.kernel.org, linux-usb@vger.kernel.org,
-        netdev@vger.kernel.org, linux-fbdev@vger.kernel.org,
-        linux-aio@kvack.org, linux-fsdevel@vger.kernel.org,
-        linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org,
-        devel@lists.orangefs.org, kexec@lists.infradead.org,
-        linux-xfs@vger.kernel.org, bpf@vger.kernel.org,
-        linux-perf-users@vger.kernel.org, kasan-dev@googlegroups.com,
-        selinux@vger.kernel.org, alsa-devel@alsa-project.org,
-        kernel-team@android.com
-Subject: Re: [PATCH v2 6/6] mm: export dump_mm()
-Message-ID: <Y9D5qS02j/fPLP/6@dhcp22.suse.cz>
-References: <20230125083851.27759-1-surenb@google.com>
- <20230125083851.27759-7-surenb@google.com>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 77F2861450;
+        Wed, 25 Jan 2023 10:00:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id D5E08C433EF;
+        Wed, 25 Jan 2023 10:00:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1674640818;
+        bh=n0WLKtsLkqD76gvohl+UmSSBLpp83T8xa5J6Aw9VfCk=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=XMWfJQ8KtBx4ZTbwCFDySoiu28BEnHjUWZjB8gNx+JnjdmMtNpu1k9jh/8DfDiZmo
+         ZZx8gGGgBsUSi7aci15XLsHS3Yg8Hhc5jdxVaaFpT2oN3d8zZLWdJhhq4ZWnSWT1cS
+         cviGh+qeGIfPXIm2YCNIJE/InZqUs+VAmWsbMNIRsywUe0vqFHF1BUrJcBeGyZsqyb
+         UGDlJp789Q3wjEcOXiVicAWvSNU9V2H9nme/RazIUk93BeCNQO4Caena1LjckQ1nYT
+         ld1S7xqRvl8bq5IlDywHsCLLmnvVhLNb/cdUVvdKLqmhWZ5VajNKiwh0A8R8j57zuu
+         6qWOZZLLW4rZQ==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id C107AC04E34;
+        Wed, 25 Jan 2023 10:00:18 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230125083851.27759-7-surenb@google.com>
+Content-Transfer-Encoding: 8bit
+Subject: Re: [net-next v2 0/8] drivers/s390/net/ism: Add generalized interface
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <167464081878.8627.16367625565624680378.git-patchwork-notify@kernel.org>
+Date:   Wed, 25 Jan 2023 10:00:18 +0000
+References: <20230123181752.1068-1-jaka@linux.ibm.com>
+In-Reply-To: <20230123181752.1068-1-jaka@linux.ibm.com>
+To:     Jan Karcher <jaka@linux.ibm.com>
+Cc:     davem@davemloft.net, kuba@kernel.org, edumazet@google.com,
+        pabeni@redhat.com, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, hca@linux.ibm.com,
+        wintera@linux.ibm.com, wenjia@linux.ibm.com,
+        twinkler@linux.ibm.com, raspl@linux.ibm.com, kgraul@linux.ibm.com,
+        niho@linux.ibm.com, pasic@linux.ibm.com, tonylu@linux.alibaba.com,
+        guwen@linux.alibaba.com
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed 25-01-23 00:38:51, Suren Baghdasaryan wrote:
-> mmap_assert_write_locked() is used in vm_flags modifiers. Because
-> mmap_assert_write_locked() uses dump_mm() and vm_flags are sometimes
-> modified from from inside a module, it's necessary to export
-> dump_mm() function.
+Hello:
+
+This series was applied to netdev/net-next.git (master)
+by David S. Miller <davem@davemloft.net>:
+
+On Mon, 23 Jan 2023 19:17:44 +0100 you wrote:
+> Previously, there was no clean separation between SMC-D code and the ISM
+> device driver.This patch series addresses the situation to make ISM available
+> for uses outside of SMC-D.
+> In detail: SMC-D offers an interface via struct smcd_ops, which only the
+> ISM module implements so far. However, there is no real separation between
+> the smcd and ism modules, which starts right with the ISM device
+> initialization, which calls directly into the SMC-D code.
+> This patch series introduces a new API in the ISM module, which allows
+> registration of arbitrary clients via include/linux/ism.h: struct ism_client.
+> Furthermore, it introduces a "pure" struct ism_dev (i.e. getting rid of
+> dependencies on SMC-D in the device structure), and adds a number of API
+> calls for data transfers via ISM (see ism_register_dmb() & friends).
+> Still, the ISM module implements the SMC-D API, and therefore has a number
+> of internal helper functions for that matter.
+> Note that the ISM API is consciously kept thin for now (as compared to the
+> SMC-D API calls), as a number of API calls are only used with SMC-D and
+> hardly have any meaningful usage beyond SMC-D, e.g. the VLAN-related calls.
 > 
-> Signed-off-by: Suren Baghdasaryan <surenb@google.com>
+> [...]
 
-Acked-by: Michal Hocko <mhocko@suse.com>
+Here is the summary with links:
+  - [net-next,v2,1/8] net/smc: Terminate connections prior to device removal
+    https://git.kernel.org/netdev/net-next/c/c40bff4132e5
+  - [net-next,v2,2/8] net/ism: Add missing calls to disable bus-mastering
+    https://git.kernel.org/netdev/net-next/c/462502ff9acb
+  - [net-next,v2,3/8] s390/ism: Introduce struct ism_dmb
+    https://git.kernel.org/netdev/net-next/c/1baedb13f1d5
+  - [net-next,v2,4/8] net/ism: Add new API for client registration
+    https://git.kernel.org/netdev/net-next/c/89e7d2ba61b7
+  - [net-next,v2,5/8] net/smc: Register SMC-D as ISM client
+    https://git.kernel.org/netdev/net-next/c/8747716f3942
+  - [net-next,v2,6/8] net/smc: Separate SMC-D and ISM APIs
+    https://git.kernel.org/netdev/net-next/c/9de4df7b6be1
+  - [net-next,v2,7/8] s390/ism: Consolidate SMC-D-related code
+    https://git.kernel.org/netdev/net-next/c/820f21009f1b
+  - [net-next,v2,8/8] net/smc: De-tangle ism and smc device initialization
+    https://git.kernel.org/netdev/net-next/c/8c81ba20349d
 
-> ---
->  mm/debug.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/mm/debug.c b/mm/debug.c
-> index 9d3d893dc7f4..96d594e16292 100644
-> --- a/mm/debug.c
-> +++ b/mm/debug.c
-> @@ -215,6 +215,7 @@ void dump_mm(const struct mm_struct *mm)
->  		mm->def_flags, &mm->def_flags
->  	);
->  }
-> +EXPORT_SYMBOL(dump_mm);
->  
->  static bool page_init_poisoning __read_mostly = true;
->  
-> -- 
-> 2.39.1
-
+You are awesome, thank you!
 -- 
-Michal Hocko
-SUSE Labs
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
