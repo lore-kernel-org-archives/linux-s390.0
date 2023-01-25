@@ -2,476 +2,288 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 88A4CC61D9D
-	for <linux-s390@archiver.kernel.org>; Tue, 24 Jan 2023 20:50:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3810EC54E94
+	for <linux-s390@archiver.kernel.org>; Wed, 25 Jan 2023 08:39:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234376AbjAXUuy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 24 Jan 2023 15:50:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57704 "EHLO
+        id S235281AbjAYIjU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 25 Jan 2023 03:39:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234382AbjAXUux (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 24 Jan 2023 15:50:53 -0500
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BADB850878
-        for <linux-s390@vger.kernel.org>; Tue, 24 Jan 2023 12:50:47 -0800 (PST)
-Received: by mail-pj1-x102a.google.com with SMTP id b10so16382028pjo.1
-        for <linux-s390@vger.kernel.org>; Tue, 24 Jan 2023 12:50:47 -0800 (PST)
+        with ESMTP id S235259AbjAYIjC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 25 Jan 2023 03:39:02 -0500
+Received: from mail-yw1-x114a.google.com (mail-yw1-x114a.google.com [IPv6:2607:f8b0:4864:20::114a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F0244345A
+        for <linux-s390@vger.kernel.org>; Wed, 25 Jan 2023 00:38:57 -0800 (PST)
+Received: by mail-yw1-x114a.google.com with SMTP id 00721157ae682-4c11ae6ab25so180219447b3.8
+        for <linux-s390@vger.kernel.org>; Wed, 25 Jan 2023 00:38:57 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=paQ7j486LMTI09MRoppE1hFSpQyJiFhQxIwTJPuElYo=;
-        b=lYfxlHE+R9vcMM2MjiApPaidTBTuPScjraXm39Ly62Wn+yBQJfmt00iG3of85pgqTk
-         vbK0r8cxAY4TIAN3fjpotkjFY6uTYoI2tuq4OGFOBkIEd7u62Nc5/9KJTTcaALgSkWzA
-         fm7vPGcuKXc9y/CPEOQDES6f57JjxE3huFuIS5Uj2KoQd0P+KIrxi05j06o/kqDLRaxM
-         9KRPn/5b+XA29UD92FlPz0zc7JeQxVRIiyGdrAcIQGzvUQirjxRJkp+T6DL//PjTxSCp
-         S5TJQ3L4iOnBGQbvT8XzjcOUED6ckUFb3pByU5Z/Q5TYKC6w45zl3wc6otuyCU25qQcj
-         UgcA==
+        d=google.com; s=20210112;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=gBh0+9Ej4fdZiBcL1FEtjjBddEyxpct0JkyXcSRf3Wg=;
+        b=lB4btchvNlTfCRHflexrgCXbRXFvyy8g1gFK/OMeKiIJNh1tqeN9E/OUXMnf2U4uji
+         YYT9ZG6Uz9BNIXcJPuB6IBGSNwEdssClBGTD7I8F8xN9feCnsNR77DeUemH49gSW7JIZ
+         i8Fyk+8dX7xmZBgb/4LlxS50DWuY+p/ZAvE5rke3AXUvgG50Y7E3pTP3J2Z3NRLwRPG+
+         tuCoTtjvQeclLyeusopPtZIO8LUuu13+9dnLJ2g+6d0g96WjPTO8eD8l7HbwyilzSGVH
+         oGzLOV4is7gwgAYTgd7llD5IZe+pWMCF81FsE6KNSAjCT9NY1E+DcM18ZvHUvuruVpcX
+         WOLw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=paQ7j486LMTI09MRoppE1hFSpQyJiFhQxIwTJPuElYo=;
-        b=QYHuj5kbKl9Iv+DlwA3M+JckOCxQ5cprS+mRti+hcBahch3A6ks4/9+cDsUr3v9iQv
-         KMifJq9/fohEoW/4U5ME8iMD9BVfXO3fvqU/GJdvYr6U5R4qScteXrcwgvJ3RLGMmDVW
-         vQ2CGzyq3u/voJoKqu5Y33Xt0GoMXLbhnenEXytWWXBAG7mvidCAHhp8BcxsufXTlTU5
-         QeeU0agm6T+VaGnnFanv2G0o1mdpS9Ut35RBcJ+orTYojOTL9bQogawfFQkB9u1eIUkI
-         mwfTA267eipsTjaBIs/CVxGW/xzS7LI7F74aHWskzsuDNnWYfopWRFwTZc5jGFNMZz0y
-         08CQ==
-X-Gm-Message-State: AFqh2kqdWMRsDFWAsVP3nXM0+KQp9O0M8Ix0QqpbfKZbWoStYDPdjsfM
-        YxzTjKElRnEaH6t5Hvg9ffDrDw==
-X-Google-Smtp-Source: AMrXdXsbmfGmTuHmeZkBI1Lt+n9FwN9LiLWmEadvEKZal+YS0enunw/0CF3BCnip5pLyuZLVwd5PHA==
-X-Received: by 2002:a17:902:e78f:b0:194:d5ec:9be6 with SMTP id cp15-20020a170902e78f00b00194d5ec9be6mr19250738plb.23.1674593447072;
-        Tue, 24 Jan 2023 12:50:47 -0800 (PST)
-Received: from p14s ([2604:3d09:148c:c800:2f0d:21f1:1136:64f5])
-        by smtp.gmail.com with ESMTPSA id az3-20020a170902a58300b001899c2a0ae0sm2120701plb.40.2023.01.24.12.50.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 24 Jan 2023 12:50:46 -0800 (PST)
-Date:   Tue, 24 Jan 2023 13:50:43 -0700
-From:   Mathieu Poirier <mathieu.poirier@linaro.org>
-To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        ath10k@lists.infradead.org, ath11k@lists.infradead.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        dri-devel@lists.freedesktop.org, iommu@lists.linux.dev,
-        kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-media@vger.kernel.org,
-        linux-rdma@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-        linux-s390@vger.kernel.org,
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=gBh0+9Ej4fdZiBcL1FEtjjBddEyxpct0JkyXcSRf3Wg=;
+        b=zXObT/tZaOY55adtqzzm+0XX2Qdyi4JXRMijlQAKzBgJiSfcJg0J3M/99LtqcGal8/
+         cLo2AIywfeNcaAc1XUNZfLV0WkpLZ+GNtwYDT87aEeeo0C3T/DFjC0VVZ3g3y2UzgnPN
+         Z/uSmFv2IrBCoRiQCfGIG4/x/mqSPikoAPy6iHr4B/uUFD6XplEVz2gsYzZBwMvS/TzV
+         VpRiFjJQNcB5Z249GtiB47rCs9e2bFF8+JY8kxLfSwR1SO3QzX1M5qH3XFXKgxpyemU6
+         nuAuDYG3Wj1FGeuGzDIiW+c+ZSdMUue8eYvZ7N4vNaIvTJE8qpZjcc3QSQyMIFtdqhop
+         rEJQ==
+X-Gm-Message-State: AFqh2koJzLPOYIHK7+e3BwNy0GRvkS9IVlUuLSonEcQZK/2gORdYyL14
+        0yOnqxW4lmp4hkP3H3MrcfE8sWFXTLk=
+X-Google-Smtp-Source: AMrXdXtLI+TT5dUaC9pRI2aKjkmKt7tjdC79b+se6AwZUh4jJJgCSUqcAubWc2ByjewYclrfSPgwiLKmrmw=
+X-Received: from surenb-desktop.mtv.corp.google.com ([2620:15c:211:200:f7b0:20e8:ce66:f98])
+ (user=surenb job=sendgmr) by 2002:a05:6902:34f:b0:6f9:7bf9:8fc7 with SMTP id
+ e15-20020a056902034f00b006f97bf98fc7mr3373858ybs.279.1674635936246; Wed, 25
+ Jan 2023 00:38:56 -0800 (PST)
+Date:   Wed, 25 Jan 2023 00:38:45 -0800
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.39.1.405.gd4c25cc71f-goog
+Message-ID: <20230125083851.27759-1-surenb@google.com>
+Subject: [PATCH v2 0/6] introduce vm_flags modifier functions
+From:   Suren Baghdasaryan <surenb@google.com>
+To:     akpm@linux-foundation.org
+Cc:     michel@lespinasse.org, jglisse@google.com, mhocko@suse.com,
+        vbabka@suse.cz, hannes@cmpxchg.org, mgorman@techsingularity.net,
+        dave@stgolabs.net, willy@infradead.org, liam.howlett@oracle.com,
+        peterz@infradead.org, ldufour@linux.ibm.com, paulmck@kernel.org,
+        luto@kernel.org, songliubraving@fb.com, peterx@redhat.com,
+        david@redhat.com, dhowells@redhat.com, hughd@google.com,
+        bigeasy@linutronix.de, kent.overstreet@linux.dev,
+        punit.agrawal@bytedance.com, lstoakes@gmail.com,
+        peterjung1337@gmail.com, rientjes@google.com,
+        axelrasmussen@google.com, joelaf@google.com, minchan@google.com,
+        jannh@google.com, shakeelb@google.com, tatashin@google.com,
+        edumazet@google.com, gthelen@google.com, gurua@google.com,
+        arjunroy@google.com, soheil@google.com, hughlynch@google.com,
+        leewalsh@google.com, posk@google.com, will@kernel.org,
+        aneesh.kumar@linux.ibm.com, npiggin@gmail.com,
+        chenhuacai@kernel.org, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, richard@nod.at,
+        anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
+        qianweili@huawei.com, wangzhou1@hisilicon.com,
+        herbert@gondor.apana.org.au, davem@davemloft.net, vkoul@kernel.org,
+        airlied@gmail.com, daniel@ffwll.ch,
+        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
+        tzimmermann@suse.de, l.stach@pengutronix.de,
+        krzysztof.kozlowski@linaro.org, patrik.r.jakobsson@gmail.com,
+        matthias.bgg@gmail.com, robdclark@gmail.com,
+        quic_abhinavk@quicinc.com, dmitry.baryshkov@linaro.org,
+        tomba@kernel.org, hjc@rock-chips.com, heiko@sntech.de,
+        ray.huang@amd.com, kraxel@redhat.com, sre@kernel.org,
+        mcoquelin.stm32@gmail.com, alexandre.torgue@foss.st.com,
+        tfiga@chromium.org, m.szyprowski@samsung.com, mchehab@kernel.org,
+        dimitri.sivanich@hpe.com, zhangfei.gao@linaro.org,
+        jejb@linux.ibm.com, martin.petersen@oracle.com,
+        dgilbert@interlog.com, hdegoede@redhat.com, mst@redhat.com,
+        jasowang@redhat.com, alex.williamson@redhat.com, deller@gmx.de,
+        jayalk@intworks.biz, viro@zeniv.linux.org.uk, nico@fluxnic.net,
+        xiang@kernel.org, chao@kernel.org, tytso@mit.edu,
+        adilger.kernel@dilger.ca, miklos@szeredi.hu,
+        mike.kravetz@oracle.com, muchun.song@linux.dev, bhe@redhat.com,
+        andrii@kernel.org, yoshfuji@linux-ipv6.org, dsahern@kernel.org,
+        kuba@kernel.org, pabeni@redhat.com, perex@perex.cz, tiwai@suse.com,
+        haojian.zhuang@gmail.com, robert.jarzmik@free.fr,
+        linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org,
+        linuxppc-dev@lists.ozlabs.org, x86@kernel.org,
+        linux-kernel@vger.kernel.org, linux-graphics-maintainer@vmware.com,
+        linux-ia64@vger.kernel.org, linux-arch@vger.kernel.org,
+        loongarch@lists.linux.dev, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-sgx@vger.kernel.org,
+        linux-um@lists.infradead.org, linux-acpi@vger.kernel.org,
+        linux-crypto@vger.kernel.org, nvdimm@lists.linux.dev,
+        dmaengine@vger.kernel.org, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org, etnaviv@lists.freedesktop.org,
+        linux-samsung-soc@vger.kernel.org, intel-gfx@lists.freedesktop.org,
+        linux-mediatek@lists.infradead.org, linux-arm-msm@vger.kernel.org,
+        freedreno@lists.freedesktop.org,
+        linux-rockchip@lists.infradead.org, linux-tegra@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        xen-devel@lists.xenproject.org,
         linux-stm32@st-md-mailman.stormreply.com,
-        linux-tegra@vger.kernel.org, linux-wireless@vger.kernel.org,
-        netdev@vger.kernel.org, nouveau@lists.freedesktop.org,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH v3 01/10] iommu: Add a gfp parameter to iommu_map()
-Message-ID: <20230124205043.GA3869975@p14s>
-References: <0-v3-76b587fe28df+6e3-iommu_map_gfp_jgg@nvidia.com>
- <1-v3-76b587fe28df+6e3-iommu_map_gfp_jgg@nvidia.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1-v3-76b587fe28df+6e3-iommu_map_gfp_jgg@nvidia.com>
+        linux-rdma@vger.kernel.org, linux-media@vger.kernel.org,
+        linux-accelerators@lists.ozlabs.org, sparclinux@vger.kernel.org,
+        linux-scsi@vger.kernel.org, linux-staging@lists.linux.dev,
+        target-devel@vger.kernel.org, linux-usb@vger.kernel.org,
+        netdev@vger.kernel.org, linux-fbdev@vger.kernel.org,
+        linux-aio@kvack.org, linux-fsdevel@vger.kernel.org,
+        linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org,
+        devel@lists.orangefs.org, kexec@lists.infradead.org,
+        linux-xfs@vger.kernel.org, bpf@vger.kernel.org,
+        linux-perf-users@vger.kernel.org, kasan-dev@googlegroups.com,
+        selinux@vger.kernel.org, alsa-devel@alsa-project.org,
+        kernel-team@android.com, surenb@google.com
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Jan 23, 2023 at 04:35:54PM -0400, Jason Gunthorpe wrote:
-> The internal mechanisms support this, but instead of exposting the gfp to
-> the caller it wrappers it into iommu_map() and iommu_map_atomic()
-> 
-> Fix this instead of adding more variants for GFP_KERNEL_ACCOUNT.
-> 
-> Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> ---
->  arch/arm/mm/dma-mapping.c                     | 11 ++++++----
->  .../drm/nouveau/nvkm/subdev/instmem/gk20a.c   |  3 ++-
->  drivers/gpu/drm/tegra/drm.c                   |  2 +-
->  drivers/gpu/host1x/cdma.c                     |  2 +-
->  drivers/infiniband/hw/usnic/usnic_uiom.c      |  4 ++--
->  drivers/iommu/dma-iommu.c                     |  2 +-
->  drivers/iommu/iommu.c                         | 22 +++++++++----------
->  drivers/iommu/iommufd/pages.c                 |  6 +++--
->  drivers/media/platform/qcom/venus/firmware.c  |  2 +-
->  drivers/net/ipa/ipa_mem.c                     |  6 +++--
->  drivers/net/wireless/ath/ath10k/snoc.c        |  2 +-
->  drivers/net/wireless/ath/ath11k/ahb.c         |  4 ++--
->  drivers/remoteproc/remoteproc_core.c          |  5 +++--
+This patchset was originally published as a part of per-VMA locking [1] and
+was split after suggestion that it's viable on its own and to facilitate
+the review process. It is now a preprequisite for the next version of per-VMA
+lock patchset, which reuses vm_flags modifier functions to lock the VMA when
+vm_flags are being updated.
 
-Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+VMA vm_flags modifications are usually done under exclusive mmap_lock
+protection because this attrubute affects other decisions like VMA merging
+or splitting and races should be prevented. Introduce vm_flags modifier
+functions to enforce correct locking.
 
->  drivers/vfio/vfio_iommu_type1.c               |  9 ++++----
->  drivers/vhost/vdpa.c                          |  2 +-
->  include/linux/iommu.h                         |  4 ++--
->  16 files changed, 48 insertions(+), 38 deletions(-)
-> 
-> diff --git a/arch/arm/mm/dma-mapping.c b/arch/arm/mm/dma-mapping.c
-> index c135f6e37a00ca..8bc01071474ab7 100644
-> --- a/arch/arm/mm/dma-mapping.c
-> +++ b/arch/arm/mm/dma-mapping.c
-> @@ -984,7 +984,8 @@ __iommu_create_mapping(struct device *dev, struct page **pages, size_t size,
->  
->  		len = (j - i) << PAGE_SHIFT;
->  		ret = iommu_map(mapping->domain, iova, phys, len,
-> -				__dma_info_to_prot(DMA_BIDIRECTIONAL, attrs));
-> +				__dma_info_to_prot(DMA_BIDIRECTIONAL, attrs),
-> +				GFP_KERNEL);
->  		if (ret < 0)
->  			goto fail;
->  		iova += len;
-> @@ -1207,7 +1208,8 @@ static int __map_sg_chunk(struct device *dev, struct scatterlist *sg,
->  
->  		prot = __dma_info_to_prot(dir, attrs);
->  
-> -		ret = iommu_map(mapping->domain, iova, phys, len, prot);
-> +		ret = iommu_map(mapping->domain, iova, phys, len, prot,
-> +				GFP_KERNEL);
->  		if (ret < 0)
->  			goto fail;
->  		count += len >> PAGE_SHIFT;
-> @@ -1379,7 +1381,8 @@ static dma_addr_t arm_iommu_map_page(struct device *dev, struct page *page,
->  
->  	prot = __dma_info_to_prot(dir, attrs);
->  
-> -	ret = iommu_map(mapping->domain, dma_addr, page_to_phys(page), len, prot);
-> +	ret = iommu_map(mapping->domain, dma_addr, page_to_phys(page), len,
-> +			prot, GFP_KERNEL);
->  	if (ret < 0)
->  		goto fail;
->  
-> @@ -1443,7 +1446,7 @@ static dma_addr_t arm_iommu_map_resource(struct device *dev,
->  
->  	prot = __dma_info_to_prot(dir, attrs) | IOMMU_MMIO;
->  
-> -	ret = iommu_map(mapping->domain, dma_addr, addr, len, prot);
-> +	ret = iommu_map(mapping->domain, dma_addr, addr, len, prot, GFP_KERNEL);
->  	if (ret < 0)
->  		goto fail;
->  
-> diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/instmem/gk20a.c b/drivers/gpu/drm/nouveau/nvkm/subdev/instmem/gk20a.c
-> index 648ecf5a8fbc2a..a4ac94a2ab57fc 100644
-> --- a/drivers/gpu/drm/nouveau/nvkm/subdev/instmem/gk20a.c
-> +++ b/drivers/gpu/drm/nouveau/nvkm/subdev/instmem/gk20a.c
-> @@ -475,7 +475,8 @@ gk20a_instobj_ctor_iommu(struct gk20a_instmem *imem, u32 npages, u32 align,
->  		u32 offset = (r->offset + i) << imem->iommu_pgshift;
->  
->  		ret = iommu_map(imem->domain, offset, node->dma_addrs[i],
-> -				PAGE_SIZE, IOMMU_READ | IOMMU_WRITE);
-> +				PAGE_SIZE, IOMMU_READ | IOMMU_WRITE,
-> +				GFP_KERNEL);
->  		if (ret < 0) {
->  			nvkm_error(subdev, "IOMMU mapping failure: %d\n", ret);
->  
-> diff --git a/drivers/gpu/drm/tegra/drm.c b/drivers/gpu/drm/tegra/drm.c
-> index 7bd2e65c2a16c5..6ca9f396e55be4 100644
-> --- a/drivers/gpu/drm/tegra/drm.c
-> +++ b/drivers/gpu/drm/tegra/drm.c
-> @@ -1057,7 +1057,7 @@ void *tegra_drm_alloc(struct tegra_drm *tegra, size_t size, dma_addr_t *dma)
->  
->  	*dma = iova_dma_addr(&tegra->carveout.domain, alloc);
->  	err = iommu_map(tegra->domain, *dma, virt_to_phys(virt),
-> -			size, IOMMU_READ | IOMMU_WRITE);
-> +			size, IOMMU_READ | IOMMU_WRITE, GFP_KERNEL);
->  	if (err < 0)
->  		goto free_iova;
->  
-> diff --git a/drivers/gpu/host1x/cdma.c b/drivers/gpu/host1x/cdma.c
-> index 103fda055394ab..4ddfcd2138c95b 100644
-> --- a/drivers/gpu/host1x/cdma.c
-> +++ b/drivers/gpu/host1x/cdma.c
-> @@ -105,7 +105,7 @@ static int host1x_pushbuffer_init(struct push_buffer *pb)
->  
->  		pb->dma = iova_dma_addr(&host1x->iova, alloc);
->  		err = iommu_map(host1x->domain, pb->dma, pb->phys, size,
-> -				IOMMU_READ);
-> +				IOMMU_READ, GFP_KERNEL);
->  		if (err)
->  			goto iommu_free_iova;
->  	} else {
-> diff --git a/drivers/infiniband/hw/usnic/usnic_uiom.c b/drivers/infiniband/hw/usnic/usnic_uiom.c
-> index c301b3be9f303d..aeeaca65ace96a 100644
-> --- a/drivers/infiniband/hw/usnic/usnic_uiom.c
-> +++ b/drivers/infiniband/hw/usnic/usnic_uiom.c
-> @@ -277,7 +277,7 @@ static int usnic_uiom_map_sorted_intervals(struct list_head *intervals,
->  				usnic_dbg("va 0x%lx pa %pa size 0x%zx flags 0x%x",
->  					va_start, &pa_start, size, flags);
->  				err = iommu_map(pd->domain, va_start, pa_start,
-> -							size, flags);
-> +						size, flags, GFP_KERNEL);
->  				if (err) {
->  					usnic_err("Failed to map va 0x%lx pa %pa size 0x%zx with err %d\n",
->  						va_start, &pa_start, size, err);
-> @@ -294,7 +294,7 @@ static int usnic_uiom_map_sorted_intervals(struct list_head *intervals,
->  				usnic_dbg("va 0x%lx pa %pa size 0x%zx flags 0x%x\n",
->  					va_start, &pa_start, size, flags);
->  				err = iommu_map(pd->domain, va_start, pa_start,
-> -						size, flags);
-> +						size, flags, GFP_KERNEL);
->  				if (err) {
->  					usnic_err("Failed to map va 0x%lx pa %pa size 0x%zx with err %d\n",
->  						va_start, &pa_start, size, err);
-> diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
-> index f798c44e090337..8bdb65e7686ff9 100644
-> --- a/drivers/iommu/dma-iommu.c
-> +++ b/drivers/iommu/dma-iommu.c
-> @@ -1615,7 +1615,7 @@ static struct iommu_dma_msi_page *iommu_dma_get_msi_page(struct device *dev,
->  	if (!iova)
->  		goto out_free_page;
->  
-> -	if (iommu_map(domain, iova, msi_addr, size, prot))
-> +	if (iommu_map(domain, iova, msi_addr, size, prot, GFP_KERNEL))
->  		goto out_free_iova;
->  
->  	INIT_LIST_HEAD(&msi_page->list);
-> diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-> index 5f6a85aea501ec..7dac062b58f039 100644
-> --- a/drivers/iommu/iommu.c
-> +++ b/drivers/iommu/iommu.c
-> @@ -930,7 +930,7 @@ static int iommu_create_device_direct_mappings(struct iommu_group *group,
->  			if (map_size) {
->  				ret = iommu_map(domain, addr - map_size,
->  						addr - map_size, map_size,
-> -						entry->prot);
-> +						entry->prot, GFP_KERNEL);
->  				if (ret)
->  					goto out;
->  				map_size = 0;
-> @@ -2360,31 +2360,31 @@ static int __iommu_map(struct iommu_domain *domain, unsigned long iova,
->  	return ret;
->  }
->  
-> -static int _iommu_map(struct iommu_domain *domain, unsigned long iova,
-> -		      phys_addr_t paddr, size_t size, int prot, gfp_t gfp)
-> +int iommu_map(struct iommu_domain *domain, unsigned long iova,
-> +	      phys_addr_t paddr, size_t size, int prot, gfp_t gfp)
->  {
->  	const struct iommu_domain_ops *ops = domain->ops;
->  	int ret;
->  
-> +	might_sleep_if(gfpflags_allow_blocking(gfp));
-> +
-> +	/* Discourage passing strange GFP flags */
-> +	if (WARN_ON_ONCE(gfp & (__GFP_COMP | __GFP_DMA | __GFP_DMA32 |
-> +				__GFP_HIGHMEM)))
-> +		return -EINVAL;
-> +
->  	ret = __iommu_map(domain, iova, paddr, size, prot, gfp);
->  	if (ret == 0 && ops->iotlb_sync_map)
->  		ops->iotlb_sync_map(domain, iova, size);
->  
->  	return ret;
->  }
-> -
-> -int iommu_map(struct iommu_domain *domain, unsigned long iova,
-> -	      phys_addr_t paddr, size_t size, int prot)
-> -{
-> -	might_sleep();
-> -	return _iommu_map(domain, iova, paddr, size, prot, GFP_KERNEL);
-> -}
->  EXPORT_SYMBOL_GPL(iommu_map);
->  
->  int iommu_map_atomic(struct iommu_domain *domain, unsigned long iova,
->  	      phys_addr_t paddr, size_t size, int prot)
->  {
-> -	return _iommu_map(domain, iova, paddr, size, prot, GFP_ATOMIC);
-> +	return iommu_map(domain, iova, paddr, size, prot, GFP_ATOMIC);
->  }
->  EXPORT_SYMBOL_GPL(iommu_map_atomic);
->  
-> diff --git a/drivers/iommu/iommufd/pages.c b/drivers/iommu/iommufd/pages.c
-> index 1e1d3509efae5e..22cc3bb0c6c55a 100644
-> --- a/drivers/iommu/iommufd/pages.c
-> +++ b/drivers/iommu/iommufd/pages.c
-> @@ -456,7 +456,8 @@ static int batch_iommu_map_small(struct iommu_domain *domain,
->  			size % PAGE_SIZE);
->  
->  	while (size) {
-> -		rc = iommu_map(domain, iova, paddr, PAGE_SIZE, prot);
-> +		rc = iommu_map(domain, iova, paddr, PAGE_SIZE, prot,
-> +			       GFP_KERNEL);
->  		if (rc)
->  			goto err_unmap;
->  		iova += PAGE_SIZE;
-> @@ -500,7 +501,8 @@ static int batch_to_domain(struct pfn_batch *batch, struct iommu_domain *domain,
->  		else
->  			rc = iommu_map(domain, iova,
->  				       PFN_PHYS(batch->pfns[cur]) + page_offset,
-> -				       next_iova - iova, area->iommu_prot);
-> +				       next_iova - iova, area->iommu_prot,
-> +				       GFP_KERNEL);
->  		if (rc)
->  			goto err_unmap;
->  		iova = next_iova;
-> diff --git a/drivers/media/platform/qcom/venus/firmware.c b/drivers/media/platform/qcom/venus/firmware.c
-> index 142d4c74017c04..07d4dceb5e72c7 100644
-> --- a/drivers/media/platform/qcom/venus/firmware.c
-> +++ b/drivers/media/platform/qcom/venus/firmware.c
-> @@ -158,7 +158,7 @@ static int venus_boot_no_tz(struct venus_core *core, phys_addr_t mem_phys,
->  	core->fw.mapped_mem_size = mem_size;
->  
->  	ret = iommu_map(iommu, VENUS_FW_START_ADDR, mem_phys, mem_size,
-> -			IOMMU_READ | IOMMU_WRITE | IOMMU_PRIV);
-> +			IOMMU_READ | IOMMU_WRITE | IOMMU_PRIV, GFP_KERNEL);
->  	if (ret) {
->  		dev_err(dev, "could not map video firmware region\n");
->  		return ret;
-> diff --git a/drivers/net/ipa/ipa_mem.c b/drivers/net/ipa/ipa_mem.c
-> index 9ec5af323f731d..991a7d39f06661 100644
-> --- a/drivers/net/ipa/ipa_mem.c
-> +++ b/drivers/net/ipa/ipa_mem.c
-> @@ -466,7 +466,8 @@ static int ipa_imem_init(struct ipa *ipa, unsigned long addr, size_t size)
->  	size = PAGE_ALIGN(size + addr - phys);
->  	iova = phys;	/* We just want a direct mapping */
->  
-> -	ret = iommu_map(domain, iova, phys, size, IOMMU_READ | IOMMU_WRITE);
-> +	ret = iommu_map(domain, iova, phys, size, IOMMU_READ | IOMMU_WRITE,
-> +			GFP_KERNEL);
->  	if (ret)
->  		return ret;
->  
-> @@ -574,7 +575,8 @@ static int ipa_smem_init(struct ipa *ipa, u32 item, size_t size)
->  	size = PAGE_ALIGN(size + addr - phys);
->  	iova = phys;	/* We just want a direct mapping */
->  
-> -	ret = iommu_map(domain, iova, phys, size, IOMMU_READ | IOMMU_WRITE);
-> +	ret = iommu_map(domain, iova, phys, size, IOMMU_READ | IOMMU_WRITE,
-> +			GFP_KERNEL);
->  	if (ret)
->  		return ret;
->  
-> diff --git a/drivers/net/wireless/ath/ath10k/snoc.c b/drivers/net/wireless/ath/ath10k/snoc.c
-> index cfcb759a87deac..9a82f0336d9537 100644
-> --- a/drivers/net/wireless/ath/ath10k/snoc.c
-> +++ b/drivers/net/wireless/ath/ath10k/snoc.c
-> @@ -1639,7 +1639,7 @@ static int ath10k_fw_init(struct ath10k *ar)
->  
->  	ret = iommu_map(iommu_dom, ar_snoc->fw.fw_start_addr,
->  			ar->msa.paddr, ar->msa.mem_size,
-> -			IOMMU_READ | IOMMU_WRITE);
-> +			IOMMU_READ | IOMMU_WRITE, GFP_KERNEL);
->  	if (ret) {
->  		ath10k_err(ar, "failed to map firmware region: %d\n", ret);
->  		goto err_iommu_detach;
-> diff --git a/drivers/net/wireless/ath/ath11k/ahb.c b/drivers/net/wireless/ath/ath11k/ahb.c
-> index d34a4d6325b2b4..df8fdc7067f99c 100644
-> --- a/drivers/net/wireless/ath/ath11k/ahb.c
-> +++ b/drivers/net/wireless/ath/ath11k/ahb.c
-> @@ -1021,7 +1021,7 @@ static int ath11k_ahb_fw_resources_init(struct ath11k_base *ab)
->  
->  	ret = iommu_map(iommu_dom, ab_ahb->fw.msa_paddr,
->  			ab_ahb->fw.msa_paddr, ab_ahb->fw.msa_size,
-> -			IOMMU_READ | IOMMU_WRITE);
-> +			IOMMU_READ | IOMMU_WRITE, GFP_KERNEL);
->  	if (ret) {
->  		ath11k_err(ab, "failed to map firmware region: %d\n", ret);
->  		goto err_iommu_detach;
-> @@ -1029,7 +1029,7 @@ static int ath11k_ahb_fw_resources_init(struct ath11k_base *ab)
->  
->  	ret = iommu_map(iommu_dom, ab_ahb->fw.ce_paddr,
->  			ab_ahb->fw.ce_paddr, ab_ahb->fw.ce_size,
-> -			IOMMU_READ | IOMMU_WRITE);
-> +			IOMMU_READ | IOMMU_WRITE, GFP_KERNEL);
->  	if (ret) {
->  		ath11k_err(ab, "failed to map firmware CE region: %d\n", ret);
->  		goto err_iommu_unmap;
-> diff --git a/drivers/remoteproc/remoteproc_core.c b/drivers/remoteproc/remoteproc_core.c
-> index 1cd4815a6dd197..80072b6b628358 100644
-> --- a/drivers/remoteproc/remoteproc_core.c
-> +++ b/drivers/remoteproc/remoteproc_core.c
-> @@ -643,7 +643,8 @@ static int rproc_handle_devmem(struct rproc *rproc, void *ptr,
->  	if (!mapping)
->  		return -ENOMEM;
->  
-> -	ret = iommu_map(rproc->domain, rsc->da, rsc->pa, rsc->len, rsc->flags);
-> +	ret = iommu_map(rproc->domain, rsc->da, rsc->pa, rsc->len, rsc->flags,
-> +			GFP_KERNEL);
->  	if (ret) {
->  		dev_err(dev, "failed to map devmem: %d\n", ret);
->  		goto out;
-> @@ -737,7 +738,7 @@ static int rproc_alloc_carveout(struct rproc *rproc,
->  		}
->  
->  		ret = iommu_map(rproc->domain, mem->da, dma, mem->len,
-> -				mem->flags);
-> +				mem->flags, GFP_KERNEL);
->  		if (ret) {
->  			dev_err(dev, "iommu_map failed: %d\n", ret);
->  			goto free_mapping;
-> diff --git a/drivers/vfio/vfio_iommu_type1.c b/drivers/vfio/vfio_iommu_type1.c
-> index 23c24fe98c00d4..e14f86a8ef5258 100644
-> --- a/drivers/vfio/vfio_iommu_type1.c
-> +++ b/drivers/vfio/vfio_iommu_type1.c
-> @@ -1480,7 +1480,8 @@ static int vfio_iommu_map(struct vfio_iommu *iommu, dma_addr_t iova,
->  
->  	list_for_each_entry(d, &iommu->domain_list, next) {
->  		ret = iommu_map(d->domain, iova, (phys_addr_t)pfn << PAGE_SHIFT,
-> -				npage << PAGE_SHIFT, prot | IOMMU_CACHE);
-> +				npage << PAGE_SHIFT, prot | IOMMU_CACHE,
-> +				GFP_KERNEL);
->  		if (ret)
->  			goto unwind;
->  
-> @@ -1777,8 +1778,8 @@ static int vfio_iommu_replay(struct vfio_iommu *iommu,
->  				size = npage << PAGE_SHIFT;
->  			}
->  
-> -			ret = iommu_map(domain->domain, iova, phys,
-> -					size, dma->prot | IOMMU_CACHE);
-> +			ret = iommu_map(domain->domain, iova, phys, size,
-> +					dma->prot | IOMMU_CACHE, GFP_KERNEL);
->  			if (ret) {
->  				if (!dma->iommu_mapped) {
->  					vfio_unpin_pages_remote(dma, iova,
-> @@ -1866,7 +1867,7 @@ static void vfio_test_domain_fgsp(struct vfio_domain *domain)
->  		return;
->  
->  	ret = iommu_map(domain->domain, 0, page_to_phys(pages), PAGE_SIZE * 2,
-> -			IOMMU_READ | IOMMU_WRITE | IOMMU_CACHE);
-> +			IOMMU_READ | IOMMU_WRITE | IOMMU_CACHE, GFP_KERNEL);
->  	if (!ret) {
->  		size_t unmapped = iommu_unmap(domain->domain, 0, PAGE_SIZE);
->  
-> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-> index ec32f785dfdec1..fd1536de5b1df0 100644
-> --- a/drivers/vhost/vdpa.c
-> +++ b/drivers/vhost/vdpa.c
-> @@ -792,7 +792,7 @@ static int vhost_vdpa_map(struct vhost_vdpa *v, struct vhost_iotlb *iotlb,
->  			r = ops->set_map(vdpa, asid, iotlb);
->  	} else {
->  		r = iommu_map(v->domain, iova, pa, size,
-> -			      perm_to_iommu_flags(perm));
-> +			      perm_to_iommu_flags(perm), GFP_KERNEL);
->  	}
->  	if (r) {
->  		vhost_iotlb_del_range(iotlb, iova, iova + size - 1);
-> diff --git a/include/linux/iommu.h b/include/linux/iommu.h
-> index 46e1347bfa2286..d2020994f292db 100644
-> --- a/include/linux/iommu.h
-> +++ b/include/linux/iommu.h
-> @@ -467,7 +467,7 @@ extern int iommu_sva_unbind_gpasid(struct iommu_domain *domain,
->  extern struct iommu_domain *iommu_get_domain_for_dev(struct device *dev);
->  extern struct iommu_domain *iommu_get_dma_domain(struct device *dev);
->  extern int iommu_map(struct iommu_domain *domain, unsigned long iova,
-> -		     phys_addr_t paddr, size_t size, int prot);
-> +		     phys_addr_t paddr, size_t size, int prot, gfp_t gfp);
->  extern int iommu_map_atomic(struct iommu_domain *domain, unsigned long iova,
->  			    phys_addr_t paddr, size_t size, int prot);
->  extern size_t iommu_unmap(struct iommu_domain *domain, unsigned long iova,
-> @@ -773,7 +773,7 @@ static inline struct iommu_domain *iommu_get_domain_for_dev(struct device *dev)
->  }
->  
->  static inline int iommu_map(struct iommu_domain *domain, unsigned long iova,
-> -			    phys_addr_t paddr, size_t size, int prot)
-> +			    phys_addr_t paddr, size_t size, int prot, gfp_t gfp)
->  {
->  	return -ENODEV;
->  }
-> -- 
-> 2.39.0
-> 
+[1] https://lore.kernel.org/all/20230109205336.3665937-1-surenb@google.com/
+
+The patchset applies cleanly over mm-unstable branch of mm tree.
+
+My apologies for an extremely large distribution list. The patch touches
+lots of files and many are in arch/ and drivers/.
+
+Suren Baghdasaryan (6):
+  mm: introduce vma->vm_flags modifier functions
+  mm: replace VM_LOCKED_CLEAR_MASK with VM_LOCKED_MASK
+  mm: replace vma->vm_flags direct modifications with modifier calls
+  mm: replace vma->vm_flags indirect modification in ksm_madvise
+  mm: introduce mod_vm_flags_nolock and use it in untrack_pfn
+  mm: export dump_mm()
+
+ arch/arm/kernel/process.c                     |  2 +-
+ arch/ia64/mm/init.c                           |  8 +--
+ arch/loongarch/include/asm/tlb.h              |  2 +-
+ arch/powerpc/kvm/book3s_hv_uvmem.c            |  5 +-
+ arch/powerpc/kvm/book3s_xive_native.c         |  2 +-
+ arch/powerpc/mm/book3s64/subpage_prot.c       |  2 +-
+ arch/powerpc/platforms/book3s/vas-api.c       |  2 +-
+ arch/powerpc/platforms/cell/spufs/file.c      | 14 ++---
+ arch/s390/mm/gmap.c                           |  8 +--
+ arch/x86/entry/vsyscall/vsyscall_64.c         |  2 +-
+ arch/x86/kernel/cpu/sgx/driver.c              |  2 +-
+ arch/x86/kernel/cpu/sgx/virt.c                |  2 +-
+ arch/x86/mm/pat/memtype.c                     | 14 +++--
+ arch/x86/um/mem_32.c                          |  2 +-
+ drivers/acpi/pfr_telemetry.c                  |  2 +-
+ drivers/android/binder.c                      |  3 +-
+ drivers/char/mspec.c                          |  2 +-
+ drivers/crypto/hisilicon/qm.c                 |  2 +-
+ drivers/dax/device.c                          |  2 +-
+ drivers/dma/idxd/cdev.c                       |  2 +-
+ drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c       |  2 +-
+ drivers/gpu/drm/amd/amdkfd/kfd_chardev.c      |  4 +-
+ drivers/gpu/drm/amd/amdkfd/kfd_doorbell.c     |  4 +-
+ drivers/gpu/drm/amd/amdkfd/kfd_events.c       |  4 +-
+ drivers/gpu/drm/amd/amdkfd/kfd_process.c      |  4 +-
+ drivers/gpu/drm/drm_gem.c                     |  2 +-
+ drivers/gpu/drm/drm_gem_dma_helper.c          |  3 +-
+ drivers/gpu/drm/drm_gem_shmem_helper.c        |  2 +-
+ drivers/gpu/drm/drm_vm.c                      |  8 +--
+ drivers/gpu/drm/etnaviv/etnaviv_gem.c         |  2 +-
+ drivers/gpu/drm/exynos/exynos_drm_gem.c       |  4 +-
+ drivers/gpu/drm/gma500/framebuffer.c          |  2 +-
+ drivers/gpu/drm/i810/i810_dma.c               |  2 +-
+ drivers/gpu/drm/i915/gem/i915_gem_mman.c      |  4 +-
+ drivers/gpu/drm/mediatek/mtk_drm_gem.c        |  2 +-
+ drivers/gpu/drm/msm/msm_gem.c                 |  2 +-
+ drivers/gpu/drm/omapdrm/omap_gem.c            |  3 +-
+ drivers/gpu/drm/rockchip/rockchip_drm_gem.c   |  3 +-
+ drivers/gpu/drm/tegra/gem.c                   |  5 +-
+ drivers/gpu/drm/ttm/ttm_bo_vm.c               |  3 +-
+ drivers/gpu/drm/virtio/virtgpu_vram.c         |  2 +-
+ drivers/gpu/drm/vmwgfx/vmwgfx_ttm_glue.c      |  2 +-
+ drivers/gpu/drm/xen/xen_drm_front_gem.c       |  3 +-
+ drivers/hsi/clients/cmt_speech.c              |  2 +-
+ drivers/hwtracing/intel_th/msu.c              |  2 +-
+ drivers/hwtracing/stm/core.c                  |  2 +-
+ drivers/infiniband/hw/hfi1/file_ops.c         |  4 +-
+ drivers/infiniband/hw/mlx5/main.c             |  4 +-
+ drivers/infiniband/hw/qib/qib_file_ops.c      | 13 +++--
+ drivers/infiniband/hw/usnic/usnic_ib_verbs.c  |  2 +-
+ .../infiniband/hw/vmw_pvrdma/pvrdma_verbs.c   |  2 +-
+ .../common/videobuf2/videobuf2-dma-contig.c   |  2 +-
+ .../common/videobuf2/videobuf2-vmalloc.c      |  2 +-
+ drivers/media/v4l2-core/videobuf-dma-contig.c |  2 +-
+ drivers/media/v4l2-core/videobuf-dma-sg.c     |  4 +-
+ drivers/media/v4l2-core/videobuf-vmalloc.c    |  2 +-
+ drivers/misc/cxl/context.c                    |  2 +-
+ drivers/misc/habanalabs/common/memory.c       |  2 +-
+ drivers/misc/habanalabs/gaudi/gaudi.c         |  4 +-
+ drivers/misc/habanalabs/gaudi2/gaudi2.c       |  8 +--
+ drivers/misc/habanalabs/goya/goya.c           |  4 +-
+ drivers/misc/ocxl/context.c                   |  4 +-
+ drivers/misc/ocxl/sysfs.c                     |  2 +-
+ drivers/misc/open-dice.c                      |  4 +-
+ drivers/misc/sgi-gru/grufile.c                |  4 +-
+ drivers/misc/uacce/uacce.c                    |  2 +-
+ drivers/sbus/char/oradax.c                    |  2 +-
+ drivers/scsi/cxlflash/ocxl_hw.c               |  2 +-
+ drivers/scsi/sg.c                             |  2 +-
+ .../staging/media/atomisp/pci/hmm/hmm_bo.c    |  2 +-
+ drivers/staging/media/deprecated/meye/meye.c  |  4 +-
+ .../media/deprecated/stkwebcam/stk-webcam.c   |  2 +-
+ drivers/target/target_core_user.c             |  2 +-
+ drivers/uio/uio.c                             |  2 +-
+ drivers/usb/core/devio.c                      |  3 +-
+ drivers/usb/mon/mon_bin.c                     |  3 +-
+ drivers/vdpa/vdpa_user/iova_domain.c          |  2 +-
+ drivers/vfio/pci/vfio_pci_core.c              |  2 +-
+ drivers/vhost/vdpa.c                          |  2 +-
+ drivers/video/fbdev/68328fb.c                 |  2 +-
+ drivers/video/fbdev/core/fb_defio.c           |  4 +-
+ drivers/xen/gntalloc.c                        |  2 +-
+ drivers/xen/gntdev.c                          |  4 +-
+ drivers/xen/privcmd-buf.c                     |  2 +-
+ drivers/xen/privcmd.c                         |  4 +-
+ fs/aio.c                                      |  2 +-
+ fs/cramfs/inode.c                             |  2 +-
+ fs/erofs/data.c                               |  2 +-
+ fs/exec.c                                     |  4 +-
+ fs/ext4/file.c                                |  2 +-
+ fs/fuse/dax.c                                 |  2 +-
+ fs/hugetlbfs/inode.c                          |  4 +-
+ fs/orangefs/file.c                            |  3 +-
+ fs/proc/task_mmu.c                            |  2 +-
+ fs/proc/vmcore.c                              |  3 +-
+ fs/userfaultfd.c                              |  2 +-
+ fs/xfs/xfs_file.c                             |  2 +-
+ include/linux/mm.h                            | 51 +++++++++++++++++--
+ include/linux/mm_types.h                      |  8 ++-
+ include/linux/pgtable.h                       |  5 +-
+ kernel/bpf/ringbuf.c                          |  4 +-
+ kernel/bpf/syscall.c                          |  4 +-
+ kernel/events/core.c                          |  2 +-
+ kernel/fork.c                                 |  2 +-
+ kernel/kcov.c                                 |  2 +-
+ kernel/relay.c                                |  2 +-
+ mm/debug.c                                    |  1 +
+ mm/hugetlb.c                                  |  4 +-
+ mm/khugepaged.c                               |  2 +
+ mm/ksm.c                                      |  2 +
+ mm/madvise.c                                  |  2 +-
+ mm/memory.c                                   | 19 +++----
+ mm/memremap.c                                 |  4 +-
+ mm/mlock.c                                    | 12 ++---
+ mm/mmap.c                                     | 32 +++++++-----
+ mm/mprotect.c                                 |  2 +-
+ mm/mremap.c                                   |  8 +--
+ mm/nommu.c                                    | 11 ++--
+ mm/secretmem.c                                |  2 +-
+ mm/shmem.c                                    |  2 +-
+ mm/vmalloc.c                                  |  2 +-
+ net/ipv4/tcp.c                                |  4 +-
+ security/selinux/selinuxfs.c                  |  6 +--
+ sound/core/oss/pcm_oss.c                      |  2 +-
+ sound/core/pcm_native.c                       |  9 ++--
+ sound/soc/pxa/mmp-sspa.c                      |  2 +-
+ sound/usb/usx2y/us122l.c                      |  4 +-
+ sound/usb/usx2y/usX2Yhwdep.c                  |  2 +-
+ sound/usb/usx2y/usx2yhwdeppcm.c               |  2 +-
+ 129 files changed, 292 insertions(+), 233 deletions(-)
+
+-- 
+2.39.1
+
