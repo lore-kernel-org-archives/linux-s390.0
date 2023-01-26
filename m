@@ -2,66 +2,65 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EB830C54E94
-	for <linux-s390@archiver.kernel.org>; Thu, 26 Jan 2023 12:14:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 178ABC54E94
+	for <linux-s390@archiver.kernel.org>; Thu, 26 Jan 2023 12:19:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236206AbjAZMOI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 26 Jan 2023 07:14:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38286 "EHLO
+        id S237124AbjAZMTn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 26 Jan 2023 07:19:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236044AbjAZMOH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 26 Jan 2023 07:14:07 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C55BE62792
-        for <linux-s390@vger.kernel.org>; Thu, 26 Jan 2023 04:13:19 -0800 (PST)
+        with ESMTP id S236757AbjAZMTm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 26 Jan 2023 07:19:42 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89975360AA
+        for <linux-s390@vger.kernel.org>; Thu, 26 Jan 2023 04:18:47 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1674735198;
+        s=mimecast20190719; t=1674735526;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=df9zb9ds5IPmNup55FO6H71Nj0ejludr4WqF0rB5QrM=;
-        b=Hf9IdqP25bwiqLG/A/NJ5ogs5EH2hz2sAuIQEI1kfCwyG3jPVT5dub7qudN8LOBdiPCf31
-        mZm7K0M0y3K8fxLWMi+i2NqDW0vm7eOVWXGdiMjogm7DjHjlps3WMrLZ+5CFGcAxC6HcfG
-        6CDATco2MZ+m1Ie7E0lBai+BU3KHVMI=
-Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com
- [209.85.222.200]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=I9Pg4QUbNxEbqQg5rlyFX3DNaClmlULemPiPESaUQkE=;
+        b=GNeS5sbPyHCBktL6Bz9x2qI6aJysIMXM3wCbRzTmNyD8X+20ljEI4kQsoGPK9SO/iyjaJ0
+        OzCMpDLD9XYmQGlWZnBAm3KBjiTwxNa3H/N7KZ1EIjVzZJwy7gH/tMdNNq8ipTEaNJP+uF
+        uuRdFTLu2FAUQ8qLA/5bO4JosZiHNJE=
+Received: from mail-qt1-f200.google.com (mail-qt1-f200.google.com
+ [209.85.160.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-502-x--k9SK6OR2TDJ9l7nCBNQ-1; Thu, 26 Jan 2023 07:13:17 -0500
-X-MC-Unique: x--k9SK6OR2TDJ9l7nCBNQ-1
-Received: by mail-qk1-f200.google.com with SMTP id de37-20020a05620a372500b00707391077b4so905036qkb.17
-        for <linux-s390@vger.kernel.org>; Thu, 26 Jan 2023 04:13:17 -0800 (PST)
+ us-mta-499-U4W6eKmsPs6cKelwfVLw0w-1; Thu, 26 Jan 2023 07:18:45 -0500
+X-MC-Unique: U4W6eKmsPs6cKelwfVLw0w-1
+Received: by mail-qt1-f200.google.com with SMTP id hf20-20020a05622a609400b003abcad051d2so642805qtb.12
+        for <linux-s390@vger.kernel.org>; Thu, 26 Jan 2023 04:18:45 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=df9zb9ds5IPmNup55FO6H71Nj0ejludr4WqF0rB5QrM=;
-        b=dRgMLaJyJeANQPY256NS6JO1Xc7qTWLdKZACZZ5R/63nJVYJXvGS1kQEcHOJBivpup
-         BfBDs4RegfUGix+YUL8T589L/SsXERNPl0jEW0jCtWqjLkNPb+NWStAB3fbHrjK6IQQ3
-         x6R9QS/f889Xsq9oYNQoAEMd12xGmFZJf6iSz9KEArCVgQdrO/irC7JCWvYOOvMPBoLA
-         mz3JjKDRR+WBRDoPulh4mnlRFZibQwEy9joYpDy4NNROrElknrOHgSZtlPv6pX2LlDm1
-         TRCh3tDqWi38xgj0spf2+7ycsQOWBVsPP0vSnQdAwwtmhcLrM+HZrrRvIa1rSp6VL8Ic
-         chFg==
-X-Gm-Message-State: AO0yUKVmJxfNV9SL9bBgaaBbCsycR8rkSsBbMM6ysRB27KKFk7XxeFXv
-        /iX3M9BAnMc/XZmzUkr4iKqTdS8FKdpV5FHYgfu4R5x+rS4mH/2Y3rZQDm3qXvaCLeGK38g+czo
-        0b5clPaTRHId2QTrzmAhX3w==
-X-Received: by 2002:a05:622a:1114:b0:3b7:ed2c:fbb7 with SMTP id e20-20020a05622a111400b003b7ed2cfbb7mr2996176qty.0.1674735197165;
-        Thu, 26 Jan 2023 04:13:17 -0800 (PST)
-X-Google-Smtp-Source: AK7set+3bupg7QW2LEoYM6DfA2/q552ZZlO5ojHc9xon3id8NQsaud7k8MHTZIh/HseFB8NDInu28w==
-X-Received: by 2002:a05:622a:1114:b0:3b7:ed2c:fbb7 with SMTP id e20-20020a05622a111400b003b7ed2cfbb7mr2996147qty.0.1674735196947;
-        Thu, 26 Jan 2023 04:13:16 -0800 (PST)
+        bh=I9Pg4QUbNxEbqQg5rlyFX3DNaClmlULemPiPESaUQkE=;
+        b=KYluwPl1YP09R31JvSMrRJrR5APX2PX3tItz8Jhm/ol9qTY2m4DtXT50dha8jQa1gx
+         FiNdkFxVasfwAwN79i4nmBVSaQaIYZDT08xe+XXBikw8V/04dLYK9lTa7usFUHbmQRBt
+         LwOlD9frO6mVHf3I9LlmW1CAdFPK0OOTfjMOeSZ9TZhUsSAsxya5ODd9PLbcUjv3vxZx
+         BwqdUecldz51TVb5OCSbB1Pg2FM0z8LnwJTnRa12vzo1+buUBbm9GBLrwMI0TzXCrrZ+
+         iCbfbNkyuLUKEd6rDDpGnSOohxIULn0RtRnhOB/377adOb0fhL93vweVcCLPcfwCU6PK
+         Z23g==
+X-Gm-Message-State: AO0yUKWWN7pkYPVFD5MEAuEFHmteA+EopsA6UTNAkCEdAcWUqucAPzXx
+        V4G64czdthaT/xkyLT8RezLuH2yyBmUQGHHx8e6i3Qf4TAFWWdkWUQ8G9D6NmumPVSJS9LubTlW
+        pK2MGMRvmUjXXg3TH++2fsg==
+X-Received: by 2002:a05:622a:1b9f:b0:3b7:fb43:e745 with SMTP id bp31-20020a05622a1b9f00b003b7fb43e745mr12125502qtb.39.1674735524646;
+        Thu, 26 Jan 2023 04:18:44 -0800 (PST)
+X-Google-Smtp-Source: AK7set/LpzPPRNyX46aBCgsS1xFZrPlr8YJl6tz+anqlXRntKC1x8THXiiUIltDWpqrLib/RmsI1nQ==
+X-Received: by 2002:a05:622a:1b9f:b0:3b7:fb43:e745 with SMTP id bp31-20020a05622a1b9f00b003b7fb43e745mr12125469qtb.39.1674735524334;
+        Thu, 26 Jan 2023 04:18:44 -0800 (PST)
 Received: from [192.168.0.2] (ip-109-43-177-174.web.vodafone.de. [109.43.177.174])
-        by smtp.gmail.com with ESMTPSA id 2-20020ac82082000000b003ad373d04b6sm611659qtd.59.2023.01.26.04.13.12
+        by smtp.gmail.com with ESMTPSA id b17-20020ac84f11000000b0039a610a04b1sm632086qte.37.2023.01.26.04.18.40
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 26 Jan 2023 04:13:15 -0800 (PST)
-Message-ID: <11397ebe-f751-06de-1275-72f7303d4e35@redhat.com>
-Date:   Thu, 26 Jan 2023 13:13:11 +0100
+        Thu, 26 Jan 2023 04:18:43 -0800 (PST)
+Message-ID: <6594a21f-6372-0b69-3bb3-6ed1b1387e6e@redhat.com>
+Date:   Thu, 26 Jan 2023 13:18:39 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.13.0
-Subject: Re: [PATCH v6 09/14] KVM: s390: Dispatch to implementing function at
- top level of vm mem_op
+Subject: Re: [PATCH v6 10/14] KVM: s390: Refactor absolute vm mem_op function
 Content-Language: en-US
 To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
@@ -78,9 +77,9 @@ Cc:     David Hildenbrand <david@redhat.com>,
         Shuah Khan <shuah@kernel.org>,
         Sven Schnelle <svens@linux.ibm.com>
 References: <20230125212608.1860251-1-scgl@linux.ibm.com>
- <20230125212608.1860251-10-scgl@linux.ibm.com>
+ <20230125212608.1860251-11-scgl@linux.ibm.com>
 From:   Thomas Huth <thuth@redhat.com>
-In-Reply-To: <20230125212608.1860251-10-scgl@linux.ibm.com>
+In-Reply-To: <20230125212608.1860251-11-scgl@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
@@ -88,17 +87,20 @@ List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 On 25/01/2023 22.26, Janis Schoetterl-Glausch wrote:
-> Instead of having one function covering all mem_op operations,
-> have a function implementing absolute access and dispatch to that
-> function in its caller, based on the operation code.
-> This way additional future operations can be implemented by adding an
-> implementing function without changing existing operations.
+> Remove code duplication with regards to the CHECK_ONLY flag.
+> Decrease the number of indents.
+> No functional change indented.
 > 
 > Suggested-by: Janosch Frank <frankja@linux.ibm.com>
 > Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
 > ---
->   arch/s390/kvm/kvm-s390.c | 38 ++++++++++++++++++++++++--------------
->   1 file changed, 24 insertions(+), 14 deletions(-)
+> 
+> 
+> Cosmetic only, can be dropped.
+
+I'm torn between unnecessary-code-churn and 
+nice-to-get-rid-of-one-indentation-level here ... anyway, patch looks sane 
+to me, so:
 
 Reviewed-by: Thomas Huth <thuth@redhat.com>
 
