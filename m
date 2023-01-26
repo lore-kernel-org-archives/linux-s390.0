@@ -2,266 +2,113 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DAC9C61DA2
-	for <linux-s390@archiver.kernel.org>; Wed, 25 Jan 2023 21:26:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F0DD3C54EED
+	for <linux-s390@archiver.kernel.org>; Thu, 26 Jan 2023 06:39:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236860AbjAYV0z (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 25 Jan 2023 16:26:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50368 "EHLO
+        id S234493AbjAZGjq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 26 Jan 2023 01:39:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236733AbjAYV0b (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 25 Jan 2023 16:26:31 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1974645F77;
-        Wed, 25 Jan 2023 13:26:30 -0800 (PST)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30PKLccc031857;
-        Wed, 25 Jan 2023 21:26:24 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=OoOmQi9nf/ZBs15rZtxyQ2kOQX+7SKcY74nT2D1EOo0=;
- b=Ag1bWLgEIukISYkcbneNVv5lS1irTAQ1frpDK0xZdKX08uAvvOJ/TU4mzFYYicYYAnU9
- rOVzSSlF4IuBRMdstQfTXmNl76sHN8uq5cfq0NJuHPncx6J+39AFWiYOi82SyAFPe5Cb
- yrBqGGzX5db5MACVYE19XLd1+5ci4dHDMmgJGfYPfMXms4dVvtVBqXnky+/Z2kzidMbl
- /+CMY23UMYMtdFVf8x8GK0e/3RgieV8TyFIxv7gN2u+oPCo9MeBsnMHIZRbheC8pVO4d
- K39r5KFSQnPGHbE6Bdd2NVemo27Vie43o0Yzv7rTXPTYxH4Xzc/QX8JkmTwkly52Mf4u gQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3na9vd40jh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 25 Jan 2023 21:26:24 +0000
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 30PKd9IA005991;
-        Wed, 25 Jan 2023 21:26:23 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3na9vd40hv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 25 Jan 2023 21:26:23 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30PHPu7t010402;
-        Wed, 25 Jan 2023 21:26:21 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3n87p6nkn7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 25 Jan 2023 21:26:21 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30PLQHIt26018534
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 25 Jan 2023 21:26:17 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A460C20040;
-        Wed, 25 Jan 2023 21:26:17 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6BE4320043;
-        Wed, 25 Jan 2023 21:26:17 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 25 Jan 2023 21:26:17 +0000 (GMT)
-From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
+        with ESMTP id S230288AbjAZGjp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 26 Jan 2023 01:39:45 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6566F4FC2B
+        for <linux-s390@vger.kernel.org>; Wed, 25 Jan 2023 22:38:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1674715137;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=IwnaW40wODo/RPJeJh2TlciTsJYMAL7AVIWQnJnbBqw=;
+        b=SnU3S1hGb+tn0O3MZ1cVMNdRVsvcGpJVOr7ybG3UeB6mGplFspwjjiBOJb7QShMq0cZwcI
+        EQhtQxXfHD9LZbwuUBjGYX9vB5CnV5cqcKCxcDMfnQt8y+wXLm/LoEjxT4z86rb64MVeLI
+        nTjzQn92U4M871wABFRozT6xsyyBcp8=
+Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
+ [209.85.222.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-442-6ZLkS4wBNz-bUP9Sv8iIXg-1; Thu, 26 Jan 2023 01:38:55 -0500
+X-MC-Unique: 6ZLkS4wBNz-bUP9Sv8iIXg-1
+Received: by mail-qk1-f199.google.com with SMTP id u10-20020a05620a0c4a00b00705e77d6207so519266qki.5
+        for <linux-s390@vger.kernel.org>; Wed, 25 Jan 2023 22:38:55 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=IwnaW40wODo/RPJeJh2TlciTsJYMAL7AVIWQnJnbBqw=;
+        b=eThhMqhWpTBahN2P7yyCAkNk2GO/QPospU1DSNh7LyLhBQe1u6iwGbm5z+LwgYXUAX
+         4syUAXgNyE/1v+PryZ/9xFe7VJEn3UOOeAKtuWRnenpeUnK5xRiX+b6XLdfZB2mP3ytm
+         IYzakij1HKzSPFUCbacUcPs2KM9fvNRBYC/eV1bP8tXBHmIOS1Ust04kyMo+AmINkrN9
+         qX7OUMYIzQ0+QrWCg99kR4YMIAQ/v/LnHUKcXl/7zIaQUom9MWIsWHcYNsQm1CnlSASQ
+         M2ngz9cdzI+r8UzmlWRuT7F/40X/C+jR8iVZplp8hWT0J4G90VpToOC+4Ze+2A6SZljk
+         ImIQ==
+X-Gm-Message-State: AFqh2kqP4+5SenOZB7JtoXm5UG2AgOKNn55KIF/iw2ocblk9U36KZ+h2
+        KjGITbcNpeDPmBrUcTptl2sBEYarxrQjisDzKPBCq6PMvCnVG39FPqwXHC5lXzQ5O4lHdM8KkeS
+        kUv8rdFsQ3G279Y7okpBczw==
+X-Received: by 2002:a05:622a:1aa5:b0:3b6:a1fd:19cd with SMTP id s37-20020a05622a1aa500b003b6a1fd19cdmr41574770qtc.46.1674715134723;
+        Wed, 25 Jan 2023 22:38:54 -0800 (PST)
+X-Google-Smtp-Source: AMrXdXuf7UjZI2ffXZKoGViT9PivCgdjta/q3yUMmhqaU7OtGXYv4rT+XOka9LZmTzNCFQdUCAdNYA==
+X-Received: by 2002:a05:622a:1aa5:b0:3b6:a1fd:19cd with SMTP id s37-20020a05622a1aa500b003b6a1fd19cdmr41574753qtc.46.1674715134495;
+        Wed, 25 Jan 2023 22:38:54 -0800 (PST)
+Received: from [192.168.8.105] (tmo-064-101.customers.d1-online.com. [80.187.64.101])
+        by smtp.gmail.com with ESMTPSA id x8-20020ac84d48000000b003b63b8df24asm247352qtv.36.2023.01.25.22.38.50
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 25 Jan 2023 22:38:53 -0800 (PST)
+Message-ID: <957489fb-8080-8806-6ddf-8687da469a43@redhat.com>
+Date:   Thu, 26 Jan 2023 07:38:48 +0100
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.13.0
+Subject: Re: [PATCH v6 07/14] KVM: s390: selftest: memop: Fix integer literal
+Content-Language: en-US
+To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
         Janosch Frank <frankja@linux.ibm.com>,
         Claudio Imbrenda <imbrenda@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>
-Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
+Cc:     David Hildenbrand <david@redhat.com>,
         Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
         linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org,
         Paolo Bonzini <pbonzini@redhat.com>,
         Shuah Khan <shuah@kernel.org>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>
-Subject: [PATCH v6 03/14] KVM: s390: selftest: memop: Move testlist into main
-Date:   Wed, 25 Jan 2023 22:25:57 +0100
-Message-Id: <20230125212608.1860251-4-scgl@linux.ibm.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20230125212608.1860251-1-scgl@linux.ibm.com>
+        Sven Schnelle <svens@linux.ibm.com>
 References: <20230125212608.1860251-1-scgl@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: gRRpk_wwThv3nZjyEI2x8lS3Zf3B7iP-
-X-Proofpoint-ORIG-GUID: ZdWxZukjGH1UL9spU0TNNbrZ3WsanfSc
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
- definitions=2023-01-25_13,2023-01-25_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- suspectscore=0 phishscore=0 mlxlogscore=999 clxscore=1015 spamscore=0
- adultscore=0 priorityscore=1501 malwarescore=0 bulkscore=0 mlxscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2301250187
+ <20230125212608.1860251-8-scgl@linux.ibm.com>
+From:   Thomas Huth <thuth@redhat.com>
+In-Reply-To: <20230125212608.1860251-8-scgl@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This allows checking if the necessary requirements for a test case are
-met via an arbitrary expression. In particular, it is easy to check if
-certain bits are set in the memop extension capability.
+On 25/01/2023 22.26, Janis Schoetterl-Glausch wrote:
+> The address is a 64 bit value, specifying a 32 bit value can crash the
+> guest. In this case things worked out with -O2 but not -O0.
+> 
+> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+> Fixes: 1bb873495a9e ("KVM: s390: selftests: Add more copy memop tests")
+> ---
+>   tools/testing/selftests/kvm/s390x/memop.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/tools/testing/selftests/kvm/s390x/memop.c b/tools/testing/selftests/kvm/s390x/memop.c
+> index 3ec501881c7c..55b856c4d656 100644
+> --- a/tools/testing/selftests/kvm/s390x/memop.c
+> +++ b/tools/testing/selftests/kvm/s390x/memop.c
+> @@ -514,7 +514,7 @@ static void guest_copy_key_fetch_prot_override(void)
+>   	GUEST_SYNC(STAGE_INITED);
+>   	set_storage_key_range(0, PAGE_SIZE, 0x18);
+>   	set_storage_key_range((void *)last_page_addr, PAGE_SIZE, 0x0);
+> -	asm volatile ("sske %[key],%[addr]\n" :: [addr] "r"(0), [key] "r"(0x18) : "cc");
+> +	asm volatile ("sske %[key],%[addr]\n" :: [addr] "r"(0L), [key] "r"(0x18) : "cc");
+>   	GUEST_SYNC(STAGE_SKEYS_SET);
+>   
+>   	for (;;) {
 
-Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
 Reviewed-by: Thomas Huth <thuth@redhat.com>
----
- tools/testing/selftests/kvm/s390x/memop.c | 131 +++++++++++-----------
- 1 file changed, 66 insertions(+), 65 deletions(-)
-
-diff --git a/tools/testing/selftests/kvm/s390x/memop.c b/tools/testing/selftests/kvm/s390x/memop.c
-index df1c726294b2..bbc191a13760 100644
---- a/tools/testing/selftests/kvm/s390x/memop.c
-+++ b/tools/testing/selftests/kvm/s390x/memop.c
-@@ -690,85 +690,86 @@ static void test_errors(void)
- 	kvm_vm_free(t.kvm_vm);
- }
- 
--struct testdef {
--	const char *name;
--	void (*test)(void);
--	int extension;
--} testlist[] = {
--	{
--		.name = "simple copy",
--		.test = test_copy,
--	},
--	{
--		.name = "generic error checks",
--		.test = test_errors,
--	},
--	{
--		.name = "copy with storage keys",
--		.test = test_copy_key,
--		.extension = 1,
--	},
--	{
--		.name = "copy with key storage protection override",
--		.test = test_copy_key_storage_prot_override,
--		.extension = 1,
--	},
--	{
--		.name = "copy with key fetch protection",
--		.test = test_copy_key_fetch_prot,
--		.extension = 1,
--	},
--	{
--		.name = "copy with key fetch protection override",
--		.test = test_copy_key_fetch_prot_override,
--		.extension = 1,
--	},
--	{
--		.name = "error checks with key",
--		.test = test_errors_key,
--		.extension = 1,
--	},
--	{
--		.name = "termination",
--		.test = test_termination,
--		.extension = 1,
--	},
--	{
--		.name = "error checks with key storage protection override",
--		.test = test_errors_key_storage_prot_override,
--		.extension = 1,
--	},
--	{
--		.name = "error checks without key fetch prot override",
--		.test = test_errors_key_fetch_prot_override_not_enabled,
--		.extension = 1,
--	},
--	{
--		.name = "error checks with key fetch prot override",
--		.test = test_errors_key_fetch_prot_override_enabled,
--		.extension = 1,
--	},
--};
- 
- int main(int argc, char *argv[])
- {
- 	int extension_cap, idx;
- 
- 	TEST_REQUIRE(kvm_has_cap(KVM_CAP_S390_MEM_OP));
-+	extension_cap = kvm_check_cap(KVM_CAP_S390_MEM_OP_EXTENSION);
- 
--	ksft_print_header();
-+	struct testdef {
-+		const char *name;
-+		void (*test)(void);
-+		bool requirements_met;
-+	} testlist[] = {
-+		{
-+			.name = "simple copy",
-+			.test = test_copy,
-+			.requirements_met = true,
-+		},
-+		{
-+			.name = "generic error checks",
-+			.test = test_errors,
-+			.requirements_met = true,
-+		},
-+		{
-+			.name = "copy with storage keys",
-+			.test = test_copy_key,
-+			.requirements_met = extension_cap > 0,
-+		},
-+		{
-+			.name = "copy with key storage protection override",
-+			.test = test_copy_key_storage_prot_override,
-+			.requirements_met = extension_cap > 0,
-+		},
-+		{
-+			.name = "copy with key fetch protection",
-+			.test = test_copy_key_fetch_prot,
-+			.requirements_met = extension_cap > 0,
-+		},
-+		{
-+			.name = "copy with key fetch protection override",
-+			.test = test_copy_key_fetch_prot_override,
-+			.requirements_met = extension_cap > 0,
-+		},
-+		{
-+			.name = "error checks with key",
-+			.test = test_errors_key,
-+			.requirements_met = extension_cap > 0,
-+		},
-+		{
-+			.name = "termination",
-+			.test = test_termination,
-+			.requirements_met = extension_cap > 0,
-+		},
-+		{
-+			.name = "error checks with key storage protection override",
-+			.test = test_errors_key_storage_prot_override,
-+			.requirements_met = extension_cap > 0,
-+		},
-+		{
-+			.name = "error checks without key fetch prot override",
-+			.test = test_errors_key_fetch_prot_override_not_enabled,
-+			.requirements_met = extension_cap > 0,
-+		},
-+		{
-+			.name = "error checks with key fetch prot override",
-+			.test = test_errors_key_fetch_prot_override_enabled,
-+			.requirements_met = extension_cap > 0,
-+		},
-+	};
- 
-+	ksft_print_header();
- 	ksft_set_plan(ARRAY_SIZE(testlist));
- 
--	extension_cap = kvm_check_cap(KVM_CAP_S390_MEM_OP_EXTENSION);
- 	for (idx = 0; idx < ARRAY_SIZE(testlist); idx++) {
--		if (extension_cap >= testlist[idx].extension) {
-+		if (testlist[idx].requirements_met) {
- 			testlist[idx].test();
- 			ksft_test_result_pass("%s\n", testlist[idx].name);
- 		} else {
--			ksft_test_result_skip("%s - extension level %d not supported\n",
--					      testlist[idx].name,
--					      testlist[idx].extension);
-+			ksft_test_result_skip("%s - requirements not met (kernel has extension cap %#x)\n",
-+					      testlist[idx].name, extension_cap);
- 		}
- 	}
- 
--- 
-2.34.1
 
