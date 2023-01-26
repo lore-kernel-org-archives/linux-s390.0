@@ -2,169 +2,202 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EB9CFC05027
-	for <linux-s390@archiver.kernel.org>; Thu, 26 Jan 2023 09:48:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D889AC05027
+	for <linux-s390@archiver.kernel.org>; Thu, 26 Jan 2023 11:51:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236537AbjAZJsx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 26 Jan 2023 04:48:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52278 "EHLO
+        id S237278AbjAZLv6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 26 Jan 2023 06:51:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229558AbjAZJsw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 26 Jan 2023 04:48:52 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23BBC10414;
-        Thu, 26 Jan 2023 01:48:50 -0800 (PST)
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30Q8dOuH003975;
-        Thu, 26 Jan 2023 09:48:49 GMT
+        with ESMTP id S235269AbjAZLv5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 26 Jan 2023 06:51:57 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBBE61259A;
+        Thu, 26 Jan 2023 03:51:56 -0800 (PST)
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30QBg6Bn013213;
+        Thu, 26 Jan 2023 11:51:54 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : to : cc : references : from : subject : in-reply-to :
+ mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=4wNURVLbP2ljBC/00oVWIF8pNkYA7V4Qz19/rKe226o=;
- b=Z3k1JhE/PRJCDQyzjrPPDzNk4NFRDmMu6O5faJ7OFgbEPmaMQIZizpCK18Yi/nOrxROr
- RdirnebS042WcYff7KqEX78WdNdx9h4/qrhwl842xuc47cSjhLYvoMWGDRRqVLeyoA8f
- kfTOaF8mWW1GCnVXr8HuNK6Q/BKHRAme7eBKWBsTbVR6mj6w8wZ4Nu7gyVfCV6NVc8cq
- VrnwSrzbQcpwYr51d/6VpM/lpftukFPYjHffn7Gde6bGMnSx9CSzuPa079X4FtS907Oq
- Afcx+auIv3zAKU0zBkg7nAE8LKGZds2DlvO8angk1dYzXgqlFNEqx/LBBwNUMdXJqNjL Lw== 
+ bh=dT4GiBRJi0vaPuWg1zPzvIHecZYmHpSb6zEd1Vr8B4s=;
+ b=hifgUfKUsKHMUO5SCrHr/wGKgFjvRjKwEwJZILhtSOgJoQTWUFazlhkwOrFWNDqsMT0d
+ cs3xx79m0MlqrTaKDRweItS/BOiruMAT9BI1bbtoR5BlI0ChGKpRcYOXjlBRgC5btqWO
+ xTPua3+QPaYUY2Yesbdq711n3vEBPwWhBWMAipS6OUdabowSGMMAdTTp4eNEQc8t1qAY
+ rT+yd0FXqTrOvPFXLQ3DuirNV2auH6qhZCrPpayTQ4Td5S4vaGa6dTzD3qPIVNs4848E
+ qNOnMWAlvDEgLPKjHEThtGgkyzaexxvPZqg/eMjI3SBLaqSpNrY7uCwv8eIoqusW0UVj WQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nbrv6g6ry-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 26 Jan 2023 11:51:54 +0000
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 30QBgIpQ013670;
+        Thu, 26 Jan 2023 11:51:53 GMT
 Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3nbktwv9r0-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nbrv6g6qh-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 26 Jan 2023 09:48:49 +0000
+        Thu, 26 Jan 2023 11:51:53 +0000
 Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30PHUZPq015740;
-        Thu, 26 Jan 2023 09:48:47 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3n87afe71n-1
+        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30QApjPv015356;
+        Thu, 26 Jan 2023 11:51:51 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3n87afeb8f-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 26 Jan 2023 09:48:47 +0000
+        Thu, 26 Jan 2023 11:51:51 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30Q9mh4h44237230
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30QBpl1c41222402
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 26 Jan 2023 09:48:43 GMT
+        Thu, 26 Jan 2023 11:51:47 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C8F3120043;
-        Thu, 26 Jan 2023 09:48:43 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 76D8420040;
+        Thu, 26 Jan 2023 11:51:47 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id AD66920040;
-        Thu, 26 Jan 2023 09:48:43 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 3D5F42004B;
+        Thu, 26 Jan 2023 11:51:47 +0000 (GMT)
 Received: from [9.152.224.253] (unknown [9.152.224.253])
         by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Thu, 26 Jan 2023 09:48:43 +0000 (GMT)
-Message-ID: <73262865-5f3e-d90d-b4c0-32349960c421@linux.ibm.com>
-Date:   Thu, 26 Jan 2023 10:48:43 +0100
+        Thu, 26 Jan 2023 11:51:47 +0000 (GMT)
+Message-ID: <9a8086e5-7794-5d76-6f96-69b218d1cc25@linux.ibm.com>
+Date:   Thu, 26 Jan 2023 12:51:47 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
  Thunderbird/102.6.0
-To:     Nico Boehr <nrb@linux.ibm.com>, borntraeger@linux.ibm.com,
-        imbrenda@linux.ibm.com
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20230120075406.101436-1-nrb@linux.ibm.com>
- <2ef9a5df-cd05-8f27-f8ee-4c03f4c43d0d@linux.ibm.com>
- <167472247246.63544.9612120960891768862@t14-nrb.local>
+Subject: Re: [PATCH v6 01/14] KVM: s390: selftest: memop: Pass mop_desc via
+ pointer
 Content-Language: en-US
+To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Cc:     David Hildenbrand <david@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Huth <thuth@redhat.com>
+References: <20230125212608.1860251-1-scgl@linux.ibm.com>
+ <20230125212608.1860251-2-scgl@linux.ibm.com>
 From:   Janosch Frank <frankja@linux.ibm.com>
-Subject: Re: [PATCH v1] KVM: s390: disable migration mode when dirty tracking
- is disabled
-In-Reply-To: <167472247246.63544.9612120960891768862@t14-nrb.local>
+In-Reply-To: <20230125212608.1860251-2-scgl@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: mtu260DgXwrd3FPsuJr2KgJ0SdRW6023
-X-Proofpoint-ORIG-GUID: mtu260DgXwrd3FPsuJr2KgJ0SdRW6023
+X-Proofpoint-ORIG-GUID: yPmX9jEjrrwQBP9klnm9vIDq2QnZsMpK
+X-Proofpoint-GUID: uSsVsctfDzmd1SLIfbBSBhE-OjEJO23-
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
- definitions=2023-01-26_03,2023-01-25_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=430 phishscore=0
- spamscore=0 impostorscore=0 mlxscore=0 suspectscore=0 adultscore=0
- priorityscore=1501 malwarescore=0 clxscore=1015 lowpriorityscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2301260091
+ definitions=2023-01-26_04,2023-01-25_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ bulkscore=0 mlxscore=0 lowpriorityscore=0 malwarescore=0 spamscore=0
+ clxscore=1015 impostorscore=0 adultscore=0 phishscore=0 suspectscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2301260111
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 1/26/23 09:41, Nico Boehr wrote:
-> Quoting Janosch Frank (2023-01-25 14:55:59)
->> On 1/20/23 08:54, Nico Boehr wrote:
->>> Migration mode is a VM attribute which enables tracking of changes in
->>> storage attributes (PGSTE). It assumes dirty tracking is enabled on all
->>> memslots to keep a dirty bitmap of pages with changed storage attributes.
->>>
->>> When enabling migration mode, we currently check that dirty tracking is
->>> enabled for all memslots. However, userspace can disable dirty tracking
->>> without disabling migration mode.
->>>
->>> Since migration mode is pointless with dirty tracking disabled, disable
->>> migration mode whenever userspace disables dirty tracking on any slot.
->>
->> Will userspace be able to handle the sudden -EINVAL rcs on
->> KVM_S390_GET_CMMA_BITS and KVM_S390_SET_CMMA_BITS?
+On 1/25/23 22:25, Janis Schoetterl-Glausch wrote:
+> The struct is quite large, so this seems nicer.
 > 
-> QEMU has proper error handling on the GET_CMMA_BITS code path and will not
-> attempt GET_CMMA_BITS after it disabled dirty tracking. So yes, userspace can
-> handle this fine. In addition, as mentioned in the commit, it was never allowed
-> to have migration mode without dirty tracking. It was checked when migration
-> mode is enabled, just wasn't enforced when dirty tracking went off. The
-> alternative would be to refuse disabling dirty tracking when migration mode is
-> on; and that would _really_ break userspace.
+> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+> Reviewed-by: Thomas Huth <thuth@redhat.com>
+
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+
+> ---
+>   tools/testing/selftests/kvm/s390x/memop.c | 44 +++++++++++------------
+>   1 file changed, 22 insertions(+), 22 deletions(-)
 > 
-> Or we just leave migration mode on and check on every emulation/ioctl that a
-> dirty bitmap is still there, which would change absolutely nothing about the
-> return value of GET_CMMA_BITS.
-> 
-> Or we allocate the dirty bitmap for storage attributes independent of the dirty
-> bitmap for pages, which increases memory usage and makes this patch quite a bit
-> more complex, risking that we break more than what is already broken.
-> 
-> This approach really seems like the sane option to me.
-
-Jup, I'm just trying to consider all possibilities to find the best one 
-and that includes asking all the questions.
-
->>>    
->>> +Dirty tracking must be enabled on all memslots, else -EINVAL is returned. When
->>> +dirty tracking is disabled on any memslot, migration mode is automatically
->>> +stopped.
->>
->> Do we also need to add a warning to the CMMA IOCTLs?
-> 
-> No, it is already documented there:
-> 
->> This ioctl can fail with [...] > -EINVAL if KVM_S390_CMMA_PEEK is not set
->> but migration mode was not enabled
-
-That's fine but doesn't include the part where migration mode can 
-suddenly be disabled via a memory region change.
-
-If we implicitly change migration mode disablement then we need to 
-document that as much as possible to cover all bases.
-
-> 
-> [...]
->>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
->>> index e4890e04b210..4785f002cd93 100644
->>> --- a/arch/s390/kvm/kvm-s390.c
->>> +++ b/arch/s390/kvm/kvm-s390.c
->>> @@ -5628,28 +5628,43 @@ int kvm_arch_prepare_memory_region(struct kvm *kvm,
->>>                                   enum kvm_mr_change change)
->>>    {
->>>        gpa_t size;
->>> +     int rc;
->>
->> Not sure why you added rc even though it doesn't need to be used.
-> 
-> You prefer a line which is 100 chars wide over a new variable? OK fine for me.
-
-I'm not sure how you manage to get over 100 chars, did I miss something?
-
-
-if (!kvm->arch.migration_mode)
-	return 0;
-
-if ((old->flags & KVM_MEM_LOG_DIRTY_PAGES) &&
-     !(new->flags & KVM_MEM_LOG_DIRTY_PAGES)) {
-	WARN(kvm_s390_vm_stop_migration(kvm),
-	     "Migration mode could not be disabled");
-
-return 0;
+> diff --git a/tools/testing/selftests/kvm/s390x/memop.c b/tools/testing/selftests/kvm/s390x/memop.c
+> index 3fd81e58f40c..9c05d1205114 100644
+> --- a/tools/testing/selftests/kvm/s390x/memop.c
+> +++ b/tools/testing/selftests/kvm/s390x/memop.c
+> @@ -48,53 +48,53 @@ struct mop_desc {
+>   	uint8_t key;
+>   };
+>   
+> -static struct kvm_s390_mem_op ksmo_from_desc(struct mop_desc desc)
+> +static struct kvm_s390_mem_op ksmo_from_desc(const struct mop_desc *desc)
+>   {
+>   	struct kvm_s390_mem_op ksmo = {
+> -		.gaddr = (uintptr_t)desc.gaddr,
+> -		.size = desc.size,
+> -		.buf = ((uintptr_t)desc.buf),
+> +		.gaddr = (uintptr_t)desc->gaddr,
+> +		.size = desc->size,
+> +		.buf = ((uintptr_t)desc->buf),
+>   		.reserved = "ignored_ignored_ignored_ignored"
+>   	};
+>   
+> -	switch (desc.target) {
+> +	switch (desc->target) {
+>   	case LOGICAL:
+> -		if (desc.mode == READ)
+> +		if (desc->mode == READ)
+>   			ksmo.op = KVM_S390_MEMOP_LOGICAL_READ;
+> -		if (desc.mode == WRITE)
+> +		if (desc->mode == WRITE)
+>   			ksmo.op = KVM_S390_MEMOP_LOGICAL_WRITE;
+>   		break;
+>   	case SIDA:
+> -		if (desc.mode == READ)
+> +		if (desc->mode == READ)
+>   			ksmo.op = KVM_S390_MEMOP_SIDA_READ;
+> -		if (desc.mode == WRITE)
+> +		if (desc->mode == WRITE)
+>   			ksmo.op = KVM_S390_MEMOP_SIDA_WRITE;
+>   		break;
+>   	case ABSOLUTE:
+> -		if (desc.mode == READ)
+> +		if (desc->mode == READ)
+>   			ksmo.op = KVM_S390_MEMOP_ABSOLUTE_READ;
+> -		if (desc.mode == WRITE)
+> +		if (desc->mode == WRITE)
+>   			ksmo.op = KVM_S390_MEMOP_ABSOLUTE_WRITE;
+>   		break;
+>   	case INVALID:
+>   		ksmo.op = -1;
+>   	}
+> -	if (desc.f_check)
+> +	if (desc->f_check)
+>   		ksmo.flags |= KVM_S390_MEMOP_F_CHECK_ONLY;
+> -	if (desc.f_inject)
+> +	if (desc->f_inject)
+>   		ksmo.flags |= KVM_S390_MEMOP_F_INJECT_EXCEPTION;
+> -	if (desc._set_flags)
+> -		ksmo.flags = desc.set_flags;
+> -	if (desc.f_key) {
+> +	if (desc->_set_flags)
+> +		ksmo.flags = desc->set_flags;
+> +	if (desc->f_key) {
+>   		ksmo.flags |= KVM_S390_MEMOP_F_SKEY_PROTECTION;
+> -		ksmo.key = desc.key;
+> +		ksmo.key = desc->key;
+>   	}
+> -	if (desc._ar)
+> -		ksmo.ar = desc.ar;
+> +	if (desc->_ar)
+> +		ksmo.ar = desc->ar;
+>   	else
+>   		ksmo.ar = 0;
+> -	if (desc._sida_offset)
+> -		ksmo.sida_offset = desc.sida_offset;
+> +	if (desc->_sida_offset)
+> +		ksmo.sida_offset = desc->sida_offset;
+>   
+>   	return ksmo;
+>   }
+> @@ -183,7 +183,7 @@ static int err_memop_ioctl(struct test_info info, struct kvm_s390_mem_op *ksmo)
+>   		else								\
+>   			__desc.gaddr = __desc.gaddr_v;				\
+>   	}									\
+> -	__ksmo = ksmo_from_desc(__desc);					\
+> +	__ksmo = ksmo_from_desc(&__desc);					\
+>   	print_memop(__info.vcpu, &__ksmo);					\
+>   	err##memop_ioctl(__info, &__ksmo);					\
+>   })
 
