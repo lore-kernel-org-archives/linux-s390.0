@@ -2,328 +2,162 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B7649C05027
-	for <linux-s390@archiver.kernel.org>; Thu, 26 Jan 2023 16:10:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AEFAFC61DA3
+	for <linux-s390@archiver.kernel.org>; Thu, 26 Jan 2023 16:26:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232634AbjAZQK4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 26 Jan 2023 11:10:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49120 "EHLO
+        id S232814AbjAZQ0k (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 26 Jan 2023 11:26:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34210 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232607AbjAZQKo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 26 Jan 2023 11:10:44 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BB22611C0;
-        Thu, 26 Jan 2023 08:10:43 -0800 (PST)
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30QFZpij022496;
-        Thu, 26 Jan 2023 16:10:39 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : to : cc : references : from : subject : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=cq2x6FbUOZx9kgcBjP26F5SrHdNwAFSfsEsk9sJ1R30=;
- b=EYMkPOkbiZfZTXY1HSm/lsOdU5BZDA3HfJDWzYdV+hVDijARy3SJscYruFWF94G2q0QL
- f2kA1JzGTcVrote2K/6A6BPsbmYk0G+aWpo3SJMeGVuciCZst65yKZdvr7an+49dCdvJ
- Zb68hlnhmwVbd5pxu/qfiPf490H3HUatfDSMojcC2zpt3ECophKd76RigC/tcjAeXcxE
- z0iMwJO5kPuuGtokklr6aMQc1G6jo9yNxub8CCSy0E8xd8E8GAXHh7fmP+JKLm+aTGAg
- 49TTL46ZFyi3ZjnMpBN+oi9Qf6SObudE4aoq/LBnJGjLhTS0Um2s2t6DH+L7JsvvrijV 8A== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nbt6rmnrq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 26 Jan 2023 16:10:38 +0000
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 30QFmMlA032067;
-        Thu, 26 Jan 2023 16:10:38 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nbt6rmnqp-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 26 Jan 2023 16:10:38 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30Q9weI4010329;
-        Thu, 26 Jan 2023 16:10:35 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3n87p6pjpe-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 26 Jan 2023 16:10:35 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30QGAVAf49479970
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 26 Jan 2023 16:10:31 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2E7192004D;
-        Thu, 26 Jan 2023 16:10:31 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EA65720043;
-        Thu, 26 Jan 2023 16:10:30 +0000 (GMT)
-Received: from [9.152.224.253] (unknown [9.152.224.253])
-        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Thu, 26 Jan 2023 16:10:30 +0000 (GMT)
-Message-ID: <aa942cf0-6f50-05f5-75a9-278129f00bf6@linux.ibm.com>
-Date:   Thu, 26 Jan 2023 17:10:30 +0100
+        with ESMTP id S232746AbjAZQ0H (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 26 Jan 2023 11:26:07 -0500
+Received: from mail-yw1-x112c.google.com (mail-yw1-x112c.google.com [IPv6:2607:f8b0:4864:20::112c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C49D6FD36
+        for <linux-s390@vger.kernel.org>; Thu, 26 Jan 2023 08:25:35 -0800 (PST)
+Received: by mail-yw1-x112c.google.com with SMTP id 00721157ae682-5063029246dso30108887b3.6
+        for <linux-s390@vger.kernel.org>; Thu, 26 Jan 2023 08:25:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=rUFKXit/Slxp5jNkRtm2qJfbudUdkwg/5ym9L9/2xFg=;
+        b=BrNExWGHbV1NeR+vu2Js5zAqwDKTAmFhHgoWjYZ0a3qbH7rru8W3QViuclznskZkVo
+         6Q5eqrGX7jMOOdvE9K9lsVmJpHX9roidNQoqd4ah6qpZ3z5AR/LzfumpWsF7qxr+L/L7
+         2EeJAw9MATGkA5VBf2UwOc7KCg21F0CUspP8pGqPmL78PHbmYrJgHGcDXuiJf+tpyEq5
+         mYd3qiJmdB/mmqbT25mkgF6e/9yHOLIF4ZmJU2qiUjSg09+a1L9BOQF70sP/z/t1hEtG
+         N3QguNCw23qX8RL/9XVLJb/vAzwIwx19tcG6Myly1SJ+d6fdbBsCbrW+Wp9iSE9SLjFe
+         r7Zw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=rUFKXit/Slxp5jNkRtm2qJfbudUdkwg/5ym9L9/2xFg=;
+        b=nGRND5MLiJ4kz+pbY8PiwijBeFhxgyeVGMFv/4h857wREULN/fWwafoOTSvmofzHKJ
+         UvefHLZsJvvQ0LBqygpvNHhgA9coD7knI2PT11g1gBmybpI+Krkjt8bdi+iJ887ZmGCP
+         IqtsZs0/fbkmK/8r0mq9aDT3aFJXTWfeuaf6eLZK+Re4jcOjQzRdMwLvNLdV3Ft/YQbw
+         5S7+kI/YlaGNgmcXwg2g31Sq9dk2hf36Xw3f3BvLzwPeSgpIOiJCQy3pCS0I64FFyJfY
+         Nw+jLL2oYQ6/8yjlC105yrNLxOKNGy4T0DJk5eHvOMUs8dARX0AOlRZy5xEThRdzIfou
+         tFGg==
+X-Gm-Message-State: AFqh2kr/w8s+MJWvUVjv4tlcDkr6xKR157KI+iao70Q5htZCEpJGvOBG
+        8JflKCcoY6a2x1y++mcW5Ngj5rt1CWhI/G128CPcKw==
+X-Google-Smtp-Source: AMrXdXvRVLeaIi85wIrJBS5zRkOyr5/BQ66PCe0y1aLe9hmWIu7jqHBlhyy2SYPoXbE9x4WotKo1j1aRHLVU6Hd1LsI=
+X-Received: by 2002:a81:1b8b:0:b0:4ff:774b:7ffb with SMTP id
+ b133-20020a811b8b000000b004ff774b7ffbmr3541685ywb.218.1674750315051; Thu, 26
+ Jan 2023 08:25:15 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.0
-Content-Language: en-US
-To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-Cc:     David Hildenbrand <david@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Shuah Khan <shuah@kernel.org>,
-        Sven Schnelle <svens@linux.ibm.com>
-References: <20230125212608.1860251-1-scgl@linux.ibm.com>
- <20230125212608.1860251-13-scgl@linux.ibm.com>
-From:   Janosch Frank <frankja@linux.ibm.com>
-Subject: Re: [PATCH v6 12/14] KVM: s390: Extend MEM_OP ioctl by storage key
- checked cmpxchg
-In-Reply-To: <20230125212608.1860251-13-scgl@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: kiLQ2uwDw7JHOMfsnVnOHywLdRgnW_2W
-X-Proofpoint-GUID: 41jJLM9WYa5Hpe_QpNKt_7G7rqAKm_48
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
- definitions=2023-01-26_07,2023-01-26_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- lowpriorityscore=0 adultscore=0 mlxlogscore=999 bulkscore=0 malwarescore=0
- spamscore=0 clxscore=1015 mlxscore=0 phishscore=0 suspectscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2301260156
+References: <20230125083851.27759-1-surenb@google.com> <20230125083851.27759-2-surenb@google.com>
+ <Y9JFFYjfJf9uDijE@kernel.org> <Y9KTUw/04FmBVplw@kernel.org> <Y9KXjLaFFUvqqdd4@casper.infradead.org>
+In-Reply-To: <Y9KXjLaFFUvqqdd4@casper.infradead.org>
+From:   Suren Baghdasaryan <surenb@google.com>
+Date:   Thu, 26 Jan 2023 08:25:03 -0800
+Message-ID: <CAJuCfpHs4wvQpitiAYc+PQX3LnitF=wvm=zVX7CzMozzmnbcnw@mail.gmail.com>
+Subject: Re: [PATCH v2 1/6] mm: introduce vma->vm_flags modifier functions
+To:     Matthew Wilcox <willy@infradead.org>
+Cc:     Mike Rapoport <rppt@kernel.org>, akpm@linux-foundation.org,
+        michel@lespinasse.org, jglisse@google.com, mhocko@suse.com,
+        vbabka@suse.cz, hannes@cmpxchg.org, mgorman@techsingularity.net,
+        dave@stgolabs.net, liam.howlett@oracle.com, peterz@infradead.org,
+        ldufour@linux.ibm.com, paulmck@kernel.org, luto@kernel.org,
+        songliubraving@fb.com, peterx@redhat.com, david@redhat.com,
+        dhowells@redhat.com, hughd@google.com, bigeasy@linutronix.de,
+        kent.overstreet@linux.dev, punit.agrawal@bytedance.com,
+        lstoakes@gmail.com, peterjung1337@gmail.com, rientjes@google.com,
+        axelrasmussen@google.com, joelaf@google.com, minchan@google.com,
+        jannh@google.com, shakeelb@google.com, tatashin@google.com,
+        edumazet@google.com, gthelen@google.com, gurua@google.com,
+        arjunroy@google.com, soheil@google.com, hughlynch@google.com,
+        leewalsh@google.com, posk@google.com, will@kernel.org,
+        aneesh.kumar@linux.ibm.com, npiggin@gmail.com,
+        chenhuacai@kernel.org, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, richard@nod.at,
+        anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
+        qianweili@huawei.com, wangzhou1@hisilicon.com,
+        herbert@gondor.apana.org.au, davem@davemloft.net, vkoul@kernel.org,
+        airlied@gmail.com, daniel@ffwll.ch,
+        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
+        tzimmermann@suse.de, l.stach@pengutronix.de,
+        krzysztof.kozlowski@linaro.org, patrik.r.jakobsson@gmail.com,
+        matthias.bgg@gmail.com, robdclark@gmail.com,
+        quic_abhinavk@quicinc.com, dmitry.baryshkov@linaro.org,
+        tomba@kernel.org, hjc@rock-chips.com, heiko@sntech.de,
+        ray.huang@amd.com, kraxel@redhat.com, sre@kernel.org,
+        mcoquelin.stm32@gmail.com, alexandre.torgue@foss.st.com,
+        tfiga@chromium.org, m.szyprowski@samsung.com, mchehab@kernel.org,
+        dimitri.sivanich@hpe.com, zhangfei.gao@linaro.org,
+        jejb@linux.ibm.com, martin.petersen@oracle.com,
+        dgilbert@interlog.com, hdegoede@redhat.com, mst@redhat.com,
+        jasowang@redhat.com, alex.williamson@redhat.com, deller@gmx.de,
+        jayalk@intworks.biz, viro@zeniv.linux.org.uk, nico@fluxnic.net,
+        xiang@kernel.org, chao@kernel.org, tytso@mit.edu,
+        adilger.kernel@dilger.ca, miklos@szeredi.hu,
+        mike.kravetz@oracle.com, muchun.song@linux.dev, bhe@redhat.com,
+        andrii@kernel.org, yoshfuji@linux-ipv6.org, dsahern@kernel.org,
+        kuba@kernel.org, pabeni@redhat.com, perex@perex.cz, tiwai@suse.com,
+        haojian.zhuang@gmail.com, robert.jarzmik@free.fr,
+        linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org,
+        linuxppc-dev@lists.ozlabs.org, x86@kernel.org,
+        linux-kernel@vger.kernel.org, linux-graphics-maintainer@vmware.com,
+        linux-ia64@vger.kernel.org, linux-arch@vger.kernel.org,
+        loongarch@lists.linux.dev, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-sgx@vger.kernel.org,
+        linux-um@lists.infradead.org, linux-acpi@vger.kernel.org,
+        linux-crypto@vger.kernel.org, nvdimm@lists.linux.dev,
+        dmaengine@vger.kernel.org, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org, etnaviv@lists.freedesktop.org,
+        linux-samsung-soc@vger.kernel.org, intel-gfx@lists.freedesktop.org,
+        linux-mediatek@lists.infradead.org, linux-arm-msm@vger.kernel.org,
+        freedreno@lists.freedesktop.org,
+        linux-rockchip@lists.infradead.org, linux-tegra@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        xen-devel@lists.xenproject.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-rdma@vger.kernel.org, linux-media@vger.kernel.org,
+        linux-accelerators@lists.ozlabs.org, sparclinux@vger.kernel.org,
+        linux-scsi@vger.kernel.org, linux-staging@lists.linux.dev,
+        target-devel@vger.kernel.org, linux-usb@vger.kernel.org,
+        netdev@vger.kernel.org, linux-fbdev@vger.kernel.org,
+        linux-aio@kvack.org, linux-fsdevel@vger.kernel.org,
+        linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org,
+        devel@lists.orangefs.org, kexec@lists.infradead.org,
+        linux-xfs@vger.kernel.org, bpf@vger.kernel.org,
+        linux-perf-users@vger.kernel.org, kasan-dev@googlegroups.com,
+        selinux@vger.kernel.org, alsa-devel@alsa-project.org,
+        kernel-team@android.com
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 1/25/23 22:26, Janis Schoetterl-Glausch wrote:
-> User space can use the MEM_OP ioctl to make storage key checked reads
-> and writes to the guest, however, it has no way of performing atomic,
-> key checked, accesses to the guest.
-> Extend the MEM_OP ioctl in order to allow for this, by adding a cmpxchg
-> op. For now, support this op for absolute accesses only.
-> 
-> This op can be use, for example, to set the device-state-change
+On Thu, Jan 26, 2023 at 7:09 AM Matthew Wilcox <willy@infradead.org> wrote:
+>
+> On Thu, Jan 26, 2023 at 04:50:59PM +0200, Mike Rapoport wrote:
+> > On Thu, Jan 26, 2023 at 11:17:09AM +0200, Mike Rapoport wrote:
+> > > On Wed, Jan 25, 2023 at 12:38:46AM -0800, Suren Baghdasaryan wrote:
+> > > > +/* Use when VMA is not part of the VMA tree and needs no locking */
+> > > > +static inline void init_vm_flags(struct vm_area_struct *vma,
+> > > > +                          unsigned long flags)
+> > >
+> > > I'd suggest to make it vm_flags_init() etc.
+> >
+> > Thinking more about it, it will be even clearer to name these vma_flags_xyz()
+>
+> Perhaps vma_VERB_flags()?
+>
+> vma_init_flags()
+> vma_reset_flags()
+> vma_set_flags()
+> vma_clear_flags()
+> vma_mod_flags()
 
-s/use/used/
+Due to excessive email bouncing I posted the v3 of this patchset using
+the original per-VMA patchset's distribution list. That might have
+dropped Mike from the list. Sorry about that Mike, I'll add you to my
+usual list of suspects :)
+The v3 is here:
+https://lore.kernel.org/all/20230125233554.153109-1-surenb@google.com/
+and Andrew did suggest the same renames, so I'll be posting v4 with
+those changes later today.
+Thanks for the feedback!
 
-> indicator and the adapter-local-summary indicator atomically.
-> 
-> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-> ---
-[...]
-> +/**
-> + * cmpxchg_guest_abs_with_key() - Perform cmpxchg on guest absolute address.
-> + * @kvm: Virtual machine instance.
-> + * @gpa: Absolute guest address of the location to be changed.
-> + * @len: Operand length of the cmpxchg, required: 1 <= len <= 16. Providing a
-> + *       non power of two will result in failure.
-> + * @old_addr: Pointer to old value. If the location at @gpa contains this value,
-> + *            the exchange will succeed. After calling cmpxchg_guest_abs_with_key()
-> + *            *@old_addr contains the value at @gpa before the attempt to
-> + *            exchange the value.
-> + * @new: The value to place at @gpa.
-> + * @access_key: The access key to use for the guest access.
-> + * @success: output value indicating if an exchange occurred.
-> + *
-> + * Atomically exchange the value at @gpa by @new, if it contains *@old.
-> + * Honors storage keys.
-> + *
-> + * Return: * 0: successful exchange
-> + *         * a program interruption code indicating the reason cmpxchg could
-> + *           not be attempted
-
-Nit:
- >0: a program interruption code...
-
-
-> + *         * -EINVAL: address misaligned or len not power of two
-> + *         * -EAGAIN: transient failure (len 1 or 2)
-> + *         * -EOPNOTSUPP: read-only memslot (should never occur)
-> + */
-> +int cmpxchg_guest_abs_with_key(struct kvm *kvm, gpa_t gpa, int len,
-> +			       __uint128_t *old_addr, __uint128_t new,
-> +			       u8 access_key, bool *success)
-> +{
-> +	gfn_t gfn = gpa >> PAGE_SHIFT;
-
-  gpa_to_gfn()?
-
-> +	struct kvm_memory_slot *slot = gfn_to_memslot(kvm, gfn);
-> +	bool writable;
-> +	hva_t hva;
-> +	int ret;
-> +
-> +	if (!IS_ALIGNED(gpa, len))
-> +		return -EINVAL;
-> +
-> +	hva = gfn_to_hva_memslot_prot(slot, gfn, &writable);
-> +	if (kvm_is_error_hva(hva))
-> +		return PGM_ADDRESSING;
-> +	/*
-> +	 * Check if it's a read-only memslot, even though that cannot occur
-> +	 * since those are unsupported.
-> +	 * Don't try to actually handle that case.
-> +	 */
-> +	if (!writable)
-> +		return -EOPNOTSUPP;
-> +
-> +	hva += offset_in_page(gpa);
-
-Hmm if we don't use a macro to generate these then I'd add an explanation:
-
-cmpxchg_user_key() is a macro that is dependent on the type of "old" so 
-there's no deduplication possible without further macros.
-
-> +	switch (len) {
-> +	case 1: {
-> +		u8 old;
-> +
-> +		ret = cmpxchg_user_key((u8 *)hva, &old, *old_addr, new, access_key);
-> +		*success = !ret && old == *old_addr;
-> +		*old_addr = old;
-> +		break;
-> +	}
-> +	case 2: {
-> +		u16 old;
-> +
-> +		ret = cmpxchg_user_key((u16 *)hva, &old, *old_addr, new, access_key);
-> +		*success = !ret && old == *old_addr;
-> +		*old_addr = old;
-> +		break;
-> +	}
-> +	case 4: {
-> +		u32 old;
-> +
-> +		ret = cmpxchg_user_key((u32 *)hva, &old, *old_addr, new, access_key);
-> +		*success = !ret && old == *old_addr;
-> +		*old_addr = old;
-> +		break;
-> +	}
-> +	case 8: {
-> +		u64 old;
-> +
-> +		ret = cmpxchg_user_key((u64 *)hva, &old, *old_addr, new, access_key);
-> +		*success = !ret && old == *old_addr;
-> +		*old_addr = old;
-> +		break;
-> +	}
-> +	case 16: {
-> +		__uint128_t old;
-> +
-> +		ret = cmpxchg_user_key((__uint128_t *)hva, &old, *old_addr, new, access_key);
-> +		*success = !ret && old == *old_addr;
-> +		*old_addr = old;
-> +		break;
-> +	}
-> +	default:
-> +		return -EINVAL;
-> +	}
-> +	mark_page_dirty_in_slot(kvm, slot, gfn);
-
-Is that needed if we failed the store?
-
-> +	/*
-> +	 * Assume that the fault is caused by protection, either key protection
-> +	 * or user page write protection.
-> +	 */
-> +	if (ret == -EFAULT)
-> +		ret = PGM_PROTECTION;
-> +	return ret;
-> +}
-> +
->   /**
->    * guest_translate_address_with_key - translate guest logical into guest absolute address
->    * @vcpu: virtual cpu
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 4b8b41be7aed..86e9734d5782 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -584,7 +584,6 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
->   	case KVM_CAP_S390_VCPU_RESETS:
->   	case KVM_CAP_SET_GUEST_DEBUG:
->   	case KVM_CAP_S390_DIAG318:
-> -	case KVM_CAP_S390_MEM_OP_EXTENSION:
->   		r = 1;
->   		break;
->   	case KVM_CAP_SET_GUEST_DEBUG2:
-> @@ -598,6 +597,15 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
->   	case KVM_CAP_S390_MEM_OP:
->   		r = MEM_OP_MAX_SIZE;
->   		break;
-> +	case KVM_CAP_S390_MEM_OP_EXTENSION:
-> +		/*
-> +		 * Flag bits indicating which extensions are supported.
-> +		 * If r > 0, the base extension must also be supported/indicated,
-> +		 * in order to maintain backwards compatibility.
-> +		 */
-> +		r = KVM_S390_MEMOP_EXTENSION_CAP_BASE |
-> +		    KVM_S390_MEMOP_EXTENSION_CAP_CMPXCHG;
-> +		break;
->   	case KVM_CAP_NR_VCPUS:
->   	case KVM_CAP_MAX_VCPUS:
->   	case KVM_CAP_MAX_VCPU_ID:
-> @@ -2840,6 +2848,50 @@ static int kvm_s390_vm_mem_op_abs(struct kvm *kvm, struct kvm_s390_mem_op *mop)
->   	return r;
->   }
->   
-> +static int kvm_s390_vm_mem_op_cmpxchg(struct kvm *kvm, struct kvm_s390_mem_op *mop)
-> +{
-> +	void __user *uaddr = (void __user *)mop->buf;
-> +	void __user *old_addr = (void __user *)mop->old_addr;
-> +	union {
-> +		__uint128_t quad;
-> +		char raw[sizeof(__uint128_t)];
-> +	} old = { .quad = 0}, new = { .quad = 0 };
-> +	unsigned int off_in_quad = sizeof(new) - mop->size;
-> +	int r, srcu_idx;
-> +	bool success;
-> +
-> +	r = mem_op_validate_common(mop, KVM_S390_MEMOP_F_SKEY_PROTECTION);
-> +	if (r)
-> +		return r;
-> +	/*
-> +	 * This validates off_in_quad. Checking that size is a power
-> +	 * of two is not necessary, as cmpxchg_guest_abs_with_key
-> +	 * takes care of that
-> +	 */
-> +	if (mop->size > sizeof(new))
-> +		return -EINVAL;
-> +	if (copy_from_user(&new.raw[off_in_quad], uaddr, mop->size))
-> +		return -EFAULT;
-> +	if (copy_from_user(&old.raw[off_in_quad], old_addr, mop->size))
-> +		return -EFAULT;
-> +
-> +	srcu_idx = srcu_read_lock(&kvm->srcu);
-> +
-> +	if (kvm_is_error_gpa(kvm, mop->gaddr)) {
-> +		r = PGM_ADDRESSING;
-> +		goto out_unlock;
-> +	}
-> +
-> +	r = cmpxchg_guest_abs_with_key(kvm, mop->gaddr, mop->size, &old.quad,
-> +				       new.quad, mop->key, &success);
-> +	if (!success && copy_to_user(old_addr, &old.raw[off_in_quad], mop->size))
-> +		r = -EFAULT;
-> +
-> +out_unlock:
-> +	srcu_read_unlock(&kvm->srcu, srcu_idx);
-> +	return r;
-> +}
-> +
->   static int kvm_s390_vm_mem_op(struct kvm *kvm, struct kvm_s390_mem_op *mop)
->   {
->   	/*
-> @@ -2858,6 +2910,8 @@ static int kvm_s390_vm_mem_op(struct kvm *kvm, struct kvm_s390_mem_op *mop)
->   	case KVM_S390_MEMOP_ABSOLUTE_READ:
->   	case KVM_S390_MEMOP_ABSOLUTE_WRITE:
->   		return kvm_s390_vm_mem_op_abs(kvm, mop);
-> +	case KVM_S390_MEMOP_ABSOLUTE_CMPXCHG:
-> +		return kvm_s390_vm_mem_op_cmpxchg(kvm, mop);
->   	default:
->   		return -EINVAL;
->   	}
-
+>
