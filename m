@@ -2,118 +2,101 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A7422C54EAA
-	for <linux-s390@archiver.kernel.org>; Fri, 27 Jan 2023 09:09:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CD0F4C38142
+	for <linux-s390@archiver.kernel.org>; Fri, 27 Jan 2023 12:28:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231486AbjA0JJW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 27 Jan 2023 04:09:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55480 "EHLO
+        id S233683AbjA0M2e (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 27 Jan 2023 07:28:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229508AbjA0JJW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 27 Jan 2023 04:09:22 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C0AF4C10;
-        Fri, 27 Jan 2023 01:09:21 -0800 (PST)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30R8kucJ018948;
-        Fri, 27 Jan 2023 09:09:21 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=4SZ7Es78iT9Bl1L8QXSmRpFohHTfZAPVu/ApukTo7Z0=;
- b=YYkwhCm6UX5DAfcGZbpf9cxes+8jobXlLBqG4S1Ag4hSDqQV5cwI10mkqQmddgVH1Zam
- Qm0EbqO7MVO0LvTOKnvd47FrvAMFqKUwnE4iuU5FbjtTQ2GnWWEWglhKb+RP+0Q5iwSj
- 1z+k3DCi+PCzyTaGgQr8EY35f3SP3HJW7J/dSEyX5SGT6IiNiQydad1xFYkaxyxuE8w7
- Y8L1IosVUIQVVYS1QFr78DNjBPzAeVR7lX2LJI9pDb8lX3eGVXCl5tcC6+hTFuhn6jxX
- o+rebkduEU7ZnshKtPzCOyqURz5iRo+jhWpidaMpaoeBZlB2AWmJZHshIBc10FlZKtdp 4Q== 
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nc8gxm80g-1
+        with ESMTP id S233990AbjA0M2Q (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 27 Jan 2023 07:28:16 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD48AAD24;
+        Fri, 27 Jan 2023 04:27:46 -0800 (PST)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30RALg1j017328;
+        Fri, 27 Jan 2023 11:43:27 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=mghF05r9ADEypUYcx7SnYoI/1VfwNYwXit9C0zNG9xc=;
+ b=jE7hqYahf20n0Srim2uO+xkZrfC1F4wAmsQrA85TUoN9gwJWwZgHUi4Lijo3qPffpUNE
+ Z2loP0s5iaRbG0uGa91OvNTqEFpXjPaJur4v5N0oTThBiNvdVfkGkTlkqt4/7Ethem0J
+ nI+EYZk2amFE8t2u/r0N4JtAEbVCV6rZ1GF3mRARnxOZ5q0WMBbWYm2iAqJ9mtjlWViL
+ tFt4Bq30A2eKGQ96qFqqaIw/8gGBsXH6nOocZslL+0Tuo/dSi+KQsxsP+enqiSbrmfDQ
+ NFqHoCXXuHYhbh7V/+/qbcYw1SCuVp/MYb3uVPR5BR5GFtC6xITf2dpitTfioMw7XlDL Cg== 
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nccsuhsq4-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 27 Jan 2023 09:09:20 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30R54RpW014840;
-        Fri, 27 Jan 2023 09:09:18 GMT
+        Fri, 27 Jan 2023 11:43:26 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30QNr64q029222;
+        Fri, 27 Jan 2023 11:43:25 GMT
 Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3n87affb05-1
+        by ppma06fra.de.ibm.com (PPS) with ESMTPS id 3n87afddb0-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 27 Jan 2023 09:09:18 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30R99ENW39715088
+        Fri, 27 Jan 2023 11:43:25 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30RBhLZ845875624
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 27 Jan 2023 09:09:15 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D55302004B;
-        Fri, 27 Jan 2023 09:09:14 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8BD452004D;
-        Fri, 27 Jan 2023 09:09:14 +0000 (GMT)
-Received: from [9.171.2.114] (unknown [9.171.2.114])
-        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Fri, 27 Jan 2023 09:09:14 +0000 (GMT)
-Message-ID: <c883a240-b5ad-9b21-006d-1074fc122f7b@linux.ibm.com>
-Date:   Fri, 27 Jan 2023 10:09:14 +0100
+        Fri, 27 Jan 2023 11:43:21 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 75DC12004D;
+        Fri, 27 Jan 2023 11:43:21 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 101F820040;
+        Fri, 27 Jan 2023 11:43:21 +0000 (GMT)
+Received: from osiris (unknown [9.179.15.200])
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Fri, 27 Jan 2023 11:43:20 +0000 (GMT)
+Date:   Fri, 27 Jan 2023 12:43:19 +0100
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Randy Dunlap <rdunlap@infradead.org>
+Cc:     linux-kernel@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linux-s390@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
+        linux-doc@vger.kernel.org
+Subject: Re: [PATCH 23/35] Documentation: s390: correct spelling
+Message-ID: <Y9O4150V0hMBsEoj@osiris>
+References: <20230127064005.1558-1-rdunlap@infradead.org>
+ <20230127064005.1558-24-rdunlap@infradead.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.0
-Subject: Re: [PATCH v3 1/1] KVM: s390: disable migration mode when dirty
- tracking is disabled
-To:     Nico Boehr <nrb@linux.ibm.com>, borntraeger@linux.ibm.com,
-        imbrenda@linux.ibm.com
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20230126174027.133667-1-nrb@linux.ibm.com>
- <20230126174027.133667-2-nrb@linux.ibm.com>
-Content-Language: en-US
-From:   Janosch Frank <frankja@linux.ibm.com>
-In-Reply-To: <20230126174027.133667-2-nrb@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230127064005.1558-24-rdunlap@infradead.org>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: knMs9129_GZc04o7tlRVGvXn9NaAGZrf
-X-Proofpoint-GUID: knMs9129_GZc04o7tlRVGvXn9NaAGZrf
+X-Proofpoint-ORIG-GUID: P30Yg8-afwC5vdm2D5Zy-_VHHMJ9sY_t
+X-Proofpoint-GUID: P30Yg8-afwC5vdm2D5Zy-_VHHMJ9sY_t
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
- definitions=2023-01-27_04,2023-01-27_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 bulkscore=0
- mlxlogscore=791 spamscore=0 mlxscore=0 phishscore=0 priorityscore=1501
- lowpriorityscore=0 suspectscore=0 malwarescore=0 clxscore=1015
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2301270084
+ definitions=2023-01-27_06,2023-01-27_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ malwarescore=0 lowpriorityscore=0 priorityscore=1501 mlxscore=0
+ spamscore=0 clxscore=1011 adultscore=0 phishscore=0 bulkscore=0
+ suspectscore=0 mlxlogscore=399 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2212070000 definitions=main-2301270109
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 1/26/23 18:40, Nico Boehr wrote:
-> Migration mode is a VM attribute which enables tracking of changes in
-> storage attributes (PGSTE). It assumes dirty tracking is enabled on all
-> memslots to keep a dirty bitmap of pages with changed storage attributes.
+On Thu, Jan 26, 2023 at 10:39:53PM -0800, Randy Dunlap wrote:
+> Correct spelling problems for Documentation/s390/ as reported
+> by codespell.
 > 
-> When enabling migration mode, we currently check that dirty tracking is
-> enabled for all memslots. However, userspace can disable dirty tracking
-> without disabling migration mode.
-> 
-> Since migration mode is pointless with dirty tracking disabled, disable
-> migration mode whenever userspace disables dirty tracking on any slot.
-> 
-> Also update the documentation to clarify that dirty tracking must be
-> enabled when enabling migration mode, which is already enforced by the
-> code in kvm_s390_vm_start_migration().
-> 
-> Also highlight in the documentation for KVM_S390_GET_CMMA_BITS that it
-> can now fail with -EINVAL when dirty tracking is disabled while
-> migration mode is on. Move all the error codes to a table to this stays
-> readable.
-> 
-> To disable migration mode, slots_lock should be held, which is taken
-> in kvm_set_memory_region() and thus held in
-> kvm_arch_prepare_memory_region().
-> 
-> Restructure the prepare code a bit so all the sanity checking is done
-> before disabling migration mode. This ensures migration mode isn't
-> disabled when some sanity check fails.
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: 190df4a212a7 ("KVM: s390: CMMA tracking, ESSA emulation, migration mode")
-> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+> Cc: Heiko Carstens <hca@linux.ibm.com>
+> Cc: Vasily Gorbik <gor@linux.ibm.com>
+> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+> Cc: linux-s390@vger.kernel.org
+> Cc: Jonathan Corbet <corbet@lwn.net>
+> Cc: linux-doc@vger.kernel.org
+> ---
+>  Documentation/s390/pci.rst      |    4 ++--
+>  Documentation/s390/vfio-ccw.rst |    2 +-
+>  2 files changed, 3 insertions(+), 3 deletions(-)
 
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+FWIW,
 
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
+
+If you expect me to pick this up via the s390 tree, please let me know.
