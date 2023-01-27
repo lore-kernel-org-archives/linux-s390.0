@@ -2,156 +2,96 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B42EC05027
-	for <linux-s390@archiver.kernel.org>; Thu, 26 Jan 2023 21:15:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F0D1C636CD
+	for <linux-s390@archiver.kernel.org>; Fri, 27 Jan 2023 06:40:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232889AbjAZVPu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 26 Jan 2023 16:15:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46178 "EHLO
+        id S231969AbjA0GkZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 27 Jan 2023 01:40:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232430AbjAZVPl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 26 Jan 2023 16:15:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3127B6D5D1;
-        Thu, 26 Jan 2023 13:15:40 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B6F306192C;
-        Thu, 26 Jan 2023 21:15:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 834FEC433D2;
-        Thu, 26 Jan 2023 21:15:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1674767739;
-        bh=kDoN7lRtkiguVPMIrt2hz2XvkeOAxA8ec5u0EoQ2oZU=;
-        h=From:To:Cc:Subject:Date:From;
-        b=MZIYwYDxGRui5ufSSQCI03NAPZNsVz2pa74E1a6S835vWtFU/TqegK/BdgJZHyn3D
-         fq1l4NeIEbkMq2GODsWzDFq1+sS3yYiFuCJ/uaZgVEkaK24VxjPzZQwou2YhYlZ169
-         hF/LiP5B7rK2WENUAK9rtuvNnnxQIyv3jaiQNnIgPJXtIN2giNjB3gt0KGgOIbkJsR
-         786k4VnAtaA+AkLvo1AhU2QySPMZAx1+MAUBG240zIV6BQS6XbUNMnsB2UpzTM9imk
-         RnpHu4KDinDlB6hjS4AHJ/XNrolgE5CC/4m39TtoPEUFcvf1pQRdBl5HjsPe3kS7pn
-         mtx6dg/QdCdoA==
-From:   Arnd Bergmann <arnd@kernel.org>
-To:     Jason Gunthorpe <jgg@ziepe.ca>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Alex Williamson <alex.williamson@redhat.com>
-Cc:     Arnd Bergmann <arnd@arndb.de>, Heiko Carstens <hca@linux.ibm.com>,
+        with ESMTP id S231879AbjA0GkW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 27 Jan 2023 01:40:22 -0500
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43E276C560;
+        Thu, 26 Jan 2023 22:40:21 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+        MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
+        :Reply-To:Content-Type:Content-ID:Content-Description;
+        bh=b2J5kw4jMwk0ZaQSGFy4S3ExSbNurermdu9lg81Gm60=; b=rVW8qyHzwVYLzXNdRGeTC48+Dr
+        nek4ODSZH7dkzESkZ/I40Lzg8Uae+SEsoDMz1FetKsWplszM4bo0+cEQWPAdVtbZWLs5dFIvsAYuN
+        QbsVE9nMiy7i/itidTgXJYMS18EHjF1UGgKRzC/31rXTIasO8wu3z7MNjwiOiZUvL+GsOAS6x6vlk
+        j3VSAti7SgnvLXxOYh/8zkLTqHfPk1a/VvDPcRChoBOeqTqaX+Px0mVqov3AleWbKIYoz0LzX2jGh
+        9u0JeMlQRfHes5o1gW2gKmOi2lLwzpFTvpLouL/cKmzgjo7zCDu/XXnL4Wba/MZbx4HfpprNrLzVC
+        qBf16zCw==;
+Received: from [2601:1c2:d80:3110::9307] (helo=bombadil.infradead.org)
+        by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1pLIPM-00DM0u-Nx; Fri, 27 Jan 2023 06:40:20 +0000
+From:   Randy Dunlap <rdunlap@infradead.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Randy Dunlap <rdunlap@infradead.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        David Airlie <airlied@gmail.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Tomas Winkler <tomas.winkler@intel.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Miguel Ojeda <ojeda@kernel.org>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, intel-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH] [v2] vfio-mdev: add back CONFIG_VFIO dependency
-Date:   Thu, 26 Jan 2023 22:08:31 +0100
-Message-Id: <20230126211211.1762319-1-arnd@kernel.org>
-X-Mailer: git-send-email 2.39.0
+        linux-s390@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
+        linux-doc@vger.kernel.org
+Subject: [PATCH 23/35] Documentation: s390: correct spelling
+Date:   Thu, 26 Jan 2023 22:39:53 -0800
+Message-Id: <20230127064005.1558-24-rdunlap@infradead.org>
+X-Mailer: git-send-email 2.39.1
+In-Reply-To: <20230127064005.1558-1-rdunlap@infradead.org>
+References: <20230127064005.1558-1-rdunlap@infradead.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+Correct spelling problems for Documentation/s390/ as reported
+by codespell.
 
-CONFIG_VFIO_MDEV cannot be selected when VFIO itself is
-disabled, otherwise we get a link failure:
-
-WARNING: unmet direct dependencies detected for VFIO_MDEV
-  Depends on [n]: VFIO [=n]
-  Selected by [y]:
-  - SAMPLE_VFIO_MDEV_MTTY [=y] && SAMPLES [=y]
-  - SAMPLE_VFIO_MDEV_MDPY [=y] && SAMPLES [=y]
-  - SAMPLE_VFIO_MDEV_MBOCHS [=y] && SAMPLES [=y]
-/home/arnd/cross/arm64/gcc-13.0.1-nolibc/x86_64-linux/bin/x86_64-linux-ld: samples/vfio-mdev/mdpy.o: in function `mdpy_remove':
-mdpy.c:(.text+0x1e1): undefined reference to `vfio_unregister_group_dev'
-/home/arnd/cross/arm64/gcc-13.0.1-nolibc/x86_64-linux/bin/x86_64-linux-ld: samples/vfio-mdev/mdpy.o: in function `mdpy_probe':
-mdpy.c:(.text+0x149e): undefined reference to `_vfio_alloc_device'
-
-Fixes: 8bf8c5ee1f38 ("vfio-mdev: turn VFIO_MDEV into a selectable symbol")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: linux-doc@vger.kernel.org
 ---
-v2: fix the s390 and drm drivers as well, in addition to the
-sample code.
----
- arch/s390/Kconfig            | 4 +++-
- drivers/gpu/drm/i915/Kconfig | 1 +
- samples/Kconfig              | 3 +++
- 3 files changed, 7 insertions(+), 1 deletion(-)
+ Documentation/s390/pci.rst      |    4 ++--
+ Documentation/s390/vfio-ccw.rst |    2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 045e681caa36..078cd1a773a3 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -715,6 +715,7 @@ config VFIO_CCW
- 	def_tristate n
- 	prompt "Support for VFIO-CCW subchannels"
- 	depends on S390_CCW_IOMMU
-+	depends on VFIO
- 	select VFIO_MDEV
- 	help
- 	  This driver allows usage of I/O subchannels via VFIO-CCW.
-@@ -726,8 +727,9 @@ config VFIO_AP
- 	def_tristate n
- 	prompt "VFIO support for AP devices"
- 	depends on S390_AP_IOMMU && KVM
--	select VFIO_MDEV
-+	depends on VFIO
- 	depends on ZCRYPT
-+	select VFIO_MDEV
- 	help
- 	  This driver grants access to Adjunct Processor (AP) devices
- 	  via the VFIO mediated device interface.
-diff --git a/drivers/gpu/drm/i915/Kconfig b/drivers/gpu/drm/i915/Kconfig
-index a14f68730d6d..b84c16933bbd 100644
---- a/drivers/gpu/drm/i915/Kconfig
-+++ b/drivers/gpu/drm/i915/Kconfig
-@@ -120,6 +120,7 @@ config DRM_I915_GVT_KVMGT
- 	depends on X86
- 	depends on 64BIT
- 	depends on KVM
-+	depends on VFIO
- 	select DRM_I915_GVT
- 	select KVM_EXTERNAL_WRITE_TRACKING
- 	select VFIO_MDEV
-diff --git a/samples/Kconfig b/samples/Kconfig
-index 56b191d128d8..44a09dfa8a0b 100644
---- a/samples/Kconfig
-+++ b/samples/Kconfig
-@@ -185,6 +185,7 @@ config SAMPLE_UHID
+diff -- a/Documentation/s390/pci.rst b/Documentation/s390/pci.rst
+--- a/Documentation/s390/pci.rst
++++ b/Documentation/s390/pci.rst
+@@ -51,7 +51,7 @@ Entries specific to zPCI functions and e
  
- config SAMPLE_VFIO_MDEV_MTTY
- 	tristate "Build VFIO mtty example mediated device sample code"
-+	depends on VFIO
- 	select VFIO_MDEV
- 	help
- 	  Build a virtual tty sample driver for use as a VFIO
-@@ -192,6 +193,7 @@ config SAMPLE_VFIO_MDEV_MTTY
+   The slot entries are set up using the function identifier (FID) of the
+   PCI function. The format depicted as XXXXXXXX above is 8 hexadecimal digits
+-  with 0 padding and lower case hexadecimal digitis.
++  with 0 padding and lower case hexadecimal digits.
  
- config SAMPLE_VFIO_MDEV_MDPY
- 	tristate "Build VFIO mdpy example mediated device sample code"
-+	depends on VFIO
- 	select VFIO_MDEV
- 	help
- 	  Build a virtual display sample driver for use as a VFIO
-@@ -209,6 +211,7 @@ config SAMPLE_VFIO_MDEV_MDPY_FB
+   - /sys/bus/pci/slots/XXXXXXXX/power
  
- config SAMPLE_VFIO_MDEV_MBOCHS
- 	tristate "Build VFIO mdpy example mediated device sample code"
-+	depends on VFIO
- 	select VFIO_MDEV
- 	select DMA_SHARED_BUFFER
- 	help
--- 
-2.39.0
-
+@@ -66,7 +66,7 @@ Entries specific to zPCI functions and e
+ 
+   - function_handle
+     Low-level identifier used for a configured PCI function.
+-    It might be useful for debuging.
++    It might be useful for debugging.
+ 
+   - pchid
+     Model-dependent location of the I/O adapter.
+diff -- a/Documentation/s390/vfio-ccw.rst b/Documentation/s390/vfio-ccw.rst
+--- a/Documentation/s390/vfio-ccw.rst
++++ b/Documentation/s390/vfio-ccw.rst
+@@ -176,7 +176,7 @@ The process of how these work together.
+    Use the 'mdev_create' sysfs file, we need to manually create one (and
+    only one for our case) mediated device.
+ 3. vfio_mdev.ko drives the mediated ccw device.
+-   vfio_mdev is also the vfio device drvier. It will probe the mdev and
++   vfio_mdev is also the vfio device driver. It will probe the mdev and
+    add it to an iommu_group and a vfio_group. Then we could pass through
+    the mdev to a guest.
+ 
