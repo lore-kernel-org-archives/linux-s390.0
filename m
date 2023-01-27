@@ -2,226 +2,253 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8340BC38142
-	for <linux-s390@archiver.kernel.org>; Fri, 27 Jan 2023 14:20:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E9F43C54EAA
+	for <linux-s390@archiver.kernel.org>; Fri, 27 Jan 2023 18:34:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232450AbjA0OUI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 27 Jan 2023 09:20:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33682 "EHLO
+        id S235072AbjA0SeZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 27 Jan 2023 13:34:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232398AbjA0OUH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 27 Jan 2023 09:20:07 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50CCA7F333;
-        Fri, 27 Jan 2023 06:20:06 -0800 (PST)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30RDfmLf028778;
-        Fri, 27 Jan 2023 14:20:06 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=mlc8bOGmiF+UCQlzByWHBk1Tm1LFws7GM4zIMlhHcBI=;
- b=HPjvo50bt7xCTPLidNiL6sxFsDbIyqbLNLxGBJmNWVuaOpBv331PVMa5x+3vPzZanS4u
- AcTBJLG6qmQdKRRahir0msWizqk3vvpiYbUy4cDWI0GkWcF5sIo/MoxLOjViOM+Xc8rM
- NGVx+t2dZ2bH8lzcEQMrGlk0QJ8M6sMeLbqpgJnuNCfPqX6Oip9ehsarJZXWa91YC2mS
- MRTdg4VNLb9QZlVZNYvP/KmmXVmdYa83dXz+XDUP1x7n9/X1FJ7lnOXINNOm+vVdZJJ7
- RpoqkI0MlqiwUSEbpS1Yn0abaTAKFEeloiizm5NM0XxW5cb8Xz9L10jOwOPCtd4JnOLz 6w== 
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ncfqk95hq-1
+        with ESMTP id S235063AbjA0SeX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 27 Jan 2023 13:34:23 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A0996F21C;
+        Fri, 27 Jan 2023 10:34:22 -0800 (PST)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30RHhJr5003759;
+        Fri, 27 Jan 2023 18:15:29 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=z4AA2ZK0KoCUrgCsScIkdFlax+AQ1xvYsqquTrj3a5k=;
+ b=G9pUnuBbqRSCRdf+GsYx9Y7GLDNQsNXSdMqDVm4TYpQzKToLMJbNSrqH2mRHgGP35JBq
+ tTLFq1hDM3Rp+BT67b9LYISni+BkgJpgI6ECun+omCs8zIiHLKx3bbocbZaxJHjjQYER
+ 3wYnjcyuFKX5Jp6EZx/YbOi4EpvFnVnWlzp+/szXrMECf+4L/6HqdIScFvWZGfkApzIE
+ 5wmmtPJ/U/lPZ3CJyl0jLKVRBb2OhH8l08ddTeixAjFZa4y7lyMgHdSf2lOWqgHgprcv
+ XYdaMP0CrkjP6zdPIcgYEsulABQV2K+UL3iFPzwjqiplH+NdVrXM3kwansig+s1x0Yq5 CA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nck8s0rsd-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 27 Jan 2023 14:20:05 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30RBJQnc031519;
-        Fri, 27 Jan 2023 14:20:03 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma02fra.de.ibm.com (PPS) with ESMTPS id 3n87p6dg2x-1
+        Fri, 27 Jan 2023 18:15:28 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 30RHujp9007987;
+        Fri, 27 Jan 2023 18:15:28 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nck8s0rrm-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 27 Jan 2023 14:20:03 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30REJxlH48038342
+        Fri, 27 Jan 2023 18:15:28 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30R6E8Fo014903;
+        Fri, 27 Jan 2023 18:15:26 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3n87affwh6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 27 Jan 2023 18:15:26 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30RIFMIn47579566
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 27 Jan 2023 14:19:59 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B80102004B;
-        Fri, 27 Jan 2023 14:19:59 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2524B20043;
-        Fri, 27 Jan 2023 14:19:59 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.171.87.61])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with SMTP;
-        Fri, 27 Jan 2023 14:19:59 +0000 (GMT)
-Date:   Fri, 27 Jan 2023 15:19:57 +0100
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Nico Boehr <nrb@linux.ibm.com>
-Cc:     borntraeger@linux.ibm.com, frankja@linux.ibm.com,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v4 1/1] KVM: s390: disable migration mode when dirty
- tracking is disabled
-Message-ID: <20230127151957.09a1c0bc@p-imbrenda>
-In-Reply-To: <20230127140532.230651-2-nrb@linux.ibm.com>
-References: <20230127140532.230651-1-nrb@linux.ibm.com>
-        <20230127140532.230651-2-nrb@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
+        Fri, 27 Jan 2023 18:15:22 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9857720049;
+        Fri, 27 Jan 2023 18:15:22 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3DDE920040;
+        Fri, 27 Jan 2023 18:15:22 +0000 (GMT)
+Received: from li-7e0de7cc-2d9d-11b2-a85c-de26c016e5ad.ibm.com (unknown [9.171.154.20])
+        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Fri, 27 Jan 2023 18:15:22 +0000 (GMT)
+Message-ID: <f0f6c83f7d38a24234203849e116516ab7ac32f7.camel@linux.ibm.com>
+Subject: Re: [PATCH v6 12/14] KVM: s390: Extend MEM_OP ioctl by storage key
+ checked cmpxchg
+From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+To:     Janosch Frank <frankja@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Cc:     David Hildenbrand <david@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Sven Schnelle <svens@linux.ibm.com>
+Date:   Fri, 27 Jan 2023 19:15:22 +0100
+In-Reply-To: <aa942cf0-6f50-05f5-75a9-278129f00bf6@linux.ibm.com>
+References: <20230125212608.1860251-1-scgl@linux.ibm.com>
+         <20230125212608.1860251-13-scgl@linux.ibm.com>
+         <aa942cf0-6f50-05f5-75a9-278129f00bf6@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.46.3 (3.46.3-1.fc37) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: imnW-DO7fkIEdaLfakdOPFYr1jZtfqWu
-X-Proofpoint-ORIG-GUID: imnW-DO7fkIEdaLfakdOPFYr1jZtfqWu
+X-Proofpoint-GUID: X4TYTTeX60ySKf2aPVbcn3mRdDhAB91y
+X-Proofpoint-ORIG-GUID: fWJGBKK6oPYom01hnFAZGuDL5eIDQoTZ
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
- definitions=2023-01-27_08,2023-01-27_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- bulkscore=0 suspectscore=0 adultscore=0 phishscore=0 malwarescore=0
- mlxscore=0 mlxlogscore=999 spamscore=0 clxscore=1015 impostorscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2301270133
+ definitions=2023-01-27_10,2023-01-27_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 suspectscore=0
+ mlxscore=0 malwarescore=0 lowpriorityscore=0 mlxlogscore=999 clxscore=1015
+ priorityscore=1501 impostorscore=0 spamscore=0 phishscore=0 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
+ definitions=main-2301270167
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 27 Jan 2023 15:05:32 +0100
-Nico Boehr <nrb@linux.ibm.com> wrote:
+On Thu, 2023-01-26 at 17:10 +0100, Janosch Frank wrote:
+> On 1/25/23 22:26, Janis Schoetterl-Glausch wrote:
+> > User space can use the MEM_OP ioctl to make storage key checked reads
+> > and writes to the guest, however, it has no way of performing atomic,
+> > key checked, accesses to the guest.
+> > Extend the MEM_OP ioctl in order to allow for this, by adding a cmpxchg
+> > op. For now, support this op for absolute accesses only.
+> >=20
+> > This op can be use, for example, to set the device-state-change
+>=20
+> s/use/used/
+>=20
+> > indicator and the adapter-local-summary indicator atomically.
+> >=20
+> > Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+> > ---
+> [...]
+> > +/**
+> > + * cmpxchg_guest_abs_with_key() - Perform cmpxchg on guest absolute ad=
+dress.
+> > + * @kvm: Virtual machine instance.
+> > + * @gpa: Absolute guest address of the location to be changed.
+> > + * @len: Operand length of the cmpxchg, required: 1 <=3D len <=3D 16. =
+Providing a
+> > + *       non power of two will result in failure.
+> > + * @old_addr: Pointer to old value. If the location at @gpa contains t=
+his value,
+> > + *            the exchange will succeed. After calling cmpxchg_guest_a=
+bs_with_key()
+> > + *            *@old_addr contains the value at @gpa before the attempt=
+ to
+> > + *            exchange the value.
+> > + * @new: The value to place at @gpa.
+> > + * @access_key: The access key to use for the guest access.
+> > + * @success: output value indicating if an exchange occurred.
+> > + *
+> > + * Atomically exchange the value at @gpa by @new, if it contains *@old=
+.
+> > + * Honors storage keys.
+> > + *
+> > + * Return: * 0: successful exchange
+> > + *         * a program interruption code indicating the reason cmpxchg=
+ could
+> > + *           not be attempted
+>=20
+> Nit:
+>  >0: a program interruption code...
+>=20
+>=20
+> > + *         * -EINVAL: address misaligned or len not power of two
+> > + *         * -EAGAIN: transient failure (len 1 or 2)
+> > + *         * -EOPNOTSUPP: read-only memslot (should never occur)
+> > + */
+> > +int cmpxchg_guest_abs_with_key(struct kvm *kvm, gpa_t gpa, int len,
+> > +			       __uint128_t *old_addr, __uint128_t new,
+> > +			       u8 access_key, bool *success)
+> > +{
+> > +	gfn_t gfn =3D gpa >> PAGE_SHIFT;
+>=20
+>   gpa_to_gfn()?
 
-> Migration mode is a VM attribute which enables tracking of changes in
-> storage attributes (PGSTE). It assumes dirty tracking is enabled on all
-> memslots to keep a dirty bitmap of pages with changed storage attributes.
-> 
-> When enabling migration mode, we currently check that dirty tracking is
-> enabled for all memslots. However, userspace can disable dirty tracking
-> without disabling migration mode.
-> 
-> Since migration mode is pointless with dirty tracking disabled, disable
-> migration mode whenever userspace disables dirty tracking on any slot.
-> 
-> Also update the documentation to clarify that dirty tracking must be
-> enabled when enabling migration mode, which is already enforced by the
-> code in kvm_s390_vm_start_migration().
-> 
-> Also highlight in the documentation for KVM_S390_GET_CMMA_BITS that it
-> can now fail with -EINVAL when dirty tracking is disabled while
-> migration mode is on. Move all the error codes to a table to this stays
-> readable.
-> 
-> To disable migration mode, slots_lock should be held, which is taken
-> in kvm_set_memory_region() and thus held in
-> kvm_arch_prepare_memory_region().
-> 
-> Restructure the prepare code a bit so all the sanity checking is done
-> before disabling migration mode. This ensures migration mode isn't
-> disabled when some sanity check fails.
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: 190df4a212a7 ("KVM: s390: CMMA tracking, ESSA emulation, migration mode")
-> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+Yes.
+>=20
+> > +	struct kvm_memory_slot *slot =3D gfn_to_memslot(kvm, gfn);
+> > +	bool writable;
+> > +	hva_t hva;
+> > +	int ret;
+> > +
+> > +	if (!IS_ALIGNED(gpa, len))
+> > +		return -EINVAL;
+> > +
+> > +	hva =3D gfn_to_hva_memslot_prot(slot, gfn, &writable);
+> > +	if (kvm_is_error_hva(hva))
+> > +		return PGM_ADDRESSING;
+> > +	/*
+> > +	 * Check if it's a read-only memslot, even though that cannot occur
+> > +	 * since those are unsupported.
+> > +	 * Don't try to actually handle that case.
+> > +	 */
+> > +	if (!writable)
+> > +		return -EOPNOTSUPP;
+> > +
+> > +	hva +=3D offset_in_page(gpa);
+>=20
+> Hmm if we don't use a macro to generate these then I'd add an explanation=
+:
+>=20
+> cmpxchg_user_key() is a macro that is dependent on the type of "old" so=
+=20
+> there's no deduplication possible without further macros.
 
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Can do.
+Btw. I could move the other two statements out of the switch by using a uni=
+on of old values,
+memcmp and memcpy, but I think that would be less readable.
 
-> ---
->  Documentation/virt/kvm/api.rst        | 16 ++++++----
->  Documentation/virt/kvm/devices/vm.rst |  4 +++
->  arch/s390/kvm/kvm-s390.c              | 43 +++++++++++++++++++--------
->  3 files changed, 45 insertions(+), 18 deletions(-)
-> 
-> diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
-> index 9807b05a1b57..2978acfcafc4 100644
-> --- a/Documentation/virt/kvm/api.rst
-> +++ b/Documentation/virt/kvm/api.rst
-> @@ -4537,11 +4537,17 @@ mask is unused.
->  
->  values points to the userspace buffer where the result will be stored.
->  
-> -This ioctl can fail with -ENOMEM if not enough memory can be allocated to
-> -complete the task, with -ENXIO if CMMA is not enabled, with -EINVAL if
-> -KVM_S390_CMMA_PEEK is not set but migration mode was not enabled, with
-> --EFAULT if the userspace address is invalid or if no page table is
-> -present for the addresses (e.g. when using hugepages).
-> +Errors:
-> +
-> +  ======     =============================================================
-> +  ENOMEM     not enough memory can be allocated to complete the task
-> +  ENXIO      if CMMA is not enabled
-> +  EINVAL     if KVM_S390_CMMA_PEEK is not set but migration mode was not enabled
-> +  EINVAL     if KVM_S390_CMMA_PEEK is not set but dirty tracking has been
-> +             disabled (and thus migration mode was automatically disabled)
-> +  EFAULT     if the userspace address is invalid or if no page table is
-> +             present for the addresses (e.g. when using hugepages).
-> +  ======     =============================================================
->  
->  4.108 KVM_S390_SET_CMMA_BITS
->  ----------------------------
-> diff --git a/Documentation/virt/kvm/devices/vm.rst b/Documentation/virt/kvm/devices/vm.rst
-> index 60acc39e0e93..147efec626e5 100644
-> --- a/Documentation/virt/kvm/devices/vm.rst
-> +++ b/Documentation/virt/kvm/devices/vm.rst
-> @@ -302,6 +302,10 @@ Allows userspace to start migration mode, needed for PGSTE migration.
->  Setting this attribute when migration mode is already active will have
->  no effects.
->  
-> +Dirty tracking must be enabled on all memslots, else -EINVAL is returned. When
-> +dirty tracking is disabled on any memslot, migration mode is automatically
-> +stopped.
-> +
->  :Parameters: none
->  :Returns:   -ENOMEM if there is not enough free memory to start migration mode;
->  	    -EINVAL if the state of the VM is invalid (e.g. no memory defined);
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index e4890e04b210..cb72f9a09fb3 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -5633,23 +5633,40 @@ int kvm_arch_prepare_memory_region(struct kvm *kvm,
->  	if (kvm_s390_pv_get_handle(kvm))
->  		return -EINVAL;
->  
-> -	if (change == KVM_MR_DELETE || change == KVM_MR_FLAGS_ONLY)
-> -		return 0;
-> +	if (change != KVM_MR_DELETE && change != KVM_MR_FLAGS_ONLY) {
-> +		/*
-> +		 * A few sanity checks. We can have memory slots which have to be
-> +		 * located/ended at a segment boundary (1MB). The memory in userland is
-> +		 * ok to be fragmented into various different vmas. It is okay to mmap()
-> +		 * and munmap() stuff in this slot after doing this call at any time
-> +		 */
->  
-> -	/* A few sanity checks. We can have memory slots which have to be
-> -	   located/ended at a segment boundary (1MB). The memory in userland is
-> -	   ok to be fragmented into various different vmas. It is okay to mmap()
-> -	   and munmap() stuff in this slot after doing this call at any time */
-> +		if (new->userspace_addr & 0xffffful)
-> +			return -EINVAL;
->  
-> -	if (new->userspace_addr & 0xffffful)
-> -		return -EINVAL;
-> +		size = new->npages * PAGE_SIZE;
-> +		if (size & 0xffffful)
-> +			return -EINVAL;
->  
-> -	size = new->npages * PAGE_SIZE;
-> -	if (size & 0xffffful)
-> -		return -EINVAL;
-> +		if ((new->base_gfn * PAGE_SIZE) + size > kvm->arch.mem_limit)
-> +			return -EINVAL;
-> +	}
->  
-> -	if ((new->base_gfn * PAGE_SIZE) + size > kvm->arch.mem_limit)
-> -		return -EINVAL;
-> +	if (!kvm->arch.migration_mode)
-> +		return 0;
-> +
-> +	/*
-> +	 * Turn off migration mode when:
-> +	 * - userspace creates a new memslot with dirty logging off,
-> +	 * - userspace modifies an existing memslot (MOVE or FLAGS_ONLY) and
-> +	 *   dirty logging is turned off.
-> +	 * Migration mode expects dirty page logging being enabled to store
-> +	 * its dirty bitmap.
-> +	 */
-> +	if (change != KVM_MR_DELETE &&
-> +	    !(new->flags & KVM_MEM_LOG_DIRTY_PAGES))
-> +		WARN(kvm_s390_vm_stop_migration(kvm),
-> +		     "Failed to stop migration mode");
->  
->  	return 0;
->  }
+>=20
+> > +	switch (len) {
+> > +	case 1: {
+> > +		u8 old;
+> > +
+> > +		ret =3D cmpxchg_user_key((u8 *)hva, &old, *old_addr, new, access_key=
+);
+> > +		*success =3D !ret && old =3D=3D *old_addr;
+> > +		*old_addr =3D old;
+> > +		break;
+> > +	}
+> > +	case 2: {
+> > +		u16 old;
+> > +
+> > +		ret =3D cmpxchg_user_key((u16 *)hva, &old, *old_addr, new, access_ke=
+y);
+> > +		*success =3D !ret && old =3D=3D *old_addr;
+> > +		*old_addr =3D old;
+> > +		break;
+> > +	}
+> > +	case 4: {
+> > +		u32 old;
+> > +
+> > +		ret =3D cmpxchg_user_key((u32 *)hva, &old, *old_addr, new, access_ke=
+y);
+> > +		*success =3D !ret && old =3D=3D *old_addr;
+> > +		*old_addr =3D old;
+> > +		break;
+> > +	}
+> > +	case 8: {
+> > +		u64 old;
+> > +
+> > +		ret =3D cmpxchg_user_key((u64 *)hva, &old, *old_addr, new, access_ke=
+y);
+> > +		*success =3D !ret && old =3D=3D *old_addr;
+> > +		*old_addr =3D old;
+> > +		break;
+> > +	}
+> > +	case 16: {
+> > +		__uint128_t old;
+> > +
+> > +		ret =3D cmpxchg_user_key((__uint128_t *)hva, &old, *old_addr, new, a=
+ccess_key);
+> > +		*success =3D !ret && old =3D=3D *old_addr;
+> > +		*old_addr =3D old;
+> > +		break;
+> > +	}
+> > +	default:
+> > +		return -EINVAL;
+> > +	}
+> > +	mark_page_dirty_in_slot(kvm, slot, gfn);
+>=20
+> Is that needed if we failed the store?
+
+Indeed it isn't.
+
+[...]
 
