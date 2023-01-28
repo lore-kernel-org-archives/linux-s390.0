@@ -2,123 +2,225 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A6C69C54EAA
-	for <linux-s390@archiver.kernel.org>; Fri, 27 Jan 2023 23:19:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D1E7C38142
+	for <linux-s390@archiver.kernel.org>; Sat, 28 Jan 2023 09:30:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232935AbjA0XTk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 27 Jan 2023 18:19:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35242 "EHLO
+        id S233861AbjA1Jad (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 28 Jan 2023 04:30:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232915AbjA0XTj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 27 Jan 2023 18:19:39 -0500
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DEA47BBFF
-        for <linux-s390@vger.kernel.org>; Fri, 27 Jan 2023 15:19:38 -0800 (PST)
-Received: by mail-pj1-x102c.google.com with SMTP id b24-20020a17090a551800b0022beefa7a23so10097205pji.5
-        for <linux-s390@vger.kernel.org>; Fri, 27 Jan 2023 15:19:38 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=8CUiuR0W5E+PBhliE9B5Xpc1hgvQcn7IvZXYHXz1Ztk=;
-        b=paJf4L9cWbEi06hvXF3W+dvDzKcJfx5lCtIJZryT2W6x9jn8QFdqdeSxBXueWWBz4l
-         rmERWAhF8Jm6eVjAbcEKqXWk92TaZ81krplTYlrMd/cx7BLYELfqbb5CODOLpDvn3Wml
-         kRDg2FG0oQukaBrpadAmUfS7JdX6dtNX5Yhxfrmh9fF25lANpaUbh+OUe4mJnDmapjXX
-         gkAdUczu4u3q5myPePEFbhYsOrjzSYhCHKeHI7PmJlrIZYidHb64mfDumPwdlk9pOjoP
-         gInzuu73k1EMmj9geC+hKbAVQjTYtmE/jHVcj9mm7ngPUJ7ymq4p0azycwmTjONcP99X
-         kwzg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=8CUiuR0W5E+PBhliE9B5Xpc1hgvQcn7IvZXYHXz1Ztk=;
-        b=KaiLiMEr3dz9pFC9zFz+XH+WewWi1sH8BrDnU7WHfFDSJZyhD7NiPHRMEq43wAaWpJ
-         YwxRP6B41w3wS/Ct/YIT51QNO3lgnEyIw6l+z0TDmDuuxTthvsqeU/Jf77yX/PbvfnBd
-         5aKtftDTHYNlETX3n+e/z9fm4udeSK05eled0TVI0RIOarcMK2wrvZZnnvmz5Svt9PzG
-         8+RojWkl/kkbUzqe6BoK1gz5vcKnNyEgoFZt/Bntrhw/2KuJAPg6pdHKfolbSMNr/u4x
-         pCgg/bXXVr5VsL4eWysAlbQ5A+t0fMNFnR4PoVyYA66xsR6lwKxxH7sIzs/WQ4OHmjmu
-         /0FQ==
-X-Gm-Message-State: AO0yUKUklopxXX5r0+fgzPUV+fOD51Vk61TGq6eKG7/VIgy03cMljxsx
-        ar6/8yM8yPYjOfGjHZC3dmx3xtUN3kP4MlT0yRc5oA==
-X-Google-Smtp-Source: AK7set86nD7AHLHjFHADNw68YHO3+pTEXmPYEX73qRUo91NxvyvumPLImtBCeS4GMfu57Ja5MOsxUjtYU3znLSUgghw=
-X-Received: by 2002:a17:90a:2ec7:b0:22c:419a:f4cd with SMTP id
- h7-20020a17090a2ec700b0022c419af4cdmr750919pjs.74.1674861577303; Fri, 27 Jan
- 2023 15:19:37 -0800 (PST)
+        with ESMTP id S231234AbjA1Jac (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 28 Jan 2023 04:30:32 -0500
+Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BB4012F13;
+        Sat, 28 Jan 2023 01:30:31 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1674898231; x=1706434231;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=U72XuZly3Iu4fc1HHUfpwce/DIyiZRJ7N299SwsNygI=;
+  b=JnM5vfpKj2pcNAU9Q0H/2tYjtbQ5lq7+D2yj+gy75jXwkis8MNBbni8n
+   23O7OdRSudgYeukvWe77p/9pUs2yj8vT/MZiPAsZXL48f3tUwKf9pFjxr
+   QAG02lRzV8G1SZ36p25WDP5nRxA1wq6IakojALbMJqjODjaWBWCJWoXQg
+   IOMLvITfngcbAO7BXN9W+ayz9DbZDr2iNNTpzUyrqzwXPy5viRmV4gVOT
+   S1npw3x1vy0xjmkbVcjhqN4eqxBljMBeW5ZP6Pwm/+I0q5J8TBDRvQy2j
+   ZCdpijWVOUQDXaZB/zgQesKhMRknEZJsjzaxJ7Wpp7jv/6mEw570eTDje
+   Q==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10603"; a="329405279"
+X-IronPort-AV: E=Sophos;i="5.97,253,1669104000"; 
+   d="scan'208";a="329405279"
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jan 2023 01:30:30 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10603"; a="665530690"
+X-IronPort-AV: E=Sophos;i="5.97,253,1669104000"; 
+   d="scan'208";a="665530690"
+Received: from lkp-server01.sh.intel.com (HELO ffa7f14d1d0f) ([10.239.97.150])
+  by fmsmga007.fm.intel.com with ESMTP; 28 Jan 2023 01:30:25 -0800
+Received: from kbuild by ffa7f14d1d0f with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1pLhXU-0000Yf-2R;
+        Sat, 28 Jan 2023 09:30:24 +0000
+Date:   Sat, 28 Jan 2023 17:29:32 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Cc:     oe-kbuild-all@lists.linux.dev,
+        Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sven Schnelle <svens@linux.ibm.com>
+Subject: Re: [PATCH v6 12/14] KVM: s390: Extend MEM_OP ioctl by storage key
+ checked cmpxchg
+Message-ID: <202301281752.6gSopuWh-lkp@intel.com>
+References: <20230125212608.1860251-13-scgl@linux.ibm.com>
 MIME-Version: 1.0
-References: <20221221235147.45lkqmosndritfpe@google.com> <mhng-17d41c33-7f33-4a1c-8af2-ae7d07134e8c@palmer-ri-x1c9>
-In-Reply-To: <mhng-17d41c33-7f33-4a1c-8af2-ae7d07134e8c@palmer-ri-x1c9>
-From:   Fangrui Song <maskray@google.com>
-Date:   Fri, 27 Jan 2023 18:19:25 -0500
-Message-ID: <CAFP8O3J1Pn+_BMKXtxB+avtYyZ+bBKffHfNOXoJPMD5QHv5obQ@mail.gmail.com>
-Subject: Re: [PATCH v2] vdso: Improve cmd_vdso_check to check all dynamic relocations
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     christophe.leroy@csgroup.eu, Palmer Dabbelt <palmer@dabbelt.com>,
-        luto@kernel.org, tglx@linutronix.de, vincenzo.frascino@arm.com,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-csky@vger.kernel.org, linux-mips@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-riscv@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230125212608.1860251-13-scgl@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Dec 29, 2022 at 11:22 AM Palmer Dabbelt <palmer@dabbelt.com> wrote:
->
-> On Wed, 21 Dec 2022 15:51:47 PST (-0800), maskray@google.com wrote:
-> > The actual intention is that no dynamic relocation exists. However, some
-> > GNU ld ports produce unneeded R_*_NONE. (If a port fails to determine
-> > the exact .rel[a].dyn size, the trailing zeros become R_*_NONE
-> > relocations. E.g. ld's powerpc port recently fixed
-> > https://sourceware.org/bugzilla/show_bug.cgi?id=29540) R_*_NONE are
-> > generally no-op in the dynamic loaders. So just ignore them.
-> >
-> > With the change, we can remove ARCH_REL_TYPE_ABS. ARCH_REL_TYPE_ABS is a
-> > bit misnomer as ports may check RELAVETIVE/GLOB_DAT/JUMP_SLOT which are
-> > not called "absolute relocations". (The patch is motivated by the arm64
-> > port missing R_AARCH64_RELATIVE.)
-> >
-> > Signed-off-by: Fangrui Song <maskray@google.com>
-> > Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-> > ---
-> > Change from v1:
-> > * rebase after 8ac3b5cd3e0521d92f9755e90d140382fc292510 (lib/vdso: use "grep -E" instead of "egrep")
-> > * change the commit message to mention an example GNU ld bug; no longer say the patch fixes a deprecated egrep use
-> > ---
-> >   arch/arm/vdso/Makefile            |  3 ---
-> >   arch/arm64/kernel/vdso/Makefile   |  3 ---
-> >   arch/arm64/kernel/vdso32/Makefile |  3 ---
-> >   arch/csky/kernel/vdso/Makefile    |  3 ---
-> >   arch/loongarch/vdso/Makefile      |  3 ---
-> >   arch/mips/vdso/Makefile           |  3 ---
-> >   arch/powerpc/kernel/vdso/Makefile |  1 -
-> >   arch/riscv/kernel/vdso/Makefile   |  3 ---
-> >   arch/s390/kernel/vdso32/Makefile  |  2 --
-> >   arch/s390/kernel/vdso64/Makefile  |  2 --
-> >   arch/x86/entry/vdso/Makefile      |  4 ----
-> >   lib/vdso/Makefile                 | 13 ++++---------
-> >   12 files changed, 4 insertions(+), 39 deletions(-)
->
-> [snip]
->
-> > diff --git a/arch/riscv/kernel/vdso/Makefile b/arch/riscv/kernel/vdso/Makefile
-> > index 06e6b27f3bcc..d85c37e11b21 100644
-> > --- a/arch/riscv/kernel/vdso/Makefile
-> > +++ b/arch/riscv/kernel/vdso/Makefile
-> > @@ -1,9 +1,6 @@
-> >   # SPDX-License-Identifier: GPL-2.0-only
-> >   # Copied from arch/tile/kernel/vdso/Makefile
-> >
-> > -# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
-> > -# the inclusion of generic Makefile.
-> > -ARCH_REL_TYPE_ABS := R_RISCV_32|R_RISCV_64|R_RISCV_JUMP_SLOT
-> >   include $(srctree)/lib/vdso/Makefile
-> >   # Symbols present in the vdso
-> >   vdso-syms  = rt_sigreturn
->
-> Acked-by: Palmer Dabbelt <palmer@rivosinc.com> # RISC-V
->
-> Thanks!
+Hi Janis,
 
-Looks like this patch hasn't been picked yet...
+Thank you for the patch! Yet something to improve:
+
+[auto build test ERROR on kvm/queue]
+[also build test ERROR on lwn/docs-next linus/master]
+[cannot apply to kvms390/next kvm/linux-next]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Janis-Schoetterl-Glausch/KVM-s390-selftest-memop-Pass-mop_desc-via-pointer/20230128-132603
+base:   https://git.kernel.org/pub/scm/virt/kvm/kvm.git queue
+patch link:    https://lore.kernel.org/r/20230125212608.1860251-13-scgl%40linux.ibm.com
+patch subject: [PATCH v6 12/14] KVM: s390: Extend MEM_OP ioctl by storage key checked cmpxchg
+config: s390-allyesconfig (https://download.01.org/0day-ci/archive/20230128/202301281752.6gSopuWh-lkp@intel.com/config)
+compiler: s390-linux-gcc (GCC) 12.1.0
+reproduce (this is a W=1 build):
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        # https://github.com/intel-lab-lkp/linux/commit/6e6b3d99b9978a70b148b989d46b039feda3a3c3
+        git remote add linux-review https://github.com/intel-lab-lkp/linux
+        git fetch --no-tags linux-review Janis-Schoetterl-Glausch/KVM-s390-selftest-memop-Pass-mop_desc-via-pointer/20230128-132603
+        git checkout 6e6b3d99b9978a70b148b989d46b039feda3a3c3
+        # save the config file
+        mkdir build_dir && cp config build_dir/.config
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=s390 olddefconfig
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=s390 SHELL=/bin/bash
+
+If you fix the issue, kindly add following tag where applicable
+| Reported-by: kernel test robot <lkp@intel.com>
+
+All errors (new ones prefixed by >>):
+
+   arch/s390/kvm/gaccess.c: In function 'cmpxchg_guest_abs_with_key':
+>> arch/s390/kvm/gaccess.c:1217:23: error: implicit declaration of function 'cmpxchg_user_key'; did you mean 'copy_to_user_key'? [-Werror=implicit-function-declaration]
+    1217 |                 ret = cmpxchg_user_key((u8 *)hva, &old, *old_addr, new, access_key);
+         |                       ^~~~~~~~~~~~~~~~
+         |                       copy_to_user_key
+   cc1: some warnings being treated as errors
+
+
+vim +1217 arch/s390/kvm/gaccess.c
+
+  1163	
+  1164	/**
+  1165	 * cmpxchg_guest_abs_with_key() - Perform cmpxchg on guest absolute address.
+  1166	 * @kvm: Virtual machine instance.
+  1167	 * @gpa: Absolute guest address of the location to be changed.
+  1168	 * @len: Operand length of the cmpxchg, required: 1 <= len <= 16. Providing a
+  1169	 *       non power of two will result in failure.
+  1170	 * @old_addr: Pointer to old value. If the location at @gpa contains this value,
+  1171	 *            the exchange will succeed. After calling cmpxchg_guest_abs_with_key()
+  1172	 *            *@old_addr contains the value at @gpa before the attempt to
+  1173	 *            exchange the value.
+  1174	 * @new: The value to place at @gpa.
+  1175	 * @access_key: The access key to use for the guest access.
+  1176	 * @success: output value indicating if an exchange occurred.
+  1177	 *
+  1178	 * Atomically exchange the value at @gpa by @new, if it contains *@old.
+  1179	 * Honors storage keys.
+  1180	 *
+  1181	 * Return: * 0: successful exchange
+  1182	 *         * a program interruption code indicating the reason cmpxchg could
+  1183	 *           not be attempted
+  1184	 *         * -EINVAL: address misaligned or len not power of two
+  1185	 *         * -EAGAIN: transient failure (len 1 or 2)
+  1186	 *         * -EOPNOTSUPP: read-only memslot (should never occur)
+  1187	 */
+  1188	int cmpxchg_guest_abs_with_key(struct kvm *kvm, gpa_t gpa, int len,
+  1189				       __uint128_t *old_addr, __uint128_t new,
+  1190				       u8 access_key, bool *success)
+  1191	{
+  1192		gfn_t gfn = gpa >> PAGE_SHIFT;
+  1193		struct kvm_memory_slot *slot = gfn_to_memslot(kvm, gfn);
+  1194		bool writable;
+  1195		hva_t hva;
+  1196		int ret;
+  1197	
+  1198		if (!IS_ALIGNED(gpa, len))
+  1199			return -EINVAL;
+  1200	
+  1201		hva = gfn_to_hva_memslot_prot(slot, gfn, &writable);
+  1202		if (kvm_is_error_hva(hva))
+  1203			return PGM_ADDRESSING;
+  1204		/*
+  1205		 * Check if it's a read-only memslot, even though that cannot occur
+  1206		 * since those are unsupported.
+  1207		 * Don't try to actually handle that case.
+  1208		 */
+  1209		if (!writable)
+  1210			return -EOPNOTSUPP;
+  1211	
+  1212		hva += offset_in_page(gpa);
+  1213		switch (len) {
+  1214		case 1: {
+  1215			u8 old;
+  1216	
+> 1217			ret = cmpxchg_user_key((u8 *)hva, &old, *old_addr, new, access_key);
+  1218			*success = !ret && old == *old_addr;
+  1219			*old_addr = old;
+  1220			break;
+  1221		}
+  1222		case 2: {
+  1223			u16 old;
+  1224	
+  1225			ret = cmpxchg_user_key((u16 *)hva, &old, *old_addr, new, access_key);
+  1226			*success = !ret && old == *old_addr;
+  1227			*old_addr = old;
+  1228			break;
+  1229		}
+  1230		case 4: {
+  1231			u32 old;
+  1232	
+  1233			ret = cmpxchg_user_key((u32 *)hva, &old, *old_addr, new, access_key);
+  1234			*success = !ret && old == *old_addr;
+  1235			*old_addr = old;
+  1236			break;
+  1237		}
+  1238		case 8: {
+  1239			u64 old;
+  1240	
+  1241			ret = cmpxchg_user_key((u64 *)hva, &old, *old_addr, new, access_key);
+  1242			*success = !ret && old == *old_addr;
+  1243			*old_addr = old;
+  1244			break;
+  1245		}
+  1246		case 16: {
+  1247			__uint128_t old;
+  1248	
+  1249			ret = cmpxchg_user_key((__uint128_t *)hva, &old, *old_addr, new, access_key);
+  1250			*success = !ret && old == *old_addr;
+  1251			*old_addr = old;
+  1252			break;
+  1253		}
+  1254		default:
+  1255			return -EINVAL;
+  1256		}
+  1257		mark_page_dirty_in_slot(kvm, slot, gfn);
+  1258		/*
+  1259		 * Assume that the fault is caused by protection, either key protection
+  1260		 * or user page write protection.
+  1261		 */
+  1262		if (ret == -EFAULT)
+  1263			ret = PGM_PROTECTION;
+  1264		return ret;
+  1265	}
+  1266	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests
