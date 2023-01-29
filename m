@@ -2,71 +2,106 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C6920C61D97
-	for <linux-s390@archiver.kernel.org>; Sun, 29 Jan 2023 15:11:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 429A3C61D97
+	for <linux-s390@archiver.kernel.org>; Sun, 29 Jan 2023 22:47:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231429AbjA2PL6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 29 Jan 2023 10:11:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49978 "EHLO
+        id S235434AbjA2Wrf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 29 Jan 2023 17:47:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230101AbjA2PL5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 29 Jan 2023 10:11:57 -0500
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49950193D8;
-        Sun, 29 Jan 2023 07:11:53 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R391e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0VaKrGYW_1675005108;
-Received: from 30.236.57.229(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VaKrGYW_1675005108)
-          by smtp.aliyun-inc.com;
-          Sun, 29 Jan 2023 23:11:49 +0800
-Message-ID: <2ad147d3-b127-b192-c2a5-29fa704cf3a1@linux.alibaba.com>
-Date:   Sun, 29 Jan 2023 23:11:46 +0800
+        with ESMTP id S230206AbjA2Wre (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 29 Jan 2023 17:47:34 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BB36EC7E;
+        Sun, 29 Jan 2023 14:47:33 -0800 (PST)
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30TKt2co013055;
+        Sun, 29 Jan 2023 22:47:28 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : content-type : mime-version; s=pp1;
+ bh=pz1ywBEq/ZKmnYoUn2kuXEYh//BmHNMh4u/KXr1iiiU=;
+ b=VcM/bhdueXhhdhPVmsOGjLqdkweYpmKu1wsBwPdrTqSg3CPZKNTi72tDd1XiuBvUTXXu
+ dCma52p0SBYfBr2xvnRhn+vsUPd8uWQeJCDZ7brc7NdRjmrwM1Uki4T6nPtgoJnBesnw
+ /hETGNGbbAwQvu8U+JqtkUrranLFz3iOCVWoJCjdt78uIj+KxrZg8hkg7xXmDT5C9TuV
+ VaHbNg5/OOZkrtRzITlLDJ6RuNi/8K9EdxgIo4+4kMyVtzkgQ8WBvArZhNMDDpCmgc56
+ P1s+zRXi+QRblZHTBf1EAtqKplxvGEpPHWpVDkojS5Ik9Yox3RzmZGkNu/W06mD9sXEw zQ== 
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3nddv1804n-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sun, 29 Jan 2023 22:47:28 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30SNcJqQ028153;
+        Sun, 29 Jan 2023 22:47:26 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma01fra.de.ibm.com (PPS) with ESMTPS id 3ncvuqs3mc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sun, 29 Jan 2023 22:47:26 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30TMlMRl50921786
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sun, 29 Jan 2023 22:47:22 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D54E720040;
+        Sun, 29 Jan 2023 22:47:22 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5B8072004D;
+        Sun, 29 Jan 2023 22:47:22 +0000 (GMT)
+Received: from localhost (unknown [9.171.0.52])
+        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Sun, 29 Jan 2023 22:47:22 +0000 (GMT)
+Date:   Sun, 29 Jan 2023 23:47:20 +0100
+From:   Vasily Gorbik <gor@linux.ibm.com>
+To:     Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>
+Cc:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Nick Terrell <terrelln@fb.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org
+Subject: [PATCH 0/1] s390: fix initrd corruption in decompressor with new
+ zstd version
+Message-ID: <cover.thread-41c676.your-ad-here.call-01675030179-ext-9637@work.hours>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+X-Patchwork-Bot: notify
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: rFoTAHYwBymq2nbXk4_0G1HhpEVvYCgo
+X-Proofpoint-GUID: rFoTAHYwBymq2nbXk4_0G1HhpEVvYCgo
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.6.1
-Subject: Re: [PATCH net-next v6 1/7] net/smc: remove locks
- smc_client_lgr_pending and smc_server_lgr_pending
-From:   "D. Wythe" <alibuda@linux.alibaba.com>
-To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-References: <1669453422-38152-1-git-send-email-alibuda@linux.alibaba.com>
- <1669453422-38152-2-git-send-email-alibuda@linux.alibaba.com>
-Content-Language: en-US
-In-Reply-To: <1669453422-38152-2-git-send-email-alibuda@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
+ definitions=2023-01-29_11,2023-01-27_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 phishscore=0
+ lowpriorityscore=0 malwarescore=0 mlxlogscore=594 adultscore=0
+ clxscore=1011 priorityscore=1501 impostorscore=0 mlxscore=0 spamscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2301290224
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+The new version of zstd library integrated in the kernel since v6.2-rc1
+https://lore.kernel.org/all/20221024202606.404049-1-nickrterrell@gmail.com/
+contains commit
+https://github.com/facebook/zstd/commit/6a7ede3dfccb
+which introduces a side effect for historical usage of __decompress() function,
+i.e. not specifying "out_len" parameter and expecting that no writes beyond
+uncompressed kernel image are performed. More details are in follow up fix.
 
+From architectures which claim HAVE_KERNEL_ZSTD, s390 and MIPS use
+__decompress() without specifying "out_len". On s390 this leads to
+initrd corruption.
+https://bugs.launchpad.net/ubuntu/+source/linux/+bug/2003348
 
-On 11/26/22 5:03 PM, D.Wythe wrote:
-> From: "D. Wythe" <alibuda@linux.alibaba.com>
-> 
-> This patch attempts to remove locks named smc_client_lgr_pending and
-> smc_server_lgr_pending, which aim to serialize the creation of link
-> group. However, once link group existed already, those locks are
-> meaningless, worse still, they make incoming connections have to be
-> queued one after the other.
-> 
-> Now, the creation of link group is no longer generated by competition,
-> but allocated through following strategy.
-> 
+I haven't looked in details for MIPS but I've added Thomas as the
+maintainer and MIPS list in Cc.
 
+The follow up fix addresses that for s390.
 
-Hi, all
+Vasily Gorbik (1):
+  s390/decompressor: specify __decompress() buf len to avoid overflow
 
-I have noticed that there may be some difficulties in the advancement of this series of patches.
-I guess the main problem is to try remove the global lock in this patch, the risks of removing locks
-do harm to SMC-D, at the same time, this patch of removing locks is also a little too complex.
+ arch/s390/boot/decompressor.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-So, I am considering that we can temporarily delay the advancement of this patch. We can works on
-other patches first. Other patches are either simple enough or have no obvious impact on SMC-D.
-
-What do you think?
-
-Best wishes.
-D. Wythe
-
-
+-- 
+2.38.1
