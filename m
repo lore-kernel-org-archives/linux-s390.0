@@ -2,119 +2,87 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AD801C636CD
-	for <linux-s390@archiver.kernel.org>; Mon, 30 Jan 2023 14:03:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 26D6AC54EAA
+	for <linux-s390@archiver.kernel.org>; Mon, 30 Jan 2023 14:42:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236912AbjA3ODG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 30 Jan 2023 09:03:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42576 "EHLO
+        id S236786AbjA3OmI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 30 Jan 2023 09:42:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236915AbjA3OCy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 30 Jan 2023 09:02:54 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD57B3B0E7;
-        Mon, 30 Jan 2023 06:02:46 -0800 (PST)
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30UCWM1j007664;
-        Mon, 30 Jan 2023 14:02:46 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
- mime-version : content-transfer-encoding : in-reply-to : references : to :
- subject : cc : from : message-id : date; s=pp1;
- bh=yVh7i4PK4fHQvv7D9ESf+QBk4rtC5xmNe0nBGfUj+yE=;
- b=N6o6Ej5QyHykPiG/nOJ9Dvy7bv1GNxV4b2aGDjJeJfwpjmxCzRxa3pmdZYHprdrd7xS+
- bq4aXL/2OeWfsi0C4MXjf/TaLwWa7rN1bfSEubWNXiBe2CxnTHZxXM4vK8iX6MmMRFgE
- H58HIwpjUR9ALx52kzCuFl+vNN9DxHB8euwNPDLb9HEN42K9n2Joh1Ooi4Jf54dg0jdH
- yQ8bL1me70Cr4g80SC/7EUUNIHVhIc9aoiorNInbVxDKF91NrKb8rCIf9olOsjMQnHuw
- EpDrzYTnrJ7QRR5tjxijn/TVVoOMD0IXnk3TY48KnsMt4JYx5qGRQ2Sb2Mcj6+vXOyHm fw== 
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nedyut65v-1
+        with ESMTP id S230416AbjA3OmG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 30 Jan 2023 09:42:06 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA2C91CAD7;
+        Mon, 30 Jan 2023 06:42:01 -0800 (PST)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30UDq7a8020611;
+        Mon, 30 Jan 2023 14:41:58 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : cc :
+ subject : in-reply-to : in-reply-to : date : message-id : mime-version :
+ content-type; s=pp1; bh=ERu5pi4CSQQZRqkLlHDNtcPDWXqI3pr9EixQuwHCvMc=;
+ b=Fi0BTcH9yYnk6I84BszmSMx+hCZl3BN4120WKIVXGDsi1MhNQbEiUGkWszLBJ1WBXgMF
+ CsBVJ5fC8b/1r8zYLaReF58KDbjCfLbajxviclHnlltbf1l8GiUwarmAw8C5EzYTQRsJ
+ ivb4S2umLcGym2VZxG3q0onGGeWHH76CKztHOL5MmebhJ2q7YB8C9z0ljKjTlEEGoWPn
+ z7hmz+Tbl68bCJTuAKkBhe1pD1QCsUIqBin8YyMJoOkgTYn5wBVvBNCYD4WrAkNx/8QR
+ +RMgeC0D5PQ8hTQxWG6cwP75D56W+jWf8TxYGgJQDSIJPq5pPNRLqhW0HscuhXHwJfD/ mw== 
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3nef5h1an8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 30 Jan 2023 14:02:45 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30TDgQiN001561;
-        Mon, 30 Jan 2023 14:02:43 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma02fra.de.ibm.com (PPS) with ESMTPS id 3ncvv69nk4-1
+        Mon, 30 Jan 2023 14:41:57 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30U55SqN026906;
+        Mon, 30 Jan 2023 14:41:56 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3ncvs7jbxm-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 30 Jan 2023 14:02:43 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30UE2dFX42926544
+        Mon, 30 Jan 2023 14:41:55 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30UEflg543581838
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 30 Jan 2023 14:02:39 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 72AF12004E;
-        Mon, 30 Jan 2023 14:02:39 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3D4DB2004D;
-        Mon, 30 Jan 2023 14:02:39 +0000 (GMT)
-Received: from t14-nrb (unknown [9.171.92.217])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon, 30 Jan 2023 14:02:39 +0000 (GMT)
-Content-Type: text/plain; charset="utf-8"
+        Mon, 30 Jan 2023 14:41:47 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AA5AE20043;
+        Mon, 30 Jan 2023 14:41:47 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 873E020040;
+        Mon, 30 Jan 2023 14:41:47 +0000 (GMT)
+Received: from localhost (unknown [9.171.84.174])
+        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Mon, 30 Jan 2023 14:41:47 +0000 (GMT)
+From:   Alexander Egorenkov <egorenar@linux.ibm.com>
+To:     gor@linux.ibm.com
+Cc:     egorenar@linux.ibm.com, hca@linux.ibm.com,
+        linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
+        linux-s390@vger.kernel.org, terrelln@fb.com,
+        tsbogend@alpha.franken.de
+Subject: Re: [PATCH 1/1] s390/decompressor: specify __decompress() buf len
+ to avoid overflow
+In-Reply-To: <patch-1.thread-41c676.git-41c676c2d153.your-ad-here.call-01675030179-ext-9637@work.hours>
+In-Reply-To: 
+Date:   Mon, 30 Jan 2023 15:41:47 +0100
+Message-ID: <875yco6q50.fsf@oc8242746057.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <6e37979d-45f2-0714-d1ab-673f64cdd872@linux.ibm.com>
-References: <20230127140532.230651-1-nrb@linux.ibm.com> <20230127140532.230651-2-nrb@linux.ibm.com> <6e37979d-45f2-0714-d1ab-673f64cdd872@linux.ibm.com>
-To:     Janosch Frank <frankja@linux.ibm.com>, borntraeger@linux.ibm.com,
-        imbrenda@linux.ibm.com
-Subject: Re: [PATCH v4 1/1] KVM: s390: disable migration mode when dirty tracking is disabled
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-From:   Nico Boehr <nrb@linux.ibm.com>
-Message-ID: <167508735843.11453.11149771785732701137@t14-nrb.local>
-User-Agent: alot/0.8.1
-Date:   Mon, 30 Jan 2023 15:02:38 +0100
+Content-Type: text/plain
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: rTCKJe8idpzqs7EucLVd20ry4ThFsdqX
-X-Proofpoint-ORIG-GUID: rTCKJe8idpzqs7EucLVd20ry4ThFsdqX
+X-Proofpoint-ORIG-GUID: bnjgtFnHs_w3Qq4-qGTcGdwXXlxp6nhb
+X-Proofpoint-GUID: bnjgtFnHs_w3Qq4-qGTcGdwXXlxp6nhb
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
- definitions=2023-01-30_12,2023-01-30_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0
- lowpriorityscore=0 bulkscore=0 mlxscore=0 spamscore=0 impostorscore=0
- priorityscore=1501 phishscore=0 mlxlogscore=785 malwarescore=0
- clxscore=1015 suspectscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2212070000 definitions=main-2301300131
+ definitions=2023-01-30_13,2023-01-30_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 adultscore=0
+ mlxlogscore=561 priorityscore=1501 suspectscore=0 bulkscore=0
+ impostorscore=0 mlxscore=0 spamscore=0 phishscore=0 lowpriorityscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2301300141
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Quoting Janosch Frank (2023-01-30 10:53:23)
-[...]
-> > diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/ap=
-i.rst
-> > index 9807b05a1b57..2978acfcafc4 100644
-> > --- a/Documentation/virt/kvm/api.rst
-> > +++ b/Documentation/virt/kvm/api.rst
-> > @@ -4537,11 +4537,17 @@ mask is unused.
-> >  =20
-> >   values points to the userspace buffer where the result will be stored.
-> >  =20
-> > -This ioctl can fail with -ENOMEM if not enough memory can be allocated=
- to
-> > -complete the task, with -ENXIO if CMMA is not enabled, with -EINVAL if
-> > -KVM_S390_CMMA_PEEK is not set but migration mode was not enabled, with
-> > --EFAULT if the userspace address is invalid or if no page table is
-> > -present for the addresses (e.g. when using hugepages).
-> > +Errors:
-> > +
-> > +  =3D=3D=3D=3D=3D=3D     =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> > +  ENOMEM     not enough memory can be allocated to complete the task
-> > +  ENXIO      if CMMA is not enabled
-> > +  EINVAL     if KVM_S390_CMMA_PEEK is not set but migration mode was n=
-ot enabled
-> > +  EINVAL     if KVM_S390_CMMA_PEEK is not set but dirty tracking has b=
-een
-> > +             disabled (and thus migration mode was automatically disab=
-led)
-> > +  EFAULT     if the userspace address is invalid or if no page table is
-> > +             present for the addresses (e.g. when using hugepages).
-> > +  =3D=3D=3D=3D=3D=3D     =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
->=20
-> May I move this to the top?
+Hi Vasily,
 
-Sure, please go ahead.
->=20
+thanks for the fix, tested on s390 + KVM + buildroot + linux-next.
+
+Tested-by: Alexander Egorenkov <egorenar@linux.ibm.com>
+
+Regards
+Alex
