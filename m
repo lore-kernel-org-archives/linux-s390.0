@@ -2,117 +2,95 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2DB7FC05027
-	for <linux-s390@archiver.kernel.org>; Thu,  2 Feb 2023 20:23:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6680DC05027
+	for <linux-s390@archiver.kernel.org>; Thu,  2 Feb 2023 21:01:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230418AbjBBUXU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 2 Feb 2023 15:23:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58848 "EHLO
+        id S233096AbjBBVBn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 2 Feb 2023 16:01:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232353AbjBBUXS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Feb 2023 15:23:18 -0500
-Received: from mail.zytor.com (unknown [IPv6:2607:7c80:54:3::138])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02CB96B34E;
-        Thu,  2 Feb 2023 12:23:17 -0800 (PST)
-Received: from [127.0.0.1] ([73.223.250.219])
-        (authenticated bits=0)
-        by mail.zytor.com (8.17.1/8.17.1) with ESMTPSA id 312KLhl02116280
-        (version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
-        Thu, 2 Feb 2023 12:21:43 -0800
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 312KLhl02116280
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-        s=2023010601; t=1675369310;
-        bh=dXToUAE7pJaQg5q02/GLa3Mz5KxM6AhfOCiviB9LkQ0=;
-        h=Date:From:To:CC:Subject:In-Reply-To:References:From;
-        b=UFfeQLpd1CqaHNn2oWCKbjD/Ifu3loYs//M/YBH4IzNZ5zM+uQu+ca+o7wZeN5w3F
-         DsbUdz66y666X/uc3jG3vgwkg5rRf6GtVkLag+fJE2MvpK5A0UNEmO1M3fnQXeE1Lo
-         Fnl4Ppvdj9DkLLQ/AJYxM7e3cAS5zRrO/+4y12Pny3EZtxFITNqL4C9j1UlDEGI9HH
-         V7hreJiSU/iR392Npg1nWQoPfZXJyKUx9354wvJDSamVNEibIAyoENMY/UFznsWzLs
-         NKi29eZOby3JTQ76f7S8MgceIaH2aMGDaJX/L7Onx4h96zynB+LoMD69Q9XjMUGe2n
-         iFW315XTSuLfQ==
-Date:   Thu, 02 Feb 2023 12:21:41 -0800
-From:   "H. Peter Anvin" <hpa@zytor.com>
-To:     Peter Zijlstra <peterz@infradead.org>,
-        torvalds@linux-foundation.org
-CC:     corbet@lwn.net, will@kernel.org, peterz@infradead.org,
-        boqun.feng@gmail.com, mark.rutland@arm.com,
-        catalin.marinas@arm.com, dennis@kernel.org, tj@kernel.org,
-        cl@linux.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
-        joro@8bytes.org, suravee.suthikulpanit@amd.com,
-        robin.murphy@arm.com, dwmw2@infradead.org,
-        baolu.lu@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
-        Herbert Xu <herbert@gondor.apana.org.au>, davem@davemloft.net,
-        penberg@kernel.org, rientjes@google.com, iamjoonsoo.kim@lge.com,
-        Andrew Morton <akpm@linux-foundation.org>, vbabka@suse.cz,
-        roman.gushchin@linux.dev, 42.hyeyoo@gmail.com,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, linux-s390@vger.kernel.org,
-        iommu@lists.linux.dev, linux-arch@vger.kernel.org,
-        linux-crypto@vger.kernel.org
-Subject: Re: [PATCH v2 01/10] cyrpto/b128ops: Remove struct u128
-User-Agent: K-9 Mail for Android
-In-Reply-To: <20230202152655.250913242@infradead.org>
-References: <20230202145030.223740842@infradead.org> <20230202152655.250913242@infradead.org>
-Message-ID: <6B45ADCF-4E3C-4D01-92AB-87BFF6BEE744@zytor.com>
+        with ESMTP id S233081AbjBBVBm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Feb 2023 16:01:42 -0500
+Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1400A834B0
+        for <linux-s390@vger.kernel.org>; Thu,  2 Feb 2023 13:01:41 -0800 (PST)
+Received: by mail-ej1-x632.google.com with SMTP id hx15so9631744ejc.11
+        for <linux-s390@vger.kernel.org>; Thu, 02 Feb 2023 13:01:41 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=oTODos+JhjSsHMBz5WWde+ZXEzF0nlSS0ENQxh5rzZM=;
+        b=Wkc5GlD/FMKs5jzKPItNIB48d18Vt5fgOxWvYT6sO6WbX7UR5gcq8Temv+KOltBFcU
+         UFd5KeCB2LK0vUvPqnpH+j6bfqKyOR/J9PnFMbgMpZgEM71rYA19/8B8pVNDAYa84JYo
+         YyRF5TNqz/s/9lOOewI7FVv/Om4/CNsFznsBE=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=oTODos+JhjSsHMBz5WWde+ZXEzF0nlSS0ENQxh5rzZM=;
+        b=jAuEZ3TyYUXMRKxuV/IySBNgbDCQznp7pjbyi4igkWabDYRVnMEtaHniCzXGNso/vZ
+         WsjR4G/Zmg3DNntGFLXxN38jaed0Xvttyx1+qExrYWB8oJTOs5P0Siln4BAfvY6UcjZ+
+         4og8Cnfi5k+15B1fUeBlxbPsAGhJf+KXRTy4CgrBvSRHgRVw4w2D4dvG2VjE04xXT5HA
+         v6Eu+udKVIYvwWmtq9eGcnn8sXol751JEpp7QhIqyW+h/iWe5z3pDcqKXtf+XNFiMQJo
+         0dD4ClExX/7BHZO2hEh1+IN3do+w1umvewiD9TrDprlhoJ9EbPjtWfsUW3upbkmUbOSt
+         i/xw==
+X-Gm-Message-State: AO0yUKUB4WDWQR+np9oSN7gYP+vVn1qzbreQw7pim8XwbwwYaZNyQBuV
+        nJJZ0z42lna+UL/UPLDkZEPNF4vBvWYcFHjizR/S1Q==
+X-Google-Smtp-Source: AK7set82EGVr/hCEOa/FYiJiIJhPN/37sAkrejr38wPcvv0zLsngiA7Tdxci7m/rsra+FgWbd3/kbg==
+X-Received: by 2002:a17:907:8d16:b0:878:955e:b4a4 with SMTP id tc22-20020a1709078d1600b00878955eb4a4mr8553088ejc.33.1675371699232;
+        Thu, 02 Feb 2023 13:01:39 -0800 (PST)
+Received: from mail-ej1-f42.google.com (mail-ej1-f42.google.com. [209.85.218.42])
+        by smtp.gmail.com with ESMTPSA id lx21-20020a170906af1500b0084f7d38713esm303349ejb.108.2023.02.02.13.01.38
+        for <linux-s390@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 02 Feb 2023 13:01:38 -0800 (PST)
+Received: by mail-ej1-f42.google.com with SMTP id p26so9606517ejx.13
+        for <linux-s390@vger.kernel.org>; Thu, 02 Feb 2023 13:01:38 -0800 (PST)
+X-Received: by 2002:a17:906:892:b0:87a:7098:ca09 with SMTP id
+ n18-20020a170906089200b0087a7098ca09mr2044808eje.78.1675371698233; Thu, 02
+ Feb 2023 13:01:38 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+References: <Y9wYTnwXVwg/3Dv3@osiris>
+In-Reply-To: <Y9wYTnwXVwg/3Dv3@osiris>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Thu, 2 Feb 2023 13:01:21 -0800
+X-Gmail-Original-Message-ID: <CAHk-=wg3u9fG-Oy_NV+w2H7pFUWmfyX5JXHGvxynxA9b1sNZGw@mail.gmail.com>
+Message-ID: <CAHk-=wg3u9fG-Oy_NV+w2H7pFUWmfyX5JXHGvxynxA9b1sNZGw@mail.gmail.com>
+Subject: Re: [GIT PULL] s390 fixes for 6.2-rc7
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On February 2, 2023 6:50:31 AM PST, Peter Zijlstra <peterz@infradead=2Eorg>=
- wrote:
->Per git-grep u128_xor() and its related struct u128 are unused except
->to implement {be,le}128_xor()=2E Remove them to free up the namespace=2E
+On Thu, Feb 2, 2023 at 12:08 PM Heiko Carstens <hca@linux.ibm.com> wrote:
 >
->Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead=2Eorg>
->---
-> include/crypto/b128ops=2Eh |   14 +++-----------
-> 1 file changed, 3 insertions(+), 11 deletions(-)
->
->--- a/include/crypto/b128ops=2Eh
->+++ b/include/crypto/b128ops=2Eh
->@@ -50,10 +50,6 @@
-> #include <linux/types=2Eh>
->=20
-> typedef struct {
->-	u64 a, b;
->-} u128;
->-
->-typedef struct {
-> 	__be64 a, b;
-> } be128;
->=20
->@@ -61,20 +57,16 @@ typedef struct {
-> 	__le64 b, a;
-> } le128;
->=20
->-static inline void u128_xor(u128 *r, const u128 *p, const u128 *q)
->+static inline void be128_xor(be128 *r, const be128 *p, const be128 *q)
-> {
-> 	r->a =3D p->a ^ q->a;
-> 	r->b =3D p->b ^ q->b;
-> }
->=20
->-static inline void be128_xor(be128 *r, const be128 *p, const be128 *q)
->-{
->-	u128_xor((u128 *)r, (u128 *)p, (u128 *)q);
->-}
->-
-> static inline void le128_xor(le128 *r, const le128 *p, const le128 *q)
-> {
->-	u128_xor((u128 *)r, (u128 *)p, (u128 *)q);
->+	r->a =3D p->a ^ q->a;
->+	r->b =3D p->b ^ q->b;
-> }
->=20
-> #endif /* _CRYPTO_B128OPS_H */
->
->
+> - With CONFIG_VMAP_STACK enabled it is not possible to load the s390
+>   specific diag288_wdt watchdog module. Reason is that a pointer to a
+>   string is passed to an inline assembly; this string however is located on
+>   the stack, while the instruction within the inline assembly expects a
+>   physicial address. Fix this by copying the string to a kmalloc'ed buffer.
 
-Can we centralize these ordered types, too?
+Ugh. I have pulled this, but I think that fix is disgusting.
+
+I think the kmalloc/kfree should have been done inside __diag288_vm()
+itself, where it actually does that whole "virt_to_phys()" too.
+
+Now there are three callers of __diag288_vm(), and they all do that
+ugly kmalloc game with no comment about why it's needed.
+
+If __diag288_vm() just did it itself, and had a comment right next to
+the virt_to_phys() about why, that would look a lot better, I think.
+
+That said, I don't know the code, and maybe there was some reason to
+do it this way. As mentioned, I've pulled it, I just don't
+particularly love the patch.
+
+              Linus
