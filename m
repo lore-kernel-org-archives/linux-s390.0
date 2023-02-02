@@ -2,73 +2,73 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A49EFC636D4
-	for <linux-s390@archiver.kernel.org>; Thu,  2 Feb 2023 17:06:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D4CFC63797
+	for <linux-s390@archiver.kernel.org>; Thu,  2 Feb 2023 19:39:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232507AbjBBRGq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 2 Feb 2023 12:06:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39696 "EHLO
+        id S229711AbjBBTjj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 2 Feb 2023 14:39:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232517AbjBBRGo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Feb 2023 12:06:44 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B52E645880;
-        Thu,  2 Feb 2023 09:06:39 -0800 (PST)
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 312Gg6N5015686;
-        Thu, 2 Feb 2023 17:06:06 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=yDxzHC0i4XY1TjBLDhAoGwe8Lrg89+u6eciHDt+wFdI=;
- b=XpL4qbrifRD2fUENbKAPApcJH7yCbeDYrlHXD49LZ3gyOvT4rQrVfJWVhlsJuS7mEc64
- d8I0tMxflpcTLBQ0gJLvYzbNtPiTpfqkyiYYYW9foAZmbBcKHo0xOe8+QJfIuUAT67gm
- 8k3PNYChos3Jp55WEvn0TbGgDNhu2U5hyQ2SmOTX3IbrBBFaNASRzPvfjWpLmYzzdC8r
- hU5i8hLgQJOEMU3bBIO6LPHnnpjE0pBIc1LdJh47MBhh2mcaVVRHVW52KdzOGDhndR0F
- 0cmlPNpQkF2SoV8fmVLiewp95YGFC9dGr00sgrI+cAlo9s2xXdlyzxCb/nI5jK7Df8S+ IA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ngesvv96b-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 02 Feb 2023 17:06:06 +0000
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 312GggE0016414;
-        Thu, 2 Feb 2023 17:06:05 GMT
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ngesvv95c-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 02 Feb 2023 17:06:05 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 312BJnDH007789;
-        Thu, 2 Feb 2023 17:06:03 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma01fra.de.ibm.com (PPS) with ESMTPS id 3ncvuqvmd9-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 02 Feb 2023 17:06:02 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 312H5xep47317404
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 2 Feb 2023 17:05:59 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4D65E20043;
-        Thu,  2 Feb 2023 17:05:59 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7567020040;
-        Thu,  2 Feb 2023 17:05:57 +0000 (GMT)
-Received: from osiris (unknown [9.171.31.155])
-        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Thu,  2 Feb 2023 17:05:57 +0000 (GMT)
-Date:   Thu, 2 Feb 2023 18:05:56 +0100
-From:   Heiko Carstens <hca@linux.ibm.com>
+        with ESMTP id S232519AbjBBTjh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Feb 2023 14:39:37 -0500
+Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CA807A480
+        for <linux-s390@vger.kernel.org>; Thu,  2 Feb 2023 11:39:33 -0800 (PST)
+Received: by mail-ed1-x52a.google.com with SMTP id v10so3137512edi.8
+        for <linux-s390@vger.kernel.org>; Thu, 02 Feb 2023 11:39:33 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=JmnIaySd7zoAM6xF2ibXT8yo+UTOpvQnMVr9b5O/7+w=;
+        b=ca1h9KkMFNsKgO7Ao0NeYlaifxp7NzGcaaakgNFyQLMxBSXDHTcSanf/uonLuKRR18
+         lO7gVsm341hb9Nhg1BLsB8gPuvWRYHLOlq9HV87cUF6Vj8wjTPtsHShRpe/Vd30GyM78
+         DjJAMh6ZqNcvDd+rLB79O+fNMlUiqjmmCA6so=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=JmnIaySd7zoAM6xF2ibXT8yo+UTOpvQnMVr9b5O/7+w=;
+        b=a6EKwhbFwIwpOEHjhBROJ62PZMir3Rw65wtL2eJmDDj34iG8gmla44vtlRYpc6q75F
+         JlTYmrvG3LDb53zW2f/KimGAhOWkRUk0xng2cPY26Jb1FSPtDiNIzZlNaF6vWRUJmY2K
+         5ETVOjH4ySHOqhSXSnWGBenQYS6s1z5edo/I4sMoLiivz04iWJL0Caujer3IUFbhvom2
+         0LVJFYgWHm1c2ZMgzrXafHqP45J1tMzTGxQw3K2H1E3UPN1yvArRoBNK/ExvgISe8dXM
+         2D9uz133hyIlEyG7ktoptDuZCpotj5pKISbYd0I5enUx/KjTMkMlqD8sM9kinrlMRPkc
+         kpLw==
+X-Gm-Message-State: AO0yUKUD0OGXwGgFoYC7QcikALZc2cESj4dNlJDPjLIDA86WqxMSaCr0
+        EvhY2LqcTQEGMwWqw0M7p6/GPGuDVQxYHIJaP6fQzw==
+X-Google-Smtp-Source: AK7set8+xHadxCy5qXWT6jHusT8YxxQBwSq0lJGCKawTJbhKLoo775Ny5e7YDygWaIKJaqvAG6jj5A==
+X-Received: by 2002:a05:6402:64a:b0:488:6003:24b6 with SMTP id u10-20020a056402064a00b00488600324b6mr7484523edx.40.1675366771711;
+        Thu, 02 Feb 2023 11:39:31 -0800 (PST)
+Received: from mail-ej1-f43.google.com (mail-ej1-f43.google.com. [209.85.218.43])
+        by smtp.gmail.com with ESMTPSA id eo13-20020a056402530d00b0049dd7eec977sm132541edb.41.2023.02.02.11.39.30
+        for <linux-s390@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 02 Feb 2023 11:39:30 -0800 (PST)
+Received: by mail-ej1-f43.google.com with SMTP id bk15so9047948ejb.9
+        for <linux-s390@vger.kernel.org>; Thu, 02 Feb 2023 11:39:30 -0800 (PST)
+X-Received: by 2002:a17:906:f109:b0:882:e1b7:a90b with SMTP id
+ gv9-20020a170906f10900b00882e1b7a90bmr2112186ejb.187.1675366759217; Thu, 02
+ Feb 2023 11:39:19 -0800 (PST)
+MIME-Version: 1.0
+References: <20230202145030.223740842@infradead.org>
+In-Reply-To: <20230202145030.223740842@infradead.org>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Thu, 2 Feb 2023 11:39:02 -0800
+X-Gmail-Original-Message-ID: <CAHk-=wiF6y7CwR1P5_73aK2f=x=RZjwgh3sgeO3Mczv4XcDc8g@mail.gmail.com>
+Message-ID: <CAHk-=wiF6y7CwR1P5_73aK2f=x=RZjwgh3sgeO3Mczv4XcDc8g@mail.gmail.com>
+Subject: Re: [PATCH v2 00/10] Introduce cmpxchg128() -- aka. the demise of cmpxchg_double()
 To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     torvalds@linux-foundation.org, corbet@lwn.net, will@kernel.org,
-        boqun.feng@gmail.com, mark.rutland@arm.com,
-        catalin.marinas@arm.com, dennis@kernel.org, tj@kernel.org,
-        cl@linux.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com, tglx@linutronix.de,
-        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
-        x86@kernel.org, hpa@zytor.com, joro@8bytes.org,
-        suravee.suthikulpanit@amd.com, robin.murphy@arm.com,
-        dwmw2@infradead.org, baolu.lu@linux.intel.com,
-        Arnd Bergmann <arnd@arndb.de>,
+Cc:     corbet@lwn.net, will@kernel.org, boqun.feng@gmail.com,
+        mark.rutland@arm.com, catalin.marinas@arm.com, dennis@kernel.org,
+        tj@kernel.org, cl@linux.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+        hpa@zytor.com, joro@8bytes.org, suravee.suthikulpanit@amd.com,
+        robin.murphy@arm.com, dwmw2@infradead.org,
+        baolu.lu@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
         Herbert Xu <herbert@gondor.apana.org.au>, davem@davemloft.net,
         penberg@kernel.org, rientjes@google.com, iamjoonsoo.kim@lge.com,
         Andrew Morton <akpm@linux-foundation.org>, vbabka@suse.cz,
@@ -77,37 +77,20 @@ Cc:     torvalds@linux-foundation.org, corbet@lwn.net, will@kernel.org,
         linux-mm@kvack.org, linux-s390@vger.kernel.org,
         iommu@lists.linux.dev, linux-arch@vger.kernel.org,
         linux-crypto@vger.kernel.org
-Subject: Re: [PATCH v2 10/10] s390/cpum_sf: Convert to cmpxchg128()
-Message-ID: <Y9vtdJhobsBgasDa@osiris>
-References: <20230202145030.223740842@infradead.org>
- <20230202152655.805747571@infradead.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230202152655.805747571@infradead.org>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Z7UVjly_HchAKy3nXhefa_qrgUKnjUaS
-X-Proofpoint-ORIG-GUID: 7ytywSjFg4weggctu8H9bLj6a3mmNq_m
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
- definitions=2023-02-02_10,2023-02-02_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=509 mlxscore=0
- impostorscore=0 clxscore=1015 suspectscore=0 spamscore=0 adultscore=0
- bulkscore=0 lowpriorityscore=0 priorityscore=1501 phishscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2302020148
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Feb 02, 2023 at 03:50:40PM +0100, Peter Zijlstra wrote:
-> Now that there is a cross arch u128 and cmpxchg128(), use those
-> instead of the custom CDSG helper.
-> 
-> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> ---
->  arch/s390/include/asm/cpu_mf.h  |    2 +-
->  arch/s390/kernel/perf_cpum_sf.c |   22 ++++++----------------
->  2 files changed, 7 insertions(+), 17 deletions(-)
+On Thu, Feb 2, 2023 at 7:29 AM Peter Zijlstra <peterz@infradead.org> wrote:
+>
+>  - fixed up the inline asm to use 'u128 *' mem argument so the compiler knows
+>    how wide the modification is.
+>  - reworked the percpu thing to use union based type-punning instead of
+>    _Generic() based casts.
 
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
+Looks lovely to me. This removed all my concerns (except for the
+testing one, but all the patches looked nice and clean to me, so
+clearly it must be perfect).
+
+                Linus
