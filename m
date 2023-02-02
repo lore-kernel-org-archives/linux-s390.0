@@ -2,71 +2,122 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 921CFC05027
-	for <linux-s390@archiver.kernel.org>; Thu,  2 Feb 2023 21:04:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C9DEC636D3
+	for <linux-s390@archiver.kernel.org>; Thu,  2 Feb 2023 22:46:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232156AbjBBVEw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 2 Feb 2023 16:04:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56162 "EHLO
+        id S232102AbjBBWqK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 2 Feb 2023 17:46:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233196AbjBBVEs (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Feb 2023 16:04:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BEF7244AD;
-        Thu,  2 Feb 2023 13:04:47 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 38B35B8286C;
-        Thu,  2 Feb 2023 21:04:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id DF3B6C433EF;
-        Thu,  2 Feb 2023 21:04:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675371884;
-        bh=K8NJXYsXmDS9UF7umUuvakMU0wKJR7Sm6YQ69fr9zAQ=;
-        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-        b=R6hUtyihRl97B1Y2dGIjnWtTTlp3v9Ug7y3agb30efzz+qPb7aCUzmPKJBd+OT0g6
-         vnNBCiFazbQ0uJ1SLtCIBwT/bN6Pt4KZj6tPdKYBbNy4UHsoE7pjtsB4MrU7H01LKb
-         PkpI86WpA7g2Y2bJHz2/ltSBHCC4YrJ5znBNYw6M+RU72nE+0vGynw80k1uCpMoqTC
-         wK/IPu8UNlDvjERXoH1PK2jEp9nxz3c5pCb1wqhUzqM0eq5TNijwvyUBxYl94vNDA5
-         wVcd8umKXPfXsGlbt+d6fDJbUUdJWk1vQqatixKsI5yV87j4Pya+Z0EVmqjQABuVyN
-         tmqz6BCyVVuCA==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id CA564E21EEC;
-        Thu,  2 Feb 2023 21:04:44 +0000 (UTC)
-Subject: Re: [GIT PULL] s390 fixes for 6.2-rc7
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <Y9wYTnwXVwg/3Dv3@osiris>
-References: <Y9wYTnwXVwg/3Dv3@osiris>
-X-PR-Tracked-List-Id: <linux-s390.vger.kernel.org>
-X-PR-Tracked-Message-Id: <Y9wYTnwXVwg/3Dv3@osiris>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.2-4
-X-PR-Tracked-Commit-Id: 7ab41c2c08a32132ba8c14624910e2fe8ce4ba4b
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: addfba11b314824e3b4fb70448b339dcb21be5bf
-Message-Id: <167537188481.3773.587859670524329178.pr-tracker-bot@kernel.org>
-Date:   Thu, 02 Feb 2023 21:04:44 +0000
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+        with ESMTP id S232900AbjBBWqJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Feb 2023 17:46:09 -0500
+Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B5E66C11E
+        for <linux-s390@vger.kernel.org>; Thu,  2 Feb 2023 14:46:03 -0800 (PST)
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
+ relay.mimecast.com with ESMTP with both STARTTLS and AUTH (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ uk-mta-29-y36o5xIlPiWVEvSaXEynsQ-1; Thu, 02 Feb 2023 22:45:59 +0000
+X-MC-Unique: y36o5xIlPiWVEvSaXEynsQ-1
+Received: from AcuMS.Aculab.com (10.202.163.6) by AcuMS.aculab.com
+ (10.202.163.6) with Microsoft SMTP Server (TLS) id 15.0.1497.45; Thu, 2 Feb
+ 2023 22:45:57 +0000
+Received: from AcuMS.Aculab.com ([::1]) by AcuMS.aculab.com ([::1]) with mapi
+ id 15.00.1497.045; Thu, 2 Feb 2023 22:45:57 +0000
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Linus Torvalds' <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>
+CC:     "corbet@lwn.net" <corbet@lwn.net>,
+        "will@kernel.org" <will@kernel.org>,
+        "boqun.feng@gmail.com" <boqun.feng@gmail.com>,
+        "mark.rutland@arm.com" <mark.rutland@arm.com>,
+        "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
+        "dennis@kernel.org" <dennis@kernel.org>,
+        "tj@kernel.org" <tj@kernel.org>, "cl@linux.com" <cl@linux.com>,
+        "hca@linux.ibm.com" <hca@linux.ibm.com>,
+        "gor@linux.ibm.com" <gor@linux.ibm.com>,
+        "agordeev@linux.ibm.com" <agordeev@linux.ibm.com>,
+        "borntraeger@linux.ibm.com" <borntraeger@linux.ibm.com>,
+        "svens@linux.ibm.com" <svens@linux.ibm.com>,
+        "tglx@linutronix.de" <tglx@linutronix.de>,
+        "mingo@redhat.com" <mingo@redhat.com>,
+        "bp@alien8.de" <bp@alien8.de>,
+        "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
+        "x86@kernel.org" <x86@kernel.org>, "hpa@zytor.com" <hpa@zytor.com>,
+        "joro@8bytes.org" <joro@8bytes.org>,
+        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
+        "robin.murphy@arm.com" <robin.murphy@arm.com>,
+        "dwmw2@infradead.org" <dwmw2@infradead.org>,
+        "baolu.lu@linux.intel.com" <baolu.lu@linux.intel.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "davem@davemloft.net" <davem@davemloft.net>,
+        "penberg@kernel.org" <penberg@kernel.org>,
+        "rientjes@google.com" <rientjes@google.com>,
+        "iamjoonsoo.kim@lge.com" <iamjoonsoo.kim@lge.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "vbabka@suse.cz" <vbabka@suse.cz>,
+        "roman.gushchin@linux.dev" <roman.gushchin@linux.dev>,
+        "42.hyeyoo@gmail.com" <42.hyeyoo@gmail.com>,
+        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "iommu@lists.linux.dev" <iommu@lists.linux.dev>,
+        "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>,
+        "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>
+Subject: RE: [PATCH v2 00/10] Introduce cmpxchg128() -- aka. the demise of
+ cmpxchg_double()
+Thread-Topic: [PATCH v2 00/10] Introduce cmpxchg128() -- aka. the demise of
+ cmpxchg_double()
+Thread-Index: AQHZNz4vE8dWPUdohk2nkEpDmnikoa68PlfA
+Date:   Thu, 2 Feb 2023 22:45:57 +0000
+Message-ID: <fe484df93b1d437b84edfd85fed66191@AcuMS.aculab.com>
+References: <20230202145030.223740842@infradead.org>
+ <CAHk-=wiF6y7CwR1P5_73aK2f=x=RZjwgh3sgeO3Mczv4XcDc8g@mail.gmail.com>
+In-Reply-To: <CAHk-=wiF6y7CwR1P5_73aK2f=x=RZjwgh3sgeO3Mczv4XcDc8g@mail.gmail.com>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
+MIME-Version: 1.0
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The pull request you sent on Thu, 2 Feb 2023 21:08:46 +0100:
+RnJvbTogTGludXMgVG9ydmFsZHMNCj4gU2VudDogMDIgRmVicnVhcnkgMjAyMyAxOTozOQ0KPiAN
+Cj4gT24gVGh1LCBGZWIgMiwgMjAyMyBhdCA3OjI5IEFNIFBldGVyIFppamxzdHJhIDxwZXRlcnpA
+aW5mcmFkZWFkLm9yZz4gd3JvdGU6DQo+ID4NCj4gPiAgLSBmaXhlZCB1cCB0aGUgaW5saW5lIGFz
+bSB0byB1c2UgJ3UxMjggKicgbWVtIGFyZ3VtZW50IHNvIHRoZSBjb21waWxlciBrbm93cw0KPiA+
+ICAgIGhvdyB3aWRlIHRoZSBtb2RpZmljYXRpb24gaXMuDQo+ID4gIC0gcmV3b3JrZWQgdGhlIHBl
+cmNwdSB0aGluZyB0byB1c2UgdW5pb24gYmFzZWQgdHlwZS1wdW5uaW5nIGluc3RlYWQgb2YNCj4g
+PiAgICBfR2VuZXJpYygpIGJhc2VkIGNhc3RzLg0KPiANCj4gTG9va3MgbG92ZWx5IHRvIG1lLiBU
+aGlzIHJlbW92ZWQgYWxsIG15IGNvbmNlcm5zIChleGNlcHQgZm9yIHRoZQ0KPiB0ZXN0aW5nIG9u
+ZSwgYnV0IGFsbCB0aGUgcGF0Y2hlcyBsb29rZWQgbmljZSBhbmQgY2xlYW4gdG8gbWUsIHNvDQo+
+IGNsZWFybHkgaXQgbXVzdCBiZSBwZXJmZWN0KS4NCg0KVGhlIGNoYW5nZSBpcyBhbG1vc3QgY2Vy
+dGFpbmx5IGZvciB0aGUgYmV0dGVyLg0KDQpCdXQgZGlkIEkgc3BvdCBvbmUgb2YgdGhlIGJpdHMg
+dXNpbmcgY21weGNoZzEyOCBqdXN0IHRvIGRvIGFuIGF0b21pYyB3cml0ZT8NCkkgdGhpbmsgaXQg
+d2FzIHVwZGF0aW5nIHNvbWUgaW50ZXJydXB0IGluZm8gdGhhdCB3YXMgYXQgZmlyc3QgZ2xhbmNl
+IG5vdA0KZGlzc2ltaWxhciB0byB0aGF0IHVzZWQgYnkgTVNJLVggKGl0IHdhc24ndCBNU0ktWCku
+DQoNCklmIHRoYXQgd2FzIGEgaGFyZHdhcmUgcmVnaXN0ZXIgdGhlbiBpdCBjb3VsZCB3ZWxsIHJl
+cXVpcmUgYSBmdWxsIGJ1cyBsb2NrLg0KVXNpbmcgYSB3cml0ZSBvZiBhIHNzZSAob3IgZXF1aXYp
+IDEyOGJpdCByZWdpc3RlciB3b3VsZCBiZSBhbiBhdG9taWMgd3JpdGUNCndpdGhvdXQgdGhlIGJ1
+cyBsb2NrIHByb2JsZW0uDQoNCkFsc28sIHRoYXQgaXMgb25seSBnb2luZyB0byB3b3JrIGlmIHRo
+ZSBoYXJkd2FyZS9sb2dpYyBzaWRlIGd1YXJhbnRlZXMgdG8NCnRyZWF0IGEgc2luZ2xlIHdyaXRl
+IGFzIGF0b21pYy4NCkkga25vdyB0aGVyZSBhcmUgTVNJLVggaW1wbGVtZW50YXRpb25zIG91dCB0
+aGVyZSB3aGVyZSB0aGUgY3B1IHdyaXRlDQp3aWxsIGJlIHNwbGl0IGludG8gZm91ciAzMmJpdCB3
+cml0ZXMgdG8gc29tZSBpbnRlcm5hbCBtZW1vcnkgYW5kIHRoZQ0KaGFyZHdhcmUgc2lkZSB3aWxs
+IGFsc28gZG8gbXVsdGlwbGUgYWNjZXNzZXMuDQooUHJldHR5IG11Y2ggYW55IGltcGxlbWVudGF0
+aW9uIG9uIGFuIGZwZ2Egd2lsbCBiZWhhdmUgbGlrZSB0aGF0LA0Kbm90IGp1c3QgdGhlIG9uZSBJ
+IHdyb3RlLikNCkkgZGlkbid0IHNlZSB0aGUgTVNJLVggY29kZSB0aGVyZSwgYnV0IEkgZG8gd29u
+ZGVyIGhvdyBpdCBzYWZlbHkgY2hhbmdlcw0KYWZmaW5pdGllcy4NCg0KCURhdmlkDQoNCi0NClJl
+Z2lzdGVyZWQgQWRkcmVzcyBMYWtlc2lkZSwgQnJhbWxleSBSb2FkLCBNb3VudCBGYXJtLCBNaWx0
+b24gS2V5bmVzLCBNSzEgMVBULCBVSw0KUmVnaXN0cmF0aW9uIE5vOiAxMzk3Mzg2IChXYWxlcykN
+Cg==
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.2-4
-
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/addfba11b314824e3b4fb70448b339dcb21be5bf
-
-Thank you!
-
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
