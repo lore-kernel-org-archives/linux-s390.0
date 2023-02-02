@@ -2,154 +2,276 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 833A2C05027
-	for <linux-s390@archiver.kernel.org>; Thu,  2 Feb 2023 13:53:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 06106C636D4
+	for <linux-s390@archiver.kernel.org>; Thu,  2 Feb 2023 15:31:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229441AbjBBNxx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 2 Feb 2023 08:53:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48044 "EHLO
+        id S232733AbjBBPbN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 2 Feb 2023 10:31:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229881AbjBBNxx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Feb 2023 08:53:53 -0500
-Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 711D46D055;
-        Thu,  2 Feb 2023 05:53:49 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=16;SR=0;TI=SMTPD_---0ValHekG_1675346025;
-Received: from 30.221.129.148(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0ValHekG_1675346025)
-          by smtp.aliyun-inc.com;
-          Thu, 02 Feb 2023 21:53:46 +0800
-Message-ID: <39206f64-3f88-235e-7017-2479ac58844d@linux.alibaba.com>
-Date:   Thu, 2 Feb 2023 21:53:43 +0800
+        with ESMTP id S232917AbjBBPbM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Feb 2023 10:31:12 -0500
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A91F27E6FA;
+        Thu,  2 Feb 2023 07:30:34 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
+        Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
+        Content-ID:Content-Description:In-Reply-To;
+        bh=SmAZMxmhVzZFpMcgEk2xjJ9SlIW4an+wqq1Ku13zd8I=; b=h4vsppu3IFznffLowHKrwukDM3
+        slWQ9lk2uwAZd19UeQ8IiP6R82RdPP/jl2f/J2Bp9b69mzYayvhTYAstyqu4YM7w/Qm7aRexqb8Fi
+        fQKtWH0QhG0NPqA0vENbIPMnhqB/F+DW1yTsK/SNLBxsZ+l2DuNJkFsE0R/fqfkzGDR1VH/zOyBr/
+        kbyhWQHhXJ87Z+BFddWkPvPlDnD0qTMm+8fW+KHQw4EYkzITpu27WO8OztfpCgecLHKf25790kYjx
+        VZRNEjKgQFWHaeZeahaKB/xNAXWZznALwCoy0s/Ne5hgd7KBKy/fdMMjB/r6uKcIQbSkov2P0s+5k
+        KGDjPJfg==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1pNbW4-00DV2d-2S; Thu, 02 Feb 2023 15:28:48 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits))
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 3BA2B3021E2;
+        Thu,  2 Feb 2023 16:28:45 +0100 (CET)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
+        id 93E3223F31FBB; Thu,  2 Feb 2023 16:28:40 +0100 (CET)
+Message-ID: <20230202152655.494373332@infradead.org>
+User-Agent: quilt/0.66
+Date:   Thu, 02 Feb 2023 15:50:35 +0100
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     torvalds@linux-foundation.org
+Cc:     corbet@lwn.net, will@kernel.org, peterz@infradead.org,
+        boqun.feng@gmail.com, mark.rutland@arm.com,
+        catalin.marinas@arm.com, dennis@kernel.org, tj@kernel.org,
+        cl@linux.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+        hpa@zytor.com, joro@8bytes.org, suravee.suthikulpanit@amd.com,
+        robin.murphy@arm.com, dwmw2@infradead.org,
+        baolu.lu@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
+        Herbert Xu <herbert@gondor.apana.org.au>, davem@davemloft.net,
+        penberg@kernel.org, rientjes@google.com, iamjoonsoo.kim@lge.com,
+        Andrew Morton <akpm@linux-foundation.org>, vbabka@suse.cz,
+        roman.gushchin@linux.dev, 42.hyeyoo@gmail.com,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, linux-s390@vger.kernel.org,
+        iommu@lists.linux.dev, linux-arch@vger.kernel.org,
+        linux-crypto@vger.kernel.org
+Subject: [PATCH v2 05/10] percpu: Wire up cmpxchg128
+References: <20230202145030.223740842@infradead.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.6.1
-Subject: Re: [net-next v2 0/8] drivers/s390/net/ism: Add generalized interface
-To:     Jan Karcher <jaka@linux.ibm.com>,
-        David Miller <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Eric Dumazet <edumazet@google.com>,
-        Paolo Abeni <pabeni@redhat.com>
-Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Alexandra Winter <wintera@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Thorsten Winkler <twinkler@linux.ibm.com>,
-        Stefan Raspl <raspl@linux.ibm.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Nils Hoppmann <niho@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Tony Lu <tonylu@linux.alibaba.com>
-References: <20230123181752.1068-1-jaka@linux.ibm.com>
-From:   Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <20230123181752.1068-1-jaka@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=UTF-8
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+In order to replace cmpxchg_double() with the newly minted
+cmpxchg128() family of functions, wire it up in this_cpu_cmpxchg().
+
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+---
+ arch/arm64/include/asm/percpu.h |   21 +++++++++++++++
+ arch/s390/include/asm/percpu.h  |   17 ++++++++++++
+ arch/x86/include/asm/percpu.h   |   56 ++++++++++++++++++++++++++++++++++++++++
+ include/asm-generic/percpu.h    |    8 +++++
+ include/linux/percpu-defs.h     |   20 ++++++++++++--
+ 5 files changed, 120 insertions(+), 2 deletions(-)
+
+--- a/arch/arm64/include/asm/percpu.h
++++ b/arch/arm64/include/asm/percpu.h
+@@ -140,6 +140,10 @@ PERCPU_RET_OP(add, add, ldadd)
+  * re-enabling preemption for preemptible kernels, but doing that in a way
+  * which builds inside a module would mean messing directly with the preempt
+  * count. If you do this, peterz and tglx will hunt you down.
++ *
++ * Not to mention it'll break the actual preemption model for missing a
++ * preemption point when TIF_NEED_RESCHED gets set while preemption is
++ * disabled.
+  */
+ #define this_cpu_cmpxchg_double_8(ptr1, ptr2, o1, o2, n1, n2)		\
+ ({									\
+@@ -240,6 +244,23 @@ PERCPU_RET_OP(add, add, ldadd)
+ #define this_cpu_cmpxchg_8(pcp, o, n)	\
+ 	_pcp_protect_return(cmpxchg_relaxed, pcp, o, n)
+ 
++#define this_cpu_cmpxchg_16(pcp, o, n)					\
++({									\
++	typedef typeof(pcp) pcp_op_T__;					\
++	union {								\
++		pcp_op_T__ pot;						\
++		u128 val;						\
++	} old__, new__, ret__;						\
++	pcp_op_T__ *ptr__;						\
++	old__.pot = o;							\
++	new__.pot = n;							\
++	preempt_disable_notrace();					\
++	ptr__ = raw_cpu_ptr(&(pcp));					\
++	ret__.val = cmpxchg128_local((void *)ptr__, old__.val, new__.val); \
++	preempt_enable_notrace();					\
++	ret__.pot;							\
++})
++
+ #ifdef __KVM_NVHE_HYPERVISOR__
+ extern unsigned long __hyp_per_cpu_offset(unsigned int cpu);
+ #define __per_cpu_offset
+--- a/arch/s390/include/asm/percpu.h
++++ b/arch/s390/include/asm/percpu.h
+@@ -148,6 +148,23 @@
+ #define this_cpu_cmpxchg_4(pcp, oval, nval) arch_this_cpu_cmpxchg(pcp, oval, nval)
+ #define this_cpu_cmpxchg_8(pcp, oval, nval) arch_this_cpu_cmpxchg(pcp, oval, nval)
+ 
++#define this_cpu_cmpxchg_16(pcp, oval, nval)				\
++({									\
++	typedef typeof(pcp) pcp_op_T__;					\
++	union {								\
++		pcp_op_T__ pot;						\
++		u128 val;						\
++	} old__, new__, ret__;						\
++	pcp_op_T__ *ptr__;						\
++	old__.pot = oval;						\
++	new__.pot = nval;						\
++	preempt_disable_notrace();					\
++	ptr__ = raw_cpu_ptr(&(pcp));					\
++	ret__.val = cmpxchg128((void *)ptr__, old__.val, new__.val);	\
++	preempt_enable_notrace();					\
++	ret__.pot;							\
++})
++
+ #define arch_this_cpu_xchg(pcp, nval)					\
+ ({									\
+ 	typeof(pcp) *ptr__;						\
+--- a/arch/x86/include/asm/percpu.h
++++ b/arch/x86/include/asm/percpu.h
+@@ -210,6 +210,62 @@ do {									\
+ 	(typeof(_var))(unsigned long) pco_old__;			\
+ })
+ 
++#if defined(CONFIG_X86_32) && defined(CONFIG_X86_CMPXCHG64)
++#define percpu_cmpxchg64_op(size, qual, _var, _oval, _nval)		\
++({									\
++	union {								\
++		typeof(_var) var;					\
++		struct {						\
++			u32 low, high;					\
++		};							\
++	} old__, new__;							\
++									\
++	old__.var = _oval;						\
++	new__.var = _nval;						\
++									\
++	asm qual ("cmpxchg8b " __percpu_arg([var])			\
++		  : [var] "+m" (_var),					\
++		    "+a" (old__.low),					\
++		    "+d" (old__.high)					\
++		  : "b" (new__.low),					\
++		    "c" (new__.high)					\
++		  : "memory");						\
++									\
++	old__.var;							\
++})
++
++#define raw_cpu_cmpxchg_8(pcp, oval, nval)	percpu_cmpxchg64_op(8,         , pcp, oval, nval)
++#define this_cpu_cmpxchg_8(pcp, oval, nval)	percpu_cmpxchg64_op(8, volatile, pcp, oval, nval)
++#endif
++
++#ifdef CONFIG_X86_64
++#define percpu_cmpxchg128_op(size, qual, _var, _oval, _nval)		\
++({									\
++	union {								\
++		typeof(_var) var;					\
++		struct {						\
++			u64 low, high;					\
++		};							\
++	} old__, new__;							\
++									\
++	old__.var = _oval;						\
++	new__.var = _nval;						\
++									\
++	asm qual ("cmpxchg16b " __percpu_arg([var])			\
++		  : [var] "+m" (_var),					\
++		    "+a" (old__.low),					\
++		    "+d" (old__.high)					\
++		  : "b" (new__.low),					\
++		    "c" (new__.high)					\
++		  : "memory");						\
++									\
++	old__.var;							\
++})
++
++#define raw_cpu_cmpxchg_16(pcp, oval, nval)	percpu_cmpxchg128_op(16,         , pcp, oval, nval)
++#define this_cpu_cmpxchg_16(pcp, oval, nval)	percpu_cmpxchg128_op(16, volatile, pcp, oval, nval)
++#endif
++
+ /*
+  * this_cpu_read() makes gcc load the percpu variable every time it is
+  * accessed while this_cpu_read_stable() allows the value to be cached.
+--- a/include/asm-generic/percpu.h
++++ b/include/asm-generic/percpu.h
+@@ -298,6 +298,10 @@ do {									\
+ #define raw_cpu_cmpxchg_8(pcp, oval, nval) \
+ 	raw_cpu_generic_cmpxchg(pcp, oval, nval)
+ #endif
++#ifndef raw_cpu_cmpxchg_16
++#define raw_cpu_cmpxchg_16(pcp, oval, nval) \
++	raw_cpu_generic_cmpxchg(pcp, oval, nval)
++#endif
+ 
+ #ifndef raw_cpu_cmpxchg_double_1
+ #define raw_cpu_cmpxchg_double_1(pcp1, pcp2, oval1, oval2, nval1, nval2) \
+@@ -423,6 +427,10 @@ do {									\
+ #define this_cpu_cmpxchg_8(pcp, oval, nval) \
+ 	this_cpu_generic_cmpxchg(pcp, oval, nval)
+ #endif
++#ifndef this_cpu_cmpxchg_16
++#define this_cpu_cmpxchg_16(pcp, oval, nval) \
++	this_cpu_generic_cmpxchg(pcp, oval, nval)
++#endif
+ 
+ #ifndef this_cpu_cmpxchg_double_1
+ #define this_cpu_cmpxchg_double_1(pcp1, pcp2, oval1, oval2, nval1, nval2) \
+--- a/include/linux/percpu-defs.h
++++ b/include/linux/percpu-defs.h
+@@ -343,6 +343,22 @@ static inline void __this_cpu_preempt_ch
+ 	pscr2_ret__;							\
+ })
+ 
++#define __pcpu_size16_call_return2(stem, variable, ...)			\
++({									\
++	typeof(variable) pscr2_ret__;					\
++	__verify_pcpu_ptr(&(variable));					\
++	switch(sizeof(variable)) {					\
++	case 1: pscr2_ret__ = stem##1(variable, __VA_ARGS__); break;	\
++	case 2: pscr2_ret__ = stem##2(variable, __VA_ARGS__); break;	\
++	case 4: pscr2_ret__ = stem##4(variable, __VA_ARGS__); break;	\
++	case 8: pscr2_ret__ = stem##8(variable, __VA_ARGS__); break;	\
++	case 16: pscr2_ret__ = stem##16(variable, __VA_ARGS__); break;	\
++	default:							\
++		__bad_size_call_parameter(); break;			\
++	}								\
++	pscr2_ret__;							\
++})
++
+ /*
+  * Special handling for cmpxchg_double.  cmpxchg_double is passed two
+  * percpu variables.  The first has to be aligned to a double word
+@@ -425,7 +441,7 @@ do {									\
+ #define raw_cpu_add_return(pcp, val)	__pcpu_size_call_return2(raw_cpu_add_return_, pcp, val)
+ #define raw_cpu_xchg(pcp, nval)		__pcpu_size_call_return2(raw_cpu_xchg_, pcp, nval)
+ #define raw_cpu_cmpxchg(pcp, oval, nval) \
+-	__pcpu_size_call_return2(raw_cpu_cmpxchg_, pcp, oval, nval)
++	__pcpu_size16_call_return2(raw_cpu_cmpxchg_, pcp, oval, nval)
+ #define raw_cpu_cmpxchg_double(pcp1, pcp2, oval1, oval2, nval1, nval2) \
+ 	__pcpu_double_call_return_bool(raw_cpu_cmpxchg_double_, pcp1, pcp2, oval1, oval2, nval1, nval2)
+ 
+@@ -512,7 +528,7 @@ do {									\
+ #define this_cpu_add_return(pcp, val)	__pcpu_size_call_return2(this_cpu_add_return_, pcp, val)
+ #define this_cpu_xchg(pcp, nval)	__pcpu_size_call_return2(this_cpu_xchg_, pcp, nval)
+ #define this_cpu_cmpxchg(pcp, oval, nval) \
+-	__pcpu_size_call_return2(this_cpu_cmpxchg_, pcp, oval, nval)
++	__pcpu_size16_call_return2(this_cpu_cmpxchg_, pcp, oval, nval)
+ #define this_cpu_cmpxchg_double(pcp1, pcp2, oval1, oval2, nval1, nval2) \
+ 	__pcpu_double_call_return_bool(this_cpu_cmpxchg_double_, pcp1, pcp2, oval1, oval2, nval1, nval2)
+ 
 
 
-On 2023/1/24 02:17, Jan Karcher wrote:
-
-> Previously, there was no clean separation between SMC-D code and the ISM
-> device driver.This patch series addresses the situation to make ISM available
-> for uses outside of SMC-D.
-> In detail: SMC-D offers an interface via struct smcd_ops, which only the
-> ISM module implements so far. However, there is no real separation between
-> the smcd and ism modules, which starts right with the ISM device
-> initialization, which calls directly into the SMC-D code.
-> This patch series introduces a new API in the ISM module, which allows
-> registration of arbitrary clients via include/linux/ism.h: struct ism_client.
-> Furthermore, it introduces a "pure" struct ism_dev (i.e. getting rid of
-> dependencies on SMC-D in the device structure), and adds a number of API
-> calls for data transfers via ISM (see ism_register_dmb() & friends).
-> Still, the ISM module implements the SMC-D API, and therefore has a number
-> of internal helper functions for that matter.
-> Note that the ISM API is consciously kept thin for now (as compared to the
-> SMC-D API calls), as a number of API calls are only used with SMC-D and
-> hardly have any meaningful usage beyond SMC-D, e.g. the VLAN-related calls.
-> 
-
-Hi,
-
-Thanks for the great work!
-
-We are tring to adapt loopback and virtio-ism device into SMC-D based on the new
-interface and want to confirm something. (cc: Alexandra Winter, Jan Karcher, Wenjia Zhang)
-
- From my understanding, this patch set is from the perspective of ISM device driver
-and aims to make ISM device not only used by SMC-D, which is great!
-
-But from the perspective of SMC, SMC-D protocol now binds with the helper in
-smc_ism.c (smc_ism_* helper) and some part of smc_ism.c and smcd_ops seems to be
-dedicated to only serve ISM device.
-
-For example,
-
-- The input param of smcd_register_dev() and smcd_unregister_dev() is ism_dev,
-   instead of abstract smcd_dev like before.
-
-- the smcd->ops->register_dmb has param of ism_client, exposing specific underlay.
-
-So I want to confirm that, which of the following is our future direction of the
-SMC-D device expansion?
-
-(1) All extended devices (eg. virtio-ism and loopback) are ISM devices and SMC-D
-     only supports ISM type device.
-
-     SMC-D protocol -> smc_ism_* helper in smc_ism.c -> only ISM device.
-
-     Future extended device must under the definition of ism_dev, in order to share
-     the ism-specific helper in smc_ism.c (such as smcd_register_dev(), smcd_ops->register_dmbs..).
-
-     With this design intention, futher extended SMC-D used device may be like:
-
-                     +---------------------+
-                     |    SMC-D protocol   |
-                     +---------------------+
-                       | current helper in|
-                       |    smc_ism.c     |
-          +--------------------------------------------+
-          |              Broad ISM device              |
-          |             defined as ism_dev             |
-          |  +----------+ +------------+ +----------+  |
-          |  | s390 ISM | | virtio-ism | | loopback |  |
-          |  +----------+ +------------+ +----------+  |
-          +--------------------------------------------+
-
-(2) All extended devices (eg. virtio-ism and loopback) are abstracted as smcd_dev and
-     SMC-D protocol use the abstracted capabilities.
-
-     SMC-D does not care about the type of the underlying device, and only focus on the
-     capabilities provided by smcd_dev.
-
-     SMC-D protocol use a kind of general helpers, which only invoking smcd_dev->ops,
-     without underlay device exposed. Just like most of helpers now in smc_ism.c, such as
-     smc_ism_cantalk()/smc_ism_get_chid()/smc_ism_set_conn()..
-
-     With this design intention, futher extended SMC-D used device should be like:
-
-                      +----------------------+
-                      |     SMC-D protocol   |
-                      +----------------------+
-                       |   general helper   |
-                       |invoke smcd_dev->ops|
-                       | hiding underlay dev|
-            +-----------+  +------------+  +----------+
-            | smc_ism.c |  | smc_vism.c |  | smc_lo.c |
-            |           |  |            |  |          |
-            | s390 ISM  |  | virtio-ism |  | loopback |
-            |  device   |  |   device   |  |  device  |
-            +-----------+  +------------+  +----------+
-
-IMHO, (2) is more clean and beneficial to the flexible expansion of SMC-D devices, with no
-underlay devices exposed.
-
-So (2) should be our target. Do you agree? :)
-
-If so, maybe we should make some part of helpers or ops of SMC-D device (such as smcd_register/unregister_dev
-and smcd->ops->register_dmb) more generic？
-
-Thanks,
-Wen Gu
