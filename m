@@ -2,177 +2,117 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1943EC61DA4
-	for <linux-s390@archiver.kernel.org>; Thu,  2 Feb 2023 20:09:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2DB7FC05027
+	for <linux-s390@archiver.kernel.org>; Thu,  2 Feb 2023 20:23:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231359AbjBBUJQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 2 Feb 2023 15:09:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51238 "EHLO
+        id S230418AbjBBUXU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 2 Feb 2023 15:23:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231322AbjBBUJP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Feb 2023 15:09:15 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 970C16EADB;
-        Thu,  2 Feb 2023 12:09:09 -0800 (PST)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 312K5Zf0030590;
-        Thu, 2 Feb 2023 20:08:55 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : content-type : mime-version; s=pp1;
- bh=qA3uetDnh5K8SDSrjjFDBGsSe3mOGPcwWz+hIKsXPQE=;
- b=LeL+x7hvQ2H80MdzqIq8DRoAuhKoBsFMKhYC2ruMBnh10UqKXU0ZiihDYMyTP9UY+kBR
- wbVTn2RMrFLIqBDzmtHtgLks2vz3t8pD48TVwletf65UVu35+0XU6TEuLiNwi+wobhMA
- A2u9dJep2cxVuooaxxqMGm+Lh24ah9C4vLtm8YxRryjPS+AhoYy++wqYVVC//EOT9Mp5
- cVOV8oFvVwin48E4wVYkHc3vNgNlpq2AxJvAWqW2flD/Uf87v6ui+BBDFIb8XXkXQkVA
- CmVVh5JwKltBJSIN56tbj6AHbhkxYvLp/3ipWhVrxOOjQrzWyc33jsiAk8gtA5dGPOOf pw== 
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ngcyjma80-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 02 Feb 2023 20:08:54 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 312EttMI013226;
-        Thu, 2 Feb 2023 20:08:52 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma03fra.de.ibm.com (PPS) with ESMTPS id 3ncvshcq5w-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 02 Feb 2023 20:08:52 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 312K8mcX45285834
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 2 Feb 2023 20:08:48 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 822D820040;
-        Thu,  2 Feb 2023 20:08:48 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1D2D120049;
-        Thu,  2 Feb 2023 20:08:48 +0000 (GMT)
-Received: from osiris (unknown [9.171.10.177])
-        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Thu,  2 Feb 2023 20:08:48 +0000 (GMT)
-Date:   Thu, 2 Feb 2023 21:08:46 +0100
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [GIT PULL] s390 fixes for 6.2-rc7
-Message-ID: <Y9wYTnwXVwg/3Dv3@osiris>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: uZsbdLOLv9m-3P5MMxvZgRvHvcWrFDin
-X-Proofpoint-GUID: uZsbdLOLv9m-3P5MMxvZgRvHvcWrFDin
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        with ESMTP id S232353AbjBBUXS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Feb 2023 15:23:18 -0500
+Received: from mail.zytor.com (unknown [IPv6:2607:7c80:54:3::138])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02CB96B34E;
+        Thu,  2 Feb 2023 12:23:17 -0800 (PST)
+Received: from [127.0.0.1] ([73.223.250.219])
+        (authenticated bits=0)
+        by mail.zytor.com (8.17.1/8.17.1) with ESMTPSA id 312KLhl02116280
+        (version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
+        Thu, 2 Feb 2023 12:21:43 -0800
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 312KLhl02116280
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
+        s=2023010601; t=1675369310;
+        bh=dXToUAE7pJaQg5q02/GLa3Mz5KxM6AhfOCiviB9LkQ0=;
+        h=Date:From:To:CC:Subject:In-Reply-To:References:From;
+        b=UFfeQLpd1CqaHNn2oWCKbjD/Ifu3loYs//M/YBH4IzNZ5zM+uQu+ca+o7wZeN5w3F
+         DsbUdz66y666X/uc3jG3vgwkg5rRf6GtVkLag+fJE2MvpK5A0UNEmO1M3fnQXeE1Lo
+         Fnl4Ppvdj9DkLLQ/AJYxM7e3cAS5zRrO/+4y12Pny3EZtxFITNqL4C9j1UlDEGI9HH
+         V7hreJiSU/iR392Npg1nWQoPfZXJyKUx9354wvJDSamVNEibIAyoENMY/UFznsWzLs
+         NKi29eZOby3JTQ76f7S8MgceIaH2aMGDaJX/L7Onx4h96zynB+LoMD69Q9XjMUGe2n
+         iFW315XTSuLfQ==
+Date:   Thu, 02 Feb 2023 12:21:41 -0800
+From:   "H. Peter Anvin" <hpa@zytor.com>
+To:     Peter Zijlstra <peterz@infradead.org>,
+        torvalds@linux-foundation.org
+CC:     corbet@lwn.net, will@kernel.org, peterz@infradead.org,
+        boqun.feng@gmail.com, mark.rutland@arm.com,
+        catalin.marinas@arm.com, dennis@kernel.org, tj@kernel.org,
+        cl@linux.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+        joro@8bytes.org, suravee.suthikulpanit@amd.com,
+        robin.murphy@arm.com, dwmw2@infradead.org,
+        baolu.lu@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
+        Herbert Xu <herbert@gondor.apana.org.au>, davem@davemloft.net,
+        penberg@kernel.org, rientjes@google.com, iamjoonsoo.kim@lge.com,
+        Andrew Morton <akpm@linux-foundation.org>, vbabka@suse.cz,
+        roman.gushchin@linux.dev, 42.hyeyoo@gmail.com,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, linux-s390@vger.kernel.org,
+        iommu@lists.linux.dev, linux-arch@vger.kernel.org,
+        linux-crypto@vger.kernel.org
+Subject: Re: [PATCH v2 01/10] cyrpto/b128ops: Remove struct u128
+User-Agent: K-9 Mail for Android
+In-Reply-To: <20230202152655.250913242@infradead.org>
+References: <20230202145030.223740842@infradead.org> <20230202152655.250913242@infradead.org>
+Message-ID: <6B45ADCF-4E3C-4D01-92AB-87BFF6BEE744@zytor.com>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
- definitions=2023-02-02_13,2023-02-02_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 clxscore=1015
- mlxscore=0 mlxlogscore=999 impostorscore=0 phishscore=0 lowpriorityscore=0
- suspectscore=0 bulkscore=0 malwarescore=0 priorityscore=1501 spamscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
- definitions=main-2302020179
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello Linus,
+On February 2, 2023 6:50:31 AM PST, Peter Zijlstra <peterz@infradead=2Eorg>=
+ wrote:
+>Per git-grep u128_xor() and its related struct u128 are unused except
+>to implement {be,le}128_xor()=2E Remove them to free up the namespace=2E
+>
+>Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead=2Eorg>
+>---
+> include/crypto/b128ops=2Eh |   14 +++-----------
+> 1 file changed, 3 insertions(+), 11 deletions(-)
+>
+>--- a/include/crypto/b128ops=2Eh
+>+++ b/include/crypto/b128ops=2Eh
+>@@ -50,10 +50,6 @@
+> #include <linux/types=2Eh>
+>=20
+> typedef struct {
+>-	u64 a, b;
+>-} u128;
+>-
+>-typedef struct {
+> 	__be64 a, b;
+> } be128;
+>=20
+>@@ -61,20 +57,16 @@ typedef struct {
+> 	__le64 b, a;
+> } le128;
+>=20
+>-static inline void u128_xor(u128 *r, const u128 *p, const u128 *q)
+>+static inline void be128_xor(be128 *r, const be128 *p, const be128 *q)
+> {
+> 	r->a =3D p->a ^ q->a;
+> 	r->b =3D p->b ^ q->b;
+> }
+>=20
+>-static inline void be128_xor(be128 *r, const be128 *p, const be128 *q)
+>-{
+>-	u128_xor((u128 *)r, (u128 *)p, (u128 *)q);
+>-}
+>-
+> static inline void le128_xor(le128 *r, const le128 *p, const le128 *q)
+> {
+>-	u128_xor((u128 *)r, (u128 *)p, (u128 *)q);
+>+	r->a =3D p->a ^ q->a;
+>+	r->b =3D p->b ^ q->b;
+> }
+>=20
+> #endif /* _CRYPTO_B128OPS_H */
+>
+>
 
-please pull a couple of s390 fixes.
-
-Thanks,
-Heiko
-
-The following changes since commit 41e1992665a2701fa025a8b76970c43b4148446f:
-
-  s390: workaround invalid gcc-11 out of bounds read warning (2023-01-17 19:00:59 +0100)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.2-4
-
-for you to fetch changes up to 7ab41c2c08a32132ba8c14624910e2fe8ce4ba4b:
-
-  s390/decompressor: specify __decompress() buf len to avoid overflow (2023-01-31 18:54:21 +0100)
-
-----------------------------------------------------------------
-s390 fixes for 6.2-rc7
-
-- With CONFIG_VMAP_STACK enabled it is not possible to load the s390
-  specific diag288_wdt watchdog module. Reason is that a pointer to a
-  string is passed to an inline assembly; this string however is located on
-  the stack, while the instruction within the inline assembly expects a
-  physicial address. Fix this by copying the string to a kmalloc'ed buffer.
-
-- The diag288_wdt watchdog module does not indicate that it accesses memory
-  from an inline assembly, which it does. Add "memory" to the clobber list
-  to prevent the compiler from optimizing code incorrectly away.
-
-- Pass size of the uncompressed kernel image to __decompress() call.
-  Otherwise the kernel image decompressor may corrupt/overwrite an
-  initrd. This was reported to happen on s390 after commit 2aa14b1ab2c4
-  ("zstd: import usptream v1.5.2").
-
-----------------------------------------------------------------
-Alexander Egorenkov (2):
-      watchdog: diag288_wdt: do not use stack buffers for hardware data
-      watchdog: diag288_wdt: fix __diag288() inline assembly
-
-Vasily Gorbik (1):
-      s390/decompressor: specify __decompress() buf len to avoid overflow
-
- arch/s390/boot/decompressor.c  |  2 +-
- drivers/watchdog/diag288_wdt.c | 15 ++++++++++++---
- 2 files changed, 13 insertions(+), 4 deletions(-)
-
-diff --git a/arch/s390/boot/decompressor.c b/arch/s390/boot/decompressor.c
-index 8dcd7af2911a..b519a1f045d8 100644
---- a/arch/s390/boot/decompressor.c
-+++ b/arch/s390/boot/decompressor.c
-@@ -80,6 +80,6 @@ void *decompress_kernel(void)
- 	void *output = (void *)decompress_offset;
- 
- 	__decompress(_compressed_start, _compressed_end - _compressed_start,
--		     NULL, NULL, output, 0, NULL, error);
-+		     NULL, NULL, output, vmlinux.image_size, NULL, error);
- 	return output;
- }
-diff --git a/drivers/watchdog/diag288_wdt.c b/drivers/watchdog/diag288_wdt.c
-index 4cb10877017c..6ca5d9515d85 100644
---- a/drivers/watchdog/diag288_wdt.c
-+++ b/drivers/watchdog/diag288_wdt.c
-@@ -86,7 +86,7 @@ static int __diag288(unsigned int func, unsigned int timeout,
- 		"1:\n"
- 		EX_TABLE(0b, 1b)
- 		: "+d" (err) : "d"(__func), "d"(__timeout),
--		  "d"(__action), "d"(__len) : "1", "cc");
-+		  "d"(__action), "d"(__len) : "1", "cc", "memory");
- 	return err;
- }
- 
-@@ -268,12 +268,21 @@ static int __init diag288_init(void)
- 	char ebc_begin[] = {
- 		194, 197, 199, 201, 213
- 	};
-+	char *ebc_cmd;
- 
- 	watchdog_set_nowayout(&wdt_dev, nowayout_info);
- 
- 	if (MACHINE_IS_VM) {
--		if (__diag288_vm(WDT_FUNC_INIT, 15,
--				 ebc_begin, sizeof(ebc_begin)) != 0) {
-+		ebc_cmd = kmalloc(sizeof(ebc_begin), GFP_KERNEL);
-+		if (!ebc_cmd) {
-+			pr_err("The watchdog cannot be initialized\n");
-+			return -ENOMEM;
-+		}
-+		memcpy(ebc_cmd, ebc_begin, sizeof(ebc_begin));
-+		ret = __diag288_vm(WDT_FUNC_INIT, 15,
-+				   ebc_cmd, sizeof(ebc_begin));
-+		kfree(ebc_cmd);
-+		if (ret != 0) {
- 			pr_err("The watchdog cannot be initialized\n");
- 			return -EINVAL;
- 		}
+Can we centralize these ordered types, too?
