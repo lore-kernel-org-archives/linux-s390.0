@@ -2,129 +2,154 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A45E6C636D4
-	for <linux-s390@archiver.kernel.org>; Thu,  2 Feb 2023 12:52:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 833A2C05027
+	for <linux-s390@archiver.kernel.org>; Thu,  2 Feb 2023 13:53:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229804AbjBBMw4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 2 Feb 2023 07:52:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52510 "EHLO
+        id S229441AbjBBNxx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 2 Feb 2023 08:53:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229666AbjBBMwz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Feb 2023 07:52:55 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35D55A7;
-        Thu,  2 Feb 2023 04:52:55 -0800 (PST)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 312C3gva028808;
-        Thu, 2 Feb 2023 12:52:51 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=fOUMm9vaY0LQvEz1no9qV2e22/3sAj99TdI12zctCso=;
- b=aau+3DPTkYLZrJ/MhHlt00lxqX2MoJ77BRl4qNyWYi07HHFJcvyTggz/FyKIWXnWdLTZ
- yNlhiyrBWIfQGLr71pnvFPY6m53gUd0CZIIeG9pdf7cGI7oHPDybVHN10ePkQRXxZZd4
- ocWQ0dVDv/387PU74Aa2PgXi5wuMaT53mjNya4R4QCMGEBZTn/jkK/OAx/5tAx8Lcg/K
- bMAX0ZCf0R6TWUOFaxQuh45FDCC5BP0so6OFSwwmMvEkiDO+81Y5T3Cn6jsKBwUXJMxH
- ZBQCqhQT72b9qi9Ke/NOruwJtuK+ZEpUqt7KHjOqRKTVQ3X5YqwH4r9uiG4vChFnVdWK oQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ng78h1bqs-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 02 Feb 2023 12:52:51 +0000
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 312BJxOq019471;
-        Thu, 2 Feb 2023 12:52:50 GMT
-Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ng78h1bq9-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 02 Feb 2023 12:52:50 +0000
-Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
-        by ppma01dal.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 312A1TJN006508;
-        Thu, 2 Feb 2023 12:52:49 GMT
-Received: from smtprelay03.wdc07v.mail.ibm.com ([9.208.129.113])
-        by ppma01dal.us.ibm.com (PPS) with ESMTPS id 3ncvtmt8tf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 02 Feb 2023 12:52:49 +0000
-Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
-        by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 312CqlVL12321518
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 2 Feb 2023 12:52:47 GMT
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 29E4B58053;
-        Thu,  2 Feb 2023 12:52:47 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C61315805D;
-        Thu,  2 Feb 2023 12:52:44 +0000 (GMT)
-Received: from [9.65.253.123] (unknown [9.65.253.123])
-        by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Thu,  2 Feb 2023 12:52:44 +0000 (GMT)
-Message-ID: <ee256360-b35b-55c1-d25b-b7abb065df3a@linux.ibm.com>
-Date:   Thu, 2 Feb 2023 07:52:44 -0500
+        with ESMTP id S229881AbjBBNxx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Feb 2023 08:53:53 -0500
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 711D46D055;
+        Thu,  2 Feb 2023 05:53:49 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=16;SR=0;TI=SMTPD_---0ValHekG_1675346025;
+Received: from 30.221.129.148(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0ValHekG_1675346025)
+          by smtp.aliyun-inc.com;
+          Thu, 02 Feb 2023 21:53:46 +0800
+Message-ID: <39206f64-3f88-235e-7017-2479ac58844d@linux.alibaba.com>
+Date:   Thu, 2 Feb 2023 21:53:43 +0800
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.0
-Subject: Re: [PATCH v2] vfio: fix deadlock between group lock and kvm lock
-To:     "Tian, Kevin" <kevin.tian@intel.com>,
-        Alex Williamson <alex.williamson@redhat.com>
-Cc:     "pbonzini@redhat.com" <pbonzini@redhat.com>,
-        "Liu, Yi L" <yi.l.liu@intel.com>,
-        "jgg@nvidia.com" <jgg@nvidia.com>,
-        "cohuck@redhat.com" <cohuck@redhat.com>,
-        "farman@linux.ibm.com" <farman@linux.ibm.com>,
-        "pmorel@linux.ibm.com" <pmorel@linux.ibm.com>,
-        "borntraeger@linux.ibm.com" <borntraeger@linux.ibm.com>,
-        "frankja@linux.ibm.com" <frankja@linux.ibm.com>,
-        "imbrenda@linux.ibm.com" <imbrenda@linux.ibm.com>,
-        "david@redhat.com" <david@redhat.com>,
-        "akrowiak@linux.ibm.com" <akrowiak@linux.ibm.com>,
-        "jjherne@linux.ibm.com" <jjherne@linux.ibm.com>,
-        "pasic@linux.ibm.com" <pasic@linux.ibm.com>,
-        "zhenyuw@linux.intel.com" <zhenyuw@linux.intel.com>,
-        "Wang, Zhi A" <zhi.a.wang@intel.com>,
-        "Christopherson, , Sean" <seanjc@google.com>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <20230201192010.42748-1-mjrosato@linux.ibm.com>
- <20230201162730.685b5332.alex.williamson@redhat.com>
- <BN9PR11MB5276B8F3F6735FF2616128868CD69@BN9PR11MB5276.namprd11.prod.outlook.com>
-Content-Language: en-US
-From:   Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <BN9PR11MB5276B8F3F6735FF2616128868CD69@BN9PR11MB5276.namprd11.prod.outlook.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: XcjC1Kt46PxL2S8wVIGhF-mMiGdE2aU3
-X-Proofpoint-ORIG-GUID: o81pid3WShnfEElUozHn3d2Sh9_qJ-gl
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
- definitions=2023-02-02_04,2023-02-02_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- mlxlogscore=999 suspectscore=0 spamscore=0 priorityscore=1501
- impostorscore=0 mlxscore=0 adultscore=0 lowpriorityscore=0 bulkscore=0
- phishscore=0 clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2302020112
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.6.1
+Subject: Re: [net-next v2 0/8] drivers/s390/net/ism: Add generalized interface
+To:     Jan Karcher <jaka@linux.ibm.com>,
+        David Miller <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Eric Dumazet <edumazet@google.com>,
+        Paolo Abeni <pabeni@redhat.com>
+Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Alexandra Winter <wintera@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Thorsten Winkler <twinkler@linux.ibm.com>,
+        Stefan Raspl <raspl@linux.ibm.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Nils Hoppmann <niho@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Tony Lu <tonylu@linux.alibaba.com>
+References: <20230123181752.1068-1-jaka@linux.ibm.com>
+From:   Wen Gu <guwen@linux.alibaba.com>
+In-Reply-To: <20230123181752.1068-1-jaka@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2/1/23 11:10 PM, Tian, Kevin wrote:
->> From: Alex Williamson <alex.williamson@redhat.com>
->> Sent: Thursday, February 2, 2023 7:28 AM
->>>
->>> +#ifdef CONFIG_HAVE_KVM
->>> +static bool vfio_kvm_get_kvm_safe(struct vfio_device *device, struct kvm
->> *kvm)
->>
->> I'm tempted to name these vfio_device_get_kvm_safe() and only pass the
->> vfio_device, where of course we can get the kvm pointer from the group
->> internally.
->>
-> 
-> I have a different thought. In the end the cdev series also need the similar
-> safe get/put logic then it's better to keep it in vfio_main.c called by
-> the group/cdev path individually.
 
-Ah, I hadn't considered the cdev series - OK, I can move the functions back into vfio_main and externalize both via drivers/vfio/vfio.h so they can be called from group.c for this fix and then available to vfio_main.c already for cdev.
+
+On 2023/1/24 02:17, Jan Karcher wrote:
+
+> Previously, there was no clean separation between SMC-D code and the ISM
+> device driver.This patch series addresses the situation to make ISM available
+> for uses outside of SMC-D.
+> In detail: SMC-D offers an interface via struct smcd_ops, which only the
+> ISM module implements so far. However, there is no real separation between
+> the smcd and ism modules, which starts right with the ISM device
+> initialization, which calls directly into the SMC-D code.
+> This patch series introduces a new API in the ISM module, which allows
+> registration of arbitrary clients via include/linux/ism.h: struct ism_client.
+> Furthermore, it introduces a "pure" struct ism_dev (i.e. getting rid of
+> dependencies on SMC-D in the device structure), and adds a number of API
+> calls for data transfers via ISM (see ism_register_dmb() & friends).
+> Still, the ISM module implements the SMC-D API, and therefore has a number
+> of internal helper functions for that matter.
+> Note that the ISM API is consciously kept thin for now (as compared to the
+> SMC-D API calls), as a number of API calls are only used with SMC-D and
+> hardly have any meaningful usage beyond SMC-D, e.g. the VLAN-related calls.
+> 
+
+Hi,
+
+Thanks for the great work!
+
+We are tring to adapt loopback and virtio-ism device into SMC-D based on the new
+interface and want to confirm something. (cc: Alexandra Winter, Jan Karcher, Wenjia Zhang)
+
+ From my understanding, this patch set is from the perspective of ISM device driver
+and aims to make ISM device not only used by SMC-D, which is great!
+
+But from the perspective of SMC, SMC-D protocol now binds with the helper in
+smc_ism.c (smc_ism_* helper) and some part of smc_ism.c and smcd_ops seems to be
+dedicated to only serve ISM device.
+
+For example,
+
+- The input param of smcd_register_dev() and smcd_unregister_dev() is ism_dev,
+   instead of abstract smcd_dev like before.
+
+- the smcd->ops->register_dmb has param of ism_client, exposing specific underlay.
+
+So I want to confirm that, which of the following is our future direction of the
+SMC-D device expansion?
+
+(1) All extended devices (eg. virtio-ism and loopback) are ISM devices and SMC-D
+     only supports ISM type device.
+
+     SMC-D protocol -> smc_ism_* helper in smc_ism.c -> only ISM device.
+
+     Future extended device must under the definition of ism_dev, in order to share
+     the ism-specific helper in smc_ism.c (such as smcd_register_dev(), smcd_ops->register_dmbs..).
+
+     With this design intention, futher extended SMC-D used device may be like:
+
+                     +---------------------+
+                     |    SMC-D protocol   |
+                     +---------------------+
+                       | current helper in|
+                       |    smc_ism.c     |
+          +--------------------------------------------+
+          |              Broad ISM device              |
+          |             defined as ism_dev             |
+          |  +----------+ +------------+ +----------+  |
+          |  | s390 ISM | | virtio-ism | | loopback |  |
+          |  +----------+ +------------+ +----------+  |
+          +--------------------------------------------+
+
+(2) All extended devices (eg. virtio-ism and loopback) are abstracted as smcd_dev and
+     SMC-D protocol use the abstracted capabilities.
+
+     SMC-D does not care about the type of the underlying device, and only focus on the
+     capabilities provided by smcd_dev.
+
+     SMC-D protocol use a kind of general helpers, which only invoking smcd_dev->ops,
+     without underlay device exposed. Just like most of helpers now in smc_ism.c, such as
+     smc_ism_cantalk()/smc_ism_get_chid()/smc_ism_set_conn()..
+
+     With this design intention, futher extended SMC-D used device should be like:
+
+                      +----------------------+
+                      |     SMC-D protocol   |
+                      +----------------------+
+                       |   general helper   |
+                       |invoke smcd_dev->ops|
+                       | hiding underlay dev|
+            +-----------+  +------------+  +----------+
+            | smc_ism.c |  | smc_vism.c |  | smc_lo.c |
+            |           |  |            |  |          |
+            | s390 ISM  |  | virtio-ism |  | loopback |
+            |  device   |  |   device   |  |  device  |
+            +-----------+  +------------+  +----------+
+
+IMHO, (2) is more clean and beneficial to the flexible expansion of SMC-D devices, with no
+underlay devices exposed.
+
+So (2) should be our target. Do you agree? :)
+
+If so, maybe we should make some part of helpers or ops of SMC-D device (such as smcd_register/unregister_dev
+and smcd->ops->register_dmb) more generic？
+
+Thanks,
+Wen Gu
