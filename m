@@ -2,213 +2,303 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EBC19C61DA4
-	for <linux-s390@archiver.kernel.org>; Fri,  3 Feb 2023 15:37:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A4ACC05027
+	for <linux-s390@archiver.kernel.org>; Fri,  3 Feb 2023 16:53:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233025AbjBCPh5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 3 Feb 2023 10:37:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51512 "EHLO
+        id S233060AbjBCQxQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 3 Feb 2023 11:53:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233010AbjBCPhz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Feb 2023 10:37:55 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74EBB6EDCA;
-        Fri,  3 Feb 2023 07:37:53 -0800 (PST)
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 313FOGq2007962;
-        Fri, 3 Feb 2023 15:37:48 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=wJPy5gnQQgp5DWijqh1cR/GZtnWuAVWAz/2QL+MNjPE=;
- b=VOZb5kX225l4AaPDHjqZuMPrpwTGxhw4Kzr1+f5z/4HUaxYf+aLXPTQkYVCNa9DVVGNH
- MfvAAptMZht5nPRqJ+7gPG+COvFfA8jTU2vKsIeamPnHk37KCtan/Uyw459Wbles/NvR
- 3Diulm3pArzRGt+S7aOKgb3fO+MzNelogQQHu5Nc9kNWFnBpWEyESlpfvgQt+UWkv4r5
- 0ekeygL1x60gAM4w1fD5ryBtyCXBzf7zZDNf4UXISQVO6QeZu9OtdEdxUwUK6UDKy+3X
- nqL+f+KzhyzwS7VuAQCMesX386rGWYLlL51hOfBK44wfsNWZ4UFgE9k/NMaub+LLC2Iu 6g== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3nh4vqgb4m-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 03 Feb 2023 15:37:47 +0000
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 313FQv66019759;
-        Fri, 3 Feb 2023 15:37:47 GMT
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3nh4vqgb3h-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 03 Feb 2023 15:37:47 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 313DpObg024026;
-        Fri, 3 Feb 2023 15:32:45 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-        by ppma01fra.de.ibm.com (PPS) with ESMTPS id 3ncvuqwe4e-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 03 Feb 2023 15:32:45 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 313FWfAE50004278
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 3 Feb 2023 15:32:41 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A112C20043;
-        Fri,  3 Feb 2023 15:32:41 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 52FF12004B;
-        Fri,  3 Feb 2023 15:32:41 +0000 (GMT)
-Received: from li-7e0de7cc-2d9d-11b2-a85c-de26c016e5ad.ibm.com (unknown [9.171.195.237])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Fri,  3 Feb 2023 15:32:41 +0000 (GMT)
-Message-ID: <e96b3c20055105af9ba76f0abefeb5a236023f37.camel@linux.ibm.com>
-Subject: Re: [PATCH v6 10/14] KVM: s390: Refactor absolute vm mem_op function
-From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-To:     Janosch Frank <frankja@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-Cc:     David Hildenbrand <david@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
+        with ESMTP id S233020AbjBCQxP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Feb 2023 11:53:15 -0500
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C5332768B;
+        Fri,  3 Feb 2023 08:53:13 -0800 (PST)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 0CD93C14;
+        Fri,  3 Feb 2023 08:53:55 -0800 (PST)
+Received: from FVFF77S0Q05N (unknown [10.57.90.37])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id EF3D43F71E;
+        Fri,  3 Feb 2023 08:53:06 -0800 (PST)
+Date:   Fri, 3 Feb 2023 16:52:59 +0000
+From:   Mark Rutland <mark.rutland@arm.com>
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     torvalds@linux-foundation.org, corbet@lwn.net, will@kernel.org,
+        boqun.feng@gmail.com, catalin.marinas@arm.com, dennis@kernel.org,
+        tj@kernel.org, cl@linux.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+        hpa@zytor.com, joro@8bytes.org, suravee.suthikulpanit@amd.com,
+        robin.murphy@arm.com, dwmw2@infradead.org,
+        baolu.lu@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
+        Herbert Xu <herbert@gondor.apana.org.au>, davem@davemloft.net,
+        penberg@kernel.org, rientjes@google.com, iamjoonsoo.kim@lge.com,
+        Andrew Morton <akpm@linux-foundation.org>, vbabka@suse.cz,
+        roman.gushchin@linux.dev, 42.hyeyoo@gmail.com,
         linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Shuah Khan <shuah@kernel.org>,
-        Sven Schnelle <svens@linux.ibm.com>
-Date:   Fri, 03 Feb 2023 16:32:41 +0100
-In-Reply-To: <f1b28707-c525-7cd1-64d5-6717bac5d711@linux.ibm.com>
-References: <20230125212608.1860251-1-scgl@linux.ibm.com>
-         <20230125212608.1860251-11-scgl@linux.ibm.com>
-         <f1b28707-c525-7cd1-64d5-6717bac5d711@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.46.3 (3.46.3-1.fc37) 
+        linux-mm@kvack.org, linux-s390@vger.kernel.org,
+        iommu@lists.linux.dev, linux-arch@vger.kernel.org,
+        linux-crypto@vger.kernel.org
+Subject: Re: [PATCH v2 03/10] arch: Introduce
+ arch_{,try_}_cmpxchg128{,_local}()
+Message-ID: <Y90763uF/cHqiOYN@FVFF77S0Q05N>
+References: <20230202145030.223740842@infradead.org>
+ <20230202152655.373335780@infradead.org>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 54Gn0kQUnlQTHXPWzLe1AGFCY_plwiBj
-X-Proofpoint-ORIG-GUID: 1dQmxI_NRK3cY9hLoGNOL_62IpZVv4AJ
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
- definitions=2023-02-03_15,2023-02-03_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 phishscore=0
- clxscore=1015 impostorscore=0 malwarescore=0 mlxlogscore=920
- suspectscore=0 adultscore=0 mlxscore=0 spamscore=0 priorityscore=1501
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2302030139
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230202152655.373335780@infradead.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 2023-02-03 at 15:48 +0100, Janosch Frank wrote:
-> On 1/25/23 22:26, Janis Schoetterl-Glausch wrote:
-> > Remove code duplication with regards to the CHECK_ONLY flag.
-> > Decrease the number of indents.
-> > No functional change indented.
-> >=20
-> > Suggested-by: Janosch Frank <frankja@linux.ibm.com>
-> > Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-> > ---
-> >=20
-> >=20
-> > Cosmetic only, can be dropped.
-> >=20
-> >=20
-> >   arch/s390/kvm/kvm-s390.c | 43 ++++++++++++++++-----------------------=
--
-> >   1 file changed, 17 insertions(+), 26 deletions(-)
-> >=20
-> > diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> > index 588cf70dc81e..cfd09cb43ef6 100644
-> > --- a/arch/s390/kvm/kvm-s390.c
-> > +++ b/arch/s390/kvm/kvm-s390.c
-> > @@ -2794,6 +2794,7 @@ static void *mem_op_alloc_buf(struct kvm_s390_mem=
-_op *mop)
-> >   static int kvm_s390_vm_mem_op_abs(struct kvm *kvm, struct kvm_s390_me=
-m_op *mop)
-> >   {
-> >   	void __user *uaddr =3D (void __user *)mop->buf;
-> > +	enum gacc_mode acc_mode;
-> >   	void *tmpbuf =3D NULL;
-> >   	int r, srcu_idx;
-> >  =20
-> > @@ -2813,33 +2814,23 @@ static int kvm_s390_vm_mem_op_abs(struct kvm *k=
-vm, struct kvm_s390_mem_op *mop)
-> >   		goto out_unlock;
-> >   	}
-> >  =20
-> > -	switch (mop->op) {
-> > -	case KVM_S390_MEMOP_ABSOLUTE_READ: {
-> > -		if (mop->flags & KVM_S390_MEMOP_F_CHECK_ONLY) {
-> > -			r =3D check_gpa_range(kvm, mop->gaddr, mop->size, GACC_FETCH, mop->=
-key);
-> > -		} else {
-> > -			r =3D access_guest_abs_with_key(kvm, mop->gaddr, tmpbuf,
-> > -						      mop->size, GACC_FETCH, mop->key);
-> > -			if (r =3D=3D 0) {
-> > -				if (copy_to_user(uaddr, tmpbuf, mop->size))
-> > -					r =3D -EFAULT;
-> > -			}
-> > -		}
-> > -		break;
-> > -	}
-> > -	case KVM_S390_MEMOP_ABSOLUTE_WRITE: {
-> > -		if (mop->flags & KVM_S390_MEMOP_F_CHECK_ONLY) {
-> > -			r =3D check_gpa_range(kvm, mop->gaddr, mop->size, GACC_STORE, mop->=
-key);
-> > -		} else {
-> > -			if (copy_from_user(tmpbuf, uaddr, mop->size)) {
-> > -				r =3D -EFAULT;
-> > -				break;
-> > -			}
-> > -			r =3D access_guest_abs_with_key(kvm, mop->gaddr, tmpbuf,
-> > -						      mop->size, GACC_STORE, mop->key);
-> > +	acc_mode =3D mop->op =3D=3D KVM_S390_MEMOP_ABSOLUTE_READ ? GACC_FETCH=
- : GACC_STORE;
->=20
-> Would the line be too long if that variable would be initialized where=
-=20
-> it's defined?
+On Thu, Feb 02, 2023 at 03:50:33PM +0100, Peter Zijlstra wrote:
+> For all architectures that currently support cmpxchg_double()
+> implement the cmpxchg128() family of functions that is basically the
+> same but with a saner interface.
+> 
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 
-Just fits at 100 columns. Want me to move it?
+For arm64:
 
->=20
-> > +	if (mop->flags & KVM_S390_MEMOP_F_CHECK_ONLY) {
-> > +		r =3D check_gpa_range(kvm, mop->gaddr, mop->size, acc_mode, mop->key=
-);
->=20
-> We should early return i.e. goto out_unlock.
->=20
-> IMHO else if, else patterns should either be switches (testing the same=
-=20
-> variable) or kept as short as possible / be avoided.
->=20
-> > +	} else if (acc_mode =3D=3D GACC_FETCH) {
-> > +		r =3D access_guest_abs_with_key(kvm, mop->gaddr, tmpbuf,
-> > +					      mop->size, GACC_FETCH, mop->key);
->=20
-> I'd guess it's personal taste whether you use GACC_FETCH or access_mode=
-=20
-> but if you don't use it here then we can remove the variable all=20
-> together, no?
+Acked-by: Mark Rutland <mark.rutland@arm.com>
 
-Yeah, I think I did replace it, but then undid it.
-Probably just because it is a bit more explicit.
-It's used in check_gpa_range, so no, unless you want to dump the expression
-directly in there.
->=20
-> > +		if (r)
-> > +			goto out_unlock;
-> > +		if (copy_to_user(uaddr, tmpbuf, mop->size))
-> > +			r =3D -EFAULT;
-> > +	} else {
-> > +		if (copy_from_user(tmpbuf, uaddr, mop->size)) {
-> > +			r =3D -EFAULT;
-> > +			goto out_unlock;
-> >   		}
-> > -		break;
-> > -	}
-> > +		r =3D access_guest_abs_with_key(kvm, mop->gaddr, tmpbuf,
-> > +					      mop->size, GACC_STORE, mop->key);
-> >   	}
-> >  =20
-> >   out_unlock:
->=20
+Mark.
 
+> ---
+>  arch/arm64/include/asm/atomic_ll_sc.h |   41 +++++++++++++++++++++++++
+>  arch/arm64/include/asm/atomic_lse.h   |   31 +++++++++++++++++++
+>  arch/arm64/include/asm/cmpxchg.h      |   26 ++++++++++++++++
+>  arch/s390/include/asm/cmpxchg.h       |   14 ++++++++
+>  arch/x86/include/asm/cmpxchg_32.h     |    3 +
+>  arch/x86/include/asm/cmpxchg_64.h     |   55 +++++++++++++++++++++++++++++++++-
+>  6 files changed, 168 insertions(+), 2 deletions(-)
+> 
+> --- a/arch/arm64/include/asm/atomic_ll_sc.h
+> +++ b/arch/arm64/include/asm/atomic_ll_sc.h
+> @@ -326,6 +326,47 @@ __CMPXCHG_DBL(   ,        ,  ,         )
+>  __CMPXCHG_DBL(_mb, dmb ish, l, "memory")
+>  
+>  #undef __CMPXCHG_DBL
+> +
+> +union __u128_halves {
+> +	u128 full;
+> +	struct {
+> +		u64 low, high;
+> +	};
+> +};
+> +
+> +#define __CMPXCHG128(name, mb, rel, cl...)                             \
+> +static __always_inline u128						\
+> +__ll_sc__cmpxchg128##name(volatile u128 *ptr, u128 old, u128 new)	\
+> +{									\
+> +	union __u128_halves r, o = { .full = (old) },			\
+> +			       n = { .full = (new) };			\
+> +       unsigned int tmp;                                               \
+> +									\
+> +	asm volatile("// __cmpxchg128" #name "\n"			\
+> +       "       prfm    pstl1strm, %[v]\n"                              \
+> +       "1:     ldxp    %[rl], %[rh], %[v]\n"                           \
+> +       "       cmp     %[rl], %[ol]\n"                                 \
+> +       "       ccmp    %[rh], %[oh], 0, eq\n"                          \
+> +       "       b.ne    2f\n"                                           \
+> +       "       st" #rel "xp    %w[tmp], %[nl], %[nh], %[v]\n"          \
+> +       "       cbnz    %w[tmp], 1b\n"                                  \
+> +	"	" #mb "\n"						\
+> +	"2:"								\
+> +       : [v] "+Q" (*(u128 *)ptr),                                      \
+> +         [rl] "=&r" (r.low), [rh] "=&r" (r.high),                      \
+> +         [tmp] "=&r" (tmp)                                             \
+> +       : [ol] "r" (o.low), [oh] "r" (o.high),                          \
+> +         [nl] "r" (n.low), [nh] "r" (n.high)                           \
+> +       : "cc", ##cl);                                                  \
+> +									\
+> +	return r.full;							\
+> +}
+> +
+> +__CMPXCHG128(   ,        ,  )
+> +__CMPXCHG128(_mb, dmb ish, l, "memory")
+> +
+> +#undef __CMPXCHG128
+> +
+>  #undef K
+>  
+>  #endif	/* __ASM_ATOMIC_LL_SC_H */
+> --- a/arch/arm64/include/asm/atomic_lse.h
+> +++ b/arch/arm64/include/asm/atomic_lse.h
+> @@ -324,4 +324,35 @@ __CMPXCHG_DBL(_mb, al, "memory")
+>  
+>  #undef __CMPXCHG_DBL
+>  
+> +#define __CMPXCHG128(name, mb, cl...)					\
+> +static __always_inline u128						\
+> +__lse__cmpxchg128##name(volatile u128 *ptr, u128 old, u128 new)		\
+> +{									\
+> +	union __u128_halves r, o = { .full = (old) },			\
+> +			       n = { .full = (new) };			\
+> +	register unsigned long x0 asm ("x0") = o.low;			\
+> +	register unsigned long x1 asm ("x1") = o.high;			\
+> +	register unsigned long x2 asm ("x2") = n.low;			\
+> +	register unsigned long x3 asm ("x3") = n.high;			\
+> +	register unsigned long x4 asm ("x4") = (unsigned long)ptr;	\
+> +									\
+> +	asm volatile(							\
+> +	__LSE_PREAMBLE							\
+> +	"	casp" #mb "\t%[old1], %[old2], %[new1], %[new2], %[v]\n"\
+> +	: [old1] "+&r" (x0), [old2] "+&r" (x1),				\
+> +	  [v] "+Q" (*(u128 *)ptr)					\
+> +	: [new1] "r" (x2), [new2] "r" (x3), [ptr] "r" (x4),		\
+> +	  [oldval1] "r" (o.low), [oldval2] "r" (o.high)			\
+> +	: cl);								\
+> +									\
+> +	r.low = x0; r.high = x1;					\
+> +									\
+> +	return r.full;							\
+> +}
+> +
+> +__CMPXCHG128(   ,   )
+> +__CMPXCHG128(_mb, al, "memory")
+> +
+> +#undef __CMPXCHG128
+> +
+>  #endif	/* __ASM_ATOMIC_LSE_H */
+> --- a/arch/arm64/include/asm/cmpxchg.h
+> +++ b/arch/arm64/include/asm/cmpxchg.h
+> @@ -147,6 +147,19 @@ __CMPXCHG_DBL(_mb)
+>  
+>  #undef __CMPXCHG_DBL
+>  
+> +#define __CMPXCHG128(name)						\
+> +static inline u128 __cmpxchg128##name(volatile u128 *ptr,		\
+> +				      u128 old, u128 new)		\
+> +{									\
+> +	return __lse_ll_sc_body(_cmpxchg128##name,			\
+> +				ptr, old, new);				\
+> +}
+> +
+> +__CMPXCHG128(   )
+> +__CMPXCHG128(_mb)
+> +
+> +#undef __CMPXCHG128
+> +
+>  #define __CMPXCHG_GEN(sfx)						\
+>  static __always_inline unsigned long __cmpxchg##sfx(volatile void *ptr,	\
+>  					   unsigned long old,		\
+> @@ -229,6 +242,19 @@ __CMPXCHG_GEN(_mb)
+>  	__ret;									\
+>  })
+>  
+> +/* cmpxchg128 */
+> +#define system_has_cmpxchg128()		1
+> +
+> +#define arch_cmpxchg128(ptr, o, n)						\
+> +({										\
+> +	__cmpxchg128_mb((ptr), (o), (n));					\
+> +})
+> +
+> +#define arch_cmpxchg128_local(ptr, o, n)					\
+> +({										\
+> +	__cmpxchg128((ptr), (o), (n));						\
+> +})
+> +
+>  #define __CMPWAIT_CASE(w, sfx, sz)					\
+>  static inline void __cmpwait_case_##sz(volatile void *ptr,		\
+>  				       unsigned long val)		\
+> --- a/arch/s390/include/asm/cmpxchg.h
+> +++ b/arch/s390/include/asm/cmpxchg.h
+> @@ -201,4 +201,18 @@ static __always_inline int __cmpxchg_dou
+>  			 (unsigned long)(n1), (unsigned long)(n2));	\
+>  })
+>  
+> +#define system_has_cmpxchg128()		1
+> +
+> +static __always_inline u128 arch_cmpxchg128(volatile u128 *ptr, u128 old, u128 new)
+> +{
+> +	asm volatile(
+> +		"	cdsg	%[old],%[new],%[ptr]\n"
+> +		: [old] "+d" (old), [ptr] "+QS" (*ptr)
+> +		: [new] "d" (new)
+> +		: "memory", "cc");
+> +	return old;
+> +}
+> +
+> +#define arch_cmpxchg128		arch_cmpxchg128
+> +
+>  #endif /* __ASM_CMPXCHG_H */
+> --- a/arch/x86/include/asm/cmpxchg_32.h
+> +++ b/arch/x86/include/asm/cmpxchg_32.h
+> @@ -103,6 +103,7 @@ static inline bool __try_cmpxchg64(volat
+>  
+>  #endif
+>  
+> -#define system_has_cmpxchg_double() boot_cpu_has(X86_FEATURE_CX8)
+> +#define system_has_cmpxchg_double()	boot_cpu_has(X86_FEATURE_CX8)
+> +#define system_has_cmpxchg64()		boot_cpu_has(X86_FEATURE_CX8)
+>  
+>  #endif /* _ASM_X86_CMPXCHG_32_H */
+> --- a/arch/x86/include/asm/cmpxchg_64.h
+> +++ b/arch/x86/include/asm/cmpxchg_64.h
+> @@ -20,6 +20,59 @@
+>  	arch_try_cmpxchg((ptr), (po), (n));				\
+>  })
+>  
+> -#define system_has_cmpxchg_double() boot_cpu_has(X86_FEATURE_CX16)
+> +union __u128_halves {
+> +	u128 full;
+> +	struct {
+> +		u64 low, high;
+> +	};
+> +};
+> +
+> +static __always_inline u128 arch_cmpxchg128(volatile u128 *ptr, u128 old, u128 new)
+> +{
+> +	union __u128_halves o = { .full = old, }, n = { .full = new, };
+> +
+> +	asm volatile(LOCK_PREFIX "cmpxchg16b %[ptr]"
+> +		     : [ptr] "+m" (*ptr),
+> +		       "+a" (o.low), "+d" (o.high)
+> +		     : "b" (n.low), "c" (n.high)
+> +		     : "memory");
+> +
+> +	return o.full;
+> +}
+> +
+> +static __always_inline u128 arch_cmpxchg128_local(volatile u128 *ptr, u128 old, u128 new)
+> +{
+> +	union __u128_halves o = { .full = old, }, n = { .full = new, };
+> +
+> +	asm volatile("cmpxchg16b %[ptr]"
+> +		     : [ptr] "+m" (*ptr),
+> +		       "+a" (o.low), "+d" (o.high)
+> +		     : "b" (n.low), "c" (n.high)
+> +		     : "memory");
+> +
+> +	return o.full;
+> +}
+> +
+> +static __always_inline bool arch_try_cmpxchg128(volatile u128 *ptr, u128 *old, u128 new)
+> +{
+> +	union __u128_halves o = { .full = *old, }, n = { .full = new, };
+> +	bool ret;
+> +
+> +	asm volatile(LOCK_PREFIX "cmpxchg16b %[ptr]"
+> +		     CC_SET(e)
+> +		     : CC_OUT(e) (ret),
+> +		       [ptr] "+m" (*ptr),
+> +		       "+a" (o.low), "+d" (o.high)
+> +		     : "b" (n.low), "c" (n.high)
+> +		     : "memory");
+> +
+> +	if (unlikely(!ret))
+> +		*old = o.full;
+> +
+> +	return likely(ret);
+> +}
+> +
+> +#define system_has_cmpxchg_double()	boot_cpu_has(X86_FEATURE_CX16)
+> +#define system_has_cmpxchg128()		boot_cpu_has(X86_FEATURE_CX16)
+>  
+>  #endif /* _ASM_X86_CMPXCHG_64_H */
+> 
+> 
