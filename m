@@ -2,81 +2,71 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C2303C63797
-	for <linux-s390@archiver.kernel.org>; Fri,  3 Feb 2023 03:32:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2DD04C61DA4
+	for <linux-s390@archiver.kernel.org>; Fri,  3 Feb 2023 03:38:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230451AbjBCDcI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 2 Feb 2023 22:32:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51964 "EHLO
+        id S230504AbjBCDi6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 2 Feb 2023 22:38:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232233AbjBCDcG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Feb 2023 22:32:06 -0500
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4756F68AE2
-        for <linux-s390@vger.kernel.org>; Thu,  2 Feb 2023 19:31:58 -0800 (PST)
-Received: by mail-pj1-x1035.google.com with SMTP id e10-20020a17090a630a00b0022bedd66e6dso7619611pjj.1
-        for <linux-s390@vger.kernel.org>; Thu, 02 Feb 2023 19:31:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rivosinc-com.20210112.gappssmtp.com; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:to:from:cc
-         :in-reply-to:subject:date:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=7ELdr8kr8cfAFHro3oo2nX8Zeaf+T1iI5OEPVbajWl4=;
-        b=jCJnuaG7D0JNqsasbCOptl2FERdbLdwSDouVdFGzdlhZ4c0vC6kncai50bmmbcG/DW
-         Sb7Q7TTuIW399D57jto6QS7jK7rNGJfTigkW4VVmK8ixDAHFWk+AjRyf/EIoK4SW+kaf
-         4oqgE3ORR+Kae4q0iDp42Aaevi8KRRznIjekikScXpDDIySq4G+W3WG5YRVSvm90lcLs
-         i6r167TOVqnrFS1cchC+nMQa+SdsnBqvWgEziNgvGavPegJwuoxvGFv5fZH+5rwlJWHS
-         uRjz49UFgst62dCFszB9MGisu5ceibyxM/Q2gNIrFfVIWNN41LF4scop8rJgL2j92Zaw
-         Yzwg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:to:from:cc
-         :in-reply-to:subject:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=7ELdr8kr8cfAFHro3oo2nX8Zeaf+T1iI5OEPVbajWl4=;
-        b=mgvFynpUkINt8CbOHuo8UunL497lR22lb3OnKSp8Suh34YdCTOHUDvP+mAU92Tdizr
-         XmwVKMOKnTAQ3hYsJTApNNHlJQQsbnlVM0ItbCo5BFIScFWll8mEiqXnwpCnjAvzSP81
-         g4QHD1S9vSxSA7qwtsqhv9VDfxSFGlQfScOuCdNH03I6Mr3W0xB3NLd3fW225lmC31cX
-         WJM7g3m/XkFD1gi4Oa9iY8BvFUx7whVDTXAckzg3dqHYyqy4teguVCGxMwdYMiAoUP5I
-         +NUbITXF/qIydqtpJL5Nrf+R4CauQxVkIicI2qSOOXBXl1qKd7t74suwX7NJ8SzV1/lT
-         3EnA==
-X-Gm-Message-State: AO0yUKWY/GMq/Gp0mlOBLdfRy3WetQcLh9fSmocCQ0wuefhznNhCho7e
-        XOsKt7wwS/mBudy7Ou4HXS3a0L0dDCuz4hbD
-X-Google-Smtp-Source: AK7set+57aLnObSHcH5qlDN6Mf7iQBt+c9eQWgNCT+CmyqH0+99UE+sJruvk7QuheXFpwkAyk9dl8g==
-X-Received: by 2002:a17:903:41ca:b0:198:d8a4:1ece with SMTP id u10-20020a17090341ca00b00198d8a41ecemr1658070ple.8.1675395117606;
-        Thu, 02 Feb 2023 19:31:57 -0800 (PST)
-Received: from localhost ([216.9.110.6])
-        by smtp.gmail.com with ESMTPSA id q16-20020a170902edd000b001966308ca0dsm420998plk.167.2023.02.02.19.31.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Feb 2023 19:31:56 -0800 (PST)
-Date:   Thu, 02 Feb 2023 19:31:56 -0800 (PST)
-X-Google-Original-Date: Thu, 02 Feb 2023 19:31:51 PST (-0800)
-Subject:     Re: [PATCH 0/5] mm: Stop alaising VM_FAULT_HINDEX_MASK in arch code
-In-Reply-To: <20221203030356.3917-1-palmer@rivosinc.com>
-CC:     linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-From:   Palmer Dabbelt <palmer@rivosinc.com>
-To:     linux-kernel@vger.kernel.org
-Message-ID: <mhng-15cb5600-7883-4454-aabe-6e695a81a45c@palmer-ri-x1c9>
-Mime-Version: 1.0 (MHng)
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+        with ESMTP id S229575AbjBCDi5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Feb 2023 22:38:57 -0500
+Received: from formenos.hmeau.com (167-179-156-38.a7b39c.syd.nbn.aussiebb.net [167.179.156.38])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA8E1EF94;
+        Thu,  2 Feb 2023 19:38:54 -0800 (PST)
+Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
+        by formenos.hmeau.com with smtp (Exim 4.94.2 #2 (Debian))
+        id 1pNmt8-0070dc-T8; Fri, 03 Feb 2023 11:37:23 +0800
+Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Fri, 03 Feb 2023 11:37:22 +0800
+Date:   Fri, 3 Feb 2023 11:37:22 +0800
+From:   Herbert Xu <herbert@gondor.apana.org.au>
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     torvalds@linux-foundation.org, corbet@lwn.net, will@kernel.org,
+        boqun.feng@gmail.com, mark.rutland@arm.com,
+        catalin.marinas@arm.com, dennis@kernel.org, tj@kernel.org,
+        cl@linux.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+        hpa@zytor.com, joro@8bytes.org, suravee.suthikulpanit@amd.com,
+        robin.murphy@arm.com, dwmw2@infradead.org,
+        baolu.lu@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
+        davem@davemloft.net, penberg@kernel.org, rientjes@google.com,
+        iamjoonsoo.kim@lge.com, Andrew Morton <akpm@linux-foundation.org>,
+        vbabka@suse.cz, roman.gushchin@linux.dev, 42.hyeyoo@gmail.com,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, linux-s390@vger.kernel.org,
+        iommu@lists.linux.dev, linux-arch@vger.kernel.org,
+        linux-crypto@vger.kernel.org
+Subject: Re: [PATCH v2 02/10] types: Introduce [us]128
+Message-ID: <Y9yBcu6ThKC7tVdt@gondor.apana.org.au>
+References: <20230202145030.223740842@infradead.org>
+ <20230202152655.313053173@infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230202152655.313053173@infradead.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 02 Dec 2022 19:03:51 PST (-0800), Palmer Dabbelt wrote:
-> When reviewing
-> <https://lore.kernel.org/r/20221029084715.3669204-1-tongtiangen@huawei.com>
-> I noticed that the arch-specific VM_FAULT flags used by arm and s390
-> alias with VM_FAULT_HINDEX_MASK.  I'm not sure if it's possible to
-> manifest this as a bug, but it certainly seems fragile.
->
-> The RISC-V patch is on top of the linked patch above, which isn't in any
-> proper tree yet.  Everything else should apply to 6.1-rc1, but I'm in no
-> particular rush to get that cleanup in so rush on my end for 6.2.  That
-> said I figured it would be easier to send along this now, just in case
-> someone who knows the MM code better thinks it can manifest as a bug.
+On Thu, Feb 02, 2023 at 03:50:32PM +0100, Peter Zijlstra wrote:
+> Introduce [us]128 (when available). Unlike [us]64, ensure they are
+> always naturally aligned.
+> 
+> This also enables 128bit wide atomics (which require natural
+> alignment) such as cmpxchg128().
+> 
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> ---
+>  include/linux/types.h      |    5 +++++
+>  include/uapi/linux/types.h |    4 ++++
+>  2 files changed, 9 insertions(+)
 
-Just pinging this one, I'm not sure if it was just bad timing on the 
-last one.  That RISC-V patch is still sitting around outside my tree.
+Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
+
+Thanks,
+-- 
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
