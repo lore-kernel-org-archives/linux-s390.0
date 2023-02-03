@@ -2,270 +2,359 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BEBC8C05027
-	for <linux-s390@archiver.kernel.org>; Fri,  3 Feb 2023 17:02:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B311C61DA4
+	for <linux-s390@archiver.kernel.org>; Fri,  3 Feb 2023 17:29:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232287AbjBCRCU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 3 Feb 2023 12:02:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50282 "EHLO
+        id S232637AbjBCR3S (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 3 Feb 2023 12:29:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232100AbjBCRCT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Feb 2023 12:02:19 -0500
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 4CED2100;
-        Fri,  3 Feb 2023 09:02:17 -0800 (PST)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 2AFDE1474;
-        Fri,  3 Feb 2023 09:02:59 -0800 (PST)
-Received: from FVFF77S0Q05N (unknown [10.57.90.37])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 1443B3F71E;
-        Fri,  3 Feb 2023 09:02:10 -0800 (PST)
-Date:   Fri, 3 Feb 2023 17:02:08 +0000
-From:   Mark Rutland <mark.rutland@arm.com>
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     torvalds@linux-foundation.org, corbet@lwn.net, will@kernel.org,
-        boqun.feng@gmail.com, catalin.marinas@arm.com, dennis@kernel.org,
-        tj@kernel.org, cl@linux.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
-        hpa@zytor.com, joro@8bytes.org, suravee.suthikulpanit@amd.com,
-        robin.murphy@arm.com, dwmw2@infradead.org,
-        baolu.lu@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
-        Herbert Xu <herbert@gondor.apana.org.au>, davem@davemloft.net,
-        penberg@kernel.org, rientjes@google.com, iamjoonsoo.kim@lge.com,
-        Andrew Morton <akpm@linux-foundation.org>, vbabka@suse.cz,
-        roman.gushchin@linux.dev, 42.hyeyoo@gmail.com,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, linux-s390@vger.kernel.org,
-        iommu@lists.linux.dev, linux-arch@vger.kernel.org,
-        linux-crypto@vger.kernel.org
-Subject: Re: [PATCH v2 05/10] percpu: Wire up cmpxchg128
-Message-ID: <Y90+EINA9QRb+IlK@FVFF77S0Q05N>
-References: <20230202145030.223740842@infradead.org>
- <20230202152655.494373332@infradead.org>
+        with ESMTP id S231614AbjBCR3R (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Feb 2023 12:29:17 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD54099D5E;
+        Fri,  3 Feb 2023 09:29:15 -0800 (PST)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 313HJZNh023488;
+        Fri, 3 Feb 2023 17:29:07 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=yIKKSqHwaeTCDX9tWi3/IuUokzYTuzsU62UymCUlxww=;
+ b=irlxFJsRWSC9epA+bw9h2KPZI33mn2FvtTE08gkELKIwdmJPjCGAV+MjHYq7i7d1Ks+h
+ kV8u7zOtjKIKoyRrZbRC2qp2TJ0rDo8hfSJ3olSFqqmyKlUfwALmNyH+FDPAmvCsroSw
+ 7P+22HSkcdG6qq1kLbvGqD1CxpnFw/csJRlEgomgFggIjzxBaniM4g2hegNcXt1WMilg
+ qu95NFguEX1t3l7k1aF/XixQC1sqxLeJybklXdVoi7jPbM+hziuY+Hi9p/UINGl7Xr6r
+ Rc66LQcf9x5ydlKccZ5srnqIXhaFMJsgpehcGVWJTBwZwLFU6dacMy0Ls60UcdW+dnfE 0A== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nh6jrg74g-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 03 Feb 2023 17:29:07 +0000
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 313HLPtb027841;
+        Fri, 3 Feb 2023 17:29:06 GMT
+Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nh6jrg749-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 03 Feb 2023 17:29:06 +0000
+Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
+        by ppma02dal.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 313H83Lw019216;
+        Fri, 3 Feb 2023 17:29:06 GMT
+Received: from smtprelay04.dal12v.mail.ibm.com ([9.208.130.102])
+        by ppma02dal.us.ibm.com (PPS) with ESMTPS id 3ncvura8vs-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 03 Feb 2023 17:29:05 +0000
+Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
+        by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 313HT4mP12452420
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 3 Feb 2023 17:29:04 GMT
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4983C58053;
+        Fri,  3 Feb 2023 17:29:04 +0000 (GMT)
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D1E9A58043;
+        Fri,  3 Feb 2023 17:29:01 +0000 (GMT)
+Received: from [9.65.253.123] (unknown [9.65.253.123])
+        by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Fri,  3 Feb 2023 17:29:01 +0000 (GMT)
+Message-ID: <ed030aa5-b3af-638e-6e26-4e3a20b98ef4@linux.ibm.com>
+Date:   Fri, 3 Feb 2023 12:29:01 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230202152655.494373332@infradead.org>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.0
+Subject: Re: [PATCH v3] vfio: fix deadlock between group lock and kvm lock
+Content-Language: en-US
+To:     Alex Williamson <alex.williamson@redhat.com>,
+        "Liu, Yi L" <yi.l.liu@intel.com>
+Cc:     "Tian, Kevin" <kevin.tian@intel.com>,
+        "pbonzini@redhat.com" <pbonzini@redhat.com>,
+        "jgg@nvidia.com" <jgg@nvidia.com>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "farman@linux.ibm.com" <farman@linux.ibm.com>,
+        "pmorel@linux.ibm.com" <pmorel@linux.ibm.com>,
+        "borntraeger@linux.ibm.com" <borntraeger@linux.ibm.com>,
+        "frankja@linux.ibm.com" <frankja@linux.ibm.com>,
+        "imbrenda@linux.ibm.com" <imbrenda@linux.ibm.com>,
+        "david@redhat.com" <david@redhat.com>,
+        "akrowiak@linux.ibm.com" <akrowiak@linux.ibm.com>,
+        "jjherne@linux.ibm.com" <jjherne@linux.ibm.com>,
+        "pasic@linux.ibm.com" <pasic@linux.ibm.com>,
+        "zhenyuw@linux.intel.com" <zhenyuw@linux.intel.com>,
+        "Wang, Zhi A" <zhi.a.wang@intel.com>,
+        "Christopherson, , Sean" <seanjc@google.com>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "intel-gvt-dev@lists.freedesktop.org" 
+        <intel-gvt-dev@lists.freedesktop.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+References: <20230202162442.78216-1-mjrosato@linux.ibm.com>
+ <20230202124210.476adaf8.alex.williamson@redhat.com>
+ <BN9PR11MB527618E281BEB8E479ABB0418CD69@BN9PR11MB5276.namprd11.prod.outlook.com>
+ <20230202161307.0c6aa23e.alex.williamson@redhat.com>
+ <BN9PR11MB5276017F9CEBB4BAE58C40E88CD79@BN9PR11MB5276.namprd11.prod.outlook.com>
+ <DS0PR11MB7529050661FCE4A5AC4B17C3C3D79@DS0PR11MB7529.namprd11.prod.outlook.com>
+ <20230203064940.435e4d65.alex.williamson@redhat.com>
+ <DS0PR11MB75297154376388A3698C5CCAC3D79@DS0PR11MB7529.namprd11.prod.outlook.com>
+ <20230203081942.64fbf9f1.alex.williamson@redhat.com>
+From:   Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <20230203081942.64fbf9f1.alex.williamson@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: A8_BRNmMTA3ESxaqwk6JDcLm01g2G3ik
+X-Proofpoint-ORIG-GUID: ulmhCn99Bg2VRlDranrSCrmqTed_gNsH
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
+ definitions=2023-02-03_16,2023-02-03_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ malwarescore=0 clxscore=1015 impostorscore=0 mlxscore=0 suspectscore=0
+ phishscore=0 spamscore=0 mlxlogscore=999 bulkscore=0 priorityscore=1501
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2302030152
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Feb 02, 2023 at 03:50:35PM +0100, Peter Zijlstra wrote:
-> In order to replace cmpxchg_double() with the newly minted
-> cmpxchg128() family of functions, wire it up in this_cpu_cmpxchg().
+On 2/3/23 10:19 AM, Alex Williamson wrote:
+> On Fri, 3 Feb 2023 14:54:44 +0000
+> "Liu, Yi L" <yi.l.liu@intel.com> wrote:
 > 
-> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> ---
->  arch/arm64/include/asm/percpu.h |   21 +++++++++++++++
->  arch/s390/include/asm/percpu.h  |   17 ++++++++++++
->  arch/x86/include/asm/percpu.h   |   56 ++++++++++++++++++++++++++++++++++++++++
->  include/asm-generic/percpu.h    |    8 +++++
->  include/linux/percpu-defs.h     |   20 ++++++++++++--
->  5 files changed, 120 insertions(+), 2 deletions(-)
-
-For arm64:
-
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-
-Mark.
-
+>>> From: Alex Williamson <alex.williamson@redhat.com>
+>>> Sent: Friday, February 3, 2023 9:50 PM
+>>>
+>>> On Fri, 3 Feb 2023 13:32:09 +0000
+>>> "Liu, Yi L" <yi.l.liu@intel.com> wrote:
+>>>   
+>>>>> From: Tian, Kevin <kevin.tian@intel.com>
+>>>>> Sent: Friday, February 3, 2023 10:00 AM
+>>>>>  
+>>>>>> From: Alex Williamson <alex.williamson@redhat.com>
+>>>>>> Sent: Friday, February 3, 2023 7:13 AM
+>>>>>>
+>>>>>> On Thu, 2 Feb 2023 23:04:10 +0000
+>>>>>> "Tian, Kevin" <kevin.tian@intel.com> wrote:
+>>>>>>  
+>>>>>>>> From: Alex Williamson <alex.williamson@redhat.com>
+>>>>>>>> Sent: Friday, February 3, 2023 3:42 AM
+>>>>>>>>
+>>>>>>>>
+>>>>>>>> LGTM.  I'm not sure moving the functions to vfio_main really buys  
+>>> us  
+>>>>>>>> anything since we're making so much use of group fields.  The cdev
+>>>>>>>> approach will necessarily be different, so the bulk of the get code  
+>>> will  
+>>>>>>>> likely need to move back to group.c anyway.
+>>>>>>>>  
+>>>>>>>
+>>>>>>> well my last comment was based on Matthew's v2 where the get  
+>>> code  
+>>>>>>> gets a kvm passed in instead of implicitly retrieving group ref_lock
+>>>>>>> internally. In that case the get/put helpers only contain device logic
+>>>>>>> thus fit in vfio_main.c.
+>>>>>>>
+>>>>>>> with v3 then they have to be in group.c since we don't want to use
+>>>>>>> group fields in vfio_main.c.
+>>>>>>>
+>>>>>>> but I still think v2 of the helpers is slightly better. The only difference
+>>>>>>> between cdev and group when handling this race is using different
+>>>>>>> ref_lock. the symbol get/put part is exactly same. So even if we
+>>>>>>> merge v3 like this, very likely Yi has to change it back to v2 style
+>>>>>>> to share the get/put helpers while just leaving the ref_lock part
+>>>>>>> handled differently between the two path.  
+>>>>>>
+>>>>>> I'm not really a fan of the asymmetry of the v2 version where the get
+>>>>>> helper needs to be called under the new kvm_ref_lock, but the put
+>>>>>> helper does not.  Having the get helper handle that makes the caller
+>>>>>> much cleaner.  Thanks,
+>>>>>>  
+>>>>>
+>>>>> What about passing the lock pointer into the helper? it's still slightly
+>>>>> asymmetry as the put helper doesn't carry the lock pointer but it
+>>>>> could also be interpreted as if the pointer has been saved in the get
+>>>>> then if it needs to be referenced by the put there is no need to pass
+>>>>> it in again.  
+>>>>
+>>>> For cdev, I may modify vfio_device_get_kvm_safe() to accept
+>>>> struct kvm and let its caller hold a kvm_ref_lock (field within
+>>>> struct vfio_device_file). Meanwhile, the group path holds
+>>>> the group->kvm_ref_lock before invoking vfio_device_get_kvm_safe().
+>>>> vfio_device_get_kvm_safe() just includes the symbol get/put and
+>>>> the device->kvm and put_kvm set.  
+>>>
+>>> Sounds a lot like v2 :-\   
+>>
+>> Yes, like v2. 😊
+>>
+>>> I'd look more towards group and cdev specific
+>>> helpers that handle the locking so that the callers aren't exposed to
+>>> the asymmetry of get vs put, and reduce a new
+>>> _vfio_device_get_kvm_safe() in common code that only does the symbol
+>>> work.  Thanks,  
+>>
+>> If so, looks like Matthew needs a v4. I'm waiting for the final version
+>> of this patch and sending a new cdev series based on it. wish to see
+>> it soon ^_^.
 > 
-> --- a/arch/arm64/include/asm/percpu.h
-> +++ b/arch/arm64/include/asm/percpu.h
-> @@ -140,6 +140,10 @@ PERCPU_RET_OP(add, add, ldadd)
->   * re-enabling preemption for preemptible kernels, but doing that in a way
->   * which builds inside a module would mean messing directly with the preempt
->   * count. If you do this, peterz and tglx will hunt you down.
-> + *
-> + * Not to mention it'll break the actual preemption model for missing a
-> + * preemption point when TIF_NEED_RESCHED gets set while preemption is
-> + * disabled.
->   */
->  #define this_cpu_cmpxchg_double_8(ptr1, ptr2, o1, o2, n1, n2)		\
->  ({									\
-> @@ -240,6 +244,23 @@ PERCPU_RET_OP(add, add, ldadd)
->  #define this_cpu_cmpxchg_8(pcp, o, n)	\
->  	_pcp_protect_return(cmpxchg_relaxed, pcp, o, n)
->  
-> +#define this_cpu_cmpxchg_16(pcp, o, n)					\
-> +({									\
-> +	typedef typeof(pcp) pcp_op_T__;					\
-> +	union {								\
-> +		pcp_op_T__ pot;						\
-> +		u128 val;						\
-> +	} old__, new__, ret__;						\
-> +	pcp_op_T__ *ptr__;						\
-> +	old__.pot = o;							\
-> +	new__.pot = n;							\
-> +	preempt_disable_notrace();					\
-> +	ptr__ = raw_cpu_ptr(&(pcp));					\
-> +	ret__.val = cmpxchg128_local((void *)ptr__, old__.val, new__.val); \
-> +	preempt_enable_notrace();					\
-> +	ret__.pot;							\
-> +})
-> +
->  #ifdef __KVM_NVHE_HYPERVISOR__
->  extern unsigned long __hyp_per_cpu_offset(unsigned int cpu);
->  #define __per_cpu_offset
-> --- a/arch/s390/include/asm/percpu.h
-> +++ b/arch/s390/include/asm/percpu.h
-> @@ -148,6 +148,23 @@
->  #define this_cpu_cmpxchg_4(pcp, oval, nval) arch_this_cpu_cmpxchg(pcp, oval, nval)
->  #define this_cpu_cmpxchg_8(pcp, oval, nval) arch_this_cpu_cmpxchg(pcp, oval, nval)
->  
-> +#define this_cpu_cmpxchg_16(pcp, oval, nval)				\
-> +({									\
-> +	typedef typeof(pcp) pcp_op_T__;					\
-> +	union {								\
-> +		pcp_op_T__ pot;						\
-> +		u128 val;						\
-> +	} old__, new__, ret__;						\
-> +	pcp_op_T__ *ptr__;						\
-> +	old__.pot = oval;						\
-> +	new__.pot = nval;						\
-> +	preempt_disable_notrace();					\
-> +	ptr__ = raw_cpu_ptr(&(pcp));					\
-> +	ret__.val = cmpxchg128((void *)ptr__, old__.val, new__.val);	\
-> +	preempt_enable_notrace();					\
-> +	ret__.pot;							\
-> +})
-> +
->  #define arch_this_cpu_xchg(pcp, nval)					\
->  ({									\
->  	typeof(pcp) *ptr__;						\
-> --- a/arch/x86/include/asm/percpu.h
-> +++ b/arch/x86/include/asm/percpu.h
-> @@ -210,6 +210,62 @@ do {									\
->  	(typeof(_var))(unsigned long) pco_old__;			\
->  })
->  
-> +#if defined(CONFIG_X86_32) && defined(CONFIG_X86_CMPXCHG64)
-> +#define percpu_cmpxchg64_op(size, qual, _var, _oval, _nval)		\
-> +({									\
-> +	union {								\
-> +		typeof(_var) var;					\
-> +		struct {						\
-> +			u32 low, high;					\
-> +		};							\
-> +	} old__, new__;							\
-> +									\
-> +	old__.var = _oval;						\
-> +	new__.var = _nval;						\
-> +									\
-> +	asm qual ("cmpxchg8b " __percpu_arg([var])			\
-> +		  : [var] "+m" (_var),					\
-> +		    "+a" (old__.low),					\
-> +		    "+d" (old__.high)					\
-> +		  : "b" (new__.low),					\
-> +		    "c" (new__.high)					\
-> +		  : "memory");						\
-> +									\
-> +	old__.var;							\
-> +})
-> +
-> +#define raw_cpu_cmpxchg_8(pcp, oval, nval)	percpu_cmpxchg64_op(8,         , pcp, oval, nval)
-> +#define this_cpu_cmpxchg_8(pcp, oval, nval)	percpu_cmpxchg64_op(8, volatile, pcp, oval, nval)
-> +#endif
-> +
-> +#ifdef CONFIG_X86_64
-> +#define percpu_cmpxchg128_op(size, qual, _var, _oval, _nval)		\
-> +({									\
-> +	union {								\
-> +		typeof(_var) var;					\
-> +		struct {						\
-> +			u64 low, high;					\
-> +		};							\
-> +	} old__, new__;							\
-> +									\
-> +	old__.var = _oval;						\
-> +	new__.var = _nval;						\
-> +									\
-> +	asm qual ("cmpxchg16b " __percpu_arg([var])			\
-> +		  : [var] "+m" (_var),					\
-> +		    "+a" (old__.low),					\
-> +		    "+d" (old__.high)					\
-> +		  : "b" (new__.low),					\
-> +		    "c" (new__.high)					\
-> +		  : "memory");						\
-> +									\
-> +	old__.var;							\
-> +})
-> +
-> +#define raw_cpu_cmpxchg_16(pcp, oval, nval)	percpu_cmpxchg128_op(16,         , pcp, oval, nval)
-> +#define this_cpu_cmpxchg_16(pcp, oval, nval)	percpu_cmpxchg128_op(16, volatile, pcp, oval, nval)
-> +#endif
-> +
->  /*
->   * this_cpu_read() makes gcc load the percpu variable every time it is
->   * accessed while this_cpu_read_stable() allows the value to be cached.
-> --- a/include/asm-generic/percpu.h
-> +++ b/include/asm-generic/percpu.h
-> @@ -298,6 +298,10 @@ do {									\
->  #define raw_cpu_cmpxchg_8(pcp, oval, nval) \
->  	raw_cpu_generic_cmpxchg(pcp, oval, nval)
->  #endif
-> +#ifndef raw_cpu_cmpxchg_16
-> +#define raw_cpu_cmpxchg_16(pcp, oval, nval) \
-> +	raw_cpu_generic_cmpxchg(pcp, oval, nval)
-> +#endif
->  
->  #ifndef raw_cpu_cmpxchg_double_1
->  #define raw_cpu_cmpxchg_double_1(pcp1, pcp2, oval1, oval2, nval1, nval2) \
-> @@ -423,6 +427,10 @@ do {									\
->  #define this_cpu_cmpxchg_8(pcp, oval, nval) \
->  	this_cpu_generic_cmpxchg(pcp, oval, nval)
->  #endif
-> +#ifndef this_cpu_cmpxchg_16
-> +#define this_cpu_cmpxchg_16(pcp, oval, nval) \
-> +	this_cpu_generic_cmpxchg(pcp, oval, nval)
-> +#endif
->  
->  #ifndef this_cpu_cmpxchg_double_1
->  #define this_cpu_cmpxchg_double_1(pcp1, pcp2, oval1, oval2, nval1, nval2) \
-> --- a/include/linux/percpu-defs.h
-> +++ b/include/linux/percpu-defs.h
-> @@ -343,6 +343,22 @@ static inline void __this_cpu_preempt_ch
->  	pscr2_ret__;							\
->  })
->  
-> +#define __pcpu_size16_call_return2(stem, variable, ...)			\
-> +({									\
-> +	typeof(variable) pscr2_ret__;					\
-> +	__verify_pcpu_ptr(&(variable));					\
-> +	switch(sizeof(variable)) {					\
-> +	case 1: pscr2_ret__ = stem##1(variable, __VA_ARGS__); break;	\
-> +	case 2: pscr2_ret__ = stem##2(variable, __VA_ARGS__); break;	\
-> +	case 4: pscr2_ret__ = stem##4(variable, __VA_ARGS__); break;	\
-> +	case 8: pscr2_ret__ = stem##8(variable, __VA_ARGS__); break;	\
-> +	case 16: pscr2_ret__ = stem##16(variable, __VA_ARGS__); break;	\
-> +	default:							\
-> +		__bad_size_call_parameter(); break;			\
-> +	}								\
-> +	pscr2_ret__;							\
-> +})
-> +
->  /*
->   * Special handling for cmpxchg_double.  cmpxchg_double is passed two
->   * percpu variables.  The first has to be aligned to a double word
-> @@ -425,7 +441,7 @@ do {									\
->  #define raw_cpu_add_return(pcp, val)	__pcpu_size_call_return2(raw_cpu_add_return_, pcp, val)
->  #define raw_cpu_xchg(pcp, nval)		__pcpu_size_call_return2(raw_cpu_xchg_, pcp, nval)
->  #define raw_cpu_cmpxchg(pcp, oval, nval) \
-> -	__pcpu_size_call_return2(raw_cpu_cmpxchg_, pcp, oval, nval)
-> +	__pcpu_size16_call_return2(raw_cpu_cmpxchg_, pcp, oval, nval)
->  #define raw_cpu_cmpxchg_double(pcp1, pcp2, oval1, oval2, nval1, nval2) \
->  	__pcpu_double_call_return_bool(raw_cpu_cmpxchg_double_, pcp1, pcp2, oval1, oval2, nval1, nval2)
->  
-> @@ -512,7 +528,7 @@ do {									\
->  #define this_cpu_add_return(pcp, val)	__pcpu_size_call_return2(this_cpu_add_return_, pcp, val)
->  #define this_cpu_xchg(pcp, nval)	__pcpu_size_call_return2(this_cpu_xchg_, pcp, nval)
->  #define this_cpu_cmpxchg(pcp, oval, nval) \
-> -	__pcpu_size_call_return2(this_cpu_cmpxchg_, pcp, oval, nval)
-> +	__pcpu_size16_call_return2(this_cpu_cmpxchg_, pcp, oval, nval)
->  #define this_cpu_cmpxchg_double(pcp1, pcp2, oval1, oval2, nval1, nval2) \
->  	__pcpu_double_call_return_bool(this_cpu_cmpxchg_double_, pcp1, pcp2, oval1, oval2, nval1, nval2)
->  
+> cdev support is a future feature, why does it become a requirement for
+> a fix to the current base?  The refactoring could also happen in the
+> cdev series.  Thanks,
 > 
+> Alex
 > 
+
+FWIW, that would bloat the fix by a bit and it's already a decent-sized fix...  I took a quick stab and such a v4 would end up with a total of 120 insertions(+), 15 deletions(-).  See below for a diff of what I tried on top of v3. The idea would be to move the serialization and setting/clearing of device->kvm into group/cdev and use device->kvm as the value within vfio_device_get_kvm_safe for getting the kvm ref.  Wrappers in group/cdev would then be responsible for backing that device->kvm setting out on ref failure.
+Each side (group/cdev) can wrap their own serialization / load device->kvm from the appropriate location / handle the failed get / clear device->kvm when done (since get doesn't set it, put shouldn't clear it).
+
+If Alex wants, I can wrap something like this into a v4 -- Or, if we don't want to include this kind of infrastructure in the fix, then Yi please feel free to use it as a starting point for what you need in cdev.
+
+Thanks,
+Matt
+
+diff --git a/drivers/vfio/group.c b/drivers/vfio/group.c
+index 7fed4233ca23..261af23975ae 100644
+--- a/drivers/vfio/group.c
++++ b/drivers/vfio/group.c
+@@ -154,6 +154,31 @@ static int vfio_group_ioctl_set_container(struct vfio_group *group,
+ 	return ret;
+ }
+ 
++static void vfio_device_group_get_kvm(struct vfio_device *device)
++{
++	lockdep_assert_held(&device->dev_set->lock);
++
++	spin_lock(&device->group->kvm_ref_lock);
++
++	if (!device->group->kvm)
++		goto unlock;
++
++	device->kvm = device->group->kvm;
++	if (!vfio_device_get_kvm_safe(device))
++		device->kvm = NULL;
++
++unlock:
++	spin_unlock(&device->group->kvm_ref_lock);
++}
++
++static void vfio_device_group_put_kvm(struct vfio_device *device)
++{
++	lockdep_assert_held(&device->dev_set->lock);
++
++	vfio_device_put_kvm(device);
++	device->kvm = NULL;
++}
++
+ static int vfio_device_group_open(struct vfio_device *device)
+ {
+ 	int ret;
+@@ -173,12 +198,12 @@ static int vfio_device_group_open(struct vfio_device *device)
+ 	 * the pointer in the device for use by drivers.
+ 	 */
+ 	if (device->open_count == 0)
+-		vfio_device_get_kvm_safe(device);
++		vfio_device_group_get_kvm(device);
+ 
+ 	ret = vfio_device_open(device, device->group->iommufd, device->kvm);
+ 
+ 	if (device->open_count == 0)
+-		vfio_device_put_kvm(device);
++		vfio_device_group_put_kvm(device);
+ 
+ 	mutex_unlock(&device->dev_set->lock);
+ 
+@@ -195,7 +220,7 @@ void vfio_device_group_close(struct vfio_device *device)
+ 	vfio_device_close(device, device->group->iommufd);
+ 
+ 	if (device->open_count == 0)
+-		vfio_device_put_kvm(device);
++		vfio_device_group_put_kvm(device);
+ 
+ 	mutex_unlock(&device->dev_set->lock);
+ 	mutex_unlock(&device->group->group_lock);
+diff --git a/drivers/vfio/vfio.h b/drivers/vfio/vfio.h
+index 20d715b0a3a8..57b24931c742 100644
+--- a/drivers/vfio/vfio.h
++++ b/drivers/vfio/vfio.h
+@@ -253,11 +253,12 @@ enum { vfio_noiommu = false };
+ #endif
+ 
+ #ifdef CONFIG_HAVE_KVM
+-void vfio_device_get_kvm_safe(struct vfio_device *device);
++bool vfio_device_get_kvm_safe(struct vfio_device *device);
+ void vfio_device_put_kvm(struct vfio_device *device);
+ #else
+-static inline void vfio_device_get_kvm_safe(struct vfio_device *device)
++static inline bool vfio_device_get_kvm_safe(struct vfio_device *device)
+ {
++	return false;
+ }
+ 
+ static inline void vfio_device_put_kvm(struct vfio_device *device)
+diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
+index 4762550e9f42..0b8fd296ae7e 100644
+--- a/drivers/vfio/vfio_main.c
++++ b/drivers/vfio/vfio_main.c
+@@ -342,7 +342,7 @@ void vfio_unregister_group_dev(struct vfio_device *device)
+ EXPORT_SYMBOL_GPL(vfio_unregister_group_dev);
+ 
+ #ifdef CONFIG_HAVE_KVM
+-void vfio_device_get_kvm_safe(struct vfio_device *device)
++bool vfio_device_get_kvm_safe(struct vfio_device *device)
+ {
+ 	void (*pfn)(struct kvm *kvm);
+ 	bool (*fn)(struct kvm *kvm);
+@@ -350,32 +350,26 @@ void vfio_device_get_kvm_safe(struct vfio_device *device)
+ 
+ 	lockdep_assert_held(&device->dev_set->lock);
+ 
+-	spin_lock(&device->group->kvm_ref_lock);
+-	if (!device->group->kvm)
+-		goto unlock;
+-
+ 	pfn = symbol_get(kvm_put_kvm);
+ 	if (WARN_ON(!pfn))
+-		goto unlock;
++		return false;
+ 
+ 	fn = symbol_get(kvm_get_kvm_safe);
+ 	if (WARN_ON(!fn)) {
+ 		symbol_put(kvm_put_kvm);
+-		goto unlock;
++		return false;
+ 	}
+ 
+-	ret = fn(device->group->kvm);
++	ret = fn(device->kvm);
+ 	symbol_put(kvm_get_kvm_safe);
+ 	if (!ret) {
+ 		symbol_put(kvm_put_kvm);
+-		goto unlock;
++		return false;
+ 	}
+ 
+ 	device->put_kvm = pfn;
+-	device->kvm = device->group->kvm;
+ 
+-unlock:
+-	spin_unlock(&device->group->kvm_ref_lock);
++	return true;
+ }
+ 
+ void vfio_device_put_kvm(struct vfio_device *device)
+@@ -386,14 +380,11 @@ void vfio_device_put_kvm(struct vfio_device *device)
+ 		return;
+ 
+ 	if (WARN_ON(!device->put_kvm))
+-		goto clear;
++		return;
+ 
+ 	device->put_kvm(device->kvm);
+ 	device->put_kvm = NULL;
+ 	symbol_put(kvm_put_kvm);
+-
+-clear:
+-	device->kvm = NULL;
+ }
+ #endif
+ 
+
