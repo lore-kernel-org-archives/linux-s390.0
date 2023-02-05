@@ -2,426 +2,118 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B4100C636CC
-	for <linux-s390@archiver.kernel.org>; Sat,  4 Feb 2023 14:26:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5399BC636CD
+	for <linux-s390@archiver.kernel.org>; Sun,  5 Feb 2023 18:17:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233929AbjBDO0M (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 4 Feb 2023 09:26:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37042 "EHLO
+        id S229484AbjBESRX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 5 Feb 2023 13:17:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233803AbjBDO0L (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 4 Feb 2023 09:26:11 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA9DE23C75
-        for <linux-s390@vger.kernel.org>; Sat,  4 Feb 2023 06:25:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1675520722;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=BPb3zmrBo8hI1QaL+QoDXfm9YTI2O8rGNvKyRtuVNJ4=;
-        b=fPUSP3ywU3YvUqzKprM7+r/+9M3e3EJNV/PJPL57Ohoz5l2WRJ39i3OxSIvaF/DAi2WxA5
-        UlMHuYTKWs5f1LpLRm5quCNa3mKFPmPqexwBcymrdYCwrZkUYoWmFp+Qzu2XXNALSdNr5t
-        Mq2D4RDop/SThk4fOhQdMv0+voc0FCE=
-Received: from mail-il1-f197.google.com (mail-il1-f197.google.com
- [209.85.166.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-500-7XPfmlTuNMqdcuoxMMO5_g-1; Sat, 04 Feb 2023 09:25:22 -0500
-X-MC-Unique: 7XPfmlTuNMqdcuoxMMO5_g-1
-Received: by mail-il1-f197.google.com with SMTP id y5-20020a056e021be500b00313a9c609adso1762322ilv.8
-        for <linux-s390@vger.kernel.org>; Sat, 04 Feb 2023 06:25:21 -0800 (PST)
+        with ESMTP id S229481AbjBESRX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 5 Feb 2023 13:17:23 -0500
+Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D46E17CE1;
+        Sun,  5 Feb 2023 10:17:21 -0800 (PST)
+Received: by mail-wr1-x42e.google.com with SMTP id h3so719583wrp.10;
+        Sun, 05 Feb 2023 10:17:21 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:date:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=H5ICTh1rh0epljgxETzZNQyPfYU2WXqF+fw3pjpqXwo=;
+        b=J20SEwkEPiND7Km37SXbqwfZJATZ+i6+Ek/aEohW6iFKEs2meAwLbkzh/f47W25dfx
+         bPwvhmdq/llmJABkxSblFplencAb4p/i3eAe3UxZhCc79znM6GvOB1nwiN0SPZLxsgj9
+         A6Ku9P3Ph91f+zNpd/5fFNHdNtprA3652t/mscQ84UoNbI/ce8+Tr7pUix0xMTQJOnv8
+         TkZqM6kAdLzNpUN/FnAGpYM3fS0IZ7UaQaMIwpiytjw19ytPhT/UnlLTTcM7VbhGr5XF
+         N/L3Zv0S+b4YPUPYLGOedPJ4FJxtUozfGOudvquB9T3Rx9z4CH5NSR2g0rwJd02Znhbf
+         q9bQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:organization:references
-         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=BPb3zmrBo8hI1QaL+QoDXfm9YTI2O8rGNvKyRtuVNJ4=;
-        b=POWCJbqXFTk/I1SuNOiO0P7YECzRlQug7/kZPl3boFPXDglA+JawrPDrpcVdj94Vq2
-         9CBMLsO3bo1SIx40yWClussfCeJmS5KW+ObQ9oN4W/lmmZF6JQ76olYc3dTcUNnJB77Z
-         z8M62jyotbeLDggJUUAXwJPpgjF1ed7iPNggtcOIJxR3FOKXe33Jnv4IRbYbzb8xw1Fv
-         /Sq2e770ItXZGayPkiNpGCfvv37YEkLxN584zLfSPg7yK1ggKPGiXXyh1fuotMQAA65a
-         PcbX+qOtHGYT5WznhxmaV9L+FFItKbKzob7FnRwH3VVHrn4UlIvqyV/k28+dJwfQVKJy
-         UnsA==
-X-Gm-Message-State: AO0yUKUet7m3bW/HhCJTGSYTR4s/VXCp582B6wK/N527e+Yv/SKK+k6l
-        F3NLXlPmS8LBgYELdgEPnPhC3RcK9VMFW/tmU8oRszNRrmEJ3U0mszljl+ePjBkHR5IEqOSwywc
-        HhRtchZy3s/LDZHtnyfD3PQ==
-X-Received: by 2002:a5d:8e0c:0:b0:729:63de:4546 with SMTP id e12-20020a5d8e0c000000b0072963de4546mr4655311iod.3.1675520721119;
-        Sat, 04 Feb 2023 06:25:21 -0800 (PST)
-X-Google-Smtp-Source: AK7set8hCr+StI5YhRk/qZS/3KcSos6ZFduXHTX04WfBJmgHPj/mpHyfvyuLXevwkRlA04qUDb9YPw==
-X-Received: by 2002:a5d:8e0c:0:b0:729:63de:4546 with SMTP id e12-20020a5d8e0c000000b0072963de4546mr4655303iod.3.1675520720796;
-        Sat, 04 Feb 2023 06:25:20 -0800 (PST)
-Received: from redhat.com ([38.15.36.239])
-        by smtp.gmail.com with ESMTPSA id u13-20020a02aa8d000000b003a9595b7e3asm1806920jai.46.2023.02.04.06.25.19
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:date:from:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=H5ICTh1rh0epljgxETzZNQyPfYU2WXqF+fw3pjpqXwo=;
+        b=hdMieDVBt3JRYgXDGRBpnbHO4ETBKh0NfqFawIvOf7ALw8/XWcgqytWShSFumolHGT
+         mmgi2mxYujTLCtyZCpD16OQjvbpkbHbYn1rSEp4PU0sUtoGTaougQ3m3/z6Ajqcg5m/s
+         NAVbKhAZlQdQpwlpTjnKv3WHTqhDhUo3jn9zySr1Cb64lgdrlYMj9YP4HiCm+0btsN2S
+         F2ZQ5DCmpt7IVTYmjQTjntt+SLm9a2gG1uBjMoX6wWWrsFQXVaYtU26IXOGpoAtsIpQk
+         P97YESK1JaPPqgY/3b/BQzquJM3YCo6A3uarp5FZ6U2mOHmvfw8nF/QmJ/IvFzbBVPkz
+         XIOQ==
+X-Gm-Message-State: AO0yUKXjcPFoRBmPz2gXNWWl0wPV0pRFNSzfKRXt0Cd9OhGQ8Nxkt2eQ
+        Xvo5+PKnDi8Hg1Pjf2EPIqo=
+X-Google-Smtp-Source: AK7set8FkShz+h/LJsT3LrluoLPPpvCDCXmDXr0kJiVvJ5tmQwf4Q5+iEu/VM+NEhnY9UGyYQ0qYSg==
+X-Received: by 2002:a5d:5982:0:b0:2bf:eec5:3912 with SMTP id n2-20020a5d5982000000b002bfeec53912mr16787933wri.34.1675621039909;
+        Sun, 05 Feb 2023 10:17:19 -0800 (PST)
+Received: from krava (2001-1ae9-1c2-4c00-726e-c10f-8833-ff22.ip6.tmcz.cz. [2001:1ae9:1c2:4c00:726e:c10f:8833:ff22])
+        by smtp.gmail.com with ESMTPSA id t10-20020a5d690a000000b002bbedd60a9asm7064477wru.77.2023.02.05.10.17.18
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 04 Feb 2023 06:25:19 -0800 (PST)
-Date:   Sat, 4 Feb 2023 07:25:18 -0700
-From:   Alex Williamson <alex.williamson@redhat.com>
-To:     "Liu, Yi L" <yi.l.liu@intel.com>
-Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
-        "pbonzini@redhat.com" <pbonzini@redhat.com>,
-        "jgg@nvidia.com" <jgg@nvidia.com>,
-        "cohuck@redhat.com" <cohuck@redhat.com>,
-        "farman@linux.ibm.com" <farman@linux.ibm.com>,
-        "pmorel@linux.ibm.com" <pmorel@linux.ibm.com>,
-        "borntraeger@linux.ibm.com" <borntraeger@linux.ibm.com>,
-        "frankja@linux.ibm.com" <frankja@linux.ibm.com>,
-        "imbrenda@linux.ibm.com" <imbrenda@linux.ibm.com>,
-        "david@redhat.com" <david@redhat.com>,
-        "akrowiak@linux.ibm.com" <akrowiak@linux.ibm.com>,
-        "jjherne@linux.ibm.com" <jjherne@linux.ibm.com>,
-        "pasic@linux.ibm.com" <pasic@linux.ibm.com>,
-        "zhenyuw@linux.intel.com" <zhenyuw@linux.intel.com>,
-        "Wang, Zhi A" <zhi.a.wang@intel.com>,
-        "Christopherson,, Sean" <seanjc@google.com>,
-        "Tian, Kevin" <kevin.tian@intel.com>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v4 1/2] vfio: fix deadlock between group lock and kvm
- lock
-Message-ID: <20230204072518.537ab50b.alex.williamson@redhat.com>
-In-Reply-To: <DS0PR11MB7529CE3027A713D6F2EE7F68C3D49@DS0PR11MB7529.namprd11.prod.outlook.com>
-References: <20230203215027.151988-1-mjrosato@linux.ibm.com>
-        <20230203215027.151988-2-mjrosato@linux.ibm.com>
-        <DS0PR11MB7529CE3027A713D6F2EE7F68C3D49@DS0PR11MB7529.namprd11.prod.outlook.com>
-Organization: Red Hat
+        Sun, 05 Feb 2023 10:17:19 -0800 (PST)
+From:   Jiri Olsa <olsajiri@gmail.com>
+X-Google-Original-From: Jiri Olsa <jolsa@kernel.org>
+Date:   Sun, 5 Feb 2023 19:17:16 +0100
+To:     Alexei Starovoitov <alexei.starovoitov@gmail.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>
+Cc:     Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>, bpf <bpf@vger.kernel.org>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@chromium.org>,
+        Stanislav Fomichev <sdf@google.com>,
+        Hao Luo <haoluo@google.com>, David Vernet <void@manifault.com>,
+        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        Artem Savkov <asavkov@redhat.com>, linux-s390@vger.kernel.org
+Subject: Re: [PATCHv3 bpf-next 0/9] bpf: Move kernel test kfuncs into
+ bpf_testmod
+Message-ID: <Y9/yrKZkBK6yzXp+@krava>
+References: <20230203162336.608323-1-jolsa@kernel.org>
+ <CAADnVQKBYgN5nWG26s0s-U0=PMAWEc17aGWx76GLUc_PM22ZAw@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAADnVQKBYgN5nWG26s0s-U0=PMAWEc17aGWx76GLUc_PM22ZAw@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sat, 4 Feb 2023 06:21:48 +0000
-"Liu, Yi L" <yi.l.liu@intel.com> wrote:
-
-> > From: Matthew Rosato <mjrosato@linux.ibm.com>
-> > Sent: Saturday, February 4, 2023 5:50 AM
-> > To: alex.williamson@redhat.com; pbonzini@redhat.com; Liu, Yi L
-> > 
-> > After 51cdc8bc120e, we have another deadlock scenario between the
-> > kvm->lock and the vfio group_lock with two different codepaths acquiring
-> > the locks in different order.  Specifically in vfio_open_device, vfio
-> > holds the vfio group_lock when issuing device->ops->open_device but
-> > some
-> > drivers (like vfio-ap) need to acquire kvm->lock during their open_device
-> > routine;  Meanwhile, kvm_vfio_release will acquire the kvm->lock first
-> > before calling vfio_file_set_kvm which will acquire the vfio group_lock.
-> > 
-> > To resolve this, let's remove the need for the vfio group_lock from the
-> > kvm_vfio_release codepath.  This is done by introducing a new spinlock to
-> > protect modifications to the vfio group kvm pointer, and acquiring a kvm
-> > ref from within vfio while holding this spinlock, with the reference held
-> > until the last close for the device in question.
-> > 
-> > Fixes: 51cdc8bc120e ("kvm/vfio: Fix potential deadlock on vfio group_lock")
-> > Reported-by: Anthony Krowiak <akrowiak@linux.ibm.com>
-> > Suggested-by: Jason Gunthorpe <jgg@nvidia.com>
-> > Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> > ---
-> >  drivers/vfio/group.c     | 44 +++++++++++++++++++++++-----
-> >  drivers/vfio/vfio.h      | 15 ++++++++++
-> >  drivers/vfio/vfio_main.c | 63
-> > +++++++++++++++++++++++++++++++++++-----
-> >  include/linux/vfio.h     |  2 +-
-> >  4 files changed, 109 insertions(+), 15 deletions(-)
-> > 
-> > diff --git a/drivers/vfio/group.c b/drivers/vfio/group.c
-> > index bb24b2f0271e..98621ac082f0 100644
-> > --- a/drivers/vfio/group.c
-> > +++ b/drivers/vfio/group.c
-> > @@ -154,6 +154,18 @@ static int vfio_group_ioctl_set_container(struct
-> > vfio_group *group,
-> >  	return ret;
-> >  }
-> > 
-> > +static void vfio_device_group_get_kvm_safe(struct vfio_device *device)
-> > +{
-> > +	spin_lock(&device->group->kvm_ref_lock);
-> > +	if (!device->group->kvm)
-> > +		goto unlock;
-> > +
-> > +	_vfio_device_get_kvm_safe(device, device->group->kvm);
-> > +
-> > +unlock:
-> > +	spin_unlock(&device->group->kvm_ref_lock);
-> > +}
-> > +
-> >  static int vfio_device_group_open(struct vfio_device *device)
-> >  {
-> >  	int ret;
-> > @@ -164,13 +176,23 @@ static int vfio_device_group_open(struct
-> > vfio_device *device)
-> >  		goto out_unlock;
-> >  	}
-> > 
-> > +	mutex_lock(&device->dev_set->lock);
-> > +
-> >  	/*
-> > -	 * Here we pass the KVM pointer with the group under the lock.  If
-> > the
-> > -	 * device driver will use it, it must obtain a reference and release it
-> > -	 * during close_device.
-> > +	 * Before the first device open, get the KVM pointer currently
-> > +	 * associated with the group (if there is one) and obtain a reference
-> > +	 * now that will be held until the open_count reaches 0 again.  Save  
+On Sat, Feb 04, 2023 at 01:21:13AM -0800, Alexei Starovoitov wrote:
+> On Fri, Feb 3, 2023 at 8:23 AM Jiri Olsa <jolsa@kernel.org> wrote:
+> >
+> > hi,
+> > I noticed several times in discussions that we should move test kfuncs
+> > into kernel module, now perhaps even more pressing with all the kfunc
+> > effort. This patchset moves all the test kfuncs into bpf_testmod.
+> >
+> > I added bpf_testmod/bpf_testmod_kfunc.h header that is shared between
+> > bpf_testmod kernel module and BPF programs, which brings some difficulties
+> > with __ksym define. But I'm not sure having separate headers for BPF
+> > programs and for kernel module would be better.
+> >
+> > This patchset also needs:
+> >   74bc3a5acc82 bpf: Add missing btf_put to register_btf_id_dtor_kfuncs
+> > which is only in bpf/master now.
 > 
-> Nit: a redundant space before "Save". Other part looks good to me.
+> I thought you've added this patch to CI,
+> but cb_refs is still failing on s390...
 
-Two spaces between sentences is a common standard.  Not everyone
-prefers this, but I do.  Thanks,
+the CI now fails for s390 with messages like:
+   2023-02-04T07:04:32.5185267Z    RES: address of kernel function bpf_kfunc_call_test_fail1 is out of range
 
-Alex
+so now that we have test kfuncs in the module, the 's32 imm' value of
+the bpf call instructions can overflow when the offset between module
+and kernel is greater than 2GB ... as explained in the commit that
+added the verifier check:
 
-> Reviewed-by: Yi Liu <yi.l.liu@intel.com>
-> 
-> Regards,
-> Yi Liu
-> 
-> > +	 * the pointer in the device for use by drivers.
-> >  	 */
-> > -	ret = vfio_device_open(device, device->group->iommufd,
-> > -			       device->group->kvm);
-> > +	if (device->open_count == 0)
-> > +		vfio_device_group_get_kvm_safe(device);
-> > +
-> > +	ret = vfio_device_open(device, device->group->iommufd, device->kvm);
-> > +
-> > +	if (device->open_count == 0)
-> > +		vfio_device_put_kvm(device);
-> > +
-> > +	mutex_unlock(&device->dev_set->lock);
-> > 
-> >  out_unlock:
-> >  	mutex_unlock(&device->group->group_lock);
-> > @@ -180,7 +202,14 @@ static int vfio_device_group_open(struct
-> > vfio_device *device)
-> >  void vfio_device_group_close(struct vfio_device *device)
-> >  {
-> >  	mutex_lock(&device->group->group_lock);
-> > +	mutex_lock(&device->dev_set->lock);
-> > +
-> >  	vfio_device_close(device, device->group->iommufd);
-> > +
-> > +	if (device->open_count == 0)
-> > +		vfio_device_put_kvm(device);
-> > +
-> > +	mutex_unlock(&device->dev_set->lock);
-> >  	mutex_unlock(&device->group->group_lock);
-> >  }
-> > 
-> > @@ -450,6 +479,7 @@ static struct vfio_group *vfio_group_alloc(struct
-> > iommu_group *iommu_group,
-> > 
-> >  	refcount_set(&group->drivers, 1);
-> >  	mutex_init(&group->group_lock);
-> > +	spin_lock_init(&group->kvm_ref_lock);
-> >  	INIT_LIST_HEAD(&group->device_list);
-> >  	mutex_init(&group->device_lock);
-> >  	group->iommu_group = iommu_group;
-> > @@ -803,9 +833,9 @@ void vfio_file_set_kvm(struct file *file, struct kvm
-> > *kvm)
-> >  	if (!vfio_file_is_group(file))
-> >  		return;
-> > 
-> > -	mutex_lock(&group->group_lock);
-> > +	spin_lock(&group->kvm_ref_lock);
-> >  	group->kvm = kvm;
-> > -	mutex_unlock(&group->group_lock);
-> > +	spin_unlock(&group->kvm_ref_lock);
-> >  }
-> >  EXPORT_SYMBOL_GPL(vfio_file_set_kvm);
-> > 
-> > diff --git a/drivers/vfio/vfio.h b/drivers/vfio/vfio.h
-> > index f8219a438bfb..24d6cd285945 100644
-> > --- a/drivers/vfio/vfio.h
-> > +++ b/drivers/vfio/vfio.h
-> > @@ -74,6 +74,7 @@ struct vfio_group {
-> >  	struct file			*opened_file;
-> >  	struct blocking_notifier_head	notifier;
-> >  	struct iommufd_ctx		*iommufd;
-> > +	spinlock_t			kvm_ref_lock;
-> >  };
-> > 
-> >  int vfio_device_set_group(struct vfio_device *device,
-> > @@ -251,4 +252,18 @@ extern bool vfio_noiommu __read_mostly;
-> >  enum { vfio_noiommu = false };
-> >  #endif
-> > 
-> > +#ifdef CONFIG_HAVE_KVM
-> > +void _vfio_device_get_kvm_safe(struct vfio_device *device, struct kvm
-> > *kvm);
-> > +void vfio_device_put_kvm(struct vfio_device *device);
-> > +#else
-> > +static inline void _vfio_device_get_kvm_safe(struct vfio_device *device,
-> > +					     struct kvm *kvm)
-> > +{
-> > +}
-> > +
-> > +static inline void vfio_device_put_kvm(struct vfio_device *device)
-> > +{
-> > +}
-> > +#endif
-> > +
-> >  #endif
-> > diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
-> > index 5177bb061b17..28c47cd6a6b5 100644
-> > --- a/drivers/vfio/vfio_main.c
-> > +++ b/drivers/vfio/vfio_main.c
-> > @@ -16,6 +16,9 @@
-> >  #include <linux/fs.h>
-> >  #include <linux/idr.h>
-> >  #include <linux/iommu.h>
-> > +#ifdef CONFIG_HAVE_KVM
-> > +#include <linux/kvm_host.h>
-> > +#endif
-> >  #include <linux/list.h>
-> >  #include <linux/miscdevice.h>
-> >  #include <linux/module.h>
-> > @@ -338,6 +341,55 @@ void vfio_unregister_group_dev(struct vfio_device
-> > *device)
-> >  }
-> >  EXPORT_SYMBOL_GPL(vfio_unregister_group_dev);
-> > 
-> > +#ifdef CONFIG_HAVE_KVM
-> > +void _vfio_device_get_kvm_safe(struct vfio_device *device, struct kvm
-> > *kvm)
-> > +{
-> > +	void (*pfn)(struct kvm *kvm);
-> > +	bool (*fn)(struct kvm *kvm);
-> > +	bool ret;
-> > +
-> > +	lockdep_assert_held(&device->dev_set->lock);
-> > +
-> > +	pfn = symbol_get(kvm_put_kvm);
-> > +	if (WARN_ON(!pfn))
-> > +		return;
-> > +
-> > +	fn = symbol_get(kvm_get_kvm_safe);
-> > +	if (WARN_ON(!fn)) {
-> > +		symbol_put(kvm_put_kvm);
-> > +		return;
-> > +	}
-> > +
-> > +	ret = fn(kvm);
-> > +	symbol_put(kvm_get_kvm_safe);
-> > +	if (!ret) {
-> > +		symbol_put(kvm_put_kvm);
-> > +		return;
-> > +	}
-> > +
-> > +	device->put_kvm = pfn;
-> > +	device->kvm = kvm;
-> > +}
-> > +
-> > +void vfio_device_put_kvm(struct vfio_device *device)
-> > +{
-> > +	lockdep_assert_held(&device->dev_set->lock);
-> > +
-> > +	if (!device->kvm)
-> > +		return;
-> > +
-> > +	if (WARN_ON(!device->put_kvm))
-> > +		goto clear;
-> > +
-> > +	device->put_kvm(device->kvm);
-> > +	device->put_kvm = NULL;
-> > +	symbol_put(kvm_put_kvm);
-> > +
-> > +clear:
-> > +	device->kvm = NULL;
-> > +}
-> > +#endif
-> > +
-> >  /* true if the vfio_device has open_device() called but not close_device()
-> > */
-> >  static bool vfio_assert_device_open(struct vfio_device *device)
-> >  {
-> > @@ -361,7 +413,6 @@ static int vfio_device_first_open(struct vfio_device
-> > *device,
-> >  	if (ret)
-> >  		goto err_module_put;
-> > 
-> > -	device->kvm = kvm;
-> >  	if (device->ops->open_device) {
-> >  		ret = device->ops->open_device(device);
-> >  		if (ret)
-> > @@ -370,7 +421,6 @@ static int vfio_device_first_open(struct vfio_device
-> > *device,
-> >  	return 0;
-> > 
-> >  err_unuse_iommu:
-> > -	device->kvm = NULL;
-> >  	if (iommufd)
-> >  		vfio_iommufd_unbind(device);
-> >  	else
-> > @@ -387,7 +437,6 @@ static void vfio_device_last_close(struct vfio_device
-> > *device,
-> > 
-> >  	if (device->ops->close_device)
-> >  		device->ops->close_device(device);
-> > -	device->kvm = NULL;
-> >  	if (iommufd)
-> >  		vfio_iommufd_unbind(device);
-> >  	else
-> > @@ -400,14 +449,14 @@ int vfio_device_open(struct vfio_device *device,
-> >  {
-> >  	int ret = 0;
-> > 
-> > -	mutex_lock(&device->dev_set->lock);
-> > +	lockdep_assert_held(&device->dev_set->lock);
-> > +
-> >  	device->open_count++;
-> >  	if (device->open_count == 1) {
-> >  		ret = vfio_device_first_open(device, iommufd, kvm);
-> >  		if (ret)
-> >  			device->open_count--;
-> >  	}
-> > -	mutex_unlock(&device->dev_set->lock);
-> > 
-> >  	return ret;
-> >  }
-> > @@ -415,12 +464,12 @@ int vfio_device_open(struct vfio_device *device,
-> >  void vfio_device_close(struct vfio_device *device,
-> >  		       struct iommufd_ctx *iommufd)
-> >  {
-> > -	mutex_lock(&device->dev_set->lock);
-> > +	lockdep_assert_held(&device->dev_set->lock);
-> > +
-> >  	vfio_assert_device_open(device);
-> >  	if (device->open_count == 1)
-> >  		vfio_device_last_close(device, iommufd);
-> >  	device->open_count--;
-> > -	mutex_unlock(&device->dev_set->lock);
-> >  }
-> > 
-> >  /*
-> > diff --git a/include/linux/vfio.h b/include/linux/vfio.h
-> > index 35be78e9ae57..87ff862ff555 100644
-> > --- a/include/linux/vfio.h
-> > +++ b/include/linux/vfio.h
-> > @@ -46,7 +46,6 @@ struct vfio_device {
-> >  	struct vfio_device_set *dev_set;
-> >  	struct list_head dev_set_list;
-> >  	unsigned int migration_flags;
-> > -	/* Driver must reference the kvm during open_device or never
-> > touch it */
-> >  	struct kvm *kvm;
-> > 
-> >  	/* Members below here are private, not for driver use */
-> > @@ -58,6 +57,7 @@ struct vfio_device {
-> >  	struct list_head group_next;
-> >  	struct list_head iommu_entry;
-> >  	struct iommufd_access *iommufd_access;
-> > +	void (*put_kvm)(struct kvm *kvm);
-> >  #if IS_ENABLED(CONFIG_IOMMUFD)
-> >  	struct iommufd_device *iommufd_device;
-> >  	struct iommufd_ctx *iommufd_ictx;
-> > --
-> > 2.39.1  
-> 
+  8cbf062a250e bpf: Reject kfunc calls that overflow insn->imm
 
+not sure we can do anything about that on bpf side.. cc-ing s390 list
+and Ilya for ideas/thoughts
+
+maybe we could make bpf_testmod in-tree module and compile it as module
+just for some archs
+
+thoughts?
+
+thanks,
+jirka
