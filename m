@@ -2,61 +2,61 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A327CC636D3
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Feb 2023 16:46:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E0FDC05027
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Feb 2023 16:46:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230340AbjBFQqU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 6 Feb 2023 11:46:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52560 "EHLO
+        id S230401AbjBFQqX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 6 Feb 2023 11:46:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230297AbjBFQqT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Feb 2023 11:46:19 -0500
+        with ESMTP id S230324AbjBFQqU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Feb 2023 11:46:20 -0500
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A83711D93F;
-        Mon,  6 Feb 2023 08:46:18 -0800 (PST)
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 316GjPAM009493;
-        Mon, 6 Feb 2023 16:46:14 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54DA125E2A;
+        Mon,  6 Feb 2023 08:46:19 -0800 (PST)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 316GjLkE027846;
+        Mon, 6 Feb 2023 16:46:15 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=lGd6NVjCuZeAkFsLSbx/PFZ9uVy5N6POGj4BCOeukGE=;
- b=gHDDahatp1MD57+duLPu+1AhDJjFfaybZA5eZxO/XC1kTFihSGGMk7xNCl4Zte9hhXww
- /sn3/yw8A9wM/03e//kfd2h4rRih+klq+Bs9T71UDv94tPXEusvOxPTOkzMQgvX2R7ae
- 5NaVzd2FDVnhvpmy6Iy5JtxmaY55ZzEJLPsJJU82KaNjJmb9lAowWr+JdfGrJg+U5dSU
- 2gTR1IdX2r76hu3Fj429Zh3rMbqmTBOJMFaOe32mH8xSRnz7U//iQpNpJflawTHBQ5rb
- 1QBV1N6fjBEgSaOvuwfL2rAXdSp/MBhkwEpi1PO6S7NNVKXr5P52nMEWKrRv9K2o7+c6 ZA== 
+ bh=C40ZJntMyqrcalxbNSfEu9RUVWoSIhODXs0/a6CxYlc=;
+ b=Rc0zKPJzgPCBFo265T973kBjzGAGS+lnjtpFmHVY9lYkVoC06TwK6pWOpglvqiKsB6H9
+ c9OzKufUQToOURaukReaPfyg0LKk7/P0ClSm5fuagolV05ROX3R6bpsyw8uczGCLd2iR
+ 35AuDEWsIrn8RKeXAExktAoBHzHtSl46S55qeXoWyBCcDwEylrSC0SWIy+TaJPUTbGWo
+ LmzQ/4lY2cl7FjXARIb2oBnpVol7fW/qC9ChvtxYyXJwl8JETdooaA6SfRVg6r5o60Jo
+ VLvX+C2YlNnkZdRsN6Idakhxw9OJg/H0p/WyHrf2yVuGVDnP3N/6/HuGAdb2DKT6ndZe ww== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nk5aw81hf-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nk3rmbf4j-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 06 Feb 2023 16:46:15 +0000
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 316GjdrB028960;
+        Mon, 6 Feb 2023 16:46:14 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nk3rmbf3n-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Mon, 06 Feb 2023 16:46:14 +0000
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 316GkDhL012316;
-        Mon, 6 Feb 2023 16:46:13 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nk5aw81gq-1
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 315DvivH005516;
+        Mon, 6 Feb 2023 16:46:12 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+        by ppma02fra.de.ibm.com (PPS) with ESMTPS id 3nhf06sv6x-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Feb 2023 16:46:13 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 316GSWME020984;
-        Mon, 6 Feb 2023 16:46:11 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3nhemfjms6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Feb 2023 16:46:11 +0000
+        Mon, 06 Feb 2023 16:46:12 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 316Gk8kS22085972
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 316Gk90e42992040
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 6 Feb 2023 16:46:08 GMT
+        Mon, 6 Feb 2023 16:46:09 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 12FCD20040;
+        by IMSVA (Postfix) with ESMTP id 12C1420040;
+        Mon,  6 Feb 2023 16:46:09 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 94F7120043;
         Mon,  6 Feb 2023 16:46:08 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8D22F2004D;
-        Mon,  6 Feb 2023 16:46:07 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
         by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon,  6 Feb 2023 16:46:07 +0000 (GMT)
+        Mon,  6 Feb 2023 16:46:08 +0000 (GMT)
 From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
 To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
         Janosch Frank <frankja@linux.ibm.com>,
@@ -73,52 +73,112 @@ Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
         Shuah Khan <shuah@kernel.org>,
         Sven Schnelle <svens@linux.ibm.com>,
         Thomas Huth <thuth@redhat.com>
-Subject: [PATCH v7 07/14] KVM: s390: selftest: memop: Fix integer literal
-Date:   Mon,  6 Feb 2023 17:45:55 +0100
-Message-Id: <20230206164602.138068-8-scgl@linux.ibm.com>
+Subject: [PATCH v7 09/14] KVM: s390: Dispatch to implementing function at top level of vm mem_op
+Date:   Mon,  6 Feb 2023 17:45:57 +0100
+Message-Id: <20230206164602.138068-10-scgl@linux.ibm.com>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20230206164602.138068-1-scgl@linux.ibm.com>
 References: <20230206164602.138068-1-scgl@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: a8QoKZoIdYYVSs43QOhsv68OViBLs1xh
-X-Proofpoint-ORIG-GUID: UJEX56f8_nvuAvKplaUwcbHZ5VFpEnRd
+X-Proofpoint-GUID: vQp4nn4U6iMn9Qok-aC0yQMF2tSTaTjs
+X-Proofpoint-ORIG-GUID: OvX0vlJCrIW_TkW8ooRU44VPX8ev3V-r
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
  definitions=2023-02-06_07,2023-02-06_03,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 phishscore=0
- priorityscore=1501 mlxscore=0 lowpriorityscore=0 mlxlogscore=999
- clxscore=1015 malwarescore=0 suspectscore=0 spamscore=0 bulkscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
+ priorityscore=1501 spamscore=0 malwarescore=0 clxscore=1015 bulkscore=0
+ adultscore=0 mlxscore=0 impostorscore=0 phishscore=0 suspectscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2212070000 definitions=main-2302060144
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The address is a 64 bit value, specifying a 32 bit value can crash the
-guest. In this case things worked out with -O2 but not -O0.
+Instead of having one function covering all mem_op operations,
+have a function implementing absolute access and dispatch to that
+function in its caller, based on the operation code.
+This way additional future operations can be implemented by adding an
+implementing function without changing existing operations.
 
+Suggested-by: Janosch Frank <frankja@linux.ibm.com>
 Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-Fixes: 1bb873495a9e ("KVM: s390: selftests: Add more copy memop tests")
 Reviewed-by: Thomas Huth <thuth@redhat.com>
 ---
- tools/testing/selftests/kvm/s390x/memop.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/kvm/kvm-s390.c | 38 ++++++++++++++++++++++++--------------
+ 1 file changed, 24 insertions(+), 14 deletions(-)
 
-diff --git a/tools/testing/selftests/kvm/s390x/memop.c b/tools/testing/selftests/kvm/s390x/memop.c
-index 1ae5c01f9904..c5fec84ef3c2 100644
---- a/tools/testing/selftests/kvm/s390x/memop.c
-+++ b/tools/testing/selftests/kvm/s390x/memop.c
-@@ -514,7 +514,7 @@ static void guest_copy_key_fetch_prot_override(void)
- 	GUEST_SYNC(STAGE_INITED);
- 	set_storage_key_range(0, PAGE_SIZE, 0x18);
- 	set_storage_key_range((void *)last_page_addr, PAGE_SIZE, 0x0);
--	asm volatile ("sske %[key],%[addr]\n" :: [addr] "r"(0), [key] "r"(0x18) : "cc");
-+	asm volatile ("sske %[key],%[addr]\n" :: [addr] "r"(0L), [key] "r"(0x18) : "cc");
- 	GUEST_SYNC(STAGE_SKEYS_SET);
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 0367c1a7e69a..707967a296f1 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -2779,7 +2779,7 @@ static int mem_op_validate_common(struct kvm_s390_mem_op *mop, u64 supported_fla
+ 	return 0;
+ }
  
- 	for (;;) {
+-static int kvm_s390_vm_mem_op(struct kvm *kvm, struct kvm_s390_mem_op *mop)
++static int kvm_s390_vm_mem_op_abs(struct kvm *kvm, struct kvm_s390_mem_op *mop)
+ {
+ 	void __user *uaddr = (void __user *)mop->buf;
+ 	void *tmpbuf = NULL;
+@@ -2790,17 +2790,6 @@ static int kvm_s390_vm_mem_op(struct kvm *kvm, struct kvm_s390_mem_op *mop)
+ 	if (r)
+ 		return r;
+ 
+-	/*
+-	 * This is technically a heuristic only, if the kvm->lock is not
+-	 * taken, it is not guaranteed that the vm is/remains non-protected.
+-	 * This is ok from a kernel perspective, wrongdoing is detected
+-	 * on the access, -EFAULT is returned and the vm may crash the
+-	 * next time it accesses the memory in question.
+-	 * There is no sane usecase to do switching and a memop on two
+-	 * different CPUs at the same time.
+-	 */
+-	if (kvm_s390_pv_get_handle(kvm))
+-		return -EINVAL;
+ 	if (!(mop->flags & KVM_S390_MEMOP_F_CHECK_ONLY)) {
+ 		tmpbuf = vmalloc(mop->size);
+ 		if (!tmpbuf)
+@@ -2841,8 +2830,6 @@ static int kvm_s390_vm_mem_op(struct kvm *kvm, struct kvm_s390_mem_op *mop)
+ 		}
+ 		break;
+ 	}
+-	default:
+-		r = -EINVAL;
+ 	}
+ 
+ out_unlock:
+@@ -2852,6 +2839,29 @@ static int kvm_s390_vm_mem_op(struct kvm *kvm, struct kvm_s390_mem_op *mop)
+ 	return r;
+ }
+ 
++static int kvm_s390_vm_mem_op(struct kvm *kvm, struct kvm_s390_mem_op *mop)
++{
++	/*
++	 * This is technically a heuristic only, if the kvm->lock is not
++	 * taken, it is not guaranteed that the vm is/remains non-protected.
++	 * This is ok from a kernel perspective, wrongdoing is detected
++	 * on the access, -EFAULT is returned and the vm may crash the
++	 * next time it accesses the memory in question.
++	 * There is no sane usecase to do switching and a memop on two
++	 * different CPUs at the same time.
++	 */
++	if (kvm_s390_pv_get_handle(kvm))
++		return -EINVAL;
++
++	switch (mop->op) {
++	case KVM_S390_MEMOP_ABSOLUTE_READ:
++	case KVM_S390_MEMOP_ABSOLUTE_WRITE:
++		return kvm_s390_vm_mem_op_abs(kvm, mop);
++	default:
++		return -EINVAL;
++	}
++}
++
+ long kvm_arch_vm_ioctl(struct file *filp,
+ 		       unsigned int ioctl, unsigned long arg)
+ {
 -- 
 2.37.2
 
