@@ -2,122 +2,152 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EE56DC636D4
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Feb 2023 17:03:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1BA21C05027
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Feb 2023 17:28:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229732AbjBFRDn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 6 Feb 2023 12:03:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40458 "EHLO
+        id S230345AbjBFR2h (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 6 Feb 2023 12:28:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229537AbjBFRDm (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Feb 2023 12:03:42 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 631EA21A22;
-        Mon,  6 Feb 2023 09:03:41 -0800 (PST)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 316GvKsd011257;
-        Mon, 6 Feb 2023 17:03:37 GMT
+        with ESMTP id S230180AbjBFR2Z (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Feb 2023 12:28:25 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E4532887D;
+        Mon,  6 Feb 2023 09:28:13 -0800 (PST)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 316H7VKW008674;
+        Mon, 6 Feb 2023 17:28:10 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=hrA9fZeyTW2k/jOn1JdCQauZ1lZT/lKkQLUaX2O5Ls8=;
- b=hO7zo56/d/yUtd9fiTiTK5rqJzsvYAOFETG3MRmtpg7vVRXJft2nKgH8SKPWxCfgqGFC
- 5dwp7/9TJQ81GWQ5F4qYkmgG+bsUzuyHwhZy9trvCMOK7uM/3F6JuyCVMRSm1s22EJfE
- p9bVnXYhojk4qyJwUCdZjiqJNF/hPOUZ6IlXIsz/seE046pAjORkcaGZ/3Jy8mEySlq0
- oaX23/lCfhoP5yAXcn14OHOVRUWHOE2dwek9ug4Xcmlv47jnGQBpztVeUZCL8DzJL9O8
- s4JB6n2I/a5ki1JD5fhE5ik1AjC2TPOjFhptMqY2vhbFe2gGq00dv/xCbR759meXnN65 Ug== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nk3rmc1pe-1
+ bh=CxZfDUSBaefhByv8if/AkJ+GaZaew2xobQlKj92TIIc=;
+ b=Ev2cdCtbQAkDejZLVyWpC/u+LcdmYkOXjHzjCu4nwO/fOOhwx/JrzBvmQna2da3OcFWh
+ YXmkfBSAl8lDTs59mYcuHLhRnB5ioff1//WFIIxnari+7ghiBdie/p5tozjIiq3XRB66
+ WW6loOFcD5QNw6Ni5zW8Kd6fzALkoPH6a1dSgzqiSWws3gXLD7Qqmg5GR/OvwxnnZLPk
+ jWzSpstbJu3cYIusMh31J7zBPpik+NGz7H7udiGgxn0p0bP+QBZAjq3bI4QAwLDXt5VE
+ rTRivIJPMw8NvQ8qDGhwS8mdqOx3Voa+OYljL326RWcrb6xXhnae1SWe3fkrlff93vsU SA== 
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nk5nu0k42-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Feb 2023 17:03:36 +0000
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 316Gvscb013793;
-        Mon, 6 Feb 2023 17:03:36 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nk3rmc1nj-1
+        Mon, 06 Feb 2023 17:28:09 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 316GFh2X023803;
+        Mon, 6 Feb 2023 17:28:07 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3nhf06tnuq-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Feb 2023 17:03:35 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 316Bn9B2000395;
-        Mon, 6 Feb 2023 16:46:10 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-        by ppma03fra.de.ibm.com (PPS) with ESMTPS id 3nhf06hv13-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Feb 2023 16:46:10 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 316Gk7Fx46399834
+        Mon, 06 Feb 2023 17:28:07 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 316HS4lm52691344
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 6 Feb 2023 16:46:07 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EF3762004D;
-        Mon,  6 Feb 2023 16:46:06 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6F5942004B;
-        Mon,  6 Feb 2023 16:46:06 +0000 (GMT)
+        Mon, 6 Feb 2023 17:28:04 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EC9B22004D;
+        Mon,  6 Feb 2023 17:28:03 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DA63A20040;
+        Mon,  6 Feb 2023 17:28:03 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon,  6 Feb 2023 16:46:06 +0000 (GMT)
-From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Mon,  6 Feb 2023 17:28:03 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55271)
+        id A32BCE0611; Mon,  6 Feb 2023 18:28:03 +0100 (CET)
+From:   Alexandra Winter <wintera@linux.ibm.com>
+To:     David Miller <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>
+Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
         Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Shuah Khan <shuah@kernel.org>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>, Nico Boehr <nrb@linux.ibm.com>
-Subject: [PATCH v7 05/14] KVM: s390: selftest: memop: Fix typo
-Date:   Mon,  6 Feb 2023 17:45:53 +0100
-Message-Id: <20230206164602.138068-6-scgl@linux.ibm.com>
+        Thorsten Winkler <twinkler@linux.ibm.com>,
+        Alexandra Winkler <wintera@linux.ibm.com>
+Subject: [PATCH net-next 2/4] s390/qeth: Use constant for IP address buffers
+Date:   Mon,  6 Feb 2023 18:27:52 +0100
+Message-Id: <20230206172754.980062-3-wintera@linux.ibm.com>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20230206164602.138068-1-scgl@linux.ibm.com>
-References: <20230206164602.138068-1-scgl@linux.ibm.com>
+In-Reply-To: <20230206172754.980062-1-wintera@linux.ibm.com>
+References: <20230206172754.980062-1-wintera@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: RmqJyTy2jHcXQE9anOBHBLJ-o7BtCpER
-X-Proofpoint-ORIG-GUID: JhL9eJs5euI3-QEcrZh31rRcU5RAONCc
+X-Proofpoint-ORIG-GUID: Yav4lnuYVr21HVxq8lVhktVj8XmK9hrl
+X-Proofpoint-GUID: Yav4lnuYVr21HVxq8lVhktVj8XmK9hrl
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
  definitions=2023-02-06_07,2023-02-06_03,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=990
- priorityscore=1501 spamscore=0 malwarescore=0 clxscore=1015 bulkscore=0
- adultscore=0 mlxscore=0 impostorscore=0 phishscore=0 suspectscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2302060149
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
+ priorityscore=1501 mlxscore=0 adultscore=0 suspectscore=0
+ lowpriorityscore=0 malwarescore=0 bulkscore=0 impostorscore=0
+ mlxlogscore=999 phishscore=0 clxscore=1015 classifier=spam adjust=0
+ reason=mlx scancount=1 engine=8.12.0-2212070000
+ definitions=main-2302060149
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-"acceeded" isn't a word, should be "exceeded".
+From: Thorsten Winkler <twinkler@linux.ibm.com>
 
-Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
+Use INET6_ADDRSTRLEN constant with size of 48 which be used for char arrays
+storing ip addresses (for IPv4 and IPv6)
+
+Reviewed-by: Alexandra Winkler <wintera@linux.ibm.com>
+Signed-off-by: Thorsten Winkler <twinkler@linux.ibm.com>
+Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
 ---
- tools/testing/selftests/kvm/s390x/memop.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/s390/net/qeth_l3_main.c | 3 ++-
+ drivers/s390/net/qeth_l3_sys.c  | 6 +++---
+ 2 files changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/tools/testing/selftests/kvm/s390x/memop.c b/tools/testing/selftests/kvm/s390x/memop.c
-index 00737cceacda..033a8603a096 100644
---- a/tools/testing/selftests/kvm/s390x/memop.c
-+++ b/tools/testing/selftests/kvm/s390x/memop.c
-@@ -602,7 +602,7 @@ static void test_errors_key_fetch_prot_override_enabled(void)
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index d8487a10cd55..1cf4e354693f 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -19,6 +19,7 @@
+ #include <linux/etherdevice.h>
+ #include <linux/ip.h>
+ #include <linux/in.h>
++#include <linux/inet.h>
+ #include <linux/ipv6.h>
+ #include <linux/inetdevice.h>
+ #include <linux/igmp.h>
+@@ -158,7 +159,7 @@ static int qeth_l3_add_ip(struct qeth_card *card, struct qeth_ipaddr *tmp_addr)
+ {
+ 	int rc = 0;
+ 	struct qeth_ipaddr *addr;
+-	char buf[40];
++	char buf[INET6_ADDRSTRLEN];
  
- 	/*
- 	 * vcpu, mismatching keys on fetch,
--	 * fetch protection override does not apply because memory range acceeded
-+	 * fetch protection override does not apply because memory range exceeded
- 	 */
- 	CHECK_N_DO(ERR_PROT_MOP, t.vcpu, LOGICAL, READ, mem2, 2048 + 1, GADDR_V(0), KEY(2));
- 	CHECK_N_DO(ERR_PROT_MOP, t.vcpu, LOGICAL, READ, mem2, PAGE_SIZE + 2048 + 1,
+ 	if (tmp_addr->type == QETH_IP_TYPE_RXIP)
+ 		QETH_CARD_TEXT(card, 2, "addrxip");
+diff --git a/drivers/s390/net/qeth_l3_sys.c b/drivers/s390/net/qeth_l3_sys.c
+index 1082380b21f8..6143dd485810 100644
+--- a/drivers/s390/net/qeth_l3_sys.c
++++ b/drivers/s390/net/qeth_l3_sys.c
+@@ -371,7 +371,7 @@ static ssize_t qeth_l3_dev_ipato_add_show(char *buf, struct qeth_card *card,
+ 
+ 	mutex_lock(&card->ip_lock);
+ 	list_for_each_entry(ipatoe, &card->ipato.entries, entry) {
+-		char addr_str[40];
++		char addr_str[INET6_ADDRSTRLEN];
+ 		int entry_len;
+ 
+ 		if (ipatoe->proto != proto)
+@@ -413,7 +413,7 @@ static int qeth_l3_parse_ipatoe(const char *buf, enum qeth_prot_versions proto,
+ 	int rc;
+ 
+ 	/* Expected input pattern: %addr/%mask */
+-	sep = strnchr(buf, 40, '/');
++	sep = strnchr(buf, INET6_ADDRSTRLEN, '/');
+ 	if (!sep)
+ 		return -EINVAL;
+ 
+@@ -592,7 +592,7 @@ static ssize_t qeth_l3_dev_ip_add_show(struct device *dev, char *buf,
+ 
+ 	mutex_lock(&card->ip_lock);
+ 	hash_for_each(card->ip_htable, i, ipaddr, hnode) {
+-		char addr_str[40];
++		char addr_str[INET6_ADDRSTRLEN];
+ 		int entry_len;
+ 
+ 		if (ipaddr->proto != proto || ipaddr->type != type)
 -- 
 2.37.2
 
