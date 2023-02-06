@@ -2,170 +2,197 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 762BAC05027
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Feb 2023 14:31:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B05DC636D3
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Feb 2023 16:46:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230171AbjBFObP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 6 Feb 2023 09:31:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48550 "EHLO
+        id S230249AbjBFQqS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 6 Feb 2023 11:46:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231383AbjBFObL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Feb 2023 09:31:11 -0500
+        with ESMTP id S229486AbjBFQqR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Feb 2023 11:46:17 -0500
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AB3624491;
-        Mon,  6 Feb 2023 06:31:03 -0800 (PST)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 316Dqedn027262;
-        Mon, 6 Feb 2023 14:31:00 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=fY1uFqFpFeohv8ToeVZeQn7Oria/689OcqL8tnKdK1A=;
- b=B3b9Rf0n6oWvgqu1iZn2sR4r97MleYzgLftVFCvpSEpzFB1a2B1QYEVCDy3GqRCb4pix
- w2T/QN+HHRPcQmiiC8kgaJhzEvwSiqJ+x8bJk9NAVADgW70eJO/w4R5H+mUvIw2xxERF
- 3qiXSrDfsWIwd5HcCiRqkne+kojt11ZZhsqS261Gx+fEsoYUNhY5JDOuhlzqbSQktvUp
- btgUS+ZjhJJMgbE74auL2FmAkrItKkVD5U8oNIjcfWfR6/679cK07zWFJOOCYwF6bakw
- 4f7v6P1V3FDHBodpZSqkiNM2T1CaHgRkh5lZ3/goLlhZpMgbMj0mhok9N+do1Z2wqdQA Ug== 
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A430B1D93F;
+        Mon,  6 Feb 2023 08:46:16 -0800 (PST)
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 316GiWHv011119;
+        Mon, 6 Feb 2023 16:46:12 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=mF6uLi36NVaZQCnWTlKj8Q1UqzIyWeZV5mmdHA3tnLM=;
+ b=jep6UZQHkhn0sWpqlTG7BizZK1zTUrQNkSfchIFbHDpnqVppDVFR3z0ZQGU4EJ8UzlFh
+ W7nHmOV228RUrwRwDcWuECCgFHOvClgyBlxmZW4SIZTBlj6x3WnNU9+wbHcIeZcsTIUX
+ 87g5Qqdaw9eEQ3QmChLsQXZ3o5JkMaUdqvTOhIqOIEkJnSV88tbI4dwvHvrNCacOqw3h
+ iMEqxOCfL/4QX638Za0MVZxlrKX4tYk+bekH47ImleQvdxCYcths+ovJQNbCPSn4lyXV
+ JK+b9ZUgQbDUbyYSeJ+0/6eJmV1ybHidTyVyMMbLSxnwt2kWSbJ9rdJ2JQWS3llaKEp/ aQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nk2tbhdg5-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nk51mgp6h-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Feb 2023 14:30:59 +0000
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 316ENZEC010631;
-        Mon, 6 Feb 2023 14:30:59 GMT
-Received: from ppma02wdc.us.ibm.com (aa.5b.37a9.ip4.static.sl-reverse.com [169.55.91.170])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nk2tbhdfb-1
+        Mon, 06 Feb 2023 16:46:11 +0000
+Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 316Ginbp012183;
+        Mon, 6 Feb 2023 16:46:11 GMT
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nk51mgp5h-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Feb 2023 14:30:59 +0000
-Received: from pps.filterd (ppma02wdc.us.ibm.com [127.0.0.1])
-        by ppma02wdc.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 316C2CtB027478;
-        Mon, 6 Feb 2023 14:30:57 GMT
-Received: from smtprelay05.dal12v.mail.ibm.com ([9.208.130.101])
-        by ppma02wdc.us.ibm.com (PPS) with ESMTPS id 3nhf07k4n6-1
+        Mon, 06 Feb 2023 16:46:11 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 316Dpt40006266;
+        Mon, 6 Feb 2023 16:46:08 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma01fra.de.ibm.com (PPS) with ESMTPS id 3nhf06hva4-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Feb 2023 14:30:57 +0000
-Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
-        by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 316EUuEO4784646
+        Mon, 06 Feb 2023 16:46:08 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 316Gk4Yr49611194
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 6 Feb 2023 14:30:56 GMT
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5388958059;
-        Mon,  6 Feb 2023 14:30:56 +0000 (GMT)
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 348BB5805B;
-        Mon,  6 Feb 2023 14:30:53 +0000 (GMT)
-Received: from [9.65.214.209] (unknown [9.65.214.209])
-        by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Mon,  6 Feb 2023 14:30:53 +0000 (GMT)
-Message-ID: <1bd635d4-3868-6c6e-48a7-9888a1f4770f@linux.ibm.com>
-Date:   Mon, 6 Feb 2023 09:30:52 -0500
+        Mon, 6 Feb 2023 16:46:04 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CA1E620040;
+        Mon,  6 Feb 2023 16:46:04 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 580B42004B;
+        Mon,  6 Feb 2023 16:46:04 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Mon,  6 Feb 2023 16:46:04 +0000 (GMT)
+From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Huth <thuth@redhat.com>
+Subject: [PATCH v7 01/14] KVM: s390: selftest: memop: Pass mop_desc via pointer
+Date:   Mon,  6 Feb 2023 17:45:49 +0100
+Message-Id: <20230206164602.138068-2-scgl@linux.ibm.com>
+X-Mailer: git-send-email 2.37.2
+In-Reply-To: <20230206164602.138068-1-scgl@linux.ibm.com>
+References: <20230206164602.138068-1-scgl@linux.ibm.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.0
-Subject: Re: [PATCH v4 2/2] vfio: no need to pass kvm pointer during device
- open
-Content-Language: en-US
-To:     Matthew Rosato <mjrosato@linux.ibm.com>,
-        alex.williamson@redhat.com, pbonzini@redhat.com,
-        yi.l.liu@intel.com, jgg@nvidia.com
-Cc:     cohuck@redhat.com, farman@linux.ibm.com, pmorel@linux.ibm.com,
-        borntraeger@linux.ibm.com, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, david@redhat.com, jjherne@linux.ibm.com,
-        pasic@linux.ibm.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com,
-        seanjc@google.com, kevin.tian@intel.com,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        intel-gvt-dev@lists.freedesktop.org,
-        intel-gfx@lists.freedesktop.org, linux-kernel@vger.kernel.org
-References: <20230203215027.151988-1-mjrosato@linux.ibm.com>
- <20230203215027.151988-3-mjrosato@linux.ibm.com>
-From:   Anthony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <20230203215027.151988-3-mjrosato@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: cceqdypcy3GETAIAz_M-K1133zr11Dl-
-X-Proofpoint-GUID: 7oQNyG3Yl5Xiw6XZRpT67G57WPdtqU7d
+X-Proofpoint-GUID: p34xorXUtHmVc0v_kgcq9v2bIRigLn6Y
+X-Proofpoint-ORIG-GUID: qRK9dQoWYFPQc8cx6IOQUYunZI7KKSwx
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
  definitions=2023-02-06_07,2023-02-06_03,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 impostorscore=0
- mlxlogscore=999 lowpriorityscore=0 adultscore=0 malwarescore=0
- suspectscore=0 mlxscore=0 priorityscore=1501 clxscore=1015 phishscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2302060121
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 suspectscore=0
+ mlxlogscore=999 spamscore=0 adultscore=0 phishscore=0 impostorscore=0
+ lowpriorityscore=0 bulkscore=0 priorityscore=1501 malwarescore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2302060144
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Tested-by: Tony Krowiak <akrowiak@linux.ibm.com>
+The struct is quite large, so this seems nicer.
 
-On 2/3/23 4:50 PM, Matthew Rosato wrote:
-> Nothing uses this value during vfio_device_open anymore so it's safe
-> to remove it.
->
-> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> ---
->   drivers/vfio/group.c     | 2 +-
->   drivers/vfio/vfio.h      | 3 +--
->   drivers/vfio/vfio_main.c | 7 +++----
->   3 files changed, 5 insertions(+), 7 deletions(-)
->
-> diff --git a/drivers/vfio/group.c b/drivers/vfio/group.c
-> index 98621ac082f0..0e9036e2b9c4 100644
-> --- a/drivers/vfio/group.c
-> +++ b/drivers/vfio/group.c
-> @@ -187,7 +187,7 @@ static int vfio_device_group_open(struct vfio_device *device)
->   	if (device->open_count == 0)
->   		vfio_device_group_get_kvm_safe(device);
->   
-> -	ret = vfio_device_open(device, device->group->iommufd, device->kvm);
-> +	ret = vfio_device_open(device, device->group->iommufd);
->   
->   	if (device->open_count == 0)
->   		vfio_device_put_kvm(device);
-> diff --git a/drivers/vfio/vfio.h b/drivers/vfio/vfio.h
-> index 24d6cd285945..4f39ab549a80 100644
-> --- a/drivers/vfio/vfio.h
-> +++ b/drivers/vfio/vfio.h
-> @@ -18,8 +18,7 @@ struct vfio_container;
->   
->   void vfio_device_put_registration(struct vfio_device *device);
->   bool vfio_device_try_get_registration(struct vfio_device *device);
-> -int vfio_device_open(struct vfio_device *device,
-> -		     struct iommufd_ctx *iommufd, struct kvm *kvm);
-> +int vfio_device_open(struct vfio_device *device, struct iommufd_ctx *iommufd);
->   void vfio_device_close(struct vfio_device *device,
->   		       struct iommufd_ctx *iommufd);
->   
-> diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
-> index 28c47cd6a6b5..3a597e799918 100644
-> --- a/drivers/vfio/vfio_main.c
-> +++ b/drivers/vfio/vfio_main.c
-> @@ -397,7 +397,7 @@ static bool vfio_assert_device_open(struct vfio_device *device)
->   }
->   
->   static int vfio_device_first_open(struct vfio_device *device,
-> -				  struct iommufd_ctx *iommufd, struct kvm *kvm)
-> +				  struct iommufd_ctx *iommufd)
->   {
->   	int ret;
->   
-> @@ -444,8 +444,7 @@ static void vfio_device_last_close(struct vfio_device *device,
->   	module_put(device->dev->driver->owner);
->   }
->   
-> -int vfio_device_open(struct vfio_device *device,
-> -		     struct iommufd_ctx *iommufd, struct kvm *kvm)
-> +int vfio_device_open(struct vfio_device *device, struct iommufd_ctx *iommufd)
->   {
->   	int ret = 0;
->   
-> @@ -453,7 +452,7 @@ int vfio_device_open(struct vfio_device *device,
->   
->   	device->open_count++;
->   	if (device->open_count == 1) {
-> -		ret = vfio_device_first_open(device, iommufd, kvm);
-> +		ret = vfio_device_first_open(device, iommufd);
->   		if (ret)
->   			device->open_count--;
->   	}
+Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+---
+ tools/testing/selftests/kvm/s390x/memop.c | 44 +++++++++++------------
+ 1 file changed, 22 insertions(+), 22 deletions(-)
+
+diff --git a/tools/testing/selftests/kvm/s390x/memop.c b/tools/testing/selftests/kvm/s390x/memop.c
+index 3fd81e58f40c..9c05d1205114 100644
+--- a/tools/testing/selftests/kvm/s390x/memop.c
++++ b/tools/testing/selftests/kvm/s390x/memop.c
+@@ -48,53 +48,53 @@ struct mop_desc {
+ 	uint8_t key;
+ };
+ 
+-static struct kvm_s390_mem_op ksmo_from_desc(struct mop_desc desc)
++static struct kvm_s390_mem_op ksmo_from_desc(const struct mop_desc *desc)
+ {
+ 	struct kvm_s390_mem_op ksmo = {
+-		.gaddr = (uintptr_t)desc.gaddr,
+-		.size = desc.size,
+-		.buf = ((uintptr_t)desc.buf),
++		.gaddr = (uintptr_t)desc->gaddr,
++		.size = desc->size,
++		.buf = ((uintptr_t)desc->buf),
+ 		.reserved = "ignored_ignored_ignored_ignored"
+ 	};
+ 
+-	switch (desc.target) {
++	switch (desc->target) {
+ 	case LOGICAL:
+-		if (desc.mode == READ)
++		if (desc->mode == READ)
+ 			ksmo.op = KVM_S390_MEMOP_LOGICAL_READ;
+-		if (desc.mode == WRITE)
++		if (desc->mode == WRITE)
+ 			ksmo.op = KVM_S390_MEMOP_LOGICAL_WRITE;
+ 		break;
+ 	case SIDA:
+-		if (desc.mode == READ)
++		if (desc->mode == READ)
+ 			ksmo.op = KVM_S390_MEMOP_SIDA_READ;
+-		if (desc.mode == WRITE)
++		if (desc->mode == WRITE)
+ 			ksmo.op = KVM_S390_MEMOP_SIDA_WRITE;
+ 		break;
+ 	case ABSOLUTE:
+-		if (desc.mode == READ)
++		if (desc->mode == READ)
+ 			ksmo.op = KVM_S390_MEMOP_ABSOLUTE_READ;
+-		if (desc.mode == WRITE)
++		if (desc->mode == WRITE)
+ 			ksmo.op = KVM_S390_MEMOP_ABSOLUTE_WRITE;
+ 		break;
+ 	case INVALID:
+ 		ksmo.op = -1;
+ 	}
+-	if (desc.f_check)
++	if (desc->f_check)
+ 		ksmo.flags |= KVM_S390_MEMOP_F_CHECK_ONLY;
+-	if (desc.f_inject)
++	if (desc->f_inject)
+ 		ksmo.flags |= KVM_S390_MEMOP_F_INJECT_EXCEPTION;
+-	if (desc._set_flags)
+-		ksmo.flags = desc.set_flags;
+-	if (desc.f_key) {
++	if (desc->_set_flags)
++		ksmo.flags = desc->set_flags;
++	if (desc->f_key) {
+ 		ksmo.flags |= KVM_S390_MEMOP_F_SKEY_PROTECTION;
+-		ksmo.key = desc.key;
++		ksmo.key = desc->key;
+ 	}
+-	if (desc._ar)
+-		ksmo.ar = desc.ar;
++	if (desc->_ar)
++		ksmo.ar = desc->ar;
+ 	else
+ 		ksmo.ar = 0;
+-	if (desc._sida_offset)
+-		ksmo.sida_offset = desc.sida_offset;
++	if (desc->_sida_offset)
++		ksmo.sida_offset = desc->sida_offset;
+ 
+ 	return ksmo;
+ }
+@@ -183,7 +183,7 @@ static int err_memop_ioctl(struct test_info info, struct kvm_s390_mem_op *ksmo)
+ 		else								\
+ 			__desc.gaddr = __desc.gaddr_v;				\
+ 	}									\
+-	__ksmo = ksmo_from_desc(__desc);					\
++	__ksmo = ksmo_from_desc(&__desc);					\
+ 	print_memop(__info.vcpu, &__ksmo);					\
+ 	err##memop_ioctl(__info, &__ksmo);					\
+ })
+-- 
+2.37.2
+
