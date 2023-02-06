@@ -2,147 +2,247 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 47517C636D4
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Feb 2023 09:15:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DAAEFC61DA4
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Feb 2023 10:47:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229499AbjBFJPo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 6 Feb 2023 04:15:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54990 "EHLO
+        id S229984AbjBFKrU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 6 Feb 2023 05:47:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229582AbjBFJPn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Feb 2023 04:15:43 -0500
-Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F04B3212D;
-        Mon,  6 Feb 2023 01:15:41 -0800 (PST)
-Received: by mail-wm1-x333.google.com with SMTP id bg26so8163773wmb.0;
-        Mon, 06 Feb 2023 01:15:41 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:date:from:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=mZ0xWkPNZ4hmW2vvs+f5UVSQ+AnfRdSc/rJdUnUEKCk=;
-        b=EZiP+qfZZ2vFI66D6cFJ4tRzgZmIsbEzmmRR2YHlhTThxz1noQFtlNiNWoeeFnYET8
-         s1a6r/cX5NaptNTBg3fmI0khxp1XoZJk/xkHc3NiJN35fLQxPqnCG2oi8f8svPXdI1qQ
-         uqXBoD5aRETcnD0iJNwlYu//S9H6VsbNt6ve4Eexrm02kKLo4ENgTMFzyGRodYkOAXrY
-         oEbeY/MjyBxsIVt7ygqfY+mv/hbikLl8WiY69rz58+N4+mhqS7uolIJO3YFwJMhNjMd4
-         EYVoqF5evnOhMdhff5WorqXR84A3q2x1La7KdCNdJ34zPA98NjPRxTfy4rQJCQXCOixj
-         SV0Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:date:from
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=mZ0xWkPNZ4hmW2vvs+f5UVSQ+AnfRdSc/rJdUnUEKCk=;
-        b=QK0Qw5r8u/rImv3/bV7GbJ2RLl8n/bfJUw1TxcGe082Rj1Gd7VWBNPZmqug93sn6Sp
-         DNMKXuCezXje4SZYdplCxq7Oi+WiPx76ekvAdk793FHMh9lO1FCa9GNH2jnRa2GPw/Ib
-         61Z9XrdTT5QEDtVpJxs8ibRkB5G/OIlDqQ1guBJUorOU5uHAK9CYZEtBpR7DyQqn+qly
-         njTzTE0t4bTN1zcWchwgzXRRopOVjguuV5YVfWyXDR8DnhobghO9YSK95OPKVe17Igo8
-         I+kTHNQAUH1rWu/gDTfXobGMTYZmdwV7XfvONj8K8ss5QrPJXArV6zEq3NGVjAw8raiv
-         Pi/Q==
-X-Gm-Message-State: AO0yUKWe+I7lonqpfg27lZsIH21aTxTynknjKbZf4bfED2gVVqQkvHBs
-        2wa2Z9406zKPlW+URbWYoVE=
-X-Google-Smtp-Source: AK7set9HplAw3gx0hCsrG6659a/FiLOrjP9EhP3KSmy3vi2Ls4ONVAdSWetY0B04BjyyvJJc7wfzEQ==
-X-Received: by 2002:a05:600c:b88:b0:3df:9858:c033 with SMTP id fl8-20020a05600c0b8800b003df9858c033mr10522279wmb.8.1675674940417;
-        Mon, 06 Feb 2023 01:15:40 -0800 (PST)
-Received: from krava (2001-1ae9-1c2-4c00-726e-c10f-8833-ff22.ip6.tmcz.cz. [2001:1ae9:1c2:4c00:726e:c10f:8833:ff22])
-        by smtp.gmail.com with ESMTPSA id g10-20020a05600c310a00b003de77597f16sm10789353wmo.21.2023.02.06.01.15.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 06 Feb 2023 01:15:39 -0800 (PST)
-From:   Jiri Olsa <olsajiri@gmail.com>
-X-Google-Original-From: Jiri Olsa <jolsa@kernel.org>
-Date:   Mon, 6 Feb 2023 10:15:37 +0100
-To:     Ilya Leoshkevich <iii@linux.ibm.com>
-Cc:     Jiri Olsa <olsajiri@gmail.com>,
-        Alexei Starovoitov <alexei.starovoitov@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>, bpf <bpf@vger.kernel.org>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@chromium.org>,
-        Stanislav Fomichev <sdf@google.com>,
-        Hao Luo <haoluo@google.com>, David Vernet <void@manifault.com>,
-        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
-        Artem Savkov <asavkov@redhat.com>, linux-s390@vger.kernel.org
-Subject: Re: [PATCHv3 bpf-next 0/9] bpf: Move kernel test kfuncs into
- bpf_testmod
-Message-ID: <Y+DFOWZB21MWhYEO@krava>
-References: <20230203162336.608323-1-jolsa@kernel.org>
- <CAADnVQKBYgN5nWG26s0s-U0=PMAWEc17aGWx76GLUc_PM22ZAw@mail.gmail.com>
- <Y9/yrKZkBK6yzXp+@krava>
- <96db3bf7d0a26b161a9846d8fe492c9bd0cb4c49.camel@linux.ibm.com>
+        with ESMTP id S230038AbjBFKrP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Feb 2023 05:47:15 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2284D15560;
+        Mon,  6 Feb 2023 02:47:14 -0800 (PST)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 316AiHIs011233;
+        Mon, 6 Feb 2023 10:47:08 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=rzupTz1tqZsaVWXedvwufJ5m/OJ+sVtYPaVZoZ/ood4=;
+ b=GXZ4naFuvAn1/71BskGUJpUW2tjl8xoKKaaN7Nza6DcYq/DVnoG1LeJV1iO9eTR1nmb+
+ +fEtlwVgIEZo2oKo2eHDZh+OM4SQCanPH7jrboGWYo5aND8X/FaYrEGMpm5K8Th+5pPf
+ e55L/pYd5fY72X+gH8Z/BNZ/JqOUDLXJeCdFsHVuxrhB3ShnHadq8boaFw79vjkGqnTA
+ zQwuMqwzpHPKohcUZEavj6YlCmwG03MLTX4mxnOd9TBugbztrBLu1tLqCXsjja9X+ljo
+ QUa0Ex9c/HgeeTv+E1OkzmY0LJPtj2nV+7FvQJsVA+xbVzOrwdcQ5yqubFevEO0Att+i Hg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nk028g1rg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 06 Feb 2023 10:47:08 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 316AjG6o014623;
+        Mon, 6 Feb 2023 10:47:07 GMT
+Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nk028g1r4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 06 Feb 2023 10:47:07 +0000
+Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
+        by ppma03dal.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3168wOfd017625;
+        Mon, 6 Feb 2023 10:47:06 GMT
+Received: from smtprelay03.dal12v.mail.ibm.com ([9.208.130.98])
+        by ppma03dal.us.ibm.com (PPS) with ESMTPS id 3nhf07ct85-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 06 Feb 2023 10:47:06 +0000
+Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
+        by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 316Al5iJ13238794
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 6 Feb 2023 10:47:05 GMT
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 432F35805C;
+        Mon,  6 Feb 2023 10:47:05 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B5F9E58054;
+        Mon,  6 Feb 2023 10:47:01 +0000 (GMT)
+Received: from [9.163.48.193] (unknown [9.163.48.193])
+        by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Mon,  6 Feb 2023 10:47:01 +0000 (GMT)
+Message-ID: <949f5094-1361-ac4b-77e9-c200e166d455@linux.ibm.com>
+Date:   Mon, 6 Feb 2023 11:47:00 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.6.1
+Subject: Re: [net-next v2 0/8] drivers/s390/net/ism: Add generalized interface
+To:     Wen Gu <guwen@linux.alibaba.com>, Jan Karcher <jaka@linux.ibm.com>,
+        David Miller <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Eric Dumazet <edumazet@google.com>,
+        Paolo Abeni <pabeni@redhat.com>
+Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Alexandra Winter <wintera@linux.ibm.com>,
+        Thorsten Winkler <twinkler@linux.ibm.com>,
+        Stefan Raspl <raspl@linux.ibm.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Nils Hoppmann <niho@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Tony Lu <tonylu@linux.alibaba.com>
+References: <20230123181752.1068-1-jaka@linux.ibm.com>
+ <39206f64-3f88-235e-7017-2479ac58844d@linux.alibaba.com>
+From:   Wenjia Zhang <wenjia@linux.ibm.com>
+In-Reply-To: <39206f64-3f88-235e-7017-2479ac58844d@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <96db3bf7d0a26b161a9846d8fe492c9bd0cb4c49.camel@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: X-av6iv2ugOXj6NvhsoWyCNiUHtLDuz8
+X-Proofpoint-GUID: fgmVx9mn4ktZv3B2WsJm81jMc_tr3jWA
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
+ definitions=2023-02-06_05,2023-02-06_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxlogscore=999
+ lowpriorityscore=0 suspectscore=0 malwarescore=0 clxscore=1015
+ impostorscore=0 adultscore=0 mlxscore=0 spamscore=0 bulkscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2302060091
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sun, Feb 05, 2023 at 07:36:14PM +0100, Ilya Leoshkevich wrote:
-> On Sun, 2023-02-05 at 19:17 +0100, Jiri Olsa wrote:
-> > On Sat, Feb 04, 2023 at 01:21:13AM -0800, Alexei Starovoitov wrote:
-> > > On Fri, Feb 3, 2023 at 8:23 AM Jiri Olsa <jolsa@kernel.org> wrote:
-> > > > 
-> > > > hi,
-> > > > I noticed several times in discussions that we should move test
-> > > > kfuncs
-> > > > into kernel module, now perhaps even more pressing with all the
-> > > > kfunc
-> > > > effort. This patchset moves all the test kfuncs into bpf_testmod.
-> > > > 
-> > > > I added bpf_testmod/bpf_testmod_kfunc.h header that is shared
-> > > > between
-> > > > bpf_testmod kernel module and BPF programs, which brings some
-> > > > difficulties
-> > > > with __ksym define. But I'm not sure having separate headers for
-> > > > BPF
-> > > > programs and for kernel module would be better.
-> > > > 
-> > > > This patchset also needs:
-> > > > � 74bc3a5acc82 bpf: Add missing btf_put to
-> > > > register_btf_id_dtor_kfuncs
-> > > > which is only in bpf/master now.
-> > > 
-> > > I thought you've added this patch to CI,
-> > > but cb_refs is still failing on s390...
-> > 
-> > the CI now fails for s390 with messages like:
-> > �� 2023-02-04T07:04:32.5185267Z��� RES: address of kernel function
-> > bpf_kfunc_call_test_fail1 is out of range
-> > 
-> > so now that we have test kfuncs in the module, the 's32 imm' value of
-> > the bpf call instructions can overflow when the offset between module
-> > and kernel is greater than 2GB ... as explained in the commit that
-> > added the verifier check:
-> > 
-> > � 8cbf062a250e bpf: Reject kfunc calls that overflow insn->imm
-> > 
-> > not sure we can do anything about that on bpf side.. cc-ing s390 list
-> > and Ilya for ideas/thoughts
-> > 
-> > maybe we could make bpf_testmod in-tree module and compile it as
-> > module
-> > just for some archs
-> > 
-> > thoughts?
+
+
+On 02.02.23 14:53, Wen Gu wrote:
+> 
+> 
+> On 2023/1/24 02:17, Jan Karcher wrote:
+> 
+>> Previously, there was no clean separation between SMC-D code and the ISM
+>> device driver.This patch series addresses the situation to make ISM 
+>> available
+>> for uses outside of SMC-D.
+>> In detail: SMC-D offers an interface via struct smcd_ops, which only the
+>> ISM module implements so far. However, there is no real separation 
+>> between
+>> the smcd and ism modules, which starts right with the ISM device
+>> initialization, which calls directly into the SMC-D code.
+>> This patch series introduces a new API in the ISM module, which allows
+>> registration of arbitrary clients via include/linux/ism.h: struct 
+>> ism_client.
+>> Furthermore, it introduces a "pure" struct ism_dev (i.e. getting rid of
+>> dependencies on SMC-D in the device structure), and adds a number of API
+>> calls for data transfers via ISM (see ism_register_dmb() & friends).
+>> Still, the ISM module implements the SMC-D API, and therefore has a 
+>> number
+>> of internal helper functions for that matter.
+>> Note that the ISM API is consciously kept thin for now (as compared to 
+>> the
+>> SMC-D API calls), as a number of API calls are only used with SMC-D and
+>> hardly have any meaningful usage beyond SMC-D, e.g. the VLAN-related 
+>> calls.
+>>
 > 
 > Hi,
 > 
-> I'd rather have this fixed - I guess the problem can affect the users.
-> The ksyms_module test is already denylisted because of that.
-> Unfortunately getting the kernel and the modules close together on
-> s390x is unlikely to happen in the foreseeable future.
+> Thanks for the great work!
 > 
-> What do you think about keeping the BTF ID inside the insn->imm field
-> and putting the 64-bit delta into bpf_insn_aux_data, replacing the
-> call_imm field that we already have there?
+> We are tring to adapt loopback and virtio-ism device into SMC-D based on 
+> the new
+> interface and want to confirm something. (cc: Alexandra Winter, Jan 
+> Karcher, Wenjia Zhang)
+> 
+>  From my understanding, this patch set is from the perspective of ISM 
+> device driver
+> and aims to make ISM device not only used by SMC-D, which is great!
+> 
+> But from the perspective of SMC, SMC-D protocol now binds with the 
+> helper in
+> smc_ism.c (smc_ism_* helper) and some part of smc_ism.c and smcd_ops 
+> seems to be
+> dedicated to only serve ISM device.
+> 
+> For example,
+> 
+> - The input param of smcd_register_dev() and smcd_unregister_dev() is 
+> ism_dev,
+>    instead of abstract smcd_dev like before.
+> 
+> - the smcd->ops->register_dmb has param of ism_client, exposing specific 
+> underlay.
+> 
+> So I want to confirm that, which of the following is our future 
+> direction of the
+> SMC-D device expansion?
+> 
+> (1) All extended devices (eg. virtio-ism and loopback) are ISM devices 
+> and SMC-D
+>      only supports ISM type device.
+> 
+>      SMC-D protocol -> smc_ism_* helper in smc_ism.c -> only ISM device.
+> 
+>      Future extended device must under the definition of ism_dev, in 
+> order to share
+>      the ism-specific helper in smc_ism.c (such as smcd_register_dev(), 
+> smcd_ops->register_dmbs..).
+> 
+>      With this design intention, futher extended SMC-D used device may 
+> be like:
+> 
+>                      +---------------------+
+>                      |    SMC-D protocol   |
+>                      +---------------------+
+>                        | current helper in|
+>                        |    smc_ism.c     |
+>           +--------------------------------------------+
+>           |              Broad ISM device              |
+>           |             defined as ism_dev             |
+>           |  +----------+ +------------+ +----------+  |
+>           |  | s390 ISM | | virtio-ism | | loopback |  |
+>           |  +----------+ +------------+ +----------+  |
+>           +--------------------------------------------+
+> 
+> (2) All extended devices (eg. virtio-ism and loopback) are abstracted as 
+> smcd_dev and
+>      SMC-D protocol use the abstracted capabilities.
+> 
+>      SMC-D does not care about the type of the underlying device, and 
+> only focus on the
+>      capabilities provided by smcd_dev.
+> 
+>      SMC-D protocol use a kind of general helpers, which only invoking 
+> smcd_dev->ops,
+>      without underlay device exposed. Just like most of helpers now in 
+> smc_ism.c, such as
+>      smc_ism_cantalk()/smc_ism_get_chid()/smc_ism_set_conn()..
+> 
+>      With this design intention, futher extended SMC-D used device 
+> should be like:
+> 
+>                       +----------------------+
+>                       |     SMC-D protocol   |
+>                       +----------------------+
+>                        |   general helper   |
+>                        |invoke smcd_dev->ops|
+>                        | hiding underlay dev|
+>             +-----------+  +------------+  +----------+
+>             | smc_ism.c |  | smc_vism.c |  | smc_lo.c |
+>             |           |  |            |  |          |
+>             | s390 ISM  |  | virtio-ism |  | loopback |
+>             |  device   |  |   device   |  |  device  |
+>             +-----------+  +------------+  +----------+
+> 
+> IMHO, (2) is more clean and beneficial to the flexible expansion of 
+> SMC-D devices, with no
+> underlay devices exposed.
+> 
+> So (2) should be our target. Do you agree? :)
+> 
+> If so, maybe we should make some part of helpers or ops of SMC-D device 
+> (such as smcd_register/unregister_dev
+> and smcd->ops->register_dmb) more generic？
+> 
+> Thanks,
+> Wen Gu
 
-seems tricky wrt other archs.. how about saving address of the kfunc
-in bpf_insn_aux_data and use that in s390 jit code instead of the
-'__bpf_call_base + imm' calculation
+Currently we tend a bit more towards the first solution. The reasoning 
+behind it is the following:
+If we create a full blown interface, we would have an own file for every 
+new device which on the one hand is clean, but on the other hand raises 
+the risk of duplicated code.
+So if we go down that path (2) we have to take care that we avoid 
+duplicated code.
 
-jirka
+In the context of the currently discussed changes this could mean:
+- ISM is the only device right now using indirect copy,
+- lo & vism should (AFAIU) copy directly.
+
+As you may see this leaves us with the big question: How much 
+abstraction is enough vs. when do we go overboard?
