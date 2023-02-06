@@ -2,61 +2,61 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B7F0CC636D4
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Feb 2023 16:46:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 36AD9C64EC4
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Feb 2023 16:46:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231162AbjBFQqe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 6 Feb 2023 11:46:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52640 "EHLO
+        id S231185AbjBFQqf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 6 Feb 2023 11:46:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230408AbjBFQqX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Feb 2023 11:46:23 -0500
+        with ESMTP id S230397AbjBFQqV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Feb 2023 11:46:21 -0500
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92C6228D1F;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 033BD28D12;
         Mon,  6 Feb 2023 08:46:20 -0800 (PST)
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 316GiWvO011116;
-        Mon, 6 Feb 2023 16:46:17 GMT
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 316Gibtt032700;
+        Mon, 6 Feb 2023 16:46:13 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=QPD1MrXyBQd+lcXepALqVN2kSoT8JOuhbgmb2MZE3GA=;
- b=BJh12km44+qkNw5M2bpEYum99hT0dqGfnxTNROraVaHsXRxZNybvf3SMzFqrO3V7GZsh
- 6uW74biti7d6vafMVNYjXa1Z8O18znHyIZlj/0UlbL7SuBlZHxQXhKPB5mqkrcPKeMNB
- bphFIB8fQszajQSfRmDDdzl0fpl7QijY8PKHTyW07uPr07jFgwlMcP8eZqqL47DMViEW
- aj1MrFiI6dVXv2EMvir5g0QE6uMIoC49KCMw7ZoeaWQaiX06+nZF7rcoyIYarByFZ8lq
- MDmH6XbbQF+prKuJJRG0X6l2dsXdW0mzokpg3vMh1umKMDzjClLRpPY5QJqtxEOyDuwP iw== 
+ bh=AhYDFHIUyInMt+lUBUuaRSPO/b7mLmW7f7V5OqOfN9M=;
+ b=eX+VPPkS3kLgisofcqLNxoDU04rcMxanC6jgnjxYCPjNdVgiTrM2FkWgLKu25CJ1lsfr
+ DHVuqAdkOWN0KDynJ3fSL+4sNZsv7+DwnNirIcDL6RWDohpglv1VBvwH3xKcbNOsXLoK
+ 4/div+JMkFr2EVUgkJUs74mrHgIOWlI2zCxLilPlocRjmA/pn8Bbf+Y7FmcqQN2vP0kT
+ a9X3hdktOrOZZ532+QlladmYQ3PAN6F6Bx7umuLO4FYGDm8NAzePJbtpBocr1QsDu59y
+ YQqG4cZevnFFCvZl5V3E22znqik8yMV9FMF51iSCipo+/f8FoNpt2B5eYaBOVidfUWEY 4A== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nk51mgpa1-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nk56q8aw2-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Feb 2023 16:46:17 +0000
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 316GiWBs011125;
-        Mon, 6 Feb 2023 16:46:16 GMT
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nk51mgp8m-1
+        Mon, 06 Feb 2023 16:46:12 +0000
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 316GjX5Y036699;
+        Mon, 6 Feb 2023 16:46:12 GMT
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nk56q8av0-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Feb 2023 16:46:16 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31644LwA010414;
-        Mon, 6 Feb 2023 16:46:14 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma02fra.de.ibm.com (PPS) with ESMTPS id 3nhf06sv6y-1
+        Mon, 06 Feb 2023 16:46:11 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3163BgjO014014;
+        Mon, 6 Feb 2023 16:46:09 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+        by ppma05fra.de.ibm.com (PPS) with ESMTPS id 3nhf06sv3m-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Feb 2023 16:46:14 +0000
+        Mon, 06 Feb 2023 16:46:09 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 316GkADt25756076
+        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 316Gk52t48759264
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 6 Feb 2023 16:46:10 GMT
+        Mon, 6 Feb 2023 16:46:06 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8C55820043;
-        Mon,  6 Feb 2023 16:46:10 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id CEC0C20040;
+        Mon,  6 Feb 2023 16:46:05 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1B2072004B;
-        Mon,  6 Feb 2023 16:46:10 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 5E4A62004B;
+        Mon,  6 Feb 2023 16:46:05 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
         by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon,  6 Feb 2023 16:46:10 +0000 (GMT)
+        Mon,  6 Feb 2023 16:46:05 +0000 (GMT)
 From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
 To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
         Janosch Frank <frankja@linux.ibm.com>,
@@ -71,300 +71,198 @@ Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
         linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org,
         Paolo Bonzini <pbonzini@redhat.com>,
         Shuah Khan <shuah@kernel.org>,
-        Sven Schnelle <svens@linux.ibm.com>
-Subject: [PATCH v7 12/14] KVM: s390: Extend MEM_OP ioctl by storage key checked cmpxchg
-Date:   Mon,  6 Feb 2023 17:46:00 +0100
-Message-Id: <20230206164602.138068-13-scgl@linux.ibm.com>
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Huth <thuth@redhat.com>
+Subject: [PATCH v7 03/14] KVM: s390: selftest: memop: Move testlist into main
+Date:   Mon,  6 Feb 2023 17:45:51 +0100
+Message-Id: <20230206164602.138068-4-scgl@linux.ibm.com>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20230206164602.138068-1-scgl@linux.ibm.com>
 References: <20230206164602.138068-1-scgl@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 2QsV-yUFnBU4W5SFSusT005pUIrJDE9f
-X-Proofpoint-ORIG-GUID: mUVznMEM9T28b2oEjNIM9HZX2aLV8Bhd
+X-Proofpoint-ORIG-GUID: Vd-YHuMm8-dvrcy8exKk0hOgH7qmK88t
+X-Proofpoint-GUID: kMJZhJIZLK8BxkiLbeeo6pQHiR7tMqKf
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
  definitions=2023-02-06_07,2023-02-06_03,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 suspectscore=0
- mlxlogscore=999 spamscore=0 adultscore=0 phishscore=0 impostorscore=0
- lowpriorityscore=0 bulkscore=0 priorityscore=1501 malwarescore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ lowpriorityscore=0 mlxscore=0 priorityscore=1501 spamscore=0
+ mlxlogscore=999 suspectscore=0 phishscore=0 malwarescore=0 adultscore=0
+ clxscore=1015 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2212070000 definitions=main-2302060144
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-User space can use the MEM_OP ioctl to make storage key checked reads
-and writes to the guest, however, it has no way of performing atomic,
-key checked, accesses to the guest.
-Extend the MEM_OP ioctl in order to allow for this, by adding a cmpxchg
-op. For now, support this op for absolute accesses only.
-
-This op can be used, for example, to set the device-state-change
-indicator and the adapter-local-summary indicator atomically.
+This allows checking if the necessary requirements for a test case are
+met via an arbitrary expression. In particular, it is easy to check if
+certain bits are set in the memop extension capability.
 
 Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- include/uapi/linux/kvm.h |   8 +++
- arch/s390/kvm/gaccess.h  |   3 ++
- arch/s390/kvm/gaccess.c  | 109 +++++++++++++++++++++++++++++++++++++++
- arch/s390/kvm/kvm-s390.c |  56 +++++++++++++++++++-
- 4 files changed, 175 insertions(+), 1 deletion(-)
+ tools/testing/selftests/kvm/s390x/memop.c | 131 +++++++++++-----------
+ 1 file changed, 66 insertions(+), 65 deletions(-)
 
-diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-index 55155e262646..d2f30463c133 100644
---- a/include/uapi/linux/kvm.h
-+++ b/include/uapi/linux/kvm.h
-@@ -583,6 +583,8 @@ struct kvm_s390_mem_op {
- 		struct {
- 			__u8 ar;	/* the access register number */
- 			__u8 key;	/* access key, ignored if flag unset */
-+			__u8 pad1[6];	/* ignored */
-+			__u64 old_addr;	/* ignored if cmpxchg flag unset */
- 		};
- 		__u32 sida_offset; /* offset into the sida */
- 		__u8 reserved[32]; /* ignored */
-@@ -595,11 +597,17 @@ struct kvm_s390_mem_op {
- #define KVM_S390_MEMOP_SIDA_WRITE	3
- #define KVM_S390_MEMOP_ABSOLUTE_READ	4
- #define KVM_S390_MEMOP_ABSOLUTE_WRITE	5
-+#define KVM_S390_MEMOP_ABSOLUTE_CMPXCHG	6
-+
- /* flags for kvm_s390_mem_op->flags */
- #define KVM_S390_MEMOP_F_CHECK_ONLY		(1ULL << 0)
- #define KVM_S390_MEMOP_F_INJECT_EXCEPTION	(1ULL << 1)
- #define KVM_S390_MEMOP_F_SKEY_PROTECTION	(1ULL << 2)
- 
-+/* flags specifying extension support via KVM_CAP_S390_MEM_OP_EXTENSION */
-+#define KVM_S390_MEMOP_EXTENSION_CAP_BASE	(1 << 0)
-+#define KVM_S390_MEMOP_EXTENSION_CAP_CMPXCHG	(1 << 1)
-+
- /* for KVM_INTERRUPT */
- struct kvm_interrupt {
- 	/* in */
-diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
-index 9408d6cc8e2c..b320d12aa049 100644
---- a/arch/s390/kvm/gaccess.h
-+++ b/arch/s390/kvm/gaccess.h
-@@ -206,6 +206,9 @@ int access_guest_with_key(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar,
- int access_guest_real(struct kvm_vcpu *vcpu, unsigned long gra,
- 		      void *data, unsigned long len, enum gacc_mode mode);
- 
-+int cmpxchg_guest_abs_with_key(struct kvm *kvm, gpa_t gpa, int len, __uint128_t *old,
-+			       __uint128_t new, u8 access_key, bool *success);
-+
- /**
-  * write_guest_with_key - copy data from kernel space to guest space
-  * @vcpu: virtual cpu
-diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
-index 0243b6e38d36..3eb85f254881 100644
---- a/arch/s390/kvm/gaccess.c
-+++ b/arch/s390/kvm/gaccess.c
-@@ -1161,6 +1161,115 @@ int access_guest_real(struct kvm_vcpu *vcpu, unsigned long gra,
- 	return rc;
+diff --git a/tools/testing/selftests/kvm/s390x/memop.c b/tools/testing/selftests/kvm/s390x/memop.c
+index df1c726294b2..bbc191a13760 100644
+--- a/tools/testing/selftests/kvm/s390x/memop.c
++++ b/tools/testing/selftests/kvm/s390x/memop.c
+@@ -690,85 +690,86 @@ static void test_errors(void)
+ 	kvm_vm_free(t.kvm_vm);
  }
  
-+/**
-+ * cmpxchg_guest_abs_with_key() - Perform cmpxchg on guest absolute address.
-+ * @kvm: Virtual machine instance.
-+ * @gpa: Absolute guest address of the location to be changed.
-+ * @len: Operand length of the cmpxchg, required: 1 <= len <= 16. Providing a
-+ *       non power of two will result in failure.
-+ * @old_addr: Pointer to old value. If the location at @gpa contains this value,
-+ *            the exchange will succeed. After calling cmpxchg_guest_abs_with_key()
-+ *            *@old_addr contains the value at @gpa before the attempt to
-+ *            exchange the value.
-+ * @new: The value to place at @gpa.
-+ * @access_key: The access key to use for the guest access.
-+ * @success: output value indicating if an exchange occurred.
-+ *
-+ * Atomically exchange the value at @gpa by @new, if it contains *@old.
-+ * Honors storage keys.
-+ *
-+ * Return: * 0: successful exchange
-+ *         * >0: a program interruption code indicating the reason cmpxchg could
-+ *               not be attempted
-+ *         * -EINVAL: address misaligned or len not power of two
-+ *         * -EAGAIN: transient failure (len 1 or 2)
-+ *         * -EOPNOTSUPP: read-only memslot (should never occur)
-+ */
-+int cmpxchg_guest_abs_with_key(struct kvm *kvm, gpa_t gpa, int len,
-+			       __uint128_t *old_addr, __uint128_t new,
-+			       u8 access_key, bool *success)
-+{
-+	gfn_t gfn = gpa_to_gfn(gpa);
-+	struct kvm_memory_slot *slot = gfn_to_memslot(kvm, gfn);
-+	bool writable;
-+	hva_t hva;
-+	int ret;
-+
-+	if (!IS_ALIGNED(gpa, len))
-+		return -EINVAL;
-+
-+	hva = gfn_to_hva_memslot_prot(slot, gfn, &writable);
-+	if (kvm_is_error_hva(hva))
-+		return PGM_ADDRESSING;
-+	/*
-+	 * Check if it's a read-only memslot, even though that cannot occur
-+	 * since those are unsupported.
-+	 * Don't try to actually handle that case.
-+	 */
-+	if (!writable)
-+		return -EOPNOTSUPP;
-+
-+	hva += offset_in_page(gpa);
-+	/*
-+	 * The cmpxchg_user_key macro depends on the type of "old", so we need
-+	 * a case for each valid length and get some code duplication as long
-+	 * as we don't introduce a new macro.
-+	 */
-+	switch (len) {
-+	case 1: {
-+		u8 old;
-+
-+		ret = cmpxchg_user_key((u8 __user *)hva, &old, *old_addr, new, access_key);
-+		*success = !ret && old == *old_addr;
-+		*old_addr = old;
-+		break;
-+	}
-+	case 2: {
-+		u16 old;
-+
-+		ret = cmpxchg_user_key((u16 __user *)hva, &old, *old_addr, new, access_key);
-+		*success = !ret && old == *old_addr;
-+		*old_addr = old;
-+		break;
-+	}
-+	case 4: {
-+		u32 old;
-+
-+		ret = cmpxchg_user_key((u32 __user *)hva, &old, *old_addr, new, access_key);
-+		*success = !ret && old == *old_addr;
-+		*old_addr = old;
-+		break;
-+	}
-+	case 8: {
-+		u64 old;
-+
-+		ret = cmpxchg_user_key((u64 __user *)hva, &old, *old_addr, new, access_key);
-+		*success = !ret && old == *old_addr;
-+		*old_addr = old;
-+		break;
-+	}
-+	case 16: {
-+		__uint128_t old;
-+
-+		ret = cmpxchg_user_key((__uint128_t __user *)hva, &old, *old_addr, new, access_key);
-+		*success = !ret && old == *old_addr;
-+		*old_addr = old;
-+		break;
-+	}
-+	default:
-+		return -EINVAL;
-+	}
-+	if (*success)
-+		mark_page_dirty_in_slot(kvm, slot, gfn);
-+	/*
-+	 * Assume that the fault is caused by protection, either key protection
-+	 * or user page write protection.
-+	 */
-+	if (ret == -EFAULT)
-+		ret = PGM_PROTECTION;
-+	return ret;
-+}
-+
- /**
-  * guest_translate_address_with_key - translate guest logical into guest absolute address
-  * @vcpu: virtual cpu
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 8a74b7b62ecf..5b77269e6536 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -584,7 +584,6 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
- 	case KVM_CAP_S390_VCPU_RESETS:
- 	case KVM_CAP_SET_GUEST_DEBUG:
- 	case KVM_CAP_S390_DIAG318:
--	case KVM_CAP_S390_MEM_OP_EXTENSION:
- 		r = 1;
- 		break;
- 	case KVM_CAP_SET_GUEST_DEBUG2:
-@@ -598,6 +597,15 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
- 	case KVM_CAP_S390_MEM_OP:
- 		r = MEM_OP_MAX_SIZE;
- 		break;
-+	case KVM_CAP_S390_MEM_OP_EXTENSION:
-+		/*
-+		 * Flag bits indicating which extensions are supported.
-+		 * If r > 0, the base extension must also be supported/indicated,
-+		 * in order to maintain backwards compatibility.
-+		 */
-+		r = KVM_S390_MEMOP_EXTENSION_CAP_BASE |
-+		    KVM_S390_MEMOP_EXTENSION_CAP_CMPXCHG;
-+		break;
- 	case KVM_CAP_NR_VCPUS:
- 	case KVM_CAP_MAX_VCPUS:
- 	case KVM_CAP_MAX_VCPU_ID:
-@@ -2832,6 +2840,50 @@ static int kvm_s390_vm_mem_op_abs(struct kvm *kvm, struct kvm_s390_mem_op *mop)
- 	return r;
- }
+-struct testdef {
+-	const char *name;
+-	void (*test)(void);
+-	int extension;
+-} testlist[] = {
+-	{
+-		.name = "simple copy",
+-		.test = test_copy,
+-	},
+-	{
+-		.name = "generic error checks",
+-		.test = test_errors,
+-	},
+-	{
+-		.name = "copy with storage keys",
+-		.test = test_copy_key,
+-		.extension = 1,
+-	},
+-	{
+-		.name = "copy with key storage protection override",
+-		.test = test_copy_key_storage_prot_override,
+-		.extension = 1,
+-	},
+-	{
+-		.name = "copy with key fetch protection",
+-		.test = test_copy_key_fetch_prot,
+-		.extension = 1,
+-	},
+-	{
+-		.name = "copy with key fetch protection override",
+-		.test = test_copy_key_fetch_prot_override,
+-		.extension = 1,
+-	},
+-	{
+-		.name = "error checks with key",
+-		.test = test_errors_key,
+-		.extension = 1,
+-	},
+-	{
+-		.name = "termination",
+-		.test = test_termination,
+-		.extension = 1,
+-	},
+-	{
+-		.name = "error checks with key storage protection override",
+-		.test = test_errors_key_storage_prot_override,
+-		.extension = 1,
+-	},
+-	{
+-		.name = "error checks without key fetch prot override",
+-		.test = test_errors_key_fetch_prot_override_not_enabled,
+-		.extension = 1,
+-	},
+-	{
+-		.name = "error checks with key fetch prot override",
+-		.test = test_errors_key_fetch_prot_override_enabled,
+-		.extension = 1,
+-	},
+-};
  
-+static int kvm_s390_vm_mem_op_cmpxchg(struct kvm *kvm, struct kvm_s390_mem_op *mop)
-+{
-+	void __user *uaddr = (void __user *)mop->buf;
-+	void __user *old_addr = (void __user *)mop->old_addr;
-+	union {
-+		__uint128_t quad;
-+		char raw[sizeof(__uint128_t)];
-+	} old = { .quad = 0}, new = { .quad = 0 };
-+	unsigned int off_in_quad = sizeof(new) - mop->size;
-+	int r, srcu_idx;
-+	bool success;
-+
-+	r = mem_op_validate_common(mop, KVM_S390_MEMOP_F_SKEY_PROTECTION);
-+	if (r)
-+		return r;
-+	/*
-+	 * This validates off_in_quad. Checking that size is a power
-+	 * of two is not necessary, as cmpxchg_guest_abs_with_key
-+	 * takes care of that
-+	 */
-+	if (mop->size > sizeof(new))
-+		return -EINVAL;
-+	if (copy_from_user(&new.raw[off_in_quad], uaddr, mop->size))
-+		return -EFAULT;
-+	if (copy_from_user(&old.raw[off_in_quad], old_addr, mop->size))
-+		return -EFAULT;
-+
-+	srcu_idx = srcu_read_lock(&kvm->srcu);
-+
-+	if (kvm_is_error_gpa(kvm, mop->gaddr)) {
-+		r = PGM_ADDRESSING;
-+		goto out_unlock;
-+	}
-+
-+	r = cmpxchg_guest_abs_with_key(kvm, mop->gaddr, mop->size, &old.quad,
-+				       new.quad, mop->key, &success);
-+	if (!success && copy_to_user(old_addr, &old.raw[off_in_quad], mop->size))
-+		r = -EFAULT;
-+
-+out_unlock:
-+	srcu_read_unlock(&kvm->srcu, srcu_idx);
-+	return r;
-+}
-+
- static int kvm_s390_vm_mem_op(struct kvm *kvm, struct kvm_s390_mem_op *mop)
+ int main(int argc, char *argv[])
  {
- 	/*
-@@ -2850,6 +2902,8 @@ static int kvm_s390_vm_mem_op(struct kvm *kvm, struct kvm_s390_mem_op *mop)
- 	case KVM_S390_MEMOP_ABSOLUTE_READ:
- 	case KVM_S390_MEMOP_ABSOLUTE_WRITE:
- 		return kvm_s390_vm_mem_op_abs(kvm, mop);
-+	case KVM_S390_MEMOP_ABSOLUTE_CMPXCHG:
-+		return kvm_s390_vm_mem_op_cmpxchg(kvm, mop);
- 	default:
- 		return -EINVAL;
+ 	int extension_cap, idx;
+ 
+ 	TEST_REQUIRE(kvm_has_cap(KVM_CAP_S390_MEM_OP));
++	extension_cap = kvm_check_cap(KVM_CAP_S390_MEM_OP_EXTENSION);
+ 
+-	ksft_print_header();
++	struct testdef {
++		const char *name;
++		void (*test)(void);
++		bool requirements_met;
++	} testlist[] = {
++		{
++			.name = "simple copy",
++			.test = test_copy,
++			.requirements_met = true,
++		},
++		{
++			.name = "generic error checks",
++			.test = test_errors,
++			.requirements_met = true,
++		},
++		{
++			.name = "copy with storage keys",
++			.test = test_copy_key,
++			.requirements_met = extension_cap > 0,
++		},
++		{
++			.name = "copy with key storage protection override",
++			.test = test_copy_key_storage_prot_override,
++			.requirements_met = extension_cap > 0,
++		},
++		{
++			.name = "copy with key fetch protection",
++			.test = test_copy_key_fetch_prot,
++			.requirements_met = extension_cap > 0,
++		},
++		{
++			.name = "copy with key fetch protection override",
++			.test = test_copy_key_fetch_prot_override,
++			.requirements_met = extension_cap > 0,
++		},
++		{
++			.name = "error checks with key",
++			.test = test_errors_key,
++			.requirements_met = extension_cap > 0,
++		},
++		{
++			.name = "termination",
++			.test = test_termination,
++			.requirements_met = extension_cap > 0,
++		},
++		{
++			.name = "error checks with key storage protection override",
++			.test = test_errors_key_storage_prot_override,
++			.requirements_met = extension_cap > 0,
++		},
++		{
++			.name = "error checks without key fetch prot override",
++			.test = test_errors_key_fetch_prot_override_not_enabled,
++			.requirements_met = extension_cap > 0,
++		},
++		{
++			.name = "error checks with key fetch prot override",
++			.test = test_errors_key_fetch_prot_override_enabled,
++			.requirements_met = extension_cap > 0,
++		},
++	};
+ 
++	ksft_print_header();
+ 	ksft_set_plan(ARRAY_SIZE(testlist));
+ 
+-	extension_cap = kvm_check_cap(KVM_CAP_S390_MEM_OP_EXTENSION);
+ 	for (idx = 0; idx < ARRAY_SIZE(testlist); idx++) {
+-		if (extension_cap >= testlist[idx].extension) {
++		if (testlist[idx].requirements_met) {
+ 			testlist[idx].test();
+ 			ksft_test_result_pass("%s\n", testlist[idx].name);
+ 		} else {
+-			ksft_test_result_skip("%s - extension level %d not supported\n",
+-					      testlist[idx].name,
+-					      testlist[idx].extension);
++			ksft_test_result_skip("%s - requirements not met (kernel has extension cap %#x)\n",
++					      testlist[idx].name, extension_cap);
+ 		}
  	}
+ 
 -- 
 2.37.2
 
