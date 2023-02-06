@@ -2,115 +2,65 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 009BAC61DA4
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Feb 2023 11:24:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5443DC61DA4
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Feb 2023 12:12:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229938AbjBFLYy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 6 Feb 2023 06:24:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41536 "EHLO
+        id S229967AbjBFMMO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 6 Feb 2023 07:12:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229875AbjBFLYx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Feb 2023 06:24:53 -0500
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA56272A4;
-        Mon,  6 Feb 2023 03:24:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=6p5UcUVJMB6FcC7LDxPnes2LOQaJUS8z6IEOS3X783s=; b=Ea7S5G84aDpNMvL/Suxi9XIvmP
-        C3d8gqapGDHgOfKkaP3NfNlfpuswBdZ+/65aPGo8Ipfi4ygRk8xZ7E1lb+BYSVGzxaS2sN48Bj+uV
-        7EcpbhbKtu3+Vy6v0rx38wmRy2zhh9BHTpbWgMb6B1VUojynlRhGLZwyBBeJ97ZTbSyUL+nN/9cdA
-        g3KAlOkdL6bK9I8Ru0c8Xd4so95LlWcA9jGTKHdvLf99ddC9qSvsG4IxnKgYDCF/ShOfXC3/ZQNuz
-        +ltBvaSkLaaFq/cirv5PAA/Jvc9EmJp6O0MLa9hEeS1tkPMdnYzaGXwcTfJ4KZOOty5sepN3i9T7J
-        b/03MOXw==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1pOzbS-00Gi9E-Dh; Mon, 06 Feb 2023 11:24:06 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id C110E30013F;
-        Mon,  6 Feb 2023 12:24:00 +0100 (CET)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 8C4252CFF4E16; Mon,  6 Feb 2023 12:24:00 +0100 (CET)
-Date:   Mon, 6 Feb 2023 12:24:00 +0100
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Will Deacon <will@kernel.org>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>, dennis@kernel.org,
-        Tejun Heo <tj@kernel.org>, Christoph Lameter <cl@linux.com>,
-        Heiko Carstens <hca@linux.ibm.com>, gor@linux.ibm.com,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        borntraeger@linux.ibm.com, Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>, Joerg Roedel <joro@8bytes.org>,
-        suravee.suthikulpanit@amd.com, Robin Murphy <robin.murphy@arm.com>,
-        dwmw2@infradead.org, Baolu Lu <baolu.lu@linux.intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S . Miller" <davem@davemloft.net>,
-        Pekka Enberg <penberg@kernel.org>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Roman Gushchin <roman.gushchin@linux.dev>,
-        Hyeonggon Yoo <42.hyeyoo@gmail.com>, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        linux-s390@vger.kernel.org, iommu@lists.linux.dev,
-        Linux-Arch <linux-arch@vger.kernel.org>,
-        linux-crypto@vger.kernel.org
-Subject: Re: [PATCH v2 05/10] percpu: Wire up cmpxchg128
-Message-ID: <Y+DjULnIxcPU/rtp@hirez.programming.kicks-ass.net>
-References: <20230202145030.223740842@infradead.org>
- <20230202152655.494373332@infradead.org>
- <24007667-1ff3-4c86-9c17-a361c3f9f072@app.fastmail.com>
+        with ESMTP id S230191AbjBFMMM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Feb 2023 07:12:12 -0500
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3AF2EC43;
+        Mon,  6 Feb 2023 04:12:04 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R621e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0Vb36paa_1675685520;
+Received: from 30.221.149.210(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0Vb36paa_1675685520)
+          by smtp.aliyun-inc.com;
+          Mon, 06 Feb 2023 20:12:01 +0800
+Message-ID: <93bc1405-2f76-54b6-bae3-39da4542e618@linux.alibaba.com>
+Date:   Mon, 6 Feb 2023 20:11:59 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <24007667-1ff3-4c86-9c17-a361c3f9f072@app.fastmail.com>
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.6.1
+Subject: Re: [net-next v7 0/4] net/smc: optimize the parallelism of SMC-R
+ connections
+Content-Language: en-US
+To:     Wenjia Zhang <wenjia@linux.ibm.com>, kgraul@linux.ibm.com,
+        jaka@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <1675326402-109943-1-git-send-email-alibuda@linux.alibaba.com>
+ <273e8c67-fbb0-edd8-600f-512c1a6812f3@linux.ibm.com>
+From:   "D. Wythe" <alibuda@linux.alibaba.com>
+In-Reply-To: <273e8c67-fbb0-edd8-600f-512c1a6812f3@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Feb 03, 2023 at 06:25:04PM +0100, Arnd Bergmann wrote:
-> On Thu, Feb 2, 2023, at 15:50, Peter Zijlstra wrote:
-> > In order to replace cmpxchg_double() with the newly minted
-> > cmpxchg128() family of functions, wire it up in this_cpu_cmpxchg().
-> >
-> > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> 
-> I commented on this in the previous version but never got any
-> reply from you:
-> 
-> https://lore.kernel.org/all/1d88ba9f-5541-4b67-9cc8-a361eef36547@app.fastmail.com/
 
-Sorry, seem to have missed that :/
 
-> Unless I have misunderstood what you are doing, my concerns are
-> still the same:
-> 
-> >  #define this_cpu_cmpxchg(pcp, oval, nval) \
-> > -	__pcpu_size_call_return2(this_cpu_cmpxchg_, pcp, oval, nval)
-> > +	__pcpu_size16_call_return2(this_cpu_cmpxchg_, pcp, oval, nval)
-> >  #define this_cpu_cmpxchg_double(pcp1, pcp2, oval1, oval2, nval1, 
-> > nval2) \
-> >  	__pcpu_double_call_return_bool(this_cpu_cmpxchg_double_, pcp1, pcp2, 
-> > oval1, oval2, nval1, nval2)
-> 
-> Having a variable-length this_cpu_cmpxchg() that turns into cmpxchg128()
-> and cmpxchg64() even on CPUs where this traps (!X86_FEATURE_CX16) seems
-> like a bad design to me.
-> 
-> I would much prefer fixed-length this_cpu_cmpxchg64()/this_cpu_cmpxchg128()
-> calls that never trap but fall back to the generic version on CPUs that
-> are lacking the atomics.
 
-You're thinking acidental usage etc..? Lemme see what I can do.
+On 2/6/23 7:06 PM, Wenjia Zhang wrote:
+> 
+> 
+> On 02.02.23 09:26, D. Wythe wrote:
+>> From: "D. Wythe" <alibuda@linux.alibaba.com>
+>>
+
+> This answer seems too late ;-)
+> 
+> I did some test as thoroughly as I can, it looks good to me.
+> 
+> Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
+
+Hi, wenjia
+
+Thank you very much for your test. I'm very glad that you it passed.
+I will resend those as soon as possible. (make confirm/delete rkey process concurrently)
+
+Best wishes.
+D. Wythe
+
