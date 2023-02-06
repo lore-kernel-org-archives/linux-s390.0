@@ -2,257 +2,147 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 73E85C61DA4
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Feb 2023 09:07:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 47517C636D4
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Feb 2023 09:15:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230141AbjBFJHn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 6 Feb 2023 04:07:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47708 "EHLO
+        id S229499AbjBFJPo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 6 Feb 2023 04:15:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230157AbjBFJHj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Feb 2023 04:07:39 -0500
-Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E740B11E81;
-        Mon,  6 Feb 2023 01:07:08 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1675674428; x=1707210428;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=Kfq1KWsqadwVkhGpvsyOo0sMmifI+THGHlmz6hNva9U=;
-  b=W46pZxmHe0nYwUyIv6sBeJQGvsZ/cFowSVp6yrENUTTtzTCWu11vqrdl
-   oSwXi2aWk0qgoljij3LES860qPQaUC4kwlJ+/zpdXgj4D8r77B7O5/pXP
-   eSBcoS1W5AQxCRWbEQOzOx1NtU4gMNLFdxf20RI8OECVZuWzSLIORhy8U
-   I/s3wWVcJWzNv9+iQSXWOKOyEydAOfW3kOYeQyWb2/ppN3N7w9h1R4gBY
-   Sj8DCnre1/ru4r6DBMdlfQhEecX8pbCUGnMT2MblPMaYyMbCroSapI+re
-   Cn3MR2xeqqGsbMmnI2XD3PwnrjiaVFV/Tc4kopmqwurFR6G6ML746QE4k
-   w==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10612"; a="309495944"
-X-IronPort-AV: E=Sophos;i="5.97,276,1669104000"; 
-   d="scan'208";a="309495944"
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Feb 2023 01:06:09 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10612"; a="911862885"
-X-IronPort-AV: E=Sophos;i="5.97,276,1669104000"; 
-   d="scan'208";a="911862885"
-Received: from 984fee00a4c6.jf.intel.com ([10.165.58.231])
-  by fmsmga006.fm.intel.com with ESMTP; 06 Feb 2023 01:06:08 -0800
-From:   Yi Liu <yi.l.liu@intel.com>
-To:     alex.williamson@redhat.com, jgg@nvidia.com, kevin.tian@intel.com
-Cc:     cohuck@redhat.com, eric.auger@redhat.com, nicolinc@nvidia.com,
-        kvm@vger.kernel.org, mjrosato@linux.ibm.com,
-        chao.p.peng@linux.intel.com, yi.l.liu@intel.com,
-        yi.y.sun@linux.intel.com, peterx@redhat.com, jasowang@redhat.com,
-        shameerali.kolothum.thodi@huawei.com, lulu@redhat.com,
-        suravee.suthikulpanit@amd.com, intel-gvt-dev@lists.freedesktop.org,
-        intel-gfx@lists.freedesktop.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: [PATCH v2 14/14] vfio: Compile group optionally
-Date:   Mon,  6 Feb 2023 01:05:32 -0800
-Message-Id: <20230206090532.95598-15-yi.l.liu@intel.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20230206090532.95598-1-yi.l.liu@intel.com>
-References: <20230206090532.95598-1-yi.l.liu@intel.com>
+        with ESMTP id S229582AbjBFJPn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Feb 2023 04:15:43 -0500
+Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F04B3212D;
+        Mon,  6 Feb 2023 01:15:41 -0800 (PST)
+Received: by mail-wm1-x333.google.com with SMTP id bg26so8163773wmb.0;
+        Mon, 06 Feb 2023 01:15:41 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:date:from:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=mZ0xWkPNZ4hmW2vvs+f5UVSQ+AnfRdSc/rJdUnUEKCk=;
+        b=EZiP+qfZZ2vFI66D6cFJ4tRzgZmIsbEzmmRR2YHlhTThxz1noQFtlNiNWoeeFnYET8
+         s1a6r/cX5NaptNTBg3fmI0khxp1XoZJk/xkHc3NiJN35fLQxPqnCG2oi8f8svPXdI1qQ
+         uqXBoD5aRETcnD0iJNwlYu//S9H6VsbNt6ve4Eexrm02kKLo4ENgTMFzyGRodYkOAXrY
+         oEbeY/MjyBxsIVt7ygqfY+mv/hbikLl8WiY69rz58+N4+mhqS7uolIJO3YFwJMhNjMd4
+         EYVoqF5evnOhMdhff5WorqXR84A3q2x1La7KdCNdJ34zPA98NjPRxTfy4rQJCQXCOixj
+         SV0Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:date:from
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=mZ0xWkPNZ4hmW2vvs+f5UVSQ+AnfRdSc/rJdUnUEKCk=;
+        b=QK0Qw5r8u/rImv3/bV7GbJ2RLl8n/bfJUw1TxcGe082Rj1Gd7VWBNPZmqug93sn6Sp
+         DNMKXuCezXje4SZYdplCxq7Oi+WiPx76ekvAdk793FHMh9lO1FCa9GNH2jnRa2GPw/Ib
+         61Z9XrdTT5QEDtVpJxs8ibRkB5G/OIlDqQ1guBJUorOU5uHAK9CYZEtBpR7DyQqn+qly
+         njTzTE0t4bTN1zcWchwgzXRRopOVjguuV5YVfWyXDR8DnhobghO9YSK95OPKVe17Igo8
+         I+kTHNQAUH1rWu/gDTfXobGMTYZmdwV7XfvONj8K8ss5QrPJXArV6zEq3NGVjAw8raiv
+         Pi/Q==
+X-Gm-Message-State: AO0yUKWe+I7lonqpfg27lZsIH21aTxTynknjKbZf4bfED2gVVqQkvHBs
+        2wa2Z9406zKPlW+URbWYoVE=
+X-Google-Smtp-Source: AK7set9HplAw3gx0hCsrG6659a/FiLOrjP9EhP3KSmy3vi2Ls4ONVAdSWetY0B04BjyyvJJc7wfzEQ==
+X-Received: by 2002:a05:600c:b88:b0:3df:9858:c033 with SMTP id fl8-20020a05600c0b8800b003df9858c033mr10522279wmb.8.1675674940417;
+        Mon, 06 Feb 2023 01:15:40 -0800 (PST)
+Received: from krava (2001-1ae9-1c2-4c00-726e-c10f-8833-ff22.ip6.tmcz.cz. [2001:1ae9:1c2:4c00:726e:c10f:8833:ff22])
+        by smtp.gmail.com with ESMTPSA id g10-20020a05600c310a00b003de77597f16sm10789353wmo.21.2023.02.06.01.15.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 06 Feb 2023 01:15:39 -0800 (PST)
+From:   Jiri Olsa <olsajiri@gmail.com>
+X-Google-Original-From: Jiri Olsa <jolsa@kernel.org>
+Date:   Mon, 6 Feb 2023 10:15:37 +0100
+To:     Ilya Leoshkevich <iii@linux.ibm.com>
+Cc:     Jiri Olsa <olsajiri@gmail.com>,
+        Alexei Starovoitov <alexei.starovoitov@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>, bpf <bpf@vger.kernel.org>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@chromium.org>,
+        Stanislav Fomichev <sdf@google.com>,
+        Hao Luo <haoluo@google.com>, David Vernet <void@manifault.com>,
+        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        Artem Savkov <asavkov@redhat.com>, linux-s390@vger.kernel.org
+Subject: Re: [PATCHv3 bpf-next 0/9] bpf: Move kernel test kfuncs into
+ bpf_testmod
+Message-ID: <Y+DFOWZB21MWhYEO@krava>
+References: <20230203162336.608323-1-jolsa@kernel.org>
+ <CAADnVQKBYgN5nWG26s0s-U0=PMAWEc17aGWx76GLUc_PM22ZAw@mail.gmail.com>
+ <Y9/yrKZkBK6yzXp+@krava>
+ <96db3bf7d0a26b161a9846d8fe492c9bd0cb4c49.camel@linux.ibm.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <96db3bf7d0a26b161a9846d8fe492c9bd0cb4c49.camel@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-group code is not needed for vfio device cdev, so with vfio device cdev
-introduced, the group infrastructures can be compiled out if only cdev
-is needed.
+On Sun, Feb 05, 2023 at 07:36:14PM +0100, Ilya Leoshkevich wrote:
+> On Sun, 2023-02-05 at 19:17 +0100, Jiri Olsa wrote:
+> > On Sat, Feb 04, 2023 at 01:21:13AM -0800, Alexei Starovoitov wrote:
+> > > On Fri, Feb 3, 2023 at 8:23 AM Jiri Olsa <jolsa@kernel.org> wrote:
+> > > > 
+> > > > hi,
+> > > > I noticed several times in discussions that we should move test
+> > > > kfuncs
+> > > > into kernel module, now perhaps even more pressing with all the
+> > > > kfunc
+> > > > effort. This patchset moves all the test kfuncs into bpf_testmod.
+> > > > 
+> > > > I added bpf_testmod/bpf_testmod_kfunc.h header that is shared
+> > > > between
+> > > > bpf_testmod kernel module and BPF programs, which brings some
+> > > > difficulties
+> > > > with __ksym define. But I'm not sure having separate headers for
+> > > > BPF
+> > > > programs and for kernel module would be better.
+> > > > 
+> > > > This patchset also needs:
+> > > >   74bc3a5acc82 bpf: Add missing btf_put to
+> > > > register_btf_id_dtor_kfuncs
+> > > > which is only in bpf/master now.
+> > > 
+> > > I thought you've added this patch to CI,
+> > > but cb_refs is still failing on s390...
+> > 
+> > the CI now fails for s390 with messages like:
+> >    2023-02-04T07:04:32.5185267Z    RES: address of kernel function
+> > bpf_kfunc_call_test_fail1 is out of range
+> > 
+> > so now that we have test kfuncs in the module, the 's32 imm' value of
+> > the bpf call instructions can overflow when the offset between module
+> > and kernel is greater than 2GB ... as explained in the commit that
+> > added the verifier check:
+> > 
+> >   8cbf062a250e bpf: Reject kfunc calls that overflow insn->imm
+> > 
+> > not sure we can do anything about that on bpf side.. cc-ing s390 list
+> > and Ilya for ideas/thoughts
+> > 
+> > maybe we could make bpf_testmod in-tree module and compile it as
+> > module
+> > just for some archs
+> > 
+> > thoughts?
+> 
+> Hi,
+> 
+> I'd rather have this fixed - I guess the problem can affect the users.
+> The ksyms_module test is already denylisted because of that.
+> Unfortunately getting the kernel and the modules close together on
+> s390x is unlikely to happen in the foreseeable future.
+> 
+> What do you think about keeping the BTF ID inside the insn->imm field
+> and putting the 64-bit delta into bpf_insn_aux_data, replacing the
+> call_imm field that we already have there?
 
-Signed-off-by: Yi Liu <yi.l.liu@intel.com>
----
- drivers/vfio/Kconfig  | 18 +++++++++++
- drivers/vfio/Makefile |  2 +-
- drivers/vfio/vfio.h   | 69 +++++++++++++++++++++++++++++++++++++++++++
- include/linux/vfio.h  | 11 +++++++
- 4 files changed, 99 insertions(+), 1 deletion(-)
+seems tricky wrt other archs.. how about saving address of the kfunc
+in bpf_insn_aux_data and use that in s390 jit code instead of the
+'__bpf_call_base + imm' calculation
 
-diff --git a/drivers/vfio/Kconfig b/drivers/vfio/Kconfig
-index 0476abf154f2..de0fedcdf4d6 100644
---- a/drivers/vfio/Kconfig
-+++ b/drivers/vfio/Kconfig
-@@ -15,6 +15,7 @@ if VFIO
- config VFIO_DEVICE_CDEV
- 	bool "Support for the VFIO cdev /dev/vfio/devices/vfioX"
- 	depends on IOMMUFD
-+	default !VFIO_GROUP
- 	help
- 	  The VFIO device cdev is another way for userspace to get device
- 	  access. Userspace gets device fd by opening device cdev under
-@@ -23,9 +24,26 @@ config VFIO_DEVICE_CDEV
- 
- 	  If you don't know what to do here, say N.
- 
-+config VFIO_ENABLE_GROUP
-+	bool
-+	default !VFIO_DEVICE_CDEV
-+
-+config VFIO_GROUP
-+	bool "Support for the VFIO group /dev/vfio/$group_id"
-+	select VFIO_ENABLE_GROUP
-+	default y
-+	help
-+	   VFIO group is legacy interface for userspace. For userspaces
-+	   adapted to iommufd and vfio device cdev, this can be N. For
-+	   now, before iommufd is ready and userspace applications fully
-+	   converted to iommufd and vfio device cdev, this should be Y.
-+
-+	   If you don't know what to do here, say Y.
-+
- config VFIO_CONTAINER
- 	bool "Support for the VFIO container /dev/vfio/vfio"
- 	select VFIO_IOMMU_TYPE1 if MMU && (X86 || S390 || ARM || ARM64)
-+	depends on VFIO_ENABLE_GROUP
- 	default y
- 	help
- 	  The VFIO container is the classic interface to VFIO for establishing
-diff --git a/drivers/vfio/Makefile b/drivers/vfio/Makefile
-index 245394aeb94b..4e81c3bbed30 100644
---- a/drivers/vfio/Makefile
-+++ b/drivers/vfio/Makefile
-@@ -2,9 +2,9 @@
- obj-$(CONFIG_VFIO) += vfio.o
- 
- vfio-y += vfio_main.o \
--	  group.o \
- 	  iova_bitmap.o
- vfio-$(CONFIG_VFIO_DEVICE_CDEV) += device_cdev.o
-+vfio-$(CONFIG_VFIO_ENABLE_GROUP) += group.o
- vfio-$(CONFIG_IOMMUFD) += iommufd.o
- vfio-$(CONFIG_VFIO_CONTAINER) += container.o
- vfio-$(CONFIG_VFIO_VIRQFD) += virqfd.o
-diff --git a/drivers/vfio/vfio.h b/drivers/vfio/vfio.h
-index 8a290c1455e1..9f823cfff7be 100644
---- a/drivers/vfio/vfio.h
-+++ b/drivers/vfio/vfio.h
-@@ -62,6 +62,7 @@ enum vfio_group_type {
- 	VFIO_NO_IOMMU,
- };
- 
-+#if IS_ENABLED(CONFIG_VFIO_ENABLE_GROUP)
- struct vfio_group {
- 	struct device 			dev;
- 	struct cdev			cdev;
-@@ -105,6 +106,74 @@ bool vfio_group_has_dev(struct vfio_group *group, struct vfio_device *device);
- bool vfio_device_has_container(struct vfio_device *device);
- int __init vfio_group_init(void);
- void vfio_group_cleanup(void);
-+#else
-+struct vfio_group;
-+
-+static inline int vfio_device_set_group(struct vfio_device *device,
-+					enum vfio_group_type type)
-+{
-+	return 0;
-+}
-+
-+static inline void vfio_device_remove_group(struct vfio_device *device)
-+{
-+}
-+
-+static inline void vfio_device_group_register(struct vfio_device *device)
-+{
-+}
-+
-+static inline void vfio_device_group_unregister(struct vfio_device *device)
-+{
-+}
-+
-+static inline int vfio_device_group_use_iommu(struct vfio_device *device)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
-+static inline void vfio_device_group_unuse_iommu(struct vfio_device *device)
-+{
-+}
-+
-+static inline void vfio_device_group_close(struct vfio_device_file *df)
-+{
-+}
-+
-+static inline struct vfio_group *vfio_group_from_file(struct file *file)
-+{
-+	return NULL;
-+}
-+
-+static inline bool vfio_group_enforced_coherent(struct vfio_group *group)
-+{
-+	return true;
-+}
-+
-+static inline void vfio_group_set_kvm(struct vfio_group *group, struct kvm *kvm)
-+{
-+}
-+
-+static inline bool vfio_group_has_dev(struct vfio_group *group,
-+				      struct vfio_device *device)
-+{
-+	return false;
-+}
-+
-+static inline bool vfio_device_has_container(struct vfio_device *device)
-+{
-+	return false;
-+}
-+
-+static inline int __init vfio_group_init(void)
-+{
-+	return 0;
-+}
-+
-+static inline void vfio_group_cleanup(void)
-+{
-+}
-+#endif /* CONFIG_VFIO_ENABLE_GROUP */
- 
- #if IS_ENABLED(CONFIG_VFIO_CONTAINER)
- /* events for the backend driver notify callback */
-diff --git a/include/linux/vfio.h b/include/linux/vfio.h
-index fd4bf9c21ffe..4c7666f8c5da 100644
---- a/include/linux/vfio.h
-+++ b/include/linux/vfio.h
-@@ -43,7 +43,9 @@ struct vfio_device {
- 	 */
- 	const struct vfio_migration_ops *mig_ops;
- 	const struct vfio_log_ops *log_ops;
-+#if IS_ENABLED(CONFIG_VFIO_ENABLE_GROUP)
- 	struct vfio_group *group;
-+#endif
- 	struct vfio_device_set *dev_set;
- 	struct list_head dev_set_list;
- 	unsigned int migration_flags;
-@@ -56,8 +58,10 @@ struct vfio_device {
- 	refcount_t refcount;	/* user count on registered device*/
- 	unsigned int open_count;
- 	struct completion comp;
-+#if IS_ENABLED(CONFIG_VFIO_ENABLE_GROUP)
- 	struct list_head group_next;
- 	struct list_head iommu_entry;
-+#endif
- 	struct iommufd_access *iommufd_access;
- 	void (*put_kvm)(struct kvm *kvm);
- #if IS_ENABLED(CONFIG_IOMMUFD)
-@@ -255,7 +259,14 @@ int vfio_mig_get_next_state(struct vfio_device *device,
- /*
-  * External user API
-  */
-+#if IS_ENABLED(CONFIG_VFIO_ENABLE_GROUP)
- struct iommu_group *vfio_file_iommu_group(struct file *file);
-+#else
-+static inline struct iommu_group *vfio_file_iommu_group(struct file *file)
-+{
-+	return NULL;
-+}
-+#endif
- bool vfio_file_is_valid(struct file *file);
- bool vfio_file_enforced_coherent(struct file *file);
- void vfio_file_set_kvm(struct file *file, struct kvm *kvm);
--- 
-2.34.1
-
+jirka
