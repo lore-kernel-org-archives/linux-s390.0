@@ -2,118 +2,59 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 43C5CC636CC
-	for <linux-s390@archiver.kernel.org>; Wed,  8 Feb 2023 03:10:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D772C636D3
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Feb 2023 10:26:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230318AbjBHDJ7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 7 Feb 2023 22:09:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38136 "EHLO
+        id S229478AbjBHK0O (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 8 Feb 2023 05:26:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229949AbjBHDJ4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Feb 2023 22:09:56 -0500
-Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72DA442DF2;
-        Tue,  7 Feb 2023 19:09:53 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R251e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0Vb9Z4mF_1675825789;
-Received: from 30.221.145.160(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0Vb9Z4mF_1675825789)
-          by smtp.aliyun-inc.com;
-          Wed, 08 Feb 2023 11:09:51 +0800
-Message-ID: <51391bb7-9334-ea24-7a93-e2f1847d7ce8@linux.alibaba.com>
-Date:   Wed, 8 Feb 2023 11:09:48 +0800
+        with ESMTP id S230515AbjBHK0J (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Feb 2023 05:26:09 -0500
+X-Greylist: delayed 89102 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 08 Feb 2023 02:26:08 PST
+Received: from mail.crawnon.pl (mail.crawnon.pl [51.68.198.42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 735C845BFB
+        for <linux-s390@vger.kernel.org>; Wed,  8 Feb 2023 02:26:08 -0800 (PST)
+Received: by mail.crawnon.pl (Postfix, from userid 1002)
+        id C06D8A2C8C; Tue,  7 Feb 2023 09:15:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=crawnon.pl; s=mail;
+        t=1675761357; bh=C5hX24svv/9/TME4wPCHfYjl17BCtmuxEd1i9B4zdYs=;
+        h=Date:From:To:Subject:From;
+        b=B6rJdkEwZGGM6+gMlS6az9UTaxIxqfGIuNmVp6RMaAMDF1zFkUhkQGVjbaJ6ar7kf
+         wo3oRS0OTzYGms9sZygJ9KCSC6GzrUV6hAtBMCKCqc0bUuLgMovlE741nISxIwGZHg
+         Dx6h2vkmuai2QOx5RSd5tHXYUTwxrvPwAqQqbFXIUKqtPY4kynAl9oNdTvoCwRV7cx
+         scyhg/sckx2xsBs88DnNQa086DvvrisMVxZM6kp8B6qK2vi5CljSAHS5KcYbXI1QU6
+         jeHUTWc1myR3WbX3dOY/SsMCC21nTCoTobNZfG9KlPVehGMX5IW2U/8dOy4AmQzDKt
+         Haz7sI4G2DGag==
+Received: by mail.crawnon.pl for <linux-s390@vger.kernel.org>; Tue,  7 Feb 2023 09:15:23 GMT
+Message-ID: <20230207074500-0.1.90.hvuo.0.e2e74koc6w@crawnon.pl>
+Date:   Tue,  7 Feb 2023 09:15:23 GMT
+From:   =?UTF-8?Q? "Miko=C5=82aj_Fiodorczyk" ?= 
+        <mikolaj.fiodorczyk@crawnon.pl>
+To:     <linux-s390@vger.kernel.org>
+Subject: Fotowoltaika - nowe warunki
+X-Mailer: mail.crawnon.pl
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.6.1
-Subject: Re: [net-next 0/2] Deliver confirm/delete rkey message in parallel
-Content-Language: en-US
-From:   "D. Wythe" <alibuda@linux.alibaba.com>
-To:     Wenjia Zhang <wenjia@linux.ibm.com>, kgraul@linux.ibm.com,
-        jaka@linux.ibm.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-References: <1675755374-107598-1-git-send-email-alibuda@linux.alibaba.com>
- <fe0d2dae-1a3e-e32f-e8b3-285a33d29422@linux.ibm.com>
- <04e65f58-3ef3-6f5a-6f95-35d5b1555c7e@linux.alibaba.com>
-In-Reply-To: <04e65f58-3ef3-6f5a-6f95-35d5b1555c7e@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Dzie=C5=84 dobry,
+
+chcia=C5=82bym poinformowa=C4=87, i=C5=BC mog=C4=85 Pa=C5=84stwo uzyska=C4=
+=87 dofinansowanie na systemy fotowoltaiczne w ramach nowej edycji progra=
+mu M=C3=B3j Pr=C4=85d.
+
+Program zapewnia 6000 z=C5=82 dofinansowania na instalacj=C4=99 paneli i =
+16 000 z=C5=82 na magazyn energii, ni=C5=BCsze cen pr=C4=85du i mo=C5=BCl=
+iwo=C5=9B=C4=87 odliczenia koszt=C3=B3w zwi=C4=85zanych z instalacj=C4=85=
+ fotowoltaiki w ramach rozliczenia PIT (tzw. ulga termomodernizacyjna).
+
+Czy s=C4=85 Pa=C5=84stwo otwarci na wst=C4=99pn=C4=85 rozmow=C4=99 w tym =
+temacie?
 
 
-On 2/8/23 11:04 AM, D. Wythe wrote:
-> 
-> 
-> On 2/8/23 7:29 AM, Wenjia Zhang wrote:
->>
->>
->> On 07.02.23 08:36, D. Wythe wrote:
->>> From: "D. Wythe" <alibuda@linux.alibaba.com>
->>>
->>> According to the SMC protocol specification, we know that all flows except
->>> confirm_rkey adn delete_rkey are exclusive, confirm/delete rkey flows
->>> can run concurrently (local and remote).
->>>
->>> However, although the protocol allows, all flows are actually mutually
->>> exclusive in implementation, deus to we are waiting for LLC message
->>> in serial.
->>>
->>> On the one hand, this implementation does not conform to the protocol
->>> specification, on the other hand, this implementation aggravates the
->>> time for establishing or destroying a SMC-R connection, connection
->>> have to be queued in smc_llc_wait.
->>>
->>> This patch will improve the performance of the short link scenario
->>> by about 5%. In fact, we all know that the performance bottleneck
->>> of the short link scenario is not here.
->>>
->>> This patch try use rtokens or rkey to correlate a confirm/delete
->>> rkey message with its response.
->>>
->>> This patch contains two parts.
->>>
->>> At first, we have added the process
->>> of asynchronously waiting for the response of confirm/delete rkey
->>> messages, using rtokens or rkey to be correlate with.
->>>
->>> And then, we try to send confirm/delete rkey message in parallel,
->>> allowing parallel execution of start (remote) or initialization (local)
->>> SMC_LLC_FLOW_RKEY flows.
->>>
->>> D. Wythe (2):
->>>    net/smc: allow confirm/delete rkey response deliver multiplex
->>>    net/smc: make SMC_LLC_FLOW_RKEY run concurrently
->>>
->>>   net/smc/smc_core.h |   1 +
->>>   net/smc/smc_llc.c  | 263 +++++++++++++++++++++++++++++++++++++++++------------
->>>   net/smc/smc_llc.h  |   6 ++
->>>   net/smc/smc_wr.c   |  10 --
->>>   net/smc/smc_wr.h   |  10 ++
->>>   5 files changed, 220 insertions(+), 70 deletions(-)
->>>
->>
->> As we already discussed, on this changes we need to test them carefully so that we have to be sure that the communicating with z/OS should not be broken. We'll let you know as soon as the testing is finished.
-> 
-> 
-> Hi, Wenjia
-> 
-> Thanks again for your test.
-> 
-> Considering that we have reached an agreement on protocol extension,
-> we can temporarily postpone this modification until we introduce the protocol extension
-> into the Linux community version. Then we can avoid the compatibility with z/OS.
-> 
-> 
-> Best wishes.
-> D. Wythe
-> 
-
-We can temporarily postpone this modification until we introduce the protocol extension
-into the Linux community version IF we can't pass the z/OS compatible test. :-)
-
-Sorry for the problem in my description.
-
-Thanks.
-D. Wythe
-
+Pozdrawiam,
+Miko=C5=82aj Fiodorczyk
