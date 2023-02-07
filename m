@@ -2,174 +2,180 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B0E2CC64EC4
-	for <linux-s390@archiver.kernel.org>; Tue,  7 Feb 2023 00:32:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C0060C636D3
+	for <linux-s390@archiver.kernel.org>; Tue,  7 Feb 2023 03:25:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229556AbjBGAc2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 6 Feb 2023 19:32:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34006 "EHLO
+        id S229850AbjBGDZ2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 6 Feb 2023 22:25:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230082AbjBGAc1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Feb 2023 19:32:27 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF1CB7DB4;
-        Mon,  6 Feb 2023 16:32:25 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 56C79B816A4;
-        Tue,  7 Feb 2023 00:32:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 991E0C433D2;
-        Tue,  7 Feb 2023 00:32:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675729943;
-        bh=iZCN6sGc9yW2zYcxaQotSvnk+ZA53AaN/sDVv0yII50=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=r7OTSPs0ofYJfz2HfC9yS/lpbY7S0BFzpXiLK3x7Ke/Y6aWFhktLvs6Bvgj2Al5Wk
-         B6UkcQ+D4VR40u7HKhXzSQ4KgoVE+1waBFZlM5JqHCpnVJMmvdP6KTKtVHMcYXlvDW
-         HvMYz5Nv/QvWcqkqgdC8HtG5iSFLz+5CT0wM3dg+r8XfX8Uoay6JHXFHAsy/jvcyaE
-         Y+YyyHfN2C/hXNPxeqGA7nAR2Ackxd1K6CCBh1BVMg4QrPnhB6To8MjHdG4AQb2uIw
-         smNsNDMgzHTMzUtoipazT928V76wO/Qhc/hW1DhF+HtdqhyqNOakQKfsfeblr/+0mf
-         LLy3JzbNDtsBw==
-Date:   Tue, 7 Feb 2023 00:32:12 +0000
-From:   Mark Brown <broonie@kernel.org>
-To:     David Hildenbrand <david@redhat.com>
-Cc:     linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Hugh Dickins <hughd@google.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Nadav Amit <namit@vmware.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Peter Xu <peterx@redhat.com>, linux-mm@kvack.org,
-        x86@kernel.org, linux-alpha@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
-        Russell King <linux@armlinux.org.uk>
-Subject: Re: [PATCH mm-unstable v1 04/26] arm/mm: support
- __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-Message-ID: <Y+GcDFMNHw2cdDN1@sirena.org.uk>
-References: <20230113171026.582290-1-david@redhat.com>
- <20230113171026.582290-5-david@redhat.com>
+        with ESMTP id S229705AbjBGDZ1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Feb 2023 22:25:27 -0500
+Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48D56B0;
+        Mon,  6 Feb 2023 19:25:26 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1675740326; x=1707276326;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=QQC31G1P9CUuWBf72odMx82ygK5uvFx3dQ615K3U3wA=;
+  b=Vl7FoXyN+A+ltpne8NSiJi9ZHTXQlrRjGzW42mr+vzs9kXl5Lh2a2U06
+   oRapBCYwBLEAZliKMqPlTXS97kxU08pi5qR8wSgKVgVZw3N1neTv3Of5Y
+   x9VV97MmfRgfjg7kcHd/utbSRdTAc2b2RgzLiCHPv0Al1/IH0hbsgbMM7
+   R8+nK+s84IZukHpRsMkFh4hld+FgdmcxymsvAxu5L7OelSuCTl9DswWjK
+   cF1Rq6bbysXTlbPf36vbE+MOTGPs65on1DQUWz9TaXeBncmDqZnTuWLmN
+   r13ylF7os97o7bqyGsz3KNUOm/FZyx0Roe+n1eB/8hjl9a5wAMlD2hS13
+   Q==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10613"; a="356758007"
+X-IronPort-AV: E=Sophos;i="5.97,278,1669104000"; 
+   d="scan'208";a="356758007"
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Feb 2023 19:25:25 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10613"; a="668636739"
+X-IronPort-AV: E=Sophos;i="5.97,278,1669104000"; 
+   d="scan'208";a="668636739"
+Received: from orsmsx603.amr.corp.intel.com ([10.22.229.16])
+  by fmsmga007.fm.intel.com with ESMTP; 06 Feb 2023 19:25:25 -0800
+Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
+ ORSMSX603.amr.corp.intel.com (10.22.229.16) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.16; Mon, 6 Feb 2023 19:25:24 -0800
+Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
+ ORSMSX610.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.16; Mon, 6 Feb 2023 19:25:24 -0800
+Received: from orsedg603.ED.cps.intel.com (10.7.248.4) by
+ orsmsx610.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.16 via Frontend Transport; Mon, 6 Feb 2023 19:25:24 -0800
+Received: from NAM02-DM3-obe.outbound.protection.outlook.com (104.47.56.46) by
+ edgegateway.intel.com (134.134.137.100) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.16; Mon, 6 Feb 2023 19:25:24 -0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=SQ9ZSd+KzZBHLqkhJRc8G2YsOOnRkRHkLgQCIsX9zfoPSpJ2z0t9wlchmbhfpfo5s/fzTHp3YhUxaeinl77QzLMcz723+wOAn+Ix/p+Li96MMcueeFgrrRHxinZaLnbBVurbp4iDnWeSBYq7RAHM0dQ0giMPoqkDeKtGarqZoRkvK0N2BhJl8i42LY41IeLYEs5nli6b4NRVmR3KFr8vPBSS8BH59ykz1KkwQtcH6EfEI36zwiOP+4lhF4zKIOCjI0IhJpjZsC/22zR5qoZ2NmeYEt03sSCwDtw14BPcoGXNVzE6zofrKJ13cOOqCl3ssQ0c8qPN+fXynwJZ9RE+/A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=QQC31G1P9CUuWBf72odMx82ygK5uvFx3dQ615K3U3wA=;
+ b=AoToIqHFmnwQPqYAUHwp0XEzxHiMDXyACXBVvo+DcmhIs4Z0Mi/sr9G+7R7/iKk+0kGpAUkiOeyCihzL23uYYuwLRYODnvJLwr8+5dganVLTcPKwl8NKqfhDkpkcAdEuiP8fwO5Q24g75YW/VDmV6J4u6de5n0Vv4PW53c0t+d4tVaRWXGnFauUBLTA0jwBPIdxWhEI3Ulhidck9/a25/wVXdFJzVX+jFGw9VVJMYYYQCyWwVJirbhAegBgAN+G+kcf0p83yng3TWeZvsipgpXnHjgUXp3xvMtlLwLldleCh7emT+oRWiQ/RFkQApymPKXrtGPVTMmvu1lgSEq5fFw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from BN9PR11MB5276.namprd11.prod.outlook.com (2603:10b6:408:135::18)
+ by SN7PR11MB8041.namprd11.prod.outlook.com (2603:10b6:806:2ec::22) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6064.17; Tue, 7 Feb
+ 2023 03:25:17 +0000
+Received: from BN9PR11MB5276.namprd11.prod.outlook.com
+ ([fe80::6a8d:b95:e1b5:d79d]) by BN9PR11MB5276.namprd11.prod.outlook.com
+ ([fe80::6a8d:b95:e1b5:d79d%8]) with mapi id 15.20.6064.034; Tue, 7 Feb 2023
+ 03:25:17 +0000
+From:   "Tian, Kevin" <kevin.tian@intel.com>
+To:     "Liu, Yi L" <yi.l.liu@intel.com>,
+        "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
+        "jgg@nvidia.com" <jgg@nvidia.com>
+CC:     "cohuck@redhat.com" <cohuck@redhat.com>,
+        "eric.auger@redhat.com" <eric.auger@redhat.com>,
+        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
+        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
+        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
+        "peterx@redhat.com" <peterx@redhat.com>,
+        "jasowang@redhat.com" <jasowang@redhat.com>,
+        "shameerali.kolothum.thodi@huawei.com" 
+        <shameerali.kolothum.thodi@huawei.com>,
+        "lulu@redhat.com" <lulu@redhat.com>,
+        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
+        "intel-gvt-dev@lists.freedesktop.org" 
+        <intel-gvt-dev@lists.freedesktop.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>
+Subject: RE: [PATCH v2 03/14] vfio: Accept vfio device file in the driver
+ facing kAPI
+Thread-Topic: [PATCH v2 03/14] vfio: Accept vfio device file in the driver
+ facing kAPI
+Thread-Index: AQHZOgo008xv7p4OlUyVdUrCFkzTu67C02xg
+Date:   Tue, 7 Feb 2023 03:25:17 +0000
+Message-ID: <BN9PR11MB52766989CAD2B3DDA3B3021D8CDB9@BN9PR11MB5276.namprd11.prod.outlook.com>
+References: <20230206090532.95598-1-yi.l.liu@intel.com>
+ <20230206090532.95598-4-yi.l.liu@intel.com>
+In-Reply-To: <20230206090532.95598-4-yi.l.liu@intel.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: BN9PR11MB5276:EE_|SN7PR11MB8041:EE_
+x-ms-office365-filtering-correlation-id: 60597574-06a9-4296-f85f-08db08baef34
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: vl6jgxtMF8HBjB3VBSXyHgL3HYVn44I3KbExJQ1AFz4KeRvF9OqBcS1qGq0bMtVeOdLcIsSHmsDOhYIE/JubFYFqL87qJUtD6THfPhFly6fKkTGwE+DcHll81XR8KK8p/ZRfF01YqNEC6j9H3o7PHYJu7IarvYGnoQ9xQ46T0yI3n35rUkxqGfIZBEkDjgGDy6M/dAa7DoUah8TcOrzzWOjy7WBt7BM8yTVn7Lrx9eWhNFT/0ivKZ2896PbUnQqGul+wlkL7wxO7oEWwSLthhnKM1HbWwFg87QZupA8yyi7IR9+wVi62xbW1n1FVUOrI4CGJV+xdNJr6sch3/+TMXK7XmPSkPaIbJs7ZzyYablxANb+YtW0JwCdJxUKx70OX0MBZpBrsiWctLJcX99bry2RAWqMLxl/loc/gGEkTcwUiTyWFZNaWbQjT0ncBAzHwfgRQXBJ1zTSKxsvxK22itrTF16cO332yo1FqwBR0wT+Ho5Bqpm2RgDnAqaXsbHILvQXsyAR8pUfG0Kg0zeI5kN+sRdvfds2pDxXJ00pJiuN/Ui77jodPQAb7EO4pOIi9Qr65FPkpUwdQLXQkp8oJIwyRJQU2e0WCMaIkwFtK4JPZxOpnQSILIFfNxj6N1N5LtAZoHga9Swx/8TPjP9+8ZPxn3mxV8K2F9337bdfXkjxdbQmDfjA1VU2wzIqN2eLLuxzmAQFi4N45ju9fIOtENQ==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR11MB5276.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(39860400002)(346002)(376002)(136003)(396003)(366004)(451199018)(7696005)(26005)(478600001)(186003)(9686003)(71200400001)(6506007)(66556008)(110136005)(8676002)(54906003)(83380400001)(316002)(66446008)(66476007)(64756008)(4326008)(66946007)(76116006)(122000001)(38100700002)(82960400001)(86362001)(2906002)(55016003)(4744005)(52536014)(33656002)(41300700001)(38070700005)(7416002)(8936002)(5660300002);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?iUCP1B/nZoZ4CNDaFtOEFBLtcZspezRreHMt4TsydXu9hIN+smORgr/76+RZ?=
+ =?us-ascii?Q?+dQafQpV8Rs67WwC6Ooqz9gwRY9bnu0gjffE9tCyeu5TvPmLRg5CnYq8rjjM?=
+ =?us-ascii?Q?gLHhbcFjvsVPcal5tTGjrWfPiFmhYDh65nzXhxIJYKL0sSeAuc1GL5LrmLZy?=
+ =?us-ascii?Q?xp5ynsyrZThtZ1Ui6xPXfeFbxO+Ij9i7sJkI+RnFuBE2al0HouXxcaqg0tfJ?=
+ =?us-ascii?Q?6iF1R/7LOqaRIppMT5va9JY2zxrcGzzQJbaV0Dz5UzO30xLaSIzi7AqZSvfW?=
+ =?us-ascii?Q?r0JRwvFM5jxpSt5K/kRMejxDA8I6rSyhBBrhorbHgVY5J1XE0aEAZqE/MYll?=
+ =?us-ascii?Q?0eWksFMaW1intxH3c2Oq9yLlSB3v1RbT0eXf6jmBQq3qnFkSeblhBJHP+g41?=
+ =?us-ascii?Q?7Usv8x52nXoob3bVjBtWvwzDUv//g3st0wqVCZZ7p6fJsuMX22DRBVxXE92a?=
+ =?us-ascii?Q?a3cPILRR/ioKatmvCcgTbwytU/A3Jp2CQY7bwRL8kPcHC03TOKQwyV/qtGMT?=
+ =?us-ascii?Q?YqtV6iOMe1QXCnIzcf720pVgOxd5NnKRvnljBDa+tcY1ESvdPcC/7aBofGCK?=
+ =?us-ascii?Q?SJjvCB1yoACUkkIpHhKDWb2OI4t9qxjjpOzk5USbCm+/31/KGAU+Kgmwe9rg?=
+ =?us-ascii?Q?tKqeWiu/pOvUj/WyuwsRB5v3bLtRM37Mxb7+VTjlwfgSDs0CkMGbibPh/CLS?=
+ =?us-ascii?Q?/i0/+klaUvs61CCPskdDThViP8YqdJ0cyKR24bQ8dAad5EJlUy1BxOgUbcZk?=
+ =?us-ascii?Q?wAiBWsbgDTizfLDHEr7vcjORKFCzjolBhZdQTQrZnQy/jLhEt5IrXjk4VJk9?=
+ =?us-ascii?Q?FuF1rCgDP4amlTk0kxQU6mhmg4+0yA3YX7hZukAfJgSlffy5/l8uJ7pkZASZ?=
+ =?us-ascii?Q?xkzfUO1pkKIw4eaV8UR+a0OQSLXAnTWarzSxMqQFBLqSLlBMqNKreCl6z3Gg?=
+ =?us-ascii?Q?LwVVmtSUxXg1lKKZYfGhy5TNWhmE1ZbXrIeGKiY2xK8i5ULBtXExYyenep3P?=
+ =?us-ascii?Q?IBAGYFSzDt0HID1vdYHGG/AJpgwUMYh58H7g84xTYSWC+kouJUX+B/2ESeyR?=
+ =?us-ascii?Q?tsG0c3URgOfcKlpHt8LDqeWbRT5Wirv0XsXgMe3k0ExTozTSVMo97Th3vVHA?=
+ =?us-ascii?Q?sj9K6Mc+UUhua3iPwUSxltMBm5liU1UbuU3+n0TwdLzoFXopYXxGpn9z8BKY?=
+ =?us-ascii?Q?9uxaNDLvpIq4njp+IRBYIJBl58Vhdxb9tDewwJpfPPhh6C7pzecQ5kxvskF6?=
+ =?us-ascii?Q?LAd59kiirEivVUgBG26g6RRHAjf7unKXqdInai+QTvKy37m5OqpMdKdL2NgF?=
+ =?us-ascii?Q?ZeSyi1zADE2EksVtCizF32AiN6rLaWgluCpNozbSvkwZqusB9cAzJ2DUS0U2?=
+ =?us-ascii?Q?9t2nqfvoQwzMkoE2rdYSgZVV8huWFvuwj/Az9rb3BnxzV2tdUupC+sP835E3?=
+ =?us-ascii?Q?c9RLkIBqGy3oL7iqKvsWKz8FM0icR09hrvmw8Gh+R0EUGB0JEOxGUCx4nNsp?=
+ =?us-ascii?Q?PYsNJ2hotDZY9ZZoTzhd4nanbp8HRwylVHCNeMOt/vlE7j6F8DXc77pvTKih?=
+ =?us-ascii?Q?+CWpqD8QFKGd4T7N5CWQ73UyipCkTMt6aRDt34C5?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="NWKvUnutYufNxY+M"
-Content-Disposition: inline
-In-Reply-To: <20230113171026.582290-5-david@redhat.com>
-X-Cookie: No guts, no glory.
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BN9PR11MB5276.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 60597574-06a9-4296-f85f-08db08baef34
+X-MS-Exchange-CrossTenant-originalarrivaltime: 07 Feb 2023 03:25:17.3066
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: qncIhUh1KbWWil1oUj+NhUk9zVrAIYLHb1LjxlPAWMEWlIa2kOuNzndCFRQl5VS4N1gaF+q7351xEvN51ZokFQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR11MB8041
+X-OriginatorOrg: intel.com
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
---NWKvUnutYufNxY+M
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, Jan 13, 2023 at 06:10:04PM +0100, David Hildenbrand wrote:
-> Let's support __HAVE_ARCH_PTE_SWP_EXCLUSIVE by stealing one bit from the
-> offset. This reduces the maximum swap space per file to 64 GiB (was 128
-> GiB).
+> From: Liu, Yi L <yi.l.liu@intel.com>
+> Sent: Monday, February 6, 2023 5:05 PM
 >=20
-> While at it drop the PTE_TYPE_FAULT from __swp_entry_to_pte() which is
-> defined to be 0 and is rather confusing because we should be dealing
-> with "Linux PTEs" not "hardware PTEs". Also, properly mask the type in
-> __swp_entry().
+> This makes the vfio file kAPIs to accepte vfio device files, also a
+> preparation for vfio device cdev support.
+>=20
+> For the kvm set with vfio device file, kvm pointer is stored in struct
+> vfio_device_file, and use kvm_ref_lock to protect kvm set and kvm
+> pointer usage within VFIO. This kvm pointer will be set to vfio_device
+> after device file is bound to iommufd in the cdev path.
+>=20
+> Signed-off-by: Yi Liu <yi.l.liu@intel.com>
 
-Today's -next (and at least back to Friday, older logs are unclear - I
-only noticed -next issues today) fails to NFS boot on an AT91SAM9G20-EK
-(an old ARMv5 platform) with multi_v5_defconfig, a bisect appears to
-point to this patch (20aae9eff5acd8f5 in today's -next) as the culprit.
-
-The failure happens at some point after starting userspace, the kernel
-starts spamming the console with messages in the form:
-
-    get_swap_device: Bad swap file entry 10120d20
-
-repeating the same entry number, though different numbers per boot.  The
-system is booting a Debian userspace and shouldn't have swap configured
-(I verfified that successful boots don't), though it only has 64M of RAM
-so there will be some memory pressure, especially during boot.  The
-exact point things fall over seems to vary a little.
-
-A sample failing job with the full log is here:
-
-    https://lava.sirena.org.uk/scheduler/job/262719
-
-Full bisect log:
-
-git bisect start
-# bad: [129af770823407ee115a56c69a04b440fd2fbe61] Add linux-next specific f=
-iles for 20230206
-git bisect bad 129af770823407ee115a56c69a04b440fd2fbe61
-# good: [4ec5183ec48656cec489c49f989c508b68b518e3] Linux 6.2-rc7
-git bisect good 53b3c6467004c627f42d96ef839b223a749bcdd9
-# good: [17b9d0b05d4fa79afb7bd00edb1b97397418a57a] Merge branch 'master' of=
- git://git.kernel.org/pub/scm/linux/kernel/git/herbert/cryptodev-2.6.git
-git bisect good 17b9d0b05d4fa79afb7bd00edb1b97397418a57a
-# good: [7044a4e1fab22f437d275b1cf85f5c925741276b] Merge branch 'for-next' =
-of git://git.kernel.org/pub/scm/linux/kernel/git/trace/linux-trace.git
-git bisect good 7044a4e1fab22f437d275b1cf85f5c925741276b
-# good: [bef6844b00f0c24543d60b79c558f353a43709f1] Merge branch 'staging-ne=
-xt' of git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
-git bisect good bef6844b00f0c24543d60b79c558f353a43709f1
-# good: [f6737c53676f9db99daee069407daf203e75bc0f] Merge branch 'for-next' =
-of git://git.kernel.org/pub/scm/linux/kernel/git/rppt/memblock.git
-git bisect good f6737c53676f9db99daee069407daf203e75bc0f
-# bad: [05cda97ecb7046f4192a921741aae33b300dd628] mm: factor out a swap_wri=
-tepage_bdev helper
-git bisect bad 05cda97ecb7046f4192a921741aae33b300dd628
-# good: [ee0800c2f6a9e605947ce499d79fb7e2be16d6dd] mm: convert page_add_ano=
-n_rmap() to use a folio internally
-git bisect good ee0800c2f6a9e605947ce499d79fb7e2be16d6dd
-# bad: [590a2b5f0a9b740e415e0d52bd8a0f87fc15b87b] ceph: convert ceph_writep=
-ages_start() to use filemap_get_folios_tag()
-git bisect bad 590a2b5f0a9b740e415e0d52bd8a0f87fc15b87b
-# good: [92644f583d5124b60bc20a3dd21b0bc9142f020c] mm/khugepaged: introduce=
- release_pte_folio() to replace release_pte_page()
-git bisect good 92644f583d5124b60bc20a3dd21b0bc9142f020c
-# bad: [cca10df1029373cda5904887544ca6fcbbd2bac7] sh/mm: support __HAVE_ARC=
-H_PTE_SWP_EXCLUSIVE
-git bisect bad cca10df1029373cda5904887544ca6fcbbd2bac7
-# bad: [ad464ff2c0f91fcacc24167fc435aa45fe0b7d1b] m68k/mm: remove dummy __s=
-wp definitions for nommu
-git bisect bad ad464ff2c0f91fcacc24167fc435aa45fe0b7d1b
-# bad: [20aae9eff5acd8f50f72adca1176f9269a46b827] arm/mm: support __HAVE_AR=
-CH_PTE_SWP_EXCLUSIVE
-git bisect bad 20aae9eff5acd8f50f72adca1176f9269a46b827
-# good: [2321ba3e3733f513e46e29b9c70512ecddbf1085] mm/debug_vm_pgtable: mor=
-e pte_swp_exclusive() sanity checks
-git bisect good 2321ba3e3733f513e46e29b9c70512ecddbf1085
-# good: [4a446b3dd335d0bd14a5ca3e563688de3637be0c] arc/mm: support __HAVE_A=
-RCH_PTE_SWP_EXCLUSIVE
-git bisect good 4a446b3dd335d0bd14a5ca3e563688de3637be0c
-# first bad commit: [20aae9eff5acd8f50f72adca1176f9269a46b827] arm/mm: supp=
-ort __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-
---NWKvUnutYufNxY+M
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmPhnAwACgkQJNaLcl1U
-h9D7vgf/U3zBEYllgLPQkDLvGQVNlA4YlBJWjoZUOxdqvOZpwxsxFZ/aia+43O0B
-TMZThl9G4WF69YEjqEYV7m4FyfodFzxRw67Z/BCVTINhlSPp8SakUVz0PyMB6IzP
-CpyMhm1L4Qk4wu+FOVPxQ2pEdWlYa2RWWD3TUQUIw/kTwiBILlQAQocSsrKSHSya
-QoivSxIlvDbX1b3D2XPYaTnnQfHnGrcTXKHxR+r01jHeLvwrQ/Q8wEVSsB/lgItx
-bcLc4KvDG0yCWfPa30KHM30ccbZvLmWVw7D7WqT0ASjc2Rkvgi1G7q3QpOOZPWC+
-QjoJLvNMLQb/bbvVbDMElcjLaSuyQw==
-=EHrm
------END PGP SIGNATURE-----
-
---NWKvUnutYufNxY+M--
+Reviewed-by: Kevin Tian <kevin.tian@intel.com>
