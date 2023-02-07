@@ -2,184 +2,119 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 696FFC636CC
-	for <linux-s390@archiver.kernel.org>; Tue,  7 Feb 2023 13:22:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D0F2BC636CD
+	for <linux-s390@archiver.kernel.org>; Tue,  7 Feb 2023 15:26:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231650AbjBGNWy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 7 Feb 2023 08:22:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44728 "EHLO
+        id S229801AbjBGP0K (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 7 Feb 2023 10:26:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231128AbjBGNWx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Feb 2023 08:22:53 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3C0DB767;
-        Tue,  7 Feb 2023 05:22:52 -0800 (PST)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 317DMMSS024107;
-        Tue, 7 Feb 2023 13:22:50 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=lTzwb3wPD/ahzgNvLMmcdWpvrliagOkCOoHNCzUnFRs=;
- b=B5fXnb8A4/5najHwGW0QH2YdrL83LmWrisYQuVqZnmct5QE5D2zh35FURWvDiarGaA1M
- 7/YtW2AX0Ny4gOVPu8UampIFlIx6QEw3mahJQroDtGzkmZKVv/9l3fzE73RqLqMos6rP
- NCvcgeb5GIPl3dSYfJZApiruVHsXa7c/ApdoZMK4r369WeEx785jklUUXg0kVtQobm1N
- Wzo7QvSA1IbaAwiw1oE6LDOnV/ODsGJkiUYwbBak4ziJG7MNB1AaZrFAH6DkzIbmhQ3R
- J8NXDHsxJ5zALaVPAf5DkK56FL8wdfo+mVNz6+PT/ZNRuJ35Mrm7ljHgBZQVgCfxrkk1 Yg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nkqfj807b-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Feb 2023 13:22:49 +0000
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 317DMhmc024516;
-        Tue, 7 Feb 2023 13:22:49 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nkqfj806k-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Feb 2023 13:22:49 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 317BjfKR001926;
-        Tue, 7 Feb 2023 13:22:47 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3nhf06kmqq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Feb 2023 13:22:46 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 317DMhVt53084434
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 7 Feb 2023 13:22:43 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 38BF52004B;
-        Tue,  7 Feb 2023 13:22:43 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 636A120043;
-        Tue,  7 Feb 2023 13:22:42 +0000 (GMT)
-Received: from [9.171.52.227] (unknown [9.171.52.227])
-        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue,  7 Feb 2023 13:22:42 +0000 (GMT)
-Message-ID: <30435adc-e86f-c96c-3795-bea6bca65c16@linux.ibm.com>
-Date:   Tue, 7 Feb 2023 14:22:42 +0100
+        with ESMTP id S230519AbjBGP0K (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Feb 2023 10:26:10 -0500
+Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2137.outbound.protection.outlook.com [40.107.237.137])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37C895BB4;
+        Tue,  7 Feb 2023 07:26:04 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=VC9PswbIVOFkWJw2MUDHZyWxNrhyPAq3NpYf/P2w1xhyyInHDc3tLiLdgoGXimu8ml+Jj+P3KKZ/EbQwoWsDVqwPHkOh1dvdVoBc/988XsXzJpolBeWnq9geqxoU2SYJeRRE4BeOnm4eSV2Ho8R3Hl39yyyIsHzjTRY+dT0DamaUZYGNrUa3VszeCgWp35SK4Z1PTUW8ACvgTaZSTHDdb2da4tw5YWgVpdRYZ5IfW9R1lMG8rb1F68UkZbbO1Z1czaPCX5+ef7qEDCSWNjPWeKZ76jDDcRQcQ9ZvGtR1jZ3v76kN7oSCczDgaM8uXyl5ZYn9ETSlx5aCFzo1krsq1A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=fOT9PaFRPKfG8RDjkDP1GhMRvQAfgdxnZrhHQPpkxe4=;
+ b=ZGtRf1G6EZAoTu1fJ089cxMg7x2+Vr8A9d4cJGHidLwoTdQ9cAjpYm7SuCUZSYZUWN/1DeeebtvQr6YXR0AQz7qaf0fBK9hiAl/M5NqnQHEEnrNyuJbNAdPwUsv7A6uEsWzInY+lR1n/riTzVMD1Wux5BRe4iic6aZziYwC6Vkm6jhfQOiFyv9wdeNJNOYZwuCGF8rB/Nqxa55+Upobz5fmCFm6R/w26E2FCzNZyzxitL2Wyytsz84+2GvQEB2Df3F7uuPKwS4/7TFTlHi1vKPZ6XR6WL91/JPdyBMtSYnLx4GG9t4pkAvjtogK2RAMlWNQ1HOPZTPF3h3oc/GjcTQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=corigine.com; dmarc=pass action=none header.from=corigine.com;
+ dkim=pass header.d=corigine.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=corigine.onmicrosoft.com; s=selector2-corigine-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=fOT9PaFRPKfG8RDjkDP1GhMRvQAfgdxnZrhHQPpkxe4=;
+ b=hlb2K2MS74jn7OR5zWqBKc/cWDWpUlWxQ37UYxn0hGBujGljcQtl06Og7dUmCL9e0M/GsQP4WlCagCX0qud1G8K9x4n84VMb/uU9CGtd89WK1iZaTJL0K8j1ZD1RfMdbSxx5/Uyfucpm3KGDodbrplsB2Z2OTtzcncXI4H53/bM=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=corigine.com;
+Received: from PH0PR13MB4842.namprd13.prod.outlook.com (2603:10b6:510:78::6)
+ by SN4PR13MB5725.namprd13.prod.outlook.com (2603:10b6:806:211::16) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6064.34; Tue, 7 Feb
+ 2023 15:26:01 +0000
+Received: from PH0PR13MB4842.namprd13.prod.outlook.com
+ ([fe80::85f5:bdb:fb9e:294c]) by PH0PR13MB4842.namprd13.prod.outlook.com
+ ([fe80::85f5:bdb:fb9e:294c%3]) with mapi id 15.20.6064.034; Tue, 7 Feb 2023
+ 15:26:01 +0000
+Date:   Tue, 7 Feb 2023 16:25:53 +0100
+From:   Simon Horman <simon.horman@corigine.com>
+To:     Alexandra Winter <wintera@linux.ibm.com>
+Cc:     David Miller <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>
+Subject: Re: [PATCH net-next 1/4] s390/ctcm: cleanup indenting
+Message-ID: <Y+JtgWU/nMcx2s7s@corigine.com>
+References: <20230206172754.980062-1-wintera@linux.ibm.com>
+ <20230206172754.980062-2-wintera@linux.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230206172754.980062-2-wintera@linux.ibm.com>
+X-ClientProxiedBy: AM9P195CA0001.EURP195.PROD.OUTLOOK.COM
+ (2603:10a6:20b:21f::6) To PH0PR13MB4842.namprd13.prod.outlook.com
+ (2603:10b6:510:78::6)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
-Subject: Re: [PATCH v7 10/14] KVM: s390: Refactor absolute vm mem_op function
-Content-Language: en-US
-To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-Cc:     David Hildenbrand <david@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Shuah Khan <shuah@kernel.org>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>
-References: <20230206164602.138068-1-scgl@linux.ibm.com>
- <20230206164602.138068-11-scgl@linux.ibm.com>
-From:   Janosch Frank <frankja@linux.ibm.com>
-In-Reply-To: <20230206164602.138068-11-scgl@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: bQ1obWv9uEwb0uJecL-8SBd-L_0GWt0T
-X-Proofpoint-GUID: Zf3yjCv-G_ao0ginpF6j-jRf5NrU_ewg
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
- definitions=2023-02-07_05,2023-02-06_03,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 mlxscore=0
- malwarescore=0 lowpriorityscore=0 mlxlogscore=884 priorityscore=1501
- impostorscore=0 clxscore=1015 phishscore=0 spamscore=0 bulkscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2302070116
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: PH0PR13MB4842:EE_|SN4PR13MB5725:EE_
+X-MS-Office365-Filtering-Correlation-Id: 4f38cb5f-8438-48e5-f3e7-08db091f9e3d
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: pnuSA/saTVd4vBexlcdNSod+VoTk2gx/wJQn4cRGv2XnIWEEWLoGZ365yJQR1KkSSRRTCDO/pArRsB356ulo94LMFTd2SA7cK6Fzq08j2P1thYtCBG7C9ulG2lbwk5x9Q3um/FcEzSwyKjJRrMF1MKnbsw1hX4yZYqvzmerC7NbxFHkQg02ywRsA14MHwC83HUAvN0/DBkbpoab08ctO7H2XbJAZPbFjWRUw/zOwmcmpqfegFJw+LqldndgzjWXTcxxjjJQxe44mli3RZ4uU5LtISkL9M8PPu9QB+QYitgIKPCsG3QzvZaOcGdCHSKY6vWy5thWqxN/PQ1TXCXRct0Xs+12z7MlrwEI8s6EdWO9w2kQSsiqkdFnGNQAkw3kmHmAusAM/cOd2VBm/35gZYVJLECGtFoWoF1CSzQiWIZFMzM4kbIgMgtI6a6o9beRoEJvZajdRS62o6qFKZ3sfzqpDOgYAtEVc5K0xUK/99gD8Qpe7nUBsQL9VlneO0vGOPfWixrsH2bmR3SXklsQv/Zac3ILT8TFCezTr3dlPHD2qUtIHreoEP2hLM0lXLm8TxJ4AuKKQqtu8vKbIqACidvCk1AhIoMV7fMPYlLffRqSHCCuqDxxeRnC8tw7HxdIqsRFyI9Qtz8mZlo0zFF2Y0A==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR13MB4842.namprd13.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(4636009)(396003)(366004)(346002)(39840400004)(376002)(136003)(451199018)(558084003)(36756003)(86362001)(38100700002)(4326008)(41300700001)(54906003)(8676002)(8936002)(66946007)(6916009)(66556008)(66476007)(2616005)(5660300002)(44832011)(478600001)(2906002)(6486002)(83380400001)(6506007)(6512007)(186003)(6666004)(316002);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?iGQ748oKn1OG0XAVTqrbhJBVRoL0ykqD2b4CoQvR6j/vsB2nOnlkUgRuHEh6?=
+ =?us-ascii?Q?kigeXVJFQeVWGpx3KOUY4BeW5sgN/RioCW00vdwc7zIai270nM2bYhxIOMp/?=
+ =?us-ascii?Q?i2PK/1cLJF5CXDTNZMIR885Gc2MxcrOlfzdkhQTONTyL6cCsX1V5CK1BCpYg?=
+ =?us-ascii?Q?mAjmByGqJMKbNvH4AhOMp4DG3+MtZqRQOMgM97a4KmBRnlSE08apcgvXEVUl?=
+ =?us-ascii?Q?OGXPWfTHufoWpscAnX2iXk6DrTadx4SkPmx/wg2lKQNcjbjVtbLnUuxv4QaP?=
+ =?us-ascii?Q?8tYMCWm1H5BvjrG2MjAgeROLvKtviihQdU+5Fe+fC/vpGvwdDjnUMwIjTkOZ?=
+ =?us-ascii?Q?atnB3/6/Um3MHsxDKe1YL4Fe9V8c1zg9xYx0rISJx+dI3dqWaDDpFyy3oUJJ?=
+ =?us-ascii?Q?+cB78hc4pN5euE9rO9Rv4jSUHMFM1hCFek/lrxZ9gonh+Epiev4tjDC3sO2q?=
+ =?us-ascii?Q?ztB3m6hzfSrZKP6VZDXXS29OBakyefpKHlxOn7Iy9RUkxLowTCiLmfDpuPhT?=
+ =?us-ascii?Q?LWbITk1GJjddIajbW0ick/B1BZDm9IFWgG5IemIotoefGYsLCz9tQH7klNgS?=
+ =?us-ascii?Q?LInOzG//5/Q2Z50maFCFQy1/mKWcwkrNOvOEiPShmvv/pmTn//mDCGDZezPA?=
+ =?us-ascii?Q?ey/UXFm0G7kPN4SjP+aT6RbB8xUqZWj9OIoWaqqRnC1D2OGxV22XqXiiMg6D?=
+ =?us-ascii?Q?qfAXqCG2BnSB34IypC/xyWgnRrnOjPmm681oj7Nw9SvxNQA8tmO3dZ0KE9kP?=
+ =?us-ascii?Q?RaWg37lwdKSCh0ygH0NBOnmOyJMss3C8RX2LHscjchZNaqAbO45UPbweyC2l?=
+ =?us-ascii?Q?MiP4s92Ww+28IezmlUVf0z1NgoHp5fTpgYzY8dwbd+NmifJ0FGZyc+5ZOyau?=
+ =?us-ascii?Q?a+SvFSSJFN7ymRa8uPue5d7K+hw7Z3yhJM66GRVEMMFYXV+t9TiU7pCz/ay+?=
+ =?us-ascii?Q?JrBY2bC5v4Ru8azHuOX81zRP4mmXmfPpSkB0Hq6WwAWeFUCHiWCzG0WTSRDc?=
+ =?us-ascii?Q?3q1+VdUEFvaFt1DRo/i0cA9unzaVRHDITSkADQGKIgC86PJ7XV+vLxylZt1z?=
+ =?us-ascii?Q?ecBJoAkFjF1yRdL0Vn97Kh9FZ8Q7bJVQnA2UkuOTdYQsxi9J8hRgBmXHwkwt?=
+ =?us-ascii?Q?MUyAVy2hAzS+pdPqn+FUdNNI5JRAPHWbZXD5ILXdG6JJrSKKSw79c4VxNGoI?=
+ =?us-ascii?Q?s4R9ECNtoF95Eg6/OcAz/LngP0RbzbvaqWAxvAaAYXLiU9e0q+k5jb5fmC6C?=
+ =?us-ascii?Q?bZD8T9X8zQtQoGs9TzQvP7MXCsJlyizMs53muig8pvsJElWIZC0ka/jnpk32?=
+ =?us-ascii?Q?j0frIQPEc9ixZG4sLJNEGzsAkIrLtPPfh4XYwhByaoheBXedYUaLPHA8YWmS?=
+ =?us-ascii?Q?lWIaivtai4mTAHTZXr5JShDdfuS1sp06YdPuzF30KNRyZ0UD1zaqhZMAyVZq?=
+ =?us-ascii?Q?mOnvOkupkwcMSTq/Bibb7DI8hiid2P02pjZbMPLpUMPR02wwH1PZV3TTeaEP?=
+ =?us-ascii?Q?g3JpxrxyHDASccbiXZPD2EpzGaaDF2SLL1JV0qtPTP3ibc1SgF23Jw9nLKc8?=
+ =?us-ascii?Q?HotwlIg0Ghw7IfxhPfWp2dz80y2VyYSmrPAfTJDE2ffjBDIWcaOPp6CeGzIQ?=
+ =?us-ascii?Q?5LRiv7ESx/dSsEsE/a7eo8pMA1Ths3AA/Z26SFOMcXmU8AOXu08m7sSa39vS?=
+ =?us-ascii?Q?vDWaRA=3D=3D?=
+X-OriginatorOrg: corigine.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4f38cb5f-8438-48e5-f3e7-08db091f9e3d
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR13MB4842.namprd13.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Feb 2023 15:26:00.9209
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: fe128f2c-073b-4c20-818e-7246a585940c
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: yHc9URrqt01tOVdeeC9oh0oJYlVAMHDvFkX8W6nf8+fh1DbDHGce/af63SzxLkDWhkiHQX7V7D0t8QE6mwbWvPLZ++qcP0vSa5NCouzNe6Q=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN4PR13MB5725
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2/6/23 17:45, Janis Schoetterl-Glausch wrote:
-> Remove code duplication with regards to the CHECK_ONLY flag.
-> Decrease the number of indents.
-> No functional change indented.
+On Mon, Feb 06, 2023 at 06:27:51PM +0100, Alexandra Winter wrote:
+> Get rid of multiple smatch warnings, like:
+> warn: inconsistent indenting
 > 
-> Suggested-by: Janosch Frank <frankja@linux.ibm.com>
-> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-> Reviewed-by: Thomas Huth <thuth@redhat.com>
-> ---
-> 
+> Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
 
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-
-> 
-> Cosmetic only, can be dropped
-> 
-> 
->   arch/s390/kvm/kvm-s390.c | 43 +++++++++++++++++-----------------------
->   1 file changed, 18 insertions(+), 25 deletions(-)
-> 
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 707967a296f1..1f94b18f1cb5 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -2782,6 +2782,7 @@ static int mem_op_validate_common(struct kvm_s390_mem_op *mop, u64 supported_fla
->   static int kvm_s390_vm_mem_op_abs(struct kvm *kvm, struct kvm_s390_mem_op *mop)
->   {
->   	void __user *uaddr = (void __user *)mop->buf;
-> +	enum gacc_mode acc_mode;
->   	void *tmpbuf = NULL;
->   	int r, srcu_idx;
->   
-> @@ -2803,33 +2804,25 @@ static int kvm_s390_vm_mem_op_abs(struct kvm *kvm, struct kvm_s390_mem_op *mop)
->   		goto out_unlock;
->   	}
->   
-> -	switch (mop->op) {
-> -	case KVM_S390_MEMOP_ABSOLUTE_READ: {
-> -		if (mop->flags & KVM_S390_MEMOP_F_CHECK_ONLY) {
-> -			r = check_gpa_range(kvm, mop->gaddr, mop->size, GACC_FETCH, mop->key);
-> -		} else {
-> -			r = access_guest_abs_with_key(kvm, mop->gaddr, tmpbuf,
-> -						      mop->size, GACC_FETCH, mop->key);
-> -			if (r == 0) {
-> -				if (copy_to_user(uaddr, tmpbuf, mop->size))
-> -					r = -EFAULT;
-> -			}
-> -		}
-> -		break;
-> +	acc_mode = mop->op == KVM_S390_MEMOP_ABSOLUTE_READ ? GACC_FETCH : GACC_STORE;
-> +	if (mop->flags & KVM_S390_MEMOP_F_CHECK_ONLY) {
-> +		r = check_gpa_range(kvm, mop->gaddr, mop->size, acc_mode, mop->key);
-> +		goto out_unlock;
->   	}
-> -	case KVM_S390_MEMOP_ABSOLUTE_WRITE: {
-> -		if (mop->flags & KVM_S390_MEMOP_F_CHECK_ONLY) {
-> -			r = check_gpa_range(kvm, mop->gaddr, mop->size, GACC_STORE, mop->key);
-> -		} else {
-> -			if (copy_from_user(tmpbuf, uaddr, mop->size)) {
-> -				r = -EFAULT;
-> -				break;
-> -			}
-> -			r = access_guest_abs_with_key(kvm, mop->gaddr, tmpbuf,
-> -						      mop->size, GACC_STORE, mop->key);
-> +	if (acc_mode == GACC_FETCH) {
-> +		r = access_guest_abs_with_key(kvm, mop->gaddr, tmpbuf,
-> +					      mop->size, GACC_FETCH, mop->key);
-> +		if (r)
-> +			goto out_unlock;
-> +		if (copy_to_user(uaddr, tmpbuf, mop->size))
-> +			r = -EFAULT;
-> +	} else {
-> +		if (copy_from_user(tmpbuf, uaddr, mop->size)) {
-> +			r = -EFAULT;
-> +			goto out_unlock;
->   		}
-> -		break;
-> -	}
-> +		r = access_guest_abs_with_key(kvm, mop->gaddr, tmpbuf,
-> +					      mop->size, GACC_STORE, mop->key);
->   	}
->   
->   out_unlock:
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
 
