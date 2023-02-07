@@ -2,415 +2,174 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1E61C05027
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Feb 2023 22:14:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B0E2CC64EC4
+	for <linux-s390@archiver.kernel.org>; Tue,  7 Feb 2023 00:32:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229663AbjBFWOz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 6 Feb 2023 17:14:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38240 "EHLO
+        id S229556AbjBGAc2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 6 Feb 2023 19:32:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229654AbjBFWOy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Feb 2023 17:14:54 -0500
-Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60C15265B1
-        for <linux-s390@vger.kernel.org>; Mon,  6 Feb 2023 14:14:52 -0800 (PST)
-Received: by mail-ej1-x632.google.com with SMTP id ml19so38623014ejb.0
-        for <linux-s390@vger.kernel.org>; Mon, 06 Feb 2023 14:14:52 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=layalina-io.20210112.gappssmtp.com; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=Fhiw+jubOvq1uJrkxqi7dpXCXQ7Pp14PB3qH+9iBvvk=;
-        b=XGaKPmbL+LPNdhbIZ8gNyg5YsQ/9NfkANkq1Me2iOAgz6kMhGtq9KP5uTuMro2fsKV
-         97wXmiwNztvKIsr1w/ZNLTY5Gxg9oylT/9WKs2eqsl0zM4DsMM/35gAcHEhazexIXZUH
-         q+FmIXOW0ikTvR28HeB44B2X3kIRUiiMExS+6DuZddUMzM+b9pl8aVFA8kg5Z5mAPHuJ
-         YMz3p9zhVUF2cfceZu5ZHiPpL1+PIriVHBvo6xZGr+WDk4CoPD8yCCr5snlJ4xcbN6W1
-         HRrAJXhuQPMssea8gyc/xy8fY2rMbGRa+gRmRJOhSlD413QLVPC5z5mxDYDQMKX6CIBs
-         Tmug==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Fhiw+jubOvq1uJrkxqi7dpXCXQ7Pp14PB3qH+9iBvvk=;
-        b=sBy1Qebr8Q/CQ+8/8bEoUA4Cx6CpHJvCobu11GrBGp7uZRIS7g8t41Lis/zOsMyOzf
-         Scvq3wl7sSIZQ034c8TYj4bsuZh8R7YCNX8nQ3dZnZtYONOv1mWvUoUyB4FcsO37VWtd
-         zSXuaQqtDzEz9pE3lKRNCuhTjlOSKjGW11wMWhpp7DOTHD4B0svw77cgQviRlAYIKjCR
-         Z1jULkW3KGxPJwlCK1gi/FlxwhRXmJZklAYKC7UhHN53XwHZe6EkS8691Ni9Y4LW849a
-         /pbeTTnft4t3tcbcP959UGDlojDtpxM/Z6fkm1ANlbjitoDkYGTQWH0WSKUUBZO2/9NG
-         lgIw==
-X-Gm-Message-State: AO0yUKV6PgJSkmj0iaKpmMMPk9rewKjbHQeO/ndNiai5AaIiZNn9+YDt
-        NlzYjckIsWPtou3fT6nHjFwwJA==
-X-Google-Smtp-Source: AK7set8nKifNoixIO1OR95D5ZT8RG9QYxkX7/QXPPznwnhZLt79MFEjgvQVv8RVJTucYIQ9//VQNzg==
-X-Received: by 2002:a17:906:5013:b0:883:5b33:e019 with SMTP id s19-20020a170906501300b008835b33e019mr845210ejj.61.1675721690843;
-        Mon, 06 Feb 2023 14:14:50 -0800 (PST)
-Received: from localhost.localdomain (host86-163-35-10.range86-163.btcentralplus.com. [86.163.35.10])
-        by smtp.gmail.com with ESMTPSA id g4-20020a170906348400b007add62dafbasm5974260ejb.157.2023.02.06.14.14.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 06 Feb 2023 14:14:50 -0800 (PST)
-From:   Qais Yousef <qyousef@layalina.io>
-To:     Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Waiman Long <longman@redhat.com>
-Cc:     Steven Rostedt <rostedt@goodmis.org>, tj@kernel.org,
-        linux-kernel@vger.kernel.org, luca.abeni@santannapisa.it,
-        claudio@evidence.eu.com, tommaso.cucinotta@santannapisa.it,
-        bristot@redhat.com, mathieu.poirier@linaro.org,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        cgroups@vger.kernel.org,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Wei Wang <wvw@google.com>, Rick Yiu <rickyiu@google.com>,
-        Quentin Perret <qperret@google.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Zefan Li <lizefan.x@bytedance.com>, linux-s390@vger.kernel.org,
-        x86@kernel.org, Qais Yousef <qyousef@layalina.io>
-Subject: [PATCH v3] sched: cpuset: Don't rebuild root domains on suspend-resume
-Date:   Mon,  6 Feb 2023 22:14:28 +0000
-Message-Id: <20230206221428.2125324-1-qyousef@layalina.io>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S230082AbjBGAc1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Feb 2023 19:32:27 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF1CB7DB4;
+        Mon,  6 Feb 2023 16:32:25 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 56C79B816A4;
+        Tue,  7 Feb 2023 00:32:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 991E0C433D2;
+        Tue,  7 Feb 2023 00:32:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1675729943;
+        bh=iZCN6sGc9yW2zYcxaQotSvnk+ZA53AaN/sDVv0yII50=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=r7OTSPs0ofYJfz2HfC9yS/lpbY7S0BFzpXiLK3x7Ke/Y6aWFhktLvs6Bvgj2Al5Wk
+         B6UkcQ+D4VR40u7HKhXzSQ4KgoVE+1waBFZlM5JqHCpnVJMmvdP6KTKtVHMcYXlvDW
+         HvMYz5Nv/QvWcqkqgdC8HtG5iSFLz+5CT0wM3dg+r8XfX8Uoay6JHXFHAsy/jvcyaE
+         Y+YyyHfN2C/hXNPxeqGA7nAR2Ackxd1K6CCBh1BVMg4QrPnhB6To8MjHdG4AQb2uIw
+         smNsNDMgzHTMzUtoipazT928V76wO/Qhc/hW1DhF+HtdqhyqNOakQKfsfeblr/+0mf
+         LLy3JzbNDtsBw==
+Date:   Tue, 7 Feb 2023 00:32:12 +0000
+From:   Mark Brown <broonie@kernel.org>
+To:     David Hildenbrand <david@redhat.com>
+Cc:     linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Hugh Dickins <hughd@google.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Nadav Amit <namit@vmware.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Peter Xu <peterx@redhat.com>, linux-mm@kvack.org,
+        x86@kernel.org, linux-alpha@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
+        Russell King <linux@armlinux.org.uk>
+Subject: Re: [PATCH mm-unstable v1 04/26] arm/mm: support
+ __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+Message-ID: <Y+GcDFMNHw2cdDN1@sirena.org.uk>
+References: <20230113171026.582290-1-david@redhat.com>
+ <20230113171026.582290-5-david@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="NWKvUnutYufNxY+M"
+Content-Disposition: inline
+In-Reply-To: <20230113171026.582290-5-david@redhat.com>
+X-Cookie: No guts, no glory.
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Commit f9a25f776d78 ("cpusets: Rebuild root domain deadline accounting information")
-enabled rebuilding root domain on cpuset and hotplug operations to
-correct deadline accounting.
 
-Rebuilding root domain is a slow operation and we see 10+ of ms delays
-on suspend-resume because of that (worst case captures 20ms which
-happens often).
+--NWKvUnutYufNxY+M
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Since nothing is expected to change on suspend-resume operation; skip
-rebuilding the root domains to regain the some of the time lost.
+On Fri, Jan 13, 2023 at 06:10:04PM +0100, David Hildenbrand wrote:
+> Let's support __HAVE_ARCH_PTE_SWP_EXCLUSIVE by stealing one bit from the
+> offset. This reduces the maximum swap space per file to 64 GiB (was 128
+> GiB).
+>=20
+> While at it drop the PTE_TYPE_FAULT from __swp_entry_to_pte() which is
+> defined to be 0 and is rather confusing because we should be dealing
+> with "Linux PTEs" not "hardware PTEs". Also, properly mask the type in
+> __swp_entry().
 
-Achieve this by refactoring the code to pass whether dl accoutning needs
-an update to rebuild_sched_domains(). And while at it, rename
-rebuild_root_domains() to update_dl_rd_accounting() which I believe is
-a more representative name since we are not really rebuilding the root
-domains, but rather updating dl accounting at the root domain.
+Today's -next (and at least back to Friday, older logs are unclear - I
+only noticed -next issues today) fails to NFS boot on an AT91SAM9G20-EK
+(an old ARMv5 platform) with multi_v5_defconfig, a bisect appears to
+point to this patch (20aae9eff5acd8f5 in today's -next) as the culprit.
 
-Some users of rebuild_sched_domains() will skip dl accounting update
-now:
+The failure happens at some point after starting userspace, the kernel
+starts spamming the console with messages in the form:
 
-	* Update sched domains when relaxing the domain level in cpuset
-	  which only impacts searching level in load balance
-	* update sched domains when cpufreq governor changes and we need
-	  to create the perf domains
+    get_swap_device: Bad swap file entry 10120d20
 
-Users in arch/x86 and arch/s390 are left with the old behavior.
+repeating the same entry number, though different numbers per boot.  The
+system is booting a Debian userspace and shouldn't have swap configured
+(I verfified that successful boots don't), though it only has 64M of RAM
+so there will be some memory pressure, especially during boot.  The
+exact point things fall over seems to vary a little.
 
-Debugged-by: Rick Yiu <rickyiu@google.com>
-Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
----
+A sample failing job with the full log is here:
 
-Changes in v3:
+    https://lava.sirena.org.uk/scheduler/job/262719
 
-	* Change the logic to avoid using cpuhp_tasks_frozen which can be racy
-	  and have dependency on context
-	* Refactor the code to pass whether dl accounting needs to be updated
-	  down the call chain
-	* Teach cpuset_force_rebuild() to take a reason argument and convert
-	  the variable into int
-	* Rename rebuild_root_domains() into update_dl_rd_accounting() as
-	  that's what I believe it's only doing
+Full bisect log:
 
-v2 discussion: https://lore.kernel.org/lkml/20230120194822.962958-1-qyousef@layalina.io/
-v1 discussion: https://lore.kernel.org/lkml/20221216233501.gh6m75e7s66dmjgo@airbuntu/
+git bisect start
+# bad: [129af770823407ee115a56c69a04b440fd2fbe61] Add linux-next specific f=
+iles for 20230206
+git bisect bad 129af770823407ee115a56c69a04b440fd2fbe61
+# good: [4ec5183ec48656cec489c49f989c508b68b518e3] Linux 6.2-rc7
+git bisect good 53b3c6467004c627f42d96ef839b223a749bcdd9
+# good: [17b9d0b05d4fa79afb7bd00edb1b97397418a57a] Merge branch 'master' of=
+ git://git.kernel.org/pub/scm/linux/kernel/git/herbert/cryptodev-2.6.git
+git bisect good 17b9d0b05d4fa79afb7bd00edb1b97397418a57a
+# good: [7044a4e1fab22f437d275b1cf85f5c925741276b] Merge branch 'for-next' =
+of git://git.kernel.org/pub/scm/linux/kernel/git/trace/linux-trace.git
+git bisect good 7044a4e1fab22f437d275b1cf85f5c925741276b
+# good: [bef6844b00f0c24543d60b79c558f353a43709f1] Merge branch 'staging-ne=
+xt' of git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+git bisect good bef6844b00f0c24543d60b79c558f353a43709f1
+# good: [f6737c53676f9db99daee069407daf203e75bc0f] Merge branch 'for-next' =
+of git://git.kernel.org/pub/scm/linux/kernel/git/rppt/memblock.git
+git bisect good f6737c53676f9db99daee069407daf203e75bc0f
+# bad: [05cda97ecb7046f4192a921741aae33b300dd628] mm: factor out a swap_wri=
+tepage_bdev helper
+git bisect bad 05cda97ecb7046f4192a921741aae33b300dd628
+# good: [ee0800c2f6a9e605947ce499d79fb7e2be16d6dd] mm: convert page_add_ano=
+n_rmap() to use a folio internally
+git bisect good ee0800c2f6a9e605947ce499d79fb7e2be16d6dd
+# bad: [590a2b5f0a9b740e415e0d52bd8a0f87fc15b87b] ceph: convert ceph_writep=
+ages_start() to use filemap_get_folios_tag()
+git bisect bad 590a2b5f0a9b740e415e0d52bd8a0f87fc15b87b
+# good: [92644f583d5124b60bc20a3dd21b0bc9142f020c] mm/khugepaged: introduce=
+ release_pte_folio() to replace release_pte_page()
+git bisect good 92644f583d5124b60bc20a3dd21b0bc9142f020c
+# bad: [cca10df1029373cda5904887544ca6fcbbd2bac7] sh/mm: support __HAVE_ARC=
+H_PTE_SWP_EXCLUSIVE
+git bisect bad cca10df1029373cda5904887544ca6fcbbd2bac7
+# bad: [ad464ff2c0f91fcacc24167fc435aa45fe0b7d1b] m68k/mm: remove dummy __s=
+wp definitions for nommu
+git bisect bad ad464ff2c0f91fcacc24167fc435aa45fe0b7d1b
+# bad: [20aae9eff5acd8f50f72adca1176f9269a46b827] arm/mm: support __HAVE_AR=
+CH_PTE_SWP_EXCLUSIVE
+git bisect bad 20aae9eff5acd8f50f72adca1176f9269a46b827
+# good: [2321ba3e3733f513e46e29b9c70512ecddbf1085] mm/debug_vm_pgtable: mor=
+e pte_swp_exclusive() sanity checks
+git bisect good 2321ba3e3733f513e46e29b9c70512ecddbf1085
+# good: [4a446b3dd335d0bd14a5ca3e563688de3637be0c] arc/mm: support __HAVE_A=
+RCH_PTE_SWP_EXCLUSIVE
+git bisect good 4a446b3dd335d0bd14a5ca3e563688de3637be0c
+# first bad commit: [20aae9eff5acd8f50f72adca1176f9269a46b827] arm/mm: supp=
+ort __HAVE_ARCH_PTE_SWP_EXCLUSIVE
 
- arch/s390/kernel/topology.c  |  2 +-
- arch/x86/kernel/itmt.c       |  6 ++---
- drivers/base/arch_topology.c |  2 +-
- include/linux/cpuset.h       | 12 ++++++----
- kernel/cgroup/cpuset.c       | 43 ++++++++++++++++++++----------------
- kernel/sched/core.c          |  2 +-
- kernel/sched/topology.c      |  2 +-
- 7 files changed, 39 insertions(+), 30 deletions(-)
+--NWKvUnutYufNxY+M
+Content-Type: application/pgp-signature; name="signature.asc"
 
-diff --git a/arch/s390/kernel/topology.c b/arch/s390/kernel/topology.c
-index c6eecd4a5302..29d57154a3f1 100644
---- a/arch/s390/kernel/topology.c
-+++ b/arch/s390/kernel/topology.c
-@@ -333,7 +333,7 @@ int arch_update_cpu_topology(void)
- 
- static void topology_work_fn(struct work_struct *work)
- {
--	rebuild_sched_domains();
-+	rebuild_sched_domains(true);
- }
- 
- void topology_schedule_update(void)
-diff --git a/arch/x86/kernel/itmt.c b/arch/x86/kernel/itmt.c
-index 9ff480e94511..6f1446223697 100644
---- a/arch/x86/kernel/itmt.c
-+++ b/arch/x86/kernel/itmt.c
-@@ -56,7 +56,7 @@ static int sched_itmt_update_handler(struct ctl_table *table, int write,
- 
- 	if (!ret && write && old_sysctl != sysctl_sched_itmt_enabled) {
- 		x86_topology_update = true;
--		rebuild_sched_domains();
-+		rebuild_sched_domains(true);
- 	}
- 
- 	mutex_unlock(&itmt_update_mutex);
-@@ -125,7 +125,7 @@ int sched_set_itmt_support(void)
- 	sysctl_sched_itmt_enabled = 1;
- 
- 	x86_topology_update = true;
--	rebuild_sched_domains();
-+	rebuild_sched_domains(true);
- 
- 	mutex_unlock(&itmt_update_mutex);
- 
-@@ -161,7 +161,7 @@ void sched_clear_itmt_support(void)
- 		/* disable sched_itmt if we are no longer ITMT capable */
- 		sysctl_sched_itmt_enabled = 0;
- 		x86_topology_update = true;
--		rebuild_sched_domains();
-+		rebuild_sched_domains(true);
- 	}
- 
- 	mutex_unlock(&itmt_update_mutex);
-diff --git a/drivers/base/arch_topology.c b/drivers/base/arch_topology.c
-index e7d6e6657ffa..90d8a42335e6 100644
---- a/drivers/base/arch_topology.c
-+++ b/drivers/base/arch_topology.c
-@@ -253,7 +253,7 @@ int topology_update_cpu_topology(void)
- static void update_topology_flags_workfn(struct work_struct *work)
- {
- 	update_topology = 1;
--	rebuild_sched_domains();
-+	rebuild_sched_domains(true);
- 	pr_debug("sched_domain hierarchy rebuilt, flags updated\n");
- 	update_topology = 0;
- }
-diff --git a/include/linux/cpuset.h b/include/linux/cpuset.h
-index d58e0476ee8e..e30d4cd35ef7 100644
---- a/include/linux/cpuset.h
-+++ b/include/linux/cpuset.h
-@@ -18,6 +18,10 @@
- #include <linux/mmu_context.h>
- #include <linux/jump_label.h>
- 
-+#define CPUSET_FORCE_REBUILD_RESET		0
-+#define CPUSET_FORCE_REBUILD_SUSPEND_RESUME	1
-+#define CPUSET_FORCE_REBUILD_PRS_ERROR		2
-+
- #ifdef CONFIG_CPUSETS
- 
- /*
-@@ -68,7 +72,7 @@ static inline bool cpusets_insane_config(void)
- 
- extern int cpuset_init(void);
- extern void cpuset_init_smp(void);
--extern void cpuset_force_rebuild(void);
-+extern void cpuset_force_rebuild(int reason);
- extern void cpuset_update_active_cpus(void);
- extern void cpuset_wait_for_hotplug(void);
- extern void cpuset_read_lock(void);
-@@ -132,7 +136,7 @@ static inline int cpuset_do_slab_mem_spread(void)
- 
- extern bool current_cpuset_is_being_rebound(void);
- 
--extern void rebuild_sched_domains(void);
-+extern void rebuild_sched_domains(bool update_dl_accounting);
- 
- extern void cpuset_print_current_mems_allowed(void);
- 
-@@ -187,7 +191,7 @@ static inline bool cpusets_insane_config(void) { return false; }
- static inline int cpuset_init(void) { return 0; }
- static inline void cpuset_init_smp(void) {}
- 
--static inline void cpuset_force_rebuild(void) { }
-+static inline void cpuset_force_rebuild(int reason) { }
- 
- static inline void cpuset_update_active_cpus(void)
- {
-@@ -276,7 +280,7 @@ static inline bool current_cpuset_is_being_rebound(void)
- 	return false;
- }
- 
--static inline void rebuild_sched_domains(void)
-+static inline void rebuild_sched_domains(bool update_dl_accounting)
- {
- 	partition_sched_domains(1, NULL, NULL);
- }
-diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
-index a29c0b13706b..e5ddc8e11e5d 100644
---- a/kernel/cgroup/cpuset.c
-+++ b/kernel/cgroup/cpuset.c
-@@ -1079,7 +1079,7 @@ static void update_tasks_root_domain(struct cpuset *cs)
- 	css_task_iter_end(&it);
- }
- 
--static void rebuild_root_domains(void)
-+static void update_dl_rd_accounting(void)
- {
- 	struct cpuset *cs = NULL;
- 	struct cgroup_subsys_state *pos_css;
-@@ -1117,11 +1117,13 @@ static void rebuild_root_domains(void)
- 
- static void
- partition_and_rebuild_sched_domains(int ndoms_new, cpumask_var_t doms_new[],
--				    struct sched_domain_attr *dattr_new)
-+				    struct sched_domain_attr *dattr_new,
-+				    bool update_dl_accounting)
- {
- 	mutex_lock(&sched_domains_mutex);
- 	partition_sched_domains_locked(ndoms_new, doms_new, dattr_new);
--	rebuild_root_domains();
-+	if (update_dl_accounting)
-+		update_dl_rd_accounting();
- 	mutex_unlock(&sched_domains_mutex);
- }
- 
-@@ -1136,7 +1138,7 @@ partition_and_rebuild_sched_domains(int ndoms_new, cpumask_var_t doms_new[],
-  *
-  * Call with cpuset_rwsem held.  Takes cpus_read_lock().
-  */
--static void rebuild_sched_domains_locked(void)
-+static void rebuild_sched_domains_locked(bool update_dl_accounting)
- {
- 	struct cgroup_subsys_state *pos_css;
- 	struct sched_domain_attr *attr;
-@@ -1185,19 +1187,19 @@ static void rebuild_sched_domains_locked(void)
- 	ndoms = generate_sched_domains(&doms, &attr);
- 
- 	/* Have scheduler rebuild the domains */
--	partition_and_rebuild_sched_domains(ndoms, doms, attr);
-+	partition_and_rebuild_sched_domains(ndoms, doms, attr, update_dl_accounting);
- }
- #else /* !CONFIG_SMP */
--static void rebuild_sched_domains_locked(void)
-+static void rebuild_sched_domains_locked(bool update_dl_accounting)
- {
- }
- #endif /* CONFIG_SMP */
- 
--void rebuild_sched_domains(void)
-+void rebuild_sched_domains(bool update_dl_accounting)
- {
- 	cpus_read_lock();
- 	percpu_down_write(&cpuset_rwsem);
--	rebuild_sched_domains_locked();
-+	rebuild_sched_domains_locked(update_dl_accounting);
- 	percpu_up_write(&cpuset_rwsem);
- 	cpus_read_unlock();
- }
-@@ -1681,7 +1683,7 @@ static void update_cpumasks_hier(struct cpuset *cs, struct tmpmasks *tmp,
- 	rcu_read_unlock();
- 
- 	if (need_rebuild_sched_domains)
--		rebuild_sched_domains_locked();
-+		rebuild_sched_domains_locked(true);
- }
- 
- /**
-@@ -2136,7 +2138,7 @@ static int update_relax_domain_level(struct cpuset *cs, s64 val)
- 		cs->relax_domain_level = val;
- 		if (!cpumask_empty(cs->cpus_allowed) &&
- 		    is_sched_load_balance(cs))
--			rebuild_sched_domains_locked();
-+			rebuild_sched_domains_locked(false);
- 	}
- 
- 	return 0;
-@@ -2202,7 +2204,7 @@ static int update_flag(cpuset_flagbits_t bit, struct cpuset *cs,
- 	spin_unlock_irq(&callback_lock);
- 
- 	if (!cpumask_empty(trialcs->cpus_allowed) && balance_flag_changed)
--		rebuild_sched_domains_locked();
-+		rebuild_sched_domains_locked(true);
- 
- 	if (spread_flag_changed)
- 		update_tasks_flags(cs);
-@@ -2315,7 +2317,7 @@ static int update_prstate(struct cpuset *cs, int new_prs)
- 		update_sibling_cpumasks(parent, cs, &tmpmask);
- 
- 	if (!sched_domain_rebuilt)
--		rebuild_sched_domains_locked();
-+		rebuild_sched_domains_locked(true);
- out:
- 	/*
- 	 * Make partition invalid if an error happen
-@@ -3389,11 +3391,11 @@ hotplug_update_tasks(struct cpuset *cs,
- 		update_tasks_nodemask(cs);
- }
- 
--static bool force_rebuild;
-+static int force_rebuild;
- 
--void cpuset_force_rebuild(void)
-+void cpuset_force_rebuild(int reason)
- {
--	force_rebuild = true;
-+	force_rebuild = reason;
- }
- 
- /**
-@@ -3489,7 +3491,7 @@ static void cpuset_hotplug_update_tasks(struct cpuset *cs, struct tmpmasks *tmp)
- 				WRITE_ONCE(cs->prs_err, PERR_HOTPLUG);
- 			notify_partition_change(cs, old_prs);
- 		}
--		cpuset_force_rebuild();
-+		cpuset_force_rebuild(CPUSET_FORCE_REBUILD_PRS_ERROR);
- 	}
- 
- 	/*
-@@ -3499,7 +3501,7 @@ static void cpuset_hotplug_update_tasks(struct cpuset *cs, struct tmpmasks *tmp)
- 	else if (is_partition_valid(parent) && is_partition_invalid(cs)) {
- 		update_parent_subparts_cpumask(cs, partcmd_update, NULL, tmp);
- 		if (is_partition_valid(cs))
--			cpuset_force_rebuild();
-+			cpuset_force_rebuild(CPUSET_FORCE_REBUILD_PRS_ERROR);
- 	}
- 
- update_tasks:
-@@ -3626,8 +3628,11 @@ static void cpuset_hotplug_workfn(struct work_struct *work)
- 
- 	/* rebuild sched domains if cpus_allowed has changed */
- 	if (cpus_updated || force_rebuild) {
--		force_rebuild = false;
--		rebuild_sched_domains();
-+		bool update_dl_accounting = cpus_updated ||
-+				force_rebuild == CPUSET_FORCE_REBUILD_PRS_ERROR;
-+
-+		force_rebuild = CPUSET_FORCE_REBUILD_RESET;
-+		rebuild_sched_domains(update_dl_accounting);
- 	}
- 
- 	free_cpumasks(NULL, ptmp);
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 4580fe3e1d0c..d68eac04c851 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -9485,7 +9485,7 @@ static void cpuset_cpu_active(void)
- 		 * restore the original sched domains by considering the
- 		 * cpuset configurations.
- 		 */
--		cpuset_force_rebuild();
-+		cpuset_force_rebuild(CPUSET_FORCE_REBUILD_SUSPEND_RESUME);
- 	}
- 	cpuset_update_active_cpus();
- }
-diff --git a/kernel/sched/topology.c b/kernel/sched/topology.c
-index d93c3379e901..bf33b84c511a 100644
---- a/kernel/sched/topology.c
-+++ b/kernel/sched/topology.c
-@@ -214,7 +214,7 @@ void rebuild_sched_domains_energy(void)
- {
- 	mutex_lock(&sched_energy_mutex);
- 	sched_energy_update = true;
--	rebuild_sched_domains();
-+	rebuild_sched_domains(false);
- 	sched_energy_update = false;
- 	mutex_unlock(&sched_energy_mutex);
- }
--- 
-2.25.1
+-----BEGIN PGP SIGNATURE-----
 
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmPhnAwACgkQJNaLcl1U
+h9D7vgf/U3zBEYllgLPQkDLvGQVNlA4YlBJWjoZUOxdqvOZpwxsxFZ/aia+43O0B
+TMZThl9G4WF69YEjqEYV7m4FyfodFzxRw67Z/BCVTINhlSPp8SakUVz0PyMB6IzP
+CpyMhm1L4Qk4wu+FOVPxQ2pEdWlYa2RWWD3TUQUIw/kTwiBILlQAQocSsrKSHSya
+QoivSxIlvDbX1b3D2XPYaTnnQfHnGrcTXKHxR+r01jHeLvwrQ/Q8wEVSsB/lgItx
+bcLc4KvDG0yCWfPa30KHM30ccbZvLmWVw7D7WqT0ASjc2Rkvgi1G7q3QpOOZPWC+
+QjoJLvNMLQb/bbvVbDMElcjLaSuyQw==
+=EHrm
+-----END PGP SIGNATURE-----
+
+--NWKvUnutYufNxY+M--
