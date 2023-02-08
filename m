@@ -2,139 +2,168 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 95663C05027
-	for <linux-s390@archiver.kernel.org>; Wed,  8 Feb 2023 13:46:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 938F3C05027
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Feb 2023 14:12:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231160AbjBHNpj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 8 Feb 2023 08:45:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45076 "EHLO
+        id S230134AbjBHOMz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 8 Feb 2023 09:12:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231378AbjBHNpK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Feb 2023 08:45:10 -0500
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D0A23B3F6;
-        Wed,  8 Feb 2023 05:45:05 -0800 (PST)
-Received: by mail-pj1-x102c.google.com with SMTP id j1so12548713pjd.0;
-        Wed, 08 Feb 2023 05:45:05 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=alfJUZBV+BrVmvoYfSmGRjxyktkbme4Dc/pX5IUBNAo=;
-        b=qOV7ysnAAE47VMzfW+KW7uRQ3waC/E8XmADC10hm4irUlpgyQ7W9iYPxZ4ELgAqlhT
-         LjIlmiu2gGIqass/jeVRMyvjNwUEv+WV5tdMSo2zQLMRN2vxuod8wxnC6nkM3y/R+I+h
-         K8aFy5z+AEHJZW5D7ypP7nruC1fDjCbfW2Ce/nkXTsnVFsJ86n5MCU4QSDWSSK+YQC1V
-         eR7xjDBpbTf+S+YnpbqpO3YFtt4f2FioYXoa7qazR595af1e5Vo1MyyVHSzK9M+3XQCB
-         tZ+YpRzE0Ktq/8lxY6zE8zSXlnjcecUsfEcPZIpiBBxPwscyLA9a8qvnWbtq6WFjvcKS
-         imlw==
+        with ESMTP id S229965AbjBHOMx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Feb 2023 09:12:53 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 613D73A5AD
+        for <linux-s390@vger.kernel.org>; Wed,  8 Feb 2023 06:12:13 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1675865532;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=MVdXAMmBKMdGVdB031db9qoOwXwbq1WnNqDyKF+cm50=;
+        b=dLwSavBU4t06fi51AXk6R87JknE+gFYHznnwXgX5QTAxgvNDLfAldR6i0/T+7Kdw7RvxWT
+        WigG6t9fWr8ISG3Tt+XgDnQ7cCZvwsT+aiPM4xA4Dt1b3nIkyDqb7LtTkYLWXcBKitdFPP
+        5suV0rYX7dtkXQpbXC1qoZXdo1Y1NKU=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-146-TWGaqVrrNjiSdVdIgJq5lw-1; Wed, 08 Feb 2023 09:12:11 -0500
+X-MC-Unique: TWGaqVrrNjiSdVdIgJq5lw-1
+Received: by mail-wm1-f69.google.com with SMTP id a20-20020a05600c349400b003dfecb98d38so1225122wmq.0
+        for <linux-s390@vger.kernel.org>; Wed, 08 Feb 2023 06:12:11 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=alfJUZBV+BrVmvoYfSmGRjxyktkbme4Dc/pX5IUBNAo=;
-        b=MnsJNTX4TAfzXIsKsS8jskLfOat+iq7B4ctpS7Y5HTVMmIsEwvUtwbAYCCcF4ULn49
-         Cxr02jSixQqdaLJA87mUEzMc1dn+hKyANKB5wV00IxH4UZsZ+hKSR4PELSN20Pmi+WdR
-         OKtwLdk3HWzoEtKkSkGgLJpLKjZ3iC7ADCu84etPwVQLs+lxNHg1LcB3ZfHWmVIQN4Z/
-         /fnZhS1UlaxkuiQZnW5RmbWohBjcWG6fiVFkRXTXAXXYEav4gK2ZKL5mGSAmpPFPdPTY
-         SCyp1u5gcdHo3p6UqD9ddiS70EIjEucAuWfJxqA7t5+fW2ReVTMBLDHoqkDG0WsR0DSj
-         Iftw==
-X-Gm-Message-State: AO0yUKUar6sEBP2fYdnzmHDa4OTNoshCZtlHsBw/6zc078ajSUEvke9S
-        scA/bnD/3e+uT9EHfInIb1o=
-X-Google-Smtp-Source: AK7set+sPEOSedwTYT2y4bNUQKcEXNgoZqhXS89DjZ61bh7BdhGz84e05koI5bATzWm0v/BjRJNztQ==
-X-Received: by 2002:a17:903:120b:b0:194:58c7:ab79 with SMTP id l11-20020a170903120b00b0019458c7ab79mr9146382plh.63.1675863904496;
-        Wed, 08 Feb 2023 05:45:04 -0800 (PST)
-Received: from localhost ([2400:8902::f03c:93ff:fe27:642a])
-        by smtp.gmail.com with ESMTPSA id jc10-20020a17090325ca00b00199190b00efsm6056928plb.97.2023.02.08.05.44.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 08 Feb 2023 05:45:02 -0800 (PST)
-Date:   Wed, 8 Feb 2023 13:44:49 +0000
-From:   Hyeonggon Yoo <42.hyeyoo@gmail.com>
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     torvalds@linux-foundation.org, corbet@lwn.net, will@kernel.org,
-        boqun.feng@gmail.com, mark.rutland@arm.com,
-        catalin.marinas@arm.com, dennis@kernel.org, tj@kernel.org,
-        cl@linux.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
-        hpa@zytor.com, joro@8bytes.org, suravee.suthikulpanit@amd.com,
-        robin.murphy@arm.com, dwmw2@infradead.org,
-        baolu.lu@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
-        Herbert Xu <herbert@gondor.apana.org.au>, davem@davemloft.net,
-        penberg@kernel.org, rientjes@google.com, iamjoonsoo.kim@lge.com,
-        Andrew Morton <akpm@linux-foundation.org>, vbabka@suse.cz,
-        roman.gushchin@linux.dev, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        linux-s390@vger.kernel.org, iommu@lists.linux.dev,
-        linux-arch@vger.kernel.org, linux-crypto@vger.kernel.org
-Subject: Re: [PATCH v2 09/10] arch: Remove cmpxchg_double
-Message-ID: <Y+OnUXkKcT2Y7Yiq@localhost>
-References: <20230202145030.223740842@infradead.org>
- <20230202152655.746130134@infradead.org>
+        h=content-transfer-encoding:in-reply-to:subject:organization:from
+         :references:cc:to:content-language:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=MVdXAMmBKMdGVdB031db9qoOwXwbq1WnNqDyKF+cm50=;
+        b=qrZFueaAabbk4MtGyaXI22PAeUwHJ8E1JwxrTog3G3yIQpY3ZQED0Q8nbqkJoS951s
+         2rRsRUI4XJOVHClYvloSNcgqxvRRNoYTKeEhgR9ROkFz8MKA/64t2gPtieLyGTaW5BMx
+         wQUfpM0Fy2V+MmNlyzc+hdanQl6AtOVwQdJJjpq0bpbNtjnb62pd/GW/+DQ2OrxBmE/9
+         KDorHxZfzi5OW/IEkh2FVc4SGy16eSyUZW8/A35pZ66yX3BnTCu+RbXYfOPhQA5A3fN5
+         PXEJbXicaLoG+Lk59I3/+A57K5f5WeVYaJIKs6E1LGdLYcHGmzCF1bva7dduQo5DSsrk
+         RN8g==
+X-Gm-Message-State: AO0yUKUpCmx/o24S8idJTXFIWtfH5zRoztukexqVGJ4VLQgLEzs7Kegx
+        vKbfmdSUEsOO7B3ftNUlYjgy4AO5D4YWKBdt50P4XY6tCvup8lJyJcYZIAriq1PpAiwE82TycE/
+        7llsWyDRpUEiwoMCk+K+nng==
+X-Received: by 2002:a05:600c:2ac8:b0:3d9:fb59:c16b with SMTP id t8-20020a05600c2ac800b003d9fb59c16bmr6807536wme.36.1675865529851;
+        Wed, 08 Feb 2023 06:12:09 -0800 (PST)
+X-Google-Smtp-Source: AK7set9buY9+5cxJmjHAU1gwkYhkjh45ggBfiU2I1/g0SGqFxOSQ99Rkm86npGHpTIA79oxlUNrbqQ==
+X-Received: by 2002:a05:600c:2ac8:b0:3d9:fb59:c16b with SMTP id t8-20020a05600c2ac800b003d9fb59c16bmr6807491wme.36.1675865529588;
+        Wed, 08 Feb 2023 06:12:09 -0800 (PST)
+Received: from ?IPV6:2003:cb:c704:b300:758c:6214:cd51:8ab0? (p200300cbc704b300758c6214cd518ab0.dip0.t-ipconnect.de. [2003:cb:c704:b300:758c:6214:cd51:8ab0])
+        by smtp.gmail.com with ESMTPSA id a3-20020a05600c224300b003db01178b62sm2066527wmm.40.2023.02.08.06.12.07
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 08 Feb 2023 06:12:08 -0800 (PST)
+Message-ID: <39fd91e3-c93b-23c6-afc6-cbe473bb0ca9@redhat.com>
+Date:   Wed, 8 Feb 2023 15:12:06 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230202152655.746130134@infradead.org>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.0
+Content-Language: en-US
+To:     Mark Brown <broonie@kernel.org>
+Cc:     linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Hugh Dickins <hughd@google.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Nadav Amit <namit@vmware.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Peter Xu <peterx@redhat.com>, linux-mm@kvack.org,
+        x86@kernel.org, linux-alpha@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
+        Russell King <linux@armlinux.org.uk>
+References: <20230113171026.582290-1-david@redhat.com>
+ <20230113171026.582290-5-david@redhat.com> <Y+GcDFMNHw2cdDN1@sirena.org.uk>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+Subject: Re: [PATCH mm-unstable v1 04/26] arm/mm: support
+ __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+In-Reply-To: <Y+GcDFMNHw2cdDN1@sirena.org.uk>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Feb 02, 2023 at 03:50:39PM +0100, Peter Zijlstra wrote:
-> No moar users, remove the monster.
+On 07.02.23 01:32, Mark Brown wrote:
+> On Fri, Jan 13, 2023 at 06:10:04PM +0100, David Hildenbrand wrote:
+>> Let's support __HAVE_ARCH_PTE_SWP_EXCLUSIVE by stealing one bit from the
+>> offset. This reduces the maximum swap space per file to 64 GiB (was 128
+>> GiB).
+>>
+>> While at it drop the PTE_TYPE_FAULT from __swp_entry_to_pte() which is
+>> defined to be 0 and is rather confusing because we should be dealing
+>> with "Linux PTEs" not "hardware PTEs". Also, properly mask the type in
+>> __swp_entry().
 > 
-> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> ---
->  Documentation/core-api/this_cpu_ops.rst    |    2 -
->  arch/arm64/include/asm/atomic_ll_sc.h      |   33 ----------------
->  arch/arm64/include/asm/atomic_lse.h        |   36 ------------------
->  arch/arm64/include/asm/cmpxchg.h           |   46 -----------------------
->  arch/arm64/include/asm/percpu.h            |   10 -----
->  arch/s390/include/asm/cmpxchg.h            |   34 -----------------
->  arch/s390/include/asm/percpu.h             |   18 ---------
->  arch/x86/include/asm/cmpxchg.h             |   25 ------------
->  arch/x86/include/asm/cmpxchg_32.h          |    1 
->  arch/x86/include/asm/cmpxchg_64.h          |    1 
->  arch/x86/include/asm/percpu.h              |   41 --------------------
->  include/asm-generic/percpu.h               |   58 -----------------------------
->  include/linux/atomic/atomic-instrumented.h |   17 --------
->  include/linux/percpu-defs.h                |   38 -------------------
->  scripts/atomic/gen-atomic-instrumented.sh  |   17 ++------
->  15 files changed, 6 insertions(+), 371 deletions(-)
+> Today's -next (and at least back to Friday, older logs are unclear - I
+> only noticed -next issues today) fails to NFS boot on an AT91SAM9G20-EK
+> (an old ARMv5 platform) with multi_v5_defconfig, a bisect appears to
+> point to this patch (20aae9eff5acd8f5 in today's -next) as the culprit.
+
+It's been in -next for quite a while, thanks for the report!
+
 > 
-> --- a/arch/x86/include/asm/cmpxchg.h
-> +++ b/arch/x86/include/asm/cmpxchg.h
-> --- a/arch/x86/include/asm/percpu.h
-> +++ b/arch/x86/include/asm/percpu.h
-> @@ -385,30 +368,6 @@ do {									\
->  #define this_cpu_add_return_8(pcp, val)		percpu_add_return_op(8, volatile, pcp, val)
->  #define this_cpu_xchg_8(pcp, nval)		percpu_xchg_op(8, volatile, pcp, nval)
->  #define this_cpu_cmpxchg_8(pcp, oval, nval)	percpu_cmpxchg_op(8, volatile, pcp, oval, nval)
-> -
-> -/*
-> - * Pretty complex macro to generate cmpxchg16 instruction.  The instruction
-> - * is not supported on early AMD64 processors so we must be able to emulate
-> - * it in software.  The address used in the cmpxchg16 instruction must be
-> - * aligned to a 16 byte boundary.
-> - */
-> -#define percpu_cmpxchg16b_double(pcp1, pcp2, o1, o2, n1, n2)		\
-> -({									\
-> -	bool __ret;							\
-> -	typeof(pcp1) __o1 = (o1), __n1 = (n1);				\
-> -	typeof(pcp2) __o2 = (o2), __n2 = (n2);				\
-> -	alternative_io("leaq %P1,%%rsi\n\tcall this_cpu_cmpxchg16b_emu\n\t", \
+> The failure happens at some point after starting userspace, the kernel
+> starts spamming the console with messages in the form:
+> 
+>      get_swap_device: Bad swap file entry 10120d20
+> 
 
-I guess now arch/x86/lib/cmpxchg*b_emu.S could be dropped too?
+_swap_info_get() tells us that the swp type seems to be bad.
+I assume we're dealing with a migration entry, if swap is disabled, and fail to
+detect is_migration_entry() correctly because the type is messed up.
 
-> -		       "cmpxchg16b " __percpu_arg(1) "\n\tsetz %0\n\t",	\
-> -		       X86_FEATURE_CX16,				\
-> -		       ASM_OUTPUT2("=a" (__ret), "+m" (pcp1),		\
-> -				   "+m" (pcp2), "+d" (__o2)),		\
-> -		       "b" (__n1), "c" (__n2), "a" (__o1) : "rsi");	\
-> -	__ret;								\
-> -})
-> -
-> -#define raw_cpu_cmpxchg_double_8	percpu_cmpxchg16b_double
-> -#define this_cpu_cmpxchg_double_8	percpu_cmpxchg16b_double
-> -
->  #endif
+Could you give the following a test?
+
+
+ From 8c4bdbd9862f85782d5919d044c172b584063e83 Mon Sep 17 00:00:00 2001
+From: David Hildenbrand <david@redhat.com>
+Date: Wed, 8 Feb 2023 15:08:01 +0100
+Subject: [PATCH] arm/mm: Fix swp type masking in __swp_entry()
+
+We're masking with the number of type bits instead of the type mask, which
+is obviously wrong.
+
+Fixes: 20aae9eff5ac ("arm/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE")
+Reported-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: David Hildenbrand <david@redhat.com>
+---
+  arch/arm/include/asm/pgtable.h | 2 +-
+  1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm/include/asm/pgtable.h b/arch/arm/include/asm/pgtable.h
+index 2e626e6da9a3..a58ccbb406ad 100644
+--- a/arch/arm/include/asm/pgtable.h
++++ b/arch/arm/include/asm/pgtable.h
+@@ -292,7 +292,7 @@ static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
+  
+  #define __swp_type(x)		(((x).val >> __SWP_TYPE_SHIFT) & __SWP_TYPE_MASK)
+  #define __swp_offset(x)		((x).val >> __SWP_OFFSET_SHIFT)
+-#define __swp_entry(type, offset) ((swp_entry_t) { (((type) & __SWP_TYPE_BITS) << __SWP_TYPE_SHIFT) | \
++#define __swp_entry(type, offset) ((swp_entry_t) { (((type) & __SWP_TYPE_MASK) << __SWP_TYPE_SHIFT) | \
+  						   ((offset) << __SWP_OFFSET_SHIFT) })
+  
+  #define __pte_to_swp_entry(pte)	((swp_entry_t) { pte_val(pte) })
+-- 
+2.39.1
+
+
+-- 
+Thanks,
+
+David / dhildenb
+
