@@ -2,138 +2,133 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 164E7C636CC
-	for <linux-s390@archiver.kernel.org>; Tue,  7 Feb 2023 23:30:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 54731C636CC
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Feb 2023 02:58:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229519AbjBGXaM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 7 Feb 2023 18:30:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34352 "EHLO
+        id S229735AbjBHC6g (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 7 Feb 2023 21:58:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229515AbjBGXaL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Feb 2023 18:30:11 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1119822A22;
-        Tue,  7 Feb 2023 15:30:07 -0800 (PST)
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 317ND6n8014197;
-        Tue, 7 Feb 2023 23:30:02 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=7iQpkqbTs7RU0852al0yH5gnszO5M0V2QRE43sqvS9M=;
- b=GjRBKThyLhMjKqPGM56j0wPIhZa1n2L+x6w6YqVVgtOT3+H8YZS/nhLhNkE4hmRenTe7
- 4yIJSblBuuDppy+JhlUXSZwbRA9wCRzmDs4tS9QylnSw7HC6ZW9Nlmk8sEKjIdlJ5akh
- prrbINUXGLqvYut+dWYsMOUQ8pzqpMa48d9kmk0c1VGqW2sSfpk+9SelMakS6GFh26UC
- xmY/k2jo+iRS6l/1B9wNDRqSznRAWB55LtxoDtOFNc3/or70ApX70gkJYxtjl3piqpho
- 2nUdhHRJlRco70vY3A5L2723SHeiDZTE6GpkIKwOyOTWqz2OpdMnjmLoiYtvyeQR01vn 1g== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nm04dgafs-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Feb 2023 23:30:01 +0000
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 317NSFRW003978;
-        Tue, 7 Feb 2023 23:30:01 GMT
-Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nm04dgafc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Feb 2023 23:30:01 +0000
-Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
-        by ppma02dal.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 317NFBq4001991;
-        Tue, 7 Feb 2023 23:30:00 GMT
-Received: from smtprelay02.wdc07v.mail.ibm.com ([9.208.129.120])
-        by ppma02dal.us.ibm.com (PPS) with ESMTPS id 3nhf07ewr4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Feb 2023 23:30:00 +0000
-Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
-        by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 317NTw9N8192536
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 7 Feb 2023 23:29:58 GMT
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7228258043;
-        Tue,  7 Feb 2023 23:29:58 +0000 (GMT)
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2332658055;
-        Tue,  7 Feb 2023 23:29:57 +0000 (GMT)
-Received: from [9.211.153.50] (unknown [9.211.153.50])
-        by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
-        Tue,  7 Feb 2023 23:29:56 +0000 (GMT)
-Message-ID: <fe0d2dae-1a3e-e32f-e8b3-285a33d29422@linux.ibm.com>
-Date:   Wed, 8 Feb 2023 00:29:56 +0100
+        with ESMTP id S229718AbjBHC6f (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Feb 2023 21:58:35 -0500
+Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 473293D93A;
+        Tue,  7 Feb 2023 18:58:30 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R621e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0Vb9nfQH_1675825106;
+Received: from 30.221.145.160(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0Vb9nfQH_1675825106)
+          by smtp.aliyun-inc.com;
+          Wed, 08 Feb 2023 10:58:27 +0800
+Message-ID: <eed8b91e-0236-edc8-f744-e30adfff229f@linux.alibaba.com>
+Date:   Wed, 8 Feb 2023 10:58:25 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
  Gecko/20100101 Thunderbird/102.6.1
-Subject: Re: [net-next 0/2] Deliver confirm/delete rkey message in parallel
-To:     "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
+Subject: Re: [net-next 1/2] net/smc: allow confirm/delete rkey response
+ deliver multiplex
+Content-Language: en-US
+To:     Wenjia Zhang <wenjia@linux.ibm.com>, kgraul@linux.ibm.com,
         jaka@linux.ibm.com
 Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
         linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
 References: <1675755374-107598-1-git-send-email-alibuda@linux.alibaba.com>
-From:   Wenjia Zhang <wenjia@linux.ibm.com>
-In-Reply-To: <1675755374-107598-1-git-send-email-alibuda@linux.alibaba.com>
+ <1675755374-107598-2-git-send-email-alibuda@linux.alibaba.com>
+ <95e117f1-6f05-1c15-cddd-38be9cf7dd52@linux.ibm.com>
+From:   "D. Wythe" <alibuda@linux.alibaba.com>
+In-Reply-To: <95e117f1-6f05-1c15-cddd-38be9cf7dd52@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: AQO2V47LNTOC0pUM6Cl2JxcEGCnKlcMM
-X-Proofpoint-GUID: 5i4PQeFT34O400XfabBWAOk-_tT4aIrH
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
- definitions=2023-02-07_13,2023-02-06_03,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- mlxlogscore=999 mlxscore=0 adultscore=0 impostorscore=0 phishscore=0
- clxscore=1015 bulkscore=0 malwarescore=0 spamscore=0 lowpriorityscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2302070198
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 
 
-On 07.02.23 08:36, D. Wythe wrote:
-> From: "D. Wythe" <alibuda@linux.alibaba.com>
+On 2/8/23 7:15 AM, Wenjia Zhang wrote:
 > 
-> According to the SMC protocol specification, we know that all flows except
-> confirm_rkey adn delete_rkey are exclusive, confirm/delete rkey flows
-> can run concurrently (local and remote).
 > 
-> However, although the protocol allows, all flows are actually mutually
-> exclusive in implementation, deus to we are waiting for LLC message
-> in serial.
+> On 07.02.23 08:36, D. Wythe wrote:
+>> From: "D. Wythe" <alibuda@linux.alibaba.com>
+>>
+>> We know that all flows except confirm_rkey and delete_rkey are exclusive,
+>> confirm/delete rkey flows can run concurrently (local and remote).
+>>
+>> Although the protocol allows, all flows are actually mutually exclusive
+>> in implementation, dues to waiting for LLC messages is in serial.
+>>
+>> This aggravates the time for establishing or destroying a SMC-R
+>> connections, connections have to be queued in smc_llc_wait.
+>>
+>> We use rtokens or rkey to correlate a confirm/delete rkey message
+>> with its response.
+>>
+>> Before sending a message, we put context with rtokens or rkey into
+>> wait queue. When a response message received, we wakeup the context
+>> which with the same rtokens or rkey against the response message.
+>>
+>> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+>> ---
+>>   net/smc/smc_llc.c | 174 +++++++++++++++++++++++++++++++++++++++++-------------
+>>   net/smc/smc_wr.c  |  10 ----
+>>   net/smc/smc_wr.h  |  10 ++++
+>>   3 files changed, 143 insertions(+), 51 deletions(-)
+>>
 > 
-> On the one hand, this implementation does not conform to the protocol
-> specification, on the other hand, this implementation aggravates the
-> time for establishing or destroying a SMC-R connection, connection
-> have to be queued in smc_llc_wait.
+> [...]
 > 
-> This patch will improve the performance of the short link scenario
-> by about 5%. In fact, we all know that the performance bottleneck
-> of the short link scenario is not here.
+>> +static int smc_llc_rkey_response_wake_function(struct wait_queue_entry *wq_entry,
+>> +                           unsigned int mode, int sync, void *key)
+>> +{
+>> +    struct smc_llc_qentry *except, *incoming;
+>> +    u8 except_llc_type;
+>> +
+>> +    /* not a rkey response */
+>> +    if (!key)
+>> +        return 0;
+>> +
+>> +    except = wq_entry->private;
+>> +    incoming = key;
+>> +
+>> +    except_llc_type = except->msg.raw.hdr.common.llc_type;
+>> +
+>> +    /* except LLC MSG TYPE mismatch */
+>> +    if (except_llc_type != incoming->msg.raw.hdr.common.llc_type)
+>> +        return 0;
+>> +
+>> +    switch (except_llc_type) {
+>> +    case SMC_LLC_CONFIRM_RKEY:
+>> +        if (memcmp(except->msg.confirm_rkey.rtoken, incoming->msg.confirm_rkey.rtoken,
+>> +               sizeof(struct smc_rmb_rtoken) *
+>> +               except->msg.confirm_rkey.rtoken[0].num_rkeys))
+>> +            return 0;
+>> +        break;
+>> +    case SMC_LLC_DELETE_RKEY:
+>> +        if (memcmp(except->msg.delete_rkey.rkey, incoming->msg.delete_rkey.rkey,
+>> +               sizeof(__be32) * except->msg.delete_rkey.num_rkeys))
+>> +            return 0;
+>> +        break;
+>> +    default:
+>> +        pr_warn("smc: invalid except llc msg %d.\n", except_llc_type);
+>> +        return 0;
+>> +    }
+>> +
+>> +    /* match, save hdr */
+>> +    memcpy(&except->msg.raw.hdr, &incoming->msg.raw.hdr, sizeof(except->msg.raw.hdr));
+>> +
+>> +    wq_entry->private = except->private;
+>> +    return woken_wake_function(wq_entry, mode, sync, NULL);
+>> +}
+>> +
 > 
-> This patch try use rtokens or rkey to correlate a confirm/delete
-> rkey message with its response.
+> s/except/expect/ ?
+> Just kind of confusing
 > 
-> This patch contains two parts.
-> 
-> At first, we have added the process
-> of asynchronously waiting for the response of confirm/delete rkey
-> messages, using rtokens or rkey to be correlate with.
-> 
-> And then, we try to send confirm/delete rkey message in parallel,
-> allowing parallel execution of start (remote) or initialization (local)
-> SMC_LLC_FLOW_RKEY flows.
-> 
-> D. Wythe (2):
->    net/smc: allow confirm/delete rkey response deliver multiplex
->    net/smc: make SMC_LLC_FLOW_RKEY run concurrently
-> 
->   net/smc/smc_core.h |   1 +
->   net/smc/smc_llc.c  | 263 +++++++++++++++++++++++++++++++++++++++++------------
->   net/smc/smc_llc.h  |   6 ++
->   net/smc/smc_wr.c   |  10 --
->   net/smc/smc_wr.h   |  10 ++
->   5 files changed, 220 insertions(+), 70 deletions(-)
-> 
+> [...]
 
-As we already discussed, on this changes we need to test them carefully 
-so that we have to be sure that the communicating with z/OS should not 
-be broken. We'll let you know as soon as the testing is finished.
+Hi, Wenjia
+
+Except is what I want to express.
+It means that only the confirm and delete rkey can be processed in parallel. :-)
+
+Thanks
+D. Wythe
+
