@@ -2,124 +2,165 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F342C64EC5
-	for <linux-s390@archiver.kernel.org>; Wed,  8 Feb 2023 16:40:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F828C636D3
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Feb 2023 18:19:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231618AbjBHQkI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 8 Feb 2023 11:40:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47770 "EHLO
+        id S231696AbjBHSTs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 8 Feb 2023 13:19:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231519AbjBHQkG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Feb 2023 11:40:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 563514DE2C;
-        Wed,  8 Feb 2023 08:39:55 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D682261718;
-        Wed,  8 Feb 2023 16:39:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C217C433EF;
-        Wed,  8 Feb 2023 16:39:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675874394;
-        bh=k2WDmJefTVbmF4UtYjVTRVt38vEfq5VHOD9s78R7eyg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Rm1BIDwVjM+vtyitHjo1e7C/8O3osDSw3ddUWkl4Wx2bC5t9PAYPPNOMyPOnhDGBE
-         x0/ntl8Z+mYIwUFJ4SJYgRaphWg6Yt4w739Gu/lXfntdZ6JeZX0Y+rfAbGvNs2ZHt8
-         st0eJcGbt8o4IXvW5Pd80HgnuHqj+dz7ZtRrgPBzs0UpJBQvPfkACmHMCJmVksp2u1
-         7j+OBIBzFLzMDdGcGKQCjlEbr0xBVw1CpjWop+Te/iJBfsS4i7ncKglT5iTBbI8VBo
-         HOM9qBR39AlYqQf2ZmUflFWYvSQAKch5roLODmzzrvB8D8QMKelVKI/xJc21XFfhdD
-         dus+tchf6H0SA==
-Date:   Wed, 8 Feb 2023 16:39:44 +0000
-From:   Mark Brown <broonie@kernel.org>
-To:     David Hildenbrand <david@redhat.com>
-Cc:     linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Hugh Dickins <hughd@google.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Nadav Amit <namit@vmware.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Peter Xu <peterx@redhat.com>, linux-mm@kvack.org,
-        x86@kernel.org, linux-alpha@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
-        Russell King <linux@armlinux.org.uk>
-Subject: Re: [PATCH mm-unstable v1 04/26] arm/mm: support
- __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-Message-ID: <Y+PQUMwH4AZSVpjb@sirena.org.uk>
-References: <20230113171026.582290-1-david@redhat.com>
- <20230113171026.582290-5-david@redhat.com>
- <Y+GcDFMNHw2cdDN1@sirena.org.uk>
- <39fd91e3-c93b-23c6-afc6-cbe473bb0ca9@redhat.com>
+        with ESMTP id S231807AbjBHSTq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Feb 2023 13:19:46 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BD0F521C6;
+        Wed,  8 Feb 2023 10:19:42 -0800 (PST)
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 318IACvt017629;
+        Wed, 8 Feb 2023 18:19:37 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date : from
+ : subject : to : cc : references : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=Cat40qxwJuXwH7djamxVS8eFCLmklYkpm2R0WNxYhUU=;
+ b=cHoUhpHr5z6sCRHPxYKOgBOkg47WEsrVIO2psXyxiDZoCOVp3nZbCtOFXEvkSHNpCjDC
+ DvCj0w9yV0T235Ow2JWapFZ6YJ/ub30Ha/9nMfeKlUkJ4ydnFzck3XIK2g0y5iidbGNT
+ +Me6acKOANRFI74L1kT5/e6gg7Qgo2rtncAKWIhNHW9lAOrm/kZneoUiv1+XjGjtDxw4
+ FnjkkxUWIxDgCBSFDbvoJwykaxvIvzh4RRCGGOpokcXhyXV24mGZoWXbyVBkE6Hm1LXw
+ zQePWEVJoFENIDZIHxCyXqRJsilTh3+g6zoWzfUQuWv1pfrN/KR4R5GcJMv0DziCNhuC Mw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nmgc20pr4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 08 Feb 2023 18:19:37 +0000
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 318IDTYq030351;
+        Wed, 8 Feb 2023 18:19:36 GMT
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nmgc20pqf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 08 Feb 2023 18:19:36 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 318IJUOE024491;
+        Wed, 8 Feb 2023 18:19:34 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma06fra.de.ibm.com (PPS) with ESMTPS id 3nhemfkqvb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 08 Feb 2023 18:19:33 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 318IJUq922086090
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 8 Feb 2023 18:19:30 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 265E22004B;
+        Wed,  8 Feb 2023 18:19:30 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A09702004F;
+        Wed,  8 Feb 2023 18:19:29 +0000 (GMT)
+Received: from [9.171.33.244] (unknown [9.171.33.244])
+        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed,  8 Feb 2023 18:19:29 +0000 (GMT)
+Message-ID: <045d16d2-fca2-4dbe-e999-05d5365da1ad@linux.ibm.com>
+Date:   Wed, 8 Feb 2023 19:19:29 +0100
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.6.1
+From:   Alexandra Winter <wintera@linux.ibm.com>
+Subject: Re: [PATCH net-next 4/4] s390/qeth: Convert sprintf/snprintf to
+ scnprintf
+To:     Simon Horman <simon.horman@corigine.com>
+Cc:     David Miller <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Thorsten Winkler <twinkler@linux.ibm.com>,
+        Jules Irenge <jbi.octave@gmail.com>
+References: <20230206172754.980062-1-wintera@linux.ibm.com>
+ <20230206172754.980062-5-wintera@linux.ibm.com>
+ <Y+JxcPOJiRl0qMo1@corigine.com>
+Content-Language: en-US
+In-Reply-To: <Y+JxcPOJiRl0qMo1@corigine.com>
+Content-Type: text/plain; charset=UTF-8
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: s90Dxlqn8dR7jSqNS4ICbZclar9qCm36
+X-Proofpoint-GUID: Cl8H23vKJaRDzsCnF6wYjn9BrHw0HPkh
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="W0tQR/5xWRekS1hu"
-Content-Disposition: inline
-In-Reply-To: <39fd91e3-c93b-23c6-afc6-cbe473bb0ca9@redhat.com>
-X-Cookie: Walk softly and carry a megawatt laser.
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
+ definitions=2023-02-08_08,2023-02-08_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 spamscore=0
+ mlxscore=0 bulkscore=0 clxscore=1015 phishscore=0 adultscore=0
+ suspectscore=0 malwarescore=0 priorityscore=1501 lowpriorityscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2302080158
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 
---W0tQR/5xWRekS1hu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, Feb 08, 2023 at 03:12:06PM +0100, David Hildenbrand wrote:
-> On 07.02.23 01:32, Mark Brown wrote:
+On 07.02.23 16:42, Simon Horman wrote:
+> On Mon, Feb 06, 2023 at 06:27:54PM +0100, Alexandra Winter wrote:
+>> From: Thorsten Winkler <twinkler@linux.ibm.com>
+>>
+>> This LWN article explains the rationale for this change
+>> https: //lwn.net/Articles/69419/
+> 
+> https://lwn.net/Articles/69419/
+> 
+>> Ie. snprintf() returns what *would* be the resulting length,
+>> while scnprintf() returns the actual length.
+> 
+> Ok, but in most cases in this patch the return value is not checked.
+> Is there any value in this change in those cases?
+> 
 
-> > Today's -next (and at least back to Friday, older logs are unclear - I
-> > only noticed -next issues today) fails to NFS boot on an AT91SAM9G20-EK
-> > (an old ARMv5 platform) with multi_v5_defconfig, a bisect appears to
-> > point to this patch (20aae9eff5acd8f5 in today's -next) as the culprit.
+Jules Irenge reported a coccinnelle warning to use scnprintf in 
+show() functions [1]. (Thorsten Winkler changed these instances to
+sysfs_emit in patch 3 of this series.)
+We read the article as a call to implement the plan to upgrade the kernel
+to the newer *scnprintf functions. Is that not intended?
 
-> It's been in -next for quite a while, thanks for the report!
+I totally agree, that in these cases no real problem was fixed, it is
+more of a style improvement.
 
-Yeah, there's been some other things obscuring the issue.
+[1] https://lore.kernel.org/netdev/YzHyniCyf+G%2F2xI8@fedora/T/
 
-> Could you give the following a test?
->=20
->=20
-> From 8c4bdbd9862f85782d5919d044c172b584063e83 Mon Sep 17 00:00:00 2001
-> From: David Hildenbrand <david@redhat.com>
-> Date: Wed, 8 Feb 2023 15:08:01 +0100
-> Subject: [PATCH] arm/mm: Fix swp type masking in __swp_entry()
->=20
-> We're masking with the number of type bits instead of the type mask, which
-> is obviously wrong.
+>> Reported-by: Jules Irenge <jbi.octave@gmail.com>
+>> Reviewed-by: Alexandra Winkler <wintera@linux.ibm.com>
+> 
+> s/Winkler/Winter/ ?
 
-Tested-by: Mark Brown <broonie@kernel.org>
+Of course. Wow, you have good eyes!
 
-but note that I had to manually apply it, though it's pretty trivial so
-I probably applied the right thing.
+> 
+>> Signed-off-by: Thorsten Winkler <twinkler@linux.ibm.com>
+>> Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
+> 
+> ...
+> 
+>> diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+>> index 1cf4e354693f..af4e60d2917e 100644
+>> --- a/drivers/s390/net/qeth_l3_main.c
+>> +++ b/drivers/s390/net/qeth_l3_main.c
+>> @@ -47,9 +47,9 @@ int qeth_l3_ipaddr_to_string(enum qeth_prot_versions proto, const u8 *addr,
+>>  			     char *buf)
+>>  {
+>>  	if (proto == QETH_PROT_IPV4)
+>> -		return sprintf(buf, "%pI4", addr);
+>> +		return scnprintf(buf, INET_ADDRSTRLEN, "%pI4", addr);
+>>  	else
+>> -		return sprintf(buf, "%pI6", addr);
+>> +		return scnprintf(buf, INET6_ADDRSTRLEN, "%pI6", addr);
+>>  }
+> 
+> 
+> This seems to be the once case where the return value is not ignored.
+> 
+> Of the 4 callers of qeth_l3_ipaddr_to_string, two don't ignore the return
+> value. And I agree in those cases this change seems correct.
+> 
+> However, amongst other usages of the return value,
+> those callers also check for a return < 0 from this function.
+> Can that occur, in the sprintf or scnprintf case?
 
---W0tQR/5xWRekS1hu
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmPj0FAACgkQJNaLcl1U
-h9C7hQf/VKRwP16M1jInUqUdUtyzPdvalnHTpasxKVZ8Sy0U3jwXMqNUqmnpEOSO
-UB3Q8audVEzRc8pj92dk3jilZBDPHyP58UUKRsjkrZVz22Q2/R16FcjaLrdlwNlj
-GWMfEWv5OKYPHaxP4W/VX0sXzS0XMTuulvAF1BOQRlOAS3L3jYsYUtzI2pkzJm1G
-64ICND0ZQRerzQmdQd6oO2tVhymhv8Y1LPY4TT0HikINGVpwwCJoOiocmstgqqGW
-uE+M+XJ9Lp/p78SIjfccjF1rdCWlc5MJJLS/qZzYnm6OnkKMOlBAUX9bwqvyrvE9
-quDK6fshhrFo/uJ5YVAQnAEuDKLv9g==
-=rC9E
------END PGP SIGNATURE-----
-
---W0tQR/5xWRekS1hu--
+I was under the impression this was a safeguard against a bad address format,
+but I tried it out and it never resulted in a negative return.
+Thanks a lot for pointing this out, we can further simplify patch 3 with that.
