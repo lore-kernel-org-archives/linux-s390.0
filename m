@@ -2,61 +2,61 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DDFDC05027
-	for <linux-s390@archiver.kernel.org>; Wed,  8 Feb 2023 11:07:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 94F85C05027
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Feb 2023 11:54:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230171AbjBHLHV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 8 Feb 2023 06:07:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39092 "EHLO
+        id S230337AbjBHLyX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 8 Feb 2023 06:54:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229663AbjBHLHU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Feb 2023 06:07:20 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B39866183
-        for <linux-s390@vger.kernel.org>; Wed,  8 Feb 2023 03:06:32 -0800 (PST)
+        with ESMTP id S230135AbjBHLyT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Feb 2023 06:54:19 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6558B46725
+        for <linux-s390@vger.kernel.org>; Wed,  8 Feb 2023 03:53:34 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1675854391;
+        s=mimecast20190719; t=1675857213;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=THAvMDTpqfQY0OQG1jNe64/m+leegxoPjSY/H415Uh4=;
-        b=gYyBJuyCGyG1sIeyRsr+2EA+szbyulzFhkAGZyufGXYm9d5OvgXKdzdce5aAq7GIooCZXU
-        LtSiPa8/pqzZYyv/hNUv+15aw9QNar60+gANueyheUIIMAi0EwZGsw0yrBlIJ8WlbkltJJ
-        HrYUFFXW/1R09WrBdk7kExOK6WJGbj8=
-Received: from mail-qt1-f200.google.com (mail-qt1-f200.google.com
- [209.85.160.200]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=LDX8JzT0xqTtrdaqpNqWi0h6AcwCPck4Kz++7XMLzjo=;
+        b=SkjQzBY/uGA5+4lWKmZMLwQDzECJrR0M1vSpe+YPaApuYE7///M8Xu0mSHCTVlr3Vq4m+K
+        LEIlMngKAzBjKUxYhGfIOcE/oYO6vi0nxEfIHMUIXg+O4QdCLCwoU46snIh5QBjoAYNZqn
+        vHUFcC7UIWEcSunD5LptI4q3lznUZJM=
+Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
+ [209.85.160.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-393-5atiS9YzNFKeIs3OA78m3Q-1; Wed, 08 Feb 2023 06:06:29 -0500
-X-MC-Unique: 5atiS9YzNFKeIs3OA78m3Q-1
-Received: by mail-qt1-f200.google.com with SMTP id n1-20020ac85a01000000b003ba2a2c50f9so4900920qta.23
-        for <linux-s390@vger.kernel.org>; Wed, 08 Feb 2023 03:06:29 -0800 (PST)
+ us-mta-262-sZj5XDPlNdC2kha4AVbqRw-1; Wed, 08 Feb 2023 06:53:30 -0500
+X-MC-Unique: sZj5XDPlNdC2kha4AVbqRw-1
+Received: by mail-qt1-f197.google.com with SMTP id g2-20020ac870c2000000b003b9c8ab53e9so10397256qtp.6
+        for <linux-s390@vger.kernel.org>; Wed, 08 Feb 2023 03:53:30 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:in-reply-to:subject:from:references:cc:to
          :content-language:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=THAvMDTpqfQY0OQG1jNe64/m+leegxoPjSY/H415Uh4=;
-        b=DIgn/hBXHxSXOFMyS7O601qniJV4gOEaquVD+ChihRZKqYBl68z/46eF2DUGqcHwu1
-         A+6BpLJaXT5vY2YfDkuNNFc2WwJBUpEEVZA6I3hpfHLbyrmUtAROTwHZmWrz3QwzAl8T
-         hzG0EDJk/L5SIaXgdO+QRwcea/gWyMMo0ukXb7iZD2tgqxh5yG99HFu+RQ6qFPAv/hB/
-         N8SFByekM01Y/gu5CgAP1ZY9AZRFnnmnkHWGMXdiNiaJCP3scAQwUf6yp1MYXqrxrRCi
-         Gwu+cCaEj19uT41WYLYRpEELmSTh0xrgqwQCHpoL9AH07pzBgmtaFxqBYG9DHDcpO5ba
-         aPrA==
-X-Gm-Message-State: AO0yUKUUaQ82YUSfoGXaKRgGaYcXVM9bBy8RKAPT1b8t5BWHtGuVv/DY
-        uDuwpfgphpXibx1wjKANlbGifke3r69qIUbeXXK/m8P18MJf8/YqUb1/3ICyRLm8t1WUjy6o9PG
-        OTg6hs9KP9FVdOd4Dr9TS3A==
-X-Received: by 2002:ad4:5be2:0:b0:56c:38e:9764 with SMTP id k2-20020ad45be2000000b0056c038e9764mr11398032qvc.18.1675854389368;
-        Wed, 08 Feb 2023 03:06:29 -0800 (PST)
-X-Google-Smtp-Source: AK7set9jDmQNotvUgghlyrPyJkmnIcS5j7P3SoBNrvGSlrtO8f63BdN7LQofeduBzOOqc+OGuNynXw==
-X-Received: by 2002:ad4:5be2:0:b0:56c:38e:9764 with SMTP id k2-20020ad45be2000000b0056c038e9764mr11397998qvc.18.1675854389045;
-        Wed, 08 Feb 2023 03:06:29 -0800 (PST)
+        bh=LDX8JzT0xqTtrdaqpNqWi0h6AcwCPck4Kz++7XMLzjo=;
+        b=kmy+mg0e/RFsGnuWcTe3/tyz0RICY8W9n8NGCrOGw4LWqZ0tHfwX3874Yw72XLUnxA
+         4tW2yGyNgzkX67vPKx6g6qvKnlcp9BAVm3zrBBaAHy3f+3kJj7KH/UTVa8jHIPFezgXY
+         Yjiga0S8HfkL9vNi5m2DIfQ6PDvQ8AhlfJGHesi5RDmYCnzcgQYApfoA9daW+WIHj+kU
+         qVmkUV0Um767ySd6H3sv6xu7Q+mCBTU+JBV/pivOdK6+mYOcM5AVR4yxz+rW/rlgy/64
+         G5O+lc6wOmft2zAI5KUa+Fi95NBW3SwN4dTc6hP/NLs991tYgSxzLm5CUFi2rqQnHA1m
+         bAkQ==
+X-Gm-Message-State: AO0yUKVMhMu56/7p6ELBYuDJj2I8gUzOyqoIIPDulx78XU/OF8AUDgX9
+        JBzpowD3S+oZfM0HmFSoNVlpZVPXd6xbyV3BdH3AgNpixvO1eThxh2jPLOH5MdXtnih5Qr+32mo
+        tqVC2h4ntGVxawxjX6MroPQ==
+X-Received: by 2002:ad4:5ca1:0:b0:539:b68e:3444 with SMTP id q1-20020ad45ca1000000b00539b68e3444mr13582377qvh.27.1675857210088;
+        Wed, 08 Feb 2023 03:53:30 -0800 (PST)
+X-Google-Smtp-Source: AK7set87dcpsJmG9A5SqVQU4S6v/ypYe4xIPzvEd0eUM0sqEib2dT866Qi80hgD9ikLTTh/CEqk9Mg==
+X-Received: by 2002:ad4:5ca1:0:b0:539:b68e:3444 with SMTP id q1-20020ad45ca1000000b00539b68e3444mr13582348qvh.27.1675857209742;
+        Wed, 08 Feb 2023 03:53:29 -0800 (PST)
 Received: from [192.168.0.2] (ip-109-43-177-253.web.vodafone.de. [109.43.177.253])
-        by smtp.gmail.com with ESMTPSA id d3-20020ae9ef03000000b007069fde14a6sm465982qkg.25.2023.02.08.03.06.27
+        by smtp.gmail.com with ESMTPSA id w15-20020a05620a444f00b007296805f607sm11767387qkp.17.2023.02.08.03.53.27
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 08 Feb 2023 03:06:28 -0800 (PST)
-Message-ID: <3a38ca69-ac0a-ce75-4add-256c5996d89c@redhat.com>
-Date:   Wed, 8 Feb 2023 12:06:25 +0100
+        Wed, 08 Feb 2023 03:53:29 -0800 (PST)
+Message-ID: <96920589-ec3c-6e2d-4eee-a12b50b5c6ca@redhat.com>
+Date:   Wed, 8 Feb 2023 12:53:26 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.13.0
@@ -65,11 +65,11 @@ To:     Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org
 Cc:     frankja@linux.ibm.com, kvm@vger.kernel.org, imbrenda@linux.ibm.com,
         david@redhat.com, nrb@linux.ibm.com, nsg@linux.ibm.com
 References: <20230202092814.151081-1-pmorel@linux.ibm.com>
- <20230202092814.151081-2-pmorel@linux.ibm.com>
+ <20230202092814.151081-3-pmorel@linux.ibm.com>
 From:   Thomas Huth <thuth@redhat.com>
-Subject: Re: [kvm-unit-tests PATCH v6 1/2] s390x: topology: Check the Perform
- Topology Function
-In-Reply-To: <20230202092814.151081-2-pmorel@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v6 2/2] s390x: topology: Checking
+ Configuration Topology Information
+In-Reply-To: <20230202092814.151081-3-pmorel@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
@@ -77,179 +77,318 @@ List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 On 02/02/2023 10.28, Pierre Morel wrote:
-> We check that the PTF instruction is working correctly when
-> the cpu topology facility is available.
+> STSI with function code 15 is used to store the CPU configuration
+> topology.
 > 
-> For KVM only, we test changing of the polarity between horizontal
-> and vertical and that a reset set the horizontal polarity.
+> We retrieve the maximum nested level with SCLP and use the
+> topology tree provided by the drawers, books, sockets, cores
+> arguments.
+> 
+> We check :
+> - if the topology stored is coherent between the QEMU -smp
+>    parameters and kernel parameters.
+> - the number of CPUs
+> - the maximum number of CPUs
+> - the number of containers of each levels for every STSI(15.1.x)
+>    instruction allowed by the machine.
 > 
 > Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
 > ---
->   s390x/Makefile      |   1 +
->   s390x/topology.c    | 155 ++++++++++++++++++++++++++++++++++++++++++++
->   s390x/unittests.cfg |   3 +
->   3 files changed, 159 insertions(+)
->   create mode 100644 s390x/topology.c
-> 
-> diff --git a/s390x/Makefile b/s390x/Makefile
-> index 52a9d82..b5fe8a3 100644
-> --- a/s390x/Makefile
-> +++ b/s390x/Makefile
-> @@ -39,6 +39,7 @@ tests += $(TEST_DIR)/panic-loop-extint.elf
->   tests += $(TEST_DIR)/panic-loop-pgm.elf
->   tests += $(TEST_DIR)/migration-sck.elf
->   tests += $(TEST_DIR)/exittime.elf
-> +tests += $(TEST_DIR)/topology.elf
->   
->   pv-tests += $(TEST_DIR)/pv-diags.elf
->   
-> diff --git a/s390x/topology.c b/s390x/topology.c
-> new file mode 100644
-> index 0000000..20f7ba2
-> --- /dev/null
-> +++ b/s390x/topology.c
-> @@ -0,0 +1,155 @@
-> +/* SPDX-License-Identifier: GPL-2.0-only */
-> +/*
-> + * CPU Topology
-> + *
-> + * Copyright IBM Corp. 2022
-> + *
-> + * Authors:
-> + *  Pierre Morel <pmorel@linux.ibm.com>
-> + */
-> +
-> +#include <libcflat.h>
-> +#include <asm/page.h>
-> +#include <asm/asm-offsets.h>
-> +#include <asm/interrupt.h>
-> +#include <asm/facility.h>
-> +#include <smp.h>
-> +#include <sclp.h>
-> +#include <s390x/hardware.h>
-> +
-> +#define PTF_REQ_HORIZONTAL	0
-> +#define PTF_REQ_VERTICAL	1
-> +#define PTF_REQ_CHECK		2
-> +
-> +#define PTF_ERR_NO_REASON	0
-> +#define PTF_ERR_ALRDY_POLARIZED	1
-> +#define PTF_ERR_IN_PROGRESS	2
-> +
-> +extern int diag308_load_reset(u64);
-> +
-> +static int ptf(unsigned long fc, unsigned long *rc)
+...
+> +static inline int cpus_in_tle_mask(uint64_t val)
 > +{
-> +	int cc;
+> +	int i, n;
 > +
-> +	asm volatile(
-> +		"       .insn   rre,0xb9a20000,%1,0\n"
+> +	for (i = 0, n = 0; i < 64; i++, val >>= 1)
+> +		if (val & 0x01)
+> +			n++;
+> +	return n;
 
-Why are you specifying the instruction manually? I think both, GCC and Clang 
-should know the "ptf" mnemonic, shouldn't they?
+I'd suggest to use __builtin_popcountl here instead of looping.
 
-> +		"       ipm     %0\n"
-> +		"       srl     %0,28\n"
-> +		: "=d" (cc), "+d" (fc)
-> +		:
-> +		: "cc");
-> +
-> +	*rc = fc >> 8;
-> +	return cc;
 > +}
 > +
-> +static void test_ptf(void)
+>   #endif  /* _S390X_STSI_H_ */
+> diff --git a/s390x/topology.c b/s390x/topology.c
+> index 20f7ba2..f21c653 100644
+> --- a/s390x/topology.c
+> +++ b/s390x/topology.c
+> @@ -16,6 +16,18 @@
+>   #include <smp.h>
+>   #include <sclp.h>
+>   #include <s390x/hardware.h>
+> +#include <s390x/stsi.h>
+> +
+> +static uint8_t pagebuf[PAGE_SIZE * 2] __attribute__((aligned(PAGE_SIZE * 2)));
+
+Isn't the SYSIB just one page only? Why reserve two pages here?
+
+> +static int max_nested_lvl;
+> +static int number_of_cpus;
+> +static int max_cpus = 1;
+> +
+> +/* Topology level as defined by architecture */
+> +static int arch_topo_lvl[CPU_TOPOLOGY_MAX_LEVEL];
+> +/* Topology nested level as reported in STSI */
+> +static int stsi_nested_lvl[CPU_TOPOLOGY_MAX_LEVEL];
+>   
+>   #define PTF_REQ_HORIZONTAL	0
+>   #define PTF_REQ_VERTICAL	1
+> @@ -122,11 +134,241 @@ end:
+>   	report_prefix_pop();
+>   }
+>   
+> +/*
+> + * stsi_check_maxcpus
+> + * @info: Pointer to the stsi information
+> + *
+> + * The product of the numbers of containers per level
+> + * is the maximum number of CPU allowed by the machine.
+> + */
+> +static void stsi_check_maxcpus(struct sysinfo_15_1_x *info)
 > +{
-> +	unsigned long rc;
-> +	int cc;
+> +	int n, i;
 > +
-> +	/* PTF is a privilege instruction */
-
-s/privilege/privileged/ ?
-
-> +	report_prefix_push("Privilege");
-> +	enter_pstate();
-> +	expect_pgm_int();
-> +	ptf(PTF_REQ_CHECK, &rc);
-> +	check_pgm_int_code(PGM_INT_CODE_PRIVILEGED_OPERATION);
-> +	report_prefix_pop();
+> +	report_prefix_push("maximum cpus");
 > +
-> +	report_prefix_push("Wrong fc");
-> +	expect_pgm_int();
-> +	ptf(0xff, &rc);
-> +	check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
-> +	report_prefix_pop();
+> +	for (i = 0, n = 1; i < CPU_TOPOLOGY_MAX_LEVEL; i++) {
+> +		report_info("Mag%d: %d", CPU_TOPOLOGY_MAX_LEVEL - i, info->mag[i]);
+> +		n *= info->mag[i] ? info->mag[i] : 1;
+
+You could use the Elvis operator here instead.
+
+> +	}
+> +	report(n == max_cpus, "Maximum CPUs %d expected %d", n, max_cpus);
 > +
-> +	report_prefix_push("Reserved bits");
-> +	expect_pgm_int();
-> +	ptf(0xffffffffffffff00UL, &rc);
-> +	check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
 > +	report_prefix_pop();
+> +}
+> +
+> +/*
+> + * stsi_check_tle_coherency
+> + * @info: Pointer to the stsi information
+> + * @sel2: Topology level to check.
+> + *
+> + * We verify that we get the expected number of Topology List Entry
+> + * containers for a specific level.
+> + */
+> +static void stsi_check_tle_coherency(struct sysinfo_15_1_x *info, int sel2)
+> +{
+> +	struct topology_container *tc, *end;
+> +	struct topology_core *cpus;
+> +	int n = 0;
+> +	int i;
+> +
+> +	report_prefix_push("TLE coherency");
+> +
+> +	tc = &info->tle[0].container;
+> +	end = (struct topology_container *)((unsigned long)info + info->length);
 
-This function is quite big ... I'd maybe group the above checks for error 
-conditions into a separate function instead.
+s/unsigned long/uintptr_t/ please!
 
-> +	report_prefix_push("Topology Report pending");
+
+> +
+> +	for (i = 0; i < CPU_TOPOLOGY_MAX_LEVEL; i++)
+> +		stsi_nested_lvl[i] = 0;
+
+memset(stsi_nested_lvl, 0, sizeof(stsi_nested_lvl)) ?
+
+> +	while (tc < end) {
+> +		if (tc->nl > 5) {
+
+Use ">= CPU_TOPOLOGY_MAX_LEVEL" instead of "> 5" ?
+
+> +			report_abort("Unexpected TL Entry: tle->nl: %d", tc->nl);
+> +			return;
+> +		}
+> +		if (tc->nl == 0) {
+> +			cpus = (struct topology_core *)tc;
+> +			n += cpus_in_tle_mask(cpus->mask);
+> +			report_info("cpu type %02x  d: %d pp: %d", cpus->type, cpus->d, cpus->pp);
+> +			report_info("origin : %04x mask %016lx", cpus->origin, cpus->mask);
+> +		}
+> +
+> +		stsi_nested_lvl[tc->nl]++;
+> +		report_info("level %d: lvl: %d id: %d cnt: %d",
+> +			    tc->nl, tc->nl, tc->id, stsi_nested_lvl[tc->nl]);
+> +
+> +		/* trick: CPU TLEs are twice the size of containers TLE */
+> +		if (tc->nl == 0)
+> +			tc++;
+
+IMHO it might be cleaner to have a "uint8_t *" or "void *" to the current 
+position in the sysinfo block, and do the pointer arithmetic on that pointer 
+instead... well, it's likely just a matter of taste.
+
+> +		tc++;
+> +	}
+> +	report(n == number_of_cpus, "Number of CPUs  : %d expect %d", n, number_of_cpus);
 > +	/*
-> +	 * At this moment the topology may already have changed
-> +	 * since the VM has been started.
-> +	 * However, we can test if a second PTF instruction
-> +	 * reports that the topology did not change since the
-> +	 * preceding PFT instruction.
+> +	 * For KVM we accept
+> +	 * - only 1 type of CPU
+> +	 * - only horizontal topology
+> +	 * - only dedicated CPUs
+> +	 * This leads to expect the number of entries of level 0 CPU
+> +	 * Topology Level Entry (TLE) to be:
+> +	 * 1 + (number_of_cpus - 1)  / arch_topo_lvl[0]
+> +	 *
+> +	 * For z/VM or LPAR this number can only be greater if different
+> +	 * polarity, CPU types because there may be a nested level 0 CPU TLE
+> +	 * for each of the CPU/polarity/sharing types in a level 1 container TLE.
 > +	 */
-> +	ptf(PTF_REQ_CHECK, &rc);
-> +	cc = ptf(PTF_REQ_CHECK, &rc);
-> +	report(cc == 0, "PTF check should clear topology report");
-> +	report_prefix_pop();
+> +	n =  (number_of_cpus - 1)  / arch_topo_lvl[0];
+> +	report(stsi_nested_lvl[0] >=  n + 1,
+> +	       "CPU Type TLE    : %d expect %d", stsi_nested_lvl[0], n + 1);
 > +
-> +	report_prefix_push("Topology polarisation check");
-> +	/*
-> +	 * We can not assume the state of the polarization for
-
-s/can not/cannot/ ?
-
-Also, you sometimes write polarization with "z" and sometimes with "s". I'd 
-suggest to standardize on "z" (as in "IBM Z" ;-))
-
-> +	 * any Virtual Machine but KVM.
-> +	 * Let's skip the polarisation tests for other VMs.
-> +	 */
-> +	if (!host_is_kvm()) {
-> +		report_skip("Topology polarisation check is done for KVM only");
+> +	/* For each level found in STSI */
+> +	for (i = 1; i < CPU_TOPOLOGY_MAX_LEVEL; i++) {
+> +		/*
+> +		 * For non QEMU/KVM hypervisor the concatenation of the levels
+> +		 * above level 1 are architecture dependent.
+> +		 * Skip these checks.
+> +		 */
+> +		if (!host_is_kvm() && sel2 != 2)
+> +			continue;
+> +
+> +		/* For QEMU/KVM we expect a simple calculation */
+> +		if (sel2 > i) {
+> +			report(stsi_nested_lvl[i] ==  n + 1,
+> +			       "Container TLE  %d: %d expect %d", i, stsi_nested_lvl[i], n + 1);
+> +			n /= arch_topo_lvl[i];
+> +		}
+> +	}
+> +
+> +	report_prefix_pop();
+> +}
+> +
+> +/*
+> + * check_sysinfo_15_1_x
+> + * @info: pointer to the STSI info structure
+> + * @sel2: the selector giving the topology level to check
+> + *
+> + * Check if the validity of the STSI instruction and then
+> + * calls specific checks on the information buffer.
+> + */
+> +static void check_sysinfo_15_1_x(struct sysinfo_15_1_x *info, int sel2)
+> +{
+> +	int ret;
+> +
+> +	report_prefix_pushf("mnested %d 15_1_%d", max_nested_lvl, sel2);
+> +
+> +	ret = stsi(pagebuf, 15, 1, sel2);
+> +	if (max_nested_lvl >= sel2) {
+> +		report(!ret, "Valid stsi instruction");
+> +	} else {
+> +		report(ret, "Invalid stsi instruction");
 > +		goto end;
 > +	}
 > +
-> +	/*
-> +	 * Set vertical polarization to verify that RESET sets
-> +	 * horizontal polarization back.
-> +	 */
-> +	cc = ptf(PTF_REQ_VERTICAL, &rc);
-> +	report(cc == 0, "Set vertical polarization.");
-> +
-> +	report(diag308_load_reset(1), "load normal reset done");
-> +
-> +	cc = ptf(PTF_REQ_CHECK, &rc);
-> +	report(cc == 0, "Reset should clear topology report");
-> +
-> +	cc = ptf(PTF_REQ_HORIZONTAL, &rc);
-> +	report(cc == 2 && rc == PTF_ERR_ALRDY_POLARIZED,
-> +	       "After RESET polarization is horizontal");
-> +
-> +	/* Flip between vertical and horizontal polarization */
-> +	cc = ptf(PTF_REQ_VERTICAL, &rc);
-> +	report(cc == 0, "Change to vertical polarization.");
-> +
-> +	cc = ptf(PTF_REQ_CHECK, &rc);
-> +	report(cc == 1, "Polarization change should set topology report");
-> +
-> +	cc = ptf(PTF_REQ_HORIZONTAL, &rc);
-> +	report(cc == 0, "Change to horizontal polarization.");
-> +
+> +	stsi_check_maxcpus(info);
+> +	stsi_check_tle_coherency(info, sel2);
+
+You could also move the two stsi_check_* calls into the first part of the 
+if-statement, then you could get rid of the goto in the second part.
+
 > +end:
 > +	report_prefix_pop();
 > +}
+> +
+> +static int sclp_get_mnest(void)
+> +{
+> +	ReadInfo *sccb = (void *)_sccb;
+> +
+> +	sclp_mark_busy();
+> +	memset(_sccb, 0, PAGE_SIZE);
+> +	sccb->h.length = PAGE_SIZE;
+> +
+> +	sclp_service_call(SCLP_CMDW_READ_SCP_INFO, sccb);
+> +	assert(sccb->h.response_code == SCLP_RC_NORMAL_READ_COMPLETION);
+> +
+> +	return sccb->stsi_parm;
+> +}
+> +
+> +/*
+> + * test_stsi
+> + *
+> + * Retrieves the maximum nested topology level supported by the architecture
+> + * and the number of CPUs.
+> + * Calls the checking for the STSI instruction in sel2 reverse level order
+> + * from 6 (CPU_TOPOLOGY_MAX_LEVEL) to 2 to have the most interesting level,
+> + * the one triggering a topology-change-report-pending condition, level 2,
+> + * at the end of the report.
+> + *
+> + */
+> +static void test_stsi(void)
+> +{
+> +	int sel2;
+> +
+> +	max_nested_lvl = sclp_get_mnest();
+> +	report_info("SCLP maximum nested level : %d", max_nested_lvl);
+> +
+> +	number_of_cpus = sclp_get_cpu_num();
+> +	report_info("SCLP number of CPU: %d", number_of_cpus);
+> +
+> +	/* STSI selector 2 can takes values between 2 and 6 */
+> +	for (sel2 = 6; sel2 >= 2; sel2--)
+> +		check_sysinfo_15_1_x((struct sysinfo_15_1_x *)pagebuf, sel2);
+> +}
+> +
+> +/*
+> + * parse_topology_args
+> + * @argc: number of arguments
+> + * @argv: argument array
+> + *
+> + * This function initialize the architecture topology levels
+> + * which should be the same as the one provided by the hypervisor.
+> + *
+> + * We use the current names found in IBM/Z literature, Linux and QEMU:
+> + * cores, sockets/packages, books, drawers and nodes to facilitate the
+> + * human machine interface but store the result in a machine abstract
+> + * array of architecture topology levels.
+> + * Note that when QEMU uses socket as a name for the topology level 1
+> + * Linux uses package or physical_package.
+> + */
+> +static void parse_topology_args(int argc, char **argv)
+> +{
+> +	int i;
+> +
+> +	report_info("%d arguments", argc);
+> +	for (i = 1; i < argc; i++) {
+> +		if (!strcmp("-cores", argv[i])) {
+> +			i++;
+> +			if (i >= argc)
+> +				report_abort("-cores needs a parameter");
+> +			arch_topo_lvl[0] = atol(argv[i]);
+> +			report_info("cores: %d", arch_topo_lvl[0]);
+> +		} else if (!strcmp("-sockets", argv[i])) {
+> +			i++;
+> +			if (i >= argc)
+> +				report_abort("-sockets needs a parameter");
+> +			arch_topo_lvl[1] = atol(argv[i]);
+> +			report_info("sockets: %d", arch_topo_lvl[1]);
+> +		} else if (!strcmp("-books", argv[i])) {
+> +			i++;
+> +			if (i >= argc)
+> +				report_abort("-books needs a parameter");
+> +			arch_topo_lvl[2] = atol(argv[i]);
+> +			report_info("books: %d", arch_topo_lvl[2]);
+> +		} else if (!strcmp("-drawers", argv[i])) {
+> +			i++;
+> +			if (i >= argc)
+> +				report_abort("-drawers needs a parameter");
+> +			arch_topo_lvl[3] = atol(argv[i]);
+> +			report_info("drawers: %d", arch_topo_lvl[3]);
+> +		}
 
-Apart from the nits, the patch looks fine to me.
+Maybe abort on unkown parameters, to avoid that typos go unnoticed?
+
+> +	}
+> +
+> +	for (i = 0; i < CPU_TOPOLOGY_MAX_LEVEL; i++) {
+> +		if (!arch_topo_lvl[i])
+> +			arch_topo_lvl[i] = 1;
+> +		max_cpus *= arch_topo_lvl[i];
+> +	}
+> +}
 
   Thomas
 
