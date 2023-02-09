@@ -2,275 +2,155 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F108C64EC5
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Feb 2023 07:14:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DFFF3C636D7
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Feb 2023 08:47:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229897AbjBIHOa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Feb 2023 02:14:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49048 "EHLO
+        id S229733AbjBIIrd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Feb 2023 03:47:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57602 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229818AbjBIHOS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Feb 2023 02:14:18 -0500
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13C9942DC2;
-        Wed,  8 Feb 2023 23:14:14 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-        Content-Type:MIME-Version:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
-        Content-ID:Content-Description:In-Reply-To:References;
-        bh=hOwPtrFr9W1RAetj4yw8lS4WGxzVY9WeB5xiD+rtLZk=; b=YzYv5Lu+GhnsQWcrh/P3dNn99Y
-        kFFn/VTStVzrVt7izdrqqcFl3XXWJTiUSU7zkMNSHLZccvHB/fdFfsSF2G3d9l6tM8mZkGWrqFoL+
-        zV70haeTAUkVk/rmntIAjBbeTETDQ9gynZkiS5FkcxD5ysQrDwctOiqgUEqy0Xc8jqVEGJ0uWfK0f
-        t2HqZ/A6Oxx0EJl+SAADCmwyxjMuktOo75CIMUWNmk83r+Z+8eyEK1uwZEhembDTSx9i7ostc00tO
-        /jouGLzfxYzc3+YcINRJIpim6ul86T5PcNwp2g7wUJajkYggQ+pjUyATSgrXOBG/P/NTAUzC9nrO4
-        AJo7w9JQ==;
-Received: from [2601:1c2:980:9ec0::df2f] (helo=bombadil.infradead.org)
-        by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1pQ189-000LPt-4s; Thu, 09 Feb 2023 07:14:05 +0000
-From:   Randy Dunlap <rdunlap@infradead.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Randy Dunlap <rdunlap@infradead.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Russell King <linux@armlinux.org.uk>,
-        Jens Axboe <axboe@kernel.dk>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Akinobu Mita <akinobu.mita@gmail.com>,
-        Helge Deller <deller@gmx.de>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Henrik Rydberg <rydberg@bitmath.org>,
-        Karsten Keil <isdn@linux-pingi.de>,
-        Jiri Kosina <jikos@kernel.org>,
-        Miroslav Benes <mbenes@suse.cz>,
-        Petr Mladek <pmladek@suse.com>,
-        Josh Poimboeuf <jpoimboe@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>,
-        =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>,
-        Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Jonas Bonn <jonas@southpole.se>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        Stafford Horne <shorne@gmail.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Lorenzo Pieralisi <lpieralisi@kernel.org>,
-        Marc Zyngier <maz@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        David Howells <dhowells@redhat.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Paul Moore <paul@paul-moore.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Daniel Bristot de Oliveira <bristot@kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Evgeniy Polyakov <zbr@ioremap.net>,
-        Fenghua Yu <fenghua.yu@intel.com>,
-        Reinette Chatre <reinette.chatre@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Borislav Petkov <bp@alien8.de>,
-        Chris Zankel <chris@zankel.net>,
-        Max Filippov <jcmvbkbc@gmail.com>, coresight@lists.linaro.org,
-        dri-devel@lists.freedesktop.org, keyrings@vger.kernel.org,
-        linux-block@vger.kernel.org, linux-crypto@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-fbdev@vger.kernel.org,
-        linux-input@vger.kernel.org, linux-pci@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
-        linux-sgx@vger.kernel.org, linux-trace-devel@vger.kernel.org,
-        linux-trace-kernel@vger.kernel.org, live-patching@vger.kernel.org,
-        linux-security-module@vger.kernel.org, linux-usb@vger.kernel.org,
-        netdev@vger.kernel.org, linux-mm@kvack.org,
-        openrisc@lists.librecores.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org,
-        x86@kernel.org
-Subject: [PATCH 00/24 v2] Documentation: correct lots of spelling errors (series 1)
-Date:   Wed,  8 Feb 2023 23:13:36 -0800
-Message-Id: <20230209071400.31476-1-rdunlap@infradead.org>
-X-Mailer: git-send-email 2.39.1
+        with ESMTP id S229476AbjBIIrc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Feb 2023 03:47:32 -0500
+Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AD5B47436;
+        Thu,  9 Feb 2023 00:47:31 -0800 (PST)
+Received: by mail-wm1-x332.google.com with SMTP id bg26so944075wmb.0;
+        Thu, 09 Feb 2023 00:47:31 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:date:from:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=Qn9EbvBNyrGjHsqKyNRcUqE0ZgoknqNHgR4grZIq1og=;
+        b=XfFUsep4SvJkXInM+wMQWooY2XG5P56NSZKsbG9bTZjJh/XycVsl5MHTqOG1/Q6kg8
+         TCuBMXzctVzdOKE9YfqpPpryW9k0hqdHgnxzzZPKkc0x7l73i6eEYJXeyl4644DWcpBF
+         rVVaZTg/dDEidbqgG3V9CxsMM6kH7/LPFIH3M7hhbLTLE+hB7wMJ7CQms0VQzYO67dZx
+         eipkf3/WJpokTyumXupM+3VKHdFeDI28ZOMr5Tie7POKePMrARdqqIeOPr2aD8v3Wp5R
+         dqHXtz+wnjSEfPsO1mQzCSx6RzhnkWXtFeXAED+Q2+sTf5lMuAqQn02PWegmhJ1pKdmR
+         YKyQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:date:from
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Qn9EbvBNyrGjHsqKyNRcUqE0ZgoknqNHgR4grZIq1og=;
+        b=YxOlY2u6cW9hGknhsr+9fJ/n+zLawTM1OsbUNW5nHSSkkWGT+eylHe0kSoCVHO+SlF
+         eSw8s9CqtGodx3tziGL4M+5Qe386b9yJRCPsGvozuzl2c3eECgMG1t2nmJ8UP4u5wBRe
+         izvXKelQsv2tlOdug/RZZC+XA2KkM+rIjuza7XRm9L6cpk7KVY2JwBga5OSbNQ4hvuHA
+         hV2RDTWR5NDHHsNnsg7R0VWlN3QVvxibpxmvjR16bsl3WmLzouSp4AqYbUc+XMEncmKr
+         FM+sYDHas10620Tg/jHANTUNbwksU2aiFzgTreSNLr4NS9y8J6Zz2tAUFR6FoLxt0yZx
+         qFUQ==
+X-Gm-Message-State: AO0yUKX6aEcPSREnhLdbSPqa9qATqA+l9/5K27j6EHmsawP3a1RBUeDf
+        cHxChUAExc+mjO1JfDGAVyo=
+X-Google-Smtp-Source: AK7set8tGQUv8NGP+X5kMV2lo4VNAQhkFxeU482r3QGLbDSRvywgf7u7ZkrTRcwOQqUt8oTTY7rbQA==
+X-Received: by 2002:a05:600c:996:b0:3df:f85a:4724 with SMTP id w22-20020a05600c099600b003dff85a4724mr9278610wmp.39.1675932449884;
+        Thu, 09 Feb 2023 00:47:29 -0800 (PST)
+Received: from krava (2001-1ae9-1c2-4c00-726e-c10f-8833-ff22.ip6.tmcz.cz. [2001:1ae9:1c2:4c00:726e:c10f:8833:ff22])
+        by smtp.gmail.com with ESMTPSA id r14-20020a05600c35ce00b003dc4ecfc4d7sm1225329wmq.29.2023.02.09.00.47.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 09 Feb 2023 00:47:29 -0800 (PST)
+From:   Jiri Olsa <olsajiri@gmail.com>
+X-Google-Original-From: Jiri Olsa <jolsa@kernel.org>
+Date:   Thu, 9 Feb 2023 09:47:27 +0100
+To:     Ilya Leoshkevich <iii@linux.ibm.com>
+Cc:     Jiri Olsa <olsajiri@gmail.com>,
+        Alexei Starovoitov <alexei.starovoitov@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>, bpf <bpf@vger.kernel.org>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@chromium.org>,
+        Stanislav Fomichev <sdf@google.com>,
+        Hao Luo <haoluo@google.com>, David Vernet <void@manifault.com>,
+        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        Artem Savkov <asavkov@redhat.com>, linux-s390@vger.kernel.org
+Subject: Re: [PATCHv3 bpf-next 0/9] bpf: Move kernel test kfuncs into
+ bpf_testmod
+Message-ID: <Y+SzH/9usvp7a0DA@krava>
+References: <20230203162336.608323-1-jolsa@kernel.org>
+ <CAADnVQKBYgN5nWG26s0s-U0=PMAWEc17aGWx76GLUc_PM22ZAw@mail.gmail.com>
+ <Y9/yrKZkBK6yzXp+@krava>
+ <96db3bf7d0a26b161a9846d8fe492c9bd0cb4c49.camel@linux.ibm.com>
+ <Y+DFOWZB21MWhYEO@krava>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <Y+DFOWZB21MWhYEO@krava>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Correct many spelling errors in Documentation/ as reported by codespell.
+On Mon, Feb 06, 2023 at 10:15:37AM +0100, Jiri Olsa wrote:
+> On Sun, Feb 05, 2023 at 07:36:14PM +0100, Ilya Leoshkevich wrote:
+> > On Sun, 2023-02-05 at 19:17 +0100, Jiri Olsa wrote:
+> > > On Sat, Feb 04, 2023 at 01:21:13AM -0800, Alexei Starovoitov wrote:
+> > > > On Fri, Feb 3, 2023 at 8:23 AM Jiri Olsa <jolsa@kernel.org> wrote:
+> > > > > 
+> > > > > hi,
+> > > > > I noticed several times in discussions that we should move test
+> > > > > kfuncs
+> > > > > into kernel module, now perhaps even more pressing with all the
+> > > > > kfunc
+> > > > > effort. This patchset moves all the test kfuncs into bpf_testmod.
+> > > > > 
+> > > > > I added bpf_testmod/bpf_testmod_kfunc.h header that is shared
+> > > > > between
+> > > > > bpf_testmod kernel module and BPF programs, which brings some
+> > > > > difficulties
+> > > > > with __ksym define. But I'm not sure having separate headers for
+> > > > > BPF
+> > > > > programs and for kernel module would be better.
+> > > > > 
+> > > > > This patchset also needs:
+> > > > > † 74bc3a5acc82 bpf: Add missing btf_put to
+> > > > > register_btf_id_dtor_kfuncs
+> > > > > which is only in bpf/master now.
+> > > > 
+> > > > I thought you've added this patch to CI,
+> > > > but cb_refs is still failing on s390...
+> > > 
+> > > the CI now fails for s390 with messages like:
+> > > †† 2023-02-04T07:04:32.5185267Z††† RES: address of kernel function
+> > > bpf_kfunc_call_test_fail1 is out of range
+> > > 
+> > > so now that we have test kfuncs in the module, the 's32 imm' value of
+> > > the bpf call instructions can overflow when the offset between module
+> > > and kernel is greater than 2GB ... as explained in the commit that
+> > > added the verifier check:
+> > > 
+> > > † 8cbf062a250e bpf: Reject kfunc calls that overflow insn->imm
+> > > 
+> > > not sure we can do anything about that on bpf side.. cc-ing s390 list
+> > > and Ilya for ideas/thoughts
+> > > 
+> > > maybe we could make bpf_testmod in-tree module and compile it as
+> > > module
+> > > just for some archs
+> > > 
+> > > thoughts?
+> > 
+> > Hi,
+> > 
+> > I'd rather have this fixed - I guess the problem can affect the users.
+> > The ksyms_module test is already denylisted because of that.
+> > Unfortunately getting the kernel and the modules close together on
+> > s390x is unlikely to happen in the foreseeable future.
+> > 
+> > What do you think about keeping the BTF ID inside the insn->imm field
+> > and putting the 64-bit delta into bpf_insn_aux_data, replacing the
+> > call_imm field that we already have there?
+> 
+> seems tricky wrt other archs.. how about saving address of the kfunc
+> in bpf_insn_aux_data and use that in s390 jit code instead of the
+> '__bpf_call_base + imm' calculation
 
-Maintainers of specific kernel subsystems are only Cc-ed on their
-respective patches, not the entire series.
+any other ideas/thoughts on this?
 
-These patches are based on linux-next-20230209.
+I don't have s390 server available, so can't really fix/test that..
+any chance you work on that?
 
-
- [PATCH 01/24] Documentation: arm: correct spelling
- [PATCH 02/24] Documentation: block: correct spelling
- [PATCH 03/24] Documentation: core-api: correct spelling
- [PATCH 04/24] Documentation: fault-injection: correct spelling
- [PATCH 05/24] Documentation: fb: correct spelling
- [PATCH 06/24] Documentation: features: correct spelling
- [PATCH 07/24] Documentation: input: correct spelling
- [PATCH 08/24] Documentation: isdn: correct spelling
- [PATCH 09/24] Documentation: livepatch: correct spelling
- [PATCH 10/24] Documentation: locking: correct spelling
- [PATCH 11/24] Documentation: mm: correct spelling
- [PATCH 12/24] Documentation: openrisc: correct spelling
- [PATCH 13/24] Documentation: PCI: correct spelling
- [PATCH 14/24] Documentation: powerpc: correct spelling
- [PATCH 15/24] Documentation: s390: correct spelling
- [PATCH 16/24] Documentation: scheduler: correct spelling
- [PATCH 17/24] Documentation: security: correct spelling
- [PATCH 18/24] Documentation: timers: correct spelling
- [PATCH 19/24] Documentation: tools/rtla: correct spelling
- [PATCH 20/24] Documentation: trace/rv: correct spelling
- [PATCH 21/24] Documentation: trace: correct spelling
- [PATCH 22/24] Documentation: w1: correct spelling
- [PATCH 23/24] Documentation: x86: correct spelling
- [PATCH 24/24] Documentation: xtensa: correct spelling
-
-
-diffstat:
- Documentation/PCI/endpoint/pci-vntb-howto.rst                    |    2 +-
- Documentation/PCI/msi-howto.rst                                  |    2 +-
- Documentation/arm/arm.rst                                        |    2 +-
- Documentation/arm/ixp4xx.rst                                     |    4 ++--
- Documentation/arm/keystone/knav-qmss.rst                         |    2 +-
- Documentation/arm/stm32/stm32-dma-mdma-chaining.rst              |    6 +++---
- Documentation/arm/sunxi/clocks.rst                               |    2 +-
- Documentation/arm/swp_emulation.rst                              |    2 +-
- Documentation/arm/tcm.rst                                        |    2 +-
- Documentation/arm/vlocks.rst                                     |    2 +-
- Documentation/block/data-integrity.rst                           |    2 +-
- Documentation/core-api/packing.rst                               |    2 +-
- Documentation/core-api/padata.rst                                |    2 +-
- Documentation/fault-injection/fault-injection.rst                |    2 +-
- Documentation/fb/sm712fb.rst                                     |    2 +-
- Documentation/fb/sstfb.rst                                       |    2 +-
- Documentation/features/core/thread-info-in-task/arch-support.txt |    2 +-
- Documentation/input/devices/iforce-protocol.rst                  |    2 +-
- Documentation/input/multi-touch-protocol.rst                     |    2 +-
- Documentation/isdn/interface_capi.rst                            |    2 +-
- Documentation/isdn/m_isdn.rst                                    |    2 +-
- Documentation/livepatch/reliable-stacktrace.rst                  |    2 +-
- Documentation/locking/lockdep-design.rst                         |    4 ++--
- Documentation/locking/locktorture.rst                            |    2 +-
- Documentation/locking/locktypes.rst                              |    2 +-
- Documentation/locking/preempt-locking.rst                        |    2 +-
- Documentation/mm/hmm.rst                                         |    4 ++--
- Documentation/mm/hwpoison.rst                                    |    2 +-
- Documentation/openrisc/openrisc_port.rst                         |    4 ++--
- Documentation/power/suspend-and-interrupts.rst                   |    2 +-
- Documentation/powerpc/kasan.txt                                  |    2 +-
- Documentation/powerpc/papr_hcalls.rst                            |    2 +-
- Documentation/powerpc/qe_firmware.rst                            |    4 ++--
- Documentation/powerpc/vas-api.rst                                |    4 ++--
- Documentation/s390/pci.rst                                       |    4 ++--
- Documentation/s390/vfio-ccw.rst                                  |    2 +-
- Documentation/scheduler/sched-bwc.rst                            |    2 +-
- Documentation/scheduler/sched-energy.rst                         |    4 ++--
- Documentation/security/digsig.rst                                |    4 ++--
- Documentation/security/keys/core.rst                             |    2 +-
- Documentation/security/secrets/coco.rst                          |    2 +-
- Documentation/timers/hrtimers.rst                                |    2 +-
- Documentation/tools/rtla/rtla-timerlat-top.rst                   |    2 +-
- Documentation/trace/coresight/coresight-etm4x-reference.rst      |    2 +-
- Documentation/trace/events.rst                                   |    6 +++---
- Documentation/trace/fprobe.rst                                   |    2 +-
- Documentation/trace/ftrace-uses.rst                              |    2 +-
- Documentation/trace/hwlat_detector.rst                           |    2 +-
- Documentation/trace/rv/runtime-verification.rst                  |    2 +-
- Documentation/trace/uprobetracer.rst                             |    2 +-
- Documentation/w1/w1-netlink.rst                                  |    2 +-
- Documentation/x86/boot.rst                                       |    2 +-
- Documentation/x86/buslock.rst                                    |    2 +-
- Documentation/x86/mds.rst                                        |    2 +-
- Documentation/x86/resctrl.rst                                    |    2 +-
- Documentation/x86/sgx.rst                                        |    2 +-
- Documentation/xtensa/atomctl.rst                                 |    2 +-
- 57 files changed, 70 insertions(+), 70 deletions(-)
-
-
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Vladimir Oltean <olteanv@gmail.com>
-Cc: Steffen Klassert <steffen.klassert@secunet.com>
-Cc: Daniel Jordan <daniel.m.jordan@oracle.com>
-Cc: Akinobu Mita <akinobu.mita@gmail.com>
-Cc: Helge Deller <deller@gmx.de>
-?Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@bitmath.org>
-Cc: Karsten Keil <isdn@linux-pingi.de>
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Miroslav Benes <mbenes@suse.cz>
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: Josh Poimboeuf <jpoimboe@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: J√©r√¥me Glisse <jglisse@redhat.com>
-Cc: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Cc: Miaohe Lin <linmiaohe@huawei.com>
-Cc: Jonas Bonn <jonas@southpole.se>
-Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-Cc: Stafford Horne <shorne@gmail.com>
-Cc: Bjorn Helgaas <bhelgaas@google.com>
-Cc: Lorenzo Pieralisi <lpieralisi@kernel.org>
-Cc: Marc Zyngier <maz@kernel.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Juri Lelli <juri.lelli@redhat.com>
-Cc: Vincent Guittot <vincent.guittot@linaro.org>
-Cc: David Howells <dhowells@redhat.com>
-Cc: Jarkko Sakkinen <jarkko@kernel.org>
-Cc: Paul Moore <paul@paul-moore.com>
-Cc: James Morris <jmorris@namei.org>
-Cc: "Serge E. Hallyn" <serge@hallyn.com>
-Cc: Daniel Bristot de Oliveira <bristot@kernel.org>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: Suzuki K Poulose <suzuki.poulose@arm.com>
-Cc: Evgeniy Polyakov <zbr@ioremap.net>
-Cc: Fenghua Yu <fenghua.yu@intel.com>
-Cc: Reinette Chatre <reinette.chatre@intel.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Chris Zankel <chris@zankel.net>
-Cc: Max Filippov <jcmvbkbc@gmail.com>
-
-Cc: coresight@lists.linaro.org
-Cc: dri-devel@lists.freedesktop.org
-Cc: keyrings@vger.kernel.org
-Cc: linux-block@vger.kernel.org
-Cc: linux-crypto@vger.kernel.org
-Cc: linux-doc@vger.kernel.org
-Cc: linux-fbdev@vger.kernel.org
-Cc: linux-input@vger.kernel.org
-Cc: linux-pci@vger.kernel.org
-Cc: linux-s390@vger.kernel.org
-Cc: linux-scsi@vger.kernel.org
-Cc: linux-sgx@vger.kernel.org
-Cc: linux-trace-devel@vger.kernel.org
-Cc: linux-trace-kernel@vger.kernel.org
-Cc: live-patching@vger.kernel.org
-Cc: linux-security-module@vger.kernel.org
-Cc: linux-usb@vger.kernel.org
-Cc: netdev@vger.kernel.org
-Cc: linux-mm@kvack.org
-Cc: openrisc@lists.librecores.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-xtensa@linux-xtensa.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: x86@kernel.org
+thanks,
+jirka
