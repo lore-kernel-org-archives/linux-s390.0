@@ -2,127 +2,100 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9DFFFC636D3
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Feb 2023 20:10:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 62227C636D3
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Feb 2023 20:11:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229658AbjBIUKC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Feb 2023 15:10:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53398 "EHLO
+        id S229589AbjBIULB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Feb 2023 15:11:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229589AbjBIUJs (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Feb 2023 15:09:48 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBBC730C4;
-        Thu,  9 Feb 2023 12:09:47 -0800 (PST)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 319K1lMe014350;
-        Thu, 9 Feb 2023 20:09:32 GMT
+        with ESMTP id S229672AbjBIULB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Feb 2023 15:11:01 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1919D4495;
+        Thu,  9 Feb 2023 12:11:00 -0800 (PST)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 319JoYRe022355;
+        Thu, 9 Feb 2023 20:10:52 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
  subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=XGHbI4ra0FtneGPyfx5jeTG6NSLPIotF9rRhO6tyTiE=;
- b=ZS90CnmKHcX2Szr2iyBq4vLBLxdSyovUrw65rrkcypmr3G8AfUE/iw2rCkxfMVuklwr8
- x1RloEGV6ukvMY7h19dRqhwdOC6KkYKhl0ECGJhYIH1b/nTG0zOab+3KNxko47MxSqIf
- WELougxeGm2IDoMWQZRm7FdKbEn8156vW360HoUbkc5v+haxMHPFylW7Uh3dtDcwHypK
- GLD/Xa3khQvrXRmC5p3QaMw1Yrx0OqaZfkM0zMEAFRFlOkqGLNpMVAnIVxIDfpAjZqrh
- 8Jx4UrVItaT4Bu6VBbObJgL4MgcD/o4ndrJvpgfyFJ1UxULrhlFY7BDwwVTj8DEQGJcN Ew== 
+ in-reply-to; s=pp1; bh=lzg55gqBt66bmMIEwf2RJtwXPLteq8IkRySUSPdydgU=;
+ b=j3Wd2bnQap2pKVTs3IQHLCxiCnkShspUwJ1rXpwwCq6Lq29SQ+GhGVxjAa4bHF+918gd
+ 7t//RQ+jO6lVQXL69Ed0MaeDR2Cr+NQquV+EXLTSvlIvQpa/S+fm8UJFwdsF8iMFPOhM
+ FI+3dwkSEn32s7Y1sXYpcfbeP1T20slyZxVgAY+YSHe0dGEcTx1i5n2KmprhwtAYE0HT
+ cTPcE37m0FlTmhXPeaddrpmSzP/i84cu7jZWmq5w9LCobGtuw88WTmNhkzapmqE/4yum
+ VEs+kEsxdwgz+5pDScJff6rpMO8LY0z/KWs4zE4ba3gbF41UaJ7CEsnNmXhdjcy182fH 1g== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nn7gr8c0j-1
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3nn7bh0qnn-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 09 Feb 2023 20:09:32 +0000
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 319K28xC016343;
-        Thu, 9 Feb 2023 20:09:31 GMT
+        Thu, 09 Feb 2023 20:10:52 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 319JpCO7024504;
+        Thu, 9 Feb 2023 20:10:51 GMT
 Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nn7gr8bxw-1
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3nn7bh0qky-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 09 Feb 2023 20:09:31 +0000
+        Thu, 09 Feb 2023 20:10:51 +0000
 Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 319CkNfE023807;
-        Thu, 9 Feb 2023 20:04:28 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3nhf06xmub-1
+        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 319CXVmk023824;
+        Thu, 9 Feb 2023 20:10:49 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3nhf06xmyg-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 09 Feb 2023 20:04:28 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 319K4Qke51380530
+        Thu, 09 Feb 2023 20:10:49 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 319KAkE347710618
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 9 Feb 2023 20:04:26 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 283A420043;
-        Thu,  9 Feb 2023 20:04:26 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A2E0620040;
-        Thu,  9 Feb 2023 20:04:25 +0000 (GMT)
+        Thu, 9 Feb 2023 20:10:47 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E0EBA20049;
+        Thu,  9 Feb 2023 20:10:46 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 78FD520043;
+        Thu,  9 Feb 2023 20:10:46 +0000 (GMT)
 Received: from osiris (unknown [9.179.10.102])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Thu,  9 Feb 2023 20:04:25 +0000 (GMT)
-Date:   Thu, 9 Feb 2023 21:04:24 +0100
+        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Thu,  9 Feb 2023 20:10:46 +0000 (GMT)
+Date:   Thu, 9 Feb 2023 21:10:45 +0100
 From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Matthew Wilcox <willy@infradead.org>
-Cc:     Peter Xu <peterx@redhat.com>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org,
+To:     Peter Xu <peterx@redhat.com>
+Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
         Andrew Morton <akpm@linux-foundation.org>,
         linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 0/3] mm/arch: Fix a few collide definition on private use
- of VM_FAULT_*
-Message-ID: <Y+VRyAKnc6N+Vicv@osiris>
+Subject: Re: [PATCH 3/3] mm/s390: Define private VM_FAULT_* reasons from top
+ bits
+Message-ID: <Y+VTRZkd7Lp032gq@osiris>
 References: <20230205231704.909536-1-peterx@redhat.com>
- <Y+BFjQDBIFq5ih+t@casper.infradead.org>
- <Y+BPy3jFcHqOnWL0@x1n>
- <Y+BrJhxeJbAp49QE@casper.infradead.org>
- <Y+BxhuGUx1K+3XHb@xz-m1.local>
- <Y+CLpdnOGFg28uMJ@casper.infradead.org>
+ <20230205231704.909536-4-peterx@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Y+CLpdnOGFg28uMJ@casper.infradead.org>
+In-Reply-To: <20230205231704.909536-4-peterx@redhat.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: SN3n-Sj8UyAs9EywqmZbAifHCHDfdB2o
-X-Proofpoint-ORIG-GUID: UKCCI8etZ5fGapHAmtaqPfeeaV5GiOYm
+X-Proofpoint-GUID: qedQ-ytSGCJByGHcqG7hLNZUcq09Ise_
+X-Proofpoint-ORIG-GUID: GUVVKyqRs8oLr6iuWnLPGibYzHbGhXWM
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
  definitions=2023-02-09_15,2023-02-09_03,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 suspectscore=0
- clxscore=1011 adultscore=0 phishscore=0 priorityscore=1501 impostorscore=0
- lowpriorityscore=0 mlxscore=0 malwarescore=0 mlxlogscore=364 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
- definitions=main-2302090186
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=969
+ lowpriorityscore=0 impostorscore=0 phishscore=0 priorityscore=1501
+ adultscore=0 suspectscore=0 clxscore=1015 spamscore=0 bulkscore=0
+ malwarescore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2302090186
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Feb 06, 2023 at 05:09:57AM +0000, Matthew Wilcox wrote:
-> On Sun, Feb 05, 2023 at 10:18:30PM -0500, Peter Xu wrote:
-> > On Mon, Feb 06, 2023 at 02:51:18AM +0000, Matthew Wilcox wrote:
-> > > That wasn't what I meant.  I meant putting VM_FAULT_BADMAP and
-> > > VM_FAULT_SIGSEGV in mm_types.h.  Not having "Here is a range of reserved
-> > > arch private ones".
-> > 
-> > VM_FAULT_SIGSEGV is there already; I assume you meant adding them all
-> > directly into vm_fault_reason.
-> > 
-> > Then I don't think it's a good idea..
-> > 
-> > Currently vm_fault_reason is a clear interface for handle_mm_fault() for
-> > not only arch pffault handlers but also soft faults like GUP.
-> > 
-> > If handle_mm_fault() doesn't return VM_FAULT_BADMAP at all, I don't think
-> > we should have it as public API at all.  When arch1 people reading the
-> > VM_FAULT_ documents, it shouldn't care about some fault reason that only
-> > happens with arch2.  Gup shouldn't care about it either.
-> > 
-> > Logically a new page fault handler should handle all the retval of
-> > vm_fault_reason afaiu.  That shouldn't include e.g. VM_FAULT_BADMAP either.
+On Sun, Feb 05, 2023 at 06:17:04PM -0500, Peter Xu wrote:
+> The current definition already collapse with the generic definition of
+> vm_fault_reason.  Move the private definitions to allocate bits from the
+> top of uint so they won't collapse anymore.
 > 
-> Hmm, right.  Looking specifically at how s390 uses VM_FAULT_BADMAP,
-> it just seems to be a badly structured fault.c.  Seems to me that
-> do_fault_error() should take an extra si_code argument, and
-> instead of returning VM_FAULT_BADACCESS / VM_FAULT_BADMAP from
-> various functions, those functions should call do_fault_error()
-> directly, passing it VM_FAULT_SIGSEGV and the appropriate si_code.
-> 
-> But this is all on the s390 people to fix; I don't want to break their
-> arch by trying it myself.
+> Signed-off-by: Peter Xu <peterx@redhat.com>
+> ---
+>  arch/s390/mm/fault.c | 14 +++++++++-----
+>  1 file changed, 9 insertions(+), 5 deletions(-)
 
-Yes, will take a look at it. For now I will apply Peter's patch in order to
-get rid of the collision.
+Thanks a lot!
+
+Applied.
