@@ -2,196 +2,122 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 93511C05027
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Feb 2023 09:39:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 39CE5C05027
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Feb 2023 10:25:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229476AbjBIJjb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Feb 2023 04:39:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43694 "EHLO
+        id S229478AbjBIKZN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Feb 2023 05:25:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229515AbjBIJja (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Feb 2023 04:39:30 -0500
-Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on2100.outbound.protection.outlook.com [40.107.236.100])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C61A5EFBD;
-        Thu,  9 Feb 2023 01:39:28 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Ci5aQWPa0OQfF6U+xaScDtAEGVIe6lQKSXPCK6ISbn6U7WkiPRnGQsoUxqk6zGW/ry/RN/4kcfKRxVnxt3guxI02Zb1z2221rZ2EfkJRUKaWITYalcYEhYZK1cg/14GFzOLvdEC+tl7pc/X2sjXSW6XDd6qLUmVMCPmtin5eyXulTp5j8hCx73PEK/s7uH1EXeGIj/bQ5QtkJ7Vl3qzsEs2Q2gKq5zjhgY+LtDrVECDXnwMT+vVxngkaMXE4qn0Mw0uEzv5+3icmOp5v4mSdIOw8s4DMPIL9zTqg9LIAWqCmpt5LhxgQ7gRBgd8iR+ud+3FaNdEro6jkUuMZ+kg55Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=NKzkfH2J9RMkHz0SHtBSh1X6CAAsGpKP5rNxsiTLQl0=;
- b=YbJej0siHQyyMqzw06ZJFEYipTeeLC2UAwxASzer/wZuS2X5HWst4hrXXSaRIU1Bi+hh0JMYRfH4fZ9LJG1klUuiG/Vjy/pTG6fzmz2IKK97l0DF/q5UYkHyisZ7d7chdkv4xcS4gGeS3ZWrLp5z6erbYVifGLPpvD1Q4V+okIog1MEedoTN8G5oYipDJbOcayTCmJHwlF3h2c3lv/C/zFP1iCvo3BtLknM7n6LaJ7yPfwcTwK4acI17101inqGOPn2jPxLgQmcQy3XdqClsdsTrcUAJ9b9k0jQK+4lGZzVjW0ZZstLffQHnmrD1XhJZgQKXJJYq2X0ZnFSf/npMkQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=corigine.com; dmarc=pass action=none header.from=corigine.com;
- dkim=pass header.d=corigine.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=corigine.onmicrosoft.com; s=selector2-corigine-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=NKzkfH2J9RMkHz0SHtBSh1X6CAAsGpKP5rNxsiTLQl0=;
- b=m+NcGMap5rquBamf7KMpnO+MgrhhnaAUDaPINuj0QiexlwXdKw0KB7pihWom2dl1CRdvhCZQZkWAX6u9SwHF7wcfyxwmbLTd5yYMIKzwAtcrWs+2cZ23UOZ8LITCstDj5RSpNqF0xkPE6PIYVRE5jKZfYqfSIa94wncTCisORdc=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=corigine.com;
-Received: from PH0PR13MB4842.namprd13.prod.outlook.com (2603:10b6:510:78::6)
- by MW4PR13MB5578.namprd13.prod.outlook.com (2603:10b6:303:182::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6086.17; Thu, 9 Feb
- 2023 09:38:22 +0000
-Received: from PH0PR13MB4842.namprd13.prod.outlook.com
- ([fe80::eb5c:910f:3730:fd65]) by PH0PR13MB4842.namprd13.prod.outlook.com
- ([fe80::eb5c:910f:3730:fd65%7]) with mapi id 15.20.6086.017; Thu, 9 Feb 2023
- 09:38:21 +0000
-Date:   Thu, 9 Feb 2023 10:38:15 +0100
-From:   Simon Horman <simon.horman@corigine.com>
-To:     Alexandra Winter <wintera@linux.ibm.com>
-Cc:     David Miller <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Thorsten Winkler <twinkler@linux.ibm.com>,
-        Jules Irenge <jbi.octave@gmail.com>
-Subject: Re: [PATCH net-next 4/4] s390/qeth: Convert sprintf/snprintf to
- scnprintf
-Message-ID: <Y+S/B3Q/En1UzrWW@corigine.com>
-References: <20230206172754.980062-1-wintera@linux.ibm.com>
- <20230206172754.980062-5-wintera@linux.ibm.com>
- <Y+JxcPOJiRl0qMo1@corigine.com>
- <045d16d2-fca2-4dbe-e999-05d5365da1ad@linux.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <045d16d2-fca2-4dbe-e999-05d5365da1ad@linux.ibm.com>
-X-ClientProxiedBy: AM0PR08CA0034.eurprd08.prod.outlook.com
- (2603:10a6:208:d2::47) To PH0PR13MB4842.namprd13.prod.outlook.com
- (2603:10b6:510:78::6)
+        with ESMTP id S229634AbjBIKZN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Feb 2023 05:25:13 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 210D15DC3D;
+        Thu,  9 Feb 2023 02:25:12 -0800 (PST)
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3199qfll004037;
+        Thu, 9 Feb 2023 10:25:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : content-transfer-encoding
+ : mime-version; s=pp1; bh=SSSkRzSnH881yZIQq5qA6gvNPM9vkkdM4cp84zU+5y8=;
+ b=YbYP+WY3i8QfHQ4R6PQ644qYGH7frl4Qf57JzgK1cwM/Y3FVqItq4rncMXxeyhKT1aoe
+ hwBz5EcRWeuCiRgkQmvKwB2fQ2JrnAraZVSFJv1FnA7W7GD/nfGn0jkf9RreYbijHiID
+ 42bNrm59A5RDKmQkY0aGOWk8kk6xpYkWvZha7DFaOkaFDJc2H7MfgCtGEQU88N5HDU8l
+ a5pVUqUqN5L0MTdFPTBu4kryo+8Q+shyJtvxr9550Qz3IQCmNTZX8JWdHCwv9ZLei7So
+ vxS/nHkILZR+DNXCupLozb8BgUdtGfg5e8rjoJue6yQHURjyH6cf0lYYA14iClu1cY0p zw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3nmxk60qsw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 09 Feb 2023 10:25:11 +0000
+Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3199sn6K010575;
+        Thu, 9 Feb 2023 10:25:10 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3nmxk60qs2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 09 Feb 2023 10:25:10 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 318KLZtK021050;
+        Thu, 9 Feb 2023 10:25:09 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3nhemfp23g-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 09 Feb 2023 10:25:08 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 319AP5uL47907224
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 9 Feb 2023 10:25:05 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3816E2006C;
+        Thu,  9 Feb 2023 10:25:05 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 14AC520074;
+        Thu,  9 Feb 2023 10:25:05 +0000 (GMT)
+Received: from li-9fd7f64c-3205-11b2-a85c-df942b00d78d.ibm.com (unknown [9.152.224.253])
+        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Thu,  9 Feb 2023 10:25:05 +0000 (GMT)
+From:   Janosch Frank <frankja@linux.ibm.com>
+To:     pbonzini@redhat.com
+Cc:     kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com,
+        borntraeger@linux.ibm.com, cohuck@redhat.com,
+        linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        hca@linux.ibm.com
+Subject: [GIT PULL 02/18] KVM: selftests: Compile s390 tests with -march=z10
+Date:   Thu,  9 Feb 2023 11:22:44 +0100
+Message-Id: <20230209102300.12254-3-frankja@linux.ibm.com>
+X-Mailer: git-send-email 2.39.1
+In-Reply-To: <20230209102300.12254-1-frankja@linux.ibm.com>
+References: <20230209102300.12254-1-frankja@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: mJepTOUSkWKaZbNtw76r8Ke11pxFT8Q1
+X-Proofpoint-ORIG-GUID: NRXc-ecBj0t4vDvazYJLwS0oxpLv1LYb
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PH0PR13MB4842:EE_|MW4PR13MB5578:EE_
-X-MS-Office365-Filtering-Correlation-Id: ebd36be3-8aa6-4df8-3ff6-08db0a816224
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: qmhNd9xdP+evmf3VCO0hI0a7G7ygtHriYtmLV9k7aK87yD3aqbyxAaQf9uDtawy2HNivlvjpvgPIT0I1eCK8yVx6u++7EOv3HRv1e0ZfQN1mkQ4COfCNHGci663AV0QPGZ3U3cFhJ97RwKld1QAKbBAsXlx8fSL7OluNa0UoWlQ7VJt09fvZ4Ds2ihL8OLdXy6mK14B519L4XzoZdA1NsdE5O73KRR1/0AbNzghx1I+1k887LxsDR2kimSdzL0DWwILcFzMIjN6KmiOMphHkPK6Ya13dtnAcDsdTUKfoEeYYQkdy6Pmwz/u5PLMftPzWmpLTl9aa2+8dEewvfskefOZtc6SEm34pc/MOxWwJGSX20bSDyH8rUHl9C8hYxojckxLF4jH4liVwPx77ZN+BJIqzymPzXuFyqDvAGjKo1/gKaTXKIkVMVDQe0rCSiJMV/YXQSjEu+a7yVFrQaUavTgIG7iXC6EEs+oeMNM+ocw31GYjPMz/oifYOmQCXOCmiSIcOjGT33sP5NupIB06LeNJ/Skl8N7r7q0pUhVHr33rWKbVkBuQkQ3c4G6Q/ylFmebVm7dnb7LLYfu3kXPNFtIm7dFa9xQXyl4qydSSCTDAP46G+awFfoxlI6I/YetEyXOy7elJ/zJGS7zUCXgEh2V1rsJeu/orC+BKLNktNrEv4Y2c79OMajb0gaq1hharWfbTuwKQo3HBE/hfgwYvaaOqoLw02Z1hCuz53XEF9x10=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR13MB4842.namprd13.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(4636009)(366004)(376002)(396003)(136003)(39840400004)(346002)(451199018)(83380400001)(2616005)(478600001)(54906003)(2906002)(316002)(6486002)(38100700002)(36756003)(966005)(66946007)(4326008)(66556008)(44832011)(41300700001)(6506007)(6916009)(8676002)(5660300002)(8936002)(86362001)(6512007)(186003)(53546011)(6666004)(66476007);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?UjnHkfmYlvhZg2qfsYDmQgOKhqOuSEqX9wLKKeBqUKHPiWCditqUwsJpVtUT?=
- =?us-ascii?Q?L+vaRs1wWJL1bo/8y+v7TMhC6/lSP7Di7G7WSKu2LknQ26OSnAVVlbhnaSZk?=
- =?us-ascii?Q?G8ZFFM35dqn/xwEKMWTa6j9Bu5jltIOETvcqY1HGSUgBfOodgjlDNDiJjwIZ?=
- =?us-ascii?Q?EoI6A8QldKiYaBZJ7ProidEs8Hgq+wCgn77tALcUxlD4Nzw0kTUWjXACSTjN?=
- =?us-ascii?Q?kJmsTdvUekiTyTmGRwiSNew8NWYIxPKAQb+5ZxHPl4uCokP2G4x1PcRQKmEY?=
- =?us-ascii?Q?xEL7n6LrukkOC+p9CWjykhks96bIIYHMsq1ESJKXTwYYXEQPpIoz7bxW2UGZ?=
- =?us-ascii?Q?4ujnZm4LwAuCRHqNPBmGhdk4cdvTRXIVQFh1PjJWlkqu/oIdHXv+BnXyUSc5?=
- =?us-ascii?Q?7otGDrGvbwcr5JxSGkb6KbUwbAo3yvXx+OXm+Hs0Jpf+hHo61si881UndhHe?=
- =?us-ascii?Q?ydoTSGWk0iZEiBUpVW62kJXOxQ4vYZPzgK0G65oK1YdrBgrZ406O3NyVm4sY?=
- =?us-ascii?Q?WdRsIiDCqBXQem6T3TokcT+3ifXewl7YPsFj3pbjWvTrlZ0TlU2SbWJaNxrm?=
- =?us-ascii?Q?UGYENcTxpcLKfBpuq6tK1DR9PNMXdj/ix/TpI6/zVCw+C05Hb5ClB4T3fd39?=
- =?us-ascii?Q?VWwM0ILeBy5JRKk2V+ylgVG2TFc/RamY2+XPc37Y3hPmOQV5o+1vg/w5GS8I?=
- =?us-ascii?Q?e+zyhVYEB5OLGzE03nAuGi00bdowwDyynDlZiayrA/Pu1b3IcgtfDs1lL3Pj?=
- =?us-ascii?Q?zEKcY0+q4JRFl/9HtWNH41xGJq5cmMPMFDAnQ6ncb973gPwotZTbjrb/zdRH?=
- =?us-ascii?Q?sBR1ER2W6XjUA5T3V16MPSFLXXAHhYTyt7XJZS2C4DYHrenrsbNev33ow5+F?=
- =?us-ascii?Q?yWCJls+dh8hJhzlC/uIpLCn6pOfxglsARwYqcCpDnZ1/rO7gxexJk3d/7c1P?=
- =?us-ascii?Q?q4j7xV5MUWgB7IBTtZVDJHPhduxq8nC1f48Y1hpxsWbb9buMtmkHbLKUig0o?=
- =?us-ascii?Q?hb27yGDMROQvKc3c1UbsWJkCEMDjfXw3MtJSr19sDzTfw0FSJcaLeMBNT3V0?=
- =?us-ascii?Q?dcj3raKJ9NRzD+8v3NVu2tVlBYRsQWPU3/070RXKN1R0ESSovbjoqoeQOnl5?=
- =?us-ascii?Q?T0N6HsxhmAeqyDb9cbSE4dwEJXFz9aisDmApvnDIqaNE648pKPCF/X0IAria?=
- =?us-ascii?Q?9uZ+DiRWOvjhdli7+HcdRqGkBG0xzaK5X4uq97tpiBQa2u8XacGmhosbjPWi?=
- =?us-ascii?Q?kJx3998iRGBO+ImGCNjCPdCLyig6yreFpssRQzXhpUrtNtmjYOyGddXUGYwy?=
- =?us-ascii?Q?chZsH1/EOrT0cTfUoOpMDM7cuqsPFg8etkem3mQwgFQi2HrKk7hZxLE8nRkE?=
- =?us-ascii?Q?SqpaRCLiPu4DiptxEl2POqRW30bd1mGV+MH0HMj0tjtoy/rtf78slkxqi3xv?=
- =?us-ascii?Q?JhmorSZ2yflGZUpOxmxRlCvy0v/f56VnXCrP+eBBNqmoncGsrBej23wdr13o?=
- =?us-ascii?Q?r4o6J7x1z6NMgLlTK3ubyGSmEl4G3aKz56ptVtX8tIs9HzPxBRA0jkiTb+S3?=
- =?us-ascii?Q?mlCzpDjyA/2rqj/fkxHGyKozRn6E+hU8jLe6aztp+WigzqAXB9z4+mT/ocLd?=
- =?us-ascii?Q?zaZwppzrp/2XhlhCC0Yk98gAbZ3Io4+TbufkwY3Wj0Kg42AnZ26uzG8KDoE9?=
- =?us-ascii?Q?V+98BQ=3D=3D?=
-X-OriginatorOrg: corigine.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: ebd36be3-8aa6-4df8-3ff6-08db0a816224
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR13MB4842.namprd13.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Feb 2023 09:38:21.8689
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: fe128f2c-073b-4c20-818e-7246a585940c
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: j4vGL+dD7QWvvfxi9KlX6+NeCiL6GTAHJg8IhcI41Sw4T52zrumoLQY9TGCleBdRAZBWEJASROlLquFZrH62SHl/rMWQI11jP3hmS61btLA=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW4PR13MB5578
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
+ definitions=2023-02-09_07,2023-02-08_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 adultscore=0
+ clxscore=1015 priorityscore=1501 bulkscore=0 phishscore=0 spamscore=0
+ suspectscore=0 malwarescore=0 impostorscore=0 mlxlogscore=999
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2302090095
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Feb 08, 2023 at 07:19:29PM +0100, Alexandra Winter wrote:
-> 
-> 
-> On 07.02.23 16:42, Simon Horman wrote:
-> > On Mon, Feb 06, 2023 at 06:27:54PM +0100, Alexandra Winter wrote:
-> >> From: Thorsten Winkler <twinkler@linux.ibm.com>
-> >>
-> >> This LWN article explains the rationale for this change
-> >> https: //lwn.net/Articles/69419/
-> > 
-> > https://lwn.net/Articles/69419/
-> > 
-> >> Ie. snprintf() returns what *would* be the resulting length,
-> >> while scnprintf() returns the actual length.
-> > 
-> > Ok, but in most cases in this patch the return value is not checked.
-> > Is there any value in this change in those cases?
-> > 
-> 
-> Jules Irenge reported a coccinnelle warning to use scnprintf in 
-> show() functions [1]. (Thorsten Winkler changed these instances to
-> sysfs_emit in patch 3 of this series.)
-> We read the article as a call to implement the plan to upgrade the kernel
-> to the newer *scnprintf functions. Is that not intended?
->
-> I totally agree, that in these cases no real problem was fixed, it is
-> more of a style improvement.
+From: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
 
-My feeling is that it isn't an improvement and therefore probably
-best not done. But that is just my opinion.
+The guest used in s390 kvm selftests is not be set up to handle all
+instructions the compiler might emit, i.e. vector instructions, leading
+to crashes.
+Limit what the compiler emits to the oldest machine model currently
+supported by Linux.
 
-> [1] https://lore.kernel.org/netdev/YzHyniCyf+G%2F2xI8@fedora/T/
-> 
-> >> Reported-by: Jules Irenge <jbi.octave@gmail.com>
-> >> Reviewed-by: Alexandra Winkler <wintera@linux.ibm.com>
-> > 
-> > s/Winkler/Winter/ ?
-> 
-> Of course. Wow, you have good eyes!
+Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Link: https://lore.kernel.org/r/20230127174552.3370169-1-nsg@linux.ibm.com
+Message-Id: <20230127174552.3370169-1-nsg@linux.ibm.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+---
+ tools/testing/selftests/kvm/Makefile | 3 +++
+ 1 file changed, 3 insertions(+)
 
-Only on my good days.
+diff --git a/tools/testing/selftests/kvm/Makefile b/tools/testing/selftests/kvm/Makefile
+index 1750f91dd936..df0989949eb5 100644
+--- a/tools/testing/selftests/kvm/Makefile
++++ b/tools/testing/selftests/kvm/Makefile
+@@ -200,6 +200,9 @@ CFLAGS += -Wall -Wstrict-prototypes -Wuninitialized -O2 -g -std=gnu99 \
+ 	-I$(LINUX_TOOL_ARCH_INCLUDE) -I$(LINUX_HDR_PATH) -Iinclude \
+ 	-I$(<D) -Iinclude/$(ARCH_DIR) -I ../rseq -I.. $(EXTRA_CFLAGS) \
+ 	$(KHDR_INCLUDES)
++ifeq ($(ARCH),s390)
++	CFLAGS += -march=z10
++endif
+ 
+ no-pie-option := $(call try-run, echo 'int main(void) { return 0; }' | \
+         $(CC) -Werror $(CFLAGS) -no-pie -x c - -o "$$TMP", -no-pie)
+-- 
+2.39.1
 
-> >> Signed-off-by: Thorsten Winkler <twinkler@linux.ibm.com>
-> >> Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
-> > 
-> > ...
-> > 
-> >> diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-> >> index 1cf4e354693f..af4e60d2917e 100644
-> >> --- a/drivers/s390/net/qeth_l3_main.c
-> >> +++ b/drivers/s390/net/qeth_l3_main.c
-> >> @@ -47,9 +47,9 @@ int qeth_l3_ipaddr_to_string(enum qeth_prot_versions proto, const u8 *addr,
-> >>  			     char *buf)
-> >>  {
-> >>  	if (proto == QETH_PROT_IPV4)
-> >> -		return sprintf(buf, "%pI4", addr);
-> >> +		return scnprintf(buf, INET_ADDRSTRLEN, "%pI4", addr);
-> >>  	else
-> >> -		return sprintf(buf, "%pI6", addr);
-> >> +		return scnprintf(buf, INET6_ADDRSTRLEN, "%pI6", addr);
-> >>  }
-> > 
-> > 
-> > This seems to be the once case where the return value is not ignored.
-> > 
-> > Of the 4 callers of qeth_l3_ipaddr_to_string, two don't ignore the return
-> > value. And I agree in those cases this change seems correct.
-> > 
-> > However, amongst other usages of the return value,
-> > those callers also check for a return < 0 from this function.
-> > Can that occur, in the sprintf or scnprintf case?
-> 
-> I was under the impression this was a safeguard against a bad address format,
-> but I tried it out and it never resulted in a negative return.
-> Thanks a lot for pointing this out, we can further simplify patch 3 with that.
-
-The advice elsewhere in this thread is that perhaps leaving this as-is may
-be best after all.
-
-* https://lore.kernel.org/netdev/63c6825fc2c94ad19ac7de93a6f151f6@AcuMS.aculab.com/
