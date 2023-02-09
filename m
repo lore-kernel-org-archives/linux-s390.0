@@ -2,170 +2,154 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 87653C636D7
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Feb 2023 10:25:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 681F6C61DA4
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Feb 2023 10:25:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229931AbjBIKZ3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Feb 2023 05:25:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46472 "EHLO
+        id S230071AbjBIKZb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Feb 2023 05:25:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229972AbjBIKZP (ORCPT
+        with ESMTP id S229634AbjBIKZP (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Feb 2023 05:25:15 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2238B193D6;
-        Thu,  9 Feb 2023 02:25:13 -0800 (PST)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3198heOU023609;
-        Thu, 9 Feb 2023 10:25:13 GMT
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 205AC5EF83;
+        Thu,  9 Feb 2023 02:25:15 -0800 (PST)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 319AAkTw023690;
+        Thu, 9 Feb 2023 10:25:14 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=XtkIl19XWpHucLnDuN5IlM6y7eQ2kiQwIJXf3lEh+H4=;
- b=aota4m/ZUuw3xS2QQSbdFQjUzXyEGBkdXEx++JlkpTkTGsOQxzKMG6kN+Fn3SkK/KjqT
- 6/iBORnpIvkns3mvlVRJmYVmKzJ1kDOh3gByiT1Oq3BaCM/u4uNcQoS3EDdwAfxJqJ19
- j6/iOMp/bsLB1r/qIJKLB5MsD0VViE3VPAMN8a7z5RPCh4kXIFGQLWf3Ex/cHka+ZKZA
- 41fvZU83gxh+QERuHul8IzN+js6xKOWHkRpD210Vo5YEUhDY0uFtDVRIERE5PBrePwkQ
- phahNLC35VeCFwVmQzcX9vfSfpS8WhOzLrIlX1CtcaBPk3wCRGY2IiQMCx3aTGhMhMlN CA== 
+ : mime-version; s=pp1; bh=lgM065lolMwI775i12owCUB5/VFRyVuP79iuL/SJONg=;
+ b=GzmQy5JucHk+gHZt+Ge8MlnYnPVQB6OepTsN5uNnR8tTYLrt9xUK8/ft3eKNZOvoKdac
+ 81AESmhBLR5gWgI4zNpUc/Y3U3JYsDFNQB4tl7QzPQQoVcygabPdEAn38REGsVV1dalq
+ +nfBLIsbiOoEWCbFQGqmcmXeyxYUR2/WhHLjLCvLcr4X+LWVPrpcpQc+0pQRkm5J2ge+
+ bTElxUW4prZmqMXzr8xpopK8LpagGuQ+a7VZ2wsizzJ++toF8BmJSziSnfHWV3P+CovX
+ ZmTmQT/Oq2Xm44i0xDtnqR3HtNKXqalKhhP99P7couLio5dh/e+7caqs85oZ1Uvd8G2x Zw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nmwjqjc52-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nmxjgggsy-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 09 Feb 2023 10:25:12 +0000
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 319A12lA028990;
-        Thu, 9 Feb 2023 10:25:12 GMT
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nmwjqjc49-1
+        Thu, 09 Feb 2023 10:25:14 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 319ADlcf010686;
+        Thu, 9 Feb 2023 10:25:14 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nmxjgggsb-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 09 Feb 2023 10:25:12 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 318DiMHu005648;
-        Thu, 9 Feb 2023 10:25:10 GMT
+        Thu, 09 Feb 2023 10:25:14 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 318L3hLM001846;
+        Thu, 9 Feb 2023 10:25:11 GMT
 Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma01fra.de.ibm.com (PPS) with ESMTPS id 3nhf06m8tv-1
+        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3nhf06p0vm-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 09 Feb 2023 10:25:10 +0000
+        Thu, 09 Feb 2023 10:25:11 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 319AP7Yo46137644
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 319AP7xw44630362
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 9 Feb 2023 10:25:07 GMT
+        Thu, 9 Feb 2023 10:25:08 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E5EEB2006C;
-        Thu,  9 Feb 2023 10:25:06 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id DCD2520071;
+        Thu,  9 Feb 2023 10:25:07 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C299B20071;
-        Thu,  9 Feb 2023 10:25:06 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id B95A42006C;
+        Thu,  9 Feb 2023 10:25:07 +0000 (GMT)
 Received: from li-9fd7f64c-3205-11b2-a85c-df942b00d78d.ibm.com (unknown [9.152.224.253])
         by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Thu,  9 Feb 2023 10:25:06 +0000 (GMT)
+        Thu,  9 Feb 2023 10:25:07 +0000 (GMT)
 From:   Janosch Frank <frankja@linux.ibm.com>
 To:     pbonzini@redhat.com
 Cc:     kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com,
         borntraeger@linux.ibm.com, cohuck@redhat.com,
         linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
         hca@linux.ibm.com
-Subject: [GIT PULL 12/18] KVM: s390: Refactor absolute vm mem_op function
-Date:   Thu,  9 Feb 2023 11:22:54 +0100
-Message-Id: <20230209102300.12254-13-frankja@linux.ibm.com>
+Subject: [GIT PULL 17/18] KVM: s390: GISA: sort out physical vs virtual pointers usage
+Date:   Thu,  9 Feb 2023 11:22:59 +0100
+Message-Id: <20230209102300.12254-18-frankja@linux.ibm.com>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230209102300.12254-1-frankja@linux.ibm.com>
 References: <20230209102300.12254-1-frankja@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: NRkxCgZEtTk-6gUAE3k2mSnozA57WqeL
-X-Proofpoint-ORIG-GUID: UDtkqXUst5ayxKq9-MS3zHM9-P8xWcec
+X-Proofpoint-ORIG-GUID: NIbBkkjsJG7yj3uA2Zo9_w1vi7O4sv2e
+X-Proofpoint-GUID: ggKheKkhLw5TS9jyYt1Ff5xtRV59rtn7
 Content-Transfer-Encoding: 8bit
 X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
  definitions=2023-02-09_07,2023-02-08_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 spamscore=0
- malwarescore=0 impostorscore=0 lowpriorityscore=0 suspectscore=0
- adultscore=0 bulkscore=0 mlxlogscore=685 priorityscore=1501 clxscore=1015
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ adultscore=0 impostorscore=0 spamscore=0 malwarescore=0 lowpriorityscore=0
+ bulkscore=0 phishscore=0 mlxlogscore=999 clxscore=1015 mlxscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2212070000 definitions=main-2302090095
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+From: Nico Boehr <nrb@linux.ibm.com>
 
-Remove code duplication with regards to the CHECK_ONLY flag.
-Decrease the number of indents.
-No functional change indented.
+Fix virtual vs physical address confusion (which currently are the same).
 
-Suggested-by: Janosch Frank <frankja@linux.ibm.com>
-Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Link: https://lore.kernel.org/r/20230206164602.138068-11-scgl@linux.ibm.com
-Message-Id: <20230206164602.138068-11-scgl@linux.ibm.com>
+In chsc_sgib(), do the virtual-physical conversion in the caller since
+the caller needs to make sure it is a 31-bit address and zero has a
+special meaning (disassociating the GIB).
+
+Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Michael Mueller <mimu@linux.ibm.com>
+Link: https://lore.kernel.org/r/20221107085727.1533792-1-nrb@linux.ibm.com
+Message-Id: <20221107085727.1533792-1-nrb@linux.ibm.com>
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c | 43 +++++++++++++++++-----------------------
- 1 file changed, 18 insertions(+), 25 deletions(-)
+ arch/s390/kvm/interrupt.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 0053b1fbfc76..23f50437a328 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2782,6 +2782,7 @@ static int mem_op_validate_common(struct kvm_s390_mem_op *mop, u64 supported_fla
- static int kvm_s390_vm_mem_op_abs(struct kvm *kvm, struct kvm_s390_mem_op *mop)
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index 1dae78deddf2..bbb280633cb8 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -3099,9 +3099,9 @@ static enum hrtimer_restart gisa_vcpu_kicker(struct hrtimer *timer)
+ static void process_gib_alert_list(void)
  {
- 	void __user *uaddr = (void __user *)mop->buf;
-+	enum gacc_mode acc_mode;
- 	void *tmpbuf = NULL;
- 	int r, srcu_idx;
+ 	struct kvm_s390_gisa_interrupt *gi;
++	u32 final, gisa_phys, origin = 0UL;
+ 	struct kvm_s390_gisa *gisa;
+ 	struct kvm *kvm;
+-	u32 final, origin = 0UL;
  
-@@ -2803,33 +2804,25 @@ static int kvm_s390_vm_mem_op_abs(struct kvm *kvm, struct kvm_s390_mem_op *mop)
- 		goto out_unlock;
+ 	do {
+ 		/*
+@@ -3127,9 +3127,10 @@ static void process_gib_alert_list(void)
+ 		 * interruptions asap.
+ 		 */
+ 		while (origin & GISA_ADDR_MASK) {
+-			gisa = (struct kvm_s390_gisa *)(u64)origin;
++			gisa_phys = origin;
++			gisa = phys_to_virt(gisa_phys);
+ 			origin = gisa->next_alert;
+-			gisa->next_alert = (u32)(u64)gisa;
++			gisa->next_alert = gisa_phys;
+ 			kvm = container_of(gisa, struct sie_page2, gisa)->kvm;
+ 			gi = &kvm->arch.gisa_int;
+ 			if (hrtimer_active(&gi->timer))
+@@ -3413,6 +3414,7 @@ void kvm_s390_gib_destroy(void)
+ 
+ int kvm_s390_gib_init(u8 nisc)
+ {
++	u32 gib_origin;
+ 	int rc = 0;
+ 
+ 	if (!css_general_characteristics.aiv) {
+@@ -3434,7 +3436,8 @@ int kvm_s390_gib_init(u8 nisc)
  	}
  
--	switch (mop->op) {
--	case KVM_S390_MEMOP_ABSOLUTE_READ: {
--		if (mop->flags & KVM_S390_MEMOP_F_CHECK_ONLY) {
--			r = check_gpa_range(kvm, mop->gaddr, mop->size, GACC_FETCH, mop->key);
--		} else {
--			r = access_guest_abs_with_key(kvm, mop->gaddr, tmpbuf,
--						      mop->size, GACC_FETCH, mop->key);
--			if (r == 0) {
--				if (copy_to_user(uaddr, tmpbuf, mop->size))
--					r = -EFAULT;
--			}
--		}
--		break;
-+	acc_mode = mop->op == KVM_S390_MEMOP_ABSOLUTE_READ ? GACC_FETCH : GACC_STORE;
-+	if (mop->flags & KVM_S390_MEMOP_F_CHECK_ONLY) {
-+		r = check_gpa_range(kvm, mop->gaddr, mop->size, acc_mode, mop->key);
-+		goto out_unlock;
- 	}
--	case KVM_S390_MEMOP_ABSOLUTE_WRITE: {
--		if (mop->flags & KVM_S390_MEMOP_F_CHECK_ONLY) {
--			r = check_gpa_range(kvm, mop->gaddr, mop->size, GACC_STORE, mop->key);
--		} else {
--			if (copy_from_user(tmpbuf, uaddr, mop->size)) {
--				r = -EFAULT;
--				break;
--			}
--			r = access_guest_abs_with_key(kvm, mop->gaddr, tmpbuf,
--						      mop->size, GACC_STORE, mop->key);
-+	if (acc_mode == GACC_FETCH) {
-+		r = access_guest_abs_with_key(kvm, mop->gaddr, tmpbuf,
-+					      mop->size, GACC_FETCH, mop->key);
-+		if (r)
-+			goto out_unlock;
-+		if (copy_to_user(uaddr, tmpbuf, mop->size))
-+			r = -EFAULT;
-+	} else {
-+		if (copy_from_user(tmpbuf, uaddr, mop->size)) {
-+			r = -EFAULT;
-+			goto out_unlock;
- 		}
--		break;
--	}
-+		r = access_guest_abs_with_key(kvm, mop->gaddr, tmpbuf,
-+					      mop->size, GACC_STORE, mop->key);
- 	}
- 
- out_unlock:
+ 	gib->nisc = nisc;
+-	if (chsc_sgib((u32)(u64)gib)) {
++	gib_origin = virt_to_phys(gib);
++	if (chsc_sgib(gib_origin)) {
+ 		pr_err("Associating the GIB with the AIV facility failed\n");
+ 		free_page((unsigned long)gib);
+ 		gib = NULL;
 -- 
 2.39.1
 
