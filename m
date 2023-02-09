@@ -2,376 +2,573 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 96685C636D7
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BCAC0C6379F
 	for <linux-s390@archiver.kernel.org>; Thu,  9 Feb 2023 11:05:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229963AbjBILEp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Feb 2023 06:04:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33464 "EHLO
+        id S230309AbjBILFI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Feb 2023 06:05:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229972AbjBILEk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Feb 2023 06:04:40 -0500
+        with ESMTP id S230083AbjBILEo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Feb 2023 06:04:44 -0500
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6583B44D;
-        Thu,  9 Feb 2023 03:04:37 -0800 (PST)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 319AgER3020421;
-        Thu, 9 Feb 2023 11:04:33 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE79F59CA;
+        Thu,  9 Feb 2023 03:04:41 -0800 (PST)
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 319AtCiC023439;
+        Thu, 9 Feb 2023 11:04:34 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=gNXT5WC1S6F4Dx6RypozgdyeN4pR2GfVSe4D1KiA258=;
- b=DbRlbzid/pf+JVzz+CnD+yAN/HJtx0uMJp6dTRddrCt3PduFUZH25dHEP8tN8HjF0mUg
- ZlgnJoiy1W+8NzJxyreTwb+cqwXHKhLIb6h0Y4vvlL2s6UpmXcSMUOFMliHghGgpyCGz
- T4mgAnHvtUDlOxURGvJ1/DK5qED3pyHaXM8xKWa734l/8xbE/KavCZJ/0LEtBWzrW9HW
- eVCGTh14zrIfvObQMDf9s/vZ4Cozi1B4lI0TI7ZgcY6BZKcoyKUIo8BXZbA2G605xs9+
- QNhbyuhupSJrby9PB5QcRAxueW4nPxhdXKEtIFECd9kCshTzIFVBUlp/mPQ1+7pSMNIC tw== 
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nmyab0fgq-1
+ bh=EDTIGT0BpL3gLPYAzKCpU8BcJEormS9nxBHYOGFJ16w=;
+ b=UeNrWmJw8zcz21DOcN1WH1ZZm6177kx8obQjAN8HIUgU9Xi4hH3gnQ4G0mUYn7heAQKy
+ GnNQW0O+ytVB4Lpjqi+XNf56bGgIlStrUhtUUEo/H8AbCjSOR6Y0pDRcd6ittmOztcxn
+ 3wQuTAFpqbC2prXg8lbouj34fQ7dUxhI7dZoGd0E8GBj1TnesO275HO3UwTCuCXUtWvW
+ SseVdK1qBLtomUaZWmsnTXFwRO2Gdf8NlQOnir3pU8Lk2h0o8PCEjpcArb2Bg/Nd7fe7
+ gwqbh0B2n31ftzZGd5oPWZXcvLc02qcDR4ykTMWAxFSfFNJw/DfFdmf1T55O5AMDZnOc Rw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nmygjg76m-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Thu, 09 Feb 2023 11:04:33 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3191axnj003761;
+Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 319Atwvk025673;
+        Thu, 9 Feb 2023 11:04:33 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nmygjg75w-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 09 Feb 2023 11:04:33 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 318KT9bQ002393;
         Thu, 9 Feb 2023 11:04:30 GMT
 Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma01fra.de.ibm.com (PPS) with ESMTPS id 3nhf06m9sv-1
+        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3nhf06p28x-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Thu, 09 Feb 2023 11:04:30 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 319B4RfR21299530
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 319B4RPO22479210
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
         Thu, 9 Feb 2023 11:04:27 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 034762004E;
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1276820043;
         Thu,  9 Feb 2023 11:04:27 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DC43920043;
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E23E020040;
         Thu,  9 Feb 2023 11:04:26 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
         Thu,  9 Feb 2023 11:04:26 +0000 (GMT)
 Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55271)
-        id AE393E091C; Thu,  9 Feb 2023 12:04:26 +0100 (CET)
+        id B4575E12A5; Thu,  9 Feb 2023 12:04:26 +0100 (CET)
 From:   Alexandra Winter <wintera@linux.ibm.com>
 To:     David Miller <davem@davemloft.net>,
         Jakub Kicinski <kuba@kernel.org>
 Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
         Heiko Carstens <hca@linux.ibm.com>,
-        Alexandra Winter <wintera@linux.ibm.com>,
-        Simon Horman <simon.horman@corigine.com>
-Subject: [PATCH net-next v2 1/4] s390/ctcm: cleanup indenting
-Date:   Thu,  9 Feb 2023 12:04:21 +0100
-Message-Id: <20230209110424.1707501-2-wintera@linux.ibm.com>
+        Thorsten Winkler <twinkler@linux.ibm.com>,
+        Jules Irenge <jbi.octave@gmail.com>,
+        Joe Perches <joe@perches.com>,
+        Alexandra Winter <wintera@linux.ibm.com>
+Subject: [PATCH net-next v2 3/4] s390/qeth: Convert sysfs sprintf to sysfs_emit
+Date:   Thu,  9 Feb 2023 12:04:23 +0100
+Message-Id: <20230209110424.1707501-4-wintera@linux.ibm.com>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20230209110424.1707501-1-wintera@linux.ibm.com>
 References: <20230209110424.1707501-1-wintera@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: MuIgXTaaZy8w5wCwsFsQohJ7dBgDt--M
-X-Proofpoint-ORIG-GUID: MuIgXTaaZy8w5wCwsFsQohJ7dBgDt--M
+X-Proofpoint-ORIG-GUID: GbMSpBIS1UznuRglsDXWHva-gJ3EwVEN
+X-Proofpoint-GUID: QRDL9Gou_DmV0M6lvyntaW7pV3pQbjsq
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
  definitions=2023-02-09_08,2023-02-08_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 phishscore=0
- lowpriorityscore=0 mlxlogscore=999 spamscore=0 malwarescore=0 adultscore=0
- bulkscore=0 impostorscore=0 priorityscore=1501 mlxscore=0 suspectscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
- definitions=main-2302090105
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 clxscore=1015
+ suspectscore=0 mlxlogscore=999 mlxscore=0 lowpriorityscore=0
+ malwarescore=0 bulkscore=0 adultscore=0 priorityscore=1501 impostorscore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2302090105
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Get rid of multiple smatch warnings, like:
-warn: inconsistent indenting
+From: Thorsten Winkler <twinkler@linux.ibm.com>
 
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Following the advice of the Documentation/filesystems/sysfs.rst.
+All sysfs related show()-functions should only use sysfs_emit() or
+sysfs_emit_at() when formatting the value to be returned to user space.
+
+Reported-by: Jules Irenge <jbi.octave@gmail.com>
+Reported-by: Joe Perches <joe@perches.com>
+Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
+Signed-off-by: Thorsten Winkler <twinkler@linux.ibm.com>
 Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
 ---
- drivers/s390/net/ctcm_fsms.c | 32 ++++++++++++++++----------------
- drivers/s390/net/ctcm_main.c | 16 ++++++++--------
- drivers/s390/net/ctcm_mpc.c  | 15 ++++++++-------
- 3 files changed, 32 insertions(+), 31 deletions(-)
+ drivers/s390/net/qeth_core_sys.c | 66 ++++++++++++++-------------
+ drivers/s390/net/qeth_l2_sys.c   | 28 ++++++------
+ drivers/s390/net/qeth_l3_sys.c   | 77 +++++++++++---------------------
+ 3 files changed, 73 insertions(+), 98 deletions(-)
 
-diff --git a/drivers/s390/net/ctcm_fsms.c b/drivers/s390/net/ctcm_fsms.c
-index dfb84bb03d32..90ec477386a8 100644
---- a/drivers/s390/net/ctcm_fsms.c
-+++ b/drivers/s390/net/ctcm_fsms.c
-@@ -370,7 +370,7 @@ static void chx_rx(fsm_instance *fi, int event, void *arg)
- 					CTCM_FUNTAIL, dev->name, len);
- 		priv->stats.rx_dropped++;
- 		priv->stats.rx_length_errors++;
--						goto again;
-+		goto again;
- 	}
- 	if (len > ch->max_bufsize) {
- 		CTCM_DBF_TEXT_(TRACE, CTC_DBF_NOTICE,
-@@ -378,7 +378,7 @@ static void chx_rx(fsm_instance *fi, int event, void *arg)
- 				CTCM_FUNTAIL, dev->name, len, ch->max_bufsize);
- 		priv->stats.rx_dropped++;
- 		priv->stats.rx_length_errors++;
--						goto again;
-+		goto again;
- 	}
+diff --git a/drivers/s390/net/qeth_core_sys.c b/drivers/s390/net/qeth_core_sys.c
+index d1adc4b83193..eea93f8f106f 100644
+--- a/drivers/s390/net/qeth_core_sys.c
++++ b/drivers/s390/net/qeth_core_sys.c
+@@ -23,15 +23,15 @@ static ssize_t qeth_dev_state_show(struct device *dev,
  
- 	/*
-@@ -403,7 +403,7 @@ static void chx_rx(fsm_instance *fi, int event, void *arg)
- 		*((__u16 *)skb->data) = len;
- 		priv->stats.rx_dropped++;
- 		priv->stats.rx_length_errors++;
--						goto again;
-+		goto again;
- 	}
- 	if (block_len > 2) {
- 		*((__u16 *)skb->data) = block_len - 2;
-@@ -1006,7 +1006,7 @@ static void ctcm_chx_txretry(fsm_instance *fi, int event, void *arg)
- 			use gptr as mpc indicator */
- 		if (!(gptr && (fsm_getstate(gptr->fsm) != MPCG_STATE_READY)))
- 			ctcm_chx_restart(fi, event, arg);
--				goto done;
-+		goto done;
- 	}
- 
- 	CTCM_DBF_TEXT_(TRACE, CTC_DBF_DEBUG,
-@@ -1024,7 +1024,7 @@ static void ctcm_chx_txretry(fsm_instance *fi, int event, void *arg)
- 						CTCM_FUNTAIL, ch->id);
- 			fsm_event(priv->fsm, DEV_EVENT_TXDOWN, dev);
- 			ctcm_chx_restart(fi, event, arg);
--				goto done;
-+			goto done;
- 		}
- 		fsm_addtimer(&ch->timer, 1000, CTC_EVENT_TIMER, ch);
- 		if (event == CTC_EVENT_TIMER) /* for TIMER not yet locked */
-@@ -1251,12 +1251,12 @@ static void ctcmpc_chx_txdone(fsm_instance *fi, int event, void *arg)
- 	if ((ch->collect_len <= 0) || (grp->in_sweep != 0)) {
- 		spin_unlock(&ch->collect_lock);
- 		fsm_newstate(fi, CTC_STATE_TXIDLE);
--				goto done;
-+		goto done;
- 	}
- 
- 	if (ctcm_checkalloc_buffer(ch)) {
- 		spin_unlock(&ch->collect_lock);
--				goto done;
-+		goto done;
- 	}
- 	ch->trans_skb->data = ch->trans_skb_data;
- 	skb_reset_tail_pointer(ch->trans_skb);
-@@ -1389,7 +1389,7 @@ static void ctcmpc_chx_rx(fsm_instance *fi, int event, void *arg)
- 		CTCM_DBF_TEXT_(MPC_ERROR, CTC_DBF_ERROR,
- 			"%s(%s): TRANS_SKB = NULL",
- 				CTCM_FUNTAIL, dev->name);
--			goto again;
-+		goto again;
- 	}
- 
- 	if (len < TH_HEADER_LENGTH) {
-@@ -1409,7 +1409,7 @@ static void ctcmpc_chx_rx(fsm_instance *fi, int event, void *arg)
- 				"%s(%s): skb allocation failed",
- 						CTCM_FUNTAIL, dev->name);
- 			fsm_event(priv->mpcg->fsm, MPCG_EVENT_INOP, dev);
--					goto again;
-+			goto again;
- 		}
- 		switch (fsm_getstate(grp->fsm)) {
- 		case MPCG_STATE_RESET:
-@@ -1441,9 +1441,9 @@ static void ctcmpc_chx_rx(fsm_instance *fi, int event, void *arg)
- 		skb_reset_tail_pointer(ch->trans_skb);
- 		ch->trans_skb->len = 0;
- 		ch->ccw[1].count = ch->max_bufsize;
--			if (do_debug_ccw)
-+		if (do_debug_ccw)
- 			ctcmpc_dumpit((char *)&ch->ccw[0],
--					sizeof(struct ccw1) * 3);
-+				      sizeof(struct ccw1) * 3);
- 		dolock = !in_hardirq();
- 		if (dolock)
- 			spin_lock_irqsave(
-@@ -1562,7 +1562,7 @@ void ctcmpc_chx_rxidle(fsm_instance *fi, int event, void *arg)
- 		if (rc != 0) {
- 			fsm_newstate(fi, CTC_STATE_RXINIT);
- 			ctcm_ccw_check_rc(ch, rc, "initial RX");
--				goto done;
-+			goto done;
- 		}
- 		break;
+ 	switch (card->state) {
+ 	case CARD_STATE_DOWN:
+-		return sprintf(buf, "DOWN\n");
++		return sysfs_emit(buf, "DOWN\n");
+ 	case CARD_STATE_SOFTSETUP:
+ 		if (card->dev->flags & IFF_UP)
+-			return sprintf(buf, "UP (LAN %s)\n",
+-				       netif_carrier_ok(card->dev) ? "ONLINE" :
+-								     "OFFLINE");
+-		return sprintf(buf, "SOFTSETUP\n");
++			return sysfs_emit(buf, "UP (LAN %s)\n",
++					  netif_carrier_ok(card->dev) ?
++					  "ONLINE" : "OFFLINE");
++		return sysfs_emit(buf, "SOFTSETUP\n");
  	default:
-@@ -1677,10 +1677,10 @@ static void ctcmpc_chx_attnbusy(fsm_instance *fsm, int event, void *arg)
- 		if (fsm_getstate(ch->fsm) == CH_XID0_INPROGRESS) {
- 			fsm_newstate(ch->fsm, CH_XID0_PENDING) ;
- 			fsm_deltimer(&grp->timer);
--				goto done;
-+			goto done;
- 		}
- 		fsm_event(grp->fsm, MPCG_EVENT_INOP, dev);
--				goto done;
-+		goto done;
- 	case MPCG_STATE_XID2INITX:
- 		/* XID2 was received before ATTN Busy for second
- 		   channel.Send yside xid for second channel.
-@@ -1768,7 +1768,7 @@ static void ctcmpc_chx_send_sweep(fsm_instance *fsm, int event, void *arg)
- 		/* give the previous IO time to complete */
- 		fsm_addtimer(&wch->sweep_timer,
- 			200, CTC_EVENT_RSWEEP_TIMER, wch);
--				goto done;
-+		goto done;
+-		return sprintf(buf, "UNKNOWN\n");
++		return sysfs_emit(buf, "UNKNOWN\n");
  	}
+ }
  
- 	skb = skb_dequeue(&wch->sweep_queue);
-@@ -1780,7 +1780,7 @@ static void ctcmpc_chx_send_sweep(fsm_instance *fsm, int event, void *arg)
- 		ctcm_clear_busy_do(dev);
- 		dev_kfree_skb_any(skb);
- 		fsm_event(grp->fsm, MPCG_EVENT_INOP, dev);
--				goto done;
-+		goto done;
- 	} else {
- 		refcount_inc(&skb->users);
- 		skb_queue_tail(&wch->io_queue, skb);
-diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
-index bdfab9ea0046..28db69d91f17 100644
---- a/drivers/s390/net/ctcm_main.c
-+++ b/drivers/s390/net/ctcm_main.c
-@@ -494,7 +494,7 @@ static int ctcm_transmit_skb(struct channel *ch, struct sk_buff *skb)
- 			ch->collect_len += l;
- 		}
- 		spin_unlock_irqrestore(&ch->collect_lock, saveflags);
--				goto done;
-+		goto done;
+@@ -42,7 +42,7 @@ static ssize_t qeth_dev_chpid_show(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	return sprintf(buf, "%02X\n", card->info.chpid);
++	return sysfs_emit(buf, "%02X\n", card->info.chpid);
+ }
+ 
+ static DEVICE_ATTR(chpid, 0444, qeth_dev_chpid_show, NULL);
+@@ -52,7 +52,7 @@ static ssize_t qeth_dev_if_name_show(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	return sprintf(buf, "%s\n", netdev_name(card->dev));
++	return sysfs_emit(buf, "%s\n", netdev_name(card->dev));
+ }
+ 
+ static DEVICE_ATTR(if_name, 0444, qeth_dev_if_name_show, NULL);
+@@ -62,7 +62,7 @@ static ssize_t qeth_dev_card_type_show(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	return sprintf(buf, "%s\n", qeth_get_cardname_short(card));
++	return sysfs_emit(buf, "%s\n", qeth_get_cardname_short(card));
+ }
+ 
+ static DEVICE_ATTR(card_type, 0444, qeth_dev_card_type_show, NULL);
+@@ -86,7 +86,7 @@ static ssize_t qeth_dev_inbuf_size_show(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	return sprintf(buf, "%s\n", qeth_get_bufsize_str(card));
++	return sysfs_emit(buf, "%s\n", qeth_get_bufsize_str(card));
+ }
+ 
+ static DEVICE_ATTR(inbuf_size, 0444, qeth_dev_inbuf_size_show, NULL);
+@@ -96,7 +96,7 @@ static ssize_t qeth_dev_portno_show(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	return sprintf(buf, "%i\n", card->dev->dev_port);
++	return sysfs_emit(buf, "%i\n", card->dev->dev_port);
+ }
+ 
+ static ssize_t qeth_dev_portno_store(struct device *dev,
+@@ -134,7 +134,7 @@ static DEVICE_ATTR(portno, 0644, qeth_dev_portno_show, qeth_dev_portno_store);
+ static ssize_t qeth_dev_portname_show(struct device *dev,
+ 				struct device_attribute *attr, char *buf)
+ {
+-	return sprintf(buf, "no portname required\n");
++	return sysfs_emit(buf, "no portname required\n");
+ }
+ 
+ static ssize_t qeth_dev_portname_store(struct device *dev,
+@@ -157,18 +157,18 @@ static ssize_t qeth_dev_prioqing_show(struct device *dev,
+ 
+ 	switch (card->qdio.do_prio_queueing) {
+ 	case QETH_PRIO_Q_ING_PREC:
+-		return sprintf(buf, "%s\n", "by precedence");
++		return sysfs_emit(buf, "%s\n", "by precedence");
+ 	case QETH_PRIO_Q_ING_TOS:
+-		return sprintf(buf, "%s\n", "by type of service");
++		return sysfs_emit(buf, "%s\n", "by type of service");
+ 	case QETH_PRIO_Q_ING_SKB:
+-		return sprintf(buf, "%s\n", "by skb-priority");
++		return sysfs_emit(buf, "%s\n", "by skb-priority");
+ 	case QETH_PRIO_Q_ING_VLAN:
+-		return sprintf(buf, "%s\n", "by VLAN headers");
++		return sysfs_emit(buf, "%s\n", "by VLAN headers");
+ 	case QETH_PRIO_Q_ING_FIXED:
+-		return sprintf(buf, "always queue %i\n",
++		return sysfs_emit(buf, "always queue %i\n",
+ 			       card->qdio.default_out_queue);
+ 	default:
+-		return sprintf(buf, "disabled\n");
++		return sysfs_emit(buf, "disabled\n");
  	}
- 	spin_unlock_irqrestore(&ch->collect_lock, saveflags);
- 	/*
-@@ -685,7 +685,7 @@ static int ctcmpc_transmit_skb(struct channel *ch, struct sk_buff *skb)
- 		ch->collect_len += skb->len;
+ }
  
- 		spin_unlock_irqrestore(&ch->collect_lock, saveflags);
--			goto done;
-+		goto done;
+@@ -242,7 +242,7 @@ static ssize_t qeth_dev_bufcnt_show(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	return sprintf(buf, "%i\n", card->qdio.in_buf_pool.buf_count);
++	return sysfs_emit(buf, "%i\n", card->qdio.in_buf_pool.buf_count);
+ }
+ 
+ static ssize_t qeth_dev_bufcnt_store(struct device *dev,
+@@ -298,7 +298,7 @@ static DEVICE_ATTR(recover, 0200, NULL, qeth_dev_recover_store);
+ static ssize_t qeth_dev_performance_stats_show(struct device *dev,
+ 				struct device_attribute *attr, char *buf)
+ {
+-	return sprintf(buf, "1\n");
++	return sysfs_emit(buf, "1\n");
+ }
+ 
+ static ssize_t qeth_dev_performance_stats_store(struct device *dev,
+@@ -335,7 +335,7 @@ static ssize_t qeth_dev_layer2_show(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	return sprintf(buf, "%i\n", card->options.layer);
++	return sysfs_emit(buf, "%i\n", card->options.layer);
+ }
+ 
+ static ssize_t qeth_dev_layer2_store(struct device *dev,
+@@ -470,23 +470,25 @@ static ssize_t qeth_dev_switch_attrs_show(struct device *dev,
+ 	int	rc = 0;
+ 
+ 	if (!qeth_card_hw_is_reachable(card))
+-		return sprintf(buf, "n/a\n");
++		return sysfs_emit(buf, "n/a\n");
+ 
+ 	rc = qeth_query_switch_attributes(card, &sw_info);
+ 	if (rc)
+ 		return rc;
+ 
+ 	if (!sw_info.capabilities)
+-		rc = sprintf(buf, "unknown");
++		rc = sysfs_emit(buf, "unknown");
+ 
+ 	if (sw_info.capabilities & QETH_SWITCH_FORW_802_1)
+-		rc = sprintf(buf, (sw_info.settings & QETH_SWITCH_FORW_802_1 ?
+-							"[802.1]" : "802.1"));
++		rc = sysfs_emit(buf,
++				(sw_info.settings & QETH_SWITCH_FORW_802_1 ?
++				"[802.1]" : "802.1"));
+ 	if (sw_info.capabilities & QETH_SWITCH_FORW_REFL_RELAY)
+-		rc += sprintf(buf + rc,
+-			(sw_info.settings & QETH_SWITCH_FORW_REFL_RELAY ?
+-							" [rr]" : " rr"));
+-	rc += sprintf(buf + rc, "\n");
++		rc += sysfs_emit_at(buf, rc,
++				    (sw_info.settings &
++				    QETH_SWITCH_FORW_REFL_RELAY ?
++				    " [rr]" : " rr"));
++	rc += sysfs_emit_at(buf, rc, "\n");
+ 
+ 	return rc;
+ }
+@@ -573,7 +575,7 @@ static ssize_t qeth_dev_blkt_total_show(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	return sprintf(buf, "%i\n", card->info.blkt.time_total);
++	return sysfs_emit(buf, "%i\n", card->info.blkt.time_total);
+ }
+ 
+ static ssize_t qeth_dev_blkt_total_store(struct device *dev,
+@@ -593,7 +595,7 @@ static ssize_t qeth_dev_blkt_inter_show(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	return sprintf(buf, "%i\n", card->info.blkt.inter_packet);
++	return sysfs_emit(buf, "%i\n", card->info.blkt.inter_packet);
+ }
+ 
+ static ssize_t qeth_dev_blkt_inter_store(struct device *dev,
+@@ -613,7 +615,7 @@ static ssize_t qeth_dev_blkt_inter_jumbo_show(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	return sprintf(buf, "%i\n", card->info.blkt.inter_packet_jumbo);
++	return sysfs_emit(buf, "%i\n", card->info.blkt.inter_packet_jumbo);
+ }
+ 
+ static ssize_t qeth_dev_blkt_inter_jumbo_store(struct device *dev,
+diff --git a/drivers/s390/net/qeth_l2_sys.c b/drivers/s390/net/qeth_l2_sys.c
+index a617351fff57..7f592f912517 100644
+--- a/drivers/s390/net/qeth_l2_sys.c
++++ b/drivers/s390/net/qeth_l2_sys.c
+@@ -19,7 +19,7 @@ static ssize_t qeth_bridge_port_role_state_show(struct device *dev,
+ 	char *word;
+ 
+ 	if (!qeth_bridgeport_allowed(card))
+-		return sprintf(buf, "n/a (VNIC characteristics)\n");
++		return sysfs_emit(buf, "n/a (VNIC characteristics)\n");
+ 
+ 	mutex_lock(&card->sbp_lock);
+ 	if (qeth_card_hw_is_reachable(card) &&
+@@ -53,7 +53,7 @@ static ssize_t qeth_bridge_port_role_state_show(struct device *dev,
+ 			QETH_CARD_TEXT_(card, 2, "SBP%02x:%02x",
+ 				card->options.sbp.role, state);
+ 		else
+-			rc = sprintf(buf, "%s\n", word);
++			rc = sysfs_emit(buf, "%s\n", word);
  	}
+ 	mutex_unlock(&card->sbp_lock);
  
- 	/*
-@@ -885,7 +885,7 @@ static netdev_tx_t ctcmpc_tx(struct sk_buff *skb, struct net_device *dev)
- 			"%s(%s): NULL sk_buff passed",
- 					CTCM_FUNTAIL, dev->name);
- 		priv->stats.tx_dropped++;
--					goto done;
-+		goto done;
+@@ -66,7 +66,7 @@ static ssize_t qeth_bridge_port_role_show(struct device *dev,
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+ 	if (!qeth_bridgeport_allowed(card))
+-		return sprintf(buf, "n/a (VNIC characteristics)\n");
++		return sysfs_emit(buf, "n/a (VNIC characteristics)\n");
+ 
+ 	return qeth_bridge_port_role_state_show(dev, attr, buf, 0);
+ }
+@@ -117,7 +117,7 @@ static ssize_t qeth_bridge_port_state_show(struct device *dev,
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+ 	if (!qeth_bridgeport_allowed(card))
+-		return sprintf(buf, "n/a (VNIC characteristics)\n");
++		return sysfs_emit(buf, "n/a (VNIC characteristics)\n");
+ 
+ 	return qeth_bridge_port_role_state_show(dev, attr, buf, 1);
+ }
+@@ -132,11 +132,11 @@ static ssize_t qeth_bridgeport_hostnotification_show(struct device *dev,
+ 	int enabled;
+ 
+ 	if (!qeth_bridgeport_allowed(card))
+-		return sprintf(buf, "n/a (VNIC characteristics)\n");
++		return sysfs_emit(buf, "n/a (VNIC characteristics)\n");
+ 
+ 	enabled = card->options.sbp.hostnotification;
+ 
+-	return sprintf(buf, "%d\n", enabled);
++	return sysfs_emit(buf, "%d\n", enabled);
+ }
+ 
+ static ssize_t qeth_bridgeport_hostnotification_store(struct device *dev,
+@@ -180,7 +180,7 @@ static ssize_t qeth_bridgeport_reflect_show(struct device *dev,
+ 	char *state;
+ 
+ 	if (!qeth_bridgeport_allowed(card))
+-		return sprintf(buf, "n/a (VNIC characteristics)\n");
++		return sysfs_emit(buf, "n/a (VNIC characteristics)\n");
+ 
+ 	if (card->options.sbp.reflect_promisc) {
+ 		if (card->options.sbp.reflect_promisc_primary)
+@@ -190,7 +190,7 @@ static ssize_t qeth_bridgeport_reflect_show(struct device *dev,
+ 	} else
+ 		state = "none";
+ 
+-	return sprintf(buf, "%s\n", state);
++	return sysfs_emit(buf, "%s\n", state);
+ }
+ 
+ static ssize_t qeth_bridgeport_reflect_store(struct device *dev,
+@@ -280,10 +280,10 @@ static ssize_t qeth_vnicc_timeout_show(struct device *dev,
+ 
+ 	rc = qeth_l2_vnicc_get_timeout(card, &timeout);
+ 	if (rc == -EBUSY)
+-		return sprintf(buf, "n/a (BridgePort)\n");
++		return sysfs_emit(buf, "n/a (BridgePort)\n");
+ 	if (rc == -EOPNOTSUPP)
+-		return sprintf(buf, "n/a\n");
+-	return rc ? rc : sprintf(buf, "%d\n", timeout);
++		return sysfs_emit(buf, "n/a\n");
++	return rc ? rc : sysfs_emit(buf, "%d\n", timeout);
+ }
+ 
+ /* change timeout setting */
+@@ -318,10 +318,10 @@ static ssize_t qeth_vnicc_char_show(struct device *dev,
+ 	rc = qeth_l2_vnicc_get_state(card, vnicc, &state);
+ 
+ 	if (rc == -EBUSY)
+-		return sprintf(buf, "n/a (BridgePort)\n");
++		return sysfs_emit(buf, "n/a (BridgePort)\n");
+ 	if (rc == -EOPNOTSUPP)
+-		return sprintf(buf, "n/a\n");
+-	return rc ? rc : sprintf(buf, "%d\n", state);
++		return sysfs_emit(buf, "n/a\n");
++	return rc ? rc : sysfs_emit(buf, "%d\n", state);
+ }
+ 
+ /* change setting of characteristic */
+diff --git a/drivers/s390/net/qeth_l3_sys.c b/drivers/s390/net/qeth_l3_sys.c
+index 6143dd485810..f3986c6e21b9 100644
+--- a/drivers/s390/net/qeth_l3_sys.c
++++ b/drivers/s390/net/qeth_l3_sys.c
+@@ -32,26 +32,26 @@ static ssize_t qeth_l3_dev_route_show(struct qeth_card *card,
+ {
+ 	switch (route->type) {
+ 	case PRIMARY_ROUTER:
+-		return sprintf(buf, "%s\n", "primary router");
++		return sysfs_emit(buf, "%s\n", "primary router");
+ 	case SECONDARY_ROUTER:
+-		return sprintf(buf, "%s\n", "secondary router");
++		return sysfs_emit(buf, "%s\n", "secondary router");
+ 	case MULTICAST_ROUTER:
+ 		if (card->info.broadcast_capable == QETH_BROADCAST_WITHOUT_ECHO)
+-			return sprintf(buf, "%s\n", "multicast router+");
++			return sysfs_emit(buf, "%s\n", "multicast router+");
+ 		else
+-			return sprintf(buf, "%s\n", "multicast router");
++			return sysfs_emit(buf, "%s\n", "multicast router");
+ 	case PRIMARY_CONNECTOR:
+ 		if (card->info.broadcast_capable == QETH_BROADCAST_WITHOUT_ECHO)
+-			return sprintf(buf, "%s\n", "primary connector+");
++			return sysfs_emit(buf, "%s\n", "primary connector+");
+ 		else
+-			return sprintf(buf, "%s\n", "primary connector");
++			return sysfs_emit(buf, "%s\n", "primary connector");
+ 	case SECONDARY_CONNECTOR:
+ 		if (card->info.broadcast_capable == QETH_BROADCAST_WITHOUT_ECHO)
+-			return sprintf(buf, "%s\n", "secondary connector+");
++			return sysfs_emit(buf, "%s\n", "secondary connector+");
+ 		else
+-			return sprintf(buf, "%s\n", "secondary connector");
++			return sysfs_emit(buf, "%s\n", "secondary connector");
+ 	default:
+-		return sprintf(buf, "%s\n", "no");
++		return sysfs_emit(buf, "%s\n", "no");
  	}
- 	if (skb_headroom(skb) < (TH_HEADER_LENGTH + PDU_HEADER_LENGTH)) {
- 		CTCM_DBF_TEXT_(MPC_TRACE, CTC_DBF_ERROR,
-@@ -908,7 +908,7 @@ static netdev_tx_t ctcmpc_tx(struct sk_buff *skb, struct net_device *dev)
- 			priv->stats.tx_errors++;
- 			priv->stats.tx_carrier_errors++;
- 			fsm_event(grp->fsm, MPCG_EVENT_INOP, dev);
--					goto done;
-+			goto done;
- 		}
- 		newskb->protocol = skb->protocol;
- 		skb_reserve(newskb, TH_HEADER_LENGTH + PDU_HEADER_LENGTH);
-@@ -931,7 +931,7 @@ static netdev_tx_t ctcmpc_tx(struct sk_buff *skb, struct net_device *dev)
- 		priv->stats.tx_dropped++;
- 		priv->stats.tx_errors++;
- 		priv->stats.tx_carrier_errors++;
--					goto done;
-+		goto done;
+ }
+ 
+@@ -138,7 +138,7 @@ static ssize_t qeth_l3_dev_sniffer_show(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	return sprintf(buf, "%i\n", card->options.sniffer ? 1 : 0);
++	return sysfs_emit(buf, "%i\n", card->options.sniffer ? 1 : 0);
+ }
+ 
+ static ssize_t qeth_l3_dev_sniffer_store(struct device *dev,
+@@ -200,7 +200,7 @@ static ssize_t qeth_l3_dev_hsuid_show(struct device *dev,
+ 
+ 	memcpy(tmp_hsuid, card->options.hsuid, sizeof(tmp_hsuid));
+ 	EBCASC(tmp_hsuid, 8);
+-	return sprintf(buf, "%s\n", tmp_hsuid);
++	return sysfs_emit(buf, "%s\n", tmp_hsuid);
+ }
+ 
+ static ssize_t qeth_l3_dev_hsuid_store(struct device *dev,
+@@ -285,7 +285,7 @@ static ssize_t qeth_l3_dev_ipato_enable_show(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	return sprintf(buf, "%u\n", card->ipato.enabled ? 1 : 0);
++	return sysfs_emit(buf, "%u\n", card->ipato.enabled ? 1 : 0);
+ }
+ 
+ static ssize_t qeth_l3_dev_ipato_enable_store(struct device *dev,
+@@ -330,7 +330,7 @@ static ssize_t qeth_l3_dev_ipato_invert4_show(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	return sprintf(buf, "%u\n", card->ipato.invert4 ? 1 : 0);
++	return sysfs_emit(buf, "%u\n", card->ipato.invert4 ? 1 : 0);
+ }
+ 
+ static ssize_t qeth_l3_dev_ipato_invert4_store(struct device *dev,
+@@ -367,35 +367,21 @@ static ssize_t qeth_l3_dev_ipato_add_show(char *buf, struct qeth_card *card,
+ 			enum qeth_prot_versions proto)
+ {
+ 	struct qeth_ipato_entry *ipatoe;
+-	int str_len = 0;
++	char addr_str[INET6_ADDRSTRLEN];
++	int offset = 0;
+ 
+ 	mutex_lock(&card->ip_lock);
+ 	list_for_each_entry(ipatoe, &card->ipato.entries, entry) {
+-		char addr_str[INET6_ADDRSTRLEN];
+-		int entry_len;
+-
+ 		if (ipatoe->proto != proto)
+ 			continue;
+ 
+-		entry_len = qeth_l3_ipaddr_to_string(proto, ipatoe->addr,
+-						     addr_str);
+-		if (entry_len < 0)
+-			continue;
+-
+-		/* Append /%mask to the entry: */
+-		entry_len += 1 + ((proto == QETH_PROT_IPV4) ? 2 : 3);
+-		/* Enough room to format %entry\n into null terminated page? */
+-		if (entry_len + 1 > PAGE_SIZE - str_len - 1)
+-			break;
+-
+-		entry_len = scnprintf(buf, PAGE_SIZE - str_len,
+-				      "%s/%i\n", addr_str, ipatoe->mask_bits);
+-		str_len += entry_len;
+-		buf += entry_len;
++		qeth_l3_ipaddr_to_string(proto, ipatoe->addr, addr_str);
++		offset += sysfs_emit_at(buf, offset, "%s/%i\n",
++					addr_str, ipatoe->mask_bits);
  	}
+ 	mutex_unlock(&card->ip_lock);
  
- 	if (ctcm_test_and_set_busy(dev)) {
-@@ -943,7 +943,7 @@ static netdev_tx_t ctcmpc_tx(struct sk_buff *skb, struct net_device *dev)
- 		priv->stats.tx_errors++;
- 		priv->stats.tx_carrier_errors++;
- 		fsm_event(grp->fsm, MPCG_EVENT_INOP, dev);
--					goto done;
-+		goto done;
+-	return str_len ? str_len : scnprintf(buf, PAGE_SIZE, "\n");
++	return offset ? offset : sysfs_emit(buf, "\n");
+ }
+ 
+ static ssize_t qeth_l3_dev_ipato_add4_show(struct device *dev,
+@@ -501,7 +487,7 @@ static ssize_t qeth_l3_dev_ipato_invert6_show(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	return sprintf(buf, "%u\n", card->ipato.invert6 ? 1 : 0);
++	return sysfs_emit(buf, "%u\n", card->ipato.invert6 ? 1 : 0);
+ }
+ 
+ static ssize_t qeth_l3_dev_ipato_invert6_store(struct device *dev,
+@@ -586,35 +572,22 @@ static ssize_t qeth_l3_dev_ip_add_show(struct device *dev, char *buf,
+ 				       enum qeth_ip_types type)
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
++	char addr_str[INET6_ADDRSTRLEN];
+ 	struct qeth_ipaddr *ipaddr;
+-	int str_len = 0;
++	int offset = 0;
+ 	int i;
+ 
+ 	mutex_lock(&card->ip_lock);
+ 	hash_for_each(card->ip_htable, i, ipaddr, hnode) {
+-		char addr_str[INET6_ADDRSTRLEN];
+-		int entry_len;
+-
+ 		if (ipaddr->proto != proto || ipaddr->type != type)
+ 			continue;
+ 
+-		entry_len = qeth_l3_ipaddr_to_string(proto, (u8 *)&ipaddr->u,
+-						     addr_str);
+-		if (entry_len < 0)
+-			continue;
+-
+-		/* Enough room to format %addr\n into null terminated page? */
+-		if (entry_len + 1 > PAGE_SIZE - str_len - 1)
+-			break;
+-
+-		entry_len = scnprintf(buf, PAGE_SIZE - str_len, "%s\n",
+-				      addr_str);
+-		str_len += entry_len;
+-		buf += entry_len;
++		qeth_l3_ipaddr_to_string(proto, (u8 *)&ipaddr->u, addr_str);
++		offset += sysfs_emit_at(buf, offset, "%s\n", addr_str);
  	}
+ 	mutex_unlock(&card->ip_lock);
  
- 	netif_trans_update(dev);
-@@ -957,7 +957,7 @@ static netdev_tx_t ctcmpc_tx(struct sk_buff *skb, struct net_device *dev)
- 		priv->stats.tx_carrier_errors++;
- 		ctcm_clear_busy(dev);
- 		fsm_event(grp->fsm, MPCG_EVENT_INOP, dev);
--					goto done;
-+		goto done;
- 	}
- 	ctcm_clear_busy(dev);
- done:
-@@ -1421,7 +1421,7 @@ static int add_channel(struct ccw_device *cdev, enum ctcm_channel_types type,
- 				"%s (%s) already in list, using old entry",
- 				__func__, (*c)->id);
+-	return str_len ? str_len : scnprintf(buf, PAGE_SIZE, "\n");
++	return offset ? offset : sysfs_emit(buf, "\n");
+ }
  
--				goto free_return;
-+		goto free_return;
- 	}
- 
- 	spin_lock_init(&ch->collect_lock);
-diff --git a/drivers/s390/net/ctcm_mpc.c b/drivers/s390/net/ctcm_mpc.c
-index 8ac213a55141..b8a226c6e1a9 100644
---- a/drivers/s390/net/ctcm_mpc.c
-+++ b/drivers/s390/net/ctcm_mpc.c
-@@ -481,7 +481,7 @@ void ctc_mpc_establish_connectivity(int port_num,
- 				grp->estconnfunc = NULL;
- 			}
- 			fsm_deltimer(&grp->timer);
--				goto done;
-+			goto done;
- 		}
- 		if ((wch->in_mpcgroup) &&
- 				(fsm_getstate(wch->fsm) == CH_XID0_PENDING))
-@@ -495,7 +495,7 @@ void ctc_mpc_establish_connectivity(int port_num,
- 				grp->estconnfunc = NULL;
- 			}
- 			fsm_deltimer(&grp->timer);
--				goto done;
-+			goto done;
- 			}
- 		break;
- 	case MPCG_STATE_XID0IOWAIT:
-@@ -896,8 +896,9 @@ void mpc_group_ready(unsigned long adev)
- 		grp->estconnfunc(grp->port_num, 0,
- 				    grp->group_max_buflen);
- 		grp->estconnfunc = NULL;
--	} else 	if (grp->allochanfunc)
-+	} else if (grp->allochanfunc) {
- 		grp->allochanfunc(grp->port_num, grp->group_max_buflen);
-+	}
- 
- 	grp->send_qllc_disc = 1;
- 	grp->changed_side = 0;
-@@ -1109,7 +1110,7 @@ static void ctcmpc_unpack_skb(struct channel *ch, struct sk_buff *pskb)
- 
- 				priv->stats.rx_dropped++;
- 				priv->stats.rx_length_errors++;
--					goto done;
-+				goto done;
- 			}
- 			skb_reset_mac_header(pskb);
- 			new_len = curr_pdu->pdu_offset;
-@@ -1132,7 +1133,7 @@ static void ctcmpc_unpack_skb(struct channel *ch, struct sk_buff *pskb)
- 						CTCM_FUNTAIL, dev->name);
- 				priv->stats.rx_dropped++;
- 				fsm_event(grp->fsm, MPCG_EVENT_INOP, dev);
--						goto done;
-+				goto done;
- 			}
- 			skb_put_data(skb, pskb->data, new_len);
- 
-@@ -1543,7 +1544,7 @@ static int mpc_validate_xid(struct mpcg_info *mpcginfo)
- 		CTCM_DBF_TEXT_(MPC_ERROR, CTC_DBF_ERROR,
- 			"%s(%s): xid = NULL",
- 				CTCM_FUNTAIL, ch->id);
--			goto done;
-+		goto done;
- 	}
- 
- 	CTCM_D3_DUMP((char *)xid, XID2_LENGTH);
-@@ -1556,7 +1557,7 @@ static int mpc_validate_xid(struct mpcg_info *mpcginfo)
- 		CTCM_DBF_TEXT_(MPC_ERROR, CTC_DBF_ERROR,
- 			"%s(%s): r/w channel pairing mismatch",
- 				CTCM_FUNTAIL, ch->id);
--			goto done;
-+		goto done;
- 	}
- 
- 	if (xid->xid2_dlc_type == XID2_READ_SIDE) {
+ static ssize_t qeth_l3_dev_vipa_add4_show(struct device *dev,
 -- 
 2.37.2
 
