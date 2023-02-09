@@ -2,35 +2,35 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 69CC4C61DA4
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Feb 2023 11:26:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 181ADC61DA4
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Feb 2023 11:29:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231408AbjBIL0u (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Feb 2023 06:26:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59894 "EHLO
+        id S231589AbjBIL3Y (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Feb 2023 06:29:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231444AbjBIL0J (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Feb 2023 06:26:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB1166564E;
-        Thu,  9 Feb 2023 03:20:17 -0800 (PST)
+        with ESMTP id S231388AbjBIL2X (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Feb 2023 06:28:23 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 501626ADD0;
+        Thu,  9 Feb 2023 03:21:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 22769B81FFE;
-        Thu,  9 Feb 2023 11:19:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9E69C433D2;
-        Thu,  9 Feb 2023 11:19:15 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 839E9CE246E;
+        Thu,  9 Feb 2023 11:20:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2FD2C433EF;
+        Thu,  9 Feb 2023 11:19:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675941556;
-        bh=0ZhHcDlgcocBheep5X0PxegUrdqJnTELyJRkH/kLBu8=;
+        s=k20201202; t=1675941597;
+        bh=wPOAHH7kPtHNJZ7UF+2yhWXL7e/2Pv2JX/TDaRVF0PA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YBhUz+8LLy6pLgVfzwg8SgklivRmmuQrXpmpSsGh7QY1bDl+UoYOC4mMX7y6IUA5t
-         2cQXJ6z7csidVKTiuSbjgbPWfuyRSFWL6V3Q55dxWTiW6H1E6QmY1itUy67ijUdxtv
-         7iovKUx9lRccpM3KfhqrRd+itFxVQFSQTUlK7YhPOmH2jQ5aoHI9o4DEa7D8/S//LR
-         KSGtdeNYC/qFrxSbcrasiMeCpoZbj70VgSP0yyI2UX0C7VKYH7Hpt/cGRxwPh9c3fa
-         4WrcAMbFeT3EW+7mJC0vU7/zf1QBRHeHHa1j9wXr+jZH/2iLRKPR0WhQpBiJIUQy6Z
-         OmRCSYJW7zBag==
+        b=FiPsq8hIjxi3FvPpE17sJixqTN3Q0JsjKHCoFqR3vovv4sFV3WKUJ9HcZrLNpQIWD
+         MBhW7YuzKCK/eraKFrSB0+nMQ3E5w0EqBVZMOj2msM8vg1LPgp8J6v7rliT9i04z2v
+         ivwuSNrz3yLMAkPDwtat8zIY8XNJEZkJSCwOL6XmUCgzlqeIJkvqWu2pubCRqjZCxW
+         HMILcpM/7r5/EsZHOOG4NmNDEhccjmLTVypdWpu4OGTLb8zO6FnIoukVoNMctopwDQ
+         2cg1a9h4AoiB3V3D4wgS1kwzs7xUzLOuYI1FehyWKmdafmMLwIFkJtG/JgogcH9IG6
+         f6JVSk6siw6hQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Vasily Gorbik <gor@linux.ibm.com>,
@@ -38,12 +38,12 @@ Cc:     Vasily Gorbik <gor@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>, agordeev@linux.ibm.com,
         terrelln@fb.com, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 11/13] s390/decompressor: specify __decompress() buf len to avoid overflow
-Date:   Thu,  9 Feb 2023 06:18:29 -0500
-Message-Id: <20230209111833.1892896-11-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 09/10] s390/decompressor: specify __decompress() buf len to avoid overflow
+Date:   Thu,  9 Feb 2023 06:19:18 -0500
+Message-Id: <20230209111921.1893095-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230209111833.1892896-1-sashal@kernel.org>
-References: <20230209111833.1892896-1-sashal@kernel.org>
+In-Reply-To: <20230209111921.1893095-1-sashal@kernel.org>
+References: <20230209111921.1893095-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -80,10 +80,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/s390/boot/compressed/decompressor.c b/arch/s390/boot/compressed/decompressor.c
-index 3061b11c4d27f..8eaa1712a1c8d 100644
+index 45046630c56ac..c42ab33bd4524 100644
 --- a/arch/s390/boot/compressed/decompressor.c
 +++ b/arch/s390/boot/compressed/decompressor.c
-@@ -79,6 +79,6 @@ void *decompress_kernel(void)
+@@ -80,6 +80,6 @@ void *decompress_kernel(void)
  	void *output = (void *)decompress_offset;
  
  	__decompress(_compressed_start, _compressed_end - _compressed_start,
