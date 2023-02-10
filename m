@@ -2,96 +2,166 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 384D3C05027
-	for <linux-s390@archiver.kernel.org>; Fri, 10 Feb 2023 00:06:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 921E6C636D7
+	for <linux-s390@archiver.kernel.org>; Fri, 10 Feb 2023 05:08:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229760AbjBJAGA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Feb 2023 19:06:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40838 "EHLO
+        id S231219AbjBJFIV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 10 Feb 2023 00:08:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229775AbjBJAF7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Feb 2023 19:05:59 -0500
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 596A7485AD
-        for <linux-s390@vger.kernel.org>; Thu,  9 Feb 2023 16:05:58 -0800 (PST)
-Received: by mail-pl1-x62c.google.com with SMTP id v23so4786138plo.1
-        for <linux-s390@vger.kernel.org>; Thu, 09 Feb 2023 16:05:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
-        h=content-transfer-encoding:mime-version:date:message-id:subject
-         :references:in-reply-to:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=hra9M/6sDrSMfRhctOu8H0bjjFmaSFx3pmX7jU8q+uU=;
-        b=fJMNnbI9NOEX5Xh9S450ocdu8n4Wwc0ODspPLKhRENbn0dKn41KH1Tr90q1eODe52G
-         KWtr7OYjSy7cVKa7vnqXlRlwXvapqykIuX/5uJl/uwJlsrZEhK/clSn8Fa1nW/znYI3U
-         wutXLhkNwhn9PSvVAYd2J9pWlFukWhiQDoR+DNfcKxs/igbABQAk0WMpB//ld0i/etcb
-         kXxGIKvpM81YRmGGqw7eOmFrbpBCq9bfc5BRzLV+nknT/2kFz5JDuIhyE7YdCSrZmVOr
-         nHRq56N28l3aioVRDsdbEDrSmNh6J2v7hoxuS6t9+PPsYcYyLfrOUHQv+SvxXXCXhrRQ
-         1QaA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:date:message-id:subject
-         :references:in-reply-to:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=hra9M/6sDrSMfRhctOu8H0bjjFmaSFx3pmX7jU8q+uU=;
-        b=IT3YssbRXg90IH0sA6KDS2vBwfaHhxCzZYy7Jh8NADK0KXgw+qB77OkRZpixWiZaVG
-         uNXAytV//OjlCAHuEXf50Y8AZiSIHxmkjvZQrtfiGK4+7OJoBv1KNx5VqJG91AIMDqNp
-         KdL4jB6dfTbfJaGw/G/9bFUIlM23wNSqP6m9MotZC/4oYaQfAN8V1RGNH3409/faKuFX
-         7skaA9ZihKpc0fsx+DxLxcfdbrfmdMNwzRsZoOTJVNwQPKaGYuXsefKrmFk2N7EZeW5T
-         Isc3SiTxw7TWzVFNM+maE9MN4XF+cuOutuwGSx5xaMfwhO6ryRrv0TGMfyBLWzyvvwLv
-         j38g==
-X-Gm-Message-State: AO0yUKUVrGvWY+bSt74lzWfJAAJyvlnaUdErlXz1VACXuNqYIlIMZ7S5
-        7WwxbqzPR6C1AUhzLeycy1+3iQ==
-X-Google-Smtp-Source: AK7set/HOfDwnBGVxxKKGuL4oK62TB0VJw//XjZXmW/7z00Nuh/KuM+Cd3aPDucEoWnDAcOynPVmqA==
-X-Received: by 2002:a17:903:2286:b0:19a:723a:8405 with SMTP id b6-20020a170903228600b0019a723a8405mr208701plh.6.1675987557756;
-        Thu, 09 Feb 2023 16:05:57 -0800 (PST)
-Received: from [127.0.0.1] ([198.8.77.157])
-        by smtp.gmail.com with ESMTPSA id s1-20020a63af41000000b004f1e73b073bsm1831517pgo.26.2023.02.09.16.05.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Feb 2023 16:05:57 -0800 (PST)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     Stefan Haberland <sth@linux.ibm.com>
-Cc:     linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Qiheng Lin <linqiheng@huawei.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20230210000253.1644903-1-sth@linux.ibm.com>
-References: <20230210000253.1644903-1-sth@linux.ibm.com>
-Subject: Re: [PATCH 0/2] s390/dasd: patches
-Message-Id: <167598755656.7194.16272906680345697326.b4-ty@kernel.dk>
-Date:   Thu, 09 Feb 2023 17:05:56 -0700
+        with ESMTP id S229455AbjBJFIU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 10 Feb 2023 00:08:20 -0500
+Received: from gandalf.ozlabs.org (gandalf.ozlabs.org [150.107.74.76])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF7035C4BC;
+        Thu,  9 Feb 2023 21:08:17 -0800 (PST)
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mail.ozlabs.org (Postfix) with ESMTPSA id 4PChZj6hzVz4xwy;
+        Fri, 10 Feb 2023 16:08:13 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
+        s=201909; t=1676005696;
+        bh=gjOEhpmQ4QzYiJxNRSCplO6mzBIo8CgdHMudas4f4m4=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=VzBHDakF5oapgbqSwyCXW4NlOxuhWIXgHT5bnjksmwxnwzB2j77QlwtNy9auFKO5k
+         R5zuzvTLv5v6JR0g4zAQSDALbGO0+HtyCcaxIv+XCmtUOUNdsZXpr/60HJ8m0se9Ac
+         HCqPfRmHl1K9cRm2zGL0JLt1dLbvDoohuA4JmvWcFN0J1XTPyIZXfr0n3q8zPBgbwM
+         2KTETWI8PkOX6ZP5se3LmuOaFIoUbfwmRFq7s/gffXRM+ntl6Tsz8s7uIuoBncovYH
+         169scsrJUZSYlGwI60JQl2lk38JbvV/eRPo8tLjsBgWQeltv5kZiHwGm5Gqurl9z/4
+         hTaeq+aYRbc4A==
+From:   Michael Ellerman <mpe@ellerman.id.au>
+To:     David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Hugh Dickins <hughd@google.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Nadav Amit <namit@vmware.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Peter Xu <peterx@redhat.com>, linux-mm@kvack.org,
+        x86@kernel.org, linux-alpha@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
+        David Hildenbrand <david@redhat.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>
+Subject: Re: [PATCH mm-unstable v1 17/26] powerpc/mm: support
+ __HAVE_ARCH_PTE_SWP_EXCLUSIVE on 32bit book3s
+In-Reply-To: <20230113171026.582290-18-david@redhat.com>
+References: <20230113171026.582290-1-david@redhat.com>
+ <20230113171026.582290-18-david@redhat.com>
+Date:   Fri, 10 Feb 2023 16:08:07 +1100
+Message-ID: <87cz6iw1jc.fsf@mpe.ellerman.id.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.12.0
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+David Hildenbrand <david@redhat.com> writes:
+> We already implemented support for 64bit book3s in commit bff9beaa2e80
+> ("powerpc/pgtable: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE for book3s")
+>
+> Let's support __HAVE_ARCH_PTE_SWP_EXCLUSIVE also in 32bit by reusing yet
+> unused LSB 2 / MSB 29. There seems to be no real reason why that bit cannot
+> be used, and reusing it avoids having to steal one bit from the swap
+> offset.
+>
+> While at it, mask the type in __swp_entry().
+>
+> Cc: Michael Ellerman <mpe@ellerman.id.au>
+> Cc: Nicholas Piggin <npiggin@gmail.com>
+> Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
+> Signed-off-by: David Hildenbrand <david@redhat.com>
+> ---
+>  arch/powerpc/include/asm/book3s/32/pgtable.h | 38 +++++++++++++++++---
+>  1 file changed, 33 insertions(+), 5 deletions(-)
 
-On Fri, 10 Feb 2023 01:02:51 +0100, Stefan Haberland wrote:
-> please apply the following patches for the next merge window that:
->  - sort out physical and virtual pointers
->  - fix a potential memleak in dasd_eckd_init
-> 
-> Thanks.
-> 
-> Alexander Gordeev (1):
->   s390/dasd: sort out physical vs virtual pointers usage
-> 
-> [...]
+I gave this a quick test on a ppc32 machine, everything seems fine.
 
-Applied, thanks!
+Your test_swp_exclusive.c passes, and an LTP run looks normal.
 
-[1/2] s390/dasd: sort out physical vs virtual pointers usage
-      commit: b87c52e431adfe2dfe8634216b317b4a952aa9fc
-[2/2] s390/dasd: Fix potential memleak in dasd_eckd_init()
-      commit: 460e9bed82e49db1b823dcb4e421783854d86c40
+Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
 
-Best regards,
--- 
-Jens Axboe
+cheers
 
-
-
+> diff --git a/arch/powerpc/include/asm/book3s/32/pgtable.h b/arch/powerpc/include/asm/book3s/32/pgtable.h
+> index 75823f39e042..0ecb3a58f23f 100644
+> --- a/arch/powerpc/include/asm/book3s/32/pgtable.h
+> +++ b/arch/powerpc/include/asm/book3s/32/pgtable.h
+> @@ -42,6 +42,9 @@
+>  #define _PMD_PRESENT_MASK (PAGE_MASK)
+>  #define _PMD_BAD	(~PAGE_MASK)
+>  
+> +/* We borrow the _PAGE_USER bit to store the exclusive marker in swap PTEs. */
+> +#define _PAGE_SWP_EXCLUSIVE	_PAGE_USER
+> +
+>  /* And here we include common definitions */
+>  
+>  #define _PAGE_KERNEL_RO		0
+> @@ -363,17 +366,42 @@ static inline void __ptep_set_access_flags(struct vm_area_struct *vma,
+>  #define pmd_page(pmd)		pfn_to_page(pmd_pfn(pmd))
+>  
+>  /*
+> - * Encode and decode a swap entry.
+> - * Note that the bits we use in a PTE for representing a swap entry
+> - * must not include the _PAGE_PRESENT bit or the _PAGE_HASHPTE bit (if used).
+> - *   -- paulus
+> + * Encode/decode swap entries and swap PTEs. Swap PTEs are all PTEs that
+> + * are !pte_none() && !pte_present().
+> + *
+> + * Format of swap PTEs (32bit PTEs):
+> + *
+> + *                         1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 3 3
+> + *   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+> + *   <----------------- offset --------------------> < type -> E H P
+> + *
+> + *   E is the exclusive marker that is not stored in swap entries.
+> + *   _PAGE_PRESENT (P) and __PAGE_HASHPTE (H) must be 0.
+> + *
+> + * For 64bit PTEs, the offset is extended by 32bit.
+>   */
+>  #define __swp_type(entry)		((entry).val & 0x1f)
+>  #define __swp_offset(entry)		((entry).val >> 5)
+> -#define __swp_entry(type, offset)	((swp_entry_t) { (type) | ((offset) << 5) })
+> +#define __swp_entry(type, offset)	((swp_entry_t) { ((type) & 0x1f) | ((offset) << 5) })
+>  #define __pte_to_swp_entry(pte)		((swp_entry_t) { pte_val(pte) >> 3 })
+>  #define __swp_entry_to_pte(x)		((pte_t) { (x).val << 3 })
+>  
+> +#define __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+> +static inline int pte_swp_exclusive(pte_t pte)
+> +{
+> +	return pte_val(pte) & _PAGE_SWP_EXCLUSIVE;
+> +}
+> +
+> +static inline pte_t pte_swp_mkexclusive(pte_t pte)
+> +{
+> +	return __pte(pte_val(pte) | _PAGE_SWP_EXCLUSIVE);
+> +}
+> +
+> +static inline pte_t pte_swp_clear_exclusive(pte_t pte)
+> +{
+> +	return __pte(pte_val(pte) & ~_PAGE_SWP_EXCLUSIVE);
+> +}
+> +
+>  /* Generic accessors to PTE bits */
+>  static inline int pte_write(pte_t pte)		{ return !!(pte_val(pte) & _PAGE_RW);}
+>  static inline int pte_read(pte_t pte)		{ return 1; }
+> -- 
+> 2.39.0
+>
+>
+> _______________________________________________
+> linux-riscv mailing list
+> linux-riscv@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-riscv
