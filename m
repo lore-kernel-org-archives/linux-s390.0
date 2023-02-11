@@ -2,151 +2,84 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 42574C636D4
-	for <linux-s390@archiver.kernel.org>; Sat, 11 Feb 2023 01:24:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A70E0C64EC7
+	for <linux-s390@archiver.kernel.org>; Sat, 11 Feb 2023 04:00:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229886AbjBKBYN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 10 Feb 2023 20:24:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51306 "EHLO
+        id S229585AbjBKEAa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 10 Feb 2023 23:00:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229447AbjBKBYM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 10 Feb 2023 20:24:12 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C9A17D3EF;
-        Fri, 10 Feb 2023 17:24:11 -0800 (PST)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31B1BtB3000909;
-        Sat, 11 Feb 2023 01:24:11 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=iH2GWNAE8oZswqJl+V9hVKOZWRQZ+tzd255JikEa+2E=;
- b=qFkEzCQtxli6nTjMiGAHGtd1glOBkCMb7MJq6IiKKX8n7zD1HTTIwe6T9ruA7tDNk18S
- 3gqt+YSp8+Q5j7SImvQpojpMfH1if1FiSIk2UtHQUTEqOTr3gmxrVLtcFSFqzRZ0hJP9
- ZaDBNltk3iJBmDO85223mPQvaU/nS3WZ1SeGP6Ury0qhoqc3jn+HkG2154WYyJyGd/XS
- pWqUN9KeQp6A5jyG3nqVwDdO+EsqI/TzDfviDiolcukXgYQh8yLStxCe3bmmUmzIkF8k
- j48y7lp0QajXU7DVkyjvHnkIo+xVPyTPtitTeW4tJkwWrP7+09xlFhZzpkGly6DX7VRh 2g== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3np15285ep-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sat, 11 Feb 2023 01:24:11 +0000
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 31B1ILuL005119;
-        Sat, 11 Feb 2023 01:24:10 GMT
-Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3np15285e5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sat, 11 Feb 2023 01:24:10 +0000
-Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
-        by ppma05wdc.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31B00FNh003976;
-        Sat, 11 Feb 2023 01:24:09 GMT
-Received: from smtprelay04.wdc07v.mail.ibm.com ([9.208.129.114])
-        by ppma05wdc.us.ibm.com (PPS) with ESMTPS id 3nhf07skjm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sat, 11 Feb 2023 01:24:09 +0000
-Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
-        by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31B1O7Tx25035328
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sat, 11 Feb 2023 01:24:07 GMT
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 55A3258043;
-        Sat, 11 Feb 2023 01:24:07 +0000 (GMT)
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4076F5805E;
-        Sat, 11 Feb 2023 01:24:06 +0000 (GMT)
-Received: from li-479af74c-31f9-11b2-a85c-e4ddee11713b.ibm.com (unknown [9.160.76.243])
-        by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
-        Sat, 11 Feb 2023 01:24:06 +0000 (GMT)
-Message-ID: <67809f492928a8d7e60aad7884a3409746793ea6.camel@linux.ibm.com>
-Subject: Re: [PATCH] vfio/ccw: Remove WARN_ON during shutdown
-From:   Eric Farman <farman@linux.ibm.com>
-To:     Alex Williamson <alex.williamson@redhat.com>
-Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Date:   Fri, 10 Feb 2023 20:24:05 -0500
-In-Reply-To: <20230210143004.347b17bc.alex.williamson@redhat.com>
-References: <20230210174227.2256424-1-farman@linux.ibm.com>
-         <20230210143004.347b17bc.alex.williamson@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.46.3 (3.46.3-1.fc37) 
+        with ESMTP id S229586AbjBKEA2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 10 Feb 2023 23:00:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE97D7FEE5;
+        Fri, 10 Feb 2023 20:00:26 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6EA76B825DF;
+        Sat, 11 Feb 2023 04:00:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id EC7CBC4339B;
+        Sat, 11 Feb 2023 04:00:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1676088024;
+        bh=BIOwoFFEyE0fql2wRTnno5IsnE1PUXsCgYgbEeyrOZI=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=du/bZS1NWSPfgdAQvseMTqH1IBhXLiVjWbIIbWragbxsX6uopViEttr7YkGauyqRH
+         mnSadiy03uQzgaeGMVcgRR+w8J1dohr4lrqE+zYNyiCmtRFRjUG0iEZ140VcCVTvee
+         J54WXQsuKC1aIdep4GHZt8XlJp6s/935bh6WgFqYo925dzqfGrmDXzZCF7rCGuXu+G
+         PCwJNA+Rqn7kuKxGCwVoG5/ynldnRYwHpY+y/TX7/a59v5YRfO6EJ2uPBHapjZ+ugH
+         xZ8vic5euoCKqqZQSsZPQJHITqYje1RI17as1CfiFFxx3qn3iqzlpcZEL4zECc6dm1
+         oW30Hm8mhjy4Q==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id CDBBEE21EC9;
+        Sat, 11 Feb 2023 04:00:23 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: _ZQoQJR0A8UuvHv2lKD7rqIsznMsR8V9
-X-Proofpoint-ORIG-GUID: otqSRyCca8pk7yHVHsiq9Z134zOmqbc-
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
- definitions=2023-02-10_17,2023-02-09_03,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 clxscore=1015
- lowpriorityscore=0 malwarescore=0 mlxscore=0 mlxlogscore=999 adultscore=0
- priorityscore=1501 bulkscore=0 spamscore=0 impostorscore=0 suspectscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
- definitions=main-2302110006
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net-next v2 0/4] s390/net: updates 2023-02-06
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <167608802383.32607.10231428417543515199.git-patchwork-notify@kernel.org>
+Date:   Sat, 11 Feb 2023 04:00:23 +0000
+References: <20230209110424.1707501-1-wintera@linux.ibm.com>
+In-Reply-To: <20230209110424.1707501-1-wintera@linux.ibm.com>
+To:     Alexandra Winter <wintera@linux.ibm.com>
+Cc:     davem@davemloft.net, kuba@kernel.org, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, hca@linux.ibm.com
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 2023-02-10 at 14:30 -0700, Alex Williamson wrote:
-> On Fri, 10 Feb 2023 18:42:27 +0100
-> Eric Farman <farman@linux.ibm.com> wrote:
->=20
-> > The logic in vfio_ccw_sch_shutdown() always assumed that the input
-> > subchannel would point to a vfio_ccw_private struct, without
-> > checking
-> > that one exists. The blamed commit put in a check for this
-> > scenario,
-> > to prevent the possibility of a missing private.
-> >=20
-> > The trouble is that check was put alongside a WARN_ON(), presuming
-> > that such a scenario would be a cause for concern. But this can be
-> > triggered by binding a subchannel to vfio-ccw, and rebooting the
-> > system before starting the mdev (via "mdevctl start" or similar)
-> > or after stopping it. In those cases, shutdown doesn't need to
-> > worry because either the private was never allocated, or it was
-> > cleaned up by vfio_ccw_mdev_remove().
-> >=20
-> > Remove the WARN_ON() piece of this check, since there are plausible
-> > scenarios where private would be NULL in this path.
-> >=20
-> > Fixes: 9e6f07cd1eaa ("vfio/ccw: create a parent struct")
-> > Signed-off-by: Eric Farman <farman@linux.ibm.com>
-> > ---
-> > =C2=A0drivers/s390/cio/vfio_ccw_drv.c | 2 +-
-> > =C2=A01 file changed, 1 insertion(+), 1 deletion(-)
-> >=20
-> > diff --git a/drivers/s390/cio/vfio_ccw_drv.c
-> > b/drivers/s390/cio/vfio_ccw_drv.c
-> > index 54aba7cceb33..ff538a086fc7 100644
-> > --- a/drivers/s390/cio/vfio_ccw_drv.c
-> > +++ b/drivers/s390/cio/vfio_ccw_drv.c
-> > @@ -225,7 +225,7 @@ static void vfio_ccw_sch_shutdown(struct
-> > subchannel *sch)
-> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0struct vfio_ccw_parent =
-*parent =3D dev_get_drvdata(&sch-
-> > >dev);
-> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0struct vfio_ccw_private=
- *private =3D dev_get_drvdata(&parent-
-> > >dev);
-> > =C2=A0
-> > -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0if (WARN_ON(!private))
-> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0if (!private)
-> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0return;
-> > =C2=A0
-> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0vfio_ccw_fsm_event(priv=
-ate, VFIO_CCW_EVENT_CLOSE);
->=20
-> I see I'm on the To: line here, is this intended to go through the
-> vfio
-> tree rather than s390?=C2=A0
+Hello:
 
-Either way. I put you as "to" as the blamed commit went via vfio, but I
-could ask Heiko or Vasili to take it if that's easier.
+This series was applied to netdev/net-next.git (master)
+by Jakub Kicinski <kuba@kernel.org>:
 
-Eric
+On Thu,  9 Feb 2023 12:04:20 +0100 you wrote:
+> Hi Dave & Jakub,
+> 
+> please apply the following patch series for qeth to netdev's net-next
+> tree.
+> 
+> Just maintenance patches, no functional changes.
+> If you disagree with patch 4, we can leave it out.
+> We prefer scnprintf, but no strong opinion.
+> 
+> [...]
+
+Here is the summary with links:
+  - [net-next,v2,1/4] s390/ctcm: cleanup indenting
+    https://git.kernel.org/netdev/net-next/c/dd4e356c387c
+  - [net-next,v2,2/4] s390/qeth: Use constant for IP address buffers
+    https://git.kernel.org/netdev/net-next/c/180f51317432
+  - [net-next,v2,3/4] s390/qeth: Convert sysfs sprintf to sysfs_emit
+    https://git.kernel.org/netdev/net-next/c/dde8769b1211
+  - [net-next,v2,4/4] s390/qeth: Convert sprintf/snprintf to scnprintf
+    https://git.kernel.org/netdev/net-next/c/74c05a3828fd
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
