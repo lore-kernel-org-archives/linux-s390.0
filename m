@@ -2,63 +2,48 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AEA6BC636CC
-	for <linux-s390@archiver.kernel.org>; Mon, 13 Feb 2023 19:48:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4AC18C636D4
+	for <linux-s390@archiver.kernel.org>; Mon, 13 Feb 2023 23:21:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231330AbjBMTsL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 13 Feb 2023 14:48:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49404 "EHLO
+        id S229795AbjBMXVz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 13 Feb 2023 18:21:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229462AbjBMTsK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 13 Feb 2023 14:48:10 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 143F32723
-        for <linux-s390@vger.kernel.org>; Mon, 13 Feb 2023 11:47:25 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1676317644;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=jukjE54rA/NniTDMWLMlEUTdm+2tzCyGjiSO2l2TjQQ=;
-        b=PA45mwcFJE2PmFLCfpjIweuYKqzN1cIV8stL+NTmX2HolzPDjPip9MqZNr+90SZxBEguqB
-        cwAk3QjeaiMQx5s4pFWwu4Hx6DdFnHfhjNQYrIo1v2Ui+vqIGm6pvwh+Q/+hmIHgAB4L8I
-        xgbR7nlKVPSPXZAFOrOyKMDWGTHhz9Q=
-Received: from mail-il1-f200.google.com (mail-il1-f200.google.com
- [209.85.166.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-586-UBnGzbxQNASMMA9fAULruA-1; Mon, 13 Feb 2023 14:47:23 -0500
-X-MC-Unique: UBnGzbxQNASMMA9fAULruA-1
-Received: by mail-il1-f200.google.com with SMTP id c16-20020a92b750000000b003154f6c5064so1377764ilm.12
-        for <linux-s390@vger.kernel.org>; Mon, 13 Feb 2023 11:47:23 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=jukjE54rA/NniTDMWLMlEUTdm+2tzCyGjiSO2l2TjQQ=;
-        b=wa3g14UW92k3U+kt4yU82WJ8fB+zpByldsjLgf3KoacmwMhyLIHQz7CeLH9kxRv8Wk
-         srUgeAu7THWwcxLPYj9NGNaN6kxahfqq/d4gH/0KmAtjDO5F5SW900x6nR5LuSkjo+fI
-         2er4ysJakjQBibAwLXPKWkiIy0e9h2nnCenoKoZDbCOwsWS0drvxoUB+B7myEiyWwOcy
-         FowpSpZOT6WXHpb91mR2/RMI4Y0vB96I0lig234SgXo9cbBCrkh4F1zztzG2kjmlq84o
-         S0J7bEopCIfi8CNJTW5YFZqcbiNwC+R9yN5CrSGlBRFUQ+f260T/ChaREwuq4COcB9zc
-         zLLw==
-X-Gm-Message-State: AO0yUKWKRDMZ0U6ogAEvWhJgXm0KVvc4lMsIAVMRfIl6SjLnYAiXBWAK
-        dT3aKFxX+3Yrw1pwCGGMn2fl5Cg3zSfP/upQHEkAPfyh5LjRj0zQdMt1yzkTd4hUbgaYmF2Ki7h
-        CkHD6T75Yqvj54QBT6C0TQg==
-X-Received: by 2002:a05:6e02:184d:b0:315:475c:5cfb with SMTP id b13-20020a056e02184d00b00315475c5cfbmr4365702ilv.2.1676317642478;
-        Mon, 13 Feb 2023 11:47:22 -0800 (PST)
-X-Google-Smtp-Source: AK7set+a3j5BS/mB6OljGhyF1TwNBaNZHDWgm8ontm8ZGuY3WL3AC4gQHk2dSPBwbafrr/9Ovuk7+A==
-X-Received: by 2002:a05:6e02:184d:b0:315:475c:5cfb with SMTP id b13-20020a056e02184d00b00315475c5cfbmr4365682ilv.2.1676317642188;
-        Mon, 13 Feb 2023 11:47:22 -0800 (PST)
-Received: from redhat.com ([38.15.36.239])
-        by smtp.gmail.com with ESMTPSA id g15-20020a92dd8f000000b00313f2279f06sm4010881iln.73.2023.02.13.11.47.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Feb 2023 11:47:21 -0800 (PST)
-Date:   Mon, 13 Feb 2023 12:47:19 -0700
-From:   Alex Williamson <alex.williamson@redhat.com>
-To:     Yi Liu <yi.l.liu@intel.com>
-Cc:     joro@8bytes.org, jgg@nvidia.com, kevin.tian@intel.com,
+        with ESMTP id S229485AbjBMXVy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 13 Feb 2023 18:21:54 -0500
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2049.outbound.protection.outlook.com [40.107.220.49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9288E1EFE8;
+        Mon, 13 Feb 2023 15:21:52 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=ULDQnzW5BVTZeXuxGXTDu8s3INeV1MBCG9vuvUmkun4/nRRw+zDp6QzEJhaa2gFcEJNgjYT1N56NF1kUdLvjL1/bRtyvshYTDRr8dcaSv7jj7DwVPnTntbnJfAaT5vGg5aqBD3UafRvk5haj3wXwaiTuwlkQAjbIR75GEJIri+urcR/b5OKG74BG+QjLteaGn8XH4onmmu2gH6iG+5pgK/FyGJculnwCZwwmzXoH5laG54UKwatdNfLu82kYiktldwERVyQK1UO1AXF1JgbXx96uL/fuIgWsAfF9mzuwEmfrX5E3GSh+VyATLO9y/rtdVNZgQkQYFY6u94MPre+V6g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=0EDIFOUfuTVHZd1B/JeJJO2WXZLvjto/WY8vYEcbTJ4=;
+ b=Dsw5HMXLz04sKmXfJ2Rc1LXX2G7czT9akYIeulktq6w1jP+En9enA/OR0blbJLklAJl3faGotC1uwozelHVjfXkIL5wGH3FbN6gWHk6N2lRfeYE+aud7q3wu3CC/13ktNUNZ/fmrF2HQn7UhDcOQNLxjVWp8Rg7OM9BjX3fCWfJFdyXfVqhtxKAe9Pcxl5ls0Fm334oPnCBhCLMcLhcamuQhbgIoQk2kdEloL36GKqkBBpNTQxWL2QQgaa5s6vl4hlPvpJdj+Yz8hMk91pi3uP6g6ulHJPYDmvxd2um6M1d9sYBQ7/LwhsA80Zqbt2JLmuEAVI8J2yApNu+m+9TRLA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=0EDIFOUfuTVHZd1B/JeJJO2WXZLvjto/WY8vYEcbTJ4=;
+ b=haJyllCP3dU/CviO1Izyllpgidd7z14AAP92wHV9Uon+yUVBmXa8LHpnKeJeY5VFh+Imyq5X2rh9xUyxvAR7ol+SBR+JLGZ6WCBQrRQNWafVE36nLBHh7EkMsf6bQTVDgrGMQ05LSjgDmIVIy5tHKFPdyjNDB3BEul4iEjoFFflPP7FjOiajOKDgf0pKxFrkdpQqZOogJ0d/TEu42P6dIAjKBLgS3502onIgHDom/ZO1P+iLRJ6QRRbrqfeUc5aokpoEmcy3ybKfpmzRSIn7TAGWGiRr8q1Tsd0SJ2ZJSeikK49Sc0KhWNYNKRbpjtI+tX9cbZub8eqQ0Mq+gTOVXA==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by CO6PR12MB5489.namprd12.prod.outlook.com (2603:10b6:303:139::18) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6086.24; Mon, 13 Feb
+ 2023 23:21:50 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::3cb3:2fce:5c8f:82ee]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::3cb3:2fce:5c8f:82ee%6]) with mapi id 15.20.6086.023; Mon, 13 Feb 2023
+ 23:21:50 +0000
+Date:   Mon, 13 Feb 2023 19:21:49 -0400
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Alex Williamson <alex.williamson@redhat.com>
+Cc:     Yi Liu <yi.l.liu@intel.com>, joro@8bytes.org, kevin.tian@intel.com,
         robin.murphy@arm.com, cohuck@redhat.com, eric.auger@redhat.com,
         nicolinc@nvidia.com, kvm@vger.kernel.org, mjrosato@linux.ibm.com,
         chao.p.peng@linux.intel.com, yi.y.sun@linux.intel.com,
@@ -67,73 +52,75 @@ Cc:     joro@8bytes.org, jgg@nvidia.com, kevin.tian@intel.com,
         suravee.suthikulpanit@amd.com, intel-gvt-dev@lists.freedesktop.org,
         intel-gfx@lists.freedesktop.org, linux-s390@vger.kernel.org
 Subject: Re: [PATCH v3 00/15] Add vfio_device cdev for iommufd support
-Message-ID: <20230213124719.126eb828.alex.williamson@redhat.com>
-In-Reply-To: <20230213151348.56451-1-yi.l.liu@intel.com>
+Message-ID: <Y+rGDeEMTB8FxjAH@nvidia.com>
 References: <20230213151348.56451-1-yi.l.liu@intel.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
+ <20230213124719.126eb828.alex.williamson@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230213124719.126eb828.alex.williamson@redhat.com>
+X-ClientProxiedBy: BL1PR13CA0292.namprd13.prod.outlook.com
+ (2603:10b6:208:2bc::27) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|CO6PR12MB5489:EE_
+X-MS-Office365-Filtering-Correlation-Id: 681c4682-9dcf-477a-da8f-08db0e191588
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: oIa+5d4JI2Rq1mScKrNPfswYq7CWbf+akXx7byfdHfuEbqUc9S80RsCvlhyQ2DKlRZf5PBYRgd0rz8t2AZmFtie/3OhLhzuzRtdOiL34f9gHdC/OEcVWt6FrArmvGe/cs1v48u0EjY8UwZMQTu0t5o1e9UStq7ssXH44b2a026kiuGHbECFqshvbTzY015DBw0hxRZDSTZYX3xrxzrHab1GXCIWwnauJjuranbrUJoL6cUlA8jvAuaf8HYOPbSjFWmwhXtBYnKDIBnAE+Z0RwX9BAkxrKoyuBU+Wm2GNs4wvMuUayyibgiZUeTSjOvPLP4sIk+Bf/HEI0YZ5Ga9LI66D+9HT1RaLdh5yeW9YdNnrzyWKLiCyy6hD0lkIjfTc8UXLxKbWe/cbZLVSWVAIeGL+FQHgDsbd4Fye/OspvV90XRw/24kDHqr6NUSjiiqhyS6qG86999Fdw48kOwPUfsXbsV72QwNOGUoxCdQQjRF6fN9aoHp5J8o4s3HiiLahMksRS67KSvLiF6RKvaX4u81dcmbEUpoPikpTShmaXMB84UwJ94lWSPiEvBAzSu0fAGVmRJSZ/A3DfU8JgVApG1UZonPgAxLt9hUUCHreQ3HYwYEtoaumESZhtcDf7BysaeZMTJarWG7hAItlJSLrC3M78SuuozlSsWZ+wW74qk5iO+bM4Kc7G24nZUPj8xAq
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(4636009)(346002)(376002)(366004)(39860400002)(396003)(136003)(451199018)(4326008)(6916009)(8676002)(316002)(36756003)(41300700001)(38100700002)(2616005)(66476007)(66556008)(66946007)(478600001)(2906002)(8936002)(7416002)(5660300002)(4744005)(186003)(6486002)(6506007)(6512007)(86362001)(26005)(67856001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?J1Ys0ekUafDGidl6jyQC2nm5IEBncTrGvd0IB/3HiFdJ+fDfArmGZDj5cY/C?=
+ =?us-ascii?Q?bf7mlD1A//yxXoLh8PQUCGWjAZtrcDknw8k9lYK33gN5Ed4Krh6oVfIKufGM?=
+ =?us-ascii?Q?VJ2Jhk6+UuoU2aZBoaDNJ5hsQOb0pncq1Xr6qlYTN4RQwCCvd/qmcZnTH0TQ?=
+ =?us-ascii?Q?rtMTKIOns2eqwh9c5N7FcdSPhc9zhX1Lr76xd5ia0BTmzbJsKAHp49IRorDE?=
+ =?us-ascii?Q?jo2zk7lhebY9G0mgw/mhlkvgJHTBCT1I+QkFJTqs/I20kXkc3iV0/TZyklGD?=
+ =?us-ascii?Q?Q365J6ZWgx+q7GDx/Rz6QrNHigGqTnxBs5sfm7jARQCe4NpO6xuOQ34sFuxl?=
+ =?us-ascii?Q?6rW/ctaG7TuE9hiFhDrXolyvJU37oXw8eXM9Npim4fAsbxrSHCIuwKr0jtXL?=
+ =?us-ascii?Q?ZaO2CWSG/kvmMpYpol+MhFDVHbFBg1tKXq0PmlWbiVIKYqH34xy2VpXVSIW0?=
+ =?us-ascii?Q?bfWXcJkTeeCXwBuEVPDSsysXsXA0DUPk4ppqNClSVgNNA93ZxMYXTI2bEjhF?=
+ =?us-ascii?Q?qq5PyJHRf3sNNmCSbfo3z05e2F++VnpINgmU0pKQyA/oGCsN3JMmzUbB9HFM?=
+ =?us-ascii?Q?xEoZGHnCpD8MUOlb0d2CGaCpc6fHIKrHrIpp8mGxKv6SHHrX/YceIocwpmlJ?=
+ =?us-ascii?Q?APVfvJDOUfF+CnR/Y/9cS2ozhVFzDfw1zkS3XW0v0Y2gpP/vE9lJct5zhMYZ?=
+ =?us-ascii?Q?8FB64cG/2Mqyz1Xe/A1au8i0rv4jQQrkMynsX6/ZHRDo4zOEWDXbTqZBbdzU?=
+ =?us-ascii?Q?Vp3GE6yneaGyg4CKXTtCbiyGYzS89pOZmutAe0Bpx5YFZW0jdEHT58uPBovZ?=
+ =?us-ascii?Q?gV1EzpA2mA1Mm+uiFU8WxHJp8zN88XEt8DTbOfJ7gO6406F6abIWEUsK+8BQ?=
+ =?us-ascii?Q?o9BGUL9AsfevuymVMKtXSRir5rdxfMt6sPBuxm7vZkPnQ4oZpu0jBAMghMyP?=
+ =?us-ascii?Q?155fubmkuXWzCTy5l2W1FlRpdAFHs38xCniOXwTkfqo7HbFJtv0rNtpZvT1+?=
+ =?us-ascii?Q?9/0475zO1MX7wHFPbHhhfgKnBNmSreW+mjiLeHTAN6zWXqZaQ0b8Mjz3je1O?=
+ =?us-ascii?Q?a5QZusihOOh4uJO73OU7KyglrZ9jHNQox22JUhPIdFG8IzpYXCulszpyP7rP?=
+ =?us-ascii?Q?iaANeJGfKJdNy71kpAHPFObnaf8SANxyjrpycbne3JF/LULxwLzTbzopWou4?=
+ =?us-ascii?Q?kkD53K7fDsZYKvDvkg0Un5TPF4rNAQphS8zST2T9xCY+EsM+ViI+rbYQEkxX?=
+ =?us-ascii?Q?W79RYuyiAZg+RPgDWI2yLoMygxPLXSkm69Q6NgtfqYbvkeh8jyNHxiL30LPq?=
+ =?us-ascii?Q?gAbkQKJw/hCs4D2cW3WT9blZOP21OGgGjrPBJCoOVnP95n4pBLEOwdqTgvGt?=
+ =?us-ascii?Q?Y5bOvE9EG1SBv2a4fO6FO7kqKTXQ2sNni9jT11ypPvbbeqHTdZsOtqtBQp7G?=
+ =?us-ascii?Q?sm5uJvXVgTt/0MqVP1qBb5pUChb59dZCpL/bdUHjzWeKz7UsaKDLWlRtYDUo?=
+ =?us-ascii?Q?nqN/MaQMrg7XyrLbiXSBZwKfq9+LkNUsQGyW9a3iRnZFvx6ldLbKEj9AGE12?=
+ =?us-ascii?Q?5mMl6JqPUJx/GclnZNgJAyovOqn8UpbvkuCGpd1K?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 681c4682-9dcf-477a-da8f-08db0e191588
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Feb 2023 23:21:50.3193
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: /r1LZuw1ZzohVizc3Bf25ma7wnjRWJBQr2qb9nCf+hDmB7/Zr/Qh8wfmSEmaLTHU
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CO6PR12MB5489
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 13 Feb 2023 07:13:33 -0800
-Yi Liu <yi.l.liu@intel.com> wrote:
+On Mon, Feb 13, 2023 at 12:47:19PM -0700, Alex Williamson wrote:
 
-> Existing VFIO provides group-centric user APIs for userspace. Userspace
-> opens the /dev/vfio/$group_id first before getting device fd and hence
-> getting access to device. This is not the desired model for iommufd. Per
-> the conclusion of community discussion[1], iommufd provides device-centric
-> kAPIs and requires its consumer (like VFIO) to be device-centric user
-> APIs. Such user APIs are used to associate device with iommufd and also
-> the I/O address spaces managed by the iommufd.
->=20
-> This series first introduces a per device file structure to be prepared
-> for further enhancement and refactors the kvm-vfio code to be prepared
-> for accepting device file from userspace. Then refactors the vfio to be
-> able to handle iommufd binding. This refactor includes the mechanism of
-> blocking device access before iommufd bind, making vfio_device_open() be
-> exclusive between the group path and the cdev path. Eventually, adds the
-> cdev support for vfio device, and makes group infrastructure optional as
-> it is not needed when vfio device cdev is compiled.
->=20
-> This is also a prerequisite for iommu nesting for vfio device[2].
->=20
-> The complete code can be found in below branch, simple test done with the
-> legacy group path and the cdev path. Draft QEMU branch can be found at[3]
->=20
-> https://github.com/yiliu1765/iommufd/tree/vfio_device_cdev_v3
-> (config CONFIG_IOMMUFD=3Dy CONFIG_VFIO_DEVICE_CDEV=3Dy)
+> I think it's too late for v6.3 already, but given this needs at least
+> one more spin, let's set expectations of this being v6.4 material.  Thanks,
 
-Even using your branch[1], it seems like this has not been tested
-except with cdev support enabled:
+Please let's continue to try to get this finished during the merge
+window, all the other series depend on it. We can manage it with a
+shared branch again..
 
-/home/alwillia/Work/linux.git/drivers/vfio/vfio_main.c: In function =E2=80=
-=98vfio_device_add=E2=80=99:
-/home/alwillia/Work/linux.git/drivers/vfio/vfio_main.c:253:48: error: =E2=
-=80=98struct vfio_device=E2=80=99 has no member named =E2=80=98cdev=E2=80=
-=99; did you mean =E2=80=98dev=E2=80=99?
-  253 |                 ret =3D cdev_device_add(&device->cdev, &device->dev=
-ice);
-      |                                                ^~~~
-      |                                                dev
-/home/alwillia/Work/linux.git/drivers/vfio/vfio_main.c: In function =E2=80=
-=98vfio_device_del=E2=80=99:
-/home/alwillia/Work/linux.git/drivers/vfio/vfio_main.c:262:42: error: =E2=
-=80=98struct vfio_device=E2=80=99 has no member named =E2=80=98cdev=E2=80=
-=99; did you mean =E2=80=98dev=E2=80=99?
-  262 |                 cdev_device_del(&device->cdev, &device->device);
-      |                                          ^~~~
-      |                                          dev
-
-Additionally the VFIO_ENABLE_GROUP Kconfig option doesn't make much
-sense to me, it seems entirely redundant to VFIO_GROUP.
-
-I think it's too late for v6.3 already, but given this needs at least
-one more spin, let's set expectations of this being v6.4 material.  Thanks,
-
-Alex
-
-[1] 98491da60ae1 cover-letter: Add vfio_device cdev for iommufd support
-
+Thanks,
+Jason
