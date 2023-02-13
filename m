@@ -2,249 +2,138 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CA96EC636D4
-	for <linux-s390@archiver.kernel.org>; Mon, 13 Feb 2023 18:39:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AEA6BC636CC
+	for <linux-s390@archiver.kernel.org>; Mon, 13 Feb 2023 19:48:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229619AbjBMSjN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 13 Feb 2023 13:39:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33204 "EHLO
+        id S231330AbjBMTsL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 13 Feb 2023 14:48:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229583AbjBMSjM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 13 Feb 2023 13:39:12 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEB0883ED;
-        Mon, 13 Feb 2023 10:39:11 -0800 (PST)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31DHC33M032726;
-        Mon, 13 Feb 2023 18:39:05 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=eKRBeAe3qigupaZY72Q88hKzNT8kWDVPaSv+ayvjbhE=;
- b=BJagRqq7pFob0NQmb+DfdJo28bQR4QCRzmYMY04DYCL5iFNYktQZUbPzXF1/XuDWEtnd
- +iRTF6IeE+ruW78B2YebxAxtSNnVw/3nNc4RsDWEXS1gYkxShEVUYG81yMKeB+W8i34o
- PlD/XM5q32umn6xLLiY9q9LTTFlahEfxHQXMn83nGIyrY4mYbHtC1YrYhQOOamJm0W8B
- eYD6lpeaBcdM9GCDBRq5olNBQbL4vD/8bfgH0G48qquYPHuTyeYZUquVXQUMTzH3BPpu
- CbXwjjqiINJsBwy/OVU3mfJ7min7iG8n0gSt75m6N2JGO1mUfyfBI2cZFnUN4ELnvAlm Bw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nqsd1a3sb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 13 Feb 2023 18:39:05 +0000
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 31DIGQmU028606;
-        Mon, 13 Feb 2023 18:39:04 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nqsd1a3rg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 13 Feb 2023 18:39:04 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31DDGAp4010684;
-        Mon, 13 Feb 2023 18:39:02 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3np2n6u146-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 13 Feb 2023 18:39:02 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31DIcwOW21168428
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 13 Feb 2023 18:38:58 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 903B420043;
-        Mon, 13 Feb 2023 18:38:58 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6363B20040;
-        Mon, 13 Feb 2023 18:38:58 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon, 13 Feb 2023 18:38:58 +0000 (GMT)
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Baoquan He <bhe@redhat.com>, Sven Schnelle <svens@linux.ibm.com>
-Cc:     Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Alexander Potapenko <glider@google.com>,
-        Marco Elver <elver@google.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] s390/kfence: fix page fault reporting
-Date:   Mon, 13 Feb 2023 19:38:58 +0100
-Message-Id: <20230213183858.1473681-1-hca@linux.ibm.com>
-X-Mailer: git-send-email 2.37.2
+        with ESMTP id S229462AbjBMTsK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 13 Feb 2023 14:48:10 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 143F32723
+        for <linux-s390@vger.kernel.org>; Mon, 13 Feb 2023 11:47:25 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1676317644;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=jukjE54rA/NniTDMWLMlEUTdm+2tzCyGjiSO2l2TjQQ=;
+        b=PA45mwcFJE2PmFLCfpjIweuYKqzN1cIV8stL+NTmX2HolzPDjPip9MqZNr+90SZxBEguqB
+        cwAk3QjeaiMQx5s4pFWwu4Hx6DdFnHfhjNQYrIo1v2Ui+vqIGm6pvwh+Q/+hmIHgAB4L8I
+        xgbR7nlKVPSPXZAFOrOyKMDWGTHhz9Q=
+Received: from mail-il1-f200.google.com (mail-il1-f200.google.com
+ [209.85.166.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-586-UBnGzbxQNASMMA9fAULruA-1; Mon, 13 Feb 2023 14:47:23 -0500
+X-MC-Unique: UBnGzbxQNASMMA9fAULruA-1
+Received: by mail-il1-f200.google.com with SMTP id c16-20020a92b750000000b003154f6c5064so1377764ilm.12
+        for <linux-s390@vger.kernel.org>; Mon, 13 Feb 2023 11:47:23 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=jukjE54rA/NniTDMWLMlEUTdm+2tzCyGjiSO2l2TjQQ=;
+        b=wa3g14UW92k3U+kt4yU82WJ8fB+zpByldsjLgf3KoacmwMhyLIHQz7CeLH9kxRv8Wk
+         srUgeAu7THWwcxLPYj9NGNaN6kxahfqq/d4gH/0KmAtjDO5F5SW900x6nR5LuSkjo+fI
+         2er4ysJakjQBibAwLXPKWkiIy0e9h2nnCenoKoZDbCOwsWS0drvxoUB+B7myEiyWwOcy
+         FowpSpZOT6WXHpb91mR2/RMI4Y0vB96I0lig234SgXo9cbBCrkh4F1zztzG2kjmlq84o
+         S0J7bEopCIfi8CNJTW5YFZqcbiNwC+R9yN5CrSGlBRFUQ+f260T/ChaREwuq4COcB9zc
+         zLLw==
+X-Gm-Message-State: AO0yUKWKRDMZ0U6ogAEvWhJgXm0KVvc4lMsIAVMRfIl6SjLnYAiXBWAK
+        dT3aKFxX+3Yrw1pwCGGMn2fl5Cg3zSfP/upQHEkAPfyh5LjRj0zQdMt1yzkTd4hUbgaYmF2Ki7h
+        CkHD6T75Yqvj54QBT6C0TQg==
+X-Received: by 2002:a05:6e02:184d:b0:315:475c:5cfb with SMTP id b13-20020a056e02184d00b00315475c5cfbmr4365702ilv.2.1676317642478;
+        Mon, 13 Feb 2023 11:47:22 -0800 (PST)
+X-Google-Smtp-Source: AK7set+a3j5BS/mB6OljGhyF1TwNBaNZHDWgm8ontm8ZGuY3WL3AC4gQHk2dSPBwbafrr/9Ovuk7+A==
+X-Received: by 2002:a05:6e02:184d:b0:315:475c:5cfb with SMTP id b13-20020a056e02184d00b00315475c5cfbmr4365682ilv.2.1676317642188;
+        Mon, 13 Feb 2023 11:47:22 -0800 (PST)
+Received: from redhat.com ([38.15.36.239])
+        by smtp.gmail.com with ESMTPSA id g15-20020a92dd8f000000b00313f2279f06sm4010881iln.73.2023.02.13.11.47.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 13 Feb 2023 11:47:21 -0800 (PST)
+Date:   Mon, 13 Feb 2023 12:47:19 -0700
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     Yi Liu <yi.l.liu@intel.com>
+Cc:     joro@8bytes.org, jgg@nvidia.com, kevin.tian@intel.com,
+        robin.murphy@arm.com, cohuck@redhat.com, eric.auger@redhat.com,
+        nicolinc@nvidia.com, kvm@vger.kernel.org, mjrosato@linux.ibm.com,
+        chao.p.peng@linux.intel.com, yi.y.sun@linux.intel.com,
+        peterx@redhat.com, jasowang@redhat.com,
+        shameerali.kolothum.thodi@huawei.com, lulu@redhat.com,
+        suravee.suthikulpanit@amd.com, intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v3 00/15] Add vfio_device cdev for iommufd support
+Message-ID: <20230213124719.126eb828.alex.williamson@redhat.com>
+In-Reply-To: <20230213151348.56451-1-yi.l.liu@intel.com>
+References: <20230213151348.56451-1-yi.l.liu@intel.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: mUe91CjTfv_NaOeeLIwY-oFIfaDsIJIc
-X-Proofpoint-GUID: E59laLqf_RTz1dHpxiQNgOh28pr0r_i6
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
- definitions=2023-02-13_12,2023-02-13_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- spamscore=0 suspectscore=0 adultscore=0 mlxscore=0 impostorscore=0
- bulkscore=0 lowpriorityscore=0 clxscore=1011 malwarescore=0
- mlxlogscore=678 phishscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2212070000 definitions=main-2302130165
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Baoquan He reported lots of KFENCE reports when /proc/kcore is read,
-e.g. with crash or even simpler with dd:
+On Mon, 13 Feb 2023 07:13:33 -0800
+Yi Liu <yi.l.liu@intel.com> wrote:
 
- BUG: KFENCE: invalid read in copy_from_kernel_nofault+0x5e/0x120
- Invalid read at 0x00000000f4f5149f:
-  copy_from_kernel_nofault+0x5e/0x120
-  read_kcore+0x6b2/0x870
-  proc_reg_read+0x9a/0xf0
-  vfs_read+0x94/0x270
-  ksys_read+0x70/0x100
-  __do_syscall+0x1d0/0x200
-  system_call+0x82/0xb0
+> Existing VFIO provides group-centric user APIs for userspace. Userspace
+> opens the /dev/vfio/$group_id first before getting device fd and hence
+> getting access to device. This is not the desired model for iommufd. Per
+> the conclusion of community discussion[1], iommufd provides device-centric
+> kAPIs and requires its consumer (like VFIO) to be device-centric user
+> APIs. Such user APIs are used to associate device with iommufd and also
+> the I/O address spaces managed by the iommufd.
+>=20
+> This series first introduces a per device file structure to be prepared
+> for further enhancement and refactors the kvm-vfio code to be prepared
+> for accepting device file from userspace. Then refactors the vfio to be
+> able to handle iommufd binding. This refactor includes the mechanism of
+> blocking device access before iommufd bind, making vfio_device_open() be
+> exclusive between the group path and the cdev path. Eventually, adds the
+> cdev support for vfio device, and makes group infrastructure optional as
+> it is not needed when vfio device cdev is compiled.
+>=20
+> This is also a prerequisite for iommu nesting for vfio device[2].
+>=20
+> The complete code can be found in below branch, simple test done with the
+> legacy group path and the cdev path. Draft QEMU branch can be found at[3]
+>=20
+> https://github.com/yiliu1765/iommufd/tree/vfio_device_cdev_v3
+> (config CONFIG_IOMMUFD=3Dy CONFIG_VFIO_DEVICE_CDEV=3Dy)
 
-The reason for this is that read_kcore() simply reads memory that might
-have been unmapped by KFENCE with copy_from_kernel_nofault(). Any fault due
-to pages being unmapped by KFENCE would be handled gracefully by the fault
-handler (exception table fixup).
+Even using your branch[1], it seems like this has not been tested
+except with cdev support enabled:
 
-However the s390 fault handler first reports the fault, and only afterwards
-would perform the exception table fixup. Most architectures have this in
-reversed order, which also avoids the false positive KFENCE reports when an
-unmapped page is accessed.
+/home/alwillia/Work/linux.git/drivers/vfio/vfio_main.c: In function =E2=80=
+=98vfio_device_add=E2=80=99:
+/home/alwillia/Work/linux.git/drivers/vfio/vfio_main.c:253:48: error: =E2=
+=80=98struct vfio_device=E2=80=99 has no member named =E2=80=98cdev=E2=80=
+=99; did you mean =E2=80=98dev=E2=80=99?
+  253 |                 ret =3D cdev_device_add(&device->cdev, &device->dev=
+ice);
+      |                                                ^~~~
+      |                                                dev
+/home/alwillia/Work/linux.git/drivers/vfio/vfio_main.c: In function =E2=80=
+=98vfio_device_del=E2=80=99:
+/home/alwillia/Work/linux.git/drivers/vfio/vfio_main.c:262:42: error: =E2=
+=80=98struct vfio_device=E2=80=99 has no member named =E2=80=98cdev=E2=80=
+=99; did you mean =E2=80=98dev=E2=80=99?
+  262 |                 cdev_device_del(&device->cdev, &device->device);
+      |                                          ^~~~
+      |                                          dev
 
-Therefore change the s390 fault handler so it handles exception table
-fixups before KFENCE page faults are reported.
+Additionally the VFIO_ENABLE_GROUP Kconfig option doesn't make much
+sense to me, it seems entirely redundant to VFIO_GROUP.
 
-Reported-by: Baoquan He <bhe@redhat.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
----
- arch/s390/mm/fault.c | 49 +++++++++++++++++++++++++++++++-------------
- 1 file changed, 35 insertions(+), 14 deletions(-)
+I think it's too late for v6.3 already, but given this needs at least
+one more spin, let's set expectations of this being v6.4 material.  Thanks,
 
-diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-index 9649d9382e0a..8e84ed2bb944 100644
---- a/arch/s390/mm/fault.c
-+++ b/arch/s390/mm/fault.c
-@@ -96,6 +96,20 @@ static enum fault_type get_fault_type(struct pt_regs *regs)
- 	return KERNEL_FAULT;
- }
- 
-+static unsigned long get_fault_address(struct pt_regs *regs)
-+{
-+	unsigned long trans_exc_code = regs->int_parm_long;
-+
-+	return trans_exc_code & __FAIL_ADDR_MASK;
-+}
-+
-+static bool fault_is_write(struct pt_regs *regs)
-+{
-+	unsigned long trans_exc_code = regs->int_parm_long;
-+
-+	return (trans_exc_code & store_indication) == 0x400;
-+}
-+
- static int bad_address(void *p)
- {
- 	unsigned long dummy;
-@@ -228,15 +242,26 @@ static noinline void do_sigsegv(struct pt_regs *regs, int si_code)
- 			(void __user *)(regs->int_parm_long & __FAIL_ADDR_MASK));
- }
- 
--static noinline void do_no_context(struct pt_regs *regs)
-+static noinline void do_no_context(struct pt_regs *regs, vm_fault_t fault)
- {
-+	enum fault_type fault_type;
-+	unsigned long address;
-+	bool is_write;
-+
- 	if (fixup_exception(regs))
- 		return;
-+	fault_type = get_fault_type(regs);
-+	if ((fault_type == KERNEL_FAULT) && (fault == VM_FAULT_BADCONTEXT)) {
-+		address = get_fault_address(regs);
-+		is_write = fault_is_write(regs);
-+		if (kfence_handle_page_fault(address, is_write, regs))
-+			return;
-+	}
- 	/*
- 	 * Oops. The kernel tried to access some bad page. We'll have to
- 	 * terminate things with extreme prejudice.
- 	 */
--	if (get_fault_type(regs) == KERNEL_FAULT)
-+	if (fault_type == KERNEL_FAULT)
- 		printk(KERN_ALERT "Unable to handle kernel pointer dereference"
- 		       " in virtual kernel address space\n");
- 	else
-@@ -255,7 +280,7 @@ static noinline void do_low_address(struct pt_regs *regs)
- 		die (regs, "Low-address protection");
- 	}
- 
--	do_no_context(regs);
-+	do_no_context(regs, VM_FAULT_BADACCESS);
- }
- 
- static noinline void do_sigbus(struct pt_regs *regs)
-@@ -286,28 +311,28 @@ static noinline void do_fault_error(struct pt_regs *regs, vm_fault_t fault)
- 		fallthrough;
- 	case VM_FAULT_BADCONTEXT:
- 	case VM_FAULT_PFAULT:
--		do_no_context(regs);
-+		do_no_context(regs, fault);
- 		break;
- 	case VM_FAULT_SIGNAL:
- 		if (!user_mode(regs))
--			do_no_context(regs);
-+			do_no_context(regs, fault);
- 		break;
- 	default: /* fault & VM_FAULT_ERROR */
- 		if (fault & VM_FAULT_OOM) {
- 			if (!user_mode(regs))
--				do_no_context(regs);
-+				do_no_context(regs, fault);
- 			else
- 				pagefault_out_of_memory();
- 		} else if (fault & VM_FAULT_SIGSEGV) {
- 			/* Kernel mode? Handle exceptions or die */
- 			if (!user_mode(regs))
--				do_no_context(regs);
-+				do_no_context(regs, fault);
- 			else
- 				do_sigsegv(regs, SEGV_MAPERR);
- 		} else if (fault & VM_FAULT_SIGBUS) {
- 			/* Kernel mode? Handle exceptions or die */
- 			if (!user_mode(regs))
--				do_no_context(regs);
-+				do_no_context(regs, fault);
- 			else
- 				do_sigbus(regs);
- 		} else
-@@ -334,7 +359,6 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
- 	struct mm_struct *mm;
- 	struct vm_area_struct *vma;
- 	enum fault_type type;
--	unsigned long trans_exc_code;
- 	unsigned long address;
- 	unsigned int flags;
- 	vm_fault_t fault;
-@@ -351,9 +375,8 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
- 		return 0;
- 
- 	mm = tsk->mm;
--	trans_exc_code = regs->int_parm_long;
--	address = trans_exc_code & __FAIL_ADDR_MASK;
--	is_write = (trans_exc_code & store_indication) == 0x400;
-+	address = get_fault_address(regs);
-+	is_write = fault_is_write(regs);
- 
- 	/*
- 	 * Verify that the fault happened in user space, that
-@@ -364,8 +387,6 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
- 	type = get_fault_type(regs);
- 	switch (type) {
- 	case KERNEL_FAULT:
--		if (kfence_handle_page_fault(address, is_write, regs))
--			return 0;
- 		goto out;
- 	case USER_FAULT:
- 	case GMAP_FAULT:
--- 
-2.37.2
+Alex
+
+[1] 98491da60ae1 cover-letter: Add vfio_device cdev for iommufd support
 
