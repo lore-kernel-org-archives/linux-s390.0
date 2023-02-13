@@ -2,85 +2,174 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 128DCC636D4
-	for <linux-s390@archiver.kernel.org>; Mon, 13 Feb 2023 13:02:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2EF1C636D4
+	for <linux-s390@archiver.kernel.org>; Mon, 13 Feb 2023 15:14:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229585AbjBMNCK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 13 Feb 2023 08:02:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45978 "EHLO
+        id S230023AbjBMPOm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 13 Feb 2023 10:14:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230403AbjBMNCI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 13 Feb 2023 08:02:08 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC16C1204B;
-        Mon, 13 Feb 2023 05:02:06 -0800 (PST)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31DCidIN012449;
-        Mon, 13 Feb 2023 13:02:06 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
- mime-version : content-transfer-encoding : in-reply-to : references : to :
- subject : cc : from : message-id : date; s=pp1;
- bh=8RWQOwfThnmNV/Ln0Q/c9n9Ci7Pw6u1zxnd1mGlldpE=;
- b=dEezIHSZBSvM2SRsPqlvjf/zv9YtJdp5XM6QFrMPLHMVEfnG/9xXZ3t1PRdV6E08hLVj
- zm15n39HtGB7sTHyo5U/Q0t2vHOxvgU8jbsuGqXMZdDEh7xiGCcPqMArL3hH5vhqa2pY
- 67Pbxa5v7o1we+PeXE6cpG1E1PfHjron017jdngENJsXym3B8KF8sqx7CAeII0MQqlHh
- a0PoVGsqnsfm2xmIjXFhkVyDe/ORqAkZaV0nwEV2JR32ctSZ33ZbLq1YZgHr7QLzHRK8
- ls0iYf369GM32gpFCOlW7vRujjNFS/MEvgiZPgbCYdVsFJqhON5iF78bmXnUDEYSRCJ0 +Q== 
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nqnft0cnw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 13 Feb 2023 13:02:05 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31D8B7Ii001601;
-        Mon, 13 Feb 2023 13:02:04 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma01fra.de.ibm.com (PPS) with ESMTPS id 3np2n6a03w-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 13 Feb 2023 13:02:04 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31DD20pG22610366
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 13 Feb 2023 13:02:00 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8A5CF2004F;
-        Mon, 13 Feb 2023 13:02:00 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6C23E20043;
-        Mon, 13 Feb 2023 13:02:00 +0000 (GMT)
-Received: from t14-nrb (unknown [9.171.26.157])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon, 13 Feb 2023 13:02:00 +0000 (GMT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229728AbjBMPOl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 13 Feb 2023 10:14:41 -0500
+Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17A15FF06;
+        Mon, 13 Feb 2023 07:14:11 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1676301252; x=1707837252;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=NuL3WKfeg4daNOlumqOVMpxB8O0V9YixwTzc+OOAYBY=;
+  b=G5T/9mvfe2eDDe70GJk92krY+sdsSbpwa+JUdtkQ8Y/J9OZu/By2exy1
+   ILqdbamVGyo3uo/oSdayK1gdpMnJ0NcI6sXiN2M6cOiOdMbg3AOmocVUj
+   +xelxtjZ5KVoOVJKCf90ww2+jRUwdYQ5bsD+01tDPnX+SbQBa46vRp8HV
+   FI5eRGRozHJE8YRGve48fBqaYPSIgfd6wJTGUsglsu/kgMLF8qVVYrn9p
+   MAltaDcZj98y6j5UbAJi4YJ9rKt8RoDAFCDHSlRvEJUfqtGVVvAZM5R3H
+   vufBqih0a20Hq9ZB8ns4Lt0zrf5S+dc1QtxSwC7aRfMica9CGLcNOeaI0
+   g==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10620"; a="318931515"
+X-IronPort-AV: E=Sophos;i="5.97,294,1669104000"; 
+   d="scan'208";a="318931515"
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Feb 2023 07:13:50 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10620"; a="701289649"
+X-IronPort-AV: E=Sophos;i="5.97,294,1669104000"; 
+   d="scan'208";a="701289649"
+Received: from 984fee00a4c6.jf.intel.com ([10.165.58.231])
+  by orsmga001.jf.intel.com with ESMTP; 13 Feb 2023 07:13:50 -0800
+From:   Yi Liu <yi.l.liu@intel.com>
+To:     joro@8bytes.org, alex.williamson@redhat.com, jgg@nvidia.com,
+        kevin.tian@intel.com, robin.murphy@arm.com
+Cc:     cohuck@redhat.com, eric.auger@redhat.com, nicolinc@nvidia.com,
+        kvm@vger.kernel.org, mjrosato@linux.ibm.com,
+        chao.p.peng@linux.intel.com, yi.l.liu@intel.com,
+        yi.y.sun@linux.intel.com, peterx@redhat.com, jasowang@redhat.com,
+        shameerali.kolothum.thodi@huawei.com, lulu@redhat.com,
+        suravee.suthikulpanit@amd.com, intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, linux-s390@vger.kernel.org
+Subject: [PATCH v3 00/15] Add vfio_device cdev for iommufd support
+Date:   Mon, 13 Feb 2023 07:13:33 -0800
+Message-Id: <20230213151348.56451-1-yi.l.liu@intel.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <914807eb-ec75-0de1-abe4-2b928917edef@linux.ibm.com>
-References: <20230213085520.100756-1-nrb@linux.ibm.com> <20230213085520.100756-2-nrb@linux.ibm.com> <38deba59-ac91-0196-d7f0-e7846a7531b3@linux.ibm.com> <914807eb-ec75-0de1-abe4-2b928917edef@linux.ibm.com>
-To:     Janosch Frank <frankja@linux.ibm.com>, borntraeger@linux.ibm.com,
-        imbrenda@linux.ibm.com
-Subject: Re: [PATCH v3 1/1] KVM: s390: pv: fix external interruption loop not always detected
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-From:   Nico Boehr <nrb@linux.ibm.com>
-Message-ID: <167629331966.23937.10957691359794018314@t14-nrb.local>
-User-Agent: alot/0.8.1
-Date:   Mon, 13 Feb 2023 14:02:00 +0100
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: PIiUoTwBmxCW50rK_9xUOhhXNp4Tj0TO
-X-Proofpoint-ORIG-GUID: PIiUoTwBmxCW50rK_9xUOhhXNp4Tj0TO
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
- definitions=2023-02-13_07,2023-02-13_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
- priorityscore=1501 mlxscore=0 suspectscore=0 lowpriorityscore=0
- spamscore=0 bulkscore=0 impostorscore=0 phishscore=0 malwarescore=0
- mlxlogscore=479 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2212070000 definitions=main-2302130112
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Quoting Janosch Frank (2023-02-13 13:00:25)
-[...]
-> I'll add this when picking:
-> Fixes: 201ae986ead7 ("KVM: s390: protvirt: Implement interrupt injection")
+Existing VFIO provides group-centric user APIs for userspace. Userspace
+opens the /dev/vfio/$group_id first before getting device fd and hence
+getting access to device. This is not the desired model for iommufd. Per
+the conclusion of community discussion[1], iommufd provides device-centric
+kAPIs and requires its consumer (like VFIO) to be device-centric user
+APIs. Such user APIs are used to associate device with iommufd and also
+the I/O address spaces managed by the iommufd.
 
-Fine for me, thanks and sorry for the troubles.
+This series first introduces a per device file structure to be prepared
+for further enhancement and refactors the kvm-vfio code to be prepared
+for accepting device file from userspace. Then refactors the vfio to be
+able to handle iommufd binding. This refactor includes the mechanism of
+blocking device access before iommufd bind, making vfio_device_open() be
+exclusive between the group path and the cdev path. Eventually, adds the
+cdev support for vfio device, and makes group infrastructure optional as
+it is not needed when vfio device cdev is compiled.
+
+This is also a prerequisite for iommu nesting for vfio device[2].
+
+The complete code can be found in below branch, simple test done with the
+legacy group path and the cdev path. Draft QEMU branch can be found at[3]
+
+https://github.com/yiliu1765/iommufd/tree/vfio_device_cdev_v3
+(config CONFIG_IOMMUFD=y CONFIG_VFIO_DEVICE_CDEV=y)
+
+base-commit: 06a24ad
+
+[1] https://lore.kernel.org/kvm/BN9PR11MB5433B1E4AE5B0480369F97178C189@BN9PR11MB5433.namprd11.prod.outlook.com/
+[2] https://lore.kernel.org/linux-iommu/20230209043153.14964-1-yi.l.liu@intel.com/
+[3] https://github.com/yiliu1765/qemu/tree/iommufd_rfcv3 (it is based on Eric's
+    QEMU iommufd rfcv3 (https://lore.kernel.org/kvm/20230131205305.2726330-1-eric.auger@redhat.com/)
+    plus two commits to align with vfio_device_cdev v3)
+
+Change log:
+
+v3:
+ - Add r-b from Kevin on patch 03, 06, 07, 08.
+ - Refine the group and cdev path exclusion. Remove vfio_device:single_open;
+   add vfio_group::cdev_device_open_cnt to achieve exlucsion between group
+   path and cdev path (Kevin, Jason)
+ - Fix a bug in the error handling path (Yan Zhao)
+ - Address misc remarks from Kevin
+
+v2: https://lore.kernel.org/kvm/20230206090532.95598-1-yi.l.liu@intel.com/
+ - Add r-b from Kevin and Eric on patch 01 02 04.
+ - "Split kvm/vfio: Provide struct kvm_device_ops::release() insted of ::destroy()"
+   from this series and got applied. (Alex, Kevin, Jason, Mathhew)
+ - Add kvm_ref_lock to protect vfio_device_file->kvm instead of reusing
+   dev_set->lock as dead-lock is observed with vfio-ap which would try to
+   acquire kvm_lock. This is opposite lock order with kvm_device_release()
+   which holds kvm_lock first and then hold dev_set->lock. (Kevin)
+ - Use a separate ioctl for detaching IOAS. (Alex)
+ - Rename vfio_device_file::single_open to be is_cdev_device (Kevin, Alex)
+ - Move the vfio device cdev code into device_cdev.c and add a VFIO_DEVICE_CDEV
+   kconfig for it. (Kevin, Jason)
+
+v1: https://lore.kernel.org/kvm/20230117134942.101112-1-yi.l.liu@intel.com/
+ - Fix the circular refcount between kvm struct and device file reference. (JasonG)
+ - Address comments from KevinT
+ - Remained the ioctl for detach, needs to Alex's taste
+   (https://lore.kernel.org/kvm/BN9PR11MB5276BE9F4B0613EE859317028CFF9@BN9PR11MB5276.namprd11.prod.outlook.com/)
+
+rfc: https://lore.kernel.org/kvm/20221219084718.9342-1-yi.l.liu@intel.com/
+
+Thanks,
+	Yi Liu
+
+Yi Liu (15):
+  vfio: Allocate per device file structure
+  vfio: Refine vfio file kAPIs
+  vfio: Accept vfio device file in the driver facing kAPI
+  kvm/vfio: Rename kvm_vfio_group to prepare for accepting vfio device
+    fd
+  kvm/vfio: Accept vfio device file from userspace
+  vfio: Pass struct vfio_device_file * to vfio_device_open/close()
+  vfio: Block device access via device fd until device is opened
+  vfio: Add infrastructure for bind_iommufd from userspace
+  vfio-iommufd: Add detach_ioas support for physical VFIO devices
+  vfio-iommufd: Add detach_ioas for emulated VFIO devices
+  vfio: Add cdev_device_open_cnt to vfio_group
+  vfio: Make vfio_device_open() single open for device cdev path
+  vfio: Add cdev for vfio_device
+  vfio: Add ioctls for device cdev using iommufd
+  vfio: Compile group optionally
+
+ Documentation/driver-api/vfio.rst             |   8 +-
+ Documentation/virt/kvm/devices/vfio.rst       |  45 ++-
+ drivers/gpu/drm/i915/gvt/kvmgt.c              |   1 +
+ drivers/s390/cio/vfio_ccw_ops.c               |   1 +
+ drivers/s390/crypto/vfio_ap_ops.c             |   1 +
+ drivers/vfio/Kconfig                          |  29 ++
+ drivers/vfio/Makefile                         |   3 +-
+ drivers/vfio/device_cdev.c                    | 264 ++++++++++++++++
+ drivers/vfio/fsl-mc/vfio_fsl_mc.c             |   1 +
+ drivers/vfio/group.c                          | 149 +++++----
+ drivers/vfio/iommufd.c                        |  59 +++-
+ .../vfio/pci/hisilicon/hisi_acc_vfio_pci.c    |   2 +
+ drivers/vfio/pci/mlx5/main.c                  |   1 +
+ drivers/vfio/pci/vfio_pci.c                   |   1 +
+ drivers/vfio/pci/vfio_pci_core.c              |   4 +-
+ drivers/vfio/platform/vfio_amba.c             |   1 +
+ drivers/vfio/platform/vfio_platform.c         |   1 +
+ drivers/vfio/vfio.h                           | 168 +++++++++-
+ drivers/vfio/vfio_main.c                      | 295 ++++++++++++++++--
+ include/linux/iommufd.h                       |   6 +
+ include/linux/vfio.h                          |  28 +-
+ include/uapi/linux/kvm.h                      |  16 +-
+ include/uapi/linux/vfio.h                     |  86 +++++
+ virt/kvm/vfio.c                               | 141 ++++-----
+ 24 files changed, 1106 insertions(+), 205 deletions(-)
+ create mode 100644 drivers/vfio/device_cdev.c
+
+-- 
+2.34.1
+
