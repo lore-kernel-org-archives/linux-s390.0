@@ -2,131 +2,109 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7CF0EC05027
-	for <linux-s390@archiver.kernel.org>; Sun, 12 Feb 2023 18:09:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A746C636D4
+	for <linux-s390@archiver.kernel.org>; Mon, 13 Feb 2023 08:12:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229545AbjBLSJq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 12 Feb 2023 13:09:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48624 "EHLO
+        id S229680AbjBMIL7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 13 Feb 2023 03:11:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229645AbjBLSJp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 12 Feb 2023 13:09:45 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A30AE72B9;
-        Sun, 12 Feb 2023 10:09:44 -0800 (PST)
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31CHBIQI030003;
-        Sun, 12 Feb 2023 18:09:44 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- content-transfer-encoding : in-reply-to; s=pp1;
- bh=QxUQfBxRs7+eRaVd5A2a/fOjiztC+ILi8foFXLLYTfA=;
- b=CbTIZlqop91Etr9jWEJK03h3U7LLK8ci9NqEAst6jPUKkkEXcfhNlpyimNsfUztquFl4
- xPJ+KTI//c8/ei7vrsxWkMEFA1cDL8wmjoAQTRNkjmn2QcvN3QsrUiCWR9te9cLYIMGp
- Z9ljnWNskkgHkn+WNGjff96CaLXzTNnsDk/j/5KURFmUEErJJwCysjyXJ/tdBu35XXLJ
- 2IF/IlHn5KAKv/w256Bu1fF84D52CFCGXp6aVMIGP/sMkKhP+YUCGaVuwGCHrmrLvmYQ
- HAsiWQN21dzJcJHbasZpG17cpu58kof2IMM9CZtNrVCabcpKXskWa/nRmvDHG7wfBAYz NQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3nq046ku24-1
+        with ESMTP id S229477AbjBMIL6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 13 Feb 2023 03:11:58 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B23B113CE;
+        Mon, 13 Feb 2023 00:11:55 -0800 (PST)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31D7xeH7004132;
+        Mon, 13 Feb 2023 08:11:54 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
+ in-reply-to : references : cc : from : subject : to : message-id : date :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=fsKxpmLqryfprG9oWaA6x8SPT89wB2WHtxxuVkRYcHo=;
+ b=kcLs2o29JY7kOQ94kXnFjzKBFhcWq/jSzk9JyFPOgIumVVH94tyhJCv2KtyRfccm4j48
+ ORtcw4WZsb3JvlYFYTLwLyr/2DBdRmKzVtR8S2vJUqRFR3L77zp47MCYLAh9u0/19Wm3
+ A7DrnDBxnWsFlHjUDv1zIp+OVZBadlJLYuCHN0PMo7duteMZ1zQp+B8Bsp6ORl8//C1S
+ yKCBUio7VIiJY2PMf5MNFFO7JYiM4p/IFshQn+km7hvTmF3WGnx4LT1awuPeRhxe65hv
+ YCvwSm2LKGmMNgf9LMKpa93hkCltA6OY2bxI5YE1tk+kaSFIRuN+p9raE9HxoRxrzGGj dQ== 
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nqha288ww-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sun, 12 Feb 2023 18:09:43 +0000
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 31CHvQMD009508;
-        Sun, 12 Feb 2023 18:09:43 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3nq046ku1x-1
+        Mon, 13 Feb 2023 08:11:54 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31CHqjof032710;
+        Mon, 13 Feb 2023 08:11:52 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3np29fjcdh-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sun, 12 Feb 2023 18:09:43 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31C5e6bE008148;
-        Sun, 12 Feb 2023 18:09:41 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-        by ppma03fra.de.ibm.com (PPS) with ESMTPS id 3np2n69aqm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sun, 12 Feb 2023 18:09:41 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31CI9bJ151052804
+        Mon, 13 Feb 2023 08:11:52 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31D8BmAW48759062
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sun, 12 Feb 2023 18:09:37 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 989D020043;
-        Sun, 12 Feb 2023 18:09:37 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0265120040;
-        Sun, 12 Feb 2023 18:09:37 +0000 (GMT)
-Received: from osiris (unknown [9.179.11.167])
-        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Sun, 12 Feb 2023 18:09:36 +0000 (GMT)
-Date:   Sun, 12 Feb 2023 19:09:35 +0100
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Eric Farman <farman@linux.ibm.com>
-Cc:     Alex Williamson <alex.williamson@redhat.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Subject: Re: [PATCH] vfio/ccw: Remove WARN_ON during shutdown
-Message-ID: <Y+krX5SJjqrZHzvl@osiris>
-References: <20230210174227.2256424-1-farman@linux.ibm.com>
- <20230210143004.347b17bc.alex.williamson@redhat.com>
- <67809f492928a8d7e60aad7884a3409746793ea6.camel@linux.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <67809f492928a8d7e60aad7884a3409746793ea6.camel@linux.ibm.com>
+        Mon, 13 Feb 2023 08:11:48 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C5DD220049;
+        Mon, 13 Feb 2023 08:11:48 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8DC1720040;
+        Mon, 13 Feb 2023 08:11:48 +0000 (GMT)
+Received: from t14-nrb (unknown [9.171.32.27])
+        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Mon, 13 Feb 2023 08:11:48 +0000 (GMT)
+Content-Type: text/plain; charset="utf-8"
+In-Reply-To: <20221005122050.60625-1-nrb@linux.ibm.com>
+References: <20221005122050.60625-1-nrb@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+From:   Nico Boehr <nrb@linux.ibm.com>
+Subject: Re: [v2] KVM: s390: pv: fix external interruption loop not always detected
+To:     borntraeger@linux.ibm.com, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com
+Message-ID: <167627590762.7662.2548443744874886411@t14-nrb.local>
+User-Agent: alot/0.8.1
+Date:   Mon, 13 Feb 2023 09:11:48 +0100
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: ZCEjWaYvLcryzONzbn9O2SCh9pndXkGI
-X-Proofpoint-GUID: UYCv5aNrgUEqPqTkJG5ReAi9SbiqJ07N
+X-Proofpoint-ORIG-GUID: OuGeyoJjYVMwi2QBOho3dq1QV2eYFaAM
+X-Proofpoint-GUID: OuGeyoJjYVMwi2QBOho3dq1QV2eYFaAM
+Content-Transfer-Encoding: quoted-printable
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
- definitions=2023-02-12_08,2023-02-09_03,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 impostorscore=0
- adultscore=0 clxscore=1015 priorityscore=1501 lowpriorityscore=0
- malwarescore=0 mlxscore=0 mlxlogscore=969 phishscore=0 bulkscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2302120164
+ definitions=2023-02-13_03,2023-02-09_03,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
+ lowpriorityscore=0 adultscore=0 spamscore=0 mlxscore=0 malwarescore=0
+ phishscore=0 mlxlogscore=598 bulkscore=0 suspectscore=0 priorityscore=1501
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
+ definitions=main-2302130066
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Feb 10, 2023 at 08:24:05PM -0500, Eric Farman wrote:
-> On Fri, 2023-02-10 at 14:30 -0700, Alex Williamson wrote:
-> > On Fri, 10 Feb 2023 18:42:27 +0100
-> > Eric Farman <farman@linux.ibm.com> wrote:
-> > 
-> > > The logic in vfio_ccw_sch_shutdown() always assumed that the input
-> > > subchannel would point to a vfio_ccw_private struct, without
-> > > checking
-> > > that one exists. The blamed commit put in a check for this
-> > > scenario,
-> > > to prevent the possibility of a missing private.
-> > > 
-> > > The trouble is that check was put alongside a WARN_ON(), presuming
-> > > that such a scenario would be a cause for concern. But this can be
-> > > triggered by binding a subchannel to vfio-ccw, and rebooting the
-> > > system before starting the mdev (via "mdevctl start" or similar)
-> > > or after stopping it. In those cases, shutdown doesn't need to
-> > > worry because either the private was never allocated, or it was
-> > > cleaned up by vfio_ccw_mdev_remove().
-> > > 
-> > > Remove the WARN_ON() piece of this check, since there are plausible
-> > > scenarios where private would be NULL in this path.
-> > > 
-> > > Fixes: 9e6f07cd1eaa ("vfio/ccw: create a parent struct")
-> > > Signed-off-by: Eric Farman <farman@linux.ibm.com>
-> > > ---
-> > >  drivers/s390/cio/vfio_ccw_drv.c | 2 +-
-> > >  1 file changed, 1 insertion(+), 1 deletion(-)
-...
-> > I see I'm on the To: line here, is this intended to go through the
-> > vfio
-> > tree rather than s390? 
-> 
-> Either way. I put you as "to" as the blamed commit went via vfio, but I
-> could ask Heiko or Vasili to take it if that's easier.
+Quoting Nico Boehr (2022-10-05 14:20:50)
+> To determine whether the guest has caused an external interruption loop
+> upon code 20 (external interrupt) intercepts, the ext_new_psw needs to
+> be inspected to see whether external interrupts are enabled.
+>=20
+> Under non-PV, ext_new_psw can simply be taken from guest lowcore. Under
+> PV, KVM can only access the encrypted guest lowcore and hence the
+> ext_new_psw must not be taken from guest lowcore.
+>=20
+> handle_external_interrupt() incorrectly did that and hence was not able
+> to reliably tell whether an external interruption loop is happening or
+> not. False negatives cause spurious failures of my kvm-unit-test
+> for extint loops[1] under PV.
+>=20
+> Since code 20 is only caused under PV if and only if the guest's
+> ext_new_psw is enabled for external interrupts, false positive detection
+> of a external interruption loop can not happen.
+>=20
+> Fix this issue by instead looking at the guest PSW in the state
+> description. Since the PSW swap for external interrupt is done by the
+> ultravisor before the intercept is caused, this reliably tells whether
+> the guest is enabled for external interrupts in the ext_new_psw.
+>=20
+> Also update the comments to explain better what is happening.
+>=20
+> [1] https://lore.kernel.org/kvm/20220812062151.1980937-4-nrb@linux.ibm.co=
+m/
 
-I picked it up, so it will go via s390. Thanks!
+Polite Ping.
