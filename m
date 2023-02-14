@@ -2,134 +2,129 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D7828C64ED8
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Feb 2023 10:40:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D1AE1C61DA4
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Feb 2023 12:14:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232704AbjBNKkK convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 14 Feb 2023 05:40:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44072 "EHLO
+        id S232223AbjBNMOp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Feb 2023 07:14:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232672AbjBNKj4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Feb 2023 05:39:56 -0500
-Received: from outpost1.zedat.fu-berlin.de (outpost1.zedat.fu-berlin.de [130.133.4.66])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39CB825E2D;
-        Tue, 14 Feb 2023 02:39:53 -0800 (PST)
-Received: from inpost2.zedat.fu-berlin.de ([130.133.4.69])
-          by outpost.zedat.fu-berlin.de (Exim 4.95)
-          with esmtps (TLS1.3)
-          tls TLS_AES_256_GCM_SHA384
-          (envelope-from <glaubitz@zedat.fu-berlin.de>)
-          id 1pRshz-000K86-Qj; Tue, 14 Feb 2023 11:38:47 +0100
-Received: from p5b13aa49.dip0.t-ipconnect.de ([91.19.170.73] helo=[192.168.178.81])
-          by inpost2.zedat.fu-berlin.de (Exim 4.95)
-          with esmtpsa (TLS1.3)
-          tls TLS_AES_256_GCM_SHA384
-          (envelope-from <glaubitz@physik.fu-berlin.de>)
-          id 1pRshz-003Z8i-EF; Tue, 14 Feb 2023 11:38:47 +0100
-Message-ID: <6a420bb0e033562bc7f67cc8f218f994e0892d3b.camel@physik.fu-berlin.de>
-Subject: Re: [PATCH v3 10/24] sparc: Remove COMMAND_LINE_SIZE from uapi
-From:   John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-To:     WANG Xuerui <kernel@xen0n.name>,
-        Sergey Shtylyov <s.shtylyov@omp.ru>,
-        Alexandre Ghiti <alexghiti@rivosinc.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Richard Henderson <richard.henderson@linaro.org>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Matt Turner <mattst88@gmail.com>,
-        Vineet Gupta <vgupta@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H . Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org,
-        linux-arch@vger.kernel.org
-Cc:     Palmer Dabbelt <palmer@rivosinc.com>
-Date:   Tue, 14 Feb 2023 11:38:45 +0100
-In-Reply-To: <f3db61bb-5c89-2724-769f-9d606f587f92@xen0n.name>
-References: <20230214074925.228106-1-alexghiti@rivosinc.com>
-         <20230214074925.228106-11-alexghiti@rivosinc.com>
-         <017f0b40-8021-8b3b-24d2-c70661b6b292@omp.ru>
-         <f3db61bb-5c89-2724-769f-9d606f587f92@xen0n.name>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-User-Agent: Evolution 3.46.4 
+        with ESMTP id S231814AbjBNMOo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Feb 2023 07:14:44 -0500
+Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 869725FC8;
+        Tue, 14 Feb 2023 04:14:42 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0Vbg7mNU_1676376878;
+Received: from 30.221.150.50(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0Vbg7mNU_1676376878)
+          by smtp.aliyun-inc.com;
+          Tue, 14 Feb 2023 20:14:39 +0800
+Message-ID: <31a1c0ae-dbc9-60e5-254b-b5e2bf782f9a@linux.alibaba.com>
+Date:   Tue, 14 Feb 2023 20:14:37 +0800
 MIME-Version: 1.0
-X-Original-Sender: glaubitz@physik.fu-berlin.de
-X-Originating-IP: 91.19.170.73
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.6.1
+Subject: Re: [PATCH net] net/smc: fix application data exception
+Content-Language: en-US
+From:   "D. Wythe" <alibuda@linux.alibaba.com>
+To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <1669450950-27681-1-git-send-email-alibuda@linux.alibaba.com>
+In-Reply-To: <1669450950-27681-1-git-send-email-alibuda@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 2023-02-14 at 16:59 +0800, WANG Xuerui wrote:
-> On 2023/2/14 16:50, Sergey Shtylyov wrote:
-> > On 2/14/23 10:49 AM, Alexandre Ghiti wrote:
-> > 
-> > > From: Palmer Dabbelt <palmer@rivosinc.com>
-> > > 
-> > > As far as I can tell this is not used by userspace and thus should not
-> > > be part of the user-visible API.
-> > > 
-> > > Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
-> > > ---
-> > >   arch/sparc/include/asm/setup.h      | 6 +++++-
-> > >   arch/sparc/include/uapi/asm/setup.h | 7 -------
-> > >   2 files changed, 5 insertions(+), 8 deletions(-)
-> > > 
-> > > diff --git a/arch/sparc/include/asm/setup.h b/arch/sparc/include/asm/setup.h
-> > > index 72205684e51e..d1384ed92547 100644
-> > > --- a/arch/sparc/include/asm/setup.h
-> > > +++ b/arch/sparc/include/asm/setup.h
-> > > @@ -7,7 +7,11 @@
-> > >   
-> > >   #include <linux/interrupt.h>
-> > >   
-> > > -#include <uapi/asm/setup.h>
-> > > +#if defined(__sparc__) && defined(__arch64__)
-> > 
-> >     Mhm, I don't think these two can be #define'd simulaneously...
+
+Hi, wenjia
+
+This patch of bugfix seems to have been hanging for a long time.
+If you have any concerns, please let us know.
+
+Best wishes.
+D. Wythe
+
+
+On 11/26/22 4:22 PM, D.Wythe wrote:
+> From: "D. Wythe" <alibuda@linux.alibaba.com>
 > 
-> I believe it's just a SPARC-ism [1] [2] that may look strange and be 
-> easily confused for __aarch64__ (notice the extra 'a')...
-
-Yep, that's correct. On 64-bit Linux/SPARC, gcc/clang define __sparc__ AND __arch64__.
-
-Adrian
-
--- 
- .''`.  John Paul Adrian Glaubitz
-: :' :  Debian Developer
-`. `'   Physicist
-  `-    GPG: 62FF 8A75 84E0 2956 9546  0006 7426 3B37 F5B5 F913
+> There is a certain probability that following
+> exceptions will occur in the wrk benchmark test:
+> 
+> Running 10s test @ http://11.213.45.6:80
+>    8 threads and 64 connections
+>    Thread Stats   Avg      Stdev     Max   +/- Stdev
+>      Latency     3.72ms   13.94ms 245.33ms   94.17%
+>      Req/Sec     1.96k   713.67     5.41k    75.16%
+>    155262 requests in 10.10s, 23.10MB read
+> Non-2xx or 3xx responses: 3
+> 
+> We will find that the error is HTTP 400 error, which is a serious
+> exception in our test, which means the application data was
+> corrupted.
+> 
+> Consider the following scenarios:
+> 
+> CPU0                            CPU1
+> 
+> buf_desc->used = 0;
+>                                  cmpxchg(buf_desc->used, 0, 1)
+>                                  deal_with(buf_desc)
+> 
+> memset(buf_desc->cpu_addr,0);
+> 
+> This will cause the data received by a victim connection to be cleared,
+> thus triggering an HTTP 400 error in the server.
+> 
+> This patch exchange the order between clear used and memset, add
+> barrier to ensure memory consistency.
+> 
+> Fixes: 1c5526968e27 ("net/smc: Clear memory when release and reuse buffer")
+> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+> ---
+>   net/smc/smc_core.c | 17 ++++++++---------
+>   1 file changed, 8 insertions(+), 9 deletions(-)
+> 
+> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+> index c305d8d..c19d4b7 100644
+> --- a/net/smc/smc_core.c
+> +++ b/net/smc/smc_core.c
+> @@ -1120,8 +1120,9 @@ static void smcr_buf_unuse(struct smc_buf_desc *buf_desc, bool is_rmb,
+>   
+>   		smc_buf_free(lgr, is_rmb, buf_desc);
+>   	} else {
+> -		buf_desc->used = 0;
+> -		memset(buf_desc->cpu_addr, 0, buf_desc->len);
+> +		/* memzero_explicit provides potential memory barrier semantics */
+> +		memzero_explicit(buf_desc->cpu_addr, buf_desc->len);
+> +		WRITE_ONCE(buf_desc->used, 0);
+>   	}
+>   }
+>   
+> @@ -1132,19 +1133,17 @@ static void smc_buf_unuse(struct smc_connection *conn,
+>   		if (!lgr->is_smcd && conn->sndbuf_desc->is_vm) {
+>   			smcr_buf_unuse(conn->sndbuf_desc, false, lgr);
+>   		} else {
+> -			conn->sndbuf_desc->used = 0;
+> -			memset(conn->sndbuf_desc->cpu_addr, 0,
+> -			       conn->sndbuf_desc->len);
+> +			memzero_explicit(conn->sndbuf_desc->cpu_addr, conn->sndbuf_desc->len);
+> +			WRITE_ONCE(conn->sndbuf_desc->used, 0);
+>   		}
+>   	}
+>   	if (conn->rmb_desc) {
+>   		if (!lgr->is_smcd) {
+>   			smcr_buf_unuse(conn->rmb_desc, true, lgr);
+>   		} else {
+> -			conn->rmb_desc->used = 0;
+> -			memset(conn->rmb_desc->cpu_addr, 0,
+> -			       conn->rmb_desc->len +
+> -			       sizeof(struct smcd_cdc_msg));
+> +			memzero_explicit(conn->rmb_desc->cpu_addr,
+> +					 conn->rmb_desc->len + sizeof(struct smcd_cdc_msg));
+> +			WRITE_ONCE(conn->rmb_desc->used, 0);
+>   		}
+>   	}
+>   }
