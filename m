@@ -2,134 +2,131 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F0BB1C61DA4
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Feb 2023 10:03:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F22A7C61DA4
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Feb 2023 10:17:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232138AbjBNKDN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 14 Feb 2023 05:03:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40300 "EHLO
+        id S231995AbjBNKRo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Feb 2023 05:17:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232077AbjBNKCj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Feb 2023 05:02:39 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6A3326855;
-        Tue, 14 Feb 2023 02:01:01 -0800 (PST)
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31E8kAp9020869;
-        Tue, 14 Feb 2023 10:01:00 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=eb628+htzG73yejcx5OD1jG2x2hC8CTEkBH5Mrbt2/0=;
- b=OfpTTTeKcYvtjh7D6qcEReGq+1sgAz/2ElsDcTcnr9+Y935eyZslpOFxlZxjCizaVV9L
- js9FcQtZl9XHFmJ7u+AKgCDt6gdISmPXzKqLEXK0Oket27DWaP+HAvFS5LRRXGy9WzjI
- ciVbu1MhnrdhUvTA4CptNX1oVieQyxTgF2iYoOK7vYst+LD20Bs6x9tZj4Aj3+iGvfTx
- Qv+gMlF+of+jDxpmwQDx5teSoeBtpjrAk5RVckYVJ/nXfSvXfVa0ZArDJK4mpwr/Z0Fe
- TLOvWzf9t1EdKTOh9J4soCc4owFIHV3Sg37g7NU5xmHw3m3Ic+QGD8+QIgbsn6lexBoN Bg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nr72y1ndc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Feb 2023 10:01:00 +0000
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 31E9L9du027786;
-        Tue, 14 Feb 2023 10:01:00 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nr72y1ncq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Feb 2023 10:00:59 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31E65w0Z017640;
-        Tue, 14 Feb 2023 10:00:58 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3np2n6ktjs-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Feb 2023 10:00:58 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31EA0sNu48628074
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 14 Feb 2023 10:00:54 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3FDB520043;
-        Tue, 14 Feb 2023 10:00:54 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BD37F20040;
-        Tue, 14 Feb 2023 10:00:53 +0000 (GMT)
-Received: from [9.155.211.163] (unknown [9.155.211.163])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 14 Feb 2023 10:00:53 +0000 (GMT)
-Message-ID: <198c6f7f19d77b8471bd609767b3d359a989b9ca.camel@linux.ibm.com>
-Subject: Re: [PATCH] PCI: s390: Fix use-after-free of PCI bus resources with
- s390 per-function hotplug
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Gerd Bayer <gbayer@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-pci@vger.kernel.org,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        with ESMTP id S229609AbjBNKRm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Feb 2023 05:17:42 -0500
+Received: from mailbox.box.xen0n.name (mail.xen0n.name [115.28.160.31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 7FDF31E5D0;
+        Tue, 14 Feb 2023 02:17:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=xen0n.name; s=mail;
+        t=1676365191; bh=i0XIzR1Y5NYJLkaxQFngDX1j91Olf/QjeHaXDd3DD/c=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=AhilTiebsZniB4h/3TCzhrMAQ0m1fI8D/hKY2T+4ArseJ+m3Ze12b64a7BZ4L0BhC
+         Cbii2w7OdAf8LC8paKh0dS4uxyxEGslyDxyzPafGMqQIX/0BH2c+SoMYy+3DyDz8fs
+         BbZrEFqt55X8c4cMx2sqOxvYHoYE3tKQfpxZHtYc=
+Received: from [100.100.57.122] (unknown [58.34.185.106])
+        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mailbox.box.xen0n.name (Postfix) with ESMTPSA id B491D600F8;
+        Tue, 14 Feb 2023 16:59:47 +0800 (CST)
+Message-ID: <f3db61bb-5c89-2724-769f-9d606f587f92@xen0n.name>
+Date:   Tue, 14 Feb 2023 16:59:46 +0800
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.7.2
+Subject: Re: [PATCH v3 10/24] sparc: Remove COMMAND_LINE_SIZE from uapi
+To:     Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Alexandre Ghiti <alexghiti@rivosinc.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Richard Henderson <richard.henderson@linaro.org>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Matt Turner <mattst88@gmail.com>,
+        Vineet Gupta <vgupta@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Michal Simek <monstr@monstr.eu>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>
-Date:   Tue, 14 Feb 2023 11:00:53 +0100
-In-Reply-To: <bce832f7305a132fc2e2b47fc668292234820465.camel@linux.ibm.com>
-References: <20230203114807.3461308-1-schnelle@linux.ibm.com>
-         <bce832f7305a132fc2e2b47fc668292234820465.camel@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: base64
-User-Agent: Evolution 3.46.3 (3.46.3-1.fc37) 
-MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 3JyrfL9OZm3S4xXqdYD2JE74eRsCN2En
-X-Proofpoint-GUID: jzB93slPWQTBXAWcda5KTxVvEWnEC8wC
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
- definitions=2023-02-14_06,2023-02-13_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 adultscore=0
- priorityscore=1501 phishscore=0 bulkscore=0 malwarescore=0 mlxlogscore=496
- spamscore=0 suspectscore=0 lowpriorityscore=0 mlxscore=0 impostorscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
- definitions=main-2302140081
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H . Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org,
+        linux-arch@vger.kernel.org
+Cc:     Palmer Dabbelt <palmer@rivosinc.com>
+References: <20230214074925.228106-1-alexghiti@rivosinc.com>
+ <20230214074925.228106-11-alexghiti@rivosinc.com>
+ <017f0b40-8021-8b3b-24d2-c70661b6b292@omp.ru>
+Content-Language: en-US
+From:   WANG Xuerui <kernel@xen0n.name>
+In-Reply-To: <017f0b40-8021-8b3b-24d2-c70661b6b292@omp.ru>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-T24gVHVlLCAyMDIzLTAyLTE0IGF0IDEwOjQ2ICswMTAwLCBHZXJkIEJheWVyIHdyb3RlOgo+IEhp
-IE5pa2xhcywKPiAKPiB3aGVuIGNvbXBhcmluZyBwY2lfYnVzX3JlbW92ZV9yZXNvdXJjZSB3aXRo
-IHBjaV9idXNfcmVtb3ZlX3Jlc291cmNlcywKPiBJIGZpbmQgdGhhdCB0aGUgInNpbmdsZS1yZXNv
-dXJjZSIgdmFyaWFudCBtaWdodCBiZSBlbmRpbmcgdG9vIGVhcmx5Lgo+IAo+IE9uIEZyaSwgMjAy
-My0wMi0wMyBhdCAxMjo0OCArMDEwMCwgTmlrbGFzIFNjaG5lbGxlIHdyb3RlOgo+ID4gK3ZvaWQg
-cGNpX2J1c19yZW1vdmVfcmVzb3VyY2Uoc3RydWN0IHBjaV9idXMgKmJ1cywgc3RydWN0IHJlc291
-cmNlCj4gPiAqcmVzKQo+ID4gK3sKPiA+ICvCoMKgwqDCoMKgwqDCoHN0cnVjdCBwY2lfYnVzX3Jl
-c291cmNlICpidXNfcmVzLCAqdG1wOwo+ID4gK8KgwqDCoMKgwqDCoMKgaW50IGk7Cj4gPiArCj4g
-PiArwqDCoMKgwqDCoMKgwqBmb3IgKGkgPSAwOyBpIDwgUENJX0JSSURHRV9SRVNPVVJDRV9OVU07
-IGkrKykgewo+ID4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGlmIChidXMtPnJlc291
-cmNlW2ldID09IHJlcykgewo+ID4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqBidXMtPnJlc291cmNlW2ldID0gTlVMTDsKPiA+ICvCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgcmV0dXJuOwo+ICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgXl5eXl5eXgo+IERpZCB5b3UgbWVhbiB0byAiYnJlYWsiIGhlcmUsIHJhdGhlciB0
-aGFuIGVuZCB0aGUgcm91dGluZT8KCk5vIHRoZSByZXR1cm4gaXMgaW50ZW5kZWQuIFdlJ3JlIGxv
-b2tpbmcgdG8gcmVtb3ZlIGEgc2luZ2xlIHJlc291cmNlCmFuZCBpZiBJIHVuZGVyc3RhbmQgdGhp
-bmdzIGNvcnJlY3RseSB0aGVuIHRoYXQgcmVzb3VyY2UgY2FuIGVpdGhlciBiZQppbiBidXMtPnJl
-c291cmNlW10gKHgpb3IgaW4gYnVzLT5yZXNvdXJjZXMgZGVwZW5kaW5nIG9uIHdoZXRoZXIgaXQg
-aXMgYQpQQ0kgYnJpZGdlIHJlc291cmNlLiBFaXRoZXIgd2F5IG9uY2UgZm91bmQgYW5kIHJlbW92
-ZWQgZnJvbSB0aGUKcmVzcGVjdGl2ZSBhcnJheS9saXN0IHdlJ3JlIGRvbmUgYW5kIGNhbiB0aHVz
-IHJldHVybiBpbW1lZGlhdGVseS4KCj4gPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-fQo+ID4gK8KgwqDCoMKgwqDCoMKgfQo+ID4gKwo+ID4gK8KgwqDCoMKgwqDCoMKgbGlzdF9mb3Jf
-ZWFjaF9lbnRyeV9zYWZlKGJ1c19yZXMsIHRtcCwgJmJ1cy0+cmVzb3VyY2VzLCBsaXN0KQo+ID4g
-ewo+ID4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGlmIChidXNfcmVzLT5yZXMgPT0g
-cmVzKSB7Cj4gPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oGxpc3RfZGVsKCZidXNfcmVzLT5saXN0KTsKPiA+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKga2ZyZWUoYnVzX3Jlcyk7Cj4gPiArwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoHJldHVybjsKPiAgICAgICAgICAgICAgICAg
-ICAgICAgICAgIF5eXl5eXl4KPiBIZXJlICJicmVhayIgYW5kICJyZXR1cm4iIGhhdmUgdGhlIHNh
-bWUgZWZmZWN0LCBidXQgImJyZWFrIiB3b3VsZCBiZQo+ICJzeW1tZXRyaWMiLgo+ID4gK8KgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoH0KPiA+ICvCoMKgwqDCoMKgwqDCoH0KPiA+ICvCoMKg
-wqDCoMKgwqDCoHJldHVybjsKPiA+ICsKPiA+ICt9Cj4gCj4gV2hpbGUgdGhpcyBtaWdodCBiZSBh
-IG5pdCwgSSdkIGxpa2UgdG8gYmV0dGVyIHNlcGFyYXRlIHRoZSAic2luZ2xlLQo+IHJlc291cmNl
-IiB2YXJpYW50J3MgbmFtZS4gSG93IGFib3V0IHBjaV9idXNfcmVtb3ZlX29uZV9yZXNvdXJjZSAt
-IEkKPiBrbm93IGl0J3MgZ2V0dGluZyBsb25nLi4uCj4gCj4gVGhhbmtzLAo+IEdlcmQKCkkgaGF2
-ZSBubyBzdHJvbmcgZmVlbGluZ3Mgb24gdGhlIG5hbWUuCgo=
+On 2023/2/14 16:50, Sergey Shtylyov wrote:
+> On 2/14/23 10:49 AM, Alexandre Ghiti wrote:
+> 
+>> From: Palmer Dabbelt <palmer@rivosinc.com>
+>>
+>> As far as I can tell this is not used by userspace and thus should not
+>> be part of the user-visible API.
+>>
+>> Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+>> ---
+>>   arch/sparc/include/asm/setup.h      | 6 +++++-
+>>   arch/sparc/include/uapi/asm/setup.h | 7 -------
+>>   2 files changed, 5 insertions(+), 8 deletions(-)
+>>
+>> diff --git a/arch/sparc/include/asm/setup.h b/arch/sparc/include/asm/setup.h
+>> index 72205684e51e..d1384ed92547 100644
+>> --- a/arch/sparc/include/asm/setup.h
+>> +++ b/arch/sparc/include/asm/setup.h
+>> @@ -7,7 +7,11 @@
+>>   
+>>   #include <linux/interrupt.h>
+>>   
+>> -#include <uapi/asm/setup.h>
+>> +#if defined(__sparc__) && defined(__arch64__)
+> 
+>     Mhm, I don't think these two can be #define'd simulaneously...
+
+I believe it's just a SPARC-ism [1] [2] that may look strange and be 
+easily confused for __aarch64__ (notice the extra 'a')...
+
+[1]: 
+https://github.com/gcc-mirror/gcc/blob/basepoints/gcc-12/gcc/config/sparc/sparc.h#L301
+[2]: 
+https://github.com/llvm/llvm-project/blob/llvmorg-17-init/clang/lib/Basic/Targets/Sparc.cpp#L241
+
+-- 
+WANG "xen0n" Xuerui
+
+Linux/LoongArch mailing list: https://lore.kernel.org/loongarch/
 
