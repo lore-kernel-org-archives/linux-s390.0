@@ -2,129 +2,115 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D1AE1C61DA4
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Feb 2023 12:14:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B645FC05027
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Feb 2023 12:28:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232223AbjBNMOp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 14 Feb 2023 07:14:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40678 "EHLO
+        id S231816AbjBNM2v (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Feb 2023 07:28:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231814AbjBNMOo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Feb 2023 07:14:44 -0500
-Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 869725FC8;
-        Tue, 14 Feb 2023 04:14:42 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0Vbg7mNU_1676376878;
-Received: from 30.221.150.50(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0Vbg7mNU_1676376878)
-          by smtp.aliyun-inc.com;
-          Tue, 14 Feb 2023 20:14:39 +0800
-Message-ID: <31a1c0ae-dbc9-60e5-254b-b5e2bf782f9a@linux.alibaba.com>
-Date:   Tue, 14 Feb 2023 20:14:37 +0800
+        with ESMTP id S229489AbjBNM2u (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Feb 2023 07:28:50 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3D56AD07;
+        Tue, 14 Feb 2023 04:28:49 -0800 (PST)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31EASFqO027959;
+        Tue, 14 Feb 2023 12:28:49 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=1zCdlqIqrEq1sOtvTww32co0pG7t8mzyAniZSVTPtlo=;
+ b=QPexIrvVTYz7YYFNkbsXS479zosWgMLeXC6MvyhSibZ1jgeHAeip1eLCtn4rvHMNHh55
+ CiHbOfOSj3QgX2HzPurX799WHgy4ZtOxmwgXCw3WOSLXDAJcqhcndW/bMpEqVJ7jmk3J
+ +LtMjdTSqDK5/+Tiwn8Tlrx31pAmchNddPAApCTSq+i9rEnFsy0pg3Hu3+XHTFs3DaVk
+ MQRqwG3EnQFVMbGglvQ/YWsRo7fSkbsXfHYSPHzz6QZzTqw50mtSX2W67RVuc06LyoEt
+ Lh0wHLrSRWAET9Vh1fucU4B8alfgsk7S2btofB85xHqGogjDg9Opi2k6hYbZx+e/ziJi mA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3nr8jqu896-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 14 Feb 2023 12:28:48 +0000
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 31EBuZwO015386;
+        Tue, 14 Feb 2023 12:28:48 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3nr8jqu88q-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 14 Feb 2023 12:28:48 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31E5YPFx030092;
+        Tue, 14 Feb 2023 12:28:46 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3np29fm0cd-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 14 Feb 2023 12:28:46 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31ECSgZR52166928
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 14 Feb 2023 12:28:42 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6FDA820043;
+        Tue, 14 Feb 2023 12:28:42 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 10E3820040;
+        Tue, 14 Feb 2023 12:28:42 +0000 (GMT)
+Received: from li-c6ac47cc-293c-11b2-a85c-d421c8e4747b.ibm.com (unknown [9.152.222.242])
+        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Tue, 14 Feb 2023 12:28:42 +0000 (GMT)
+From:   Pierre Morel <pmorel@linux.ibm.com>
+To:     david@redhat.com
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, borntraeger@de.ibm.com,
+        frankja@linux.ibm.com, cohuck@redhat.com, thuth@redhat.com,
+        imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        svens@linux.ibm.com
+Subject: [PATCH v3 0/1] KVM: s390: vsie: clarifications on setting the APCB
+Date:   Tue, 14 Feb 2023 13:28:40 +0100
+Message-Id: <20230214122841.13066-1-pmorel@linux.ibm.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.6.1
-Subject: Re: [PATCH net] net/smc: fix application data exception
-Content-Language: en-US
-From:   "D. Wythe" <alibuda@linux.alibaba.com>
-To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-References: <1669450950-27681-1-git-send-email-alibuda@linux.alibaba.com>
-In-Reply-To: <1669450950-27681-1-git-send-email-alibuda@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: wDJvO-uGK-y8ByJmWbvCARtbs6mhMs6N
+X-Proofpoint-ORIG-GUID: Kbb8AbTRKh_99VbtBrlL71r9IKMi8lNN
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
+ definitions=2023-02-14_07,2023-02-14_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 impostorscore=0
+ lowpriorityscore=0 suspectscore=0 mlxscore=0 bulkscore=0 spamscore=0
+ mlxlogscore=597 phishscore=0 priorityscore=1501 clxscore=1011
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2302140104
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Hi,
 
-Hi, wenjia
+This is a v3 of the previously called:
+[PATCH] KVM: s390: vsie: fix crycb virtual vs physical usage
+and 
+[PATCH v2 0/1] KVM: s390: vsie: clarifications on setting the APCB
 
-This patch of bugfix seems to have been hanging for a long time.
-If you have any concerns, please let us know.
+Changes:
 
-Best wishes.
-D. Wythe
+1->2 After David's comment that the patch has not to do with
+     virtual vs physical, I reworked the commit message.
 
+2->3 rename crycb_o crycb_gpa and apcb_o apcb_gpa
+     gpa = Guest Physical Address 
 
-On 11/26/22 4:22 PM, D.Wythe wrote:
-> From: "D. Wythe" <alibuda@linux.alibaba.com>
-> 
-> There is a certain probability that following
-> exceptions will occur in the wrk benchmark test:
-> 
-> Running 10s test @ http://11.213.45.6:80
->    8 threads and 64 connections
->    Thread Stats   Avg      Stdev     Max   +/- Stdev
->      Latency     3.72ms   13.94ms 245.33ms   94.17%
->      Req/Sec     1.96k   713.67     5.41k    75.16%
->    155262 requests in 10.10s, 23.10MB read
-> Non-2xx or 3xx responses: 3
-> 
-> We will find that the error is HTTP 400 error, which is a serious
-> exception in our test, which means the application data was
-> corrupted.
-> 
-> Consider the following scenarios:
-> 
-> CPU0                            CPU1
-> 
-> buf_desc->used = 0;
->                                  cmpxchg(buf_desc->used, 0, 1)
->                                  deal_with(buf_desc)
-> 
-> memset(buf_desc->cpu_addr,0);
-> 
-> This will cause the data received by a victim connection to be cleared,
-> thus triggering an HTTP 400 error in the server.
-> 
-> This patch exchange the order between clear used and memset, add
-> barrier to ensure memory consistency.
-> 
-> Fixes: 1c5526968e27 ("net/smc: Clear memory when release and reuse buffer")
-> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-> ---
->   net/smc/smc_core.c | 17 ++++++++---------
->   1 file changed, 8 insertions(+), 9 deletions(-)
-> 
-> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-> index c305d8d..c19d4b7 100644
-> --- a/net/smc/smc_core.c
-> +++ b/net/smc/smc_core.c
-> @@ -1120,8 +1120,9 @@ static void smcr_buf_unuse(struct smc_buf_desc *buf_desc, bool is_rmb,
->   
->   		smc_buf_free(lgr, is_rmb, buf_desc);
->   	} else {
-> -		buf_desc->used = 0;
-> -		memset(buf_desc->cpu_addr, 0, buf_desc->len);
-> +		/* memzero_explicit provides potential memory barrier semantics */
-> +		memzero_explicit(buf_desc->cpu_addr, buf_desc->len);
-> +		WRITE_ONCE(buf_desc->used, 0);
->   	}
->   }
->   
-> @@ -1132,19 +1133,17 @@ static void smc_buf_unuse(struct smc_connection *conn,
->   		if (!lgr->is_smcd && conn->sndbuf_desc->is_vm) {
->   			smcr_buf_unuse(conn->sndbuf_desc, false, lgr);
->   		} else {
-> -			conn->sndbuf_desc->used = 0;
-> -			memset(conn->sndbuf_desc->cpu_addr, 0,
-> -			       conn->sndbuf_desc->len);
-> +			memzero_explicit(conn->sndbuf_desc->cpu_addr, conn->sndbuf_desc->len);
-> +			WRITE_ONCE(conn->sndbuf_desc->used, 0);
->   		}
->   	}
->   	if (conn->rmb_desc) {
->   		if (!lgr->is_smcd) {
->   			smcr_buf_unuse(conn->rmb_desc, true, lgr);
->   		} else {
-> -			conn->rmb_desc->used = 0;
-> -			memset(conn->rmb_desc->cpu_addr, 0,
-> -			       conn->rmb_desc->len +
-> -			       sizeof(struct smcd_cdc_msg));
-> +			memzero_explicit(conn->rmb_desc->cpu_addr,
-> +					 conn->rmb_desc->len + sizeof(struct smcd_cdc_msg));
-> +			WRITE_ONCE(conn->rmb_desc->used, 0);
->   		}
->   	}
->   }
+I resent the patch because I think that even the previous
+version is not really buggy, this new version brings clarity.
+
+Regards,
+Pierre
+
+Pierre Morel (1):
+  KVM: s390: vsie: clarifications on setting the APCB
+
+ arch/s390/kvm/vsie.c | 50 +++++++++++++++++++++++++-------------------
+ 1 file changed, 29 insertions(+), 21 deletions(-)
+
+-- 
+2.31.1
+
