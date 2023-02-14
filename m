@@ -2,222 +2,400 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 322CEC64EC7
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Feb 2023 02:20:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 22906C05027
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Feb 2023 04:15:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231263AbjBNCUu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 13 Feb 2023 21:20:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43144 "EHLO
+        id S231573AbjBNEPV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 13 Feb 2023 23:15:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229597AbjBNCUt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 13 Feb 2023 21:20:49 -0500
-Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16E3BE382;
-        Mon, 13 Feb 2023 18:20:48 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1676341248; x=1707877248;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=KvJyklDJS1Xvk8PFGEUXqzZ1RFNYfwNYeMTf+913hAQ=;
-  b=ABUQ7qunJ10L4NKd2EU81+9jZQmLEYM29OjYz9PNmCeHJrPkGg0mq9UC
-   RWTtNpc5VZQjtnQi7dzvl4PUqP3jm184l2roVuMiL842aL598emKPIuFj
-   E8iY9s4NwjZ3nZ+3P6HGVLNOXZmvaPOAMKND700Y5ecryiTd+tTX0np4l
-   AJl89IjkE0V79WlwZMYjB6lKsU8rf0zvGYwlR02x4voA3R/kr8EvLgMMM
-   JelOiPCZeIDc/yx51Tpw3lba4P6pvmk5eXoEpRoSXGd2ReQL28GsQF6GE
-   5unEhIblxsk5Zc8YuKhR/R+lHzcE6FQskD3eX78JgGVZGlVU2+txbfYif
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10620"; a="331059154"
-X-IronPort-AV: E=Sophos;i="5.97,294,1669104000"; 
-   d="scan'208";a="331059154"
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Feb 2023 18:20:41 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10620"; a="618866067"
-X-IronPort-AV: E=Sophos;i="5.97,294,1669104000"; 
-   d="scan'208";a="618866067"
-Received: from fmsmsx602.amr.corp.intel.com ([10.18.126.82])
-  by orsmga003.jf.intel.com with ESMTP; 13 Feb 2023 18:20:38 -0800
-Received: from fmsmsx611.amr.corp.intel.com (10.18.126.91) by
- fmsmsx602.amr.corp.intel.com (10.18.126.82) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.16; Mon, 13 Feb 2023 18:20:37 -0800
-Received: from fmsmsx611.amr.corp.intel.com (10.18.126.91) by
- fmsmsx611.amr.corp.intel.com (10.18.126.91) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.16; Mon, 13 Feb 2023 18:20:37 -0800
-Received: from FMSEDG603.ED.cps.intel.com (10.1.192.133) by
- fmsmsx611.amr.corp.intel.com (10.18.126.91) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.16 via Frontend Transport; Mon, 13 Feb 2023 18:20:37 -0800
-Received: from NAM10-MW2-obe.outbound.protection.outlook.com (104.47.55.101)
- by edgegateway.intel.com (192.55.55.68) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.16; Mon, 13 Feb 2023 18:19:49 -0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=kTw9L4XPgNKO2s/7wMt4WCW5HLwgvKshPAyXG5d6YF8i0mY8S2sAkuRf/E1fYjYfY9fF/OM0bt1alRNE8Wzx0fLfYiXi452DkCxlmbMMZe7QNBninWqb2DkhrhVwPkXx2FavSfFGazClZd09ORPxxuYArJ5uNac4PMMFSOksyRjKkJlQEUJf4ImZeqpqYJPpCrWmI2LsHUCxNd4zPXGOB3djJrBsUsKUh+Y2rGIz+KosC8vy0lCWczrypqzp49hGxU8suADGRWWe4L6xXSoV4zrB/7x8mk1DBVa+OPKZQXyj/ComWTJ8s2dSG88wErC0tJiH1+/dwRIjcHAhWF+Fiw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=KvJyklDJS1Xvk8PFGEUXqzZ1RFNYfwNYeMTf+913hAQ=;
- b=iIHoEkjQ1NLDv1SZpdkdPrX2iCOIWAXUDKZPoFdGWT/gxHWZRHsCG84+Dym5eML1bPOh7wcOPH6ueXVNKO+X/g7hkjGxoTTP0HT4bu0eFKcdniReHJkmU258bieecfozexELO2KjzL3VTobT4LTdT4EJmGUkNzcXBW1DxQtsLWkpBkhZVQue6ybodZBEUTHBl16GeS1g6eAu9tGkWl1sKdz7oy15nQrcbw1LSjg4Rs0TJfDBZUxfEg3QoWx5GcNaGas64BKVLa7MuocSATaOHFD/7TondB27xLo/z3yAIwJdtpbP4tpIsjBj/HS5WIfNZoVoQtQNmYpDlPTHoRlJYg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from DS0PR11MB7529.namprd11.prod.outlook.com (2603:10b6:8:141::20)
- by BL1PR11MB5463.namprd11.prod.outlook.com (2603:10b6:208:315::23) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6086.24; Tue, 14 Feb
- 2023 02:19:47 +0000
-Received: from DS0PR11MB7529.namprd11.prod.outlook.com
- ([fe80::e1fa:abbe:2009:b0a3]) by DS0PR11MB7529.namprd11.prod.outlook.com
- ([fe80::e1fa:abbe:2009:b0a3%3]) with mapi id 15.20.6086.024; Tue, 14 Feb 2023
- 02:19:47 +0000
-From:   "Liu, Yi L" <yi.l.liu@intel.com>
-To:     Alex Williamson <alex.williamson@redhat.com>
-CC:     "joro@8bytes.org" <joro@8bytes.org>,
-        "jgg@nvidia.com" <jgg@nvidia.com>,
-        "Tian, Kevin" <kevin.tian@intel.com>,
-        "robin.murphy@arm.com" <robin.murphy@arm.com>,
-        "cohuck@redhat.com" <cohuck@redhat.com>,
-        "eric.auger@redhat.com" <eric.auger@redhat.com>,
-        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
-        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
-        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
-        "peterx@redhat.com" <peterx@redhat.com>,
-        "jasowang@redhat.com" <jasowang@redhat.com>,
-        "shameerali.kolothum.thodi@huawei.com" 
-        <shameerali.kolothum.thodi@huawei.com>,
-        "lulu@redhat.com" <lulu@redhat.com>,
-        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>
-Subject: RE: [PATCH v3 03/15] vfio: Accept vfio device file in the driver
- facing kAPI
-Thread-Topic: [PATCH v3 03/15] vfio: Accept vfio device file in the driver
- facing kAPI
-Thread-Index: AQHZP73OQ1XOEaarRU+iobEkUB6WaK7NhGoAgAAvuqA=
-Date:   Tue, 14 Feb 2023 02:19:47 +0000
-Message-ID: <DS0PR11MB752944997EAB3CF400310605C3A29@DS0PR11MB7529.namprd11.prod.outlook.com>
-References: <20230213151348.56451-1-yi.l.liu@intel.com>
-        <20230213151348.56451-4-yi.l.liu@intel.com>
- <20230213162150.7626055b.alex.williamson@redhat.com>
-In-Reply-To: <20230213162150.7626055b.alex.williamson@redhat.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: DS0PR11MB7529:EE_|BL1PR11MB5463:EE_
-x-ms-office365-filtering-correlation-id: e2dd2803-6c36-48d6-e66e-08db0e31f1d8
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: a5fdneny38gzc1CnYe0p/3MbP1AxNtS5cmk0WfzHcn7NJ33DCrQf0Igl4OScEpUtVt2H2oe06mbBlUVs4/+p2hCmtZMAIYpLMzExw4TTlVjvVoEGm+VOpssSs06WyZUS5ClcumUiWC/sAh9xVZXTSBOMT93lORX5hUZtywsWHs3ZYDh3ysk67cvIhHNEcFc701l7A56OtkKoJIoVw+uOE84Jjgsn5XphgysA3V/Ep8ANncyUTcgCATLkIKZrFirWaC+gVpQo1jk7ZuXjAjUkiicI0HMIB3O1f871ZSzy6/7N3E4swcSpkpHU1mEBBOJzHa93vX4pwST3D5RWrIKNhstwAEzK0OF4NaWGsHup3IMQOK4mjCHAi7O0W2I3+rhN1OwlWzfhnckcnUfgU09A0WKf9K12luvGdvOYNclh2XJvopmijrpe0tupIhH78EdLbBpvdf2PIKqF3xCcOnhCoT64bbsqaQqmR8mxZpNbMI4Qb5onOhn9I/Fr2HvfAzcRiN8VmvDsNVVYZI2jr9BWJ1NntWV/oIIzHvLWj+k77KgCtY1zaIF4sgnJhqAQ+qj2yhQUN3L9XYG6au+YmdM9P02826P7gF1sKFvSAiBQmIVaghOasg/+PeXRqw6tTuegJV6ZngMGQMYnBc4WV8WOE78oWewTsVDpTjhTreQP5IhYHuI8OY/U3YatdALtw5Dk5TiQLxiDDaf5XaFf5n7kB51usJjVIR5oYKFYZimLw4g=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR11MB7529.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(39860400002)(366004)(136003)(376002)(346002)(396003)(451199018)(5660300002)(38070700005)(83380400001)(55016003)(186003)(26005)(7416002)(2906002)(6506007)(86362001)(52536014)(33656002)(41300700001)(478600001)(7696005)(71200400001)(122000001)(9686003)(8936002)(54906003)(66556008)(64756008)(66476007)(6916009)(316002)(4326008)(66946007)(66446008)(82960400001)(8676002)(38100700002)(76116006)(13296009);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?utf-8?B?V0E0a0JzbG1UREM5R0Y2SmUyNFZqaUZOSVI3QTBPRmRDbEZxT3A5ZUc1d2JL?=
- =?utf-8?B?NWRtK25uc3pyOGsyeWdkVWxma0laeTZITTA5RUZmYzhKVGZ4SDAwS3RTSnR3?=
- =?utf-8?B?aExpZ1E0cWtkMkE0Z3p0dmVvMFl3RkN5UGtRdndETUYzZUFLM0dmc2dmRVJH?=
- =?utf-8?B?cGptMHYzUldZQU5nU2djbHNiaUI1R2ZQb3dGb2d3S0FWWm1JKzFHd1VUTE5M?=
- =?utf-8?B?RytHU3EvUFhTd1JWemVLODQrbjNwZWlENUk5Qm5IRWJKbExWKy9JVVZhdDlm?=
- =?utf-8?B?UEw5QUhibXJDcG1KZVNnM2VhTkVpYzcxdkFmUGNha040d1A3bmlaWnpwejBR?=
- =?utf-8?B?RlduWkphR3VxUHUxN200RHRDRnliUkVudi8vKzRuYk1QV05LNEVRVEcrRmtw?=
- =?utf-8?B?SElaeUFadUduQldRNWJ1SFBuZGVoM1kyckFWQUVjcnRCMXJyb2VLNWJxcXVX?=
- =?utf-8?B?TkRnVlFJZGlvNEF1YzJPSzRkbFZERnJCVTZUa2h2TVpyVEpCZ2p1M01hMzMr?=
- =?utf-8?B?VzkyZnNTaWNaMHl1dU0wYnFBU0NVMWJDbkVRb2lGazRVck0vMC90dVk2enM3?=
- =?utf-8?B?T0JQOGNRdE9JYU44RDc1N0o5TER4UVE3VWNnb3lxTUJtSjlTeTdPdmN6OUl3?=
- =?utf-8?B?UGdFTTErYnV3S1djZFcxQjZja3U4LzYzNUJvVHZkK0xPQTQ3bjZwT3A5NTZV?=
- =?utf-8?B?TzYwZVVqT2hldnJKNHFYS1F4a1VRV1doTWhlR0lCcG1KcDJMNXlTS3oxNzVN?=
- =?utf-8?B?RWxFSlZYb1FqUFZHR2ZubXp4dktNMzYrWnJERnhtcEsydWF3ZEpVV2grSjZ0?=
- =?utf-8?B?L2FTV2F3KzNHRVd0K0pNT0pUOWJ6Z3h1Q0h6NFJySXpnWE5jdHQ1MERmQzBm?=
- =?utf-8?B?VXp3ZUkxZGkrU2xuZ2pzczRDeVJYZEtwUTlYaitFNXpWVUsyOTdvUWh0SjF4?=
- =?utf-8?B?KzR6bm01K21yWXcyRHpQcGh4OXQrNVJDL0tKRmpYMHRyNTB0ZTFDS2NwSUdx?=
- =?utf-8?B?OE9nL3Fhcm9aZTIwZGU2dGpjVlgxWVN5blFLUGlQcWQ3V1NQSjFGcURSR2NR?=
- =?utf-8?B?L1hoSWcyaVd6RlJxWlVaVlhrWnJCaEdGdHR5b0JqdUNoRFZTOExSNnBuK3kv?=
- =?utf-8?B?dnlsc3BFbHQzQTJibUd2blo0V1VHUXViZUdXdFp2R3pacXRJelBWN2pDOUhD?=
- =?utf-8?B?NnQ3V1BOVkpvNzZIOG5lVlU5eE84ZmtEUC9Lci9IbGJtekdFY2F4dG1EQ1ha?=
- =?utf-8?B?NWkrOFNxblZEb2xSRkpRTmw1a2pVQnBiYk05bnJJM1hzdys0RTU3SEVzbERm?=
- =?utf-8?B?ek10OXQ5THpwRWZNdmNrcG5rV2w4U2hhWnAwbnlZakMwc29YcG5QWTN0RURx?=
- =?utf-8?B?YlpjQzJmVzJWaURmQnorQ0hua0ZibVByRVN6cFRkbStEWXlURHZ2eUsrMXdB?=
- =?utf-8?B?ejl3UzJYOE9Jd1g1Nkk2S0VoTEkxY0VlRmFVNjdxcllXZzEvQm1tUEN1ZWdT?=
- =?utf-8?B?cnhJOVkvbXdFcUJvYlRIUy83SFBEOFR6RllIcFF3MFZQWGlkS0xoNy9ZRzho?=
- =?utf-8?B?VFIrT1VnOGcyNldmNGpYVUtsWlIvU3hCZjg2TVdLdUxWSXRHTXlGNFV4N3ZB?=
- =?utf-8?B?ODF3NFhSazNObjBiZllpanFGRTY2SXdTblFjMFhUK3lwUTVpdjNURWRldlBh?=
- =?utf-8?B?WlA4TGNtRnY2VEY1bWs5MW5heFEyTWdlQzBtT0xWeTY0ang0Q2loaWZnSk1J?=
- =?utf-8?B?UE5UZGR6cVYza1lHL0R5UmJlc2hrWVYvOTV6RlZVRHhhQ0ZDRm11N2FKQlZ5?=
- =?utf-8?B?Y1QrSHdvUDVHaVdZeVhaRXBRQmdPMGQ5NHB6T2JtS3BIamZSUU44d0N1R3E2?=
- =?utf-8?B?S2cyMVVJTjBVdzhscEZmai9ydkdXVDFmaG9tSitPVTA0dk5XT1NzL1JVVXdQ?=
- =?utf-8?B?T2lQSitHditpS0loRko3SkNFdlF2cStzMHM3b2pmNWhYamo1UURRME45WUla?=
- =?utf-8?B?NVV4WUpuaTcrZVBSbk1wdlcwYVNscWVrTVBJblR3bGFMQjV3L1lNV0tDbkNC?=
- =?utf-8?B?RG5RdGRBbitSdTRaQjQ3a3o5V1h1dDNwOHgzVnFwUUxOdkF5K3JxUGF5b21R?=
- =?utf-8?Q?dcKubpxLg6tMiV9cr6gMMLhgA?=
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+        with ESMTP id S229627AbjBNEPV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 13 Feb 2023 23:15:21 -0500
+Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E6B010F9;
+        Mon, 13 Feb 2023 20:15:19 -0800 (PST)
+Received: by mail-pl1-x62b.google.com with SMTP id be8so15779702plb.7;
+        Mon, 13 Feb 2023 20:15:19 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=aYoGiVnitKVsiwNVJDrEKDE+kZ8NsbSA29728NlslYo=;
+        b=L3svDzg8AWJe2cYOCVf8R3Kyd9+pqdQrJEvcPYliRXKdirjtAs0hHLgKY4IhCwcUc6
+         YsV81el0iCr+i91i+byhN5ZYPdLvkwWJOcSjsV3dzTCzni5Vl5hkMuZGfh4bTsH5T98t
+         L6DbhzajIXfLqOm4UYJ6g7KQykx5OUuLidBvvOM8uBTmcJBBb0MMSC0nKtZyADzm72u4
+         6wbywC9gE8oi2rlwEqKygDAiOuNy7xk/QKE6sO8usd+96aoTB/NWzj8h1/hOvsGsfqI0
+         VG3XkcPRorB/tO1ezDw/cAJvCdH5r0s9Mom7hOR/unSibg4JRgsI+cT8840+Iz75p3m8
+         fzqQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=aYoGiVnitKVsiwNVJDrEKDE+kZ8NsbSA29728NlslYo=;
+        b=bwe/buxghvYgYW+pL4inMhqV76Z957vUrCd8czpWR3UkHD/tM0x7vsRtH5OPtnqrEH
+         OLiXK03Q4m55M5uLk2gk4NAOsB2Xg20ZLih7AbOcFVjgAqsKQjlRLTfzjWif5AP4QGmS
+         OiKOxQg7mgRvrIuZ61J2R9VXFIN6cdEl5y+uHNDzoxXFDr6s6nD1L593JTo9B2HiDFxA
+         LK4Pwuxk12qaa/tP+8yGeJvyQKxS+FMGhl4KZwZiCPvPXj531fyR115ylKjNnXtZv4th
+         o9/GPzJhGLvR6Fp9LI6l1zSVoT3hjtDLyFb0x6VBSFoS8r6LDlufaD96J88OqBniJv7y
+         cojA==
+X-Gm-Message-State: AO0yUKW8PPuSJ22kvpAzvPa1dV/K2iRUYBhTx7ebM7d+HQF2sRklC6Cg
+        G6uj6eRTNifrx790kK2cQ5Y=
+X-Google-Smtp-Source: AK7set/olXPDRSQzuo4Wwxxbe1sWjQiXnjrAFsiPwcOGM2AriEpild14YdA2O572A2LuCJhCsIOmYA==
+X-Received: by 2002:a05:6a21:980d:b0:bd:93a:4c8f with SMTP id ue13-20020a056a21980d00b000bd093a4c8fmr680154pzb.23.1676348118709;
+        Mon, 13 Feb 2023 20:15:18 -0800 (PST)
+Received: from KERNELXING-MB0.tencent.com ([103.7.29.31])
+        by smtp.gmail.com with ESMTPSA id iw3-20020a170903044300b0019ab3308554sm740154plb.85.2023.02.13.20.15.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 13 Feb 2023 20:15:18 -0800 (PST)
+From:   Jason Xing <kerneljasonxing@gmail.com>
+To:     kuniyu@amazon.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, dsahern@kernel.org,
+        matthieu.baerts@tessares.net, willemdebruijn.kernel@gmail.com,
+        nhorman@tuxdriver.com, marcelo.leitner@gmail.com,
+        lucien.xin@gmail.com, kgraul@linux.ibm.com, wenjia@linux.ibm.com,
+        jaka@linux.ibm.com, bjorn@kernel.org, magnus.karlsson@intel.com,
+        maciej.fijalkowski@intel.com, jonathan.lemon@gmail.com
+Cc:     bpf@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-sctp@vger.kernel.org, mptcp@lists.linux.dev,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kerneljasonxing@gmail.com, Jason Xing <kernelxing@tencent.com>
+Subject: [PATCH v2 net-next] net: no longer support SOCK_REFCNT_DEBUG feature
+Date:   Tue, 14 Feb 2023 12:14:10 +0800
+Message-Id: <20230214041410.6295-1-kerneljasonxing@gmail.com>
+X-Mailer: git-send-email 2.33.0
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: DS0PR11MB7529.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: e2dd2803-6c36-48d6-e66e-08db0e31f1d8
-X-MS-Exchange-CrossTenant-originalarrivaltime: 14 Feb 2023 02:19:47.6611
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: oJpeXeLmCabfxOuNmGplamvrqYOmRhrgl307p8Lr8idILnk/auu4mOv8K3YwvD13QVCqTHMDkUTbTlZM5/cLmw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR11MB5463
-X-OriginatorOrg: intel.com
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-PiBGcm9tOiBBbGV4IFdpbGxpYW1zb24gPGFsZXgud2lsbGlhbXNvbkByZWRoYXQuY29tPg0KPiBT
-ZW50OiBUdWVzZGF5LCBGZWJydWFyeSAxNCwgMjAyMyA3OjIyIEFNDQo+IA0KPiBPbiBNb24sIDEz
-IEZlYiAyMDIzIDA3OjEzOjM2IC0wODAwDQo+IFlpIExpdSA8eWkubC5saXVAaW50ZWwuY29tPiB3
-cm90ZToNCj4gDQo+ID4gVGhpcyBtYWtlcyB0aGUgdmZpbyBmaWxlIGtBUElzIHRvIGFjY2VwdGUg
-dmZpbyBkZXZpY2UgZmlsZXMsIGFsc28gYQ0KPiA+IHByZXBhcmF0aW9uIGZvciB2ZmlvIGRldmlj
-ZSBjZGV2IHN1cHBvcnQuDQo+ID4NCj4gPiBGb3IgdGhlIGt2bSBzZXQgd2l0aCB2ZmlvIGRldmlj
-ZSBmaWxlLCBrdm0gcG9pbnRlciBpcyBzdG9yZWQgaW4gc3RydWN0DQo+ID4gdmZpb19kZXZpY2Vf
-ZmlsZSwgYW5kIHVzZSBrdm1fcmVmX2xvY2sgdG8gcHJvdGVjdCBrdm0gc2V0IGFuZCBrdm0NCj4g
-PiBwb2ludGVyIHVzYWdlIHdpdGhpbiBWRklPLiBUaGlzIGt2bSBwb2ludGVyIHdpbGwgYmUgc2V0
-IHRvIHZmaW9fZGV2aWNlDQo+ID4gYWZ0ZXIgZGV2aWNlIGZpbGUgaXMgYm91bmQgdG8gaW9tbXVm
-ZCBpbiB0aGUgY2RldiBwYXRoLg0KPiA+DQo+ID4gU2lnbmVkLW9mZi1ieTogWWkgTGl1IDx5aS5s
-LmxpdUBpbnRlbC5jb20+DQo+ID4gUmV2aWV3ZWQtYnk6IEtldmluIFRpYW4gPGtldmluLnRpYW5A
-aW50ZWwuY29tPg0KPiA+IC0tLQ0KPiA+ICBkcml2ZXJzL3ZmaW8vdmZpby5oICAgICAgfCAgMiAr
-Kw0KPiA+ICBkcml2ZXJzL3ZmaW8vdmZpb19tYWluLmMgfCA1MQ0KPiArKysrKysrKysrKysrKysr
-KysrKysrKysrKysrKysrKysrKystLS0tDQo+ID4gIDIgZmlsZXMgY2hhbmdlZCwgNDkgaW5zZXJ0
-aW9ucygrKSwgNCBkZWxldGlvbnMoLSkNCj4gDQo+IFRoaXMgc3VidGx5IGNoYW5nZXMgdGhlIGJl
-aGF2aW9yIG9mIHRoZSB2ZmlvLXBjaSBob3QgcmVzZXQgZnVuY3Rpb25zDQo+IHdpdGhvdXQgdXBk
-YXRpbmcgdGhlIHVBUEkgZGVzY3JpcHRpb24gb3IgaW1wbGVtZW50YXRpb24gdG8gdXNlIGxlc3MN
-Cj4gZ3JvdXAtY2VudHJpYyB2YXJpYWJsZXMuICBUaGUgbmV3IGJlaGF2aW9yIGFwcGVhcnMgdG8g
-YmUgdGhhdCBjZGV2IGZkcw0KPiBjYW4gYWxzbyBiZSBwYXNzZWQgdG8gcHJvdmUgb3duZXJzaGlw
-IG9mIHRoZSBhZmZlY3RlZCBzZXQgb2YgZGV2aWNlcw0KPiBmb3IgYSBob3QgcmVzZXQsIGJ1dCB0
-aGlzIHByb2JhYmx5IG5lZWRzIHRvIGJlIGV4YW1pbmVkIGZvciBnYXBzLg0KDQpZZXMuIHVzZXIg
-Y291bGQgcGFzcyBjZGV2IGZkcyBhZnRlcndhcmQuIEkgc3VwcG9zZSB0aGUgVkZJT19ERVZJQ0Vf
-R0VUX1BDSV9IT1RfUkVTRVRfSU5GTw0Kd2lsbCByZXBvcnQgdGhlIGV4aXN0aW5nIGluZm8gKGdy
-b3VwX2lkLCBzZWdtZW50LCBidXMsIGRldmZuKS4gV2hpbGUgdXNlcnNwYWNlDQpwYXNzZXMgZGV2
-aWNlIGZkcyB0byB0aGUga2VybmVsIGZvciByZXNldHRpbmcuIE5lZWQgdG8gdXBkYXRlIHN0cnVj
-dCB2ZmlvX3BjaV9ob3RfcmVzZXQNCmFuZCB0aGUga2VybmVsIHJlc2V0IGNvZGUgYWNjb3JkaW5n
-bHkuIFByb2JhYmx5LCBpdCBpcyBhIGZvbGxvd2luZyBzZXJpZXMgZm9yIGl0LiDwn5iKDQoNCi8q
-Kg0KICogVkZJT19ERVZJQ0VfR0VUX1BDSV9IT1RfUkVTRVRfSU5GTyAtIF9JT1dSKFZGSU9fVFlQ
-RSwgVkZJT19CQVNFICsgMTIsDQogKgkJCQkJICAgICAgc3RydWN0IHZmaW9fcGNpX2hvdF9yZXNl
-dF9pbmZvKQ0KICoNCiAqIFJldHVybjogMCBvbiBzdWNjZXNzLCAtZXJybm8gb24gZmFpbHVyZToN
-CiAqCS1lbm9zcGMgPSBpbnN1ZmZpY2llbnQgYnVmZmVyLCAtZW5vZGV2ID0gdW5zdXBwb3J0ZWQg
-Zm9yIGRldmljZS4NCiAqLw0Kc3RydWN0IHZmaW9fcGNpX2RlcGVuZGVudF9kZXZpY2Ugew0KCV9f
-dTMyCWdyb3VwX2lkOw0KCV9fdTE2CXNlZ21lbnQ7DQoJX191OAlidXM7DQoJX191OAlkZXZmbjsg
-LyogVXNlIFBDSV9TTE9UL1BDSV9GVU5DICovDQp9Ow0KDQpzdHJ1Y3QgdmZpb19wY2lfaG90X3Jl
-c2V0X2luZm8gew0KCV9fdTMyCWFyZ3N6Ow0KCV9fdTMyCWZsYWdzOw0KCV9fdTMyCWNvdW50Ow0K
-CXN0cnVjdCB2ZmlvX3BjaV9kZXBlbmRlbnRfZGV2aWNlCWRldmljZXNbXTsNCn07DQoNCiNkZWZp
-bmUgVkZJT19ERVZJQ0VfR0VUX1BDSV9IT1RfUkVTRVRfSU5GTwlfSU8oVkZJT19UWVBFLCBWRklP
-X0JBU0UgKyAxMikNCg0KLyoqDQogKiBWRklPX0RFVklDRV9QQ0lfSE9UX1JFU0VUIC0gX0lPVyhW
-RklPX1RZUEUsIFZGSU9fQkFTRSArIDEzLA0KICoJCQkJICAgIHN0cnVjdCB2ZmlvX3BjaV9ob3Rf
-cmVzZXQpDQogKg0KICogUmV0dXJuOiAwIG9uIHN1Y2Nlc3MsIC1lcnJubyBvbiBmYWlsdXJlLg0K
-ICovDQpzdHJ1Y3QgdmZpb19wY2lfaG90X3Jlc2V0IHsNCglfX3UzMglhcmdzejsNCglfX3UzMglm
-bGFnczsNCglfX3UzMgljb3VudDsNCglfX3MzMglncm91cF9mZHNbXTsNCn07DQoNCiNkZWZpbmUg
-VkZJT19ERVZJQ0VfUENJX0hPVF9SRVNFVAlfSU8oVkZJT19UWVBFLCBWRklPX0JBU0UgKyAxMykN
-Cg==
+From: Jason Xing <kernelxing@tencent.com>
+
+Commit e48c414ee61f ("[INET]: Generalise the TCP sock ID lookup routines")
+commented out the definition of SOCK_REFCNT_DEBUG in 2005 and later another
+commit 463c84b97f24 ("[NET]: Introduce inet_connection_sock") removed it.
+Since we could track all of them through bpf and kprobe related tools
+and the feature could print loads of information which might not be
+that helpful even under a little bit pressure, the whole feature which
+has been inactive for many years is no longer supported.
+
+Link: https://lore.kernel.org/lkml/20230211065153.54116-1-kerneljasonxing@gmail.com/
+Suggested-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: Jason Xing <kernelxing@tencent.com>
+---
+v2:
+1) change the title and body message.
+2) remove the whole feature instead suggested by Kuniyuki Iwashima.
+---
+ include/net/sock.h              | 28 ----------------------------
+ net/core/sock.c                 | 13 -------------
+ net/ipv4/af_inet.c              |  3 ---
+ net/ipv4/inet_connection_sock.c |  2 --
+ net/ipv4/inet_timewait_sock.c   |  3 ---
+ net/ipv6/af_inet6.c             | 10 ----------
+ net/ipv6/ipv6_sockglue.c        | 12 ------------
+ net/mptcp/protocol.c            |  1 -
+ net/packet/af_packet.c          |  4 ----
+ net/sctp/ipv6.c                 |  2 --
+ net/sctp/protocol.c             |  2 --
+ net/smc/af_smc.c                |  3 ---
+ net/xdp/xsk.c                   |  4 ----
+ 13 files changed, 87 deletions(-)
+
+diff --git a/include/net/sock.h b/include/net/sock.h
+index dcd72e6285b2..e6369068a7bb 100644
+--- a/include/net/sock.h
++++ b/include/net/sock.h
+@@ -1349,9 +1349,6 @@ struct proto {
+ 	char			name[32];
+ 
+ 	struct list_head	node;
+-#ifdef SOCK_REFCNT_DEBUG
+-	atomic_t		socks;
+-#endif
+ 	int			(*diag_destroy)(struct sock *sk, int err);
+ } __randomize_layout;
+ 
+@@ -1359,31 +1356,6 @@ int proto_register(struct proto *prot, int alloc_slab);
+ void proto_unregister(struct proto *prot);
+ int sock_load_diag_module(int family, int protocol);
+ 
+-#ifdef SOCK_REFCNT_DEBUG
+-static inline void sk_refcnt_debug_inc(struct sock *sk)
+-{
+-	atomic_inc(&sk->sk_prot->socks);
+-}
+-
+-static inline void sk_refcnt_debug_dec(struct sock *sk)
+-{
+-	atomic_dec(&sk->sk_prot->socks);
+-	printk(KERN_DEBUG "%s socket %p released, %d are still alive\n",
+-	       sk->sk_prot->name, sk, atomic_read(&sk->sk_prot->socks));
+-}
+-
+-static inline void sk_refcnt_debug_release(const struct sock *sk)
+-{
+-	if (refcount_read(&sk->sk_refcnt) != 1)
+-		printk(KERN_DEBUG "Destruction of the %s socket %p delayed, refcnt=%d\n",
+-		       sk->sk_prot->name, sk, refcount_read(&sk->sk_refcnt));
+-}
+-#else /* SOCK_REFCNT_DEBUG */
+-#define sk_refcnt_debug_inc(sk) do { } while (0)
+-#define sk_refcnt_debug_dec(sk) do { } while (0)
+-#define sk_refcnt_debug_release(sk) do { } while (0)
+-#endif /* SOCK_REFCNT_DEBUG */
+-
+ INDIRECT_CALLABLE_DECLARE(bool tcp_stream_memory_free(const struct sock *sk, int wake));
+ 
+ static inline int sk_forward_alloc_get(const struct sock *sk)
+diff --git a/net/core/sock.c b/net/core/sock.c
+index f954d5893e79..be7b29d97637 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -2338,17 +2338,6 @@ struct sock *sk_clone_lock(const struct sock *sk, const gfp_t priority)
+ 	smp_wmb();
+ 	refcount_set(&newsk->sk_refcnt, 2);
+ 
+-	/* Increment the counter in the same struct proto as the master
+-	 * sock (sk_refcnt_debug_inc uses newsk->sk_prot->socks, that
+-	 * is the same as sk->sk_prot->socks, as this field was copied
+-	 * with memcpy).
+-	 *
+-	 * This _changes_ the previous behaviour, where
+-	 * tcp_create_openreq_child always was incrementing the
+-	 * equivalent to tcp_prot->socks (inet_sock_nr), so this have
+-	 * to be taken into account in all callers. -acme
+-	 */
+-	sk_refcnt_debug_inc(newsk);
+ 	sk_set_socket(newsk, NULL);
+ 	sk_tx_queue_clear(newsk);
+ 	RCU_INIT_POINTER(newsk->sk_wq, NULL);
+@@ -3696,8 +3685,6 @@ void sk_common_release(struct sock *sk)
+ 
+ 	xfrm_sk_free_policy(sk);
+ 
+-	sk_refcnt_debug_release(sk);
+-
+ 	sock_put(sk);
+ }
+ EXPORT_SYMBOL(sk_common_release);
+diff --git a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
+index 6c0ec2789943..f46a3924c440 100644
+--- a/net/ipv4/af_inet.c
++++ b/net/ipv4/af_inet.c
+@@ -156,7 +156,6 @@ void inet_sock_destruct(struct sock *sk)
+ 	kfree(rcu_dereference_protected(inet->inet_opt, 1));
+ 	dst_release(rcu_dereference_protected(sk->sk_dst_cache, 1));
+ 	dst_release(rcu_dereference_protected(sk->sk_rx_dst, 1));
+-	sk_refcnt_debug_dec(sk);
+ }
+ EXPORT_SYMBOL(inet_sock_destruct);
+ 
+@@ -356,8 +355,6 @@ static int inet_create(struct net *net, struct socket *sock, int protocol,
+ 	inet->mc_list	= NULL;
+ 	inet->rcv_tos	= 0;
+ 
+-	sk_refcnt_debug_inc(sk);
+-
+ 	if (inet->inet_num) {
+ 		/* It assumes that any protocol which allows
+ 		 * the user to assign a number at socket
+diff --git a/net/ipv4/inet_connection_sock.c b/net/ipv4/inet_connection_sock.c
+index d1f837579398..64be59d93b04 100644
+--- a/net/ipv4/inet_connection_sock.c
++++ b/net/ipv4/inet_connection_sock.c
+@@ -1178,8 +1178,6 @@ void inet_csk_destroy_sock(struct sock *sk)
+ 
+ 	xfrm_sk_free_policy(sk);
+ 
+-	sk_refcnt_debug_release(sk);
+-
+ 	this_cpu_dec(*sk->sk_prot->orphan_count);
+ 
+ 	sock_put(sk);
+diff --git a/net/ipv4/inet_timewait_sock.c b/net/ipv4/inet_timewait_sock.c
+index beed32fff484..40052414c7c7 100644
+--- a/net/ipv4/inet_timewait_sock.c
++++ b/net/ipv4/inet_timewait_sock.c
+@@ -77,9 +77,6 @@ void inet_twsk_free(struct inet_timewait_sock *tw)
+ {
+ 	struct module *owner = tw->tw_prot->owner;
+ 	twsk_destructor((struct sock *)tw);
+-#ifdef SOCK_REFCNT_DEBUG
+-	pr_debug("%s timewait_sock %p released\n", tw->tw_prot->name, tw);
+-#endif
+ 	kmem_cache_free(tw->tw_prot->twsk_prot->twsk_slab, tw);
+ 	module_put(owner);
+ }
+diff --git a/net/ipv6/af_inet6.c b/net/ipv6/af_inet6.c
+index fee9163382c2..c93f2e865fea 100644
+--- a/net/ipv6/af_inet6.c
++++ b/net/ipv6/af_inet6.c
+@@ -238,16 +238,6 @@ static int inet6_create(struct net *net, struct socket *sock, int protocol,
+ 		inet->pmtudisc = IP_PMTUDISC_DONT;
+ 	else
+ 		inet->pmtudisc = IP_PMTUDISC_WANT;
+-	/*
+-	 * Increment only the relevant sk_prot->socks debug field, this changes
+-	 * the previous behaviour of incrementing both the equivalent to
+-	 * answer->prot->socks (inet6_sock_nr) and inet_sock_nr.
+-	 *
+-	 * This allows better debug granularity as we'll know exactly how many
+-	 * UDPv6, TCPv6, etc socks were allocated, not the sum of all IPv6
+-	 * transport protocol socks. -acme
+-	 */
+-	sk_refcnt_debug_inc(sk);
+ 
+ 	if (inet->inet_num) {
+ 		/* It assumes that any protocol which allows
+diff --git a/net/ipv6/ipv6_sockglue.c b/net/ipv6/ipv6_sockglue.c
+index 9ce51680290b..2917dd8d198c 100644
+--- a/net/ipv6/ipv6_sockglue.c
++++ b/net/ipv6/ipv6_sockglue.c
+@@ -464,13 +464,6 @@ int do_ipv6_setsockopt(struct sock *sk, int level, int optname,
+ 			__ipv6_sock_mc_close(sk);
+ 			__ipv6_sock_ac_close(sk);
+ 
+-			/*
+-			 * Sock is moving from IPv6 to IPv4 (sk_prot), so
+-			 * remove it from the refcnt debug socks count in the
+-			 * original family...
+-			 */
+-			sk_refcnt_debug_dec(sk);
+-
+ 			if (sk->sk_protocol == IPPROTO_TCP) {
+ 				struct inet_connection_sock *icsk = inet_csk(sk);
+ 
+@@ -507,11 +500,6 @@ int do_ipv6_setsockopt(struct sock *sk, int level, int optname,
+ 
+ 			inet6_cleanup_sock(sk);
+ 
+-			/*
+-			 * ... and add it to the refcnt debug socks count
+-			 * in the new family. -acme
+-			 */
+-			sk_refcnt_debug_inc(sk);
+ 			module_put(THIS_MODULE);
+ 			retv = 0;
+ 			break;
+diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
+index 8cd6cc67c2c5..e913752df112 100644
+--- a/net/mptcp/protocol.c
++++ b/net/mptcp/protocol.c
+@@ -2876,7 +2876,6 @@ static void __mptcp_destroy_sock(struct sock *sk)
+ 	sk_stream_kill_queues(sk);
+ 	xfrm_sk_free_policy(sk);
+ 
+-	sk_refcnt_debug_release(sk);
+ 	sock_put(sk);
+ }
+ 
+diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
+index b5ab98ca2511..a4c8f86ac12a 100644
+--- a/net/packet/af_packet.c
++++ b/net/packet/af_packet.c
+@@ -1335,8 +1335,6 @@ static void packet_sock_destruct(struct sock *sk)
+ 		pr_err("Attempt to release alive packet socket: %p\n", sk);
+ 		return;
+ 	}
+-
+-	sk_refcnt_debug_dec(sk);
+ }
+ 
+ static bool fanout_flow_is_huge(struct packet_sock *po, struct sk_buff *skb)
+@@ -3172,7 +3170,6 @@ static int packet_release(struct socket *sock)
+ 
+ 	skb_queue_purge(&sk->sk_receive_queue);
+ 	packet_free_pending(po);
+-	sk_refcnt_debug_release(sk);
+ 
+ 	sock_put(sk);
+ 	return 0;
+@@ -3362,7 +3359,6 @@ static int packet_create(struct net *net, struct socket *sock, int protocol,
+ 	packet_cached_dev_reset(po);
+ 
+ 	sk->sk_destruct = packet_sock_destruct;
+-	sk_refcnt_debug_inc(sk);
+ 
+ 	/*
+ 	 *	Attach a protocol block
+diff --git a/net/sctp/ipv6.c b/net/sctp/ipv6.c
+index 097bd60ce964..62b436a2c8fe 100644
+--- a/net/sctp/ipv6.c
++++ b/net/sctp/ipv6.c
+@@ -807,8 +807,6 @@ static struct sock *sctp_v6_create_accept_sk(struct sock *sk,
+ 
+ 	newsk->sk_v6_rcv_saddr = sk->sk_v6_rcv_saddr;
+ 
+-	sk_refcnt_debug_inc(newsk);
+-
+ 	if (newsk->sk_prot->init(newsk)) {
+ 		sk_common_release(newsk);
+ 		newsk = NULL;
+diff --git a/net/sctp/protocol.c b/net/sctp/protocol.c
+index 909a89a1cff4..c365df24ad33 100644
+--- a/net/sctp/protocol.c
++++ b/net/sctp/protocol.c
+@@ -601,8 +601,6 @@ static struct sock *sctp_v4_create_accept_sk(struct sock *sk,
+ 
+ 	newinet->inet_daddr = asoc->peer.primary_addr.v4.sin_addr.s_addr;
+ 
+-	sk_refcnt_debug_inc(newsk);
+-
+ 	if (newsk->sk_prot->init(newsk)) {
+ 		sk_common_release(newsk);
+ 		newsk = NULL;
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index e12d4fa5aece..c594312e22cd 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -359,8 +359,6 @@ static void smc_destruct(struct sock *sk)
+ 		return;
+ 	if (!sock_flag(sk, SOCK_DEAD))
+ 		return;
+-
+-	sk_refcnt_debug_dec(sk);
+ }
+ 
+ static struct sock *smc_sock_alloc(struct net *net, struct socket *sock,
+@@ -389,7 +387,6 @@ static struct sock *smc_sock_alloc(struct net *net, struct socket *sock,
+ 	spin_lock_init(&smc->accept_q_lock);
+ 	spin_lock_init(&smc->conn.send_lock);
+ 	sk->sk_prot->hash(sk);
+-	sk_refcnt_debug_inc(sk);
+ 	mutex_init(&smc->clcsock_release_lock);
+ 	smc_init_saved_callbacks(smc);
+ 
+diff --git a/net/xdp/xsk.c b/net/xdp/xsk.c
+index 9f0561b67c12..a245c1b4a21b 100644
+--- a/net/xdp/xsk.c
++++ b/net/xdp/xsk.c
+@@ -845,7 +845,6 @@ static int xsk_release(struct socket *sock)
+ 	sock_orphan(sk);
+ 	sock->sk = NULL;
+ 
+-	sk_refcnt_debug_release(sk);
+ 	sock_put(sk);
+ 
+ 	return 0;
+@@ -1396,8 +1395,6 @@ static void xsk_destruct(struct sock *sk)
+ 
+ 	if (!xp_put_pool(xs->pool))
+ 		xdp_put_umem(xs->umem, !xs->pool);
+-
+-	sk_refcnt_debug_dec(sk);
+ }
+ 
+ static int xsk_create(struct net *net, struct socket *sock, int protocol,
+@@ -1427,7 +1424,6 @@ static int xsk_create(struct net *net, struct socket *sock, int protocol,
+ 	sk->sk_family = PF_XDP;
+ 
+ 	sk->sk_destruct = xsk_destruct;
+-	sk_refcnt_debug_inc(sk);
+ 
+ 	sock_set_flag(sk, SOCK_RCU_FREE);
+ 
+-- 
+2.37.3
+
