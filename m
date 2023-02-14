@@ -2,37 +2,36 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F22A7C61DA4
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Feb 2023 10:17:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D7828C64ED8
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Feb 2023 10:40:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231995AbjBNKRo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 14 Feb 2023 05:17:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55734 "EHLO
+        id S232704AbjBNKkK convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Feb 2023 05:40:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229609AbjBNKRm (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Feb 2023 05:17:42 -0500
-Received: from mailbox.box.xen0n.name (mail.xen0n.name [115.28.160.31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 7FDF31E5D0;
-        Tue, 14 Feb 2023 02:17:40 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=xen0n.name; s=mail;
-        t=1676365191; bh=i0XIzR1Y5NYJLkaxQFngDX1j91Olf/QjeHaXDd3DD/c=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=AhilTiebsZniB4h/3TCzhrMAQ0m1fI8D/hKY2T+4ArseJ+m3Ze12b64a7BZ4L0BhC
-         Cbii2w7OdAf8LC8paKh0dS4uxyxEGslyDxyzPafGMqQIX/0BH2c+SoMYy+3DyDz8fs
-         BbZrEFqt55X8c4cMx2sqOxvYHoYE3tKQfpxZHtYc=
-Received: from [100.100.57.122] (unknown [58.34.185.106])
-        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mailbox.box.xen0n.name (Postfix) with ESMTPSA id B491D600F8;
-        Tue, 14 Feb 2023 16:59:47 +0800 (CST)
-Message-ID: <f3db61bb-5c89-2724-769f-9d606f587f92@xen0n.name>
-Date:   Tue, 14 Feb 2023 16:59:46 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.7.2
+        with ESMTP id S232672AbjBNKj4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Feb 2023 05:39:56 -0500
+Received: from outpost1.zedat.fu-berlin.de (outpost1.zedat.fu-berlin.de [130.133.4.66])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39CB825E2D;
+        Tue, 14 Feb 2023 02:39:53 -0800 (PST)
+Received: from inpost2.zedat.fu-berlin.de ([130.133.4.69])
+          by outpost.zedat.fu-berlin.de (Exim 4.95)
+          with esmtps (TLS1.3)
+          tls TLS_AES_256_GCM_SHA384
+          (envelope-from <glaubitz@zedat.fu-berlin.de>)
+          id 1pRshz-000K86-Qj; Tue, 14 Feb 2023 11:38:47 +0100
+Received: from p5b13aa49.dip0.t-ipconnect.de ([91.19.170.73] helo=[192.168.178.81])
+          by inpost2.zedat.fu-berlin.de (Exim 4.95)
+          with esmtpsa (TLS1.3)
+          tls TLS_AES_256_GCM_SHA384
+          (envelope-from <glaubitz@physik.fu-berlin.de>)
+          id 1pRshz-003Z8i-EF; Tue, 14 Feb 2023 11:38:47 +0100
+Message-ID: <6a420bb0e033562bc7f67cc8f218f994e0892d3b.camel@physik.fu-berlin.de>
 Subject: Re: [PATCH v3 10/24] sparc: Remove COMMAND_LINE_SIZE from uapi
-To:     Sergey Shtylyov <s.shtylyov@omp.ru>,
+From:   John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+To:     WANG Xuerui <kernel@xen0n.name>,
+        Sergey Shtylyov <s.shtylyov@omp.ru>,
         Alexandre Ghiti <alexghiti@rivosinc.com>,
         Jonathan Corbet <corbet@lwn.net>,
         Richard Henderson <richard.henderson@linaro.org>,
@@ -78,55 +77,59 @@ To:     Sergey Shtylyov <s.shtylyov@omp.ru>,
         sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org,
         linux-arch@vger.kernel.org
 Cc:     Palmer Dabbelt <palmer@rivosinc.com>
+Date:   Tue, 14 Feb 2023 11:38:45 +0100
+In-Reply-To: <f3db61bb-5c89-2724-769f-9d606f587f92@xen0n.name>
 References: <20230214074925.228106-1-alexghiti@rivosinc.com>
- <20230214074925.228106-11-alexghiti@rivosinc.com>
- <017f0b40-8021-8b3b-24d2-c70661b6b292@omp.ru>
-Content-Language: en-US
-From:   WANG Xuerui <kernel@xen0n.name>
-In-Reply-To: <017f0b40-8021-8b3b-24d2-c70661b6b292@omp.ru>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+         <20230214074925.228106-11-alexghiti@rivosinc.com>
+         <017f0b40-8021-8b3b-24d2-c70661b6b292@omp.ru>
+         <f3db61bb-5c89-2724-769f-9d606f587f92@xen0n.name>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+User-Agent: Evolution 3.46.4 
+MIME-Version: 1.0
+X-Original-Sender: glaubitz@physik.fu-berlin.de
+X-Originating-IP: 91.19.170.73
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2023/2/14 16:50, Sergey Shtylyov wrote:
-> On 2/14/23 10:49 AM, Alexandre Ghiti wrote:
+On Tue, 2023-02-14 at 16:59 +0800, WANG Xuerui wrote:
+> On 2023/2/14 16:50, Sergey Shtylyov wrote:
+> > On 2/14/23 10:49 AM, Alexandre Ghiti wrote:
+> > 
+> > > From: Palmer Dabbelt <palmer@rivosinc.com>
+> > > 
+> > > As far as I can tell this is not used by userspace and thus should not
+> > > be part of the user-visible API.
+> > > 
+> > > Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+> > > ---
+> > >   arch/sparc/include/asm/setup.h      | 6 +++++-
+> > >   arch/sparc/include/uapi/asm/setup.h | 7 -------
+> > >   2 files changed, 5 insertions(+), 8 deletions(-)
+> > > 
+> > > diff --git a/arch/sparc/include/asm/setup.h b/arch/sparc/include/asm/setup.h
+> > > index 72205684e51e..d1384ed92547 100644
+> > > --- a/arch/sparc/include/asm/setup.h
+> > > +++ b/arch/sparc/include/asm/setup.h
+> > > @@ -7,7 +7,11 @@
+> > >   
+> > >   #include <linux/interrupt.h>
+> > >   
+> > > -#include <uapi/asm/setup.h>
+> > > +#if defined(__sparc__) && defined(__arch64__)
+> > 
+> >     Mhm, I don't think these two can be #define'd simulaneously...
 > 
->> From: Palmer Dabbelt <palmer@rivosinc.com>
->>
->> As far as I can tell this is not used by userspace and thus should not
->> be part of the user-visible API.
->>
->> Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
->> ---
->>   arch/sparc/include/asm/setup.h      | 6 +++++-
->>   arch/sparc/include/uapi/asm/setup.h | 7 -------
->>   2 files changed, 5 insertions(+), 8 deletions(-)
->>
->> diff --git a/arch/sparc/include/asm/setup.h b/arch/sparc/include/asm/setup.h
->> index 72205684e51e..d1384ed92547 100644
->> --- a/arch/sparc/include/asm/setup.h
->> +++ b/arch/sparc/include/asm/setup.h
->> @@ -7,7 +7,11 @@
->>   
->>   #include <linux/interrupt.h>
->>   
->> -#include <uapi/asm/setup.h>
->> +#if defined(__sparc__) && defined(__arch64__)
-> 
->     Mhm, I don't think these two can be #define'd simulaneously...
+> I believe it's just a SPARC-ism [1] [2] that may look strange and be 
+> easily confused for __aarch64__ (notice the extra 'a')...
 
-I believe it's just a SPARC-ism [1] [2] that may look strange and be 
-easily confused for __aarch64__ (notice the extra 'a')...
+Yep, that's correct. On 64-bit Linux/SPARC, gcc/clang define __sparc__ AND __arch64__.
 
-[1]: 
-https://github.com/gcc-mirror/gcc/blob/basepoints/gcc-12/gcc/config/sparc/sparc.h#L301
-[2]: 
-https://github.com/llvm/llvm-project/blob/llvmorg-17-init/clang/lib/Basic/Targets/Sparc.cpp#L241
+Adrian
 
 -- 
-WANG "xen0n" Xuerui
-
-Linux/LoongArch mailing list: https://lore.kernel.org/loongarch/
-
+ .''`.  John Paul Adrian Glaubitz
+: :' :  Debian Developer
+`. `'   Physicist
+  `-    GPG: 62FF 8A75 84E0 2956 9546  0006 7426 3B37 F5B5 F913
