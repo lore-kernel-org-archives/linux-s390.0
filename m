@@ -2,244 +2,121 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DE3E1C6379F
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Feb 2023 12:28:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F276C6379F
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Feb 2023 12:57:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232176AbjBNM2w (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 14 Feb 2023 07:28:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50288 "EHLO
+        id S232114AbjBNM5K (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Feb 2023 07:57:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231465AbjBNM2v (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Feb 2023 07:28:51 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A3C09771;
-        Tue, 14 Feb 2023 04:28:50 -0800 (PST)
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31EBPXXC030964;
-        Tue, 14 Feb 2023 12:28:49 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=+UBOpxfP0uR0jDm/I3/JmfGZNedlHYGjkkbV/1FpxLQ=;
- b=EYb2YiQt+KufshAWjgqIl1HSC4sM2/C4YsFTJT7CrVbrmv6cYpgXWiw46U9ly1mloaCj
- F90k0t8YGXaovRDCnabfmr9ieW88we6thpllzjkv6TOuOo29fJg6NAYYI2kSC5X7BvEu
- mhHPOXhXJHHWh2cUt0/8usDwlQtcXFJYgcefZTOfri16CxxaAvejZ66WCnspKnISdlEY
- s+2ZAJeC3dZS2949fSSF1G0VzAccC5u3BypqCTg6Rg916I0Jgn9Q5gXoWIVe+VXaHfbV
- ZiQEI2ne4c2PvKTOfLMma7PNtFeRXYboiWZcqt+/RMYhm13MwWlExJcvI/WsGNCUAqGL LA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3nr9dthctw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Feb 2023 12:28:49 +0000
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 31ECSmXe022272;
-        Tue, 14 Feb 2023 12:28:48 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3nr9dthctf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Feb 2023 12:28:48 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31E99mwP003928;
-        Tue, 14 Feb 2023 12:28:46 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma03fra.de.ibm.com (PPS) with ESMTPS id 3np2n6awxp-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Feb 2023 12:28:46 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31ECSg2v38273356
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 14 Feb 2023 12:28:43 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CE0A720040;
-        Tue, 14 Feb 2023 12:28:42 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 79F702004B;
-        Tue, 14 Feb 2023 12:28:42 +0000 (GMT)
-Received: from li-c6ac47cc-293c-11b2-a85c-d421c8e4747b.ibm.com (unknown [9.152.222.242])
-        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 14 Feb 2023 12:28:42 +0000 (GMT)
-From:   Pierre Morel <pmorel@linux.ibm.com>
-To:     david@redhat.com
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, borntraeger@de.ibm.com,
-        frankja@linux.ibm.com, cohuck@redhat.com, thuth@redhat.com,
-        imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        svens@linux.ibm.com
-Subject: [PATCH v3 1/1] KVM: s390: vsie: clarifications on setting the APCB
-Date:   Tue, 14 Feb 2023 13:28:41 +0100
-Message-Id: <20230214122841.13066-2-pmorel@linux.ibm.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20230214122841.13066-1-pmorel@linux.ibm.com>
-References: <20230214122841.13066-1-pmorel@linux.ibm.com>
+        with ESMTP id S229880AbjBNM5J (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Feb 2023 07:57:09 -0500
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3239C1E5F2;
+        Tue, 14 Feb 2023 04:57:08 -0800 (PST)
+Received: by mail-pj1-x1035.google.com with SMTP id f16-20020a17090a9b1000b0023058bbd7b2so15395942pjp.0;
+        Tue, 14 Feb 2023 04:57:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=LvbvVZeDxlmyQ+MKMrDf7Zww7VWZ6K77IBbIyuFkUUM=;
+        b=WJdnIzCNdsEVhQsGHsWOO7yTWXr+pWI+PtbYUorKW2BchHqmwSwOGYAdoPufsKo0lJ
+         bXDPWjxdhH0QnGSePHf16V7IoRXQeuhXlPcWmkxu8rZSjSr3Sh7jD3eqfhHEY8D454AL
+         h9BqNX+KCkb4XJj5QiYoEyv/SXP+BeQ/BY4l0AmplspY3uh+sSGXDRYM23x/cN3z17v4
+         7mVXCjohMU5LW8N+7VSWMBw+LVgUYmGtE+fRcUV+X7h/ZuXCVclocMVqOgQVU0PU1ZT/
+         Iaxkx1YKf72wvTPUawYrrDuiNA9tC+Rro4eK9+FeLt6f2iRUNM5NC3UOCLKbbbVT0kzB
+         CWuQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=LvbvVZeDxlmyQ+MKMrDf7Zww7VWZ6K77IBbIyuFkUUM=;
+        b=joZ7j/tpT4Wha/UKCwdLWb4k/B862CaaE4FdS+JYcMOEexjFW0ZHkGUERxW63pFDMM
+         WPKBNdDjGeC7v6zN763fp2W0N2nGJ7qUmDrrFFQ1dsOJGw9b46OQyzPAnNXz+DCljPk9
+         5NohWkTgKgSO49Ln9SSShEja4av6vERPwEQ6LQ3QqUv+fLho4uysL4OQj5crQSaMkMzP
+         ZqeLMffMEWrtAKyCKgerOOFb62GqHTbHfsCTKIAP10euu/d1kAr8QP2g2iAeJeAzyFof
+         /cMWuHifpASw7txLqKJ8rxp/Rp3sSGdP2xOPugTYGJ9Kl24xifycCCmL3O3/ZWU1pwLM
+         IdzA==
+X-Gm-Message-State: AO0yUKWRO8NPifYCN7GYzhaVisuCTV8HzhVTJOEa/kez0BeTp1sD8xcZ
+        qRwEHSVNWMhogp5HsPdMbsOh9vlJkQM1up7KBkE=
+X-Google-Smtp-Source: AK7set8VxH7lwiKYZQHjj1alCNiwWZsomKyHPncWio7rYDiPFQWyD3jSnBu7216hvtJHxDxHzVWwlnilO9YoLshnmQM=
+X-Received: by 2002:a17:90a:d486:b0:233:c720:e6d5 with SMTP id
+ s6-20020a17090ad48600b00233c720e6d5mr2292500pju.94.1676379427739; Tue, 14 Feb
+ 2023 04:57:07 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 41LB4dwi9edqGDOZo1Y1HFIwBvlHbqMi
-X-Proofpoint-GUID: O7NpWym1WsXiNBimyQBwd7KchqcEy83K
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
- definitions=2023-02-14_07,2023-02-14_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 spamscore=0
- mlxlogscore=999 suspectscore=0 lowpriorityscore=0 malwarescore=0
- adultscore=0 priorityscore=1501 clxscore=1015 mlxscore=0 bulkscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2302140104
+References: <20230214074925.228106-1-alexghiti@rivosinc.com> <20230214074925.228106-12-alexghiti@rivosinc.com>
+In-Reply-To: <20230214074925.228106-12-alexghiti@rivosinc.com>
+From:   Max Filippov <jcmvbkbc@gmail.com>
+Date:   Tue, 14 Feb 2023 04:56:56 -0800
+Message-ID: <CAMo8BfJ_RF2C7EkZJusFuVPh0-7zpgNaj1pDf079CSKzRBrQjg@mail.gmail.com>
+Subject: Re: [PATCH v3 11/24] xtensa: Remove COMMAND_LINE_SIZE from uapi
+To:     Alexandre Ghiti <alexghiti@rivosinc.com>
+Cc:     Jonathan Corbet <corbet@lwn.net>,
+        Richard Henderson <richard.henderson@linaro.org>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Matt Turner <mattst88@gmail.com>,
+        Vineet Gupta <vgupta@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        WANG Xuerui <kernel@xen0n.name>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Michal Simek <monstr@monstr.eu>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H . Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>,
+        Arnd Bergmann <arnd@arndb.de>, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org,
+        linux-arch@vger.kernel.org, Palmer Dabbelt <palmer@rivosinc.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The APCB is part of the CRYCB.
-The calculation of the APCB origin can be done by adding
-the APCB offset to the CRYCB origin.
+On Tue, Feb 14, 2023 at 12:01 AM Alexandre Ghiti <alexghiti@rivosinc.com> wrote:
+>
+> From: Palmer Dabbelt <palmer@rivosinc.com>
+>
+> As far as I can tell this is not used by userspace and thus should not
+> be part of the user-visible API.
+>
+> Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+> ---
+>  arch/xtensa/include/asm/setup.h      | 17 +++++++++++++++++
+>  arch/xtensa/include/uapi/asm/setup.h |  2 --
+>  2 files changed, 17 insertions(+), 2 deletions(-)
+>  create mode 100644 arch/xtensa/include/asm/setup.h
 
-Current code makes confusing transformations, converting
-the CRYCB origin to a pointer to calculate the APCB origin.
+Acked-by: Max Filippov <jcmvbkbc@gmail.com>
 
-Let's make things simpler and keep the CRYCB origin to make
-these calculations.
-
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
----
- arch/s390/kvm/vsie.c | 50 +++++++++++++++++++++++++-------------------
- 1 file changed, 29 insertions(+), 21 deletions(-)
-
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index b6a0219e470a..8d6b765abf29 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -138,11 +138,15 @@ static int prepare_cpuflags(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- }
- /* Copy to APCB FORMAT1 from APCB FORMAT0 */
- static int setup_apcb10(struct kvm_vcpu *vcpu, struct kvm_s390_apcb1 *apcb_s,
--			unsigned long apcb_o, struct kvm_s390_apcb1 *apcb_h)
-+			unsigned long crycb_gpa, struct kvm_s390_apcb1 *apcb_h)
- {
- 	struct kvm_s390_apcb0 tmp;
-+	unsigned long apcb_gpa;
- 
--	if (read_guest_real(vcpu, apcb_o, &tmp, sizeof(struct kvm_s390_apcb0)))
-+	apcb_gpa = crycb_gpa + offsetof(struct kvm_s390_crypto_cb, apcb0);
-+
-+	if (read_guest_real(vcpu, apcb_gpa, &tmp,
-+			    sizeof(struct kvm_s390_apcb0)))
- 		return -EFAULT;
- 
- 	apcb_s->apm[0] = apcb_h->apm[0] & tmp.apm[0];
-@@ -157,15 +161,19 @@ static int setup_apcb10(struct kvm_vcpu *vcpu, struct kvm_s390_apcb1 *apcb_s,
-  * setup_apcb00 - Copy to APCB FORMAT0 from APCB FORMAT0
-  * @vcpu: pointer to the virtual CPU
-  * @apcb_s: pointer to start of apcb in the shadow crycb
-- * @apcb_o: pointer to start of original apcb in the guest2
-+ * @crycb_gpa: guest physical address to start of original guest crycb
-  * @apcb_h: pointer to start of apcb in the guest1
-  *
-  * Returns 0 and -EFAULT on error reading guest apcb
-  */
- static int setup_apcb00(struct kvm_vcpu *vcpu, unsigned long *apcb_s,
--			unsigned long apcb_o, unsigned long *apcb_h)
-+			unsigned long crycb_gpa, unsigned long *apcb_h)
- {
--	if (read_guest_real(vcpu, apcb_o, apcb_s,
-+	unsigned long apcb_gpa;
-+
-+	apcb_gpa = crycb_gpa + offsetof(struct kvm_s390_crypto_cb, apcb0);
-+
-+	if (read_guest_real(vcpu, apcb_gpa, apcb_s,
- 			    sizeof(struct kvm_s390_apcb0)))
- 		return -EFAULT;
- 
-@@ -178,16 +186,20 @@ static int setup_apcb00(struct kvm_vcpu *vcpu, unsigned long *apcb_s,
-  * setup_apcb11 - Copy the FORMAT1 APCB from the guest to the shadow CRYCB
-  * @vcpu: pointer to the virtual CPU
-  * @apcb_s: pointer to start of apcb in the shadow crycb
-- * @apcb_o: pointer to start of original guest apcb
-+ * @crycb_gpa: guest physical address to start of original guest crycb
-  * @apcb_h: pointer to start of apcb in the host
-  *
-  * Returns 0 and -EFAULT on error reading guest apcb
-  */
- static int setup_apcb11(struct kvm_vcpu *vcpu, unsigned long *apcb_s,
--			unsigned long apcb_o,
-+			unsigned long crycb_gpa,
- 			unsigned long *apcb_h)
- {
--	if (read_guest_real(vcpu, apcb_o, apcb_s,
-+	unsigned long apcb_gpa;
-+
-+	apcb_gpa = crycb_gpa + offsetof(struct kvm_s390_crypto_cb, apcb1);
-+
-+	if (read_guest_real(vcpu, apcb_gpa, apcb_s,
- 			    sizeof(struct kvm_s390_apcb1)))
- 		return -EFAULT;
- 
-@@ -200,7 +212,7 @@ static int setup_apcb11(struct kvm_vcpu *vcpu, unsigned long *apcb_s,
-  * setup_apcb - Create a shadow copy of the apcb.
-  * @vcpu: pointer to the virtual CPU
-  * @crycb_s: pointer to shadow crycb
-- * @crycb_o: pointer to original guest crycb
-+ * @crycb_gpa: guest physical address of original guest crycb
-  * @crycb_h: pointer to the host crycb
-  * @fmt_o: format of the original guest crycb.
-  * @fmt_h: format of the host crycb.
-@@ -211,50 +223,46 @@ static int setup_apcb11(struct kvm_vcpu *vcpu, unsigned long *apcb_s,
-  * Return 0 or an error number if the guest and host crycb are incompatible.
-  */
- static int setup_apcb(struct kvm_vcpu *vcpu, struct kvm_s390_crypto_cb *crycb_s,
--	       const u32 crycb_o,
-+	       const u32 crycb_gpa,
- 	       struct kvm_s390_crypto_cb *crycb_h,
- 	       int fmt_o, int fmt_h)
- {
--	struct kvm_s390_crypto_cb *crycb;
--
--	crycb = (struct kvm_s390_crypto_cb *) (unsigned long)crycb_o;
--
- 	switch (fmt_o) {
- 	case CRYCB_FORMAT2:
--		if ((crycb_o & PAGE_MASK) != ((crycb_o + 256) & PAGE_MASK))
-+		if ((crycb_gpa & PAGE_MASK) != ((crycb_gpa + 256) & PAGE_MASK))
- 			return -EACCES;
- 		if (fmt_h != CRYCB_FORMAT2)
- 			return -EINVAL;
- 		return setup_apcb11(vcpu, (unsigned long *)&crycb_s->apcb1,
--				    (unsigned long) &crycb->apcb1,
-+				    crycb_gpa,
- 				    (unsigned long *)&crycb_h->apcb1);
- 	case CRYCB_FORMAT1:
- 		switch (fmt_h) {
- 		case CRYCB_FORMAT2:
- 			return setup_apcb10(vcpu, &crycb_s->apcb1,
--					    (unsigned long) &crycb->apcb0,
-+					    crycb_gpa,
- 					    &crycb_h->apcb1);
- 		case CRYCB_FORMAT1:
- 			return setup_apcb00(vcpu,
- 					    (unsigned long *) &crycb_s->apcb0,
--					    (unsigned long) &crycb->apcb0,
-+					    crycb_gpa,
- 					    (unsigned long *) &crycb_h->apcb0);
- 		}
- 		break;
- 	case CRYCB_FORMAT0:
--		if ((crycb_o & PAGE_MASK) != ((crycb_o + 32) & PAGE_MASK))
-+		if ((crycb_gpa & PAGE_MASK) != ((crycb_gpa + 32) & PAGE_MASK))
- 			return -EACCES;
- 
- 		switch (fmt_h) {
- 		case CRYCB_FORMAT2:
- 			return setup_apcb10(vcpu, &crycb_s->apcb1,
--					    (unsigned long) &crycb->apcb0,
-+					    crycb_gpa,
- 					    &crycb_h->apcb1);
- 		case CRYCB_FORMAT1:
- 		case CRYCB_FORMAT0:
- 			return setup_apcb00(vcpu,
- 					    (unsigned long *) &crycb_s->apcb0,
--					    (unsigned long) &crycb->apcb0,
-+					    crycb_gpa,
- 					    (unsigned long *) &crycb_h->apcb0);
- 		}
- 	}
 -- 
-2.31.1
-
+Thanks.
+-- Max
