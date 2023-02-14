@@ -2,171 +2,150 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 05FD0C61DA4
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Feb 2023 08:06:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 43237C64ED8
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Feb 2023 08:06:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231220AbjBNIGd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 14 Feb 2023 03:06:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40470 "EHLO
+        id S231728AbjBNIGq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Feb 2023 03:06:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231852AbjBNIGU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Feb 2023 03:06:20 -0500
-Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF96323304;
-        Tue, 14 Feb 2023 00:06:10 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1676361970; x=1707897970;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=ylHi1d32G3jt170GQarQ5x/nE/uFdLPLA0+t8lHzg5Y=;
-  b=Avc56pv0KRTXHMSpnv+L8PJoaJx07Kh/boCV8NplW5aoQnLwe41z1kck
-   IQgwnYONHHlMeaLa+KgOTR8VhPioq3Afy0C3aDtcYN/g2u/PEcVN300yV
-   fBN51wsrmQTn21iAu9f/ivg9O1e54NNaUhojaH7VNRYXIkifzYYx0iznY
-   30foM09vnPKwZSFjDFc5BsPmzn3BJAD6Aqzo/eTfrtwGqSzx+RuZ8R6Ft
-   u/pMXZMJuvp6oTXoK7tiVT4HDypuRRYVS5GZihvXt/B4saJk+TJURSOHG
-   3KRPdQTUg3hk0v7h/6mLmDPRRVcZrNMSEUEH0y4RlXS3ww0auWILNSNaM
-   Q==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10620"; a="311465089"
-X-IronPort-AV: E=Sophos;i="5.97,296,1669104000"; 
-   d="scan'208";a="311465089"
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Feb 2023 00:06:07 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10620"; a="701573234"
-X-IronPort-AV: E=Sophos;i="5.97,296,1669104000"; 
-   d="scan'208";a="701573234"
-Received: from orsmsx602.amr.corp.intel.com ([10.22.229.15])
-  by orsmga001.jf.intel.com with ESMTP; 14 Feb 2023 00:06:05 -0800
-Received: from orsmsx611.amr.corp.intel.com (10.22.229.24) by
- ORSMSX602.amr.corp.intel.com (10.22.229.15) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.16; Tue, 14 Feb 2023 00:06:04 -0800
-Received: from ORSEDG601.ED.cps.intel.com (10.7.248.6) by
- orsmsx611.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.16 via Frontend Transport; Tue, 14 Feb 2023 00:06:04 -0800
-Received: from NAM10-BN7-obe.outbound.protection.outlook.com (104.47.70.105)
- by edgegateway.intel.com (134.134.137.102) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.16; Tue, 14 Feb 2023 00:06:03 -0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=cEEqAdVDgYz5ezEbjCHlXjME1yPwxweSCbdHpTG73VoTn0ekaeWJrawwW1KQIyU2wV29X602k/cc1EmvYvGFOz75OL+z+S5uFfjoLWopr/mexVaJ9TEIh/m/elTRpz4rF84ZxZ5O747jK+WioJQt0Qi93Fhg860boMnKQuz1MS0nKHD8QBJt4OzI87Zhob74mA/NJwakqNHYMrQTxNXQheS+jtwyZ35T3UG6G/7lzm4YATHRgmvqrtB5tVzYRbrDhlCVcLL16bjuzh27yipKdcW4oqLLdBnqFw2m2FDfPtAiEDf/rtX2icRNcd+f9XqpYdmvVDZCST3qOUylfWFxZA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=ylHi1d32G3jt170GQarQ5x/nE/uFdLPLA0+t8lHzg5Y=;
- b=MElrwq0HxKg0oxxI/lx8rhm0ShOUED+S5WmcYpI+cnF1e7AjTOEQQzrl3t21ELl/WOyqKiLNo7hm8N5fkXqHDek7fzgwqDw6K414bU7ASBoaisLFDFbcd59h19uLqYGJ/V4BZvkwDYRsqq6Itl5faUloo/D5cRkiiL26QZisZqCzf8kvFFW8npHdE+YodRQHNVNTAzM+mrL/ysfUyn4cDxnJIfpSqfl9+kBjulmUoSKBlkyDGKKb2WohIb1IyKdch36rxgU6F5XCackGyvrJG6OwVGLUj+wc88/w7ImLUX6rWwi+QZV2tC+q02qsshkMVWq5YALPbVkCPFOGkQGMQQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com (2603:10b6:408:135::18)
- by DS0PR11MB7577.namprd11.prod.outlook.com (2603:10b6:8:142::20) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6086.24; Tue, 14 Feb
- 2023 08:05:57 +0000
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::6a8d:b95:e1b5:d79d]) by BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::6a8d:b95:e1b5:d79d%9]) with mapi id 15.20.6086.026; Tue, 14 Feb 2023
- 08:05:56 +0000
-From:   "Tian, Kevin" <kevin.tian@intel.com>
-To:     "Liu, Yi L" <yi.l.liu@intel.com>,
-        "joro@8bytes.org" <joro@8bytes.org>,
-        "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
-        "jgg@nvidia.com" <jgg@nvidia.com>,
-        "robin.murphy@arm.com" <robin.murphy@arm.com>
-CC:     "cohuck@redhat.com" <cohuck@redhat.com>,
-        "eric.auger@redhat.com" <eric.auger@redhat.com>,
-        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
-        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
-        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
-        "peterx@redhat.com" <peterx@redhat.com>,
-        "jasowang@redhat.com" <jasowang@redhat.com>,
-        "shameerali.kolothum.thodi@huawei.com" 
-        <shameerali.kolothum.thodi@huawei.com>,
-        "lulu@redhat.com" <lulu@redhat.com>,
-        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>
-Subject: RE: [PATCH v3 09/15] vfio-iommufd: Add detach_ioas support for
- physical VFIO devices
-Thread-Topic: [PATCH v3 09/15] vfio-iommufd: Add detach_ioas support for
- physical VFIO devices
-Thread-Index: AQHZP73T7aAoTX5Lj0CTppUjQva3+67OFsSw
-Date:   Tue, 14 Feb 2023 08:05:56 +0000
-Message-ID: <BN9PR11MB5276FDB3A6A1BA024BB6BC1F8CA29@BN9PR11MB5276.namprd11.prod.outlook.com>
-References: <20230213151348.56451-1-yi.l.liu@intel.com>
- <20230213151348.56451-10-yi.l.liu@intel.com>
-In-Reply-To: <20230213151348.56451-10-yi.l.liu@intel.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: BN9PR11MB5276:EE_|DS0PR11MB7577:EE_
-x-ms-office365-filtering-correlation-id: 13063540-949c-41b3-2ae4-08db0e624d30
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: 1h3Dh8+tY97+aiuoSwMwZ4ffRhdgz/AE83nCuDfF97Va32D1pS6vyzF5pcyaPe3eRd0RJjazZgDMwIskaZ31DcSkeir/6nB6BG8QMWP6OF/EPDo4vGomjfhRXoUp/h1ZxtfgvQK5CqSaFtwL3d77EsR8/r9+Oj0muGndvW0lDnSzu7jBgxI1ysBiIbgRIwE6GLo8oIaC1T7JHVBh3n7byDkFvX7tlNBeib1VIXusHmupnX2MCaQzsX8VBsOcyPeuMvB5q/notKI66QxIXcfYdpbkcUpxkLPHYjFYPhFRBqvD8M3QscCwYgaNZTY3EilDEKpt2Oa1j1nzvbZtf2GXe/uFZFTQCjBwxa4ESfI/6Uwl81RuUnea8GlcGOv8XoVPR5iMRT7f7kTZvuUgCw20+xSGFlCuKd/mCtXqU8gKJgE8cpA5MVeds9kvGOLVT2Ab2w78EIyMGXixfKn+HvQEV9GvQnDwvBFCaTDqFp/Ajtf0aqo+/FEl2wnl1vLexYkSNEE9HnASRpyhKoJSn120EBHP3dleQz+MACmgDs+gnSOSlCS4NXw81upn3n/yLIENxMf3z5fuqZZpdPaZb/hEDMRapt8HZy8smOpvqdt7SfbxHueAw5Eh2ijBpTS937KSz9PSJgmAbOxCbaOS1aWurW9uamvjARm0S3QRvRoR/+CbRD/xuvy4Bhe7V0FvRo/lLTdDoi8gW5lhikrtb+V+DQ==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR11MB5276.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(376002)(396003)(39860400002)(366004)(136003)(346002)(451199018)(71200400001)(7696005)(2906002)(33656002)(55016003)(558084003)(38070700005)(82960400001)(86362001)(38100700002)(122000001)(478600001)(9686003)(186003)(26005)(6506007)(8936002)(41300700001)(52536014)(110136005)(54906003)(66556008)(66476007)(76116006)(4326008)(8676002)(66946007)(64756008)(66446008)(316002)(7416002)(5660300002);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?aJBENsu/yTgGqTVnFzePLgoS+iWLOxsxVAmBLLmv5/LTi4IIzSaVEdDpEnuP?=
- =?us-ascii?Q?1QqqlxqmT6OPsX7tWjlMtoCgapHv1U8tuCXJQqjsmRV+aUvZbi3LYJ0WoNDV?=
- =?us-ascii?Q?9MlPTMUaad6Ye1i8O3HP98xD+abXLgShTXyLnv1EaslI3IorflAx+oAPCRzd?=
- =?us-ascii?Q?r/h3SSo1sb1/A6PQywv6xNNiS0ruE2cc2vLeCv0nVrfubB1QJaZQWtyN2aDL?=
- =?us-ascii?Q?c7jC4vMJTEBVuDJo1bSQPO4PdqjP5b4KGwWUIfjE7VC4STYvf0PHkY7jk0h7?=
- =?us-ascii?Q?4Kmq/0Z+SxWrgRVz28kmJ9BIgIWR8CvQHajUSrBEuREEVKKaX4e1SV3E/la2?=
- =?us-ascii?Q?le8DuOPnJdj4+n8Lyj74lsmAhXE4nO+38QH3hrF+TRkc0FfU5IaW2To6IKw5?=
- =?us-ascii?Q?GbyXUnfP+tneL3mPnB7PGedXQzMiA+Tj2FWbTa4RAiX7CL+6KE9d6iOQqQGw?=
- =?us-ascii?Q?RpG2xMv0fD79k6EwqxSaOQyyV+m55J9gjQOxnfrmXeGtGIc0ksRMlNugTFFy?=
- =?us-ascii?Q?Gc6zAm31G+hFgsckgv0FwKbnwKBlAy2/OK61+W7OO+JOa5dBwDvr6OTYZWoR?=
- =?us-ascii?Q?T7G8IsuadknaNuYV5udEnuttUW4dIm/KmmQ/WyngZY7m+IBFGzQEB0JHAOAl?=
- =?us-ascii?Q?Zw4oOhyEzQntTpvkQPpl8rYQLyweMuGhAyOTywiUZjpPMO3tr8dvKZRIU9z4?=
- =?us-ascii?Q?eUiLiynFAOa0QYDV/atzhyQeZCuBM5g9sJQB8CFhmxQqpcg47f8ijUv6QOH0?=
- =?us-ascii?Q?yJWEbkAYGMgIqRcUZABuam1ePhE6d6+zrkzdeD8hH97nTNBqqscRH7Y339fL?=
- =?us-ascii?Q?yzyGDdrNzLdqLwZ5SVsNrFxXR3XvXhwQrGLsbqoKVd/oDxl1bpjsMZAxX+Ci?=
- =?us-ascii?Q?V+/6foOYBrOAC7ES6PV/0TBnAagmGZ3sM6j2bG6DWvKgis1VyejFCSPX0xwj?=
- =?us-ascii?Q?YX39pGgazAaXTaJ7zxpK/k/pzMuVROCrv+cSkYELAoduNUasj1RX+0xDRnqO?=
- =?us-ascii?Q?Esn88A3hlyOYzG7P0kWYrmsSCZ0E1IjM8wKlpdWeYlMKfmD+9O8G/9Ale6zs?=
- =?us-ascii?Q?eP9Oy5WZFakWWjhij3lTxz4FZr/5230txLeyDp7uqcofbYnIkXdyC+H7YbWW?=
- =?us-ascii?Q?PPM7tKuuDFUv9H+nFG+IRwvLPStjYptVUZ9k1ZgqE6CmCA6ZhCbH9tKcCLKo?=
- =?us-ascii?Q?wD+QRZAwzmGbmKKQ/tArtWeeHZQxRq5DfPzHEWir+1SSwBKtvZfkX7BbML9x?=
- =?us-ascii?Q?BdJiW5SK3xpfb42Q1CyfIAOQc4DLPu6yYwWQtHlgcMUIoS5cLFvMCAadpGvB?=
- =?us-ascii?Q?JYW6qvIqW3F7Cpi+8wXr2WhvR/kf3v4hTYoK/q6HPgLGB8M7FmaEfv/o6IfX?=
- =?us-ascii?Q?NwgHKcsYLWCNzx2sr+Wii7nuBxIQuonldOC2Gpk9qiEriobbJkkM14smagMt?=
- =?us-ascii?Q?F0/QA/YhfIFAXPry9D2NJ7xFUGPBVGe/p9jVX8OJPRfUaIcWAxqmxGCs6m1t?=
- =?us-ascii?Q?MTI7v02tPIgZK4gI3xjxEZAN3UlkpXXifmPfp2DpEu4QhHldGkm2aDuk2C12?=
- =?us-ascii?Q?arMC+jgvpfId7YVIFzlu/W3ese1Cb2y/pmmiD1Nt?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S231893AbjBNIG3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Feb 2023 03:06:29 -0500
+Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 405BE1F908
+        for <linux-s390@vger.kernel.org>; Tue, 14 Feb 2023 00:06:27 -0800 (PST)
+Received: by mail-wr1-x429.google.com with SMTP id r2so14705979wrv.7
+        for <linux-s390@vger.kernel.org>; Tue, 14 Feb 2023 00:06:27 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=rivosinc-com.20210112.gappssmtp.com; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=L/w7ieSXW+WzBEEqtsZC24vvchjHjLnvFIFUR1Ngux8=;
+        b=UGrBcngruwTLvwOOm7gOoc2Yzgq2gmU8JRfZsTFbWRd99AV3ziDVQuBUVdZS/uBCFk
+         +3aLdmRI89tLj2iljfUlsLdSxPMOr5QSmEVADDMVykrfeU2sAt+uFyobqYXV6XUQvHtV
+         jdUz1vPuc9IWOpiCNUcrs1cCLlV2re4AVPHCx4XLzS4MxJsBM6UJszAfCTjH1KmA8qZQ
+         TWkyzsUaxL17K52AMLE7+/TIWSwi/E0sHASnxATgyu66+VseSWhxLktBl3TOfl1HX6wj
+         4bxu9a8rEsGTg1ZDZ3zYhDk1wa1bPvp7XX5Iuj4jyR7Z+HHL0oszr20E97QEiSzhgOlO
+         W96g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=L/w7ieSXW+WzBEEqtsZC24vvchjHjLnvFIFUR1Ngux8=;
+        b=ZFJaSCVg3xvuck0o/AyhhEQ7PKTceZLZgBbP3xIYFP4IlJ8LamOJg4AzYnNd6RGB8K
+         BIHrzDMC8OtSRhXVT5SRfej7jPkxg1nNDGP33UTAGRvSJiE535Cnmbm5P5QxWxwwr6WF
+         0fiWDVz+GIffd27CTBhIDoqe+W55afGeJsREQxZ60WYkqU876A8gf/hmkessWm2kuBWT
+         IWU404oSwy2g16OFpo7sIu+GAovawIiPW7l9ItpHviS/HBkLJdDITEZSiheBNA8XVyrV
+         Q2ffI9T99AUUAjprxn9fyPQvx02+kA20R5uJWw7xNFE5w8wAE0OwCisQDsZVWhhB+M/h
+         voFA==
+X-Gm-Message-State: AO0yUKUmtBLndsLft+amWiValyg/Oh2gEmYGtHFhYLf2N4dMxI0eVosD
+        6dliffgbcA8yPBH6r18Y8ohtQw==
+X-Google-Smtp-Source: AK7set8jahhsmvoa4DobzenRk97aNdlbkQr6UNkRKatca0OX964f0M1CS0uJhtUAyqSOu5CbY69FOw==
+X-Received: by 2002:a5d:658f:0:b0:2c5:60e6:eac with SMTP id q15-20020a5d658f000000b002c560e60eacmr1654715wru.24.1676361985813;
+        Tue, 14 Feb 2023 00:06:25 -0800 (PST)
+Received: from alex-rivos.ba.rivosinc.com (lfbn-lyo-1-450-160.w2-7.abo.wanadoo.fr. [2.7.42.160])
+        by smtp.gmail.com with ESMTPSA id d1-20020adffd81000000b002bfe08c566fsm12135055wrr.106.2023.02.14.00.06.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 Feb 2023 00:06:25 -0800 (PST)
+From:   Alexandre Ghiti <alexghiti@rivosinc.com>
+To:     Jonathan Corbet <corbet@lwn.net>,
+        Richard Henderson <richard.henderson@linaro.org>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Matt Turner <mattst88@gmail.com>,
+        Vineet Gupta <vgupta@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        WANG Xuerui <kernel@xen0n.name>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Michal Simek <monstr@monstr.eu>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H . Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org,
+        linux-arch@vger.kernel.org
+Cc:     Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH v3 16/24] arm64: Remove empty <uapi/asm/setup.h>
+Date:   Tue, 14 Feb 2023 08:49:17 +0100
+Message-Id: <20230214074925.228106-17-alexghiti@rivosinc.com>
+X-Mailer: git-send-email 2.37.2
+In-Reply-To: <20230214074925.228106-1-alexghiti@rivosinc.com>
+References: <20230214074925.228106-1-alexghiti@rivosinc.com>
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BN9PR11MB5276.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 13063540-949c-41b3-2ae4-08db0e624d30
-X-MS-Exchange-CrossTenant-originalarrivaltime: 14 Feb 2023 08:05:56.7487
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: G+Hf+L6p5+iEiIct12Tac8lf+mntDAdTcRHHFnSaXvBVllr5P6mrFqcAi4WKsTnvN+rUSzqNwMGVHPVttNQZUA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR11MB7577
-X-OriginatorOrg: intel.com
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-> From: Liu, Yi L <yi.l.liu@intel.com>
-> Sent: Monday, February 13, 2023 11:14 PM
->=20
-> this prepares for adding DETACH ioctl for physical VFIO devices.
->=20
-> Signed-off-by: Yi Liu <yi.l.liu@intel.com>
+From: Palmer Dabbelt <palmer@rivosinc.com>
 
-Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+---
+ arch/arm64/include/uapi/asm/setup.h | 25 -------------------------
+ 1 file changed, 25 deletions(-)
+ delete mode 100644 arch/arm64/include/uapi/asm/setup.h
+
+diff --git a/arch/arm64/include/uapi/asm/setup.h b/arch/arm64/include/uapi/asm/setup.h
+deleted file mode 100644
+index f9f51e5925aa..000000000000
+--- a/arch/arm64/include/uapi/asm/setup.h
++++ /dev/null
+@@ -1,25 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
+-/*
+- * Based on arch/arm/include/asm/setup.h
+- *
+- * Copyright (C) 1997-1999 Russell King
+- * Copyright (C) 2012 ARM Ltd.
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License version 2 as
+- * published by the Free Software Foundation.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+- */
+-#ifndef __ASM_SETUP_H
+-#define __ASM_SETUP_H
+-
+-#include <linux/types.h>
+-
+-#endif
+-- 
+2.37.2
+
