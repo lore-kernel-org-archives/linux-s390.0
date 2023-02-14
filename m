@@ -2,140 +2,230 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 45A9FC636D4
-	for <linux-s390@archiver.kernel.org>; Mon, 13 Feb 2023 23:43:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 473ACC636CC
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Feb 2023 01:15:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230491AbjBMXnp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 13 Feb 2023 18:43:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51462 "EHLO
+        id S229627AbjBNBPy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 13 Feb 2023 20:15:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229570AbjBMXno (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 13 Feb 2023 18:43:44 -0500
-Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on2068.outbound.protection.outlook.com [40.107.244.68])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 664C412049;
-        Mon, 13 Feb 2023 15:43:43 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=fsyA9qfwqNRO5aIu8zoFYP0LzbDwTr7NLeCUNsvaXGqQH/nE528wMYQGiScDgDcfYeN9LiPDNV+GsP+cvmkmvn5thVNMx3aXwAC+xzX4KE/YzDlqoW+bB2zxbuk6RmPEPTQ+RzsT4syPizdmFsPgc4Nn563uELPAsbHdAYdxqHNxdk+vxzllJC9qEpLrL0hGPIjzSOh11pjozGADNWKW1BqitykA7hMqiPO/3y5miarVbLtvQuTzx0TVcp4Q/HWvCnxUoL+Qxzu5Xpn+hRi9to9vYtnRxzZfIeoN37i9iSfW5nhfIHnd1ev3ZXy4V5enWTuaVZf+SZY2ZTc9lTapkw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=ge/DQO5aFqrJrH06n6mZWvL04n+zcXkOJT1C79YQEf0=;
- b=F98fnT4b7ThQFqsDWj4uJJC3hqLCuJ1tlIQKK/HyCCxF0QNnCx2DUFwbWO85hevCEJfGpwaZQqBPbmyKeVsnuIdbcsKyUandeFkKy2ujLONVXqB3vrOxjjt37i35yT+brKQSN3DuG/dsiaYWpUi1PgmQvJPnvrD2COlYH0b1wMyXfphnKoi7Cc3I5C1G1rt+r0Pv4hxBtfrWnNTe+xyUX6VIOqt7WLChSdBRVjme0bhh1ORtR8FFD+MNi7rgp1yrcIvVTqc3XUEJWLdSz+4w5RNUTOAtbzGHMob32vG7UqtACwCIYPJP64ENUoXI1f5WnKA+EzBX7YGY/iS9gvdpUA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ge/DQO5aFqrJrH06n6mZWvL04n+zcXkOJT1C79YQEf0=;
- b=UUe+pDWRPU2dQ65DuaXbaDiYYr213RGANsEiHm5IH236S/gXHx3oGj5z9I3bAExDeP/wcBzlSd9UbQ1EvHVaeXBVZh9i/oxZeosv37UAWXH8xKbMuOS/dQ5MVTiKwHP7PR2n50Q7Yn/65AnmgKFNKKUqdnbeHmnkvapMFMWam9z09RjngWw2ZWURgwFneqDK6VK8CJNSVQ5JOkYBjII0B4Ap8KVcB+NOtPvSRHy6aAGN0KkdpT/CJTo3aRi483LmOOgJIXQniur01ws+2sKwBCd8Rhd4aawIYm3QE5r8ZfL56LuMMMQ6CSvrgyulM1TayDYI+v3LR3JCGgCWMcqVmA==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
- by PH7PR12MB6000.namprd12.prod.outlook.com (2603:10b6:510:1dc::15) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6086.22; Mon, 13 Feb
- 2023 23:43:40 +0000
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::3cb3:2fce:5c8f:82ee]) by LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::3cb3:2fce:5c8f:82ee%6]) with mapi id 15.20.6086.023; Mon, 13 Feb 2023
- 23:43:40 +0000
-Date:   Mon, 13 Feb 2023 19:43:38 -0400
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Yi Liu <yi.l.liu@intel.com>
-Cc:     joro@8bytes.org, alex.williamson@redhat.com, kevin.tian@intel.com,
-        robin.murphy@arm.com, cohuck@redhat.com, eric.auger@redhat.com,
-        nicolinc@nvidia.com, kvm@vger.kernel.org, mjrosato@linux.ibm.com,
-        chao.p.peng@linux.intel.com, yi.y.sun@linux.intel.com,
-        peterx@redhat.com, jasowang@redhat.com,
-        shameerali.kolothum.thodi@huawei.com, lulu@redhat.com,
-        suravee.suthikulpanit@amd.com, intel-gvt-dev@lists.freedesktop.org,
-        intel-gfx@lists.freedesktop.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v3 03/15] vfio: Accept vfio device file in the driver
- facing kAPI
-Message-ID: <Y+rLKvCMivND0izd@nvidia.com>
-References: <20230213151348.56451-1-yi.l.liu@intel.com>
- <20230213151348.56451-4-yi.l.liu@intel.com>
+        with ESMTP id S229603AbjBNBPx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 13 Feb 2023 20:15:53 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD53512061
+        for <linux-s390@vger.kernel.org>; Mon, 13 Feb 2023 17:15:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1676337309;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=C2q55MxPPzBSLVgcIgTObGkRfLMUQPDaZIBurW0k0ig=;
+        b=gztVgZ7gY0qzATRYj5Jlj9yif6p038yIk1EkxGpTrBWnQmSXE0Oe2IIONOyAWrTGhUl/gZ
+        qEl0K3QtvhsgFYRAuEBgB+aCM4BVGoggaJBIOQVqGkOQRYWxIP4vyZv+tl/XFVOnG3orGn
+        Ch8QU8SM2aDggLv2ft9qEd36WqKCeZ0=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-449-TyvtUno1NOCV1-UIY-ybDQ-1; Mon, 13 Feb 2023 20:15:06 -0500
+X-MC-Unique: TyvtUno1NOCV1-UIY-ybDQ-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id D1EB7811E6E;
+        Tue, 14 Feb 2023 01:15:05 +0000 (UTC)
+Received: from localhost (ovpn-12-99.pek2.redhat.com [10.72.12.99])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 4BA232166B26;
+        Tue, 14 Feb 2023 01:15:03 +0000 (UTC)
+Date:   Tue, 14 Feb 2023 09:15:00 +0800
+From:   Baoquan He <bhe@redhat.com>
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     Sven Schnelle <svens@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Alexander Potapenko <glider@google.com>,
+        Marco Elver <elver@google.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] s390/kfence: fix page fault reporting
+Message-ID: <Y+rglIOjA7kascpE@MiWiFi-R3L-srv>
+References: <20230213183858.1473681-1-hca@linux.ibm.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230213151348.56451-4-yi.l.liu@intel.com>
-X-ClientProxiedBy: MN2PR10CA0024.namprd10.prod.outlook.com
- (2603:10b6:208:120::37) To LV2PR12MB5869.namprd12.prod.outlook.com
- (2603:10b6:408:176::16)
-MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|PH7PR12MB6000:EE_
-X-MS-Office365-Filtering-Correlation-Id: b615cd5f-132e-4bc1-3243-08db0e1c2297
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 410Sw2fQ8BBfBIYuIWI8O13HUgzDEH5e9AcNQdCJYwUO5ZdQXUlwXGAn0NobrgQJ2WHNPsOy5gvW2FAZRNl91drWg/8vei4JT16s8u9vkLwOd98DZCB3gHwx4pge8QxjKSpZeVlnRw09eLIW3PK8mPzPaisfPufo9OK81pXyhGdq5z7OvsrLAZJMQKohElsEXmcv9IgvKP3tjwiVwyTqFZHaFQ1w/8FH/48m1smY0hn+cCbxOd8WSTKaaZv3ZwdejEdRmavWpLX6ReiYSMudXslvNNrmyNwcM4xwg/RiYmzgFff5XtVBCXQm6xlHZWl3JqQT9TVNKX1Dgdz5sITXjk9Ng2+YamA4Y8IMMkIAexXlfIDJB0LEm0ZHpJr/Qc3uARLmct5GhB24CZ8mwYR8SzAJt6d5iVvB3GEWW5eVDvPpYg9lAcHa91t4s0ECPhgmMTj0uq1wa00UV/IWVpXZhZ3M1//RPMtHfHlGx0ghf1HcXosqK41mPbLYXmrbCkr4qBPDPN7igq+WrsHUdkyJmSrvbRW2OAgsDGt0v3ugcvYm09O6KTOonFuNwuxPwajMLLpXd326jO9CTTXQ0xp5lanHIxlbH5PmZ4VNyeri/ZgjXIAXf0xBWnjZOswhsJRr8HV1aaWP5vlTBBrx5UnaKDJh6ytio2R/LZtVFs3ntBuyBBloY5dTMnuMXmiD+j3T
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(4636009)(396003)(366004)(376002)(346002)(136003)(39860400002)(451199018)(38100700002)(2616005)(26005)(6512007)(186003)(316002)(86362001)(8936002)(66946007)(2906002)(4326008)(6916009)(66476007)(36756003)(4744005)(8676002)(41300700001)(6486002)(5660300002)(478600001)(6506007)(7416002)(66556008)(67856001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?AF6DVTzdPK3FEhfxdogVfiHylwZF26iPxzA0T1iYyTXZD5c/h7eJSUgDbUUz?=
- =?us-ascii?Q?wHcTyX8t4qTEXUI1zjsfX1BR35crBvz6qBaCUL3bTVyCEURowah/RVQGadmS?=
- =?us-ascii?Q?HP0/RRDZ881145Or6REYdLChUwdN4e2AcNGh/fcr7bS6i6FPj+TH5+KMy2hV?=
- =?us-ascii?Q?3FMI9IZFnk3sy3it2rPJal2BN1elQ8emcd6ZXFgPpUK3kyfRTn3InJBckqiD?=
- =?us-ascii?Q?AvjEpTAWflYDcrn6GM3YY4s9PS4vq1/pZwCFd+EAFj7dRmtftMZAhO5bG6Zn?=
- =?us-ascii?Q?pAvU2XIxqXWBATCqVzeorFtkuMa/NvSBgV8EJR+hes0vjsiUwZ/KSyOMSm05?=
- =?us-ascii?Q?GNgDvY3yzjbJcia5to2KxPhVB4HbwjHOmy1EHSDWZJloOOBOjgbBrZ8IAYYh?=
- =?us-ascii?Q?bY4P++8eyQcKQwewIqw6VIh4aISbTf3ukkrErcNwHKZ1Dku4wDkka92MV6uc?=
- =?us-ascii?Q?lXpxe+xBNjvvJdzgQKRui9Zl+XXtIopFQQNqg+yEB2uzrsxwXde68vW3qsEP?=
- =?us-ascii?Q?ua2p2IDxQvblyS02kme1sMfk/ratMH6NoeVjRrxsLK3fxFBeJiK5s2oBYVkv?=
- =?us-ascii?Q?cbwBi5PxH+ZHe/VOM+SiKsgQ/uzB432m82uEyH+gYt/cUa8NuKVWPwZxVm/W?=
- =?us-ascii?Q?Z50a37n3NicX9bP9hqQ6M4OPlFbApytIZJZRM6eqOIGGEdwdECpudyeUKUt6?=
- =?us-ascii?Q?XgUw0w56PN65ECkDW86UmYng/qfZEcsyfDi07POGI30w5oh3FE3HXbWnazw8?=
- =?us-ascii?Q?WtRCN3eDPCHd0T6If2h9qoIRpYscI9fB56mQTo4AFpXvaIg3KgMbXap82h3Z?=
- =?us-ascii?Q?RLWBRPhUdUK6Z/uk2F/pmWg+yHvaBP7zsUoWVg7vbqcGur+wnX7Bb6NXyx+y?=
- =?us-ascii?Q?lBk4aDNil9T9pUdjIXKuuZo/0ZZTtv0V6BvbqNYmIxnKVCxP0iePalq+lyX+?=
- =?us-ascii?Q?8sbxWhhPLEdltWw/veVaxY0PSuLbGGPILCXaon/4W42NGRK4ovlAhzzqKIBf?=
- =?us-ascii?Q?a7/ilkLVYRmCPFl+SANtQdW8zI24aqdAl9EsN4uWYIg/LxzpJVPiQ3xoXTFM?=
- =?us-ascii?Q?cxidg5hUlY9eOYu1NdRMBEMbtR9mY9nGcMZ++GIvJIYJbte/npZDk3iz7vRz?=
- =?us-ascii?Q?jsOn/2eiskSGmp+Gm/2yzSBfREYo9I06I15ZDXIj8JBkU3wgacVrDhHqqVSP?=
- =?us-ascii?Q?qzdmFatd8PLV58B2xK+68y8DF67HR2XcZJ6X0d7j1KHttOlIEXg/GQ25dA+H?=
- =?us-ascii?Q?gbIvlToC5RlcALmf76aH/XHNrF2kGD17R9Zcx+ZwacVBQfy6uTrDTO8ge+LL?=
- =?us-ascii?Q?gO3IQ1wPm72C1kdglJHQuzTqIhVB+nLCnCdLm+qNNEy4SuTthOfPs+e9mZun?=
- =?us-ascii?Q?yxARtkQGoHkk4goM43mOlnJaqPb6/Or8zEXNAnloH5GGNo9NeF1/ND4ugcGs?=
- =?us-ascii?Q?Q2BUGPaNZMbMxYZpLzyB/9FPMZbJJQZo/ppYhxN9pyUevGSVYAHInDcWtwvc?=
- =?us-ascii?Q?u4fJcfkLtujbUV86utqV63c0Et5UaHsr1Quzvusgu3hgbsqK4e6cxTm9TYWd?=
- =?us-ascii?Q?jiCNGPtN7OKMp+7+kzgX6fRtZhjtjw47Fp4lA79Q?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b615cd5f-132e-4bc1-3243-08db0e1c2297
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Feb 2023 23:43:40.6826
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: +ForOPDIKwCvlhUgqgQDl1eSoCs88j6t2KmqiZVa20aOlXrPIQSVsGfj8WFyudNA
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB6000
+In-Reply-To: <20230213183858.1473681-1-hca@linux.ibm.com>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.6
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Feb 13, 2023 at 07:13:36AM -0800, Yi Liu wrote:
-> +static struct vfio_device *vfio_device_from_file(struct file *file)
+On 02/13/23 at 07:38pm, Heiko Carstens wrote:
+> Baoquan He reported lots of KFENCE reports when /proc/kcore is read,
+> e.g. with crash or even simpler with dd:
+> 
+>  BUG: KFENCE: invalid read in copy_from_kernel_nofault+0x5e/0x120
+>  Invalid read at 0x00000000f4f5149f:
+>   copy_from_kernel_nofault+0x5e/0x120
+>   read_kcore+0x6b2/0x870
+>   proc_reg_read+0x9a/0xf0
+>   vfs_read+0x94/0x270
+>   ksys_read+0x70/0x100
+>   __do_syscall+0x1d0/0x200
+>   system_call+0x82/0xb0
+> 
+> The reason for this is that read_kcore() simply reads memory that might
+> have been unmapped by KFENCE with copy_from_kernel_nofault(). Any fault due
+> to pages being unmapped by KFENCE would be handled gracefully by the fault
+> handler (exception table fixup).
+> 
+> However the s390 fault handler first reports the fault, and only afterwards
+> would perform the exception table fixup. Most architectures have this in
+> reversed order, which also avoids the false positive KFENCE reports when an
+> unmapped page is accessed.
+> 
+> Therefore change the s390 fault handler so it handles exception table
+> fixups before KFENCE page faults are reported.
+> 
+> Reported-by: Baoquan He <bhe@redhat.com>
+> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+
+Applied this patch on the latest kernel 6.2-rc8 and tested, it fixes the
+problem perfectly. Thank a lot. Please feel free to add:
+
+Tested-by: Baoquan He <bhe@redhat.com>
+
+> ---
+>  arch/s390/mm/fault.c | 49 +++++++++++++++++++++++++++++++-------------
+>  1 file changed, 35 insertions(+), 14 deletions(-)
+> 
+> diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
+> index 9649d9382e0a..8e84ed2bb944 100644
+> --- a/arch/s390/mm/fault.c
+> +++ b/arch/s390/mm/fault.c
+> @@ -96,6 +96,20 @@ static enum fault_type get_fault_type(struct pt_regs *regs)
+>  	return KERNEL_FAULT;
+>  }
+>  
+> +static unsigned long get_fault_address(struct pt_regs *regs)
 > +{
-> +	struct vfio_device_file *df = file->private_data;
+> +	unsigned long trans_exc_code = regs->int_parm_long;
 > +
-> +	if (file->f_op != &vfio_device_fops)
-> +		return NULL;
-> +	return df->device;
+> +	return trans_exc_code & __FAIL_ADDR_MASK;
 > +}
 > +
->  /**
->   * vfio_file_is_valid - True if the file is usable with VFIO APIS
->   * @file: VFIO group file or VFIO device file
->   */
->  bool vfio_file_is_valid(struct file *file)
+> +static bool fault_is_write(struct pt_regs *regs)
+> +{
+> +	unsigned long trans_exc_code = regs->int_parm_long;
+> +
+> +	return (trans_exc_code & store_indication) == 0x400;
+> +}
+> +
+>  static int bad_address(void *p)
 >  {
-> -	return vfio_group_from_file(file);
-> +	return vfio_group_from_file(file) ||
-> +	       vfio_device_from_file(file);
+>  	unsigned long dummy;
+> @@ -228,15 +242,26 @@ static noinline void do_sigsegv(struct pt_regs *regs, int si_code)
+>  			(void __user *)(regs->int_parm_long & __FAIL_ADDR_MASK));
 >  }
->  EXPORT_SYMBOL_GPL(vfio_file_is_valid);
+>  
+> -static noinline void do_no_context(struct pt_regs *regs)
+> +static noinline void do_no_context(struct pt_regs *regs, vm_fault_t fault)
+>  {
+> +	enum fault_type fault_type;
+> +	unsigned long address;
+> +	bool is_write;
+> +
+>  	if (fixup_exception(regs))
+>  		return;
+> +	fault_type = get_fault_type(regs);
+> +	if ((fault_type == KERNEL_FAULT) && (fault == VM_FAULT_BADCONTEXT)) {
+> +		address = get_fault_address(regs);
+> +		is_write = fault_is_write(regs);
+> +		if (kfence_handle_page_fault(address, is_write, regs))
+> +			return;
+> +	}
+>  	/*
+>  	 * Oops. The kernel tried to access some bad page. We'll have to
+>  	 * terminate things with extreme prejudice.
+>  	 */
+> -	if (get_fault_type(regs) == KERNEL_FAULT)
+> +	if (fault_type == KERNEL_FAULT)
+>  		printk(KERN_ALERT "Unable to handle kernel pointer dereference"
+>  		       " in virtual kernel address space\n");
+>  	else
+> @@ -255,7 +280,7 @@ static noinline void do_low_address(struct pt_regs *regs)
+>  		die (regs, "Low-address protection");
+>  	}
+>  
+> -	do_no_context(regs);
+> +	do_no_context(regs, VM_FAULT_BADACCESS);
+>  }
+>  
+>  static noinline void do_sigbus(struct pt_regs *regs)
+> @@ -286,28 +311,28 @@ static noinline void do_fault_error(struct pt_regs *regs, vm_fault_t fault)
+>  		fallthrough;
+>  	case VM_FAULT_BADCONTEXT:
+>  	case VM_FAULT_PFAULT:
+> -		do_no_context(regs);
+> +		do_no_context(regs, fault);
+>  		break;
+>  	case VM_FAULT_SIGNAL:
+>  		if (!user_mode(regs))
+> -			do_no_context(regs);
+> +			do_no_context(regs, fault);
+>  		break;
+>  	default: /* fault & VM_FAULT_ERROR */
+>  		if (fault & VM_FAULT_OOM) {
+>  			if (!user_mode(regs))
+> -				do_no_context(regs);
+> +				do_no_context(regs, fault);
+>  			else
+>  				pagefault_out_of_memory();
+>  		} else if (fault & VM_FAULT_SIGSEGV) {
+>  			/* Kernel mode? Handle exceptions or die */
+>  			if (!user_mode(regs))
+> -				do_no_context(regs);
+> +				do_no_context(regs, fault);
+>  			else
+>  				do_sigsegv(regs, SEGV_MAPERR);
+>  		} else if (fault & VM_FAULT_SIGBUS) {
+>  			/* Kernel mode? Handle exceptions or die */
+>  			if (!user_mode(regs))
+> -				do_no_context(regs);
+> +				do_no_context(regs, fault);
+>  			else
+>  				do_sigbus(regs);
+>  		} else
+> @@ -334,7 +359,6 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
+>  	struct mm_struct *mm;
+>  	struct vm_area_struct *vma;
+>  	enum fault_type type;
+> -	unsigned long trans_exc_code;
+>  	unsigned long address;
+>  	unsigned int flags;
+>  	vm_fault_t fault;
+> @@ -351,9 +375,8 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
+>  		return 0;
+>  
+>  	mm = tsk->mm;
+> -	trans_exc_code = regs->int_parm_long;
+> -	address = trans_exc_code & __FAIL_ADDR_MASK;
+> -	is_write = (trans_exc_code & store_indication) == 0x400;
+> +	address = get_fault_address(regs);
+> +	is_write = fault_is_write(regs);
+>  
+>  	/*
+>  	 * Verify that the fault happened in user space, that
+> @@ -364,8 +387,6 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
+>  	type = get_fault_type(regs);
+>  	switch (type) {
+>  	case KERNEL_FAULT:
+> -		if (kfence_handle_page_fault(address, is_write, regs))
+> -			return 0;
+>  		goto out;
+>  	case USER_FAULT:
+>  	case GMAP_FAULT:
+> -- 
+> 2.37.2
+> 
 
-This can only succeed on a device cdev that has been fully opened.
-
-Jason
