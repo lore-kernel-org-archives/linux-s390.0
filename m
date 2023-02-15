@@ -2,31 +2,31 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E1C1DC636D4
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Feb 2023 16:19:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 60BFBC636CC
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Feb 2023 16:19:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230055AbjBOQTA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Feb 2023 11:19:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57052 "EHLO
+        id S230073AbjBOQTD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Feb 2023 11:19:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229981AbjBOQSs (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Feb 2023 11:18:48 -0500
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1619539CC3;
-        Wed, 15 Feb 2023 08:18:43 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0Vbl3meW_1676477919;
-Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0Vbl3meW_1676477919)
+        with ESMTP id S230014AbjBOQSt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Feb 2023 11:18:49 -0500
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EEF13A85D;
+        Wed, 15 Feb 2023 08:18:46 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0Vbl2feR_1676477922;
+Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0Vbl2feR_1676477922)
           by smtp.aliyun-inc.com;
-          Thu, 16 Feb 2023 00:18:40 +0800
+          Thu, 16 Feb 2023 00:18:44 +0800
 From:   Wen Gu <guwen@linux.alibaba.com>
 To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
         davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
         pabeni@redhat.com
 Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [RFC PATCH net-next v3 3/9] net/smc: Extract v2 check helper from SMC-D device registration
-Date:   Thu, 16 Feb 2023 00:18:19 +0800
-Message-Id: <1676477905-88043-4-git-send-email-guwen@linux.alibaba.com>
+Subject: [RFC PATCH net-next v3 5/9] net/smc: Introduce an interface for getting DMB attribute
+Date:   Thu, 16 Feb 2023 00:18:21 +0800
+Message-Id: <1676477905-88043-6-git-send-email-guwen@linux.alibaba.com>
 X-Mailer: git-send-email 1.8.3.1
 In-Reply-To: <1676477905-88043-1-git-send-email-guwen@linux.alibaba.com>
 References: <1676477905-88043-1-git-send-email-guwen@linux.alibaba.com>
@@ -34,73 +34,80 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This patch extracts v2-capable logic from the process of registering the
-ISM device as an SMC-D device, so that the registration process of other
-underlying devices can also use it.
+On s390, since all OSs run on a kind of machine level hypervisor which
+is a partitioning hypervisor without paging, the sndbufs and DMBs in
+such case are unable to be mapped to the same physical memory.
+
+However, in other scene, such as communication within the same OS instance
+(loopback) or between guests of a paging hypervisor, eg. KVM, the sndbufs
+and DMBs can be mapped to the same physical memory to avoid memory copy
+from sndbufs to DMBs.
+
+So this patch introduces an interface to smcd_ops for users to judge
+whether DMB-map is available. And for reuse, the interface is designed
+to return DMB attribute, not only mappability.
 
 Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
 ---
- net/smc/smc_ism.c | 27 +++++++++++++++++----------
- net/smc/smc_ism.h |  1 +
- 2 files changed, 18 insertions(+), 10 deletions(-)
+ include/net/smc.h | 5 +++++
+ net/smc/smc_ism.c | 8 ++++++++
+ net/smc/smc_ism.h | 1 +
+ 3 files changed, 14 insertions(+)
 
+diff --git a/include/net/smc.h b/include/net/smc.h
+index 50df54d..256d600 100644
+--- a/include/net/smc.h
++++ b/include/net/smc.h
+@@ -55,6 +55,10 @@ struct smcd_seid {
+ 
+ #define ISM_ERROR	0xFFFF
+ 
++enum {
++	ISM_DMB_MAPPABLE = 0,
++};
++
+ struct smcd_dev;
+ 
+ struct smcd_ops {
+@@ -76,6 +80,7 @@ struct smcd_ops {
+ 	u64 (*get_local_gid)(struct smcd_dev *dev);
+ 	u16 (*get_chid)(struct smcd_dev *dev);
+ 	struct device* (*get_dev)(struct smcd_dev *dev);
++	int (*get_dev_dmb_attr)(struct smcd_dev *dev);
+ };
+ 
+ struct smcd_dev {
 diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
-index 93c7415..9504273 100644
+index 9504273..e085c48 100644
 --- a/net/smc/smc_ism.c
 +++ b/net/smc/smc_ism.c
-@@ -69,6 +69,22 @@ bool smc_ism_is_v2_capable(void)
- 	return smc_ism_v2_capable;
+@@ -213,6 +213,14 @@ int smc_ism_unregister_dmb(struct smcd_dev *smcd, struct smc_buf_desc *dmb_desc)
+ 	return rc;
  }
  
-+/* must be called under smcd_dev_list.mutex lock */
-+void smc_ism_check_v2_capable(struct smcd_dev *smcd)
++bool smc_ism_dmb_mappable(struct smcd_dev *smcd)
 +{
-+	u8 *system_eid = NULL;
-+
-+	if (!list_empty(&smcd_dev_list.list))
-+		return;
-+
-+	system_eid = smcd->ops->get_system_eid();
-+	if (system_eid[24] != '0' || system_eid[28] != '0') {
-+		smc_ism_v2_capable = true;
-+		memcpy(smc_ism_v2_system_eid, system_eid,
-+		       SMC_MAX_EID_LEN);
-+	}
++	if (smcd->ops->get_dev_dmb_attr &&
++	    (smcd->ops->get_dev_dmb_attr(smcd) & (1 << ISM_DMB_MAPPABLE)))
++		return true;
++	return false;
 +}
 +
- /* Set a connection using this DMBE. */
- void smc_ism_set_conn(struct smc_connection *conn)
+ int smc_ism_register_dmb(struct smc_link_group *lgr, int dmb_len,
+ 			 struct smc_buf_desc *dmb_desc)
  {
-@@ -422,16 +438,7 @@ static void smcd_register_dev(struct ism_dev *ism)
- 		smc_pnetid_by_table_smcd(smcd);
- 
- 	mutex_lock(&smcd_dev_list.mutex);
--	if (list_empty(&smcd_dev_list.list)) {
--		u8 *system_eid = NULL;
--
--		system_eid = smcd->ops->get_system_eid();
--		if (system_eid[24] != '0' || system_eid[28] != '0') {
--			smc_ism_v2_capable = true;
--			memcpy(smc_ism_v2_system_eid, system_eid,
--			       SMC_MAX_EID_LEN);
--		}
--	}
-+	smc_ism_check_v2_capable(smcd);
- 	/* sort list: devices without pnetid before devices with pnetid */
- 	if (smcd->pnetid[0])
- 		list_add_tail(&smcd->list, &smcd_dev_list.list);
 diff --git a/net/smc/smc_ism.h b/net/smc/smc_ism.h
-index 832b2f4..14d2e77 100644
+index 14d2e77..aabea35 100644
 --- a/net/smc/smc_ism.h
 +++ b/net/smc/smc_ism.h
-@@ -42,6 +42,7 @@ int smc_ism_register_dmb(struct smc_link_group *lgr, int buf_size,
+@@ -38,6 +38,7 @@ struct smc_ism_vlanid {			/* VLAN id set on ISM device */
+ int smc_ism_register_dmb(struct smc_link_group *lgr, int buf_size,
+ 			 struct smc_buf_desc *dmb_desc);
+ int smc_ism_unregister_dmb(struct smcd_dev *dev, struct smc_buf_desc *dmb_desc);
++bool smc_ism_dmb_mappable(struct smcd_dev *smcd);
+ int smc_ism_signal_shutdown(struct smc_link_group *lgr);
  void smc_ism_get_system_eid(u8 **eid);
  u16 smc_ism_get_chid(struct smcd_dev *dev);
- bool smc_ism_is_v2_capable(void);
-+void smc_ism_check_v2_capable(struct smcd_dev *dev);
- int smc_ism_init(void);
- void smc_ism_exit(void);
- int smcd_nl_get_device(struct sk_buff *skb, struct netlink_callback *cb);
 -- 
 1.8.3.1
 
