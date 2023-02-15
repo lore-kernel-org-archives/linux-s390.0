@@ -2,239 +2,121 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C5B29C64ED6
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Feb 2023 16:19:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D4932C636D4
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Feb 2023 16:22:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230103AbjBOQTY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Feb 2023 11:19:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57914 "EHLO
+        id S229454AbjBOQWO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Feb 2023 11:22:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230100AbjBOQTL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Feb 2023 11:19:11 -0500
-Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 772E13B0DF;
-        Wed, 15 Feb 2023 08:18:55 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R991e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0Vbl2fgZ_1676477929;
-Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0Vbl2fgZ_1676477929)
-          by smtp.aliyun-inc.com;
-          Thu, 16 Feb 2023 00:18:51 +0800
-From:   Wen Gu <guwen@linux.alibaba.com>
-To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [RFC PATCH net-next v3 9/9] net/smc: Add interface implementation of loopback device
-Date:   Thu, 16 Feb 2023 00:18:25 +0800
-Message-Id: <1676477905-88043-10-git-send-email-guwen@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1676477905-88043-1-git-send-email-guwen@linux.alibaba.com>
-References: <1676477905-88043-1-git-send-email-guwen@linux.alibaba.com>
+        with ESMTP id S229576AbjBOQWM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Feb 2023 11:22:12 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA4843B3E7;
+        Wed, 15 Feb 2023 08:21:59 -0800 (PST)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31FFC74C026361;
+        Wed, 15 Feb 2023 16:21:53 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=N4xx3PALnXgsxfPbsfIX8t1okAN0F2Tn4smgky1btSQ=;
+ b=HZ31z8y2m/Nhec8/iK/UncQRyE6LesFmZiNtsumSoWFLcELyEdjOl61V5RquQrc4IKUU
+ UAm7YMDOgmBW63AobHt8/qmKi08/TMMN51PsKBdhVIpqBwtkarpW8ebRwva0tm0vFg5w
+ M3wIgwGKrSXVC9KGVhXA2tmpH3nEovAYxGEsNEZ3Pw0HN2KaX5wGsxfBxC7rmKfN232W
+ z1b4xWpnB1YnG/36gyliUuj6TBnb7UDvEuXS1ImROAGtVrGfE6Erqe5UbA4aJoYDvueN
+ gH3FPuw8rME61oeoaUhfitN8bcQ3nYs2OfGSsIjkeO+9WhAUZtHCD2vtu6JktXVOy9bL cw== 
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ns1tujurs-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 15 Feb 2023 16:21:53 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31FBNbnk010684;
+        Wed, 15 Feb 2023 16:21:51 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3np2n6wkyc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 15 Feb 2023 16:21:50 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31FGLlEE51118486
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 15 Feb 2023 16:21:47 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 58E5E2004D;
+        Wed, 15 Feb 2023 16:21:47 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2E3632004B;
+        Wed, 15 Feb 2023 16:21:47 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.152.224.56])
+        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 15 Feb 2023 16:21:47 +0000 (GMT)
+Date:   Wed, 15 Feb 2023 17:20:18 +0100
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Nico Boehr <nrb@linux.ibm.com>
+Cc:     borntraeger@linux.ibm.com, frankja@linux.ibm.com,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v1 1/1] s390: nmi: fix virtual-physical address
+ confusion
+Message-ID: <20230215172018.24bf964f@p-imbrenda>
+In-Reply-To: <20230215160252.14672-2-nrb@linux.ibm.com>
+References: <20230215160252.14672-1-nrb@linux.ibm.com>
+        <20230215160252.14672-2-nrb@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: oqOFASujzS8EZg6R39pJCBzN-3KN9hK4
+X-Proofpoint-GUID: oqOFASujzS8EZg6R39pJCBzN-3KN9hK4
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
+ definitions=2023-02-15_06,2023-02-15_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ adultscore=0 phishscore=0 impostorscore=0 clxscore=1015 bulkscore=0
+ spamscore=0 mlxlogscore=999 malwarescore=0 mlxscore=0 suspectscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2302150145
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This patch completes the specific implementation of loopback device
-for the newly added SMC-D DMB-related interface.
+On Wed, 15 Feb 2023 17:02:52 +0100
+Nico Boehr <nrb@linux.ibm.com> wrote:
 
-The loopback device always provides mappable DMB because the device
-users are in the same OS instance.
+> When a machine check is received while in SIE, it is reinjected into the
+> guest in some cases. The respective code needs to access the sie_block,
+> which is taken from the backed up R14.
+> 
+> Since reinjection only occurs while we are in SIE (i.e. between the
+> labels sie_entry and sie_leave in entry.S and thus if CIF_MCCK_GUEST is
+> set), the backed up R14 will always contain a physical address in
+> s390_backup_mcck_info.
+> 
+> This currently works, because virtual and physical addresses are
+> the same.
+> 
+> Add phys_to_virt() to resolve the virtual-physical confusion.
+> 
+> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
 
-Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
----
- net/smc/smc_loopback.c | 93 ++++++++++++++++++++++++++++++++++++++++++++++----
- net/smc/smc_loopback.h |  4 +++
- 2 files changed, 90 insertions(+), 7 deletions(-)
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-diff --git a/net/smc/smc_loopback.c b/net/smc/smc_loopback.c
-index 38bacd8..2fa2a73 100644
---- a/net/smc/smc_loopback.c
-+++ b/net/smc/smc_loopback.c
-@@ -77,6 +77,7 @@ static int smc_lo_register_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb,
- 		goto err_node;
- 	}
- 	dmb_node->len = dmb->dmb_len;
-+	refcount_set(&dmb_node->refcnt, 1);
- 
- 	/* TODO: token is random but not exclusive !
- 	 * suppose to find token in dmb hask table, if has this token
-@@ -87,6 +88,7 @@ static int smc_lo_register_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb,
- 	write_lock(&ldev->dmb_ht_lock);
- 	hash_add(ldev->dmb_ht, &dmb_node->list, dmb_node->token);
- 	write_unlock(&ldev->dmb_ht_lock);
-+	atomic_inc(&ldev->dmb_cnt);
- 
- 	dmb->sba_idx = dmb_node->sba_idx;
- 	dmb->dmb_tok = dmb_node->token;
-@@ -124,12 +126,76 @@ static int smc_lo_unregister_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb)
- 	write_unlock(&ldev->dmb_ht_lock);
- 
- 	clear_bit(dmb_node->sba_idx, ldev->sba_idx_mask);
-+
-+	/* wait for dmb refcnt to be 0 */
-+	if (!refcount_dec_and_test(&dmb_node->refcnt))
-+		wait_event(ldev->dmbs_release, !refcount_read(&dmb_node->refcnt));
- 	kfree(dmb_node->cpu_addr);
- 	kfree(dmb_node);
- 
-+	if (atomic_dec_and_test(&ldev->dmb_cnt))
-+		wake_up(&ldev->ldev_release);
-+	return 0;
-+}
-+
-+static int smc_lo_attach_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb)
-+{
-+	struct smc_lo_dmb_node *dmb_node = NULL, *tmp_node;
-+	struct smc_lo_dev *ldev = smcd->priv;
-+
-+	/* find dmb_node according to dmb->dmb_tok */
-+	read_lock(&ldev->dmb_ht_lock);
-+	hash_for_each_possible(ldev->dmb_ht, tmp_node, list, dmb->dmb_tok) {
-+		if (tmp_node->token == dmb->dmb_tok) {
-+			dmb_node = tmp_node;
-+			break;
-+		}
-+	}
-+	if (!dmb_node) {
-+		read_unlock(&ldev->dmb_ht_lock);
-+		return -EINVAL;
-+	}
-+	read_unlock(&ldev->dmb_ht_lock);
-+	refcount_inc(&dmb_node->refcnt);
-+
-+	/* provide dmb information */
-+	dmb->sba_idx = dmb_node->sba_idx;
-+	dmb->dmb_tok = dmb_node->token;
-+	dmb->cpu_addr = dmb_node->cpu_addr;
-+	dmb->dma_addr = dmb_node->dma_addr;
-+	dmb->dmb_len = dmb_node->len;
-+	return 0;
-+}
-+
-+static int smc_lo_detach_dmb(struct smcd_dev *smcd, u64 token)
-+{
-+	struct smc_lo_dmb_node *dmb_node = NULL, *tmp_node;
-+	struct smc_lo_dev *ldev = smcd->priv;
-+
-+	/* find dmb_node according to dmb->dmb_tok */
-+	read_lock(&ldev->dmb_ht_lock);
-+	hash_for_each_possible(ldev->dmb_ht, tmp_node, list, token) {
-+		if (tmp_node->token == token) {
-+			dmb_node = tmp_node;
-+			break;
-+		}
-+	}
-+	if (!dmb_node) {
-+		read_unlock(&ldev->dmb_ht_lock);
-+		return -EINVAL;
-+	}
-+	read_unlock(&ldev->dmb_ht_lock);
-+
-+	if (refcount_dec_and_test(&dmb_node->refcnt))
-+		wake_up_all(&ldev->dmbs_release);
- 	return 0;
- }
- 
-+static int smc_lo_get_dev_dmb_attr(struct smcd_dev *smcd)
-+{
-+	return (1 << ISM_DMB_MAPPABLE);
-+}
-+
- static int smc_lo_add_vlan_id(struct smcd_dev *smcd, u64 vlan_id)
- {
- 	return -EOPNOTSUPP;
-@@ -156,7 +222,15 @@ static int smc_lo_move_data(struct smcd_dev *smcd, u64 dmb_tok, unsigned int idx
- {
- 	struct smc_lo_dmb_node *rmb_node = NULL, *tmp_node;
- 	struct smc_lo_dev *ldev = smcd->priv;
--
-+	struct smc_connection *conn;
-+
-+	if (!sf) {
-+		/* local sndbuf shares the same physical memory with
-+		 * peer RMB, so no need to copy data from local sndbuf
-+		 * to peer RMB.
-+		 */
-+		return 0;
-+	}
- 	read_lock(&ldev->dmb_ht_lock);
- 	hash_for_each_possible(ldev->dmb_ht, tmp_node, list, dmb_tok) {
- 		if (tmp_node->token == dmb_tok) {
-@@ -172,13 +246,10 @@ static int smc_lo_move_data(struct smcd_dev *smcd, u64 dmb_tok, unsigned int idx
- 
- 	memcpy((char *)rmb_node->cpu_addr + offset, data, size);
- 
--	if (sf) {
--		struct smc_connection *conn =
--			smcd->conn[rmb_node->sba_idx];
-+	conn = smcd->conn[rmb_node->sba_idx];
-+	if (conn && !conn->killed)
-+		smcd_cdc_rx_handler(conn);
- 
--		if (conn && !conn->killed)
--			smcd_cdc_rx_handler(conn);
--	}
- 	return 0;
- }
- 
-@@ -206,6 +277,8 @@ static struct device *smc_lo_get_dev(struct smcd_dev *smcd)
- 	.query_remote_gid = smc_lo_query_rgid,
- 	.register_dmb = smc_lo_register_dmb,
- 	.unregister_dmb = smc_lo_unregister_dmb,
-+	.attach_dmb = smc_lo_attach_dmb,
-+	.detach_dmb = smc_lo_detach_dmb,
- 	.add_vlan_id = smc_lo_add_vlan_id,
- 	.del_vlan_id = smc_lo_del_vlan_id,
- 	.set_vlan_required = smc_lo_set_vlan_required,
-@@ -216,6 +289,7 @@ static struct device *smc_lo_get_dev(struct smcd_dev *smcd)
- 	.get_local_gid = smc_lo_get_local_gid,
- 	.get_chid = smc_lo_get_chid,
- 	.get_dev = smc_lo_get_dev,
-+	.get_dev_dmb_attr = smc_lo_get_dev_dmb_attr,
- };
- 
- static struct smcd_dev *smcd_lo_alloc_dev(const struct smcd_ops *ops,
-@@ -296,6 +370,9 @@ static int smc_lo_dev_init(struct smc_lo_dev *ldev)
- 	smc_lo_gen_id(ldev);
- 	rwlock_init(&ldev->dmb_ht_lock);
- 	hash_init(ldev->dmb_ht);
-+	atomic_set(&ldev->dmb_cnt, 0);
-+	init_waitqueue_head(&ldev->dmbs_release);
-+	init_waitqueue_head(&ldev->ldev_release);
- 
- 	return smcd_lo_register_dev(ldev);
- }
-@@ -334,6 +411,8 @@ static int smc_lo_dev_probe(void)
- static void smc_lo_dev_exit(struct smc_lo_dev *ldev)
- {
- 	smcd_lo_unregister_dev(ldev);
-+	if (atomic_read(&ldev->dmb_cnt))
-+		wait_event(ldev->ldev_release, !atomic_read(&ldev->dmb_cnt));
- }
- 
- static void smc_lo_dev_remove(void)
-diff --git a/net/smc/smc_loopback.h b/net/smc/smc_loopback.h
-index 9d34aba..0a09330 100644
---- a/net/smc/smc_loopback.h
-+++ b/net/smc/smc_loopback.h
-@@ -33,6 +33,7 @@ struct smc_lo_dmb_node {
- 	u32 sba_idx;
- 	void *cpu_addr;
- 	dma_addr_t dma_addr;
-+	refcount_t refcnt;
- };
- 
- struct smc_lo_dev {
-@@ -43,6 +44,9 @@ struct smc_lo_dev {
- 	DECLARE_BITMAP(sba_idx_mask, SMC_LODEV_MAX_DMBS);
- 	rwlock_t dmb_ht_lock;
- 	DECLARE_HASHTABLE(dmb_ht, SMC_LODEV_MAX_DMBS_BUCKETS);
-+	atomic_t dmb_cnt;
-+	wait_queue_head_t dmbs_release;
-+	wait_queue_head_t ldev_release;
- };
- 
- int smc_loopback_init(void);
--- 
-1.8.3.1
+> ---
+>  arch/s390/kernel/nmi.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/arch/s390/kernel/nmi.c b/arch/s390/kernel/nmi.c
+> index 5dbf274719a9..322160328866 100644
+> --- a/arch/s390/kernel/nmi.c
+> +++ b/arch/s390/kernel/nmi.c
+> @@ -347,7 +347,7 @@ static void notrace s390_backup_mcck_info(struct pt_regs *regs)
+>  
+>  	/* r14 contains the sie block, which was set in sie64a */
+>  	struct kvm_s390_sie_block *sie_block =
+> -			(struct kvm_s390_sie_block *) regs->gprs[14];
+> +			(struct kvm_s390_sie_block *)phys_to_virt(regs->gprs[14]);
+>  
+>  	if (sie_block == NULL)
+>  		/* Something's seriously wrong, stop system. */
 
