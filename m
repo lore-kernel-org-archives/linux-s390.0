@@ -2,200 +2,285 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F306BC64EC4
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Feb 2023 18:57:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F5F4C636CC
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Feb 2023 20:10:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229462AbjBOS53 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Feb 2023 13:57:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43926 "EHLO
+        id S229570AbjBOUKG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Feb 2023 15:10:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229819AbjBOS51 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Feb 2023 13:57:27 -0500
-Received: from mx0a-00082601.pphosted.com (mx0a-00082601.pphosted.com [67.231.145.42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F18C23BD89;
-        Wed, 15 Feb 2023 10:57:24 -0800 (PST)
-Received: from pps.filterd (m0044012.ppops.net [127.0.0.1])
-        by mx0a-00082601.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31FIBBM9015918;
-        Wed, 15 Feb 2023 10:44:10 -0800
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=from : to : cc :
- subject : date : message-id : references : in-reply-to : content-id :
- content-type : mime-version; s=s2048-2021-q4;
- bh=9jgX6mIErNhpYzTd1ow3L67qwZwwO/qFGKr7/M/jtEQ=;
- b=K/9g9ayec+7Ojo1h/LrWnbNGF55KowLwtxRs+yJHokh1beV10XnkBK+fs9L8me9c6At2
- VDZ+h+LdyTOiX6R2ALt7xb3j+yu3GRPsWPiW8UXuNu8GIjgd9DvmThw4uiXApACkf7Vj
- QnoPTK5LKoqBsFkNPZWTDdShZW3/y1HLu24+w/sOXUwnJrcQhhK9c9Rkly6WpxVTXJQR
- pzKCS1G435LC9K0ncq1C8SCqD1qj6M2BJ+1MFvSTqvn9u5pWColO3P3AOJyqLa1hMwtF
- /SzaNbo517KWz3xrVlb0wFv/lKzSRvHEDnVKkYjYZ90QJxJ68kj3JHMn4xeWxGzUeykq Zg== 
-Received: from nam12-dm6-obe.outbound.protection.outlook.com (mail-dm6nam12lp2176.outbound.protection.outlook.com [104.47.59.176])
-        by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 3nr80829fm-2
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Feb 2023 10:44:10 -0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=kKho5TLG+sPYKa/P8pxuzRg8VuyJUVSkrWsO9pUhemBJ59yXhPLEtPrfkdHSu1GFTi0K43wmdeKMN32qfx71/v4n8ZT3xxF6JtTS4Lb2/dSHwU0Xtaqokr2UqY3tadpKCMtlhUPge9xyY3fae6pW3dhGm46GFwZfBbYfNcsToFG3k3pltygONxmX3Ea2kKlMtUP039c9CAqSw0uMiiGpQzfOpNFCm8UB3GB6tfeNj4inCzd2OV5l3hmge1MCBVhxdhjKvAkZ0+EeBurNiIBBvolE7/M9a3A3sGiVA4KzsqgclfmuTGEXwNHwKKRg4DapTFfcxxAOrH9aWw/mKn7V/A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=9jgX6mIErNhpYzTd1ow3L67qwZwwO/qFGKr7/M/jtEQ=;
- b=BQgOKp1oSKlxeeDcgupCi5COy0SnMQXCVheAHT/KvTzUcq8g7ELngJLw46wloolWnU4CxqmMx7kcvdv3bXNEMBQjJv/txZMrA9kd8br68e3S+2qU4WyOZFLedYh5bnVOUHRbQRI4DKYS02hmb5YFIWpwPRTPJkZgHHWww9ZaNRVtsqNTS+vaFYgg1D/Yagqb9CuPMJrUJjOjcDDtgM8NI0E3s7p2YkZiQDZjSDfu3SmPCxxGt41mL7QAsZYUzxNlF+mAE3ZZQYes8Ab+HnNC9eSqYf/Y9WuZQ591H+NaYlpun/zIGg5U9CQ5PYwCxBoiC9hxg5xVhOX4+j0mVR7Zlw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=meta.com; dmarc=pass action=none header.from=meta.com;
- dkim=pass header.d=meta.com; arc=none
-Received: from BY5PR15MB3667.namprd15.prod.outlook.com (2603:10b6:a03:1f9::18)
- by IA1PR15MB6222.namprd15.prod.outlook.com (2603:10b6:208:453::7) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6086.26; Wed, 15 Feb
- 2023 18:44:06 +0000
-Received: from BY5PR15MB3667.namprd15.prod.outlook.com
- ([fe80::3c30:391a:54a2:5d3f]) by BY5PR15MB3667.namprd15.prod.outlook.com
- ([fe80::3c30:391a:54a2:5d3f%7]) with mapi id 15.20.6086.024; Wed, 15 Feb 2023
- 18:44:06 +0000
-From:   Nick Terrell <terrelln@meta.com>
-To:     Sasha Levin <sashal@kernel.org>
-CC:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        "agordeev@linux.ibm.com" <agordeev@linux.ibm.com>,
+        with ESMTP id S229477AbjBOUKF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Feb 2023 15:10:05 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21C523D904
+        for <linux-s390@vger.kernel.org>; Wed, 15 Feb 2023 12:09:15 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1676491754;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=tESq3Kr/u9yLOnXdjifvftm+9NTQBLoMvmGrxgxjkhs=;
+        b=CNROq74PXEaz1zgAyhCkQJs9/wLzie09wEm5gUe/suHCtdGW28sLvGNLuxWKiwRhf6Uwge
+        tRr8I+PRiZm9ijisey4Lnw8qRoSUm25bAj+3KxTS9CL3ID4+ONBfEugP0hCco9a8GaDGL8
+        b2xRzDi3EgaiISc4d9+tVadnuSlcgxQ=
+Received: from mail-io1-f72.google.com (mail-io1-f72.google.com
+ [209.85.166.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-580-Xef_LAX6Odqe9-FNubpCFg-1; Wed, 15 Feb 2023 15:09:12 -0500
+X-MC-Unique: Xef_LAX6Odqe9-FNubpCFg-1
+Received: by mail-io1-f72.google.com with SMTP id f4-20020a05660215c400b0073a6a9f8f45so9362647iow.11
+        for <linux-s390@vger.kernel.org>; Wed, 15 Feb 2023 12:09:12 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=tESq3Kr/u9yLOnXdjifvftm+9NTQBLoMvmGrxgxjkhs=;
+        b=wCxbV1zmtI/Y9mLsc8KO2S5tCqOP/XWuwWkyfBRHl2KrZPaBKj/dBuCUlUx/bPZU8M
+         knK1v2sYzTHwjAvaMQdrezE9xkok85p8UnWK49dImSMOasp2z3AsKBMfHoF46eOx+xA5
+         isVemkxFU5qU9kxfvlTijeDNihv/qXWte8z3WOkEfK3Pi2yXBYV6GuLSe8eb2YkWHRcJ
+         YJmJ5pbUecJ4hByLPFnSerahhRVQqD8bH949Ms6xCZhvNVmbNLRgBxb0HHKIPlzjMYCE
+         cPAGiwBSGoWFDBZZkeHI4gWVjf350GYJpkR4WcswuYPx/YURllTC7uaNhWHQntt+dZhB
+         qSGA==
+X-Gm-Message-State: AO0yUKUfLwy6ANlo6tgFLFDmf6kAIG4LVhilB8Hcj1HOhiHfHz1uqExf
+        lTQBd3oNJwyZ41kUGbBK5AnF6HWpcOWY1vTsvUhcLSc1Te1DPapD+Y+6ZI4SmL6bZcz/p8Hknjm
+        2tDDNrkbkzDy0SjrVahOb5g==
+X-Received: by 2002:a05:6e02:20ea:b0:315:76c9:c691 with SMTP id q10-20020a056e0220ea00b0031576c9c691mr2079854ilv.19.1676491752148;
+        Wed, 15 Feb 2023 12:09:12 -0800 (PST)
+X-Google-Smtp-Source: AK7set8JBdO/SBIJXBNLRJ98reJHWQI1/84cDo+sGLa3gHSBo3sOQLxc6rg4k96BUs5PdS7dNlfyzQ==
+X-Received: by 2002:a05:6e02:20ea:b0:315:76c9:c691 with SMTP id q10-20020a056e0220ea00b0031576c9c691mr2079826ilv.19.1676491751854;
+        Wed, 15 Feb 2023 12:09:11 -0800 (PST)
+Received: from redhat.com ([38.15.36.239])
+        by smtp.gmail.com with ESMTPSA id o12-20020a92d4cc000000b00313d6576c4fsm3171873ilm.84.2023.02.15.12.09.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Feb 2023 12:09:11 -0800 (PST)
+Date:   Wed, 15 Feb 2023 13:09:09 -0700
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     "Liu, Yi L" <yi.l.liu@intel.com>
+Cc:     "joro@8bytes.org" <joro@8bytes.org>,
+        "jgg@nvidia.com" <jgg@nvidia.com>,
+        "Tian, Kevin" <kevin.tian@intel.com>,
+        "robin.murphy@arm.com" <robin.murphy@arm.com>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "eric.auger@redhat.com" <eric.auger@redhat.com>,
+        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
+        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
+        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
+        "peterx@redhat.com" <peterx@redhat.com>,
+        "jasowang@redhat.com" <jasowang@redhat.com>,
+        "shameerali.kolothum.thodi@huawei.com" 
+        <shameerali.kolothum.thodi@huawei.com>,
+        "lulu@redhat.com" <lulu@redhat.com>,
+        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
+        "intel-gvt-dev@lists.freedesktop.org" 
+        <intel-gvt-dev@lists.freedesktop.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
         "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>
-Subject: Re: [PATCH AUTOSEL 5.4 09/10] s390/decompressor: specify
- __decompress() buf len to avoid overflow
-Thread-Topic: [PATCH AUTOSEL 5.4 09/10] s390/decompressor: specify
- __decompress() buf len to avoid overflow
-Thread-Index: AQHZPHh2gr/vRn8GDEKm9yLbCMBoaK7QYfkA
-Date:   Wed, 15 Feb 2023 18:44:06 +0000
-Message-ID: <E980B710-F76E-4535-A93D-10558A8B1521@fb.com>
-References: <20230209111921.1893095-1-sashal@kernel.org>
- <20230209111921.1893095-9-sashal@kernel.org>
-In-Reply-To: <20230209111921.1893095-9-sashal@kernel.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: BY5PR15MB3667:EE_|IA1PR15MB6222:EE_
-x-ms-office365-filtering-correlation-id: fdb7ed21-75b6-4566-5be5-08db0f849e42
-x-fb-source: Internal
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: LRpR6N1hh5lsxCe6HnJQpVIskyE0EXwnvfzrsDNNKEs1ZpQ+bsEULlppz0nd+2z/fnhiLCkd5RR6izOpvHZULBxW3Y+dKRMIYq2qmXSFR8TjjoXEsNSwIZn+yK0l9STnw+AXGQILeE0u5SIKpuLRap/dfO7gS/s0se/6c4iYp5duHeB4bM4M3B4Uzpu6F9aoNYDYEux+GkPahw6lLtxIOP6hupZUzDWxXyWP9E65FvGmW5dZ5Zv0GZ8NReR2pAJ/CYhtxrP5KdPuVeWgMvGQFcHWHuIblWVeiiZ8sgUFMPcEwYrNUW91k8JobgAwqzZiJfkSJxv7H+pnEHXJbfYTmqjw5CbqCJ99ZyAXxI9jOQaXkuokYHuRXTz97ILMy788Ju695u87imA/8gWaxjIR8tj+2uTR/UKZuvCoOoD6BtCtqe79pMB3x5Chf0ENilLHCVUR4A3R9zNCW7Ulu4cJdKjIqr1qcKK+DnLlzd7+0nmzLp9wHlISYNlvs+FRPOlW0w9yM9a5yTJKEghFuo1qnl6RmR1FUqpozrVM7DvZeXWIeFy1VyufRyU2vuc/Jhu5/5dk2y+qv3cle34mFYpJF5jLG79ira1JzVOvCaG3jdysu/H2/YURyhjoSBEokcZXHRxjF0peikP3nBxqgFxvbH5DXiU3zytzUyDo+5YozZYKOT65s6qNawKpk1NMfS0XKJS3KrRudkRZHhe/E84EWsTf6xszK4sA/sPA1zTIsXo=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BY5PR15MB3667.namprd15.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(4636009)(376002)(136003)(39860400002)(396003)(346002)(366004)(451199018)(33656002)(54906003)(83380400001)(478600001)(6486002)(71200400001)(966005)(6506007)(53546011)(36756003)(186003)(9686003)(6512007)(41300700001)(38100700002)(5660300002)(8936002)(86362001)(38070700005)(316002)(66476007)(66946007)(66556008)(2906002)(66446008)(4326008)(6916009)(8676002)(64756008)(76116006)(122000001);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?1hrxRCbQFk/6U/ReBLP97Hh94ekrL2AQnJewGt4sbRJcEhMoDMBcPJskPyM0?=
- =?us-ascii?Q?US7kyXUMUbJsKsUemeYAqgU8MXGew00zwvXN1S61MwYlRywY5YSxMp91xT6G?=
- =?us-ascii?Q?zTbGKQIOrIHkN9bhbcNETPw4cyoZMFCncrr7t67QprMDEMag24Su5v/A90Qv?=
- =?us-ascii?Q?MbUDzHsuY5qdNafnBf8KECIUzAxiH6W9G+EdqJu92/tEcnmuVMBfC/5tpu2u?=
- =?us-ascii?Q?//whorjv5UInRm7aIZDFfOdNho3rMFVrdRxPinw8rJ96hEZcF6LF8bMTiIxU?=
- =?us-ascii?Q?UDMom/2PxqmYQgDBBv9WAOkJzeMv/Ae7IjXzQDyFjAvD8HFlyAs94Q81hpUL?=
- =?us-ascii?Q?BW6qquAMiCexLM/8SHNqShIozaA/EtIrtYehRajMaorAwFgSEc2IAIl+mA/L?=
- =?us-ascii?Q?AWOeqbA1foooioAKJWmFqZiRdJuSfFCfzCrcsq+zMgWI1h76uH0uYHnjIyHN?=
- =?us-ascii?Q?lyqQpOa1rnHYP/uqEtKHAmUKpwNvGYYeB8YsPvtH/Sv7t3ZD0jLFdYljpcs+?=
- =?us-ascii?Q?K3A6Y1Ee7PwAsoPhKCB5p8IjDqbftbCowaWcdoC4ET+y6ud2o55CNuci7mIQ?=
- =?us-ascii?Q?y7vUmqt6wUMmqRjMJRnQY3hLFn60xkx6l8l52/R086bcZJNvlhVDiKhsoHvU?=
- =?us-ascii?Q?IQmk4ARQz/zxfcLZXmTljkco7x7aCQU+UY/qOVhhR9oK7dr2Y8w+lEV+N1ao?=
- =?us-ascii?Q?CGnhBVBAYbgVkIMlAA06xZbzXM6ZpgzXbzR6/72DpmGQsqcYTSNTjH/Luiat?=
- =?us-ascii?Q?myLnVBLFh+NpPx6ettYc+MzwpRg5U34Ro3zvicR8Nvc9QJ+LyF0UKn4oj51s?=
- =?us-ascii?Q?cspJZVRsiXwYOcgIF0Cbmd0EqwkNBo3G6YfpIeUszxpAidQ6CIScV+jkZIrR?=
- =?us-ascii?Q?O+wZEptcfN67OQ7N3ZVVJOzM/ySBNTha1M//ORqr3sNvyKYL4bwpAsYVKMnj?=
- =?us-ascii?Q?GWFWyUPzOyHbcjBavmGCzQ/0KPBOJcX1naV9tlg6AsBdO2D4Jsq2KSoGVs93?=
- =?us-ascii?Q?EnUGRozcPh+wGd7ce8OsMLcPjQBIloUPthTEKkWD45Dmn7LW3isM0rPqGR1z?=
- =?us-ascii?Q?YsyoW/gkFCcFArzOGmEbxw2yuId3j0k6McRO64tiRwO3KhJLM04wKpIBbEYP?=
- =?us-ascii?Q?pjv90WsO7/S0gJZygPOIipIfqZkRntTGMSJe5vo0K+CzF773b105QyrZ3y/D?=
- =?us-ascii?Q?YGHWKcNUFsJIlGCZVCuaOro+B7y5pyQhuyMUbuJPvyoIAnsrvNQjY2CUG+o2?=
- =?us-ascii?Q?f5jO08qSbZG/BAr2UAN9tFS+036DUkthvF1SBFpkSVpdQN3xxDbzSq9+Gphq?=
- =?us-ascii?Q?VHWSFEa1GRRG3aFGD1ZV5G4pg8avTHjFqQZnCdsefg5B74LNiRWULsJrKi8P?=
- =?us-ascii?Q?2bcBowFthrEh5fpE8ha7JteekkAJhXDEO91npnFQE4lrrHbtT08ipdSaQh5f?=
- =?us-ascii?Q?JjqypD4yvEeZsFOlcD+5k+r92MsJHEUfsXzEz7ws3PKtcAvT6WD5/+FBDtVm?=
- =?us-ascii?Q?9kzo1XnkKQX4dZw6CfBri7ydkJLeOw+nGCPDgbtV2Y9GYachjm1MdTSbcN14?=
- =?us-ascii?Q?pZbubTOLQN7dyEUsqSMbAlkjdjGInGC04/pKjzHAAmtlo3mGNtaiZf5asBd7?=
- =?us-ascii?Q?D/6p+WbAMbyRSN85By3VgDw=3D?=
-Content-ID: <A8B485219A64314AA631FBE62E22D1FA@namprd15.prod.outlook.com>
-X-OriginatorOrg: meta.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BY5PR15MB3667.namprd15.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: fdb7ed21-75b6-4566-5be5-08db0f849e42
-X-MS-Exchange-CrossTenant-originalarrivaltime: 15 Feb 2023 18:44:06.7837
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 8ae927fe-1255-47a7-a2af-5f3a069daaa2
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: FalWVHhWuF2y5w/PbnR5gMFuzmKag4qfxhBxRv70qugsey4xH+9n4ig3IQRddUM9TCnIAzSHzRMUTg66IQwdfA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR15MB6222
-X-Proofpoint-ORIG-GUID: WEGCkRBs8i83opQPoVFzGc73s-Qft6ST
-X-Proofpoint-GUID: WEGCkRBs8i83opQPoVFzGc73s-Qft6ST
-Content-Type: text/plain; charset="us-ascii"
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+Subject: Re: [PATCH v3 00/15] Add vfio_device cdev for iommufd support
+Message-ID: <20230215130909.5d98e878.alex.williamson@redhat.com>
+In-Reply-To: <DS0PR11MB7529CFCE99E8A77AAC76DC7CC3A39@DS0PR11MB7529.namprd11.prod.outlook.com>
+References: <20230213151348.56451-1-yi.l.liu@intel.com>
+        <20230213124719.126eb828.alex.williamson@redhat.com>
+        <DS0PR11MB75298788BCA03FD9513F991AC3A29@DS0PR11MB7529.namprd11.prod.outlook.com>
+        <20230214084720.74b3574e.alex.williamson@redhat.com>
+        <DS0PR11MB7529CFCE99E8A77AAC76DC7CC3A39@DS0PR11MB7529.namprd11.prod.outlook.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
- definitions=2023-02-15_09,2023-02-15_01,2023-02-09_01
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Wed, 15 Feb 2023 07:54:31 +0000
+"Liu, Yi L" <yi.l.liu@intel.com> wrote:
 
+> > From: Alex Williamson <alex.williamson@redhat.com>
+> > Sent: Tuesday, February 14, 2023 11:47 PM
+> >=20
+> > On Tue, 14 Feb 2023 01:55:17 +0000
+> > "Liu, Yi L" <yi.l.liu@intel.com> wrote:
+> >  =20
+> > > > From: Alex Williamson <alex.williamson@redhat.com>
+> > > > Sent: Tuesday, February 14, 2023 3:47 AM
+> > > >
+> > > > On Mon, 13 Feb 2023 07:13:33 -0800
+> > > > Yi Liu <yi.l.liu@intel.com> wrote:
+> > > > =20
+> > > > > Existing VFIO provides group-centric user APIs for userspace. =20
+> > Userspace =20
+> > > > > opens the /dev/vfio/$group_id first before getting device fd and =
+=20
+> > hence =20
+> > > > > getting access to device. This is not the desired model for iommu=
+fd. =20
+> > Per =20
+> > > > > the conclusion of community discussion[1], iommufd provides devic=
+e- =20
+> > > > centric =20
+> > > > > kAPIs and requires its consumer (like VFIO) to be device-centric =
+user
+> > > > > APIs. Such user APIs are used to associate device with iommufd an=
+d =20
+> > also =20
+> > > > > the I/O address spaces managed by the iommufd.
+> > > > >
+> > > > > This series first introduces a per device file structure to be pr=
+epared
+> > > > > for further enhancement and refactors the kvm-vfio code to be =20
+> > prepared =20
+> > > > > for accepting device file from userspace. Then refactors the vfio=
+ to be
+> > > > > able to handle iommufd binding. This refactor includes the mechan=
+ism =20
+> > of =20
+> > > > > blocking device access before iommufd bind, making =20
+> > vfio_device_open() =20
+> > > > be =20
+> > > > > exclusive between the group path and the cdev path. Eventually, a=
+dds =20
+> > the =20
+> > > > > cdev support for vfio device, and makes group infrastructure opti=
+onal =20
+> > as =20
+> > > > > it is not needed when vfio device cdev is compiled.
+> > > > >
+> > > > > This is also a prerequisite for iommu nesting for vfio device[2].
+> > > > >
+> > > > > The complete code can be found in below branch, simple test done =
+=20
+> > with =20
+> > > > the =20
+> > > > > legacy group path and the cdev path. Draft QEMU branch can be fou=
+nd =20
+> > > > at[3] =20
+> > > > >
+> > > > > https://github.com/yiliu1765/iommufd/tree/vfio_device_cdev_v3
+> > > > > (config CONFIG_IOMMUFD=3Dy CONFIG_VFIO_DEVICE_CDEV=3Dy) =20
+> > > >
+> > > > Even using your branch[1], it seems like this has not been tested
+> > > > except with cdev support enabled:
+> > > >
+> > > > /home/alwillia/Work/linux.git/drivers/vfio/vfio_main.c: In function
+> > > > =E2=80=98vfio_device_add=E2=80=99:
+> > > > /home/alwillia/Work/linux.git/drivers/vfio/vfio_main.c:253:48: erro=
+r: =20
+> > =E2=80=98struct =20
+> > > > vfio_device=E2=80=99 has no member named =E2=80=98cdev=E2=80=99; di=
+d you mean =E2=80=98dev=E2=80=99?
+> > > >   253 |                 ret =3D cdev_device_add(&device->cdev, &dev=
+ice->device);
+> > > >       |                                                ^~~~
+> > > >       |                                                dev
+> > > > /home/alwillia/Work/linux.git/drivers/vfio/vfio_main.c: In function
+> > > > =E2=80=98vfio_device_del=E2=80=99:
+> > > > /home/alwillia/Work/linux.git/drivers/vfio/vfio_main.c:262:42: erro=
+r: =20
+> > =E2=80=98struct =20
+> > > > vfio_device=E2=80=99 has no member named =E2=80=98cdev=E2=80=99; di=
+d you mean =E2=80=98dev=E2=80=99?
+> > > >   262 |                 cdev_device_del(&device->cdev, &device->dev=
+ice);
+> > > >       |                                          ^~~~
+> > > >       |                                          dev =20
+> > >
+> > > Sorry for it. It is due to the cdev definition is under
+> > > "#if IS_ENABLED(CONFIG_VFIO_DEVICE_CDEV)". While, in the code it
+> > > uses "if (IS_ENABLED(CONFIG_VFIO_DEVICE_CDEV))".  I think for
+> > > readability, it would be better to always define cdev in vfio_device,
+> > > and keep the using of cdev in code. How about your taste? =20
+> >=20
+> > It seems necessary unless we want to litter the code with #ifdefs. =20
+>=20
+> I've moved it to the header file and call cdev_device_add()
+> under #if (IS_ENABLED(CONFIG_VFIO_DEVICE_CDEV))".
+>=20
+> > > > Additionally the VFIO_ENABLE_GROUP Kconfig option doesn't make much
+> > > > sense to me, it seems entirely redundant to VFIO_GROUP. =20
+> > >
+> > > The intention is to make the group code compiling match existing case.
+> > > Currently, if VFIO is configured, group code is by default compiled.
+> > > So VFIO_ENABLE_GROUP a hidden option, and VFIO_GROUP an option
+> > > for user.  User needs to explicitly config VFIO_GROUP if VFIO_DEVICE_=
+CDEV=3D=3Dy.
+> > > If VFIO_DEVICE_CDEV=3D=3Dn, then no matter user configed VFIO_GROUP or
+> > > not, the group code shall be compiled. =20
+> >=20
+> > I understand the mechanics, I still find VFIO_ENABLE_GROUP redundant
+> > and unnecessary.  Also, Kconfig should not allow a configuration
+> > without either VFIO_GROUP or VFIO_DEVICE_CDEV as this is not
+> > functional.  Deselecting VFIO_GROUP should select VFIO_DEVICE_CDEV,
+> > but  VFIO_DEVICE_CDEV should be an optional addition to VFIO_GROUP. =20
+>=20
+> How about below? As Jason's remark on patch 0003, cdev is not available
+> for SPAPR.
+>=20
+> diff --git a/drivers/vfio/Kconfig b/drivers/vfio/Kconfig
+> index 0476abf154f2..96535adc2301 100644
+> --- a/drivers/vfio/Kconfig
+> +++ b/drivers/vfio/Kconfig
+> @@ -4,6 +4,8 @@ menuconfig VFIO
+>  	select IOMMU_API
+>  	depends on IOMMUFD || !IOMMUFD
+>  	select INTERVAL_TREE
+> +	select VFIO_GROUP if SPAPR_TCE_IOMMU
+> +	select VFIO_DEVICE_CDEV if !VFIO_GROUP && (X86 || S390 || ARM || ARM64)
+>  	select VFIO_CONTAINER if IOMMUFD=3Dn
+>  	help
+>  	  VFIO provides a framework for secure userspace device drivers.
+> @@ -14,7 +16,8 @@ menuconfig VFIO
+>  if VFIO
+>  config VFIO_DEVICE_CDEV
+>  	bool "Support for the VFIO cdev /dev/vfio/devices/vfioX"
+>  	depends on IOMMUFD && (X86 || S390 || ARM || ARM64)
+> +	default !VFIO_GROUP
+>  	help
+>  	  The VFIO device cdev is another way for userspace to get device
+>  	  access. Userspace gets device fd by opening device cdev under
+> @@ -23,9 +26,21 @@ config VFIO_DEVICE_CDEV
+> =20
+>  	  If you don't know what to do here, say N.
+> =20
+> +config VFIO_GROUP
+> +	bool "Support for the VFIO group /dev/vfio/$group_id"
+> +	default y
+> +	help
+> +	   VFIO group is legacy interface for userspace. As the introduction
+> +	   of VFIO device cdev interface, this can be N. For now, before
+> +	   userspace applications are fully converted to new vfio device cdev
+> +	   interface, this should be Y.
+> +
+> +	   If you don't know what to do here, say Y.
+> +
 
-> On Feb 9, 2023, at 3:19 AM, Sasha Levin <sashal@kernel.org> wrote:
-> 
-> !-------------------------------------------------------------------|
->  This Message Is From an External Sender
-> 
-> |-------------------------------------------------------------------!
-> 
-> From: Vasily Gorbik <gor@linux.ibm.com>
-> 
-> [ Upstream commit 7ab41c2c08a32132ba8c14624910e2fe8ce4ba4b ]
-> 
-> Historically calls to __decompress() didn't specify "out_len" parameter
-> on many architectures including s390, expecting that no writes beyond
-> uncompressed kernel image are performed. This has changed since commit
-> 2aa14b1ab2c4 ("zstd: import usptream v1.5.2") which includes zstd library
-> commit 6a7ede3dfccb ("Reduce size of dctx by reutilizing dst buffer
-> (#2751)"). Now zstd decompression code might store literal buffer in
-> the unwritten portion of the destination buffer. Since "out_len" is
-> not set, it is considered to be unlimited and hence free to use for
-> optimization needs. On s390 this might corrupt initrd or ipl report
-> which are often placed right after the decompressor buffer. Luckily the
-> size of uncompressed kernel image is already known to the decompressor,
-> so to avoid the problem simply specify it in the "out_len" parameter.
+I think this does the correct thing, but I'll reserve final judgment
+until I can try to break it ;)
 
-Thanks for the CC!
+This message needs some tuning though, we're not far enough along the
+path of cdev access to consider the group interface "legacy" (imo) or
+expect that there are any userspace applications converted.  There are
+also multiple setting recommendations to befuddle a layperson.  Perhaps:
 
-Reviewed-by: Nick Terrell <terrelln@fb. <mailto:terrelln@fb.com>com>
+	VFIO group support provides the traditional model for accessing
+	devices through VFIO and is used by the majority of userspace
+	applications and drivers making use of VFIO.
 
-It looks like s390 doesn't use in-place decompression, but x86 does,
-and we'll need to backport upstream commit 5b266196a [0] to make
-sure we don't overwrite the input buffer.
+	If you don't know what to do here, say Y.
 
-Best,
-Nick Terrell
+Thanks,
+Alex
 
-[0] https://github.com/facebook/zstd/commit/5b266196a41e6a15e21bd4f0eeab43b938db1d90
-
-> Link: https://github.com/facebook/zstd/commit/6a7ede3dfccb
-> Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-> Tested-by: Alexander Egorenkov <egorenar@linux.ibm.com>
-> Link: https://lore.kernel.org/r/patch-1.thread-41c676.git-41c676c2d153.your-ad-here.call-01675030179-ext-9637@work.hours
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
-> arch/s390/boot/compressed/decompressor.c | 2 +-
-> 1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/arch/s390/boot/compressed/decompressor.c b/arch/s390/boot/compressed/decompressor.c
-> index 45046630c56ac..c42ab33bd4524 100644
-> --- a/arch/s390/boot/compressed/decompressor.c
-> +++ b/arch/s390/boot/compressed/decompressor.c
-> @@ -80,6 +80,6 @@ void *decompress_kernel(void)
-> void *output = (void *)decompress_offset;
-> 
-> __decompress(_compressed_start, _compressed_end - _compressed_start,
-> -     NULL, NULL, output, 0, NULL, error);
-> +     NULL, NULL, output, vmlinux.image_size, NULL, error);
-> return output;
-> }
-> -- 
-> 2.39.0
-> 
+>  config VFIO_CONTAINER
+>  	bool "Support for the VFIO container /dev/vfio/vfio"
+>  	select VFIO_IOMMU_TYPE1 if MMU && (X86 || S390 || ARM || ARM64)
+> +	depends on VFIO_GROUP
+>  	default y
+>  	help
+>  	  The VFIO container is the classic interface to VFIO for establishing
+>=20
+> Regards,
+> Yi Liu
 
