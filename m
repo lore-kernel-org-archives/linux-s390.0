@@ -2,174 +2,98 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 36D00C636D4
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Feb 2023 15:33:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 37849C636CC
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Feb 2023 16:03:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230038AbjBOPdq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Feb 2023 10:33:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54616 "EHLO
+        id S229676AbjBOQDC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Feb 2023 11:03:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229791AbjBOPdo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Feb 2023 10:33:44 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19735B74C
-        for <linux-s390@vger.kernel.org>; Wed, 15 Feb 2023 07:32:56 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1676475175;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Dh5NdUXXqt2OwKe+bgzJIjOdCZFOJ5LseD3HaKSZilk=;
-        b=G53A1fVcvM26uCR+fG1z4mMjzKdlBB6YLraf1bLVI6+roQiUkKC5W2F5PKIg7a+XlCttY7
-        bg2kTiXcVgBIWdXHpLU62I8wInK13OhjhOLDQ8yABZ/G3W6qJ77Ncn5w9Ffr2zFvYuz6fz
-        qf/QrIW3xBF7ASKoHfLevh+HBSDDJXo=
-Received: from mail-il1-f200.google.com (mail-il1-f200.google.com
- [209.85.166.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-377-vFTGa8clN1qrfVY1Od8hzg-1; Wed, 15 Feb 2023 10:32:44 -0500
-X-MC-Unique: vFTGa8clN1qrfVY1Od8hzg-1
-Received: by mail-il1-f200.google.com with SMTP id q3-20020a056e02096300b003157134a9fbso1009931ilt.2
-        for <linux-s390@vger.kernel.org>; Wed, 15 Feb 2023 07:32:38 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Dh5NdUXXqt2OwKe+bgzJIjOdCZFOJ5LseD3HaKSZilk=;
-        b=p6u+XIsKE/FEdqtPJvdKGes4zSy+5GHnuFu6DQscZ6iJTJ0V+rEhF+GBsS4cHaD96x
-         EgH/7XauXgKawKB2SonmoFptHFbqHE56cuC6d3ZIU3t0Fz6fHmPeBmAYjjA9WE9/iC+m
-         vpNZ+HNUu3xRbUzSkR6lVxVt569XGgU18X8KFXrqPsDUg6WEHTY/jEBUPbLDijlSp9uC
-         Ns5ULYwls3+XQJWNBs3hgnLMfs/xmc0BIyOT+MMqdBjcxqxifzk8HQaV/xBsqspo85RQ
-         ttEWqmTjGLj1jF/2uSq/S7kcOBj4yyQJYtTMFYtu+jQcP2X8t83hbyl6NFDUG1J8a/3l
-         NhJg==
-X-Gm-Message-State: AO0yUKWqnDgW4Y0aNe5Fv0O4tGLyMExDvoNVPt/xCGuM3+1Eg5cBcXhx
-        RfDbtnUohIEp08UGTadk6SEo06uDJ/oNIEKyEr2eK+t7hIal7SE0jqwy99OxjRO55oErisElQSO
-        xI/hgeBGIMGoeX49EKxjDfg==
-X-Received: by 2002:a05:6e02:180a:b0:315:3036:4da with SMTP id a10-20020a056e02180a00b00315303604damr2903337ilv.30.1676475157561;
-        Wed, 15 Feb 2023 07:32:37 -0800 (PST)
-X-Google-Smtp-Source: AK7set9dYhmZ8agTRUin0PWV3DETcyMYPO5GFEHe0t1hXDUe9MWRtba6M7F5v8HJtVUnNqr1Vxo/uA==
-X-Received: by 2002:a05:6e02:180a:b0:315:3036:4da with SMTP id a10-20020a056e02180a00b00315303604damr2903310ilv.30.1676475157275;
-        Wed, 15 Feb 2023 07:32:37 -0800 (PST)
-Received: from redhat.com ([38.15.36.239])
-        by smtp.gmail.com with ESMTPSA id u6-20020a02aa86000000b0038a822f87c3sm5723739jai.159.2023.02.15.07.32.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Feb 2023 07:32:36 -0800 (PST)
-Date:   Wed, 15 Feb 2023 08:32:34 -0700
-From:   Alex Williamson <alex.williamson@redhat.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     "Liu, Yi L" <yi.l.liu@intel.com>,
-        "joro@8bytes.org" <joro@8bytes.org>,
-        "Tian, Kevin" <kevin.tian@intel.com>,
-        "robin.murphy@arm.com" <robin.murphy@arm.com>,
-        "cohuck@redhat.com" <cohuck@redhat.com>,
-        "eric.auger@redhat.com" <eric.auger@redhat.com>,
-        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
-        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
-        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
-        "peterx@redhat.com" <peterx@redhat.com>,
-        "jasowang@redhat.com" <jasowang@redhat.com>,
-        "shameerali.kolothum.thodi@huawei.com" 
-        <shameerali.kolothum.thodi@huawei.com>,
-        "lulu@redhat.com" <lulu@redhat.com>,
-        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH v3 03/15] vfio: Accept vfio device file in the driver
- facing kAPI
-Message-ID: <20230215083234.194d07a9.alex.williamson@redhat.com>
-In-Reply-To: <Y+zwSn63eA7HrefO@nvidia.com>
-References: <20230213151348.56451-1-yi.l.liu@intel.com>
-        <20230213151348.56451-4-yi.l.liu@intel.com>
-        <Y+rLKvCMivND0izd@nvidia.com>
-        <DS0PR11MB7529B43C7D357D8A0C2438C7C3A29@DS0PR11MB7529.namprd11.prod.outlook.com>
-        <Y+zSRklKkL3rc2FB@nvidia.com>
-        <DS0PR11MB75299F5D92AAC33FD8690694C3A39@DS0PR11MB7529.namprd11.prod.outlook.com>
-        <Y+zwSn63eA7HrefO@nvidia.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
+        with ESMTP id S229620AbjBOQDC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Feb 2023 11:03:02 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1B072823B;
+        Wed, 15 Feb 2023 08:02:58 -0800 (PST)
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31FFuU7F013184;
+        Wed, 15 Feb 2023 16:02:58 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=TGC/QzNFfJBKUzPIXH4qjHSlNVNbvav4il8Zuez6OMI=;
+ b=dndU0ou4B711zhW3Cw6Rw832ulDTubAQV3bYf6B6KAbT4ugpgbw9jtxaCasE9qqEZvkO
+ YuEGomE4jbdzM+FZsDc3Uo3WFeMBLnJyngK9M8uLLJtzJk5arD0QZ3TwRu7v3n0Fs0kI
+ dJ6geB3k50TunNgLnmSd9WDuyFnfU94Wglqh8M2tPQf1DW/NXG46oAKjAtcsxTwtS3nb
+ lzs28/WDEybOdA2sKGCgvS2dnlCmkggkHsdnEgKazyudd7Fu8t4+MhfhkkZRDVx+xr9P
+ 9tPKFV8h9ERy50/r6MiCq+31wLDVEVXUVLuY+ZcDaIDVOSql2iO4oitVoc3G8qrvaV5H DA== 
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ns2ftr91j-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 15 Feb 2023 16:02:58 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31FBEAhC029819;
+        Wed, 15 Feb 2023 16:02:56 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3np29fnkhh-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 15 Feb 2023 16:02:56 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31FG2ql123986438
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 15 Feb 2023 16:02:52 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7AA4420063;
+        Wed, 15 Feb 2023 16:02:52 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3EF282004B;
+        Wed, 15 Feb 2023 16:02:52 +0000 (GMT)
+Received: from t35lp63.lnxne.boe (unknown [9.152.108.100])
+        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 15 Feb 2023 16:02:52 +0000 (GMT)
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     borntraeger@linux.ibm.com, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [PATCH v1 0/1] s390: nmi: fix virtual-physical address confusion
+Date:   Wed, 15 Feb 2023 17:02:51 +0100
+Message-Id: <20230215160252.14672-1-nrb@linux.ibm.com>
+X-Mailer: git-send-email 2.39.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: LSX2JmKgb1xjrW7Qm5Z0uS0n9VOAYqWE
+X-Proofpoint-ORIG-GUID: LSX2JmKgb1xjrW7Qm5Z0uS0n9VOAYqWE
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
+ definitions=2023-02-15_06,2023-02-15_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 mlxscore=0
+ impostorscore=0 adultscore=0 priorityscore=1501 clxscore=1015
+ mlxlogscore=999 phishscore=0 lowpriorityscore=0 malwarescore=0 spamscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2302150145
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-[Cc +Paolo]
+When a machine check is received while in SIE, it is reinjected into the
+guest in some cases. The respective code needs to access the sie_block,
+which is taken from the backed up R14.
 
-On Wed, 15 Feb 2023 10:46:34 -0400
-Jason Gunthorpe <jgg@nvidia.com> wrote:
+Since reinjection only occurs while we are in SIE (i.e. between the
+labels sie_entry and sie_leave in entry.S and thus if CIF_MCCK_GUEST is
+set), the backed up R14 will always contain a physical address in
+s390_backup_mcck_info.
 
-> On Wed, Feb 15, 2023 at 02:43:20PM +0000, Liu, Yi L wrote:
-> > > From: Jason Gunthorpe <jgg@nvidia.com>
-> > > Sent: Wednesday, February 15, 2023 8:39 PM
-> > > 
-> > > On Tue, Feb 14, 2023 at 02:02:37AM +0000, Liu, Yi L wrote:  
-> > > > > From: Jason Gunthorpe <jgg@nvidia.com>
-> > > > > Sent: Tuesday, February 14, 2023 7:44 AM
-> > > > >
-> > > > > On Mon, Feb 13, 2023 at 07:13:36AM -0800, Yi Liu wrote:  
-> > > > > > +static struct vfio_device *vfio_device_from_file(struct file *file)
-> > > > > > +{
-> > > > > > +	struct vfio_device_file *df = file->private_data;
-> > > > > > +
-> > > > > > +	if (file->f_op != &vfio_device_fops)
-> > > > > > +		return NULL;
-> > > > > > +	return df->device;
-> > > > > > +}
-> > > > > > +
-> > > > > >  /**
-> > > > > >   * vfio_file_is_valid - True if the file is usable with VFIO APIS
-> > > > > >   * @file: VFIO group file or VFIO device file
-> > > > > >   */
-> > > > > >  bool vfio_file_is_valid(struct file *file)
-> > > > > >  {
-> > > > > > -	return vfio_group_from_file(file);
-> > > > > > +	return vfio_group_from_file(file) ||
-> > > > > > +	       vfio_device_from_file(file);
-> > > > > >  }
-> > > > > >  EXPORT_SYMBOL_GPL(vfio_file_is_valid);  
-> > > > >
-> > > > > This can only succeed on a device cdev that has been fully opened.  
-> > > >
-> > > > Actually, we cannot. This is used in the kvm-vfio code to see if the
-> > > > user-provided fd is vfio fds in the SET_KVM path. And we don't
-> > > > have the device cdev fully opened until BIND_IOMMUFD. But we do
-> > > > need to invoke SET_KVM before issuing BIND_IOMMUFD as the device
-> > > > open needs kvm pointer. So if we cannot apply fully opened limit to this
-> > > > interface. Maybe an updated function comment is needed.  
-> > > 
-> > > This also seems sketchy, KVM is using the VFIO fd as a "proof" to
-> > > enable the wbinvd stuff. A half opened cdev should not be used as that
-> > > proof.  
-> > 
-> > From this angle, the group path seems has the same concern. Device is not
-> > opened until VFIO_GROUP_GET_DEVICE_FD.   
-> 
-> Well, classically the device was DMA ownership claimed at least.
-> 
-> > But group path has one advantage, which make it ok. Group can only be
-> > opened by one application. So once it is opened, the devices within the
-> > group are somehow obtained by the application until group fd close.  
-> 
-> It depends on what do we want the KVM proof to actually mean.
-> 
-> Is simply having permissions on the cdev node sufficient proof for
-> wbinvd?
-> 
-> I admit I poorly understand the threat model for this in kvm beyond
-> that kvm doesn't want everyone to use wbinvd.
+This currently works, because virtual and physical addresses are
+the same.
 
-We've discussed this with Paolo before and I believe the bar of proof
-is not very high.  I suspect it's not a problem that the device itself
-is not yet accessible, so long as the user can prove they have the
-ability to access the device, such as access to a restricted file.  In
-most cases this isn't going to turn on wbinvd anyway since DMA will be
-coherent.  Thanks,
+Add phys_to_virt() to resolve the virtual-physical confusion.
 
-Alex
+Nico Boehr (1):
+  s390: nmi: fix virtual-physical address confusion
+
+ arch/s390/kernel/nmi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+-- 
+2.39.1
 
