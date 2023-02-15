@@ -2,163 +2,143 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 62546C636CC
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Feb 2023 17:34:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AA6B3C636D4
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Feb 2023 17:36:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230137AbjBOReE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Feb 2023 12:34:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40116 "EHLO
+        id S229974AbjBORgr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Feb 2023 12:36:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230113AbjBOReC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Feb 2023 12:34:02 -0500
-Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on2064.outbound.protection.outlook.com [40.107.93.64])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 705B2166E4;
-        Wed, 15 Feb 2023 09:33:54 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=jJRTvosAUYVfxZspv/WiM4JFnMGTunEL1fu0YCUZViITnrSHV1rteMFTDIvWAFgoJlstph4ZG7HWbHBy2WmmbvUG+kZ3IgbiZh6sgWuV0TEGeUZOKTa/tZQInq4yDe2JvRXBrCdq/6Ziaev/5ziOGgrw/5T0G9yO8OowyebZPLtrY33C2B85471oMNXTUldzBjf6x+1kSNyxhWCJyVvsd0s4XQJ/k0pfgR5U7Ulu2fKbNyv2rS2MBgAjp2mrUyQYWAyTwKvqifiCP65gjPt/k1gU1odMMnC7zqIvM9iH7B7rCNfTWNKqxUNFO5tqjvvg74NRaIdl35ARfvWsighmww==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=rkA2t2259YW9Akt2Rk6wc1gGtT2PoBMV9w859JI33Co=;
- b=aJLwv5SwH5GHZTgDsQg3JZ+5expbX+VNNSUZm78ado1Rr42xA++qsYHXCFNQXHqjYjsc9aIaxPzIWUn4w8QcTpCzvT4bEnZ/PmAW0G0S7E1eqs14oOadfvn0ChvtzahN0PcA2J12W6zh2d+tZ5W34f1rPplp9athr/8CTMEbhg8tYMQH8ULB1P93C9qp+iFeS0u/mzWEWb9A53PVpnLPmRirFhaIq19p3d5i0yX4kKlLMR63Nt8dPkx3P+yS7DE+C7ysl79O/LXSai+MhGOkAcBNVNGkqVt07bMJQz+oA+7Qu+hqVaJL2EsPt5W4ooLbcDpfuLFes1HICc5kuZyVYw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=rkA2t2259YW9Akt2Rk6wc1gGtT2PoBMV9w859JI33Co=;
- b=URjo8rGehSAKIHR/3PGAXs7ecrOS1Zot1Imo5kAjPBtuVxcX93u5FWSo1y7tVhCo6RZlDJHB1uyNCWNaVeOze5kSYUdecYZOopNZhe74jrf4YGQ1tUx8tbZ6O1iDP5t7s6xs8o4IVb74JfgSQdZCecDa19AkLodsrCyxEPtKF6HVehGcd3Rk2ozxZiIuPcInKS4ZXTD1kt8zM+LflxxeVIvg6DhWGdtzMIPLUkmQJli3Zxv6P1s3gndPXVIgm2JWmRp19IrU4FaFXklIZmrghP6BCpUrF4EpY15956kmHmYvdqADeAzik5MFMrRAoAgbPIbHYzHKoPY0IXX7X7UxHg==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
- by DM6PR12MB5008.namprd12.prod.outlook.com (2603:10b6:5:1b7::17) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6086.26; Wed, 15 Feb
- 2023 17:33:52 +0000
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::3cb3:2fce:5c8f:82ee]) by LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::3cb3:2fce:5c8f:82ee%4]) with mapi id 15.20.6086.024; Wed, 15 Feb 2023
- 17:33:52 +0000
-Date:   Wed, 15 Feb 2023 13:33:51 -0400
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Alex Williamson <alex.williamson@redhat.com>
-Cc:     "Liu, Yi L" <yi.l.liu@intel.com>,
-        "joro@8bytes.org" <joro@8bytes.org>,
-        "Tian, Kevin" <kevin.tian@intel.com>,
-        "robin.murphy@arm.com" <robin.murphy@arm.com>,
-        "cohuck@redhat.com" <cohuck@redhat.com>,
-        "eric.auger@redhat.com" <eric.auger@redhat.com>,
-        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
-        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
-        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
-        "peterx@redhat.com" <peterx@redhat.com>,
-        "jasowang@redhat.com" <jasowang@redhat.com>,
-        "shameerali.kolothum.thodi@huawei.com" 
-        <shameerali.kolothum.thodi@huawei.com>,
-        "lulu@redhat.com" <lulu@redhat.com>,
-        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH v3 03/15] vfio: Accept vfio device file in the driver
- facing kAPI
-Message-ID: <Y+0XfxeDwHGALzX1@nvidia.com>
-References: <20230213151348.56451-1-yi.l.liu@intel.com>
- <20230213151348.56451-4-yi.l.liu@intel.com>
- <Y+rLKvCMivND0izd@nvidia.com>
- <DS0PR11MB7529B43C7D357D8A0C2438C7C3A29@DS0PR11MB7529.namprd11.prod.outlook.com>
- <Y+zSRklKkL3rc2FB@nvidia.com>
- <DS0PR11MB75299F5D92AAC33FD8690694C3A39@DS0PR11MB7529.namprd11.prod.outlook.com>
- <Y+zwSn63eA7HrefO@nvidia.com>
- <20230215083234.194d07a9.alex.williamson@redhat.com>
- <Y+0QjaIWr84eVzsp@nvidia.com>
- <20230215101935.6416b39c.alex.williamson@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230215101935.6416b39c.alex.williamson@redhat.com>
-X-ClientProxiedBy: BLAPR03CA0151.namprd03.prod.outlook.com
- (2603:10b6:208:32f::15) To LV2PR12MB5869.namprd12.prod.outlook.com
- (2603:10b6:408:176::16)
+        with ESMTP id S229741AbjBORgq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Feb 2023 12:36:46 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC4751C7F2
+        for <linux-s390@vger.kernel.org>; Wed, 15 Feb 2023 09:36:00 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1676482560;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=WO+XysgspF8DqSG5kDwuRcRoRdFcJUc3Wr5oeGuvwGQ=;
+        b=QxHOXVWXLXBogvTYao/VRA4CuV6E5UoPla0A3ba0y7M5WaDbBI+3pr7HNt3ond5FqY5xbJ
+        eB9UtuVdsNccwH/JSyyeE7/4cgPY2ZnSXsgEjuLoHmcAe4zpcmFJMNcxUvnRXQnhRiQ8IJ
+        SxIPI/2vvwIYyDe4bbxRFytZzrza9QY=
+Received: from mail-vs1-f69.google.com (mail-vs1-f69.google.com
+ [209.85.217.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-10-m45DwTwMMI69tCPAM6MT3A-1; Wed, 15 Feb 2023 12:35:59 -0500
+X-MC-Unique: m45DwTwMMI69tCPAM6MT3A-1
+Received: by mail-vs1-f69.google.com with SMTP id o19-20020a67e153000000b0041221fdc3cfso2695855vsl.21
+        for <linux-s390@vger.kernel.org>; Wed, 15 Feb 2023 09:35:59 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=WO+XysgspF8DqSG5kDwuRcRoRdFcJUc3Wr5oeGuvwGQ=;
+        b=Vf9wl3b8vyzJJIZMAAnzlgGb2+SWYFkV01RVeHkialOpAaLVTsqRDmfvUEs38EU2ri
+         qQ9Cz8QcBQvmN6FaTISygxHvqeK+75skI5s3wGdjwVtyBnfKPZ75HyFdLiIiA0WRhNq7
+         vIBWOuJgiiGOUsjxox1Weovnpd9yEGpGjmd3bz0UNSrmIiB9A15jIAykHnjIEh5b7hHp
+         KkEow3LC35/5kK8WjfnqO+HjLd7CpiINzIO/8x+YL/4Ylwf/XMXsmoUnJ30IOSOGwd9I
+         3GS/mCyur2yfkYnj6AxfAOhXVnef27lDKe+zlvm13Td6k2SLsEsQ2twVCnsuGpA5kwiK
+         gMTw==
+X-Gm-Message-State: AO0yUKVrz9WKIDzWEiU/OtNehaPPfxuRrJ0fIDmshkIFM4C83J9dHXqN
+        aghsDPT+Lg+9b7vafID4dqWkKfuDmKtVWceSb48F5abg7aPz9EIg9IIsu07aKjXJuWZSqIrqUvs
+        T1Gd9RbaLMQP4NYUVDX9IU84NwlGQCTLVqGDGlg==
+X-Received: by 2002:a05:6102:5c17:b0:412:c97:4ac8 with SMTP id ds23-20020a0561025c1700b004120c974ac8mr502134vsb.53.1676482556703;
+        Wed, 15 Feb 2023 09:35:56 -0800 (PST)
+X-Google-Smtp-Source: AK7set8L0sjCkHm2xvfBfZvyQXKAczVR+gQk4t1ZdDhxtXnBjH9xoR9zAR7+Oh0qJAyco9BvrbRFrWse2QE/MMpxhPA=
+X-Received: by 2002:a05:6102:5c17:b0:412:c97:4ac8 with SMTP id
+ ds23-20020a0561025c1700b004120c974ac8mr502125vsb.53.1676482556440; Wed, 15
+ Feb 2023 09:35:56 -0800 (PST)
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|DM6PR12MB5008:EE_
-X-MS-Office365-Filtering-Correlation-Id: 4d82282b-ed98-4319-5f43-08db0f7ace13
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: t2FVjk/ncw7lVrOMhfdKWsO2N6IiIHv2vG+Ga4+stGQXD3eD3Ee6uHMRKb8m/52f0m9LzV3KZ8FutY7eN3vF3k15XY150ETzjI5DiMzJLt+n9Yshu9YwNd6w3uOvyd1w+TtUAwMPoUD4JlY1/S+ERXZ/Z6GfNZAuLnamBEkwrckrYaJ/YOYtFbb51X5E1rzNiHpxeoWWO9bhpQMZ9NKWEaWSlSjVdn/6u+PooDuSXm68cBooPOakWxD7yY1v04XnQ93NIlwwC31Zj91ogVxkQgQgokqu/U5HQBdKMYpSKJpB+jGc9LFnAg5Xoa4BkJalDuKHCX8FSQGQz7l1qVe36v8ih972yvOsbRQGzhWxG7u9b6mfmYal/NlQSGyxsW9r1aD/VbF03U6/szXf6KepjFrrE7WeXxQMtB81bCUfmJH3pdmWBVV5nWytCgpyaAmF8hSjepPghm/iQF9QEp7dDqUF1ZbSngns19Ii5bxWRdAYw4+Qhuj2vh02jutpcK/YZM4cDgyCTNILYmfWB64rDxHumf2Mh+lLTwqtsMYdV2MLkkNXXV2WCq6k2A9xwISWOj83cQfXugus3QGg9UAXP5VOjmPfocTGS+1jbx6TZ9H3DXD5+4HcXe5oaSsQaRp8+nNH9Ct4hge9Mahm7ivCxBaE1XXD5EOEJqGd0KULGtk79iPilpdxAIuohQKZVVnV
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(4636009)(346002)(136003)(376002)(366004)(396003)(39860400002)(451199018)(83380400001)(86362001)(8936002)(2616005)(4326008)(54906003)(5660300002)(66556008)(36756003)(6916009)(66946007)(66476007)(41300700001)(7416002)(8676002)(316002)(38100700002)(6512007)(6506007)(186003)(478600001)(6486002)(2906002)(26005)(67856001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?Zg0ZV+bGX2xlZm9hnSMIrweXsrxerIbh9CX1iyiAGBNG9LO2BZdcU9Acp9B6?=
- =?us-ascii?Q?W0urUJcqUP8b//CMKCGX+NHEzxdD208l+FVuZ4CKKCvrH1GK953X4Eboh0Z+?=
- =?us-ascii?Q?X1GeVt6YLJK6MeBRRbh9g0j1CNbvra35QlMwuDoh1x+dp8GOKRmnoMYYVFbg?=
- =?us-ascii?Q?KsjJ2k41tPcLLcggUP/0uDgmANEr/j8jBL+jNlxGEqahCecq3cgRg5C3ms4c?=
- =?us-ascii?Q?Y/UGM7Xd344Ec7dAwFudNPCMgar8SCiTBgUcgSyVPIlQSeGSiNYejaGxY+/9?=
- =?us-ascii?Q?DS6FdWDeEu+Ho1tqXqqH96Q3yxd+na8d5w5nf7x+9gjKOTOXyhBgDRCQrzzp?=
- =?us-ascii?Q?p0uxV9Vfw0GmGfSRueQvvtF0yKMvMbvH28sCOuB7yZdvQ9VIk3EVejBWky2e?=
- =?us-ascii?Q?B2soqyTnlQSMGSa9uy0YR/Gc3DzXGG7jViMsHOvhz3T8uYEjCnygDQx5PavO?=
- =?us-ascii?Q?dm+k9Jzslf9GTxS5Upjv1NeE+MJWrhC5nWvAtNLMeCQzR9+QP3rE03CZj/kV?=
- =?us-ascii?Q?kpAEBwv4abrhxSCHON1rtOjC269D29jD0W/ERjw7Qn0XQHhXCDl5zODQHUkC?=
- =?us-ascii?Q?JoJ5ShtLaGqsxMKoEgXH6P8l7KfVmqAGHgl+ZtYvpWvwA6wy8M0Dd8VaBpQx?=
- =?us-ascii?Q?yC3RIzCpGmceWGpwhJ3+QOiwXTuCQyfGv+Z2EXd/ym1AUd81ZRP6aCdEmb9t?=
- =?us-ascii?Q?36tHi2NftARpSKUjjjBQe2ynamZjfivqapcZicwTXYtCePJIOAM4AXhM3Prs?=
- =?us-ascii?Q?2cRu8bsdq37XbV+G7XyOCDJvkxiO+EY4MuL6Z72McZSWd9Rgl3LmzigLxZwN?=
- =?us-ascii?Q?8m/xh7vMjm5JfOkevYkogZbNgk2M2WYVDfCXq9PyjXbqSZr6dhqYC8jOcL2P?=
- =?us-ascii?Q?aPe5C2mvS37mGh3sHPMZWiqExJYgIGazycWiKsW7z2VjfUI6zwYVJXuXjfSD?=
- =?us-ascii?Q?KcvIMCYlWgJHHuAQ9SI98ShW3RC3JUlCInyuGGviWvOXQKL9X8jCf/MiHzaY?=
- =?us-ascii?Q?dhoPMIR9/roKkvMX1nwnEA2l+92m/SZv0x8+tgvd5PZtIMimINWHiiUW0/cr?=
- =?us-ascii?Q?4mVnKTN2vVsiLQeUYj5YgNf7F18Ffljol0jUbdqxu6stuLt0+If0OazVSL1x?=
- =?us-ascii?Q?4MZcS8dMCmkrHIAQwfgbMmHv3Sw7268xxlarEMjUloneSjP+SrrS13/RF5W9?=
- =?us-ascii?Q?DnyuENovf3K4uoOlsQ3pW5coIaWnn9zjrRTZVZiCC2zh/zznH7uee3KM/jzu?=
- =?us-ascii?Q?+Vq1COMQvdL8mcvUM1JLM/9I+2XpbU12e1rzDcP6Jkgm2znKTrsIBiZwOeIw?=
- =?us-ascii?Q?HakR9iL0EMXcoeMb8fDc1/RI282V24aeP9fjq4LvKQR+IWeavO4hr6OI8BaU?=
- =?us-ascii?Q?qqk6wTueHUj0G6doHJ5f72IC8GuHXneASaFtcXuFjXNGu+bDzsu0+HtrmtL0?=
- =?us-ascii?Q?MxY8BTeRDXbD0wE30jT0c5L2A0dKV3Vad3nEt6F/qblCGNcdXALIZCSoHKhs?=
- =?us-ascii?Q?SaHQhG41z1U1cpwwDWEVQGoV80NkrIsrRNe9BJCkZ2Xf31a1EKPyqVsfihhp?=
- =?us-ascii?Q?yfxp2QbdB2nE3CaOwMQy5U41apEygW8UJfjuUvFI?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4d82282b-ed98-4319-5f43-08db0f7ace13
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Feb 2023 17:33:52.2578
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: FGXe3mnonZSEa1OyOuuRLB6EUPUYc32bBy4odD2LDi0rIeIFP5isPLTCR0NU+TTQ
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB5008
+References: <20230209102300.12254-1-frankja@linux.ibm.com>
+In-Reply-To: <20230209102300.12254-1-frankja@linux.ibm.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Date:   Wed, 15 Feb 2023 18:35:45 +0100
+Message-ID: <CABgObfbj2GGHxHefb9jdXar3YKMYJxBjJBwzTXhntUQE-xjBNA@mail.gmail.com>
+Subject: Re: [GIT PULL 00/18] KVM: s390x: KVM s390x changes for 6.3
+To:     Janosch Frank <frankja@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, david@redhat.com, borntraeger@linux.ibm.com,
+        cohuck@redhat.com, linux-s390@vger.kernel.org,
+        imbrenda@linux.ibm.com, hca@linux.ibm.com
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Feb 15, 2023 at 10:19:35AM -0700, Alex Williamson wrote:
-> On Wed, 15 Feb 2023 13:04:13 -0400
-> Jason Gunthorpe <jgg@nvidia.com> wrote:
-> 
-> > On Wed, Feb 15, 2023 at 08:32:34AM -0700, Alex Williamson wrote:
-> > 
-> > > We've discussed this with Paolo before and I believe the bar of proof
-> > > is not very high.  I suspect it's not a problem that the device itself
-> > > is not yet accessible, so long as the user can prove they have the
-> > > ability to access the device, such as access to a restricted file.  In
-> > > most cases this isn't going to turn on wbinvd anyway since DMA will be
-> > > coherent.  Thanks,  
-> > 
-> > Isn't that a second problem, we don't know if the device is coherent
-> > until it is bound?
-> 
-> I think this is already accounted for in the conversion to device level
-> IOMMU ops, ie. device_iommu_capable() follows the
-> dev->iommu->iommu_dev->ops, where for example intel_iommu_capable() is
-> only looking at the capabilities of the IOMMU managing the device.  We
-> did some hand waving simplifications that was sufficient at some point,
-> IIRC.  Thanks,
+On Thu, Feb 9, 2023 at 11:25 AM Janosch Frank <frankja@linux.ibm.com> wrote:
+>
+> Hi Paolo,
+>
+> the following changes are ready for pulling for 6.3:
+> * Two more V!=R patches
+> * The last part of the cmpxchg patches
+> * A few fixes
+>
+> This pull includes the s390 cmpxchg_user_key feature branch which is
+> the base for the KVM cmpxchg patches by Janis.
 
-Oh right, I remember this now :)
+Pulled, thanks,
 
-Jason
+Paolo
+
+> Cheers,
+> Janosch
+>
+> The following changes since commit a2ce98d69fabc7d3758063366fe830f682610cf7:
+>
+>   Merge remote-tracking branch 'l390-korg/cmpxchg_user_key' into kvm-next (2023-02-07 18:04:23 +0100)
+>
+> are available in the Git repository at:
+>
+>   https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/kvm-s390-next-6.3-1
+>
+> for you to fetch changes up to 5fc5b94a273655128159186c87662105db8afeb5:
+>
+>   s390/virtio: sort out physical vs virtual pointers usage (2023-02-08 09:59:46 +0100)
+>
+> ----------------------------------------------------------------
+>
+> Alexander Gordeev (1):
+>   s390/virtio: sort out physical vs virtual pointers usage
+>
+> Janis Schoetterl-Glausch (14):
+>   KVM: s390: selftest: memop: Pass mop_desc via pointer
+>   KVM: s390: selftest: memop: Replace macros by functions
+>   KVM: s390: selftest: memop: Move testlist into main
+>   KVM: s390: selftest: memop: Add bad address test
+>   KVM: s390: selftest: memop: Fix typo
+>   KVM: s390: selftest: memop: Fix wrong address being used in test
+>   KVM: s390: selftest: memop: Fix integer literal
+>   KVM: s390: Move common code of mem_op functions into function
+>   KVM: s390: Dispatch to implementing function at top level of vm mem_op
+>   KVM: s390: Refactor absolute vm mem_op function
+>   KVM: s390: Refactor vcpu mem_op function
+>   KVM: s390: Extend MEM_OP ioctl by storage key checked cmpxchg
+>   Documentation: KVM: s390: Describe KVM_S390_MEMOP_F_CMPXCHG
+>   KVM: s390: selftest: memop: Add cmpxchg tests
+>
+> Nico Boehr (2):
+>   KVM: s390: disable migration mode when dirty tracking is disabled
+>   KVM: s390: GISA: sort out physical vs virtual pointers usage
+>
+> Nina Schoetterl-Glausch (1):
+>   KVM: selftests: Compile s390 tests with -march=z10
+>
+>  Documentation/virt/kvm/api.rst            |  46 +-
+>  Documentation/virt/kvm/devices/vm.rst     |   4 +
+>  arch/s390/kvm/gaccess.c                   | 109 ++++
+>  arch/s390/kvm/gaccess.h                   |   3 +
+>  arch/s390/kvm/interrupt.c                 |  11 +-
+>  arch/s390/kvm/kvm-s390.c                  | 268 +++++----
+>  drivers/s390/virtio/virtio_ccw.c          |  46 +-
+>  include/uapi/linux/kvm.h                  |   8 +
+>  tools/testing/selftests/kvm/Makefile      |   3 +
+>  tools/testing/selftests/kvm/s390x/memop.c | 676 +++++++++++++++++-----
+>  10 files changed, 889 insertions(+), 285 deletions(-)
+>
+> --
+> 2.39.1
+>
+
