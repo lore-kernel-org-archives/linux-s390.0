@@ -2,280 +2,88 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D91CC636D4
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Feb 2023 08:20:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A1799C636D4
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Feb 2023 08:34:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233678AbjBOIU6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Feb 2023 03:20:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53572 "EHLO
+        id S233948AbjBOIeb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Feb 2023 03:34:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233173AbjBOIU5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Feb 2023 03:20:57 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 729E436446;
-        Wed, 15 Feb 2023 00:20:56 -0800 (PST)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31F6WrNG020128;
-        Wed, 15 Feb 2023 08:20:55 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=UozxDnLNe0kSxd3poq/EykCkdnnEjuhk++Z9+9Vne28=;
- b=okY4Cwyqd9kGbbnYEQnuYEQ3YQ/on5ZA7TrAbtmYor8Xo59EozXujMMP6+wtxqspxc8B
- yTM2589wgvUHS5B6y0+6Bw1Eg4OIQ8z3eGHe6zml+6JQ8eXwtBJI5xViJN/+GdehSTJs
- 72LxooRBUCf8KglHURJJmrJcoVBDdgPXhQy1eYjL7mGKT7eYL/VWq10yz1DUaaW9Jb9+
- o2LeE2F3zSdEkw4+807qURiy+5XB8RmqqKP2pofv7134/bWihH3SSybgagplAyMnHlDK
- yrB7QsjuoQAiDvcJEUucrm8OBFxATpMnJQEEEXbPymWcxQWVGPVYbowOTwlGgH2ryIE2 ZQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nrt7ma5x2-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Feb 2023 08:20:55 +0000
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 31F7OOFn015395;
-        Wed, 15 Feb 2023 08:20:55 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nrt7ma5w9-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Feb 2023 08:20:54 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31EKAhoY017639;
-        Wed, 15 Feb 2023 08:20:53 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3np2n6n3ch-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Feb 2023 08:20:53 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31F8KnmK49218012
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 15 Feb 2023 08:20:49 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 46F5F20043;
-        Wed, 15 Feb 2023 08:20:49 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1426E20040;
-        Wed, 15 Feb 2023 08:20:49 +0000 (GMT)
-Received: from [9.152.222.242] (unknown [9.152.222.242])
-        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 15 Feb 2023 08:20:49 +0000 (GMT)
-Message-ID: <67a2b0c2-f6cb-3db3-4978-d3be23d20ba0@linux.ibm.com>
-Date:   Wed, 15 Feb 2023 09:20:48 +0100
+        with ESMTP id S232166AbjBOIea (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Feb 2023 03:34:30 -0500
+Received: from mail-yw1-x1129.google.com (mail-yw1-x1129.google.com [IPv6:2607:f8b0:4864:20::1129])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 386A72D15A
+        for <linux-s390@vger.kernel.org>; Wed, 15 Feb 2023 00:34:28 -0800 (PST)
+Received: by mail-yw1-x1129.google.com with SMTP id 00721157ae682-4a263c4ddbaso251344767b3.0
+        for <linux-s390@vger.kernel.org>; Wed, 15 Feb 2023 00:34:28 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=lZ0Tbl1JRT8TpgT4ciKif/L2O/2dnKFAn9OEhwx1LKY=;
+        b=dnoSQwsXcuOdAmTUN4n1Z54s5MXVwmWD46iY4LYXeF8GleCpym/rek4aZ46EJGOCC2
+         tpJxYjOaaZo3I3Yg0xJXhInDJvR3VZjVDroIeQkfef44/m6IcE4SQj6pbzu9T7hZLJCl
+         ctkZXBBVNfcSoaL0yIEc/LtxOg4wLolJ5BdMo63+PjZvA523LQEYrWJNEXij7EkoyZPX
+         PdNVwOi4S2Lc3ftHXMg/DA5Cq6CQ25vtps2uDSvPMnUTLQ20DMT+osd0CRtv3JYBd2nw
+         rNjNv44Kdjf0F5BzTp3GnjT003QXTijAcb4Ecw8D/Otv0QXnzBtX3UB9pj/T8HXGonvO
+         SruA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=lZ0Tbl1JRT8TpgT4ciKif/L2O/2dnKFAn9OEhwx1LKY=;
+        b=6ZW680/6ovD8a08oCW1p+7bt/LkGS8colvVNIXsSBtzuJhKxMcSrgRQtcXm+zR8m6M
+         tGjhsFYoBnVp0QKghsAPS8tDQ0NOdkm1Nxag6h70A6qjUue0FiXeb9eWfrR0Bf0O/Mi2
+         ByaIsrZ8deTL688iz8l9xStJLEYDW2A+7jd3p8NjC5z+A1BVzU8LjtZO+5k1k0VSJn8Z
+         6YSt6gCzAtatW89nl8dVFbzcsie46w9D6yo4Ba5gZ0YEV700VbFacREJndkdhhVBbZ93
+         4wk/ZxbprQEbmh+wn4gyQXcfyUeUQ6LMohKMUS/52tGr0Y4/afF/MVXesK2YQKlawGXc
+         XXFg==
+X-Gm-Message-State: AO0yUKWxRaDhQ/RWgkR4LBdyNZRiDyFRKP8686Qii8g5iFXnxKoR/RFR
+        kjm1iwtD7HtdEZGL31Z9XLFCUvFypZcb2flEjoTjCw==
+X-Google-Smtp-Source: AK7set8ljnu+GwuUQ4bAj4hFoVW4I2+uuhh7kwq1uoEl9VQWYBAHdwy47c4ncQV8gkQG7WYcehVwSf5DBTwi77UFuEo=
+X-Received: by 2002:a25:ad93:0:b0:8bd:d8e7:aace with SMTP id
+ z19-20020a25ad93000000b008bdd8e7aacemr173772ybi.549.1676450067211; Wed, 15
+ Feb 2023 00:34:27 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
-Subject: Re: [kvm-unit-tests PATCH v6 1/2] s390x: topology: Check the Perform
- Topology Function
-Content-Language: en-US
-To:     Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
-        linux-s390@vger.kernel.org
-Cc:     frankja@linux.ibm.com, thuth@redhat.com, kvm@vger.kernel.org,
-        imbrenda@linux.ibm.com, david@redhat.com, nrb@linux.ibm.com
-References: <20230202092814.151081-1-pmorel@linux.ibm.com>
- <20230202092814.151081-2-pmorel@linux.ibm.com>
- <c4bb7c1854a1e46eb312ef629c3cb1bc9044b549.camel@linux.ibm.com>
-From:   Pierre Morel <pmorel@linux.ibm.com>
-In-Reply-To: <c4bb7c1854a1e46eb312ef629c3cb1bc9044b549.camel@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Nh2FHnIQ8DZ-eTQva2LuIxBNp-TNhk_N
-X-Proofpoint-ORIG-GUID: IAet4pRcwtywY_2JdPDR1df_4i_wBaJc
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
- definitions=2023-02-15_04,2023-02-14_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 bulkscore=0
- priorityscore=1501 mlxlogscore=999 lowpriorityscore=0 impostorscore=0
- suspectscore=0 phishscore=0 clxscore=1015 spamscore=0 malwarescore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2302150073
+References: <20230214041410.6295-1-kerneljasonxing@gmail.com>
+In-Reply-To: <20230214041410.6295-1-kerneljasonxing@gmail.com>
+From:   Eric Dumazet <edumazet@google.com>
+Date:   Wed, 15 Feb 2023 09:34:16 +0100
+Message-ID: <CANn89iLq+_0ooWU52Y8cqk=JyrYo89_4TKW4BQ3P0+naYr+z_w@mail.gmail.com>
+Subject: Re: [PATCH v2 net-next] net: no longer support SOCK_REFCNT_DEBUG feature
+To:     Jason Xing <kerneljasonxing@gmail.com>
+Cc:     kuniyu@amazon.com, davem@davemloft.net, kuba@kernel.org,
+        pabeni@redhat.com, dsahern@kernel.org,
+        matthieu.baerts@tessares.net, willemdebruijn.kernel@gmail.com,
+        nhorman@tuxdriver.com, marcelo.leitner@gmail.com,
+        lucien.xin@gmail.com, kgraul@linux.ibm.com, wenjia@linux.ibm.com,
+        jaka@linux.ibm.com, bjorn@kernel.org, magnus.karlsson@intel.com,
+        maciej.fijalkowski@intel.com, jonathan.lemon@gmail.com,
+        bpf@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-sctp@vger.kernel.org, mptcp@lists.linux.dev,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Jason Xing <kernelxing@tencent.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Tue, Feb 14, 2023 at 5:15 AM Jason Xing <kerneljasonxing@gmail.com> wrote:
+>
+> From: Jason Xing <kernelxing@tencent.com>
+>
+> Commit e48c414ee61f ("[INET]: Generalise the TCP sock ID lookup routines")
+> commented out the definition of SOCK_REFCNT_DEBUG in 2005 and later another
+> commit 463c84b97f24 ("[NET]: Introduce inet_connection_sock") removed it.
+> Since we could track all of them through bpf and kprobe related tools
+> and the feature could print loads of information which might not be
+> that helpful even under a little bit pressure, the whole feature which
+> has been inactive for many years is no longer supported.
+>
+> Link: https://lore.kernel.org/lkml/20230211065153.54116-1-kerneljasonxing@gmail.com/
+> Suggested-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+> Signed-off-by: Jason Xing <kernelxing@tencent.com>
+>
 
-
-On 2/10/23 15:51, Nina Schoetterl-Glausch wrote:
-> On Thu, 2023-02-02 at 10:28 +0100, Pierre Morel wrote:
->> We check that the PTF instruction is working correctly when
->> the cpu topology facility is available.
->>
->> For KVM only, we test changing of the polarity between horizontal
->> and vertical and that a reset set the horizontal polarity.
->>
->> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->> ---
->>   s390x/Makefile      |   1 +
->>   s390x/topology.c    | 155 ++++++++++++++++++++++++++++++++++++++++++++
->>   s390x/unittests.cfg |   3 +
->>   3 files changed, 159 insertions(+)
->>   create mode 100644 s390x/topology.c
->>
->> diff --git a/s390x/Makefile b/s390x/Makefile
->> index 52a9d82..b5fe8a3 100644
->> --- a/s390x/Makefile
->> +++ b/s390x/Makefile
->> @@ -39,6 +39,7 @@ tests += $(TEST_DIR)/panic-loop-extint.elf
->>   tests += $(TEST_DIR)/panic-loop-pgm.elf
->>   tests += $(TEST_DIR)/migration-sck.elf
->>   tests += $(TEST_DIR)/exittime.elf
->> +tests += $(TEST_DIR)/topology.elf
->>   
->>   pv-tests += $(TEST_DIR)/pv-diags.elf
->>   
->> diff --git a/s390x/topology.c b/s390x/topology.c
->> new file mode 100644
->> index 0000000..20f7ba2
->> --- /dev/null
->> +++ b/s390x/topology.c
->> @@ -0,0 +1,155 @@
->> +/* SPDX-License-Identifier: GPL-2.0-only */
->> +/*
->> + * CPU Topology
->> + *
->> + * Copyright IBM Corp. 2022
->> + *
->> + * Authors:
->> + *  Pierre Morel <pmorel@linux.ibm.com>
->> + */
->> +
->> +#include <libcflat.h>
->> +#include <asm/page.h>
->> +#include <asm/asm-offsets.h>
->> +#include <asm/interrupt.h>
->> +#include <asm/facility.h>
->> +#include <smp.h>
->> +#include <sclp.h>
->> +#include <s390x/hardware.h>
->> +
->> +#define PTF_REQ_HORIZONTAL	0
->> +#define PTF_REQ_VERTICAL	1
->> +#define PTF_REQ_CHECK		2
->> +
->> +#define PTF_ERR_NO_REASON	0
->> +#define PTF_ERR_ALRDY_POLARIZED	1
->> +#define PTF_ERR_IN_PROGRESS	2
-> 
-> Maybe also give the CC codes names for improved readability.
-
-OK
-
-> 
->> +
->> +extern int diag308_load_reset(u64);
->> +
->> +static int ptf(unsigned long fc, unsigned long *rc)
->> +{
->> +	int cc;
->> +
->> +	asm volatile(
->> +		"       .insn   rre,0xb9a20000,%1,0\n"
->> +		"       ipm     %0\n"
->> +		"       srl     %0,28\n"
->> +		: "=d" (cc), "+d" (fc)
->> +		:
->> +		: "cc");
-> 
-> Personally I always name asm arguments, but it is a very short snippet,
-> so still very readable. Could also pull the shift into C code,
-> but again, small difference.
-> 
->> +
->> +	*rc = fc >> 8;
->> +	return cc;
->> +}
->> +
->> +static void test_ptf(void)
->> +{
->> +	unsigned long rc;
->> +	int cc;
->> +
->> +	/* PTF is a privilege instruction */
->> +	report_prefix_push("Privilege");
->> +	enter_pstate();
->> +	expect_pgm_int();
->> +	ptf(PTF_REQ_CHECK, &rc);
->> +	check_pgm_int_code(PGM_INT_CODE_PRIVILEGED_OPERATION);
->> +	report_prefix_pop();
-> 
-> IMO, you should repeat this test for all FCs, since some are emulated,
-> others interpreted by SIE.
-
-right
-
-> 
->> +
->> +	report_prefix_push("Wrong fc");
-> 
-> "Undefined fc" is more informative IMO.
-
-OK
-
-> 
->> +	expect_pgm_int();
->> +	ptf(0xff, &rc);
->> +	check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
->> +	report_prefix_pop();
->> +
->> +	report_prefix_push("Reserved bits");
->> +	expect_pgm_int();
->> +	ptf(0xffffffffffffff00UL, &rc);
->> +	check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
->> +	report_prefix_pop();
->> +
->> +	report_prefix_push("Topology Report pending");
->> +	/*
->> +	 * At this moment the topology may already have changed
->> +	 * since the VM has been started.
->> +	 * However, we can test if a second PTF instruction
->> +	 * reports that the topology did not change since the
->> +	 * preceding PFT instruction.
->> +	 */
->> +	ptf(PTF_REQ_CHECK, &rc);
->> +	cc = ptf(PTF_REQ_CHECK, &rc);
->> +	report(cc == 0, "PTF check should clear topology report");
->> +	report_prefix_pop();
->> +
->> +	report_prefix_push("Topology polarisation check");
->> +	/*
->> +	 * We can not assume the state of the polarization for
->> +	 * any Virtual Machine but KVM.
-> 
-> Random Capitalization :)
-
-OK
-
-> Why can you not test the same thing for other hypervisors/LPAR?
-
-At first QEMU did not support vertical polarization so my tests would 
-have get a false negative on LPAR.
-I could have done different tests but did not.
-
-I think that now it is alright to do the checks on LPAR too.
-
-
-> 
->> +	 * Let's skip the polarisation tests for other VMs.
->> +	 */
->> +	if (!host_is_kvm()) {
->> +		report_skip("Topology polarisation check is done for KVM only");
->> +		goto end;
->> +	}
->> +
->> +	/*
->> +	 * Set vertical polarization to verify that RESET sets
->> +	 * horizontal polarization back.
->> +	 */
-> 
-> You might want to do a reset here also, since there could be some other
-> test case that could have run before and modified the polarization.
-> There isn't right now of course, but doing a reset improves separation of tests.
-
-Not sure about this but it does not arm so why not.
-
-Thanks.
-
-regards,
-Pierre
-
--- 
-Pierre Morel
-IBM Lab Boeblingen
+Reviewed-by: Eric Dumazet <edumazet@google.com>
