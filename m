@@ -2,143 +2,109 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AA6B3C636D4
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Feb 2023 17:36:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B444C636D4
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Feb 2023 18:00:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229974AbjBORgr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Feb 2023 12:36:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41684 "EHLO
+        id S229918AbjBOSAd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Feb 2023 13:00:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229741AbjBORgq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Feb 2023 12:36:46 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC4751C7F2
-        for <linux-s390@vger.kernel.org>; Wed, 15 Feb 2023 09:36:00 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1676482560;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=WO+XysgspF8DqSG5kDwuRcRoRdFcJUc3Wr5oeGuvwGQ=;
-        b=QxHOXVWXLXBogvTYao/VRA4CuV6E5UoPla0A3ba0y7M5WaDbBI+3pr7HNt3ond5FqY5xbJ
-        eB9UtuVdsNccwH/JSyyeE7/4cgPY2ZnSXsgEjuLoHmcAe4zpcmFJMNcxUvnRXQnhRiQ8IJ
-        SxIPI/2vvwIYyDe4bbxRFytZzrza9QY=
-Received: from mail-vs1-f69.google.com (mail-vs1-f69.google.com
- [209.85.217.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-10-m45DwTwMMI69tCPAM6MT3A-1; Wed, 15 Feb 2023 12:35:59 -0500
-X-MC-Unique: m45DwTwMMI69tCPAM6MT3A-1
-Received: by mail-vs1-f69.google.com with SMTP id o19-20020a67e153000000b0041221fdc3cfso2695855vsl.21
-        for <linux-s390@vger.kernel.org>; Wed, 15 Feb 2023 09:35:59 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=WO+XysgspF8DqSG5kDwuRcRoRdFcJUc3Wr5oeGuvwGQ=;
-        b=Vf9wl3b8vyzJJIZMAAnzlgGb2+SWYFkV01RVeHkialOpAaLVTsqRDmfvUEs38EU2ri
-         qQ9Cz8QcBQvmN6FaTISygxHvqeK+75skI5s3wGdjwVtyBnfKPZ75HyFdLiIiA0WRhNq7
-         vIBWOuJgiiGOUsjxox1Weovnpd9yEGpGjmd3bz0UNSrmIiB9A15jIAykHnjIEh5b7hHp
-         KkEow3LC35/5kK8WjfnqO+HjLd7CpiINzIO/8x+YL/4Ylwf/XMXsmoUnJ30IOSOGwd9I
-         3GS/mCyur2yfkYnj6AxfAOhXVnef27lDKe+zlvm13Td6k2SLsEsQ2twVCnsuGpA5kwiK
-         gMTw==
-X-Gm-Message-State: AO0yUKVrz9WKIDzWEiU/OtNehaPPfxuRrJ0fIDmshkIFM4C83J9dHXqN
-        aghsDPT+Lg+9b7vafID4dqWkKfuDmKtVWceSb48F5abg7aPz9EIg9IIsu07aKjXJuWZSqIrqUvs
-        T1Gd9RbaLMQP4NYUVDX9IU84NwlGQCTLVqGDGlg==
-X-Received: by 2002:a05:6102:5c17:b0:412:c97:4ac8 with SMTP id ds23-20020a0561025c1700b004120c974ac8mr502134vsb.53.1676482556703;
-        Wed, 15 Feb 2023 09:35:56 -0800 (PST)
-X-Google-Smtp-Source: AK7set8L0sjCkHm2xvfBfZvyQXKAczVR+gQk4t1ZdDhxtXnBjH9xoR9zAR7+Oh0qJAyco9BvrbRFrWse2QE/MMpxhPA=
-X-Received: by 2002:a05:6102:5c17:b0:412:c97:4ac8 with SMTP id
- ds23-20020a0561025c1700b004120c974ac8mr502125vsb.53.1676482556440; Wed, 15
- Feb 2023 09:35:56 -0800 (PST)
+        with ESMTP id S229723AbjBOSAa (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Feb 2023 13:00:30 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 231923C7BA;
+        Wed, 15 Feb 2023 10:00:30 -0800 (PST)
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31FHXO71032265;
+        Wed, 15 Feb 2023 18:00:14 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=huAOFH+wzio3JWWNZAJliW4HDetlKh7gD65mTH90JEQ=;
+ b=nPlfi5S53WxIYoN5+jrdA4QKNTFdIfOOj93boCV1PZFydolejYSLM0Tot8BSbPuoJp3G
+ zgmXvludDiEUFHOcA2zhAT317D6cp3vb2H3VXCerM9X1AjyQ0FEopaTFlxadi2EsbEIl
+ 2RTk7DOQPy+WPlH30omOLkZoMJMDGWtXalb40KHoFNu+zh+O8h/U+KjpQHCcsuNiSzEX
+ 464S9fA6LLbmsxVMf+SlECofKS/eCU/QTNOGfQGoxPWjAdKQBxEggf/KCNUi0+JGEwCs
+ Z2Z5bjH2PPzquEhW72rQQWtYVJXI9V1VI8zENK7woAnyngkL/34IS1PDeAmfH/oAd0s+ sQ== 
+Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ns3a3hw1m-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 15 Feb 2023 18:00:13 +0000
+Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
+        by ppma01dal.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31FG51HH009847;
+        Wed, 15 Feb 2023 18:00:12 GMT
+Received: from smtprelay01.wdc07v.mail.ibm.com ([9.208.129.119])
+        by ppma01dal.us.ibm.com (PPS) with ESMTPS id 3np2n7uyk9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 15 Feb 2023 18:00:12 +0000
+Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
+        by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31FI0AxT28770970
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 15 Feb 2023 18:00:10 GMT
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 181F058076;
+        Wed, 15 Feb 2023 18:00:10 +0000 (GMT)
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DB21058070;
+        Wed, 15 Feb 2023 18:00:08 +0000 (GMT)
+Received: from [9.60.89.243] (unknown [9.60.89.243])
+        by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 15 Feb 2023 18:00:08 +0000 (GMT)
+Message-ID: <4ad0d2b9-2465-b42d-c0f9-b48caadfd72c@linux.ibm.com>
+Date:   Wed, 15 Feb 2023 13:00:08 -0500
 MIME-Version: 1.0
-References: <20230209102300.12254-1-frankja@linux.ibm.com>
-In-Reply-To: <20230209102300.12254-1-frankja@linux.ibm.com>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-Date:   Wed, 15 Feb 2023 18:35:45 +0100
-Message-ID: <CABgObfbj2GGHxHefb9jdXar3YKMYJxBjJBwzTXhntUQE-xjBNA@mail.gmail.com>
-Subject: Re: [GIT PULL 00/18] KVM: s390x: KVM s390x changes for 6.3
-To:     Janosch Frank <frankja@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, david@redhat.com, borntraeger@linux.ibm.com,
-        cohuck@redhat.com, linux-s390@vger.kernel.org,
-        imbrenda@linux.ibm.com, hca@linux.ibm.com
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.7.1
+Subject: Re: [PATCH v6 4/6] s390/pci: Use dma-iommu layer
+To:     Niklas Schnelle <schnelle@linux.ibm.com>,
+        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>
+Cc:     Gerd Bayer <gbayer@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>, iommu@lists.linux.dev,
+        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, linux-kernel@vger.kernel.org,
+        Julian Ruess <julianr@linux.ibm.com>
+References: <20230215120327.947336-1-schnelle@linux.ibm.com>
+ <20230215120327.947336-5-schnelle@linux.ibm.com>
+Content-Language: en-US
+From:   Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <20230215120327.947336-5-schnelle@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: ir9BlGa-9OeRYihge9S9OWDaTu0bi6j4
+X-Proofpoint-GUID: ir9BlGa-9OeRYihge9S9OWDaTu0bi6j4
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
+ definitions=2023-02-15_07,2023-02-15_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=675 bulkscore=0
+ clxscore=1015 spamscore=0 adultscore=0 mlxscore=0 lowpriorityscore=0
+ suspectscore=0 impostorscore=0 priorityscore=1501 malwarescore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2302150157
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Feb 9, 2023 at 11:25 AM Janosch Frank <frankja@linux.ibm.com> wrote:
->
-> Hi Paolo,
->
-> the following changes are ready for pulling for 6.3:
-> * Two more V!=R patches
-> * The last part of the cmpxchg patches
-> * A few fixes
->
-> This pull includes the s390 cmpxchg_user_key feature branch which is
-> the base for the KVM cmpxchg patches by Janis.
+On 2/15/23 7:03 AM, Niklas Schnelle wrote:
+> While s390 already has a standard IOMMU driver and previous changes have
+> added I/O TLB flushing operations this driver is currently only used for
+> user-space PCI access such as vfio-pci. For the DMA API s390 instead
+> utilizes its own implementation in arch/s390/pci/pci_dma.c which drives
+> the same hardware and shares some code but requires a complex and
+> fragile hand over between DMA API and IOMMU API use of a device and
+> despite code sharing still leads to significant duplication and
+> maintenance effort. Let's utilize the common code DMAP API
+> implementation from drivers/iommu/dma-iommu.c instead allowing us to
+> get rid of arch/s390/pci/pci_dma.c.
+> 
+> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> ---
 
-Pulled, thanks,
+FYI, this patch doesn't fit on top of iommu-next, I'd guess at least due to baolu's 'Retire detach_dev callback' series, which removed .detach_dev and added .set_platform_dma_ops for s390-iommu.  That's relevant here, because now that this patch enables dma-iommu for s390 and removes the platform DMA ops it must now remove .set_platform_dma_ops/s390_iommu_set_platform_dma for s390-iommu.
 
-Paolo
-
-> Cheers,
-> Janosch
->
-> The following changes since commit a2ce98d69fabc7d3758063366fe830f682610cf7:
->
->   Merge remote-tracking branch 'l390-korg/cmpxchg_user_key' into kvm-next (2023-02-07 18:04:23 +0100)
->
-> are available in the Git repository at:
->
->   https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/kvm-s390-next-6.3-1
->
-> for you to fetch changes up to 5fc5b94a273655128159186c87662105db8afeb5:
->
->   s390/virtio: sort out physical vs virtual pointers usage (2023-02-08 09:59:46 +0100)
->
-> ----------------------------------------------------------------
->
-> Alexander Gordeev (1):
->   s390/virtio: sort out physical vs virtual pointers usage
->
-> Janis Schoetterl-Glausch (14):
->   KVM: s390: selftest: memop: Pass mop_desc via pointer
->   KVM: s390: selftest: memop: Replace macros by functions
->   KVM: s390: selftest: memop: Move testlist into main
->   KVM: s390: selftest: memop: Add bad address test
->   KVM: s390: selftest: memop: Fix typo
->   KVM: s390: selftest: memop: Fix wrong address being used in test
->   KVM: s390: selftest: memop: Fix integer literal
->   KVM: s390: Move common code of mem_op functions into function
->   KVM: s390: Dispatch to implementing function at top level of vm mem_op
->   KVM: s390: Refactor absolute vm mem_op function
->   KVM: s390: Refactor vcpu mem_op function
->   KVM: s390: Extend MEM_OP ioctl by storage key checked cmpxchg
->   Documentation: KVM: s390: Describe KVM_S390_MEMOP_F_CMPXCHG
->   KVM: s390: selftest: memop: Add cmpxchg tests
->
-> Nico Boehr (2):
->   KVM: s390: disable migration mode when dirty tracking is disabled
->   KVM: s390: GISA: sort out physical vs virtual pointers usage
->
-> Nina Schoetterl-Glausch (1):
->   KVM: selftests: Compile s390 tests with -march=z10
->
->  Documentation/virt/kvm/api.rst            |  46 +-
->  Documentation/virt/kvm/devices/vm.rst     |   4 +
->  arch/s390/kvm/gaccess.c                   | 109 ++++
->  arch/s390/kvm/gaccess.h                   |   3 +
->  arch/s390/kvm/interrupt.c                 |  11 +-
->  arch/s390/kvm/kvm-s390.c                  | 268 +++++----
->  drivers/s390/virtio/virtio_ccw.c          |  46 +-
->  include/uapi/linux/kvm.h                  |   8 +
->  tools/testing/selftests/kvm/Makefile      |   3 +
->  tools/testing/selftests/kvm/s390x/memop.c | 676 +++++++++++++++++-----
->  10 files changed, 889 insertions(+), 285 deletions(-)
->
-> --
-> 2.39.1
->
-
+Matt
