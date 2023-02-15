@@ -2,88 +2,120 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E9CDC636CC
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Feb 2023 10:30:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7AB4DC636CC
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Feb 2023 12:04:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234044AbjBOKaY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Feb 2023 05:30:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52112 "EHLO
+        id S231824AbjBOMD7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Feb 2023 07:03:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233062AbjBOKaX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Feb 2023 05:30:23 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EC3B366A8;
-        Wed, 15 Feb 2023 02:30:19 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1BE9B61B18;
-        Wed, 15 Feb 2023 10:30:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 70923C433A8;
-        Wed, 15 Feb 2023 10:30:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1676457018;
-        bh=gOeYKBF6n3GYKAq9cm9aU42N9L+SqmlKSzHkYilK8RY=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=HsUuEBK95DmBqbp9dqWcYLYPuaoOiEbr3QjyXAcDeIJQ0NgnENM4XTYH5JZ7m4IY6
-         PL+znS5u93/0UK63qCjP0+mXqY9f2fXgccu4IurqqQ+huqboepPeiOo3wSzShGAJuI
-         bcXnYpo/8RPzXGqVakLrSfvrVvQw66Z8eTDtblMGqFeXOS3X3ez5+v9ZvubZDXdGjF
-         PC+CqwSveA4JC8K+SV0JbljFOvjPpT/215rUsHHxsEKLAkJa5Jgs5A8jGr6FUiSbWR
-         L0nnC/WxWnhNMx4eNnkhMXdASbH3WffY7w1Q/M/Rx8/Yl8WX+jUlVMe9zJGqjOK1W9
-         L5lgRZ420GaNg==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 56E64C41676;
-        Wed, 15 Feb 2023 10:30:18 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S231318AbjBOMD6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Feb 2023 07:03:58 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF7B227D5B;
+        Wed, 15 Feb 2023 04:03:56 -0800 (PST)
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31FABxtw029599;
+        Wed, 15 Feb 2023 12:03:34 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=JyS/DaEvjYz3Yy6r5m4p+hsTqT6eqxTIuVtmSoHg8Qg=;
+ b=sJk4u0KzZVb6Y4LrY36fLlLhJXszq/8cOn9gaPNQhaIP/ie9pW5FGNPA8Z9HZ9gBjeXS
+ BcGagTqdoId+z5O5rYHaUUUxiopFnYYYdpGVp9HVcpf1WcijYVw7wGfFfx/vkcA+sSW/
+ NrVCjbDm4UltA4Pv2DOMXODVCp9w1gNDfTXmhU9DIAaRNAhgQdhKdumxPopq68zT5o62
+ Go+Um+PvG4aCjLjLvx3oihSzaukVxYjZCUEF0uYxoo8rlUoLmoljtp1xrnIkOtSXpwdB
+ jBnv+VUp3SWM0njHeODf+QFBVjcIAmEBv8P4ATg+N/gNlH0A44aHzUMxD/y1iuCRa8gU Qg== 
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nrwe32nkt-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 15 Feb 2023 12:03:34 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31EKtIPL018185;
+        Wed, 15 Feb 2023 12:03:32 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3np2n6nacq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 15 Feb 2023 12:03:32 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31FC3SoP24773354
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 15 Feb 2023 12:03:28 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BBB1320040;
+        Wed, 15 Feb 2023 12:03:28 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5E4872004B;
+        Wed, 15 Feb 2023 12:03:28 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 15 Feb 2023 12:03:28 +0000 (GMT)
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>
+Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
+        Gerd Bayer <gbayer@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>, iommu@lists.linux.dev,
+        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, linux-kernel@vger.kernel.org,
+        Julian Ruess <julianr@linux.ibm.com>
+Subject: [PATCH v6 1/6] s390/ism: Set DMA coherent mask
+Date:   Wed, 15 Feb 2023 13:03:22 +0100
+Message-Id: <20230215120327.947336-2-schnelle@linux.ibm.com>
+X-Mailer: git-send-email 2.37.2
+In-Reply-To: <20230215120327.947336-1-schnelle@linux.ibm.com>
+References: <20230215120327.947336-1-schnelle@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH v2 net-next] net: no longer support SOCK_REFCNT_DEBUG feature
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <167645701835.29620.12786304012973070706.git-patchwork-notify@kernel.org>
-Date:   Wed, 15 Feb 2023 10:30:18 +0000
-References: <20230214041410.6295-1-kerneljasonxing@gmail.com>
-In-Reply-To: <20230214041410.6295-1-kerneljasonxing@gmail.com>
-To:     Jason Xing <kerneljasonxing@gmail.com>
-Cc:     kuniyu@amazon.com, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, dsahern@kernel.org,
-        matthieu.baerts@tessares.net, willemdebruijn.kernel@gmail.com,
-        nhorman@tuxdriver.com, marcelo.leitner@gmail.com,
-        lucien.xin@gmail.com, kgraul@linux.ibm.com, wenjia@linux.ibm.com,
-        jaka@linux.ibm.com, bjorn@kernel.org, magnus.karlsson@intel.com,
-        maciej.fijalkowski@intel.com, jonathan.lemon@gmail.com,
-        bpf@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-sctp@vger.kernel.org, mptcp@lists.linux.dev,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kernelxing@tencent.com
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 31MuNRERGY5e1anxjzSCh24sJ3Gg7wYr
+X-Proofpoint-ORIG-GUID: 31MuNRERGY5e1anxjzSCh24sJ3Gg7wYr
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
+ definitions=2023-02-15_06,2023-02-15_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 mlxlogscore=999
+ malwarescore=0 phishscore=0 adultscore=0 suspectscore=0 priorityscore=1501
+ bulkscore=0 spamscore=0 impostorscore=0 mlxscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
+ definitions=main-2302150109
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello:
+A future change will convert the DMA API implementation from the
+architecture specific arch/s390/pci/pci_dma.c to using the common code
+drivers/iommu/dma-iommu.c which the utilizes the same IOMMU hardware
+through the s390-iommu driver. Unlike the s390 specific DMA API this
+requires devices to correctly call set the coherent mask to be allowed
+to use IOVAs >2^32 in dma_alloc_coherent(). This was however not done
+for ISM devices. ISM requires such addresses since currently the DMA
+aperture for PCI devices starts at 2^32 and all calls to
+dma_alloc_coherent() would thus fail.
 
-This patch was applied to netdev/net-next.git (master)
-by David S. Miller <davem@davemloft.net>:
+Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
+Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+---
+ drivers/s390/net/ism_drv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-On Tue, 14 Feb 2023 12:14:10 +0800 you wrote:
-> From: Jason Xing <kernelxing@tencent.com>
-> 
-> Commit e48c414ee61f ("[INET]: Generalise the TCP sock ID lookup routines")
-> commented out the definition of SOCK_REFCNT_DEBUG in 2005 and later another
-> commit 463c84b97f24 ("[NET]: Introduce inet_connection_sock") removed it.
-> Since we could track all of them through bpf and kprobe related tools
-> and the feature could print loads of information which might not be
-> that helpful even under a little bit pressure, the whole feature which
-> has been inactive for many years is no longer supported.
-> 
-> [...]
-
-Here is the summary with links:
-  - [v2,net-next] net: no longer support SOCK_REFCNT_DEBUG feature
-    https://git.kernel.org/netdev/net-next/c/fe33311c3e37
-
-You are awesome, thank you!
+diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
+index dfd401d9e362..aba03b613296 100644
+--- a/drivers/s390/net/ism_drv.c
++++ b/drivers/s390/net/ism_drv.c
+@@ -557,7 +557,7 @@ static int ism_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	if (ret)
+ 		goto err_disable;
+ 
+-	ret = dma_set_mask(&pdev->dev, DMA_BIT_MASK(64));
++	ret = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
+ 	if (ret)
+ 		goto err_resource;
+ 
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+2.37.2
 
