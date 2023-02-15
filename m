@@ -2,101 +2,126 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 31EE2C64ED6
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Feb 2023 17:19:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 08A87C636CC
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Feb 2023 17:25:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229778AbjBORTE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Feb 2023 12:19:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55080 "EHLO
+        id S229593AbjBORZA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Feb 2023 12:25:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229514AbjBORTD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Feb 2023 12:19:03 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 654542D14B;
-        Wed, 15 Feb 2023 09:19:02 -0800 (PST)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31FGqAAO028991;
-        Wed, 15 Feb 2023 17:19:02 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=I5Z8bW1LXGrnT2Q8lIjuI9IYt6D561dpu7M6iDcDBls=;
- b=Mv421IwRtwSGsVbpuZaiY5NxHbsknSU8io5KktalHHzwBmFcPtapiT2Q82msRfrpmqrv
- 9WQnckb+joj2Z5GJSOVD1R6XQYW46qjuCWGu+xMLu1WQAw+u+Qag062jWn+oYQVGmDE1
- 33ERvPSohj/D1qL7RxNsxxpjFgeO6lTZuMpnKKAp7PFUcdu3yGBVOnSsF9EIxOPuj86q
- hB5SD9V2/BC+rx5d/r5KP9R59Z7Jd7Ok/SVEMQrLU6IIiE2seLMBOLcLny1mBKo4uoFN
- Dy3se7+MwltDizwQB1fiSJoOJlTNIM9OOD0cAmRwUPSzxfaqFZB8b6A1C7JKTCeV7Egy ig== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ns0grfyrr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Feb 2023 17:19:01 +0000
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 31FELSBf008355;
-        Wed, 15 Feb 2023 17:19:01 GMT
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ns0grfyq5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Feb 2023 17:19:01 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31ENgeNi023056;
-        Wed, 15 Feb 2023 17:18:58 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma05fra.de.ibm.com (PPS) with ESMTPS id 3np2n6c5e3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Feb 2023 17:18:58 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31FHIsE946858504
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 15 Feb 2023 17:18:54 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6A4E520040;
-        Wed, 15 Feb 2023 17:18:54 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 34FDC20043;
-        Wed, 15 Feb 2023 17:18:54 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 15 Feb 2023 17:18:54 +0000 (GMT)
-From:   Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>
-Cc:     Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: [kvm-unit-tests PATCH v1 0/2] s390x: Add misaligned instruction tests
-Date:   Wed, 15 Feb 2023 18:18:50 +0100
-Message-Id: <20230215171852.1935156-1-nsg@linux.ibm.com>
-X-Mailer: git-send-email 2.37.2
+        with ESMTP id S230050AbjBORYt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Feb 2023 12:24:49 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E4E13865B
+        for <linux-s390@vger.kernel.org>; Wed, 15 Feb 2023 09:24:02 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1676481841;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=f8VA1c6iZtz7FGtZvF7i96siVIEbaGum/570KUL8JYQ=;
+        b=e3dJdPxx8e3HvFhOzBxBxiG2ZB0nq27PJocz6RNEvvNcPbBHz0cD79LhHGDhAv40xyXSVk
+        8cKPwrPUoqTIYZbJhsKQNGZX5l93UihyEG8Lk+uqmnun1n70cZ1PP3UXUmQkz6J8KVv/s0
+        7fPxcxMt9ok/k766uMyQw1ljkrjo/EQ=
+Received: from mail-io1-f70.google.com (mail-io1-f70.google.com
+ [209.85.166.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-629-dfTUeMjvOdKoUBFKI6bpRw-1; Wed, 15 Feb 2023 12:19:39 -0500
+X-MC-Unique: dfTUeMjvOdKoUBFKI6bpRw-1
+Received: by mail-io1-f70.google.com with SMTP id f14-20020a5d858e000000b00743613be020so225745ioj.4
+        for <linux-s390@vger.kernel.org>; Wed, 15 Feb 2023 09:19:39 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=f8VA1c6iZtz7FGtZvF7i96siVIEbaGum/570KUL8JYQ=;
+        b=qDQBDmmNJ4Ml1KD5Jo7g38OZ2gGOkhrTFsEwrW+oia88dZG55glKgSABsJ6W95iHwV
+         HQSrga8VTf9469DN1vK/wGy2gWVjHowLDRlkLNa3737QPr/90p9xUiyI15o6Aijm5mg6
+         HqdbhxnsYhAl2SCGT4Sfm4OgoRmnqIEBnDDIRFcyKAf6rgzfLOlatJuL2e0aXi0IEk5B
+         /hYNxRUbxvgfOx/jNtNU9t51oFof+UnBiHp2jLMZQUGpxh0UyXrI8MkkZ6N076xU/3pk
+         7Bp9zDztHGJh3bDluOMHt6tFSGtn9ko/f1Wb2gkrOIQkvWF9oEHu/2NkJVsV0Kaew/sz
+         ioaw==
+X-Gm-Message-State: AO0yUKUi5qpUL5pUqp5j/YVSQGLkZJwPGZbF2MJgkz/9dTvysiZVnhOE
+        kRspYXWab9/tqSKgKyiJpyH6DHzpSlae9g3Z++HzzkqDhElRc+shtLWKqartgt0xqyogjv+7Ydc
+        Mt/76I01xmDHrSwY/7s5Q4A==
+X-Received: by 2002:a92:c264:0:b0:314:5aa:94ba with SMTP id h4-20020a92c264000000b0031405aa94bamr3025116ild.9.1676481578281;
+        Wed, 15 Feb 2023 09:19:38 -0800 (PST)
+X-Google-Smtp-Source: AK7set8JFQMg3wd2K4N1A/L6AEEoJSZuErtZEgPbOjbAIunGxdN2sZ5/fVleX+GPj5DIkwZFSCFuTg==
+X-Received: by 2002:a92:c264:0:b0:314:5aa:94ba with SMTP id h4-20020a92c264000000b0031405aa94bamr3025097ild.9.1676481577996;
+        Wed, 15 Feb 2023 09:19:37 -0800 (PST)
+Received: from redhat.com ([38.15.36.239])
+        by smtp.gmail.com with ESMTPSA id q6-20020a02c8c6000000b00374fa5b600csm5932699jao.0.2023.02.15.09.19.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Feb 2023 09:19:37 -0800 (PST)
+Date:   Wed, 15 Feb 2023 10:19:35 -0700
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     "Liu, Yi L" <yi.l.liu@intel.com>,
+        "joro@8bytes.org" <joro@8bytes.org>,
+        "Tian, Kevin" <kevin.tian@intel.com>,
+        "robin.murphy@arm.com" <robin.murphy@arm.com>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "eric.auger@redhat.com" <eric.auger@redhat.com>,
+        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
+        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
+        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
+        "peterx@redhat.com" <peterx@redhat.com>,
+        "jasowang@redhat.com" <jasowang@redhat.com>,
+        "shameerali.kolothum.thodi@huawei.com" 
+        <shameerali.kolothum.thodi@huawei.com>,
+        "lulu@redhat.com" <lulu@redhat.com>,
+        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
+        "intel-gvt-dev@lists.freedesktop.org" 
+        <intel-gvt-dev@lists.freedesktop.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH v3 03/15] vfio: Accept vfio device file in the driver
+ facing kAPI
+Message-ID: <20230215101935.6416b39c.alex.williamson@redhat.com>
+In-Reply-To: <Y+0QjaIWr84eVzsp@nvidia.com>
+References: <20230213151348.56451-1-yi.l.liu@intel.com>
+        <20230213151348.56451-4-yi.l.liu@intel.com>
+        <Y+rLKvCMivND0izd@nvidia.com>
+        <DS0PR11MB7529B43C7D357D8A0C2438C7C3A29@DS0PR11MB7529.namprd11.prod.outlook.com>
+        <Y+zSRklKkL3rc2FB@nvidia.com>
+        <DS0PR11MB75299F5D92AAC33FD8690694C3A39@DS0PR11MB7529.namprd11.prod.outlook.com>
+        <Y+zwSn63eA7HrefO@nvidia.com>
+        <20230215083234.194d07a9.alex.williamson@redhat.com>
+        <Y+0QjaIWr84eVzsp@nvidia.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 5nqgY8PQXqY-Vyix1q5ssO_EN_4FPDCN
-X-Proofpoint-ORIG-GUID: xZ_IQcKHS6LXzJvrKANr3CUljgBY7Lxz
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
- definitions=2023-02-15_07,2023-02-15_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 bulkscore=0
- priorityscore=1501 adultscore=0 mlxlogscore=975 malwarescore=0
- suspectscore=0 clxscore=1015 lowpriorityscore=0 impostorscore=0 mlxscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2302150154
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Instructions on s390 must be halfword aligned.
-Add two tests for that.
-These currently fail when using TCG.
+On Wed, 15 Feb 2023 13:04:13 -0400
+Jason Gunthorpe <jgg@nvidia.com> wrote:
 
-Nina Schoetterl-Glausch (2):
-  s390x/spec_ex: Add test introducing odd address into PSW
-  s390x/spec_ex: Add test of EXECUTE with odd target address
+> On Wed, Feb 15, 2023 at 08:32:34AM -0700, Alex Williamson wrote:
+> 
+> > We've discussed this with Paolo before and I believe the bar of proof
+> > is not very high.  I suspect it's not a problem that the device itself
+> > is not yet accessible, so long as the user can prove they have the
+> > ability to access the device, such as access to a restricted file.  In
+> > most cases this isn't going to turn on wbinvd anyway since DMA will be
+> > coherent.  Thanks,  
+> 
+> Isn't that a second problem, we don't know if the device is coherent
+> until it is bound?
 
- s390x/spec_ex.c | 98 +++++++++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 94 insertions(+), 4 deletions(-)
+I think this is already accounted for in the conversion to device level
+IOMMU ops, ie. device_iommu_capable() follows the
+dev->iommu->iommu_dev->ops, where for example intel_iommu_capable() is
+only looking at the capabilities of the IOMMU managing the device.  We
+did some hand waving simplifications that was sufficient at some point,
+IIRC.  Thanks,
 
-
-base-commit: 7e9737739f738c9a2e555947082a59edbc5b49b9
--- 
-2.36.1
+Alex
 
