@@ -2,116 +2,101 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CE342C61DA4
-	for <linux-s390@archiver.kernel.org>; Thu, 16 Feb 2023 06:39:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DBF2C636CC
+	for <linux-s390@archiver.kernel.org>; Thu, 16 Feb 2023 07:35:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229721AbjBPGjQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 16 Feb 2023 01:39:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44368 "EHLO
+        id S229591AbjBPHfC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 16 Feb 2023 02:35:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229710AbjBPGjP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Feb 2023 01:39:15 -0500
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F78C35B4;
-        Wed, 15 Feb 2023 22:39:12 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0VbnN6.x_1676529545;
-Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VbnN6.x_1676529545)
-          by smtp.aliyun-inc.com;
-          Thu, 16 Feb 2023 14:39:09 +0800
-From:   "D. Wythe" <alibuda@linux.alibaba.com>
-To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-Subject: [PATCH net v2] net/smc: fix application data exception
-Date:   Thu, 16 Feb 2023 14:39:05 +0800
-Message-Id: <1676529545-32741-1-git-send-email-alibuda@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
+        with ESMTP id S229513AbjBPHfB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Feb 2023 02:35:01 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5446D39CEC
+        for <linux-s390@vger.kernel.org>; Wed, 15 Feb 2023 23:34:17 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1676532856;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=yd5xmOXPZHKVAKlGrDMUmCIduEo2IuFrCSEEq5e9PpQ=;
+        b=hv+XEt7+ViYJF6sjpOp5F4S9df7Vz/V1teSu9koTYS4CpIgD8PR4bGL8FecENauDDJKPAY
+        GC+x+znFGYsKHKoH0Mf8ulRV+8Tw3lwghlrYoJrY8wsE85fItRF1zLGK6RkEdT+Krjrl3c
+        DWEBCu13l9bNBxsbmx6NJYtI6GE2Y44=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-158-501f2zoYNpCK8dHrgO7vFQ-1; Thu, 16 Feb 2023 02:34:12 -0500
+X-MC-Unique: 501f2zoYNpCK8dHrgO7vFQ-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 45CE01871CD7;
+        Thu, 16 Feb 2023 07:34:12 +0000 (UTC)
+Received: from MiWiFi-R3L-srv.redhat.com (ovpn-12-99.pek2.redhat.com [10.72.12.99])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id DAFF71415108;
+        Thu, 16 Feb 2023 07:34:06 +0000 (UTC)
+From:   Baoquan He <bhe@redhat.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     linux-mm@kvack.org, schnelle@linux.ibm.com,
+        linux-s390@vger.kernel.org, Baoquan He <bhe@redhat.com>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: [PATCH 1/2] pcmcia : make PCMCIA depend on HAS_IOMEM
+Date:   Thu, 16 Feb 2023 15:34:02 +0800
+Message-Id: <20230216073403.451455-1-bhe@redhat.com>
+MIME-Version: 1.0
+Content-type: text/plain
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.7
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: "D. Wythe" <alibuda@linux.alibaba.com>
+On s390 systems (aka mainframes), it has classic channel devices for
+networking and permanent storage that are currently even more common
+than PCI devices. Hence it could have a fully functional s390 kernel
+with CONFIG_PCI=n, then the relevant iomem mapping functions
+[including ioremap(), devm_ioremap(), etc.] are not available.
 
-There is a certain probability that following
-exceptions will occur in the wrk benchmark test:
+Here let depend PCMCIA on HAS_IOMEM so that it won't be built to
+cause below compiling error if PCI is unset.
 
-Running 10s test @ http://11.213.45.6:80
-  8 threads and 64 connections
-  Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency     3.72ms   13.94ms 245.33ms   94.17%
-    Req/Sec     1.96k   713.67     5.41k    75.16%
-  155262 requests in 10.10s, 23.10MB read
-Non-2xx or 3xx responses: 3
+-------------------------------------------------------
+ld: drivers/pcmcia/cistpl.o: in function `set_cis_map':
+cistpl.c:(.text+0x1202): undefined reference to `ioremap'
+ld: cistpl.c:(.text+0x13b0): undefined reference to `iounmap'
+ld: cistpl.c:(.text+0x14a6): undefined reference to `iounmap'
+ld: cistpl.c:(.text+0x1544): undefined reference to `ioremap'
+ld: drivers/pcmcia/cistpl.o: in function `release_cis_mem':
+cistpl.c:(.text+0x3f14): undefined reference to `iounmap'
 
-We will find that the error is HTTP 400 error, which is a serious
-exception in our test, which means the application data was
-corrupted.
-
-Consider the following scenarios:
-
-CPU0                            CPU1
-
-buf_desc->used = 0;
-                                cmpxchg(buf_desc->used, 0, 1)
-                                deal_with(buf_desc)
-
-memset(buf_desc->cpu_addr,0);
-
-This will cause the data received by a victim connection to be cleared,
-thus triggering an HTTP 400 error in the server.
-
-This patch exchange the order between clear used and memset, add
-barrier to ensure memory consistency.
-
-Fixes: 1c5526968e27 ("net/smc: Clear memory when release and reuse buffer")
-Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+Link: https://lore.kernel.org/all/Y0TcaZD4nB1w+mAQ@MiWiFi-R3L-srv/T/#u
+Signed-off-by: Baoquan He <bhe@redhat.com>
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 ---
-v2: rebase it with latest net tree.
+ drivers/pcmcia/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
- net/smc/smc_core.c | 17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
-
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index c305d8d..c19d4b7 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -1120,8 +1120,9 @@ static void smcr_buf_unuse(struct smc_buf_desc *buf_desc, bool is_rmb,
+diff --git a/drivers/pcmcia/Kconfig b/drivers/pcmcia/Kconfig
+index 1525023e49b6..7c412bbe8bbe 100644
+--- a/drivers/pcmcia/Kconfig
++++ b/drivers/pcmcia/Kconfig
+@@ -20,6 +20,7 @@ if PCCARD
  
- 		smc_buf_free(lgr, is_rmb, buf_desc);
- 	} else {
--		buf_desc->used = 0;
--		memset(buf_desc->cpu_addr, 0, buf_desc->len);
-+		/* memzero_explicit provides potential memory barrier semantics */
-+		memzero_explicit(buf_desc->cpu_addr, buf_desc->len);
-+		WRITE_ONCE(buf_desc->used, 0);
- 	}
- }
- 
-@@ -1132,19 +1133,17 @@ static void smc_buf_unuse(struct smc_connection *conn,
- 		if (!lgr->is_smcd && conn->sndbuf_desc->is_vm) {
- 			smcr_buf_unuse(conn->sndbuf_desc, false, lgr);
- 		} else {
--			conn->sndbuf_desc->used = 0;
--			memset(conn->sndbuf_desc->cpu_addr, 0,
--			       conn->sndbuf_desc->len);
-+			memzero_explicit(conn->sndbuf_desc->cpu_addr, conn->sndbuf_desc->len);
-+			WRITE_ONCE(conn->sndbuf_desc->used, 0);
- 		}
- 	}
- 	if (conn->rmb_desc) {
- 		if (!lgr->is_smcd) {
- 			smcr_buf_unuse(conn->rmb_desc, true, lgr);
- 		} else {
--			conn->rmb_desc->used = 0;
--			memset(conn->rmb_desc->cpu_addr, 0,
--			       conn->rmb_desc->len +
--			       sizeof(struct smcd_cdc_msg));
-+			memzero_explicit(conn->rmb_desc->cpu_addr,
-+					 conn->rmb_desc->len + sizeof(struct smcd_cdc_msg));
-+			WRITE_ONCE(conn->rmb_desc->used, 0);
- 		}
- 	}
- }
+ config PCMCIA
+ 	tristate "16-bit PCMCIA support"
++	depends on HAS_IOMEM
+ 	select CRC32
+ 	default y
+ 	help
 -- 
-1.8.3.1
+2.34.1
 
