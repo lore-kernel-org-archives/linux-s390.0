@@ -2,280 +2,143 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0AD6BC636CC
-	for <linux-s390@archiver.kernel.org>; Thu, 16 Feb 2023 08:48:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 96898C636CC
+	for <linux-s390@archiver.kernel.org>; Thu, 16 Feb 2023 09:05:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229784AbjBPIsQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 16 Feb 2023 03:48:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38358 "EHLO
+        id S229607AbjBPJFk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 16 Feb 2023 04:05:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229505AbjBPIsP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Feb 2023 03:48:15 -0500
-Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8CB538E86;
-        Thu, 16 Feb 2023 00:48:14 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1676537294; x=1708073294;
-  h=date:from:to:cc:subject:message-id:reply-to:references:
-   in-reply-to:mime-version;
-  bh=5djWH0WSuY+3FU/poQKqEXOPP6rLmgylUgHL+WSICYk=;
-  b=TnQ1LekKZl0qO/EfklRhJthcJ3plK0YUdeWMHjjGyOqSkODjSlpUULCd
-   tkADF2FTzDN9eOQDIEvj5NUOBn8h4im8yoUwjERQwxJDolIG+qUvJjgEk
-   dPeiNjsZHQ9sD+UPuNu8FhFtayAK5asI2EvU0Kx3adiO8m8hOfuSGTvw3
-   vdelSNTqwcoU7Cg0NcTEiCo2a9vE/NOPnYiUprfzr6VP24Y6ntnSPECoY
-   hys1HLEXsw5HhkZ12su+Zpds/+hrkw330KonRnbH8p6OXRbRK3za3av7l
-   Iwmc0YIdo/xb5UFPttse7SM/5NLiMKIPZB+c86nu2hSnVyy3BA+2MJARY
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10622"; a="394086968"
-X-IronPort-AV: E=Sophos;i="5.97,302,1669104000"; 
-   d="scan'208";a="394086968"
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Feb 2023 00:48:14 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10622"; a="758854711"
-X-IronPort-AV: E=Sophos;i="5.97,302,1669104000"; 
-   d="scan'208";a="758854711"
-Received: from orsmsx603.amr.corp.intel.com ([10.22.229.16])
-  by FMSMGA003.fm.intel.com with ESMTP; 16 Feb 2023 00:48:13 -0800
-Received: from orsmsx612.amr.corp.intel.com (10.22.229.25) by
- ORSMSX603.amr.corp.intel.com (10.22.229.16) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.16; Thu, 16 Feb 2023 00:48:13 -0800
-Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
- ORSMSX612.amr.corp.intel.com (10.22.229.25) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.16; Thu, 16 Feb 2023 00:48:12 -0800
-Received: from orsedg603.ED.cps.intel.com (10.7.248.4) by
- orsmsx610.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.16 via Frontend Transport; Thu, 16 Feb 2023 00:48:12 -0800
-Received: from NAM11-CO1-obe.outbound.protection.outlook.com (104.47.56.177)
- by edgegateway.intel.com (134.134.137.100) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.16; Thu, 16 Feb 2023 00:48:12 -0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=lR85EwXtecKKGlJUKAv9y+NvCri6KbO87TwzCaXquwABnTBUPFWoOPAkl3GAVr8ccBjBZY5Tjc5920GM6y2TkxQfD42kTcyDkWMtUZ6lkNq3niM1ToGl4hYolf9fJrJNVuUXme63WJRzjQ0TVJCRenMjRz272bjWFxdyUa4qOWTelsW/yNABcS/0eBdwo9i3kL1OgvQO+NXR9p2lxFmj1Pr97fmSDJxDwpHw8l2MD7kM45PUX+nH7NQ9F11m4p9vgVBA7xoZso6GYZssRckcJ5pQIPpyrpFrACnebxYlrFs7ygzPAm6EL0T6Zs8Hz5kYdracF0y4lSt8ZA/eZ1BvtQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=CN1RFxjnQRLPr9wPofHioazHdbV5BL8JLjhKJqXLijY=;
- b=SdQwz2NVpPT7sQtEsrz7jG3YQpgbCTTDxa6+LgyR1w8pLwiX9/aD0NbC8y1vT/AgWLW1ub5xwIgUQ3CtAjndBELNdGsu/suqOQG3FMwOxnEaYMPWuk2VgSJacH2leMDhwiGjVLnqOrSvmunj2kVxephj8JB6m08B1x2ClLRZ4WcKI4yUfs9JZ5xiKMFe3sH7DR/t/hUnE4ziGiyPFqctc3JOxU+RKebe5AFNFBZv2s9MzVPm66MkdZN6x1KVChYJobtyw7/L3TDn/+y/g6aX6Wkqe9uO4/TGLEvCHa1c2sQ3Fe7bC9Lo6Vk712jLmAAooSrxfUm9o16aTcmSL6+z7A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-Received: from DS7PR11MB5966.namprd11.prod.outlook.com (2603:10b6:8:71::6) by
- IA0PR11MB7933.namprd11.prod.outlook.com (2603:10b6:208:407::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6086.26; Thu, 16 Feb
- 2023 08:48:10 +0000
-Received: from DS7PR11MB5966.namprd11.prod.outlook.com
- ([fe80::82d2:d341:4138:17ef]) by DS7PR11MB5966.namprd11.prod.outlook.com
- ([fe80::82d2:d341:4138:17ef%7]) with mapi id 15.20.6086.026; Thu, 16 Feb 2023
- 08:48:10 +0000
-Date:   Thu, 16 Feb 2023 16:24:25 +0800
-From:   Yan Zhao <yan.y.zhao@intel.com>
-To:     Yi Liu <yi.l.liu@intel.com>
-CC:     <joro@8bytes.org>, <alex.williamson@redhat.com>, <jgg@nvidia.com>,
-        <kevin.tian@intel.com>, <robin.murphy@arm.com>,
-        <linux-s390@vger.kernel.org>, <yi.y.sun@linux.intel.com>,
-        <kvm@vger.kernel.org>, <mjrosato@linux.ibm.com>,
-        <jasowang@redhat.com>, <cohuck@redhat.com>, <peterx@redhat.com>,
-        <eric.auger@redhat.com>, <nicolinc@nvidia.com>,
-        <shameerali.kolothum.thodi@huawei.com>,
-        <suravee.suthikulpanit@amd.com>, <chao.p.peng@linux.intel.com>,
-        <lulu@redhat.com>, <intel-gvt-dev@lists.freedesktop.org>,
-        <intel-gfx@lists.freedesktop.org>
-Subject: Re: [PATCH v3 14/15] vfio: Add ioctls for device cdev using iommufd
-Message-ID: <Y+3oObuMG/v3+x0N@yzhao56-desk.sh.intel.com>
-Reply-To: Yan Zhao <yan.y.zhao@intel.com>
-References: <20230213151348.56451-1-yi.l.liu@intel.com>
- <20230213151348.56451-15-yi.l.liu@intel.com>
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <20230213151348.56451-15-yi.l.liu@intel.com>
-X-ClientProxiedBy: SGBP274CA0012.SGPP274.PROD.OUTLOOK.COM (2603:1096:4:b0::24)
- To DS7PR11MB5966.namprd11.prod.outlook.com (2603:10b6:8:71::6)
+        with ESMTP id S229597AbjBPJFj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Feb 2023 04:05:39 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B25C21A2D;
+        Thu, 16 Feb 2023 01:05:38 -0800 (PST)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31G80oHF023410;
+        Thu, 16 Feb 2023 09:05:21 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=bxNkA3ggBvcUfThISmViaKYT+iTgOdvYOa+mzjEjusc=;
+ b=tQkEnewXmy4rlU2m1yZ0q5/L9rgjdzXx3Wp9oMP+64jMA5XpgLjYgckdphD3XOLjraZG
+ k1VQESWluUvdbia4Djq+jOV4AsKdB/G3w+ZcG66CU39251HR1XMaeNTKQs5AkToWuJjd
+ cbde/9r3mQF4AmM7d+YzU+T1V37BMThvIeqp8Oa2O7qdVe4wA1qW9/AZrrBOnEbHRmWB
+ 5b5Tt1RtFQ8rs1KuChUi6X9uaRi8rnbY4Hp12bWM03tc52o5FnggUNPq2VTGzlnMGB6g
+ gWPUq2r3PyYcSFO28/RcMOTmsIi9Fm70Sl0wIr+tjAgFqNRh1U8rTOHeAy2/PXwYevj1 qw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3nsg20j7bv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 16 Feb 2023 09:05:20 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 31G8mJNw015743;
+        Thu, 16 Feb 2023 09:05:20 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3nsg20j7b8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 16 Feb 2023 09:05:20 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31G62fbW011341;
+        Thu, 16 Feb 2023 09:05:18 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3np2n6xe3j-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 16 Feb 2023 09:05:18 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31G95Gw423855446
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 16 Feb 2023 09:05:16 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 04E3E2004D;
+        Thu, 16 Feb 2023 09:05:16 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5D6A320043;
+        Thu, 16 Feb 2023 09:05:15 +0000 (GMT)
+Received: from [9.179.9.244] (unknown [9.179.9.244])
+        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Thu, 16 Feb 2023 09:05:15 +0000 (GMT)
+Message-ID: <4f98164406cfd6da084f9ef617a6668dc4e8d44b.camel@linux.ibm.com>
+Subject: Re: [PATCH 1/2] pcmcia : make PCMCIA depend on HAS_IOMEM
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Baoquan He <bhe@redhat.com>, linux-kernel@vger.kernel.org
+Cc:     linux-mm@kvack.org, linux-s390@vger.kernel.org,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Date:   Thu, 16 Feb 2023 10:05:15 +0100
+In-Reply-To: <20230216073403.451455-1-bhe@redhat.com>
+References: <20230216073403.451455-1-bhe@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.46.3 (3.46.3-1.fc37) 
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: zhEkrqVDtqoRkhJPFlbizQg060DzzFf6
+X-Proofpoint-ORIG-GUID: 3rSsY-_OSPADG3bu-7TtAPa3U2UmSgrI
+Content-Transfer-Encoding: quoted-printable
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS7PR11MB5966:EE_|IA0PR11MB7933:EE_
-X-MS-Office365-Filtering-Correlation-Id: 92da7912-89dd-4506-4c21-08db0ffa882e
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: XVeql+u0pTjCqaO8TB4WNRJubVrEz4v1P7Z0vumcovHOSAwY2oK15ZytwvMAwbdhtps0x6I3/e3w1Xw4e3W76e06r3hhYn58eLpcusvcUGXLyCXeb/hgbRLdvlI7WPwMpfMk5Bh2OWI1Pb/wK9b+5VCLIKVPKOER64Fwhk7JBzaXFsUJhWrHi+IK9Cdqv3pvDw5LsexCiIzJDG6mHms58I4oh61wKXgylQxKURohzIDojA3pABYWHn6Js68Uf9883jSTEeLdkasVcsS3jbagDu6l3grV/pZMtIxJzR5rH37D2BWpUD6RZTDkpzKKgp7I/KdoooPeJx9x4d8QKM75Niy1PZToDIPLb3luks1Z69WPbvaFc5dLLb71dt3OMtOATU6ZBHu9UQL1/ge07/QGz00SJByRvsUGGlCo8qMyDEou7KItF8GN9REQ3riTzjunnTfrl2isExzlgKe6kTPgZD67Bb0fs726SuJK/GVh9l5O4TDBDcCFJPgBuRDtnGA6TgKBI06SjphEP1tlO2xuBfTtQb2Re42dpDOUQhpfapWQNWnVLdWiyxi+0bPZQL/sRFxoVOVHuMCxyWUrsptuXcPn6S+aWFWGd+wanai0JwJyZzOTWTLVRlgWZU8aBTmjcJVE39Dmq8VD3gs6SAhjiQ==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS7PR11MB5966.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(366004)(39860400002)(346002)(396003)(376002)(136003)(451199018)(6666004)(6486002)(186003)(6512007)(478600001)(26005)(6506007)(86362001)(82960400001)(38100700002)(83380400001)(8676002)(41300700001)(8936002)(6862004)(5660300002)(7416002)(6636002)(66946007)(316002)(66556008)(66476007)(4326008)(2906002)(3450700001);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?gq52KCWte0hEm6xDFy2Saf4J9qbGPeTMJp/QINPiMzmeRq8CoUJPtXB3pjkw?=
- =?us-ascii?Q?ja8BmkvP1Lh0ZAi9eEAymazGStAhn4AKpRpfixeoHAw/SBs8L6ijtGJ5QZSc?=
- =?us-ascii?Q?j4xlG6WLn0WU6ify1P+q0TGY+LtYQKagdz9uBInfdRF6bgJZtNh0Ctmu+Hwi?=
- =?us-ascii?Q?3cgcvszVLQ6l1XUie7MEarg3b+SetYFkuNIWrpDUNgUoLyyo1wp1JajTd5So?=
- =?us-ascii?Q?kUtyNpnlMbg5utHEy+1anYLUecs78ejNMS1l+trzDBFlVEs95kyQvnE/Bm79?=
- =?us-ascii?Q?dyn1VFeqiHAxUKxzA21VUOlv1Dbdo+aNtiqs+qY6FBoCMgIiSjMnv9OoD+dg?=
- =?us-ascii?Q?FhVdC56JEH9zTgwJj4pMJFrstK8ZjWKA5IO7ASIyehc/vYVfOidCWEr0CW4e?=
- =?us-ascii?Q?FSH8lrE6wqTtS63/Cok3e3AA/Lwi/6Lbppiz2xrTV7+Xq45cXpgg9EkzBmfA?=
- =?us-ascii?Q?23vQHkzKvpAZBANQZensLIF4LOk/Q0BFpQuVcdS37Zusue4XpKuCm0wtLi1k?=
- =?us-ascii?Q?rvNJITZQspusU9t7Y2jaVoNa9X8mj2bJXO+QB3UkcbhyBYkMjWg1OnoIvL+u?=
- =?us-ascii?Q?O/CJhSJMhbH8UNR1HWSYpohbP1OiQrKvQBltH6eyv28+XIgmtrgSXkkFFbk7?=
- =?us-ascii?Q?UdnSBuQOv+ARWNI2jK5aPSGSOq15qAPNbQjAF96KSmMImJRh5b7Mx0rT5cYo?=
- =?us-ascii?Q?8lQX8vbvRqTkoRn3wLc3ETzbz3u88oydZf1B4iJtGZ8+V1kw0tSr/cVkBTfY?=
- =?us-ascii?Q?KudypfEptUdoWk4xO4I2+MSwFeH3p5vun4U8L6jo2U+vuyUkM71mdqrI6FHp?=
- =?us-ascii?Q?an/TnCEz5O4rrB/Lj3cesDiPAQrg9jOGeT5IWuTk/DmpqASBbbV73ZllXRnB?=
- =?us-ascii?Q?qXXlMjHNfVYD1USvqirxyPZGY+l6nVeOvovsc80gVnlbrOxXdn6oa4MlDL0d?=
- =?us-ascii?Q?v8CTyl0p5qBF7ZQCG2Xp0iHH1HTYSVEK8/4p9vO0IrPi3iKa4xaRbHNyypd0?=
- =?us-ascii?Q?kqCXUawHD5ewfapKu8qCX76XTWnGafBHSrklxTExuuAB8tI+MopsB58mGEff?=
- =?us-ascii?Q?qKXboe2+8M/++M0Jr9yLA/e8vCpFoSK8O6E94xIaA5E0qAJMUYJPnJZU3yih?=
- =?us-ascii?Q?xTVLdvH/fOMpqTcQ1fRFDpowTMMfpVZou5qzzdpTLgE1HMKMjD7xfgc4gNQR?=
- =?us-ascii?Q?udT/Sic04V57SrhK9Yu+oNo1MqFpXJQXwACZ8SDyl/t42T0DvQJ4rTyoahQm?=
- =?us-ascii?Q?k34+uZuZ8qtMVDv881jWfyRSC1Q6jOcdmP5Idm2yLjAbvHt7T9r4dgpOOfEo?=
- =?us-ascii?Q?O8gydcgcgjUYG40PdkCm6dwB88uMNELcrDD7smXNPzRNFbGQDyLZumq0Xf6T?=
- =?us-ascii?Q?yjVhgyDO18OJ7gTEv3wvKR/e6c/0TwR0o0J31UTPTj0N0gHmBplq4kEZw9Ih?=
- =?us-ascii?Q?g7QPNIjwjFXhyAfWvHXlaqGrsG1fGQ34CtkoZfuM/NpuNgE/kDDp1k5NPcr6?=
- =?us-ascii?Q?O+2/0TfVVoG0YZF+FPeIpCQ3LR20EB0gdHSY1akFgHus0sj3iwOmjBI7VmdH?=
- =?us-ascii?Q?M2xNCYNur30XJ+vRMhk8aNHpB+UkT8k8r6gtrybkJFTmNb127uYL/xGe1Zjf?=
- =?us-ascii?Q?Pw=3D=3D?=
-X-MS-Exchange-CrossTenant-Network-Message-Id: 92da7912-89dd-4506-4c21-08db0ffa882e
-X-MS-Exchange-CrossTenant-AuthSource: DS7PR11MB5966.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Feb 2023 08:48:10.6689
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: OeeH2bcMUvEjMBW+OyNK2Enh0aTtAI0R0eYI4qhL8virFlIsxWgK1m3HEIRTwQN7yU+4CxO7gqpiOfiS56eCAA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA0PR11MB7933
-X-OriginatorOrg: intel.com
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
+ definitions=2023-02-16_06,2023-02-15_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ malwarescore=0 suspectscore=0 mlxscore=0 priorityscore=1501
+ mlxlogscore=999 spamscore=0 bulkscore=0 adultscore=0 clxscore=1011
+ phishscore=0 lowpriorityscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2212070000 definitions=main-2302160075
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Feb 13, 2023 at 07:13:47AM -0800, Yi Liu wrote:
-...
+On Thu, 2023-02-16 at 15:34 +0800, Baoquan He wrote:
+> On s390 systems (aka mainframes), it has classic channel devices for
+> networking and permanent storage that are currently even more common
+> than PCI devices. Hence it could have a fully functional s390 kernel
+> with CONFIG_PCI=3Dn, then the relevant iomem mapping functions
+> [including ioremap(), devm_ioremap(), etc.] are not available.
+>=20
+> Here let depend PCMCIA on HAS_IOMEM so that it won't be built to
+> cause below compiling error if PCI is unset.
+>=20
+> -------------------------------------------------------
+> ld: drivers/pcmcia/cistpl.o: in function `set_cis_map':
+> cistpl.c:(.text+0x1202): undefined reference to `ioremap'
+> ld: cistpl.c:(.text+0x13b0): undefined reference to `iounmap'
+> ld: cistpl.c:(.text+0x14a6): undefined reference to `iounmap'
+> ld: cistpl.c:(.text+0x1544): undefined reference to `ioremap'
+> ld: drivers/pcmcia/cistpl.o: in function `release_cis_mem':
+> cistpl.c:(.text+0x3f14): undefined reference to `iounmap'
+>=20
+> Link: https://lore.kernel.org/all/Y0TcaZD4nB1w+mAQ@MiWiFi-R3L-srv/T/#u
+> Signed-off-by: Baoquan He <bhe@redhat.com>
+> Cc: Dominik Brodowski <linux@dominikbrodowski.net>
+> Cc: Arnd Bergmann <arnd@arndb.de>
+> Cc: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+> Cc: Linus Walleij <linus.walleij@linaro.org>
+> Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+> ---
+>  drivers/pcmcia/Kconfig | 1 +
+>  1 file changed, 1 insertion(+)
+>=20
+> diff --git a/drivers/pcmcia/Kconfig b/drivers/pcmcia/Kconfig
+> index 1525023e49b6..7c412bbe8bbe 100644
+> --- a/drivers/pcmcia/Kconfig
+> +++ b/drivers/pcmcia/Kconfig
+> @@ -20,6 +20,7 @@ if PCCARD
+>=20=20
+>  config PCMCIA
+>  	tristate "16-bit PCMCIA support"
+> +	depends on HAS_IOMEM
+>  	select CRC32
+>  	default y
+>  	help
 
-> +long vfio_device_ioctl_bind_iommufd(struct vfio_device_file *df,
-> +				    unsigned long arg)
-> +{
-> +	struct vfio_device *device = df->device;
-> +	struct vfio_device_bind_iommufd bind;
-> +	struct iommufd_ctx *iommufd = NULL;
-> +	struct fd f;
-> +	unsigned long minsz;
-> +	int ret;
-> +
-> +	minsz = offsetofend(struct vfio_device_bind_iommufd, out_devid);
-> +
-> +	if (copy_from_user(&bind, (void __user *)arg, minsz))
-> +		return -EFAULT;
-> +
-> +	if (bind.argsz < minsz || bind.flags)
-> +		return -EINVAL;
-> +
-> +	if (!device->ops->bind_iommufd)
-> +		return -ENODEV;
-> +
-> +	ret = vfio_device_claim_group(device);
-> +	if (ret)
-> +		return ret;
-> +
-> +	mutex_lock(&device->dev_set->lock);
-> +	/*
-> +	 * If already been bound to an iommufd, or already set noiommu
-> +	 * then fail it.
-> +	 */
-> +	if (df->iommufd || df->noiommu) {
-> +		ret = -EINVAL;
-> +		goto out_unlock;
-> +	}
-> +
-> +	/* iommufd < 0 means noiommu mode */
-> +	if (bind.iommufd < 0) {
-> +		if (!capable(CAP_SYS_RAWIO)) {
-> +			ret = -EPERM;
-> +			goto out_unlock;
-> +		}
-> +		df->noiommu = true;
-> +	} else {
-> +		f = fdget(bind.iommufd);
-Here, the iommufd file count + 1,
+Not sure how many PCMCIA drivers only use I/O memory but not I/O ports
+the latter of which are badly stubbed out on s390, though at leat they
+compile. I have a series on that part that I intend to send a new
+version for soon=E2=84=A2. That said yes this does solve the compilation is=
+sue
+and there could be drivers which rely only on I/O memory and are not
+broken in principle.
 
-> +		if (!f.file) {
-> +			ret = -EBADF;
-> +			goto out_unlock;
-> +		}
-> +		iommufd = iommufd_ctx_from_file(f.file);
-iommufd file count + 1, again
-
-> +		if (IS_ERR(iommufd)) {
-> +			ret = PTR_ERR(iommufd);
-> +			goto out_put_file;
-> +		}
-> +	}
-> +
-> +	/*
-> +	 * Before the device open, get the KVM pointer currently
-> +	 * associated with the device file (if there is) and obtain a
-> +	 * reference. This reference is held until device closed. Save
-> +	 * the pointer in the device for use by drivers.
-> +	 */
-> +	vfio_device_get_kvm_safe(df);
-> +
-> +	df->iommufd = iommufd;
-> +	ret = vfio_device_open(df, &bind.out_devid, NULL);
-iommufd file count + 1 in iommufd_device_bind for first open.
-
-> +	if (ret)
-> +		goto out_put_kvm;
-> +
-> +	ret = copy_to_user((void __user *)arg +
-> +			   offsetofend(struct vfio_device_bind_iommufd, iommufd),
-> +			   &bind.out_devid,
-> +			   sizeof(bind.out_devid)) ? -EFAULT : 0;
-> +	if (ret)
-> +		goto out_close_device;
-> +
-> +	if (iommufd)
-> +		fdput(f);
-But, only one file count is put.
-
-Need a paring iommufd_ctx_put() after a successful iommufd_ctx_from_file()
-above to avoid iommufd_fops_release() never being called.
-
-e.g.
-
-@@ -1222,11 +1226,13 @@ static long vfio_device_ioctl_bind_iommufd(struct vfio_device_file *df,
-                        ret = -EBADF;
-                        goto out_unlock;
-                }
-                iommufd = iommufd_ctx_from_file(f.file);
-                if (IS_ERR(iommufd)) {
-                        ret = PTR_ERR(iommufd);
-                        goto out_put_file;
-                }
-+               iommufd_ctx_put(iommufd);
-        }
-
-        /* df->kvm is supposed to be set in vfio_device_file_set_kvm() */
-
-> +	else if (df->noiommu)
-> +		dev_warn(device->dev, "vfio-noiommu device used by user "
-> +			 "(%s:%d)\n", current->comm, task_pid_nr(current));
-> +	mutex_unlock(&device->dev_set->lock);
-> +	return 0;
-> +
-> +out_close_device:
-> +	vfio_device_close(df);
-> +out_put_kvm:
-> +	df->iommufd = NULL;
-> +	df->noiommu = false;
-> +	vfio_device_put_kvm(device);
-> +out_put_file:
-> +	if (iommufd)
-> +		fdput(f);
-> +out_unlock:
-> +	mutex_unlock(&device->dev_set->lock);
-> +	vfio_device_release_group(device);
-> +	return ret;
-> +}
-> +
+Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
