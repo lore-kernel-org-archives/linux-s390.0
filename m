@@ -2,118 +2,114 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 442A7C636CC
-	for <linux-s390@archiver.kernel.org>; Thu, 16 Feb 2023 06:17:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C6692C61DA4
+	for <linux-s390@archiver.kernel.org>; Thu, 16 Feb 2023 06:29:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229720AbjBPGRP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 16 Feb 2023 01:17:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60788 "EHLO
+        id S229506AbjBPG3w (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 16 Feb 2023 01:29:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229596AbjBPGRP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Feb 2023 01:17:15 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E02E3770D;
-        Wed, 15 Feb 2023 22:17:14 -0800 (PST)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31G4TYbk016020;
-        Thu, 16 Feb 2023 06:17:14 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=dwYvXklkQPC6Q+eIG8bMSC+KKu07S+NZwABvL1rqCUI=;
- b=MffWi8qpNCFIyvBUTfnoGGYxr82brVe3h68QvpfRrhUnjpXWaBvDVvzu4Uq2fU7J3oLV
- oAnf6Z/r3XDGyX9jhJ1BqwjkID9O8dpthh+bUNtCbICKhJEK4osOVKYJScHfEqeHxubp
- iGqEMg+Eespm6xKXuc7lLSGN8VvZ5vCFxIc41rLHdSPCSPJP5MN8ZX9qBqQ5bjSIol/K
- rLdbr+z8HOcM53WuvWgyQzcxSnCzP1CVANRtLqMt8x8fVfN1ln/MlqzrspWUT19CIqbl
- 7h6zSislRyjWMvih5qfc+tSjAZ5P6naznrABqtfeL7AotL8XDhjlU+EUf4qqhG7K8YBQ ig== 
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nsdgsa244-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 16 Feb 2023 06:17:13 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31G5k3ne031329;
-        Thu, 16 Feb 2023 06:17:11 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3np29fp8v3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 16 Feb 2023 06:17:11 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31G6H7qq44171632
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 16 Feb 2023 06:17:07 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CDC1C2004D;
-        Thu, 16 Feb 2023 06:17:07 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 59A3120040;
-        Thu, 16 Feb 2023 06:17:07 +0000 (GMT)
-Received: from li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com (unknown [9.171.28.250])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Thu, 16 Feb 2023 06:17:07 +0000 (GMT)
-Date:   Thu, 16 Feb 2023 07:17:05 +0100
-From:   Alexander Gordeev <agordeev@linux.ibm.com>
-To:     Nico Boehr <nrb@linux.ibm.com>
-Cc:     borntraeger@linux.ibm.com, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH v1 1/1] s390: nmi: fix virtual-physical address confusion
-Message-ID: <Y+3KYSnJsznJEX4v@li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com>
-References: <20230215160252.14672-1-nrb@linux.ibm.com>
- <20230215160252.14672-2-nrb@linux.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230215160252.14672-2-nrb@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: KzHwTlKRbVxEUMabM7UXhfEIDReZekPY
-X-Proofpoint-ORIG-GUID: KzHwTlKRbVxEUMabM7UXhfEIDReZekPY
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
- definitions=2023-02-16_04,2023-02-15_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- impostorscore=0 suspectscore=0 mlxlogscore=944 clxscore=1011
- malwarescore=0 adultscore=0 phishscore=0 spamscore=0 lowpriorityscore=0
- mlxscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2302160050
+        with ESMTP id S229593AbjBPG3v (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Feb 2023 01:29:51 -0500
+Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 476403D094;
+        Wed, 15 Feb 2023 22:29:49 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R801e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0VbnGN.N_1676528975;
+Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VbnGN.N_1676528975)
+          by smtp.aliyun-inc.com;
+          Thu, 16 Feb 2023 14:29:46 +0800
+From:   "D. Wythe" <alibuda@linux.alibaba.com>
+To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+Subject: [PATCH] net/smc: fix application data exception
+Date:   Thu, 16 Feb 2023 14:29:35 +0800
+Message-Id: <1676528975-20423-1-git-send-email-alibuda@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Feb 15, 2023 at 05:02:52PM +0100, Nico Boehr wrote:
-> When a machine check is received while in SIE, it is reinjected into the
-> guest in some cases. The respective code needs to access the sie_block,
-> which is taken from the backed up R14.
-> 
-> Since reinjection only occurs while we are in SIE (i.e. between the
-> labels sie_entry and sie_leave in entry.S and thus if CIF_MCCK_GUEST is
-> set), the backed up R14 will always contain a physical address in
-> s390_backup_mcck_info.
-> 
-> This currently works, because virtual and physical addresses are
-> the same.
-> 
-> Add phys_to_virt() to resolve the virtual-physical confusion.
-> 
-> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
-> ---
->  arch/s390/kernel/nmi.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/arch/s390/kernel/nmi.c b/arch/s390/kernel/nmi.c
-> index 5dbf274719a9..322160328866 100644
-> --- a/arch/s390/kernel/nmi.c
-> +++ b/arch/s390/kernel/nmi.c
-> @@ -347,7 +347,7 @@ static void notrace s390_backup_mcck_info(struct pt_regs *regs)
->  
->  	/* r14 contains the sie block, which was set in sie64a */
->  	struct kvm_s390_sie_block *sie_block =
-> -			(struct kvm_s390_sie_block *) regs->gprs[14];
-> +			(struct kvm_s390_sie_block *)phys_to_virt(regs->gprs[14]);
+From: "D. Wythe" <alibuda@linux.alibaba.com>
 
-Casting to (struct kvm_s390_sie_block *) is not superfluous,
-since phys_to_virt() returns (void *).
+There is a certain probability that following
+exceptions will occur in the wrk benchmark test:
 
->  
->  	if (sie_block == NULL)
->  		/* Something's seriously wrong, stop system. */
+Running 10s test @ http://11.213.45.6:80
+  8 threads and 64 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     3.72ms   13.94ms 245.33ms   94.17%
+    Req/Sec     1.96k   713.67     5.41k    75.16%
+  155262 requests in 10.10s, 23.10MB read
+Non-2xx or 3xx responses: 3
 
-Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com>
+We will find that the error is HTTP 400 error, which is a serious
+exception in our test, which means the application data was
+corrupted.
+
+Consider the following scenarios:
+
+CPU0                            CPU1
+
+buf_desc->used = 0;
+                                cmpxchg(buf_desc->used, 0, 1)
+                                deal_with(buf_desc)
+
+memset(buf_desc->cpu_addr,0);
+
+This will cause the data received by a victim connection to be cleared,
+thus triggering an HTTP 400 error in the server.
+
+This patch exchange the order between clear used and memset, add
+barrier to ensure memory consistency.
+
+Fixes: 1c5526968e27 ("net/smc: Clear memory when release and reuse buffer")
+Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+---
+ net/smc/smc_core.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
+
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index c305d8d..c19d4b7 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -1120,8 +1120,9 @@ static void smcr_buf_unuse(struct smc_buf_desc *buf_desc, bool is_rmb,
+ 
+ 		smc_buf_free(lgr, is_rmb, buf_desc);
+ 	} else {
+-		buf_desc->used = 0;
+-		memset(buf_desc->cpu_addr, 0, buf_desc->len);
++		/* memzero_explicit provides potential memory barrier semantics */
++		memzero_explicit(buf_desc->cpu_addr, buf_desc->len);
++		WRITE_ONCE(buf_desc->used, 0);
+ 	}
+ }
+ 
+@@ -1132,19 +1133,17 @@ static void smc_buf_unuse(struct smc_connection *conn,
+ 		if (!lgr->is_smcd && conn->sndbuf_desc->is_vm) {
+ 			smcr_buf_unuse(conn->sndbuf_desc, false, lgr);
+ 		} else {
+-			conn->sndbuf_desc->used = 0;
+-			memset(conn->sndbuf_desc->cpu_addr, 0,
+-			       conn->sndbuf_desc->len);
++			memzero_explicit(conn->sndbuf_desc->cpu_addr, conn->sndbuf_desc->len);
++			WRITE_ONCE(conn->sndbuf_desc->used, 0);
+ 		}
+ 	}
+ 	if (conn->rmb_desc) {
+ 		if (!lgr->is_smcd) {
+ 			smcr_buf_unuse(conn->rmb_desc, true, lgr);
+ 		} else {
+-			conn->rmb_desc->used = 0;
+-			memset(conn->rmb_desc->cpu_addr, 0,
+-			       conn->rmb_desc->len +
+-			       sizeof(struct smcd_cdc_msg));
++			memzero_explicit(conn->rmb_desc->cpu_addr,
++					 conn->rmb_desc->len + sizeof(struct smcd_cdc_msg));
++			WRITE_ONCE(conn->rmb_desc->used, 0);
+ 		}
+ 	}
+ }
+-- 
+1.8.3.1
+
