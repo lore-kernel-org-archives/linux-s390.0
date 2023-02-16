@@ -2,114 +2,84 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3DD2AC636D6
-	for <linux-s390@archiver.kernel.org>; Thu, 16 Feb 2023 09:38:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 45366C61DA4
+	for <linux-s390@archiver.kernel.org>; Thu, 16 Feb 2023 09:40:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230185AbjBPJi0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 16 Feb 2023 04:38:26 -0500
+        id S230059AbjBPJkq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 16 Feb 2023 04:40:46 -0500
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230090AbjBPJhy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Feb 2023 04:37:54 -0500
-Received: from wout2-smtp.messagingengine.com (wout2-smtp.messagingengine.com [64.147.123.25])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 644B54DBE4;
-        Thu, 16 Feb 2023 01:37:25 -0800 (PST)
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.47])
-        by mailout.west.internal (Postfix) with ESMTP id 1F53832001BB;
-        Thu, 16 Feb 2023 04:37:24 -0500 (EST)
-Received: from imap51 ([10.202.2.101])
-  by compute6.internal (MEProxy); Thu, 16 Feb 2023 04:37:24 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-        :cc:content-transfer-encoding:content-type:date:date:from:from
-        :in-reply-to:in-reply-to:message-id:mime-version:references
-        :reply-to:sender:subject:subject:to:to; s=fm3; t=1676540243; x=
-        1676626643; bh=3qtMvMYknHGfh40A4UZz8DLaQZp4jnMbRhe8LWR0t+w=; b=Z
-        a29HGkgXDBwGZutqlRmhhXBtrfdhm+RQSPaXkaZfv7g2H8BUD+XGxD9Z3gOZL3VD
-        hDST43RArWz6FqW2ciSohYdggFEBr7DrSMh3JtSwgJ1U27jjoGAx1KN6HLKKTFe5
-        8Vu0GYbQom02qG9k8k9ZjKF1USmDBVvEP+kwJdziu5kj8hIj7DCTKa4NCcq6hVn0
-        CFwK0kG5AOMhSCGb/5uENc44bB/706/cvPX3lnHZDDA9a8hoOZpHjN9xez9FIIfM
-        4QwXZ7nntvAnzJHNq32+GlRbcZ4PHfAYbbNQApR/vDj/WD2MckYLxIr1R4aKmifH
-        tqy3VHLIjgR8U4LxJ042Q==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-transfer-encoding
-        :content-type:date:date:feedback-id:feedback-id:from:from
-        :in-reply-to:in-reply-to:message-id:mime-version:references
-        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1676540243; x=
-        1676626643; bh=3qtMvMYknHGfh40A4UZz8DLaQZp4jnMbRhe8LWR0t+w=; b=j
-        xevGVtKl+Wj3W5n+dwZnJO7A9RahIL2woSK1vX0bN9ORfgETkXVv62w05plyBVr5
-        3j8121hBMzLwT5mrHp9ok/JKRM0RBe+MOPmPnQ5fJ30Z59Qvm0gPWBM5KHVJmtEQ
-        I+iXsn6/cZjFh3nNFqw+mCQtICfB0Nlu2CV8orbowthY6+XyE2JQUq72aGdNvIaN
-        ukaMhd+p4hKFkfj8O1GAEBt9nXeTbsEceRxj9Htx8jjt/xl6EEKc8/SB2Zu9m0L4
-        HEpxtbnLdCOV0rg/Z2t05fbpcL9BWEuDIeQQicg4NSp+ysxcubfmHw//uOCbAjO2
-        1YhfqZjcxV8CN9Inc+zlQ==
-X-ME-Sender: <xms:U_ntY25cIggzzknlxJrQ0N09Is7mpzeycTAGYsY9N2ROL0tAAlyhlA>
-    <xme:U_ntY_5KCjdyhs1C9G_UoHhs0NxHxckj-yxAUvjZyto6XlaTD6iLHinToxGqhp9DQ
-    Yf-IMa575qJVvtU9fQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrudeijedgtdehucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepofgfggfkjghffffhvfevufgtgfesthhqredtreerjeenucfhrhhomhepfdet
-    rhhnugcuuegvrhhgmhgrnhhnfdcuoegrrhhnugesrghrnhgusgdruggvqeenucggtffrrg
-    htthgvrhhnpeegfeejhedvledvffeijeeijeeivddvhfeliedvleevheejleetgedukedt
-    gfejveenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    grrhhnugesrghrnhgusgdruggv
-X-ME-Proxy: <xmx:U_ntY1d6SgyMH17ULVOhD4DJptvKdByotyBYzOBQxgU29yBP28cXzA>
-    <xmx:U_ntYzKtt6TIGFh0Eoye6b0NWjCLUeHSLT5-UVxlJEr3sb1DO82PiQ>
-    <xmx:U_ntY6JuK2oheuOZhcyArJWfesQyJyQiNprbSWDuaNAddh0SwyGAvw>
-    <xmx:U_ntYy-5tyK7S_OmCci68nz7ncPUWIV2ERa62n7GEA4EKnV-BzpQ4A>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-        id 02688B60089; Thu, 16 Feb 2023 04:37:23 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.9.0-alpha0-156-g081acc5ed5-fm-20230206.001-g081acc5e
-Mime-Version: 1.0
-Message-Id: <2c8d97ad-126d-4912-b4eb-37437d8c3407@app.fastmail.com>
-In-Reply-To: <4f98164406cfd6da084f9ef617a6668dc4e8d44b.camel@linux.ibm.com>
-References: <20230216073403.451455-1-bhe@redhat.com>
- <4f98164406cfd6da084f9ef617a6668dc4e8d44b.camel@linux.ibm.com>
-Date:   Thu, 16 Feb 2023 10:37:03 +0100
-From:   "Arnd Bergmann" <arnd@arndb.de>
-To:     "Niklas Schnelle" <schnelle@linux.ibm.com>,
-        "Baoquan He" <bhe@redhat.com>, linux-kernel@vger.kernel.org
-Cc:     linux-mm@kvack.org, linux-s390@vger.kernel.org,
-        "Dominik Brodowski" <linux@dominikbrodowski.net>,
-        "Jonathan Cameron" <Jonathan.Cameron@huawei.com>,
-        "Linus Walleij" <linus.walleij@linaro.org>,
-        "Thomas Bogendoerfer" <tsbogend@alpha.franken.de>
-Subject: Re: [PATCH 1/2] pcmcia : make PCMCIA depend on HAS_IOMEM
-Content-Type: text/plain;charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S229631AbjBPJkS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Feb 2023 04:40:18 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E6184C6C8;
+        Thu, 16 Feb 2023 01:39:30 -0800 (PST)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31G9KX7J018668;
+        Thu, 16 Feb 2023 09:38:40 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=mVNyMsUhyXTx1xWUSoRlDn47fWcmqoMi3HzBKVv9n0g=;
+ b=bY/Hu3Gu9rNRaUIR+/kUd22IiljxeWaxl95YLJGs6Irw3OwQlUGazjznlSw0cNax9P8a
+ MFHm/ARFIReGtbGy0nW25/R4GIg2LNiUAcNgUB+9cF11wcOnDgIzQIiITIHHarDw5x7t
+ ke3XLkC1bzVVIbYbvOuWbBikbdavbuUrPlu8JiVwlnunOhoVzmg9HG0kqbtcWo+mDbZu
+ rZwRSHPvad1PVZDgAIyX6zTR8jj8mSayZXO/U58reMAvVzAH7B8ay9/rzy93UcUiELa6
+ LXFboCwD/+uUPvfehOkNPal7k5xi1vOuF6+fRQv1MdNtrQp/Fqi0EacpPEPxZoYFQxe7 sA== 
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nshs6gb71-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 16 Feb 2023 09:38:39 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31G5rv8t010804;
+        Thu, 16 Feb 2023 09:38:37 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3np2n6xf3y-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 16 Feb 2023 09:38:37 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31G9cY1S51053034
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 16 Feb 2023 09:38:34 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id ED2632004D;
+        Thu, 16 Feb 2023 09:38:33 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CD9122004B;
+        Thu, 16 Feb 2023 09:38:33 +0000 (GMT)
+Received: from li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com (unknown [9.155.204.110])
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Thu, 16 Feb 2023 09:38:33 +0000 (GMT)
+Date:   Thu, 16 Feb 2023 10:38:32 +0100
+From:   Alexander Gordeev <agordeev@linux.ibm.com>
+To:     Nico Boehr <nrb@linux.ibm.com>
+Cc:     borntraeger@linux.ibm.com, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH v1 1/1] s390: nmi: fix virtual-physical address confusion
+Message-ID: <Y+35mHYZJlKT+e+s@li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com>
+References: <20230215160252.14672-1-nrb@linux.ibm.com>
+ <20230215160252.14672-2-nrb@linux.ibm.com>
+ <Y+3KYSnJsznJEX4v@li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Y+3KYSnJsznJEX4v@li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Vo6FwcE5ac0S9XU5LlmI-USs_Msf1EdO
+X-Proofpoint-ORIG-GUID: Vo6FwcE5ac0S9XU5LlmI-USs_Msf1EdO
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
+ definitions=2023-02-16_06,2023-02-15_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ spamscore=0 impostorscore=0 mlxscore=0 mlxlogscore=721 malwarescore=0
+ bulkscore=0 phishscore=0 suspectscore=0 priorityscore=1501 adultscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2302160075
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Feb 16, 2023, at 10:05, Niklas Schnelle wrote:
-> On Thu, 2023-02-16 at 15:34 +0800, Baoquan He wrote:
->> diff --git a/drivers/pcmcia/Kconfig b/drivers/pcmcia/Kconfig
->> index 1525023e49b6..7c412bbe8bbe 100644
->> --- a/drivers/pcmcia/Kconfig
->> +++ b/drivers/pcmcia/Kconfig
->> @@ -20,6 +20,7 @@ if PCCARD
->> =20
->>  config PCMCIA
->>  	tristate "16-bit PCMCIA support"
->> +	depends on HAS_IOMEM
->>  	select CRC32
->>  	default y
->>  	help
->
-> Not sure how many PCMCIA drivers only use I/O memory but not I/O ports
-> the latter of which are badly stubbed out on s390, though at leat they
-> compile. I have a series on that part that I intend to send a new
-> version for soon=E2=84=A2. That said yes this does solve the compilati=
-on issue
-> and there could be drivers which rely only on I/O memory and are not
-> broken in principle.
+On Thu, Feb 16, 2023 at 07:17:07AM +0100, Alexander Gordeev wrote:
+> Casting to (struct kvm_s390_sie_block *) is not superfluous,
 
-There are no platforms that have I/O ports but don't set HAS_IOMEM, so it
-doesn't really matter.
-
-> Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
-
-Acked-by: Arnd Bergmann <arnd@arndb.de>
+s/not//
