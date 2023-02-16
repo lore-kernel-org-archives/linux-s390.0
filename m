@@ -2,251 +2,179 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 842F7C636D6
-	for <linux-s390@archiver.kernel.org>; Thu, 16 Feb 2023 13:41:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B5F8FC636CC
+	for <linux-s390@archiver.kernel.org>; Thu, 16 Feb 2023 13:49:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230160AbjBPNlc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 16 Feb 2023 08:41:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50126 "EHLO
+        id S229532AbjBPNtd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 16 Feb 2023 08:49:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229673AbjBPNlb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Feb 2023 08:41:31 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AF3846D6D;
-        Thu, 16 Feb 2023 05:41:30 -0800 (PST)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31GCi6TG010500;
-        Thu, 16 Feb 2023 13:41:29 GMT
+        with ESMTP id S229482AbjBPNtc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Feb 2023 08:49:32 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4898E39BBE;
+        Thu, 16 Feb 2023 05:49:31 -0800 (PST)
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31GDP3eP000633;
+        Thu, 16 Feb 2023 13:49:22 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=4GW9HGTcCea+TxaGteRpkHZ0UVUKrvCVO/dKrvjpaFk=;
- b=sZAyuuCyfW664a5V1OxANXuiJU7KVJ9PVK35vgBt6A2zYQp5XhfKlJrP0Cnj7JUiB1Me
- wevnkDMh3+1c1GTZKVLKa3meSkwL0YMMgM60DaQyr7r8wWkHPDs4u+tlCBEARaZp8cN6
- lKoyilRS1le79AHUAvmQmSK3ANi6RHl82CT1PvBhq4+C/LoiZOFoPY9TJpAclIE53Qrx
- 0RvOsmgNEKVw8GODiNlVQvwCQDDjlvLYZRzgtyA0QZkAHJFBUleDyNpZ9vMBBFzK3wx4
- FnjVJMRlXxWtn+XYUaujihBeg2mf5/nT4dJ9yEOFpy/b/hb5Je2zzia9+AHRAzE0vv0/ sA== 
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=o9ifNvZeq5Hmh6hCJQ12e1ll1uFMGZJMBoeN7Fx7EbU=;
+ b=i2GyNPJ7AuHmdRUsjkpJ7GXNN5oPZx5z7V9sa5hmexGqLdc/0F8N8VR8FL/XRQUlevRm
+ lfxhUkUMxwyNvaw3KeiSwNsbyF26cPCsN67N20Mjj1dHmqsG/75reQqSBBA1nncqE5vp
+ tgKk9p5+4g4aebsYnZdnWc+qbOHrrs8LAUTHc3JyJ5b2GZJA0xLH/MKz/QqTmDqrZxws
+ NfYY85Uj6saZQT5sDx41knAGAHUUXcC2Heg4SDnQVbC37IKTtNaIoGY2rESYO+LHQ26V
+ 89Zglq/piFRyXONq/dNN2FBE14X0wVQ8dcPc06bnRdEK39CeA6JKiEhcsWJOCu5OAqFp EQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3nsmrd1dxe-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nskd8kmd9-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 16 Feb 2023 13:41:29 +0000
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 31GDBr0K008790;
-        Thu, 16 Feb 2023 13:41:28 GMT
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3nsmrd1dwa-1
+        Thu, 16 Feb 2023 13:49:21 +0000
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 31GCUJ43017331;
+        Thu, 16 Feb 2023 13:49:21 GMT
+Received: from ppma04wdc.us.ibm.com (1a.90.2fa9.ip4.static.sl-reverse.com [169.47.144.26])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nskd8kmcx-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 16 Feb 2023 13:41:28 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31FMktdQ028428;
-        Thu, 16 Feb 2023 13:41:27 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-        by ppma02fra.de.ibm.com (PPS) with ESMTPS id 3np2n6mycp-1
+        Thu, 16 Feb 2023 13:49:20 +0000
+Received: from pps.filterd (ppma04wdc.us.ibm.com [127.0.0.1])
+        by ppma04wdc.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31GCPfbJ020647;
+        Thu, 16 Feb 2023 13:49:19 GMT
+Received: from smtprelay04.wdc07v.mail.ibm.com ([9.208.129.114])
+        by ppma04wdc.us.ibm.com (PPS) with ESMTPS id 3np2n7ar1e-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 16 Feb 2023 13:41:26 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31GDfMEW47448338
+        Thu, 16 Feb 2023 13:49:19 +0000
+Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
+        by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31GDnH4N25166248
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 16 Feb 2023 13:41:23 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D733F20043;
-        Thu, 16 Feb 2023 13:41:22 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 459EE20040;
-        Thu, 16 Feb 2023 13:41:22 +0000 (GMT)
-Received: from [9.171.30.51] (unknown [9.171.30.51])
-        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Thu, 16 Feb 2023 13:41:22 +0000 (GMT)
-Message-ID: <d32a4080-3c74-27f0-2ef7-78755da98022@linux.ibm.com>
-Date:   Thu, 16 Feb 2023 14:41:22 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.2
-Subject: Re: [PATCH v3 1/1] KVM: s390: vsie: clarifications on setting the
- APCB
-To:     Pierre Morel <pmorel@linux.ibm.com>, david@redhat.com
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, borntraeger@de.ibm.com,
-        cohuck@redhat.com, thuth@redhat.com, imbrenda@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com, svens@linux.ibm.com
-References: <20230214122841.13066-1-pmorel@linux.ibm.com>
- <20230214122841.13066-2-pmorel@linux.ibm.com>
-Content-Language: en-US
-From:   Janosch Frank <frankja@linux.ibm.com>
-In-Reply-To: <20230214122841.13066-2-pmorel@linux.ibm.com>
+        Thu, 16 Feb 2023 13:49:18 GMT
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A204658055;
+        Thu, 16 Feb 2023 13:49:17 +0000 (GMT)
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2A7C75805E;
+        Thu, 16 Feb 2023 13:49:16 +0000 (GMT)
+Received: from [9.211.88.109] (unknown [9.211.88.109])
+        by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
+        Thu, 16 Feb 2023 13:49:15 +0000 (GMT)
+Message-ID: <1b7c95be-d3d9-53c3-3152-cd835314d37c@linux.ibm.com>
+Date:   Thu, 16 Feb 2023 14:49:15 +0100
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.8.0
+Subject: Re: [PATCH net v2] net/smc: fix application data exception
+To:     "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
+        jaka@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <1676529545-32741-1-git-send-email-alibuda@linux.alibaba.com>
+From:   Wenjia Zhang <wenjia@linux.ibm.com>
+In-Reply-To: <1676529545-32741-1-git-send-email-alibuda@linux.alibaba.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: bSWWLV9L_XbwnFL-Niq7IURztR_TMqGI
-X-Proofpoint-GUID: g1ymuem39vjcjT2YxTKVN2lwGVDeUa2l
+X-Proofpoint-GUID: 0eYrr9OCv4_xy2wwfiGNOLZIRWHxU8Gu
+X-Proofpoint-ORIG-GUID: alCmkdmknF4vh2rYTR5sZBPaZXXsTdxw
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
  definitions=2023-02-16_10,2023-02-16_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 phishscore=0
- clxscore=1015 impostorscore=0 adultscore=0 malwarescore=0
- priorityscore=1501 bulkscore=0 mlxscore=0 spamscore=0 mlxlogscore=999
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ adultscore=0 phishscore=0 mlxlogscore=999 suspectscore=0 spamscore=0
+ clxscore=1015 impostorscore=0 priorityscore=1501 bulkscore=0 mlxscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2212070000 definitions=main-2302160116
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2/14/23 13:28, Pierre Morel wrote:
-> The APCB is part of the CRYCB.
-> The calculation of the APCB origin can be done by adding
-> the APCB offset to the CRYCB origin.
-> 
-> Current code makes confusing transformations, converting
-> the CRYCB origin to a pointer to calculate the APCB origin.
-> 
-> Let's make things simpler and keep the CRYCB origin to make
-> these calculations.
-> 
-> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-LGTM:
-Acked-by: Janosch Frank <frankja@linux.ibm.com>
 
+On 16.02.23 07:39, D. Wythe wrote:
+> From: "D. Wythe" <alibuda@linux.alibaba.com>
+> 
+> There is a certain probability that following
+> exceptions will occur in the wrk benchmark test:
+> 
+> Running 10s test @ http://11.213.45.6:80
+>    8 threads and 64 connections
+>    Thread Stats   Avg      Stdev     Max   +/- Stdev
+>      Latency     3.72ms   13.94ms 245.33ms   94.17%
+>      Req/Sec     1.96k   713.67     5.41k    75.16%
+>    155262 requests in 10.10s, 23.10MB read
+> Non-2xx or 3xx responses: 3
+> 
+> We will find that the error is HTTP 400 error, which is a serious
+> exception in our test, which means the application data was
+> corrupted.
+> 
+> Consider the following scenarios:
+> 
+> CPU0                            CPU1
+> 
+> buf_desc->used = 0;
+>                                  cmpxchg(buf_desc->used, 0, 1)
+>                                  deal_with(buf_desc)
+> 
+> memset(buf_desc->cpu_addr,0);
+> 
+> This will cause the data received by a victim connection to be cleared,
+> thus triggering an HTTP 400 error in the server.
+> 
+> This patch exchange the order between clear used and memset, add
+> barrier to ensure memory consistency.
+> 
+> Fixes: 1c5526968e27 ("net/smc: Clear memory when release and reuse buffer")
+> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
 > ---
->   arch/s390/kvm/vsie.c | 50 +++++++++++++++++++++++++-------------------
->   1 file changed, 29 insertions(+), 21 deletions(-)
+> v2: rebase it with latest net tree.
 > 
-> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-> index b6a0219e470a..8d6b765abf29 100644
-> --- a/arch/s390/kvm/vsie.c
-> +++ b/arch/s390/kvm/vsie.c
-> @@ -138,11 +138,15 @@ static int prepare_cpuflags(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+
+Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
+
+>   net/smc/smc_core.c | 17 ++++++++---------
+>   1 file changed, 8 insertions(+), 9 deletions(-)
+> 
+> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+> index c305d8d..c19d4b7 100644
+> --- a/net/smc/smc_core.c
+> +++ b/net/smc/smc_core.c
+> @@ -1120,8 +1120,9 @@ static void smcr_buf_unuse(struct smc_buf_desc *buf_desc, bool is_rmb,
+>   
+>   		smc_buf_free(lgr, is_rmb, buf_desc);
+>   	} else {
+> -		buf_desc->used = 0;
+> -		memset(buf_desc->cpu_addr, 0, buf_desc->len);
+> +		/* memzero_explicit provides potential memory barrier semantics */
+> +		memzero_explicit(buf_desc->cpu_addr, buf_desc->len);
+> +		WRITE_ONCE(buf_desc->used, 0);
+>   	}
 >   }
->   /* Copy to APCB FORMAT1 from APCB FORMAT0 */
->   static int setup_apcb10(struct kvm_vcpu *vcpu, struct kvm_s390_apcb1 *apcb_s,
-> -			unsigned long apcb_o, struct kvm_s390_apcb1 *apcb_h)
-> +			unsigned long crycb_gpa, struct kvm_s390_apcb1 *apcb_h)
->   {
->   	struct kvm_s390_apcb0 tmp;
-> +	unsigned long apcb_gpa;
 >   
-> -	if (read_guest_real(vcpu, apcb_o, &tmp, sizeof(struct kvm_s390_apcb0)))
-> +	apcb_gpa = crycb_gpa + offsetof(struct kvm_s390_crypto_cb, apcb0);
-> +
-> +	if (read_guest_real(vcpu, apcb_gpa, &tmp,
-> +			    sizeof(struct kvm_s390_apcb0)))
->   		return -EFAULT;
->   
->   	apcb_s->apm[0] = apcb_h->apm[0] & tmp.apm[0];
-> @@ -157,15 +161,19 @@ static int setup_apcb10(struct kvm_vcpu *vcpu, struct kvm_s390_apcb1 *apcb_s,
->    * setup_apcb00 - Copy to APCB FORMAT0 from APCB FORMAT0
->    * @vcpu: pointer to the virtual CPU
->    * @apcb_s: pointer to start of apcb in the shadow crycb
-> - * @apcb_o: pointer to start of original apcb in the guest2
-> + * @crycb_gpa: guest physical address to start of original guest crycb
->    * @apcb_h: pointer to start of apcb in the guest1
->    *
->    * Returns 0 and -EFAULT on error reading guest apcb
->    */
->   static int setup_apcb00(struct kvm_vcpu *vcpu, unsigned long *apcb_s,
-> -			unsigned long apcb_o, unsigned long *apcb_h)
-> +			unsigned long crycb_gpa, unsigned long *apcb_h)
->   {
-> -	if (read_guest_real(vcpu, apcb_o, apcb_s,
-> +	unsigned long apcb_gpa;
-> +
-> +	apcb_gpa = crycb_gpa + offsetof(struct kvm_s390_crypto_cb, apcb0);
-> +
-> +	if (read_guest_real(vcpu, apcb_gpa, apcb_s,
->   			    sizeof(struct kvm_s390_apcb0)))
->   		return -EFAULT;
->   
-> @@ -178,16 +186,20 @@ static int setup_apcb00(struct kvm_vcpu *vcpu, unsigned long *apcb_s,
->    * setup_apcb11 - Copy the FORMAT1 APCB from the guest to the shadow CRYCB
->    * @vcpu: pointer to the virtual CPU
->    * @apcb_s: pointer to start of apcb in the shadow crycb
-> - * @apcb_o: pointer to start of original guest apcb
-> + * @crycb_gpa: guest physical address to start of original guest crycb
->    * @apcb_h: pointer to start of apcb in the host
->    *
->    * Returns 0 and -EFAULT on error reading guest apcb
->    */
->   static int setup_apcb11(struct kvm_vcpu *vcpu, unsigned long *apcb_s,
-> -			unsigned long apcb_o,
-> +			unsigned long crycb_gpa,
->   			unsigned long *apcb_h)
->   {
-> -	if (read_guest_real(vcpu, apcb_o, apcb_s,
-> +	unsigned long apcb_gpa;
-> +
-> +	apcb_gpa = crycb_gpa + offsetof(struct kvm_s390_crypto_cb, apcb1);
-> +
-> +	if (read_guest_real(vcpu, apcb_gpa, apcb_s,
->   			    sizeof(struct kvm_s390_apcb1)))
->   		return -EFAULT;
->   
-> @@ -200,7 +212,7 @@ static int setup_apcb11(struct kvm_vcpu *vcpu, unsigned long *apcb_s,
->    * setup_apcb - Create a shadow copy of the apcb.
->    * @vcpu: pointer to the virtual CPU
->    * @crycb_s: pointer to shadow crycb
-> - * @crycb_o: pointer to original guest crycb
-> + * @crycb_gpa: guest physical address of original guest crycb
->    * @crycb_h: pointer to the host crycb
->    * @fmt_o: format of the original guest crycb.
->    * @fmt_h: format of the host crycb.
-> @@ -211,50 +223,46 @@ static int setup_apcb11(struct kvm_vcpu *vcpu, unsigned long *apcb_s,
->    * Return 0 or an error number if the guest and host crycb are incompatible.
->    */
->   static int setup_apcb(struct kvm_vcpu *vcpu, struct kvm_s390_crypto_cb *crycb_s,
-> -	       const u32 crycb_o,
-> +	       const u32 crycb_gpa,
->   	       struct kvm_s390_crypto_cb *crycb_h,
->   	       int fmt_o, int fmt_h)
->   {
-> -	struct kvm_s390_crypto_cb *crycb;
-> -
-> -	crycb = (struct kvm_s390_crypto_cb *) (unsigned long)crycb_o;
-> -
->   	switch (fmt_o) {
->   	case CRYCB_FORMAT2:
-> -		if ((crycb_o & PAGE_MASK) != ((crycb_o + 256) & PAGE_MASK))
-> +		if ((crycb_gpa & PAGE_MASK) != ((crycb_gpa + 256) & PAGE_MASK))
->   			return -EACCES;
->   		if (fmt_h != CRYCB_FORMAT2)
->   			return -EINVAL;
->   		return setup_apcb11(vcpu, (unsigned long *)&crycb_s->apcb1,
-> -				    (unsigned long) &crycb->apcb1,
-> +				    crycb_gpa,
->   				    (unsigned long *)&crycb_h->apcb1);
->   	case CRYCB_FORMAT1:
->   		switch (fmt_h) {
->   		case CRYCB_FORMAT2:
->   			return setup_apcb10(vcpu, &crycb_s->apcb1,
-> -					    (unsigned long) &crycb->apcb0,
-> +					    crycb_gpa,
->   					    &crycb_h->apcb1);
->   		case CRYCB_FORMAT1:
->   			return setup_apcb00(vcpu,
->   					    (unsigned long *) &crycb_s->apcb0,
-> -					    (unsigned long) &crycb->apcb0,
-> +					    crycb_gpa,
->   					    (unsigned long *) &crycb_h->apcb0);
->   		}
->   		break;
->   	case CRYCB_FORMAT0:
-> -		if ((crycb_o & PAGE_MASK) != ((crycb_o + 32) & PAGE_MASK))
-> +		if ((crycb_gpa & PAGE_MASK) != ((crycb_gpa + 32) & PAGE_MASK))
->   			return -EACCES;
->   
->   		switch (fmt_h) {
->   		case CRYCB_FORMAT2:
->   			return setup_apcb10(vcpu, &crycb_s->apcb1,
-> -					    (unsigned long) &crycb->apcb0,
-> +					    crycb_gpa,
->   					    &crycb_h->apcb1);
->   		case CRYCB_FORMAT1:
->   		case CRYCB_FORMAT0:
->   			return setup_apcb00(vcpu,
->   					    (unsigned long *) &crycb_s->apcb0,
-> -					    (unsigned long) &crycb->apcb0,
-> +					    crycb_gpa,
->   					    (unsigned long *) &crycb_h->apcb0);
+> @@ -1132,19 +1133,17 @@ static void smc_buf_unuse(struct smc_connection *conn,
+>   		if (!lgr->is_smcd && conn->sndbuf_desc->is_vm) {
+>   			smcr_buf_unuse(conn->sndbuf_desc, false, lgr);
+>   		} else {
+> -			conn->sndbuf_desc->used = 0;
+> -			memset(conn->sndbuf_desc->cpu_addr, 0,
+> -			       conn->sndbuf_desc->len);
+> +			memzero_explicit(conn->sndbuf_desc->cpu_addr, conn->sndbuf_desc->len);
+> +			WRITE_ONCE(conn->sndbuf_desc->used, 0);
 >   		}
 >   	}
+>   	if (conn->rmb_desc) {
+>   		if (!lgr->is_smcd) {
+>   			smcr_buf_unuse(conn->rmb_desc, true, lgr);
+>   		} else {
+> -			conn->rmb_desc->used = 0;
+> -			memset(conn->rmb_desc->cpu_addr, 0,
+> -			       conn->rmb_desc->len +
+> -			       sizeof(struct smcd_cdc_msg));
+> +			memzero_explicit(conn->rmb_desc->cpu_addr,
+> +					 conn->rmb_desc->len + sizeof(struct smcd_cdc_msg));
+> +			WRITE_ONCE(conn->rmb_desc->used, 0);
+>   		}
+>   	}
+>   }
+
 
