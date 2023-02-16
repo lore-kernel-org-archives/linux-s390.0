@@ -2,69 +2,74 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 02119C61DA4
-	for <linux-s390@archiver.kernel.org>; Thu, 16 Feb 2023 12:12:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E4A5C636CC
+	for <linux-s390@archiver.kernel.org>; Thu, 16 Feb 2023 12:22:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229769AbjBPMMS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 16 Feb 2023 07:12:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54082 "EHLO
+        id S229983AbjBPMWd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 16 Feb 2023 07:22:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229571AbjBPMMQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Feb 2023 07:12:16 -0500
+        with ESMTP id S229482AbjBPMWc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Feb 2023 07:22:32 -0500
 Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8726555E4E;
-        Thu, 16 Feb 2023 04:12:15 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0BC0359A;
+        Thu, 16 Feb 2023 04:22:31 -0800 (PST)
 Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31GAHBso020836;
-        Thu, 16 Feb 2023 12:12:14 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=NEMplDzOnoRZ+rZ4XP8/1dRSul2SGgGctkRQTEcamXQ=;
- b=U5xsvm7wlj1Qs7CWuVIx2p1Ep5tTepaFJGmh8Xot2LPq83ZIZ8rTxdH2RQ2d8JF+4tii
- KXixNz0nHtbdVWVcrsg0ZHDKlkTkO7tmKAmA7SCKW95pvJcjU+FW6MlgkUm1psLclRDv
- lLRsd3r6szv+R/3fS8zaT5VVWbSnHKjn846cBS/StOgnNkod/8i/p8MRZPSr7uFZqtIi
- FDCeU0A13m1rnoHezfgC3wXA2cSD3rL9L1pBfBTbAOoH0wQlxHrIhBDa5CUJKM2R5Yv+
- OX9CZqX5BK+uRWFTp8zgYJ/Yr3gOGLteySi97SK9iaXZBdgAyO7jMd/etkUfWOvsQEoU kA== 
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3nsg20p7et-1
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31GAHEcF021092;
+        Thu, 16 Feb 2023 12:22:31 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=Atm6aCLZ5iKwcIIJpb+5ED5BPmQrD9wAXdpgFC4bOgc=;
+ b=OD5PjhUvv9ExeXWaohudaTZSEeNVbs76HKO3qN+cJXkfTQiBl1YcX48HEau+10PDHCHu
+ 61wYP1UW/WMiz9o3hxkSF6e98STHQmVTktaa507rEukNJU4sdDuiIX8VHRdKiz0I8Y97
+ t0QaaYA01D0xvLh62A5s1bVT+RXKMUtd672Q9t3vFE+vioR69KA6pJi7CQs0dGWtUCjY
+ WidQzIDqyW4efy+sjHeUpoZxnGmedwn0hvkFXhEGVGJ4zUJmfrorQL1T6YzmJH9E6vwA
+ t8VmJ1m9SMjS2StzHD06IVsd8FXl/6XumgxGzcLdwD91QLUWJzrf5pNrFeYDcsEWaton sQ== 
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3nsg20pdxq-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 16 Feb 2023 12:12:14 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31G4JY1T010684;
-        Thu, 16 Feb 2023 12:12:13 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3np2n6xn21-1
+        Thu, 16 Feb 2023 12:22:30 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31FMFBee032205;
+        Thu, 16 Feb 2023 12:22:29 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+        by ppma01fra.de.ibm.com (PPS) with ESMTPS id 3np2n6cws4-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 16 Feb 2023 12:12:12 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31GCC9UK23855620
+        Thu, 16 Feb 2023 12:22:29 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31GCMPKe35455430
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 16 Feb 2023 12:12:09 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6B00720040;
-        Thu, 16 Feb 2023 12:12:09 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1594C2004B;
-        Thu, 16 Feb 2023 12:12:09 +0000 (GMT)
-Received: from t35lp63.lnxne.boe (unknown [9.152.108.100])
-        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Thu, 16 Feb 2023 12:12:09 +0000 (GMT)
-From:   Nico Boehr <nrb@linux.ibm.com>
-To:     borntraeger@linux.ibm.com, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, agordeev@linux.ibm.com
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [PATCH v2 1/1] s390: nmi: fix virtual-physical address confusion
-Date:   Thu, 16 Feb 2023 13:12:08 +0100
-Message-Id: <20230216121208.4390-2-nrb@linux.ibm.com>
-X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230216121208.4390-1-nrb@linux.ibm.com>
+        Thu, 16 Feb 2023 12:22:25 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 45C432004B;
+        Thu, 16 Feb 2023 12:22:25 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F08B120043;
+        Thu, 16 Feb 2023 12:22:24 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.152.224.56])
+        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Thu, 16 Feb 2023 12:22:24 +0000 (GMT)
+Date:   Thu, 16 Feb 2023 13:22:23 +0100
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Nico Boehr <nrb@linux.ibm.com>
+Cc:     borntraeger@linux.ibm.com, frankja@linux.ibm.com,
+        agordeev@linux.ibm.com, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH v2 1/1] s390: nmi: fix virtual-physical address
+ confusion
+Message-ID: <20230216132223.43681bf7@p-imbrenda>
+In-Reply-To: <20230216121208.4390-2-nrb@linux.ibm.com>
 References: <20230216121208.4390-1-nrb@linux.ibm.com>
+        <20230216121208.4390-2-nrb@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: hNVdDfcZJnPrnNz-wtrbeDjLRPR4TaWU
-X-Proofpoint-ORIG-GUID: hNVdDfcZJnPrnNz-wtrbeDjLRPR4TaWU
+X-Proofpoint-GUID: uCpFPhT1RjsKwjeK2WvclIGswQl0_A4p
+X-Proofpoint-ORIG-GUID: uCpFPhT1RjsKwjeK2WvclIGswQl0_A4p
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
  definitions=2023-02-16_09,2023-02-16_01,2023-02-09_01
@@ -77,39 +82,43 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-When a machine check is received while in SIE, it is reinjected into the
-guest in some cases. The respective code needs to access the sie_block,
-which is taken from the backed up R14.
+On Thu, 16 Feb 2023 13:12:08 +0100
+Nico Boehr <nrb@linux.ibm.com> wrote:
 
-Since reinjection only occurs while we are in SIE (i.e. between the
-labels sie_entry and sie_leave in entry.S and thus if CIF_MCCK_GUEST is
-set), the backed up R14 will always contain a physical address in
-s390_backup_mcck_info.
+> When a machine check is received while in SIE, it is reinjected into the
+> guest in some cases. The respective code needs to access the sie_block,
+> which is taken from the backed up R14.
+> 
+> Since reinjection only occurs while we are in SIE (i.e. between the
+> labels sie_entry and sie_leave in entry.S and thus if CIF_MCCK_GUEST is
+> set), the backed up R14 will always contain a physical address in
+> s390_backup_mcck_info.
+> 
+> This currently works, because virtual and physical addresses are
+> the same.
+> 
+> Add phys_to_virt() to resolve the virtual-physical confusion.
+> 
+> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
 
-This currently works, because virtual and physical addresses are
-the same.
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-Add phys_to_virt() to resolve the virtual-physical confusion.
-
-Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
----
- arch/s390/kernel/nmi.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
-diff --git a/arch/s390/kernel/nmi.c b/arch/s390/kernel/nmi.c
-index 5dbf274719a9..56d9c559afa1 100644
---- a/arch/s390/kernel/nmi.c
-+++ b/arch/s390/kernel/nmi.c
-@@ -346,8 +346,7 @@ static void notrace s390_backup_mcck_info(struct pt_regs *regs)
- 	struct sie_page *sie_page;
- 
- 	/* r14 contains the sie block, which was set in sie64a */
--	struct kvm_s390_sie_block *sie_block =
--			(struct kvm_s390_sie_block *) regs->gprs[14];
-+	struct kvm_s390_sie_block *sie_block = phys_to_virt(regs->gprs[14]);
- 
- 	if (sie_block == NULL)
- 		/* Something's seriously wrong, stop system. */
--- 
-2.39.1
+> ---
+>  arch/s390/kernel/nmi.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+> 
+> diff --git a/arch/s390/kernel/nmi.c b/arch/s390/kernel/nmi.c
+> index 5dbf274719a9..56d9c559afa1 100644
+> --- a/arch/s390/kernel/nmi.c
+> +++ b/arch/s390/kernel/nmi.c
+> @@ -346,8 +346,7 @@ static void notrace s390_backup_mcck_info(struct pt_regs *regs)
+>  	struct sie_page *sie_page;
+>  
+>  	/* r14 contains the sie block, which was set in sie64a */
+> -	struct kvm_s390_sie_block *sie_block =
+> -			(struct kvm_s390_sie_block *) regs->gprs[14];
+> +	struct kvm_s390_sie_block *sie_block = phys_to_virt(regs->gprs[14]);
+>  
+>  	if (sie_block == NULL)
+>  		/* Something's seriously wrong, stop system. */
 
