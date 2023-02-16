@@ -2,90 +2,91 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 96898C636CC
-	for <linux-s390@archiver.kernel.org>; Thu, 16 Feb 2023 09:05:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A10DDC6379F
+	for <linux-s390@archiver.kernel.org>; Thu, 16 Feb 2023 09:06:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229607AbjBPJFk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 16 Feb 2023 04:05:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49446 "EHLO
+        id S229947AbjBPJGr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 16 Feb 2023 04:06:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229597AbjBPJFj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Feb 2023 04:05:39 -0500
+        with ESMTP id S229914AbjBPJGq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Feb 2023 04:06:46 -0500
 Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B25C21A2D;
-        Thu, 16 Feb 2023 01:05:38 -0800 (PST)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31G80oHF023410;
-        Thu, 16 Feb 2023 09:05:21 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A30B41097;
+        Thu, 16 Feb 2023 01:06:41 -0800 (PST)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31G7kTpT012454;
+        Thu, 16 Feb 2023 09:06:34 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
  from : to : cc : date : in-reply-to : references : content-type :
  content-transfer-encoding : mime-version; s=pp1;
- bh=bxNkA3ggBvcUfThISmViaKYT+iTgOdvYOa+mzjEjusc=;
- b=tQkEnewXmy4rlU2m1yZ0q5/L9rgjdzXx3Wp9oMP+64jMA5XpgLjYgckdphD3XOLjraZG
- k1VQESWluUvdbia4Djq+jOV4AsKdB/G3w+ZcG66CU39251HR1XMaeNTKQs5AkToWuJjd
- cbde/9r3mQF4AmM7d+YzU+T1V37BMThvIeqp8Oa2O7qdVe4wA1qW9/AZrrBOnEbHRmWB
- 5b5Tt1RtFQ8rs1KuChUi6X9uaRi8rnbY4Hp12bWM03tc52o5FnggUNPq2VTGzlnMGB6g
- gWPUq2r3PyYcSFO28/RcMOTmsIi9Fm70Sl0wIr+tjAgFqNRh1U8rTOHeAy2/PXwYevj1 qw== 
+ bh=oDZWguDzkkgUlhjTXniQgW8NbcX0l1LLI9MK2woh0/c=;
+ b=OfTlQqnfR1j1VbZx81MZOPaYaTTHadETCEakTHA9nTCaDpB3fjAkVgY5bC0izpVGq0BB
+ 0TFwNP2unVsoIGUz4yZe8QWF9pkodruFYaTVgr4kBvY0AEcVsknXsJ/bm/ZTUzuCTl9r
+ vMvoYZOyF2kgHhF3g3FEsd6GKFvoKeyOVSFFdtFGJY0bP5b2QYCbrFQ0AVsjE0mkZLa8
+ R5HvpbZQuAqDIKJkzCZkcaz8unYHeenJLpu9iNzwtKLCQl7q5ffbSY5dj/VwEvXRqYcK
+ ABhEyMgdz1BsSKZnUnw/USRcSAei9yCoAfnoKnfnt4MLWL9sJeVd2fw6Ezxvg5gU6/pL 8Q== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3nsg20j7bv-1
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3nsf973h6c-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 16 Feb 2023 09:05:20 +0000
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 31G8mJNw015743;
-        Thu, 16 Feb 2023 09:05:20 GMT
+        Thu, 16 Feb 2023 09:06:34 +0000
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 31G8pZN6002683;
+        Thu, 16 Feb 2023 09:06:33 GMT
 Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3nsg20j7b8-1
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3nsf973h5f-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 16 Feb 2023 09:05:20 +0000
+        Thu, 16 Feb 2023 09:06:33 +0000
 Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31G62fbW011341;
-        Thu, 16 Feb 2023 09:05:18 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3np2n6xe3j-1
+        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31G4JYkl010684;
+        Thu, 16 Feb 2023 09:06:32 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3np2n6xe4t-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 16 Feb 2023 09:05:18 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31G95Gw423855446
+        Thu, 16 Feb 2023 09:06:31 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31G96THf48300430
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 16 Feb 2023 09:05:16 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 04E3E2004D;
-        Thu, 16 Feb 2023 09:05:16 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5D6A320043;
-        Thu, 16 Feb 2023 09:05:15 +0000 (GMT)
+        Thu, 16 Feb 2023 09:06:29 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 62F4F20049;
+        Thu, 16 Feb 2023 09:06:29 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B58E820043;
+        Thu, 16 Feb 2023 09:06:28 +0000 (GMT)
 Received: from [9.179.9.244] (unknown [9.179.9.244])
-        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Thu, 16 Feb 2023 09:05:15 +0000 (GMT)
-Message-ID: <4f98164406cfd6da084f9ef617a6668dc4e8d44b.camel@linux.ibm.com>
-Subject: Re: [PATCH 1/2] pcmcia : make PCMCIA depend on HAS_IOMEM
+        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Thu, 16 Feb 2023 09:06:28 +0000 (GMT)
+Message-ID: <f479ae76754c5e3b1a9d435e6d1435ea9d293e54.camel@linux.ibm.com>
+Subject: Re: [PATCH 2/2] dmaengine: make QCOM_HIDMA depend on HAS_IOMEM
 From:   Niklas Schnelle <schnelle@linux.ibm.com>
 To:     Baoquan He <bhe@redhat.com>, linux-kernel@vger.kernel.org
 Cc:     linux-mm@kvack.org, linux-s390@vger.kernel.org,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Date:   Thu, 16 Feb 2023 10:05:15 +0100
-In-Reply-To: <20230216073403.451455-1-bhe@redhat.com>
+        Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>, linux-arm-msm@vger.kernel.org,
+        dmaengine@vger.kernel.org
+Date:   Thu, 16 Feb 2023 10:06:28 +0100
+In-Reply-To: <20230216073403.451455-2-bhe@redhat.com>
 References: <20230216073403.451455-1-bhe@redhat.com>
+         <20230216073403.451455-2-bhe@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 User-Agent: Evolution 3.46.3 (3.46.3-1.fc37) 
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: zhEkrqVDtqoRkhJPFlbizQg060DzzFf6
-X-Proofpoint-ORIG-GUID: 3rSsY-_OSPADG3bu-7TtAPa3U2UmSgrI
+X-Proofpoint-ORIG-GUID: jft_d8iaQoMDqmwl8QUaAms192uLi51l
+X-Proofpoint-GUID: ufE62dfTdphCQlr0y9mr8FaQKnSSoo71
 Content-Transfer-Encoding: quoted-printable
 X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
  definitions=2023-02-16_06,2023-02-15_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- malwarescore=0 suspectscore=0 mlxscore=0 priorityscore=1501
- mlxlogscore=999 spamscore=0 bulkscore=0 adultscore=0 clxscore=1011
- phishscore=0 lowpriorityscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2212070000 definitions=main-2302160075
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ priorityscore=1501 malwarescore=0 spamscore=0 phishscore=0 mlxlogscore=999
+ adultscore=0 mlxscore=0 impostorscore=0 clxscore=1011 bulkscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2302160075
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -97,48 +98,42 @@ On Thu, 2023-02-16 at 15:34 +0800, Baoquan He wrote:
 > with CONFIG_PCI=3Dn, then the relevant iomem mapping functions
 > [including ioremap(), devm_ioremap(), etc.] are not available.
 >=20
-> Here let depend PCMCIA on HAS_IOMEM so that it won't be built to
+> Here let QCOM_HIDMA depend on HAS_IOMEM so that it won't be built to
 > cause below compiling error if PCI is unset.
 >=20
-> -------------------------------------------------------
-> ld: drivers/pcmcia/cistpl.o: in function `set_cis_map':
-> cistpl.c:(.text+0x1202): undefined reference to `ioremap'
-> ld: cistpl.c:(.text+0x13b0): undefined reference to `iounmap'
-> ld: cistpl.c:(.text+0x14a6): undefined reference to `iounmap'
-> ld: cistpl.c:(.text+0x1544): undefined reference to `ioremap'
-> ld: drivers/pcmcia/cistpl.o: in function `release_cis_mem':
-> cistpl.c:(.text+0x3f14): undefined reference to `iounmap'
+> --------------------------------------------------------
+> ld: drivers/dma/qcom/hidma.o: in function `hidma_probe':
+> hidma.c:(.text+0x4b46): undefined reference to `devm_ioremap_resource'
+> ld: hidma.c:(.text+0x4b9e): undefined reference to `devm_ioremap_resource'
+> make[1]: *** [scripts/Makefile.vmlinux:35: vmlinux] Error 1
+> make: *** [Makefile:1264: vmlinux] Error 2
 >=20
 > Link: https://lore.kernel.org/all/Y0TcaZD4nB1w+mAQ@MiWiFi-R3L-srv/T/#u
 > Signed-off-by: Baoquan He <bhe@redhat.com>
-> Cc: Dominik Brodowski <linux@dominikbrodowski.net>
-> Cc: Arnd Bergmann <arnd@arndb.de>
-> Cc: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-> Cc: Linus Walleij <linus.walleij@linaro.org>
-> Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+> Cc: Andy Gross <agross@kernel.org>
+> Cc: Bjorn Andersson <andersson@kernel.org>
+> Cc: Konrad Dybcio <konrad.dybcio@linaro.org>
+> Cc: Vinod Koul <vkoul@kernel.org>
+> Cc: linux-arm-msm@vger.kernel.org
+> Cc: dmaengine@vger.kernel.org
 > ---
->  drivers/pcmcia/Kconfig | 1 +
+>  drivers/dma/qcom/Kconfig | 1 +
 >  1 file changed, 1 insertion(+)
 >=20
-> diff --git a/drivers/pcmcia/Kconfig b/drivers/pcmcia/Kconfig
-> index 1525023e49b6..7c412bbe8bbe 100644
-> --- a/drivers/pcmcia/Kconfig
-> +++ b/drivers/pcmcia/Kconfig
-> @@ -20,6 +20,7 @@ if PCCARD
+> diff --git a/drivers/dma/qcom/Kconfig b/drivers/dma/qcom/Kconfig
+> index 3f926a653bd8..ace75d7b835a 100644
+> --- a/drivers/dma/qcom/Kconfig
+> +++ b/drivers/dma/qcom/Kconfig
+> @@ -45,6 +45,7 @@ config QCOM_HIDMA_MGMT
 >=20=20
->  config PCMCIA
->  	tristate "16-bit PCMCIA support"
+>  config QCOM_HIDMA
+>  	tristate "Qualcomm Technologies HIDMA Channel support"
 > +	depends on HAS_IOMEM
->  	select CRC32
->  	default y
+>  	select DMA_ENGINE
 >  	help
+>  	  Enable support for the Qualcomm Technologies HIDMA controller.
 
-Not sure how many PCMCIA drivers only use I/O memory but not I/O ports
-the latter of which are badly stubbed out on s390, though at leat they
-compile. I have a series on that part that I intend to send a new
-version for soon=E2=84=A2. That said yes this does solve the compilation is=
-sue
-and there could be drivers which rely only on I/O memory and are not
-broken in principle.
+Thanks for the patch!
 
-Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com?
+
