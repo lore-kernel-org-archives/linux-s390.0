@@ -2,258 +2,298 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 77333C6379F
-	for <linux-s390@archiver.kernel.org>; Fri, 17 Feb 2023 16:42:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 28F37C636D6
+	for <linux-s390@archiver.kernel.org>; Fri, 17 Feb 2023 23:16:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230121AbjBQQmv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 17 Feb 2023 11:42:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55376 "EHLO
+        id S230009AbjBQXQ3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 17 Feb 2023 18:16:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229958AbjBQQmt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Feb 2023 11:42:49 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C73472916;
-        Fri, 17 Feb 2023 08:42:42 -0800 (PST)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31HG9ReH015677;
-        Fri, 17 Feb 2023 16:42:41 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=RXsfqh9OKheMYhHDnfbRzosWPgga/aEbqUy2oi+eRmE=;
- b=RcWa+XEj9DhYUFReDEF9Q+Swlu9iB1NjzbOOAKJs/MOFrc1JLR89YpPV+skdbQXbi8qg
- Kl896ycpDcrAggtKkOu6KnQKZRRCqMZhktnnUz+rWgTmNFPDlunaWIFyrBiJwpq9OWA0
- gkJSKDzJQsQldFaqP2cLFxVSkGZWYb7ZiL+PiF1cxnKz+EsxbY+Czxa78Rs/KKHejUOw
- RTub6ge5rOzzCjplJ+X6nVMXCB3GX45wC6CdK0iSD4Au/LU1F18qNlpHKIcpMaTI5C8s
- oK7katHM6JMiLyXNAGx0fwS904x9jOPapqn82IcIP2Vlh/+CAMclitGncwySKhxnS/Qe Gw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ntbesk5fm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 17 Feb 2023 16:42:41 +0000
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 31HGVdUc011274;
-        Fri, 17 Feb 2023 16:42:40 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ntbesk5eu-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 17 Feb 2023 16:42:40 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31HBR58P031329;
-        Fri, 17 Feb 2023 16:42:38 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3np29fra3r-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 17 Feb 2023 16:42:38 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31HGgZPP18874892
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 17 Feb 2023 16:42:35 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 233C220043;
-        Fri, 17 Feb 2023 16:42:35 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A4A2920049;
-        Fri, 17 Feb 2023 16:42:34 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.171.12.31])
-        by smtpav05.fra02v.mail.ibm.com (Postfix) with SMTP;
-        Fri, 17 Feb 2023 16:42:34 +0000 (GMT)
-Date:   Fri, 17 Feb 2023 17:42:19 +0100
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Janosch Frank <frankja@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org, thuth@redhat.com,
-        seiden@linux.ibm.com, nrb@linux.ibm.com, nsg@linux.ibm.com
-Subject: Re: [kvm-unit-tests PATCH 3/3] s390x: pv: Add IPL reset tests
-Message-ID: <20230217174219.71163eb5@p-imbrenda>
-In-Reply-To: <20230201084833.39846-4-frankja@linux.ibm.com>
-References: <20230201084833.39846-1-frankja@linux.ibm.com>
-        <20230201084833.39846-4-frankja@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
+        with ESMTP id S229889AbjBQXQ1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Feb 2023 18:16:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EEA95CF05;
+        Fri, 17 Feb 2023 15:16:08 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C237E62069;
+        Fri, 17 Feb 2023 23:15:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC243C433EF;
+        Fri, 17 Feb 2023 23:15:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1676675705;
+        bh=byNkcvjTVrhZmBQeXX4eg96uidFMAt9CRXf+/5g7jmQ=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:From;
+        b=i+dyYMQfaZaIV1MSPjeoxGW7/kGQRsELGc6+eH9/pJisN5GlHWOxZZPufsniv9a+h
+         SaiV5XBOW9vK3H/4EVKj1zPWhj/6NKB/VuHcwAjN8s2sX104jq0qFaPFrMsHJQjaOn
+         fbfY6eT4mFHBMHVzLgiNg9wE31Lm/EwJ8g2+z3rmzrkoz3ekzacrtXeJPpiayEXz2e
+         bZrsU76D0onPaH2jplLx0EYxpit5zoYjBq9lbMywIoWoek6l45GLyx+c7rJLkJfWFl
+         dGMuY8AcvGZJFgtBF45/ngSv0Wbg8r3/Ic5/ihzngga605no7167hQSzqc67fDkVbL
+         HSjLs31GxqUww==
+Date:   Fri, 17 Feb 2023 17:15:03 -0600
+From:   Bjorn Helgaas <helgaas@kernel.org>
+To:     Niklas Schnelle <schnelle@linux.ibm.com>
+Cc:     Gerd Bayer <gbayer@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-pci@vger.kernel.org
+Subject: Re: [PATCH RESEND] PCI: s390: Fix use-after-free of PCI bus
+ resources with s390 per-function hotplug
+Message-ID: <20230217231503.GA3425666@bhelgaas>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: k00zO66PM2WvS4IXeJFi-DRZiyFXBqhY
-X-Proofpoint-ORIG-GUID: KEQhLq8p6GSnLBhfZ-tB5UlUOv0ZBAZ-
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
- definitions=2023-02-17_11,2023-02-17_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- clxscore=1015 mlxscore=0 bulkscore=0 malwarescore=0 suspectscore=0
- adultscore=0 mlxlogscore=999 impostorscore=0 spamscore=0 phishscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2302170148
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230214094911.3776032-1-schnelle@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed,  1 Feb 2023 08:48:33 +0000
-Janosch Frank <frankja@linux.ibm.com> wrote:
+On Tue, Feb 14, 2023 at 10:49:10AM +0100, Niklas Schnelle wrote:
+> On s390 PCI functions may be hotplugged individually even when they
+> belong to a multi-function device. In particular on an SR-IOV device VFs
+> may be removed and later re-added.
 
-> The diag308 requires extensive cooperation between the hypervisor and
-> the Ultravisor so the Ultravisor can make sure all necessary reset
-> steps have been done.
+Is there something special about the SR-IOV/VF case that relates to
+this problem?  If not, it might be unnecessary distraction to mention
+it.
+
+> In commit a50297cf8235 ("s390/pci: separate zbus creation from
+> scanning") it was missed however that struct pci_bus and struct
+> zpci_bus's resource list retained a reference to the PCI functions MMIO
+> resources even though those resources are released and freed on
+> hot-unplug. These stale resources may subsequently be claimed when the
+> PCI function re-appears resulting in use-after-free.
+
+Lifetimes of all these resources definitely aren't obvious to me.
+
+So I guess the critical thing here is the new
+pci_bus_remove_resource() in zpci_cleanup_bus_resources(), which
+removes (and kfrees when necessary) the resource from
+pci_bus->resources.
+
+I'm not clear on where the zpci_bus resource list comes in.  I guess
+we kalloc resources in zpci_setup_bus_resources(), and the current
+code adds them to zpci_bus->resources and copies them onto the pci_bus
+list.
+
+The new code does not add them to zpci_bus->resources at all, and only
+adds them to the pci_bus resource list.  Right?  I guess maybe that's
+what the "no need to add the MMIO resources at all" below refers to?
+
+> One idea of fixing this use-after-free in s390 specific code that was
+> investigated was to simply keep resources around from the moment a PCI
+> function first appeared until the whole virtual PCI bus created for
+> a multi-function device disappears. The problem with this however is
+> that due to the requirement of artificial MMIO addreesses (address
+> cookies) we will then need extra logic and tracking in struct zpci_bus
+> to keep these compatible for re-use. At the same time the MMIO resources
+> semantically belong to the PCI function so tying their lifecycle to the
+> function seems more logical.
 > 
-> Let's check if we get the correct validity errors.
+> Instead a simpler approach is to remove the resources of an individually
+> hot-unplugged PCI function from the PCI bus's resource list while
+> keeping the resources of other PCI functions on the PCI bus untouched.
+
+Do we currently never kfree the pci_bus resource list until we free
+the whole pci_bus via release_pcibus_dev()?  Does a remove + add just
+allocate more resources that are probably duplicates of what the
+pci_bus already had?
+
+> This is done by introducing pci_bus_remove_resource() to remove an
+> individual resource. Similarly the resource also needs to be removed
+> from the struct zpci_bus's resource list. It turns out however, that
+> there is really no need to add the MMIO resources at all and instead we
+> can simply use the zpci_bar_struct's resource pointer directly.
 > 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> Fixes: a50297cf8235 ("s390/pci: separate zbus creation from scanning")
+> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+
+Other random questions unrelated to this patch:
+
+  - zpci_bus_create_pci_bus() calls pci_bus_add_devices().  Isn't that
+    pointless?  AFAICT, the bus->devices list is empty then.
+
+  - What about zpci_bus_scan_device()?  Why does it call both
+    pci_bus_add_device() and pci_bus_add_devices()?  The latter will
+    just call the former, so it looks redundant.  And the latter is
+    locked but not the former?
+
+  - Struct zpci_bus has a "resources" list.  I guess this contains the
+    &zbus->bus_resource put there in zpci_bus_alloc(), plus an entry
+    for every BAR of every device on the bus (I guess you'd never see
+    an actual PCI-to-PCI bridge on s390?), kalloc'ed in
+    zpci_setup_bus_resources()?
+
+    What happens when zpci_bus_release() calls
+    pci_free_resource_list() on &zbus->resources?  It looks like that
+    ultimately calls kfree(), which is OK for the
+    zpci_setup_bus_resources() stuff, but what about the
+    zbus->bus_resource that was not kalloc'ed?
+
 > ---
+>  arch/s390/pci/pci.c     | 16 ++++++++++------
+>  arch/s390/pci/pci_bus.c | 12 +++++-------
+>  arch/s390/pci/pci_bus.h |  3 +--
+>  drivers/pci/bus.c       | 23 +++++++++++++++++++++++
+>  include/linux/pci.h     |  1 +
+>  5 files changed, 40 insertions(+), 15 deletions(-)
+> 
+> diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+> index ef38b1514c77..e16afacc8fd1 100644
+> --- a/arch/s390/pci/pci.c
+> +++ b/arch/s390/pci/pci.c
+> @@ -544,8 +544,7 @@ static struct resource *__alloc_res(struct zpci_dev *zdev, unsigned long start,
+>  	return r;
+>  }
+>  
+> -int zpci_setup_bus_resources(struct zpci_dev *zdev,
+> -			     struct list_head *resources)
+> +int zpci_setup_bus_resources(struct zpci_dev *zdev)
+>  {
+>  	unsigned long addr, size, flags;
+>  	struct resource *res;
+> @@ -581,7 +580,6 @@ int zpci_setup_bus_resources(struct zpci_dev *zdev,
+>  			return -ENOMEM;
+>  		}
+>  		zdev->bars[i].res = res;
+> -		pci_add_resource(resources, res);
+>  	}
+>  	zdev->has_resources = 1;
+>  
+> @@ -590,17 +588,23 @@ int zpci_setup_bus_resources(struct zpci_dev *zdev,
+>  
+>  static void zpci_cleanup_bus_resources(struct zpci_dev *zdev)
+>  {
+> +	struct resource *res;
+>  	int i;
+>  
+> +	pci_lock_rescan_remove();
 
-[...]
+What exactly is this protecting?  This doesn't seem like quite the
+right place since we're not adding/removing a pci_dev here.  Is this
+to protect the bus->resources list in pci_bus_remove_resource()?
 
+>  	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
+> -		if (!zdev->bars[i].size || !zdev->bars[i].res)
+> +		res = zdev->bars[i].res;
+> +		if (!res)
+>  			continue;
+>  
+> +		release_resource(res);
+> +		pci_bus_remove_resource(zdev->zbus->bus, res);
+>  		zpci_free_iomap(zdev, zdev->bars[i].map_idx);
+> -		release_resource(zdev->bars[i].res);
+> -		kfree(zdev->bars[i].res);
+> +		zdev->bars[i].res = NULL;
+> +		kfree(res);
+>  	}
+>  	zdev->has_resources = 0;
+> +	pci_unlock_rescan_remove();
+>  }
+>  
+>  int pcibios_device_add(struct pci_dev *pdev)
+> diff --git a/arch/s390/pci/pci_bus.c b/arch/s390/pci/pci_bus.c
+> index 6a8da1b742ae..a99926af2b69 100644
+> --- a/arch/s390/pci/pci_bus.c
+> +++ b/arch/s390/pci/pci_bus.c
+> @@ -41,9 +41,7 @@ static int zpci_nb_devices;
+>   */
+>  static int zpci_bus_prepare_device(struct zpci_dev *zdev)
+>  {
+> -	struct resource_entry *window, *n;
+> -	struct resource *res;
+> -	int rc;
+> +	int rc, i;
+>  
+>  	if (!zdev_enabled(zdev)) {
+>  		rc = zpci_enable_device(zdev);
+> @@ -57,10 +55,10 @@ static int zpci_bus_prepare_device(struct zpci_dev *zdev)
+>  	}
+>  
+>  	if (!zdev->has_resources) {
+> -		zpci_setup_bus_resources(zdev, &zdev->zbus->resources);
+> -		resource_list_for_each_entry_safe(window, n, &zdev->zbus->resources) {
+> -			res = window->res;
+> -			pci_bus_add_resource(zdev->zbus->bus, res, 0);
+> +		zpci_setup_bus_resources(zdev);
+> +		for (i = 0; i < PCI_STD_NUM_BARS; i++) {
+> +			if (zdev->bars[i].res)
+> +				pci_bus_add_resource(zdev->zbus->bus, zdev->bars[i].res, 0);
+>  		}
+>  	}
+>  
+> diff --git a/arch/s390/pci/pci_bus.h b/arch/s390/pci/pci_bus.h
+> index e96c9860e064..af9f0ac79a1b 100644
+> --- a/arch/s390/pci/pci_bus.h
+> +++ b/arch/s390/pci/pci_bus.h
+> @@ -30,8 +30,7 @@ static inline void zpci_zdev_get(struct zpci_dev *zdev)
+>  
+>  int zpci_alloc_domain(int domain);
+>  void zpci_free_domain(int domain);
+> -int zpci_setup_bus_resources(struct zpci_dev *zdev,
+> -			     struct list_head *resources);
+> +int zpci_setup_bus_resources(struct zpci_dev *zdev);
+>  
+>  static inline struct zpci_dev *zdev_from_bus(struct pci_bus *bus,
+>  					     unsigned int devfn)
+> diff --git a/drivers/pci/bus.c b/drivers/pci/bus.c
+> index 83ae838ceb5f..f021f1d4af9f 100644
+> --- a/drivers/pci/bus.c
+> +++ b/drivers/pci/bus.c
+> @@ -76,6 +76,29 @@ struct resource *pci_bus_resource_n(const struct pci_bus *bus, int n)
+>  }
+>  EXPORT_SYMBOL_GPL(pci_bus_resource_n);
+>  
+> +void pci_bus_remove_resource(struct pci_bus *bus, struct resource *res)
+> +{
+> +	struct pci_bus_resource *bus_res, *tmp;
+> +	int i;
 > +
-> +	/*
-> +	 * We need to perform several UV calls to emulate the subcode
-> +	 * 1. Failing to do that should result in a validity
-> +	 *
-> +	 * - Mark all cpus as stopped
-> +	 * - Reset the cpus, calling one gets an initial reset
-> +	 * - Load the reset PSW
-> +	 * - Unshare all
-> +	 * - Load the reset PSW
+> +	for (i = 0; i < PCI_BRIDGE_RESOURCE_NUM; i++) {
+> +		if (bus->resource[i] == res) {
+> +			bus->resource[i] = NULL;
+> +			return;
+> +		}
+> +	}
+> +
+> +	list_for_each_entry_safe(bus_res, tmp, &bus->resources, list) {
+> +		if (bus_res->res == res) {
+> +			list_del(&bus_res->list);
+> +			kfree(bus_res);
+> +			return;
+> +		}
+> +	}
+> +	return;
+> +
 
-you forgot to mention prepare the reset, and the list does not reflect
-the order things are done in the code
+Superfluous "return" and blank line.
 
-> +	 */
-> +	sie_expect_validity(&vm);
-> +	sie(&vm);
-> +	report((sie_get_validity(&vm) & 0xff00) == 0x2000, "validity no UVCs");
-> +
-> +	/* Mark the CPU as stopped so we can unshare and reset */
-> +	cc = uv_set_cpu_state(vm.sblk->pv_handle_cpu, PV_CPU_STATE_STP);
-> +	report(!cc, "Set cpu stopped");
-> +
-> +	sie_expect_validity(&vm);
-> +	sie(&vm);
-> +	report((sie_get_validity(&vm) & 0xff00) == 0x2000, "validity stopped");
-> +
-> +	/* Unshare all memory */
-> +	cc = uv_cmd_nodata(vm.sblk->pv_handle_config,
-> +			   UVC_CMD_SET_UNSHARED_ALL, &rc, &rrc);
-> +	report(cc == 0 && rc == 1, "Unshare all");
-> +
-> +	sie_expect_validity(&vm);
-> +	sie(&vm);
-> +	report((sie_get_validity(&vm) & 0xff00) == 0x2000,
-> +	       "validity stopped, unshared");
-> +
-> +	/* Prepare the CPU reset */
-> +	cc = uv_cmd_nodata(vm.sblk->pv_handle_config,
-> +			   UVC_CMD_PREPARE_RESET, &rc, &rrc);
-> +	report(cc == 0 && rc == 1, "Prepare reset call");
-> +
-> +	sie_expect_validity(&vm);
-> +	sie(&vm);
-> +	report((sie_get_validity(&vm) & 0xff00) == 0x2000,
-> +	       "validity stopped, unshared, prepare");
-> +
-> +	/* Do the reset */
-> +	cc = uv_cmd_nodata(vm.sblk->pv_handle_cpu,
-> +			   UVC_CMD_CPU_RESET_INITIAL, &rc, &rrc);
-> +	report(cc == 0 && rc == 1, "Clear reset cpu");
-> +
-> +	sie_expect_validity(&vm);
-> +	sie(&vm);
-> +	report((sie_get_validity(&vm) & 0xff00) == 0x2000,
-> +	       "validity stopped, unshared, prepare, reset");
-> +
-> +	/* Load the PSW from 0x0 */
-> +	cc = uv_set_cpu_state(vm.sblk->pv_handle_cpu, PV_CPU_STATE_OPR_LOAD);
-> +	report(!cc, "Set cpu load");
-> +
-> +	/*
-> +	 * Check if we executed the iaddr of the reset PSW, we should
-> +	 * see a diagnose 0x9c PV instruction notification.
-> +	 */
-> +	sie(&vm);
-> +	report(vm.sblk->icptcode == ICPT_PV_NOTIFY && vm.sblk->ipa == 0x8302 &&
-> +	       vm.sblk->ipb == 0x50000000 && vm.save_area.guest.grs[5] == 0x9c &&
-> +	       vm.save_area.guest.grs[0] == 42,
-> +	       "intercept values after diag 0x308");
-> +
-> +
-> +	uv_destroy_guest(&vm);
-> +	report_prefix_pop();
 > +}
 > +
-
-[...]
-
-> diff --git a/s390x/snippets/asm/snippet-pv-diag-308.S b/s390x/snippets/asm/snippet-pv-diag-308.S
-> new file mode 100644
-> index 00000000..58c96173
-> --- /dev/null
-> +++ b/s390x/snippets/asm/snippet-pv-diag-308.S
-> @@ -0,0 +1,67 @@
-> +/* SPDX-License-Identifier: GPL-2.0-only */
-> +/*
-> + * Diagnose 0x308 snippet used for PV IPL and reset testing
-> + *
-> + * Copyright (c) 2023 IBM Corp
-> + *
-> + * Authors:
-> + *  Janosch Frank <frankja@linux.ibm.com>
-> + */
-> +#include <asm/asm-offsets.h>
-> +.section .text
-> +
-> +/* Sets a reset PSW with the given PSW address */
-> +.macro SET_RESET_PSW_ADDR label
-> +lgrl	%r5, reset_psw
-> +larl	%r6, \label
-> +ogr	%r5, %r6
-> +stg	%r5, 0
-> +.endm
-> +
-> +/* Does a diagnose 308 with the given subcode */
-> +.macro DIAG308 subcode
-> +xgr	%r3, %r3
-> +lghi	%r3, \subcode
-> +diag	1, 3, 0x308
-> +.endm
-> +
-> +sam64
-> +
-> +/* Execute the diag500 which will set the subcode we execute in gr2 */
-> +diag	0, 0, 0x500
-> +
-> +/*
-> + * A valid PGM new PSW can be a real problem since we never fall out
-> + * of SIE and therefore effectively loop forever. 0 is a valid PSW
-> + * therefore we re-use the reset_psw as this has the short PSW
-> + * bit set which is invalid for a long PSW like the exception new
-> + * PSWs.
-> + *
-> + * For subcode 0/1 there are no PGMs to consider.
-> + */
-> +lgrl   %r5, reset_psw
-> +stg    %r5, GEN_LC_PGM_NEW_PSW
-> +
-> +/* Clean registers that are used */
-> +xgr	%r0, %r0
-> +xgr	%r1, %r1
-> +xgr	%r3, %r3
-> +xgr	%r4, %r4
-> +xgr	%r5, %r5
-> +xgr	%r6, %r6
-> +
-> +/* Subcode 0 - Modified Clear */
-
-what about subcode 1?
-
-> +SET_RESET_PSW_ADDR done
-> +diag	%r0, %r2, 0x308
-> +
-> +/* Should never be executed because of the reset PSW */
-> +diag	0, 0, 0x44
-> +
-> +done:
-> +lghi	%r1, 42
-> +diag	%r1, 0, 0x9c
-> +
-> +
-> +	.align	8
-> +reset_psw:
-> +	.quad	0x0008000180000000
-
+>  void pci_bus_remove_resources(struct pci_bus *bus)
+>  {
+>  	int i;
+> diff --git a/include/linux/pci.h b/include/linux/pci.h
+> index adffd65e84b4..3b1974e2ec73 100644
+> --- a/include/linux/pci.h
+> +++ b/include/linux/pci.h
+> @@ -1436,6 +1436,7 @@ void pci_bus_add_resource(struct pci_bus *bus, struct resource *res,
+>  			  unsigned int flags);
+>  struct resource *pci_bus_resource_n(const struct pci_bus *bus, int n);
+>  void pci_bus_remove_resources(struct pci_bus *bus);
+> +void pci_bus_remove_resource(struct pci_bus *bus, struct resource *res);
+>  int devm_request_pci_bus_resources(struct device *dev,
+>  				   struct list_head *resources);
+>  
+> -- 
+> 2.37.2
+> 
