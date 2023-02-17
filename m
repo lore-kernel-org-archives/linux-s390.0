@@ -2,176 +2,149 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D5431C64EC4
-	for <linux-s390@archiver.kernel.org>; Fri, 17 Feb 2023 16:00:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 47915C636D6
+	for <linux-s390@archiver.kernel.org>; Fri, 17 Feb 2023 16:35:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230404AbjBQQA1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 17 Feb 2023 11:00:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57622 "EHLO
+        id S230147AbjBQQfC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 17 Feb 2023 11:35:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230033AbjBQQAW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Feb 2023 11:00:22 -0500
-Received: from NAM04-DM6-obe.outbound.protection.outlook.com (mail-dm6nam04on2049.outbound.protection.outlook.com [40.107.102.49])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2F2C71189;
-        Fri, 17 Feb 2023 08:00:18 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=PCvcHx0h/iqcQ3nWYJ76UQQ2dZHMEqw7ctlnyPgtlXh+shsvrSa68jFFlawRrIcL9YYjKylzqjhY+2WOM1aaD4j5/wN+PGN3XFuEBVx6oNEhXuCShsFITKrCNd+QhJVhw01ZpVSXtxQ1OYZqvjqxn8Tp5+cNqiBiLasOSdxxyXcZw16pLe2YmjQtFmol38ibdYy0zSLjcd6q+AGb6IzmXwgju6CAX5zjzF0dLZpcSbz4oVilih7vuXzSn1A+O1tam+UEhG+RdpZqyV6gJyHHvETZ8i685HWwQbgm4F18t1PizAseg+DZ6KgoyfKxAKd3sJwhPmdDtlN+OyVwdaWerw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=wDTH35pF5Qz4pOdYyNxXJArA5ARXeZ/iigdjwrnHL/w=;
- b=buS1r4PZwoHXPMbcMkqmLtcEyxGXLh2NpjJyl2NGnrt1MTB4yDwNQHGLm0KiYRdukB2iBmZbXyIAPlr0vLYHyUFypcpssx1eHNkcrt8AhHCi/e4+726dr1qZcHPChu+B+j4jPdhAk17EZCH5VubVW9Sc9MAkUHdGDB3lKoXAoZglDqiXOfuCSeTZ9F50HJ7ubJxfmwFr1iNmtdAvp1N5yLmrzkFi1pWqiMO/gklXnfSB1BiyV01yqMCkeV++vYSEzdTeRARZs1yFNy7pl+4LoEpzACIiB2Sn5M1w7xvk/topduIaT4i5sqGShaXml1vkFgTuRB+bU1f1OmlXiXWgKg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=wDTH35pF5Qz4pOdYyNxXJArA5ARXeZ/iigdjwrnHL/w=;
- b=OPshPD70BT+yXDji9StoexjbxZzjLHyU4xL7ysHXlUdJvwdNILq5Yvr9ZKgSZcbaPBOyLOaLhsjY6AqBVdo/xoJRB6QmYdeFnUWBgp2B9xqz9MntsuU7twTk9IHKBwrdeaUCcJ2kaZGrNPfAxb2pbvt5nns+y7tzCHKVZhYwiWVH9XfcWNCdsWI5+RtAIcxGnWFBrvcIL1QP3ImEjUGn3M7UuDH4bXQZXJD2irDvnpWR6h5HAdlQmMoEgXpkqBwk7SkFiU0m/XYzYjljh2Azobkg5AyZNMJwT4HhVCA50o5Ni8mF43rVQkKmkvkvaBUz5PJtAblUhhqlli+Cmhui1w==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
- by CY8PR12MB7492.namprd12.prod.outlook.com (2603:10b6:930:93::9) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6111.15; Fri, 17 Feb
- 2023 16:00:14 +0000
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::3cb3:2fce:5c8f:82ee]) by LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::3cb3:2fce:5c8f:82ee%4]) with mapi id 15.20.6111.013; Fri, 17 Feb 2023
- 16:00:14 +0000
-Date:   Fri, 17 Feb 2023 12:00:12 -0400
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     "Liu, Yi L" <yi.l.liu@intel.com>
-Cc:     Alex Williamson <alex.williamson@redhat.com>,
-        "joro@8bytes.org" <joro@8bytes.org>,
-        "Tian, Kevin" <kevin.tian@intel.com>,
-        "robin.murphy@arm.com" <robin.murphy@arm.com>,
-        "cohuck@redhat.com" <cohuck@redhat.com>,
-        "eric.auger@redhat.com" <eric.auger@redhat.com>,
-        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
-        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
-        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
-        "peterx@redhat.com" <peterx@redhat.com>,
-        "jasowang@redhat.com" <jasowang@redhat.com>,
-        "shameerali.kolothum.thodi@huawei.com" 
-        <shameerali.kolothum.thodi@huawei.com>,
-        "lulu@redhat.com" <lulu@redhat.com>,
-        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        Timothy Pearson <tpearson@raptorengineering.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: Re: [PATCH v3 05/15] kvm/vfio: Accept vfio device file from userspace
-Message-ID: <Y++kjA8eZHeD5JwT@nvidia.com>
-References: <20230213151348.56451-1-yi.l.liu@intel.com>
- <20230213151348.56451-6-yi.l.liu@intel.com>
- <20230214152627.3a399523.alex.williamson@redhat.com>
- <Y+wYX34sPvPQmGSr@nvidia.com>
- <20230214164235.64e2dccb.alex.williamson@redhat.com>
- <Y+wkqnCAe42Ogcof@nvidia.com>
- <DS0PR11MB752967E3A3A8B8693A523D54C3A19@DS0PR11MB7529.namprd11.prod.outlook.com>
- <DS0PR11MB7529ECA0D4D0E1FB8B4B1A0DC3A19@DS0PR11MB7529.namprd11.prod.outlook.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <DS0PR11MB7529ECA0D4D0E1FB8B4B1A0DC3A19@DS0PR11MB7529.namprd11.prod.outlook.com>
-X-ClientProxiedBy: BLAP220CA0012.NAMP220.PROD.OUTLOOK.COM
- (2603:10b6:208:32c::17) To LV2PR12MB5869.namprd12.prod.outlook.com
- (2603:10b6:408:176::16)
+        with ESMTP id S230144AbjBQQfC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Feb 2023 11:35:02 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A73A212D;
+        Fri, 17 Feb 2023 08:35:00 -0800 (PST)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31HEXGjC015815;
+        Fri, 17 Feb 2023 16:34:50 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=WVmDyqoL2x31lTLvSI3i5tHZv8yFdzS5hZPtnpVo3Zc=;
+ b=MoV7OZ5kamYco6O5h4/qOsqB7eTGz+GE7W36xQmJ9vuhdkowzqHA2UskcstDsMTdKWDj
+ FbIbk/vg0ip/fB17jcs0IQO3pltm66xOKMCF1EuOXTxjVmEA3IwahTmH4z9be9hBAZkw
+ 6ktNinu5oUlw+OyWgFAYlxfG0IC1CnFqf1BJJPLkeWU7zo6gUARVke59uN5nUCIOfokQ
+ ZjScrj3tee/3/mTYaqNiuOlm47i5WSHoG2YeBBq++te90jKU3wxIEINCQ0PFq6TF+Zrw
+ YjszKTdl3o46GDBwkb2gcuWoo+N/fNog/fR30tYnH+2lAXf7j/DO6dDESH/N1vitidLi Ig== 
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ntbesjytd-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 17 Feb 2023 16:34:50 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31HBfXbw017758;
+        Fri, 17 Feb 2023 16:34:48 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3np2n6r8pe-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 17 Feb 2023 16:34:48 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31HGYiAM43712812
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 17 Feb 2023 16:34:44 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C093220043;
+        Fri, 17 Feb 2023 16:34:44 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 858C02004D;
+        Fri, 17 Feb 2023 16:34:43 +0000 (GMT)
+Received: from [9.171.12.102] (unknown [9.171.12.102])
+        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Fri, 17 Feb 2023 16:34:43 +0000 (GMT)
+Message-ID: <d8656a67a875b72dfdf5826ec4ff7154022f1ef6.camel@linux.ibm.com>
+Subject: Re: [PATCH v6 4/6] s390/pci: Use dma-iommu layer
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Matthew Rosato <mjrosato@linux.ibm.com>,
+        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>
+Cc:     Gerd Bayer <gbayer@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>, iommu@lists.linux.dev,
+        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, linux-kernel@vger.kernel.org,
+        Julian Ruess <julianr@linux.ibm.com>
+Date:   Fri, 17 Feb 2023 17:34:43 +0100
+In-Reply-To: <7dc31552-1b7a-aeaa-eb88-a60d96e28f3c@linux.ibm.com>
+References: <20230215120327.947336-1-schnelle@linux.ibm.com>
+         <20230215120327.947336-5-schnelle@linux.ibm.com>
+         <4ad0d2b9-2465-b42d-c0f9-b48caadfd72c@linux.ibm.com>
+         <59a61553a81282fed88c03af096b2a0830b94302.camel@linux.ibm.com>
+         <7dc31552-1b7a-aeaa-eb88-a60d96e28f3c@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.46.3 (3.46.3-1.fc37) 
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|CY8PR12MB7492:EE_
-X-MS-Office365-Filtering-Correlation-Id: bf766da2-f0be-492d-4d9a-08db11000e5b
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: w+mpsw3fWCcRH/7fQUTftTPjKItBJGcrDshfe8FnvEpkLYG81VGJLo9B/NybIHpLKrk3sHqc7qEii+toZ4Ot67C8R5VLzNHmmzObf4zMWtEmyIUgaCJo1qADXhyihpkqg9BzmbKTYCJoVXkgxMSzwvoBqcBJPDnSKURoGm2Ar2ATTwDABXGxLY6VU33BD90ur6QdKIW79TrsJLKopUz4oAAWZqZ/vdABJmyAFvLVzEyEYRnFwsNENG99qco2BRLQaL8pIUNO5SwekkIGPAjP2P+jM5cRHGee5QCd7Q6UQb8G51tA6Xkce88LvNzi61D+5hTNm1ra4Dh1LRhBmKBUC6AXP3h+/fXEaBeGVnSLTftuMi/VYbhBL/jP6Z4u7Z6tAQbTl//js9Q+FQEv0coW27ZIlAy/eUga2aFys+ze3ek8GCNxexB1gWgRVxN1S+ioHm/01yPjCnVbux00h7Zc66B4PLWpVNo+6jzp0g6SNMKs1B8k6O29YTOMHsXsApOvzIYm8lPwjMG0Ol5aXRbNin8oNWgeJgHLHHFddQcrNOhozLpVMrd7KUBXkTuu5JgDMVlLnXehW2yvlj+L7TUw1fpBCCDsjhkeKZ0YYEACM72qrbZqWxlPSi+6Omo8AkHhVQMB3mNzdm22C9FsV5HaVA==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(4636009)(366004)(346002)(376002)(396003)(39860400002)(136003)(451199018)(36756003)(6506007)(6512007)(6486002)(2616005)(26005)(186003)(8676002)(8936002)(41300700001)(316002)(66476007)(66556008)(66946007)(4326008)(6916009)(478600001)(2906002)(54906003)(38100700002)(7416002)(5660300002)(86362001)(83380400001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?h9m59Bmz24IZsvC9PQ46UgmB7eVAH9ZdsNNIrxEqwstLCFDwXEnO5caxtGns?=
- =?us-ascii?Q?xFYoMfRRQK8xmksLlZt1kHTNXKkqvg14HJCvFZsXD2bLHGF6wJK7rSbGVEbq?=
- =?us-ascii?Q?cWNSMhH6bVq92XMjVuqCjSe7m7z4iVi83ISmYpqeX/BRUV1hzidLg3WH+Lvj?=
- =?us-ascii?Q?6myJiFKDSmKXKK91UEadSS9jijIzYaMrBkpep2pUE8l/ZUhhKYggyVPwhohx?=
- =?us-ascii?Q?XkGpXeegaJMKokexJp+VYSG2D4yeNRZvGwE3fPg2j6vk3cPjVbZxLskqps0l?=
- =?us-ascii?Q?CCjUWCXOkhI9TscOTOr/3IP0Xp5MCWLV8M2RbxSF+XjicHKr5LVN9jQCRc32?=
- =?us-ascii?Q?9XtJb8hROLTcoZj4I0HtlfON+k6Ijpu++piDqMcnizTI63IcTX4YMaR7yGMD?=
- =?us-ascii?Q?cCnJsuql7KNWuiqNbQ3EBzDDSe3xFKB6dV3GW7sI+p+zjNP9SY0IF2c0jTZV?=
- =?us-ascii?Q?Tm532CANF32g9GwSr2VtjgvJjhb6bd7dSWdbftdgMC91vdEdl0cxlyArgvDT?=
- =?us-ascii?Q?8gJ8j6l4DySr4o+JVmYtyh1tNCAoCz9VFXPTDPgcY0zjtWIjCL2GIM6OkE9M?=
- =?us-ascii?Q?Hz4gM8iUgsaDBLDSgEH34xxpb5PJR8uFa/koKJ2c6PmMvB+x+IGJkhsvDzRF?=
- =?us-ascii?Q?MaAwXHqB2PRfU8xHFu/HJmoym6cLly9R7D9ahtIbJ3KPH7rI32QGJ714z7wR?=
- =?us-ascii?Q?PotcaYnU/bPeuKVtkyiJuieefA8E3h1IQxNnoeibY0w/GFLYCS1vHkSgq8xN?=
- =?us-ascii?Q?7drUu8QKyZLt9GqoqZr/bDUhtoPlxZvyCT2S9Kj7m5RzaR2sZ8988e8SOj6a?=
- =?us-ascii?Q?Zsj6dAJPqJ+04P/Lh2RK0emZTBRR7kQTc81xVnSIi2Axf+QTMos3WPlSKPoM?=
- =?us-ascii?Q?2YuinixSuP+rKYgcpugEE3zcs17KHXmMNhvFDJiohX7sCauO9dKKBR0bQVhM?=
- =?us-ascii?Q?5yLRHxI4nLYLXEoldJUIcTxM+3pt2muWbKv3NZiWx7OJyCc9bqjn/8R6v/av?=
- =?us-ascii?Q?8q4zV9QTqcrWhBQ2B2CUcX+IowiYVti2FA/FiKh7M+hoimMdV+bfJQ+KVu2e?=
- =?us-ascii?Q?PJu2h6zo1Gk0WRqNuZDG9lhuDHvkCDx8D1L5XX9s1WuxV1ykdmuQpS+rHDWZ?=
- =?us-ascii?Q?sRgLRV8yK+KpR+4gnsH+1W3HIHVPNbZ/UPXrVuuWsk0ZkGDfCQim0CwaQPBW?=
- =?us-ascii?Q?cCMXAnbJrSLN5zkoyHKO9V6yJHCjgCFUZyVD1nt6zEJ7XsjmSvtzJYMh/xJ5?=
- =?us-ascii?Q?Kk2n8kNqf58yfUOXzf/GAm8YlWCUxdw0QGvwvXn4ms3mmdYt2h31Ego1Nmn5?=
- =?us-ascii?Q?O3T8ZTjV3qLgsGMILqhyrEhvghRQ8pUP+/MFDjafHwhtDmRl6YsAZIAmAKrK?=
- =?us-ascii?Q?pHbaRKaDUdmAOa0z21N9wX8Xk7XoFGUZUQ2Yy837IwlVWW1sGz1W6P4cyUKE?=
- =?us-ascii?Q?CyA2NMAq3hcYsEAmScbU2MIhYbu7LIuVBCa4TKnN5c5jhbvjd7UPIt9T1Z6C?=
- =?us-ascii?Q?yypaQNrOHgAy8YFNZ4YNSoFO8Z7He1x95RShmLXq5HRLevRE9DCwzyc73fz1?=
- =?us-ascii?Q?rpcplpCw0+FGam+kX+xnMfqMkDB9R76dWBYwxQIN?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: bf766da2-f0be-492d-4d9a-08db11000e5b
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Feb 2023 16:00:14.3637
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 3hR3hKHSM/jtPJrcE58xabxqXxdeIAL1RD5SVp9Fmuj47TxhvPcoJOxIAg29Ce5N
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY8PR12MB7492
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 99dDQd0MGujpakVqZ3QqVbzPDiNxRP6c
+X-Proofpoint-ORIG-GUID: 99dDQd0MGujpakVqZ3QqVbzPDiNxRP6c
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
+ definitions=2023-02-17_10,2023-02-17_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ clxscore=1015 mlxscore=0 bulkscore=0 malwarescore=0 suspectscore=0
+ adultscore=0 mlxlogscore=581 impostorscore=0 spamscore=0 phishscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2302170143
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Feb 17, 2023 at 05:48:57AM +0000, Liu, Yi L wrote:
-> > From: Liu, Yi L <yi.l.liu@intel.com>
-> > Sent: Friday, February 17, 2023 1:34 PM
-> > 
-> > > From: Jason Gunthorpe <jgg@nvidia.com>
-> > > Sent: Wednesday, February 15, 2023 8:18 AM
-> > >
-> > > On Tue, Feb 14, 2023 at 04:42:35PM -0700, Alex Williamson wrote:
-> > >
-> > > > A device file opened through a group could be passed through this
-> > > > interface though, right?
-> > >
-> > > Yes, I think so
-> > >
-> > > > Do we just chalk that up to user error?  Maybe the SPAPR extension
-> > > > at least needs to be documented as relying on registering groups
-> > > > rather than devices.
-> > >
-> > > The way these APIs work is you have to pass the same FD to all of
-> > > them. The SPAPR stuff is no different, if you used a cdev with
-> > > KVM_DEV_VFIO_GROUP_ADD then you have to use the same cdev fd
-> > with
-> > > the
-> > > SPAPR group_fd. Yi just didn't rename it.
-> > 
-> > This is because SPAPR cannot accept cdev fd yet. It explicitly requires
-> > group fd and get iommu_group during the handling.
-> 
-> Sorry I misunderstood it. I think this can be renamed to be fds if
-> no objection. Maybe as below, so that old userspace that uses
-> group_fds can still compile. I doubt if a new flag is needed to
-> identify the provided fds are group or device fds. I guess no since
-> the pci hot reset code does not really care about it. It cares more
-> the fd is held by the application.
+On Fri, 2023-02-17 at 09:56 -0500, Matthew Rosato wrote:
+> On 2/17/23 3:51 AM, Niklas Schnelle wrote:
+> > On Wed, 2023-02-15 at 13:00 -0500, Matthew Rosato wrote:
+> > > On 2/15/23 7:03 AM, Niklas Schnelle wrote:
+> > > > While s390 already has a standard IOMMU driver and previous changes=
+ have
+> > > > added I/O TLB flushing operations this driver is currently only use=
+d for
+> > > > user-space PCI access such as vfio-pci. For the DMA API s390 instea=
+d
+> > > > utilizes its own implementation in arch/s390/pci/pci_dma.c which dr=
+ives
+> > > > the same hardware and shares some code but requires a complex and
+> > > > fragile hand over between DMA API and IOMMU API use of a device and
+> > > > despite code sharing still leads to significant duplication and
+> > > > maintenance effort. Let's utilize the common code DMAP API
+> > > > implementation from drivers/iommu/dma-iommu.c instead allowing us t=
+o
+> > > > get rid of arch/s390/pci/pci_dma.c.
+> > > >=20
+> > > > Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> > > > ---
+> > >=20
+> > > FYI, this patch doesn't fit on top of iommu-next, I'd guess at least =
+due to baolu's 'Retire detach_dev callback' series, which removed .detach_d=
+ev and added .set_platform_dma_ops for s390-iommu.  That's relevant here, b=
+ecause now that this patch enables dma-iommu for s390 and removes the platf=
+orm DMA ops it must now remove .set_platform_dma_ops/s390_iommu_set_platfor=
+m_dma for s390-iommu.
+> > >=20
+> > > Matt
+> >=20
+> >=20
+> > Ok, yes this series is currently against v6.2-rc8. Should I rebase
+> > against iommu-next and send a v7 before further review or after?
+> >=20
+>=20
+> So, overall I'm fine with the code in this patch (and this series) at thi=
+s point; however I'd like to do one more pass of testing rebased on top of =
+iommu-next / with the set_platform_dma collision handled, so I'm going to h=
+old off on tagging my review of this one until v7.  That really only impact=
+s this patch so if you want to give others a chance to review the rest of t=
+he series before rolling out v7 that's OK by me. =20
+>=20
+> Thanks,
+> Matt
 
-I wouldn't change it, even though it does work like this
 
-spapr requires the group fd because it doesn't work with
-iommufd. No sense in confusing things.
+Ok, I've got a version on top of iommu-next running locally and will
+send that as v7 next week. Thankfully the conflict resolution is pretty
+simple. We get rid of set_platform_dma() completely and the detach is
+only used internally when attaching to a different domain. Also got rid
+of a missed superfluous zdev->dma_table assignment that I missed as
+feedback.
 
-Jason
+Thanks,
+Niklas
