@@ -2,62 +2,59 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 47A1BC05027
-	for <linux-s390@archiver.kernel.org>; Fri, 17 Feb 2023 14:57:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F2B9CC64EC4
+	for <linux-s390@archiver.kernel.org>; Fri, 17 Feb 2023 15:41:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230116AbjBQO5n (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 17 Feb 2023 09:57:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51672 "EHLO
+        id S230342AbjBQPlT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 17 Feb 2023 10:41:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230113AbjBQO50 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Feb 2023 09:57:26 -0500
+        with ESMTP id S230062AbjBQPlS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Feb 2023 10:41:18 -0500
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA2A36EBB3;
-        Fri, 17 Feb 2023 06:57:00 -0800 (PST)
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31HEgIJX027606;
-        Fri, 17 Feb 2023 14:56:14 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=e8xe4P5N3/xfcsU15zARpw5D2BXKecFA5uBFpgNAqII=;
- b=NPOZAI4rcgGtbPqP+Vknc0HK9sc704yKXJm9Rk/sHexqM/zyx6s/1jqUgyJDTQ88HirG
- Xpz51XXN2KcuxxHo27uqUcn5atw1OJVG/2zMh1iiN8D8VagyvHNcQgXVaPpoB04kj1nX
- +/xMsZ2AI56Xdj1CFb2eBGmbSM1grpq+pwNSo1ftgL1k2gYKAbGO0yzXWLtrPIEliQld
- umOvTQ5NqbQVWzijypxevPkyptb8nEJkuwmzctkCuMMF7eIfVM95Ti7BDK9Xudnu+ka0
- 2UD4Rno1ZhIRV9SnirQ6UBr6vHeUZ20p4f0jQL+PRpetve1nEyW0vyk4Z6xjMGx6pxNG Jw== 
-Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ntbjura57-1
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D41853EE0;
+        Fri, 17 Feb 2023 07:41:17 -0800 (PST)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31HE0Q8M007416;
+        Fri, 17 Feb 2023 15:41:07 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=upZd3zYrzgxVerfACG+KEJRFWTNoz6sv548mjj6lHZ4=;
+ b=PNF9k8ouRNE4MgUjHfxrjGFD8gOJpEoEdwVBXTWQOBbwac/HtjyUVLMHVIBxVj27NL1r
+ D3Wv59kGQzKXdII8YipZslmlz8/jJiW+LPkIJeEH+gdrzTscB/UbwdW+BgUXgF7Kk3pN
+ nKyvVGE1uhWPB2IqCEaAsFQgqpt5/LuL5Vq5BVNRqvRkl1+3QeY2BMjAn+rkqd7CtXov
+ UsOtjxZQ7ZC2r21rNyDC0fM3CD2QXl/PfBHvZLKvxDSaacsT3tGdwzAnqXjQkm1xA6ln
+ cRpBcARAm5azsRVaC2jKNnHJPx8L4maoTwOc0xCVg96J1BAo56jNiOKX9cF4oMpcLFCQ gQ== 
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nt0518fey-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 17 Feb 2023 14:56:14 +0000
-Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
-        by ppma03dal.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31HCTHc9007447;
-        Fri, 17 Feb 2023 14:56:13 GMT
-Received: from smtprelay02.wdc07v.mail.ibm.com ([9.208.129.120])
-        by ppma03dal.us.ibm.com (PPS) with ESMTPS id 3np2n7r620-1
+        Fri, 17 Feb 2023 15:41:07 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31HCGQu7017665;
+        Fri, 17 Feb 2023 15:41:04 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3np2n6r6hh-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 17 Feb 2023 14:56:12 +0000
-Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
-        by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31HEuARL1245844
+        Fri, 17 Feb 2023 15:41:04 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31HFf0f146465452
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 17 Feb 2023 14:56:11 GMT
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C826758066;
-        Fri, 17 Feb 2023 14:56:10 +0000 (GMT)
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5C77858056;
-        Fri, 17 Feb 2023 14:56:09 +0000 (GMT)
-Received: from [9.77.136.58] (unknown [9.77.136.58])
-        by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
-        Fri, 17 Feb 2023 14:56:09 +0000 (GMT)
-Message-ID: <7dc31552-1b7a-aeaa-eb88-a60d96e28f3c@linux.ibm.com>
-Date:   Fri, 17 Feb 2023 09:56:08 -0500
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
-Subject: Re: [PATCH v6 4/6] s390/pci: Use dma-iommu layer
-Content-Language: en-US
-To:     Niklas Schnelle <schnelle@linux.ibm.com>,
+        Fri, 17 Feb 2023 15:41:00 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C696C2004B;
+        Fri, 17 Feb 2023 15:41:00 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 897C420043;
+        Fri, 17 Feb 2023 15:40:59 +0000 (GMT)
+Received: from [9.171.12.102] (unknown [9.171.12.102])
+        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Fri, 17 Feb 2023 15:40:59 +0000 (GMT)
+Message-ID: <3618028df347d352ca6b3be306c1a21d74899298.camel@linux.ibm.com>
+Subject: Re: [PATCH v6 6/6] iommu/dma: Make flush queue sizes and timeout
+ driver configurable
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Matthew Rosato <mjrosato@linux.ibm.com>,
         Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
         Robin Murphy <robin.murphy@arm.com>,
         Jason Gunthorpe <jgg@nvidia.com>,
@@ -69,56 +66,75 @@ Cc:     Gerd Bayer <gbayer@linux.ibm.com>,
         gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
         svens@linux.ibm.com, linux-kernel@vger.kernel.org,
         Julian Ruess <julianr@linux.ibm.com>
+Date:   Fri, 17 Feb 2023 16:40:59 +0100
+In-Reply-To: <bc234db3-f4c9-ff5a-6c19-699c50514fc5@linux.ibm.com>
 References: <20230215120327.947336-1-schnelle@linux.ibm.com>
- <20230215120327.947336-5-schnelle@linux.ibm.com>
- <4ad0d2b9-2465-b42d-c0f9-b48caadfd72c@linux.ibm.com>
- <59a61553a81282fed88c03af096b2a0830b94302.camel@linux.ibm.com>
-From:   Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <59a61553a81282fed88c03af096b2a0830b94302.camel@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+         <20230215120327.947336-7-schnelle@linux.ibm.com>
+         <bc234db3-f4c9-ff5a-6c19-699c50514fc5@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.46.3 (3.46.3-1.fc37) 
+MIME-Version: 1.0
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: BUSQb5EkyR9LCL0HNzLyWQRHkR5GSLbG
-X-Proofpoint-ORIG-GUID: BUSQb5EkyR9LCL0HNzLyWQRHkR5GSLbG
+X-Proofpoint-GUID: ETGxnrCbnHEfk8L7f11SKxsfCoCKH-2Z
+X-Proofpoint-ORIG-GUID: ETGxnrCbnHEfk8L7f11SKxsfCoCKH-2Z
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
- definitions=2023-02-17_09,2023-02-17_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=662
- impostorscore=0 clxscore=1015 spamscore=0 mlxscore=0 bulkscore=0
- priorityscore=1501 phishscore=0 suspectscore=0 adultscore=0
- lowpriorityscore=0 malwarescore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2212070000 definitions=main-2302170132
+ definitions=2023-02-17_10,2023-02-17_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0 mlxscore=0
+ phishscore=0 mlxlogscore=999 malwarescore=0 spamscore=0 suspectscore=0
+ priorityscore=1501 bulkscore=0 impostorscore=0 clxscore=1015 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
+ definitions=main-2302170140
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2/17/23 3:51 AM, Niklas Schnelle wrote:
-> On Wed, 2023-02-15 at 13:00 -0500, Matthew Rosato wrote:
->> On 2/15/23 7:03 AM, Niklas Schnelle wrote:
->>> While s390 already has a standard IOMMU driver and previous changes have
->>> added I/O TLB flushing operations this driver is currently only used for
->>> user-space PCI access such as vfio-pci. For the DMA API s390 instead
->>> utilizes its own implementation in arch/s390/pci/pci_dma.c which drives
->>> the same hardware and shares some code but requires a complex and
->>> fragile hand over between DMA API and IOMMU API use of a device and
->>> despite code sharing still leads to significant duplication and
->>> maintenance effort. Let's utilize the common code DMAP API
->>> implementation from drivers/iommu/dma-iommu.c instead allowing us to
->>> get rid of arch/s390/pci/pci_dma.c.
->>>
->>> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
->>> ---
->>
->> FYI, this patch doesn't fit on top of iommu-next, I'd guess at least due to baolu's 'Retire detach_dev callback' series, which removed .detach_dev and added .set_platform_dma_ops for s390-iommu.  That's relevant here, because now that this patch enables dma-iommu for s390 and removes the platform DMA ops it must now remove .set_platform_dma_ops/s390_iommu_set_platform_dma for s390-iommu.
->>
->> Matt
-> 
-> 
-> Ok, yes this series is currently against v6.2-rc8. Should I rebase
-> against iommu-next and send a v7 before further review or after?
-> 
+On Fri, 2023-02-17 at 09:41 -0500, Matthew Rosato wrote:
+> On 2/15/23 7:03 AM, Niklas Schnelle wrote:
+> > Flush queues currently use a fixed compile time size of 256 entries.
+> > This being a power of 2 allows the compiler to use shift and mask
+> > instead of more expensive modulo operations. With per-CPU flush queues
+> > larger queue sizes would hit per-CPU allocation limits, with a single
+> > flush queue these limits do not apply however. Also with single queues
+> > being particularly suitable for virtualized environments with expensive
+> > IOTLB flushes these benefit especially from larger queues and thus fewe=
+r
+> > flushes.
+> >=20
+> > To this end re-order struct iova_fq so we can use a dynamic array and
+> > introduce the flush queue size and timeouts as new options in the
+> > dma_iommu_options struct. So as not to lose the shift and mask
+> > optimization, check that the variable length is a power of 2 and use
+> > explicit shift and mask instead of letting the compiler optimize this.
+> >=20
+> > In the s390 IOMMU driver a large fixed queue size and timeout is then
+> > set together with single queue mode bringing its performance on s390
+> > paged memory guests on par with the previous s390 specific DMA API
+> > implementation.
+> >=20
+> > Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+>=20
+> Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com> #s390
+>=20
+> > +#define S390_IOMMU_SINGLE_FQ_SIZE      32768
+> > +#define S390_IOMMU_SINGLE_FQ_TIMEOUT   1000
+> > +
+>=20
+> One question about these values however, was there a rationale to choosin=
+g these particular numbers (anything worth documenting?) or were they were =
+simply chosen because they showed similar characteristics to the previous D=
+MA approach?  I'm mostly wondering if it's worth experimenting with other v=
+alues here in the future to see what kind of impact it would have.
+>=20
 
-So, overall I'm fine with the code in this patch (and this series) at this point; however I'd like to do one more pass of testing rebased on top of iommu-next / with the set_platform_dma collision handled, so I'm going to hold off on tagging my review of this one until v7.  That really only impacts this patch so if you want to give others a chance to review the rest of the series before rolling out v7 that's OK by me.  
+For the flush queue size, which has to be a power of two, I basically
+picked the smallest value that gave me similar performance under z/VM
+as prior to the conversion. Somewhat similar for the timeout though I
+tried only a dozen "nice" values. Since the timeout basically
+determines how long a rogue PCI device could potentially access old
+data I found that 1 second is also kind of easy to explain. But yes
+these could still be tuned in the future.
 
 Thanks,
-Matt
+Niklas
