@@ -2,149 +2,258 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 47915C636D6
-	for <linux-s390@archiver.kernel.org>; Fri, 17 Feb 2023 16:35:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 77333C6379F
+	for <linux-s390@archiver.kernel.org>; Fri, 17 Feb 2023 16:42:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230147AbjBQQfC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 17 Feb 2023 11:35:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46826 "EHLO
+        id S230121AbjBQQmv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 17 Feb 2023 11:42:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230144AbjBQQfC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Feb 2023 11:35:02 -0500
+        with ESMTP id S229958AbjBQQmt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Feb 2023 11:42:49 -0500
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A73A212D;
-        Fri, 17 Feb 2023 08:35:00 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C73472916;
+        Fri, 17 Feb 2023 08:42:42 -0800 (PST)
 Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31HEXGjC015815;
-        Fri, 17 Feb 2023 16:34:50 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=WVmDyqoL2x31lTLvSI3i5tHZv8yFdzS5hZPtnpVo3Zc=;
- b=MoV7OZ5kamYco6O5h4/qOsqB7eTGz+GE7W36xQmJ9vuhdkowzqHA2UskcstDsMTdKWDj
- FbIbk/vg0ip/fB17jcs0IQO3pltm66xOKMCF1EuOXTxjVmEA3IwahTmH4z9be9hBAZkw
- 6ktNinu5oUlw+OyWgFAYlxfG0IC1CnFqf1BJJPLkeWU7zo6gUARVke59uN5nUCIOfokQ
- ZjScrj3tee/3/mTYaqNiuOlm47i5WSHoG2YeBBq++te90jKU3wxIEINCQ0PFq6TF+Zrw
- YjszKTdl3o46GDBwkb2gcuWoo+N/fNog/fR30tYnH+2lAXf7j/DO6dDESH/N1vitidLi Ig== 
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ntbesjytd-1
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31HG9ReH015677;
+        Fri, 17 Feb 2023 16:42:41 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=RXsfqh9OKheMYhHDnfbRzosWPgga/aEbqUy2oi+eRmE=;
+ b=RcWa+XEj9DhYUFReDEF9Q+Swlu9iB1NjzbOOAKJs/MOFrc1JLR89YpPV+skdbQXbi8qg
+ Kl896ycpDcrAggtKkOu6KnQKZRRCqMZhktnnUz+rWgTmNFPDlunaWIFyrBiJwpq9OWA0
+ gkJSKDzJQsQldFaqP2cLFxVSkGZWYb7ZiL+PiF1cxnKz+EsxbY+Czxa78Rs/KKHejUOw
+ RTub6ge5rOzzCjplJ+X6nVMXCB3GX45wC6CdK0iSD4Au/LU1F18qNlpHKIcpMaTI5C8s
+ oK7katHM6JMiLyXNAGx0fwS904x9jOPapqn82IcIP2Vlh/+CAMclitGncwySKhxnS/Qe Gw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ntbesk5fm-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 17 Feb 2023 16:34:50 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31HBfXbw017758;
-        Fri, 17 Feb 2023 16:34:48 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3np2n6r8pe-1
+        Fri, 17 Feb 2023 16:42:41 +0000
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 31HGVdUc011274;
+        Fri, 17 Feb 2023 16:42:40 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ntbesk5eu-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 17 Feb 2023 16:34:48 +0000
+        Fri, 17 Feb 2023 16:42:40 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31HBR58P031329;
+        Fri, 17 Feb 2023 16:42:38 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3np29fra3r-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 17 Feb 2023 16:42:38 +0000
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31HGYiAM43712812
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31HGgZPP18874892
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 17 Feb 2023 16:34:44 GMT
+        Fri, 17 Feb 2023 16:42:35 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C093220043;
-        Fri, 17 Feb 2023 16:34:44 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 233C220043;
+        Fri, 17 Feb 2023 16:42:35 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 858C02004D;
-        Fri, 17 Feb 2023 16:34:43 +0000 (GMT)
-Received: from [9.171.12.102] (unknown [9.171.12.102])
-        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Fri, 17 Feb 2023 16:34:43 +0000 (GMT)
-Message-ID: <d8656a67a875b72dfdf5826ec4ff7154022f1ef6.camel@linux.ibm.com>
-Subject: Re: [PATCH v6 4/6] s390/pci: Use dma-iommu layer
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Matthew Rosato <mjrosato@linux.ibm.com>,
-        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>
-Cc:     Gerd Bayer <gbayer@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>, iommu@lists.linux.dev,
-        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, linux-kernel@vger.kernel.org,
-        Julian Ruess <julianr@linux.ibm.com>
-Date:   Fri, 17 Feb 2023 17:34:43 +0100
-In-Reply-To: <7dc31552-1b7a-aeaa-eb88-a60d96e28f3c@linux.ibm.com>
-References: <20230215120327.947336-1-schnelle@linux.ibm.com>
-         <20230215120327.947336-5-schnelle@linux.ibm.com>
-         <4ad0d2b9-2465-b42d-c0f9-b48caadfd72c@linux.ibm.com>
-         <59a61553a81282fed88c03af096b2a0830b94302.camel@linux.ibm.com>
-         <7dc31552-1b7a-aeaa-eb88-a60d96e28f3c@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.46.3 (3.46.3-1.fc37) 
+        by IMSVA (Postfix) with ESMTP id A4A2920049;
+        Fri, 17 Feb 2023 16:42:34 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.171.12.31])
+        by smtpav05.fra02v.mail.ibm.com (Postfix) with SMTP;
+        Fri, 17 Feb 2023 16:42:34 +0000 (GMT)
+Date:   Fri, 17 Feb 2023 17:42:19 +0100
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Janosch Frank <frankja@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org, thuth@redhat.com,
+        seiden@linux.ibm.com, nrb@linux.ibm.com, nsg@linux.ibm.com
+Subject: Re: [kvm-unit-tests PATCH 3/3] s390x: pv: Add IPL reset tests
+Message-ID: <20230217174219.71163eb5@p-imbrenda>
+In-Reply-To: <20230201084833.39846-4-frankja@linux.ibm.com>
+References: <20230201084833.39846-1-frankja@linux.ibm.com>
+        <20230201084833.39846-4-frankja@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 99dDQd0MGujpakVqZ3QqVbzPDiNxRP6c
-X-Proofpoint-ORIG-GUID: 99dDQd0MGujpakVqZ3QqVbzPDiNxRP6c
+X-Proofpoint-GUID: k00zO66PM2WvS4IXeJFi-DRZiyFXBqhY
+X-Proofpoint-ORIG-GUID: KEQhLq8p6GSnLBhfZ-tB5UlUOv0ZBAZ-
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
- definitions=2023-02-17_10,2023-02-17_01,2023-02-09_01
+ definitions=2023-02-17_11,2023-02-17_01,2023-02-09_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
  clxscore=1015 mlxscore=0 bulkscore=0 malwarescore=0 suspectscore=0
- adultscore=0 mlxlogscore=581 impostorscore=0 spamscore=0 phishscore=0
+ adultscore=0 mlxlogscore=999 impostorscore=0 spamscore=0 phishscore=0
  priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2302170143
+ engine=8.12.0-2212070000 definitions=main-2302170148
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 2023-02-17 at 09:56 -0500, Matthew Rosato wrote:
-> On 2/17/23 3:51 AM, Niklas Schnelle wrote:
-> > On Wed, 2023-02-15 at 13:00 -0500, Matthew Rosato wrote:
-> > > On 2/15/23 7:03 AM, Niklas Schnelle wrote:
-> > > > While s390 already has a standard IOMMU driver and previous changes=
- have
-> > > > added I/O TLB flushing operations this driver is currently only use=
-d for
-> > > > user-space PCI access such as vfio-pci. For the DMA API s390 instea=
-d
-> > > > utilizes its own implementation in arch/s390/pci/pci_dma.c which dr=
-ives
-> > > > the same hardware and shares some code but requires a complex and
-> > > > fragile hand over between DMA API and IOMMU API use of a device and
-> > > > despite code sharing still leads to significant duplication and
-> > > > maintenance effort. Let's utilize the common code DMAP API
-> > > > implementation from drivers/iommu/dma-iommu.c instead allowing us t=
-o
-> > > > get rid of arch/s390/pci/pci_dma.c.
-> > > >=20
-> > > > Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> > > > ---
-> > >=20
-> > > FYI, this patch doesn't fit on top of iommu-next, I'd guess at least =
-due to baolu's 'Retire detach_dev callback' series, which removed .detach_d=
-ev and added .set_platform_dma_ops for s390-iommu.  That's relevant here, b=
-ecause now that this patch enables dma-iommu for s390 and removes the platf=
-orm DMA ops it must now remove .set_platform_dma_ops/s390_iommu_set_platfor=
-m_dma for s390-iommu.
-> > >=20
-> > > Matt
-> >=20
-> >=20
-> > Ok, yes this series is currently against v6.2-rc8. Should I rebase
-> > against iommu-next and send a v7 before further review or after?
-> >=20
->=20
-> So, overall I'm fine with the code in this patch (and this series) at thi=
-s point; however I'd like to do one more pass of testing rebased on top of =
-iommu-next / with the set_platform_dma collision handled, so I'm going to h=
-old off on tagging my review of this one until v7.  That really only impact=
-s this patch so if you want to give others a chance to review the rest of t=
-he series before rolling out v7 that's OK by me. =20
->=20
-> Thanks,
-> Matt
+On Wed,  1 Feb 2023 08:48:33 +0000
+Janosch Frank <frankja@linux.ibm.com> wrote:
 
+> The diag308 requires extensive cooperation between the hypervisor and
+> the Ultravisor so the Ultravisor can make sure all necessary reset
+> steps have been done.
+> 
+> Let's check if we get the correct validity errors.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
 
-Ok, I've got a version on top of iommu-next running locally and will
-send that as v7 next week. Thankfully the conflict resolution is pretty
-simple. We get rid of set_platform_dma() completely and the detach is
-only used internally when attaching to a different domain. Also got rid
-of a missed superfluous zdev->dma_table assignment that I missed as
-feedback.
+[...]
 
-Thanks,
-Niklas
+> +
+> +	/*
+> +	 * We need to perform several UV calls to emulate the subcode
+> +	 * 1. Failing to do that should result in a validity
+> +	 *
+> +	 * - Mark all cpus as stopped
+> +	 * - Reset the cpus, calling one gets an initial reset
+> +	 * - Load the reset PSW
+> +	 * - Unshare all
+> +	 * - Load the reset PSW
+
+you forgot to mention prepare the reset, and the list does not reflect
+the order things are done in the code
+
+> +	 */
+> +	sie_expect_validity(&vm);
+> +	sie(&vm);
+> +	report((sie_get_validity(&vm) & 0xff00) == 0x2000, "validity no UVCs");
+> +
+> +	/* Mark the CPU as stopped so we can unshare and reset */
+> +	cc = uv_set_cpu_state(vm.sblk->pv_handle_cpu, PV_CPU_STATE_STP);
+> +	report(!cc, "Set cpu stopped");
+> +
+> +	sie_expect_validity(&vm);
+> +	sie(&vm);
+> +	report((sie_get_validity(&vm) & 0xff00) == 0x2000, "validity stopped");
+> +
+> +	/* Unshare all memory */
+> +	cc = uv_cmd_nodata(vm.sblk->pv_handle_config,
+> +			   UVC_CMD_SET_UNSHARED_ALL, &rc, &rrc);
+> +	report(cc == 0 && rc == 1, "Unshare all");
+> +
+> +	sie_expect_validity(&vm);
+> +	sie(&vm);
+> +	report((sie_get_validity(&vm) & 0xff00) == 0x2000,
+> +	       "validity stopped, unshared");
+> +
+> +	/* Prepare the CPU reset */
+> +	cc = uv_cmd_nodata(vm.sblk->pv_handle_config,
+> +			   UVC_CMD_PREPARE_RESET, &rc, &rrc);
+> +	report(cc == 0 && rc == 1, "Prepare reset call");
+> +
+> +	sie_expect_validity(&vm);
+> +	sie(&vm);
+> +	report((sie_get_validity(&vm) & 0xff00) == 0x2000,
+> +	       "validity stopped, unshared, prepare");
+> +
+> +	/* Do the reset */
+> +	cc = uv_cmd_nodata(vm.sblk->pv_handle_cpu,
+> +			   UVC_CMD_CPU_RESET_INITIAL, &rc, &rrc);
+> +	report(cc == 0 && rc == 1, "Clear reset cpu");
+> +
+> +	sie_expect_validity(&vm);
+> +	sie(&vm);
+> +	report((sie_get_validity(&vm) & 0xff00) == 0x2000,
+> +	       "validity stopped, unshared, prepare, reset");
+> +
+> +	/* Load the PSW from 0x0 */
+> +	cc = uv_set_cpu_state(vm.sblk->pv_handle_cpu, PV_CPU_STATE_OPR_LOAD);
+> +	report(!cc, "Set cpu load");
+> +
+> +	/*
+> +	 * Check if we executed the iaddr of the reset PSW, we should
+> +	 * see a diagnose 0x9c PV instruction notification.
+> +	 */
+> +	sie(&vm);
+> +	report(vm.sblk->icptcode == ICPT_PV_NOTIFY && vm.sblk->ipa == 0x8302 &&
+> +	       vm.sblk->ipb == 0x50000000 && vm.save_area.guest.grs[5] == 0x9c &&
+> +	       vm.save_area.guest.grs[0] == 42,
+> +	       "intercept values after diag 0x308");
+> +
+> +
+> +	uv_destroy_guest(&vm);
+> +	report_prefix_pop();
+> +}
+> +
+
+[...]
+
+> diff --git a/s390x/snippets/asm/snippet-pv-diag-308.S b/s390x/snippets/asm/snippet-pv-diag-308.S
+> new file mode 100644
+> index 00000000..58c96173
+> --- /dev/null
+> +++ b/s390x/snippets/asm/snippet-pv-diag-308.S
+> @@ -0,0 +1,67 @@
+> +/* SPDX-License-Identifier: GPL-2.0-only */
+> +/*
+> + * Diagnose 0x308 snippet used for PV IPL and reset testing
+> + *
+> + * Copyright (c) 2023 IBM Corp
+> + *
+> + * Authors:
+> + *  Janosch Frank <frankja@linux.ibm.com>
+> + */
+> +#include <asm/asm-offsets.h>
+> +.section .text
+> +
+> +/* Sets a reset PSW with the given PSW address */
+> +.macro SET_RESET_PSW_ADDR label
+> +lgrl	%r5, reset_psw
+> +larl	%r6, \label
+> +ogr	%r5, %r6
+> +stg	%r5, 0
+> +.endm
+> +
+> +/* Does a diagnose 308 with the given subcode */
+> +.macro DIAG308 subcode
+> +xgr	%r3, %r3
+> +lghi	%r3, \subcode
+> +diag	1, 3, 0x308
+> +.endm
+> +
+> +sam64
+> +
+> +/* Execute the diag500 which will set the subcode we execute in gr2 */
+> +diag	0, 0, 0x500
+> +
+> +/*
+> + * A valid PGM new PSW can be a real problem since we never fall out
+> + * of SIE and therefore effectively loop forever. 0 is a valid PSW
+> + * therefore we re-use the reset_psw as this has the short PSW
+> + * bit set which is invalid for a long PSW like the exception new
+> + * PSWs.
+> + *
+> + * For subcode 0/1 there are no PGMs to consider.
+> + */
+> +lgrl   %r5, reset_psw
+> +stg    %r5, GEN_LC_PGM_NEW_PSW
+> +
+> +/* Clean registers that are used */
+> +xgr	%r0, %r0
+> +xgr	%r1, %r1
+> +xgr	%r3, %r3
+> +xgr	%r4, %r4
+> +xgr	%r5, %r5
+> +xgr	%r6, %r6
+> +
+> +/* Subcode 0 - Modified Clear */
+
+what about subcode 1?
+
+> +SET_RESET_PSW_ADDR done
+> +diag	%r0, %r2, 0x308
+> +
+> +/* Should never be executed because of the reset PSW */
+> +diag	0, 0, 0x44
+> +
+> +done:
+> +lghi	%r1, 42
+> +diag	%r1, 0, 0x9c
+> +
+> +
+> +	.align	8
+> +reset_psw:
+> +	.quad	0x0008000180000000
+
