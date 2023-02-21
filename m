@@ -2,285 +2,79 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 43939C61DA3
-	for <linux-s390@archiver.kernel.org>; Tue, 21 Feb 2023 03:50:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7BACEC6379F
+	for <linux-s390@archiver.kernel.org>; Tue, 21 Feb 2023 07:25:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233604AbjBUDun (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 20 Feb 2023 22:50:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48700 "EHLO
+        id S233227AbjBUHZQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 21 Feb 2023 02:25:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233571AbjBUDuk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Feb 2023 22:50:40 -0500
-Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7785244BC;
-        Mon, 20 Feb 2023 19:50:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1676951423; x=1708487423;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=K55QzaM1Uq2FMbfnJPLqS1pga0jCaQMDwWeJE8VoIZQ=;
-  b=I3ADxciqaqx5ga3QgCP1dPiKm99uAF/TBwrNyBEq+OAy5RlhX503A7i9
-   ZxNsVV0zYe+Scghu3k9QrFHdM4AetEnUygyloGj4vLvVOwNTo8E4UxB2E
-   ehqRbnmYt32GpaQrG9iz90RfcG5YArw5gjz4T1OPrtrR4pB7oYVHhVQSB
-   XDmuqX++49tFFpt0iRVL5qQBYx4DxLFJPeLasNlfyZdndqRxLqVPxkhTd
-   s9hvRp5NCCvP49s6nHakV6ojW0ReHYdnnZjXM4L6vTKY+6tcqPNYBz5w0
-   uDP2xjAyO9NcM9Y2LFYKUCBPC1E4blSi/UiKc/lHCk0idc6xDP3WwO4sD
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10627"; a="397218530"
-X-IronPort-AV: E=Sophos;i="5.97,314,1669104000"; 
-   d="scan'208";a="397218530"
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Feb 2023 19:48:27 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10627"; a="664822218"
-X-IronPort-AV: E=Sophos;i="5.97,314,1669104000"; 
-   d="scan'208";a="664822218"
-Received: from 984fee00a4c6.jf.intel.com ([10.165.58.231])
-  by orsmga007.jf.intel.com with ESMTP; 20 Feb 2023 19:48:27 -0800
-From:   Yi Liu <yi.l.liu@intel.com>
-To:     alex.williamson@redhat.com, jgg@nvidia.com, kevin.tian@intel.com
-Cc:     joro@8bytes.org, cohuck@redhat.com, eric.auger@redhat.com,
-        nicolinc@nvidia.com, kvm@vger.kernel.org, mjrosato@linux.ibm.com,
-        chao.p.peng@linux.intel.com, yi.l.liu@intel.com,
-        yi.y.sun@linux.intel.com, peterx@redhat.com, jasowang@redhat.com,
-        shameerali.kolothum.thodi@huawei.com, lulu@redhat.com,
-        suravee.suthikulpanit@amd.com, intel-gvt-dev@lists.freedesktop.org,
-        intel-gfx@lists.freedesktop.org, linux-s390@vger.kernel.org,
-        yan.y.zhao@intel.com, xudong.hao@intel.com, terrence.xu@intel.com
-Subject: [PATCH v4 17/19] vfio: Add VFIO_DEVICE_AT[DE]TACH_IOMMUFD_PT
-Date:   Mon, 20 Feb 2023 19:48:10 -0800
-Message-Id: <20230221034812.138051-18-yi.l.liu@intel.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20230221034812.138051-1-yi.l.liu@intel.com>
-References: <20230221034812.138051-1-yi.l.liu@intel.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        with ESMTP id S232640AbjBUHZP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 21 Feb 2023 02:25:15 -0500
+Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 416D67EFC;
+        Mon, 20 Feb 2023 23:25:13 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0VcBEick_1676964305;
+Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VcBEick_1676964305)
+          by smtp.aliyun-inc.com;
+          Tue, 21 Feb 2023 15:25:09 +0800
+From:   "D. Wythe" <alibuda@linux.alibaba.com>
+To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+Subject: [PATCH net-next 0/2] net/smc: Introduce BPF injection capability
+Date:   Tue, 21 Feb 2023 15:25:03 +0800
+Message-Id: <1676964305-1093-1-git-send-email-alibuda@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This adds ioctl for userspace to attach device cdev fd to and detach
-from IOAS/hw_pagetable managed by iommufd.
+From: "D. Wythe" <alibuda@linux.alibaba.com>
 
-    VFIO_DEVICE_ATTACH_IOMMUFD_PT: attach vfio device to IOAS, hw_pagetable
-				   managed by iommufd. Attach can be
-				   undo by VFIO_DEVICE_DETACH_IOMMUFD_PT
-				   or device fd close.
-    VFIO_DEVICE_DETACH_IOMMUFD_PT: detach vfio device from the current attached
-				   IOAS or hw_pagetable managed by iommufd.
+This PATCHes attempts to introduce BPF injection capability for SMC,
+and add selftest to ensure code stability.
 
-Signed-off-by: Yi Liu <yi.l.liu@intel.com>
----
- drivers/vfio/device_cdev.c | 76 ++++++++++++++++++++++++++++++++++++++
- drivers/vfio/vfio.h        | 16 ++++++++
- drivers/vfio/vfio_main.c   |  8 ++++
- include/uapi/linux/vfio.h  | 52 ++++++++++++++++++++++++++
- 4 files changed, 152 insertions(+)
+As we all know that the SMC protocol is not suitable for all scenarios,
+especially for short-lived. However, for most applications, they cannot
+guarantee that there are no such scenarios at all. Therefore, apps
+may need some specific strategies to decide shall we need to use SMC
+or not, for example, apps can limit the scope of the SMC to a specific
+IP address or port.
 
-diff --git a/drivers/vfio/device_cdev.c b/drivers/vfio/device_cdev.c
-index be62f0a5687e..6870e42944ba 100644
---- a/drivers/vfio/device_cdev.c
-+++ b/drivers/vfio/device_cdev.c
-@@ -182,6 +182,82 @@ long vfio_device_ioctl_bind_iommufd(struct vfio_device_file *df,
- 	return ret;
- }
- 
-+int vfio_ioctl_device_attach(struct vfio_device_file *df,
-+			     void __user *arg)
-+{
-+	struct vfio_device *device = df->device;
-+	struct vfio_device_attach_iommufd_pt attach;
-+	unsigned long minsz;
-+	int ret;
-+
-+	minsz = offsetofend(struct vfio_device_attach_iommufd_pt, pt_id);
-+
-+	if (copy_from_user(&attach, (void __user *)arg, minsz))
-+		return -EFAULT;
-+
-+	if (attach.argsz < minsz || attach.flags ||
-+	    attach.pt_id == IOMMUFD_INVALID_ID)
-+		return -EINVAL;
-+
-+	if (!device->ops->bind_iommufd)
-+		return -ENODEV;
-+
-+	mutex_lock(&device->dev_set->lock);
-+	if (df->noiommu) {
-+		ret = -EINVAL;
-+		goto out_unlock;
-+	}
-+
-+	ret = device->ops->attach_ioas(device, &attach.pt_id);
-+	if (ret)
-+		goto out_unlock;
-+
-+	ret = copy_to_user((void __user *)arg +
-+			   offsetofend(struct vfio_device_attach_iommufd_pt, flags),
-+			   &attach.pt_id,
-+			   sizeof(attach.pt_id)) ? -EFAULT : 0;
-+	if (ret)
-+		goto out_detach;
-+	mutex_unlock(&device->dev_set->lock);
-+
-+	return 0;
-+
-+out_detach:
-+	device->ops->detach_ioas(device);
-+out_unlock:
-+	mutex_unlock(&device->dev_set->lock);
-+	return ret;
-+}
-+
-+int vfio_ioctl_device_detach(struct vfio_device_file *df,
-+			     void __user *arg)
-+{
-+	struct vfio_device *device = df->device;
-+	struct vfio_device_detach_iommufd_pt detach;
-+	unsigned long minsz;
-+
-+	minsz = offsetofend(struct vfio_device_detach_iommufd_pt, flags);
-+
-+	if (copy_from_user(&detach, (void __user *)arg, minsz))
-+		return -EFAULT;
-+
-+	if (detach.argsz < minsz || detach.flags)
-+		return -EINVAL;
-+
-+	if (!device->ops->bind_iommufd)
-+		return -ENODEV;
-+
-+	mutex_lock(&device->dev_set->lock);
-+	if (df->noiommu) {
-+		mutex_unlock(&device->dev_set->lock);
-+		return -EINVAL;
-+	}
-+	device->ops->detach_ioas(device);
-+	mutex_unlock(&device->dev_set->lock);
-+
-+	return 0;
-+}
-+
- static char *vfio_device_devnode(const struct device *dev, umode_t *mode)
- {
- 	return kasprintf(GFP_KERNEL, "vfio/devices/%s", dev_name(dev));
-diff --git a/drivers/vfio/vfio.h b/drivers/vfio/vfio.h
-index 40b54b0ce993..1cba2baafb08 100644
---- a/drivers/vfio/vfio.h
-+++ b/drivers/vfio/vfio.h
-@@ -264,6 +264,10 @@ int vfio_device_fops_cdev_open(struct inode *inode, struct file *filep);
- void vfio_device_cdev_close(struct vfio_device_file *df);
- long vfio_device_ioctl_bind_iommufd(struct vfio_device_file *df,
- 				    unsigned long arg);
-+int vfio_ioctl_device_attach(struct vfio_device_file *df,
-+			     void __user *arg);
-+int vfio_ioctl_device_detach(struct vfio_device_file *df,
-+			     void __user *arg);
- int vfio_cdev_init(struct class *device_class);
- void vfio_cdev_cleanup(void);
- #else
-@@ -297,6 +301,18 @@ static inline long vfio_device_ioctl_bind_iommufd(struct vfio_device_file *df,
- 	return -EOPNOTSUPP;
- }
- 
-+static inline int vfio_ioctl_device_attach(struct vfio_device_file *df,
-+					   void __user *arg)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
-+static inline int vfio_ioctl_device_detach(struct vfio_device_file *df,
-+					   void __user *arg)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
- static inline int vfio_cdev_init(struct class *device_class)
- {
- 	return 0;
-diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
-index 5e9a4fd800be..af03ea97844e 100644
---- a/drivers/vfio/vfio_main.c
-+++ b/drivers/vfio/vfio_main.c
-@@ -1157,6 +1157,14 @@ static long vfio_device_fops_unl_ioctl(struct file *filep,
- 		ret = vfio_ioctl_device_feature(device, (void __user *)arg);
- 		break;
- 
-+	case VFIO_DEVICE_ATTACH_IOMMUFD_PT:
-+		ret = vfio_ioctl_device_attach(df, (void __user *)arg);
-+		break;
-+
-+	case VFIO_DEVICE_DETACH_IOMMUFD_PT:
-+		ret = vfio_ioctl_device_detach(df, (void __user *)arg);
-+		break;
-+
- 	default:
- 		if (unlikely(!device->ops->ioctl))
- 			ret = -EINVAL;
-diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
-index 1fe69173e739..026af52cf22e 100644
---- a/include/uapi/linux/vfio.h
-+++ b/include/uapi/linux/vfio.h
-@@ -228,6 +228,58 @@ struct vfio_device_bind_iommufd {
- 
- #define VFIO_DEVICE_BIND_IOMMUFD	_IO(VFIO_TYPE, VFIO_BASE + 19)
- 
-+/*
-+ * VFIO_DEVICE_ATTACH_IOMMUFD_PT - _IOW(VFIO_TYPE, VFIO_BASE + 20,
-+ *					struct vfio_device_attach_iommufd_pt)
-+ *
-+ * Attach a vfio device to an iommufd address space specified by IOAS
-+ * id or hw_pagetable (hwpt) id.
-+ *
-+ * Available only after a device has been bound to iommufd via
-+ * VFIO_DEVICE_BIND_IOMMUFD
-+ *
-+ * Undo by VFIO_DEVICE_DETACH_IOMMUFD_PT or device fd close.
-+ *
-+ * @argsz:	user filled size of this data.
-+ * @flags:	must be 0.
-+ * @pt_id:	Input the target id which can represent an ioas or a hwpt
-+ *		allocated via iommufd subsystem.
-+ *		Output the attached hwpt id which could be the specified
-+ *		hwpt itself or a hwpt automatically created for the
-+ *		specified ioas by kernel during the attachment.
-+ *
-+ * Return: 0 on success, -errno on failure.
-+ */
-+struct vfio_device_attach_iommufd_pt {
-+	__u32	argsz;
-+	__u32	flags;
-+	__u32	pt_id;
-+};
-+
-+#define VFIO_DEVICE_ATTACH_IOMMUFD_PT		_IO(VFIO_TYPE, VFIO_BASE + 20)
-+
-+/*
-+ * VFIO_DEVICE_DETACH_IOMMUFD_PT - _IOW(VFIO_TYPE, VFIO_BASE + 21,
-+ *					struct vfio_device_detach_iommufd_pt)
-+ *
-+ * Detach a vfio device from the iommufd address space it has been
-+ * attached to. After it, device should be in a blocking DMA state.
-+ *
-+ * Available only after a device has been bound to iommufd via
-+ * VFIO_DEVICE_BIND_IOMMUFD
-+ *
-+ * @argsz:	user filled size of this data.
-+ * @flags:	must be 0.
-+ *
-+ * Return: 0 on success, -errno on failure.
-+ */
-+struct vfio_device_detach_iommufd_pt {
-+	__u32	argsz;
-+	__u32	flags;
-+};
-+
-+#define VFIO_DEVICE_DETACH_IOMMUFD_PT		_IO(VFIO_TYPE, VFIO_BASE + 21)
-+
- /**
-  * VFIO_DEVICE_GET_INFO - _IOR(VFIO_TYPE, VFIO_BASE + 7,
-  *						struct vfio_device_info)
+Based on the consideration of transparent replacement, we hope that apps
+can remain transparent even if they need to formulate some specific
+strategies for SMC using. That is, do not need to recompile their code.
+
+On the other hand, we need to ensure the scalability of strategies
+implementation. Although it is simple to use socket options or sysctl,
+it will bring more complexity to subsequent expansion.
+
+Fortunately, BPF can solve these concerns very well, users can write
+thire own strategies in eBPF to choose whether to use SMC or not.
+And it's quite easy for them to modify their strategies in the future.
+
+This PATCHes implement injection capability for SMC via struct_ops.
+In that way, we can add new injection scenarios in the future.
+
+D. Wythe (2):
+  net/smc: Introduce BPF injection capability for SMC
+  net/smc: add selftest for SMC bpf capability
+
+ include/linux/btf_ids.h                          |  15 ++
+ include/net/smc.h                                | 254 ++++++++++++++++++
+ kernel/bpf/bpf_struct_ops_types.h                |   4 +
+ net/Makefile                                     |   5 +
+ net/smc/af_smc.c                                 |  10 +-
+ net/smc/bpf_smc_struct_ops.c                     | 146 +++++++++++
+ net/smc/smc.h                                    | 220 ----------------
+ tools/testing/selftests/bpf/prog_tests/bpf_smc.c |  39 +++
+ tools/testing/selftests/bpf/progs/bpf_smc.c      | 315 +++++++++++++++++++++++
+ 9 files changed, 787 insertions(+), 221 deletions(-)
+ create mode 100644 net/smc/bpf_smc_struct_ops.c
+ create mode 100644 tools/testing/selftests/bpf/prog_tests/bpf_smc.c
+ create mode 100644 tools/testing/selftests/bpf/progs/bpf_smc.c
+
 -- 
-2.34.1
+1.8.3.1
 
