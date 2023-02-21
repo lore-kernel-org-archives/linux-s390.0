@@ -2,107 +2,96 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 43F45C61DA3
-	for <linux-s390@archiver.kernel.org>; Tue, 21 Feb 2023 21:05:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 29138C61DA3
+	for <linux-s390@archiver.kernel.org>; Tue, 21 Feb 2023 23:15:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230099AbjBUVFl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 21 Feb 2023 16:05:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40146 "EHLO
+        id S229462AbjBUXPr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 21 Feb 2023 18:15:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229529AbjBUVFk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 21 Feb 2023 16:05:40 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36E1A21A24;
-        Tue, 21 Feb 2023 13:05:39 -0800 (PST)
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31LIi2PQ016966;
-        Tue, 21 Feb 2023 21:05:24 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=l89w9hTDLGhdANTTPiC9rJMAvvdMVotwgL6kR6zoB54=;
- b=VKlsqfwTzV/QGnxmJ+3NvXb47SUtRmNeu9pS7Pb1mZ4PJNI9AOX8SOCrh079Ha/GsZ3c
- L/mIpKU7R4NjBe7F41EY2bXu1zPMbnxLO1Hc+JaGhqRLgIIaTbkYbFVhRoOoI8VvlBy0
- PGJomREdn41Sd1jw9DsQK7zWAcU4aUtkxuhrjG9m1B4CKAJdAKb+PxC8i7QOF8J9GGKr
- hPvvun0HGi7xz7lx86tpAghwrVwJPvq97eoiBKevhvvLNtzZ5dhCB7qOlH/lLoyRi8ce
- tZ00axE/C5++wupERXKHULpOalXXcn3CSq8nP2i2Ic3MGIvGvAgd5tPNrEbnYv1oHwI9 Uw== 
-Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3nw3amu1mc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 21 Feb 2023 21:05:24 +0000
-Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
-        by ppma04dal.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31LIXw5n000579;
-        Tue, 21 Feb 2023 21:05:23 GMT
-Received: from smtprelay04.dal12v.mail.ibm.com ([9.208.130.102])
-        by ppma04dal.us.ibm.com (PPS) with ESMTPS id 3ntpa79uxn-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 21 Feb 2023 21:05:23 +0000
-Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-        by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31LL5MST4129402
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 21 Feb 2023 21:05:22 GMT
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2908D58063;
-        Tue, 21 Feb 2023 21:05:22 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D1C405805D;
-        Tue, 21 Feb 2023 21:05:20 +0000 (GMT)
-Received: from [9.60.89.243] (unknown [9.60.89.243])
-        by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 21 Feb 2023 21:05:20 +0000 (GMT)
-Message-ID: <ace6750d-c2ff-dffa-ef0a-3face3f17f28@linux.ibm.com>
-Date:   Tue, 21 Feb 2023 16:05:20 -0500
+        with ESMTP id S230049AbjBUXPq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 21 Feb 2023 18:15:46 -0500
+Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B4EE32509
+        for <linux-s390@vger.kernel.org>; Tue, 21 Feb 2023 15:15:29 -0800 (PST)
+Received: by mail-ed1-x534.google.com with SMTP id x10so22697766edd.13
+        for <linux-s390@vger.kernel.org>; Tue, 21 Feb 2023 15:15:28 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=GwmMRkor2ICDU/OK7QN1tiyRmzvZfLkymfVZOFR0Txw=;
+        b=On8KMYCHBj7beUSOs4dQTtqFd/Fca9WgkVURKorBOGYVnhfD6hPKLkY6qp5oH7/qQN
+         aB5hboA7zlLK6rE0UKyZEj/fEZX6e/WjRpkK5TJwK8OckIXjDcI4qk47gXQADMcTYBqz
+         I+M7RQJ8AwVKOxx/Gb5cEZrJluRPBAlUhZXhw=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=GwmMRkor2ICDU/OK7QN1tiyRmzvZfLkymfVZOFR0Txw=;
+        b=I+cwV0qAidduILyLkCWlWbOq5pppXk2Q3O9DrGXjaHprEk6jEI4rdxRhzeOwEcDHSz
+         BnAl0bjb+ajaL6LScL/Mwb1uORYjxGGwhNsnwe4GXfx099bco1rlXeAQP1ajnV6yn7Ed
+         /y2TmwSyjLEdlgKRLJkzoW9uCaiaLZIhCyFsal35dhsZtk6XunEFmMgmH5tvrGB7oV4i
+         mY0e4uM7KsgLpqWa1FzilW8O8C3XPLvEqrsAhFTHQZ73M+gGfT3acnm5R/p2/JmlmnBU
+         HbpZYm9RP7faUJNypKf13lc5kZjJho45WDw/gvihe6w54dJi5qQQpqDkj6lDbYUIdjHS
+         cGkg==
+X-Gm-Message-State: AO0yUKULVCpnwcV8ZfjU5nq/08mhDlhFP77PXHMxIx/PLdA4O5yBbx66
+        QhWuV6BUEtqC+GHol2nf6GHL/xf7HKzbNl4EOvo=
+X-Google-Smtp-Source: AK7set/spTZy3kRpKhcHn/ftgbt4CgDfp8qXISCWG9oCALY0Som1ORolqiJxqkDFRrr+N5kzsnP63A==
+X-Received: by 2002:a17:906:468b:b0:8dd:76d5:a82 with SMTP id a11-20020a170906468b00b008dd76d50a82mr4291408ejr.47.1677021327112;
+        Tue, 21 Feb 2023 15:15:27 -0800 (PST)
+Received: from mail-ed1-f48.google.com (mail-ed1-f48.google.com. [209.85.208.48])
+        by smtp.gmail.com with ESMTPSA id bk7-20020a170906b0c700b008cd37aff603sm3748903ejb.164.2023.02.21.15.15.26
+        for <linux-s390@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 21 Feb 2023 15:15:26 -0800 (PST)
+Received: by mail-ed1-f48.google.com with SMTP id eg37so19697825edb.12
+        for <linux-s390@vger.kernel.org>; Tue, 21 Feb 2023 15:15:26 -0800 (PST)
+X-Received: by 2002:a50:f694:0:b0:4ad:6d57:4e16 with SMTP id
+ d20-20020a50f694000000b004ad6d574e16mr2955162edn.5.1677021326111; Tue, 21 Feb
+ 2023 15:15:26 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
-Subject: Re: [PATCH v7 4/6] s390/pci: Use dma-iommu layer
-Content-Language: en-US
-To:     Niklas Schnelle <schnelle@linux.ibm.com>,
-        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>
-Cc:     Gerd Bayer <gbayer@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>, iommu@lists.linux.dev,
-        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, linux-kernel@vger.kernel.org,
-        Julian Ruess <julianr@linux.ibm.com>
-References: <20230220152222.1818344-1-schnelle@linux.ibm.com>
- <20230220152222.1818344-5-schnelle@linux.ibm.com>
-From:   Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <20230220152222.1818344-5-schnelle@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: N_92_8Yv43Xoo772wijkO5u1DJuRd871
-X-Proofpoint-ORIG-GUID: N_92_8Yv43Xoo772wijkO5u1DJuRd871
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
- definitions=2023-02-21_12,2023-02-20_02,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
- bulkscore=0 malwarescore=0 suspectscore=0 phishscore=0 spamscore=0
- lowpriorityscore=0 clxscore=1015 impostorscore=0 mlxlogscore=595
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2302210182
+References: <Y/NhOcWmhpYRPnK0@osiris>
+In-Reply-To: <Y/NhOcWmhpYRPnK0@osiris>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Tue, 21 Feb 2023 15:15:09 -0800
+X-Gmail-Original-Message-ID: <CAHk-=wimQi=gL-Pd7kMd-ruwjLUCK82e3wJ7sisvT3cfHrx-JQ@mail.gmail.com>
+Message-ID: <CAHk-=wimQi=gL-Pd7kMd-ruwjLUCK82e3wJ7sisvT3cfHrx-JQ@mail.gmail.com>
+Subject: Re: [GIT PULL] s390 updates for 6.3 merge window
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2/20/23 10:22 AM, Niklas Schnelle wrote:
-> While s390 already has a standard IOMMU driver and previous changes have
-> added I/O TLB flushing operations this driver is currently only used for
-> user-space PCI access such as vfio-pci. For the DMA API s390 instead
-> utilizes its own implementation in arch/s390/pci/pci_dma.c which drives
-> the same hardware and shares some code but requires a complex and
-> fragile hand over between DMA API and IOMMU API use of a device and
-> despite code sharing still leads to significant duplication and
-> maintenance effort. Let's utilize the common code DMAP API
-> implementation from drivers/iommu/dma-iommu.c instead allowing us to
-> get rid of arch/s390/pci/pci_dma.c.
-> 
-> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+On Mon, Feb 20, 2023 at 4:02 AM Heiko Carstens <hca@linux.ibm.com> wrote:
+>
+> Also the shortstat when merging will look slightly different to the one
+> generated with 'git request-pull' below, since I merged our fixes branch
+> twice to avoid merge conflicts.
 
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+Please don't do that unless the merge conflicts are really nasty - and
+when you do, please *explain* it.
 
+Looking at those two merges, I
+
+ (a) see no sign of complex conflicts (the conflict diff is completely
+empty for both of them)
+
+ (b) see zero explanation for why the merge exists at all
+
+Please consider merges to be real commits (they are!) and needing all
+the same commit messages explaining them that normal commits have
+(they do!).
+
+In fact, exactly because merges don't have any obvious code in them,
+they probably need *more* of an explanation than a commit where the
+diff might be in itself somewhat self-documenting.
+
+               Linus
