@@ -2,123 +2,119 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 026D2C61DA3
-	for <linux-s390@archiver.kernel.org>; Tue, 21 Feb 2023 11:31:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E6B9FC61DA3
+	for <linux-s390@archiver.kernel.org>; Tue, 21 Feb 2023 11:50:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233533AbjBULbM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 21 Feb 2023 06:31:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56388 "EHLO
+        id S233411AbjBULuB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 21 Feb 2023 06:50:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232613AbjBULbL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 21 Feb 2023 06:31:11 -0500
-Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C12F823654;
-        Tue, 21 Feb 2023 03:31:05 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1676979065; x=1708515065;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=N5rFekad14CxU869B3zGTSTqJQLOKVV8Uwl9VAdFVRQ=;
-  b=nT3tmbpnBpgYR5sIjZpWyIEdd59JNv04p/YGfbC3v4Km5ydgIapfARe3
-   mgD+yoQsBhGF7ZTBagt2jBGfYYqV7uW/dC64eZlYZV/l7iuZgBCQRxDFz
-   GbKT/SpKrst+nFydurCCMasmXHitWEOgBnLqWvoasm7nqO2EeA2aODsuM
-   IOcupoWjrgyiFzFLOv5dnJ4mgjhqw5y+WARyFUWgJOqlEpVRhzxc11upi
-   /A5JBYnSH+ekjwZi8aLFMh8LYLGcGhrIfl2bjaKm7c0PHG8JdRpAzvINB
-   mJDP1XHENJXCwMf6hapnXCtDAQomfXB+7I11DDccJUXsCuCF0zjfejfw8
-   Q==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10627"; a="395089428"
-X-IronPort-AV: E=Sophos;i="5.97,315,1669104000"; 
-   d="scan'208";a="395089428"
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Feb 2023 03:31:05 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10627"; a="664942388"
-X-IronPort-AV: E=Sophos;i="5.97,315,1669104000"; 
-   d="scan'208";a="664942388"
-Received: from lkp-server01.sh.intel.com (HELO 4455601a8d94) ([10.239.97.150])
-  by orsmga007.jf.intel.com with ESMTP; 21 Feb 2023 03:31:01 -0800
-Received: from kbuild by 4455601a8d94 with local (Exim 4.96)
-        (envelope-from <lkp@intel.com>)
-        id 1pUQrM-000EjB-1T;
-        Tue, 21 Feb 2023 11:31:00 +0000
-Date:   Tue, 21 Feb 2023 19:30:15 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
-        wenjia@linux.ibm.com, jaka@linux.ibm.com, ast@kernel.org,
-        daniel@iogearbox.net, andrii@kernel.org
-Cc:     llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-        kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: Re: [PATCH bpf-next 1/2] net/smc: Introduce BPF injection capability
- for SMC
-Message-ID: <202302211908.BgagxpRo-lkp@intel.com>
-References: <1676966191-47736-2-git-send-email-alibuda@linux.alibaba.com>
+        with ESMTP id S234452AbjBULt4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 21 Feb 2023 06:49:56 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E47C1165C
+        for <linux-s390@vger.kernel.org>; Tue, 21 Feb 2023 03:49:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1676980147;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=lQY8us4jogeZT2v9O2ixwk253cOCKZ2II1S+4Vrvqn8=;
+        b=ZvJvYD7p7cdaqBJL3NieovsGkAktdBJT8NorUO/fphyu5AvCNph5+vF0vd0WUJQ8sD6wV3
+        wX9PF+WetDpUrCxFSZ+M7BuLX4kELeGGYWBLqsUN86ENQ/coSK5AC9KCS9Fcz9N6Q4YwcU
+        MFGdQ0r2o5ILLZEULFAb6rvHDZmVul0=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-638-yOHMpki1Ova29bUuoQP46A-1; Tue, 21 Feb 2023 06:49:03 -0500
+X-MC-Unique: yOHMpki1Ova29bUuoQP46A-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 8F1653848C29;
+        Tue, 21 Feb 2023 11:49:02 +0000 (UTC)
+Received: from localhost (ovpn-13-7.pek2.redhat.com [10.72.13.7])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id C9FF840C1423;
+        Tue, 21 Feb 2023 11:49:01 +0000 (UTC)
+Date:   Tue, 21 Feb 2023 19:48:57 +0800
+From:   Baoquan He <bhe@redhat.com>
+To:     Niklas Schnelle <schnelle@linux.ibm.com>
+Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        akpm@linux-foundation.org, christophe.leroy@csgroup.eu,
+        hch@infradead.org, agordeev@linux.ibm.com,
+        wangkefeng.wang@huawei.com, David.Laight@aculab.com,
+        shorne@gmail.com, arnd@arndb.de,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v4 09/16] s390: mm: Convert to GENERIC_IOREMAP
+Message-ID: <Y/SvqcWQ+5sgozX/@MiWiFi-R3L-srv>
+References: <20230216123419.461016-1-bhe@redhat.com>
+ <20230216123419.461016-10-bhe@redhat.com>
+ <9bb1154b07dc21e5d3dda8cc5238c5385f32c2e0.camel@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <1676966191-47736-2-git-send-email-alibuda@linux.alibaba.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <9bb1154b07dc21e5d3dda8cc5238c5385f32c2e0.camel@linux.ibm.com>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.2
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Wythe,
+On 02/16/23 at 05:21pm, Niklas Schnelle wrote:
+> On Thu, 2023-02-16 at 20:34 +0800, Baoquan He wrote:
+> > By taking GENERIC_IOREMAP method, the generic generic_ioremap_prot(),
+> > generic_iounmap(), and their generic wrapper ioremap_prot(), ioremap()
+> > and iounmap() are all visible and available to arch. Arch needs to
+> > provide wrapper functions to override the generic versions if there's
+> > arch specific handling in its ioremap_prot(), ioremap() or iounmap().
+> > This change will simplify implementation by removing duplicated codes
+> > with generic_ioremap_prot() and generic_iounmap(), and has the equivalent
+> > functioality as before.
+> > 
+> > Here, add wrapper functions ioremap_prot() and iounmap() for s390's
+> > special operation when ioremap() and iounmap().
+> > 
+> > Signed-off-by: Baoquan He <bhe@redhat.com>
+> > Cc: Niklas Schnelle <schnelle@linux.ibm.com>
+> > Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+> > Cc: Heiko Carstens <hca@linux.ibm.com>
+> > Cc: Vasily Gorbik <gor@linux.ibm.com>
+> > Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+> > Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+> > Cc: Sven Schnelle <svens@linux.ibm.com>
+> > Cc: linux-s390@vger.kernel.org
+> > ---
+> >  arch/s390/Kconfig          |  1 +
+> >  arch/s390/include/asm/io.h | 21 ++++++++------
+> >  arch/s390/pci/pci.c        | 57 +++++++-------------------------------
+> >  3 files changed, 23 insertions(+), 56 deletions(-)
+> 
+> Thanks for the patch. This is a very clear improvement for us! I tested
+> this series with s390 systems with and without the PCI memory-I/O (MIO)
+> support and everything works as expected.
+> 
+> One thing I did stumble upon but which is independent from this patch
+> is that I think memremap(…, MEMREMAP_WB) on system RAM outside the
+> direct map is broken for us. At least on systems without PCI memory-I/O
+> support. I think with this series it would be much easier to fix
+> though. Basically I think we would have to define arch_memremap_wb() to
+> generic_ioremap_prot(…, PAGE_KERNEL) and then have iounmap() check
+> is_ioremap_addr() to see if it is an actual mapping or an address
+> cookie. But again this is independent of this patch which doesn't
+> change the behavior in this area.
 
-Thank you for the patch! Yet something to improve:
+OK, I can check this after this patchset done.
 
-[auto build test ERROR on bpf-next/master]
+> 
+> So feel free to add my:
+> 
+> Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> Tested-by: Niklas Schnelle <schnelle@linux.ibm.com>
 
-url:    https://github.com/intel-lab-lkp/linux/commits/D-Wythe/net-smc-Introduce-BPF-injection-capability-for-SMC/20230221-155712
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/bpf/bpf-next.git master
-patch link:    https://lore.kernel.org/r/1676966191-47736-2-git-send-email-alibuda%40linux.alibaba.com
-patch subject: [PATCH bpf-next 1/2] net/smc: Introduce BPF injection capability for SMC
-config: i386-randconfig-a013-20230220 (https://download.01.org/0day-ci/archive/20230221/202302211908.BgagxpRo-lkp@intel.com/config)
-compiler: clang version 14.0.6 (https://github.com/llvm/llvm-project f28c006a5895fc0e329fe15fead81e37457cb1d1)
-reproduce (this is a W=1 build):
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # https://github.com/intel-lab-lkp/linux/commit/e2b31aece49068d7a07ca4bbd5fbdbd92f45a25e
-        git remote add linux-review https://github.com/intel-lab-lkp/linux
-        git fetch --no-tags linux-review D-Wythe/net-smc-Introduce-BPF-injection-capability-for-SMC/20230221-155712
-        git checkout e2b31aece49068d7a07ca4bbd5fbdbd92f45a25e
-        # save the config file
-        mkdir build_dir && cp config build_dir/.config
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross W=1 O=build_dir ARCH=i386 olddefconfig
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross W=1 O=build_dir ARCH=i386 SHELL=/bin/bash net/
+Thanks a lot, will add these when repost.
 
-If you fix the issue, kindly add following tag where applicable
-| Reported-by: kernel test robot <lkp@intel.com>
-| Link: https://lore.kernel.org/oe-kbuild-all/202302211908.BgagxpRo-lkp@intel.com/
-
-All errors (new ones prefixed by >>):
-
->> net/smc/bpf_smc_struct_ops.c:61:33: error: use of undeclared identifier 'BTF_SMC_TYPE_MAX'; did you mean 'BTF_SMC_TYPE_SOCK'?
-   BTF_ID_LIST_GLOBAL(btf_smc_ids, BTF_SMC_TYPE_MAX)
-                                   ^~~~~~~~~~~~~~~~
-                                   BTF_SMC_TYPE_SOCK
-   include/linux/btf_ids.h:211:61: note: expanded from macro 'BTF_ID_LIST_GLOBAL'
-   #define BTF_ID_LIST_GLOBAL(name, n) u32 __maybe_unused name[n];
-                                                               ^
-   include/linux/btf_ids.h:275:1: note: 'BTF_SMC_TYPE_SOCK' declared here
-   BTF_SMC_TYPE_xxx
-   ^
-   include/linux/btf_ids.h:269:15: note: expanded from macro 'BTF_SMC_TYPE_xxx'
-           BTF_SMC_TYPE(BTF_SMC_TYPE_SOCK, smc_sock)               \
-                        ^
-   1 error generated.
-
-
-vim +61 net/smc/bpf_smc_struct_ops.c
-
-    59	
-    60	/* define global smc ID for smc_struct_ops */
-  > 61	BTF_ID_LIST_GLOBAL(btf_smc_ids, BTF_SMC_TYPE_MAX)
-    62	#define BTF_SMC_TYPE(name, type) BTF_ID(struct, type)
-    63	BTF_SMC_TYPE_xxx
-    64	#undef BTF_SMC_TYPE
-    65	
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests
