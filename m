@@ -2,88 +2,123 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FB06C6379F
-	for <linux-s390@archiver.kernel.org>; Tue, 21 Feb 2023 09:37:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 026D2C61DA3
+	for <linux-s390@archiver.kernel.org>; Tue, 21 Feb 2023 11:31:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233854AbjBUJh0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 21 Feb 2023 04:37:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47440 "EHLO
+        id S233533AbjBULbM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 21 Feb 2023 06:31:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232790AbjBUJhZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 21 Feb 2023 04:37:25 -0500
-Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01ED624130;
-        Tue, 21 Feb 2023 01:37:24 -0800 (PST)
+        with ESMTP id S232613AbjBULbL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 21 Feb 2023 06:31:11 -0500
+Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C12F823654;
+        Tue, 21 Feb 2023 03:31:05 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1676972245; x=1708508245;
+  t=1676979065; x=1708515065;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=0XV6h1ZraJRrPNJnz0Nn+lGjt/UMC9hNp09/LCtIWzM=;
-  b=d1lrLmc75chJBLUJMRM7IfUwLDLG4u/HARyD8a2dzcFISQOafZTWTYkD
-   P3TWPVchMi6BT/po0LAluLJsxecqwNr2eL+dxLmu3tsIzmgb1Ua4nPTFf
-   9pPQU0DG9bljqw7e8jAuQuh3rU+BoBm/dFaI5YN6S39CgO41lz7vE+5l+
-   5RxujOxKRENOFjBbHq2SfkG9EOkoRQQv7GSCwQQFVBMao/u+EV8Y/+iuP
-   URSi7HLVpUzULXAun1O4lZlNokWVVpTuv1XkqKIi+v3Wi9StvvcGyVLxb
-   h0I+K90XP8S290EPP/pjjqjwVwQnYKr7Zn7lWAnXklqnoxr/Tf4vkOFQG
-   w==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10627"; a="397275070"
+  bh=N5rFekad14CxU869B3zGTSTqJQLOKVV8Uwl9VAdFVRQ=;
+  b=nT3tmbpnBpgYR5sIjZpWyIEdd59JNv04p/YGfbC3v4Km5ydgIapfARe3
+   mgD+yoQsBhGF7ZTBagt2jBGfYYqV7uW/dC64eZlYZV/l7iuZgBCQRxDFz
+   GbKT/SpKrst+nFydurCCMasmXHitWEOgBnLqWvoasm7nqO2EeA2aODsuM
+   IOcupoWjrgyiFzFLOv5dnJ4mgjhqw5y+WARyFUWgJOqlEpVRhzxc11upi
+   /A5JBYnSH+ekjwZi8aLFMh8LYLGcGhrIfl2bjaKm7c0PHG8JdRpAzvINB
+   mJDP1XHENJXCwMf6hapnXCtDAQomfXB+7I11DDccJUXsCuCF0zjfejfw8
+   Q==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10627"; a="395089428"
 X-IronPort-AV: E=Sophos;i="5.97,315,1669104000"; 
-   d="scan'208";a="397275070"
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Feb 2023 01:37:24 -0800
+   d="scan'208";a="395089428"
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Feb 2023 03:31:05 -0800
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10627"; a="671584774"
+X-IronPort-AV: E=McAfee;i="6500,9779,10627"; a="664942388"
 X-IronPort-AV: E=Sophos;i="5.97,315,1669104000"; 
-   d="scan'208";a="671584774"
-Received: from smile.fi.intel.com ([10.237.72.54])
-  by orsmga002.jf.intel.com with ESMTP; 21 Feb 2023 01:37:19 -0800
-Received: from andy by smile.fi.intel.com with local (Exim 4.96)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1pUP5J-009u7E-0E;
-        Tue, 21 Feb 2023 11:37:17 +0200
-Date:   Tue, 21 Feb 2023 11:37:16 +0200
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Jakub Kicinski <kuba@kernel.org>
-Cc:     Kees Cook <keescook@chromium.org>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org,
-        netdev@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Paolo Abeni <pabeni@redhat.com>
-Subject: Re: [PATCH net-next v1 1/2] string: Make memscan() to take const
-Message-ID: <Y/SQzLV5pwonA6Wc@smile.fi.intel.com>
-References: <20230216114234.36343-1-andriy.shevchenko@linux.intel.com>
- <20230220162653.0836ebfc@kernel.org>
+   d="scan'208";a="664942388"
+Received: from lkp-server01.sh.intel.com (HELO 4455601a8d94) ([10.239.97.150])
+  by orsmga007.jf.intel.com with ESMTP; 21 Feb 2023 03:31:01 -0800
+Received: from kbuild by 4455601a8d94 with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1pUQrM-000EjB-1T;
+        Tue, 21 Feb 2023 11:31:00 +0000
+Date:   Tue, 21 Feb 2023 19:30:15 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
+        wenjia@linux.ibm.com, jaka@linux.ibm.com, ast@kernel.org,
+        daniel@iogearbox.net, andrii@kernel.org
+Cc:     llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+        kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: Re: [PATCH bpf-next 1/2] net/smc: Introduce BPF injection capability
+ for SMC
+Message-ID: <202302211908.BgagxpRo-lkp@intel.com>
+References: <1676966191-47736-2-git-send-email-alibuda@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230220162653.0836ebfc@kernel.org>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+In-Reply-To: <1676966191-47736-2-git-send-email-alibuda@linux.alibaba.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Feb 20, 2023 at 04:26:53PM -0800, Jakub Kicinski wrote:
-> On Thu, 16 Feb 2023 13:42:33 +0200 Andy Shevchenko wrote:
-> > Make memscan() to take const so it will be easier replace
-> > some memchr() cases with it.
-> 
-> Let's do this after the merge window.
+Hi Wythe,
 
-Sure, it needs to be revised anyway. I just noticed that one corner case might
-not work properly.
+Thank you for the patch! Yet something to improve:
+
+[auto build test ERROR on bpf-next/master]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/D-Wythe/net-smc-Introduce-BPF-injection-capability-for-SMC/20230221-155712
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/bpf/bpf-next.git master
+patch link:    https://lore.kernel.org/r/1676966191-47736-2-git-send-email-alibuda%40linux.alibaba.com
+patch subject: [PATCH bpf-next 1/2] net/smc: Introduce BPF injection capability for SMC
+config: i386-randconfig-a013-20230220 (https://download.01.org/0day-ci/archive/20230221/202302211908.BgagxpRo-lkp@intel.com/config)
+compiler: clang version 14.0.6 (https://github.com/llvm/llvm-project f28c006a5895fc0e329fe15fead81e37457cb1d1)
+reproduce (this is a W=1 build):
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        # https://github.com/intel-lab-lkp/linux/commit/e2b31aece49068d7a07ca4bbd5fbdbd92f45a25e
+        git remote add linux-review https://github.com/intel-lab-lkp/linux
+        git fetch --no-tags linux-review D-Wythe/net-smc-Introduce-BPF-injection-capability-for-SMC/20230221-155712
+        git checkout e2b31aece49068d7a07ca4bbd5fbdbd92f45a25e
+        # save the config file
+        mkdir build_dir && cp config build_dir/.config
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross W=1 O=build_dir ARCH=i386 olddefconfig
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross W=1 O=build_dir ARCH=i386 SHELL=/bin/bash net/
+
+If you fix the issue, kindly add following tag where applicable
+| Reported-by: kernel test robot <lkp@intel.com>
+| Link: https://lore.kernel.org/oe-kbuild-all/202302211908.BgagxpRo-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+>> net/smc/bpf_smc_struct_ops.c:61:33: error: use of undeclared identifier 'BTF_SMC_TYPE_MAX'; did you mean 'BTF_SMC_TYPE_SOCK'?
+   BTF_ID_LIST_GLOBAL(btf_smc_ids, BTF_SMC_TYPE_MAX)
+                                   ^~~~~~~~~~~~~~~~
+                                   BTF_SMC_TYPE_SOCK
+   include/linux/btf_ids.h:211:61: note: expanded from macro 'BTF_ID_LIST_GLOBAL'
+   #define BTF_ID_LIST_GLOBAL(name, n) u32 __maybe_unused name[n];
+                                                               ^
+   include/linux/btf_ids.h:275:1: note: 'BTF_SMC_TYPE_SOCK' declared here
+   BTF_SMC_TYPE_xxx
+   ^
+   include/linux/btf_ids.h:269:15: note: expanded from macro 'BTF_SMC_TYPE_xxx'
+           BTF_SMC_TYPE(BTF_SMC_TYPE_SOCK, smc_sock)               \
+                        ^
+   1 error generated.
+
+
+vim +61 net/smc/bpf_smc_struct_ops.c
+
+    59	
+    60	/* define global smc ID for smc_struct_ops */
+  > 61	BTF_ID_LIST_GLOBAL(btf_smc_ids, BTF_SMC_TYPE_MAX)
+    62	#define BTF_SMC_TYPE(name, type) BTF_ID(struct, type)
+    63	BTF_SMC_TYPE_xxx
+    64	#undef BTF_SMC_TYPE
+    65	
 
 -- 
-With Best Regards,
-Andy Shevchenko
-
-
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests
