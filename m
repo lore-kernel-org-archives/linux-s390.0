@@ -2,57 +2,57 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C6731C636D7
-	for <linux-s390@archiver.kernel.org>; Tue, 21 Feb 2023 17:48:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8828CC61DA3
+	for <linux-s390@archiver.kernel.org>; Tue, 21 Feb 2023 17:48:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234090AbjBURsg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 21 Feb 2023 12:48:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33854 "EHLO
+        id S233175AbjBURsh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 21 Feb 2023 12:48:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234009AbjBURse (ORCPT
+        with ESMTP id S234045AbjBURse (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Tue, 21 Feb 2023 12:48:34 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F96127D5C;
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D526279AB;
         Tue, 21 Feb 2023 09:48:31 -0800 (PST)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31LHmDWO025718;
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31LHmCe9009555;
         Tue, 21 Feb 2023 17:48:31 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=omcxWFtmKthVHFkM9imywS8w+Cq/VOcYU0g4gOpeJDc=;
- b=SYwR5fLYmX96d7P7UOR+/ILxWR3P1TxYvT/FFtJyoIHeFUDPSG2j4HNNr7gWslMoqTOC
- zR7DF0znZEXitcfDelwyyvUXyUQ0kVJ5QePhJdYCKXl6gPpklGj9yO9+0h6Q8IeOV7sk
- Vevx14ZjzwjZYxMWIM8KhtUSw46sCC9bRctd0DyCxQr6/EizgXKq6KgsON7hWO2PfY96
- m3gmi7+eBl8UsjhyNAvRKVcaxq4XdQ+/WgYsO4/CJIckVXtKUIWCx9uLoVcgTQWfhfdb
- dqIWuZCcMJzXZCHASdShaV8p/9scgryJWBDgcT1LqWhss9zszjZMTwvUIsvM0GGRCmZW jQ== 
+ bh=T8Cz2usH+rAU9GdefuPD0V6bA1YUsPYfRvJmDeOlBa0=;
+ b=NZo2fmWRQbVxeRVTitB98ukRrtQhPAe3jcA0XFtRq14agaLQBNB+vY/a98kCRz52L1EK
+ jsoCoKTpq4+1uYdQwYVw+DlDVVpoSdh/+Q7Bb4/zvqZR5bbvg+5nTAtwkecZf7pbrmKo
+ IUDLWSqhuF/od1W33ok8cHmQFqwwNCb7KbaDqoD+S3W+fp/1H7glCnfuCbeq9/k75s+w
+ 3I/EDuVI6LYAHXsPH8YynVIhuP19VL/3eB5DorZUNUz6kunAv+wmJCcpxvqBC42+H5zj
+ CaM6ZkE/HGaK2icS41RUeL0QPW0jIycSZ7V6kvYA9n0WEr2z79/JbIuTMjIhmIkg/5nY JA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nw27n0q6f-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nw2dwrchw-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 21 Feb 2023 17:48:30 +0000
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 31LHmUKT030607;
+        Tue, 21 Feb 2023 17:48:31 +0000
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 31LHmEU5009984;
         Tue, 21 Feb 2023 17:48:30 GMT
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nw27n0q60-1
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nw2dwrche-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Tue, 21 Feb 2023 17:48:30 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31LCrb5w031403;
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31L8O191016665;
         Tue, 21 Feb 2023 17:48:28 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma05fra.de.ibm.com (PPS) with ESMTPS id 3ntpa6b93b-1
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3ntpa6cay3-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Tue, 21 Feb 2023 17:48:28 +0000
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31LHmOAV53477674
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31LHmPYD48431450
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 21 Feb 2023 17:48:24 GMT
+        Tue, 21 Feb 2023 17:48:25 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7C0552004D;
-        Tue, 21 Feb 2023 17:48:24 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 325302004D;
+        Tue, 21 Feb 2023 17:48:25 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4600720043;
+        by IMSVA (Postfix) with ESMTP id F0E1620040;
         Tue, 21 Feb 2023 17:48:24 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
         by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
@@ -64,65 +64,82 @@ To:     Thomas Huth <thuth@redhat.com>,
 Cc:     Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
         David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
         linux-s390@vger.kernel.org
-Subject: [kvm-unit-tests PATCH v2 1/3] s390x/spec_ex: Use PSW macro
-Date:   Tue, 21 Feb 2023 18:48:20 +0100
-Message-Id: <20230221174822.1378667-2-nsg@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v2 3/3] s390x/spec_ex: Add test of EXECUTE with odd target address
+Date:   Tue, 21 Feb 2023 18:48:22 +0100
+Message-Id: <20230221174822.1378667-4-nsg@linux.ibm.com>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20230221174822.1378667-1-nsg@linux.ibm.com>
 References: <20230221174822.1378667-1-nsg@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: wqzcMjA4jkJvJhPbpY-djtjaA1BEM4C2
-X-Proofpoint-GUID: -ddbTFHndAsYdlhal0D6OiOcaZjDvF9B
+X-Proofpoint-ORIG-GUID: EL3ND9kfkddk34AQeIfTRDreSZEYZ0D2
+X-Proofpoint-GUID: HceD8S6V6SgTIeuXAgP8vUw9HL4DrmKs
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
  definitions=2023-02-21_10,2023-02-20_02,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 adultscore=0
- clxscore=1015 mlxscore=0 priorityscore=1501 impostorscore=0
- mlxlogscore=999 malwarescore=0 bulkscore=0 suspectscore=0
- lowpriorityscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2212070000 definitions=main-2302210148
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 phishscore=0
+ spamscore=0 mlxlogscore=999 suspectscore=0 adultscore=0 lowpriorityscore=0
+ impostorscore=0 bulkscore=0 malwarescore=0 priorityscore=1501 mlxscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
+ definitions=main-2302210148
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Replace explicit psw definition by PSW macro.
-No functional change intended.
+The EXECUTE instruction executes the instruction at the given target
+address. This address must be halfword aligned, otherwise a
+specification exception occurs.
+Add a test for this.
 
 Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
 ---
- s390x/spec_ex.c | 10 ++--------
- 1 file changed, 2 insertions(+), 8 deletions(-)
+ s390x/spec_ex.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
 diff --git a/s390x/spec_ex.c b/s390x/spec_ex.c
-index 42ecaed3..2adc5996 100644
+index a26c56aa..dd097f9b 100644
 --- a/s390x/spec_ex.c
 +++ b/s390x/spec_ex.c
-@@ -105,10 +105,7 @@ static int check_invalid_psw(void)
- /* For normal PSWs bit 12 has to be 0 to be a valid PSW*/
- static int psw_bit_12_is_1(void)
- {
--	struct psw invalid = {
--		.mask = BIT(63 - 12),
--		.addr = 0x00000000deadbeee
--	};
-+	struct psw invalid = PSW(BIT(63 - 12), 0x00000000deadbeee);
+@@ -177,6 +177,30 @@ static int short_psw_bit_12_is_0(void)
+ 	return 0;
+ }
  
- 	expect_invalid_psw(invalid);
- 	load_psw(invalid);
-@@ -118,10 +115,7 @@ static int psw_bit_12_is_1(void)
- /* A short PSW needs to have bit 12 set to be valid. */
- static int short_psw_bit_12_is_0(void)
++static int odd_ex_target(void)
++{
++	uint64_t pre_target_addr;
++	int to = 0, from = 0x0dd;
++
++	asm volatile ( ".pushsection .rodata\n"
++		"pre_odd_ex_target:\n"
++		"	.balign	2\n"
++		"	. = . + 1\n"
++		"	lr	%[to],%[from]\n"
++		"	.popsection\n"
++
++		"	larl	%[pre_target_addr],pre_odd_ex_target\n"
++		"	ex	0,1(%[pre_target_addr])\n"
++		: [pre_target_addr] "=&a" (pre_target_addr),
++		  [to] "+d" (to)
++		: [from] "d" (from)
++	);
++
++	assert((pre_target_addr + 1) & 1);
++	report(to != from, "did not perform ex with odd target");
++	return 0;
++}
++
+ static int bad_alignment(void)
  {
--	struct psw invalid = {
--		.mask = BIT(63 - 12),
--		.addr = 0x00000000deadbeee
--	};
-+	struct psw invalid = PSW(BIT(63 - 12), 0x00000000deadbeee);
- 	struct short_psw short_invalid = {
- 		.mask = 0x0,
- 		.addr = 0xdeadbeee
+ 	uint32_t words[5] __attribute__((aligned(16)));
+@@ -218,6 +242,7 @@ static const struct spec_ex_trigger spec_ex_triggers[] = {
+ 	{ "psw_bit_12_is_1", &psw_bit_12_is_1, false, &fixup_invalid_psw },
+ 	{ "short_psw_bit_12_is_0", &short_psw_bit_12_is_0, false, &fixup_invalid_psw },
+ 	{ "psw_odd_address", &psw_odd_address, false, &fixup_invalid_psw },
++	{ "odd_ex_target", &odd_ex_target, true, NULL },
+ 	{ "bad_alignment", &bad_alignment, true, NULL },
+ 	{ "not_even", &not_even, true, NULL },
+ 	{ NULL, NULL, false, NULL },
 -- 
 2.36.1
 
