@@ -2,228 +2,116 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 30666C636D6
-	for <linux-s390@archiver.kernel.org>; Wed, 22 Feb 2023 21:49:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6BA85C61DA4
+	for <linux-s390@archiver.kernel.org>; Wed, 22 Feb 2023 22:02:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229922AbjBVVtY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 22 Feb 2023 16:49:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48154 "EHLO
+        id S230454AbjBVWCY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 22 Feb 2023 17:02:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56138 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232924AbjBVVtX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Feb 2023 16:49:23 -0500
-X-Greylist: delayed 497 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 22 Feb 2023 13:49:11 PST
-Received: from out-27.mta0.migadu.com (out-27.mta0.migadu.com [91.218.175.27])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23C1838B6A
-        for <linux-s390@vger.kernel.org>; Wed, 22 Feb 2023 13:49:10 -0800 (PST)
-Message-ID: <76e226e6-f3bf-f740-c86c-6ee214aff07d@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-        t=1677102049;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=ULSs5D2Kb3ePBoYyjTCmDgoF746uH4nFtS2uoFRmdJM=;
-        b=dtuBJPLUPhHuttZ5PmCFdedcgpdhA19HESXTQmw4vG0574AW6ft5RVdXQ6hHNcUinXc+ws
-        YeeeXBoGF4h51a+KizxNwBaqeYJmQTr1WIAXyyr/fMo+MKrOhRwxO9QqqIQcFDCSy3wj01
-        WQyPlDEQfVtXLNyczLof23Dmal/4MwQ=
-Date:   Wed, 22 Feb 2023 13:40:43 -0800
+        with ESMTP id S230114AbjBVWCY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Feb 2023 17:02:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 587FE41B6D;
+        Wed, 22 Feb 2023 14:02:23 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C74B66157F;
+        Wed, 22 Feb 2023 22:02:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FE7AC433D2;
+        Wed, 22 Feb 2023 22:02:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1677103342;
+        bh=XzoL6AJPYva3eF1pIbrO3aURgSEiWFHCISYaoJoffgw=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:From;
+        b=FdR+QsQtWgojtn2yfU11p2o6Twy2ZZcKen49YhEwA1uFdMnMFs3xfQ4Jg2N7DhNdV
+         dW40QlH+EoVfkG9WKToPzubjrjgApQBJc0oHY4YDSNhoMpdfRRmogu0HQ3SNgzM6Xj
+         ouVMhAbdw8Bw6u3rZeVSlQ7BAqWLxln5M9IVX2e3dfDzWyS+PMPMyFHcGthKk6E8pO
+         fydfdFGpvHe9mNpaPqDllq7i7iQU71eyILVXwlYS81ez1JOlFxifidIf1D7ClY5AE9
+         tcJJj0+pj19lYvQesShox/J9vLviYv3COxqA2jpknn1Fd+nHxRU+U+xVfTgPMIcCs0
+         Q1VtIegIGxNIg==
+Date:   Wed, 22 Feb 2023 16:02:20 -0600
+From:   Bjorn Helgaas <helgaas@kernel.org>
+To:     Niklas Schnelle <schnelle@linux.ibm.com>
+Cc:     Gerd Bayer <gbayer@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-pci@vger.kernel.org
+Subject: Re: [PATCH RESEND] PCI: s390: Fix use-after-free of PCI bus
+ resources with s390 per-function hotplug
+Message-ID: <20230222220220.GA3804275@bhelgaas>
 MIME-Version: 1.0
-Subject: Re: [PATCH bpf-next v2 1/2] net/smc: Introduce BPF injection
- capability for SMC
-Content-Language: en-US
-To:     "D. Wythe" <alibuda@linux.alibaba.com>
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-        bpf@vger.kernel.org, kgraul@linux.ibm.com, wenjia@linux.ibm.com,
-        jaka@linux.ibm.com, ast@kernel.org, daniel@iogearbox.net,
-        andrii@kernel.org
-References: <1676981919-64884-1-git-send-email-alibuda@linux.alibaba.com>
- <1676981919-64884-2-git-send-email-alibuda@linux.alibaba.com>
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From:   Martin KaFai Lau <martin.lau@linux.dev>
-In-Reply-To: <1676981919-64884-2-git-send-email-alibuda@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Migadu-Flow: FLOW_OUT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1a621a2b836d81d12b6f265f47d93b827e0a82df.camel@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2/21/23 4:18 AM, D. Wythe wrote:
-> From: "D. Wythe" <alibuda@linux.alibaba.com>
+On Mon, Feb 20, 2023 at 01:53:34PM +0100, Niklas Schnelle wrote:
+> On Fri, 2023-02-17 at 17:15 -0600, Bjorn Helgaas wrote:
+> > On Tue, Feb 14, 2023 at 10:49:10AM +0100, Niklas Schnelle wrote:
+> > > ...
+
+> >     What happens when zpci_bus_release() calls
+> >     pci_free_resource_list() on &zbus->resources?  It looks like that
+> >     ultimately calls kfree(), which is OK for the
+> >     zpci_setup_bus_resources() stuff, but what about the
+> >     zbus->bus_resource that was not kalloc'ed?
 > 
-> This PATCH attempts to introduce BPF injection capability for SMC.
-> As we all know that the SMC protocol is not suitable for all scenarios,
-> especially for short-lived. However, for most applications, they cannot
-> guarantee that there are no such scenarios at all. Therefore, apps
-> may need some specific strategies to decide shall we need to use SMC
-> or not, for example, apps can limit the scope of the SMC to a specific
-> IP address or port.
+> As far as I can see pci_free_resource_list() only calls kfree() on the
+> entry not on entry->res. The resources set up in
+> zpci_setup_bus_resources() are freed in zpci_cleanup_bus_resources()
+> explicitly.
+
+So I guess the zbus->resources are allocated in zpci_bus_scan_device()
+where zpci_setup_bus_resources() adds a zbus resource for every
+zpci_dev BAR, and freed in zpci_bus_release() when the last zpci_dev
+is unregistered.
+
+Does that mean that if you add device A, add device B, and remove A,
+the zbus retains A's resources even though A is gone?  What if you
+then add device C whose resources partially overlap A's?
+
+> > >  static void zpci_cleanup_bus_resources(struct zpci_dev *zdev)
+> > >  {
+> > > +	struct resource *res;
+> > >  	int i;
+> > >  
+> > > +	pci_lock_rescan_remove();
+> > 
+> > What exactly is this protecting?  This doesn't seem like quite the
+> > right place since we're not adding/removing a pci_dev here.  Is this
+> > to protect the bus->resources list in pci_bus_remove_resource()?
 > 
-> Based on the consideration of transparent replacement, we hope that apps
-> can remain transparent even if they need to formulate some specific
-> strategies for SMC using. That is, do not need to recompile their code.
-> 
-> On the other hand, we need to ensure the scalability of strategies
-> implementation. Although it is simple to use socket options or sysctl,
-> it will bring more complexity to subsequent expansion.
-> 
-> Fortunately, BPF can solve these concerns very well, users can write
-> thire own strategies in eBPF to choose whether to use SMC or not.
-> And it's quite easy for them to modify their strategies in the future.
-> 
-> This PATCH implement injection capability for SMC via struct_ops.
-> In that way, we can add new injection scenarios in the future.
+> Yes I did not find a lock that is specifically for bus->resources but
+> it seemed to me that changes to resources would only affect things
+> running under the rescan/remove lock.
 
-I have never used smc. I can only comment at its high level usage and details on 
-the bpf side.
+Yeah, OK.
 
-> 
-> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-> ---
->   include/linux/btf_ids.h           |  15 +++
->   include/net/smc.h                 | 254 ++++++++++++++++++++++++++++++++++++++
->   kernel/bpf/bpf_struct_ops_types.h |   4 +
->   net/Makefile                      |   5 +
->   net/smc/af_smc.c                  |  10 +-
->   net/smc/bpf_smc_struct_ops.c      | 146 ++++++++++++++++++++++
->   net/smc/smc.h                     | 220 ---------------------------------
->   7 files changed, 433 insertions(+), 221 deletions(-)
->   create mode 100644 net/smc/bpf_smc_struct_ops.c
-> 
-> diff --git a/include/linux/btf_ids.h b/include/linux/btf_ids.h
-> index 3a4f7cd..25eab1e 100644
-> --- a/include/linux/btf_ids.h
-> +++ b/include/linux/btf_ids.h
-> @@ -264,6 +264,21 @@ enum {
->   MAX_BTF_TRACING_TYPE,
->   };
->   
-> +#if IS_ENABLED(CONFIG_SMC)
-> +#define BTF_SMC_TYPE_xxx		\
-> +	BTF_SMC_TYPE(BTF_SMC_TYPE_SOCK, smc_sock)		\
-> +	BTF_SMC_TYPE(BTF_SMC_TYPE_CONNECTION, smc_connection)	\
-> +	BTF_SMC_TYPE(BTF_SMC_TYPE_HOST_CURSOR, smc_host_cursor)
-> +
-> +enum {
-> +#define BTF_SMC_TYPE(name, type) name,
-> +BTF_SMC_TYPE_xxx
-> +#undef BTF_SMC_TYPE
-> +MAX_BTF_SMC_TYPE,
-> +};
-> +extern u32 btf_smc_ids[];
-
-Do all these need to be in btf_ids.h?
-
-> +#endif
-> +
->   extern u32 btf_tracing_ids[];
->   extern u32 bpf_cgroup_btf_id[];
->   extern u32 bpf_local_storage_map_btf_id[];
-> diff --git a/include/net/smc.h b/include/net/smc.h
-> index 597cb93..912c269 100644
-> --- a/include/net/smc.h
-> +++ b/include/net/smc.h
-
-It is not obvious to me why the header moving is needed (from net/smc/smc.h to 
-include/net/smc.h ?). This can use some comment in the commit message and please 
-break it out to another patch.
-
-[ ... ]
-
-> --- a/net/Makefile
-> +++ b/net/Makefile
-> @@ -52,6 +52,11 @@ obj-$(CONFIG_TIPC)		+= tipc/
->   obj-$(CONFIG_NETLABEL)		+= netlabel/
->   obj-$(CONFIG_IUCV)		+= iucv/
->   obj-$(CONFIG_SMC)		+= smc/
-> +ifneq ($(CONFIG_SMC),)
-> +ifeq ($(CONFIG_BPF_SYSCALL),y)
-> +obj-y				+= smc/bpf_smc_struct_ops.o
-
-This will ensure bpf_smc_struct_ops.c compiled as builtin even when smc is 
-compiled as module?
-
-> diff --git a/net/smc/bpf_smc_struct_ops.c b/net/smc/bpf_smc_struct_ops.c
-> new file mode 100644
-> index 0000000..a5989b6
-> --- /dev/null
-> +++ b/net/smc/bpf_smc_struct_ops.c
-> @@ -0,0 +1,146 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +
-> +#include <linux/kernel.h>
-> +#include <linux/bpf_verifier.h>
-> +#include <linux/btf_ids.h>
-> +#include <linux/bpf.h>
-> +#include <linux/btf.h>
-> +#include <net/sock.h>
-> +#include <net/smc.h>
-> +
-> +extern struct bpf_struct_ops smc_sock_negotiator_ops;
-> +
-> +DEFINE_RWLOCK(smc_sock_negotiator_ops_rwlock);
-> +struct smc_sock_negotiator_ops *negotiator;
-
-Is it sure one global negotiator (policy) will work for all smc_sock? or each sk 
-should have its own negotiator and the negotiator is selected by setsockopt.
-
-> +
-> +/* convert sk to smc_sock */
-> +static inline struct smc_sock *smc_sk(const struct sock *sk)
-> +{
-> +	return (struct smc_sock *)sk;
-> +}
-> +
-> +/* register ops */
-> +static inline void smc_reg_passive_sk_ops(struct smc_sock_negotiator_ops *ops)
-> +{
-> +	write_lock_bh(&smc_sock_negotiator_ops_rwlock);
-> +	negotiator = ops;
-
-What happens to the existing negotiator?
-
-> +	write_unlock_bh(&smc_sock_negotiator_ops_rwlock);
-> +}
-> +
-> +/* unregister ops */
-> +static inline void smc_unreg_passive_sk_ops(struct smc_sock_negotiator_ops *ops)
-> +{
-> +	write_lock_bh(&smc_sock_negotiator_ops_rwlock);
-> +	if (negotiator == ops)
-> +		negotiator = NULL;
-> +	write_unlock_bh(&smc_sock_negotiator_ops_rwlock);
-> +}
-> +
-> +int smc_sock_should_select_smc(const struct smc_sock *smc)
-> +{
-> +	int ret = SK_PASS;
-> +
-> +	read_lock_bh(&smc_sock_negotiator_ops_rwlock);
-> +	if (negotiator && negotiator->negotiate)
-> +		ret = negotiator->negotiate((struct smc_sock *)smc);
-> +	read_unlock_bh(&smc_sock_negotiator_ops_rwlock);
-> +	return ret;
-> +}
-> +EXPORT_SYMBOL_GPL(smc_sock_should_select_smc);
-> +
-> +void smc_sock_perform_collecting_info(const struct smc_sock *smc, int timing)
-> +{
-> +	read_lock_bh(&smc_sock_negotiator_ops_rwlock);
-> +	if (negotiator && negotiator->collect_info)
-> +		negotiator->collect_info((struct smc_sock *)smc, timing);
-> +	read_unlock_bh(&smc_sock_negotiator_ops_rwlock);
-> +}
-> +EXPORT_SYMBOL_GPL(smc_sock_perform_collecting_info);
-> +
-> +/* define global smc ID for smc_struct_ops */
-> +BTF_ID_LIST_GLOBAL(btf_smc_ids, MAX_BTF_SMC_TYPE)
-
-How is btf_smc_ids used?
-
-> +#define BTF_SMC_TYPE(name, type) BTF_ID(struct, type)
-> +BTF_SMC_TYPE_xxx
-> +#undef BTF_SMC_TYPE
-> +
-
-
+> > >  	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
+> > > -		if (!zdev->bars[i].size || !zdev->bars[i].res)
+> > > +		res = zdev->bars[i].res;
+> > > +		if (!res)
+> > >  			continue;
+> > >  
+> > > +		release_resource(res);
+> > > +		pci_bus_remove_resource(zdev->zbus->bus, res);
+> > >  		zpci_free_iomap(zdev, zdev->bars[i].map_idx);
+> > > -		release_resource(zdev->bars[i].res);
+> > > -		kfree(zdev->bars[i].res);
+> > > +		zdev->bars[i].res = NULL;
+> > > +		kfree(res);
+> > >  	}
+> > >  	zdev->has_resources = 0;
+> > > +	pci_unlock_rescan_remove();
