@@ -2,110 +2,324 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 77B0CC61DA4
-	for <linux-s390@archiver.kernel.org>; Wed, 22 Feb 2023 08:07:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C593C61DA4
+	for <linux-s390@archiver.kernel.org>; Wed, 22 Feb 2023 08:17:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229627AbjBVIHU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 22 Feb 2023 03:07:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56868 "EHLO
+        id S230291AbjBVIRD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 22 Feb 2023 03:17:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229557AbjBVIHT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Feb 2023 03:07:19 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95CA93668E;
-        Wed, 22 Feb 2023 00:07:18 -0800 (PST)
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31M6nfaS020596;
-        Wed, 22 Feb 2023 08:07:17 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=EiKHzmG9pDf6EGIuIN6f/xMI/M9KT3Ua3MKIAQWZiKE=;
- b=SAWSGhJboWZMOttDJFBnnffOVbChyLNNTWICgf4mC1lR2nlXH5vpaI8Y+zIHg4njr9SQ
- KKGzY+p6zB8bCEczfkgimI4sUmJ0zJapwgToJY48I67BSWTpVz5jeW6wgfJ+q9JHsZqA
- gdd4FTjuL+KIqdNdjvhbiyH9KUWYBlmDY1RhV23HxSSR3PdURPmlbmOtW3mA8TURyv0/
- 6zfKcirojS5pxPPKBFHDngwXp27Pbb/MiByzyRIoBThngV25bJfANOxafUbW7S/mjXju
- zxtyFaxFbkhxxSkL861MrORosyUi5BEi809YQAcdaA4upfm4bksjRZwHpoOfWCtg3S2s Cg== 
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nwe4f1naa-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 22 Feb 2023 08:07:17 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31LCeHUR014629;
-        Wed, 22 Feb 2023 08:07:15 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-        by ppma04fra.de.ibm.com (PPS) with ESMTPS id 3ntpa63u09-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 22 Feb 2023 08:07:15 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31M87BDN45220238
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 22 Feb 2023 08:07:11 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 436462004B;
-        Wed, 22 Feb 2023 08:07:11 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D485120043;
-        Wed, 22 Feb 2023 08:07:09 +0000 (GMT)
-Received: from osiris (unknown [9.152.212.244])
-        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Wed, 22 Feb 2023 08:07:09 +0000 (GMT)
-Date:   Wed, 22 Feb 2023 09:07:08 +0100
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [GIT PULL] s390 updates for 6.3 merge window
-Message-ID: <Y/XNLAxrg9ZCxlsH@osiris>
-References: <Y/NhOcWmhpYRPnK0@osiris>
- <CAHk-=wimQi=gL-Pd7kMd-ruwjLUCK82e3wJ7sisvT3cfHrx-JQ@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+        with ESMTP id S229612AbjBVIRB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Feb 2023 03:17:01 -0500
+Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55B3A36FE5;
+        Wed, 22 Feb 2023 00:16:57 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1677053817; x=1708589817;
+  h=date:from:to:cc:subject:message-id:reply-to:references:
+   in-reply-to:mime-version;
+  bh=EP1Hl21xMxh1psOWpQJTih63QMR8M5mx+sJIiwqONT8=;
+  b=JMnrbnXnZjmaGIVjLJSxooI26KNbeGI6/u4CjFdVvBfHfR4zrdOET98X
+   HjdvtrfQTjDoCIIqy2w40HJZtjz+h3z/xq5V88R7pskbYhrVNyS7cp6q0
+   LFIksh+59Cs1O4ROcVGnbSZc0KeZHKmgF8hPExdAVYUzSqYBj0CGZnlLK
+   gyuTu6ZRitCtnuF/ATJzZeV6SvseYMRly6tIapgKs/aaHCY2VO1Ms5npG
+   ira2qo+c7NDV1Xdgdlmy9+OirINg0A7tToEEsFTifm1/fyaRcGjEluiAX
+   dR3zNqRPdK/cz+AF6rXTgkHWEgcdwUhs/HuZwPGHvCnv1mLUXFySIC5l+
+   A==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10628"; a="419094378"
+X-IronPort-AV: E=Sophos;i="5.97,318,1669104000"; 
+   d="scan'208";a="419094378"
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Feb 2023 00:16:56 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10628"; a="665268328"
+X-IronPort-AV: E=Sophos;i="5.97,318,1669104000"; 
+   d="scan'208";a="665268328"
+Received: from orsmsx601.amr.corp.intel.com ([10.22.229.14])
+  by orsmga007.jf.intel.com with ESMTP; 22 Feb 2023 00:16:56 -0800
+Received: from orsmsx611.amr.corp.intel.com (10.22.229.24) by
+ ORSMSX601.amr.corp.intel.com (10.22.229.14) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.16; Wed, 22 Feb 2023 00:16:55 -0800
+Received: from orsmsx611.amr.corp.intel.com (10.22.229.24) by
+ ORSMSX611.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.16; Wed, 22 Feb 2023 00:16:55 -0800
+Received: from ORSEDG601.ED.cps.intel.com (10.7.248.6) by
+ orsmsx611.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.16 via Frontend Transport; Wed, 22 Feb 2023 00:16:55 -0800
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com (104.47.57.174)
+ by edgegateway.intel.com (134.134.137.102) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.16; Wed, 22 Feb 2023 00:16:55 -0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=YZ62IovNTQySa5W79t3mq6upIOTtASuOLh0fnpBLvFgPcin9T4QO2UZDNFSQFyu6eSXKgbgBf0c1y4bi7whVVKcopUvH3lD7vaCjVnfQQR7FCSMXACW8rlWwhVuz0jwAXaDz6klWT/Jn5pja7LYD0ApejOrs9yTiuH0hD+sG0sZ3Vzc5Ip9ZVUuDujCnFEmUMBq3VIL0Kms9wvrFJypott0eWaXibS6KTFAUfOb1fbMWo/JqPbnXhnpgNFuPy610k+GDuFNW3qCGOdegdYOmtiPOG/bm4JXeoA73RtSqLhljv33GkHSCfxiBeSBhpCSUrkwJgVynP3I4cDMdpInyng==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=zFQwy71kkv/QvF/7/81ItRMImd7RDoC/wjR/OFqTbnY=;
+ b=cmF9llpPVN05yCrPGR3pOujJcXpDwhBcjxfflxTIZoydV+fho+JRILe75FvLpvx3LsFdVMsbBP1Ii2bHf8bErtbt5XCNngulEKMM9KqrpCBdpoH12NNRkYi0bE1BssrRyzEQ3AqKj+duSTnKAVdYf6xuyfkha20ctGukJPkJtcPtooNSLUdSRtfofEk0Ub9rslhINzesplvDUQsPQcKXNblQMzW5M9deWvettKJxZXXzjc06QCeUhFLMEBG15oCqasvKgRaFmI5VTrXMwHXhqPXDm17H+HRmBi/pSVhpvIVr0JeAA7UHBwzTfS1DMhY1pqB9ajDTfCmKmAAbaMq/9w==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+Received: from DS7PR11MB5966.namprd11.prod.outlook.com (2603:10b6:8:71::6) by
+ DS7PR11MB6038.namprd11.prod.outlook.com (2603:10b6:8:75::8) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.6111.19; Wed, 22 Feb 2023 08:16:54 +0000
+Received: from DS7PR11MB5966.namprd11.prod.outlook.com
+ ([fe80::82d2:d341:4138:17ef]) by DS7PR11MB5966.namprd11.prod.outlook.com
+ ([fe80::82d2:d341:4138:17ef%6]) with mapi id 15.20.6111.019; Wed, 22 Feb 2023
+ 08:16:54 +0000
+Date:   Wed, 22 Feb 2023 15:53:09 +0800
+From:   Yan Zhao <yan.y.zhao@intel.com>
+To:     Yi Liu <yi.l.liu@intel.com>
+CC:     <alex.williamson@redhat.com>, <jgg@nvidia.com>,
+        <kevin.tian@intel.com>, <joro@8bytes.org>, <cohuck@redhat.com>,
+        <eric.auger@redhat.com>, <nicolinc@nvidia.com>,
+        <kvm@vger.kernel.org>, <mjrosato@linux.ibm.com>,
+        <chao.p.peng@linux.intel.com>, <yi.y.sun@linux.intel.com>,
+        <peterx@redhat.com>, <jasowang@redhat.com>,
+        <shameerali.kolothum.thodi@huawei.com>, <lulu@redhat.com>,
+        <suravee.suthikulpanit@amd.com>,
+        <intel-gvt-dev@lists.freedesktop.org>,
+        <intel-gfx@lists.freedesktop.org>, <linux-s390@vger.kernel.org>,
+        <xudong.hao@intel.com>, <terrence.xu@intel.com>
+Subject: Re: [PATCH v4 16/19] vfio: Add VFIO_DEVICE_BIND_IOMMUFD
+Message-ID: <Y/XJ5RsH+uivVUlH@yzhao56-desk.sh.intel.com>
+Reply-To: Yan Zhao <yan.y.zhao@intel.com>
+References: <20230221034812.138051-1-yi.l.liu@intel.com>
+ <20230221034812.138051-17-yi.l.liu@intel.com>
+Content-Type: text/plain; charset="us-ascii"
 Content-Disposition: inline
-In-Reply-To: <CAHk-=wimQi=gL-Pd7kMd-ruwjLUCK82e3wJ7sisvT3cfHrx-JQ@mail.gmail.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: awqQUFuuMx3IqttXTxY8tfq28Vm8EJKU
-X-Proofpoint-GUID: awqQUFuuMx3IqttXTxY8tfq28Vm8EJKU
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
- definitions=2023-02-22_04,2023-02-20_02,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- priorityscore=1501 suspectscore=0 spamscore=0 bulkscore=0 clxscore=1015
- adultscore=0 malwarescore=0 mlxscore=0 lowpriorityscore=0 mlxlogscore=807
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2302220069
+In-Reply-To: <20230221034812.138051-17-yi.l.liu@intel.com>
+X-ClientProxiedBy: SG2P153CA0013.APCP153.PROD.OUTLOOK.COM (2603:1096::23) To
+ DS7PR11MB5966.namprd11.prod.outlook.com (2603:10b6:8:71::6)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DS7PR11MB5966:EE_|DS7PR11MB6038:EE_
+X-MS-Office365-Filtering-Correlation-Id: 08224c01-5003-4a1f-e593-08db14ad27f6
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 6QMKMZGft8SlgTk622SNPKXFzQWsLNBRp3BeprAx3PHMwCkQ4f5OXS6F8scfDktNjjGWbFCUam0kZpgdrl/BT+UTATpbqQUmQr6EWwahwBHqX6/Tn04Pmu8Tp2VIQtZqhav6rTZR3+NTeN8Eom+KHDMXVAWGAeDb7rEVRQYQi2M2z44ybJCxkWGg/xuYLLF6mDrFbXJscimxF9KY3jhrDmYX2c5xy3/fzoGG7gTXWgjM2KiuYk9Z9wqwhygrRwskteYPvse4YJM4aaza1THYB0wdJLhM0X9+hm4KytytVPmtEmBwz91IrHYGMoheXpoHtbzZUceQxquMOGr+hE0w3VYE46QWhOV/2iv1xwCeJz8ZkdC6awMm+R9snbg2oXtwAnd6Rapl5nNcwRYyFMd+L6LaCtE5dgTWrWkUX4nvOU9T06NY9jgEg8bRwG7SONCtQToRz9BLAbgbsvN9SsYufW8x/PtKDQwykzflIIBoIJLbK86zkOpwISt2JVXYMcbZR3Q8bibhKq1X2BymQMZA7RF0xQ56agszjx5SPnn8/NGznefTkqAqOGdFu8S67m1GrEN2e5d6qQjp8goi0PaLbYQe2JCsP6cPCEMrYc7lPXlZH4gKPr3+LISbx+FrQ+Z8yqyPIshf+S6zG7LSj6YXEA==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS7PR11MB5966.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(346002)(396003)(136003)(376002)(39860400002)(366004)(451199018)(66476007)(8676002)(66556008)(4326008)(6486002)(66946007)(7416002)(54906003)(316002)(6636002)(8936002)(41300700001)(86362001)(478600001)(6666004)(6506007)(38100700002)(186003)(6512007)(26005)(2906002)(3450700001)(5660300002)(82960400001)(6862004)(83380400001);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?uzcu1eUj4VdzGDRTKf5FqW08xJIz8ZSpV9EPQEe4tLjDZETKXyufiddb8Tck?=
+ =?us-ascii?Q?AMOoidtnDsZIVvg/TEv/hjYHyoPHzN2DrdpJdtHcyOhuzmB8xXFL1iObQvuS?=
+ =?us-ascii?Q?+cCdD0SjqJqECpE4tkQy3U0Qly9IKrZ0Pff5Df9s1nwaZ1dgnDh3bw1GEmJ2?=
+ =?us-ascii?Q?B+nkXUSRslApOTV4R9b7EQ9UbrnmYDki7IrglP0UTl8eUWI0Xo7j7QtAdfpy?=
+ =?us-ascii?Q?/3nixjf6JhfIHdmQb3CdLd5Atux88v/Lnms6gcirA6fv+JbFwpb4hHloEd0L?=
+ =?us-ascii?Q?ft2OHSqT+IJAwILU0tCzA4NVDcrhRy6ktnQX7AiCAMMG6uRAz8HFkqdTN4hU?=
+ =?us-ascii?Q?MRl+yLUOXcs23lHay9S+HjdY6CeWxhuIVdJ6diOVXyZCUxpelrXSuIrUB6sG?=
+ =?us-ascii?Q?h8Bk9lpCvyaWCYc6xmhkE9muruXa2Ekx3lrwaTd/MeVkvJAhrBknTuIid3u1?=
+ =?us-ascii?Q?Iy3yr9nsMDCY0LCUiTvUkwLtis8gxJiwLznCrO7/M4z3zDZJhWxI83KWGJ29?=
+ =?us-ascii?Q?2fFjvkXW3r85fqUxodsdSKwohs0+7pdOLAAHOixS9Bsd91D6BHoFke5fc49M?=
+ =?us-ascii?Q?YuP/BxdPMa06u1LGnR5//xzgCxtNDCppzLJ5mso67ZnQ7+IxchMSWA/2v5Br?=
+ =?us-ascii?Q?X9Rrg4Jb47UDoiN2uOIUhKHMF8Q33ZqMSABiLoThBYTLWdEJjMwE2u22dB7q?=
+ =?us-ascii?Q?+H+nNwAEM+ErzinBi+TjtmEcJIdQCeS6Q5cjGX5uCpCm4Xy9KxJMjDLp/ods?=
+ =?us-ascii?Q?hucNdpqjaWHdMis9GyrW3Vt+4SZb7WLD9bs5HGbiEz5OS9kbaaElr7ctJIJr?=
+ =?us-ascii?Q?VjgwQVjBVkTFM87gcBdY70fOO3pHY4GAzTUtXqL6fWnevkk2kAINq38/vHHH?=
+ =?us-ascii?Q?ZlUU9ea4IPNQjGh9HYMSiI4g3o52zZnINjRPn3Usa/QdaAf3WLX0MZrTJi8r?=
+ =?us-ascii?Q?vTqGNYJnRLuyeyjBEQ0cujEh3b3nk2bRQHOpjSEMdsDsdhK4AgjAT38fN5bp?=
+ =?us-ascii?Q?k6d0l5oJp6JVStuVkWCi+lKGlqnUKb1RH3yX3pRD9khFHmzytwg+D/DJyY/L?=
+ =?us-ascii?Q?Ro/HNjbenSHAsVxYaaIJ01CdToPu+5cI8AE9STRMFj9dAYz7n+geVaDc3S+I?=
+ =?us-ascii?Q?lx2MTCqJwn/CBwqeZbHoW41WibMPtu8yub4mLA8OFEFjQCIxe7NqLgGFm0CJ?=
+ =?us-ascii?Q?jWXGqeKIhemr/0ObcsLX99/ZwxpYH2Qgs2sQ04/bCVo6/92tEvC/As8U4/9e?=
+ =?us-ascii?Q?6QwgzmYvVbD+rTK8VyHaOgTjCuMp2tZHnHyUXUsyQ/SuR8JNRVQr/n0/3bK9?=
+ =?us-ascii?Q?AbxyVPbZXbrzWroj5h/asXg1nuQXT/Mj+yEQtbcsmUYBHtRkA/KoQRtOs8uc?=
+ =?us-ascii?Q?aianDHMwJPeB0EOuLoVsv1hws06fxcvCAkuRSh1+SUeDgbhWSBD9LCmLBPuw?=
+ =?us-ascii?Q?C3lw4Vfr8z3eE+CRqvI8/7H3Xkj4+AoFQmiKE7XoCfIgyprphosdtrbG3Sew?=
+ =?us-ascii?Q?vzvWBSiEavjIQOVDog17XlsORpJ5Sp/xz4k606JCPoriMm+9XvNCq1EtLGgo?=
+ =?us-ascii?Q?Ea5NBeDUNbwBmaeZqMP/emOG3bG8IeiCvCQNr+YfQpsC24CyU+0anU1dUllT?=
+ =?us-ascii?Q?8w=3D=3D?=
+X-MS-Exchange-CrossTenant-Network-Message-Id: 08224c01-5003-4a1f-e593-08db14ad27f6
+X-MS-Exchange-CrossTenant-AuthSource: DS7PR11MB5966.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 22 Feb 2023 08:16:53.7790
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: iCubrQm3IKRe2x09QQ81sETmwPf7g6W0985wCpUWI5GQRy6xlpgyNPLpKLGZM1AlkIuGzL9XnMZcp2hrSj8hAA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS7PR11MB6038
+X-OriginatorOrg: intel.com
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Feb 21, 2023 at 03:15:09PM -0800, Linus Torvalds wrote:
-> On Mon, Feb 20, 2023 at 4:02 AM Heiko Carstens <hca@linux.ibm.com> wrote:
-> >
-> > Also the shortstat when merging will look slightly different to the one
-> > generated with 'git request-pull' below, since I merged our fixes branch
-> > twice to avoid merge conflicts.
+On Mon, Feb 20, 2023 at 07:48:09PM -0800, Yi Liu wrote:
+> This adds ioctl for userspace to bind device cdev fd to iommufd.
 > 
-> Please don't do that unless the merge conflicts are really nasty - and
-> when you do, please *explain* it.
+>     VFIO_DEVICE_BIND_IOMMUFD: bind device to an iommufd, hence gain DMA
+> 			      control provided by the iommufd. open_device
+> 			      op is called after bind_iommufd op.
+> 			      VFIO no iommu mode is indicated by passing
+> 			      a negative iommufd value.
 > 
-> Looking at those two merges, I
+> Signed-off-by: Yi Liu <yi.l.liu@intel.com>
+> ---
+>  drivers/vfio/device_cdev.c | 137 +++++++++++++++++++++++++++++++++++++
+>  drivers/vfio/vfio.h        |  17 ++++-
+>  drivers/vfio/vfio_main.c   |  30 ++++++--
+>  include/linux/iommufd.h    |   6 ++
+>  include/uapi/linux/vfio.h  |  34 +++++++++
+>  5 files changed, 219 insertions(+), 5 deletions(-)
 > 
->  (a) see no sign of complex conflicts (the conflict diff is completely
-> empty for both of them)
-> 
->  (b) see zero explanation for why the merge exists at all
-> 
-> Please consider merges to be real commits (they are!) and needing all
-> the same commit messages explaining them that normal commits have
-> (they do!).
+> diff --git a/drivers/vfio/device_cdev.c b/drivers/vfio/device_cdev.c
+> index 9e2c1ecaaf4f..be62f0a5687e 100644
+> --- a/drivers/vfio/device_cdev.c
+> +++ b/drivers/vfio/device_cdev.c
+> @@ -3,6 +3,7 @@
+>   * Copyright (c) 2023 Intel Corporation.
+>   */
+>  #include <linux/vfio.h>
+> +#include <linux/iommufd.h>
+>  
+>  #include "vfio.h"
+>  
+> @@ -45,6 +46,142 @@ int vfio_device_fops_cdev_open(struct inode *inode, struct file *filep)
+>  	return ret;
+>  }
+>  
+> +static void vfio_device_get_kvm_safe(struct vfio_device_file *df)
+> +{
+> +	spin_lock(&df->kvm_ref_lock);
+> +	if (!df->kvm)
+> +		goto unlock;
+> +
+> +	_vfio_device_get_kvm_safe(df->device, df->kvm);
+> +
+> +unlock:
+> +	spin_unlock(&df->kvm_ref_lock);
+> +}
+> +
+> +void vfio_device_cdev_close(struct vfio_device_file *df)
+> +{
+> +	struct vfio_device *device = df->device;
+> +
+> +	mutex_lock(&device->dev_set->lock);
+> +	if (!smp_load_acquire(&df->access_granted)) {
+> +		mutex_unlock(&device->dev_set->lock);
+> +		return;
+> +	}
+> +	vfio_device_close(df);
+> +	vfio_device_put_kvm(device);
+> +	if (df->iommufd)
+> +		iommufd_ctx_put(df->iommufd);
+> +	mutex_unlock(&device->dev_set->lock);
+> +	vfio_device_unblock_group(device);
+> +}
+> +
+> +long vfio_device_ioctl_bind_iommufd(struct vfio_device_file *df,
+> +				    unsigned long arg)
+> +{
+> +	struct vfio_device *device = df->device;
+> +	struct vfio_device_bind_iommufd bind;
+> +	struct iommufd_ctx *iommufd = NULL;
+> +	struct fd f;
+> +	unsigned long minsz;
+> +	int ret;
+> +
+> +	minsz = offsetofend(struct vfio_device_bind_iommufd, out_devid);
+> +
+> +	if (copy_from_user(&bind, (void __user *)arg, minsz))
+> +		return -EFAULT;
+> +
+> +	if (bind.argsz < minsz || bind.flags)
+> +		return -EINVAL;
+> +
+> +	if (!device->ops->bind_iommufd)
+> +		return -ENODEV;
+> +
+> +	ret = vfio_device_block_group(device);
+> +	if (ret)
+> +		return ret;
+> +
+> +	mutex_lock(&device->dev_set->lock);
+> +	/*
+> +	 * If already been bound to an iommufd, or already set noiommu
+> +	 * then fail it.
+> +	 */
+> +	if (df->iommufd || df->noiommu) {
+> +		ret = -EINVAL;
+> +		goto out_unlock;
+> +	}
+> +
+> +	/* iommufd < 0 means noiommu mode */
+> +	if (bind.iommufd < 0) {
+> +		if (!capable(CAP_SYS_RAWIO)) {
+> +			ret = -EPERM;
+> +			goto out_unlock;
+> +		}
+> +		df->noiommu = true;
+> +	} else {
+> +		f = fdget(bind.iommufd);
+> +		if (!f.file) {
+> +			ret = -EBADF;
+> +			goto out_unlock;
+> +		}
+> +		iommufd = iommufd_ctx_from_file(f.file);
+> +		if (IS_ERR(iommufd)) {
+> +			ret = PTR_ERR(iommufd);
+> +			goto out_put_file;
+> +		}
+> +	}
+> +
+> +	/*
+> +	 * Before the device open, get the KVM pointer currently
+> +	 * associated with the device file (if there is) and obtain a
+> +	 * reference. This reference is held until device closed. Save
+> +	 * the pointer in the device for use by drivers.
+> +	 */
+> +	vfio_device_get_kvm_safe(df);
+> +
+> +	df->iommufd = iommufd;
+> +	ret = vfio_device_open(df, &bind.out_devid, NULL);
+> +	if (ret)
+> +		goto out_put_kvm;
+> +
+> +	ret = copy_to_user((void __user *)arg +
+> +			   offsetofend(struct vfio_device_bind_iommufd, iommufd),
+> +			   &bind.out_devid,
+> +			   sizeof(bind.out_devid)) ? -EFAULT : 0;
+> +	if (ret)
+> +		goto out_close_device;
+> +
+> +	if (iommufd)
+> +		fdput(f);
+> +	else if (df->noiommu)
+> +		dev_warn(device->dev, "vfio-noiommu device used by user "
+> +			 "(%s:%d)\n", current->comm, task_pid_nr(current));
+> +
+> +	/*
+> +	 * Paired with smp_load_acquire() in vfio_device_fops::ioctl/
+> +	 * read/write/mmap
+> +	 */
+> +	smp_store_release(&df->access_granted, true);
+> +	mutex_unlock(&device->dev_set->lock);
+> +
+> +	return 0;
+> +
+> +out_close_device:
+> +	vfio_device_close(df);
+> +out_put_kvm:
+> +	df->iommufd = NULL;
+> +	df->noiommu = false;
+> +	vfio_device_put_kvm(device);
+> +out_put_file:
+> +	if (iommufd) {
+> +		iommufd_ctx_put(iommufd);
+> +		fdput(f);
+even if iommufd is NULL, still need to fdput(f) if f.file is true, right?
 
-Ok. The fixes branch was merged since other commits which were applied
-relied on commits in the fixes branch.
-
-But as you yesterday already outlined as reply to the hardening pull
-request this rather should have been a separate topic branch, which then
-would also allow for a proper merge commit message.
-
-We will do that from now on for the s390 tree.
+> +	}
+> +out_unlock:
+> +	mutex_unlock(&device->dev_set->lock);
+> +	vfio_device_unblock_group(device);
+> +	return ret;
+> +}
+> +
