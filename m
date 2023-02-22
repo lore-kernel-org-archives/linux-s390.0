@@ -2,115 +2,108 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 27939C636D6
-	for <linux-s390@archiver.kernel.org>; Wed, 22 Feb 2023 16:40:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E888C636D6
+	for <linux-s390@archiver.kernel.org>; Wed, 22 Feb 2023 16:43:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232216AbjBVQki (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 22 Feb 2023 11:40:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58874 "EHLO
+        id S231962AbjBVQnF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 22 Feb 2023 11:43:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231997AbjBVQkh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Feb 2023 11:40:37 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 105E3311EC;
-        Wed, 22 Feb 2023 08:40:35 -0800 (PST)
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31MFLBrR000846;
-        Wed, 22 Feb 2023 16:40:35 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=RoDjxTOpH2ua+GK57HglMZDkYpeMIlRzFhxn3dxD0So=;
- b=TCtNoCs8UmTUnxPlfs21YoOlcPdgpggx0IbFW7mOKu29lr3m9kjyjL56VG8sUFnoVxSr
- /rnUDX9f7+PmE/fJ7JJzijrLzKVkfeDniBrnInF5FKqg/zeOt/YqXQkF/5z06iNai9oQ
- 119H/nMYn71vMIlnu1CUSCPixBGrJLOC9dwkOOR4akxm/gabCC344FSdCUjZaUdMSZC6
- DizZ1zSqXrDa4ZngPa38igeZvtogu7VO1kkiUK4nLf3k+CG01goMIrKudyfqfBa692iu
- BmEsGQMJvplPOvxcDXgVvaj229qfJD+SvylceCeIDE0UVHKr9rDhnEt2RvB6Lx94zOZl cA== 
+        with ESMTP id S230246AbjBVQnF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Feb 2023 11:43:05 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF133977E;
+        Wed, 22 Feb 2023 08:43:03 -0800 (PST)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31MFgY6Q000752;
+        Wed, 22 Feb 2023 16:43:03 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=Pr5N/dHKvbOGWfAeujYiCiMrJ1PQFec6SELfe9xkMnI=;
+ b=tT0tXq9E9ClnV8ZHC8RumPGyhCSJy/eRc2I24uHyB8wbkqmEwLE/f79TgiSl1PyuyfzY
+ vrUH3ZfB7851IDtfCM2T/LerAScaukjLbcjjSoA3YIQ3A8sM5/W1wG8k2KErkNONzc/X
+ 6KpnROs1gb5c2CFmL6htT3lehnuHRVTN5jXuO8ErbM057uGz7jy7xFMHgwsA1ERYAvC/
+ Tb+yPXsGPI2WOlvSww+9S9ht++2bskjKUrRMTrueuUEgRdpBJp4eezXAY+1GpwFBAflQ
+ 8pDDE+6kidfaugI0IzrdG9zXSPbhQCJ5t7e+Fhv5C0JxUgxt3CWjM734LsxtRE6f82qR MA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3nwkr65uvq-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nwnwysm0m-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 22 Feb 2023 16:40:35 +0000
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 31MFU2Qq025593;
-        Wed, 22 Feb 2023 16:40:34 GMT
-Received: from ppma01wdc.us.ibm.com (fd.55.37a9.ip4.static.sl-reverse.com [169.55.85.253])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3nwkr65uv9-1
+        Wed, 22 Feb 2023 16:43:03 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 31MGelYO015248;
+        Wed, 22 Feb 2023 16:43:02 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nwnwyskyy-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 22 Feb 2023 16:40:34 +0000
-Received: from pps.filterd (ppma01wdc.us.ibm.com [127.0.0.1])
-        by ppma01wdc.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31MGAoxt015814;
-        Wed, 22 Feb 2023 16:40:34 GMT
-Received: from smtprelay02.dal12v.mail.ibm.com ([9.208.130.97])
-        by ppma01wdc.us.ibm.com (PPS) with ESMTPS id 3ntpa718xb-1
+        Wed, 22 Feb 2023 16:43:02 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31MFv1EK007338;
+        Wed, 22 Feb 2023 16:43:00 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3ntpa6dm2r-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 22 Feb 2023 16:40:34 +0000
-Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
-        by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31MGeWwu36831768
+        Wed, 22 Feb 2023 16:43:00 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31MGguTd27853306
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 22 Feb 2023 16:40:33 GMT
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9A31158053;
-        Wed, 22 Feb 2023 16:40:32 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A108A58043;
-        Wed, 22 Feb 2023 16:40:31 +0000 (GMT)
-Received: from [9.160.58.31] (unknown [9.160.58.31])
-        by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 22 Feb 2023 16:40:31 +0000 (GMT)
-Message-ID: <84e1b18e-cd77-5b5a-abfa-6bf62c23d9ee@linux.ibm.com>
-Date:   Wed, 22 Feb 2023 11:40:31 -0500
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
+        Wed, 22 Feb 2023 16:42:56 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AC10B20043;
+        Wed, 22 Feb 2023 16:42:56 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C8B2720040;
+        Wed, 22 Feb 2023 16:42:55 +0000 (GMT)
+Received: from li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com (unknown [9.171.70.162])
+        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Wed, 22 Feb 2023 16:42:55 +0000 (GMT)
+Date:   Wed, 22 Feb 2023 17:42:53 +0100
+From:   Alexander Gordeev <agordeev@linux.ibm.com>
+To:     Nico Boehr <nrb@linux.ibm.com>
+Cc:     borntraeger@linux.ibm.com, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com, mjrosato@linux.ibm.com,
+        farman@linux.ibm.com, david@redhat.com, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
 Subject: Re: [PATCH v1 1/1] KVM: s390: pci: fix virtual-physical confusion on
  module unload/load
-To:     Nico Boehr <nrb@linux.ibm.com>, borntraeger@linux.ibm.com,
-        frankja@linux.ibm.com, imbrenda@linux.ibm.com,
-        farman@linux.ibm.com, david@redhat.com
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Message-ID: <Y/ZGDfCAdLtArVL/@li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com>
 References: <20230222155503.43399-1-nrb@linux.ibm.com>
-Content-Language: en-US
-From:   Matthew Rosato <mjrosato@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <20230222155503.43399-1-nrb@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 7FYjpNHpyqweN3qlEx7NIrJBo4pJU62H
-X-Proofpoint-ORIG-GUID: 3mrWl258oV-EgyyMpvCdIuEAEGEK-35U
+X-Proofpoint-ORIG-GUID: uUodFcLzrGtyOpo24bZEFOeNwRGWrczc
+X-Proofpoint-GUID: 5TZR_gowIUWzMD3wBtGFhBqUJTPLxCSV
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
  definitions=2023-02-22_06,2023-02-22_02,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- malwarescore=0 impostorscore=0 priorityscore=1501 mlxscore=0 spamscore=0
- adultscore=0 suspectscore=0 mlxlogscore=999 bulkscore=0 clxscore=1015
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 mlxscore=0
+ adultscore=0 phishscore=0 lowpriorityscore=0 bulkscore=0 impostorscore=0
+ priorityscore=1501 spamscore=0 clxscore=1015 mlxlogscore=999
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2212070000 definitions=main-2302220145
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2/22/23 10:55 AM, Nico Boehr wrote:
-> When the kvm module is unloaded, zpci_setup_aipb() perists some data in the
-> zpci_aipb structure in s390 pci code. Note that this struct is also passed
-> to firmware in the zpci_set_irq_ctrl() call and thus the GAIT must be a
-> physical address.
-> 
-> On module re-insertion, the GAIT is restored from this structure in
-> zpci_reset_aipb(). But it is a physical address, hence this may cause
-> issues when the kvm module is unloaded and loaded again.
-> 
-> Fix virtual vs physical address confusion (which currently are the same) by
-> adding the necessary physical-to-virtual-conversion in zpci_reset_aipb().
-> 
-> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+On Wed, Feb 22, 2023 at 04:55:02PM +0100, Nico Boehr wrote:
+> @@ -112,7 +112,7 @@ static int zpci_reset_aipb(u8 nisc)
+>  		return -EINVAL;
+>  
+>  	aift->sbv = zpci_aif_sbv;
+> -	aift->gait = (struct zpci_gaite *)zpci_aipb->aipb.gait;
+> +	aift->gait = phys_to_virt(zpci_aipb->aipb.gait);
+>  
+>  	return 0;
+>  }
 
-Yeah, that's right, in fact there is another address also stashed in the zpci_aipb which is also saved as physical addresses since, as you say, this structure is sent to firmware; the GAIT address just happens to be the one we care about at this spot, so I think it makes sense to leave zpci_aipb alone and just convert back to virt in this one place its needed.
+With this change aift->gait would never be NULL. Does it work with line 125?
 
-Since we're looking at this bit of code, it's also worth noting that the other address restored here (aift->sbv) comes from zpci_aif_sbv which was instead stashed as a virtual address to begin with and that's why it doesn't need similar treatment.
-
-Thanks Nico!
-
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-
-
+120 int kvm_s390_pci_aen_init(u8 nisc)
+121 {
+122         int rc = 0;
+123 
+124         /* If already enabled for AEN, bail out now */
+125         if (aift->gait || aift->sbv)
+126                 return -EPERM;
 
