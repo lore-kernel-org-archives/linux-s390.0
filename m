@@ -2,113 +2,193 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9CF9CC61DA4
-	for <linux-s390@archiver.kernel.org>; Wed, 22 Feb 2023 09:53:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 99B3BC678D5
+	for <linux-s390@archiver.kernel.org>; Wed, 22 Feb 2023 10:36:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231730AbjBVJxT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 22 Feb 2023 04:53:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57036 "EHLO
+        id S231309AbjBVKg3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 22 Feb 2023 05:36:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232321AbjBVJxC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Feb 2023 04:53:02 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 990053B22E;
-        Wed, 22 Feb 2023 01:51:29 -0800 (PST)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31M9fXIr030155;
-        Wed, 22 Feb 2023 09:51:04 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : content-type : in-reply-to : sender :
- content-transfer-encoding : mime-version; s=pp1;
- bh=L6IGEN+fF4/ym4wJaEPRvWeE9P48usuwSm/tmBx8Vao=;
- b=B1GCGgM9802GYFl1tRkz0dC/NP/oy+Z/0UsgRcgg05QPXD4we6MTtXHMrsDX/8otMB6X
- ulTMK5bKkLCsi+Rh9E5+wrkbra7vc8vxVVSXCfYIrcOvWdR666QKhG9crpO82XdL7h7e
- xp4vR8AWLw1prDcSDmMdy1E7jQ7lQGiIbWzQgTmKP1loyeSR+CQi5ZkxgA8Z3kEn/KRC
- c42213wTC9tsZAuwQ1jR+ymL7UnooByC3RvTLTQVMVvaIN+TpF++fbtbD3CJfXudaALw
- QbDNunUmXgCEk7c9Bmo4j6hYjCDfPg3P44WjV3vxa7JjXUktJUrz6wfYgawR0KL1p3MI Aw== 
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3nwgmtg8ck-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 22 Feb 2023 09:51:04 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31LNuqhr016606;
-        Wed, 22 Feb 2023 09:51:02 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3ntpa6d54t-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 22 Feb 2023 09:51:02 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31M9oxMQ16188128
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 22 Feb 2023 09:50:59 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 346C920040;
-        Wed, 22 Feb 2023 09:50:59 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1E4532004D;
-        Wed, 22 Feb 2023 09:50:59 +0000 (GMT)
-Received: from t480-pf1aa2c2 (unknown [9.171.14.57])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Wed, 22 Feb 2023 09:50:59 +0000 (GMT)
-Received: from bblock by t480-pf1aa2c2 with local (Exim 4.96)
-        (envelope-from <bblock@linux.ibm.com>)
-        id 1pUlm6-004fzS-20;
-        Wed, 22 Feb 2023 10:50:58 +0100
-Date:   Wed, 22 Feb 2023 09:50:58 +0000
-From:   Benjamin Block <bblock@linux.ibm.com>
-To:     "Martin K. Petersen" <martin.petersen@oracle.com>
-Cc:     "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        Steffen Maier <maier@linux.ibm.com>,
-        Fedor Loshakov <loshakov@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: zfcp changes for v6.3
-Message-ID: <Y/XlgrZvvxDlPvRZ@t480-pf1aa2c2>
-References: <cover.1677000450.git.bblock@linux.ibm.com>
- <yq1cz62pj7t.fsf@ca-mkp.ca.oracle.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <yq1cz62pj7t.fsf@ca-mkp.ca.oracle.com>
-Sender: Benjamin Block <bblock@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 2SWz8Ighz7xVvbZ7HHYqbqc9oC1Ai0Q5
-X-Proofpoint-ORIG-GUID: 2SWz8Ighz7xVvbZ7HHYqbqc9oC1Ai0Q5
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        with ESMTP id S230478AbjBVKg1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Feb 2023 05:36:27 -0500
+Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11F9136687;
+        Wed, 22 Feb 2023 02:36:25 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1677062186; x=1708598186;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=ofUmRpvhNVTg3+A6hyPOFASnnH8za9ygTzj8N8YfXSk=;
+  b=Oa1y8iBaEkwy6fMvhe8oHhodd0xu0As0Cvn/STEHYeZTWBGyfJe7EiEm
+   6mSrg3MYKSIj57s2gHXQABHZjXgh0qtnz8ySVm6qQeJyCvOuGb4tmLl/i
+   ODkBGj8NRNmFmO/zJQkENaevWgOePr99Uw2LrDfsA71eM4ha127NIJGZp
+   bCHCoWB8AsMbRlZS/pSYtspvgmv35WrA4X9gEpfyLPG+CgCn4UpRcV5v1
+   qwKQeXDm3DQv4XTKuWY2dKn1nW505DyJPI+fQqri+uwh1CV8IXCxKtwVN
+   fmv6q43VzWYXBl2v2uMj/nIILB4fKAQtBRNyqRlFQDE8BcQ/YGRkTqXLC
+   A==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10628"; a="321031748"
+X-IronPort-AV: E=Sophos;i="5.97,318,1669104000"; 
+   d="scan'208";a="321031748"
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Feb 2023 02:36:25 -0800
+X-IronPort-AV: E=McAfee;i="6500,9779,10628"; a="781379853"
+X-IronPort-AV: E=Sophos;i="5.97,318,1669104000"; 
+   d="scan'208";a="781379853"
+Received: from ahajda-mobl.ger.corp.intel.com (HELO [10.213.26.51]) ([10.213.26.51])
+  by fmsmga002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Feb 2023 02:36:19 -0800
+Message-ID: <50c1806b-f153-da48-ddf4-53923fa90334@intel.com>
+Date:   Wed, 22 Feb 2023 11:36:17 +0100
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
- definitions=2023-02-22_04,2023-02-20_02,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
- priorityscore=1501 mlxscore=0 clxscore=1015 malwarescore=0 spamscore=0
- phishscore=0 adultscore=0 impostorscore=0 bulkscore=0 suspectscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2302220083
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Firefox/102.0 Thunderbird/102.8.0
+Subject: Re: [Intel-gfx] [PATCH v5 0/7] Introduce __xchg, non-atomic xchg
+Content-Language: en-US
+To:     linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        linux-xtensa@linux-xtensa.org, intel-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Cc:     Mark Rutland <mark.rutland@arm.com>, Arnd Bergmann <arnd@arndb.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+References: <20230118153529.57695-1-andrzej.hajda@intel.com>
+From:   Andrzej Hajda <andrzej.hajda@intel.com>
+Organization: Intel Technology Poland sp. z o.o. - ul. Slowackiego 173, 80-298
+ Gdansk - KRS 101882 - NIP 957-07-52-316
+In-Reply-To: <20230118153529.57695-1-andrzej.hajda@intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Feb 21, 2023 at 08:46:17PM -0500, Martin K. Petersen wrote:
-> > here is a small set of changes for the zFCP device driver. These are
-> > basically follow-up changes I made after the fix I send in
-> > <979f6e6019d15f91ba56182f1aaf68d61bf37fc6.1668595505.git.bblock@linux.ibm.com>
-> > that refactor some related areas in the driver, and add some
-> > additional tracing if we ever should run into a similar situation
-> > somehow.
-> >
-> > It would be nice, if you could still include them for v6.3. Not sure if
-> > I'm too late already.
+Hi,
+
+Ping on the series.
+Arnd, Andrew is there anything more I can do to push the process forward?
+
+Regards
+Andrzej
+
+
+On 18.01.2023 16:35, Andrzej Hajda wrote:
+> Hi all,
 > 
-> It's a bit late. I merged them to 6.3/scsi-staging for now but may defer
-> to 6.4 depending on how busy the various code checking robots are.
+> The helper is tiny and there are advices we can live without it, so
+> I want to present few arguments why it would be good to have it:
+> 
+> 1. Code readability/simplification/number of lines:
+>    - decreases number of lines,
+>    - it often eliminates local variables,
+>    - for real examples see patches 3+.
+> 
+> 2. Presence of similar helpers in other somehow related languages/libs:
+> 
+> a) Rust[1]: 'replace' from std::mem module, there is also 'take'
+>      helper (__xchg(&x, 0)), which is the same as private helper in
+>      i915 - fetch_and_zero, see latest patch.
+> b) C++ [2]: 'exchange' from utility header.
+> 
+> If the idea is OK there are still 2 questions to answer:
+> 
+> 1. Name of the helper, __xchg follows kernel conventions,
+>      but for me Rust names are also OK.
+> 2. Where to put the helper:
+> a) as in this patchset include/linux/non-atomic/xchg.h,
+>      proposed by Andy Shevchenko,
+> b) include/linux/utils.h ? any better name? Some kind
+>      of container for simple helpers.
+> 
+> All __xchg conversions were performed using cocci script,
+> then manually adjusted if necessary.
+> 
+> There is lot of places it can be used in, I have just chosen
+> some of them. I can provide cocci script to detect others (not all),
+> if necessary.
+> 
+> Changes:
+> v2: squashed all __xchg -> __arch_xchg t one patch (Arnd)
+> v3: fixed alpha/xchg_local (lkp@intel.com)
+> v4: adjusted indentation (Heiko)
+> v5: added more __xchg conversions - patches 3-6, added tags
+> 
+> [1]: https://doc.rust-lang.org/std/mem/index.html
+> [2]: https://en.cppreference.com/w/cpp/header/utility
+> 
+> Regards
+> Andrzej
+> 
+> Andrzej Hajda (7):
+>    arch: rename all internal names __xchg to __arch_xchg
+>    linux/include: add non-atomic version of xchg
+>    arch/*/uprobes: simplify arch_uretprobe_hijack_return_addr
+>    llist: simplify __llist_del_all
+>    io_uring: use __xchg if possible
+>    qed: use __xchg if possible
+>    drm/i915/gt: use __xchg instead of internal helper
+> 
+>   arch/alpha/include/asm/cmpxchg.h              | 10 +++++-----
+>   arch/arc/include/asm/cmpxchg.h                |  4 ++--
+>   arch/arm/include/asm/cmpxchg.h                |  7 ++++---
+>   arch/arm/probes/uprobes/core.c                |  8 ++------
+>   arch/arm64/include/asm/cmpxchg.h              |  7 +++----
+>   arch/arm64/kernel/probes/uprobes.c            |  9 ++-------
+>   arch/csky/kernel/probes/uprobes.c             |  9 ++-------
+>   arch/hexagon/include/asm/cmpxchg.h            | 10 +++++-----
+>   arch/ia64/include/asm/cmpxchg.h               |  2 +-
+>   arch/ia64/include/uapi/asm/cmpxchg.h          |  4 ++--
+>   arch/loongarch/include/asm/cmpxchg.h          |  4 ++--
+>   arch/m68k/include/asm/cmpxchg.h               |  6 +++---
+>   arch/mips/include/asm/cmpxchg.h               |  4 ++--
+>   arch/mips/kernel/uprobes.c                    | 10 ++--------
+>   arch/openrisc/include/asm/cmpxchg.h           | 10 +++++-----
+>   arch/parisc/include/asm/cmpxchg.h             |  4 ++--
+>   arch/powerpc/include/asm/cmpxchg.h            |  4 ++--
+>   arch/powerpc/kernel/uprobes.c                 | 10 ++--------
+>   arch/riscv/include/asm/atomic.h               |  2 +-
+>   arch/riscv/include/asm/cmpxchg.h              |  4 ++--
+>   arch/riscv/kernel/probes/uprobes.c            |  9 ++-------
+>   arch/s390/include/asm/cmpxchg.h               |  8 ++++----
+>   arch/s390/kernel/uprobes.c                    |  7 ++-----
+>   arch/sh/include/asm/cmpxchg.h                 |  4 ++--
+>   arch/sparc/include/asm/cmpxchg_32.h           |  4 ++--
+>   arch/sparc/include/asm/cmpxchg_64.h           |  6 +++---
+>   arch/sparc/kernel/uprobes.c                   |  7 ++-----
+>   arch/xtensa/include/asm/cmpxchg.h             |  4 ++--
+>   drivers/gpu/drm/i915/gt/intel_engine_cs.c     |  2 +-
+>   .../gpu/drm/i915/gt/intel_engine_heartbeat.c  |  4 ++--
+>   .../drm/i915/gt/intel_execlists_submission.c  |  4 ++--
+>   drivers/gpu/drm/i915/gt/intel_ggtt.c          |  4 ++--
+>   drivers/gpu/drm/i915/gt/intel_gsc.c           |  2 +-
+>   drivers/gpu/drm/i915/gt/intel_gt.c            |  4 ++--
+>   drivers/gpu/drm/i915/gt/intel_gt_pm.c         |  2 +-
+>   drivers/gpu/drm/i915/gt/intel_lrc.c           |  6 +++---
+>   drivers/gpu/drm/i915/gt/intel_migrate.c       |  2 +-
+>   drivers/gpu/drm/i915/gt/intel_rc6.c           |  2 +-
+>   drivers/gpu/drm/i915/gt/intel_rps.c           |  2 +-
+>   drivers/gpu/drm/i915/gt/selftest_context.c    |  2 +-
+>   .../drm/i915/gt/selftest_ring_submission.c    |  2 +-
+>   drivers/gpu/drm/i915/gt/selftest_timeline.c   |  2 +-
+>   drivers/gpu/drm/i915/gt/uc/intel_gsc_uc.c     |  2 +-
+>   drivers/gpu/drm/i915/gt/uc/intel_uc.c         |  2 +-
+>   drivers/gpu/drm/i915/gt/uc/intel_uc_fw.c      |  2 +-
+>   drivers/gpu/drm/i915/i915_utils.h             |  1 +
+>   include/linux/llist.h                         |  6 ++----
+>   include/linux/non-atomic/xchg.h               | 19 +++++++++++++++++++
+>   include/linux/qed/qed_chain.h                 | 19 +++++++------------
+>   io_uring/io_uring.c                           |  7 ++-----
+>   io_uring/slist.h                              |  6 ++----
+>   51 files changed, 126 insertions(+), 155 deletions(-)
+>   create mode 100644 include/linux/non-atomic/xchg.h
 > 
 
-Alright, sounds good. Thanks.
-
--- 
-Best Regards, Benjamin Block  / Linux on IBM Z Kernel Development / IBM Systems
-IBM Deutschland Research & Development GmbH    /    https://www.ibm.com/privacy
-Vorsitz. AufsR.: Gregor Pillen         /         Geschäftsführung: David Faller
-Sitz der Gesellschaft: Böblingen / Registergericht: AmtsG Stuttgart, HRB 243294
