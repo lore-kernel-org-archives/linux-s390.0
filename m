@@ -2,383 +2,218 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D6DDC61DA4
-	for <linux-s390@archiver.kernel.org>; Wed, 22 Feb 2023 13:08:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 44703C636D6
+	for <linux-s390@archiver.kernel.org>; Wed, 22 Feb 2023 13:35:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231267AbjBVNI3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 22 Feb 2023 08:08:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59606 "EHLO
+        id S229887AbjBVNfN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 22 Feb 2023 08:35:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55068 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230402AbjBVNI2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Feb 2023 08:08:28 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91D262005C;
-        Wed, 22 Feb 2023 05:08:24 -0800 (PST)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31MCdhuF007147;
-        Wed, 22 Feb 2023 13:08:20 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=KUCHdQ10OuAnV3jMXM0raioOvgK0W0Crzhl/sFF96wg=;
- b=dSW/tNVXmtVMHmDrIyHAgS1ECyu3IqIPZXf71W0hhJaEyKPEfRK4FzkuYkXakKxEmjWc
- Sh0dA65MKwCbfJw0oAq7Q5r48p8Oc93PzLk+x5i68S+lCCTPmtk2Q119L5JKgPHZDTNb
- qyy7cTZ7vD6IN9zXzk9y5wJffek61fFWNXmqqy4qNhh0xFy2FayW4nE5fmQ5F48c+dFC
- bBlYMk2T4sQHVYoU5UU1huU/JZah635ISjDXX9xfXKTsxOjjmpWPqertZsvPZsKiwRYt
- oKmW9eRZMIQQz7vlMh6lBaWgLp0XdhxRYtjVJD5ZaFfyHK7TqMSWavwmgCRymCK9TNO7 uw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nwj6cte5j-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 22 Feb 2023 13:08:19 +0000
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 31MD36bH018911;
-        Wed, 22 Feb 2023 13:08:18 GMT
-Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nwj6cte2d-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 22 Feb 2023 13:08:18 +0000
-Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
-        by ppma04dal.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31MAP4Xi000556;
-        Wed, 22 Feb 2023 13:08:12 GMT
-Received: from smtprelay05.wdc07v.mail.ibm.com ([9.208.129.117])
-        by ppma04dal.us.ibm.com (PPS) with ESMTPS id 3ntpa7ecnr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 22 Feb 2023 13:08:12 +0000
-Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-        by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31MD8Ai666650456
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 22 Feb 2023 13:08:10 GMT
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E37755805D;
-        Wed, 22 Feb 2023 13:08:09 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 37F4858058;
-        Wed, 22 Feb 2023 13:08:08 +0000 (GMT)
-Received: from [9.211.152.15] (unknown [9.211.152.15])
-        by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 22 Feb 2023 13:08:08 +0000 (GMT)
-Message-ID: <fbfdc4d0-7b66-efcb-b84d-d675fb484527@linux.ibm.com>
-Date:   Wed, 22 Feb 2023 14:08:07 +0100
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.8.0
-Subject: Re: [RFC PATCH net-next v3 0/9] net/smc: Introduce SMC-D-based OS
- internal communication acceleration
-To:     Wen Gu <guwen@linux.alibaba.com>, kgraul@linux.ibm.com,
-        jaka@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Alexandra Winter <WINTERA@de.ibm.com>
-References: <1676477905-88043-1-git-send-email-guwen@linux.alibaba.com>
- <06f1d098-724c-80ba-7efc-b9569593f1e6@linux.alibaba.com>
-From:   Wenjia Zhang <wenjia@linux.ibm.com>
-In-Reply-To: <06f1d098-724c-80ba-7efc-b9569593f1e6@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: rkMJ65xkhgvGLw9eFSCEjTQkIyKr1SL0
-X-Proofpoint-ORIG-GUID: j8y_LF9n0n54AQlal9dyCKFHIvAD0xoc
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 5 URL's were un-rewritten
+        with ESMTP id S229802AbjBVNfM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Feb 2023 08:35:12 -0500
+Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 571403ABE;
+        Wed, 22 Feb 2023 05:35:11 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1677072911; x=1708608911;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=Yhn/LMyuR5X+cSN2+Z5IlLMiY6DFm8KOvLQyIJ2pnZk=;
+  b=MGiUUOBHbgxCCnEi0yWqp3zeRAsironTqR4V998IWI31al3+NsOS3slf
+   F8e5X9zCL29yW9h8z0cgqvgjqQUUvOSCm58P/6h7Fjz82FpTRK96SD+gj
+   nNnUfOl4dCD1GkVKO/QqqRnJV1/Q7jHm/Jln99fPID+ZVxBfHBjhtfuzs
+   AoLID8opZiYhG+pr7W9aPWFU6hET7T4x91aNqQWiwLL5WiumFiBwb0Lqj
+   KBHqDiEmduT7fLs3LQvM22SAiJZkGqTFI5JscmuYRPiFFECgcX20H3TsR
+   dIxj5EHlonuCpG+CpC2ifa5pavTZ4oKXPhjJ/psO4ozyGV8tfyC83FcJM
+   g==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10629"; a="316648270"
+X-IronPort-AV: E=Sophos;i="5.97,318,1669104000"; 
+   d="scan'208";a="316648270"
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Feb 2023 05:35:10 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10629"; a="674099454"
+X-IronPort-AV: E=Sophos;i="5.97,318,1669104000"; 
+   d="scan'208";a="674099454"
+Received: from orsmsx603.amr.corp.intel.com ([10.22.229.16])
+  by fmsmga007.fm.intel.com with ESMTP; 22 Feb 2023 05:35:09 -0800
+Received: from orsmsx612.amr.corp.intel.com (10.22.229.25) by
+ ORSMSX603.amr.corp.intel.com (10.22.229.16) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.16; Wed, 22 Feb 2023 05:35:09 -0800
+Received: from orsmsx612.amr.corp.intel.com (10.22.229.25) by
+ ORSMSX612.amr.corp.intel.com (10.22.229.25) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.16; Wed, 22 Feb 2023 05:35:08 -0800
+Received: from ORSEDG601.ED.cps.intel.com (10.7.248.6) by
+ orsmsx612.amr.corp.intel.com (10.22.229.25) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.16 via Frontend Transport; Wed, 22 Feb 2023 05:35:08 -0800
+Received: from NAM02-BN1-obe.outbound.protection.outlook.com (104.47.51.45) by
+ edgegateway.intel.com (134.134.137.102) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.16; Wed, 22 Feb 2023 05:35:08 -0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=O7Xe9vfCwwd67EFt4nEKDyH+Kk15qNJP74kCIxeHb9OWViH0ffGSA0cW4e1zUXPxjcSa3ahk27qIanCvlqjEooV/WzGUkZEJhhy+BC6bzmnmxaE+4sFNceAVhYvb2duhtRquzdHbrYtGEdERDDm0BHdpiQVv08pdEzHi9ugTeD3eLW/bfwrDlOM5tZhUahwC+GiO49mM3m+/lwnXGexMFGOGHIIAMcpO/JoNT3vocFOgmXr3vSfZrQ1TaDF4eCu4pPS2Rluq7Yh0VVq8qiSl9aTWRJfLw9dTRDUbH+OPwZl9er2ZNaEnG/4pyOOE6F0AkHdeQDNcRG8lTMIsj/GfVw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=Yhn/LMyuR5X+cSN2+Z5IlLMiY6DFm8KOvLQyIJ2pnZk=;
+ b=acD9QZtl0F0Hjw+JOdtfOaY1UZBFY1hAKC18/zK++0n+o3XI3jyH8yIMxA5Fe+9XIQ1GS2mR3SeQ9QTRa+MELeq9kFc0yJvy3qLzhVNrm9j2nT8Sw1J+hy2jh5XqWuwx/8iptQJyn//LhEvbmhYqQv2He998APumVO6XybTayioZQcyxcd5pjl44Yk7wIf6kxBj2xi1g1ow5ZbcQbRyLsZIm2PSYZ8i6VM3qVK/lw21ZgpCBzj2mbhxOaD/l9nFnu7nmE/gjDgsvYBqJu2HwDaK4mn3akwDI+jFKyaeLgbuhpUtj01er5wpn4eZ0YJ7fY+vVAoSpNrKGsmIIS7AZnA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from DS0PR11MB7529.namprd11.prod.outlook.com (2603:10b6:8:141::20)
+ by SJ0PR11MB4815.namprd11.prod.outlook.com (2603:10b6:a03:2dd::8) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6134.19; Wed, 22 Feb
+ 2023 13:35:06 +0000
+Received: from DS0PR11MB7529.namprd11.prod.outlook.com
+ ([fe80::6f7:944a:aaad:301f]) by DS0PR11MB7529.namprd11.prod.outlook.com
+ ([fe80::6f7:944a:aaad:301f%6]) with mapi id 15.20.6134.019; Wed, 22 Feb 2023
+ 13:35:06 +0000
+From:   "Liu, Yi L" <yi.l.liu@intel.com>
+To:     "Tian, Kevin" <kevin.tian@intel.com>,
+        "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
+        "jgg@nvidia.com" <jgg@nvidia.com>
+CC:     "joro@8bytes.org" <joro@8bytes.org>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "eric.auger@redhat.com" <eric.auger@redhat.com>,
+        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
+        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
+        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
+        "peterx@redhat.com" <peterx@redhat.com>,
+        "jasowang@redhat.com" <jasowang@redhat.com>,
+        "shameerali.kolothum.thodi@huawei.com" 
+        <shameerali.kolothum.thodi@huawei.com>,
+        "lulu@redhat.com" <lulu@redhat.com>,
+        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
+        "intel-gvt-dev@lists.freedesktop.org" 
+        <intel-gvt-dev@lists.freedesktop.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
+        "Hao, Xudong" <xudong.hao@intel.com>,
+        "Xu, Terrence" <terrence.xu@intel.com>
+Subject: RE: [PATCH v4 09/19] vfio/pci: Accept device fd for hot reset
+Thread-Topic: [PATCH v4 09/19] vfio/pci: Accept device fd for hot reset
+Thread-Index: AQHZRadeNlgrDl2wokCstlukf6hiCq7akpcAgABgJDA=
+Date:   Wed, 22 Feb 2023 13:35:06 +0000
+Message-ID: <DS0PR11MB7529B33D098225CFAAA7D63FC3AA9@DS0PR11MB7529.namprd11.prod.outlook.com>
+References: <20230221034812.138051-1-yi.l.liu@intel.com>
+ <20230221034812.138051-10-yi.l.liu@intel.com>
+ <BL1PR11MB5271D122329B6908BDE1F8328CAA9@BL1PR11MB5271.namprd11.prod.outlook.com>
+In-Reply-To: <BL1PR11MB5271D122329B6908BDE1F8328CAA9@BL1PR11MB5271.namprd11.prod.outlook.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: DS0PR11MB7529:EE_|SJ0PR11MB4815:EE_
+x-ms-office365-filtering-correlation-id: 9279ab16-cda2-4229-46bd-08db14d99c09
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: VQhA9dwHGtR6FYodOjDFa/I22Ucv77DD/KJUM+hy1k33RogfnwY1zcj71WNcpJsQRqq9phsJmVYNB+G++WQrI1ncEypoUiE+0zbMSExR0T4qYnv0Cei14oJBDdXlhAIg9a4IgjE+eN14HehmXKRS8MXUJTV4jPNbiPfcHY6hj6uHjPx2bSbzQ7WPVWBzL7KVNHyU9gwe45QnnDxKSexHpN4Wn0zYMc9XC6/NfCoQ62KwVQg49Ca94ag4gbOhXQFRegw/p5oJbisalca9krq6SqrPQDm8m/S0xhJeY5D+Kgtt6hkpTi9UPS4YqJKToy8rcdY5ULBo6oBjkS8FbGdtehZ9OEwEeznf/1OZYsOXvhVVUy0ZjHFvQtmiFN52kc1tQvQLpgPDvpXzkulPJUhrdZdprxWQoaggHhgYs828rF6uCyiRyTzjK2S/SRePgihXQfkbbnw6GGpKpELtAAH1nAx9EpCzuL6IkvSxQZ/Yn1qRtIU4IgnVAH7MmJA3hYWkgp++zjKxp5yMTL1h2lJpQ4WAvdbgn07XeQpKEc3L5phW10IfSNI3Vjdvpy9imZlvZmVCzhQHAMpYoG6XnOSaY0+btfW5MJ/fvrPYV9x6SZ+zKaU6QgyDmbJM7nj8RTnkzfjuIF83uw3OcRVypb9LCD1RnnFmUTy2lYMlv56X+LEBFdVN21u8cJHgCeDn+8bXQamfByBdN2k3yAYA5cvuoA==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR11MB7529.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(366004)(396003)(136003)(39860400002)(346002)(376002)(451199018)(186003)(6506007)(9686003)(26005)(71200400001)(7696005)(54906003)(316002)(83380400001)(478600001)(110136005)(64756008)(66946007)(76116006)(122000001)(66556008)(66476007)(41300700001)(66446008)(8676002)(4326008)(38100700002)(52536014)(5660300002)(7416002)(8936002)(2906002)(38070700005)(82960400001)(55016003)(33656002)(86362001);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?utf-8?B?alRXSFhZSHo4R1BzQ2JZV2h4SWdsK2dHb2VzYzVzbWROVUpoMHpML1hIMEMr?=
+ =?utf-8?B?YkFpWi9NcnZJcU9BU21NbmJMU2VqNi9uZUVSL0xxWTg2ZU5xZmp3Zk92VEI4?=
+ =?utf-8?B?VmJiT3d2ckdJV21odEJaZGQrS0R3TmttVzVmSGxwb1A2VE1QMGt3SUl1TkRI?=
+ =?utf-8?B?TlMrbTR4aWJxWjBIOWxnYnZ4ZnlPUEFjZHIyMVBjZDlPYVZ5MXZBMjl2aExT?=
+ =?utf-8?B?eXNhYndXWHp4N1d3WHBXcXB0V2V0dWNQNmRrTFNFL0VlTnRYU3JUUytWWkRD?=
+ =?utf-8?B?eHltVmhRL21PU2NpQ2pWTisxNW1zK2JjNmt5czNxT2tVeDV0Vi9jQVhqemRU?=
+ =?utf-8?B?eVhDT1Y2a1ZXaEVQb2ZBemloQ1JJM2s4SWU4cGdUU1dlenBWVXUzQlhCUHBQ?=
+ =?utf-8?B?eG9wd0VmRjdXczhZdWZLSXVhK1VkTkNRWWFVVnEvNE1NMWl2b3NXNWRUdzlS?=
+ =?utf-8?B?NDhEbXR0VmtkUXNlbXBGMjRxVVptWnhlLzZXdnZtWWVqb09jRStIcUd6NXlk?=
+ =?utf-8?B?M1hyWStNeEk3SC9OM0JvMG93bUtwQ3hIZTRqL0thM3FkWGs5KzdFOHlrUU5W?=
+ =?utf-8?B?SHZBN1BuZlorcndwZW1ZZGF1L3EwYzRyZnprRnpra3o3U21KM252Ry9WNDJB?=
+ =?utf-8?B?Zlc5Y3JJNWw5Tm96SzZndDRLaVo4WGFJWkNQOUJXM2tYMGVsL2drb0FneXQx?=
+ =?utf-8?B?VkRNMmk1TEl2RTJEVE5hOTZRVXNlVmlyODVBWkN3Y2FlcHJicXliRlRoNENl?=
+ =?utf-8?B?ekkwK0VSbkdDK2E5cmZxTkVaQlRwblB0TGRrWjg1aGhMNlhsYk5nS052engw?=
+ =?utf-8?B?OTlGYW5DMDFETmRIb3M5MkNibUxqM1JMTTB4MFgwWUhjRE9UVk5Oa0R1NFlP?=
+ =?utf-8?B?N09TeTU3YU5zaVlqZUJhMVVqQVlyVlI4UFM1cXBEU2h5cC9QWW5Tek1PNzVU?=
+ =?utf-8?B?Vk0zdnBFNmdwdGp3NGV5b3Vjc0RvZXA4MjJnRGQydHhkWFgxWWNNdkRlWWVj?=
+ =?utf-8?B?OFdlT1ZDYS82M3NzTTNHbTB6U2pkWVZDeGdhTmdYN0RRbVc1L3dvWnZmaGhQ?=
+ =?utf-8?B?eG1HVmVJQktERHBubk52QVc2Rmt6SU9KQStoclhSZzZJcXoyYlhqR2loTzJ3?=
+ =?utf-8?B?RFlkQSs1TFowKzF4bDBCSytnTVc2ZzVrWXhPaWRGb0JhU1MyUlVwSnlTQ2J4?=
+ =?utf-8?B?NXhZUFVzNUJUVGRSM0tVVWVjaEZwQjRORWIzU2lrSjFpNEtoUjB6cHRoMUFs?=
+ =?utf-8?B?TGJVRE1DMnpveHVTNDBBb3dicGJrM1J2bkdRTlRiWUtta0ZNYkE4bTYzT3Vu?=
+ =?utf-8?B?UDMwaUkyY1ZTL1Q2VG4xUHhsY25uT1N1TFN4WHlUdGdrQ2QwTmI4ZEVwWGI1?=
+ =?utf-8?B?NUk3VWp0MXNBYjBkMlNKQS92TmdqSlhzMVpVL2pSQ2JwbkRaZXhYcFZjWjRE?=
+ =?utf-8?B?T1p2VGY1Y1MvNGszbHp1SEpza1RkRnZwNDV0TlVEQ3AxQnFnWjRHVGJZRUtV?=
+ =?utf-8?B?TGtZTCsxdkYvUThiZGQrVmVkVmdZQXF1L1E0WFZ5UWpQb2FmWHljbTY1bFRr?=
+ =?utf-8?B?aTlRK0lhRHF4R3JlQWtjZlhMeWF2UmVTUXFnUUY4VkxiM0hSdm4xYk8wdXlH?=
+ =?utf-8?B?NkRnVmVtSGNnZW5KN1NqWTh5UVdzSG8ybHJ3YUN3SUJxM0VVWlNSOFJoWWo2?=
+ =?utf-8?B?MG11a2NYdUp5Ny91VjFBY1F6akdFOGJVY0dtS2xuR1VzQi9JOXNjZGNzK216?=
+ =?utf-8?B?b3VPSFZyUG5JN1hqTWlzeUtCbXl4MXo5T21qRDk1amo0K0MzcTYrNDg0VW5q?=
+ =?utf-8?B?QTNEcTVGeVBLUEJFMmxlZXhtWHljVEJ0WXlUMmY0SnFBMUcxWGFYK2phSDMr?=
+ =?utf-8?B?N2ltZmhXM3FKaG41SlFUaHZXSDhUUkZWUWVvMGd5L2I2QmgrMzdDajFWQkth?=
+ =?utf-8?B?endJRmxSZW9FK3VodmNpQkZjZTdUVjJNNmI5eVpTMW9ZNjdibWJ0TStWZGR4?=
+ =?utf-8?B?aFhleHphOFRMSWh0bWRjUkZFWE03cVBLeFVFazJqZkVIY2tTOGRjVmNjUGlP?=
+ =?utf-8?B?NGV2L1NDL2JTVC9nT29VWUFIYjNFbzR4TktFYWk4UEdtc2ozeFNZSm1OeTJl?=
+ =?utf-8?Q?39HFgC7UoxP6pFZqicl1GbF4k?=
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
- definitions=2023-02-22_05,2023-02-22_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
- lowpriorityscore=0 suspectscore=0 bulkscore=0 mlxlogscore=999 spamscore=0
- mlxscore=0 clxscore=1015 adultscore=0 malwarescore=0 priorityscore=1501
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2302220115
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: DS0PR11MB7529.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9279ab16-cda2-4229-46bd-08db14d99c09
+X-MS-Exchange-CrossTenant-originalarrivaltime: 22 Feb 2023 13:35:06.1057
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: BPv98HbFxz5Q5AFuG/7mIcXUV9Gihh5MdlKgVM0enWMCWS4uKyiCg6tEf9QVCEb2Pr8ykpEh00snNpLb5GSesA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR11MB4815
+X-OriginatorOrg: intel.com
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-On 22.02.23 13:00, Wen Gu wrote:
-> 
-> 
-> On 2023/2/16 00:18, Wen Gu wrote:
-> 
->> Hi, all
->>
->> # Background
->>
->> The background and previous discussion can be referred from [1].
->>
->> We found SMC-D can be used to accelerate OS internal communication, 
->> such as
->> loopback or between two containers within the same OS instance. So 
->> this patch
->> set provides a kind of SMC-D dummy device (we call it the SMC-D 
->> loopback device)
->> to emulate an ISM device, so that SMC-D can also be used on architectures
->> other than s390. The SMC-D loopback device are designed as a system 
->> global
->> device, visible to all containers.
->>
->> This version is implemented based on the generalized interface 
->> provided by [2].
->> And there is an open issue of this version, which will be mentioned 
->> later.
->>
->> # Design
->>
->> This patch set basically follows the design of the previous version.
->>
->> Patch #1/9 ~ #3/9 attempt to decouple ISM-related structures from the 
->> SMC-D
->> generalized code and extract some helpers to make SMC-D protocol 
->> compatible
->> with devices other than s390 ISM device.
->>
->> Patch #4/9 introduces a kind of loopback device, which is defined as 
->> SMC-D v2
->> device and designed to provide communication between SMC sockets in 
->> the same OS
->> instance.
->>
->>   +-------------------------------------------+
->>   |  +--------------+       +--------------+  |
->>   |  | SMC socket A |       | SMC socket B |  |
->>   |  +--------------+       +--------------+  |
->>   |       ^                         ^         |
->>   |       |    +----------------+   |         |
->>   |       |    |   SMC stack    |   |         |
->>   |       +--->| +------------+ |<--|         |
->>   |            | |   dummy    | |             |
->>   |            | |   device   | |             |
->>   |            +-+------------+-+             |
->>   |                   OS                      |
->>   +-------------------------------------------+
->>
->> Patch #5/9 ~ #8/9 expand SMC-D protocol interface (smcd_ops) for 
->> scenarios where
->> SMC-D is used to communicate within VM (loopback here) or between VMs 
->> on the same
->> host (based on virtio-ism device, see [3]). What these scenarios have 
->> in common
->> is that the local sndbuf and peer RMB can be mapped to same physical 
->> memory region,
->> so the data copy between the local sndbuf and peer RMB can be omitted. 
->> Performance
->> improvement brought by this extension can be found in # Benchmark Test.
->>
->>   +----------+                     +----------+
->>   | socket A |                     | socket B |
->>   +----------+                     +----------+
->>         |                               ^
->>         |         +---------+           |
->>    regard as      |         | ----------|
->>    local sndbuf   |  B's    |     regard as
->>         |         |  RMB    |     local RMB
->>         |-------> |         |
->>                   +---------+
->>
->> Patch #9/9 realizes the support of loopback device for the 
->> above-mentioned expanded
->> SMC-D protocol interface.
->>
->> # Benchmark Test
->>
->>   * Test environments:
->>        - VM with Intel Xeon Platinum 8 core 2.50GHz, 16 GiB mem.
->>        - SMC sndbuf/RMB size 1MB.
->>
->>   * Test object:
->>        - TCP lo: run on TCP loopback.
->>        - domain: run on UNIX domain.
->>        - SMC lo: run on SMC loopback device with patch #1/9 ~ #4/9.
->>        - SMC lo-nocpy: run on SMC loopback device with patch #1/9 ~ #9/9.
->>
->> 1. ipc-benchmark (see [4])
->>
->>   - ./<foo> -c 1000000 -s 100
->>
->>                      TCP-lo              domain              
->> SMC-lo          SMC-lo-nocpy
->> Message
->> rate (msg/s)         79025      115736(+46.45%)    
->> 146760(+85.71%)       149800(+89.56%)
->>
->> 2. sockperf
->>
->>   - serv: <smc_run> taskset -c <cpu> sockperf sr --tcp
->>   - clnt: <smc_run> taskset -c <cpu> sockperf { tp | pp } --tcp 
->> --msg-size={ 64000 for tp | 14 for pp } -i 127.0.0.1 -t 30
->>
->>                      TCP-lo                  SMC-lo             
->> SMC-lo-nocpy
->> Bandwidth(MBps)   4822.388        4940.918(+2.56%)         
->> 8086.67(+67.69%)
->> Latency(us)          6.298          3.352(-46.78%)            
->> 3.35(-46.81%)
->>
->> 3. iperf3
->>
->>   - serv: <smc_run> taskset -c <cpu> iperf3 -s
->>   - clnt: <smc_run> taskset -c <cpu> iperf3 -c 127.0.0.1 -t 15
->>
->>                      TCP-lo                  SMC-lo             
->> SMC-lo-nocpy
->> Bitrate(Gb/s)         40.7            40.5(-0.49%)            
->> 72.4(+77.89%)
->>
->> 4. nginx/wrk
->>
->>   - serv: <smc_run> nginx
->>   - clnt: <smc_run> wrk -t 8 -c 500 -d 30 http://127.0.0.1:80
->>
->>                      TCP-lo                  SMC-lo             
->> SMC-lo-nocpy
->> Requests/s       155994.57      214544.79(+37.53%)       
->> 215538.55(+38.17%)
->>
->>
->> # Open issue
->>
->> The open issue has not been resolved now is about how to detect that 
->> the source
->> and target of CLC proposal are within the same OS instance and can 
->> communicate
->> through the SMC-D loopback device. Similar issue also exists when 
->> using virtio-ism
->> devices (the background and details of virtio-ism device can be 
->> referred from [3]).
->> In previous discussions, multiple options were proposed (see [5]). 
->> Thanks again for
->> the help of the community. cc Alexandra Winter :)
->>
->> But as we discussed, these solutions have some imperfection. So this 
->> version of RFC
->> continues to use previous workaround, that is, a 64-bit random GID is 
->> generated for
->> SMC-D loopback device. If the GIDs of the devices found by two peers 
->> are the same,
->> then they are considered to be in the same OS instance and can 
->> communicate with each
->> other by the loopback device.
->>
->> This approach has very small risk. Assume the following situations:
->>
->> (1) Assume that the SMC-D loopback devices of the two OS instances 
->> happen to
->>      generate the same 64-bit GID.
->>
->>      For the convenience of description, we refer to the sockets on 
->> these two
->>      different OS instance as server A and client B.
->>
->>      A will misjudge that the two are on the same OS instance because 
->> the same GID
->>      in CLC proposal message. Then A creates its RMB and sends 64-bit 
->> token-A to B
->>      in CLC accept message.
->>
->>      B receives the CLC accept message. And according to patch #7/9, B 
->> tries to
->>      attach its sndbuf to A's RMB by token-A.
->>
->> (2) Assume that the OS instance where B is located happens to have an 
->> unattached
->>      RMB whose 64-bit token is same as token-A.
->>
->>      Then B successfully attaches its sndbuf to the wrong RMB, and 
->> creates its RMB,
->>      sends token-B to A in CLC confirm message.
->>
->>      Similarly, A receives the message and tries to attach its sndbuf 
->> to B's RMB by
->>      token-B.
->>
->> (3) Similar to (2), assume that the OS instance where A is located 
->> happens to have
->>      an unattached RMB whose 64-bit token is same as token-B.
->>
->>      Then A successfully attach its sndbuf to the wrong RMB. Both 
->> sides mistakenly
->>      believe that an SMC-D connection based on the loopback device is 
->> established
->>      between them.
->>
->> If the above 3 coincidences all happen, that is, 64-bit random number 
->> conflicts occur
->> 3 times, then an unreachable SMC-D connection will be established, 
->> which is nasty.
->> If one of above is not satisfied, it will safely fallback to TCP.
->>
->> Since the chances of these happening are very small, I wonder if this 
->> risk of 1/2^(64*3)
->> probability can be tolerated ?
-> 
-> Hi,
-> 
-> Any comments about this open issue or other parts of this RFC patch set? :)
-> 
-> Thanks,
-> Wen Gu
-> 
-Hi Wen,
-
-I don't forget it ;) I'm trying to run it by myself. Please give us more 
-time for the trying and review.
-
-Thanks
-Wenjia
-
->> Another way to solve this open issue is using a 128-bit UUID to 
->> identify SMC-D loopback
->> device or virtio-ism device, because the probability of a 128-bit UUID 
->> collision is
->> considered negligible. But it may need to extend the CLC message to 
->> carry a longer GID,
->> which is the last option.
->>
->> v3->v2
->>   1. Adapt new generalized interface provided by [2];
->>   2. Select loopback device through SMC-D v2 protocol;
->>   3. Split the loopback-related implementation and generic 
->> implementation into different
->>      patches more reasonably.
->>
->> v1->v2
->>   1. Fix some build WARNINGs complained by kernel test rebot
->>      Reported-by: kernel test robot <lkp@intel.com>
->>   2. Add iperf3 test data.
->>
->> [1] 
->> https://lore.kernel.org/netdev/1671506505-104676-1-git-send-email-guwen@linux.alibaba.com/
->> [2] 
->> https://lore.kernel.org/netdev/20230123181752.1068-1-jaka@linux.ibm.com/
->> [3] 
->> https://lists.oasis-open.org/archives/virtio-comment/202302/msg00148.html
->> [4] https://github.com/goldsborough/ipc-bench
->> [5] 
->> https://lore.kernel.org/netdev/b9867c7d-bb2b-16fc-feda-b79579aa833d@linux.ibm.com/
->>
->> Wen Gu (9):
->>    net/smc: Decouple ism_dev from SMC-D device dump
->>    net/smc: Decouple ism_dev from SMC-D DMB registration
->>    net/smc: Extract v2 check helper from SMC-D device registration
->>    net/smc: Introduce SMC-D loopback device
->>    net/smc: Introduce an interface for getting DMB attribute
->>    net/smc: Introudce interfaces for DMB attach and detach
->>    net/smc: Avoid data copy from sndbuf to peer RMB in SMC-D
->>    net/smc: Modify cursor update logic when using mappable DMB
->>    net/smc: Add interface implementation of loopback device
->>
->>   drivers/s390/net/ism_drv.c |   5 +-
->>   include/net/smc.h          |  18 +-
->>   net/smc/Makefile           |   2 +-
->>   net/smc/af_smc.c           |  26 ++-
->>   net/smc/smc_cdc.c          |  59 ++++--
->>   net/smc/smc_cdc.h          |   1 +
->>   net/smc/smc_core.c         |  70 ++++++-
->>   net/smc/smc_core.h         |   1 +
->>   net/smc/smc_ism.c          |  79 ++++++--
->>   net/smc/smc_ism.h          |   4 +
->>   net/smc/smc_loopback.c     | 442 
->> +++++++++++++++++++++++++++++++++++++++++++++
->>   net/smc/smc_loopback.h     |  55 ++++++
->>   12 files changed, 725 insertions(+), 37 deletions(-)
->>   create mode 100644 net/smc/smc_loopback.c
->>   create mode 100644 net/smc/smc_loopback.h
->>
+PiBGcm9tOiBUaWFuLCBLZXZpbiA8a2V2aW4udGlhbkBpbnRlbC5jb20+DQo+IFNlbnQ6IFdlZG5l
+c2RheSwgRmVicnVhcnkgMjIsIDIwMjMgMzoyNiBQTQ0KPiANCj4gPiBGcm9tOiBMaXUsIFlpIEwg
+PHlpLmwubGl1QGludGVsLmNvbT4NCj4gPiBTZW50OiBUdWVzZGF5LCBGZWJydWFyeSAyMSwgMjAy
+MyAxMTo0OCBBTQ0KPiA+DQo+ID4gIAkvKg0KPiA+ICAJICogV2UgY2FuJ3QgbGV0IHVzZXJzcGFj
+ZSBnaXZlIHVzIGFuIGFyYml0cmFyaWx5IGxhcmdlIGJ1ZmZlciB0byBjb3B5LA0KPiA+IC0JICog
+c28gdmVyaWZ5IGhvdyBtYW55IHdlIHRoaW5rIHRoZXJlIGNvdWxkIGJlLiAgTm90ZSBncm91cHMg
+Y2FuDQo+IGhhdmUNCj4gPiAtCSAqIG11bHRpcGxlIGRldmljZXMgc28gb25lIGdyb3VwIHBlciBk
+ZXZpY2UgaXMgdGhlIG1heC4NCj4gPiArCSAqIHNvIHZlcmlmeSBob3cgbWFueSB3ZSB0aGluayB0
+aGVyZSBjb3VsZCBiZS4gIE5vdGUgdXNlciBtYXkNCj4gPiBwcm92aWRlDQo+ID4gKwkgKiBhIHNl
+dCBvZiBncm91cHMsIGdyb3VwIGNhbiBoYXZlIG11bHRpcGxlIGRldmljZXMgc28gb25lIGdyb3Vw
+IHBlcg0KPiA+ICsJICogZGV2aWNlIGlzIHRoZSBtYXguDQo+IA0KPiB3ZWxsIHRoaXMgY2hhbmdl
+IGRvZXNuJ3QgaW5jbHVkZSBjZGV2DQoNCkZvciBjZGV2LCBpdCBzaG91bGQgYmUgdGhlIG51bWJl
+ciBvZiBkZXZpY2VzLiDwn5iKDQoNCj4gDQo+ID4gQEAgLTEzMjAsNyArMTMyMSw3IEBAIHN0YXRp
+YyBpbnQgdmZpb19wY2lfaW9jdGxfcGNpX2hvdF9yZXNldChzdHJ1Y3QNCj4gPiB2ZmlvX3BjaV9j
+b3JlX2RldmljZSAqdmRldiwNCj4gPiAgCQl9DQo+ID4NCj4gPiAgCQkvKiBFbnN1cmUgdGhlIEZE
+IGlzIGEgdmZpbyBGRC4qLw0KPiA+IC0JCWlmICghdmZpb19maWxlX2lzX3ZhbGlkKGZpbGUpKSB7
+DQo+ID4gKwkJaWYgKCF2ZmlvX2ZpbGVfaXNfZGV2aWNlX29wZW5lZChmaWxlKSkgew0KPiA+ICAJ
+CQlmcHV0KGZpbGUpOw0KPiA+ICAJCQlyZXQgPSAtRUlOVkFMOw0KPiA+ICAJCQlicmVhazsNCj4g
+DQo+IHRoYXQgZnVuY3Rpb24gaXMgbm90IGp1c3QgZm9yIGNoZWNraW5nIGRldmljZS4NCj4gDQo+
+IFByb2JhYmx5IHJlbmFtZSBpdCB0byB2ZmlvX2ZpbGVfaXNfcmVzZXRfdmFsaWQoKS4NCg0KSG93
+IGFib3V0IHZmaW9fZmlsZV9pc19yZXNldHRhYmxlKCk/DQoNCj4gYnR3IHRoaXMgcGF0Y2ggaXMg
+aW5zdWZmaWNpZW50IHRvIGhhbmRsZSBkZXZpY2UgZmQuIFRoZSBjdXJyZW50IGxvZ2ljDQo+IHJl
+cXVpcmVzIGV2ZXJ5IGRldmljZSBpbiB0aGUgZGV2X3NldCBjb3ZlcmVkIGJ5IHByb3ZpZGVkIGZk
+J3M6DQo+IA0KPiBzdGF0aWMgYm9vbCB2ZmlvX2Rldl9pbl9ncm91cHMoc3RydWN0IHZmaW9fcGNp
+X2NvcmVfZGV2aWNlICp2ZGV2LA0KPiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgc3Ry
+dWN0IHZmaW9fcGNpX2dyb3VwX2luZm8gKmdyb3VwcykNCj4gew0KPiAgCXVuc2lnbmVkIGludCBp
+Ow0KPiANCj4gCWZvciAoaSA9IDA7IGkgPCBncm91cHMtPmNvdW50OyBpKyspDQo+IAkJaWYgKHZm
+aW9fZmlsZV9oYXNfZGV2KGdyb3Vwcy0+ZmlsZXNbaV0sICZ2ZGV2LT52ZGV2KSkNCj4gCQkJcmV0
+dXJuIHRydWU7DQo+IAlyZXR1cm4gZmFsc2U7DQo+IH0NCj4gDQo+IFByZXN1bWFibHkgd2hlbiBj
+ZGV2IGZkIGlzIHByb3ZpZGVkIGFib3ZlIHNob3VsZCBjb21wYXJlIGlvbW11DQo+IGdyb3VwIG9m
+IHRoZSBmZCBhbmQgdGhhdCBvZiB0aGUgdmRldi4gT3RoZXJ3aXNlIGl0IGV4cGVjdHMgdGhlIHVz
+ZXINCj4gdG8gaGF2ZSBmdWxsIGFjY2VzcyB0byBldmVyeSBkZXZpY2UgaW4gdGhlIHNldCB3aGlj
+aCBpcyBpbXByYWN0aWNhbC4NCg0KWWVzLiBUaGlzIGNhbiBiZSBkb25lIGJ5IGNoZWNraW5nIHRo
+ZSBkZXZpY2UtPnZmaW9fZ3JvdXAtPmlvbW11X2dyb3VwLg0KQnV0IGdyb3VwIGNvZGUgbWF5IGJl
+IGNvbXBpbGVkIG91dCBldmVudHVhbGx5LiBJZiBDT05GSUdfVkZJT19HUk9VUD09bi4NCm5lZWRz
+IHRvIHVzZSBpb21tdV9ncm91cF9nZXQoKSB0byBnZXQgaW9tbXVfZ3JvdXAgYW5kIGNvbXBhcmUu
+DQoNCmJ0dy4gSSBoYXZlIGEgZG91YnQgYWJvdXQgaWYgaXQgaXMgcG9zc2libGUgdGhhdCB0aGUg
+aW9tbXVfZ3JvdXANCmNhbiBkaXNhcHBlYXIgZHVyaW5nIHRoZSByZXNldC4gSWYgeWVzLCBtYXli
+ZSBiZXR0ZXIgc3RvcmUgaW9tbXVfZ3JvdXANCmluIHZmaW9fZGV2aWNlIGluIHRoZSB2ZmlvX3Jl
+Z2lzdGVyX2dyb3VwX2RldigpIHBhdGggaWYgQ09ORklHX1ZGSU9fR1JPVVANCmlzIG5vdCBlbmFi
+bGVkLg0KDQpSZWdhcmRzLA0KWWkgTGl1IA0K
