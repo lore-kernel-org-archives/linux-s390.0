@@ -2,216 +2,263 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 66AF0C61DA4
-	for <linux-s390@archiver.kernel.org>; Wed, 22 Feb 2023 11:47:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A5C0C61DA4
+	for <linux-s390@archiver.kernel.org>; Wed, 22 Feb 2023 12:01:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231571AbjBVLry (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 22 Feb 2023 06:47:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36336 "EHLO
+        id S230402AbjBVMBL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 22 Feb 2023 07:01:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48642 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231667AbjBVLrw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Feb 2023 06:47:52 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4669046B3;
-        Wed, 22 Feb 2023 03:47:51 -0800 (PST)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31MBKbX2014545;
-        Wed, 22 Feb 2023 11:47:51 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=dNzx9hCcFyizYPZylMpU9zX9/4dCBiRnCvClANQidg0=;
- b=NxI3GUyyXOtsBXKPBYy4SfdB1/+LNMUWnsWrhLqQ7jNVCnxcHwIrLz4QD3UTdcDa8f4J
- tv780ZpnGaDQ1FFJFyv2o3L67oicYPWPF3I02Titi0pC9f5frdDXGFT2/FttHIbqKqdr
- Z83+3NzKQU+bKhZCLSDiQq39BcZ1FUTjn5h/Y/7ezJu1sNc+7uI7L7NAXNS/IGM0gy+/
- +X3BHK/6h4w17Ru/exxMFDKtpBUvAYPQW9ORuHzmnUY2wm9kunlWG7rqDPf+Px51VFD6
- YlUvhy0H1rNz6evM5R3bHabgly6Beg2BvTVbRGn/lDkSrhcyuEm/FfCiZHHIdjXsRdHG iQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nwj3g0khd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 22 Feb 2023 11:47:50 +0000
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 31MBPLGr030380;
-        Wed, 22 Feb 2023 11:47:50 GMT
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nwj3g0kgh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 22 Feb 2023 11:47:50 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31M9vSHP001735;
-        Wed, 22 Feb 2023 11:47:48 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma02fra.de.ibm.com (PPS) with ESMTPS id 3ntpa6418n-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 22 Feb 2023 11:47:47 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31MBliiE22741458
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 22 Feb 2023 11:47:44 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 448972004F;
-        Wed, 22 Feb 2023 11:47:44 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EE4D02004B;
-        Wed, 22 Feb 2023 11:47:43 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 22 Feb 2023 11:47:43 +0000 (GMT)
-From:   Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-To:     Thomas Huth <thuth@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: [kvm-unit-tests PATCH v1] s390x: Add tests for execute-type instructions
-Date:   Wed, 22 Feb 2023 12:47:42 +0100
-Message-Id: <20230222114742.1208584-1-nsg@linux.ibm.com>
-X-Mailer: git-send-email 2.37.2
+        with ESMTP id S229612AbjBVMBK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Feb 2023 07:01:10 -0500
+Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 106E638014;
+        Wed, 22 Feb 2023 04:01:05 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0VcGo0xQ_1677067261;
+Received: from 30.221.131.223(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VcGo0xQ_1677067261)
+          by smtp.aliyun-inc.com;
+          Wed, 22 Feb 2023 20:01:02 +0800
+Message-ID: <06f1d098-724c-80ba-7efc-b9569593f1e6@linux.alibaba.com>
+Date:   Wed, 22 Feb 2023 20:00:58 +0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: pX1ewMghN8Ka7BRZI7V-nK7sSred1X56
-X-Proofpoint-ORIG-GUID: 9Wt9Hzw4tZDiixMRH07O7P1_lSjJgoVf
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
- definitions=2023-02-22_05,2023-02-22_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 clxscore=1015
- suspectscore=0 phishscore=0 adultscore=0 priorityscore=1501 bulkscore=0
- malwarescore=0 mlxscore=0 spamscore=0 impostorscore=0 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
- definitions=main-2302220102
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.6.1
+Subject: Re: [RFC PATCH net-next v3 0/9] net/smc: Introduce SMC-D-based OS
+ internal communication acceleration
+From:   Wen Gu <guwen@linux.alibaba.com>
+To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Alexandra Winter <WINTERA@de.ibm.com>
+References: <1676477905-88043-1-git-send-email-guwen@linux.alibaba.com>
+In-Reply-To: <1676477905-88043-1-git-send-email-guwen@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Test the instruction address used by targets of an execute instruction.
-When the target instruction calculates a relative address, the result is
-relative to the target instruction, not the execute instruction.
-
-Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
----
 
 
-TCG does the address calculation relative to the execute instruction.
+On 2023/2/16 00:18, Wen Gu wrote:
 
+> Hi, all
+> 
+> # Background
+> 
+> The background and previous discussion can be referred from [1].
+> 
+> We found SMC-D can be used to accelerate OS internal communication, such as
+> loopback or between two containers within the same OS instance. So this patch
+> set provides a kind of SMC-D dummy device (we call it the SMC-D loopback device)
+> to emulate an ISM device, so that SMC-D can also be used on architectures
+> other than s390. The SMC-D loopback device are designed as a system global
+> device, visible to all containers.
+> 
+> This version is implemented based on the generalized interface provided by [2].
+> And there is an open issue of this version, which will be mentioned later.
+> 
+> # Design
+> 
+> This patch set basically follows the design of the previous version.
+> 
+> Patch #1/9 ~ #3/9 attempt to decouple ISM-related structures from the SMC-D
+> generalized code and extract some helpers to make SMC-D protocol compatible
+> with devices other than s390 ISM device.
+> 
+> Patch #4/9 introduces a kind of loopback device, which is defined as SMC-D v2
+> device and designed to provide communication between SMC sockets in the same OS
+> instance.
+> 
+>   +-------------------------------------------+
+>   |  +--------------+       +--------------+  |
+>   |  | SMC socket A |       | SMC socket B |  |
+>   |  +--------------+       +--------------+  |
+>   |       ^                         ^         |
+>   |       |    +----------------+   |         |
+>   |       |    |   SMC stack    |   |         |
+>   |       +--->| +------------+ |<--|         |
+>   |            | |   dummy    | |             |
+>   |            | |   device   | |             |
+>   |            +-+------------+-+             |
+>   |                   OS                      |
+>   +-------------------------------------------+
+> 
+> Patch #5/9 ~ #8/9 expand SMC-D protocol interface (smcd_ops) for scenarios where
+> SMC-D is used to communicate within VM (loopback here) or between VMs on the same
+> host (based on virtio-ism device, see [3]). What these scenarios have in common
+> is that the local sndbuf and peer RMB can be mapped to same physical memory region,
+> so the data copy between the local sndbuf and peer RMB can be omitted. Performance
+> improvement brought by this extension can be found in # Benchmark Test.
+> 
+>   +----------+                     +----------+
+>   | socket A |                     | socket B |
+>   +----------+                     +----------+
+>         |                               ^
+>         |         +---------+           |
+>    regard as      |         | ----------|
+>    local sndbuf   |  B's    |     regard as
+>         |         |  RMB    |     local RMB
+>         |-------> |         |
+>                   +---------+
+> 
+> Patch #9/9 realizes the support of loopback device for the above-mentioned expanded
+> SMC-D protocol interface.
+> 
+> # Benchmark Test
+> 
+>   * Test environments:
+>        - VM with Intel Xeon Platinum 8 core 2.50GHz, 16 GiB mem.
+>        - SMC sndbuf/RMB size 1MB.
+> 
+>   * Test object:
+>        - TCP lo: run on TCP loopback.
+>        - domain: run on UNIX domain.
+>        - SMC lo: run on SMC loopback device with patch #1/9 ~ #4/9.
+>        - SMC lo-nocpy: run on SMC loopback device with patch #1/9 ~ #9/9.
+> 
+> 1. ipc-benchmark (see [4])
+> 
+>   - ./<foo> -c 1000000 -s 100
+> 
+>                      TCP-lo              domain              SMC-lo          SMC-lo-nocpy
+> Message
+> rate (msg/s)         79025      115736(+46.45%)    146760(+85.71%)       149800(+89.56%)
+> 
+> 2. sockperf
+> 
+>   - serv: <smc_run> taskset -c <cpu> sockperf sr --tcp
+>   - clnt: <smc_run> taskset -c <cpu> sockperf { tp | pp } --tcp --msg-size={ 64000 for tp | 14 for pp } -i 127.0.0.1 -t 30
+> 
+>                      TCP-lo                  SMC-lo             SMC-lo-nocpy
+> Bandwidth(MBps)   4822.388        4940.918(+2.56%)         8086.67(+67.69%)
+> Latency(us)          6.298          3.352(-46.78%)            3.35(-46.81%)
+> 
+> 3. iperf3
+> 
+>   - serv: <smc_run> taskset -c <cpu> iperf3 -s
+>   - clnt: <smc_run> taskset -c <cpu> iperf3 -c 127.0.0.1 -t 15
+> 
+>                      TCP-lo                  SMC-lo             SMC-lo-nocpy
+> Bitrate(Gb/s)         40.7            40.5(-0.49%)            72.4(+77.89%)
+> 
+> 4. nginx/wrk
+> 
+>   - serv: <smc_run> nginx
+>   - clnt: <smc_run> wrk -t 8 -c 500 -d 30 http://127.0.0.1:80
+> 
+>                      TCP-lo                  SMC-lo             SMC-lo-nocpy
+> Requests/s       155994.57      214544.79(+37.53%)       215538.55(+38.17%)
+> 
+> 
+> # Open issue
+> 
+> The open issue has not been resolved now is about how to detect that the source
+> and target of CLC proposal are within the same OS instance and can communicate
+> through the SMC-D loopback device. Similar issue also exists when using virtio-ism
+> devices (the background and details of virtio-ism device can be referred from [3]).
+> In previous discussions, multiple options were proposed (see [5]). Thanks again for
+> the help of the community. cc Alexandra Winter :)
+> 
+> But as we discussed, these solutions have some imperfection. So this version of RFC
+> continues to use previous workaround, that is, a 64-bit random GID is generated for
+> SMC-D loopback device. If the GIDs of the devices found by two peers are the same,
+> then they are considered to be in the same OS instance and can communicate with each
+> other by the loopback device.
+> 
+> This approach has very small risk. Assume the following situations:
+> 
+> (1) Assume that the SMC-D loopback devices of the two OS instances happen to
+>      generate the same 64-bit GID.
+> 
+>      For the convenience of description, we refer to the sockets on these two
+>      different OS instance as server A and client B.
+> 
+>      A will misjudge that the two are on the same OS instance because the same GID
+>      in CLC proposal message. Then A creates its RMB and sends 64-bit token-A to B
+>      in CLC accept message.
+> 
+>      B receives the CLC accept message. And according to patch #7/9, B tries to
+>      attach its sndbuf to A's RMB by token-A.
+> 
+> (2) Assume that the OS instance where B is located happens to have an unattached
+>      RMB whose 64-bit token is same as token-A.
+> 
+>      Then B successfully attaches its sndbuf to the wrong RMB, and creates its RMB,
+>      sends token-B to A in CLC confirm message.
+> 
+>      Similarly, A receives the message and tries to attach its sndbuf to B's RMB by
+>      token-B.
+> 
+> (3) Similar to (2), assume that the OS instance where A is located happens to have
+>      an unattached RMB whose 64-bit token is same as token-B.
+> 
+>      Then A successfully attach its sndbuf to the wrong RMB. Both sides mistakenly
+>      believe that an SMC-D connection based on the loopback device is established
+>      between them.
+> 
+> If the above 3 coincidences all happen, that is, 64-bit random number conflicts occur
+> 3 times, then an unreachable SMC-D connection will be established, which is nasty.
+> If one of above is not satisfied, it will safely fallback to TCP.
+> 
+> Since the chances of these happening are very small, I wonder if this risk of 1/2^(64*3)
+> probability can be tolerated ?
 
- s390x/Makefile |  1 +
- s390x/ex.c     | 92 ++++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 93 insertions(+)
- create mode 100644 s390x/ex.c
+Hi,
 
-diff --git a/s390x/Makefile b/s390x/Makefile
-index 97a61611..6cf8018b 100644
---- a/s390x/Makefile
-+++ b/s390x/Makefile
-@@ -39,6 +39,7 @@ tests += $(TEST_DIR)/panic-loop-extint.elf
- tests += $(TEST_DIR)/panic-loop-pgm.elf
- tests += $(TEST_DIR)/migration-sck.elf
- tests += $(TEST_DIR)/exittime.elf
-+tests += $(TEST_DIR)/ex.elf
- 
- pv-tests += $(TEST_DIR)/pv-diags.elf
- 
-diff --git a/s390x/ex.c b/s390x/ex.c
-new file mode 100644
-index 00000000..1bf4d8cd
---- /dev/null
-+++ b/s390x/ex.c
-@@ -0,0 +1,92 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * Copyright IBM Corp. 2023
-+ *
-+ * Test EXECUTE (RELATIVE LONG).
-+ */
-+
-+#include <libcflat.h>
-+
-+static void test_basr(void)
-+{
-+	uint64_t ret_addr, after_ex;
-+
-+	report_prefix_push("BASR");
-+	asm volatile ( ".pushsection .rodata\n"
-+		"0:	basr	%[ret_addr],0\n"
-+		"	.popsection\n"
-+
-+		"	larl	%[after_ex],1f\n"
-+		"	exrl	0,0b\n"
-+		"1:\n"
-+		: [ret_addr] "=d" (ret_addr),
-+		  [after_ex] "=d" (after_ex)
-+	);
-+
-+	report(ret_addr == after_ex, "return address after EX");
-+	report_prefix_pop();
-+}
-+
-+/*
-+ * According to PoP (Branch-Address Generation), the address is relative to
-+ * BRAS when it is the target of an execute-type instruction.
-+ */
-+static void test_bras(void)
-+{
-+	uint64_t after_target, ret_addr, after_ex, branch_addr;
-+
-+	report_prefix_push("BRAS");
-+	asm volatile ( ".pushsection .text.ex_bras, \"x\"\n"
-+		"0:	bras	%[ret_addr],1f\n"
-+		"	nopr	%%r7\n"
-+		"1:	larl	%[branch_addr],0\n"
-+		"	j	4f\n"
-+		"	.popsection\n"
-+
-+		"	larl	%[after_target],1b\n"
-+		"	larl	%[after_ex],3f\n"
-+		"2:	exrl	0,0b\n"
-+		"3:	larl	%[branch_addr],0\n"
-+		"4:\n"
-+
-+		"	.if (1b - 0b) != (3b - 2b)\n"
-+		"	.error	\"right and wrong target must have same offset\"\n"
-+		"	.endif\n"
-+		: [after_target] "=d" (after_target),
-+		  [ret_addr] "=d" (ret_addr),
-+		  [after_ex] "=d" (after_ex),
-+		  [branch_addr] "=d" (branch_addr)
-+	);
-+
-+	report(after_target == branch_addr, "address calculated relative to BRAS");
-+	report(ret_addr == after_ex, "return address after EX");
-+	report_prefix_pop();
-+}
-+
-+static void test_larl(void)
-+{
-+	uint64_t target, addr;
-+
-+	report_prefix_push("LARL");
-+	asm volatile ( ".pushsection .rodata\n"
-+		"0:	larl	%[addr],0\n"
-+		"	.popsection\n"
-+
-+		"	larl	%[target],0b\n"
-+		"	exrl	0,0b\n"
-+		: [target] "=d" (target),
-+		  [addr] "=d" (addr)
-+	);
-+
-+	report(target == addr, "address calculated relative to LARL");
-+	report_prefix_pop();
-+}
-+
-+int main(int argc, char **argv)
-+{
-+	test_basr();
-+	test_bras();
-+	test_larl();
-+
-+	return report_summary();
-+}
+Any comments about this open issue or other parts of this RFC patch set? :)
 
-base-commit: e3c5c3ef2524c58023073c0fadde2e8ae3c04ec6
--- 
-2.36.1
+Thanks,
+Wen Gu
 
+> 
+> Another way to solve this open issue is using a 128-bit UUID to identify SMC-D loopback
+> device or virtio-ism device, because the probability of a 128-bit UUID collision is
+> considered negligible. But it may need to extend the CLC message to carry a longer GID,
+> which is the last option.
+> 
+> v3->v2
+>   1. Adapt new generalized interface provided by [2];
+>   2. Select loopback device through SMC-D v2 protocol;
+>   3. Split the loopback-related implementation and generic implementation into different
+>      patches more reasonably.
+> 
+> v1->v2
+>   1. Fix some build WARNINGs complained by kernel test rebot
+>      Reported-by: kernel test robot <lkp@intel.com>
+>   2. Add iperf3 test data.
+> 
+> [1] https://lore.kernel.org/netdev/1671506505-104676-1-git-send-email-guwen@linux.alibaba.com/
+> [2] https://lore.kernel.org/netdev/20230123181752.1068-1-jaka@linux.ibm.com/
+> [3] https://lists.oasis-open.org/archives/virtio-comment/202302/msg00148.html
+> [4] https://github.com/goldsborough/ipc-bench
+> [5] https://lore.kernel.org/netdev/b9867c7d-bb2b-16fc-feda-b79579aa833d@linux.ibm.com/
+> 
+> Wen Gu (9):
+>    net/smc: Decouple ism_dev from SMC-D device dump
+>    net/smc: Decouple ism_dev from SMC-D DMB registration
+>    net/smc: Extract v2 check helper from SMC-D device registration
+>    net/smc: Introduce SMC-D loopback device
+>    net/smc: Introduce an interface for getting DMB attribute
+>    net/smc: Introudce interfaces for DMB attach and detach
+>    net/smc: Avoid data copy from sndbuf to peer RMB in SMC-D
+>    net/smc: Modify cursor update logic when using mappable DMB
+>    net/smc: Add interface implementation of loopback device
+> 
+>   drivers/s390/net/ism_drv.c |   5 +-
+>   include/net/smc.h          |  18 +-
+>   net/smc/Makefile           |   2 +-
+>   net/smc/af_smc.c           |  26 ++-
+>   net/smc/smc_cdc.c          |  59 ++++--
+>   net/smc/smc_cdc.h          |   1 +
+>   net/smc/smc_core.c         |  70 ++++++-
+>   net/smc/smc_core.h         |   1 +
+>   net/smc/smc_ism.c          |  79 ++++++--
+>   net/smc/smc_ism.h          |   4 +
+>   net/smc/smc_loopback.c     | 442 +++++++++++++++++++++++++++++++++++++++++++++
+>   net/smc/smc_loopback.h     |  55 ++++++
+>   12 files changed, 725 insertions(+), 37 deletions(-)
+>   create mode 100644 net/smc/smc_loopback.c
+>   create mode 100644 net/smc/smc_loopback.h
+> 
