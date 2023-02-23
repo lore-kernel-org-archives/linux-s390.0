@@ -2,428 +2,121 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 08B5BC636D6
-	for <linux-s390@archiver.kernel.org>; Thu, 23 Feb 2023 15:39:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3EE78C636D6
+	for <linux-s390@archiver.kernel.org>; Thu, 23 Feb 2023 16:22:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230048AbjBWPjg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 23 Feb 2023 10:39:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52528 "EHLO
+        id S233896AbjBWQWq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 23 Feb 2023 11:22:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233362AbjBWPjf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Feb 2023 10:39:35 -0500
-Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B8CE567A3
-        for <linux-s390@vger.kernel.org>; Thu, 23 Feb 2023 07:39:03 -0800 (PST)
-Received: by mail-wr1-x431.google.com with SMTP id l1so10725888wry.10
-        for <linux-s390@vger.kernel.org>; Thu, 23 Feb 2023 07:39:03 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=layalina-io.20210112.gappssmtp.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=cqYRKRoCrq7jTQ9UpshCoMrGxFgruAKL2elYfx3Z4j8=;
-        b=bB3kXiYuGTC1rOAkODSY/R4tAX2EfuRHva8k61RvJHdyZw4339xJ5WHn0296bBakPt
-         XxA9VRMhUIqN6iTcgxS0odtg20bEH2ETwCT+8C1XPvTLLBdNvBbrcL80j6KaK3xND13/
-         Ye1139wm6EmtUp/xouHKLJCr4IcJS0O1nn2MxGajppaX3/elhJ7IwhvcAGzx9OZIdmTI
-         FUL8ZvtqaPKt11ZDDkcMqJWItG+py/Gn0Oet42kOqG+SehTSr9GnmA9pLvbDavKhdFBx
-         V28xlMXIEALfpe0+1F+wR2CTERnGJ5YnkK20yOy6wr1vGPgh8aY6vblhUoDXPRHS6TTz
-         l6VQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=cqYRKRoCrq7jTQ9UpshCoMrGxFgruAKL2elYfx3Z4j8=;
-        b=fErvIyl7IVI4fLH/8luVNGZGy9ox0QJDQ+cmEh6b740q9aOWcyp2U4Txt8EonJumSa
-         3IZ7HJp1rlxw41R6wf9Dm/uAIwNJ8AO27ZEi0WV7aR13P1I2KUEzBmnWcWgRunSwkMDd
-         Ghyyjku/QUuSmI0v90tpIM2uCn6QlshKgE1EjnReSyvJUmaLFYwj2OI6zSZcULwpvRO3
-         DoRfh0zNZfvuGzLT/DyFMir16kmGVn5i2TXZiAwL5LjjESPWRmZxWMDM6BOHJgiKauHj
-         1DM2CJfrRZqTMrJmoimcvWo/Nom1QaUNeqW41+ipI3UCzGenDzB6C4Sg7pecSuSKeDqP
-         VpTQ==
-X-Gm-Message-State: AO0yUKXppz0JncKWhAvlPrwM3qlxQjKsMkheUlZOON+53aqxqHD72X5e
-        ENa/sWymI82P23USMMNFqoPnxg==
-X-Google-Smtp-Source: AK7set8ce8JTfMMve7A1539WeMenQ3+kxrDZ9WzXp/DhNVkTjv2h3kQvN1pMh/e50xV5lZYswzrtcw==
-X-Received: by 2002:a5d:5227:0:b0:2c5:52bd:9ed3 with SMTP id i7-20020a5d5227000000b002c552bd9ed3mr10393718wra.56.1677166741829;
-        Thu, 23 Feb 2023 07:39:01 -0800 (PST)
-Received: from airbuntu ([104.132.45.105])
-        by smtp.gmail.com with ESMTPSA id s17-20020a5d4ed1000000b002c4084d3472sm7376955wrv.58.2023.02.23.07.39.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Feb 2023 07:39:01 -0800 (PST)
-Date:   Thu, 23 Feb 2023 15:38:59 +0000
-From:   Qais Yousef <qyousef@layalina.io>
-To:     Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Waiman Long <longman@redhat.com>
-Cc:     Steven Rostedt <rostedt@goodmis.org>, tj@kernel.org,
-        linux-kernel@vger.kernel.org, luca.abeni@santannapisa.it,
-        claudio@evidence.eu.com, tommaso.cucinotta@santannapisa.it,
-        bristot@redhat.com, mathieu.poirier@linaro.org,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        cgroups@vger.kernel.org,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Wei Wang <wvw@google.com>, Rick Yiu <rickyiu@google.com>,
-        Quentin Perret <qperret@google.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Zefan Li <lizefan.x@bytedance.com>, linux-s390@vger.kernel.org,
-        x86@kernel.org
-Subject: Re: [PATCH v3] sched: cpuset: Don't rebuild root domains on
- suspend-resume
-Message-ID: <20230223153859.37tqoqk33oc6tv7o@airbuntu>
-References: <20230206221428.2125324-1-qyousef@layalina.io>
+        with ESMTP id S233399AbjBWQWp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Feb 2023 11:22:45 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AF1117CFC;
+        Thu, 23 Feb 2023 08:22:44 -0800 (PST)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31NG0PpQ018502;
+        Thu, 23 Feb 2023 16:22:44 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=i2EuYrmKAcZOK6gHWGbraQGKswiqhfiip50aZ1tl3DA=;
+ b=Rz0hsGr85EmiZlKTIlFBs9eKNgUkykzwAHKsW2HNnb9Vu6PPeLJsvYq/myIyKR/nI/63
+ ltLNvXZXvkU93sFd74PYt6XfYwEou8q01sMPPHm5sd2/WCEEJ2vojzAQ8k+Mjknyu+Ro
+ y+HpRBChBDt4Gq0GztAwpaklV1kfUoT+49q+FBCTl8vw2TbeSzuS99UIX8DUmYQch4tE
+ dfQBUieK/kzQYGbKRDh3BirJ5MBmP8fxN5uhxIIoLVzh29DMY6CV75bY7F362YkoG0qE
+ LcUBCOTgYgG/+tjvC2nzaMCARgEslfWu2Cls4UivW5DKMWiUdUU4W1YrFUmUOgI6LS3V mw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nxarsshe3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 23 Feb 2023 16:22:44 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 31NG0Wh9019682;
+        Thu, 23 Feb 2023 16:22:43 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nxarsshd0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 23 Feb 2023 16:22:43 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31N7tx4N001654;
+        Thu, 23 Feb 2023 16:22:40 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma02fra.de.ibm.com (PPS) with ESMTPS id 3ntpa657ce-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 23 Feb 2023 16:22:40 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31NGMbDm27853492
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 23 Feb 2023 16:22:37 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E25D52004B;
+        Thu, 23 Feb 2023 16:22:36 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9C01A20040;
+        Thu, 23 Feb 2023 16:22:36 +0000 (GMT)
+Received: from t35lp63.lnxne.boe (unknown [9.152.108.100])
+        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Thu, 23 Feb 2023 16:22:36 +0000 (GMT)
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     borntraeger@linux.ibm.com, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com, david@redhat.com, mimu@linux.ibm.com,
+        agordeev@linux.ibm.com
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [PATCH v1] KVM: s390: interrupt: fix virtual-physical confusion for next alert GISA
+Date:   Thu, 23 Feb 2023 17:22:36 +0100
+Message-Id: <20230223162236.51569-1-nrb@linux.ibm.com>
+X-Mailer: git-send-email 2.39.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20230206221428.2125324-1-qyousef@layalina.io>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: YbRJv3Wrw5tK2xVIuROTfbx9ooDsOKnb
+X-Proofpoint-ORIG-GUID: e2naCEkQNk_TANA01sxbocW1uDhxxquq
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
+ definitions=2023-02-23_10,2023-02-23_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxlogscore=999
+ lowpriorityscore=0 priorityscore=1501 spamscore=0 impostorscore=0
+ mlxscore=0 phishscore=0 adultscore=0 malwarescore=0 bulkscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2302230132
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 02/06/23 22:14, Qais Yousef wrote:
-> Commit f9a25f776d78 ("cpusets: Rebuild root domain deadline accounting information")
-> enabled rebuilding root domain on cpuset and hotplug operations to
-> correct deadline accounting.
-> 
-> Rebuilding root domain is a slow operation and we see 10+ of ms delays
-> on suspend-resume because of that (worst case captures 20ms which
-> happens often).
-> 
-> Since nothing is expected to change on suspend-resume operation; skip
-> rebuilding the root domains to regain the some of the time lost.
-> 
-> Achieve this by refactoring the code to pass whether dl accoutning needs
-> an update to rebuild_sched_domains(). And while at it, rename
-> rebuild_root_domains() to update_dl_rd_accounting() which I believe is
-> a more representative name since we are not really rebuilding the root
-> domains, but rather updating dl accounting at the root domain.
-> 
-> Some users of rebuild_sched_domains() will skip dl accounting update
-> now:
-> 
-> 	* Update sched domains when relaxing the domain level in cpuset
-> 	  which only impacts searching level in load balance
-> 	* update sched domains when cpufreq governor changes and we need
-> 	  to create the perf domains
-> 
-> Users in arch/x86 and arch/s390 are left with the old behavior.
-> 
-> Debugged-by: Rick Yiu <rickyiu@google.com>
-> Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
-> ---
-> 
-> Changes in v3:
-> 
-> 	* Change the logic to avoid using cpuhp_tasks_frozen which can be racy
-> 	  and have dependency on context
-> 	* Refactor the code to pass whether dl accounting needs to be updated
-> 	  down the call chain
-> 	* Teach cpuset_force_rebuild() to take a reason argument and convert
-> 	  the variable into int
-> 	* Rename rebuild_root_domains() into update_dl_rd_accounting() as
-> 	  that's what I believe it's only doing
-> 
-> v2 discussion: https://lore.kernel.org/lkml/20230120194822.962958-1-qyousef@layalina.io/
-> v1 discussion: https://lore.kernel.org/lkml/20221216233501.gh6m75e7s66dmjgo@airbuntu/
+We sometimes put a virtual address in next_alert, which should always be
+a physical address, since it is shared with hardware.
 
-Is this version any good?
+This currently works, because virtual and physical addresses are
+the same.
 
+Add phys_to_virt() to resolve the virtual-physical confusion.
 
-Thanks!
+Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+---
+ arch/s390/kvm/interrupt.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---
-Qais Yousef
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index ab26aa53ee37..20743c5b000a 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -305,7 +305,7 @@ static inline u8 gisa_get_ipm_or_restore_iam(struct kvm_s390_gisa_interrupt *gi)
+ 
+ static inline int gisa_in_alert_list(struct kvm_s390_gisa *gisa)
+ {
+-	return READ_ONCE(gisa->next_alert) != (u32)(u64)gisa;
++	return READ_ONCE(gisa->next_alert) != (u32)virt_to_phys(gisa);
+ }
+ 
+ static inline void gisa_set_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
+@@ -3167,7 +3167,7 @@ void kvm_s390_gisa_init(struct kvm *kvm)
+ 	hrtimer_init(&gi->timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+ 	gi->timer.function = gisa_vcpu_kicker;
+ 	memset(gi->origin, 0, sizeof(struct kvm_s390_gisa));
+-	gi->origin->next_alert = (u32)(u64)gi->origin;
++	gi->origin->next_alert = (u32)virt_to_phys(gi->origin);
+ 	VM_EVENT(kvm, 3, "gisa 0x%pK initialized", gi->origin);
+ }
+ 
+-- 
+2.39.1
 
-> 
->  arch/s390/kernel/topology.c  |  2 +-
->  arch/x86/kernel/itmt.c       |  6 ++---
->  drivers/base/arch_topology.c |  2 +-
->  include/linux/cpuset.h       | 12 ++++++----
->  kernel/cgroup/cpuset.c       | 43 ++++++++++++++++++++----------------
->  kernel/sched/core.c          |  2 +-
->  kernel/sched/topology.c      |  2 +-
->  7 files changed, 39 insertions(+), 30 deletions(-)
-> 
-> diff --git a/arch/s390/kernel/topology.c b/arch/s390/kernel/topology.c
-> index c6eecd4a5302..29d57154a3f1 100644
-> --- a/arch/s390/kernel/topology.c
-> +++ b/arch/s390/kernel/topology.c
-> @@ -333,7 +333,7 @@ int arch_update_cpu_topology(void)
->  
->  static void topology_work_fn(struct work_struct *work)
->  {
-> -	rebuild_sched_domains();
-> +	rebuild_sched_domains(true);
->  }
->  
->  void topology_schedule_update(void)
-> diff --git a/arch/x86/kernel/itmt.c b/arch/x86/kernel/itmt.c
-> index 9ff480e94511..6f1446223697 100644
-> --- a/arch/x86/kernel/itmt.c
-> +++ b/arch/x86/kernel/itmt.c
-> @@ -56,7 +56,7 @@ static int sched_itmt_update_handler(struct ctl_table *table, int write,
->  
->  	if (!ret && write && old_sysctl != sysctl_sched_itmt_enabled) {
->  		x86_topology_update = true;
-> -		rebuild_sched_domains();
-> +		rebuild_sched_domains(true);
->  	}
->  
->  	mutex_unlock(&itmt_update_mutex);
-> @@ -125,7 +125,7 @@ int sched_set_itmt_support(void)
->  	sysctl_sched_itmt_enabled = 1;
->  
->  	x86_topology_update = true;
-> -	rebuild_sched_domains();
-> +	rebuild_sched_domains(true);
->  
->  	mutex_unlock(&itmt_update_mutex);
->  
-> @@ -161,7 +161,7 @@ void sched_clear_itmt_support(void)
->  		/* disable sched_itmt if we are no longer ITMT capable */
->  		sysctl_sched_itmt_enabled = 0;
->  		x86_topology_update = true;
-> -		rebuild_sched_domains();
-> +		rebuild_sched_domains(true);
->  	}
->  
->  	mutex_unlock(&itmt_update_mutex);
-> diff --git a/drivers/base/arch_topology.c b/drivers/base/arch_topology.c
-> index e7d6e6657ffa..90d8a42335e6 100644
-> --- a/drivers/base/arch_topology.c
-> +++ b/drivers/base/arch_topology.c
-> @@ -253,7 +253,7 @@ int topology_update_cpu_topology(void)
->  static void update_topology_flags_workfn(struct work_struct *work)
->  {
->  	update_topology = 1;
-> -	rebuild_sched_domains();
-> +	rebuild_sched_domains(true);
->  	pr_debug("sched_domain hierarchy rebuilt, flags updated\n");
->  	update_topology = 0;
->  }
-> diff --git a/include/linux/cpuset.h b/include/linux/cpuset.h
-> index d58e0476ee8e..e30d4cd35ef7 100644
-> --- a/include/linux/cpuset.h
-> +++ b/include/linux/cpuset.h
-> @@ -18,6 +18,10 @@
->  #include <linux/mmu_context.h>
->  #include <linux/jump_label.h>
->  
-> +#define CPUSET_FORCE_REBUILD_RESET		0
-> +#define CPUSET_FORCE_REBUILD_SUSPEND_RESUME	1
-> +#define CPUSET_FORCE_REBUILD_PRS_ERROR		2
-> +
->  #ifdef CONFIG_CPUSETS
->  
->  /*
-> @@ -68,7 +72,7 @@ static inline bool cpusets_insane_config(void)
->  
->  extern int cpuset_init(void);
->  extern void cpuset_init_smp(void);
-> -extern void cpuset_force_rebuild(void);
-> +extern void cpuset_force_rebuild(int reason);
->  extern void cpuset_update_active_cpus(void);
->  extern void cpuset_wait_for_hotplug(void);
->  extern void cpuset_read_lock(void);
-> @@ -132,7 +136,7 @@ static inline int cpuset_do_slab_mem_spread(void)
->  
->  extern bool current_cpuset_is_being_rebound(void);
->  
-> -extern void rebuild_sched_domains(void);
-> +extern void rebuild_sched_domains(bool update_dl_accounting);
->  
->  extern void cpuset_print_current_mems_allowed(void);
->  
-> @@ -187,7 +191,7 @@ static inline bool cpusets_insane_config(void) { return false; }
->  static inline int cpuset_init(void) { return 0; }
->  static inline void cpuset_init_smp(void) {}
->  
-> -static inline void cpuset_force_rebuild(void) { }
-> +static inline void cpuset_force_rebuild(int reason) { }
->  
->  static inline void cpuset_update_active_cpus(void)
->  {
-> @@ -276,7 +280,7 @@ static inline bool current_cpuset_is_being_rebound(void)
->  	return false;
->  }
->  
-> -static inline void rebuild_sched_domains(void)
-> +static inline void rebuild_sched_domains(bool update_dl_accounting)
->  {
->  	partition_sched_domains(1, NULL, NULL);
->  }
-> diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
-> index a29c0b13706b..e5ddc8e11e5d 100644
-> --- a/kernel/cgroup/cpuset.c
-> +++ b/kernel/cgroup/cpuset.c
-> @@ -1079,7 +1079,7 @@ static void update_tasks_root_domain(struct cpuset *cs)
->  	css_task_iter_end(&it);
->  }
->  
-> -static void rebuild_root_domains(void)
-> +static void update_dl_rd_accounting(void)
->  {
->  	struct cpuset *cs = NULL;
->  	struct cgroup_subsys_state *pos_css;
-> @@ -1117,11 +1117,13 @@ static void rebuild_root_domains(void)
->  
->  static void
->  partition_and_rebuild_sched_domains(int ndoms_new, cpumask_var_t doms_new[],
-> -				    struct sched_domain_attr *dattr_new)
-> +				    struct sched_domain_attr *dattr_new,
-> +				    bool update_dl_accounting)
->  {
->  	mutex_lock(&sched_domains_mutex);
->  	partition_sched_domains_locked(ndoms_new, doms_new, dattr_new);
-> -	rebuild_root_domains();
-> +	if (update_dl_accounting)
-> +		update_dl_rd_accounting();
->  	mutex_unlock(&sched_domains_mutex);
->  }
->  
-> @@ -1136,7 +1138,7 @@ partition_and_rebuild_sched_domains(int ndoms_new, cpumask_var_t doms_new[],
->   *
->   * Call with cpuset_rwsem held.  Takes cpus_read_lock().
->   */
-> -static void rebuild_sched_domains_locked(void)
-> +static void rebuild_sched_domains_locked(bool update_dl_accounting)
->  {
->  	struct cgroup_subsys_state *pos_css;
->  	struct sched_domain_attr *attr;
-> @@ -1185,19 +1187,19 @@ static void rebuild_sched_domains_locked(void)
->  	ndoms = generate_sched_domains(&doms, &attr);
->  
->  	/* Have scheduler rebuild the domains */
-> -	partition_and_rebuild_sched_domains(ndoms, doms, attr);
-> +	partition_and_rebuild_sched_domains(ndoms, doms, attr, update_dl_accounting);
->  }
->  #else /* !CONFIG_SMP */
-> -static void rebuild_sched_domains_locked(void)
-> +static void rebuild_sched_domains_locked(bool update_dl_accounting)
->  {
->  }
->  #endif /* CONFIG_SMP */
->  
-> -void rebuild_sched_domains(void)
-> +void rebuild_sched_domains(bool update_dl_accounting)
->  {
->  	cpus_read_lock();
->  	percpu_down_write(&cpuset_rwsem);
-> -	rebuild_sched_domains_locked();
-> +	rebuild_sched_domains_locked(update_dl_accounting);
->  	percpu_up_write(&cpuset_rwsem);
->  	cpus_read_unlock();
->  }
-> @@ -1681,7 +1683,7 @@ static void update_cpumasks_hier(struct cpuset *cs, struct tmpmasks *tmp,
->  	rcu_read_unlock();
->  
->  	if (need_rebuild_sched_domains)
-> -		rebuild_sched_domains_locked();
-> +		rebuild_sched_domains_locked(true);
->  }
->  
->  /**
-> @@ -2136,7 +2138,7 @@ static int update_relax_domain_level(struct cpuset *cs, s64 val)
->  		cs->relax_domain_level = val;
->  		if (!cpumask_empty(cs->cpus_allowed) &&
->  		    is_sched_load_balance(cs))
-> -			rebuild_sched_domains_locked();
-> +			rebuild_sched_domains_locked(false);
->  	}
->  
->  	return 0;
-> @@ -2202,7 +2204,7 @@ static int update_flag(cpuset_flagbits_t bit, struct cpuset *cs,
->  	spin_unlock_irq(&callback_lock);
->  
->  	if (!cpumask_empty(trialcs->cpus_allowed) && balance_flag_changed)
-> -		rebuild_sched_domains_locked();
-> +		rebuild_sched_domains_locked(true);
->  
->  	if (spread_flag_changed)
->  		update_tasks_flags(cs);
-> @@ -2315,7 +2317,7 @@ static int update_prstate(struct cpuset *cs, int new_prs)
->  		update_sibling_cpumasks(parent, cs, &tmpmask);
->  
->  	if (!sched_domain_rebuilt)
-> -		rebuild_sched_domains_locked();
-> +		rebuild_sched_domains_locked(true);
->  out:
->  	/*
->  	 * Make partition invalid if an error happen
-> @@ -3389,11 +3391,11 @@ hotplug_update_tasks(struct cpuset *cs,
->  		update_tasks_nodemask(cs);
->  }
->  
-> -static bool force_rebuild;
-> +static int force_rebuild;
->  
-> -void cpuset_force_rebuild(void)
-> +void cpuset_force_rebuild(int reason)
->  {
-> -	force_rebuild = true;
-> +	force_rebuild = reason;
->  }
->  
->  /**
-> @@ -3489,7 +3491,7 @@ static void cpuset_hotplug_update_tasks(struct cpuset *cs, struct tmpmasks *tmp)
->  				WRITE_ONCE(cs->prs_err, PERR_HOTPLUG);
->  			notify_partition_change(cs, old_prs);
->  		}
-> -		cpuset_force_rebuild();
-> +		cpuset_force_rebuild(CPUSET_FORCE_REBUILD_PRS_ERROR);
->  	}
->  
->  	/*
-> @@ -3499,7 +3501,7 @@ static void cpuset_hotplug_update_tasks(struct cpuset *cs, struct tmpmasks *tmp)
->  	else if (is_partition_valid(parent) && is_partition_invalid(cs)) {
->  		update_parent_subparts_cpumask(cs, partcmd_update, NULL, tmp);
->  		if (is_partition_valid(cs))
-> -			cpuset_force_rebuild();
-> +			cpuset_force_rebuild(CPUSET_FORCE_REBUILD_PRS_ERROR);
->  	}
->  
->  update_tasks:
-> @@ -3626,8 +3628,11 @@ static void cpuset_hotplug_workfn(struct work_struct *work)
->  
->  	/* rebuild sched domains if cpus_allowed has changed */
->  	if (cpus_updated || force_rebuild) {
-> -		force_rebuild = false;
-> -		rebuild_sched_domains();
-> +		bool update_dl_accounting = cpus_updated ||
-> +				force_rebuild == CPUSET_FORCE_REBUILD_PRS_ERROR;
-> +
-> +		force_rebuild = CPUSET_FORCE_REBUILD_RESET;
-> +		rebuild_sched_domains(update_dl_accounting);
->  	}
->  
->  	free_cpumasks(NULL, ptmp);
-> diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-> index 4580fe3e1d0c..d68eac04c851 100644
-> --- a/kernel/sched/core.c
-> +++ b/kernel/sched/core.c
-> @@ -9485,7 +9485,7 @@ static void cpuset_cpu_active(void)
->  		 * restore the original sched domains by considering the
->  		 * cpuset configurations.
->  		 */
-> -		cpuset_force_rebuild();
-> +		cpuset_force_rebuild(CPUSET_FORCE_REBUILD_SUSPEND_RESUME);
->  	}
->  	cpuset_update_active_cpus();
->  }
-> diff --git a/kernel/sched/topology.c b/kernel/sched/topology.c
-> index d93c3379e901..bf33b84c511a 100644
-> --- a/kernel/sched/topology.c
-> +++ b/kernel/sched/topology.c
-> @@ -214,7 +214,7 @@ void rebuild_sched_domains_energy(void)
->  {
->  	mutex_lock(&sched_energy_mutex);
->  	sched_energy_update = true;
-> -	rebuild_sched_domains();
-> +	rebuild_sched_domains(false);
->  	sched_energy_update = false;
->  	mutex_unlock(&sched_energy_mutex);
->  }
-> -- 
-> 2.25.1
-> 
