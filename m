@@ -2,185 +2,428 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72148C636D6
-	for <linux-s390@archiver.kernel.org>; Thu, 23 Feb 2023 13:21:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 08B5BC636D6
+	for <linux-s390@archiver.kernel.org>; Thu, 23 Feb 2023 15:39:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233786AbjBWNVz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 23 Feb 2023 08:21:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53946 "EHLO
+        id S230048AbjBWPjg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 23 Feb 2023 10:39:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232420AbjBWNVy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Feb 2023 08:21:54 -0500
-Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on2040.outbound.protection.outlook.com [40.107.236.40])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB3F555067;
-        Thu, 23 Feb 2023 05:21:53 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=cqFRxbCBJpUMsTOxiNUSbqOmXsBeJzmEQG+MO9Ead8tT0AEf1rtMGE8BoxEvCXMkHRpfwMaUIBpfYJur3GJRDlzz7f4MAMrq0DXJuK5lmL16OHtZ0yxTn4LITYdMRbLRLDBV4QgdNMRg4z8mSxlKQf5f9w2Qcb5p9Ul1xu/W6aJ4Bc4VJoY/bIQr5EfEBweFu77VLlBe3xpKDvx4AfLycEsUFuKrz5sN0G+QYA1E9349v6OYk5oJVeIme4dLGdBSGtHNApATOh5dqdxoW92MwaG/DIXJEnmDOR3CW47ps3t1nhaOzzqmCxLVhX0mPoDFMlyCPnRl4epg0SKDYP7wtg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=03EObfSPPoIOQSA/BvFvuRrfCC1wZBSjj2QBV3sXEz4=;
- b=TGLNbW7lxkmR6Qp3Awk1vkO4WuoUphgMQ5daKOy6RbEok1Njlm3YG+sJbk1f/ATomp0uzvjr1QcTvU4bWJyo6Fz8KKy/4A71O+NNZ7NHj3kIS83TaG+dw6LRFDW5MbFLFTIpsjAgS064bzuXX91lvOF6s8nZcBYQ6RbbVY3eLRWeZXtPKGB5rQG//DAY120+KrEy4ayCltWt3PqsV+ns30MWXr+0FSNlRboR+sCAwVuueCpXM3lvPh8lQUt1MvqeG59e8CzfxaacIOFn1iPd6aQtc5l0xg//G3VdYPLbzMcuFnwP6ExLYCPQGfD2nPEeHmeCZgKJX6HmA1lT8JxoYw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=03EObfSPPoIOQSA/BvFvuRrfCC1wZBSjj2QBV3sXEz4=;
- b=I603RNfpD2xq5O3fpwCbI/pk/xpyW2pU16LrABTb9sNuj7a0b4q9N3qtlkAYzB9vldTAO9YIlmdDGB5Oz+qinD7FqvO3MqS+rwYj3iPmCjQtUtiXQpSjiaerY2GbvnwSLhIaJuJdEcbfti8AkPGIknuUINQoUbcAAtIx2eASVOwWtabLvpGg1sf31Kk8yAtxAJ1j9oFz8MpbpytJk+mKm9KMZE+xAKDO41mu3WWI64/yL632QzewQii/wG8260ffUdt+lM9AOE00T9b32CFftkjqoM8pRIiniwxl496XAJmTth3W1LYvR8+7/AVIMJYrXtrLoKO70kKDspale45y7A==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
- by MN2PR12MB4373.namprd12.prod.outlook.com (2603:10b6:208:261::8) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6111.20; Thu, 23 Feb
- 2023 13:21:52 +0000
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::3cb3:2fce:5c8f:82ee]) by LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::3cb3:2fce:5c8f:82ee%4]) with mapi id 15.20.6134.021; Thu, 23 Feb 2023
- 13:21:51 +0000
-Date:   Thu, 23 Feb 2023 09:21:49 -0400
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     "Tian, Kevin" <kevin.tian@intel.com>
-Cc:     "Liu, Yi L" <yi.l.liu@intel.com>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
-        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "joro@8bytes.org" <joro@8bytes.org>,
-        "cohuck@redhat.com" <cohuck@redhat.com>,
-        "Hao, Xudong" <xudong.hao@intel.com>,
-        "peterx@redhat.com" <peterx@redhat.com>,
-        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
-        "eric.auger@redhat.com" <eric.auger@redhat.com>,
-        "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
-        "Xu, Terrence" <terrence.xu@intel.com>,
-        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
-        "shameerali.kolothum.thodi@huawei.com" 
-        <shameerali.kolothum.thodi@huawei.com>,
-        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
-        "lulu@redhat.com" <lulu@redhat.com>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        "jasowang@redhat.com" <jasowang@redhat.com>
-Subject: Re: [PATCH v4 09/19] vfio/pci: Accept device fd for hot reset
-Message-ID: <Y/dobS6gdSkxnPH7@nvidia.com>
-References: <20230221034812.138051-1-yi.l.liu@intel.com>
- <20230221034812.138051-10-yi.l.liu@intel.com>
- <BL1PR11MB5271D122329B6908BDE1F8328CAA9@BL1PR11MB5271.namprd11.prod.outlook.com>
- <DS0PR11MB7529B33D098225CFAAA7D63FC3AA9@DS0PR11MB7529.namprd11.prod.outlook.com>
- <Y/ZOOClu8nXy2toX@nvidia.com>
- <BN9PR11MB52767915B9A5E509BC90E0888CAB9@BN9PR11MB5276.namprd11.prod.outlook.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <BN9PR11MB52767915B9A5E509BC90E0888CAB9@BN9PR11MB5276.namprd11.prod.outlook.com>
-X-ClientProxiedBy: BL0PR05CA0008.namprd05.prod.outlook.com
- (2603:10b6:208:91::18) To LV2PR12MB5869.namprd12.prod.outlook.com
- (2603:10b6:408:176::16)
+        with ESMTP id S233362AbjBWPjf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Feb 2023 10:39:35 -0500
+Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B8CE567A3
+        for <linux-s390@vger.kernel.org>; Thu, 23 Feb 2023 07:39:03 -0800 (PST)
+Received: by mail-wr1-x431.google.com with SMTP id l1so10725888wry.10
+        for <linux-s390@vger.kernel.org>; Thu, 23 Feb 2023 07:39:03 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=layalina-io.20210112.gappssmtp.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=cqYRKRoCrq7jTQ9UpshCoMrGxFgruAKL2elYfx3Z4j8=;
+        b=bB3kXiYuGTC1rOAkODSY/R4tAX2EfuRHva8k61RvJHdyZw4339xJ5WHn0296bBakPt
+         XxA9VRMhUIqN6iTcgxS0odtg20bEH2ETwCT+8C1XPvTLLBdNvBbrcL80j6KaK3xND13/
+         Ye1139wm6EmtUp/xouHKLJCr4IcJS0O1nn2MxGajppaX3/elhJ7IwhvcAGzx9OZIdmTI
+         FUL8ZvtqaPKt11ZDDkcMqJWItG+py/Gn0Oet42kOqG+SehTSr9GnmA9pLvbDavKhdFBx
+         V28xlMXIEALfpe0+1F+wR2CTERnGJ5YnkK20yOy6wr1vGPgh8aY6vblhUoDXPRHS6TTz
+         l6VQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=cqYRKRoCrq7jTQ9UpshCoMrGxFgruAKL2elYfx3Z4j8=;
+        b=fErvIyl7IVI4fLH/8luVNGZGy9ox0QJDQ+cmEh6b740q9aOWcyp2U4Txt8EonJumSa
+         3IZ7HJp1rlxw41R6wf9Dm/uAIwNJ8AO27ZEi0WV7aR13P1I2KUEzBmnWcWgRunSwkMDd
+         Ghyyjku/QUuSmI0v90tpIM2uCn6QlshKgE1EjnReSyvJUmaLFYwj2OI6zSZcULwpvRO3
+         DoRfh0zNZfvuGzLT/DyFMir16kmGVn5i2TXZiAwL5LjjESPWRmZxWMDM6BOHJgiKauHj
+         1DM2CJfrRZqTMrJmoimcvWo/Nom1QaUNeqW41+ipI3UCzGenDzB6C4Sg7pecSuSKeDqP
+         VpTQ==
+X-Gm-Message-State: AO0yUKXppz0JncKWhAvlPrwM3qlxQjKsMkheUlZOON+53aqxqHD72X5e
+        ENa/sWymI82P23USMMNFqoPnxg==
+X-Google-Smtp-Source: AK7set8ce8JTfMMve7A1539WeMenQ3+kxrDZ9WzXp/DhNVkTjv2h3kQvN1pMh/e50xV5lZYswzrtcw==
+X-Received: by 2002:a5d:5227:0:b0:2c5:52bd:9ed3 with SMTP id i7-20020a5d5227000000b002c552bd9ed3mr10393718wra.56.1677166741829;
+        Thu, 23 Feb 2023 07:39:01 -0800 (PST)
+Received: from airbuntu ([104.132.45.105])
+        by smtp.gmail.com with ESMTPSA id s17-20020a5d4ed1000000b002c4084d3472sm7376955wrv.58.2023.02.23.07.39.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 23 Feb 2023 07:39:01 -0800 (PST)
+Date:   Thu, 23 Feb 2023 15:38:59 +0000
+From:   Qais Yousef <qyousef@layalina.io>
+To:     Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Waiman Long <longman@redhat.com>
+Cc:     Steven Rostedt <rostedt@goodmis.org>, tj@kernel.org,
+        linux-kernel@vger.kernel.org, luca.abeni@santannapisa.it,
+        claudio@evidence.eu.com, tommaso.cucinotta@santannapisa.it,
+        bristot@redhat.com, mathieu.poirier@linaro.org,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        cgroups@vger.kernel.org,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Wei Wang <wvw@google.com>, Rick Yiu <rickyiu@google.com>,
+        Quentin Perret <qperret@google.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Zefan Li <lizefan.x@bytedance.com>, linux-s390@vger.kernel.org,
+        x86@kernel.org
+Subject: Re: [PATCH v3] sched: cpuset: Don't rebuild root domains on
+ suspend-resume
+Message-ID: <20230223153859.37tqoqk33oc6tv7o@airbuntu>
+References: <20230206221428.2125324-1-qyousef@layalina.io>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|MN2PR12MB4373:EE_
-X-MS-Office365-Filtering-Correlation-Id: 5ca57987-41a0-473b-bd35-08db15a0ecdd
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: TYXGORKk3z7sJhJgdujtYuT3sqOy87gZFm8hxvzbrOvYv90fECb/RCwYZK4sHMjHWGieclZ84mHTKWnrs+alwBBZKD0NRkhoKEGAMjZ5QIU4mPAB7fYv/OjIsTlJVWZX7h5rvw03t9TcZ3k+k6hJG6hNO72yVK67syzhtIZ3sMBB7Ji70DzIohkuwm3McsjJQDL1bFGnsz4rBe7R9bPbKAzyTbDbXXjshQR9XPkaRCVST0X9bcxVMX+Okv8eUFb1VGBPwbz3YUDnQDtOXw7BMbq/HviItJ0aNNn1EYh5sVk6hD6NSK19q32FHT24vUhajAV0KHPpfhhdOtJQ/pnUiZGtlrnDwCp15HeMdpWmlzxkaaCZSTthVwb03z8yEn2yBHjQhk+g/46CXDeKaeStVYF542oiRSn/t7Xfoc5TPiCH7k1XsvHXHuheXaJpOk68apttZkR9UzxtPv1OcDBGkVpMNWwIYbTgnsC7LaP4AO0erEPdYEZuuUYU4jH2FwHcYVNIBfjr8x2V2vUGtqAoMrv+mJa+tjEbA4UeuFcZNeJocEVFinomUwd1SOGhaPJzOyGdLgwZiIewG14WNxCRQZrKlmXpoKhB2mrF8Wa16lz83xAxAdq7DUoLkbvv2TM6OGaV60+dU/MHHn6VgwkOnQ==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(4636009)(136003)(366004)(39860400002)(346002)(396003)(376002)(451199018)(66476007)(41300700001)(8936002)(6486002)(83380400001)(5660300002)(7416002)(86362001)(4326008)(6916009)(6512007)(2906002)(66556008)(26005)(8676002)(66946007)(186003)(54906003)(2616005)(478600001)(316002)(6506007)(38100700002)(36756003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?L6dRJbnpIBgqrzCi+DqB87l2gu78GBu/fJ6j9WMyV73vwzcl/GlAKTqv7piF?=
- =?us-ascii?Q?04HFojQerhFc804Hs0SnkifohusGq9OCh9bYv15uhXzsmx/sb9ZueC/3wy23?=
- =?us-ascii?Q?J9p7MYrD4UkmmVd8T9idBbdE0+q5MLPGRwSxuSdjJswDBNxhK1q9bEJdPyzk?=
- =?us-ascii?Q?csO4HrY2GpU1WLM0tukLelGb++m7d2EJVUrS0wVh2JP3xHQt3VFUun641jLo?=
- =?us-ascii?Q?OZQ37pv5A+1OgpPLHj/bfaXTPNPcgDwAv0DwKdXBw7UbRQXFHz5PsESIiI46?=
- =?us-ascii?Q?HE5qAHJZow+abWeEqrfhGU0my6El0oOJf/wQ8GuarMIBdamZbB1p3IUHcyrr?=
- =?us-ascii?Q?X2ekhFXxRwNqImRsWKHhk6yO1FM2whEiw4mhYYtO0WLyJs8/Ux3fXnwg5XgL?=
- =?us-ascii?Q?ip3PDpkud4prpqJy4wNRBBPpR2B/RSdU0KePpsr7rD6fEu/R25Bam1BzvgZ6?=
- =?us-ascii?Q?PwD6lKSB02jIKL3y4xVeByJS3gzYDb+ewX2M1shg6v8P9ac+wc+uza5sJBvP?=
- =?us-ascii?Q?bZ4uFBEpwKV9q5qEvNp7xlfHejrfRH/UT5sSZ3oeo2fkVYLhNkpBIR8nOwbj?=
- =?us-ascii?Q?fscaKp/P3fBEQsfDMUjs796Uxd6E+xWjdn/hZeok7/3YI9Tc9Eez7rwnkruN?=
- =?us-ascii?Q?q3GDSDSjDPiMgstSk/jINTZzZIY1a8FsgoIp3UCLnPwAAgJiln1UL7+XAvMe?=
- =?us-ascii?Q?TTnrtDB+OFUN5kO33uP0rFIgrR0dTh8nB3bMyqlNDS33aSx8WwIxsD/LowUE?=
- =?us-ascii?Q?EHPKMHCJeD7by7T5rlaE7ytZfxJfOqvWWS42nTOfVq6EWX+w9YJWTQLpkuVj?=
- =?us-ascii?Q?MzLyk91ZD3NgcRseGnuTFrlLlKHsuCaKPk0BNIVXK9mtWqF61HrvRrwfIR62?=
- =?us-ascii?Q?99sVlI6S6PPEvvxgxruUEjm1YvCIYV4gzhzM29FolHXK/s/DTPAw81jXVPhT?=
- =?us-ascii?Q?zS4KA/gvwF1EdbS2loUZKsfFoyj2h5YVyzCLuvdl2aea9q8MIsk5GsUQ+K5v?=
- =?us-ascii?Q?rceHO/qSDI4LSTcYF7lEPIPL620QIYckBGmdYzNwsvA1iq8Td2UrZmvROoKG?=
- =?us-ascii?Q?f+3lK3r2bDynSGNZlTkwinFZ4dv3fCc2L9pScJBplHLViayCBllKk0NCzBcS?=
- =?us-ascii?Q?yewSzW4LDi03Y5f/uhwRcvtlxFa64Fo1AU+i3GwY4WX4TWE18ylC8hq+qeOB?=
- =?us-ascii?Q?bdMmIJax9mJp+qO13WCJgLGlro2XfptgN4yvJzDGZLBq+miASbUOjrYtLOBF?=
- =?us-ascii?Q?3t2Wd/JlcrXX2BrDXTY4g/+qtcKmjPhA9KlFRsIfnVxX3z7psmpSZl7CR0Ll?=
- =?us-ascii?Q?EUgUZXIh4noBfZiR4MRrot8jNy+lIbc3sj2WJiuF2/53n4zhD1BkTbVxVs7T?=
- =?us-ascii?Q?bCUEcy8x+ZeF79Y8N+AhCt2S04wcSNC+iTKMAvwc2Q2+zPAbtpAgY6Xpdn+U?=
- =?us-ascii?Q?9ufBWp1gkwne0yUmzAnb6ZnJH4wQYDCmMWEvNdpE7u1gZTCOt8dEFusyEQ17?=
- =?us-ascii?Q?wpbBQGEv49V/SNNR+7YaqPsUbxvLSlWYby08TxPAPaGVe1IDOWnn4t6ykCmI?=
- =?us-ascii?Q?gUrxg1V4zHPzcYCVJUP8rOsVPqFhX1B1biS5xDLv?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5ca57987-41a0-473b-bd35-08db15a0ecdd
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Feb 2023 13:21:51.7973
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: oyMfA1Jj7snSuVDDtepAYWjhYs7F4MAMVLBqNhwo7GZARFufMPQsil7s5ePbA8E5
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB4373
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20230206221428.2125324-1-qyousef@layalina.io>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Feb 23, 2023 at 07:55:21AM +0000, Tian, Kevin wrote:
-> > From: Jason Gunthorpe
-> > Sent: Thursday, February 23, 2023 1:18 AM
-> > 
-> > > > static bool vfio_dev_in_groups(struct vfio_pci_core_device *vdev,
-> > > >                                struct vfio_pci_group_info *groups)
-> > > > {
-> > > >  	unsigned int i;
-> > > >
-> > > > 	for (i = 0; i < groups->count; i++)
-> > > > 		if (vfio_file_has_dev(groups->files[i], &vdev->vdev))
-> > > > 			return true;
-> > > > 	return false;
-> > > > }
-> > > >
-> > > > Presumably when cdev fd is provided above should compare iommu
-> > > > group of the fd and that of the vdev. Otherwise it expects the user
-> > > > to have full access to every device in the set which is impractical.
-> > 
-> > No, it should check the dev's directly, userspace has to provide every
-> > dev in the dev set to do a reset. We should not allow userspace to
-> > take a shortcut based on hidden group stuff.
-> > 
-> > The dev set is already unrelated to the groups, and userspace cannot
-> > discover the devset, so nothing has changed.
+On 02/06/23 22:14, Qais Yousef wrote:
+> Commit f9a25f776d78 ("cpusets: Rebuild root domain deadline accounting information")
+> enabled rebuilding root domain on cpuset and hotplug operations to
+> correct deadline accounting.
 > 
-> Agree. But I envision there might be a user-visible impact.
+> Rebuilding root domain is a slow operation and we see 10+ of ms delays
+> on suspend-resume because of that (worst case captures 20ms which
+> happens often).
 > 
-> Say a scenario where group happens to overlap with devset. Let's say
-> two devices in the group/devset.
+> Since nothing is expected to change on suspend-resume operation; skip
+> rebuilding the root domains to regain the some of the time lost.
 > 
-> An existing deployment assigns only dev1 to Qemu. In this case dev1
-> is resettable via group fd given dev2 cannot be opened by another
-> user.
+> Achieve this by refactoring the code to pass whether dl accoutning needs
+> an update to rebuild_sched_domains(). And while at it, rename
+> rebuild_root_domains() to update_dl_rd_accounting() which I believe is
+> a more representative name since we are not really rebuilding the root
+> domains, but rather updating dl accounting at the root domain.
+> 
+> Some users of rebuild_sched_domains() will skip dl accounting update
+> now:
+> 
+> 	* Update sched domains when relaxing the domain level in cpuset
+> 	  which only impacts searching level in load balance
+> 	* update sched domains when cpufreq governor changes and we need
+> 	  to create the perf domains
+> 
+> Users in arch/x86 and arch/s390 are left with the old behavior.
+> 
+> Debugged-by: Rick Yiu <rickyiu@google.com>
+> Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
+> ---
+> 
+> Changes in v3:
+> 
+> 	* Change the logic to avoid using cpuhp_tasks_frozen which can be racy
+> 	  and have dependency on context
+> 	* Refactor the code to pass whether dl accounting needs to be updated
+> 	  down the call chain
+> 	* Teach cpuset_force_rebuild() to take a reason argument and convert
+> 	  the variable into int
+> 	* Rename rebuild_root_domains() into update_dl_rd_accounting() as
+> 	  that's what I believe it's only doing
+> 
+> v2 discussion: https://lore.kernel.org/lkml/20230120194822.962958-1-qyousef@layalina.io/
+> v1 discussion: https://lore.kernel.org/lkml/20221216233501.gh6m75e7s66dmjgo@airbuntu/
 
-Oh, that is just because we took a shortcut in this logic and assumed
-that if the group is open then all the devices are opened by the same
-security domain.
+Is this version any good?
 
-But we can also more clearly state that any closed device is
-acceptable for reset and doesn't need to be presented.
 
-So, like this:
+Thanks!
 
-		if (cur_vma->vdev.open_count &&
-		    !vfio_dev_in_groups(cur_vma, groups) &&
-		    !iommufd_ctx_has_device(iommufd_ctx, &cur_vma->pdev->dev)) {
-			ret = -EINVAL;
-			goto err_undo;
-		}
+--
+Qais Yousef
 
-Jason
+> 
+>  arch/s390/kernel/topology.c  |  2 +-
+>  arch/x86/kernel/itmt.c       |  6 ++---
+>  drivers/base/arch_topology.c |  2 +-
+>  include/linux/cpuset.h       | 12 ++++++----
+>  kernel/cgroup/cpuset.c       | 43 ++++++++++++++++++++----------------
+>  kernel/sched/core.c          |  2 +-
+>  kernel/sched/topology.c      |  2 +-
+>  7 files changed, 39 insertions(+), 30 deletions(-)
+> 
+> diff --git a/arch/s390/kernel/topology.c b/arch/s390/kernel/topology.c
+> index c6eecd4a5302..29d57154a3f1 100644
+> --- a/arch/s390/kernel/topology.c
+> +++ b/arch/s390/kernel/topology.c
+> @@ -333,7 +333,7 @@ int arch_update_cpu_topology(void)
+>  
+>  static void topology_work_fn(struct work_struct *work)
+>  {
+> -	rebuild_sched_domains();
+> +	rebuild_sched_domains(true);
+>  }
+>  
+>  void topology_schedule_update(void)
+> diff --git a/arch/x86/kernel/itmt.c b/arch/x86/kernel/itmt.c
+> index 9ff480e94511..6f1446223697 100644
+> --- a/arch/x86/kernel/itmt.c
+> +++ b/arch/x86/kernel/itmt.c
+> @@ -56,7 +56,7 @@ static int sched_itmt_update_handler(struct ctl_table *table, int write,
+>  
+>  	if (!ret && write && old_sysctl != sysctl_sched_itmt_enabled) {
+>  		x86_topology_update = true;
+> -		rebuild_sched_domains();
+> +		rebuild_sched_domains(true);
+>  	}
+>  
+>  	mutex_unlock(&itmt_update_mutex);
+> @@ -125,7 +125,7 @@ int sched_set_itmt_support(void)
+>  	sysctl_sched_itmt_enabled = 1;
+>  
+>  	x86_topology_update = true;
+> -	rebuild_sched_domains();
+> +	rebuild_sched_domains(true);
+>  
+>  	mutex_unlock(&itmt_update_mutex);
+>  
+> @@ -161,7 +161,7 @@ void sched_clear_itmt_support(void)
+>  		/* disable sched_itmt if we are no longer ITMT capable */
+>  		sysctl_sched_itmt_enabled = 0;
+>  		x86_topology_update = true;
+> -		rebuild_sched_domains();
+> +		rebuild_sched_domains(true);
+>  	}
+>  
+>  	mutex_unlock(&itmt_update_mutex);
+> diff --git a/drivers/base/arch_topology.c b/drivers/base/arch_topology.c
+> index e7d6e6657ffa..90d8a42335e6 100644
+> --- a/drivers/base/arch_topology.c
+> +++ b/drivers/base/arch_topology.c
+> @@ -253,7 +253,7 @@ int topology_update_cpu_topology(void)
+>  static void update_topology_flags_workfn(struct work_struct *work)
+>  {
+>  	update_topology = 1;
+> -	rebuild_sched_domains();
+> +	rebuild_sched_domains(true);
+>  	pr_debug("sched_domain hierarchy rebuilt, flags updated\n");
+>  	update_topology = 0;
+>  }
+> diff --git a/include/linux/cpuset.h b/include/linux/cpuset.h
+> index d58e0476ee8e..e30d4cd35ef7 100644
+> --- a/include/linux/cpuset.h
+> +++ b/include/linux/cpuset.h
+> @@ -18,6 +18,10 @@
+>  #include <linux/mmu_context.h>
+>  #include <linux/jump_label.h>
+>  
+> +#define CPUSET_FORCE_REBUILD_RESET		0
+> +#define CPUSET_FORCE_REBUILD_SUSPEND_RESUME	1
+> +#define CPUSET_FORCE_REBUILD_PRS_ERROR		2
+> +
+>  #ifdef CONFIG_CPUSETS
+>  
+>  /*
+> @@ -68,7 +72,7 @@ static inline bool cpusets_insane_config(void)
+>  
+>  extern int cpuset_init(void);
+>  extern void cpuset_init_smp(void);
+> -extern void cpuset_force_rebuild(void);
+> +extern void cpuset_force_rebuild(int reason);
+>  extern void cpuset_update_active_cpus(void);
+>  extern void cpuset_wait_for_hotplug(void);
+>  extern void cpuset_read_lock(void);
+> @@ -132,7 +136,7 @@ static inline int cpuset_do_slab_mem_spread(void)
+>  
+>  extern bool current_cpuset_is_being_rebound(void);
+>  
+> -extern void rebuild_sched_domains(void);
+> +extern void rebuild_sched_domains(bool update_dl_accounting);
+>  
+>  extern void cpuset_print_current_mems_allowed(void);
+>  
+> @@ -187,7 +191,7 @@ static inline bool cpusets_insane_config(void) { return false; }
+>  static inline int cpuset_init(void) { return 0; }
+>  static inline void cpuset_init_smp(void) {}
+>  
+> -static inline void cpuset_force_rebuild(void) { }
+> +static inline void cpuset_force_rebuild(int reason) { }
+>  
+>  static inline void cpuset_update_active_cpus(void)
+>  {
+> @@ -276,7 +280,7 @@ static inline bool current_cpuset_is_being_rebound(void)
+>  	return false;
+>  }
+>  
+> -static inline void rebuild_sched_domains(void)
+> +static inline void rebuild_sched_domains(bool update_dl_accounting)
+>  {
+>  	partition_sched_domains(1, NULL, NULL);
+>  }
+> diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
+> index a29c0b13706b..e5ddc8e11e5d 100644
+> --- a/kernel/cgroup/cpuset.c
+> +++ b/kernel/cgroup/cpuset.c
+> @@ -1079,7 +1079,7 @@ static void update_tasks_root_domain(struct cpuset *cs)
+>  	css_task_iter_end(&it);
+>  }
+>  
+> -static void rebuild_root_domains(void)
+> +static void update_dl_rd_accounting(void)
+>  {
+>  	struct cpuset *cs = NULL;
+>  	struct cgroup_subsys_state *pos_css;
+> @@ -1117,11 +1117,13 @@ static void rebuild_root_domains(void)
+>  
+>  static void
+>  partition_and_rebuild_sched_domains(int ndoms_new, cpumask_var_t doms_new[],
+> -				    struct sched_domain_attr *dattr_new)
+> +				    struct sched_domain_attr *dattr_new,
+> +				    bool update_dl_accounting)
+>  {
+>  	mutex_lock(&sched_domains_mutex);
+>  	partition_sched_domains_locked(ndoms_new, doms_new, dattr_new);
+> -	rebuild_root_domains();
+> +	if (update_dl_accounting)
+> +		update_dl_rd_accounting();
+>  	mutex_unlock(&sched_domains_mutex);
+>  }
+>  
+> @@ -1136,7 +1138,7 @@ partition_and_rebuild_sched_domains(int ndoms_new, cpumask_var_t doms_new[],
+>   *
+>   * Call with cpuset_rwsem held.  Takes cpus_read_lock().
+>   */
+> -static void rebuild_sched_domains_locked(void)
+> +static void rebuild_sched_domains_locked(bool update_dl_accounting)
+>  {
+>  	struct cgroup_subsys_state *pos_css;
+>  	struct sched_domain_attr *attr;
+> @@ -1185,19 +1187,19 @@ static void rebuild_sched_domains_locked(void)
+>  	ndoms = generate_sched_domains(&doms, &attr);
+>  
+>  	/* Have scheduler rebuild the domains */
+> -	partition_and_rebuild_sched_domains(ndoms, doms, attr);
+> +	partition_and_rebuild_sched_domains(ndoms, doms, attr, update_dl_accounting);
+>  }
+>  #else /* !CONFIG_SMP */
+> -static void rebuild_sched_domains_locked(void)
+> +static void rebuild_sched_domains_locked(bool update_dl_accounting)
+>  {
+>  }
+>  #endif /* CONFIG_SMP */
+>  
+> -void rebuild_sched_domains(void)
+> +void rebuild_sched_domains(bool update_dl_accounting)
+>  {
+>  	cpus_read_lock();
+>  	percpu_down_write(&cpuset_rwsem);
+> -	rebuild_sched_domains_locked();
+> +	rebuild_sched_domains_locked(update_dl_accounting);
+>  	percpu_up_write(&cpuset_rwsem);
+>  	cpus_read_unlock();
+>  }
+> @@ -1681,7 +1683,7 @@ static void update_cpumasks_hier(struct cpuset *cs, struct tmpmasks *tmp,
+>  	rcu_read_unlock();
+>  
+>  	if (need_rebuild_sched_domains)
+> -		rebuild_sched_domains_locked();
+> +		rebuild_sched_domains_locked(true);
+>  }
+>  
+>  /**
+> @@ -2136,7 +2138,7 @@ static int update_relax_domain_level(struct cpuset *cs, s64 val)
+>  		cs->relax_domain_level = val;
+>  		if (!cpumask_empty(cs->cpus_allowed) &&
+>  		    is_sched_load_balance(cs))
+> -			rebuild_sched_domains_locked();
+> +			rebuild_sched_domains_locked(false);
+>  	}
+>  
+>  	return 0;
+> @@ -2202,7 +2204,7 @@ static int update_flag(cpuset_flagbits_t bit, struct cpuset *cs,
+>  	spin_unlock_irq(&callback_lock);
+>  
+>  	if (!cpumask_empty(trialcs->cpus_allowed) && balance_flag_changed)
+> -		rebuild_sched_domains_locked();
+> +		rebuild_sched_domains_locked(true);
+>  
+>  	if (spread_flag_changed)
+>  		update_tasks_flags(cs);
+> @@ -2315,7 +2317,7 @@ static int update_prstate(struct cpuset *cs, int new_prs)
+>  		update_sibling_cpumasks(parent, cs, &tmpmask);
+>  
+>  	if (!sched_domain_rebuilt)
+> -		rebuild_sched_domains_locked();
+> +		rebuild_sched_domains_locked(true);
+>  out:
+>  	/*
+>  	 * Make partition invalid if an error happen
+> @@ -3389,11 +3391,11 @@ hotplug_update_tasks(struct cpuset *cs,
+>  		update_tasks_nodemask(cs);
+>  }
+>  
+> -static bool force_rebuild;
+> +static int force_rebuild;
+>  
+> -void cpuset_force_rebuild(void)
+> +void cpuset_force_rebuild(int reason)
+>  {
+> -	force_rebuild = true;
+> +	force_rebuild = reason;
+>  }
+>  
+>  /**
+> @@ -3489,7 +3491,7 @@ static void cpuset_hotplug_update_tasks(struct cpuset *cs, struct tmpmasks *tmp)
+>  				WRITE_ONCE(cs->prs_err, PERR_HOTPLUG);
+>  			notify_partition_change(cs, old_prs);
+>  		}
+> -		cpuset_force_rebuild();
+> +		cpuset_force_rebuild(CPUSET_FORCE_REBUILD_PRS_ERROR);
+>  	}
+>  
+>  	/*
+> @@ -3499,7 +3501,7 @@ static void cpuset_hotplug_update_tasks(struct cpuset *cs, struct tmpmasks *tmp)
+>  	else if (is_partition_valid(parent) && is_partition_invalid(cs)) {
+>  		update_parent_subparts_cpumask(cs, partcmd_update, NULL, tmp);
+>  		if (is_partition_valid(cs))
+> -			cpuset_force_rebuild();
+> +			cpuset_force_rebuild(CPUSET_FORCE_REBUILD_PRS_ERROR);
+>  	}
+>  
+>  update_tasks:
+> @@ -3626,8 +3628,11 @@ static void cpuset_hotplug_workfn(struct work_struct *work)
+>  
+>  	/* rebuild sched domains if cpus_allowed has changed */
+>  	if (cpus_updated || force_rebuild) {
+> -		force_rebuild = false;
+> -		rebuild_sched_domains();
+> +		bool update_dl_accounting = cpus_updated ||
+> +				force_rebuild == CPUSET_FORCE_REBUILD_PRS_ERROR;
+> +
+> +		force_rebuild = CPUSET_FORCE_REBUILD_RESET;
+> +		rebuild_sched_domains(update_dl_accounting);
+>  	}
+>  
+>  	free_cpumasks(NULL, ptmp);
+> diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+> index 4580fe3e1d0c..d68eac04c851 100644
+> --- a/kernel/sched/core.c
+> +++ b/kernel/sched/core.c
+> @@ -9485,7 +9485,7 @@ static void cpuset_cpu_active(void)
+>  		 * restore the original sched domains by considering the
+>  		 * cpuset configurations.
+>  		 */
+> -		cpuset_force_rebuild();
+> +		cpuset_force_rebuild(CPUSET_FORCE_REBUILD_SUSPEND_RESUME);
+>  	}
+>  	cpuset_update_active_cpus();
+>  }
+> diff --git a/kernel/sched/topology.c b/kernel/sched/topology.c
+> index d93c3379e901..bf33b84c511a 100644
+> --- a/kernel/sched/topology.c
+> +++ b/kernel/sched/topology.c
+> @@ -214,7 +214,7 @@ void rebuild_sched_domains_energy(void)
+>  {
+>  	mutex_lock(&sched_energy_mutex);
+>  	sched_energy_update = true;
+> -	rebuild_sched_domains();
+> +	rebuild_sched_domains(false);
+>  	sched_energy_update = false;
+>  	mutex_unlock(&sched_energy_mutex);
+>  }
+> -- 
+> 2.25.1
+> 
