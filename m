@@ -2,154 +2,185 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DCEB3C677F1
-	for <linux-s390@archiver.kernel.org>; Thu, 23 Feb 2023 13:13:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 72148C636D6
+	for <linux-s390@archiver.kernel.org>; Thu, 23 Feb 2023 13:21:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234539AbjBWNNP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 23 Feb 2023 08:13:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43494 "EHLO
+        id S233786AbjBWNVz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 23 Feb 2023 08:21:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234505AbjBWNNH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Feb 2023 08:13:07 -0500
-Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87DE156536
-        for <linux-s390@vger.kernel.org>; Thu, 23 Feb 2023 05:12:25 -0800 (PST)
-Received: by mail-wr1-x42e.google.com with SMTP id bo30so10083663wrb.0
-        for <linux-s390@vger.kernel.org>; Thu, 23 Feb 2023 05:12:25 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rivosinc-com.20210112.gappssmtp.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=Tb59OZw0P/9NeiLo7j0/pIIcP5QkKD4A9oJDDcL4MAg=;
-        b=hrlRDOKwOAsNkn63EV7n3EEAQ4B9IaQtA8AIfHsOiB4TORHkWY2kK38L935i7RoAkO
-         olQa3vClBYmwI8KwEFJB6OPacgNRv5x0BN4vdHf3XCEpriaGT+omA4tS0gMZiZxKcc3F
-         KYWPSwsUHx/frhqkq7A+J1wZizAG8ePYV7KvjhBPsnTPCUograCrVBFqcg6srDhRwA+g
-         U3yCkqCB9uB9VtPc5hwrVaCL1hVrTXMesQpZ4o6rR2fhIdFruEUpbstEzITPCLTBBZC5
-         KBWMT1Y873RFeL8aM322RZ3QoSZitsWNIn2ZjY4a1FDfQORGN+A8UZHYx1nVnn/nmc6t
-         CSGg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Tb59OZw0P/9NeiLo7j0/pIIcP5QkKD4A9oJDDcL4MAg=;
-        b=wGC+rgvjKr9XaIynvXyByBnYDoZXu8/HUmAyDsCdEAgmn7R8exkmjngpCJSiDbe80q
-         /5RU3QqTr9vf7+fcXRnYRderRBneu3DJvFitwKYkrDo7X/r2xftCMah+X09yQCSz0rCe
-         /ZftJxlhHLanFw6Q7wreUJjuUEBKlaBJou+622NBcShCZuldazk0pURSO+I7fRZCsBLR
-         FWw3SQv9IqcDSP3yf/5BGeoLhJHBXAb6G7DEuuLN7gUD6E6mz2/MjjpWcWpz6vUsXfdq
-         0P9ipXkYBHwFMtTWPzHn7ou89+7HmIDYqSxIzOOQs9O5MhLCDzsqFPYnItriHM4hNfLb
-         /EQA==
-X-Gm-Message-State: AO0yUKXCbc50MnLKNabihjKhDKZSuViO9x8tmLazjHkSFv4zlKtEfSIK
-        SNWEk8m+vD8AAt1VuzdzofTVpcV6QKtvEuJ5VB5ObA==
-X-Google-Smtp-Source: AK7set94r7NGT29eIpH72O39BJhvhcK+eRKfihpjHL0Bl53RKHrn48B3FXlJGKNmfO3t+QnjF/nB7RwGXZWsm1mLo5s=
-X-Received: by 2002:a5d:4d0b:0:b0:2c5:532b:cd20 with SMTP id
- z11-20020a5d4d0b000000b002c5532bcd20mr663712wrt.11.1677157925879; Thu, 23 Feb
- 2023 05:12:05 -0800 (PST)
+        with ESMTP id S232420AbjBWNVy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Feb 2023 08:21:54 -0500
+Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on2040.outbound.protection.outlook.com [40.107.236.40])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB3F555067;
+        Thu, 23 Feb 2023 05:21:53 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=cqFRxbCBJpUMsTOxiNUSbqOmXsBeJzmEQG+MO9Ead8tT0AEf1rtMGE8BoxEvCXMkHRpfwMaUIBpfYJur3GJRDlzz7f4MAMrq0DXJuK5lmL16OHtZ0yxTn4LITYdMRbLRLDBV4QgdNMRg4z8mSxlKQf5f9w2Qcb5p9Ul1xu/W6aJ4Bc4VJoY/bIQr5EfEBweFu77VLlBe3xpKDvx4AfLycEsUFuKrz5sN0G+QYA1E9349v6OYk5oJVeIme4dLGdBSGtHNApATOh5dqdxoW92MwaG/DIXJEnmDOR3CW47ps3t1nhaOzzqmCxLVhX0mPoDFMlyCPnRl4epg0SKDYP7wtg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=03EObfSPPoIOQSA/BvFvuRrfCC1wZBSjj2QBV3sXEz4=;
+ b=TGLNbW7lxkmR6Qp3Awk1vkO4WuoUphgMQ5daKOy6RbEok1Njlm3YG+sJbk1f/ATomp0uzvjr1QcTvU4bWJyo6Fz8KKy/4A71O+NNZ7NHj3kIS83TaG+dw6LRFDW5MbFLFTIpsjAgS064bzuXX91lvOF6s8nZcBYQ6RbbVY3eLRWeZXtPKGB5rQG//DAY120+KrEy4ayCltWt3PqsV+ns30MWXr+0FSNlRboR+sCAwVuueCpXM3lvPh8lQUt1MvqeG59e8CzfxaacIOFn1iPd6aQtc5l0xg//G3VdYPLbzMcuFnwP6ExLYCPQGfD2nPEeHmeCZgKJX6HmA1lT8JxoYw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=03EObfSPPoIOQSA/BvFvuRrfCC1wZBSjj2QBV3sXEz4=;
+ b=I603RNfpD2xq5O3fpwCbI/pk/xpyW2pU16LrABTb9sNuj7a0b4q9N3qtlkAYzB9vldTAO9YIlmdDGB5Oz+qinD7FqvO3MqS+rwYj3iPmCjQtUtiXQpSjiaerY2GbvnwSLhIaJuJdEcbfti8AkPGIknuUINQoUbcAAtIx2eASVOwWtabLvpGg1sf31Kk8yAtxAJ1j9oFz8MpbpytJk+mKm9KMZE+xAKDO41mu3WWI64/yL632QzewQii/wG8260ffUdt+lM9AOE00T9b32CFftkjqoM8pRIiniwxl496XAJmTth3W1LYvR8+7/AVIMJYrXtrLoKO70kKDspale45y7A==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by MN2PR12MB4373.namprd12.prod.outlook.com (2603:10b6:208:261::8) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6111.20; Thu, 23 Feb
+ 2023 13:21:52 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::3cb3:2fce:5c8f:82ee]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::3cb3:2fce:5c8f:82ee%4]) with mapi id 15.20.6134.021; Thu, 23 Feb 2023
+ 13:21:51 +0000
+Date:   Thu, 23 Feb 2023 09:21:49 -0400
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     "Tian, Kevin" <kevin.tian@intel.com>
+Cc:     "Liu, Yi L" <yi.l.liu@intel.com>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
+        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "joro@8bytes.org" <joro@8bytes.org>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "Hao, Xudong" <xudong.hao@intel.com>,
+        "peterx@redhat.com" <peterx@redhat.com>,
+        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
+        "eric.auger@redhat.com" <eric.auger@redhat.com>,
+        "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
+        "Xu, Terrence" <terrence.xu@intel.com>,
+        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
+        "shameerali.kolothum.thodi@huawei.com" 
+        <shameerali.kolothum.thodi@huawei.com>,
+        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
+        "lulu@redhat.com" <lulu@redhat.com>,
+        "intel-gvt-dev@lists.freedesktop.org" 
+        <intel-gvt-dev@lists.freedesktop.org>,
+        "jasowang@redhat.com" <jasowang@redhat.com>
+Subject: Re: [PATCH v4 09/19] vfio/pci: Accept device fd for hot reset
+Message-ID: <Y/dobS6gdSkxnPH7@nvidia.com>
+References: <20230221034812.138051-1-yi.l.liu@intel.com>
+ <20230221034812.138051-10-yi.l.liu@intel.com>
+ <BL1PR11MB5271D122329B6908BDE1F8328CAA9@BL1PR11MB5271.namprd11.prod.outlook.com>
+ <DS0PR11MB7529B33D098225CFAAA7D63FC3AA9@DS0PR11MB7529.namprd11.prod.outlook.com>
+ <Y/ZOOClu8nXy2toX@nvidia.com>
+ <BN9PR11MB52767915B9A5E509BC90E0888CAB9@BN9PR11MB5276.namprd11.prod.outlook.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <BN9PR11MB52767915B9A5E509BC90E0888CAB9@BN9PR11MB5276.namprd11.prod.outlook.com>
+X-ClientProxiedBy: BL0PR05CA0008.namprd05.prod.outlook.com
+ (2603:10b6:208:91::18) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
 MIME-Version: 1.0
-References: <20230214074925.228106-1-alexghiti@rivosinc.com>
- <20230214074925.228106-4-alexghiti@rivosinc.com> <Y+zXIgwO5wteLQZ5@shell.armlinux.org.uk>
- <f3e1585c-0d9d-4709-9b21-74a63d8cc9ac@app.fastmail.com> <CAHVXubgsvjxGbgM6AcxfsHDsHT0iL2pAemGMr5t8KVLKiqC3RA@mail.gmail.com>
- <874b8076-b0d1-4aaa-bcd8-05d523060152@app.fastmail.com>
-In-Reply-To: <874b8076-b0d1-4aaa-bcd8-05d523060152@app.fastmail.com>
-From:   Alexandre Ghiti <alexghiti@rivosinc.com>
-Date:   Thu, 23 Feb 2023 14:11:55 +0100
-Message-ID: <CAHVXubidtBHNi8iFrFAWqRtkxiUBbmzzXFn+=R1DjEd5X0SpQw@mail.gmail.com>
-Subject: Re: [PATCH v3 03/24] arm: Remove COMMAND_LINE_SIZE from uapi
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     Russell King <linux@armlinux.org.uk>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Richard Henderson <richard.henderson@linaro.org>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Matt Turner <mattst88@gmail.com>,
-        Vineet Gupta <vgupta@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        WANG Xuerui <kernel@xen0n.name>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>,
-        Max Filippov <jcmvbkbc@gmail.com>, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org,
-        Linux-Arch <linux-arch@vger.kernel.org>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Content-Type: text/plain; charset="UTF-8"
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|MN2PR12MB4373:EE_
+X-MS-Office365-Filtering-Correlation-Id: 5ca57987-41a0-473b-bd35-08db15a0ecdd
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: TYXGORKk3z7sJhJgdujtYuT3sqOy87gZFm8hxvzbrOvYv90fECb/RCwYZK4sHMjHWGieclZ84mHTKWnrs+alwBBZKD0NRkhoKEGAMjZ5QIU4mPAB7fYv/OjIsTlJVWZX7h5rvw03t9TcZ3k+k6hJG6hNO72yVK67syzhtIZ3sMBB7Ji70DzIohkuwm3McsjJQDL1bFGnsz4rBe7R9bPbKAzyTbDbXXjshQR9XPkaRCVST0X9bcxVMX+Okv8eUFb1VGBPwbz3YUDnQDtOXw7BMbq/HviItJ0aNNn1EYh5sVk6hD6NSK19q32FHT24vUhajAV0KHPpfhhdOtJQ/pnUiZGtlrnDwCp15HeMdpWmlzxkaaCZSTthVwb03z8yEn2yBHjQhk+g/46CXDeKaeStVYF542oiRSn/t7Xfoc5TPiCH7k1XsvHXHuheXaJpOk68apttZkR9UzxtPv1OcDBGkVpMNWwIYbTgnsC7LaP4AO0erEPdYEZuuUYU4jH2FwHcYVNIBfjr8x2V2vUGtqAoMrv+mJa+tjEbA4UeuFcZNeJocEVFinomUwd1SOGhaPJzOyGdLgwZiIewG14WNxCRQZrKlmXpoKhB2mrF8Wa16lz83xAxAdq7DUoLkbvv2TM6OGaV60+dU/MHHn6VgwkOnQ==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(4636009)(136003)(366004)(39860400002)(346002)(396003)(376002)(451199018)(66476007)(41300700001)(8936002)(6486002)(83380400001)(5660300002)(7416002)(86362001)(4326008)(6916009)(6512007)(2906002)(66556008)(26005)(8676002)(66946007)(186003)(54906003)(2616005)(478600001)(316002)(6506007)(38100700002)(36756003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?L6dRJbnpIBgqrzCi+DqB87l2gu78GBu/fJ6j9WMyV73vwzcl/GlAKTqv7piF?=
+ =?us-ascii?Q?04HFojQerhFc804Hs0SnkifohusGq9OCh9bYv15uhXzsmx/sb9ZueC/3wy23?=
+ =?us-ascii?Q?J9p7MYrD4UkmmVd8T9idBbdE0+q5MLPGRwSxuSdjJswDBNxhK1q9bEJdPyzk?=
+ =?us-ascii?Q?csO4HrY2GpU1WLM0tukLelGb++m7d2EJVUrS0wVh2JP3xHQt3VFUun641jLo?=
+ =?us-ascii?Q?OZQ37pv5A+1OgpPLHj/bfaXTPNPcgDwAv0DwKdXBw7UbRQXFHz5PsESIiI46?=
+ =?us-ascii?Q?HE5qAHJZow+abWeEqrfhGU0my6El0oOJf/wQ8GuarMIBdamZbB1p3IUHcyrr?=
+ =?us-ascii?Q?X2ekhFXxRwNqImRsWKHhk6yO1FM2whEiw4mhYYtO0WLyJs8/Ux3fXnwg5XgL?=
+ =?us-ascii?Q?ip3PDpkud4prpqJy4wNRBBPpR2B/RSdU0KePpsr7rD6fEu/R25Bam1BzvgZ6?=
+ =?us-ascii?Q?PwD6lKSB02jIKL3y4xVeByJS3gzYDb+ewX2M1shg6v8P9ac+wc+uza5sJBvP?=
+ =?us-ascii?Q?bZ4uFBEpwKV9q5qEvNp7xlfHejrfRH/UT5sSZ3oeo2fkVYLhNkpBIR8nOwbj?=
+ =?us-ascii?Q?fscaKp/P3fBEQsfDMUjs796Uxd6E+xWjdn/hZeok7/3YI9Tc9Eez7rwnkruN?=
+ =?us-ascii?Q?q3GDSDSjDPiMgstSk/jINTZzZIY1a8FsgoIp3UCLnPwAAgJiln1UL7+XAvMe?=
+ =?us-ascii?Q?TTnrtDB+OFUN5kO33uP0rFIgrR0dTh8nB3bMyqlNDS33aSx8WwIxsD/LowUE?=
+ =?us-ascii?Q?EHPKMHCJeD7by7T5rlaE7ytZfxJfOqvWWS42nTOfVq6EWX+w9YJWTQLpkuVj?=
+ =?us-ascii?Q?MzLyk91ZD3NgcRseGnuTFrlLlKHsuCaKPk0BNIVXK9mtWqF61HrvRrwfIR62?=
+ =?us-ascii?Q?99sVlI6S6PPEvvxgxruUEjm1YvCIYV4gzhzM29FolHXK/s/DTPAw81jXVPhT?=
+ =?us-ascii?Q?zS4KA/gvwF1EdbS2loUZKsfFoyj2h5YVyzCLuvdl2aea9q8MIsk5GsUQ+K5v?=
+ =?us-ascii?Q?rceHO/qSDI4LSTcYF7lEPIPL620QIYckBGmdYzNwsvA1iq8Td2UrZmvROoKG?=
+ =?us-ascii?Q?f+3lK3r2bDynSGNZlTkwinFZ4dv3fCc2L9pScJBplHLViayCBllKk0NCzBcS?=
+ =?us-ascii?Q?yewSzW4LDi03Y5f/uhwRcvtlxFa64Fo1AU+i3GwY4WX4TWE18ylC8hq+qeOB?=
+ =?us-ascii?Q?bdMmIJax9mJp+qO13WCJgLGlro2XfptgN4yvJzDGZLBq+miASbUOjrYtLOBF?=
+ =?us-ascii?Q?3t2Wd/JlcrXX2BrDXTY4g/+qtcKmjPhA9KlFRsIfnVxX3z7psmpSZl7CR0Ll?=
+ =?us-ascii?Q?EUgUZXIh4noBfZiR4MRrot8jNy+lIbc3sj2WJiuF2/53n4zhD1BkTbVxVs7T?=
+ =?us-ascii?Q?bCUEcy8x+ZeF79Y8N+AhCt2S04wcSNC+iTKMAvwc2Q2+zPAbtpAgY6Xpdn+U?=
+ =?us-ascii?Q?9ufBWp1gkwne0yUmzAnb6ZnJH4wQYDCmMWEvNdpE7u1gZTCOt8dEFusyEQ17?=
+ =?us-ascii?Q?wpbBQGEv49V/SNNR+7YaqPsUbxvLSlWYby08TxPAPaGVe1IDOWnn4t6ykCmI?=
+ =?us-ascii?Q?gUrxg1V4zHPzcYCVJUP8rOsVPqFhX1B1biS5xDLv?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 5ca57987-41a0-473b-bd35-08db15a0ecdd
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Feb 2023 13:21:51.7973
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: oyMfA1Jj7snSuVDDtepAYWjhYs7F4MAMVLBqNhwo7GZARFufMPQsil7s5ePbA8E5
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB4373
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Feb 23, 2023 at 2:09 PM Arnd Bergmann <arnd@arndb.de> wrote:
->
-> On Thu, Feb 23, 2023, at 10:54, Alexandre Ghiti wrote:
-> > On Wed, Feb 15, 2023 at 2:05 PM Arnd Bergmann <arnd@arndb.de> wrote:
-> >>
-> >> On Wed, Feb 15, 2023, at 13:59, Russell King (Oracle) wrote:
-> >> > On Tue, Feb 14, 2023 at 08:49:04AM +0100, Alexandre Ghiti wrote:
-> >> >> From: Palmer Dabbelt <palmer@rivosinc.com>
-> >> >>
-> >> >> As far as I can tell this is not used by userspace and thus should not
-> >> >> be part of the user-visible API.
-> >> >>
-> >> >> Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
-> >> >
-> >> > Looks good to me. What's the merge plan for this?
-> >>
-> >> The easiest way is probably if I merge it through the whole
-> >> series through the asm-generic tree. The timing is a bit
-> >> unfortunate as we're just ahead of the merge window, so unless
-> >> we really need this in 6.3, I'd suggest that Alexandre resend
-> >> the series to me in two weeks with the Acks added in and I'll
-> >> pick it up for 6.4.
-> >
-> > Sorry for the response delay, I was waiting to see if Palmer would
-> > merge my KASAN patchset in 6.3 (which he does): I have to admit that
-> > fixing the command line size + the KASAN patchset would allow 6.3 to
-> > run on syzkaller, which would be nice.
-> >
-> > If I don't see this merged in 6.3, I'll send another round as you
-> > suggested in 1 week now :)
->
-> Hi Alexandre,
->
-> I have no plans to still pick up the series for 6.3. The patches
-> all look fine to me, but it's clearly too late now. What is the
-> actual dependency for KASAN, do you just need a longer command
-> line or something else? If it's just the command line size,
-> I would suggest that Palmer can still pick up a oneline change
-> to increase it and refer to this thread in the changelog as a
-> reference for why it is not an actual UAPI break.
+On Thu, Feb 23, 2023 at 07:55:21AM +0000, Tian, Kevin wrote:
+> > From: Jason Gunthorpe
+> > Sent: Thursday, February 23, 2023 1:18 AM
+> > 
+> > > > static bool vfio_dev_in_groups(struct vfio_pci_core_device *vdev,
+> > > >                                struct vfio_pci_group_info *groups)
+> > > > {
+> > > >  	unsigned int i;
+> > > >
+> > > > 	for (i = 0; i < groups->count; i++)
+> > > > 		if (vfio_file_has_dev(groups->files[i], &vdev->vdev))
+> > > > 			return true;
+> > > > 	return false;
+> > > > }
+> > > >
+> > > > Presumably when cdev fd is provided above should compare iommu
+> > > > group of the fd and that of the vdev. Otherwise it expects the user
+> > > > to have full access to every device in the set which is impractical.
+> > 
+> > No, it should check the dev's directly, userspace has to provide every
+> > dev in the dev set to do a reset. We should not allow userspace to
+> > take a shortcut based on hidden group stuff.
+> > 
+> > The dev set is already unrelated to the groups, and userspace cannot
+> > discover the devset, so nothing has changed.
+> 
+> Agree. But I envision there might be a user-visible impact.
+> 
+> Say a scenario where group happens to overlap with devset. Let's say
+> two devices in the group/devset.
+> 
+> An existing deployment assigns only dev1 to Qemu. In this case dev1
+> is resettable via group fd given dev2 cannot be opened by another
+> user.
 
-Indeed, we only need a longer command line size. I'll ask Palmer to do
-that then, thanks!
+Oh, that is just because we took a shortcut in this logic and assumed
+that if the group is open then all the devices are opened by the same
+security domain.
 
-Alex
+But we can also more clearly state that any closed device is
+acceptable for reset and doesn't need to be presented.
 
->
->      Arnd
+So, like this:
+
+		if (cur_vma->vdev.open_count &&
+		    !vfio_dev_in_groups(cur_vma, groups) &&
+		    !iommufd_ctx_has_device(iommufd_ctx, &cur_vma->pdev->dev)) {
+			ret = -EINVAL;
+			goto err_undo;
+		}
+
+Jason
