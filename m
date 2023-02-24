@@ -2,136 +2,248 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C8B90C61DA3
-	for <linux-s390@archiver.kernel.org>; Fri, 24 Feb 2023 15:15:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 66199C61DA4
+	for <linux-s390@archiver.kernel.org>; Fri, 24 Feb 2023 15:20:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230329AbjBXPPo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 24 Feb 2023 10:15:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36902 "EHLO
+        id S229617AbjBXPU2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 24 Feb 2023 10:20:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229777AbjBXPPf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 24 Feb 2023 10:15:35 -0500
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id CC0166CF0C;
-        Fri, 24 Feb 2023 07:15:12 -0800 (PST)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id F13D7113E;
-        Fri, 24 Feb 2023 07:15:43 -0800 (PST)
-Received: from [192.168.178.92] (unknown [172.31.20.19])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 81BBB3FB75;
-        Fri, 24 Feb 2023 07:14:57 -0800 (PST)
-Message-ID: <5f087dd8-3e39-ce83-fe24-afa5179c05d9@arm.com>
-Date:   Fri, 24 Feb 2023 16:14:51 +0100
+        with ESMTP id S230026AbjBXPU1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 24 Feb 2023 10:20:27 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 884854236;
+        Fri, 24 Feb 2023 07:20:26 -0800 (PST)
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31ODokfC009501;
+        Fri, 24 Feb 2023 15:20:25 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=u7M/BIHuAzO2fIa9ZDseapSOAqx0643dIybcOBcLCvo=;
+ b=HePvnviNOoKTeRvu0HKgcPPXoNwCe4DaqMxQ4HICTLgnIecYAs1KGpbLJDbQnb3Q5QK4
+ 2n4gKt5kKMHrg6zQCCHBxNau5HHeclEiezGvUGodEsSMZcBJ7rOD7Vm02SihDfFl4Iq2
+ 2s91wLLe/hReSizIpT7+LEo25iDHtLRGsU0Rw0/CW9QYOBrZHp2fxwsFqGL8ls0a6/Fn
+ pfd1K6JISoxhDwl2bghDRDsgm6voSk4Lf1oZOzKLw4IJS9dy95rh7p05JUfeZSgMq/Lr
+ S4XMMY2MDq/soCDCQKMhmRWZvFbmRYG1mj/Ej45+EuoZjClNfGKZ2IZclE2qVUXgujCs 3Q== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3nxxfft855-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 24 Feb 2023 15:20:25 +0000
+Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 31OEWf37017684;
+        Fri, 24 Feb 2023 15:20:25 GMT
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3nxxfft84e-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 24 Feb 2023 15:20:24 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31O5jXnY008477;
+        Fri, 24 Feb 2023 15:20:23 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma06fra.de.ibm.com (PPS) with ESMTPS id 3ntnxf64kw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 24 Feb 2023 15:20:23 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31OFKJai21299872
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 24 Feb 2023 15:20:19 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9B14B20043;
+        Fri, 24 Feb 2023 15:20:19 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6013620040;
+        Fri, 24 Feb 2023 15:20:19 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Fri, 24 Feb 2023 15:20:19 +0000 (GMT)
+From:   Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+To:     Thomas Huth <thuth@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
+        Nico Boehr <nrb@linux.ibm.com>
+Cc:     David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: [kvm-unit-tests PATCH v2] s390x: Add tests for execute-type instructions
+Date:   Fri, 24 Feb 2023 16:20:15 +0100
+Message-Id: <20230224152015.2943564-1-nsg@linux.ibm.com>
+X-Mailer: git-send-email 2.37.2
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
-Subject: Re: [PATCH v3] sched: cpuset: Don't rebuild root domains on
- suspend-resume
-Content-Language: en-US
-To:     Qais Yousef <qyousef@layalina.io>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Waiman Long <longman@redhat.com>
-Cc:     Steven Rostedt <rostedt@goodmis.org>, tj@kernel.org,
-        linux-kernel@vger.kernel.org, luca.abeni@santannapisa.it,
-        claudio@evidence.eu.com, tommaso.cucinotta@santannapisa.it,
-        bristot@redhat.com, mathieu.poirier@linaro.org,
-        cgroups@vger.kernel.org,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Wei Wang <wvw@google.com>, Rick Yiu <rickyiu@google.com>,
-        Quentin Perret <qperret@google.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Zefan Li <lizefan.x@bytedance.com>, linux-s390@vger.kernel.org,
-        x86@kernel.org
-References: <20230206221428.2125324-1-qyousef@layalina.io>
- <20230223153859.37tqoqk33oc6tv7o@airbuntu>
-From:   Dietmar Eggemann <dietmar.eggemann@arm.com>
-In-Reply-To: <20230223153859.37tqoqk33oc6tv7o@airbuntu>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: lPX8M-iIaelnm0tlX9PpmHShNQAj5U-6
+X-Proofpoint-ORIG-GUID: WSfHcjl5Gbf4ccFZiVi1lSzENiVHn9uI
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
+ definitions=2023-02-24_10,2023-02-24_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 adultscore=0
+ phishscore=0 mlxlogscore=999 impostorscore=0 mlxscore=0 suspectscore=0
+ malwarescore=0 priorityscore=1501 lowpriorityscore=0 clxscore=1015
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2302240117
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 23/02/2023 16:38, Qais Yousef wrote:
+Test the instruction address used by targets of an execute instruction.
+When the target instruction calculates a relative address, the result is
+relative to the target instruction, not the execute instruction.
 
-IMHO the patch title is misleading since what you want to avoid in
-certain cases is that the RD DL accounting is updated.
-
-> On 02/06/23 22:14, Qais Yousef wrote:
->> Commit f9a25f776d78 ("cpusets: Rebuild root domain deadline accounting information")
->> enabled rebuilding root domain on cpuset and hotplug operations to
->> correct deadline accounting.
->>
->> Rebuilding root domain is a slow operation and we see 10+ of ms delays
->> on suspend-resume because of that (worst case captures 20ms which
->> happens often).
->>
->> Since nothing is expected to change on suspend-resume operation; skip
->> rebuilding the root domains to regain the some of the time lost.
->>
->> Achieve this by refactoring the code to pass whether dl accoutning needs
->> an update to rebuild_sched_domains(). And while at it, rename
->> rebuild_root_domains() to update_dl_rd_accounting() which I believe is
->> a more representative name since we are not really rebuilding the root
->> domains, but rather updating dl accounting at the root domain.
->>
->> Some users of rebuild_sched_domains() will skip dl accounting update
->> now:
->>
->> 	* Update sched domains when relaxing the domain level in cpuset
->> 	  which only impacts searching level in load balance
-
-This one is cpuset related. (1)
-
->> 	* update sched domains when cpufreq governor changes and we need
->> 	  to create the perf domains
-
-This one is drivers/base/arch_topology.c [arm/arm64/...] related. (2)
-
-There are several levels of passing this `update_dl_accounting`
-information through. I guess it looks like this:
-
-					update_dl_accounting
-
-arm/arm64/riscv/parisc specific:
-update_topology_flags_workfn()		true
-rebuild_sched_domains_energy()		false (2)
-
-cpuset_hotplug_workfn()                 cpus_updated ||
-                         force_rebuild == CPUSET_FORCE_REBUILD_PRS_ERROR
-
-->rebuild_sched_domains(update_dl_accounting)
-
-  update_cpumasks_hier()		true
-  update_relax_domain_level()		false (1)
-  update_flag()				true
-  update_prstate()			true
-
-  ->rebuild_sched_domains_locked(update_dl_accounting)
-
-    ->partition_and_rebuild_sched_domains(..., update_dl_accounting)
-
-        if (update_dl_accounting)
-          update_dl_rd_accounting()
+Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
+---
 
 
-There is already a somehow hidden interface for `sd/rd rebuild`
+v1 -> v2:
+ * add test to unittests.cfg and .gitlab-ci.yml
+ * pick up R-b (thanks Nico)
 
-  int __weak arch_update_cpu_topology(void)
 
-which lets partition_sched_domains_locked() figure out whether sched
-domains have to be rebuild..
+TCG does the address calculation relative to the execute instruction.
 
-But in your case it is more on the interface `cpuset/hotplug -> sd/rd
-rebuild` and not only `arch -> `sd/rd rebuild``.
 
-IMHO, it would be still nice to have only one way to tell `sd/rd
-rebuild` what to do and what not to do during sd/rd/(pd) rebuild.
+ s390x/Makefile      |  1 +
+ s390x/ex.c          | 92 +++++++++++++++++++++++++++++++++++++++++++++
+ s390x/unittests.cfg |  3 ++
+ .gitlab-ci.yml      |  1 +
+ 4 files changed, 97 insertions(+)
+ create mode 100644 s390x/ex.c
 
-[...]
+diff --git a/s390x/Makefile b/s390x/Makefile
+index 97a61611..6cf8018b 100644
+--- a/s390x/Makefile
++++ b/s390x/Makefile
+@@ -39,6 +39,7 @@ tests += $(TEST_DIR)/panic-loop-extint.elf
+ tests += $(TEST_DIR)/panic-loop-pgm.elf
+ tests += $(TEST_DIR)/migration-sck.elf
+ tests += $(TEST_DIR)/exittime.elf
++tests += $(TEST_DIR)/ex.elf
+ 
+ pv-tests += $(TEST_DIR)/pv-diags.elf
+ 
+diff --git a/s390x/ex.c b/s390x/ex.c
+new file mode 100644
+index 00000000..1bf4d8cd
+--- /dev/null
++++ b/s390x/ex.c
+@@ -0,0 +1,92 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * Copyright IBM Corp. 2023
++ *
++ * Test EXECUTE (RELATIVE LONG).
++ */
++
++#include <libcflat.h>
++
++static void test_basr(void)
++{
++	uint64_t ret_addr, after_ex;
++
++	report_prefix_push("BASR");
++	asm volatile ( ".pushsection .rodata\n"
++		"0:	basr	%[ret_addr],0\n"
++		"	.popsection\n"
++
++		"	larl	%[after_ex],1f\n"
++		"	exrl	0,0b\n"
++		"1:\n"
++		: [ret_addr] "=d" (ret_addr),
++		  [after_ex] "=d" (after_ex)
++	);
++
++	report(ret_addr == after_ex, "return address after EX");
++	report_prefix_pop();
++}
++
++/*
++ * According to PoP (Branch-Address Generation), the address is relative to
++ * BRAS when it is the target of an execute-type instruction.
++ */
++static void test_bras(void)
++{
++	uint64_t after_target, ret_addr, after_ex, branch_addr;
++
++	report_prefix_push("BRAS");
++	asm volatile ( ".pushsection .text.ex_bras, \"x\"\n"
++		"0:	bras	%[ret_addr],1f\n"
++		"	nopr	%%r7\n"
++		"1:	larl	%[branch_addr],0\n"
++		"	j	4f\n"
++		"	.popsection\n"
++
++		"	larl	%[after_target],1b\n"
++		"	larl	%[after_ex],3f\n"
++		"2:	exrl	0,0b\n"
++		"3:	larl	%[branch_addr],0\n"
++		"4:\n"
++
++		"	.if (1b - 0b) != (3b - 2b)\n"
++		"	.error	\"right and wrong target must have same offset\"\n"
++		"	.endif\n"
++		: [after_target] "=d" (after_target),
++		  [ret_addr] "=d" (ret_addr),
++		  [after_ex] "=d" (after_ex),
++		  [branch_addr] "=d" (branch_addr)
++	);
++
++	report(after_target == branch_addr, "address calculated relative to BRAS");
++	report(ret_addr == after_ex, "return address after EX");
++	report_prefix_pop();
++}
++
++static void test_larl(void)
++{
++	uint64_t target, addr;
++
++	report_prefix_push("LARL");
++	asm volatile ( ".pushsection .rodata\n"
++		"0:	larl	%[addr],0\n"
++		"	.popsection\n"
++
++		"	larl	%[target],0b\n"
++		"	exrl	0,0b\n"
++		: [target] "=d" (target),
++		  [addr] "=d" (addr)
++	);
++
++	report(target == addr, "address calculated relative to LARL");
++	report_prefix_pop();
++}
++
++int main(int argc, char **argv)
++{
++	test_basr();
++	test_bras();
++	test_larl();
++
++	return report_summary();
++}
+diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
+index d97eb5e9..b61faf07 100644
+--- a/s390x/unittests.cfg
++++ b/s390x/unittests.cfg
+@@ -215,3 +215,6 @@ file = migration-skey.elf
+ smp = 2
+ groups = migration
+ extra_params = -append '--parallel'
++
++[execute]
++file = ex.elf
+diff --git a/.gitlab-ci.yml b/.gitlab-ci.yml
+index ad7949c9..a999f64a 100644
+--- a/.gitlab-ci.yml
++++ b/.gitlab-ci.yml
+@@ -275,6 +275,7 @@ s390x-kvm:
+   - ACCEL=kvm ./run_tests.sh
+       selftest-setup intercept emulator sieve sthyi diag10 diag308 pfmf
+       cmm vector gs iep cpumodel diag288 stsi sclp-1g sclp-3g css skrf sie
++      execute
+       | tee results.txt
+   - grep -q PASS results.txt && ! grep -q FAIL results.txt
+  only:
+
+base-commit: e3c5c3ef2524c58023073c0fadde2e8ae3c04ec6
+-- 
+2.36.1
 
