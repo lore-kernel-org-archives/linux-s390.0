@@ -2,115 +2,158 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ADAD1C64EC7
-	for <linux-s390@archiver.kernel.org>; Sat, 25 Feb 2023 16:51:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6CC83C7EE23
+	for <linux-s390@archiver.kernel.org>; Sat, 25 Feb 2023 18:47:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229562AbjBYQvE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 25 Feb 2023 11:51:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34748 "EHLO
+        id S229605AbjBYSrH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 25 Feb 2023 13:47:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229445AbjBYQvD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 25 Feb 2023 11:51:03 -0500
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CDA6136FB;
-        Sat, 25 Feb 2023 08:51:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=ubipUM+wv2whMLKzwwBASjo1sJH0JLw6VTjEqEWMXK0=; b=esugZB5w+J2sx/Sifbb59C3f5J
-        hGyJSxWq/XG8tKEnrj6XdGBQWkWkiq/RyufNnlPhczrDRPI0kSipUKzckS/vnSG5JXZz22oH7jdKc
-        kUIDE/gp8rTpxatVSaFvs2hgAQHj0kgpbYiuS06UBxPugWiKreLB1p356qJaruEaddPGL2pqRW4wX
-        yoVeiCgs6v/XfVVSRO72r3L4QefKIMtEwEGsPqPXyM/tiDy9NI3nKgHk9NWnpaicWuejZ1YzvgGiF
-        f8cOQojEie2MKNxoAXLMKV6DtaLJ6UC8Z6DHlNZ40hwtg6Qb+3jfmHYG5pRl/42a4dLmjxItg4kF8
-        HajJLNuA==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1pVxlC-00GFAT-GH; Sat, 25 Feb 2023 16:50:59 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits))
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 5B792300293;
-        Sat, 25 Feb 2023 17:50:58 +0100 (CET)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 2357820CC1861; Sat, 25 Feb 2023 17:50:58 +0100 (CET)
-Date:   Sat, 25 Feb 2023 17:50:58 +0100
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Vasily Gorbik <gor@linux.ibm.com>,
+        with ESMTP id S229512AbjBYSrG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 25 Feb 2023 13:47:06 -0500
+Received: from mail-oi1-x233.google.com (mail-oi1-x233.google.com [IPv6:2607:f8b0:4864:20::233])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60EDC17148;
+        Sat, 25 Feb 2023 10:47:05 -0800 (PST)
+Received: by mail-oi1-x233.google.com with SMTP id bg11so2144297oib.5;
+        Sat, 25 Feb 2023 10:47:05 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=mU8ouxaMVERSCUbXEf9OwfJ4PuquWDWLaI3fKf0e7O0=;
+        b=i2gR2OWZzLr/IrXj7DUSMkK5l8xThJQ+UBmRFwSBdr0293XSFQKpoTBRObmlutJn3l
+         akOz0p9AyqFE3HfBxbrrWvgHimJDoWdXkPCrMyhII+GrpgMM6ICsOH1mi8map0ukXw3M
+         tYdfUw05uyL27NCkoo45uWOoqi52ojqYSONUh3dm/39O8BZmb0I/PpVIXwqrqcKCbQpU
+         ms7WV52PrRkQfuwe/092kqnqCZzbfYzs23WcfIeKPTToClGRLgGMwgc5a3LWS3WTQ0FR
+         Su3YAOz1sYkADVnxEDIN5Qq/EJZPa1zr12aGQkiwqzu19FgWfEyEckgo5XzGqOCDfgv1
+         T7zQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=mU8ouxaMVERSCUbXEf9OwfJ4PuquWDWLaI3fKf0e7O0=;
+        b=XW6Z7D76ClqIAkT8kX5WdfKTFrh0vl0ha0m6fxtR7v05EfGkh7emVIH2Ys/Jb68WuE
+         vJl50hRB90rpxUMhIEvrnlzwGscuOY+h7a4S2Cn3mG3MytlQfm2kJYYp11oixc93K+YF
+         RqsZyjNULm5QVpr+uVFelzMxgvyTNdBtgxUv3x1ZMia1ia9bPeRWA7+m8igeNJkgYSlL
+         FWWGmVIsUx0v+iAcqrBkc3pqT9klmUHQ5yOMKM5s6/c5N8fd8LaZsZqKs1wJjshF6eS0
+         YOecuNoSof/xAYllUWeY67HipcBxj41OXIMzVPwCa7Pw/ZSAfeApjl7gkYtQuQEXHp9d
+         /03Q==
+X-Gm-Message-State: AO0yUKUTYZEiEVddQGCAgLDCDcfuULAkPzLG3dvXT92zN1RoqZs8sb2p
+        rIIzbYYHWkxkpTGfqDJea/U=
+X-Google-Smtp-Source: AK7set8VkV7Xov5x1fGY/9JN477Pgs4zaXeT7d9Ep3yomVCmotjwktaMsPjW73v7lwJwTsd9my6GUQ==
+X-Received: by 2002:a05:6808:199:b0:37f:8682:9383 with SMTP id w25-20020a056808019900b0037f86829383mr7756010oic.9.1677350824676;
+        Sat, 25 Feb 2023 10:47:04 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id eb3-20020a056808634300b0037d8c2ff0acsm1162023oib.12.2023.02.25.10.47.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 25 Feb 2023 10:47:03 -0800 (PST)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Sat, 25 Feb 2023 10:47:02 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Yury Norov <yury.norov@gmail.com>
+Cc:     linux-kernel@vger.kernel.org,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        Thomas Richter <tmricht@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] s390/rwonce: add READ_ONCE_ALIGNED_128() macro
-Message-ID: <Y/o8cmyc7IW+28S2@hirez.programming.kicks-ass.net>
-References: <20230224100237.3247871-1-hca@linux.ibm.com>
- <20230224100237.3247871-2-hca@linux.ibm.com>
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org
+Subject: Re: [PATCH 3/5] lib/bitmap: add test for bitmap_{from,to}_arr64
+Message-ID: <20230225184702.GA3587246@roeck-us.net>
+References: <20220428205116.861003-1-yury.norov@gmail.com>
+ <20220428205116.861003-4-yury.norov@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230224100237.3247871-2-hca@linux.ibm.com>
+In-Reply-To: <20220428205116.861003-4-yury.norov@gmail.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Feb 24, 2023 at 11:02:36AM +0100, Heiko Carstens wrote:
-> Add an s390 specific READ_ONCE_ALIGNED_128() helper, which can be used for
-> fast block concurrent (atomic) 128-bit accesses.
-> 
-> The used lpq instruction requires 128-bit alignment. This is also the
-> reason why the compiler doesn't emit this instruction if __READ_ONCE() is
-> used for 128-bit accesses.
+Hi,
 
-Does your u128 not have natural alignment? Does it help if you force
-align the u128 type?
-
+On Thu, Apr 28, 2022 at 01:51:14PM -0700, Yury Norov wrote:
+> Test newly added bitmap_{from,to}_arr64() functions similarly to
+> already existing bitmap_{from,to}_arr32() tests.
 > 
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+> Signed-off-by: Yury Norov <yury.norov@gmail.com>
+
+Ever since this test is in the tree, several of my boot tests show
+lots of messages such as
+
+test_bitmap: bitmap_to_arr64(nbits == 1): tail is not safely cleared: 0xa5a5a5a500000001 (must be 0x0000000000000001)
+test_bitmap: bitmap_to_arr64(nbits == 2): tail is not safely cleared: 0xa5a5a5a500000001 (must be 0x0000000000000003)
+test_bitmap: bitmap_to_arr64(nbits == 3): tail is not safely cleared: 0xa5a5a5a500000001 (must be 0x0000000000000007)
+...
+test_bitmap: bitmap_to_arr64(nbits == 927): tail is not safely cleared: 0xa5a5a5a500000000 (must be 0x000000007fffffff)
+test_bitmap: bitmap_to_arr64(nbits == 928): tail is not safely cleared: 0xa5a5a5a580000000 (must be 0x00000000ffffffff)
+
+but then:
+
+test_bitmap: all 6550 tests passed
+
+The message suggests an error, given that it is displayed with pr_err,
+but the summary suggests otherwise.
+
+Is the message just noise, or is there a problem ?
+
+Thanks,
+Guenter
+
 > ---
->  arch/s390/include/asm/rwonce.h | 31 +++++++++++++++++++++++++++++++
->  1 file changed, 31 insertions(+)
->  create mode 100644 arch/s390/include/asm/rwonce.h
+>  lib/test_bitmap.c | 25 +++++++++++++++++++++++++
+>  1 file changed, 25 insertions(+)
 > 
-> diff --git a/arch/s390/include/asm/rwonce.h b/arch/s390/include/asm/rwonce.h
-> new file mode 100644
-> index 000000000000..91fc24520e82
-> --- /dev/null
-> +++ b/arch/s390/include/asm/rwonce.h
-> @@ -0,0 +1,31 @@
-> +/* SPDX-License-Identifier: GPL-2.0 */
+> diff --git a/lib/test_bitmap.c b/lib/test_bitmap.c
+> index 0c82f07f74fc..d5923a640457 100644
+> --- a/lib/test_bitmap.c
+> +++ b/lib/test_bitmap.c
+> @@ -585,6 +585,30 @@ static void __init test_bitmap_arr32(void)
+>  	}
+>  }
+>  
+> +static void __init test_bitmap_arr64(void)
+> +{
+> +	unsigned int nbits, next_bit;
+> +	u64 arr[EXP1_IN_BITS / 64];
+> +	DECLARE_BITMAP(bmap2, EXP1_IN_BITS);
 > +
-> +#ifndef __ASM_S390_RWONCE_H
-> +#define __ASM_S390_RWONCE_H
+> +	memset(arr, 0xa5, sizeof(arr));
 > +
-> +#include <linux/compiler_types.h>
+> +	for (nbits = 0; nbits < EXP1_IN_BITS; ++nbits) {
+> +		memset(bmap2, 0xff, sizeof(arr));
+> +		bitmap_to_arr64(arr, exp1, nbits);
+> +		bitmap_from_arr64(bmap2, arr, nbits);
+> +		expect_eq_bitmap(bmap2, exp1, nbits);
 > +
-> +/*
-> + * Use READ_ONCE_ALIGNED_128() for 128-bit block concurrent (atomic) read
-> + * accesses. Note that x must be 128-bit aligned, otherwise a specification
-> + * exception is generated.
-> + */
-> +#define READ_ONCE_ALIGNED_128(x)			\
-> +({							\
-> +	union {						\
-> +		typeof(x) __x;				\
-> +		__uint128_t val;			\
-> +	} __u;						\
-> +							\
-> +	BUILD_BUG_ON(sizeof(x) != 16);			\
-> +	asm volatile(					\
-> +		"	lpq	%[val],%[_x]\n"		\
-> +		: [val] "=d" (__u.val)			\
-> +		: [_x] "QS" (x)				\
-> +		: "memory");				\
-> +	__u.__x;					\
-> +})
+> +		next_bit = find_next_bit(bmap2, round_up(nbits, BITS_PER_LONG), nbits);
+> +		if (next_bit < round_up(nbits, BITS_PER_LONG))
+> +			pr_err("bitmap_copy_arr64(nbits == %d:"
+> +				" tail is not safely cleared: %d\n", nbits, next_bit);
 > +
-> +#include <asm-generic/rwonce.h>
+> +		if (nbits < EXP1_IN_BITS - 64)
+> +			expect_eq_uint(arr[DIV_ROUND_UP(nbits, 64)], 0xa5a5a5a5);
+> +	}
+> +}
 > +
-> +#endif	/* __ASM_S390_RWONCE_H */
+>  static void noinline __init test_mem_optimisations(void)
+>  {
+>  	DECLARE_BITMAP(bmap1, 1024);
+> @@ -852,6 +876,7 @@ static void __init selftest(void)
+>  	test_copy();
+>  	test_replace();
+>  	test_bitmap_arr32();
+> +	test_bitmap_arr64();
+>  	test_bitmap_parse();
+>  	test_bitmap_parselist();
+>  	test_bitmap_printlist();
 > -- 
-> 2.37.2
+> 2.32.0
 > 
