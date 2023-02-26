@@ -2,48 +2,48 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A7A7C6FA8E
-	for <linux-s390@archiver.kernel.org>; Sun, 26 Feb 2023 14:56:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 41EABC7EE23
+	for <linux-s390@archiver.kernel.org>; Sun, 26 Feb 2023 15:09:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231221AbjBZO4E (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 26 Feb 2023 09:56:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55044 "EHLO
+        id S230107AbjBZPJ1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 26 Feb 2023 10:09:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230289AbjBZOyh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 26 Feb 2023 09:54:37 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 326C01B320;
-        Sun, 26 Feb 2023 06:50:34 -0800 (PST)
+        with ESMTP id S231809AbjBZPJN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 26 Feb 2023 10:09:13 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9EBB23339;
+        Sun, 26 Feb 2023 06:59:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 91F1C60C1F;
-        Sun, 26 Feb 2023 14:49:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5556C433D2;
-        Sun, 26 Feb 2023 14:49:56 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5EFCACE0E8C;
+        Sun, 26 Feb 2023 14:46:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93344C4339B;
+        Sun, 26 Feb 2023 14:46:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677422998;
+        s=k20201202; t=1677422784;
         bh=c66ZqseNXtvYab1W9Mmr1L9hnpx98bZ6fpgNuOsd55Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p1KQOCwQZqwBT3Wkg5MycVJnNMoOehk2f7abRcKLVqr7CMBxRSEAColA8ZlSQxz5m
-         Y4Ajnv+57H+W0N7tNIOWpxyKCp29NDzvf7I16VdJ2y1cTJQqXiB1dYnNouHA3rDWiA
-         e2o1jXiAX96cnuQHpJaylgp7/P0dO+CPuxDJ7sIFCS+cs8MqCno4TkFKYaZeYHYDYK
-         4hbV/eV+2AEf1OAwFnyvFwZxsjCuJgHWqWHveDLeKTMK6OL5JyINPEhUDY7wi9wkkl
-         WygR9UDBmOWbb3bfamIvF7eLIm0qjJ0HNeO32pyUigF3RaAlgxN0ipwiWqwkMJcfYc
-         88gqAdJjfYQmA==
+        b=NMmy6CbePPneNL5JJf/3bmzXOIc4GQYfkxpmbDlmTur3RNISE31w1iKWvpnxs6s9z
+         Lcje0sqXukZjG18GCcTbGcOvZrKY3gDJWL3+hewaUA0bQV9XptQStQcsNzqaawPgAa
+         hTrA+KlmVbApJe10+5u5oJhByk/N+4wfIXlTfOX6cs+Z6psG2L6RcioWffT4/+mndQ
+         /6XfJ2JOUIH3oQ9msaeqtaHbVkbgusq1eBEbevWslaWxY1HADuACWj7ZOfCVwWgldz
+         IuU0JJbj4VhZ2HTv3St7YcN79JTbv0ei6dtFj/YCR+Itm9OxB5LLaG1SFDs0Jk4C3b
+         VSNEh+Qz2OmGQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Heiko Carstens <hca@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, peterz@infradead.org, guoren@kernel.org,
+        agordeev@linux.ibm.com, peterz@infradead.org, mingo@kernel.org,
         npiggin@gmail.com, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 29/36] s390/idle: mark arch_cpu_idle() noinstr
-Date:   Sun, 26 Feb 2023 09:48:37 -0500
-Message-Id: <20230226144845.827893-29-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.2 41/53] s390/idle: mark arch_cpu_idle() noinstr
+Date:   Sun, 26 Feb 2023 09:44:33 -0500
+Message-Id: <20230226144446.824580-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230226144845.827893-1-sashal@kernel.org>
-References: <20230226144845.827893-1-sashal@kernel.org>
+In-Reply-To: <20230226144446.824580-1-sashal@kernel.org>
+References: <20230226144446.824580-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
