@@ -2,170 +2,100 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A7A64C7EE30
-	for <linux-s390@archiver.kernel.org>; Sun, 26 Feb 2023 20:13:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 676B1C64ED6
+	for <linux-s390@archiver.kernel.org>; Sun, 26 Feb 2023 20:57:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229790AbjBZUNx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 26 Feb 2023 15:13:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58096 "EHLO
+        id S229515AbjBZU47 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 26 Feb 2023 15:56:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229379AbjBZUNv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 26 Feb 2023 15:13:51 -0500
-Received: from mail-qt1-f170.google.com (mail-qt1-f170.google.com [209.85.160.170])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B6BAD301;
-        Sun, 26 Feb 2023 12:13:50 -0800 (PST)
-Received: by mail-qt1-f170.google.com with SMTP id cf14so4701877qtb.10;
-        Sun, 26 Feb 2023 12:13:50 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Gg5lD1thnSOjSPD2ugSmhhuDJpRIfjxQ4WV4ji/sEm4=;
-        b=b4fvqlKEnKtSkihrg55JYq+ke0pEzfiymXjhN3I6/fQybr+DvLraWGgthf8ZtPjCuQ
-         6xXuuE3Y+TLKzGA8BaKIGqVv49ebOFSGwJQ+h5Ngr2W1Xu8xllIDi1ZXlwoERY0x45ra
-         ReBdvXHBsf3RgUvVSazqK8baSqpxGG3NGPUro9cfOO02NMuyy4/uhKWAxVoiMIuXrV88
-         l+K48IrSMo4w6Z6EThjVQfC/gdYNb460HM6nurUHmXYspkS4R1cQLrryx70FCmqQntv1
-         tsgV9ECV6YcDKfNlVpnl2VYdVjOSEMg41u2aMYCXM5p6wALfJw9b8DSaeoYU8tB/ukpo
-         ZDqg==
-X-Gm-Message-State: AO0yUKXVUfRCo9lua3f27kFTNtm06jvdTBQ/z3wEd2OdaiblPaBAWZyw
-        jPnSQ54eFzaQTRJV29N2cVkUnHiCg/Uz/w==
-X-Google-Smtp-Source: AK7set/moY1L6F+ebE6HKWgvhvMgP5uM2L9z7Rmqe5nF1PsdDFF11lerf3DY0AEL23MzZqU7yIzsFA==
-X-Received: by 2002:ac8:5907:0:b0:3b8:3629:7cb7 with SMTP id 7-20020ac85907000000b003b836297cb7mr39427624qty.64.1677442428848;
-        Sun, 26 Feb 2023 12:13:48 -0800 (PST)
-Received: from mail-yw1-f181.google.com (mail-yw1-f181.google.com. [209.85.128.181])
-        by smtp.gmail.com with ESMTPSA id k8-20020a05620a142800b0073ba211e765sm3591529qkj.19.2023.02.26.12.13.47
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 26 Feb 2023 12:13:47 -0800 (PST)
-Received: by mail-yw1-f181.google.com with SMTP id 00721157ae682-536af432ee5so124981857b3.0;
-        Sun, 26 Feb 2023 12:13:47 -0800 (PST)
-X-Received: by 2002:a81:af5f:0:b0:536:38b4:f51 with SMTP id
- x31-20020a81af5f000000b0053638b40f51mr8731562ywj.5.1677442427017; Sun, 26 Feb
- 2023 12:13:47 -0800 (PST)
+        with ESMTP id S229445AbjBZU47 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 26 Feb 2023 15:56:59 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5512813D4E;
+        Sun, 26 Feb 2023 12:56:58 -0800 (PST)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31QEfrG2006015;
+        Sun, 26 Feb 2023 20:56:52 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=t8oFk89ZY/zT119kpdh2iJr/fkMcJ6oJSnek0l/8WhU=;
+ b=EaAYambwVTVNlXewiJADiJI9NSJhb4dxt/FOS1U6Sa2pWzwRXzP2b8Zr/YYKWVLxcBcd
+ N26i8F9+uetfG4/IK+MGr19AB9J7QNRxg+rIOdR/qPJMT3bko+50Su7bkyga9wtXWBkh
+ NHeIRY6vAZcUNq0wJPgrq8byauNnyxPPBZYAIUdHTaBj++jB0XOFwEMBGmM7qUZ60I47
+ 6TihYu5zJYTUHpHWL/M/cOWQRfHg0jDsOhrvtfjuoERmBNNcZy+Bx2k2EhuLkq0pfbyn
+ 9XXpfjVCM1ir1zd1VMgho2kEQ5hbKjiMl7a4jnmrequ/xTuMHOVwoZ5lSqFdtADRy64K ag== 
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nyvda7yye-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sun, 26 Feb 2023 20:56:52 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31QCpBCS030604;
+        Sun, 26 Feb 2023 20:56:50 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3nybcq1aax-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sun, 26 Feb 2023 20:56:50 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31QKuk4k56492324
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sun, 26 Feb 2023 20:56:46 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 91B4220043;
+        Sun, 26 Feb 2023 20:56:46 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0ABB420040;
+        Sun, 26 Feb 2023 20:56:46 +0000 (GMT)
+Received: from osiris (unknown [9.179.8.15])
+        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Sun, 26 Feb 2023 20:56:45 +0000 (GMT)
+Date:   Sun, 26 Feb 2023 21:56:44 +0100
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Thomas Richter <tmricht@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] s390/rwonce: add READ_ONCE_ALIGNED_128() macro
+Message-ID: <Y/vHjFRIJTTKVcFq@osiris>
+References: <20230224100237.3247871-1-hca@linux.ibm.com>
+ <20230224100237.3247871-2-hca@linux.ibm.com>
+ <Y/o8cmyc7IW+28S2@hirez.programming.kicks-ass.net>
 MIME-Version: 1.0
-References: <20230113171026.582290-1-david@redhat.com> <20230113171026.582290-12-david@redhat.com>
-In-Reply-To: <20230113171026.582290-12-david@redhat.com>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Sun, 26 Feb 2023 21:13:33 +0100
-X-Gmail-Original-Message-ID: <CAMuHMdX-FDga8w=pgg1myskEx6wp+oyZifhPPPFnWrc1zW7ZpQ@mail.gmail.com>
-Message-ID: <CAMuHMdX-FDga8w=pgg1myskEx6wp+oyZifhPPPFnWrc1zW7ZpQ@mail.gmail.com>
-Subject: Re: [PATCH mm-unstable v1 11/26] microblaze/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-To:     David Hildenbrand <david@redhat.com>
-Cc:     linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Hugh Dickins <hughd@google.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Nadav Amit <namit@vmware.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Peter Xu <peterx@redhat.com>, linux-mm@kvack.org,
-        x86@kernel.org, linux-alpha@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
-        Michal Simek <monstr@monstr.eu>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Y/o8cmyc7IW+28S2@hirez.programming.kicks-ass.net>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Plf8aY47XxXieUl9J7sw0XbdK4y4mvE7
+X-Proofpoint-ORIG-GUID: Plf8aY47XxXieUl9J7sw0XbdK4y4mvE7
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
+ definitions=2023-02-26_18,2023-02-24_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ suspectscore=0 priorityscore=1501 spamscore=0 adultscore=0 phishscore=0
+ impostorscore=0 mlxlogscore=535 bulkscore=0 clxscore=1015 mlxscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2302260173
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi David,
+On Sat, Feb 25, 2023 at 05:50:58PM +0100, Peter Zijlstra wrote:
+> On Fri, Feb 24, 2023 at 11:02:36AM +0100, Heiko Carstens wrote:
+> > Add an s390 specific READ_ONCE_ALIGNED_128() helper, which can be used for
+> > fast block concurrent (atomic) 128-bit accesses.
+> > 
+> > The used lpq instruction requires 128-bit alignment. This is also the
+> > reason why the compiler doesn't emit this instruction if __READ_ONCE() is
+> > used for 128-bit accesses.
+> 
+> Does your u128 not have natural alignment? Does it help if you force
+> align the u128 type?
 
-On Fri, Jan 13, 2023 at 6:16 PM David Hildenbrand <david@redhat.com> wrote:
-> Let's support __HAVE_ARCH_PTE_SWP_EXCLUSIVE by stealing one bit
-> from the type. Generic MM currently only uses 5 bits for the type
-> (MAX_SWAPFILES_SHIFT), so the stolen bit is effectively unused.
->
-> The shift by 2 when converting between PTE and arch-specific swap entry
-> makes the swap PTE layout a little bit harder to decipher.
->
-> While at it, drop the comment from paulus---copy-and-paste leftover
-> from powerpc where we actually have _PAGE_HASHPTE---and mask the type in
-> __swp_entry_to_pte() as well.
->
-> Cc: Michal Simek <monstr@monstr.eu>
-> Signed-off-by: David Hildenbrand <david@redhat.com>
-
-Thanks for your patch, which is now commit b5c88f21531c3457
-("microblaze/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE") in
-
->  arch/m68k/include/asm/mcf_pgtable.h   |  4 +--
-
-What is this m68k change doing here?
-Sorry for not noticing this earlier.
-
-Furthermore, several things below look strange to me...
-
->  arch/microblaze/include/asm/pgtable.h | 45 +++++++++++++++++++++------
->  2 files changed, 37 insertions(+), 12 deletions(-)
->
-> diff --git a/arch/m68k/include/asm/mcf_pgtable.h b/arch/m68k/include/asm/mcf_pgtable.h
-> index 3f8f4d0e66dd..e573d7b649f7 100644
-> --- a/arch/m68k/include/asm/mcf_pgtable.h
-> +++ b/arch/m68k/include/asm/mcf_pgtable.h
-> @@ -46,8 +46,8 @@
->  #define _CACHEMASK040          (~0x060)
->  #define _PAGE_GLOBAL040                0x400   /* 68040 global bit, used for kva descs */
->
-> -/* We borrow bit 7 to store the exclusive marker in swap PTEs. */
-> -#define _PAGE_SWP_EXCLUSIVE    0x080
-> +/* We borrow bit 24 to store the exclusive marker in swap PTEs. */
-> +#define _PAGE_SWP_EXCLUSIVE    CF_PAGE_NOCACHE
-
-CF_PAGE_NOCACHE is 0x80, so this is still bit 7, thus the new comment
-is wrong?
-
->
->  /*
->   * Externally used page protection values.
-> diff --git a/arch/microblaze/include/asm/pgtable.h b/arch/microblaze/include/asm/pgtable.h
-> index 42f5988e998b..7e3de54bf426 100644
-> --- a/arch/microblaze/include/asm/pgtable.h
-> +++ b/arch/microblaze/include/asm/pgtable.h
-> @@ -131,10 +131,10 @@ extern pte_t *va_to_pte(unsigned long address);
->   * of the 16 available.  Bit 24-26 of the TLB are cleared in the TLB
->   * miss handler.  Bit 27 is PAGE_USER, thus selecting the correct
->   * zone.
-> - * - PRESENT *must* be in the bottom two bits because swap cache
-> - * entries use the top 30 bits.  Because 4xx doesn't support SMP
-> - * anyway, M is irrelevant so we borrow it for PAGE_PRESENT.  Bit 30
-> - * is cleared in the TLB miss handler before the TLB entry is loaded.
-> + * - PRESENT *must* be in the bottom two bits because swap PTEs use the top
-> + * 30 bits.  Because 4xx doesn't support SMP anyway, M is irrelevant so we
-> + * borrow it for PAGE_PRESENT.  Bit 30 is cleared in the TLB miss handler
-> + * before the TLB entry is loaded.
-
-So the PowerPC 4xx comment is still here?
-
->   * - All other bits of the PTE are loaded into TLBLO without
->   *  * modification, leaving us only the bits 20, 21, 24, 25, 26, 30 for
->   * software PTE bits.  We actually use bits 21, 24, 25, and
-> @@ -155,6 +155,9 @@ extern pte_t *va_to_pte(unsigned long address);
->  #define _PAGE_ACCESSED 0x400   /* software: R: page referenced */
->  #define _PMD_PRESENT   PAGE_MASK
->
-> +/* We borrow bit 24 to store the exclusive marker in swap PTEs. */
-> +#define _PAGE_SWP_EXCLUSIVE    _PAGE_DIRTY
-
-_PAGE_DIRTY is 0x80, so this is also bit 7, thus the new comment is
-wrong?
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+s390 seems to be the only architecture which has a 64 bit alignment for
+__uint128_t. But making it explicitly naturally aligned doesn't help.
+I guess that's because the lpq instruction requires an even-odd register
+pair where it reads to, while the now used lmg instruction can use any
+register pair; but lmg doesn't come with atomic semantics.
