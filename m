@@ -2,199 +2,246 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F798C64EC7
-	for <linux-s390@archiver.kernel.org>; Sun, 26 Feb 2023 00:42:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BA899C6FA8E
+	for <linux-s390@archiver.kernel.org>; Sun, 26 Feb 2023 08:59:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229629AbjBZAmY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 25 Feb 2023 19:42:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51072 "EHLO
+        id S229486AbjBZI7J (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 26 Feb 2023 03:59:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229515AbjBZAmX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 25 Feb 2023 19:42:23 -0500
-Received: from mail-oi1-x22c.google.com (mail-oi1-x22c.google.com [IPv6:2607:f8b0:4864:20::22c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7004158BF;
-        Sat, 25 Feb 2023 16:42:19 -0800 (PST)
-Received: by mail-oi1-x22c.google.com with SMTP id y184so2567158oiy.8;
-        Sat, 25 Feb 2023 16:42:19 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:subject:from:references:cc:to
-         :content-language:user-agent:mime-version:date:message-id:sender
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=vqR8kMH8N8ZUldMBakO+fuxfrqtewrnxRblVc35UfD8=;
-        b=D73s6uhirVM43CmtpxoNBPU0reDdA+KFDsxMwcsetcWH8+AmgkOwQSkaBVktCTEuZQ
-         cWAPPmpELJN0ns7QhgKYYa8FtfxXGhDlAJGWdg8AYmvgIvdk8hn/AKabl5+mFPzzeMvj
-         igQCmonfOG0k0ErG/FlHsrBz9VOR6h1m9n4EVptqKrAt6cUgrDk8AULk4TW0ouYoIbSP
-         Pwpudim+4D2yEWAm/DXKPcBONhd59a9FwH2zF+MGDAyM+uc0bb9EsHWmLkAxOnu5Iu7L
-         nHNYD006BaqkrXtJTRDSpnJr1vNpmh2Dz+PWhosyWQUE7diTDtVoNc/b5WJq0pewq3//
-         k9bw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:subject:from:references:cc:to
-         :content-language:user-agent:mime-version:date:message-id:sender
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=vqR8kMH8N8ZUldMBakO+fuxfrqtewrnxRblVc35UfD8=;
-        b=nZ8O8ooRD8hxJbtAUKRDYBmCI60M5yGS1+jLWS7fTG7Ovq3dsSgWtFTjr0TliFMalL
-         u58+Jj/r7UOAUXh6p8R7E3rPrEjt3rvY7TMxhUuMX5lVMEyzWQAvMadMK5+jWKqoZUK6
-         OfGbSbXYtaASEaJizvsdNvLf3c55d7eUfZHII/ajXxXMBBxm7YGqMl8BDUi4gfSEkT7L
-         2DLKNeW8m9gytc6ynDBH6CXmi1VNLoRysR6MJyaTgwAS7eIbaQmUk1+JDbtldoRw4C8/
-         f4pR246oprogeyr5ez2CPlSDriMgiWbrbVORcphFhkkcOzyNPYSBNXoPuY+OBcn0Mvf8
-         NNKw==
-X-Gm-Message-State: AO0yUKVPDl06FvmmVP7IRX2yLYGB45ZYlwoTeBg7CLP0yaQtnWBwYyKW
-        wX0RZOUmKQfBz8Re7Ckm5zU=
-X-Google-Smtp-Source: AK7set+e5+VTpITDEr4HeSf1IjPvczLluTV+P6OjRl87fjfm18XAEB2Qe4hHrmzbQ5RMdIbkpOEGBA==
-X-Received: by 2002:a05:6808:2a09:b0:37f:a72c:257e with SMTP id ez9-20020a0568082a0900b0037fa72c257emr7118772oib.14.1677372138764;
-        Sat, 25 Feb 2023 16:42:18 -0800 (PST)
-Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id i5-20020acaea05000000b00383b8084203sm1431047oih.26.2023.02.25.16.42.16
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 25 Feb 2023 16:42:17 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <996a23fa-5ddf-4562-8675-5caeecc6368f@roeck-us.net>
-Date:   Sat, 25 Feb 2023 16:42:15 -0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
+        with ESMTP id S229470AbjBZI7I (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 26 Feb 2023 03:59:08 -0500
+Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B50CCBDF9;
+        Sun, 26 Feb 2023 00:59:07 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1677401947; x=1708937947;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=AiQtSFxtoc2bGfLzYcgwb8/X1Z9vt6IdUmmBAP9jGv8=;
+  b=nm7yzOmYgtIRjc2scxV/kRZq0PYP3mZVvs32pKq+Z9o09W33QfSo8OBt
+   5djJf9RYssXdqgOApCIm6JDKzOrTmlE+qlDF3JZsomRzZspCeizt5trWm
+   yq6W883FsgrTKZ14NwH27BCJXaMXvphUzcxqpXgeEIZi3iMf38NoWy1/f
+   USOe6BKCwiuBWnpYKXQaT3dIY83N3KrO15YPhtFpPljnw+AiHFnEuX0hH
+   SNNtkbzeqZB4FG7sKF9MUQRbl0EUStOsPPd9M5TcTZIl7kwV10zR3nTei
+   gLUA1DM5AkmJ7JnbRPN7ZXMdW8Jy8L5rwNgbBmygbgZVxT3mpBKHVjQpN
+   w==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10632"; a="398471160"
+X-IronPort-AV: E=Sophos;i="5.97,329,1669104000"; 
+   d="scan'208";a="398471160"
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Feb 2023 00:59:07 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10632"; a="797225184"
+X-IronPort-AV: E=Sophos;i="5.97,329,1669104000"; 
+   d="scan'208";a="797225184"
+Received: from fmsmsx603.amr.corp.intel.com ([10.18.126.83])
+  by orsmga004.jf.intel.com with ESMTP; 26 Feb 2023 00:59:05 -0800
+Received: from fmsmsx603.amr.corp.intel.com (10.18.126.83) by
+ fmsmsx603.amr.corp.intel.com (10.18.126.83) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.16; Sun, 26 Feb 2023 00:59:04 -0800
+Received: from fmsedg601.ED.cps.intel.com (10.1.192.135) by
+ fmsmsx603.amr.corp.intel.com (10.18.126.83) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.16 via Frontend Transport; Sun, 26 Feb 2023 00:59:04 -0800
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (104.47.56.171)
+ by edgegateway.intel.com (192.55.55.70) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.16; Sun, 26 Feb 2023 00:59:04 -0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=SnBRKP7u0zAlGx9WmW9YNx92MFw8JWEqBKfyyamJXwllahmHOv/J6DAN1vIZoKaoIfq1OND5EvdbccgWxfpXOguHbsD+NiMNSaXnATv70lrqZY2Dd87DxYRzraKT1Nm1gkfDc11YSedemq1gm8E4tkpOUCLTbDyKK1QFvOIkyXglwj8/GU/p24NgE9xc14Iab3AatGc8ptz/nUg8cPWPH6GCNdG2NAt9VZBaKH5N7vpQSUIv5uCb7bls07AwTV3UBBNb8QHgj6KBKgDIByyG/HOJNr0XMtiXW6jedTUyRMNUGsnxk/ZhR+sMxK6E+V/4uUTcYw4HfXDU0cyD0TudCQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=QCCQgQWvGfZQuRmDoZrYBSzPp7TyBXCeUUiwf+SKsXs=;
+ b=FaKfehUpKdwhdBT7vNUvLsa/KrEb1QPQWuPJcn3aT8xd+gpxQIqwyZD/ZpMmkH9KuX/YmpW3L3WSj7Xe0eVo9pWW78+L15uFCahmruowaB1HeQowOKHYbLDFAtqjZy+cQ8a1F/ew6PBlvtM1tkIFsFbfOZnXvvaTYGMVHCSSHXFGPa5Wh+dRyAB2t+s2EjJ7lCFTb2g3rrb/swnSXY46IJMKg/PC2rTDJHqKlQuj5incD93veBivbQpxDBpuWK6sI1UDg5QsCnZ4Dh7qI3q4c7SuwDl2heM8G9oVxFsRRnK1pxdtJ4CrrVxNZeyWjBIbO/C/nC/HwizvPegZ983PBw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from DS0PR11MB7529.namprd11.prod.outlook.com (2603:10b6:8:141::20)
+ by IA0PR11MB7355.namprd11.prod.outlook.com (2603:10b6:208:433::7) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6134.19; Sun, 26 Feb
+ 2023 08:59:02 +0000
+Received: from DS0PR11MB7529.namprd11.prod.outlook.com
+ ([fe80::6f7:944a:aaad:301f]) by DS0PR11MB7529.namprd11.prod.outlook.com
+ ([fe80::6f7:944a:aaad:301f%9]) with mapi id 15.20.6134.025; Sun, 26 Feb 2023
+ 08:59:02 +0000
+From:   "Liu, Yi L" <yi.l.liu@intel.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>,
+        "Tian, Kevin" <kevin.tian@intel.com>
+CC:     "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
+        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "joro@8bytes.org" <joro@8bytes.org>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "Hao, Xudong" <xudong.hao@intel.com>,
+        "peterx@redhat.com" <peterx@redhat.com>,
+        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
+        "eric.auger@redhat.com" <eric.auger@redhat.com>,
+        "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
+        "Xu, Terrence" <terrence.xu@intel.com>,
+        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
+        "shameerali.kolothum.thodi@huawei.com" 
+        <shameerali.kolothum.thodi@huawei.com>,
+        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
+        "lulu@redhat.com" <lulu@redhat.com>,
+        "intel-gvt-dev@lists.freedesktop.org" 
+        <intel-gvt-dev@lists.freedesktop.org>,
+        "jasowang@redhat.com" <jasowang@redhat.com>
+Subject: RE: [PATCH v4 09/19] vfio/pci: Accept device fd for hot reset
+Thread-Topic: [PATCH v4 09/19] vfio/pci: Accept device fd for hot reset
+Thread-Index: AQHZRadeNlgrDl2wokCstlukf6hiCq7akpcAgABgJDCAAEUdAIAA9TSAgABbNoCAANnbgIAABBCAgAOERXA=
+Date:   Sun, 26 Feb 2023 08:59:01 +0000
+Message-ID: <DS0PR11MB75292B46BE9CAC31EF4AF833C3AE9@DS0PR11MB7529.namprd11.prod.outlook.com>
+References: <20230221034812.138051-1-yi.l.liu@intel.com>
+ <20230221034812.138051-10-yi.l.liu@intel.com>
+ <BL1PR11MB5271D122329B6908BDE1F8328CAA9@BL1PR11MB5271.namprd11.prod.outlook.com>
+ <DS0PR11MB7529B33D098225CFAAA7D63FC3AA9@DS0PR11MB7529.namprd11.prod.outlook.com>
+ <Y/ZOOClu8nXy2toX@nvidia.com>
+ <BN9PR11MB52767915B9A5E509BC90E0888CAB9@BN9PR11MB5276.namprd11.prod.outlook.com>
+ <Y/dobS6gdSkxnPH7@nvidia.com>
+ <BN9PR11MB5276C959AA31F8515002B6B48CA89@BN9PR11MB5276.namprd11.prod.outlook.com>
+ <Y/gilafqe4Xm45jY@nvidia.com>
+In-Reply-To: <Y/gilafqe4Xm45jY@nvidia.com>
+Accept-Language: en-US
 Content-Language: en-US
-To:     Yury Norov <yury.norov@gmail.com>
-Cc:     linux-kernel@vger.kernel.org,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org
-References: <20220428205116.861003-1-yury.norov@gmail.com>
- <20220428205116.861003-4-yury.norov@gmail.com>
- <20230225184702.GA3587246@roeck-us.net> <Y/qhL8kSzzhMm+tO@yury-laptop>
-From:   Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH 3/5] lib/bitmap: add test for bitmap_{from,to}_arr64
-In-Reply-To: <Y/qhL8kSzzhMm+tO@yury-laptop>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: DS0PR11MB7529:EE_|IA0PR11MB7355:EE_
+x-ms-office365-filtering-correlation-id: 6f49d9fc-292c-44e8-89d8-08db17d7b4b0
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: eLY5dujwMLu61gitunGHMC9abvZ25Bv0WzY6KjSLr7DMaVNRDEqfnBw3MYC4tVH0/4z99Wb1ZIBzl4t0L3XQFL9R2/wF0WweM/LHlZTdQxE18oml0qJxhU0Cb4fBW1tqUXosrJ8E+cQotZMHsGg98ytLHjMXIu9PPTPPyyQzZUA94xwcd/f8s9O4geFu6OZHnKFxRmmSj7DEE8Xl40Sc/GeQ5CedTWMsCZruwUwMgEP4A9WQr0ZJuOI82rqvUnJY0UzOX0orzz4TecEj79AN4Qrdve70rVVvLdq6bv2CiRIXBGUX0KAyW8LwkFgKCQKraOKDPg1VYCcj3cVsvssIllx5cjHgnM1Vl+quHoPYN9cNOEJxkQ5WU8UETEO88sNlTJHzg9/bM/ge0T96OHwpn1JK6vF0psHZqGtfDWIUSDmTg3BpZfWzvePQROZ5ZnxIZ7Vr84diI84TDW1RkWoOqIXSln30MsntR5XJ1JfTQ8+6MisWZ9/ldSo2zhefZsMaih8eIrS4k1aS7r52ajnFz6yn2zHxlLc3CxlhPty5yz6CnhXiKW1DNzjq8i+zAjHsC1j7LZC9ajMZcmy6UDrT32opVsOQkarpGmRjWEr6/ok8yzaEwrqH9NhQ8ZJUPJi8xkdYhguuhtcYL6kwbZC9oo5oSHviNHRNzsjFepN+bp8PKRLnypyCCR4dxzBO6/sFCQxV9tpLqjh95HzohP/pWhUrugZaOK3jwKvR7Z+DPB8=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR11MB7529.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(39860400002)(136003)(366004)(376002)(346002)(396003)(451199018)(9686003)(82960400001)(66476007)(38070700005)(122000001)(83380400001)(52536014)(38100700002)(8936002)(6506007)(4326008)(41300700001)(76116006)(2906002)(5660300002)(66946007)(7416002)(55016003)(7696005)(71200400001)(8676002)(26005)(64756008)(186003)(478600001)(110136005)(316002)(86362001)(6636002)(66446008)(33656002)(66556008)(54906003)(13296009);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?6Jt0t5/UnLqCgO03nCcy9EYGx/RU6V7+51raiT2ZmgAEaqV5jqgXFsjw+Dvm?=
+ =?us-ascii?Q?AB5o9piGuQUvWndvRQ2WLhpoNs6kYjB0jDxrrs1JNZs9LKEfzbGzNYjqspga?=
+ =?us-ascii?Q?SKk/1YRIWcNBGb/X7H+IxE3uMol2E9FW8+aTHS9ZfFVuA3qBRkbAdr6FeE6p?=
+ =?us-ascii?Q?Td9dw+bFSL6EyLVdaA/eC8lRZ3ymjkgsp3Z/bbaZ0L7TBxvY5jp7o0cKjh43?=
+ =?us-ascii?Q?PpHtLgFRhWMc3fv7x+lh2KiMI8FeISdL5Urg0LxGfLG+B8zTy+g+unasKt3u?=
+ =?us-ascii?Q?AyrgBl3cWd7ZxWalBl5cnou6yBSgBr40mfLK4GVdDs6RuUJcLwhMaHEkUFfy?=
+ =?us-ascii?Q?2QFbiw/r0h23oel+HsvcRiDSJkcTy+cYPSPmGZrhLP8dSCjjWy1fzKBgFg1l?=
+ =?us-ascii?Q?/DtEzM24oG4TWP8I4J+U4bpsdCcRboBnb/Izq8lQJ10qBbTcq5JPw1CnGJOz?=
+ =?us-ascii?Q?++y9bwDKYNfKfBaQGrkABEmtBgBnMWfryPzJvq/FwtCIxTeYONmxeGFvws44?=
+ =?us-ascii?Q?a5uWc0VHGx0HwzUi+asIsfeiHH7vrsq7vNhjQfKc6VVfxdG3/WsAlma0DibN?=
+ =?us-ascii?Q?DwquU4QwtM4zukqpo5zl2h5tJ23lLTuGYgWhQ8sEK4yrvdFMfuSYbjk7iQDb?=
+ =?us-ascii?Q?xkn2mtX0cBBj1NhbAjOmAf0eFYzPrfuhhJ+gPnr8gNPEHfxgLA2m67Sdmlgv?=
+ =?us-ascii?Q?zGWeTVIV5HwLRB95bhr+7WBEbskREPWuBHu3Ob+Oc7ZFZ9TMOjZB5CeetCp4?=
+ =?us-ascii?Q?SsXoh2B7tdBH7ALtpUeV72ChfhHeSQSgPCclaun4MGFUAIEm/tv6bZtex94d?=
+ =?us-ascii?Q?HyKyvYnzsAspe8iyRNg/8jFY9k4q+IgSVsSKpomB5y4lCxlPLQ4ocNPn+71C?=
+ =?us-ascii?Q?LsAx//2DKciPN68SwORlu4Ya5AuyfXbt5uD81UOrxJLwPP8u/6mQ0KxDo4je?=
+ =?us-ascii?Q?g/FwQ5v8GBCGCM0cxw1prJaDeyLpD0fAs2Kv+Rv5WlNQ8J/pvGdzQNWyWyuO?=
+ =?us-ascii?Q?JxVR0N//6+cmg581WPzgRLKdTKycMCs5Z8Yw/8FWrBAhfnGYsAU5xjc+/PU6?=
+ =?us-ascii?Q?62GNY6EqeoEPRSVMNPRtFf0UVcvH2yAjpcYAOuOat1WvwZdzd2p8Alfwj4nQ?=
+ =?us-ascii?Q?fymojlVGV4Xoxz2z+d74PmHU9447G+PrVe52uVW4zN9D3A9Du1buL/58njN7?=
+ =?us-ascii?Q?R9m+3FejpTur7dmEy68jxfYMim2vR735h8Mhr2XKk/QanoU2F1N5xJ5FFqCr?=
+ =?us-ascii?Q?6OvmOSzPqZk4me2zrJ58Zv0JpIYD4YjsnTW76P4BcO61oz6N9dny0uuHvPAI?=
+ =?us-ascii?Q?TqErFCU16a9agd9Psu+xPs4kA9vhA0PQd3OBTBb8iRDFWYO0J2XRR0kFX1Ja?=
+ =?us-ascii?Q?aakMcQAXN8zBbKDaobiWxF84QqOrU1s+N9N0u/NVY2NYy5x5UPIexL8UomN1?=
+ =?us-ascii?Q?TVH92zghu0zT1D5qdSgxtcRuR5hFHoJyCtZQEXXY0MRgV3xux0VFVwOt9z7h?=
+ =?us-ascii?Q?yBaCfnCfpDC7BwbaBxf4xw5DUhzCt6ARiCVqCqNcCX4AJ7tWgMYri9KU+y/l?=
+ =?us-ascii?Q?D45DjLO8RnVTw3LaZAxipEDj5RMoOMv9U5KeVZbe?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: DS0PR11MB7529.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6f49d9fc-292c-44e8-89d8-08db17d7b4b0
+X-MS-Exchange-CrossTenant-originalarrivaltime: 26 Feb 2023 08:59:01.9620
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 51FNFrmyhSF83WGG+GR0vJC8dr0rWqZaL9Jdk+ZWHBAqQw9hUm3COwYBp7lW+WjfwqnKOzvyDhhDGnjI2SocTw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA0PR11MB7355
+X-OriginatorOrg: intel.com
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2/25/23 16:04, Yury Norov wrote:
-> On Sat, Feb 25, 2023 at 10:47:02AM -0800, Guenter Roeck wrote:
->> Hi,
->>
->> On Thu, Apr 28, 2022 at 01:51:14PM -0700, Yury Norov wrote:
->>> Test newly added bitmap_{from,to}_arr64() functions similarly to
->>> already existing bitmap_{from,to}_arr32() tests.
->>>
->>> Signed-off-by: Yury Norov <yury.norov@gmail.com>
->>
->> Ever since this test is in the tree, several of my boot tests show
->> lots of messages such as
->>
->> test_bitmap: bitmap_to_arr64(nbits == 1): tail is not safely cleared: 0xa5a5a5a500000001 (must be 0x0000000000000001)
->> test_bitmap: bitmap_to_arr64(nbits == 2): tail is not safely cleared: 0xa5a5a5a500000001 (must be 0x0000000000000003)
->> test_bitmap: bitmap_to_arr64(nbits == 3): tail is not safely cleared: 0xa5a5a5a500000001 (must be 0x0000000000000007)
->> ...
->> test_bitmap: bitmap_to_arr64(nbits == 927): tail is not safely cleared: 0xa5a5a5a500000000 (must be 0x000000007fffffff)
->> test_bitmap: bitmap_to_arr64(nbits == 928): tail is not safely cleared: 0xa5a5a5a580000000 (must be 0x00000000ffffffff)
-> 
-> This may be a real problem. Can you share what's the system is? What's
-> endianness and register length?
-> 
+> From: Jason Gunthorpe <jgg@nvidia.com>
+> Sent: Friday, February 24, 2023 10:36 AM
+>=20
+> On Fri, Feb 24, 2023 at 02:21:33AM +0000, Tian, Kevin wrote:
+>=20
+> > Yi, while you are incorporating this change please also update the
+> > uapi header. Rename 'group_fds[]' to 'fds[]' and add comment to
+> > explain that it could be an array of group fds or a single iommufd.
+>=20
+> Upon reflection we can probably make it even simpler and just have a 0
+> length fd array mean to use the iommufd the vfio_device is already
+> associated with
+>=20
+> And the check for correctness can be simplified to simply see if each
+> vfio_device in the dev_set is attached to the same iommufd ctx
+> pointer instead of searching the xarray.
 
-https://kerneltests.org/builders/qemu-arm-v7-master/builds/532/steps/qemubuildcommand/logs/stdio
-https://kerneltests.org/builders/qemu-arm-next/builds/2086/steps/qemubuildcommand/logs/stdio
+Sorry, it appears to me the below concern is not solved as above logic
+still requires userspace to open and bind devices to the same iommufd.
 
-are examples from different arm machines.
+"
+  > Say a scenario where group happens to overlap with devset. Let's say
+  > two devices in the group/devset.
+  >=20
+  > An existing deployment assigns only dev1 to Qemu. In this case dev1
+  > is resettable via group fd given dev2 cannot be opened by another
+  > user.
+"
 
-https://kerneltests.org/builders/qemu-xtensa-master/builds/2178/steps/qemubuildcommand/logs/stdio
+Thus, I think we still need to search the xarray to check if a device is
+bound to iommufd or not. And this check needs to be more relaxed.
+E.g. dev1 is bound to iommufd, but dev2 has not. However, they have
+the same group, so dev2 should be considered to be "bound" as well.
+When 0 length fd is used, vfio just gets the iommufd_ctx from the device
+that is to be reset, then check if all other devices in the dev_set are
+considered as bound with the below interface.
 
-is an example from xtensa.
++/**
++ * iommufd_ctx_has_group_for_device - True if any alias of struct device
++					is bound to this ictx
++ * @ictx: iommufd file descriptor
++ * @dev: Pointer to a physical device struct
++ *
++ * True if a iommufd_device_bind() is present for any alias of this dev
++ */
++bool iommufd_ctx_has_group_for_device(struct iommufd_ctx *ictx, struct dev=
+ice *dev)
++{
++	unsigned long index;
++	struct iommu_group *group;
++	struct iommufd_object *obj;
++
++	if (!ictx)
++		return false;
++
++	group =3D iommu_group_get(dev);
++	if (!group)
++		return false;
++
++	xa_lock(&ictx->objects);
++	xa_for_each(&ictx->objects, index, obj) {
++		if (obj->type =3D=3D IOMMUFD_OBJ_DEVICE)  &&
++		    container_of(obj, struct iommufd_device, obj)->group =3D=3D group) {
++			xa_unlock(&ictx->objects);
++			iommu_group_put(group);
++			return true;
++		}
++	}
++	xa_unlock(&ictx->objects);
++	iommu_group_put(group);
++	return false;
++}
++EXPORT_SYMBOL_NS_GPL(iommufd_ctx_has_group_for_device, IOMMUFD);
 
-https://kerneltests.org/builders/qemu-x86-master/builds/2248/steps/qemubuildcommand/logs/stdio
-
-is an example from a 32-bit x86 test.
-
-I am sure there are others; I only notice the messages if there is some other problem,
-and came to believe that they must be noise because it happens across several
-architectures and because it claimed at the end that all tests passed.
-
-Just to confirm, I ran a test with big and little endian mips machines.
-The problem is only seen with the little endian 32-bit machine. It is not
-seen with the 32-bit big endian machine, and it is not seen with any of
-the 64-bit machines (big and little endian).
-
-Guenter
-
-> + Alexander Lobakin, the author of the exact subtest.
->   
->> but then:
->>
->> test_bitmap: all 6550 tests passed
-> 
-> It's because corresponding error path doesn't increment failed_tests
-> counter. I'll send a fix shortly.
-> 
->>
->> The message suggests an error, given that it is displayed with pr_err,
->> but the summary suggests otherwise.
->>
->> Is the message just noise, or is there a problem ?
->>
->> Thanks,
->> Guenter
->>
->>> ---
->>>   lib/test_bitmap.c | 25 +++++++++++++++++++++++++
->>>   1 file changed, 25 insertions(+)
->>>
->>> diff --git a/lib/test_bitmap.c b/lib/test_bitmap.c
->>> index 0c82f07f74fc..d5923a640457 100644
->>> --- a/lib/test_bitmap.c
->>> +++ b/lib/test_bitmap.c
->>> @@ -585,6 +585,30 @@ static void __init test_bitmap_arr32(void)
->>>   	}
->>>   }
->>>   
->>> +static void __init test_bitmap_arr64(void)
->>> +{
->>> +	unsigned int nbits, next_bit;
->>> +	u64 arr[EXP1_IN_BITS / 64];
->>> +	DECLARE_BITMAP(bmap2, EXP1_IN_BITS);
->>> +
->>> +	memset(arr, 0xa5, sizeof(arr));
->>> +
->>> +	for (nbits = 0; nbits < EXP1_IN_BITS; ++nbits) {
->>> +		memset(bmap2, 0xff, sizeof(arr));
->>> +		bitmap_to_arr64(arr, exp1, nbits);
->>> +		bitmap_from_arr64(bmap2, arr, nbits);
->>> +		expect_eq_bitmap(bmap2, exp1, nbits);
->>> +
->>> +		next_bit = find_next_bit(bmap2, round_up(nbits, BITS_PER_LONG), nbits);
->>> +		if (next_bit < round_up(nbits, BITS_PER_LONG))
->>> +			pr_err("bitmap_copy_arr64(nbits == %d:"
->>> +				" tail is not safely cleared: %d\n", nbits, next_bit);
->>> +
->>> +		if (nbits < EXP1_IN_BITS - 64)
->>> +			expect_eq_uint(arr[DIV_ROUND_UP(nbits, 64)], 0xa5a5a5a5);
->>> +	}
->>> +}
->>> +
->>>   static void noinline __init test_mem_optimisations(void)
->>>   {
->>>   	DECLARE_BITMAP(bmap1, 1024);
->>> @@ -852,6 +876,7 @@ static void __init selftest(void)
->>>   	test_copy();
->>>   	test_replace();
->>>   	test_bitmap_arr32();
->>> +	test_bitmap_arr64();
->>>   	test_bitmap_parse();
->>>   	test_bitmap_parselist();
->>>   	test_bitmap_printlist();
->>> -- 
->>> 2.32.0
->>>
-
+Regards
+Yi Liu
