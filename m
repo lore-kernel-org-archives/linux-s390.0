@@ -2,48 +2,48 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F1F8C7EE23
-	for <linux-s390@archiver.kernel.org>; Sun, 26 Feb 2023 14:54:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A7A7C6FA8E
+	for <linux-s390@archiver.kernel.org>; Sun, 26 Feb 2023 14:56:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230367AbjBZOyI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 26 Feb 2023 09:54:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55870 "EHLO
+        id S231221AbjBZO4E (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 26 Feb 2023 09:56:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230321AbjBZOxf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 26 Feb 2023 09:53:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1B731A95F;
-        Sun, 26 Feb 2023 06:50:01 -0800 (PST)
+        with ESMTP id S230289AbjBZOyh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 26 Feb 2023 09:54:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 326C01B320;
+        Sun, 26 Feb 2023 06:50:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 70D0660C75;
-        Sun, 26 Feb 2023 14:48:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB872C4339C;
-        Sun, 26 Feb 2023 14:48:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 91F1C60C1F;
+        Sun, 26 Feb 2023 14:49:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5556C433D2;
+        Sun, 26 Feb 2023 14:49:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677422910;
-        bh=wDQU7wA4Gd0K/OWWRxL5KWvbQi/XruCt8wvPygITTfA=;
+        s=k20201202; t=1677422998;
+        bh=c66ZqseNXtvYab1W9Mmr1L9hnpx98bZ6fpgNuOsd55Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jz8xLwOHDLkpDHRVwbUdISmVzj72YG00M9tBYUQwuxCCHpgNSkDRxOMm82Xofvv4w
-         3j5i75WwFApSm7M39PmQ5zBPjQ2vOcdWYyvYkBHg8pk5NpPujHEAdTpYkgvJKO3iUI
-         VUfZIJKyKU/EyssfqsuoFi/rdrMcjVGHqacqOFcDv8UBKqdkr1ftb5+OJcV9X7W6ov
-         9C0fXkgUESCqBGMP/dvcze/Dbk84kNUHuZavl0cpQsKUuZlMNrtHt/roGxBrEEIgf0
-         cyE2LcvD+LJdQex9htUVEV61q+tfemt6UflssaSmZdcaS3gkuXOYpko+3DcmSVCHSe
-         ORNrrwfOdlGcQ==
+        b=p1KQOCwQZqwBT3Wkg5MycVJnNMoOehk2f7abRcKLVqr7CMBxRSEAColA8ZlSQxz5m
+         Y4Ajnv+57H+W0N7tNIOWpxyKCp29NDzvf7I16VdJ2y1cTJQqXiB1dYnNouHA3rDWiA
+         e2o1jXiAX96cnuQHpJaylgp7/P0dO+CPuxDJ7sIFCS+cs8MqCno4TkFKYaZeYHYDYK
+         4hbV/eV+2AEf1OAwFnyvFwZxsjCuJgHWqWHveDLeKTMK6OL5JyINPEhUDY7wi9wkkl
+         WygR9UDBmOWbb3bfamIvF7eLIm0qjJ0HNeO32pyUigF3RaAlgxN0ipwiWqwkMJcfYc
+         88gqAdJjfYQmA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Heiko Carstens <hca@linux.ibm.com>, Baoquan He <bhe@redhat.com>,
-        Alexander Potapenko <glider@google.com>,
-        Sasha Levin <sashal@kernel.org>, agordeev@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, gor@linux.ibm.com,
-        linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 46/49] s390/kfence: fix page fault reporting
-Date:   Sun, 26 Feb 2023 09:46:46 -0500
-Message-Id: <20230226144650.826470-46-sashal@kernel.org>
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, peterz@infradead.org, guoren@kernel.org,
+        npiggin@gmail.com, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 29/36] s390/idle: mark arch_cpu_idle() noinstr
+Date:   Sun, 26 Feb 2023 09:48:37 -0500
+Message-Id: <20230226144845.827893-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230226144650.826470-1-sashal@kernel.org>
-References: <20230226144650.826470-1-sashal@kernel.org>
+In-Reply-To: <20230226144845.827893-1-sashal@kernel.org>
+References: <20230226144845.827893-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -54,170 +54,64 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit d9c2cf67b9cfd643ba85d51bc865a89a92e4f979 ]
+[ Upstream commit a9cbc1b471d291c865907542394f1c483b93a811 ]
 
-Baoquan He reported lots of KFENCE reports when /proc/kcore is read,
-e.g. with crash or even simpler with dd:
+linux-next commit ("cpuidle: tracing: Warn about !rcu_is_watching()")
+adds a new warning which hits on s390's arch_cpu_idle() function:
 
- BUG: KFENCE: invalid read in copy_from_kernel_nofault+0x5e/0x120
- Invalid read at 0x00000000f4f5149f:
-  copy_from_kernel_nofault+0x5e/0x120
-  read_kcore+0x6b2/0x870
-  proc_reg_read+0x9a/0xf0
-  vfs_read+0x94/0x270
-  ksys_read+0x70/0x100
-  __do_syscall+0x1d0/0x200
-  system_call+0x82/0xb0
+RCU not on for: arch_cpu_idle+0x0/0x28
+WARNING: CPU: 2 PID: 0 at include/linux/trace_recursion.h:162 arch_ftrace_ops_list_func+0x24c/0x258
+Modules linked in:
+CPU: 2 PID: 0 Comm: swapper/2 Not tainted 6.2.0-rc6-next-20230202 #4
+Hardware name: IBM 8561 T01 703 (z/VM 7.3.0)
+Krnl PSW : 0404d00180000000 00000000002b55c0 (arch_ftrace_ops_list_func+0x250/0x258)
+           R:0 T:1 IO:0 EX:0 Key:0 M:1 W:0 P:0 AS:3 CC:1 PM:0 RI:0 EA:3
+Krnl GPRS: c0000000ffffbfff 0000000080000002 0000000000000026 0000000000000000
+           0000037ffffe3a28 0000037ffffe3a20 0000000000000000 0000000000000000
+           0000000000000000 0000000000f4acf6 00000000001044f0 0000037ffffe3cb0
+           0000000000000000 0000000000000000 00000000002b55bc 0000037ffffe3bb8
+Krnl Code: 00000000002b55b0: c02000840051        larl    %r2,0000000001335652
+           00000000002b55b6: c0e5fff512d1        brasl   %r14,0000000000157b58
+          #00000000002b55bc: af000000            mc      0,0
+          >00000000002b55c0: a7f4ffe7            brc     15,00000000002b558e
+           00000000002b55c4: 0707                bcr     0,%r7
+           00000000002b55c6: 0707                bcr     0,%r7
+           00000000002b55c8: eb6ff0480024        stmg    %r6,%r15,72(%r15)
+           00000000002b55ce: b90400ef            lgr     %r14,%r15
+Call Trace:
+ [<00000000002b55c0>] arch_ftrace_ops_list_func+0x250/0x258
+([<00000000002b55bc>] arch_ftrace_ops_list_func+0x24c/0x258)
+ [<0000000000f5f0fc>] ftrace_common+0x1c/0x20
+ [<00000000001044f6>] arch_cpu_idle+0x6/0x28
+ [<0000000000f4acf6>] default_idle_call+0x76/0x128
+ [<00000000001cc374>] do_idle+0xf4/0x1b0
+ [<00000000001cc6ce>] cpu_startup_entry+0x36/0x40
+ [<0000000000119d00>] smp_start_secondary+0x140/0x150
+ [<0000000000f5d2ae>] restart_int_handler+0x6e/0x90
 
-The reason for this is that read_kcore() simply reads memory that might
-have been unmapped by KFENCE with copy_from_kernel_nofault(). Any fault due
-to pages being unmapped by KFENCE would be handled gracefully by the fault
-handler (exception table fixup).
+Mark arch_cpu_idle() noinstr like all other architectures with
+CONFIG_ARCH_WANTS_NO_INSTR (should) have it to fix this.
 
-However the s390 fault handler first reports the fault, and only afterwards
-would perform the exception table fixup. Most architectures have this in
-reversed order, which also avoids the false positive KFENCE reports when an
-unmapped page is accessed.
-
-Therefore change the s390 fault handler so it handles exception table
-fixups before KFENCE page faults are reported.
-
-Reported-by: Baoquan He <bhe@redhat.com>
-Tested-by: Baoquan He <bhe@redhat.com>
-Acked-by: Alexander Potapenko <glider@google.com>
-Link: https://lore.kernel.org/r/20230213183858.1473681-1-hca@linux.ibm.com
+Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
 Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/mm/fault.c | 49 +++++++++++++++++++++++++++++++-------------
- 1 file changed, 35 insertions(+), 14 deletions(-)
+ arch/s390/kernel/idle.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-index 9649d9382e0ae..8e84ed2bb944e 100644
---- a/arch/s390/mm/fault.c
-+++ b/arch/s390/mm/fault.c
-@@ -96,6 +96,20 @@ static enum fault_type get_fault_type(struct pt_regs *regs)
- 	return KERNEL_FAULT;
+diff --git a/arch/s390/kernel/idle.c b/arch/s390/kernel/idle.c
+index 4bf1ee293f2b3..a0da049e73609 100644
+--- a/arch/s390/kernel/idle.c
++++ b/arch/s390/kernel/idle.c
+@@ -44,7 +44,7 @@ void account_idle_time_irq(void)
+ 	S390_lowcore.last_update_timer = idle->timer_idle_exit;
  }
  
-+static unsigned long get_fault_address(struct pt_regs *regs)
-+{
-+	unsigned long trans_exc_code = regs->int_parm_long;
-+
-+	return trans_exc_code & __FAIL_ADDR_MASK;
-+}
-+
-+static bool fault_is_write(struct pt_regs *regs)
-+{
-+	unsigned long trans_exc_code = regs->int_parm_long;
-+
-+	return (trans_exc_code & store_indication) == 0x400;
-+}
-+
- static int bad_address(void *p)
+-void arch_cpu_idle(void)
++void noinstr arch_cpu_idle(void)
  {
- 	unsigned long dummy;
-@@ -228,15 +242,26 @@ static noinline void do_sigsegv(struct pt_regs *regs, int si_code)
- 			(void __user *)(regs->int_parm_long & __FAIL_ADDR_MASK));
- }
- 
--static noinline void do_no_context(struct pt_regs *regs)
-+static noinline void do_no_context(struct pt_regs *regs, vm_fault_t fault)
- {
-+	enum fault_type fault_type;
-+	unsigned long address;
-+	bool is_write;
-+
- 	if (fixup_exception(regs))
- 		return;
-+	fault_type = get_fault_type(regs);
-+	if ((fault_type == KERNEL_FAULT) && (fault == VM_FAULT_BADCONTEXT)) {
-+		address = get_fault_address(regs);
-+		is_write = fault_is_write(regs);
-+		if (kfence_handle_page_fault(address, is_write, regs))
-+			return;
-+	}
- 	/*
- 	 * Oops. The kernel tried to access some bad page. We'll have to
- 	 * terminate things with extreme prejudice.
- 	 */
--	if (get_fault_type(regs) == KERNEL_FAULT)
-+	if (fault_type == KERNEL_FAULT)
- 		printk(KERN_ALERT "Unable to handle kernel pointer dereference"
- 		       " in virtual kernel address space\n");
- 	else
-@@ -255,7 +280,7 @@ static noinline void do_low_address(struct pt_regs *regs)
- 		die (regs, "Low-address protection");
- 	}
- 
--	do_no_context(regs);
-+	do_no_context(regs, VM_FAULT_BADACCESS);
- }
- 
- static noinline void do_sigbus(struct pt_regs *regs)
-@@ -286,28 +311,28 @@ static noinline void do_fault_error(struct pt_regs *regs, vm_fault_t fault)
- 		fallthrough;
- 	case VM_FAULT_BADCONTEXT:
- 	case VM_FAULT_PFAULT:
--		do_no_context(regs);
-+		do_no_context(regs, fault);
- 		break;
- 	case VM_FAULT_SIGNAL:
- 		if (!user_mode(regs))
--			do_no_context(regs);
-+			do_no_context(regs, fault);
- 		break;
- 	default: /* fault & VM_FAULT_ERROR */
- 		if (fault & VM_FAULT_OOM) {
- 			if (!user_mode(regs))
--				do_no_context(regs);
-+				do_no_context(regs, fault);
- 			else
- 				pagefault_out_of_memory();
- 		} else if (fault & VM_FAULT_SIGSEGV) {
- 			/* Kernel mode? Handle exceptions or die */
- 			if (!user_mode(regs))
--				do_no_context(regs);
-+				do_no_context(regs, fault);
- 			else
- 				do_sigsegv(regs, SEGV_MAPERR);
- 		} else if (fault & VM_FAULT_SIGBUS) {
- 			/* Kernel mode? Handle exceptions or die */
- 			if (!user_mode(regs))
--				do_no_context(regs);
-+				do_no_context(regs, fault);
- 			else
- 				do_sigbus(regs);
- 		} else
-@@ -334,7 +359,6 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
- 	struct mm_struct *mm;
- 	struct vm_area_struct *vma;
- 	enum fault_type type;
--	unsigned long trans_exc_code;
- 	unsigned long address;
- 	unsigned int flags;
- 	vm_fault_t fault;
-@@ -351,9 +375,8 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
- 		return 0;
- 
- 	mm = tsk->mm;
--	trans_exc_code = regs->int_parm_long;
--	address = trans_exc_code & __FAIL_ADDR_MASK;
--	is_write = (trans_exc_code & store_indication) == 0x400;
-+	address = get_fault_address(regs);
-+	is_write = fault_is_write(regs);
- 
- 	/*
- 	 * Verify that the fault happened in user space, that
-@@ -364,8 +387,6 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
- 	type = get_fault_type(regs);
- 	switch (type) {
- 	case KERNEL_FAULT:
--		if (kfence_handle_page_fault(address, is_write, regs))
--			return 0;
- 		goto out;
- 	case USER_FAULT:
- 	case GMAP_FAULT:
+ 	struct s390_idle_data *idle = this_cpu_ptr(&s390_idle);
+ 	unsigned long idle_time;
 -- 
 2.39.0
 
