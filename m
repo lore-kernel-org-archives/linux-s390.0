@@ -2,48 +2,48 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2766CC6FA8E
-	for <linux-s390@archiver.kernel.org>; Sun, 26 Feb 2023 14:49:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A25A9C7EE2F
+	for <linux-s390@archiver.kernel.org>; Sun, 26 Feb 2023 14:50:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229948AbjBZOtB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 26 Feb 2023 09:49:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43904 "EHLO
+        id S229990AbjBZOuY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 26 Feb 2023 09:50:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229951AbjBZOsG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 26 Feb 2023 09:48:06 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7713613519;
-        Sun, 26 Feb 2023 06:47:31 -0800 (PST)
+        with ESMTP id S229988AbjBZOtU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 26 Feb 2023 09:49:20 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFB9B65B9;
+        Sun, 26 Feb 2023 06:48:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C1F9BCE0E7F;
-        Sun, 26 Feb 2023 14:46:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16E89C433A0;
-        Sun, 26 Feb 2023 14:46:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 51252B80C69;
+        Sun, 26 Feb 2023 14:47:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56188C433D2;
+        Sun, 26 Feb 2023 14:47:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677422799;
-        bh=wDQU7wA4Gd0K/OWWRxL5KWvbQi/XruCt8wvPygITTfA=;
+        s=k20201202; t=1677422874;
+        bh=WYkdGVS0vINTRDqZUVyCLihrwarBLyPRWPVvLsWnlwg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jv0kU+sGLtKl7yMbRfB+rwnsq9v83QJ79SirsfHnfSUnXBsvAV61DHkFy2vfmLIQz
-         4U0YYqXC5/vrsdFCaCBGk4gogmzGKG3gUqpp3XxqPAb4eHLNIY+GAE2H2Jm2WTjt5P
-         4gySbVGcbUyAw85ACV6SRQ3mhAfuGBlD/P/Z8OJNR2C5vhnqrYaFuBD5U0wJ2Xm4ps
-         4elath/gbSl0qhh0SC1FBVz/dxt5XXgWSAuHQkKGalcjNIat09lsSQ4zqmvBNdMziZ
-         XoqOKB/nbVOze31Yr2vEbv1jg1W7pDS3A7oULywlqU5EzVNaOXdgMpCjgPUMvpiGY7
-         o7Rc7iqZfyd8w==
+        b=Zzi1UI6Cp6I/RSozCJ7WVuKNNQuzhdJeuq9h4KzzMYuYX7oaDKbxRESsr3OBL0XkN
+         JhEktF5lmAX7mSYwrlKzCCi79SDx7nDZ9nG/dNDtNS0I1GrZgv8pK8KtsC/HpRNjDG
+         B3yrJHiAEGIg/AYCoVlSZi1jvejscYtPssuTPMEMpn0kCsPDxGSNleFMym2vgIDE6S
+         s8jIkalg+PJbfOheEUVnDR9hiZyuOjP62vMZar8hiUpLgMianbjtiDjW0DWruO00zA
+         oGdXot2Z2B5lvG9HYzaB+Bv9EdQgl8UFyq1l8ooh4qQ1T0L7WagMSEoJFkgO5cjixR
+         +n+ro78DdYTrA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Heiko Carstens <hca@linux.ibm.com>, Baoquan He <bhe@redhat.com>,
-        Alexander Potapenko <glider@google.com>,
-        Sasha Levin <sashal@kernel.org>, agordeev@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, gor@linux.ibm.com,
+Cc:     Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, gerald.schaefer@linux.ibm.com,
         linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.2 50/53] s390/kfence: fix page fault reporting
-Date:   Sun, 26 Feb 2023 09:44:42 -0500
-Message-Id: <20230226144446.824580-50-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1 27/49] s390/mm,ptdump: avoid Kasan vs Memcpy Real markers swapping
+Date:   Sun, 26 Feb 2023 09:46:27 -0500
+Message-Id: <20230226144650.826470-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230226144446.824580-1-sashal@kernel.org>
-References: <20230226144446.824580-1-sashal@kernel.org>
+In-Reply-To: <20230226144650.826470-1-sashal@kernel.org>
+References: <20230226144650.826470-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -52,172 +52,77 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-[ Upstream commit d9c2cf67b9cfd643ba85d51bc865a89a92e4f979 ]
+[ Upstream commit 05178996e1a77e2a4664536e6d101a086a905034 ]
 
-Baoquan He reported lots of KFENCE reports when /proc/kcore is read,
-e.g. with crash or even simpler with dd:
+---[ Real Memory Copy Area Start ]---
+0x001bfffffffff000-0x001c000000000000         4K PTE I
+---[ Kasan Shadow Start ]---
+---[ Real Memory Copy Area End ]---
+0x001c000000000000-0x001c000200000000         8G PMD RW NX
+...
+---[ Kasan Shadow End ]---
 
- BUG: KFENCE: invalid read in copy_from_kernel_nofault+0x5e/0x120
- Invalid read at 0x00000000f4f5149f:
-  copy_from_kernel_nofault+0x5e/0x120
-  read_kcore+0x6b2/0x870
-  proc_reg_read+0x9a/0xf0
-  vfs_read+0x94/0x270
-  ksys_read+0x70/0x100
-  __do_syscall+0x1d0/0x200
-  system_call+0x82/0xb0
+ptdump does a stable sort of markers. Move kasan markers after
+memcpy real to avoid swapping.
 
-The reason for this is that read_kcore() simply reads memory that might
-have been unmapped by KFENCE with copy_from_kernel_nofault(). Any fault due
-to pages being unmapped by KFENCE would be handled gracefully by the fault
-handler (exception table fixup).
-
-However the s390 fault handler first reports the fault, and only afterwards
-would perform the exception table fixup. Most architectures have this in
-reversed order, which also avoids the false positive KFENCE reports when an
-unmapped page is accessed.
-
-Therefore change the s390 fault handler so it handles exception table
-fixups before KFENCE page faults are reported.
-
-Reported-by: Baoquan He <bhe@redhat.com>
-Tested-by: Baoquan He <bhe@redhat.com>
-Acked-by: Alexander Potapenko <glider@google.com>
-Link: https://lore.kernel.org/r/20230213183858.1473681-1-hca@linux.ibm.com
+Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/mm/fault.c | 49 +++++++++++++++++++++++++++++++-------------
- 1 file changed, 35 insertions(+), 14 deletions(-)
+ arch/s390/mm/dump_pagetables.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-index 9649d9382e0ae..8e84ed2bb944e 100644
---- a/arch/s390/mm/fault.c
-+++ b/arch/s390/mm/fault.c
-@@ -96,6 +96,20 @@ static enum fault_type get_fault_type(struct pt_regs *regs)
- 	return KERNEL_FAULT;
- }
+diff --git a/arch/s390/mm/dump_pagetables.c b/arch/s390/mm/dump_pagetables.c
+index 9953819d79596..ba5f802688781 100644
+--- a/arch/s390/mm/dump_pagetables.c
++++ b/arch/s390/mm/dump_pagetables.c
+@@ -33,10 +33,6 @@ enum address_markers_idx {
+ #endif
+ 	IDENTITY_AFTER_NR,
+ 	IDENTITY_AFTER_END_NR,
+-#ifdef CONFIG_KASAN
+-	KASAN_SHADOW_START_NR,
+-	KASAN_SHADOW_END_NR,
+-#endif
+ 	VMEMMAP_NR,
+ 	VMEMMAP_END_NR,
+ 	VMALLOC_NR,
+@@ -47,6 +43,10 @@ enum address_markers_idx {
+ 	ABS_LOWCORE_END_NR,
+ 	MEMCPY_REAL_NR,
+ 	MEMCPY_REAL_END_NR,
++#ifdef CONFIG_KASAN
++	KASAN_SHADOW_START_NR,
++	KASAN_SHADOW_END_NR,
++#endif
+ };
  
-+static unsigned long get_fault_address(struct pt_regs *regs)
-+{
-+	unsigned long trans_exc_code = regs->int_parm_long;
-+
-+	return trans_exc_code & __FAIL_ADDR_MASK;
-+}
-+
-+static bool fault_is_write(struct pt_regs *regs)
-+{
-+	unsigned long trans_exc_code = regs->int_parm_long;
-+
-+	return (trans_exc_code & store_indication) == 0x400;
-+}
-+
- static int bad_address(void *p)
- {
- 	unsigned long dummy;
-@@ -228,15 +242,26 @@ static noinline void do_sigsegv(struct pt_regs *regs, int si_code)
- 			(void __user *)(regs->int_parm_long & __FAIL_ADDR_MASK));
- }
+ static struct addr_marker address_markers[] = {
+@@ -62,10 +62,6 @@ static struct addr_marker address_markers[] = {
+ #endif
+ 	[IDENTITY_AFTER_NR]	= {(unsigned long)_end, "Identity Mapping Start"},
+ 	[IDENTITY_AFTER_END_NR]	= {0, "Identity Mapping End"},
+-#ifdef CONFIG_KASAN
+-	[KASAN_SHADOW_START_NR]	= {KASAN_SHADOW_START, "Kasan Shadow Start"},
+-	[KASAN_SHADOW_END_NR]	= {KASAN_SHADOW_END, "Kasan Shadow End"},
+-#endif
+ 	[VMEMMAP_NR]		= {0, "vmemmap Area Start"},
+ 	[VMEMMAP_END_NR]	= {0, "vmemmap Area End"},
+ 	[VMALLOC_NR]		= {0, "vmalloc Area Start"},
+@@ -76,6 +72,10 @@ static struct addr_marker address_markers[] = {
+ 	[ABS_LOWCORE_END_NR]	= {0, "Lowcore Area End"},
+ 	[MEMCPY_REAL_NR]	= {0, "Real Memory Copy Area Start"},
+ 	[MEMCPY_REAL_END_NR]	= {0, "Real Memory Copy Area End"},
++#ifdef CONFIG_KASAN
++	[KASAN_SHADOW_START_NR]	= {KASAN_SHADOW_START, "Kasan Shadow Start"},
++	[KASAN_SHADOW_END_NR]	= {KASAN_SHADOW_END, "Kasan Shadow End"},
++#endif
+ 	{ -1, NULL }
+ };
  
--static noinline void do_no_context(struct pt_regs *regs)
-+static noinline void do_no_context(struct pt_regs *regs, vm_fault_t fault)
- {
-+	enum fault_type fault_type;
-+	unsigned long address;
-+	bool is_write;
-+
- 	if (fixup_exception(regs))
- 		return;
-+	fault_type = get_fault_type(regs);
-+	if ((fault_type == KERNEL_FAULT) && (fault == VM_FAULT_BADCONTEXT)) {
-+		address = get_fault_address(regs);
-+		is_write = fault_is_write(regs);
-+		if (kfence_handle_page_fault(address, is_write, regs))
-+			return;
-+	}
- 	/*
- 	 * Oops. The kernel tried to access some bad page. We'll have to
- 	 * terminate things with extreme prejudice.
- 	 */
--	if (get_fault_type(regs) == KERNEL_FAULT)
-+	if (fault_type == KERNEL_FAULT)
- 		printk(KERN_ALERT "Unable to handle kernel pointer dereference"
- 		       " in virtual kernel address space\n");
- 	else
-@@ -255,7 +280,7 @@ static noinline void do_low_address(struct pt_regs *regs)
- 		die (regs, "Low-address protection");
- 	}
- 
--	do_no_context(regs);
-+	do_no_context(regs, VM_FAULT_BADACCESS);
- }
- 
- static noinline void do_sigbus(struct pt_regs *regs)
-@@ -286,28 +311,28 @@ static noinline void do_fault_error(struct pt_regs *regs, vm_fault_t fault)
- 		fallthrough;
- 	case VM_FAULT_BADCONTEXT:
- 	case VM_FAULT_PFAULT:
--		do_no_context(regs);
-+		do_no_context(regs, fault);
- 		break;
- 	case VM_FAULT_SIGNAL:
- 		if (!user_mode(regs))
--			do_no_context(regs);
-+			do_no_context(regs, fault);
- 		break;
- 	default: /* fault & VM_FAULT_ERROR */
- 		if (fault & VM_FAULT_OOM) {
- 			if (!user_mode(regs))
--				do_no_context(regs);
-+				do_no_context(regs, fault);
- 			else
- 				pagefault_out_of_memory();
- 		} else if (fault & VM_FAULT_SIGSEGV) {
- 			/* Kernel mode? Handle exceptions or die */
- 			if (!user_mode(regs))
--				do_no_context(regs);
-+				do_no_context(regs, fault);
- 			else
- 				do_sigsegv(regs, SEGV_MAPERR);
- 		} else if (fault & VM_FAULT_SIGBUS) {
- 			/* Kernel mode? Handle exceptions or die */
- 			if (!user_mode(regs))
--				do_no_context(regs);
-+				do_no_context(regs, fault);
- 			else
- 				do_sigbus(regs);
- 		} else
-@@ -334,7 +359,6 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
- 	struct mm_struct *mm;
- 	struct vm_area_struct *vma;
- 	enum fault_type type;
--	unsigned long trans_exc_code;
- 	unsigned long address;
- 	unsigned int flags;
- 	vm_fault_t fault;
-@@ -351,9 +375,8 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
- 		return 0;
- 
- 	mm = tsk->mm;
--	trans_exc_code = regs->int_parm_long;
--	address = trans_exc_code & __FAIL_ADDR_MASK;
--	is_write = (trans_exc_code & store_indication) == 0x400;
-+	address = get_fault_address(regs);
-+	is_write = fault_is_write(regs);
- 
- 	/*
- 	 * Verify that the fault happened in user space, that
-@@ -364,8 +387,6 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
- 	type = get_fault_type(regs);
- 	switch (type) {
- 	case KERNEL_FAULT:
--		if (kfence_handle_page_fault(address, is_write, regs))
--			return 0;
- 		goto out;
- 	case USER_FAULT:
- 	case GMAP_FAULT:
 -- 
 2.39.0
 
