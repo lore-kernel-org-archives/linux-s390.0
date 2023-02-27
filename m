@@ -2,138 +2,216 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8111DC64ED6
-	for <linux-s390@archiver.kernel.org>; Mon, 27 Feb 2023 12:16:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 80B8CC64ED8
+	for <linux-s390@archiver.kernel.org>; Mon, 27 Feb 2023 13:33:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229809AbjB0MQh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 27 Feb 2023 07:16:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37474 "EHLO
+        id S230169AbjB0NdA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 27 Feb 2023 08:33:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229535AbjB0MQh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Feb 2023 07:16:37 -0500
-Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE8361A491;
-        Mon, 27 Feb 2023 04:16:34 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=kaishen@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VcehaX3_1677500191;
-Received: from localhost(mailfrom:KaiShen@linux.alibaba.com fp:SMTPD_---0VcehaX3_1677500191)
-          by smtp.aliyun-inc.com;
-          Mon, 27 Feb 2023 20:16:32 +0800
-From:   Kai <KaiShen@linux.alibaba.com>
-To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-        Kai <KaiShen@linux.alibaba.com>
-Subject: [PATCH net-next v2] net/smc: Use percpu ref for wr tx reference
-Date:   Mon, 27 Feb 2023 12:16:16 +0000
-Message-Id: <20230227121616.448-1-KaiShen@linux.alibaba.com>
-X-Mailer: git-send-email 2.31.1
+        with ESMTP id S229684AbjB0Ncf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Feb 2023 08:32:35 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F8C8211DB
+        for <linux-s390@vger.kernel.org>; Mon, 27 Feb 2023 05:31:43 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1677504702;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=V+6qFC7OXniFoFqHVWKESI1xjQfVcOUspp9yumvENXI=;
+        b=ex46fXXrhKmDPYEWGcB+af8vCe1J2IzZwA/e2KmgnAYszjSYEeJRhD0SpcUuO1qPy3fF9X
+        XAUmcoTTxXm+25+CGrHsNBZUTmHTyITfycVgVEzyB9To6mrfHrZuTHv/h//7qCbivgE7jW
+        G/8xMJixjPXbKePOGt18zoDHMoIkxVA=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-148-n5DiZ3JcMFKPp4g6iX-fiw-1; Mon, 27 Feb 2023 08:31:41 -0500
+X-MC-Unique: n5DiZ3JcMFKPp4g6iX-fiw-1
+Received: by mail-wm1-f70.google.com with SMTP id t1-20020a7bc3c1000000b003dfe223de49so5334871wmj.5
+        for <linux-s390@vger.kernel.org>; Mon, 27 Feb 2023 05:31:40 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:subject:organization:from
+         :references:cc:to:content-language:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=V+6qFC7OXniFoFqHVWKESI1xjQfVcOUspp9yumvENXI=;
+        b=qF+SdIjKPTursGp30XCb3HPQMVD5uTh8mtENCHD4g+n1oZfJemffzEtqNVBGl+MgBm
+         CZ0BCT6ziNRtLIE5/mvTQCYSDJu4AIBufCIXPM9mso3/lr6Z/KvRL4qWDMNXmtvpcdzl
+         HwPbBFm75yg6ielIEN/D7m+DjPPnYbnRJEfWGlK3jyIDW7e/vA8AJcZipV7miMxBw9qq
+         WZbh9iANvZHv6Kg3WHkE88nbancQyUpdF5612gCTcVx+JoN2Cfd1qZ4OgQ8dabQW1+t0
+         GJaSYaYMfTdTwNI9VkwsQQXvw0pup6d/bG4rVbgcd1u8j/AItFilLJehZxspCgL8DV99
+         toxQ==
+X-Gm-Message-State: AO0yUKVuVA5UC/INPW7JQiAoM2jrE7GUcTpx5G1gpdpJNl4SaE7VoS8W
+        5qIzz62nOGuaDExsJwkPDBatxe7/X1xkmnnobYhN0D8SJE560D6m3PWV3b3qVYY78+hJEbRRBqV
+        aJTqgZ0PaiGnW16ZrLSyBrw==
+X-Received: by 2002:a05:600c:3d9b:b0:3ea:f6c4:5f2a with SMTP id bi27-20020a05600c3d9b00b003eaf6c45f2amr11631364wmb.17.1677504699851;
+        Mon, 27 Feb 2023 05:31:39 -0800 (PST)
+X-Google-Smtp-Source: AK7set9k8OE3X06H0t6ffblDghDw4p6MluetLQ2Nt3K/GymnPq5PiNVd71t1cUTwSWsd1hBXO2jKVw==
+X-Received: by 2002:a05:600c:3d9b:b0:3ea:f6c4:5f2a with SMTP id bi27-20020a05600c3d9b00b003eaf6c45f2amr11631342wmb.17.1677504699482;
+        Mon, 27 Feb 2023 05:31:39 -0800 (PST)
+Received: from ?IPV6:2003:cb:c703:1f00:7816:2307:5967:2228? (p200300cbc7031f007816230759672228.dip0.t-ipconnect.de. [2003:cb:c703:1f00:7816:2307:5967:2228])
+        by smtp.gmail.com with ESMTPSA id m34-20020a05600c3b2200b003df5be8987esm14091432wms.20.2023.02.27.05.31.37
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 27 Feb 2023 05:31:38 -0800 (PST)
+Message-ID: <9ed766a6-cf06-535d-3337-ea6ff25c2362@redhat.com>
+Date:   Mon, 27 Feb 2023 14:31:37 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.7.2
+Content-Language: en-US
+To:     Geert Uytterhoeven <geert@linux-m68k.org>
+Cc:     linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Hugh Dickins <hughd@google.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Nadav Amit <namit@vmware.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Peter Xu <peterx@redhat.com>, linux-mm@kvack.org,
+        x86@kernel.org, linux-alpha@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
+        Michal Simek <monstr@monstr.eu>
+References: <20230113171026.582290-1-david@redhat.com>
+ <20230113171026.582290-12-david@redhat.com>
+ <CAMuHMdX-FDga8w=pgg1myskEx6wp+oyZifhPPPFnWrc1zW7ZpQ@mail.gmail.com>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+Subject: Re: [PATCH mm-unstable v1 11/26] microblaze/mm: support
+ __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+In-Reply-To: <CAMuHMdX-FDga8w=pgg1myskEx6wp+oyZifhPPPFnWrc1zW7ZpQ@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The refcount wr_tx_refcnt may cause cache thrashing problems among
-cores and we can use percpu ref to mitigate this issue here. We
-gain some performance improvement with percpu ref here on our
-customized smc-r verion. Applying cache alignment may also mitigate
-this problem but it seem more reasonable to use percpu ref here.
+On 26.02.23 21:13, Geert Uytterhoeven wrote:
+> Hi David,
 
-redis-benchmark on smc-r with atomic wr_tx_refcnt:
-SET: 525817.62 requests per second, p50=0.087 msec
-GET: 570841.44 requests per second, p50=0.087 msec
+Hi Geert,
 
-redis-benchmark on the percpu_ref version:
-SET: 539956.81 requests per second, p50=0.087 msec
-GET: 587613.12 requests per second, p50=0.079 msec
+> 
+> On Fri, Jan 13, 2023 at 6:16 PM David Hildenbrand <david@redhat.com> wrote:
+>> Let's support __HAVE_ARCH_PTE_SWP_EXCLUSIVE by stealing one bit
+>> from the type. Generic MM currently only uses 5 bits for the type
+>> (MAX_SWAPFILES_SHIFT), so the stolen bit is effectively unused.
+>>
+>> The shift by 2 when converting between PTE and arch-specific swap entry
+>> makes the swap PTE layout a little bit harder to decipher.
+>>
+>> While at it, drop the comment from paulus---copy-and-paste leftover
+>> from powerpc where we actually have _PAGE_HASHPTE---and mask the type in
+>> __swp_entry_to_pte() as well.
+>>
+>> Cc: Michal Simek <monstr@monstr.eu>
+>> Signed-off-by: David Hildenbrand <david@redhat.com>
+> 
+> Thanks for your patch, which is now commit b5c88f21531c3457
+> ("microblaze/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE") in
+> 
 
-Signed-off-by: Kai <KaiShen@linux.alibaba.com>
----
- net/smc/smc_core.h |  5 ++++-
- net/smc/smc_wr.c   | 18 ++++++++++++++++--
- net/smc/smc_wr.h   |  5 ++---
- 3 files changed, 22 insertions(+), 6 deletions(-)
+Right, it went upstream, so we can only fixup.
 
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index 08b457c2d294..0705e33e2d68 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -106,7 +106,10 @@ struct smc_link {
- 	unsigned long		*wr_tx_mask;	/* bit mask of used indexes */
- 	u32			wr_tx_cnt;	/* number of WR send buffers */
- 	wait_queue_head_t	wr_tx_wait;	/* wait for free WR send buf */
--	atomic_t		wr_tx_refcnt;	/* tx refs to link */
-+	struct {
-+		struct percpu_ref	wr_tx_refs;
-+	} ____cacheline_aligned_in_smp;
-+	struct completion	ref_comp;
- 
- 	struct smc_wr_buf	*wr_rx_bufs;	/* WR recv payload buffers */
- 	struct ib_recv_wr	*wr_rx_ibs;	/* WR recv meta data */
-diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
-index b0678a417e09..dd923e76139f 100644
---- a/net/smc/smc_wr.c
-+++ b/net/smc/smc_wr.c
-@@ -648,7 +648,8 @@ void smc_wr_free_link(struct smc_link *lnk)
- 
- 	smc_wr_tx_wait_no_pending_sends(lnk);
- 	wait_event(lnk->wr_reg_wait, (!atomic_read(&lnk->wr_reg_refcnt)));
--	wait_event(lnk->wr_tx_wait, (!atomic_read(&lnk->wr_tx_refcnt)));
-+	percpu_ref_kill(&lnk->wr_tx_refs);
-+	wait_for_completion(&lnk->ref_comp);
- 
- 	if (lnk->wr_rx_dma_addr) {
- 		ib_dma_unmap_single(ibdev, lnk->wr_rx_dma_addr,
-@@ -847,6 +848,13 @@ void smc_wr_add_dev(struct smc_ib_device *smcibdev)
- 	tasklet_setup(&smcibdev->send_tasklet, smc_wr_tx_tasklet_fn);
- }
- 
-+static void smcr_wr_tx_refs_free(struct percpu_ref *ref)
-+{
-+	struct smc_link *lnk = container_of(ref, struct smc_link, wr_tx_refs);
-+
-+	complete(&lnk->ref_comp);
-+}
-+
- int smc_wr_create_link(struct smc_link *lnk)
- {
- 	struct ib_device *ibdev = lnk->smcibdev->ibdev;
-@@ -890,7 +898,13 @@ int smc_wr_create_link(struct smc_link *lnk)
- 	smc_wr_init_sge(lnk);
- 	bitmap_zero(lnk->wr_tx_mask, SMC_WR_BUF_CNT);
- 	init_waitqueue_head(&lnk->wr_tx_wait);
--	atomic_set(&lnk->wr_tx_refcnt, 0);
-+
-+	rc = percpu_ref_init(&lnk->wr_tx_refs, smcr_wr_tx_refs_free,
-+			     PERCPU_REF_ALLOW_REINIT, GFP_KERNEL);
-+	if (rc)
-+		goto dma_unmap;
-+	init_completion(&lnk->ref_comp);
-+
- 	init_waitqueue_head(&lnk->wr_reg_wait);
- 	atomic_set(&lnk->wr_reg_refcnt, 0);
- 	init_waitqueue_head(&lnk->wr_rx_empty_wait);
-diff --git a/net/smc/smc_wr.h b/net/smc/smc_wr.h
-index 45e9b894d3f8..f3008dda222a 100644
---- a/net/smc/smc_wr.h
-+++ b/net/smc/smc_wr.h
-@@ -63,14 +63,13 @@ static inline bool smc_wr_tx_link_hold(struct smc_link *link)
- {
- 	if (!smc_link_sendable(link))
- 		return false;
--	atomic_inc(&link->wr_tx_refcnt);
-+	percpu_ref_get(&link->wr_tx_refs);
- 	return true;
- }
- 
- static inline void smc_wr_tx_link_put(struct smc_link *link)
- {
--	if (atomic_dec_and_test(&link->wr_tx_refcnt))
--		wake_up_all(&link->wr_tx_wait);
-+	percpu_ref_put(&link->wr_tx_refs);
- }
- 
- static inline void smc_wr_drain_cq(struct smc_link *lnk)
+>>   arch/m68k/include/asm/mcf_pgtable.h   |  4 +--
+> 
+> What is this m68k change doing here?
+> Sorry for not noticing this earlier.
+
+Thanks for the late review, still valuable :)
+
+That hunk should have gone into the previous patch, looks like I messed 
+that up when reworking.
+
+> 
+> Furthermore, several things below look strange to me...
+> 
+>>   arch/microblaze/include/asm/pgtable.h | 45 +++++++++++++++++++++------
+>>   2 files changed, 37 insertions(+), 12 deletions(-)
+>>
+>> diff --git a/arch/m68k/include/asm/mcf_pgtable.h b/arch/m68k/include/asm/mcf_pgtable.h
+>> index 3f8f4d0e66dd..e573d7b649f7 100644
+>> --- a/arch/m68k/include/asm/mcf_pgtable.h
+>> +++ b/arch/m68k/include/asm/mcf_pgtable.h
+>> @@ -46,8 +46,8 @@
+>>   #define _CACHEMASK040          (~0x060)
+>>   #define _PAGE_GLOBAL040                0x400   /* 68040 global bit, used for kva descs */
+>>
+>> -/* We borrow bit 7 to store the exclusive marker in swap PTEs. */
+>> -#define _PAGE_SWP_EXCLUSIVE    0x080
+>> +/* We borrow bit 24 to store the exclusive marker in swap PTEs. */
+>> +#define _PAGE_SWP_EXCLUSIVE    CF_PAGE_NOCACHE
+> 
+> CF_PAGE_NOCACHE is 0x80, so this is still bit 7, thus the new comment
+> is wrong?
+
+You're right, it's still bit 7 (and we use LSB-0 bit numbering in that 
+file). I'll send a fixup.
+
+> 
+>>
+>>   /*
+>>    * Externally used page protection values.
+>> diff --git a/arch/microblaze/include/asm/pgtable.h b/arch/microblaze/include/asm/pgtable.h
+>> index 42f5988e998b..7e3de54bf426 100644
+>> --- a/arch/microblaze/include/asm/pgtable.h
+>> +++ b/arch/microblaze/include/asm/pgtable.h
+>> @@ -131,10 +131,10 @@ extern pte_t *va_to_pte(unsigned long address);
+>>    * of the 16 available.  Bit 24-26 of the TLB are cleared in the TLB
+>>    * miss handler.  Bit 27 is PAGE_USER, thus selecting the correct
+>>    * zone.
+>> - * - PRESENT *must* be in the bottom two bits because swap cache
+>> - * entries use the top 30 bits.  Because 4xx doesn't support SMP
+>> - * anyway, M is irrelevant so we borrow it for PAGE_PRESENT.  Bit 30
+>> - * is cleared in the TLB miss handler before the TLB entry is loaded.
+>> + * - PRESENT *must* be in the bottom two bits because swap PTEs use the top
+>> + * 30 bits.  Because 4xx doesn't support SMP anyway, M is irrelevant so we
+>> + * borrow it for PAGE_PRESENT.  Bit 30 is cleared in the TLB miss handler
+>> + * before the TLB entry is loaded.
+> 
+> So the PowerPC 4xx comment is still here?
+
+I only dropped the comment above __swp_type(). I guess you mean that we 
+could also drop the "Because 4xx doesn't support SMP anyway, M is 
+irrelevant so we borrow it for PAGE_PRESENT." sentence, correct? Not 
+sure about the "Bit 30 is cleared in the TLB miss handler" comment, if 
+that can similarly be dropped.
+
+> 
+>>    * - All other bits of the PTE are loaded into TLBLO without
+>>    *  * modification, leaving us only the bits 20, 21, 24, 25, 26, 30 for
+>>    * software PTE bits.  We actually use bits 21, 24, 25, and
+>> @@ -155,6 +155,9 @@ extern pte_t *va_to_pte(unsigned long address);
+>>   #define _PAGE_ACCESSED 0x400   /* software: R: page referenced */
+>>   #define _PMD_PRESENT   PAGE_MASK
+>>
+>> +/* We borrow bit 24 to store the exclusive marker in swap PTEs. */
+>> +#define _PAGE_SWP_EXCLUSIVE    _PAGE_DIRTY
+> 
+> _PAGE_DIRTY is 0x80, so this is also bit 7, thus the new comment is
+> wrong?
+
+In the example, I use MSB-0 bit numbering (which I determined to be 
+correct in microblaze context eventually, but I got confused a couple a 
+times because it's very inconsistent). That should be MSB-0 bit 24.
+
+Thanks!
+
 -- 
-2.31.1
+Thanks,
+
+David / dhildenb
 
