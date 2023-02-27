@@ -2,192 +2,209 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 926F9C64ED8
-	for <linux-s390@archiver.kernel.org>; Mon, 27 Feb 2023 20:23:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A8C05C64ED6
+	for <linux-s390@archiver.kernel.org>; Mon, 27 Feb 2023 20:57:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229740AbjB0UXn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 27 Feb 2023 15:23:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40906 "EHLO
+        id S229566AbjB0U5c (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 27 Feb 2023 15:57:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229589AbjB0UXn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Feb 2023 15:23:43 -0500
-Received: from mail-oa1-x34.google.com (mail-oa1-x34.google.com [IPv6:2001:4860:4864:20::34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5583118169;
-        Mon, 27 Feb 2023 12:23:40 -0800 (PST)
-Received: by mail-oa1-x34.google.com with SMTP id 586e51a60fabf-1723ab0375eso8711106fac.1;
-        Mon, 27 Feb 2023 12:23:40 -0800 (PST)
+        with ESMTP id S229548AbjB0U5b (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Feb 2023 15:57:31 -0500
+Received: from mail-wm1-x330.google.com (mail-wm1-x330.google.com [IPv6:2a00:1450:4864:20::330])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EB8325E01
+        for <linux-s390@vger.kernel.org>; Mon, 27 Feb 2023 12:57:29 -0800 (PST)
+Received: by mail-wm1-x330.google.com with SMTP id p16so5068847wmq.5
+        for <linux-s390@vger.kernel.org>; Mon, 27 Feb 2023 12:57:29 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
+        d=layalina-io.20210112.gappssmtp.com; s=20210112;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=tQl9Er/LZyPguZdc7hsvFLd57KkAlUhYoP7LJ7OMkY8=;
-        b=LX9G03P9f5wQYTd+LDJ277TTFDhfXvEYOktZKGdOgQqSRuKqtoWS6VX8IQHDEHiiKh
-         2/VZcygOGUSfc3V5sg+D6aYG54vJ/5Kjdfv4Tjn8BWAinwtlDuSxpnFby/u5B2a0NPcm
-         /RzwkuX/WNCbmLZhppkuFHBVd+LaGuWxQHbObkNloT8Fq0KfVcFXuVHx/PAv7cDWtQfa
-         eeTLZd60cOLSVH7XETAW1480LCG88UubTbs3mRQL5iZSCV6CY1XoZa79damhFnxEzTz4
-         Pklgzvib0IuwveHUymAm4o7FggQ8hK74mZ0bZEMz9ssW2goP+WZncfgmXEuAvs9p17Qg
-         Z4rA==
+        bh=mIN6ww9oLAv0WN7ho6gwiiph4rXuoFMoHbwtuWGbIHU=;
+        b=Bs3g5spl/LV0O4iixDMwb4HTPJIpTc4sSBY9TtNyJL/a3/Nrx2kG5iGhiEX08R9jBR
+         gCcRIOqtI3O6Y3suKyaQJfD7NVzanN4Vj5SFZOL854LgBBdVnnQwJcG3WpU3k89X744Y
+         IiZlrJdvjiVqN0gYOioxEghDHwwp+0DdIOlpwzB18fM00B8mVRsockbPsOkP4mfo2eNp
+         ZRz3sxf5CAG7g9y+dy7ZEieNW7LQY3+UX3vy1Pxh6mNeA1dNKYnhLC+/CDdKre9YRDhb
+         Gnczi0b8tPU04O1L0L2Sg6YmZo8O6b05iyzA19wLaeNrkoSaWVYPq8TySqXIzDw7bHRu
+         qS0w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=tQl9Er/LZyPguZdc7hsvFLd57KkAlUhYoP7LJ7OMkY8=;
-        b=pVh7r7gx8cq+SuE7DlPhoXxjTdv3owKhhTRxezawm2qpMMYqHdx30uV5m6DQhyBbvt
-         kjjGDR+d7p6IWffAXPV70MQRpylQ/81B5TU5L16vnH/xUoAXNe6EBveXgIQQd6CcH5mJ
-         YztrR17y1Rfiy2L9SDRoVeqRhHQ9Leh6xvhPznG1lxjh8TlGn9z1g8TDIOZkW6wIqpFu
-         xebcM0jiwOudDF7uSA1BRcjq6Jc7j0Orn770Zj6X/TrYAhfgSm6sdqtQXC75vRXGPRNg
-         GEwhstKWAVIfIbKvOvJ4w+9cWHCYOjPL2DKmfixzY96DttOGuewXyDLzfQmcTEpV2Fn0
-         DIlg==
-X-Gm-Message-State: AO0yUKUyr7VeHq8FqNScaII214DEYvUSXWj/CP/bSJv4BZjxd3hp5dLM
-        uQ9BSWETfYEncNQBepqIygk=
-X-Google-Smtp-Source: AK7set+mrWLU3Bm7ta3XbGGLzsTQu5bUFZs/+3Q0837U/3VDjtXJiRiiO/aLWPqjVe90FKGsfdB7hQ==
-X-Received: by 2002:a05:6870:b6a7:b0:172:8998:9185 with SMTP id cy39-20020a056870b6a700b0017289989185mr5221796oab.18.1677529419420;
-        Mon, 27 Feb 2023 12:23:39 -0800 (PST)
-Received: from localhost ([12.97.180.36])
-        by smtp.gmail.com with ESMTPSA id b5-20020a05687061c500b001435fe636f2sm2576133oah.53.2023.02.27.12.23.38
+        bh=mIN6ww9oLAv0WN7ho6gwiiph4rXuoFMoHbwtuWGbIHU=;
+        b=IkpbqMYLpApj4LJrTeGMbxU6PVk8BQVsEOLhSzM/piv8PHc/wAlUVKtKssHkdx45RS
+         ZfdB0dEykXUlBTcixd3GPE4ePiH4kLc9Lvzx77t5LVEBBihGeSCRfY0SK2FvrU1uDuGW
+         LmD44VzIJ2a/oaqmFoY7q31LVfH7+Mi7l4X4n6PT8O3tDbrHdYUL1CmpfnavZi375wZ6
+         xBn8ASgylTJ/CenypkrPcYKQMKo98y0/U5uuUDizTLkRXnLxfGvxPDru6DpUp3sab308
+         hMWqfQt0hM8Z4RiEK4+f0t2iiDay+/OZiJYYI2ZAAGWW5yJkqMP5nA7D6q6qfFdo/A4c
+         gw8A==
+X-Gm-Message-State: AO0yUKX+ZDnZU7Qtl8PD70kAxNTWCuIcB7D17KXlgcBfYpuGl5FIf5iz
+        T+/z7xpr8yEezbBW/AthOdC7GQ==
+X-Google-Smtp-Source: AK7set9cV982AukExVNBM7MELBIvJxaOh5XSQ0Jm7pXb7qLYusYIVl6TO/LrXSSLszGi4N40OISX5g==
+X-Received: by 2002:a05:600c:540a:b0:3eb:fc6:79cf with SMTP id he10-20020a05600c540a00b003eb0fc679cfmr398908wmb.6.1677531447998;
+        Mon, 27 Feb 2023 12:57:27 -0800 (PST)
+Received: from airbuntu (host86-163-35-10.range86-163.btcentralplus.com. [86.163.35.10])
+        by smtp.gmail.com with ESMTPSA id c16-20020a05600c0ad000b003e214803343sm13479356wmr.46.2023.02.27.12.57.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Feb 2023 12:23:38 -0800 (PST)
-Date:   Mon, 27 Feb 2023 12:23:37 -0800
-From:   Yury Norov <yury.norov@gmail.com>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     Alexander Lobakin <aleksander.lobakin@intel.com>,
-        linux-kernel@vger.kernel.org,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Alexander Lobakin <alexandr.lobakin@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
+        Mon, 27 Feb 2023 12:57:27 -0800 (PST)
+Date:   Mon, 27 Feb 2023 20:57:25 +0000
+From:   Qais Yousef <qyousef@layalina.io>
+To:     Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Juri Lelli <juri.lelli@redhat.com>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Waiman Long <longman@redhat.com>,
+        Steven Rostedt <rostedt@goodmis.org>, tj@kernel.org,
+        linux-kernel@vger.kernel.org, luca.abeni@santannapisa.it,
+        claudio@evidence.eu.com, tommaso.cucinotta@santannapisa.it,
+        bristot@redhat.com, mathieu.poirier@linaro.org,
+        cgroups@vger.kernel.org,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Wei Wang <wvw@google.com>, Rick Yiu <rickyiu@google.com>,
+        Quentin Perret <qperret@google.com>,
         Heiko Carstens <hca@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org
-Subject: Re: [PATCH 3/5] lib/bitmap: add test for bitmap_{from,to}_arr64
-Message-ID: <Y/0RSTYYnCsBRfXg@yury-laptop>
-References: <20220428205116.861003-1-yury.norov@gmail.com>
- <20220428205116.861003-4-yury.norov@gmail.com>
- <20230225184702.GA3587246@roeck-us.net>
- <Y/qhL8kSzzhMm+tO@yury-laptop>
- <Y/qilU0cW6ebmrnM@yury-laptop>
- <95377047-6b26-b434-fc90-2289fccc2a0b@intel.com>
- <19587ea3-e54c-e3b0-5341-eb7ee486474b@roeck-us.net>
- <Y/0DcqXBDvp7tv0r@yury-laptop>
- <00ed5135-8cd2-dc40-44af-1cbf64a02591@roeck-us.net>
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Zefan Li <lizefan.x@bytedance.com>, linux-s390@vger.kernel.org,
+        x86@kernel.org
+Subject: Re: [PATCH v3] sched: cpuset: Don't rebuild root domains on
+ suspend-resume
+Message-ID: <20230227205725.dipvh3i7dvyrv4tv@airbuntu>
+References: <20230206221428.2125324-1-qyousef@layalina.io>
+ <20230223153859.37tqoqk33oc6tv7o@airbuntu>
+ <5f087dd8-3e39-ce83-fe24-afa5179c05d9@arm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <00ed5135-8cd2-dc40-44af-1cbf64a02591@roeck-us.net>
+In-Reply-To: <5f087dd8-3e39-ce83-fe24-afa5179c05d9@arm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Feb 27, 2023 at 12:12:01PM -0800, Guenter Roeck wrote:
-> On 2/27/23 11:24, Yury Norov wrote:
-> > On Mon, Feb 27, 2023 at 06:59:12AM -0800, Guenter Roeck wrote:
-> > > On 2/27/23 06:46, Alexander Lobakin wrote:
-> > > > From: Yury Norov <yury.norov@gmail.com>
-> > > > Date: Sat, 25 Feb 2023 16:06:45 -0800
-> > > > 
-> > > > > On Sat, Feb 25, 2023 at 04:05:02PM -0800, Yury Norov wrote:
-> > > > > > On Sat, Feb 25, 2023 at 10:47:02AM -0800, Guenter Roeck wrote:
-> > > > > > > Hi,
-> > > > > > > 
-> > > > > > > On Thu, Apr 28, 2022 at 01:51:14PM -0700, Yury Norov wrote:
-> > > > > > > > Test newly added bitmap_{from,to}_arr64() functions similarly to
-> > > > > > > > already existing bitmap_{from,to}_arr32() tests.
-> > > > > > > > 
-> > > > > > > > Signed-off-by: Yury Norov <yury.norov@gmail.com>
-> > > > > > > 
-> > > > > > > Ever since this test is in the tree, several of my boot tests show
-> > > > > > > lots of messages such as
-> > > > > > > 
-> > > > > > > test_bitmap: bitmap_to_arr64(nbits == 1): tail is not safely cleared: 0xa5a5a5a500000001 (must be 0x0000000000000001)
-> > > > 
-> > > > Hmmm, the whole 4 bytes weren't touched.
-> > > > 
-> > > > > > > test_bitmap: bitmap_to_arr64(nbits == 2): tail is not safely cleared: 0xa5a5a5a500000001 (must be 0x0000000000000003)
-> > > > > > > test_bitmap: bitmap_to_arr64(nbits == 3): tail is not safely cleared: 0xa5a5a5a500000001 (must be 0x0000000000000007)
-> > > > 
-> > > > This is where it gets worse...
-> > > > 
-> > > > > > > ...
-> > > > > > > test_bitmap: bitmap_to_arr64(nbits == 927): tail is not safely cleared: 0xa5a5a5a500000000 (must be 0x000000007fffffff)
-> > > > > > > test_bitmap: bitmap_to_arr64(nbits == 928): tail is not safely cleared: 0xa5a5a5a580000000 (must be 0x00000000ffffffff)
-> > > > 
-> > > > I don't see the pattern how the actual result gets generated. But the
-> > > > problem is in the bitmap code rather than in the subtest -- "must be"s
-> > > > are fully correct.
-> > > > 
-> > > > Given that the 0xa5s are present in the upper 32 bits, it is Big Endian
-> > > > I guess? Maybe even 32-bit Big Endian? Otherwise I'd start concerning
-> > > > how comes it doesn't reproduce on x86_64s :D
-> > > > 
-> > > 
-> > > It does reproduce on 32-bit x86 builds, and as far as I can see
-> > > it is only seen with 32-bit little endian systems.
-> > 
-> > Hi Guenter, Alexander,
-> > 
-> > I think that the reason for the failures like this:
-> > 
-> > > test_bitmap: bitmap_to_arr64(nbits == 1): tail is not safely cleared: 0xa5a5a5a500000001 (must be 0x0000000000000001)
-> > 
-> > is that bitmap_to_arr64 is overly optimized for 32-bit LE architectures.
-> > 
-> > Regarding this:
-> > 
-> > > test_bitmap: bitmap_to_arr64(nbits == 927): tail is not safely cleared: 0xa5a5a5a500000000 (must be 0x000000007fffffff)
-> > 
-> > I am not sure what happens, but because this again happens on 32-bit
-> > LE only, I hope the following fix would help too.
-> > 
-> > Can you please check if the patch works for you? I don't have a 32-bit LE
-> > machine in hand, and all my 32-bit VMs (arm and i386) refuse to load the
-> > latest kernels for some weird reason, so it's only build-tested.
-> > 
-> > I'll give it a full-run when restore my 32-bit setups.
-> > 
-> > Thanks,
-> > Yury
-> > 
-> > > From 2881714db497aed103e310865da075e7b0ce7e1a Mon Sep 17 00:00:00 2001
-> > From: Yury Norov <yury.norov@gmail.com>
-> > Date: Mon, 27 Feb 2023 09:21:59 -0800
-> > Subject: [PATCH] lib/bitmap: drop optimization of bitmap_{from,to}_arr64
-> > 
-> > bitmap_{from,to}_arr64() optimization is overly optimistic on 32-bit LE
-> > architectures when it's wired to bitmap_copy_clear_tail().
-> > 
-> > bitmap_copy_clear_tail() takes care of unused bits in the bitmap up to
-> > the next word boundary. But on 32-bit machines when copying bits from
-> > bitmap to array of 64-bit words, it's expected that the unused part of
-> > a recipient array must be cleared up to 64-bit boundary, so the last 4
-> > bytes may stay untouched.
-> > 
-> > While the copying part of the optimization works correct, that clear-tail
-> > trick makes corresponding tests reasonably fail when nbits % 64 <= 32:
-> > 
-> > test_bitmap: bitmap_to_arr64(nbits == 1): tail is not safely cleared: 0xa5a5a5a500000001 (must be 0x0000000000000001)
-> > 
-> > Fix it by removing bitmap_{from,to}_arr64() optimization for 32-bit LE
-> > arches.
-> > 
-> > Reported-by: Guenter Roeck <linux@roeck-us.net>
-> > Fixes: 0a97953fd2210 ("lib: add bitmap_{from,to}_arr64")
-> > Signed-off-by: Yury Norov <yury.norov@gmail.com>
+On 02/24/23 16:14, Dietmar Eggemann wrote:
+> On 23/02/2023 16:38, Qais Yousef wrote:
 > 
-> Tested with 32-bit i386 image. With this patch on top of
-> v6.2-12765-g982818426a0f, the log messages are gone. Without this patch,
-> they are still seen.
+> IMHO the patch title is misleading since what you want to avoid in
+> certain cases is that the RD DL accounting is updated.
+
+The code calls it rebuild_root_domain() ..
+
 > 
-> Tested-by: Guenter Roeck <linux@roeck-us.net>
+> > On 02/06/23 22:14, Qais Yousef wrote:
+> >> Commit f9a25f776d78 ("cpusets: Rebuild root domain deadline accounting information")
 
-Thanks!
+.. and so is the original patch title.
 
-Then, I'll submit it properly together with a fix for fail_counter.
+I think I have enough explanation in the commit message and renamed the
+function name to be more descriptive too.
 
-Thanks,
-Yury
+> >> enabled rebuilding root domain on cpuset and hotplug operations to
+> >> correct deadline accounting.
+> >>
+> >> Rebuilding root domain is a slow operation and we see 10+ of ms delays
+> >> on suspend-resume because of that (worst case captures 20ms which
+> >> happens often).
+> >>
+> >> Since nothing is expected to change on suspend-resume operation; skip
+> >> rebuilding the root domains to regain the some of the time lost.
+> >>
+> >> Achieve this by refactoring the code to pass whether dl accoutning needs
+> >> an update to rebuild_sched_domains(). And while at it, rename
+> >> rebuild_root_domains() to update_dl_rd_accounting() which I believe is
+> >> a more representative name since we are not really rebuilding the root
+> >> domains, but rather updating dl accounting at the root domain.
+> >>
+> >> Some users of rebuild_sched_domains() will skip dl accounting update
+> >> now:
+> >>
+> >> 	* Update sched domains when relaxing the domain level in cpuset
+> >> 	  which only impacts searching level in load balance
+> 
+> This one is cpuset related. (1)
+> 
+> >> 	* update sched domains when cpufreq governor changes and we need
+> >> 	  to create the perf domains
+> 
+> This one is drivers/base/arch_topology.c [arm/arm64/...] related. (2)
+> 
+> There are several levels of passing this `update_dl_accounting`
+> information through. I guess it looks like this:
+> 
+> 					update_dl_accounting
+> 
+> arm/arm64/riscv/parisc specific:
+> update_topology_flags_workfn()		true
+> rebuild_sched_domains_energy()		false (2)
+> 
+> cpuset_hotplug_workfn()                 cpus_updated ||
+>                          force_rebuild == CPUSET_FORCE_REBUILD_PRS_ERROR
+> 
+> ->rebuild_sched_domains(update_dl_accounting)
+> 
+>   update_cpumasks_hier()		true
+>   update_relax_domain_level()		false (1)
+>   update_flag()				true
+>   update_prstate()			true
+> 
+>   ->rebuild_sched_domains_locked(update_dl_accounting)
+> 
+>     ->partition_and_rebuild_sched_domains(..., update_dl_accounting)
+> 
+>         if (update_dl_accounting)
+>           update_dl_rd_accounting()
+> 
+> 
+> There is already a somehow hidden interface for `sd/rd rebuild`
+> 
+>   int __weak arch_update_cpu_topology(void)
+> 
+> which lets partition_sched_domains_locked() figure out whether sched
+> domains have to be rebuild..
+> 
+> But in your case it is more on the interface `cpuset/hotplug -> sd/rd
+> rebuild` and not only `arch -> `sd/rd rebuild``.
+> 
+> IMHO, it would be still nice to have only one way to tell `sd/rd
+> rebuild` what to do and what not to do during sd/rd/(pd) rebuild.
+
+IIUC you're suggesting to introduce some new mechanism to detect if hotplug has
+lead to a cpu to disappear or not and use that instead? Are you saying I can
+use arch_update_cpu_topology() for that? Something like this?
+
+	diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
+	index e5ddc8e11e5d..60c3dcf06f0d 100644
+	--- a/kernel/cgroup/cpuset.c
+	+++ b/kernel/cgroup/cpuset.c
+	@@ -1122,7 +1122,7 @@ partition_and_rebuild_sched_domains(int ndoms_new, cpumask_var_t doms_new[],
+	 {
+		mutex_lock(&sched_domains_mutex);
+		partition_sched_domains_locked(ndoms_new, doms_new, dattr_new);
+	-       if (update_dl_accounting)
+	+       if (arch_update_cpu_topology())
+			update_dl_rd_accounting();
+		mutex_unlock(&sched_domains_mutex);
+	 }
+
+I am not keen on this. arm64 seems to just read a value without a side effect.
+But x86 does reset this value so we can't read it twice in the same call tree
+and I'll have to extract it.
+
+The better solution that was discussed before is to not iterate through every
+task in the system and let cpuset track when dl tasks are added to it and do
+smarter iteration. ATM even if there are no dl tasks in the system we'll
+blindly go through every task in the hierarchy to update nothing.
+
+But I'll leave that to Juri to address if he wants. The original change has
+introduced a regression and people have noticed when phones cycle through
+suspend resume (screen unlock). Juri - could you please chip in on how you want
+to address this regression? In theory I should be just a reporter, but trying
+my best to help ;-)
+
+
+Cheers
+
+--
+Qais Yousef
