@@ -2,209 +2,141 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A8C05C64ED6
-	for <linux-s390@archiver.kernel.org>; Mon, 27 Feb 2023 20:57:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 932ADC64ED6
+	for <linux-s390@archiver.kernel.org>; Mon, 27 Feb 2023 21:45:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229566AbjB0U5c (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 27 Feb 2023 15:57:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37288 "EHLO
+        id S230130AbjB0Vpg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 27 Feb 2023 16:45:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229548AbjB0U5b (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Feb 2023 15:57:31 -0500
-Received: from mail-wm1-x330.google.com (mail-wm1-x330.google.com [IPv6:2a00:1450:4864:20::330])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EB8325E01
-        for <linux-s390@vger.kernel.org>; Mon, 27 Feb 2023 12:57:29 -0800 (PST)
-Received: by mail-wm1-x330.google.com with SMTP id p16so5068847wmq.5
-        for <linux-s390@vger.kernel.org>; Mon, 27 Feb 2023 12:57:29 -0800 (PST)
+        with ESMTP id S229693AbjB0Vpe (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Feb 2023 16:45:34 -0500
+Received: from mail-ot1-x32e.google.com (mail-ot1-x32e.google.com [IPv6:2607:f8b0:4864:20::32e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 842141BAEE;
+        Mon, 27 Feb 2023 13:45:31 -0800 (PST)
+Received: by mail-ot1-x32e.google.com with SMTP id v1-20020a9d6041000000b0068d4a8a8d2dso4393520otj.12;
+        Mon, 27 Feb 2023 13:45:31 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=layalina-io.20210112.gappssmtp.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=mIN6ww9oLAv0WN7ho6gwiiph4rXuoFMoHbwtuWGbIHU=;
-        b=Bs3g5spl/LV0O4iixDMwb4HTPJIpTc4sSBY9TtNyJL/a3/Nrx2kG5iGhiEX08R9jBR
-         gCcRIOqtI3O6Y3suKyaQJfD7NVzanN4Vj5SFZOL854LgBBdVnnQwJcG3WpU3k89X744Y
-         IiZlrJdvjiVqN0gYOioxEghDHwwp+0DdIOlpwzB18fM00B8mVRsockbPsOkP4mfo2eNp
-         ZRz3sxf5CAG7g9y+dy7ZEieNW7LQY3+UX3vy1Pxh6mNeA1dNKYnhLC+/CDdKre9YRDhb
-         Gnczi0b8tPU04O1L0L2Sg6YmZo8O6b05iyzA19wLaeNrkoSaWVYPq8TySqXIzDw7bHRu
-         qS0w==
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=kfkr/Dz64psO49jb2sCIBi5L9nMCTcssTUOvBykXPRI=;
+        b=osPgSKZIbWUPkX1P6DGPStyaykfwRRNQLUanbiOzRTVtfAGgGoCmk0qW1/ogsWl/C3
+         nM1RfW8sEe3wIIcCn5RPFCZEL9usYO4wi3Q9ZQCGR8JDMCLsUH0a8bpTgdYj2XKaWrVC
+         7I4tXl8nOPXwEdQqM95zfA0hEFY4rWYvheusgUuQQRBTJ56NoYVKOByTzYt0fwF76GbK
+         dfEZDHj6yL1A4WJsUzRKyq0B+h8ZXfusKhL9kGWIaBLam3J7p8LRU2So6FbfUEVvBMPM
+         jLIVIzCIAN8pu66WoA9I8vtCsQc9ChImXVWV6Qi8/Y0rdZeNB9iNYCQwUO/fq4wqgUVM
+         aUgg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=mIN6ww9oLAv0WN7ho6gwiiph4rXuoFMoHbwtuWGbIHU=;
-        b=IkpbqMYLpApj4LJrTeGMbxU6PVk8BQVsEOLhSzM/piv8PHc/wAlUVKtKssHkdx45RS
-         ZfdB0dEykXUlBTcixd3GPE4ePiH4kLc9Lvzx77t5LVEBBihGeSCRfY0SK2FvrU1uDuGW
-         LmD44VzIJ2a/oaqmFoY7q31LVfH7+Mi7l4X4n6PT8O3tDbrHdYUL1CmpfnavZi375wZ6
-         xBn8ASgylTJ/CenypkrPcYKQMKo98y0/U5uuUDizTLkRXnLxfGvxPDru6DpUp3sab308
-         hMWqfQt0hM8Z4RiEK4+f0t2iiDay+/OZiJYYI2ZAAGWW5yJkqMP5nA7D6q6qfFdo/A4c
-         gw8A==
-X-Gm-Message-State: AO0yUKX+ZDnZU7Qtl8PD70kAxNTWCuIcB7D17KXlgcBfYpuGl5FIf5iz
-        T+/z7xpr8yEezbBW/AthOdC7GQ==
-X-Google-Smtp-Source: AK7set9cV982AukExVNBM7MELBIvJxaOh5XSQ0Jm7pXb7qLYusYIVl6TO/LrXSSLszGi4N40OISX5g==
-X-Received: by 2002:a05:600c:540a:b0:3eb:fc6:79cf with SMTP id he10-20020a05600c540a00b003eb0fc679cfmr398908wmb.6.1677531447998;
-        Mon, 27 Feb 2023 12:57:27 -0800 (PST)
-Received: from airbuntu (host86-163-35-10.range86-163.btcentralplus.com. [86.163.35.10])
-        by smtp.gmail.com with ESMTPSA id c16-20020a05600c0ad000b003e214803343sm13479356wmr.46.2023.02.27.12.57.26
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=kfkr/Dz64psO49jb2sCIBi5L9nMCTcssTUOvBykXPRI=;
+        b=DP/b9jnCQaElRDQt3LNq8n8GDANU+uRnVTKHMzBoAgxqwYvPsvPspg1gBN3rebDnSw
+         LwEmJxVY0uiYs5ZrzOjjpUw1aE0K928knaChS4cqAQB2FXRvRPNzOgRKSKbYXqRtdJjN
+         C0a97xJ9i1ecDajgJbk8NLF1/p5NaJ1erue8TZNcE8F3MHrWw/Fr7wiiC5OPC0yxGM+X
+         xCxa+GuK4QGkwkqDtd3CCBLOMVYmg7Qk2/xvw/HrtVTU/5urPv465EqPYhWo58jwI5To
+         vNNcmtgmkYeHKQ2kIQrfx+Q5xpMlIA6jYjZCUhokv1ey+nbGvuAkO8GwMa4f12pIMTbX
+         9GSg==
+X-Gm-Message-State: AO0yUKWSXcKI8JInMWYEl73BoF9H5ouKgawV7Mnt7Lvgp8Aw+mBQCxMz
+        3VCEma/9rl7jRhu/Htf8UAPZ12M6DgU=
+X-Google-Smtp-Source: AK7set/gCu6d0ZKgwZbN/D4iSrNnH4erq2Uz6ro8buqv2WpMpkbspRDKy8GVV1SdvXPhjoF/xmMH8w==
+X-Received: by 2002:a05:6830:601b:b0:693:d7bf:dbe8 with SMTP id bx27-20020a056830601b00b00693d7bfdbe8mr5279912otb.10.1677534330410;
+        Mon, 27 Feb 2023 13:45:30 -0800 (PST)
+Received: from localhost ([12.97.180.36])
+        by smtp.gmail.com with ESMTPSA id m17-20020a4add11000000b00524faf3d2d7sm2102658oou.41.2023.02.27.13.45.29
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Feb 2023 12:57:27 -0800 (PST)
-Date:   Mon, 27 Feb 2023 20:57:25 +0000
-From:   Qais Yousef <qyousef@layalina.io>
-To:     Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Juri Lelli <juri.lelli@redhat.com>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Waiman Long <longman@redhat.com>,
-        Steven Rostedt <rostedt@goodmis.org>, tj@kernel.org,
-        linux-kernel@vger.kernel.org, luca.abeni@santannapisa.it,
-        claudio@evidence.eu.com, tommaso.cucinotta@santannapisa.it,
-        bristot@redhat.com, mathieu.poirier@linaro.org,
-        cgroups@vger.kernel.org,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Wei Wang <wvw@google.com>, Rick Yiu <rickyiu@google.com>,
-        Quentin Perret <qperret@google.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        Mon, 27 Feb 2023 13:45:29 -0800 (PST)
+From:   Yury Norov <yury.norov@gmail.com>
+To:     linux-kernel@vger.kernel.org,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Zefan Li <lizefan.x@bytedance.com>, linux-s390@vger.kernel.org,
-        x86@kernel.org
-Subject: Re: [PATCH v3] sched: cpuset: Don't rebuild root domains on
- suspend-resume
-Message-ID: <20230227205725.dipvh3i7dvyrv4tv@airbuntu>
-References: <20230206221428.2125324-1-qyousef@layalina.io>
- <20230223153859.37tqoqk33oc6tv7o@airbuntu>
- <5f087dd8-3e39-ce83-fe24-afa5179c05d9@arm.com>
+        Alexander Lobakin <aleksander.lobakin@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc:     Yury Norov <yury.norov@gmail.com>
+Subject: [PATCH 2/2] lib/bitmap: drop optimization of bitmap_{from,to}_arr64
+Date:   Mon, 27 Feb 2023 13:45:24 -0800
+Message-Id: <20230227214524.914050-2-yury.norov@gmail.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20230227214524.914050-1-yury.norov@gmail.com>
+References: <20230227214524.914050-1-yury.norov@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <5f087dd8-3e39-ce83-fe24-afa5179c05d9@arm.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 02/24/23 16:14, Dietmar Eggemann wrote:
-> On 23/02/2023 16:38, Qais Yousef wrote:
-> 
-> IMHO the patch title is misleading since what you want to avoid in
-> certain cases is that the RD DL accounting is updated.
+bitmap_{from,to}_arr64() optimization is overly optimistic on 32-bit LE
+architectures when it's wired to bitmap_copy_clear_tail().
 
-The code calls it rebuild_root_domain() ..
+bitmap_copy_clear_tail() takes care of unused bits in the bitmap up to
+the next word boundary. But on 32-bit machines when copying bits from
+bitmap to array of 64-bit words, it's expected that the unused part of
+a recipient array must be cleared up to 64-bit boundary, so the last 4
+bytes may stay untouched when nbits % 64 <= 32.
 
-> 
-> > On 02/06/23 22:14, Qais Yousef wrote:
-> >> Commit f9a25f776d78 ("cpusets: Rebuild root domain deadline accounting information")
+While the copying part of the optimization works correct, that clear-tail
+trick makes corresponding tests reasonably fail:
 
-.. and so is the original patch title.
+test_bitmap: bitmap_to_arr64(nbits == 1): tail is not safely cleared: 0xa5a5a5a500000001 (must be 0x0000000000000001)
 
-I think I have enough explanation in the commit message and renamed the
-function name to be more descriptive too.
+Fix it by removing bitmap_{from,to}_arr64() optimization for 32-bit LE
+arches.
 
-> >> enabled rebuilding root domain on cpuset and hotplug operations to
-> >> correct deadline accounting.
-> >>
-> >> Rebuilding root domain is a slow operation and we see 10+ of ms delays
-> >> on suspend-resume because of that (worst case captures 20ms which
-> >> happens often).
-> >>
-> >> Since nothing is expected to change on suspend-resume operation; skip
-> >> rebuilding the root domains to regain the some of the time lost.
-> >>
-> >> Achieve this by refactoring the code to pass whether dl accoutning needs
-> >> an update to rebuild_sched_domains(). And while at it, rename
-> >> rebuild_root_domains() to update_dl_rd_accounting() which I believe is
-> >> a more representative name since we are not really rebuilding the root
-> >> domains, but rather updating dl accounting at the root domain.
-> >>
-> >> Some users of rebuild_sched_domains() will skip dl accounting update
-> >> now:
-> >>
-> >> 	* Update sched domains when relaxing the domain level in cpuset
-> >> 	  which only impacts searching level in load balance
-> 
-> This one is cpuset related. (1)
-> 
-> >> 	* update sched domains when cpufreq governor changes and we need
-> >> 	  to create the perf domains
-> 
-> This one is drivers/base/arch_topology.c [arm/arm64/...] related. (2)
-> 
-> There are several levels of passing this `update_dl_accounting`
-> information through. I guess it looks like this:
-> 
-> 					update_dl_accounting
-> 
-> arm/arm64/riscv/parisc specific:
-> update_topology_flags_workfn()		true
-> rebuild_sched_domains_energy()		false (2)
-> 
-> cpuset_hotplug_workfn()                 cpus_updated ||
->                          force_rebuild == CPUSET_FORCE_REBUILD_PRS_ERROR
-> 
-> ->rebuild_sched_domains(update_dl_accounting)
-> 
->   update_cpumasks_hier()		true
->   update_relax_domain_level()		false (1)
->   update_flag()				true
->   update_prstate()			true
-> 
->   ->rebuild_sched_domains_locked(update_dl_accounting)
-> 
->     ->partition_and_rebuild_sched_domains(..., update_dl_accounting)
-> 
->         if (update_dl_accounting)
->           update_dl_rd_accounting()
-> 
-> 
-> There is already a somehow hidden interface for `sd/rd rebuild`
-> 
->   int __weak arch_update_cpu_topology(void)
-> 
-> which lets partition_sched_domains_locked() figure out whether sched
-> domains have to be rebuild..
-> 
-> But in your case it is more on the interface `cpuset/hotplug -> sd/rd
-> rebuild` and not only `arch -> `sd/rd rebuild``.
-> 
-> IMHO, it would be still nice to have only one way to tell `sd/rd
-> rebuild` what to do and what not to do during sd/rd/(pd) rebuild.
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/lkml/20230225184702.GA3587246@roeck-us.net/
+Fixes: 0a97953fd221 ("lib: add bitmap_{from,to}_arr64")
+Signed-off-by: Yury Norov <yury.norov@gmail.com>
+Tested-by: Guenter Roeck <linux@roeck-us.net>
+---
+ include/linux/bitmap.h | 8 +++-----
+ lib/bitmap.c           | 2 +-
+ 2 files changed, 4 insertions(+), 6 deletions(-)
 
-IIUC you're suggesting to introduce some new mechanism to detect if hotplug has
-lead to a cpu to disappear or not and use that instead? Are you saying I can
-use arch_update_cpu_topology() for that? Something like this?
+diff --git a/include/linux/bitmap.h b/include/linux/bitmap.h
+index 40e53a2ecc0d..7d4c90eb3df4 100644
+--- a/include/linux/bitmap.h
++++ b/include/linux/bitmap.h
+@@ -302,12 +302,10 @@ void bitmap_to_arr32(u32 *buf, const unsigned long *bitmap,
+ #endif
+ 
+ /*
+- * On 64-bit systems bitmaps are represented as u64 arrays internally. On LE32
+- * machines the order of hi and lo parts of numbers match the bitmap structure.
+- * In both cases conversion is not needed when copying data from/to arrays of
+- * u64.
++ * On 64-bit systems bitmaps are represented as u64 arrays internally. So,
++ * the conversion is not needed when copying data from/to arrays of u64.
+  */
+-#if (BITS_PER_LONG == 32) && defined(__BIG_ENDIAN)
++#if BITS_PER_LONG == 32
+ void bitmap_from_arr64(unsigned long *bitmap, const u64 *buf, unsigned int nbits);
+ void bitmap_to_arr64(u64 *buf, const unsigned long *bitmap, unsigned int nbits);
+ #else
+diff --git a/lib/bitmap.c b/lib/bitmap.c
+index 1c81413c51f8..ddb31015e38a 100644
+--- a/lib/bitmap.c
++++ b/lib/bitmap.c
+@@ -1495,7 +1495,7 @@ void bitmap_to_arr32(u32 *buf, const unsigned long *bitmap, unsigned int nbits)
+ EXPORT_SYMBOL(bitmap_to_arr32);
+ #endif
+ 
+-#if (BITS_PER_LONG == 32) && defined(__BIG_ENDIAN)
++#if BITS_PER_LONG == 32
+ /**
+  * bitmap_from_arr64 - copy the contents of u64 array of bits to bitmap
+  *	@bitmap: array of unsigned longs, the destination bitmap
+-- 
+2.34.1
 
-	diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
-	index e5ddc8e11e5d..60c3dcf06f0d 100644
-	--- a/kernel/cgroup/cpuset.c
-	+++ b/kernel/cgroup/cpuset.c
-	@@ -1122,7 +1122,7 @@ partition_and_rebuild_sched_domains(int ndoms_new, cpumask_var_t doms_new[],
-	 {
-		mutex_lock(&sched_domains_mutex);
-		partition_sched_domains_locked(ndoms_new, doms_new, dattr_new);
-	-       if (update_dl_accounting)
-	+       if (arch_update_cpu_topology())
-			update_dl_rd_accounting();
-		mutex_unlock(&sched_domains_mutex);
-	 }
-
-I am not keen on this. arm64 seems to just read a value without a side effect.
-But x86 does reset this value so we can't read it twice in the same call tree
-and I'll have to extract it.
-
-The better solution that was discussed before is to not iterate through every
-task in the system and let cpuset track when dl tasks are added to it and do
-smarter iteration. ATM even if there are no dl tasks in the system we'll
-blindly go through every task in the hierarchy to update nothing.
-
-But I'll leave that to Juri to address if he wants. The original change has
-introduced a regression and people have noticed when phones cycle through
-suspend resume (screen unlock). Juri - could you please chip in on how you want
-to address this regression? In theory I should be just a reporter, but trying
-my best to help ;-)
-
-
-Cheers
-
---
-Qais Yousef
