@@ -2,290 +2,175 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 53BE0C64ED6
-	for <linux-s390@archiver.kernel.org>; Mon, 27 Feb 2023 15:45:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 863A1C64ED6
+	for <linux-s390@archiver.kernel.org>; Mon, 27 Feb 2023 17:01:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229881AbjB0Ppk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 27 Feb 2023 10:45:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58788 "EHLO
+        id S230324AbjB0RBx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 27 Feb 2023 12:01:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229728AbjB0Ppf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Feb 2023 10:45:35 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C48DD23843;
-        Mon, 27 Feb 2023 07:44:52 -0800 (PST)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31RF0GSZ012483;
-        Mon, 27 Feb 2023 15:44:52 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : to : cc : references : from : subject : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=jfk3d1zG7Y4es69SBEoaWorqTjrlfE08sbEXJkO2cLY=;
- b=jz26USHnA0e/rmVgM8m9nwo9Sdrx8XvOACzFkwxHqtoRibRTCvVi238mVh4noFVudtzG
- LkjYPBWoUPpzZrM/mnk4ll3R2F9DuFnmKsOJjkJTWE1gsKm+4qwwL4CRdI3iaJHnqIBg
- oVfCpVqEvbUAV8t+pXr1WIg117AGLMAIzUBhoquDBhwoQgjxQQUm4WmQVwwXV41pYOfh
- mJUtDGYXfhbUlyIfDvBM8G9cpv4ieWS2eV7tozEObScFd/HZcANnTT8T7gzR4cMQ09o+
- y5Uu6jtCmPWL5hm4MPF7rzMDifyTth0hoHo4+LMgQqFOsMr+iQq/ka7taM1gRilFIVkf dA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3p0w20mf54-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 27 Feb 2023 15:44:51 +0000
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 31RFPwMB004530;
-        Mon, 27 Feb 2023 15:44:51 GMT
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3p0w20mf4p-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 27 Feb 2023 15:44:51 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31R67dGA023377;
-        Mon, 27 Feb 2023 15:44:49 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-        by ppma04fra.de.ibm.com (PPS) with ESMTPS id 3nybab1hxq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 27 Feb 2023 15:44:49 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31RFijvL63177036
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 27 Feb 2023 15:44:45 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 640662004B;
-        Mon, 27 Feb 2023 15:44:45 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EF86820040;
-        Mon, 27 Feb 2023 15:44:44 +0000 (GMT)
-Received: from [9.171.95.33] (unknown [9.171.95.33])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon, 27 Feb 2023 15:44:44 +0000 (GMT)
-Message-ID: <0d48cb35-738a-af5e-419a-5827dc6e3531@linux.ibm.com>
-Date:   Mon, 27 Feb 2023 16:44:44 +0100
+        with ESMTP id S229766AbjB0RBw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Feb 2023 12:01:52 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAD091CACE
+        for <linux-s390@vger.kernel.org>; Mon, 27 Feb 2023 09:01:06 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1677517266;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=S+gj+IVlpRNML/WhRdwS5WpJ1kIzGGA+IXuZi3TvglQ=;
+        b=MrzMv/usUX5QJ7MfXIzP6UasX8styJCjS6RvawQpVwkFJTJOAASaI3SZ5dopTQUIU2Zlwb
+        fFv2C5AK3/shy165dPEMHzG5GwjEMDWq1z6CVJqfoEp601rjg1yQUlLqvpWHqkeV+0JXA4
+        RoBVkKJCkvGWUQ/safPk0USMCnYoBWc=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-259-FPhK2KejMu-al32ZospSwA-1; Mon, 27 Feb 2023 12:01:04 -0500
+X-MC-Unique: FPhK2KejMu-al32ZospSwA-1
+Received: by mail-wr1-f69.google.com with SMTP id bx25-20020a5d5b19000000b002c7ce4ce3c3so1016261wrb.13
+        for <linux-s390@vger.kernel.org>; Mon, 27 Feb 2023 09:01:04 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:organization:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=S+gj+IVlpRNML/WhRdwS5WpJ1kIzGGA+IXuZi3TvglQ=;
+        b=Avab4vtWeVKhuI1FYOhSpCbUjfaAUmHaBQikU21VrfQRVnVYrIET9GWlqmFsnABt2g
+         uj1TxTk//7JejTQIn9bSH1IGnCkL0kjZfspyFeXlYfzao96yikERF2eSJ2g3ftE/LbQW
+         VidALaLIpploFa6tApmEzF9+18i35pDu7TqrT3pqeozAwJ22WDVh5VGDOJRVBr2f9H3P
+         zMPMZwF9LgPR5dN9VbunTY4MNlNgR8iIaezweFM1ygQs/AVYavoNV5dStpLKJGyeAPFu
+         9qu+W86z24DjUQnS4NF76e/Yg9XAUoP3kep7sVGQhp2HJVCS3748GCq0Ycu1COsjL+ny
+         3zRA==
+X-Gm-Message-State: AO0yUKX+M0KVM4Ds0u2UaPIhL0f4EUzOxELrgrSmJFTtChbMJTBoKYC4
+        w4vqb809HB4xW1Lg9xncKNkBhdhDupNlnjo52VUvkMIWmTFQhiLtnVZ+INZ+fcrup495Hz1EH8m
+        6XSPr+KNZS72wuSwfmZquCA==
+X-Received: by 2002:a5d:570e:0:b0:2bf:d940:29b6 with SMTP id a14-20020a5d570e000000b002bfd94029b6mr22317888wrv.54.1677517263063;
+        Mon, 27 Feb 2023 09:01:03 -0800 (PST)
+X-Google-Smtp-Source: AK7set/UUjV2lk6TzBDGO2RyIGoSkW6MncSJyiWPHsxHHIhpKbsx37PxyO7HkStEnBG5FTknvHrGmg==
+X-Received: by 2002:a5d:570e:0:b0:2bf:d940:29b6 with SMTP id a14-20020a5d570e000000b002bfd94029b6mr22317842wrv.54.1677517262720;
+        Mon, 27 Feb 2023 09:01:02 -0800 (PST)
+Received: from [192.168.3.108] (p5b0c68fb.dip0.t-ipconnect.de. [91.12.104.251])
+        by smtp.gmail.com with ESMTPSA id l4-20020a05600c1d0400b003db0ad636d1sm15217382wms.28.2023.02.27.09.01.01
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 27 Feb 2023 09:01:02 -0800 (PST)
+Message-ID: <c145a2db-f92c-65aa-3e68-07dbb2e097a6@redhat.com>
+Date:   Mon, 27 Feb 2023 18:01:00 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.8.0
+ Thunderbird/102.7.2
+Subject: Re: [PATCH mm-unstable v1 11/26] microblaze/mm: support
+ __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+To:     Geert Uytterhoeven <geert@linux-m68k.org>
+Cc:     linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Hugh Dickins <hughd@google.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Nadav Amit <namit@vmware.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Peter Xu <peterx@redhat.com>, linux-mm@kvack.org,
+        x86@kernel.org, linux-alpha@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
+        Michal Simek <monstr@monstr.eu>
+References: <20230113171026.582290-1-david@redhat.com>
+ <20230113171026.582290-12-david@redhat.com>
+ <CAMuHMdX-FDga8w=pgg1myskEx6wp+oyZifhPPPFnWrc1zW7ZpQ@mail.gmail.com>
+ <9ed766a6-cf06-535d-3337-ea6ff25c2362@redhat.com>
+ <CAMuHMdWSaoKqO1Nx7QMDCcXrRmFbqqX8uwDRezXs8g+HdEFjKA@mail.gmail.com>
 Content-Language: en-US
-To:     Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Nico Boehr <nrb@linux.ibm.com>
-Cc:     David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-References: <20230224152015.2943564-1-nsg@linux.ibm.com>
-From:   Janosch Frank <frankja@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v2] s390x: Add tests for execute-type
- instructions
-In-Reply-To: <20230224152015.2943564-1-nsg@linux.ibm.com>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+In-Reply-To: <CAMuHMdWSaoKqO1Nx7QMDCcXrRmFbqqX8uwDRezXs8g+HdEFjKA@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: WVlS-lK9KE1bobUFyS39qRg1HkLuIqjX
-X-Proofpoint-GUID: gIh20hXN6pNP7dCpWWZiPO3YxDMLtvHO
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
- definitions=2023-02-27_12,2023-02-27_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 spamscore=0
- lowpriorityscore=0 mlxscore=0 malwarescore=0 adultscore=0 mlxlogscore=999
- bulkscore=0 suspectscore=0 phishscore=0 priorityscore=1501 impostorscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
- definitions=main-2302270119
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2/24/23 16:20, Nina Schoetterl-Glausch wrote:
-> Test the instruction address used by targets of an execute instruction.
-> When the target instruction calculates a relative address, the result is
-> relative to the target instruction, not the execute instruction.
+>>>>    /*
+>>>>     * Externally used page protection values.
+>>>> diff --git a/arch/microblaze/include/asm/pgtable.h b/arch/microblaze/include/asm/pgtable.h
+>>>> index 42f5988e998b..7e3de54bf426 100644
+>>>> --- a/arch/microblaze/include/asm/pgtable.h
+>>>> +++ b/arch/microblaze/include/asm/pgtable.h
+>>>> @@ -131,10 +131,10 @@ extern pte_t *va_to_pte(unsigned long address);
+>>>>     * of the 16 available.  Bit 24-26 of the TLB are cleared in the TLB
+>>>>     * miss handler.  Bit 27 is PAGE_USER, thus selecting the correct
+>>>>     * zone.
+>>>> - * - PRESENT *must* be in the bottom two bits because swap cache
+>>>> - * entries use the top 30 bits.  Because 4xx doesn't support SMP
+>>>> - * anyway, M is irrelevant so we borrow it for PAGE_PRESENT.  Bit 30
+>>>> - * is cleared in the TLB miss handler before the TLB entry is loaded.
+>>>> + * - PRESENT *must* be in the bottom two bits because swap PTEs use the top
+>>>> + * 30 bits.  Because 4xx doesn't support SMP anyway, M is irrelevant so we
+>>>> + * borrow it for PAGE_PRESENT.  Bit 30 is cleared in the TLB miss handler
+>>>> + * before the TLB entry is loaded.
+>>>
+>>> So the PowerPC 4xx comment is still here?
+>>
+>> I only dropped the comment above __swp_type(). I guess you mean that we
+>> could also drop the "Because 4xx doesn't support SMP anyway, M is
+>> irrelevant so we borrow it for PAGE_PRESENT." sentence, correct? Not
+> 
+> Yes, that's what I meant.
+> 
+>> sure about the "Bit 30 is cleared in the TLB miss handler" comment, if
+>> that can similarly be dropped.
+> 
+> No idea, didn't check. But if it was copied from PPC, chances are
+> high it's no longer true....
 
-For instructions like execute where the details matter it's a great idea 
-to have a lot of comments maybe even loose references to the PoP so 
-people can read up on the issue more easily.
-
+I'll have a look.
 
 > 
-> Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-> Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
-> ---
+>>>>     * - All other bits of the PTE are loaded into TLBLO without
+>>>>     *  * modification, leaving us only the bits 20, 21, 24, 25, 26, 30 for
+>>>>     * software PTE bits.  We actually use bits 21, 24, 25, and
+>>>> @@ -155,6 +155,9 @@ extern pte_t *va_to_pte(unsigned long address);
+>>>>    #define _PAGE_ACCESSED 0x400   /* software: R: page referenced */
+>>>>    #define _PMD_PRESENT   PAGE_MASK
+>>>>
+>>>> +/* We borrow bit 24 to store the exclusive marker in swap PTEs. */
+>>>> +#define _PAGE_SWP_EXCLUSIVE    _PAGE_DIRTY
+>>>
+>>> _PAGE_DIRTY is 0x80, so this is also bit 7, thus the new comment is
+>>> wrong?
+>>
+>> In the example, I use MSB-0 bit numbering (which I determined to be
+>> correct in microblaze context eventually, but I got confused a couple a
+>> times because it's very inconsistent). That should be MSB-0 bit 24.
 > 
-> 
-> v1 -> v2:
->   * add test to unittests.cfg and .gitlab-ci.yml
->   * pick up R-b (thanks Nico)
-> 
-> 
-> TCG does the address calculation relative to the execute instruction.
+> Thanks, TIL microblaze uses IBM bit numbering...
 
-Always?
-I.e. what are you telling me here?
+I assume IBM bit numbering corresponds to MSB-0 bit numbering, correct?
 
-> 
-> 
->   s390x/Makefile      |  1 +
->   s390x/ex.c          | 92 +++++++++++++++++++++++++++++++++++++++++++++
->   s390x/unittests.cfg |  3 ++
->   .gitlab-ci.yml      |  1 +
->   4 files changed, 97 insertions(+)
->   create mode 100644 s390x/ex.c
-> 
-> diff --git a/s390x/Makefile b/s390x/Makefile
-> index 97a61611..6cf8018b 100644
-> --- a/s390x/Makefile
-> +++ b/s390x/Makefile
-> @@ -39,6 +39,7 @@ tests += $(TEST_DIR)/panic-loop-extint.elf
->   tests += $(TEST_DIR)/panic-loop-pgm.elf
->   tests += $(TEST_DIR)/migration-sck.elf
->   tests += $(TEST_DIR)/exittime.elf
-> +tests += $(TEST_DIR)/ex.elf
->   
->   pv-tests += $(TEST_DIR)/pv-diags.elf
->   
-> diff --git a/s390x/ex.c b/s390x/ex.c
-> new file mode 100644
-> index 00000000..1bf4d8cd
-> --- /dev/null
-> +++ b/s390x/ex.c
-> @@ -0,0 +1,92 @@
-> +// SPDX-License-Identifier: GPL-2.0-only
-> +/*
-> + * Copyright IBM Corp. 2023
-> + *
-> + * Test EXECUTE (RELATIVE LONG).
-> + */
-> +
-> +#include <libcflat.h>
-> +
 
-Take my words with some salt, I never had a close look at the branch 
-instructions other than brc.
+I recall that I used the comment above "/* Definitions for MicroBlaze. 
+*/" as an orientation.
 
-This is "branch and save" and the "r" in "basr" says that it's the RR 
-variant. It's not relative the way that "bras" is, right?
+0  1  2  3  4  ... 18 19 20 21 22 23 24 25 26 27 28 29 30 31
+RPN.....................  0  0 EX WR ZSEL.......  W  I  M  G
 
-Hence ret_addr and after_ex both point to 1f.
 
-I'd like to have a comment here that states that this is not a relative 
-branch at all. The r specifies the instruction format.
+So ... either we adjust both or we leave it as is. (again, depends on 
+what the right thing to to is -- which I don't know :) )
 
-> +static void test_basr(void)
-> +{
-> +	uint64_t ret_addr, after_ex;
-> +
-> +	report_prefix_push("BASR");
-> +	asm volatile ( ".pushsection .rodata\n"
-> +		"0:	basr	%[ret_addr],0\n"
-> +		"	.popsection\n"
-> +
-> +		"	larl	%[after_ex],1f\n"
-> +		"	exrl	0,0b\n"
-> +		"1:\n"
-> +		: [ret_addr] "=d" (ret_addr),
-> +		  [after_ex] "=d" (after_ex)
-> +	);
-> +
-> +	report(ret_addr == after_ex, "return address after EX");
-> +	report_prefix_pop();
-> +}
-> +
-> +/*
-> + * According to PoP (Branch-Address Generation), the address is relative to
-> + * BRAS when it is the target of an execute-type instruction.
-> + */
+-- 
+Thanks,
 
-Is there any merit in testing the other br* instructions as well or are 
-they running through the same TCG function?
-
-> +static void test_bras(void)
-> +{
-> +	uint64_t after_target, ret_addr, after_ex, branch_addr;
-> +
-> +	report_prefix_push("BRAS");
-> +	asm volatile ( ".pushsection .text.ex_bras, \"x\"\n"
-> +		"0:	bras	%[ret_addr],1f\n"
-> +		"	nopr	%%r7\n"
-> +		"1:	larl	%[branch_addr],0\n"
-> +		"	j	4f\n"
-> +		"	.popsection\n"
-> +
-> +		"	larl	%[after_target],1b\n"
-> +		"	larl	%[after_ex],3f\n"
-> +		"2:	exrl	0,0b\n"
-> +		"3:	larl	%[branch_addr],0\n"
-> +		"4:\n"
-> +
-> +		"	.if (1b - 0b) != (3b - 2b)\n"
-> +		"	.error	\"right and wrong target must have same offset\"\n"
-> +		"	.endif\n"
-> +		: [after_target] "=d" (after_target),
-> +		  [ret_addr] "=d" (ret_addr),
-> +		  [after_ex] "=d" (after_ex),
-> +		  [branch_addr] "=d" (branch_addr)
-> +	);
-> +
-> +	report(after_target == branch_addr, "address calculated relative to BRAS");
-> +	report(ret_addr == after_ex, "return address after EX");
-> +	report_prefix_pop();
-> +}
-> +
-
-Add:
-/* larl follows the address generation of relative branch instructions */
-> +static void test_larl(void)
-> +{
-> +	uint64_t target, addr;
-> +
-> +	report_prefix_push("LARL");
-> +	asm volatile ( ".pushsection .rodata\n"
-> +		"0:	larl	%[addr],0\n"
-> +		"	.popsection\n"
-> +
-> +		"	larl	%[target],0b\n"
-> +		"	exrl	0,0b\n"
-> +		: [target] "=d" (target),
-> +		  [addr] "=d" (addr)
-> +	);
-> +
-> +	report(target == addr, "address calculated relative to LARL");
-> +	report_prefix_pop();
-> +}
-> +
-> +int main(int argc, char **argv)
-> +{
-
-We're missing push and pop around the test function block so that we 
-know which file generated the output.
-
-report_prefix_push("execute");
-
-> +	test_basr();
-> +	test_bras();
-> +	test_larl();
-
-report_prefix_pop();
-
-> +	return report_summary();
-> +}
-> diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
-> index d97eb5e9..b61faf07 100644
-> --- a/s390x/unittests.cfg
-> +++ b/s390x/unittests.cfg
-> @@ -215,3 +215,6 @@ file = migration-skey.elf
->   smp = 2
->   groups = migration
->   extra_params = -append '--parallel'
-> +
-> +[execute]
-> +file = ex.elf
-> diff --git a/.gitlab-ci.yml b/.gitlab-ci.yml
-> index ad7949c9..a999f64a 100644
-> --- a/.gitlab-ci.yml
-> +++ b/.gitlab-ci.yml
-> @@ -275,6 +275,7 @@ s390x-kvm:
->     - ACCEL=kvm ./run_tests.sh
->         selftest-setup intercept emulator sieve sthyi diag10 diag308 pfmf
->         cmm vector gs iep cpumodel diag288 stsi sclp-1g sclp-3g css skrf sie
-> +      execute
->         | tee results.txt
->     - grep -q PASS results.txt && ! grep -q FAIL results.txt
->    only:
-> 
-> base-commit: e3c5c3ef2524c58023073c0fadde2e8ae3c04ec6
+David / dhildenb
 
