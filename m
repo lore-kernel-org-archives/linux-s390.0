@@ -2,176 +2,300 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 664A8C6FA8E
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Feb 2023 15:50:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D684C64EC7
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Feb 2023 15:54:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230170AbjB1Pul (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Feb 2023 10:50:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45770 "EHLO
+        id S230142AbjB1PyU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Feb 2023 10:54:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230150AbjB1Puj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Feb 2023 10:50:39 -0500
-Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F14F30EBF
-        for <linux-s390@vger.kernel.org>; Tue, 28 Feb 2023 07:50:37 -0800 (PST)
-Received: by mail-pj1-x102b.google.com with SMTP id l1so10291795pjt.2
-        for <linux-s390@vger.kernel.org>; Tue, 28 Feb 2023 07:50:37 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=dabbelt-com.20210112.gappssmtp.com; s=20210112; t=1677599437;
-        h=content-transfer-encoding:mime-version:message-id:to:from:cc
-         :in-reply-to:subject:date:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=UryJW0EuVY8u2sW6z9mCQGQjWTzi+ldNIkpQGB8+HtU=;
-        b=B87Sz4AD1+v0XwCsrRoMpTHOfPGa5C2kWXfopmI+Go4uM/GlteH88Prr3xnOjgOBpK
-         5TXEM23YJaNZ7g9EbVYCuK/JD08Tarh0thhlMnTFFyMOEygBOFNnHXUltVMCUsr+soSV
-         N7JymoT7+eTk9L3hW6gd0jRYqCQJylQ1Sv9bK+MVkRTzPo6kpx2lySfN5ZcoLvOslGRO
-         KPapypwptYDfTKoui/kxjkto9aXQEXnB0zNI2xnF9K9K1w6AMTAlsuNOBVAzoDOh6S9m
-         XMeLlvUu7AtZRerpGExszQw24rKkktWNdf98ePl6noAkKeRplxZuYNOqKiII4Yi6n3n8
-         TCXA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1677599437;
-        h=content-transfer-encoding:mime-version:message-id:to:from:cc
-         :in-reply-to:subject:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=UryJW0EuVY8u2sW6z9mCQGQjWTzi+ldNIkpQGB8+HtU=;
-        b=WFMRTwtg/0PS1eKybkUupI3Z4rQAVVc/ZV8J9pGhJj1yHa42x8ittCA2/Ya/928hwG
-         ZMH59pc2AwkI13d84aobTFVlqwPC3JlB032wui5ThrRSWKBX7cKmVBZQFZ/0oTOkfKOK
-         sOzmzm0yQBp5VCJH+1rOHnzzEefU88kLp/goaSGCHokp6Fs27C8+MfWhjRZmG3hF9w2g
-         iP8PE9P5t5rVfW+DcoxXJEnveoR1L75+U0YFuZiFG9qL8FlvgxU1SmwrBagEFznXsutG
-         F+E8Y4pAy9AyX1t+v7X+C73IkmN/61NwsYYVtakMzbYfXiVXPGKYl17e3XxcWAVKZS8t
-         mkgg==
-X-Gm-Message-State: AO0yUKU3/kYoL+Nfsn/z/PFm9TL/WOfL/SH0uMU+s5Zp9+5Yd2hVpDAl
-        53dnIUw36sHlql0p9xGV3pKZeA==
-X-Google-Smtp-Source: AK7set80NPLuAAPSgZZsRqS35byB+8nywbDP9pe24Tyk+tjImkNZjMRv8vvzE4HsisyOpmumYVDG2Q==
-X-Received: by 2002:a17:902:d2c7:b0:19c:fbdb:43cb with SMTP id n7-20020a170902d2c700b0019cfbdb43cbmr3953598plc.51.1677599436809;
-        Tue, 28 Feb 2023 07:50:36 -0800 (PST)
-Received: from localhost ([50.221.140.188])
-        by smtp.gmail.com with ESMTPSA id h12-20020a170902f7cc00b0019d1f42b00csm3612084plw.17.2023.02.28.07.50.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Feb 2023 07:50:36 -0800 (PST)
-Date:   Tue, 28 Feb 2023 07:50:36 -0800 (PST)
-X-Google-Original-Date: Tue, 28 Feb 2023 07:49:44 PST (-0800)
-Subject:     Re: [PATCH mm-unstable v1 19/26] riscv/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-In-Reply-To: <20230113171026.582290-20-david@redhat.com>
-CC:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
-        hughd@google.com, jhubbard@nvidia.com, jgg@nvidia.com,
-        rppt@linux.ibm.com, shy828301@gmail.com, vbabka@suse.cz,
-        namit@vmware.com, aarcange@redhat.com, peterx@redhat.com,
-        linux-mm@kvack.org, x86@kernel.org, linux-alpha@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
-        david@redhat.com, Paul Walmsley <paul.walmsley@sifive.com>,
-        aou@eecs.berkeley.edu
-From:   Palmer Dabbelt <palmer@dabbelt.com>
-To:     david@redhat.com
-Message-ID: <mhng-b8dc8a57-dde0-4995-bbb7-3948a95ba0b1@palmer-ri-x1c9a>
-Mime-Version: 1.0 (MHng)
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+        with ESMTP id S230207AbjB1PyR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Feb 2023 10:54:17 -0500
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C7F81A652;
+        Tue, 28 Feb 2023 07:54:13 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R211e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0VcjvWG2_1677599645;
+Received: from 30.0.161.21(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VcjvWG2_1677599645)
+          by smtp.aliyun-inc.com;
+          Tue, 28 Feb 2023 23:54:06 +0800
+Message-ID: <e54522dd-5e20-3c98-a148-867cb692a53c@linux.alibaba.com>
+Date:   Tue, 28 Feb 2023 23:54:05 +0800
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.7.2
+Subject: Re: [PATCH bpf-next v3 3/4] net/smc: add BPF injection on smc
+ negotiation
+Content-Language: en-US
+To:     kernel test robot <lkp@intel.com>, kgraul@linux.ibm.com,
+        wenjia@linux.ibm.com, jaka@linux.ibm.com, ast@kernel.org,
+        daniel@iogearbox.net, andrii@kernel.org
+Cc:     oe-kbuild-all@lists.linux.dev, kuba@kernel.org,
+        davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+        bpf@vger.kernel.org
+References: <1677576294-33411-4-git-send-email-alibuda@linux.alibaba.com>
+ <202302282100.x7qq7PGX-lkp@intel.com>
+From:   "D. Wythe" <alibuda@linux.alibaba.com>
+In-Reply-To: <202302282100.x7qq7PGX-lkp@intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 13 Jan 2023 09:10:19 PST (-0800), david@redhat.com wrote:
-> Let's support __HAVE_ARCH_PTE_SWP_EXCLUSIVE by stealing one bit
-> from the offset. This reduces the maximum swap space per file: on 32bit
-> to 16 GiB (was 32 GiB).
 
-Seems fine to me, I doubt anyone wants a huge pile of swap on rv32.
+Hi robot,
 
->
-> Note that this bit does not conflict with swap PMDs and could also be used
-> in swap PMD context later.
->
-> While at it, mask the type in __swp_entry().
->
-> Cc: Paul Walmsley <paul.walmsley@sifive.com>
-> Cc: Palmer Dabbelt <palmer@dabbelt.com>
-> Cc: Albert Ou <aou@eecs.berkeley.edu>
-> Signed-off-by: David Hildenbrand <david@redhat.com>
-> ---
->  arch/riscv/include/asm/pgtable-bits.h |  3 +++
->  arch/riscv/include/asm/pgtable.h      | 29 ++++++++++++++++++++++-----
->  2 files changed, 27 insertions(+), 5 deletions(-)
->
-> diff --git a/arch/riscv/include/asm/pgtable-bits.h b/arch/riscv/include/asm/pgtable-bits.h
-> index b9e13a8fe2b7..f896708e8331 100644
-> --- a/arch/riscv/include/asm/pgtable-bits.h
-> +++ b/arch/riscv/include/asm/pgtable-bits.h
-> @@ -27,6 +27,9 @@
->   */
->  #define _PAGE_PROT_NONE _PAGE_GLOBAL
->
-> +/* Used for swap PTEs only. */
-> +#define _PAGE_SWP_EXCLUSIVE _PAGE_ACCESSED
-> +
->  #define _PAGE_PFN_SHIFT 10
->
->  /*
-> diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pgtable.h
-> index 4eba9a98d0e3..03a4728db039 100644
-> --- a/arch/riscv/include/asm/pgtable.h
-> +++ b/arch/riscv/include/asm/pgtable.h
-> @@ -724,16 +724,18 @@ static inline pmd_t pmdp_establish(struct vm_area_struct *vma,
->  #endif /* CONFIG_TRANSPARENT_HUGEPAGE */
->
->  /*
-> - * Encode and decode a swap entry
-> + * Encode/decode swap entries and swap PTEs. Swap PTEs are all PTEs that
-> + * are !pte_none() && !pte_present().
->   *
->   * Format of swap PTE:
->   *	bit            0:	_PAGE_PRESENT (zero)
->   *	bit       1 to 3:       _PAGE_LEAF (zero)
->   *	bit            5:	_PAGE_PROT_NONE (zero)
-> - *	bits      6 to 10:	swap type
-> - *	bits 10 to XLEN-1:	swap offset
-> + *	bit            6:	exclusive marker
-> + *	bits      7 to 11:	swap type
-> + *	bits 11 to XLEN-1:	swap offset
->   */
-> -#define __SWP_TYPE_SHIFT	6
-> +#define __SWP_TYPE_SHIFT	7
->  #define __SWP_TYPE_BITS		5
->  #define __SWP_TYPE_MASK		((1UL << __SWP_TYPE_BITS) - 1)
->  #define __SWP_OFFSET_SHIFT	(__SWP_TYPE_BITS + __SWP_TYPE_SHIFT)
-> @@ -744,11 +746,28 @@ static inline pmd_t pmdp_establish(struct vm_area_struct *vma,
->  #define __swp_type(x)	(((x).val >> __SWP_TYPE_SHIFT) & __SWP_TYPE_MASK)
->  #define __swp_offset(x)	((x).val >> __SWP_OFFSET_SHIFT)
->  #define __swp_entry(type, offset) ((swp_entry_t) \
-> -	{ ((type) << __SWP_TYPE_SHIFT) | ((offset) << __SWP_OFFSET_SHIFT) })
-> +	{ (((type) & __SWP_TYPE_MASK) << __SWP_TYPE_SHIFT) | \
-> +	  ((offset) << __SWP_OFFSET_SHIFT) })
->
->  #define __pte_to_swp_entry(pte)	((swp_entry_t) { pte_val(pte) })
->  #define __swp_entry_to_pte(x)	((pte_t) { (x).val })
->
-> +#define __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> +static inline int pte_swp_exclusive(pte_t pte)
-> +{
-> +	return pte_val(pte) & _PAGE_SWP_EXCLUSIVE;
-> +}
-> +
-> +static inline pte_t pte_swp_mkexclusive(pte_t pte)
-> +{
-> +	return __pte(pte_val(pte) | _PAGE_SWP_EXCLUSIVE);
-> +}
-> +
-> +static inline pte_t pte_swp_clear_exclusive(pte_t pte)
-> +{
-> +	return __pte(pte_val(pte) & ~_PAGE_SWP_EXCLUSIVE);
-> +}
-> +
->  #ifdef CONFIG_ARCH_ENABLE_THP_MIGRATION
->  #define __pmd_to_swp_entry(pmd) ((swp_entry_t) { pmd_val(pmd) })
->  #define __swp_entry_to_pmd(swp) __pmd((swp).val)
+It's seems impossible. I have compiled and tested this patch locally for many times.
+Maybe you compiled this patch separately. However, this patch depends on the previous one.
 
-Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
-Reviewed-by: Palmer Dabbelt <palmer@rivosinc.com>
+Thanks
+D. Wythe
+
+On 2/28/23 10:08 PM, kernel test robot wrote:
+> Hi Wythe,
+> 
+> Thank you for the patch! Yet something to improve:
+> 
+> [auto build test ERROR on bpf-next/master]
+> 
+> url:    https://github.com/intel-lab-lkp/linux/commits/D-Wythe/net-smc-move-smc_sock-related-structure-definition/20230228-173007
+> base:   https://git.kernel.org/pub/scm/linux/kernel/git/bpf/bpf-next.git master
+> patch link:    https://lore.kernel.org/r/1677576294-33411-4-git-send-email-alibuda%40linux.alibaba.com
+> patch subject: [PATCH bpf-next v3 3/4] net/smc: add BPF injection on smc negotiation
+> config: x86_64-randconfig-a015-20230227 (https://download.01.org/0day-ci/archive/20230228/202302282100.x7qq7PGX-lkp@intel.com/config)
+> compiler: gcc-11 (Debian 11.3.0-8) 11.3.0
+> reproduce (this is a W=1 build):
+>          # https://github.com/intel-lab-lkp/linux/commit/aa482ab82f4bf9b99d490f8ba5d88e1491156ccf
+>          git remote add linux-review https://github.com/intel-lab-lkp/linux
+>          git fetch --no-tags linux-review D-Wythe/net-smc-move-smc_sock-related-structure-definition/20230228-173007
+>          git checkout aa482ab82f4bf9b99d490f8ba5d88e1491156ccf
+>          # save the config file
+>          mkdir build_dir && cp config build_dir/.config
+>          make W=1 O=build_dir ARCH=x86_64 olddefconfig
+>          make W=1 O=build_dir ARCH=x86_64 SHELL=/bin/bash
+> 
+> If you fix the issue, kindly add following tag where applicable
+> | Reported-by: kernel test robot <lkp@intel.com>
+> | Link: https://lore.kernel.org/oe-kbuild-all/202302282100.x7qq7PGX-lkp@intel.com/
+> 
+> All errors (new ones prefixed by >>):
+> 
+>     ld: net/smc/af_smc.o: in function `smc_hs_congested':
+>>> net/smc/af_smc.c:169: undefined reference to `smc_sock_should_select_smc'
+>     ld: net/smc/af_smc.o: in function `smc_release':
+>>> net/smc/af_smc.c:327: undefined reference to `smc_sock_perform_collecting_info'
+>     ld: net/smc/af_smc.o: in function `smc_connect':
+>     net/smc/af_smc.c:1637: undefined reference to `smc_sock_should_select_smc'
+> 
+> 
+> vim +169 net/smc/af_smc.c
+> 
+>     156	
+>     157	static bool smc_hs_congested(const struct sock *sk)
+>     158	{
+>     159		const struct smc_sock *smc;
+>     160	
+>     161		smc = smc_clcsock_user_data(sk);
+>     162	
+>     163		if (!smc)
+>     164			return true;
+>     165	
+>     166		if (workqueue_congested(WORK_CPU_UNBOUND, smc_hs_wq))
+>     167			return true;
+>     168	
+>   > 169		if (!smc_sock_should_select_smc(smc))
+>     170			return true;
+>     171	
+>     172		return false;
+>     173	}
+>     174	
+>     175	static struct smc_hashinfo smc_v4_hashinfo = {
+>     176		.lock = __RW_LOCK_UNLOCKED(smc_v4_hashinfo.lock),
+>     177	};
+>     178	
+>     179	static struct smc_hashinfo smc_v6_hashinfo = {
+>     180		.lock = __RW_LOCK_UNLOCKED(smc_v6_hashinfo.lock),
+>     181	};
+>     182	
+>     183	int smc_hash_sk(struct sock *sk)
+>     184	{
+>     185		struct smc_hashinfo *h = sk->sk_prot->h.smc_hash;
+>     186		struct hlist_head *head;
+>     187	
+>     188		head = &h->ht;
+>     189	
+>     190		write_lock_bh(&h->lock);
+>     191		sk_add_node(sk, head);
+>     192		write_unlock_bh(&h->lock);
+>     193		sock_prot_inuse_add(sock_net(sk), sk->sk_prot, 1);
+>     194	
+>     195		return 0;
+>     196	}
+>     197	EXPORT_SYMBOL_GPL(smc_hash_sk);
+>     198	
+>     199	void smc_unhash_sk(struct sock *sk)
+>     200	{
+>     201		struct smc_hashinfo *h = sk->sk_prot->h.smc_hash;
+>     202	
+>     203		write_lock_bh(&h->lock);
+>     204		if (sk_del_node_init(sk))
+>     205			sock_prot_inuse_add(sock_net(sk), sk->sk_prot, -1);
+>     206		write_unlock_bh(&h->lock);
+>     207	}
+>     208	EXPORT_SYMBOL_GPL(smc_unhash_sk);
+>     209	
+>     210	/* This will be called before user really release sock_lock. So do the
+>     211	 * work which we didn't do because of user hold the sock_lock in the
+>     212	 * BH context
+>     213	 */
+>     214	static void smc_release_cb(struct sock *sk)
+>     215	{
+>     216		struct smc_sock *smc = smc_sk(sk);
+>     217	
+>     218		if (smc->conn.tx_in_release_sock) {
+>     219			smc_tx_pending(&smc->conn);
+>     220			smc->conn.tx_in_release_sock = false;
+>     221		}
+>     222	}
+>     223	
+>     224	struct proto smc_proto = {
+>     225		.name		= "SMC",
+>     226		.owner		= THIS_MODULE,
+>     227		.keepalive	= smc_set_keepalive,
+>     228		.hash		= smc_hash_sk,
+>     229		.unhash		= smc_unhash_sk,
+>     230		.release_cb	= smc_release_cb,
+>     231		.obj_size	= sizeof(struct smc_sock),
+>     232		.h.smc_hash	= &smc_v4_hashinfo,
+>     233		.slab_flags	= SLAB_TYPESAFE_BY_RCU,
+>     234	};
+>     235	EXPORT_SYMBOL_GPL(smc_proto);
+>     236	
+>     237	struct proto smc_proto6 = {
+>     238		.name		= "SMC6",
+>     239		.owner		= THIS_MODULE,
+>     240		.keepalive	= smc_set_keepalive,
+>     241		.hash		= smc_hash_sk,
+>     242		.unhash		= smc_unhash_sk,
+>     243		.release_cb	= smc_release_cb,
+>     244		.obj_size	= sizeof(struct smc_sock),
+>     245		.h.smc_hash	= &smc_v6_hashinfo,
+>     246		.slab_flags	= SLAB_TYPESAFE_BY_RCU,
+>     247	};
+>     248	EXPORT_SYMBOL_GPL(smc_proto6);
+>     249	
+>     250	static void smc_fback_restore_callbacks(struct smc_sock *smc)
+>     251	{
+>     252		struct sock *clcsk = smc->clcsock->sk;
+>     253	
+>     254		write_lock_bh(&clcsk->sk_callback_lock);
+>     255		clcsk->sk_user_data = NULL;
+>     256	
+>     257		smc_clcsock_restore_cb(&clcsk->sk_state_change, &smc->clcsk_state_change);
+>     258		smc_clcsock_restore_cb(&clcsk->sk_data_ready, &smc->clcsk_data_ready);
+>     259		smc_clcsock_restore_cb(&clcsk->sk_write_space, &smc->clcsk_write_space);
+>     260		smc_clcsock_restore_cb(&clcsk->sk_error_report, &smc->clcsk_error_report);
+>     261	
+>     262		write_unlock_bh(&clcsk->sk_callback_lock);
+>     263	}
+>     264	
+>     265	static void smc_restore_fallback_changes(struct smc_sock *smc)
+>     266	{
+>     267		if (smc->clcsock->file) { /* non-accepted sockets have no file yet */
+>     268			smc->clcsock->file->private_data = smc->sk.sk_socket;
+>     269			smc->clcsock->file = NULL;
+>     270			smc_fback_restore_callbacks(smc);
+>     271		}
+>     272	}
+>     273	
+>     274	static int __smc_release(struct smc_sock *smc)
+>     275	{
+>     276		struct sock *sk = &smc->sk;
+>     277		int rc = 0;
+>     278	
+>     279		if (!smc->use_fallback) {
+>     280			rc = smc_close_active(smc);
+>     281			sock_set_flag(sk, SOCK_DEAD);
+>     282			sk->sk_shutdown |= SHUTDOWN_MASK;
+>     283		} else {
+>     284			if (sk->sk_state != SMC_CLOSED) {
+>     285				if (sk->sk_state != SMC_LISTEN &&
+>     286				    sk->sk_state != SMC_INIT)
+>     287					sock_put(sk); /* passive closing */
+>     288				if (sk->sk_state == SMC_LISTEN) {
+>     289					/* wake up clcsock accept */
+>     290					rc = kernel_sock_shutdown(smc->clcsock,
+>     291								  SHUT_RDWR);
+>     292				}
+>     293				sk->sk_state = SMC_CLOSED;
+>     294				sk->sk_state_change(sk);
+>     295			}
+>     296			smc_restore_fallback_changes(smc);
+>     297		}
+>     298	
+>     299		sk->sk_prot->unhash(sk);
+>     300	
+>     301		if (sk->sk_state == SMC_CLOSED) {
+>     302			if (smc->clcsock) {
+>     303				release_sock(sk);
+>     304				smc_clcsock_release(smc);
+>     305				lock_sock(sk);
+>     306			}
+>     307			if (!smc->use_fallback)
+>     308				smc_conn_free(&smc->conn);
+>     309		}
+>     310	
+>     311		return rc;
+>     312	}
+>     313	
+>     314	static int smc_release(struct socket *sock)
+>     315	{
+>     316		struct sock *sk = sock->sk;
+>     317		struct smc_sock *smc;
+>     318		int old_state, rc = 0;
+>     319	
+>     320		if (!sk)
+>     321			goto out;
+>     322	
+>     323		sock_hold(sk); /* sock_put below */
+>     324		smc = smc_sk(sk);
+>     325	
+>     326		/* trigger info gathering if needed.*/
+>   > 327		smc_sock_perform_collecting_info(sk, SMC_SOCK_CLOSED_TIMING);
+>     328	
+>     329		old_state = sk->sk_state;
+>     330	
+>     331		/* cleanup for a dangling non-blocking connect */
+>     332		if (smc->connect_nonblock && old_state == SMC_INIT)
+>     333			tcp_abort(smc->clcsock->sk, ECONNABORTED);
+>     334	
+>     335		if (cancel_work_sync(&smc->connect_work))
+>     336			sock_put(&smc->sk); /* sock_hold in smc_connect for passive closing */
+>     337	
+>     338		if (sk->sk_state == SMC_LISTEN)
+>     339			/* smc_close_non_accepted() is called and acquires
+>     340			 * sock lock for child sockets again
+>     341			 */
+>     342			lock_sock_nested(sk, SINGLE_DEPTH_NESTING);
+>     343		else
+>     344			lock_sock(sk);
+>     345	
+>     346		if (old_state == SMC_INIT && sk->sk_state == SMC_ACTIVE &&
+>     347		    !smc->use_fallback)
+>     348			smc_close_active_abort(smc);
+>     349	
+>     350		rc = __smc_release(smc);
+>     351	
+>     352		/* detach socket */
+>     353		sock_orphan(sk);
+>     354		sock->sk = NULL;
+>     355		release_sock(sk);
+>     356	
+>     357		sock_put(sk); /* sock_hold above */
+>     358		sock_put(sk); /* final sock_put */
+>     359	out:
+>     360		return rc;
+>     361	}
+>     362	
+> 
