@@ -2,204 +2,197 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F37A5C6FA8E
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Feb 2023 14:09:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A1C48C64ED6
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Feb 2023 14:38:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229797AbjB1OJR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Feb 2023 09:09:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39708 "EHLO
+        id S229535AbjB1OiX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Feb 2023 09:38:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229833AbjB1OJP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Feb 2023 09:09:15 -0500
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 860B610413;
-        Tue, 28 Feb 2023 06:09:12 -0800 (PST)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 2C5D6C14;
-        Tue, 28 Feb 2023 06:09:55 -0800 (PST)
-Received: from [192.168.178.6] (unknown [172.31.20.19])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 78A883F67D;
-        Tue, 28 Feb 2023 06:09:08 -0800 (PST)
-Message-ID: <5a1e58bf-7eb2-bd7a-7e19-7864428a2b83@arm.com>
-Date:   Tue, 28 Feb 2023 15:09:06 +0100
+        with ESMTP id S229528AbjB1OiW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Feb 2023 09:38:22 -0500
+Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on2040.outbound.protection.outlook.com [40.107.236.40])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFBDEB455;
+        Tue, 28 Feb 2023 06:38:20 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Qr9nqUDMQB3lQQH+i2fPGj2uWkYam4gO2bhebFI1KE33mg7z1Ol8Li2DKdJF0Hm2jikau2Qf8tdgMP2CsAQJnZXVttm+exkbNCKXRxTQWmAxKVCAhdaMs+ha/ipvWI53ovSSBHibuAu6q3YSr9ttvAdNz0YcLPwQ2rAJ7/FMQnSkBgYPHymh94o4HWNKJoQKEpnwRC8tiNcR205TPbma/fa7wpWGzlRcHL76L+ebvH+ebHLu31xn+sOd3h9eZeQvFvWdonIFLQ+LkIvBXxRDuSH2ql4ENCPDTrCXgBQa8JvgLrmnB5CIJkqA0+oxb7+EMD/iGAGHtqxfbhVk5japEQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=TD9viIIRckV7vKa79YnLRCq2ivSlMT+Jz2wcDu+6ZEw=;
+ b=BNq2hnqnQFDUnZ1Qhmsz+Arw7n/GUFG4Praxsug6rFOLf7AvDObsmN9Ga2MnHNZoOP7VItc/r6qH4pqCNieASezFCyH9FiwYtcZvfNjqBNsFEAubYZGEpRM6tmT0X6POSGwqwXLbcMMFc7ZKMcrbNBoinC5FUDWLY6DQbQz/HiYGzmxJFlMd5J6ze1ajw/QmeKddIB2BJlDZD2EhWq2fJJIVxJNy3ajpR5gLH/8Bg7CWTZ6zwP0uxbwDU46VMTSGXB3TBzX+Hs8BDz8ru+ahiDD9TTx695OQohGvFzOl9u75xkWOt8YwDsR2rB0VL7TjyETAgdO9aoZ0mFdH+E02YQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=TD9viIIRckV7vKa79YnLRCq2ivSlMT+Jz2wcDu+6ZEw=;
+ b=cmIZWfXqLRTzNI+OHtqd9KBfBaKD4d2NTfFlYoXS06eagUDU7aIffRhVs8HigQ9NTTP2mKbhpIu4x/wSKNMGnhuusYOOcnNj7QpCsSVKfaaYCmw7yg9pGga4OH1/oJnjkx3zABS3vBvceznRNHcYVtd7qBKy9rYu6hkNceRWlRDvxAb8NoimCv3nX75K8I7gGY397kfCL52SZLwE4bYKjqc3+gEXp3tJn2hP00RpRx85dh1sL1WJHyliSia6X9xqeZ8fbPq2Vhnwx7G67rANXb58qBkceyHNQ2o8C6Q0TVDR0EGidbMnOBDRwy0b2huPdBH0zu15s2ay/1Sd5Efsqw==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by MN0PR12MB5763.namprd12.prod.outlook.com (2603:10b6:208:376::8) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6134.26; Tue, 28 Feb
+ 2023 14:38:18 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::3cb3:2fce:5c8f:82ee]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::3cb3:2fce:5c8f:82ee%4]) with mapi id 15.20.6134.029; Tue, 28 Feb 2023
+ 14:38:18 +0000
+Date:   Tue, 28 Feb 2023 10:38:17 -0400
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     "Liu, Yi L" <yi.l.liu@intel.com>
+Cc:     "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
+        "Tian, Kevin" <kevin.tian@intel.com>,
+        "joro@8bytes.org" <joro@8bytes.org>,
+        "robin.murphy@arm.com" <robin.murphy@arm.com>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "eric.auger@redhat.com" <eric.auger@redhat.com>,
+        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
+        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
+        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
+        "peterx@redhat.com" <peterx@redhat.com>,
+        "jasowang@redhat.com" <jasowang@redhat.com>,
+        "shameerali.kolothum.thodi@huawei.com" 
+        <shameerali.kolothum.thodi@huawei.com>,
+        "lulu@redhat.com" <lulu@redhat.com>,
+        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
+        "intel-gvt-dev@lists.freedesktop.org" 
+        <intel-gvt-dev@lists.freedesktop.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "Hao, Xudong" <xudong.hao@intel.com>,
+        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
+        "Xu, Terrence" <terrence.xu@intel.com>
+Subject: Re: [PATCH v5 17/19] vfio: Add VFIO_DEVICE_AT[DE]TACH_IOMMUFD_PT
+Message-ID: <Y/4R2SRFKoRFg4qK@nvidia.com>
+References: <Y/z400uzn7Nk0CXe@nvidia.com>
+ <DS0PR11MB75293EF02CB0F0A54A22D943C3AC9@DS0PR11MB7529.namprd11.prod.outlook.com>
+ <Y/30TEk3t7q/D0Ho@nvidia.com>
+ <DS0PR11MB752931AD2B92DE9A1A574375C3AC9@DS0PR11MB7529.namprd11.prod.outlook.com>
+ <Y/35ZTi69p9cCuPn@nvidia.com>
+ <DS0PR11MB7529B6647B5F4B7691FFFBEBC3AC9@DS0PR11MB7529.namprd11.prod.outlook.com>
+ <Y/4AzJbjeR4R2rcO@nvidia.com>
+ <DS0PR11MB7529175CF279A820C5E5E091C3AC9@DS0PR11MB7529.namprd11.prod.outlook.com>
+ <Y/4FDP8H1qRdgVrL@nvidia.com>
+ <DS0PR11MB75293E34AB7C53F7ABFC0E36C3AC9@DS0PR11MB7529.namprd11.prod.outlook.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <DS0PR11MB75293E34AB7C53F7ABFC0E36C3AC9@DS0PR11MB7529.namprd11.prod.outlook.com>
+X-ClientProxiedBy: BL1PR13CA0426.namprd13.prod.outlook.com
+ (2603:10b6:208:2c3::11) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
-Subject: Re: [PATCH v3] sched: cpuset: Don't rebuild root domains on
- suspend-resume
-Content-Language: en-US
-To:     Qais Yousef <qyousef@layalina.io>,
-        Juri Lelli <juri.lelli@redhat.com>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Waiman Long <longman@redhat.com>,
-        Steven Rostedt <rostedt@goodmis.org>, tj@kernel.org,
-        linux-kernel@vger.kernel.org, luca.abeni@santannapisa.it,
-        claudio@evidence.eu.com, tommaso.cucinotta@santannapisa.it,
-        bristot@redhat.com, mathieu.poirier@linaro.org,
-        cgroups@vger.kernel.org,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Wei Wang <wvw@google.com>, Rick Yiu <rickyiu@google.com>,
-        Quentin Perret <qperret@google.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Zefan Li <lizefan.x@bytedance.com>, linux-s390@vger.kernel.org,
-        x86@kernel.org
-References: <20230206221428.2125324-1-qyousef@layalina.io>
- <20230223153859.37tqoqk33oc6tv7o@airbuntu>
- <5f087dd8-3e39-ce83-fe24-afa5179c05d9@arm.com>
- <20230227205725.dipvh3i7dvyrv4tv@airbuntu>
-From:   Dietmar Eggemann <dietmar.eggemann@arm.com>
-In-Reply-To: <20230227205725.dipvh3i7dvyrv4tv@airbuntu>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|MN0PR12MB5763:EE_
+X-MS-Office365-Filtering-Correlation-Id: 2c950111-13d7-43bb-1251-08db19996f08
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: Jq+G11e/ESsSKtR7a1unYMItNsm/bdmP7r67J1vOdL6N92B6D2aRJnwMMUDua+lJTrxExGpVp2q7rr9XgrorCnjt2kR3esCRJb19r8VpYH6UYmgncq6Rf+eJj3G83Js2N4TJiIC3azf59V3vMdtCOqJ4ty5gawxUimWbFYGH/wntqCSyje4Vpt/YLw/jvObYrxqLF9Dgtbq48N+UqElcvqBMYNvfSoVgtuCqSU+ZA3KX/S+J3N16dxNPolDG03T52ANAADNeSWY3pXIJa21YwLQ0IIaYyiqtEuuigCqojJTIdvlxtA+r2R0qSdE5BkKXnTO341EoAEmayMdAMHkDDEXvNaZ/N5hu+cF9J7WpJwfOpfZEVZIk/vI155GfrLYMnw4icdiMHh5obi55C/4fcC7QkZagnowK2QS6yC5wLY59wJffP8DA3SobgTygsxzB+rSnL0EPqMqk65LKnxFhLrTQUG9+9sJbqGzVEnpTrSRKb2NnM8tLajHpWErxf5OlH7JiYX/emtanTyiKkmgi5uNvMrQcPa/FEBFBL3bLxFAOUxV3rpJ8Mw/wEnxjKKgS99YWCkiP9tO/z9bxwbRiCu5HDOib128bDjqkiLpZ4+x4ptxqk+Ymy5BtbXd0bbCP5ZbOFtKaCuxyZLJq34TmwQ==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(4636009)(366004)(136003)(396003)(39860400002)(376002)(346002)(451199018)(186003)(2906002)(38100700002)(83380400001)(4326008)(8676002)(6916009)(7416002)(5660300002)(6512007)(41300700001)(8936002)(66476007)(66946007)(26005)(66556008)(6506007)(2616005)(478600001)(54906003)(36756003)(86362001)(6486002)(316002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?23dIALyJFV4uMNofe+pratJkutyOBwdUq6oyUI4GAlOmKrJUHAeyS/7KRahW?=
+ =?us-ascii?Q?atdrgbf5xYWXUbYFO06cVlH+ITTGbMld4Zx5RjJ5l+dpTNhbSYBxjDz5gnfh?=
+ =?us-ascii?Q?JQLoeEs7KZ2Vs5GSOixim3i32xD+JDBC+g6adh8wMvPvIWfIffL0Eak5RBBO?=
+ =?us-ascii?Q?qE+LcuekG7KT7ddEeg34hcEiZ66KOuXWyeoOeRwNo2qbd6vEzZvKPNdQILrp?=
+ =?us-ascii?Q?dzN2rmQgCEOQXVr7nyVB4MI6ij4zncKzuX2KNxHYxsM4frKkEJBaTfpwwS0J?=
+ =?us-ascii?Q?W9ibwlFWwPpbOdKp0tLl/oRZGLOiDUp5MuH+3bQIFbCOcZuWe1F7q5jUZ0ud?=
+ =?us-ascii?Q?XFvnIOvtSiQAmXEMGndsdhJ+4C+J3/oEdpqdztpHg1LaKzus+R9FynjPucCg?=
+ =?us-ascii?Q?x1CRrrBCdHYE4ufewOXAwxd3pnHT1W1121vXC11XQdxC2KwNsat1lqEACzod?=
+ =?us-ascii?Q?CcuvtUXQ2dE7JQ0fYInBOFP0uJGJYtIRkoaj6VTG8S3JwgHtKQLIwRXsQ7RB?=
+ =?us-ascii?Q?41d9I1I1DqZeNbDq4eQ+QFliHFYwBIEqXDWi7ID0CdSs3cDX+ch0ih7Ds55S?=
+ =?us-ascii?Q?zt/fxfnv/6rF2EvD07WLw/kltts9uATN9otlSbEcuCgYJ4veOnlTZFMCVA8z?=
+ =?us-ascii?Q?JG8/n7C7Xtg5+fpbp3eJH92wp5z1jyyBg9ZZ0J4PqsVxXbXb9HPIavuw8WDT?=
+ =?us-ascii?Q?q9FKPNl/UQSyxoktpc372ipnw0S8CXQreKyGRuMI8cfga6oOaftM01fHpi9x?=
+ =?us-ascii?Q?GzBoOmq63saMVlc7q8GLLZsm8OF6rBLTcdIjJPd21ZF8LoNs08Xki+uGHB5F?=
+ =?us-ascii?Q?LFJH7miSbeCwGGM8Q7g39mLQa8XYg+Qlnp3zRCF6bEhZBM5QzSyRkdmOJpC8?=
+ =?us-ascii?Q?HYMDfkVyeLrgbgToJMKfAMjES04w9jop3anxa/Y92Xhk8wDxuPf/oBhSIQZo?=
+ =?us-ascii?Q?P8Y4cYEvytIPHraKqtBayv+fm1kGxwX5+MsHRddh0YDXhDX9/+GiAx35mlXH?=
+ =?us-ascii?Q?p4V03zMMB0Fep+7uyxEgF8S9uvcxu0SUFjUwC4Dz6c6cVpHwRUzfJSrTweH2?=
+ =?us-ascii?Q?e+Jvoq+iOP3kXDuUSx/Jc969micN8kL1Gi2r7ixY+4L9EnIzohbxoBZq7Mmk?=
+ =?us-ascii?Q?tfuyNLtQV8GIiR/41MCToOzm2hS+PxfuYmNAEV6M5SjdwDLrMN2at+oXhgHS?=
+ =?us-ascii?Q?SviGzfFj5G3W4Ejy8yp2KufaXgrqbqc1TYP6idG05oihYLSnokIT8G0wIp3U?=
+ =?us-ascii?Q?Pew4udAupI+tPWnb+yS0JAp8Q+X7Nh7DNsfn0ustFWbFLoiZeX/wn+CZmYAO?=
+ =?us-ascii?Q?27ICZyUiTydV9xYVHUzavOqB5yk7QKPXg/5yGDoi43KGrT2oNOH4NnGWf4O9?=
+ =?us-ascii?Q?2txmK4kxKN9pt9pewxEcVSxPM5PAZnbdaIhiUNwr4SZyHtfyPKma565aU2eE?=
+ =?us-ascii?Q?oL96af+OJxbV3X87n3KfHDCTke1+FRFBl301OUjGaN6rXakh9OipMooRKoci?=
+ =?us-ascii?Q?U4X9BmuNxMO/6fKdQtrfotceMn2ru2GumGxmyi4/y7+WXOU2Ve/VqsUdx1hz?=
+ =?us-ascii?Q?N+YkGO6nnpdaTBuSboN//46N1ftIe+CV8WqO5pfC?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2c950111-13d7-43bb-1251-08db19996f08
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Feb 2023 14:38:18.8109
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: hSmL4V5ELkw+5ogLG08c6+Qy6KvUzhUPJdBh0AR8WzTa9cW1KFjCZSXGOLO2y7VY
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN0PR12MB5763
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 27/02/2023 21:57, Qais Yousef wrote:
-> On 02/24/23 16:14, Dietmar Eggemann wrote:
->> On 23/02/2023 16:38, Qais Yousef wrote:
->>
->> IMHO the patch title is misleading since what you want to avoid in
->> certain cases is that the RD DL accounting is updated.
+On Tue, Feb 28, 2023 at 02:01:36PM +0000, Liu, Yi L wrote:
+> > From: Jason Gunthorpe <jgg@nvidia.com>
+> > Sent: Tuesday, February 28, 2023 9:44 PM
+> > 
+> > On Tue, Feb 28, 2023 at 01:36:24PM +0000, Liu, Yi L wrote:
+> > > > From: Jason Gunthorpe <jgg@nvidia.com>
+> > > > Sent: Tuesday, February 28, 2023 9:26 PM
+> > > >
+> > > > On Tue, Feb 28, 2023 at 01:22:50PM +0000, Liu, Yi L wrote:
+> > > >
+> > > > > > A null iommufd pointer and a bound df flag is sufficient to see that
+> > > > > > it is compat mode.
+> > > > >
+> > > > > Hope df->is_cdev_device suits your expectation.:-) The code will look
+> > > > > like below:
+> > > >
+> > > > Yes, this is better.. However I'd suggest 'uses_container' as it is
+> > > > clearer what the special case is
+> > >
+> > > Surely doable. Need to add a helper like below:
+> > >
+> > > bool vfio_device_group_uses_container()
+> > > {
+> > > 	lockdep_assert_held(&device->group->group_lock);
+> > > 	return device->group->container;
+> > > }
+> > 
+> > It should come from the df.
+> > 
+> > If you have a df then by definition:
+> >   smp_load_acquire(..) == false     - Not bound
+> >   df->device->iommufd_ctx != NULL   - Using iommufd
+> >   df->group->containter != NULL     - Using legacy container
+> >   all other cases                   - NO_IOMMU
+> > 
+> > No locking required since all these cases after the smp_load_acquire
+> > must be fixed for the lifetime of the df.
 > 
-> The code calls it rebuild_root_domain() ..
-> 
->>
->>> On 02/06/23 22:14, Qais Yousef wrote:
->>>> Commit f9a25f776d78 ("cpusets: Rebuild root domain deadline accounting information")
-> 
-> .. and so is the original patch title.
-> 
-> I think I have enough explanation in the commit message and renamed the
-> function name to be more descriptive too.
+> Do you mean the df->access_granted (introduced in patch 07) or a new
+> flag?
 
-True but the title doesn't really mention the actual issue here ...
-which is DL accounting. Once I read your email it became clear.
+yes
 
-[...]
+> Following your suggestion, it seems a mandatory requirement to do the
+> smp_load_acquire(..) == false check first, and then call into the vfio_device_open()
+> which further calls vfio_device_first_open() to check the iommufd/
+> legacy container/noiommu stuffs. Is it?
 
->> There is already a somehow hidden interface for `sd/rd rebuild`
->>
->>   int __weak arch_update_cpu_topology(void)
->>
->> which lets partition_sched_domains_locked() figure out whether sched
->> domains have to be rebuild..
->>
->> But in your case it is more on the interface `cpuset/hotplug -> sd/rd
->> rebuild` and not only `arch -> `sd/rd rebuild``.
->>
->> IMHO, it would be still nice to have only one way to tell `sd/rd
->> rebuild` what to do and what not to do during sd/rd/(pd) rebuild.
-> 
-> IIUC you're suggesting to introduce some new mechanism to detect if hotplug has
-> lead to a cpu to disappear or not and use that instead? Are you saying I can
-> use arch_update_cpu_topology() for that? Something like this?
-> 
-> 	diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
-> 	index e5ddc8e11e5d..60c3dcf06f0d 100644
-> 	--- a/kernel/cgroup/cpuset.c
-> 	+++ b/kernel/cgroup/cpuset.c
-> 	@@ -1122,7 +1122,7 @@ partition_and_rebuild_sched_domains(int ndoms_new, cpumask_var_t doms_new[],
-> 	 {
-> 		mutex_lock(&sched_domains_mutex);
-> 		partition_sched_domains_locked(ndoms_new, doms_new, dattr_new);
-> 	-       if (update_dl_accounting)
-> 	+       if (arch_update_cpu_topology())
-> 			update_dl_rd_accounting();
-> 		mutex_unlock(&sched_domains_mutex);
-> 	 }
+Figuring out if an open should happen or not is a different operation,
+you already build exclusion between cdev/group so we don't need to
+care about the open path. 
 
-No, this is not what I meant. I'm just saying the:
+> df->group->containter this may need a helper to avoid decoding group
+> field. May be just store container in df?
 
-  partition_sched_domains_locked()
-    new_topology = arch_update_cpu_topology();
+At worst a flag, but a helper seems like a good idea anyhow, then it
+can be compiled out
 
-has to be considered here as well since we do a
-`dl_clear_root_domain(rd)` (1) in partition_sched_domains_locked() for
-!new_topology.
-
-And (1) requires the `update_tasks_root_domain()` to happen later.
-
-So there are cases now, e.g. `rebuild_sched_domains_energy()` in which
-`new_topology=0` and `update_dl_accounting=false` which now clean the rd
-but don't do a new DL accounting anymore.
-rebuild_root_domains() itself cleans the `default root domain`, not the
-other root domains which could exists as well.
-
-Example: Switching CPUfreq policy [0,3-5] performance to schedutil (slow
-switching, i.e. we have sugov:X DL task(s)):
-
-[  862.479906] CPU4 partition_sched_domains_locked() new_topology=0
-[  862.499073] Workqueue: events rebuild_sd_workfn
-[  862.503646] Call trace:
-...
-[  862.520789]  partition_sched_domains_locked+0x6c/0x670
-[  862.525962]  rebuild_sched_domains_locked+0x204/0x8a0
-[  862.531050]  rebuild_sched_domains+0x2c/0x50
-[  862.535351]  rebuild_sd_workfn+0x38/0x54                        <-- !
-...
-[  862.554047] CPU4 dl_clear_root_domain() rd->span=0-5 total_bw=0
-def_root_domain=0                                                  <-- !
-[  862.561597] CPU4 dl_clear_root_domain() rd->span= total_bw=0
-def_root_domain=1
-[  862.568960] CPU4 dl_add_task_root_domain() [sugov:0 1801]
-total_bw=104857 def_root_domain=0 rd=0xffff0008015f0000            <-- !
-
-The dl_clear_root_domain() of the def_root_domain and the
-dl_add_task_root_domain() to the rd in use won't happen.
-
-[sugov:0 1801] is only a simple example here. I could have spawned a
-couple of DL tasks before this to illustrate the issue more obvious.
-
----
-
-The same seems to happen during suspend/resume (system with 2 frequency
-domains, both with slow switching schedutil CPUfreq gov):
-
-[   27.735821] CPU5 partition_sched_domains_locked() new_topology=0
-...
-[   27.735864] Workqueue: events cpuset_hotplug_workfn
-[   27.735894] Call trace:
-...
-[   27.735984]  partition_sched_domains_locked+0x6c/0x670
-[   27.736004]  rebuild_sched_domains_locked+0x204/0x8a0
-[   27.736026]  cpuset_hotplug_workfn+0x254/0x52c                  <-- !
-...
-[   27.736155] CPU5 dl_clear_root_domain() rd->span=0-5 total_bw=0
-def_root_domain=0                                                  <-- !
-[   27.736178] CPU5 dl_clear_root_domain() rd->span= total_bw=0
-def_root_domain=1
-[   27.736296] CPU5 dl_add_task_root_domain() [sugov:0 80]         <-- !
- total_bw=104857 def_root_domain=0 rd=0xffff000801728000
-[   27.736318] CPU5 dl_add_task_root_domain() [sugov:1 81]
-total_bw=209714 def_root_domain=0 rd=0xffff000801728000            <-- !
-...
-
-> I am not keen on this. arm64 seems to just read a value without a side effect.
-
-Arm64 (among others) sets `update_topology=1` before
-`rebuild_sched_domains()` and `update_topology=0` after it in
-update_topology_flags_workfn(). This then makes `new_topology=1` in
-partition_sched_domains_locked().
-
-> But x86 does reset this value so we can't read it twice in the same call tree
-> and I'll have to extract it.
-> 
-> The better solution that was discussed before is to not iterate through every
-> task in the system and let cpuset track when dl tasks are added to it and do
-> smarter iteration. ATM even if there are no dl tasks in the system we'll
-> blindly go through every task in the hierarchy to update nothing.
-
-Yes, I can see the problem. And IMHO this solution approach seems to be
-better than parsing update_dl_accounting` through the stack of involved
-functions.
-
-[...]
-
-
-
-
+Jason
