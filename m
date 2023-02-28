@@ -2,313 +2,204 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D5D1DC64ED6
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Feb 2023 14:08:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F37A5C6FA8E
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Feb 2023 14:09:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229792AbjB1OIn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Feb 2023 09:08:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38964 "EHLO
+        id S229797AbjB1OJR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Feb 2023 09:09:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229496AbjB1OIm (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Feb 2023 09:08:42 -0500
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B39E53A8E;
-        Tue, 28 Feb 2023 06:08:40 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1677593320; x=1709129320;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=yAwcbAOwAi/KQOX9wO7C7PL0NtrHIuaW6wPZPUh9D+s=;
-  b=apm6g/IqgWPf0Acn3NkQs4qCW44lpY/DZXogoe0YhbAWrAoH4xYWsaTI
-   ES0xlwHovA97Qjf4GUcYM8kczJ9OSuaCZLOxv9ObuCa3eZ9C21P7Zcng7
-   SBU4Ch7uZzYlETIiAqyxH6+yX+t6/l8niON+RlcUEv16gIuOmedzghu4V
-   iyUndf7SRURKSFp/hXH1sOUbu2tVKJxzzWRukAgicmH0MO8em9+nZKurL
-   cfdizpSLRkPQdwMk9kR8IH8INAbqQAZHhd3/FwlxR1J83Xqp+V8ADQ4FV
-   T4AuqGxdmoI1/Op1OBU6aOUEp1K1h0KlHQRcfnstT+PpkQMxFriTWodOf
-   w==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10635"; a="336430121"
-X-IronPort-AV: E=Sophos;i="5.98,222,1673942400"; 
-   d="scan'208";a="336430121"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Feb 2023 06:08:39 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10635"; a="651620316"
-X-IronPort-AV: E=Sophos;i="5.98,222,1673942400"; 
-   d="scan'208";a="651620316"
-Received: from lkp-server01.sh.intel.com (HELO 3895f5c55ead) ([10.239.97.150])
-  by orsmga006.jf.intel.com with ESMTP; 28 Feb 2023 06:08:36 -0800
-Received: from kbuild by 3895f5c55ead with local (Exim 4.96)
-        (envelope-from <lkp@intel.com>)
-        id 1pX0eh-0005RX-1d;
-        Tue, 28 Feb 2023 14:08:35 +0000
-Date:   Tue, 28 Feb 2023 22:08:07 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
-        wenjia@linux.ibm.com, jaka@linux.ibm.com, ast@kernel.org,
-        daniel@iogearbox.net, andrii@kernel.org
-Cc:     oe-kbuild-all@lists.linux.dev, kuba@kernel.org,
-        davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: Re: [PATCH bpf-next v3 3/4] net/smc: add BPF injection on smc
- negotiation
-Message-ID: <202302282100.x7qq7PGX-lkp@intel.com>
-References: <1677576294-33411-4-git-send-email-alibuda@linux.alibaba.com>
+        with ESMTP id S229833AbjB1OJP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Feb 2023 09:09:15 -0500
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 860B610413;
+        Tue, 28 Feb 2023 06:09:12 -0800 (PST)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 2C5D6C14;
+        Tue, 28 Feb 2023 06:09:55 -0800 (PST)
+Received: from [192.168.178.6] (unknown [172.31.20.19])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 78A883F67D;
+        Tue, 28 Feb 2023 06:09:08 -0800 (PST)
+Message-ID: <5a1e58bf-7eb2-bd7a-7e19-7864428a2b83@arm.com>
+Date:   Tue, 28 Feb 2023 15:09:06 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1677576294-33411-4-git-send-email-alibuda@linux.alibaba.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.7.1
+Subject: Re: [PATCH v3] sched: cpuset: Don't rebuild root domains on
+ suspend-resume
+Content-Language: en-US
+To:     Qais Yousef <qyousef@layalina.io>,
+        Juri Lelli <juri.lelli@redhat.com>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Waiman Long <longman@redhat.com>,
+        Steven Rostedt <rostedt@goodmis.org>, tj@kernel.org,
+        linux-kernel@vger.kernel.org, luca.abeni@santannapisa.it,
+        claudio@evidence.eu.com, tommaso.cucinotta@santannapisa.it,
+        bristot@redhat.com, mathieu.poirier@linaro.org,
+        cgroups@vger.kernel.org,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Wei Wang <wvw@google.com>, Rick Yiu <rickyiu@google.com>,
+        Quentin Perret <qperret@google.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Zefan Li <lizefan.x@bytedance.com>, linux-s390@vger.kernel.org,
+        x86@kernel.org
+References: <20230206221428.2125324-1-qyousef@layalina.io>
+ <20230223153859.37tqoqk33oc6tv7o@airbuntu>
+ <5f087dd8-3e39-ce83-fe24-afa5179c05d9@arm.com>
+ <20230227205725.dipvh3i7dvyrv4tv@airbuntu>
+From:   Dietmar Eggemann <dietmar.eggemann@arm.com>
+In-Reply-To: <20230227205725.dipvh3i7dvyrv4tv@airbuntu>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Wythe,
+On 27/02/2023 21:57, Qais Yousef wrote:
+> On 02/24/23 16:14, Dietmar Eggemann wrote:
+>> On 23/02/2023 16:38, Qais Yousef wrote:
+>>
+>> IMHO the patch title is misleading since what you want to avoid in
+>> certain cases is that the RD DL accounting is updated.
+> 
+> The code calls it rebuild_root_domain() ..
+> 
+>>
+>>> On 02/06/23 22:14, Qais Yousef wrote:
+>>>> Commit f9a25f776d78 ("cpusets: Rebuild root domain deadline accounting information")
+> 
+> .. and so is the original patch title.
+> 
+> I think I have enough explanation in the commit message and renamed the
+> function name to be more descriptive too.
 
-Thank you for the patch! Yet something to improve:
+True but the title doesn't really mention the actual issue here ...
+which is DL accounting. Once I read your email it became clear.
 
-[auto build test ERROR on bpf-next/master]
+[...]
 
-url:    https://github.com/intel-lab-lkp/linux/commits/D-Wythe/net-smc-move-smc_sock-related-structure-definition/20230228-173007
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/bpf/bpf-next.git master
-patch link:    https://lore.kernel.org/r/1677576294-33411-4-git-send-email-alibuda%40linux.alibaba.com
-patch subject: [PATCH bpf-next v3 3/4] net/smc: add BPF injection on smc negotiation
-config: x86_64-randconfig-a015-20230227 (https://download.01.org/0day-ci/archive/20230228/202302282100.x7qq7PGX-lkp@intel.com/config)
-compiler: gcc-11 (Debian 11.3.0-8) 11.3.0
-reproduce (this is a W=1 build):
-        # https://github.com/intel-lab-lkp/linux/commit/aa482ab82f4bf9b99d490f8ba5d88e1491156ccf
-        git remote add linux-review https://github.com/intel-lab-lkp/linux
-        git fetch --no-tags linux-review D-Wythe/net-smc-move-smc_sock-related-structure-definition/20230228-173007
-        git checkout aa482ab82f4bf9b99d490f8ba5d88e1491156ccf
-        # save the config file
-        mkdir build_dir && cp config build_dir/.config
-        make W=1 O=build_dir ARCH=x86_64 olddefconfig
-        make W=1 O=build_dir ARCH=x86_64 SHELL=/bin/bash
+>> There is already a somehow hidden interface for `sd/rd rebuild`
+>>
+>>   int __weak arch_update_cpu_topology(void)
+>>
+>> which lets partition_sched_domains_locked() figure out whether sched
+>> domains have to be rebuild..
+>>
+>> But in your case it is more on the interface `cpuset/hotplug -> sd/rd
+>> rebuild` and not only `arch -> `sd/rd rebuild``.
+>>
+>> IMHO, it would be still nice to have only one way to tell `sd/rd
+>> rebuild` what to do and what not to do during sd/rd/(pd) rebuild.
+> 
+> IIUC you're suggesting to introduce some new mechanism to detect if hotplug has
+> lead to a cpu to disappear or not and use that instead? Are you saying I can
+> use arch_update_cpu_topology() for that? Something like this?
+> 
+> 	diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
+> 	index e5ddc8e11e5d..60c3dcf06f0d 100644
+> 	--- a/kernel/cgroup/cpuset.c
+> 	+++ b/kernel/cgroup/cpuset.c
+> 	@@ -1122,7 +1122,7 @@ partition_and_rebuild_sched_domains(int ndoms_new, cpumask_var_t doms_new[],
+> 	 {
+> 		mutex_lock(&sched_domains_mutex);
+> 		partition_sched_domains_locked(ndoms_new, doms_new, dattr_new);
+> 	-       if (update_dl_accounting)
+> 	+       if (arch_update_cpu_topology())
+> 			update_dl_rd_accounting();
+> 		mutex_unlock(&sched_domains_mutex);
+> 	 }
 
-If you fix the issue, kindly add following tag where applicable
-| Reported-by: kernel test robot <lkp@intel.com>
-| Link: https://lore.kernel.org/oe-kbuild-all/202302282100.x7qq7PGX-lkp@intel.com/
+No, this is not what I meant. I'm just saying the:
 
-All errors (new ones prefixed by >>):
+  partition_sched_domains_locked()
+    new_topology = arch_update_cpu_topology();
 
-   ld: net/smc/af_smc.o: in function `smc_hs_congested':
->> net/smc/af_smc.c:169: undefined reference to `smc_sock_should_select_smc'
-   ld: net/smc/af_smc.o: in function `smc_release':
->> net/smc/af_smc.c:327: undefined reference to `smc_sock_perform_collecting_info'
-   ld: net/smc/af_smc.o: in function `smc_connect':
-   net/smc/af_smc.c:1637: undefined reference to `smc_sock_should_select_smc'
+has to be considered here as well since we do a
+`dl_clear_root_domain(rd)` (1) in partition_sched_domains_locked() for
+!new_topology.
+
+And (1) requires the `update_tasks_root_domain()` to happen later.
+
+So there are cases now, e.g. `rebuild_sched_domains_energy()` in which
+`new_topology=0` and `update_dl_accounting=false` which now clean the rd
+but don't do a new DL accounting anymore.
+rebuild_root_domains() itself cleans the `default root domain`, not the
+other root domains which could exists as well.
+
+Example: Switching CPUfreq policy [0,3-5] performance to schedutil (slow
+switching, i.e. we have sugov:X DL task(s)):
+
+[  862.479906] CPU4 partition_sched_domains_locked() new_topology=0
+[  862.499073] Workqueue: events rebuild_sd_workfn
+[  862.503646] Call trace:
+...
+[  862.520789]  partition_sched_domains_locked+0x6c/0x670
+[  862.525962]  rebuild_sched_domains_locked+0x204/0x8a0
+[  862.531050]  rebuild_sched_domains+0x2c/0x50
+[  862.535351]  rebuild_sd_workfn+0x38/0x54                        <-- !
+...
+[  862.554047] CPU4 dl_clear_root_domain() rd->span=0-5 total_bw=0
+def_root_domain=0                                                  <-- !
+[  862.561597] CPU4 dl_clear_root_domain() rd->span= total_bw=0
+def_root_domain=1
+[  862.568960] CPU4 dl_add_task_root_domain() [sugov:0 1801]
+total_bw=104857 def_root_domain=0 rd=0xffff0008015f0000            <-- !
+
+The dl_clear_root_domain() of the def_root_domain and the
+dl_add_task_root_domain() to the rd in use won't happen.
+
+[sugov:0 1801] is only a simple example here. I could have spawned a
+couple of DL tasks before this to illustrate the issue more obvious.
+
+---
+
+The same seems to happen during suspend/resume (system with 2 frequency
+domains, both with slow switching schedutil CPUfreq gov):
+
+[   27.735821] CPU5 partition_sched_domains_locked() new_topology=0
+...
+[   27.735864] Workqueue: events cpuset_hotplug_workfn
+[   27.735894] Call trace:
+...
+[   27.735984]  partition_sched_domains_locked+0x6c/0x670
+[   27.736004]  rebuild_sched_domains_locked+0x204/0x8a0
+[   27.736026]  cpuset_hotplug_workfn+0x254/0x52c                  <-- !
+...
+[   27.736155] CPU5 dl_clear_root_domain() rd->span=0-5 total_bw=0
+def_root_domain=0                                                  <-- !
+[   27.736178] CPU5 dl_clear_root_domain() rd->span= total_bw=0
+def_root_domain=1
+[   27.736296] CPU5 dl_add_task_root_domain() [sugov:0 80]         <-- !
+ total_bw=104857 def_root_domain=0 rd=0xffff000801728000
+[   27.736318] CPU5 dl_add_task_root_domain() [sugov:1 81]
+total_bw=209714 def_root_domain=0 rd=0xffff000801728000            <-- !
+...
+
+> I am not keen on this. arm64 seems to just read a value without a side effect.
+
+Arm64 (among others) sets `update_topology=1` before
+`rebuild_sched_domains()` and `update_topology=0` after it in
+update_topology_flags_workfn(). This then makes `new_topology=1` in
+partition_sched_domains_locked().
+
+> But x86 does reset this value so we can't read it twice in the same call tree
+> and I'll have to extract it.
+> 
+> The better solution that was discussed before is to not iterate through every
+> task in the system and let cpuset track when dl tasks are added to it and do
+> smarter iteration. ATM even if there are no dl tasks in the system we'll
+> blindly go through every task in the hierarchy to update nothing.
+
+Yes, I can see the problem. And IMHO this solution approach seems to be
+better than parsing update_dl_accounting` through the stack of involved
+functions.
+
+[...]
 
 
-vim +169 net/smc/af_smc.c
 
-   156	
-   157	static bool smc_hs_congested(const struct sock *sk)
-   158	{
-   159		const struct smc_sock *smc;
-   160	
-   161		smc = smc_clcsock_user_data(sk);
-   162	
-   163		if (!smc)
-   164			return true;
-   165	
-   166		if (workqueue_congested(WORK_CPU_UNBOUND, smc_hs_wq))
-   167			return true;
-   168	
- > 169		if (!smc_sock_should_select_smc(smc))
-   170			return true;
-   171	
-   172		return false;
-   173	}
-   174	
-   175	static struct smc_hashinfo smc_v4_hashinfo = {
-   176		.lock = __RW_LOCK_UNLOCKED(smc_v4_hashinfo.lock),
-   177	};
-   178	
-   179	static struct smc_hashinfo smc_v6_hashinfo = {
-   180		.lock = __RW_LOCK_UNLOCKED(smc_v6_hashinfo.lock),
-   181	};
-   182	
-   183	int smc_hash_sk(struct sock *sk)
-   184	{
-   185		struct smc_hashinfo *h = sk->sk_prot->h.smc_hash;
-   186		struct hlist_head *head;
-   187	
-   188		head = &h->ht;
-   189	
-   190		write_lock_bh(&h->lock);
-   191		sk_add_node(sk, head);
-   192		write_unlock_bh(&h->lock);
-   193		sock_prot_inuse_add(sock_net(sk), sk->sk_prot, 1);
-   194	
-   195		return 0;
-   196	}
-   197	EXPORT_SYMBOL_GPL(smc_hash_sk);
-   198	
-   199	void smc_unhash_sk(struct sock *sk)
-   200	{
-   201		struct smc_hashinfo *h = sk->sk_prot->h.smc_hash;
-   202	
-   203		write_lock_bh(&h->lock);
-   204		if (sk_del_node_init(sk))
-   205			sock_prot_inuse_add(sock_net(sk), sk->sk_prot, -1);
-   206		write_unlock_bh(&h->lock);
-   207	}
-   208	EXPORT_SYMBOL_GPL(smc_unhash_sk);
-   209	
-   210	/* This will be called before user really release sock_lock. So do the
-   211	 * work which we didn't do because of user hold the sock_lock in the
-   212	 * BH context
-   213	 */
-   214	static void smc_release_cb(struct sock *sk)
-   215	{
-   216		struct smc_sock *smc = smc_sk(sk);
-   217	
-   218		if (smc->conn.tx_in_release_sock) {
-   219			smc_tx_pending(&smc->conn);
-   220			smc->conn.tx_in_release_sock = false;
-   221		}
-   222	}
-   223	
-   224	struct proto smc_proto = {
-   225		.name		= "SMC",
-   226		.owner		= THIS_MODULE,
-   227		.keepalive	= smc_set_keepalive,
-   228		.hash		= smc_hash_sk,
-   229		.unhash		= smc_unhash_sk,
-   230		.release_cb	= smc_release_cb,
-   231		.obj_size	= sizeof(struct smc_sock),
-   232		.h.smc_hash	= &smc_v4_hashinfo,
-   233		.slab_flags	= SLAB_TYPESAFE_BY_RCU,
-   234	};
-   235	EXPORT_SYMBOL_GPL(smc_proto);
-   236	
-   237	struct proto smc_proto6 = {
-   238		.name		= "SMC6",
-   239		.owner		= THIS_MODULE,
-   240		.keepalive	= smc_set_keepalive,
-   241		.hash		= smc_hash_sk,
-   242		.unhash		= smc_unhash_sk,
-   243		.release_cb	= smc_release_cb,
-   244		.obj_size	= sizeof(struct smc_sock),
-   245		.h.smc_hash	= &smc_v6_hashinfo,
-   246		.slab_flags	= SLAB_TYPESAFE_BY_RCU,
-   247	};
-   248	EXPORT_SYMBOL_GPL(smc_proto6);
-   249	
-   250	static void smc_fback_restore_callbacks(struct smc_sock *smc)
-   251	{
-   252		struct sock *clcsk = smc->clcsock->sk;
-   253	
-   254		write_lock_bh(&clcsk->sk_callback_lock);
-   255		clcsk->sk_user_data = NULL;
-   256	
-   257		smc_clcsock_restore_cb(&clcsk->sk_state_change, &smc->clcsk_state_change);
-   258		smc_clcsock_restore_cb(&clcsk->sk_data_ready, &smc->clcsk_data_ready);
-   259		smc_clcsock_restore_cb(&clcsk->sk_write_space, &smc->clcsk_write_space);
-   260		smc_clcsock_restore_cb(&clcsk->sk_error_report, &smc->clcsk_error_report);
-   261	
-   262		write_unlock_bh(&clcsk->sk_callback_lock);
-   263	}
-   264	
-   265	static void smc_restore_fallback_changes(struct smc_sock *smc)
-   266	{
-   267		if (smc->clcsock->file) { /* non-accepted sockets have no file yet */
-   268			smc->clcsock->file->private_data = smc->sk.sk_socket;
-   269			smc->clcsock->file = NULL;
-   270			smc_fback_restore_callbacks(smc);
-   271		}
-   272	}
-   273	
-   274	static int __smc_release(struct smc_sock *smc)
-   275	{
-   276		struct sock *sk = &smc->sk;
-   277		int rc = 0;
-   278	
-   279		if (!smc->use_fallback) {
-   280			rc = smc_close_active(smc);
-   281			sock_set_flag(sk, SOCK_DEAD);
-   282			sk->sk_shutdown |= SHUTDOWN_MASK;
-   283		} else {
-   284			if (sk->sk_state != SMC_CLOSED) {
-   285				if (sk->sk_state != SMC_LISTEN &&
-   286				    sk->sk_state != SMC_INIT)
-   287					sock_put(sk); /* passive closing */
-   288				if (sk->sk_state == SMC_LISTEN) {
-   289					/* wake up clcsock accept */
-   290					rc = kernel_sock_shutdown(smc->clcsock,
-   291								  SHUT_RDWR);
-   292				}
-   293				sk->sk_state = SMC_CLOSED;
-   294				sk->sk_state_change(sk);
-   295			}
-   296			smc_restore_fallback_changes(smc);
-   297		}
-   298	
-   299		sk->sk_prot->unhash(sk);
-   300	
-   301		if (sk->sk_state == SMC_CLOSED) {
-   302			if (smc->clcsock) {
-   303				release_sock(sk);
-   304				smc_clcsock_release(smc);
-   305				lock_sock(sk);
-   306			}
-   307			if (!smc->use_fallback)
-   308				smc_conn_free(&smc->conn);
-   309		}
-   310	
-   311		return rc;
-   312	}
-   313	
-   314	static int smc_release(struct socket *sock)
-   315	{
-   316		struct sock *sk = sock->sk;
-   317		struct smc_sock *smc;
-   318		int old_state, rc = 0;
-   319	
-   320		if (!sk)
-   321			goto out;
-   322	
-   323		sock_hold(sk); /* sock_put below */
-   324		smc = smc_sk(sk);
-   325	
-   326		/* trigger info gathering if needed.*/
- > 327		smc_sock_perform_collecting_info(sk, SMC_SOCK_CLOSED_TIMING);
-   328	
-   329		old_state = sk->sk_state;
-   330	
-   331		/* cleanup for a dangling non-blocking connect */
-   332		if (smc->connect_nonblock && old_state == SMC_INIT)
-   333			tcp_abort(smc->clcsock->sk, ECONNABORTED);
-   334	
-   335		if (cancel_work_sync(&smc->connect_work))
-   336			sock_put(&smc->sk); /* sock_hold in smc_connect for passive closing */
-   337	
-   338		if (sk->sk_state == SMC_LISTEN)
-   339			/* smc_close_non_accepted() is called and acquires
-   340			 * sock lock for child sockets again
-   341			 */
-   342			lock_sock_nested(sk, SINGLE_DEPTH_NESTING);
-   343		else
-   344			lock_sock(sk);
-   345	
-   346		if (old_state == SMC_INIT && sk->sk_state == SMC_ACTIVE &&
-   347		    !smc->use_fallback)
-   348			smc_close_active_abort(smc);
-   349	
-   350		rc = __smc_release(smc);
-   351	
-   352		/* detach socket */
-   353		sock_orphan(sk);
-   354		sock->sk = NULL;
-   355		release_sock(sk);
-   356	
-   357		sock_put(sk); /* sock_hold above */
-   358		sock_put(sk); /* final sock_put */
-   359	out:
-   360		return rc;
-   361	}
-   362	
 
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests
