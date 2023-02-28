@@ -2,431 +2,238 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7BA9EC64EC7
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Feb 2023 09:25:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A4280C64EC7
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Feb 2023 10:46:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231283AbjB1JZV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Feb 2023 04:25:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39028 "EHLO
+        id S229560AbjB1Kqc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Feb 2023 05:46:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231268AbjB1JZK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Feb 2023 04:25:10 -0500
-Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E17B55A7;
-        Tue, 28 Feb 2023 01:25:06 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0Vcix4zZ_1677576303;
-Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0Vcix4zZ_1677576303)
-          by smtp.aliyun-inc.com;
-          Tue, 28 Feb 2023 17:25:03 +0800
-From:   "D. Wythe" <alibuda@linux.alibaba.com>
-To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
-        ast@kernel.org, daniel@iogearbox.net, andrii@kernel.org
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH bpf-next v3 4/4] bpf/selftests: add selftest for SMC bpf capability
-Date:   Tue, 28 Feb 2023 17:24:54 +0800
-Message-Id: <1677576294-33411-5-git-send-email-alibuda@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1677576294-33411-1-git-send-email-alibuda@linux.alibaba.com>
-References: <1677576294-33411-1-git-send-email-alibuda@linux.alibaba.com>
+        with ESMTP id S229524AbjB1Kqb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Feb 2023 05:46:31 -0500
+Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D70B27486;
+        Tue, 28 Feb 2023 02:46:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1677581190; x=1709117190;
+  h=message-id:date:subject:to:references:cc:from:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=jocKCLAunfcUAsuHrxAEBOf49ZALiTqn3odtAW60lG4=;
+  b=aYb3Dy/uoamETcBl6ILSikPVJW8lv2g2WepurQg+Y5xCjoyWEvi/tU+Y
+   7q8wWmQLyubwC4zQ5hb+1asU5mX3wVZHE91VUBx3DZQEgd3cMHj3l6DFQ
+   +TKJ6zrZZL9fR6UhndIumWmkePCUN6STopWvKukNS1jSOf9ruJOma33M1
+   VgbHlOHakyLn2f80aOoDKz9Lg/X6DFM1Oz4HY4TOhOsg5PflzXY9RaM4n
+   MiN7yFHPx19cvtMYbcrfD3jbbmsCiY+38XB6BRJ54RjdFkIkeRJIHSV/R
+   SpQS8jWoxtLnOCvtF4nfuTWrqL87aXtz8kxopi1C5wqGqwqC9CaXT/4WE
+   g==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10634"; a="396671894"
+X-IronPort-AV: E=Sophos;i="5.98,221,1673942400"; 
+   d="scan'208";a="396671894"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Feb 2023 02:46:29 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10634"; a="651579721"
+X-IronPort-AV: E=Sophos;i="5.98,221,1673942400"; 
+   d="scan'208";a="651579721"
+Received: from fmsmsx602.amr.corp.intel.com ([10.18.126.82])
+  by orsmga006.jf.intel.com with ESMTP; 28 Feb 2023 02:46:28 -0800
+Received: from fmsmsx612.amr.corp.intel.com (10.18.126.92) by
+ fmsmsx602.amr.corp.intel.com (10.18.126.82) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.16; Tue, 28 Feb 2023 02:46:28 -0800
+Received: from fmsmsx601.amr.corp.intel.com (10.18.126.81) by
+ fmsmsx612.amr.corp.intel.com (10.18.126.92) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.16; Tue, 28 Feb 2023 02:46:27 -0800
+Received: from FMSEDG603.ED.cps.intel.com (10.1.192.133) by
+ fmsmsx601.amr.corp.intel.com (10.18.126.81) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.16 via Frontend Transport; Tue, 28 Feb 2023 02:46:27 -0800
+Received: from NAM12-MW2-obe.outbound.protection.outlook.com (104.47.66.46) by
+ edgegateway.intel.com (192.55.55.68) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.16; Tue, 28 Feb 2023 02:46:27 -0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=DsySj3YgoMdE+7NcAHUcoooIg83ZvBM+Tii7vhvou0JTJPhRUOHoVktgoZXN3fPFR4KhoWDTy/f21Ck01KS/8JSCSqxJ7gYdfb3s68Pt1u7YufyYPwoCxg67bGn2cvmQOGgnsXsvQAMwHoquGeaYnC3V6VfwYBk8JvtkMbLmVytRDo4MjNTW+QpjpFqGVUJIu/EnY851+kuUHHanfaakAyt0weRqyGO5TL3U7jCQXW0oo/ZFmERPJ/v/XmA4bz+6XeegNr7Lj6QnXNREiiPKzpRlN7yitSitrYYgeVD9ne8MwMaAvDPokBroCV1em4pKskVK4/Rt7woCj7Z5i45Aqw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=vEqkcw3FFTobyOQGLDUnMZ27cTHWEJQLGfzr35g5aes=;
+ b=EdsS8xQt6uChhXXNJXnQZZvHq1FwfsXT8UUlP9Ae5XqafRTxbYresCnRVQHimlleBrjfxzTjn+yRKHhFP94WNYY16I1ExL0ENE628HaNoX5SBrk1i7I+U4ISXdw74w2yH7gDZasfub/4U6mRIaOd8oUNkumruCd7nL1lumJo7sNgSNuSZZAW00R4oXR8vzz1vF7aqeNrKPyp5uacnAOk9ppte8AwygPye1spx+uzjPOm1xfFx5RL9LyDBHi/sPHx64PVj+g3aWJyPMAOQLI6j7H16y74E39fkCSN3h/jddbRmfMnvIF1Ns61hE2z/vKYdWY0zD06i6LM5X9Ja04OYg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+Received: from DM6PR11MB3625.namprd11.prod.outlook.com (2603:10b6:5:13a::21)
+ by BL1PR11MB5447.namprd11.prod.outlook.com (2603:10b6:208:315::17) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6134.30; Tue, 28 Feb
+ 2023 10:46:26 +0000
+Received: from DM6PR11MB3625.namprd11.prod.outlook.com
+ ([fe80::3ff6:ca60:f9fe:6934]) by DM6PR11MB3625.namprd11.prod.outlook.com
+ ([fe80::3ff6:ca60:f9fe:6934%4]) with mapi id 15.20.6134.030; Tue, 28 Feb 2023
+ 10:46:25 +0000
+Message-ID: <fd0da26f-6437-75bf-c013-f338174325fe@intel.com>
+Date:   Tue, 28 Feb 2023 11:45:18 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.8.0
+Subject: Re: [PATCH 2/2] lib/bitmap: drop optimization of
+ bitmap_{from,to}_arr64
+Content-Language: en-US
+To:     Yury Norov <yury.norov@gmail.com>
+References: <20230227214524.914050-1-yury.norov@gmail.com>
+ <20230227214524.914050-2-yury.norov@gmail.com>
+CC:     <linux-kernel@vger.kernel.org>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        <linux-s390@vger.kernel.org>, <kvm@vger.kernel.org>
+From:   Alexander Lobakin <aleksander.lobakin@intel.com>
+In-Reply-To: <20230227214524.914050-2-yury.norov@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: HE1PR02CA0091.eurprd02.prod.outlook.com
+ (2603:10a6:7:29::20) To DM6PR11MB3625.namprd11.prod.outlook.com
+ (2603:10b6:5:13a::21)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DM6PR11MB3625:EE_|BL1PR11MB5447:EE_
+X-MS-Office365-Filtering-Correlation-Id: 480a0a68-ff42-4a8e-2760-08db19790a25
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: olKXEE/547Or7atlMTq3Siw9dWlSpPW+y52wcp+idAcJK86tblZEGr2h30jYFdjb4U2n3WEnYk0r1e5be3fZltnPPVNlTi+0VFRlkjyTjCRNY4wFPm6n5I6lSo83LaEmBAswbKW1+9m4l15/xGUZm1kwZAgDJmBajA6NvTIzrvkZZB8NXko2CNpSlK1i4+7y4HcdaAQrTKj+S+rvFCq4CvTXOUXapVeAca9kdhjy5yswW6xloO6kUeT4HEOz45Bcan+lzzWR8FSKzjW6TIEHBQ60mPuSIIoyqNa+AlEGVhLdm9J6g/O14hrdsFJtMGfcrZwitLXW3MSgrp26hH96NwwV1bLcRI18dv+ismkedyi2Mf2GoU1IcQ8n+MxPQcyth1CZbBwQCeOWzwKQ8HpyT0wooIivCf7g6FKBm2AvY78sf9QQ8wQRWsDScfkXwluzJPJW/X8drV+d5ztwzy6n+W+639/Wy/z1vvx56AoFIvdIgtO4cz76x44AIIVkaIISxNZX+y0RII2PZzeAT6u+3DwTP5dRSQZbZOu/gLBi9Ci61lAgG7S1lU0vXraQqpMdPN0snWV0XrByh/sS0UlWzTJ0d07xkNM54F6oQYqyuIrfE62UKOXYWLDeBIN8y/O38WyzWb/6lxdBf5H7bAIfTcXFlJSxchSnZpHz+GF9tdLwEhB8wZUjt2vP1ygT3OM2HirjQI70k6s09hQECooq/JxGHkDLraphP5VW6un4EwI=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR11MB3625.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(136003)(39860400002)(346002)(396003)(376002)(366004)(451199018)(66946007)(6506007)(66476007)(66556008)(6512007)(186003)(54906003)(6666004)(316002)(26005)(2906002)(478600001)(86362001)(966005)(6486002)(36756003)(31696002)(83380400001)(5660300002)(41300700001)(31686004)(7416002)(8936002)(8676002)(6916009)(4326008)(2616005)(38100700002)(82960400001)(43740500002)(45980500001);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?MFFISEFhZG85aGE5TU9JTmJ6eC9TMWRaUXl4aW83eUpveVA4SFAyOHFwOHh1?=
+ =?utf-8?B?TWtlY3RmNjVGTTl5Y21ZNWtFNHB1bW8vQzhNWFRHWkZodEZRbE5xUmRaNnIr?=
+ =?utf-8?B?QUhPZUF0dm5uM21rQkJQVWxzMXlHcjNBNVhNK2RiTGJPLy9QTzJCME90WUs0?=
+ =?utf-8?B?aU01T2NtQzkwdS9wQkk0dTJQZTRGNHAzeXJ4dVZZQVhydnRPRmEvcjFlbHhI?=
+ =?utf-8?B?M2MwTDFLZlBOM0NVYTZ1Yi9pa3B6MHZhVkdIcGNJZ3RrVFNFZ1hZZE0zeDhx?=
+ =?utf-8?B?MjUzdE9XNGVBTG85d2hoaktZMEdkZkQzMmRmRzFmc3EzV3R5Q3VoUVV3WHZT?=
+ =?utf-8?B?U3VxR3l5VkxNam9uWFZsTmJqY28yQnhrK0VROGVPa01WM1BUQWNIQk5xMlBN?=
+ =?utf-8?B?NEpsWWhrUU05dU9SMFB1VTB6dEF6eGVpUmJ1OTloZnNySlRyd0xjQjB6aFVH?=
+ =?utf-8?B?TFRiQUkwNXA3WGtwQjAraTlYNkp3Q05QR2xDRkFaNDhkSGFCcmtDTndkZFRR?=
+ =?utf-8?B?WXNBbUdNMjJ6SWN6TUNNbnQzc08wSE9zSDlaRXh1cEZkNXR1NlFsTWVlVU14?=
+ =?utf-8?B?dEJwazY4YzdTQmJVVVU2N3VCQ0JqdXdPamwzUTZxUzNZM3JrRVNoTE9tZlhW?=
+ =?utf-8?B?bmNGeXl5SkRWbC9NdW5nekRCam8xNUVOZW9Hd2pJWnRraGlsUWtocE51N0Er?=
+ =?utf-8?B?ajN0cjlEK1dQbVVTeGZ0a2dVc0lQUmR5dzdScVB1bXRGNmhENkxySkNIYnpp?=
+ =?utf-8?B?elNlVjhwYW12NlRRcG9lM0ZWYjFRYS94WFdIdjNvNk9HdytZVlBqc3ZlajNH?=
+ =?utf-8?B?SWdITWdLc0RhcWE5R1RxU2RGWmVaU1NuakhUR2hUdG5aNFljYVIxb2pDRm1F?=
+ =?utf-8?B?SkRpZFJ1T0lTc3ZqSmtnZG13ZzhLdStOa3MwZjVGY0RIdE94TWFkc2I3cmtp?=
+ =?utf-8?B?RncxN2F6VDBHazJ6NVZaYW9Qa1ZHZldWTjhOMDdQNE14M05ES0ZXZXY2cWYx?=
+ =?utf-8?B?TDFQaThhWWw5ak9ydEFUbm5KdjFpREk1VXI2NlhFWnkvakFkMnBJdGZOZkdn?=
+ =?utf-8?B?Q0ZHL3hKaVhkVk9tZzl4NGkvQmNUSW9MczhFdWNPMjRzbS9xaGJrS1BKUFlv?=
+ =?utf-8?B?RUx0bzY5M0RNbnhxKytVVTRuTXI3akRGczQ3cnc1RmdHcVc2Ni9DMUIvUlhX?=
+ =?utf-8?B?bE1ocXR3dzlXUTIxM2RyRjl0YVhlZ1duNTQwN0hYQXI1Mi93c05tTjZCMUVN?=
+ =?utf-8?B?Qmw5ZDA1WXlZbzlGM0RETktNM3poZnliWThHaFBRWEJWT2d5YTlBaFJlblVM?=
+ =?utf-8?B?RkQrQUFJNndoRlRoZC9lSlNKUE1RdGhCWlpXSTFUU1RYby9WUE80VmlmWmc1?=
+ =?utf-8?B?eEJ3MEZ2cHZUTFllQzN5RDhjV2tjTW1XSG9YTkZ0MjlUWXl1Ukc0WDNNNjJk?=
+ =?utf-8?B?QkU3akYvWWtWVW9pbWJ2eDhSemtYM0c1VW1MSjBFME9FNmNsTUNET2FEaDFC?=
+ =?utf-8?B?aXpPWkg4MnZvc2NFY2VlcWNRd3Qrc00yWkxPWitQNWhzSmRIdGU2bkMwMEJv?=
+ =?utf-8?B?eU1yN1lYaSt6dk83RGh1NVVHbTQ4MWJUMVBXeXd1a2hDQ21aYklsRCswV2tI?=
+ =?utf-8?B?T2tUcEhISGhvNUlyUmgzdjJKY3lJNXI2UUkrcmRLNTdNd0h6Z2FOdEpaSkIr?=
+ =?utf-8?B?di83ZEp3OFZCN05SRyt4WVJRRGtITkloMUFKTU5pbEpvck03aHZSN1Y3SDhs?=
+ =?utf-8?B?RWs0TG9ENFNlTTZvZ042c3M4RjU4Q1FEcDZ1amk3WlJvbU9XRFhxMTdGdllp?=
+ =?utf-8?B?SFRVS05GYitSTUZpZ1d5T0VCRTA1VkUyWisyNTBOaTd1YVVjWS9Lc29zLzRr?=
+ =?utf-8?B?My9mcFluTlpmY2ROaUFzaVJQdkcrTlRsakdWKzlKbmtPR1lyUjlqY1plVnZC?=
+ =?utf-8?B?RDl5YTd1NjJVc3p0TWtFZVpucmdGZ01TWUppRVVJNFlmQkNTZFFaQjlwSHlD?=
+ =?utf-8?B?a2tRYjRKQmNxR1ZSQmtvSjdseXowVjBLYnhnYTZLNWxHVjczaGpnbFRrdHRo?=
+ =?utf-8?B?K3pQUjNaNkNwaENOckNoelhKeW9IS3U5ekNzTUlNTDRZRmhjS25uMEFYclAz?=
+ =?utf-8?B?cU83alBGV1U5UDVvdk5xOEF4S3R5ekYxRmxMQVJUYk9HNFFGeU1qQWNwLzYw?=
+ =?utf-8?Q?2IrWbkqnLMtshGboa3hJ/WY=3D?=
+X-MS-Exchange-CrossTenant-Network-Message-Id: 480a0a68-ff42-4a8e-2760-08db19790a25
+X-MS-Exchange-CrossTenant-AuthSource: DM6PR11MB3625.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Feb 2023 10:46:25.8126
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: Rf4BIHfrf/+CCQ4oRHkYAUt3Y5O1uZYqCDJVT0hx1Qcg2VETip1NwfPPLZ5+VYEuUxNi3Iu6cU2kMzZYCPl804v9w7xRCkUCdNWy7GDj4/k=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR11MB5447
+X-OriginatorOrg: intel.com
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: "D. Wythe" <alibuda@linux.alibaba.com>
+From: Yury Norov <yury.norov@gmail.com>
+Date: Mon, 27 Feb 2023 13:45:24 -0800
 
-This PATCH adds a tiny selftest for SMC bpf capability,
-making decisions on whether to use SMC by collecting
-certain information from kernel smc sock.
+> bitmap_{from,to}_arr64() optimization is overly optimistic on 32-bit LE
+> architectures when it's wired to bitmap_copy_clear_tail().
+> 
+> bitmap_copy_clear_tail() takes care of unused bits in the bitmap up to
+> the next word boundary. But on 32-bit machines when copying bits from
+> bitmap to array of 64-bit words, it's expected that the unused part of
+> a recipient array must be cleared up to 64-bit boundary, so the last 4
+> bytes may stay untouched when nbits % 64 <= 32.
+> 
+> While the copying part of the optimization works correct, that clear-tail
+> trick makes corresponding tests reasonably fail:
+> 
+> test_bitmap: bitmap_to_arr64(nbits == 1): tail is not safely cleared: 0xa5a5a5a500000001 (must be 0x0000000000000001)
+> 
+> Fix it by removing bitmap_{from,to}_arr64() optimization for 32-bit LE
+> arches.
+> 
+> Reported-by: Guenter Roeck <linux@roeck-us.net>
+> Link: https://lore.kernel.org/lkml/20230225184702.GA3587246@roeck-us.net/
+> Fixes: 0a97953fd221 ("lib: add bitmap_{from,to}_arr64")
+> Signed-off-by: Yury Norov <yury.norov@gmail.com>
+> Tested-by: Guenter Roeck <linux@roeck-us.net>
+> ---
+>  include/linux/bitmap.h | 8 +++-----
+>  lib/bitmap.c           | 2 +-
+>  2 files changed, 4 insertions(+), 6 deletions(-)
+> 
+> diff --git a/include/linux/bitmap.h b/include/linux/bitmap.h
+> index 40e53a2ecc0d..7d4c90eb3df4 100644
+> --- a/include/linux/bitmap.h
+> +++ b/include/linux/bitmap.h
+> @@ -302,12 +302,10 @@ void bitmap_to_arr32(u32 *buf, const unsigned long *bitmap,
+>  #endif
+>  
+>  /*
+> - * On 64-bit systems bitmaps are represented as u64 arrays internally. On LE32
+> - * machines the order of hi and lo parts of numbers match the bitmap structure.
+> - * In both cases conversion is not needed when copying data from/to arrays of
+> - * u64.
+> + * On 64-bit systems bitmaps are represented as u64 arrays internally. So,
+> + * the conversion is not needed when copying data from/to arrays of u64.
+>   */
+> -#if (BITS_PER_LONG == 32) && defined(__BIG_ENDIAN)
+> +#if BITS_PER_LONG == 32
+>  void bitmap_from_arr64(unsigned long *bitmap, const u64 *buf, unsigned int nbits);
+>  void bitmap_to_arr64(u64 *buf, const unsigned long *bitmap, unsigned int nbits);
+>  #else
+> diff --git a/lib/bitmap.c b/lib/bitmap.c
+> index 1c81413c51f8..ddb31015e38a 100644
+> --- a/lib/bitmap.c
+> +++ b/lib/bitmap.c
+> @@ -1495,7 +1495,7 @@ void bitmap_to_arr32(u32 *buf, const unsigned long *bitmap, unsigned int nbits)
+>  EXPORT_SYMBOL(bitmap_to_arr32);
+>  #endif
+>  
+> -#if (BITS_PER_LONG == 32) && defined(__BIG_ENDIAN)
+> +#if BITS_PER_LONG == 32
+>  /**
+>   * bitmap_from_arr64 - copy the contents of u64 array of bits to bitmap
+>   *	@bitmap: array of unsigned longs, the destination bitmap
 
-Follow the steps below to run this test.
+For the series:
 
-make -C tools/testing/selftests/bpf
-cd tools/testing/selftests/bpf
-sudo ./test_progs -t bpf_smc
+Reviewed-by: Alexander Lobakin <aleksander.lobakin@intel.com>
 
-Results shows:
-18      bpf_smc:OK
-Summary: 1/0 PASSED, 0 SKIPPED, 0 FAILED
-
-Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
----
- tools/testing/selftests/bpf/prog_tests/bpf_smc.c |  37 +++
- tools/testing/selftests/bpf/progs/bpf_smc.c      | 320 +++++++++++++++++++++++
- 2 files changed, 357 insertions(+)
- create mode 100644 tools/testing/selftests/bpf/prog_tests/bpf_smc.c
- create mode 100644 tools/testing/selftests/bpf/progs/bpf_smc.c
-
-diff --git a/tools/testing/selftests/bpf/prog_tests/bpf_smc.c b/tools/testing/selftests/bpf/prog_tests/bpf_smc.c
-new file mode 100644
-index 0000000..b57326c
---- /dev/null
-+++ b/tools/testing/selftests/bpf/prog_tests/bpf_smc.c
-@@ -0,0 +1,37 @@
-+// SPDX-License-Identifier: GPL-2.0
-+
-+#include <linux/err.h>
-+#include <netinet/tcp.h>
-+#include <test_progs.h>
-+#include "bpf_smc.skel.h"
-+
-+void test_bpf_smc(void)
-+{
-+	struct bpf_smc *smc_skel;
-+	struct bpf_link *link;
-+	int err;
-+
-+	smc_skel = bpf_smc__open();
-+	if (!ASSERT_OK_PTR(smc_skel, "skel_open"))
-+		return;
-+
-+	err = bpf_map__set_type(smc_skel->maps.negotiator_map, BPF_MAP_TYPE_HASH);
-+	if (!ASSERT_OK(err, "bpf_map__set_type"))
-+		goto error;
-+
-+	err = bpf_map__set_max_entries(smc_skel->maps.negotiator_map, 1);
-+	if (!ASSERT_OK(err, "bpf_map__set_type"))
-+		goto error;
-+
-+	err =  bpf_smc__load(smc_skel);
-+	if (!ASSERT_OK(err, "skel_load"))
-+		goto error;
-+
-+	link = bpf_map__attach_struct_ops(smc_skel->maps.ops);
-+	if (!ASSERT_OK_PTR(link, "bpf_map__attach_struct_ops"))
-+		goto error;
-+
-+	bpf_link__destroy(link);
-+error:
-+	bpf_smc__destroy(smc_skel);
-+}
-diff --git a/tools/testing/selftests/bpf/progs/bpf_smc.c b/tools/testing/selftests/bpf/progs/bpf_smc.c
-new file mode 100644
-index 0000000..4f4a541
---- /dev/null
-+++ b/tools/testing/selftests/bpf/progs/bpf_smc.c
-@@ -0,0 +1,320 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+
-+#include <linux/bpf.h>
-+#include <linux/stddef.h>
-+#include <linux/smc.h>
-+#include <stdbool.h>
-+#include <linux/types.h>
-+#include <bpf/bpf_helpers.h>
-+#include <bpf/bpf_core_read.h>
-+#include <bpf/bpf_tracing.h>
-+
-+#define AF_SMC			(43)
-+#define SMC_LISTEN		(10)
-+#define SMC_SOCK_CLOSED_TIMING	(0)
-+extern unsigned long CONFIG_HZ __kconfig;
-+#define HZ CONFIG_HZ
-+
-+char _license[] SEC("license") = "GPL";
-+#define max(a, b) ((a) > (b) ? (a) : (b))
-+
-+struct sock_common {
-+	unsigned char	skc_state;
-+	unsigned short	skc_family;
-+	__u16	skc_num;
-+} __attribute__((preserve_access_index));
-+
-+struct sock {
-+	struct sock_common	__sk_common;
-+	int	sk_sndbuf;
-+} __attribute__((preserve_access_index));
-+
-+struct inet_sock {
-+	struct sock	sk;
-+} __attribute__((preserve_access_index));
-+
-+struct inet_connection_sock {
-+	struct inet_sock	icsk_inet;
-+} __attribute__((preserve_access_index));
-+
-+struct tcp_sock {
-+	struct inet_connection_sock	inet_conn;
-+	__u32	rcv_nxt;
-+	__u32	snd_nxt;
-+	__u32	snd_una;
-+	__u32	delivered;
-+	__u8	syn_data:1,	/* SYN includes data */
-+		syn_fastopen:1,	/* SYN includes Fast Open option */
-+		syn_fastopen_exp:1,/* SYN includes Fast Open exp. option */
-+		syn_fastopen_ch:1, /* Active TFO re-enabling probe */
-+		syn_data_acked:1,/* data in SYN is acked by SYN-ACK */
-+		save_syn:1,	/* Save headers of SYN packet */
-+		is_cwnd_limited:1,/* forward progress limited by snd_cwnd? */
-+		syn_smc:1;	/* SYN includes SMC */
-+} __attribute__((preserve_access_index));
-+
-+struct socket {
-+	struct sock *sk;
-+} __attribute__((preserve_access_index));
-+
-+union smc_host_cursor {
-+	struct {
-+		__u16	reserved;
-+		__u16	wrap;
-+		__u32	count;
-+	};
-+} __attribute__((preserve_access_index));
-+
-+struct smc_connection {
-+	union smc_host_cursor	tx_curs_sent;
-+	union smc_host_cursor	rx_curs_confirmed;
-+} __attribute__((preserve_access_index));
-+
-+struct smc_sock {
-+	struct sock	sk;
-+	struct socket	*clcsock;	/* internal tcp socket */
-+	struct smc_connection	conn;
-+	int use_fallback;
-+} __attribute__((preserve_access_index));
-+
-+static __always_inline struct tcp_sock *tcp_sk(const struct sock *sk)
-+{
-+	return (struct tcp_sock *)sk;
-+}
-+
-+static __always_inline struct smc_sock *smc_sk(struct sock *sk)
-+{
-+	return (struct smc_sock *)sk;
-+}
-+
-+struct smc_prediction {
-+	/* protection for smc_prediction */
-+	struct bpf_spin_lock lock;
-+	/* start of time slice */
-+	__u64	start_tstamp;
-+	/* delta of pacing */
-+	__u64	pacing_delta;
-+	/* N of closed connections determined as long connections
-+	 * in current time slice
-+	 */
-+	__u32	closed_long_cc;
-+	/* N of closed connections in this time slice */
-+	__u32	closed_total_cc;
-+	/* N of incoming connections determined as long connections
-+	 * in current time slice
-+	 */
-+	__u32	incoming_long_cc;
-+	/* last splice rate of long cc */
-+	__u32	last_rate_of_lcc;
-+};
-+
-+#define SMC_PREDICTION_MIN_PACING_DELTA                (1llu)
-+#define SMC_PREDICTION_MAX_PACING_DELTA                (HZ << 3)
-+#define SMC_PREDICTION_MAX_LONGCC_PER_SPLICE           (8)
-+#define SMC_PREDICTION_MAX_PORT                        (64)
-+#define SMC_PREDICTION_MAX_SPLICE_GAP                  (1)
-+#define SMC_PREDICTION_LONGCC_RATE_THRESHOLD           (13189)
-+#define SMC_PREDICTION_LONGCC_PACKETS_THRESHOLD        (100)
-+#define SMC_PREDICTION_LONGCC_BYTES_THRESHOLD	\
-+		(SMC_PREDICTION_LONGCC_PACKETS_THRESHOLD * 1024)
-+
-+struct {
-+	__uint(type, BPF_MAP_TYPE_HASH);
-+	__uint(max_entries, SMC_PREDICTION_MAX_PORT);
-+	__type(key, __u16);
-+	__type(value, struct smc_prediction);
-+} negotiator_map SEC(".maps");
-+
-+
-+static inline __u32 smc_prediction_calt_rate(struct smc_prediction *smc_predictor)
-+{
-+	if (!smc_predictor->closed_total_cc)
-+		return smc_predictor->last_rate_of_lcc;
-+
-+	return (smc_predictor->closed_long_cc << 14) / smc_predictor->closed_total_cc;
-+}
-+
-+static inline struct smc_prediction *smc_prediction_get(__u16 key, __u64 tstamp)
-+{
-+	struct smc_prediction zero = {}, *smc_predictor;
-+	__u32 gap;
-+	int err;
-+
-+	smc_predictor = bpf_map_lookup_elem(&negotiator_map, &key);
-+	if (!smc_predictor) {
-+		zero.start_tstamp = bpf_jiffies64();
-+		zero.pacing_delta = SMC_PREDICTION_MIN_PACING_DELTA;
-+		err = bpf_map_update_elem(&negotiator_map, &key, &zero, 0);
-+		if (err)
-+			return NULL;
-+		smc_predictor =  bpf_map_lookup_elem(&negotiator_map, &key);
-+		if (!smc_predictor)
-+			return NULL;
-+	}
-+
-+	if (tstamp) {
-+		bpf_spin_lock(&smc_predictor->lock);
-+		gap = (tstamp - smc_predictor->start_tstamp) / smc_predictor->pacing_delta;
-+		/* new splice */
-+		if (gap > 0) {
-+			smc_predictor->start_tstamp = tstamp;
-+			smc_predictor->last_rate_of_lcc =
-+				(smc_prediction_calt_rate(smc_predictor) * 7) >> (2 + gap);
-+			smc_predictor->closed_long_cc = 0;
-+			smc_predictor->closed_total_cc = 0;
-+			smc_predictor->incoming_long_cc = 0;
-+		}
-+		bpf_spin_unlock(&smc_predictor->lock);
-+	}
-+	return smc_predictor;
-+}
-+
-+/* BPF struct ops for smc protocol negotiator */
-+struct smc_sock_negotiator_ops {
-+	/* ret for negotiate */
-+	int (*negotiate)(struct smc_sock *smc);
-+
-+	/* info gathering timing */
-+	void (*collect_info)(struct smc_sock *smc, int timing);
-+};
-+
-+int SEC("struct_ops/bpf_smc_negotiate")
-+BPF_PROG(bpf_smc_negotiate, struct smc_sock *smc)
-+{
-+	struct smc_prediction *smc_predictor;
-+	int err, ret = SK_DROP;
-+	struct tcp_sock *tp;
-+	struct sock *clcsk;
-+	__u32 rate = 0;
-+	__u16 key;
-+
-+	/* client side */
-+	if (smc == NULL || smc->sk.__sk_common.skc_state != SMC_LISTEN) {
-+		/* use Global smc_predictor */
-+		key = 0;
-+	} else {	/* server side */
-+		clcsk = BPF_CORE_READ(smc, clcsock, sk);
-+		if (!clcsk)
-+			goto error;
-+		tp = tcp_sk(clcsk);
-+		err = bpf_core_read(&key, sizeof(__u16),
-+				    &tp->inet_conn.icsk_inet.sk.__sk_common.skc_num);
-+		if (err)
-+			goto error;
-+	}
-+
-+	smc_predictor = smc_prediction_get(key, bpf_jiffies64());
-+	if (!smc_predictor)
-+		return SK_PASS;
-+
-+	bpf_spin_lock(&smc_predictor->lock);
-+
-+	if (smc_predictor->incoming_long_cc == 0)
-+		goto out_locked_pass;
-+
-+	if (smc_predictor->incoming_long_cc > SMC_PREDICTION_MAX_LONGCC_PER_SPLICE)
-+		goto out_locked_drop;
-+
-+	rate = smc_prediction_calt_rate(smc_predictor);
-+	if (rate < SMC_PREDICTION_LONGCC_RATE_THRESHOLD)
-+		goto out_locked_drop;
-+
-+out_locked_pass:
-+	smc_predictor->incoming_long_cc++;
-+	bpf_spin_unlock(&smc_predictor->lock);
-+	return SK_PASS;
-+out_locked_drop:
-+	bpf_spin_unlock(&smc_predictor->lock);
-+error:
-+	return SK_DROP;
-+}
-+
-+void SEC("struct_ops/bpf_smc_collect_info")
-+BPF_PROG(bpf_smc_collect_info, struct sock *sk, int timing)
-+{
-+	struct smc_prediction *smc_predictor;
-+	int use_fallback, sndbuf, err;
-+	struct smc_sock *smc;
-+	struct tcp_sock *tp;
-+	struct sock *clcsk;
-+	bool match = false;
-+	__u16 wrap, count;
-+	__u32 delivered;
-+	__u16 key;
-+
-+	/* no info can collect */
-+	if (sk == NULL)
-+		return;
-+
-+	/* only fouces on closed */
-+	if (timing != SMC_SOCK_CLOSED_TIMING)
-+		return;
-+
-+	/* first check the sk type */
-+	if (sk->__sk_common.skc_family == AF_SMC) {
-+		smc = smc_sk(sk);
-+		clcsk = BPF_CORE_READ(smc, clcsock, sk);
-+		if (!clcsk)
-+			goto error;
-+		tp = tcp_sk(clcsk);
-+		/* check if it's fallback */
-+		err = bpf_core_read(&use_fallback, sizeof(use_fallback), &smc->use_fallback);
-+		if (err)
-+			goto error;
-+		if (use_fallback)
-+			goto fallback;
-+		err = bpf_core_read(&wrap, sizeof(__u16), &smc->conn.tx_curs_sent.wrap);
-+		if (err)
-+			goto error;
-+		err = bpf_core_read(&count, sizeof(__u16), &smc->conn.tx_curs_sent.count);
-+		if (err)
-+			goto error;
-+		err = bpf_core_read(&sndbuf, sizeof(int), &clcsk->sk_sndbuf);
-+		if (err)
-+			goto error;
-+		 match = (count + wrap * sndbuf) > SMC_PREDICTION_LONGCC_BYTES_THRESHOLD;
-+	} else {
-+		smc = NULL;
-+		tp = tcp_sk(sk);
-+		use_fallback = 1;
-+fallback:
-+		err = bpf_core_read(&delivered, sizeof(delivered), &tp->delivered);
-+		if (err)
-+			goto error;
-+		match = (delivered > SMC_PREDICTION_LONGCC_PACKETS_THRESHOLD);
-+	}
-+
-+	/* whatever, tp is never NULL */
-+	err = bpf_core_read(&key, sizeof(__u16), &tp->inet_conn.icsk_inet.sk.__sk_common.skc_num);
-+	if (err)
-+		goto error;
-+
-+	smc_predictor = smc_prediction_get(key, 0);
-+	if (!smc_predictor)
-+		goto error;
-+
-+	bpf_spin_lock(&smc_predictor->lock);
-+	smc_predictor->closed_total_cc++;
-+	if (match) {
-+		/* increase stats */
-+		smc_predictor->closed_long_cc++;
-+		/* try more aggressive */
-+		if (smc_predictor->pacing_delta > SMC_PREDICTION_MIN_PACING_DELTA) {
-+			if (use_fallback) {
-+				smc_predictor->pacing_delta = max(SMC_PREDICTION_MIN_PACING_DELTA,
-+						(smc_predictor->pacing_delta * 3) >> 2);
-+			}
-+		}
-+	} else if (!use_fallback) {
-+		smc_predictor->pacing_delta <<= 1;
-+	}
-+	bpf_spin_unlock(&smc_predictor->lock);
-+error:
-+	return;
-+}
-+
-+SEC(".struct_ops")
-+struct smc_sock_negotiator_ops ops = {
-+	.negotiate	= (void *)bpf_smc_negotiate,
-+	.collect_info	= (void *)bpf_smc_collect_info,
-+};
--- 
-1.8.3.1
-
+Thanks,
+Olek
