@@ -2,170 +2,136 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DFE9C64ED6
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Feb 2023 08:58:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 71204C64ED6
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Feb 2023 09:08:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230144AbjB1I6o (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Feb 2023 03:58:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42326 "EHLO
+        id S230100AbjB1JI6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Feb 2023 04:08:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229896AbjB1I6m (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Feb 2023 03:58:42 -0500
+        with ESMTP id S229773AbjB1JI5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Feb 2023 04:08:57 -0500
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7233093F2;
-        Tue, 28 Feb 2023 00:58:41 -0800 (PST)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31S8LoQL003639;
-        Tue, 28 Feb 2023 08:58:20 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=t2P4EUxi876yuUZ8prqHnCoRIWZA9XloTg454sy35eE=;
- b=WwOCZd2TxrC/f4uQRlQ466DYxMPwhEiIPiEZ1BIGRGnkWVYw2vpO/ijbWNS0UPuucxON
- t5ynrMdpVhaXk64PIgLJ4VmpWB35OgnpRx9mCokrfvBd+n4kQT97M+B+nfhn2bJabYVB
- /ZvIrgXWHgH7EnHfPs4DH3eDUg0zob/fslHLQHy/UnbHhb+40Lki7Q4WhCaQm03j+deA
- IZDInNITRKZgIjWJPAXaTop78wleApQD4uPxbLkz6jn3g871fiyrpmNXRaoHeGCDb9x+
- GfE/LVoLJ15IjIVZXHIfI6YfateS3U0TKsTRS9KD0EFhIdiVeOESAMqKYcpZahDeGwlQ Rg== 
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE4F1AA;
+        Tue, 28 Feb 2023 01:08:56 -0800 (PST)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31S8jQ7U021748;
+        Tue, 28 Feb 2023 09:08:53 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=MBGv+RkVm2JThfrORlWXiDQ4x2zWBVkczC0frWJIKkQ=;
+ b=FVnv2r47BcFsn/W1VhaoQobcXqCJ+i25Fxg21FGxR6Vfmky8FjDChBl+ZeFbqznW0e3H
+ oJc0nulwmEQz5N2Ja4D6aPPu4VICdiy4DwXXskepPmD0NEyQSN6BPpbLeXV/GlVng5gE
+ 9dnvZYT/UyThTmXufVeqwuol8ds5tNWQJ1TwG/nrWGTF6Ht1edPDd7uPoG0akARgMz4i
+ fciTNYZ6HwLpjzcRYRRYyxoDSOxRm1OSE5znBu1oM0Hv6ZoqZJNAN1KqQHtC+KJ4FSIf
+ 8ogNOt/OktMOBpFVDUfvpZw5txq12glgEabJYqZlmONRaNkGEt+tJDz0pAKneHRMhlK7 FA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3p1e1n8wyb-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3p1ecs0mhf-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Feb 2023 08:58:20 +0000
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 31S8NJ3w012921;
-        Tue, 28 Feb 2023 08:58:19 GMT
-Received: from ppma01wdc.us.ibm.com (fd.55.37a9.ip4.static.sl-reverse.com [169.55.85.253])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3p1e1n8wxk-1
+        Tue, 28 Feb 2023 09:08:53 +0000
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 31S8vBBa021113;
+        Tue, 28 Feb 2023 09:08:52 GMT
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3p1ecs0mgg-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Feb 2023 08:58:19 +0000
-Received: from pps.filterd (ppma01wdc.us.ibm.com [127.0.0.1])
-        by ppma01wdc.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31S88K1T005832;
-        Tue, 28 Feb 2023 08:58:18 GMT
-Received: from smtprelay02.dal12v.mail.ibm.com ([9.208.130.97])
-        by ppma01wdc.us.ibm.com (PPS) with ESMTPS id 3nybcg01u6-1
+        Tue, 28 Feb 2023 09:08:52 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31S0n45w027740;
+        Tue, 28 Feb 2023 09:08:50 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+        by ppma06fra.de.ibm.com (PPS) with ESMTPS id 3nybdbj2k9-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Feb 2023 08:58:18 +0000
-Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
-        by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31S8wHQT44499506
+        Tue, 28 Feb 2023 09:08:50 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31S98k9r32243998
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 28 Feb 2023 08:58:17 GMT
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E1D3F58043;
-        Tue, 28 Feb 2023 08:58:16 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C34B958059;
-        Tue, 28 Feb 2023 08:58:14 +0000 (GMT)
-Received: from [9.211.152.15] (unknown [9.211.152.15])
-        by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 28 Feb 2023 08:58:14 +0000 (GMT)
-Message-ID: <fafc5ef1-724f-1831-2d99-ef80a5540faf@linux.ibm.com>
-Date:   Tue, 28 Feb 2023 09:58:13 +0100
+        Tue, 28 Feb 2023 09:08:46 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 250492004B;
+        Tue, 28 Feb 2023 09:08:46 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5660F20040;
+        Tue, 28 Feb 2023 09:08:45 +0000 (GMT)
+Received: from [9.171.11.239] (unknown [9.171.11.239])
+        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Tue, 28 Feb 2023 09:08:45 +0000 (GMT)
+Message-ID: <5bf4ca0f643bcd59f5761cdd29403433046a9995.camel@linux.ibm.com>
+Subject: Re: [PATCH RESEND] PCI: s390: Fix use-after-free of PCI bus
+ resources with s390 per-function hotplug
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Lukas Wunner <lukas@wunner.de>, Bjorn Helgaas <helgaas@kernel.org>
+Cc:     Gerd Bayer <gbayer@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-pci@vger.kernel.org
+Date:   Tue, 28 Feb 2023 10:08:45 +0100
+In-Reply-To: <20230224041918.GB26067@wunner.de>
+References: <1793b3cd12921b7a3fa8b3ee7e20b7cf1df1eca1.camel@linux.ibm.com>
+         <20230223195345.GA3805039@bhelgaas> <20230224041918.GB26067@wunner.de>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.46.4 (3.46.4-1.fc37) 
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.8.0
-Subject: Re: [PATCH bpf-next v2 1/2] net/smc: Introduce BPF injection
- capability for SMC
-To:     "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
-        jaka@linux.ibm.com, ast@kernel.org, daniel@iogearbox.net,
-        andrii@kernel.org
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-        bpf@vger.kernel.org
-References: <1676981919-64884-1-git-send-email-alibuda@linux.alibaba.com>
- <1676981919-64884-2-git-send-email-alibuda@linux.alibaba.com>
- <2972ad09-291b-0c34-fa35-b7852038b32f@linux.ibm.com>
- <5cef1246-5a84-b6e9-86aa-86a1cb6bd217@linux.alibaba.com>
-From:   Wenjia Zhang <wenjia@linux.ibm.com>
-In-Reply-To: <5cef1246-5a84-b6e9-86aa-86a1cb6bd217@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: rkPXXLgAKMTUG6H8f8FKdhpr2YH2vkUX
-X-Proofpoint-ORIG-GUID: -RyTYozpRHq63kZLVlndxXaIl8FF18a1
+X-Proofpoint-GUID: slyU2UR1UvbJ0jrXrx0EFxjN54W8tzOA
+X-Proofpoint-ORIG-GUID: b-7OGtgecDGsvxQZly198Rh_Hivik3u3
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
- definitions=2023-02-28_04,2023-02-27_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 phishscore=0
- mlxlogscore=999 spamscore=0 lowpriorityscore=0 bulkscore=0 malwarescore=0
- clxscore=1015 suspectscore=0 priorityscore=1501 mlxscore=0 adultscore=0
+ definitions=2023-02-28_05,2023-02-27_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 malwarescore=0
+ bulkscore=0 phishscore=0 adultscore=0 mlxlogscore=800 priorityscore=1501
+ impostorscore=0 suspectscore=0 mlxscore=0 spamscore=0 lowpriorityscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
- definitions=main-2302280068
+ definitions=main-2302280072
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Fri, 2023-02-24 at 05:19 +0100, Lukas Wunner wrote:
+> On Thu, Feb 23, 2023 at 01:53:45PM -0600, Bjorn Helgaas wrote:
+> > Hmm.  Good question.  Off the top of my head, I can't explain the
+> > difference between pci_rescan_remove_lock and pci_bus_sem, so I'm
+> > confused, too.  I added Lukas in case he has a ready explanation.
+>=20
+> pci_bus_sem is a global lock which protects the "devices" list of all
+> pci_bus structs.
+>=20
+> We do have a bunch of places left where the "devices" list is accessed
+> without holding pci_bus_sem, though I've tried to slowly eliminate
+> them.
+>=20
+> pci_rescan_remove_lock is a global "big kernel lock" which serializes
+> any device addition and removal.
+>=20
+> pci_rescan_remove_lock is known to be far too course-grained and thus
+> deadlock-prone, particularly if hotplug ports are nested (as is the
+> case with Thunderbolt).  It needs to be split up into several smaller
+> locks which protect e.g. allocation of resources of a bus (bus numbers
+> or MMIO / IO space) and whatever else needs to be protected.  It's just
+> that nobody has gotten around to identify what exactly needs to be
+> protected, adding the new locks and removing pci_rescan_remove_lock.
+>=20
+> Thanks,
+>=20
+> Lukas
 
+Thanks for the insights. So from that description I think it might make
+sense to do this fix patch with the pci_rescan_remove_lock so it can be
+backported. Then we can take the opportunity to add a lock specific to
+the allocation/freeing of resources which would then replace at least
+this new directly and clearly resource related use of
+pci_rescan_remove_lock and potentially others we find.
+What do you think?
 
-On 28.02.23 09:50, D. Wythe wrote:
-> 
-> 
-> On 2/27/23 3:58 PM, Wenjia Zhang wrote:
->>
->>
->> On 21.02.23 13:18, D. Wythe wrote:
->>> From: "D. Wythe" <alibuda@linux.alibaba.com>
->>>
->>> This PATCH attempts to introduce BPF injection capability for SMC.
->>> As we all know that the SMC protocol is not suitable for all scenarios,
->>> especially for short-lived. However, for most applications, they cannot
->>> guarantee that there are no such scenarios at all. Therefore, apps
->>> may need some specific strategies to decide shall we need to use SMC
->>> or not, for example, apps can limit the scope of the SMC to a specific
->>> IP address or port.
-> 
-> ...
-> 
->>> +static int bpf_smc_passive_sk_ops_check_member(const struct btf_type 
->>> *t,
->>> +                           const struct btf_member *member,
->>> +                           const struct bpf_prog *prog)
->>> +{
->>> +    return 0;
->>> +}
->>
->> Please check the right pointer type of check_member:
->>
->> int (*check_member)(const struct btf_type *t,
->>              const struct btf_member *member);
->>
-> 
-> Hi Wenjia,
-> 
-> That's weird. the prototype of check_member on
-> latested net-next and bpf-next is:
-> 
-> struct bpf_struct_ops {
->      const struct bpf_verifier_ops *verifier_ops;
->      int (*init)(struct btf *btf);
->      int (*check_member)(const struct btf_type *t,
->                  const struct btf_member *member,
->                  const struct bpf_prog *prog);
->      int (*init_member)(const struct btf_type *t,
->                 const struct btf_member *member,
->                 void *kdata, const void *udata);
->      int (*reg)(void *kdata);
->      void (*unreg)(void *kdata);
->      const struct btf_type *type;
->      const struct btf_type *value_type;
->      const char *name;
->      struct btf_func_model func_models[BPF_STRUCT_OPS_MAX_NR_MEMBERS];
->      u32 type_id;
->      u32 value_id;
-> };
-> 
-> I wonder if there is any code out of sync?
-> 
-> And also I found that this patch is too complex and mixed with the code 
-> of two modules (smc & bpf).
-> I will split them out for easier review today.
-> 
-> Best wishes
-> D. Wythe
-> 
-
-Good question, the base I used is the current torvalds tree, maybe some 
-code there is still not up-to-date.
-
-But it would be great if you can split them out for better review.
-
-Thanks
-Wenjia
+Thanks,
+Niklas
