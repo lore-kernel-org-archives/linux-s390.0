@@ -2,223 +2,313 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BC3BC64ED6
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Feb 2023 14:01:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D5D1DC64ED6
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Feb 2023 14:08:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229510AbjB1OBv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Feb 2023 09:01:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33208 "EHLO
+        id S229792AbjB1OIn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Feb 2023 09:08:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229437AbjB1OBu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Feb 2023 09:01:50 -0500
-Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B0B92B62F;
-        Tue, 28 Feb 2023 06:01:49 -0800 (PST)
+        with ESMTP id S229496AbjB1OIm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Feb 2023 09:08:42 -0500
+Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B39E53A8E;
+        Tue, 28 Feb 2023 06:08:40 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1677592909; x=1709128909;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=XdOq00opwOlPE4D9mlKlAhQURJl9wZr26pau9fb+PvM=;
-  b=KBaongkWCJ0N+mZTYpqlx1pc8dIMMSewk0yYYT9jVHwljiuh7hy/USCH
-   7EKEmfBa8KYP48XGnt7O1Ugv7GgR9wjQqcmGg7F0lv8uT/QKp3RFm+XkM
-   2j1AogF74pd49XNMTTuLIoTj2LaZdo4Nh2MuO7hDi7GeeQsYjPYL5XiiV
-   AdByXFqdFQLA3/OJsP1Ez9O/PgOXnwaDCkTGdRjbu7vZNsewGaDHtAT3Y
-   gbBjgw/sVpB2Uguzp1NXkyxJhLxndVkTNR8GYt0sHdaYijSmn5DNADQIJ
-   h5Jod6pau4PqtaP54kL+Fk6+UXMU9CIbyr3kQchjoKUxmshCuhDFUBvue
+  t=1677593320; x=1709129320;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=yAwcbAOwAi/KQOX9wO7C7PL0NtrHIuaW6wPZPUh9D+s=;
+  b=apm6g/IqgWPf0Acn3NkQs4qCW44lpY/DZXogoe0YhbAWrAoH4xYWsaTI
+   ES0xlwHovA97Qjf4GUcYM8kczJ9OSuaCZLOxv9ObuCa3eZ9C21P7Zcng7
+   SBU4Ch7uZzYlETIiAqyxH6+yX+t6/l8niON+RlcUEv16gIuOmedzghu4V
+   iyUndf7SRURKSFp/hXH1sOUbu2tVKJxzzWRukAgicmH0MO8em9+nZKurL
+   cfdizpSLRkPQdwMk9kR8IH8INAbqQAZHhd3/FwlxR1J83Xqp+V8ADQ4FV
+   T4AuqGxdmoI1/Op1OBU6aOUEp1K1h0KlHQRcfnstT+PpkQMxFriTWodOf
    w==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10635"; a="361703221"
+X-IronPort-AV: E=McAfee;i="6500,9779,10635"; a="336430121"
 X-IronPort-AV: E=Sophos;i="5.98,222,1673942400"; 
-   d="scan'208";a="361703221"
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Feb 2023 06:01:48 -0800
+   d="scan'208";a="336430121"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Feb 2023 06:08:39 -0800
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10635"; a="667468192"
+X-IronPort-AV: E=McAfee;i="6500,9779,10635"; a="651620316"
 X-IronPort-AV: E=Sophos;i="5.98,222,1673942400"; 
-   d="scan'208";a="667468192"
-Received: from fmsmsx603.amr.corp.intel.com ([10.18.126.83])
-  by orsmga007.jf.intel.com with ESMTP; 28 Feb 2023 06:01:43 -0800
-Received: from fmsmsx611.amr.corp.intel.com (10.18.126.91) by
- fmsmsx603.amr.corp.intel.com (10.18.126.83) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.16; Tue, 28 Feb 2023 06:01:39 -0800
-Received: from FMSEDG603.ED.cps.intel.com (10.1.192.133) by
- fmsmsx611.amr.corp.intel.com (10.18.126.91) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.16 via Frontend Transport; Tue, 28 Feb 2023 06:01:39 -0800
-Received: from NAM11-CO1-obe.outbound.protection.outlook.com (104.47.56.170)
- by edgegateway.intel.com (192.55.55.68) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.16; Tue, 28 Feb 2023 06:01:39 -0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Dge1qN/cvGTcXkQeUNpHO95hN1JAwczSyNV7Xfkk4Ae5hq7C7FQdQmmTrZ/ha7lgVcYUgKt/jXdCYMCVix9rG96Yo5boIS8AVCbR/on/TYTzPJp63hKkvbgWtVDzFsNJAU49fO6h4SgrBQGA1Gr/fja3LrlYmf/aqZvSTCtHn32GbtkN4dlK7h/xTmeJHRcAANvaHw5sXRzVXoXDpyjDgZK546X1kjIDRIVuJ4pxVo7ls295orZXNmLkYjwRUD7PvevpEDXh78r9lFU4FUV1EaGAyRe2xjO9KXhOjgyfPvQXsuWzOc1T0VMPAD8+YY7Vh52nM2JJfoK7JZu90FUz3Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=AUxRiCaxN2YFVLrF4UTpKGTGKJ5q+J7UrwWfJ1lV/4U=;
- b=mUI3ZCRVshDKYgM7MkcfVIrNh48Y5XzDfDDkT8QwILOjDa1qstWfPEy22tKWOU38seA/6MzcJg4ixeO9+vQcyBnCVeyRr/S7BsMhfQtsPcJZ5uzBJkEtCxvsSukpbnDDvugEErjWj0d16wFwDOEoAAFAIOfKvwDOeFvNcqzGlJfqU7M8jkzdWmdouSw/hZkkwFGzaKO5wN1fU8Y2IfLx70aI1m5+VTIMWwW2QUfLM3Qaazp6qLrG7PrjYjdUS3zyh1bTvdCBarJqQDppTwg5GBuhliWqZk/2BqlvojM645pMx2f1JVmIuYYfLg6Wvf0A2lM7uvVZIcvvg5zPDXm/zQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from DS0PR11MB7529.namprd11.prod.outlook.com (2603:10b6:8:141::20)
- by PH8PR11MB8105.namprd11.prod.outlook.com (2603:10b6:510:254::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6134.30; Tue, 28 Feb
- 2023 14:01:37 +0000
-Received: from DS0PR11MB7529.namprd11.prod.outlook.com
- ([fe80::6f7:944a:aaad:301f]) by DS0PR11MB7529.namprd11.prod.outlook.com
- ([fe80::6f7:944a:aaad:301f%8]) with mapi id 15.20.6134.030; Tue, 28 Feb 2023
- 14:01:37 +0000
-From:   "Liu, Yi L" <yi.l.liu@intel.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>
-CC:     "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
-        "Tian, Kevin" <kevin.tian@intel.com>,
-        "joro@8bytes.org" <joro@8bytes.org>,
-        "robin.murphy@arm.com" <robin.murphy@arm.com>,
-        "cohuck@redhat.com" <cohuck@redhat.com>,
-        "eric.auger@redhat.com" <eric.auger@redhat.com>,
-        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
-        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
-        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
-        "peterx@redhat.com" <peterx@redhat.com>,
-        "jasowang@redhat.com" <jasowang@redhat.com>,
-        "shameerali.kolothum.thodi@huawei.com" 
-        <shameerali.kolothum.thodi@huawei.com>,
-        "lulu@redhat.com" <lulu@redhat.com>,
-        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "Hao, Xudong" <xudong.hao@intel.com>,
-        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
-        "Xu, Terrence" <terrence.xu@intel.com>
-Subject: RE: [PATCH v5 17/19] vfio: Add VFIO_DEVICE_AT[DE]TACH_IOMMUFD_PT
-Thread-Topic: [PATCH v5 17/19] vfio: Add VFIO_DEVICE_AT[DE]TACH_IOMMUFD_PT
-Thread-Index: AQHZSpxNXWm9KiWJ2Ee0gC65QSF3Ja7jIF2AgACHHYCAAKSqAIAAATZAgAAE3oCAAAG0UIAABx8AgAAA9gCAAAQbAIAAAylw
-Date:   Tue, 28 Feb 2023 14:01:36 +0000
-Message-ID: <DS0PR11MB75293E34AB7C53F7ABFC0E36C3AC9@DS0PR11MB7529.namprd11.prod.outlook.com>
-References: <20230227111135.61728-1-yi.l.liu@intel.com>
- <20230227111135.61728-18-yi.l.liu@intel.com> <Y/z400uzn7Nk0CXe@nvidia.com>
- <DS0PR11MB75293EF02CB0F0A54A22D943C3AC9@DS0PR11MB7529.namprd11.prod.outlook.com>
- <Y/30TEk3t7q/D0Ho@nvidia.com>
- <DS0PR11MB752931AD2B92DE9A1A574375C3AC9@DS0PR11MB7529.namprd11.prod.outlook.com>
- <Y/35ZTi69p9cCuPn@nvidia.com>
- <DS0PR11MB7529B6647B5F4B7691FFFBEBC3AC9@DS0PR11MB7529.namprd11.prod.outlook.com>
- <Y/4AzJbjeR4R2rcO@nvidia.com>
- <DS0PR11MB7529175CF279A820C5E5E091C3AC9@DS0PR11MB7529.namprd11.prod.outlook.com>
- <Y/4FDP8H1qRdgVrL@nvidia.com>
-In-Reply-To: <Y/4FDP8H1qRdgVrL@nvidia.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: DS0PR11MB7529:EE_|PH8PR11MB8105:EE_
-x-ms-office365-filtering-correlation-id: 4f0ca6e2-3d55-4199-16af-08db19944e83
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: nj9I0QCpWSSUZQn+vmFjEl1fJRHdNt/qfQpDKdFSc20PdHhSwqvy6Ke7B9jTmaUv413UUwxorIfXpO4gnkZHivucpvl6xmYPmbuE6vXFW0vWCVMDv7AZuaa+NeD6WmW9Ej+PjE19z9F5zkPnN1iyl9zjuTmlLK1Sp3dkNjcU3Lvyzmzk1gmjaivAw2LYG6spEhqIC7wDsiRNqvPU7fy8Lb97aV+0pY+uO8U/p7zfg14to1RcTQfh4qSSqdUBzk0oqqLBFck/mgk6mPZW4iSuwGV6dLqMF6cpLEwaldSFKS6nuuDQPorlYZDkudVg0fLTPsFwNvLh5mR/fjGHnOaveHlUdmpLnyY6nQOuYpPkqkMPkmyear6O3MjUs1LuJJ+06yc8dtCpMnUbtywsaeNBW97BzvhODaPbllgscyR1GDy5pNabPGkPsjcPfuARjgLleyvEeWevY1ErwF4ws3B94A2PugiuVg2Aohs9gXdLx7GG3Wb8icBQvFmkCwuIkF3b5yVqrFrCfsF8CZFWx6wjE4VBBli4Rw6+LrEHdsgIAO+u9td+VQGvkil+ZR33Ut2Y8AfDBaVcnE2ARgpqwnsLBrJQ+7TgvWl3Os4ivUJXI6PfMskHOx0IkB496lLSm9ul/ZVmcO/3SRyNv16nMcM43YbTN7nCL8TYdfItNFnnxPmbC71VKtgG9CrlDXxhh/g6G2A7djetlrkYP4g/dP/B6Q==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR11MB7529.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(396003)(376002)(136003)(366004)(346002)(39860400002)(451199018)(33656002)(83380400001)(6506007)(26005)(7696005)(41300700001)(9686003)(71200400001)(186003)(7416002)(52536014)(66946007)(86362001)(2906002)(4326008)(8676002)(66476007)(66556008)(64756008)(76116006)(6916009)(66446008)(8936002)(55016003)(5660300002)(38100700002)(82960400001)(478600001)(122000001)(38070700005)(316002)(54906003);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?/lpIphTuf2rHJhn24J5zAicN3mMBxhToiOERpVA4iamM2eyPhuTRXLRB7Tb+?=
- =?us-ascii?Q?utW1h3kX+VU+29Sahx1ZRttSRcMDRvuFx2hC6NOCqmAKkIu5sntXUZ2oJETO?=
- =?us-ascii?Q?k1F0p+w7Nnt+84SGeKJyr9jpAw0RPCNDkECPbzxXW6zoW7tEncKdbgU0+Opc?=
- =?us-ascii?Q?LFroyMXTKLTFfphIkx3ZVi+C/Dal/Q517+Po/Sji1duwGzIAgWlmc/CmvEHX?=
- =?us-ascii?Q?tWdV+U3PiH6+WGd1Gu+cH0nIp4UbuctENp4YAtZObbkLg4oRRnoIjxnSRj8G?=
- =?us-ascii?Q?t+LFeLXg/mRbZcneDRrS26UtalbUmnUcTsZOgm0UQxhXOMQCTtDlnpA/6Eid?=
- =?us-ascii?Q?O1hjkWSQIDAQJOURRQhiPExraUoqW9GnVWwLIV33U5Idnmp4mzdoHTNmRQ5E?=
- =?us-ascii?Q?4eVjd7AY3xsSW4PB1vBf3nBBsx2Z1VwLNc4JI1TzPof/cxL299IMDIU7QTgw?=
- =?us-ascii?Q?X4t9o1Y+cx57vrk1pzEtzKWclFe7TzpfZpx8f6WDMrKEJZzT8gcT3cVQPkcx?=
- =?us-ascii?Q?+hmRMysl5xHYs3nbfj2aXSAGlHyuF0jD/oBgnczGmnp07UrzynByeNB+SnQ/?=
- =?us-ascii?Q?9/nMzlL3zDlAGUM3CgTs8pza4Ln0xysT8KUQJbqpuL9E9JNag7tnLlNDh4j6?=
- =?us-ascii?Q?nz7Xywk1Uk2+xrLG9VvY4BQ9P8YovPpCUEGMgJzO65SiNhDpDC6XM66ehHkh?=
- =?us-ascii?Q?zz9Bu/5I65zbChW+lpfZwG4ndEy7YgW/3c7UuVoA+StrBgcNr/ulRigezkah?=
- =?us-ascii?Q?HVdmtdLBYRxmSwAE9DbfayG/CMcdJHu2dC0HR76R4WV1wRcdqPzhjp5YN1gL?=
- =?us-ascii?Q?iRx17MRWoUhEVZV86tKAUFcvZ3eSDoIOFwiSgR2iyyYDFkDaw8lje6fgQrIF?=
- =?us-ascii?Q?2/bWobsIDE9mIDtmTt1fYDlzZW2dfGU1dIhGau/Ugsnvl+I0OQV6ibFnIy0Q?=
- =?us-ascii?Q?r9hek0bCRJD5xfCvCPbSzs+kTbcc8/gaijHyLhOKtQ8d48OMbAPvAVZ5trEC?=
- =?us-ascii?Q?FlC59mUat0HMv6FnPxfCWQksqHN6J+RaxoX/QxK7f5u9AXm8ORgqjIJreQCt?=
- =?us-ascii?Q?GM2azvVzy8g9piqTsGeiIwyJk4b2Situ3QL+lYniAe92UnHPqOWgY5OBkpIN?=
- =?us-ascii?Q?EQHsZWobdgB9s0a5oAmI6EexDsf7hr6IlurraCb2LKMpiGdwkvJdHj03wib9?=
- =?us-ascii?Q?18gLLrOTbvg2iU2Dmo37lKYLDOUgq49xX91GozROWjotQRpVozAuKIdJK1FK?=
- =?us-ascii?Q?siJ0h3UQz/1nXv0XGwMYC+C5QgZCcGeCSbWdSQE4QQcOXI8r8RUShDtPGAlK?=
- =?us-ascii?Q?BNl0C5/BWmC/iopgNe2Ca5DlQ01SzNYZ1AJIq97OMDq4D3dE42TSIyhFyf7d?=
- =?us-ascii?Q?Gg9AN4Z1d8f6SnyOS3layyCQqCtXD2gTTmP7shoxq5t5mprphByQw5x9wYgB?=
- =?us-ascii?Q?WWE+Sr3po/aLmaAvZfnjCyxGo3W2orrdFo2Y1R1o1DVL2cUFHU04/uxtl4WN?=
- =?us-ascii?Q?sEQHvZVQ0RZkKYBBSXjydvBGWBGlYoK11NRoQYNQYFWSc8fX8ZyFMjn32PRQ?=
- =?us-ascii?Q?qXv/CmPu+HOzS8Zh7R+F3+0D57Uj61KVnBddImAB?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+   d="scan'208";a="651620316"
+Received: from lkp-server01.sh.intel.com (HELO 3895f5c55ead) ([10.239.97.150])
+  by orsmga006.jf.intel.com with ESMTP; 28 Feb 2023 06:08:36 -0800
+Received: from kbuild by 3895f5c55ead with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1pX0eh-0005RX-1d;
+        Tue, 28 Feb 2023 14:08:35 +0000
+Date:   Tue, 28 Feb 2023 22:08:07 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
+        wenjia@linux.ibm.com, jaka@linux.ibm.com, ast@kernel.org,
+        daniel@iogearbox.net, andrii@kernel.org
+Cc:     oe-kbuild-all@lists.linux.dev, kuba@kernel.org,
+        davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: Re: [PATCH bpf-next v3 3/4] net/smc: add BPF injection on smc
+ negotiation
+Message-ID: <202302282100.x7qq7PGX-lkp@intel.com>
+References: <1677576294-33411-4-git-send-email-alibuda@linux.alibaba.com>
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: DS0PR11MB7529.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4f0ca6e2-3d55-4199-16af-08db19944e83
-X-MS-Exchange-CrossTenant-originalarrivaltime: 28 Feb 2023 14:01:36.5969
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: LxoOdi+vfAnHKYTnGZhhRB5dwyyxdGkFqRtK9jXrAymxXvzK3vEKO8d5TLf3L3YpkYAv9Uk+AaSBlG6fhruL/A==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH8PR11MB8105
-X-OriginatorOrg: intel.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1677576294-33411-4-git-send-email-alibuda@linux.alibaba.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-> From: Jason Gunthorpe <jgg@nvidia.com>
-> Sent: Tuesday, February 28, 2023 9:44 PM
->=20
-> On Tue, Feb 28, 2023 at 01:36:24PM +0000, Liu, Yi L wrote:
-> > > From: Jason Gunthorpe <jgg@nvidia.com>
-> > > Sent: Tuesday, February 28, 2023 9:26 PM
-> > >
-> > > On Tue, Feb 28, 2023 at 01:22:50PM +0000, Liu, Yi L wrote:
-> > >
-> > > > > A null iommufd pointer and a bound df flag is sufficient to see t=
-hat
-> > > > > it is compat mode.
-> > > >
-> > > > Hope df->is_cdev_device suits your expectation.:-) The code will lo=
-ok
-> > > > like below:
-> > >
-> > > Yes, this is better.. However I'd suggest 'uses_container' as it is
-> > > clearer what the special case is
-> >
-> > Surely doable. Need to add a helper like below:
-> >
-> > bool vfio_device_group_uses_container()
-> > {
-> > 	lockdep_assert_held(&device->group->group_lock);
-> > 	return device->group->container;
-> > }
->=20
-> It should come from the df.
->=20
-> If you have a df then by definition:
->   smp_load_acquire(..) =3D=3D false     - Not bound
->   df->device->iommufd_ctx !=3D NULL   - Using iommufd
->   df->group->containter !=3D NULL     - Using legacy container
->   all other cases                   - NO_IOMMU
->=20
-> No locking required since all these cases after the smp_load_acquire
-> must be fixed for the lifetime of the df.
+Hi Wythe,
 
-Do you mean the df->access_granted (introduced in patch 07) or a new flag?
-Following your suggestion, it seems a mandatory requirement to do the
-smp_load_acquire(..) =3D=3D false check first, and then call into the vfio_=
-device_open()
-which further calls vfio_device_first_open() to check the iommufd/
-legacy container/noiommu stuffs. Is it?
+Thank you for the patch! Yet something to improve:
 
-df->group->containter this may need a helper to avoid decoding group
-field. May be just store container in df?
+[auto build test ERROR on bpf-next/master]
 
-Regards,
-Yi Liu
+url:    https://github.com/intel-lab-lkp/linux/commits/D-Wythe/net-smc-move-smc_sock-related-structure-definition/20230228-173007
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/bpf/bpf-next.git master
+patch link:    https://lore.kernel.org/r/1677576294-33411-4-git-send-email-alibuda%40linux.alibaba.com
+patch subject: [PATCH bpf-next v3 3/4] net/smc: add BPF injection on smc negotiation
+config: x86_64-randconfig-a015-20230227 (https://download.01.org/0day-ci/archive/20230228/202302282100.x7qq7PGX-lkp@intel.com/config)
+compiler: gcc-11 (Debian 11.3.0-8) 11.3.0
+reproduce (this is a W=1 build):
+        # https://github.com/intel-lab-lkp/linux/commit/aa482ab82f4bf9b99d490f8ba5d88e1491156ccf
+        git remote add linux-review https://github.com/intel-lab-lkp/linux
+        git fetch --no-tags linux-review D-Wythe/net-smc-move-smc_sock-related-structure-definition/20230228-173007
+        git checkout aa482ab82f4bf9b99d490f8ba5d88e1491156ccf
+        # save the config file
+        mkdir build_dir && cp config build_dir/.config
+        make W=1 O=build_dir ARCH=x86_64 olddefconfig
+        make W=1 O=build_dir ARCH=x86_64 SHELL=/bin/bash
+
+If you fix the issue, kindly add following tag where applicable
+| Reported-by: kernel test robot <lkp@intel.com>
+| Link: https://lore.kernel.org/oe-kbuild-all/202302282100.x7qq7PGX-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+   ld: net/smc/af_smc.o: in function `smc_hs_congested':
+>> net/smc/af_smc.c:169: undefined reference to `smc_sock_should_select_smc'
+   ld: net/smc/af_smc.o: in function `smc_release':
+>> net/smc/af_smc.c:327: undefined reference to `smc_sock_perform_collecting_info'
+   ld: net/smc/af_smc.o: in function `smc_connect':
+   net/smc/af_smc.c:1637: undefined reference to `smc_sock_should_select_smc'
+
+
+vim +169 net/smc/af_smc.c
+
+   156	
+   157	static bool smc_hs_congested(const struct sock *sk)
+   158	{
+   159		const struct smc_sock *smc;
+   160	
+   161		smc = smc_clcsock_user_data(sk);
+   162	
+   163		if (!smc)
+   164			return true;
+   165	
+   166		if (workqueue_congested(WORK_CPU_UNBOUND, smc_hs_wq))
+   167			return true;
+   168	
+ > 169		if (!smc_sock_should_select_smc(smc))
+   170			return true;
+   171	
+   172		return false;
+   173	}
+   174	
+   175	static struct smc_hashinfo smc_v4_hashinfo = {
+   176		.lock = __RW_LOCK_UNLOCKED(smc_v4_hashinfo.lock),
+   177	};
+   178	
+   179	static struct smc_hashinfo smc_v6_hashinfo = {
+   180		.lock = __RW_LOCK_UNLOCKED(smc_v6_hashinfo.lock),
+   181	};
+   182	
+   183	int smc_hash_sk(struct sock *sk)
+   184	{
+   185		struct smc_hashinfo *h = sk->sk_prot->h.smc_hash;
+   186		struct hlist_head *head;
+   187	
+   188		head = &h->ht;
+   189	
+   190		write_lock_bh(&h->lock);
+   191		sk_add_node(sk, head);
+   192		write_unlock_bh(&h->lock);
+   193		sock_prot_inuse_add(sock_net(sk), sk->sk_prot, 1);
+   194	
+   195		return 0;
+   196	}
+   197	EXPORT_SYMBOL_GPL(smc_hash_sk);
+   198	
+   199	void smc_unhash_sk(struct sock *sk)
+   200	{
+   201		struct smc_hashinfo *h = sk->sk_prot->h.smc_hash;
+   202	
+   203		write_lock_bh(&h->lock);
+   204		if (sk_del_node_init(sk))
+   205			sock_prot_inuse_add(sock_net(sk), sk->sk_prot, -1);
+   206		write_unlock_bh(&h->lock);
+   207	}
+   208	EXPORT_SYMBOL_GPL(smc_unhash_sk);
+   209	
+   210	/* This will be called before user really release sock_lock. So do the
+   211	 * work which we didn't do because of user hold the sock_lock in the
+   212	 * BH context
+   213	 */
+   214	static void smc_release_cb(struct sock *sk)
+   215	{
+   216		struct smc_sock *smc = smc_sk(sk);
+   217	
+   218		if (smc->conn.tx_in_release_sock) {
+   219			smc_tx_pending(&smc->conn);
+   220			smc->conn.tx_in_release_sock = false;
+   221		}
+   222	}
+   223	
+   224	struct proto smc_proto = {
+   225		.name		= "SMC",
+   226		.owner		= THIS_MODULE,
+   227		.keepalive	= smc_set_keepalive,
+   228		.hash		= smc_hash_sk,
+   229		.unhash		= smc_unhash_sk,
+   230		.release_cb	= smc_release_cb,
+   231		.obj_size	= sizeof(struct smc_sock),
+   232		.h.smc_hash	= &smc_v4_hashinfo,
+   233		.slab_flags	= SLAB_TYPESAFE_BY_RCU,
+   234	};
+   235	EXPORT_SYMBOL_GPL(smc_proto);
+   236	
+   237	struct proto smc_proto6 = {
+   238		.name		= "SMC6",
+   239		.owner		= THIS_MODULE,
+   240		.keepalive	= smc_set_keepalive,
+   241		.hash		= smc_hash_sk,
+   242		.unhash		= smc_unhash_sk,
+   243		.release_cb	= smc_release_cb,
+   244		.obj_size	= sizeof(struct smc_sock),
+   245		.h.smc_hash	= &smc_v6_hashinfo,
+   246		.slab_flags	= SLAB_TYPESAFE_BY_RCU,
+   247	};
+   248	EXPORT_SYMBOL_GPL(smc_proto6);
+   249	
+   250	static void smc_fback_restore_callbacks(struct smc_sock *smc)
+   251	{
+   252		struct sock *clcsk = smc->clcsock->sk;
+   253	
+   254		write_lock_bh(&clcsk->sk_callback_lock);
+   255		clcsk->sk_user_data = NULL;
+   256	
+   257		smc_clcsock_restore_cb(&clcsk->sk_state_change, &smc->clcsk_state_change);
+   258		smc_clcsock_restore_cb(&clcsk->sk_data_ready, &smc->clcsk_data_ready);
+   259		smc_clcsock_restore_cb(&clcsk->sk_write_space, &smc->clcsk_write_space);
+   260		smc_clcsock_restore_cb(&clcsk->sk_error_report, &smc->clcsk_error_report);
+   261	
+   262		write_unlock_bh(&clcsk->sk_callback_lock);
+   263	}
+   264	
+   265	static void smc_restore_fallback_changes(struct smc_sock *smc)
+   266	{
+   267		if (smc->clcsock->file) { /* non-accepted sockets have no file yet */
+   268			smc->clcsock->file->private_data = smc->sk.sk_socket;
+   269			smc->clcsock->file = NULL;
+   270			smc_fback_restore_callbacks(smc);
+   271		}
+   272	}
+   273	
+   274	static int __smc_release(struct smc_sock *smc)
+   275	{
+   276		struct sock *sk = &smc->sk;
+   277		int rc = 0;
+   278	
+   279		if (!smc->use_fallback) {
+   280			rc = smc_close_active(smc);
+   281			sock_set_flag(sk, SOCK_DEAD);
+   282			sk->sk_shutdown |= SHUTDOWN_MASK;
+   283		} else {
+   284			if (sk->sk_state != SMC_CLOSED) {
+   285				if (sk->sk_state != SMC_LISTEN &&
+   286				    sk->sk_state != SMC_INIT)
+   287					sock_put(sk); /* passive closing */
+   288				if (sk->sk_state == SMC_LISTEN) {
+   289					/* wake up clcsock accept */
+   290					rc = kernel_sock_shutdown(smc->clcsock,
+   291								  SHUT_RDWR);
+   292				}
+   293				sk->sk_state = SMC_CLOSED;
+   294				sk->sk_state_change(sk);
+   295			}
+   296			smc_restore_fallback_changes(smc);
+   297		}
+   298	
+   299		sk->sk_prot->unhash(sk);
+   300	
+   301		if (sk->sk_state == SMC_CLOSED) {
+   302			if (smc->clcsock) {
+   303				release_sock(sk);
+   304				smc_clcsock_release(smc);
+   305				lock_sock(sk);
+   306			}
+   307			if (!smc->use_fallback)
+   308				smc_conn_free(&smc->conn);
+   309		}
+   310	
+   311		return rc;
+   312	}
+   313	
+   314	static int smc_release(struct socket *sock)
+   315	{
+   316		struct sock *sk = sock->sk;
+   317		struct smc_sock *smc;
+   318		int old_state, rc = 0;
+   319	
+   320		if (!sk)
+   321			goto out;
+   322	
+   323		sock_hold(sk); /* sock_put below */
+   324		smc = smc_sk(sk);
+   325	
+   326		/* trigger info gathering if needed.*/
+ > 327		smc_sock_perform_collecting_info(sk, SMC_SOCK_CLOSED_TIMING);
+   328	
+   329		old_state = sk->sk_state;
+   330	
+   331		/* cleanup for a dangling non-blocking connect */
+   332		if (smc->connect_nonblock && old_state == SMC_INIT)
+   333			tcp_abort(smc->clcsock->sk, ECONNABORTED);
+   334	
+   335		if (cancel_work_sync(&smc->connect_work))
+   336			sock_put(&smc->sk); /* sock_hold in smc_connect for passive closing */
+   337	
+   338		if (sk->sk_state == SMC_LISTEN)
+   339			/* smc_close_non_accepted() is called and acquires
+   340			 * sock lock for child sockets again
+   341			 */
+   342			lock_sock_nested(sk, SINGLE_DEPTH_NESTING);
+   343		else
+   344			lock_sock(sk);
+   345	
+   346		if (old_state == SMC_INIT && sk->sk_state == SMC_ACTIVE &&
+   347		    !smc->use_fallback)
+   348			smc_close_active_abort(smc);
+   349	
+   350		rc = __smc_release(smc);
+   351	
+   352		/* detach socket */
+   353		sock_orphan(sk);
+   354		sock->sk = NULL;
+   355		release_sock(sk);
+   356	
+   357		sock_put(sk); /* sock_hold above */
+   358		sock_put(sk); /* final sock_put */
+   359	out:
+   360		return rc;
+   361	}
+   362	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests
