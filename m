@@ -2,200 +2,326 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BDC8CC64EC7
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Feb 2023 10:56:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 731CAC64ED6
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Feb 2023 11:15:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231404AbjB1K45 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Feb 2023 05:56:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42396 "EHLO
+        id S229722AbjB1LPw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Feb 2023 06:15:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231265AbjB1K4e (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Feb 2023 05:56:34 -0500
+        with ESMTP id S229633AbjB1LPv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Feb 2023 06:15:51 -0500
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0CB5303EB;
-        Tue, 28 Feb 2023 02:55:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A755A261;
+        Tue, 28 Feb 2023 03:15:50 -0800 (PST)
 Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31SAVISh005743;
-        Tue, 28 Feb 2023 10:55:36 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=MPvyFbexAWJSq49zGEln+BSL24Kg9nKhS5mWLEIaN6A=;
- b=EkaHEuNkqsKDIVYh++u3vMIMmxB+5cmWePyipC3CMj6jMnfQLYBWYUAJpYD2NzuYkdpA
- kuCcfCCAGpMpxonXCpjsr2qRimWzZFkKKmdkHsYOSfouhY0PZzhf8GoCOUkb/Kheqx+r
- Y9RaAl0qHSb7egipLhj0ec4Mxq70/p69pd+KU5Ti1jK1m4SIpWB+zZWBpedQNgbConKC
- LRxtkN0oyCvCn91oDelVofqlUrNiCc+495I/xtBoyqffskpQLuueGeJZRiQ/7sTHZmu2
- RTfM4zgnCPK6tpPmxaNX1aovc5Ko7wWcY2ZYMuImEVK6Yd2zZRkWmrDgRACD8FBjx9B8 gg== 
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31SBFldD003899;
+        Tue, 28 Feb 2023 11:15:49 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=zpepEbiRj4d/L6MHp96Uk2OvaFfDpznnrofZZ99nkVo=;
+ b=S4wvytwvHadKXgUNw7ZrQCiwdNrmXhCfooh0ljXnx6QBWIXgbS7gm0ZQJSHMSiX5JXEF
+ SoifogffHgtp7qrOACWvrkwyJ4g8zJHQgMiT1+19UR4Mlekae7E5AQ/ym5hHTWeDzS4b
+ qOcCU20ZRdrqjBXEcXt1kJYMbOXT6Ir0JjVXVxqxbjNWSr0BVEWm/7fz+53Lu5Db2JaB
+ AEMluX8P7rY3e4OQcNnJFh1NI/BQcgiW8e86hMFO7vVeXXPAIbEvbs7Ge2wi8p/V+AgC
+ V2sD5ruClol8nY1I1fiezj62vBlTa9RRjI77PCmGzbCRl3JkF3dID3nFE6DQpKWB8Xyy rQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3p1fxc0h6v-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3p1gk8002m-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Feb 2023 10:55:36 +0000
+        Tue, 28 Feb 2023 11:15:49 +0000
 Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 31SAVavH006382;
-        Tue, 28 Feb 2023 10:55:35 GMT
-Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3p1fxc0h6e-1
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 31SBFmCi003970;
+        Tue, 28 Feb 2023 11:15:48 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3p1gk8001c-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Feb 2023 10:55:35 +0000
-Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
-        by ppma03wdc.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31S8Mw90018847;
-        Tue, 28 Feb 2023 10:55:34 GMT
-Received: from smtprelay05.dal12v.mail.ibm.com ([9.208.130.101])
-        by ppma03wdc.us.ibm.com (PPS) with ESMTPS id 3nybcbrhj9-1
+        Tue, 28 Feb 2023 11:15:48 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31S5hcgi026495;
+        Tue, 28 Feb 2023 11:15:46 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3nybb4k0b4-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Feb 2023 10:55:34 +0000
-Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
-        by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31SAtXkk5309144
+        Tue, 28 Feb 2023 11:15:46 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31SBFfcN64225718
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 28 Feb 2023 10:55:33 GMT
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E7AB258043;
-        Tue, 28 Feb 2023 10:55:32 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EED8858065;
-        Tue, 28 Feb 2023 10:55:30 +0000 (GMT)
-Received: from [9.211.152.15] (unknown [9.211.152.15])
-        by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 28 Feb 2023 10:55:30 +0000 (GMT)
-Message-ID: <b869713b-7f1d-4093-432c-9f958f5bd719@linux.ibm.com>
-Date:   Tue, 28 Feb 2023 11:55:29 +0100
+        Tue, 28 Feb 2023 11:15:41 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8EBC12004E;
+        Tue, 28 Feb 2023 11:15:41 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5CC6F2004B;
+        Tue, 28 Feb 2023 11:15:41 +0000 (GMT)
+Received: from li-7e0de7cc-2d9d-11b2-a85c-de26c016e5ad.ibm.com (unknown [9.171.150.216])
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Tue, 28 Feb 2023 11:15:41 +0000 (GMT)
+Message-ID: <b516b8779c9a5f7a98683eb6e56e79b5e32016e7.camel@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v2] s390x: Add tests for execute-type
+ instructions
+From:   Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+To:     Janosch Frank <frankja@linux.ibm.com>,
+        Thomas Huth <thuth@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Nico Boehr <nrb@linux.ibm.com>
+Cc:     David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Date:   Tue, 28 Feb 2023 12:15:41 +0100
+In-Reply-To: <0d48cb35-738a-af5e-419a-5827dc6e3531@linux.ibm.com>
+References: <20230224152015.2943564-1-nsg@linux.ibm.com>
+         <0d48cb35-738a-af5e-419a-5827dc6e3531@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.46.4 (3.46.4-1.fc37) 
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.8.0
-Subject: Re: [PATCH net-next v2] net/smc: Use percpu ref for wr tx reference
-To:     Kai <KaiShen@linux.alibaba.com>, kgraul@linux.ibm.com,
-        jaka@linux.ibm.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-References: <20230227121616.448-1-KaiShen@linux.alibaba.com>
-From:   Wenjia Zhang <wenjia@linux.ibm.com>
-In-Reply-To: <20230227121616.448-1-KaiShen@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: QVafuGWr_1p-2MyUmP4OT2qwwxDiyRqJ
-X-Proofpoint-ORIG-GUID: nbJJ5VwTWcuANi23sRueWEiRU4fuDZXk
+X-Proofpoint-GUID: h15lxRY5goY6BL0mx1gb-ZsR29yx_YBB
+X-Proofpoint-ORIG-GUID: CMBtXN0MlNZ-AfOBU_0XaPfbkT9aLq7Z
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
  definitions=2023-02-28_06,2023-02-28_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 malwarescore=0
- mlxlogscore=999 priorityscore=1501 suspectscore=0 clxscore=1015
- adultscore=0 impostorscore=0 lowpriorityscore=0 bulkscore=0 mlxscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2302280085
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 phishscore=0
+ mlxscore=0 clxscore=1015 impostorscore=0 adultscore=0 priorityscore=1501
+ bulkscore=0 malwarescore=0 suspectscore=0 spamscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
+ definitions=main-2302280089
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Mon, 2023-02-27 at 16:44 +0100, Janosch Frank wrote:
+> On 2/24/23 16:20, Nina Schoetterl-Glausch wrote:
+> > Test the instruction address used by targets of an execute instruction.
+> > When the target instruction calculates a relative address, the result i=
+s
+> > relative to the target instruction, not the execute instruction.
+>=20
+> For instructions like execute where the details matter it's a great idea=
+=20
+> to have a lot of comments maybe even loose references to the PoP so=20
+> people can read up on the issue more easily.
+>=20
+>=20
+> >=20
+> > Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+> > Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
+> > ---
+> >=20
+> >=20
+> > v1 -> v2:
+> >   * add test to unittests.cfg and .gitlab-ci.yml
+> >   * pick up R-b (thanks Nico)
+> >=20
+> >=20
+> > TCG does the address calculation relative to the execute instruction.
+>=20
+> Always?
 
+AFAIK yes. Everything that has an operand that is relative to the instructi=
+on
+given by the immediate in the instruction and goes through in2_ri2 in TCG
+will have this problem, because in2_ri2 does the calculation relative to pc=
+_next
+which is the address of the EX(RL).
+That should make fixing it easier tho.
 
-On 27.02.23 13:16, Kai wrote:
-> The refcount wr_tx_refcnt may cause cache thrashing problems among
-> cores and we can use percpu ref to mitigate this issue here. We
-> gain some performance improvement with percpu ref here on our
-> customized smc-r verion. Applying cache alignment may also mitigate
-> this problem but it seem more reasonable to use percpu ref here.
-> 
-> redis-benchmark on smc-r with atomic wr_tx_refcnt:
-> SET: 525817.62 requests per second, p50=0.087 msec
-> GET: 570841.44 requests per second, p50=0.087 msec
-> 
-> redis-benchmark on the percpu_ref version:
-> SET: 539956.81 requests per second, p50=0.087 msec
-> GET: 587613.12 requests per second, p50=0.079 msec
-> 
-> Signed-off-by: Kai <KaiShen@linux.alibaba.com>
-> ---
->   net/smc/smc_core.h |  5 ++++-
->   net/smc/smc_wr.c   | 18 ++++++++++++++++--
->   net/smc/smc_wr.h   |  5 ++---
->   3 files changed, 22 insertions(+), 6 deletions(-)
-> 
-> diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-> index 08b457c2d294..0705e33e2d68 100644
-> --- a/net/smc/smc_core.h
-> +++ b/net/smc/smc_core.h
-> @@ -106,7 +106,10 @@ struct smc_link {
->   	unsigned long		*wr_tx_mask;	/* bit mask of used indexes */
->   	u32			wr_tx_cnt;	/* number of WR send buffers */
->   	wait_queue_head_t	wr_tx_wait;	/* wait for free WR send buf */
-> -	atomic_t		wr_tx_refcnt;	/* tx refs to link */
-> +	struct {
-> +		struct percpu_ref	wr_tx_refs;
-> +	} ____cacheline_aligned_in_smp;
-> +	struct completion	ref_comp;
->   
->   	struct smc_wr_buf	*wr_rx_bufs;	/* WR recv payload buffers */
->   	struct ib_recv_wr	*wr_rx_ibs;	/* WR recv meta data */
-> diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
-> index b0678a417e09..dd923e76139f 100644
-> --- a/net/smc/smc_wr.c
-> +++ b/net/smc/smc_wr.c
-> @@ -648,7 +648,8 @@ void smc_wr_free_link(struct smc_link *lnk)
->   
->   	smc_wr_tx_wait_no_pending_sends(lnk);
->   	wait_event(lnk->wr_reg_wait, (!atomic_read(&lnk->wr_reg_refcnt)));
-> -	wait_event(lnk->wr_tx_wait, (!atomic_read(&lnk->wr_tx_refcnt)));
-> +	percpu_ref_kill(&lnk->wr_tx_refs);
-> +	wait_for_completion(&lnk->ref_comp);
->   
->   	if (lnk->wr_rx_dma_addr) {
->   		ib_dma_unmap_single(ibdev, lnk->wr_rx_dma_addr,
-> @@ -847,6 +848,13 @@ void smc_wr_add_dev(struct smc_ib_device *smcibdev)
->   	tasklet_setup(&smcibdev->send_tasklet, smc_wr_tx_tasklet_fn);
->   }
->   
-> +static void smcr_wr_tx_refs_free(struct percpu_ref *ref)
-> +{
-> +	struct smc_link *lnk = container_of(ref, struct smc_link, wr_tx_refs);
-> +
-> +	complete(&lnk->ref_comp);
-> +}
-> +
->   int smc_wr_create_link(struct smc_link *lnk)
->   {
->   	struct ib_device *ibdev = lnk->smcibdev->ibdev;
-> @@ -890,7 +898,13 @@ int smc_wr_create_link(struct smc_link *lnk)
->   	smc_wr_init_sge(lnk);
->   	bitmap_zero(lnk->wr_tx_mask, SMC_WR_BUF_CNT);
->   	init_waitqueue_head(&lnk->wr_tx_wait);
-> -	atomic_set(&lnk->wr_tx_refcnt, 0);
-> +
-> +	rc = percpu_ref_init(&lnk->wr_tx_refs, smcr_wr_tx_refs_free,
-> +			     PERCPU_REF_ALLOW_REINIT, GFP_KERNEL);
-> +	if (rc)
-> +		goto dma_unmap;
-> +	init_completion(&lnk->ref_comp);
-> +
->   	init_waitqueue_head(&lnk->wr_reg_wait);
->   	atomic_set(&lnk->wr_reg_refcnt, 0);
->   	init_waitqueue_head(&lnk->wr_rx_empty_wait);
-> diff --git a/net/smc/smc_wr.h b/net/smc/smc_wr.h
-> index 45e9b894d3f8..f3008dda222a 100644
-> --- a/net/smc/smc_wr.h
-> +++ b/net/smc/smc_wr.h
-> @@ -63,14 +63,13 @@ static inline bool smc_wr_tx_link_hold(struct smc_link *link)
->   {
->   	if (!smc_link_sendable(link))
->   		return false;
-> -	atomic_inc(&link->wr_tx_refcnt);
-> +	percpu_ref_get(&link->wr_tx_refs);
->   	return true;
->   }
->   
->   static inline void smc_wr_tx_link_put(struct smc_link *link)
->   {
-> -	if (atomic_dec_and_test(&link->wr_tx_refcnt))
-> -		wake_up_all(&link->wr_tx_wait);
-> +	percpu_ref_put(&link->wr_tx_refs);
->   }
->   
->   static inline void smc_wr_drain_cq(struct smc_link *lnk)
+> I.e. what are you telling me here?
+>=20
+> >=20
+> >=20
+> >   s390x/Makefile      |  1 +
+> >   s390x/ex.c          | 92 ++++++++++++++++++++++++++++++++++++++++++++=
++
+> >   s390x/unittests.cfg |  3 ++
+> >   .gitlab-ci.yml      |  1 +
+> >   4 files changed, 97 insertions(+)
+> >   create mode 100644 s390x/ex.c
+> >=20
+> > diff --git a/s390x/Makefile b/s390x/Makefile
+> > index 97a61611..6cf8018b 100644
+> > --- a/s390x/Makefile
+> > +++ b/s390x/Makefile
+> > @@ -39,6 +39,7 @@ tests +=3D $(TEST_DIR)/panic-loop-extint.elf
+> >   tests +=3D $(TEST_DIR)/panic-loop-pgm.elf
+> >   tests +=3D $(TEST_DIR)/migration-sck.elf
+> >   tests +=3D $(TEST_DIR)/exittime.elf
+> > +tests +=3D $(TEST_DIR)/ex.elf
+> >  =20
+> >   pv-tests +=3D $(TEST_DIR)/pv-diags.elf
+> >  =20
+> > diff --git a/s390x/ex.c b/s390x/ex.c
+> > new file mode 100644
+> > index 00000000..1bf4d8cd
+> > --- /dev/null
+> > +++ b/s390x/ex.c
+> > @@ -0,0 +1,92 @@
+> > +// SPDX-License-Identifier: GPL-2.0-only
+> > +/*
+> > + * Copyright IBM Corp. 2023
+> > + *
+> > + * Test EXECUTE (RELATIVE LONG).
+> > + */
+> > +
+> > +#include <libcflat.h>
+> > +
+>=20
+> Take my words with some salt, I never had a close look at the branch=20
+> instructions other than brc.
+>=20
+> This is "branch and save" and the "r" in "basr" says that it's the RR=20
+> variant. It's not relative the way that "bras" is, right?
 
-@Tony, thank you for the sugguestion! The decription now looks much 
-better to me.
+Yes, it isn't. It's so there are tests for different address generations
+that are a function of the current instruction address.
 
-@Kai, the performance improvement seems not so giant, but the method 
-looks good, indeed. However, to keep the consistency of the code, I'm 
-wondering why you only use the perf_ref for wr_tx_wait, but not for 
-wr_reg_refcnt?
+>=20
+> Hence ret_addr and after_ex both point to 1f.
+>=20
+> I'd like to have a comment here that states that this is not a relative=
+=20
+> branch at all. The r specifies the instruction format.
+
+Yeah, will do.
+>=20
+> > +static void test_basr(void)
+> > +{
+> > +	uint64_t ret_addr, after_ex;
+> > +
+> > +	report_prefix_push("BASR");
+> > +	asm volatile ( ".pushsection .rodata\n"
+> > +		"0:	basr	%[ret_addr],0\n"
+> > +		"	.popsection\n"
+> > +
+> > +		"	larl	%[after_ex],1f\n"
+> > +		"	exrl	0,0b\n"
+> > +		"1:\n"
+> > +		: [ret_addr] "=3Dd" (ret_addr),
+> > +		  [after_ex] "=3Dd" (after_ex)
+> > +	);
+> > +
+> > +	report(ret_addr =3D=3D after_ex, "return address after EX");
+> > +	report_prefix_pop();
+> > +}
+> > +
+> > +/*
+> > + * According to PoP (Branch-Address Generation), the address is relati=
+ve to
+> > + * BRAS when it is the target of an execute-type instruction.
+> > + */
+>=20
+> Is there any merit in testing the other br* instructions as well or are=
+=20
+> they running through the same TCG function?
+
+Well, there is in the sense that it's better not to make assumptions about =
+the
+implementation, but given the above it shouldn't make a difference in pract=
+ice,
+unless my understanding is wrong or I'm missing some special case.
+
+>=20
+> > +static void test_bras(void)
+> > +{
+> > +	uint64_t after_target, ret_addr, after_ex, branch_addr;
+> > +
+> > +	report_prefix_push("BRAS");
+> > +	asm volatile ( ".pushsection .text.ex_bras, \"x\"\n"
+> > +		"0:	bras	%[ret_addr],1f\n"
+> > +		"	nopr	%%r7\n"
+> > +		"1:	larl	%[branch_addr],0\n"
+> > +		"	j	4f\n"
+> > +		"	.popsection\n"
+> > +
+> > +		"	larl	%[after_target],1b\n"
+> > +		"	larl	%[after_ex],3f\n"
+> > +		"2:	exrl	0,0b\n"
+> > +		"3:	larl	%[branch_addr],0\n"
+> > +		"4:\n"
+> > +
+> > +		"	.if (1b - 0b) !=3D (3b - 2b)\n"
+> > +		"	.error	\"right and wrong target must have same offset\"\n"
+> > +		"	.endif\n"
+> > +		: [after_target] "=3Dd" (after_target),
+> > +		  [ret_addr] "=3Dd" (ret_addr),
+> > +		  [after_ex] "=3Dd" (after_ex),
+> > +		  [branch_addr] "=3Dd" (branch_addr)
+> > +	);
+> > +
+> > +	report(after_target =3D=3D branch_addr, "address calculated relative =
+to BRAS");
+> > +	report(ret_addr =3D=3D after_ex, "return address after EX");
+> > +	report_prefix_pop();
+> > +}
+> > +
+>=20
+> Add:
+> /* larl follows the address generation of relative branch instructions */
+
+Yes, will also add another test for a relative immediate instruction that
+doesn't explicitly state the same in the description.
+
+> > +static void test_larl(void)
+> > +{
+> > +	uint64_t target, addr;
+> > +
+> > +	report_prefix_push("LARL");
+> > +	asm volatile ( ".pushsection .rodata\n"
+> > +		"0:	larl	%[addr],0\n"
+> > +		"	.popsection\n"
+> > +
+> > +		"	larl	%[target],0b\n"
+> > +		"	exrl	0,0b\n"
+> > +		: [target] "=3Dd" (target),
+> > +		  [addr] "=3Dd" (addr)
+> > +	);
+> > +
+> > +	report(target =3D=3D addr, "address calculated relative to LARL");
+> > +	report_prefix_pop();
+> > +}
+> > +
+> > +int main(int argc, char **argv)
+> > +{
+>=20
+> We're missing push and pop around the test function block so that we=20
+> know which file generated the output.
+>=20
+> report_prefix_push("execute");
+>=20
+> > +	test_basr();
+> > +	test_bras();
+> > +	test_larl();
+>=20
+> report_prefix_pop();
+>=20
+> > +	return report_summary();
+> > +}
+> > diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
+> > index d97eb5e9..b61faf07 100644
+> > --- a/s390x/unittests.cfg
+> > +++ b/s390x/unittests.cfg
+> > @@ -215,3 +215,6 @@ file =3D migration-skey.elf
+> >   smp =3D 2
+> >   groups =3D migration
+> >   extra_params =3D -append '--parallel'
+> > +
+> > +[execute]
+> > +file =3D ex.elf
+> > diff --git a/.gitlab-ci.yml b/.gitlab-ci.yml
+> > index ad7949c9..a999f64a 100644
+> > --- a/.gitlab-ci.yml
+> > +++ b/.gitlab-ci.yml
+> > @@ -275,6 +275,7 @@ s390x-kvm:
+> >     - ACCEL=3Dkvm ./run_tests.sh
+> >         selftest-setup intercept emulator sieve sthyi diag10 diag308 pf=
+mf
+> >         cmm vector gs iep cpumodel diag288 stsi sclp-1g sclp-3g css skr=
+f sie
+> > +      execute
+> >         | tee results.txt
+> >     - grep -q PASS results.txt && ! grep -q FAIL results.txt
+> >    only:
+> >=20
+> > base-commit: e3c5c3ef2524c58023073c0fadde2e8ae3c04ec6
+>=20
+
