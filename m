@@ -2,106 +2,125 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DDF4DC64ED6
-	for <linux-s390@archiver.kernel.org>; Wed,  1 Mar 2023 15:11:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 83777C7EE33
+	for <linux-s390@archiver.kernel.org>; Wed,  1 Mar 2023 15:39:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229981AbjCAPLn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 1 Mar 2023 10:11:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35542 "EHLO
+        id S229518AbjCAPjU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 1 Mar 2023 10:39:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229563AbjCAPLm (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Mar 2023 10:11:42 -0500
-Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C0F016897;
-        Wed,  1 Mar 2023 07:11:41 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1677683501; x=1709219501;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=hjYr2EMRWWOBA1w4cnhzIu+T7tZBlHG4CpSb2cRhb34=;
-  b=NJpRKkRpt3/rHgSTAxW7Cfe4xrLcj7xTxAaVhCl+QmzqeJ5VQ/gmDrtV
-   vjGoQOpwZX0URqFhPruGS4A6Mu7caXc2SUlxT70+8zkgapsFYwO8RA4vr
-   T8v792GxcXnPD23LoB4vF+bypJ/V6oZgZbqLU4rG5cVpKnxwUR8xAEhb1
-   m26mL2tuLf2+hRWy5eb6LNhNtD69PMgbDs5moQFUapjgtF8dPG1Gpak4R
-   gYf1MO1azj7m8mfidv34qc5gBhRw/lQ0IiITib7wceTFG9H8zQSAN+93d
-   2cQatQGshVtoxvU7TYtHn8KYm6oa0JgiX3PsfngWN93AtRxXP16xtBtDK
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10636"; a="318230725"
-X-IronPort-AV: E=Sophos;i="5.98,225,1673942400"; 
-   d="scan'208";a="318230725"
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Mar 2023 07:11:38 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10636"; a="920278181"
-X-IronPort-AV: E=Sophos;i="5.98,225,1673942400"; 
-   d="scan'208";a="920278181"
-Received: from smile.fi.intel.com ([10.237.72.54])
-  by fmsmga006.fm.intel.com with ESMTP; 01 Mar 2023 07:11:34 -0800
-Received: from andy by smile.fi.intel.com with local (Exim 4.96)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1pXO7B-00Dnz1-0F;
-        Wed, 01 Mar 2023 17:11:33 +0200
-Date:   Wed, 1 Mar 2023 17:11:32 +0200
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Yury Norov <yury.norov@gmail.com>
-Cc:     linux-kernel@vger.kernel.org,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Alexander Lobakin <aleksander.lobakin@intel.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org
-Subject: Re: [PATCH 1/2] lib/test_bitmap: increment failure counter properly
-Message-ID: <Y/9rJFJ9Pmzf6Waz@smile.fi.intel.com>
-References: <20230227214524.914050-1-yury.norov@gmail.com>
- <Y/00yaVqK2x3+pP3@smile.fi.intel.com>
- <Y/1ruRmnY4eU536Q@yury-laptop>
+        with ESMTP id S229697AbjCAPjP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Mar 2023 10:39:15 -0500
+Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1AE616317
+        for <linux-s390@vger.kernel.org>; Wed,  1 Mar 2023 07:39:12 -0800 (PST)
+Received: by mail-pf1-x435.google.com with SMTP id cp12so7437241pfb.5
+        for <linux-s390@vger.kernel.org>; Wed, 01 Mar 2023 07:39:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=rivosinc-com.20210112.gappssmtp.com; s=20210112; t=1677685152;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=G88lHAU8EQsCcXmuw5k8V0o7uYf93X0m0EbK56nmCkc=;
+        b=Ny+HmlrE0gXICVns/E53J7P+ufLy4O/6mPMZ9p2rf+anhUNDxXReAJ7Of7RumsIo7i
+         MF0of+OFSSVag+jJbKJCbWqw/7+3QP1Ep9RYaalmJO09mE4viOw8S2klvVFaryWM8jl2
+         TtVtqnAAOEN9R1ADWrsxZJSJWmuT6eBeUtGvwmxtiW6+g7vic+774Z/gaDYyszuozffC
+         OjXIGEYSwLxa1xaHosEo3E4lK3jZqYXbE8AJSAcyVW/Ya9OJJK8u4pEJ6QPLxpJdgj2D
+         ds5e0Mvpliu5fpO+nw6SVbgSyG5paByNt+L/3lCiP7+YU4Hd4Qok+ddJgLOslD7RpwmT
+         /2tw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1677685152;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=G88lHAU8EQsCcXmuw5k8V0o7uYf93X0m0EbK56nmCkc=;
+        b=ziECJdnQiJRTeZo6yoDLYML+FWTS71Q67tKSHfQOf6i0DV/SOrI79odkxGbWCxS4Vv
+         6dUZrbqZmb18doPIEqV0T6o0ZV1vzs+njEXDR5kSM5chFsBvp8Of3QErq4YSiZfVBxxp
+         imgnsHOTJ1QFAo+6OQlrYY8DhuM29I1THrRlwJKrohO8sEfw93vEl+wpinx3KXmZtgfs
+         pFgXirrHsQCTWXujHqcYpbygMHfZqFPwdIfj7lePSzrwckMnOF/19s15Bc14irW1BY39
+         0EZIP5mzwNtGtPWYnVb7fd9sZNx11+jNpRIWX2KsFOOas7zFxysO+ZZtjiF6Ons0jQkk
+         373w==
+X-Gm-Message-State: AO0yUKWeK4GjyoAWhF8JzT2KAsoZtWMIwMxUK0AKiwUZ1IEl0lajV8Pi
+        OUW9c523x+e2Yyz+YVp2a5hE0w==
+X-Google-Smtp-Source: AK7set8O+FBRYvI4IODXsFr4hn8ba9dIyWnvB6rPeJHmFqFJ7d5V8y8v1teRy0/jHqbFKVQ/Seo5yA==
+X-Received: by 2002:aa7:9ac2:0:b0:5a8:ea06:662 with SMTP id x2-20020aa79ac2000000b005a8ea060662mr6767366pfp.20.1677685152202;
+        Wed, 01 Mar 2023 07:39:12 -0800 (PST)
+Received: from debug.ba.rivosinc.com ([66.220.2.162])
+        by smtp.gmail.com with ESMTPSA id j13-20020a62b60d000000b005a8851e0cddsm8070167pff.188.2023.03.01.07.39.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 01 Mar 2023 07:39:11 -0800 (PST)
+Date:   Wed, 1 Mar 2023 07:39:08 -0800
+From:   Deepak Gupta <debug@rivosinc.com>
+To:     Rick Edgecombe <rick.p.edgecombe@intel.com>
+Cc:     x86@kernel.org, "H . Peter Anvin" <hpa@zytor.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-mm@kvack.org,
+        linux-arch@vger.kernel.org, linux-api@vger.kernel.org,
+        Arnd Bergmann <arnd@arndb.de>,
+        Andy Lutomirski <luto@kernel.org>,
+        Balbir Singh <bsingharora@gmail.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Cyrill Gorcunov <gorcunov@gmail.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Eugene Syromiatnikov <esyr@redhat.com>,
+        Florian Weimer <fweimer@redhat.com>,
+        "H . J . Lu" <hjl.tools@gmail.com>, Jann Horn <jannh@google.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Kees Cook <keescook@chromium.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        Oleg Nesterov <oleg@redhat.com>, Pavel Machek <pavel@ucw.cz>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Weijiang Yang <weijiang.yang@intel.com>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+        John Allen <john.allen@amd.com>, kcc@google.com,
+        eranian@google.com, rppt@kernel.org, jamorris@linux.microsoft.com,
+        dethoma@microsoft.com, akpm@linux-foundation.org,
+        Andrew.Cooper3@citrix.com, christina.schimpe@intel.com,
+        david@redhat.com, linux-arm-kernel@lists.infradead.org,
+        linux-s390@vger.kernel.org, xen-devel@lists.xenproject.org
+Subject: Re: [PATCH v6 11/41] mm: Introduce pte_mkwrite_kernel()
+Message-ID: <20230301153908.GA3505369@debug.ba.rivosinc.com>
+References: <20230218211433.26859-1-rick.p.edgecombe@intel.com>
+ <20230218211433.26859-12-rick.p.edgecombe@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <Y/1ruRmnY4eU536Q@yury-laptop>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+In-Reply-To: <20230218211433.26859-12-rick.p.edgecombe@intel.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Feb 27, 2023 at 06:49:29PM -0800, Yury Norov wrote:
-> On Tue, Feb 28, 2023 at 12:55:05AM +0200, Andy Shevchenko wrote:
-> > On Mon, Feb 27, 2023 at 01:45:23PM -0800, Yury Norov wrote:
-> > > The tests that don't use expect_eq() macro to determine that a test is
-> > > failured must increment failed_tests explicitly.
-> > 
-> > ...
-> > 
-> > >  			pr_err("bitmap_copy_arr32(nbits == %d:"
-> > >  				" tail is not safely cleared: %d\n",
-> > 
-> > Usually we don't split string literals (since checkpatch doesn't complain on a
-> > looong lines with them at the end of the line),
-> > 
-> > ...
-> > 
-> > >  			pr_err("bitmap_copy_arr64(nbits == %d:"
-> > >  				" tail is not safely cleared: %d\n", nbits, next_bit);
-> > 
-> > Ditto.
-> > 
-> > P.S. Seems a material for another patch.
-> 
-> If you're OK with this patch, can you give your review tag please?
+On Sat, Feb 18, 2023 at 01:14:03PM -0800, Rick Edgecombe wrote:
+>The x86 Control-flow Enforcement Technology (CET) feature includes a new
+>type of memory called shadow stack. This shadow stack memory has some
+>unusual properties, which requires some core mm changes to function
+>properly.
+>
+>One of these changes is to allow for pte_mkwrite() to create different
+>types of writable memory (the existing conventionally writable type and
+>also the new shadow stack type). Future patches will convert pte_mkwrite()
+>to take a VMA in order to facilitate this, however there are places in the
+>kernel where pte_mkwrite() is called outside of the context of a VMA.
+>These are for kernel memory. So create a new variant called
+>pte_mkwrite_kernel() and switch the kernel users over to it. Have
+>pte_mkwrite() and pte_mkwrite_kernel() be the same for now. Future patches
+>will introduce changes to make pte_mkwrite() take a VMA.
+>
+>Only do this for architectures that need it because they call pte_mkwrite()
+>in arch code without an associated VMA. Since it will only currently be
+>used in arch code, so do not include it in arch_pgtable_helpers.rst.
+>
+>Cc: linux-doc@vger.kernel.org
+>Cc: linux-arm-kernel@lists.infradead.org
+>Cc: linux-s390@vger.kernel.org
+>Cc: xen-devel@lists.xenproject.org
+>Cc: linux-arch@vger.kernel.org
+>Cc: linux-mm@kvack.org
+>Tested-by: Pengfei Xu <pengfei.xu@intel.com>
+>Suggested-by: David Hildenbrand <david@redhat.com>
+>Signed-off-by: Rick Edgecombe <rick.p.edgecombe@intel.com>
+>
 
-I'm fine with the series,
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-
--- 
-With Best Regards,
-Andy Shevchenko
-
-
+Acked-by: Deepak Gupta <debug@rivosinc.com>
