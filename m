@@ -2,150 +2,145 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EF138C64ED6
-	for <linux-s390@archiver.kernel.org>; Wed,  1 Mar 2023 13:26:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8466BC64ED6
+	for <linux-s390@archiver.kernel.org>; Wed,  1 Mar 2023 13:42:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229540AbjCAN04 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 1 Mar 2023 08:26:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50978 "EHLO
+        id S229877AbjCANmF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 1 Mar 2023 08:42:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229437AbjCAN04 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Mar 2023 08:26:56 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DDB938019;
-        Wed,  1 Mar 2023 05:26:54 -0800 (PST)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 321D9Exl017512;
-        Wed, 1 Mar 2023 13:26:53 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=ygEbg6+QXd/JW3NTLYoZNny9TW7rbfhYuzZyxnt98XM=;
- b=qqudG7cL4agB4ujOQkU936iOePompoFDROTatqIO4aCbE1bNzJHS8NE0FHiEQuq4mfCX
- Q3zkw99kRTdSDA0hsDG+RpUfXCisl09VogQfIoNnoMdKKkP6/NjMQS1dRKtlD8a/rywF
- Hr5zJ1/EH5Neo6HxTSNg2WzHxkEMmIeIOixpvn1PEaZavMzYOJ3bppzpfrWtG5bCQK3y
- 4iAquc2kYjOIQ+rCtd/54oHCj7pIX/fi1MJDWeLec59g0XHMTpbKY3I9ocXqmfNbCYDg
- IOwKAHvDSqfYpQ0lhEdT6Ggg2CisGlQ6KszbpiL68/YAWyTjqQA++HIAKE4fe5ux2wdP sg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3p25ehkp5h-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 01 Mar 2023 13:26:53 +0000
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 321DBoxN003919;
-        Wed, 1 Mar 2023 13:26:53 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3p25ehkp4u-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 01 Mar 2023 13:26:53 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 321C28Kn026642;
-        Wed, 1 Mar 2023 13:26:51 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3nybb4mgpc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 01 Mar 2023 13:26:51 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 321DQl6v65405266
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 1 Mar 2023 13:26:47 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id AE3642004F;
-        Wed,  1 Mar 2023 13:26:47 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 816FE2004B;
-        Wed,  1 Mar 2023 13:26:47 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed,  1 Mar 2023 13:26:47 +0000 (GMT)
-From:   Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-To:     Thomas Huth <thuth@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: [kvm-unit-tests PATCH v1] s390x: spec_ex: Add test for misaligned load
-Date:   Wed,  1 Mar 2023 14:26:38 +0100
-Message-Id: <20230301132638.3336040-1-nsg@linux.ibm.com>
-X-Mailer: git-send-email 2.37.2
+        with ESMTP id S229616AbjCANmA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Mar 2023 08:42:00 -0500
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE9903E602;
+        Wed,  1 Mar 2023 05:41:55 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0VctY7I7_1677678110;
+Received: from 30.221.150.55(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VctY7I7_1677678110)
+          by smtp.aliyun-inc.com;
+          Wed, 01 Mar 2023 21:41:51 +0800
+Message-ID: <2d07c847-f865-06d6-c6b6-8f1a97627a33@linux.alibaba.com>
+Date:   Wed, 1 Mar 2023 21:41:49 +0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: mD-C7yoSQmbm_61rSEgsxycu77yOSf_Z
-X-Proofpoint-GUID: gFW6Ps1FSEdL48FhFkuoTjqNq7N7CNDr
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-03-01_08,2023-03-01_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- suspectscore=0 mlxlogscore=999 lowpriorityscore=0 bulkscore=0 phishscore=0
- adultscore=0 mlxscore=0 spamscore=0 malwarescore=0 priorityscore=1501
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2303010105
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.7.2
+Subject: Re: [PATCH net v2] net/smc: fix application data exception
+Content-Language: en-US
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
+        kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+        David Howells <dhowells@redhat.com>,
+        "Paul E. McKenney" <paulmck@linux.ibm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>
+References: <1676529545-32741-1-git-send-email-alibuda@linux.alibaba.com>
+ <Y/5J30kmv1cPc7nE@osiris>
+From:   "D. Wythe" <alibuda@linux.alibaba.com>
+In-Reply-To: <Y/5J30kmv1cPc7nE@osiris>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The operand of LOAD RELATIVE LONG must be word aligned, otherwise a
-specification exception occurs. Test that this exception occurs.
-
-Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
----
 
 
-Noticed while writing another test that TCG fails this requirement,
-so thought it best do document this in the form of a test.
+On 3/1/23 2:37 AM, Heiko Carstens wrote:
+> On Thu, Feb 16, 2023 at 02:39:05PM +0800, D. Wythe wrote:
+>> From: "D. Wythe" <alibuda@linux.alibaba.com>
+>>
+>> There is a certain probability that following
+>> exceptions will occur in the wrk benchmark test:
+>>
+>> Running 10s test @ http://11.213.45.6:80
+>>    8 threads and 64 connections
+>>    Thread Stats   Avg      Stdev     Max   +/- Stdev
+>>      Latency     3.72ms   13.94ms 245.33ms   94.17%
+>>      Req/Sec     1.96k   713.67     5.41k    75.16%
+>>    155262 requests in 10.10s, 23.10MB read
+>> Non-2xx or 3xx responses: 3
+>>
+>> We will find that the error is HTTP 400 error, which is a serious
+>> exception in our test, which means the application data was
+>> corrupted.
+>>
+>> Consider the following scenarios:
+>>
+>> CPU0                            CPU1
+>>
+>> buf_desc->used = 0;
+>>                                  cmpxchg(buf_desc->used, 0, 1)
+>>                                  deal_with(buf_desc)
+>>
+>> memset(buf_desc->cpu_addr,0);
+>>
+>> This will cause the data received by a victim connection to be cleared,
+>> thus triggering an HTTP 400 error in the server.
+>>
+>> This patch exchange the order between clear used and memset, add
+>> barrier to ensure memory consistency.
+>>
+>> Fixes: 1c5526968e27 ("net/smc: Clear memory when release and reuse buffer")
+>> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+>> ---
+>> v2: rebase it with latest net tree.
+>>
+>>   net/smc/smc_core.c | 17 ++++++++---------
+>>   1 file changed, 8 insertions(+), 9 deletions(-)
+>>
+>> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+>> index c305d8d..c19d4b7 100644
+>> --- a/net/smc/smc_core.c
+>> +++ b/net/smc/smc_core.c
+>> @@ -1120,8 +1120,9 @@ static void smcr_buf_unuse(struct smc_buf_desc *buf_desc, bool is_rmb,
+>>   
+>>   		smc_buf_free(lgr, is_rmb, buf_desc);
+>>   	} else {
+>> -		buf_desc->used = 0;
+>> -		memset(buf_desc->cpu_addr, 0, buf_desc->len);
+>> +		/* memzero_explicit provides potential memory barrier semantics */
+>> +		memzero_explicit(buf_desc->cpu_addr, buf_desc->len);
+>> +		WRITE_ONCE(buf_desc->used, 0);
+> 
+> This looks odd to me. memzero_explicit() is only sort of a compiler
+> barrier, since it is a function call, but not a real memory barrier.
+
+Hi Heiko,
+
+Thanks for you point out, the semantics of memzero_explicit
+is exactly what you said. But my original intention is
+just wants to ensure the order relationship between memset and the assignment.
+I'm not really sure whether a CPU memory barrier is needed here.
+
+> You may want to check Documentation/memory-barriers.txt and
+> Documentation/atomic_t.txt.
+> 
+> To me the proper solution looks like buf_desc->used should be converted to
+> an atomic_t, and then you could do:
+> 
+> 	memset(buf_desc->cpu_addr, 0, buf_desc->len);
+> 	smp_mb__before_atomic();
+> 	atomic_set(&buf_desc->used, 0);
+
+Anyhow, your solution is definitely correct, because that CPU memory barrier
+(smp_mb__before_atomic) implies the compiler barrier.
+
+> and in a similar way use atomic_cmpxchg() instead of the now used cmpxchg()
+> for the part that sets buf_desc->used to 1.
+> 
+> Adding experts to cc, since s390 has such strong memory ordering semantics
+> that you can basically do whatever you want without breaking anything. So I
+> don't consider myself an expert here at all. :)
+> 
+> But given that this is common code, let's make sure this is really correct
+Thank you for your comments again. :-), I am looking up some more information,
+and I believe I can reply to you soon.
+
+best wishes,
+D. Wythe
 
 
- s390x/spec_ex.c | 21 +++++++++++++++++++--
- 1 file changed, 19 insertions(+), 2 deletions(-)
 
-diff --git a/s390x/spec_ex.c b/s390x/spec_ex.c
-index 42ecaed3..42e86070 100644
---- a/s390x/spec_ex.c
-+++ b/s390x/spec_ex.c
-@@ -136,7 +136,7 @@ static int short_psw_bit_12_is_0(void)
- 	return 0;
- }
- 
--static int bad_alignment(void)
-+static int bad_alignment_lqp(void)
- {
- 	uint32_t words[5] __attribute__((aligned(16)));
- 	uint32_t (*bad_aligned)[4] = (uint32_t (*)[4])&words[1];
-@@ -149,6 +149,22 @@ static int bad_alignment(void)
- 	return 0;
- }
- 
-+static int bad_alignment_lrl(void)
-+{
-+	uint64_t r;
-+
-+	asm volatile ( ".pushsection .rodata\n"
-+		"	.balign	4\n"
-+		"	. = . + 2\n"
-+		"0:	.fill	4\n"
-+		"	.popsection\n"
-+
-+		"	lrl	%0,0b\n"
-+		: "=d" (r)
-+	);
-+	return 0;
-+}
-+
- static int not_even(void)
- {
- 	uint64_t quad[2] __attribute__((aligned(16))) = {0};
-@@ -176,7 +192,8 @@ struct spec_ex_trigger {
- static const struct spec_ex_trigger spec_ex_triggers[] = {
- 	{ "psw_bit_12_is_1", &psw_bit_12_is_1, false, &fixup_invalid_psw },
- 	{ "short_psw_bit_12_is_0", &short_psw_bit_12_is_0, false, &fixup_invalid_psw },
--	{ "bad_alignment", &bad_alignment, true, NULL },
-+	{ "bad_alignment_lqp", &bad_alignment_lqp, true, NULL },
-+	{ "bad_alignment_lrl", &bad_alignment_lrl, true, NULL },
- 	{ "not_even", &not_even, true, NULL },
- 	{ NULL, NULL, false, NULL },
- };
 
-base-commit: e3c5c3ef2524c58023073c0fadde2e8ae3c04ec6
--- 
-2.36.1
+
 
