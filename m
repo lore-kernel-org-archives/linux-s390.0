@@ -2,220 +2,150 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 52E02C64EC7
-	for <linux-s390@archiver.kernel.org>; Wed,  1 Mar 2023 12:29:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF138C64ED6
+	for <linux-s390@archiver.kernel.org>; Wed,  1 Mar 2023 13:26:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229887AbjCAM3B (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 1 Mar 2023 07:29:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33816 "EHLO
+        id S229540AbjCAN04 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 1 Mar 2023 08:26:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229683AbjCAM3A (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Mar 2023 07:29:00 -0500
-Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AEB48A4D
-        for <linux-s390@vger.kernel.org>; Wed,  1 Mar 2023 04:28:57 -0800 (PST)
-Received: by mail-wr1-x436.google.com with SMTP id r18so13055593wrx.1
-        for <linux-s390@vger.kernel.org>; Wed, 01 Mar 2023 04:28:57 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=layalina-io.20210112.gappssmtp.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=/ltz5EmItKTP39HJpFObu0oGvEY96YKQaBc1VsIgBjg=;
-        b=FJMcLR/sqsobRCHQ2JpzuyCNTAZZD04Z69/2ppwGPn2QthLhzkXhsX6R68jsVqyxJN
-         X0Jh1gT58b1rM4x5+wnZ0FsszyYdqRzkDYyDCSfmMszIgovwLZ/nUPG6cEuZE9b8UFtD
-         oymYI2wlko+D97CsHbnY0QCGROpgshXEKepHuOgEwiugtuFf2nl+EhSEa/yE+uC5D2qp
-         tHdnk3Cdl6PfoBg2/7XKnmY1FAfMyZUYwDOyX5SSFbqZDoPCVEy+tGEoqt/qUPfHmoNH
-         WOVGutMwZKFcztTswttzVRUuFDSOMzvYEo/74KtzR19ku95fwzi/tFPPxXvkZ0chdfZm
-         f1UQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=/ltz5EmItKTP39HJpFObu0oGvEY96YKQaBc1VsIgBjg=;
-        b=qYkoKuBv+Oz6zObBzTp/DOejbvr6opgCE/H+MREAAOy9MKNuNa7QPSdeN11Y21I5xL
-         JlIhANkoz6gVZkC6QeN2b6EHTVhu1h7W2EArU/DZ9jDdrJffJF8PQgXRUkNiBmJ6joKm
-         V2G3JkBJwKEqKPeMP8FFQlk7yeUJRWCFrkGggL90n9LvdLRXGrDGdl+rXzzIIXGiCXdd
-         fE0Ncqjk8fV8law04kdcQTAPNcduh+0+lKjQ9/29nWKJHnop7K19YL+SrYAem1AqzZLh
-         7Ls2aYVqNoxu2vtGIzW7H1vrpWrXyLD/40O9l069qhZGFRe3boAmmLjGz8/1g6OLy13a
-         4Adw==
-X-Gm-Message-State: AO0yUKXB6gyUBl10dZRBsl0o6sE4ytA90wtPaZX9HE88+3WiZ+idHakm
-        GdIF3QPhgA8a7h6jKUWUL9Z4Cw==
-X-Google-Smtp-Source: AK7set//iA9Ow5hZfVT5tSDKLS3Du3K+JL0roxEKmdv8rGHfy1TViVAwmqQt0ZroxfInQ3UKPWFwwg==
-X-Received: by 2002:a5d:4b91:0:b0:2c7:3ee7:a453 with SMTP id b17-20020a5d4b91000000b002c73ee7a453mr4178764wrt.33.1677673735702;
-        Wed, 01 Mar 2023 04:28:55 -0800 (PST)
-Received: from airbuntu (host86-168-251-3.range86-168.btcentralplus.com. [86.168.251.3])
-        by smtp.gmail.com with ESMTPSA id h22-20020a05600c351600b003daf6e3bc2fsm1998727wmq.1.2023.03.01.04.28.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 01 Mar 2023 04:28:54 -0800 (PST)
-Date:   Wed, 1 Mar 2023 12:28:52 +0000
-From:   Qais Yousef <qyousef@layalina.io>
-To:     Juri Lelli <juri.lelli@redhat.com>
-Cc:     Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Waiman Long <longman@redhat.com>,
-        Steven Rostedt <rostedt@goodmis.org>, tj@kernel.org,
-        linux-kernel@vger.kernel.org, luca.abeni@santannapisa.it,
-        claudio@evidence.eu.com, tommaso.cucinotta@santannapisa.it,
-        bristot@redhat.com, mathieu.poirier@linaro.org,
-        cgroups@vger.kernel.org,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Wei Wang <wvw@google.com>, Rick Yiu <rickyiu@google.com>,
-        Quentin Perret <qperret@google.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Zefan Li <lizefan.x@bytedance.com>, linux-s390@vger.kernel.org,
-        x86@kernel.org
-Subject: Re: [PATCH v3] sched: cpuset: Don't rebuild root domains on
- suspend-resume
-Message-ID: <20230301122852.zgzreby42lh2zf6w@airbuntu>
-References: <20230206221428.2125324-1-qyousef@layalina.io>
- <20230223153859.37tqoqk33oc6tv7o@airbuntu>
- <5f087dd8-3e39-ce83-fe24-afa5179c05d9@arm.com>
- <20230227205725.dipvh3i7dvyrv4tv@airbuntu>
- <5a1e58bf-7eb2-bd7a-7e19-7864428a2b83@arm.com>
- <20230228174627.vja5aejq27dsta2u@airbuntu>
- <Y/7/SLzvK8LfB29z@localhost.localdomain>
+        with ESMTP id S229437AbjCAN04 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Mar 2023 08:26:56 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DDB938019;
+        Wed,  1 Mar 2023 05:26:54 -0800 (PST)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 321D9Exl017512;
+        Wed, 1 Mar 2023 13:26:53 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=ygEbg6+QXd/JW3NTLYoZNny9TW7rbfhYuzZyxnt98XM=;
+ b=qqudG7cL4agB4ujOQkU936iOePompoFDROTatqIO4aCbE1bNzJHS8NE0FHiEQuq4mfCX
+ Q3zkw99kRTdSDA0hsDG+RpUfXCisl09VogQfIoNnoMdKKkP6/NjMQS1dRKtlD8a/rywF
+ Hr5zJ1/EH5Neo6HxTSNg2WzHxkEMmIeIOixpvn1PEaZavMzYOJ3bppzpfrWtG5bCQK3y
+ 4iAquc2kYjOIQ+rCtd/54oHCj7pIX/fi1MJDWeLec59g0XHMTpbKY3I9ocXqmfNbCYDg
+ IOwKAHvDSqfYpQ0lhEdT6Ggg2CisGlQ6KszbpiL68/YAWyTjqQA++HIAKE4fe5ux2wdP sg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3p25ehkp5h-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 01 Mar 2023 13:26:53 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 321DBoxN003919;
+        Wed, 1 Mar 2023 13:26:53 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3p25ehkp4u-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 01 Mar 2023 13:26:53 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 321C28Kn026642;
+        Wed, 1 Mar 2023 13:26:51 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3nybb4mgpc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 01 Mar 2023 13:26:51 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 321DQl6v65405266
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 1 Mar 2023 13:26:47 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AE3642004F;
+        Wed,  1 Mar 2023 13:26:47 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 816FE2004B;
+        Wed,  1 Mar 2023 13:26:47 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed,  1 Mar 2023 13:26:47 +0000 (GMT)
+From:   Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+To:     Thomas Huth <thuth@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: [kvm-unit-tests PATCH v1] s390x: spec_ex: Add test for misaligned load
+Date:   Wed,  1 Mar 2023 14:26:38 +0100
+Message-Id: <20230301132638.3336040-1-nsg@linux.ibm.com>
+X-Mailer: git-send-email 2.37.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <Y/7/SLzvK8LfB29z@localhost.localdomain>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: mD-C7yoSQmbm_61rSEgsxycu77yOSf_Z
+X-Proofpoint-GUID: gFW6Ps1FSEdL48FhFkuoTjqNq7N7CNDr
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-03-01_08,2023-03-01_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ suspectscore=0 mlxlogscore=999 lowpriorityscore=0 bulkscore=0 phishscore=0
+ adultscore=0 mlxscore=0 spamscore=0 malwarescore=0 priorityscore=1501
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2303010105
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 03/01/23 08:31, Juri Lelli wrote:
-> Hi,
-> 
-> On 28/02/23 17:46, Qais Yousef wrote:
-> > On 02/28/23 15:09, Dietmar Eggemann wrote:
-> > 
-> > > > IIUC you're suggesting to introduce some new mechanism to detect if hotplug has
-> > > > lead to a cpu to disappear or not and use that instead? Are you saying I can
-> > > > use arch_update_cpu_topology() for that? Something like this?
-> > > > 
-> > > > 	diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
-> > > > 	index e5ddc8e11e5d..60c3dcf06f0d 100644
-> > > > 	--- a/kernel/cgroup/cpuset.c
-> > > > 	+++ b/kernel/cgroup/cpuset.c
-> > > > 	@@ -1122,7 +1122,7 @@ partition_and_rebuild_sched_domains(int ndoms_new, cpumask_var_t doms_new[],
-> > > > 	 {
-> > > > 		mutex_lock(&sched_domains_mutex);
-> > > > 		partition_sched_domains_locked(ndoms_new, doms_new, dattr_new);
-> > > > 	-       if (update_dl_accounting)
-> > > > 	+       if (arch_update_cpu_topology())
-> > > > 			update_dl_rd_accounting();
-> > > > 		mutex_unlock(&sched_domains_mutex);
-> > > > 	 }
-> > > 
-> > > No, this is not what I meant. I'm just saying the:
-> > > 
-> > >   partition_sched_domains_locked()
-> > >     new_topology = arch_update_cpu_topology();
-> > > 
-> > > has to be considered here as well since we do a
-> > > `dl_clear_root_domain(rd)` (1) in partition_sched_domains_locked() for
-> > > !new_topology.
-> > 
-> > Ah you're referring to the dl_clear_root_domain() call there. I thought this
-> > doesn't trigger.
-> > 
-> > > 
-> > > And (1) requires the `update_tasks_root_domain()` to happen later.
-> > > 
-> > > So there are cases now, e.g. `rebuild_sched_domains_energy()` in which
-> > > `new_topology=0` and `update_dl_accounting=false` which now clean the rd
-> > > but don't do a new DL accounting anymore.
-> > > rebuild_root_domains() itself cleans the `default root domain`, not the
-> > > other root domains which could exists as well.
-> > > 
-> > > Example: Switching CPUfreq policy [0,3-5] performance to schedutil (slow
-> > > switching, i.e. we have sugov:X DL task(s)):
-> > > 
-> > > [  862.479906] CPU4 partition_sched_domains_locked() new_topology=0
-> > > [  862.499073] Workqueue: events rebuild_sd_workfn
-> > > [  862.503646] Call trace:
-> > > ...
-> > > [  862.520789]  partition_sched_domains_locked+0x6c/0x670
-> > > [  862.525962]  rebuild_sched_domains_locked+0x204/0x8a0
-> > > [  862.531050]  rebuild_sched_domains+0x2c/0x50
-> > > [  862.535351]  rebuild_sd_workfn+0x38/0x54                        <-- !
-> > > ...
-> > > [  862.554047] CPU4 dl_clear_root_domain() rd->span=0-5 total_bw=0
-> > > def_root_domain=0                                                  <-- !
-> > > [  862.561597] CPU4 dl_clear_root_domain() rd->span= total_bw=0
-> > > def_root_domain=1
-> > > [  862.568960] CPU4 dl_add_task_root_domain() [sugov:0 1801]
-> > > total_bw=104857 def_root_domain=0 rd=0xffff0008015f0000            <-- !
-> > > 
-> > > The dl_clear_root_domain() of the def_root_domain and the
-> > > dl_add_task_root_domain() to the rd in use won't happen.
-> > > 
-> > > [sugov:0 1801] is only a simple example here. I could have spawned a
-> > > couple of DL tasks before this to illustrate the issue more obvious.
-> > > 
-> > > ---
-> > > 
-> > > The same seems to happen during suspend/resume (system with 2 frequency
-> > > domains, both with slow switching schedutil CPUfreq gov):
-> > > 
-> > > [   27.735821] CPU5 partition_sched_domains_locked() new_topology=0
-> > > ...
-> > > [   27.735864] Workqueue: events cpuset_hotplug_workfn
-> > > [   27.735894] Call trace:
-> > > ...
-> > > [   27.735984]  partition_sched_domains_locked+0x6c/0x670
-> > > [   27.736004]  rebuild_sched_domains_locked+0x204/0x8a0
-> > > [   27.736026]  cpuset_hotplug_workfn+0x254/0x52c                  <-- !
-> > > ...
-> > > [   27.736155] CPU5 dl_clear_root_domain() rd->span=0-5 total_bw=0
-> > > def_root_domain=0                                                  <-- !
-> > > [   27.736178] CPU5 dl_clear_root_domain() rd->span= total_bw=0
-> > > def_root_domain=1
-> > > [   27.736296] CPU5 dl_add_task_root_domain() [sugov:0 80]         <-- !
-> > >  total_bw=104857 def_root_domain=0 rd=0xffff000801728000
-> > > [   27.736318] CPU5 dl_add_task_root_domain() [sugov:1 81]
-> > > total_bw=209714 def_root_domain=0 rd=0xffff000801728000            <-- !
-> > > ...
-> > > 
-> > > > I am not keen on this. arm64 seems to just read a value without a side effect.
-> > > 
-> > > Arm64 (among others) sets `update_topology=1` before
-> > > `rebuild_sched_domains()` and `update_topology=0` after it in
-> > > update_topology_flags_workfn(). This then makes `new_topology=1` in
-> > > partition_sched_domains_locked().
-> > > 
-> > > > But x86 does reset this value so we can't read it twice in the same call tree
-> > > > and I'll have to extract it.
-> > > > 
-> > > > The better solution that was discussed before is to not iterate through every
-> > > > task in the system and let cpuset track when dl tasks are added to it and do
-> > > > smarter iteration. ATM even if there are no dl tasks in the system we'll
-> > > > blindly go through every task in the hierarchy to update nothing.
-> > > 
-> > > Yes, I can see the problem. And IMHO this solution approach seems to be
-> > > better than parsing update_dl_accounting` through the stack of involved
-> > > functions.
-> > 
-> > The best I can do is protect this dl_clear_root_domain() too. I really don't
-> > have my heart in this but trying my best to help, but it has taken a lot of my
-> > time already and would prefer to hand over to Juri to address this regression
-> > if what I am proposing is not good enough.
-> > 
-> > FWIW, there are 0 dl tasks in the system where this was noticed. And this delay
-> > is unbounded because it'll depend on how many tasks there are in the hierarchy.
-> 
-> Not ignoring you guys here, but it turns out I'm quite bogged down with
-> other stuff at the moment. :/ So, apologies and I'll try to get to this
-> asap. Thanks a lot for all your efforts and time reviewing so far!
+The operand of LOAD RELATIVE LONG must be word aligned, otherwise a
+specification exception occurs. Test that this exception occurs.
 
-Np, I can feel you :-)
+Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+---
 
 
-Thanks
+Noticed while writing another test that TCG fails this requirement,
+so thought it best do document this in the form of a test.
 
---
-Qais Yousef
+
+ s390x/spec_ex.c | 21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
+
+diff --git a/s390x/spec_ex.c b/s390x/spec_ex.c
+index 42ecaed3..42e86070 100644
+--- a/s390x/spec_ex.c
++++ b/s390x/spec_ex.c
+@@ -136,7 +136,7 @@ static int short_psw_bit_12_is_0(void)
+ 	return 0;
+ }
+ 
+-static int bad_alignment(void)
++static int bad_alignment_lqp(void)
+ {
+ 	uint32_t words[5] __attribute__((aligned(16)));
+ 	uint32_t (*bad_aligned)[4] = (uint32_t (*)[4])&words[1];
+@@ -149,6 +149,22 @@ static int bad_alignment(void)
+ 	return 0;
+ }
+ 
++static int bad_alignment_lrl(void)
++{
++	uint64_t r;
++
++	asm volatile ( ".pushsection .rodata\n"
++		"	.balign	4\n"
++		"	. = . + 2\n"
++		"0:	.fill	4\n"
++		"	.popsection\n"
++
++		"	lrl	%0,0b\n"
++		: "=d" (r)
++	);
++	return 0;
++}
++
+ static int not_even(void)
+ {
+ 	uint64_t quad[2] __attribute__((aligned(16))) = {0};
+@@ -176,7 +192,8 @@ struct spec_ex_trigger {
+ static const struct spec_ex_trigger spec_ex_triggers[] = {
+ 	{ "psw_bit_12_is_1", &psw_bit_12_is_1, false, &fixup_invalid_psw },
+ 	{ "short_psw_bit_12_is_0", &short_psw_bit_12_is_0, false, &fixup_invalid_psw },
+-	{ "bad_alignment", &bad_alignment, true, NULL },
++	{ "bad_alignment_lqp", &bad_alignment_lqp, true, NULL },
++	{ "bad_alignment_lrl", &bad_alignment_lrl, true, NULL },
+ 	{ "not_even", &not_even, true, NULL },
+ 	{ NULL, NULL, false, NULL },
+ };
+
+base-commit: e3c5c3ef2524c58023073c0fadde2e8ae3c04ec6
+-- 
+2.36.1
+
