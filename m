@@ -2,300 +2,220 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D8E95C64EC7
-	for <linux-s390@archiver.kernel.org>; Wed,  1 Mar 2023 09:22:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 52E02C64EC7
+	for <linux-s390@archiver.kernel.org>; Wed,  1 Mar 2023 12:29:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229790AbjCAJWT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 1 Mar 2023 04:22:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45356 "EHLO
+        id S229887AbjCAM3B (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 1 Mar 2023 07:29:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229768AbjCAJWR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Mar 2023 04:22:17 -0500
-Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 047F33B0EC;
-        Wed,  1 Mar 2023 01:22:15 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1677662535; x=1709198535;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=Jvb3slMFhBtyxl/EuoQC0ZQryjRUM4ErECjZshTM0vw=;
-  b=DDu2rBHwp7dBu+u/sXWMen1Nft3MGczDuVMwP0+kCQ5tnfuaow57KoYF
-   tm9MFjVxifygRcYig9pk5IG7vpC0kh9OIZqjZ31x1H5jaUQ6CTGo8c6wE
-   0dXiuRzGXvicgopf5eqnYC6VYf3EGrVyWHNWWlGvEKrpKVUuUQoG3Z3EF
-   95u8o6O0v28FzqyfYHMn0E1NLQTVQOHb1xSWLbQ0MzstP8kStdsBvB3Dx
-   onZc6CsWBDxBGfcl4x09BKUX754Waw7sqomRp3TqWMbiUwWTlD8rrsz3F
-   f4239PkCvcInvhqo3dxGeWWoPtSiVUnp7Tha94vQtHMkZ8kmRHq7uUbu5
-   Q==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10635"; a="314784767"
-X-IronPort-AV: E=Sophos;i="5.98,224,1673942400"; 
-   d="scan'208";a="314784767"
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Mar 2023 01:22:14 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10635"; a="676691011"
-X-IronPort-AV: E=Sophos;i="5.98,224,1673942400"; 
-   d="scan'208";a="676691011"
-Received: from fmsmsx603.amr.corp.intel.com ([10.18.126.83])
-  by fmsmga007.fm.intel.com with ESMTP; 01 Mar 2023 01:22:14 -0800
-Received: from fmsmsx612.amr.corp.intel.com (10.18.126.92) by
- fmsmsx603.amr.corp.intel.com (10.18.126.83) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.21; Wed, 1 Mar 2023 01:22:14 -0800
-Received: from fmsmsx601.amr.corp.intel.com (10.18.126.81) by
- fmsmsx612.amr.corp.intel.com (10.18.126.92) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.21; Wed, 1 Mar 2023 01:22:13 -0800
-Received: from FMSEDG603.ED.cps.intel.com (10.1.192.133) by
- fmsmsx601.amr.corp.intel.com (10.18.126.81) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.21 via Frontend Transport; Wed, 1 Mar 2023 01:22:13 -0800
-Received: from NAM11-CO1-obe.outbound.protection.outlook.com (104.47.56.175)
- by edgegateway.intel.com (192.55.55.68) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.16; Wed, 1 Mar 2023 01:22:13 -0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=YV0M/4pnfZdVBW94a/Uvo6j/0sYxltZzzgojQny47V/TmJVH8IGcYh6SPl1CCqAKWA5Hug+edawAmDzEIZhhAQ9H7DPeY/l7G8INpTvLNvEbIh5NnOdrsuPCf26jF+03qUtLUZnki8abe9VahG3XktsciUnLXr+ySkp67oIDeLPGeA9x60Bxynq8vk469LeMYUUYUsbHibIq2DWmSyIo2aJHQ5peQNUV2UMQJrGEbYLllDF7chfCfkxw8/KYuJgZhD1mBIWRGpeBzJzrYqjmhmu+wr48BcWLUkgqsnDXBTe0Vrsbj7DRfTvrxtHaRoRWixM5RU5y7zsKRpOXSQZ2OA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=FId6KugbgoVjmAkyLHc5kEGXhJlmGKzb2mKy6scXIfY=;
- b=dgCNRQydc+MRnpTibFfgu//u/ZGhBZOHynSlfxgDesthOQdUEuaQmOrsW/9e6nyi1hOyT7XclSyXNu1iUmszV9oIuij/xFCKqi5C/V2re+aXeGshp3+3nkughDA3GfqU/MkzpNBz6ZEwi5GcVGxVKyrIq8yetySxjZ0qOzUEVNRSBD3LaNaggZumhe4QFQGqTVdSHVoP/db0b8hdX259Mqe40UzBRGMQtOeLPr/bfs5C1bGU1DCXTTQlUwARE6TQcynixjfXNCwUBbA0zfnqFhByGEqMrPoiff4ZFYL3pByCMKWhfmNEqc21JyM7B3aHu/+8MFADDDuMw6WGjEmyxA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from DS0PR11MB7529.namprd11.prod.outlook.com (2603:10b6:8:141::20)
- by SA2PR11MB5148.namprd11.prod.outlook.com (2603:10b6:806:11e::7) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6156.18; Wed, 1 Mar
- 2023 09:22:12 +0000
-Received: from DS0PR11MB7529.namprd11.prod.outlook.com
- ([fe80::6f7:944a:aaad:301f]) by DS0PR11MB7529.namprd11.prod.outlook.com
- ([fe80::6f7:944a:aaad:301f%8]) with mapi id 15.20.6134.030; Wed, 1 Mar 2023
- 09:22:12 +0000
-From:   "Liu, Yi L" <yi.l.liu@intel.com>
-To:     "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
-        "jgg@nvidia.com" <jgg@nvidia.com>,
-        "Tian, Kevin" <kevin.tian@intel.com>
-CC:     "joro@8bytes.org" <joro@8bytes.org>,
-        "robin.murphy@arm.com" <robin.murphy@arm.com>,
-        "cohuck@redhat.com" <cohuck@redhat.com>,
-        "eric.auger@redhat.com" <eric.auger@redhat.com>,
-        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
-        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
-        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
-        "peterx@redhat.com" <peterx@redhat.com>,
-        "jasowang@redhat.com" <jasowang@redhat.com>,
-        "shameerali.kolothum.thodi@huawei.com" 
-        <shameerali.kolothum.thodi@huawei.com>,
-        "lulu@redhat.com" <lulu@redhat.com>,
-        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "Hao, Xudong" <xudong.hao@intel.com>,
-        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
-        "Xu, Terrence" <terrence.xu@intel.com>
-Subject: RE: [PATCH v5 07/19] vfio: Block device access via device fd until
- device is opened
-Thread-Topic: [PATCH v5 07/19] vfio: Block device access via device fd until
- device is opened
-Thread-Index: AQHZSpxM3A4y7mru9kmMr5b+52ASBa7lqM3A
-Date:   Wed, 1 Mar 2023 09:22:12 +0000
-Message-ID: <DS0PR11MB752939E08453213F8E296452C3AD9@DS0PR11MB7529.namprd11.prod.outlook.com>
-References: <20230227111135.61728-1-yi.l.liu@intel.com>
- <20230227111135.61728-8-yi.l.liu@intel.com>
-In-Reply-To: <20230227111135.61728-8-yi.l.liu@intel.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: DS0PR11MB7529:EE_|SA2PR11MB5148:EE_
-x-ms-office365-filtering-correlation-id: ae4a0c7d-6495-4e03-707f-08db1a367075
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: q8m24N3Nk+6aimAyS7gbrHTiauYvwxD8hsb1X2z9VWRF87psWSXwVorfooLQ6VA9Y1cIXkjp29pu1b36gFxtNr0ZCuFVceezMUvD0iRdmnHoOkl96WLrkBC7JLlg2WZYpkqtiB6UahTyTFZUhKbU8i/NZjBpc5ecA5k0roAnnXYpTmN+8r1ioWT2jqzmsf8mfUu5ZvdVMUkwIRowSY+a9fYpQNOzx9k1qXuSEDUFdJMm7vHLMf1mhNoYkjDapEVY2NbZapcmWZWQ2hDzGfSeEGZOtMCls1DsSnOBI7/dXQn217OstTlMNsZq1bRQUClwrTxrUgy5o+G7jfSaIPFBMQCrr3jMTDSv33p7Cw0lMGypCoLZMJgJKFiwvG9y6LnC030/qmTPXH4Xfv9QUvYxfq5OWNpHhYP+x9oMYuiAjj2XArnAhv3DEwz4qyfr69TW3l2XgjPoe58j8IEbwRCz07hwCpVCSgSdqYA3M+U1AXKMNUJGcoDg1wzib6jZymoazUPUQXnCAqZK9BofAKGfFE+OGCq9STZQBZt1W/iXN79TFJ4gkkfJ21GtA3dZP39c0AL1Dgc6AE1w+I+C22RvkhAa9E1wwXTfycTOtJGXIQDscR+FPpu+9bw81Ehc1bTBxiv72qdCL+HY5uSk2PUMYQDjCvDfF26wICU4MKXTCu9gmAzmGdyWBOKyshy2n+6RU24LLet6Ksikga1Mlv7Cfg==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR11MB7529.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(346002)(136003)(366004)(39860400002)(376002)(396003)(451199018)(71200400001)(122000001)(82960400001)(55016003)(66946007)(76116006)(33656002)(6506007)(7696005)(41300700001)(8936002)(52536014)(38070700005)(38100700002)(316002)(478600001)(110136005)(4326008)(8676002)(64756008)(66446008)(66476007)(66556008)(54906003)(6636002)(83380400001)(26005)(186003)(9686003)(86362001)(5660300002)(2906002)(7416002);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?GG4QFFTQUdeA6oKtogGLMC4ttwEikDrkayYp+41efE7zd2ZOPjGX1zmBUvZg?=
- =?us-ascii?Q?+OgnZ8RLhwfeU/qPBBTf2wWpue+XCw4BY4+FNQsr5b/l/N6E2FGSN2YWf5HO?=
- =?us-ascii?Q?FBga/qxHu+DDikRHIC2H2VmasiijKlFagsfQCUfz2XIz54Eohgd7uHbRuifx?=
- =?us-ascii?Q?O8aZXJ9/DXvex3WxexL2NNslH+kr0Kvs0J9OltywBRwRzVB3Lmj/yobvS7wC?=
- =?us-ascii?Q?X41xCSHVOtnXO2d6IYCz77DOpdlgTad0gwMzDV7KvypmYHlV2CeARwHpyTDF?=
- =?us-ascii?Q?rjSqEA6WOcR0+pno+M0pxGXnVElDdgfzaInMP9Wqlar2S2yfUdV69zC4P3Yg?=
- =?us-ascii?Q?fMrj4/ic2xKqn0S6vjfMQnpZU4pf10GVYpCwvcu59uWBXewQ52Pjl5HVV8it?=
- =?us-ascii?Q?BqcAAdvfplKQWlXFRzo+Zbm7NaKMBpmS/auB/9MmO7hdH0fL1cFEIzaKRPm8?=
- =?us-ascii?Q?AI1Dp5aQbMklrz2HEAv+pp629dD+IAmQsTvpUYJMADEx1/fHNaYguAN5ocf9?=
- =?us-ascii?Q?Q884h9fA9Krn40joomE39NyCxmML5COYiM6NOwnn7jr7JaBh8KW1oO9eV+Ld?=
- =?us-ascii?Q?+LPiLmjIHwTCr56LaxhBz+tU5yGT8OQA4Zmbdd5T5zxD1v1CzvXRIqPcmvaW?=
- =?us-ascii?Q?f7z84tU4tJQqMnAbzaZPaK385hnKHC50eT32DLQJ3jWC0ouzR0Yux/qzUdJI?=
- =?us-ascii?Q?83N4K9F2/yV1e45SAnC+plUAhc1c+qr6K7PHIwBXMT9DGNMWrZXZp5xqjSy7?=
- =?us-ascii?Q?+7G/amWKP+asFvbMRQtZzPGGM10QHrrh/vQZE7XVhbVUg1i5J0uI9gR9v1mK?=
- =?us-ascii?Q?4u/fZ2w8phWTiZDfls9cYVR52H7cX3AHLNznltnnFXNDsBdkf78Z6TPCXEX9?=
- =?us-ascii?Q?JYhOd6jV6DV+PW5ZbLnXnpK9neKhapdXiHeMMFRaZvYADvFCTcmlF77lYPKJ?=
- =?us-ascii?Q?hUm07kdUtbtO+rnZn5PXxPiAC7YJZc0GXRKz3hXxCncyA5ygxFKD8W3k38dM?=
- =?us-ascii?Q?JJAg2uro9n6kBSnCnOM30JfiJ2d+YctZ8gHG/iyi4/0W9BstiMHPdF11FzkW?=
- =?us-ascii?Q?gr2FLag22/FPq0/qkkIeflNbhkTPoDDYODFs7ERAVJ+WChC8ukgv5oKSBXor?=
- =?us-ascii?Q?kyWLplupfHnZmZBwGT37OLF7bOfMVfeYvLedPL8u2ecRu7x4ovYHpr5TvyZf?=
- =?us-ascii?Q?BZLHDg5VfBnEtwblmODQDmgCEy09B6IqQ/BgT4bG2UMNLSOEp58vOnugc57Q?=
- =?us-ascii?Q?64j/ZRX8uL9Oz4colr7laon62TceS8oVaVltG08KJzxs3+mtn2X+SKINvzFx?=
- =?us-ascii?Q?eTR34k4xGjvBfhBAYtUps8emzSxK5htD+DSooRxoCtKkNd0I4l80hV4rXMKT?=
- =?us-ascii?Q?8RqFtJfLJXEtZMmTpbW/5wRL4AvirIdjkMgh0fuGyy+bhDI5ThYonmmcj2KA?=
- =?us-ascii?Q?S8hi3ficP5jX5P41FvGe5uQe5SVv9gki+85LSWaNwaGcPH5hCFDBN8l0YmzC?=
- =?us-ascii?Q?cIhQfl+lHAF3hXLoV7VxAwAfXmm8scyjJbM581plApQ2FT7napmNDMdm0GHn?=
- =?us-ascii?Q?VLm9h+AO15IwvKsKg9zu8m15zYCaVu7pD3UEQUPL?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S229683AbjCAM3A (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Mar 2023 07:29:00 -0500
+Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AEB48A4D
+        for <linux-s390@vger.kernel.org>; Wed,  1 Mar 2023 04:28:57 -0800 (PST)
+Received: by mail-wr1-x436.google.com with SMTP id r18so13055593wrx.1
+        for <linux-s390@vger.kernel.org>; Wed, 01 Mar 2023 04:28:57 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=layalina-io.20210112.gappssmtp.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=/ltz5EmItKTP39HJpFObu0oGvEY96YKQaBc1VsIgBjg=;
+        b=FJMcLR/sqsobRCHQ2JpzuyCNTAZZD04Z69/2ppwGPn2QthLhzkXhsX6R68jsVqyxJN
+         X0Jh1gT58b1rM4x5+wnZ0FsszyYdqRzkDYyDCSfmMszIgovwLZ/nUPG6cEuZE9b8UFtD
+         oymYI2wlko+D97CsHbnY0QCGROpgshXEKepHuOgEwiugtuFf2nl+EhSEa/yE+uC5D2qp
+         tHdnk3Cdl6PfoBg2/7XKnmY1FAfMyZUYwDOyX5SSFbqZDoPCVEy+tGEoqt/qUPfHmoNH
+         WOVGutMwZKFcztTswttzVRUuFDSOMzvYEo/74KtzR19ku95fwzi/tFPPxXvkZ0chdfZm
+         f1UQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=/ltz5EmItKTP39HJpFObu0oGvEY96YKQaBc1VsIgBjg=;
+        b=qYkoKuBv+Oz6zObBzTp/DOejbvr6opgCE/H+MREAAOy9MKNuNa7QPSdeN11Y21I5xL
+         JlIhANkoz6gVZkC6QeN2b6EHTVhu1h7W2EArU/DZ9jDdrJffJF8PQgXRUkNiBmJ6joKm
+         V2G3JkBJwKEqKPeMP8FFQlk7yeUJRWCFrkGggL90n9LvdLRXGrDGdl+rXzzIIXGiCXdd
+         fE0Ncqjk8fV8law04kdcQTAPNcduh+0+lKjQ9/29nWKJHnop7K19YL+SrYAem1AqzZLh
+         7Ls2aYVqNoxu2vtGIzW7H1vrpWrXyLD/40O9l069qhZGFRe3boAmmLjGz8/1g6OLy13a
+         4Adw==
+X-Gm-Message-State: AO0yUKXB6gyUBl10dZRBsl0o6sE4ytA90wtPaZX9HE88+3WiZ+idHakm
+        GdIF3QPhgA8a7h6jKUWUL9Z4Cw==
+X-Google-Smtp-Source: AK7set//iA9Ow5hZfVT5tSDKLS3Du3K+JL0roxEKmdv8rGHfy1TViVAwmqQt0ZroxfInQ3UKPWFwwg==
+X-Received: by 2002:a5d:4b91:0:b0:2c7:3ee7:a453 with SMTP id b17-20020a5d4b91000000b002c73ee7a453mr4178764wrt.33.1677673735702;
+        Wed, 01 Mar 2023 04:28:55 -0800 (PST)
+Received: from airbuntu (host86-168-251-3.range86-168.btcentralplus.com. [86.168.251.3])
+        by smtp.gmail.com with ESMTPSA id h22-20020a05600c351600b003daf6e3bc2fsm1998727wmq.1.2023.03.01.04.28.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 01 Mar 2023 04:28:54 -0800 (PST)
+Date:   Wed, 1 Mar 2023 12:28:52 +0000
+From:   Qais Yousef <qyousef@layalina.io>
+To:     Juri Lelli <juri.lelli@redhat.com>
+Cc:     Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Waiman Long <longman@redhat.com>,
+        Steven Rostedt <rostedt@goodmis.org>, tj@kernel.org,
+        linux-kernel@vger.kernel.org, luca.abeni@santannapisa.it,
+        claudio@evidence.eu.com, tommaso.cucinotta@santannapisa.it,
+        bristot@redhat.com, mathieu.poirier@linaro.org,
+        cgroups@vger.kernel.org,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Wei Wang <wvw@google.com>, Rick Yiu <rickyiu@google.com>,
+        Quentin Perret <qperret@google.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Zefan Li <lizefan.x@bytedance.com>, linux-s390@vger.kernel.org,
+        x86@kernel.org
+Subject: Re: [PATCH v3] sched: cpuset: Don't rebuild root domains on
+ suspend-resume
+Message-ID: <20230301122852.zgzreby42lh2zf6w@airbuntu>
+References: <20230206221428.2125324-1-qyousef@layalina.io>
+ <20230223153859.37tqoqk33oc6tv7o@airbuntu>
+ <5f087dd8-3e39-ce83-fe24-afa5179c05d9@arm.com>
+ <20230227205725.dipvh3i7dvyrv4tv@airbuntu>
+ <5a1e58bf-7eb2-bd7a-7e19-7864428a2b83@arm.com>
+ <20230228174627.vja5aejq27dsta2u@airbuntu>
+ <Y/7/SLzvK8LfB29z@localhost.localdomain>
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: DS0PR11MB7529.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: ae4a0c7d-6495-4e03-707f-08db1a367075
-X-MS-Exchange-CrossTenant-originalarrivaltime: 01 Mar 2023 09:22:12.0201
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: MURZKAMNk3Hx4ZXr5PKaM7C41N1QZwoi1akNgD+EK+Opd7yoqcchy2Y3A0rzCKrx1KqBp6zM4b2o1LPF/uQgag==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA2PR11MB5148
-X-OriginatorOrg: intel.com
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <Y/7/SLzvK8LfB29z@localhost.localdomain>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-> From: Liu, Yi L <yi.l.liu@intel.com>
-> Sent: Monday, February 27, 2023 7:11 PM
->=20
-> Allow the vfio_device file to be in a state where the device FD is
-> opened but the device cannot be used by userspace (i.e. its .open_device(=
-)
-> hasn't been called). This inbetween state is not used when the device
-> FD is spawned from the group FD, however when we create the device FD
-> directly by opening a cdev it will be opened in the blocked state.
->=20
-> The reason for the inbetween state is that userspace only gets a FD but
-> doesn't gain access permission until binding the FD to an iommufd. So in
-> the blocked state, only the bind operation is allowed. Completing bind
-> will allow user to further access the device.
->=20
-> This is implemented by adding a flag in struct vfio_device_file to mark
-> the blocked state and using a simple smp_load_acquire() to obtain the
-> flag value and serialize all the device setup with the thread accessing
-> this device.
->=20
-> Following this lockless scheme, it can safely handle the device FD
-> unbound->bound but it cannot handle bound->unbound. To allow this we'd
-> need to add a lock on all the vfio ioctls which seems costly. So once
-> device FD is bound, it remains bound until the FD is closed.
->=20
-> Suggested-by: Jason Gunthorpe <jgg@nvidia.com>
-> Signed-off-by: Yi Liu <yi.l.liu@intel.com>
-> Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-> ---
->  drivers/vfio/group.c     |  6 ++++++
->  drivers/vfio/vfio.h      |  1 +
->  drivers/vfio/vfio_main.c | 16 ++++++++++++++++
->  3 files changed, 23 insertions(+)
->=20
-> diff --git a/drivers/vfio/group.c b/drivers/vfio/group.c
-> index 960b1bcb606b..d8771d585cb1 100644
-> --- a/drivers/vfio/group.c
-> +++ b/drivers/vfio/group.c
-> @@ -197,6 +197,12 @@ static int vfio_device_group_open(struct
-> vfio_device_file *df)
->  	if (device->open_count =3D=3D 0)
->  		vfio_device_put_kvm(device);
->=20
-> +	/*
-> +	 * Paired with smp_load_acquire() in vfio_device_fops::ioctl/
-> +	 * read/write/mmap
-> +	 */
-> +	smp_store_release(&df->access_granted, true);
-> +
+On 03/01/23 08:31, Juri Lelli wrote:
+> Hi,
+> 
+> On 28/02/23 17:46, Qais Yousef wrote:
+> > On 02/28/23 15:09, Dietmar Eggemann wrote:
+> > 
+> > > > IIUC you're suggesting to introduce some new mechanism to detect if hotplug has
+> > > > lead to a cpu to disappear or not and use that instead? Are you saying I can
+> > > > use arch_update_cpu_topology() for that? Something like this?
+> > > > 
+> > > > 	diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
+> > > > 	index e5ddc8e11e5d..60c3dcf06f0d 100644
+> > > > 	--- a/kernel/cgroup/cpuset.c
+> > > > 	+++ b/kernel/cgroup/cpuset.c
+> > > > 	@@ -1122,7 +1122,7 @@ partition_and_rebuild_sched_domains(int ndoms_new, cpumask_var_t doms_new[],
+> > > > 	 {
+> > > > 		mutex_lock(&sched_domains_mutex);
+> > > > 		partition_sched_domains_locked(ndoms_new, doms_new, dattr_new);
+> > > > 	-       if (update_dl_accounting)
+> > > > 	+       if (arch_update_cpu_topology())
+> > > > 			update_dl_rd_accounting();
+> > > > 		mutex_unlock(&sched_domains_mutex);
+> > > > 	 }
+> > > 
+> > > No, this is not what I meant. I'm just saying the:
+> > > 
+> > >   partition_sched_domains_locked()
+> > >     new_topology = arch_update_cpu_topology();
+> > > 
+> > > has to be considered here as well since we do a
+> > > `dl_clear_root_domain(rd)` (1) in partition_sched_domains_locked() for
+> > > !new_topology.
+> > 
+> > Ah you're referring to the dl_clear_root_domain() call there. I thought this
+> > doesn't trigger.
+> > 
+> > > 
+> > > And (1) requires the `update_tasks_root_domain()` to happen later.
+> > > 
+> > > So there are cases now, e.g. `rebuild_sched_domains_energy()` in which
+> > > `new_topology=0` and `update_dl_accounting=false` which now clean the rd
+> > > but don't do a new DL accounting anymore.
+> > > rebuild_root_domains() itself cleans the `default root domain`, not the
+> > > other root domains which could exists as well.
+> > > 
+> > > Example: Switching CPUfreq policy [0,3-5] performance to schedutil (slow
+> > > switching, i.e. we have sugov:X DL task(s)):
+> > > 
+> > > [  862.479906] CPU4 partition_sched_domains_locked() new_topology=0
+> > > [  862.499073] Workqueue: events rebuild_sd_workfn
+> > > [  862.503646] Call trace:
+> > > ...
+> > > [  862.520789]  partition_sched_domains_locked+0x6c/0x670
+> > > [  862.525962]  rebuild_sched_domains_locked+0x204/0x8a0
+> > > [  862.531050]  rebuild_sched_domains+0x2c/0x50
+> > > [  862.535351]  rebuild_sd_workfn+0x38/0x54                        <-- !
+> > > ...
+> > > [  862.554047] CPU4 dl_clear_root_domain() rd->span=0-5 total_bw=0
+> > > def_root_domain=0                                                  <-- !
+> > > [  862.561597] CPU4 dl_clear_root_domain() rd->span= total_bw=0
+> > > def_root_domain=1
+> > > [  862.568960] CPU4 dl_add_task_root_domain() [sugov:0 1801]
+> > > total_bw=104857 def_root_domain=0 rd=0xffff0008015f0000            <-- !
+> > > 
+> > > The dl_clear_root_domain() of the def_root_domain and the
+> > > dl_add_task_root_domain() to the rd in use won't happen.
+> > > 
+> > > [sugov:0 1801] is only a simple example here. I could have spawned a
+> > > couple of DL tasks before this to illustrate the issue more obvious.
+> > > 
+> > > ---
+> > > 
+> > > The same seems to happen during suspend/resume (system with 2 frequency
+> > > domains, both with slow switching schedutil CPUfreq gov):
+> > > 
+> > > [   27.735821] CPU5 partition_sched_domains_locked() new_topology=0
+> > > ...
+> > > [   27.735864] Workqueue: events cpuset_hotplug_workfn
+> > > [   27.735894] Call trace:
+> > > ...
+> > > [   27.735984]  partition_sched_domains_locked+0x6c/0x670
+> > > [   27.736004]  rebuild_sched_domains_locked+0x204/0x8a0
+> > > [   27.736026]  cpuset_hotplug_workfn+0x254/0x52c                  <-- !
+> > > ...
+> > > [   27.736155] CPU5 dl_clear_root_domain() rd->span=0-5 total_bw=0
+> > > def_root_domain=0                                                  <-- !
+> > > [   27.736178] CPU5 dl_clear_root_domain() rd->span= total_bw=0
+> > > def_root_domain=1
+> > > [   27.736296] CPU5 dl_add_task_root_domain() [sugov:0 80]         <-- !
+> > >  total_bw=104857 def_root_domain=0 rd=0xffff000801728000
+> > > [   27.736318] CPU5 dl_add_task_root_domain() [sugov:1 81]
+> > > total_bw=209714 def_root_domain=0 rd=0xffff000801728000            <-- !
+> > > ...
+> > > 
+> > > > I am not keen on this. arm64 seems to just read a value without a side effect.
+> > > 
+> > > Arm64 (among others) sets `update_topology=1` before
+> > > `rebuild_sched_domains()` and `update_topology=0` after it in
+> > > update_topology_flags_workfn(). This then makes `new_topology=1` in
+> > > partition_sched_domains_locked().
+> > > 
+> > > > But x86 does reset this value so we can't read it twice in the same call tree
+> > > > and I'll have to extract it.
+> > > > 
+> > > > The better solution that was discussed before is to not iterate through every
+> > > > task in the system and let cpuset track when dl tasks are added to it and do
+> > > > smarter iteration. ATM even if there are no dl tasks in the system we'll
+> > > > blindly go through every task in the hierarchy to update nothing.
+> > > 
+> > > Yes, I can see the problem. And IMHO this solution approach seems to be
+> > > better than parsing update_dl_accounting` through the stack of involved
+> > > functions.
+> > 
+> > The best I can do is protect this dl_clear_root_domain() too. I really don't
+> > have my heart in this but trying my best to help, but it has taken a lot of my
+> > time already and would prefer to hand over to Juri to address this regression
+> > if what I am proposing is not good enough.
+> > 
+> > FWIW, there are 0 dl tasks in the system where this was noticed. And this delay
+> > is unbounded because it'll depend on how many tasks there are in the hierarchy.
+> 
+> Not ignoring you guys here, but it turns out I'm quite bogged down with
+> other stuff at the moment. :/ So, apologies and I'll try to get to this
+> asap. Thanks a lot for all your efforts and time reviewing so far!
 
-A bug. If ret is false, it should not set df->access_granted. Would
-be fixed in the  next version.
+Np, I can feel you :-)
 
-Regards,
-Yi Liu
->  	mutex_unlock(&device->dev_set->lock);
->=20
->  out_unlock:
-> diff --git a/drivers/vfio/vfio.h b/drivers/vfio/vfio.h
-> index 7c1ea870d8f3..2e3cb284711d 100644
-> --- a/drivers/vfio/vfio.h
-> +++ b/drivers/vfio/vfio.h
-> @@ -18,6 +18,7 @@ struct vfio_container;
->=20
->  struct vfio_device_file {
->  	struct vfio_device *device;
-> +	bool access_granted;
->  	spinlock_t kvm_ref_lock; /* protect kvm field */
->  	struct kvm *kvm;
->  	struct iommufd_ctx *iommufd; /* protected by struct
-> vfio_device_set::lock */
-> diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
-> index 609700748082..d16ac573e290 100644
-> --- a/drivers/vfio/vfio_main.c
-> +++ b/drivers/vfio/vfio_main.c
-> @@ -1106,6 +1106,10 @@ static long vfio_device_fops_unl_ioctl(struct file
-> *filep,
->  	struct vfio_device *device =3D df->device;
->  	int ret;
->=20
-> +	/* Paired with smp_store_release() in vfio_device_group_open()
-> */
-> +	if (!smp_load_acquire(&df->access_granted))
-> +		return -EINVAL;
-> +
->  	ret =3D vfio_device_pm_runtime_get(device);
->  	if (ret)
->  		return ret;
-> @@ -1133,6 +1137,10 @@ static ssize_t vfio_device_fops_read(struct file
-> *filep, char __user *buf,
->  	struct vfio_device_file *df =3D filep->private_data;
->  	struct vfio_device *device =3D df->device;
->=20
-> +	/* Paired with smp_store_release() in vfio_device_group_open()
-> */
-> +	if (!smp_load_acquire(&df->access_granted))
-> +		return -EINVAL;
-> +
->  	if (unlikely(!device->ops->read))
->  		return -EINVAL;
->=20
-> @@ -1146,6 +1154,10 @@ static ssize_t vfio_device_fops_write(struct file
-> *filep,
->  	struct vfio_device_file *df =3D filep->private_data;
->  	struct vfio_device *device =3D df->device;
->=20
-> +	/* Paired with smp_store_release() in vfio_device_group_open()
-> */
-> +	if (!smp_load_acquire(&df->access_granted))
-> +		return -EINVAL;
-> +
->  	if (unlikely(!device->ops->write))
->  		return -EINVAL;
->=20
-> @@ -1157,6 +1169,10 @@ static int vfio_device_fops_mmap(struct file
-> *filep, struct vm_area_struct *vma)
->  	struct vfio_device_file *df =3D filep->private_data;
->  	struct vfio_device *device =3D df->device;
->=20
-> +	/* Paired with smp_store_release() in vfio_device_group_open()
-> */
-> +	if (!smp_load_acquire(&df->access_granted))
-> +		return -EINVAL;
-> +
->  	if (unlikely(!device->ops->mmap))
->  		return -EINVAL;
->=20
-> --
-> 2.34.1
 
+Thanks
+
+--
+Qais Yousef
