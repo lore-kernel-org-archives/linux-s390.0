@@ -2,220 +2,185 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FE68C64ED6
-	for <linux-s390@archiver.kernel.org>; Wed,  1 Mar 2023 07:32:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 17252C64EC7
+	for <linux-s390@archiver.kernel.org>; Wed,  1 Mar 2023 08:17:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229579AbjCAHcL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 1 Mar 2023 02:32:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37864 "EHLO
+        id S229501AbjCAIRb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 1 Mar 2023 03:17:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47210 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229620AbjCAHcK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Mar 2023 02:32:10 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A419336FDF
-        for <linux-s390@vger.kernel.org>; Tue, 28 Feb 2023 23:31:26 -0800 (PST)
+        with ESMTP id S229835AbjCAIRa (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Mar 2023 03:17:30 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6807A3772C
+        for <linux-s390@vger.kernel.org>; Wed,  1 Mar 2023 00:16:12 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1677655885;
+        s=mimecast20190719; t=1677658571;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=huiTwHgDQStD+M4CgUQLO4CEet/PJO5tAO4wYQhZ83U=;
-        b=Q9pVsrebw1qz7n5FCGfsCAmjYfNIaPeFIt+G0RBXq2TtA1530e3pwz9KgsHVqSeMFMe6Mj
-        YHiaJeU1WKk/nHhcVu+hmwzsLLfupPFZXcPx3236GmsQd08gwnp24yBUYw4RYZyC4K3oiz
-        140VUGbboXHGQ8J/5b+cqZ/sJTGr2CU=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=qQIo0hNE1IdmdTJeAfVSWSJHdp/A2L81MbqwgQGi7/s=;
+        b=Lgx4494Ki92A8P7KBec9GZ+oniD/so9S6s376pXCBfwIZbpFryYzm7VuUbDCudOmPpuazJ
+        BZlYjiR+awKb7+/obJJdaVaNJPlnbEr8EXFHhRoDxhAjgvdnre76/wb2aZFcUicW5ld7qE
+        AjRVQKfqtaApCJ9VvbYhapBkNy2Iiis=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-160-7Z2hP6JCMZeqUeeIaIIbdQ-1; Wed, 01 Mar 2023 02:31:24 -0500
-X-MC-Unique: 7Z2hP6JCMZeqUeeIaIIbdQ-1
-Received: by mail-wm1-f71.google.com with SMTP id l31-20020a05600c1d1f00b003e8626cdd42so4294295wms.3
-        for <linux-s390@vger.kernel.org>; Tue, 28 Feb 2023 23:31:24 -0800 (PST)
+ us-mta-659-4mLgwjpkPOO8WxBeMo3VXw-1; Wed, 01 Mar 2023 03:16:10 -0500
+X-MC-Unique: 4mLgwjpkPOO8WxBeMo3VXw-1
+Received: by mail-wm1-f69.google.com with SMTP id j6-20020a05600c1c0600b003eaf882cb85so5011292wms.9
+        for <linux-s390@vger.kernel.org>; Wed, 01 Mar 2023 00:16:10 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=huiTwHgDQStD+M4CgUQLO4CEet/PJO5tAO4wYQhZ83U=;
-        b=2uCaj5IxMSPzXiXFY0djjkcN6xIj+tbIGs4amtw5SM/g1V2g1N0Mc+HsnsiZTFwXYl
-         aiKkyz1Jvsz5fBeHr8WTE48O2d+bb42hU/Dye4AyFbYDbNMVRYISUywfEJ3fH6wsau9V
-         GRtBZsP7AdvS3pXYZShOU3N6LqmHWjYbHf3uL/x2IA0JM35K42d6nIN+DPB84vGWWtKl
-         j6T4P/3FrcqZ2rju6TEKGF+MkO8SaWjZdl4eu3WCZ7Gflc5cVipFWemGR1W6dZlitk0M
-         Qlu/0HaVL4sbp6AjUyb/KyU82r9e7tCTV5QXbT8yjtgBpdZjn5xOidkAddPXHsCJqjj+
-         6N1g==
-X-Gm-Message-State: AO0yUKUijouORw1ikwJcyfxG7BA+gk06TC8rUVHAYfJjTwAjEASpGWIx
-        EBs0mmxN/3n3WLq8neG1/4M8HU8z/sM6b3hkqQQDwZtSbQhnbo1BfrpgMyiL8ExJHJo/XAMSypL
-        wZQCDdkPH/oEo3CabEyJ6Eg==
-X-Received: by 2002:adf:f603:0:b0:2c5:4db8:3dde with SMTP id t3-20020adff603000000b002c54db83ddemr3571360wrp.70.1677655883406;
-        Tue, 28 Feb 2023 23:31:23 -0800 (PST)
-X-Google-Smtp-Source: AK7set/W8Me3oWoLep3XRAVhyE9lkl0eIQed4Xsa6ilM5XT8imnytf9cj4NExqyL25EBmHcU6xRzWg==
-X-Received: by 2002:adf:f603:0:b0:2c5:4db8:3dde with SMTP id t3-20020adff603000000b002c54db83ddemr3571324wrp.70.1677655883050;
-        Tue, 28 Feb 2023 23:31:23 -0800 (PST)
-Received: from localhost.localdomain ([151.29.151.163])
-        by smtp.gmail.com with ESMTPSA id fj10-20020a05600c0c8a00b003e7c89b3514sm18812818wmb.23.2023.02.28.23.31.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Feb 2023 23:31:22 -0800 (PST)
-Date:   Wed, 1 Mar 2023 08:31:20 +0100
-From:   Juri Lelli <juri.lelli@redhat.com>
-To:     Qais Yousef <qyousef@layalina.io>
-Cc:     Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Waiman Long <longman@redhat.com>,
-        Steven Rostedt <rostedt@goodmis.org>, tj@kernel.org,
-        linux-kernel@vger.kernel.org, luca.abeni@santannapisa.it,
-        claudio@evidence.eu.com, tommaso.cucinotta@santannapisa.it,
-        bristot@redhat.com, mathieu.poirier@linaro.org,
-        cgroups@vger.kernel.org,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Wei Wang <wvw@google.com>, Rick Yiu <rickyiu@google.com>,
-        Quentin Perret <qperret@google.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Zefan Li <lizefan.x@bytedance.com>, linux-s390@vger.kernel.org,
-        x86@kernel.org
-Subject: Re: [PATCH v3] sched: cpuset: Don't rebuild root domains on
- suspend-resume
-Message-ID: <Y/7/SLzvK8LfB29z@localhost.localdomain>
-References: <20230206221428.2125324-1-qyousef@layalina.io>
- <20230223153859.37tqoqk33oc6tv7o@airbuntu>
- <5f087dd8-3e39-ce83-fe24-afa5179c05d9@arm.com>
- <20230227205725.dipvh3i7dvyrv4tv@airbuntu>
- <5a1e58bf-7eb2-bd7a-7e19-7864428a2b83@arm.com>
- <20230228174627.vja5aejq27dsta2u@airbuntu>
+        h=content-transfer-encoding:in-reply-to:subject:organization:from
+         :content-language:references:cc:to:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=qQIo0hNE1IdmdTJeAfVSWSJHdp/A2L81MbqwgQGi7/s=;
+        b=fOcUiXfCKXSp6KDCdtgVkncT0+hRBozg63B7hvfBQqg8r9RKpWYC0XjCQT4AoOi0h5
+         sNsHcLL4l6yKJQtWdPSZ2lJQlmoX3lPSSwWEFzUty+BBXORyYbY/S6Ubj7smHu5y0mwD
+         /JwZuDiO4fBi2G8KKUCyVS2c4kD5sekWdDsIZm4yhauXaEKx8AkoGHYS/sSS5rKb5Zet
+         /U3sAz82PKQCYlBJDmyKFc9YPqWLoPpEYYxgtnp5mHR6CIJaIlRkVSoDdMKV1Qv2wlz/
+         6CQ4b1o60Qh54JjSXTK+wVS+qIlv0p/Y0v5vUY632GGjI4G5fuTUsFb0L35+5BMS9Muj
+         jGEA==
+X-Gm-Message-State: AO0yUKW/UbjeFEJ4kQGmfwjcQbt3SyCK4zv7diSYokwzvw/NYIx4xoTV
+        x0pek3Dps4I5ltfMzu/oLFwykKGypUQtFCXxY+et/HEmvl9rlPNtwcJJVTEWjnUdp98FFsVa8EV
+        c34nCfmH1TF43eRBzoo4swg==
+X-Received: by 2002:adf:fa42:0:b0:2c8:9cfe:9e29 with SMTP id y2-20020adffa42000000b002c89cfe9e29mr3673955wrr.38.1677658569313;
+        Wed, 01 Mar 2023 00:16:09 -0800 (PST)
+X-Google-Smtp-Source: AK7set/Zcp0KDYd3P+ttMa1nxfZFskB2aS7FMY5A6AFDn91vWMJGTRwO0n5U4FI/yi5+QKrlOm4zVQ==
+X-Received: by 2002:adf:fa42:0:b0:2c8:9cfe:9e29 with SMTP id y2-20020adffa42000000b002c89cfe9e29mr3673883wrr.38.1677658568881;
+        Wed, 01 Mar 2023 00:16:08 -0800 (PST)
+Received: from ?IPV6:2a09:80c0:192:0:5dac:bf3d:c41:c3e7? ([2a09:80c0:192:0:5dac:bf3d:c41:c3e7])
+        by smtp.gmail.com with ESMTPSA id m15-20020a5d6a0f000000b002c707785da4sm11739026wru.107.2023.03.01.00.16.06
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 01 Mar 2023 00:16:08 -0800 (PST)
+Message-ID: <550c6035-6dd0-d215-226b-1a82dafa05d6@redhat.com>
+Date:   Wed, 1 Mar 2023 09:16:06 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230228174627.vja5aejq27dsta2u@airbuntu>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.8.0
+To:     Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Rick Edgecombe <rick.p.edgecombe@intel.com>,
+        "x86@kernel.org" <x86@kernel.org>,
+        "H . Peter Anvin" <hpa@zytor.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>,
+        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Andy Lutomirski <luto@kernel.org>,
+        Balbir Singh <bsingharora@gmail.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Cyrill Gorcunov <gorcunov@gmail.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Eugene Syromiatnikov <esyr@redhat.com>,
+        Florian Weimer <fweimer@redhat.com>,
+        "H . J . Lu" <hjl.tools@gmail.com>, Jann Horn <jannh@google.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Kees Cook <keescook@chromium.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        Oleg Nesterov <oleg@redhat.com>, Pavel Machek <pavel@ucw.cz>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Weijiang Yang <weijiang.yang@intel.com>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+        John Allen <john.allen@amd.com>,
+        "kcc@google.com" <kcc@google.com>,
+        "eranian@google.com" <eranian@google.com>,
+        "rppt@kernel.org" <rppt@kernel.org>,
+        "jamorris@linux.microsoft.com" <jamorris@linux.microsoft.com>,
+        "dethoma@microsoft.com" <dethoma@microsoft.com>,
+        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
+        "Andrew.Cooper3@citrix.com" <Andrew.Cooper3@citrix.com>,
+        "christina.schimpe@intel.com" <christina.schimpe@intel.com>,
+        "debug@rivosinc.com" <debug@rivosinc.com>
+Cc:     "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>,
+        "linux-snps-arc@lists.infradead.org" 
+        <linux-snps-arc@lists.infradead.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
+        "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>,
+        "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
+        "loongarch@lists.linux.dev" <loongarch@lists.linux.dev>,
+        "linux-m68k@lists.linux-m68k.org" <linux-m68k@lists.linux-m68k.org>,
+        Michal Simek <monstr@monstr.eu>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
+        "linux-openrisc@vger.kernel.org" <linux-openrisc@vger.kernel.org>,
+        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>,
+        "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
+        "linux-um@lists.infradead.org" <linux-um@lists.infradead.org>,
+        "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>
+References: <20230227222957.24501-1-rick.p.edgecombe@intel.com>
+ <20230227222957.24501-14-rick.p.edgecombe@intel.com>
+ <1f8b78b6-9f34-b646-68f2-eac62136b9f4@csgroup.eu>
+Content-Language: en-US
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+Subject: Re: [PATCH v7 13/41] mm: Make pte_mkwrite() take a VMA
+In-Reply-To: <1f8b78b6-9f34-b646-68f2-eac62136b9f4@csgroup.eu>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi,
+On 01.03.23 08:03, Christophe Leroy wrote:
+> 
+> 
+> Le 27/02/2023 à 23:29, Rick Edgecombe a écrit :
+>> The x86 Control-flow Enforcement Technology (CET) feature includes a new
+>> type of memory called shadow stack. This shadow stack memory has some
+>> unusual properties, which requires some core mm changes to function
+>> properly.
+>>
+>> One of these unusual properties is that shadow stack memory is writable,
+>> but only in limited ways. These limits are applied via a specific PTE
+>> bit combination. Nevertheless, the memory is writable, and core mm code
+>> will need to apply the writable permissions in the typical paths that
+>> call pte_mkwrite().
+>>
+>> In addition to VM_WRITE, the shadow stack VMA's will have a flag denoting
+>> that they are special shadow stack flavor of writable memory. So make
+>> pte_mkwrite() take a VMA, so that the x86 implementation of it can know to
+>> create regular writable memory or shadow stack memory.
+>>
+>> Apply the same changes for pmd_mkwrite() and huge_pte_mkwrite().
+> 
+> I'm not sure it is a good idea to add a second argument to
+> pte_mkwrite(). All pte_mkxxxx() only take a pte and nothing else.
 
-On 28/02/23 17:46, Qais Yousef wrote:
-> On 02/28/23 15:09, Dietmar Eggemann wrote:
-> 
-> > > IIUC you're suggesting to introduce some new mechanism to detect if hotplug has
-> > > lead to a cpu to disappear or not and use that instead? Are you saying I can
-> > > use arch_update_cpu_topology() for that? Something like this?
-> > > 
-> > > 	diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
-> > > 	index e5ddc8e11e5d..60c3dcf06f0d 100644
-> > > 	--- a/kernel/cgroup/cpuset.c
-> > > 	+++ b/kernel/cgroup/cpuset.c
-> > > 	@@ -1122,7 +1122,7 @@ partition_and_rebuild_sched_domains(int ndoms_new, cpumask_var_t doms_new[],
-> > > 	 {
-> > > 		mutex_lock(&sched_domains_mutex);
-> > > 		partition_sched_domains_locked(ndoms_new, doms_new, dattr_new);
-> > > 	-       if (update_dl_accounting)
-> > > 	+       if (arch_update_cpu_topology())
-> > > 			update_dl_rd_accounting();
-> > > 		mutex_unlock(&sched_domains_mutex);
-> > > 	 }
-> > 
-> > No, this is not what I meant. I'm just saying the:
-> > 
-> >   partition_sched_domains_locked()
-> >     new_topology = arch_update_cpu_topology();
-> > 
-> > has to be considered here as well since we do a
-> > `dl_clear_root_domain(rd)` (1) in partition_sched_domains_locked() for
-> > !new_topology.
-> 
-> Ah you're referring to the dl_clear_root_domain() call there. I thought this
-> doesn't trigger.
-> 
-> > 
-> > And (1) requires the `update_tasks_root_domain()` to happen later.
-> > 
-> > So there are cases now, e.g. `rebuild_sched_domains_energy()` in which
-> > `new_topology=0` and `update_dl_accounting=false` which now clean the rd
-> > but don't do a new DL accounting anymore.
-> > rebuild_root_domains() itself cleans the `default root domain`, not the
-> > other root domains which could exists as well.
-> > 
-> > Example: Switching CPUfreq policy [0,3-5] performance to schedutil (slow
-> > switching, i.e. we have sugov:X DL task(s)):
-> > 
-> > [  862.479906] CPU4 partition_sched_domains_locked() new_topology=0
-> > [  862.499073] Workqueue: events rebuild_sd_workfn
-> > [  862.503646] Call trace:
-> > ...
-> > [  862.520789]  partition_sched_domains_locked+0x6c/0x670
-> > [  862.525962]  rebuild_sched_domains_locked+0x204/0x8a0
-> > [  862.531050]  rebuild_sched_domains+0x2c/0x50
-> > [  862.535351]  rebuild_sd_workfn+0x38/0x54                        <-- !
-> > ...
-> > [  862.554047] CPU4 dl_clear_root_domain() rd->span=0-5 total_bw=0
-> > def_root_domain=0                                                  <-- !
-> > [  862.561597] CPU4 dl_clear_root_domain() rd->span= total_bw=0
-> > def_root_domain=1
-> > [  862.568960] CPU4 dl_add_task_root_domain() [sugov:0 1801]
-> > total_bw=104857 def_root_domain=0 rd=0xffff0008015f0000            <-- !
-> > 
-> > The dl_clear_root_domain() of the def_root_domain and the
-> > dl_add_task_root_domain() to the rd in use won't happen.
-> > 
-> > [sugov:0 1801] is only a simple example here. I could have spawned a
-> > couple of DL tasks before this to illustrate the issue more obvious.
-> > 
-> > ---
-> > 
-> > The same seems to happen during suspend/resume (system with 2 frequency
-> > domains, both with slow switching schedutil CPUfreq gov):
-> > 
-> > [   27.735821] CPU5 partition_sched_domains_locked() new_topology=0
-> > ...
-> > [   27.735864] Workqueue: events cpuset_hotplug_workfn
-> > [   27.735894] Call trace:
-> > ...
-> > [   27.735984]  partition_sched_domains_locked+0x6c/0x670
-> > [   27.736004]  rebuild_sched_domains_locked+0x204/0x8a0
-> > [   27.736026]  cpuset_hotplug_workfn+0x254/0x52c                  <-- !
-> > ...
-> > [   27.736155] CPU5 dl_clear_root_domain() rd->span=0-5 total_bw=0
-> > def_root_domain=0                                                  <-- !
-> > [   27.736178] CPU5 dl_clear_root_domain() rd->span= total_bw=0
-> > def_root_domain=1
-> > [   27.736296] CPU5 dl_add_task_root_domain() [sugov:0 80]         <-- !
-> >  total_bw=104857 def_root_domain=0 rd=0xffff000801728000
-> > [   27.736318] CPU5 dl_add_task_root_domain() [sugov:1 81]
-> > total_bw=209714 def_root_domain=0 rd=0xffff000801728000            <-- !
-> > ...
-> > 
-> > > I am not keen on this. arm64 seems to just read a value without a side effect.
-> > 
-> > Arm64 (among others) sets `update_topology=1` before
-> > `rebuild_sched_domains()` and `update_topology=0` after it in
-> > update_topology_flags_workfn(). This then makes `new_topology=1` in
-> > partition_sched_domains_locked().
-> > 
-> > > But x86 does reset this value so we can't read it twice in the same call tree
-> > > and I'll have to extract it.
-> > > 
-> > > The better solution that was discussed before is to not iterate through every
-> > > task in the system and let cpuset track when dl tasks are added to it and do
-> > > smarter iteration. ATM even if there are no dl tasks in the system we'll
-> > > blindly go through every task in the hierarchy to update nothing.
-> > 
-> > Yes, I can see the problem. And IMHO this solution approach seems to be
-> > better than parsing update_dl_accounting` through the stack of involved
-> > functions.
-> 
-> The best I can do is protect this dl_clear_root_domain() too. I really don't
-> have my heart in this but trying my best to help, but it has taken a lot of my
-> time already and would prefer to hand over to Juri to address this regression
-> if what I am proposing is not good enough.
-> 
-> FWIW, there are 0 dl tasks in the system where this was noticed. And this delay
-> is unbounded because it'll depend on how many tasks there are in the hierarchy.
+We touched on this in previous revisions and so far there was no strong 
+push back. This turned out to be cleaner and easier than the 
+alternatives we evaluated.
 
-Not ignoring you guys here, but it turns out I'm quite bogged down with
-other stuff at the moment. :/ So, apologies and I'll try to get to this
-asap. Thanks a lot for all your efforts and time reviewing so far!
+pte_modify(), for example, takes another argument. Sure, we could try 
+thinking about passing something else than a VMA to identify the 
+writability type, but I am not convinced that will look particularly better.
 
-Best,
-Juri
+> 
+> I think you should do the same as commit d9ed9faac283 ("mm: add new
+> arch_make_huge_pte() method for tile support")
+> 
+
+We already have 3 architectures intending to support shadow stacks in 
+one way or the other. Replacing all pte_mkwrite() with 
+arch_pte_mkwrite() doesn't sound particularly appealing to me.
+
+
+-- 
+Thanks,
+
+David / dhildenb
 
