@@ -2,68 +2,222 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 00C45C64EC7
-	for <linux-s390@archiver.kernel.org>; Wed,  1 Mar 2023 03:24:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B3B8FC64EC7
+	for <linux-s390@archiver.kernel.org>; Wed,  1 Mar 2023 03:45:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229681AbjCADYc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Feb 2023 22:24:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33732 "EHLO
+        id S229959AbjCADpT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Feb 2023 22:45:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229625AbjCADYb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Feb 2023 22:24:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E316F158AF;
-        Tue, 28 Feb 2023 19:24:30 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S229960AbjCADoz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Feb 2023 22:44:55 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CA0F38B7F
+        for <linux-s390@vger.kernel.org>; Tue, 28 Feb 2023 19:44:05 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1677642244;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=/FLgE8Yk+wfwjzfdnog8eI5cWxzgyrtvGgGFFqIapZE=;
+        b=DeaUvx2OYOx0KiqUPjqgJW/QqSFxT7PAU2mhYghAtTCi3SjmmibXt2JUUUBoeKyVIXPQbv
+        BhisOKvXmhdjX7Hh8+Cc3iSt0Q140VsY+4HHa31EhDsYRbSGVL36o3LSA8Mo7WRhc3StLQ
+        naCL0sodWtXeXv7NbNFB3XydcQUrcgs=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-656-nXdLbipDP7WqmKZxoBkyKg-1; Tue, 28 Feb 2023 22:44:00 -0500
+X-MC-Unique: nXdLbipDP7WqmKZxoBkyKg-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com [10.11.54.8])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 78CF96122E;
-        Wed,  1 Mar 2023 03:24:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FCD9C4339C;
-        Wed,  1 Mar 2023 03:24:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677641069;
-        bh=VNUiYHTK1WmTQNHzsmJaVBzgcpH8B55pyube1Ia3Fvs=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=c9SR42IIbZ4yZSGobj6hJEq88zt7jTRltAJsX5QxL30SKT40Vprrr0m/0su9lCUp8
-         ZjHu2Hku+8PsKurVCpeh/KZjviLtvBwxAmuwR2OcPukWnlVdoNvvRLg3GDw0Kt7Pdn
-         V9qi4E/JkdvFN9/7hJd9xHlU+EZOuub2Bop8JALCvHrhekBEpyBxYYUJcTbZ5mIPFn
-         uKZvjLcamSXebshdu/1anQ3F46VF/qGvHOwQSClFEXUIFQBybfrYLdQ+TuMlSpWWjs
-         zvwm//OCbY1qSvDKBTJ990thy8U8QYxyqJVlm2Ub8QGtHU4ZdbJqCvAcyDzd/M20J2
-         frQTU/NKdFaRg==
-Date:   Tue, 28 Feb 2023 19:24:28 -0800
-From:   Jakub Kicinski <kuba@kernel.org>
-To:     Tony Lu <tonylu@linux.alibaba.com>
-Cc:     "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
-        wenjia@linux.ibm.com, jaka@linux.ibm.com, ast@kernel.org,
-        daniel@iogearbox.net, andrii@kernel.org, davem@davemloft.net,
-        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-rdma@vger.kernel.org, bpf@vger.kernel.org
-Subject: Re: [PATCH bpf-next v3 0/4] net/smc: Introduce BPF injection
- capability
-Message-ID: <20230228192428.447ceddc@kernel.org>
-In-Reply-To: <Y/67dZ8X+VoOi10b@TONYMAC-ALIBABA.local>
-References: <1677576294-33411-1-git-send-email-alibuda@linux.alibaba.com>
-        <20230228150051.4eeaa121@kernel.org>
-        <Y/67dZ8X+VoOi10b@TONYMAC-ALIBABA.local>
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 90C2285A588;
+        Wed,  1 Mar 2023 03:43:59 +0000 (UTC)
+Received: from MiWiFi-R3L-srv.redhat.com (ovpn-13-180.pek2.redhat.com [10.72.13.180])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id D5FDAC15BAD;
+        Wed,  1 Mar 2023 03:43:52 +0000 (UTC)
+From:   Baoquan He <bhe@redhat.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     linux-arch@vger.kernel.org, linux-mm@kvack.org, arnd@arndb.de,
+        christophe.leroy@csgroup.eu, hch@infradead.org,
+        agordeev@linux.ibm.com, wangkefeng.wang@huawei.com,
+        schnelle@linux.ibm.com, David.Laight@ACULAB.COM, shorne@gmail.com,
+        willy@infradead.org, Baoquan He <bhe@redhat.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: [PATCH v5 10/17] s390: mm: Convert to GENERIC_IOREMAP
+Date:   Wed,  1 Mar 2023 11:42:40 +0800
+Message-Id: <20230301034247.136007-11-bhe@redhat.com>
+In-Reply-To: <20230301034247.136007-1-bhe@redhat.com>
+References: <20230301034247.136007-1-bhe@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.8
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 1 Mar 2023 10:41:57 +0800 Tony Lu wrote:
-> Actually, this patch set is going to replace the patch of TCP ULP for
-> SMC. If this patch set is accepted, I am going to revert that patch.
-> 
-> For the reasons, the TCP ULP for SMC doesn't use wildly. It's not
-> possible to know which applications are suitable to be replaced with
-> SMC. But it's easier to detect the behavior of applications and
-> determine whether to replace applications with SMC. And this patch set
-> is going to fallback to TCP by behavior with eBPF.
-> 
-> So this is the _fix_ for that patch.
+By taking GENERIC_IOREMAP method, the generic generic_ioremap_prot(),
+generic_iounmap(), and their generic wrapper ioremap_prot(), ioremap()
+and iounmap() are all visible and available to arch. Arch needs to
+provide wrapper functions to override the generic versions if there's
+arch specific handling in its ioremap_prot(), ioremap() or iounmap().
+This change will simplify implementation by removing duplicated codes
+with generic_ioremap_prot() and generic_iounmap(), and has the equivalent
+functioality as before.
 
-Good to hear, I was worried you'd still want to install the ULP at some
-point whether the decision is via BPF or user space.
+Here, add wrapper functions ioremap_prot() and iounmap() for s390's
+special operation when ioremap() and iounmap().
+
+Signed-off-by: Baoquan He <bhe@redhat.com>
+Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Tested-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org
+---
+ arch/s390/Kconfig          |  1 +
+ arch/s390/include/asm/io.h | 21 ++++++++------
+ arch/s390/pci/pci.c        | 57 +++++++-------------------------------
+ 3 files changed, 23 insertions(+), 56 deletions(-)
+
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 078cd1a773a3..74505a5de3ba 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -141,6 +141,7 @@ config S390
+ 	select GENERIC_SMP_IDLE_THREAD
+ 	select GENERIC_TIME_VSYSCALL
+ 	select GENERIC_VDSO_TIME_NS
++	select GENERIC_IOREMAP if PCI
+ 	select HAVE_ALIGNED_STRUCT_PAGE if SLUB
+ 	select HAVE_ARCH_AUDITSYSCALL
+ 	select HAVE_ARCH_JUMP_LABEL
+diff --git a/arch/s390/include/asm/io.h b/arch/s390/include/asm/io.h
+index e3882b012bfa..4453ad7c11ac 100644
+--- a/arch/s390/include/asm/io.h
++++ b/arch/s390/include/asm/io.h
+@@ -22,11 +22,18 @@ void unxlate_dev_mem_ptr(phys_addr_t phys, void *addr);
+ 
+ #define IO_SPACE_LIMIT 0
+ 
+-void __iomem *ioremap_prot(phys_addr_t addr, size_t size, unsigned long prot);
+-void __iomem *ioremap(phys_addr_t addr, size_t size);
+-void __iomem *ioremap_wc(phys_addr_t addr, size_t size);
+-void __iomem *ioremap_wt(phys_addr_t addr, size_t size);
+-void iounmap(volatile void __iomem *addr);
++/*
++ * I/O memory mapping functions.
++ */
++#define ioremap_prot ioremap_prot
++#define iounmap iounmap
++
++#define _PAGE_IOREMAP pgprot_val(PAGE_KERNEL)
++
++#define ioremap_wc(addr, size)  \
++	ioremap_prot((addr), (size), pgprot_val(pgprot_writecombine(PAGE_KERNEL)))
++#define ioremap_wt(addr, size)  \
++	ioremap_prot((addr), (size), pgprot_val(pgprot_writethrough(PAGE_KERNEL)))
+ 
+ static inline void __iomem *ioport_map(unsigned long port, unsigned int nr)
+ {
+@@ -51,10 +58,6 @@ static inline void ioport_unmap(void __iomem *p)
+ #define pci_iomap_wc pci_iomap_wc
+ #define pci_iomap_wc_range pci_iomap_wc_range
+ 
+-#define ioremap ioremap
+-#define ioremap_wt ioremap_wt
+-#define ioremap_wc ioremap_wc
+-
+ #define memcpy_fromio(dst, src, count)	zpci_memcpy_fromio(dst, src, count)
+ #define memcpy_toio(dst, src, count)	zpci_memcpy_toio(dst, src, count)
+ #define memset_io(dst, val, count)	zpci_memset_io(dst, val, count)
+diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+index ef38b1514c77..9590bf2c0d88 100644
+--- a/arch/s390/pci/pci.c
++++ b/arch/s390/pci/pci.c
+@@ -244,62 +244,25 @@ void __iowrite64_copy(void __iomem *to, const void *from, size_t count)
+        zpci_memcpy_toio(to, from, count);
+ }
+ 
+-static void __iomem *__ioremap(phys_addr_t addr, size_t size, pgprot_t prot)
++void __iomem *ioremap_prot(phys_addr_t phys_addr, size_t size,
++			   unsigned long prot)
+ {
+-	unsigned long offset, vaddr;
+-	struct vm_struct *area;
+-	phys_addr_t last_addr;
+-
+-	last_addr = addr + size - 1;
+-	if (!size || last_addr < addr)
+-		return NULL;
+-
++	/*
++	 * When PCI MIO instructions are unavailable the "physical" address
++	 * encodes a hint for accessing the PCI memory space it represents.
++	 * Just pass it unchanged such that ioread/iowrite can decode it.
++	 */
+ 	if (!static_branch_unlikely(&have_mio))
+-		return (void __iomem *) addr;
++		return (void __iomem *)phys_addr;
+ 
+-	offset = addr & ~PAGE_MASK;
+-	addr &= PAGE_MASK;
+-	size = PAGE_ALIGN(size + offset);
+-	area = get_vm_area(size, VM_IOREMAP);
+-	if (!area)
+-		return NULL;
+-
+-	vaddr = (unsigned long) area->addr;
+-	if (ioremap_page_range(vaddr, vaddr + size, addr, prot)) {
+-		free_vm_area(area);
+-		return NULL;
+-	}
+-	return (void __iomem *) ((unsigned long) area->addr + offset);
+-}
+-
+-void __iomem *ioremap_prot(phys_addr_t addr, size_t size, unsigned long prot)
+-{
+-	return __ioremap(addr, size, __pgprot(prot));
++	return generic_ioremap_prot(phys_addr, size, __pgprot(prot));
+ }
+ EXPORT_SYMBOL(ioremap_prot);
+ 
+-void __iomem *ioremap(phys_addr_t addr, size_t size)
+-{
+-	return __ioremap(addr, size, PAGE_KERNEL);
+-}
+-EXPORT_SYMBOL(ioremap);
+-
+-void __iomem *ioremap_wc(phys_addr_t addr, size_t size)
+-{
+-	return __ioremap(addr, size, pgprot_writecombine(PAGE_KERNEL));
+-}
+-EXPORT_SYMBOL(ioremap_wc);
+-
+-void __iomem *ioremap_wt(phys_addr_t addr, size_t size)
+-{
+-	return __ioremap(addr, size, pgprot_writethrough(PAGE_KERNEL));
+-}
+-EXPORT_SYMBOL(ioremap_wt);
+-
+ void iounmap(volatile void __iomem *addr)
+ {
+ 	if (static_branch_likely(&have_mio))
+-		vunmap((__force void *) ((unsigned long) addr & PAGE_MASK));
++		generic_iounmap(addr);
+ }
+ EXPORT_SYMBOL(iounmap);
+ 
+-- 
+2.34.1
+
