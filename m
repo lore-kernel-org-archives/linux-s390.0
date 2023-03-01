@@ -2,154 +2,124 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B360EC64ED6
-	for <linux-s390@archiver.kernel.org>; Wed,  1 Mar 2023 15:41:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 62281C64ED6
+	for <linux-s390@archiver.kernel.org>; Wed,  1 Mar 2023 17:04:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229966AbjCAPlm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 1 Mar 2023 10:41:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33320 "EHLO
+        id S229996AbjCAREF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 1 Mar 2023 12:04:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229527AbjCAPlj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Mar 2023 10:41:39 -0500
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E02943921
-        for <linux-s390@vger.kernel.org>; Wed,  1 Mar 2023 07:41:36 -0800 (PST)
-Received: by mail-pj1-x102a.google.com with SMTP id m3-20020a17090ade0300b00229eec90a7fso1525657pjv.0
-        for <linux-s390@vger.kernel.org>; Wed, 01 Mar 2023 07:41:36 -0800 (PST)
+        with ESMTP id S229974AbjCAREE (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Mar 2023 12:04:04 -0500
+Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4390E4EFD
+        for <linux-s390@vger.kernel.org>; Wed,  1 Mar 2023 09:03:26 -0800 (PST)
+Received: by mail-wm1-x333.google.com with SMTP id j19-20020a05600c191300b003eb3e1eb0caso7722166wmq.1
+        for <linux-s390@vger.kernel.org>; Wed, 01 Mar 2023 09:03:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rivosinc-com.20210112.gappssmtp.com; s=20210112; t=1677685296;
+        d=layalina-io.20210112.gappssmtp.com; s=20210112;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=T04RMfKzSUFRrZ3CYc3+bErGU8vpxkP2QVI3mwlpG78=;
-        b=RacUjtkKVhkSdFUBywOGho+8dt8NsK+GHdxWXdQ69WX2yCf/yYWl7r6icMXBWT/ShM
-         KzbzJEeKqlnWntlEh4Hu5sno9Ak81pDzhFum2pY94j4Sv2hldxTUvXOesOtDXjR8r6gc
-         qTgIZDS9fRsSDLNbTTTqAFsgPsTJ/DQ+0jjGE9ek1g+5UBhUcmjFAxCNoVki1FxJorhz
-         1mqoDsTuoBLwUNz+cTKmWUvmBN0WlvjuL/8NCCPe/UsZ69pgJ+6lNteW1mdicJGes/KY
-         sz2TvcyHAjAaMaJRH5/VJiCFama3PVa+Xs98E38Ow6CsZfQ4ni3p2/e/LUrMvV5jGCLw
-         yEmQ==
+        bh=qUHKTRcQh3URDtHGlGaA089RX+46wq6JZY7f9xT1DBI=;
+        b=2O6UAvj6zfjZ/qTx+DC1jnzc4oofYRirSDiuT9o8rhJ/6BEiPA4+rcBx4atFEYGEIo
+         QVdj2yopC3IIfoL06yzTsC3ziAmJYMHVp28B/iZfCAryxbSMgsa3kgv/phahYvjdTBzb
+         Z/2osNzuFnLNlGTIvz/JMmEPzwLmZAOY13uQsvapEDGujowt6lWX6AE8hfelFeGUxisa
+         CJNyd0S6acdvftMLIIDqsimJ3mYWYm9fdb/HVEiQhLot1fGCgY3NO75b80K0cta4Mx61
+         J5BxMt3zLEk/F+OPrB+G6242679o0jxvLR4EnQao/I7ez0xvSyFY5dK4MelBSfYqGIyZ
+         x/vw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1677685296;
+        d=1e100.net; s=20210112;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=T04RMfKzSUFRrZ3CYc3+bErGU8vpxkP2QVI3mwlpG78=;
-        b=33TG26aIPeXU/9SEFxFpetGMaQ6NH8UXWNZpyZ48+8UuV1ReYnQoSJGTumvPqHaZvJ
-         zm/SImsHzHvEuaIOZqYLrA92Gcyn8yYtiXHr1C6aC55Xuvys+Q5d/mlG0zXrm/AuXoTL
-         OK3Dnu0EvkMU4MjxK31ypl3ji/TTcsLT0sP+BZqHtsBW11u9VnZj5I7Dm0Hp8EYEQBHZ
-         l3BprdDRWLM4YqUuE7L5CrzX79ym/18c8214rs+P+qg1ggGX+PIJNaUdONfPaltjiA6e
-         gl1WJtCtmDdWgqtGH1w7pbP9OafDQ0JhTT6Cqh7TQxdRgYc0BKkEsPfkpEBKc9jum/Xy
-         qxaA==
-X-Gm-Message-State: AO0yUKWnjqL+R12/2KQN+479JyQbIXdCvtzwq8dM2iQAGFo0pqmGM4oV
-        izAPMDVgCjLt3+qVfxl73uG29Q==
-X-Google-Smtp-Source: AK7set89u8u7K351sr+Ck6r7PKKsfq0NxjZus48TDBYC9SmTqwP5jGqb0tSf18Db2RC/D0Tp3KOSQg==
-X-Received: by 2002:a05:6a20:2444:b0:cc:ac05:88f7 with SMTP id t4-20020a056a20244400b000ccac0588f7mr8304959pzc.34.1677685295782;
-        Wed, 01 Mar 2023 07:41:35 -0800 (PST)
-Received: from debug.ba.rivosinc.com ([66.220.2.162])
-        by smtp.gmail.com with ESMTPSA id l12-20020a62be0c000000b005821c109cebsm8058970pff.199.2023.03.01.07.41.32
+        bh=qUHKTRcQh3URDtHGlGaA089RX+46wq6JZY7f9xT1DBI=;
+        b=qePwOfHRevl7oyrn2PnJY4kM8RFRNx2WUZ7rqtKOBMmAcVIpUxU51uLBKT/EWmQ63l
+         9QO1Tn3BAL4FlKDElHcqIR7Stm3rgkbOEFJaQeNvKF7Y9otQqt4iofmYtZBCxR5gWZNc
+         JGtRr+q6hd1HrWif5k3DqcOIITy/GvAA92lc37vHfrmGWl+bBl9ueHky7IcEe4oMlSg3
+         l1QI8tuyudFoVSF9Kuu9Uzco26Ragip8NMVWMPnLnmfr5LgRnybkBylPdbHSJGFHE8uX
+         Rpt5jU1wmxVS+PZuKtlaYZwbr7lJjhWiZ1vSjJ9JfAhhaC/SgbiWzcsJKn0Qmg+L/Td7
+         pUZQ==
+X-Gm-Message-State: AO0yUKXRpwzUjGDVgQQS0arlrA0sIcv20jEqZhoZAoWwswP6bqRQVZOz
+        ZlZ7PYEtwWneNxQEI2wuGG7QUQ==
+X-Google-Smtp-Source: AK7set8vQqf910uXvU8gXb+dtW0FrWBh+y0eZXgna9uwh5OHAKzuXs0cw2hHMMTvzp4hl3cfxLpuSQ==
+X-Received: by 2002:a05:600c:3093:b0:3eb:3104:efef with SMTP id g19-20020a05600c309300b003eb3104efefmr5425757wmn.31.1677690204651;
+        Wed, 01 Mar 2023 09:03:24 -0800 (PST)
+Received: from airbuntu (host86-168-251-3.range86-168.btcentralplus.com. [86.168.251.3])
+        by smtp.gmail.com with ESMTPSA id z26-20020a1c4c1a000000b003eb395a8280sm107158wmf.37.2023.03.01.09.03.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 01 Mar 2023 07:41:35 -0800 (PST)
-Date:   Wed, 1 Mar 2023 07:41:30 -0800
-From:   Deepak Gupta <debug@rivosinc.com>
-To:     Rick Edgecombe <rick.p.edgecombe@intel.com>
-Cc:     x86@kernel.org, "H . Peter Anvin" <hpa@zytor.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-mm@kvack.org,
-        linux-arch@vger.kernel.org, linux-api@vger.kernel.org,
-        Arnd Bergmann <arnd@arndb.de>,
-        Andy Lutomirski <luto@kernel.org>,
-        Balbir Singh <bsingharora@gmail.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Cyrill Gorcunov <gorcunov@gmail.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Eugene Syromiatnikov <esyr@redhat.com>,
-        Florian Weimer <fweimer@redhat.com>,
-        "H . J . Lu" <hjl.tools@gmail.com>, Jann Horn <jannh@google.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Kees Cook <keescook@chromium.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        Oleg Nesterov <oleg@redhat.com>, Pavel Machek <pavel@ucw.cz>,
+        Wed, 01 Mar 2023 09:03:24 -0800 (PST)
+Date:   Wed, 1 Mar 2023 17:03:22 +0000
+From:   Qais Yousef <qyousef@layalina.io>
+To:     Juri Lelli <juri.lelli@redhat.com>
+Cc:     Dietmar Eggemann <dietmar.eggemann@arm.com>,
         Peter Zijlstra <peterz@infradead.org>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Weijiang Yang <weijiang.yang@intel.com>,
-        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
-        John Allen <john.allen@amd.com>, kcc@google.com,
-        eranian@google.com, rppt@kernel.org, jamorris@linux.microsoft.com,
-        dethoma@microsoft.com, akpm@linux-foundation.org,
-        Andrew.Cooper3@citrix.com, christina.schimpe@intel.com,
-        david@redhat.com, linux-alpha@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        Michal Simek <monstr@monstr.eu>,
-        Dinh Nguyen <dinguyen@kernel.org>, linux-mips@vger.kernel.org,
-        openrisc@lists.librecores.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-        xen-devel@lists.xenproject.org
-Subject: Re: [PATCH v6 13/41] mm: Make pte_mkwrite() take a VMA
-Message-ID: <20230301154130.GB3505369@debug.ba.rivosinc.com>
-References: <20230218211433.26859-1-rick.p.edgecombe@intel.com>
- <20230218211433.26859-14-rick.p.edgecombe@intel.com>
+        Ingo Molnar <mingo@kernel.org>,
+        Waiman Long <longman@redhat.com>,
+        Steven Rostedt <rostedt@goodmis.org>, tj@kernel.org,
+        linux-kernel@vger.kernel.org, luca.abeni@santannapisa.it,
+        claudio@evidence.eu.com, tommaso.cucinotta@santannapisa.it,
+        bristot@redhat.com, mathieu.poirier@linaro.org,
+        cgroups@vger.kernel.org,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Wei Wang <wvw@google.com>, Rick Yiu <rickyiu@google.com>,
+        Quentin Perret <qperret@google.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Zefan Li <lizefan.x@bytedance.com>, linux-s390@vger.kernel.org,
+        x86@kernel.org
+Subject: Re: [PATCH v3] sched: cpuset: Don't rebuild root domains on
+ suspend-resume
+Message-ID: <20230301170322.xthlso7jfkixlyex@airbuntu>
+References: <20230206221428.2125324-1-qyousef@layalina.io>
+ <20230223153859.37tqoqk33oc6tv7o@airbuntu>
+ <5f087dd8-3e39-ce83-fe24-afa5179c05d9@arm.com>
+ <20230227205725.dipvh3i7dvyrv4tv@airbuntu>
+ <5a1e58bf-7eb2-bd7a-7e19-7864428a2b83@arm.com>
+ <20230228174627.vja5aejq27dsta2u@airbuntu>
+ <Y/7/SLzvK8LfB29z@localhost.localdomain>
+ <20230301122852.zgzreby42lh2zf6w@airbuntu>
+ <Y/9gmDRlGOChIwpf@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20230218211433.26859-14-rick.p.edgecombe@intel.com>
+In-Reply-To: <Y/9gmDRlGOChIwpf@localhost.localdomain>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sat, Feb 18, 2023 at 01:14:05PM -0800, Rick Edgecombe wrote:
->The x86 Control-flow Enforcement Technology (CET) feature includes a new
->type of memory called shadow stack. This shadow stack memory has some
->unusual properties, which requires some core mm changes to function
->properly.
->
->One of these unusual properties is that shadow stack memory is writable,
->but only in limited ways. These limits are applied via a specific PTE
->bit combination. Nevertheless, the memory is writable, and core mm code
->will need to apply the writable permissions in the typical paths that
->call pte_mkwrite().
->
->In addition to VM_WRITE, the shadow stack VMA's will have a flag denoting
->that they are special shadow stack flavor of writable memory. So make
->pte_mkwrite() take a VMA, so that the x86 implementation of it can know to
->create regular writable memory or shadow stack memory.
->
->Apply the same changes for pmd_mkwrite() and huge_pte_mkwrite().
->
->No functional change.
->
->Cc: linux-doc@vger.kernel.org
->Cc: linux-kernel@vger.kernel.org
->Cc: linux-alpha@vger.kernel.org
->Cc: linux-snps-arc@lists.infradead.org
->Cc: linux-arm-kernel@lists.infradead.org
->Cc: linux-csky@vger.kernel.org
->Cc: linux-hexagon@vger.kernel.org
->Cc: linux-ia64@vger.kernel.org
->Cc: loongarch@lists.linux.dev
->Cc: linux-m68k@lists.linux-m68k.org
->Cc: Michal Simek <monstr@monstr.eu>
->Cc: Dinh Nguyen <dinguyen@kernel.org>
->Cc: linux-mips@vger.kernel.org
->Cc: openrisc@lists.librecores.org
->Cc: linux-parisc@vger.kernel.org
->Cc: linuxppc-dev@lists.ozlabs.org
->Cc: linux-riscv@lists.infradead.org
->Cc: linux-s390@vger.kernel.org
->Cc: linux-sh@vger.kernel.org
->Cc: sparclinux@vger.kernel.org
->Cc: linux-um@lists.infradead.org
->Cc: xen-devel@lists.xenproject.org
->Cc: linux-arch@vger.kernel.org
->Cc: linux-mm@kvack.org
->Tested-by: Pengfei Xu <pengfei.xu@intel.com>
->Suggested-by: David Hildenbrand <david@redhat.com>
->Signed-off-by: Rick Edgecombe <rick.p.edgecombe@intel.com>
->
+On 03/01/23 15:26, Juri Lelli wrote:
+> On 01/03/23 12:28, Qais Yousef wrote:
+> > On 03/01/23 08:31, Juri Lelli wrote:
+> 
+> ...
+> 
+> > > Not ignoring you guys here, but it turns out I'm quite bogged down with
+> > > other stuff at the moment. :/ So, apologies and I'll try to get to this
+> > > asap. Thanks a lot for all your efforts and time reviewing so far!
+> > 
+> > Np, I can feel you :-)
+> 
+> Eh. :/
 
-Acked-by: Deepak Gupta <debug@rivosinc.com>
+I hope I did not offend. That was meant as no pressure, I understand.
+
+> 
+> BTW, do you have a repro script of some sort handy I might play with?
+
+Sorry no. You'll just need to suspend to ram. I had a simple patch to measure
+the time around the call and trace_printk'ed the result.
+
+I was working on a android phone which just suspends to ram if you turn the
+screen off and disconnect the usb.
+
+I think you can use rtcwake in normal desktop environment. Something like
+
+	sudo rtcwake -u -s 5 -m mem
+
+
+Thanks!
+
+--
+Qais Yousef
