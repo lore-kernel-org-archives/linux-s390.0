@@ -2,143 +2,238 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4EB8FC7EE3A
-	for <linux-s390@archiver.kernel.org>; Thu,  2 Mar 2023 03:17:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C7F73C678D4
+	for <linux-s390@archiver.kernel.org>; Thu,  2 Mar 2023 03:25:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229907AbjCBDR3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 1 Mar 2023 22:17:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33364 "EHLO
+        id S229705AbjCBDZB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 1 Mar 2023 22:25:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229727AbjCBDR1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Mar 2023 22:17:27 -0500
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5680A55062
-        for <linux-s390@vger.kernel.org>; Wed,  1 Mar 2023 19:17:20 -0800 (PST)
-Received: by mail-pj1-x102c.google.com with SMTP id bo22so3917620pjb.4
-        for <linux-s390@vger.kernel.org>; Wed, 01 Mar 2023 19:17:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=dabbelt-com.20210112.gappssmtp.com; s=20210112; t=1677727040;
-        h=content-transfer-encoding:mime-version:message-id:to:from:cc
-         :in-reply-to:subject:date:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=On9It+4zdvXePGpqvCCrKF4Zz8YWrxnIbxTBVMgkuCs=;
-        b=It4hmxTEAyg7hPQnG8xuSpgz+jJKrlOhrcoQbLU4P/YxhalWRyom0ZRJ9msu/DO/86
-         AiIsktubYrvwpRFNifmG+BrBU8v6Yala4vW9pwjX/bv47kqdaFRBl58uJ5bIBRTWVMBT
-         NEWSeyJD4fgG+iWneC8bOvtxcO0rBYIjkLBer1PgLGvr/r+TBMTp8+ncLKFkUa5GBOHq
-         LyRA8ug4TwsdvYR3u1GIAGW60jHpBModJwHYh1E3SbElOIomsRGv1pXdHkKrQoLtx60j
-         B+LSax1q+0/Z9R4mu/KI8ChOEX0yXbPBPiNHSvaszPAfYNONdpL5L3WAXmTh1suUklGm
-         5kcw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1677727040;
-        h=content-transfer-encoding:mime-version:message-id:to:from:cc
-         :in-reply-to:subject:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=On9It+4zdvXePGpqvCCrKF4Zz8YWrxnIbxTBVMgkuCs=;
-        b=ZJgQk5eanggVORR+VV2QO5xfs/V5CDe3pHQPVqIk0aY4JwgyhMFgn95ZJUEuYTwThW
-         f+8fy2x2dDNVBSYk6Ek4rogHuEk3TTWsIJIFvTU+3GVqS6jk4pxMu+FrRRy7c7JYjmSs
-         FKdUpjdFi417hH34VFYKH7yS56cBvKi6StJh4UDOQKKXBAfWXbwiDpFIXEw8gCMkHMlW
-         mmmL3LWxCFQayETuD0cKj+gmRO4BjuxYK8F8l8c5/5Apm03P6RoNN44f2lPqf89E4Ekj
-         aifHdoBJTEq8Gb0+YkvyOs3J3hkYNGaIkT3iRX9WB8YF8Xya9FwUhMTzVdnXTCwv/dzb
-         KCPw==
-X-Gm-Message-State: AO0yUKVfjBIyalPZPKfBfgOuNLp+VfM1N8PO07VENSn1kzia9o3PhukR
-        xzhkvsWMAzv5eefM3icl+Aq6kw==
-X-Google-Smtp-Source: AK7set9NlkpYiMNjk7pdCtbLbxqSj79/p1ppAGwB6F9HvsUOQ5DEbSCAxLqrZ/Sx9hwWvoGz24uxIQ==
-X-Received: by 2002:a17:90b:1c8d:b0:236:76cb:99d2 with SMTP id oo13-20020a17090b1c8d00b0023676cb99d2mr10274539pjb.8.1677727039843;
-        Wed, 01 Mar 2023 19:17:19 -0800 (PST)
-Received: from localhost ([50.221.140.188])
-        by smtp.gmail.com with ESMTPSA id d7-20020a17090a498700b002340b2c62e7sm437605pjh.55.2023.03.01.19.17.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 01 Mar 2023 19:17:18 -0800 (PST)
-Date:   Wed, 01 Mar 2023 19:17:18 -0800 (PST)
-X-Google-Original-Date: Wed, 01 Mar 2023 19:04:58 PST (-0800)
-Subject:     Re: [PATCH v3 00/24] Remove COMMAND_LINE_SIZE from uapi
-In-Reply-To: <Y+tSBlSsQBQF/Ro2@osiris>
-CC:     geert@linux-m68k.org, alexghiti@rivosinc.com, corbet@lwn.net,
-        Richard Henderson <richard.henderson@linaro.org>,
-        ink@jurassic.park.msu.ru, mattst88@gmail.com, vgupta@kernel.org,
-        linux@armlinux.org.uk, Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, chenhuacai@kernel.org,
-        kernel@xen0n.name, monstr@monstr.eu, tsbogend@alpha.franken.de,
-        James.Bottomley@hansenpartnership.com, deller@gmx.de,
-        mpe@ellerman.id.au, npiggin@gmail.com, christophe.leroy@csgroup.eu,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        aou@eecs.berkeley.edu, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net,
-        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
-        dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
-        chris@zankel.net, jcmvbkbc@gmail.com,
-        Arnd Bergmann <arnd@arndb.de>, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org,
-        linux-arch@vger.kernel.org
-From:   Palmer Dabbelt <palmer@dabbelt.com>
-To:     hca@linux.ibm.com
-Message-ID: <mhng-e8b09772-24e5-4729-a0bf-01a9e4c76636@palmer-ri-x1c9a>
-Mime-Version: 1.0 (MHng)
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+        with ESMTP id S229471AbjCBDZA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Mar 2023 22:25:00 -0500
+Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25DF64E5DF;
+        Wed,  1 Mar 2023 19:24:59 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1677727499; x=1709263499;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=fLERleDpS2CAX2MAWMeWf+02U1riTQRldvwZb39MZMg=;
+  b=U+0XAnaSn6agYnFu8byD+auiE43sKRLA5u3UsJswljfYnmXUmXkJdTn0
+   5CAtqUCah/FgbxsL/npB3tSjU8ueQEsG03gNgIoltDm4iGtrDvElQ7RxN
+   0/totj7GZ2bDwPyHRTm1wPpiSTXjnciaBhanXMSiYrxNseCoDkYdh1QDw
+   8DHPzoznECgBkjVe4DEmDRLrjDw0XNklcPSMR3SPq0kdAYECOgtGvauO3
+   7nYuLa5CF4XRAjHz8SrTGOQg3a2wFfxUJPx7Y5foNb/FnigyAJJy+7lHU
+   zfpTbQxjVA+86unkumdxxQHOLDMiALRkdxYbIPp0k573lWIfYvfslpxu2
+   g==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10636"; a="420865055"
+X-IronPort-AV: E=Sophos;i="5.98,226,1673942400"; 
+   d="scan'208";a="420865055"
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Mar 2023 19:24:50 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10636"; a="677021446"
+X-IronPort-AV: E=Sophos;i="5.98,226,1673942400"; 
+   d="scan'208";a="677021446"
+Received: from orsmsx602.amr.corp.intel.com ([10.22.229.15])
+  by fmsmga007.fm.intel.com with ESMTP; 01 Mar 2023 19:24:50 -0800
+Received: from orsmsx603.amr.corp.intel.com (10.22.229.16) by
+ ORSMSX602.amr.corp.intel.com (10.22.229.15) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.21; Wed, 1 Mar 2023 19:24:49 -0800
+Received: from orsedg603.ED.cps.intel.com (10.7.248.4) by
+ orsmsx603.amr.corp.intel.com (10.22.229.16) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.21 via Frontend Transport; Wed, 1 Mar 2023 19:24:49 -0800
+Received: from NAM10-MW2-obe.outbound.protection.outlook.com (104.47.55.107)
+ by edgegateway.intel.com (134.134.137.100) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.16; Wed, 1 Mar 2023 19:24:47 -0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=LgmCpbn6RTOmFwbDoRbJE4A6bDlKx+Q+n20s7rCnTp31r40QTGDUkg3xEmU2ROW7dcyxQzq/Sog6QnqM5B+BEynscbHzdExVkAP1O2AoZmWsRUhkwtw6JlBAo+EL8pR1cYL+NaTQYHJ1a/kPmRCm1lNjm/+HNb0ISD9nGLVANtgd6nMitqaUCl/siPIM/qAglHucKtDpIqa5uU4zqT8cm6EX+0gxje9hIFvloUUpNt+ek5QoHg6uhRMqKMym8GzMIwtmlq/cjJ+SX3puo4ICCPS2k2FuItHJOS2DbpMXmPoho/XE41nkyLiE8WXbTvYEKL6D+KrRtrWBX7Rb7DKTkw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=lxbOl/FWZEeqWXSfgwnRJbDj5cuGTaRxJdACo+l8/G8=;
+ b=fDHJCYY0EloQS8w92Pgi4kIgOniKS/vIdO5FNDKPkB+EFzP+BFzf6CNBHKCTIP1Ker6A+AUQQKCTsfgAqD3S0WgujewsRmZzHVGfc1KvonI0I+DbT0ySjEDPjnEWprMGnG55n3zenWSA3HdrP94f8CJmjHxd0EcrYzrW6Mou9plrPo0sJMTm3hJYvXt393L6oLS9nNlb+QPMAlnL6KKN/BGP4z4vELoejkSiMlCgkHA8klcD03pfYTcJYpdLbayaEGItpjI2McSOlx5KQYlzM53b84uuMTE1pF4Rtb3usog0M/6maL+2nJxA54A64lPDvCHto1MsApruoPL/35dDbw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from DS0PR11MB7529.namprd11.prod.outlook.com (2603:10b6:8:141::20)
+ by DM4PR11MB5343.namprd11.prod.outlook.com (2603:10b6:5:392::16) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6156.18; Thu, 2 Mar
+ 2023 03:24:46 +0000
+Received: from DS0PR11MB7529.namprd11.prod.outlook.com
+ ([fe80::6f7:944a:aaad:301f]) by DS0PR11MB7529.namprd11.prod.outlook.com
+ ([fe80::6f7:944a:aaad:301f%8]) with mapi id 15.20.6134.030; Thu, 2 Mar 2023
+ 03:24:46 +0000
+From:   "Liu, Yi L" <yi.l.liu@intel.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>
+CC:     "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
+        "Tian, Kevin" <kevin.tian@intel.com>,
+        "joro@8bytes.org" <joro@8bytes.org>,
+        "robin.murphy@arm.com" <robin.murphy@arm.com>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "eric.auger@redhat.com" <eric.auger@redhat.com>,
+        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
+        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
+        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
+        "peterx@redhat.com" <peterx@redhat.com>,
+        "jasowang@redhat.com" <jasowang@redhat.com>,
+        "shameerali.kolothum.thodi@huawei.com" 
+        <shameerali.kolothum.thodi@huawei.com>,
+        "lulu@redhat.com" <lulu@redhat.com>,
+        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
+        "intel-gvt-dev@lists.freedesktop.org" 
+        <intel-gvt-dev@lists.freedesktop.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "Hao, Xudong" <xudong.hao@intel.com>,
+        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
+        "Xu, Terrence" <terrence.xu@intel.com>
+Subject: RE: [PATCH v5 17/19] vfio: Add VFIO_DEVICE_AT[DE]TACH_IOMMUFD_PT
+Thread-Topic: [PATCH v5 17/19] vfio: Add VFIO_DEVICE_AT[DE]TACH_IOMMUFD_PT
+Thread-Index: AQHZSpxNXWm9KiWJ2Ee0gC65QSF3Ja7jIF2AgACHHYCAAKSqAIAAATZAgAAE3oCAAAG0UIAABx8AgAAA9gCAAAQbAIAAAylwgAAMGYCAAYeq8IAAQA+AgACctxA=
+Date:   Thu, 2 Mar 2023 03:24:45 +0000
+Message-ID: <DS0PR11MB7529CCCF483210F5EE027939C3B29@DS0PR11MB7529.namprd11.prod.outlook.com>
+References: <Y/30TEk3t7q/D0Ho@nvidia.com>
+ <DS0PR11MB752931AD2B92DE9A1A574375C3AC9@DS0PR11MB7529.namprd11.prod.outlook.com>
+ <Y/35ZTi69p9cCuPn@nvidia.com>
+ <DS0PR11MB7529B6647B5F4B7691FFFBEBC3AC9@DS0PR11MB7529.namprd11.prod.outlook.com>
+ <Y/4AzJbjeR4R2rcO@nvidia.com>
+ <DS0PR11MB7529175CF279A820C5E5E091C3AC9@DS0PR11MB7529.namprd11.prod.outlook.com>
+ <Y/4FDP8H1qRdgVrL@nvidia.com>
+ <DS0PR11MB75293E34AB7C53F7ABFC0E36C3AC9@DS0PR11MB7529.namprd11.prod.outlook.com>
+ <Y/4R2SRFKoRFg4qK@nvidia.com>
+ <DS0PR11MB7529E456C277723146A09E2FC3AD9@DS0PR11MB7529.namprd11.prod.outlook.com>
+ <Y/+QIz3VT7iD0jZ5@nvidia.com>
+In-Reply-To: <Y/+QIz3VT7iD0jZ5@nvidia.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: DS0PR11MB7529:EE_|DM4PR11MB5343:EE_
+x-ms-office365-filtering-correlation-id: a3bed730-1617-4723-260c-08db1acdabfe
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: qlFhEuzyz79HOLblztTHG/kbkw5YP2sQxuyH6V0kKiQ0mGugAYhfKhXw81X2YePPhgkkzo8N1UEdyThP70U1ro7bEiz8qRIDa2XsapgHWD0VvPh5YarPQ7JV14/+F3O1B+xTEXlXezLXhkUN3UfPSbyY5zovEyEo979r0jDrHCHuIre4lyMQrRcABaSlyn8pUYPOQuyLK8r+izZsOPvzPHz1kWbQvJttXD4O67iy5+qQfgjpwAkBWOGDcizHJGtnE0rAjIpxtc/9eFycpo3gjeRfqRwPhG/3T4r7LvLnSLD42/qua/N3IRmUf2zvLNjslnGkp8idStDV/jVHJC/0T3FbgsKf+vKus+0wpI1kGGMElGDPPZZOSTQXovMIY/+TRmhZAQZ2bdp/0nsYji5UmfT+sr63qshFaYfj08aOap/2pSJlfmGzZpUXTItxx61WIdAvBpomRz5+kTfPmFDMC1uIlojOFGjN2ufysz0t5wLKkbeCIHs/mcVYRMWwCEATEjxQRk1iwu+K71Rn1PiFo9FLYtC2QexFoyd3wXrZI1zMMp+ZIhc8i7jOK9vQCgVOtKqukP1kmUNnY+DO49MBX2J48nWopLIeLCYtTHVrv4XEOAh+3Keu3W9qDG1y4o9EXErUNAiGM3jnU8hQuOjrIzeShMmQqh7DW5/G/oEGQdacfwfvkrPaB2nRDqOFLTdL
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR11MB7529.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(366004)(346002)(376002)(39860400002)(136003)(396003)(451199018)(83380400001)(478600001)(54906003)(316002)(33656002)(4326008)(122000001)(82960400001)(64756008)(66446008)(8676002)(55016003)(38100700002)(6916009)(76116006)(66476007)(6506007)(9686003)(186003)(26005)(7696005)(71200400001)(7416002)(66556008)(5660300002)(66946007)(52536014)(86362001)(8936002)(2906002)(41300700001)(38070700005);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?O+Ifhox0qFsqZKa1IAlroemirPIoiOprpgQX52w/1kyM8SI18bEk3NQdJJsG?=
+ =?us-ascii?Q?6On7iAbv1/zUoYqDfIkagKFXqwWljpEyVdFUKjQOnZDHVe6RRNRaMPNONp1e?=
+ =?us-ascii?Q?e70DB5ZJ+SRD4gxtQWsPE4jLlMGLhA4U291+TOGYGkzvOx7lucoC31qeSCJp?=
+ =?us-ascii?Q?d6/RTQPkHOEJXLLsa32Zw4Ix60la5f5a/LyFlcw7Wu098CjbBdX5ZghZQ3+P?=
+ =?us-ascii?Q?YQDlegECcTd9IRZtKzR4Idw54fC9yueNXO5IDkg9LJAikiHJ0SXb10ANxnwO?=
+ =?us-ascii?Q?FTfiX0EnzVkQSW9D0ruN/YyIpOvKQs3Z0Sbxnay8Nq7SXMQYCPXrDDAsxTJQ?=
+ =?us-ascii?Q?oTCcyK4s1QFeMZH9gWEJ+JBzleU9wKWOyVHLMxZUtUBITlhCRDD6UZK/aQbB?=
+ =?us-ascii?Q?96vBHOgGoZqArZzdW17MpKsGUTIzlhnRge9/k1b0FD/axw4xTyr8LTYMwXrc?=
+ =?us-ascii?Q?8LLAfHXpUpJQ6R+eVS+EDzqWJMZTVEeqnn7JouCtOvXMeojohUu0Z2ntsSjp?=
+ =?us-ascii?Q?Bi+ERE1Vqll7HQR8g4BSx8gy8erQCXVDIBDjDP+tHhqwFVXWr1lISE1BlGMa?=
+ =?us-ascii?Q?qpJAp38Sgfw5Grk7EtKfO55jb3A/tAQKMrcIie5BZVvN6lmILhDS5vsr1x5H?=
+ =?us-ascii?Q?BBy5mD5r60/uJGyFwnj14n8WBga+qVuPxAPQOZsfUFlPfWTyPpzFQQdDsR96?=
+ =?us-ascii?Q?LcePEj6hOKk4zUxavwOBN1r5FUON+ojcUed6CGPXW+yeeLDgzeUOKYRwL+6i?=
+ =?us-ascii?Q?AyGNQmlHw96Wcy4zRpqxtCoRbH1CgVnK+BbEj+f4dDrl9RtrxFYFNzWqCRoA?=
+ =?us-ascii?Q?bAsvpMntJghjOGVyxMfpHEjxhbCnjU2gzGR3oGzEDP/va3bdpbFd/OPcJhz9?=
+ =?us-ascii?Q?0o2/qwtvCbimQOamPHKsUzViW+nrTjna3xAlGoso6AZghOuIgmXLVCqXMOKb?=
+ =?us-ascii?Q?vZk7zfGnXqtzoJxBFS3Li9owLCXJVooZhkaVi1FlKD/MSNQXWtdk/myB6gXz?=
+ =?us-ascii?Q?5Azm5NadfCv3JBVS8qcyWoIXja9a4QqGRySwjj6MRbo82JxgeFHSryqaEYAF?=
+ =?us-ascii?Q?Fx7my0WUheEqEgHnV9lbCFpEKzwb//JeNk4omtehHiZGcbBCs8F0xR8TcqIt?=
+ =?us-ascii?Q?CWAcR71nFuKP5S38BJrgKdKGZhmDPyZBOSNwTBZIM5/xo8iNqkPetFzgPBZ5?=
+ =?us-ascii?Q?TwbfCJHLChj1kbNg9TiCssLfVDbUo5rvpHEX9Tg4/Ei7L0BH5haqz4DxZsr4?=
+ =?us-ascii?Q?ir/j4MPqMRgGcfsZh5Dl7eFE7fyU3K1Vbf1WNsNL95yT/XYKdDxnfIY4ccL2?=
+ =?us-ascii?Q?qFFi0nS/rD8xy/ZolkeL+k33vPTgBZnnb6POA3+4DlHAkQKQy43q+hAFEFOE?=
+ =?us-ascii?Q?X8F79vKieFyX1/pUgbBg0z0pIswFPh5thoY/S+hjmEL5JbWZoh1Ql+Hdo5E9?=
+ =?us-ascii?Q?AQZZndC98fl/kLy6ZhinMgkpfL+33FACSax24IssxsP4GpQtphQdLk/NIl8N?=
+ =?us-ascii?Q?DdjPbaSQ5JXZzvKZ8jXBOyq0zt+hDqhySTXMstqwSYwh0X6vx2vGPUJt/l4M?=
+ =?us-ascii?Q?VbCuBiM0O3JkT4i+5bPxzPp51VkcnGCdtJqoMpPl?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: DS0PR11MB7529.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: a3bed730-1617-4723-260c-08db1acdabfe
+X-MS-Exchange-CrossTenant-originalarrivaltime: 02 Mar 2023 03:24:45.9078
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: cgb+lu5gM6AHq4cw26FdOOyPAGA8lrGEYgFraU3YFYMP+Qg4iIsdOjcBx+LjoLvCRrlIPwk9YfMMucrTAw1aIA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR11MB5343
+X-OriginatorOrg: intel.com
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 14 Feb 2023 01:19:02 PST (-0800), hca@linux.ibm.com wrote:
-> On Tue, Feb 14, 2023 at 09:58:17AM +0100, Geert Uytterhoeven wrote:
->> Hi Heiko,
->>
->> On Tue, Feb 14, 2023 at 9:39 AM Heiko Carstens <hca@linux.ibm.com> wrote:
->> > On Tue, Feb 14, 2023 at 08:49:01AM +0100, Alexandre Ghiti wrote:
->> > > This all came up in the context of increasing COMMAND_LINE_SIZE in the
->> > > RISC-V port.  In theory that's a UABI break, as COMMAND_LINE_SIZE is the
->> > > maximum length of /proc/cmdline and userspace could staticly rely on
->> > > that to be correct.
->> > >
->> > > Usually I wouldn't mess around with changing this sort of thing, but
->> > > PowerPC increased it with a5980d064fe2 ("powerpc: Bump COMMAND_LINE_SIZE
->> > > to 2048").  There are also a handful of examples of COMMAND_LINE_SIZE
->> > > increasing, but they're from before the UAPI split so I'm not quite sure
->> > > what that means: e5a6a1c90948 ("powerpc: derive COMMAND_LINE_SIZE from
->> > > asm-generic"), 684d2fd48e71 ("[S390] kernel: Append scpdata to kernel
->> > > boot command line"), 22242681cff5 ("MIPS: Extend COMMAND_LINE_SIZE"),
->> > > and 2b74b85693c7 ("sh: Derive COMMAND_LINE_SIZE from
->> > > asm-generic/setup.h.").
->> > >
->> > > It seems to me like COMMAND_LINE_SIZE really just shouldn't have been
->> > > part of the uapi to begin with, and userspace should be able to handle
->> > > /proc/cmdline of whatever length it turns out to be.  I don't see any
->> > > references to COMMAND_LINE_SIZE anywhere but Linux via a quick Google
->> > > search, but that's not really enough to consider it unused on my end.
->> > >
->> > > The feedback on the v1 seemed to indicate that COMMAND_LINE_SIZE really
->> > > shouldn't be part of uapi, so this now touches all the ports.  I've
->> > > tried to split this all out and leave it bisectable, but I haven't
->> > > tested it all that aggressively.
->> >
->> > Just to confirm this assumption a bit more: that's actually the same
->> > conclusion that we ended up with when commit 3da0243f906a ("s390: make
->> > command line configurable") went upstream.
+> From: Jason Gunthorpe <jgg@nvidia.com>
+> Sent: Thursday, March 2, 2023 1:49 AM
+>=20
+> On Wed, Mar 01, 2023 at 02:04:00PM +0000, Liu, Yi L wrote:
+> > diff --git a/drivers/vfio/group.c b/drivers/vfio/group.c
+> > index 2a13442add43..ed3ffe7ceb3f 100644
+> > --- a/drivers/vfio/group.c
+> > +++ b/drivers/vfio/group.c
+> > @@ -777,6 +777,11 @@ void vfio_device_group_unregister(struct
+> vfio_device *device)
+> >  	mutex_unlock(&device->group->device_lock);
+> >  }
+> >
+> > +bool vfio_device_group_uses_container(struct vfio_device *device)
+> > +{
+> > +	return READ_ONCE(device->group->container);
+> > +}
+>=20
+> As I said this should take in the vfio_device_file because as long as
+> a vfio_device_file exists then group->contianer is required to be stable.
 
-Thanks, I guess I'd missed that one.  At some point I think there was 
-some discussion of making this a Kconfig for everyone, which seems 
-reasonable to me -- our use case for this being extended is syzkaller, 
-but we're sort of just picking a value that's big enough for now and 
-running with it.
+Ok, let me store vfio_group in vfio_devcie_file instead of reach
+it by df->device->group.
 
-Probably best to get it out of uapi first, though, as that way at least 
-it's clear that it's not uABI.
+btw. With vfio_group stored in vfio_device_file, it looks like
+the is_cdev_device flag (introduced in patch 14) is not necessary
+now, we can always define the group pointer in vfio_device_file
+even group code is compiled out, then we can use this group
+pointer to check if the vfio_device_file is used in the group path
+or the cdev path. Is it?
 
->> Commit 622021cd6c560ce7 ("s390: make command line configurable"),
->> I assume?
->
-> Yes, sorry for that. I got distracted while writing and used the wrong
-> branch to look this up.
+> > diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
+> > index 121a75fadceb..4b5b17e8aaa1 100644
+> > --- a/drivers/vfio/vfio_main.c
+> > +++ b/drivers/vfio/vfio_main.c
+> > @@ -422,9 +422,22 @@ static int vfio_device_first_open(struct
+> vfio_device_file *df)
+> >  	if (!try_module_get(device->dev->driver->owner))
+> >  		return -ENODEV;
+> >
+> > +	/*
+> > +	 * The handling here depends on what the user is using.
+> > +	 *
+> > +	 * If user uses iommufd in the group compat mode or the
+> > +	 * cdev path, call vfio_iommufd_bind().
+> > +	 *
+> > +	 * If user uses container in the group legacy mode, call
+> > +	 * vfio_device_group_use_iommu().
+> > +	 *
+> > +	 * If user doesn't use iommufd nor container, this is
+> > +	 * the noiommufd mode in the cdev path, nothing needs
+> > +	 * to be done here just go ahead to open device.
+> > +	 */
+> >  	if (iommufd)
+> >  		ret =3D vfio_iommufd_bind(device, iommufd);
+> > -	else
+> > +	else if (vfio_device_group_uses_container(device))
+> >  		ret =3D vfio_device_group_use_iommu(device);
+>=20
+> But yes, this makes alot more sense..
+>=20
+> Jason
 
-Alex: Probably worth adding that to the list in the cover letter as it 
-looks like you were planning on a v4 anyway (which I guess you now have 
-to do, given that I just added the issue to RISC-V).
+Regards,
+Yi Liu
