@@ -2,77 +2,83 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BA25C6FA8E
-	for <linux-s390@archiver.kernel.org>; Thu,  2 Mar 2023 21:05:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1351FC7EE30
+	for <linux-s390@archiver.kernel.org>; Thu,  2 Mar 2023 23:51:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229523AbjCBVFh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 2 Mar 2023 16:05:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58970 "EHLO
+        id S229617AbjCBXvR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 2 Mar 2023 18:51:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229487AbjCBVFg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Mar 2023 16:05:36 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E92B17CD8
-        for <linux-s390@vger.kernel.org>; Thu,  2 Mar 2023 13:04:53 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1677791092;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=EdnbjlV/XNQ2xABD+7i8aLqQ6C5aoh9/k3+KKrPoC4Q=;
-        b=Gw6fqBWZ1XtD7f6JEmmLfvS/1IvduqRQmZ1uZ1tmK5bnITj4TX6ZmD47CmaMrkgiCEbM2y
-        ErXUj/wW/rfRXyTsE2Jt6fFRc0m9sR4GZyDajKfbWlxdN1r/CBRcdUy1tfi2OnhhuKCT+r
-        dp63OHylAwd9le0uMl0zcVTzoI7ohe0=
-Received: from mail-io1-f72.google.com (mail-io1-f72.google.com
- [209.85.166.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-640-pmQlQBF-NJiR7CVU2JvTwg-1; Thu, 02 Mar 2023 16:04:51 -0500
-X-MC-Unique: pmQlQBF-NJiR7CVU2JvTwg-1
-Received: by mail-io1-f72.google.com with SMTP id b26-20020a5d805a000000b0074cfe3a44aeso222957ior.10
-        for <linux-s390@vger.kernel.org>; Thu, 02 Mar 2023 13:04:51 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=EdnbjlV/XNQ2xABD+7i8aLqQ6C5aoh9/k3+KKrPoC4Q=;
-        b=kNMJnJWraWbhTrlvclsPYdZM8OOJGHGL18Q8+M0WhiOBX6xz/l1el0z58AbqC8Eibu
-         zOFg3qmHC4UAdv8Mix5hlDDfebdojF1dX8xQR4s7rF71PJsLIrwglCIn/XAXgjCK+db5
-         gfXKH9hiwNSwX9AlCqu7a7Ibi4xNgAFSBxFa9ZFp9IwLOsajRK/h2/ZiXu6zAdcjDV3O
-         eabf8CulNh9RyVEuT/OQG4KylPKGK/OUna0xt79VfOE53M6Bs31nLjtJrOfNaVWCf5VI
-         N1XhPruIsJOMKrhd5J1p6oB2gdYFLu6n/zhGIVrPIiOoezz04JqdDuT+cNsApZip741r
-         8Phw==
-X-Gm-Message-State: AO0yUKX4dRra429c1wTigkbr4sPceJLoUWExwCYfF+bAHbWptNDJfwqe
-        m373fFWoREq+mH+eOyAWaHmZx9C3M8ZJmZbuaqxSIia/yGPdrhVMSbHk3jM71JYcUoRgx1z0Udn
-        DqlFCwmTbfIsh54HB7cvIBw==
-X-Received: by 2002:a05:6e02:20e4:b0:317:3f4:c06c with SMTP id q4-20020a056e0220e400b0031703f4c06cmr7773623ilv.20.1677791090656;
-        Thu, 02 Mar 2023 13:04:50 -0800 (PST)
-X-Google-Smtp-Source: AK7set94uChKRWLMdqu/Ih+nuSAZEd1Mmf7EHZCWSlCtEFZv1sWj3peN/v4x5tVoV8vEfvWV2G/sUA==
-X-Received: by 2002:a05:6e02:20e4:b0:317:3f4:c06c with SMTP id q4-20020a056e0220e400b0031703f4c06cmr7773607ilv.20.1677791090355;
-        Thu, 02 Mar 2023 13:04:50 -0800 (PST)
-Received: from redhat.com ([38.15.36.239])
-        by smtp.gmail.com with ESMTPSA id u2-20020a92da82000000b00313ca4be5e1sm109451iln.12.2023.03.02.13.04.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Mar 2023 13:04:49 -0800 (PST)
-Date:   Thu, 2 Mar 2023 14:04:48 -0700
-From:   Alex Williamson <alex.williamson@redhat.com>
-To:     "Liu, Yi L" <yi.l.liu@intel.com>
-Cc:     "jgg@nvidia.com" <jgg@nvidia.com>,
+        with ESMTP id S229572AbjCBXvP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Mar 2023 18:51:15 -0500
+Received: from NAM04-MW2-obe.outbound.protection.outlook.com (mail-mw2nam04on2089.outbound.protection.outlook.com [40.107.101.89])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7662131E1A;
+        Thu,  2 Mar 2023 15:51:14 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Dy4Mv9mYOu0CZeNqSBXnwqpNAEA4qPGD8Y8ryERgOFBJzSHs0x9pfK83vInKqEAjEz7UVa4/7jMInVeLtUpvU1pCry7tc71kRZhdjsUkz9lxUNchfBACj8F73OY+M4tvo+OUeDKYgy9OjobJtvYL0aFW9DnRYSHdmQsjpDEq/RxqXaZjB50ep9+UHCAllI3o+Qjk2MpfSzbhLfm4fXxAM0h0uUuz5RYByJGIQLHE5jBFWCUe3wanX37Q2TMx5S7WLPoLAXG6TyLOZMUusgAHiRdMFpIYtd7nWFZqIfLkFmR0bexHhZ5N2Wb4V3wugLnVD7NrlbMgQGNzrkh+BhgMEw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=a7Bj7avGcjL9j8XTnhE5AE6PSjl/ZjWPj3qg8707/6o=;
+ b=Bxaa6LWtjyxeo1AMvSYwAASTQyBV48up/4ImKXEZUk3GTvuifO5+NY9T9iC9YmDZDq+wpPSQpdh6F+JHNlfnDgdwFDkIy9Nx33UmjfjmLcdPObpFnb6R4M+hLksY7y8La4LVHAZ8+yYVjT35cI5Ttl+e0OT2p/6siO0eRR+sPRP2TW4ib0eECJso4fRMuWxMqkHj9EKbDTPiVWh2su9fGEBcdHxw7XSKWc5Cy+fYONXh6220mttnuW3I39P9vYn0iPpEpes2dh2rhQ0yBLVNU4mzccutqawnyhpqMYHQnWDERwP+FcrBiKCV6ny8EP6+aMIQW2NQXtT6405FluI43g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.118.233) smtp.rcpttodomain=huawei.com smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=a7Bj7avGcjL9j8XTnhE5AE6PSjl/ZjWPj3qg8707/6o=;
+ b=Nl0f3vHIkb+Pd964Xfnyl/+TVdYIIRRk388Jn8CNlYTNGSVjknzqYKD9jXTFkx7mkxJRzrkQuzaOiTpgDCcnzs5hFZkYO6R9WPnLtbsfYy//JZs/wgdHsV81r1lHyZLgzAtItamg2TQGpGu2HPRgB7WHfWIJv24dOquKCof1anrxepaifUn7LuGBm7yLfUBvP3ovUILf8vJ64UHuCwgQo8/aDsRDjI2lnUMUzf7L7Y1VP3g334PZE+en+nH2rAX82R8V1X8F8ljsYBo5ZUzwZpVK+ZApBOS5CHHVb6RkAIxZJ5OLkictFNc2DpPB5zays0DoY9C9dDuKHF0Yc6rjAg==
+Received: from BN0PR04CA0120.namprd04.prod.outlook.com (2603:10b6:408:ec::35)
+ by BY5PR12MB4034.namprd12.prod.outlook.com (2603:10b6:a03:205::9) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6156.19; Thu, 2 Mar
+ 2023 23:51:11 +0000
+Received: from BN8NAM11FT018.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:408:ec:cafe::73) by BN0PR04CA0120.outlook.office365.com
+ (2603:10b6:408:ec::35) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6156.19 via Frontend
+ Transport; Thu, 2 Mar 2023 23:51:11 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.118.233)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.118.233 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.118.233; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.118.233) by
+ BN8NAM11FT018.mail.protection.outlook.com (10.13.176.89) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.6156.19 via Frontend Transport; Thu, 2 Mar 2023 23:51:11 +0000
+Received: from drhqmail202.nvidia.com (10.126.190.181) by mail.nvidia.com
+ (10.127.129.6) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.5; Thu, 2 Mar 2023
+ 15:51:09 -0800
+Received: from drhqmail202.nvidia.com (10.126.190.181) by
+ drhqmail202.nvidia.com (10.126.190.181) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.986.37; Thu, 2 Mar 2023 15:51:09 -0800
+Received: from Asurada-Nvidia (10.127.8.11) by mail.nvidia.com
+ (10.126.190.181) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.5 via Frontend
+ Transport; Thu, 2 Mar 2023 15:51:08 -0800
+Date:   Thu, 2 Mar 2023 15:51:06 -0800
+From:   Nicolin Chen <nicolinc@nvidia.com>
+To:     Shameerali Kolothum Thodi <shameerali.kolothum.thodi@huawei.com>
+CC:     "Xu, Terrence" <terrence.xu@intel.com>,
+        "Liu, Yi L" <yi.l.liu@intel.com>, Jason Gunthorpe <jgg@nvidia.com>,
+        "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
         "Tian, Kevin" <kevin.tian@intel.com>,
         "joro@8bytes.org" <joro@8bytes.org>,
         "robin.murphy@arm.com" <robin.murphy@arm.com>,
         "cohuck@redhat.com" <cohuck@redhat.com>,
         "eric.auger@redhat.com" <eric.auger@redhat.com>,
-        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
         "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
         "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
         "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
         "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
         "peterx@redhat.com" <peterx@redhat.com>,
         "jasowang@redhat.com" <jasowang@redhat.com>,
-        "shameerali.kolothum.thodi@huawei.com" 
-        <shameerali.kolothum.thodi@huawei.com>,
         "lulu@redhat.com" <lulu@redhat.com>,
         "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
         "intel-gvt-dev@lists.freedesktop.org" 
@@ -80,116 +86,58 @@ Cc:     "jgg@nvidia.com" <jgg@nvidia.com>,
         "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
         "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
         "Hao, Xudong" <xudong.hao@intel.com>,
-        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
-        "Xu, Terrence" <terrence.xu@intel.com>
-Subject: Re: [PATCH v5 09/19] vfio/pci: Allow passing zero-length fd array
- in VFIO_DEVICE_PCI_HOT_RESET
-Message-ID: <20230302140448.5a6a748a.alex.williamson@redhat.com>
-In-Reply-To: <DS0PR11MB75295B4B2578765C8B08AC7EC3B29@DS0PR11MB7529.namprd11.prod.outlook.com>
+        "Zhao, Yan Y" <yan.y.zhao@intel.com>
+Subject: Re: [PATCH v5 00/19] Add vfio_device cdev for iommufd support
+Message-ID: <ZAE2J0I1LiBjWUnm@Asurada-Nvidia>
 References: <20230227111135.61728-1-yi.l.liu@intel.com>
-        <20230227111135.61728-10-yi.l.liu@intel.com>
-        <DS0PR11MB75295B4B2578765C8B08AC7EC3B29@DS0PR11MB7529.namprd11.prod.outlook.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
+ <Y/0Cr/tcNCzzIAhi@nvidia.com>
+ <DS0PR11MB7529A422D4361B39CCA3D248C3AC9@DS0PR11MB7529.namprd11.prod.outlook.com>
+ <SA1PR11MB5873479F73CFBAA170717624F0AC9@SA1PR11MB5873.namprd11.prod.outlook.com>
+ <Y/64ejbhMiV77uUA@Asurada-Nvidia>
+ <b7c1f9d5b4b647f0b0686c3b99f3d006@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <b7c1f9d5b4b647f0b0686c3b99f3d006@huawei.com>
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BN8NAM11FT018:EE_|BY5PR12MB4034:EE_
+X-MS-Office365-Filtering-Correlation-Id: db36bbe9-afad-478c-88eb-08db1b79003e
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 6RP6V7Vttuqx+W4qm/3kkA3aIuGFUaPn/crIIV2lu8RKEmg/7hs0C8krSfVFnNRUaJkbN+gVsNJqzK7rjy3h2zAvn99ukJI73JK95aedHJEKTrHuYQJajMqBW9FLCUIySBs9rsRvClUOTW5pPPDqDfO//LpTbbkcD1W+UePCsyqAlHvILVztrfoKvFa2yoCx8Yto1pQ/SeSOQIZ0Gjg/KcEE3qhFf7/tyBGLRwN+kEyvIunBiyJrpgo8N1ciYnFe9Ft9GKUHluVDNM4KRMbShcihJO2/okUBAq+ZhD2cQjWo6KFqnURzYDgqd1lbePwMrBDabYbBKeJyK0ZfwdqJU3JefmfpSqg2nGpUb6WruFuqrGLlQmIx5Jxh121YCGVyLQAZV0pYDv2Ck3HdCaEH4T/lzJKvx2Fq1TrCE2xtgLFzz4Dxkw0i1hyoxPDUUR5QMOq0UsZA8xI82hAPSqlNzm3i0vJR8xno/m8u5TMWQ0xpsGAQ4VfVki9smVjD14uJ8Ywk8H69oevwVq36GsTt88/y5Bn5a0VoibMh1Yg3SkEYBc1/ZMXxjkGXNsVuBZzfeMd70U5KPWGD/m4kEkg1oz0Sx1JEOdt3YeC0/o+DsnsEuK3a42pkgu17M53oy8too7lw2MBamU67xieZRRCoQMcamJ6AT6QY32I0ey6+/gVpU/os1D+f4o75O2yt10EyAUNBtSwbB8mThiKcp7Z3bGTXi7k1YvFLMgD6Ia26lRQNQGuoAhD7XJMX8oNtl5z1
+X-Forefront-Antispam-Report: CIP:216.228.118.233;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge2.nvidia.com;CAT:NONE;SFS:(13230025)(4636009)(396003)(39860400002)(136003)(346002)(376002)(451199018)(36840700001)(46966006)(186003)(966005)(336012)(9686003)(26005)(316002)(54906003)(41300700001)(6916009)(4326008)(2906002)(8676002)(4744005)(70586007)(478600001)(8936002)(7416002)(5660300002)(7636003)(82740400003)(33716001)(86362001)(40480700001)(55016003)(82310400005)(356005)(36860700001)(34020700004)(83380400001)(70206006)(426003)(47076005);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Mar 2023 23:51:11.0116
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: db36bbe9-afad-478c-88eb-08db1b79003e
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.118.233];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT018.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR12MB4034
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 2 Mar 2023 06:07:04 +0000
-"Liu, Yi L" <yi.l.liu@intel.com> wrote:
-
-> > From: Liu, Yi L <yi.l.liu@intel.com>
-> > Sent: Monday, February 27, 2023 7:11 PM  
-> [...]
-> > @@ -2392,13 +2416,25 @@ static int
-> > vfio_pci_dev_set_pm_runtime_get(struct vfio_device_set *dev_set)
-> >  	return ret;
-> >  }
-> > 
-> > +static bool vfio_dev_in_iommufd_ctx(struct vfio_pci_core_device *vdev,
-> > +				    struct iommufd_ctx *iommufd_ctx)
-> > +{
-> > +	struct iommufd_ctx *iommufd = vfio_device_iommufd(&vdev-  
-> > >vdev);  
-> > +
-> > +	if (!iommufd)
-> > +		return false;
-> > +
-> > +	return iommufd == iommufd_ctx;
-> > +}
-> > +
-> >  /*
-> >   * We need to get memory_lock for each device, but devices can share
-> > mmap_lock,
-> >   * therefore we need to zap and hold the vma_lock for each device, and
-> > only then
-> >   * get each memory_lock.
-> >   */
-> >  static int vfio_pci_dev_set_hot_reset(struct vfio_device_set *dev_set,
-> > -				      struct vfio_pci_group_info *groups)
-> > +				      struct vfio_pci_group_info *groups,
-> > +				      struct iommufd_ctx *iommufd_ctx)
-> >  {
-> >  	struct vfio_pci_core_device *cur_mem;
-> >  	struct vfio_pci_core_device *cur_vma;
-> > @@ -2429,10 +2465,27 @@ static int vfio_pci_dev_set_hot_reset(struct
-> > vfio_device_set *dev_set,
-> > 
-> >  	list_for_each_entry(cur_vma, &dev_set->device_list,
-> > vdev.dev_set_list) {
-> >  		/*
-> > -		 * Test whether all the affected devices are contained by
-> > the
-> > -		 * set of groups provided by the user.
-> > +		 * Test whether all the affected devices can be reset by the
-> > +		 * user.  The affected devices may already been opened or
-> > not
-> > +		 * yet.
-> > +		 *
-> > +		 * For the devices not opened yet, user can reset them. The
-> > +		 * reason is that the hot reset is done under the protection
-> > +		 * of the dev_set->lock, and device open is also under this
-> > +		 * lock.  During the hot reset, such devices can not be
-> > opened
-> > +		 * by other users.
-> > +		 *
-> > +		 * For the devices that have been opened, needs to check
-> > the
-> > +		 * ownership.  If the user provides a set of group fds, the
-> > +		 * ownership check is done by checking if all the opened
-> > +		 * devices are contained by the groups.  If the user provides
-> > +		 * a zero-length fd array, the ownerhsip check is done by
-> > +		 * checking if all the opened devices are bound to the same
-> > +		 * iommufd_ctx.
-> >  		 */
-> > -		if (!vfio_dev_in_groups(cur_vma, groups)) {
-> > +		if (cur_vma->vdev.open_count &&
-> > +		    !vfio_dev_in_groups(cur_vma, groups) &&
-> > +		    !vfio_dev_in_iommufd_ctx(cur_vma, iommufd_ctx)) {  
+On Thu, Mar 02, 2023 at 09:43:00AM +0000, Shameerali Kolothum Thodi wrote:
+ 
+> Hi Nicolin,
 > 
-> Hi Alex, Jason,
+> Thanks for the latest ARM64 branch. Do you have a working Qemu branch corresponding to the
+> above one?
 > 
-> There is one concern on this approach which is related to the
-> cdev noiommu mode. As patch 16 of this series, cdev path
-> supports noiommu mode by passing a negative iommufd to
-> kernel. In such case, the vfio_device is not bound to a valid
-> iommufd. Then the check in vfio_dev_in_iommufd_ctx() is
-> to be broken.
+> I tried the https://github.com/nicolinc/qemu/tree/wip/iommufd_rfcv3%2Bnesting%2Bsmmuv3
+> but for some reason not able to launch the Guest.
 > 
-> An idea is to add a cdev_noiommu flag in vfio_device, when
-> checking the iommufd_ictx, also check this flag. If all the opened
-> devices in the dev_set have vfio_device->cdev_noiommu==true,
-> then the reset is considered to be doable. But there is a special
-> case. If devices in this dev_set are opened by two applications
-> that operates in cdev noiommu mode, then this logic is not able
-> to differentiate them. In that case, should we allow the reset?
-> It seems to ok to allow reset since noiommu mode itself means
-> no security between the applications that use it. thoughts?
+> Please let me know.
 
-I don't think the existing vulnerabilities of no-iommu mode should be
-carte blanche to add additional weaknesses.  Thanks,
+I do use that branch. It might not be that robust though as it
+went through a big rebase. Can you try with the followings?
 
-Alex
+--trace "iommufd*" --trace "smmu*" --trace "vfio_*" --trace "pci_*" --trace "msi_*" --trace "nvme_*"
 
+Thanks
+Nicolin
