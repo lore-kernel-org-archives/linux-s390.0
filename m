@@ -2,86 +2,104 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B0D85C678D4
-	for <linux-s390@archiver.kernel.org>; Fri,  3 Mar 2023 04:24:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D7CA3C7EE2F
+	for <linux-s390@archiver.kernel.org>; Fri,  3 Mar 2023 05:22:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229560AbjCCEYA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 2 Mar 2023 23:24:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49024 "EHLO
+        id S229562AbjCCFWs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 3 Mar 2023 00:22:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229457AbjCCEX6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Mar 2023 23:23:58 -0500
-Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 884B38A62;
-        Thu,  2 Mar 2023 20:23:57 -0800 (PST)
-Received: by mail-ed1-x534.google.com with SMTP id cy23so5393290edb.12;
-        Thu, 02 Mar 2023 20:23:57 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1677817436;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=LWkAmOKELsdSC5Yfx7mlEFbvroVnh9MD92zickJKhrU=;
-        b=q6VtJ7hBD+VeIdeQaEj93deAuE8Zv2a44nGDMXnxjQsGkxx0zyqIAc78Avmi5FP7KH
-         RJ2AivfywfSkAhV7WVOSyVMT0pywE0Em67G1VGxcY0brMvx2c07jKzB1eyKNWO2FrOth
-         kcUu+i4YJnMO/5e8eOPARnNks+GDuRcVDNYiRouUb1XrADBG67YuUg5/kEedAooog+St
-         JX70vPQdvYtXVD87gLUe2Twovfkf1xvIe4L1INE5BxLfUuI3SqKGBDM2EkLh8kGV3mIh
-         pqIad2iY7kZNnJt8sdMxOjJjOhBgDjYvEpK5unBUh1VN/HW3PK/ww0agDM9uftTRlRNX
-         mtDg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1677817436;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=LWkAmOKELsdSC5Yfx7mlEFbvroVnh9MD92zickJKhrU=;
-        b=Wf8+OJQSs/WdVvP4GIgCWvLSKMW9icmlrqp92x+2jPxnyJuJIIMU+gpfKZYKRZsdtc
-         K6osvlnveoT7+yGnULFPurNGtv3vhKPmo4XpstLlbhY/U653egdmvXIFLpBYIvHkjezk
-         VmphMxXFew3fAq54BSp7TPr0ezt1bHTVw0dBM+BsNtdHBg3Qbddn+O2TSkGKom0lGEbu
-         y9Qlz1dD1dDvNTTVlWpUquAuzL0W5u/RTKtKyXkqLcXxUpkVv+KMB5fJ+Vnbrjp7AQ0Q
-         C18WMpptjr1itBKJbDF10MyiOJOfSvKw1kwF6jsAdZT47YZe2HvYlByRTIP5cq/o37jd
-         9wcg==
-X-Gm-Message-State: AO0yUKUw1nmqblR9Gr5uYhR3ZC/zFiEFqxfl0wX91+hXMom6Q+OiNJWb
-        upNkrMW0KiPjmaiYNzDi9leeV6pIKeQ=
-X-Google-Smtp-Source: AK7set/URveLo9HNdChSIa0VqVy3GmW3mAMbrne9qtlVcT5+N6O431WX404mDOEVlRIjvpOz0vY20Q==
-X-Received: by 2002:aa7:d68f:0:b0:4ae:eab6:a07b with SMTP id d15-20020aa7d68f000000b004aeeab6a07bmr240790edr.16.1677817435987;
-        Thu, 02 Mar 2023 20:23:55 -0800 (PST)
-Received: from localhost ([102.36.222.112])
-        by smtp.gmail.com with ESMTPSA id i18-20020a50d752000000b004accf3a63cbsm646509edj.68.2023.03.02.20.23.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Mar 2023 20:23:55 -0800 (PST)
-Date:   Fri, 3 Mar 2023 07:23:52 +0300
-From:   Dan Carpenter <error27@gmail.com>
-To:     Yu Zhe <yuzhe@nfschina.com>
-Cc:     freude@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        with ESMTP id S229445AbjCCFWs (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Mar 2023 00:22:48 -0500
+Received: from mail.nfschina.com (unknown [42.101.60.237])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A321714988;
+        Thu,  2 Mar 2023 21:22:46 -0800 (PST)
+Received: from localhost (unknown [127.0.0.1])
+        by mail.nfschina.com (Postfix) with ESMTP id 7C1061A00AA7;
+        Fri,  3 Mar 2023 13:23:30 +0800 (CST)
+X-Virus-Scanned: amavisd-new at nfschina.com
+Received: from mail.nfschina.com ([127.0.0.1])
+        by localhost (localhost.localdomain [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id dwzXF7kyVtNh; Fri,  3 Mar 2023 13:23:29 +0800 (CST)
+Received: from localhost.localdomain (unknown [180.167.10.98])
+        (Authenticated sender: yuzhe@nfschina.com)
+        by mail.nfschina.com (Postfix) with ESMTPA id D97361A0087A;
+        Fri,  3 Mar 2023 13:23:28 +0800 (CST)
+From:   Yu Zhe <yuzhe@nfschina.com>
+To:     freude@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
         agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org,
-        liqiong@nfschina.com
-Subject: Re: [PATCH v2] s390/zcrypt: remove unnecessary (void*) conversions
-Message-ID: <ZAF2WA5pDQYFjwtm@kadam>
-References: <20230223011212.13045-1-yuzhe@nfschina.com>
- <20230303013250.3058-1-yuzhe@nfschina.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+        svens@linux.ibm.com
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kernel-janitors@vger.kernel.org, liqiong@nfschina.com,
+        Yu Zhe <yuzhe@nfschina.com>
+Subject: [PATCH v3] s390/zcrypt: remove unnecessary (void*) conversions
+Date:   Fri,  3 Mar 2023 13:21:55 +0800
+Message-Id: <20230303052155.21072-1-yuzhe@nfschina.com>
+X-Mailer: git-send-email 2.11.0
 In-Reply-To: <20230303013250.3058-1-yuzhe@nfschina.com>
+References: <20230303013250.3058-1-yuzhe@nfschina.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Mar 03, 2023 at 09:32:50AM +0800, Yu Zhe wrote:
-> @@ -1157,7 +1155,7 @@ static long zcrypt_msgtype6_send_cprb(bool userspace, struct zcrypt_queue *zq,
->  				      struct ap_message *ap_msg)
->  {
->  	int rc;
-> -	struct response_type *rtype = (struct response_type *)(ap_msg->private);
-> +	struct response_type *rtype = (ap_msg->private);
+Pointer variables of void * type do not require type cast.
 
-If you're going to do this the get rid of the parentheses as well:
+Signed-off-by: Yu Zhe <yuzhe@nfschina.com>
+---
+ drivers/s390/crypto/zcrypt_msgtype6.c | 12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
-	struct response_type *rtype = ap_msg->private;
-
-Same in other places.
-
-regards,
-dan carpenter
+diff --git a/drivers/s390/crypto/zcrypt_msgtype6.c b/drivers/s390/crypto/zcrypt_msgtype6.c
+index 5ad251477593..a2e7fe33ba62 100644
+--- a/drivers/s390/crypto/zcrypt_msgtype6.c
++++ b/drivers/s390/crypto/zcrypt_msgtype6.c
+@@ -926,8 +926,7 @@ static void zcrypt_msgtype6_receive(struct ap_queue *aq,
+ 		.type = TYPE82_RSP_CODE,
+ 		.reply_code = REP82_ERROR_MACHINE_FAILURE,
+ 	};
+-	struct response_type *resp_type =
+-		(struct response_type *)msg->private;
++	struct response_type *resp_type = msg->private;
+ 	struct type86x_reply *t86r;
+ 	int len;
+ 
+@@ -982,8 +981,7 @@ static void zcrypt_msgtype6_receive_ep11(struct ap_queue *aq,
+ 		.type = TYPE82_RSP_CODE,
+ 		.reply_code = REP82_ERROR_MACHINE_FAILURE,
+ 	};
+-	struct response_type *resp_type =
+-		(struct response_type *)msg->private;
++	struct response_type *resp_type = msg->private;
+ 	struct type86_ep11_reply *t86r;
+ 	int len;
+ 
+@@ -1157,7 +1155,7 @@ static long zcrypt_msgtype6_send_cprb(bool userspace, struct zcrypt_queue *zq,
+ 				      struct ap_message *ap_msg)
+ {
+ 	int rc;
+-	struct response_type *rtype = (struct response_type *)(ap_msg->private);
++	struct response_type *rtype = ap_msg->private;
+ 	struct {
+ 		struct type6_hdr hdr;
+ 		struct CPRBX cprbx;
+@@ -1240,7 +1238,7 @@ static long zcrypt_msgtype6_send_ep11_cprb(bool userspace, struct zcrypt_queue *
+ {
+ 	int rc;
+ 	unsigned int lfmt;
+-	struct response_type *rtype = (struct response_type *)(ap_msg->private);
++	struct response_type *rtype = ap_msg->private;
+ 	struct {
+ 		struct type6_hdr hdr;
+ 		struct ep11_cprb cprbx;
+@@ -1359,7 +1357,7 @@ static long zcrypt_msgtype6_rng(struct zcrypt_queue *zq,
+ 		short int verb_length;
+ 		short int key_length;
+ 	} __packed * msg = ap_msg->msg;
+-	struct response_type *rtype = (struct response_type *)(ap_msg->private);
++	struct response_type *rtype = ap_msg->private;
+ 	int rc;
+ 
+ 	msg->cprbx.domain = AP_QID_QUEUE(zq->queue->qid);
+-- 
+2.11.0
 
