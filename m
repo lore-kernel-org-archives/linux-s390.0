@@ -2,120 +2,119 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AD1F4C678D4
-	for <linux-s390@archiver.kernel.org>; Fri,  3 Mar 2023 11:02:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B0B9BC7EE37
+	for <linux-s390@archiver.kernel.org>; Fri,  3 Mar 2023 11:59:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229887AbjCCLCl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 3 Mar 2023 06:02:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44710 "EHLO
+        id S230312AbjCCL70 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 3 Mar 2023 06:59:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230198AbjCCLCk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Mar 2023 06:02:40 -0500
-Received: from madras.collabora.co.uk (madras.collabora.co.uk [46.235.227.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFF6F5F6ED;
-        Fri,  3 Mar 2023 03:02:38 -0800 (PST)
-Received: from [192.168.10.39] (unknown [182.179.171.187])
-        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits))
-        (No client certificate requested)
-        (Authenticated sender: usama.anjum)
-        by madras.collabora.co.uk (Postfix) with ESMTPSA id 9BADE6600363;
-        Fri,  3 Mar 2023 11:02:31 +0000 (GMT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-        s=mail; t=1677841357;
-        bh=jYpU2R+/5CCDdv+B9z7WY6WA2foey3UzjG0WVVgYfrg=;
-        h=Date:Cc:Subject:To:References:From:In-Reply-To:From;
-        b=DawcHy4cIsKanK3u1RtWmcN9Z0IGLkwcE3cDI43A1EIpDNBa/4JCUN+TJwTOy9GiC
-         cb4z/eUUyZwB6nslhca7BKzxSkVq7v5gpKcp75vD8MjQo5QB/wUpptwS6IXWcHj9BD
-         LXFPNWVy6KoCg9Jz7wrnqajpIatquB8Vu41mxrK2yZcQP7ILQiqIssXrBUs0bgXZHQ
-         YL+bFpaU7qPhn7OWbpx6ifSBzFjVQHDir2N2qdxAO04vWrHHNeP5Shftxfhp0uLB8k
-         jZk4mM8cnz9IkXfmfk9LchMEUYLzek6WgtXgG8wEiPxgOaaShhElV67lrZl0nTYDBf
-         iQMDkXsINOjnQ==
-Message-ID: <67d475aa-b999-bf57-3aa3-40ad4b50e21d@collabora.com>
-Date:   Fri, 3 Mar 2023 16:02:26 +0500
+        with ESMTP id S229734AbjCCL7Z (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Mar 2023 06:59:25 -0500
+Received: from relay9-d.mail.gandi.net (relay9-d.mail.gandi.net [217.70.183.199])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49BF82D53;
+        Fri,  3 Mar 2023 03:59:21 -0800 (PST)
+Received: (Authenticated sender: alex@ghiti.fr)
+        by mail.gandi.net (Postfix) with ESMTPSA id 078BCFF807;
+        Fri,  3 Mar 2023 11:59:01 +0000 (UTC)
+Message-ID: <674bc31e-e4ed-988f-820d-54213d83f9c7@ghiti.fr>
+Date:   Fri, 3 Mar 2023 12:59:01 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.2
-Cc:     Muhammad Usama Anjum <usama.anjum@collabora.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kernel-janitors@vger.kernel.org, liqiong@nfschina.com
-Subject: Re: [PATCH v3] s390/zcrypt: remove unnecessary (void*) conversions
+ Thunderbird/102.7.1
+Subject: Re: [PATCH v3 00/24] Remove COMMAND_LINE_SIZE from uapi
 Content-Language: en-US
-To:     Yu Zhe <yuzhe@nfschina.com>, freude@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com
-References: <20230303013250.3058-1-yuzhe@nfschina.com>
- <20230303052155.21072-1-yuzhe@nfschina.com>
-From:   Muhammad Usama Anjum <usama.anjum@collabora.com>
-In-Reply-To: <20230303052155.21072-1-yuzhe@nfschina.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+To:     "H. Peter Anvin" <hpa@zytor.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>, hca@linux.ibm.com
+Cc:     geert@linux-m68k.org, alexghiti@rivosinc.com, corbet@lwn.net,
+        Richard Henderson <richard.henderson@linaro.org>,
+        ink@jurassic.park.msu.ru, mattst88@gmail.com, vgupta@kernel.org,
+        linux@armlinux.org.uk, Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, chenhuacai@kernel.org,
+        kernel@xen0n.name, monstr@monstr.eu, tsbogend@alpha.franken.de,
+        James.Bottomley@hansenpartnership.com, deller@gmx.de,
+        mpe@ellerman.id.au, npiggin@gmail.com, christophe.leroy@csgroup.eu,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        aou@eecs.berkeley.edu, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        ysato@users.osdn.me, dalias@libc.org, davem@davemloft.net,
+        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        dave.hansen@linux.intel.com, x86@kernel.org, chris@zankel.net,
+        jcmvbkbc@gmail.com, Arnd Bergmann <arnd@arndb.de>,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-m68k@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org,
+        linux-arch@vger.kernel.org
+References: <mhng-e8b09772-24e5-4729-a0bf-01a9e4c76636@palmer-ri-x1c9a>
+ <21F95EC4-71EA-4154-A7DC-8A5BA54F174B@zytor.com>
+From:   Alexandre Ghiti <alex@ghiti.fr>
+In-Reply-To: <21F95EC4-71EA-4154-A7DC-8A5BA54F174B@zytor.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 3/3/23 10:21 AM, Yu Zhe wrote:
-> Pointer variables of void * type do not require type cast.
-> 
-> Signed-off-by: Yu Zhe <yuzhe@nfschina.com>
-Reviewed-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
+Hi Peter,
 
-> ---
->  drivers/s390/crypto/zcrypt_msgtype6.c | 12 +++++-------
->  1 file changed, 5 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/s390/crypto/zcrypt_msgtype6.c b/drivers/s390/crypto/zcrypt_msgtype6.c
-> index 5ad251477593..a2e7fe33ba62 100644
-> --- a/drivers/s390/crypto/zcrypt_msgtype6.c
-> +++ b/drivers/s390/crypto/zcrypt_msgtype6.c
-> @@ -926,8 +926,7 @@ static void zcrypt_msgtype6_receive(struct ap_queue *aq,
->  		.type = TYPE82_RSP_CODE,
->  		.reply_code = REP82_ERROR_MACHINE_FAILURE,
->  	};
-> -	struct response_type *resp_type =
-> -		(struct response_type *)msg->private;
-> +	struct response_type *resp_type = msg->private;
->  	struct type86x_reply *t86r;
->  	int len;
->  
-> @@ -982,8 +981,7 @@ static void zcrypt_msgtype6_receive_ep11(struct ap_queue *aq,
->  		.type = TYPE82_RSP_CODE,
->  		.reply_code = REP82_ERROR_MACHINE_FAILURE,
->  	};
-> -	struct response_type *resp_type =
-> -		(struct response_type *)msg->private;
-> +	struct response_type *resp_type = msg->private;
->  	struct type86_ep11_reply *t86r;
->  	int len;
->  
-> @@ -1157,7 +1155,7 @@ static long zcrypt_msgtype6_send_cprb(bool userspace, struct zcrypt_queue *zq,
->  				      struct ap_message *ap_msg)
->  {
->  	int rc;
-> -	struct response_type *rtype = (struct response_type *)(ap_msg->private);
-> +	struct response_type *rtype = ap_msg->private;
->  	struct {
->  		struct type6_hdr hdr;
->  		struct CPRBX cprbx;
-> @@ -1240,7 +1238,7 @@ static long zcrypt_msgtype6_send_ep11_cprb(bool userspace, struct zcrypt_queue *
->  {
->  	int rc;
->  	unsigned int lfmt;
-> -	struct response_type *rtype = (struct response_type *)(ap_msg->private);
-> +	struct response_type *rtype = ap_msg->private;
->  	struct {
->  		struct type6_hdr hdr;
->  		struct ep11_cprb cprbx;
-> @@ -1359,7 +1357,7 @@ static long zcrypt_msgtype6_rng(struct zcrypt_queue *zq,
->  		short int verb_length;
->  		short int key_length;
->  	} __packed * msg = ap_msg->msg;
-> -	struct response_type *rtype = (struct response_type *)(ap_msg->private);
-> +	struct response_type *rtype = ap_msg->private;
->  	int rc;
->  
->  	msg->cprbx.domain = AP_QID_QUEUE(zq->queue->qid);
 
--- 
-BR,
-Muhammad Usama Anjum
+On 3/2/23 20:50, H. Peter Anvin wrote:
+> On March 1, 2023 7:17:18 PM PST, Palmer Dabbelt <palmer@dabbelt.com> wrote:
+>> On Tue, 14 Feb 2023 01:19:02 PST (-0800), hca@linux.ibm.com wrote:
+>>> On Tue, Feb 14, 2023 at 09:58:17AM +0100, Geert Uytterhoeven wrote:
+>>>> Hi Heiko,
+>>>>
+>>>> On Tue, Feb 14, 2023 at 9:39 AM Heiko Carstens <hca@linux.ibm.com> wrote:
+>>>>> On Tue, Feb 14, 2023 at 08:49:01AM +0100, Alexandre Ghiti wrote:
+>>>>>> This all came up in the context of increasing COMMAND_LINE_SIZE in the
+>>>>>> RISC-V port.  In theory that's a UABI break, as COMMAND_LINE_SIZE is the
+>>>>>> maximum length of /proc/cmdline and userspace could staticly rely on
+>>>>>> that to be correct.
+>>>>>>
+>>>>>> Usually I wouldn't mess around with changing this sort of thing, but
+>>>>>> PowerPC increased it with a5980d064fe2 ("powerpc: Bump COMMAND_LINE_SIZE
+>>>>>> to 2048").  There are also a handful of examples of COMMAND_LINE_SIZE
+>>>>>> increasing, but they're from before the UAPI split so I'm not quite sure
+>>>>>> what that means: e5a6a1c90948 ("powerpc: derive COMMAND_LINE_SIZE from
+>>>>>> asm-generic"), 684d2fd48e71 ("[S390] kernel: Append scpdata to kernel
+>>>>>> boot command line"), 22242681cff5 ("MIPS: Extend COMMAND_LINE_SIZE"),
+>>>>>> and 2b74b85693c7 ("sh: Derive COMMAND_LINE_SIZE from
+>>>>>> asm-generic/setup.h.").
+>>>>>>
+>>>>>> It seems to me like COMMAND_LINE_SIZE really just shouldn't have been
+>>>>>> part of the uapi to begin with, and userspace should be able to handle
+>>>>>> /proc/cmdline of whatever length it turns out to be.  I don't see any
+>>>>>> references to COMMAND_LINE_SIZE anywhere but Linux via a quick Google
+>>>>>> search, but that's not really enough to consider it unused on my end.
+>>>>>>
+>>>>>> The feedback on the v1 seemed to indicate that COMMAND_LINE_SIZE really
+>>>>>> shouldn't be part of uapi, so this now touches all the ports.  I've
+>>>>>> tried to split this all out and leave it bisectable, but I haven't
+>>>>>> tested it all that aggressively.
+>>>>> Just to confirm this assumption a bit more: that's actually the same
+>>>>> conclusion that we ended up with when commit 3da0243f906a ("s390: make
+>>>>> command line configurable") went upstream.
+>> Thanks, I guess I'd missed that one.  At some point I think there was some discussion of making this a Kconfig for everyone, which seems reasonable to me -- our use case for this being extended is syzkaller, but we're sort of just picking a value that's big enough for now and running with it.
+>>
+>> Probably best to get it out of uapi first, though, as that way at least it's clear that it's not uABI.
+>>
+>>>> Commit 622021cd6c560ce7 ("s390: make command line configurable"),
+>>>> I assume?
+>>> Yes, sorry for that. I got distracted while writing and used the wrong
+>>> branch to look this up.
+>> Alex: Probably worth adding that to the list in the cover letter as it looks like you were planning on a v4 anyway (which I guess you now have to do, given that I just added the issue to RISC-V).
+> The only use that is uapi is the *default* length of the command line if the kernel header doesn't include it (in the case of x86, it is in the bzImage header, but that is atchitecture- or even boot format-specific.)
+
+Is COMMAND_LINE_SIZE what you call the default length? Does that mean 
+that to you the patchset is wrong?
+
+Thanks,
+
+Alex
+
+
