@@ -2,150 +2,171 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9167CC7EE2F
-	for <linux-s390@archiver.kernel.org>; Fri,  3 Mar 2023 15:01:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 85289C7EE37
+	for <linux-s390@archiver.kernel.org>; Fri,  3 Mar 2023 16:41:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231290AbjCCPBQ convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 3 Mar 2023 10:01:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44344 "EHLO
+        id S231143AbjCCQln (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 3 Mar 2023 11:41:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231389AbjCCPBK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Mar 2023 10:01:10 -0500
-Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CBB0637CA;
-        Fri,  3 Mar 2023 07:01:07 -0800 (PST)
-Received: from lhrpeml500005.china.huawei.com (unknown [172.18.147.200])
-        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4PSrdJ6cxfz6H7B7;
-        Fri,  3 Mar 2023 22:56:04 +0800 (CST)
-Received: from lhrpeml500005.china.huawei.com (7.191.163.240) by
- lhrpeml500005.china.huawei.com (7.191.163.240) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.21; Fri, 3 Mar 2023 15:01:03 +0000
-Received: from lhrpeml500005.china.huawei.com ([7.191.163.240]) by
- lhrpeml500005.china.huawei.com ([7.191.163.240]) with mapi id 15.01.2507.021;
- Fri, 3 Mar 2023 15:01:03 +0000
-From:   Shameerali Kolothum Thodi <shameerali.kolothum.thodi@huawei.com>
-To:     Nicolin Chen <nicolinc@nvidia.com>
-CC:     "Xu, Terrence" <terrence.xu@intel.com>,
-        "Liu, Yi L" <yi.l.liu@intel.com>, Jason Gunthorpe <jgg@nvidia.com>,
-        "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
-        "Tian, Kevin" <kevin.tian@intel.com>,
-        "joro@8bytes.org" <joro@8bytes.org>,
-        "robin.murphy@arm.com" <robin.murphy@arm.com>,
-        "cohuck@redhat.com" <cohuck@redhat.com>,
-        "eric.auger@redhat.com" <eric.auger@redhat.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
-        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
-        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
-        "peterx@redhat.com" <peterx@redhat.com>,
-        "jasowang@redhat.com" <jasowang@redhat.com>,
-        "lulu@redhat.com" <lulu@redhat.com>,
-        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "Hao, Xudong" <xudong.hao@intel.com>,
-        "Zhao, Yan Y" <yan.y.zhao@intel.com>
-Subject: RE: [PATCH v5 00/19] Add vfio_device cdev for iommufd support
-Thread-Topic: [PATCH v5 00/19] Add vfio_device cdev for iommufd support
-Thread-Index: AQHZSpxHUh/YYv3qukeFp+lKFtoCf67jLB2AgACBDoCAAOlEAIAAn5IAgAIKi/CAAO3wAIAA+kPA
-Date:   Fri, 3 Mar 2023 15:01:03 +0000
-Message-ID: <d59a0262d5bf423c9e49ad4ac6015296@huawei.com>
-References: <20230227111135.61728-1-yi.l.liu@intel.com>
- <Y/0Cr/tcNCzzIAhi@nvidia.com>
- <DS0PR11MB7529A422D4361B39CCA3D248C3AC9@DS0PR11MB7529.namprd11.prod.outlook.com>
- <SA1PR11MB5873479F73CFBAA170717624F0AC9@SA1PR11MB5873.namprd11.prod.outlook.com>
- <Y/64ejbhMiV77uUA@Asurada-Nvidia>
- <b7c1f9d5b4b647f0b0686c3b99f3d006@huawei.com>
- <ZAE2J0I1LiBjWUnm@Asurada-Nvidia>
-In-Reply-To: <ZAE2J0I1LiBjWUnm@Asurada-Nvidia>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [10.202.227.178]
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-MIME-Version: 1.0
-X-CFilter-Loop: Reflected
+        with ESMTP id S230189AbjCCQlk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Mar 2023 11:41:40 -0500
+Received: from out2-smtp.messagingengine.com (out2-smtp.messagingengine.com [66.111.4.26])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E819729146;
+        Fri,  3 Mar 2023 08:41:23 -0800 (PST)
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.47])
+        by mailout.nyi.internal (Postfix) with ESMTP id 6F3885C00BD;
+        Fri,  3 Mar 2023 11:41:21 -0500 (EST)
+Received: from imap51 ([10.202.2.101])
+  by compute6.internal (MEProxy); Fri, 03 Mar 2023 11:41:21 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+        :cc:content-type:content-type:date:date:from:from:in-reply-to
+        :in-reply-to:message-id:mime-version:references:reply-to:sender
+        :subject:subject:to:to; s=fm1; t=1677861681; x=1677948081; bh=cq
+        QZ3RgaXf1BBbVEeoodJ6F1ZwSPMj6A5MLY/vjXzGA=; b=MBSCbCwUd8juCEDzj6
+        X+v74NFX7yzWnWb/0gMj34SxPvFz8wyL7gywm5fAIqNKELJdPbh2PYOcHyJ8iqlR
+        O8pzmDTMVyBQ9cMZhSKtn6qmb0KnUA81EK1dpH3SIrJLFelykD8o7UZrplrf66L7
+        W9mg6q/stuxyiWKAwsz/FuGl0mIzCybvdEWEtwKs8vITdXabH94KVLj/yk4WWaiY
+        PkScaQMl3egYObdw/lEOs1KQKTN4G4OIlbK8+qX/IrrGOL8Uq8CSP4LjajDkY11d
+        KGKuxzD0Xlm/gwc/z8sKvDkaKXF/dcFxBRwiNzGxIDlYiagYG5UF8qoHNy+mGJFh
+        GxRg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:content-type:date:date
+        :feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm1; t=1677861681; x=1677948081; bh=cqQZ3RgaXf1BB
+        bVEeoodJ6F1ZwSPMj6A5MLY/vjXzGA=; b=UVgk6Z8BckmZDASnwvaGoQorgyUq2
+        pQEk7FSlPDa2e+Q6rFx7ZTuIeUij7y9Rrf9Jgh1cpCMAjevycM9AKxSI61k/v8pu
+        5BgUmz43ShLEMosBdymSqmoT4llAbJWhUPur9BqQ+EvwN+g9cxgv0PSoeVrl3u/u
+        zIloXjwNhKZwaJsdydfOwKJuRZYRnqEYNX9CUSOueTYvicXxGcaESX9Qxxhz2q7S
+        y23I9CLQUnUCpw4C2ZRx4HGFKdPKZ3KpejAaTVQ+9VLjziJILZV7r4FYif1Od77P
+        LCKDNeAD2rne62GXKt9BQv1wGyqBG0OLRFWwu3Fv7ICn92s37LvtH/j/w==
+X-ME-Sender: <xms:MCMCZJAuWXjkvRapyHeNiOF30z0WZtCT2IUSh_DGzagx2t_9BoAGgA>
+    <xme:MCMCZHhPhHJnQj7Jd9oDbBHLtdzlJQj6AQmaaUj1cJd5hx3-3fWQpnUe6W9Ais0gn
+    IpB2WEfan7YoF3bQKY>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrudelledgkeeiucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepofgfggfkjghffffhvfevufgtsehttdertderredtnecuhfhrohhmpedftehr
+    nhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrth
+    htvghrnhepffehueegteeihfegtefhjefgtdeugfegjeelheejueethfefgeeghfektdek
+    teffnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprg
+    hrnhgusegrrhhnuggsrdguvg
+X-ME-Proxy: <xmx:MCMCZEn-u-vskm94MHqpwMb6efig7zWWVGLLDko7WXr67x0p1FHB0w>
+    <xmx:MCMCZDxHsEO9oVcr-nwuh4K7Kk2bkAquoIbrRSs8lGUcL3kT4X9SJA>
+    <xmx:MCMCZOQAoiH6g-an3IU4R8457T0ch4BofH0kMra3K7DfWRtLBv8Gbg>
+    <xmx:MSMCZMdBiQQ4uXlsrvlAy8QwxkZd7eA3C2X8F_mN_fKZzwhl1Hermg>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.nyi.internal (Postfix, from userid 501)
+        id 9A291B60086; Fri,  3 Mar 2023 11:41:20 -0500 (EST)
+X-Mailer: MessagingEngine.com Webmail Interface
+User-Agent: Cyrus-JMAP/3.9.0-alpha0-183-gbf7d00f500-fm-20230220.001-gbf7d00f5
+Mime-Version: 1.0
+Message-Id: <c500840b-b57d-47f2-a3d9-41465b10ffae@app.fastmail.com>
+In-Reply-To: <674bc31e-e4ed-988f-820d-54213d83f9c7@ghiti.fr>
+References: <mhng-e8b09772-24e5-4729-a0bf-01a9e4c76636@palmer-ri-x1c9a>
+ <21F95EC4-71EA-4154-A7DC-8A5BA54F174B@zytor.com>
+ <674bc31e-e4ed-988f-820d-54213d83f9c7@ghiti.fr>
+Date:   Fri, 03 Mar 2023 17:40:46 +0100
+From:   "Arnd Bergmann" <arnd@arndb.de>
+To:     "Alexandre Ghiti" <alex@ghiti.fr>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        "Palmer Dabbelt" <palmer@dabbelt.com>,
+        "Heiko Carstens" <hca@linux.ibm.com>
+Cc:     "Geert Uytterhoeven" <geert@linux-m68k.org>,
+        "Alexandre Ghiti" <alexghiti@rivosinc.com>,
+        "Jonathan Corbet" <corbet@lwn.net>,
+        "Richard Henderson" <richard.henderson@linaro.org>,
+        "Ivan Kokshaysky" <ink@jurassic.park.msu.ru>,
+        "Matt Turner" <mattst88@gmail.com>,
+        "Vineet Gupta" <vgupta@kernel.org>,
+        "Russell King" <linux@armlinux.org.uk>,
+        "Catalin Marinas" <catalin.marinas@arm.com>,
+        "Will Deacon" <will@kernel.org>,
+        "Huacai Chen" <chenhuacai@kernel.org>,
+        "WANG Xuerui" <kernel@xen0n.name>,
+        "Michal Simek" <monstr@monstr.eu>,
+        "Thomas Bogendoerfer" <tsbogend@alpha.franken.de>,
+        "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
+        "Helge Deller" <deller@gmx.de>,
+        "Michael Ellerman" <mpe@ellerman.id.au>,
+        "Nicholas Piggin" <npiggin@gmail.com>,
+        "Christophe Leroy" <christophe.leroy@csgroup.eu>,
+        "Paul Walmsley" <paul.walmsley@sifive.com>,
+        "Albert Ou" <aou@eecs.berkeley.edu>, gor@linux.ibm.com,
+        "Alexander Gordeev" <agordeev@linux.ibm.com>,
+        borntraeger@linux.ibm.com, "Sven Schnelle" <svens@linux.ibm.com>,
+        ysato@users.osdn.me, "Rich Felker" <dalias@libc.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        "Thomas Gleixner" <tglx@linutronix.de>,
+        "Ingo Molnar" <mingo@redhat.com>, "Borislav Petkov" <bp@alien8.de>,
+        "Dave Hansen" <dave.hansen@linux.intel.com>, x86@kernel.org,
+        chris@zankel.net, "Max Filippov" <jcmvbkbc@gmail.com>,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-m68k@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org,
+        Linux-Arch <linux-arch@vger.kernel.org>
+Subject: Re: [PATCH v3 00/24] Remove COMMAND_LINE_SIZE from uapi
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Fri, Mar 3, 2023, at 12:59, Alexandre Ghiti wrote:
+> On 3/2/23 20:50, H. Peter Anvin wrote:
+>> On March 1, 2023 7:17:18 PM PST, Palmer Dabbelt <palmer@dabbelt.com> wrote:
 
+>>>>> Commit 622021cd6c560ce7 ("s390: make command line configurable"),
+>>>>> I assume?
+>>>> Yes, sorry for that. I got distracted while writing and used the wrong
+>>>> branch to look this up.
+>>> Alex: Probably worth adding that to the list in the cover letter as it looks like you were planning on a v4 anyway (which I guess you now have to do, given that I just added the issue to RISC-V).
+>> The only use that is uapi is the *default* length of the command line if the kernel header doesn't include it (in the case of x86, it is in the bzImage header, but that is atchitecture- or even boot format-specific.)
+>
+> Is COMMAND_LINE_SIZE what you call the default length? Does that mean 
+> that to you the patchset is wrong?
 
-> -----Original Message-----
-> From: Nicolin Chen [mailto:nicolinc@nvidia.com]
-> Sent: 02 March 2023 23:51
-> To: Shameerali Kolothum Thodi <shameerali.kolothum.thodi@huawei.com>
-> Cc: Xu, Terrence <terrence.xu@intel.com>; Liu, Yi L <yi.l.liu@intel.com>;
-> Jason Gunthorpe <jgg@nvidia.com>; alex.williamson@redhat.com; Tian,
-> Kevin <kevin.tian@intel.com>; joro@8bytes.org; robin.murphy@arm.com;
-> cohuck@redhat.com; eric.auger@redhat.com; kvm@vger.kernel.org;
-> mjrosato@linux.ibm.com; chao.p.peng@linux.intel.com;
-> yi.y.sun@linux.intel.com; peterx@redhat.com; jasowang@redhat.com;
-> lulu@redhat.com; suravee.suthikulpanit@amd.com;
-> intel-gvt-dev@lists.freedesktop.org; intel-gfx@lists.freedesktop.org;
-> linux-s390@vger.kernel.org; Hao, Xudong <xudong.hao@intel.com>; Zhao,
-> Yan Y <yan.y.zhao@intel.com>
-> Subject: Re: [PATCH v5 00/19] Add vfio_device cdev for iommufd support
-> 
-> On Thu, Mar 02, 2023 at 09:43:00AM +0000, Shameerali Kolothum Thodi
-> wrote:
-> 
-> > Hi Nicolin,
-> >
-> > Thanks for the latest ARM64 branch. Do you have a working Qemu branch
-> corresponding to the
-> > above one?
-> >
-> > I tried the
-> https://github.com/nicolinc/qemu/tree/wip/iommufd_rfcv3%2Bnesting%2B
-> smmuv3
-> > but for some reason not able to launch the Guest.
-> >
-> > Please let me know.
-> 
-> I do use that branch. It might not be that robust though as it
-> went through a big rebase.
+On x86, the COMMAND_LINE_SIZE value is already not part of a uapi header,
+but instead (since bzImage format version 2.06) is communicated from
+the kernel to the boot loader, which then knows how much data the
+kernel will read (at most) from the command line.
 
-Ok. The issue seems to be quite random in nature and only happens when there
-are multiple vCPUs. Also doesn't look like related to VFIO device assignment
-as I can reproduce Guest hang without it by only having nested-smmuv3 and
-iommufd object.
+Most x86 kernels these days are booted using UEFI, which I think has
+no such interface, the firmware just passes the command line and a
+length, but has no way of knowing if the kernel will truncate this.
+I think that is the same as with any other architecture that passes
+the command line through UEFI, DT or ATAGS, all of which use
+length/value pairs.
 
-./qemu-system-aarch64-iommuf -machine virt,gic-version=3,iommu=nested-smmuv3,iommufd=iommufd0 \
--enable-kvm -cpu host -m 1G -smp cpus=8,maxcpus=8 \
--object iommufd,id=iommufd0 \
--bios QEMU_EFI.fd \
--kernel Image-6.2-iommufd \
--initrd rootfs-iperf.cpio \
--net none \
--nographic \
--append "rdinit=init console=ttyAMA0 root=/dev/vda rw earlycon=pl011,0x9000000" \
--trace events=events \
--D trace_iommufd 
+Russell argued on IRC that this can be considered an ABI since a
+boot loader may use its knowledge of the kernel's command line size
+limit to reject long command lines. On the other hand, I don't
+think that any boot loader actually does, they just trust that it
+fits and don't have a good way of rejecting invalid configuration
+other than truncating and/or warning.
 
-When the issue happens, no output on terminal as if Qemu is in a locked state.
+One notable exception I found while looking through is the old
+(pre-ATAGS) parameter structure on Arm, which uses COMMAND_LINE_SIZE
+as part of the structure definition. Apparently this was deprecated
+22 years ago, so hopefully the remaining riscpc and footbridge
+users have all upgraded their bootloaders.
 
- Can you try with the followings?
-> 
-> --trace "iommufd*" --trace "smmu*" --trace "vfio_*" --trace "pci_*" --trace
-> "msi_*" --trace "nvme_*"
+The only other case I could find that might go wrong is
+m68knommu with a few files copying a COMMAND_LINE_SIZE sized
+buffer from flash into a kernel buffer:
 
-The only trace events with above are this,
+arch/m68k/coldfire/m5206.c:void __init config_BSP(char *commandp, int size)
+arch/m68k/coldfire/m5206.c-{
+arch/m68k/coldfire/m5206.c-#if defined(CONFIG_NETtel)
+arch/m68k/coldfire/m5206.c-     /* Copy command line from FLASH to local buffer... */
+arch/m68k/coldfire/m5206.c-     memcpy(commandp, (char *) 0xf0004000, size);
+arch/m68k/coldfire/m5206.c-     commandp[size-1] = 0;
+arch/m68k/coldfire/m5206.c-#endif /* CONFIG_NETtel */
 
-iommufd_backend_connect fd=22 owned=1 users=1 (0)
-smmu_add_mr smmuv3-iommu-memory-region-0-0
-
-I haven't debugged this further. Please let me know if issue is reproducible 
-with multiple vCPUs at your end. For now will focus on VFIO dev specific tests.
-
-Thanks,
-Shameer 
-
-
-
+     Arnd
