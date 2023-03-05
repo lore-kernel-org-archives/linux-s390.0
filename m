@@ -2,35 +2,35 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8AA7FC61DA4
-	for <linux-s390@archiver.kernel.org>; Sun,  5 Mar 2023 13:52:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7351AC61DA4
+	for <linux-s390@archiver.kernel.org>; Sun,  5 Mar 2023 13:54:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229740AbjCENwz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 5 Mar 2023 08:52:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38528 "EHLO
+        id S230009AbjCENyS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 5 Mar 2023 08:54:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229621AbjCENwy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 5 Mar 2023 08:52:54 -0500
+        with ESMTP id S230033AbjCENyE (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 5 Mar 2023 08:54:04 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA946158AC;
-        Sun,  5 Mar 2023 05:52:30 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB47218151;
+        Sun,  5 Mar 2023 05:53:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3FADE60B06;
-        Sun,  5 Mar 2023 13:52:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4310CC433D2;
-        Sun,  5 Mar 2023 13:52:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 76D7B60B20;
+        Sun,  5 Mar 2023 13:53:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A1FEC4339E;
+        Sun,  5 Mar 2023 13:53:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678024349;
+        s=k20201202; t=1678024406;
         bh=cghi09Wbzn7gRbEilv55hS/JW49IJkg0VYRCod5bCys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cbjVW1/agSxqO2GdSR3t7AvCbMR5Sq1DExHjlmcLUKytHw7GybkZ0SQDw2Vfr+kpn
-         sP8vN8LTlyvkbWG605BGEPj7xjUsLbdLjHKn09kFJp3tGNO/XY37IcnBKMePc7/znh
-         tpc+Xam5aTfJjBQTKCI+OMoOX7XSLx9fZIFxJCWCQGK92y54vxZ3qm5cdBwKf30vqc
-         6ZAe/eOxEkYw629DmIlrgLjgsTsKDEI8joQN18ofQBvwuGrC//10UGcWJhuftepGOn
-         1JqUnCc7pYpg6QnGXwLcAIJy3UztAE6FDb+CLhDqHP/isBI1XwmXI8Os1fU74nGpPx
-         /c6NA+yNxEC6A==
+        b=l0EpUe9g45auH0H1UZNMQk27XknjtohHphKLP8DXt4M0koLJ5r26nQbjN2WvK5VK/
+         3NPJlhLsCGKfJBOArBJHywr8VkqoiqHHZfDjjsc7PbSKMH/LxBnh2mppI3TxC6xLc8
+         UFqC0lmRR+nwpYMmmkWn8W77GZk4I2R1SQiDHHxMZl2vPSmSN287Fvx9eeElm7dEjG
+         HMrBUMF2vMlIql7AtLbiTzhJ88Aph++C00hn8zvwCAIQNcTGcPLFZUt/utu9SIkP7P
+         VF6fuvC12Qpx1H/5LIwlIm25VfWq2/fDVdTrcRkrgkcZ+K2brSjpaAFEbi812bLI1+
+         SY/SKogzuBUQg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
@@ -40,12 +40,12 @@ Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
         pasic@linux.ibm.com, farman@linux.ibm.com, hca@linux.ibm.com,
         gor@linux.ibm.com, linux-s390@vger.kernel.org,
         virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.2 05/16] s390/virtio: sort out physical vs virtual pointers usage
-Date:   Sun,  5 Mar 2023 08:51:56 -0500
-Message-Id: <20230305135207.1793266-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1 05/15] s390/virtio: sort out physical vs virtual pointers usage
+Date:   Sun,  5 Mar 2023 08:52:56 -0500
+Message-Id: <20230305135306.1793564-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230305135207.1793266-1-sashal@kernel.org>
-References: <20230305135207.1793266-1-sashal@kernel.org>
+In-Reply-To: <20230305135306.1793564-1-sashal@kernel.org>
+References: <20230305135306.1793564-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
