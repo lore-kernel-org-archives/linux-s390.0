@@ -2,146 +2,138 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 413C2C61DA4
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Mar 2023 13:19:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B6DC8C678D4
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Mar 2023 13:24:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229808AbjCFNTY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 6 Mar 2023 08:19:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56482 "EHLO
+        id S229771AbjCFNYp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 6 Mar 2023 08:24:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230474AbjCFNTX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Mar 2023 08:19:23 -0500
-Received: from mail-wm1-x335.google.com (mail-wm1-x335.google.com [IPv6:2a00:1450:4864:20::335])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2BF72A6ED
-        for <linux-s390@vger.kernel.org>; Mon,  6 Mar 2023 05:19:21 -0800 (PST)
-Received: by mail-wm1-x335.google.com with SMTP id o11-20020a05600c4fcb00b003eb33ea29a8so5176276wmq.1
-        for <linux-s390@vger.kernel.org>; Mon, 06 Mar 2023 05:19:21 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1678108760;
-        h=content-transfer-encoding:in-reply-to:from:references:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=vrJgxYarH7I6tNp9lZXR/Ac4rjm0j3spQFQq/MBh93Y=;
-        b=jHFLuIxja1G7FgaKieMDho79j97bJcJzl5r6JSUNDsV4mA/2T7Rt4dEtFe+mJ68fX4
-         BeL12/7YXldN+W+jMsW2lzMpm7r3Yib7HB15R0q1heNbBxPxEhqAIyFb3CQ8yqwvxO6o
-         BJurB4kLXa0lNndbLzZFaNMuolqgLqLKrQAR20V3xF0z74ogRkWYyf9Fn6yc2fhFf5Yt
-         FkCUzXT6yQqa29dR6x7uYhnNqncplW9W2fbLvSLNfHc7S5X+e6Ao0YebH65T7dKnNa3q
-         Jy+sBKs6+/mTsBRIAlMv1Y4l4Lt9r2RJbnY6D7RgudRSTAB6XHrXBh5KlORUW46XFdOz
-         u/1Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678108760;
-        h=content-transfer-encoding:in-reply-to:from:references:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=vrJgxYarH7I6tNp9lZXR/Ac4rjm0j3spQFQq/MBh93Y=;
-        b=LpyQxqYT0+cRfXj5e2lG7wJCOMvYgCxCkXYqNGRnRs7o1pSJoBngK3bsBugZAGy4G8
-         NrdrcwsiQaFkd6fAcV12VNHZntzONPnEfOLKYv5YatCkuREM78Rl+ZmO4Hgc3AHQdS24
-         mxyRBJeMbOZcMF0UDtLfvdKgclY7UoBqNHn/ut2A6/trevqXuEN7vl25BuR2fhHWY22G
-         MYS2rewv03s7pStHf+zvvfzCPMtag3r2GsVvBbMLJ2lsck5F+BEjjDyMZX2hgI+CeIpW
-         Pjd7d9mRcepR39mKdF/pQqz+4BxtLtPmtzSlvtlzK663FYPv99Kb9RZTDtbcj+ZwBR2v
-         19Gg==
-X-Gm-Message-State: AO0yUKUI3M8M3lcxZ/eHHCRcwIoeCe3+4zJPX5ojErwSe7rxxHEEBLpu
-        ggfVlpddPqnVgLVrsAfcseJUMw==
-X-Google-Smtp-Source: AK7set/GCxEC4IkWKnP9EDEQUMxesVbqKr+YvF+/CM/XdLiZbcIHy+xB1RCNFt5QnRqORoMSq/nNOw==
-X-Received: by 2002:a05:600c:1548:b0:3e2:1f00:bff7 with SMTP id f8-20020a05600c154800b003e21f00bff7mr7424203wmg.12.1678108760216;
-        Mon, 06 Mar 2023 05:19:20 -0800 (PST)
-Received: from [192.168.30.216] ([81.0.6.76])
-        by smtp.gmail.com with ESMTPSA id f21-20020a1c6a15000000b003e733a973d2sm13613044wmc.39.2023.03.06.05.19.16
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 06 Mar 2023 05:19:19 -0800 (PST)
-Message-ID: <e1fa23ff-951e-176b-1a84-cbaab34ed44d@linaro.org>
-Date:   Mon, 6 Mar 2023 14:19:15 +0100
+        with ESMTP id S229766AbjCFNYo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Mar 2023 08:24:44 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA8311EBD4;
+        Mon,  6 Mar 2023 05:24:42 -0800 (PST)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 326CncpF014797;
+        Mon, 6 Mar 2023 13:24:42 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=SN35yMjjmmEEBzlLzd2bCzo4k5qis9j2ApDNPDhmp/U=;
+ b=SNMS+O49CH3p7Zgn1lfIplL0VsaXtztOBWCSBn+4HmFQtxbYyW0v94Ug6eAUu3NbJQWk
+ 47k0CGTmCwltAwA+lonKtM9GosPpte4D1IT9uxLfubFzJbvMMKzCiitKr2XNURlxrS79
+ NjMZgiiws7tnHZIqHvtJ2Jxg5g4g5/lFse6yimwFNciLjweJLWq8+cBm3ApWYuzjKbXF
+ BaOo0Eq74jcWyBwjzlrPRCwR1mjwOk0UCjBlsdRPVy4WI0ukhoEMshwXZp+bwj1LUKIS
+ nJcT+YCCf8naTqR9jFKjYSNMIrykKYnQ2Rcpk3YjbUmp2qlwd8cusPjl4r1m0tfIfJUO 4Q== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3p500dkvxg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 06 Mar 2023 13:24:42 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 326DG2pL018005;
+        Mon, 6 Mar 2023 13:24:41 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3p500dkvx2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 06 Mar 2023 13:24:41 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 326BpfVs008540;
+        Mon, 6 Mar 2023 13:24:39 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3p4188arn4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 06 Mar 2023 13:24:39 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 326DOZE14129378
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 6 Mar 2023 13:24:35 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C362920043;
+        Mon,  6 Mar 2023 13:24:35 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 35B722004E;
+        Mon,  6 Mar 2023 13:24:35 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.179.29.172])
+        by smtpav02.fra02v.mail.ibm.com (Postfix) with SMTP;
+        Mon,  6 Mar 2023 13:24:35 +0000 (GMT)
+Date:   Mon, 6 Mar 2023 14:24:33 +0100
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Nico Boehr <nrb@linux.ibm.com>
+Cc:     borntraeger@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com,
+        mimu@linux.ibm.com, agordeev@linux.ibm.com, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH v2 1/1] KVM: s390: interrupt: fix virtual-physical
+ confusion for next alert GISA
+Message-ID: <20230306142433.71f24c6c@p-imbrenda>
+In-Reply-To: <167809983224.10483.9560033030008953399@t14-nrb.local>
+References: <20230224140908.75208-1-nrb@linux.ibm.com>
+        <20230224140908.75208-2-nrb@linux.ibm.com>
+        <20230228181633.1bd8efde@p-imbrenda>
+        <167809983224.10483.9560033030008953399@t14-nrb.local>
+Organization: IBM
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.8.0
-Subject: Re: [PATCH v5 00/26] Remove COMMAND_LINE_SIZE from uapi
-Content-Language: en-US
-To:     Alexandre Ghiti <alexghiti@rivosinc.com>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Richard Henderson <richard.henderson@linaro.org>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Matt Turner <mattst88@gmail.com>,
-        Vineet Gupta <vgupta@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        WANG Xuerui <kernel@xen0n.name>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H . Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org,
-        linux-arch@vger.kernel.org
-References: <20230306100508.1171812-1-alexghiti@rivosinc.com>
-From:   =?UTF-8?Q?Philippe_Mathieu-Daud=c3=a9?= <philmd@linaro.org>
-In-Reply-To: <20230306100508.1171812-1-alexghiti@rivosinc.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: uJKyCptI8KC16pRlE8pPK7erKj0AaHrh
+X-Proofpoint-GUID: vuOZVdwOM-XkWdlf8fFvPRO7QBa4PjHa
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-03-06_05,2023-03-06_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 phishscore=0
+ impostorscore=0 clxscore=1015 lowpriorityscore=0 bulkscore=0
+ suspectscore=0 adultscore=0 malwarescore=0 priorityscore=1501
+ mlxlogscore=999 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2303060115
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 6/3/23 11:04, Alexandre Ghiti wrote:
-> This all came up in the context of increasing COMMAND_LINE_SIZE in the
-> RISC-V port.  In theory that's a UABI break, as COMMAND_LINE_SIZE is the
-> maximum length of /proc/cmdline and userspace could staticly rely on
-> that to be correct.
-> 
-> Usually I wouldn't mess around with changing this sort of thing, but
-> PowerPC increased it with a5980d064fe2 ("powerpc: Bump COMMAND_LINE_SIZE
-> to 2048").  There are also a handful of examples of COMMAND_LINE_SIZE
-> increasing, but they're from before the UAPI split so I'm not quite sure
-> what that means: e5a6a1c90948 ("powerpc: derive COMMAND_LINE_SIZE from
-> asm-generic"), 684d2fd48e71 ("[S390] kernel: Append scpdata to kernel
-> boot command line"), 22242681cff5 ("MIPS: Extend COMMAND_LINE_SIZE"),
-> and 2b74b85693c7 ("sh: Derive COMMAND_LINE_SIZE from
-> asm-generic/setup.h.").
-> 
-> It seems to me like COMMAND_LINE_SIZE really just shouldn't have been
-> part of the uapi to begin with, and userspace should be able to handle
-> /proc/cmdline of whatever length it turns out to be.  I don't see any
-> references to COMMAND_LINE_SIZE anywhere but Linux via a quick Google
-> search, but that's not really enough to consider it unused on my end.
-> 
-> This issue was already considered in s390 and they reached the same
-> conclusion in commit 622021cd6c56 ("s390: make command line
-> configurable").
-> 
-> The feedback on the v1 seemed to indicate that COMMAND_LINE_SIZE really
-> shouldn't be part of uapi, so this now touches all the ports.  I've
-> tried to split this all out and leave it bisectable, but I haven't
-> tested it all that aggressively.
+On Mon, 06 Mar 2023 11:50:32 +0100
+Nico Boehr <nrb@linux.ibm.com> wrote:
 
-Series:
-Reviewed-by: Philippe Mathieu-Daudé <philmd@linaro.org>
+> Quoting Claudio Imbrenda (2023-02-28 18:16:33)
+> > On Fri, 24 Feb 2023 15:09:08 +0100
+> > Nico Boehr <nrb@linux.ibm.com> wrote:
+> >   
+> > > The gisa next alert address is defined as a host absolute address so
+> > > let's use virt_to_phys() to make sure we always write an absolute
+> > > address to this hardware structure.
+> > > 
+> > > This is not a bug and currently works, because virtual and physical
+> > > addresses are the same.
+> > > 
+> > > Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+> > > Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+> > > ---
+> > >  arch/s390/kvm/interrupt.c | 4 ++--
+> > >  1 file changed, 2 insertions(+), 2 deletions(-)
+> > > 
+> > > diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+> > > index ab26aa53ee37..20743c5b000a 100644
+> > > --- a/arch/s390/kvm/interrupt.c
+> > > +++ b/arch/s390/kvm/interrupt.c
+> > > @@ -305,7 +305,7 @@ static inline u8 gisa_get_ipm_or_restore_iam(struct kvm_s390_gisa_interrupt *gi)
+> > >  
+> > >  static inline int gisa_in_alert_list(struct kvm_s390_gisa *gisa)
+> > >  {
+> > > -     return READ_ONCE(gisa->next_alert) != (u32)(u64)gisa;
+> > > +     return READ_ONCE(gisa->next_alert) != (u32)virt_to_phys(gisa);  
+> > 
+> > is gisa always allocated below 4G? (I assume 2G actually)
+> >
+> > should we check if things are proper?
+> > the cast to (u32) might hide bugs if gisa is above 4G (which it
+> > shouldn't be, obviously)
+> > 
+> > or do we not care?  
+> 
+> Yes, the gisa is always below 2 GB since it's part of the sie_page2.
+> 
+> I don't mind getting rid of the u32 cast really, but if it is allocated above 2 GB, it already is broken as it is and I didn't want to introduce unrelated changes. Also note that there is a few other places where we currently don't verify things really are below 2 GB, so you already need to be careful when allocating.
+> 
+> Also not sure if this is the right place to do this check, since we've already given the address to firmware/hardware anyways in the CHSC SGIB call, in the sie_block etc... so if we want to check this we should maybe look for a better place to check this...
 
+fair enough
