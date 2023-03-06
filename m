@@ -2,82 +2,87 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0127CC61DA4
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Mar 2023 00:55:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5FDFCC61DA4
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Mar 2023 03:36:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229593AbjCFAzi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 5 Mar 2023 19:55:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36676 "EHLO
+        id S229528AbjCFDgh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 5 Mar 2023 22:36:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229526AbjCFAzh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 5 Mar 2023 19:55:37 -0500
-Received: from zeniv.linux.org.uk (zeniv.linux.org.uk [IPv6:2a03:a000:7:0:5054:ff:fe1c:15ff])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28CFC12BC6
-        for <linux-s390@vger.kernel.org>; Sun,  5 Mar 2023 16:55:36 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=linux.org.uk; s=zeniv-20220401; h=Sender:Content-Type:MIME-Version:
-        Message-ID:Subject:Cc:To:From:Date:Reply-To:Content-Transfer-Encoding:
-        Content-ID:Content-Description:In-Reply-To:References;
-        bh=xdnm8ipicXWf+GKr9NY9HfBCE8Zt8YOqdX2C6njkQeo=; b=eT3aBohJJHtV77Xkx6DpkZ5Wrd
-        eiTJfTjh4uTckBnH/q+eRCVrJ9DhpdMrh7Ky5WM6CNHUjNMjrYCQjtrvOJ5hSWK+BpfzvnNb3tHGs
-        NRCZAVKsVGxddiUrIT/zdALhmE1N6q/0vCJroRN8Go3yi8YnjVWLUFKaE0JYTpuwMBoBnBLJlxJD9
-        CHkzxuPy4oMYYQSInVHXlx4d2as9nCjx3ed4e5xrDmDC2wO+MZUTmsiS2yyl6tvQkKRgtgDbvh6dt
-        x6HeMmf5YqyxugqS4yE/J3PqYHfI4ocDDGwn+AhO4rmOepdkpIul8xzqPND1LKEJ4ISEJ0eLQTmgZ
-        Ngcf2B4Q==;
-Received: from viro by zeniv.linux.org.uk with local (Exim 4.96 #2 (Red Hat Linux))
-        id 1pYz8X-00ECyL-21;
-        Mon, 06 Mar 2023 00:55:33 +0000
-Date:   Mon, 6 Mar 2023 00:55:33 +0000
-From:   Al Viro <viro@zeniv.linux.org.uk>
-To:     linux-s390@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org
-Subject: [PATCH] s390: trim ancient junk from copy_thread()
-Message-ID: <ZAU6BYFisE8evmYf@ZenIV>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Sender: Al Viro <viro@ftp.linux.org.uk>
+        with ESMTP id S229457AbjCFDgh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 5 Mar 2023 22:36:37 -0500
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F862EC4D;
+        Sun,  5 Mar 2023 19:36:35 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0Vd8TYzZ_1678073786;
+Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0Vd8TYzZ_1678073786)
+          by smtp.aliyun-inc.com;
+          Mon, 06 Mar 2023 11:36:33 +0800
+From:   "D. Wythe" <alibuda@linux.alibaba.com>
+To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+Subject: [PATCH net] net/smc: fix NULL sndbuf_desc in smc_cdc_tx_handler()
+Date:   Mon,  6 Mar 2023 11:36:26 +0800
+Message-Id: <1678073786-110013-1-git-send-email-alibuda@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Setting and ->psw.addr in childregs of kernel thread is a rudiment of
-the old kernel_thread()/kernel_execve() implementation.  Mainline hadn't
-been using them since 2012.
+From: "D. Wythe" <alibuda@linux.alibaba.com>
 
-And clarify the assigments to frame->sf.gprs - the array stores grp6..gpr15
-values to be set by __switch_to(), so frame->sf.gprs[5] actually affects
-grp11, etc.  Better spell that as frame->sf.gprs[11 - 6]...
-    
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+When performing a stress test on SMC-R by rmmod mlx5_ib driver
+during the wrk/nginx test, we found that there is a probability
+of triggering a panic while terminating all link groups.
+
+This issue dues to the race between smc_smcr_terminate_all()
+and smc_buf_create().
+
+			smc_smcr_terminate_all
+
+smc_buf_create
+/* init */
+conn->sndbuf_desc = NULL;
+...
+
+			__smc_lgr_terminate
+				smc_conn_kill
+					smc_close_abort
+						smc_cdc_get_slot_and_msg_send
+
+			__softirqentry_text_start
+				smc_wr_tx_process_cqe
+					smc_cdc_tx_handler
+						READ(conn->sndbuf_desc->len);
+						/* panic dues to NULL sndbuf_desc */
+
+conn->sndbuf_desc = xxx;
+
+This patch tries to fix the issue by always to check the sndbuf_desc
+before send any cdc msg, to make sure that no null pointer is
+seen during cqe processing.
+
+Fixes: 0b29ec643613 ("net/smc: immediate termination for SMCR link groups")
+Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
 ---
-diff --git a/arch/s390/kernel/process.c b/arch/s390/kernel/process.c
-index 67df64ef4839..87ca3a727604 100644
---- a/arch/s390/kernel/process.c
-+++ b/arch/s390/kernel/process.c
-@@ -136,12 +136,12 @@ int copy_thread(struct task_struct *p, const struct kernel_clone_args *args)
- 	p->thread.last_break = 1;
+ net/smc/smc_cdc.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
+index 53f63bf..2f0e2ee 100644
+--- a/net/smc/smc_cdc.c
++++ b/net/smc/smc_cdc.c
+@@ -114,6 +114,9 @@ int smc_cdc_msg_send(struct smc_connection *conn,
+ 	union smc_host_cursor cfed;
+ 	int rc;
  
- 	frame->sf.back_chain = 0;
--	frame->sf.gprs[5] = (unsigned long)frame + sizeof(struct stack_frame);
--	frame->sf.gprs[6] = (unsigned long)p;
-+	frame->sf.gprs[11 - 6] = (unsigned long)&frame->childregs;
-+	frame->sf.gprs[12 - 6] = (unsigned long)p;
- 	/* new return point is ret_from_fork */
--	frame->sf.gprs[8] = (unsigned long)ret_from_fork;
-+	frame->sf.gprs[14 - 6] = (unsigned long)ret_from_fork;
- 	/* fake return stack for resume(), don't go back to schedule */
--	frame->sf.gprs[9] = (unsigned long)frame;
-+	frame->sf.gprs[15 - 6] = (unsigned long)frame;
++	if (unlikely(!READ_ONCE(conn->sndbuf_desc)))
++		return -EINVAL;
++
+ 	smc_cdc_add_pending_send(conn, pend);
  
- 	/* Store access registers to kernel stack of new process. */
- 	if (unlikely(args->fn)) {
-@@ -149,8 +149,6 @@ int copy_thread(struct task_struct *p, const struct kernel_clone_args *args)
- 		memset(&frame->childregs, 0, sizeof(struct pt_regs));
- 		frame->childregs.psw.mask = PSW_KERNEL_BITS | PSW_MASK_IO |
- 					    PSW_MASK_EXT | PSW_MASK_MCHECK;
--		frame->childregs.psw.addr =
--				(unsigned long)__ret_from_fork;
- 		frame->childregs.gprs[9] = (unsigned long)args->fn;
- 		frame->childregs.gprs[10] = (unsigned long)args->fn_arg;
- 		frame->childregs.orig_gpr2 = -1;
+ 	conn->tx_cdc_seq++;
+-- 
+1.8.3.1
+
