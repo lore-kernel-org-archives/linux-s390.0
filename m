@@ -2,157 +2,146 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5BD59C678D4
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Mar 2023 13:17:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 413C2C61DA4
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Mar 2023 13:19:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229991AbjCFNRI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 6 Mar 2023 08:17:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54356 "EHLO
+        id S229808AbjCFNTY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 6 Mar 2023 08:19:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229822AbjCFNRH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Mar 2023 08:17:07 -0500
-Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2067.outbound.protection.outlook.com [40.107.237.67])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05117298DB;
-        Mon,  6 Mar 2023 05:17:03 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=bnqEEQgy68MV8/yt8zPfND2K+rr4y8t/GJV+f2InQDORTwohNu66DbSmSQuYh09TKnduDpEb/JH5YQ+uBvwb/DvuyLkASHVrWFZmfoTPIhsmIpRmilTXF/C5Qsbeb2PXrAJVTm6WeqC+DWMH32ZA2kPfqDAvYNU82bkactERdjTxAxvFUs9HBnc5r1UZpi4s2aLK+HGqdYtG8K3cwC3JMBqxEoE9q/0wuZxXa0yKMvGERgt1x4jNSPSWu/LtW7ndQPqZuEOZkIF1ysvmB0uJzy97kKqDmHJ7mJVh7/lSsntqT0UNxGbGJQzKAns1uDMMHXt2Gk7YDuv8cLVuebvTQA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=gIkuzPIqMYM8Efea3N18y2GsLOOVbGeYabgh1y3dFEk=;
- b=V3g05fBSP0l4s3DRcucAJkAW96QrO/6mIrJduTcezzvoE84iBpb3u5KZ384MYY0Mhye0OlxsoUDBqcGX1RyJbGOhPEFJrFv9sgjl8FPDLVtIVM77znadYLVgl3dOHtVmZGiKXsumkuSRQjJl8kKdxy29a9H7a+pY5gGVxDo3gJzarJtrPH7ZEYmK755HpeZYYK+E3uZyS0L2raD0liHw1a+F9ZJ9ivXYXWjKTk+ur7rDKJQL97Yn2zhsJOUSxNpuH7Hs09+n9vNx6QVtU0R2RFZ8LK8yItMFGGx1m1EEK23J6U9ISxm3UWvxWYoXmYiF6LAwri/hHCCUkwFUsVWPYQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=gIkuzPIqMYM8Efea3N18y2GsLOOVbGeYabgh1y3dFEk=;
- b=H44rCjyt/SAJ2tmswXN/EaG0Gp+HRBTY89D7gvSjY9NR6Fvg7HgR9yry/JvpAUGrsna3Se6yAGZ0S1OXYfWVSL9z4E3QgCO0jCvJKtMd0dEx9I7fz9nW+XSaLmeixGMHr9ltNP4fhr+Gk6Qhw783/+UEc3R8h6dVBL+3Ake1CAUnkIPRZGXDEd28nJkdHWWWTc5aH28l5oKVhixsWYYYz52fv5pRB2PttK4gu4+yJNdesCw3PCV6YCEFF4Jm+V/oyPuglJsX3OTgiWbssSDsjw6iU4+Q6fJS5mkSl6vUTIZQ0AMkESNnMtmRU5MA3/Kvcali0bwPLbrewABa1t5rvw==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
- by SA1PR12MB8724.namprd12.prod.outlook.com (2603:10b6:806:38b::9) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6156.27; Mon, 6 Mar
- 2023 13:17:00 +0000
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::3cb3:2fce:5c8f:82ee]) by LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::3cb3:2fce:5c8f:82ee%4]) with mapi id 15.20.6156.027; Mon, 6 Mar 2023
- 13:17:00 +0000
-Date:   Mon, 6 Mar 2023 09:16:59 -0400
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Alex Williamson <alex.williamson@redhat.com>
-Cc:     "Tian, Kevin" <kevin.tian@intel.com>,
-        "Liu, Yi L" <yi.l.liu@intel.com>,
-        "joro@8bytes.org" <joro@8bytes.org>,
-        "robin.murphy@arm.com" <robin.murphy@arm.com>,
-        "cohuck@redhat.com" <cohuck@redhat.com>,
-        "eric.auger@redhat.com" <eric.auger@redhat.com>,
-        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
-        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
-        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
-        "peterx@redhat.com" <peterx@redhat.com>,
-        "jasowang@redhat.com" <jasowang@redhat.com>,
-        "shameerali.kolothum.thodi@huawei.com" 
-        <shameerali.kolothum.thodi@huawei.com>,
-        "lulu@redhat.com" <lulu@redhat.com>,
-        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "Hao, Xudong" <xudong.hao@intel.com>,
-        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
-        "Xu, Terrence" <terrence.xu@intel.com>
-Subject: Re: [PATCH v5 09/19] vfio/pci: Allow passing zero-length fd array in
- VFIO_DEVICE_PCI_HOT_RESET
-Message-ID: <ZAXny4NDDq42NUxE@nvidia.com>
-References: <20230227111135.61728-1-yi.l.liu@intel.com>
- <20230227111135.61728-10-yi.l.liu@intel.com>
- <DS0PR11MB75295B4B2578765C8B08AC7EC3B29@DS0PR11MB7529.namprd11.prod.outlook.com>
- <BN9PR11MB527688810514A262471E4BB78CB29@BN9PR11MB5276.namprd11.prod.outlook.com>
- <ZACX+Np/IY7ygqL5@nvidia.com>
- <DS0PR11MB7529531834C0A9F1D294A5CCC3B29@DS0PR11MB7529.namprd11.prod.outlook.com>
- <BN9PR11MB5276B825071A4819479079A68CB39@BN9PR11MB5276.namprd11.prod.outlook.com>
- <20230303095542.2bfce5c2.alex.williamson@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230303095542.2bfce5c2.alex.williamson@redhat.com>
-X-ClientProxiedBy: MN2PR02CA0028.namprd02.prod.outlook.com
- (2603:10b6:208:fc::41) To LV2PR12MB5869.namprd12.prod.outlook.com
- (2603:10b6:408:176::16)
+        with ESMTP id S230474AbjCFNTX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Mar 2023 08:19:23 -0500
+Received: from mail-wm1-x335.google.com (mail-wm1-x335.google.com [IPv6:2a00:1450:4864:20::335])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2BF72A6ED
+        for <linux-s390@vger.kernel.org>; Mon,  6 Mar 2023 05:19:21 -0800 (PST)
+Received: by mail-wm1-x335.google.com with SMTP id o11-20020a05600c4fcb00b003eb33ea29a8so5176276wmq.1
+        for <linux-s390@vger.kernel.org>; Mon, 06 Mar 2023 05:19:21 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1678108760;
+        h=content-transfer-encoding:in-reply-to:from:references:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=vrJgxYarH7I6tNp9lZXR/Ac4rjm0j3spQFQq/MBh93Y=;
+        b=jHFLuIxja1G7FgaKieMDho79j97bJcJzl5r6JSUNDsV4mA/2T7Rt4dEtFe+mJ68fX4
+         BeL12/7YXldN+W+jMsW2lzMpm7r3Yib7HB15R0q1heNbBxPxEhqAIyFb3CQ8yqwvxO6o
+         BJurB4kLXa0lNndbLzZFaNMuolqgLqLKrQAR20V3xF0z74ogRkWYyf9Fn6yc2fhFf5Yt
+         FkCUzXT6yQqa29dR6x7uYhnNqncplW9W2fbLvSLNfHc7S5X+e6Ao0YebH65T7dKnNa3q
+         Jy+sBKs6+/mTsBRIAlMv1Y4l4Lt9r2RJbnY6D7RgudRSTAB6XHrXBh5KlORUW46XFdOz
+         u/1Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678108760;
+        h=content-transfer-encoding:in-reply-to:from:references:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=vrJgxYarH7I6tNp9lZXR/Ac4rjm0j3spQFQq/MBh93Y=;
+        b=LpyQxqYT0+cRfXj5e2lG7wJCOMvYgCxCkXYqNGRnRs7o1pSJoBngK3bsBugZAGy4G8
+         NrdrcwsiQaFkd6fAcV12VNHZntzONPnEfOLKYv5YatCkuREM78Rl+ZmO4Hgc3AHQdS24
+         mxyRBJeMbOZcMF0UDtLfvdKgclY7UoBqNHn/ut2A6/trevqXuEN7vl25BuR2fhHWY22G
+         MYS2rewv03s7pStHf+zvvfzCPMtag3r2GsVvBbMLJ2lsck5F+BEjjDyMZX2hgI+CeIpW
+         Pjd7d9mRcepR39mKdF/pQqz+4BxtLtPmtzSlvtlzK663FYPv99Kb9RZTDtbcj+ZwBR2v
+         19Gg==
+X-Gm-Message-State: AO0yUKUI3M8M3lcxZ/eHHCRcwIoeCe3+4zJPX5ojErwSe7rxxHEEBLpu
+        ggfVlpddPqnVgLVrsAfcseJUMw==
+X-Google-Smtp-Source: AK7set/GCxEC4IkWKnP9EDEQUMxesVbqKr+YvF+/CM/XdLiZbcIHy+xB1RCNFt5QnRqORoMSq/nNOw==
+X-Received: by 2002:a05:600c:1548:b0:3e2:1f00:bff7 with SMTP id f8-20020a05600c154800b003e21f00bff7mr7424203wmg.12.1678108760216;
+        Mon, 06 Mar 2023 05:19:20 -0800 (PST)
+Received: from [192.168.30.216] ([81.0.6.76])
+        by smtp.gmail.com with ESMTPSA id f21-20020a1c6a15000000b003e733a973d2sm13613044wmc.39.2023.03.06.05.19.16
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 06 Mar 2023 05:19:19 -0800 (PST)
+Message-ID: <e1fa23ff-951e-176b-1a84-cbaab34ed44d@linaro.org>
+Date:   Mon, 6 Mar 2023 14:19:15 +0100
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|SA1PR12MB8724:EE_
-X-MS-Office365-Filtering-Correlation-Id: 8a1f376f-ccfa-4135-fe4b-08db1e4511e7
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: wrIpGpb9Y8V7r49u6ks33LldRc0Z3JP61vn5OPhs7Lcvj9OB87xPywbxZRE/etyQxjaFwLg5KIITDXQm5i5yFzJrSnX/2hGnwMJHx0qA/jXZ2wMp6YH/WIQQR06MPfFrFIPXK9XbEa9ANJeV1Het2u6gaHskTS6akWWup7kuTY9Zgl50uXfkYtCPKgKDvCUjBdeH8vaBFYcpAVJhTV8vpC9O6NZn8SvltB6KpaPJZHXQvICYRgJEMu/b95tOZt77hWjexbmI6UI+IrtNE2rnQLEWPjGcg1Sx6CUCWIJYMOOeapSyVbkxaKq9RGr173Rkwk8GNKf39Q2oqyamPqjUUjdCgc7M4QRaBNWyfavSoYj+sB97fTPUv4qfuUdpdHrQwCfX4/SXrIU+nMCBCe0u25MOwh22UeBRJb72hdIjljHRrCgAns7ZoF7KO8626awII3Bauwqj74C1NiBRcPlG0Hb685T5lFnThoZ6oY+HksXC7b7iUCwx1Fn6HPmQpfy4tk9e4710//vFc+H5RPxLr8O++z3OeW698iNEtTZYi+/1i+x7CecMDLTbch9VtbjD/rBm0fs2uVD/IjzsxCISjZ542jphjK95zXuBqsAAO3FMyFBgmr7yGPL6/1z/xlMacCGT7HINhUCaebu9qDiGTQ==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(4636009)(366004)(396003)(346002)(136003)(39860400002)(376002)(451199018)(36756003)(478600001)(6486002)(6512007)(2616005)(26005)(186003)(6506007)(5660300002)(8936002)(66946007)(2906002)(41300700001)(4326008)(6916009)(66556008)(66476007)(7416002)(86362001)(4744005)(8676002)(38100700002)(54906003)(316002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?x0gz4qsHkTLe9l+OmYo5ywPfPv5pJFDQi34S1orppr12HQ/pG3/vjoJp95db?=
- =?us-ascii?Q?1mey+OrhZqEmOaLnZ0HfFUFRkIXIkdMYdkj8OgBKOQ8wowY30VPGwN2x5qBD?=
- =?us-ascii?Q?a8T/I2eHXvWyGXyMHOOzxMhXhyrIiyqgkQU3DIDSzDM4wm3LsIytubaa5AFH?=
- =?us-ascii?Q?Xv6lzrYo+HXrIs6fMG70qWvJJgCoRljGQ2DgnGipKwoLvAJnJxaWv0vw4H+j?=
- =?us-ascii?Q?vYGIf/1SQkEv8wtQMjY06yoRDrZvjrRo2wkGw0kji5lEeNyIT7fm/EGt/Faz?=
- =?us-ascii?Q?yUqG4+cqA8wgzXc9WtVqIxsmYAAONsh7a8VwCtuq3cQ7YtQTM2G132igbDeq?=
- =?us-ascii?Q?THVtfwsM5G5Jjqn+Ju7Phn0qlWCUVvYdkLb339y1CmnFuV6LRctxA2+6A0Aw?=
- =?us-ascii?Q?oDcfaRvgpJR2sjp/In/zf/0+rUZA5V4nNaEuSnZ0GKZjo+cuR4xkSPlXjmNq?=
- =?us-ascii?Q?6bqFBwzx0hdzbhleQWuQHPugcGgz3lWPOCL2gPoPdoxBDFoFNpSi2juPDoS9?=
- =?us-ascii?Q?AZFdJVSbU+s3VNfInx+7ZHfHkQjE1FVCBoGcJPkboKGrT3HgxTIxYFs4fkka?=
- =?us-ascii?Q?WxKwFCjLt+rLW3q2sf0QeXJjGvYr29VwNdXduqqeRsKTsgvNlWWfXXyKsR+0?=
- =?us-ascii?Q?e0jxRZKdMwETCQVxFNnTdmaEOQJ8G2dMd4KyarLJUg6wzWzDBUVYCPInuo9T?=
- =?us-ascii?Q?jylQwIEtbtGm5htrs12Kw9DNE78z5R2FHFmCq/7Mt8oz6x44wBgD2DV3o1wc?=
- =?us-ascii?Q?on9pbB10oxtVij/ZwJ2bmXF1cVGT19RHXpmIjEOBKcitg1KW7IPGXtVPZKeN?=
- =?us-ascii?Q?7vvY1zYEziBOajBnnDmBT4qYRXGVjuhpxGZItr5eQWz4dM2d5VhZ5y8bXtiv?=
- =?us-ascii?Q?fSAFXsmUoIWSgztivjLnjCGDq38T5/V5vfrHgwZzv29iXszg5WJcTW8AKF3M?=
- =?us-ascii?Q?vIucKapqAC5K9UNyfIASxJgjOu1TbkuAsWl/S8h7NQJOxwe7woeFwxTi32/R?=
- =?us-ascii?Q?xDzXAoR/MFoYhoNMJ6NZqbENbHSXRSSzXhAFNxMmdBb47N9InR7ahz1UUGJ+?=
- =?us-ascii?Q?L2f++NrggThefxt7DOfqYytQHHfHVd2r4qjx8BnYM1uiYo0MZvm2r0v0dZAk?=
- =?us-ascii?Q?oIecKalvTayYJcUYqNDZE53Wlu3eOuGSwbyvshQzO+p155xcarhicKjgv1M/?=
- =?us-ascii?Q?MuGpBiRtEYJ7xCMAdFG/6Z/p7JYk2PY4rfz87wGZSNFE6PNy6H96EpnBPAyg?=
- =?us-ascii?Q?zUkH2h7pXBstM1e9YHWenuG12bKuoon6tbZ6OKJj8Y4D2xR8KFIdsrvLYQHx?=
- =?us-ascii?Q?+uMEc76AB4/2u0qmCvLLah6sad/7kv5B7IMYDipqmExKj0fFiiZdV1WAALHR?=
- =?us-ascii?Q?zD8dKBbApP27hjuUjSoo7yDnIkRpYOa2q0GnJojKsJMOQLWvHvE4Vb2ABhWt?=
- =?us-ascii?Q?zJgW6tNvPXoFIEvqhqF2JscnsyhIAirgFFLBU4JtdZwWvoJGSkEYBH+iGdaP?=
- =?us-ascii?Q?JpTa9duPNevwKryL3JQuopaZ/obu19ZARiYlNhYw7czBXk734TusYXgqbwlU?=
- =?us-ascii?Q?t7Qh05+GJkMEnAWetsI6Jw/3g4NJoBIYpOFw6/KL?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 8a1f376f-ccfa-4135-fe4b-08db1e4511e7
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Mar 2023 13:17:00.7549
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: rESmOcajXEr9TGxjV33cQN050ubIi68l1aEYr2LHDx9cRUgGpwd9UbFvkqShNp/j
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR12MB8724
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.8.0
+Subject: Re: [PATCH v5 00/26] Remove COMMAND_LINE_SIZE from uapi
+Content-Language: en-US
+To:     Alexandre Ghiti <alexghiti@rivosinc.com>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Richard Henderson <richard.henderson@linaro.org>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Matt Turner <mattst88@gmail.com>,
+        Vineet Gupta <vgupta@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        WANG Xuerui <kernel@xen0n.name>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Michal Simek <monstr@monstr.eu>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H . Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org,
+        linux-arch@vger.kernel.org
+References: <20230306100508.1171812-1-alexghiti@rivosinc.com>
+From:   =?UTF-8?Q?Philippe_Mathieu-Daud=c3=a9?= <philmd@linaro.org>
+In-Reply-To: <20230306100508.1171812-1-alexghiti@rivosinc.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Mar 03, 2023 at 09:55:42AM -0700, Alex Williamson wrote:
+On 6/3/23 11:04, Alexandre Ghiti wrote:
+> This all came up in the context of increasing COMMAND_LINE_SIZE in the
+> RISC-V port.  In theory that's a UABI break, as COMMAND_LINE_SIZE is the
+> maximum length of /proc/cmdline and userspace could staticly rely on
+> that to be correct.
+> 
+> Usually I wouldn't mess around with changing this sort of thing, but
+> PowerPC increased it with a5980d064fe2 ("powerpc: Bump COMMAND_LINE_SIZE
+> to 2048").  There are also a handful of examples of COMMAND_LINE_SIZE
+> increasing, but they're from before the UAPI split so I'm not quite sure
+> what that means: e5a6a1c90948 ("powerpc: derive COMMAND_LINE_SIZE from
+> asm-generic"), 684d2fd48e71 ("[S390] kernel: Append scpdata to kernel
+> boot command line"), 22242681cff5 ("MIPS: Extend COMMAND_LINE_SIZE"),
+> and 2b74b85693c7 ("sh: Derive COMMAND_LINE_SIZE from
+> asm-generic/setup.h.").
+> 
+> It seems to me like COMMAND_LINE_SIZE really just shouldn't have been
+> part of the uapi to begin with, and userspace should be able to handle
+> /proc/cmdline of whatever length it turns out to be.  I don't see any
+> references to COMMAND_LINE_SIZE anywhere but Linux via a quick Google
+> search, but that's not really enough to consider it unused on my end.
+> 
+> This issue was already considered in s390 and they reached the same
+> conclusion in commit 622021cd6c56 ("s390: make command line
+> configurable").
+> 
+> The feedback on the v1 seemed to indicate that COMMAND_LINE_SIZE really
+> shouldn't be part of uapi, so this now touches all the ports.  I've
+> tried to split this all out and leave it bisectable, but I haven't
+> tested it all that aggressively.
 
-> I can't think of a reason DPDK couldn't use hot-reset.  If we want to
-> make it a policy, it should be enforced by code, but creating that
-> policy based on a difficulty in supporting that mode with iommufd isn't
-> great.
+Series:
+Reviewed-by: Philippe Mathieu-Daudé <philmd@linaro.org>
 
-On the other hand adding code to allow device FDs in the hot reset
-path that is never used and never tested isn't great either..
-
-hot-reset does work for DPDK, it just doesn't work in the case where
-DPDK would have many VFIO devices open and they have overlapping
-device sets. Which, again, is something it doesn't do.
-
-IMHO we should leave it out of the kernel and wait for a no-iommu user
-to come forward that wants hot-reset of many devices. Then we can add
-and test the device FD part. Most likely such a thing will never come
-at this point.
-
-Jason
