@@ -2,230 +2,157 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 09413C61DA4
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Mar 2023 12:25:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5BD59C678D4
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Mar 2023 13:17:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229991AbjCFMZC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 6 Mar 2023 07:25:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49320 "EHLO
+        id S229991AbjCFNRI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 6 Mar 2023 08:17:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229910AbjCFMZB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Mar 2023 07:25:01 -0500
-Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2128.outbound.protection.outlook.com [40.107.220.128])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92B5621A34;
-        Mon,  6 Mar 2023 04:24:59 -0800 (PST)
+        with ESMTP id S229822AbjCFNRH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Mar 2023 08:17:07 -0500
+Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2067.outbound.protection.outlook.com [40.107.237.67])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05117298DB;
+        Mon,  6 Mar 2023 05:17:03 -0800 (PST)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=k6aP3bKB59tVrYKpky+DRscXXqBZBj6cXzfePgPxIh+N1YJ9N/GBOzD+86SwVDj66OT147E4TCjO7Y19tbFbYi7jkkkkrUNis2xivabwxoeLNeHRkiy1HHPQhW4FFYLpaMsRk1GVIRKG4FSFzmTO2MSdrgMqy1cC1cHHq4aiBKMlN0U1+o/PKAn+jznt/ysW08KiJGBo0EFQvv4rgUpJ2BJopJBn8p9l1Mrc1EcG45BvDhLLVwMxRFryJzN6RRLWlcooXE3aksy6U7Zf7bmOvPE/xGsBQHLvP3US35onOKvuMhD7/WyalGlgqC6aqbQkPFOOMDbz3H+3P8a0VfX6hw==
+ b=bnqEEQgy68MV8/yt8zPfND2K+rr4y8t/GJV+f2InQDORTwohNu66DbSmSQuYh09TKnduDpEb/JH5YQ+uBvwb/DvuyLkASHVrWFZmfoTPIhsmIpRmilTXF/C5Qsbeb2PXrAJVTm6WeqC+DWMH32ZA2kPfqDAvYNU82bkactERdjTxAxvFUs9HBnc5r1UZpi4s2aLK+HGqdYtG8K3cwC3JMBqxEoE9q/0wuZxXa0yKMvGERgt1x4jNSPSWu/LtW7ndQPqZuEOZkIF1ysvmB0uJzy97kKqDmHJ7mJVh7/lSsntqT0UNxGbGJQzKAns1uDMMHXt2Gk7YDuv8cLVuebvTQA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=dlN+iPFRCMxvsJamjQ5wMtshstDDb+H7nJF0UnYzQhw=;
- b=OWOYXpeUcMEf6GBhiXf8RFxW9zz9eoM4ldzskKSSIELNd+eOHoVCX43Go03Lprn0Tj9mUg6H83wFyyzmpe+HIqp5Qi1u5I+R2lBPfZmSoR7tgaez9Kh+qVW1/lO1IZipiRyvR01DLmg9AGMZ/W5/HfgkuJKo9vc10zSsd/2t9uAbiZVmNKx11gPZmBGrBjBhJDyQ5f3Sfg9zOzWEnRwvPAA1vPOrvGmdGnQbelBQFwRfkKqhbBo7tCTY+/rBXP++wwMPC8HH6xALmjo78me7Bb8sr/hZC30Q85sUHBaFSsJEDuN+WkiVxv22yW16kKveB0bnylCFmMkmRTVy8VctmQ==
+ bh=gIkuzPIqMYM8Efea3N18y2GsLOOVbGeYabgh1y3dFEk=;
+ b=V3g05fBSP0l4s3DRcucAJkAW96QrO/6mIrJduTcezzvoE84iBpb3u5KZ384MYY0Mhye0OlxsoUDBqcGX1RyJbGOhPEFJrFv9sgjl8FPDLVtIVM77znadYLVgl3dOHtVmZGiKXsumkuSRQjJl8kKdxy29a9H7a+pY5gGVxDo3gJzarJtrPH7ZEYmK755HpeZYYK+E3uZyS0L2raD0liHw1a+F9ZJ9ivXYXWjKTk+ur7rDKJQL97Yn2zhsJOUSxNpuH7Hs09+n9vNx6QVtU0R2RFZ8LK8yItMFGGx1m1EEK23J6U9ISxm3UWvxWYoXmYiF6LAwri/hHCCUkwFUsVWPYQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=corigine.com; dmarc=pass action=none header.from=corigine.com;
- dkim=pass header.d=corigine.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=corigine.onmicrosoft.com; s=selector2-corigine-onmicrosoft-com;
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=dlN+iPFRCMxvsJamjQ5wMtshstDDb+H7nJF0UnYzQhw=;
- b=otQ10nAqYgEfaScRiXQBUjU7rdsSoYNJiVEwQDLvUvR97dGtWjyV4MNTfgBtKAbXiJl9cjo/ExWMyquHGqUJTvfcVb1sq6DTJkt8Ysj1Le3HphDb9wM0kV5FU62RT694edsTJOFG2Ro0UNm4LkFuDXpvpPdpauj0Z31Ibc39V2s=
+ bh=gIkuzPIqMYM8Efea3N18y2GsLOOVbGeYabgh1y3dFEk=;
+ b=H44rCjyt/SAJ2tmswXN/EaG0Gp+HRBTY89D7gvSjY9NR6Fvg7HgR9yry/JvpAUGrsna3Se6yAGZ0S1OXYfWVSL9z4E3QgCO0jCvJKtMd0dEx9I7fz9nW+XSaLmeixGMHr9ltNP4fhr+Gk6Qhw783/+UEc3R8h6dVBL+3Ake1CAUnkIPRZGXDEd28nJkdHWWWTc5aH28l5oKVhixsWYYYz52fv5pRB2PttK4gu4+yJNdesCw3PCV6YCEFF4Jm+V/oyPuglJsX3OTgiWbssSDsjw6iU4+Q6fJS5mkSl6vUTIZQ0AMkESNnMtmRU5MA3/Kvcali0bwPLbrewABa1t5rvw==
 Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=corigine.com;
-Received: from PH0PR13MB4842.namprd13.prod.outlook.com (2603:10b6:510:78::6)
- by DM6PR13MB3987.namprd13.prod.outlook.com (2603:10b6:5:2a5::20) with
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by SA1PR12MB8724.namprd12.prod.outlook.com (2603:10b6:806:38b::9) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6156.28; Mon, 6 Mar
- 2023 12:24:56 +0000
-Received: from PH0PR13MB4842.namprd13.prod.outlook.com
- ([fe80::85f5:bdb:fb9e:294c]) by PH0PR13MB4842.namprd13.prod.outlook.com
- ([fe80::85f5:bdb:fb9e:294c%3]) with mapi id 15.20.6156.028; Mon, 6 Mar 2023
- 12:24:56 +0000
-Date:   Mon, 6 Mar 2023 13:24:49 +0100
-From:   Simon Horman <simon.horman@corigine.com>
-To:     "D. Wythe" <alibuda@linux.alibaba.com>
-Cc:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
-        kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-Subject: Re: [PATCH net] net/smc: fix fallback failed while sendmsg with
- fastopen
-Message-ID: <ZAXbkUh4h2rIJdR2@corigine.com>
-References: <1678075728-18812-1-git-send-email-alibuda@linux.alibaba.com>
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6156.27; Mon, 6 Mar
+ 2023 13:17:00 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::3cb3:2fce:5c8f:82ee]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::3cb3:2fce:5c8f:82ee%4]) with mapi id 15.20.6156.027; Mon, 6 Mar 2023
+ 13:17:00 +0000
+Date:   Mon, 6 Mar 2023 09:16:59 -0400
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Alex Williamson <alex.williamson@redhat.com>
+Cc:     "Tian, Kevin" <kevin.tian@intel.com>,
+        "Liu, Yi L" <yi.l.liu@intel.com>,
+        "joro@8bytes.org" <joro@8bytes.org>,
+        "robin.murphy@arm.com" <robin.murphy@arm.com>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "eric.auger@redhat.com" <eric.auger@redhat.com>,
+        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
+        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
+        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
+        "peterx@redhat.com" <peterx@redhat.com>,
+        "jasowang@redhat.com" <jasowang@redhat.com>,
+        "shameerali.kolothum.thodi@huawei.com" 
+        <shameerali.kolothum.thodi@huawei.com>,
+        "lulu@redhat.com" <lulu@redhat.com>,
+        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
+        "intel-gvt-dev@lists.freedesktop.org" 
+        <intel-gvt-dev@lists.freedesktop.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "Hao, Xudong" <xudong.hao@intel.com>,
+        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
+        "Xu, Terrence" <terrence.xu@intel.com>
+Subject: Re: [PATCH v5 09/19] vfio/pci: Allow passing zero-length fd array in
+ VFIO_DEVICE_PCI_HOT_RESET
+Message-ID: <ZAXny4NDDq42NUxE@nvidia.com>
+References: <20230227111135.61728-1-yi.l.liu@intel.com>
+ <20230227111135.61728-10-yi.l.liu@intel.com>
+ <DS0PR11MB75295B4B2578765C8B08AC7EC3B29@DS0PR11MB7529.namprd11.prod.outlook.com>
+ <BN9PR11MB527688810514A262471E4BB78CB29@BN9PR11MB5276.namprd11.prod.outlook.com>
+ <ZACX+Np/IY7ygqL5@nvidia.com>
+ <DS0PR11MB7529531834C0A9F1D294A5CCC3B29@DS0PR11MB7529.namprd11.prod.outlook.com>
+ <BN9PR11MB5276B825071A4819479079A68CB39@BN9PR11MB5276.namprd11.prod.outlook.com>
+ <20230303095542.2bfce5c2.alex.williamson@redhat.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1678075728-18812-1-git-send-email-alibuda@linux.alibaba.com>
-X-ClientProxiedBy: AM4PR07CA0007.eurprd07.prod.outlook.com
- (2603:10a6:205:1::20) To PH0PR13MB4842.namprd13.prod.outlook.com
- (2603:10b6:510:78::6)
+In-Reply-To: <20230303095542.2bfce5c2.alex.williamson@redhat.com>
+X-ClientProxiedBy: MN2PR02CA0028.namprd02.prod.outlook.com
+ (2603:10b6:208:fc::41) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PH0PR13MB4842:EE_|DM6PR13MB3987:EE_
-X-MS-Office365-Filtering-Correlation-Id: 5add2def-4b2a-471d-da55-08db1e3dcb78
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|SA1PR12MB8724:EE_
+X-MS-Office365-Filtering-Correlation-Id: 8a1f376f-ccfa-4135-fe4b-08db1e4511e7
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: UGOCJBMhLr3ah4D35tAecaC1JH2FZF1itQnd/3tfcc9bYB0rio+KxxiLwfjymwilayH1WxwDzc7+nwoVvlbUGixvFRZbtlSSvUcZFgPrMHqxVQf+tYS2ja+Ao+5bkqHcl7zlCQSWwOJfcqJJed+m2Fj+RsqeWqT+QuY9wbn0iIDv3CF4n+76S0hO+5xuyVsz+C3rIwWiXbNhTFGgjiEOjz4we/LyaPEjvgP0R9zIPz0CwZl1yHaU88Kh4+P4Vk8NkBU6flBaelpzB8yIkwlSwZ9ArFUk/QweD1BF6lf+ybqhZuzJxkgDZnVtPMEwE91YpN7i0yeWxsX4iJIXgu5iXdSDOoaUGOTQlLPkQ4LJCfzealSOdrJWpNSvRTyMRH0CtubOqfz5M2XCuAPABG0u5a8oVK1akWv27e+u2kC7+/frdtaIGQXcOW+yD4Np/DfKSxGbvwUKSND1uzUMzcfDq4CsG6wipNxnZkZAOWztglh1Zr2u50Zoo8pYh5VZ+l+H3aEVCz9qvqbTunVUX+ANwLSzrVmMyzizJdaxn5kedi16bghp6HLvjKv4yW5HKqqKrMyAAIgyyjzMJ9n8KO9wl0XztwcZgzmkFMx2Uz/3Ym2mq7/ChCttAj7nO+UoK4KprsQPqRTOLjvqNBVkluEi0w+DEme9aLmktiRVrQFXzoMxkB4NadvnJiuTA5ptaMNx
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR13MB4842.namprd13.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(4636009)(39830400003)(396003)(366004)(136003)(376002)(346002)(451199018)(186003)(6666004)(38100700002)(8936002)(6916009)(66556008)(66946007)(41300700001)(66476007)(4326008)(8676002)(44832011)(2906002)(5660300002)(478600001)(2616005)(6512007)(6506007)(6486002)(316002)(36756003)(86362001)(83380400001);DIR:OUT;SFP:1102;
+X-Microsoft-Antispam-Message-Info: wrIpGpb9Y8V7r49u6ks33LldRc0Z3JP61vn5OPhs7Lcvj9OB87xPywbxZRE/etyQxjaFwLg5KIITDXQm5i5yFzJrSnX/2hGnwMJHx0qA/jXZ2wMp6YH/WIQQR06MPfFrFIPXK9XbEa9ANJeV1Het2u6gaHskTS6akWWup7kuTY9Zgl50uXfkYtCPKgKDvCUjBdeH8vaBFYcpAVJhTV8vpC9O6NZn8SvltB6KpaPJZHXQvICYRgJEMu/b95tOZt77hWjexbmI6UI+IrtNE2rnQLEWPjGcg1Sx6CUCWIJYMOOeapSyVbkxaKq9RGr173Rkwk8GNKf39Q2oqyamPqjUUjdCgc7M4QRaBNWyfavSoYj+sB97fTPUv4qfuUdpdHrQwCfX4/SXrIU+nMCBCe0u25MOwh22UeBRJb72hdIjljHRrCgAns7ZoF7KO8626awII3Bauwqj74C1NiBRcPlG0Hb685T5lFnThoZ6oY+HksXC7b7iUCwx1Fn6HPmQpfy4tk9e4710//vFc+H5RPxLr8O++z3OeW698iNEtTZYi+/1i+x7CecMDLTbch9VtbjD/rBm0fs2uVD/IjzsxCISjZ542jphjK95zXuBqsAAO3FMyFBgmr7yGPL6/1z/xlMacCGT7HINhUCaebu9qDiGTQ==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(4636009)(366004)(396003)(346002)(136003)(39860400002)(376002)(451199018)(36756003)(478600001)(6486002)(6512007)(2616005)(26005)(186003)(6506007)(5660300002)(8936002)(66946007)(2906002)(41300700001)(4326008)(6916009)(66556008)(66476007)(7416002)(86362001)(4744005)(8676002)(38100700002)(54906003)(316002);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?61iCe7n9UmE/YcNd432iruhHM8ewYsKnx+m64DNNxowE5JTfPSKFnWQkodaQ?=
- =?us-ascii?Q?DCfvoBoLBWgC+QmxNlHsSLjHVuQQP/cWRTeqYc8eakJ7frV3dtCW9/TFKvZZ?=
- =?us-ascii?Q?e/HSCAt0b5g34EWklTG7iZ3LCfQhppMFMYPjk2kI8LcBViEFwXNT8SyT6f4V?=
- =?us-ascii?Q?L47jDRtKxYmCD62AJyhbkrvkJQIozdRwUNNNSn/A5Z0hHoBol888Zf7J7H4A?=
- =?us-ascii?Q?FkKtB/X5QQS8LF5sDe1EdhT2P11+8wvxREChwfJe86as15daf4hsS/X/pN4W?=
- =?us-ascii?Q?AfKapEiIpxq9h/K6u430EYhiQj97fbsXRRIoGIICZ9ni6LJcAJRTkbycJ91m?=
- =?us-ascii?Q?HH5vhdqTn18NcrYw6QT8dKf6pDNV4pBm8NTHz4sd05LacSQ0vQu9nDnZD7wK?=
- =?us-ascii?Q?fpjgGveSKnO1cdmK9wYzqh9k09wUvItua0dFVQy1FO1eF0FUcVNtSuQkkxjJ?=
- =?us-ascii?Q?ujViGVrVJQCRlyu93F5d9rMFMsdvsk9859DSYfHkJ65qyjTru0IptuO8EzNg?=
- =?us-ascii?Q?vCcnDGtEpRPp1oRxqQQGFmUmIgrSrYJ0gI92mGDvnXmDp9PS7TIkj8gjzGRn?=
- =?us-ascii?Q?3uposh/o2yLhNSJL3w90NRgdyiscR8TGXhXXCuh1LuCty/iC8+3RZANFBUeV?=
- =?us-ascii?Q?NyKJRdGFmy9yo08rS5Gbw/qpN7M0m6qAfSj/T0rP6uIWXyezoP32fnT/Wjom?=
- =?us-ascii?Q?Nf7SyHc4Hb+Z24C6jg3tkyrQnuYpHrhgKFUswpOIP9LeKhQTsxBRUldWdf1g?=
- =?us-ascii?Q?hGV7RceFuwjGmQERH1Z9SC1aaihRNlyN8TbLbwWvp5Vn/mKDIwQr4R/9gVve?=
- =?us-ascii?Q?H3Eo9hQC/w1gix7DAZLbcLTc5S/GixLc1jwUn7lEAXJ30/ApC4omHvpVrzaD?=
- =?us-ascii?Q?uRCnJxiIvU3z9PIxvqPN7Xw43Ny2WxXO/MMF5S73nIrX7EKGcvZsSzpXc6Ie?=
- =?us-ascii?Q?PKMND0CJCi22AD+KmcmiieJ/FzE60ycQPmw9jHCwTGq2oMvFdl7yVTjdUmyu?=
- =?us-ascii?Q?9kM+uWLxb0X53XMiPFcsbi3pBA1SmdN/t8XnHKGGERFAzGQeRh0mB93Xk6UG?=
- =?us-ascii?Q?PaRk6EHSmRQgS3wN3pBVUTogKcfkjL8jIESLW08n4ENjcdYamN/E0h3ztmFC?=
- =?us-ascii?Q?sGAJpwro705A+5Z5ZiJjvE2AgKpUu+mpYS0QMcxoakxbdAy8lyzjz/0FOzbB?=
- =?us-ascii?Q?AEoqmaLDjskPJcQ3X8aU1w0cdISp0tbv4mvl3iETdCejbfco3/GIUHpeAb1M?=
- =?us-ascii?Q?BrOSmCJ2tcBdeJ5Ujvyl9u4J5BKOPTffup3bOZm2wL2/6UjHvWh8B/CeE1T7?=
- =?us-ascii?Q?kxiIOYnNTBluggjXqszTugy0G7whATQXMPs4NkVmJOSICqQikn3tdXBa0uZV?=
- =?us-ascii?Q?dozIOgsgfTXhn80GX94tlHbmKCQRWs8ce6ESnEXNaCOHkkfV9JRQf6ox1BuC?=
- =?us-ascii?Q?XH/bAKH/38Cy+5ydNyZNQg5Dwtn8ykn+P23LBjsfbchJJE9JGPt0vKzLASdL?=
- =?us-ascii?Q?CtUmgfJNC+2PoUn55GE3w2fMU623B6LFJ1vbsXPvRbXU5HYdqhlwGbg9Oe9E?=
- =?us-ascii?Q?ycf7LdXa6MedUZ5C5XtqPoz3eb1cm11Nz+epIiRrrIgxAN3tkSw7lBAW9z02?=
- =?us-ascii?Q?7E5SdT/S4VJqzFm2vW2T88q6OvY41mhQcaWZ6g1+oxBz0t6pQATaWKXR+QK7?=
- =?us-ascii?Q?iqZkCg=3D=3D?=
-X-OriginatorOrg: corigine.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5add2def-4b2a-471d-da55-08db1e3dcb78
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR13MB4842.namprd13.prod.outlook.com
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?x0gz4qsHkTLe9l+OmYo5ywPfPv5pJFDQi34S1orppr12HQ/pG3/vjoJp95db?=
+ =?us-ascii?Q?1mey+OrhZqEmOaLnZ0HfFUFRkIXIkdMYdkj8OgBKOQ8wowY30VPGwN2x5qBD?=
+ =?us-ascii?Q?a8T/I2eHXvWyGXyMHOOzxMhXhyrIiyqgkQU3DIDSzDM4wm3LsIytubaa5AFH?=
+ =?us-ascii?Q?Xv6lzrYo+HXrIs6fMG70qWvJJgCoRljGQ2DgnGipKwoLvAJnJxaWv0vw4H+j?=
+ =?us-ascii?Q?vYGIf/1SQkEv8wtQMjY06yoRDrZvjrRo2wkGw0kji5lEeNyIT7fm/EGt/Faz?=
+ =?us-ascii?Q?yUqG4+cqA8wgzXc9WtVqIxsmYAAONsh7a8VwCtuq3cQ7YtQTM2G132igbDeq?=
+ =?us-ascii?Q?THVtfwsM5G5Jjqn+Ju7Phn0qlWCUVvYdkLb339y1CmnFuV6LRctxA2+6A0Aw?=
+ =?us-ascii?Q?oDcfaRvgpJR2sjp/In/zf/0+rUZA5V4nNaEuSnZ0GKZjo+cuR4xkSPlXjmNq?=
+ =?us-ascii?Q?6bqFBwzx0hdzbhleQWuQHPugcGgz3lWPOCL2gPoPdoxBDFoFNpSi2juPDoS9?=
+ =?us-ascii?Q?AZFdJVSbU+s3VNfInx+7ZHfHkQjE1FVCBoGcJPkboKGrT3HgxTIxYFs4fkka?=
+ =?us-ascii?Q?WxKwFCjLt+rLW3q2sf0QeXJjGvYr29VwNdXduqqeRsKTsgvNlWWfXXyKsR+0?=
+ =?us-ascii?Q?e0jxRZKdMwETCQVxFNnTdmaEOQJ8G2dMd4KyarLJUg6wzWzDBUVYCPInuo9T?=
+ =?us-ascii?Q?jylQwIEtbtGm5htrs12Kw9DNE78z5R2FHFmCq/7Mt8oz6x44wBgD2DV3o1wc?=
+ =?us-ascii?Q?on9pbB10oxtVij/ZwJ2bmXF1cVGT19RHXpmIjEOBKcitg1KW7IPGXtVPZKeN?=
+ =?us-ascii?Q?7vvY1zYEziBOajBnnDmBT4qYRXGVjuhpxGZItr5eQWz4dM2d5VhZ5y8bXtiv?=
+ =?us-ascii?Q?fSAFXsmUoIWSgztivjLnjCGDq38T5/V5vfrHgwZzv29iXszg5WJcTW8AKF3M?=
+ =?us-ascii?Q?vIucKapqAC5K9UNyfIASxJgjOu1TbkuAsWl/S8h7NQJOxwe7woeFwxTi32/R?=
+ =?us-ascii?Q?xDzXAoR/MFoYhoNMJ6NZqbENbHSXRSSzXhAFNxMmdBb47N9InR7ahz1UUGJ+?=
+ =?us-ascii?Q?L2f++NrggThefxt7DOfqYytQHHfHVd2r4qjx8BnYM1uiYo0MZvm2r0v0dZAk?=
+ =?us-ascii?Q?oIecKalvTayYJcUYqNDZE53Wlu3eOuGSwbyvshQzO+p155xcarhicKjgv1M/?=
+ =?us-ascii?Q?MuGpBiRtEYJ7xCMAdFG/6Z/p7JYk2PY4rfz87wGZSNFE6PNy6H96EpnBPAyg?=
+ =?us-ascii?Q?zUkH2h7pXBstM1e9YHWenuG12bKuoon6tbZ6OKJj8Y4D2xR8KFIdsrvLYQHx?=
+ =?us-ascii?Q?+uMEc76AB4/2u0qmCvLLah6sad/7kv5B7IMYDipqmExKj0fFiiZdV1WAALHR?=
+ =?us-ascii?Q?zD8dKBbApP27hjuUjSoo7yDnIkRpYOa2q0GnJojKsJMOQLWvHvE4Vb2ABhWt?=
+ =?us-ascii?Q?zJgW6tNvPXoFIEvqhqF2JscnsyhIAirgFFLBU4JtdZwWvoJGSkEYBH+iGdaP?=
+ =?us-ascii?Q?JpTa9duPNevwKryL3JQuopaZ/obu19ZARiYlNhYw7czBXk734TusYXgqbwlU?=
+ =?us-ascii?Q?t7Qh05+GJkMEnAWetsI6Jw/3g4NJoBIYpOFw6/KL?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8a1f376f-ccfa-4135-fe4b-08db1e4511e7
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Mar 2023 12:24:56.1714
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Mar 2023 13:17:00.7549
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: fe128f2c-073b-4c20-818e-7246a585940c
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: Sh4eFFyRp94TSGNr+KNCXpVy1zC/W5muDH+E+6KXfHcWRJYTNTJDW9G4Dx7o4tW/rvCTw2/xgKJdINQmNi6Tz6Y4cao0+Of3k/8dLCRfxuE=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR13MB3987
+X-MS-Exchange-CrossTenant-UserPrincipalName: rESmOcajXEr9TGxjV33cQN050ubIi68l1aEYr2LHDx9cRUgGpwd9UbFvkqShNp/j
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR12MB8724
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Mar 06, 2023 at 12:08:48PM +0800, D. Wythe wrote:
-> From: "D. Wythe" <alibuda@linux.alibaba.com>
-> 
-> Before determining whether the msg has unsupported options, it has been
-> prematurely terminated by the wrong status check.
-> 
-> For the application, the general method of MSG_FASTOPEN likes
-> 
-> fd = socket(...)
-> /* rather than connect */
-> sendto(fd, data, len, MSG_FASTOPEN)
-> 
-> Hence, We need to check the flag before state check, because the sock state
-> here is always SMC_INIT when applications tries MSG_FASTOPEN. Once we
-> found unsupported options, fallback it to TCP.
-> 
-> Fixes: ee9dfbef02d1 ("net/smc: handle sockopts forcing fallback")
-> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-> ---
->  net/smc/af_smc.c | 26 ++++++++++++++++----------
->  1 file changed, 16 insertions(+), 10 deletions(-)
-> 
-> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> index b233c94..fd80879 100644
-> --- a/net/smc/af_smc.c
-> +++ b/net/smc/af_smc.c
-> @@ -2662,24 +2662,30 @@ static int smc_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
->  	int rc = -EPIPE;
->  
->  	smc = smc_sk(sk);
-> -	lock_sock(sk);
-> -	if ((sk->sk_state != SMC_ACTIVE) &&
-> -	    (sk->sk_state != SMC_APPCLOSEWAIT1) &&
-> -	    (sk->sk_state != SMC_INIT))
-> -		goto out;
->  
-> +	/* SMC do not support connect with fastopen */
->  	if (msg->msg_flags & MSG_FASTOPEN) {
-> +		rc = -EINVAL;
-> +		lock_sock(sk);
-> +		/* not perform connect yet, fallback it */
->  		if (sk->sk_state == SMC_INIT && !smc->connect_nonblock) {
->  			rc = smc_switch_to_fallback(smc, SMC_CLC_DECL_OPTUNSUPP);
-> -			if (rc)
-> -				goto out;
-> -		} else {
-> -			rc = -EINVAL;
-> -			goto out;
-> +			/*  fallback success */
-> +			if (rc == 0)
-> +				goto fallback;	/* with sock lock hold */
->  		}
-> +		release_sock(sk);
-> +		return rc;
->  	}
->  
-> +	lock_sock(sk);
-> +	if (sk->sk_state != SMC_ACTIVE &&
-> +	    sk->sk_state != SMC_APPCLOSEWAIT1 &&
-> +	    sk->sk_state != SMC_INIT)
-> +		goto out;
-> +
->  	if (smc->use_fallback) {
-> +fallback:
->  		rc = smc->clcsock->ops->sendmsg(smc->clcsock, msg, len);
->  	} else {
->  		rc = smc_tx_sendmsg(smc, msg, len);
-> -- 
-> 1.8.3.1
+On Fri, Mar 03, 2023 at 09:55:42AM -0700, Alex Williamson wrote:
 
-Probably I messed something this, as this is *compile tested only*.
+> I can't think of a reason DPDK couldn't use hot-reset.  If we want to
+> make it a policy, it should be enforced by code, but creating that
+> policy based on a difficulty in supporting that mode with iommufd isn't
+> great.
 
-But as the code at the out label looks like this:
+On the other hand adding code to allow device FDs in the hot reset
+path that is never used and never tested isn't great either..
 
-out:
-        release_sock(sk);
-        return rc;
+hot-reset does work for DPDK, it just doesn't work in the case where
+DPDK would have many VFIO devices open and they have overlapping
+device sets. Which, again, is something it doesn't do.
 
-And smc_switch_to_fallback sets smc->use_fallback,
-I wonder if the following is a bit nicer:
+IMHO we should leave it out of the kernel and wait for a no-iommu user
+to come forward that wants hot-reset of many devices. Then we can add
+and test the device FD part. Most likely such a thing will never come
+at this point.
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index a4cccdfdc00a..5d5c19e53b77 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -2657,16 +2657,14 @@ static int smc_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
- {
- 	struct sock *sk = sock->sk;
- 	struct smc_sock *smc;
--	int rc = -EPIPE;
-+	int rc;
- 
- 	smc = smc_sk(sk);
- 	lock_sock(sk);
--	if ((sk->sk_state != SMC_ACTIVE) &&
--	    (sk->sk_state != SMC_APPCLOSEWAIT1) &&
--	    (sk->sk_state != SMC_INIT))
--		goto out;
- 
-+	/* SMC does not support connect with fastopen */
- 	if (msg->msg_flags & MSG_FASTOPEN) {
-+		/* not connected yet, fallback */
- 		if (sk->sk_state == SMC_INIT && !smc->connect_nonblock) {
- 			rc = smc_switch_to_fallback(smc, SMC_CLC_DECL_OPTUNSUPP);
- 			if (rc)
-@@ -2675,6 +2673,11 @@ static int smc_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
- 			rc = -EINVAL;
- 			goto out;
- 		}
-+	} else if (sk->sk_state != SMC_ACTIVE &&
-+		   sk->sk_state != SMC_APPCLOSEWAIT1 &&
-+		   sk->sk_state != SMC_INIT) {
-+		rc = -EPIPE;
-+		goto out;
- 	}
- 
- 	if (smc->use_fallback) {
-
-
+Jason
