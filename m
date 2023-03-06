@@ -2,112 +2,170 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DFAFC6FD1C
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Mar 2023 15:10:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EC8D9C6FA99
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Mar 2023 16:02:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229706AbjCFPKf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 6 Mar 2023 10:10:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57324 "EHLO
+        id S229551AbjCFQBn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 6 Mar 2023 11:01:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229671AbjCFPKc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Mar 2023 10:10:32 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC886222DF;
-        Mon,  6 Mar 2023 07:10:23 -0800 (PST)
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 326F6QxC002064;
-        Mon, 6 Mar 2023 15:10:23 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=y/YyNieYbjzn7JIiKHtS24mjVTN20HTpFwwmJykUrWs=;
- b=CBH6oSDeGlYEjD+z7uG/YOtXWimBC1BRahVkv0XN94WCl/KB0GHO9GPulCfXpAkqBRHC
- owwKun60SYO1mv+rnmurOTUt5ELnD94DWtH02xPZtbkPbVq/bGijFqyPIgIEe+pd+Hw9
- jRqByl0CukjrR3EOZ/saMjbrAa4F/n08/Fd7OOcY2Ze2RCHmwLHfIta3EhKnSj7/Sxho
- +JEvs+GNovl2kNV+nA/Zbwec7SFnOa+1T8ebOW2z8/IpN9uXyBdTh3zfR1Ek12tBB0DC
- zWM/SXVWYqREQzkIzJtqP6jsnDAvhdn1jT1w4zWlWrZ5ZObgqLpSHk2xgTy8IPekG0Hj cA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3p4yhqypkp-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Mar 2023 15:10:22 +0000
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 326CafVR030044;
-        Mon, 6 Mar 2023 15:10:21 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3p4yhqypk2-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Mar 2023 15:10:21 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3265Q2eb002533;
-        Mon, 6 Mar 2023 15:10:20 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma03fra.de.ibm.com (PPS) with ESMTPS id 3p41c3t9eh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Mar 2023 15:10:19 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 326FAGcK28705388
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 6 Mar 2023 15:10:16 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4E2B320043;
-        Mon,  6 Mar 2023 15:10:16 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0C4F52004B;
-        Mon,  6 Mar 2023 15:10:16 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon,  6 Mar 2023 15:10:15 +0000 (GMT)
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Bjorn Helgaas <bhelgaas@google.com>, Lukas Wunner <lukas@wunner.de>
-Cc:     Gerd Bayer <gbayer@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-pci@vger.kernel.org
-Subject: [PATCH v2 3/4] s390/pci: remove redundant pci_bus_add_devices() on new bus
-Date:   Mon,  6 Mar 2023 16:10:13 +0100
-Message-Id: <20230306151014.60913-4-schnelle@linux.ibm.com>
-X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20230306151014.60913-1-schnelle@linux.ibm.com>
-References: <20230306151014.60913-1-schnelle@linux.ibm.com>
+        with ESMTP id S230160AbjCFQBM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Mar 2023 11:01:12 -0500
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7FBD34C39;
+        Mon,  6 Mar 2023 08:01:04 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VdI0zlf_1678118461;
+Received: from 192.168.50.70(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VdI0zlf_1678118461)
+          by smtp.aliyun-inc.com;
+          Tue, 07 Mar 2023 00:01:02 +0800
+Message-ID: <5e64b96e-5c8e-a631-287d-f960f52d8aaa@linux.alibaba.com>
+Date:   Tue, 7 Mar 2023 00:01:01 +0800
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.8.0
+Subject: Re: [PATCH net] net/smc: fix fallback failed while sendmsg with
+ fastopen
+Content-Language: en-US
+To:     Simon Horman <simon.horman@corigine.com>
+Cc:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
+        kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <1678075728-18812-1-git-send-email-alibuda@linux.alibaba.com>
+ <ZAXbkUh4h2rIJdR2@corigine.com>
+From:   "D. Wythe" <alibuda@linux.alibaba.com>
+In-Reply-To: <ZAXbkUh4h2rIJdR2@corigine.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 8ZV9spihV-45ptrSOt9McaOQtUK-wBnP
-X-Proofpoint-ORIG-GUID: fKuPVIx_-3WMgfJpQ450_XOGmDBAUlLZ
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-03-06_08,2023-03-06_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- malwarescore=0 spamscore=0 mlxlogscore=999 priorityscore=1501
- lowpriorityscore=0 bulkscore=0 adultscore=0 phishscore=0 suspectscore=0
- clxscore=1015 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2303060133
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The pci_bus_add_devices() call in zpci_bus_create_pci_bus() is without
-function since at this point no device could have been added to the
-freshly created PCI bus.
+Hi Simon,
 
-Suggested-by: Bjorn Helgaas <helgaas@kernel.org>
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
----
- arch/s390/pci/pci_bus.c | 1 -
- 1 file changed, 1 deletion(-)
+Thank you for your suggestion.  Your writing style is more elegant.
 
-diff --git a/arch/s390/pci/pci_bus.c b/arch/s390/pci/pci_bus.c
-index ae46c280b35f..f8778cd2c029 100644
---- a/arch/s390/pci/pci_bus.c
-+++ b/arch/s390/pci/pci_bus.c
-@@ -210,7 +210,6 @@ static int zpci_bus_create_pci_bus(struct zpci_bus *zbus, struct zpci_dev *fr, s
- 	}
- 
- 	zbus->bus = bus;
--	pci_bus_add_devices(bus);
- 
- 	return 0;
- }
--- 
-2.37.2
+I will modify it according to your plan. Can I add your name as a 
+co-developer?
 
+Best wishes.
+
+D. Wythe
+
+On 3/6/23 8:24 PM, Simon Horman wrote:
+> On Mon, Mar 06, 2023 at 12:08:48PM +0800, D. Wythe wrote:
+>> From: "D. Wythe" <alibuda@linux.alibaba.com>
+>>
+>> Before determining whether the msg has unsupported options, it has been
+>> prematurely terminated by the wrong status check.
+>>
+>> For the application, the general method of MSG_FASTOPEN likes
+>>
+>> fd = socket(...)
+>> /* rather than connect */
+>> sendto(fd, data, len, MSG_FASTOPEN)
+>>
+>> Hence, We need to check the flag before state check, because the sock state
+>> here is always SMC_INIT when applications tries MSG_FASTOPEN. Once we
+>> found unsupported options, fallback it to TCP.
+>>
+>> Fixes: ee9dfbef02d1 ("net/smc: handle sockopts forcing fallback")
+>> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+>> ---
+>>   net/smc/af_smc.c | 26 ++++++++++++++++----------
+>>   1 file changed, 16 insertions(+), 10 deletions(-)
+>>
+>> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+>> index b233c94..fd80879 100644
+>> --- a/net/smc/af_smc.c
+>> +++ b/net/smc/af_smc.c
+>> @@ -2662,24 +2662,30 @@ static int smc_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
+>>   	int rc = -EPIPE;
+>>   
+>>   	smc = smc_sk(sk);
+>> -	lock_sock(sk);
+>> -	if ((sk->sk_state != SMC_ACTIVE) &&
+>> -	    (sk->sk_state != SMC_APPCLOSEWAIT1) &&
+>> -	    (sk->sk_state != SMC_INIT))
+>> -		goto out;
+>>   
+>> +	/* SMC do not support connect with fastopen */
+>>   	if (msg->msg_flags & MSG_FASTOPEN) {
+>> +		rc = -EINVAL;
+>> +		lock_sock(sk);
+>> +		/* not perform connect yet, fallback it */
+>>   		if (sk->sk_state == SMC_INIT && !smc->connect_nonblock) {
+>>   			rc = smc_switch_to_fallback(smc, SMC_CLC_DECL_OPTUNSUPP);
+>> -			if (rc)
+>> -				goto out;
+>> -		} else {
+>> -			rc = -EINVAL;
+>> -			goto out;
+>> +			/*  fallback success */
+>> +			if (rc == 0)
+>> +				goto fallback;	/* with sock lock hold */
+>>   		}
+>> +		release_sock(sk);
+>> +		return rc;
+>>   	}
+>>   
+>> +	lock_sock(sk);
+>> +	if (sk->sk_state != SMC_ACTIVE &&
+>> +	    sk->sk_state != SMC_APPCLOSEWAIT1 &&
+>> +	    sk->sk_state != SMC_INIT)
+>> +		goto out;
+>> +
+>>   	if (smc->use_fallback) {
+>> +fallback:
+>>   		rc = smc->clcsock->ops->sendmsg(smc->clcsock, msg, len);
+>>   	} else {
+>>   		rc = smc_tx_sendmsg(smc, msg, len);
+>> -- 
+>> 1.8.3.1
+> Probably I messed something this, as this is *compile tested only*.
+>
+> But as the code at the out label looks like this:
+>
+> out:
+>          release_sock(sk);
+>          return rc;
+>
+> And smc_switch_to_fallback sets smc->use_fallback,
+> I wonder if the following is a bit nicer:
+>
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> index a4cccdfdc00a..5d5c19e53b77 100644
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -2657,16 +2657,14 @@ static int smc_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
+>   {
+>   	struct sock *sk = sock->sk;
+>   	struct smc_sock *smc;
+> -	int rc = -EPIPE;
+> +	int rc;
+>   
+>   	smc = smc_sk(sk);
+>   	lock_sock(sk);
+> -	if ((sk->sk_state != SMC_ACTIVE) &&
+> -	    (sk->sk_state != SMC_APPCLOSEWAIT1) &&
+> -	    (sk->sk_state != SMC_INIT))
+> -		goto out;
+>   
+> +	/* SMC does not support connect with fastopen */
+>   	if (msg->msg_flags & MSG_FASTOPEN) {
+> +		/* not connected yet, fallback */
+>   		if (sk->sk_state == SMC_INIT && !smc->connect_nonblock) {
+>   			rc = smc_switch_to_fallback(smc, SMC_CLC_DECL_OPTUNSUPP);
+>   			if (rc)
+> @@ -2675,6 +2673,11 @@ static int smc_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
+>   			rc = -EINVAL;
+>   			goto out;
+>   		}
+> +	} else if (sk->sk_state != SMC_ACTIVE &&
+> +		   sk->sk_state != SMC_APPCLOSEWAIT1 &&
+> +		   sk->sk_state != SMC_INIT) {
+> +		rc = -EPIPE;
+> +		goto out;
+>   	}
+>   
+>   	if (smc->use_fallback) {
+>
