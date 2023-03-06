@@ -2,105 +2,146 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E6324C61DA4
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Mar 2023 10:28:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 683CFC6FD1D
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Mar 2023 10:28:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231191AbjCFK2J (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 6 Mar 2023 05:28:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57618 "EHLO
+        id S231204AbjCFK2c (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 6 Mar 2023 05:28:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229593AbjCFK1t (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Mar 2023 05:27:49 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 706E226863;
-        Mon,  6 Mar 2023 02:26:58 -0800 (PST)
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3269LSLw001500;
-        Mon, 6 Mar 2023 10:26:47 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
- mime-version : content-transfer-encoding : in-reply-to : references : cc :
- to : from : subject : message-id : date; s=pp1;
- bh=iMb4Xi2Co2oFwwWqjKXGwvtACKJMW3+qiWgyiZ9Bku8=;
- b=JtZF2ee7BGmb5rSjsYtJkBSJb5PkzkvxWj8aZQkMdmgKNtZlLt3U005PDJPJLHj8rMTZ
- 4Vhi7U7hYkXlZXKwV1nafh87KO/R/jEJQtp3dO2tLLm1he/x/sMeyoxy5TQIA6l9R+JG
- /gc5YvtAf57qgrpt/NVb1xZzNEEbQAlfBm4SsqS/iE+Kw0BOArzQPgTsd8t9KMi2ZwRb
- vjqeZp2MRGMde6GASbfyTZAlN55NMHp1d1JQyqHp72nyrwZIiF1mWgKqfoYZDRvaQLCB
- WSgseMkxGibr/N9V01c7U6GqXrLfJjXxaJjHvNegSGtuyKR2U2sR9T7LlDXxU+LRXVjI dw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3p507nr7vq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Mar 2023 10:26:47 +0000
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 326AAgom031155;
-        Mon, 6 Mar 2023 10:26:47 GMT
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3p507nr7v0-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Mar 2023 10:26:46 +0000
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 325Nhx13031465;
-        Mon, 6 Mar 2023 10:26:44 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-        by ppma06fra.de.ibm.com (PPS) with ESMTPS id 3p418v21sa-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Mar 2023 10:26:44 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 326AQf4A41484574
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 6 Mar 2023 10:26:41 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1827720078;
-        Mon,  6 Mar 2023 10:26:41 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E59962007A;
-        Mon,  6 Mar 2023 10:26:40 +0000 (GMT)
-Received: from t14-nrb (unknown [9.171.46.225])
-        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon,  6 Mar 2023 10:26:40 +0000 (GMT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S231194AbjCFK2K (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Mar 2023 05:28:10 -0500
+Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77B072798C
+        for <linux-s390@vger.kernel.org>; Mon,  6 Mar 2023 02:27:21 -0800 (PST)
+Received: by mail-wr1-x430.google.com with SMTP id q16so8249306wrw.2
+        for <linux-s390@vger.kernel.org>; Mon, 06 Mar 2023 02:27:21 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=rivosinc-com.20210112.gappssmtp.com; s=20210112; t=1678098440;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=IkOpojqO2OnrnjqWakJ/ssyTb7fIeaWwMcDQKKqwZNE=;
+        b=2SGZsdegW2cBo8kqTvJjfFIjyiIe3RlAF3Yg2d3PkCw98QBaJe6s+BTqk6sAhk4Ru9
+         x7fyYH3R/rrntqQj+20SwCyMBoNiJLiYg4WuOmQwPJL5b+DF3FDm/orSsIYy2QoXBVXd
+         Cdzwovn8N6wE2qNxhoW3UDgdtmZP7Nh0XnCmz0czTNkoRdhMmQH5C5i4wPzm0FnSENL2
+         yCQ8iTsDqS3+6TIBvW13lzxa8x1nucKgzziQ/y1owwV6sges+GmrnrvY9v4F/wR0jN9s
+         dJNciHWJZZVZZq4DF3TZv9N2W4QxXz9fcom5MmwMFKt9Voj1e11JRoqNawBuW3HhlupR
+         GlvQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678098440;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=IkOpojqO2OnrnjqWakJ/ssyTb7fIeaWwMcDQKKqwZNE=;
+        b=WbcRXVN0G1z8OqtohAEhgOUMDmchwC8ZVs4xp55lJzEens2IMta2V3m5CVWlDYo0qj
+         qJBXlyrKxJLHwYqlpxm9Iv9TlNV143b1bjY2Us9rCjhXGIKUxFGkQEmHVyQH2L823xHT
+         /TtXyBbru+GUhenWWJbWKSfLktpTDzMIWBB6cjcLbbc6fT9vLfqC8aR5kAcIsXXor8sz
+         eexV/1vYHS8oK9WoVa/egkBPQ3Fwbd5d1SIQdjBEL1PlsodXR9FFCa7usiuxrnNALA/X
+         X1CXs4aNi3uCF36V2PLTUGZJMKg6WmvG1ClcgAuqbEI0ebzRGRAVWxUyw6Nwud6g4OdK
+         8J8g==
+X-Gm-Message-State: AO0yUKUG8AqHgznHuNjAhjxzoBE2CAzFpSxod3pL5JGH2CJUK8QDkEZB
+        vz9BUmVL69OzZzj53oOHZwIYWg==
+X-Google-Smtp-Source: AK7set8g+/98oO5ZP6uqzBMUSmWnh62L8fRNjgLpgkBPpDr7Mkg4SnpC/vtuHWPhO/s9VWytKbeQJQ==
+X-Received: by 2002:adf:f483:0:b0:2c7:46f:c410 with SMTP id l3-20020adff483000000b002c7046fc410mr6736693wro.36.1678098439964;
+        Mon, 06 Mar 2023 02:27:19 -0800 (PST)
+Received: from alex-rivos.ba.rivosinc.com (amontpellier-656-1-456-62.w92-145.abo.wanadoo.fr. [92.145.124.62])
+        by smtp.gmail.com with ESMTPSA id m5-20020a5d56c5000000b002be505ab59asm9431737wrw.97.2023.03.06.02.27.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 06 Mar 2023 02:27:19 -0800 (PST)
+From:   Alexandre Ghiti <alexghiti@rivosinc.com>
+To:     Greg KH <gregkh@linuxfoundation.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Richard Henderson <richard.henderson@linaro.org>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Matt Turner <mattst88@gmail.com>,
+        Vineet Gupta <vgupta@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        WANG Xuerui <kernel@xen0n.name>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Michal Simek <monstr@monstr.eu>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H . Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org,
+        linux-arch@vger.kernel.org
+Cc:     Palmer Dabbelt <palmer@rivosinc.com>,
+        Alexandre Ghiti <alexghiti@rivosinc.com>,
+        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@linaro.org>
+Subject: [PATCH v5 21/26] x86: Remove empty <uapi/asm/setup.h>
+Date:   Mon,  6 Mar 2023 11:05:03 +0100
+Message-Id: <20230306100508.1171812-22-alexghiti@rivosinc.com>
+X-Mailer: git-send-email 2.37.2
+In-Reply-To: <20230306100508.1171812-1-alexghiti@rivosinc.com>
+References: <20230306100508.1171812-1-alexghiti@rivosinc.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20230305135207.1793266-5-sashal@kernel.org>
-References: <20230305135207.1793266-1-sashal@kernel.org> <20230305135207.1793266-5-sashal@kernel.org>
-Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, cohuck@redhat.com,
-        pasic@linux.ibm.com, farman@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, linux-s390@vger.kernel.org,
-        virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
-To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-From:   Nico Boehr <nrb@linux.ibm.com>
-Subject: Re: [PATCH AUTOSEL 6.2 05/16] s390/virtio: sort out physical vs virtual pointers usage
-Message-ID: <167809840006.10483.605220541481258700@t14-nrb.local>
-User-Agent: alot/0.8.1
-Date:   Mon, 06 Mar 2023 11:26:40 +0100
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: jzOHDmhuvYJVEW3LJ2NlFChf12DKY5XK
-X-Proofpoint-ORIG-GUID: 27xfKDkcR_DFoAg0KOcLk-zgWOwvohCA
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-03-06_02,2023-03-03_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 spamscore=0
- adultscore=0 phishscore=0 mlxlogscore=890 bulkscore=0 lowpriorityscore=0
- suspectscore=0 clxscore=1031 impostorscore=0 mlxscore=0 priorityscore=1501
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
- definitions=main-2303060088
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Sasha, s390 maintainers,
+From: Palmer Dabbelt <palmer@rivosinc.com>
 
-Quoting Sasha Levin (2023-03-05 14:51:56)
-> From: Alexander Gordeev <agordeev@linux.ibm.com>
->=20
-> [ Upstream commit 5fc5b94a273655128159186c87662105db8afeb5 ]
->=20
-> This does not fix a real bug, since virtual addresses
-> are currently indentical to physical ones.
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Alexandre Ghiti <alexghiti@rivosinc.com>
+Reviewed-by: Philippe Mathieu-Daudé <philmd@linaro.org>
+---
+ arch/x86/include/asm/setup.h      | 2 --
+ arch/x86/include/uapi/asm/setup.h | 1 -
+ 2 files changed, 3 deletions(-)
+ delete mode 100644 arch/x86/include/uapi/asm/setup.h
 
-not sure if it is appropriate to pick for stable, since it does not fix a b=
-ug currently.
+diff --git a/arch/x86/include/asm/setup.h b/arch/x86/include/asm/setup.h
+index f37cbff7354c..449b50a2f390 100644
+--- a/arch/x86/include/asm/setup.h
++++ b/arch/x86/include/asm/setup.h
+@@ -2,8 +2,6 @@
+ #ifndef _ASM_X86_SETUP_H
+ #define _ASM_X86_SETUP_H
+ 
+-#include <uapi/asm/setup.h>
+-
+ #define COMMAND_LINE_SIZE 2048
+ 
+ #include <linux/linkage.h>
+diff --git a/arch/x86/include/uapi/asm/setup.h b/arch/x86/include/uapi/asm/setup.h
+deleted file mode 100644
+index 79a9626b5500..000000000000
+--- a/arch/x86/include/uapi/asm/setup.h
++++ /dev/null
+@@ -1 +0,0 @@
+-/* */
+-- 
+2.37.2
 
-Alexander, Janosch, your opinion?
