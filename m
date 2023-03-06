@@ -2,170 +2,168 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7DFC9C64EC4
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Mar 2023 18:20:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5941BC64EC4
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Mar 2023 21:06:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229913AbjCFSUI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 6 Mar 2023 13:20:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36068 "EHLO
+        id S229578AbjCFVGc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 6 Mar 2023 16:06:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230026AbjCFSTp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Mar 2023 13:19:45 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B60C837B50;
-        Mon,  6 Mar 2023 10:19:23 -0800 (PST)
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 326H2k6Z022466;
-        Mon, 6 Mar 2023 18:18:21 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
+        with ESMTP id S229565AbjCFVG1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Mar 2023 16:06:27 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B2FE3BDB7;
+        Mon,  6 Mar 2023 13:06:20 -0800 (PST)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 326K42t6011040;
+        Mon, 6 Mar 2023 21:06:14 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=IVmI4yH9tG0Ae6va4zPFZiTf9ybnBWkjBZy2t1uuqgI=;
- b=FVDfNAgpf8FNutgMtGmbr7YUIcfZ6UlNMzv62++SW/PpJWUKNBbsWlIWOOXh5XRvstMB
- oQq9GnjROL9WsFXrvWRTTbG1dP6hEt0ExxI1cCBJocLCnJMIU5HNhN6nN8y8tPWZ4YOp
- ng80xkfQUFRwW4aS+3UpsTrEByxgs5oYeTCpiVt1ao1mpIIcT4b+0rr8mLZSwXRA1qT/
- NLh0PguCBuPOYQWMXxLYpZRrIK0c/ftTYpJsqM5jw1jlRX9Q1jFIHyOvuyJ8mdXNFxyY
- eykQgYPVHIUGiVQNrBiSVfJvwVAJbabnLI2eNQTfornfdxnPanacqqn9a9bVAWzU8fIS kg== 
+ bh=X+l+D0wTEg1NK0XLIfd80zTd+g8fH2sBn/mflmRj/20=;
+ b=B9HCWoJBBBU/K7rA2Jx3B6QUjvVXv/QuFq9gFEN8Tam1lmy/fgANGLLjb+x9geEPhPGh
+ edcA6ccr0pqmR0MUmgzQydhyMYiIDmGbUjyGcq+ZYRLep4sR1WlE0HVmS3BL5AiDo0l6
+ gYZtmbKYjVHKnOS/vzJm/W6MKD0WzEsFJQYjJrNDuVSiXROXtXIy+P1xg370thaP34+V
+ lLTNTq+8waD5WFASTvRHgmNUqaMFkSsx4V3n38nLLz9NFikUVjOurFR06lGqMOtjCbdU
+ ycPHRPE1EUM8GZXIaNOsoLNJ4rGuHWpg2qGS8XyF+pN1oa76K+CqoFIvO4aQwRxFl32e YQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3p4vp269gh-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3p50n4fya7-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Mar 2023 18:18:21 +0000
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 326I74HM020418;
-        Mon, 6 Mar 2023 18:18:20 GMT
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3p4vp269f2-1
+        Mon, 06 Mar 2023 21:06:13 +0000
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 326KUQ4i002476;
+        Mon, 6 Mar 2023 21:06:13 GMT
+Received: from ppma01wdc.us.ibm.com (fd.55.37a9.ip4.static.sl-reverse.com [169.55.85.253])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3p50n4fy9u-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Mar 2023 18:18:20 +0000
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32649vYR011365;
-        Mon, 6 Mar 2023 18:18:16 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-        by ppma06fra.de.ibm.com (PPS) with ESMTPS id 3p418v2fck-1
+        Mon, 06 Mar 2023 21:06:13 +0000
+Received: from pps.filterd (ppma01wdc.us.ibm.com [127.0.0.1])
+        by ppma01wdc.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 326JWCmT005009;
+        Mon, 6 Mar 2023 21:06:12 GMT
+Received: from smtprelay02.dal12v.mail.ibm.com ([9.208.130.97])
+        by ppma01wdc.us.ibm.com (PPS) with ESMTPS id 3p41847a4e-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Mar 2023 18:18:15 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 326IIC4457016778
+        Mon, 06 Mar 2023 21:06:12 +0000
+Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
+        by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 326L6But46138092
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 6 Mar 2023 18:18:12 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4E74F2004E;
-        Mon,  6 Mar 2023 18:18:12 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 31A4620040;
-        Mon,  6 Mar 2023 18:18:11 +0000 (GMT)
-Received: from thinkpad (unknown [9.171.75.232])
-        by smtpav04.fra02v.mail.ibm.com (Postfix) with SMTP;
-        Mon,  6 Mar 2023 18:18:11 +0000 (GMT)
-Date:   Mon, 6 Mar 2023 19:18:09 +0100
-From:   Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-To:     Catalin Marinas <catalin.marinas@arm.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        David Hildenbrand <david@redhat.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-mips <linux-mips@vger.kernel.org>,
-        linux-power <linuxppc-dev@lists.ozlabs.org>,
-        linux-x86 <x86@kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        linux-mm <linux-mm@kvack.org>
-Subject: Re: [PATCH] mm: add PTE pointer parameter to
- flush_tlb_fix_spurious_fault()
-Message-ID: <20230306191809.77144eec@thinkpad>
-In-Reply-To: <ZAYdpLCxicptr4MJ@arm.com>
-References: <20230306161548.661740-1-gerald.schaefer@linux.ibm.com>
-        <ZAYdpLCxicptr4MJ@arm.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.36; x86_64-redhat-linux-gnu)
+        Mon, 6 Mar 2023 21:06:11 GMT
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 387D058045;
+        Mon,  6 Mar 2023 21:06:11 +0000 (GMT)
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 767CA58054;
+        Mon,  6 Mar 2023 21:06:09 +0000 (GMT)
+Received: from [9.163.94.4] (unknown [9.163.94.4])
+        by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Mon,  6 Mar 2023 21:06:09 +0000 (GMT)
+Message-ID: <76103587-435d-159d-98b7-0c4cbedaf62e@linux.ibm.com>
+Date:   Mon, 6 Mar 2023 22:06:08 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.8.0
+Subject: Re: [PATCH net] net/smc: fix NULL sndbuf_desc in smc_cdc_tx_handler()
+To:     Alexander H Duyck <alexander.duyck@gmail.com>,
+        "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
+        jaka@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <1678073786-110013-1-git-send-email-alibuda@linux.alibaba.com>
+ <a4a6c3381239d1297f218c5b6d01828bac016660.camel@gmail.com>
+From:   Wenjia Zhang <wenjia@linux.ibm.com>
+In-Reply-To: <a4a6c3381239d1297f218c5b6d01828bac016660.camel@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Q6RU0_1d33mcmcSdtwyO-VmlbiReyfsE
-X-Proofpoint-GUID: PmcJFWFlbELOtLm7Z0Wo3Lyr_EPiLECW
+X-Proofpoint-ORIG-GUID: zVbj8YPHySCY0WwmG-Xq2A6BNZSWLC2S
+X-Proofpoint-GUID: tgmKc7x-4CZTWDmm1R4mUUSjvp5iNrmF
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-03-06_11,2023-03-06_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 impostorscore=0
- lowpriorityscore=0 malwarescore=0 bulkscore=0 clxscore=1015 suspectscore=0
- mlxlogscore=937 mlxscore=0 priorityscore=1501 adultscore=0 phishscore=0
+ definitions=2023-03-06_14,2023-03-06_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 adultscore=0
+ mlxlogscore=999 bulkscore=0 phishscore=0 priorityscore=1501 clxscore=1015
+ impostorscore=0 suspectscore=0 lowpriorityscore=0 spamscore=0 mlxscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
- definitions=main-2303060156
+ definitions=main-2303060183
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 6 Mar 2023 17:06:44 +0000
-Catalin Marinas <catalin.marinas@arm.com> wrote:
 
-> On Mon, Mar 06, 2023 at 05:15:48PM +0100, Gerald Schaefer wrote:
-> > diff --git a/arch/arm64/include/asm/pgtable.h b/arch/arm64/include/asm/pgtable.h
-> > index b6ba466e2e8a..0bd18de9fd97 100644
-> > --- a/arch/arm64/include/asm/pgtable.h
-> > +++ b/arch/arm64/include/asm/pgtable.h
-> > @@ -57,7 +57,7 @@ static inline bool arch_thp_swp_supported(void)
-> >   * fault on one CPU which has been handled concurrently by another CPU
-> >   * does not need to perform additional invalidation.
-> >   */
-> > -#define flush_tlb_fix_spurious_fault(vma, address) do { } while (0)
-> > +#define flush_tlb_fix_spurious_fault(vma, address, ptep) do { } while (0)
-> 
-> For arm64:
-> 
-> Acked-by: Catalin Marinas <catalin.marinas@arm.com>
-> 
-> > diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-> > index 2c70b4d1263d..c1f6b46ec555 100644
-> > --- a/arch/s390/include/asm/pgtable.h
-> > +++ b/arch/s390/include/asm/pgtable.h
-> > @@ -1239,7 +1239,8 @@ static inline int pte_allow_rdp(pte_t old, pte_t new)
-> >  }
-> >  
-> >  static inline void flush_tlb_fix_spurious_fault(struct vm_area_struct *vma,
-> > -						unsigned long address)
-> > +						unsigned long address,
-> > +						pte_t *ptep)
-> >  {
-> >  	/*
-> >  	 * RDP might not have propagated the PTE protection reset to all CPUs,
-> > @@ -1247,11 +1248,12 @@ static inline void flush_tlb_fix_spurious_fault(struct vm_area_struct *vma,
-> >  	 * NOTE: This will also be called when a racing pagetable update on
-> >  	 * another thread already installed the correct PTE. Both cases cannot
-> >  	 * really be distinguished.
-> > -	 * Therefore, only do the local TLB flush when RDP can be used, to avoid
-> > -	 * unnecessary overhead.
-> > +	 * Therefore, only do the local TLB flush when RDP can be used, and the
-> > +	 * PTE does not have _PAGE_PROTECT set, to avoid unnecessary overhead.
-> > +	 * A local RDP can be used to do the flush.
-> >  	 */
-> > -	if (MACHINE_HAS_RDP)
-> > -		asm volatile("ptlb" : : : "memory");
-> > +	if (MACHINE_HAS_RDP && !(pte_val(*ptep) & _PAGE_PROTECT))
-> > +		__ptep_rdp(address, ptep, 0, 0, 1);
-> 
-> I wonder whether passing the actual entry is somewhat quicker as it
-> avoids another memory access (though it might already be in the cache).
 
-The RDP instruction itself only requires the PTE pointer as input, or more
-precisely a pointer to the pagetable origin. We calculate that from the PTE
-pointer, by masking out some bits, w/o actual memory access to the PTE entry
-value.
+On 06.03.23 17:38, Alexander H Duyck wrote:
+> On Mon, 2023-03-06 at 11:36 +0800, D. Wythe wrote:
+>> From: "D. Wythe" <alibuda@linux.alibaba.com>
+>>
+>> When performing a stress test on SMC-R by rmmod mlx5_ib driver
+>> during the wrk/nginx test, we found that there is a probability
+>> of triggering a panic while terminating all link groups.
+>>
+>> This issue dues to the race between smc_smcr_terminate_all()
+>> and smc_buf_create().
+>>
+>> 			smc_smcr_terminate_all
+>>
+>> smc_buf_create
+>> /* init */
+>> conn->sndbuf_desc = NULL;
+>> ...
+>>
+>> 			__smc_lgr_terminate
+>> 				smc_conn_kill
+>> 					smc_close_abort
+>> 						smc_cdc_get_slot_and_msg_send
+>>
+>> 			__softirqentry_text_start
+>> 				smc_wr_tx_process_cqe
+>> 					smc_cdc_tx_handler
+>> 						READ(conn->sndbuf_desc->len);
+>> 						/* panic dues to NULL sndbuf_desc */
+>>
+>> conn->sndbuf_desc = xxx;
+>>
+>> This patch tries to fix the issue by always to check the sndbuf_desc
+>> before send any cdc msg, to make sure that no null pointer is
+>> seen during cqe processing.
+>>
+>> Fixes: 0b29ec643613 ("net/smc: immediate termination for SMCR link groups")
+>> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+> 
+> Looking at the code for __smc_buf_create it seems like you might have
+> more issues hiding in the code. From what I can tell smc_buf_get_slot
+> can only return a pointer or NULL but it is getting checked for being
+> being a PTR_ERR or IS_ERR in several spots that are likely all dead
+> code.
+> 
+This smc_buf_get_slot() is used to get a reusable slot, which is 
+originally assigned by smcr_new_buf_create() or smcd_new_buf_create() 
+depending on the device being used. In 
+smcr_new_buf_create()/smcd_new_buf_create(), the pointer values of the 
+return codes are converted from integer values.
 
-Of course, there is the pte_val(*ptep) & _PAGE_PROTECT check here, with
-memory access, but this might get removed in the future. TBH, I simply
-wasn't sure (enough) yet, if we could technically ever end up here with
-_PAGE_PROTECT set at all. For "real" spurious protection faults, it should
-never be set, not so sure about racing pagetable updates though.
-
-So this might actually be an unnecessary / overly cautious check, that
-gets removed in the future, and not worth passing along the PTE value
-in addition to the pointer.
+>> ---
+>>   net/smc/smc_cdc.c | 3 +++
+>>   1 file changed, 3 insertions(+)
+>>
+>> diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
+>> index 53f63bf..2f0e2ee 100644
+>> --- a/net/smc/smc_cdc.c
+>> +++ b/net/smc/smc_cdc.c
+>> @@ -114,6 +114,9 @@ int smc_cdc_msg_send(struct smc_connection *conn,
+>>   	union smc_host_cursor cfed;
+>>   	int rc;
+>>   
+>> +	if (unlikely(!READ_ONCE(conn->sndbuf_desc)))
+>> +		return -EINVAL;
+>> +
+> 
+> This return value doesn't seem right to me. Rather than en EINVAL
+> should this be something like a ENOBUFS just to make it easier to debug
+> when this issue is encountered?
+I agree.
+> 
+>>   	smc_cdc_add_pending_send(conn, pend);
+>>   
+>>   	conn->tx_cdc_seq++;
+> 
+> 
