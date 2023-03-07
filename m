@@ -2,130 +2,162 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ADB1CC742A7
-	for <linux-s390@archiver.kernel.org>; Tue,  7 Mar 2023 21:42:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E8B6CC6FD1E
+	for <linux-s390@archiver.kernel.org>; Tue,  7 Mar 2023 22:17:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230443AbjCGVmC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 7 Mar 2023 16:42:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49984 "EHLO
+        id S229732AbjCGWRl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 7 Mar 2023 17:17:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230200AbjCGVmB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Mar 2023 16:42:01 -0500
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 263C8A6178
-        for <linux-s390@vger.kernel.org>; Tue,  7 Mar 2023 13:41:59 -0800 (PST)
-Received: by mail-pl1-x62c.google.com with SMTP id x11so11090801pln.12
-        for <linux-s390@vger.kernel.org>; Tue, 07 Mar 2023 13:41:59 -0800 (PST)
+        with ESMTP id S229780AbjCGWRj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Mar 2023 17:17:39 -0500
+Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AC79A225C
+        for <linux-s390@vger.kernel.org>; Tue,  7 Mar 2023 14:17:37 -0800 (PST)
+Received: by mail-pf1-x431.google.com with SMTP id z11so9054285pfh.4
+        for <linux-s390@vger.kernel.org>; Tue, 07 Mar 2023 14:17:37 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=dabbelt-com.20210112.gappssmtp.com; s=20210112; t=1678225318;
-        h=content-transfer-encoding:mime-version:message-id:to:from:cc
-         :in-reply-to:subject:date:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=h0UBWEzua7mI1E3a/+R1pzklpJ+RGJpYFy9mijom/UM=;
-        b=3d0i9L9fgsM6wfDV6SgEVPe2doCmA84h8dgaHpMbejZeZuQRklJuURRf6PhkCN7ukc
-         w/n+8nbuC+OW0mQWtjtERbzb9wBvkWnsuB3UcR0sH2Ba3g7FDMT+jDol43sV0ZSapUuU
-         afFVzDtGs7qaCnWpNgGUvXPCI9VeRCtjLQt1T3AcBXMLT19wGawFny88dkq7b+SM519J
-         izcWM0iUW0/Sac/AVhLneLvdpP7x0olNKc4YqRIWvevDICe0+qs1ypmIQEYjXt6H2n6Q
-         PGyqmNUpfeGmcTALJ+qCkHjqjpTn7tbuCsOrFtOo3YqXRw3n/PRxx6fcIN5oBf8fOwBc
-         hPrQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678225318;
-        h=content-transfer-encoding:mime-version:message-id:to:from:cc
-         :in-reply-to:subject:date:x-gm-message-state:from:to:cc:subject:date
+        d=google.com; s=20210112; t=1678227457;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=h0UBWEzua7mI1E3a/+R1pzklpJ+RGJpYFy9mijom/UM=;
-        b=eBxv2X+aTlZEyQdOK/KFulLe6epN06qI2Md1AC+Iv7tIz1SbvdJ44M80vKQ7iXaHW8
-         uZPJVxB5wYL5n+4sOxUvxGXUA5dIm+mCAvaZDPY4GnQ5+2hLg4nNzrifyHRi5yxaM3X7
-         p/oTPZjV297nWzVidSoOnKI7Yz04vO/9MoTPtv7vubLtHQ3o1TrDsmvT5Xaowxe0ZY2V
-         yPCEV++/iB9cC2RbTsQoOhUh8OfkzRVVcnsRomehT0TA+vCyy7BkKZknk/dOSmSBhVoo
-         f6TbYGok5GzdNjetzpuPPqWgqlGLdLF60q+0LrDuDoo2NmgKzE6ZBrzqrEBHCCu/UsPQ
-         ueOA==
-X-Gm-Message-State: AO0yUKVLm6A24fbzzF2c7lFjryz/VjZyGd9fLCAayyiunTfpXBfFkIbR
-        QoOULFJ5WQBSqc+7GXXLQkU/oQ==
-X-Google-Smtp-Source: AK7set/K6eJAQf/eSbaq269PoSBswE0gsDc5h7lzSW9lr2zauw1plinMmCGHpVyR/4qKnDR1/eXDIg==
-X-Received: by 2002:a17:902:ce90:b0:19a:9434:af30 with SMTP id f16-20020a170902ce9000b0019a9434af30mr18505363plg.18.1678225318377;
-        Tue, 07 Mar 2023 13:41:58 -0800 (PST)
-Received: from localhost ([50.221.140.188])
-        by smtp.gmail.com with ESMTPSA id km12-20020a17090327cc00b0019e30e3068bsm8866509plb.168.2023.03.07.13.41.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Mar 2023 13:41:57 -0800 (PST)
-Date:   Tue, 07 Mar 2023 13:41:57 -0800 (PST)
-X-Google-Original-Date: Tue, 07 Mar 2023 13:40:59 PST (-0800)
-Subject:     Re: [PATCH v5 12/26] riscv: Remove COMMAND_LINE_SIZE from uapi
-In-Reply-To: <20230306100508.1171812-13-alexghiti@rivosinc.com>
-CC:     Greg KH <gregkh@linuxfoundation.org>, corbet@lwn.net,
-        Richard Henderson <richard.henderson@linaro.org>,
-        ink@jurassic.park.msu.ru, mattst88@gmail.com, vgupta@kernel.org,
-        linux@armlinux.org.uk, Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, chenhuacai@kernel.org,
-        kernel@xen0n.name, geert@linux-m68k.org, monstr@monstr.eu,
-        tsbogend@alpha.franken.de, James.Bottomley@HansenPartnership.com,
-        deller@gmx.de, mpe@ellerman.id.au, npiggin@gmail.com,
-        christophe.leroy@csgroup.eu,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        aou@eecs.berkeley.edu, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, ysato@users.sourceforge.jp, dalias@libc.org,
-        davem@davemloft.net, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
-        hpa@zytor.com, chris@zankel.net, jcmvbkbc@gmail.com,
-        Arnd Bergmann <arnd@arndb.de>, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org,
-        linux-arch@vger.kernel.org, alexghiti@rivosinc.com
-From:   Palmer Dabbelt <palmer@dabbelt.com>
-To:     alexghiti@rivosinc.com
-Message-ID: <mhng-d4be5bb5-f0ad-4e76-9b11-83732d233a45@palmer-ri-x1c9a>
-Mime-Version: 1.0 (MHng)
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+        bh=MZPDIXIYKXniSn7Cewj9Ohui8u8k77FZgGbBf+MYE2I=;
+        b=H564rYcr021ZaO8vXlD0OPJNwRxXvsmm/vqUrqRtpwiFQvN40keui/j6Bp3KmULdu0
+         ivF+sTy4V6jvb6d37Mz5mve8tFjbJKLWl5yMUyEVgpSK1EcV63guC/PFNzt+wwIT798o
+         WqdQoR3xShV1oG19aLBwWl/pXw4vKAwK9izs0QOL6MyM6i2SEA9H6wcRRCDyVzSNu6tI
+         HBPukjF+XFb10s4toX3I8sppLqirPA5S7hSYGqsWOioAHyTdu1xTh7tiFAfi2YImRMms
+         V74ZL12YdBf/AQet8JvGIrBeausWDblgLUn0+XRaTe5HAGxvBBcQqG8kXpTe00SfoBWk
+         582g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678227457;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=MZPDIXIYKXniSn7Cewj9Ohui8u8k77FZgGbBf+MYE2I=;
+        b=Yb1fivSG3KlxO+qMhLlcOEnngd+shcQIiB0ic1E20MS8anNHTQBImUsKg0EDrm5Wp3
+         ro2PZ+yb3XCivg3kJDpT53YTARjSCwY1uE8OFzwwlKALpgkQBtII4Fd4X7mtygbENCLN
+         i3GZZyh5DNwD0cvScB5O2KUay3mOT/ThbUKH02qMlnU0iy6/KJHdwBaVS+W1l5/0Yk+X
+         Wl/6q+UFky2gD6HZkwyga5nOCLNj153qPOl88PaAcrbvKB1vtywH/LcfT+1JBMStaWL9
+         x9zzOeTrbrcIFH3XYlp3mcWFLjKDQe0eKj1onOkuFXrJs1KmTqPNQMRrgRJbYxaaARy6
+         hOOA==
+X-Gm-Message-State: AO0yUKV3KbSbsRyyykp9br9k60+DzYsutVr+yxTq26lqtUb6wrTSnyl+
+        fP9xQ0Tpou9n7AA4R6eNAzH5f+RNC40ERtUSUM3Mmw==
+X-Google-Smtp-Source: AK7set8bTAGAzcozR0mHlx2H4rby0W+fDsvyU0VDW8yH6kyQ72u7VVUu/0hrchLg1UOauYaAFQgZM89VmNF8LcPa1WU=
+X-Received: by 2002:a62:870e:0:b0:5a9:c954:563e with SMTP id
+ i14-20020a62870e000000b005a9c954563emr6678943pfe.6.1678227456770; Tue, 07 Mar
+ 2023 14:17:36 -0800 (PST)
+MIME-Version: 1.0
+References: <20230206221428.2125324-1-qyousef@layalina.io> <CA+khW7i_Sc0M4FXzojmQ5PSfkPwk6AdcbN9j0gDXZ9FsOMQAwA@mail.gmail.com>
+ <f3a99500-e51c-032f-a0c6-01763f0a5be6@redhat.com> <CA+khW7iWAn6bbXdkJX1Lt4dWUsN6o4KqVQ8OFTs0B+VTtVjBkw@mail.gmail.com>
+ <1f2cf8ea-a9d7-5245-0f69-eb8be9f64afc@redhat.com>
+In-Reply-To: <1f2cf8ea-a9d7-5245-0f69-eb8be9f64afc@redhat.com>
+From:   Hao Luo <haoluo@google.com>
+Date:   Tue, 7 Mar 2023 14:17:25 -0800
+Message-ID: <CA+khW7jQg6x_j70eARVF0eemP0txU_K9Lc=5kfBmU_KxsfbK2w@mail.gmail.com>
+Subject: Re: [PATCH v3] sched: cpuset: Don't rebuild root domains on suspend-resume
+To:     Waiman Long <longman@redhat.com>
+Cc:     Qais Yousef <qyousef@layalina.io>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Steven Rostedt <rostedt@goodmis.org>, tj@kernel.org,
+        linux-kernel@vger.kernel.org, luca.abeni@santannapisa.it,
+        claudio@evidence.eu.com, tommaso.cucinotta@santannapisa.it,
+        bristot@redhat.com, mathieu.poirier@linaro.org,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        cgroups@vger.kernel.org,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Wei Wang <wvw@google.com>, Rick Yiu <rickyiu@google.com>,
+        Quentin Perret <qperret@google.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Zefan Li <lizefan.x@bytedance.com>, linux-s390@vger.kernel.org,
+        x86@kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 06 Mar 2023 02:04:54 PST (-0800), alexghiti@rivosinc.com wrote:
-> As far as I can tell this is not used by userspace and thus should not
-> be part of the user-visible API.
+On Tue, Mar 7, 2023 at 1:13=E2=80=AFPM Waiman Long <longman@redhat.com> wro=
+te:
 >
-> Signed-off-by: Alexandre Ghiti <alexghiti@rivosinc.com>
-> ---
->  arch/riscv/include/asm/setup.h      | 7 +++++++
->  arch/riscv/include/uapi/asm/setup.h | 2 --
->  2 files changed, 7 insertions(+), 2 deletions(-)
->  create mode 100644 arch/riscv/include/asm/setup.h
+> On 3/7/23 16:06, Hao Luo wrote:
+> > On Tue, Mar 7, 2023 at 12:09=E2=80=AFPM Waiman Long <longman@redhat.com=
+> wrote:
+> >> On 3/7/23 14:56, Hao Luo wrote:
+> >>> On Mon, Feb 6, 2023 at 2:15=E2=80=AFPM Qais Yousef <qyousef@layalina.=
+io> wrote:
+> >>>> Commit f9a25f776d78 ("cpusets: Rebuild root domain deadline accounti=
+ng information")
+> >>>> enabled rebuilding root domain on cpuset and hotplug operations to
+> >>>> correct deadline accounting.
+> >>>>
+> >>>> Rebuilding root domain is a slow operation and we see 10+ of ms dela=
+ys
+> >>>> on suspend-resume because of that (worst case captures 20ms which
+> >>>> happens often).
+> >>>>
+> >>>> Since nothing is expected to change on suspend-resume operation; ski=
+p
+> >>>> rebuilding the root domains to regain the some of the time lost.
+> >>>>
+> >>>> Achieve this by refactoring the code to pass whether dl accoutning n=
+eeds
+> >>>> an update to rebuild_sched_domains(). And while at it, rename
+> >>>> rebuild_root_domains() to update_dl_rd_accounting() which I believe =
+is
+> >>>> a more representative name since we are not really rebuilding the ro=
+ot
+> >>>> domains, but rather updating dl accounting at the root domain.
+> >>>>
+> >>>> Some users of rebuild_sched_domains() will skip dl accounting update
+> >>>> now:
+> >>>>
+> >>>>           * Update sched domains when relaxing the domain level in c=
+puset
+> >>>>             which only impacts searching level in load balance
+> >>>>           * update sched domains when cpufreq governor changes and w=
+e need
+> >>>>             to create the perf domains
+> >>>>
+> >>>> Users in arch/x86 and arch/s390 are left with the old behavior.
+> >>>>
+> >>>> Debugged-by: Rick Yiu <rickyiu@google.com>
+> >>>> Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
+> >>>> ---
+> >>> Hi Qais,
+> >>>
+> >>> Thank you for reporting this. We observed the same issue in our
+> >>> production environment. Rebuild_root_domains() is also called under
+> >>> cpuset_write_resmask, which handles writing to cpuset.cpus. Under
+> >>> production workloads, on a 4.15 kernel, we observed the median latenc=
+y
+> >>> of writing cpuset.cpus at 3ms, p99 at 7ms. Now the median becomes
+> >>> 60ms, p99 at >100ms. Writing cpuset.cpus is a fairly frequent and
+> >>> critical path in production, but blindly traversing every task in the
+> >>> system is not scalable. And its cost is really unnecessary for users
+> >>> who don't use deadline tasks at all.
+> >> The rebuild_root_domains() function shouldn't be called when updating
+> >> cpuset.cpus unless it is a partition root. Is it?
+> >>
+> > I think it's because we were using the legacy hierarchy. I'm not
+> > familiar with cpuset partition though.
 >
-> diff --git a/arch/riscv/include/asm/setup.h b/arch/riscv/include/asm/setup.h
-> new file mode 100644
-> index 000000000000..f165a14344e2
-> --- /dev/null
-> +++ b/arch/riscv/include/asm/setup.h
-> @@ -0,0 +1,7 @@
-> +/* SPDX-License-Identifier: GPL-2.0-only */
-> +#ifndef _ASM_RISCV_SETUP_H
-> +#define _ASM_RISCV_SETUP_H
-> +
-> +#define COMMAND_LINE_SIZE       1024
-> +
-> +#endif /* _ASM_RISCV_SETUP_H */
-> diff --git a/arch/riscv/include/uapi/asm/setup.h b/arch/riscv/include/uapi/asm/setup.h
-> index 66b13a522880..17fcecd4a2f8 100644
-> --- a/arch/riscv/include/uapi/asm/setup.h
-> +++ b/arch/riscv/include/uapi/asm/setup.h
-> @@ -3,6 +3,4 @@
->  #ifndef _UAPI_ASM_RISCV_SETUP_H
->  #define _UAPI_ASM_RISCV_SETUP_H
+> In legacy hierarchy, changing cpuset.cpus shouldn't lead to the calling
+> of rebuild_root_domains() unless you play with cpuset.sched_load_balance
+> file by changing it to 0 in the right cpusets. If you are touching
+> cpuset.sched_load_balance, you shouldn't change cpuset.cpus that often.
 >
-> -#define COMMAND_LINE_SIZE	1024
-> -
->  #endif /* _UAPI_ASM_RISCV_SETUP_H */
 
-Reviewed-by: Palmer Dabbelt <palmer@rivosinc.com>
-Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
+Actually, I think it's the opposite. If I understand the code
+correctly[1], it looks like rebuild_root_domains is called when
+LOAD_BALANCE _is_ set and sched_load_balance is 1 by default. Is that
+condition a bug?
 
-Thanks!
+I don't think we updated cpuset.sched_load_balance.
+
+[1] https://github.com/torvalds/linux/blob/master/kernel/cgroup/cpuset.c#L1=
+677
