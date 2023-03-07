@@ -2,126 +2,127 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1CF5DC678D4
-	for <linux-s390@archiver.kernel.org>; Tue,  7 Mar 2023 15:00:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D27E5C6FD1A
+	for <linux-s390@archiver.kernel.org>; Tue,  7 Mar 2023 16:27:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230104AbjCGPAg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 7 Mar 2023 10:00:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35120 "EHLO
+        id S229944AbjCGQ1g (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 7 Mar 2023 11:27:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229944AbjCGPAJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Mar 2023 10:00:09 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8EAB92249
-        for <linux-s390@vger.kernel.org>; Tue,  7 Mar 2023 06:42:46 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1678200165;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=sqdAC23AFCpafEftyGbYSrYoVeo5kk0ftc/PmTPLnCU=;
-        b=RnC1oS1yl0HbZ6NepuOhyPYVwAjK6Mk7qGZXoASawD2ef7nVBqaZ6swRZ0HWFA2cmztZqt
-        qImrU8q6eS3qjV4LXLya5ja/QLYrcd0WUi3zCK+WDsUBEeEUEDh8l8rCy5jMaKPTkSM0zN
-        8OZ8AZBy8/I6JvGvtDb3ktw1MLPK6/0=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-316--Mbwj-W3NLC_0yM8Mt1Txw-1; Tue, 07 Mar 2023 09:36:31 -0500
-X-MC-Unique: -Mbwj-W3NLC_0yM8Mt1Txw-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 8FCA33C6986A;
-        Tue,  7 Mar 2023 14:36:30 +0000 (UTC)
-Received: from vschneid.remote.csb (unknown [10.33.37.13])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 79249401B290;
-        Tue,  7 Mar 2023 14:36:26 +0000 (UTC)
-From:   Valentin Schneider <vschneid@redhat.com>
-To:     linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
-        openrisc@lists.librecores.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org,
-        x86@kernel.org
-Cc:     Steven Rostedt <rostedt@goodmis.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        Marcelo Tosatti <mtosatti@redhat.com>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Marc Zyngier <maz@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Guo Ren <guoren@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH v5 1/7] trace: Add trace_ipi_send_cpumask()
-Date:   Tue,  7 Mar 2023 14:35:52 +0000
-Message-Id: <20230307143558.294354-2-vschneid@redhat.com>
-In-Reply-To: <20230307143558.294354-1-vschneid@redhat.com>
-References: <20230307143558.294354-1-vschneid@redhat.com>
+        with ESMTP id S229653AbjCGQ1M (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Mar 2023 11:27:12 -0500
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1E29B46C;
+        Tue,  7 Mar 2023 08:27:09 -0800 (PST)
+Received: by mail-pl1-x635.google.com with SMTP id n6so14698224plf.5;
+        Tue, 07 Mar 2023 08:27:09 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112; t=1678206429;
+        h=mime-version:user-agent:content-transfer-encoding:references
+         :in-reply-to:date:cc:to:from:subject:message-id:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=oQS9LHHzsczl10tpcOn2yO7JTno+XApneMVOiHVt3Ps=;
+        b=ihQ8v/7LYz0noWajHkDjmfLGw2JEcidJ4j1EGUZm8Z4Tfznh+BD3TCEN494bycrp+o
+         SPEyC5Nu36w0RpNU/FvwJMIhHXw8y7+NPELNijg0e2mfscNVlqJLSM3pM832jgDYZkoB
+         t829tYqVTkPc/qrmdapAJc6zg8dFevdC8bbP9Ryba7Zib3H5GpYIbaEmqF+Scky5fb8r
+         VxlK8GILzjmCqzu8wZTMT4qVEHLd383FbTxINh31YE00k4Z8Lm90AlDzfTRh9MHfTH6i
+         iiNQ6Ba9tJ1wASgaJAq4n9m/L7blbKIKjmzuhblTQAdtih08bv1dH92Fn4e+WT8hFij1
+         kPig==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678206429;
+        h=mime-version:user-agent:content-transfer-encoding:references
+         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=oQS9LHHzsczl10tpcOn2yO7JTno+XApneMVOiHVt3Ps=;
+        b=pjJYzAsftJQswzDOuNoClm6EvFUZHZbgDIGC+uJN3SiNOGOdMFPGCvLDj5JZnhA5ty
+         9o8tih9NE2j03g7Gmfx0fgT4LM++aitMKx35O5hKnb0yHyulJrBCD6K8WUmebN8x0KYv
+         MYHHYAwaMmxk7eCvqbaZVgfCkXZ8ceCqwJgr5GcKsbebpuNsXenbHEmOKiXLy58ywqec
+         l0uaNDpD/T0jmCX6ZmmqXMUlRZ0IR5VZxJIUYPvao5RH7JIRlMLLlbgY3deTqzaM73v5
+         yT824LHnKl+jbCaniFYKD+QIByw9pyl3S/jWqiozQ0iH4rT8DrVGs4Lek8J20KepOAdH
+         tSGQ==
+X-Gm-Message-State: AO0yUKVWeQrC1N5JjInaa+F6q7xeRMVbOwdNoFtytYkFmj/anHz6gyD8
+        N11kOxuth/y+GTYkHoYXTyM=
+X-Google-Smtp-Source: AK7set/w039We3W0unfCgrfSAFnX3LU2WLHnn82tj+dU0OAlsIqcefJRmkHf3vrosKIVlFylN95XVQ==
+X-Received: by 2002:a17:90a:191c:b0:237:50b6:7835 with SMTP id 28-20020a17090a191c00b0023750b67835mr15859394pjg.20.1678206429115;
+        Tue, 07 Mar 2023 08:27:09 -0800 (PST)
+Received: from [192.168.0.128] ([98.97.39.127])
+        by smtp.googlemail.com with ESMTPSA id d88-20020a17090a6f6100b002341ae23ad7sm1451526pjk.1.2023.03.07.08.27.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Mar 2023 08:27:08 -0800 (PST)
+Message-ID: <630dfe212df268d5d159f538c70dec1c9dde4397.camel@gmail.com>
+Subject: Re: [PATCH net] net/smc: fix NULL sndbuf_desc in
+ smc_cdc_tx_handler()
+From:   Alexander H Duyck <alexander.duyck@gmail.com>
+To:     Wenjia Zhang <wenjia@linux.ibm.com>,
+        "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
+        jaka@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+Date:   Tue, 07 Mar 2023 08:27:07 -0800
+In-Reply-To: <76103587-435d-159d-98b7-0c4cbedaf62e@linux.ibm.com>
+References: <1678073786-110013-1-git-send-email-alibuda@linux.alibaba.com>
+         <a4a6c3381239d1297f218c5b6d01828bac016660.camel@gmail.com>
+         <76103587-435d-159d-98b7-0c4cbedaf62e@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.44.4 (3.44.4-2.fc36) 
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.1
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-trace_ipi_raise() is unsuitable for generically tracing IPI sources due to
-its "reason" argument being an uninformative string (on arm64 all you get
-is "Function call interrupts" for SMP calls).
+On Mon, 2023-03-06 at 22:06 +0100, Wenjia Zhang wrote:
+>=20
+> On 06.03.23 17:38, Alexander H Duyck wrote:
+> > On Mon, 2023-03-06 at 11:36 +0800, D. Wythe wrote:
+> > > From: "D. Wythe" <alibuda@linux.alibaba.com>
+> > >=20
+> > > When performing a stress test on SMC-R by rmmod mlx5_ib driver
+> > > during the wrk/nginx test, we found that there is a probability
+> > > of triggering a panic while terminating all link groups.
+> > >=20
+> > > This issue dues to the race between smc_smcr_terminate_all()
+> > > and smc_buf_create().
+> > >=20
+> > > 			smc_smcr_terminate_all
+> > >=20
+> > > smc_buf_create
+> > > /* init */
+> > > conn->sndbuf_desc =3D NULL;
+> > > ...
+> > >=20
+> > > 			__smc_lgr_terminate
+> > > 				smc_conn_kill
+> > > 					smc_close_abort
+> > > 						smc_cdc_get_slot_and_msg_send
+> > >=20
+> > > 			__softirqentry_text_start
+> > > 				smc_wr_tx_process_cqe
+> > > 					smc_cdc_tx_handler
+> > > 						READ(conn->sndbuf_desc->len);
+> > > 						/* panic dues to NULL sndbuf_desc */
+> > >=20
+> > > conn->sndbuf_desc =3D xxx;
+> > >=20
+> > > This patch tries to fix the issue by always to check the sndbuf_desc
+> > > before send any cdc msg, to make sure that no null pointer is
+> > > seen during cqe processing.
+> > >=20
+> > > Fixes: 0b29ec643613 ("net/smc: immediate termination for SMCR link gr=
+oups")
+> > > Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+> >=20
+> > Looking at the code for __smc_buf_create it seems like you might have
+> > more issues hiding in the code. From what I can tell smc_buf_get_slot
+> > can only return a pointer or NULL but it is getting checked for being
+> > being a PTR_ERR or IS_ERR in several spots that are likely all dead
+> > code.
+> >=20
+> This smc_buf_get_slot() is used to get a reusable slot, which is=20
+> originally assigned by smcr_new_buf_create() or smcd_new_buf_create()=20
+> depending on the device being used. In=20
+> smcr_new_buf_create()/smcd_new_buf_create(), the pointer values of the=
+=20
+> return codes are converted from integer values.
 
-Add a variant of it that exports a target cpumask, a callsite and a callback.
-
-Signed-off-by: Valentin Schneider <vschneid@redhat.com>
-Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
----
- include/trace/events/ipi.h | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
-
-diff --git a/include/trace/events/ipi.h b/include/trace/events/ipi.h
-index 0be71dad6ec03..b1125dc27682c 100644
---- a/include/trace/events/ipi.h
-+++ b/include/trace/events/ipi.h
-@@ -35,6 +35,28 @@ TRACE_EVENT(ipi_raise,
- 	TP_printk("target_mask=%s (%s)", __get_bitmask(target_cpus), __entry->reason)
- );
- 
-+TRACE_EVENT(ipi_send_cpumask,
-+
-+	TP_PROTO(const struct cpumask *cpumask, unsigned long callsite, void *callback),
-+
-+	TP_ARGS(cpumask, callsite, callback),
-+
-+	TP_STRUCT__entry(
-+		__cpumask(cpumask)
-+		__field(void *, callsite)
-+		__field(void *, callback)
-+	),
-+
-+	TP_fast_assign(
-+		__assign_cpumask(cpumask, cpumask_bits(cpumask));
-+		__entry->callsite = (void *)callsite;
-+		__entry->callback = callback;
-+	),
-+
-+	TP_printk("cpumask=%s callsite=%pS callback=%pS",
-+		  __get_cpumask(cpumask), __entry->callsite, __entry->callback)
-+);
-+
- DECLARE_EVENT_CLASS(ipi_handler,
- 
- 	TP_PROTO(const char *reason),
--- 
-2.31.1
-
+Ah, okay that is what I was missing.
