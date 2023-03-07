@@ -2,166 +2,248 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 50CA6C6FA99
-	for <linux-s390@archiver.kernel.org>; Tue,  7 Mar 2023 13:18:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 33528C6FA99
+	for <linux-s390@archiver.kernel.org>; Tue,  7 Mar 2023 13:30:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230344AbjCGNSS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 7 Mar 2023 08:18:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59374 "EHLO
+        id S229720AbjCGNaF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 7 Mar 2023 08:30:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230352AbjCGNRw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Mar 2023 08:17:52 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82CEB30D6;
-        Tue,  7 Mar 2023 05:17:05 -0800 (PST)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 327CreC9024670;
-        Tue, 7 Mar 2023 13:16:45 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=RbombY6WkH4lJKT52ssIwQZhPfm3t0xDTCi+53SOjO8=;
- b=oUDBmag/fNc99DbxOXF2cUJlDSqvlIiBi3K1Wwl97aAcpHhFkEXeG3fbh+cFOBvEkLsZ
- 9NecY+RDrmafA214+ggBqp1ycc44xFIPdIyeHygB6OOYAwbhLY1dsa/SUeiluCeALteJ
- RENnydkQ3tldeLtWNO2tMQ1/lu9xQAPnlWOwHCrMrTtEBbMNQYw3IAuCpTVn4VyHvAaw
- fpBR+3sI2+XRzTRzAyK3IQ6vto2o3Bq8xGBVIK3a+HqNJlwCtY4wT2QSu8V3vK4wYH1U
- UtnCC2ZG4EPBkp+3dLd921YQHnpWpCihpql2iqI8ukNrlS16hx1vGZOlxqRtQBa7G1bI Xw== 
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3p65p3gnrj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Mar 2023 13:16:44 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3277vEdi004261;
-        Tue, 7 Mar 2023 13:16:42 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-        by ppma04fra.de.ibm.com (PPS) with ESMTPS id 3p41b0ubdf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Mar 2023 13:16:42 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 327DGcJL52166954
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 7 Mar 2023 13:16:38 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A2F3220043;
-        Tue,  7 Mar 2023 13:16:38 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2BA702004D;
-        Tue,  7 Mar 2023 13:16:38 +0000 (GMT)
-Received: from [9.155.211.163] (unknown [9.155.211.163])
-        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue,  7 Mar 2023 13:16:38 +0000 (GMT)
-Message-ID: <a5e2178782c862dd3241ce821a471b584b8089a9.camel@linux.ibm.com>
-Subject: Re: [PATCH v7 0/6] iommu/dma: s390 DMA API conversion and optimized
- IOTLB flushing
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>
-Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
-        Gerd Bayer <gbayer@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>, iommu@lists.linux.dev,
-        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, linux-kernel@vger.kernel.org,
-        Julian Ruess <julianr@linux.ibm.com>
-Date:   Tue, 07 Mar 2023 14:16:37 +0100
-In-Reply-To: <20230220152222.1818344-1-schnelle@linux.ibm.com>
-References: <20230220152222.1818344-1-schnelle@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
+        with ESMTP id S231229AbjCGN35 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Mar 2023 08:29:57 -0500
+Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37F6CF744;
+        Tue,  7 Mar 2023 05:29:27 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1678195767; x=1709731767;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=wODZnShEi40AejzzvzjNZ3VwIp3QR9n1Y69SYSffOCA=;
+  b=KgdO7wsYqvJgO+prNaYJFB2v86Fe6gGuHWGe4HsdcUz3U1xFOJFgYKl7
+   yewanxusoe9iONmA+79FMY8lhIj5qSop2BYY16muCUBVRRfrMnavQG9KX
+   pYUcMLAWGZaC4UMAlCoxyjoMlHiMyp/qU3LI1QBkESDvr/h56XxXx3F+P
+   VwQkjsFaVMhfGFkLcU4g7yG2heW05ijFQVQLONQLddCKM/F+Alq9zY+DJ
+   Eqr4Saxl7gxE3orauuikvjzYP7VgAgfqD0hyjnzAsbWfhEb2kR4AsqonA
+   7lnxHN4D0wyerknbrtwLNJZ+5vgO93g/uBHPn/3x+Ml4blLYkLeTi9IcQ
+   Q==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10641"; a="338172995"
+X-IronPort-AV: E=Sophos;i="5.98,241,1673942400"; 
+   d="scan'208";a="338172995"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Mar 2023 05:28:45 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10641"; a="653971287"
+X-IronPort-AV: E=Sophos;i="5.98,241,1673942400"; 
+   d="scan'208";a="653971287"
+Received: from orsmsx603.amr.corp.intel.com ([10.22.229.16])
+  by orsmga006.jf.intel.com with ESMTP; 07 Mar 2023 05:28:45 -0800
+Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
+ ORSMSX603.amr.corp.intel.com (10.22.229.16) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.21; Tue, 7 Mar 2023 05:28:44 -0800
+Received: from ORSEDG601.ED.cps.intel.com (10.7.248.6) by
+ orsmsx610.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.21 via Frontend Transport; Tue, 7 Mar 2023 05:28:44 -0800
+Received: from NAM10-BN7-obe.outbound.protection.outlook.com (104.47.70.108)
+ by edgegateway.intel.com (134.134.137.102) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.21; Tue, 7 Mar 2023 05:28:44 -0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=M0GJIIrPMp8nEZty+dlAnv4AvpXLjR+uK9evRleuy+KU8WwIV5hCzBxhxgNKaxKD9hndKNj8qoRg1qKdJC8c5vyDV7qJrYycWuTTsd3KQOaD0v19yXUunc09UuKA/VM/uWe12lsvRyRRXaGzv3ol2aOLGN4tZgswdkUb+Ss4VrbCo4hb76y1XaE7SYJ9WrfdRko3yn/Jar5CZD83PjIprYjBT2E79jLcHWOI0x2uLon3fPDZXsnjOZeja+j62FdZki1YnGEmf+ekMWwn6uhxpu8cMbhn5zA5NZ5ZIpRpJ5WMRwOZQlpxEBhEB7af289Kl7nQwALR8tijDYuKRf4PFg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=VSsVjOwoAqWQ5E/o30az+P+wwfkMn++qdGWM2oRg5bQ=;
+ b=Y8AFP6OrDPxYagi/m9BG4VtTNy7jMQ20+o2NHR0sYyg8UQWD3Dc3FPb5AHwX7GQwCX3iyDfJNMXXeUMWGcDkLESJcZW54SYr7PuaTrbsv9jMYtaQHCeQW3Z9xmNff/+mEzHerlDwg6+dqEYndhnfFqJpi7dn5NxxElI3t47voJxIf8biCDOtjby7oT2oR5lY1BNwJwPTC1/p5G486ik2UMFyv6vKVMTnmpVD9LkzA+BACN7na0ugfBo2upBGt29LUiDDW1V3dhaJ0yqy8GqPn+JqgPdXzgg32mh+o4Ph8lKEAvuAKgkdCFhsa582mKC686rgFNJgjRj4DfTTljvwRQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from DS0PR11MB7529.namprd11.prod.outlook.com (2603:10b6:8:141::20)
+ by PH7PR11MB5943.namprd11.prod.outlook.com (2603:10b6:510:13f::19) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6156.22; Tue, 7 Mar
+ 2023 13:28:42 +0000
+Received: from DS0PR11MB7529.namprd11.prod.outlook.com
+ ([fe80::6f7:944a:aaad:301f]) by DS0PR11MB7529.namprd11.prod.outlook.com
+ ([fe80::6f7:944a:aaad:301f%8]) with mapi id 15.20.6156.029; Tue, 7 Mar 2023
+ 13:28:42 +0000
+From:   "Liu, Yi L" <yi.l.liu@intel.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>,
+        "Tian, Kevin" <kevin.tian@intel.com>
+CC:     Alex Williamson <alex.williamson@redhat.com>,
+        "joro@8bytes.org" <joro@8bytes.org>,
+        "robin.murphy@arm.com" <robin.murphy@arm.com>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "eric.auger@redhat.com" <eric.auger@redhat.com>,
+        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
+        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
+        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
+        "peterx@redhat.com" <peterx@redhat.com>,
+        "jasowang@redhat.com" <jasowang@redhat.com>,
+        "shameerali.kolothum.thodi@huawei.com" 
+        <shameerali.kolothum.thodi@huawei.com>,
+        "lulu@redhat.com" <lulu@redhat.com>,
+        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
+        "intel-gvt-dev@lists.freedesktop.org" 
+        <intel-gvt-dev@lists.freedesktop.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "Hao, Xudong" <xudong.hao@intel.com>,
+        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
+        "Xu, Terrence" <terrence.xu@intel.com>
+Subject: RE: [PATCH v5 09/19] vfio/pci: Allow passing zero-length fd array in
+ VFIO_DEVICE_PCI_HOT_RESET
+Thread-Topic: [PATCH v5 09/19] vfio/pci: Allow passing zero-length fd array in
+ VFIO_DEVICE_PCI_HOT_RESET
+Thread-Index: AQHZSpxNz0d7VXviIEytrFhyB5GUvK7m/3jggABFoQCAACyCAIAAGw8ggAETHYCAAKz6AIAEeeOAgADd5oCAAKkfAIAACTyQ
+Date:   Tue, 7 Mar 2023 13:28:42 +0000
+Message-ID: <DS0PR11MB7529A864CB1C149CF8B19E78C3B79@DS0PR11MB7529.namprd11.prod.outlook.com>
+References: <20230227111135.61728-1-yi.l.liu@intel.com>
+ <20230227111135.61728-10-yi.l.liu@intel.com>
+ <DS0PR11MB75295B4B2578765C8B08AC7EC3B29@DS0PR11MB7529.namprd11.prod.outlook.com>
+ <BN9PR11MB527688810514A262471E4BB78CB29@BN9PR11MB5276.namprd11.prod.outlook.com>
+ <ZACX+Np/IY7ygqL5@nvidia.com>
+ <DS0PR11MB7529531834C0A9F1D294A5CCC3B29@DS0PR11MB7529.namprd11.prod.outlook.com>
+ <BN9PR11MB5276B825071A4819479079A68CB39@BN9PR11MB5276.namprd11.prod.outlook.com>
+ <20230303095542.2bfce5c2.alex.williamson@redhat.com>
+ <ZAXny4NDDq42NUxE@nvidia.com>
+ <BN9PR11MB52760ABC93BCE7FB53A131038CB79@BN9PR11MB5276.namprd11.prod.outlook.com>
+ <ZAcvzvhkt9QhCmdi@nvidia.com>
+In-Reply-To: <ZAcvzvhkt9QhCmdi@nvidia.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: DS0PR11MB7529:EE_|PH7PR11MB5943:EE_
+x-ms-office365-filtering-correlation-id: 4e5a903a-e98c-4a51-3ed9-08db1f0fde8c
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: 1r5i8fleg/lPTaF8n0IFjeXLrcaVh6lbROzbIO0GQ91OjdNbhBeFtWuVDe5hY1XV85S3NYzB4O4VqRa7rw0S41yCqiBliXKUg1bkcJjJhdyeqlPDfIm9ZrCRUXyWIcV0OTjYGKrs2nkyHChzD23qGccD4VYQz2Ckm3nmDkk7y8iIy7DDNPQezvIBSxkw/c9/skdwoW2FwJmqaImjCLPEy3dnBP3qB0x51lya1VO4Fcg3H0JG6pSkZHmTc1fVXUH1rTW0drUmkufgmTLdBh7s6u5bgDkcD731jzt0T4ja5/SiQ3fp7LepXUX28/N74bM4Y+Fm1UfT9SW0GRwVfQGOiCsCh3C7Jl2jDKdmQPL0gUqcYXyX/1MORJ6qihgj5TAOlCaq5kdQy1qcrI5PJSDEgHvbi4tAqx2/v9K9W+1ssmooRNBDbZkWpc22Aq65/MJxPQIMN6sBCqnS09KVnLcjgfYBy9+mfITjyxsl76yc+n/hbrj+ApxlP95Cx+mMuBZfEOFeyAZ/8/ul67lDtE4JHXPK8I0HJ+xZ7pSHqcnB0UenQZw8bm2IY/GEi7c/qqwU+NcOd6p47oIC6HxUMyMe9KrYVpMttCsqAPwoTY6PfQmdpe3jAB2TnxP9T6Df/nBkdB+WqDbI2WuvCi3QB9VDUj6r/OUPHLu0o8pnvLx1GE/9jazeUUqlqJDndTLXZUxXDmIjf+Ogz3ytmhjNgl+mcQ==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR11MB7529.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(136003)(346002)(376002)(396003)(39860400002)(366004)(451199018)(82960400001)(122000001)(86362001)(38100700002)(2906002)(38070700005)(52536014)(33656002)(4326008)(76116006)(64756008)(5660300002)(7416002)(66476007)(66556008)(41300700001)(66946007)(66446008)(71200400001)(8676002)(8936002)(9686003)(186003)(83380400001)(6506007)(110136005)(6636002)(316002)(54906003)(7696005)(55016003)(478600001)(26005);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?3PQNduvuJnI3Wvnuz6JJcinCfbh0clQx7L4/MdOCQupZiz8yO6ALdlzhAXVe?=
+ =?us-ascii?Q?OQMW10A38di3RBWGdcL45ESntOb++YSzCt9sdO6YNAX4nqA9RijNTXP+3ymk?=
+ =?us-ascii?Q?eV9s/aelAFInRyK166508zQSHf9DcsT7v7FnUoZbxF11AROKap1fTRyuIKd8?=
+ =?us-ascii?Q?bfTmQKKlPxXyRRuQElqbJorEAHx0uGb6TdsZxcJ8sqN9479xRVqkVmj/bVHt?=
+ =?us-ascii?Q?pLJsRLCmiMM2giBpltZjIbSOSpjuADyn6NOqw6UJtxZeG0UjFWOp1M0tfKaC?=
+ =?us-ascii?Q?fS3HGTFHILtV4US3leslZacutFpHhYimUk9y/cZp8ulPYGNFLTv/0kOtksr9?=
+ =?us-ascii?Q?JJYN/YqOTTcJZyPPHRZ/ToS7LMDJSAJKMHuWPjynV2vvsNPeKMfq9C3XklWw?=
+ =?us-ascii?Q?MdDr2cBZo8WJv8jYaKdUBc+Js2zDSZAgCJPebEJC2/OogrvU+ZKcwODXOkKr?=
+ =?us-ascii?Q?sGfFH0zSkBPvxANRpQm6uvUfebDOtrO6OCb1u/QFOds0I4d95belDWD6u8Iz?=
+ =?us-ascii?Q?Y6GyN//YUziwKRM9myoUUETfq5LLU6484eHkz0UjzmtfqfVuxgny3Ykk7oZn?=
+ =?us-ascii?Q?4E0dDwib0GUGaDgbo2rt3hrcKiVhPmSQ5pjf3YiTkUDtVr+WvfO1JGlXqvZm?=
+ =?us-ascii?Q?vouXqbKd6z3I/RuC6tBYuDVL9k2zLylBDZisgfeX5/pssJ9QaRfIB+3Wy8j4?=
+ =?us-ascii?Q?4+JzB6gp76cHNqVGOQJZRETPhQSDcnNZtahvkpH6wZxN7XNaciLZSJFxYVfj?=
+ =?us-ascii?Q?/VoToSCK0rHIJPsm8WkqAii7xABaHXLsnmADiH4WLnHhrsWToaT9AWHU+xlv?=
+ =?us-ascii?Q?oEZF1ajH0fsT75DroFYhBqAaMbuu1ysf7DkZs2IWPak3DVkYwDFTsVnissCq?=
+ =?us-ascii?Q?WMyj7H7lfC709LW4/km4HSkkrxKtsXkdRvOCSF5K04KS9/LMbz1X+a4PMAbo?=
+ =?us-ascii?Q?eFxfYoww7b36JRsxbnPvS9AALmUeRt7Y92bw7Nk94L3s0NOC6ASNBAIJJlNb?=
+ =?us-ascii?Q?bxdhWpPQcZ+GcOVvzpEFFEJmrZuZwNySlU1kJ+Rtf0WrJ0X7fPYNl1oNptJj?=
+ =?us-ascii?Q?POiBH1zu71+O3Y814YAKOqn4+Edws3Ud+BYaXNsQDlx0hwafgbWtFsRZ76fK?=
+ =?us-ascii?Q?a4LxsGv1A2QgM/ViAv6udNpBKUfDJ9yYF+fW71kLvYpY3yvC607DXJuLhhvO?=
+ =?us-ascii?Q?cBwwyLgKUFDw8nZCiMrXvBCi4JPmW4tDmGLwvcDTF1T7u2m862bKj3f31KRf?=
+ =?us-ascii?Q?VPgplV2RiCfUN2UAt+fUyXsifrlRO6bEI10mq/xeTTRbzN3bzzvJkASLmcuw?=
+ =?us-ascii?Q?zUb4m0Ilz32BcUEV83fMpjmmkHaZNkY2HthX8GiNTrsWFUR8t7OZLrRpf/yu?=
+ =?us-ascii?Q?QR0y60RVhFsUSDVSCjNQaNj/GuVQM4zj0koC+IPH89RmBN3H3Bv8a2JRHf+x?=
+ =?us-ascii?Q?++fWLdFGU+wIZ8xmGsMMSRhKUGq2chPUOeUIhDqJEuMEoBmq3HkdVtN/FZNm?=
+ =?us-ascii?Q?3uMhu5pkKYi0O3GugOlJRcH2ORCyCr5bqT40AWQnBAhVKQTMf/aUPQ/I6DsV?=
+ =?us-ascii?Q?MLv4SoNqMZY+uVuv6A3RbocEydmih35W/JBLN+8R?=
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.46.4 (3.46.4-1.fc37) 
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: xWZtNCWb1-UDIaAdONcCovIaQpAlqo9V
-X-Proofpoint-ORIG-GUID: xWZtNCWb1-UDIaAdONcCovIaQpAlqo9V
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-03-07_07,2023-03-07_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
- spamscore=0 lowpriorityscore=0 phishscore=0 adultscore=0 suspectscore=0
- malwarescore=0 mlxlogscore=999 mlxscore=0 priorityscore=1501 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
- definitions=main-2303070118
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: DS0PR11MB7529.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4e5a903a-e98c-4a51-3ed9-08db1f0fde8c
+X-MS-Exchange-CrossTenant-originalarrivaltime: 07 Mar 2023 13:28:42.1448
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: lU6L9gBBFkCoHnnVwCIRo7b38uxniEsbPcd5XvzCsMGap6YHx9hFnZg7KYgpkPDOvHcbHdb4YAKqnAGB1geUJA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR11MB5943
+X-OriginatorOrg: intel.com
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 2023-02-20 at 16:22 +0100, Niklas Schnelle wrote:
-> Hi All,
+> From: Jason Gunthorpe <jgg@nvidia.com>
+> Sent: Tuesday, March 7, 2023 8:37 PM
 >=20
-> This patch series converts s390's PCI support from its platform specific =
-DMA
-> API implementation in arch/s390/pci/pci_dma.c to the common DMA IOMMU lay=
-er.
-> The conversion itself is done in patches 3-4 with patch 2 providing the f=
-inal
-> necessary IOMMU driver improvement to handle s390's special IOTLB flush
-> out-of-resource indication in virtualized environments. Patches 1-2 may b=
-e
-> applied independently. The conversion itself only touches the s390 IOMMU =
-driver
-> and s390 arch code moving over remaining functions from the s390 DMA API
-> implementation. No changes to common code are necessary.
+> On Tue, Mar 07, 2023 at 02:31:11AM +0000, Tian, Kevin wrote:
+> > > From: Jason Gunthorpe <jgg@nvidia.com>
+> > > Sent: Monday, March 6, 2023 9:17 PM
+> > >
+> > > On Fri, Mar 03, 2023 at 09:55:42AM -0700, Alex Williamson wrote:
+> > >
+> > > > I can't think of a reason DPDK couldn't use hot-reset.  If we want =
+to
+> > > > make it a policy, it should be enforced by code, but creating that
+> > > > policy based on a difficulty in supporting that mode with iommufd i=
+sn't
+> > > > great.
+> > >
+> > > On the other hand adding code to allow device FDs in the hot reset
+> > > path that is never used and never tested isn't great either..
+> > >
+> > > hot-reset does work for DPDK, it just doesn't work in the case where
+> > > DPDK would have many VFIO devices open and they have overlapping
+> > > device sets. Which, again, is something it doesn't do.
+> > >
+> > > IMHO we should leave it out of the kernel and wait for a no-iommu use=
+r
+> > > to come forward that wants hot-reset of many devices. Then we can
+> add
+> > > and test the device FD part. Most likely such a thing will never come
+> > > at this point.
+> > >
+> >
+> > I think we don't need to have this tradeoff if following Yi's last prop=
+osal
+> > which requires every opened device in the set to be covered by the
+> > device fd array. with dev_set->lock held in the reset/open path this is
+> > a safe measure and fully contained in vfio-pci w/o need of further
+> > checking noiommu or iommufd.
 >=20
-> After patch 4 the basic conversion is done and on our partitioning machin=
-e
-> hypervisor LPAR performance matches or exceeds the existing code. When ru=
-nning
-> under z/VM or KVM however, performance plummets to about half of the exis=
-ting
-> code due to a much higher rate of IOTLB flushes for unmapped pages. Due t=
-o the
-> hypervisors use of IOTLB flushes to synchronize their shadow tables these=
- are
-> very expensive and minimizing them is key for regaining the performance l=
-oss.
->=20
-> To this end patches 5-6 propose a new, single queue, IOTLB flushing schem=
-e as
-> an alternative to the existing per-CPU flush queues. Introducing an alter=
-native
-> scheme was also suggested by Robin Murphy[1]. In the previous RFC of this
-> conversion Robin suggested reusing more of the existing queuing logic whi=
-ch
-> I incorporated since v2. The single queue mode is introduced in patch
-> 5 together with a new dma_iommu_options struct and tune_dma_iommu callbac=
-k in
-> IOMMU ops which allows IOMMU drivers to switch to a single flush queue.
->=20
-> Then patch 6 enables variable queue sizes using power of 2 queue sizes an=
-d
-> shift/mask to keep performance as close to the existing code as possible.=
- The
-> variable queue size and a variable timeout are added to the dma_iommu_opt=
-ions
-> struct and utilized by s390 in the z/VM and KVM guest cases. As it is
-> implemented in common code the single queue IOTLB flushing scheme can of =
-course
-> be used by other platforms with expensive IOTLB flushes. Particularly
-> virtio-iommu may be a candidate.
->=20
-> In a previous version I verified that the new scheme does work on my x86_=
-64
-> Ryzen workstation by locally modifying iommu_subsys_init() to default to =
-the
-> single queue mode and verifying its use via "/sys/.../iommu_group/type". =
-I did
-> not find problems with an AMD GPU, Intel NIC (with SR-IOV and KVM
-> pass-through), NVMes or any on board peripherals.
->=20
-> As with previous series this is available via my git.kernel.org tree[3] i=
-n the
-> dma_iommu_v7 branch with signed s390_dma_iommu_v7 tag. This version appli=
-es
-> on top of iommu-next to incorporate the ops->set_platform_dma() and GFP
-> changes.
+> I really prefer the 'use the iommufd option' still exist, it is so
+> much cleaner and easier for the actual users of this API. We've lost
+> the point by worrying about no iommu.
 
-FYI this patch set now applies cleanly (and works) on v6.3-rc1. If need
-be I can resend with Matt's R-b added but other than that I currently
-don't have open TODOs for this so review away.
+Hmmm, so you are suggesting to have both the device fd approach
+and the zero-length array approach, let user to select the best way
+based on their wisdom. Is it? how about something like below in the
+uapi header.
 
-Thanks,
-Niklas
+/**
+ * VFIO_DEVICE_PCI_HOT_RESET - _IOW(VFIO_TYPE, VFIO_BASE + 13,
+ *                                  struct vfio_pci_hot_reset)
+ *
+ * Userspace requests hot reset for the devices it uses.  Due to the
+ * underlying topology, multiple devices may be affected in the reset.
+ * The affected devices may have been opened by the user or by other
+ * users or not opened yet.  Only when all the affected devices are
+ * either opened by the current user or not opened by any user, should
+ * the reset request be allowed.  Otherwise, this request is expected
+ * to return error. group_fds array can accept either group fds or
+ * device fds.  Users using iommufd (valid fd), could also passing a
+ * zero-length group_fds array to indicate using the bound iommufd_ctx
+ * for ownership check to the affected devices that are opened.
+ *
+ * Return: 0 on success, -errno on failure.
+ */
+struct vfio_pci_hot_reset {
+        __u32   argsz;
+        __u32   flags;
+        __u32   count;
+        __s32   group_fds[];
+};
 
+Regards,
+Yi Liu
