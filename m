@@ -2,51 +2,61 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DC2D8C6FD1E
-	for <linux-s390@archiver.kernel.org>; Tue,  7 Mar 2023 20:10:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D2224C678D5
+	for <linux-s390@archiver.kernel.org>; Tue,  7 Mar 2023 21:07:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230144AbjCGUKB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 7 Mar 2023 15:10:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49870 "EHLO
+        id S229680AbjCGVHN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 7 Mar 2023 16:07:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231739AbjCGUJv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Mar 2023 15:09:51 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7739F95E3A
-        for <linux-s390@vger.kernel.org>; Tue,  7 Mar 2023 12:09:05 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1678219744;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=aTa3k5Nu5kG9KD5q86aaFluSTkM03P8RErYO6vqZrgw=;
-        b=cl54Ze+16YgCH5JwXEVnXYWsraD/0+VUy+eNlhtaXAw76oAa6PtcDopZ+e80XkFWyrcfFt
-        Atnap5MXdVpwbyK7jQiYVAakD+ODP0z6dfjzGilrNHe5uhNzDQ/axN1ikPOmt7CI+IRfUN
-        sAuqaV570KNhITN9EZS66y1gg3PgYJA=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-353-ehAYRET4MjCI1UEAKGa0dw-1; Tue, 07 Mar 2023 15:08:56 -0500
-X-MC-Unique: ehAYRET4MjCI1UEAKGa0dw-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 21F643C0F675;
-        Tue,  7 Mar 2023 20:08:55 +0000 (UTC)
-Received: from [10.22.9.63] (unknown [10.22.9.63])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id EA5D2140EBF4;
-        Tue,  7 Mar 2023 20:08:52 +0000 (UTC)
-Message-ID: <f3a99500-e51c-032f-a0c6-01763f0a5be6@redhat.com>
-Date:   Tue, 7 Mar 2023 15:08:52 -0500
+        with ESMTP id S231178AbjCGVHL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Mar 2023 16:07:11 -0500
+Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A81DDAA24C
+        for <linux-s390@vger.kernel.org>; Tue,  7 Mar 2023 13:07:09 -0800 (PST)
+Received: by mail-pf1-x432.google.com with SMTP id fa28so8915125pfb.12
+        for <linux-s390@vger.kernel.org>; Tue, 07 Mar 2023 13:07:09 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112; t=1678223229;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ht5LN05corsofYoRRZ6LtuPGm1HccZj2Qv4agF8zMXE=;
+        b=j56rWVMq8AcAbG91+IFHoGnDYEKdEhPpWXttHuOCR9ZdEgqreHqaCEhELwykgJTclB
+         rgqtjUgRgeI58Y7JhFG2bz3LQdOGRetfU31lRgyq+dl8CucVnMQp/oOSQsC48IB9K6+g
+         hFehKk3LYl6xHfwqzf6XGkDsnIsz037HXGHbRuvtt3Z8IhyD121NivSzU/m9hA2H6rxh
+         Lf0aJetdsL8le7mzSvfLD4j0dul5xrEvBKyw6tsGDAkeKa8Ci8OV3CZwni72Y+CJF3o+
+         3dE9D7q4P2O+b5YsJbbC4vJwi+9NXDGYIBnpJnF2VnD+fENEF7Guz3Oh4otbyF+ZnIlA
+         W8pg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678223229;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ht5LN05corsofYoRRZ6LtuPGm1HccZj2Qv4agF8zMXE=;
+        b=yGIgVmsaQWFLgiZQpEm15mP5UQfhRjzy5Azxk/5slddOYFev6DzJll8CEI+ocTDYTS
+         FiwgzOEM3PqJo+6J5b/YGOkHRwksE2ACg4F+5+YaTfw9EpdUgAN9vweFX768ANGe0u45
+         nXDlOc9avepFc8VSDGOyOM50YKCytPITZglTMw5AYRsVB+Eo4E1qelcrw/VyP3SrsHOD
+         wv6lMqxhx6oVrdjnhQN+Pj0XQ7wwPRGJlT1MsBaAqsAsdBjjdrUDMz+t/jd7RDE13Ml1
+         xVa2icBK5UDglmwRGVmM4sKDPGEL0oPvPJYzBXk+GLLTTqyKx6kqMHwS1ruunqF87XYV
+         f+ew==
+X-Gm-Message-State: AO0yUKXATGUgaK2+FS1KaBBmrj7QlW/usNI4eoWHzGV4QM4qus4fba2m
+        FK25RIN38s+ZAtuh7g7zQ3Y4MgviRPNX88OPnOfhFw==
+X-Google-Smtp-Source: AK7set8u+1Eh0MMGGELIeBwi9KpF81YnEVJ6HrRYnUhsWF0KJOIm5xTeDLbPuOPKQW+PIVapl6rkrS0+i226bORB290=
+X-Received: by 2002:a62:f80d:0:b0:5e6:f9a1:e224 with SMTP id
+ d13-20020a62f80d000000b005e6f9a1e224mr6517647pfh.6.1678223228845; Tue, 07 Mar
+ 2023 13:07:08 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
-Subject: Re: [PATCH v3] sched: cpuset: Don't rebuild root domains on
- suspend-resume
-Content-Language: en-US
-To:     Hao Luo <haoluo@google.com>, Qais Yousef <qyousef@layalina.io>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
+References: <20230206221428.2125324-1-qyousef@layalina.io> <CA+khW7i_Sc0M4FXzojmQ5PSfkPwk6AdcbN9j0gDXZ9FsOMQAwA@mail.gmail.com>
+ <f3a99500-e51c-032f-a0c6-01763f0a5be6@redhat.com>
+In-Reply-To: <f3a99500-e51c-032f-a0c6-01763f0a5be6@redhat.com>
+From:   Hao Luo <haoluo@google.com>
+Date:   Tue, 7 Mar 2023 13:06:57 -0800
+Message-ID: <CA+khW7iWAn6bbXdkJX1Lt4dWUsN6o4KqVQ8OFTs0B+VTtVjBkw@mail.gmail.com>
+Subject: Re: [PATCH v3] sched: cpuset: Don't rebuild root domains on suspend-resume
+To:     Waiman Long <longman@redhat.com>
+Cc:     Qais Yousef <qyousef@layalina.io>,
+        Peter Zijlstra <peterz@infradead.org>,
         Ingo Molnar <mingo@kernel.org>,
         Juri Lelli <juri.lelli@redhat.com>,
         Steven Rostedt <rostedt@goodmis.org>, tj@kernel.org,
@@ -64,64 +74,69 @@ Cc:     Peter Zijlstra <peterz@infradead.org>,
         Sudeep Holla <sudeep.holla@arm.com>,
         Zefan Li <lizefan.x@bytedance.com>, linux-s390@vger.kernel.org,
         x86@kernel.org
-References: <20230206221428.2125324-1-qyousef@layalina.io>
- <CA+khW7i_Sc0M4FXzojmQ5PSfkPwk6AdcbN9j0gDXZ9FsOMQAwA@mail.gmail.com>
-From:   Waiman Long <longman@redhat.com>
-In-Reply-To: <CA+khW7i_Sc0M4FXzojmQ5PSfkPwk6AdcbN9j0gDXZ9FsOMQAwA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.7
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 3/7/23 14:56, Hao Luo wrote:
-> On Mon, Feb 6, 2023 at 2:15 PM Qais Yousef <qyousef@layalina.io> wrote:
->> Commit f9a25f776d78 ("cpusets: Rebuild root domain deadline accounting information")
->> enabled rebuilding root domain on cpuset and hotplug operations to
->> correct deadline accounting.
->>
->> Rebuilding root domain is a slow operation and we see 10+ of ms delays
->> on suspend-resume because of that (worst case captures 20ms which
->> happens often).
->>
->> Since nothing is expected to change on suspend-resume operation; skip
->> rebuilding the root domains to regain the some of the time lost.
->>
->> Achieve this by refactoring the code to pass whether dl accoutning needs
->> an update to rebuild_sched_domains(). And while at it, rename
->> rebuild_root_domains() to update_dl_rd_accounting() which I believe is
->> a more representative name since we are not really rebuilding the root
->> domains, but rather updating dl accounting at the root domain.
->>
->> Some users of rebuild_sched_domains() will skip dl accounting update
->> now:
->>
->>          * Update sched domains when relaxing the domain level in cpuset
->>            which only impacts searching level in load balance
->>          * update sched domains when cpufreq governor changes and we need
->>            to create the perf domains
->>
->> Users in arch/x86 and arch/s390 are left with the old behavior.
->>
->> Debugged-by: Rick Yiu <rickyiu@google.com>
->> Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
->> ---
-> Hi Qais,
+On Tue, Mar 7, 2023 at 12:09=E2=80=AFPM Waiman Long <longman@redhat.com> wr=
+ote:
 >
-> Thank you for reporting this. We observed the same issue in our
-> production environment. Rebuild_root_domains() is also called under
-> cpuset_write_resmask, which handles writing to cpuset.cpus. Under
-> production workloads, on a 4.15 kernel, we observed the median latency
-> of writing cpuset.cpus at 3ms, p99 at 7ms. Now the median becomes
-> 60ms, p99 at >100ms. Writing cpuset.cpus is a fairly frequent and
-> critical path in production, but blindly traversing every task in the
-> system is not scalable. And its cost is really unnecessary for users
-> who don't use deadline tasks at all.
+> On 3/7/23 14:56, Hao Luo wrote:
+> > On Mon, Feb 6, 2023 at 2:15=E2=80=AFPM Qais Yousef <qyousef@layalina.io=
+> wrote:
+> >> Commit f9a25f776d78 ("cpusets: Rebuild root domain deadline accounting=
+ information")
+> >> enabled rebuilding root domain on cpuset and hotplug operations to
+> >> correct deadline accounting.
+> >>
+> >> Rebuilding root domain is a slow operation and we see 10+ of ms delays
+> >> on suspend-resume because of that (worst case captures 20ms which
+> >> happens often).
+> >>
+> >> Since nothing is expected to change on suspend-resume operation; skip
+> >> rebuilding the root domains to regain the some of the time lost.
+> >>
+> >> Achieve this by refactoring the code to pass whether dl accoutning nee=
+ds
+> >> an update to rebuild_sched_domains(). And while at it, rename
+> >> rebuild_root_domains() to update_dl_rd_accounting() which I believe is
+> >> a more representative name since we are not really rebuilding the root
+> >> domains, but rather updating dl accounting at the root domain.
+> >>
+> >> Some users of rebuild_sched_domains() will skip dl accounting update
+> >> now:
+> >>
+> >>          * Update sched domains when relaxing the domain level in cpus=
+et
+> >>            which only impacts searching level in load balance
+> >>          * update sched domains when cpufreq governor changes and we n=
+eed
+> >>            to create the perf domains
+> >>
+> >> Users in arch/x86 and arch/s390 are left with the old behavior.
+> >>
+> >> Debugged-by: Rick Yiu <rickyiu@google.com>
+> >> Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
+> >> ---
+> > Hi Qais,
+> >
+> > Thank you for reporting this. We observed the same issue in our
+> > production environment. Rebuild_root_domains() is also called under
+> > cpuset_write_resmask, which handles writing to cpuset.cpus. Under
+> > production workloads, on a 4.15 kernel, we observed the median latency
+> > of writing cpuset.cpus at 3ms, p99 at 7ms. Now the median becomes
+> > 60ms, p99 at >100ms. Writing cpuset.cpus is a fairly frequent and
+> > critical path in production, but blindly traversing every task in the
+> > system is not scalable. And its cost is really unnecessary for users
+> > who don't use deadline tasks at all.
+>
+> The rebuild_root_domains() function shouldn't be called when updating
+> cpuset.cpus unless it is a partition root. Is it?
+>
 
-The rebuild_root_domains() function shouldn't be called when updating 
-cpuset.cpus unless it is a partition root. Is it?
+I think it's because we were using the legacy hierarchy. I'm not
+familiar with cpuset partition though.
 
-Cheers,
-Longman
-
+Hao
