@@ -2,105 +2,122 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 33E9BC678D5
-	for <linux-s390@archiver.kernel.org>; Wed,  8 Mar 2023 18:38:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D0DD6C678D5
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Mar 2023 19:23:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229522AbjCHSiM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 8 Mar 2023 13:38:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34862 "EHLO
+        id S229993AbjCHTXA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 8 Mar 2023 14:23:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229484AbjCHSiK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Mar 2023 13:38:10 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E155231DD;
-        Wed,  8 Mar 2023 10:38:07 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S229482AbjCHTW6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Mar 2023 14:22:58 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09FCCCC309
+        for <linux-s390@vger.kernel.org>; Wed,  8 Mar 2023 11:22:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1678303328;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=QkkE06gPelszJn5ap9H8D6EVIQTTr56lcIKZ6gaWuOU=;
+        b=E68yBO3oCQEnuWNk4mMFQqV1ctC+gzB3475GcuIP2jKQmeRFfB+4/nVxtGjM4K7lh4y/Sc
+        ZSgOlJXFDGP4Q4hXvtsXSb+37kNsBcxUSCptrFv2dQuCm7QeWVIzKOV4BqqS51urJ+8Mnu
+        fsmlaT2UU2I5j8F5xtckAkWWgjabq5w=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-671-WTeL5gRDMDyXkUMFrPIuKg-1; Wed, 08 Mar 2023 14:22:02 -0500
+X-MC-Unique: WTeL5gRDMDyXkUMFrPIuKg-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E57A86190C;
-        Wed,  8 Mar 2023 18:38:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B15BC433D2;
-        Wed,  8 Mar 2023 18:38:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678300686;
-        bh=hcpPy5S4b/mXtJFXPlOFcclMoVUSqnrUljrAkNT6eYE=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:From;
-        b=R8I/rAYhr/vtRfp0FpY2SA1ctG+/r1jdn7TvZMZPVXgIxMwonR4lHm2f9l2nsFC9v
-         HCK6hWbE2CyhEhr2kWmjoq0H5+2rJdwFWe13F3j3E+OqNmEun5RW/kRZn3e3quJz9l
-         StL3x9ELOKwK61ixvTNL4cQohEqYxTG+7158QJF1IVkEbMEDm1vgrrdSRaEK85HHMA
-         tUSjETBnRCORAP5jeDtk9LwR9XB8vDQ4mKH096gxg/WZgjiwtyLtqfaXCknA6sPHNl
-         WFvi2EhoCLQdibdB+qK3w6j4BNSmyVHyaG5uU2zXPPK6v01tC1hAka6jUgcccPxJly
-         yM6URIA0H1wjA==
-Date:   Wed, 8 Mar 2023 12:38:04 -0600
-From:   Bjorn Helgaas <helgaas@kernel.org>
-To:     Niklas Schnelle <schnelle@linux.ibm.com>
-Cc:     Lukas Wunner <lukas@wunner.de>, Gerd Bayer <gbayer@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 8A116800B23;
+        Wed,  8 Mar 2023 19:22:01 +0000 (UTC)
+Received: from [10.22.33.96] (unknown [10.22.33.96])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id CFCFF1121314;
+        Wed,  8 Mar 2023 19:21:59 +0000 (UTC)
+Message-ID: <5058560d-f193-971f-501e-1a4d8501dfc7@redhat.com>
+Date:   Wed, 8 Mar 2023 14:21:59 -0500
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.7.1
+Subject: Re: [PATCH v3] sched: cpuset: Don't rebuild root domains on
+ suspend-resume
+Content-Language: en-US
+To:     Juri Lelli <juri.lelli@redhat.com>,
+        Qais Yousef <qyousef@layalina.io>
+Cc:     Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>, tj@kernel.org,
+        linux-kernel@vger.kernel.org, luca.abeni@santannapisa.it,
+        claudio@evidence.eu.com, tommaso.cucinotta@santannapisa.it,
+        bristot@redhat.com, mathieu.poirier@linaro.org,
+        cgroups@vger.kernel.org,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Wei Wang <wvw@google.com>, Rick Yiu <rickyiu@google.com>,
+        Quentin Perret <qperret@google.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-pci@vger.kernel.org
-Subject: Re: [PATCH RESEND] PCI: s390: Fix use-after-free of PCI bus
- resources with s390 per-function hotplug
-Message-ID: <20230308183804.GA1028912@bhelgaas>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5bf4ca0f643bcd59f5761cdd29403433046a9995.camel@linux.ibm.com>
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Zefan Li <lizefan.x@bytedance.com>, linux-s390@vger.kernel.org,
+        x86@kernel.org
+References: <20230206221428.2125324-1-qyousef@layalina.io>
+ <20230223153859.37tqoqk33oc6tv7o@airbuntu>
+ <5f087dd8-3e39-ce83-fe24-afa5179c05d9@arm.com>
+ <20230227205725.dipvh3i7dvyrv4tv@airbuntu>
+ <5a1e58bf-7eb2-bd7a-7e19-7864428a2b83@arm.com>
+ <20230228174627.vja5aejq27dsta2u@airbuntu>
+ <Y/7/SLzvK8LfB29z@localhost.localdomain>
+ <20230301122852.zgzreby42lh2zf6w@airbuntu>
+ <Y/9gmDRlGOChIwpf@localhost.localdomain>
+ <20230301170322.xthlso7jfkixlyex@airbuntu>
+ <ZAhhGi55BkYkc3ss@localhost.localdomain>
+From:   Waiman Long <longman@redhat.com>
+In-Reply-To: <ZAhhGi55BkYkc3ss@localhost.localdomain>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.3
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Feb 28, 2023 at 10:08:45AM +0100, Niklas Schnelle wrote:
-> On Fri, 2023-02-24 at 05:19 +0100, Lukas Wunner wrote:
-> > On Thu, Feb 23, 2023 at 01:53:45PM -0600, Bjorn Helgaas wrote:
-> > > Hmm.  Good question.  Off the top of my head, I can't explain the
-> > > difference between pci_rescan_remove_lock and pci_bus_sem, so I'm
-> > > confused, too.  I added Lukas in case he has a ready explanation.
-> > 
-> > pci_bus_sem is a global lock which protects the "devices" list of all
-> > pci_bus structs.
-> > 
-> > We do have a bunch of places left where the "devices" list is accessed
-> > without holding pci_bus_sem, though I've tried to slowly eliminate
-> > them.
-> > 
-> > pci_rescan_remove_lock is a global "big kernel lock" which serializes
-> > any device addition and removal.
-> > 
-> > pci_rescan_remove_lock is known to be far too course-grained and thus
-> > deadlock-prone, particularly if hotplug ports are nested (as is the
-> > case with Thunderbolt).  It needs to be split up into several smaller
-> > locks which protect e.g. allocation of resources of a bus (bus numbers
-> > or MMIO / IO space) and whatever else needs to be protected.  It's just
-> > that nobody has gotten around to identify what exactly needs to be
-> > protected, adding the new locks and removing pci_rescan_remove_lock.
-> 
-> Thanks for the insights. So from that description I think it might make
-> sense to do this fix patch with the pci_rescan_remove_lock so it can be
-> backported. Then we can take the opportunity to add a lock specific to
-> the allocation/freeing of resources which would then replace at least
-> this new directly and clearly resource related use of
-> pci_rescan_remove_lock and potentially others we find.
-> What do you think?
+On 3/8/23 05:19, Juri Lelli wrote:
+> On 01/03/23 17:03, Qais Yousef wrote:
+>> On 03/01/23 15:26, Juri Lelli wrote:
+>>> On 01/03/23 12:28, Qais Yousef wrote:
+>>>> On 03/01/23 08:31, Juri Lelli wrote:
+>>> ...
+>>>
+>>>>> Not ignoring you guys here, but it turns out I'm quite bogged down with
+>>>>> other stuff at the moment. :/ So, apologies and I'll try to get to this
+>>>>> asap. Thanks a lot for all your efforts and time reviewing so far!
+>>>> Np, I can feel you :-)
+>>> Eh. :/
+>> I hope I did not offend. That was meant as no pressure, I understand.
+> No offence at all! I meant "we are all on the same boat it seems". :)
+>
+>>> BTW, do you have a repro script of some sort handy I might play with?
+>> Sorry no. You'll just need to suspend to ram. I had a simple patch to measure
+>> the time around the call and trace_printk'ed the result.
+>>
+>> I was working on a android phone which just suspends to ram if you turn the
+>> screen off and disconnect the usb.
+> Looks like I could come up with the following
+>
+> https://github.com/jlelli/linux.git deadline/rework-cpusets
+> https://github.com/jlelli/linux/tree/deadline/rework-cpusets
+>
+> which I don't think it's at a point that I feel comfortable to propose
+> as an RFC (not even sure if it actually makes sense), but it survived my
+> very light testing.
 
-I don't think Lukas was suggesting that *you* need to split the
-locking up, just that it *should* be split up someday.  To me, that
-looks like a project on its own that is beyond the scope of this
-particular fix, so I think the pci_lock_rescan_remove() as you have it
-here is fine for now.
+I like your patch to revert the cpuset_rwsem change. In fact, I was 
+planning to ask you about that. It is causing a lot more latency in 
+workloads that need to change cpuset configuration rather frequently.
 
-When you fix up the superfluous "return", go ahead and add my
+Cheers,
+Longman
 
-  Acked-by: Bjorn Helgaas <bhelgaas@google.com>
-
-to your patch.  I assume it's easier for you to shepherd this through
-the s390 tree, but let me know if you'd rather that I take it.
-
-Bjorn
