@@ -2,151 +2,117 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A002C64EC4
-	for <linux-s390@archiver.kernel.org>; Wed,  8 Mar 2023 18:11:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 34C12C678D5
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Mar 2023 18:15:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229981AbjCHSL0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 8 Mar 2023 13:11:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51814 "EHLO
+        id S229613AbjCHSP3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 8 Mar 2023 13:15:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229565AbjCHSLZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Mar 2023 13:11:25 -0500
-Received: from mail-lf1-x130.google.com (mail-lf1-x130.google.com [IPv6:2a00:1450:4864:20::130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6646FCE95F
-        for <linux-s390@vger.kernel.org>; Wed,  8 Mar 2023 10:11:23 -0800 (PST)
-Received: by mail-lf1-x130.google.com with SMTP id bi9so22493949lfb.2
-        for <linux-s390@vger.kernel.org>; Wed, 08 Mar 2023 10:11:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112; t=1678299081;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=iUxEuYTDDFPmIiQ52Uj0fWRRHS1cj4kLqmUnBlO9hic=;
-        b=k5RClTV1ehgzeGkeqnum3NnxKO1H/40BDWqZdBjT9gFG3JYjQLUI9wg53Qj+4kDgIw
-         VDlOpXXx4XW5naIbWEb9Yc3URh87cxpLPeFtVdNCmXMCLSSD13jzdvitgCoaXBmPERgY
-         Q+OfEZp4M6/57zNrbtJsnCzc0/NzzcAeq7MR7lB7HtEm4SBTOzWOlOXI6sKzTYhs9Ubt
-         aXwsmP9yhamCOVVZAxJmubaI1LRrAiSfQXOZOoLQLJRRYCaq45t3fQOj+onBbFYgbWNf
-         A7RGLYUp8dC9BL0td+/hKH/SmLLztGUz0UWebstWtd73kFVJIDGsXSioZw1cI8SoQqNx
-         vMCA==
+        with ESMTP id S229683AbjCHSP2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Mar 2023 13:15:28 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5745AC222F
+        for <linux-s390@vger.kernel.org>; Wed,  8 Mar 2023 10:14:09 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1678299241;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=oqVUMBgLdWuWEkEiWBuCdYbN5kgycGc8p0MkzJipZw8=;
+        b=GPeTbRNinbIQjNht+2WkSJvZjMljWhc3tvMCLobN+t7xTVl0036sptF60yhErT4VnZzL8u
+        TWY0d7l2ZGdyKKdjVmZScWt2N6mpnNhizTIsG3QiDXWVg/aJRLUUGA3T5dwphREjcUjpu0
+        OjZxZq/JVQhsNjMeEZsc4Q4970A8Org=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-250-9kOEZXt3PnmLwWfkY1fw1A-1; Wed, 08 Mar 2023 13:14:00 -0500
+X-MC-Unique: 9kOEZXt3PnmLwWfkY1fw1A-1
+Received: by mail-wm1-f70.google.com with SMTP id l31-20020a05600c1d1f00b003e8626cdd42so6173510wms.3
+        for <linux-s390@vger.kernel.org>; Wed, 08 Mar 2023 10:13:59 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678299081;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=iUxEuYTDDFPmIiQ52Uj0fWRRHS1cj4kLqmUnBlO9hic=;
-        b=4qebK50QaX0QX2f6c9PEds8kTdEebuBzC2ciuwLOF6MChJf5bdinZqFr+Tt3/7eMPG
-         K7cZDySocVH7IAfvEOYMTe0F25ionKTPQCM7pratVKY+sjj8PgIaFqPZQyEOFM/HGsGw
-         7b1mLAuy/rMTpdzlqaJ4FKQZ+coCv8IhwzMqIESaBTttTlNG7EhPj5QF47w26kqOjp9R
-         2hXQmkvVD2Ncyhwh0DJrGM0uB/9W7YfG0F7QMeG2ZE+Zv4ApubklAKLxJ0uwXf0qv+Pn
-         xHdS6m1JQRhO0fQo0Belkesz+re21VmG+uu64G7yJvypcxQZMLlhdNhQajE9qxLqFaaN
-         SkCQ==
-X-Gm-Message-State: AO0yUKWz1rjeCBLQ9rlp7n4qkgj7VX0uDxN5LjtrUFRAUVlCiBZa3UvR
-        R8UbnKiOaGMFp4MqitOAEM+RWu5k0ZKuxHM9V+RpUg==
-X-Google-Smtp-Source: AK7set+ciaoF3CvEFldkJQhkB3bYSBOlxM7Ibz+FryApaBM+c78Rhjo2mMZ/r9JoT9X0hnFwqmYZ+CKvyL2RUl+4YDY=
-X-Received: by 2002:ac2:4893:0:b0:4d5:ca42:aeec with SMTP id
- x19-20020ac24893000000b004d5ca42aeecmr5859794lfc.12.1678299081396; Wed, 08
- Mar 2023 10:11:21 -0800 (PST)
+        d=1e100.net; s=20210112; t=1678299239;
+        h=content-transfer-encoding:in-reply-to:organization:from:references
+         :cc:to:content-language:subject:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=oqVUMBgLdWuWEkEiWBuCdYbN5kgycGc8p0MkzJipZw8=;
+        b=u1cobQLyGGwEsabvBt/rOlBeP7QCg4BMvfLTcT8UBLB90OAr2Jww263CwIpMomCkKd
+         +Exr/9sJCqC/6YrD2WZMBW4LmKCahEw+YMgrm9d2O6jljmY7c0VViyPguT6PJ5zz5Yl6
+         fRzZMlalOtk0DUcd7IDtTb5qXOC2cx007vrd5uHY284x/tp/YZ9tNhEa13Szuo+pmKJ7
+         OJyxna8j2+71wZvIILD72nxTZRnkS5zbAZa5zaNOi6s6yi5MqaQJ/l00NXEh4ygQn0AU
+         EOPAejkWSp5IJr936XEVzuYIRd+R+xeCSXgPXwIIz7BzKOF9ezhSor0WlOeHIazlS1D0
+         lYsg==
+X-Gm-Message-State: AO0yUKVf0ist4yEoYarLS7x3Y2YuRCn4WfIX8S8ItP1XSyjujiEcpidG
+        lcOZ085aYm1nG24Qs9sZKPpLEXYNMUsnlUienbEbROCeAGlHJyyMelHALriqDHSRcgVdvNgDy/k
+        lM4XJtD5PgModNf8kW53R/w==
+X-Received: by 2002:a05:600c:1e8d:b0:3e2:669:757 with SMTP id be13-20020a05600c1e8d00b003e206690757mr16617456wmb.10.1678299238875;
+        Wed, 08 Mar 2023 10:13:58 -0800 (PST)
+X-Google-Smtp-Source: AK7set+WPqgI4NzGQjNxiuwyUBe8i9sylAhAstDgZK0opmz/cBRzcC+hzIeoGWHq+f4Os0qszuvRgQ==
+X-Received: by 2002:a05:600c:1e8d:b0:3e2:669:757 with SMTP id be13-20020a05600c1e8d00b003e206690757mr16617435wmb.10.1678299238573;
+        Wed, 08 Mar 2023 10:13:58 -0800 (PST)
+Received: from ?IPV6:2003:cb:c71b:cb00:d372:1da8:9e9e:422d? (p200300cbc71bcb00d3721da89e9e422d.dip0.t-ipconnect.de. [2003:cb:c71b:cb00:d372:1da8:9e9e:422d])
+        by smtp.gmail.com with ESMTPSA id n4-20020a05600c4f8400b003e20fa01a86sm201680wmq.13.2023.03.08.10.13.57
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 08 Mar 2023 10:13:58 -0800 (PST)
+Message-ID: <a5c9b925-57ac-eeab-6258-0ff9fed16af7@redhat.com>
+Date:   Wed, 8 Mar 2023 19:13:56 +0100
 MIME-Version: 1.0
-References: <20230206221428.2125324-1-qyousef@layalina.io> <CA+khW7i_Sc0M4FXzojmQ5PSfkPwk6AdcbN9j0gDXZ9FsOMQAwA@mail.gmail.com>
- <f3a99500-e51c-032f-a0c6-01763f0a5be6@redhat.com> <CA+khW7iWAn6bbXdkJX1Lt4dWUsN6o4KqVQ8OFTs0B+VTtVjBkw@mail.gmail.com>
- <1f2cf8ea-a9d7-5245-0f69-eb8be9f64afc@redhat.com> <CA+khW7jQg6x_j70eARVF0eemP0txU_K9Lc=5kfBmU_KxsfbK2w@mail.gmail.com>
- <315efe55-abaf-c199-673b-95ef76a1e442@redhat.com>
-In-Reply-To: <315efe55-abaf-c199-673b-95ef76a1e442@redhat.com>
-From:   Hao Luo <haoluo@google.com>
-Date:   Wed, 8 Mar 2023 10:11:07 -0800
-Message-ID: <CA+khW7hdE=j58R3S8R1iARL9Pd4L_dOVyGLGeDTCukxRiuytBQ@mail.gmail.com>
-Subject: Re: [PATCH v3] sched: cpuset: Don't rebuild root domains on suspend-resume
-To:     Waiman Long <longman@redhat.com>
-Cc:     Qais Yousef <qyousef@layalina.io>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Steven Rostedt <rostedt@goodmis.org>, tj@kernel.org,
-        linux-kernel@vger.kernel.org, luca.abeni@santannapisa.it,
-        claudio@evidence.eu.com, tommaso.cucinotta@santannapisa.it,
-        bristot@redhat.com, mathieu.poirier@linaro.org,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        cgroups@vger.kernel.org,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Wei Wang <wvw@google.com>, Rick Yiu <rickyiu@google.com>,
-        Quentin Perret <qperret@google.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.8.0
+Subject: Re: [PATCH] mm: add PTE pointer parameter to
+ flush_tlb_fix_spurious_fault()
+Content-Language: en-US
+To:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Cc:     Matthew Wilcox <willy@infradead.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Zefan Li <lizefan.x@bytedance.com>, linux-s390@vger.kernel.org,
-        x86@kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        linux-mips <linux-mips@vger.kernel.org>,
+        linux-power <linuxppc-dev@lists.ozlabs.org>,
+        linux-x86 <x86@kernel.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        linux-mm <linux-mm@kvack.org>
+References: <20230306161548.661740-1-gerald.schaefer@linux.ibm.com>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+In-Reply-To: <20230306161548.661740-1-gerald.schaefer@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Mar 7, 2023 at 6:30=E2=80=AFPM Waiman Long <longman@redhat.com> wro=
-te:
->
-> On 3/7/23 17:17, Hao Luo wrote:
-> > On Tue, Mar 7, 2023 at 1:13=E2=80=AFPM Waiman Long <longman@redhat.com>=
- wrote:
-> >> On 3/7/23 16:06, Hao Luo wrote:
-> >>> On Tue, Mar 7, 2023 at 12:09=E2=80=AFPM Waiman Long <longman@redhat.c=
-om> wrote:
-> >>>> On 3/7/23 14:56, Hao Luo wrote:
-<...>
-> >>>>> Hi Qais,
-> >>>>>
-> >>>>> Thank you for reporting this. We observed the same issue in our
-> >>>>> production environment. Rebuild_root_domains() is also called under
-> >>>>> cpuset_write_resmask, which handles writing to cpuset.cpus. Under
-> >>>>> production workloads, on a 4.15 kernel, we observed the median late=
-ncy
-> >>>>> of writing cpuset.cpus at 3ms, p99 at 7ms. Now the median becomes
-> >>>>> 60ms, p99 at >100ms. Writing cpuset.cpus is a fairly frequent and
-> >>>>> critical path in production, but blindly traversing every task in t=
-he
-> >>>>> system is not scalable. And its cost is really unnecessary for user=
-s
-> >>>>> who don't use deadline tasks at all.
-> >>>> The rebuild_root_domains() function shouldn't be called when updatin=
-g
-> >>>> cpuset.cpus unless it is a partition root. Is it?
-> >>>>
-> >>> I think it's because we were using the legacy hierarchy. I'm not
-> >>> familiar with cpuset partition though.
-> >> In legacy hierarchy, changing cpuset.cpus shouldn't lead to the callin=
-g
-> >> of rebuild_root_domains() unless you play with cpuset.sched_load_balan=
-ce
-> >> file by changing it to 0 in the right cpusets. If you are touching
-> >> cpuset.sched_load_balance, you shouldn't change cpuset.cpus that often=
-.
-> >>
-> > Actually, I think it's the opposite. If I understand the code
-> > correctly[1], it looks like rebuild_root_domains is called when
-> > LOAD_BALANCE _is_ set and sched_load_balance is 1 by default. Is that
-> > condition a bug?
-> >
-> > I don't think we updated cpuset.sched_load_balance.
-> >
-> > [1] https://github.com/torvalds/linux/blob/master/kernel/cgroup/cpuset.=
-c#L1677
->
-> The only reason rebuild_root_domains() is called is because the the
-> scheduling domains were changed. The cpuset.sched_load_balance control
-> file is 1 by default. If no one touch it, there is just one global
-> scheduling domain that covers all the active CPUs. However, by setting
-> cpuset.sched_load_balance to 0 in the right cpusets, you can create
-> multiple scheduling domains or disabling load balancing on some CPUs.
-> With that setup, changing cpuset.cpus in the right place can cause
-> rebuild_root_domains() to be called because the set of scheduling
-> domains are changed.
->
+On 06.03.23 17:15, Gerald Schaefer wrote:
+> s390 can do more fine-grained handling of spurious TLB protection faults,
+> when there also is the PTE pointer available.
+> 
+> Therefore, pass on the PTE pointer to flush_tlb_fix_spurious_fault() as
+> an additional parameter.
+> 
+> This will add no functional change to other architectures, but those with
+> private flush_tlb_fix_spurious_fault() implementations need to be made
+> aware of the new parameter.
+> 
+> Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com>
+> Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+> ---
 
-Thanks Longman for the explanation.
+Acked-by: David Hildenbrand <david@redhat.com>
 
-I believe we don't touch cpuset.sched_load_balance, so I don't know
-what's wrong for now. But I've taken note and will go back to debug
-further and see if there is any setup that needs to be fixed in our
-system.
+-- 
+Thanks,
 
-Hao
+David / dhildenb
+
