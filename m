@@ -2,62 +2,45 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CEB58C64EC4
-	for <linux-s390@archiver.kernel.org>; Wed,  8 Mar 2023 15:08:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 11505C678D5
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Mar 2023 16:11:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231536AbjCHPIn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 8 Mar 2023 10:08:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43090 "EHLO
+        id S232348AbjCHQLP convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 8 Mar 2023 11:11:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232075AbjCHPI1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Mar 2023 10:08:27 -0500
-Received: from NAM02-BN1-obe.outbound.protection.outlook.com (mail-bn1nam02on2047.outbound.protection.outlook.com [40.107.212.47])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 962C362D96;
-        Wed,  8 Mar 2023 07:08:21 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=HuPQzZkqsH+pcWPTcGPYTM07nGe9g2yv8UmB2OXiYX0TS71ZRcLqYX/n74NEJqBrTSz9H9dj0J5Udafeav6i/7nmcNQelqEjsKFlupV0J8m1HzcTDWlrPD7P+cSwyQoTFVkeHmHsomktL+feMOPk7oLm7O2v45JeyxFJY4OVwXHmv3bTquGMIJ1D0d8VcQYHddYVduUULUZ0W96izJ8RUo63Wbr3bnEM85xUleuh7gmd7/2XAphlVv6HX9HL02rfZZqbML4a1YZs8ZYzWXMMxpf8FRngwMP+gmcUEhAnmUSeTPuwE7BGbalG5A3Xuzgyxw7Asb2XPpD+hS8CDX1RVQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=DmuUdoMkzkzdkZwOzixlqJtO5WAMXcENvqxEl/g6Z7k=;
- b=FO4dmh2beQL+03ynn2bmEUewArcchITfu6G8CEFqT08vGt1cIEYLC+eQXtRMsyBd1H74VErsaI1V4qOkNzIOnjWIQnh03rJCMeN5WY2wmuQtKulyQBZ1H8yi0k3w5t2YCRF2+BoFYSzb6Ab5Y18uJQb6po6p37he18VsXjCjtwCXgOsGuFXmGX8EvzfVUHDPKjm8t5vsZZ3ixDXotVN1y6UlvHKcsQkZZvuEZVrhRZeSlAhiFIHsi7ME4qBgaV7BFmJAadzddUrXPZMiMQc827n6Uti4iFiVgYW9Xnoh9dQTSB/4agR/fEhI7cjYi1Q9m6BrMuG14ns9EzJkcx0p6A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=DmuUdoMkzkzdkZwOzixlqJtO5WAMXcENvqxEl/g6Z7k=;
- b=KPGQJgm+TIwEeUYAXwsvCTuEw6Pbqy87fF743xipEFKkTCyNwq6DsKEK1xNSsFzS7z//Og4bn7rO42/rYJl0uTNF/VfCtf/DEH9lUbGyBpcG9RGIYRnAn+JiO0dtPP/x5Mj+2vfkpnQkWjdY9ZvanexBz7hcrdAUEAsNJcXyxXlMo/0pbE4WS/zGzPWoBXPCMrBHFPLLQE+DyPn+reauMpAG/WGLCt8TkG30h0uWAlTgMOet0vVlTcnIgAFcC2615bfFAjDV9bY9QQVsILm3mJaTodLlDKPvd5SJ8oqJf4VlsYw3LzbcfvaEccsS5C2A7Fjie5YrT4/HeA96eVKlSg==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
- by BN9PR12MB5354.namprd12.prod.outlook.com (2603:10b6:408:103::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6178.17; Wed, 8 Mar
- 2023 15:08:19 +0000
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::ef6d:fdf6:352f:efd1]) by LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::ef6d:fdf6:352f:efd1%3]) with mapi id 15.20.6178.017; Wed, 8 Mar 2023
- 15:08:19 +0000
-Date:   Wed, 8 Mar 2023 11:08:16 -0400
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     "Tian, Kevin" <kevin.tian@intel.com>
-Cc:     "Liu, Yi L" <yi.l.liu@intel.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
+        with ESMTP id S232144AbjCHQKl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Mar 2023 11:10:41 -0500
+Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBCEE4AFDB;
+        Wed,  8 Mar 2023 08:10:36 -0800 (PST)
+Received: from lhrpeml100001.china.huawei.com (unknown [172.18.147.200])
+        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4PWxh60g27z689xQ;
+        Wed,  8 Mar 2023 23:54:14 +0800 (CST)
+Received: from lhrpeml500005.china.huawei.com (7.191.163.240) by
+ lhrpeml100001.china.huawei.com (7.191.160.183) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.21; Wed, 8 Mar 2023 15:54:45 +0000
+Received: from lhrpeml500005.china.huawei.com ([7.191.163.240]) by
+ lhrpeml500005.china.huawei.com ([7.191.163.240]) with mapi id 15.01.2507.021;
+ Wed, 8 Mar 2023 15:54:45 +0000
+From:   Shameerali Kolothum Thodi <shameerali.kolothum.thodi@huawei.com>
+To:     Nicolin Chen <nicolinc@nvidia.com>
+CC:     "Xu, Terrence" <terrence.xu@intel.com>,
+        "Liu, Yi L" <yi.l.liu@intel.com>, Jason Gunthorpe <jgg@nvidia.com>,
+        "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
+        "Tian, Kevin" <kevin.tian@intel.com>,
         "joro@8bytes.org" <joro@8bytes.org>,
         "robin.murphy@arm.com" <robin.murphy@arm.com>,
         "cohuck@redhat.com" <cohuck@redhat.com>,
         "eric.auger@redhat.com" <eric.auger@redhat.com>,
-        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
         "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
         "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
         "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
         "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
         "peterx@redhat.com" <peterx@redhat.com>,
         "jasowang@redhat.com" <jasowang@redhat.com>,
-        "shameerali.kolothum.thodi@huawei.com" 
-        <shameerali.kolothum.thodi@huawei.com>,
         "lulu@redhat.com" <lulu@redhat.com>,
         "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
         "intel-gvt-dev@lists.freedesktop.org" 
@@ -65,96 +48,141 @@ Cc:     "Liu, Yi L" <yi.l.liu@intel.com>,
         "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
         "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
         "Hao, Xudong" <xudong.hao@intel.com>,
-        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
-        "Xu, Terrence" <terrence.xu@intel.com>
-Subject: Re: [PATCH v5 09/19] vfio/pci: Allow passing zero-length fd array in
- VFIO_DEVICE_PCI_HOT_RESET
-Message-ID: <ZAik4NxbNAuJrvSi@nvidia.com>
-References: <BN9PR11MB527688810514A262471E4BB78CB29@BN9PR11MB5276.namprd11.prod.outlook.com>
- <ZACX+Np/IY7ygqL5@nvidia.com>
- <DS0PR11MB7529531834C0A9F1D294A5CCC3B29@DS0PR11MB7529.namprd11.prod.outlook.com>
- <BN9PR11MB5276B825071A4819479079A68CB39@BN9PR11MB5276.namprd11.prod.outlook.com>
- <20230303095542.2bfce5c2.alex.williamson@redhat.com>
- <ZAXny4NDDq42NUxE@nvidia.com>
- <BN9PR11MB52760ABC93BCE7FB53A131038CB79@BN9PR11MB5276.namprd11.prod.outlook.com>
- <ZAcvzvhkt9QhCmdi@nvidia.com>
- <DS0PR11MB7529A864CB1C149CF8B19E78C3B79@DS0PR11MB7529.namprd11.prod.outlook.com>
- <BN9PR11MB527616204417D92A1BEB5FDA8CB49@BN9PR11MB5276.namprd11.prod.outlook.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <BN9PR11MB527616204417D92A1BEB5FDA8CB49@BN9PR11MB5276.namprd11.prod.outlook.com>
-X-ClientProxiedBy: BY3PR03CA0004.namprd03.prod.outlook.com
- (2603:10b6:a03:39a::9) To LV2PR12MB5869.namprd12.prod.outlook.com
- (2603:10b6:408:176::16)
+        "Zhao, Yan Y" <yan.y.zhao@intel.com>
+Subject: RE: [PATCH v5 00/19] Add vfio_device cdev for iommufd support
+Thread-Topic: [PATCH v5 00/19] Add vfio_device cdev for iommufd support
+Thread-Index: AQHZSpxHUh/YYv3qukeFp+lKFtoCf67jLB2AgACBDoCAAOlEAIAAn5IAgAIKi/CAAO3wAIAA+kPAgAEQJQCABt1mAA==
+Date:   Wed, 8 Mar 2023 15:54:45 +0000
+Message-ID: <5152227cbe0e4bdcacf0763f1af16e8f@huawei.com>
+References: <20230227111135.61728-1-yi.l.liu@intel.com>
+ <Y/0Cr/tcNCzzIAhi@nvidia.com>
+ <DS0PR11MB7529A422D4361B39CCA3D248C3AC9@DS0PR11MB7529.namprd11.prod.outlook.com>
+ <SA1PR11MB5873479F73CFBAA170717624F0AC9@SA1PR11MB5873.namprd11.prod.outlook.com>
+ <Y/64ejbhMiV77uUA@Asurada-Nvidia>
+ <b7c1f9d5b4b647f0b0686c3b99f3d006@huawei.com>
+ <ZAE2J0I1LiBjWUnm@Asurada-Nvidia>
+ <d59a0262d5bf423c9e49ad4ac6015296@huawei.com>
+ <ZALspPvvLGFuK96F@Asurada-Nvidia>
+In-Reply-To: <ZALspPvvLGFuK96F@Asurada-Nvidia>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [10.202.227.178]
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|BN9PR12MB5354:EE_
-X-MS-Office365-Filtering-Correlation-Id: b22529be-3158-45ad-5704-08db1fe6f383
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 1aturlci3FLz2ISKhJtvtJ7VazkcqHw/puOWGCChrTLQIGiJNnDNq73X+guQegrWHXv3wHqJb3ZCtJ64ml/SlC/ixOS3ydE+kmzrFVFh3IgLNqnj6LdkgnomD7Ilt0WQA7V+OChRdeU+u2YbXS5YI8JQTaAC7SK0rPEqHkvTOJ4mG6Xe7QTAPyry6ACs+zeHTlMHDN2NbYwG+K5jIHXwSffXav0Ld4OAqRHV/dtykc2njB1tPID053nr8KlV46bwQRQPb/1BhUuSxLHqcU1zlZ1vKF9k6TcPF+h0oaKj9dFNTABtS7BBbGtgGOwnnS6aOzr3M2JFVCl56sd0g9IknMw+ih+pWU92xtKGJkdrZPqudJf/9F2xB4vVDk2DIZLKVBWxwrFgyG8IYQkfNJjsOTSvNaAd04aOZW3q7OdOLu7do34a4oZJkV2JkF97fiBXCTi5lzFKriCM8mrsUO9SUKNr0uLCi6gWYONOdXj4skjKBu/I8l1L7/2OUXktciDAV4UwDaHH0u7PUegsaZ8x2CqrKIFJugE98PzJFbeR49NIYJF9reZGyWcg2EIjaKvx0i8gCRF9KAXugYsYBDCan+loVaY4scLV95q+khkKqDDI8eEjHJrp5wFiryLPAEK0v4RziBbexN+uuEuEzBChpQ==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(4636009)(39860400002)(366004)(346002)(396003)(376002)(136003)(451199018)(316002)(6666004)(4326008)(6916009)(66556008)(8676002)(66946007)(66476007)(6486002)(478600001)(54906003)(83380400001)(36756003)(2906002)(4744005)(186003)(38100700002)(2616005)(26005)(6512007)(6506007)(5660300002)(8936002)(7416002)(86362001)(41300700001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?wDRu1thMJHcXzOS0pLEqp5hKi/2n7rtUPPWUpNkdJ5NPKfD2BFaTX2b11J2k?=
- =?us-ascii?Q?PqZsz12uxXF7dtYW7B3jzyXoSwP+NoZtIoWugk0SHDkj02gma7CcrF07Fm4s?=
- =?us-ascii?Q?k6LiSVAB3tpgsPu+zsLG4SoZpStUhjklZIP2M8IvYUgNGluyLRQvwTWOnvKq?=
- =?us-ascii?Q?nzsnS0ZekYj0sLW2IGjveqfO1NeXJRuDOuBp69dXqSfPFACKoKPEpdhwkBMW?=
- =?us-ascii?Q?5nk8l0LrMZ0CcetG+l0GB1Jv9sn1uEzZKrXBQN4ZuntVDeHZ6Jdk5TUpEppz?=
- =?us-ascii?Q?BEcUpd7iI411GWgNvqoWg0s4vifLTYy6aO3i05IiYw8nGSisjzFroutgYnsP?=
- =?us-ascii?Q?05g5R33EruZHQaozJw+5MrGL+NvDqB3SIKoGQ7ivVi0fAAhvff1xbDlVLb1a?=
- =?us-ascii?Q?xcj9S0PIubove16aGfMGsm5Ogdk6MVkw2T+WwTv2z38oFRIrzpjj3XBnpDBI?=
- =?us-ascii?Q?A6rKPwemdJzyVwXpK/KRkteQtFkbdMc/UAaCm6Zi+0WkcFJk/PkdrAn0r7Mg?=
- =?us-ascii?Q?D3S6y4V/HVAqwpjmhzmovZr9YhD1C3DymykO5fbqPhoOfF88EOFI4+h4YOVs?=
- =?us-ascii?Q?uE6G8M9wWsuOoJw+GcoqvadLsqsns08cKxuE7Dt/PGDqs+SvM0kVai9B9JEY?=
- =?us-ascii?Q?jy19RgXcPjOwsO6cNonm66wlMQ6JP3zqNNnkEVMBsTkbL+E2vH8ctvBqzRn8?=
- =?us-ascii?Q?uzMUv1Z3Peb1sQWm9bEb4eMjPc+bVzRn0WXfbhrTUOEIzDdB97N1lE2mEsfz?=
- =?us-ascii?Q?sK/YTp1oLyUIFNA0bkzfCi2+j0I4OofWTHIbfCybpTFbJECc5hxIJED/GVN8?=
- =?us-ascii?Q?PMffzK0M6jQPDZrNl5aqabSaaVdP38pwF3WsGvl8gvyxdQWgny4/7f/Bgk4X?=
- =?us-ascii?Q?otNnPyYlijMlKnV7HEqEvwiyH45QVa7MTnxxveXPdwOHDSipBBd0e7PbA03K?=
- =?us-ascii?Q?R+5L3jFHY6VTdp/H8shiHOR3Qu8jmVIpLl65wr0mKSmQTzCW3SP5k8xcXTxl?=
- =?us-ascii?Q?kTu6KkZuXD4zLPAVcPAMNWExPKjWjrh2yVK+AEuj0NWuxtBFDQgEW2KwppVz?=
- =?us-ascii?Q?/vexHtCaBNBdSCiDLXd4726EaziKhKvVkx8DJBLTNyEumAAcJ4Xp/RGXIJ4L?=
- =?us-ascii?Q?EIxVeFjTQ2uSo2Q6XOCgqfFb0bggSBEnUdwvfpYvAJT4o4DsdXBotTVjZvz3?=
- =?us-ascii?Q?dMHA7bqe1+8q68Zgzfyg2nlQOBVHEpMG97bocvsyPDO5NZcy/sCg0hbO7Fvo?=
- =?us-ascii?Q?nq32zvJSIh3MWgCuRmJMc7D7ix+FmisP4RwCF34y133XMlci7ks7UNJnp79y?=
- =?us-ascii?Q?mmV9VZ+zJhFC5s4FGkAPRN6KhOBZlI/N89tBzYdaE2V+qetlpKrs8sAXmh48?=
- =?us-ascii?Q?+hOZibBEVEo0e3SA0F3jmwP49LWzhdJM1UuQo86O0XdkpAjztzpXgfgQVdAh?=
- =?us-ascii?Q?s25mF1hTfpVHgRepKEM+I5abVsYdTRB1xV6/dmIB7TsdNj6byhOxIhTLJnzq?=
- =?us-ascii?Q?6kxxPppgXsTNJkxYP8fR9ECpKoz1TCVcXlWo88k94FLziV6oVdQOgx8i6XxE?=
- =?us-ascii?Q?eTlBfPKJNgAdTUquxxRIOWWVcLu42101OKyI78gw?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b22529be-3158-45ad-5704-08db1fe6f383
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Mar 2023 15:08:19.3478
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: i49rYkwq5jGeGY92vAoE+x7msCIFF3c8uC/eNPq3ZhPueWpV0HVzfjpDzKNzHo/K
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN9PR12MB5354
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Mar 08, 2023 at 07:26:08AM +0000, Tian, Kevin wrote:
->  * Userspace requests hot reset for the devices it uses.  Due to the
->  * underlying topology, multiple devices can be affected in the reset
->  * while some might be opened by another user. To avoid interference
->  * the calling user must ensure all affected devices, if opened, are
->  * owned by itself.
->  *
->  * The ownership can be proved in three ways:
->  *   - An array of group fds
->  *   - An array of device fds
->  *   - A zero-length array
->  *
->  * In the last case all affected devices which are opened by this user must
->  * have been bound to a same iommufd_ctx.
+
+
+> -----Original Message-----
+> From: Nicolin Chen [mailto:nicolinc@nvidia.com]
+> Sent: 04 March 2023 07:01
+> To: Shameerali Kolothum Thodi <shameerali.kolothum.thodi@huawei.com>
+> Cc: Xu, Terrence <terrence.xu@intel.com>; Liu, Yi L <yi.l.liu@intel.com>;
+> Jason Gunthorpe <jgg@nvidia.com>; alex.williamson@redhat.com; Tian,
+> Kevin <kevin.tian@intel.com>; joro@8bytes.org; robin.murphy@arm.com;
+> cohuck@redhat.com; eric.auger@redhat.com; kvm@vger.kernel.org;
+> mjrosato@linux.ibm.com; chao.p.peng@linux.intel.com;
+> yi.y.sun@linux.intel.com; peterx@redhat.com; jasowang@redhat.com;
+> lulu@redhat.com; suravee.suthikulpanit@amd.com;
+> intel-gvt-dev@lists.freedesktop.org; intel-gfx@lists.freedesktop.org;
+> linux-s390@vger.kernel.org; Hao, Xudong <xudong.hao@intel.com>; Zhao,
+> Yan Y <yan.y.zhao@intel.com>
+> Subject: Re: [PATCH v5 00/19] Add vfio_device cdev for iommufd support
 > 
-> and with this change let's rename 'group_fds'  to 'fds'
+> On Fri, Mar 03, 2023 at 03:01:03PM +0000, Shameerali Kolothum Thodi
+> wrote:
+> > External email: Use caution opening links or attachments
+> >
+> >
+> > > -----Original Message-----
+> > > From: Nicolin Chen [mailto:nicolinc@nvidia.com]
+> > > Sent: 02 March 2023 23:51
+> > > To: Shameerali Kolothum Thodi
+> <shameerali.kolothum.thodi@huawei.com>
+> > > Cc: Xu, Terrence <terrence.xu@intel.com>; Liu, Yi L
+> > > <yi.l.liu@intel.com>; Jason Gunthorpe <jgg@nvidia.com>;
+> > > alex.williamson@redhat.com; Tian, Kevin <kevin.tian@intel.com>;
+> > > joro@8bytes.org; robin.murphy@arm.com; cohuck@redhat.com;
+> > > eric.auger@redhat.com; kvm@vger.kernel.org; mjrosato@linux.ibm.com;
+> > > chao.p.peng@linux.intel.com; yi.y.sun@linux.intel.com;
+> > > peterx@redhat.com; jasowang@redhat.com; lulu@redhat.com;
+> > > suravee.suthikulpanit@amd.com; intel-gvt-dev@lists.freedesktop.org;
+> > > intel-gfx@lists.freedesktop.org; linux-s390@vger.kernel.org; Hao,
+> > > Xudong <xudong.hao@intel.com>; Zhao, Yan Y <yan.y.zhao@intel.com>
+> > > Subject: Re: [PATCH v5 00/19] Add vfio_device cdev for iommufd
+> > > support
+> > >
+> > > On Thu, Mar 02, 2023 at 09:43:00AM +0000, Shameerali Kolothum Thodi
+> > > wrote:
+> > >
+> > > > Hi Nicolin,
+> > > >
+> > > > Thanks for the latest ARM64 branch. Do you have a working Qemu
+> > > > branch
+> > > corresponding to the
+> > > > above one?
+> > > >
+> > > > I tried the
+> > >
+> https://github.com/nicolinc/qemu/tree/wip/iommufd_rfcv3%2Bnesting%2B
+> > > smmuv3
+> > > > but for some reason not able to launch the Guest.
+> > > >
+> > > > Please let me know.
+> > >
+> > > I do use that branch. It might not be that robust though as it went
+> > > through a big rebase.
+> >
+> > Ok. The issue seems to be quite random in nature and only happens when
+> > there are multiple vCPUs. Also doesn't look like related to VFIO
+> > device assignment as I can reproduce Guest hang without it by only
+> > having nested-smmuv3 and iommufd object.
+> >
+> > ./qemu-system-aarch64-iommuf -machine
+> > virt,gic-version=3,iommu=nested-smmuv3,iommufd=iommufd0 \
+> -enable-kvm
+> > -cpu host -m 1G -smp cpus=8,maxcpus=8 \ -object iommufd,id=iommufd0
+> \
+> > -bios QEMU_EFI.fd \ -kernel Image-6.2-iommufd \ -initrd
+> > rootfs-iperf.cpio \ -net none \ -nographic \ -append "rdinit=init
+> > console=ttyAMA0 root=/dev/vda rw earlycon=pl011,0x9000000" \ -trace
+> > events=events \ -D trace_iommufd
+> >
+> > When the issue happens, no output on terminal as if Qemu is in a locked
+> state.
+> >
+> >  Can you try with the followings?
+> > >
+> > > --trace "iommufd*" --trace "smmu*" --trace "vfio_*" --trace "pci_*"
+> > > --trace "msi_*" --trace "nvme_*"
+> >
+> > The only trace events with above are this,
+> >
+> > iommufd_backend_connect fd=22 owned=1 users=1 (0) smmu_add_mr
+> > smmuv3-iommu-memory-region-0-0
+> >
+> > I haven't debugged this further. Please let me know if issue is
+> > reproducible with multiple vCPUs at your end. For now will focus on VFIO
+> dev specific tests.
+> 
+> Oh. My test environment has been a single-core vCPU. So that doesn't
+> happen to me. Can you try a vanilla QEMU branch that our nesting branch is
+> rebased on? I took a branch from Yi as the baseline, while he might take
+> from Eric for the rfcv3.
+> 
+> I am guessing that it might be an issue in the common tree.
 
-Looks right
+Yes, that looks like the case.
+I tried with:
+ commit 13356edb8750("Merge tag 'block-pull-request' of https://gitlab.com/stefanha/qemu into staging")
 
-Jason
+And issue is still there. So hopefully once we rebase everything it will go away.
+
+Thanks,
+Shameer
