@@ -2,212 +2,134 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DB5C9C64EC4
-	for <linux-s390@archiver.kernel.org>; Wed,  8 Mar 2023 13:33:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D7D7C678D5
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Mar 2023 14:13:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231576AbjCHNd5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 8 Mar 2023 08:33:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37394 "EHLO
+        id S232167AbjCHOND (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 8 Mar 2023 09:13:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231707AbjCHNdV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Mar 2023 08:33:21 -0500
-Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A968DBC8;
-        Wed,  8 Mar 2023 05:32:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1678282321; x=1709818321;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=wbdrYtzM9mN4gwBAKIFy0X9kmMhAGDOr+1bYvr2M9k8=;
-  b=FzgOK/F5/dREljKUQzfdWTZ2B/7Cqf5b1dtgX1vZCx1goZyY6wPvRUKW
-   QLt6zUUHrlm8ebC9qcfDUJZl9bKzvcvnKAa2j30TnOuspbl4MHDQCEjkC
-   fWa3mEm/6dBueo6C7l8/o+KfCg7/tDnpkMnexN42W3ebB/bfK50nSBWAu
-   WuSlhs3YKcJgLZ/W9Ie7E1yTEEfJi7d7zSifkXephJftrPYkUk5ln+qD+
-   PzT+Wb3u0JxlLiawlLgr3II/8V1FMN9yBkBAXbIHwwPn+7LxRMm14k7uQ
-   pkzqqRFwTaFDg9BIF++k5TKjt4D4g4bzL4B/ggV+lJVfShpqmaTMnOMIh
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10642"; a="336165371"
-X-IronPort-AV: E=Sophos;i="5.98,244,1673942400"; 
-   d="scan'208";a="336165371"
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Mar 2023 05:29:47 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10642"; a="922789474"
-X-IronPort-AV: E=Sophos;i="5.98,244,1673942400"; 
-   d="scan'208";a="922789474"
-Received: from 984fee00a4c6.jf.intel.com ([10.165.58.231])
-  by fmsmga006.fm.intel.com with ESMTP; 08 Mar 2023 05:29:46 -0800
-From:   Yi Liu <yi.l.liu@intel.com>
-To:     alex.williamson@redhat.com, jgg@nvidia.com, kevin.tian@intel.com
-Cc:     joro@8bytes.org, robin.murphy@arm.com, cohuck@redhat.com,
-        eric.auger@redhat.com, nicolinc@nvidia.com, kvm@vger.kernel.org,
-        mjrosato@linux.ibm.com, chao.p.peng@linux.intel.com,
-        yi.l.liu@intel.com, yi.y.sun@linux.intel.com, peterx@redhat.com,
-        jasowang@redhat.com, shameerali.kolothum.thodi@huawei.com,
-        lulu@redhat.com, suravee.suthikulpanit@amd.com,
-        intel-gvt-dev@lists.freedesktop.org,
-        intel-gfx@lists.freedesktop.org, linux-s390@vger.kernel.org,
-        xudong.hao@intel.com, yan.y.zhao@intel.com, terrence.xu@intel.com
-Subject: [PATCH v6 24/24] docs: vfio: Add vfio device cdev description
-Date:   Wed,  8 Mar 2023 05:29:03 -0800
-Message-Id: <20230308132903.465159-25-yi.l.liu@intel.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20230308132903.465159-1-yi.l.liu@intel.com>
-References: <20230308132903.465159-1-yi.l.liu@intel.com>
+        with ESMTP id S232217AbjCHOM1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Mar 2023 09:12:27 -0500
+Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78C814989F;
+        Wed,  8 Mar 2023 06:11:39 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R601e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0VdPs2pr_1678284694;
+Received: from 192.168.50.70(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VdPs2pr_1678284694)
+          by smtp.aliyun-inc.com;
+          Wed, 08 Mar 2023 22:11:35 +0800
+Message-ID: <b83577e6-8b0f-f8d0-150a-cfbb061adeb2@linux.alibaba.com>
+Date:   Wed, 8 Mar 2023 22:11:34 +0800
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.8.0
+Subject: Re: [PATCH net v2] net/smc: fix application data exception
+Content-Language: en-US
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
+        kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+        David Howells <dhowells@redhat.com>,
+        "Paul E. McKenney" <paulmck@linux.ibm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>
+References: <1676529545-32741-1-git-send-email-alibuda@linux.alibaba.com>
+ <Y/5J30kmv1cPc7nE@osiris>
+From:   "D. Wythe" <alibuda@linux.alibaba.com>
+In-Reply-To: <Y/5J30kmv1cPc7nE@osiris>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This gives notes for userspace applications on device cdev usage.
 
-Signed-off-by: Yi Liu <yi.l.liu@intel.com>
----
- Documentation/driver-api/vfio.rst | 125 ++++++++++++++++++++++++++++++
- 1 file changed, 125 insertions(+)
+On 3/1/23 2:37 AM, Heiko Carstens wrote:
+> On Thu, Feb 16, 2023 at 02:39:05PM +0800, D. Wythe wrote:
+>> From: "D. Wythe" <alibuda@linux.alibaba.com>
+>>
+>> There is a certain probability that following
+>> exceptions will occur in the wrk benchmark test:
+>>
+>> Running 10s test @ http://11.213.45.6:80
+>>    8 threads and 64 connections
+>>    Thread Stats   Avg      Stdev     Max   +/- Stdev
+>>      Latency     3.72ms   13.94ms 245.33ms   94.17%
+>>      Req/Sec     1.96k   713.67     5.41k    75.16%
+>>    155262 requests in 10.10s, 23.10MB read
+>> Non-2xx or 3xx responses: 3
+>>
+>> We will find that the error is HTTP 400 error, which is a serious
+>> exception in our test, which means the application data was
+>> corrupted.
+>>
+>> Consider the following scenarios:
+>>
+>> CPU0                            CPU1
+>>
+>> buf_desc->used = 0;
+>>                                  cmpxchg(buf_desc->used, 0, 1)
+>>                                  deal_with(buf_desc)
+>>
+>> memset(buf_desc->cpu_addr,0);
+>>
+>> This will cause the data received by a victim connection to be cleared,
+>> thus triggering an HTTP 400 error in the server.
+>>
+>> This patch exchange the order between clear used and memset, add
+>> barrier to ensure memory consistency.
+>>
+>> Fixes: 1c5526968e27 ("net/smc: Clear memory when release and reuse buffer")
+>> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+>> ---
+>> v2: rebase it with latest net tree.
+>>
+>>   net/smc/smc_core.c | 17 ++++++++---------
+>>   1 file changed, 8 insertions(+), 9 deletions(-)
+>>
+>> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+>> index c305d8d..c19d4b7 100644
+>> --- a/net/smc/smc_core.c
+>> +++ b/net/smc/smc_core.c
+>> @@ -1120,8 +1120,9 @@ static void smcr_buf_unuse(struct smc_buf_desc *buf_desc, bool is_rmb,
+>>   
+>>   		smc_buf_free(lgr, is_rmb, buf_desc);
+>>   	} else {
+>> -		buf_desc->used = 0;
+>> -		memset(buf_desc->cpu_addr, 0, buf_desc->len);
+>> +		/* memzero_explicit provides potential memory barrier semantics */
+>> +		memzero_explicit(buf_desc->cpu_addr, buf_desc->len);
+>> +		WRITE_ONCE(buf_desc->used, 0);
+> This looks odd to me. memzero_explicit() is only sort of a compiler
+> barrier, since it is a function call, but not a real memory barrier.
+>
+> You may want to check Documentation/memory-barriers.txt and
+> Documentation/atomic_t.txt.
+>
+> To me the proper solution looks like buf_desc->used should be converted to
+> an atomic_t, and then you could do:
+>
+> 	memset(buf_desc->cpu_addr, 0, buf_desc->len);
+> 	smp_mb__before_atomic();
+> 	atomic_set(&buf_desc->used, 0);
+>
+> and in a similar way use atomic_cmpxchg() instead of the now used cmpxchg()
+> for the part that sets buf_desc->used to 1.
+>
+> Adding experts to cc, since s390 has such strong memory ordering semantics
+> that you can basically do whatever you want without breaking anything. So I
+> don't consider myself an expert here at all. :)
+>
+> But given that this is common code, let's make sure this is really correct.
 
-diff --git a/Documentation/driver-api/vfio.rst b/Documentation/driver-api/vfio.rst
-index 44527420f20d..227940e5224f 100644
---- a/Documentation/driver-api/vfio.rst
-+++ b/Documentation/driver-api/vfio.rst
-@@ -239,6 +239,123 @@ group and can access them as follows::
- 	/* Gratuitous device reset and go... */
- 	ioctl(device, VFIO_DEVICE_RESET);
- 
-+IOMMUFD and vfio_iommu_type1
-+----------------------------
-+
-+IOMMUFD is the new user API to manage I/O page tables from userspace.
-+It intends to be the portal of delivering advanced userspace DMA
-+features (nested translation [5], PASID [6], etc.) and backward
-+compatible with the vfio_iommu_type1 driver. Eventually vfio_iommu_type1
-+will be deprecated.
-+
-+With the backward compatibility, no change is required for legacy VFIO
-+drivers or applications to connect a VFIO device to IOMMUFD.
-+
-+	When CONFIG_IOMMUFD_VFIO_CONTAINER=n, VFIO container still provides
-+	/dev/vfio/vfio which connects to vfio_iommu_type1. To disable VFIO
-+	container and vfio_iommu_type1, the administrator could symbol link
-+	/dev/vfio/vfio to /dev/iommu to enable VFIO container emulation
-+	in IOMMUFD.
-+
-+	When CONFIG_IOMMUFD_VFIO_CONTAINER=y, IOMMUFD directly provides
-+	/dev/vfio/vfio while the VFIO container and vfio_iommu_type1 are
-+	explicitly disabled.
-+
-+VFIO Device cdev
-+----------------
-+
-+Traditionally user acquires a device fd via VFIO_GROUP_GET_DEVICE_FD
-+in a VFIO group.
-+
-+With CONFIG_VFIO_DEVICE_CDEV=y the user can now acquire a device fd
-+by directly opening a character device /dev/vfio/devices/vfioX where
-+"X" is the number allocated uniquely by VFIO for registered devices.
-+
-+The cdev only works with IOMMUFD. Both VFIO drivers and applications
-+must adapt to the new cdev security model which requires using
-+VFIO_DEVICE_BIND_IOMMUFD to claim DMA ownership before starting to
-+actually use the device. Once bind succeeds then a VFIO device can
-+be fully accessed by the user.
-+
-+VFIO device cdev doesn't rely on VFIO group/container/iommu drivers.
-+Hence those modules can be fully compiled out in an environment
-+where no legacy VFIO application exists.
-+
-+So far SPAPR does not support IOMMUFD yet. So it cannot support device
-+cdev either.
-+
-+Device cdev Example
-+-------------------
-+
-+Assume user wants to access PCI device 0000:6a:01.0::
-+
-+	$ ls /sys/bus/pci/devices/0000:6a:01.0/vfio-dev/
-+	vfio0
-+
-+This device is therefore represented as vfio0. The user can verify
-+its existence::
-+
-+	$ ls -l /dev/vfio/devices/vfio0
-+	crw------- 1 root root 511, 0 Feb 16 01:22 /dev/vfio/devices/vfio0
-+	$ cat /sys/bus/pci/devices/0000:6a:01.0/vfio-dev/vfio0/dev
-+	511:0
-+	$ ls -l /dev/char/511\:0
-+	lrwxrwxrwx 1 root root 21 Feb 16 01:22 /dev/char/511:0 -> ../vfio/devices/vfio0
-+
-+Then provide the user with access to the device if unprivileged
-+operation is desired::
-+
-+	$ chown user:user /dev/vfio/devices/vfio0
-+
-+Finally the user could get cdev fd by::
-+
-+	cdev_fd = open("/dev/vfio/devices/vfio0", O_RDWR);
-+
-+An opened cdev_fd doesn't give the user any permission of accessing
-+the device except binding the cdev_fd to an iommufd. After that point
-+then the device is fully accessible including attaching it to an
-+IOMMUFD IOAS/HWPT to enable userspace DMA::
-+
-+	struct vfio_device_bind_iommufd bind = {
-+		.argsz = sizeof(bind),
-+		.flags = 0,
-+	};
-+	struct iommu_ioas_alloc alloc_data  = {
-+		.size = sizeof(alloc_data),
-+		.flags = 0,
-+	};
-+	struct vfio_device_attach_iommufd_pt attach_data = {
-+		.argsz = sizeof(attach_data),
-+		.flags = 0,
-+	};
-+	struct iommu_ioas_map map = {
-+		.size = sizeof(map),
-+		.flags = IOMMU_IOAS_MAP_READABLE |
-+			 IOMMU_IOAS_MAP_WRITEABLE |
-+			 IOMMU_IOAS_MAP_FIXED_IOVA,
-+		.__reserved = 0,
-+	};
-+
-+	iommufd = open("/dev/iommu", O_RDWR);
-+
-+	bind.iommufd = iommufd; // negative iommufd means vfio-noiommu mode
-+	ioctl(cdev_fd, VFIO_DEVICE_BIND_IOMMUFD, &bind);
-+
-+	ioctl(iommufd, IOMMU_IOAS_ALLOC, &alloc_data);
-+	attach_data.pt_id = alloc_data.out_ioas_id;
-+	ioctl(cdev_fd, VFIO_DEVICE_ATTACH_IOMMUFD_PT, &attach_data);
-+
-+	/* Allocate some space and setup a DMA mapping */
-+	map.user_va = (int64_t)mmap(0, 1024 * 1024, PROT_READ | PROT_WRITE,
-+				    MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
-+	map.iova = 0; /* 1MB starting at 0x0 from device view */
-+	map.length = 1024 * 1024;
-+	map.ioas_id = alloc_data.out_ioas_id;;
-+
-+	ioctl(iommufd, IOMMU_IOAS_MAP, &map);
-+
-+	/* Other device operations as stated in "VFIO Usage Example" */
-+
- VFIO User API
- -------------------------------------------------------------------------------
- 
-@@ -566,3 +683,11 @@ This implementation has some specifics:
- 				\-0d.1
- 
- 	00:1e.0 PCI bridge: Intel Corporation 82801 PCI Bridge (rev 90)
-+
-+.. [5] Nested translation is an IOMMU feature which supports two stage
-+   address translations. This improves the address translation efficiency
-+   in IOMMU virtualization.
-+
-+.. [6] PASID stands for Process Address Space ID, introduced by PCI
-+   Express. It is a prerequisite for Shared Virtual Addressing (SVA)
-+   and Scalable I/O Virtualization (Scalable IOV).
--- 
-2.34.1
+Hi  Heiko,
+
+I realize that you are completely right, and I will repair this problem 
+according to your ideas.
+
+Thank you very much!!!
+
+Best wishes.
+
+D. Wythe
 
