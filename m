@@ -2,187 +2,142 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 11505C678D5
-	for <linux-s390@archiver.kernel.org>; Wed,  8 Mar 2023 16:11:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3BAEAC64EC4
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Mar 2023 18:02:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232348AbjCHQLP convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 8 Mar 2023 11:11:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39422 "EHLO
+        id S229900AbjCHSCa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 8 Mar 2023 13:02:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232144AbjCHQKl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Mar 2023 11:10:41 -0500
-Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBCEE4AFDB;
-        Wed,  8 Mar 2023 08:10:36 -0800 (PST)
-Received: from lhrpeml100001.china.huawei.com (unknown [172.18.147.200])
-        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4PWxh60g27z689xQ;
-        Wed,  8 Mar 2023 23:54:14 +0800 (CST)
-Received: from lhrpeml500005.china.huawei.com (7.191.163.240) by
- lhrpeml100001.china.huawei.com (7.191.160.183) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.21; Wed, 8 Mar 2023 15:54:45 +0000
-Received: from lhrpeml500005.china.huawei.com ([7.191.163.240]) by
- lhrpeml500005.china.huawei.com ([7.191.163.240]) with mapi id 15.01.2507.021;
- Wed, 8 Mar 2023 15:54:45 +0000
-From:   Shameerali Kolothum Thodi <shameerali.kolothum.thodi@huawei.com>
-To:     Nicolin Chen <nicolinc@nvidia.com>
-CC:     "Xu, Terrence" <terrence.xu@intel.com>,
-        "Liu, Yi L" <yi.l.liu@intel.com>, Jason Gunthorpe <jgg@nvidia.com>,
-        "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
-        "Tian, Kevin" <kevin.tian@intel.com>,
-        "joro@8bytes.org" <joro@8bytes.org>,
-        "robin.murphy@arm.com" <robin.murphy@arm.com>,
-        "cohuck@redhat.com" <cohuck@redhat.com>,
-        "eric.auger@redhat.com" <eric.auger@redhat.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
-        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
-        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
-        "peterx@redhat.com" <peterx@redhat.com>,
-        "jasowang@redhat.com" <jasowang@redhat.com>,
-        "lulu@redhat.com" <lulu@redhat.com>,
-        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "Hao, Xudong" <xudong.hao@intel.com>,
-        "Zhao, Yan Y" <yan.y.zhao@intel.com>
-Subject: RE: [PATCH v5 00/19] Add vfio_device cdev for iommufd support
-Thread-Topic: [PATCH v5 00/19] Add vfio_device cdev for iommufd support
-Thread-Index: AQHZSpxHUh/YYv3qukeFp+lKFtoCf67jLB2AgACBDoCAAOlEAIAAn5IAgAIKi/CAAO3wAIAA+kPAgAEQJQCABt1mAA==
-Date:   Wed, 8 Mar 2023 15:54:45 +0000
-Message-ID: <5152227cbe0e4bdcacf0763f1af16e8f@huawei.com>
-References: <20230227111135.61728-1-yi.l.liu@intel.com>
- <Y/0Cr/tcNCzzIAhi@nvidia.com>
- <DS0PR11MB7529A422D4361B39CCA3D248C3AC9@DS0PR11MB7529.namprd11.prod.outlook.com>
- <SA1PR11MB5873479F73CFBAA170717624F0AC9@SA1PR11MB5873.namprd11.prod.outlook.com>
- <Y/64ejbhMiV77uUA@Asurada-Nvidia>
- <b7c1f9d5b4b647f0b0686c3b99f3d006@huawei.com>
- <ZAE2J0I1LiBjWUnm@Asurada-Nvidia>
- <d59a0262d5bf423c9e49ad4ac6015296@huawei.com>
- <ZALspPvvLGFuK96F@Asurada-Nvidia>
-In-Reply-To: <ZALspPvvLGFuK96F@Asurada-Nvidia>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [10.202.227.178]
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+        with ESMTP id S230007AbjCHSCN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Mar 2023 13:02:13 -0500
+Received: from mail-lf1-x129.google.com (mail-lf1-x129.google.com [IPv6:2a00:1450:4864:20::129])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4DA1C6428
+        for <linux-s390@vger.kernel.org>; Wed,  8 Mar 2023 10:01:59 -0800 (PST)
+Received: by mail-lf1-x129.google.com with SMTP id n2so22377164lfb.12
+        for <linux-s390@vger.kernel.org>; Wed, 08 Mar 2023 10:01:59 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112; t=1678298518;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=JW16/7HROPrY7sG+XY15f3ILb1+GdtODQdoPZpSAjd0=;
+        b=p8uuCaYyc2Vtp48NB7y2HfkN7dWAnEEpVZGu2O9NKUAvP0AjRLg9zep9eCFVxr6mwa
+         2AiwpTpfFp6K5hForLvj493KdKVU/T42/qjl+ljB/33re+vGfElGYognORCyTWPwgzE3
+         778ueCAJ/DhJOSOW73K1VzFNQ4ZVpD50CgsUPRYmzKZxsF+ENXu2bHNeapsoJLhk48w5
+         46fRZE4S9CVI9Sclz9y/BJlOo7mK0L6/OyPOIQnsV+Ban2T4WeyFKK+jVvvyfZqz66Vd
+         yu8KgXGjGB738+nIE8JzPAGKJ4eUmByB47amw4SlflNFGAyhOdBC/bKE+3Zz4NlYB0Nv
+         Uqfw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678298518;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=JW16/7HROPrY7sG+XY15f3ILb1+GdtODQdoPZpSAjd0=;
+        b=QUjgI0GGm9AVrjMqbKVagA5XSlusuF1VzXcnhCoaY78k5txgmP9g4F9eFf7BNvswBn
+         WwN/ExtieHF90nRWievub/1K55Zb4T8g1q1cV60Xj1+/4a5P25nhz+rlasiN6TotdE1M
+         Iso0Zyd56V0Dooxzo9iD7mQtSoy+5KeFMSpRmfzdrVinz/wgedPO1O6Q4wpPA9GZDWpO
+         OBLgUgj8AExPesd56TTOUfHUzjDtkjHbFsK99o0TUAUupoD0PgH7HYQmf6KtAAZ/v2Nh
+         e9Jz6u8N8wYJhvFxaypjZie33iBs8eSK/CoUQoi9yguqAuWM+Ll9CrM5EYlUTxLNNwVM
+         aOAA==
+X-Gm-Message-State: AO0yUKUbJ/jZFOaowhnkDhESb9/mgQpVAEoR6RT3m44SpeHGdRRaI0dW
+        7wLOTIdg53P7rvCAelMLpcYEjETMfq2FxmF/IlMMoA==
+X-Google-Smtp-Source: AK7set8XMk0yMcr3YwfojXi89ZqLCBP6A5pyagZXJf9LUfh7i7FUm5ihqT5OIVu/ahNQLZxSiAbG3BnwlgWx8LjyC+A=
+X-Received: by 2002:a19:7506:0:b0:4e0:822f:9500 with SMTP id
+ y6-20020a197506000000b004e0822f9500mr6005290lfe.12.1678298517882; Wed, 08 Mar
+ 2023 10:01:57 -0800 (PST)
 MIME-Version: 1.0
-X-CFilter-Loop: Reflected
+References: <20230206221428.2125324-1-qyousef@layalina.io> <20230223153859.37tqoqk33oc6tv7o@airbuntu>
+ <5f087dd8-3e39-ce83-fe24-afa5179c05d9@arm.com> <20230227205725.dipvh3i7dvyrv4tv@airbuntu>
+ <5a1e58bf-7eb2-bd7a-7e19-7864428a2b83@arm.com> <20230228174627.vja5aejq27dsta2u@airbuntu>
+ <Y/7/SLzvK8LfB29z@localhost.localdomain> <20230301122852.zgzreby42lh2zf6w@airbuntu>
+ <Y/9gmDRlGOChIwpf@localhost.localdomain> <20230301170322.xthlso7jfkixlyex@airbuntu>
+ <ZAhhGi55BkYkc3ss@localhost.localdomain>
+In-Reply-To: <ZAhhGi55BkYkc3ss@localhost.localdomain>
+From:   Hao Luo <haoluo@google.com>
+Date:   Wed, 8 Mar 2023 10:01:44 -0800
+Message-ID: <CA+khW7hmE0tECG2qfKW1HN9yLVOLUn5Zzx4Rz-wHYDtSUPYotw@mail.gmail.com>
+Subject: Re: [PATCH v3] sched: cpuset: Don't rebuild root domains on suspend-resume
+To:     Juri Lelli <juri.lelli@redhat.com>
+Cc:     Qais Yousef <qyousef@layalina.io>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Waiman Long <longman@redhat.com>,
+        Steven Rostedt <rostedt@goodmis.org>, tj@kernel.org,
+        linux-kernel@vger.kernel.org, luca.abeni@santannapisa.it,
+        claudio@evidence.eu.com, tommaso.cucinotta@santannapisa.it,
+        bristot@redhat.com, mathieu.poirier@linaro.org,
+        cgroups@vger.kernel.org,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Wei Wang <wvw@google.com>, Rick Yiu <rickyiu@google.com>,
+        Quentin Perret <qperret@google.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Zefan Li <lizefan.x@bytedance.com>, linux-s390@vger.kernel.org,
+        x86@kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Wed, Mar 8, 2023 at 2:20=E2=80=AFAM Juri Lelli <juri.lelli@redhat.com> w=
+rote:
+>
+> On 01/03/23 17:03, Qais Yousef wrote:
+> > On 03/01/23 15:26, Juri Lelli wrote:
+<...>
+> > > BTW, do you have a repro script of some sort handy I might play with?
+> >
+> > Sorry no. You'll just need to suspend to ram. I had a simple patch to m=
+easure
+> > the time around the call and trace_printk'ed the result.
+> >
+> > I was working on a android phone which just suspends to ram if you turn=
+ the
+> > screen off and disconnect the usb.
+>
+> Looks like I could come up with the following
+>
+> https://github.com/jlelli/linux.git deadline/rework-cpusets
+> https://github.com/jlelli/linux/tree/deadline/rework-cpusets
+>
+> which I don't think it's at a point that I feel comfortable to propose
+> as an RFC (not even sure if it actually makes sense), but it survived my
+> very light testing.
+>
+> Could you please take a look and, if it makes some sense in theory, give
+> it a try on your end?
+>
 
+Hi Juri,
 
-> -----Original Message-----
-> From: Nicolin Chen [mailto:nicolinc@nvidia.com]
-> Sent: 04 March 2023 07:01
-> To: Shameerali Kolothum Thodi <shameerali.kolothum.thodi@huawei.com>
-> Cc: Xu, Terrence <terrence.xu@intel.com>; Liu, Yi L <yi.l.liu@intel.com>;
-> Jason Gunthorpe <jgg@nvidia.com>; alex.williamson@redhat.com; Tian,
-> Kevin <kevin.tian@intel.com>; joro@8bytes.org; robin.murphy@arm.com;
-> cohuck@redhat.com; eric.auger@redhat.com; kvm@vger.kernel.org;
-> mjrosato@linux.ibm.com; chao.p.peng@linux.intel.com;
-> yi.y.sun@linux.intel.com; peterx@redhat.com; jasowang@redhat.com;
-> lulu@redhat.com; suravee.suthikulpanit@amd.com;
-> intel-gvt-dev@lists.freedesktop.org; intel-gfx@lists.freedesktop.org;
-> linux-s390@vger.kernel.org; Hao, Xudong <xudong.hao@intel.com>; Zhao,
-> Yan Y <yan.y.zhao@intel.com>
-> Subject: Re: [PATCH v5 00/19] Add vfio_device cdev for iommufd support
-> 
-> On Fri, Mar 03, 2023 at 03:01:03PM +0000, Shameerali Kolothum Thodi
-> wrote:
-> > External email: Use caution opening links or attachments
-> >
-> >
-> > > -----Original Message-----
-> > > From: Nicolin Chen [mailto:nicolinc@nvidia.com]
-> > > Sent: 02 March 2023 23:51
-> > > To: Shameerali Kolothum Thodi
-> <shameerali.kolothum.thodi@huawei.com>
-> > > Cc: Xu, Terrence <terrence.xu@intel.com>; Liu, Yi L
-> > > <yi.l.liu@intel.com>; Jason Gunthorpe <jgg@nvidia.com>;
-> > > alex.williamson@redhat.com; Tian, Kevin <kevin.tian@intel.com>;
-> > > joro@8bytes.org; robin.murphy@arm.com; cohuck@redhat.com;
-> > > eric.auger@redhat.com; kvm@vger.kernel.org; mjrosato@linux.ibm.com;
-> > > chao.p.peng@linux.intel.com; yi.y.sun@linux.intel.com;
-> > > peterx@redhat.com; jasowang@redhat.com; lulu@redhat.com;
-> > > suravee.suthikulpanit@amd.com; intel-gvt-dev@lists.freedesktop.org;
-> > > intel-gfx@lists.freedesktop.org; linux-s390@vger.kernel.org; Hao,
-> > > Xudong <xudong.hao@intel.com>; Zhao, Yan Y <yan.y.zhao@intel.com>
-> > > Subject: Re: [PATCH v5 00/19] Add vfio_device cdev for iommufd
-> > > support
-> > >
-> > > On Thu, Mar 02, 2023 at 09:43:00AM +0000, Shameerali Kolothum Thodi
-> > > wrote:
-> > >
-> > > > Hi Nicolin,
-> > > >
-> > > > Thanks for the latest ARM64 branch. Do you have a working Qemu
-> > > > branch
-> > > corresponding to the
-> > > > above one?
-> > > >
-> > > > I tried the
-> > >
-> https://github.com/nicolinc/qemu/tree/wip/iommufd_rfcv3%2Bnesting%2B
-> > > smmuv3
-> > > > but for some reason not able to launch the Guest.
-> > > >
-> > > > Please let me know.
-> > >
-> > > I do use that branch. It might not be that robust though as it went
-> > > through a big rebase.
-> >
-> > Ok. The issue seems to be quite random in nature and only happens when
-> > there are multiple vCPUs. Also doesn't look like related to VFIO
-> > device assignment as I can reproduce Guest hang without it by only
-> > having nested-smmuv3 and iommufd object.
-> >
-> > ./qemu-system-aarch64-iommuf -machine
-> > virt,gic-version=3,iommu=nested-smmuv3,iommufd=iommufd0 \
-> -enable-kvm
-> > -cpu host -m 1G -smp cpus=8,maxcpus=8 \ -object iommufd,id=iommufd0
-> \
-> > -bios QEMU_EFI.fd \ -kernel Image-6.2-iommufd \ -initrd
-> > rootfs-iperf.cpio \ -net none \ -nographic \ -append "rdinit=init
-> > console=ttyAMA0 root=/dev/vda rw earlycon=pl011,0x9000000" \ -trace
-> > events=events \ -D trace_iommufd
-> >
-> > When the issue happens, no output on terminal as if Qemu is in a locked
-> state.
-> >
-> >  Can you try with the followings?
-> > >
-> > > --trace "iommufd*" --trace "smmu*" --trace "vfio_*" --trace "pci_*"
-> > > --trace "msi_*" --trace "nvme_*"
-> >
-> > The only trace events with above are this,
-> >
-> > iommufd_backend_connect fd=22 owned=1 users=1 (0) smmu_add_mr
-> > smmuv3-iommu-memory-region-0-0
-> >
-> > I haven't debugged this further. Please let me know if issue is
-> > reproducible with multiple vCPUs at your end. For now will focus on VFIO
-> dev specific tests.
-> 
-> Oh. My test environment has been a single-core vCPU. So that doesn't
-> happen to me. Can you try a vanilla QEMU branch that our nesting branch is
-> rebased on? I took a branch from Yi as the baseline, while he might take
-> from Eric for the rfcv3.
-> 
-> I am guessing that it might be an issue in the common tree.
+Thanks for coming up with the RFC. I can test your changes in the
+server environment. I observed the same issue on my side and I can
+reproduce.
 
-Yes, that looks like the case.
-I tried with:
- commit 13356edb8750("Merge tag 'block-pull-request' of https://gitlab.com/stefanha/qemu into staging")
+I sync'ed up with Qais offline earlier yesterday, and was preparing a
+couple of patches that optimize the cpuset.cpus writes. Tracking dl
+tasks in cpusets is one of them. But I am happy to take your patches
+and do the testing. Note that I won't be able to test the dl part of
+the patch, only the latency impact on rebuild_root_domains(), as we
+don't have dl tasks in our system.
 
-And issue is still there. So hopefully once we rebase everything it will go away.
+The other patch is fixing cpuset_rwsem. I see you switched it back to
+mutex. I did observe performance issues with cpuset_rwsem. Basically,
+using percpu_rwsem generates very very long latency tails for writers,
+but mutex doesn't. After some debugging, I found it was because
+percpu_rwsem requires every writer to call a synchronize_rcu() for
+acquiring the lock. So in my patches, I disabled the fastpath of
+readers for cpuset_rwsem. This has been done before[1]. But mutex also
+worked.
 
-Thanks,
-Shameer
+Anyway, I'm happy to test your patches and ack once they are sent out.
+
+[1] https://lore.kernel.org/all/20160811165413.GA22807@redhat.com/T/#m13ef9=
+a728c89cccc9c02af3c96924096c76162a5
+
+Hao
