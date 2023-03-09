@@ -2,244 +2,165 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 31F4FC6FD19
-	for <linux-s390@archiver.kernel.org>; Wed,  8 Mar 2023 23:15:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EADF5C6FD1F
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Mar 2023 06:56:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229727AbjCHXO6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 8 Mar 2023 18:14:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33930 "EHLO
+        id S230181AbjCIG4O (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Mar 2023 01:56:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229947AbjCHXO5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Mar 2023 18:14:57 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1495D6A2F2;
-        Wed,  8 Mar 2023 15:14:54 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A55B2B81E28;
-        Wed,  8 Mar 2023 23:14:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AB20C433EF;
-        Wed,  8 Mar 2023 23:14:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678317291;
-        bh=1KLoFAeEl1GaBhk9AYCzh4g+rPEacFhX8QSp5gviMYk=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:From;
-        b=qQmHJbwex4XtpPJqe3CwXuCTMWXtb1uDeVNOn6oahQRRaz7pw8Hd9kYrx+TMtlnMu
-         fYc/jbKTO6vtO3/rgcpTWRkV1rXVVc+ZtUmynAYLL/7m8/kVAhoTMQVN18PxYlU/we
-         8QrMwjeNJ8lGaVZ16D2kf5CR83HX1KbMal+43d6+kX4Pn2nR1GRMYIeKO/Eh4L6vmY
-         zdEVmdCF1BU4m3H/qpU5FstWKPBSOLYJwlazFB5Pyn+BBFxiwz0/F/dwY3qdC/OqUy
-         xRyTGS3G3hn1pd7kFkOpt5ZgdN9Q6QsAW3NO2LFCZkLehcDFaODDoGfDz/Zu6n8/0H
-         R5ACT2ywvc5Dw==
-Date:   Wed, 8 Mar 2023 17:14:49 -0600
-From:   Bjorn Helgaas <helgaas@kernel.org>
-To:     Niklas Schnelle <schnelle@linux.ibm.com>
-Cc:     Bjorn Helgaas <bhelgaas@google.com>,
-        Lukas Wunner <lukas@wunner.de>,
-        Gerd Bayer <gbayer@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-pci@vger.kernel.org
-Subject: Re: [PATCH v2 1/4] PCI: s390: Fix use-after-free of PCI resources
- with per-function hotplug
-Message-ID: <20230308231449.GA1057317@bhelgaas>
+        with ESMTP id S230182AbjCIG4H (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Mar 2023 01:56:07 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06F5D85A7E
+        for <linux-s390@vger.kernel.org>; Wed,  8 Mar 2023 22:55:15 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1678344915;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=uIczmgYoQYTCvZV52CjGLXblPTYkMmmzjpWwwvoi3OY=;
+        b=dbGBIa2NmuuoSeSist94fb9+az/UCm1LgaJXXXkNwKeR28C3tRkcA7wsrt4kaMq8bZEJWf
+        vn+tm8d4VnUJlpZo2o3b50M69aoNQzZmvOp7KLTAhHRQJ6DdWeeplwnh6+ckbnUWdCsXVL
+        agrOs54m3NGBQcm/tdxnR7KfxkWDegU=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-436-nBrJMeV2O7OslFS4qcJ-jw-1; Thu, 09 Mar 2023 01:55:13 -0500
+X-MC-Unique: nBrJMeV2O7OslFS4qcJ-jw-1
+Received: by mail-wm1-f71.google.com with SMTP id s18-20020a7bc392000000b003deaf780ab6so377572wmj.4
+        for <linux-s390@vger.kernel.org>; Wed, 08 Mar 2023 22:55:13 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678344912;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=uIczmgYoQYTCvZV52CjGLXblPTYkMmmzjpWwwvoi3OY=;
+        b=VK2197mDUTa2VeFfcuujHqljpZ0fyV2ZVWBMesYklr0FFBl9F7jlA9k+/qSOP3PJTX
+         kqFrNWzX3JMChwONZG1ZoGWofhBE6fyz9PqXLLYovNtD7AKLQwc3ta6umcM8uARG/TCo
+         SzCp8/FKjKhGvvUIu9ERNbo+/XXlJIw4Lfc8LYMGtHpyZZSqJLb1swmKHMbHubc/J74i
+         4ycB2F+GgcnNwtl0aIOTbE/jYbzl62iJ96yuEc/60e2wdy0C5VdtjGBE0Irt4dzAYlLl
+         YWSS3a0Hq4hxKGKNYXtNDqxyht2i1I9im3LTZDtEy6YHvPnIi8vcNRdZBZEZeSOhNXsd
+         Cc8A==
+X-Gm-Message-State: AO0yUKVkVGU9AQ9ahZrbt389bu8XaqDwmbLpcl6R8l66hqlwpGYR/EI1
+        WPwhtzdx9yZibSFSv8Oja7Jehsrq/O5ljW9KEUO/EKs40/46TyUJzU3WGNo96VaS+jxWoBUFgbH
+        TsvybuS3V8QRjB0gn+iXKIQ==
+X-Received: by 2002:a7b:c84a:0:b0:3df:eda1:439c with SMTP id c10-20020a7bc84a000000b003dfeda1439cmr17144581wml.11.1678344912387;
+        Wed, 08 Mar 2023 22:55:12 -0800 (PST)
+X-Google-Smtp-Source: AK7set/bfjO/UHYawWvMvflT2aQSWT9oFIwQPchCZihniaflaPBGX8+DCtD/jgOt+kBt3ywllO487g==
+X-Received: by 2002:a7b:c84a:0:b0:3df:eda1:439c with SMTP id c10-20020a7bc84a000000b003dfeda1439cmr17144563wml.11.1678344912018;
+        Wed, 08 Mar 2023 22:55:12 -0800 (PST)
+Received: from localhost.localdomain ([151.29.151.163])
+        by smtp.gmail.com with ESMTPSA id k23-20020a05600c1c9700b003e21f01c426sm1714588wms.9.2023.03.08.22.55.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 08 Mar 2023 22:55:11 -0800 (PST)
+Date:   Thu, 9 Mar 2023 07:55:08 +0100
+From:   Juri Lelli <juri.lelli@redhat.com>
+To:     Hao Luo <haoluo@google.com>
+Cc:     Qais Yousef <qyousef@layalina.io>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Waiman Long <longman@redhat.com>,
+        Steven Rostedt <rostedt@goodmis.org>, tj@kernel.org,
+        linux-kernel@vger.kernel.org, luca.abeni@santannapisa.it,
+        claudio@evidence.eu.com, tommaso.cucinotta@santannapisa.it,
+        bristot@redhat.com, mathieu.poirier@linaro.org,
+        cgroups@vger.kernel.org,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Wei Wang <wvw@google.com>, Rick Yiu <rickyiu@google.com>,
+        Quentin Perret <qperret@google.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Zefan Li <lizefan.x@bytedance.com>, linux-s390@vger.kernel.org,
+        x86@kernel.org
+Subject: Re: [PATCH v3] sched: cpuset: Don't rebuild root domains on
+ suspend-resume
+Message-ID: <ZAmCzJQZl7j/m2oN@localhost.localdomain>
+References: <5f087dd8-3e39-ce83-fe24-afa5179c05d9@arm.com>
+ <20230227205725.dipvh3i7dvyrv4tv@airbuntu>
+ <5a1e58bf-7eb2-bd7a-7e19-7864428a2b83@arm.com>
+ <20230228174627.vja5aejq27dsta2u@airbuntu>
+ <Y/7/SLzvK8LfB29z@localhost.localdomain>
+ <20230301122852.zgzreby42lh2zf6w@airbuntu>
+ <Y/9gmDRlGOChIwpf@localhost.localdomain>
+ <20230301170322.xthlso7jfkixlyex@airbuntu>
+ <ZAhhGi55BkYkc3ss@localhost.localdomain>
+ <CA+khW7hmE0tECG2qfKW1HN9yLVOLUn5Zzx4Rz-wHYDtSUPYotw@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20230306151014.60913-2-schnelle@linux.ibm.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CA+khW7hmE0tECG2qfKW1HN9yLVOLUn5Zzx4Rz-wHYDtSUPYotw@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Mar 06, 2023 at 04:10:11PM +0100, Niklas Schnelle wrote:
-> On s390 PCI functions may be hotplugged individually even when they
-> belong to a multi-function device. In particular on an SR-IOV device VFs
-> may be removed and later re-added.
-> 
-> In commit a50297cf8235 ("s390/pci: separate zbus creation from
-> scanning") it was missed however that struct pci_bus and struct
-> zpci_bus's resource list retained a reference to the PCI functions MMIO
-> resources even though those resources are released and freed on
-> hot-unplug. These stale resources may subsequently be claimed when the
-> PCI function re-appears resulting in use-after-free.
-> 
-> One idea of fixing this use-after-free in s390 specific code that was
-> investigated was to simply keep resources around from the moment a PCI
-> function first appeared until the whole virtual PCI bus created for
-> a multi-function device disappears. The problem with this however is
-> that due to the requirement of artificial MMIO addreesses (address
-> cookies) extra logic is then needed to keep the address cookies
-> compatible on re-plug. At the same time the MMIO resources semantically
-> belong to the PCI function so tying their lifecycle to the function
-> seems more logical.
-> 
-> Instead a simpler approach is to remove the resources of an individually
-> hot-unplugged PCI function from the PCI bus's resource list while
-> keeping the resources of other PCI functions on the PCI bus untouched.
-> 
-> This is done by introducing pci_bus_remove_resource() to remove an
-> individual resource. Similarly the resource also needs to be removed
-> from the struct zpci_bus's resource list. It turns out however, that
-> there is really no need to add the MMIO resources to the struct
-> zpci_bus's resource list at all and instead we can simply use the
-> zpci_bar_struct's resource pointer directly.
-> 
-> Fixes: a50297cf8235 ("s390/pci: separate zbus creation from scanning")
-> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Hi Hao,
 
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+On 08/03/23 10:01, Hao Luo wrote:
+> On Wed, Mar 8, 2023 at 2:20 AM Juri Lelli <juri.lelli@redhat.com> wrote:
+> >
+> > On 01/03/23 17:03, Qais Yousef wrote:
+> > > On 03/01/23 15:26, Juri Lelli wrote:
+> <...>
+> > > > BTW, do you have a repro script of some sort handy I might play with?
+> > >
+> > > Sorry no. You'll just need to suspend to ram. I had a simple patch to measure
+> > > the time around the call and trace_printk'ed the result.
+> > >
+> > > I was working on a android phone which just suspends to ram if you turn the
+> > > screen off and disconnect the usb.
+> >
+> > Looks like I could come up with the following
+> >
+> > https://github.com/jlelli/linux.git deadline/rework-cpusets
+> > https://github.com/jlelli/linux/tree/deadline/rework-cpusets
+> >
+> > which I don't think it's at a point that I feel comfortable to propose
+> > as an RFC (not even sure if it actually makes sense), but it survived my
+> > very light testing.
+> >
+> > Could you please take a look and, if it makes some sense in theory, give
+> > it a try on your end?
+> >
+> 
+> Hi Juri,
+> 
+> Thanks for coming up with the RFC. I can test your changes in the
+> server environment. I observed the same issue on my side and I can
+> reproduce.
+> 
+> I sync'ed up with Qais offline earlier yesterday, and was preparing a
+> couple of patches that optimize the cpuset.cpus writes. Tracking dl
+> tasks in cpusets is one of them. But I am happy to take your patches
+> and do the testing. Note that I won't be able to test the dl part of
+> the patch, only the latency impact on rebuild_root_domains(), as we
+> don't have dl tasks in our system.
+> 
+> The other patch is fixing cpuset_rwsem. I see you switched it back to
+> mutex. I did observe performance issues with cpuset_rwsem. Basically,
+> using percpu_rwsem generates very very long latency tails for writers,
+> but mutex doesn't. After some debugging, I found it was because
+> percpu_rwsem requires every writer to call a synchronize_rcu() for
+> acquiring the lock. So in my patches, I disabled the fastpath of
+> readers for cpuset_rwsem. This has been done before[1]. But mutex also
+> worked.
+> 
+> Anyway, I'm happy to test your patches and ack once they are sent out.
 
-The meat of this is mostly in s390, so I think it makes more sense to
-merge via that tree.  But let me know if you'd rather that I take it.
+Do you strictly need a proper RFC or could you please test the above for
+now? If you could please do the latter, and if tests look ok, I could
+then put together proper changelogs etc. and propose an RFC (it would
+save me some time not to do that if the above doesn't work, apologies
+for not going the proper route from the start). Guess this question
+applies to Qais as well. Hummm, or maybe you are actually saying that
+you are indeed going to test them already, just wanted to make sure
+then. :)
 
-> ---
-> v1 -> v2:
-> - Remove return at the end of function returning void
-> 
->  arch/s390/pci/pci.c     | 16 ++++++++++------
->  arch/s390/pci/pci_bus.c | 12 +++++-------
->  arch/s390/pci/pci_bus.h |  3 +--
->  drivers/pci/bus.c       | 21 +++++++++++++++++++++
->  include/linux/pci.h     |  1 +
->  5 files changed, 38 insertions(+), 15 deletions(-)
-> 
-> diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-> index ef38b1514c77..e16afacc8fd1 100644
-> --- a/arch/s390/pci/pci.c
-> +++ b/arch/s390/pci/pci.c
-> @@ -544,8 +544,7 @@ static struct resource *__alloc_res(struct zpci_dev *zdev, unsigned long start,
->  	return r;
->  }
->  
-> -int zpci_setup_bus_resources(struct zpci_dev *zdev,
-> -			     struct list_head *resources)
-> +int zpci_setup_bus_resources(struct zpci_dev *zdev)
->  {
->  	unsigned long addr, size, flags;
->  	struct resource *res;
-> @@ -581,7 +580,6 @@ int zpci_setup_bus_resources(struct zpci_dev *zdev,
->  			return -ENOMEM;
->  		}
->  		zdev->bars[i].res = res;
-> -		pci_add_resource(resources, res);
->  	}
->  	zdev->has_resources = 1;
->  
-> @@ -590,17 +588,23 @@ int zpci_setup_bus_resources(struct zpci_dev *zdev,
->  
->  static void zpci_cleanup_bus_resources(struct zpci_dev *zdev)
->  {
-> +	struct resource *res;
->  	int i;
->  
-> +	pci_lock_rescan_remove();
->  	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
-> -		if (!zdev->bars[i].size || !zdev->bars[i].res)
-> +		res = zdev->bars[i].res;
-> +		if (!res)
->  			continue;
->  
-> +		release_resource(res);
-> +		pci_bus_remove_resource(zdev->zbus->bus, res);
->  		zpci_free_iomap(zdev, zdev->bars[i].map_idx);
-> -		release_resource(zdev->bars[i].res);
-> -		kfree(zdev->bars[i].res);
-> +		zdev->bars[i].res = NULL;
-> +		kfree(res);
->  	}
->  	zdev->has_resources = 0;
-> +	pci_unlock_rescan_remove();
->  }
->  
->  int pcibios_device_add(struct pci_dev *pdev)
-> diff --git a/arch/s390/pci/pci_bus.c b/arch/s390/pci/pci_bus.c
-> index 6a8da1b742ae..a99926af2b69 100644
-> --- a/arch/s390/pci/pci_bus.c
-> +++ b/arch/s390/pci/pci_bus.c
-> @@ -41,9 +41,7 @@ static int zpci_nb_devices;
->   */
->  static int zpci_bus_prepare_device(struct zpci_dev *zdev)
->  {
-> -	struct resource_entry *window, *n;
-> -	struct resource *res;
-> -	int rc;
-> +	int rc, i;
->  
->  	if (!zdev_enabled(zdev)) {
->  		rc = zpci_enable_device(zdev);
-> @@ -57,10 +55,10 @@ static int zpci_bus_prepare_device(struct zpci_dev *zdev)
->  	}
->  
->  	if (!zdev->has_resources) {
-> -		zpci_setup_bus_resources(zdev, &zdev->zbus->resources);
-> -		resource_list_for_each_entry_safe(window, n, &zdev->zbus->resources) {
-> -			res = window->res;
-> -			pci_bus_add_resource(zdev->zbus->bus, res, 0);
-> +		zpci_setup_bus_resources(zdev);
-> +		for (i = 0; i < PCI_STD_NUM_BARS; i++) {
-> +			if (zdev->bars[i].res)
-> +				pci_bus_add_resource(zdev->zbus->bus, zdev->bars[i].res, 0);
->  		}
->  	}
->  
-> diff --git a/arch/s390/pci/pci_bus.h b/arch/s390/pci/pci_bus.h
-> index e96c9860e064..af9f0ac79a1b 100644
-> --- a/arch/s390/pci/pci_bus.h
-> +++ b/arch/s390/pci/pci_bus.h
-> @@ -30,8 +30,7 @@ static inline void zpci_zdev_get(struct zpci_dev *zdev)
->  
->  int zpci_alloc_domain(int domain);
->  void zpci_free_domain(int domain);
-> -int zpci_setup_bus_resources(struct zpci_dev *zdev,
-> -			     struct list_head *resources);
-> +int zpci_setup_bus_resources(struct zpci_dev *zdev);
->  
->  static inline struct zpci_dev *zdev_from_bus(struct pci_bus *bus,
->  					     unsigned int devfn)
-> diff --git a/drivers/pci/bus.c b/drivers/pci/bus.c
-> index 83ae838ceb5f..549c4bd5caec 100644
-> --- a/drivers/pci/bus.c
-> +++ b/drivers/pci/bus.c
-> @@ -76,6 +76,27 @@ struct resource *pci_bus_resource_n(const struct pci_bus *bus, int n)
->  }
->  EXPORT_SYMBOL_GPL(pci_bus_resource_n);
->  
-> +void pci_bus_remove_resource(struct pci_bus *bus, struct resource *res)
-> +{
-> +	struct pci_bus_resource *bus_res, *tmp;
-> +	int i;
-> +
-> +	for (i = 0; i < PCI_BRIDGE_RESOURCE_NUM; i++) {
-> +		if (bus->resource[i] == res) {
-> +			bus->resource[i] = NULL;
-> +			return;
-> +		}
-> +	}
-> +
-> +	list_for_each_entry_safe(bus_res, tmp, &bus->resources, list) {
-> +		if (bus_res->res == res) {
-> +			list_del(&bus_res->list);
-> +			kfree(bus_res);
-> +			return;
-> +		}
-> +	}
-> +}
-> +
->  void pci_bus_remove_resources(struct pci_bus *bus)
->  {
->  	int i;
-> diff --git a/include/linux/pci.h b/include/linux/pci.h
-> index fafd8020c6d7..b50e5c79f7e3 100644
-> --- a/include/linux/pci.h
-> +++ b/include/linux/pci.h
-> @@ -1438,6 +1438,7 @@ void pci_bus_add_resource(struct pci_bus *bus, struct resource *res,
->  			  unsigned int flags);
->  struct resource *pci_bus_resource_n(const struct pci_bus *bus, int n);
->  void pci_bus_remove_resources(struct pci_bus *bus);
-> +void pci_bus_remove_resource(struct pci_bus *bus, struct resource *res);
->  int devm_request_pci_bus_resources(struct device *dev,
->  				   struct list_head *resources);
->  
-> -- 
-> 2.37.2
-> 
+Thanks!
+Juri
+
