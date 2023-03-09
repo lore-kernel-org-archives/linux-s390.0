@@ -2,165 +2,153 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EADF5C6FD1F
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Mar 2023 06:56:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 38EF0C61DA4
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Mar 2023 07:42:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230181AbjCIG4O (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Mar 2023 01:56:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33328 "EHLO
+        id S229916AbjCIHmm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Mar 2023 02:42:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230182AbjCIG4H (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Mar 2023 01:56:07 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06F5D85A7E
-        for <linux-s390@vger.kernel.org>; Wed,  8 Mar 2023 22:55:15 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1678344915;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=uIczmgYoQYTCvZV52CjGLXblPTYkMmmzjpWwwvoi3OY=;
-        b=dbGBIa2NmuuoSeSist94fb9+az/UCm1LgaJXXXkNwKeR28C3tRkcA7wsrt4kaMq8bZEJWf
-        vn+tm8d4VnUJlpZo2o3b50M69aoNQzZmvOp7KLTAhHRQJ6DdWeeplwnh6+ckbnUWdCsXVL
-        agrOs54m3NGBQcm/tdxnR7KfxkWDegU=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-436-nBrJMeV2O7OslFS4qcJ-jw-1; Thu, 09 Mar 2023 01:55:13 -0500
-X-MC-Unique: nBrJMeV2O7OslFS4qcJ-jw-1
-Received: by mail-wm1-f71.google.com with SMTP id s18-20020a7bc392000000b003deaf780ab6so377572wmj.4
-        for <linux-s390@vger.kernel.org>; Wed, 08 Mar 2023 22:55:13 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678344912;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=uIczmgYoQYTCvZV52CjGLXblPTYkMmmzjpWwwvoi3OY=;
-        b=VK2197mDUTa2VeFfcuujHqljpZ0fyV2ZVWBMesYklr0FFBl9F7jlA9k+/qSOP3PJTX
-         kqFrNWzX3JMChwONZG1ZoGWofhBE6fyz9PqXLLYovNtD7AKLQwc3ta6umcM8uARG/TCo
-         SzCp8/FKjKhGvvUIu9ERNbo+/XXlJIw4Lfc8LYMGtHpyZZSqJLb1swmKHMbHubc/J74i
-         4ycB2F+GgcnNwtl0aIOTbE/jYbzl62iJ96yuEc/60e2wdy0C5VdtjGBE0Irt4dzAYlLl
-         YWSS3a0Hq4hxKGKNYXtNDqxyht2i1I9im3LTZDtEy6YHvPnIi8vcNRdZBZEZeSOhNXsd
-         Cc8A==
-X-Gm-Message-State: AO0yUKVkVGU9AQ9ahZrbt389bu8XaqDwmbLpcl6R8l66hqlwpGYR/EI1
-        WPwhtzdx9yZibSFSv8Oja7Jehsrq/O5ljW9KEUO/EKs40/46TyUJzU3WGNo96VaS+jxWoBUFgbH
-        TsvybuS3V8QRjB0gn+iXKIQ==
-X-Received: by 2002:a7b:c84a:0:b0:3df:eda1:439c with SMTP id c10-20020a7bc84a000000b003dfeda1439cmr17144581wml.11.1678344912387;
-        Wed, 08 Mar 2023 22:55:12 -0800 (PST)
-X-Google-Smtp-Source: AK7set/bfjO/UHYawWvMvflT2aQSWT9oFIwQPchCZihniaflaPBGX8+DCtD/jgOt+kBt3ywllO487g==
-X-Received: by 2002:a7b:c84a:0:b0:3df:eda1:439c with SMTP id c10-20020a7bc84a000000b003dfeda1439cmr17144563wml.11.1678344912018;
-        Wed, 08 Mar 2023 22:55:12 -0800 (PST)
-Received: from localhost.localdomain ([151.29.151.163])
-        by smtp.gmail.com with ESMTPSA id k23-20020a05600c1c9700b003e21f01c426sm1714588wms.9.2023.03.08.22.55.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 08 Mar 2023 22:55:11 -0800 (PST)
-Date:   Thu, 9 Mar 2023 07:55:08 +0100
-From:   Juri Lelli <juri.lelli@redhat.com>
-To:     Hao Luo <haoluo@google.com>
-Cc:     Qais Yousef <qyousef@layalina.io>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Waiman Long <longman@redhat.com>,
-        Steven Rostedt <rostedt@goodmis.org>, tj@kernel.org,
-        linux-kernel@vger.kernel.org, luca.abeni@santannapisa.it,
-        claudio@evidence.eu.com, tommaso.cucinotta@santannapisa.it,
-        bristot@redhat.com, mathieu.poirier@linaro.org,
-        cgroups@vger.kernel.org,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Wei Wang <wvw@google.com>, Rick Yiu <rickyiu@google.com>,
-        Quentin Perret <qperret@google.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Zefan Li <lizefan.x@bytedance.com>, linux-s390@vger.kernel.org,
-        x86@kernel.org
-Subject: Re: [PATCH v3] sched: cpuset: Don't rebuild root domains on
- suspend-resume
-Message-ID: <ZAmCzJQZl7j/m2oN@localhost.localdomain>
-References: <5f087dd8-3e39-ce83-fe24-afa5179c05d9@arm.com>
- <20230227205725.dipvh3i7dvyrv4tv@airbuntu>
- <5a1e58bf-7eb2-bd7a-7e19-7864428a2b83@arm.com>
- <20230228174627.vja5aejq27dsta2u@airbuntu>
- <Y/7/SLzvK8LfB29z@localhost.localdomain>
- <20230301122852.zgzreby42lh2zf6w@airbuntu>
- <Y/9gmDRlGOChIwpf@localhost.localdomain>
- <20230301170322.xthlso7jfkixlyex@airbuntu>
- <ZAhhGi55BkYkc3ss@localhost.localdomain>
- <CA+khW7hmE0tECG2qfKW1HN9yLVOLUn5Zzx4Rz-wHYDtSUPYotw@mail.gmail.com>
+        with ESMTP id S229720AbjCIHml (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Mar 2023 02:42:41 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56DB8D23BF;
+        Wed,  8 Mar 2023 23:42:40 -0800 (PST)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3296GsNW021127;
+        Thu, 9 Mar 2023 07:42:28 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=RoC+uC7saLpOIXp3icf+Szui9QrpVF5FNTNBBrnLy/w=;
+ b=bTPGXh91b+jZft1LIhi9giAlDHM6mG/ZMCNMhMAyfl7qfmVDjwvDlnc8lELz7uJmktNs
+ 2Z7NIfGJhspo/QsSE+55WFdjot9/O/DcJ2DCUvmEukzfc7U5/49loVxCXAYRpoBnn+mY
+ STWMaqlikDqN5ke49HBmbAoPFISoiwTr4/C/rf6BXBNc4TCvlOSJxT0OgzvX8xV3TDbt
+ cbKaPiZ1oRgllcvkuy+Fqc29Tjjk/VB8VQc0Vos81S9Rhf5/NxzLmciWBtxpn24Kjr/y
+ jyMdDuhx53ZP/SVTg9jO3k66cLX2Zsr2i0wyVWZqhwR2FRay0GAPKNYCUETPbCJo8TJN wA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3p6suksssk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 09 Mar 2023 07:42:27 +0000
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3297gRHw033166;
+        Thu, 9 Mar 2023 07:42:27 GMT
+Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3p6suksss8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 09 Mar 2023 07:42:27 +0000
+Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
+        by ppma04dal.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3297MgAg011849;
+        Thu, 9 Mar 2023 07:42:26 GMT
+Received: from smtprelay03.wdc07v.mail.ibm.com ([9.208.129.113])
+        by ppma04dal.us.ibm.com (PPS) with ESMTPS id 3p6gbv9pvg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 09 Mar 2023 07:42:26 +0000
+Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
+        by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3297gOtP27460116
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 9 Mar 2023 07:42:24 GMT
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 565AA58062;
+        Thu,  9 Mar 2023 07:42:24 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EE07158056;
+        Thu,  9 Mar 2023 07:42:22 +0000 (GMT)
+Received: from [9.211.95.207] (unknown [9.211.95.207])
+        by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
+        Thu,  9 Mar 2023 07:42:22 +0000 (GMT)
+Message-ID: <a25e7463-6998-03c0-01c8-4b5ec98a1cc9@linux.ibm.com>
+Date:   Thu, 9 Mar 2023 08:42:22 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CA+khW7hmE0tECG2qfKW1HN9yLVOLUn5Zzx4Rz-wHYDtSUPYotw@mail.gmail.com>
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.8.0
+Subject: Re: [PATCH net v2] net/smc: fix NULL sndbuf_desc in
+ smc_cdc_tx_handler()
+To:     "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
+        jaka@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <1678263432-17329-1-git-send-email-alibuda@linux.alibaba.com>
+From:   Wenjia Zhang <wenjia@linux.ibm.com>
+In-Reply-To: <1678263432-17329-1-git-send-email-alibuda@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: WHvSgYz6Ob9qDWXanNUrnVuHk5dKhgwR
+X-Proofpoint-ORIG-GUID: COdodf5lJpnDLBB3t0aEQs6RG3uGH18l
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-03-09_04,2023-03-08_03,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxscore=0
+ spamscore=0 malwarescore=0 clxscore=1015 lowpriorityscore=0 bulkscore=0
+ impostorscore=0 priorityscore=1501 adultscore=0 mlxlogscore=999
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2303090059
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Hao,
 
-On 08/03/23 10:01, Hao Luo wrote:
-> On Wed, Mar 8, 2023 at 2:20 AM Juri Lelli <juri.lelli@redhat.com> wrote:
-> >
-> > On 01/03/23 17:03, Qais Yousef wrote:
-> > > On 03/01/23 15:26, Juri Lelli wrote:
-> <...>
-> > > > BTW, do you have a repro script of some sort handy I might play with?
-> > >
-> > > Sorry no. You'll just need to suspend to ram. I had a simple patch to measure
-> > > the time around the call and trace_printk'ed the result.
-> > >
-> > > I was working on a android phone which just suspends to ram if you turn the
-> > > screen off and disconnect the usb.
-> >
-> > Looks like I could come up with the following
-> >
-> > https://github.com/jlelli/linux.git deadline/rework-cpusets
-> > https://github.com/jlelli/linux/tree/deadline/rework-cpusets
-> >
-> > which I don't think it's at a point that I feel comfortable to propose
-> > as an RFC (not even sure if it actually makes sense), but it survived my
-> > very light testing.
-> >
-> > Could you please take a look and, if it makes some sense in theory, give
-> > it a try on your end?
-> >
-> 
-> Hi Juri,
-> 
-> Thanks for coming up with the RFC. I can test your changes in the
-> server environment. I observed the same issue on my side and I can
-> reproduce.
-> 
-> I sync'ed up with Qais offline earlier yesterday, and was preparing a
-> couple of patches that optimize the cpuset.cpus writes. Tracking dl
-> tasks in cpusets is one of them. But I am happy to take your patches
-> and do the testing. Note that I won't be able to test the dl part of
-> the patch, only the latency impact on rebuild_root_domains(), as we
-> don't have dl tasks in our system.
-> 
-> The other patch is fixing cpuset_rwsem. I see you switched it back to
-> mutex. I did observe performance issues with cpuset_rwsem. Basically,
-> using percpu_rwsem generates very very long latency tails for writers,
-> but mutex doesn't. After some debugging, I found it was because
-> percpu_rwsem requires every writer to call a synchronize_rcu() for
-> acquiring the lock. So in my patches, I disabled the fastpath of
-> readers for cpuset_rwsem. This has been done before[1]. But mutex also
-> worked.
-> 
-> Anyway, I'm happy to test your patches and ack once they are sent out.
 
-Do you strictly need a proper RFC or could you please test the above for
-now? If you could please do the latter, and if tests look ok, I could
-then put together proper changelogs etc. and propose an RFC (it would
-save me some time not to do that if the above doesn't work, apologies
-for not going the proper route from the start). Guess this question
-applies to Qais as well. Hummm, or maybe you are actually saying that
-you are indeed going to test them already, just wanted to make sure
-then. :)
+On 08.03.23 09:17, D. Wythe wrote:
+> From: "D. Wythe" <alibuda@linux.alibaba.com>
+> 
+> When performing a stress test on SMC-R by rmmod mlx5_ib driver
+> during the wrk/nginx test, we found that there is a probability
+> of triggering a panic while terminating all link groups.
+> 
+> This issue dues to the race between smc_smcr_terminate_all()
+> and smc_buf_create().
+> 
+> 			smc_smcr_terminate_all
+> 
+> smc_buf_create
+> /* init */
+> conn->sndbuf_desc = NULL;
+> ...
+> 
+> 			__smc_lgr_terminate
+> 				smc_conn_kill
+> 					smc_close_abort
+> 						smc_cdc_get_slot_and_msg_send
+> 
+> 			__softirqentry_text_start
+> 				smc_wr_tx_process_cqe
+> 					smc_cdc_tx_handler
+> 						READ(conn->sndbuf_desc->len);
+> 						/* panic dues to NULL sndbuf_desc */
+> 
+> conn->sndbuf_desc = xxx;
+> 
+> This patch tries to fix the issue by always to check the sndbuf_desc
+> before send any cdc msg, to make sure that no null pointer is
+> seen during cqe processing.
+> 
+> Fixes: 0b29ec643613 ("net/smc: immediate termination for SMCR link groups")
+> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+> 
 
-Thanks!
-Juri
+Thanks for the fix!
 
+Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
+
+> v2 -> v1: change retval from EINVAL to ENOBUFS
+> 
+> ---
+>   net/smc/smc_cdc.c | 3 +++
+>   1 file changed, 3 insertions(+)
+> 
+> diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
+> index 53f63bf..89105e9 100644
+> --- a/net/smc/smc_cdc.c
+> +++ b/net/smc/smc_cdc.c
+> @@ -114,6 +114,9 @@ int smc_cdc_msg_send(struct smc_connection *conn,
+>   	union smc_host_cursor cfed;
+>   	int rc;
+>   
+> +	if (unlikely(!READ_ONCE(conn->sndbuf_desc)))
+> +		return -ENOBUFS;
+> +
+>   	smc_cdc_add_pending_send(conn, pend);
+>   
+>   	conn->tx_cdc_seq++;
