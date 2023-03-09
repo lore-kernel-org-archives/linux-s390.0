@@ -2,102 +2,164 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BAED9C61DA4
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Mar 2023 19:14:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CE33AC61DA4
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Mar 2023 22:23:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229521AbjCITOn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Mar 2023 14:14:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40474 "EHLO
+        id S229910AbjCIWXd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Mar 2023 17:23:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229453AbjCITOm (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Mar 2023 14:14:42 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B16625CC35;
-        Thu,  9 Mar 2023 11:14:40 -0800 (PST)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 329IQrD8029534;
-        Thu, 9 Mar 2023 19:14:40 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=rI+P1BFFHZ8WHlaD0B4eoL0bauETBN0QF8emFVhth0M=;
- b=i99+IgE7wjS576YtStFzLcLDOcYm9iAedkU3ifBfYfMdRaOTh/TwHZ3hHT30TaBsr8si
- EpNK/Up5CPzkJ1DW5CBYTCbJUOjSA9nzLy0WUNVlOJA/GYAM1/eDPdtFbfdT7EZC0Mdm
- 90b5V/VTx1TqDnxltrFH4XVcAUip0xZxcqTs82xyOc4ka8tGmzeGUktR7Vymd+ByGuk9
- 0xqFJcqQuHIyQDxvEGoWi45UGRxf1LgdlkzL9SjHwjCoinpxz32usBgqU6an9zd+CVV1
- WLsQHzmck742IbkK8NbZH3ccbZk2GoitzzeItNGR894lu5bb+J//aJSs4yxDQdK8Iccj 7A== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3p6t3c3s65-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 09 Mar 2023 19:14:39 +0000
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 329In5ko021919;
-        Thu, 9 Mar 2023 19:14:39 GMT
-Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3p6t3c3s60-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 09 Mar 2023 19:14:39 +0000
-Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
-        by ppma03dal.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 329I0JFb023609;
-        Thu, 9 Mar 2023 19:14:38 GMT
-Received: from smtprelay03.dal12v.mail.ibm.com ([9.208.130.98])
-        by ppma03dal.us.ibm.com (PPS) with ESMTPS id 3p6fnwnk2p-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 09 Mar 2023 19:14:38 +0000
-Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
-        by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 329JEauX12976752
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 9 Mar 2023 19:14:37 GMT
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9C5A15805B;
-        Thu,  9 Mar 2023 19:14:36 +0000 (GMT)
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8575858058;
-        Thu,  9 Mar 2023 19:14:35 +0000 (GMT)
-Received: from [9.160.169.251] (unknown [9.160.169.251])
-        by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Thu,  9 Mar 2023 19:14:35 +0000 (GMT)
-Message-ID: <0eb3ed4d-24cc-a09d-b4e4-87764c949bef@linux.ibm.com>
-Date:   Thu, 9 Mar 2023 14:14:35 -0500
+        with ESMTP id S231168AbjCIWXb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Mar 2023 17:23:31 -0500
+Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D6A01DB94
+        for <linux-s390@vger.kernel.org>; Thu,  9 Mar 2023 14:23:27 -0800 (PST)
+Received: by mail-pf1-x42a.google.com with SMTP id fd25so2500060pfb.1
+        for <linux-s390@vger.kernel.org>; Thu, 09 Mar 2023 14:23:27 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112; t=1678400607;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=5cm9PSO1JyCkQzBopJoCsOr4/df3+glZZBwRsECQGzM=;
+        b=Mmq+Azlu82kBhgwsaMc2f7h/soeBwXgtSdYsLGzqsYaknPUs5z+a+/MMKSZ4tNfFRV
+         c2sfQE+adhJy4UwyltkiYBLXJCHh8lny1ntY0DS5edR9BCaLyL0fWJN+mrwZFtxkGdfy
+         SrjUbfP7+OcmtNEipJX3HOI8mbzyoRYggj1FvhKtQFeV6vZI/r0kPSeN68/770pL/7nR
+         y8V+6dZ7EPRmvZOdc8kFmjaQBhT/R11fS2H9bQPx1QffFGgWUh3TDSqwBQY1ImMuq8ao
+         UShO3VYpYZoFYq1WSy9WEvo/IFqazFyRNDXYo+dhgzxrwQI9jrVXIo+AjJpG4jWLW3eB
+         Dqhg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678400607;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=5cm9PSO1JyCkQzBopJoCsOr4/df3+glZZBwRsECQGzM=;
+        b=ig36+l17h0YhQTDv22sSbnVls0mmiX4xh6U6o8aqyebx7AR1qnEzlUrM6DFZd2pFYq
+         j3IVmT9l/qbU6Au+LPanQm5MkfiP1Vn+4q7Gw5bzUmSm6G6ceC7z2yXvrhnxg7q87Afb
+         m3H+wdeH7QnjBgvsDw84P1dGKAWf/a5CFcoLRY80oFYKFmtAQDGevTzRcTFv25mBRDaH
+         V2fyr/LOPtnsoVT6bFcsaXUGda6mYeNKDnDnyqzINxQd6F2Qcr9XWCEL6Z4xYy207Cc1
+         raWCBQEVp6pUOwArLt1hCkfZ1RKgwc4A/KdRodxCRNEcCZHbIpVpm2SOFWbFrxSLYnYc
+         289A==
+X-Gm-Message-State: AO0yUKVZaqNZax+3kUCJVCTUVzFRHo2CaXQmX4tSGWhBCWNjF5tmVyTD
+        cppJQ+wmo3Rw4g6acoqe4P1uHZkD63gIg+CHP8Ph5g==
+X-Google-Smtp-Source: AK7set+ut3cssxf2NRzMYdJgMnw0k7jnQVbkcPU4WuELZyqoXyN0HmOApAHWUxpQz5b4pY8U6hfXPKFqvjfd6SwNieQ=
+X-Received: by 2002:a63:7349:0:b0:503:20b2:483c with SMTP id
+ d9-20020a637349000000b0050320b2483cmr8074010pgn.2.1678400607091; Thu, 09 Mar
+ 2023 14:23:27 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.8.0
-Subject: Re: [PATCH v2 3/4] s390/pci: remove redundant pci_bus_add_devices()
- on new bus
-Content-Language: en-US
-To:     Niklas Schnelle <schnelle@linux.ibm.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Lukas Wunner <lukas@wunner.de>
-Cc:     Gerd Bayer <gbayer@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org
-References: <20230306151014.60913-1-schnelle@linux.ibm.com>
- <20230306151014.60913-4-schnelle@linux.ibm.com>
-From:   Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <20230306151014.60913-4-schnelle@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: E_kGx7VtsTE4uV7Gby1Nsbx2wbq35MAo
-X-Proofpoint-ORIG-GUID: 6iBS4zGxBqGjLHkOK1sSfxQ-1qsvwcaM
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-03-09_10,2023-03-09_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 adultscore=0
- malwarescore=0 bulkscore=0 mlxlogscore=999 spamscore=0 priorityscore=1501
- lowpriorityscore=0 clxscore=1015 impostorscore=0 phishscore=0 mlxscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
- definitions=main-2303090153
+References: <5f087dd8-3e39-ce83-fe24-afa5179c05d9@arm.com> <20230227205725.dipvh3i7dvyrv4tv@airbuntu>
+ <5a1e58bf-7eb2-bd7a-7e19-7864428a2b83@arm.com> <20230228174627.vja5aejq27dsta2u@airbuntu>
+ <Y/7/SLzvK8LfB29z@localhost.localdomain> <20230301122852.zgzreby42lh2zf6w@airbuntu>
+ <Y/9gmDRlGOChIwpf@localhost.localdomain> <20230301170322.xthlso7jfkixlyex@airbuntu>
+ <ZAhhGi55BkYkc3ss@localhost.localdomain> <CA+khW7hmE0tECG2qfKW1HN9yLVOLUn5Zzx4Rz-wHYDtSUPYotw@mail.gmail.com>
+ <ZAmCzJQZl7j/m2oN@localhost.localdomain>
+In-Reply-To: <ZAmCzJQZl7j/m2oN@localhost.localdomain>
+From:   Hao Luo <haoluo@google.com>
+Date:   Thu, 9 Mar 2023 14:23:15 -0800
+Message-ID: <CA+khW7iAeTALH5b6upHXs1RotFBohVeZCcAp5H+r-=L05kqnww@mail.gmail.com>
+Subject: Re: [PATCH v3] sched: cpuset: Don't rebuild root domains on suspend-resume
+To:     Juri Lelli <juri.lelli@redhat.com>
+Cc:     Qais Yousef <qyousef@layalina.io>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Waiman Long <longman@redhat.com>,
+        Steven Rostedt <rostedt@goodmis.org>, tj@kernel.org,
+        linux-kernel@vger.kernel.org, luca.abeni@santannapisa.it,
+        claudio@evidence.eu.com, tommaso.cucinotta@santannapisa.it,
+        bristot@redhat.com, mathieu.poirier@linaro.org,
+        cgroups@vger.kernel.org,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Wei Wang <wvw@google.com>, Rick Yiu <rickyiu@google.com>,
+        Quentin Perret <qperret@google.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Zefan Li <lizefan.x@bytedance.com>, linux-s390@vger.kernel.org,
+        x86@kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 3/6/23 10:10 AM, Niklas Schnelle wrote:
-> The pci_bus_add_devices() call in zpci_bus_create_pci_bus() is without
-> function since at this point no device could have been added to the
-> freshly created PCI bus.
-> 
-> Suggested-by: Bjorn Helgaas <helgaas@kernel.org>> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+On Wed, Mar 8, 2023 at 10:55=E2=80=AFPM Juri Lelli <juri.lelli@redhat.com> =
+wrote:
+>
+> On 08/03/23 10:01, Hao Luo wrote:
+> > On Wed, Mar 8, 2023 at 2:20=E2=80=AFAM Juri Lelli <juri.lelli@redhat.co=
+m> wrote:
+> > >
+> > > On 01/03/23 17:03, Qais Yousef wrote:
+> > > > On 03/01/23 15:26, Juri Lelli wrote:
+> > <...>
+> > > > > BTW, do you have a repro script of some sort handy I might play w=
+ith?
+> > > >
+> > > > Sorry no. You'll just need to suspend to ram. I had a simple patch =
+to measure
+> > > > the time around the call and trace_printk'ed the result.
+> > > >
+> > > > I was working on a android phone which just suspends to ram if you =
+turn the
+> > > > screen off and disconnect the usb.
+> > >
+> > > Looks like I could come up with the following
+> > >
+> > > https://github.com/jlelli/linux.git deadline/rework-cpusets
+> > > https://github.com/jlelli/linux/tree/deadline/rework-cpusets
+> > >
+> > > which I don't think it's at a point that I feel comfortable to propos=
+e
+> > > as an RFC (not even sure if it actually makes sense), but it survived=
+ my
+> > > very light testing.
+> > >
+> > > Could you please take a look and, if it makes some sense in theory, g=
+ive
+> > > it a try on your end?
+> > >
+> >
+> > Hi Juri,
+> >
+> > Thanks for coming up with the RFC. I can test your changes in the
+> > server environment. I observed the same issue on my side and I can
+> > reproduce.
+> >
+> > I sync'ed up with Qais offline earlier yesterday, and was preparing a
+> > couple of patches that optimize the cpuset.cpus writes. Tracking dl
+> > tasks in cpusets is one of them. But I am happy to take your patches
+> > and do the testing. Note that I won't be able to test the dl part of
+> > the patch, only the latency impact on rebuild_root_domains(), as we
+> > don't have dl tasks in our system.
+> >
+> > The other patch is fixing cpuset_rwsem. I see you switched it back to
+> > mutex. I did observe performance issues with cpuset_rwsem. Basically,
+> > using percpu_rwsem generates very very long latency tails for writers,
+> > but mutex doesn't. After some debugging, I found it was because
+> > percpu_rwsem requires every writer to call a synchronize_rcu() for
+> > acquiring the lock. So in my patches, I disabled the fastpath of
+> > readers for cpuset_rwsem. This has been done before[1]. But mutex also
+> > worked.
+> >
+> > Anyway, I'm happy to test your patches and ack once they are sent out.
+>
+> Do you strictly need a proper RFC or could you please test the above for
+> now? If you could please do the latter, and if tests look ok, I could
+> then put together proper changelogs etc. and propose an RFC (it would
+> save me some time not to do that if the above doesn't work, apologies
+> for not going the proper route from the start). Guess this question
+> applies to Qais as well. Hummm, or maybe you are actually saying that
+> you are indeed going to test them already, just wanted to make sure
+> then. :)
 
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+Juri, I ported your patches to a 5.10 kernel, because my workload can
+only run on 5.10. But unfortunately the kernel crashed at
+cpuset_can_attach(). I'll put a few comments in your github branch.
+
+Hao
 
 
+
+Hao
