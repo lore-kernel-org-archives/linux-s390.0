@@ -2,368 +2,295 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F036BC6FA99
-	for <linux-s390@archiver.kernel.org>; Fri, 10 Mar 2023 18:11:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A4B86C6FA99
+	for <linux-s390@archiver.kernel.org>; Fri, 10 Mar 2023 19:09:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230287AbjCJSLw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 10 Mar 2023 13:11:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58912 "EHLO
+        id S230288AbjCJTJT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 10 Mar 2023 14:09:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42464 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230001AbjCJSLu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 10 Mar 2023 13:11:50 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED8B51241CA;
-        Fri, 10 Mar 2023 10:11:48 -0800 (PST)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32AHHLT3003147;
-        Fri, 10 Mar 2023 18:11:48 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=noMnFGpQ82ybOcsraTvZhV/XFUc0Bu00cBe2srAYGx8=;
- b=FUwgKZlAZG+DmpSPPaMhc7RuSNYfrUz9JYHMEoBxIxIzN311TTjFnD6loZPyur4l3oNr
- 3N9e/bVNSAeNLfk+BXc0wlV7nC15zbJt1qHRznR90r69Q6uOeO75MxArjcCdY6UzySue
- YCeQE+Je83ulrmPhZpqtH9af6V3Xd2qWK4eTn7VDLZxwJYQxHKG1uu1/bxOCs07wNZGF
- FJqhrBdsuFFiCcFhwn3ccrU9F4KVkHQwBhc/3UUj0LoTIr6buhsBfs7wvs536VVZMMcw
- 4Cvrhw2oPqzYXPOjj/eMOqXI9WQBJx7xnqlqNiJvgUkM+WGO0HfTaDG+AEFQFkyCQ4xX uQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3p88tch4dm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 10 Mar 2023 18:11:48 +0000
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32AHbTMn022433;
-        Fri, 10 Mar 2023 18:11:48 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3p88tch4d1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 10 Mar 2023 18:11:47 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32A7uaF7023013;
-        Fri, 10 Mar 2023 18:11:45 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3p6fysv7ds-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 10 Mar 2023 18:11:45 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32AIBfWb48103802
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 10 Mar 2023 18:11:41 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BAB232004B;
-        Fri, 10 Mar 2023 18:11:41 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6DDDA20043;
-        Fri, 10 Mar 2023 18:11:41 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Fri, 10 Mar 2023 18:11:41 +0000 (GMT)
-From:   Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-To:     Thomas Huth <thuth@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-Cc:     David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: [kvm-unit-tests PATCH v5] s390x: Add tests for execute-type instructions
-Date:   Fri, 10 Mar 2023 19:11:31 +0100
-Message-Id: <20230310181131.2138736-1-nsg@linux.ibm.com>
-X-Mailer: git-send-email 2.37.2
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: VC7XSel_L5qUfFsGq1RA9uVHSL1ZOd8x
-X-Proofpoint-GUID: yolj0SXFsYUyY8P4lx8gs0AH7jWpBmz-
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-03-10_09,2023-03-10_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxscore=0
- clxscore=1015 spamscore=0 mlxlogscore=999 suspectscore=0 bulkscore=0
- impostorscore=0 priorityscore=1501 adultscore=0 lowpriorityscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2303100144
+        with ESMTP id S231293AbjCJTIz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 10 Mar 2023 14:08:55 -0500
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B23D24BED
+        for <linux-s390@vger.kernel.org>; Fri, 10 Mar 2023 11:08:09 -0800 (PST)
+Received: by mail-yb1-xb4a.google.com with SMTP id x64-20020a25ce43000000b00ae6d5855d78so6722544ybe.12
+        for <linux-s390@vger.kernel.org>; Fri, 10 Mar 2023 11:08:09 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112; t=1678475277;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=fK32HCA5CEK3I1OSPAFiJP4orExE4ivImV9o1+O5Pgs=;
+        b=LxEH6iUVJ8Ud+MSbSJ1bywctAFUXlXrIod3JRCgJ46Edv9Oe8Ve20gFj4XvBZFYnaB
+         astsvOG4c/RdJci0z23qVYsPo5sK5r1Xbc5EpRQrU1h2CBYEzaZqbIM4nhiJ+FCJxCx0
+         JXXXxUF+h6Ee4DH4hL4EsBDfF5Cq45cpT8+RNjYPO0b5/xehUckR0i1XTqMrXdre+eVz
+         hNmc3VuXk6I7mlBynowuwBRs4qmhqBylCP7/WQ+cwA8FgTlEbAm611HSd++833GdExnZ
+         SoEAimePtX0mL9JUWGWtYz0tGNbLBJYVr2N17rNhBrZZbcAY0u0HShnIOkAy/aJS+wvK
+         FmMQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678475277;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=fK32HCA5CEK3I1OSPAFiJP4orExE4ivImV9o1+O5Pgs=;
+        b=tRouDDTzU7dGTC2fuLsOXoX/+vApNeDdvx3BKmRrz3vyuJA4CpF5Qtnbwa13Khp8fM
+         KpFEaDlVcMnc/61mGLM8NVTBiMPQdJ7vMUIodzC1gbdtGXd+4Wo5KcsGbuV3ORZgZrFC
+         gaH3PxJYYt9I9XBCeTxf/eiwPy2+aNS9jm+EoatcXjEXwNuJDxWeISQEzUMxi5Cchhhk
+         8FxfljtXjDhNVAxiCTZtOBn3XAkwrQ0M4PttugiTjLQgdRwq2T7FiLleX4/Ewm+LqZZP
+         95kZEln8+7qGjoEZd/mFyArFFjZtCiVQigKKPQhy3aH+eGQiVUdfXdcC3BDvDTV5Kl+j
+         1CGA==
+X-Gm-Message-State: AO0yUKWjax7kZDVgdyj5PbQEXYwUxIFfifl/C+blcXHS5f9fGpzvesg7
+        n4N/m5QPUdMzDSKbJYH8UGPQa7tCB7dj
+X-Google-Smtp-Source: AK7set+EM8BzLBCwhTK0DWxwYdJHC/bm5m06bpWqpMb4VNF5gVdI36SpJH1I+JB+DIYaAC09X62RCqRdJSoJ
+X-Received: from meowing-l.c.googlers.com ([fda3:e722:ac3:cc00:24:72f4:c0a8:3eba])
+ (user=maskray job=sendgmr) by 2002:a05:6902:145:b0:ac2:a7a7:23c3 with SMTP id
+ p5-20020a056902014500b00ac2a7a723c3mr11393476ybh.12.1678475277206; Fri, 10
+ Mar 2023 11:07:57 -0800 (PST)
+Date:   Fri, 10 Mar 2023 19:07:50 +0000
+Mime-Version: 1.0
+Message-ID: <20230310190750.3323802-1-maskray@google.com>
+Subject: [PATCH v3] vdso: Improve cmd_vdso_check to check all dynamic relocations
+From:   Fangrui Song <maskray@google.com>
+To:     Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Andy Lutomirski <luto@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Arnd Bergmann <arnd@arndb.de>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-csky@vger.kernel.org, linux-mips@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-riscv@lists.infradead.org,
+        linuxppc-dev@lists.ozlabs.org,
+        linux-arm-kernel@lists.infradead.org,
+        Fangrui Song <maskray@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Test the instruction address used by targets of an execute instruction.
-When the target instruction calculates a relative address, the result is
-relative to the target instruction, not the execute instruction.
+The actual intention is that no dynamic relocation exists. However, some
+GNU ld ports produce unneeded R_*_NONE. (If a port fails to determine
+the exact .rel[a].dyn size, the trailing zeros become R_*_NONE
+relocations. E.g. ld's powerpc port recently fixed
+https://sourceware.org/bugzilla/show_bug.cgi?id=29540) R_*_NONE are
+generally no-op in the dynamic loaders. So just ignore them.
 
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+With the change, we can remove ARCH_REL_TYPE_ABS. ARCH_REL_TYPE_ABS is a
+bit misnomer as ports may check RELAVETIVE/GLOB_DAT/JUMP_SLOT which are
+not called "absolute relocations". (The patch is motivated by the arm64
+port missing R_AARCH64_RELATIVE.)
+
+Signed-off-by: Fangrui Song <maskray@google.com>
+Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Reviewed-by: Vincenzo Frascino <vincenzo.frascino@arm.com> # for vDSO, aarch64
+Tested-by: Vincenzo Frascino <vincenzo.frascino@arm.com> # for aarch64
 ---
+Changes from v2:
+* rebase
 
+Changes from v3:
+* Add a comment before `include $(srctree)/lib/vdso/Makefile` in every touched arch Makefile
+---
+ arch/arm/vdso/Makefile            |  4 +---
+ arch/arm64/kernel/vdso/Makefile   |  4 +---
+ arch/arm64/kernel/vdso32/Makefile |  3 ---
+ arch/csky/kernel/vdso/Makefile    |  4 +---
+ arch/loongarch/vdso/Makefile      |  4 +---
+ arch/mips/vdso/Makefile           |  4 +---
+ arch/powerpc/kernel/vdso/Makefile |  2 +-
+ arch/riscv/kernel/vdso/Makefile   |  4 +---
+ arch/s390/kernel/vdso32/Makefile  |  3 +--
+ arch/s390/kernel/vdso64/Makefile  |  3 +--
+ arch/x86/entry/vdso/Makefile      |  5 +----
+ lib/vdso/Makefile                 | 13 ++++---------
+ 12 files changed, 14 insertions(+), 39 deletions(-)
 
-v4 -> v5:
- * word align the execute-type instruction, preventing a specification
-   exception if the address calculation is wrong, since LLGFRL requires
-   word alignment
- * change wording of comment
-
-v3 -> v4:
- * fix nits (thanks Janosch)
- * pickup R-b (thanks Janosch)
-
-v2 -> v3:
- * add some comments (thanks Janosch)
- * add two new tests (drop Nico's R-b)
- * push prefix
-
-v1 -> v2:
- * add test to unittests.cfg and .gitlab-ci.yml
- * pick up R-b (thanks Nico)
-
-
-TCG does the address calculation relative to the execute instruction.
-Everything that has an operand that is relative to the instruction given by
-the immediate in the instruction and goes through in2_ri2 in TCG has this
-problem, because in2_ri2 does the calculation relative to pc_next which is the
-address of the EX(RL).
-That should make fixing it easier tho.
-
-
-Range-diff against v4:
-1:  f29ef634 ! 1:  57f8f256 s390x: Add tests for execute-type instructions
-    @@ s390x/ex.c (new)
-     +		"	.popsection\n"
-     +
-     +		"	llgfrl	%[target],0b\n"
-    ++		//align (pad with nop), in case the wrong operand is used
-    ++		"	.balignw 4,0x0707\n"
-     +		"	exrl	0,0b\n"
-     +		: [target] "=d" (target),
-     +		  [value] "=d" (value)
-    @@ s390x/ex.c (new)
-     +		"	.popsection\n"
-     +
-     +		"	lrl	%[crl_word],0b\n"
-    -+		//align (pad with nop), in case the wrong bad operand is used
-    ++		//align (pad with nop), in case the wrong operand is used
-     +		"	.balignw 4,0x0707\n"
-     +		"	exrl	0,0b\n"
-     +		"	ipm	%[program_mask]\n"
-
- s390x/Makefile      |   1 +
- s390x/ex.c          | 172 ++++++++++++++++++++++++++++++++++++++++++++
- s390x/unittests.cfg |   3 +
- .gitlab-ci.yml      |   1 +
- 4 files changed, 177 insertions(+)
- create mode 100644 s390x/ex.c
-
-diff --git a/s390x/Makefile b/s390x/Makefile
-index 97a61611..6cf8018b 100644
---- a/s390x/Makefile
-+++ b/s390x/Makefile
-@@ -39,6 +39,7 @@ tests += $(TEST_DIR)/panic-loop-extint.elf
- tests += $(TEST_DIR)/panic-loop-pgm.elf
- tests += $(TEST_DIR)/migration-sck.elf
- tests += $(TEST_DIR)/exittime.elf
-+tests += $(TEST_DIR)/ex.elf
+diff --git a/arch/arm/vdso/Makefile b/arch/arm/vdso/Makefile
+index a7ec06ce3785..515ca33b854c 100644
+--- a/arch/arm/vdso/Makefile
++++ b/arch/arm/vdso/Makefile
+@@ -1,8 +1,6 @@
+ # SPDX-License-Identifier: GPL-2.0
  
- pv-tests += $(TEST_DIR)/pv-diags.elf
+-# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
+-# the inclusion of generic Makefile.
+-ARCH_REL_TYPE_ABS := R_ARM_JUMP_SLOT|R_ARM_GLOB_DAT|R_ARM_ABS32
++# Include the generic Makefile to check the built vdso.
+ include $(srctree)/lib/vdso/Makefile
  
-diff --git a/s390x/ex.c b/s390x/ex.c
-new file mode 100644
-index 00000000..f05f8f90
---- /dev/null
-+++ b/s390x/ex.c
-@@ -0,0 +1,172 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * Copyright IBM Corp. 2023
-+ *
-+ * Test EXECUTE (RELATIVE LONG).
-+ * These instructions execute a target instruction. The target instruction is formed
-+ * by reading an instruction from memory and optionally modifying some of its bits.
-+ * The execution of the target instruction is the same as if it was executed
-+ * normally as part of the instruction sequence, except for the instruction
-+ * address and the instruction-length code.
-+ */
-+
-+#include <libcflat.h>
-+
-+/*
-+ * BRANCH AND SAVE, register register variant.
-+ * Saves the next instruction address (address from PSW + length of instruction)
-+ * to the first register. No branch is taken in this test, because 0 is
-+ * specified as target.
-+ * BASR does *not* perform a relative address calculation with an intermediate.
-+ */
-+static void test_basr(void)
-+{
-+	uint64_t ret_addr, after_ex;
-+
-+	report_prefix_push("BASR");
-+	asm volatile ( ".pushsection .rodata\n"
-+		"0:	basr	%[ret_addr],0\n"
-+		"	.popsection\n"
-+
-+		"	larl	%[after_ex],1f\n"
-+		"	exrl	0,0b\n"
-+		"1:\n"
-+		: [ret_addr] "=d" (ret_addr),
-+		  [after_ex] "=d" (after_ex)
-+	);
-+
-+	report(ret_addr == after_ex, "return address after EX");
-+	report_prefix_pop();
-+}
-+
-+/*
-+ * BRANCH RELATIVE AND SAVE.
-+ * According to PoP (Branch-Address Generation), the address calculated relative
-+ * to the instruction address is relative to BRAS when it is the target of an
-+ * execute-type instruction, not relative to the execute-type instruction.
-+ */
-+static void test_bras(void)
-+{
-+	uint64_t after_target, ret_addr, after_ex, branch_addr;
-+
-+	report_prefix_push("BRAS");
-+	asm volatile ( ".pushsection .text.ex_bras, \"x\"\n"
-+		"0:	bras	%[ret_addr],1f\n"
-+		"	nopr	%%r7\n"
-+		"1:	larl	%[branch_addr],0\n"
-+		"	j	4f\n"
-+		"	.popsection\n"
-+
-+		"	larl	%[after_target],1b\n"
-+		"	larl	%[after_ex],3f\n"
-+		"2:	exrl	0,0b\n"
-+		"3:	larl	%[branch_addr],0\n"
-+		"4:\n"
-+
-+		"	.if (1b - 0b) != (3b - 2b)\n"
-+		"	.error	\"right and wrong target must have same offset\"\n"
-+		"	.endif\n"
-+		: [after_target] "=d" (after_target),
-+		  [ret_addr] "=d" (ret_addr),
-+		  [after_ex] "=d" (after_ex),
-+		  [branch_addr] "=d" (branch_addr)
-+	);
-+
-+	report(after_target == branch_addr, "address calculated relative to BRAS");
-+	report(ret_addr == after_ex, "return address after EX");
-+	report_prefix_pop();
-+}
-+
-+/*
-+ * LOAD ADDRESS RELATIVE LONG.
-+ * If it is the target of an execute-type instruction, the address is relative
-+ * to the LARL.
-+ */
-+static void test_larl(void)
-+{
-+	uint64_t target, addr;
-+
-+	report_prefix_push("LARL");
-+	asm volatile ( ".pushsection .rodata\n"
-+		"0:	larl	%[addr],0\n"
-+		"	.popsection\n"
-+
-+		"	larl	%[target],0b\n"
-+		"	exrl	0,0b\n"
-+		: [target] "=d" (target),
-+		  [addr] "=d" (addr)
-+	);
-+
-+	report(target == addr, "address calculated relative to LARL");
-+	report_prefix_pop();
-+}
-+
-+/* LOAD LOGICAL RELATIVE LONG.
-+ * If it is the target of an execute-type instruction, the address is relative
-+ * to the LLGFRL.
-+ */
-+static void test_llgfrl(void)
-+{
-+	uint64_t target, value;
-+
-+	report_prefix_push("LLGFRL");
-+	asm volatile ( ".pushsection .rodata\n"
-+		"	.balign	4\n"
-+		"0:	llgfrl	%[value],0\n"
-+		"	.popsection\n"
-+
-+		"	llgfrl	%[target],0b\n"
-+		//align (pad with nop), in case the wrong operand is used
-+		"	.balignw 4,0x0707\n"
-+		"	exrl	0,0b\n"
-+		: [target] "=d" (target),
-+		  [value] "=d" (value)
-+	);
-+
-+	report(target == value, "loaded correct value");
-+	report_prefix_pop();
-+}
-+
-+/*
-+ * COMPARE RELATIVE LONG
-+ * If it is the target of an execute-type instruction, the address is relative
-+ * to the CRL.
-+ */
-+static void test_crl(void)
-+{
-+	uint32_t program_mask, cc, crl_word;
-+
-+	report_prefix_push("CRL");
-+	asm volatile ( ".pushsection .rodata\n"
-+		 //operand of crl must be word aligned
-+		 "	.balign	4\n"
-+		"0:	crl	%[crl_word],0\n"
-+		"	.popsection\n"
-+
-+		"	lrl	%[crl_word],0b\n"
-+		//align (pad with nop), in case the wrong operand is used
-+		"	.balignw 4,0x0707\n"
-+		"	exrl	0,0b\n"
-+		"	ipm	%[program_mask]\n"
-+		: [program_mask] "=d" (program_mask),
-+		  [crl_word] "=d" (crl_word)
-+		:: "cc"
-+	);
-+
-+	cc = program_mask >> 28;
-+	report(!cc, "operand compared to is relative to CRL");
-+	report_prefix_pop();
-+}
-+
-+int main(int argc, char **argv)
-+{
-+	report_prefix_push("ex");
-+	test_basr();
-+	test_bras();
-+	test_larl();
-+	test_llgfrl();
-+	test_crl();
-+	report_prefix_pop();
-+
-+	return report_summary();
-+}
-diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
-index d97eb5e9..b61faf07 100644
---- a/s390x/unittests.cfg
-+++ b/s390x/unittests.cfg
-@@ -215,3 +215,6 @@ file = migration-skey.elf
- smp = 2
- groups = migration
- extra_params = -append '--parallel'
-+
-+[execute]
-+file = ex.elf
-diff --git a/.gitlab-ci.yml b/.gitlab-ci.yml
-index ad7949c9..a999f64a 100644
---- a/.gitlab-ci.yml
-+++ b/.gitlab-ci.yml
-@@ -275,6 +275,7 @@ s390x-kvm:
-   - ACCEL=kvm ./run_tests.sh
-       selftest-setup intercept emulator sieve sthyi diag10 diag308 pfmf
-       cmm vector gs iep cpumodel diag288 stsi sclp-1g sclp-3g css skrf sie
-+      execute
-       | tee results.txt
-   - grep -q PASS results.txt && ! grep -q FAIL results.txt
-  only:
-
-base-commit: e3c5c3ef2524c58023073c0fadde2e8ae3c04ec6
+ hostprogs := vdsomunge
+diff --git a/arch/arm64/kernel/vdso/Makefile b/arch/arm64/kernel/vdso/Makefile
+index beaf9586338f..fe7a53c6781f 100644
+--- a/arch/arm64/kernel/vdso/Makefile
++++ b/arch/arm64/kernel/vdso/Makefile
+@@ -6,9 +6,7 @@
+ # Heavily based on the vDSO Makefiles for other archs.
+ #
+ 
+-# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
+-# the inclusion of generic Makefile.
+-ARCH_REL_TYPE_ABS := R_AARCH64_JUMP_SLOT|R_AARCH64_GLOB_DAT|R_AARCH64_ABS64
++# Include the generic Makefile to check the built vdso.
+ include $(srctree)/lib/vdso/Makefile
+ 
+ obj-vdso := vgettimeofday.o note.o sigreturn.o
+diff --git a/arch/arm64/kernel/vdso32/Makefile b/arch/arm64/kernel/vdso32/Makefile
+index f59bd1a4ead6..d014162c5c71 100644
+--- a/arch/arm64/kernel/vdso32/Makefile
++++ b/arch/arm64/kernel/vdso32/Makefile
+@@ -3,9 +3,6 @@
+ # Makefile for vdso32
+ #
+ 
+-# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
+-# the inclusion of generic Makefile.
+-ARCH_REL_TYPE_ABS := R_ARM_JUMP_SLOT|R_ARM_GLOB_DAT|R_ARM_ABS32
+ include $(srctree)/lib/vdso/Makefile
+ 
+ # Same as cc-*option, but using CC_COMPAT instead of CC
+diff --git a/arch/csky/kernel/vdso/Makefile b/arch/csky/kernel/vdso/Makefile
+index 0b6909f10667..299e4e41ebc5 100644
+--- a/arch/csky/kernel/vdso/Makefile
++++ b/arch/csky/kernel/vdso/Makefile
+@@ -1,8 +1,6 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ 
+-# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
+-# the inclusion of generic Makefile.
+-ARCH_REL_TYPE_ABS := R_CKCORE_ADDR32|R_CKCORE_JUMP_SLOT
++# Include the generic Makefile to check the built vdso.
+ include $(srctree)/lib/vdso/Makefile
+ 
+ # Symbols present in the vdso
+diff --git a/arch/loongarch/vdso/Makefile b/arch/loongarch/vdso/Makefile
+index d89e2ac75f7b..461240ab4436 100644
+--- a/arch/loongarch/vdso/Makefile
++++ b/arch/loongarch/vdso/Makefile
+@@ -1,9 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ # Objects to go into the VDSO.
+ 
+-# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
+-# the inclusion of generic Makefile.
+-ARCH_REL_TYPE_ABS := R_LARCH_32|R_LARCH_64|R_LARCH_MARK_LA|R_LARCH_JUMP_SLOT
++# Include the generic Makefile to check the built vdso.
+ include $(srctree)/lib/vdso/Makefile
+ 
+ obj-vdso-y := elf.o vgetcpu.o vgettimeofday.o sigreturn.o
+diff --git a/arch/mips/vdso/Makefile b/arch/mips/vdso/Makefile
+index 18af9474ed0e..eb56581f6d73 100644
+--- a/arch/mips/vdso/Makefile
++++ b/arch/mips/vdso/Makefile
+@@ -4,9 +4,7 @@
+ # Sanitizer runtimes are unavailable and cannot be linked here.
+  KCSAN_SANITIZE			:= n
+ 
+-# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
+-# the inclusion of generic Makefile.
+-ARCH_REL_TYPE_ABS := R_MIPS_JUMP_SLOT|R_MIPS_GLOB_DAT
++# Include the generic Makefile to check the built vdso.
+ include $(srctree)/lib/vdso/Makefile
+ 
+ obj-vdso-y := elf.o vgettimeofday.o sigreturn.o
+diff --git a/arch/powerpc/kernel/vdso/Makefile b/arch/powerpc/kernel/vdso/Makefile
+index 66f723f53be2..4c3f34485f08 100644
+--- a/arch/powerpc/kernel/vdso/Makefile
++++ b/arch/powerpc/kernel/vdso/Makefile
+@@ -2,7 +2,7 @@
+ 
+ # List of files in the vdso, has to be asm only for now
+ 
+-ARCH_REL_TYPE_ABS := R_PPC_JUMP_SLOT|R_PPC_GLOB_DAT|R_PPC_ADDR32|R_PPC_ADDR24|R_PPC_ADDR16|R_PPC_ADDR16_LO|R_PPC_ADDR16_HI|R_PPC_ADDR16_HA|R_PPC_ADDR14|R_PPC_ADDR14_BRTAKEN|R_PPC_ADDR14_BRNTAKEN|R_PPC_REL24
++# Include the generic Makefile to check the built vdso.
+ include $(srctree)/lib/vdso/Makefile
+ 
+ obj-vdso32 = sigtramp32-32.o gettimeofday-32.o datapage-32.o cacheflush-32.o note-32.o getcpu-32.o
+diff --git a/arch/riscv/kernel/vdso/Makefile b/arch/riscv/kernel/vdso/Makefile
+index 06e6b27f3bcc..a04b3bc35ca2 100644
+--- a/arch/riscv/kernel/vdso/Makefile
++++ b/arch/riscv/kernel/vdso/Makefile
+@@ -1,9 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ # Copied from arch/tile/kernel/vdso/Makefile
+ 
+-# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
+-# the inclusion of generic Makefile.
+-ARCH_REL_TYPE_ABS := R_RISCV_32|R_RISCV_64|R_RISCV_JUMP_SLOT
++# Include the generic Makefile to check the built vdso.
+ include $(srctree)/lib/vdso/Makefile
+ # Symbols present in the vdso
+ vdso-syms  = rt_sigreturn
+diff --git a/arch/s390/kernel/vdso32/Makefile b/arch/s390/kernel/vdso32/Makefile
+index 245bddfe9bc0..bafd3147eb4e 100644
+--- a/arch/s390/kernel/vdso32/Makefile
++++ b/arch/s390/kernel/vdso32/Makefile
+@@ -2,9 +2,8 @@
+ # List of files in the vdso
+ 
+ KCOV_INSTRUMENT := n
+-ARCH_REL_TYPE_ABS := R_390_COPY|R_390_GLOB_DAT|R_390_JMP_SLOT|R_390_RELATIVE
+-ARCH_REL_TYPE_ABS += R_390_GOT|R_390_PLT
+ 
++# Include the generic Makefile to check the built vdso.
+ include $(srctree)/lib/vdso/Makefile
+ obj-vdso32 = vdso_user_wrapper-32.o note-32.o
+ 
+diff --git a/arch/s390/kernel/vdso64/Makefile b/arch/s390/kernel/vdso64/Makefile
+index 34f9542636e9..a766d286e15f 100644
+--- a/arch/s390/kernel/vdso64/Makefile
++++ b/arch/s390/kernel/vdso64/Makefile
+@@ -2,9 +2,8 @@
+ # List of files in the vdso
+ 
+ KCOV_INSTRUMENT := n
+-ARCH_REL_TYPE_ABS := R_390_COPY|R_390_GLOB_DAT|R_390_JMP_SLOT|R_390_RELATIVE
+-ARCH_REL_TYPE_ABS += R_390_GOT|R_390_PLT
+ 
++# Include the generic Makefile to check the built vdso.
+ include $(srctree)/lib/vdso/Makefile
+ obj-vdso64 = vdso_user_wrapper.o note.o
+ obj-cvdso64 = vdso64_generic.o getcpu.o
+diff --git a/arch/x86/entry/vdso/Makefile b/arch/x86/entry/vdso/Makefile
+index 1506a22a4fb6..6a1821bd7d5e 100644
+--- a/arch/x86/entry/vdso/Makefile
++++ b/arch/x86/entry/vdso/Makefile
+@@ -3,10 +3,7 @@
+ # Building vDSO images for x86.
+ #
+ 
+-# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
+-# the inclusion of generic Makefile.
+-ARCH_REL_TYPE_ABS := R_X86_64_JUMP_SLOT|R_X86_64_GLOB_DAT|R_X86_64_RELATIVE|
+-ARCH_REL_TYPE_ABS += R_386_GLOB_DAT|R_386_JMP_SLOT|R_386_RELATIVE
++# Include the generic Makefile to check the built vdso.
+ include $(srctree)/lib/vdso/Makefile
+ 
+ # Sanitizer runtimes are unavailable and cannot be linked here.
+diff --git a/lib/vdso/Makefile b/lib/vdso/Makefile
+index e814061d6aa0..9f031eafc465 100644
+--- a/lib/vdso/Makefile
++++ b/lib/vdso/Makefile
+@@ -5,18 +5,13 @@ GENERIC_VDSO_DIR := $(dir $(GENERIC_VDSO_MK_PATH))
+ 
+ c-gettimeofday-$(CONFIG_GENERIC_GETTIMEOFDAY) := $(addprefix $(GENERIC_VDSO_DIR), gettimeofday.c)
+ 
+-# This cmd checks that the vdso library does not contain absolute relocation
++# This cmd checks that the vdso library does not contain dynamic relocations.
+ # It has to be called after the linking of the vdso library and requires it
+ # as a parameter.
+ #
+-# $(ARCH_REL_TYPE_ABS) is defined in the arch specific makefile and corresponds
+-# to the absolute relocation types printed by "objdump -R" and accepted by the
+-# dynamic linker.
+-ifndef ARCH_REL_TYPE_ABS
+-$(error ARCH_REL_TYPE_ABS is not set)
+-endif
+-
++# As a workaround for some GNU ld ports which produce unneeded R_*_NONE
++# dynamic relocations, ignore R_*_NONE.
+ quiet_cmd_vdso_check = VDSOCHK $@
+-      cmd_vdso_check = if $(OBJDUMP) -R $@ | grep -E -h "$(ARCH_REL_TYPE_ABS)"; \
++      cmd_vdso_check = if $(READELF) -rW $@ | grep -v _NONE | grep -q " R_\w*_"; \
+ 		       then (echo >&2 "$@: dynamic relocations are not supported"; \
+ 			     rm -f $@; /bin/false); fi
 -- 
-2.39.1
+2.40.0.rc1.284.g88254d51c5-goog
 
