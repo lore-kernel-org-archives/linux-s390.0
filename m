@@ -2,197 +2,91 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 16486C6FD19
-	for <linux-s390@archiver.kernel.org>; Fri, 10 Mar 2023 23:43:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B880AC6FD19
+	for <linux-s390@archiver.kernel.org>; Fri, 10 Mar 2023 23:45:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231666AbjCJXnO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 10 Mar 2023 18:43:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58968 "EHLO
+        id S231512AbjCJXpq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 10 Mar 2023 18:45:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231713AbjCJXnG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 10 Mar 2023 18:43:06 -0500
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2070.outbound.protection.outlook.com [40.107.223.70])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08AB319C53;
-        Fri, 10 Mar 2023 15:43:00 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=lzGwS5SPfIZWB6/apPo9v3QRVUBUMNr/6COSEdIsvPMAeCMVLtGVGdrHG/Dkv0yxoDaHVySa7eKBW3XZd4QTsBLtK/vb/1NAdzi91GgScLYUKYMy8xAozSaSWFFz9NWf3v3bdBFf7WqoGRypdp2raBweb4jAbf52MXHjKhbu4IarScx95hFganrRKGtMkOrUu3VdlczEVUj3xVMd1Q5AABTc1fE9k12jaURPvqYeiqvv4fpcyfTEwUvUJlOrHVt2LW3UE9PzsTAQgvDPrcLioxNRu7xt8uW7NBaTLvDqvKM21j/bEHg+1yhpM6ZkqmQjcovVy8NE/ROUSTys9YFvKQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=itwey4G+2+kox5P7w8UJfl/DS1gfirKBZVYDB2CzBvM=;
- b=S7PlI0QdhLArPDu/+el7p8a4TkSiWaI1n+1edF7loIwBdtJ4mwHFvHGn7ztu0gSKk61NnVWUKUl5AqqBNub8W7fO60sE1wg1t+FAMnUuP0Sko41OlbhZ5+RVKfLIv2RLj/Ns1FC66/zQmyhllQEz58HHCdQW/xTFvPETr/jq6M9b7uVOuD21hOQDiBmaD+u0yVzClljoUmci/w3u6hIT3Lq6kpFnHYq10sztcKwsfJxvEf5mzuYpOWUljV9ogx5FLFH64LGp7R4Uo3z7FwmQjM/wc95Q5pDVsE4nYt7W4ESqVcOu7qzXl3ZY8CmI/JNWPaDqZgxQhVbP86a7CoSo/A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.118.233) smtp.rcpttodomain=intel.com smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=itwey4G+2+kox5P7w8UJfl/DS1gfirKBZVYDB2CzBvM=;
- b=C7Kk8cN3Gzb272ox0GZ5KqaahlVF4jcZkVsKSnQ+LOxy/j/cnW6ZFL5y4jLUvk6F6zAjWnkbf612W2tBzUnfi1/vKTd8ISKG/thKzCX5L2V10+NQJQeOPQRqo/719qzZSkb/tETI90c3EhHZa83h97AqdErLPL170TOpRQb3gHL1HbmQ1262UwePjVD8TFELnIZHmRLA3QahRT47m/+o/1YLlPFTmzOIkYea4Q1BZrGxCVd/Y+FMpYKiewdp3BdNWJa2QXG+5Qa3BKq9e4d0GD0V6kXekuhlVqLYCRh8X+x9IJs39/AekO//031ynDKCoahvyWexfZKqkt/dFbyt2g==
-Received: from DM6PR01CA0029.prod.exchangelabs.com (2603:10b6:5:296::34) by
- MW4PR12MB5644.namprd12.prod.outlook.com (2603:10b6:303:189::15) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6178.17; Fri, 10 Mar
- 2023 23:42:58 +0000
-Received: from DM6NAM11FT093.eop-nam11.prod.protection.outlook.com
- (2603:10b6:5:296:cafe::92) by DM6PR01CA0029.outlook.office365.com
- (2603:10b6:5:296::34) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6178.20 via Frontend
- Transport; Fri, 10 Mar 2023 23:42:58 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.118.233)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.118.233 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.118.233; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.118.233) by
- DM6NAM11FT093.mail.protection.outlook.com (10.13.172.235) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.6178.20 via Frontend Transport; Fri, 10 Mar 2023 23:42:57 +0000
-Received: from drhqmail201.nvidia.com (10.126.190.180) by mail.nvidia.com
- (10.127.129.6) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.5; Fri, 10 Mar 2023
- 15:42:52 -0800
-Received: from drhqmail202.nvidia.com (10.126.190.181) by
- drhqmail201.nvidia.com (10.126.190.180) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.37; Fri, 10 Mar 2023 15:42:52 -0800
-Received: from Asurada-Nvidia (10.127.8.9) by mail.nvidia.com (10.126.190.181)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.5 via Frontend
- Transport; Fri, 10 Mar 2023 15:42:51 -0800
-Date:   Fri, 10 Mar 2023 15:42:49 -0800
-From:   Nicolin Chen <nicolinc@nvidia.com>
-To:     Yi Liu <yi.l.liu@intel.com>
-CC:     <alex.williamson@redhat.com>, <jgg@nvidia.com>,
-        <kevin.tian@intel.com>, <joro@8bytes.org>, <robin.murphy@arm.com>,
-        <cohuck@redhat.com>, <eric.auger@redhat.com>,
-        <kvm@vger.kernel.org>, <mjrosato@linux.ibm.com>,
-        <chao.p.peng@linux.intel.com>, <yi.y.sun@linux.intel.com>,
-        <peterx@redhat.com>, <jasowang@redhat.com>,
-        <shameerali.kolothum.thodi@huawei.com>, <lulu@redhat.com>,
-        <suravee.suthikulpanit@amd.com>,
-        <intel-gvt-dev@lists.freedesktop.org>,
-        <intel-gfx@lists.freedesktop.org>, <linux-s390@vger.kernel.org>,
-        <xudong.hao@intel.com>, <yan.y.zhao@intel.com>,
-        <terrence.xu@intel.com>
-Subject: Re: [PATCH v6 19/24] vfio-iommufd: Add detach_ioas support for
- emulated VFIO devices
-Message-ID: <ZAvAefwLEj8i13+s@Asurada-Nvidia>
-References: <20230308132903.465159-1-yi.l.liu@intel.com>
- <20230308132903.465159-20-yi.l.liu@intel.com>
+        with ESMTP id S231277AbjCJXpo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 10 Mar 2023 18:45:44 -0500
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1480712B007;
+        Fri, 10 Mar 2023 15:45:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Sender:Content-Transfer-Encoding:
+        MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:
+        Reply-To:Content-Type:Content-ID:Content-Description;
+        bh=BdtDngCz11vLEZXj7V3uC9J00TCr9KSXBOiIikCKO7U=; b=Tmh2ag0sjCovH4EJWWQwXdUxX+
+        tenwk94A3/aExZGoKIycS4E/qwjvw6GBoYfMCn+Ts3UWB9Q8IxsFLVsKIEwRsQCRy1HU5h3V4Z2zz
+        m6HJNegAhauwIIB4ZysU9UXzB0vIIFo8xoHYNHWY3rTbktsNh6Qr2xDGTUm3R7SFdhWczzwQX5pY6
+        CyimNzOoggaPYT46Z0oKm+CeOxCyVPQoniSfJes2rWunXJYH4vwzDGa1nFKSDTPJrdC2vHFw1AHDJ
+        4e7fnVs6H7XBkt3r5su+QCXMkzc1rIdlikYOzfLgGyR/qXn/dg+OnpFliqe0hMsZ0lQfyhZns9S1N
+        P7aN9aeQ==;
+Received: from mcgrof by bombadil.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1pamQS-00Gj2r-0b; Fri, 10 Mar 2023 23:45:28 +0000
+From:   Luis Chamberlain <mcgrof@kernel.org>
+To:     hca@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        linux-s390@vger.kernel.org, sudipm.mukherjee@gmail.com
+Cc:     ebiederm@xmission.com, keescook@chromium.org, yzaikin@google.com,
+        j.granados@samsung.com, patches@lists.linux.dev,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Luis Chamberlain <mcgrof@kernel.org>
+Subject: [PATCH 1/6] s390: simplify one-level sysctl registration for topology_ctl_table
+Date:   Fri, 10 Mar 2023 15:45:20 -0800
+Message-Id: <20230310234525.3986352-2-mcgrof@kernel.org>
+X-Mailer: git-send-email 2.37.1
+In-Reply-To: <20230310234525.3986352-1-mcgrof@kernel.org>
+References: <20230310234525.3986352-1-mcgrof@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <20230308132903.465159-20-yi.l.liu@intel.com>
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DM6NAM11FT093:EE_|MW4PR12MB5644:EE_
-X-MS-Office365-Filtering-Correlation-Id: 993113bb-b0e5-4b90-14b3-08db21c12d92
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: UmIuQzXHC0rMviEsGEZtDnbV4DVkNbXRwaYkNCYZnwVqX4uTFe6g1bgGoyzXpKwOlv3CJJKlxo+okN1TiQbGcHs9egY4ibiUx4FUECOYr5UJeWMcJ8s0Mngew/KZxrmwKKpAARpge0UwfzzG+7cvb/FxmmiDsZJCZQBeyt2uj0mfYqDbsqk3wwibuxYQq+5OJ0Y6u64IMLWJODuqlUuIwvmldHtNQhy4fjm/i7cQeYYqDJb3yCRF4a/eJQEQs9iaC+ZeyF+EX5EHhQPYvdSS1BW/d3c7LpUbKPAwEF5hduICYz1Z7hcGtIfxiI88e1M+1XbSzkpw7wGEVWF6phEzE7ty7nbUA6+mhgq43OeKw3rBgbRbEFdf4a5119vxWzQqXkp160iXwzm8rFYdyWHxrDPf/nWjaI+xNEucJQX78Lxwhz3MvOTge7EHvsekyrYaSMS9AgEjQhEFsVjYRVK0XA9aX7+jp9BOAHt+ssZwynCUcyWlyOd5SFvHyinVdcpKPYsE/NiZotwvEw/mdehsWKEL4jDgIHVMQRVhJvn0a9TaVIoXK0Ft6DzsUAMIaXbSPMKEHtjHvMMrG0Q0idfxkM03u2p0J8+2jtcaYoGjAuSofJjg+jSG80IRsMjwygOn13mOTckf0yjv1OIPZ0mkYDnALNLXR8q2Bty44h6SyOspRw00eg04icofixNuXvBLRW6lJCYMdww6SIk5G2BZrA+lQ5TpMTTmpgw9UntSIBMEVjjj1svIBzIBtf2MbrMt1IzxE7LkclfaYnE5GO0RwQ==
-X-Forefront-Antispam-Report: CIP:216.228.118.233;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge2.nvidia.com;CAT:NONE;SFS:(13230025)(4636009)(346002)(136003)(376002)(396003)(39860400002)(451199018)(40470700004)(46966006)(36840700001)(70586007)(4326008)(426003)(8676002)(6916009)(70206006)(47076005)(2906002)(82310400005)(83380400001)(82740400003)(41300700001)(33716001)(9686003)(186003)(316002)(356005)(54906003)(40480700001)(336012)(5660300002)(478600001)(26005)(36860700001)(8936002)(55016003)(7636003)(86362001)(7416002)(40460700003)(67856001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Mar 2023 23:42:57.8291
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 993113bb-b0e5-4b90-14b3-08db21c12d92
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.118.233];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT093.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW4PR12MB5644
+Content-Transfer-Encoding: 8bit
+Sender: Luis Chamberlain <mcgrof@infradead.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Mar 08, 2023 at 05:28:58AM -0800, Yi Liu wrote:
-> External email: Use caution opening links or attachments
-> 
-> 
-> this prepares for adding DETACH ioctl for emulated VFIO devices.
-> 
-> Signed-off-by: Yi Liu <yi.l.liu@intel.com>
-> Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-> Tested-by: Terrence Xu <terrence.xu@intel.com>
-> Tested-by: Nicolin Chen <nicolinc@nvidia.com>
-> Tested-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> ---
->  drivers/gpu/drm/i915/gvt/kvmgt.c  |  1 +
->  drivers/s390/cio/vfio_ccw_ops.c   |  1 +
->  drivers/s390/crypto/vfio_ap_ops.c |  1 +
->  drivers/vfio/iommufd.c            | 14 +++++++++++++-
->  include/linux/vfio.h              |  3 +++
->  5 files changed, 19 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/gpu/drm/i915/gvt/kvmgt.c b/drivers/gpu/drm/i915/gvt/kvmgt.c
-> index de675d799c7d..9cd9e9da60dd 100644
-> --- a/drivers/gpu/drm/i915/gvt/kvmgt.c
-> +++ b/drivers/gpu/drm/i915/gvt/kvmgt.c
-> @@ -1474,6 +1474,7 @@ static const struct vfio_device_ops intel_vgpu_dev_ops = {
->         .bind_iommufd   = vfio_iommufd_emulated_bind,
->         .unbind_iommufd = vfio_iommufd_emulated_unbind,
->         .attach_ioas    = vfio_iommufd_emulated_attach_ioas,
-> +       .detach_ioas    = vfio_iommufd_emulated_detach_ioas,
->  };
-> 
->  static int intel_vgpu_probe(struct mdev_device *mdev)
-> diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-> index 5b53b94f13c7..cba4971618ff 100644
-> --- a/drivers/s390/cio/vfio_ccw_ops.c
-> +++ b/drivers/s390/cio/vfio_ccw_ops.c
-> @@ -632,6 +632,7 @@ static const struct vfio_device_ops vfio_ccw_dev_ops = {
->         .bind_iommufd = vfio_iommufd_emulated_bind,
->         .unbind_iommufd = vfio_iommufd_emulated_unbind,
->         .attach_ioas = vfio_iommufd_emulated_attach_ioas,
-> +       .detach_ioas = vfio_iommufd_emulated_detach_ioas,
->  };
-> 
->  struct mdev_driver vfio_ccw_mdev_driver = {
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> index 72e10abb103a..9902e62e7a17 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -1844,6 +1844,7 @@ static const struct vfio_device_ops vfio_ap_matrix_dev_ops = {
->         .bind_iommufd = vfio_iommufd_emulated_bind,
->         .unbind_iommufd = vfio_iommufd_emulated_unbind,
->         .attach_ioas = vfio_iommufd_emulated_attach_ioas,
-> +       .detach_ioas = vfio_iommufd_emulated_detach_ioas,
->  };
-> 
->  static struct mdev_driver vfio_ap_matrix_driver = {
-> diff --git a/drivers/vfio/iommufd.c b/drivers/vfio/iommufd.c
-> index c06494e322f9..8a9457d0a33c 100644
-> --- a/drivers/vfio/iommufd.c
-> +++ b/drivers/vfio/iommufd.c
-> @@ -218,8 +218,20 @@ int vfio_iommufd_emulated_attach_ioas(struct vfio_device *vdev, u32 *pt_id)
->  {
->         lockdep_assert_held(&vdev->dev_set->lock);
-> 
-> -       if (!vdev->iommufd_access)
-> +       if (WARN_ON(!vdev->iommufd_access))
->                 return -ENOENT;
->         return iommufd_access_set_ioas(vdev->iommufd_access, *pt_id);
->  }
->  EXPORT_SYMBOL_GPL(vfio_iommufd_emulated_attach_ioas);
-> +
-> +void vfio_iommufd_emulated_detach_ioas(struct vfio_device *vdev)
-> +{
-> +       lockdep_assert_held(&vdev->dev_set->lock);
-> +
-> +       if (WARN_ON(!vdev->iommufd_access))
-> +               return;
-> +
-[...]
-> +       iommufd_access_destroy(vdev->iommufd_access);
-> +       vdev->iommufd_access = NULL;
+There is no need to declare an extra tables to just create directory,
+this can be easily be done with a prefix path with register_sysctl().
 
-After moving access allocation/destroy to bind/unbind, here it
-should be:
-	iommufd_access_set_ioas(vdev->iommufd_access, 0);
+Simplify this registration.
 
-Thanks
-Nic
+Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
+---
+ arch/s390/kernel/topology.c | 12 +-----------
+ 1 file changed, 1 insertion(+), 11 deletions(-)
+
+diff --git a/arch/s390/kernel/topology.c b/arch/s390/kernel/topology.c
+index c6eecd4a5302..e5d6a1c25d13 100644
+--- a/arch/s390/kernel/topology.c
++++ b/arch/s390/kernel/topology.c
+@@ -637,16 +637,6 @@ static struct ctl_table topology_ctl_table[] = {
+ 	{ },
+ };
+ 
+-static struct ctl_table topology_dir_table[] = {
+-	{
+-		.procname	= "s390",
+-		.maxlen		= 0,
+-		.mode		= 0555,
+-		.child		= topology_ctl_table,
+-	},
+-	{ },
+-};
+-
+ static int __init topology_init(void)
+ {
+ 	timer_setup(&topology_timer, topology_timer_fn, TIMER_DEFERRABLE);
+@@ -654,7 +644,7 @@ static int __init topology_init(void)
+ 		set_topology_timer();
+ 	else
+ 		topology_update_polarization_simple();
+-	register_sysctl_table(topology_dir_table);
++	register_sysctl("s390", topology_ctl_table);
+ 	return device_create_file(cpu_subsys.dev_root, &dev_attr_dispatching);
+ }
+ device_initcall(topology_init);
+-- 
+2.39.1
+
