@@ -2,143 +2,212 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F5BCC61DA4
-	for <linux-s390@archiver.kernel.org>; Mon, 13 Mar 2023 13:16:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E3AA0C6FD19
+	for <linux-s390@archiver.kernel.org>; Mon, 13 Mar 2023 16:39:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229735AbjCMNQ3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 13 Mar 2023 09:16:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52112 "EHLO
+        id S231500AbjCMQjm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 13 Mar 2023 12:39:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229619AbjCMNQ2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 13 Mar 2023 09:16:28 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04A9E48E2D;
-        Mon, 13 Mar 2023 06:16:21 -0700 (PDT)
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32DCMBc8020399;
-        Mon, 13 Mar 2023 13:16:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : content-type : in-reply-to :
- mime-version; s=pp1; bh=QNtstb2+hN/959P/zIKmgULZ08GeCrSa7kKZDxyzbT0=;
- b=PpifbRplUaY4x1gWqDqStqAzyy8PpQTjvaaUKxASrcko6kzxqzrOQ5iXwSWLUlCUKHO+
- uXmBgHf/T6x/lF+8gl6oHnQJLbM8lSI1KDrzZFk50t3ocYNYyAIFYNNrF79IEf2TgUt0
- S8l9eP0RSQ4EO2Ser7aXo2rzbFYY7zKRZ5J5XgJLcrHkE79Nuy3MCk4Bqz9ES6xXAoSU
- tAEKXmt5dWl3vKut6QQCqVEdNECyoZ/5TAR+BVV2k/s3mTPQFnM3S89tx66t0b1VH2B5
- QCqfkBtE4GtFzuAsPBhS0l/AVWJbEVc1Xu2R1eE0pFg3d57G5KDkGkE61GXN9BhHmvLZ Ew== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3pa3sbsh2j-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 13 Mar 2023 13:16:12 +0000
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32DCNL4t024217;
-        Mon, 13 Mar 2023 13:16:12 GMT
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3pa3sbsh1j-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 13 Mar 2023 13:16:11 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32D97poO005437;
-        Mon, 13 Mar 2023 13:16:10 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-        by ppma04fra.de.ibm.com (PPS) with ESMTPS id 3p8h96jmmc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 13 Mar 2023 13:16:10 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32DDG5wn53608718
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 13 Mar 2023 13:16:06 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7FFAD2004B;
-        Mon, 13 Mar 2023 13:16:05 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7F9DB20040;
-        Mon, 13 Mar 2023 13:16:04 +0000 (GMT)
-Received: from localhost (unknown [9.171.94.54])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Mon, 13 Mar 2023 13:16:04 +0000 (GMT)
-Date:   Mon, 13 Mar 2023 14:16:03 +0100
-From:   Vasily Gorbik <gor@linux.ibm.com>
-To:     Luis Chamberlain <mcgrof@kernel.org>
-Cc:     hca@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        linux-s390@vger.kernel.org, sudipm.mukherjee@gmail.com,
-        ebiederm@xmission.com, keescook@chromium.org, yzaikin@google.com,
-        j.granados@samsung.com, patches@lists.linux.dev,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/6] s390: simplify sysctl registration
-Message-ID: <your-ad-here.call-01678713363-ext-0026@work.hours>
-References: <20230310234525.3986352-1-mcgrof@kernel.org>
+        with ESMTP id S231501AbjCMQjN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 13 Mar 2023 12:39:13 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2E9D113C3
+        for <linux-s390@vger.kernel.org>; Mon, 13 Mar 2023 09:38:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1678725486;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=78igvgOk38uDPKDzMiKif9HvbOkagL1dDGYolpUI3FE=;
+        b=X177QMBLU9UdVdF07y632m4cYxH8dioT+LCx3Ne1o61LryRgII+KKuMyiPESdCzn8JC9oG
+        Cn0ho06xRof6FM288Jk8Tw2/9sbtGG19ZlyuBY1RrJcIxBCcrGD+chAiZJaNyS8SLnst1A
+        FWkFOaYu4uG6mOSrNLrK5jE8HOfWGkY=
+Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com
+ [209.85.222.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-558-jXcho6mAN_utnU-YiMps6w-1; Mon, 13 Mar 2023 12:38:05 -0400
+X-MC-Unique: jXcho6mAN_utnU-YiMps6w-1
+Received: by mail-qk1-f198.google.com with SMTP id w21-20020a05620a129500b00745727f18bdso1845756qki.23
+        for <linux-s390@vger.kernel.org>; Mon, 13 Mar 2023 09:38:05 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678725485;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=78igvgOk38uDPKDzMiKif9HvbOkagL1dDGYolpUI3FE=;
+        b=ERodnidltX1RuZmPx94ISZIFDYaXljTk+WvfA/IOdrQyE9e6pdN6sj27arZzKLTIYQ
+         GmqyWjPxtt6Ap4XSyWbsfMnxLmYOLJyYNwBxfAZ994jsZQmz8UsPOLuyrZRRuJ5NuZKU
+         cQ3dfiYFq5cKuEwsXxqB2t6ylwih13IffLjHKjyZXCnxY8Ye2LyEzvWHK7u6Snvl8yD1
+         nCwu3CVZBYtQIis1S70DovbAz+cuj6AmYg0idv4Ou+bSmtxzgcVSUGzW0+DU8+dcPW5N
+         8V0yt6pelqcGp74f3JGl+//nDo4Wbvgm1lVcLxRBbFY4g5kjVPk4VINd5VeVY+dh5cw6
+         7Jig==
+X-Gm-Message-State: AO0yUKW5itts8fCGCYvxlmc9Q0FGTHEyyy96UAon1UcM3yPWjVWoc9tN
+        bc56VT/C0fJdMrW4vJBg1qz8bc590GpRs1d9JFKHEAdIWLLOYjAFZSuJrvfUNlbmJsA/5AtoWkr
+        SBbgoAPJ4gcbsMM1HoVYC5g==
+X-Received: by 2002:a05:622a:24a:b0:3bf:d00e:9908 with SMTP id c10-20020a05622a024a00b003bfd00e9908mr63989587qtx.44.1678725485151;
+        Mon, 13 Mar 2023 09:38:05 -0700 (PDT)
+X-Google-Smtp-Source: AK7set9VJ2Dyt1o3ORTCoZCC+0TvSho4td2XplM1YX/gdaLeHFmXpjWvJXdAErLgTsskCJtyIRRl7g==
+X-Received: by 2002:a05:622a:24a:b0:3bf:d00e:9908 with SMTP id c10-20020a05622a024a00b003bfd00e9908mr63989534qtx.44.1678725484782;
+        Mon, 13 Mar 2023 09:38:04 -0700 (PDT)
+Received: from localhost.localdomain ([2a00:23c6:4a21:6f01:ac73:9611:643a:5397])
+        by smtp.gmail.com with ESMTPSA id f15-20020ac8470f000000b003bfc0cca1b7sm131557qtp.49.2023.03.13.09.38.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 13 Mar 2023 09:38:04 -0700 (PDT)
+Date:   Mon, 13 Mar 2023 16:37:59 +0000
+From:   Juri Lelli <juri.lelli@redhat.com>
+To:     Qais Yousef <qyousef@layalina.io>
+Cc:     Hao Luo <haoluo@google.com>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Waiman Long <longman@redhat.com>,
+        Steven Rostedt <rostedt@goodmis.org>, tj@kernel.org,
+        linux-kernel@vger.kernel.org, luca.abeni@santannapisa.it,
+        claudio@evidence.eu.com, tommaso.cucinotta@santannapisa.it,
+        bristot@redhat.com, mathieu.poirier@linaro.org,
+        cgroups@vger.kernel.org,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Wei Wang <wvw@google.com>, Rick Yiu <rickyiu@google.com>,
+        Quentin Perret <qperret@google.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Zefan Li <lizefan.x@bytedance.com>, linux-s390@vger.kernel.org,
+        x86@kernel.org
+Subject: Re: [PATCH v3] sched: cpuset: Don't rebuild root domains on
+ suspend-resume
+Message-ID: <ZA9RZ3VvGXKp+1L6@localhost.localdomain>
+References: <20230228174627.vja5aejq27dsta2u@airbuntu>
+ <Y/7/SLzvK8LfB29z@localhost.localdomain>
+ <20230301122852.zgzreby42lh2zf6w@airbuntu>
+ <Y/9gmDRlGOChIwpf@localhost.localdomain>
+ <20230301170322.xthlso7jfkixlyex@airbuntu>
+ <ZAhhGi55BkYkc3ss@localhost.localdomain>
+ <CA+khW7hmE0tECG2qfKW1HN9yLVOLUn5Zzx4Rz-wHYDtSUPYotw@mail.gmail.com>
+ <ZAmCzJQZl7j/m2oN@localhost.localdomain>
+ <CA+khW7iAeTALH5b6upHXs1RotFBohVeZCcAp5H+r-=L05kqnww@mail.gmail.com>
+ <20230311185150.stvtcbdkoofgn3wd@airbuntu>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20230310234525.3986352-1-mcgrof@kernel.org>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: PB3D0CYJhEnZXA1LJb5IZPi3J2e08O7s
-X-Proofpoint-GUID: 1iKSK_DEV1qp-G_C1J0r5O6yt1vnxs-o
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
-MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-03-13_05,2023-03-13_02,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 spamscore=0
- adultscore=0 lowpriorityscore=0 priorityscore=1501 mlxscore=0
- impostorscore=0 malwarescore=0 bulkscore=0 mlxlogscore=985 clxscore=1015
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2303130106
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20230311185150.stvtcbdkoofgn3wd@airbuntu>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Mar 10, 2023 at 03:45:19PM -0800, Luis Chamberlain wrote:
-> s390 is the last architecture and one of the last users of
-> register_sysctl_table(). It was last becuase it had one use case
-> with dynamic memory allocation and it just required a bit more
-> thought.
+On 11/03/23 18:51, Qais Yousef wrote:
+> On 03/09/23 14:23, Hao Luo wrote:
+> > On Wed, Mar 8, 2023 at 10:55 PM Juri Lelli <juri.lelli@redhat.com> wrote:
+> > >
+> > > On 08/03/23 10:01, Hao Luo wrote:
+> > > > On Wed, Mar 8, 2023 at 2:20 AM Juri Lelli <juri.lelli@redhat.com> wrote:
+> > > > >
+> > > > > On 01/03/23 17:03, Qais Yousef wrote:
+> > > > > > On 03/01/23 15:26, Juri Lelli wrote:
+> > > > <...>
+> > > > > > > BTW, do you have a repro script of some sort handy I might play with?
+> > > > > >
+> > > > > > Sorry no. You'll just need to suspend to ram. I had a simple patch to measure
+> > > > > > the time around the call and trace_printk'ed the result.
+> > > > > >
+> > > > > > I was working on a android phone which just suspends to ram if you turn the
+> > > > > > screen off and disconnect the usb.
+> > > > >
+> > > > > Looks like I could come up with the following
+> > > > >
+> > > > > https://github.com/jlelli/linux.git deadline/rework-cpusets
+> > > > > https://github.com/jlelli/linux/tree/deadline/rework-cpusets
+> > > > >
+> > > > > which I don't think it's at a point that I feel comfortable to propose
+> > > > > as an RFC (not even sure if it actually makes sense), but it survived my
+> > > > > very light testing.
+> > > > >
+> > > > > Could you please take a look and, if it makes some sense in theory, give
+> > > > > it a try on your end?
+> > > > >
+> > > >
+> > > > Hi Juri,
+> > > >
+> > > > Thanks for coming up with the RFC. I can test your changes in the
+> > > > server environment. I observed the same issue on my side and I can
+> > > > reproduce.
+> > > >
+> > > > I sync'ed up with Qais offline earlier yesterday, and was preparing a
+> > > > couple of patches that optimize the cpuset.cpus writes. Tracking dl
+> > > > tasks in cpusets is one of them. But I am happy to take your patches
+> > > > and do the testing. Note that I won't be able to test the dl part of
+> > > > the patch, only the latency impact on rebuild_root_domains(), as we
+> > > > don't have dl tasks in our system.
+> > > >
+> > > > The other patch is fixing cpuset_rwsem. I see you switched it back to
+> > > > mutex. I did observe performance issues with cpuset_rwsem. Basically,
+> > > > using percpu_rwsem generates very very long latency tails for writers,
+> > > > but mutex doesn't. After some debugging, I found it was because
+> > > > percpu_rwsem requires every writer to call a synchronize_rcu() for
+> > > > acquiring the lock. So in my patches, I disabled the fastpath of
+> > > > readers for cpuset_rwsem. This has been done before[1]. But mutex also
+> > > > worked.
+> > > >
+> > > > Anyway, I'm happy to test your patches and ack once they are sent out.
+> > >
+> > > Do you strictly need a proper RFC or could you please test the above for
+> > > now? If you could please do the latter, and if tests look ok, I could
+> > > then put together proper changelogs etc. and propose an RFC (it would
+> > > save me some time not to do that if the above doesn't work, apologies
+> > > for not going the proper route from the start). Guess this question
+> > > applies to Qais as well. Hummm, or maybe you are actually saying that
+> > > you are indeed going to test them already, just wanted to make sure
+> > > then. :)
+> > 
+> > Juri, I ported your patches to a 5.10 kernel, because my workload can
+> > only run on 5.10. But unfortunately the kernel crashed at
+> > cpuset_can_attach(). I'll put a few comments in your github branch.
 > 
-> This is all being done to help reduce code and avoid usage of API
-> calls for sysctl registration that can incur recusion. The recursion
-> only happens when you have subdirectories with entries and s390 does
-> not have any of that so either way recursion is avoided. Long term
-> though we can do away with just removing register_sysctl_table()
-> and then using ARRAY_SIZE() and save us tons of memory all over the
-> place by not having to add an extra empty entry all over.
+> Yeah I am working on 5.10 too (this will need to be backported to 5.10 and 5.15
+> ultimately) and had the same crash because task is NULL.
 > 
-> Hopefully that commit log suffices for the dynamic allocation
-> conversion, but I would really like someone to test it as I haven't
-> tested a single patch, I'm super guiltly to accept I've just waited for
-> patches to finish compile testing and that's not over yet.
+> Fixed it this way which I think what you intended to do Juri? It moves the
+> check for dl_task(task) inside cgroup_taskset_for_each() loop.
 > 
-> Anyway the changes other than the dynamic allocation one are pretty
-> trivial. That one could use some good review.
-> 
-> With all this out of the way we have just one stupid last user of
-> register_sysctl_table(): drivers/parport/procfs.c
-> 
-> That one is also dynamic. Hopefully the maintainer will be motivated
-> to do that conversion with all the examples out there now and this
-> having a complex one.
-> 
-> For more information refer to the new docs:
-> 
-> https://lore.kernel.org/all/20230310223947.3917711-1-mcgrof@kernel.org/T/#u     
->  
-> Luis Chamberlain (6):
->   s390: simplify one-level sysctl registration for topology_ctl_table
->   s390: simplify one-level syctl registration for s390dbf_table
->   s390: simplify one-level sysctl registration for appldata_table
->   s390: simplify one level sysctl registration for cmm_table
->   s390: simplify one-level sysctl registration for page_table_sysctl
->   s390: simplify dynamic sysctl registration for appldata_register_ops
-> 
->  arch/s390/appldata/appldata_base.c | 30 ++++++++----------------------
->  arch/s390/kernel/debug.c           | 12 +-----------
->  arch/s390/kernel/topology.c        | 12 +-----------
->  arch/s390/mm/cmm.c                 | 12 +-----------
->  arch/s390/mm/pgalloc.c             | 12 +-----------
->  5 files changed, 12 insertions(+), 66 deletions(-)
+> 	diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
+> 	index 83a8943467fb..06d6bb68d86b 100644
+> 	--- a/kernel/cgroup/cpuset.c
+> 	+++ b/kernel/cgroup/cpuset.c
+> 	@@ -2495,11 +2495,11 @@ static int cpuset_can_attach(struct cgroup_taskset *tset)
+> 			ret = security_task_setscheduler(task);
+> 			if (ret)
+> 				goto out_unlock;
+> 	-       }
+> 	 
+> 	-       if (dl_task(task)) {
+> 	-               cs->deadline_tasks++;
+> 	-               cpuset_attach_old_cs->deadline_tasks--;
+> 	+               if (dl_task(task)) {
+> 	+                       cs->deadline_tasks++;
+> 	+                       cpuset_attach_old_cs->deadline_tasks--;
+> 	+               }
+> 		}
+> 	 
+> 		/*
 
-I've added my
-Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
-for the entire patch series.
+Duh, indeed.
 
-And applied with the fixup for last change (see corresponding reply).
-Thank you!
+> Like Hao I don't have any deadline tasks in the system. With the fix above
+> I don't notice the delay on suspend resume using your patches.
+
+OK, cool.
+
+> If you want any debug; please feel free to add them into your branch so I can
+> run with that and give you the log.
+
+Will need to find time to run some tests with DEADLINE tasks, yeah.
+Maybe Dietmar, since you reported as well the issue above with your
+testing, you could help with testing DEADLINE?
+
+Thanks,
+Juri
+
