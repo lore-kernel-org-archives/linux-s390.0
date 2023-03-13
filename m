@@ -2,150 +2,168 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AEFB6C61DA4
-	for <linux-s390@archiver.kernel.org>; Mon, 13 Mar 2023 12:37:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1BD85C6FD19
+	for <linux-s390@archiver.kernel.org>; Mon, 13 Mar 2023 13:13:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229548AbjCMMh5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 13 Mar 2023 08:37:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39060 "EHLO
+        id S230063AbjCMNNq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 13 Mar 2023 09:13:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229524AbjCMMh4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 13 Mar 2023 08:37:56 -0400
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 62E7B1CAF8;
-        Mon, 13 Mar 2023 05:37:54 -0700 (PDT)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 6F8904B3;
-        Mon, 13 Mar 2023 05:38:37 -0700 (PDT)
-Received: from [192.168.178.6] (unknown [172.31.20.19])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 6D5453F64C;
-        Mon, 13 Mar 2023 05:37:49 -0700 (PDT)
-Message-ID: <e81ffc13-a89e-d43e-18d1-10d9e0161638@arm.com>
-Date:   Mon, 13 Mar 2023 13:37:48 +0100
+        with ESMTP id S230431AbjCMNNh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 13 Mar 2023 09:13:37 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 022078A50;
+        Mon, 13 Mar 2023 06:13:34 -0700 (PDT)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32DCqKH0032618;
+        Mon, 13 Mar 2023 13:13:18 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=Z6c8czDRDXgZsRSOblHEeb0yKGSpJxQjXaWCL6Vfv+Y=;
+ b=eFTeyYmlLDlPgk4CXjnXrTmXNrG7moZDpO3st6Z4FD/9/bwZwtHlCRV2rJCReTEmoywR
+ iSs8mROz8VsW2U3799wdITEQYQA8ziwqE90EvLXqRmo/2buVUWOpsi9LWIPhssNMNvzv
+ +CXopoPyMe70c3vZCld6GHZZqyqRIdT5nMOQmmfY2yS06Gfjb6zAOd2oHC5lwgkAcf4w
+ R6DZDM4JEY7jdSkMDH/ocbDFhjZPBXNWRhBcWC9HMwNVZTvIToITivjiLJOldGAA8XQb
+ PBtLnIF8jUY+XRiPusQpUnmKY7OF/vgi6SwFz3sRBH20x4khIIGDv4HgoKJTfWsfYFt2 fg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3p93k2pcjj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 13 Mar 2023 13:13:18 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32DCXbZv014441;
+        Mon, 13 Mar 2023 13:13:18 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3p93k2pchd-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 13 Mar 2023 13:13:18 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32D2fdtF028633;
+        Mon, 13 Mar 2023 13:13:15 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3p8h96kd70-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 13 Mar 2023 13:13:15 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32DDDCk430540170
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 13 Mar 2023 13:13:12 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1774A20040;
+        Mon, 13 Mar 2023 13:13:12 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1F9CE2004B;
+        Mon, 13 Mar 2023 13:13:11 +0000 (GMT)
+Received: from localhost (unknown [9.171.94.54])
+        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Mon, 13 Mar 2023 13:13:11 +0000 (GMT)
+Date:   Mon, 13 Mar 2023 14:13:09 +0100
+From:   Vasily Gorbik <gor@linux.ibm.com>
+To:     Luis Chamberlain <mcgrof@kernel.org>
+Cc:     hca@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        linux-s390@vger.kernel.org, sudipm.mukherjee@gmail.com,
+        ebiederm@xmission.com, keescook@chromium.org, yzaikin@google.com,
+        j.granados@samsung.com, patches@lists.linux.dev,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 6/6] s390: simplify dynamic sysctl registration for
+ appldata_register_ops
+Message-ID: <your-ad-here.call-01678713189-ext-6022@work.hours>
+References: <20230310234525.3986352-1-mcgrof@kernel.org>
+ <20230310234525.3986352-7-mcgrof@kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
-Subject: Re: [PATCH v3] sched: cpuset: Don't rebuild root domains on
- suspend-resume
-Content-Language: en-US
-To:     Juri Lelli <juri.lelli@redhat.com>,
-        Qais Yousef <qyousef@layalina.io>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Waiman Long <longman@redhat.com>,
-        Steven Rostedt <rostedt@goodmis.org>, tj@kernel.org,
-        linux-kernel@vger.kernel.org, luca.abeni@santannapisa.it,
-        claudio@evidence.eu.com, tommaso.cucinotta@santannapisa.it,
-        bristot@redhat.com, mathieu.poirier@linaro.org,
-        cgroups@vger.kernel.org,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Wei Wang <wvw@google.com>, Rick Yiu <rickyiu@google.com>,
-        Quentin Perret <qperret@google.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Zefan Li <lizefan.x@bytedance.com>, linux-s390@vger.kernel.org,
-        x86@kernel.org
-References: <20230206221428.2125324-1-qyousef@layalina.io>
- <20230223153859.37tqoqk33oc6tv7o@airbuntu>
- <5f087dd8-3e39-ce83-fe24-afa5179c05d9@arm.com>
- <20230227205725.dipvh3i7dvyrv4tv@airbuntu>
- <5a1e58bf-7eb2-bd7a-7e19-7864428a2b83@arm.com>
- <20230228174627.vja5aejq27dsta2u@airbuntu>
- <Y/7/SLzvK8LfB29z@localhost.localdomain>
- <20230301122852.zgzreby42lh2zf6w@airbuntu>
- <Y/9gmDRlGOChIwpf@localhost.localdomain>
- <20230301170322.xthlso7jfkixlyex@airbuntu>
- <ZAhhGi55BkYkc3ss@localhost.localdomain>
-From:   Dietmar Eggemann <dietmar.eggemann@arm.com>
-In-Reply-To: <ZAhhGi55BkYkc3ss@localhost.localdomain>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20230310234525.3986352-7-mcgrof@kernel.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: f3O5qYrIdmMrOFJsZlZhauzbbIhotcZ_
+X-Proofpoint-GUID: fhDbawH6TznfU3UDeaB02Csjum17WPqX
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-03-13_05,2023-03-13_02,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxscore=0
+ adultscore=0 spamscore=0 impostorscore=0 clxscore=1011 malwarescore=0
+ bulkscore=0 lowpriorityscore=0 priorityscore=1501 mlxlogscore=999
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2303130102
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 08/03/2023 11:19, Juri Lelli wrote:
-> On 01/03/23 17:03, Qais Yousef wrote:
->> On 03/01/23 15:26, Juri Lelli wrote:
->>> On 01/03/23 12:28, Qais Yousef wrote:
->>>> On 03/01/23 08:31, Juri Lelli wrote:
->>>
->>> ...
->>>
->>>>> Not ignoring you guys here, but it turns out I'm quite bogged down with
->>>>> other stuff at the moment. :/ So, apologies and I'll try to get to this
->>>>> asap. Thanks a lot for all your efforts and time reviewing so far!
->>>>
->>>> Np, I can feel you :-)
->>>
->>> Eh. :/
->>
->> I hope I did not offend. That was meant as no pressure, I understand.
-> 
-> No offence at all! I meant "we are all on the same boat it seems". :)
-> 
->>> BTW, do you have a repro script of some sort handy I might play with?
->>
->> Sorry no. You'll just need to suspend to ram. I had a simple patch to measure
->> the time around the call and trace_printk'ed the result.
->>
->> I was working on a android phone which just suspends to ram if you turn the
->> screen off and disconnect the usb.
-> 
-> Looks like I could come up with the following
-> 
-> https://github.com/jlelli/linux.git deadline/rework-cpusets
-> https://github.com/jlelli/linux/tree/deadline/rework-cpusets
-> 
-> which I don't think it's at a point that I feel comfortable to propose
-> as an RFC (not even sure if it actually makes sense), but it survived my
-> very light testing.
-> 
-> Could you please take a look and, if it makes some sense in theory, give
-> it a try on your end?
+On Fri, Mar 10, 2023 at 03:45:25PM -0800, Luis Chamberlain wrote:
+> The routine appldata_register_ops() allocates a sysctl table
+> with 4 entries. The firsts one,   ops->ctl_table[0] is the parent directory
+> with an empty entry following it, ops->ctl_table[1]. The next entry is
+> for the the ops->name and that is ops->ctl_table[2]. It needs an empty
 
-sched/cpuset: Keep track of SCHED_DEADLINE task in cpusets
+for the ops->name
 
-@@ -2474,6 +2494,11 @@ static int cpuset_can_attach(struct
-cgroup_taskset *tset)
-                        goto out_unlock;
+> entry following that, and that is ops->ctl_table[3]. And so hence the
+> kcalloc(4, sizeof(struct ctl_table), GFP_KERNEL).
+> 
+> We can simplify this considerably since sysctl_register("foo", table)
+> can create the parent directory for us if it does not exist. So we
+> can just remove the first two entries and move back the ops->name to
+> the first entry, and just use kcalloc(2, ...).
+> 
+> Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
+> ---
+>  arch/s390/appldata/appldata_base.c | 18 +++++++-----------
+>  1 file changed, 7 insertions(+), 11 deletions(-)
+> 
+> diff --git a/arch/s390/appldata/appldata_base.c b/arch/s390/appldata/appldata_base.c
+> index c593f2228083..a60c1e093039 100644
+> --- a/arch/s390/appldata/appldata_base.c
+> +++ b/arch/s390/appldata/appldata_base.c
+> @@ -351,7 +351,8 @@ int appldata_register_ops(struct appldata_ops *ops)
+>  	if (ops->size > APPLDATA_MAX_REC_SIZE)
+>  		return -EINVAL;
+>  
+> -	ops->ctl_table = kcalloc(4, sizeof(struct ctl_table), GFP_KERNEL);
+> +	/* The last entry must be an empty one */
+> +	ops->ctl_table = kcalloc(2, sizeof(struct ctl_table), GFP_KERNEL);
+>  	if (!ops->ctl_table)
+>  		return -ENOMEM;
+>  
+> @@ -359,17 +360,12 @@ int appldata_register_ops(struct appldata_ops *ops)
+>  	list_add(&ops->list, &appldata_ops_list);
+>  	mutex_unlock(&appldata_ops_mutex);
+>  
+> -	ops->ctl_table[0].procname = appldata_proc_name;
+> -	ops->ctl_table[0].maxlen   = 0;
+> -	ops->ctl_table[0].mode     = S_IRUGO | S_IXUGO;
+> -	ops->ctl_table[0].child    = &ops->ctl_table[2];
+> +	ops->ctl_table[0].procname = ops->name;
+> +	ops->ctl_table[0].mode     = S_IRUGO | S_IWUSR;
+> +	ops->ctl_table[0].proc_handler = appldata_generic_handler;
+> +	ops->ctl_table[0].data = ops;
+>  
+> -	ops->ctl_table[2].procname = ops->name;
+> -	ops->ctl_table[2].mode     = S_IRUGO | S_IWUSR;
+> -	ops->ctl_table[2].proc_handler = appldata_generic_handler;
+> -	ops->ctl_table[2].data = ops;
+> -
+> -	ops->sysctl_header = register_sysctl_table(ops->ctl_table);
+> +	ops->sysctl_header = register_sysctl(appldata_proc_name, ops->ctl_table);
+>  	if (!ops->sysctl_header)
+>  		goto out;
+>  	return 0;
+> -- 
+> 2.39.1
+
+I'll take it with the commit message change mentioned above and the following fixup,
+which addresses the obvious problem found during testing:
+---
+diff --git a/arch/s390/appldata/appldata_base.c b/arch/s390/appldata/appldata_base.c
+index a60c1e093039..f462d60679d7 100644
+--- a/arch/s390/appldata/appldata_base.c
++++ b/arch/s390/appldata/appldata_base.c
+@@ -281,7 +281,7 @@ appldata_generic_handler(struct ctl_table *ctl, int write,
+        mutex_lock(&appldata_ops_mutex);
+        list_for_each(lh, &appldata_ops_list) {
+                tmp_ops = list_entry(lh, struct appldata_ops, list);
+-               if (&tmp_ops->ctl_table[2] == ctl) {
++               if (&tmp_ops->ctl_table[0] == ctl) {
+                        found = 1;
+                }
         }
-
-+       if (dl_task(task)) {
-+               cs->deadline_tasks++;
-+               cpuset_attach_old_cs->deadline_tasks--;
-+       }
-+
-
-This one looks odd. task is NULL here ?
-
-If you move a DL task from one cpuset to another this happens now:
-
-root@juno:~# ps2 | grep DLN
-   82    82 140      0   - DLN sugov:0
-   83    83 140      0   - DLN sugov:1
- 1615  1616 140      0   - DLN thread0-0
- 1615  1617 140      0   - DLN thread0-1
- 1615  1618 140      0   - DLN thread0-2
- 1615  1619 140      0   - DLN thread0-3
- 1615  1620 140      0   - DLN thread0-4
- 1615  1621 140      0   - DLN thread0-5
- 1615  1622 140      0   - DLN thread0-6
- 1615  1623 140      0   - DLN thread0-7
- 1615  1624 140      0   - DLN thread0-8
- 1615  1625 140      0   - DLN thread0-9
- 1615  1626 140      0   - DLN thread0-10
- 1615  1627 140      0   - DLN thread0-11 <--
-
-root@juno:~# cd /sys/fs/cgroup/cpuset
-root@juno:~# mkdir cs1
-root@juno:~# echo 0 > cs1/cpuset.mems
-root@juno:~# echo 0,3-5 > cs1/cpuset.cpus
-
-root@juno:~# echo 1627 > cs1/tasks
-
-root@juno:~# [  154.968900] *** task=0000000000000000
-
-[...]
+--
