@@ -2,60 +2,61 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EFA67C6FD19
-	for <linux-s390@archiver.kernel.org>; Mon, 13 Mar 2023 10:10:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B0FC4C61DA4
+	for <linux-s390@archiver.kernel.org>; Mon, 13 Mar 2023 10:11:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229669AbjCMKK6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 13 Mar 2023 06:10:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34052 "EHLO
+        id S229528AbjCMKLF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 13 Mar 2023 06:11:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229666AbjCMKKy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 13 Mar 2023 06:10:54 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB81859425;
-        Mon, 13 Mar 2023 03:10:53 -0700 (PDT)
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32D8cBWt007431;
-        Mon, 13 Mar 2023 10:10:49 GMT
+        with ESMTP id S229814AbjCMKLC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 13 Mar 2023 06:11:02 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A08B45A6D8;
+        Mon, 13 Mar 2023 03:11:01 -0700 (PDT)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32D8FTch037843;
+        Mon, 13 Mar 2023 10:10:59 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=yIpyKidNzUrsMfRRiAsb3QCwAL7DNwZMIsufom65Xq0=;
- b=PZQ+Q1ekO1/Pbt42WSKxwHaX6maTVS6cl7yYqaYggfQJQJ6LgZEH0KEhHMjoKVPejkjn
- yIYFtHTFtoKd7qozFh4hrN2HO3Pm2RYhnNlvvt7H31QB3eo9m21En6ypeppaAMcajsjY
- uYnLi78Q/Yc9UNkpqF27t9YURS/4GeOqRtWHYVhBNCHlCxRBWhEasioOvF5Pk+1D3T4Y
- spoS2zPajz0Qt4ftsVaiDjod0JPEw3uI3/mVXYYDmHbJtMv7/n36ELjkym+ALADFtZGe
- xM3TvlN/z3H7pcUmmPLgj6FAN1fXSMT/ddzCrOjxBtXdtbxphL4w/qRWpbwUTHRxxZ7n hA== 
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=lumjpXht7sUpU7ICH/lQ23GpVkmK5qyBXp3Yi0tDLts=;
+ b=IYinD63xRaY2xOH9fnWAO1VG++JklIVQbOL+xKdVaE/zavhegY31dW/xwGlVChBxRhPP
+ qhn2dUt+fA5eMP9l4zUQENcI/00oxJ/Co9M0NoBtmzyMdbJ1Iw4JVu9tp0pIjyZPCZm4
+ XDHVC9YKakcyPN2DhuUZIfzG3Zv2ROBUL7kOHCGSfZH7M94uulzAjtfUU00Tpu1XRv50
+ 9hHGlRNB4H0om8p+MoADjODGoUVFC5M8lomw9/g8Ze5qOBUrsxEpkQFgnHtBGQsTLw4b
+ hn5dB8FS6UE+YvH0iM6lbg6HB+zTFpmgUTYRGq5pYApaS/mNA8Rb040MoZFha/iCHWi+ 5w== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3p93t1h4sr-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3p93q9sb1u-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 13 Mar 2023 10:10:49 +0000
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32D8FePE029492;
-        Mon, 13 Mar 2023 10:10:49 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3p93t1h4rw-1
+        Mon, 13 Mar 2023 10:10:59 +0000
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32D8CvNc032050;
+        Mon, 13 Mar 2023 10:10:58 GMT
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3p93q9sb16-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 13 Mar 2023 10:10:48 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32D3BDjk028730;
-        Mon, 13 Mar 2023 10:10:46 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3p8h96k5js-1
+        Mon, 13 Mar 2023 10:10:58 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32CJk4tp006974;
+        Mon, 13 Mar 2023 10:10:55 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma04fra.de.ibm.com (PPS) with ESMTPS id 3p8h96jet6-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 13 Mar 2023 10:10:44 +0000
+        Mon, 13 Mar 2023 10:10:55 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32DAAf4p2490964
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32DAApdk60621150
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 13 Mar 2023 10:10:41 GMT
+        Mon, 13 Mar 2023 10:10:51 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 358EE2022D;
-        Mon, 13 Mar 2023 10:10:41 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 4C2D820230;
+        Mon, 13 Mar 2023 10:10:50 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 46B8620229;
-        Mon, 13 Mar 2023 10:10:37 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 2BA242022A;
+        Mon, 13 Mar 2023 10:10:46 +0000 (GMT)
 Received: from MBP-von-Wenjia.fritz.box.com (unknown [9.163.87.100])
         by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon, 13 Mar 2023 10:10:36 +0000 (GMT)
+        Mon, 13 Mar 2023 10:10:45 +0000 (GMT)
 From:   Wenjia Zhang <wenjia@linux.ibm.com>
 To:     David Miller <davem@davemloft.net>,
         Jakub Kicinski <kuba@kernel.org>
@@ -69,39 +70,49 @@ Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
         Stefan Raspl <raspl@linux.ibm.com>,
         Tony Lu <tonylu@linux.alibaba.com>,
         Wenjia Zhang <wenjia@linux.ibm.com>
-Subject: [PATCH net-next 0/2] smc: Updates 2023-03-01
-Date:   Mon, 13 Mar 2023 11:10:30 +0100
-Message-Id: <20230313101032.13180-1-wenjia@linux.ibm.com>
+Subject: [PATCH net-next 2/2] net/ism: Remove extra include
+Date:   Mon, 13 Mar 2023 11:10:32 +0100
+Message-Id: <20230313101032.13180-3-wenjia@linux.ibm.com>
 X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230313101032.13180-1-wenjia@linux.ibm.com>
+References: <20230313101032.13180-1-wenjia@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 7lhaiegyHoRflJyjCbX2ng4tw4J8zNN_
-X-Proofpoint-ORIG-GUID: -YiyoWtLFyna92yqBPmldULb5I92u8Vh
+X-Proofpoint-GUID: Z1I37zyQ9gNYn5UFO9HpJHen6vbaHB-f
+X-Proofpoint-ORIG-GUID: iDB0HLnoBziZoi5v4AVAkCuZvPZ1ITyb
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-03-13_02,2023-03-10_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- malwarescore=0 bulkscore=0 clxscore=1015 mlxscore=0 phishscore=0
- spamscore=0 suspectscore=0 mlxlogscore=641 impostorscore=0 adultscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ definitions=2023-03-13_03,2023-03-10_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 malwarescore=0
+ lowpriorityscore=0 adultscore=0 priorityscore=1501 impostorscore=0
+ phishscore=0 bulkscore=0 mlxscore=0 mlxlogscore=826 spamscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2212070000 definitions=main-2303130082
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The 1st patch is to make implements later do not need to adhere to a
-specific SEID format. The 2nd patch does some cleanup.
+From: Stefan Raspl <raspl@linux.ibm.com>
 
-Stefan Raspl (2):
-  net/smc: Introduce explicit check for v2 support
-  net/ism: Remove extra include
+Signed-off-by: Stefan Raspl <raspl@linux.ibm.com>
+Signed-off-by: Wenjia Zhang <wenjia@linux.ibm.com>
+---
+ drivers/s390/net/ism_drv.c | 1 -
+ 1 file changed, 1 deletion(-)
 
- drivers/s390/net/ism_drv.c | 8 +++++++-
- include/net/smc.h          | 1 +
- net/smc/smc_ism.c          | 2 +-
- 3 files changed, 9 insertions(+), 2 deletions(-)
-
+diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
+index 1c73d32966f1..05749c877990 100644
+--- a/drivers/s390/net/ism_drv.c
++++ b/drivers/s390/net/ism_drv.c
+@@ -11,7 +11,6 @@
+ #include <linux/types.h>
+ #include <linux/interrupt.h>
+ #include <linux/device.h>
+-#include <linux/pci.h>
+ #include <linux/err.h>
+ #include <linux/ctype.h>
+ #include <linux/processor.h>
 -- 
 2.37.2
 
