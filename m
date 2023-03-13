@@ -2,120 +2,150 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 393A9C6FD1C
-	for <linux-s390@archiver.kernel.org>; Mon, 13 Mar 2023 11:19:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AEFB6C61DA4
+	for <linux-s390@archiver.kernel.org>; Mon, 13 Mar 2023 12:37:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230005AbjCMLTR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 13 Mar 2023 07:19:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39170 "EHLO
+        id S229548AbjCMMh5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 13 Mar 2023 08:37:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229999AbjCMLTN (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 13 Mar 2023 07:19:13 -0400
-Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F7C727D5C;
-        Mon, 13 Mar 2023 04:19:07 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R941e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0Vdm4vjq_1678706344;
-Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0Vdm4vjq_1678706344)
-          by smtp.aliyun-inc.com;
-          Mon, 13 Mar 2023 19:19:05 +0800
-Date:   Mon, 13 Mar 2023 19:19:04 +0800
-From:   Tony Lu <tonylu@linux.alibaba.com>
-To:     Wenjia Zhang <wenjia@linux.ibm.com>
-Cc:     David Miller <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Alexandra Winter <wintera@linux.ibm.com>,
-        Jan Karcher <jaka@linux.ibm.com>,
-        Stefan Raspl <raspl@linux.ibm.com>
-Subject: Re: [PATCH net-next 1/2] net/smc: Introduce explicit check for v2
- support
-Message-ID: <ZA8GqKJ1v2Ns4030@TONYMAC-ALIBABA.local>
-Reply-To: Tony Lu <tonylu@linux.alibaba.com>
-References: <20230313101032.13180-1-wenjia@linux.ibm.com>
- <20230313101032.13180-2-wenjia@linux.ibm.com>
+        with ESMTP id S229524AbjCMMh4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 13 Mar 2023 08:37:56 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 62E7B1CAF8;
+        Mon, 13 Mar 2023 05:37:54 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 6F8904B3;
+        Mon, 13 Mar 2023 05:38:37 -0700 (PDT)
+Received: from [192.168.178.6] (unknown [172.31.20.19])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 6D5453F64C;
+        Mon, 13 Mar 2023 05:37:49 -0700 (PDT)
+Message-ID: <e81ffc13-a89e-d43e-18d1-10d9e0161638@arm.com>
+Date:   Mon, 13 Mar 2023 13:37:48 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230313101032.13180-2-wenjia@linux.ibm.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.7.1
+Subject: Re: [PATCH v3] sched: cpuset: Don't rebuild root domains on
+ suspend-resume
+Content-Language: en-US
+To:     Juri Lelli <juri.lelli@redhat.com>,
+        Qais Yousef <qyousef@layalina.io>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Waiman Long <longman@redhat.com>,
+        Steven Rostedt <rostedt@goodmis.org>, tj@kernel.org,
+        linux-kernel@vger.kernel.org, luca.abeni@santannapisa.it,
+        claudio@evidence.eu.com, tommaso.cucinotta@santannapisa.it,
+        bristot@redhat.com, mathieu.poirier@linaro.org,
+        cgroups@vger.kernel.org,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Wei Wang <wvw@google.com>, Rick Yiu <rickyiu@google.com>,
+        Quentin Perret <qperret@google.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Zefan Li <lizefan.x@bytedance.com>, linux-s390@vger.kernel.org,
+        x86@kernel.org
+References: <20230206221428.2125324-1-qyousef@layalina.io>
+ <20230223153859.37tqoqk33oc6tv7o@airbuntu>
+ <5f087dd8-3e39-ce83-fe24-afa5179c05d9@arm.com>
+ <20230227205725.dipvh3i7dvyrv4tv@airbuntu>
+ <5a1e58bf-7eb2-bd7a-7e19-7864428a2b83@arm.com>
+ <20230228174627.vja5aejq27dsta2u@airbuntu>
+ <Y/7/SLzvK8LfB29z@localhost.localdomain>
+ <20230301122852.zgzreby42lh2zf6w@airbuntu>
+ <Y/9gmDRlGOChIwpf@localhost.localdomain>
+ <20230301170322.xthlso7jfkixlyex@airbuntu>
+ <ZAhhGi55BkYkc3ss@localhost.localdomain>
+From:   Dietmar Eggemann <dietmar.eggemann@arm.com>
+In-Reply-To: <ZAhhGi55BkYkc3ss@localhost.localdomain>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Mar 13, 2023 at 11:10:31AM +0100, Wenjia Zhang wrote:
-> From: Stefan Raspl <raspl@linux.ibm.com>
+On 08/03/2023 11:19, Juri Lelli wrote:
+> On 01/03/23 17:03, Qais Yousef wrote:
+>> On 03/01/23 15:26, Juri Lelli wrote:
+>>> On 01/03/23 12:28, Qais Yousef wrote:
+>>>> On 03/01/23 08:31, Juri Lelli wrote:
+>>>
+>>> ...
+>>>
+>>>>> Not ignoring you guys here, but it turns out I'm quite bogged down with
+>>>>> other stuff at the moment. :/ So, apologies and I'll try to get to this
+>>>>> asap. Thanks a lot for all your efforts and time reviewing so far!
+>>>>
+>>>> Np, I can feel you :-)
+>>>
+>>> Eh. :/
+>>
+>> I hope I did not offend. That was meant as no pressure, I understand.
 > 
-> Previously, v2 support was derived from a very specific format of the SEID
-> as part of the SMC-D codebase. Make this part of the SMC-D device API, so
-> implementers do not need to adhere to a specific SEID format.
+> No offence at all! I meant "we are all on the same boat it seems". :)
 > 
-> Signed-off-by: Stefan Raspl <raspl@linux.ibm.com>
-> Reviewed-and-tested-by: Jan Karcher <jaka@linux.ibm.com>
-> Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
-> Signed-off-by: Wenjia Zhang <wenjia@linux.ibm.com>
-
-This solved my doubts about the magic number, and helps the extensions
-of SMC-D. Thank you.
-
-Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
-
-> ---
->  drivers/s390/net/ism_drv.c | 7 +++++++
->  include/net/smc.h          | 1 +
->  net/smc/smc_ism.c          | 2 +-
->  3 files changed, 9 insertions(+), 1 deletion(-)
+>>> BTW, do you have a repro script of some sort handy I might play with?
+>>
+>> Sorry no. You'll just need to suspend to ram. I had a simple patch to measure
+>> the time around the call and trace_printk'ed the result.
+>>
+>> I was working on a android phone which just suspends to ram if you turn the
+>> screen off and disconnect the usb.
 > 
-> diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
-> index eb7e13486087..1c73d32966f1 100644
-> --- a/drivers/s390/net/ism_drv.c
-> +++ b/drivers/s390/net/ism_drv.c
-> @@ -842,6 +842,12 @@ static int smcd_move(struct smcd_dev *smcd, u64 dmb_tok, unsigned int idx,
->  	return ism_move(smcd->priv, dmb_tok, idx, sf, offset, data, size);
->  }
->  
-> +static int smcd_supports_v2(void)
-> +{
-> +	return SYSTEM_EID.serial_number[0] != '0' ||
-> +		SYSTEM_EID.type[0] != '0';
-> +}
-> +
->  static u64 smcd_get_local_gid(struct smcd_dev *smcd)
->  {
->  	return ism_get_local_gid(smcd->priv);
-> @@ -869,6 +875,7 @@ static const struct smcd_ops ism_ops = {
->  	.reset_vlan_required = smcd_reset_vlan_required,
->  	.signal_event = smcd_signal_ieq,
->  	.move_data = smcd_move,
-> +	.supports_v2 = smcd_supports_v2,
->  	.get_system_eid = ism_get_seid,
->  	.get_local_gid = smcd_get_local_gid,
->  	.get_chid = smcd_get_chid,
-> diff --git a/include/net/smc.h b/include/net/smc.h
-> index 597cb9381182..a002552be29c 100644
-> --- a/include/net/smc.h
-> +++ b/include/net/smc.h
-> @@ -67,6 +67,7 @@ struct smcd_ops {
->  	int (*move_data)(struct smcd_dev *dev, u64 dmb_tok, unsigned int idx,
->  			 bool sf, unsigned int offset, void *data,
->  			 unsigned int size);
-> +	int (*supports_v2)(void);
->  	u8* (*get_system_eid)(void);
->  	u64 (*get_local_gid)(struct smcd_dev *dev);
->  	u16 (*get_chid)(struct smcd_dev *dev);
-> diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
-> index 3b0b7710c6b0..fbee2493091f 100644
-> --- a/net/smc/smc_ism.c
-> +++ b/net/smc/smc_ism.c
-> @@ -429,7 +429,7 @@ static void smcd_register_dev(struct ism_dev *ism)
->  		u8 *system_eid = NULL;
->  
->  		system_eid = smcd->ops->get_system_eid();
-> -		if (system_eid[24] != '0' || system_eid[28] != '0') {
-> +		if (smcd->ops->supports_v2()) {
->  			smc_ism_v2_capable = true;
->  			memcpy(smc_ism_v2_system_eid, system_eid,
->  			       SMC_MAX_EID_LEN);
-> -- 
-> 2.37.2
+> Looks like I could come up with the following
+> 
+> https://github.com/jlelli/linux.git deadline/rework-cpusets
+> https://github.com/jlelli/linux/tree/deadline/rework-cpusets
+> 
+> which I don't think it's at a point that I feel comfortable to propose
+> as an RFC (not even sure if it actually makes sense), but it survived my
+> very light testing.
+> 
+> Could you please take a look and, if it makes some sense in theory, give
+> it a try on your end?
+
+sched/cpuset: Keep track of SCHED_DEADLINE task in cpusets
+
+@@ -2474,6 +2494,11 @@ static int cpuset_can_attach(struct
+cgroup_taskset *tset)
+                        goto out_unlock;
+        }
+
++       if (dl_task(task)) {
++               cs->deadline_tasks++;
++               cpuset_attach_old_cs->deadline_tasks--;
++       }
++
+
+This one looks odd. task is NULL here ?
+
+If you move a DL task from one cpuset to another this happens now:
+
+root@juno:~# ps2 | grep DLN
+   82    82 140      0   - DLN sugov:0
+   83    83 140      0   - DLN sugov:1
+ 1615  1616 140      0   - DLN thread0-0
+ 1615  1617 140      0   - DLN thread0-1
+ 1615  1618 140      0   - DLN thread0-2
+ 1615  1619 140      0   - DLN thread0-3
+ 1615  1620 140      0   - DLN thread0-4
+ 1615  1621 140      0   - DLN thread0-5
+ 1615  1622 140      0   - DLN thread0-6
+ 1615  1623 140      0   - DLN thread0-7
+ 1615  1624 140      0   - DLN thread0-8
+ 1615  1625 140      0   - DLN thread0-9
+ 1615  1626 140      0   - DLN thread0-10
+ 1615  1627 140      0   - DLN thread0-11 <--
+
+root@juno:~# cd /sys/fs/cgroup/cpuset
+root@juno:~# mkdir cs1
+root@juno:~# echo 0 > cs1/cpuset.mems
+root@juno:~# echo 0,3-5 > cs1/cpuset.cpus
+
+root@juno:~# echo 1627 > cs1/tasks
+
+root@juno:~# [  154.968900] *** task=0000000000000000
+
+[...]
