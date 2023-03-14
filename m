@@ -2,218 +2,162 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4AE76C6FD1D
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Mar 2023 11:38:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 46303C7618A
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Mar 2023 11:41:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231439AbjCNLia convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 14 Mar 2023 07:38:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39080 "EHLO
+        id S231444AbjCNLlz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Mar 2023 07:41:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231470AbjCNLiT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Mar 2023 07:38:19 -0400
-Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B04A9B2EE;
-        Tue, 14 Mar 2023 04:38:14 -0700 (PDT)
-Received: from lhrpeml100006.china.huawei.com (unknown [172.18.147.206])
-        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4PbWhw6hm9z6J78V;
-        Tue, 14 Mar 2023 19:37:20 +0800 (CST)
-Received: from lhrpeml500005.china.huawei.com (7.191.163.240) by
- lhrpeml100006.china.huawei.com (7.191.160.224) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.21; Tue, 14 Mar 2023 11:38:11 +0000
-Received: from lhrpeml500005.china.huawei.com ([7.191.163.240]) by
- lhrpeml500005.china.huawei.com ([7.191.163.240]) with mapi id 15.01.2507.021;
- Tue, 14 Mar 2023 11:38:11 +0000
-From:   Shameerali Kolothum Thodi <shameerali.kolothum.thodi@huawei.com>
-To:     Nicolin Chen <nicolinc@nvidia.com>
-CC:     "Xu, Terrence" <terrence.xu@intel.com>,
-        "Liu, Yi L" <yi.l.liu@intel.com>, Jason Gunthorpe <jgg@nvidia.com>,
-        "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
-        "Tian, Kevin" <kevin.tian@intel.com>,
-        "joro@8bytes.org" <joro@8bytes.org>,
-        "robin.murphy@arm.com" <robin.murphy@arm.com>,
-        "cohuck@redhat.com" <cohuck@redhat.com>,
-        "eric.auger@redhat.com" <eric.auger@redhat.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
-        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
-        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
-        "peterx@redhat.com" <peterx@redhat.com>,
-        "jasowang@redhat.com" <jasowang@redhat.com>,
-        "lulu@redhat.com" <lulu@redhat.com>,
-        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "Hao, Xudong" <xudong.hao@intel.com>,
-        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
-        Zhangfei Gao <zhangfei.gao@linaro.org>
-Subject: RE: [PATCH v5 00/19] Add vfio_device cdev for iommufd support
-Thread-Topic: [PATCH v5 00/19] Add vfio_device cdev for iommufd support
-Thread-Index: AQHZSpxHUh/YYv3qukeFp+lKFtoCf67jLB2AgACBDoCAAOlEAIAAn5IAgAIKi/CAAO3wAIAA+kPAgAEQJQCABt1mAIAJIAFQ
-Date:   Tue, 14 Mar 2023 11:38:11 +0000
-Message-ID: <90a277ea100d496b82f8cc84388bbca2@huawei.com>
-References: <20230227111135.61728-1-yi.l.liu@intel.com>
- <Y/0Cr/tcNCzzIAhi@nvidia.com>
- <DS0PR11MB7529A422D4361B39CCA3D248C3AC9@DS0PR11MB7529.namprd11.prod.outlook.com>
- <SA1PR11MB5873479F73CFBAA170717624F0AC9@SA1PR11MB5873.namprd11.prod.outlook.com>
- <Y/64ejbhMiV77uUA@Asurada-Nvidia>
- <b7c1f9d5b4b647f0b0686c3b99f3d006@huawei.com>
- <ZAE2J0I1LiBjWUnm@Asurada-Nvidia>
- <d59a0262d5bf423c9e49ad4ac6015296@huawei.com>
- <ZALspPvvLGFuK96F@Asurada-Nvidia> 
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [10.202.227.178]
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+        with ESMTP id S230310AbjCNLlx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Mar 2023 07:41:53 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 2128F9BE11;
+        Tue, 14 Mar 2023 04:41:50 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 57C7C4B3;
+        Tue, 14 Mar 2023 04:42:33 -0700 (PDT)
+Received: from [192.168.178.6] (unknown [172.31.20.19])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 19EF23F67D;
+        Tue, 14 Mar 2023 04:41:45 -0700 (PDT)
+Message-ID: <f2eb03be-53dc-73db-ede9-99ecbb189782@arm.com>
+Date:   Tue, 14 Mar 2023 12:41:36 +0100
 MIME-Version: 1.0
-X-CFilter-Loop: Reflected
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.7.1
+Subject: Re: [PATCH v3] sched: cpuset: Don't rebuild root domains on
+ suspend-resume
+Content-Language: en-US
+From:   Dietmar Eggemann <dietmar.eggemann@arm.com>
+To:     Juri Lelli <juri.lelli@redhat.com>,
+        Qais Yousef <qyousef@layalina.io>
+Cc:     Hao Luo <haoluo@google.com>, Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Waiman Long <longman@redhat.com>,
+        Steven Rostedt <rostedt@goodmis.org>, tj@kernel.org,
+        linux-kernel@vger.kernel.org, luca.abeni@santannapisa.it,
+        claudio@evidence.eu.com, tommaso.cucinotta@santannapisa.it,
+        bristot@redhat.com, mathieu.poirier@linaro.org,
+        cgroups@vger.kernel.org,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Wei Wang <wvw@google.com>, Rick Yiu <rickyiu@google.com>,
+        Quentin Perret <qperret@google.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Zefan Li <lizefan.x@bytedance.com>, linux-s390@vger.kernel.org,
+        x86@kernel.org
+References: <20230228174627.vja5aejq27dsta2u@airbuntu>
+ <Y/7/SLzvK8LfB29z@localhost.localdomain>
+ <20230301122852.zgzreby42lh2zf6w@airbuntu>
+ <Y/9gmDRlGOChIwpf@localhost.localdomain>
+ <20230301170322.xthlso7jfkixlyex@airbuntu>
+ <ZAhhGi55BkYkc3ss@localhost.localdomain>
+ <CA+khW7hmE0tECG2qfKW1HN9yLVOLUn5Zzx4Rz-wHYDtSUPYotw@mail.gmail.com>
+ <ZAmCzJQZl7j/m2oN@localhost.localdomain>
+ <CA+khW7iAeTALH5b6upHXs1RotFBohVeZCcAp5H+r-=L05kqnww@mail.gmail.com>
+ <20230311185150.stvtcbdkoofgn3wd@airbuntu>
+ <ZA9RZ3VvGXKp+1L6@localhost.localdomain>
+ <7070da53-a5a7-6965-5604-abee3cae9d46@arm.com>
+In-Reply-To: <7070da53-a5a7-6965-5604-abee3cae9d46@arm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-> -----Original Message-----
-> From: Shameerali Kolothum Thodi
-> Sent: 08 March 2023 15:55
-> To: 'Nicolin Chen' <nicolinc@nvidia.com>
-> Cc: Xu, Terrence <terrence.xu@intel.com>; Liu, Yi L <yi.l.liu@intel.com>;
-> Jason Gunthorpe <jgg@nvidia.com>; alex.williamson@redhat.com; Tian,
-> Kevin <kevin.tian@intel.com>; joro@8bytes.org; robin.murphy@arm.com;
-> cohuck@redhat.com; eric.auger@redhat.com; kvm@vger.kernel.org;
-> mjrosato@linux.ibm.com; chao.p.peng@linux.intel.com;
-> yi.y.sun@linux.intel.com; peterx@redhat.com; jasowang@redhat.com;
-> lulu@redhat.com; suravee.suthikulpanit@amd.com;
-> intel-gvt-dev@lists.freedesktop.org; intel-gfx@lists.freedesktop.org;
-> linux-s390@vger.kernel.org; Hao, Xudong <xudong.hao@intel.com>; Zhao,
-> Yan Y <yan.y.zhao@intel.com>
-> Subject: RE: [PATCH v5 00/19] Add vfio_device cdev for iommufd support
+On 13/03/2023 18:10, Dietmar Eggemann wrote:
+> On 13/03/2023 17:37, Juri Lelli wrote:
+>> On 11/03/23 18:51, Qais Yousef wrote:
+>>> On 03/09/23 14:23, Hao Luo wrote:
+>>>> On Wed, Mar 8, 2023 at 10:55 PM Juri Lelli <juri.lelli@redhat.com> wrote:
+>>>>>
+>>>>> On 08/03/23 10:01, Hao Luo wrote:
+>>>>>> On Wed, Mar 8, 2023 at 2:20 AM Juri Lelli <juri.lelli@redhat.com> wrote:
+>>>>>>>
+>>>>>>> On 01/03/23 17:03, Qais Yousef wrote:
+>>>>>>>> On 03/01/23 15:26, Juri Lelli wrote:
 > 
-
-[...]
-> > > > On Thu, Mar 02, 2023 at 09:43:00AM +0000, Shameerali Kolothum
-> > > > Thodi
-> > > > wrote:
-> > > >
-> > > > > Hi Nicolin,
-> > > > >
-> > > > > Thanks for the latest ARM64 branch. Do you have a working Qemu
-> > > > > branch
-> > > > corresponding to the
-> > > > > above one?
-> > > > >
-> > > > > I tried the
-> > > >
-> >
-> https://github.com/nicolinc/qemu/tree/wip/iommufd_rfcv3%2Bnesting%2B
-> > > > smmuv3
-> > > > > but for some reason not able to launch the Guest.
-> > > > >
-> > > > > Please let me know.
-> > > >
-> > > > I do use that branch. It might not be that robust though as it
-> > > > went through a big rebase.
-> > >
-> > > Ok. The issue seems to be quite random in nature and only happens
-> > > when there are multiple vCPUs. Also doesn't look like related to
-> > > VFIO device assignment as I can reproduce Guest hang without it by
-> > > only having nested-smmuv3 and iommufd object.
-> > >
-> > > ./qemu-system-aarch64-iommuf -machine
-> > > virt,gic-version=3,iommu=nested-smmuv3,iommufd=iommufd0 \
-> > -enable-kvm
-> > > -cpu host -m 1G -smp cpus=8,maxcpus=8 \ -object
-> iommufd,id=iommufd0
-> > \
-> > > -bios QEMU_EFI.fd \ -kernel Image-6.2-iommufd \ -initrd
-> > > rootfs-iperf.cpio \ -net none \ -nographic \ -append "rdinit=init
-> > > console=ttyAMA0 root=/dev/vda rw earlycon=pl011,0x9000000" \ -trace
-> > > events=events \ -D trace_iommufd
-> > >
-> > > When the issue happens, no output on terminal as if Qemu is in a
-> > > locked
-> > state.
-> > >
-> > >  Can you try with the followings?
-> > > >
-> > > > --trace "iommufd*" --trace "smmu*" --trace "vfio_*" --trace "pci_*"
-> > > > --trace "msi_*" --trace "nvme_*"
-> > >
-> > > The only trace events with above are this,
-> > >
-> > > iommufd_backend_connect fd=22 owned=1 users=1 (0) smmu_add_mr
-> > > smmuv3-iommu-memory-region-0-0
-> > >
-> > > I haven't debugged this further. Please let me know if issue is
-> > > reproducible with multiple vCPUs at your end. For now will focus on
-> > > VFIO
-> > dev specific tests.
-> >
-> > Oh. My test environment has been a single-core vCPU. So that doesn't
-> > happen to me. Can you try a vanilla QEMU branch that our nesting
-> > branch is rebased on? I took a branch from Yi as the baseline, while
-> > he might take from Eric for the rfcv3.
-> >
-> > I am guessing that it might be an issue in the common tree.
+> [...]
 > 
-> Yes, that looks like the case.
-> I tried with:
->  commit 13356edb8750("Merge tag 'block-pull-request' of
-> https://gitlab.com/stefanha/qemu into staging")
+>>> Yeah I am working on 5.10 too (this will need to be backported to 5.10 and 5.15
+>>> ultimately) and had the same crash because task is NULL.
+>>>
+>>> Fixed it this way which I think what you intended to do Juri? It moves the
+>>> check for dl_task(task) inside cgroup_taskset_for_each() loop.
+>>>
+>>> 	diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
+>>> 	index 83a8943467fb..06d6bb68d86b 100644
+>>> 	--- a/kernel/cgroup/cpuset.c
+>>> 	+++ b/kernel/cgroup/cpuset.c
+>>> 	@@ -2495,11 +2495,11 @@ static int cpuset_can_attach(struct cgroup_taskset *tset)
+>>> 			ret = security_task_setscheduler(task);
+>>> 			if (ret)
+>>> 				goto out_unlock;
+>>> 	-       }
+>>> 	 
+>>> 	-       if (dl_task(task)) {
+>>> 	-               cs->deadline_tasks++;
+>>> 	-               cpuset_attach_old_cs->deadline_tasks--;
+>>> 	+               if (dl_task(task)) {
+>>> 	+                       cs->deadline_tasks++;
+>>> 	+                       cpuset_attach_old_cs->deadline_tasks--;
+>>> 	+               }
+>>> 		}
+>>> 	 
+>>> 		/*
+>>
+>> Duh, indeed.
+>>
+>>> Like Hao I don't have any deadline tasks in the system. With the fix above
+>>> I don't notice the delay on suspend resume using your patches.
+>>
+>> OK, cool.
+>>
+>>> If you want any debug; please feel free to add them into your branch so I can
+>>> run with that and give you the log.
+>>
+>> Will need to find time to run some tests with DEADLINE tasks, yeah.
+>> Maybe Dietmar, since you reported as well the issue above with your
+>> testing, you could help with testing DEADLINE?
 > 
-> And issue is still there. So hopefully once we rebase everything it will go
-> away.
+> Ah, now I see! It's the same issue I saw. And it's not specifically
+> related to DL tasks. Any tasks which you move into a cpuset will trigger
+> this.
+> Yeah, can do some DL tests later on this fix.
 
-Hi Nicolin,
+This fix also works for my DL test.
 
-I rebased your latest Qemu branch[1] on top of v7.2.0 and not observed
-the above issue so far. However noticed couple of other issues when
-we try to hot add/remove devices.
+root@juno:~# ps2 | grep DLN
+   83    83 140      0   - DLN sugov:0
+   84    84 140      0   - DLN sugov:1
+ 1601  1602 140      0   - DLN thread0-0
+ 1601  1603 140      0   - DLN thread0-1
+ 1601  1604 140      0   - DLN thread0-2
+ 1601  1605 140      0   - DLN thread0-3
+ 1601  1606 140      0   - DLN thread0-4
+ 1601  1607 140      0   - DLN thread0-5
+ 1601  1608 140      0   - DLN thread0-6
+ 1601  1609 140      0   - DLN thread0-7
+ 1601  1610 140      0   - DLN thread0-8
+ 1601  1611 140      0   - DLN thread0-9
+ 1601  1612 140      0   - DLN thread0-10
+ 1601  1613 140      0   - DLN thread0-11
 
-(qemu) device_del net1
-qemu-system-aarch64-iommufd: Failed to free id: 4 Inappropriate ioctl for device
-qemu-system-aarch64-iommufd: IOMMU_IOAS_UNMAP failed: No such file or directory
-qemu-system-aarch64-iommufd: vfio_dma_unmap(0xaaaaf587a3d0, 0x8000101000, 0xf000) = -2 (No such file or directory)
-qemu-system-aarch64-iommufd: IOMMU_IOAS_UNMAP failed: No such file or directory
-qemu-system-aarch64-iommufd: vfio_dma_unmap(0xaaaaf587a3d0, 0x8000000000, 0x100000) = -2 (No such file or directory)
-qemu-system-aarch64-iommufd: Failed to free id:1 Device or resource busy
+cgroupv1
 
-Ignoring the MMIO UNMAP errors, it looks like the object free is
-not proper on dev removal path. I have few quick fixes here 
-for this,
-https://github.com/hisilicon/qemu/tree/private-v7.2.0-iommufd-nesting
+root@juno:# cd /sys/fs/cgroup/cpuset
+root@juno:# mkdir cs1
+root@juno:# echo 0 > cs1/cpuset.mems
+root@juno:# echo 0,3-5 > cs1/cpuset.cpus
 
-With the above, it seems the HWPT/IOAS objects are destroyed properly
-on dev detach path. But when the dev is added back, gets a Qemu seg fault
-and so far I have no clue why that happens.
+root@juno:# cgclassify -g cpuset:cs1 1602 1603 1604 $$
 
-(qemu) device_add vfio-pci,host=0000:7d:02.1,iommufd=iommufd0,bus=rp1,id=net1
-./qemu_run-iommufd-nested: line 13:  7041 Segmentation fault
-(core dumped) ./qemu-system-aarch64-iommufd
--machine virt,gic-version=3,iommu=nested-smmuv3,iommufd=iommufd0
--enable-kvm -cpu host -m 1G -smp cpus=8,maxcpus=8 -object
-iommufd,id=iommufd0 -bios QEMU_EFI_Dec2018.fd -kernel
-Image-iommufd -initrd rootfs-iperf.cpio -device
-ioh3420,id=rp1 -device
-vfio-pci,host=0000:7d:02.1,iommufd=iommufd0,bus=rp1,id=net1 -append
-"rdinit=init console=ttyAMA0 root=/dev/vda rw
-earlycon=pl011,0x9000000" -net none -nographic -trace events=events -D
-trace_iommufd
-
-There are no kernel log/crash and not much useful traces while this happens.
-Understand these are early days and it is not robust in anyway, but please
-let me know if you suspect anything. I will continue debugging and will update
-if anything.
-
-Thanks,
-Shameer
-
-[1] https://github.com/nicolinc/qemu/tree/wip/iommufd_rfcv3%2Bnesting%2Bsmmuv3
-
-
+One remaining doubt: `cgclassify` will still move one task at a time so
+cpuset_can_attach() has to deal with one task per call. But
+cgroup_taskset_for_each() says that tset can contain multiple tasks. In
+this case we would have to think about only changing cs->deadline_tasks
+if all tasks can be moved.
+Don't know which test would trigger a tset with multiple tasks in
+cpuset_can_attach().
