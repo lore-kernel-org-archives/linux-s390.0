@@ -2,189 +2,166 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 940E7C6FD1F
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Mar 2023 18:00:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 577D6C74A44
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Mar 2023 18:51:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230255AbjCNSAE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 14 Mar 2023 14:00:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40664 "EHLO
+        id S230087AbjCNSvj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Mar 2023 14:51:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230080AbjCNSAC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Mar 2023 14:00:02 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E69C4580E2;
-        Tue, 14 Mar 2023 11:00:00 -0700 (PDT)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32EGvIJ6019637;
-        Tue, 14 Mar 2023 18:00:00 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=o/uokCfmjiNpAwenodUnKUEoNjkXefiEagmLlW92Nck=;
- b=ZfZYChcORARrOFJTxfeApfxEG5e8D1D6y/4AdZtD1NaBwyWw5VdAV6TK5cm3h6JQXAvf
- 7uFuuuS2QSvJipdQHotRntpzxscFmhFhnNNxfzEjjjS+IzPG5+7xAU8j6aeOvXNuIJK/
- tgsbC39RZeoo48qTTHhEuywYecHGTJvfSob5aXPWgPVTVe7ul3md7+0vgpSoMCaZdLgo
- yA/7zVLSms0fpYQTwl3C7XxqAO3p4hvFIG7STB3LEMA8yjh+H2SXTticeysZ1+1X/A9J
- EbYfsuxmEQw0vBo+8lGVsoCqoWZBbID4iCzwESnJPAwh/V842tvEdKQt+8+cblB3GrT6 zg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pavw9hpk1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Mar 2023 18:00:00 +0000
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32EGx6R3029994;
-        Tue, 14 Mar 2023 17:59:59 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pavw9hpj7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Mar 2023 17:59:59 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32E8vT26013644;
-        Tue, 14 Mar 2023 17:59:57 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-        by ppma03fra.de.ibm.com (PPS) with ESMTPS id 3p8h96c49q-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Mar 2023 17:59:57 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32EHxrIR17236562
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 14 Mar 2023 17:59:54 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DEC3920043;
-        Tue, 14 Mar 2023 17:59:53 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B4A872004B;
-        Tue, 14 Mar 2023 17:59:53 +0000 (GMT)
-Received: from li-7e0de7cc-2d9d-11b2-a85c-de26c016e5ad.ibm.com (unknown [9.152.224.238])
-        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 14 Mar 2023 17:59:53 +0000 (GMT)
-Message-ID: <bfac125f07863a22ed3a267785560a2a0b4c8358.camel@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v2 3/3] s390x/spec_ex: Add test of
- EXECUTE with odd target address
-From:   Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     Thomas Huth <thuth@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Date:   Tue, 14 Mar 2023 18:59:53 +0100
-In-Reply-To: <20230314181221.6df1e4bd@p-imbrenda>
-References: <20230221174822.1378667-1-nsg@linux.ibm.com>
-         <20230221174822.1378667-4-nsg@linux.ibm.com>
-         <20230314162526.519364c5@p-imbrenda>
-         <3976942b40bfb2c2a222d251db1629df7b6819c2.camel@linux.ibm.com>
-         <20230314181221.6df1e4bd@p-imbrenda>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.46.4 (3.46.4-1.fc37) 
+        with ESMTP id S230159AbjCNSvi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Mar 2023 14:51:38 -0400
+Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on2040.outbound.protection.outlook.com [40.107.236.40])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EB052E835;
+        Tue, 14 Mar 2023 11:51:10 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=WLSEDGW3uSAyMbWn6je0+e3mSb4XgkZkKz7gCwHbxBk/EeAmcHxtYVKYq6YiOvsID0/B6/+K80hpEykDaprxpPrWeVwbTLjM+j5pzyrG1RMRdyL1YPB9wrrRgfcPG5CM+WTH5HxkFv0Ibie3VLrWKnUt6TAe436MGmW4pgErYJrS0zz5LCoxKiByhi1bJ+2ZUSN8vruQiFa9sL8fpFM+b9iHpKScQdZ3LRWNnCdYlnpqn1SLz6pom6XITc9f9I2W1l3Izsvoi57OTofo/2SoK4Nwr9ohDXjAhLNg6vZY6tZDd/KDVvvKAII2bUY/Ws6MK+MtMeaLTMxqverQVdYglw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=5WpH4Wlw2HRL74ZMa+jdOPBPnx9kw1C6RXBFoPtyI5s=;
+ b=ednbQPSK6C5D308gQ47WGd4ur76gyJu8FlTRNDZwWpAJC7A22VzN1znsRyFiyZiqswqdwEncH3u3J7T4VXOGGcjR0qIZj03x9p2Ch2mLh7jwT0kjNPlL9RxnmsdlXy3R4ODPPX9NlKOMgBuWPopfEzJVe0kR9fAEPdSFBjEg7xxXtE/FO7vpOdn0ShGdi9CtLNavrulrS06vsTOJ2ErhWw9m6jDrDLhG3ADkXpaekL/qA6SL6wGeqPL/QZoqG/M7DmVBrKTptgaT30Dl7CmtL7HWKZCz96E52uz2BwdtDNBWBka7S9dkq16sGtKvgKmtpM4nBN5AgNFqYqmq46B3ug==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.118.233) smtp.rcpttodomain=intel.com smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=5WpH4Wlw2HRL74ZMa+jdOPBPnx9kw1C6RXBFoPtyI5s=;
+ b=dML137yVeiqnfho4RK+y3Fr/Gjqr7QTCw9hgmXQEapYRDQNmZxi2GaxXlpDXElkirkMKxvNJhZP/tIiFbS0tA4sWS8jg9zw6H7Y1GX2K+m4/Kzy/fIXzsDEe7jNyUtoSXJZzP39quSJsrxruv8JnAOcYKABTeKQD6hJw1RYUrwL0Gs7T0Mww95b70NQAnGbxv6185yvN2mheClRyVCoFy8kPwBS3GybIRRALxjf/Gpkin/A8TGsMdkI2/ROsn+Zc1TbH/rwkMMkWq4IL3YCiWL6QZBFnUZhIz12nMt7iRCU3pK1VWeCxQOzkdMUZnj8o5em6G6OcBrHnKoPmKYctHQ==
+Received: from BL1PR13CA0169.namprd13.prod.outlook.com (2603:10b6:208:2bd::24)
+ by MW4PR12MB6899.namprd12.prod.outlook.com (2603:10b6:303:208::20) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6178.26; Tue, 14 Mar
+ 2023 18:51:03 +0000
+Received: from BL02EPF000108EA.namprd05.prod.outlook.com
+ (2603:10b6:208:2bd:cafe::52) by BL1PR13CA0169.outlook.office365.com
+ (2603:10b6:208:2bd::24) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6178.25 via Frontend
+ Transport; Tue, 14 Mar 2023 18:51:03 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.118.233)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.118.233 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.118.233; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.118.233) by
+ BL02EPF000108EA.mail.protection.outlook.com (10.167.241.203) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.6178.13 via Frontend Transport; Tue, 14 Mar 2023 18:51:03 +0000
+Received: from drhqmail202.nvidia.com (10.126.190.181) by mail.nvidia.com
+ (10.127.129.6) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.5; Tue, 14 Mar 2023
+ 11:50:51 -0700
+Received: from drhqmail201.nvidia.com (10.126.190.180) by
+ drhqmail202.nvidia.com (10.126.190.181) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.986.37; Tue, 14 Mar 2023 11:50:51 -0700
+Received: from Asurada-Nvidia (10.127.8.9) by mail.nvidia.com (10.126.190.180)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.37 via Frontend
+ Transport; Tue, 14 Mar 2023 11:50:50 -0700
+Date:   Tue, 14 Mar 2023 11:50:49 -0700
+From:   Nicolin Chen <nicolinc@nvidia.com>
+To:     "Tian, Kevin" <kevin.tian@intel.com>
+CC:     "Liu, Yi L" <yi.l.liu@intel.com>,
+        "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
+        "jgg@nvidia.com" <jgg@nvidia.com>,
+        "joro@8bytes.org" <joro@8bytes.org>,
+        "robin.murphy@arm.com" <robin.murphy@arm.com>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "eric.auger@redhat.com" <eric.auger@redhat.com>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
+        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
+        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
+        "peterx@redhat.com" <peterx@redhat.com>,
+        "jasowang@redhat.com" <jasowang@redhat.com>,
+        "shameerali.kolothum.thodi@huawei.com" 
+        <shameerali.kolothum.thodi@huawei.com>,
+        "lulu@redhat.com" <lulu@redhat.com>,
+        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
+        "intel-gvt-dev@lists.freedesktop.org" 
+        <intel-gvt-dev@lists.freedesktop.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "Hao, Xudong" <xudong.hao@intel.com>,
+        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
+        "Xu, Terrence" <terrence.xu@intel.com>
+Subject: Re: [PATCH v1 1/5] iommufd: Create access in
+ vfio_iommufd_emulated_bind()
+Message-ID: <ZBDCCYLJn32Yk/eI@Asurada-Nvidia>
+References: <20230308131340.459224-1-yi.l.liu@intel.com>
+ <20230308131340.459224-2-yi.l.liu@intel.com>
+ <BN9PR11MB52766F9DA462F5C7BC23654F8CBA9@BN9PR11MB5276.namprd11.prod.outlook.com>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: tUpNdLfRNhpb3KBfVYoMOXY_n1cBLUXa
-X-Proofpoint-ORIG-GUID: Al2YosQHUMzo8-Z07l2WSXKdEyIl0lsc
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-03-14_10,2023-03-14_02,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- mlxlogscore=999 mlxscore=0 priorityscore=1501 spamscore=0 clxscore=1015
- impostorscore=0 suspectscore=0 phishscore=0 adultscore=0 bulkscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2303140144
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <BN9PR11MB52766F9DA462F5C7BC23654F8CBA9@BN9PR11MB5276.namprd11.prod.outlook.com>
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BL02EPF000108EA:EE_|MW4PR12MB6899:EE_
+X-MS-Office365-Filtering-Correlation-Id: 51ddc20c-ae7d-4098-72db-08db24bd0f9d
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: PzDR1Oo6fDpHKXvVuyVCeY3k0zoDif+UJGHziAPxUHHabpW9t3oLgx6QM4wwOypJ5Gq+XrrAr1ACeQd4xSq8PtFm5Jdt0U7zltgjeQA6l1k/IDRIcoOnC3MxgyNL8kng6PhZ4FZsF217L/yPBuQLDkjhgUTqsyWhdlue1YgTBOwC9ZiCeOm7B8Csas6zaa2JGB5Nv4BMEENFjYeemLk+lUFL0rHSD9RNG6PmP6SmTI6aLvvJykbYGTdF1dHmcRCzFTRBn7H1ay+2npG5iFixha3SS9W1Z6ZVm8B7UUxD6P2uOBcifTU69axW+1qZaZG6NsIWhAYs6hEEDhBBCQw6PPVx8e926E9bQIIwpVOkAMqpocbs/15dAhFfdJNFqFyqxmJ1ynUfEf127tgIsiWtevQ9NzMgJNdKTuN3g6o8EMKTAE9Hj283fv4V15/H6gI+5lfjhgt+mW9MMzWMlInVz4gE89h6JkP02iJ4iEZpFcXm/HhpnAq+j5f278iROpIi/6V6AbAOqxrcFyXOQFSwiI8eWwfd3/FxXO46Hai11KobBvhKSc9S1nKeh/55tUJI82bUIyZuLysD3nrcLdRhUzhOQLJrH0mGKmkoWhoSX8g7FiaLwe3XLVMGWRdvkDOvXsRN2b2940uAp54hEFBlT2SMEKtnO9a1aaoIVautQPJySaM1R7JWzb6U1VsxkM881Ag34PXn7J1tpSrYkEu7DJ0LdYIMXHMVa8w1PPXo8KAUVk+Qke96kViYnDPX63S7
+X-Forefront-Antispam-Report: CIP:216.228.118.233;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge2.nvidia.com;CAT:NONE;SFS:(13230025)(4636009)(39860400002)(136003)(376002)(396003)(346002)(451199018)(46966006)(36840700001)(40470700004)(86362001)(356005)(36860700001)(82740400003)(7636003)(41300700001)(2906002)(7416002)(8936002)(5660300002)(55016003)(40460700003)(33716001)(82310400005)(4326008)(40480700001)(9686003)(26005)(186003)(83380400001)(47076005)(54906003)(336012)(426003)(316002)(8676002)(70586007)(70206006)(478600001)(6916009);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Mar 2023 18:51:03.0421
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 51ddc20c-ae7d-4098-72db-08db24bd0f9d
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.118.233];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: BL02EPF000108EA.namprd05.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW4PR12MB6899
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 2023-03-14 at 18:12 +0100, Claudio Imbrenda wrote:
-> On Tue, 14 Mar 2023 17:41:24 +0100
-> Nina Schoetterl-Glausch <nsg@linux.ibm.com> wrote:
->=20
-> > On Tue, 2023-03-14 at 16:25 +0100, Claudio Imbrenda wrote:
-> > > On Tue, 21 Feb 2023 18:48:22 +0100
-> > > Nina Schoetterl-Glausch <nsg@linux.ibm.com> wrote:
-> > >  =20
-> > > > The EXECUTE instruction executes the instruction at the given targe=
-t
-> > > > address. This address must be halfword aligned, otherwise a
-> > > > specification exception occurs.
-> > > > Add a test for this.
-> > > >=20
-> > > > Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-> > > > ---
-> > > >  s390x/spec_ex.c | 25 +++++++++++++++++++++++++
-> > > >  1 file changed, 25 insertions(+)
-> > > >=20
-> > > > diff --git a/s390x/spec_ex.c b/s390x/spec_ex.c
-> > > > index a26c56aa..dd097f9b 100644
-> > > > --- a/s390x/spec_ex.c
-> > > > +++ b/s390x/spec_ex.c
-> > > > @@ -177,6 +177,30 @@ static int short_psw_bit_12_is_0(void)
-> > > >  	return 0;
-> > > >  }
-> > > > =20
-> > > > +static int odd_ex_target(void)
-> > > > +{
-> > > > +	uint64_t pre_target_addr;
-> > > > +	int to =3D 0, from =3D 0x0dd;
-> > > > +
-> > > > +	asm volatile ( ".pushsection .rodata\n" =20
-> > >=20
-> > > and this should go in a .text.something subsection, as we discussed
-> > > offline =20
-> >=20
-> > Yes.
-> > >  =20
-> > > > +		"pre_odd_ex_target:\n" =20
-> > >=20
-> > > shouldn't the label be after the align? =20
-> >=20
-> > No, larl needs an aligned address, and the ex below adds 1.
-> > That's why it has the pre_ prefix, it's not the ex target itself.
->=20
-> I understand that, but=20
-> > >  =20
-> > > > +		"	.balign	2\n" =20
->=20
-> doesn't the address get aligned here?
-> so the label here would be aligned to 2
+On Fri, Mar 10, 2023 at 02:08:15AM +0000, Tian, Kevin wrote:
+> External email: Use caution opening links or attachments
+> 
+> 
+> > From: Liu, Yi L <yi.l.liu@intel.com>
+> > Sent: Wednesday, March 8, 2023 9:14 PM
+> >
+> > @@ -449,33 +450,18 @@ iommufd_access_create(struct iommufd_ctx *ictx,
+> > u32 ioas_id,
+> >       access->data = data;
+> >       access->ops = ops;
+> >
+> > -     obj = iommufd_get_object(ictx, ioas_id, IOMMUFD_OBJ_IOAS);
+> > -     if (IS_ERR(obj)) {
+> > -             rc = PTR_ERR(obj);
+> > -             goto out_abort;
+> > -     }
+> > -     access->ioas = container_of(obj, struct iommufd_ioas, obj);
+> > -     iommufd_ref_to_users(obj);
+> > -
+> >       if (ops->needs_pin_pages)
+> >               access->iova_alignment = PAGE_SIZE;
+> >       else
+> >               access->iova_alignment = 1;
+> > -     rc = iopt_add_access(&access->ioas->iopt, access);
+> > -     if (rc)
+> > -             goto out_put_ioas;
+> >
+> >       /* The calling driver is a user until iommufd_access_destroy() */
+> >       refcount_inc(&access->obj.users);
+> > +     mutex_init(&access->ioas_lock);
+> >       access->ictx = ictx;
+> >       iommufd_ctx_get(ictx);
+> 
+> this refcnt get should be moved to the start given next patch
+> removes the reference in the caller side.
 
-Uh, yeah, sorry.
->=20
-> > >=20
-> > > (i.e. here)
-> > >  =20
-> > > > +		"	. =3D . + 1\n"
->=20
-> and here it gets the +1?
->=20
-> > > > +		"	lr	%[to],%[from]\n"
-> > > > +		"	.popsection\n"
-> > > > +
-> > > > +		"	larl	%[pre_target_addr],pre_odd_ex_target\n"
-> > > > +		"	ex	0,1(%[pre_target_addr])\n"
-> > > > +		: [pre_target_addr] "=3D&a" (pre_target_addr),
-> > > > +		  [to] "+d" (to)
-> > > > +		: [from] "d" (from)
-> > > > +	);
-> > > > +
-> > > > +	assert((pre_target_addr + 1) & 1);
-> > > > +	report(to !=3D from, "did not perform ex with odd target");
-> > > > +	return 0;
-> > > > +}
-> > > > +
-> > > >  static int bad_alignment(void)
-> > > >  {
-> > > >  	uint32_t words[5] __attribute__((aligned(16)));
-> > > > @@ -218,6 +242,7 @@ static const struct spec_ex_trigger spec_ex_tri=
-ggers[] =3D {
-> > > >  	{ "psw_bit_12_is_1", &psw_bit_12_is_1, false, &fixup_invalid_psw =
-},
-> > > >  	{ "short_psw_bit_12_is_0", &short_psw_bit_12_is_0, false, &fixup_=
-invalid_psw },
-> > > >  	{ "psw_odd_address", &psw_odd_address, false, &fixup_invalid_psw =
-},
-> > > > +	{ "odd_ex_target", &odd_ex_target, true, NULL },
-> > > >  	{ "bad_alignment", &bad_alignment, true, NULL },
-> > > >  	{ "not_even", &not_even, true, NULL },
-> > > >  	{ NULL, NULL, false, NULL }, =20
-> > >  =20
-> >=20
->=20
+I don't feel quite convincing to justify for moving it in this
+patch. Perhaps we should do that in the following patch, where
+it needs this? Or another individual patch moving this alone?
 
+Thanks
+Nic
