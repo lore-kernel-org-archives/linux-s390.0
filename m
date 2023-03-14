@@ -2,85 +2,87 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 22152C6FD1C
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Mar 2023 11:35:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D5BD2C6FD1C
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Mar 2023 11:35:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231285AbjCNLfD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 14 Mar 2023 07:35:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33492 "EHLO
+        id S229735AbjCNLfc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Mar 2023 07:35:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231330AbjCNLfC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Mar 2023 07:35:02 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 863843B3FB;
-        Tue, 14 Mar 2023 04:35:01 -0700 (PDT)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32E9av0m021189;
-        Tue, 14 Mar 2023 11:34:52 GMT
+        with ESMTP id S229793AbjCNLfb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Mar 2023 07:35:31 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70E579AFF2;
+        Tue, 14 Mar 2023 04:35:21 -0700 (PDT)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32EBC45H012829;
+        Tue, 14 Mar 2023 11:35:12 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
  subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=am3zZ2C/XWzajjqB/HupC9PYLFgVp8MlDDfDuP3stuo=;
- b=hCiyiBncSMJWZL3dL3arZOk0uPcW7RpMuMa6W0FqSDZ+k6vpdK038UeSRSO83OFq+T3H
- m3WlBzrA2L2Iu3wJf92U8o+nbSfAM5wzulEGE0CI23vJLfUJRDiQ/u1e0amgOdnZxJqF
- Io2sFockwv93FFzBXIaLA032uEDzWcHGYkhgOF285vppqQz+3QTLmfbb+4JnNq7FRrVT
- j0e8/XrBeVIzJVdI4QPU5ADpMsLemJNo9DjLkFI837GHsCl7VWiAEooVfI4u9sAzExfl
- 6r9jd3kOvmlUmLHBlVlxYI/VfVrj1fzuDoxRgU94FMX6EYWms1fNitMCWTYBZPX7YQC2 7Q== 
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3papenaww3-1
+ in-reply-to; s=pp1; bh=N8SsBJ9VsVk5X3fkss27V0TB+ZXT+8rD0qxN2mkSgNk=;
+ b=SGaUZFkRkcHXgO6dr99Vfd2tCwXoM2mwpKRr+7q7aYpaazvMjEw9VP0aVj+99LHI7her
+ yF8GNO0M6pms/E/Yr5ZLsL7UhaZ8HsQVR+vZMjIeFFNpaova6dm0lJ5+00nIp+95zfbV
+ Dcb40ZLUbEgax/FiJHDz4PM7dV0N3ZQj6jqfCbGcAjcfULXABb/mMXjkFqFXLOltHfBv
+ 83Vsud0Nav3x1CDmL1nxKXb+PkAFGvu0m2mYETnr1GAa/+L3QB9fYkBfAcbWRn9I/k+P
+ PInGAnlegw3mtQSggcZcTSgp2Uwz/5Ugl62HetrRTvk5+lc67utAOx/ZjIcrAIlqqxir 4g== 
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3paqu90j0h-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Mar 2023 11:34:52 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32E8RisW019166;
-        Tue, 14 Mar 2023 11:34:50 GMT
+        Tue, 14 Mar 2023 11:35:12 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32DMh3IV001838;
+        Tue, 14 Mar 2023 11:35:09 GMT
 Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma02fra.de.ibm.com (PPS) with ESMTPS id 3p8h96kqgm-1
+        by ppma05fra.de.ibm.com (PPS) with ESMTPS id 3p8h96kr0m-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Mar 2023 11:34:50 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32EBYksU35127972
+        Tue, 14 Mar 2023 11:35:09 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32EBZ6x346203138
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 14 Mar 2023 11:34:46 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8B6C22004E;
-        Tue, 14 Mar 2023 11:34:46 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 03A4920040;
-        Tue, 14 Mar 2023 11:34:46 +0000 (GMT)
+        Tue, 14 Mar 2023 11:35:06 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 32F9E2004B;
+        Tue, 14 Mar 2023 11:35:06 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AC00820043;
+        Tue, 14 Mar 2023 11:35:05 +0000 (GMT)
 Received: from osiris (unknown [9.171.45.127])
-        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Tue, 14 Mar 2023 11:34:45 +0000 (GMT)
-Date:   Tue, 14 Mar 2023 12:34:44 +0100
+        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Tue, 14 Mar 2023 11:35:05 +0000 (GMT)
+Date:   Tue, 14 Mar 2023 12:35:04 +0100
 From:   Heiko Carstens <hca@linux.ibm.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, rafael@kernel.org,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 18/36] s390/topology: move to use bus_get_dev_root()
-Message-ID: <ZBBb1GOcpMoGvxKK@osiris>
+        Sven Schnelle <svens@linux.ibm.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH 19/36] s390/smp: move to use bus_get_dev_root()
+Message-ID: <ZBBb6L570PhX+j0o@osiris>
 References: <20230313182918.1312597-1-gregkh@linuxfoundation.org>
- <20230313182918.1312597-18-gregkh@linuxfoundation.org>
+ <20230313182918.1312597-19-gregkh@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230313182918.1312597-18-gregkh@linuxfoundation.org>
+In-Reply-To: <20230313182918.1312597-19-gregkh@linuxfoundation.org>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: ZgrCox1lb5hIWnLNS9o_3hhsqgttnlDf
-X-Proofpoint-GUID: ZgrCox1lb5hIWnLNS9o_3hhsqgttnlDf
+X-Proofpoint-ORIG-GUID: FkUnAWkO9sbwkeEtEVOa_bGm1qMk1rWl
+X-Proofpoint-GUID: FkUnAWkO9sbwkeEtEVOa_bGm1qMk1rWl
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
  definitions=2023-03-14_04,2023-03-14_02,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 bulkscore=0
- mlxlogscore=606 mlxscore=0 adultscore=0 phishscore=0 impostorscore=0
- lowpriorityscore=0 malwarescore=0 clxscore=1011 priorityscore=1501
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxscore=0
+ lowpriorityscore=0 spamscore=0 malwarescore=0 suspectscore=0
+ priorityscore=1501 phishscore=0 impostorscore=0 mlxlogscore=644
+ adultscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2212070000 definitions=main-2303140098
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Mar 13, 2023 at 07:29:00PM +0100, Greg Kroah-Hartman wrote:
+On Mon, Mar 13, 2023 at 07:29:01PM +0100, Greg Kroah-Hartman wrote:
 > Direct access to the struct bus_type dev_root pointer is going away soon
 > so replace that with a call to bus_get_dev_root() instead, which is what
 > it is there for.
@@ -90,6 +92,7 @@ On Mon, Mar 13, 2023 at 07:29:00PM +0100, Greg Kroah-Hartman wrote:
 > Cc: Alexander Gordeev <agordeev@linux.ibm.com>
 > Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
 > Cc: Sven Schnelle <svens@linux.ibm.com>
+> Cc: Ilya Leoshkevich <iii@linux.ibm.com>
 > Cc: linux-s390@vger.kernel.org
 > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 > ---
@@ -99,7 +102,7 @@ On Mon, Mar 13, 2023 at 07:29:00PM +0100, Greg Kroah-Hartman wrote:
 > its own, but I'd prefer if I could take it through my driver-core tree
 > so that the driver core changes can be taken through there for 6.4-rc1.
 > 
->  arch/s390/kernel/topology.c | 11 ++++++++++-
->  1 file changed, 10 insertions(+), 1 deletion(-)
+>  arch/s390/kernel/smp.c | 12 +++++++++---
+>  1 file changed, 9 insertions(+), 3 deletions(-)
 
 Acked-by: Heiko Carstens <hca@linux.ibm.com>
