@@ -2,162 +2,196 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 46303C7618A
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Mar 2023 11:41:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C272AC6FD1D
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Mar 2023 11:57:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231444AbjCNLlz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 14 Mar 2023 07:41:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46466 "EHLO
+        id S231489AbjCNL5p (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Mar 2023 07:57:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48268 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230310AbjCNLlx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Mar 2023 07:41:53 -0400
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 2128F9BE11;
-        Tue, 14 Mar 2023 04:41:50 -0700 (PDT)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 57C7C4B3;
-        Tue, 14 Mar 2023 04:42:33 -0700 (PDT)
-Received: from [192.168.178.6] (unknown [172.31.20.19])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 19EF23F67D;
-        Tue, 14 Mar 2023 04:41:45 -0700 (PDT)
-Message-ID: <f2eb03be-53dc-73db-ede9-99ecbb189782@arm.com>
-Date:   Tue, 14 Mar 2023 12:41:36 +0100
+        with ESMTP id S230140AbjCNL5n (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Mar 2023 07:57:43 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09FD69CBD4;
+        Tue, 14 Mar 2023 04:56:59 -0700 (PDT)
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32EAWXX6010453;
+        Tue, 14 Mar 2023 11:56:19 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=sjRjoVyN4hmqa3UgKM3i+zcwVYtKhiHXvv25pR/1sXo=;
+ b=GXoY/mcTITaDlpFuXa2KeJxq/rPofxOpAFHrgVfpO+IIXcsDz54dWUDPLTkkWlw6GLhZ
+ KsF6VOITSLsu7vsMcv1acEAa3xM+w7ztajj0tseTB8HTFVqxZCNUweDapy83ueZnmxHk
+ GEd6R4DdvITvfkSyNjmYxvHn3f5osIrsZTLEOMzZoyzchg/ky80pF7AXa3CR5RIvYkuV
+ CP7MSFkNi9sg3YPIQoJIz2JLQPFEscX1+G6P2Pul9ovApUx2pmUsRrYxtaT/fRXicQJJ
+ UwMe7MtpJYEGyZoTOsfoZ6Naoyusrazm2iHK4MSA8E0fnLGlqz4BbsZ8XnAWRCphxlCm mw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3paq8y9yap-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 14 Mar 2023 11:56:19 +0000
+Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32EAWbmR010607;
+        Tue, 14 Mar 2023 11:56:18 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3paq8y9ya6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 14 Mar 2023 11:56:18 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32E6XRQ4029999;
+        Tue, 14 Mar 2023 11:56:16 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3p8gwfcsmg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 14 Mar 2023 11:56:16 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32EBuDG746727560
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 14 Mar 2023 11:56:13 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2BD4D2004E;
+        Tue, 14 Mar 2023 11:56:13 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DD44720043;
+        Tue, 14 Mar 2023 11:56:12 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.152.224.56])
+        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Tue, 14 Mar 2023 11:56:12 +0000 (GMT)
+Date:   Tue, 14 Mar 2023 12:56:11 +0100
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+Cc:     Thomas Huth <thuth@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [kvm-unit-tests PATCH v5] s390x: Add tests for execute-type
+ instructions
+Message-ID: <20230314125611.6135af7a@p-imbrenda>
+In-Reply-To: <d6471b717f34b6ae664dc91331246e9676d8c879.camel@linux.ibm.com>
+References: <20230310181131.2138736-1-nsg@linux.ibm.com>
+        <20230313191602.58b16c31@p-imbrenda>
+        <d6471b717f34b6ae664dc91331246e9676d8c879.camel@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
-Subject: Re: [PATCH v3] sched: cpuset: Don't rebuild root domains on
- suspend-resume
-Content-Language: en-US
-From:   Dietmar Eggemann <dietmar.eggemann@arm.com>
-To:     Juri Lelli <juri.lelli@redhat.com>,
-        Qais Yousef <qyousef@layalina.io>
-Cc:     Hao Luo <haoluo@google.com>, Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Waiman Long <longman@redhat.com>,
-        Steven Rostedt <rostedt@goodmis.org>, tj@kernel.org,
-        linux-kernel@vger.kernel.org, luca.abeni@santannapisa.it,
-        claudio@evidence.eu.com, tommaso.cucinotta@santannapisa.it,
-        bristot@redhat.com, mathieu.poirier@linaro.org,
-        cgroups@vger.kernel.org,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Wei Wang <wvw@google.com>, Rick Yiu <rickyiu@google.com>,
-        Quentin Perret <qperret@google.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Zefan Li <lizefan.x@bytedance.com>, linux-s390@vger.kernel.org,
-        x86@kernel.org
-References: <20230228174627.vja5aejq27dsta2u@airbuntu>
- <Y/7/SLzvK8LfB29z@localhost.localdomain>
- <20230301122852.zgzreby42lh2zf6w@airbuntu>
- <Y/9gmDRlGOChIwpf@localhost.localdomain>
- <20230301170322.xthlso7jfkixlyex@airbuntu>
- <ZAhhGi55BkYkc3ss@localhost.localdomain>
- <CA+khW7hmE0tECG2qfKW1HN9yLVOLUn5Zzx4Rz-wHYDtSUPYotw@mail.gmail.com>
- <ZAmCzJQZl7j/m2oN@localhost.localdomain>
- <CA+khW7iAeTALH5b6upHXs1RotFBohVeZCcAp5H+r-=L05kqnww@mail.gmail.com>
- <20230311185150.stvtcbdkoofgn3wd@airbuntu>
- <ZA9RZ3VvGXKp+1L6@localhost.localdomain>
- <7070da53-a5a7-6965-5604-abee3cae9d46@arm.com>
-In-Reply-To: <7070da53-a5a7-6965-5604-abee3cae9d46@arm.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: OyoDqQVTiAPXmTz4WLspEF9GpTfSVsWH
+X-Proofpoint-ORIG-GUID: UKSYRxWaZfjqhvMfa8c-xwnYJvk_3csZ
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-03-14_04,2023-03-14_02,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ mlxlogscore=999 clxscore=1015 suspectscore=0 adultscore=0
+ priorityscore=1501 spamscore=0 lowpriorityscore=0 impostorscore=0
+ mlxscore=0 phishscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2212070000 definitions=main-2303140098
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 13/03/2023 18:10, Dietmar Eggemann wrote:
-> On 13/03/2023 17:37, Juri Lelli wrote:
->> On 11/03/23 18:51, Qais Yousef wrote:
->>> On 03/09/23 14:23, Hao Luo wrote:
->>>> On Wed, Mar 8, 2023 at 10:55 PM Juri Lelli <juri.lelli@redhat.com> wrote:
->>>>>
->>>>> On 08/03/23 10:01, Hao Luo wrote:
->>>>>> On Wed, Mar 8, 2023 at 2:20 AM Juri Lelli <juri.lelli@redhat.com> wrote:
->>>>>>>
->>>>>>> On 01/03/23 17:03, Qais Yousef wrote:
->>>>>>>> On 03/01/23 15:26, Juri Lelli wrote:
-> 
+On Mon, 13 Mar 2023 23:45:33 +0100
+Nina Schoetterl-Glausch <nsg@linux.ibm.com> wrote:
+
+
+[...]
+
+> > > +/*
+> > > + * BRANCH AND SAVE, register register variant.
+> > > + * Saves the next instruction address (address from PSW + length of =
+instruction)
+> > > + * to the first register. No branch is taken in this test, because 0=
+ is
+> > > + * specified as target.
+> > > + * BASR does *not* perform a relative address calculation with an in=
+termediate.
+> > > + */
+> > > +static void test_basr(void)
+> > > +{
+> > > +	uint64_t ret_addr, after_ex;
+> > > +
+> > > +	report_prefix_push("BASR");
+> > > +	asm volatile ( ".pushsection .rodata\n" =20
+> >=20
+> > you use .text.ex_bras in the next test, why not something like that here
+> > (and everywhere else) too? =20
+>=20
+> In the test below we branch to the code in .text.ex_bras.
+> In all other tests the instruction in .rodata is just an operand of the e=
+xecute instruction,
+> and it doesn't get modified.
+> As for the bras test having a suffix, I guess it's pretty arbitrary, but =
+since it's a handful
+> of instructions instead of just one, it felt substantial enough to warran=
+t one.
+>=20
+
+we discussed this offline :)
+
+> >  =20
+> > > +		"0:	basr	%[ret_addr],0\n"
+> > > +		"	.popsection\n"
+> > > +
+> > > +		"	larl	%[after_ex],1f\n"
+> > > +		"	exrl	0,0b\n"
+> > > +		"1:\n"
+> > > +		: [ret_addr] "=3Dd" (ret_addr),
+> > > +		  [after_ex] "=3Dd" (after_ex)
+> > > +	);
+> > > +
+> > > +	report(ret_addr =3D=3D after_ex, "return address after EX");
+> > > +	report_prefix_pop();
+> > > +}
+> > > +
+> > > +/*
+> > > + * BRANCH RELATIVE AND SAVE.
+> > > + * According to PoP (Branch-Address Generation), the address calcula=
+ted relative
+> > > + * to the instruction address is relative to BRAS when it is the tar=
+get of an
+> > > + * execute-type instruction, not relative to the execute-type instru=
+ction.
+> > > + */
+> > > +static void test_bras(void)
+> > > +{
+> > > +	uint64_t after_target, ret_addr, after_ex, branch_addr;
+> > > +
+> > > +	report_prefix_push("BRAS");
+> > > +	asm volatile ( ".pushsection .text.ex_bras, \"x\"\n"
+> > > +		"0:	bras	%[ret_addr],1f\n"
+> > > +		"	nopr	%%r7\n"
+> > > +		"1:	larl	%[branch_addr],0\n"
+> > > +		"	j	4f\n"
+> > > +		"	.popsection\n"
+> > > +
+> > > +		"	larl	%[after_target],1b\n"
+> > > +		"	larl	%[after_ex],3f\n"
+> > > +		"2:	exrl	0,0b\n" =20
+> /*
+>  * In case the address calculation is correct, we jump by the relative of=
+fset 1b-0b from 0b to 1b.
+>  * In case the address calculation is relative to the exrl (i.e. a test f=
+ailure),
+>  * put a valid instruction at the same relative offset from the exrl, so =
+the test continues in a
+>  * controlled manner.
+>  */
+
+looks good
+
+> > > +		"3:	larl	%[branch_addr],0\n"
+> > > +		"4:\n"
+> > > +
+> > > +		"	.if (1b - 0b) !=3D (3b - 2b)\n"
+> > > +		"	.error	\"right and wrong target must have same offset\"\n" =20
+> >=20
+> > please explain why briefly (i.e. if the wrong target is executed and
+> > the offset mismatches Bad Things=E2=84=A2 happen) =20
+>=20
+> Ok, see above.
+>=20
 > [...]
-> 
->>> Yeah I am working on 5.10 too (this will need to be backported to 5.10 and 5.15
->>> ultimately) and had the same crash because task is NULL.
->>>
->>> Fixed it this way which I think what you intended to do Juri? It moves the
->>> check for dl_task(task) inside cgroup_taskset_for_each() loop.
->>>
->>> 	diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
->>> 	index 83a8943467fb..06d6bb68d86b 100644
->>> 	--- a/kernel/cgroup/cpuset.c
->>> 	+++ b/kernel/cgroup/cpuset.c
->>> 	@@ -2495,11 +2495,11 @@ static int cpuset_can_attach(struct cgroup_taskset *tset)
->>> 			ret = security_task_setscheduler(task);
->>> 			if (ret)
->>> 				goto out_unlock;
->>> 	-       }
->>> 	 
->>> 	-       if (dl_task(task)) {
->>> 	-               cs->deadline_tasks++;
->>> 	-               cpuset_attach_old_cs->deadline_tasks--;
->>> 	+               if (dl_task(task)) {
->>> 	+                       cs->deadline_tasks++;
->>> 	+                       cpuset_attach_old_cs->deadline_tasks--;
->>> 	+               }
->>> 		}
->>> 	 
->>> 		/*
->>
->> Duh, indeed.
->>
->>> Like Hao I don't have any deadline tasks in the system. With the fix above
->>> I don't notice the delay on suspend resume using your patches.
->>
->> OK, cool.
->>
->>> If you want any debug; please feel free to add them into your branch so I can
->>> run with that and give you the log.
->>
->> Will need to find time to run some tests with DEADLINE tasks, yeah.
->> Maybe Dietmar, since you reported as well the issue above with your
->> testing, you could help with testing DEADLINE?
-> 
-> Ah, now I see! It's the same issue I saw. And it's not specifically
-> related to DL tasks. Any tasks which you move into a cpuset will trigger
-> this.
-> Yeah, can do some DL tests later on this fix.
+>=20
+>=20
 
-This fix also works for my DL test.
-
-root@juno:~# ps2 | grep DLN
-   83    83 140      0   - DLN sugov:0
-   84    84 140      0   - DLN sugov:1
- 1601  1602 140      0   - DLN thread0-0
- 1601  1603 140      0   - DLN thread0-1
- 1601  1604 140      0   - DLN thread0-2
- 1601  1605 140      0   - DLN thread0-3
- 1601  1606 140      0   - DLN thread0-4
- 1601  1607 140      0   - DLN thread0-5
- 1601  1608 140      0   - DLN thread0-6
- 1601  1609 140      0   - DLN thread0-7
- 1601  1610 140      0   - DLN thread0-8
- 1601  1611 140      0   - DLN thread0-9
- 1601  1612 140      0   - DLN thread0-10
- 1601  1613 140      0   - DLN thread0-11
-
-cgroupv1
-
-root@juno:# cd /sys/fs/cgroup/cpuset
-root@juno:# mkdir cs1
-root@juno:# echo 0 > cs1/cpuset.mems
-root@juno:# echo 0,3-5 > cs1/cpuset.cpus
-
-root@juno:# cgclassify -g cpuset:cs1 1602 1603 1604 $$
-
-One remaining doubt: `cgclassify` will still move one task at a time so
-cpuset_can_attach() has to deal with one task per call. But
-cgroup_taskset_for_each() says that tset can contain multiple tasks. In
-this case we would have to think about only changing cs->deadline_tasks
-if all tasks can be moved.
-Don't know which test would trigger a tset with multiple tasks in
-cpuset_can_attach().
