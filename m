@@ -2,166 +2,458 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 577D6C74A44
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Mar 2023 18:51:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 18175C05027
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Mar 2023 20:06:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230087AbjCNSvj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 14 Mar 2023 14:51:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60408 "EHLO
+        id S229950AbjCNUGV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Mar 2023 16:06:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230159AbjCNSvi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Mar 2023 14:51:38 -0400
-Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on2040.outbound.protection.outlook.com [40.107.236.40])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EB052E835;
-        Tue, 14 Mar 2023 11:51:10 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=WLSEDGW3uSAyMbWn6je0+e3mSb4XgkZkKz7gCwHbxBk/EeAmcHxtYVKYq6YiOvsID0/B6/+K80hpEykDaprxpPrWeVwbTLjM+j5pzyrG1RMRdyL1YPB9wrrRgfcPG5CM+WTH5HxkFv0Ibie3VLrWKnUt6TAe436MGmW4pgErYJrS0zz5LCoxKiByhi1bJ+2ZUSN8vruQiFa9sL8fpFM+b9iHpKScQdZ3LRWNnCdYlnpqn1SLz6pom6XITc9f9I2W1l3Izsvoi57OTofo/2SoK4Nwr9ohDXjAhLNg6vZY6tZDd/KDVvvKAII2bUY/Ws6MK+MtMeaLTMxqverQVdYglw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=5WpH4Wlw2HRL74ZMa+jdOPBPnx9kw1C6RXBFoPtyI5s=;
- b=ednbQPSK6C5D308gQ47WGd4ur76gyJu8FlTRNDZwWpAJC7A22VzN1znsRyFiyZiqswqdwEncH3u3J7T4VXOGGcjR0qIZj03x9p2Ch2mLh7jwT0kjNPlL9RxnmsdlXy3R4ODPPX9NlKOMgBuWPopfEzJVe0kR9fAEPdSFBjEg7xxXtE/FO7vpOdn0ShGdi9CtLNavrulrS06vsTOJ2ErhWw9m6jDrDLhG3ADkXpaekL/qA6SL6wGeqPL/QZoqG/M7DmVBrKTptgaT30Dl7CmtL7HWKZCz96E52uz2BwdtDNBWBka7S9dkq16sGtKvgKmtpM4nBN5AgNFqYqmq46B3ug==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.118.233) smtp.rcpttodomain=intel.com smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=5WpH4Wlw2HRL74ZMa+jdOPBPnx9kw1C6RXBFoPtyI5s=;
- b=dML137yVeiqnfho4RK+y3Fr/Gjqr7QTCw9hgmXQEapYRDQNmZxi2GaxXlpDXElkirkMKxvNJhZP/tIiFbS0tA4sWS8jg9zw6H7Y1GX2K+m4/Kzy/fIXzsDEe7jNyUtoSXJZzP39quSJsrxruv8JnAOcYKABTeKQD6hJw1RYUrwL0Gs7T0Mww95b70NQAnGbxv6185yvN2mheClRyVCoFy8kPwBS3GybIRRALxjf/Gpkin/A8TGsMdkI2/ROsn+Zc1TbH/rwkMMkWq4IL3YCiWL6QZBFnUZhIz12nMt7iRCU3pK1VWeCxQOzkdMUZnj8o5em6G6OcBrHnKoPmKYctHQ==
-Received: from BL1PR13CA0169.namprd13.prod.outlook.com (2603:10b6:208:2bd::24)
- by MW4PR12MB6899.namprd12.prod.outlook.com (2603:10b6:303:208::20) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6178.26; Tue, 14 Mar
- 2023 18:51:03 +0000
-Received: from BL02EPF000108EA.namprd05.prod.outlook.com
- (2603:10b6:208:2bd:cafe::52) by BL1PR13CA0169.outlook.office365.com
- (2603:10b6:208:2bd::24) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6178.25 via Frontend
- Transport; Tue, 14 Mar 2023 18:51:03 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.118.233)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.118.233 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.118.233; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.118.233) by
- BL02EPF000108EA.mail.protection.outlook.com (10.167.241.203) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.6178.13 via Frontend Transport; Tue, 14 Mar 2023 18:51:03 +0000
-Received: from drhqmail202.nvidia.com (10.126.190.181) by mail.nvidia.com
- (10.127.129.6) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.5; Tue, 14 Mar 2023
- 11:50:51 -0700
-Received: from drhqmail201.nvidia.com (10.126.190.180) by
- drhqmail202.nvidia.com (10.126.190.181) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.37; Tue, 14 Mar 2023 11:50:51 -0700
-Received: from Asurada-Nvidia (10.127.8.9) by mail.nvidia.com (10.126.190.180)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.37 via Frontend
- Transport; Tue, 14 Mar 2023 11:50:50 -0700
-Date:   Tue, 14 Mar 2023 11:50:49 -0700
-From:   Nicolin Chen <nicolinc@nvidia.com>
-To:     "Tian, Kevin" <kevin.tian@intel.com>
-CC:     "Liu, Yi L" <yi.l.liu@intel.com>,
-        "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
-        "jgg@nvidia.com" <jgg@nvidia.com>,
-        "joro@8bytes.org" <joro@8bytes.org>,
-        "robin.murphy@arm.com" <robin.murphy@arm.com>,
-        "cohuck@redhat.com" <cohuck@redhat.com>,
-        "eric.auger@redhat.com" <eric.auger@redhat.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
-        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
-        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
-        "peterx@redhat.com" <peterx@redhat.com>,
-        "jasowang@redhat.com" <jasowang@redhat.com>,
-        "shameerali.kolothum.thodi@huawei.com" 
-        <shameerali.kolothum.thodi@huawei.com>,
-        "lulu@redhat.com" <lulu@redhat.com>,
-        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "Hao, Xudong" <xudong.hao@intel.com>,
-        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
-        "Xu, Terrence" <terrence.xu@intel.com>
-Subject: Re: [PATCH v1 1/5] iommufd: Create access in
- vfio_iommufd_emulated_bind()
-Message-ID: <ZBDCCYLJn32Yk/eI@Asurada-Nvidia>
-References: <20230308131340.459224-1-yi.l.liu@intel.com>
- <20230308131340.459224-2-yi.l.liu@intel.com>
- <BN9PR11MB52766F9DA462F5C7BC23654F8CBA9@BN9PR11MB5276.namprd11.prod.outlook.com>
+        with ESMTP id S229436AbjCNUGT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Mar 2023 16:06:19 -0400
+Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7B0F4347C;
+        Tue, 14 Mar 2023 13:06:17 -0700 (PDT)
+Received: by mail-ed1-x536.google.com with SMTP id x3so66820900edb.10;
+        Tue, 14 Mar 2023 13:06:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112; t=1678824376;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=OjikSDB/A+i4L9BeqERv0l8R/cRWGNu1EDH8YsBPfDg=;
+        b=WhPYLI/Cny3mi6cww7cX6wbq3H92VOuCnEWKRdB6U2tK6BG3rs+aYdOWOJYDJMkf0a
+         YREyt5dhSV4EDSdN3YXUQLBsIucZwPq/g8ic4KrDpZeXc5d1yJ9FbiK60ubHgENmR5D5
+         AAP53U0dQ7M5LI77LqhB/hg3e2yuBptasDRCRWIoWeeiK6v5YIew+G1K9/3S5GpYUOvY
+         QKLtZqoUVDyLcXFxp+NL0kVxXSyrAN+LeHXs7HkVk9yTsuGEcryrqh3wmQVTVLuwQU6z
+         Bjn65mXLdmql8HJo/MZhcBsxZSdc64nEb/gFUi4xL+our/ooo2UtSGFmUvy6UwasRWa1
+         fFhw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678824376;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=OjikSDB/A+i4L9BeqERv0l8R/cRWGNu1EDH8YsBPfDg=;
+        b=qrCZWYy6fy74+lG+VdXOWcFAs3iA44EVdRFipu3qeysfDo+lCpNagoC8PGU4ZQGxzG
+         4mGQQSj0pCHyddOfP6Vn1xZEWkDQssKcg+zanUS0FqK3yTGEEEUOEsoENLIiVBb62o+3
+         AYjR+RmwTJNsTOBvUQaomnrhTsrnifYhiy2uGXgqpBzQWdHHEQXimexSsUtWOGjq2bV+
+         MORtVVWEwBkYiELV6O3lH9/M56ZsNTUtvZw4L7XRbIRrJOX2E9p48rPGVsKwHTVWIMQR
+         loMWe92dZ6YXCEQsUiG+WAAvE5qBAY2eRGMtdvCDihMnuSQGM0hETxLBpKyRrHH3LTI6
+         P2aw==
+X-Gm-Message-State: AO0yUKU50ENxeI45t12BabuLJgoZP6DJA+Fs+2su6t0HBRVkYzMsOifM
+        nF2AtEmg48Z4/9MbU/hASZE=
+X-Google-Smtp-Source: AK7set/OF3AdfTGjwEHlL5tu1CQX7SQa6dKdOeg+TCkjQnwZiD4NH1p423e+b6+vxXGoSHFc7z6hVw==
+X-Received: by 2002:a17:906:32d4:b0:878:7f6e:38a7 with SMTP id k20-20020a17090632d400b008787f6e38a7mr3719709ejk.44.1678824375883;
+        Tue, 14 Mar 2023 13:06:15 -0700 (PDT)
+Received: from jernej-laptop.localnet (82-149-1-233.dynamic.telemach.net. [82.149.1.233])
+        by smtp.gmail.com with ESMTPSA id w11-20020a1709062f8b00b00923bb9f0c36sm1535480eji.127.2023.03.14.13.06.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 Mar 2023 13:06:15 -0700 (PDT)
+From:   Jernej =?utf-8?B?xaBrcmFiZWM=?= <jernej.skrabec@gmail.com>
+To:     Joerg Roedel <joro@8bytes.org>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Will Deacon <will@kernel.org>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Niklas Schnelle <schnelle@linux.ibm.com>
+Cc:     Gerd Bayer <gbayer@linux.ibm.com>,
+        Julian Ruess <julianr@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        Alexandra Winter <wintera@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        Hector Martin <marcan@marcan.st>,
+        Sven Peter <sven@svenpeter.dev>,
+        Alyssa Rosenzweig <alyssa@rosenzweig.io>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Yong Wu <yong.wu@mediatek.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Orson Zhai <orsonzhai@gmail.com>,
+        Baolin Wang <baolin.wang@linux.alibaba.com>,
+        Chunyan Zhang <zhang.lyra@gmail.com>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Samuel Holland <samuel@sholland.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Krishna Reddy <vdumpa@nvidia.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Jonathan Corbet <corbet@lwn.net>, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        iommu@lists.linux.dev, asahi@lists.linux.dev,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
+        linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org,
+        linux-doc@vger.kernel.org
+Subject: Re: [PATCH v8 2/6] iommu: Allow .iotlb_sync_map to fail and handle s390's
+ -ENOMEM return
+Date:   Tue, 14 Mar 2023 21:06:12 +0100
+Message-ID: <3724716.kQq0lBPeGt@jernej-laptop>
+In-Reply-To: <20230310-dma_iommu-v8-2-2347dfbed7af@linux.ibm.com>
+References: <20230310-dma_iommu-v8-0-2347dfbed7af@linux.ibm.com>
+ <20230310-dma_iommu-v8-2-2347dfbed7af@linux.ibm.com>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 7Bit
 Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <BN9PR11MB52766F9DA462F5C7BC23654F8CBA9@BN9PR11MB5276.namprd11.prod.outlook.com>
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BL02EPF000108EA:EE_|MW4PR12MB6899:EE_
-X-MS-Office365-Filtering-Correlation-Id: 51ddc20c-ae7d-4098-72db-08db24bd0f9d
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: PzDR1Oo6fDpHKXvVuyVCeY3k0zoDif+UJGHziAPxUHHabpW9t3oLgx6QM4wwOypJ5Gq+XrrAr1ACeQd4xSq8PtFm5Jdt0U7zltgjeQA6l1k/IDRIcoOnC3MxgyNL8kng6PhZ4FZsF217L/yPBuQLDkjhgUTqsyWhdlue1YgTBOwC9ZiCeOm7B8Csas6zaa2JGB5Nv4BMEENFjYeemLk+lUFL0rHSD9RNG6PmP6SmTI6aLvvJykbYGTdF1dHmcRCzFTRBn7H1ay+2npG5iFixha3SS9W1Z6ZVm8B7UUxD6P2uOBcifTU69axW+1qZaZG6NsIWhAYs6hEEDhBBCQw6PPVx8e926E9bQIIwpVOkAMqpocbs/15dAhFfdJNFqFyqxmJ1ynUfEf127tgIsiWtevQ9NzMgJNdKTuN3g6o8EMKTAE9Hj283fv4V15/H6gI+5lfjhgt+mW9MMzWMlInVz4gE89h6JkP02iJ4iEZpFcXm/HhpnAq+j5f278iROpIi/6V6AbAOqxrcFyXOQFSwiI8eWwfd3/FxXO46Hai11KobBvhKSc9S1nKeh/55tUJI82bUIyZuLysD3nrcLdRhUzhOQLJrH0mGKmkoWhoSX8g7FiaLwe3XLVMGWRdvkDOvXsRN2b2940uAp54hEFBlT2SMEKtnO9a1aaoIVautQPJySaM1R7JWzb6U1VsxkM881Ag34PXn7J1tpSrYkEu7DJ0LdYIMXHMVa8w1PPXo8KAUVk+Qke96kViYnDPX63S7
-X-Forefront-Antispam-Report: CIP:216.228.118.233;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge2.nvidia.com;CAT:NONE;SFS:(13230025)(4636009)(39860400002)(136003)(376002)(396003)(346002)(451199018)(46966006)(36840700001)(40470700004)(86362001)(356005)(36860700001)(82740400003)(7636003)(41300700001)(2906002)(7416002)(8936002)(5660300002)(55016003)(40460700003)(33716001)(82310400005)(4326008)(40480700001)(9686003)(26005)(186003)(83380400001)(47076005)(54906003)(336012)(426003)(316002)(8676002)(70586007)(70206006)(478600001)(6916009);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Mar 2023 18:51:03.0421
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 51ddc20c-ae7d-4098-72db-08db24bd0f9d
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.118.233];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: BL02EPF000108EA.namprd05.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW4PR12MB6899
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Mar 10, 2023 at 02:08:15AM +0000, Tian, Kevin wrote:
-> External email: Use caution opening links or attachments
+Dne petek, 10. marec 2023 ob 17:07:47 CET je Niklas Schnelle napisal(a):
+> On s390 when using a paging hypervisor, .iotlb_sync_map is used to sync
+> mappings by letting the hypervisor inspect the synced IOVA range and
+> updating a shadow table. This however means that .iotlb_sync_map can
+> fail as the hypervisor may run out of resources while doing the sync.
+> This can be due to the hypervisor being unable to pin guest pages, due
+> to a limit on mapped addresses such as vfio_iommu_type1.dma_entry_limit
+> or lack of other resources. Either way such a failure to sync a mapping
+> should result in a DMA_MAPPING_ERROR.
 > 
+> Now especially when running with batched IOTLB flushes for unmap it may
+> be that some IOVAs have already been invalidated but not yet synced via
+> .iotlb_sync_map. Thus if the hypervisor indicates running out of
+> resources, first do a global flush allowing the hypervisor to free
+> resources associated with these mappings as well a retry creating the
+> new mappings and only if that also fails report this error to callers.
 > 
-> > From: Liu, Yi L <yi.l.liu@intel.com>
-> > Sent: Wednesday, March 8, 2023 9:14 PM
-> >
-> > @@ -449,33 +450,18 @@ iommufd_access_create(struct iommufd_ctx *ictx,
-> > u32 ioas_id,
-> >       access->data = data;
-> >       access->ops = ops;
-> >
-> > -     obj = iommufd_get_object(ictx, ioas_id, IOMMUFD_OBJ_IOAS);
-> > -     if (IS_ERR(obj)) {
-> > -             rc = PTR_ERR(obj);
-> > -             goto out_abort;
-> > -     }
-> > -     access->ioas = container_of(obj, struct iommufd_ioas, obj);
-> > -     iommufd_ref_to_users(obj);
-> > -
-> >       if (ops->needs_pin_pages)
-> >               access->iova_alignment = PAGE_SIZE;
-> >       else
-> >               access->iova_alignment = 1;
-> > -     rc = iopt_add_access(&access->ioas->iopt, access);
-> > -     if (rc)
-> > -             goto out_put_ioas;
-> >
-> >       /* The calling driver is a user until iommufd_access_destroy() */
-> >       refcount_inc(&access->obj.users);
-> > +     mutex_init(&access->ioas_lock);
-> >       access->ictx = ictx;
-> >       iommufd_ctx_get(ictx);
-> 
-> this refcnt get should be moved to the start given next patch
-> removes the reference in the caller side.
+> Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
+> Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> ---
+>  drivers/iommu/amd/iommu.c    |  5 +++--
+>  drivers/iommu/apple-dart.c   |  5 +++--
+>  drivers/iommu/intel/iommu.c  |  5 +++--
+>  drivers/iommu/iommu.c        | 20 ++++++++++++++++----
+>  drivers/iommu/msm_iommu.c    |  5 +++--
+>  drivers/iommu/mtk_iommu.c    |  5 +++--
+>  drivers/iommu/s390-iommu.c   | 29 ++++++++++++++++++++++++-----
+>  drivers/iommu/sprd-iommu.c   |  5 +++--
+>  drivers/iommu/sun50i-iommu.c |  4 +++-
 
-I don't feel quite convincing to justify for moving it in this
-patch. Perhaps we should do that in the following patch, where
-it needs this? Or another individual patch moving this alone?
+For sun50i:
+Acked-by: Jernej Skrabec <jernej.skrabec@gmail.com>
 
-Thanks
-Nic
+Best regards,
+Jernej
+
+>  drivers/iommu/tegra-gart.c   |  5 +++--
+>  include/linux/iommu.h        |  4 ++--
+>  11 files changed, 66 insertions(+), 26 deletions(-)
+> 
+> diff --git a/drivers/iommu/amd/iommu.c b/drivers/iommu/amd/iommu.c
+> index 5a505ba5467e..ff309bd1bb8f 100644
+> --- a/drivers/iommu/amd/iommu.c
+> +++ b/drivers/iommu/amd/iommu.c
+> @@ -2187,14 +2187,15 @@ static int amd_iommu_attach_device(struct
+> iommu_domain *dom, return ret;
+>  }
+> 
+> -static void amd_iommu_iotlb_sync_map(struct iommu_domain *dom,
+> -				     unsigned long iova, size_t 
+size)
+> +static int amd_iommu_iotlb_sync_map(struct iommu_domain *dom,
+> +				    unsigned long iova, size_t 
+size)
+>  {
+>  	struct protection_domain *domain = to_pdomain(dom);
+>  	struct io_pgtable_ops *ops = &domain->iop.iop.ops;
+> 
+>  	if (ops->map_pages)
+>  		domain_flush_np_cache(domain, iova, size);
+> +	return 0;
+>  }
+> 
+>  static int amd_iommu_map_pages(struct iommu_domain *dom, unsigned long
+> iova, diff --git a/drivers/iommu/apple-dart.c b/drivers/iommu/apple-dart.c
+> index 06169d36eab8..cbed1f87eae9 100644
+> --- a/drivers/iommu/apple-dart.c
+> +++ b/drivers/iommu/apple-dart.c
+> @@ -506,10 +506,11 @@ static void apple_dart_iotlb_sync(struct iommu_domain
+> *domain, apple_dart_domain_flush_tlb(to_dart_domain(domain));
+>  }
+> 
+> -static void apple_dart_iotlb_sync_map(struct iommu_domain *domain,
+> -				      unsigned long iova, size_t 
+size)
+> +static int apple_dart_iotlb_sync_map(struct iommu_domain *domain,
+> +				     unsigned long iova, size_t 
+size)
+>  {
+>  	apple_dart_domain_flush_tlb(to_dart_domain(domain));
+> +	return 0;
+>  }
+> 
+>  static phys_addr_t apple_dart_iova_to_phys(struct iommu_domain *domain,
+> diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
+> index 7c2f4bd33582..b795b2f323e3 100644
+> --- a/drivers/iommu/intel/iommu.c
+> +++ b/drivers/iommu/intel/iommu.c
+> @@ -4745,8 +4745,8 @@ static bool risky_device(struct pci_dev *pdev)
+>  	return false;
+>  }
+> 
+> -static void intel_iommu_iotlb_sync_map(struct iommu_domain *domain,
+> -				       unsigned long iova, size_t 
+size)
+> +static int intel_iommu_iotlb_sync_map(struct iommu_domain *domain,
+> +				      unsigned long iova, size_t 
+size)
+>  {
+>  	struct dmar_domain *dmar_domain = to_dmar_domain(domain);
+>  	unsigned long pages = aligned_nrpages(iova, size);
+> @@ -4756,6 +4756,7 @@ static void intel_iommu_iotlb_sync_map(struct
+> iommu_domain *domain,
+> 
+>  	xa_for_each(&dmar_domain->iommu_array, i, info)
+>  		__mapping_notify_one(info->iommu, dmar_domain, pfn, 
+pages);
+> +	return 0;
+>  }
+> 
+>  static void intel_iommu_remove_dev_pasid(struct device *dev, ioasid_t
+> pasid) diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+> index 10db680acaed..ae549b032a16 100644
+> --- a/drivers/iommu/iommu.c
+> +++ b/drivers/iommu/iommu.c
+> @@ -2410,8 +2410,17 @@ int iommu_map(struct iommu_domain *domain, unsigned
+> long iova, return -EINVAL;
+> 
+>  	ret = __iommu_map(domain, iova, paddr, size, prot, gfp);
+> -	if (ret == 0 && ops->iotlb_sync_map)
+> -		ops->iotlb_sync_map(domain, iova, size);
+> +	if (ret == 0 && ops->iotlb_sync_map) {
+> +		ret = ops->iotlb_sync_map(domain, iova, size);
+> +		if (ret)
+> +			goto out_err;
+> +	}
+> +
+> +	return ret;
+> +
+> +out_err:
+> +	/* undo mappings already done */
+> +	iommu_unmap(domain, iova, size);
+> 
+>  	return ret;
+>  }
+> @@ -2552,8 +2561,11 @@ ssize_t iommu_map_sg(struct iommu_domain *domain,
+> unsigned long iova, sg = sg_next(sg);
+>  	}
+> 
+> -	if (ops->iotlb_sync_map)
+> -		ops->iotlb_sync_map(domain, iova, mapped);
+> +	if (ops->iotlb_sync_map) {
+> +		ret = ops->iotlb_sync_map(domain, iova, mapped);
+> +		if (ret)
+> +			goto out_err;
+> +	}
+>  	return mapped;
+> 
+>  out_err:
+> diff --git a/drivers/iommu/msm_iommu.c b/drivers/iommu/msm_iommu.c
+> index 454f6331c889..2033716eac78 100644
+> --- a/drivers/iommu/msm_iommu.c
+> +++ b/drivers/iommu/msm_iommu.c
+> @@ -486,12 +486,13 @@ static int msm_iommu_map(struct iommu_domain *domain,
+> unsigned long iova, return ret;
+>  }
+> 
+> -static void msm_iommu_sync_map(struct iommu_domain *domain, unsigned long
+> iova, -			       size_t size)
+> +static int msm_iommu_sync_map(struct iommu_domain *domain, unsigned long
+> iova, +			      size_t size)
+>  {
+>  	struct msm_priv *priv = to_msm_priv(domain);
+> 
+>  	__flush_iotlb_range(iova, size, SZ_4K, false, priv);
+> +	return 0;
+>  }
+> 
+>  static size_t msm_iommu_unmap(struct iommu_domain *domain, unsigned long
+> iova, diff --git a/drivers/iommu/mtk_iommu.c b/drivers/iommu/mtk_iommu.c
+> index d5a4955910ff..29769fb5c51e 100644
+> --- a/drivers/iommu/mtk_iommu.c
+> +++ b/drivers/iommu/mtk_iommu.c
+> @@ -750,12 +750,13 @@ static void mtk_iommu_iotlb_sync(struct iommu_domain
+> *domain, mtk_iommu_tlb_flush_range_sync(gather->start, length, dom->bank);
+> }
+> 
+> -static void mtk_iommu_sync_map(struct iommu_domain *domain, unsigned long
+> iova, -			       size_t size)
+> +static int mtk_iommu_sync_map(struct iommu_domain *domain, unsigned long
+> iova, +			      size_t size)
+>  {
+>  	struct mtk_iommu_domain *dom = to_mtk_domain(domain);
+> 
+>  	mtk_iommu_tlb_flush_range_sync(iova, size, dom->bank);
+> +	return 0;
+>  }
+> 
+>  static phys_addr_t mtk_iommu_iova_to_phys(struct iommu_domain *domain,
+> diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
+> index fbf59a8db29b..17174b35db11 100644
+> --- a/drivers/iommu/s390-iommu.c
+> +++ b/drivers/iommu/s390-iommu.c
+> @@ -205,6 +205,14 @@ static void s390_iommu_release_device(struct device
+> *dev) __s390_iommu_detach_device(zdev);
+>  }
+> 
+> +
+> +static int zpci_refresh_all(struct zpci_dev *zdev)
+> +{
+> +	return zpci_refresh_trans((u64)zdev->fh << 32, zdev->start_dma,
+> +				  zdev->end_dma - zdev->start_dma 
++ 1);
+> +
+> +}
+> +
+>  static void s390_iommu_flush_iotlb_all(struct iommu_domain *domain)
+>  {
+>  	struct s390_domain *s390_domain = to_s390_domain(domain);
+> @@ -212,8 +220,7 @@ static void s390_iommu_flush_iotlb_all(struct
+> iommu_domain *domain)
+> 
+>  	rcu_read_lock();
+>  	list_for_each_entry_rcu(zdev, &s390_domain->devices, iommu_list) {
+> -		zpci_refresh_trans((u64)zdev->fh << 32, zdev-
+>start_dma,
+> -				   zdev->end_dma - zdev-
+>start_dma + 1);
+> +		zpci_refresh_all(zdev);
+>  	}
+>  	rcu_read_unlock();
+>  }
+> @@ -237,20 +244,32 @@ static void s390_iommu_iotlb_sync(struct iommu_domain
+> *domain, rcu_read_unlock();
+>  }
+> 
+> -static void s390_iommu_iotlb_sync_map(struct iommu_domain *domain,
+> +static int s390_iommu_iotlb_sync_map(struct iommu_domain *domain,
+>  				      unsigned long iova, size_t 
+size)
+>  {
+>  	struct s390_domain *s390_domain = to_s390_domain(domain);
+>  	struct zpci_dev *zdev;
+> +	int ret = 0;
+> 
+>  	rcu_read_lock();
+>  	list_for_each_entry_rcu(zdev, &s390_domain->devices, iommu_list) {
+>  		if (!zdev->tlb_refresh)
+>  			continue;
+> -		zpci_refresh_trans((u64)zdev->fh << 32,
+> -				   iova, size);
+> +		ret = zpci_refresh_trans((u64)zdev->fh << 32,
+> +					 iova, size);
+> +		/*
+> +		 * let the hypervisor discover invalidated entries
+> +		 * allowing it to free IOVAs and unpin pages
+> +		 */
+> +		if (ret == -ENOMEM) {
+> +			ret = zpci_refresh_all(zdev);
+> +			if (ret)
+> +				break;
+> +		}
+>  	}
+>  	rcu_read_unlock();
+> +
+> +	return ret;
+>  }
+> 
+>  static int s390_iommu_validate_trans(struct s390_domain *s390_domain,
+> diff --git a/drivers/iommu/sprd-iommu.c b/drivers/iommu/sprd-iommu.c
+> index ae94d74b73f4..74bcae69653c 100644
+> --- a/drivers/iommu/sprd-iommu.c
+> +++ b/drivers/iommu/sprd-iommu.c
+> @@ -315,8 +315,8 @@ static size_t sprd_iommu_unmap(struct iommu_domain
+> *domain, unsigned long iova, return size;
+>  }
+> 
+> -static void sprd_iommu_sync_map(struct iommu_domain *domain,
+> -				unsigned long iova, size_t size)
+> +static int sprd_iommu_sync_map(struct iommu_domain *domain,
+> +			       unsigned long iova, size_t size)
+>  {
+>  	struct sprd_iommu_domain *dom = to_sprd_domain(domain);
+>  	unsigned int reg;
+> @@ -328,6 +328,7 @@ static void sprd_iommu_sync_map(struct iommu_domain
+> *domain,
+> 
+>  	/* clear IOMMU TLB buffer after page table updated */
+>  	sprd_iommu_write(dom->sdev, reg, 0xffffffff);
+> +	return 0;
+>  }
+> 
+>  static void sprd_iommu_sync(struct iommu_domain *domain,
+> diff --git a/drivers/iommu/sun50i-iommu.c b/drivers/iommu/sun50i-iommu.c
+> index 2d993d0cea7d..60a983f4a494 100644
+> --- a/drivers/iommu/sun50i-iommu.c
+> +++ b/drivers/iommu/sun50i-iommu.c
+> @@ -402,7 +402,7 @@ static void sun50i_iommu_flush_iotlb_all(struct
+> iommu_domain *domain) spin_unlock_irqrestore(&iommu->iommu_lock, flags);
+>  }
+> 
+> -static void sun50i_iommu_iotlb_sync_map(struct iommu_domain *domain,
+> +static int sun50i_iommu_iotlb_sync_map(struct iommu_domain *domain,
+>  					unsigned long iova, 
+size_t size)
+>  {
+>  	struct sun50i_iommu_domain *sun50i_domain = 
+to_sun50i_domain(domain);
+> @@ -412,6 +412,8 @@ static void sun50i_iommu_iotlb_sync_map(struct
+> iommu_domain *domain, spin_lock_irqsave(&iommu->iommu_lock, flags);
+>  	sun50i_iommu_zap_range(iommu, iova, size);
+>  	spin_unlock_irqrestore(&iommu->iommu_lock, flags);
+> +
+> +	return 0;
+>  }
+> 
+>  static void sun50i_iommu_iotlb_sync(struct iommu_domain *domain,
+> diff --git a/drivers/iommu/tegra-gart.c b/drivers/iommu/tegra-gart.c
+> index a482ff838b53..44966d7b07ba 100644
+> --- a/drivers/iommu/tegra-gart.c
+> +++ b/drivers/iommu/tegra-gart.c
+> @@ -252,10 +252,11 @@ static int gart_iommu_of_xlate(struct device *dev,
+>  	return 0;
+>  }
+> 
+> -static void gart_iommu_sync_map(struct iommu_domain *domain, unsigned long
+> iova, -				size_t size)
+> +static int gart_iommu_sync_map(struct iommu_domain *domain, unsigned long
+> iova, +			       size_t size)
+>  {
+>  	FLUSH_GART_REGS(gart_handle);
+> +	return 0;
+>  }
+> 
+>  static void gart_iommu_sync(struct iommu_domain *domain,
+> diff --git a/include/linux/iommu.h b/include/linux/iommu.h
+> index 6595454d4f48..932e5532ee33 100644
+> --- a/include/linux/iommu.h
+> +++ b/include/linux/iommu.h
+> @@ -333,8 +333,8 @@ struct iommu_domain_ops {
+>  			      struct iommu_iotlb_gather 
+*iotlb_gather);
+> 
+>  	void (*flush_iotlb_all)(struct iommu_domain *domain);
+> -	void (*iotlb_sync_map)(struct iommu_domain *domain, unsigned long 
+iova,
+> -			       size_t size);
+> +	int (*iotlb_sync_map)(struct iommu_domain *domain, unsigned long 
+iova,
+> +			      size_t size);
+>  	void (*iotlb_sync)(struct iommu_domain *domain,
+>  			   struct iommu_iotlb_gather *iotlb_gather);
+
+
+
+
