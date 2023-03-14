@@ -2,291 +2,166 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6CEBFC61DA4
-	for <linux-s390@archiver.kernel.org>; Mon, 13 Mar 2023 22:56:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 14842C6FD1C
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Mar 2023 08:23:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229578AbjCMW4I (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 13 Mar 2023 18:56:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35264 "EHLO
+        id S230390AbjCNIXR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Mar 2023 04:23:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229925AbjCMWzv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 13 Mar 2023 18:55:51 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E22ED92BE1;
-        Mon, 13 Mar 2023 15:55:14 -0700 (PDT)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32DKV8pL004034;
-        Mon, 13 Mar 2023 22:45:40 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=fbyf9OUU/YPPSXB9llJZh1EYAaEfBal+Tbf5i0+cBxk=;
- b=KhkzeGNS3NIE0OCGxned/cDMqYs1brpI8gioQHcBG6+ZlDgfoRdASgS2o/EZXpFwbuOF
- UuX8GAc07LRvnMp9Zw+FDO1rUl/sdH6z2scj8iHoXgCEc5T5CuTEHhCNelXiv4BvC9kZ
- JbcK/R0WTXWCFaHnlX4UHcwSSJTpbtk2J6TRE5S9oHsbjCKchEXRbmqKwo3VER8CX/o+
- aoyT/jPwn2MxpP0eFT5cC96KxdAw6f8HukZuZMRzamnSe/7G/GgLcuhu3xxYQa++U7IG
- YG/T41AbncShDBirnItfTr6GkjTfTxy8D6ksnTUVs8EQ3osKBSEx95w9pITFK82ER4nz dA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3pa5ubkxa1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 13 Mar 2023 22:45:39 +0000
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32DMhVLa030081;
-        Mon, 13 Mar 2023 22:45:39 GMT
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3pa5ubkx9k-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 13 Mar 2023 22:45:39 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32DCvi5g015761;
-        Mon, 13 Mar 2023 22:45:37 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma05fra.de.ibm.com (PPS) with ESMTPS id 3p8h96k320-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 13 Mar 2023 22:45:37 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32DMjY1G47513942
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 13 Mar 2023 22:45:34 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 054312005A;
-        Mon, 13 Mar 2023 22:45:34 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C90A42004B;
-        Mon, 13 Mar 2023 22:45:33 +0000 (GMT)
-Received: from li-7e0de7cc-2d9d-11b2-a85c-de26c016e5ad.ibm.com (unknown [9.171.219.71])
-        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon, 13 Mar 2023 22:45:33 +0000 (GMT)
-Message-ID: <d6471b717f34b6ae664dc91331246e9676d8c879.camel@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v5] s390x: Add tests for execute-type
- instructions
-From:   Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     Thomas Huth <thuth@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Date:   Mon, 13 Mar 2023 23:45:33 +0100
-In-Reply-To: <20230313191602.58b16c31@p-imbrenda>
-References: <20230310181131.2138736-1-nsg@linux.ibm.com>
-         <20230313191602.58b16c31@p-imbrenda>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.46.4 (3.46.4-1.fc37) 
+        with ESMTP id S230086AbjCNIWv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Mar 2023 04:22:51 -0400
+Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2060.outbound.protection.outlook.com [40.107.92.60])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D3A29227E;
+        Tue, 14 Mar 2023 01:21:27 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=KtJXkmENAC8Gbs8oww3erraRCxxXxMP6IPaW2Z58udOhRuUYEypST5Eb/jR75O78/nRCXhllojdW8CjobBalqT4WU3g7/hSE0baD3Q2LyYKEJDxzqHUTmt8pL8bjdbYBWJtfA01OeBiLRn2yuTG3BaviMp1bMZj8+Fo7fu1shUxei2oSCJxHnZQLqpw7DiUfGgGv1i36qQ35uFNFRSQ0QY9H/zbzywjtJZrKyOGy+fE1jnnG0t1tCjqkJtwzcC1bDnEDTNPp6sUazZSw/oXXbDbDt4YFJGhMO/6GXIDXb76vj3ZQHNH+MXmE9rKnkOpAC7TAryMlnomZDT0g663Q0Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=yOSQ43L9xKmhli+kTXIlcRqOE70JR46g+bs5USMoAH0=;
+ b=gbqYnw4i8MH/z8b2VFlYth7ruB7c+1agPF9IQrOk9w/kCa+g1cXIhRmr20mOvSQy5yR5rBXgXHnxP+wtIPcR3eJ3wOAjX2OfRTXI/FXGathD4SeFPTVQ5JKwF0fclS+iUOg/7T2rxx1+K1h50L7QJfyzKVt3wz5soWBeRKF1RsGTfFf4/ySo0sBRG5mRqk6qj2w0zU1vu8YVMCIeGOqTjYMi6zIqCbs23bTZuOFWac00vPizwcWtWAOQRhZVakC7wA5Y4WTPW+sAnyh/liKugBMoMW5pi+T5vn3tKCtqBWKWXKj8Kca4F4UkIHSVPT4oNydhJfXNLwtI5tA8ucunpg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.161) smtp.rcpttodomain=intel.com smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=yOSQ43L9xKmhli+kTXIlcRqOE70JR46g+bs5USMoAH0=;
+ b=n2IpOhaHZ4LBpHqOFOxta4pCedrR9WgwYcmd/XxS6d0KsarHFbuXq97QorNNwywk7qIGN3QdAbvzLt0uB0qw4GWeggtOErVdIHD/vbiw/5NBv+v6ATwSK/ZXLLpqGSu3Ny5imhpnMFd+t1euNIzgt39ayxZPwnV0Oj8J50LfreDIRUMFUr2TjkaUc2Fh0Y/GTXSYZQ9qWwEHjbqd84B+EtYWIJR2WuCwQ+86e7FVrtgsbbqpAyO/PKC0oGGyg5D6hf/VVd8V4uCLwkh84q1LRX6dDe7D0nb1lH/cP9ZO50BaKcG6WvB3t88PJL4PciSk5k+QHQaCIIjTvVz87NWB1A==
+Received: from CY5PR17CA0040.namprd17.prod.outlook.com (2603:10b6:930:12::34)
+ by CH2PR12MB4972.namprd12.prod.outlook.com (2603:10b6:610:69::17) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6178.24; Tue, 14 Mar
+ 2023 08:21:03 +0000
+Received: from CY4PEPF0000C981.namprd02.prod.outlook.com
+ (2603:10b6:930:12:cafe::a) by CY5PR17CA0040.outlook.office365.com
+ (2603:10b6:930:12::34) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6178.26 via Frontend
+ Transport; Tue, 14 Mar 2023 08:21:02 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.161) by
+ CY4PEPF0000C981.mail.protection.outlook.com (10.167.241.203) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.6178.13 via Frontend Transport; Tue, 14 Mar 2023 08:21:02 +0000
+Received: from rnnvmail205.nvidia.com (10.129.68.10) by mail.nvidia.com
+ (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.5; Tue, 14 Mar 2023
+ 01:20:49 -0700
+Received: from rnnvmail203.nvidia.com (10.129.68.9) by rnnvmail205.nvidia.com
+ (10.129.68.10) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.37; Tue, 14 Mar
+ 2023 01:20:49 -0700
+Received: from Asurada-Nvidia (10.127.8.9) by mail.nvidia.com (10.129.68.9)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.5 via Frontend
+ Transport; Tue, 14 Mar 2023 01:20:48 -0700
+Date:   Tue, 14 Mar 2023 01:20:46 -0700
+From:   Nicolin Chen <nicolinc@nvidia.com>
+To:     Yi Liu <yi.l.liu@intel.com>, Jason Gunthorpe <jgg@nvidia.com>
+CC:     <alex.williamson@redhat.com>, <kevin.tian@intel.com>,
+        <joro@8bytes.org>, <robin.murphy@arm.com>, <cohuck@redhat.com>,
+        <eric.auger@redhat.com>, <kvm@vger.kernel.org>,
+        <mjrosato@linux.ibm.com>, <chao.p.peng@linux.intel.com>,
+        <yi.y.sun@linux.intel.com>, <peterx@redhat.com>,
+        <jasowang@redhat.com>, <shameerali.kolothum.thodi@huawei.com>,
+        <lulu@redhat.com>, <suravee.suthikulpanit@amd.com>,
+        <intel-gvt-dev@lists.freedesktop.org>,
+        <intel-gfx@lists.freedesktop.org>, <linux-s390@vger.kernel.org>,
+        <xudong.hao@intel.com>, <yan.y.zhao@intel.com>,
+        <terrence.xu@intel.com>
+Subject: Re: [PATCH v1 1/5] iommufd: Create access in
+ vfio_iommufd_emulated_bind()
+Message-ID: <ZBAuXo166M+z8b3z@Asurada-Nvidia>
+References: <20230308131340.459224-1-yi.l.liu@intel.com>
+ <20230308131340.459224-2-yi.l.liu@intel.com>
+ <ZAtqlnCk7uccR5E7@nvidia.com>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: tPjbXk4HNQy9GmnsITndE-e_7-hPSr9X
-X-Proofpoint-ORIG-GUID: K4nwcn7ob-Xe5GkUMvsC7bQ3sSN_9Enx
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-03-13_11,2023-03-13_03,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 bulkscore=0
- phishscore=0 mlxscore=0 clxscore=1015 impostorscore=0 lowpriorityscore=0
- adultscore=0 spamscore=0 mlxlogscore=999 malwarescore=0 priorityscore=1501
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
- definitions=main-2303130177
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <ZAtqlnCk7uccR5E7@nvidia.com>
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CY4PEPF0000C981:EE_|CH2PR12MB4972:EE_
+X-MS-Office365-Filtering-Correlation-Id: 56b29f08-7e0e-40a0-e9f0-08db24650cc5
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: /BgX/sDdNk4ydL1kLFNbnU3DkjHt3JacsxGvzDwrwSZwVyQG1qqtCZU9mh9zzUOp9KZ6IRzGxYdp8HTfDoKPgWM+YMHiijTMXfY9eh3vYJd7yMkcHRMv8neGbnORfjKktu6Ha2ndQRzasvML17THMHU7xEOj7x3AcsrnnumxomipzAlDYQamh5PYZ75qzFCCPnFZ4lns7W1Hp+AlGW0XWUO8vINKwYFluFhwuOvgX7N/D20gepMx9po5Qgz+BbrbchavCa1axzhwEfi8D5Ig9cTbpp9QkGdMkpqxuy7ye3dLhzKUKkiB9Te8bBgHsaQrHqBRufd51vi4kcCnj13r/Xu0pzdKK3ZAbRD61qaRKsvYY5l38PLcSejNU5t/dYP0KwNn42OwL4x+QEM75Tukhn16u1WN2vj2YJZJvsuQ+6avCCPnvi8U7KFSuh3/4nRbTsltOOG+OmX2Yk0PzVRPIoxu5nqo+vnR4yjqEXOcNGKNkbB1Jh8e/s3baaIGekhyR7u3Iwp+/wV4YYATVp0TXC78syfTiC1rteMKqNzhrtg3TbXRJYclgdjEIPyZXTkf2dbxJJdhXdsL+gJZV8ITnaECBw39TNZCWDLRiTL22juouf9dcBroPImKoPioGawMAoY+GBuVzlM+ZZNhdOOgbkfUaw4Ap0k8gdJSfR7n2hBpvGQJwLHRDFH795lHFOkar0X8zRDtmXWPsqAhAneWAZlpiZcHXn/HTKMsIy+lwBrwwf+RmpV//M8pWOs2jpTuYuS3OTfeBz4DAbNzuUtnCg==
+X-Forefront-Antispam-Report: CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230025)(4636009)(39860400002)(136003)(396003)(376002)(346002)(451199018)(40470700004)(36840700001)(46966006)(356005)(82310400005)(86362001)(33716001)(36860700001)(7636003)(82740400003)(55016003)(40480700001)(40460700003)(110136005)(4326008)(8676002)(70206006)(70586007)(8936002)(41300700001)(54906003)(6636002)(478600001)(316002)(7416002)(5660300002)(2906002)(47076005)(426003)(336012)(83380400001)(9686003)(186003)(26005)(67856001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Mar 2023 08:21:02.6088
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 56b29f08-7e0e-40a0-e9f0-08db24650cc5
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.161];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: CY4PEPF0000C981.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH2PR12MB4972
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 2023-03-13 at 19:16 +0100, Claudio Imbrenda wrote:
-> On Fri, 10 Mar 2023 19:11:31 +0100
-> Nina Schoetterl-Glausch <nsg@linux.ibm.com> wrote:
->=20
-> > Test the instruction address used by targets of an execute instruction.
-> > When the target instruction calculates a relative address, the result i=
-s
-> > relative to the target instruction, not the execute instruction.
-> >=20
-> > Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-> > Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-> > ---
-> >=20
-> >=20
-> > v4 -> v5:
-> >  * word align the execute-type instruction, preventing a specification
-> >    exception if the address calculation is wrong, since LLGFRL requires
-> >    word alignment
-> >  * change wording of comment
-> >=20
-> > v3 -> v4:
-> >  * fix nits (thanks Janosch)
-> >  * pickup R-b (thanks Janosch)
-> >=20
-> > v2 -> v3:
-> >  * add some comments (thanks Janosch)
-> >  * add two new tests (drop Nico's R-b)
-> >  * push prefix
-> >=20
-> > v1 -> v2:
-> >  * add test to unittests.cfg and .gitlab-ci.yml
-> >  * pick up R-b (thanks Nico)
-> >=20
-> >=20
-> > TCG does the address calculation relative to the execute instruction.
-> > Everything that has an operand that is relative to the instruction give=
-n by
-> > the immediate in the instruction and goes through in2_ri2 in TCG has th=
-is
-> > problem, because in2_ri2 does the calculation relative to pc_next which=
- is the
-> > address of the EX(RL).
-> > That should make fixing it easier tho.
-> >=20
-> >=20
-> > Range-diff against v4:
-> > 1:  f29ef634 ! 1:  57f8f256 s390x: Add tests for execute-type instructi=
-ons
-> >     @@ s390x/ex.c (new)
-> >      +		"	.popsection\n"
-> >      +
-> >      +		"	llgfrl	%[target],0b\n"
-> >     ++		//align (pad with nop), in case the wrong operand is used
-> >     ++		"	.balignw 4,0x0707\n"
-> >      +		"	exrl	0,0b\n"
-> >      +		: [target] "=3Dd" (target),
-> >      +		  [value] "=3Dd" (value)
-> >     @@ s390x/ex.c (new)
-> >      +		"	.popsection\n"
-> >      +
-> >      +		"	lrl	%[crl_word],0b\n"
-> >     -+		//align (pad with nop), in case the wrong bad operand is used
-> >     ++		//align (pad with nop), in case the wrong operand is used
-> >      +		"	.balignw 4,0x0707\n"
-> >      +		"	exrl	0,0b\n"
-> >      +		"	ipm	%[program_mask]\n"
-> >=20
-> >  s390x/Makefile      |   1 +
-> >  s390x/ex.c          | 172 ++++++++++++++++++++++++++++++++++++++++++++
-> >  s390x/unittests.cfg |   3 +
-> >  .gitlab-ci.yml      |   1 +
-> >  4 files changed, 177 insertions(+)
-> >  create mode 100644 s390x/ex.c
-> >=20
-> > diff --git a/s390x/Makefile b/s390x/Makefile
-> > index 97a61611..6cf8018b 100644
-> > --- a/s390x/Makefile
-> > +++ b/s390x/Makefile
-> > @@ -39,6 +39,7 @@ tests +=3D $(TEST_DIR)/panic-loop-extint.elf
-> >  tests +=3D $(TEST_DIR)/panic-loop-pgm.elf
-> >  tests +=3D $(TEST_DIR)/migration-sck.elf
-> >  tests +=3D $(TEST_DIR)/exittime.elf
-> > +tests +=3D $(TEST_DIR)/ex.elf
-> > =20
-> >  pv-tests +=3D $(TEST_DIR)/pv-diags.elf
-> > =20
-> > diff --git a/s390x/ex.c b/s390x/ex.c
-> > new file mode 100644
-> > index 00000000..f05f8f90
-> > --- /dev/null
-> > +++ b/s390x/ex.c
-> > @@ -0,0 +1,172 @@
-> > +// SPDX-License-Identifier: GPL-2.0-only
-> > +/*
-> > + * Copyright IBM Corp. 2023
-> > + *
-> > + * Test EXECUTE (RELATIVE LONG).
-> > + * These instructions execute a target instruction. The target instruc=
-tion is formed
-> > + * by reading an instruction from memory and optionally modifying some=
- of its bits.
-> > + * The execution of the target instruction is the same as if it was ex=
-ecuted
-> > + * normally as part of the instruction sequence, except for the instru=
-ction
-> > + * address and the instruction-length code.
-> > + */
-> > +
-> > +#include <libcflat.h>
-> > +
-> > +/*
-> > + * BRANCH AND SAVE, register register variant.
-> > + * Saves the next instruction address (address from PSW + length of in=
-struction)
-> > + * to the first register. No branch is taken in this test, because 0 i=
-s
-> > + * specified as target.
-> > + * BASR does *not* perform a relative address calculation with an inte=
-rmediate.
-> > + */
-> > +static void test_basr(void)
+On Fri, Mar 10, 2023 at 01:36:22PM -0400, Jason Gunthorpe wrote:
+> On Wed, Mar 08, 2023 at 05:13:36AM -0800, Yi Liu wrote:
+> 
+> > +int iommufd_access_set_ioas(struct iommufd_access *access, u32 ioas_id)
 > > +{
-> > +	uint64_t ret_addr, after_ex;
+> > +	struct iommufd_ioas *new_ioas = NULL, *cur_ioas;
+> > +	struct iommufd_ctx *ictx = access->ictx;
+> > +	struct iommufd_object *obj;
+> > +	int rc = 0;
 > > +
-> > +	report_prefix_push("BASR");
-> > +	asm volatile ( ".pushsection .rodata\n"
->=20
-> you use .text.ex_bras in the next test, why not something like that here
-> (and everywhere else) too?
+> > +	if (ioas_id) {
+> > +		obj = iommufd_get_object(ictx, ioas_id, IOMMUFD_OBJ_IOAS);
+> > +		if (IS_ERR(obj))
+> > +			return PTR_ERR(obj);
+> > +		new_ioas = container_of(obj, struct iommufd_ioas, obj);
+> > +	}
+> > +
+> > +	mutex_lock(&access->ioas_lock);
+> > +	cur_ioas = access->ioas;
+> > +	if (cur_ioas == new_ioas)
+> > +		goto out_unlock;
+> > +
+> > +	if (new_ioas) {
+> > +		rc = iopt_add_access(&new_ioas->iopt, access);
+> > +		if (rc)
+> > +			goto out_unlock;
+> > +		iommufd_ref_to_users(obj);
+> > +	}
+> > +
+> > +	if (cur_ioas) {
+> > +		iopt_remove_access(&cur_ioas->iopt, access);
+> > +		refcount_dec(&cur_ioas->obj.users);
+> > +	}
+> 
+> This should match the physical side with an add/remove/replace
+> API. Especially since remove is implicit in destroy this series only
+> needs the add API
 
-In the test below we branch to the code in .text.ex_bras.
-In all other tests the instruction in .rodata is just an operand of the exe=
-cute instruction,
-and it doesn't get modified.
-As for the bras test having a suffix, I guess it's pretty arbitrary, but si=
-nce it's a handful
-of instructions instead of just one, it felt substantial enough to warrant =
-one.
+I assume that the API would be iommufd_access_attach,
+iommufd_access_detach, and iommufd_access_replace(). And there
+might be an iommufd_access_change_pt(access, pt, bool replace)?
 
->=20
-> > +		"0:	basr	%[ret_addr],0\n"
-> > +		"	.popsection\n"
-> > +
-> > +		"	larl	%[after_ex],1f\n"
-> > +		"	exrl	0,0b\n"
-> > +		"1:\n"
-> > +		: [ret_addr] "=3Dd" (ret_addr),
-> > +		  [after_ex] "=3Dd" (after_ex)
-> > +	);
-> > +
-> > +	report(ret_addr =3D=3D after_ex, "return address after EX");
-> > +	report_prefix_pop();
-> > +}
-> > +
-> > +/*
-> > + * BRANCH RELATIVE AND SAVE.
-> > + * According to PoP (Branch-Address Generation), the address calculate=
-d relative
-> > + * to the instruction address is relative to BRAS when it is the targe=
-t of an
-> > + * execute-type instruction, not relative to the execute-type instruct=
-ion.
-> > + */
-> > +static void test_bras(void)
-> > +{
-> > +	uint64_t after_target, ret_addr, after_ex, branch_addr;
-> > +
-> > +	report_prefix_push("BRAS");
-> > +	asm volatile ( ".pushsection .text.ex_bras, \"x\"\n"
-> > +		"0:	bras	%[ret_addr],1f\n"
-> > +		"	nopr	%%r7\n"
-> > +		"1:	larl	%[branch_addr],0\n"
-> > +		"	j	4f\n"
-> > +		"	.popsection\n"
-> > +
-> > +		"	larl	%[after_target],1b\n"
-> > +		"	larl	%[after_ex],3f\n"
-> > +		"2:	exrl	0,0b\n"
-/*
- * In case the address calculation is correct, we jump by the relative offs=
-et 1b-0b from 0b to 1b.
- * In case the address calculation is relative to the exrl (i.e. a test fai=
-lure),
- * put a valid instruction at the same relative offset from the exrl, so th=
-e test continues in a
- * controlled manner.
- */
-> > +		"3:	larl	%[branch_addr],0\n"
-> > +		"4:\n"
-> > +
-> > +		"	.if (1b - 0b) !=3D (3b - 2b)\n"
-> > +		"	.error	\"right and wrong target must have same offset\"\n"
->=20
-> please explain why briefly (i.e. if the wrong target is executed and
-> the offset mismatches Bad Things=E2=84=A2 happen)
+> And the locking shouldn't come in another patch that brings the
+> replace/remove since with just split add we don't need it.
 
-Ok, see above.
+Hmm. The iommufd_access_detach would be needed in the following
+cdev series, while the iommufd_access_replace would be need in
+my replace series. So, that would make the API be divided into
+three series.
 
-[...]
+Perhaps we can have iommufd_access_attach/detach in this series
+along with a vfio_iommufd_emulated_detach_ioas, and the locking
+will come with another patch in replace series?
 
-
+Thanks
+Nic
