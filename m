@@ -2,180 +2,75 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B3788C6FD1F
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Mar 2023 17:12:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8005EC05027
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Mar 2023 17:26:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230514AbjCNRMf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 14 Mar 2023 13:12:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40802 "EHLO
+        id S229816AbjCNR0h (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Mar 2023 13:26:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229608AbjCNRMe (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Mar 2023 13:12:34 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AC0954CA8;
-        Tue, 14 Mar 2023 10:12:31 -0700 (PDT)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32EFRpwX024290;
-        Tue, 14 Mar 2023 17:12:31 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=zbL6z7+6qs0jsQro0gjG3UEdcHypj946ofeVc8Zaub0=;
- b=NHX6HzekuQwYAzTalj2eUQ2J/EO3e62DerQyeRAC2x64RtMw08RD2lq9Sz6XcJXdbBm/
- bbwI5JK4BdReOOfitm9gLBEMGI80Ezf9doTBJ7E0ELkRLuW9TYmIQgD3tNXkEOl2hPMP
- f/X3jFuf/T4MIBO+DspEx6hhNdUztnIyG+DTX5C5ay2zGq62QDX7azSKnYBMXU/6QuHG
- AMNiW5cQjoFowOVAqtJ/mXWcRs/6o9i8zEuoNwKTKGKJ/z5kVMZP6HUtX4V0U1w0MsaO
- rv5E1Z/tydSxo2eKStF2o1CedkvBwPIhu/DUGzMFDk4BD/S3LsvajGlRFyrAHW0D4eYA ig== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pau6m3tuh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Mar 2023 17:12:30 +0000
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32EFHvDs002666;
-        Tue, 14 Mar 2023 17:12:30 GMT
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pau6m3ttd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Mar 2023 17:12:29 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32E8ra7l019120;
-        Tue, 14 Mar 2023 17:12:27 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-        by ppma02fra.de.ibm.com (PPS) with ESMTPS id 3p8h96m24v-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Mar 2023 17:12:27 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32EHCOld18022940
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 14 Mar 2023 17:12:24 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 111552004B;
-        Tue, 14 Mar 2023 17:12:24 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CE40320043;
-        Tue, 14 Mar 2023 17:12:23 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.152.224.56])
-        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 14 Mar 2023 17:12:23 +0000 (GMT)
-Date:   Tue, 14 Mar 2023 18:12:21 +0100
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-Cc:     Thomas Huth <thuth@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [kvm-unit-tests PATCH v2 3/3] s390x/spec_ex: Add test of
- EXECUTE with odd target address
-Message-ID: <20230314181221.6df1e4bd@p-imbrenda>
-In-Reply-To: <3976942b40bfb2c2a222d251db1629df7b6819c2.camel@linux.ibm.com>
-References: <20230221174822.1378667-1-nsg@linux.ibm.com>
-        <20230221174822.1378667-4-nsg@linux.ibm.com>
-        <20230314162526.519364c5@p-imbrenda>
-        <3976942b40bfb2c2a222d251db1629df7b6819c2.camel@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
+        with ESMTP id S229690AbjCNR0g (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Mar 2023 13:26:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 003F39C99F;
+        Tue, 14 Mar 2023 10:26:35 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9C9E9B819F6;
+        Tue, 14 Mar 2023 17:26:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38F12C4339B;
+        Tue, 14 Mar 2023 17:26:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1678814793;
+        bh=/AjYsdeKz3/ZT6yxEbbyk1Cv8mFWK+qWnAMphe/pZsA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=VgO2HU30/PeyB1p0xRf6TUVkypNHkbxLPi24EJV+zXqlSYmYZu3gGBnmCi7Z2qmP+
+         uKNkIarlRm2bP5wa90KpPzCz8gQWGUgAJr5jmkDFVp+VPD8Z2V9gPUYGfSrhfJYPBC
+         zXFVXvJZ5kLUkvU0xGiR5QW+31s0VG2vBlbLXliq8iW0WDIjiv507hDGnxbMLRzZQ6
+         ewwKSF1YC08tawdWFTv0jPttiYRM+bqy434YTsgOM7e2Tcp4uQwc75BCVWHZ/geZJe
+         oUtozSVv1Jo0wX4Wg48U6xRFgqCLVy7y4x5KRr5tzvrk17uWUcSNbTbY0opMQhftBu
+         52Vk0fl6+iZNg==
+Date:   Tue, 14 Mar 2023 13:26:32 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Nico Boehr <nrb@linux.ibm.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>, cohuck@redhat.com,
+        pasic@linux.ibm.com, farman@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, linux-s390@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 6.2 05/16] s390/virtio: sort out physical vs
+ virtual pointers usage
+Message-ID: <ZBCuSCIRrtdQQTeM@sashalap>
+References: <20230305135207.1793266-1-sashal@kernel.org>
+ <20230305135207.1793266-5-sashal@kernel.org>
+ <167809840006.10483.605220541481258700@t14-nrb.local>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: XMrcv5zP0uCh9MnN-pPYN_OspJzvwMaB
-X-Proofpoint-GUID: blisjUXCBl21OOB5JlyQEB9BCRggS3kR
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-03-14_10,2023-03-14_02,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 bulkscore=0
- spamscore=0 suspectscore=0 impostorscore=0 mlxscore=0 clxscore=1015
- mlxlogscore=999 adultscore=0 priorityscore=1501 phishscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2303140140
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <167809840006.10483.605220541481258700@t14-nrb.local>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 14 Mar 2023 17:41:24 +0100
-Nina Schoetterl-Glausch <nsg@linux.ibm.com> wrote:
+On Mon, Mar 06, 2023 at 11:26:40AM +0100, Nico Boehr wrote:
+>Hi Sasha, s390 maintainers,
+>
+>Quoting Sasha Levin (2023-03-05 14:51:56)
+>> From: Alexander Gordeev <agordeev@linux.ibm.com>
+>>
+>> [ Upstream commit 5fc5b94a273655128159186c87662105db8afeb5 ]
+>>
+>> This does not fix a real bug, since virtual addresses
+>> are currently indentical to physical ones.
+>
+>not sure if it is appropriate to pick for stable, since it does not fix a bug currently.
+>
+>Alexander, Janosch, your opinion?
 
-> On Tue, 2023-03-14 at 16:25 +0100, Claudio Imbrenda wrote:
-> > On Tue, 21 Feb 2023 18:48:22 +0100
-> > Nina Schoetterl-Glausch <nsg@linux.ibm.com> wrote:
-> >   
-> > > The EXECUTE instruction executes the instruction at the given target
-> > > address. This address must be halfword aligned, otherwise a
-> > > specification exception occurs.
-> > > Add a test for this.
-> > > 
-> > > Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-> > > ---
-> > >  s390x/spec_ex.c | 25 +++++++++++++++++++++++++
-> > >  1 file changed, 25 insertions(+)
-> > > 
-> > > diff --git a/s390x/spec_ex.c b/s390x/spec_ex.c
-> > > index a26c56aa..dd097f9b 100644
-> > > --- a/s390x/spec_ex.c
-> > > +++ b/s390x/spec_ex.c
-> > > @@ -177,6 +177,30 @@ static int short_psw_bit_12_is_0(void)
-> > >  	return 0;
-> > >  }
-> > >  
-> > > +static int odd_ex_target(void)
-> > > +{
-> > > +	uint64_t pre_target_addr;
-> > > +	int to = 0, from = 0x0dd;
-> > > +
-> > > +	asm volatile ( ".pushsection .rodata\n"  
-> > 
-> > and this should go in a .text.something subsection, as we discussed
-> > offline  
-> 
-> Yes.
-> >   
-> > > +		"pre_odd_ex_target:\n"  
-> > 
-> > shouldn't the label be after the align?  
-> 
-> No, larl needs an aligned address, and the ex below adds 1.
-> That's why it has the pre_ prefix, it's not the ex target itself.
+I'll drop it, thanks!
 
-I understand that, but 
-> >   
-> > > +		"	.balign	2\n"  
-
-doesn't the address get aligned here?
-so the label here would be aligned to 2
-
-> > 
-> > (i.e. here)
-> >   
-> > > +		"	. = . + 1\n"
-
-and here it gets the +1?
-
-> > > +		"	lr	%[to],%[from]\n"
-> > > +		"	.popsection\n"
-> > > +
-> > > +		"	larl	%[pre_target_addr],pre_odd_ex_target\n"
-> > > +		"	ex	0,1(%[pre_target_addr])\n"
-> > > +		: [pre_target_addr] "=&a" (pre_target_addr),
-> > > +		  [to] "+d" (to)
-> > > +		: [from] "d" (from)
-> > > +	);
-> > > +
-> > > +	assert((pre_target_addr + 1) & 1);
-> > > +	report(to != from, "did not perform ex with odd target");
-> > > +	return 0;
-> > > +}
-> > > +
-> > >  static int bad_alignment(void)
-> > >  {
-> > >  	uint32_t words[5] __attribute__((aligned(16)));
-> > > @@ -218,6 +242,7 @@ static const struct spec_ex_trigger spec_ex_triggers[] = {
-> > >  	{ "psw_bit_12_is_1", &psw_bit_12_is_1, false, &fixup_invalid_psw },
-> > >  	{ "short_psw_bit_12_is_0", &short_psw_bit_12_is_0, false, &fixup_invalid_psw },
-> > >  	{ "psw_odd_address", &psw_odd_address, false, &fixup_invalid_psw },
-> > > +	{ "odd_ex_target", &odd_ex_target, true, NULL },
-> > >  	{ "bad_alignment", &bad_alignment, true, NULL },
-> > >  	{ "not_even", &not_even, true, NULL },
-> > >  	{ NULL, NULL, false, NULL },  
-> >   
-> 
-
+-- 
+Thanks,
+Sasha
