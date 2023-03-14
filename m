@@ -2,150 +2,91 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 84D1AC6FD1D
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Mar 2023 13:33:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CCF85C7618A
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Mar 2023 13:35:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232340AbjCNNdb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 14 Mar 2023 09:33:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58986 "EHLO
+        id S230051AbjCNNfq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Mar 2023 09:35:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231473AbjCNNdD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Mar 2023 09:33:03 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8968D88DB5;
-        Tue, 14 Mar 2023 06:29:35 -0700 (PDT)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32EC0GP4016896;
-        Tue, 14 Mar 2023 13:28:15 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=T9E/WAjs5Rl68PedpiTdn1i4MUKfeBqmE4rYwE6ISEw=;
- b=GWE0qkC5NoVqS5vbWyj/bwUkR4obs1x7mbLe/ShPnL6/muRxYK1Tt3KxJQnGP/giNIUz
- r6M69F5Q9ufk9j0WMkumYfzekGNg9/mCjXCXYz/9xrNbs7+TvW4YuZ/gqvNEmcO9XUJs
- 9KY6ca3PrcqCkxNiDyjgPHBThpdvcxAp8nmYNvMuB4cJ2akvkQadDOYe8cx9yb709aOr
- 4Ym94ZFYmKR1iyRK2QCsqYrezYhaJ5wlMttTWe33bbTEIq8WtioMtkKEq8HOWKAhC+N4
- DfsQVI0O8v8I1PG027vG/ovd3uqmTIqVxCzpIK8IB/AMCNbmihM2aTeJPHQ9CDOgCJnO pg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3paph269dr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Mar 2023 13:28:15 +0000
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32ECXefN030864;
-        Tue, 14 Mar 2023 13:28:14 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3paph269d5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Mar 2023 13:28:14 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32E7jONF001023;
-        Tue, 14 Mar 2023 13:28:12 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3p8h96muxu-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Mar 2023 13:28:12 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32EDS8mP38797768
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 14 Mar 2023 13:28:08 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 77DDE2004B;
-        Tue, 14 Mar 2023 13:28:08 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 383ED20040;
-        Tue, 14 Mar 2023 13:28:08 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 14 Mar 2023 13:28:08 +0000 (GMT)
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Andrew Morton <akpm@linux-foundation.org>,
-        Suren Baghdasaryan <surenb@google.com>
-Cc:     Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org
-Subject: [PATCH -next] s390/mm: try VMA lock-based page fault handling first
-Date:   Tue, 14 Mar 2023 14:28:08 +0100
-Message-Id: <20230314132808.1266335-1-hca@linux.ibm.com>
-X-Mailer: git-send-email 2.37.2
+        with ESMTP id S232562AbjCNNfN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Mar 2023 09:35:13 -0400
+Received: from gandalf.ozlabs.org (mail.ozlabs.org [IPv6:2404:9400:2221:ea00::3])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 679771F49C;
+        Tue, 14 Mar 2023 06:31:11 -0700 (PDT)
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mail.ozlabs.org (Postfix) with ESMTPSA id 4PbZD96Sf2z4x5R;
+        Wed, 15 Mar 2023 00:31:05 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
+        s=201909; t=1678800666;
+        bh=RWpQH91z9oCPCV7UgB1VjeBlCalvsZzq/D68BsBI0Ww=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=Gmi2DLvR7FFuYEzpwxyajVFJgqqPUe+t2SrIuwdBqzYcgbPpV3TLjtx3waxpWL6PS
+         Tlm2qgbZO6FByZBDH6vF20yDA6dWo8oqnebJk3mUZNrFfgeS07oV/YOl+wQ/pjVzZu
+         NwgdFlLy64biV7j4n9vGCDKf7dkUIoM/W/PbkbUt8GCcCNGFWLT03R3isUmlhyjLoN
+         z+e+Uak4GXq1yhQ7L0Ld0I2uWeJ7ZdLzkVARLCWcim1o6ZC2zU4FnwLI9WmUPUXLXt
+         pck/4eDZ5TqTFY6UejLoZnpTjGPIH2V00sS3IcxUEmiEM4sMhD557XPpadOlNh7qRi
+         JJdlXEA0IptgQ==
+From:   Michael Ellerman <mpe@ellerman.id.au>
+To:     Fangrui Song <maskray@google.com>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Andy Lutomirski <luto@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Arnd Bergmann <arnd@arndb.de>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-csky@vger.kernel.org, linux-mips@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-riscv@lists.infradead.org,
+        linuxppc-dev@lists.ozlabs.org,
+        linux-arm-kernel@lists.infradead.org,
+        Fangrui Song <maskray@google.com>
+Subject: Re: [PATCH v3] vdso: Improve cmd_vdso_check to check all dynamic
+ relocations
+In-Reply-To: <20230310190750.3323802-1-maskray@google.com>
+References: <20230310190750.3323802-1-maskray@google.com>
+Date:   Wed, 15 Mar 2023 00:28:53 +1100
+Message-ID: <87jzzjo416.fsf@mpe.ellerman.id.au>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: ew7MVjDN4tjxh4RhkGpyYpIg78MJuw9D
-X-Proofpoint-GUID: SOJQ3uWi9qO_GS7CuxvEIUnoftenHTE2
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-03-14_06,2023-03-14_02,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 malwarescore=0
- suspectscore=0 adultscore=0 phishscore=0 bulkscore=0 mlxscore=0
- mlxlogscore=803 spamscore=0 lowpriorityscore=0 priorityscore=1501
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2303140112
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Attempt VMA lock-based page fault handling first, and fall back to the
-existing mmap_lock-based handling if that fails.
+Fangrui Song <maskray@google.com> writes:
+> The actual intention is that no dynamic relocation exists. However, some
+> GNU ld ports produce unneeded R_*_NONE. (If a port fails to determine
+> the exact .rel[a].dyn size, the trailing zeros become R_*_NONE
+> relocations. E.g. ld's powerpc port recently fixed
+> https://sourceware.org/bugzilla/show_bug.cgi?id=29540) R_*_NONE are
+> generally no-op in the dynamic loaders. So just ignore them.
+>
+> With the change, we can remove ARCH_REL_TYPE_ABS. ARCH_REL_TYPE_ABS is a
+> bit misnomer as ports may check RELAVETIVE/GLOB_DAT/JUMP_SLOT which are
+> not called "absolute relocations". (The patch is motivated by the arm64
+> port missing R_AARCH64_RELATIVE.)
+>
+> Signed-off-by: Fangrui Song <maskray@google.com>
+> Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+> Reviewed-by: Vincenzo Frascino <vincenzo.frascino@arm.com> # for vDSO, aarch64
+> Tested-by: Vincenzo Frascino <vincenzo.frascino@arm.com> # for aarch64
+> ---
+> Changes from v2:
+> * rebase
+>
+> Changes from v3:
+> * Add a comment before `include $(srctree)/lib/vdso/Makefile` in every touched arch Makefile
+> ---
+>  arch/arm/vdso/Makefile            |  4 +---
+>  arch/arm64/kernel/vdso/Makefile   |  4 +---
+>  arch/arm64/kernel/vdso32/Makefile |  3 ---
+>  arch/csky/kernel/vdso/Makefile    |  4 +---
+>  arch/loongarch/vdso/Makefile      |  4 +---
+>  arch/mips/vdso/Makefile           |  4 +---
+>  arch/powerpc/kernel/vdso/Makefile |  2 +-
 
-This is the s390 variant of "x86/mm: try VMA lock-based page fault handling
-first".
+Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
 
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
----
- arch/s390/Kconfig    |  1 +
- arch/s390/mm/fault.c | 24 ++++++++++++++++++++++++
- 2 files changed, 25 insertions(+)
-
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 9809c74e1240..548b5b587003 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -120,6 +120,7 @@ config S390
- 	select ARCH_SUPPORTS_DEBUG_PAGEALLOC
- 	select ARCH_SUPPORTS_HUGETLBFS
- 	select ARCH_SUPPORTS_NUMA_BALANCING
-+	select ARCH_SUPPORTS_PER_VMA_LOCK
- 	select ARCH_USE_BUILTIN_BSWAP
- 	select ARCH_USE_CMPXCHG_LOCKREF
- 	select ARCH_WANTS_DYNAMIC_TASK_STRUCT
-diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-index a2632fd97d00..b65144c392b0 100644
---- a/arch/s390/mm/fault.c
-+++ b/arch/s390/mm/fault.c
-@@ -407,6 +407,30 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
- 		access = VM_WRITE;
- 	if (access == VM_WRITE)
- 		flags |= FAULT_FLAG_WRITE;
-+#ifdef CONFIG_PER_VMA_LOCK
-+	if (!(flags & FAULT_FLAG_USER))
-+		goto lock_mmap;
-+	vma = lock_vma_under_rcu(mm, address);
-+	if (!vma)
-+		goto lock_mmap;
-+	if (!(vma->vm_flags & access)) {
-+		vma_end_read(vma);
-+		goto lock_mmap;
-+	}
-+	fault = handle_mm_fault(vma, address, flags | FAULT_FLAG_VMA_LOCK, regs);
-+	vma_end_read(vma);
-+	if (!(fault & VM_FAULT_RETRY)) {
-+		count_vm_vma_lock_event(VMA_LOCK_SUCCESS);
-+		goto out;
-+	}
-+	count_vm_vma_lock_event(VMA_LOCK_RETRY);
-+	/* Quick path to respond to signals */
-+	if (fault_signal_pending(fault, regs)) {
-+		fault = VM_FAULT_SIGNAL;
-+		goto out;
-+	}
-+lock_mmap:
-+#endif /* CONFIG_PER_VMA_LOCK */
- 	mmap_read_lock(mm);
- 
- 	gmap = NULL;
--- 
-2.37.2
-
+cheers
