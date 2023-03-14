@@ -2,107 +2,218 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D5BD2C6FD1C
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Mar 2023 11:35:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4AE76C6FD1D
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Mar 2023 11:38:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229735AbjCNLfc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 14 Mar 2023 07:35:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34346 "EHLO
+        id S231439AbjCNLia convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Mar 2023 07:38:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229793AbjCNLfb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Mar 2023 07:35:31 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70E579AFF2;
-        Tue, 14 Mar 2023 04:35:21 -0700 (PDT)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32EBC45H012829;
-        Tue, 14 Mar 2023 11:35:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=N8SsBJ9VsVk5X3fkss27V0TB+ZXT+8rD0qxN2mkSgNk=;
- b=SGaUZFkRkcHXgO6dr99Vfd2tCwXoM2mwpKRr+7q7aYpaazvMjEw9VP0aVj+99LHI7her
- yF8GNO0M6pms/E/Yr5ZLsL7UhaZ8HsQVR+vZMjIeFFNpaova6dm0lJ5+00nIp+95zfbV
- Dcb40ZLUbEgax/FiJHDz4PM7dV0N3ZQj6jqfCbGcAjcfULXABb/mMXjkFqFXLOltHfBv
- 83Vsud0Nav3x1CDmL1nxKXb+PkAFGvu0m2mYETnr1GAa/+L3QB9fYkBfAcbWRn9I/k+P
- PInGAnlegw3mtQSggcZcTSgp2Uwz/5Ugl62HetrRTvk5+lc67utAOx/ZjIcrAIlqqxir 4g== 
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3paqu90j0h-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Mar 2023 11:35:12 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32DMh3IV001838;
-        Tue, 14 Mar 2023 11:35:09 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma05fra.de.ibm.com (PPS) with ESMTPS id 3p8h96kr0m-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Mar 2023 11:35:09 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32EBZ6x346203138
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 14 Mar 2023 11:35:06 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 32F9E2004B;
-        Tue, 14 Mar 2023 11:35:06 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id AC00820043;
-        Tue, 14 Mar 2023 11:35:05 +0000 (GMT)
-Received: from osiris (unknown [9.171.45.127])
-        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Tue, 14 Mar 2023 11:35:05 +0000 (GMT)
-Date:   Tue, 14 Mar 2023 12:35:04 +0100
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, rafael@kernel.org,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH 19/36] s390/smp: move to use bus_get_dev_root()
-Message-ID: <ZBBb6L570PhX+j0o@osiris>
-References: <20230313182918.1312597-1-gregkh@linuxfoundation.org>
- <20230313182918.1312597-19-gregkh@linuxfoundation.org>
+        with ESMTP id S231470AbjCNLiT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Mar 2023 07:38:19 -0400
+Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B04A9B2EE;
+        Tue, 14 Mar 2023 04:38:14 -0700 (PDT)
+Received: from lhrpeml100006.china.huawei.com (unknown [172.18.147.206])
+        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4PbWhw6hm9z6J78V;
+        Tue, 14 Mar 2023 19:37:20 +0800 (CST)
+Received: from lhrpeml500005.china.huawei.com (7.191.163.240) by
+ lhrpeml100006.china.huawei.com (7.191.160.224) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.21; Tue, 14 Mar 2023 11:38:11 +0000
+Received: from lhrpeml500005.china.huawei.com ([7.191.163.240]) by
+ lhrpeml500005.china.huawei.com ([7.191.163.240]) with mapi id 15.01.2507.021;
+ Tue, 14 Mar 2023 11:38:11 +0000
+From:   Shameerali Kolothum Thodi <shameerali.kolothum.thodi@huawei.com>
+To:     Nicolin Chen <nicolinc@nvidia.com>
+CC:     "Xu, Terrence" <terrence.xu@intel.com>,
+        "Liu, Yi L" <yi.l.liu@intel.com>, Jason Gunthorpe <jgg@nvidia.com>,
+        "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
+        "Tian, Kevin" <kevin.tian@intel.com>,
+        "joro@8bytes.org" <joro@8bytes.org>,
+        "robin.murphy@arm.com" <robin.murphy@arm.com>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "eric.auger@redhat.com" <eric.auger@redhat.com>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
+        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
+        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
+        "peterx@redhat.com" <peterx@redhat.com>,
+        "jasowang@redhat.com" <jasowang@redhat.com>,
+        "lulu@redhat.com" <lulu@redhat.com>,
+        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
+        "intel-gvt-dev@lists.freedesktop.org" 
+        <intel-gvt-dev@lists.freedesktop.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "Hao, Xudong" <xudong.hao@intel.com>,
+        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
+        Zhangfei Gao <zhangfei.gao@linaro.org>
+Subject: RE: [PATCH v5 00/19] Add vfio_device cdev for iommufd support
+Thread-Topic: [PATCH v5 00/19] Add vfio_device cdev for iommufd support
+Thread-Index: AQHZSpxHUh/YYv3qukeFp+lKFtoCf67jLB2AgACBDoCAAOlEAIAAn5IAgAIKi/CAAO3wAIAA+kPAgAEQJQCABt1mAIAJIAFQ
+Date:   Tue, 14 Mar 2023 11:38:11 +0000
+Message-ID: <90a277ea100d496b82f8cc84388bbca2@huawei.com>
+References: <20230227111135.61728-1-yi.l.liu@intel.com>
+ <Y/0Cr/tcNCzzIAhi@nvidia.com>
+ <DS0PR11MB7529A422D4361B39CCA3D248C3AC9@DS0PR11MB7529.namprd11.prod.outlook.com>
+ <SA1PR11MB5873479F73CFBAA170717624F0AC9@SA1PR11MB5873.namprd11.prod.outlook.com>
+ <Y/64ejbhMiV77uUA@Asurada-Nvidia>
+ <b7c1f9d5b4b647f0b0686c3b99f3d006@huawei.com>
+ <ZAE2J0I1LiBjWUnm@Asurada-Nvidia>
+ <d59a0262d5bf423c9e49ad4ac6015296@huawei.com>
+ <ZALspPvvLGFuK96F@Asurada-Nvidia> 
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [10.202.227.178]
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230313182918.1312597-19-gregkh@linuxfoundation.org>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: FkUnAWkO9sbwkeEtEVOa_bGm1qMk1rWl
-X-Proofpoint-GUID: FkUnAWkO9sbwkeEtEVOa_bGm1qMk1rWl
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-03-14_04,2023-03-14_02,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxscore=0
- lowpriorityscore=0 spamscore=0 malwarescore=0 suspectscore=0
- priorityscore=1501 phishscore=0 impostorscore=0 mlxlogscore=644
- adultscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2303140098
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Mar 13, 2023 at 07:29:01PM +0100, Greg Kroah-Hartman wrote:
-> Direct access to the struct bus_type dev_root pointer is going away soon
-> so replace that with a call to bus_get_dev_root() instead, which is what
-> it is there for.
-> 
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-> Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-> Cc: Sven Schnelle <svens@linux.ibm.com>
-> Cc: Ilya Leoshkevich <iii@linux.ibm.com>
-> Cc: linux-s390@vger.kernel.org
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> ---
-> Note, this is a patch that is a prepatory cleanup as part of a larger
-> series of patches that is working on resolving some old driver core
-> design mistakes.  It will build and apply cleanly on top of 6.3-rc2 on
-> its own, but I'd prefer if I could take it through my driver-core tree
-> so that the driver core changes can be taken through there for 6.4-rc1.
-> 
->  arch/s390/kernel/smp.c | 12 +++++++++---
->  1 file changed, 9 insertions(+), 3 deletions(-)
 
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
+
+> -----Original Message-----
+> From: Shameerali Kolothum Thodi
+> Sent: 08 March 2023 15:55
+> To: 'Nicolin Chen' <nicolinc@nvidia.com>
+> Cc: Xu, Terrence <terrence.xu@intel.com>; Liu, Yi L <yi.l.liu@intel.com>;
+> Jason Gunthorpe <jgg@nvidia.com>; alex.williamson@redhat.com; Tian,
+> Kevin <kevin.tian@intel.com>; joro@8bytes.org; robin.murphy@arm.com;
+> cohuck@redhat.com; eric.auger@redhat.com; kvm@vger.kernel.org;
+> mjrosato@linux.ibm.com; chao.p.peng@linux.intel.com;
+> yi.y.sun@linux.intel.com; peterx@redhat.com; jasowang@redhat.com;
+> lulu@redhat.com; suravee.suthikulpanit@amd.com;
+> intel-gvt-dev@lists.freedesktop.org; intel-gfx@lists.freedesktop.org;
+> linux-s390@vger.kernel.org; Hao, Xudong <xudong.hao@intel.com>; Zhao,
+> Yan Y <yan.y.zhao@intel.com>
+> Subject: RE: [PATCH v5 00/19] Add vfio_device cdev for iommufd support
+> 
+
+[...]
+> > > > On Thu, Mar 02, 2023 at 09:43:00AM +0000, Shameerali Kolothum
+> > > > Thodi
+> > > > wrote:
+> > > >
+> > > > > Hi Nicolin,
+> > > > >
+> > > > > Thanks for the latest ARM64 branch. Do you have a working Qemu
+> > > > > branch
+> > > > corresponding to the
+> > > > > above one?
+> > > > >
+> > > > > I tried the
+> > > >
+> >
+> https://github.com/nicolinc/qemu/tree/wip/iommufd_rfcv3%2Bnesting%2B
+> > > > smmuv3
+> > > > > but for some reason not able to launch the Guest.
+> > > > >
+> > > > > Please let me know.
+> > > >
+> > > > I do use that branch. It might not be that robust though as it
+> > > > went through a big rebase.
+> > >
+> > > Ok. The issue seems to be quite random in nature and only happens
+> > > when there are multiple vCPUs. Also doesn't look like related to
+> > > VFIO device assignment as I can reproduce Guest hang without it by
+> > > only having nested-smmuv3 and iommufd object.
+> > >
+> > > ./qemu-system-aarch64-iommuf -machine
+> > > virt,gic-version=3,iommu=nested-smmuv3,iommufd=iommufd0 \
+> > -enable-kvm
+> > > -cpu host -m 1G -smp cpus=8,maxcpus=8 \ -object
+> iommufd,id=iommufd0
+> > \
+> > > -bios QEMU_EFI.fd \ -kernel Image-6.2-iommufd \ -initrd
+> > > rootfs-iperf.cpio \ -net none \ -nographic \ -append "rdinit=init
+> > > console=ttyAMA0 root=/dev/vda rw earlycon=pl011,0x9000000" \ -trace
+> > > events=events \ -D trace_iommufd
+> > >
+> > > When the issue happens, no output on terminal as if Qemu is in a
+> > > locked
+> > state.
+> > >
+> > >  Can you try with the followings?
+> > > >
+> > > > --trace "iommufd*" --trace "smmu*" --trace "vfio_*" --trace "pci_*"
+> > > > --trace "msi_*" --trace "nvme_*"
+> > >
+> > > The only trace events with above are this,
+> > >
+> > > iommufd_backend_connect fd=22 owned=1 users=1 (0) smmu_add_mr
+> > > smmuv3-iommu-memory-region-0-0
+> > >
+> > > I haven't debugged this further. Please let me know if issue is
+> > > reproducible with multiple vCPUs at your end. For now will focus on
+> > > VFIO
+> > dev specific tests.
+> >
+> > Oh. My test environment has been a single-core vCPU. So that doesn't
+> > happen to me. Can you try a vanilla QEMU branch that our nesting
+> > branch is rebased on? I took a branch from Yi as the baseline, while
+> > he might take from Eric for the rfcv3.
+> >
+> > I am guessing that it might be an issue in the common tree.
+> 
+> Yes, that looks like the case.
+> I tried with:
+>  commit 13356edb8750("Merge tag 'block-pull-request' of
+> https://gitlab.com/stefanha/qemu into staging")
+> 
+> And issue is still there. So hopefully once we rebase everything it will go
+> away.
+
+Hi Nicolin,
+
+I rebased your latest Qemu branch[1] on top of v7.2.0 and not observed
+the above issue so far. However noticed couple of other issues when
+we try to hot add/remove devices.
+
+(qemu) device_del net1
+qemu-system-aarch64-iommufd: Failed to free id: 4 Inappropriate ioctl for device
+qemu-system-aarch64-iommufd: IOMMU_IOAS_UNMAP failed: No such file or directory
+qemu-system-aarch64-iommufd: vfio_dma_unmap(0xaaaaf587a3d0, 0x8000101000, 0xf000) = -2 (No such file or directory)
+qemu-system-aarch64-iommufd: IOMMU_IOAS_UNMAP failed: No such file or directory
+qemu-system-aarch64-iommufd: vfio_dma_unmap(0xaaaaf587a3d0, 0x8000000000, 0x100000) = -2 (No such file or directory)
+qemu-system-aarch64-iommufd: Failed to free id:1 Device or resource busy
+
+Ignoring the MMIO UNMAP errors, it looks like the object free is
+not proper on dev removal path. I have few quick fixes here 
+for this,
+https://github.com/hisilicon/qemu/tree/private-v7.2.0-iommufd-nesting
+
+With the above, it seems the HWPT/IOAS objects are destroyed properly
+on dev detach path. But when the dev is added back, gets a Qemu seg fault
+and so far I have no clue why that happens.
+
+(qemu) device_add vfio-pci,host=0000:7d:02.1,iommufd=iommufd0,bus=rp1,id=net1
+./qemu_run-iommufd-nested: line 13:  7041 Segmentation fault
+(core dumped) ./qemu-system-aarch64-iommufd
+-machine virt,gic-version=3,iommu=nested-smmuv3,iommufd=iommufd0
+-enable-kvm -cpu host -m 1G -smp cpus=8,maxcpus=8 -object
+iommufd,id=iommufd0 -bios QEMU_EFI_Dec2018.fd -kernel
+Image-iommufd -initrd rootfs-iperf.cpio -device
+ioh3420,id=rp1 -device
+vfio-pci,host=0000:7d:02.1,iommufd=iommufd0,bus=rp1,id=net1 -append
+"rdinit=init console=ttyAMA0 root=/dev/vda rw
+earlycon=pl011,0x9000000" -net none -nographic -trace events=events -D
+trace_iommufd
+
+There are no kernel log/crash and not much useful traces while this happens.
+Understand these are early days and it is not robust in anyway, but please
+let me know if you suspect anything. I will continue debugging and will update
+if anything.
+
+Thanks,
+Shameer
+
+[1] https://github.com/nicolinc/qemu/tree/wip/iommufd_rfcv3%2Bnesting%2Bsmmuv3
+
+
