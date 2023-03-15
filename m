@@ -2,80 +2,66 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CBA93C61DA4
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Mar 2023 08:20:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0975DC6FD1D
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Mar 2023 08:27:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231417AbjCOIU3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Mar 2023 04:20:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41760 "EHLO
+        id S229971AbjCOI1M (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Mar 2023 04:27:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231509AbjCOIUY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Mar 2023 04:20:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F6CE591FF;
-        Wed, 15 Mar 2023 01:20:23 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 43150B81D8B;
-        Wed, 15 Mar 2023 08:20:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id F117FC4339B;
-        Wed, 15 Mar 2023 08:20:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678868421;
-        bh=+yo6va50VFljRx9yw4IImw/EexK/kygDiGhr5xKRzHs=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=P91GuPwsDZ2cuRabk9BdKDvpnmdIB6k+IT6+YhGFAjQTq0RaZgIudDa7rQMT2J3V/
-         CjyNcqWO5THk/wnOrTWxdKD52BtriBdiMPt6UIfaDYVdwWuyJRiymh1fl5YibIJmw7
-         82988lEqF3OSZk5I752fm1raT7Hkg8nbNoYo8+y1wVQqJAqGxY0Q8PzGeVSRx9uyXb
-         200IxmXDaeZBOMTc1M/8j3FBpggvb+vlsKIMEJ4lguzYZyW3dtp6iycyHwjmip89pX
-         wRE5/tIiikLI9FHM4y2Fx4/wjg9IEwEUmyEszz/EJQqHz+ZYcJM3jPqhrGg2m3stSa
-         i7hQpdTH7q1aw==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id D9EB5E52532;
-        Wed, 15 Mar 2023 08:20:20 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229631AbjCOI1M (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Mar 2023 04:27:12 -0400
+Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E5DE40C2;
+        Wed, 15 Mar 2023 01:27:10 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0Vdvd8zw_1678868826;
+Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0Vdvd8zw_1678868826)
+          by smtp.aliyun-inc.com;
+          Wed, 15 Mar 2023 16:27:07 +0800
+Date:   Wed, 15 Mar 2023 16:27:05 +0800
+From:   Tony Lu <tonylu@linux.alibaba.com>
+To:     Jakub Kicinski <kuba@kernel.org>
+Cc:     Kai <KaiShen@linux.alibaba.com>, kgraul@linux.ibm.com,
+        wenjia@linux.ibm.com, jaka@linux.ibm.com, davem@davemloft.net,
+        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-rdma@vger.kernel.org
+Subject: Re: [PATCH net-next v4] net/smc: Use percpu ref for wr tx reference
+Message-ID: <ZBGBWafISbzBapnq@TONYMAC-ALIBABA.local>
+Reply-To: Tony Lu <tonylu@linux.alibaba.com>
+References: <20230313060425.115939-1-KaiShen@linux.alibaba.com>
+ <20230315003440.23674405@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next 0/2] smc: Updates 2023-03-01
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <167886842088.29094.16124554092676505653.git-patchwork-notify@kernel.org>
-Date:   Wed, 15 Mar 2023 08:20:20 +0000
-References: <20230313101032.13180-1-wenjia@linux.ibm.com>
-In-Reply-To: <20230313101032.13180-1-wenjia@linux.ibm.com>
-To:     Wenjia Zhang <wenjia@linux.ibm.com>
-Cc:     davem@davemloft.net, kuba@kernel.org, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, edumazet@google.com, pabeni@redhat.com,
-        hca@linux.ibm.com, kgraul@linux.ibm.com, wintera@linux.ibm.com,
-        jaka@linux.ibm.com, raspl@linux.ibm.com, tonylu@linux.alibaba.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230315003440.23674405@kernel.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello:
-
-This series was applied to netdev/net-next.git (main)
-by David S. Miller <davem@davemloft.net>:
-
-On Mon, 13 Mar 2023 11:10:30 +0100 you wrote:
-> The 1st patch is to make implements later do not need to adhere to a
-> specific SEID format. The 2nd patch does some cleanup.
+On Wed, Mar 15, 2023 at 12:34:40AM -0700, Jakub Kicinski wrote:
+> On Mon, 13 Mar 2023 06:04:25 +0000 Kai wrote:
+> > Signed-off-by: Kai <KaiShen@linux.alibaba.com>
 > 
-> Stefan Raspl (2):
->   net/smc: Introduce explicit check for v2 support
->   net/ism: Remove extra include
+> Kai Shen ?
 > 
-> [...]
+> > 
+> 
+> You're missing a --- separator here, try to apply this patch with 
+> git am :/
 
-Here is the summary with links:
-  - [net-next,1/2] net/smc: Introduce explicit check for v2 support
-    https://git.kernel.org/netdev/net-next/c/f947568e2580
-  - [net-next,2/2] net/ism: Remove extra include
-    https://git.kernel.org/netdev/net-next/c/298c91dc40e5
+There is another commit ce7ca794712f ("net/smc: fix fallback failed
+while sendmsg with fastopen") that has been merged that also has this
+problem. Maybe we can add some scripts to check this?
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+> 
+> > v1->v2:
+> > - Modify patch prefix
+> > 
+> > v2->v3:
+> > - Make wr_reg_refcnt a percpu one as well
+> > - Init percpu ref with 0 flag instead of ALLOW_REINIT flag
+> > 
+> > v3->v4:
+> > - Update performance data, this data may differ from previous data
+> >   as I ran cases on other machines
+> > ---
