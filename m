@@ -2,86 +2,122 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E004C61DA4
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Mar 2023 05:09:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DD4BC76196
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Mar 2023 05:15:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229571AbjCOFJL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Mar 2023 01:09:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40936 "EHLO
+        id S230205AbjCOFPJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Mar 2023 01:15:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230018AbjCOFJK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Mar 2023 01:09:10 -0400
-Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C6B727D67
-        for <linux-s390@vger.kernel.org>; Tue, 14 Mar 2023 22:09:07 -0700 (PDT)
-Received: by mail-pl1-x633.google.com with SMTP id p6so18900775plf.0
-        for <linux-s390@vger.kernel.org>; Tue, 14 Mar 2023 22:09:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rivosinc-com.20210112.gappssmtp.com; s=20210112; t=1678856947;
-        h=content-transfer-encoding:mime-version:message-id:to:from:cc
-         :in-reply-to:subject:date:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=cDhp6I3SlNxGtr/O2yKbwiije8DSntjdlAK0nvSsNNE=;
-        b=fGqFohi/U0BaTxNiwoIwD6MODRfd07bt2ES8n34/VYOh/f4HlZWFxnzVvt4O3h+BRC
-         /hAb0APS4PAYxvTzi2Wvcd3eeDXlio7s+9p4lZjr4x/yQzLq47Qr+hPKSTiT+7hYxBGs
-         i3CDZA9bQAiO4CFCL1K6uKFdUBa8BMNqmI8DeAuDdPC7CW1PBcSNVA8fzPdMqp1iGZKd
-         MYtTLzfNUmesH/WxmH5wiwAYCcRbvl3QewEWJlqd/12S9r1FfC8WwmpkbTiZH629IJDp
-         o7GcnJZZQyUv4B7T5OsfTiVlLXHGXe1c9tlVmlHIevWqwcF/P2S3qs6EzumHpyHrdo2G
-         DhiA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678856947;
-        h=content-transfer-encoding:mime-version:message-id:to:from:cc
-         :in-reply-to:subject:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=cDhp6I3SlNxGtr/O2yKbwiije8DSntjdlAK0nvSsNNE=;
-        b=GXMw15cfxaIq0JJmW2dr3PRxntVMB6PWSnenK3D6RVCyO81lccpJdyg+0c/FpKZuBj
-         MdoyHdlc+KaVR/JJnEAiOSF+ZsMlPNkeyJXmjtDUFMb+nuCLx5rfr4f2dSoXySgoB9o4
-         pRB51ek0h90RoZzry1ly+Vj52QDyY75DrqBdXVsUUSYgWdIN3TrPN0emwQMjdmzXFSsq
-         ZgL6HpBwO3QllNJWl3BayrUkJSOmqt2TAMMTLUX4IE+INBS7qfSxVA4e9toIdmdaFNbQ
-         BYM+GggkhMjvP4UBFTlYymbc1S4Esk3Av56+hkGsorS6z5Vy5qOAiQEXO52JfaY8asFw
-         vVdg==
-X-Gm-Message-State: AO0yUKX202cGODCNsZGEoL7UFEmoSEAKcFG2w8JbvHaAV3pSoSzNZLFh
-        NEC/bpL/eQ3ns8FL2aZjUayE8w==
-X-Google-Smtp-Source: AK7set8juefow6279l5hDaRc9EcSMejPwOhhh67Wy+KVPRNO0G7i+DJ7i60mGKb+GVMj9wBlxJ/qVg==
-X-Received: by 2002:a17:903:1c1:b0:1a1:7b8d:670a with SMTP id e1-20020a17090301c100b001a17b8d670amr370816plh.21.1678856946844;
-        Tue, 14 Mar 2023 22:09:06 -0700 (PDT)
-Received: from localhost ([50.221.140.188])
-        by smtp.gmail.com with ESMTPSA id gt22-20020a17090af2d600b0023530b1e4a0sm391684pjb.2.2023.03.14.22.09.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Mar 2023 22:09:06 -0700 (PDT)
-Date:   Tue, 14 Mar 2023 22:09:06 -0700 (PDT)
-X-Google-Original-Date: Tue, 14 Mar 2023 22:08:14 PDT (-0700)
-Subject:     Re: [PATCH v2 1/6] riscv/mm/fault: simplify code for do_page_fault()
-In-Reply-To: <ZBFRbVJDK8p5nelT@casper.infradead.org>
-CC:     akpm@linux-foundation.org, linux-mm@kvack.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, tongtiangen@huawei.com
-From:   Palmer Dabbelt <palmer@rivosinc.com>
-To:     willy@infradead.org
-Message-ID: <mhng-dc587968-81c2-4f28-8d27-f739230b25cb@palmer-ri-x1c9a>
-Mime-Version: 1.0 (MHng)
-Content-Type: text/plain; charset=utf-8; format=flowed
+        with ESMTP id S231281AbjCOFPH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Mar 2023 01:15:07 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B0741D90C;
+        Tue, 14 Mar 2023 22:14:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
+        References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
+        Content-Type:Content-ID:Content-Description;
+        bh=/cEb0Fh1cCHXRm4Z6x+edjUOJMIxZVeD5/H0HnIu8NQ=; b=aoGMnxNj6CJ0nsLkjqwsFDXb7C
+        iFVn+nQtirpkE4qoXAj2jv5MTfGfnpFrTukGMy+mVvlfWq2v1UD7fGZgOy5RR7JYm7SH3TKMh/nC0
+        GXed+5mzaF9nfFRGnpRsz9AIuYGhi11Hm0bNkHLpiGDbwAGJ6DEcD2p4pnOAaSZdiYp2Fanf13Vek
+        1uZ4EVfnbYvA8uvA8hlgZcPQ1L5c8fafAGcHS49MuqcVsQn8vaOTUIfb1Aukp/FofnRNeR7W3xmGl
+        IPnyDuSguyjfJ7L2y/yl+oTDQVk0y+3G3ArzPosXCI4Qz9Ov9CFL8IqxFk0GJn7Mv6tQPyiggcZHV
+        RPYPknCQ==;
+Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1pcJTM-00DYCU-Ut; Wed, 15 Mar 2023 05:14:48 +0000
+From:   "Matthew Wilcox (Oracle)" <willy@infradead.org>
+To:     linux-arch@vger.kernel.org
+Cc:     "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: [PATCH v4 22/36] s390: Implement the new page table range API
+Date:   Wed, 15 Mar 2023 05:14:30 +0000
+Message-Id: <20230315051444.3229621-23-willy@infradead.org>
+X-Mailer: git-send-email 2.37.1
+In-Reply-To: <20230315051444.3229621-1-willy@infradead.org>
+References: <20230315051444.3229621-1-willy@infradead.org>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 14 Mar 2023 22:02:37 PDT (-0700), willy@infradead.org wrote:
-> On Tue, Mar 14, 2023 at 08:03:54PM -0700, Palmer Dabbelt wrote:
->> To make the code more hierarchical and readable, we fold vma related
->> judgments into __do_page_fault(). And to simplify the code, move the
->> tsk->thread.bad_cause's setting into bad_area(). No functional change
->> intended.
->
-> I think this is exaactly the wrong thing to be doing.  Please _stop_
-> using custom internal VM_FAULT flags, not adding new uses!
+Add set_ptes() and update_mmu_cache_range().
 
-I'm fine with that.  The rest of the patch set was to chunk out a few to 
-avoid them stepping on generic stuff, but we don't really need that in 
-RISC-V land (aside from this, which is sort of a mixed bag WRT whether 
-this is simpler or not).  That's sort of why I held off on merging this 
-in the first place.
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org
+---
+ arch/s390/include/asm/pgtable.h | 33 ++++++++++++++++++++++++---------
+ 1 file changed, 24 insertions(+), 9 deletions(-)
 
-That said, the follow-on patches do clean up some mixing between generic 
-and arch codes for other ports.  I'm not sure if those can manifest as a 
-real bug or not.
+diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
+index c1f6b46ec555..fea678c67e51 100644
+--- a/arch/s390/include/asm/pgtable.h
++++ b/arch/s390/include/asm/pgtable.h
+@@ -50,6 +50,7 @@ void arch_report_meminfo(struct seq_file *m);
+  * tables contain all the necessary information.
+  */
+ #define update_mmu_cache(vma, address, ptep)     do { } while (0)
++#define update_mmu_cache_range(vma, addr, ptep, nr)	do { } while (0)
+ #define update_mmu_cache_pmd(vma, address, ptep) do { } while (0)
+ 
+ /*
+@@ -1319,20 +1320,34 @@ pgprot_t pgprot_writecombine(pgprot_t prot);
+ pgprot_t pgprot_writethrough(pgprot_t prot);
+ 
+ /*
+- * Certain architectures need to do special things when PTEs
+- * within a page table are directly modified.  Thus, the following
+- * hook is made available.
++ * Set multiple PTEs to consecutive pages with a single call.  All PTEs
++ * are within the same folio, PMD and VMA.
+  */
+-static inline void set_pte_at(struct mm_struct *mm, unsigned long addr,
+-			      pte_t *ptep, pte_t entry)
++static inline void set_ptes(struct mm_struct *mm, unsigned long addr,
++			      pte_t *ptep, pte_t entry, unsigned int nr)
+ {
+ 	if (pte_present(entry))
+ 		entry = clear_pte_bit(entry, __pgprot(_PAGE_UNUSED));
+-	if (mm_has_pgste(mm))
+-		ptep_set_pte_at(mm, addr, ptep, entry);
+-	else
+-		set_pte(ptep, entry);
++	if (mm_has_pgste(mm)) {
++		for (;;) {
++			ptep_set_pte_at(mm, addr, ptep, entry);
++			if (--nr == 0)
++				break;
++			ptep++;
++			entry = __pte(pte_val(entry) + PAGE_SIZE);
++			addr += PAGE_SIZE;
++		}
++	} else {
++		for (;;) {
++			set_pte(ptep, entry);
++			if (--nr == 0)
++				break;
++			ptep++;
++			entry = __pte(pte_val(entry) + PAGE_SIZE);
++		}
++	}
+ }
++#define set_ptes set_ptes
+ 
+ /*
+  * Conversion functions: convert a page and protection to a page entry,
+-- 
+2.39.2
+
