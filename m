@@ -2,118 +2,128 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C0ACBC61DA4
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Mar 2023 15:39:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 59632C61DA4
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Mar 2023 15:56:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231405AbjCOPjp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Mar 2023 11:39:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55584 "EHLO
+        id S232052AbjCOP4l (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Mar 2023 11:56:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231976AbjCOPjj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Mar 2023 11:39:39 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E9ED11679;
-        Wed, 15 Mar 2023 08:39:37 -0700 (PDT)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32FFCTt1032675;
-        Wed, 15 Mar 2023 15:39:36 GMT
+        with ESMTP id S232675AbjCOP4a (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Mar 2023 11:56:30 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8636586DEF;
+        Wed, 15 Mar 2023 08:55:49 -0700 (PDT)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32FF6btH019764;
+        Wed, 15 Mar 2023 15:54:52 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=3xUWNiOWu0OLHScxxfQ9Ow098huewhYupa4YwoKoKMs=;
- b=qiB1RGj1beJvEwGvCBA77XIVtjAXN2ZOHiECO8vNp7YcxMmU2+EPjgi0qYIAIMjZiTX7
- GpsrudCT2o/DoiH/raQBWKwbEYK4XBFezRfT+pyrCp/nWlh2LgPO/ZSeaCefA/epRjQU
- Caj8YEW2w8mgq4SD1v1AaGpW7WYy5xUdBtwxWqxHcQXNM8BC9o1YouPylwQhdDWYpTUK
- UR4eeL+Zu2Kfg8iYAQfKJo82Kj4GnFnLrPoSff8mVVBvmnbiRPLgK/UmJnRbGF0E8bZi
- hAFNr473kjFav4tBNwFV7o0/YqvE4qucphF7iNyVDWJCl0nHp7/ZdQMrwv+oKAmNG8WC 6w== 
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=rJhImL3klck32FrXmvmpWLYvhBSqyyzDpGxRB6l42AI=;
+ b=nC9rvnohOYsEZpuhBHIjxajxRTfasM6cw+Sene4k/rxOpkchRvDJjE83dmEDDam9CiKG
+ LFvnQuD3DJ07n9qzsbhGJUpnYebVQDAJLRRAQYBWDY+Yz1YQLu0QBjsV9h9ZSpGRzXGg
+ M04Utv/3cojgYUZIqbODg9KFCWpxfSpUGuymELYehmPqh6AfNTePrCl3bNke1rEfHpj5
+ MYeTRkr00MoKSY5Jk6Nzr0BpdHGWoxp6PAd4IWxAzeFjfaiCuUy2L6V9CyqH1GPBPlf9
+ PERP324INq0fN/6SGtO0V4IDj7VUAI75qyGC7RKjWi85CjMB3nLEuLnYEtgIYjfk7l0g mg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pbgey0u34-1
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3pbcgwgp2x-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Mar 2023 15:39:36 +0000
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32FFCjY9000979;
-        Wed, 15 Mar 2023 15:39:36 GMT
-Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pbgey0u2s-1
+        Wed, 15 Mar 2023 15:54:52 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32FDeo3o024085;
+        Wed, 15 Mar 2023 15:54:52 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3pbcgwgp2f-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Mar 2023 15:39:36 +0000
-Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
-        by ppma02dal.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32FE65hT024417;
-        Wed, 15 Mar 2023 15:39:35 GMT
-Received: from smtprelay05.wdc07v.mail.ibm.com ([9.208.129.117])
-        by ppma02dal.us.ibm.com (PPS) with ESMTPS id 3pb29rcym2-1
+        Wed, 15 Mar 2023 15:54:52 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32FDZuQf021175;
+        Wed, 15 Mar 2023 15:54:50 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3pb29ss0d2-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Mar 2023 15:39:35 +0000
-Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-        by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32FFdXc718940590
+        Wed, 15 Mar 2023 15:54:50 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32FFslns21692972
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 15 Mar 2023 15:39:33 GMT
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2325258057;
-        Wed, 15 Mar 2023 15:39:33 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 96E1758059;
-        Wed, 15 Mar 2023 15:39:32 +0000 (GMT)
-Received: from li-2c1e724c-2c76-11b2-a85c-ae42eaf3cb3d.endicott.ibm.com (unknown [9.60.85.43])
-        by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 15 Mar 2023 15:39:32 +0000 (GMT)
-From:   Tony Krowiak <akrowiak@linux.ibm.com>
-To:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc:     jjherne@linux.ibm.com, pasic@linux.ibm.com,
-        alex.williamson@redhat.com, borntraeger@linux.ibm.com
-Subject: [PATCH] s390/vfio_ap: fix memory leak in vfio_ap device driver
-Date:   Wed, 15 Mar 2023 11:39:32 -0400
-Message-Id: <20230315153932.165031-1-akrowiak@linux.ibm.com>
-X-Mailer: git-send-email 2.31.1
+        Wed, 15 Mar 2023 15:54:47 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 092522004B;
+        Wed, 15 Mar 2023 15:54:47 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BE23C20043;
+        Wed, 15 Mar 2023 15:54:46 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 15 Mar 2023 15:54:46 +0000 (GMT)
+From:   Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+To:     Thomas Huth <thuth@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: [kvm-unit-tests PATCH v3 1/3] s390x/spec_ex: Use PSW macro
+Date:   Wed, 15 Mar 2023 16:54:42 +0100
+Message-Id: <20230315155445.1688249-2-nsg@linux.ibm.com>
+X-Mailer: git-send-email 2.37.2
+In-Reply-To: <20230315155445.1688249-1-nsg@linux.ibm.com>
+References: <20230315155445.1688249-1-nsg@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: AA4axdwSoKQ9Zy6Def57-tSYAB1ZZcez
-X-Proofpoint-ORIG-GUID: L0VakZDhgEUIrW0zeLH_ZwqmdC82nQc3
+X-Proofpoint-ORIG-GUID: h5jKfplo6rJuDWLHL4J0djUpYEDc7mdw
+X-Proofpoint-GUID: 0k4WUXhYSejnOuF8df404LMKPQ5Nmj5w
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
  definitions=2023-03-15_08,2023-03-15_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- bulkscore=0 spamscore=0 clxscore=1011 malwarescore=0 impostorscore=0
- adultscore=0 mlxscore=0 mlxlogscore=999 suspectscore=0 lowpriorityscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2302240000 definitions=main-2303150131
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ mlxlogscore=999 mlxscore=0 adultscore=0 priorityscore=1501 spamscore=0
+ phishscore=0 impostorscore=0 bulkscore=0 malwarescore=0 suspectscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2302240000 definitions=main-2303150131 domainage_hfrom=7
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The device release callback function invoked to release the matrix device
-uses the dev_get_drvdata(device *dev) function to retrieve the
-pointer to the vfio_matrix_dev object in order to free its storage. The
-problem is, this object is not stored as drvdata with the device; since the
-kfree function will accept a NULL pointer, the memory for the
-vfio_matrix_dev object is never freed.
+Replace explicit psw definition by PSW macro.
+No functional change intended.
 
-Since the device being released is contained within the vfio_matrix_dev
-object, the container_of macro will be used to retrieve its pointer.
-
-Fixes: 1fde573413b5 ("s390: vfio-ap: base implementation of VFIO AP device driver")
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
 ---
- drivers/s390/crypto/vfio_ap_drv.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ s390x/spec_ex.c | 10 ++--------
+ 1 file changed, 2 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-index 997b524bdd2b..15e9de9f4574 100644
---- a/drivers/s390/crypto/vfio_ap_drv.c
-+++ b/drivers/s390/crypto/vfio_ap_drv.c
-@@ -54,8 +54,9 @@ static struct ap_driver vfio_ap_drv = {
- 
- static void vfio_ap_matrix_dev_release(struct device *dev)
+diff --git a/s390x/spec_ex.c b/s390x/spec_ex.c
+index 42ecaed3..2adc5996 100644
+--- a/s390x/spec_ex.c
++++ b/s390x/spec_ex.c
+@@ -105,10 +105,7 @@ static int check_invalid_psw(void)
+ /* For normal PSWs bit 12 has to be 0 to be a valid PSW*/
+ static int psw_bit_12_is_1(void)
  {
--	struct ap_matrix_dev *matrix_dev = dev_get_drvdata(dev);
--
-+	struct ap_matrix_dev *matrix_dev = container_of(dev,
-+							struct ap_matrix_dev,
-+							device);
- 	kfree(matrix_dev);
- }
+-	struct psw invalid = {
+-		.mask = BIT(63 - 12),
+-		.addr = 0x00000000deadbeee
+-	};
++	struct psw invalid = PSW(BIT(63 - 12), 0x00000000deadbeee);
  
+ 	expect_invalid_psw(invalid);
+ 	load_psw(invalid);
+@@ -118,10 +115,7 @@ static int psw_bit_12_is_1(void)
+ /* A short PSW needs to have bit 12 set to be valid. */
+ static int short_psw_bit_12_is_0(void)
+ {
+-	struct psw invalid = {
+-		.mask = BIT(63 - 12),
+-		.addr = 0x00000000deadbeee
+-	};
++	struct psw invalid = PSW(BIT(63 - 12), 0x00000000deadbeee);
+ 	struct short_psw short_invalid = {
+ 		.mask = 0x0,
+ 		.addr = 0xdeadbeee
 -- 
-2.31.1
+2.39.1
 
