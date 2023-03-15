@@ -2,70 +2,80 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C9E3C6FD1D
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Mar 2023 07:40:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5EECEC6FD1D
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Mar 2023 08:20:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231827AbjCOHkk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Mar 2023 03:40:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59140 "EHLO
+        id S231219AbjCOIUV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Mar 2023 04:20:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232050AbjCOHkS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Mar 2023 03:40:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8907D5DCAD;
-        Wed, 15 Mar 2023 00:39:44 -0700 (PDT)
+        with ESMTP id S229629AbjCOIUU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Mar 2023 04:20:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24A1D1A64C;
+        Wed, 15 Mar 2023 01:20:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 766BF61B4D;
-        Wed, 15 Mar 2023 07:34:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7204BC433EF;
-        Wed, 15 Mar 2023 07:34:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ACB5F61C03;
+        Wed, 15 Mar 2023 08:20:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 1343EC433EF;
+        Wed, 15 Mar 2023 08:20:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678865681;
-        bh=7ktC4KDSsNddL7fAD3DLVDfKc9FhqOWXOu6nwsp2d0w=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=SR+z+gJt69q4OX57aiLUqiPcD5bZbAgivQETse4CAyMiQZSnePAvfgJd4I1juLysu
-         rqdxlUhkp9AwgonmFVNHF20ooAZSukVYZp5NxITv3NCMPypgT2SUEcFsf06BTsAwbb
-         jMPObol89iEVg977CMNCWGHMtwA0iW7W26IiCqZ1Bd2vZmIXIbCaRKADlEoCrWlw9B
-         bLb9le1sWRoyhnJd8Ns81U8znb4MIeNwBoj8nHnIrhDh+PjFsHZUTbeRke9qD9RDmx
-         r1NrQN11Y9S2CvbIwSj0DwtWiVH0xgQ+t9+6/Dc26Dz8KcpUg5fPKZdSbGsLLBD0uk
-         vBB6bnd1HwnWQ==
-Date:   Wed, 15 Mar 2023 00:34:40 -0700
-From:   Jakub Kicinski <kuba@kernel.org>
-To:     Kai <KaiShen@linux.alibaba.com>
-Cc:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
-        davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-Subject: Re: [PATCH net-next v4] net/smc: Use percpu ref for wr tx reference
-Message-ID: <20230315003440.23674405@kernel.org>
-In-Reply-To: <20230313060425.115939-1-KaiShen@linux.alibaba.com>
-References: <20230313060425.115939-1-KaiShen@linux.alibaba.com>
+        s=k20201202; t=1678868418;
+        bh=JypeBE5SEgcdZLpEqXnwicW8PFwnoZF0s++ovdaqtLc=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=mIyF5sCmCkIgZ30NkeBSQvUqivgc2bzrVSXh912Op3CWY6y0ICn+6JzY66aMaQwbk
+         XZsboFWRxhHFQNIKPpCkb6VB0Xd4ad/TWj5KNYSsWO8nuXTVNYmU6HZn00grUUdXPi
+         MpnHl11YJlFTXTb/Q+mTYF3YjzdhIRAulPRp3zaOAjcW/Mrz2fcuTDlVChACfkORoG
+         ZbB8NT6Xz/Dl+wwKgcZxXW1lHPJWdYZbhDvLGRoQGwazfoVSFheStPvTSFoGiEZxmO
+         5eR/pNyCsBxfu5KDXSRLQk1Jmi9f3VhWq/S3x0zjIpeuJikr0W2hvm63cx/mdQ3G3K
+         XeEzEBrGdsdXA==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id ED410E66CBC;
+        Wed, 15 Mar 2023 08:20:17 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net 0/2] net/smc: Fixes 2023-03-01
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <167886841796.29094.5229369446837887446.git-patchwork-notify@kernel.org>
+Date:   Wed, 15 Mar 2023 08:20:17 +0000
+References: <20230313100829.13136-1-wenjia@linux.ibm.com>
+In-Reply-To: <20230313100829.13136-1-wenjia@linux.ibm.com>
+To:     Wenjia Zhang <wenjia@linux.ibm.com>
+Cc:     davem@davemloft.net, kuba@kernel.org, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, edumazet@google.com, pabeni@redhat.com,
+        hca@linux.ibm.com, kgraul@linux.ibm.com, wintera@linux.ibm.com,
+        jaka@linux.ibm.com, raspl@linux.ibm.com, tonylu@linux.alibaba.com
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 13 Mar 2023 06:04:25 +0000 Kai wrote:
-> Signed-off-by: Kai <KaiShen@linux.alibaba.com>
+Hello:
 
-Kai Shen ?
+This series was applied to netdev/net.git (main)
+by David S. Miller <davem@davemloft.net>:
 
+On Mon, 13 Mar 2023 11:08:27 +0100 you wrote:
+> The 1st patch solves the problem that CLC message initialization was
+> not properly reversed in error handling path. And the 2nd one fixes
+> the possible deadlock triggered by cancel_delayed_work_sync().
 > 
-
-You're missing a --- separator here, try to apply this patch with 
-git am :/
-
-> v1->v2:
-> - Modify patch prefix
+> Stefan Raspl (1):
+>   net/smc: Fix device de-init sequence
 > 
-> v2->v3:
-> - Make wr_reg_refcnt a percpu one as well
-> - Init percpu ref with 0 flag instead of ALLOW_REINIT flag
-> 
-> v3->v4:
-> - Update performance data, this data may differ from previous data
->   as I ran cases on other machines
-> ---
+> [...]
+
+Here is the summary with links:
+  - [net,1/2] net/smc: fix deadlock triggered by cancel_delayed_work_syn()
+    https://git.kernel.org/netdev/net/c/13085e1b5cab
+  - [net,2/2] net/smc: Fix device de-init sequence
+    https://git.kernel.org/netdev/net/c/9d876d3ef27f
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
