@@ -2,56 +2,56 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C6E8C6FD1D
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Mar 2023 03:05:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 636B0C76196
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Mar 2023 03:05:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229487AbjCODF3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 14 Mar 2023 23:05:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44494 "EHLO
+        id S229793AbjCODFa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Mar 2023 23:05:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229648AbjCODF2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Mar 2023 23:05:28 -0400
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09D3E574F7
-        for <linux-s390@vger.kernel.org>; Tue, 14 Mar 2023 20:05:27 -0700 (PDT)
-Received: by mail-pl1-x62f.google.com with SMTP id ja10so8976052plb.5
-        for <linux-s390@vger.kernel.org>; Tue, 14 Mar 2023 20:05:27 -0700 (PDT)
+        with ESMTP id S229542AbjCODF3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Mar 2023 23:05:29 -0400
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32DEC5C9E0
+        for <linux-s390@vger.kernel.org>; Tue, 14 Mar 2023 20:05:28 -0700 (PDT)
+Received: by mail-pj1-x1032.google.com with SMTP id cn6so4766633pjb.2
+        for <linux-s390@vger.kernel.org>; Tue, 14 Mar 2023 20:05:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rivosinc-com.20210112.gappssmtp.com; s=20210112; t=1678849526;
+        d=rivosinc-com.20210112.gappssmtp.com; s=20210112; t=1678849527;
         h=to:from:cc:content-transfer-encoding:mime-version:references
          :in-reply-to:message-id:date:subject:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=hPLiCKdxpc2r5PKNkHmqRCNmdb24wQijBhgYpLkC43U=;
-        b=hZOWobSL1PKWIUT7UWS9tniLiB9mdfLQVx/Z/9zPgZaqvjnOteqzCtEB9HjY6uDm5Z
-         iih9EdmkZVUeQo0xOfl1VcnfVacdcLCd8AJJAPxhyA2sm6Xke46e1e2rJ7Rh0BSVXkF8
-         LPvQJyzonpQFWDXt2SUjjq9ID4+tvuPP8BALY8prYRlpppPYUlsITVn79fdnaiUXQEF1
-         deb+t9btxFOPW+9acEXIhNbZp2doaKT5YgC3FtBNm79vfC3LW+6mWJ6+9PBqPIyH0Kic
-         Coc17KHtjWazt5MqaHhgFOTwgQhPQ0N0ANZIoSAUsfoul0ONsbg8PSj+Y8JcyFTwqcEL
-         HRCg==
+        bh=nnoQUwQmFqPgSrJHWK8d2p9DXhKQ1/cuEoil7CNd3DE=;
+        b=TBNUeSBfuBa3ST4mxm1DS4OFwR6VEct391KodjBQ5eDMwvy7IAnH77PwGo1apR6bPh
+         K7nIjhi/uZYJG5kt+DE6phOd9LZqfl9BFT5eMievU9L2UTVHzq36Jl6MFMdA5ssdKwUN
+         gDJDd53OvmzgZShoscboUxRy+5c9II5aP7YLMLZ2PLDTbZH0uvz7j7szJopkCepK9dLm
+         cA4Pv0tR7bnX1Y0V928WrhCq3OiYKHIIoWOc6+RX1qFGNwbibAeVMdjD8hiDrKwkQ60x
+         sSkJH1wnncA5VLaZOh78cNkPD05vCaLhXPKstDORhMzPYnnwWiQ2oq7R2RYY4UnVQdNk
+         6WZg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678849526;
+        d=1e100.net; s=20210112; t=1678849527;
         h=to:from:cc:content-transfer-encoding:mime-version:references
          :in-reply-to:message-id:date:subject:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=hPLiCKdxpc2r5PKNkHmqRCNmdb24wQijBhgYpLkC43U=;
-        b=woUlbd6RSbQcw5BMOzGHU6DiGuAKysiNe2yvfw0ziE/zwxAmcrS95Z3NmcsZEsohZ0
-         fvfFpLAX+Q1o6TOujs+GesCJT0JAqrt9KgbzLtOpVcsRe4wp7thHswhsQc1e1EY1gwE9
-         VHe37csQA3wAmiKx4zW1mtpq2o6i4W6WdBqkRJS9XWjMCTtXRNUKYxi2+32yiCYHCqx8
-         LpN/VypFMibGOeomsLMNvzTMU/IySenVVter3cikSQjTxjo3VgDgGq6MMMWP/96dymPQ
-         LZ0nQAuXu/FTtAhjbgVJUS+0fo82Wnhp93hipJb9M1o0ylCpLx5bqTKEf9L1mD27Y29k
-         SSNQ==
-X-Gm-Message-State: AO0yUKU8fEZOg0VZU7/UAOJ+qx1A5pai1c+79pejBC/Sj6pVxscI5kn/
-        4teI/rOd6fjRyKVf5Fsm5w5xFQ==
-X-Google-Smtp-Source: AK7set9vypcudDyWo/h8khv9E95mQjVI9aZbPGtfY3t0wFWv20PLrTeh2GiFiqI+9gk8Y0mpUagQ+Q==
-X-Received: by 2002:a17:902:ec8a:b0:19e:416e:abf5 with SMTP id x10-20020a170902ec8a00b0019e416eabf5mr1078987plg.34.1678849526457;
-        Tue, 14 Mar 2023 20:05:26 -0700 (PDT)
+        bh=nnoQUwQmFqPgSrJHWK8d2p9DXhKQ1/cuEoil7CNd3DE=;
+        b=pU4jsqPhLBN2J9f2GE0EluGHUSehW0qdoO9/ayiHp+VKXopGE2amhG4bfE3nA3lbOH
+         1B34mTeEPxGsY+aT2DMGy8Z0KmiWzSubsuY1QzqtXYBHGVO2WWHBpskZ9TBUTmg3zfMd
+         yh9QYxLtT5yOE7pD4gB+IEk3aeLmZ+PB0yN/kOfUud6JL2OonBD36V2irR1hG/N8dE1J
+         b9gqbJIEFzX7ZzMbWzaFo3/or0dHoo2Yt9oknz2RWyCk70Gu2FedbtDGOMoywcijjQ4M
+         eIq70mAg1u4aWdLSZtZTwkjw++xk/3W/wSO3byLdqSitI1xv7OC27x3XtiAgIi/st3s9
+         XzFA==
+X-Gm-Message-State: AO0yUKWsLn8m0RN7HYwGqRbdSoATW/f0cpM0fEdPBMR3RHYwjV2jN+2C
+        NT+XTx8IEbr2+ZwqOI9k9Iping==
+X-Google-Smtp-Source: AK7set9+C9cPA06JcNB4chJKZnGHWdotuV162jlrieE+Q24dYD3lVPW20yRGsbK4VhdL3hYON+iG1Q==
+X-Received: by 2002:a05:6a21:338c:b0:d5:4dc:16ce with SMTP id yy12-20020a056a21338c00b000d504dc16cemr7106582pzb.4.1678849527626;
+        Tue, 14 Mar 2023 20:05:27 -0700 (PDT)
 Received: from localhost ([50.221.140.188])
-        by smtp.gmail.com with ESMTPSA id s30-20020a63451e000000b0050300a7c8c2sm2194674pga.89.2023.03.14.20.05.25
+        by smtp.gmail.com with ESMTPSA id z20-20020aa785d4000000b005e093020cabsm2305210pfn.45.2023.03.14.20.05.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Mar 2023 20:05:26 -0700 (PDT)
-Subject: [PATCH v2 1/6] riscv/mm/fault: simplify code for do_page_fault()
-Date:   Tue, 14 Mar 2023 20:03:54 -0700
-Message-Id: <20230315030359.14162-2-palmer@rivosinc.com>
+        Tue, 14 Mar 2023 20:05:27 -0700 (PDT)
+Subject: [PATCH v2 2/6] mm: Add a leading 0 to the VM_FAULT_* types
+Date:   Tue, 14 Mar 2023 20:03:55 -0700
+Message-Id: <20230315030359.14162-3-palmer@rivosinc.com>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230315030359.14162-1-palmer@rivosinc.com>
 References: <20230315030359.14162-1-palmer@rivosinc.com>
@@ -59,7 +59,6 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Cc:     linux-mm@kvack.org, linux-riscv@lists.infradead.org,
         linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        Tong Tiangen <tongtiangen@huawei.com>,
         Palmer Dabbelt <palmer@rivosinc.com>
 From:   Palmer Dabbelt <palmer@rivosinc.com>
 To:     akpm@linux-foundation.org
@@ -67,131 +66,53 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Tong Tiangen <tongtiangen@huawei.com>
+The next patch will add enough codes to need another character, this
+adds the 0 to all the existing codes to keep alignment.
 
-To make the code more hierarchical and readable, we fold vma related
-judgments into __do_page_fault(). And to simplify the code, move the
-tsk->thread.bad_cause's setting into bad_area(). No functional change
-intended.
-
-Signed-off-by: Tong Tiangen <tongtiangen@huawei.com>
 Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 ---
- arch/riscv/mm/fault.c | 77 +++++++++++++++++++++++--------------------
- 1 file changed, 41 insertions(+), 36 deletions(-)
+ include/linux/mm_types.h | 28 ++++++++++++++--------------
+ 1 file changed, 14 insertions(+), 14 deletions(-)
 
-diff --git a/arch/riscv/mm/fault.c b/arch/riscv/mm/fault.c
-index 460f785f6e09..0a8c9afeee22 100644
---- a/arch/riscv/mm/fault.c
-+++ b/arch/riscv/mm/fault.c
-@@ -85,6 +85,8 @@ static inline void mm_fault_error(struct pt_regs *regs, unsigned long addr, vm_f
+diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
+index 0722859c3647..fd9b863869b4 100644
+--- a/include/linux/mm_types.h
++++ b/include/linux/mm_types.h
+@@ -941,20 +941,20 @@ typedef __bitwise unsigned int vm_fault_t;
+  *
+  */
+ enum vm_fault_reason {
+-	VM_FAULT_OOM            = (__force vm_fault_t)0x000001,
+-	VM_FAULT_SIGBUS         = (__force vm_fault_t)0x000002,
+-	VM_FAULT_MAJOR          = (__force vm_fault_t)0x000004,
+-	VM_FAULT_HWPOISON       = (__force vm_fault_t)0x000010,
+-	VM_FAULT_HWPOISON_LARGE = (__force vm_fault_t)0x000020,
+-	VM_FAULT_SIGSEGV        = (__force vm_fault_t)0x000040,
+-	VM_FAULT_NOPAGE         = (__force vm_fault_t)0x000100,
+-	VM_FAULT_LOCKED         = (__force vm_fault_t)0x000200,
+-	VM_FAULT_RETRY          = (__force vm_fault_t)0x000400,
+-	VM_FAULT_FALLBACK       = (__force vm_fault_t)0x000800,
+-	VM_FAULT_DONE_COW       = (__force vm_fault_t)0x001000,
+-	VM_FAULT_NEEDDSYNC      = (__force vm_fault_t)0x002000,
+-	VM_FAULT_COMPLETED      = (__force vm_fault_t)0x004000,
+-	VM_FAULT_HINDEX_MASK    = (__force vm_fault_t)0x0f0000,
++	VM_FAULT_OOM            = (__force vm_fault_t)0x0000001,
++	VM_FAULT_SIGBUS         = (__force vm_fault_t)0x0000002,
++	VM_FAULT_MAJOR          = (__force vm_fault_t)0x0000004,
++	VM_FAULT_HWPOISON       = (__force vm_fault_t)0x0000010,
++	VM_FAULT_HWPOISON_LARGE = (__force vm_fault_t)0x0000020,
++	VM_FAULT_SIGSEGV        = (__force vm_fault_t)0x0000040,
++	VM_FAULT_NOPAGE         = (__force vm_fault_t)0x0000100,
++	VM_FAULT_LOCKED         = (__force vm_fault_t)0x0000200,
++	VM_FAULT_RETRY          = (__force vm_fault_t)0x0000400,
++	VM_FAULT_FALLBACK       = (__force vm_fault_t)0x0000800,
++	VM_FAULT_DONE_COW       = (__force vm_fault_t)0x0001000,
++	VM_FAULT_NEEDDSYNC      = (__force vm_fault_t)0x0002000,
++	VM_FAULT_COMPLETED      = (__force vm_fault_t)0x0004000,
++	VM_FAULT_HINDEX_MASK    = (__force vm_fault_t)0x00f0000,
+ };
  
- static inline void bad_area(struct pt_regs *regs, struct mm_struct *mm, int code, unsigned long addr)
- {
-+	current->thread.bad_cause = regs->cause;
-+
- 	/*
- 	 * Something tried to access memory that isn't in our memory map.
- 	 * Fix it, but check if it's kernel or user first.
-@@ -200,6 +202,38 @@ static inline bool access_error(unsigned long cause, struct vm_area_struct *vma)
- 	return false;
- }
- 
-+#define VM_FAULT_BADMAP		((__force vm_fault_t)0x010000)
-+#define VM_FAULT_BADACCESS	((__force vm_fault_t)0x020000)
-+
-+static vm_fault_t __do_page_fault(struct mm_struct *mm, unsigned long addr,
-+				unsigned int mm_flags, struct pt_regs *regs)
-+{
-+	struct vm_area_struct *vma = find_vma(mm, addr);
-+
-+	if (unlikely(!vma))
-+		return VM_FAULT_BADMAP;
-+
-+	if (unlikely(vma->vm_start > addr)) {
-+		if (unlikely(!(vma->vm_flags & VM_GROWSDOWN) ||
-+				expand_stack(vma, addr)))
-+			return VM_FAULT_BADMAP;
-+	}
-+
-+	/*
-+	 * Ok, we have a good vm_area for this memory access, so
-+	 * we can handle it.
-+	 */
-+	if (unlikely(access_error(regs->cause, vma)))
-+		return VM_FAULT_BADACCESS;
-+
-+	/*
-+	 * If for any reason at all we could not handle the fault,
-+	 * make sure we exit gracefully rather than endlessly redo
-+	 * the fault.
-+	 */
-+	return handle_mm_fault(vma, addr, mm_flags, regs);
-+}
-+
- /*
-  * This routine handles page faults.  It determines the address and the
-  * problem, and then passes it off to one of the appropriate routines.
-@@ -207,7 +241,6 @@ static inline bool access_error(unsigned long cause, struct vm_area_struct *vma)
- asmlinkage void do_page_fault(struct pt_regs *regs)
- {
- 	struct task_struct *tsk;
--	struct vm_area_struct *vma;
- 	struct mm_struct *mm;
- 	unsigned long addr, cause;
- 	unsigned int flags = FAULT_FLAG_DEFAULT;
-@@ -282,44 +315,16 @@ asmlinkage void do_page_fault(struct pt_regs *regs)
- 		flags |= FAULT_FLAG_INSTRUCTION;
- retry:
- 	mmap_read_lock(mm);
--	vma = find_vma(mm, addr);
--	if (unlikely(!vma)) {
--		tsk->thread.bad_cause = cause;
--		bad_area(regs, mm, code, addr);
--		return;
--	}
--	if (likely(vma->vm_start <= addr))
--		goto good_area;
--	if (unlikely(!(vma->vm_flags & VM_GROWSDOWN))) {
--		tsk->thread.bad_cause = cause;
--		bad_area(regs, mm, code, addr);
--		return;
--	}
--	if (unlikely(expand_stack(vma, addr))) {
--		tsk->thread.bad_cause = cause;
--		bad_area(regs, mm, code, addr);
--		return;
--	}
- 
--	/*
--	 * Ok, we have a good vm_area for this memory access, so
--	 * we can handle it.
--	 */
--good_area:
--	code = SEGV_ACCERR;
-+	fault = __do_page_fault(mm, addr, flags, regs);
- 
--	if (unlikely(access_error(cause, vma))) {
--		tsk->thread.bad_cause = cause;
--		bad_area(regs, mm, code, addr);
--		return;
--	}
-+	if (unlikely(fault & VM_FAULT_BADMAP))
-+		return bad_area(regs, mm, code, addr);
- 
--	/*
--	 * If for any reason at all we could not handle the fault,
--	 * make sure we exit gracefully rather than endlessly redo
--	 * the fault.
--	 */
--	fault = handle_mm_fault(vma, addr, flags, regs);
-+	if (unlikely(fault & VM_FAULT_BADACCESS)) {
-+		code = SEGV_ACCERR;
-+		return bad_area(regs, mm, code, addr);
-+	}
- 
- 	/*
- 	 * If we need to retry but a fatal signal is pending, handle the
+ /* Encode hstate index for a hwpoisoned large page */
 -- 
 2.39.2
 
