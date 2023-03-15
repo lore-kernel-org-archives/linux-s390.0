@@ -2,47 +2,47 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5EECEC6FD1D
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Mar 2023 08:20:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CBA93C61DA4
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Mar 2023 08:20:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231219AbjCOIUV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Mar 2023 04:20:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41656 "EHLO
+        id S231417AbjCOIU3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Mar 2023 04:20:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229629AbjCOIUU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Mar 2023 04:20:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24A1D1A64C;
-        Wed, 15 Mar 2023 01:20:19 -0700 (PDT)
+        with ESMTP id S231509AbjCOIUY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Mar 2023 04:20:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F6CE591FF;
+        Wed, 15 Mar 2023 01:20:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ACB5F61C03;
-        Wed, 15 Mar 2023 08:20:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 1343EC433EF;
-        Wed, 15 Mar 2023 08:20:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 43150B81D8B;
+        Wed, 15 Mar 2023 08:20:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id F117FC4339B;
+        Wed, 15 Mar 2023 08:20:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678868418;
-        bh=JypeBE5SEgcdZLpEqXnwicW8PFwnoZF0s++ovdaqtLc=;
+        s=k20201202; t=1678868421;
+        bh=+yo6va50VFljRx9yw4IImw/EexK/kygDiGhr5xKRzHs=;
         h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=mIyF5sCmCkIgZ30NkeBSQvUqivgc2bzrVSXh912Op3CWY6y0ICn+6JzY66aMaQwbk
-         XZsboFWRxhHFQNIKPpCkb6VB0Xd4ad/TWj5KNYSsWO8nuXTVNYmU6HZn00grUUdXPi
-         MpnHl11YJlFTXTb/Q+mTYF3YjzdhIRAulPRp3zaOAjcW/Mrz2fcuTDlVChACfkORoG
-         ZbB8NT6Xz/Dl+wwKgcZxXW1lHPJWdYZbhDvLGRoQGwazfoVSFheStPvTSFoGiEZxmO
-         5eR/pNyCsBxfu5KDXSRLQk1Jmi9f3VhWq/S3x0zjIpeuJikr0W2hvm63cx/mdQ3G3K
-         XeEzEBrGdsdXA==
+        b=P91GuPwsDZ2cuRabk9BdKDvpnmdIB6k+IT6+YhGFAjQTq0RaZgIudDa7rQMT2J3V/
+         CjyNcqWO5THk/wnOrTWxdKD52BtriBdiMPt6UIfaDYVdwWuyJRiymh1fl5YibIJmw7
+         82988lEqF3OSZk5I752fm1raT7Hkg8nbNoYo8+y1wVQqJAqGxY0Q8PzGeVSRx9uyXb
+         200IxmXDaeZBOMTc1M/8j3FBpggvb+vlsKIMEJ4lguzYZyW3dtp6iycyHwjmip89pX
+         wRE5/tIiikLI9FHM4y2Fx4/wjg9IEwEUmyEszz/EJQqHz+ZYcJM3jPqhrGg2m3stSa
+         i7hQpdTH7q1aw==
 Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id ED410E66CBC;
-        Wed, 15 Mar 2023 08:20:17 +0000 (UTC)
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id D9EB5E52532;
+        Wed, 15 Mar 2023 08:20:20 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net 0/2] net/smc: Fixes 2023-03-01
+Subject: Re: [PATCH net-next 0/2] smc: Updates 2023-03-01
 From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <167886841796.29094.5229369446837887446.git-patchwork-notify@kernel.org>
-Date:   Wed, 15 Mar 2023 08:20:17 +0000
-References: <20230313100829.13136-1-wenjia@linux.ibm.com>
-In-Reply-To: <20230313100829.13136-1-wenjia@linux.ibm.com>
+Message-Id: <167886842088.29094.16124554092676505653.git-patchwork-notify@kernel.org>
+Date:   Wed, 15 Mar 2023 08:20:20 +0000
+References: <20230313101032.13180-1-wenjia@linux.ibm.com>
+In-Reply-To: <20230313101032.13180-1-wenjia@linux.ibm.com>
 To:     Wenjia Zhang <wenjia@linux.ibm.com>
 Cc:     davem@davemloft.net, kuba@kernel.org, netdev@vger.kernel.org,
         linux-s390@vger.kernel.org, edumazet@google.com, pabeni@redhat.com,
@@ -54,24 +54,24 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 Hello:
 
-This series was applied to netdev/net.git (main)
+This series was applied to netdev/net-next.git (main)
 by David S. Miller <davem@davemloft.net>:
 
-On Mon, 13 Mar 2023 11:08:27 +0100 you wrote:
-> The 1st patch solves the problem that CLC message initialization was
-> not properly reversed in error handling path. And the 2nd one fixes
-> the possible deadlock triggered by cancel_delayed_work_sync().
+On Mon, 13 Mar 2023 11:10:30 +0100 you wrote:
+> The 1st patch is to make implements later do not need to adhere to a
+> specific SEID format. The 2nd patch does some cleanup.
 > 
-> Stefan Raspl (1):
->   net/smc: Fix device de-init sequence
+> Stefan Raspl (2):
+>   net/smc: Introduce explicit check for v2 support
+>   net/ism: Remove extra include
 > 
 > [...]
 
 Here is the summary with links:
-  - [net,1/2] net/smc: fix deadlock triggered by cancel_delayed_work_syn()
-    https://git.kernel.org/netdev/net/c/13085e1b5cab
-  - [net,2/2] net/smc: Fix device de-init sequence
-    https://git.kernel.org/netdev/net/c/9d876d3ef27f
+  - [net-next,1/2] net/smc: Introduce explicit check for v2 support
+    https://git.kernel.org/netdev/net-next/c/f947568e2580
+  - [net-next,2/2] net/ism: Remove extra include
+    https://git.kernel.org/netdev/net-next/c/298c91dc40e5
 
 You are awesome, thank you!
 -- 
