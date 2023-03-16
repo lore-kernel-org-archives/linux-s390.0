@@ -2,137 +2,112 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 39748C6FD19
-	for <linux-s390@archiver.kernel.org>; Thu, 16 Mar 2023 09:33:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D9CFC6FD19
+	for <linux-s390@archiver.kernel.org>; Thu, 16 Mar 2023 11:15:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229621AbjCPJdc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 16 Mar 2023 05:33:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55276 "EHLO
+        id S229951AbjCPLO7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 16 Mar 2023 07:14:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231138AbjCPJdb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Mar 2023 05:33:31 -0400
-Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1CB246173
-        for <linux-s390@vger.kernel.org>; Thu, 16 Mar 2023 02:33:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1678959210; x=1710495210;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=Es8gXpWFt4PFKee/2ySsCx37zzXpOdN7ikcR/wK0ZBA=;
-  b=TndH2+O0czRxu+TiDSHNSVxa4oGAD2TM91a0sxkX5jTawZp0nU+XpiyK
-   gAOOCAhSquzRMNFb+2EcppZDA9ol5clPVhxneDz8D8r/Le7XAZWF+RGcO
-   ZLBGJGyCepuN9tC7rvlKTpwXRsSPET/kklE38Y9IbL3KHJMrITV9QBITM
-   b93iYlBjhmxIs1dpec/8hP9jl2sviQKUajA0M526HVhutzyy3Ih3LFKUF
-   4GFEtJ7Gl+4fS9CQEhMyQTiTDO3HvpT8V+0niPf4AQL2Vk8GuNi8oJJxI
-   ebpXcfbXzXTJ3tJdqqpvUdSD9LSdrJ/3oImWnU7MZ+4vqKljAZBza5Luq
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10650"; a="339466429"
-X-IronPort-AV: E=Sophos;i="5.98,265,1673942400"; 
-   d="scan'208";a="339466429"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Mar 2023 02:33:28 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10650"; a="710026418"
-X-IronPort-AV: E=Sophos;i="5.98,265,1673942400"; 
-   d="scan'208";a="710026418"
-Received: from lkp-server01.sh.intel.com (HELO b613635ddfff) ([10.239.97.150])
-  by orsmga008.jf.intel.com with ESMTP; 16 Mar 2023 02:33:26 -0700
-Received: from kbuild by b613635ddfff with local (Exim 4.96)
-        (envelope-from <lkp@intel.com>)
-        id 1pcjzC-0008RU-0f;
-        Thu, 16 Mar 2023 09:33:26 +0000
-Date:   Thu, 16 Mar 2023 17:32:41 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Palmer Dabbelt <palmer@rivosinc.com>, akpm@linux-foundation.org
-Cc:     oe-kbuild-all@lists.linux.dev, linux-mm@kvack.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: Re: [PATCH v2 3/6] mm: Add VM_FAULT_ARCH_* codes
-Message-ID: <202303161725.tJspbzJz-lkp@intel.com>
-References: <20230315030359.14162-4-palmer@rivosinc.com>
+        with ESMTP id S230272AbjCPLO4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Mar 2023 07:14:56 -0400
+Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 320FEEB;
+        Thu, 16 Mar 2023 04:14:32 -0700 (PDT)
+Received: by mail-wm1-f49.google.com with SMTP id bh21-20020a05600c3d1500b003ed1ff06fb0so823167wmb.3;
+        Thu, 16 Mar 2023 04:14:32 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678965270;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=2ZDBT0cMZ0W19lPDUhO8A3SC8gJRP8pNHC7vkw5YBWs=;
+        b=m7h4cvpVhloSYFgu3RtK71cLUIHCV2B2Xc3/kzbe7SoK4p1wJ/5uwSXXmTQcXJBYJ1
+         N3fRhoSQK/hjvI11RjN/ga8mAMftWPM7XO/zk0T2voVXktH8ugBtSB4oWxs6KjAyGMlJ
+         lggGGONnPsXTEG5POp1uLgJxemPKROQN82UwtJuM0w2I0DWo9bLVtTkSI3PysRbP0WOR
+         TLhIPxmGD3zBSUXl2jw2ebtn/Yr88ZfXU6KE2W4GeTKckD8todb/sdI+NirGuKRfIHBm
+         5jiqR8c1Bl5CydZMajejcDYYc2HUmHA5tQIJsPHt5MyEurIYvPDMSJr/ha70oqIGRgd9
+         /E2w==
+X-Gm-Message-State: AO0yUKUdp/0CFqAdxsEKISaw6vbR196RFWYKCnVcBZZsi4P53GlCr+fU
+        iGMpfuAEqTnvJhM6cNPo0obxay2Kto8=
+X-Google-Smtp-Source: AK7set+u7sPC1b8dhu6zYooEMDkVjysjW+tBZ0xjaRmULDxxhCOU9R0dfR3BrzDHYj9d5TdjWFQXRg==
+X-Received: by 2002:a05:600c:4448:b0:3dc:1687:9ba2 with SMTP id v8-20020a05600c444800b003dc16879ba2mr20542511wmn.35.1678965270508;
+        Thu, 16 Mar 2023 04:14:30 -0700 (PDT)
+Received: from ?IPV6:2a0b:e7c0:0:107::aaaa:49? ([2a0b:e7c0:0:107::aaaa:49])
+        by smtp.gmail.com with ESMTPSA id k6-20020a05600c1c8600b003e209b45f6bsm5082683wms.29.2023.03.16.04.14.29
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 16 Mar 2023 04:14:29 -0700 (PDT)
+Message-ID: <705ce64c-5f73-2ec8-e4bc-dd48c85f0498@kernel.org>
+Date:   Thu, 16 Mar 2023 12:14:27 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230315030359.14162-4-palmer@rivosinc.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.8.0
+Subject: Re: [PATCH 2/2] s390/nospec: remove unneeded header includes
+Content-Language: en-US
+To:     Vasily Gorbik <gor@linux.ibm.com>,
+        Joe Lawrence <joe.lawrence@redhat.com>
+Cc:     Michael Ellerman <mpe@ellerman.id.au>,
+        Sumanth Korikkar <sumanthk@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        linux-kbuild@vger.kernel.org
+References: <8569429d-57f8-a0cf-8b17-1291f6973d32@redhat.com>
+ <cover.thread-d13b6c.your-ad-here.call-01656331067-ext-4899@work.hours>
+ <patch-2.thread-d13b6c.git-d13b6c96fb5f.your-ad-here.call-01656331067-ext-4899@work.hours>
+From:   Jiri Slaby <jirislaby@kernel.org>
+In-Reply-To: <patch-2.thread-d13b6c.git-d13b6c96fb5f.your-ad-here.call-01656331067-ext-4899@work.hours>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Palmer,
+On 27. 06. 22, 14:50, Vasily Gorbik wrote:
+> Commit 4efd417f298b ("s390: raise minimum supported machine generation
+> to z10") removed the usage of alternatives and lowcore in expolines
+> macros. Remove unneeded header includes as well.
+> 
+> With that, expoline.S doesn't require asm-offsets.h and
+> expoline_prepare target dependency could be removed.
+> 
+> Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+> ---
+>   arch/s390/Makefile                  | 2 +-
+>   arch/s390/include/asm/nospec-insn.h | 2 --
+>   2 files changed, 1 insertion(+), 3 deletions(-)
+> 
+> diff --git a/arch/s390/Makefile b/arch/s390/Makefile
+> index fc72a35a1f07..4cb5d17e7ead 100644
+> --- a/arch/s390/Makefile
+> +++ b/arch/s390/Makefile
+> @@ -166,7 +166,7 @@ vdso_prepare: prepare0
+>   
+>   ifdef CONFIG_EXPOLINE_EXTERN
+>   modules_prepare: expoline_prepare
+> -expoline_prepare: prepare0
+> +expoline_prepare:
 
-I love your patch! Yet something to improve:
+Hi,
 
-[auto build test ERROR on akpm-mm/mm-everything]
+this likely broke s390 build as expolines still depend on 
+scripts/basic/fixdep. And build of expolines can now race with fixdep build:
+      make[1]: *** Deleting file 'arch/s390/lib/expoline/expoline.o'
+      /bin/sh: line 1: scripts/basic/fixdep: Permission denied
+      make[1]: *** [../scripts/Makefile.build:385: 
+arch/s390/lib/expoline/expoline.o] Error 126
+      make: *** [../arch/s390/Makefile:166: expoline_prepare] Error 2
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Palmer-Dabbelt/riscv-mm-fault-simplify-code-for-do_page_fault/20230315-111507
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm.git mm-everything
-patch link:    https://lore.kernel.org/r/20230315030359.14162-4-palmer%40rivosinc.com
-patch subject: [PATCH v2 3/6] mm: Add VM_FAULT_ARCH_* codes
-config: s390-randconfig-r044-20230312 (https://download.01.org/0day-ci/archive/20230316/202303161725.tJspbzJz-lkp@intel.com/config)
-compiler: s390-linux-gcc (GCC) 12.1.0
-reproduce (this is a W=1 build):
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # https://github.com/intel-lab-lkp/linux/commit/d25cdd69b804d954e31ad8835750a8707e11af32
-        git remote add linux-review https://github.com/intel-lab-lkp/linux
-        git fetch --no-tags linux-review Palmer-Dabbelt/riscv-mm-fault-simplify-code-for-do_page_fault/20230315-111507
-        git checkout d25cdd69b804d954e31ad8835750a8707e11af32
-        # save the config file
-        mkdir build_dir && cp config build_dir/.config
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=s390 olddefconfig
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=s390 SHELL=/bin/bash
+I returned there:
+   expoline_prepare: prepare0
+and it looks good so far. Maybe even:
+   expoline_prepare: scripts
+would be enough.
 
-If you fix the issue, kindly add following tag where applicable
-| Reported-by: kernel test robot <lkp@intel.com>
-| Link: https://lore.kernel.org/oe-kbuild-all/202303161725.tJspbzJz-lkp@intel.com/
+Opinions?
 
-All errors (new ones prefixed by >>):
-
-   In file included from include/trace/define_trace.h:102,
-                    from include/trace/events/fs_dax.h:286,
-                    from fs/dax.c:31:
-   include/trace/events/fs_dax.h: In function 'trace_raw_output_dax_pmd_fault_class':
->> include/trace/stages/stage3_trace_output.h:70:37: error: expected expression before ',' token
-      70 |                         { flag_array, { -1, NULL }};                    \
-         |                                     ^
-   include/trace/trace_events.h:203:34: note: in definition of macro 'DECLARE_EVENT_CLASS'
-     203 |         trace_event_printf(iter, print);                                \
-         |                                  ^~~~~
-   include/trace/events/fs_dax.h:38:9: note: in expansion of macro 'TP_printk'
-      38 |         TP_printk("dev %d:%d ino %#lx %s %s address %#lx vm_start "
-         |         ^~~~~~~~~
-   include/trace/events/fs_dax.h:50:17: note: in expansion of macro '__print_flags'
-      50 |                 __print_flags(__entry->result, "|", VM_FAULT_RESULT_TRACE)
-         |                 ^~~~~~~~~~~~~
-   include/trace/events/fs_dax.h: In function 'trace_raw_output_dax_pte_fault_class':
->> include/trace/stages/stage3_trace_output.h:70:37: error: expected expression before ',' token
-      70 |                         { flag_array, { -1, NULL }};                    \
-         |                                     ^
-   include/trace/trace_events.h:203:34: note: in definition of macro 'DECLARE_EVENT_CLASS'
-     203 |         trace_event_printf(iter, print);                                \
-         |                                  ^~~~~
-   include/trace/events/fs_dax.h:174:9: note: in expansion of macro 'TP_printk'
-     174 |         TP_printk("dev %d:%d ino %#lx %s %s address %#lx pgoff %#lx %s",
-         |         ^~~~~~~~~
-   include/trace/events/fs_dax.h:182:17: note: in expansion of macro '__print_flags'
-     182 |                 __print_flags(__entry->result, "|", VM_FAULT_RESULT_TRACE)
-         |                 ^~~~~~~~~~~~~
-
-
-vim +70 include/trace/stages/stage3_trace_output.h
-
-1bc191051dca28 include/trace/stages/stage3_defines.h Linus Torvalds          2022-03-23  65  
-af6b9668e85ffd include/trace/stages/stage3_defines.h Steven Rostedt (Google  2022-03-03  66) #undef __print_flags
-af6b9668e85ffd include/trace/stages/stage3_defines.h Steven Rostedt (Google  2022-03-03  67) #define __print_flags(flag, delim, flag_array...)			\
-af6b9668e85ffd include/trace/stages/stage3_defines.h Steven Rostedt (Google  2022-03-03  68) 	({								\
-af6b9668e85ffd include/trace/stages/stage3_defines.h Steven Rostedt (Google  2022-03-03  69) 		static const struct trace_print_flags __flags[] =	\
-af6b9668e85ffd include/trace/stages/stage3_defines.h Steven Rostedt (Google  2022-03-03 @70) 			{ flag_array, { -1, NULL }};			\
-af6b9668e85ffd include/trace/stages/stage3_defines.h Steven Rostedt (Google  2022-03-03  71) 		trace_print_flags_seq(p, delim, flag, __flags);	\
-af6b9668e85ffd include/trace/stages/stage3_defines.h Steven Rostedt (Google  2022-03-03  72) 	})
-af6b9668e85ffd include/trace/stages/stage3_defines.h Steven Rostedt (Google  2022-03-03  73) 
-
+thanks,
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests
+js
+suse labs
+
