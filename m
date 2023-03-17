@@ -2,140 +2,150 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DE6D7C74A5B
-	for <linux-s390@archiver.kernel.org>; Fri, 17 Mar 2023 09:44:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 062AAC6FD1D
+	for <linux-s390@archiver.kernel.org>; Fri, 17 Mar 2023 09:52:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230286AbjCQJoI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 17 Mar 2023 05:44:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35376 "EHLO
+        id S230451AbjCQJwF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 17 Mar 2023 05:52:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230205AbjCQJoA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Mar 2023 05:44:00 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08415298F0;
-        Fri, 17 Mar 2023 02:43:55 -0700 (PDT)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32H8nlSh013447;
-        Fri, 17 Mar 2023 09:43:52 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : content-type : mime-version; s=pp1;
- bh=g1FlgkwM5CiKkppb/wvdX6s6a66SPKK8cQI3YryJtj8=;
- b=RzDKyQ660QoNWsOCdXE0avn+taApPNVWHUxXUSyfBbM25eoBbJiZxX2fIH2rpGA0umA6
- Lj51DUYeJNTHtmAeBqBkaik708QNe5dQDVZ7m8kFJQFBTOM+fFE1n7PzWNvEUvtiT50H
- 9L4dpQXOhGsD7SAdRx2urj7Q+Qaabt2SN19w/EA9xTsSoZVsFkY34Yf7yANGp9/vf3J1
- WfLbodTXFkWzj/iygXngVEAAFjScY3z+7w797KCoo0X4u/tKi2/LWAQn0gk63oR8WbVx
- 0tnJCmpwNLpOCJXUhU3U8Nc1xk3d7oG/+UM2cPZaOo7AI+3CDDzVp3gF8YUFDhC3YZEZ /A== 
+        with ESMTP id S230326AbjCQJvn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Mar 2023 05:51:43 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 997651C7E9;
+        Fri, 17 Mar 2023 02:51:31 -0700 (PDT)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32H9et1G003729;
+        Fri, 17 Mar 2023 09:51:30 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=Zexh+Vr/h5dgW7WWBKShjVaBD2huRitTxOdeSIL/BRg=;
+ b=hct6ZN/WeJ4G5qbHZfZZGCSHvcRJoYtpGiNSWUBObBNlLP44HQYlI3eXvRWVwtq8pj3w
+ mAz0KAMwVktQa3wFxGut6I1F/uRq+bSPK0LzxXHKDk6CLtyspf5HRBYPgCULXkmpzYwM
+ 60z2KcyUJovDj8wPS59aCOXPdrH7izxYyn6PYMzEdTTEild2Iz2VMWUnAv8HElxyMNiI
+ K/MwCDO99LSgEkhxMRdSHy/fTdsymbMMeBWjVMVmcZSVrtaKH1Gl7RsLaG3x8/GgXPa+
+ h7F5vznjdiWz8S3x8URhiQH2K/kpF47pKNCaFZBMzLSJSCsRotAqbKS7xYifgVduaLjw Hw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pcn1qhf4u-1
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3pcnff0mkc-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 17 Mar 2023 09:43:52 +0000
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32H9Tq3n007990;
-        Fri, 17 Mar 2023 09:43:51 GMT
+        Fri, 17 Mar 2023 09:51:30 +0000
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32H9fHa1004769;
+        Fri, 17 Mar 2023 09:51:30 GMT
 Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pcn1qhf3c-1
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3pcnff0mjm-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 17 Mar 2023 09:43:51 +0000
+        Fri, 17 Mar 2023 09:51:29 +0000
 Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32GHnRqg015999;
-        Fri, 17 Mar 2023 09:43:49 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma06fra.de.ibm.com (PPS) with ESMTPS id 3pbs549mw0-1
+        by ppma06fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32GHcLx9016073;
+        Fri, 17 Mar 2023 09:51:28 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+        by ppma06fra.de.ibm.com (PPS) with ESMTPS id 3pbs549n4m-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 17 Mar 2023 09:43:49 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32H9hjOf46334376
+        Fri, 17 Mar 2023 09:51:28 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32H9pOBD20054622
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 17 Mar 2023 09:43:45 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 87B5220043;
-        Fri, 17 Mar 2023 09:43:45 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 03B7620040;
-        Fri, 17 Mar 2023 09:43:45 +0000 (GMT)
-Received: from localhost (unknown [9.171.35.234])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Fri, 17 Mar 2023 09:43:44 +0000 (GMT)
-Date:   Fri, 17 Mar 2023 10:43:43 +0100
-From:   Vasily Gorbik <gor@linux.ibm.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [GIT PULL] s390 updates for 6.3-rc3
-Message-ID: <your-ad-here.call-01679046223-ext-4713@work.hours>
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 1je-A4lTfIqLoOHlslBUFNE_NhcMPJRy
-X-Proofpoint-GUID: B15velBrSFDe97Cv9ye_adR7VoR3-631
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        Fri, 17 Mar 2023 09:51:24 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7FCFA2005A;
+        Fri, 17 Mar 2023 09:51:24 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3B84C20043;
+        Fri, 17 Mar 2023 09:51:24 +0000 (GMT)
+Received: from [9.171.47.172] (unknown [9.171.47.172])
+        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Fri, 17 Mar 2023 09:51:24 +0000 (GMT)
+Message-ID: <fa15b29e-9b9a-d2d5-40c7-5720169c3c56@linux.ibm.com>
+Date:   Fri, 17 Mar 2023 10:51:23 +0100
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.8.0
+Subject: Re: [kvm-unit-tests PATCH v3 3/3] s390x/spec_ex: Add test of EXECUTE
+ with odd target address
+Content-Language: en-US
+To:     Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
+        Thomas Huth <thuth@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+References: <20230315155445.1688249-1-nsg@linux.ibm.com>
+ <20230315155445.1688249-4-nsg@linux.ibm.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+In-Reply-To: <20230315155445.1688249-4-nsg@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: cQCODxQlxxcOMn9hTLuXCkrAQr0F6myQ
+X-Proofpoint-GUID: ZpgTix8E-lyKniMkfQrmUtzraBHjcozy
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
  definitions=2023-03-17_05,2023-03-16_02,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxscore=0
- lowpriorityscore=0 malwarescore=0 adultscore=0 mlxlogscore=561
- suspectscore=0 bulkscore=0 impostorscore=0 priorityscore=1501
- clxscore=1011 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2303150002 definitions=main-2303170061
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 suspectscore=0
+ clxscore=1015 adultscore=0 lowpriorityscore=0 impostorscore=0
+ priorityscore=1501 phishscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2303150002 definitions=main-2303170064
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello Linus,
+On 3/15/23 16:54, Nina Schoetterl-Glausch wrote:
+> The EXECUTE instruction executes the instruction at the given target
+> address. This address must be halfword aligned, otherwise a
+> specification exception occurs.
+> Add a test for this.
+> 
+> Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
 
-please pull s390 changes for 6.3-rc3. The s390-specific PCI fix adds a
-function to the common PCI code, which has been acked by Bjorn Helgaas as
-the PCI maintainer.
-https://lore.kernel.org/all/20230308231449.GA1057317@bhelgaas/
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 
-Thank you,
-Vasily
+> ---
+>   s390x/spec_ex.c | 25 +++++++++++++++++++++++++
+>   1 file changed, 25 insertions(+)
+> 
+> diff --git a/s390x/spec_ex.c b/s390x/spec_ex.c
+> index 83b8c58e..5fa05dba 100644
+> --- a/s390x/spec_ex.c
+> +++ b/s390x/spec_ex.c
+> @@ -177,6 +177,30 @@ static int short_psw_bit_12_is_0(void)
+>   	return 0;
+>   }
+>   
+> +static int odd_ex_target(void)
+> +{
+> +	uint64_t pre_target_addr;
+> +	int to = 0, from = 0x0dd;
+> +
+> +	asm volatile ( ".pushsection .text.ex_odd\n"
+> +		"	.balign	2\n"
+> +		"pre_odd_ex_target:\n"
+> +		"	. = . + 1\n"
+> +		"	lr	%[to],%[from]\n"
+> +		"	.popsection\n"
+> +
+> +		"	larl	%[pre_target_addr],pre_odd_ex_target\n"
+> +		"	ex	0,1(%[pre_target_addr])\n"
+> +		: [pre_target_addr] "=&a" (pre_target_addr),
+> +		  [to] "+d" (to)
+> +		: [from] "d" (from)
+> +	);
+> +
+> +	assert((pre_target_addr + 1) & 1);
+> +	report(to != from, "did not perform ex with odd target");
+> +	return 0;
+> +}
+> +
+>   static int bad_alignment(void)
+>   {
+>   	uint32_t words[5] __attribute__((aligned(16)));
+> @@ -218,6 +242,7 @@ static const struct spec_ex_trigger spec_ex_triggers[] = {
+>   	{ "psw_bit_12_is_1", &psw_bit_12_is_1, false, &fixup_invalid_psw },
+>   	{ "short_psw_bit_12_is_0", &short_psw_bit_12_is_0, false, &fixup_invalid_psw },
+>   	{ "psw_odd_address", &psw_odd_address, false, &fixup_invalid_psw },
+> +	{ "odd_ex_target", &odd_ex_target, true, NULL },
+>   	{ "bad_alignment", &bad_alignment, true, NULL },
+>   	{ "not_even", &not_even, true, NULL },
+>   	{ NULL, NULL, false, NULL },
 
-The following changes since commit eeac8ede17557680855031c6f305ece2378af326:
-
-  Linux 6.3-rc2 (2023-03-12 16:36:44 -0700)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.3-3
-
-for you to fetch changes up to d7a0bdbf17276b757d2b89f5351bbee9ecf58fe6:
-
-  s390: update defconfigs (2023-03-13 09:15:11 +0100)
-
-----------------------------------------------------------------
-s390 updates for 6.3-rc3
-
-- Update defconfigs.
-
-- Fix early boot code by adding missing intersection check to prevent
-  potential overwriting of the ipl report.
-
-- Fix a use-after-free issue in s390-specific code related to PCI
-  resources being retained after hot-unplugging individual functions,
-  by removing the resources from the PCI bus's resource list and using
-  the zpci_bar_struct's resource pointer directly.
-
-----------------------------------------------------------------
-Heiko Carstens (1):
-      s390: update defconfigs
-
-Niklas Schnelle (1):
-      PCI: s390: Fix use-after-free of PCI resources with per-function hotplug
-
-Sven Schnelle (1):
-      s390/ipl: add missing intersection check to ipl_report handling
-
- arch/s390/boot/ipl_report.c          |  8 ++++++++
- arch/s390/configs/debug_defconfig    | 13 ++++---------
- arch/s390/configs/defconfig          | 12 +++---------
- arch/s390/configs/zfcpdump_defconfig |  2 +-
- arch/s390/pci/pci.c                  | 16 ++++++++++------
- arch/s390/pci/pci_bus.c              | 12 +++++-------
- arch/s390/pci/pci_bus.h              |  3 +--
- drivers/pci/bus.c                    | 21 +++++++++++++++++++++
- include/linux/pci.h                  |  1 +
- 9 files changed, 54 insertions(+), 34 deletions(-)
