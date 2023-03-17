@@ -2,153 +2,225 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CB4A9C6FD1D
-	for <linux-s390@archiver.kernel.org>; Fri, 17 Mar 2023 11:32:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 30B42C7618B
+	for <linux-s390@archiver.kernel.org>; Fri, 17 Mar 2023 12:21:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229488AbjCQLcM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 17 Mar 2023 07:32:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48114 "EHLO
+        id S229603AbjCQMVt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 17 Mar 2023 08:21:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229478AbjCQLcM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Mar 2023 07:32:12 -0400
-Received: from mail-wr1-f45.google.com (mail-wr1-f45.google.com [209.85.221.45])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEADD39CE9;
-        Fri, 17 Mar 2023 04:32:09 -0700 (PDT)
-Received: by mail-wr1-f45.google.com with SMTP id i9so4120530wrp.3;
-        Fri, 17 Mar 2023 04:32:09 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679052728;
-        h=content-transfer-encoding:in-reply-to:subject:from:references:cc:to
-         :content-language:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=pokBorB33YnYWBtMSchGyHYZy6+UIAXs0bkjjq7SoP4=;
-        b=ELSYU5aqHgXiH/Ra8htlX5AOwU61cVa6+JdwlL3Ux3XqGZTZGE0n9RUstIjnf6G8By
-         zzi37KJZ+GvhcZksV9NsDSgahzdLsF8QKURGTqgCj9kBWbnIy0ou7bbghxcgUdlmD4JB
-         jFgUkEbvzKWZJSCHXN3kbZRIYtKNpSXoTGD91rNic0NDrxBCpR52RdoB/sAH8ub521hQ
-         SD+QNVAuu2fyJyxXfDf4mr87EqFlIS2+LDgQmNl3fLRGrumXnMqsk6exK5JCwzeSrTlz
-         qa+6U7ZZDGRxUFf9ND/khspL8qRDki8WQVGiieaEkhBQ/6TR7/CIR9cyTz6wMhuXgpgK
-         yIlQ==
-X-Gm-Message-State: AO0yUKUHh9/qxkj40vfyTcTbOY1ViXtnp0rs+iVF74GYD7CQiOEQRZX9
-        XTlqPR7m5lpTYs4Pd14k1fUJvVvRCQyPAA==
-X-Google-Smtp-Source: AK7set+38hNek1SWZ5K27z7yb9JStMWOwMUmWROBuMGTf1E7CbKhvZ3VboMhKOT7Vv24lgNgaAFkuw==
-X-Received: by 2002:adf:fd89:0:b0:2c5:c4c9:515a with SMTP id d9-20020adffd89000000b002c5c4c9515amr6121589wrr.51.1679052728164;
-        Fri, 17 Mar 2023 04:32:08 -0700 (PDT)
-Received: from ?IPV6:2a0b:e7c0:0:107::aaaa:49? ([2a0b:e7c0:0:107::aaaa:49])
-        by smtp.gmail.com with ESMTPSA id q7-20020adff947000000b002d419f661d6sm213887wrr.82.2023.03.17.04.32.06
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 17 Mar 2023 04:32:07 -0700 (PDT)
-Message-ID: <cbacf815-eed9-8822-8b54-b7a7cf2169bf@kernel.org>
-Date:   Fri, 17 Mar 2023 12:32:05 +0100
+        with ESMTP id S229554AbjCQMVs (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Mar 2023 08:21:48 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8D561E9E1;
+        Fri, 17 Mar 2023 05:21:47 -0700 (PDT)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32HBwq5e023681;
+        Fri, 17 Mar 2023 12:21:47 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=LTRsb1ISSTQPtaDxjiSKhC3K76sdODi81mYcXSFGiIg=;
+ b=dEIqdP1qBzlB56SmRX3HZxLQuIbHZ0ya0hc/LF5WSYSnnRNfNF7xBR9+xfeZDPtgNu6W
+ xo1okPahSvxNktX5RhNE/K5ZNkaUqPj8GTn1AtvCXDge9yOMazUVAhQWNtlwAf5rlLqC
+ QIkpJuSOLdvBilSPh9IDAOL5JW4TR7Yss2Y6+QAV1gJUy+JQKByflJlgRlEKPKQOdPkd
+ kZAzYf4V8ifPcTXvgoWfEwSDMgR5NvJz/61S6RM3Oll0Xj8w3Mzxr2mUScAx4K+k7dB7
+ 5T7oDzQW7e8ZMJSRGVUCsb/4bn/gvy4S7xgd8bIKlBOffdja8irzY0P1WQ4KaFC2mXB1 Hw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pcqte8mrv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 17 Mar 2023 12:21:46 +0000
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32HBxB6N025328;
+        Fri, 17 Mar 2023 12:21:46 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pcqte8mrb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 17 Mar 2023 12:21:46 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32H7Gedc029280;
+        Fri, 17 Mar 2023 12:21:44 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3pbskt24hc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 17 Mar 2023 12:21:44 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32HCLeGc19399244
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 17 Mar 2023 12:21:41 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D5B0E2004B;
+        Fri, 17 Mar 2023 12:21:40 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 67EC420040;
+        Fri, 17 Mar 2023 12:21:40 +0000 (GMT)
+Received: from [9.171.8.117] (unknown [9.171.8.117])
+        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Fri, 17 Mar 2023 12:21:40 +0000 (GMT)
+Message-ID: <22fbb4e1-ea18-6acb-7b96-0a8cd46dad37@linux.ibm.com>
+Date:   Fri, 17 Mar 2023 13:21:39 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
  Thunderbird/102.8.0
+Subject: Re: [kvm-unit-tests PATCH v3 2/3] s390x/spec_ex: Add test introducing
+ odd address into PSW
+To:     Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
+        Thomas Huth <thuth@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+References: <20230315155445.1688249-1-nsg@linux.ibm.com>
+ <20230315155445.1688249-3-nsg@linux.ibm.com>
+ <b6705072-de79-614d-d5fc-c78f1b65196f@linux.ibm.com>
+ <fb8fa41ddef9aff66c2ea0facf5bc2a6315e2c0e.camel@linux.ibm.com>
 Content-Language: en-US
-To:     Vasily Gorbik <gor@linux.ibm.com>
-Cc:     Joe Lawrence <joe.lawrence@redhat.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sumanth Korikkar <sumanthk@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        linux-kbuild@vger.kernel.org
-References: <8569429d-57f8-a0cf-8b17-1291f6973d32@redhat.com>
- <cover.thread-d13b6c.your-ad-here.call-01656331067-ext-4899@work.hours>
- <patch-2.thread-d13b6c.git-d13b6c96fb5f.your-ad-here.call-01656331067-ext-4899@work.hours>
- <705ce64c-5f73-2ec8-e4bc-dd48c85f0498@kernel.org>
- <your-ad-here.call-01679051845-ext-2019@work.hours>
-From:   Jiri Slaby <jirislaby@kernel.org>
-Subject: Re: [PATCH 2/2] s390/nospec: remove unneeded header includes
-In-Reply-To: <your-ad-here.call-01679051845-ext-2019@work.hours>
+From:   Janosch Frank <frankja@linux.ibm.com>
+In-Reply-To: <fb8fa41ddef9aff66c2ea0facf5bc2a6315e2c0e.camel@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: I2b1Q436vbVAFKXKiowkc5HFEBWhawHi
+X-Proofpoint-ORIG-GUID: Gj_am7GU3A_jQTL4IGKUu64qulsazwpU
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-03-17_06,2023-03-16_02,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 lowpriorityscore=0
+ suspectscore=0 adultscore=0 spamscore=0 impostorscore=0 mlxlogscore=999
+ phishscore=0 bulkscore=0 priorityscore=1501 clxscore=1015 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2303150002
+ definitions=main-2303170081
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 17. 03. 23, 12:17, Vasily Gorbik wrote:
-> On Thu, Mar 16, 2023 at 12:14:27PM +0100, Jiri Slaby wrote:
->> On 27. 06. 22, 14:50, Vasily Gorbik wrote:
->>> With that, expoline.S doesn't require asm-offsets.h and
->>> expoline_prepare target dependency could be removed.
+On 3/17/23 11:51, Nina Schoetterl-Glausch wrote:
+> On Fri, 2023-03-17 at 10:26 +0100, Janosch Frank wrote:
+>> On 3/15/23 16:54, Nina Schoetterl-Glausch wrote:
+>>> Instructions on s390 must be halfword aligned.
+>>> Introducing an odd instruction address into the PSW leads to a
+>>> specification exception when attempting to execute the instruction at
+>>> the odd address.
+>>> Add a test for this.
 >>>
->>> +++ b/arch/s390/Makefile
->>> @@ -166,7 +166,7 @@ vdso_prepare: prepare0
->>>    ifdef CONFIG_EXPOLINE_EXTERN
->>>    modules_prepare: expoline_prepare
->>> -expoline_prepare: prepare0
->>> +expoline_prepare:
+>>> Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
 >>
->> this likely broke s390 build as expolines still depend on
->> scripts/basic/fixdep. And build of expolines can now race with fixdep build:
->>       make[1]: *** Deleting file 'arch/s390/lib/expoline/expoline.o'
->>       /bin/sh: line 1: scripts/basic/fixdep: Permission denied
->>       make[1]: *** [../scripts/Makefile.build:385:
->> arch/s390/lib/expoline/expoline.o] Error 126
->>       make: *** [../arch/s390/Makefile:166: expoline_prepare] Error 2
+>> Acked-by: Janosch Frank <frankja@linux.ibm.com>
 >>
->> I returned there:
->>    expoline_prepare: prepare0
->> and it looks good so far. Maybe even:
->>    expoline_prepare: scripts
->> would be enough.
+>> Some nits below.
+>>
+>>> ---
+>>>    s390x/spec_ex.c | 50 ++++++++++++++++++++++++++++++++++++++++++++++++-
+>>>    1 file changed, 49 insertions(+), 1 deletion(-)
+>>>
+>>> diff --git a/s390x/spec_ex.c b/s390x/spec_ex.c
+>>> index 2adc5996..83b8c58e 100644
+>>> --- a/s390x/spec_ex.c
+>>> +++ b/s390x/spec_ex.c
+>>> @@ -88,12 +88,23 @@ static void expect_invalid_psw(struct psw psw)
+>>>    	invalid_psw_expected = true;
+>>>    }
+>>>    
+>>> +static void clear_invalid_psw(void)
+>>> +{
+>>> +	expected_psw = PSW(0, 0);
+>>> +	invalid_psw_expected = false;
+>>> +}
+>>> +
+>>>    static int check_invalid_psw(void)
+>>>    {
+>>>    	/* Since the fixup sets this to false we check for false here. */
+>>>    	if (!invalid_psw_expected) {
+>>> +		/*
+>>> +		 * Early exception recognition: pgm_int_id == 0.
+>>> +		 * Late exception recognition: psw address has been
+>>> +		 *	incremented by pgm_int_id (unpredictable value)
+>>> +		 */
+>>>    		if (expected_psw.mask == invalid_psw.mask &&
+>>> -		    expected_psw.addr == invalid_psw.addr)
+>>> +		    expected_psw.addr == invalid_psw.addr - lowcore.pgm_int_id)
+>>>    			return 0;
+>>>    		report_fail("Wrong invalid PSW");
+>>>    	} else {
+>>> @@ -112,6 +123,42 @@ static int psw_bit_12_is_1(void)
+>>>    	return check_invalid_psw();
+>>>    }
+>>>    
+>>> +extern char misaligned_code[];
+>>> +asm (  ".balign	2\n"
+>>
+>> Is the double space intended?
 > 
-> Hi Jiri, thanks for looking into this!
+> Yes, so stuff lines up.
+ahhh, right.
+
+>> Looking at the file itself some asm blocks have no space before the "("
+>> and some have one.
 > 
-> Probably even scripts_basic would be enough to add explicit dependency
-> to fixdep. But I just couldn't reproduce missing scripts/basic/fixdep
-> neither with modules_prepare nor expoline_prepare targets.
+> In spec_ex.c? Where?
 
-Hi,
+Should have said: "after the (" but seems like the point doesn't matter 
+anyway just fixup the xgr.
 
-yes, I could not reproduce locally too. It likely needs a "slow" and 
-sort of specific machine to happen. This happened randomly only on SUSE 
-build systems. And only on the internal ones. There are no failures on 
-public ones:
-https://build.opensuse.org/packages/kernel-default/job_history/Kernel:stable/S390/s390x
-
-The kernel is built as:
-make prepare # builds scripts/basic and other stuff we use
-make clean # remove all but scripts and config
-make all # scripts/basic/fixdep is rebuilt
-
-fixdep is rebuilt due to clean-ed .fixdep.o.cmd -- that one is 
-regenerated and fixdep built anew.
-
-The whole process (make log) is dumped at:
-https://build.opensuse.org/package/live_build_log/Kernel:stable/kernel-default/S390/s390x
-
-> With which specific build command were you able to get those error
-> messages? I wonder where
->          make[1]: *** Deleting file 'arch/s390/lib/expoline/expoline.o'
-> is coming from. Could it be smth like?
-
-It's from make after the build (fixdep invocation) failure. So that 
-stale files do not exist.
-
-Note that fixdep likely exist, but it is a stub -- linking phase still runs.
-
-> make ARCH=s390 CROSS_COMPILE=s390x-12.2.0- -j64 arch/s390/lib/expoline/expoline.o
 > 
-> Playing around with this build target I found it is broken:
+>>
+>>> +"	. = . + 1\n"
+>>> +"misaligned_code:\n"
+>>> +"	larl	%r0,0\n"
+>>> +"	br	%r1\n"
+>>> +);
+>>
+>> Any reason this is not indented?
 > 
->    AS      arch/s390/lib/expoline/expoline.o
->    AS      arch/s390/lib/expoline/expoline.o
-> fixdep: error opening file: arch/s390/lib/expoline/.expoline.o.d: No such file or directory
-> make[3]: *** [scripts/Makefile.build:374: arch/s390/lib/expoline/expoline.o] Error 2
-> make[3]: *** Deleting file 'arch/s390/lib/expoline/expoline.o'
-> make[2]: *** [scripts/Makefile.build:494: arch/s390/lib/expoline] Error 2
-> make[1]: *** [scripts/Makefile.build:494: arch/s390/lib] Error 2
-> make[1]: *** Waiting for unfinished jobs....
-> make: *** [Makefile:2028: .] Error 2
+> You mean the whole asm block, so it looks more like a function body to the misaligned_code symbol?
+> I'm indifferent about it, can do that if you think it's nicer.
 > 
-> Notice dup AS call, which is probably causing this:
-> make[3]: *** Deleting file 'arch/s390/lib/expoline/expoline.o'
+>>
+>>> +
+>>> +static int psw_odd_address(void)
+>>> +{
+>>> +	struct psw odd = PSW_WITH_CUR_MASK((uint64_t)&misaligned_code);
+>>> +	uint64_t executed_addr;
+>>> +
+>>> +	expect_invalid_psw(odd);
+>>> +	fixup_psw.mask = extract_psw_mask();
+>>> +	asm volatile ( "xr	%%r0,%%r0\n"
+>>
+>> While it will likely never make a difference I'd still use xgr here
+>> instead of xr.
 > 
-> But that would be a different issue from the one you are trying to fix.
-
-Likely.
-
-thanks,
--- 
-js
+> Yes, needs xgr.
+>>
+>>> +		"	larl	%%r1,0f\n"
+>>> +		"	stg	%%r1,%[fixup_addr]\n"
+>>> +		"	lpswe	%[odd_psw]\n"
+>>> +		"0:	lr	%[executed_addr],%%r0\n"
+>>> +	: [fixup_addr] "=&T" (fixup_psw.addr),
+>>> +	  [executed_addr] "=d" (executed_addr)
+>>> +	: [odd_psw] "Q" (odd)
+>>> +	: "cc", "%r0", "%r1"
+>>> +	);
+>>> +
+>>> +	if (!executed_addr) {
+>>> +		return check_invalid_psw();
+>>> +	} else {
+>>> +		assert(executed_addr == odd.addr);
+>>> +		clear_invalid_psw();
+>>> +		report_fail("did not execute unaligned instructions");
+>>> +		return 1;
+>>> +	}
+>>> +}
+>>> +
+>>>    /* A short PSW needs to have bit 12 set to be valid. */
+>>>    static int short_psw_bit_12_is_0(void)
+>>>    {
+>>> @@ -170,6 +217,7 @@ struct spec_ex_trigger {
+>>>    static const struct spec_ex_trigger spec_ex_triggers[] = {
+>>>    	{ "psw_bit_12_is_1", &psw_bit_12_is_1, false, &fixup_invalid_psw },
+>>>    	{ "short_psw_bit_12_is_0", &short_psw_bit_12_is_0, false, &fixup_invalid_psw },
+>>> +	{ "psw_odd_address", &psw_odd_address, false, &fixup_invalid_psw },
+>>>    	{ "bad_alignment", &bad_alignment, true, NULL },
+>>>    	{ "not_even", &not_even, true, NULL },
+>>>    	{ NULL, NULL, false, NULL },
+>>
+> 
 
