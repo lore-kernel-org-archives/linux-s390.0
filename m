@@ -2,70 +2,148 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81829C76195
-	for <linux-s390@archiver.kernel.org>; Fri, 17 Mar 2023 17:39:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 26618C6FD1D
+	for <linux-s390@archiver.kernel.org>; Fri, 17 Mar 2023 23:38:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230474AbjCQRjM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 17 Mar 2023 13:39:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41636 "EHLO
+        id S230294AbjCQXiV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 17 Mar 2023 19:38:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230416AbjCQRjG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Mar 2023 13:39:06 -0400
+        with ESMTP id S231168AbjCQXhs (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Mar 2023 19:37:48 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A95535B9B;
-        Fri, 17 Mar 2023 10:38:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 336725BD9E;
+        Fri, 17 Mar 2023 16:37:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A951760B35;
-        Fri, 17 Mar 2023 17:38:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 19EF8C4339C;
-        Fri, 17 Mar 2023 17:38:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AE9E260CEB;
+        Fri, 17 Mar 2023 23:37:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22904C433A0;
+        Fri, 17 Mar 2023 23:37:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679074734;
-        bh=2QLtTVrqM4ws6RP+D7kytw1H4DA+rGrb7UdCP2TyEcQ=;
-        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-        b=XrMynA8GNb53l2Lr70kGFj/Re4bmw95WbvMttuWh0viQczo66h7GMXfNYttc+LAQ0
-         NEtJCZ+aHC6atRHwXdZvN5ruR/0PWTmcavdk09EYt3uDEiLgcFKaOCBK5aX0YvqdWW
-         +23S57ZpYDqQifqe1drIiz7BCYAhu0UwGQynP5OVqQD0D43u5tBgIj1klSVrCdIiMn
-         NfxxXoFnWd1rjXxBEXS+eO7L6iRy4WxxlVDqafr0e7fXWw1B9P+r/aaTvGSvNHxoRv
-         mIehXoDspjr4DM12MB5cCEdF7erEXSZRSe51OcgmfZpwdXdwprEG74bIzup2VPKY4b
-         0tYuPonqNNuxw==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 06F14C43161;
-        Fri, 17 Mar 2023 17:38:54 +0000 (UTC)
-Subject: Re: [GIT PULL] s390 updates for 6.3-rc3
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <your-ad-here.call-01679046223-ext-4713@work.hours>
-References: <your-ad-here.call-01679046223-ext-4713@work.hours>
-X-PR-Tracked-List-Id: <linux-s390.vger.kernel.org>
-X-PR-Tracked-Message-Id: <your-ad-here.call-01679046223-ext-4713@work.hours>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.3-3
-X-PR-Tracked-Commit-Id: d7a0bdbf17276b757d2b89f5351bbee9ecf58fe6
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: e50a80383e04a8e5a598a099979b52af7bfa7158
-Message-Id: <167907473402.9394.6766938401061793126.pr-tracker-bot@kernel.org>
-Date:   Fri, 17 Mar 2023 17:38:54 +0000
+        s=k20201202; t=1679096228;
+        bh=vMq03a3JbeVFSSlVgYs85X6OE1Krd5hPLg0X5SggYVw=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=TS/S1beWQVpPue6v0T+FG5/NO4eKDtGGgy6/LenXB89OTh+P6rU5Kn8kA4lHBhXA7
+         fQ6DP9WSxZqhTnLKXrwAyLbqibJdbVNbttdxGeR0t+K8x4crB/DvePh7tZhjfSl0q8
+         VcNtq913ABt9f63eHUhVav2aHxZR+roAyWeW48Q7GQZKkGW0YOFpKzh+dIYLr+U+ty
+         zQ0WnEnwZrJjJbVo6JufjTzaQ2FhNcp6edMlgUb98w94bgPCUQ0t9mTp/k0kV0PT6p
+         n9qOis6theNHGfEtuE4+4Dxrr8V5u6gd0YE1C+oTvz0SNDFduxT8wD5C6InzGgYUOi
+         /xChlwv+ssIGg==
+Received: by mail-lf1-f47.google.com with SMTP id s8so8085159lfr.8;
+        Fri, 17 Mar 2023 16:37:08 -0700 (PDT)
+X-Gm-Message-State: AO0yUKXYNGKbHPcFh1Dr8edJJJswjE38J6pN9bxDtsriTp4z/4iF7SLg
+        /jqiK0PbzlToGxGNohpgGdtIgUR7WNtDtEm8ezI=
+X-Google-Smtp-Source: AK7set/iP6jeOWU3i9Pg+nk1i4HEeVR6d6Xe9mlEOeoayOuMdm9FaVunDNA3vB0v9seZVlOokwwS8n2UwQTyaJmdHAE=
+X-Received: by 2002:ac2:4ac1:0:b0:4dc:807a:d14a with SMTP id
+ m1-20020ac24ac1000000b004dc807ad14amr4874647lfp.9.1679096226311; Fri, 17 Mar
+ 2023 16:37:06 -0700 (PDT)
+MIME-Version: 1.0
+References: <8569429d-57f8-a0cf-8b17-1291f6973d32@redhat.com>
+ <cover.thread-d13b6c.your-ad-here.call-01656331067-ext-4899@work.hours>
+ <patch-2.thread-d13b6c.git-d13b6c96fb5f.your-ad-here.call-01656331067-ext-4899@work.hours>
+ <705ce64c-5f73-2ec8-e4bc-dd48c85f0498@kernel.org> <your-ad-here.call-01679051845-ext-2019@work.hours>
+In-Reply-To: <your-ad-here.call-01679051845-ext-2019@work.hours>
+From:   Masahiro Yamada <masahiroy@kernel.org>
+Date:   Sat, 18 Mar 2023 08:36:27 +0900
+X-Gmail-Original-Message-ID: <CAK7LNATWTfsbhjp0z6JgXWPT8vogsOF=o09gQJzBsHWf9b7HcA@mail.gmail.com>
+Message-ID: <CAK7LNATWTfsbhjp0z6JgXWPT8vogsOF=o09gQJzBsHWf9b7HcA@mail.gmail.com>
+Subject: Re: [PATCH 2/2] s390/nospec: remove unneeded header includes
 To:     Vasily Gorbik <gor@linux.ibm.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+Cc:     Jiri Slaby <jirislaby@kernel.org>,
+        Joe Lawrence <joe.lawrence@redhat.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sumanth Korikkar <sumanthk@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+        linux-s390 <linux-s390@vger.kernel.org>,
+        linux-kbuild@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The pull request you sent on Fri, 17 Mar 2023 10:43:43 +0100:
+On Fri, Mar 17, 2023 at 8:17=E2=80=AFPM Vasily Gorbik <gor@linux.ibm.com> w=
+rote:
+>
+> On Thu, Mar 16, 2023 at 12:14:27PM +0100, Jiri Slaby wrote:
+> > On 27. 06. 22, 14:50, Vasily Gorbik wrote:
+> > > With that, expoline.S doesn't require asm-offsets.h and
+> > > expoline_prepare target dependency could be removed.
+> > >
+> > > +++ b/arch/s390/Makefile
+> > > @@ -166,7 +166,7 @@ vdso_prepare: prepare0
+> > >   ifdef CONFIG_EXPOLINE_EXTERN
+> > >   modules_prepare: expoline_prepare
+> > > -expoline_prepare: prepare0
+> > > +expoline_prepare:
+> >
+> > this likely broke s390 build as expolines still depend on
+> > scripts/basic/fixdep. And build of expolines can now race with fixdep b=
+uild:
+> >      make[1]: *** Deleting file 'arch/s390/lib/expoline/expoline.o'
+> >      /bin/sh: line 1: scripts/basic/fixdep: Permission denied
+> >      make[1]: *** [../scripts/Makefile.build:385:
+> > arch/s390/lib/expoline/expoline.o] Error 126
+> >      make: *** [../arch/s390/Makefile:166: expoline_prepare] Error 2
+> >
+> > I returned there:
+> >   expoline_prepare: prepare0
+> > and it looks good so far. Maybe even:
+> >   expoline_prepare: scripts
+> > would be enough.
+>
+> Hi Jiri, thanks for looking into this!
+>
+> Probably even scripts_basic would be enough to add explicit dependency
+> to fixdep. But I just couldn't reproduce missing scripts/basic/fixdep
+> neither with modules_prepare nor expoline_prepare targets.
+>
+> With which specific build command were you able to get those error
+> messages? I wonder where
+>         make[1]: *** Deleting file 'arch/s390/lib/expoline/expoline.o'
+> is coming from. Could it be smth like?
+>
+> make ARCH=3Ds390 CROSS_COMPILE=3Ds390x-12.2.0- -j64 arch/s390/lib/expolin=
+e/expoline.o
+>
+> Playing around with this build target I found it is broken:
+>
+>   AS      arch/s390/lib/expoline/expoline.o
+>   AS      arch/s390/lib/expoline/expoline.o
+> fixdep: error opening file: arch/s390/lib/expoline/.expoline.o.d: No such=
+ file or directory
+> make[3]: *** [scripts/Makefile.build:374: arch/s390/lib/expoline/expoline=
+.o] Error 2
+> make[3]: *** Deleting file 'arch/s390/lib/expoline/expoline.o'
+> make[2]: *** [scripts/Makefile.build:494: arch/s390/lib/expoline] Error 2
+> make[1]: *** [scripts/Makefile.build:494: arch/s390/lib] Error 2
+> make[1]: *** Waiting for unfinished jobs....
+> make: *** [Makefile:2028: .] Error 2
+>
+> Notice dup AS call, which is probably causing this:
+> make[3]: *** Deleting file 'arch/s390/lib/expoline/expoline.o'
+>
+> But that would be a different issue from the one you are trying to fix.
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.3-3
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/e50a80383e04a8e5a598a099979b52af7bfa7158
+Kbuild is able to build a single object that is built
+in a normal descending.
 
-Thank you!
 
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+Since you built arch/s390/lib/expoline/expoline.o
+from the special target 'expoline_prepare',
+two different threads simultaneously built
+arch/s390/lib/expoline/expoline.o
+(one from the normal descending, the other
+from 'expoline_prepare')
+
+That's why.
+
+
+
+
+--
+Best Regards
+Masahiro Yamada
