@@ -2,147 +2,443 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B4EF0C6FD1D
-	for <linux-s390@archiver.kernel.org>; Fri, 17 Mar 2023 11:17:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 03B5FC74A5B
+	for <linux-s390@archiver.kernel.org>; Fri, 17 Mar 2023 11:23:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229499AbjCQLRn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 17 Mar 2023 07:17:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51488 "EHLO
+        id S229588AbjCQLX4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 17 Mar 2023 07:23:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229480AbjCQLRm (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Mar 2023 07:17:42 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86CCD5CEFB;
-        Fri, 17 Mar 2023 04:17:41 -0700 (PDT)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32HAoWB2005659;
-        Fri, 17 Mar 2023 11:17:33 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=ATFiH+1MM9RiisZf+ez7me+4b+J9EiQMPUBbKAXaiiI=;
- b=m4ZnAn9GIoYmbksDk2Ykcf0hPjz2v7YrD7kMlc0wyHQwC4tLhQ5kxfa3Qr9ytP4MZlpU
- 51M5QQdRu8AWWVtkDTvmNfA0xz2P3b1gyIMhIkJxyGHMk5Ldh8Rbmw85lDdLcK9KgN6T
- Ku29ftFSPZUt0KyaOf6r49vySU/E7wXaeckAqyw0lJLVnHHL65ctfLsVS4zipfP1sexB
- ROhZT9CtOGEBJWTRkKU08veNzAVLV6raCNgk1OkmSqw70CQybfslUO/FCVC4IKbxYJ5Z
- JJIgC8nznL66RrVPiGOwwwJjRoBuIIRHs+79aQ1lPlJ3cPpVNPMVDXRlJwBx7iGz15st ug== 
+        with ESMTP id S229523AbjCQLXz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Mar 2023 07:23:55 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E9B7199D5;
+        Fri, 17 Mar 2023 04:23:53 -0700 (PDT)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32HArSsb027900;
+        Fri, 17 Mar 2023 11:23:52 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : content-transfer-encoding : mime-version; s=pp1;
+ bh=/W8SY+Dm5JHX1qzntUjXw2uscqJTEVruGZMSifc4pZg=;
+ b=sNOkmlIyWXbkjwERJ9nrnQ4oBXGGIraDW7+JU6NYvRPxlqkllXZGRfBCy5MXNLlp6Nmf
+ tOh14AbOYXgq9cmvjJ0hfeJSKqTUAEYLG+gzCZMiT+o8l9wp9sRWYQBIqLYuNO8kO8BU
+ b92NVWIYo4M5Jfzf6MLX8BOw9StWh23VgJXMjMx3uxHrOJ3Xu4Bsmm3XlTXbc4+y3p4X
+ k/Zp2kapo1pfIcYg5L2ysPhdMNRjMAXJBP4oUXhDVZOBqjI4ANE6VTO0EkJcULW+LjHn
+ l2vRMv5+cDB1dmzrR2KgnGmyHwJSVeJIkFzIMx+4dqm+tEXxSKbcWXy8MdWUVHXudsS5 JA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pcptdgkf5-1
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3pcpurgpmm-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 17 Mar 2023 11:17:33 +0000
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32HAq16F008421;
-        Fri, 17 Mar 2023 11:17:33 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pcptdgkek-1
+        Fri, 17 Mar 2023 11:23:52 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32HAt84j000691;
+        Fri, 17 Mar 2023 11:23:51 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3pcpurgpks-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 17 Mar 2023 11:17:32 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32H6UsuL015015;
-        Fri, 17 Mar 2023 11:17:31 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3pbsf3j37e-1
+        Fri, 17 Mar 2023 11:23:51 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32GHUhc7024411;
+        Fri, 17 Mar 2023 11:23:49 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+        by ppma02fra.de.ibm.com (PPS) with ESMTPS id 3pbsmbhpyr-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 17 Mar 2023 11:17:30 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32HBHRxb13501138
+        Fri, 17 Mar 2023 11:23:49 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32HBNkLg27656732
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 17 Mar 2023 11:17:27 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 61CE820043;
-        Fri, 17 Mar 2023 11:17:27 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B42DE20040;
-        Fri, 17 Mar 2023 11:17:26 +0000 (GMT)
-Received: from localhost (unknown [9.171.35.234])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Fri, 17 Mar 2023 11:17:26 +0000 (GMT)
-Date:   Fri, 17 Mar 2023 12:17:25 +0100
-From:   Vasily Gorbik <gor@linux.ibm.com>
-To:     Jiri Slaby <jirislaby@kernel.org>
-Cc:     Joe Lawrence <joe.lawrence@redhat.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sumanth Korikkar <sumanthk@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        linux-kbuild@vger.kernel.org
-Subject: Re: [PATCH 2/2] s390/nospec: remove unneeded header includes
-Message-ID: <your-ad-here.call-01679051845-ext-2019@work.hours>
-References: <8569429d-57f8-a0cf-8b17-1291f6973d32@redhat.com>
- <cover.thread-d13b6c.your-ad-here.call-01656331067-ext-4899@work.hours>
- <patch-2.thread-d13b6c.git-d13b6c96fb5f.your-ad-here.call-01656331067-ext-4899@work.hours>
- <705ce64c-5f73-2ec8-e4bc-dd48c85f0498@kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <705ce64c-5f73-2ec8-e4bc-dd48c85f0498@kernel.org>
+        Fri, 17 Mar 2023 11:23:46 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3711D2004B;
+        Fri, 17 Mar 2023 11:23:46 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EFB0020049;
+        Fri, 17 Mar 2023 11:23:45 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Fri, 17 Mar 2023 11:23:45 +0000 (GMT)
+From:   Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+To:     Thomas Huth <thuth@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+Cc:     David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: [kvm-unit-tests PATCH v6] s390x: Add tests for execute-type instructions
+Date:   Fri, 17 Mar 2023 12:23:39 +0100
+Message-Id: <20230317112339.774659-1-nsg@linux.ibm.com>
+X-Mailer: git-send-email 2.37.2
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: xAl2o_CiUCMSj35vEpV5ZaiO92YBfXqA
-X-Proofpoint-ORIG-GUID: wLjZMAwu3OhZLwsbeXpcvEu-Yf5M1g5W
+X-Proofpoint-GUID: b_vEN9LON6GIRUYvH99np6ZOlhtHdrEn
+X-Proofpoint-ORIG-GUID: Dh_2lj6eD882E0a67XfNI7Hl7fgv8Ies
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
  definitions=2023-03-17_06,2023-03-16_02,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 adultscore=0
- clxscore=1011 priorityscore=1501 lowpriorityscore=0 mlxscore=0
- suspectscore=0 malwarescore=0 phishscore=0 spamscore=0 impostorscore=0
- mlxlogscore=856 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 phishscore=0
+ mlxscore=0 clxscore=1015 lowpriorityscore=0 malwarescore=0 adultscore=0
+ impostorscore=0 suspectscore=0 bulkscore=0 priorityscore=1501
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2303150002 definitions=main-2303170075
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Mar 16, 2023 at 12:14:27PM +0100, Jiri Slaby wrote:
-> On 27. 06. 22, 14:50, Vasily Gorbik wrote:
-> > With that, expoline.S doesn't require asm-offsets.h and
-> > expoline_prepare target dependency could be removed.
-> > 
-> > +++ b/arch/s390/Makefile
-> > @@ -166,7 +166,7 @@ vdso_prepare: prepare0
-> >   ifdef CONFIG_EXPOLINE_EXTERN
-> >   modules_prepare: expoline_prepare
-> > -expoline_prepare: prepare0
-> > +expoline_prepare:
-> 
-> this likely broke s390 build as expolines still depend on
-> scripts/basic/fixdep. And build of expolines can now race with fixdep build:
->      make[1]: *** Deleting file 'arch/s390/lib/expoline/expoline.o'
->      /bin/sh: line 1: scripts/basic/fixdep: Permission denied
->      make[1]: *** [../scripts/Makefile.build:385:
-> arch/s390/lib/expoline/expoline.o] Error 126
->      make: *** [../arch/s390/Makefile:166: expoline_prepare] Error 2
-> 
-> I returned there:
->   expoline_prepare: prepare0
-> and it looks good so far. Maybe even:
->   expoline_prepare: scripts
-> would be enough.
+Test the instruction address used by targets of an execute instruction.
+When the target instruction calculates a relative address, the result is
+relative to the target instruction, not the execute instruction.
 
-Hi Jiri, thanks for looking into this!
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+---
 
-Probably even scripts_basic would be enough to add explicit dependency
-to fixdep. But I just couldn't reproduce missing scripts/basic/fixdep
-neither with modules_prepare nor expoline_prepare targets.
 
-With which specific build command were you able to get those error
-messages? I wonder where
-        make[1]: *** Deleting file 'arch/s390/lib/expoline/expoline.o'
-is coming from. Could it be smth like?
+v5 -> v6:
+ * fix section for exrl targets (thanks Claudio)
+ * add comments (thanks Claudio)
 
-make ARCH=s390 CROSS_COMPILE=s390x-12.2.0- -j64 arch/s390/lib/expoline/expoline.o
+v4 -> v5:
+ * word align the execute-type instruction, preventing a specification
+   exception if the address calculation is wrong, since LLGFRL requires
+   word alignment
+ * change wording of comment
 
-Playing around with this build target I found it is broken:
+v3 -> v4:
+ * fix nits (thanks Janosch)
+ * pickup R-b (thanks Janosch)
 
-  AS      arch/s390/lib/expoline/expoline.o
-  AS      arch/s390/lib/expoline/expoline.o
-fixdep: error opening file: arch/s390/lib/expoline/.expoline.o.d: No such file or directory
-make[3]: *** [scripts/Makefile.build:374: arch/s390/lib/expoline/expoline.o] Error 2
-make[3]: *** Deleting file 'arch/s390/lib/expoline/expoline.o'
-make[2]: *** [scripts/Makefile.build:494: arch/s390/lib/expoline] Error 2
-make[1]: *** [scripts/Makefile.build:494: arch/s390/lib] Error 2
-make[1]: *** Waiting for unfinished jobs....
-make: *** [Makefile:2028: .] Error 2
+v2 -> v3:
+ * add some comments (thanks Janosch)
+ * add two new tests (drop Nico's R-b)
+ * push prefix
 
-Notice dup AS call, which is probably causing this:
-make[3]: *** Deleting file 'arch/s390/lib/expoline/expoline.o'
+v1 -> v2:
+ * add test to unittests.cfg and .gitlab-ci.yml
+ * pick up R-b (thanks Nico)
 
-But that would be a different issue from the one you are trying to fix.
+
+See https://patchew.org/QEMU/20230316210751.302423-1-iii@linux.ibm.com/
+for TCG fixes.
+
+
+Range-diff against v5:
+1:  57f8f256 ! 1:  3893f723 s390x: Add tests for execute-type instructions
+    @@ s390x/ex.c (new)
+     +#include <libcflat.h>
+     +
+     +/*
+    ++ * Accesses to the operand of execute-type instructions are instruction fetches.
+    ++ * Minimum alignment is two, since the relative offset is specified by number of halfwords.
+    ++ */
+    ++asm (  ".pushsection .text.exrl_targets,\"x\"\n"
+    ++"	.balign	2\n"
+    ++"	.popsection\n"
+    ++);
+    ++
+    ++/*
+     + * BRANCH AND SAVE, register register variant.
+     + * Saves the next instruction address (address from PSW + length of instruction)
+     + * to the first register. No branch is taken in this test, because 0 is
+    @@ s390x/ex.c (new)
+     +	uint64_t ret_addr, after_ex;
+     +
+     +	report_prefix_push("BASR");
+    -+	asm volatile ( ".pushsection .rodata\n"
+    ++	asm volatile ( ".pushsection .text.exrl_targets\n"
+     +		"0:	basr	%[ret_addr],0\n"
+     +		"	.popsection\n"
+     +
+    @@ s390x/ex.c (new)
+     +	uint64_t after_target, ret_addr, after_ex, branch_addr;
+     +
+     +	report_prefix_push("BRAS");
+    -+	asm volatile ( ".pushsection .text.ex_bras, \"x\"\n"
+    ++	asm volatile ( ".pushsection .text.exrl_targets\n"
+     +		"0:	bras	%[ret_addr],1f\n"
+     +		"	nopr	%%r7\n"
+     +		"1:	larl	%[branch_addr],0\n"
+    @@ s390x/ex.c (new)
+     +		"	larl	%[after_target],1b\n"
+     +		"	larl	%[after_ex],3f\n"
+     +		"2:	exrl	0,0b\n"
+    ++/*
+    ++ * In case the address calculation is correct, we jump by the relative offset 1b-0b from 0b to 1b.
+    ++ * In case the address calculation is relative to the exrl (i.e. a test failure),
+    ++ * put a valid instruction at the same relative offset from the exrl, so the test continues in a
+    ++ * controlled manner.
+    ++ */
+     +		"3:	larl	%[branch_addr],0\n"
+     +		"4:\n"
+     +
+    @@ s390x/ex.c (new)
+     +	uint64_t target, addr;
+     +
+     +	report_prefix_push("LARL");
+    -+	asm volatile ( ".pushsection .rodata\n"
+    ++	asm volatile ( ".pushsection .text.exrl_targets\n"
+     +		"0:	larl	%[addr],0\n"
+     +		"	.popsection\n"
+     +
+    @@ s390x/ex.c (new)
+     +	uint64_t target, value;
+     +
+     +	report_prefix_push("LLGFRL");
+    -+	asm volatile ( ".pushsection .rodata\n"
+    ++	asm volatile ( ".pushsection .text.exrl_targets\n"
+     +		"	.balign	4\n"
+    ++		 //operand of llgfrl must be word aligned
+     +		"0:	llgfrl	%[value],0\n"
+     +		"	.popsection\n"
+     +
+    @@ s390x/ex.c (new)
+     +	uint32_t program_mask, cc, crl_word;
+     +
+     +	report_prefix_push("CRL");
+    -+	asm volatile ( ".pushsection .rodata\n"
+    ++	asm volatile ( ".pushsection .text.exrl_targets\n"
+     +		 //operand of crl must be word aligned
+     +		 "	.balign	4\n"
+     +		"0:	crl	%[crl_word],0\n"
+
+ s390x/Makefile      |   1 +
+ s390x/ex.c          | 188 ++++++++++++++++++++++++++++++++++++++++++++
+ s390x/unittests.cfg |   3 +
+ .gitlab-ci.yml      |   1 +
+ 4 files changed, 193 insertions(+)
+ create mode 100644 s390x/ex.c
+
+diff --git a/s390x/Makefile b/s390x/Makefile
+index 97a61611..6cf8018b 100644
+--- a/s390x/Makefile
++++ b/s390x/Makefile
+@@ -39,6 +39,7 @@ tests += $(TEST_DIR)/panic-loop-extint.elf
+ tests += $(TEST_DIR)/panic-loop-pgm.elf
+ tests += $(TEST_DIR)/migration-sck.elf
+ tests += $(TEST_DIR)/exittime.elf
++tests += $(TEST_DIR)/ex.elf
+ 
+ pv-tests += $(TEST_DIR)/pv-diags.elf
+ 
+diff --git a/s390x/ex.c b/s390x/ex.c
+new file mode 100644
+index 00000000..dbd8030d
+--- /dev/null
++++ b/s390x/ex.c
+@@ -0,0 +1,188 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * Copyright IBM Corp. 2023
++ *
++ * Test EXECUTE (RELATIVE LONG).
++ * These instructions execute a target instruction. The target instruction is formed
++ * by reading an instruction from memory and optionally modifying some of its bits.
++ * The execution of the target instruction is the same as if it was executed
++ * normally as part of the instruction sequence, except for the instruction
++ * address and the instruction-length code.
++ */
++
++#include <libcflat.h>
++
++/*
++ * Accesses to the operand of execute-type instructions are instruction fetches.
++ * Minimum alignment is two, since the relative offset is specified by number of halfwords.
++ */
++asm (  ".pushsection .text.exrl_targets,\"x\"\n"
++"	.balign	2\n"
++"	.popsection\n"
++);
++
++/*
++ * BRANCH AND SAVE, register register variant.
++ * Saves the next instruction address (address from PSW + length of instruction)
++ * to the first register. No branch is taken in this test, because 0 is
++ * specified as target.
++ * BASR does *not* perform a relative address calculation with an intermediate.
++ */
++static void test_basr(void)
++{
++	uint64_t ret_addr, after_ex;
++
++	report_prefix_push("BASR");
++	asm volatile ( ".pushsection .text.exrl_targets\n"
++		"0:	basr	%[ret_addr],0\n"
++		"	.popsection\n"
++
++		"	larl	%[after_ex],1f\n"
++		"	exrl	0,0b\n"
++		"1:\n"
++		: [ret_addr] "=d" (ret_addr),
++		  [after_ex] "=d" (after_ex)
++	);
++
++	report(ret_addr == after_ex, "return address after EX");
++	report_prefix_pop();
++}
++
++/*
++ * BRANCH RELATIVE AND SAVE.
++ * According to PoP (Branch-Address Generation), the address calculated relative
++ * to the instruction address is relative to BRAS when it is the target of an
++ * execute-type instruction, not relative to the execute-type instruction.
++ */
++static void test_bras(void)
++{
++	uint64_t after_target, ret_addr, after_ex, branch_addr;
++
++	report_prefix_push("BRAS");
++	asm volatile ( ".pushsection .text.exrl_targets\n"
++		"0:	bras	%[ret_addr],1f\n"
++		"	nopr	%%r7\n"
++		"1:	larl	%[branch_addr],0\n"
++		"	j	4f\n"
++		"	.popsection\n"
++
++		"	larl	%[after_target],1b\n"
++		"	larl	%[after_ex],3f\n"
++		"2:	exrl	0,0b\n"
++/*
++ * In case the address calculation is correct, we jump by the relative offset 1b-0b from 0b to 1b.
++ * In case the address calculation is relative to the exrl (i.e. a test failure),
++ * put a valid instruction at the same relative offset from the exrl, so the test continues in a
++ * controlled manner.
++ */
++		"3:	larl	%[branch_addr],0\n"
++		"4:\n"
++
++		"	.if (1b - 0b) != (3b - 2b)\n"
++		"	.error	\"right and wrong target must have same offset\"\n"
++		"	.endif\n"
++		: [after_target] "=d" (after_target),
++		  [ret_addr] "=d" (ret_addr),
++		  [after_ex] "=d" (after_ex),
++		  [branch_addr] "=d" (branch_addr)
++	);
++
++	report(after_target == branch_addr, "address calculated relative to BRAS");
++	report(ret_addr == after_ex, "return address after EX");
++	report_prefix_pop();
++}
++
++/*
++ * LOAD ADDRESS RELATIVE LONG.
++ * If it is the target of an execute-type instruction, the address is relative
++ * to the LARL.
++ */
++static void test_larl(void)
++{
++	uint64_t target, addr;
++
++	report_prefix_push("LARL");
++	asm volatile ( ".pushsection .text.exrl_targets\n"
++		"0:	larl	%[addr],0\n"
++		"	.popsection\n"
++
++		"	larl	%[target],0b\n"
++		"	exrl	0,0b\n"
++		: [target] "=d" (target),
++		  [addr] "=d" (addr)
++	);
++
++	report(target == addr, "address calculated relative to LARL");
++	report_prefix_pop();
++}
++
++/* LOAD LOGICAL RELATIVE LONG.
++ * If it is the target of an execute-type instruction, the address is relative
++ * to the LLGFRL.
++ */
++static void test_llgfrl(void)
++{
++	uint64_t target, value;
++
++	report_prefix_push("LLGFRL");
++	asm volatile ( ".pushsection .text.exrl_targets\n"
++		"	.balign	4\n"
++		 //operand of llgfrl must be word aligned
++		"0:	llgfrl	%[value],0\n"
++		"	.popsection\n"
++
++		"	llgfrl	%[target],0b\n"
++		//align (pad with nop), in case the wrong operand is used
++		"	.balignw 4,0x0707\n"
++		"	exrl	0,0b\n"
++		: [target] "=d" (target),
++		  [value] "=d" (value)
++	);
++
++	report(target == value, "loaded correct value");
++	report_prefix_pop();
++}
++
++/*
++ * COMPARE RELATIVE LONG
++ * If it is the target of an execute-type instruction, the address is relative
++ * to the CRL.
++ */
++static void test_crl(void)
++{
++	uint32_t program_mask, cc, crl_word;
++
++	report_prefix_push("CRL");
++	asm volatile ( ".pushsection .text.exrl_targets\n"
++		 //operand of crl must be word aligned
++		 "	.balign	4\n"
++		"0:	crl	%[crl_word],0\n"
++		"	.popsection\n"
++
++		"	lrl	%[crl_word],0b\n"
++		//align (pad with nop), in case the wrong operand is used
++		"	.balignw 4,0x0707\n"
++		"	exrl	0,0b\n"
++		"	ipm	%[program_mask]\n"
++		: [program_mask] "=d" (program_mask),
++		  [crl_word] "=d" (crl_word)
++		:: "cc"
++	);
++
++	cc = program_mask >> 28;
++	report(!cc, "operand compared to is relative to CRL");
++	report_prefix_pop();
++}
++
++int main(int argc, char **argv)
++{
++	report_prefix_push("ex");
++	test_basr();
++	test_bras();
++	test_larl();
++	test_llgfrl();
++	test_crl();
++	report_prefix_pop();
++
++	return report_summary();
++}
+diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
+index d97eb5e9..b61faf07 100644
+--- a/s390x/unittests.cfg
++++ b/s390x/unittests.cfg
+@@ -215,3 +215,6 @@ file = migration-skey.elf
+ smp = 2
+ groups = migration
+ extra_params = -append '--parallel'
++
++[execute]
++file = ex.elf
+diff --git a/.gitlab-ci.yml b/.gitlab-ci.yml
+index ad7949c9..a999f64a 100644
+--- a/.gitlab-ci.yml
++++ b/.gitlab-ci.yml
+@@ -275,6 +275,7 @@ s390x-kvm:
+   - ACCEL=kvm ./run_tests.sh
+       selftest-setup intercept emulator sieve sthyi diag10 diag308 pfmf
+       cmm vector gs iep cpumodel diag288 stsi sclp-1g sclp-3g css skrf sie
++      execute
+       | tee results.txt
+   - grep -q PASS results.txt && ! grep -q FAIL results.txt
+  only:
+
+base-commit: 20de8c3b54078ebc3df0b47344f9ce55bf52b7a5
+-- 
+2.39.1
+
