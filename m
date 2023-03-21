@@ -2,59 +2,59 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 23FF7C6FD1D
-	for <linux-s390@archiver.kernel.org>; Tue, 21 Mar 2023 09:24:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 31549C761A6
+	for <linux-s390@archiver.kernel.org>; Tue, 21 Mar 2023 09:28:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229771AbjCUJYU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 21 Mar 2023 05:24:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52606 "EHLO
+        id S230097AbjCUJ2c (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 21 Mar 2023 05:28:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229449AbjCUJYQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 21 Mar 2023 05:24:16 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94BA316338
-        for <linux-s390@vger.kernel.org>; Tue, 21 Mar 2023 02:23:28 -0700 (PDT)
+        with ESMTP id S230047AbjCUJ2a (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 21 Mar 2023 05:28:30 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7454B38647
+        for <linux-s390@vger.kernel.org>; Tue, 21 Mar 2023 02:27:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1679390607;
+        s=mimecast20190719; t=1679390865;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=Pn5brbGgNvIiwAbTr396tg4MWSNJ8Oc96gtsZGXUcYM=;
-        b=RKRLqMSuajkRqFX0I6kRJGREVuD7eXz7eFofrpi7BH5IyfG91bH3XuR2ZCunlF/EzjFp1P
-        n41LBO2tehKJz5tPqepydvs8imtaHsD7i95WD/q/IjcjOIa8PsinNWP3kgReJu22j4hwDM
-        YaXLZaQ5NPtG0KSPDJ6YfOjJ3yV8V1s=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=LA+RXUqkYMz8XHraazbxDwAoyRZ6mtYEiWEaraKXgsw=;
+        b=bVWOz5P9M85nczh0838yoJOSzSLWF67JGpSjQa/SmrXjfY4oKJxD3mnLzBj5pUwEKPV+F2
+        lAEnE1TJl2Y5qwWImZUnWsJ7K5gk5GZ48Mk7XJv6HrP8tVkrFefaZ6n9NtOq4497dN9W2A
+        H4GWYCwIdvOIZ3QPuwXFoZ+4YEa3RM8=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-338-yjPW8JFtOOGVMoTcA01Fiw-1; Tue, 21 Mar 2023 05:23:25 -0400
-X-MC-Unique: yjPW8JFtOOGVMoTcA01Fiw-1
-Received: by mail-wm1-f71.google.com with SMTP id e5-20020a05600c4e4500b003edc5824521so4255329wmq.0
-        for <linux-s390@vger.kernel.org>; Tue, 21 Mar 2023 02:23:25 -0700 (PDT)
+ us-mta-227-mWv0sHnQNXOhL6pbbSflVA-1; Tue, 21 Mar 2023 05:27:41 -0400
+X-MC-Unique: mWv0sHnQNXOhL6pbbSflVA-1
+Received: by mail-wm1-f70.google.com with SMTP id e5-20020a05600c4e4500b003edc5824521so4260455wmq.0
+        for <linux-s390@vger.kernel.org>; Tue, 21 Mar 2023 02:27:40 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679390604;
+        d=1e100.net; s=20210112; t=1679390860;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Pn5brbGgNvIiwAbTr396tg4MWSNJ8Oc96gtsZGXUcYM=;
-        b=7fvsC7hdETlsQmsv1PFNzdWHRGwGtuLip1M6hVeYivd3bbEZMQsVeXrrNKLQ+i1See
-         uwtlSZ13yDdjqCi6mLJmHchQY6PhsC9XWJU6lUpJ3NLBAk2oGNIYEWRKSxcV2unC1328
-         2Mh+2tMXzLbQnjumd5H5tS5d47pD3537cAzbg+9Capucx0Y0dUyGCLOZsC1MsxeszWok
-         4y4MiRlBvjg/p3Mo4IZwoPttP9X9WdcB5lsNDtzmOKKtLej1zrpJrBuY6bAZN8ym0Jog
-         W4y0iLbKNKyJR1WymtKSWXGh/o+r5zuUGO02KF+gusk3WFDIYepEj77E5zR/VcffoeIQ
-         WtTw==
-X-Gm-Message-State: AO0yUKVaBEkUByNob0i0xqfzKDEdrfoYAp7n9A/JRn19Cy2gFEC/rX+F
-        YfNaQaujsdV5w89ltTugf2Zyex76aMLGiEKQJFfy1i57v7oyCzNlqn+xeqZO4k0l/Tug4mBYrUY
-        V3Y6K/jdKrxymRl9ScOWljA==
-X-Received: by 2002:a1c:6a08:0:b0:3ea:ed4d:38eb with SMTP id f8-20020a1c6a08000000b003eaed4d38ebmr1871984wmc.24.1679390604692;
-        Tue, 21 Mar 2023 02:23:24 -0700 (PDT)
-X-Google-Smtp-Source: AK7set/5Sl5sP+nX8YGttWKA3yT06XBaU7ihGH43O5M3uoUtpcc9jFKpSMids9Me1PPqfY0eMN3yJA==
-X-Received: by 2002:a1c:6a08:0:b0:3ea:ed4d:38eb with SMTP id f8-20020a1c6a08000000b003eaed4d38ebmr1871973wmc.24.1679390604390;
-        Tue, 21 Mar 2023 02:23:24 -0700 (PDT)
+        bh=LA+RXUqkYMz8XHraazbxDwAoyRZ6mtYEiWEaraKXgsw=;
+        b=1xYwOeuL8PiC45zxpMI5Jwb6V/bKxEcySrvog3txcLC0wd9KpT/Ot2pbcXda3gfkvi
+         Bcnn2341Mp5UFsjpZUEIT+G/1YOXmrgu0zlJ6/cjXggdYVgoE8sc0x2rqJ/t3gIdCEd/
+         G3kpmeFMuV2mqpVL8EDE68jY7DaarmBAFyeFh3vqrXKPY3VJraCkEomD0jYhLUdirFZq
+         tPjkZP3+dVcIUY8GbrdHsISklyKHX4MB8TDbWlJQzGpXqfi2eznlgVtCYnkKw+oImlrb
+         O98HnSQx08xcYLIjDIlrURySStpLzg982ByQfaFDr5QDShDWvran4D4hry/nWn5CFZtV
+         lNmw==
+X-Gm-Message-State: AO0yUKUevuJc6JgWjeU1s3Xj2IusOc/jgK5ceWVdVok6wDhm0jMTw3j8
+        zEfqtuJYB0pv9AFe/pp1rR7kBW45ZRamNxhrqWBS8lgG3KDfjeVW0N4AELZZV2/SlAUTMwkz5Pd
+        A4Bpt6JFQ2PszwQtTDeU/vQ==
+X-Received: by 2002:a1c:7915:0:b0:3ed:3993:6aa2 with SMTP id l21-20020a1c7915000000b003ed39936aa2mr1859035wme.11.1679390859815;
+        Tue, 21 Mar 2023 02:27:39 -0700 (PDT)
+X-Google-Smtp-Source: AK7set+zdomxqmeYP5mRC/r2MmjfSKc6viUTnX8ys2OMP5VJHTZHJ5/PmqhW2iDdydInHE6oIrLGWA==
+X-Received: by 2002:a1c:7915:0:b0:3ed:3993:6aa2 with SMTP id l21-20020a1c7915000000b003ed39936aa2mr1859021wme.11.1679390859486;
+        Tue, 21 Mar 2023 02:27:39 -0700 (PDT)
 Received: from redhat.com ([2.52.1.105])
-        by smtp.gmail.com with ESMTPSA id n1-20020a7bc5c1000000b003db03725e86sm13222630wmk.8.2023.03.21.02.23.22
+        by smtp.gmail.com with ESMTPSA id t20-20020a1c7714000000b003ee10fb56ebsm3670868wmi.9.2023.03.21.02.27.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Mar 2023 02:23:24 -0700 (PDT)
-Date:   Tue, 21 Mar 2023 05:23:20 -0400
+        Tue, 21 Mar 2023 02:27:38 -0700 (PDT)
+Date:   Tue, 21 Mar 2023 05:27:35 -0400
 From:   "Michael S. Tsirkin" <mst@redhat.com>
 To:     Viktor Prutyanov <viktor@daynix.com>
 Cc:     jasowang@redhat.com, cohuck@redhat.com, pasic@linux.ibm.com,
@@ -62,7 +62,7 @@ Cc:     jasowang@redhat.com, cohuck@redhat.com, pasic@linux.ibm.com,
         kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
         linux-kernel@vger.kernel.org, yan@daynix.com
 Subject: Re: [PATCH v2] virtio: add VIRTIO_F_NOTIFICATION_DATA feature support
-Message-ID: <20230321050747-mutt-send-email-mst@kernel.org>
+Message-ID: <20230321052407-mutt-send-email-mst@kernel.org>
 References: <20230320232115.1940587-1-viktor@daynix.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -145,11 +145,6 @@ On Tue, Mar 21, 2023 at 02:21:15AM +0300, Viktor Prutyanov wrote:
 >  	vq = vring_create_virtqueue(index, num, VIRTIO_MMIO_VRING_ALIGN, vdev,
 > -				 true, true, ctx, vm_notify, callback, name);
 > +			true, true, ctx, VM_NOTIFY(vdev), callback, name);
-
-I don't see why is this macro useful.
-
-
-
 >  	if (!vq) {
 >  		err = -ENOMEM;
 >  		goto error_new_virtqueue;
@@ -231,6 +226,9 @@ I don't see why is this macro useful.
 >  EXPORT_SYMBOL_GPL(vring_del_virtqueue);
 >  
 > +u32 vring_fill_notification_data(struct virtqueue *_vq)
+
+btw what does "fill" mean here? why not just vring_notification_data?
+
 > +{
 > +	struct vring_virtqueue *vq = to_vvq(_vq);
 > +	u16 next;
@@ -238,28 +236,22 @@ I don't see why is this macro useful.
 > +	if (vq->packed_ring)
 > +		next = (vq->packed.next_avail_idx & ~(1 << 15)) |
 > +			((u16)vq->packed.avail_wrap_counter << 15);
-
-I don't think the cast is needed. Neither is () around << the second <<
-here (first is needed because gcc chooses to complain: apparently it
-considers bitwise and a math operation for some obscure reason).
-
 > +	else
 > +		next = virtio16_to_cpu(_vq->vdev, vq->split.vring.avail->idx);
+
+BTW it's annoying to poke at avail->idx here - will cause a bunch of
+cache misses. And the byte-swap is a waste.
+
+Isn't this why we have avail_idx_shadow?
+
 > +
 > +	return ((u32)next << 16) | _vq->index;
-
-I don't think the cast is needed. Neither is () around << needed.
-
 > +}
 > +EXPORT_SYMBOL_GPL(vring_fill_notification_data);
 > +
-
-I'd inline this - it's on data path ...
-
 >  /* Manipulates transport-specific feature bits. */
 >  void vring_transport_features(struct virtio_device *vdev)
 >  {
-
 > @@ -2718,6 +2733,8 @@ void vring_transport_features(struct virtio_device *vdev)
 >  			break;
 >  		case VIRTIO_F_ORDER_PLATFORM:
