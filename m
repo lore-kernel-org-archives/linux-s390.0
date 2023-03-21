@@ -2,159 +2,131 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B2B53C6FD1D
-	for <linux-s390@archiver.kernel.org>; Tue, 21 Mar 2023 21:02:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 02591C6FD1D
+	for <linux-s390@archiver.kernel.org>; Tue, 21 Mar 2023 21:19:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230017AbjCUVCD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 21 Mar 2023 17:02:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38624 "EHLO
+        id S229931AbjCUVTW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 21 Mar 2023 17:19:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229674AbjCUVCC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 21 Mar 2023 17:02:02 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DBD6574D8
-        for <linux-s390@vger.kernel.org>; Tue, 21 Mar 2023 14:01:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1679432477;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=I1KA6ZkpV3D+AmID9NMMP4J1e8acMfYHtrAK/R3ZyzU=;
-        b=XeDAkoN2gbDbyzMj0qJmW4AFsZe7zdkZK/OyQDWeYidrxdtCUQxCVUt5z9KeSqB+nSky6i
-        c0YDt4BKSNz3ixGQzispKf71gd5S10t4yDpUesAcrHBqq5C/QIGNTsvSnzBsC6lqabY2vw
-        6fksHmFEYj7ybh2rLZf7hQ+7tqwGiAk=
-Received: from mail-io1-f72.google.com (mail-io1-f72.google.com
- [209.85.166.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-114-GE8_s_D6PrafVgy7Id4RRg-1; Tue, 21 Mar 2023 17:01:15 -0400
-X-MC-Unique: GE8_s_D6PrafVgy7Id4RRg-1
-Received: by mail-io1-f72.google.com with SMTP id b84-20020a6bb257000000b007585c93862aso1351508iof.4
-        for <linux-s390@vger.kernel.org>; Tue, 21 Mar 2023 14:01:15 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679432475;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=I1KA6ZkpV3D+AmID9NMMP4J1e8acMfYHtrAK/R3ZyzU=;
-        b=bKYLvHSkNvX2kVkKi/EKylTf6j91p6vnGnCUsSzOeZN13QL3yEiSz14o5virY7cnBO
-         24Gu19m2Eh+uMp7Q3MS7yk0whVvORcfcnIY1h8PL5GhwK9paGmwnAByD0eJ3aTF1qSVh
-         wFfKulgE4710mHl2IhBwtv+/B/m3tkboStUxKQ4/TybBaenEXi2KnL21z0JXb532NOk7
-         /gBDbEXLqm9KunPPPucc7roHt3CqCa5e83C4fV9FBmt5PiMMVzN8m+rrj68wUlPBTmbF
-         gryTh+qo063VVyJ7LuKD4Dc175yAykVAPEejzHPCG9KpGa5DY6UjTq5U9xZZtox6USs6
-         D8vQ==
-X-Gm-Message-State: AO0yUKUwa4vGV0pzBzE4rUkE5Z6dCHNu/2FOA7gGl9hEof893PqXp5GD
-        7OdEBjQ4fQWgXLBv7gcKOXr84ipJ1VWOWvb1QNOgFhpAl4BzE0opTsaNP2L9K/joG61BOIx6ynw
-        NksMOHdhk626XefEI/czRSA==
-X-Received: by 2002:a92:cf44:0:b0:325:bab7:cb17 with SMTP id c4-20020a92cf44000000b00325bab7cb17mr267829ilr.24.1679432474776;
-        Tue, 21 Mar 2023 14:01:14 -0700 (PDT)
-X-Google-Smtp-Source: AK7set/F7exqYQvOzCCmHLPB4uNfmmnepmhiUG7EPAgpEmj8wd8Iv128TRMF1l0+kK1w3FickMDApA==
-X-Received: by 2002:a92:cf44:0:b0:325:bab7:cb17 with SMTP id c4-20020a92cf44000000b00325bab7cb17mr267805ilr.24.1679432474496;
-        Tue, 21 Mar 2023 14:01:14 -0700 (PDT)
-Received: from redhat.com ([38.15.36.239])
-        by smtp.gmail.com with ESMTPSA id q5-20020a056e02096500b003179ae2fb8fsm3892160ilt.2.2023.03.21.14.01.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Mar 2023 14:01:13 -0700 (PDT)
-Date:   Tue, 21 Mar 2023 15:01:12 -0600
-From:   Alex Williamson <alex.williamson@redhat.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     "Tian, Kevin" <kevin.tian@intel.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "jasowang@redhat.com" <jasowang@redhat.com>,
-        "Hao, Xudong" <xudong.hao@intel.com>,
-        "peterx@redhat.com" <peterx@redhat.com>,
-        "Xu, Terrence" <terrence.xu@intel.com>,
-        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "Liu, Yi L" <yi.l.liu@intel.com>,
-        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
-        "lulu@redhat.com" <lulu@redhat.com>,
-        "joro@8bytes.org" <joro@8bytes.org>,
-        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
-        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "eric.auger@redhat.com" <eric.auger@redhat.com>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
-        "cohuck@redhat.com" <cohuck@redhat.com>,
-        "shameerali.kolothum.thodi@huawei.com" 
-        <shameerali.kolothum.thodi@huawei.com>,
-        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
-        "robin.murphy@arm.com" <robin.murphy@arm.com>
-Subject: Re: [PATCH v6 12/24] vfio/pci: Allow passing zero-length fd array
- in VFIO_DEVICE_PCI_HOT_RESET
-Message-ID: <20230321150112.1c482380.alex.williamson@redhat.com>
-In-Reply-To: <ZBoYgNq60eDpV9Un@nvidia.com>
-References: <BN9PR11MB5276300FCAAF8BF7B4E03BA48CBF9@BN9PR11MB5276.namprd11.prod.outlook.com>
-        <20230316124532.30839a94.alex.williamson@redhat.com>
-        <BN9PR11MB5276F7879E428080D2B214D98CBC9@BN9PR11MB5276.namprd11.prod.outlook.com>
-        <20230316182256.6659bbbd.alex.williamson@redhat.com>
-        <BN9PR11MB5276D5A71E43EA4CDD1C960A8CBD9@BN9PR11MB5276.namprd11.prod.outlook.com>
-        <20230317091557.196638a6.alex.williamson@redhat.com>
-        <ZBiUiEC8Xj9sOphr@nvidia.com>
-        <20230320165217.5b1019a4.alex.williamson@redhat.com>
-        <ZBjum1wQ1L2AIfhB@nvidia.com>
-        <20230321143122.632f7e63.alex.williamson@redhat.com>
-        <ZBoYgNq60eDpV9Un@nvidia.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
+        with ESMTP id S229663AbjCUVTU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 21 Mar 2023 17:19:20 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E6F0136D3;
+        Tue, 21 Mar 2023 14:19:19 -0700 (PDT)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32LJEQfR001100;
+        Tue, 21 Mar 2023 21:19:15 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=bbozAYZVvpIJ1rSltt7P6n1hBU/8cwQRgE061FnjM7I=;
+ b=DsXBP3/qmMEf3FMQeTlM0NX1KGMFhTygFGvqej6rq6u5Y6pj/Ev5GOKVVnHKENug67AM
+ 5ne6Nj3xpX49KYw/GbH1vj8xjy+4x/b8LCvl2JE/w+VhTgHQn9vqmUIk/tvM3WunFT9C
+ hCjcszzHdkpfuDsmZ3YV/whSl4SuxVBjXLIXPPz3ARYHMLNGWHdL8Pr9YU88LGScxndx
+ NEX8EujJ0uNv0VnlYOsEZTlH/dM0zcomKvO3XfBsMC5PW7Svav/6olxaJhkKdfxRpozy
+ lxUnahFoDtI9aLd0fkmCoLh1W1EOJZ8KesUB34MlwghQXZurw5CU0BsVWnBUcr7UeDXV TQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pfjjdtgd4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 21 Mar 2023 21:19:15 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32LLBCel005465;
+        Tue, 21 Mar 2023 21:19:14 GMT
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pfjjdtgck-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 21 Mar 2023 21:19:14 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32L50Jdi018062;
+        Tue, 21 Mar 2023 21:19:12 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma06fra.de.ibm.com (PPS) with ESMTPS id 3pd4jfc9x2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 21 Mar 2023 21:19:12 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32LLJ9g842205758
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 21 Mar 2023 21:19:09 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F289D20043;
+        Tue, 21 Mar 2023 21:19:08 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 51ADE20040;
+        Tue, 21 Mar 2023 21:19:08 +0000 (GMT)
+Received: from localhost (unknown [9.171.1.78])
+        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Tue, 21 Mar 2023 21:19:08 +0000 (GMT)
+Date:   Tue, 21 Mar 2023 22:19:06 +0100
+From:   Vasily Gorbik <gor@linux.ibm.com>
+To:     "Jiri Slaby (SUSE)" <jirislaby@kernel.org>
+Cc:     linux-kernel@vger.kernel.org,
+        Joe Lawrence <joe.lawrence@redhat.com>, stable@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: Re: [PATCH] s390: reintroduce expoline dependence to scripts
+Message-ID: <your-ad-here.call-01679433546-ext-8459@work.hours>
+References: <705ce64c-5f73-2ec8-e4bc-dd48c85f0498@kernel.org>
+ <20230316112809.7903-1-jirislaby@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20230316112809.7903-1-jirislaby@kernel.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: GlJMtsEVQZZ0gT78_adUV8bdi7lGyiQO
+X-Proofpoint-ORIG-GUID: 0ug9ZL6ZKPv_3YE6ECwxu-eCpoqk4EUS
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-03-21_11,2023-03-21_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ mlxlogscore=998 spamscore=0 malwarescore=0 lowpriorityscore=0
+ suspectscore=0 mlxscore=0 impostorscore=0 clxscore=1015 adultscore=0
+ phishscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2303150002 definitions=main-2303210166
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 21 Mar 2023 17:50:08 -0300
-Jason Gunthorpe <jgg@nvidia.com> wrote:
+On Thu, Mar 16, 2023 at 12:28:09PM +0100, Jiri Slaby (SUSE) wrote:
+> Expolines depend on scripts/basic/fixdep. And build of expolines can now
+> race with the fixdep build:
+> 
+>  make[1]: *** Deleting file 'arch/s390/lib/expoline/expoline.o'
+>  /bin/sh: line 1: scripts/basic/fixdep: Permission denied
+>  make[1]: *** [../scripts/Makefile.build:385: arch/s390/lib/expoline/expoline.o] Error 126
+>  make: *** [../arch/s390/Makefile:166: expoline_prepare] Error 2
+> 
+> The dependence was removed in the below Fixes: commit. So reintroduce
+> the dependence on scripts.
+> 
+> Fixes: a0b0987a7811 ("s390/nospec: remove unneeded header includes")
+> Cc: Joe Lawrence <joe.lawrence@redhat.com>
+> Cc: stable@vger.kernel.org
+> Cc: Heiko Carstens <hca@linux.ibm.com>
+> Cc: Vasily Gorbik <gor@linux.ibm.com>
+> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+> Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+> Cc: Sven Schnelle <svens@linux.ibm.com>
+> Cc: linux-s390@vger.kernel.org
+> Signed-off-by: Jiri Slaby (SUSE) <jirislaby@kernel.org>
+> ---
+>  arch/s390/Makefile | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/arch/s390/Makefile b/arch/s390/Makefile
+> index b3235ab0ace8..ed646c583e4f 100644
+> --- a/arch/s390/Makefile
+> +++ b/arch/s390/Makefile
+> @@ -162,7 +162,7 @@ vdso_prepare: prepare0
+>  
+>  ifdef CONFIG_EXPOLINE_EXTERN
+>  modules_prepare: expoline_prepare
+> -expoline_prepare:
+> +expoline_prepare: scripts
+>  	$(Q)$(MAKE) $(build)=arch/s390/lib/expoline arch/s390/lib/expoline/expoline.o
+>  endif
+>  endif
+> -- 
 
-> On Tue, Mar 21, 2023 at 02:31:22PM -0600, Alex Williamson wrote:
-> 
-> > This just seems like nit-picking that the API could have accomplished
-> > this more concisely.  Probably that's true, but I think you've
-> > identified a gap above that amplifies the issue.  If the user cannot
-> > map BDFs to cdevs because the cdevs are passed as open fds to the user
-> > driver, the _INFO results become meaningless and by removing the fds
-> > array, that becomes the obvious choice that a user presented with this
-> > dilemma would take.  We're skipping past easier to misuse, difficult to
-> > use correctly, and circling around no obvious way to use correctly.  
-> 
-> No - this just isn't finished yet is all it means :(
-> 
-> I just noticed it just now, presumably Eric would have discovered this
-> when he tried to implement the FD pass and we would have made a new
-> _INFO at that point (or more ugly, have libvirt pass the BDF along
-> with the FD).
-> 
-> > Unfortunately the _INFO ioctl does presume that userspace knows the BDF
-> > to device mappings today, so if we are attempting to pre-enable a case
-> > with cdev support where that is not the case, then there must be
-> > something done with the _INFO ioctl to provide scope.  
-> 
-> Yes, something is required with _INFO before libvirt can use a FD
-> pass. I'm thinking of a new _INFO query that returns the iommufd
-> dev_ids for the reset group. Then qemu can match the dev_ids back to
-> cdev FDs and thus vPCI devices and do what it needs to do.
-> 
-> But for the current qemu setup it will open cdev directly and it will
-> know the BDF so it can still use the current _INFO.
-> 
-> Though it would be nice if qemu didn't need two implementations so Yi
-> I'd rather see a new info in this series as well and qemu can just
-> consistently use dev_id and never bdf in iommufd mode.
-
-We also need to consider how libvirt determines if QEMU has the kernel
-support it needs to pass file descriptors.  It'd be a lot cleaner if
-this aligned with the introduction of vfio cdevs.
- 
-> Anyhow, I don't see the two topics as really related, the intention is
-> not to discourage people from calling _INFO, it just to make the
-> security proof simpler and more logical.
-
-At a minimum, we need a new _INFO ioctl to get back to the point where
-it's only a discussion of whether we're checking the user on scope.  We
-can't remove the array while doing so opens up an obviously incorrect
-solution to an impossible to use API.  Thanks,
-
-Alex
-
+Applied, thank you.
