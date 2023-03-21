@@ -2,124 +2,100 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B4771C6FD1D
-	for <linux-s390@archiver.kernel.org>; Tue, 21 Mar 2023 13:11:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D1A9CC74A5B
+	for <linux-s390@archiver.kernel.org>; Tue, 21 Mar 2023 13:41:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229475AbjCUNLN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 21 Mar 2023 09:11:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49354 "EHLO
+        id S230431AbjCUNlg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 21 Mar 2023 09:41:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229744AbjCUNLL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 21 Mar 2023 09:11:11 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BFFC49F4
-        for <linux-s390@vger.kernel.org>; Tue, 21 Mar 2023 06:10:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1679404231;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=LHioC2Bz+LhXLt/kWCD/RKd45AYTVWaKEiEQ85K6IJk=;
-        b=gEdoZO1V+u5JBwfSdSamO7ckHHSmCzYZdhSDhWww+EbRzJOUVzY9F27A+dfbFVVMXf5Ujq
-        Fb4mRHaUsA07CMdYDeZ/UueXZqTndmi0Q/vrjbWQ9RL+P1ZcoReC/xJr8bbCkQu4LWAnKT
-        GmlnPb6TR40ZafcFFa1DMxpxxBa9K9I=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-297-gQg3QGrOOUS7pjercg99cw-1; Tue, 21 Mar 2023 09:10:26 -0400
-X-MC-Unique: gQg3QGrOOUS7pjercg99cw-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id BC75A96DC85;
-        Tue, 21 Mar 2023 13:10:25 +0000 (UTC)
-Received: from localhost (unknown [10.39.193.206])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 56696140E95F;
-        Tue, 21 Mar 2023 13:10:25 +0000 (UTC)
-From:   Cornelia Huck <cohuck@redhat.com>
-To:     "Michael S. Tsirkin" <mst@redhat.com>,
-        Viktor Prutyanov <viktor@daynix.com>
-Cc:     Jason Wang <jasowang@redhat.com>, pasic@linux.ibm.com,
-        farman@linux.ibm.com, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
-        linux-kernel@vger.kernel.org, yan@daynix.com
-Subject: Re: [PATCH v2] virtio: add VIRTIO_F_NOTIFICATION_DATA feature support
-In-Reply-To: <20230321050719-mutt-send-email-mst@kernel.org>
-Organization: Red Hat GmbH
-References: <20230320232115.1940587-1-viktor@daynix.com>
- <CACGkMEu5qa2KUHti3w59DcXNxBdh8_ogZ9oW9bo1_PHwbNiCBg@mail.gmail.com>
- <CAPv0NP5wTMG=3kT_FX4xi9kGbX0Dah4qTQfFQPutWYsWvK1i-g@mail.gmail.com>
- <20230321050719-mutt-send-email-mst@kernel.org>
-User-Agent: Notmuch/0.37 (https://notmuchmail.org)
-Date:   Tue, 21 Mar 2023 14:10:23 +0100
-Message-ID: <87jzzamerk.fsf@redhat.com>
+        with ESMTP id S229899AbjCUNlf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 21 Mar 2023 09:41:35 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7423B6A70;
+        Tue, 21 Mar 2023 06:41:32 -0700 (PDT)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32LCvBYW005914;
+        Tue, 21 Mar 2023 13:41:31 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=aFr/E2BfAVYF/VpSXNgsbIX54SC1gXcp13vhvu8ZRcU=;
+ b=XePJy6kzog7iLbOw86uwR0XF4CKwvFJwTcPIny7MkvpKdGIs/iX9lVdamclWSkDVu9Vq
+ sth16GRQSDurVifyAORiJ+edf10BCGdWKiuIzqClurMbLig05XjTLiLX7e8B0U31Vbtv
+ dkeM1yWg1i/zwDsmpL4cL0ooVDOxYSjUcyT5Tf5CibFIre+shmkRX4rpmaqkt/Jn1KTn
+ aJ/Y+OEdDjIqMhjYHNOduWAsDrn3L8ynlQxQkCuZPySqn3kVspRArsn4s5zs5zWwL1C8
+ ORqliZfpaaD2reXsj6qgfbStKE4A2pxIRJ5NACzUh1lLKE6nIFX6bH3VT2Uwh7BgSagi 2A== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3pf7qns7vq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 21 Mar 2023 13:41:31 +0000
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32LCwCoA008957;
+        Tue, 21 Mar 2023 13:41:31 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3pf7qns7v4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 21 Mar 2023 13:41:30 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32L9RLNK015046;
+        Tue, 21 Mar 2023 13:41:29 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3pd4jfcqhe-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 21 Mar 2023 13:41:29 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32LDfPUp65208738
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 21 Mar 2023 13:41:25 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0CBFA20043;
+        Tue, 21 Mar 2023 13:41:25 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D194A20040;
+        Tue, 21 Mar 2023 13:41:24 +0000 (GMT)
+Received: from osiris (unknown [9.152.212.90])
+        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Tue, 21 Mar 2023 13:41:24 +0000 (GMT)
+Date:   Tue, 21 Mar 2023 14:41:24 +0100
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Lizhe <sensor1010@163.com>
+Cc:     akrowiak@linux.ibm.com, pasic@linux.ibm.com, jjherne@linux.ibm.com,
+        freude@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v1] s390/vfio-ap-drv: Remove redundant driver match
+ function
+Message-ID: <ZBm0BDdJr/s7GVTF@osiris>
+References: <20230319041941.259830-1-sensor1010@163.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230319041941.259830-1-sensor1010@163.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: cNNSfWsMjyVffsA3Z48USOaK74xl_XfB
+X-Proofpoint-ORIG-GUID: 3B-TALr-VURsZ5q3BhPYu8YHqzLFCpZB
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-03-21_08,2023-03-21_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
+ suspectscore=0 bulkscore=0 lowpriorityscore=0 mlxlogscore=715
+ priorityscore=1501 clxscore=1015 phishscore=0 impostorscore=0 spamscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2303150002 definitions=main-2303210103
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Mar 21 2023, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+On Sun, Mar 19, 2023 at 12:19:41PM +0800, Lizhe wrote:
+> If there is no driver match function, the driver core assumes that each
+> candidate pair (driver, device) matches, see driver_match_device().
+> 
+> Drop the matrix bus's match function that always returned 1 and so 
+> implements the same behaviour as when there is no match function
+> 
+> Signed-off-by: Lizhe <sensor1010@163.com>
+> ---
+>  drivers/s390/crypto/vfio_ap_drv.c | 6 ------
+>  1 file changed, 6 deletions(-)
 
-> On Tue, Mar 21, 2023 at 12:00:42PM +0300, Viktor Prutyanov wrote:
->> On Tue, Mar 21, 2023 at 5:29=E2=80=AFAM Jason Wang <jasowang@redhat.com>=
- wrote:
->> >
->> > On Tue, Mar 21, 2023 at 7:21=E2=80=AFAM Viktor Prutyanov <viktor@dayni=
-x.com> wrote:
->> > >
->> > > According to VirtIO spec v1.2, VIRTIO_F_NOTIFICATION_DATA feature
->> > > indicates that the driver passes extra data along with the queue
->> > > notifications.
->> > >
->> > > In a split queue case, the extra data is 16-bit available index. In a
->> > > packed queue case, the extra data is 1-bit wrap counter and 15-bit
->> > > available index.
->> > >
->> > > Add support for this feature for MMIO and PCI transports. Channel I/O
->> > > transport will not accept this feature.
->> > >
->> > > Signed-off-by: Viktor Prutyanov <viktor@daynix.com>
->> > > ---
->> > >
->> > >  v2: reject the feature in virtio_ccw, replace __le32 with u32
->> > >
->> > >  drivers/s390/virtio/virtio_ccw.c   |  4 +---
->> > >  drivers/virtio/virtio_mmio.c       | 15 ++++++++++++++-
->> > >  drivers/virtio/virtio_pci_common.c | 10 ++++++++++
->> > >  drivers/virtio/virtio_pci_common.h |  4 ++++
->> > >  drivers/virtio/virtio_pci_legacy.c |  2 +-
->> > >  drivers/virtio/virtio_pci_modern.c |  2 +-
->> > >  drivers/virtio/virtio_ring.c       | 17 +++++++++++++++++
->> > >  include/linux/virtio_ring.h        |  2 ++
->> > >  include/uapi/linux/virtio_config.h |  6 ++++++
->> > >  9 files changed, 56 insertions(+), 6 deletions(-)
->> > >
->> > > diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/=
-virtio_ccw.c
->> > > index a10dbe632ef9..d72a59415527 100644
->> > > --- a/drivers/s390/virtio/virtio_ccw.c
->> > > +++ b/drivers/s390/virtio/virtio_ccw.c
->> > > @@ -789,9 +789,7 @@ static u64 virtio_ccw_get_features(struct virtio=
-_device *vdev)
->> > >
->> > >  static void ccw_transport_features(struct virtio_device *vdev)
->> > >  {
->> > > -       /*
->> > > -        * Currently nothing to do here.
->> > > -        */
->> > > +       __virtio_clear_bit(vdev, VIRTIO_F_NOTIFICATION_DATA);
->> >
->> > Is there any restriction that prevents us from implementing
->> > VIRTIO_F_NOTIFICATION_DATA? (Spec seems doesn't limit us from this)
->>=20
->> Most likely, nothing.
->
-> So pls code it up. It's the same format.
-
-FWIW, the notification data needs to go via the third parameter of
-kvm_hypercall3() in virtio_ccw_kvm_notify().
-
+Applied.
