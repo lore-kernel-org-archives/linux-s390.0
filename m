@@ -2,166 +2,167 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DA982C74A5B
-	for <linux-s390@archiver.kernel.org>; Tue, 21 Mar 2023 16:22:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BE2E9C6FD1D
+	for <linux-s390@archiver.kernel.org>; Tue, 21 Mar 2023 16:54:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229475AbjCUQW5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 21 Mar 2023 12:22:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54110 "EHLO
+        id S229691AbjCUQy4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 21 Mar 2023 12:54:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229850AbjCUQWy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 21 Mar 2023 12:22:54 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A1D526CEC
-        for <linux-s390@vger.kernel.org>; Tue, 21 Mar 2023 09:22:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1679415725;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=lgoaZPNV6QFiAZ6BoiXCSnPeZXlIYAThltxiCwI3A8Q=;
-        b=WlAJ27rdinxrQWMUKYmUy1ruqWPb6aDB/kZrWH+X8b9r+Udo7EIbQxhVaLuIOsUT2BLb2r
-        FtLhdZHMOQmFYVS8c3wyBoHB6pECGaciBJD2zeNAbgSrJtCLe4zlVT4jxok4Qa6T2P30KL
-        UAmlNkgpuI+79H/mYJL7RAxJ3EAdcMk=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-182-lZh2iYaPNROe8ncvNmm22g-1; Tue, 21 Mar 2023 12:22:01 -0400
-X-MC-Unique: lZh2iYaPNROe8ncvNmm22g-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id B26391008139;
-        Tue, 21 Mar 2023 16:22:00 +0000 (UTC)
-Received: from localhost (unknown [10.39.193.206])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 48CDD140E960;
-        Tue, 21 Mar 2023 16:22:00 +0000 (UTC)
-From:   Cornelia Huck <cohuck@redhat.com>
-To:     "Michael S. Tsirkin" <mst@redhat.com>
-Cc:     Viktor Prutyanov <viktor@daynix.com>, jasowang@redhat.com,
-        pasic@linux.ibm.com, farman@linux.ibm.com,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        linux-kernel@vger.kernel.org, yan@daynix.com
-Subject: Re: [PATCH v3] virtio: add VIRTIO_F_NOTIFICATION_DATA feature support
-In-Reply-To: <20230321115854-mutt-send-email-mst@kernel.org>
-Organization: Red Hat GmbH
-References: <20230321134410.2097163-1-viktor@daynix.com>
- <87h6uem9qc.fsf@redhat.com>
- <CAPv0NP6Ep4-B7cMc285E3d3vYjgwO7O1pq5sG3OYYAoZd3EAYQ@mail.gmail.com>
- <87bkkmm89a.fsf@redhat.com>
- <20230321115854-mutt-send-email-mst@kernel.org>
-User-Agent: Notmuch/0.37 (https://notmuchmail.org)
-Date:   Tue, 21 Mar 2023 17:21:59 +0100
-Message-ID: <878rfqm5w8.fsf@redhat.com>
+        with ESMTP id S230270AbjCUQyu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 21 Mar 2023 12:54:50 -0400
+Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on2042.outbound.protection.outlook.com [40.107.244.42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F9B619118;
+        Tue, 21 Mar 2023 09:54:49 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=efzzH1zH/z3J9aZIYPZHISOihCZy33noTOyYFQVcD16IxL0I2KfS8x7eE6Tdj64aQOrz0ehMxxCfnms+s+Hg2/LrMuAmW+VYlzw0rUmesbChRSjaMN1Fv4DY0zj2nzA81upLSNZNQ+JA+f3jiLNu6BDot/1pLSZPaDs3/HyamvEJ6YGeSWWNBJQqV4cMhskGmgHMtktebniM7bUA5LKYwcuDkkW+10VPt9xzOuCjMEyPtKrNeYmwxkdEr/E56sCkHiVVIf+4xXTiHVdMgI2ba0rshrB2YO3JCD6wr4nOqHmEx/VmG2ed3J97BOxwAI0G4iQ5zz9A9QFGy2n8vLlXCw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=iAhg3amIvrYTxU5QlQ04IEmjo8vKGh5GOM1JBxcJuo0=;
+ b=KwX6WHxkkix3rj0RjjJQ9IdhhzE73z5VIFqjMU8sy5yx9m5IcqVjWT9xt+SaTl8pvKC2TFXFNah+IH+0XcH/uoRHvhxKmvEWicpJ3FxNbTVjtMaR394R0n30hzOQT4p3VcMqPbBF8TaT4XlcrjDKJafg8TaCTu+CYy5DjFAz+b1dUvpQ1FSLr0CRo2H0fDsYoTsUklyunIpkIsZUYiAottOjmCqoXM3VUsB5lMQNvNrkxHuTV7m/VxVpjdLWAKmaYuXi9cn99lKaAF0DEWAapxORF/mJ56psXq5q4TZCBGb3tQL3T/O7my8nj+APeE5FHefdT6RhU59K9bsjO1Ftgg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=iAhg3amIvrYTxU5QlQ04IEmjo8vKGh5GOM1JBxcJuo0=;
+ b=pVT+lqDiEJWyrjetuqASBOZazS5075JotOzDdSqu3HKm9cDUzYICUkdtoY9R8mTVatdbH2a80ysnwl6/n7MIQFngNYcbtEcPAxjYVhiRxHHO/UzUCegzskgpyv1eb+K5KBaXwatWTt76hQ245Wi7V7Lzbhcs5vxawehpLzc9B3Q8Yu90FKIJb2zQDl8fnBOUugcvCcWaKzEDEv9wP+J19pKVjpXAEXrwn8qk99dxCLBVTCi8qC9y8bIUodebWkMMH6cQ+9wapeSJGjB2a5c+tr2T4T2v8FYeTsCUMLBfcucWFt61myf1EpQ7BKZJTUIIdplBflWZBa4ozDqsXv/T2A==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by CY5PR12MB6059.namprd12.prod.outlook.com (2603:10b6:930:2c::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6178.37; Tue, 21 Mar
+ 2023 16:54:46 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::ef6d:fdf6:352f:efd1]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::ef6d:fdf6:352f:efd1%3]) with mapi id 15.20.6178.037; Tue, 21 Mar 2023
+ 16:54:46 +0000
+Date:   Tue, 21 Mar 2023 13:54:45 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     "Liu, Yi L" <yi.l.liu@intel.com>
+Cc:     "Tian, Kevin" <kevin.tian@intel.com>,
+        "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
+        "joro@8bytes.org" <joro@8bytes.org>,
+        "robin.murphy@arm.com" <robin.murphy@arm.com>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "eric.auger@redhat.com" <eric.auger@redhat.com>,
+        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
+        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
+        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
+        "peterx@redhat.com" <peterx@redhat.com>,
+        "jasowang@redhat.com" <jasowang@redhat.com>,
+        "shameerali.kolothum.thodi@huawei.com" 
+        <shameerali.kolothum.thodi@huawei.com>,
+        "lulu@redhat.com" <lulu@redhat.com>,
+        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
+        "intel-gvt-dev@lists.freedesktop.org" 
+        <intel-gvt-dev@lists.freedesktop.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "Hao, Xudong" <xudong.hao@intel.com>,
+        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
+        "Xu, Terrence" <terrence.xu@intel.com>
+Subject: Re: [PATCH v6 21/24] vfio: Add VFIO_DEVICE_BIND_IOMMUFD
+Message-ID: <ZBnhVdmts1BlAiH1@nvidia.com>
+References: <ZBhpNyrBr9nm5Ae+@nvidia.com>
+ <9875e60c-68a7-b360-9d52-66d4915808a0@intel.com>
+ <ZBiU8KoSmiM+JkAw@nvidia.com>
+ <BN9PR11MB527605E6609222431DFB8AA58C819@BN9PR11MB5276.namprd11.prod.outlook.com>
+ <ZBmcbMuE4lyDIpT6@nvidia.com>
+ <DS0PR11MB7529569D40415AA283E1EA55C3819@DS0PR11MB7529.namprd11.prod.outlook.com>
+ <ZBnB/mOIvzYEPdsj@nvidia.com>
+ <DS0PR11MB752959B246705258EEC4109AC3819@DS0PR11MB7529.namprd11.prod.outlook.com>
+ <ZBnF+6mestV2tCiQ@nvidia.com>
+ <DS0PR11MB75292A7271BFF456B275B4DAC3819@DS0PR11MB7529.namprd11.prod.outlook.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <DS0PR11MB75292A7271BFF456B275B4DAC3819@DS0PR11MB7529.namprd11.prod.outlook.com>
+X-ClientProxiedBy: BL0PR02CA0043.namprd02.prod.outlook.com
+ (2603:10b6:207:3d::20) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.7
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|CY5PR12MB6059:EE_
+X-MS-Office365-Filtering-Correlation-Id: 6162ed36-a471-4478-9f39-08db2a2cfa0f
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: Rc3Hnnn/ioLVXQwfP4BbXOo83iXDH7P6AgNIyHhWV4yBIQ8mkroJJKGqnrfV7ApSIqJ8AIL7Y4lBhZPztWaPKsLXBJsL9q9E6/1xuBCG43ZGe2K+ronkd/G9Q7vPB2b7jxaI6SmTzh1RUVEu4Hm+tB2bFjqWQLYgFVPQa+VA/8gJVOd2rQTuzo8z/ef39+RfUnhht4ja6LaHCH1/oXB6Ru4LzsZ1xuvHDQ7X7iSqG5uuqzywL/ETHsrZXxybudxb1TEPKolED1cCr1ctSpmAOVGrrI96+f8rgD/wrphbxUMoaImSKkJwU+l8lr5aZMIngmfFNEdZGlIlusP59FY/ie1syqPrKcRCBUq6BbRCqpVaWf5ckeWus6zJ8OeGAruwguSmmMMixcpnlahrEFFAjiuHxXP+JBHSOUKT4PokJWii+FXH27NmgUTqvH5YhSpcuKsBNtyqQzeRty/Y6G9DrxlVxfCLBYIbuaDAkil3QsjLy8SbU8X0uA0EOI4twXsXWAAdL6A1679y4W8p9AtCJux7toE3wknwupWYfiJZ6BX1w47PGfTlGs2B2Jykz/uJ0/cPc7nluz41BDNCCooZQUE9S161m8lBs2Dtqs9jom0GFXbUtbJwzhzx65pQ2lZwM9jaAsHaoL4mptEU8KAOyg==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(4636009)(376002)(346002)(136003)(366004)(396003)(39860400002)(451199018)(2616005)(8936002)(6512007)(6506007)(7416002)(5660300002)(186003)(66946007)(478600001)(66556008)(2906002)(66476007)(86362001)(6916009)(4326008)(8676002)(41300700001)(36756003)(54906003)(38100700002)(26005)(6486002)(316002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?QdWC3h3Wjp+9qpDG0eLGEwlhMAHmbgKgA+dfHJHYzcmgCRlD9QxN6tXrJ3SS?=
+ =?us-ascii?Q?h3iwqcVEJHZPlyb3+TY3YQ2d4xL4akpno/KEXsgL0bzhY3uNP/8Oba24BBGx?=
+ =?us-ascii?Q?KLKlviQPU0EO1C02Co7RS2+Pgp5dVStftWsJKa8DPKWr1QdI1SWzWxCKaAPI?=
+ =?us-ascii?Q?8EHmFRO8RTnQ6Rfb3ret7JGrnBggNNeGl9bPcf96Ohyaw0PlVMZKueNm086n?=
+ =?us-ascii?Q?0WJR+HHZIFt8v0IG+vEvQ+0vqFOTlrlR5vL3k3wQ0tC40Nau4NG+MqReGJFl?=
+ =?us-ascii?Q?9CQvZW6u4Lxsja4YEvShY4SHtnixwAbHIbsxyprXgqBa64Z+YjGnrvzzXKLD?=
+ =?us-ascii?Q?nyAgxQS3/FOpDmuAeDgTQXQ+PsMMPCHAMss8aP0gTkjjkixb70FOgYrJOa5H?=
+ =?us-ascii?Q?VToFX661QW/4pOh7w0D6KSQ996gdZFx9YvOnU7GnydMChan89+nShg4sNmwg?=
+ =?us-ascii?Q?zl9V6Dk8k1mxeFg3YN2iXUquH70ztgSr816/qD28EYI1YwRstuVjYhaImKJm?=
+ =?us-ascii?Q?/Kk8lWoV9cy5kbEToviDxJNWpsOYFQkbf75li4jlzNbagA3iITV/OcH9AeRs?=
+ =?us-ascii?Q?FW8PBMoArw4eGDz2kAxn9PCECZaCJWatiYP0BxEA56UJ7PQRhcjUnU62jIs5?=
+ =?us-ascii?Q?v6slT7RfiCHkWpfwNscqJ9oDMFxcTkg9AIMOYaGDCHUlSmtk7ymkzyw5hDq/?=
+ =?us-ascii?Q?+VMXpUoCVyjaSVlxJ2+rU10vWtsPvlS6OPqNYmyxz+7UR1tBuUpoy7iVsxh3?=
+ =?us-ascii?Q?XsOg0xxqoQaBQ+bPcnej+WbEGMGMQqzeWIEaq+HHlVz6Wq2JuxbRkWoHNHS6?=
+ =?us-ascii?Q?/uqOjXehOn4rZ2/i7Yv79XZsgKyyziSSaktHI6jhmL0PoUNdOVmt3iBBe+/G?=
+ =?us-ascii?Q?5baJM167p0anj8KlWUS9DNpudDSMlthpkYNpq03vNt9nzebqAjUcBRmc9clt?=
+ =?us-ascii?Q?w5EcOVxyj+DJG/7odIZazzbxC4fEqfnOPOLImOGtpK0Or1AcpT4SG8xZitxK?=
+ =?us-ascii?Q?EKfps4OgMsy9IfEYb6wz5AFGBDTjXLXpKwcxnJEzS4vstmvkD5y7A1Fi3+Ew?=
+ =?us-ascii?Q?U9W0LmTbh4DujpsB18UR+jAi+ARugHd6qwmzknm4GiMBaPWFy7Dnhq4AkoiX?=
+ =?us-ascii?Q?3XgOt/W78hOu/y+/WWsxpzsfJTtyuuitHWfmbrQGWAV9kibS7reICMSvlLPQ?=
+ =?us-ascii?Q?Ej+NRwhJmvxKnk+QcNpTxzhED1y0DX6WSayLT6wmENubz2VX5tfkhIS679wg?=
+ =?us-ascii?Q?cXu7PNDlrg3U+ms5ykZj1OmBQIFeaHF05OoopaX/7nQwK7iJLFgRYyuFHSAw?=
+ =?us-ascii?Q?IdwSyOflySY9J3HHIF6QW6ZVQ9b3BgDz7CDc7A3bnQDloSK/QoHHUrucjnL5?=
+ =?us-ascii?Q?VrqQajybPcWIQerurDAnAOXPlL8OgywIqs2GHe1I1UOXnEaZ3mzWVtrsQQi8?=
+ =?us-ascii?Q?hhZQHKbHJHQlrmpTSklVz+yk+5gf0q+fMPOJQfr+BkxiPQaFBDgEfWRpROrF?=
+ =?us-ascii?Q?49BuMWPNtMuhKafQocVmhjWoGdkhTD9CmWEAsLMHmnKB1uhoxMS40L2gnQJK?=
+ =?us-ascii?Q?7Qhe4KOns91tJVHo1CEb29H30CwJ/gTNdzq7EPy6?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6162ed36-a471-4478-9f39-08db2a2cfa0f
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Mar 2023 16:54:46.7187
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: uqpZ5DTB0zVKq41F1/hKEbZJ0AqG54JgvlEUtQ6NrHDv/s8zrebEQwIXEv/HPPa5
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY5PR12MB6059
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Mar 21 2023, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+On Tue, Mar 21, 2023 at 03:10:50PM +0000, Liu, Yi L wrote:
+> > From: Jason Gunthorpe <jgg@nvidia.com>
+> > Sent: Tuesday, March 21, 2023 10:58 PM
+> > 
+> > On Tue, Mar 21, 2023 at 02:51:20PM +0000, Liu, Yi L wrote:
+> > > > But still, this check should be done at device creation time just like
+> > > > in group mode, not during each attach call.
+> > >
+> > > Seems like requiring a noiommu_capable flag in vfio_device. We
+> > > set this flag only when the vfio_group->type==VFIO_NO_IOMMU
+> > > or no real iommu_group (for the case in which vfio group code is
+> > > compiled out). Perhaps the below check should be added as well.
+> > > Then in the time of bind, just check the noiommu_capable flag
+> > > and capable(CAP_SYS_RAWIO).
+> > >
+> > > if (!IS_ENABLED(CONFIG_VFIO_NOIOMMU) || !vfio_noiommu)
+> > 
+> > Yes, and also only for physical devices
+> 
+> Sure. BTW. in the time of creation, there is no vfio group yet. So may
+> just check if the device has a real iommu_group. Another alternative
+> is to set this flag at the time of vfio_device registration. Physical
+> device driver and emulated device driver uses different register APIs.
+> Hence they can be distinguished easily.
 
-> On Tue, Mar 21, 2023 at 04:30:57PM +0100, Cornelia Huck wrote:
->> On Tue, Mar 21 2023, Viktor Prutyanov <viktor@daynix.com> wrote:
->>=20
->> > On Tue, Mar 21, 2023 at 5:59=E2=80=AFPM Cornelia Huck <cohuck@redhat.c=
-om> wrote:
->> >>
->> >> On Tue, Mar 21 2023, Viktor Prutyanov <viktor@daynix.com> wrote:
->> >>
->> >> > According to VirtIO spec v1.2, VIRTIO_F_NOTIFICATION_DATA feature
->> >> > indicates that the driver passes extra data along with the queue
->> >> > notifications.
->> >> >
->> >> > In a split queue case, the extra data is 16-bit available index. In=
- a
->> >> > packed queue case, the extra data is 1-bit wrap counter and 15-bit
->> >> > available index.
->> >> >
->> >> > Add support for this feature for MMIO, PCI and channel I/O transpor=
-ts.
->> >> >
->> >> > Signed-off-by: Viktor Prutyanov <viktor@daynix.com>
->> >> > ---
->> >> >  v3: support feature in virtio_ccw, remove VM_NOTIFY, use avail_idx=
-_shadow,
->> >> >     remove byte swap, rename to vring_notification_data
->> >> >  v2: reject the feature in virtio_ccw, replace __le32 with u32
->> >> >
->> >> >  drivers/s390/virtio/virtio_ccw.c   |  4 +++-
->> >> >  drivers/virtio/virtio_mmio.c       | 14 +++++++++++++-
->> >> >  drivers/virtio/virtio_pci_common.c | 10 ++++++++++
->> >> >  drivers/virtio/virtio_pci_common.h |  4 ++++
->> >> >  drivers/virtio/virtio_pci_legacy.c |  2 +-
->> >> >  drivers/virtio/virtio_pci_modern.c |  2 +-
->> >> >  drivers/virtio/virtio_ring.c       | 17 +++++++++++++++++
->> >> >  include/linux/virtio_ring.h        |  2 ++
->> >> >  include/uapi/linux/virtio_config.h |  6 ++++++
->> >> >  9 files changed, 57 insertions(+), 4 deletions(-)
->> >> >
->> >> > diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio=
-/virtio_ccw.c
->> >> > index 954fc31b4bc7..c33172c5b8d5 100644
->> >> > --- a/drivers/s390/virtio/virtio_ccw.c
->> >> > +++ b/drivers/s390/virtio/virtio_ccw.c
->> >> > @@ -396,13 +396,15 @@ static bool virtio_ccw_kvm_notify(struct virt=
-queue *vq)
->> >> >       struct virtio_ccw_vq_info *info =3D vq->priv;
->> >> >       struct virtio_ccw_device *vcdev;
->> >> >       struct subchannel_id schid;
->> >> > +     u32 data =3D __virtio_test_bit(vq->vdev, VIRTIO_F_NOTIFICATIO=
-N_DATA) ?
->> >> > +                     vring_notification_data(vq) : vq->index;
->> >> >
->> >> >       vcdev =3D to_vc_device(info->vq->vdev);
->> >> >       ccw_device_get_schid(vcdev->cdev, &schid);
->> >> >       BUILD_BUG_ON(sizeof(struct subchannel_id) !=3D sizeof(unsigne=
-d int));
->> >> >       info->cookie =3D kvm_hypercall3(KVM_S390_VIRTIO_CCW_NOTIFY,
->> >> >                                     *((unsigned int *)&schid),
->> >> > -                                   vq->index, info->cookie);
->> >> > +                                   data, info->cookie);
->> >> >       if (info->cookie < 0)
->> >> >               return false;
->> >> >       return true;
->> >> > diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_m=
-mio.c
->> >> > index 3ff746e3f24a..7c16e622c33d 100644
->> >> > --- a/drivers/virtio/virtio_mmio.c
->> >> > +++ b/drivers/virtio/virtio_mmio.c
->> >> > @@ -285,6 +285,16 @@ static bool vm_notify(struct virtqueue *vq)
->> >> >       return true;
->> >> >  }
->> >> >
->> >> > +static bool vm_notify_with_data(struct virtqueue *vq)
->> >> > +{
->> >> > +     struct virtio_mmio_device *vm_dev =3D to_virtio_mmio_device(v=
-q->vdev);
->> >> > +     u32 data =3D vring_notification_data(vq);
->> >> > +
->> >> > +     writel(data, vm_dev->base + VIRTIO_MMIO_QUEUE_NOTIFY);
->> >>
->> >> Can't you simply use the same method as for ccw, i.e. use one callback
->> >> function that simply writes one value or the other?
->> >
->> > The idea is to eliminate the conditional branch induced by feature bit
->> > testing from the notification function. Probably, this can be done in
->> > the same way in ccw.
->>=20
->> Hm, how noticable is that branch? IOW, is it worth making the code less
->> readable for this?
->
-> I'm not sure but these things add up. I'm with Viktor here let's just
-> avoid the branch and not worry about whether it's important or not.
-> So let's use the same thing here then? And we can use a subfunction
-> to avoid code duplication.
+Yes, at registration. In group mode it should copy the flag from the
+vfio_group, in non-group mode it should query the iommu_group
 
-Ok, let's do it that way.
-
->
->> (In any case, all transports probably should use the same method.)
-
+Jason
