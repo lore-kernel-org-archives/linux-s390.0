@@ -2,98 +2,235 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F18AC76195
-	for <linux-s390@archiver.kernel.org>; Wed, 22 Mar 2023 16:43:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F230C77B72
+	for <linux-s390@archiver.kernel.org>; Wed, 22 Mar 2023 17:03:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229757AbjCVQnQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 22 Mar 2023 12:43:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34392 "EHLO
+        id S230233AbjCVRDQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 22 Mar 2023 13:03:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230365AbjCVQnL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Mar 2023 12:43:11 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E406637E2
-        for <linux-s390@vger.kernel.org>; Wed, 22 Mar 2023 09:42:23 -0700 (PDT)
+        with ESMTP id S229784AbjCVRDN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Mar 2023 13:03:13 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD5FA5ADEE
+        for <linux-s390@vger.kernel.org>; Wed, 22 Mar 2023 10:02:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1679503343;
+        s=mimecast20190719; t=1679504484;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=cC9A56nYy1+m5j88UXEHoA+LJcmsoLgXsOwYg6hVvpA=;
-        b=DzfXOTfBRAJRoVK3os1sIvXtrx58FinW3qceRyD0dc8uFg/cLtcnaEtd1L50LI1696htxE
-        9LWC2100atSIHP3MCJOCN5SY/Vo3FmE6paLos+E8Vb+REB/b1fYQg4OG84AD9R2Py6W78L
-        xSBJnzkf2xyq/D7Ssh9YKCWsk/WQyxE=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-435-5HfkHJV8NauG4Jivpvuunw-1; Wed, 22 Mar 2023 12:42:22 -0400
-X-MC-Unique: 5HfkHJV8NauG4Jivpvuunw-1
-Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 56DB02823822;
-        Wed, 22 Mar 2023 16:42:21 +0000 (UTC)
-Received: from localhost (dhcp-192-239.str.redhat.com [10.33.192.239])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 1CD47492C13;
-        Wed, 22 Mar 2023 16:42:20 +0000 (UTC)
-From:   Cornelia Huck <cohuck@redhat.com>
-To:     "Michael S. Tsirkin" <mst@redhat.com>,
-        Viktor Prutyanov <viktor@daynix.com>
-Cc:     jasowang@redhat.com, pasic@linux.ibm.com, farman@linux.ibm.com,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        linux-kernel@vger.kernel.org, yan@daynix.com
-Subject: Re: [PATCH v4] virtio: add VIRTIO_F_NOTIFICATION_DATA feature support
-In-Reply-To: <20230322123121-mutt-send-email-mst@kernel.org>
-Organization: Red Hat GmbH
-References: <20230322141031.2211141-1-viktor@daynix.com>
- <20230322123121-mutt-send-email-mst@kernel.org>
-User-Agent: Notmuch/0.37 (https://notmuchmail.org)
-Date:   Wed, 22 Mar 2023 17:42:20 +0100
-Message-ID: <87mt44hh5f.fsf@redhat.com>
+        bh=2ZS63eR35hQQpuztlWGnGcv/jaBVlYMjTvbdWWfPWAY=;
+        b=R3wXvEy72H8DcVvRWZo9a//6v+b5En0EzBxfc4xHkMLClw1tc78evZr3GgYrWXhBrKPOXg
+        PEwV9S3IIQ+BoQp1ZiT51WCfYq0YSGMMCv6TBC3xop+CgRumdNECwRpYwXSVkF+1+n4K0G
+        +R5bCoOdVHpe8s7wie3+uVSMT3ivBYQ=
+Received: from mail-oi1-f197.google.com (mail-oi1-f197.google.com
+ [209.85.167.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-118-LjS_0cc_N8q5tU5lIp7kpA-1; Wed, 22 Mar 2023 13:01:22 -0400
+X-MC-Unique: LjS_0cc_N8q5tU5lIp7kpA-1
+Received: by mail-oi1-f197.google.com with SMTP id p203-20020acad8d4000000b00386dbaa5232so5720287oig.4
+        for <linux-s390@vger.kernel.org>; Wed, 22 Mar 2023 10:01:22 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1679504482;
+        h=mime-version:message-id:date:references:in-reply-to:subject:cc:to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=2ZS63eR35hQQpuztlWGnGcv/jaBVlYMjTvbdWWfPWAY=;
+        b=s7ji8iqoY8EOlrX7haqASYdscCTD8pOIaqqkw3Rw80Fv1Vf5/bBViEX+9ZowyP73GH
+         +KboR/C5ZO2MuIocaCKDIZDpdfg1BTa3zcVFoaBL74lAV8YB8A0rbsDnF/6MsA13MwTk
+         qz+L4UXzlsIvxy6QlXd89gidXjnQTzRYaTALg/fRqJ95qUL/FJSdMFAwpwztXwWNvRZn
+         ImOcxfI0/NNSTyCCCue5bh1O/rb8ha9kpMCtMgNxkz3eHj020K96ErzlHHk6RzX+UHbQ
+         vLQcYxsoIqHei6j4U5T+6st9ndlXZVpsbGSZvait6TFR3SV5Qsp1G919P8H+PDeiVTOZ
+         q66g==
+X-Gm-Message-State: AO0yUKXl5quGDTUhHQmXL5swzBxhC/H2aDV673Ug0ltljN3xSsaph4xa
+        wyrw1LinWlVlnWzJ+pw2jW48IcxveKxYhbYZbia0Z07TjN1VjAUlytXqddcZV3E4MKlCNQrJskn
+        Jc1aRLeHmWgWDHdrlfXUzMA==
+X-Received: by 2002:a05:6830:1397:b0:69b:c665:95ef with SMTP id d23-20020a056830139700b0069bc66595efmr1849089otq.32.1679504481961;
+        Wed, 22 Mar 2023 10:01:21 -0700 (PDT)
+X-Google-Smtp-Source: AK7set9OhxWG20qH1i/Yp6i2el5aA4zIJA9CTIhUo/MbvkBAyasdde0EdhDBEsgwB6QV+kPj7JTH5w==
+X-Received: by 2002:a05:6830:1397:b0:69b:c665:95ef with SMTP id d23-20020a056830139700b0069bc66595efmr1849034otq.32.1679504481408;
+        Wed, 22 Mar 2023 10:01:21 -0700 (PDT)
+Received: from vschneid.remote.csb ([154.57.232.159])
+        by smtp.gmail.com with ESMTPSA id g19-20020a05620a40d300b007290be5557bsm11733172qko.38.2023.03.22.10.01.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 22 Mar 2023 10:01:20 -0700 (PDT)
+From:   Valentin Schneider <vschneid@redhat.com>
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
+        openrisc@lists.librecores.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org,
+        x86@kernel.org, "Paul E. McKenney" <paulmck@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Marcelo Tosatti <mtosatti@redhat.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Marc Zyngier <maz@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Guo Ren <guoren@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH v5 7/7] sched, smp: Trace smp callback causing an IPI
+In-Reply-To: <20230322140434.GC2357380@hirez.programming.kicks-ass.net>
+References: <20230307143558.294354-1-vschneid@redhat.com>
+ <20230307143558.294354-8-vschneid@redhat.com>
+ <20230322095329.GS2017917@hirez.programming.kicks-ass.net>
+ <xhsmhmt45c703.mognet@vschneid.remote.csb>
+ <20230322140434.GC2357380@hirez.programming.kicks-ass.net>
+Date:   Wed, 22 Mar 2023 17:01:13 +0000
+Message-ID: <xhsmhjzz8d8km.mognet@vschneid.remote.csb>
 MIME-Version: 1.0
 Content-Type: text/plain
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.9
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Mar 22 2023, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-
-> On Wed, Mar 22, 2023 at 05:10:31PM +0300, Viktor Prutyanov wrote:
->> According to VirtIO spec v1.2, VIRTIO_F_NOTIFICATION_DATA feature
->> indicates that the driver passes extra data along with the queue
->> notifications.
->> 
->> In a split queue case, the extra data is 16-bit available index. In a
->> packed queue case, the extra data is 1-bit wrap counter and 15-bit
->> available index.
->> 
->> Add support for this feature for MMIO, channel I/O and modern PCI
->> transports.
->> 
->> Signed-off-by: Viktor Prutyanov <viktor@daynix.com>
->> ---
->>  v4: remove VP_NOTIFY macro and legacy PCI support, add
->>     virtio_ccw_kvm_notify_with_data to virtio_ccw
->>  v3: support feature in virtio_ccw, remove VM_NOTIFY, use avail_idx_shadow,
->>     remove byte swap, rename to vring_notification_data
->>  v2: reject the feature in virtio_ccw, replace __le32 with u32
->> 
->>  Tested with disabled VIRTIO_F_NOTIFICATION_DATA on qemu-system-s390x
->>  (virtio-blk-ccw), qemu-system-riscv64 (virtio-blk-device,
->>  virtio-rng-device), qemu-system-x86_64 (virtio-blk-pci, virtio-net-pci)
->>  to make sure nothing is broken.
->>  Tested with enabled VIRTIO_F_NOTIFICATION_DATA on 64-bit RISC-V Linux
->>  and my hardware implementation of virtio-rng.
+On 22/03/23 15:04, Peter Zijlstra wrote:
+> On Wed, Mar 22, 2023 at 12:20:28PM +0000, Valentin Schneider wrote:
+>> On 22/03/23 10:53, Peter Zijlstra wrote:
 >
-> what did you test? virtio pci? mmio? guessing not ccw...
+>> > Hurmph... so we only really consume @func when we IPI. Would it not be
+>> > more useful to trace this thing for *every* csd enqeued?
+>>
+>> It's true that any CSD enqueued on that CPU's call_single_queue in the
+>> [first CSD llist_add()'ed, IPI IRQ hits] timeframe is a potential source of
+>> interference.
+>>
+>> However, can we be sure that first CSD isn't an indirect cause for the
+>> following ones? say the target CPU exits RCU EQS due to the IPI, there's a
+>> bit of time before it gets to flush_smp_call_function_queue() where some other CSD
+>> could be enqueued *because* of that change in state.
+>>
+>> I couldn't find a easy example of that, I might be biased as this is where
+>> I'd like to go wrt IPI'ing isolated CPUs in usermode. But regardless, when
+>> correlating an IPI IRQ with its source, we'd always have to look at the
+>> first CSD in that CSD stack.
 >
-> Cornelia could you hack up something to quickly test ccw?
+> So I was thinking something like this:
+>
+> ---
+> Subject: trace,smp: Trace all smp_function_call*() invocations
+> From: Peter Zijlstra <peterz@infradead.org>
+> Date: Wed Mar 22 14:58:36 CET 2023
+>
+> (Ab)use the trace_ipi_send_cpu*() family to trace all
+> smp_function_call*() invocations, not only those that result in an
+> actual IPI.
+>
+> The queued entries log their callback function while the actual IPIs
+> are traced on generic_smp_call_function_single_interrupt().
+>
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> ---
+>  kernel/smp.c |   58 ++++++++++++++++++++++++++++++----------------------------
+>  1 file changed, 30 insertions(+), 28 deletions(-)
+>
+> --- a/kernel/smp.c
+> +++ b/kernel/smp.c
+> @@ -106,18 +106,20 @@ void __init call_function_init(void)
+>  }
+>
+>  static __always_inline void
+> -send_call_function_single_ipi(int cpu, smp_call_func_t func)
+> +send_call_function_single_ipi(int cpu)
+>  {
+>       if (call_function_single_prep_ipi(cpu)) {
+> -		trace_ipi_send_cpu(cpu, _RET_IP_, func);
+> +		trace_ipi_send_cpu(cpu, _RET_IP_,
+> +				   generic_smp_call_function_single_interrupt);
 
-Hm, I'm not entirely sure how notification data is supposed to be used
-in real life -- Viktor, what is your virtio-rng implementation doing;
-can this be hacked into all transports?
+Hm, this does get rid of the func being passed down the helpers, but this
+means the trace events are now stateful, i.e. I need the first and last
+events in a CSD stack to figure out which one actually caused the IPI.
 
-(Also, if the other ccw folks have something handy, please speak up :)
+It also requires whoever is looking at the trace to be aware of which IPIs
+are attached to a CSD, and which ones aren't. ATM that's only the resched
+IPI, but per the cover letter there's more to come (e.g. tick_broadcast()
+for arm64/riscv and a few others). For instance:
+
+       hackbench-157   [001]    10.894320: ipi_send_cpu:         cpu=3 callsite=check_preempt_curr+0x37 callback=0x0
+       hackbench-157   [001]    10.895068: ipi_send_cpu:         cpu=3 callsite=try_to_wake_up+0x29e callback=sched_ttwu_pending+0x0
+       hackbench-157   [001]    10.895068: ipi_send_cpu:         cpu=3 callsite=try_to_wake_up+0x29e callback=generic_smp_call_function_single_interrupt+0x0
+
+That first one sent a RESCHEDULE IPI, the second one a CALL_FUNCTION one,
+but you really have to know what you're looking at...
+
+Are you worried about the @func being pushed down? Staring at x86 asm is
+not good for the soul, but AFAICT this does cause an extra register to be
+popped in the prologue because all of the helpers are __always_inline, so
+both paths of the static key(s) are in the same stackframe.
+
+I can "improve" this with:
+
+---
+diff --git a/kernel/smp.c b/kernel/smp.c
+index 5cd680a7e78ef..55f120dae1713 100644
+--- a/kernel/smp.c
++++ b/kernel/smp.c
+@@ -511,6 +511,26 @@ raw_smp_call_single_queue(int cpu, struct llist_node *node, smp_call_func_t func
+ 
+ static DEFINE_PER_CPU_SHARED_ALIGNED(call_single_data_t, csd_data);
+ 
++static noinline void __smp_call_single_queue_trace(int cpu, struct llist_node *node)
++{
++	call_single_data_t *csd;
++	smp_call_func_t func;
++
++
++	/*
++	 * We have to check the type of the CSD before queueing it, because
++	 * once queued it can have its flags cleared by
++	 *   flush_smp_call_function_queue()
++	 * even if we haven't sent the smp_call IPI yet (e.g. the stopper
++	 * executes migration_cpu_stop() on the remote CPU).
++	 */
++	csd = container_of(node, call_single_data_t, node.llist);
++	func = CSD_TYPE(csd) == CSD_TYPE_TTWU ?
++		sched_ttwu_pending : csd->func;
++
++	raw_smp_call_single_queue(cpu, node, func);
++}
++
+ void __smp_call_single_queue(int cpu, struct llist_node *node)
+ {
+ #ifdef CONFIG_CSD_LOCK_WAIT_DEBUG
+@@ -525,25 +545,10 @@ void __smp_call_single_queue(int cpu, struct llist_node *node)
+ 		}
+ 	}
+ #endif
+-	/*
+-	 * We have to check the type of the CSD before queueing it, because
+-	 * once queued it can have its flags cleared by
+-	 *   flush_smp_call_function_queue()
+-	 * even if we haven't sent the smp_call IPI yet (e.g. the stopper
+-	 * executes migration_cpu_stop() on the remote CPU).
+-	 */
+-	if (trace_ipi_send_cpumask_enabled()) {
+-		call_single_data_t *csd;
+-		smp_call_func_t func;
+-
+-		csd = container_of(node, call_single_data_t, node.llist);
+-		func = CSD_TYPE(csd) == CSD_TYPE_TTWU ?
+-			sched_ttwu_pending : csd->func;
+-
+-		raw_smp_call_single_queue(cpu, node, func);
+-	} else {
++	if (trace_ipi_send_cpumask_enabled())
++		__smp_call_single_queue_trace(cpu, node);
++	else
+ 		raw_smp_call_single_queue(cpu, node, NULL);
+-	}
+ }
+ 
+ /*
 
