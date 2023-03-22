@@ -2,160 +2,97 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 97B9BC6FD1F
-	for <linux-s390@archiver.kernel.org>; Wed, 22 Mar 2023 14:22:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 557E7C6FD1C
+	for <linux-s390@archiver.kernel.org>; Wed, 22 Mar 2023 14:56:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231422AbjCVOWo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 22 Mar 2023 10:22:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34128 "EHLO
+        id S230093AbjCVO4M (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 22 Mar 2023 10:56:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231448AbjCVOWn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Mar 2023 10:22:43 -0400
-Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC56959ED;
-        Wed, 22 Mar 2023 07:22:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1679494946; x=1711030946;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=StLSUG9jSdG4qzMIdPRlmgOzudWc7UibT0yv+xP5TNI=;
-  b=lknA6XlkU4H+l8j21jG53FbM8/Pp292PGvpmqyKXQQA5/FRi5SCOksvP
-   zdLlrPQCO2MjnjwE9Cr6UJsMg/tRq2K7t2ojowYqwlIcj7GBb5A5VlHqw
-   74VEtHV7GxJxGQI66iBeJfKL3qlfVcYbELxw7CGcM+hwngjUJKV+gft3Z
-   kzCIz/kC62l9C2yZNZXksKElMWlobwO+D71hcjLc4nLavp2ZaZFXhh6jo
-   pB87uiAT5D10V9fS7UKQYG/mf2/CcB0pkcCgMY/jESIpug1Th5AUOKbco
-   xhyMvEI+lBg9B5dBECd7M8giV7SQPNFQT7xp+HDzGFZCe9OUPh/et7ysE
-   w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10657"; a="340760576"
-X-IronPort-AV: E=Sophos;i="5.98,282,1673942400"; 
-   d="scan'208";a="340760576"
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Mar 2023 07:22:26 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10657"; a="927846116"
-X-IronPort-AV: E=Sophos;i="5.98,282,1673942400"; 
-   d="scan'208";a="927846116"
-Received: from yilunxu-optiplex-7050.sh.intel.com (HELO localhost) ([10.239.159.165])
-  by fmsmga006.fm.intel.com with ESMTP; 22 Mar 2023 07:22:20 -0700
-Date:   Wed, 22 Mar 2023 22:10:55 +0800
-From:   Xu Yilun <yilun.xu@intel.com>
-To:     Yi Liu <yi.l.liu@intel.com>
-Cc:     alex.williamson@redhat.com, jgg@nvidia.com, kevin.tian@intel.com,
-        joro@8bytes.org, robin.murphy@arm.com, cohuck@redhat.com,
-        eric.auger@redhat.com, nicolinc@nvidia.com, kvm@vger.kernel.org,
-        mjrosato@linux.ibm.com, chao.p.peng@linux.intel.com,
-        yi.y.sun@linux.intel.com, peterx@redhat.com, jasowang@redhat.com,
-        shameerali.kolothum.thodi@huawei.com, lulu@redhat.com,
-        suravee.suthikulpanit@amd.com, intel-gvt-dev@lists.freedesktop.org,
-        intel-gfx@lists.freedesktop.org, linux-s390@vger.kernel.org,
-        xudong.hao@intel.com, yan.y.zhao@intel.com, terrence.xu@intel.com
-Subject: Re: [PATCH v6 05/24] kvm/vfio: Accept vfio device file from userspace
-Message-ID: <ZBsMb3L4LmmK5tHW@yilunxu-OptiPlex-7050>
-References: <20230308132903.465159-1-yi.l.liu@intel.com>
- <20230308132903.465159-6-yi.l.liu@intel.com>
+        with ESMTP id S230377AbjCVOzx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Mar 2023 10:55:53 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB94910F0;
+        Wed, 22 Mar 2023 07:55:27 -0700 (PDT)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32MEs5ck003579;
+        Wed, 22 Mar 2023 14:55:27 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
+ mime-version : content-transfer-encoding : in-reply-to : references : to :
+ from : cc : subject : message-id : date; s=pp1;
+ bh=5fDLLt8J1e7OHIx2ghp13uXRKz4Fe8cG9y/Q0tF7TLc=;
+ b=Dvi+JiY9J7pYkLCSQJIjHIf7UcOTV/pSkbDvxO+eiArX8dZUkRlzC90jd8evFFjOuANm
+ Q/SQ5Yna5sRe0fIkIlH4CtU1RKeq2N0MJ3q0iODQYekZAbcujECvWg/Vz5XH76u1zyKK
+ v1aSJH/5BktA/nlxk5U1RWI42fkJQCCWeFz+veGXni6j+Bl7K6aR7WHPCvR8vSWLEi9a
+ tZ59ReudySLUXsluHNKRA4DsLBJ+6nmvrFUZ2D4QXdggY4kJ+YHSzRsjjU6awNfPDG2G
+ bUOeMTHoGiW55cZ4rnI7SJW44dViXAAqGRjJkKqVeoVBTfy8CuFCIzkRZyB+0wvmAjBb Tw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pg3uj81c2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 22 Mar 2023 14:55:26 +0000
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32MEsE76003918;
+        Wed, 22 Mar 2023 14:55:26 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pg3uj81b8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 22 Mar 2023 14:55:26 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32M16TLw006837;
+        Wed, 22 Mar 2023 14:55:24 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+        by ppma03fra.de.ibm.com (PPS) with ESMTPS id 3pd4x652t3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 22 Mar 2023 14:55:24 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32MEtKVJ25690512
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 22 Mar 2023 14:55:20 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 920F62004B;
+        Wed, 22 Mar 2023 14:55:20 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7781620043;
+        Wed, 22 Mar 2023 14:55:20 +0000 (GMT)
+Received: from t14-nrb (unknown [9.152.224.93])
+        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 22 Mar 2023 14:55:20 +0000 (GMT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230308132903.465159-6-yi.l.liu@intel.com>
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20230301132638.3336040-1-nsg@linux.ibm.com>
+References: <20230301132638.3336040-1-nsg@linux.ibm.com>
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
+        Thomas Huth <thuth@redhat.com>
+From:   Nico Boehr <nrb@linux.ibm.com>
+Cc:     Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [kvm-unit-tests PATCH v1] s390x: spec_ex: Add test for misaligned load
+Message-ID: <167949692024.87786.13003392018448803647@t14-nrb>
+User-Agent: alot/0.8.1
+Date:   Wed, 22 Mar 2023 15:55:20 +0100
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Xo0wWEwgsdGlNE67Dz5HFCeub3mIoArH
+X-Proofpoint-ORIG-GUID: My_7x0e-gthnm9KwlWKnHZ1zCxWPiMXJ
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-03-22_11,2023-03-22_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 spamscore=0
+ impostorscore=0 suspectscore=0 lowpriorityscore=0 mlxlogscore=999
+ phishscore=0 priorityscore=1501 clxscore=1015 adultscore=0 bulkscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2303150002 definitions=main-2303220106
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2023-03-08 at 05:28:44 -0800, Yi Liu wrote:
-> This defines KVM_DEV_VFIO_FILE* and make alias with KVM_DEV_VFIO_GROUP*.
-> Old userspace uses KVM_DEV_VFIO_GROUP* works as well.
-> 
-> Signed-off-by: Yi Liu <yi.l.liu@intel.com>
-> Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-> Tested-by: Terrence Xu <terrence.xu@intel.com>
-> Tested-by: Nicolin Chen <nicolinc@nvidia.com>
-> Tested-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> ---
->  Documentation/virt/kvm/devices/vfio.rst | 52 +++++++++++++++++--------
->  include/uapi/linux/kvm.h                | 16 ++++++--
->  virt/kvm/vfio.c                         | 16 ++++----
->  3 files changed, 55 insertions(+), 29 deletions(-)
-> 
-> diff --git a/Documentation/virt/kvm/devices/vfio.rst b/Documentation/virt/kvm/devices/vfio.rst
-> index 79b6811bb4f3..5b05b48abaab 100644
-> --- a/Documentation/virt/kvm/devices/vfio.rst
-> +++ b/Documentation/virt/kvm/devices/vfio.rst
-> @@ -9,24 +9,37 @@ Device types supported:
->    - KVM_DEV_TYPE_VFIO
->  
->  Only one VFIO instance may be created per VM.  The created device
-> -tracks VFIO groups in use by the VM and features of those groups
-> -important to the correctness and acceleration of the VM.  As groups
-> -are enabled and disabled for use by the VM, KVM should be updated
-> -about their presence.  When registered with KVM, a reference to the
-> -VFIO-group is held by KVM.
-> +tracks VFIO files (group or device) in use by the VM and features
-> +of those groups/devices important to the correctness and acceleration
-> +of the VM.  As groups/devices are enabled and disabled for use by the
-> +VM, KVM should be updated about their presence.  When registered with
-> +KVM, a reference to the VFIO file is held by KVM.
->  
->  Groups:
-> -  KVM_DEV_VFIO_GROUP
-> -
-> -KVM_DEV_VFIO_GROUP attributes:
-> -  KVM_DEV_VFIO_GROUP_ADD: Add a VFIO group to VFIO-KVM device tracking
-> -	kvm_device_attr.addr points to an int32_t file descriptor
-> -	for the VFIO group.
-> -  KVM_DEV_VFIO_GROUP_DEL: Remove a VFIO group from VFIO-KVM device tracking
-> -	kvm_device_attr.addr points to an int32_t file descriptor
-> -	for the VFIO group.
-> -  KVM_DEV_VFIO_GROUP_SET_SPAPR_TCE: attaches a guest visible TCE table
-> +  KVM_DEV_VFIO_FILE
-> +	alias: KVM_DEV_VFIO_GROUP
-> +
-> +KVM_DEV_VFIO_FILE attributes:
-> +  KVM_DEV_VFIO_FILE_ADD: Add a VFIO file (group/device) to VFIO-KVM device
-> +	tracking
-> +
-> +	alias: KVM_DEV_VFIO_GROUP_ADD
-> +
-> +	kvm_device_attr.addr points to an int32_t file descriptor for the
-> +	VFIO file.
+Quoting Nina Schoetterl-Glausch (2023-03-01 14:26:38)
+> The operand of LOAD RELATIVE LONG must be word aligned, otherwise a
+> specification exception occurs. Test that this exception occurs.
+>=20
+> Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
 
-A blank line here to be consistent with other attibutes.
-
-> +  KVM_DEV_VFIO_FILE_DEL: Remove a VFIO file (group/device) from VFIO-KVM
-> +	device tracking
-> +
-> +	alias: KVM_DEV_VFIO_GROUP_DEL
-> +
-> +	kvm_device_attr.addr points to an int32_t file descriptor for the
-> +	VFIO file.
-> +
-> +  KVM_DEV_VFIO_FILE_SET_SPAPR_TCE: attaches a guest visible TCE table
->  	allocated by sPAPR KVM.
-> +
-> +	alias: KVM_DEV_VFIO_GROUP_SET_SPAPR_TCE
-> +
->  	kvm_device_attr.addr points to a struct::
->  
->  		struct kvm_vfio_spapr_tce {
-> @@ -40,9 +53,14 @@ KVM_DEV_VFIO_GROUP attributes:
->  	- @tablefd is a file descriptor for a TCE table allocated via
->  	  KVM_CREATE_SPAPR_TCE.
->  
-> +	only accepts vfio group file as SPAPR has no iommufd support
-> +
->  ::
->  
-> -The GROUP_ADD operation above should be invoked prior to accessing the
-> +The FILE/GROUP_ADD operation above should be invoked prior to accessing the
->  device file descriptor via VFIO_GROUP_GET_DEVICE_FD in order to support
->  drivers which require a kvm pointer to be set in their .open_device()
-> -callback.
-> +callback.  It is the same for device file descriptor via character device
-> +open which gets device access via VFIO_DEVICE_BIND_IOMMUFD.  For such file
-> +descriptors, FILE_ADD should be invoked before VFIO_DEVICE_BIND_IOMMUFD
-> +to support the drivers mentioned in piror sentence as well.
-
-s/piror/prior
-
-Thanks,
-Yilun
+Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
