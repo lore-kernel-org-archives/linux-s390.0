@@ -2,235 +2,444 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F230C77B72
-	for <linux-s390@archiver.kernel.org>; Wed, 22 Mar 2023 17:03:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A3F6FC6FD1F
+	for <linux-s390@archiver.kernel.org>; Wed, 22 Mar 2023 17:10:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230233AbjCVRDQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 22 Mar 2023 13:03:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54764 "EHLO
+        id S229863AbjCVRKA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 22 Mar 2023 13:10:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229784AbjCVRDN (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Mar 2023 13:03:13 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD5FA5ADEE
-        for <linux-s390@vger.kernel.org>; Wed, 22 Mar 2023 10:02:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1679504484;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=2ZS63eR35hQQpuztlWGnGcv/jaBVlYMjTvbdWWfPWAY=;
-        b=R3wXvEy72H8DcVvRWZo9a//6v+b5En0EzBxfc4xHkMLClw1tc78evZr3GgYrWXhBrKPOXg
-        PEwV9S3IIQ+BoQp1ZiT51WCfYq0YSGMMCv6TBC3xop+CgRumdNECwRpYwXSVkF+1+n4K0G
-        +R5bCoOdVHpe8s7wie3+uVSMT3ivBYQ=
-Received: from mail-oi1-f197.google.com (mail-oi1-f197.google.com
- [209.85.167.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-118-LjS_0cc_N8q5tU5lIp7kpA-1; Wed, 22 Mar 2023 13:01:22 -0400
-X-MC-Unique: LjS_0cc_N8q5tU5lIp7kpA-1
-Received: by mail-oi1-f197.google.com with SMTP id p203-20020acad8d4000000b00386dbaa5232so5720287oig.4
-        for <linux-s390@vger.kernel.org>; Wed, 22 Mar 2023 10:01:22 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679504482;
-        h=mime-version:message-id:date:references:in-reply-to:subject:cc:to
-         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=2ZS63eR35hQQpuztlWGnGcv/jaBVlYMjTvbdWWfPWAY=;
-        b=s7ji8iqoY8EOlrX7haqASYdscCTD8pOIaqqkw3Rw80Fv1Vf5/bBViEX+9ZowyP73GH
-         +KboR/C5ZO2MuIocaCKDIZDpdfg1BTa3zcVFoaBL74lAV8YB8A0rbsDnF/6MsA13MwTk
-         qz+L4UXzlsIvxy6QlXd89gidXjnQTzRYaTALg/fRqJ95qUL/FJSdMFAwpwztXwWNvRZn
-         ImOcxfI0/NNSTyCCCue5bh1O/rb8ha9kpMCtMgNxkz3eHj020K96ErzlHHk6RzX+UHbQ
-         vLQcYxsoIqHei6j4U5T+6st9ndlXZVpsbGSZvait6TFR3SV5Qsp1G919P8H+PDeiVTOZ
-         q66g==
-X-Gm-Message-State: AO0yUKXl5quGDTUhHQmXL5swzBxhC/H2aDV673Ug0ltljN3xSsaph4xa
-        wyrw1LinWlVlnWzJ+pw2jW48IcxveKxYhbYZbia0Z07TjN1VjAUlytXqddcZV3E4MKlCNQrJskn
-        Jc1aRLeHmWgWDHdrlfXUzMA==
-X-Received: by 2002:a05:6830:1397:b0:69b:c665:95ef with SMTP id d23-20020a056830139700b0069bc66595efmr1849089otq.32.1679504481961;
-        Wed, 22 Mar 2023 10:01:21 -0700 (PDT)
-X-Google-Smtp-Source: AK7set9OhxWG20qH1i/Yp6i2el5aA4zIJA9CTIhUo/MbvkBAyasdde0EdhDBEsgwB6QV+kPj7JTH5w==
-X-Received: by 2002:a05:6830:1397:b0:69b:c665:95ef with SMTP id d23-20020a056830139700b0069bc66595efmr1849034otq.32.1679504481408;
-        Wed, 22 Mar 2023 10:01:21 -0700 (PDT)
-Received: from vschneid.remote.csb ([154.57.232.159])
-        by smtp.gmail.com with ESMTPSA id g19-20020a05620a40d300b007290be5557bsm11733172qko.38.2023.03.22.10.01.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 22 Mar 2023 10:01:20 -0700 (PDT)
-From:   Valentin Schneider <vschneid@redhat.com>
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
-        openrisc@lists.librecores.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org,
-        x86@kernel.org, "Paul E. McKenney" <paulmck@kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        Marcelo Tosatti <mtosatti@redhat.com>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Marc Zyngier <maz@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Guo Ren <guoren@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH v5 7/7] sched, smp: Trace smp callback causing an IPI
-In-Reply-To: <20230322140434.GC2357380@hirez.programming.kicks-ass.net>
-References: <20230307143558.294354-1-vschneid@redhat.com>
- <20230307143558.294354-8-vschneid@redhat.com>
- <20230322095329.GS2017917@hirez.programming.kicks-ass.net>
- <xhsmhmt45c703.mognet@vschneid.remote.csb>
- <20230322140434.GC2357380@hirez.programming.kicks-ass.net>
-Date:   Wed, 22 Mar 2023 17:01:13 +0000
-Message-ID: <xhsmhjzz8d8km.mognet@vschneid.remote.csb>
+        with ESMTP id S229768AbjCVRKA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Mar 2023 13:10:00 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A84C212872;
+        Wed, 22 Mar 2023 10:09:58 -0700 (PDT)
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32MGt5lZ030391;
+        Wed, 22 Mar 2023 17:09:47 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=vf706j/q8zAoF+Y1g3q6v/SeTXyELu+wV3+Yl/NGnK8=;
+ b=Mi+gKx+0/fo8w72jO9ASKKswlWVlhYzh7hUBWbd3CNKc67aqGNIL7UdEHcujkLQrF42+
+ Cxcn/hqFO5E8S/6sCpydpn68Of9fCwDxMNuGWRlvPfX+ByoIXFlUZiGn6wZHk+zO1Z8L
+ tPdGkW2HVE1oMlBLBBQrvmiB5uhQbEscSjbjF30B+E4pBjwxKkuFww9bqONacfpidodV
+ 3HeUf/6VVgE96omKZLW8a7CEVk462LE3BoSWaCH6fY7QQ3r2wPXVhVQrVQ5O81B0RR4F
+ LiFL1E1bQIyrL4PlZhkqcJlLK8VPm1eVcz+hBdGpceX1crxboszdrj7cp24oyVUFrBIF vg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pg5m70hsf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 22 Mar 2023 17:09:47 +0000
+Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32MGtF9i030718;
+        Wed, 22 Mar 2023 17:09:47 GMT
+Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pg5m70hrc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 22 Mar 2023 17:09:46 +0000
+Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
+        by ppma01dal.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32MG5XA7014977;
+        Wed, 22 Mar 2023 17:09:45 GMT
+Received: from smtprelay04.dal12v.mail.ibm.com ([9.208.130.102])
+        by ppma01dal.us.ibm.com (PPS) with ESMTPS id 3pd4x7qp5r-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 22 Mar 2023 17:09:45 +0000
+Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
+        by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32MH9iDB11272720
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 22 Mar 2023 17:09:44 GMT
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 25B2358053;
+        Wed, 22 Mar 2023 17:09:44 +0000 (GMT)
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4287D5805D;
+        Wed, 22 Mar 2023 17:09:42 +0000 (GMT)
+Received: from [9.163.26.126] (unknown [9.163.26.126])
+        by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 22 Mar 2023 17:09:42 +0000 (GMT)
+Message-ID: <170b35d9-2071-caf3-094e-6abfb7cefa75@linux.ibm.com>
+Date:   Wed, 22 Mar 2023 18:09:41 +0100
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.9.0
+Subject: Re: [PATCH net-next] net/smc: introduce shadow sockets for fallback
+ connections
+To:     Kai Shen <KaiShen@linux.alibaba.com>, kgraul@linux.ibm.com,
+        jaka@linux.ibm.com, kuba@kernel.org, davem@davemloft.net,
+        dsahern@kernel.org
+Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-rdma@vger.kernel.org
+References: <20230321071959.87786-1-KaiShen@linux.alibaba.com>
+From:   Wenjia Zhang <wenjia@linux.ibm.com>
+In-Reply-To: <20230321071959.87786-1-KaiShen@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: bP6G5GaKNxIDsWoie4owz1UXHITzbQUR
+X-Proofpoint-ORIG-GUID: n13PFWurJKxknnqg_Q9H7v6nQ-U9_SRm
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-Content-Type: text/plain
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-03-22_13,2023-03-22_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0 mlxscore=0
+ malwarescore=0 adultscore=0 clxscore=1015 bulkscore=0 spamscore=0
+ priorityscore=1501 mlxlogscore=999 impostorscore=0 phishscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2303150002 definitions=main-2303220117
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 22/03/23 15:04, Peter Zijlstra wrote:
-> On Wed, Mar 22, 2023 at 12:20:28PM +0000, Valentin Schneider wrote:
->> On 22/03/23 10:53, Peter Zijlstra wrote:
->
->> > Hurmph... so we only really consume @func when we IPI. Would it not be
->> > more useful to trace this thing for *every* csd enqeued?
->>
->> It's true that any CSD enqueued on that CPU's call_single_queue in the
->> [first CSD llist_add()'ed, IPI IRQ hits] timeframe is a potential source of
->> interference.
->>
->> However, can we be sure that first CSD isn't an indirect cause for the
->> following ones? say the target CPU exits RCU EQS due to the IPI, there's a
->> bit of time before it gets to flush_smp_call_function_queue() where some other CSD
->> could be enqueued *because* of that change in state.
->>
->> I couldn't find a easy example of that, I might be biased as this is where
->> I'd like to go wrt IPI'ing isolated CPUs in usermode. But regardless, when
->> correlating an IPI IRQ with its source, we'd always have to look at the
->> first CSD in that CSD stack.
->
-> So I was thinking something like this:
->
+
+
+On 21.03.23 08:19, Kai Shen wrote:
+> SMC-R performs not so well on fallback situations right now,
+> especially on short link server fallback occasions. We are planning
+> to make SMC-R widely used and handling this fallback performance
+> issue is really crucial to us. Here we introduce a shadow socket
+> method to try to relief this problem.
+> 
+Could you please elaborate the problem?
+> Basicly, we use two more accept queues to hold incoming connections,
+> one for fallback connections and the other for smc-r connections.
+> We implement this method by using two more 'shadow' sockets and
+> make the connection path of fallback connections almost the same as
+> normal tcp connections.
+> 
+> Now the SMC-R accept path is like:
+>    1. incoming connection
+>    2. schedule work to smc sock alloc, tcp accept and push to smc
+>       acceptq
+>    3. wake up user to accept
+> 
+> When fallback happens on servers, the accepting path is the same
+> which costs more than normal tcp accept path. In fallback
+> situations, the step 2 above is not necessary and the smc sock is
+> also not needed. So we use two more shadow sockets when one smc
+> socket start listening. When new connection comes, we pop the req
+> to the fallback socket acceptq or the non-fallback socket acceptq
+> according to its syn_smc flag. As a result, when fallback happen we
+> can graft the user socket with a normal tcp sock instead of a smc
+> sock and get rid of the cost generated by step 2 and smc sock
+> releasing.
+> 
+>                 +-----> non-fallback socket acceptq
+>                 |
+> incoming req --+
+>                 |
+>                 +-----> fallback socket acceptq
+> 
+> With the help of shadow socket, we gain similar performance as tcp
+> connections on short link nginx server fallback occasions as what
+> is illustrated below.
+> 
+> Cases are like "./wrk http://x.x.x.x:x/
+> 	-H 'Connection: Close' -c 1600 -t 32 -d 20 --latency"
+> 
+> TCP:
+>      Requests/sec: 145438.65
+>      Transfer/sec:     21.64MB
+> 
+> Server fallback occasions on original SMC-R:
+>      Requests/sec: 114192.82
+>      Transfer/sec:     16.99MB
+> 
+> Server fallback occasions on SMC-R with shadow sockets:
+>      Requests/sec: 143528.11
+>      Transfer/sec:     21.35MB
+> 
+
+Generally, I don't have a good feeling about the two non-listenning 
+sockets, and I can not see why it is necessary to introduce the socket 
+actsock instead of using the clcsock itself. Maybe you can convince me 
+with a good reason.
+
+> On the other hand, as a result of using another accept queue, the
+> fastopenq lock is not the right lock to access when accepting. So
+> we need to find the right fastopenq lock in inet_csk_accept.
+> 
+> Signed-off-by: Kai Shen <KaiShen@linux.alibaba.com>
 > ---
-> Subject: trace,smp: Trace all smp_function_call*() invocations
-> From: Peter Zijlstra <peterz@infradead.org>
-> Date: Wed Mar 22 14:58:36 CET 2023
->
-> (Ab)use the trace_ipi_send_cpu*() family to trace all
-> smp_function_call*() invocations, not only those that result in an
-> actual IPI.
->
-> The queued entries log their callback function while the actual IPIs
-> are traced on generic_smp_call_function_single_interrupt().
->
-> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> ---
->  kernel/smp.c |   58 ++++++++++++++++++++++++++++++----------------------------
->  1 file changed, 30 insertions(+), 28 deletions(-)
->
-> --- a/kernel/smp.c
-> +++ b/kernel/smp.c
-> @@ -106,18 +106,20 @@ void __init call_function_init(void)
->  }
->
->  static __always_inline void
-> -send_call_function_single_ipi(int cpu, smp_call_func_t func)
-> +send_call_function_single_ipi(int cpu)
->  {
->       if (call_function_single_prep_ipi(cpu)) {
-> -		trace_ipi_send_cpu(cpu, _RET_IP_, func);
-> +		trace_ipi_send_cpu(cpu, _RET_IP_,
-> +				   generic_smp_call_function_single_interrupt);
+>   net/ipv4/inet_connection_sock.c |  13 ++-
+>   net/smc/af_smc.c                | 143 ++++++++++++++++++++++++++++++--
+>   net/smc/smc.h                   |   2 +
+>   3 files changed, 150 insertions(+), 8 deletions(-)
+> 
+> diff --git a/net/ipv4/inet_connection_sock.c b/net/ipv4/inet_connection_sock.c
+> index 65ad4251f6fd..ba2ec5ad4c04 100644
+> --- a/net/ipv4/inet_connection_sock.c
+> +++ b/net/ipv4/inet_connection_sock.c
+> @@ -658,6 +658,7 @@ struct sock *inet_csk_accept(struct sock *sk, int flags, int *err, bool kern)
+>   {
+>   	struct inet_connection_sock *icsk = inet_csk(sk);
+>   	struct request_sock_queue *queue = &icsk->icsk_accept_queue;
+> +	spinlock_t *fastopenq_lock = &queue->fastopenq.lock;
+>   	struct request_sock *req;
+>   	struct sock *newsk;
+>   	int error;
+> @@ -689,7 +690,15 @@ struct sock *inet_csk_accept(struct sock *sk, int flags, int *err, bool kern)
+>   
+>   	if (sk->sk_protocol == IPPROTO_TCP &&
+>   	    tcp_rsk(req)->tfo_listener) {
+> -		spin_lock_bh(&queue->fastopenq.lock);
+> +#if IS_ENABLED(CONFIG_SMC)
+> +		if (tcp_sk(sk)->syn_smc) {
+> +			struct request_sock_queue *orig_queue;
+> +
+> +			orig_queue = &inet_csk(req->rsk_listener)->icsk_accept_queue;
+> +			fastopenq_lock = &orig_queue->fastopenq.lock;
+> +		}
+> +#endif
+> +		spin_lock_bh(fastopenq_lock);
+>   		if (tcp_rsk(req)->tfo_listener) {
+>   			/* We are still waiting for the final ACK from 3WHS
+>   			 * so can't free req now. Instead, we set req->sk to
+> @@ -700,7 +709,7 @@ struct sock *inet_csk_accept(struct sock *sk, int flags, int *err, bool kern)
+>   			req->sk = NULL;
+>   			req = NULL;
+>   		}
+> -		spin_unlock_bh(&queue->fastopenq.lock);
+> +		spin_unlock_bh(fastopenq_lock);
+>   	}
+>   
+>   out:
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> index a4cccdfdc00a..ad6c3b9ec9a6 100644
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -126,7 +126,9 @@ static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk,
+>   
+>   	smc = smc_clcsock_user_data(sk);
+>   
+> -	if (READ_ONCE(sk->sk_ack_backlog) + atomic_read(&smc->queued_smc_hs) >
+> +	if (READ_ONCE(sk->sk_ack_backlog) + atomic_read(&smc->queued_smc_hs)
+> +			+ READ_ONCE(smc->actsock->sk->sk_ack_backlog)
+> +			+ READ_ONCE(smc->fbsock->sk->sk_ack_backlog) >
+>   				sk->sk_max_ack_backlog)
+>   		goto drop;
+>   
+> @@ -286,6 +288,10 @@ static int __smc_release(struct smc_sock *smc)
+>   				/* wake up clcsock accept */
+>   				rc = kernel_sock_shutdown(smc->clcsock,
+>   							  SHUT_RDWR);
+> +				if (smc->fbsock)
+> +					sock_release(smc->fbsock);
+> +				if (smc->actsock)
+> +					sock_release(smc->actsock);
+>   			}
+>   			sk->sk_state = SMC_CLOSED;
+>   			sk->sk_state_change(sk);
+> @@ -1681,7 +1687,7 @@ static int smc_clcsock_accept(struct smc_sock *lsmc, struct smc_sock **new_smc)
+>   
+>   	mutex_lock(&lsmc->clcsock_release_lock);
+>   	if (lsmc->clcsock)
+> -		rc = kernel_accept(lsmc->clcsock, &new_clcsock, SOCK_NONBLOCK);
+> +		rc = kernel_accept(lsmc->actsock, &new_clcsock, SOCK_NONBLOCK);
+>   	mutex_unlock(&lsmc->clcsock_release_lock);
+>   	lock_sock(lsk);
+>   	if  (rc < 0 && rc != -EAGAIN)
+> @@ -2486,9 +2492,46 @@ static void smc_tcp_listen_work(struct work_struct *work)
+>   	sock_put(&lsmc->sk); /* sock_hold in smc_clcsock_data_ready() */
+>   }
+>   
+> +#define SMC_LINK 1
+> +#define FALLBACK_LINK 2
+> +static inline int smc_sock_pop_to_another_acceptq(struct smc_sock *lsmc)
+> +{
+> +	struct sock *lsk = lsmc->clcsock->sk;
+> +	struct inet_connection_sock *icsk = inet_csk(lsk);
+> +	struct inet_connection_sock *dest_icsk;
+> +	struct request_sock_queue *queue = &icsk->icsk_accept_queue;
+> +	struct request_sock_queue *dest_queue;
+> +	struct request_sock *req;
+> +	struct sock *dst_sock;
+> +	int ret;
+> +
+> +	req = reqsk_queue_remove(queue, lsk);
+> +	if (!req)
+> +		return -EINVAL;
+> +
+> +	if (tcp_sk(req->sk)->syn_smc || lsmc->sockopt_defer_accept) {
+> +		dst_sock = lsmc->actsock->sk;
+> +		ret = SMC_LINK;
+> +	} else {
+> +		dst_sock = lsmc->fbsock->sk;
+> +		ret = FALLBACK_LINK;
+> +	}
+> +
+> +	dest_icsk = inet_csk(dst_sock);
+> +	dest_queue = &dest_icsk->icsk_accept_queue;
+> +
+> +	spin_lock_bh(&dest_queue->rskq_lock);
+> +	WRITE_ONCE(req->dl_next, dest_queue->rskq_accept_head);
+> +	sk_acceptq_added(dst_sock);
+> +	dest_queue->rskq_accept_head = req;
+> +	spin_unlock_bh(&dest_queue->rskq_lock);
+> +	return ret;
+> +}
+> +
+>   static void smc_clcsock_data_ready(struct sock *listen_clcsock)
+>   {
+>   	struct smc_sock *lsmc;
+> +	int ret;
+>   
+>   	read_lock_bh(&listen_clcsock->sk_callback_lock);
+>   	lsmc = smc_clcsock_user_data(listen_clcsock);
+> @@ -2496,14 +2539,41 @@ static void smc_clcsock_data_ready(struct sock *listen_clcsock)
+>   		goto out;
+>   	lsmc->clcsk_data_ready(listen_clcsock);
+>   	if (lsmc->sk.sk_state == SMC_LISTEN) {
+> -		sock_hold(&lsmc->sk); /* sock_put in smc_tcp_listen_work() */
+> -		if (!queue_work(smc_tcp_ls_wq, &lsmc->tcp_listen_work)) > -			sock_put(&lsmc->sk);
+> +		ret = smc_sock_pop_to_another_acceptq(lsmc);
+> +		if (ret == SMC_LINK) {
+> +			sock_hold(&lsmc->sk); /* sock_put in smc_tcp_listen_work() */
+> +			if (!queue_work(smc_tcp_ls_wq, &lsmc->tcp_listen_work))
+> +				sock_put(&lsmc->sk);
+> +		} else if (ret == FALLBACK_LINK) {
+> +			lsmc->sk.sk_data_ready(&lsmc->sk);
+> +		}
+>   	}
+>   out:
+>   	read_unlock_bh(&listen_clcsock->sk_callback_lock);
+>   }
+>   
+> +static void smc_shadow_socket_init(struct socket *sock)
+> +{
+> +	struct inet_connection_sock *icsk = inet_csk(sock->sk);
+> +	struct request_sock_queue *queue = &icsk->icsk_accept_queue;
+> +
+> +	tcp_set_state(sock->sk, TCP_LISTEN);
+> +	sock->sk->sk_ack_backlog = 0;
+> +
+> +	inet_csk_delack_init(sock->sk);
+> +
+> +	spin_lock_init(&queue->rskq_lock);
+> +
+> +	spin_lock_init(&queue->fastopenq.lock);
+> +	queue->fastopenq.rskq_rst_head = NULL;
+> +	queue->fastopenq.rskq_rst_tail = NULL;
+> +	queue->fastopenq.qlen = 0;
+> +
+> +	queue->rskq_accept_head = NULL;
+> +
+> +	tcp_sk(sock->sk)->syn_smc = 1;
+> +}
+> +
+>   static int smc_listen(struct socket *sock, int backlog)
+>   {
+>   	struct sock *sk = sock->sk;
+> @@ -2551,6 +2621,18 @@ static int smc_listen(struct socket *sock, int backlog)
+>   	if (smc->limit_smc_hs)
+>   		tcp_sk(smc->clcsock->sk)->smc_hs_congested = smc_hs_congested;
+>   
+> +	rc = sock_create_kern(sock_net(sk), PF_INET, SOCK_STREAM, IPPROTO_TCP,
+> +			      &smc->fbsock);
+> +	if (rc)
+> +		goto out;
+> +	smc_shadow_socket_init(smc->fbsock);
+> +
+> +	rc = sock_create_kern(sock_net(sk), PF_INET, SOCK_STREAM, IPPROTO_TCP,
+> +			      &smc->actsock);
+> +	if (rc)
+> +		goto out;
+> +	smc_shadow_socket_init(smc->actsock);
+> +
+>   	rc = kernel_listen(smc->clcsock, backlog);
+>   	if (rc) {
+>   		write_lock_bh(&smc->clcsock->sk->sk_callback_lock);
+> @@ -2569,6 +2651,30 @@ static int smc_listen(struct socket *sock, int backlog)
+>   	return rc;
+>   }
+>   
+> +static inline bool tcp_reqsk_queue_empty(struct sock *sk)
+> +{
+> +	struct inet_connection_sock *icsk = inet_csk(sk);
+> +	struct request_sock_queue *queue = &icsk->icsk_accept_queue;
+> +
+> +	return reqsk_queue_empty(queue);
+> +}
+> +
+Since this is only used by smc, I'd like to suggest to use 
+smc_tcp_reqsk_queue_empty instead of tcp_reqsk_queue_empty.
 
-Hm, this does get rid of the func being passed down the helpers, but this
-means the trace events are now stateful, i.e. I need the first and last
-events in a CSD stack to figure out which one actually caused the IPI.
-
-It also requires whoever is looking at the trace to be aware of which IPIs
-are attached to a CSD, and which ones aren't. ATM that's only the resched
-IPI, but per the cover letter there's more to come (e.g. tick_broadcast()
-for arm64/riscv and a few others). For instance:
-
-       hackbench-157   [001]    10.894320: ipi_send_cpu:         cpu=3 callsite=check_preempt_curr+0x37 callback=0x0
-       hackbench-157   [001]    10.895068: ipi_send_cpu:         cpu=3 callsite=try_to_wake_up+0x29e callback=sched_ttwu_pending+0x0
-       hackbench-157   [001]    10.895068: ipi_send_cpu:         cpu=3 callsite=try_to_wake_up+0x29e callback=generic_smp_call_function_single_interrupt+0x0
-
-That first one sent a RESCHEDULE IPI, the second one a CALL_FUNCTION one,
-but you really have to know what you're looking at...
-
-Are you worried about the @func being pushed down? Staring at x86 asm is
-not good for the soul, but AFAICT this does cause an extra register to be
-popped in the prologue because all of the helpers are __always_inline, so
-both paths of the static key(s) are in the same stackframe.
-
-I can "improve" this with:
-
----
-diff --git a/kernel/smp.c b/kernel/smp.c
-index 5cd680a7e78ef..55f120dae1713 100644
---- a/kernel/smp.c
-+++ b/kernel/smp.c
-@@ -511,6 +511,26 @@ raw_smp_call_single_queue(int cpu, struct llist_node *node, smp_call_func_t func
- 
- static DEFINE_PER_CPU_SHARED_ALIGNED(call_single_data_t, csd_data);
- 
-+static noinline void __smp_call_single_queue_trace(int cpu, struct llist_node *node)
-+{
-+	call_single_data_t *csd;
-+	smp_call_func_t func;
-+
-+
-+	/*
-+	 * We have to check the type of the CSD before queueing it, because
-+	 * once queued it can have its flags cleared by
-+	 *   flush_smp_call_function_queue()
-+	 * even if we haven't sent the smp_call IPI yet (e.g. the stopper
-+	 * executes migration_cpu_stop() on the remote CPU).
-+	 */
-+	csd = container_of(node, call_single_data_t, node.llist);
-+	func = CSD_TYPE(csd) == CSD_TYPE_TTWU ?
-+		sched_ttwu_pending : csd->func;
-+
-+	raw_smp_call_single_queue(cpu, node, func);
-+}
-+
- void __smp_call_single_queue(int cpu, struct llist_node *node)
- {
- #ifdef CONFIG_CSD_LOCK_WAIT_DEBUG
-@@ -525,25 +545,10 @@ void __smp_call_single_queue(int cpu, struct llist_node *node)
- 		}
- 	}
- #endif
--	/*
--	 * We have to check the type of the CSD before queueing it, because
--	 * once queued it can have its flags cleared by
--	 *   flush_smp_call_function_queue()
--	 * even if we haven't sent the smp_call IPI yet (e.g. the stopper
--	 * executes migration_cpu_stop() on the remote CPU).
--	 */
--	if (trace_ipi_send_cpumask_enabled()) {
--		call_single_data_t *csd;
--		smp_call_func_t func;
--
--		csd = container_of(node, call_single_data_t, node.llist);
--		func = CSD_TYPE(csd) == CSD_TYPE_TTWU ?
--			sched_ttwu_pending : csd->func;
--
--		raw_smp_call_single_queue(cpu, node, func);
--	} else {
-+	if (trace_ipi_send_cpumask_enabled())
-+		__smp_call_single_queue_trace(cpu, node);
-+	else
- 		raw_smp_call_single_queue(cpu, node, NULL);
--	}
- }
- 
- /*
-
+> +static inline void
+> +smc_restore_fbsock_protocol_family(struct socket *new_sock, struct socket *sock)
+> +{
+> +	struct smc_sock *lsmc = smc_sk(sock->sk);
+> +
+> +	new_sock->sk->sk_data_ready = lsmc->fbsock->sk->sk_data_ready;
+> +	new_sock->ops = lsmc->fbsock->ops;
+> +	new_sock->type = lsmc->fbsock->type;
+> +
+> +	module_put(sock->ops->owner);
+> +	__module_get(new_sock->ops->owner);
+> +
+> +	if (tcp_sk(new_sock->sk)->syn_smc)
+> +		pr_err("new sock is not fallback.\n");
+> +}
+> +
+>   static int smc_accept(struct socket *sock, struct socket *new_sock,
+>   		      int flags, bool kern)
+>   {
+> @@ -2579,6 +2685,18 @@ static int smc_accept(struct socket *sock, struct socket *new_sock,
+>   	int rc = 0;
+>   
+>   	lsmc = smc_sk(sk);
+> +	/* There is a lock in inet_csk_accept, so to make a fast path we do not lock_sock here */
+> +	if (lsmc->sk.sk_state == SMC_LISTEN && !tcp_reqsk_queue_empty(lsmc->fbsock->sk)) {
+> +		rc = lsmc->clcsock->ops->accept(lsmc->fbsock, new_sock, O_NONBLOCK, true);
+> +		if (rc == -EAGAIN)
+> +			goto normal_path;
+> +		if (rc < 0)
+> +			return rc;
+> +		smc_restore_fbsock_protocol_family(new_sock, sock);
+> +		return rc;
+> +	}
+> +
+> +normal_path:
+>   	sock_hold(sk); /* sock_put below */
+>   	lock_sock(sk);
+>   
+> @@ -2593,6 +2711,18 @@ static int smc_accept(struct socket *sock, struct socket *new_sock,
+>   	add_wait_queue_exclusive(sk_sleep(sk), &wait);
+>   	while (!(nsk = smc_accept_dequeue(sk, new_sock))) {
+>   		set_current_state(TASK_INTERRUPTIBLE);
+> +		if (!tcp_reqsk_queue_empty(lsmc->fbsock->sk)) {
+> +			rc = lsmc->clcsock->ops->accept(lsmc->fbsock, new_sock, O_NONBLOCK, true);
+> +			if (rc == -EAGAIN)
+> +				goto next_round;
+> +			if (rc < 0)
+> +				break;
+> +
+> +			smc_restore_fbsock_protocol_family(new_sock, sock);
+> +			nsk = new_sock->sk;
+> +			break;
+> +		}
+> +next_round:
+>   		if (!timeo) {
+>   			rc = -EAGAIN;
+>   			break;
+> @@ -2731,7 +2861,8 @@ static __poll_t smc_accept_poll(struct sock *parent)
+>   	__poll_t mask = 0;
+>   
+>   	spin_lock(&isk->accept_q_lock);
+> -	if (!list_empty(&isk->accept_q))
+> +	if (!list_empty(&isk->accept_q) ||
+> +	    !reqsk_queue_empty(&inet_csk(isk->fbsock->sk)->icsk_accept_queue))
+>   		mask = EPOLLIN | EPOLLRDNORM;
+>   	spin_unlock(&isk->accept_q_lock);
+>   
+> diff --git a/net/smc/smc.h b/net/smc/smc.h
+> index 5ed765ea0c73..9a62c8f37e26 100644
+> --- a/net/smc/smc.h
+> +++ b/net/smc/smc.h
+> @@ -241,6 +241,8 @@ struct smc_connection {
+>   struct smc_sock {				/* smc sock container */
+>   	struct sock		sk;
+>   	struct socket		*clcsock;	/* internal tcp socket */
+> +	struct socket		*fbsock;	/* socket for fallback connection */
+> +	struct socket		*actsock;	/* socket for non-fallback conneciotn */
+>   	void			(*clcsk_state_change)(struct sock *sk);
+>   						/* original stat_change fct. */
+>   	void			(*clcsk_data_ready)(struct sock *sk);
