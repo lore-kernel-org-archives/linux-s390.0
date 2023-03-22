@@ -2,224 +2,125 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DDA5BC6FD1C
-	for <linux-s390@archiver.kernel.org>; Wed, 22 Mar 2023 08:18:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 80F21C6FD1C
+	for <linux-s390@archiver.kernel.org>; Wed, 22 Mar 2023 09:40:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230124AbjCVISE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 22 Mar 2023 04:18:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38244 "EHLO
+        id S230454AbjCVJkz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 22 Mar 2023 05:40:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230116AbjCVISD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Mar 2023 04:18:03 -0400
-Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADE944EDC;
-        Wed, 22 Mar 2023 01:17:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1679473082; x=1711009082;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=k6ZPTtngDQKfa3VAaKX/8EZ5a+QoemKeXIoSkPb5Zcg=;
-  b=Y1VKQi1i+uDj5JSQqpp07htfJqqJV+cIEPRTSEotX/lGmouwCdxW5NpY
-   Cn3FqS0eFOHJg6AQeiXMFovy30oKtf00HgbRYiqgrDNWJcOGf5GNf8VJ0
-   FhufNOWkhaMZPIv8TA23MHMwJ0Iar5l4aQViQRuKi3Aj+kQQKyR2Usv6G
-   SQMCorpD5DxGd4HvNQj0aEjOj/dYQKtTmJlMFsPmmIqcIwsVpoMBqslQ8
-   8Ey1pQwtsgs302/AgC8SuQiJd/DnQR+WGrNwwgwY2548I7ufrqdXKI8jm
-   vIg45NDo+xHVBkItrgMhtBz+hXo93/mDEFkb1/cmhJT7R2VP3Fpw4zDk4
-   g==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10656"; a="319544684"
-X-IronPort-AV: E=Sophos;i="5.98,281,1673942400"; 
-   d="scan'208";a="319544684"
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Mar 2023 01:17:57 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10656"; a="684217023"
-X-IronPort-AV: E=Sophos;i="5.98,281,1673942400"; 
-   d="scan'208";a="684217023"
-Received: from fmsmsx601.amr.corp.intel.com ([10.18.126.81])
-  by fmsmga007.fm.intel.com with ESMTP; 22 Mar 2023 01:17:56 -0700
-Received: from fmsmsx610.amr.corp.intel.com (10.18.126.90) by
- fmsmsx601.amr.corp.intel.com (10.18.126.81) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.21; Wed, 22 Mar 2023 01:17:56 -0700
-Received: from FMSEDG603.ED.cps.intel.com (10.1.192.133) by
- fmsmsx610.amr.corp.intel.com (10.18.126.90) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.21 via Frontend Transport; Wed, 22 Mar 2023 01:17:56 -0700
-Received: from NAM12-MW2-obe.outbound.protection.outlook.com (104.47.66.42) by
- edgegateway.intel.com (192.55.55.68) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.21; Wed, 22 Mar 2023 01:17:56 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=V69SH1JZSftM4DT06uvQuhg6aIgw8GcdUxnTSuJe4ofw51LSi/eub/SQJt/m9XGfk7gTWTl28dbIwvXfrTLAPr4BGYl17Fhoq5PDDA4l052YoyBtd7lB5ZRs5b5XUD9nHTvy3iXpe5TqQ2981Lx39bdxVeFQ6XwPkiezOjDov+x14iWSxrDlD+i+XGhL98PsGSh4itfB+KpPipou4yeISSSaE6E7/wmMQGAhqEQ0FPTK8C1EiNuhGTgAIjBrItgG26qxVVpse/Te6QNfZYF6nLL6Xw5BOP6hhJ/gpnSD1qiJTJbLhqCrdS+mNNXC+yUyguwnXodCNsa7WHmLEqJoeA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=fzB4KrrKaMRBtb0A/H1/8yVmp0CE4aAnmbNhmgb2MqY=;
- b=dqqlYMIM10nYAoF36Ej+xC/zGFU7OXH2ADa8+y2DSEsJy9Nks7nzkTuaGfH27zpaTuv85RYCK2AEBJ+0ERPX4bYiNAHR+oO5oe2cnyUpxAQLaI9YDt3rPHneUYsxmD9nMHWAG0sSQyX8huErB8wVbcQXbTkwusViHM9Eh16lD3s1Bmf37PNA2KC4kLXjuH0lmxgcuzx6h4Ic2StQ7u6uoyQJQw70sI5hvYeyZ5u3wzLwSQ45nhnzAt64X0kloLzSbSymb+qSbGsq8p9EYF3MtD7za3Y3AT3ct4C/2ZNJfIcNe9oNfZBtss5OG8N/bnjuGlMcn+yUXuNXtJR5x8Z/ow==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from DS0PR11MB7529.namprd11.prod.outlook.com (2603:10b6:8:141::20)
- by BL1PR11MB5320.namprd11.prod.outlook.com (2603:10b6:208:316::13) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6178.37; Wed, 22 Mar
- 2023 08:17:54 +0000
-Received: from DS0PR11MB7529.namprd11.prod.outlook.com
- ([fe80::6f7:944a:aaad:301f]) by DS0PR11MB7529.namprd11.prod.outlook.com
- ([fe80::6f7:944a:aaad:301f%8]) with mapi id 15.20.6178.037; Wed, 22 Mar 2023
- 08:17:54 +0000
-From:   "Liu, Yi L" <yi.l.liu@intel.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>,
-        Alex Williamson <alex.williamson@redhat.com>
-CC:     "Tian, Kevin" <kevin.tian@intel.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "jasowang@redhat.com" <jasowang@redhat.com>,
-        "Hao, Xudong" <xudong.hao@intel.com>,
-        "peterx@redhat.com" <peterx@redhat.com>,
-        "Xu, Terrence" <terrence.xu@intel.com>,
-        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
-        "lulu@redhat.com" <lulu@redhat.com>,
-        "joro@8bytes.org" <joro@8bytes.org>,
-        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
-        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "eric.auger@redhat.com" <eric.auger@redhat.com>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
-        "cohuck@redhat.com" <cohuck@redhat.com>,
-        "shameerali.kolothum.thodi@huawei.com" 
-        <shameerali.kolothum.thodi@huawei.com>,
-        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
-        "robin.murphy@arm.com" <robin.murphy@arm.com>
-Subject: RE: [PATCH v6 12/24] vfio/pci: Allow passing zero-length fd array in
- VFIO_DEVICE_PCI_HOT_RESET
-Thread-Topic: [PATCH v6 12/24] vfio/pci: Allow passing zero-length fd array in
- VFIO_DEVICE_PCI_HOT_RESET
-Thread-Index: AQHZW095081R6kW/70aeRy5pC5KSt68ERp6AgAANFoCAAV3gAIAABT4AgACOijA=
-Date:   Wed, 22 Mar 2023 08:17:54 +0000
-Message-ID: <DS0PR11MB7529B8A8712F737274298381C3869@DS0PR11MB7529.namprd11.prod.outlook.com>
-References: <BN9PR11MB5276300FCAAF8BF7B4E03BA48CBF9@BN9PR11MB5276.namprd11.prod.outlook.com>
- <20230316124532.30839a94.alex.williamson@redhat.com>
- <BN9PR11MB5276F7879E428080D2B214D98CBC9@BN9PR11MB5276.namprd11.prod.outlook.com>
- <20230316182256.6659bbbd.alex.williamson@redhat.com>
- <BN9PR11MB5276D5A71E43EA4CDD1C960A8CBD9@BN9PR11MB5276.namprd11.prod.outlook.com>
- <20230317091557.196638a6.alex.williamson@redhat.com>
- <ZBiUiEC8Xj9sOphr@nvidia.com>
- <20230320165217.5b1019a4.alex.williamson@redhat.com>
- <ZBjum1wQ1L2AIfhB@nvidia.com>
- <20230321143122.632f7e63.alex.williamson@redhat.com>
- <ZBoYgNq60eDpV9Un@nvidia.com>
-In-Reply-To: <ZBoYgNq60eDpV9Un@nvidia.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: DS0PR11MB7529:EE_|BL1PR11MB5320:EE_
-x-ms-office365-filtering-correlation-id: f56e5028-9c2b-4d03-4208-08db2aadefef
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: AWZ7Aoi7IuGwVXbrXXoUgdbCm4LwLDWq5vuFl0rRzXzhbQoVE1DUU044q+DScdaBF81fZZjxR8S1sR+LkybSFXAfEMfbq9/xL7aTMlQbpG7D0LnHeqGPDYjwDfUmS8Mm8oGX2kQSsbEIneMT6c1DvI+NxcvtFf4FydVOVlcyxQYTpJ4Nv2XLQN2m3eDuiWACWTBlZ1aCwmxGgwJCoHmpYdZAK6mDBljlwqDWfPUs9DWQZ5+v+Wv2eFlYUMtjeu/AQoV3vIhGCXlCZCAMiFuv0HnP6DzcjnxSnDIpoCXY6U+qGORiAXx2r2G8odqo3IjKaueErbNEEbxLVuwsoLDgzcgPc50MvYfS+R320KELJrGiTG0kl09pxDmJLTKX3P20hLCn3xypfVQ3aXIQdjI16XAjKYEHDagxIZRC9e0PMjpbGcbBI8DwYbqGksYeXX4jJl1qnRKrNPB9gdOvGW6Dr04Z43SlcKqPJhdg724OmYz9yVn5SNFZBf2RzfPFwpHvCWxn9iyONHGmI9DAw19dvXVS6lQ7N/qCk1e7j+UN82Czwd3OfecLg8rVXB3XLjcH1QcakvU6Yve9l8FC/CLvaeXkTtTxlVxKXhQ5L/mbEfl0hGD4nEH8Su09oVOU3ymyir84pW4XuQlQ0JQjZXcVEglXmhiL5ppPVsVYPjp+xorGeknRERc/13b82rP1qhFHkRC4qSuIPeQK+YTOjJN6jx4ggIDVB/gsvKpybQrfy/I=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR11MB7529.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(39860400002)(396003)(376002)(136003)(346002)(366004)(451199018)(38100700002)(86362001)(71200400001)(7696005)(83380400001)(54906003)(7416002)(316002)(110136005)(76116006)(8936002)(55016003)(66476007)(66446008)(5660300002)(8676002)(52536014)(4326008)(41300700001)(66556008)(66946007)(64756008)(478600001)(2906002)(33656002)(82960400001)(186003)(122000001)(38070700005)(6506007)(26005)(9686003)(13296009);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?uoBOEXpjEKD0ey38Jd4I6vSRf1zXKghMGoB96FAdmYeBbbNViMfyRfWH3sLZ?=
- =?us-ascii?Q?1RRTKDINYB8axcfpbE3I/KA8rDEbjcle0pBY0rgb9BQr7hBuCEKBDj5pKcP/?=
- =?us-ascii?Q?7DfUnMxZtUQYBeT23cnSwMI7y2lO2hdlnC4P0mKE5PtJFSvI33OpfbeJAjQb?=
- =?us-ascii?Q?ujN/hwlN6k5MLdFWndqkG5VE9VTVfpP6EbOGLXwq/2al6nSnoJ8R4YqYLdd5?=
- =?us-ascii?Q?A59teKdsit+Hpwnk55HIKEHuD+aj42eNgx1t8K82bHYWqQ9U2JsM/sYpDRyI?=
- =?us-ascii?Q?insuTvbKNHfWCRNCes/fTfHAn62TzxGNpHTfZzkLvl0Czc/Xrsb/fq5PrPJF?=
- =?us-ascii?Q?RPD1q+ID/q7wC9UzBq6qKB1EBZZuKbPkC82bcA2L7EY8aCmKmMww/Y35nG7+?=
- =?us-ascii?Q?Bb2sHH7iJKTqE8gPJPSsLXedthf3VkmjhDoIAE57AUJCf/uIJz7AfdNI/knd?=
- =?us-ascii?Q?SrvDCBT3vSngI9Vz0JZbGGj1igWWbWfZ8zB05I4J57Vr2USq8+a1mvEAPg8z?=
- =?us-ascii?Q?sYewH2jJBGXyIi96NvZe3rPCuArI0J8XexmHtLxzR5o4elx1N+EST92wYJg2?=
- =?us-ascii?Q?Rygu9iDGG2ccydmQe0OC0mAWolTA80DuD1yPdUI/ITT5iCVNKuFjM03I7Hby?=
- =?us-ascii?Q?6s/Jhb3tupKd5rCj896vlwsuY9uAf2aHHQfw3054EqhiZ+OlQ+aoQ9eVCpk3?=
- =?us-ascii?Q?E8fMgV/4QFziIvi+Yj08sbfqavXP/lTHqIRdhs3TvgmgwKuUC1c59e+qlcfX?=
- =?us-ascii?Q?C9o9gwLe6fO0uaDM/M+jCzZ26z05OUur+CTl1vU9ODGa08cb743WEfNas5Oc?=
- =?us-ascii?Q?4gC6M8vOH2Bon1O+7zFQlaLn+nTvSlFot5WVTiVl52jQu/4zBb5r5X9AuXry?=
- =?us-ascii?Q?zUXWzEjKH4kapFHnbM9szLv/IpnS15IWMPKAcsuBvEl10xIyxBWEOBiPx2P8?=
- =?us-ascii?Q?CG/XqxDN029H9t2trrTHf/f+2nSZZy+aUNDH3v32CpQCv99ajYZvd2PazcAq?=
- =?us-ascii?Q?ty+g9JJZw1aceHgHIqR26UNNpVT1K5D+JqzV+rt766MWnzPlf22QVv5JW/d/?=
- =?us-ascii?Q?otheRPSVx0IStu7J2mZzVdO9JXsZJf50mO64YWI2mUC+c22fSvx4ODFNrb4r?=
- =?us-ascii?Q?4xas/O0JaiK05CXHQG1T3MdOdAED12TmB3xcvGuPjdovQXL8RACfmmcMemia?=
- =?us-ascii?Q?br6JAK3p5lcRELUjmVdstw8sl47vXX6ilV3xhN6Ge3bMTodee2AAA7yqVGbM?=
- =?us-ascii?Q?/wTrSfZDls4JKKHqj4Rhlld4+Cg1iDuCcHOhae0PHsbJT8KM4GljUC1YkOSm?=
- =?us-ascii?Q?Qz3rZhNSquz17qd2/bzD8eP0e5FCaFgxH8CDlCeHcvnbkW4bUacKB68prqPm?=
- =?us-ascii?Q?Li2X3AaRuNY5x3VOk6E3dyvQA549+bSk9yqkZUnGpkp3yxFN947a09XpE+jd?=
- =?us-ascii?Q?FFcQCY0RTZS6ANimrC6e7/SWNNssAT6TR+NFyAzqLzYTUQKf9PVV421AEJKm?=
- =?us-ascii?Q?jMLdyEYLlZRc5hKc1/kPaPp2uhqMBkTlSZmYsalEo8xgziv92YrZYYHqcM/6?=
- =?us-ascii?Q?uqNse8G46rjAfe2+p2Zl2DqLmUxbAJrNP5iuSuX8?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S229873AbjCVJkx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Mar 2023 05:40:53 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6D831989;
+        Wed, 22 Mar 2023 02:40:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=NIAHg4If27BetC+4UZobAV0PxBnmTt3z+fWts2bKQWA=; b=rgS/CEWAlsTurPe5ucKBiXaDhr
+        ew26BoXauCH9lin/sWfYKxjLJe0WysSt1P4iOSDXV1qfu4JSoUQNAlogwxNIDbcZw5jKIurC6wBP0
+        +/+Z8kdUTp/ZyyNP9QPql3dhW8rHV0QqkfTXWuMoE0vryMGgt+T+aOFFPTKbmbiRK5T84YLaG6C4t
+        iRHD6M2ZFvI2kES3RCcIFI7D2yWW07o0ZjcKw1qqr5MTJddfTUE9AHHetindb2rqkUVxpV/GEVyQu
+        B4Z/fkelloNxIIEvBXXKz9pvL88Uc5JVf1N0nCKJVM3jEC4cK78BNevAeHHN3c0k/dy9sGC9ChrU5
+        42+coITw==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1peuwq-002t99-FB; Wed, 22 Mar 2023 09:40:00 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 7E63F3001F7;
+        Wed, 22 Mar 2023 10:39:56 +0100 (CET)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 16170205D08C3; Wed, 22 Mar 2023 10:39:56 +0100 (CET)
+Date:   Wed, 22 Mar 2023 10:39:55 +0100
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Valentin Schneider <vschneid@redhat.com>
+Cc:     linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
+        openrisc@lists.librecores.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org,
+        x86@kernel.org, Steven Rostedt <rostedt@goodmis.org>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Marcelo Tosatti <mtosatti@redhat.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Marc Zyngier <maz@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Guo Ren <guoren@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH v5 1/7] trace: Add trace_ipi_send_cpumask()
+Message-ID: <20230322093955.GR2017917@hirez.programming.kicks-ass.net>
+References: <20230307143558.294354-1-vschneid@redhat.com>
+ <20230307143558.294354-2-vschneid@redhat.com>
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: DS0PR11MB7529.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: f56e5028-9c2b-4d03-4208-08db2aadefef
-X-MS-Exchange-CrossTenant-originalarrivaltime: 22 Mar 2023 08:17:54.5888
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: DHyn1fZAexybhUXg4WtojcHrkCiUi6lC6d+C8slmCjpFgPsC9BwqDpP44/AXVAp7y+z3BoWy0HDiijv9+E1VAQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR11MB5320
-X-OriginatorOrg: intel.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230307143558.294354-2-vschneid@redhat.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-> From: Jason Gunthorpe <jgg@nvidia.com>
-> Sent: Wednesday, March 22, 2023 4:50 AM
->=20
-> On Tue, Mar 21, 2023 at 02:31:22PM -0600, Alex Williamson wrote:
->=20
-> > This just seems like nit-picking that the API could have accomplished
-> > this more concisely.  Probably that's true, but I think you've
-> > identified a gap above that amplifies the issue.  If the user cannot
-> > map BDFs to cdevs because the cdevs are passed as open fds to the user
-> > driver, the _INFO results become meaningless and by removing the fds
-> > array, that becomes the obvious choice that a user presented with this
-> > dilemma would take.  We're skipping past easier to misuse, difficult to
-> > use correctly, and circling around no obvious way to use correctly.
->=20
-> No - this just isn't finished yet is all it means :(
->=20
-> I just noticed it just now, presumably Eric would have discovered this
-> when he tried to implement the FD pass and we would have made a new
-> _INFO at that point (or more ugly, have libvirt pass the BDF along
-> with the FD).
->=20
-> > Unfortunately the _INFO ioctl does presume that userspace knows the BDF
-> > to device mappings today, so if we are attempting to pre-enable a case
-> > with cdev support where that is not the case, then there must be
-> > something done with the _INFO ioctl to provide scope.
->=20
-> Yes, something is required with _INFO before libvirt can use a FD
-> pass. I'm thinking of a new _INFO query that returns the iommufd
-> dev_ids for the reset group. Then qemu can match the dev_ids back to
-> cdev FDs and thus vPCI devices and do what it needs to do.
+On Tue, Mar 07, 2023 at 02:35:52PM +0000, Valentin Schneider wrote:
+> trace_ipi_raise() is unsuitable for generically tracing IPI sources due to
+> its "reason" argument being an uninformative string (on arm64 all you get
+> is "Function call interrupts" for SMP calls).
+> 
+> Add a variant of it that exports a target cpumask, a callsite and a callback.
+> 
+> Signed-off-by: Valentin Schneider <vschneid@redhat.com>
+> Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+> ---
+>  include/trace/events/ipi.h | 22 ++++++++++++++++++++++
+>  1 file changed, 22 insertions(+)
+> 
+> diff --git a/include/trace/events/ipi.h b/include/trace/events/ipi.h
+> index 0be71dad6ec03..b1125dc27682c 100644
+> --- a/include/trace/events/ipi.h
+> +++ b/include/trace/events/ipi.h
+> @@ -35,6 +35,28 @@ TRACE_EVENT(ipi_raise,
+>  	TP_printk("target_mask=%s (%s)", __get_bitmask(target_cpus), __entry->reason)
+>  );
+>  
+> +TRACE_EVENT(ipi_send_cpumask,
+> +
+> +	TP_PROTO(const struct cpumask *cpumask, unsigned long callsite, void *callback),
+> +
+> +	TP_ARGS(cpumask, callsite, callback),
+> +
+> +	TP_STRUCT__entry(
+> +		__cpumask(cpumask)
+> +		__field(void *, callsite)
+> +		__field(void *, callback)
+> +	),
+> +
+> +	TP_fast_assign(
+> +		__assign_cpumask(cpumask, cpumask_bits(cpumask));
+> +		__entry->callsite = (void *)callsite;
+> +		__entry->callback = callback;
+> +	),
+> +
+> +	TP_printk("cpumask=%s callsite=%pS callback=%pS",
+> +		  __get_cpumask(cpumask), __entry->callsite, __entry->callback)
+> +);
 
-Could you elaborate what is required with _INFO before libvirt can
-use a FD pass?
+Would it make sense to add a variant like: ipi_send_cpu() that records a
+single cpu instead of a cpumask. A lot of sites seems to do:
+cpumask_of(cpu) for that first argument, and it seems to me it is quite
+daft to have to memcpy a full multi-word cpumask in those cases.
 
-> But for the current qemu setup it will open cdev directly and it will
-> know the BDF so it can still use the current _INFO.
->=20
-> Though it would be nice if qemu didn't need two implementations so Yi
-> I'd rather see a new info in this series as well and qemu can just
-> consistently use dev_id and never bdf in iommufd mode.
-
-I have one concern here. iommufd dev_id is not a static info as much as
-bdf. It is generated when bound to iommufd. So if there are devices that
-are affected but not bound to iommufd yet at the time of invoking _INFO,
-then the _INFO ioctl just gets a subset of the affected devices. Is it enou=
-gh?
-
-Regards,
-Yi Liu
+Remember, nr_possible_cpus > 64 is quite common these days.
