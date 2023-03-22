@@ -2,167 +2,165 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5860FC7619A
-	for <linux-s390@archiver.kernel.org>; Wed, 22 Mar 2023 12:18:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D4FE0C6FD1C
+	for <linux-s390@archiver.kernel.org>; Wed, 22 Mar 2023 12:22:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230294AbjCVMSh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 22 Mar 2023 08:18:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46244 "EHLO
+        id S230081AbjCVMWO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 22 Mar 2023 08:22:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230288AbjCVMST (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Mar 2023 08:18:19 -0400
-Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on2072.outbound.protection.outlook.com [40.107.93.72])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A59F9442CA;
-        Wed, 22 Mar 2023 05:18:03 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=CY0DElOamp8L9wlpzinF0lzas/AZAjy8sHB++U4ORXDjUIQO27Zljs8+0fdpYwqDaGfpZGwb/YrDv+cf9huiCf7hDnH5MapRMx/1i/Ey2QMT5UvMd4U6mbCiYi6huq5GhzQWPDlXWjO1zapRBAOOxmEfu0EIhsl52MVDLqcaSw6MEL/IL18xnS5UFkm7AQfOFBrjHV6ax1pMMkDcCSNPV23VPVMq2GfNNtruF/Byc0Emn4aoA3jc6mZclxwcET6kSedCKXgrZl4CNM2XwM+1ZQseo7/Y28m5Haw18gHXR5/4xoyUTcAog8RAIop8spCO702WiztaWHhfHgBiTXMLyQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=W17RT99oW4AltTfUDOZ2wl9KZ2h+4pYPTEpd/1aB838=;
- b=BSykMD+zgUB8rgNs0gre3dDnNECu5jMafn3E35fgAewVu0N5QB/K1hjw2xZyxpbFpZ4wjqiC91JTqy+Kmzp/3ND18xptnR93O2rwxe8d4egPPwJkazhQPLw+7fmoYQncC9DPqWrFJsvzv3qE4+Vns79SG1BfKd7VSSBO3abcs86l0j4oINzULlCQ0DlE03ZsQYO7zrjZkPMFRfRvsSKAqDHXW2yhV4KY9qRh3MhCUfLORQEAgUDoh0wQVtfmOfOCIQY+NyMa1dFPPVn3NF1hObDXegOZ488BOUUTTf+gCGDmPZM7unZPAZAB1rQPVPgoHUZWb8KQ1mXBhfY4IOcVVQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=W17RT99oW4AltTfUDOZ2wl9KZ2h+4pYPTEpd/1aB838=;
- b=nvDp+W64yQjq3hnpfyyaNxo/GdB3S75WHvB2fgvHdOEZo1mMW7FfJ81KKQTl7EyGfKoERnCpI6fgABIyvCooESUQZD0wtPW810R3BEQ8UQGgFRII3zABOObIrvSdpDXcBL0Mc78ULAbtwZR4C1Xr5WNwZIZcqK6r5wqTTLRnzH7fz0EqxTIaRxQ5JhFnbccwJl2m1LftgU8uKipuJcd7QfgJ021WTu3gcu+C4uUe0EK8Gylb4hM7BPHJJChslfat9nDY5fXzhpgERauw24U1+dHLyzP/O7eyNir9/sDmtqhI3K11SMOr93iFkVM3/ByIv6iJaUf2m/OsYgkZ+GwHbA==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
- by BN9PR12MB5081.namprd12.prod.outlook.com (2603:10b6:408:132::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6178.37; Wed, 22 Mar
- 2023 12:18:01 +0000
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::ef6d:fdf6:352f:efd1]) by LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::ef6d:fdf6:352f:efd1%3]) with mapi id 15.20.6178.037; Wed, 22 Mar 2023
- 12:18:01 +0000
-Date:   Wed, 22 Mar 2023 09:17:59 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     "Liu, Yi L" <yi.l.liu@intel.com>
-Cc:     Alex Williamson <alex.williamson@redhat.com>,
-        "Tian, Kevin" <kevin.tian@intel.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "jasowang@redhat.com" <jasowang@redhat.com>,
-        "Hao, Xudong" <xudong.hao@intel.com>,
-        "peterx@redhat.com" <peterx@redhat.com>,
-        "Xu, Terrence" <terrence.xu@intel.com>,
-        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
-        "lulu@redhat.com" <lulu@redhat.com>,
-        "joro@8bytes.org" <joro@8bytes.org>,
-        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
-        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "eric.auger@redhat.com" <eric.auger@redhat.com>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
-        "cohuck@redhat.com" <cohuck@redhat.com>,
-        "shameerali.kolothum.thodi@huawei.com" 
-        <shameerali.kolothum.thodi@huawei.com>,
-        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
-        "robin.murphy@arm.com" <robin.murphy@arm.com>
-Subject: Re: [PATCH v6 12/24] vfio/pci: Allow passing zero-length fd array in
- VFIO_DEVICE_PCI_HOT_RESET
-Message-ID: <ZBrx98kqNZs3jeWO@nvidia.com>
-References: <BN9PR11MB5276F7879E428080D2B214D98CBC9@BN9PR11MB5276.namprd11.prod.outlook.com>
- <20230316182256.6659bbbd.alex.williamson@redhat.com>
- <BN9PR11MB5276D5A71E43EA4CDD1C960A8CBD9@BN9PR11MB5276.namprd11.prod.outlook.com>
- <20230317091557.196638a6.alex.williamson@redhat.com>
- <ZBiUiEC8Xj9sOphr@nvidia.com>
- <20230320165217.5b1019a4.alex.williamson@redhat.com>
- <ZBjum1wQ1L2AIfhB@nvidia.com>
- <20230321143122.632f7e63.alex.williamson@redhat.com>
- <ZBoYgNq60eDpV9Un@nvidia.com>
- <DS0PR11MB7529B8A8712F737274298381C3869@DS0PR11MB7529.namprd11.prod.outlook.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <DS0PR11MB7529B8A8712F737274298381C3869@DS0PR11MB7529.namprd11.prod.outlook.com>
-X-ClientProxiedBy: BL1P223CA0004.NAMP223.PROD.OUTLOOK.COM
- (2603:10b6:208:2c4::9) To LV2PR12MB5869.namprd12.prod.outlook.com
- (2603:10b6:408:176::16)
+        with ESMTP id S229513AbjCVMWN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Mar 2023 08:22:13 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B8373AB8
+        for <linux-s390@vger.kernel.org>; Wed, 22 Mar 2023 05:20:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1679487645;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=hPXFCTl8qif3OA4s3YNypS2WhS0XvH7qdHBOusQ/gQI=;
+        b=LuP4fBvVzRS/lTwhhaJB3MHbL8v9PKaN/VEeE+JpK2VjR8oC7FyYUY/NXL9eO1WWy6EA5/
+        ps1g32RrPlEk/+w5xBz13iyPHZtQzBH3/j+1kTi9sVA3yvv6npQ6koVKdlAjXtqig/YofD
+        Faq1HCNt1DCcdP5xTWxp8Hv/bxn7Y00=
+Received: from mail-qt1-f198.google.com (mail-qt1-f198.google.com
+ [209.85.160.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-621-jwvyKGUsMsiWhttT5Mo5jA-1; Wed, 22 Mar 2023 08:20:36 -0400
+X-MC-Unique: jwvyKGUsMsiWhttT5Mo5jA-1
+Received: by mail-qt1-f198.google.com with SMTP id h6-20020a05622a170600b003e22c6de617so5199444qtk.13
+        for <linux-s390@vger.kernel.org>; Wed, 22 Mar 2023 05:20:36 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1679487636;
+        h=mime-version:message-id:date:references:in-reply-to:subject:cc:to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=hPXFCTl8qif3OA4s3YNypS2WhS0XvH7qdHBOusQ/gQI=;
+        b=tElcg9mH8Yrn3fFr12DRzAeKDpjpD+wgtDWQCBKAhbs1AC4L8CSyOqRmZ4XrnVNz4H
+         z4CIwEvx14C4YMCL9htZhUx9cwxoqQLL6ZkCYLvu/9eSDRD6cT9WOcZf+Eu2xNjSrR9J
+         9ZKazf13lcowcRQyj6zoHCKZZ52DpzhT9lc9JTrs77CxJwa68os6SUAOSQPDVk2slStW
+         3giTpZS7u7XbdHFu2/D1CYeCd56dAWMP43AqnOE2pB/H0xeBsTx7BQ0OqGLUywGfsgh4
+         LVGVuDV6RkrzvyckW2U1xBjACWK80QAmwMZ2/sz97pe5mv+u5CRyQ4Y1XmuNaXx8QtCM
+         ojMQ==
+X-Gm-Message-State: AO0yUKW8N3TcGpWuiw/O9grgfWa+hPtRh1g2tIazNW7ZOccntrokpHa1
+        sdW0WGlhVLzEfoiU3NRPxXRV4PURU+VLON0DTEPjeNgeLDv8movM/yqc+7fkaxfv6/+WpalzqtW
+        rShP1ZnK+WOVzsizpgBEoqA==
+X-Received: by 2002:a05:6214:e6e:b0:5c5:95db:858a with SMTP id jz14-20020a0562140e6e00b005c595db858amr5249084qvb.31.1679487636118;
+        Wed, 22 Mar 2023 05:20:36 -0700 (PDT)
+X-Google-Smtp-Source: AK7set+c4qgqaBQUslatTuVuP/CBQYeSmWHcWFFuVnFTR+yoMggQM+H4NTuj8PmuW7zmUDZ2oj+NWg==
+X-Received: by 2002:a05:6214:e6e:b0:5c5:95db:858a with SMTP id jz14-20020a0562140e6e00b005c595db858amr5249039qvb.31.1679487635822;
+        Wed, 22 Mar 2023 05:20:35 -0700 (PDT)
+Received: from vschneid.remote.csb ([154.57.232.159])
+        by smtp.gmail.com with ESMTPSA id d185-20020a37b4c2000000b007425ef4cbc2sm11175799qkf.100.2023.03.22.05.20.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 22 Mar 2023 05:20:35 -0700 (PDT)
+From:   Valentin Schneider <vschneid@redhat.com>
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
+        openrisc@lists.librecores.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org,
+        x86@kernel.org, "Paul E. McKenney" <paulmck@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Marcelo Tosatti <mtosatti@redhat.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Marc Zyngier <maz@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Guo Ren <guoren@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH v5 7/7] sched, smp: Trace smp callback causing an IPI
+In-Reply-To: <20230322095329.GS2017917@hirez.programming.kicks-ass.net>
+References: <20230307143558.294354-1-vschneid@redhat.com>
+ <20230307143558.294354-8-vschneid@redhat.com>
+ <20230322095329.GS2017917@hirez.programming.kicks-ass.net>
+Date:   Wed, 22 Mar 2023 12:20:28 +0000
+Message-ID: <xhsmhmt45c703.mognet@vschneid.remote.csb>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|BN9PR12MB5081:EE_
-X-MS-Office365-Filtering-Correlation-Id: 651c306c-5485-4511-4087-08db2acf7ada
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: UxlGkZOZc07Ge9ij8F5hVbV7DWyI5wcrZQDiUmx7mSUox2520Ykzzx3Tx00FK7d/NmDWHRifNimms5VD73R3E61cHmr0QAOF2lvBfNhaCHUoO9olQA8O/TAVuZqbRSFWeS+qvD2cn4O1BHQtbxoJPKASQ3iwlEz97/fkIMd3NPaZnIA9HAJXdBSDUvn8A9sOM7sMQwsMYfJcmNiFk8GUzFBLizOmsimCPkytyROZLwBtGn+7QfIW6Nk0qx66hscKLBlxHprP1BuW9x2iBqaTR7vxb/Ae4/r/ZzDkuPkcnLjvT6y5guJMPCFmY48pcvoqIp5v87otRmHWdCKq19hqoLE9kspeMOnDW/MUZA5MuTVGvL1xmN+6YbelTLL/evyVyVLk4er1Pf0SxwB/wDbetKWRJqrRIsgNUC9A2e0uTAd50y63JlyGAT5Kd4f9K1L9E9RP+xGqc3rs/R3dJ3gm0EjxBfn2OF86m//JMGZA82d7gkKOR+BSHgHes+B91unNzLt4LImvFuxxLrKKlXVR2IbU3WtzMnuFLNdrVbgCH9UNGPqnaQATnQVVXWrBP519UZnQe0+0GGr9ES7ny9uYiFvOB+9aEuKF07Q7fVhomEn0v6u+ycgkSjU7OQVWfmqRB0QXqx/IsXLSVu43/6sXjg==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(4636009)(39860400002)(396003)(366004)(376002)(136003)(346002)(451199018)(38100700002)(6512007)(5660300002)(4326008)(6506007)(8936002)(54906003)(41300700001)(6486002)(86362001)(316002)(8676002)(478600001)(6916009)(66946007)(66556008)(36756003)(66476007)(26005)(186003)(2906002)(2616005)(7416002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?cjMXit2F7X/o/tnZC2sYtf/Cd+S40cjb1MS0gvWaXFtZ+BPbdaiwYRXK2rk2?=
- =?us-ascii?Q?KZYfaRnRX9ui03PtlWl2rgy7MrfsB+pBTz0jTBYp7GhqIqvjU20GmHQ7KJzs?=
- =?us-ascii?Q?m+ZqmGgCvZiuWScYIwWni7KTwNW/LM4Dc5tbqQr/Idr6FrdGpcYv9mXXapeh?=
- =?us-ascii?Q?rbXJJ1c9STBP2SIY17MwuxW+dsabY8t61FXA5ohfqPRReTjXCW2zJ3b3IWPg?=
- =?us-ascii?Q?bxFCZ5lnTJZrLspOreG9xVux5G73mh32XV2sj9UrDMyCGNO9CFV3VT0YEwrd?=
- =?us-ascii?Q?j7orX4IRjdAX6PHv5RbhSEHl0oP+NeUDT7u4GKgr8Ktni0K0WMN4ZKXnCAKt?=
- =?us-ascii?Q?KSFoyu3yNYRbUEkXWKe3N27Z8whj4ZG/NRsZJETbn13thU5dNf2FrbiIDW8g?=
- =?us-ascii?Q?+c3kw2zl2mDZDalu/2G5tV0GMJX53Sgr+omjhLAj41PSkyIx9wYx4oKa2nkz?=
- =?us-ascii?Q?nnZ8nsapRGf7dYM/t/UwhPjOCcmWMrrTYetdstwm2+cyH80Z+GPoMBzkwYru?=
- =?us-ascii?Q?MIK7ztLPqjmac/gql4LyMTQ8EzSV/LAd3AChUJ1JM//1ZUwgJYTExBpYfI9f?=
- =?us-ascii?Q?JUNS0/Kd5NCEXKuP9KeB7e1oME2oG0acj9STbCVIotapukzJq3Fc0VT+dbRI?=
- =?us-ascii?Q?1+LuDOZDb0PEKx8+AhVYkdfcJ8BtNlDRG22wAdhdS69fKunX6SvWDXkTALce?=
- =?us-ascii?Q?HIlsjjtx5QE9mKVCpZas3HXRWIvAezyi/fSaqTLPR6wYVex80R8JdB7Vq9eq?=
- =?us-ascii?Q?AL9do4pKG0u74ETQT91bSzazIbWMNGislYQSOSCbo0O9U23p8kii1hcZjutT?=
- =?us-ascii?Q?ScRw6ukbUWVUgieo5E5702R5W7k5iwvwGU2FWU218Y42+3o3IYWv/j2hg6Rk?=
- =?us-ascii?Q?9FLmbXoF64CznE6fVioFWA9WWSJ7i804EgpQAUO0HhMbrHoiQPlKdmL7kUPv?=
- =?us-ascii?Q?bRqlNiOGuamlFmWh1HdQZ5xQWfl2nInZHmx1ED699VrRvhB28wEJcB+qN9TP?=
- =?us-ascii?Q?kxMKziAzMGAHUQI3gMvVZGcJqZfGwFBQgbpVdyLcQMtiBEvWrPoYjUonzj84?=
- =?us-ascii?Q?6y/WuLAV38fZvbzGXgDeTWWk+bMsZVsuzORVDW3S5MWWiHMlPoCR0MJGU74j?=
- =?us-ascii?Q?IKIWUIBmHAOv+BD5l//sTnEQumg7IedR988BN+RmI+8Q9fJpXD0rww1Aa34T?=
- =?us-ascii?Q?feYqKDqtpYRzEuCfaYm/OKdVJ5KZxdWwa/d6tV8CSU9HNvMgEXnkUDU0Zb0r?=
- =?us-ascii?Q?lzbdwGNYv2utqav+7pKW6OpkND6yfNsBmaNTxglNKTqllTjXcBvAmpQIexQI?=
- =?us-ascii?Q?KCiyRtnBX23W7cAbPDIIC3qJOSATaYOFQEaEp0eIlp93ji4Y9HOJtJXbTKmd?=
- =?us-ascii?Q?1ZH7iAMyzH9t7Mb4IuYQcoNFFd7dR6UaNBt1I5UchKpgsaf0XHiIOn+DeJsL?=
- =?us-ascii?Q?6zIkFhyzue6F8cUk/7nPsX8OaGKIC96PVjb/zcQmKRlMg0YG2rrEaNgrCBhf?=
- =?us-ascii?Q?IjuCL9lPn4yHm3nDO4QA73RCEITOJXyoE9ccPTe53hrHsIbjOssBmeJvcH/i?=
- =?us-ascii?Q?ZRX7hJi+NDBJVaOw+HpbMilFRv8XvguLZbFW105v?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 651c306c-5485-4511-4087-08db2acf7ada
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 22 Mar 2023 12:18:01.2808
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: Hevn6DjFDrlpb0n+qqbe/rZ59Hey0KHyqOrYqkQql5ZYUkIhjIUsOmw8O8rqeWtg
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN9PR12MB5081
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Mar 22, 2023 at 08:17:54AM +0000, Liu, Yi L wrote:
+On 22/03/23 10:53, Peter Zijlstra wrote:
+> On Tue, Mar 07, 2023 at 02:35:58PM +0000, Valentin Schneider wrote:
+>
+>> @@ -477,6 +490,25 @@ static __always_inline void csd_unlock(struct __call_single_data *csd)
+>>      smp_store_release(&csd->node.u_flags, 0);
+>>  }
+>>
+>> +static __always_inline void
+>> +raw_smp_call_single_queue(int cpu, struct llist_node *node, smp_call_func_t func)
+>> +{
+>> +	/*
+>> +	 * The list addition should be visible to the target CPU when it pops
+>> +	 * the head of the list to pull the entry off it in the IPI handler
+>> +	 * because of normal cache coherency rules implied by the underlying
+>> +	 * llist ops.
+>> +	 *
+>> +	 * If IPIs can go out of order to the cache coherency protocol
+>> +	 * in an architecture, sufficient synchronisation should be added
+>> +	 * to arch code to make it appear to obey cache coherency WRT
+>> +	 * locking and barrier primitives. Generic code isn't really
+>> +	 * equipped to do the right thing...
+>> +	 */
+>> +	if (llist_add(node, &per_cpu(call_single_queue, cpu)))
+>> +		send_call_function_single_ipi(cpu, func);
+>> +}
+>> +
+>>  static DEFINE_PER_CPU_SHARED_ALIGNED(call_single_data_t, csd_data);
+>>
+>>  void __smp_call_single_queue(int cpu, struct llist_node *node)
+>> @@ -493,21 +525,25 @@ void __smp_call_single_queue(int cpu, struct llist_node *node)
+>>              }
+>>      }
+>>  #endif
+>>      /*
+>> +	 * We have to check the type of the CSD before queueing it, because
+>> +	 * once queued it can have its flags cleared by
+>> +	 *   flush_smp_call_function_queue()
+>> +	 * even if we haven't sent the smp_call IPI yet (e.g. the stopper
+>> +	 * executes migration_cpu_stop() on the remote CPU).
+>>       */
+>> +	if (trace_ipi_send_cpumask_enabled()) {
+>> +		call_single_data_t *csd;
+>> +		smp_call_func_t func;
+>> +
+>> +		csd = container_of(node, call_single_data_t, node.llist);
+>> +		func = CSD_TYPE(csd) == CSD_TYPE_TTWU ?
+>> +			sched_ttwu_pending : csd->func;
+>> +
+>> +		raw_smp_call_single_queue(cpu, node, func);
+>> +	} else {
+>> +		raw_smp_call_single_queue(cpu, node, NULL);
+>> +	}
+>>  }
+>
+> Hurmph... so we only really consume @func when we IPI. Would it not be
+> more useful to trace this thing for *every* csd enqeued?
 
-> Could you elaborate what is required with _INFO before libvirt can
-> use a FD pass?
+It's true that any CSD enqueued on that CPU's call_single_queue in the
+[first CSD llist_add()'ed, IPI IRQ hits] timeframe is a potential source of
+interference.
 
-Make a new _INFO that returns an array of dev_ids within the cdev's
-iommufd_ctx that are part of the reset group, eg the devset.
+However, can we be sure that first CSD isn't an indirect cause for the
+following ones? say the target CPU exits RCU EQS due to the IPI, there's a
+bit of time before it gets to flush_smp_call_function_queue() where some other CSD
+could be enqueued *because* of that change in state.
 
-qemu will call this for each dev_id after it opens the cdev to
-generate the groupings.
+I couldn't find a easy example of that, I might be biased as this is where
+I'd like to go wrt IPI'ing isolated CPUs in usermode. But regardless, when
+correlating an IPI IRQ with its source, we'd always have to look at the
+first CSD in that CSD stack.
 
-> > But for the current qemu setup it will open cdev directly and it will
-> > know the BDF so it can still use the current _INFO.
-> > 
-> > Though it would be nice if qemu didn't need two implementations so Yi
-> > I'd rather see a new info in this series as well and qemu can just
-> > consistently use dev_id and never bdf in iommufd mode.
-> 
-> I have one concern here. iommufd dev_id is not a static info as much as
-> bdf. It is generated when bound to iommufd. So if there are devices that
-> are affected but not bound to iommufd yet at the time of invoking _INFO,
-> then the _INFO ioctl just gets a subset of the affected devices. Is it enough?
-
-I'd probably use similar logic as the reset path, if one of reset
-group devices is open and on a different iommufd_ctx then fail the
-IOCTL with EPERM.
-
-Jason
