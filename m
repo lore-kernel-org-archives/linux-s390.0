@@ -2,42 +2,59 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BCF29C7619A
-	for <linux-s390@archiver.kernel.org>; Wed, 22 Mar 2023 10:30:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B0422C7619A
+	for <linux-s390@archiver.kernel.org>; Wed, 22 Mar 2023 11:26:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230242AbjCVKae (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 22 Mar 2023 06:30:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41844 "EHLO
+        id S230179AbjCVL0Z (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 22 Mar 2023 07:26:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230194AbjCVKab (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Mar 2023 06:30:31 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B38065A926;
-        Wed, 22 Mar 2023 03:30:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=HoRvkd+LKj4dGdGLlCXof2DCgR7hulEC2e5UJ4bAaXY=; b=nWUnvkKpFDRoWjs9u2AzwYMtJ7
-        aenibCcG9GWoRWHfBMx1W3UNq1sJn93PyZxuygGUkDBzBh6zn9TRHrL+I7ZYcL3lgqjY8VAa+udBm
-        kIShoJMH6uEX2pe1htwgzEWCW0pxMY/WPULPz/LxY6CZFOp/eLwj+k6ki5q6N/i9vq3nJ5a9LKzhW
-        d21VTjejO9uEV7WREfd/52Y2FOCBZdKennKdjG8Gt17Dc4Z05ACBMFZQln9tGX2Z0Mu/Lm6PdQ+Oo
-        sXexlVoadXfFPb02yVG1fVEWDquekMFyR6ShCOCO7j+Y6R9vIbc1v6vAfeqAIVqFl8FQCC/8FvGmi
-        xMJbNNrA==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1pevjK-002vC8-My; Wed, 22 Mar 2023 10:30:06 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits))
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id C12CA3002FC;
-        Wed, 22 Mar 2023 11:30:04 +0100 (CET)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id A6E332394C189; Wed, 22 Mar 2023 11:30:04 +0100 (CET)
-Date:   Wed, 22 Mar 2023 11:30:04 +0100
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Valentin Schneider <vschneid@redhat.com>
+        with ESMTP id S230295AbjCVL0Y (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Mar 2023 07:26:24 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99154618A7
+        for <linux-s390@vger.kernel.org>; Wed, 22 Mar 2023 04:25:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1679484303;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=CeeQx+I+dRtKj5nSnz4ngzuZMZMfDzExS1NioY8sNjE=;
+        b=YiHCcEMklnPO1Nnsc6FZEFkoAjKCP+8zw8PmMOPG8ZtoPhd4DcKa40P5t1WvJCGLw1i9/Z
+        xGOfqk5p/rol+DVvScIDktQyC1nlY7yLxxbrXh4UjvoDYSbqbtgY4jZ09TLgqTzFSTXShx
+        tE5Bxrp6JhkLWOsiCe7J+lRfmR19q+U=
+Received: from mail-qv1-f71.google.com (mail-qv1-f71.google.com
+ [209.85.219.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-557-HuX8FoLpOceaip3sEbuwdw-1; Wed, 22 Mar 2023 07:25:02 -0400
+X-MC-Unique: HuX8FoLpOceaip3sEbuwdw-1
+Received: by mail-qv1-f71.google.com with SMTP id y19-20020ad445b3000000b005a5123cb627so9121140qvu.20
+        for <linux-s390@vger.kernel.org>; Wed, 22 Mar 2023 04:25:02 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1679484302;
+        h=mime-version:message-id:date:references:in-reply-to:subject:cc:to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=CeeQx+I+dRtKj5nSnz4ngzuZMZMfDzExS1NioY8sNjE=;
+        b=BVf2zUzO8ic7YolsprFE8OXrTylSbBg6gEGPUahjQ+MAFsJSxFghxf0ZX1EH6++7Ro
+         f61Z4FVSCr9hI0Tos5Af7WXoNJCvz8w+Cr3yvYQnNgJTyLL/WIc1FARGf7ME3o1Mb2km
+         FCUn8pDQjRXTJsFT+NAHisYNijqJ/enooDfaYLHL0TqgZ6mnmwWadUiSP4b+VUuiW5tJ
+         yxeaNyoyOHhXD5ksz8UAIN97AaC5EGco3I529lE7IUQsubqjzKBrMkPkedQdVAAk12K+
+         3aLI5ROx4peYCwegWGbwIB/LraRm2yFoVZMPG6AO6kR3OIpi8Wx6LUOviU/9pr9JjbTE
+         tAUQ==
+X-Gm-Message-State: AO0yUKUYWZOz4hIgugkYFHRfFl1cfCSFPaVdfvwi1SnAw96m+GB6ZL+S
+        IuEWIti4ONhNX3pKYdKY2NdZzrGv/sa4YApmHM5GSacS/jYkGkNAWC1IjDPll2hHOgns7FfE8Fv
+        wCrDwMlhLpPQN/c8vaDQkvw==
+X-Received: by 2002:a05:6214:5087:b0:5a3:2f3c:4ee2 with SMTP id kk7-20020a056214508700b005a32f3c4ee2mr4440551qvb.42.1679484301881;
+        Wed, 22 Mar 2023 04:25:01 -0700 (PDT)
+X-Google-Smtp-Source: AK7set9pQPCTrnu5TcJ8+anXt5wOGunOW6pbx+MNpUrdRaYmFZLBIEbvfDpQn22VZvxy9XYWlsJV9g==
+X-Received: by 2002:a05:6214:5087:b0:5a3:2f3c:4ee2 with SMTP id kk7-20020a056214508700b005a32f3c4ee2mr4440518qvb.42.1679484301639;
+        Wed, 22 Mar 2023 04:25:01 -0700 (PDT)
+Received: from vschneid.remote.csb ([154.57.232.159])
+        by smtp.gmail.com with ESMTPSA id f66-20020a37d245000000b00745f3200f54sm11036821qkj.112.2023.03.22.04.24.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 22 Mar 2023 04:25:00 -0700 (PDT)
+From:   Valentin Schneider <vschneid@redhat.com>
+To:     Peter Zijlstra <peterz@infradead.org>
 Cc:     linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-snps-arc@lists.infradead.org,
         linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
@@ -64,165 +81,97 @@ Cc:     linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
         Guo Ren <guoren@kernel.org>,
         "David S. Miller" <davem@davemloft.net>
 Subject: Re: [PATCH v5 1/7] trace: Add trace_ipi_send_cpumask()
-Message-ID: <20230322103004.GA571242@hirez.programming.kicks-ass.net>
+In-Reply-To: <20230322103004.GA571242@hirez.programming.kicks-ass.net>
 References: <20230307143558.294354-1-vschneid@redhat.com>
  <20230307143558.294354-2-vschneid@redhat.com>
  <20230322093955.GR2017917@hirez.programming.kicks-ass.net>
+ <20230322103004.GA571242@hirez.programming.kicks-ass.net>
+Date:   Wed, 22 Mar 2023 11:24:53 +0000
+Message-ID: <xhsmhpm91c9kq.mognet@vschneid.remote.csb>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230322093955.GR2017917@hirez.programming.kicks-ass.net>
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Mar 22, 2023 at 10:39:55AM +0100, Peter Zijlstra wrote:
-> On Tue, Mar 07, 2023 at 02:35:52PM +0000, Valentin Schneider wrote:
-> > trace_ipi_raise() is unsuitable for generically tracing IPI sources due to
-> > its "reason" argument being an uninformative string (on arm64 all you get
-> > is "Function call interrupts" for SMP calls).
-> > 
-> > Add a variant of it that exports a target cpumask, a callsite and a callback.
-> > 
-> > Signed-off-by: Valentin Schneider <vschneid@redhat.com>
-> > Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-> > ---
-> >  include/trace/events/ipi.h | 22 ++++++++++++++++++++++
-> >  1 file changed, 22 insertions(+)
-> > 
-> > diff --git a/include/trace/events/ipi.h b/include/trace/events/ipi.h
-> > index 0be71dad6ec03..b1125dc27682c 100644
-> > --- a/include/trace/events/ipi.h
-> > +++ b/include/trace/events/ipi.h
-> > @@ -35,6 +35,28 @@ TRACE_EVENT(ipi_raise,
-> >  	TP_printk("target_mask=%s (%s)", __get_bitmask(target_cpus), __entry->reason)
-> >  );
-> >  
-> > +TRACE_EVENT(ipi_send_cpumask,
-> > +
-> > +	TP_PROTO(const struct cpumask *cpumask, unsigned long callsite, void *callback),
-> > +
-> > +	TP_ARGS(cpumask, callsite, callback),
-> > +
-> > +	TP_STRUCT__entry(
-> > +		__cpumask(cpumask)
-> > +		__field(void *, callsite)
-> > +		__field(void *, callback)
-> > +	),
-> > +
-> > +	TP_fast_assign(
-> > +		__assign_cpumask(cpumask, cpumask_bits(cpumask));
-> > +		__entry->callsite = (void *)callsite;
-> > +		__entry->callback = callback;
-> > +	),
-> > +
-> > +	TP_printk("cpumask=%s callsite=%pS callback=%pS",
-> > +		  __get_cpumask(cpumask), __entry->callsite, __entry->callback)
-> > +);
-> 
-> Would it make sense to add a variant like: ipi_send_cpu() that records a
-> single cpu instead of a cpumask. A lot of sites seems to do:
-> cpumask_of(cpu) for that first argument, and it seems to me it is quite
-> daft to have to memcpy a full multi-word cpumask in those cases.
-> 
-> Remember, nr_possible_cpus > 64 is quite common these days.
+On 22/03/23 11:30, Peter Zijlstra wrote:
+> On Wed, Mar 22, 2023 at 10:39:55AM +0100, Peter Zijlstra wrote:
+>> On Tue, Mar 07, 2023 at 02:35:52PM +0000, Valentin Schneider wrote:
+>> > +TRACE_EVENT(ipi_send_cpumask,
+>> > +
+>> > +	TP_PROTO(const struct cpumask *cpumask, unsigned long callsite, void *callback),
+>> > +
+>> > +	TP_ARGS(cpumask, callsite, callback),
+>> > +
+>> > +	TP_STRUCT__entry(
+>> > +		__cpumask(cpumask)
+>> > +		__field(void *, callsite)
+>> > +		__field(void *, callback)
+>> > +	),
+>> > +
+>> > +	TP_fast_assign(
+>> > +		__assign_cpumask(cpumask, cpumask_bits(cpumask));
+>> > +		__entry->callsite = (void *)callsite;
+>> > +		__entry->callback = callback;
+>> > +	),
+>> > +
+>> > +	TP_printk("cpumask=%s callsite=%pS callback=%pS",
+>> > +		  __get_cpumask(cpumask), __entry->callsite, __entry->callback)
+>> > +);
+>>
+>> Would it make sense to add a variant like: ipi_send_cpu() that records a
+>> single cpu instead of a cpumask. A lot of sites seems to do:
+>> cpumask_of(cpu) for that first argument, and it seems to me it is quite
+>> daft to have to memcpy a full multi-word cpumask in those cases.
+>>
+>> Remember, nr_possible_cpus > 64 is quite common these days.
+>
+> Something we litte bit like so...
+>
 
-Something we litte bit like so...
+I was wondering whether we could stick with a single trace event, but let
+ftrace be aware of weight=1 vs weight>1 cpumasks.
 
----
-Subject: trace: Add trace_ipi_send_cpu()
-From: Peter Zijlstra <peterz@infradead.org>
-Date: Wed Mar 22 11:28:36 CET 2023
+For weight>1, it would memcpy() as usual, for weight=1, it could write a
+pointer to a cpu_bit_bitmap[] equivalent embedded in the trace itself.
 
-Because copying cpumasks around when targeting a single CPU is a bit
-daft...
+Unfortunately, Ftrace bitmasks are represented as a u32 made of two 16 bit
+values: [offset in event record, size], so there isn't a straightforward
+way to point to a "reusable" cpumask. AFAICT the only alternative would be
+to do that via a different trace event, but then we should just go with a
+plain old uint - i.e. do what you're doing here, so:
 
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
----
- include/linux/smp.h        |    6 +++---
- include/trace/events/ipi.h |   22 ++++++++++++++++++++++
- kernel/irq_work.c          |    6 ++----
- kernel/smp.c               |    4 ++--
- 4 files changed, 29 insertions(+), 9 deletions(-)
+Tested-and-reviewed-by: Valentin Schneider <vschneid@redhat.com>
 
---- a/include/linux/smp.h
-+++ b/include/linux/smp.h
-@@ -130,9 +130,9 @@ extern void arch_smp_send_reschedule(int
-  * scheduler_ipi() is inline so can't be passed as callback reason, but the
-  * callsite IP should be sufficient for root-causing IPIs sent from here.
-  */
--#define smp_send_reschedule(cpu) ({				  \
--	trace_ipi_send_cpumask(cpumask_of(cpu), _RET_IP_, NULL);  \
--	arch_smp_send_reschedule(cpu);				  \
-+#define smp_send_reschedule(cpu) ({		  \
-+	trace_ipi_send_cpu(cpu, _RET_IP_, NULL);  \
-+	arch_smp_send_reschedule(cpu);		  \
- })
- 
- /*
---- a/include/trace/events/ipi.h
-+++ b/include/trace/events/ipi.h
-@@ -35,6 +35,28 @@ TRACE_EVENT(ipi_raise,
- 	TP_printk("target_mask=%s (%s)", __get_bitmask(target_cpus), __entry->reason)
- );
- 
-+TRACE_EVENT(ipi_send_cpu,
-+
-+	TP_PROTO(const unsigned int cpu, unsigned long callsite, void *callback),
-+
-+	TP_ARGS(cpu, callsite, callback),
-+
-+	TP_STRUCT__entry(
-+		__field(unsigned int, cpu)
-+		__field(void *, callsite)
-+		__field(void *, callback)
-+	),
-+
-+	TP_fast_assign(
-+		__entry->cpu = cpu;
-+		__entry->callsite = (void *)callsite;
-+		__entry->callback = callback;
-+	),
-+
-+	TP_printk("cpu=%s callsite=%pS callback=%pS",
-+		  __entry->cpu, __entry->callsite, __entry->callback)
-+);
-+
- TRACE_EVENT(ipi_send_cpumask,
- 
- 	TP_PROTO(const struct cpumask *cpumask, unsigned long callsite, void *callback),
---- a/kernel/irq_work.c
-+++ b/kernel/irq_work.c
-@@ -78,10 +78,8 @@ void __weak arch_irq_work_raise(void)
- 
- static __always_inline void irq_work_raise(struct irq_work *work)
- {
--	if (trace_ipi_send_cpumask_enabled() && arch_irq_work_has_interrupt())
--		trace_ipi_send_cpumask(cpumask_of(smp_processor_id()),
--				       _RET_IP_,
--				       work->func);
-+	if (trace_ipi_send_cpu_enabled() && arch_irq_work_has_interrupt())
-+		trace_ipi_send_cpu(smp_processor_id(), _RET_IP_, work->func);
- 
- 	arch_irq_work_raise();
- }
---- a/kernel/smp.c
-+++ b/kernel/smp.c
-@@ -109,7 +109,7 @@ static __always_inline void
- send_call_function_single_ipi(int cpu, smp_call_func_t func)
- {
- 	if (call_function_single_prep_ipi(cpu)) {
--		trace_ipi_send_cpumask(cpumask_of(cpu), _RET_IP_, func);
-+		trace_ipi_send_cpu(cpu, _RET_IP_, func);
- 		arch_send_call_function_single_ipi(cpu);
- 	}
- }
-@@ -348,7 +348,7 @@ void __smp_call_single_queue(int cpu, st
- 	 * even if we haven't sent the smp_call IPI yet (e.g. the stopper
- 	 * executes migration_cpu_stop() on the remote CPU).
- 	 */
--	if (trace_ipi_send_cpumask_enabled()) {
-+	if (trace_ipi_send_cpu_enabled()) {
- 		call_single_data_t *csd;
- 		smp_call_func_t func;
- 
+(with the tiny typo fix below)
+
+> @@ -35,6 +35,28 @@ TRACE_EVENT(ipi_raise,
+>       TP_printk("target_mask=%s (%s)", __get_bitmask(target_cpus), __entry->reason)
+>  );
+>
+> +TRACE_EVENT(ipi_send_cpu,
+> +
+> +	TP_PROTO(const unsigned int cpu, unsigned long callsite, void *callback),
+> +
+> +	TP_ARGS(cpu, callsite, callback),
+> +
+> +	TP_STRUCT__entry(
+> +		__field(unsigned int, cpu)
+> +		__field(void *, callsite)
+> +		__field(void *, callback)
+> +	),
+> +
+> +	TP_fast_assign(
+> +		__entry->cpu = cpu;
+> +		__entry->callsite = (void *)callsite;
+> +		__entry->callback = callback;
+> +	),
+> +
+> +	TP_printk("cpu=%s callsite=%pS callback=%pS",
+                        ^
+                      s/s/u/
+
+> +		  __entry->cpu, __entry->callsite, __entry->callback)
+> +);
+> +
+
