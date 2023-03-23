@@ -2,74 +2,80 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 47228C6FD1D
-	for <linux-s390@archiver.kernel.org>; Thu, 23 Mar 2023 07:19:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A82BC76196
+	for <linux-s390@archiver.kernel.org>; Thu, 23 Mar 2023 07:24:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229773AbjCWHTf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 23 Mar 2023 03:19:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39484 "EHLO
+        id S230404AbjCWHYE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 23 Mar 2023 03:24:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230471AbjCWHTL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Mar 2023 03:19:11 -0400
-Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EE046E8F
-        for <linux-s390@vger.kernel.org>; Thu, 23 Mar 2023 00:19:09 -0700 (PDT)
-Received: by mail-lf1-x12c.google.com with SMTP id bi9so26475094lfb.12
-        for <linux-s390@vger.kernel.org>; Thu, 23 Mar 2023 00:19:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=daynix-com.20210112.gappssmtp.com; s=20210112; t=1679555947;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Ughe32gdwO8QA3jLlHEipYlezC7QccZnUu3C2UjJnik=;
-        b=4OCO/8izV4KFj+PR7dqsIJjh8hAfhPbhMScOgB1NRV+FvjoNKvs4Mnwd011vw5zkhG
-         X4S5GHblf7lBvYsSBmmDV+n9iL+PftWkH4hzTty0hMNVjbhiRx+5LOl9+MyWFfyYFHiL
-         RSaODTA3WHz1I4E0ZFTAk++JdBBmwu9ZALFKdifp1tcgSjfJzRjxRJQOR0cAdso7E7lI
-         Y0zYS6y3yqyti5tlfFJUVPsqCsfWjNzaKeZDsX2ySllFZFFGvdj+AXgL+LT8aOVgvphr
-         tBaqxneNcjmjxhSzNpU+Q4V84/ttPSdMYJuzQlw39og1PLyyV2QEm3/PSWgRhiXGzDj5
-         8bww==
+        with ESMTP id S230274AbjCWHYC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Mar 2023 03:24:02 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7168BBBAF
+        for <linux-s390@vger.kernel.org>; Thu, 23 Mar 2023 00:23:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1679556192;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=IKPzOg130yY2/nrQ50CpNSyYcZXu+iR0UPS73wWvAaw=;
+        b=B4poTvOAQJ03Cbwfp2S9VSnJmXL3nBxwescnmGHeS5AYNZmncmd2rsUSsPaKOJJ7YlY3f7
+        DPADvtitYNnFl30i4MKDa6pojIiY75luOMS7Q8luE4TLwI/TetNOu6ltwek2GFSVCghEKg
+        Q5Y92eTvw6ZTCdrW3+eDciGPOiQCHoE=
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
+ [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-342-N61R1_OPNSyeRXW_qirzoQ-1; Thu, 23 Mar 2023 03:23:11 -0400
+X-MC-Unique: N61R1_OPNSyeRXW_qirzoQ-1
+Received: by mail-ed1-f69.google.com with SMTP id p36-20020a056402502400b004bb926a3d54so30600010eda.2
+        for <linux-s390@vger.kernel.org>; Thu, 23 Mar 2023 00:23:10 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679555947;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Ughe32gdwO8QA3jLlHEipYlezC7QccZnUu3C2UjJnik=;
-        b=FCyaoP24GnVaCZAjfI7UPVBvqw7FEGu78jluPa/74P5M2vKPZwvaPjaVJ4JGzi6nls
-         vUJUGdLDqOVymNeEtJjtIn/MvQbN20Ul/7ciuNSAJd7glkX+Mlemrkwa1MmXO67VKsCc
-         JzEgvC3rjG5K9TvfA8AztCaA5NemHAT9NuRvUtj2EavGrziwoezSSGpH+dELzefS1iTC
-         XH1Jm37ZkJN+Hbf2aJIVU9StCpvAjrzOyTX8U/5+n0vEzXcg/+nKlaROoUVNTUeSKTRl
-         pJXO01a8P+e+dJeXk72DgwzXilkxRKgXyzH8ju4pSIFWFw/w07ujuiuT6AZVJuuXzB6y
-         YTuA==
-X-Gm-Message-State: AO0yUKXZejLhl7piBGyONjwMu9Iyy3JSsr0/KVDpBW4hUABOeOIElsu7
-        jXv0zGklfbKOQIFyoFt8Orsgh3eASGjTbz+VjM8YFw==
-X-Google-Smtp-Source: AK7set9oftC7UKjRvHCiPemObEjB1PP66y3IfAxsPzCuTpGVzygdio9Wn73lWJdxYZlHqykdH12WveaVJbm4ALh0aFo=
-X-Received: by 2002:a19:ee11:0:b0:4e8:569d:9f38 with SMTP id
- g17-20020a19ee11000000b004e8569d9f38mr2686218lfb.5.1679555947241; Thu, 23 Mar
- 2023 00:19:07 -0700 (PDT)
-MIME-Version: 1.0
-References: <20230322141031.2211141-1-viktor@daynix.com> <1679534465.5760474-1-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <1679534465.5760474-1-xuanzhuo@linux.alibaba.com>
-From:   Viktor Prutyanov <viktor@daynix.com>
-Date:   Thu, 23 Mar 2023 10:18:56 +0300
-Message-ID: <CAPv0NP5gusfkyvX4qhMMiXsTZpckammmc5R7M=e9USi3C=1QAQ@mail.gmail.com>
-Subject: Re: [PATCH v4] virtio: add VIRTIO_F_NOTIFICATION_DATA feature support
+        d=1e100.net; s=20210112; t=1679556190;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=IKPzOg130yY2/nrQ50CpNSyYcZXu+iR0UPS73wWvAaw=;
+        b=qFlDGIr4ZX55Y5RMSCRpWBEyGIHcJjcGPVZhDukQbzdgWxKZ4Ta644OUggt+cEfznM
+         LP9dWfP2hPUqswNGqTNUPjE4HOD3HpB2vn7KAVBWzAOc1JCxb0/wOtOpMrjTrPGubjLT
+         eI8R/HWCqBbDUkh+6VtCw6GY9BJxC2hLnify7PuwlP23BIqdki2X71r37qe0D3jNfEQI
+         AEM1YG8gHoryiFqYMVZ6L/7z/jzeaxpbFerNVpdpchHHKmWrUoETvEKQRwxT8Dj4tHiz
+         ZAE/3inokhlCrAP/nJ7egUZ+fz8d+FjfBvu22dTg0nTMyv1Pe1FDG7WlA/e8cPu28189
+         Khug==
+X-Gm-Message-State: AO0yUKUuJna/L7Qkm9MSi5bEgF2lbIVBpXV0SXtxt57bP6PD3YEHUs2a
+        132SqS7yiFs5v4H7xWKv1gSrXNZOP1YAeMkJqK1i/05625ibFMaBYgJ4sQl4kQOii1QB9zp/Kez
+        usQO37daSTDujeCtImRNkAA==
+X-Received: by 2002:a05:6402:552:b0:4fa:d2b1:9176 with SMTP id i18-20020a056402055200b004fad2b19176mr9046195edx.22.1679556189928;
+        Thu, 23 Mar 2023 00:23:09 -0700 (PDT)
+X-Google-Smtp-Source: AK7set/lWgMzq9awcG87ay/J4twbbs8q1FAjYM6WTCDFZVt6nwxWkvfN0ABReeBsw20Ye5EqS/RsRw==
+X-Received: by 2002:a05:6402:552:b0:4fa:d2b1:9176 with SMTP id i18-20020a056402055200b004fad2b19176mr9046181edx.22.1679556189687;
+        Thu, 23 Mar 2023 00:23:09 -0700 (PDT)
+Received: from redhat.com ([2.52.143.71])
+        by smtp.gmail.com with ESMTPSA id e27-20020a50a69b000000b004fb542dd8cdsm8629813edc.29.2023.03.23.00.23.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 23 Mar 2023 00:23:09 -0700 (PDT)
+Date:   Thu, 23 Mar 2023 03:23:05 -0400
+From:   "Michael S. Tsirkin" <mst@redhat.com>
 To:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc:     cohuck@redhat.com, pasic@linux.ibm.com, farman@linux.ibm.com,
+Cc:     Viktor Prutyanov <viktor@daynix.com>, cohuck@redhat.com,
+        pasic@linux.ibm.com, farman@linux.ibm.com,
         linux-s390@vger.kernel.org, kvm@vger.kernel.org,
         virtualization@lists.linux-foundation.org,
-        linux-kernel@vger.kernel.org, yan@daynix.com, mst@redhat.com,
-        jasowang@redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        linux-kernel@vger.kernel.org, yan@daynix.com, jasowang@redhat.com
+Subject: Re: [PATCH v4] virtio: add VIRTIO_F_NOTIFICATION_DATA feature support
+Message-ID: <20230323031542-mutt-send-email-mst@kernel.org>
+References: <20230322141031.2211141-1-viktor@daynix.com>
+ <1679534465.5760474-1-xuanzhuo@linux.alibaba.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1679534465.5760474-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Mar 23, 2023 at 4:22=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
-om> wrote:
->
-> On Wed, 22 Mar 2023 17:10:31 +0300, Viktor Prutyanov <viktor@daynix.com> =
-wrote:
+On Thu, Mar 23, 2023 at 09:21:05AM +0800, Xuan Zhuo wrote:
+> On Wed, 22 Mar 2023 17:10:31 +0300, Viktor Prutyanov <viktor@daynix.com> wrote:
 > > According to VirtIO spec v1.2, VIRTIO_F_NOTIFICATION_DATA feature
 > > indicates that the driver passes extra data along with the queue
 > > notifications.
@@ -85,15 +91,13 @@ wrote:
 > > ---
 > >  v4: remove VP_NOTIFY macro and legacy PCI support, add
 > >     virtio_ccw_kvm_notify_with_data to virtio_ccw
-> >  v3: support feature in virtio_ccw, remove VM_NOTIFY, use avail_idx_sha=
-dow,
+> >  v3: support feature in virtio_ccw, remove VM_NOTIFY, use avail_idx_shadow,
 > >     remove byte swap, rename to vring_notification_data
 > >  v2: reject the feature in virtio_ccw, replace __le32 with u32
 > >
 > >  Tested with disabled VIRTIO_F_NOTIFICATION_DATA on qemu-system-s390x
 > >  (virtio-blk-ccw), qemu-system-riscv64 (virtio-blk-device,
-> >  virtio-rng-device), qemu-system-x86_64 (virtio-blk-pci, virtio-net-pci=
-)
+> >  virtio-rng-device), qemu-system-x86_64 (virtio-blk-pci, virtio-net-pci)
 > >  to make sure nothing is broken.
 > >  Tested with enabled VIRTIO_F_NOTIFICATION_DATA on 64-bit RISC-V Linux
 > >  and my hardware implementation of virtio-rng.
@@ -106,175 +110,148 @@ dow,
 > >  include/uapi/linux/virtio_config.h |  6 ++++++
 > >  6 files changed, 66 insertions(+), 5 deletions(-)
 > >
-> > diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/vir=
-tio_ccw.c
+> > diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
 > > index 954fc31b4bc7..3619676effb8 100644
 > > --- a/drivers/s390/virtio/virtio_ccw.c
 > > +++ b/drivers/s390/virtio/virtio_ccw.c
-> > @@ -391,7 +391,7 @@ static void virtio_ccw_drop_indicator(struct virtio=
-_ccw_device *vcdev,
-> >       ccw_device_dma_free(vcdev->cdev, thinint_area, sizeof(*thinint_ar=
-ea));
+> > @@ -391,7 +391,7 @@ static void virtio_ccw_drop_indicator(struct virtio_ccw_device *vcdev,
+> >  	ccw_device_dma_free(vcdev->cdev, thinint_area, sizeof(*thinint_area));
 > >  }
 > >
 > > -static bool virtio_ccw_kvm_notify(struct virtqueue *vq)
-> > +static inline bool virtio_ccw_do_kvm_notify(struct virtqueue *vq, u32 =
-data)
+> > +static inline bool virtio_ccw_do_kvm_notify(struct virtqueue *vq, u32 data)
 > >  {
-> >       struct virtio_ccw_vq_info *info =3D vq->priv;
-> >       struct virtio_ccw_device *vcdev;
-> > @@ -402,12 +402,22 @@ static bool virtio_ccw_kvm_notify(struct virtqueu=
-e *vq)
-> >       BUILD_BUG_ON(sizeof(struct subchannel_id) !=3D sizeof(unsigned in=
-t));
-> >       info->cookie =3D kvm_hypercall3(KVM_S390_VIRTIO_CCW_NOTIFY,
-> >                                     *((unsigned int *)&schid),
-> > -                                   vq->index, info->cookie);
-> > +                                   data, info->cookie);
-> >       if (info->cookie < 0)
-> >               return false;
-> >       return true;
+> >  	struct virtio_ccw_vq_info *info = vq->priv;
+> >  	struct virtio_ccw_device *vcdev;
+> > @@ -402,12 +402,22 @@ static bool virtio_ccw_kvm_notify(struct virtqueue *vq)
+> >  	BUILD_BUG_ON(sizeof(struct subchannel_id) != sizeof(unsigned int));
+> >  	info->cookie = kvm_hypercall3(KVM_S390_VIRTIO_CCW_NOTIFY,
+> >  				      *((unsigned int *)&schid),
+> > -				      vq->index, info->cookie);
+> > +				      data, info->cookie);
+> >  	if (info->cookie < 0)
+> >  		return false;
+> >  	return true;
 > >  }
 > >
 > > +static bool virtio_ccw_kvm_notify(struct virtqueue *vq)
 > > +{
-> > +     return virtio_ccw_do_kvm_notify(vq, vq->index);
+> > +	return virtio_ccw_do_kvm_notify(vq, vq->index);
 > > +}
 > > +
 > > +static bool virtio_ccw_kvm_notify_with_data(struct virtqueue *vq)
 > > +{
-> > +     return virtio_ccw_do_kvm_notify(vq, vring_notification_data(vq));
+> > +	return virtio_ccw_do_kvm_notify(vq, vring_notification_data(vq));
 > > +}
 > > +
 > >  static int virtio_ccw_read_vq_conf(struct virtio_ccw_device *vcdev,
-> >                                  struct ccw1 *ccw, int index)
+> >  				   struct ccw1 *ccw, int index)
 > >  {
-> > @@ -501,6 +511,9 @@ static struct virtqueue *virtio_ccw_setup_vq(struct=
- virtio_device *vdev,
-> >       u64 queue;
-> >       unsigned long flags;
-> >       bool may_reduce;
-> > +     bool (*notify)(struct virtqueue *vq) =3D __virtio_test_bit(vdev,
-> > +             VIRTIO_F_NOTIFICATION_DATA) ?
-> > +             virtio_ccw_kvm_notify_with_data : virtio_ccw_kvm_notify;
+> > @@ -501,6 +511,9 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
+> >  	u64 queue;
+> >  	unsigned long flags;
+> >  	bool may_reduce;
+> > +	bool (*notify)(struct virtqueue *vq) = __virtio_test_bit(vdev,
+> > +		VIRTIO_F_NOTIFICATION_DATA) ?
+> > +		virtio_ccw_kvm_notify_with_data : virtio_ccw_kvm_notify;
 > >
-> >       /* Allocate queue. */
-> >       info =3D kzalloc(sizeof(struct virtio_ccw_vq_info), GFP_KERNEL);
-> > @@ -524,7 +537,7 @@ static struct virtqueue *virtio_ccw_setup_vq(struct=
- virtio_device *vdev,
-> >       may_reduce =3D vcdev->revision > 0;
-> >       vq =3D vring_create_virtqueue(i, info->num, KVM_VIRTIO_CCW_RING_A=
-LIGN,
-> >                                   vdev, true, may_reduce, ctx,
-> > -                                 virtio_ccw_kvm_notify, callback, name=
-);
-> > +                                 notify, callback, name);
+> >  	/* Allocate queue. */
+> >  	info = kzalloc(sizeof(struct virtio_ccw_vq_info), GFP_KERNEL);
+> > @@ -524,7 +537,7 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
+> >  	may_reduce = vcdev->revision > 0;
+> >  	vq = vring_create_virtqueue(i, info->num, KVM_VIRTIO_CCW_RING_ALIGN,
+> >  				    vdev, true, may_reduce, ctx,
+> > -				    virtio_ccw_kvm_notify, callback, name);
+> > +				    notify, callback, name);
 > >
-> >       if (!vq) {
-> >               /* For now, we fail if we can't get the requested size. *=
-/
-> > diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.=
-c
+> >  	if (!vq) {
+> >  		/* For now, we fail if we can't get the requested size. */
+> > diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
 > > index 3ff746e3f24a..7c16e622c33d 100644
 > > --- a/drivers/virtio/virtio_mmio.c
 > > +++ b/drivers/virtio/virtio_mmio.cv
 > > @@ -285,6 +285,16 @@ static bool vm_notify(struct virtqueue *vq)
-> >       return true;
+> >  	return true;
 > >  }
 > >
 > > +static bool vm_notify_with_data(struct virtqueue *vq)
 > > +{
-> > +     struct virtio_mmio_device *vm_dev =3D to_virtio_mmio_device(vq->v=
-dev);
-> > +     u32 data =3D vring_notification_data(vq);
+> > +	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vq->vdev);
+> > +	u32 data = vring_notification_data(vq);
 > > +
-> > +     writel(data, vm_dev->base + VIRTIO_MMIO_QUEUE_NOTIFY);
+> > +	writel(data, vm_dev->base + VIRTIO_MMIO_QUEUE_NOTIFY);
 > > +
-> > +     return true;
+> > +	return true;
 > > +}
 > > +
 > >  /* Notify all virtqueues on an interrupt. */
 > >  static irqreturn_t vm_interrupt(int irq, void *opaque)
 > >  {
-> > @@ -368,6 +378,8 @@ static struct virtqueue *vm_setup_vq(struct virtio_=
-device *vdev, unsigned int in
-> >       unsigned long flags;
-> >       unsigned int num;
-> >       int err;
-> > +     bool (*notify)(struct virtqueue *vq) =3D __virtio_test_bit(vdev,
-> > +             VIRTIO_F_NOTIFICATION_DATA) ? vm_notify_with_data : vm_no=
-tify;
->
->
+> > @@ -368,6 +378,8 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned int in
+> >  	unsigned long flags;
+> >  	unsigned int num;
+> >  	int err;
+> > +	bool (*notify)(struct virtqueue *vq) = __virtio_test_bit(vdev,
+> > +		VIRTIO_F_NOTIFICATION_DATA) ? vm_notify_with_data : vm_notify;
+> 
+> 
 > Can we optimize this line?
-
-What kind of optimization do you mean?
-
->
+> 
 > Thanks.
->
+
+why bother? it's setup time ..
+
 > >
-> >       if (!name)
-> >               return NULL;
-> > @@ -397,7 +409,7 @@ static struct virtqueue *vm_setup_vq(struct virtio_=
-device *vdev, unsigned int in
+> >  	if (!name)
+> >  		return NULL;
+> > @@ -397,7 +409,7 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned int in
 > >
-> >       /* Create the vring */
-> >       vq =3D vring_create_virtqueue(index, num, VIRTIO_MMIO_VRING_ALIGN=
-, vdev,
-> > -                              true, true, ctx, vm_notify, callback, na=
-me);
-> > +                              true, true, ctx, notify, callback, name)=
-;
-> >       if (!vq) {
-> >               err =3D -ENOMEM;
-> >               goto error_new_virtqueue;
-> > diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio=
-_pci_modern.c
+> >  	/* Create the vring */
+> >  	vq = vring_create_virtqueue(index, num, VIRTIO_MMIO_VRING_ALIGN, vdev,
+> > -				 true, true, ctx, vm_notify, callback, name);
+> > +				 true, true, ctx, notify, callback, name);
+> >  	if (!vq) {
+> >  		err = -ENOMEM;
+> >  		goto error_new_virtqueue;
+> > diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
 > > index 9e496e288cfa..9cc56f463dba 100644
 > > --- a/drivers/virtio/virtio_pci_modern.c
 > > +++ b/drivers/virtio/virtio_pci_modern.c
-> > @@ -288,6 +288,15 @@ static u16 vp_config_vector(struct virtio_pci_devi=
-ce *vp_dev, u16 vector)
-> >       return vp_modern_config_vector(&vp_dev->mdev, vector);
+> > @@ -288,6 +288,15 @@ static u16 vp_config_vector(struct virtio_pci_device *vp_dev, u16 vector)
+> >  	return vp_modern_config_vector(&vp_dev->mdev, vector);
 > >  }
 > >
 > > +static bool vp_notify_with_data(struct virtqueue *vq)
 > > +{
-> > +     u32 data =3D vring_notification_data(vq);
+> > +	u32 data = vring_notification_data(vq);
 > > +
-> > +     iowrite32(data, (void __iomem *)vq->priv);
+> > +	iowrite32(data, (void __iomem *)vq->priv);
 > > +
-> > +     return true;
+> > +	return true;
 > > +}
 > > +
 > >  static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
-> >                                 struct virtio_pci_vq_info *info,
-> >                                 unsigned int index,
-> > @@ -301,6 +310,8 @@ static struct virtqueue *setup_vq(struct virtio_pci=
-_device *vp_dev,
-> >       struct virtqueue *vq;
-> >       u16 num;
-> >       int err;
-> > +     bool (*notify)(struct virtqueue *vq) =3D __virtio_test_bit(&vp_de=
-v->vdev,
-> > +             VIRTIO_F_NOTIFICATION_DATA) ? vp_notify_with_data : vp_no=
-tify;
+> >  				  struct virtio_pci_vq_info *info,
+> >  				  unsigned int index,
+> > @@ -301,6 +310,8 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+> >  	struct virtqueue *vq;
+> >  	u16 num;
+> >  	int err;
+> > +	bool (*notify)(struct virtqueue *vq) = __virtio_test_bit(&vp_dev->vdev,
+> > +		VIRTIO_F_NOTIFICATION_DATA) ? vp_notify_with_data : vp_notify;
 > >
-> >       if (index >=3D vp_modern_get_num_queues(mdev))
-> >               return ERR_PTR(-EINVAL);
-> > @@ -321,7 +332,7 @@ static struct virtqueue *setup_vq(struct virtio_pci=
-_device *vp_dev,
-> >       vq =3D vring_create_virtqueue(index, num,
-> >                                   SMP_CACHE_BYTES, &vp_dev->vdev,
-> >                                   true, true, ctx,
-> > -                                 vp_notify, callback, name);
-> > +                                 notify, callback, name);
-> >       if (!vq)
-> >               return ERR_PTR(-ENOMEM);
+> >  	if (index >= vp_modern_get_num_queues(mdev))
+> >  		return ERR_PTR(-EINVAL);
+> > @@ -321,7 +332,7 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+> >  	vq = vring_create_virtqueue(index, num,
+> >  				    SMP_CACHE_BYTES, &vp_dev->vdev,
+> >  				    true, true, ctx,
+> > -				    vp_notify, callback, name);
+> > +				    notify, callback, name);
+> >  	if (!vq)
+> >  		return ERR_PTR(-ENOMEM);
 > >
-> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.=
-c
+> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
 > > index 4c3bb0ddeb9b..837875cc3190 100644
 > > --- a/drivers/virtio/virtio_ring.c
 > > +++ b/drivers/virtio/virtio_ring.c
@@ -284,32 +261,31 @@ c
 > >
 > > +u32 vring_notification_data(struct virtqueue *_vq)
 > > +{
-> > +     struct vring_virtqueue *vq =3D to_vvq(_vq);
-> > +     u16 next;
+> > +	struct vring_virtqueue *vq = to_vvq(_vq);
+> > +	u16 next;
 > > +
-> > +     if (vq->packed_ring)
-> > +             next =3D (vq->packed.next_avail_idx & ~(1 << 15)) |
-> > +                     vq->packed.avail_wrap_counter << 15;
-> > +     else
-> > +             next =3D vq->split.avail_idx_shadow;
+> > +	if (vq->packed_ring)
+> > +		next = (vq->packed.next_avail_idx & ~(1 << 15)) |
+> > +			vq->packed.avail_wrap_counter << 15;
+> > +	else
+> > +		next = vq->split.avail_idx_shadow;
 > > +
-> > +     return next << 16 | _vq->index;
+> > +	return next << 16 | _vq->index;
 > > +}
 > > +EXPORT_SYMBOL_GPL(vring_notification_data);
 > > +
 > >  /* Manipulates transport-specific feature bits. */
 > >  void vring_transport_features(struct virtio_device *vdev)
 > >  {
-> > @@ -2771,6 +2786,8 @@ void vring_transport_features(struct virtio_devic=
-e *vdev)
-> >                       break;
-> >               case VIRTIO_F_ORDER_PLATFORM:
-> >                       break;
-> > +             case VIRTIO_F_NOTIFICATION_DATA:
-> > +                     break;
-> >               default:
-> >                       /* We don't understand this bit. */
-> >                       __virtio_clear_bit(vdev, i);
+> > @@ -2771,6 +2786,8 @@ void vring_transport_features(struct virtio_device *vdev)
+> >  			break;
+> >  		case VIRTIO_F_ORDER_PLATFORM:
+> >  			break;
+> > +		case VIRTIO_F_NOTIFICATION_DATA:
+> > +			break;
+> >  		default:
+> >  			/* We don't understand this bit. */
+> >  			__virtio_clear_bit(vdev, i);
 > > diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
 > > index 8b95b69ef694..2550c9170f4f 100644
 > > --- a/include/linux/virtio_ring.h
@@ -321,25 +297,24 @@ e *vdev)
 > > +
 > > +u32 vring_notification_data(struct virtqueue *_vq);
 > >  #endif /* _LINUX_VIRTIO_RING_H */
-> > diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/vi=
-rtio_config.h
+> > diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
 > > index 3c05162bc988..2c712c654165 100644
 > > --- a/include/uapi/linux/virtio_config.h
 > > +++ b/include/uapi/linux/virtio_config.h
 > > @@ -99,6 +99,12 @@
 > >   */
-> >  #define VIRTIO_F_SR_IOV                      37
+> >  #define VIRTIO_F_SR_IOV			37
 > >
 > > +/*
 > > + * This feature indicates that the driver passes extra data (besides
 > > + * identifying the virtqueue) in its device notifications.
 > > + */
-> > +#define VIRTIO_F_NOTIFICATION_DATA   38
+> > +#define VIRTIO_F_NOTIFICATION_DATA	38
 > > +
 > >  /*
-> >   * This feature indicates that the driver can reset a queue individual=
-ly.
+> >   * This feature indicates that the driver can reset a queue individually.
 > >   */
 > > --
 > > 2.35.1
 > >
+
