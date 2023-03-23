@@ -2,232 +2,344 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C54FAC6FD1F
-	for <linux-s390@archiver.kernel.org>; Thu, 23 Mar 2023 03:15:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 47228C6FD1D
+	for <linux-s390@archiver.kernel.org>; Thu, 23 Mar 2023 07:19:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229517AbjCWDP0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 22 Mar 2023 23:15:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60342 "EHLO
+        id S229773AbjCWHTf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 23 Mar 2023 03:19:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229496AbjCWDPZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Mar 2023 23:15:25 -0400
-Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F7EBEC53;
-        Wed, 22 Mar 2023 20:15:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1679541324; x=1711077324;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=beB8gH35cOGeCW5oqqwJxf2zGFt7cIM72AZaq+6unGo=;
-  b=Oe/anVsCluyA7T/pCGvpI14/K2Y/9XHHCKg3rR8gMgjKfQgGP/bFLXly
-   fuhcPbgZfjWiG/PxFROgBPHsXK7ofXPt3C+EZlCMC6psdpb8euLzlBmk6
-   uIwnS+9iCfDkhCapjz4ySQ/9OcHJZaVhyEFSWSCbubv/VolcXRvOPUXd7
-   BY5o9okJmEIL6f6cLLoRdWJWtTkiomrJgtwtePqD55Gbpn+38KWVLypwn
-   A23USbaKk1YNBXrq4VmsXeVgTBmv4C3ivxvQx2yyVltqqPCPqlX3mYfT+
-   Oo7/Ia+ch2ChC8iLi8LIRKuRC27Yf1Noa8I28ORzRzbnPFcxuAi9H4/yC
-   w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10657"; a="367122396"
-X-IronPort-AV: E=Sophos;i="5.98,283,1673942400"; 
-   d="scan'208";a="367122396"
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Mar 2023 20:15:23 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10657"; a="684540433"
-X-IronPort-AV: E=Sophos;i="5.98,283,1673942400"; 
-   d="scan'208";a="684540433"
-Received: from fmsmsx603.amr.corp.intel.com ([10.18.126.83])
-  by fmsmga007.fm.intel.com with ESMTP; 22 Mar 2023 20:15:23 -0700
-Received: from fmsmsx611.amr.corp.intel.com (10.18.126.91) by
- fmsmsx603.amr.corp.intel.com (10.18.126.83) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.21; Wed, 22 Mar 2023 20:15:23 -0700
-Received: from fmsmsx610.amr.corp.intel.com (10.18.126.90) by
- fmsmsx611.amr.corp.intel.com (10.18.126.91) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.21; Wed, 22 Mar 2023 20:15:23 -0700
-Received: from FMSEDG603.ED.cps.intel.com (10.1.192.133) by
- fmsmsx610.amr.corp.intel.com (10.18.126.90) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.21 via Frontend Transport; Wed, 22 Mar 2023 20:15:23 -0700
-Received: from NAM12-DM6-obe.outbound.protection.outlook.com (104.47.59.171)
- by edgegateway.intel.com (192.55.55.68) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.21; Wed, 22 Mar 2023 20:15:22 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=hwrXwshe9ARj7mJC8IrameIA7eT55Cs0tpVZHJWk1vhrcq3JAP/5GGyG2n000IklQIXL5EFxZGlxJL6fJJ4/+zv7rvcIVEMf3+vhk5zZQKCjjZ0tpzlkgZAojRSdPvtJgcka3UmP+VDuCOWiiLTPZjqWlQuQ8mC+PhhExMzh0k3I/9vFb8l7vMLP70kxDkr6F5TjJop0aNpwYZIAdXnUpZvE6GGZGU/dKgLmEPtuKjBYv1BlwSCDZEtpSv3iOOpyz7PYlmA2TvLi3N6jgUrqwjiabQ1x9h50A2o+5Df8gk3z4mwltfXwBFRyGGleKxE5JfhaG48jJe9M5HqwZmbN7w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=KMhijc1+78vKJVYQzR7FsLCgoe6pGO1kH7mUECmBsaU=;
- b=BL3qGYBxbuofe68cGHIeUOdLO0g6OTOdXtXMqkvUoQ8bTJKNZA2t3yYi0S3NnPUfhA99ZzCHW6uhPFKau2PitZOmoNvVfQowWcaGAO4GK4/KGgP6Tiw/2HahfbPOeYIuh6cTcHN5eUDgZF6iA2GvAHTlOcFEhsoTvjCKDZQw1dMknfpYe/CcifrJmAS/0kB12MkmYfjbZZnPIG8LNnmW4Ud2AqQ/VolJ//17pA6L1G92PUnA16OoPJk9i6OrHSg2FiU6zDeKFqBq/84tgFqRL8wahbyJsR/ap6O/5tmdLR1dTRiriY16Ny22VvOvWIWTAdk8xPS5rx5pEVh8pxodFA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from DS0PR11MB7529.namprd11.prod.outlook.com (2603:10b6:8:141::20)
- by IA1PR11MB6322.namprd11.prod.outlook.com (2603:10b6:208:38a::13) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6178.37; Thu, 23 Mar
- 2023 03:15:21 +0000
-Received: from DS0PR11MB7529.namprd11.prod.outlook.com
- ([fe80::6f7:944a:aaad:301f]) by DS0PR11MB7529.namprd11.prod.outlook.com
- ([fe80::6f7:944a:aaad:301f%8]) with mapi id 15.20.6178.037; Thu, 23 Mar 2023
- 03:15:20 +0000
-From:   "Liu, Yi L" <yi.l.liu@intel.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>
-CC:     Alex Williamson <alex.williamson@redhat.com>,
-        "Tian, Kevin" <kevin.tian@intel.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "jasowang@redhat.com" <jasowang@redhat.com>,
-        "Hao, Xudong" <xudong.hao@intel.com>,
-        "peterx@redhat.com" <peterx@redhat.com>,
-        "Xu, Terrence" <terrence.xu@intel.com>,
-        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
-        "lulu@redhat.com" <lulu@redhat.com>,
-        "joro@8bytes.org" <joro@8bytes.org>,
-        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
-        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "eric.auger@redhat.com" <eric.auger@redhat.com>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
-        "cohuck@redhat.com" <cohuck@redhat.com>,
-        "shameerali.kolothum.thodi@huawei.com" 
-        <shameerali.kolothum.thodi@huawei.com>,
-        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
-        "robin.murphy@arm.com" <robin.murphy@arm.com>
-Subject: RE: [PATCH v6 12/24] vfio/pci: Allow passing zero-length fd array in
- VFIO_DEVICE_PCI_HOT_RESET
-Thread-Topic: [PATCH v6 12/24] vfio/pci: Allow passing zero-length fd array in
- VFIO_DEVICE_PCI_HOT_RESET
-Thread-Index: AQHZW095081R6kW/70aeRy5pC5KSt68ERp6AgAANFoCAAV3gAIAABT4AgACOijCAAHSzgIAAD3jAgAAIX4CAABLsgA==
-Date:   Thu, 23 Mar 2023 03:15:20 +0000
-Message-ID: <DS0PR11MB7529E2DEEB1CBBC9413A0480C3879@DS0PR11MB7529.namprd11.prod.outlook.com>
-References: <BN9PR11MB5276D5A71E43EA4CDD1C960A8CBD9@BN9PR11MB5276.namprd11.prod.outlook.com>
- <20230317091557.196638a6.alex.williamson@redhat.com>
- <ZBiUiEC8Xj9sOphr@nvidia.com>
- <20230320165217.5b1019a4.alex.williamson@redhat.com>
- <ZBjum1wQ1L2AIfhB@nvidia.com>
- <20230321143122.632f7e63.alex.williamson@redhat.com>
- <ZBoYgNq60eDpV9Un@nvidia.com>
- <DS0PR11MB7529B8A8712F737274298381C3869@DS0PR11MB7529.namprd11.prod.outlook.com>
- <ZBrx98kqNZs3jeWO@nvidia.com>
- <DS0PR11MB7529E4C6196C8581CD39A7C7C3869@DS0PR11MB7529.namprd11.prod.outlook.com>
- <ZBsF950laMs2ldFc@nvidia.com>
-In-Reply-To: <ZBsF950laMs2ldFc@nvidia.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: DS0PR11MB7529:EE_|IA1PR11MB6322:EE_
-x-ms-office365-filtering-correlation-id: 832d8452-eaaf-46f8-7604-08db2b4cd5c8
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: DDr4ITiHLSodau6UvAFjDDJgqa2gL2NQuhZ5c2Y9XDMa4JNrO0JlPxP61gAfN8iaTbGf2NWXkjk5rUoqmDkp/p6ZjiFZpz9mNhy6iUUbDTY8lH8AbkCvAjDQonoYXgCnAXD1YQ8ua3BmvFRTwSE8gJccstSNvfQB/KyMXOd565KE+Kbiqvp9VjuYFVd7Hro2nGeFtsGdu3DfZ//xhhGNlnKaHPri9jj0fTAZQAsQvAHm2ZGZbiGP47czD73ZEMctiT8yfMXwN4K2tyyB6bJeSyShfpXPOO9QfroLUxzgFTSp4sCNjBF3g+50X65nfZZeCNA/eSKjR2tjbLVxgSyOMj2jGy3QfoDtMvytJvQAGuOvuIpFbDgzyR5eJ3niSODkwaWZ2gY0NoX0YcO76Z1a3Z9PKjXPrkQbOCbc4c20TrfZdS1LvcJqFZ2choSbJxPB0JNq+/fuBy5BXCm1AhEMt/FtmA3NFv6uQ/ztMsPrz2Hqu3RVIKzsJmufwS2BmpaotGcj6FcxPur9m3ibt6nFVjH6nq821jbRqqPr3yMGJgHymb5nKigrnMGlvI0/FxmPJ5c2DlpBCwshtLlAvfgTkpLsW+AT1zSkufKInBOk3XMlbGHyPYFRqM3Wy02u/KGubO5C27vmks7BZEfZrT50U7mfJ0iNdTQVDVOrqV5PryH8EWSHw3Csy/Gxd4jQVgaT6zZrUazVUJQeo3CqjlKprg==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR11MB7529.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(39860400002)(376002)(366004)(346002)(136003)(396003)(451199018)(2906002)(7416002)(5660300002)(55016003)(82960400001)(38070700005)(33656002)(86362001)(122000001)(38100700002)(83380400001)(64756008)(66446008)(6916009)(66476007)(8676002)(76116006)(66556008)(478600001)(71200400001)(316002)(54906003)(52536014)(4326008)(66946007)(9686003)(186003)(7696005)(8936002)(26005)(41300700001)(6506007);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?pbLISY529ff8fWtQSzZ4avT4gOsJMygvwPlU381hNx12Mq9zK7mm0x3H5nYM?=
- =?us-ascii?Q?NzDNKAcbDST3jJ56ykCiPg1RTbdHXxFzwIHK5JdWJXs6alWzeL5S4fRmXxRg?=
- =?us-ascii?Q?ebDJM6sKPPS6By2TDiJiyQOvJrbw1HGmsVXTFhykk362XQlUiek64lyG6ItJ?=
- =?us-ascii?Q?Ezb+hSifxvLIEtZ2CF1eQMKqGxGKsedcZXKMhqC1J0EhwcBj7RnL7hpJHcY9?=
- =?us-ascii?Q?E+NmTBJTcFILkUDD6grceY6ncbMyUc4GSP1OwXo56wa/4qbgL+Fhd9t/R1vg?=
- =?us-ascii?Q?tut86PFS7yRL5P6RDA+u/DlqrCGIEIlFxrx3bsqyPzQ7cwjySW9G5LVGQp6z?=
- =?us-ascii?Q?Awu250NfBKZWdtGushCgU7925tMiJ8zCSWoxcOkSRysW7WuMgyvAB5HQV+3L?=
- =?us-ascii?Q?JYkRtY3LoPqHmbcV2fUBc+dbdqkSodYS+WdpGBEOyRDKpX2P5OSceNMCqRKW?=
- =?us-ascii?Q?mm7EPPfIf90cP76Kt24vK8jkEg2pp7ReRwYTKDsoBoyoZMgWgxSk1gQv89WJ?=
- =?us-ascii?Q?+qRlwQGCRrqeAkripxM+vZOyN8OVqDibC4kyjtkeplCklaFc5nTacLHnexU0?=
- =?us-ascii?Q?VeNrLxTQiPIEwxqOQYjucutg4b3YvU6c5V+KgqZM7slPrtZR7uVwT44cOSGt?=
- =?us-ascii?Q?vcA28/7tve8p61OC36qLBnDD1uV/bTRTd+3mDEUkHIvwEiCZOiLGXtjD6IXo?=
- =?us-ascii?Q?+9HrhIbXe6Z/gJc6TwPqPn3IkGolxpBoe+JLIyngY3RPOGeCNe8MEcJq60rS?=
- =?us-ascii?Q?mLAa/dh8j0PXnJi7Ykx4zgbLqc70ijEjgVv8Z/5tj3SqDDq+BK8z9EEJbjgD?=
- =?us-ascii?Q?hk6jviys3WnZ9ZRKVrd+WGaKVu1zgW2Ghe1oscsq2zaUWoCObo5NSQeFaREq?=
- =?us-ascii?Q?/4cacfGYOHuJhnBgMhbBZET4xR70WETJQTbitmfzvK9L/Oww3Ec59VTYIeeA?=
- =?us-ascii?Q?oim94YQo4UCZoot5oByxORe0xMckqKK3FUqCTzIsETeDwAOBSlXpm0P5G9ij?=
- =?us-ascii?Q?a+iRPri94S8meg0ZgTIt/dK0+3RIM2XlnKHcaD/77KjXcJTncXVdqNsfEpn4?=
- =?us-ascii?Q?SWXbWGkXeCsp3dH1OWpHsftL58t0tYEkT7gxjVzbUjdbuTDsO1n+CEakFpbi?=
- =?us-ascii?Q?DFlfyoHuWpruIakdYPVLbeOubANO9PcPPczMq5BEnkU8j94b1RfS0+KnmFW0?=
- =?us-ascii?Q?NnzydSBfQOSUvCskbSnDIB8PMvz3vfDggxYD9i8YVEHFCpgBcFnGvXsta25y?=
- =?us-ascii?Q?ydYKcphFvvOWXxID3bUixVeUujjZCsFy2qzcJcmBjo+vFyEkON9r+Ma0gGx6?=
- =?us-ascii?Q?1syliWWnt0sVPYjsteA0re4hi42u4/FTYk9owW1ioP9J0k2sOckh10KwvJXa?=
- =?us-ascii?Q?J5zT8YPDcMI6G0Za0BFrUtfnGgjYNFj5evNJrr/BvSLwGdyupA70CqqdFGg8?=
- =?us-ascii?Q?JfnnbsTtZVJ7DBosr/BLpsbQjvAQRyAglCPnX+SgK24wEVO7MlJgzAy6Iz6r?=
- =?us-ascii?Q?JkraNacbFrLXVdUWDjyl7+YU8ZiFKtDqNjKZrfykwa/l7V83yrQAX5VWkVIa?=
- =?us-ascii?Q?1LsgD6mlV0KbsPtJFZ8/ma2IUJqsee4wGg2JuFaw?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S230471AbjCWHTL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Mar 2023 03:19:11 -0400
+Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EE046E8F
+        for <linux-s390@vger.kernel.org>; Thu, 23 Mar 2023 00:19:09 -0700 (PDT)
+Received: by mail-lf1-x12c.google.com with SMTP id bi9so26475094lfb.12
+        for <linux-s390@vger.kernel.org>; Thu, 23 Mar 2023 00:19:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=daynix-com.20210112.gappssmtp.com; s=20210112; t=1679555947;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Ughe32gdwO8QA3jLlHEipYlezC7QccZnUu3C2UjJnik=;
+        b=4OCO/8izV4KFj+PR7dqsIJjh8hAfhPbhMScOgB1NRV+FvjoNKvs4Mnwd011vw5zkhG
+         X4S5GHblf7lBvYsSBmmDV+n9iL+PftWkH4hzTty0hMNVjbhiRx+5LOl9+MyWFfyYFHiL
+         RSaODTA3WHz1I4E0ZFTAk++JdBBmwu9ZALFKdifp1tcgSjfJzRjxRJQOR0cAdso7E7lI
+         Y0zYS6y3yqyti5tlfFJUVPsqCsfWjNzaKeZDsX2ySllFZFFGvdj+AXgL+LT8aOVgvphr
+         tBaqxneNcjmjxhSzNpU+Q4V84/ttPSdMYJuzQlw39og1PLyyV2QEm3/PSWgRhiXGzDj5
+         8bww==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1679555947;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Ughe32gdwO8QA3jLlHEipYlezC7QccZnUu3C2UjJnik=;
+        b=FCyaoP24GnVaCZAjfI7UPVBvqw7FEGu78jluPa/74P5M2vKPZwvaPjaVJ4JGzi6nls
+         vUJUGdLDqOVymNeEtJjtIn/MvQbN20Ul/7ciuNSAJd7glkX+Mlemrkwa1MmXO67VKsCc
+         JzEgvC3rjG5K9TvfA8AztCaA5NemHAT9NuRvUtj2EavGrziwoezSSGpH+dELzefS1iTC
+         XH1Jm37ZkJN+Hbf2aJIVU9StCpvAjrzOyTX8U/5+n0vEzXcg/+nKlaROoUVNTUeSKTRl
+         pJXO01a8P+e+dJeXk72DgwzXilkxRKgXyzH8ju4pSIFWFw/w07ujuiuT6AZVJuuXzB6y
+         YTuA==
+X-Gm-Message-State: AO0yUKXZejLhl7piBGyONjwMu9Iyy3JSsr0/KVDpBW4hUABOeOIElsu7
+        jXv0zGklfbKOQIFyoFt8Orsgh3eASGjTbz+VjM8YFw==
+X-Google-Smtp-Source: AK7set9oftC7UKjRvHCiPemObEjB1PP66y3IfAxsPzCuTpGVzygdio9Wn73lWJdxYZlHqykdH12WveaVJbm4ALh0aFo=
+X-Received: by 2002:a19:ee11:0:b0:4e8:569d:9f38 with SMTP id
+ g17-20020a19ee11000000b004e8569d9f38mr2686218lfb.5.1679555947241; Thu, 23 Mar
+ 2023 00:19:07 -0700 (PDT)
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: DS0PR11MB7529.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 832d8452-eaaf-46f8-7604-08db2b4cd5c8
-X-MS-Exchange-CrossTenant-originalarrivaltime: 23 Mar 2023 03:15:20.7094
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: Rn9yqqTCeoMgjc8Rf6cDBGNgk3hDjJEJ4a7DdZ3Hi8LBtPa4Ee9eyNIT1nSa/uF2Qccb4kazLh7gpo3PrbPU8A==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR11MB6322
-X-OriginatorOrg: intel.com
+References: <20230322141031.2211141-1-viktor@daynix.com> <1679534465.5760474-1-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <1679534465.5760474-1-xuanzhuo@linux.alibaba.com>
+From:   Viktor Prutyanov <viktor@daynix.com>
+Date:   Thu, 23 Mar 2023 10:18:56 +0300
+Message-ID: <CAPv0NP5gusfkyvX4qhMMiXsTZpckammmc5R7M=e9USi3C=1QAQ@mail.gmail.com>
+Subject: Re: [PATCH v4] virtio: add VIRTIO_F_NOTIFICATION_DATA feature support
+To:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc:     cohuck@redhat.com, pasic@linux.ibm.com, farman@linux.ibm.com,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        linux-kernel@vger.kernel.org, yan@daynix.com, mst@redhat.com,
+        jasowang@redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-> From: Jason Gunthorpe <jgg@nvidia.com>
-> Sent: Wednesday, March 22, 2023 9:43 PM
->=20
-> On Wed, Mar 22, 2023 at 01:33:09PM +0000, Liu, Yi L wrote:
->=20
-> > Thanks. So this new _INFO only reports a limited scope instead of
-> > the full list of affected devices. Also, it is not static scope since d=
-evice
-> > may be opened just after the _INFO returns.
->=20
-> Yes, it would be simplest for qemu to do the query after it gains a
-> new dev_id and then it can add the new dev_id with the correct reset
-> group.
-
-I see. QEMU can decide. For now, it seems like QEMU doesn't store
-such the info return by the existing _INFO ioctl. It is used in the hot
-reset helper and freed before it returns. Though, I'm not sure whether
-QEMU will store the dev_id info returned by the new _INFO. Perhaps
-Alex can give some guidance.
-
-> > > I'd probably use similar logic as the reset path, if one of reset
-> > > group devices is open and on a different iommufd_ctx then fail the
-> > > IOCTL with EPERM.
+On Thu, Mar 23, 2023 at 4:22=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
+om> wrote:
+>
+> On Wed, 22 Mar 2023 17:10:31 +0300, Viktor Prutyanov <viktor@daynix.com> =
+wrote:
+> > According to VirtIO spec v1.2, VIRTIO_F_NOTIFICATION_DATA feature
+> > indicates that the driver passes extra data along with the queue
+> > notifications.
 > >
-> > Say there are three devices in the dev_set. When the first device is
-> > opened by the current qemu, this new _INFO would return one dev_id
-> > to user. When the second device is opened, this new _INFO will return
-> > two dev_ids to user.
->=20
-> Yes
->=20
-> > If the third device is opened by another qemu, then
-> > the new _INFO would fail since the former two devices were opened and
-> > have different iommufd_ctx with the third device.
->=20
-> Yes
->=20
-> qemu should refuse to use the device at this moment.
+> > In a split queue case, the extra data is 16-bit available index. In a
+> > packed queue case, the extra data is 1-bit wrap counter and 15-bit
+> > available index.
+> >
+> > Add support for this feature for MMIO, channel I/O and modern PCI
+> > transports.
+> >
+> > Signed-off-by: Viktor Prutyanov <viktor@daynix.com>
+> > ---
+> >  v4: remove VP_NOTIFY macro and legacy PCI support, add
+> >     virtio_ccw_kvm_notify_with_data to virtio_ccw
+> >  v3: support feature in virtio_ccw, remove VM_NOTIFY, use avail_idx_sha=
+dow,
+> >     remove byte swap, rename to vring_notification_data
+> >  v2: reject the feature in virtio_ccw, replace __le32 with u32
+> >
+> >  Tested with disabled VIRTIO_F_NOTIFICATION_DATA on qemu-system-s390x
+> >  (virtio-blk-ccw), qemu-system-riscv64 (virtio-blk-device,
+> >  virtio-rng-device), qemu-system-x86_64 (virtio-blk-pci, virtio-net-pci=
+)
+> >  to make sure nothing is broken.
+> >  Tested with enabled VIRTIO_F_NOTIFICATION_DATA on 64-bit RISC-V Linux
+> >  and my hardware implementation of virtio-rng.
+> >
+> >  drivers/s390/virtio/virtio_ccw.c   | 19 ++++++++++++++++---
+> >  drivers/virtio/virtio_mmio.c       | 14 +++++++++++++-
+> >  drivers/virtio/virtio_pci_modern.c | 13 ++++++++++++-
+> >  drivers/virtio/virtio_ring.c       | 17 +++++++++++++++++
+> >  include/linux/virtio_ring.h        |  2 ++
+> >  include/uapi/linux/virtio_config.h |  6 ++++++
+> >  6 files changed, 66 insertions(+), 5 deletions(-)
+> >
+> > diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/vir=
+tio_ccw.c
+> > index 954fc31b4bc7..3619676effb8 100644
+> > --- a/drivers/s390/virtio/virtio_ccw.c
+> > +++ b/drivers/s390/virtio/virtio_ccw.c
+> > @@ -391,7 +391,7 @@ static void virtio_ccw_drop_indicator(struct virtio=
+_ccw_device *vcdev,
+> >       ccw_device_dma_free(vcdev->cdev, thinint_area, sizeof(*thinint_ar=
+ea));
+> >  }
+> >
+> > -static bool virtio_ccw_kvm_notify(struct virtqueue *vq)
+> > +static inline bool virtio_ccw_do_kvm_notify(struct virtqueue *vq, u32 =
+data)
+> >  {
+> >       struct virtio_ccw_vq_info *info =3D vq->priv;
+> >       struct virtio_ccw_device *vcdev;
+> > @@ -402,12 +402,22 @@ static bool virtio_ccw_kvm_notify(struct virtqueu=
+e *vq)
+> >       BUILD_BUG_ON(sizeof(struct subchannel_id) !=3D sizeof(unsigned in=
+t));
+> >       info->cookie =3D kvm_hypercall3(KVM_S390_VIRTIO_CCW_NOTIFY,
+> >                                     *((unsigned int *)&schid),
+> > -                                   vq->index, info->cookie);
+> > +                                   data, info->cookie);
+> >       if (info->cookie < 0)
+> >               return false;
+> >       return true;
+> >  }
+> >
+> > +static bool virtio_ccw_kvm_notify(struct virtqueue *vq)
+> > +{
+> > +     return virtio_ccw_do_kvm_notify(vq, vq->index);
+> > +}
+> > +
+> > +static bool virtio_ccw_kvm_notify_with_data(struct virtqueue *vq)
+> > +{
+> > +     return virtio_ccw_do_kvm_notify(vq, vring_notification_data(vq));
+> > +}
+> > +
+> >  static int virtio_ccw_read_vq_conf(struct virtio_ccw_device *vcdev,
+> >                                  struct ccw1 *ccw, int index)
+> >  {
+> > @@ -501,6 +511,9 @@ static struct virtqueue *virtio_ccw_setup_vq(struct=
+ virtio_device *vdev,
+> >       u64 queue;
+> >       unsigned long flags;
+> >       bool may_reduce;
+> > +     bool (*notify)(struct virtqueue *vq) =3D __virtio_test_bit(vdev,
+> > +             VIRTIO_F_NOTIFICATION_DATA) ?
+> > +             virtio_ccw_kvm_notify_with_data : virtio_ccw_kvm_notify;
+> >
+> >       /* Allocate queue. */
+> >       info =3D kzalloc(sizeof(struct virtio_ccw_vq_info), GFP_KERNEL);
+> > @@ -524,7 +537,7 @@ static struct virtqueue *virtio_ccw_setup_vq(struct=
+ virtio_device *vdev,
+> >       may_reduce =3D vcdev->revision > 0;
+> >       vq =3D vring_create_virtqueue(i, info->num, KVM_VIRTIO_CCW_RING_A=
+LIGN,
+> >                                   vdev, true, may_reduce, ctx,
+> > -                                 virtio_ccw_kvm_notify, callback, name=
+);
+> > +                                 notify, callback, name);
+> >
+> >       if (!vq) {
+> >               /* For now, we fail if we can't get the requested size. *=
+/
+> > diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.=
+c
+> > index 3ff746e3f24a..7c16e622c33d 100644
+> > --- a/drivers/virtio/virtio_mmio.c
+> > +++ b/drivers/virtio/virtio_mmio.cv
+> > @@ -285,6 +285,16 @@ static bool vm_notify(struct virtqueue *vq)
+> >       return true;
+> >  }
+> >
+> > +static bool vm_notify_with_data(struct virtqueue *vq)
+> > +{
+> > +     struct virtio_mmio_device *vm_dev =3D to_virtio_mmio_device(vq->v=
+dev);
+> > +     u32 data =3D vring_notification_data(vq);
+> > +
+> > +     writel(data, vm_dev->base + VIRTIO_MMIO_QUEUE_NOTIFY);
+> > +
+> > +     return true;
+> > +}
+> > +
+> >  /* Notify all virtqueues on an interrupt. */
+> >  static irqreturn_t vm_interrupt(int irq, void *opaque)
+> >  {
+> > @@ -368,6 +378,8 @@ static struct virtqueue *vm_setup_vq(struct virtio_=
+device *vdev, unsigned int in
+> >       unsigned long flags;
+> >       unsigned int num;
+> >       int err;
+> > +     bool (*notify)(struct virtqueue *vq) =3D __virtio_test_bit(vdev,
+> > +             VIRTIO_F_NOTIFICATION_DATA) ? vm_notify_with_data : vm_no=
+tify;
+>
+>
+> Can we optimize this line?
 
-Yes. it is.
+What kind of optimization do you mean?
 
-btw.  Another question about this new _INFO ioctl. If there are affected
-devices that have not been bound to vfio driver yet, should this new _INFO
-ioctl fail all the same with EPERM? Or it still just returns the dev_ids
-of the devices that are already bound and opened. This seems to make sense
-with two reasons:
- - for one, the new _INFO is not designed to give userspace an exact
-   affected device list;
- - for two, reset shall fail when checking vfio_pci_dev_set_resettable();
-Please feel free to correct me if this is wrong.
-
-Regards,
-Yi Liu
+>
+> Thanks.
+>
+> >
+> >       if (!name)
+> >               return NULL;
+> > @@ -397,7 +409,7 @@ static struct virtqueue *vm_setup_vq(struct virtio_=
+device *vdev, unsigned int in
+> >
+> >       /* Create the vring */
+> >       vq =3D vring_create_virtqueue(index, num, VIRTIO_MMIO_VRING_ALIGN=
+, vdev,
+> > -                              true, true, ctx, vm_notify, callback, na=
+me);
+> > +                              true, true, ctx, notify, callback, name)=
+;
+> >       if (!vq) {
+> >               err =3D -ENOMEM;
+> >               goto error_new_virtqueue;
+> > diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio=
+_pci_modern.c
+> > index 9e496e288cfa..9cc56f463dba 100644
+> > --- a/drivers/virtio/virtio_pci_modern.c
+> > +++ b/drivers/virtio/virtio_pci_modern.c
+> > @@ -288,6 +288,15 @@ static u16 vp_config_vector(struct virtio_pci_devi=
+ce *vp_dev, u16 vector)
+> >       return vp_modern_config_vector(&vp_dev->mdev, vector);
+> >  }
+> >
+> > +static bool vp_notify_with_data(struct virtqueue *vq)
+> > +{
+> > +     u32 data =3D vring_notification_data(vq);
+> > +
+> > +     iowrite32(data, (void __iomem *)vq->priv);
+> > +
+> > +     return true;
+> > +}
+> > +
+> >  static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+> >                                 struct virtio_pci_vq_info *info,
+> >                                 unsigned int index,
+> > @@ -301,6 +310,8 @@ static struct virtqueue *setup_vq(struct virtio_pci=
+_device *vp_dev,
+> >       struct virtqueue *vq;
+> >       u16 num;
+> >       int err;
+> > +     bool (*notify)(struct virtqueue *vq) =3D __virtio_test_bit(&vp_de=
+v->vdev,
+> > +             VIRTIO_F_NOTIFICATION_DATA) ? vp_notify_with_data : vp_no=
+tify;
+> >
+> >       if (index >=3D vp_modern_get_num_queues(mdev))
+> >               return ERR_PTR(-EINVAL);
+> > @@ -321,7 +332,7 @@ static struct virtqueue *setup_vq(struct virtio_pci=
+_device *vp_dev,
+> >       vq =3D vring_create_virtqueue(index, num,
+> >                                   SMP_CACHE_BYTES, &vp_dev->vdev,
+> >                                   true, true, ctx,
+> > -                                 vp_notify, callback, name);
+> > +                                 notify, callback, name);
+> >       if (!vq)
+> >               return ERR_PTR(-ENOMEM);
+> >
+> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.=
+c
+> > index 4c3bb0ddeb9b..837875cc3190 100644
+> > --- a/drivers/virtio/virtio_ring.c
+> > +++ b/drivers/virtio/virtio_ring.c
+> > @@ -2752,6 +2752,21 @@ void vring_del_virtqueue(struct virtqueue *_vq)
+> >  }
+> >  EXPORT_SYMBOL_GPL(vring_del_virtqueue);
+> >
+> > +u32 vring_notification_data(struct virtqueue *_vq)
+> > +{
+> > +     struct vring_virtqueue *vq =3D to_vvq(_vq);
+> > +     u16 next;
+> > +
+> > +     if (vq->packed_ring)
+> > +             next =3D (vq->packed.next_avail_idx & ~(1 << 15)) |
+> > +                     vq->packed.avail_wrap_counter << 15;
+> > +     else
+> > +             next =3D vq->split.avail_idx_shadow;
+> > +
+> > +     return next << 16 | _vq->index;
+> > +}
+> > +EXPORT_SYMBOL_GPL(vring_notification_data);
+> > +
+> >  /* Manipulates transport-specific feature bits. */
+> >  void vring_transport_features(struct virtio_device *vdev)
+> >  {
+> > @@ -2771,6 +2786,8 @@ void vring_transport_features(struct virtio_devic=
+e *vdev)
+> >                       break;
+> >               case VIRTIO_F_ORDER_PLATFORM:
+> >                       break;
+> > +             case VIRTIO_F_NOTIFICATION_DATA:
+> > +                     break;
+> >               default:
+> >                       /* We don't understand this bit. */
+> >                       __virtio_clear_bit(vdev, i);
+> > diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
+> > index 8b95b69ef694..2550c9170f4f 100644
+> > --- a/include/linux/virtio_ring.h
+> > +++ b/include/linux/virtio_ring.h
+> > @@ -117,4 +117,6 @@ void vring_del_virtqueue(struct virtqueue *vq);
+> >  void vring_transport_features(struct virtio_device *vdev);
+> >
+> >  irqreturn_t vring_interrupt(int irq, void *_vq);
+> > +
+> > +u32 vring_notification_data(struct virtqueue *_vq);
+> >  #endif /* _LINUX_VIRTIO_RING_H */
+> > diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/vi=
+rtio_config.h
+> > index 3c05162bc988..2c712c654165 100644
+> > --- a/include/uapi/linux/virtio_config.h
+> > +++ b/include/uapi/linux/virtio_config.h
+> > @@ -99,6 +99,12 @@
+> >   */
+> >  #define VIRTIO_F_SR_IOV                      37
+> >
+> > +/*
+> > + * This feature indicates that the driver passes extra data (besides
+> > + * identifying the virtqueue) in its device notifications.
+> > + */
+> > +#define VIRTIO_F_NOTIFICATION_DATA   38
+> > +
+> >  /*
+> >   * This feature indicates that the driver can reset a queue individual=
+ly.
+> >   */
+> > --
+> > 2.35.1
+> >
