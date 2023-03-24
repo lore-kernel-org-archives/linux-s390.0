@@ -2,74 +2,98 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 02185C6FD1C
-	for <linux-s390@archiver.kernel.org>; Fri, 24 Mar 2023 08:21:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4288DC6FD1C
+	for <linux-s390@archiver.kernel.org>; Fri, 24 Mar 2023 08:53:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229752AbjCXIV7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 24 Mar 2023 04:21:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40280 "EHLO
+        id S231839AbjCXIxZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 24 Mar 2023 04:53:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229484AbjCXIV6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 24 Mar 2023 04:21:58 -0400
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D7ED2413E;
-        Fri, 24 Mar 2023 01:21:53 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=kaishen@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0VeX2MDu_1679646108;
-Received: from 30.221.112.234(mailfrom:KaiShen@linux.alibaba.com fp:SMTPD_---0VeX2MDu_1679646108)
-          by smtp.aliyun-inc.com;
-          Fri, 24 Mar 2023 16:21:49 +0800
-Message-ID: <c7434855-b569-4e10-fd19-7f7d525cad7f@linux.alibaba.com>
-Date:   Fri, 24 Mar 2023 16:21:48 +0800
+        with ESMTP id S231818AbjCXIxY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 24 Mar 2023 04:53:24 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C435619F15;
+        Fri, 24 Mar 2023 01:53:12 -0700 (PDT)
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32O8BoWV000552;
+        Fri, 24 Mar 2023 08:53:12 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
+ mime-version : content-transfer-encoding : in-reply-to : references : cc :
+ from : to : subject : message-id : date; s=pp1;
+ bh=C3o3DjGSyucKEFmssF3kdwJIybeouD/Z5wrMZX/Mtew=;
+ b=s7qVXg9pebnH2/Ls5X3jqSym8FC2pfIT+cJKmKnOKF5mqq9Lz8DvwQKIxv3BgNJir4pv
+ FUs/Qf4Z+uGICsAWcdoOkAtj9qO5/UBXDpuwQygpAjUDElxzoQtCgfmfJG5pTK1pA4hG
+ HOglLnGmC/NsLTrec9VCfaM9DQov7GSOURmK3q3kXWuBIZUIgoKq/2DhMDTOcQme5xd4
+ 6pkmmsssUWarR2wH51y1eU3z6Lxm81zGl7aqAtEE9GdAnvfUouNq1yHOyrxkr5iYN18C
+ 8CMvXsSOtdcD0AOorePHml7Y10KJNz4IcRVPeQyPT0A+0n9gie8TsymLf+wQtqWfDud4 WQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ph84rru44-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 24 Mar 2023 08:53:12 +0000
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32O8D56x007868;
+        Fri, 24 Mar 2023 08:53:11 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ph84rru32-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 24 Mar 2023 08:53:11 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32NLulUh013860;
+        Fri, 24 Mar 2023 08:53:09 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3pgy3s0jsr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 24 Mar 2023 08:53:09 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32O8r53943319862
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 24 Mar 2023 08:53:05 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AA02720043;
+        Fri, 24 Mar 2023 08:53:05 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 862CB20040;
+        Fri, 24 Mar 2023 08:53:05 +0000 (GMT)
+Received: from t14-nrb (unknown [9.179.14.197])
+        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Fri, 24 Mar 2023 08:53:05 +0000 (GMT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.8.0
-Subject: Re: [PATCH net-next] net/smc: introduce shadow sockets for fallback
- connections
-Content-Language: en-US
-To:     Paolo Abeni <pabeni@redhat.com>, kgraul@linux.ibm.com,
-        wenjia@linux.ibm.com, jaka@linux.ibm.com, kuba@kernel.org,
-        davem@davemloft.net, dsahern@kernel.org
-Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-rdma@vger.kernel.org
-References: <20230321071959.87786-1-KaiShen@linux.alibaba.com>
- <8f4bd9333117eda4c5ff324f92b969d9a6b57b65.camel@redhat.com>
-From:   Kai <KaiShen@linux.alibaba.com>
-In-Reply-To: <8f4bd9333117eda4c5ff324f92b969d9a6b57b65.camel@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20221208170502.17984-1-thuth@redhat.com>
+References: <20221208170502.17984-1-thuth@redhat.com>
+Cc:     linux-s390@vger.kernel.org, David Hildenbrand <david@redhat.com>
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org
+Subject: Re: [kvm-unit-tests v2 PATCH] s390x: sie: Test whether the epoch extension field is working as expected
+Message-ID: <167964798514.41638.4789907314697265732@t14-nrb>
+User-Agent: alot/0.8.1
+Date:   Fri, 24 Mar 2023 09:53:05 +0100
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: iSKWNxplSCd9XGBgAbWsmuplhVxhZkJu
+X-Proofpoint-GUID: C6CBdwj-kUjGEoJYLDt1ZmFuhukMkzV8
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-03-24_04,2023-03-23_02,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
+ bulkscore=0 impostorscore=0 lowpriorityscore=0 phishscore=0
+ mlxlogscore=874 priorityscore=1501 clxscore=1015 adultscore=0 mlxscore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2303200000 definitions=main-2303240070
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Quoting Thomas Huth (2022-12-08 18:05:02)
+> We recently discovered a bug with the time management in nested scenarios
+> which got fixed by kernel commit "KVM: s390: vsie: Fix the initialization
+> of the epoch extension (epdx) field". This adds a simple test for this
+> bug so that it is easier to determine whether the host kernel of a machine
+> has already been fixed or not.
+>=20
+> Signed-off-by: Thomas Huth <thuth@redhat.com>
 
-
-On 3/22/23 9:08 PM, Paolo Abeni wrote:
-> 
-> It looks like only the shadow sockets' receive queue is needed/used.
-> 
-> Have you considered instead adding 2 receive queues to smc_sock, and
-> implement a custom accept() variant fetching the accepted sockets from
-> there?
-> 
-> That will allow better encapsulating the changes into the smc code and
-> will avoid creating that 2 non-listening but almost listening sockets
-> which look quite strange.
-> 
-> Cheers,
-> 
-> Paolo
-
-I am not so sure about this two sockets implementation but Here are my
-concerns:
-1. When I tried to implement a custom accept, I found the function.
-mem_cgroup_charge_skmem is not exported and SMC-R couldn't access it as
-a module. If there are more functions like this in future updates this
-could be a problem.
-3. The custom accept should synchronize with future updates of TCP
-accept.
-2. SMC-R is trying to behave like TCP and if we implement custom accept,
-there may be repeated code and looks not good.
-
-Thanks,
-
-Kai
+Thanks, I have pushed this to our CI and will queue it as soon as it's stab=
+le there.
