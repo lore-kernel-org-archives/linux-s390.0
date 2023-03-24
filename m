@@ -2,203 +2,172 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7EE1EC6FD20
-	for <linux-s390@archiver.kernel.org>; Fri, 24 Mar 2023 10:59:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 64013C6FD1C
+	for <linux-s390@archiver.kernel.org>; Fri, 24 Mar 2023 13:14:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230077AbjCXK7U (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 24 Mar 2023 06:59:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51198 "EHLO
+        id S229508AbjCXNOy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 24 Mar 2023 09:14:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229508AbjCXK7T (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 24 Mar 2023 06:59:19 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE3F0244A6;
-        Fri, 24 Mar 2023 03:59:18 -0700 (PDT)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32O8BlXD026575;
-        Fri, 24 Mar 2023 10:59:18 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
- mime-version : content-transfer-encoding : in-reply-to : references : cc :
- from : to : subject : message-id : date; s=pp1;
- bh=JutvLkYdoewwqKSAlRU9KyRg6geqYFl/DCub9i41Zyc=;
- b=faYt6bHgFfSSm+97wMwFNl2yVMkNjJt11keSXHRLxYf3AUq9FsOAfgwmyTVGBERfOeVD
- fNsxJvpCqdypwJcKjH6eAt+q7Rj3AHeuUaatWG1grh3sxfL0aWI9jY8yT7RM2/sP9D9h
- Bo67ketcKL490dT1TXFM5TCTBiYp7/GzDRdVf45TgYpS3akQMGuWeyw8bzFU9eZQYjPl
- eALLGgHSwpM18kEj75Y8VXvHUbkjcgH+SW+dWMlIW0eCMpznoRHAVg5IfKupa98dFZPl
- qIDq7Z6FgAbXqzMdbllaMd55NvJENBHn8uh74lEDuWUU3H3dOTWUssbVws+nCWB0x15v ng== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ph84ubqwx-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 24 Mar 2023 10:59:18 +0000
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32O9mlO7036844;
-        Fri, 24 Mar 2023 10:59:18 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ph84ubqw4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 24 Mar 2023 10:59:17 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32NLuONB013783;
-        Fri, 24 Mar 2023 10:59:15 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3pgy3s0q74-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 24 Mar 2023 10:59:15 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32OAxCkc18088452
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 24 Mar 2023 10:59:12 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EC47E20040;
-        Fri, 24 Mar 2023 10:59:11 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C235020043;
-        Fri, 24 Mar 2023 10:59:11 +0000 (GMT)
-Received: from t14-nrb (unknown [9.179.14.197])
-        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Fri, 24 Mar 2023 10:59:11 +0000 (GMT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S231954AbjCXNOx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 24 Mar 2023 09:14:53 -0400
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2087.outbound.protection.outlook.com [40.107.223.87])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CCCE2128;
+        Fri, 24 Mar 2023 06:14:52 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=HhzwqtnWRSaItaZE12WS3kjzkVx3ZVfDi2wg55uewkHzdEIsrA4NRt/GpMfBmyZrfro1tOc5aaaFrD+7XB6zM+/e6EtIrAcrC/BHaKJZRh26bdbnF1vvAz/hwmzmHo1nO6aXczvfT3HKpo1oMJfEj5H4oZUILu58EJ0BcFTFdEL4rkv2ooYJ2mEvXNPLo8K48YnSI8hoqoyAOzmjXrYpFcrzgz1aQS5o19qwne/sK+Vj9Ls3prLN1TYrUqtARUkighBhBvg5zvHKYjbdfcktFWfMPGtyQfNEhHvL+fNaC0CTTPGL9R6KonLK9BuH8aM8KxHivN4mPD9I4qNDE9GpHA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=obnLIFpdgqa9gQN3dg449xos3Q7CnGGOD6KhVbfJarc=;
+ b=Pdkl0zvve/2zclLniX0/iLdFcZDUyN/RSIZyhooeFYxQwTY1id+E/BIbiDpOkgkJ7IivJgXtmJAL9nGOT/TkWatlWimf/iasv2KdfPdPiEfTsNn4lhF11m3Yu62AEr+fYqHHdr9dt6PmoCwCyocrPSuYPps4+KzjhA7u4CmJptsD3xrXS8SiSbPwCYr3BvEjLuFxbBlhgqBGWCsCXGNjHToxg5Kna3ryCO+kNSENzuKttT1rLu5ZQHOj2mqYT8fM44vjPy9rojxF8BG56tzeTKl3FvePxMCsZYgkjzIcXsz47JRfnMpKreSeFZ8mjQPpMY+v8p58LvhvnSwAFOmyxQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=obnLIFpdgqa9gQN3dg449xos3Q7CnGGOD6KhVbfJarc=;
+ b=YeCBSnehzcJ2qW4hpsE74pC1zw0K8/PQmCoFSYabxwQbnvxkPVHjPUof8fGBRRN3iGNYuRHg2KNv+tETshRQe5nFpyT7Ce+5ykI6ev12deR/X2GTF6opakBCl2Jz/bsrw8ElNeiVZxs009mMeuwKhxX5/yIgjoKyLCB6qB6YES9fomBpK/mkOLvsDeYTjrPDja3/4JDzbClHpxOQBo4hUUXHpSXfEz79U9Eg4kvHJYql+GJ1ErwqPhfWgYiWMzkRWPs74QJjQExobQBgKtZrGWt3CI+oFl746S09Ewrm/iKayVy9s4r4UYaEv3ltF9Poy5G35zEG67nMjKX/1Rl2mQ==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by CY8PR12MB7316.namprd12.prod.outlook.com (2603:10b6:930:50::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6178.37; Fri, 24 Mar
+ 2023 13:14:49 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::ef6d:fdf6:352f:efd1]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::ef6d:fdf6:352f:efd1%3]) with mapi id 15.20.6178.037; Fri, 24 Mar 2023
+ 13:14:49 +0000
+Date:   Fri, 24 Mar 2023 10:14:46 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     "Tian, Kevin" <kevin.tian@intel.com>
+Cc:     Alex Williamson <alex.williamson@redhat.com>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "jasowang@redhat.com" <jasowang@redhat.com>,
+        "Hao, Xudong" <xudong.hao@intel.com>,
+        "peterx@redhat.com" <peterx@redhat.com>,
+        "Xu, Terrence" <terrence.xu@intel.com>,
+        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "Liu, Yi L" <yi.l.liu@intel.com>,
+        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
+        "lulu@redhat.com" <lulu@redhat.com>,
+        "joro@8bytes.org" <joro@8bytes.org>,
+        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
+        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "eric.auger@redhat.com" <eric.auger@redhat.com>,
+        "intel-gvt-dev@lists.freedesktop.org" 
+        <intel-gvt-dev@lists.freedesktop.org>,
+        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "shameerali.kolothum.thodi@huawei.com" 
+        <shameerali.kolothum.thodi@huawei.com>,
+        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
+        "robin.murphy@arm.com" <robin.murphy@arm.com>
+Subject: Re: [PATCH v6 12/24] vfio/pci: Allow passing zero-length fd array in
+ VFIO_DEVICE_PCI_HOT_RESET
+Message-ID: <ZB2iRis6l/7sUKQf@nvidia.com>
+References: <20230316182256.6659bbbd.alex.williamson@redhat.com>
+ <BN9PR11MB5276D5A71E43EA4CDD1C960A8CBD9@BN9PR11MB5276.namprd11.prod.outlook.com>
+ <20230317091557.196638a6.alex.williamson@redhat.com>
+ <ZBiUiEC8Xj9sOphr@nvidia.com>
+ <20230320165217.5b1019a4.alex.williamson@redhat.com>
+ <ZBjum1wQ1L2AIfhB@nvidia.com>
+ <20230321143122.632f7e63.alex.williamson@redhat.com>
+ <ZBoYgNq60eDpV9Un@nvidia.com>
+ <20230321150112.1c482380.alex.williamson@redhat.com>
+ <BN9PR11MB52768F48FAFC65ED7AB45A428C849@BN9PR11MB5276.namprd11.prod.outlook.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <BN9PR11MB52768F48FAFC65ED7AB45A428C849@BN9PR11MB5276.namprd11.prod.outlook.com>
+X-ClientProxiedBy: BYAPR05CA0039.namprd05.prod.outlook.com
+ (2603:10b6:a03:74::16) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20230320085642.12251-3-pmorel@linux.ibm.com>
-References: <20230320085642.12251-1-pmorel@linux.ibm.com> <20230320085642.12251-3-pmorel@linux.ibm.com>
-Cc:     frankja@linux.ibm.com, thuth@redhat.com, kvm@vger.kernel.org,
-        imbrenda@linux.ibm.com, david@redhat.com, nsg@linux.ibm.com
-From:   Nico Boehr <nrb@linux.ibm.com>
-To:     Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: Re: [kvm-unit-tests PATCH v7 2/2] s390x: topology: Checking Configuration Topology Information
-Message-ID: <167965555147.41638.10047922188597254104@t14-nrb>
-User-Agent: alot/0.8.1
-Date:   Fri, 24 Mar 2023 11:59:11 +0100
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 6uVIjBQRksTzulAYt_BApdl5JFl971fh
-X-Proofpoint-ORIG-GUID: D2WvtQE2J-d4SeqDqCwfsriLs7Snq6VQ
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-03-24_06,2023-03-24_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- bulkscore=0 phishscore=0 clxscore=1015 adultscore=0 spamscore=0
- malwarescore=0 mlxlogscore=999 suspectscore=0 lowpriorityscore=0
- impostorscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2303200000 definitions=main-2303240082
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|CY8PR12MB7316:EE_
+X-MS-Office365-Filtering-Correlation-Id: 2a8e41e4-77b7-4360-b17b-08db2c69bf07
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: Qnm13LO/onx7E15ir4Ojl1VEyTbWLOXYu/I3uIVLZcYsLLy8Lyk7J3OSH+5dpAi4JgeuOrz0QieW+cp7mUjwMnduD7sziWO99CXtJbupZyohsjlgsBttzScQll9bYpTsUMjOkVI6axOf9O1zL6z2E0Ig7Dwxd19WLdnCGF7PTpvCx2TR6K73sJQj2zyeTDKI+ZlijlSUej+ued8dU+bYVnP4CgqDc5EBFkXz6KBY3ruj+tPF4mrovqSM87en8SzcsDqy3ZTsF1tM5KJ3GJMghVykTMc1FbLWsnIgxorzIwBTPbqVjZjisEqGzcQwQKFITnEQ8iZHurueSLIEpUXWZUQWNdrCeqmJW7jSmrZqfo1OkSOS39K+ZVemKvhTkex5L8XiLZq/T7lVMx70OBtrYa1Qwdc7aPKc7TIm5J6nCrT8MrYfn+FgZVvWnDYEyJm2BNr1XycYt9pD1I54QQoJvgnhxg9ezW7j2oYVq6FYcYb/RPTQnd4+cLYr/rxBj9Fd+P6uGcwbVg/277g9ugJA52mj4QZG1JjtwVsP+kW3Yj0BQqLDQ5M1Yv1r2QKZpTam
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(4636009)(376002)(39860400002)(346002)(396003)(366004)(136003)(451199018)(316002)(2616005)(54906003)(41300700001)(8936002)(2906002)(6916009)(4326008)(478600001)(6486002)(86362001)(8676002)(38100700002)(66946007)(186003)(66476007)(36756003)(66556008)(66899018)(5660300002)(6512007)(6506007)(26005)(7416002)(6666004);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?ZccDh1b34sglTVmRRR1W28dSDPc6RHh9qFvuypGzx9uvdK1ycSgEoH4vZp9K?=
+ =?us-ascii?Q?Yhl+/TYMS+9pfrYgO45+0n60L5caRWIlkAaTtsWTAFegmbOA21U14rwBa0BZ?=
+ =?us-ascii?Q?Uv2QpnTIU09YcjcxBrT04a1hif/0lAVCZwJoqVDPLqkB7F5DVAkBTVuopWI5?=
+ =?us-ascii?Q?/9ITDdMQcdkDJ7HRdl6EhyApOQgoxQP8thPIEQtyP7CSO//QVky8+1DC8ICc?=
+ =?us-ascii?Q?NtkRTxFqn/Ght8UWV/Xf0TsqdNFybX9IsjruC7DOGzpMbecXrGupy98J8+g6?=
+ =?us-ascii?Q?VUFO+WNIRM8Cvx+dp3U3QGf9ukJHkAKpH1QJKZKF2RQdZ8FEbcBOUI0gQjVJ?=
+ =?us-ascii?Q?bFNYy81Wlx7gaJchItQzm6ygnQrErYidNWtbVWDCdIGrdG4zw+EmxAwNvORD?=
+ =?us-ascii?Q?Vz71MQ1oBYoGBZGNJePLWKiaArJNxF4wX5i7HXzf3SH2inZk5TGnmZi5AIJM?=
+ =?us-ascii?Q?Vix2Vkc/vFW+DfCq/bHnkjv3wTzuxOfXIzKuoWxHELwFwZs+SzK3louISIad?=
+ =?us-ascii?Q?PBa2A2cjhAvhZI1Q/9LIUg0zrnZOz6w1Zi3RpNTKsCOh/aebLvRwlXGfIa5W?=
+ =?us-ascii?Q?QeuhZjy+juT1dB55uA3qZw7gwbqolMQAbfZA2Yy/W5T9+Fqrt+W7BYTsx4AA?=
+ =?us-ascii?Q?acfYTPrqYBJSx2Mlj6fTwLFqbpkku7RSb7diY03u7PP+qkoXrxoqi0+J0Px+?=
+ =?us-ascii?Q?pY8QEeS4HskhkMa3Yx10y4AlEYRkVT2CTrdNjPEa21Xz0xU30+lpkrP7wZkE?=
+ =?us-ascii?Q?qztcnyGDecH2DbD9VHrxr7zezPVkDpK6BmGtDID2Oow+BZuEGiV9Rvl7JEz8?=
+ =?us-ascii?Q?kT+jXRRSr0ZdMyHcmAMe0LReOQUrx4TBKTcScvmif1cZRrimoTu5t0RMYLRA?=
+ =?us-ascii?Q?jpGEVdB+PRwAwkiWVsBhzXYX0tFHz9o1nuHTSQ2SllrK7vFE4laFuwc1voZi?=
+ =?us-ascii?Q?YJwPCifYt8lVeonZV38QgM1Dzf/oumjlZzuVQwJqhFc6dVAnROnGeFtgjDYF?=
+ =?us-ascii?Q?r05Xx6a/uoUnMPLqEkmvhZoAUDcSv4aEObk9PyXjDTDlyQ7Z+jff5Ui4ksy0?=
+ =?us-ascii?Q?MezcV+ULTt4vMjMaqX71+QfKDKMA+lucKW6fJl0OXshtsL53ai52eAW0rzbP?=
+ =?us-ascii?Q?eFIni3J7CKxARyxWHd29m+Iq1ymxwUkVMKYhntbap/cMrN4FlWaJRSOX9MRV?=
+ =?us-ascii?Q?4yJd2zfZFHNTmFWhJBCWJql2ep2IFMqHBg9afI9j6JOcgQqXkaJt+Jmt0o07?=
+ =?us-ascii?Q?0jsNIwcYYrt/A9jrzOitcJiefxtlB4viUhigZ2Ds8jrfBF29U9AoMmwDknxL?=
+ =?us-ascii?Q?tgEcxUeWWOZyWXcRmO78psKjJnmi1swXutKFdYWqw2wySL6z2XBRBCXW4IlE?=
+ =?us-ascii?Q?Ldpll6dMt8YqAxKdiqqmLdo+VaTF2xk+o57zxAlPZc4/KxU6BjrZ0GYRXkl6?=
+ =?us-ascii?Q?q6wjzcSDl8YulTiBbewNPdtIlo2Jfb2Wh8uRDfkHRrPdDivksqjkopDttLUF?=
+ =?us-ascii?Q?DDL3OLriU6NuYy695w1+9NV3hSexcjLCReSC+CCX1aDUj4bJq8u6hDIP2xSv?=
+ =?us-ascii?Q?YwQGQHsD4grrHaSTv9AmyDI5ZsTRkRPgEK2NgUbc?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2a8e41e4-77b7-4360-b17b-08db2c69bf07
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 24 Mar 2023 13:14:49.3390
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 1EZ4RgnJR/c8i944coQ7pe/JEU8rN7M1wpCs5MW59+TOZYaoJy8cTpPPfvq1UWAM
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY8PR12MB7316
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Quoting Pierre Morel (2023-03-20 09:56:42)
-> STSI with function code 15 is used to store the CPU configuration
-> topology.
->=20
-> We retrieve the maximum nested level with SCLP and use the
-> topology tree provided by the drawers, books, sockets, cores
-> arguments.
->=20
-> We check :
-> - if the topology stored is coherent between the QEMU -smp
->   parameters and kernel parameters.
-> - the number of CPUs
-> - the maximum number of CPUs
-> - the number of containers of each levels for every STSI(15.1.x)
->   instruction allowed by the machine.
-[...]
-> diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
-> index 390fde7..9679332 100644
-> --- a/lib/s390x/sclp.c
-> +++ b/lib/s390x/sclp.c
-> @@ -238,3 +238,8 @@ uint64_t get_max_ram_size(void)
->  {
->         return max_ram_size;
->  }
-> +
-> +uint64_t sclp_get_stsi_mnest(void)
-> +{
+On Fri, Mar 24, 2023 at 09:09:59AM +0000, Tian, Kevin wrote:
+> > From: Alex Williamson <alex.williamson@redhat.com>
+> > Sent: Wednesday, March 22, 2023 5:01 AM
+> > 
+> > On Tue, 21 Mar 2023 17:50:08 -0300
+> > Jason Gunthorpe <jgg@nvidia.com> wrote:
+> > 
+> > >
+> > > Though it would be nice if qemu didn't need two implementations so Yi
+> > > I'd rather see a new info in this series as well and qemu can just
+> > > consistently use dev_id and never bdf in iommufd mode.
+> > 
+> > We also need to consider how libvirt determines if QEMU has the kernel
+> > support it needs to pass file descriptors.  It'd be a lot cleaner if
+> > this aligned with the introduction of vfio cdevs.
+> > 
+> 
+> Libvirt can check whether the kernel creates cdev for a given device
+> via sysfs.
+> 
+> but I'm not sure how Libvirt determines whether QEMU supports a
+> feature that it wants to use. But sounds this is a general handshake
+> problem as Libvirt needs to support many versions of QEMU then
+> there must be a way for such negotiation?
 
-maybe add:
-assert(read_info);
+Ideally libvirt would be able to learn what ioctls are supported on
+the cdev fd after it opens it, but before binding. I don't think we
+have something here yet, but I could imagine having something.
 
-[...]
-> diff --git a/s390x/topology.c b/s390x/topology.c
-> index ce248f1..11ce931 100644
-> --- a/s390x/topology.c
-> +++ b/s390x/topology.c
-[...]
-> +/*
-> + * Topology level as defined by architecture, all levels exists with
-> + * a single container unless overwritten by the QEMU -smp parameter.
-> + */
-> +static int arch_topo_lvl[CPU_TOPOLOGY_MAX_LEVEL]; // =3D {1, 1, 1, 1, 1,=
- 1};
+Clearly it is easier if cdev alone is enough proof to know that it
+should go ahead in cdev mode.
 
-So that's what is being provided to the test on the command line, right?
-
-How about renaming this to expected_topo_lvl?
-
-What do you mean by 'defined by architecture'?
-
-[...]
-> +/*
-> + * stsi_check_mag
-> + * @info: Pointer to the stsi information
-> + *
-> + * MAG field should match the architecture defined containers
-> + * when MNEST as returned by SCLP matches MNEST of the SYSIB.
-> + */
-> +static void stsi_check_mag(struct sysinfo_15_1_x *info)
-> +{
-> +       int i;
-> +
-> +       report_prefix_push("MAG");
-> +
-> +       stsi_check_maxcpus(info);
-> +
-> +       /* Explicitly skip the test if both mnest do not match */
-> +       if (max_nested_lvl !=3D info->mnest)
-> +               goto done;
-
-What does it mean if the two don't match, i.e. is this an error? Or a skip?=
- Or is it just expected?
-
-[...]
-> +/**
-> + * check_tle:
-> + * @tc: pointer to first TLE
-> + *
-> + * Recursively check the containers TLEs until we
-> + * find a CPU TLE.
-> + */
-> +static uint8_t *check_tle(void *tc)
-> +{
-[...]
-> +       report(!cpus->d || (cpus->pp =3D=3D 3 || cpus->pp =3D=3D 0),
-> +              "Dedication versus entitlement");
-
-Maybe skip here if the CPU is not dedicated? With shared CPUs we really can=
-'t check much here.
-
-[...]
-> +/*
-> + * The Maximum Nested level is given by SCLP READ_SCP_INFO if the MNEST =
-facility
-> + * is available.
-> + * If the MNEST facility is not available, sclp_get_stsi_mnest  returns =
-0 and the
-> + * Maximum Nested level is 2
-> + */
-> +#define S390_DEFAULT_MNEST     2
-> +static int sclp_get_mnest(void)
-> +{
-> +       return sclp_get_stsi_mnest() ?: S390_DEFAULT_MNEST;
-> +}
-> +
-> +static int arch_max_cpus(void)
-
-If arch_topo_lvl is renamed, also rename this function accordingly.
-
->  static struct {
->         const char *name;
->         void (*func)(void);
->  } tests[] =3D {
->         { "PTF", test_ptf},
-> +       { "STSI", test_stsi},
-
-missing space                ^
+Jason
