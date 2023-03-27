@@ -2,118 +2,119 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 35C5EC77B6D
-	for <linux-s390@archiver.kernel.org>; Mon, 27 Mar 2023 08:21:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DF22CC761A6
+	for <linux-s390@archiver.kernel.org>; Mon, 27 Mar 2023 09:34:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232750AbjC0IVd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 27 Mar 2023 04:21:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54856 "EHLO
+        id S233240AbjC0Jea (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 27 Mar 2023 05:34:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232734AbjC0IV2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Mar 2023 04:21:28 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12D5835A9;
-        Mon, 27 Mar 2023 01:21:27 -0700 (PDT)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32R6Sddu025649;
-        Mon, 27 Mar 2023 08:21:26 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=qiaJnmg33mrt03scm2Qrkwu7WuUufyYh7x5n51F0o7I=;
- b=nxylrYcSUmpxy4ZOTu6M4LMpj5RbPJ8AQCVhw2nQ8luEKVx7YKMHiiEmkXAYYWhRm9jQ
- f5fytQx+02b3eDPGtRkF8gW1Ziv1OaI8LkKfxxv/dOVX0X3x+QLC+/JnMoDH3cVcLzfv
- LtT1OFZvJRyox8ci1ExwPbfnwSET8YJiTdpmL12uzIKIKErejrrDLyiCZT/U+x0t7kSV
- GOUj2kfvAQ2JpDNohqKpwou453aTCoKtWF4Fe7XFqqC4d1T42kf5jzwTAC0/CgdlyXlv
- RuAEktfBCwrfznLxkuabBCBuhb9l/Lid2Rbo6KjEv/DTR+hppDgmtOd5Gop6XSDG869x GA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pjadkt01t-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 27 Mar 2023 08:21:26 +0000
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32R8LPwX014597;
-        Mon, 27 Mar 2023 08:21:25 GMT
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pjadkt00n-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 27 Mar 2023 08:21:25 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32R279Cw024202;
-        Mon, 27 Mar 2023 08:21:22 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma05fra.de.ibm.com (PPS) with ESMTPS id 3phrk6j5mj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 27 Mar 2023 08:21:22 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32R8LIBH6488688
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 27 Mar 2023 08:21:19 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E22A52004D;
-        Mon, 27 Mar 2023 08:21:18 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C1C8F2004B;
-        Mon, 27 Mar 2023 08:21:18 +0000 (GMT)
-Received: from t35lp63.lnxne.boe (unknown [9.152.108.100])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon, 27 Mar 2023 08:21:18 +0000 (GMT)
-From:   Nico Boehr <nrb@linux.ibm.com>
-To:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [kvm-unit-tests PATCH v1 0/4] s390x: Add support for running guests without MSO/MSL
-Date:   Mon, 27 Mar 2023 10:21:14 +0200
-Message-Id: <20230327082118.2177-1-nrb@linux.ibm.com>
-X-Mailer: git-send-email 2.39.1
+        with ESMTP id S233295AbjC0JeU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Mar 2023 05:34:20 -0400
+Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4E854EEF;
+        Mon, 27 Mar 2023 02:34:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1679909640; x=1711445640;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=VkV/8FTePBOMnCIePLYijAz1Ei748yULDz/BHYMAuKo=;
+  b=gavowbTKP1cz6KYbqF5AOiEWJW/m6WMy+PRAAK6T5zML54KqbtEVqFBb
+   TqXOmtUU1lLkjuKMq+Fn4lek6zB0Y5zXdS5FOl9zFe9BZBuM/lDYeodO3
+   9iYCSkEDwD0w/p7Y69V7yEYVuOWxTUrvrJ7Kn9piemYObJek1yGEfEdNA
+   7oTfj2sluOtc6/R6dekpdE0S6yUkN9IyA2gLCM64jGDfgcRIQfUZNZGyt
+   3GiOdziCmaR/lCWfKxMna172CnlIQq5wpYfY8ebKOEvsBaHby3anGBYfS
+   ZdxULwM29bG0YoLUl/j3AXgNECOBLmITt29BfysCRKst6vO9TWLmR+wvf
+   w==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10661"; a="402817903"
+X-IronPort-AV: E=Sophos;i="5.98,294,1673942400"; 
+   d="scan'208";a="402817903"
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Mar 2023 02:33:54 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10661"; a="685908071"
+X-IronPort-AV: E=Sophos;i="5.98,294,1673942400"; 
+   d="scan'208";a="685908071"
+Received: from 984fee00a4c6.jf.intel.com ([10.165.58.231])
+  by fmsmga007.fm.intel.com with ESMTP; 27 Mar 2023 02:33:53 -0700
+From:   Yi Liu <yi.l.liu@intel.com>
+To:     alex.williamson@redhat.com, jgg@nvidia.com, kevin.tian@intel.com
+Cc:     joro@8bytes.org, robin.murphy@arm.com, cohuck@redhat.com,
+        eric.auger@redhat.com, nicolinc@nvidia.com, kvm@vger.kernel.org,
+        mjrosato@linux.ibm.com, chao.p.peng@linux.intel.com,
+        yi.l.liu@intel.com, yi.y.sun@linux.intel.com, peterx@redhat.com,
+        jasowang@redhat.com, shameerali.kolothum.thodi@huawei.com,
+        lulu@redhat.com, suravee.suthikulpanit@amd.com,
+        intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, linux-s390@vger.kernel.org,
+        xudong.hao@intel.com, yan.y.zhao@intel.com, terrence.xu@intel.com,
+        yanting.jiang@intel.com
+Subject: [PATCH v3 0/6] vfio: Make emulated devices prepared for vfio device cdev
+Date:   Mon, 27 Mar 2023 02:33:45 -0700
+Message-Id: <20230327093351.44505-1-yi.l.liu@intel.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: R4FDButajGpYu_SnXbN81jxyY3dCX4i_
-X-Proofpoint-ORIG-GUID: 6T0LH9Lb6QXltKxgUk7n7U8jZXha666v
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-03-24_11,2023-03-24_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxscore=0
- suspectscore=0 bulkscore=0 lowpriorityscore=0 adultscore=0 impostorscore=0
- priorityscore=1501 mlxlogscore=342 clxscore=1015 spamscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2303200000 definitions=main-2303270065
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Right now, all SIE tests in kvm-unit-tests (i.e. where kvm-unit-test is the
-hypervisor) run using MSO/MSL.
+The .bind_iommufd op of vfio emulated devices are either empty or does
+nothing. This is different with the vfio physical devices, to add vfio
+device cdev, need to make them act the same.
 
-This is convenient, because it's simple. But it also comes with
-disadvantages, for example some features are unavailabe with MSO/MSL.
+This series first makes the .bind_iommufd op of vfio emulated devices
+to create iommufd_access, this introduces a new iommufd API. Then let
+the driver that does not provide .bind_iommufd op to use the vfio emulated
+iommufd op set. This makes all vfio device drivers have consistent iommufd
+operations, which is good for adding new device uAPIs in the device cdev
+series.
 
-This series adds support for running guests without MSO/MSL with dedicated
-guest page tables for the GPA->HPA translation.
+Change log:
 
-Since SIE implicitly uses the primary space mode for the guest, the host
-can't run in the primary space mode, too. To avoid moving all tests to the
-home space mode, only switch to home space mode when it is actually needed.
+v3:
+ - Use iommufd_get_ioas() for ioas get, hence patch 01 is added to modify
+   the input parameter of iommufd_get_ioas(). (Jason)
+ - Add r-b from Jason and Kevin
+ - Add t-b from Terrence Xu
 
-This series also comes with various bugfixes that were caught while
-develoing this.
+v2: https://lore.kernel.org/kvm/20230316121526.5644-1-yi.l.liu@intel.com/
+ - Add r-b from Kevin and Jason
+ - Refine patch 01 per comments from Jason and Kevin
 
-Nico Boehr (4):
-  s390x: sie: switch to home space mode before entering SIE
-  s390x: lib: don't forward PSW when handling exception in SIE
-  s390x: lib: sie: don't reenter SIE on pgm int
-  s390x: add a test for SIE without MSO/MSL
+v1: https://lore.kernel.org/kvm/20230308131340.459224-1-yi.l.liu@intel.com/
 
- lib/s390x/asm/arch_def.h   |   2 +
- lib/s390x/interrupt.c      |   7 +++
- lib/s390x/sie.c            |  36 ++++++++++-
- lib/s390x/sie.h            |   2 +
- s390x/Makefile             |   2 +
- s390x/sie-dat.c            | 121 +++++++++++++++++++++++++++++++++++++
- s390x/snippets/c/sie-dat.c |  58 ++++++++++++++++++
- s390x/unittests.cfg        |   3 +
- 8 files changed, 230 insertions(+), 1 deletion(-)
- create mode 100644 s390x/sie-dat.c
- create mode 100644 s390x/snippets/c/sie-dat.c
+Thanks,
+        Yi Liu
+    
+Nicolin Chen (1):
+  iommufd: Create access in vfio_iommufd_emulated_bind()
+
+Yi Liu (5):
+  iommu/iommufd: Pass iommufd_ctx pointer in iommufd_get_ioas()
+  vfio-iommufd: No need to record iommufd_ctx in vfio_device
+  vfio-iommufd: Make vfio_iommufd_emulated_bind() return iommufd_access
+    ID
+  vfio/mdev: Uses the vfio emulated iommufd ops set in the mdev sample
+    drivers
+  vfio: Check the presence for iommufd callbacks in
+    __vfio_register_dev()
+
+ drivers/iommu/iommufd/device.c          | 55 +++++++++++++++----------
+ drivers/iommu/iommufd/ioas.c            | 14 +++----
+ drivers/iommu/iommufd/iommufd_private.h |  4 +-
+ drivers/iommu/iommufd/selftest.c        | 14 ++++---
+ drivers/iommu/iommufd/vfio_compat.c     |  2 +-
+ drivers/vfio/iommufd.c                  | 37 ++++++++---------
+ drivers/vfio/vfio_main.c                |  5 ++-
+ include/linux/iommufd.h                 |  5 ++-
+ include/linux/vfio.h                    |  1 -
+ samples/vfio-mdev/mbochs.c              |  3 ++
+ samples/vfio-mdev/mdpy.c                |  3 ++
+ samples/vfio-mdev/mtty.c                |  3 ++
+ 12 files changed, 85 insertions(+), 61 deletions(-)
 
 -- 
-2.39.1
+2.34.1
 
