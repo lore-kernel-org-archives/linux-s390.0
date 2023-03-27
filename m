@@ -2,42 +2,42 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 04E49C76195
-	for <linux-s390@archiver.kernel.org>; Mon, 27 Mar 2023 09:35:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 11AE6C77B6F
+	for <linux-s390@archiver.kernel.org>; Mon, 27 Mar 2023 09:35:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233248AbjC0Jfu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 27 Mar 2023 05:35:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55486 "EHLO
+        id S233392AbjC0Jfv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 27 Mar 2023 05:35:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233502AbjC0Jff (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Mar 2023 05:35:35 -0400
+        with ESMTP id S233490AbjC0Jfh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Mar 2023 05:35:37 -0400
 Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64E8249E2;
-        Mon, 27 Mar 2023 02:35:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D296735A6;
+        Mon, 27 Mar 2023 02:35:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1679909733; x=1711445733;
+  t=1679909734; x=1711445734;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=jbMe+F9CADAi8l9/BVZxSAdSYRuI/B7FG31MAnL6+cI=;
-  b=AqGuCQUFlpsDMZtlkEboO0ZMAfiWFluhLMNrFPB/iKPXeBN53GnecqWE
-   c1JnQ25fz3w6uPzOQAEEA0d5UV7f6mab/jRSLard1Mwln3dtjQAIthZMu
-   fCyuspvLdqY97XFwKNwiuILBn/apZwwd1GUQMRuzTTiUvns0GMAIcu5Kx
-   st0zZkH9PbtTQwMTUKq89nlyZEiN2N7m+CraxeDb1jp6s3y7cWE9eWT4E
-   2DQUjccKT3JhAGkH0q03alkCvymnKg9fVsI/6YZ1are3tOe3YLZolWYAN
-   CmZM7Iow5yhr8ks274S8jFnClyoovSf++X1Il3SpREsMsv9hizou8ggRO
-   A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10661"; a="319879507"
+  bh=DspUHqM3GniNFDpFuKlLGJpDgU4kjJg6COLxwo46xbI=;
+  b=cx7pVr03b5BujxX5ozpzhfBusBlzQLfBUB21VU+zDtPDIY0YkdfaT8Al
+   HOLNldqbzcaDeES3eyyIkeLmalTTv0sfoerDSCmq3awHFz8Pj4kv+WOh8
+   29jcsgaNmYEkcnuvcE0SVnF/VVfKF1S1kaI2xeKrCwBo0YUsuv7wEYLU3
+   xk739PYdEIlSpWcKX0TFl1k9xrXV9Fnw5Qx9V4OTEOVawEetRaUo2Gbhs
+   QLTGq6LHfXOzQCRDDb2saov8YXhpadGKwAQu07GDwf8bL9ceayk2DCwJG
+   Yx+l+MAaHiSlavQMp8ZCIDwSGZ/40gGdKeUBOgBBeOU2BE7ftBnnLdGHg
+   w==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10661"; a="319879532"
 X-IronPort-AV: E=Sophos;i="5.98,294,1673942400"; 
-   d="scan'208";a="319879507"
+   d="scan'208";a="319879532"
 Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Mar 2023 02:35:03 -0700
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Mar 2023 02:35:05 -0700
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10661"; a="633554626"
+X-IronPort-AV: E=McAfee;i="6600,9927,10661"; a="633554643"
 X-IronPort-AV: E=Sophos;i="5.98,294,1673942400"; 
-   d="scan'208";a="633554626"
+   d="scan'208";a="633554643"
 Received: from 984fee00a4c6.jf.intel.com ([10.165.58.231])
-  by orsmga003.jf.intel.com with ESMTP; 27 Mar 2023 02:35:02 -0700
+  by orsmga003.jf.intel.com with ESMTP; 27 Mar 2023 02:35:04 -0700
 From:   Yi Liu <yi.l.liu@intel.com>
 To:     alex.williamson@redhat.com, jgg@nvidia.com, kevin.tian@intel.com
 Cc:     joro@8bytes.org, robin.murphy@arm.com, cohuck@redhat.com,
@@ -50,9 +50,9 @@ Cc:     joro@8bytes.org, robin.murphy@arm.com, cohuck@redhat.com,
         intel-gfx@lists.freedesktop.org, linux-s390@vger.kernel.org,
         xudong.hao@intel.com, yan.y.zhao@intel.com, terrence.xu@intel.com,
         yanting.jiang@intel.com
-Subject: [PATCH v2 03/10] vfio/pci: Move the existing hot reset logic to be a helper
-Date:   Mon, 27 Mar 2023 02:34:51 -0700
-Message-Id: <20230327093458.44939-4-yi.l.liu@intel.com>
+Subject: [PATCH v2 05/10] vfio/pci: Allow passing zero-length fd array in VFIO_DEVICE_PCI_HOT_RESET
+Date:   Mon, 27 Mar 2023 02:34:53 -0700
+Message-Id: <20230327093458.44939-6-yi.l.liu@intel.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20230327093458.44939-1-yi.l.liu@intel.com>
 References: <20230327093458.44939-1-yi.l.liu@intel.com>
@@ -62,128 +62,155 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This prepares to add another method for hot reset. The major hot reset logic
-are moved to vfio_pci_ioctl_pci_hot_reset_groups().
+as an alternative method for ownership check when iommufd is used. In
+this case all opened devices in the affected dev_set are verified to
+be bound to a same valid iommufd value to allow reset. It's simpler
+and faster as user does not need to pass a set of fds and kernel no
+need to search the device within the given fds.
 
-No functional change is intended.
+a device in noiommu mode doesn't have a valid iommufd, so this method
+should not be used in a dev_set which contains multiple devices and one
+of them is in noiommu. The only allowed noiommu scenario is that the
+calling device is noiommu and it's in a singleton dev_set.
 
 Suggested-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Yi Liu <yi.l.liu@intel.com>
 ---
- drivers/vfio/pci/vfio_pci_core.c | 56 +++++++++++++++++++-------------
- 1 file changed, 33 insertions(+), 23 deletions(-)
+ drivers/vfio/pci/vfio_pci_core.c | 42 +++++++++++++++++++++++++++-----
+ include/uapi/linux/vfio.h        |  9 ++++++-
+ 2 files changed, 44 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
-index 5d745c9abf05..3696b8e58445 100644
+index 3696b8e58445..b68fcba67a4b 100644
 --- a/drivers/vfio/pci/vfio_pci_core.c
 +++ b/drivers/vfio/pci/vfio_pci_core.c
-@@ -1255,29 +1255,17 @@ static int vfio_pci_ioctl_get_pci_hot_reset_info(
- 	return ret;
- }
+@@ -180,7 +180,8 @@ static void vfio_pci_probe_mmaps(struct vfio_pci_core_device *vdev)
+ struct vfio_pci_group_info;
+ static void vfio_pci_dev_set_try_reset(struct vfio_device_set *dev_set);
+ static int vfio_pci_dev_set_hot_reset(struct vfio_device_set *dev_set,
+-				      struct vfio_pci_group_info *groups);
++				      struct vfio_pci_group_info *groups,
++				      struct iommufd_ctx *iommufd_ctx);
  
--static int vfio_pci_ioctl_pci_hot_reset(struct vfio_pci_core_device *vdev,
--					struct vfio_pci_hot_reset __user *arg)
-+static int
-+vfio_pci_ioctl_pci_hot_reset_groups(struct vfio_pci_core_device *vdev,
-+				    struct vfio_pci_hot_reset *hdr,
-+				    bool slot,
-+				    struct vfio_pci_hot_reset __user *arg)
- {
--	unsigned long minsz = offsetofend(struct vfio_pci_hot_reset, count);
--	struct vfio_pci_hot_reset hdr;
- 	int32_t *group_fds;
- 	struct file **files;
- 	struct vfio_pci_group_info info;
--	bool slot = false;
- 	int file_idx, count = 0, ret = 0;
- 
--	if (copy_from_user(&hdr, arg, minsz))
--		return -EFAULT;
--
--	if (hdr.argsz < minsz || hdr.flags)
--		return -EINVAL;
--
--	/* Can we do a slot or bus reset or neither? */
--	if (!pci_probe_reset_slot(vdev->pdev->slot))
--		slot = true;
--	else if (pci_probe_reset_bus(vdev->pdev->bus))
--		return -ENODEV;
--
- 	/*
- 	 * We can't let userspace give us an arbitrarily large buffer to copy,
- 	 * so verify how many we think there could be.  Note groups can have
-@@ -1289,11 +1277,11 @@ static int vfio_pci_ioctl_pci_hot_reset(struct vfio_pci_core_device *vdev,
+ /*
+  * INTx masking requires the ability to disable INTx signaling via PCI_COMMAND
+@@ -1277,7 +1278,7 @@ vfio_pci_ioctl_pci_hot_reset_groups(struct vfio_pci_core_device *vdev,
  		return ret;
  
  	/* Somewhere between 1 and count is OK */
--	if (!hdr.count || hdr.count > count)
-+	if (!hdr->count || hdr->count > count)
+-	if (!hdr->count || hdr->count > count)
++	if (hdr->count > count)
  		return -EINVAL;
  
--	group_fds = kcalloc(hdr.count, sizeof(*group_fds), GFP_KERNEL);
--	files = kcalloc(hdr.count, sizeof(*files), GFP_KERNEL);
-+	group_fds = kcalloc(hdr->count, sizeof(*group_fds), GFP_KERNEL);
-+	files = kcalloc(hdr->count, sizeof(*files), GFP_KERNEL);
- 	if (!group_fds || !files) {
- 		kfree(group_fds);
- 		kfree(files);
-@@ -1301,7 +1289,7 @@ static int vfio_pci_ioctl_pci_hot_reset(struct vfio_pci_core_device *vdev,
- 	}
- 
- 	if (copy_from_user(group_fds, arg->group_fds,
--			   hdr.count * sizeof(*group_fds))) {
-+			   hdr->count * sizeof(*group_fds))) {
- 		kfree(group_fds);
- 		kfree(files);
- 		return -EFAULT;
-@@ -1311,7 +1299,7 @@ static int vfio_pci_ioctl_pci_hot_reset(struct vfio_pci_core_device *vdev,
- 	 * Get the group file for each fd to ensure the group held across
- 	 * the reset
- 	 */
--	for (file_idx = 0; file_idx < hdr.count; file_idx++) {
-+	for (file_idx = 0; file_idx < hdr->count; file_idx++) {
- 		struct file *file = fget(group_fds[file_idx]);
- 
- 		if (!file) {
-@@ -1335,7 +1323,7 @@ static int vfio_pci_ioctl_pci_hot_reset(struct vfio_pci_core_device *vdev,
- 	if (ret)
- 		goto hot_reset_release;
- 
--	info.count = hdr.count;
-+	info.count = hdr->count;
+ 	group_fds = kcalloc(hdr->count, sizeof(*group_fds), GFP_KERNEL);
+@@ -1326,7 +1327,7 @@ vfio_pci_ioctl_pci_hot_reset_groups(struct vfio_pci_core_device *vdev,
+ 	info.count = hdr->count;
  	info.files = files;
  
- 	ret = vfio_pci_dev_set_hot_reset(vdev->vdev.dev_set, &info);
-@@ -1348,6 +1336,28 @@ static int vfio_pci_ioctl_pci_hot_reset(struct vfio_pci_core_device *vdev,
+-	ret = vfio_pci_dev_set_hot_reset(vdev->vdev.dev_set, &info);
++	ret = vfio_pci_dev_set_hot_reset(vdev->vdev.dev_set, &info, NULL);
+ 
+ hot_reset_release:
+ 	for (file_idx--; file_idx >= 0; file_idx--)
+@@ -1341,6 +1342,7 @@ static int vfio_pci_ioctl_pci_hot_reset(struct vfio_pci_core_device *vdev,
+ {
+ 	unsigned long minsz = offsetofend(struct vfio_pci_hot_reset, count);
+ 	struct vfio_pci_hot_reset hdr;
++	struct iommufd_ctx *iommufd;
+ 	bool slot = false;
+ 
+ 	if (copy_from_user(&hdr, arg, minsz))
+@@ -1355,7 +1357,12 @@ static int vfio_pci_ioctl_pci_hot_reset(struct vfio_pci_core_device *vdev,
+ 	else if (pci_probe_reset_bus(vdev->pdev->bus))
+ 		return -ENODEV;
+ 
+-	return vfio_pci_ioctl_pci_hot_reset_groups(vdev, &hdr, slot, arg);
++	if (hdr.count)
++		return vfio_pci_ioctl_pci_hot_reset_groups(vdev, &hdr, slot, arg);
++
++	iommufd = vfio_iommufd_physical_ictx(&vdev->vdev);
++
++	return vfio_pci_dev_set_hot_reset(vdev->vdev.dev_set, NULL, iommufd);
+ }
+ 
+ static int vfio_pci_ioctl_ioeventfd(struct vfio_pci_core_device *vdev,
+@@ -2327,6 +2334,9 @@ static bool vfio_dev_in_groups(struct vfio_pci_core_device *vdev,
+ {
+ 	unsigned int i;
+ 
++	if (!groups)
++		return false;
++
+ 	for (i = 0; i < groups->count; i++)
+ 		if (vfio_file_has_dev(groups->files[i], &vdev->vdev))
+ 			return true;
+@@ -2402,13 +2412,25 @@ static int vfio_pci_dev_set_pm_runtime_get(struct vfio_device_set *dev_set)
  	return ret;
  }
  
-+static int vfio_pci_ioctl_pci_hot_reset(struct vfio_pci_core_device *vdev,
-+					struct vfio_pci_hot_reset __user *arg)
++static bool vfio_dev_in_iommufd_ctx(struct vfio_pci_core_device *vdev,
++				    struct iommufd_ctx *iommufd_ctx)
 +{
-+	unsigned long minsz = offsetofend(struct vfio_pci_hot_reset, count);
-+	struct vfio_pci_hot_reset hdr;
-+	bool slot = false;
++	struct iommufd_ctx *iommufd = vfio_iommufd_physical_ictx(&vdev->vdev);
 +
-+	if (copy_from_user(&hdr, arg, minsz))
-+		return -EFAULT;
++	if (!iommufd)
++		return false;
 +
-+	if (hdr.argsz < minsz || hdr.flags)
-+		return -EINVAL;
-+
-+	/* Can we do a slot or bus reset or neither? */
-+	if (!pci_probe_reset_slot(vdev->pdev->slot))
-+		slot = true;
-+	else if (pci_probe_reset_bus(vdev->pdev->bus))
-+		return -ENODEV;
-+
-+	return vfio_pci_ioctl_pci_hot_reset_groups(vdev, &hdr, slot, arg);
++	return iommufd == iommufd_ctx;
 +}
 +
- static int vfio_pci_ioctl_ioeventfd(struct vfio_pci_core_device *vdev,
- 				    struct vfio_device_ioeventfd __user *arg)
+ /*
+  * We need to get memory_lock for each device, but devices can share mmap_lock,
+  * therefore we need to zap and hold the vma_lock for each device, and only then
+  * get each memory_lock.
+  */
+ static int vfio_pci_dev_set_hot_reset(struct vfio_device_set *dev_set,
+-				      struct vfio_pci_group_info *groups)
++				      struct vfio_pci_group_info *groups,
++				      struct iommufd_ctx *iommufd_ctx)
  {
+ 	struct vfio_pci_core_device *cur_mem;
+ 	struct vfio_pci_core_device *cur_vma;
+@@ -2448,9 +2470,17 @@ static int vfio_pci_dev_set_hot_reset(struct vfio_device_set *dev_set,
+ 		 *
+ 		 * Otherwise all opened devices in the dev_set must be
+ 		 * contained by the set of groups provided by the user.
++		 *
++		 * If user provides a zero-length array, then all the
++		 * opened devices must be bound to a same iommufd_ctx.
++		 *
++		 * If all above checks are failed, reset is allowed only if
++		 * the calling device is in a singleton dev_set.
+ 		 */
+ 		if (cur_vma->vdev.open_count &&
+-		    !vfio_dev_in_groups(cur_vma, groups)) {
++		    !vfio_dev_in_groups(cur_vma, groups) &&
++		    !vfio_dev_in_iommufd_ctx(cur_vma, iommufd_ctx) &&
++		    (dev_set->device_count > 1)) {
+ 			ret = -EINVAL;
+ 			goto err_undo;
+ 		}
+diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
+index f96e5689cffc..17aa5d09db41 100644
+--- a/include/uapi/linux/vfio.h
++++ b/include/uapi/linux/vfio.h
+@@ -679,7 +679,14 @@ struct vfio_pci_hot_reset_info {
+  * the calling user must ensure all affected devices, if opened, are
+  * owned by itself.
+  *
+- * The ownership is proved by an array of group fds.
++ * The ownership can be proved by:
++ *   - An array of group fds
++ *   - A zero-length array
++ *
++ * In the last case all affected devices which are opened by this user
++ * must have been bound to a same iommufd. If the calling device is in
++ * noiommu mode (no valid iommufd) then it can be reset only if the reset
++ * doesn't affect other devices.
+  *
+  * Return: 0 on success, -errno on failure.
+  */
 -- 
 2.34.1
 
