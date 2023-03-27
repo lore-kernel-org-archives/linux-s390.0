@@ -2,168 +2,318 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 88B16C76195
-	for <linux-s390@archiver.kernel.org>; Mon, 27 Mar 2023 17:49:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B9281C6FD1D
+	for <linux-s390@archiver.kernel.org>; Mon, 27 Mar 2023 19:27:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229611AbjC0Rt3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 27 Mar 2023 13:49:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54224 "EHLO
+        id S232237AbjC0T1S (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 27 Mar 2023 15:27:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232118AbjC0RtN (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Mar 2023 13:49:13 -0400
-Received: from NAM04-BN8-obe.outbound.protection.outlook.com (mail-bn8nam04on2058.outbound.protection.outlook.com [40.107.100.58])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5ABDA4214;
-        Mon, 27 Mar 2023 10:49:01 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Ir43azXzif6mxVWCoG/xjpF1FKXdyZY35U7uIF+6PC7MS85BJ+XMLvsgIcm1wfyqC4bIr/KzrZCLnppU1HeHFjflz569ylzekVL9L9mryE6Qv6w7xnCBuEtTFRs9/wMosLL15LNN4qCuz9D7TSM7SznwId+YZC98TbFgbJ1a7LPoaUtv4sRB6S5CoEVfrquGWeOuS+0H/LRHwhFwiF1+h+LttrZCdDKKKmINhU3omvB0gC1Hi+vUvdLX8qZ20RvtdRj2LnEi6NqxLNb+Laq9qmUNuE9FZFGq2KBbV+UJ5H9Luxhur+LbWJEdSpgowR3Jyey5OArZmD8jbhK0A9cEKw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=c1/cXob2+wsXRXQQ3c7nt+9I8zIlpqe6Oe7p1YbDYf4=;
- b=e4nl6p0mLMI7oz+7cZ7piqJnI5Omc01JqUj5UI4mNd9CfTrlO0IRdCVeed3FZP3IIDF4whB5jPikJs3YZkquVTZVWcCxo6u+ofRseThwtYkDg7EIelb2YEuLvZz4fP3nVlYLYOa6kjUSDZ09Gj/a5rjOTsVZj8k7AxkchM8ds9vqv5PqAvaeu+K43IRPfYkPmo976Z9lyqRJoSuf5bV8qGipJYKNBOe1ab7DLB9K/ztZv0E9SMyqBRDIV4HbuXRIHFk9nsHsmsNuKpeMJ0fzz4bLGTyNsri+NFnNnExOFuLgnbWmso9kI1qbwjjV3PP1QyGyeDg9MTgOgk6u/2x1KQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.118.232) smtp.rcpttodomain=intel.com smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=c1/cXob2+wsXRXQQ3c7nt+9I8zIlpqe6Oe7p1YbDYf4=;
- b=TW7vId8tZmgzLl1ag84WKzaqdmSsLbQS68QZh95ad7Ou0xxN3bnghVo0TPqwEJYd2bcMPXgwVgJ/34pXlnDEPWA2OOaGN9WfCyxHZBc6vtwxUjJ/bIjonUNG5vfY+mrS2bGseb28KLc/PiIa9/58FMQ6jIHclaQoQaLH1f5+RCHPrYI7vU9xLyX6ox6XU5NHkRfCWHnoOaLYBtg5+VUJZppbK9OyZl5CsBz+pLbxukFKeTcoS7KaNpWcYBwxc02ynhGoEY+urxuJieGTx179lww2n0vdJ5EUHXl2bHHjiGrP/sbA1gajE4hnKhNGPZRrZ6jOz27VBJMKIC+tFLiiow==
-Received: from DM6PR13CA0057.namprd13.prod.outlook.com (2603:10b6:5:134::34)
- by DM4PR12MB5891.namprd12.prod.outlook.com (2603:10b6:8:67::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6222.28; Mon, 27 Mar
- 2023 17:48:57 +0000
-Received: from DM6NAM11FT064.eop-nam11.prod.protection.outlook.com
- (2603:10b6:5:134:cafe::23) by DM6PR13CA0057.outlook.office365.com
- (2603:10b6:5:134::34) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6254.17 via Frontend
- Transport; Mon, 27 Mar 2023 17:48:57 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.118.232)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.118.232 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.118.232; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.118.232) by
- DM6NAM11FT064.mail.protection.outlook.com (10.13.172.234) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.6222.23 via Frontend Transport; Mon, 27 Mar 2023 17:48:57 +0000
-Received: from drhqmail201.nvidia.com (10.126.190.180) by mail.nvidia.com
- (10.127.129.5) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.5; Mon, 27 Mar 2023
- 10:48:48 -0700
-Received: from drhqmail201.nvidia.com (10.126.190.180) by
- drhqmail201.nvidia.com (10.126.190.180) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.37; Mon, 27 Mar 2023 10:48:47 -0700
-Received: from Asurada-Nvidia (10.127.8.11) by mail.nvidia.com
- (10.126.190.180) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.37 via Frontend
- Transport; Mon, 27 Mar 2023 10:48:46 -0700
-Date:   Mon, 27 Mar 2023 10:48:45 -0700
-From:   Nicolin Chen <nicolinc@nvidia.com>
+        with ESMTP id S229705AbjC0T1R (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Mar 2023 15:27:17 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A325CF
+        for <linux-s390@vger.kernel.org>; Mon, 27 Mar 2023 12:26:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1679945185;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=YsJ82OYx+hJHZIpI5yk6abwb8YmFKXJFuVMXDYupmyI=;
+        b=cDRusbOdsBmiwUwqFvMSEYQc4DyHqJQa6sFtDvQFyS276rVT8ES1diOUEtH24Tg4tb75z7
+        RqQYLfu7X4jnjQnfxJwMi/VEuHWtEBBNbX04eD7RfcuQfwY7D0NT8fQGFIRiGkWWoj7x4W
+        zL6cp1qXPV15N2d4laXRFZoT4kC1ySs=
+Received: from mail-il1-f200.google.com (mail-il1-f200.google.com
+ [209.85.166.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-88-67AjPCguNGmOzNXyr1TdxQ-1; Mon, 27 Mar 2023 15:26:23 -0400
+X-MC-Unique: 67AjPCguNGmOzNXyr1TdxQ-1
+Received: by mail-il1-f200.google.com with SMTP id i17-20020a056e020d9100b00325a80f683cso6692618ilj.22
+        for <linux-s390@vger.kernel.org>; Mon, 27 Mar 2023 12:26:23 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1679945182;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=YsJ82OYx+hJHZIpI5yk6abwb8YmFKXJFuVMXDYupmyI=;
+        b=GKdMM4OkMANCWWmXs+m11XW27s1L08pM/Mw3YcCWJLtppViuXDKwUb8n5mJ/UDgycS
+         simQVg+lnbwT+Pzm8WScuAN4umgXx+zbbNZFs11iT+h4gkE7S9gNXJfCwL5xFmB0226C
+         CTZ1Uav1c21GiqmYhsm4O+PCv7g8Kkgm078ayYpq2Yda7p+7f+pD4SOPSJ/CrIhSqfL7
+         ZdjgkBG6Iw14WWRAvZfvIz2Pxa9SyMrLutg+RlHUh8G8lhYf1/22vXwQ0ljE3XWXjJLT
+         x61mIeaXw5oEW3nKFLdoty5BFTKDS20XbrGB6oIfbcgbYYR6r9maXM6Dn0CMhWBbrQMo
+         dfqQ==
+X-Gm-Message-State: AAQBX9dgbbN26r+deS2bRQFbnwcG/FvxCV+siy4alMtk9oU+JSGVhotx
+        il4phL1xQbg65q1LqApYY2mVzvhy8Wez3KG6LFnyCadwf0LAobEqTObvvkpTDdAyAs5PbQi9kg0
+        kcI/iHSx0WMF4p0qfntZLLg==
+X-Received: by 2002:a92:d40a:0:b0:31f:9b6e:2f49 with SMTP id q10-20020a92d40a000000b0031f9b6e2f49mr10852813ilm.10.1679945182674;
+        Mon, 27 Mar 2023 12:26:22 -0700 (PDT)
+X-Google-Smtp-Source: AKy350Y2QNTmEbvdTz9lk9IkQz7nrMs0PzBDjUBGarV1PGA7S1BCrjZKxc1bKrijv1Hfy90uc2/XWg==
+X-Received: by 2002:a92:d40a:0:b0:31f:9b6e:2f49 with SMTP id q10-20020a92d40a000000b0031f9b6e2f49mr10852782ilm.10.1679945182317;
+        Mon, 27 Mar 2023 12:26:22 -0700 (PDT)
+Received: from redhat.com ([38.15.36.239])
+        by smtp.gmail.com with ESMTPSA id x10-20020a92300a000000b0030c0dce44b1sm8006694ile.15.2023.03.27.12.26.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 27 Mar 2023 12:26:21 -0700 (PDT)
+Date:   Mon, 27 Mar 2023 13:26:19 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
 To:     Yi Liu <yi.l.liu@intel.com>
-CC:     <alex.williamson@redhat.com>, <jgg@nvidia.com>,
-        <kevin.tian@intel.com>, <joro@8bytes.org>, <robin.murphy@arm.com>,
-        <cohuck@redhat.com>, <eric.auger@redhat.com>,
-        <kvm@vger.kernel.org>, <mjrosato@linux.ibm.com>,
-        <chao.p.peng@linux.intel.com>, <yi.y.sun@linux.intel.com>,
-        <peterx@redhat.com>, <jasowang@redhat.com>,
-        <shameerali.kolothum.thodi@huawei.com>, <lulu@redhat.com>,
-        <suravee.suthikulpanit@amd.com>,
-        <intel-gvt-dev@lists.freedesktop.org>,
-        <intel-gfx@lists.freedesktop.org>, <linux-s390@vger.kernel.org>,
-        <xudong.hao@intel.com>, <yan.y.zhao@intel.com>,
-        <terrence.xu@intel.com>, <yanting.jiang@intel.com>
-Subject: Re: [PATCH v8 00/24] Add vfio_device cdev for iommufd support
-Message-ID: <ZCHW/QIKQVhBjg/x@Asurada-Nvidia>
-References: <20230327094047.47215-1-yi.l.liu@intel.com>
+Cc:     jgg@nvidia.com, kevin.tian@intel.com, joro@8bytes.org,
+        robin.murphy@arm.com, cohuck@redhat.com, eric.auger@redhat.com,
+        nicolinc@nvidia.com, kvm@vger.kernel.org, mjrosato@linux.ibm.com,
+        chao.p.peng@linux.intel.com, yi.y.sun@linux.intel.com,
+        peterx@redhat.com, jasowang@redhat.com,
+        shameerali.kolothum.thodi@huawei.com, lulu@redhat.com,
+        suravee.suthikulpanit@amd.com, intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, linux-s390@vger.kernel.org,
+        xudong.hao@intel.com, yan.y.zhao@intel.com, terrence.xu@intel.com,
+        yanting.jiang@intel.com
+Subject: Re: [PATCH v2 10/10] vfio/pci: Add
+ VFIO_DEVICE_GET_PCI_HOT_RESET_GROUP_INFO
+Message-ID: <20230327132619.5ab15440.alex.williamson@redhat.com>
+In-Reply-To: <20230327093458.44939-11-yi.l.liu@intel.com>
+References: <20230327093458.44939-1-yi.l.liu@intel.com>
+        <20230327093458.44939-11-yi.l.liu@intel.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <20230327094047.47215-1-yi.l.liu@intel.com>
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DM6NAM11FT064:EE_|DM4PR12MB5891:EE_
-X-MS-Office365-Filtering-Correlation-Id: d98d36de-ac96-45b1-6fb4-08db2eeb8a79
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: e6H3kIzrznSDbRvtGo5d6OuNsY9+4G6vWe9bIg21I47z0WDOcbBcfJ1Y5DfcADogTnZxD+3bQTLBHTrHOLshuEgFNZFgvHNnu79SfcTSNYQ6CXggW7oG+DZqTgv5rrMP8k6jI4zjQEjS2XrUBh6N9ej2F2/EazdK/Iavimc0J0Mdf1u9WeSYBLxsy22HdfvP5iStm8wzX77iTTQPG6Y60GDnjFYtRCTr9EgX4dMYsUgxp/2d4Z5D64wF6KSCdDqahiXUUN2u5g934jrCiG0TLYXPTbmwB7JcQEyA+d2jykH0poipAe/wMYElAH8WfkMOLoYsCx3xy4hcYxhl6jTgxxlcQbDqo/89Xm9j1z6/Q/s5QtdNvyWUtXnDE8B9/JNTzadHyPpOnSebR3eeTY8kXVIlvnCtMwxMd5fcVIlEI1pE5elqRERPLzRhCJ+eDSlG95n8f8A/jkXGs9ypz4cvBMBn56CrkSF2Lxuml4yud7BmrV6rGqEoUj5BCwCJYqJ2TfNjswBhd/Brk4KYZZU7/t++yH6Mx2IRzM3h555L/zWEIapBeWdYA33ueyt5JGzxOicwYC3vcoMTpxl1SA38KcW9st8gjN1mMbcFNeNOGgNRnrPVabRmu4Y2IAi1dck9vwqlm0IFOXfyMdeho/ee1p/3CINlV2FLTFTSvBwJLgn8vRX+5OvmzYBBZeBCa/MBoakBv51Ha24UUUDa0GlaqazmbiiqqblzzUMkC4HSaXgtuVYZFt6D7CiuqjPmmaTQpcedBpSKsNcP8mlbx1ENhAWEv9UCrXOgHFuJGrPaKSSOXil2IOF0+v8qVCMVHWBj5+xcc+qeH/Ubavfhx4Kg6j4+Nq53F5alNumxUHTs1pE=
-X-Forefront-Antispam-Report: CIP:216.228.118.232;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge1.nvidia.com;CAT:NONE;SFS:(13230028)(4636009)(396003)(376002)(136003)(346002)(39860400002)(451199021)(40470700004)(46966006)(36840700001)(47076005)(83380400001)(426003)(336012)(8676002)(70586007)(45080400002)(2906002)(70206006)(4326008)(6916009)(54906003)(966005)(478600001)(9686003)(316002)(186003)(26005)(55016003)(82310400005)(40480700001)(7416002)(86362001)(33716001)(36860700001)(41300700001)(34020700004)(7636003)(356005)(8936002)(82740400003)(40460700003)(5660300002);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 27 Mar 2023 17:48:57.7057
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: d98d36de-ac96-45b1-6fb4-08db2eeb8a79
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.118.232];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT064.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB5891
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Mar 27, 2023 at 02:40:23AM -0700, Yi Liu wrote:
-> External email: Use caution opening links or attachments
-> 
-> 
-> Existing VFIO provides group-centric user APIs for userspace. Userspace
-> opens the /dev/vfio/$group_id first before getting device fd and hence
-> getting access to device. This is not the desired model for iommufd. Per
-> the conclusion of community discussion[1], iommufd provides device-centric
-> kAPIs and requires its consumer (like VFIO) to be device-centric user
-> APIs. Such user APIs are used to associate device with iommufd and also
-> the I/O address spaces managed by the iommufd.
-> 
-> This series first introduces a per device file structure to be prepared
-> for further enhancement and refactors the kvm-vfio code to be prepared
-> for accepting device file from userspace. Afte this, adds a mechanism for
-> blocking device access before iommufd bind. Then refactors the vfio to be
-> able to handle cdev path (e.g. iommufd binding, no-iommufd, [de]attach ioas).
-> This refactor includes making the device_open exclusive between group and
-> cdev path, only allow single device open in cdev path; vfio-iommufd code is
-> also refactored to support cdev. e.g. split the vfio_iommufd_bind() into
-> two steps. Eventually, adds the cdev support for vfio device and the new
-> ioctls, then makes group infrastructure optional as it is not needed when
-> vfio device cdev is compiled.
-> 
-> This series is based on some preparation works done to vfio emulated devices[2]
-> and vfio pci hot reset enhancements[3].
-> 
-> This series is a prerequisite for iommu nesting for vfio device[4] [5].
-> 
-> The complete code can be found in below branch, simple tests done to the
-> legacy group path and the cdev path. Draft QEMU branch can be found at[6]
-> 
-> https://github.com/yiliu1765/iommufd/tree/vfio_device_cdev_v8
-> (config CONFIG_IOMMUFD=y CONFIG_VFIO_DEVICE_CDEV=y)
-> 
-> base-commit: 1d412cdf6cd17c347b5398416a60518671e13d37
-> 
-> [1] https://lore.kernel.org/kvm/BN9PR11MB5433B1E4AE5B0480369F97178C189@BN9PR11MB5433.namprd11.prod.outlook.com/
-> [2] https://lore.kernel.org/kvm/20230327093351.44505-1-yi.l.liu@intel.com/
-> [3] https://lore.kernel.org/kvm/20230327093458.44939-1-yi.l.liu@intel.com/
-> [4] https://lore.kernel.org/linux-iommu/20230309080910.607396-1-yi.l.liu@intel.com/
-> [5] https://lore.kernel.org/linux-iommu/20230309082207.612346-1-yi.l.liu@intel.com/
-> [6] https://github.com/yiliu1765/qemu/tree/iommufd_rfcv3 (it is based on Eric's
->     QEMU iommufd rfcv3 (https://lore.kernel.org/kvm/20230131205305.2726330-1-eric.auger@redhat.com/)
->     plus commits to align with vfio_device_cdev v8)
-> 
-> Change log:
-> 
-> v8:
->  - Add patch 18 to determine noiommu device at vfio_device registration (Jason)
->  - Add patch 19 to name noiommu device with "noiommu-" prefix to be par with
->    group path
->  - Add r-b from Kevin
->  - Add t-b from Terrence
+On Mon, 27 Mar 2023 02:34:58 -0700
+Yi Liu <yi.l.liu@intel.com> wrote:
 
-This runs well with iommufd selftest on x86 and QEMU sanity on
-ARM64, applying nesting series on top of this series:
-https://github.com/nicolinc/iommufd/commits/wip/iommufd_nesting-03272023
+> This is a preparation for vfio device cdev as cdev gives userspace the
+> capability to open device cdev fd and management stack (e.g. libvirt)
+> could pass the device fd to the actual user (e.g. QEMU). As a result,
+> the actual user has no idea about the device's bus:devfn information.
+> This is a problem when user uses VFIO_DEVICE_GET_PCI_HOT_RESET_INFO to
+> know the hot reset affected device scope as this ioctl returns bus:devfn
+> info. For the fd passing usage, the acutal user cannot map the bus:devfn
+> to the devices it has opened via the fd passed from management stack. So
+> a new ioctl is required.
+> 
+> This new ioctl reports the list of iommufd dev_id that is opened by the
+> user. If there is affected device that is not bound to vfio driver or
+> opened by another user, this command shall fail with -EPERM. For the
+> noiommu mode in the vfio device cdev path, this shall fail as no dev_id
+> would be generated, hence nothing to report.
+> 
+> This ioctl is useless to the users that open vfio group as such users
+> have no idea about the iommufd dev_id and it can use the existing
+> VFIO_DEVICE_GET_PCI_HOT_RESET_INFO. The user that uses the traditional
+> mode vfio group/container would be failed if invoking this ioctl. But
+> the user that uses the iommufd compat mode vfio group/container shall
+> succeed. This is harmless as long as user cannot make use of it and
+> should use VFIO_DEVICE_GET_PCI_HOT_RESET_INFO.
 
-Tested-by: Nicolin Chen <nicolinc@nvidia.com>
+
+So VFIO_DEVICE_GET_PCI_HOT_RESET_INFO reports a group and bdf, but
+VFIO_DEVICE_GET_PCI_HOT_RESET_*GROUP*_INFO is meant for the non-group,
+cdev use case and returns a dev_id rather than a group???
+
+Additionally, VFIO_DEVICE_GET_PCI_HOT_RESET_INFO has a flags arg that
+isn't used, why do we need a new ioctl vs defining
+VFIO_PCI_HOT_RESET_FLAG_IOMMUFD_DEV_ID.  In fact, we could define
+vfio_dependent_device as:
+
+struct vfio_pci_dependent_device {
+	union {
+	        __u32   group_id;
+		__u32	dev_id;
+	}
+        __u16   segment;
+        __u8    bus;
+        __u8    devfn;
+};
+
+If the user calls with the above flag, dev_id is valid, otherwise
+group_id.  Perhaps segment:buus:devfn could still be filled in with a
+NULL/invalid dev_id if the user doesn't have permissions for the device
+so that debugging from userspace isn't so opaque.  Thanks,
+
+Alex
+ 
+> Signed-off-by: Yi Liu <yi.l.liu@intel.com>
+> ---
+>  drivers/vfio/pci/vfio_pci_core.c | 98 ++++++++++++++++++++++++++++++++
+>  include/uapi/linux/vfio.h        | 47 +++++++++++++++
+>  2 files changed, 145 insertions(+)
+> 
+> diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
+> index 19f5b075d70a..45edf4e9b98b 100644
+> --- a/drivers/vfio/pci/vfio_pci_core.c
+> +++ b/drivers/vfio/pci/vfio_pci_core.c
+> @@ -1181,6 +1181,102 @@ static int vfio_pci_ioctl_reset(struct vfio_pci_core_device *vdev,
+>  	return ret;
+>  }
+>  
+> +static struct pci_dev *
+> +vfio_pci_dev_set_resettable(struct vfio_device_set *dev_set);
+> +
+> +static int vfio_pci_ioctl_get_pci_hot_reset_group_info(
+> +	struct vfio_pci_core_device *vdev,
+> +	struct vfio_pci_hot_reset_group_info __user *arg)
+> +{
+> +	unsigned long minsz =
+> +		offsetofend(struct vfio_pci_hot_reset_group_info, count);
+> +	struct vfio_pci_hot_reset_group_info hdr;
+> +	struct iommufd_ctx *iommufd, *cur_iommufd;
+> +	u32 count = 0, index = 0, *devices = NULL;
+> +	struct vfio_pci_core_device *cur;
+> +	bool slot = false;
+> +	int ret = 0;
+> +
+> +	if (copy_from_user(&hdr, arg, minsz))
+> +		return -EFAULT;
+> +
+> +	if (hdr.argsz < minsz)
+> +		return -EINVAL;
+> +
+> +	hdr.flags = 0;
+> +
+> +	/* Can we do a slot or bus reset or neither? */
+> +	if (!pci_probe_reset_slot(vdev->pdev->slot))
+> +		slot = true;
+> +	else if (pci_probe_reset_bus(vdev->pdev->bus))
+> +		return -ENODEV;
+> +
+> +	mutex_lock(&vdev->vdev.dev_set->lock);
+> +	if (!vfio_pci_dev_set_resettable(vdev->vdev.dev_set)) {
+> +		ret = -EPERM;
+> +		goto out_unlock;
+> +	}
+> +
+> +	iommufd = vfio_iommufd_physical_ictx(&vdev->vdev);
+> +	if (!iommufd) {
+> +		ret = -EPERM;
+> +		goto out_unlock;
+> +	}
+> +
+> +	/* How many devices are affected? */
+> +	ret = vfio_pci_for_each_slot_or_bus(vdev->pdev, vfio_pci_count_devs,
+> +					    &count, slot);
+> +	if (ret)
+> +		goto out_unlock;
+> +
+> +	WARN_ON(!count); /* Should always be at least one */
+> +
+> +	/*
+> +	 * If there's enough space, fill it now, otherwise return -ENOSPC and
+> +	 * the number of devices affected.
+> +	 */
+> +	if (hdr.argsz < sizeof(hdr) + (count * sizeof(*devices))) {
+> +		ret = -ENOSPC;
+> +		hdr.count = count;
+> +		goto reset_info_exit;
+> +	}
+> +
+> +	devices = kcalloc(count, sizeof(*devices), GFP_KERNEL);
+> +	if (!devices) {
+> +		ret = -ENOMEM;
+> +		goto reset_info_exit;
+> +	}
+> +
+> +	list_for_each_entry(cur, &vdev->vdev.dev_set->device_list, vdev.dev_set_list) {
+> +		cur_iommufd = vfio_iommufd_physical_ictx(&cur->vdev);
+> +		if (cur->vdev.open_count) {
+> +			if (cur_iommufd != iommufd) {
+> +				ret = -EPERM;
+> +				break;
+> +			}
+> +			ret = vfio_iommufd_physical_devid(&cur->vdev, &devices[index]);
+> +			if (ret)
+> +				break;
+> +			index++;
+> +		}
+> +	}
+> +
+> +reset_info_exit:
+> +	if (copy_to_user(arg, &hdr, minsz))
+> +		ret = -EFAULT;
+> +
+> +	if (!ret) {
+> +		if (copy_to_user(&arg->devices, devices,
+> +				 hdr.count * sizeof(*devices)))
+> +			ret = -EFAULT;
+> +	}
+> +
+> +	kfree(devices);
+> +out_unlock:
+> +	mutex_unlock(&vdev->vdev.dev_set->lock);
+> +	return ret;
+> +}
+> +
+>  static int vfio_pci_ioctl_get_pci_hot_reset_info(
+>  	struct vfio_pci_core_device *vdev,
+>  	struct vfio_pci_hot_reset_info __user *arg)
+> @@ -1404,6 +1500,8 @@ long vfio_pci_core_ioctl(struct vfio_device *core_vdev, unsigned int cmd,
+>  		return vfio_pci_ioctl_get_irq_info(vdev, uarg);
+>  	case VFIO_DEVICE_GET_PCI_HOT_RESET_INFO:
+>  		return vfio_pci_ioctl_get_pci_hot_reset_info(vdev, uarg);
+> +	case VFIO_DEVICE_GET_PCI_HOT_RESET_GROUP_INFO:
+> +		return vfio_pci_ioctl_get_pci_hot_reset_group_info(vdev, uarg);
+>  	case VFIO_DEVICE_GET_REGION_INFO:
+>  		return vfio_pci_ioctl_get_region_info(vdev, uarg);
+>  	case VFIO_DEVICE_IOEVENTFD:
+> diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
+> index 25432ef213ee..61b801dfd40b 100644
+> --- a/include/uapi/linux/vfio.h
+> +++ b/include/uapi/linux/vfio.h
+> @@ -669,6 +669,53 @@ struct vfio_pci_hot_reset_info {
+>  
+>  #define VFIO_DEVICE_GET_PCI_HOT_RESET_INFO	_IO(VFIO_TYPE, VFIO_BASE + 12)
+>  
+> +/**
+> + * VFIO_DEVICE_GET_PCI_HOT_RESET_GROUP_INFO - _IOWR(VFIO_TYPE, VFIO_BASE + 12,
+> + *						    struct vfio_pci_hot_reset_group_info)
+> + *
+> + * This is used in the vfio device cdev mode.  It returns the list of
+> + * affected devices (represented by iommufd dev_id) when hot reset is
+> + * issued on the current device with which this ioctl is invoked.  It
+> + * only includes the devices that are opened by the current user in the
+> + * time of this command is invoked.  This list may change when user opens
+> + * new device or close opened device, hence user should re-invoke it
+> + * after open/close devices.  This command has no guarantee on the result
+> + * of VFIO_DEVICE_PCI_HOT_RESET since the not-opened affected device can
+> + * be by other users in the window between the two ioctls.  If the affected
+> + * devices are opened by multiple users, the VFIO_DEVICE_PCI_HOT_RESET
+> + * shall fail, detail can check the description of VFIO_DEVICE_PCI_HOT_RESET.
+> + *
+> + * For the users that open vfio group/container, this ioctl is useless as
+> + * they have no idea about the iommufd dev_id returned by this ioctl.  For
+> + * the users of the traditional mode vfio group/container, this ioctl will
+> + * fail as this mode does not use iommufd hence no dev_id to report back.
+> + * For the users of the iommufd compat mode vfio group/container, this ioctl
+> + * would succeed as this mode uses iommufd as container fd.  But such users
+> + * still have no idea about the iommufd dev_id as the dev_id is only stored
+> + * in kernel in this mode.  For the users of the vfio group/container, the
+> + * VFIO_DEVICE_GET_PCI_HOT_RESET_INFO should be used to know the hot reset
+> + * affected devices.
+> + *
+> + * Return: 0 on success, -errno on failure:
+> + *	-enospc = insufficient buffer;
+> + *	-enodev = unsupported for device;
+> + *	-eperm = no permission for device, this error comes:
+> + *		 - when there are affected devices that are opened but
+> + *		   not bound to the same iommufd with the current device
+> + *		   with which this ioctl is invoked,
+> + *		 - there are affected devices that are not bound to vfio
+> + *		   driver yet.
+> + *		 - no valid iommufd is bound (e.g. noiommu mode)
+> + */
+> +struct vfio_pci_hot_reset_group_info {
+> +	__u32	argsz;
+> +	__u32	flags;
+> +	__u32	count;
+> +	__u32	devices[];
+> +};
+> +
+> +#define VFIO_DEVICE_GET_PCI_HOT_RESET_GROUP_INFO	_IO(VFIO_TYPE, VFIO_BASE + 18)
+> +
+>  /**
+>   * VFIO_DEVICE_PCI_HOT_RESET - _IOW(VFIO_TYPE, VFIO_BASE + 13,
+>   *				    struct vfio_pci_hot_reset)
+
