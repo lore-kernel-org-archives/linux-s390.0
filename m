@@ -2,104 +2,127 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1209EC6FD18
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Mar 2023 12:45:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BC0C6C77B61
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Mar 2023 12:57:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230376AbjC1MpG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Mar 2023 08:45:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34862 "EHLO
+        id S232654AbjC1M5b (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Mar 2023 08:57:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232523AbjC1MpE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Mar 2023 08:45:04 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF963A3;
-        Tue, 28 Mar 2023 05:44:30 -0700 (PDT)
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32SCE5pC000384;
-        Tue, 28 Mar 2023 12:44:30 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
- mime-version : content-transfer-encoding : in-reply-to : references : cc :
- to : from : subject : message-id : date; s=pp1;
- bh=KbXwsz91G9gmSWFR3b5pgN+IxfFfDDnowfmvfYznASs=;
- b=czAZ311rykF+0jhqkPJZfPk5PBW7rZJjao06KZQBGu0njvrVN9UqHZCElOuR+KFLlVpq
- 9dhj6Yj4iZd6lRQT4UMkMntxAVfg1+mE/Osi9c3g+fb7ZiJN4J8mOQR7NAbK8tobGkPx
- LzfvaIhGiRjjOMc0jPiAw1MMjQBxqFTAqEj8dsKeSCJ+iizm9eIq8lU5qh4yiYbYOtJ5
- uQfsgOhRelWa0AApMSvE8oYMca+O8XPq0SE7lzE3SHdxlFIRF1MaF9CXUe9+bYHfSWFV
- pSuk9ywkHbSGBi+j+VCSltjCMMKdBRjBfrjsm8oNH97P4C6+zB1p5SZYDIWJZb0J239y CQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pm02ert1w-1
+        with ESMTP id S232545AbjC1M53 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Mar 2023 08:57:29 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F6A6AD09;
+        Tue, 28 Mar 2023 05:57:17 -0700 (PDT)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32SChYtQ016389;
+        Tue, 28 Mar 2023 12:57:15 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : content-type : mime-version; s=pp1;
+ bh=nMAhbMqZSVBNBaNRKBYHQ9W/xDGZKvgtEVyOvoe2Kis=;
+ b=VH1JV91vO11Npw+fXPFp2zhJ6ZCXo90bD7NRiWtroU1RvzzD1iEWSTkeEzFPAwOmDw6D
+ 2VANfsjpdnXa4wvB5yYdUYmzNHMKmiphyuLcElA3lhjLV5uXSjSH2GwRid8QoXv9lVWX
+ I5d7vZRLyft6udZCFEjaDTtuy0h/nnEjATFyPjOjZUu0UbKHqKD8tOh/X9FUwJm03t5e
+ FY9uagpmK6wcrbPi6DhSd7vvSMfVmEFwj57sHmOaQp4kpbJVTUFNav9L4ntukmOx+pgn
+ LJewqqfEoOhV0qVcI1BFklNzdfp9WerigHYZ6a89FzXv5oMOOyywwG00pQZWZCMX2/rN KA== 
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3pm0g9gbsp-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Mar 2023 12:44:30 +0000
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32SCbHPr027610;
-        Tue, 28 Mar 2023 12:44:29 GMT
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pm02ert1d-1
+        Tue, 28 Mar 2023 12:57:15 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32S0oc10016233;
+        Tue, 28 Mar 2023 12:57:14 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3phrk6kyj8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Mar 2023 12:44:29 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32RIYhib031880;
-        Tue, 28 Mar 2023 12:44:27 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-        by ppma04fra.de.ibm.com (PPS) with ESMTPS id 3phrk6bd4e-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Mar 2023 12:44:27 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32SCiORr25363144
+        Tue, 28 Mar 2023 12:57:13 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32SCvAaD30081614
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 28 Mar 2023 12:44:24 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1A9442004B;
-        Tue, 28 Mar 2023 12:44:24 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EE8E02004D;
-        Tue, 28 Mar 2023 12:44:23 +0000 (GMT)
-Received: from t14-nrb (unknown [9.171.15.139])
-        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 28 Mar 2023 12:44:23 +0000 (GMT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <3dcfb02a-84db-1298-1b88-810b52c12818@linux.ibm.com>
-References: <20230320085642.12251-1-pmorel@linux.ibm.com> <20230320085642.12251-3-pmorel@linux.ibm.com> <167965555147.41638.10047922188597254104@t14-nrb> <eed972f5-7d94-4db3-c496-60f7d37db0f3@linux.ibm.com> <167998471655.28355.8845167343467425829@t14-nrb> <3dcfb02a-84db-1298-1b88-810b52c12818@linux.ibm.com>
-Cc:     frankja@linux.ibm.com, thuth@redhat.com, kvm@vger.kernel.org,
-        imbrenda@linux.ibm.com, david@redhat.com, nsg@linux.ibm.com
-To:     Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org
-From:   Nico Boehr <nrb@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v7 2/2] s390x: topology: Checking Configuration Topology Information
-Message-ID: <168000746363.28355.1842312853535506881@t14-nrb>
-User-Agent: alot/0.8.1
-Date:   Tue, 28 Mar 2023 14:44:23 +0200
+        Tue, 28 Mar 2023 12:57:10 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A54B620043;
+        Tue, 28 Mar 2023 12:57:10 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 44FE620040;
+        Tue, 28 Mar 2023 12:57:10 +0000 (GMT)
+Received: from localhost (unknown [9.171.64.142])
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Tue, 28 Mar 2023 12:57:10 +0000 (GMT)
+Date:   Tue, 28 Mar 2023 14:57:08 +0200
+From:   Vasily Gorbik <gor@linux.ibm.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [GIT PULL] s390 updates for 6.3-rc5
+Message-ID: <your-ad-here.call-01680008228-ext-8201@work.hours>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: iNb5fXtDNxGTRd7qf_rXi_TjXBv1XecI
-X-Proofpoint-ORIG-GUID: 4Hq_GVG3DhrtHxVC1Bxj0rStLyKvm4Ct
+X-Proofpoint-GUID: nFBRKuedVPciyqYOceArC-CDnvF5Mmfv
+X-Proofpoint-ORIG-GUID: nFBRKuedVPciyqYOceArC-CDnvF5Mmfv
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
  definitions=2023-03-24_11,2023-03-28_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 suspectscore=0
- adultscore=0 bulkscore=0 impostorscore=0 phishscore=0 malwarescore=0
- lowpriorityscore=0 mlxscore=0 spamscore=0 mlxlogscore=845
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2303200000 definitions=main-2303280100
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 clxscore=1015
+ impostorscore=0 phishscore=0 adultscore=0 spamscore=0 lowpriorityscore=0
+ mlxlogscore=999 bulkscore=0 suspectscore=0 mlxscore=0 priorityscore=1501
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2303200000
+ definitions=main-2303280100
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Quoting Pierre Morel (2023-03-28 13:37:59)
->=20
-> On 3/28/23 08:25, Nico Boehr wrote:
-> > Quoting Pierre Morel (2023-03-27 14:38:35)
-> >>> [...]
->=20
->=20
-> [...]
->=20
->=20
-> >> If a topology level always exist physically and if it is not specified
-> >> on the QEMU command line it is implicitly unique.
-> > What do you mean by 'implicitly unique'?
->=20
-> I mean that if the topology level is not explicitly specified on the=20
-> command line, it exists a single entity of this topology level.
+Hello Linus,
 
-OK, makes sense! Thanks!
+please pull s390 changes for 6.3-rc5.
+
+Thank you,
+Vasily
+
+The following changes since commit d7a0bdbf17276b757d2b89f5351bbee9ecf58fe6:
+
+  s390: update defconfigs (2023-03-13 09:15:11 +0100)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.3-4
+
+for you to fetch changes up to f9bbf25e7b2b74b52b2f269216a92657774f239c:
+
+  s390/ptrace: fix PTRACE_GET_LAST_BREAK error handling (2023-03-27 17:23:08 +0200)
+
+----------------------------------------------------------------
+s390 updates for 6.3-rc5
+
+- Fix an error handling issue with PTRACE_GET_LAST_BREAK request so that
+  an -EFAULT is returned if put_user() fails, instead of ignoring it.
+
+- Fix a build race for the modules_prepare target when
+  CONFIG_EXPOLINE_EXTERN is enabled by reintroducing the dependence
+  on scripts.
+
+- Fix a memory leak in vfio_ap device driver.
+
+- Adds missing earlyclobber annotations to __clear_user() inline assembly
+  to prevent incorrect register allocation.
+
+----------------------------------------------------------------
+Heiko Carstens (2):
+      s390/uaccess: add missing earlyclobber annotations to __clear_user()
+      s390/ptrace: fix PTRACE_GET_LAST_BREAK error handling
+
+Jiri Slaby (SUSE) (1):
+      s390: reintroduce expoline dependence to scripts
+
+Tony Krowiak (1):
+      s390/vfio-ap: fix memory leak in vfio_ap device driver
+
+ arch/s390/Makefile                | 2 +-
+ arch/s390/kernel/ptrace.c         | 8 ++------
+ arch/s390/lib/uaccess.c           | 2 +-
+ drivers/s390/crypto/vfio_ap_drv.c | 3 ++-
+ 4 files changed, 6 insertions(+), 9 deletions(-)
