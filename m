@@ -2,167 +2,181 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 71760C6FD18
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Mar 2023 16:30:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 72133C6FD18
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Mar 2023 17:01:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230424AbjC1QaD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Mar 2023 12:30:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39220 "EHLO
+        id S229866AbjC1RBS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Mar 2023 13:01:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230280AbjC1Q3a (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Mar 2023 12:29:30 -0400
-Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2042.outbound.protection.outlook.com [40.107.237.42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 971BDCDEB;
-        Tue, 28 Mar 2023 09:29:28 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=PZOx9Dc4B/7k3QvyPOhc01RcO7uDuagwjDf/5N51OSt3LGseYMytX78Yn18qROi5IXoUtOWaa4E0pdr2tpZbZxT8JJDheTW0ZGwpIIVvP6yqoMX1YqzPtZItcf/oppmf/wNbHMNMjM5R2mwPYR3CTbY9qGHTf8RsXDIDzInd4u8tAiz/w88BgjKvH+BaM+fmGse/yFDulN/mPoPsAxYMe0nqThJxGqnfzUXg8PRpo2V7gnQ+djU8C2iN08D7PBQCdhOAy5wjbG1glv+Mft4qnH1kbTNVFMxnn6+PrEDrk9mhFVnt2Dd4/LGREN8Bh21gr4Buip0oqrkTB1JM9XOUgg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=/x9Wl1RPLpHdB2R65mSzWhi6itZcz2YzOFYETOsPUOs=;
- b=PLyWgwWCByx3OXjOAiswQh7wZJyzKWTHNpWXXd4QKqvLfKpBBgGQfjgvZvaININU2YW2u/K5eRma7Z7WPNvs0YYL0pqXm5KESk95SxqQ005QsEr71hQ8PrsiTyqleoK4hCzOfeW/VYn7euXySLB8QhBvVYzuY+oaJQ8u87DtxeKu4uTDFKnivovZjNcyQ57F0fMnhPvHkA6aglHMCBWz2AvljpZqCP1R5tHzfn1kRhBRu7sybcaPl8RthH+br3vJfqqbEVFAkqooMYynG71pcbzTQrugwVc+QsWodj45aHl/rxIbsgX0b3PryCXryzYxdeyd4YZVV/8NBvXX/mLIOA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=/x9Wl1RPLpHdB2R65mSzWhi6itZcz2YzOFYETOsPUOs=;
- b=dZ0BSua5zAsDDMdFoiGovC6GI1/kUs2vQyg13X+x+5kYgM19hgAQiRqNBqxYjtrqmXInfMAyHm5Way4oWyNxpWCRsn/wx4HuXAmbO/uqnqZmLNfGNaMJHoISivHtGC1vk/QICi5eeCxQ+E3U2fhcnlLsT85SNAs/exIkvOsZutIqMp4lceN5qBPx37fvowoZ5Co55uxOt4B4N7GPNISBBZeLq9gHQ6DodeiAYPLxPWCxHzHaccv9HBOGh6eeGn2KMA5ibgnUi+RUt1PM3XC+AHiR67R/dDzzdAt6+57fW3oopG8JD7nwofoda0eIofSkJOP5GigRPKHVbtakiYA3OA==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
- by DM4PR12MB8475.namprd12.prod.outlook.com (2603:10b6:8:190::6) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6222.33; Tue, 28 Mar
- 2023 16:29:26 +0000
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::ef6d:fdf6:352f:efd1]) by LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::ef6d:fdf6:352f:efd1%3]) with mapi id 15.20.6178.037; Tue, 28 Mar 2023
- 16:29:26 +0000
-Date:   Tue, 28 Mar 2023 13:29:23 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Alex Williamson <alex.williamson@redhat.com>
-Cc:     "Liu, Yi L" <yi.l.liu@intel.com>,
-        "Tian, Kevin" <kevin.tian@intel.com>,
-        "joro@8bytes.org" <joro@8bytes.org>,
-        "robin.murphy@arm.com" <robin.murphy@arm.com>,
-        "cohuck@redhat.com" <cohuck@redhat.com>,
-        "eric.auger@redhat.com" <eric.auger@redhat.com>,
-        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
-        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
-        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
-        "peterx@redhat.com" <peterx@redhat.com>,
-        "jasowang@redhat.com" <jasowang@redhat.com>,
-        "shameerali.kolothum.thodi@huawei.com" 
-        <shameerali.kolothum.thodi@huawei.com>,
-        "lulu@redhat.com" <lulu@redhat.com>,
-        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "Hao, Xudong" <xudong.hao@intel.com>,
-        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
-        "Xu, Terrence" <terrence.xu@intel.com>,
-        "Jiang, Yanting" <yanting.jiang@intel.com>
-Subject: Re: [PATCH v2 10/10] vfio/pci: Add
- VFIO_DEVICE_GET_PCI_HOT_RESET_GROUP_INFO
-Message-ID: <ZCMV4zMhpVJJCIKN@nvidia.com>
-References: <20230327093458.44939-1-yi.l.liu@intel.com>
- <20230327093458.44939-11-yi.l.liu@intel.com>
- <20230327132619.5ab15440.alex.williamson@redhat.com>
- <DS0PR11MB7529E969C27995D535A24EC0C3889@DS0PR11MB7529.namprd11.prod.outlook.com>
- <BL1PR11MB52717FB9E6D5C10BF4B7DA0A8C889@BL1PR11MB5271.namprd11.prod.outlook.com>
- <20230328082536.5400da67.alex.williamson@redhat.com>
- <DS0PR11MB7529B6782565BE8489D922F9C3889@DS0PR11MB7529.namprd11.prod.outlook.com>
- <20230328084616.3361a293.alex.williamson@redhat.com>
- <DS0PR11MB75290B84D334FC726A8BBA95C3889@DS0PR11MB7529.namprd11.prod.outlook.com>
- <20230328091801.13de042a.alex.williamson@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230328091801.13de042a.alex.williamson@redhat.com>
-X-ClientProxiedBy: SJ0P220CA0028.NAMP220.PROD.OUTLOOK.COM
- (2603:10b6:a03:41b::11) To LV2PR12MB5869.namprd12.prod.outlook.com
- (2603:10b6:408:176::16)
+        with ESMTP id S229806AbjC1RBR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Mar 2023 13:01:17 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 889A79ECF;
+        Tue, 28 Mar 2023 10:01:16 -0700 (PDT)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32SGuCj5020227;
+        Tue, 28 Mar 2023 17:01:15 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=ygXJ+bAfsvBTup8gyNESlCjdd9TB8mShFEv7UJPB6cs=;
+ b=bSvtnBREW4KbtDTfQvGog6unLGSGub8cWElbL10usJYTCD13TTUVS30cVrWIx+UVMLVw
+ inHf7B/vD6MTBuMb6Zv//fMjdDtUu1CJqNVBCvcNcAu/h60zbc3uj9z/kNTsZDKrR8PL
+ UKY1MZx4KyxoxqO9/4RS7oKRvNC6olMBbVp9VWrDWzeM/Cv5y/iNxaHUtqRyo7w0mAJm
+ hDJpaU+bgW2wyNDgH6jsKGGddIwsl2lnJXk5R9GYxtHc7bDhytMhN7oeo0HBFcKfA1JE
+ BKdcjTHerk56iKuekKsDN5J8jGrqh6zqa/FX5VlW8VeQjKMljoLxZsRb2uhq7fz4PYvm iA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3pm46hr3dd-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 28 Mar 2023 17:01:15 +0000
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32SGv4fA027040;
+        Tue, 28 Mar 2023 17:01:14 GMT
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3pm46hr3cj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 28 Mar 2023 17:01:14 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32S2TJLk017934;
+        Tue, 28 Mar 2023 17:01:13 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma04fra.de.ibm.com (PPS) with ESMTPS id 3phrk6bjf6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 28 Mar 2023 17:01:13 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32SH18XE14156510
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 28 Mar 2023 17:01:08 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4AFE52006C;
+        Tue, 28 Mar 2023 17:01:08 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2130C2004F;
+        Tue, 28 Mar 2023 17:01:08 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.152.224.56])
+        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Tue, 28 Mar 2023 17:01:08 +0000 (GMT)
+Date:   Tue, 28 Mar 2023 19:01:06 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Nico Boehr <nrb@linux.ibm.com>
+Cc:     frankja@linux.ibm.com, thuth@redhat.com, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [kvm-unit-tests PATCH v1 3/4] s390x: lib: sie: don't reenter
+ SIE on pgm int
+Message-ID: <20230328190106.6ea977ee@p-imbrenda>
+In-Reply-To: <20230327082118.2177-4-nrb@linux.ibm.com>
+References: <20230327082118.2177-1-nrb@linux.ibm.com>
+        <20230327082118.2177-4-nrb@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|DM4PR12MB8475:EE_
-X-MS-Office365-Filtering-Correlation-Id: 148cfcd4-d18d-4e21-f8b7-08db2fa998b8
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: eyiyV1Cl2gPJRjo5GwfZPNnilxEvUBaCBfa0ZNXCgeCoVTMnTuVkIFEfhqBBUKnsV5rCDxls+Ufwz96NVwD+7T06CpaIpEvTUtZrudexY0h04kruODCSVVNzmC1wqOVuuSAQ2RNqapNRFLF4QR116KLczxqbqWBa1j7sjVuuTUNliarviPDxinDmASmCKFv6n+BLKc29TtE/LZipnBjlN7kMro0xE4TzdVSf3/+4X1oDJ06BW2n9LEZ++yC3Gbj6czQoMBxXtqJXMJVwVw8N3VGXsWbGOtv/pG34kz/x1fgZOuc3yVZjGgZ/Ft26gzEdsnJvI7yUP/trRFZMSueDZmym1k2zPoogdKLXS/CmjPTHFtH7G/H2G7o0jgWrukCQ2tbZux+aa5LgrK0HkfTQ03gn9jc9IibOuTlRMLbuvP/vO3rbZtxdjgxAIwAOQRqY/8GUJBO5VSyTdWX4d0wqarj3RXhc7b7leLbKAFjHO2XwOgznrfqtDI/MNxYpv9T7yQougMoluUOWW1Hgc3xTYwhB0DwFrYOnBfK9Mob5NIeAuwksavYNRN2SzF4gURjv
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(366004)(136003)(376002)(346002)(396003)(39860400002)(451199021)(2906002)(7416002)(5660300002)(8936002)(41300700001)(66476007)(66556008)(66946007)(4326008)(6916009)(8676002)(54906003)(316002)(478600001)(36756003)(6666004)(26005)(186003)(6512007)(6506007)(2616005)(6486002)(38100700002)(86362001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?0lczhrOzb4P8dJSoui/aVxdbins207FWo4KMpm/0gpu9iw3asVhQ5VMZB+Lm?=
- =?us-ascii?Q?aFEd3iKiamJYxIHfEnu4GdCYoLUPzNJV1nmNaSXJDJDmzjr4u1/rFiFp8XVT?=
- =?us-ascii?Q?rQPyhoHW+XuqV+zJL1mYXcq0yT4HALZtdQ6L1MZwQ5avuYpgJ6ILOAlE+qL3?=
- =?us-ascii?Q?BHRHVwu6fPKTDe5k8EwK2eBPKrUGafKu89/xoZTeGrn1yk3S4B4tTAIdmUKz?=
- =?us-ascii?Q?XZpL0OAz+xxK4sUJ/pVApumOzIlyCL07gN+5gZXkBtGKCXLE+tOcOyFVqaGt?=
- =?us-ascii?Q?/HGQu9Dz5FtX4TvV3jvA78j+ZfJj4eQRgiE6eKpVRbvIgmv3KZkh2CJkWSRp?=
- =?us-ascii?Q?wvDVJU4oRSVnR0t9AsPftMXfvgXdHm8TMMGLG7NINC/YHBsm2KVBwt839hlq?=
- =?us-ascii?Q?Gi8ituz4CFdkLBM+LMSeKLw1yENO9Q0TlrihAHpha3G5I7WfNaOqG7ltQ9Sj?=
- =?us-ascii?Q?jDhsDavXNdkLFOZpln/AD/znIbAlZOjMrIU+zKSDSXMKsMOKoenCmr0Z2yex?=
- =?us-ascii?Q?xt3FscoxKikZ4/wRYkmEsaWkEDO+ZRyWWef27CqfH/jhtBQB0D3EIlDhSgmq?=
- =?us-ascii?Q?KV3TVLCi/6Ivcx6qpbJBYThme2GoZ7e4f+WVJhzOPPT93rgwnygBGhEH8iUO?=
- =?us-ascii?Q?h5jSX6QbOySjrOoyQ2mVU45BEgVdT9pME8WBmdVKmEBok8+m3iZPx+VijFeT?=
- =?us-ascii?Q?ktdd3rtAXP2J1euPd8UB115GYit3QYT90Gyv0xZMjyXBQyULcChLKsnXHFTE?=
- =?us-ascii?Q?Fobc1vspsK/8kukKgAo1nbFWlie1LMGT1VYFSSmcTX8C1ExdrlecOQZefi16?=
- =?us-ascii?Q?2nldBpjAU2b/urPMvN6F4jdV7CDhjeuSxalqcvMVwlxqWCgBf9KNmVFg4Fsm?=
- =?us-ascii?Q?X1R+pPPKQ019f7atQMyf6am22SEaPKahoZOK0vgvi/5DgVz0hzjJnW3zmjIl?=
- =?us-ascii?Q?pHJEpewKdZKTpU0kM3EQMupFthfrrvnJSUV6WRsmOzkZlCp0jqjVn5/3Lys5?=
- =?us-ascii?Q?VhhQURt60VUmybXT2o4aGwBPCWf/hMmqgQcBhmScADWA23Slvg3l+zqDCpph?=
- =?us-ascii?Q?oeQAXGFuBc/iLKmGlUuuDDbqP9PO8C75k+YK2rEOYu7hijNNe+adXfL3cean?=
- =?us-ascii?Q?/2V/36/aNCxR6qMQU7hLuhzFwmffpkDi1N0xDzl6OqtVG94iihQ+Vqm0jv7P?=
- =?us-ascii?Q?mAhGxNrNkqTiEr12bOe9vJTCoA4PuJkgoK6+bQ0oxxIvDIcEWoi8wqzmycMp?=
- =?us-ascii?Q?YGhaCqWsq23MdZf73MiDINZICNeVC3xeId4UwkMZ7ht1xjjHEycvzfqc0bE8?=
- =?us-ascii?Q?ktBK/ixxPoKbsdyLylcjtW41o0iLI2n8jt7wIT8Q2cMynaDnQEl4zYkQN39e?=
- =?us-ascii?Q?CtzAD6ZLO+jgSFdMu/TK7INP9k3/H+CGA1GqjR0W/AxxWNdHy2yszOMN5DRS?=
- =?us-ascii?Q?ufNSnQIJ6p1cGkJm+gk+mOeT2pD9s/6J5NRCP0OFJJLXsGdE/YYcsrr7rbPk?=
- =?us-ascii?Q?S4vNUbLnR4akQGiC84FNvznluH7ttOtimGCPQ0E72azMCYtOqviOoDoe+PJj?=
- =?us-ascii?Q?Q6dCFXpAexBO8kz81L4GyyiWUIfBKpXc98oc5CvB?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 148cfcd4-d18d-4e21-f8b7-08db2fa998b8
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Mar 2023 16:29:26.3638
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: FJ1dAsvNkiv0oN8CP7DsY5LcJZW61uZ2uvGFwNcyMQ8SzoxwXlObXjdJ5wlLY3ub
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB8475
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: PYmeCd2TmhPicG5QheN4hWL0qjsmN7Fk
+X-Proofpoint-ORIG-GUID: _GJEKbynsSrKKiPeF5o810MxIBgdjyFY
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-03-24_11,2023-03-28_02,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 malwarescore=0
+ clxscore=1015 mlxlogscore=999 priorityscore=1501 mlxscore=0 spamscore=0
+ impostorscore=0 lowpriorityscore=0 bulkscore=0 adultscore=0 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2303200000
+ definitions=main-2303280130
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Mar 28, 2023 at 09:18:01AM -0600, Alex Williamson wrote:
+On Mon, 27 Mar 2023 10:21:17 +0200
+Nico Boehr <nrb@linux.ibm.com> wrote:
 
-> It's a niche case, but I think it needs to be allowed.  We'd still
-> report the bdf for those devices, but make use of the invalid/null
-> dev-id.
+> At the moment, when a PGM int occurs while in SIE, we will just reenter
+> SIE after the interrupt handler was called.
+> 
+> This is because sie() has a loop which checks icptcode and re-enters SIE
+> if it is zero.
+> 
+> However, this behaviour is quite undesirable for SIE tests, since it
+> doesn't give the host the chance to assert on the PGM int. Instead, we
+> will just re-enter SIE, on nullifing conditions even causing the
+> exception again.
+> 
+> Add a flag PROG_PGM_IN_SIE set by the pgm int fixup which indicates a
+> program interrupt has occured in SIE. Check for the flag in sie() and if
+> it's set return from sie() to give the host the ability to react on the
+> exception. The host may check if a PGM int has occured in the guest
+> using the new function sie_had_pgm_int().
+> 
+> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+> ---
+>  lib/s390x/interrupt.c |  6 ++++++
+>  lib/s390x/sie.c       | 10 +++++++++-
+>  lib/s390x/sie.h       |  1 +
+>  3 files changed, 16 insertions(+), 1 deletion(-)
+> 
+> diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
+> index eb3d6a9b701d..9baf7a003f52 100644
+> --- a/lib/s390x/interrupt.c
+> +++ b/lib/s390x/interrupt.c
+> @@ -106,10 +106,16 @@ void register_ext_cleanup_func(void (*f)(struct stack_frame_int *))
+>  
+>  static void fixup_pgm_int(struct stack_frame_int *stack)
+>  {
+> +	struct kvm_s390_sie_block *sblk;
+> +
+>  	/* If we have an error on SIE we directly move to sie_exit */
+>  	if (lowcore.pgm_old_psw.addr >= (uint64_t)&sie_entry &&
+>  	    lowcore.pgm_old_psw.addr <= (uint64_t)&sie_exit) {
+>  		lowcore.pgm_old_psw.addr = (uint64_t)&sie_exit;
+> +
+> +		/* set a marker in sie_block that a PGM int occured */
+> +		sblk = *((struct kvm_s390_sie_block **)(stack->grs0[13] + __SF_SIE_CONTROL));
+> +		sblk->prog0c |= PROG_PGM_IN_SIE;
+>  		return;
+>  	}
+>  
+> diff --git a/lib/s390x/sie.c b/lib/s390x/sie.c
+> index 22141ded1a90..5e9ae7115c47 100644
+> --- a/lib/s390x/sie.c
+> +++ b/lib/s390x/sie.c
+> @@ -44,6 +44,11 @@ void sie_handle_validity(struct vm *vm)
+>  	vm->validity_expected = false;
+>  }
+>  
+> +bool sie_had_pgm_int(struct vm *vm)
+> +{
+> +	return vm->sblk->prog0c & PROG_PGM_IN_SIE;
+> +}
+> +
+>  void sie(struct vm *vm)
+>  {
+>  	uint64_t old_cr13;
+> @@ -68,7 +73,10 @@ void sie(struct vm *vm)
+>  	lowcore.io_new_psw.mask |= PSW_MASK_DAT_HOME;
+>  	mb();
+>  
+> -	while (vm->sblk->icptcode == 0) {
+> +	/* clear PGM int marker, which might still be set */
+> +	vm->sblk->prog0c &= ~PROG_PGM_IN_SIE;
+> +
+> +	while (vm->sblk->icptcode == 0 && !sie_had_pgm_int(vm)) {
+>  		sie64a(vm->sblk, &vm->save_area);
+>  		sie_handle_validity(vm);
+>  	}
+> diff --git a/lib/s390x/sie.h b/lib/s390x/sie.h
+> index 0b00fb709776..8ab755dc9456 100644
+> --- a/lib/s390x/sie.h
+> +++ b/lib/s390x/sie.h
+> @@ -37,6 +37,7 @@ struct kvm_s390_sie_block {
+>  	uint32_t 	ibc : 12;
+>  	uint8_t		reserved08[4];		/* 0x0008 */
+>  #define PROG_IN_SIE (1<<0)
+> +#define PROG_PGM_IN_SIE (1<<1)
 
-IDK, it makes the whole implementation much more complicated. Instead
-of just copying the current dev_set to the output and calling
-vfio_pci_dev_set_resettable() we need to do something more complex..
+please align the body of the macros with tabs, so they are more readable
 
-Keeping the current ioctl as-is means this IOCTL can be used to do any
-debugging by getting the actual BDF list.
+>  	uint32_t	prog0c;			/* 0x000c */
+>  union {
+>  		uint8_t	reserved10[16];		/* 0x0010 */
 
-It means we can make the a new ioctl simple and just return the dev_id
-array without these edge complications. I don't think merging two
-different ioctls is helping make things simple..
-
-It seems like it does what qemu wants: call the new IOCTL, if it
-fails, call the old IOCTL and print out the BDF list to help debug and
-then exit.
-
-On success use the data in the new ioctl to generate the machine
-configuration to pass the reset grouping into the VM.
-
-When reset actually comes in just trigger it.
-
-Jason
