@@ -2,59 +2,157 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4926FC76195
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Mar 2023 08:08:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 206F1C76196
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Mar 2023 11:38:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229924AbjC1IIY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Mar 2023 04:08:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58160 "EHLO
+        id S230245AbjC1LiJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Mar 2023 07:38:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232458AbjC1IIT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Mar 2023 04:08:19 -0400
-X-Greylist: delayed 444 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 28 Mar 2023 01:08:18 PDT
-Received: from mail.tightaims.pl (mail.tightaims.pl [5.249.155.32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DB1E10E4
-        for <linux-s390@vger.kernel.org>; Tue, 28 Mar 2023 01:08:17 -0700 (PDT)
-Received: by mail.tightaims.pl (Postfix, from userid 1001)
-        id 4C55E828AF; Tue, 28 Mar 2023 09:00:46 +0100 (BST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tightaims.pl; s=mail;
-        t=1679990451; bh=phgkSTl2/ofUcdtqY4vI5CMQ68dDrXwXr4eQNm5yb/c=;
-        h=Date:From:To:Subject:From;
-        b=MdjkdmmeDWg7BFOFdf2iA2boVlsW3dba3/RA5KeVGGwp6r3yc6dflZ5eWBtK7qJOG
-         rsj+C5Pu+MGH5lHtUSI4UlRRTxDKd/RtaHz392NYihN4GKNbeyp7QTxx/JqSHwh1Vn
-         xyZArsVgH85cAMJv8AHCUe7oa5W7Rtf0lhF3dbktVlf7huq5zTFpO/JGR2GGllfvnY
-         4IwN/GuRsVigEjcp7aLUXCWD//djErkavkPS6SP5GIy4T2wFzFbK0nL5NJqPIWfFCY
-         sayD44+39dg++4fZWH+IhAIWi01uXs66aEBxlQLCbys3/kt/aWNvXe6HjQyAZecoft
-         qhOP5cWOdCvyQ==
-Received: by mail.tightaims.pl for <linux-s390@vger.kernel.org>; Tue, 28 Mar 2023 08:00:41 GMT
-Message-ID: <20230328074500-0.1.4l.9j7k.0.ra4fik9yv9@tightaims.pl>
-Date:   Tue, 28 Mar 2023 08:00:41 GMT
-From:   "Tomasz Gonicki" <tomasz.gonicki@tightaims.pl>
-To:     <linux-s390@vger.kernel.org>
-Subject: =?UTF-8?Q?Monitorowanie_pracy_kontrahent=C3=B3w?=
-X-Mailer: mail.tightaims.pl
+        with ESMTP id S232709AbjC1LiI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Mar 2023 07:38:08 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76EEE40EA;
+        Tue, 28 Mar 2023 04:38:06 -0700 (PDT)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32S9KW0l006860;
+        Tue, 28 Mar 2023 11:38:05 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=/uql0AsOgChupybCjnv/4rCRhr5aUbiikSgPJ1sXICE=;
+ b=cHZJyo5yuARzP34P4TTTvkHXyasXPU2DwS46I3NEBd2QXUvgTgiQUuoSJE5+np6F8FiG
+ exIAIpPzyapROtXX+7JJe6nBmEabiMPm3sDp9/gOEBuczRXN3O4wy+CLzQg1HMMQMCyS
+ 2Bt0zNROUF/TPs1yXu5/MxObhvv5RAwzkd7gEnVJF4uIPsovIvsvQSZLlGN052bFdnY8
+ oGzLvnbrCtCyesleLLVABQ1Hw5xAGat5BEJaAptWgC+6bm0iHpPUyDxFGPX5wIosuENK
+ g7IlrpXNxTYXFDhANKT3fDYMzv0G8iQiVQIWdyZv0wZUS3mxLuGrS3NpYdFHYKg3EKwj Pw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pkwgxb8ce-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 28 Mar 2023 11:38:05 +0000
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32SBb3SW003350;
+        Tue, 28 Mar 2023 11:38:05 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pkwgxb8c0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 28 Mar 2023 11:38:04 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32S4VKHR019202;
+        Tue, 28 Mar 2023 11:38:03 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3phrk6kx7h-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 28 Mar 2023 11:38:03 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32SBbxPH21234322
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 28 Mar 2023 11:37:59 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8B7022004D;
+        Tue, 28 Mar 2023 11:37:59 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5E1B52004B;
+        Tue, 28 Mar 2023 11:37:59 +0000 (GMT)
+Received: from [9.152.222.242] (unknown [9.152.222.242])
+        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Tue, 28 Mar 2023 11:37:59 +0000 (GMT)
+Message-ID: <3dcfb02a-84db-1298-1b88-810b52c12818@linux.ibm.com>
+Date:   Tue, 28 Mar 2023 13:37:59 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.8.0
+Subject: Re: [kvm-unit-tests PATCH v7 2/2] s390x: topology: Checking
+ Configuration Topology Information
+Content-Language: en-US
+To:     Nico Boehr <nrb@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc:     frankja@linux.ibm.com, thuth@redhat.com, kvm@vger.kernel.org,
+        imbrenda@linux.ibm.com, david@redhat.com, nsg@linux.ibm.com
+References: <20230320085642.12251-1-pmorel@linux.ibm.com>
+ <20230320085642.12251-3-pmorel@linux.ibm.com>
+ <167965555147.41638.10047922188597254104@t14-nrb>
+ <eed972f5-7d94-4db3-c496-60f7d37db0f3@linux.ibm.com>
+ <167998471655.28355.8845167343467425829@t14-nrb>
+From:   Pierre Morel <pmorel@linux.ibm.com>
+In-Reply-To: <167998471655.28355.8845167343467425829@t14-nrb>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: peLi7sPjwIgMNQNpTlgCphY0wCGKfLn4
+X-Proofpoint-ORIG-GUID: WNCXHg-ws4MF4be1xOCNBZJGkcOdAS-x
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-03-24_11,2023-03-28_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ phishscore=0 impostorscore=0 spamscore=0 mlxlogscore=999 mlxscore=0
+ clxscore=1015 adultscore=0 malwarescore=0 lowpriorityscore=0 bulkscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2303200000 definitions=main-2303280094
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Dzie=C5=84 dobry,
 
-W 2021 roku a=C5=BC 77% firm =C5=9Brednich i du=C5=BCych w Polsce do=C5=9B=
-wiadczy=C5=82o ataku ransomware. Statystyki rosn=C4=85 w zatrwa=C5=BCaj=C4=
-=85cym tempie =E2=80=93 w 2020 roku by=C5=82o to tylko 13%.
-
-8 na 10 atak=C3=B3w skutkuje szyfrowaniem danych firmowych, przez co firm=
-a staje w obliczu wysokich strat finansowych wynikaj=C4=85cych z przerwan=
-ia ci=C4=85g=C5=82o=C5=9Bci operacyjnej, utraconych mo=C5=BCliwo=C5=9Bci =
-biznesowych, koszt=C3=B3w operacyjnych czy nadszarpni=C4=99tego wizerunku=
-=2E=20
-
-Czy interesuje Pa=C5=84stwa niezobowi=C4=85zuj=C4=85ca rozmowa na temat z=
-abezpieczenia infrastruktury w Pa=C5=84stwa firmie?
+On 3/28/23 08:25, Nico Boehr wrote:
+> Quoting Pierre Morel (2023-03-27 14:38:35)
+>>> [...]
 
 
-Pozdrawiam
-Tomasz Gonicki
+[...]
+
+
+>> If a topology level always exist physically and if it is not specified
+>> on the QEMU command line it is implicitly unique.
+> What do you mean by 'implicitly unique'?
+
+I mean that if the topology level is not explicitly specified on the 
+command line, it exists a single entity of this topology level.
+
+
+>
+>> OK for expected_topo_lvl if you prefer.
+> Yes, please.
+>
+>>> [...]
+>>>> +/*
+>>>> + * stsi_check_mag
+>>>> + * @info: Pointer to the stsi information
+>>>> + *
+>>>> + * MAG field should match the architecture defined containers
+>>>> + * when MNEST as returned by SCLP matches MNEST of the SYSIB.
+>>>> + */
+>>>> +static void stsi_check_mag(struct sysinfo_15_1_x *info)
+>>>> +{
+>>>> +       int i;
+>>>> +
+>>>> +       report_prefix_push("MAG");
+>>>> +
+>>>> +       stsi_check_maxcpus(info);
+>>>> +
+>>>> +       /* Explicitly skip the test if both mnest do not match */
+>>>> +       if (max_nested_lvl != info->mnest)
+>>>> +               goto done;
+>>> What does it mean if the two don't match, i.e. is this an error? Or a skip? Or is it just expected?
+>> I have no information on the representation of the MAG fields for a
+>> SYSIB with a nested level different than the maximum nested level.
+>>
+>> There are examples in the documentation but I did not find, and did not
+>> get a clear answer, on how the MAG field are calculated.
+>>
+>> The examples seems clear for info->mnest between MNEST -1 and 3 but the
+>> explication I had on info->mnest = 2 is not to be found in any
+>> documentation.
+>>
+>> Until it is specified in a documentation I skip all these tests.
+> Alright - then please:
+> - update the comment to say:
+>    "It is not clear how the MAG fields are calculated when mnest in the SYSIB 15.x is different from the maximum nested level in the SCLP info, so we skip here for now."
+> - when this is the case, do a report_skip() and show info->mnest and max_nested_lvl in the message.
+
+
+OK, thanks.
+
+Regards,
+
+Pierre
+
