@@ -2,157 +2,151 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 206F1C76196
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Mar 2023 11:38:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5448FC76196
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Mar 2023 12:40:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230245AbjC1LiJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Mar 2023 07:38:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60688 "EHLO
+        id S229654AbjC1Mkv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Mar 2023 08:40:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232709AbjC1LiI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Mar 2023 07:38:08 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76EEE40EA;
-        Tue, 28 Mar 2023 04:38:06 -0700 (PDT)
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32S9KW0l006860;
-        Tue, 28 Mar 2023 11:38:05 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=/uql0AsOgChupybCjnv/4rCRhr5aUbiikSgPJ1sXICE=;
- b=cHZJyo5yuARzP34P4TTTvkHXyasXPU2DwS46I3NEBd2QXUvgTgiQUuoSJE5+np6F8FiG
- exIAIpPzyapROtXX+7JJe6nBmEabiMPm3sDp9/gOEBuczRXN3O4wy+CLzQg1HMMQMCyS
- 2Bt0zNROUF/TPs1yXu5/MxObhvv5RAwzkd7gEnVJF4uIPsovIvsvQSZLlGN052bFdnY8
- oGzLvnbrCtCyesleLLVABQ1Hw5xAGat5BEJaAptWgC+6bm0iHpPUyDxFGPX5wIosuENK
- g7IlrpXNxTYXFDhANKT3fDYMzv0G8iQiVQIWdyZv0wZUS3mxLuGrS3NpYdFHYKg3EKwj Pw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pkwgxb8ce-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Mar 2023 11:38:05 +0000
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32SBb3SW003350;
-        Tue, 28 Mar 2023 11:38:05 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pkwgxb8c0-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Mar 2023 11:38:04 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32S4VKHR019202;
-        Tue, 28 Mar 2023 11:38:03 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3phrk6kx7h-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Mar 2023 11:38:03 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32SBbxPH21234322
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 28 Mar 2023 11:37:59 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8B7022004D;
-        Tue, 28 Mar 2023 11:37:59 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5E1B52004B;
-        Tue, 28 Mar 2023 11:37:59 +0000 (GMT)
-Received: from [9.152.222.242] (unknown [9.152.222.242])
-        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Tue, 28 Mar 2023 11:37:59 +0000 (GMT)
-Message-ID: <3dcfb02a-84db-1298-1b88-810b52c12818@linux.ibm.com>
-Date:   Tue, 28 Mar 2023 13:37:59 +0200
+        with ESMTP id S232709AbjC1Mkp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Mar 2023 08:40:45 -0400
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2087.outbound.protection.outlook.com [40.107.223.87])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1164E86A5;
+        Tue, 28 Mar 2023 05:40:34 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=gVYj/2x2RnvnRvMsFN8SbT9zEsFrUyCHeQavBm6xTjO+mXDUUX8D/RR2eXW4tmk2ndY55hQFcx2O181HvLYTaDuhUjbuBlRwI0wacmiYj/fAt7gBNWk23bxv9BZ190FwbJ95Id41AbExYajpMlFryP6KgVZTqEtz0bpSswVbPdX32qIAPJf15uNX18jauWeXAYVaL9jvjdgHh3e1xhuRh9Dwsh1x7CQWkiyDBeeKxQGb1EWkUifCPog1ChOjSvzD7/Ts9QaaOYCpCvgTtsKVK9Q9yosqY2GuFzZX3Q1zB25NKSo3fD3paPD8hm5pe95Zun1z0RW/42y1lXy214104Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=Za6JcKnTjWSLWsCy+Fb1cEu2P1jM/s3tiQNMQTfTp5s=;
+ b=J9EuemWpiEyCDcutU7J6WJUsV4cZTueE1znxXqsqcC+899Vt1k5iPN2fUzi1rLTHGQPPQgz1TOStunzY0lDoAnOd7OnQhL8mLAhgJ6XJ9ZZTALILH5MYNcH+TPvwmFXBYv8SELq5alqfkrHJSx/46D6DTmiuEx9zaDYgAdQjOelMgRk+21BC0K/rqKtCaq4e4tYvjm7qpk7c0CAcQ4H4gNpzeoQAX44ECJBY73TCO2gTFveWHPYk8w7/gSOAwroMdUN5I/pR5UD+rr8+Pa3cbVph41ui9Vesq1h0MCDWFG0etrevC9F/beJMloFGSO12n3ITXsMXD0Fx2qDWvnN9Kg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Za6JcKnTjWSLWsCy+Fb1cEu2P1jM/s3tiQNMQTfTp5s=;
+ b=BZoQehOxJjoqhYDkZ0UJE+FxF9CNUuucaDTbpmqOGmUv38RrE5/TU3bDYT7keG+HFglVqYpLgYJUeab3PT+n9BcvOHebTXe9R/8zAzZAyMVQ7Abxm43FD0wfUn+kr3pVJIOg9naDoIuzIeh9PCQolquXEgNfe42dCLm1qvE09aZ9JVqVVN5zErJwXEOYJu90ljCi+0HEDJsfZcNjkGPLAHmBqWBGkQI4lcZ4wcw72uo6aV0Lt2A8ZxkuGr/meMBp83T4d6Lvf/WbY8LMzk0/wopZVac/ILZRGB3P+4du5AXGelbc68Rf8a/T8p/OkINbRBMsHoCJBTIABIB8C6Hw9A==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by DS0PR12MB8563.namprd12.prod.outlook.com (2603:10b6:8:165::7) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6222.30; Tue, 28 Mar
+ 2023 12:40:11 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::ef6d:fdf6:352f:efd1]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::ef6d:fdf6:352f:efd1%3]) with mapi id 15.20.6178.037; Tue, 28 Mar 2023
+ 12:40:10 +0000
+Date:   Tue, 28 Mar 2023 09:40:08 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Yi Liu <yi.l.liu@intel.com>
+Cc:     alex.williamson@redhat.com, kevin.tian@intel.com, joro@8bytes.org,
+        robin.murphy@arm.com, cohuck@redhat.com, eric.auger@redhat.com,
+        nicolinc@nvidia.com, kvm@vger.kernel.org, mjrosato@linux.ibm.com,
+        chao.p.peng@linux.intel.com, yi.y.sun@linux.intel.com,
+        peterx@redhat.com, jasowang@redhat.com,
+        shameerali.kolothum.thodi@huawei.com, lulu@redhat.com,
+        suravee.suthikulpanit@amd.com, intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, linux-s390@vger.kernel.org,
+        xudong.hao@intel.com, yan.y.zhao@intel.com, terrence.xu@intel.com,
+        yanting.jiang@intel.com
+Subject: Re: [PATCH v2 10/10] vfio/pci: Add
+ VFIO_DEVICE_GET_PCI_HOT_RESET_GROUP_INFO
+Message-ID: <ZCLgKKeESkh3Cdk2@nvidia.com>
+References: <20230327093458.44939-1-yi.l.liu@intel.com>
+ <20230327093458.44939-11-yi.l.liu@intel.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230327093458.44939-11-yi.l.liu@intel.com>
+X-ClientProxiedBy: CH2PR18CA0040.namprd18.prod.outlook.com
+ (2603:10b6:610:55::20) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.8.0
-Subject: Re: [kvm-unit-tests PATCH v7 2/2] s390x: topology: Checking
- Configuration Topology Information
-Content-Language: en-US
-To:     Nico Boehr <nrb@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc:     frankja@linux.ibm.com, thuth@redhat.com, kvm@vger.kernel.org,
-        imbrenda@linux.ibm.com, david@redhat.com, nsg@linux.ibm.com
-References: <20230320085642.12251-1-pmorel@linux.ibm.com>
- <20230320085642.12251-3-pmorel@linux.ibm.com>
- <167965555147.41638.10047922188597254104@t14-nrb>
- <eed972f5-7d94-4db3-c496-60f7d37db0f3@linux.ibm.com>
- <167998471655.28355.8845167343467425829@t14-nrb>
-From:   Pierre Morel <pmorel@linux.ibm.com>
-In-Reply-To: <167998471655.28355.8845167343467425829@t14-nrb>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: peLi7sPjwIgMNQNpTlgCphY0wCGKfLn4
-X-Proofpoint-ORIG-GUID: WNCXHg-ws4MF4be1xOCNBZJGkcOdAS-x
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-03-24_11,2023-03-28_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- phishscore=0 impostorscore=0 spamscore=0 mlxlogscore=999 mlxscore=0
- clxscore=1015 adultscore=0 malwarescore=0 lowpriorityscore=0 bulkscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2303200000 definitions=main-2303280094
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|DS0PR12MB8563:EE_
+X-MS-Office365-Filtering-Correlation-Id: 8e9be98e-27cb-4172-5e3e-08db2f89918c
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: Z5UJVksyHFx3ZswKWqFkhxVEsQ4SBwncdB1VMJrFyFfeGj0Mrn2ZPv2v5VKwx0F5TJpMvfbzWQ23hpN1ckzMEIDTWw263KIyWrEH4iXh4o1TJzdyQmrsCkptsBa83OGmX2+KRzzXxUlHyCUDwzHEcR/4Zjp/IZC6W3lB28fMW6Adt2LQ50W+x2m6hfrJ6QtBBV+J/vgMsFFvY/TEwi7Nl1CeeNUEHhLXPQkVzj9Dq4ntaYcDT6xnSk76rQEjgdniKGVeagqzL5B0OinUHk3cKnLrffm/aBdXHi830ZA4RLuKhD+eqqmmT7yLjY2/lK4IxKA6Ykk03cRH+kFKzj3uKNxzycGfUhoYEpYx56tnPYZKyFhdraRtyt5X2Q2IFsEmebq3js1i/ThL64/4knaLSqjeFgrFX0LqVtiiHzNTk8lrfSUdEfvAQmwnSf+Mf0DzRejgGtXHX28QskvJOzc0ondM5CJUYeiNQ4hXAmuajewu32AAUuZxYKFLHWlJlDFt7HRg4xZ0Clbr5G/4XwTZ6f9vOo6GAiWDkAO4gIC2bd/X9h+YfWq2/ELox3fb5ccp
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(136003)(366004)(39860400002)(396003)(346002)(376002)(451199021)(26005)(6512007)(6506007)(41300700001)(186003)(6486002)(2616005)(478600001)(316002)(38100700002)(4326008)(66476007)(4744005)(7416002)(66946007)(66556008)(6916009)(8676002)(2906002)(36756003)(86362001)(5660300002)(8936002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?/7C7bY9d3rLNd6+LbPsQZEZ9h9WB+ve73EuSXnmLagHagvkGGzDhzW7VzYbE?=
+ =?us-ascii?Q?afKeM+m8UMXB7H7q8qxn2cxvEXkuFHnMeVpJWtlftWJargB6UQZocEhCPGQY?=
+ =?us-ascii?Q?Q3NkdHWtNp7rOO896cf2njrp5QJWA2DQj+xHn4vX1ryu9nqj5UHz9q4vibEE?=
+ =?us-ascii?Q?K7W8/jhozTEz3mum9ErlJz7OLobPlD6PWv8BThMqV/8m49BzbGTQO3Hx00IX?=
+ =?us-ascii?Q?qf4G7FvVsrgOZKHYz48T/hiZ338hJYuye7XEuu22hwh47HUdzkVUD0CZGuWN?=
+ =?us-ascii?Q?7cJRWg8jPoBH0QdszojcFEl0tzgztWGLSzQTWs9VigGSkcKdTq56f+MNpuWC?=
+ =?us-ascii?Q?wI5Yt7tqhtdQ2l48jqacmEN6hqM2z6GllgF8zJMnN2tfk8BJFBhgYHBtE1EX?=
+ =?us-ascii?Q?fe79x4EAdzHlnhuyTsPS1+0P7lbdD+NcjzLyHHFtWfbPD3pOMxf6ciIyDYkn?=
+ =?us-ascii?Q?ciYrMqDsBldh4rsg+dTVRK+Cs6++3j+BywvvUT6ILVUQJ8rcw2yB/o11ujY7?=
+ =?us-ascii?Q?7zlB5V9ZL/Jn9/2hgnQ9tbxG/PakMzGV9kGzamNPeFYJUaGKY+tyJVzUZSZA?=
+ =?us-ascii?Q?4Cexgr/w5hdMPoPk6E+7EqHtuoLctye0jdOfTAOmg6u/dHJ+6NhX6MRgLbBI?=
+ =?us-ascii?Q?FO+2jm4BU0rsTlpvOTAcGnzXMoeU/cA6vR8LjW7vRj/CPNLB1Pg/qMTfmwNe?=
+ =?us-ascii?Q?6TNXGwTjLayUVSyFBgCIJ8m8NZp204ofQmxlvrSN/lVjrEiWi0qo3RcqSm6X?=
+ =?us-ascii?Q?z2YhUoooRA7cyiPn0y4Rd17ze9o/SFjcWqAsuaaXMSL6oHWkawku8hUi6koi?=
+ =?us-ascii?Q?5243N1TQsWZcoS5WX6sJ1C798LHvzHpVs/dH6IqzJjNCAiDib8tfqMvEcyeC?=
+ =?us-ascii?Q?puwPcSfR9vrgnOXXDXCOZvBqvpBfy/V0kp6i2t080IzXF7ap7jnczcAvd147?=
+ =?us-ascii?Q?Kb8C2P0wYgaioCp48G86fEOLJFZF1iK6LndpK077mfO2dAOIO2RCcjuc+axS?=
+ =?us-ascii?Q?6lGhE9qQhBaLGoooaLXFtuHaAW5NpvXWwoTA9Gnr0eA3QsueJrs21tI2cyjc?=
+ =?us-ascii?Q?V5Q5ZCe2j0spHaJhxNG7Wgtb7gaw1g5c1rm3d3v7Z5/1GhmWk1KPWRH0nh4g?=
+ =?us-ascii?Q?WwoycSdhUgOr6XvvqpfB3SOmiGKR0U2YsZUtLmh1NXOWWhUZ5XtglnkXw/AB?=
+ =?us-ascii?Q?/sTtUTRprcyC4DecvlYqcmu65mcnIvkr5fL8j0jYHtRsbPXLMxV4DvIh6A9f?=
+ =?us-ascii?Q?gf3dust72XLCq9O8o2tvMc3B78+fmJ6cV3gJmZtA0ZKGFXi6VC0U1XRPfdjJ?=
+ =?us-ascii?Q?5NXQqFr7yser/dFjr7l5rr+HYCaW/KA+8/MjxCRD7mcl7HGAv3uLM7PNgg0Z?=
+ =?us-ascii?Q?y8q9UAttRf8cboANM3vAnMcuXnT8aJF3huBEbZj5Y3GrcY4dhH6yYoyCTzvm?=
+ =?us-ascii?Q?zWaFM39kYSIo+ttJtNxTsSlpafPjKTwPyRXxbbGz4bjT0uPuBGJ+5X906W5K?=
+ =?us-ascii?Q?NrpUmXu/6w0i0UprsPNkJ2aYBobeEbr0hYdnmUYLD9WnS2N5xHr3jldYnTkj?=
+ =?us-ascii?Q?1pdnnUdm6sAlV7Tfqt+dbRGON9aiXzb5pkC/G+1C?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8e9be98e-27cb-4172-5e3e-08db2f89918c
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Mar 2023 12:40:10.3205
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: T0usAbq72WcJ6yIQBvnqs5/przNvRqhNp+mqBQmsjBhSbjTUe1vbjvZYOGz+zA0d
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR12MB8563
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Mon, Mar 27, 2023 at 02:34:58AM -0700, Yi Liu wrote:
 
-On 3/28/23 08:25, Nico Boehr wrote:
-> Quoting Pierre Morel (2023-03-27 14:38:35)
->>> [...]
+> +	devices = kcalloc(count, sizeof(*devices), GFP_KERNEL);
+> +	if (!devices) {
+> +		ret = -ENOMEM;
+> +		goto reset_info_exit;
+> +	}
 
+This doesn't need to be so complicated
 
-[...]
-
-
->> If a topology level always exist physically and if it is not specified
->> on the QEMU command line it is implicitly unique.
-> What do you mean by 'implicitly unique'?
-
-I mean that if the topology level is not explicitly specified on the 
-command line, it exists a single entity of this topology level.
-
-
->
->> OK for expected_topo_lvl if you prefer.
-> Yes, please.
->
->>> [...]
->>>> +/*
->>>> + * stsi_check_mag
->>>> + * @info: Pointer to the stsi information
->>>> + *
->>>> + * MAG field should match the architecture defined containers
->>>> + * when MNEST as returned by SCLP matches MNEST of the SYSIB.
->>>> + */
->>>> +static void stsi_check_mag(struct sysinfo_15_1_x *info)
->>>> +{
->>>> +       int i;
->>>> +
->>>> +       report_prefix_push("MAG");
->>>> +
->>>> +       stsi_check_maxcpus(info);
->>>> +
->>>> +       /* Explicitly skip the test if both mnest do not match */
->>>> +       if (max_nested_lvl != info->mnest)
->>>> +               goto done;
->>> What does it mean if the two don't match, i.e. is this an error? Or a skip? Or is it just expected?
->> I have no information on the representation of the MAG fields for a
->> SYSIB with a nested level different than the maximum nested level.
->>
->> There are examples in the documentation but I did not find, and did not
->> get a clear answer, on how the MAG field are calculated.
->>
->> The examples seems clear for info->mnest between MNEST -1 and 3 but the
->> explication I had on info->mnest = 2 is not to be found in any
->> documentation.
->>
->> Until it is specified in a documentation I skip all these tests.
-> Alright - then please:
-> - update the comment to say:
->    "It is not clear how the MAG fields are calculated when mnest in the SYSIB 15.x is different from the maximum nested level in the SCLP info, so we skip here for now."
-> - when this is the case, do a report_skip() and show info->mnest and max_nested_lvl in the message.
+> +	list_for_each_entry(cur, &vdev->vdev.dev_set->device_list, vdev.dev_set_list) {
+> +		cur_iommufd = vfio_iommufd_physical_ictx(&cur->vdev);
+> +		if (cur->vdev.open_count) {
+> +			if (cur_iommufd != iommufd) {
+> +				ret = -EPERM;
+> +				break;
+> +			}
+> +			ret = vfio_iommufd_physical_devid(&cur->vdev, &devices[index]);
 
 
-OK, thanks.
+u32 device;
 
-Regards,
+if (index >= hdr.count)
+   return -ENOSPC;
 
-Pierre
+ret = vfio_iommufd_physical_devid(&cur->vdev, &devices);
+...
 
+if (put_user(&arg->devices[index], device))
+   -EFAULT
+
+index++;
+
+Jason
