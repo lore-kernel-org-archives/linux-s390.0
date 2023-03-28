@@ -2,181 +2,157 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72133C6FD18
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Mar 2023 17:01:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 98599C76196
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Mar 2023 19:10:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229866AbjC1RBS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Mar 2023 13:01:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46716 "EHLO
+        id S229733AbjC1TKj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Mar 2023 15:10:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229806AbjC1RBR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Mar 2023 13:01:17 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 889A79ECF;
-        Tue, 28 Mar 2023 10:01:16 -0700 (PDT)
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32SGuCj5020227;
-        Tue, 28 Mar 2023 17:01:15 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=ygXJ+bAfsvBTup8gyNESlCjdd9TB8mShFEv7UJPB6cs=;
- b=bSvtnBREW4KbtDTfQvGog6unLGSGub8cWElbL10usJYTCD13TTUVS30cVrWIx+UVMLVw
- inHf7B/vD6MTBuMb6Zv//fMjdDtUu1CJqNVBCvcNcAu/h60zbc3uj9z/kNTsZDKrR8PL
- UKY1MZx4KyxoxqO9/4RS7oKRvNC6olMBbVp9VWrDWzeM/Cv5y/iNxaHUtqRyo7w0mAJm
- hDJpaU+bgW2wyNDgH6jsKGGddIwsl2lnJXk5R9GYxtHc7bDhytMhN7oeo0HBFcKfA1JE
- BKdcjTHerk56iKuekKsDN5J8jGrqh6zqa/FX5VlW8VeQjKMljoLxZsRb2uhq7fz4PYvm iA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3pm46hr3dd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Mar 2023 17:01:15 +0000
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32SGv4fA027040;
-        Tue, 28 Mar 2023 17:01:14 GMT
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3pm46hr3cj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Mar 2023 17:01:14 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32S2TJLk017934;
-        Tue, 28 Mar 2023 17:01:13 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma04fra.de.ibm.com (PPS) with ESMTPS id 3phrk6bjf6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Mar 2023 17:01:13 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32SH18XE14156510
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 28 Mar 2023 17:01:08 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4AFE52006C;
-        Tue, 28 Mar 2023 17:01:08 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2130C2004F;
-        Tue, 28 Mar 2023 17:01:08 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.152.224.56])
-        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 28 Mar 2023 17:01:08 +0000 (GMT)
-Date:   Tue, 28 Mar 2023 19:01:06 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Nico Boehr <nrb@linux.ibm.com>
-Cc:     frankja@linux.ibm.com, thuth@redhat.com, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [kvm-unit-tests PATCH v1 3/4] s390x: lib: sie: don't reenter
- SIE on pgm int
-Message-ID: <20230328190106.6ea977ee@p-imbrenda>
-In-Reply-To: <20230327082118.2177-4-nrb@linux.ibm.com>
-References: <20230327082118.2177-1-nrb@linux.ibm.com>
-        <20230327082118.2177-4-nrb@linux.ibm.com>
-Organization: IBM
+        with ESMTP id S229710AbjC1TKj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Mar 2023 15:10:39 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C63A22D72
+        for <linux-s390@vger.kernel.org>; Tue, 28 Mar 2023 12:09:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1680030594;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=TyWlyMYo12Ph4alZhZ7htkhRhM6u2cJ70JNCkvZ77kk=;
+        b=EcIkbxgV7kl8jWj2AP1hScdO6nw8KKpuUblctRbQeGk3oAmSsJeHcX/mkGxYlWYPjXqobw
+        ZOkpXFSoPdQdx0frLmbn2SjOHgYAfLWt3fARIr3bl4JCaidp6rvn6Jgqsaq5EbdMiIwP7s
+        Nnt4LgLbm1BzNEseVFrTFeT6LTsVs0Y=
+Received: from mail-io1-f71.google.com (mail-io1-f71.google.com
+ [209.85.166.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-642-0cCnX2-4NxmfWKd3IT-H6A-1; Tue, 28 Mar 2023 15:09:53 -0400
+X-MC-Unique: 0cCnX2-4NxmfWKd3IT-H6A-1
+Received: by mail-io1-f71.google.com with SMTP id 187-20020a6b15c4000000b007590817bcfbso8395021iov.12
+        for <linux-s390@vger.kernel.org>; Tue, 28 Mar 2023 12:09:53 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1680030592;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=TyWlyMYo12Ph4alZhZ7htkhRhM6u2cJ70JNCkvZ77kk=;
+        b=5Dz5HQ0GaILInjsQT8vKreaHvx/dBw7tcKWV94EG6c4A+KNnOAFmOAXgOkRV+NwqhZ
+         vlPxwm5eMxNhEzz0NEr8zwdNksU7VIh/Qll80xcTv0C/U4R8T5Az1GiW/SqR7buoIP9m
+         KS7fYE6cv9C6JrHWLhJAlpdItFzKLvDqgsy5EcJIWr/Eeb4RT5V6Kz7WsVVQnNq0qsCg
+         edK2def37I/yGQkbxh+v3cQtx08pT0Ft1e0dIV02mK1xXOCxb7s2cL4Kk+CAAPqJd9xf
+         UvH2TOMJ6n+IQzgYi8R1kce4EkogUfbwX8qRlFGXS4oZ2mw3FdNg5xB//7qgdpVbY5ig
+         0Ouw==
+X-Gm-Message-State: AAQBX9f/+utLaDtlACOQs0vWgv6OhnO4nqAio28sw/svn+4rqipN3djY
+        reXDfNRjdaXiSUranr8uxKHuM/ofJTg9KgjGlJOPf9RrdolJnPUcp1ioDV24TSyUGdf7DE8DKLv
+        AJwzCz+hjXEyFrAghOyJKNw==
+X-Received: by 2002:a5e:a807:0:b0:759:95a5:327a with SMTP id c7-20020a5ea807000000b0075995a5327amr9970720ioa.11.1680030592760;
+        Tue, 28 Mar 2023 12:09:52 -0700 (PDT)
+X-Google-Smtp-Source: AKy350adFeqCticunFGKIu5P/YegCKYF+iyr4sSWve2FbSdhytCLKP/q4euprZAtfzr1TdiDa6uHKw==
+X-Received: by 2002:a5e:a807:0:b0:759:95a5:327a with SMTP id c7-20020a5ea807000000b0075995a5327amr9970693ioa.11.1680030592532;
+        Tue, 28 Mar 2023 12:09:52 -0700 (PDT)
+Received: from redhat.com ([38.15.36.239])
+        by smtp.gmail.com with ESMTPSA id g9-20020a025b09000000b00374fa5b600csm9992351jab.0.2023.03.28.12.09.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 28 Mar 2023 12:09:52 -0700 (PDT)
+Date:   Tue, 28 Mar 2023 13:09:49 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     "Liu, Yi L" <yi.l.liu@intel.com>,
+        "Tian, Kevin" <kevin.tian@intel.com>,
+        "joro@8bytes.org" <joro@8bytes.org>,
+        "robin.murphy@arm.com" <robin.murphy@arm.com>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "eric.auger@redhat.com" <eric.auger@redhat.com>,
+        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
+        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
+        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
+        "peterx@redhat.com" <peterx@redhat.com>,
+        "jasowang@redhat.com" <jasowang@redhat.com>,
+        "shameerali.kolothum.thodi@huawei.com" 
+        <shameerali.kolothum.thodi@huawei.com>,
+        "lulu@redhat.com" <lulu@redhat.com>,
+        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
+        "intel-gvt-dev@lists.freedesktop.org" 
+        <intel-gvt-dev@lists.freedesktop.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "Hao, Xudong" <xudong.hao@intel.com>,
+        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
+        "Xu, Terrence" <terrence.xu@intel.com>,
+        "Jiang, Yanting" <yanting.jiang@intel.com>
+Subject: Re: [PATCH v2 10/10] vfio/pci: Add
+ VFIO_DEVICE_GET_PCI_HOT_RESET_GROUP_INFO
+Message-ID: <20230328130949.225bc680.alex.williamson@redhat.com>
+In-Reply-To: <ZCMV4zMhpVJJCIKN@nvidia.com>
+References: <20230327093458.44939-1-yi.l.liu@intel.com>
+        <20230327093458.44939-11-yi.l.liu@intel.com>
+        <20230327132619.5ab15440.alex.williamson@redhat.com>
+        <DS0PR11MB7529E969C27995D535A24EC0C3889@DS0PR11MB7529.namprd11.prod.outlook.com>
+        <BL1PR11MB52717FB9E6D5C10BF4B7DA0A8C889@BL1PR11MB5271.namprd11.prod.outlook.com>
+        <20230328082536.5400da67.alex.williamson@redhat.com>
+        <DS0PR11MB7529B6782565BE8489D922F9C3889@DS0PR11MB7529.namprd11.prod.outlook.com>
+        <20230328084616.3361a293.alex.williamson@redhat.com>
+        <DS0PR11MB75290B84D334FC726A8BBA95C3889@DS0PR11MB7529.namprd11.prod.outlook.com>
+        <20230328091801.13de042a.alex.williamson@redhat.com>
+        <ZCMV4zMhpVJJCIKN@nvidia.com>
 X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: PYmeCd2TmhPicG5QheN4hWL0qjsmN7Fk
-X-Proofpoint-ORIG-GUID: _GJEKbynsSrKKiPeF5o810MxIBgdjyFY
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-03-24_11,2023-03-28_02,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 malwarescore=0
- clxscore=1015 mlxlogscore=999 priorityscore=1501 mlxscore=0 spamscore=0
- impostorscore=0 lowpriorityscore=0 bulkscore=0 adultscore=0 suspectscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2303200000
- definitions=main-2303280130
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 27 Mar 2023 10:21:17 +0200
-Nico Boehr <nrb@linux.ibm.com> wrote:
+On Tue, 28 Mar 2023 13:29:23 -0300
+Jason Gunthorpe <jgg@nvidia.com> wrote:
 
-> At the moment, when a PGM int occurs while in SIE, we will just reenter
-> SIE after the interrupt handler was called.
+> On Tue, Mar 28, 2023 at 09:18:01AM -0600, Alex Williamson wrote:
 > 
-> This is because sie() has a loop which checks icptcode and re-enters SIE
-> if it is zero.
+> > It's a niche case, but I think it needs to be allowed.  We'd still
+> > report the bdf for those devices, but make use of the invalid/null
+> > dev-id.  
 > 
-> However, this behaviour is quite undesirable for SIE tests, since it
-> doesn't give the host the chance to assert on the PGM int. Instead, we
-> will just re-enter SIE, on nullifing conditions even causing the
-> exception again.
+> IDK, it makes the whole implementation much more complicated. Instead
+> of just copying the current dev_set to the output and calling
+> vfio_pci_dev_set_resettable() we need to do something more complex..
 > 
-> Add a flag PROG_PGM_IN_SIE set by the pgm int fixup which indicates a
-> program interrupt has occured in SIE. Check for the flag in sie() and if
-> it's set return from sie() to give the host the ability to react on the
-> exception. The host may check if a PGM int has occured in the guest
-> using the new function sie_had_pgm_int().
+> Keeping the current ioctl as-is means this IOCTL can be used to do any
+> debugging by getting the actual BDF list.
 > 
-> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
-> ---
->  lib/s390x/interrupt.c |  6 ++++++
->  lib/s390x/sie.c       | 10 +++++++++-
->  lib/s390x/sie.h       |  1 +
->  3 files changed, 16 insertions(+), 1 deletion(-)
-> 
-> diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
-> index eb3d6a9b701d..9baf7a003f52 100644
-> --- a/lib/s390x/interrupt.c
-> +++ b/lib/s390x/interrupt.c
-> @@ -106,10 +106,16 @@ void register_ext_cleanup_func(void (*f)(struct stack_frame_int *))
->  
->  static void fixup_pgm_int(struct stack_frame_int *stack)
->  {
-> +	struct kvm_s390_sie_block *sblk;
-> +
->  	/* If we have an error on SIE we directly move to sie_exit */
->  	if (lowcore.pgm_old_psw.addr >= (uint64_t)&sie_entry &&
->  	    lowcore.pgm_old_psw.addr <= (uint64_t)&sie_exit) {
->  		lowcore.pgm_old_psw.addr = (uint64_t)&sie_exit;
-> +
-> +		/* set a marker in sie_block that a PGM int occured */
-> +		sblk = *((struct kvm_s390_sie_block **)(stack->grs0[13] + __SF_SIE_CONTROL));
-> +		sblk->prog0c |= PROG_PGM_IN_SIE;
->  		return;
->  	}
->  
-> diff --git a/lib/s390x/sie.c b/lib/s390x/sie.c
-> index 22141ded1a90..5e9ae7115c47 100644
-> --- a/lib/s390x/sie.c
-> +++ b/lib/s390x/sie.c
-> @@ -44,6 +44,11 @@ void sie_handle_validity(struct vm *vm)
->  	vm->validity_expected = false;
->  }
->  
-> +bool sie_had_pgm_int(struct vm *vm)
-> +{
-> +	return vm->sblk->prog0c & PROG_PGM_IN_SIE;
-> +}
-> +
->  void sie(struct vm *vm)
->  {
->  	uint64_t old_cr13;
-> @@ -68,7 +73,10 @@ void sie(struct vm *vm)
->  	lowcore.io_new_psw.mask |= PSW_MASK_DAT_HOME;
->  	mb();
->  
-> -	while (vm->sblk->icptcode == 0) {
-> +	/* clear PGM int marker, which might still be set */
-> +	vm->sblk->prog0c &= ~PROG_PGM_IN_SIE;
-> +
-> +	while (vm->sblk->icptcode == 0 && !sie_had_pgm_int(vm)) {
->  		sie64a(vm->sblk, &vm->save_area);
->  		sie_handle_validity(vm);
->  	}
-> diff --git a/lib/s390x/sie.h b/lib/s390x/sie.h
-> index 0b00fb709776..8ab755dc9456 100644
-> --- a/lib/s390x/sie.h
-> +++ b/lib/s390x/sie.h
-> @@ -37,6 +37,7 @@ struct kvm_s390_sie_block {
->  	uint32_t 	ibc : 12;
->  	uint8_t		reserved08[4];		/* 0x0008 */
->  #define PROG_IN_SIE (1<<0)
-> +#define PROG_PGM_IN_SIE (1<<1)
+> It means we can make the a new ioctl simple and just return the dev_id
+> array without these edge complications. I don't think merging two
+> different ioctls is helping make things simple..
 
-please align the body of the macros with tabs, so they are more readable
+OTOH, we already have an ioctl that essentially "does the right thing",
+we just want to swap out one return field for another.  So which is
+more complicated, adding another ioctl that does not quite the same
+thing but still needing to maintain the old ioctl for detailed
+information, or making the old ioctl bi-modal to return the appropriate
+information for the type of device used to access it?
 
->  	uint32_t	prog0c;			/* 0x000c */
->  union {
->  		uint8_t	reserved10[16];		/* 0x0010 */
+> It seems like it does what qemu wants: call the new IOCTL, if it
+> fails, call the old IOCTL and print out the BDF list to help debug and
+> then exit.
+
+Userspace is already dealing with a variable length array for the
+return value, why would it ever want to repeat that process to get
+debugging info.  Besides, wouldn't QEMU prefer the similarity of making
+the same call for groups and cdev and simply keying on the data type of
+one field?
+
+> On success use the data in the new ioctl to generate the machine
+> configuration to pass the reset grouping into the VM.
+> 
+> When reset actually comes in just trigger it.
+
+"Just trigger it" is the same in either case.  It seems bold to play
+the complexity argument when we already have a function that does 90%
+the correct thing where we can share much of the implementation and
+userspace code without duplicating, but still relying on a legacy
+interface for debugging.  Thanks,
+
+Alex
 
