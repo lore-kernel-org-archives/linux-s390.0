@@ -2,60 +2,60 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F343C6FD18
-	for <linux-s390@archiver.kernel.org>; Wed, 29 Mar 2023 21:01:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EB1A1C74A5B
+	for <linux-s390@archiver.kernel.org>; Wed, 29 Mar 2023 21:19:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230041AbjC2VB5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 29 Mar 2023 17:01:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38904 "EHLO
+        id S229596AbjC2VTy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 29 Mar 2023 17:19:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229479AbjC2VB4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 29 Mar 2023 17:01:56 -0400
+        with ESMTP id S229514AbjC2VTx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 29 Mar 2023 17:19:53 -0400
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7766D44B8
-        for <linux-s390@vger.kernel.org>; Wed, 29 Mar 2023 14:01:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38E6F19A1
+        for <linux-s390@vger.kernel.org>; Wed, 29 Mar 2023 14:19:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1680123668;
+        s=mimecast20190719; t=1680124746;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=U5qURyqrYVpdH6pizDlOAe+LjF2lt1cGL1qY3yj5NPA=;
-        b=I5vqqz6tv3smy6dZXrT7BGPyDrEpk8MFtGRzsMMu06/YZbA3FZG0azYEfpKPcZZbTIhR3M
-        sYB4Co3ND3a2IJk2ID4g7mwRq9VolQCX6qvSrryuNuvNuhBCNv0KF3CxxFNAIZhW2RBq3W
-        o+708epW4eOYYvjVaQyC4CzvEKMz1ys=
-Received: from mail-il1-f197.google.com (mail-il1-f197.google.com
- [209.85.166.197]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=IGVHQslX/4Q2nBwMZykirgQDOWEjwl8r9/yUI1mNVoU=;
+        b=ED62VYFJrSAoNlIGSrg8e7FmD8a8/PoZrjMbcZMnAlVtSuJ443wjeNlpYlP4+cW2uay3OG
+        x3Ap0AKxG9h1QmUgB5Q7uGcQIKW2wyk29CEhghgPLVE69hSY+eVkVtTsZZkRRn2o1yWDCh
+        CicDUJUjG8X0j2ANjJOFVEUO7lTJpL0=
+Received: from mail-io1-f69.google.com (mail-io1-f69.google.com
+ [209.85.166.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-215-77dEfrYKNmWPb48W5GpprA-1; Wed, 29 Mar 2023 17:00:59 -0400
-X-MC-Unique: 77dEfrYKNmWPb48W5GpprA-1
-Received: by mail-il1-f197.google.com with SMTP id d5-20020a923605000000b003232594207dso10952205ila.8
-        for <linux-s390@vger.kernel.org>; Wed, 29 Mar 2023 14:00:59 -0700 (PDT)
+ us-mta-321-awsJfh3TOcmOa7GFKRsI6w-1; Wed, 29 Mar 2023 17:19:05 -0400
+X-MC-Unique: awsJfh3TOcmOa7GFKRsI6w-1
+Received: by mail-io1-f69.google.com with SMTP id z65-20020a6bc944000000b007584beb0e28so10216658iof.21
+        for <linux-s390@vger.kernel.org>; Wed, 29 Mar 2023 14:19:04 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680123658;
+        d=1e100.net; s=20210112; t=1680124744;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=U5qURyqrYVpdH6pizDlOAe+LjF2lt1cGL1qY3yj5NPA=;
-        b=Zf/7HUTbWjs5xJWLIkB2snpm/3/PXmGsZq7hdfmNsp0o9l1hccwpBHoiBtjjV1Ib70
-         bAENdCjWm7p3NX9q8U47w+y8DswwkfoxBYzk1J4M3hSpOpxXr6Z5YPhb85Ky09wOYq2M
-         TF726N6/f8RGdgm3GewVXTt6EYiB1luVOi7X5wgriC1WFl18CDMPcB3MakEA36/GyqYZ
-         ZZOAitKGB2KYm50lBqQ44ZILMjrVbKub7meOtDBQZ71px3Hqm5wCvrcqGhn8Ji5LV6wK
-         xuJrai8KEZyK5Qa8O7D7VrJA3oI9NxiyUxcegONn9DSRK8W25r5nEDFMRlIBFnGj5Dj8
-         6/6A==
-X-Gm-Message-State: AAQBX9ffw4pY4M4EY79vFgLcpLEeLCypK2eTKVqTUdiu2ThIvrPhLUyC
-        mkruj/SXpULtcHWMve/E7Qkhw7bDuIk4SanYeWfzyWkG+gj3HJEUSq6uE80KHafiEiXiZgCi876
-        fnivUkp9KdK1QizqU4GkTMA==
-X-Received: by 2002:a92:b511:0:b0:325:f703:6e5e with SMTP id f17-20020a92b511000000b00325f7036e5emr1978729ile.11.1680123658313;
-        Wed, 29 Mar 2023 14:00:58 -0700 (PDT)
-X-Google-Smtp-Source: AKy350Y6F9PxZc5bVI5dPpZUK9Ox3FEejxJdl5AVM6qZvWz4XSNy7ab9vt4HcS0hkfP79hEUuic/wQ==
-X-Received: by 2002:a92:b511:0:b0:325:f703:6e5e with SMTP id f17-20020a92b511000000b00325f7036e5emr1978693ile.11.1680123657898;
-        Wed, 29 Mar 2023 14:00:57 -0700 (PDT)
+        bh=IGVHQslX/4Q2nBwMZykirgQDOWEjwl8r9/yUI1mNVoU=;
+        b=hpCnLCAvBxMwhJ3NEslLLMsicVILxNKd4tFJ1O2DOduBtKny8iOh1Rvi+XEHViyeYg
+         eUTpr1msYQ4/DT73vPCB7OwfFBauxwQEbKQlbBxYPyJibY0EXq88fMQXFMgDIXLPHUxA
+         xONRmKroIeRrPVcmwUlLUmjEApEIW78zui5dZdd/vdky9jk+YMs675lccvuQYBtiH/gC
+         2FoQfGX6YDnqDMQNr+bBLI4fRQMRjoHJUXZnm3Y4VqrjudhzSF6MWAqGc5s0ySWp7PGj
+         A4S2IyGxltcMf3k4GfPJq4KbvIy20NAu9BqZOY6OVumWgQRNeX1IF+1tdg9nMJhS8ZcR
+         lU+g==
+X-Gm-Message-State: AAQBX9fMFqDcXM6Bz/7xyWQw7ZlMmUxbFxSY8K+TIOXxMt5TcTkVbWzU
+        VDgrE9kMA2JOtdAbvveRISqsx4bk1FcH5LyIMioLzizY15CCsIFGn5MtjU/qrEVeWjlaVOOYyaU
+        u6DnG8q4YDsZ/O3ODrs6s1g==
+X-Received: by 2002:a92:d9c6:0:b0:317:99b9:3d1c with SMTP id n6-20020a92d9c6000000b0031799b93d1cmr15068254ilq.26.1680124744092;
+        Wed, 29 Mar 2023 14:19:04 -0700 (PDT)
+X-Google-Smtp-Source: AKy350ajQ4SKKBVBjAHaP/aw41f4QFgk7HVdYnc6BROfSNFgwlwllegkuthAdtgSC0+A+lGPIbjj7Q==
+X-Received: by 2002:a92:d9c6:0:b0:317:99b9:3d1c with SMTP id n6-20020a92d9c6000000b0031799b93d1cmr15068243ilq.26.1680124743779;
+        Wed, 29 Mar 2023 14:19:03 -0700 (PDT)
 Received: from redhat.com ([38.15.36.239])
-        by smtp.gmail.com with ESMTPSA id h5-20020a056638338500b003ea1dbd00d6sm10293125jav.70.2023.03.29.14.00.56
+        by smtp.gmail.com with ESMTPSA id cd8-20020a0566381a0800b00406521ad090sm9814930jab.94.2023.03.29.14.19.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 29 Mar 2023 14:00:56 -0700 (PDT)
-Date:   Wed, 29 Mar 2023 15:00:55 -0600
+        Wed, 29 Mar 2023 14:19:03 -0700 (PDT)
+Date:   Wed, 29 Mar 2023 15:19:02 -0600
 From:   Alex Williamson <alex.williamson@redhat.com>
 To:     Yi Liu <yi.l.liu@intel.com>
 Cc:     jgg@nvidia.com, kevin.tian@intel.com, joro@8bytes.org,
@@ -68,11 +68,11 @@ Cc:     jgg@nvidia.com, kevin.tian@intel.com, joro@8bytes.org,
         intel-gfx@lists.freedesktop.org, linux-s390@vger.kernel.org,
         xudong.hao@intel.com, yan.y.zhao@intel.com, terrence.xu@intel.com,
         yanting.jiang@intel.com
-Subject: Re: [PATCH v8 21/24] vfio: Add VFIO_DEVICE_BIND_IOMMUFD
-Message-ID: <20230329150055.3dee2476.alex.williamson@redhat.com>
-In-Reply-To: <20230327094047.47215-22-yi.l.liu@intel.com>
+Subject: Re: [PATCH v8 22/24] vfio: Add VFIO_DEVICE_AT[DE]TACH_IOMMUFD_PT
+Message-ID: <20230329151902.453ed743.alex.williamson@redhat.com>
+In-Reply-To: <20230327094047.47215-23-yi.l.liu@intel.com>
 References: <20230327094047.47215-1-yi.l.liu@intel.com>
-        <20230327094047.47215-22-yi.l.liu@intel.com>
+        <20230327094047.47215-23-yi.l.liu@intel.com>
 X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -81,255 +81,172 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 27 Mar 2023 02:40:44 -0700
+
+Nit, ATDETACH?  [AT|DE]TACH?
+
+On Mon, 27 Mar 2023 02:40:45 -0700
 Yi Liu <yi.l.liu@intel.com> wrote:
 
-> This adds ioctl for userspace to bind device cdev fd to iommufd.
+> This adds ioctl for userspace to attach device cdev fd to and detach
+> from IOAS/hw_pagetable managed by iommufd.
 > 
->     VFIO_DEVICE_BIND_IOMMUFD: bind device to an iommufd, hence gain DMA
-> 			      control provided by the iommufd. open_device
-> 			      op is called after bind_iommufd op.
-> 			      VFIO no iommu mode is indicated by passing
-> 			      a negative iommufd value.
+>     VFIO_DEVICE_ATTACH_IOMMUFD_PT: attach vfio device to IOAS, hw_pagetable
+> 				   managed by iommufd. Attach can be
+> 				   undo by VFIO_DEVICE_DETACH_IOMMUFD_PT
+> 				   or device fd close.
+>     VFIO_DEVICE_DETACH_IOMMUFD_PT: detach vfio device from the current attached
+> 				   IOAS or hw_pagetable managed by iommufd.
 > 
 > Reviewed-by: Kevin Tian <kevin.tian@intel.com>
 > Tested-by: Terrence Xu <terrence.xu@intel.com>
+> Tested-by: Nicolin Chen <nicolinc@nvidia.com>
+> Tested-by: Matthew Rosato <mjrosato@linux.ibm.com>
 > Signed-off-by: Yi Liu <yi.l.liu@intel.com>
 > ---
->  drivers/vfio/device_cdev.c | 153 +++++++++++++++++++++++++++++++++++++
->  drivers/vfio/vfio.h        |  13 ++++
->  drivers/vfio/vfio_main.c   |   5 ++
->  include/uapi/linux/vfio.h  |  37 +++++++++
->  4 files changed, 208 insertions(+)
+>  drivers/vfio/device_cdev.c | 85 ++++++++++++++++++++++++++++++++++++++
+>  drivers/vfio/vfio.h        | 16 +++++++
+>  drivers/vfio/vfio_main.c   |  8 ++++
+>  include/uapi/linux/vfio.h  | 52 +++++++++++++++++++++++
+>  4 files changed, 161 insertions(+)
 > 
 > diff --git a/drivers/vfio/device_cdev.c b/drivers/vfio/device_cdev.c
-> index 1c640016a824..2b563bac50b9 100644
+> index 2b563bac50b9..b5de997bff6d 100644
 > --- a/drivers/vfio/device_cdev.c
 > +++ b/drivers/vfio/device_cdev.c
-> @@ -3,6 +3,7 @@
->   * Copyright (c) 2023 Intel Corporation.
->   */
->  #include <linux/vfio.h>
-> +#include <linux/iommufd.h>
->  
->  #include "vfio.h"
->  
-> @@ -44,6 +45,158 @@ int vfio_device_fops_cdev_open(struct inode *inode, struct file *filep)
+> @@ -197,6 +197,91 @@ long vfio_device_ioctl_bind_iommufd(struct vfio_device_file *df,
 >  	return ret;
 >  }
 >  
-> +static void vfio_device_get_kvm_safe(struct vfio_device_file *df)
-> +{
-> +	spin_lock(&df->kvm_ref_lock);
-> +	if (df->kvm)
-> +		_vfio_device_get_kvm_safe(df->device, df->kvm);
-> +	spin_unlock(&df->kvm_ref_lock);
-> +}
-> +
-> +void vfio_device_cdev_close(struct vfio_device_file *df)
+> +int vfio_ioctl_device_attach(struct vfio_device_file *df,
+> +			     struct vfio_device_attach_iommufd_pt __user *arg)
 > +{
 > +	struct vfio_device *device = df->device;
-> +
-> +	/*
-> +	 * As df->access_granted writer is under dev_set->lock as well,
-> +	 * so this read no need to use smp_load_acquire() to pair with
-
-Nit, "no need to use" -> "does not need to use"
-
-> +	 * smp_store_release() in the caller of vfio_device_open().
-> +	 */
-> +	if (!df->access_granted)
-> +		return;
-> +
-
-Isn't the lock we're acquiring below the one that we claim to have in
-the comment above to make the non-smp_load_acquire() test safe?
-
-> +	mutex_lock(&device->dev_set->lock);
-> +	vfio_device_close(df);
-> +	vfio_device_put_kvm(device);
-> +	if (df->iommufd)
-> +		iommufd_ctx_put(df->iommufd);
-> +	mutex_unlock(&device->dev_set->lock);
-> +	vfio_device_unblock_group(device);
-> +}
-> +
-> +static int vfio_device_cdev_enable_noiommu(struct vfio_device *device)
-> +{
-> +	if (!capable(CAP_SYS_RAWIO))
-> +		return -EPERM;
-> +
-> +	if (!device->noiommu)
-> +		return -EINVAL;
-> +
-> +	return 0;
-> +}
-
-This is testing, not enabling. ie. naming nit.
-
-> +
-> +static struct iommufd_ctx *vfio_get_iommufd_from_fd(int fd)
-> +{
-> +	struct fd f;
-> +	struct iommufd_ctx *iommufd;
-> +
-> +	f = fdget(fd);
-> +	if (!f.file)
-> +		return ERR_PTR(-EBADF);
-> +
-> +	iommufd = iommufd_ctx_from_file(f.file);
-> +
-> +	fdput(f);
-> +	return iommufd;
-> +}
-> +
-> +long vfio_device_ioctl_bind_iommufd(struct vfio_device_file *df,
-> +				    struct vfio_device_bind_iommufd __user *arg)
-> +{
-> +	struct vfio_device *device = df->device;
-> +	struct vfio_device_bind_iommufd bind;
-> +	struct iommufd_ctx *iommufd = NULL;
+> +	struct vfio_device_attach_iommufd_pt attach;
 > +	unsigned long minsz;
 > +	int ret;
 > +
-> +	static_assert(__same_type(arg->out_devid, bind.out_devid));
+> +	static_assert(__same_type(arg->pt_id, attach.pt_id));
 
-They're the same field in the same structure, how could they be
-otherwise?
+Same comment as previous, given these are the same field of the same
+structure, I don't understand how this could ever assert.
 
 > +
-> +	minsz = offsetofend(struct vfio_device_bind_iommufd, out_devid);
+> +	minsz = offsetofend(struct vfio_device_attach_iommufd_pt, pt_id);
 > +
-> +	if (copy_from_user(&bind, arg, minsz))
+> +	if (copy_from_user(&attach, arg, minsz))
 > +		return -EFAULT;
 > +
-> +	if (bind.argsz < minsz || bind.flags)
+> +	if (attach.argsz < minsz || attach.flags)
 > +		return -EINVAL;
 > +
 > +	if (!device->ops->bind_iommufd)
 > +		return -ENODEV;
 
-This test seems beyond normal paranoia since we test in
-__vfio_register_dev()
+Same as previous, we already require this to enable cdev support, so
+this seems ultra paranoid.
 
 > +
-> +	/* BIND_IOMMUFD only allowed for cdev fds */
+> +	/* ATTACH only allowed for cdev fds */
 > +	if (df->group)
 > +		return -EINVAL;
 > +
-> +	ret = vfio_device_block_group(device);
-> +	if (ret)
-> +		return ret;
-> +
 > +	mutex_lock(&device->dev_set->lock);
-> +	/* one device cannot be bound twice */
-> +	if (df->access_granted) {
-> +		ret = -EINVAL;
+> +	/* noiommufd mode doesn't allow attach */
+> +	if (!df->iommufd) {
+> +		ret = -EOPNOTSUPP;
 > +		goto out_unlock;
 > +	}
 > +
-> +	/* iommufd < 0 means noiommu mode */
-> +	if (bind.iommufd < 0) {
-> +		ret = vfio_device_cdev_enable_noiommu(device);
-> +		if (ret)
-> +			goto out_unlock;
-> +	} else {
-> +		iommufd = vfio_get_iommufd_from_fd(bind.iommufd);
-> +		if (IS_ERR(iommufd)) {
-> +			ret = PTR_ERR(iommufd);
-> +			goto out_unlock;
-> +		}
-> +	}
-> +
-> +	/*
-> +	 * Before the device open, get the KVM pointer currently
-> +	 * associated with the device file (if there is) and obtain
-> +	 * a reference.  This reference is held until device closed.
-> +	 * Save the pointer in the device for use by drivers.
-> +	 */
-> +	vfio_device_get_kvm_safe(df);
-> +
-> +	df->iommufd = iommufd;
-> +	ret = vfio_device_open(df);
+> +	ret = device->ops->attach_ioas(device, &attach.pt_id);
 > +	if (ret)
-> +		goto out_put_kvm;
+> +		goto out_unlock;
 > +
-> +	if (df->iommufd)
-> +		bind.out_devid = df->devid;
-
-How about only setting df->iommufd in the non-noiommu case above so
-it's not confusing that it was just set 4 lines previous.  That also
-allows the iommufd pointer to be scoped within that branch and not
-require initialization.  It might make sense to declare:
-
-	bool is_noiommu = (bind.iommufd < 0);
-
-and use it consistently rather than alternating testing between
-bind.iommufd and df->iommufd.
-
-> +
-> +	ret = copy_to_user(&arg->out_devid, &bind.out_devid,
-> +			   sizeof(bind.out_devid)) ? -EFAULT : 0;
-
-In the noiommu case, this copies back the input value, shouldn't it be
-some known invalid value?  Seems confusing.
-
+> +	ret = copy_to_user(&arg->pt_id, &attach.pt_id,
+> +			   sizeof(attach.pt_id)) ? -EFAULT : 0;
 > +	if (ret)
-> +		goto out_close_device;
-> +
-> +	if (bind.iommufd < 0)
-> +		dev_warn(device->dev, "device is bound to vfio-noiommu by user "
-> +			 "(%s:%d)\n", current->comm, task_pid_nr(current));
-> +
-> +	/*
-> +	 * Paired with smp_load_acquire() in vfio_device_fops::ioctl/
-> +	 * read/write/mmap
-> +	 */
-> +	smp_store_release(&df->access_granted, true);
+> +		goto out_detach;
 > +	mutex_unlock(&device->dev_set->lock);
 > +
 > +	return 0;
 > +
-> +out_close_device:
-> +	vfio_device_close(df);
-> +out_put_kvm:
-> +	df->iommufd = NULL;
-> +	vfio_device_put_kvm(device);
-> +	if (iommufd)
-> +		iommufd_ctx_put(iommufd);
+> +out_detach:
+> +	device->ops->detach_ioas(device);
 > +out_unlock:
 > +	mutex_unlock(&device->dev_set->lock);
-> +	vfio_device_unblock_group(device);
 > +	return ret;
 > +}
+> +
+> +int vfio_ioctl_device_detach(struct vfio_device_file *df,
+> +			     struct vfio_device_detach_iommufd_pt __user *arg)
+> +{
+> +	struct vfio_device *device = df->device;
+> +	struct vfio_device_detach_iommufd_pt detach;
+> +	unsigned long minsz;
+> +
+> +	minsz = offsetofend(struct vfio_device_detach_iommufd_pt, flags);
+> +
+> +	if (copy_from_user(&detach, arg, minsz))
+> +		return -EFAULT;
+> +
+> +	if (detach.argsz < minsz || detach.flags)
+> +		return -EINVAL;
+> +
+> +	if (!device->ops->bind_iommufd)
+> +		return -ENODEV;
+> +
+> +	/* DETACH only allowed for cdev fds */
+> +	if (df->group)
+> +		return -EINVAL;
+> +
+> +	mutex_lock(&device->dev_set->lock);
+> +	/* noiommufd mode doesn't support detach */
+> +	if (!df->iommufd) {
+> +		mutex_unlock(&device->dev_set->lock);
+> +		return -EOPNOTSUPP;
+> +	}
+> +	device->ops->detach_ioas(device);
+> +	mutex_unlock(&device->dev_set->lock);
+> +
+> +	return 0;
+> +}
+
+For both of these, can't a user trigger the
+WARN_ON(!vdev->iommufd_device) if they call either of these before
+VFIO_DEVICE_BIND_IOMMUFD?  Thanks,
+
+Alex
+
 > +
 >  static char *vfio_device_devnode(const struct device *dev, umode_t *mode)
 >  {
 >  	return kasprintf(GFP_KERNEL, "vfio/devices/%s", dev_name(dev));
 > diff --git a/drivers/vfio/vfio.h b/drivers/vfio/vfio.h
-> index 3a8fd0e32f59..ace3d52b0928 100644
+> index ace3d52b0928..c199e410db18 100644
 > --- a/drivers/vfio/vfio.h
 > +++ b/drivers/vfio/vfio.h
-> @@ -281,6 +281,9 @@ static inline void vfio_device_del(struct vfio_device *device)
->  
->  void vfio_init_device_cdev(struct vfio_device *device);
->  int vfio_device_fops_cdev_open(struct inode *inode, struct file *filep);
-> +void vfio_device_cdev_close(struct vfio_device_file *df);
-> +long vfio_device_ioctl_bind_iommufd(struct vfio_device_file *df,
-> +				    struct vfio_device_bind_iommufd __user *arg);
+> @@ -284,6 +284,10 @@ int vfio_device_fops_cdev_open(struct inode *inode, struct file *filep);
+>  void vfio_device_cdev_close(struct vfio_device_file *df);
+>  long vfio_device_ioctl_bind_iommufd(struct vfio_device_file *df,
+>  				    struct vfio_device_bind_iommufd __user *arg);
+> +int vfio_ioctl_device_attach(struct vfio_device_file *df,
+> +			     struct vfio_device_attach_iommufd_pt __user *arg);
+> +int vfio_ioctl_device_detach(struct vfio_device_file *df,
+> +			     struct vfio_device_detach_iommufd_pt __user *arg);
 >  int vfio_cdev_init(struct class *device_class);
 >  void vfio_cdev_cleanup(void);
 >  #else
-> @@ -304,6 +307,16 @@ static inline int vfio_device_fops_cdev_open(struct inode *inode,
->  	return 0;
+> @@ -317,6 +321,18 @@ static inline long vfio_device_ioctl_bind_iommufd(struct vfio_device_file *df,
+>  	return -EOPNOTSUPP;
 >  }
 >  
-> +static inline void vfio_device_cdev_close(struct vfio_device_file *df)
+> +static inline int vfio_ioctl_device_attach(struct vfio_device_file *df,
+> +					   struct vfio_device_attach_iommufd_pt __user *arg)
 > +{
+> +	return -EOPNOTSUPP;
 > +}
 > +
-> +static inline long vfio_device_ioctl_bind_iommufd(struct vfio_device_file *df,
-> +						  struct vfio_device_bind_iommufd __user *arg)
+> +static inline int vfio_ioctl_device_detach(struct vfio_device_file *df,
+> +					   struct vfio_device_detach_iommufd_pt __user *arg)
 > +{
 > +	return -EOPNOTSUPP;
 > +}
@@ -338,92 +255,83 @@ some known invalid value?  Seems confusing.
 >  {
 >  	return 0;
 > diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
-> index 58fc3bb768f2..375086c8803f 100644
+> index 375086c8803f..896d8bb49585 100644
 > --- a/drivers/vfio/vfio_main.c
 > +++ b/drivers/vfio/vfio_main.c
-> @@ -559,6 +559,8 @@ static int vfio_device_fops_release(struct inode *inode, struct file *filep)
+> @@ -1150,6 +1150,14 @@ static long vfio_device_fops_unl_ioctl(struct file *filep,
+>  		ret = vfio_ioctl_device_feature(device, (void __user *)arg);
+>  		break;
 >  
->  	if (df->group)
->  		vfio_device_group_close(df);
-> +	else
-> +		vfio_device_cdev_close(df);
->  
->  	vfio_device_put_registration(device);
->  
-> @@ -1132,6 +1134,9 @@ static long vfio_device_fops_unl_ioctl(struct file *filep,
->  	struct vfio_device *device = df->device;
->  	int ret;
->  
-> +	if (cmd == VFIO_DEVICE_BIND_IOMMUFD)
-> +		return vfio_device_ioctl_bind_iommufd(df, (void __user *)arg);
+> +	case VFIO_DEVICE_ATTACH_IOMMUFD_PT:
+> +		ret = vfio_ioctl_device_attach(df, (void __user *)arg);
+> +		break;
 > +
->  	/* Paired with smp_store_release() following vfio_device_open() */
->  	if (!smp_load_acquire(&df->access_granted))
->  		return -EINVAL;
+> +	case VFIO_DEVICE_DETACH_IOMMUFD_PT:
+> +		ret = vfio_ioctl_device_detach(df, (void __user *)arg);
+> +		break;
+> +
+>  	default:
+>  		if (unlikely(!device->ops->ioctl))
+>  			ret = -EINVAL;
 > diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
-> index 61b801dfd40b..62b2f2497525 100644
+> index 62b2f2497525..bf6c97e759c7 100644
 > --- a/include/uapi/linux/vfio.h
 > +++ b/include/uapi/linux/vfio.h
-> @@ -194,6 +194,43 @@ struct vfio_group_status {
+> @@ -231,6 +231,58 @@ struct vfio_device_bind_iommufd {
 >  
->  /* --------------- IOCTLs for DEVICE file descriptors --------------- */
+>  #define VFIO_DEVICE_BIND_IOMMUFD	_IO(VFIO_TYPE, VFIO_BASE + 19)
 >  
 > +/*
-> + * VFIO_DEVICE_BIND_IOMMUFD - _IOR(VFIO_TYPE, VFIO_BASE + 19,
-> + *				   struct vfio_device_bind_iommufd)
+> + * VFIO_DEVICE_ATTACH_IOMMUFD_PT - _IOW(VFIO_TYPE, VFIO_BASE + 20,
+> + *					struct vfio_device_attach_iommufd_pt)
 > + *
-> + * Bind a vfio_device to the specified iommufd.
+> + * Attach a vfio device to an iommufd address space specified by IOAS
+> + * id or hw_pagetable (hwpt) id.
 > + *
-> + * The user should provide a device cookie when calling this ioctl. The
-> + * cookie is carried only in event e.g. I/O fault reported to userspace
-> + * via iommufd. The user should use devid returned by this ioctl to mark
-> + * the target device in other ioctls (e.g. iommu hardware infomration query
-> + * via iommufd, and etc.).
-
-AFAICT, the whole concept of this dev_cookie is a fantasy.  It only
-exists in this series in these comments and the structure below.  It's
-not even defined whether it needs to be unique within an iommufd
-context, and clearly nothing here validates that.  There's not enough
-implementation for it to exist in this series.  Maybe dev_cookie is
-appended to the end of the structure and indicated with a flag when it
-has some meaning.
-
+> + * Available only after a device has been bound to iommufd via
+> + * VFIO_DEVICE_BIND_IOMMUFD
 > + *
-> + * User is not allowed to access the device before the binding operation
-> + * is completed.
-
-s/not allowed to access/restricted from accessing/
-
+> + * Undo by VFIO_DEVICE_DETACH_IOMMUFD_PT or device fd close.
 > + *
-> + * Unbind is automatically conducted when device fd is closed.
-> + *
-> + * @argsz:	 user filled size of this data.
-> + * @flags:	 reserved for future extension.
-> + * @dev_cookie:	 a per device cookie provided by userspace.
-> + * @iommufd:	 iommufd to bind. a negative value means noiommu.
-
-"Use a negative value for no-iommu, where supported", or better, should
-we define this explicitly as -1, or why not use a flag bit to specify
-no-iommu?  Maybe minsz is only through flags for the noiommu use case.
-Thanks,
-
-Alex
-
-> + * @out_devid:	 the device id generated by this bind. This field is valid
-> + *		as long as the input @iommufd is valid. Otherwise, it is
-> + *		meaningless.
+> + * @argsz:	user filled size of this data.
+> + * @flags:	must be 0.
+> + * @pt_id:	Input the target id which can represent an ioas or a hwpt
+> + *		allocated via iommufd subsystem.
+> + *		Output the attached hwpt id which could be the specified
+> + *		hwpt itself or a hwpt automatically created for the
+> + *		specified ioas by kernel during the attachment.
 > + *
 > + * Return: 0 on success, -errno on failure.
 > + */
-> +struct vfio_device_bind_iommufd {
-> +	__u32		argsz;
-> +	__u32		flags;
-> +	__aligned_u64	dev_cookie;
-> +	__s32		iommufd;
-> +	__u32		out_devid;
+> +struct vfio_device_attach_iommufd_pt {
+> +	__u32	argsz;
+> +	__u32	flags;
+> +	__u32	pt_id;
 > +};
 > +
-> +#define VFIO_DEVICE_BIND_IOMMUFD	_IO(VFIO_TYPE, VFIO_BASE + 19)
+> +#define VFIO_DEVICE_ATTACH_IOMMUFD_PT		_IO(VFIO_TYPE, VFIO_BASE + 20)
+> +
+> +/*
+> + * VFIO_DEVICE_DETACH_IOMMUFD_PT - _IOW(VFIO_TYPE, VFIO_BASE + 21,
+> + *					struct vfio_device_detach_iommufd_pt)
+> + *
+> + * Detach a vfio device from the iommufd address space it has been
+> + * attached to. After it, device should be in a blocking DMA state.
+> + *
+> + * Available only after a device has been bound to iommufd via
+> + * VFIO_DEVICE_BIND_IOMMUFD.
+> + *
+> + * @argsz:	user filled size of this data.
+> + * @flags:	must be 0.
+> + *
+> + * Return: 0 on success, -errno on failure.
+> + */
+> +struct vfio_device_detach_iommufd_pt {
+> +	__u32	argsz;
+> +	__u32	flags;
+> +};
+> +
+> +#define VFIO_DEVICE_DETACH_IOMMUFD_PT		_IO(VFIO_TYPE, VFIO_BASE + 21)
 > +
 >  /**
 >   * VFIO_DEVICE_GET_INFO - _IOR(VFIO_TYPE, VFIO_BASE + 7,
