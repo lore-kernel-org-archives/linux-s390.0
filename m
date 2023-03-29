@@ -2,63 +2,48 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7BDDCC74A5B
-	for <linux-s390@archiver.kernel.org>; Wed, 29 Mar 2023 22:58:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B043C74A5B
+	for <linux-s390@archiver.kernel.org>; Wed, 29 Mar 2023 23:22:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229917AbjC2W6y (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 29 Mar 2023 18:58:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42816 "EHLO
+        id S230091AbjC2XWT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 29 Mar 2023 19:22:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230467AbjC2W6x (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 29 Mar 2023 18:58:53 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A39E46AA
-        for <linux-s390@vger.kernel.org>; Wed, 29 Mar 2023 15:58:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1680130686;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=SqSb614bpnGODSpdBacflTpi7ojJu/N3KB6ydJf7CJc=;
-        b=WhlCBCVVHYoD4G1Nb89faKhZ1AnGgYtBYkoeZcljOhXct/xTK5k8xkgvJ0RXEPy+iYfe64
-        NpPAlnpOhVQsvTrLyi8AXchq0m2FXLWk/Csd3MatQ5aZ3q/y9kcCnGJ5duG8wx/J0RU2Ry
-        vUtaJL0kFXyRa/we2/5JzH2f2zPvPEQ=
-Received: from mail-il1-f200.google.com (mail-il1-f200.google.com
- [209.85.166.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-622-TOzDecYeMQW1D8vinkiLJA-1; Wed, 29 Mar 2023 18:58:05 -0400
-X-MC-Unique: TOzDecYeMQW1D8vinkiLJA-1
-Received: by mail-il1-f200.google.com with SMTP id z8-20020a92cd08000000b00317b27a795aso11018021iln.0
-        for <linux-s390@vger.kernel.org>; Wed, 29 Mar 2023 15:58:05 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680130680;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=SqSb614bpnGODSpdBacflTpi7ojJu/N3KB6ydJf7CJc=;
-        b=OArDYcS+YWSO7u3APTuGcXbzxEAnbedtBCmmlIvJw2HtnsJt62qoPfVgK85Byb/JUN
-         j0nxUT38QQIWGAUOg/xYmMZ8mH0voCpAePjxNz57X2pZddtFkRzm9u+CfMBRCd1y14Vx
-         iwZSJ9j+LiCyTPz/aLesl4Ozb5ar8DLfB99Fp5TT7ppvMga8/f0jzQ1b4LrOUOupNOX+
-         TSBHd4DNxq0Lsoc+urnpr8Pglkb0xvkWJoKSZdIwtXXtRm9SaNiA1CNyf/EO+TYZ/yeY
-         JGvUkjEKn45+ou/aU/R1+bJgmcvVnXdzhoNMiPDvmlKjdfIG1v8KWOajZH3CZvhYqG9j
-         tYJQ==
-X-Gm-Message-State: AAQBX9c30lYkE2TcCN/wuYFJvIwQ25tWCgalqlmhFsoBi7OpjSikju+H
-        6XDzr6jrKGw5slP9yZNujb+Q1ggzuCpWRWXaG679xVyIN5bWZ5DWSW+1+xOPus2HyvxKa5eB1hl
-        znk0DR4DZ/5fYpyfLDExWvA==
-X-Received: by 2002:a92:c688:0:b0:315:537e:4b18 with SMTP id o8-20020a92c688000000b00315537e4b18mr13545901ilg.32.1680130679692;
-        Wed, 29 Mar 2023 15:57:59 -0700 (PDT)
-X-Google-Smtp-Source: AKy350ZjB6g4MnZXnp6LQWyrzpWRTxnEwfNS5Oun74wPc/2VqhYS17fcaEn6qOIbdj9/uz/LN80VSA==
-X-Received: by 2002:a92:c688:0:b0:315:537e:4b18 with SMTP id o8-20020a92c688000000b00315537e4b18mr13545882ilg.32.1680130679216;
-        Wed, 29 Mar 2023 15:57:59 -0700 (PDT)
-Received: from redhat.com ([38.15.36.239])
-        by smtp.gmail.com with ESMTPSA id x10-20020a92300a000000b0030c0dce44b1sm9466042ile.15.2023.03.29.15.57.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 29 Mar 2023 15:57:56 -0700 (PDT)
-Date:   Wed, 29 Mar 2023 16:57:55 -0600
-From:   Alex Williamson <alex.williamson@redhat.com>
-To:     Yi Liu <yi.l.liu@intel.com>
-Cc:     jgg@nvidia.com, kevin.tian@intel.com, joro@8bytes.org,
+        with ESMTP id S229735AbjC2XWS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 29 Mar 2023 19:22:18 -0400
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2082.outbound.protection.outlook.com [40.107.220.82])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36E06D3;
+        Wed, 29 Mar 2023 16:22:17 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=FkSjE+Ewj2C6ktCbDVu4QNKDMhnRUTR/HqwscKFv6VOyqSR8FIHUf5OfghzRSgeqLqZYjf54BW0Zr18Zbd+aKbOC3a9iCIM7LbI+rtcVlUovNX5+LVAvDXCVWk2bdGv2S7kvDQ3ycDyPyy8wRDII1R5azgg5NYdR79AVMWehdRMcAuo2wO7PkZOij27jNGtJGMSW8PUocPxEVl2swmPI+7Gwxce/mzrsCqhgGPuSBEPZmF2mzh32K7B3i+58H33KwGeH8vNfbgzsewapp5IlpaxGq4iETeSo8XYV1lHVlnXG5GmhroB0A+p2r+mueNPTcomJ1aejQtO8ZaVChwQmWg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=kguGaB2QFHRP13PzFvKdKGnhzYeheAPDHMobZNVhXuE=;
+ b=MDg767XtOExed8ZKOScVdy4rKIGTLfiQaWXLnV9oTWK7f6934VQhCQkldqkiZQ2k6UySd6wXi/fQs8WKkInluvUg/hSseFY6qOSkFb+ivFYniaf27G6KLaNwqVsOTRTn8dBomOhmqfak1SwEqPGxJ2xrCe4fbOfAVWMuyu2LzqsywIZmuIwCftb6snBXQ9e9IiB+LRGvrQCFJR9ZwUdzEcPHn6zV2SsvR77uBu/kxRa5o5AtaF55CrBkAH+mggMgN5bf0jCM1DFkQ6ao7V8ENCLjHOnJk5qgS777m8VfDcqHvS+HVr0BDerVlpDYAqlnXsHgFJs0ebEdvMT5Ngv31g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=kguGaB2QFHRP13PzFvKdKGnhzYeheAPDHMobZNVhXuE=;
+ b=qcIVwvvGz03KhYl3lHW+iMWjRdXqZ1MPrsS/96JW68uJfxbONKe2ZpmmEhjncQSrBLv1nQqDq7BqvjB0VFliCzLGiJ1rmUxDG7IO3ZjK4NAwLa3L9WQrYWT4p84RljwBC0t+RPf1oCtk4msoU3aqyn6fFshF9cU+kUADXl9K0J3kELC1VosyAzFSxE9yLx/PZLyGvlD5ZbycVmia2BD1tAGfL+dy+UqWpyufm06TOE+0+P/ONPlX1v4mhwKw6Cj/DxWwxmIqXeHKdPs0Kj1DMs0dal7W+bTancZ/iE3mbVzdiEyVp+ZZFysIYIMz7GlXbMRyPoZD2Y0WFavjyVrXKg==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by CO6PR12MB5443.namprd12.prod.outlook.com (2603:10b6:303:13a::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6254.20; Wed, 29 Mar
+ 2023 23:22:14 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::ef6d:fdf6:352f:efd1]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::ef6d:fdf6:352f:efd1%3]) with mapi id 15.20.6178.037; Wed, 29 Mar 2023
+ 23:22:14 +0000
+Date:   Wed, 29 Mar 2023 20:22:13 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Alex Williamson <alex.williamson@redhat.com>
+Cc:     Yi Liu <yi.l.liu@intel.com>, kevin.tian@intel.com, joro@8bytes.org,
         robin.murphy@arm.com, cohuck@redhat.com, eric.auger@redhat.com,
         nicolinc@nvidia.com, kvm@vger.kernel.org, mjrosato@linux.ibm.com,
         chao.p.peng@linux.intel.com, yi.y.sun@linux.intel.com,
@@ -68,214 +53,98 @@ Cc:     jgg@nvidia.com, kevin.tian@intel.com, joro@8bytes.org,
         intel-gfx@lists.freedesktop.org, linux-s390@vger.kernel.org,
         xudong.hao@intel.com, yan.y.zhao@intel.com, terrence.xu@intel.com,
         yanting.jiang@intel.com
-Subject: Re: [PATCH v8 24/24] docs: vfio: Add vfio device cdev description
-Message-ID: <20230329165755.71b7beab.alex.williamson@redhat.com>
-In-Reply-To: <20230329164749.2778aa04.alex.williamson@redhat.com>
+Subject: Re: [PATCH v8 21/24] vfio: Add VFIO_DEVICE_BIND_IOMMUFD
+Message-ID: <ZCTIJScfgbWWguD5@nvidia.com>
 References: <20230327094047.47215-1-yi.l.liu@intel.com>
-        <20230327094047.47215-25-yi.l.liu@intel.com>
-        <20230329164749.2778aa04.alex.williamson@redhat.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
+ <20230327094047.47215-22-yi.l.liu@intel.com>
+ <20230329150055.3dee2476.alex.williamson@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230329150055.3dee2476.alex.williamson@redhat.com>
+X-ClientProxiedBy: BL0PR03CA0022.namprd03.prod.outlook.com
+ (2603:10b6:208:2d::35) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|CO6PR12MB5443:EE_
+X-MS-Office365-Filtering-Correlation-Id: 0a1cf86f-ac7b-41ea-5259-08db30ac6e4f
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: eUALv66JFT/jtwEIRqCE4AET6QcFOD/Zm0ABUr+Qx67jFlces50paBpeKM9UiltyHJ5zbs4c1dBLVqXS4uyDx5VPoQcVptnT+DtzElbD+HnRsNFQgsBM3AtyDjNj5JpXSglPtdUyS4k0aPQe6WxoLh/Zlvd+BqsWkKJ+shtpl7Dxf5SgHN1ndmEWqdq07uWpzLFg0FGT+hR2KswZr9VTV5N73iNwgMNOOAXUB9J8lePVVLoFtjNmueJ1bojawpt8kDdohbNW2Y94REznbubrlGta/Tm5dXIz4gxUap7ZLCIAJ0c9IAfrOWpIvion4zl4wUybaugXyVgTgP2du6CDUZ5fZmCUccWrhfSFEzQ1iwNMusL5Nc7j8NOBRDQFaMDWKY/2umRznLp4Zc1s1CeSD1B/dZeqMH1ZKn3xLvLkLA2dFa2jBrNU4OdLLPJzMfdcUzFNSALO47YynfWyLzzwjgYjN1vkcJj6JXE0F40zI+dL+UE2VfiiCcyHcMwrUDFo28IWZxKtW1nesrOLaG1pXo/e7cX9S3JWn5iWEeExDnn2DBhPTgof81NMtbRHN9iN
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(376002)(366004)(346002)(136003)(396003)(39860400002)(451199021)(2906002)(8936002)(86362001)(66556008)(41300700001)(8676002)(66946007)(4326008)(6916009)(66476007)(316002)(36756003)(478600001)(5660300002)(6512007)(6506007)(26005)(6486002)(7416002)(2616005)(186003)(83380400001)(38100700002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?RJ/6X4bBfgSwqdzZ+JK/wmaYAD6mk6QBWnWImU1r4ho6ZFbWlrbTWiLFSkmB?=
+ =?us-ascii?Q?W2TEO8dCE+PK/fTh08yzs0yfxpUhWrdJZr4d62/YiIb+qEax7WEJMAszMIGr?=
+ =?us-ascii?Q?Q5EDRRGoT5bqtBuT972LQkPg5ndfe7hjzdlM2iyUVBY6IYP773/xvNjZXPKv?=
+ =?us-ascii?Q?2HPOR82GB63IkRnF1uNB67lFmzJkpglE438WULPPTSvwn2Hzjz8aJ/B8VcBC?=
+ =?us-ascii?Q?Tsz2UwIO2datc3gW8/XKIR7Ky27dbeX2+t/sVE5Cy1oB/rHJt24Xxsga0dtI?=
+ =?us-ascii?Q?JfkS8j6URHclRKc79O12iLdqqPM3yNfxodc4QdupA7WPr9aVo46kYdy9hw8V?=
+ =?us-ascii?Q?ECSnimvEEbv9KJqfFdgM8WsmjVte75STOGyY/wr6+l5+bcru5CoyUlCLxTJN?=
+ =?us-ascii?Q?GIKsXULTdUPZnakdGpAHqUdYGsSEC9cE/yRwV9aNBFhCj9J2Tt9q1G/6jTkl?=
+ =?us-ascii?Q?wFpZyKWjpnts4+sTMMIYAj5OZD3614QusHWHotACeRIG8gj8TYSdYvjyK0Bj?=
+ =?us-ascii?Q?XzvzOJ2pV9ss+gRh5wAWzCfe8akxRW2GrBkJOiaFUucdoOOOx7q5DUiyA4Lq?=
+ =?us-ascii?Q?1qk8d3GtdcPsHXZylW8iqVLdtZYk6Tou1ZVd9QE+hxJZpEQMpzev7c1ubIx9?=
+ =?us-ascii?Q?YoiQqD7qIbqe0QqQ5hTw88PXMiD5KA7sxtc24wAK9wojZcyK1fCDJBs07LDt?=
+ =?us-ascii?Q?wRLYyPEsep+8nmRxgGRJO0Gr0ppDYAWAU0fyVFzdP3atoea7ZRQPH2zp3Abi?=
+ =?us-ascii?Q?27xWlIBAjDk3WPVtTa5Oqk9L0E0wnnrtrtKwHHBrk0LuXWPmCJx3Who9gdlA?=
+ =?us-ascii?Q?uiwvhWTU0hf1yMjou6MumYLxFFNvCP6otDCH5XndzDTV8bd5eOsfozh61y9W?=
+ =?us-ascii?Q?efflcy6QvxsHEa6HRejoVIz1Ln0bDQiD3arDu5MmGmT31MnC2uPKQFTwbfcO?=
+ =?us-ascii?Q?Zg/z0tHhoz7dhEEy/CEokAVgtMnkC3AHIlSDHu3wOW0Skq+buUfih917rim6?=
+ =?us-ascii?Q?qDGI0yjH/kL6Wo/fs69ZVFEIofS/4BwHs1KQz+bugytZhQR/yO5uJGGJmKo3?=
+ =?us-ascii?Q?rrOWhDz/JGrD59TEzi0L5SsStdlPSWrxddzzuX/SKY6xvfPyGndTZ3XxufRl?=
+ =?us-ascii?Q?3WzAIEhYLQdQnpDFkuKmNNLGOakdkX72fxWfSn2vLJZxM9yBUdCPil8B2KzZ?=
+ =?us-ascii?Q?IdEXnkS1MHqPKi9nuLkPhASb95yKFDm8nQTx9iVIltGAhhj0Aqs10+ExWJhD?=
+ =?us-ascii?Q?G/Qc45+At2OQgfZBKpoVjbqsN5NawKuidTeSx8gCnF5EXOlZsn3f89WcNEj2?=
+ =?us-ascii?Q?gxBX5k6NyKMYJGAfGde+SqSoEZRpS2qDiRKAJAzVjjnNIbEzlEKyotPNDdFb?=
+ =?us-ascii?Q?wifTx/Us2eQHwNjkqdbn/Pl9eNvmaoyRQkd1iWj+f/NUq5ngVkPjpM9WeTMV?=
+ =?us-ascii?Q?n03XEZLOCTG8zCezW8H5t6u+sBCRwuIA8ws/LtUSDxvnALShQJcdQxE9L1ws?=
+ =?us-ascii?Q?61l6IT+h0pI2oyRBeey5c6yVhO736zBuEnNgcRsDq7pbCWR/0GFSUEoW4aaV?=
+ =?us-ascii?Q?X6zov5mH+2veDJXV1bwXg9+nouXRe7h1bCJK3lOt?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 0a1cf86f-ac7b-41ea-5259-08db30ac6e4f
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Mar 2023 23:22:14.7351
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: p+X5xlRp6sTOxHud3BiMGO7xOOQFffphEVlWFkPfdwQ52lI86UskkaTcMwa5b7wO
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CO6PR12MB5443
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 29 Mar 2023 16:47:49 -0600
-Alex Williamson <alex.williamson@redhat.com> wrote:
+On Wed, Mar 29, 2023 at 03:00:55PM -0600, Alex Williamson wrote:
 
-> On Mon, 27 Mar 2023 02:40:47 -0700
-> Yi Liu <yi.l.liu@intel.com> wrote:
+> > + * The user should provide a device cookie when calling this ioctl. The
+> > + * cookie is carried only in event e.g. I/O fault reported to userspace
+> > + * via iommufd. The user should use devid returned by this ioctl to mark
+> > + * the target device in other ioctls (e.g. iommu hardware infomration query
+> > + * via iommufd, and etc.).
 > 
-> > This gives notes for userspace applications on device cdev usage.
-> > 
-> > Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-> > Signed-off-by: Yi Liu <yi.l.liu@intel.com>
-> > ---
-> >  Documentation/driver-api/vfio.rst | 127 ++++++++++++++++++++++++++++++
-> >  1 file changed, 127 insertions(+)
-> > 
-> > diff --git a/Documentation/driver-api/vfio.rst b/Documentation/driver-api/vfio.rst
-> > index 363e12c90b87..77408788b98d 100644
-> > --- a/Documentation/driver-api/vfio.rst
-> > +++ b/Documentation/driver-api/vfio.rst
-> > @@ -239,6 +239,125 @@ group and can access them as follows::
-> >  	/* Gratuitous device reset and go... */
-> >  	ioctl(device, VFIO_DEVICE_RESET);
-> >  
-> > +IOMMUFD and vfio_iommu_type1
-> > +----------------------------
-> > +
-> > +IOMMUFD is the new user API to manage I/O page tables from userspace.
-> > +It intends to be the portal of delivering advanced userspace DMA
-> > +features (nested translation [5], PASID [6], etc.) while being backward
-> > +compatible with the vfio_iommu_type1 driver.  Eventually vfio_iommu_type1
-> > +will be deprecated.  
-> 
-> "... while also providing a backwards compatibility interface for
-> existing VFIO_TYPE1v2_IOMMU use cases.  Eventually the vfio_iommu_type1
-> driver, as well as the legacy vfio container and group model is
-> intended to be deprecated."
-> 
-> > +
-> > +With the backward compatibility, no change is required for legacy
-> > VFIO +drivers or applications to connect a VFIO device to IOMMUFD.
-> > +
-> > +	When CONFIG_IOMMUFD_VFIO_CONTAINER=n, VFIO container still provides
-> > +	/dev/vfio/vfio which connects to vfio_iommu_type1.  To disable VFIO
-> > +	container and vfio_iommu_type1, the administrator could symbol link
-> > +	/dev/vfio/vfio to /dev/iommu to enable VFIO container emulation
-> > +	in IOMMUFD.
-> > +
-> > +	When CONFIG_IOMMUFD_VFIO_CONTAINER=y, IOMMUFD directly provides
-> > +	/dev/vfio/vfio while the VFIO container and vfio_iommu_type1 are
-> > +	explicitly disabled.
-> > +  
-> 
-> "The IOMMUFD backwards compatibility interface can be enabled two ways.
-> In the first method, the kernel can be configured with
-> CONFIG_IOMMUFD_VFIO_CONTAINER, in which case the IOMMUFD subsystem
-> transparently provides the entire infrastructure for the the VFIO
-> container and IOMMU backend interfaces.  The compatibility mode can
-> also be accessed if the VFIO container interface, ie. /dev/vfio/vfio is
-> simply symlink'd to /dev/iommu.  Note that at the time of writing, the
-> compatibility mode is not entirely feature complete relative to
-> VFIO_TYPE1v2_IOMMU (ex. DMA mapping MMIO) and does not attempt to
-> provide compatibility to the VFIO_SPAPR_TCE_IOMMU interface.  Therefore
-> it is not generally advisable at this time to switch from native VFIO
-> implementations to the IOMMUFD compatibility interfaces.
-> 
-> Long term, VFIO users should migrate to device access through the cdev
-> interface described below, and native access through the IOMMUFD
-> provided interfaces."
-> 
-> Thanks,
-> Alex
-> 
-> > +VFIO Device cdev
-> > +----------------
-> > +
-> > +Traditionally user acquires a device fd via VFIO_GROUP_GET_DEVICE_FD
-> > +in a VFIO group.
-> > +
-> > +With CONFIG_VFIO_DEVICE_CDEV=y the user can now acquire a device fd
-> > +by directly opening a character device /dev/vfio/devices/vfioX where
-> > +"X" is the number allocated uniquely by VFIO for registered devices.
-> > +For noiommu devices, the character device would be named with
-> > "noiommu-" +prefix. e.g. /dev/vfio/devices/noiommu-vfioX.
-> > +
-> > +The cdev only works with IOMMUFD.  Both VFIO drivers and applications
-> > +must adapt to the new cdev security model which requires using
-> > +VFIO_DEVICE_BIND_IOMMUFD to claim DMA ownership before starting to
-> > +actually use the device.  Once BIND succeeds then a VFIO device can
-> > +be fully accessed by the user.
-> > +
-> > +VFIO device cdev doesn't rely on VFIO group/container/iommu drivers.
-> > +Hence those modules can be fully compiled out in an environment
-> > +where no legacy VFIO application exists.
-> > +
-> > +So far SPAPR does not support IOMMUFD yet.  So it cannot support
-> > device +cdev neither.
-> > +
-> > +Device cdev Example
-> > +-------------------
-> > +
-> > +Assume user wants to access PCI device 0000:6a:01.0::
-> > +
-> > +	$ ls /sys/bus/pci/devices/0000:6a:01.0/vfio-dev/
-> > +	vfio0
-> > +
-> > +This device is therefore represented as vfio0.  The user can verify
-> > +its existence::
-> > +
-> > +	$ ls -l /dev/vfio/devices/vfio0
-> > +	crw------- 1 root root 511, 0 Feb 16 01:22
-> > /dev/vfio/devices/vfio0
-> > +	$ cat /sys/bus/pci/devices/0000:6a:01.0/vfio-dev/vfio0/dev
-> > +	511:0
-> > +	$ ls -l /dev/char/511\:0
-> > +	lrwxrwxrwx 1 root root 21 Feb 16 01:22 /dev/char/511:0 ->
-> > ../vfio/devices/vfio0 +
-> > +Then provide the user with access to the device if unprivileged
-> > +operation is desired::
-> > +
-> > +	$ chown user:user /dev/vfio/devices/vfio0
-> > +
-> > +Finally the user could get cdev fd by::
-> > +
-> > +	cdev_fd = open("/dev/vfio/devices/vfio0", O_RDWR);
-> > +
-> > +An opened cdev_fd doesn't give the user any permission of accessing
-> > +the device except binding the cdev_fd to an iommufd.  After that
-> > point +then the device is fully accessible including attaching it to
-> > an +IOMMUFD IOAS/HWPT to enable userspace DMA::
-> > +
-> > +	struct vfio_device_bind_iommufd bind = {
-> > +		.argsz = sizeof(bind),
-> > +		.flags = 0,
-> > +	};
-> > +	struct iommu_ioas_alloc alloc_data  = {
-> > +		.size = sizeof(alloc_data),
-> > +		.flags = 0,
-> > +	};
-> > +	struct vfio_device_attach_iommufd_pt attach_data = {
-> > +		.argsz = sizeof(attach_data),
-> > +		.flags = 0,
-> > +	};
-> > +	struct iommu_ioas_map map = {
-> > +		.size = sizeof(map),
-> > +		.flags = IOMMU_IOAS_MAP_READABLE |
-> > +			 IOMMU_IOAS_MAP_WRITEABLE |
-> > +			 IOMMU_IOAS_MAP_FIXED_IOVA,
-> > +		.__reserved = 0,
-> > +	};
-> > +
-> > +	iommufd = open("/dev/iommu", O_RDWR);
-> > +
-> > +	bind.iommufd = iommufd; // negative value means vfio-noiommu
-> > mode
-> > +	ioctl(cdev_fd, VFIO_DEVICE_BIND_IOMMUFD, &bind);
+> AFAICT, the whole concept of this dev_cookie is a fantasy.  It only
+> exists in this series in these comments and the structure below.  It's
+> not even defined whether it needs to be unique within an iommufd
+> context, and clearly nothing here validates that.  There's not enough
+> implementation for it to exist in this series.  Maybe dev_cookie is
+> appended to the end of the structure and indicated with a flag when it
+> has some meaning.
 
+Yes, I've asked for this to be punted to the PRI series enough times
+already, why does it keep coming back ??
 
-Even here the dev_cookie is nowhere to be found!  Thanks,
-
-Alex
-
-> > +
-> > +	ioctl(iommufd, IOMMU_IOAS_ALLOC, &alloc_data);
-> > +	attach_data.pt_id = alloc_data.out_ioas_id;
-> > +	ioctl(cdev_fd, VFIO_DEVICE_ATTACH_IOMMUFD_PT, &attach_data);
-> > +
-> > +	/* Allocate some space and setup a DMA mapping */
-> > +	map.user_va = (int64_t)mmap(0, 1024 * 1024, PROT_READ |
-> > PROT_WRITE,
-> > +				    MAP_PRIVATE | MAP_ANONYMOUS, 0,
-> > 0);
-> > +	map.iova = 0; /* 1MB starting at 0x0 from device view */
-> > +	map.length = 1024 * 1024;
-> > +	map.ioas_id = alloc_data.out_ioas_id;;
-> > +
-> > +	ioctl(iommufd, IOMMU_IOAS_MAP, &map);
-> > +
-> > +	/* Other device operations as stated in "VFIO Usage Example"
-> > */ +
-> >  VFIO User API
-> >  -------------------------------------------------------------------------------
-> >  
-> > @@ -566,3 +685,11 @@ This implementation has some specifics:
-> >  				\-0d.1
-> >  
-> >  	00:1e.0 PCI bridge: Intel Corporation 82801 PCI Bridge (rev
-> > 90) +
-> > +.. [5] Nested translation is an IOMMU feature which supports two
-> > stage
-> > +   address translations.  This improves the address translation
-> > efficiency
-> > +   in IOMMU virtualization.
-> > +
-> > +.. [6] PASID stands for Process Address Space ID, introduced by PCI
-> > +   Express.  It is a prerequisite for Shared Virtual Addressing (SVA)
-> > +   and Scalable I/O Virtualization (Scalable IOV).  
+> > + * @argsz:	 user filled size of this data.
+> > + * @flags:	 reserved for future extension.
+> > + * @dev_cookie:	 a per device cookie provided by userspace.
+> > + * @iommufd:	 iommufd to bind. a negative value means noiommu.
 > 
+> "Use a negative value for no-iommu, where supported", or better, should
+> we define this explicitly as -1, or why not use a flag bit to specify
+> no-iommu?  Maybe minsz is only through flags for the noiommu use case.
 
+I was happy enough for this to be defined as -1. We could give it a
+formal sounding constant too
+
+Jason
