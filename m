@@ -2,160 +2,112 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 71D25C74A5B
-	for <linux-s390@archiver.kernel.org>; Wed, 29 Mar 2023 13:42:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C4D3C74A5B
+	for <linux-s390@archiver.kernel.org>; Wed, 29 Mar 2023 13:52:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229738AbjC2Nmp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 29 Mar 2023 09:42:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47924 "EHLO
+        id S230079AbjC2NwU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 29 Mar 2023 09:52:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229436AbjC2Nmo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 29 Mar 2023 09:42:44 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34D6F126;
-        Wed, 29 Mar 2023 06:42:44 -0700 (PDT)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32TDHFRN031641;
-        Wed, 29 Mar 2023 13:42:44 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : to : cc : references : from : subject : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=Ztl14AJTYvveDaDR6ZiftOrjKUA7hkmEhMEo8dHwKaM=;
- b=iMBmtAL/lbbwUyF20nmzDN9A9ZeAO+tAsGxHpEmt4/sx61cSZZ8I63UvEBDxuKxfgzLw
- lcsIH8uXRRipHFxnBhuA+yOQon/80FZ9kvY8uu8xDNymGqqzv0Kc5WmkcTr20IHPYuVa
- sNsmI2bzPe+lZ7CRZJ1tOgCOf8FmOtKzrvI/2PF1+i2hfkAMHOmR7N5YX37r8/r7jsJz
- KVV9jmhDwjtE2LOwKxveZZP7eteyDFujKFf9vj/xzFFvyC+2Zupl+t1TqMkPZAupvA18
- iIaJWggHc4BcbFgFaAuKdpbD+fE+zPGw89z+n3Z934AZuujfKzHdFUjwXxYH2WVZfKWB Bw== 
+        with ESMTP id S229451AbjC2NwT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 29 Mar 2023 09:52:19 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4B15C4;
+        Wed, 29 Mar 2023 06:52:17 -0700 (PDT)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32TDmwsw014068;
+        Wed, 29 Mar 2023 13:52:17 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : content-transfer-encoding : mime-version; s=pp1;
+ bh=zwgwAGabZxOHhjihwDy6eqH9qBv7a2XT/ocgE64DQBY=;
+ b=W/tXtAUu4ZwmozDIqEDEEbiUuMFDs5NvitqSVBw8DsYWExwu2FDCXkUzFnZ4+Kv5pMKi
+ RhscO1gD2C5U6U1GMoDwVZC/q8cpYXyRUgiN3SEHslSs7bDKFFvb2SYGvMnCKF2WAJwO
+ s5yVUkwHiR3FarNkag4UPzuhS0mi4LO7JKg2chJSkDsVsDd7CXZtnMn0hNt/Rttrjdde
+ +vZKK604sxUJnS6oSY7tITru42CNjGmRLMaDrfg1CEA52wt6tfZgI3Y++OzhgItUK67Y
+ 9iZFKs1kkmQWhYCJOuZ5H5k+d2VYsHFTXdxHPZjbYMiIDp/1s88O/yqEwp2Wi1RhwBvW aw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pmp2x0p3v-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pmn2mb7vy-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 29 Mar 2023 13:42:43 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32TDcati025720;
-        Wed, 29 Mar 2023 13:42:43 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pmp2x0p32-1
+        Wed, 29 Mar 2023 13:52:16 +0000
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32TCrKtP012260;
+        Wed, 29 Mar 2023 13:52:16 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pmn2mb7va-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 29 Mar 2023 13:42:43 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32SLQc3G028881;
-        Wed, 29 Mar 2023 13:42:40 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3phr7fn1kw-1
+        Wed, 29 Mar 2023 13:52:16 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32SMhGAT010525;
+        Wed, 29 Mar 2023 13:52:14 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma03fra.de.ibm.com (PPS) with ESMTPS id 3phrk6m792-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 29 Mar 2023 13:42:40 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32TDgb9033948406
+        Wed, 29 Mar 2023 13:52:14 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32TDqBft43843928
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 29 Mar 2023 13:42:37 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 546A420043;
-        Wed, 29 Mar 2023 13:42:37 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 06CDF20040;
-        Wed, 29 Mar 2023 13:42:37 +0000 (GMT)
-Received: from [9.171.75.165] (unknown [9.171.75.165])
-        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 29 Mar 2023 13:42:36 +0000 (GMT)
-Message-ID: <0377f8c1-d5d7-04e4-8653-1289d190b955@linux.ibm.com>
-Date:   Wed, 29 Mar 2023 15:42:36 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.9.0
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Nico Boehr <nrb@linux.ibm.com>
-Cc:     thuth@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20230327082118.2177-1-nrb@linux.ibm.com>
- <20230327082118.2177-2-nrb@linux.ibm.com>
- <afcf5186-c3f2-d777-be5f-408318039f2d@linux.ibm.com>
- <168009425098.295696.4253423899606982653@t14-nrb>
- <20230329150032.7093e25b@p-imbrenda>
-Content-Language: en-US
+        Wed, 29 Mar 2023 13:52:11 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E7F3E2004B;
+        Wed, 29 Mar 2023 13:52:10 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6F38A20040;
+        Wed, 29 Mar 2023 13:52:10 +0000 (GMT)
+Received: from li-9fd7f64c-3205-11b2-a85c-df942b00d78d.ibm.com.com (unknown [9.171.75.165])
+        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 29 Mar 2023 13:52:10 +0000 (GMT)
 From:   Janosch Frank <frankja@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v1 1/4] s390x: sie: switch to home space
- mode before entering SIE
-In-Reply-To: <20230329150032.7093e25b@p-imbrenda>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+To:     pbonzini@redhat.com
+Cc:     kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com,
+        borntraeger@linux.ibm.com, cohuck@redhat.com,
+        linux-s390@vger.kernel.org, imbrenda@linux.ibm.com
+Subject: [GIT PULL 0/1] kvm/s390: Fixes for 6.3
+Date:   Wed, 29 Mar 2023 15:51:28 +0200
+Message-Id: <20230329135129.77385-1-frankja@linux.ibm.com>
+X-Mailer: git-send-email 2.39.2
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: bvmULx-YUqd-Wny9Gh3JYyGVcnPl2rFY
-X-Proofpoint-GUID: ogniCBBqj1rJaW38ysSsfYM1Z7SbuNzD
+X-Proofpoint-ORIG-GUID: -Gj4nRQHCFK-RiLN0giiK1hAGs1sRRAY
+X-Proofpoint-GUID: Vyoodi4xnUas9BYioLv84n7riRR5W7OJ
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-03-29_06,2023-03-28_02,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
- priorityscore=1501 malwarescore=0 suspectscore=0 mlxlogscore=999
- spamscore=0 lowpriorityscore=0 impostorscore=0 clxscore=1015 mlxscore=0
- adultscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ definitions=2023-03-29_07,2023-03-28_02,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
+ clxscore=1015 spamscore=0 malwarescore=0 priorityscore=1501
+ impostorscore=0 adultscore=0 mlxlogscore=729 phishscore=0 suspectscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2303200000 definitions=main-2303290107
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 3/29/23 15:00, Claudio Imbrenda wrote:
-> On Wed, 29 Mar 2023 14:50:50 +0200
-> Nico Boehr <nrb@linux.ibm.com> wrote:
-> 
->> Quoting Janosch Frank (2023-03-28 16:13:04)
->>> On 3/27/23 10:21, Nico Boehr wrote:
->>>> This is to prepare for running guests without MSO/MSL, which is
->>>> currently not possible.
->>>>
->>>> We already have code in sie64a to setup a guest primary ASCE before
->>>> entering SIE, so we can in theory switch to the page tables which
->>>> translate gpa to hpa.
->>>>
->>>> But the host is running in primary space mode already, so changing the
->>>> primary ASCE before entering SIE will also affect the host's code and
->>>> data.
->>>>
->>>> To make this switch useful, the host should run in a different address
->>>> space mode. Hence, set up and change to home address space mode before
->>>> installing the guest ASCE.
->>>>
->>>> The home space ASCE is just copied over from the primary space ASCE, so
->>>> no functional change is intended, also for tests that want to use
->>>> MSO/MSL. If a test intends to use a different primary space ASCE, it can
->>>> now just set the guest.asce in the save_area.
->>>>    
->>> [...]
->>>> +     /* set up home address space to match primary space */
->>>> +     old_cr13 = stctg(13);
->>>> +     lctlg(13, stctg(1));
->>>> +
->>>> +     /* switch to home space so guest tables can be different from host */
->>>> +     psw_mask_set_bits(PSW_MASK_HOME);
->>>> +
->>>> +     /* also handle all interruptions in home space while in SIE */
->>>> +     lowcore.pgm_new_psw.mask |= PSW_MASK_DAT_HOME;
->>>    
->>>> +     lowcore.ext_new_psw.mask |= PSW_MASK_DAT_HOME;
->>>> +     lowcore.io_new_psw.mask |= PSW_MASK_DAT_HOME;
->>> We didn't enable DAT in these two cases as far as I can see so this is
->>> superfluous or we should change the mmu code. Also it's missing the svc
->>> and machine check.
->>
->> Right. Is there a particular reason why we only run DAT on for PGM ints?
-> 
-> a fixup handler for PGM it might need to run with DAT on (e.g. to
-> access data that is not identity mapped), whereas for other interrupts
-> it's not needed (at least not yet ;) )
+Dear Paolo,
 
-At the time where the mmu code was written, the other handlers were very 
-basic or a direct abort (like the IO IRQ that was introduced by Pierre). 
-But I'd rather have them all behave the same so they are at least 
-consistent.
+currently we only have one fix patch to offer which repairs the
+external loop detection code for PV guests.
 
-If we don't introduce a location where we load the PSW from, then add a 
-function that sets the masks for all IRQs and also convert the mmu 
-enablement to use it.
+Please pull,
+Janosch
 
-Something to the likes of:
+The following changes since commit 197b6b60ae7bc51dd0814953c562833143b292aa:
 
-void irq_new_set_mask(bool dat, uint8_t as)
-{
-	loop over psws {
-		- Remove dat and as bits from new PSW
-		- Or in the new dat + as bits
-	}
-}
+  Linux 6.3-rc4 (2023-03-26 14:40:20 -0700)
+
+are available in the Git repository at:
+
+  https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/kvm-s390-master-6.3-1
+
+for you to fetch changes up to 21f27df854008b86349a203bf97fef79bb11f53e:
+
+  KVM: s390: pv: fix external interruption loop not always detected (2023-03-28 07:16:37 +0000)
+
+Nico Boehr (1):
+      KVM: s390: pv: fix external interruption loop not always detected
+
+ arch/s390/kvm/intercept.c | 32 ++++++++++++++++++++++++--------
+ 1 file changed, 24 insertions(+), 8 deletions(-)
+-- 
+2.39.2
+
