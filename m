@@ -2,151 +2,155 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 55F15C761AF
-	for <linux-s390@archiver.kernel.org>; Wed, 29 Mar 2023 14:59:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 71686C6FD18
+	for <linux-s390@archiver.kernel.org>; Wed, 29 Mar 2023 15:50:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230325AbjC2O7C (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 29 Mar 2023 10:59:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45578 "EHLO
+        id S229882AbjC2Pui (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 29 Mar 2023 11:50:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230330AbjC2O7B (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 29 Mar 2023 10:59:01 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FC862113;
-        Wed, 29 Mar 2023 07:59:00 -0700 (PDT)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32TDRGcJ031647;
-        Wed, 29 Mar 2023 14:59:00 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
- mime-version : content-transfer-encoding : in-reply-to : references : cc :
- subject : from : to : message-id : date; s=pp1;
- bh=2jrWUF/UKWVjUdnSzdYgtrwWLE6Bb+W9Socvg4XKr/Q=;
- b=QjEpnOzB+WeBg6rqAs5VzR2cy5hlpUxrpkhtjANtsoBJDCPVFHRWtVShYxPPjNL+Dtab
- lBzkgXjF/twB7towFRqnTF75yoRsTudROCsD5Q16dFePQaCCFohHdwM/mP48cIhlxCds
- iaCvoJZYrdnC+Gn/U7Y3Qf3O9re6fULTFzV5SyCYjq6ic0lOZiEoTxKUWzEoRhHFLiI7
- BNbzpb7TTzlXu6ZaJrhkEQBaJXyXqF3gUjwp7y7F2QbAKK96yMCcuaWaOcremlInunv0
- R1QEbgSd7ZMF1AgO3zwaDuWIANrmtScLji80C3BWptrBjComa39WklQFBx/maBaIPGCZ nw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pmp7j2j7m-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 29 Mar 2023 14:58:59 +0000
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32TEFmMS015305;
-        Wed, 29 Mar 2023 14:58:59 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pmp7j2j6r-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 29 Mar 2023 14:58:59 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32T0pgNA017053;
-        Wed, 29 Mar 2023 14:58:56 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-        by ppma03fra.de.ibm.com (PPS) with ESMTPS id 3phrk6m8eb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 29 Mar 2023 14:58:56 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32TEwrxr21168728
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 29 Mar 2023 14:58:53 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0B2F620043;
-        Wed, 29 Mar 2023 14:58:53 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CEF9F20040;
-        Wed, 29 Mar 2023 14:58:52 +0000 (GMT)
-Received: from t14-nrb (unknown [9.171.2.202])
-        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 29 Mar 2023 14:58:52 +0000 (GMT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S230325AbjC2Pu3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 29 Mar 2023 11:50:29 -0400
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2067.outbound.protection.outlook.com [40.107.223.67])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA6285588;
+        Wed, 29 Mar 2023 08:50:22 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=V6t9uA/MNn4SiiBX6L1M/0EthIDkzhyRFeYiHy/srnTTIKo2H/x3391Wq3sQ0uTjtzprlTUJBOSOzdNbgrYci8z97MC9wZDOq6PCXCC8Yekg31KUhlex5QKPIp8jAti4Naudgc5lPqXfv/J7XkLEvObkt9eFK8/Y84PDnMcEP+PCY2xFJGOUFxq7CcaFj4kJy2pKc4/buHbGr2I4oU/xTvOX8m2bLL44BG6i3r4WlkO6I7crH3u7COXmiCU3LOBGISt+FwVVXanliCgt4DrAqNKWoQRr2Y6CnrmYJIfzZI6mAqr1yw4lBRBRMt5KDTexkmyiCanU88KbzCaw5Db5uA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=nPOLYbEqcYDsEOTSRJtYfUZlmjD1Sb3sZ4dnIovUxno=;
+ b=HiOP+IbCNmlS8SO/ES2r0BxZwjtMTxw4CuD5HryXhpiclOEAMRcvUEuLP1jWI1dY1uMkEig+t4/l11t+FnG2Yas3AXtOaG73AjssUQh7thjwJ2IqfbtabR6kcsyhMMa/NQmLnXy+MX94CocbvnyxgPkX9tJL/ue4c7tnYH4vtfLv1mUMTmRQrT7Vjxnk7XUtmZ0UNF/DBvRskYK4E8iEg+RmevZAMGm3v0+pNLbO/EiecFmHN12awhkef0XPWT8B0gb0/tdDj3IDwCVvVspPDRq+4btwRsvOz9YjmnvQe21xHcJ6pPl6j41dPNt9TKnQiSfjr2YqLHntibdNmvMxnQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=nPOLYbEqcYDsEOTSRJtYfUZlmjD1Sb3sZ4dnIovUxno=;
+ b=sadJg+dhCFlPEKQsc2oM4yULSPTy2N6Z95Zj5aLw7h8cgwTtUJyrhC9zRHZR0FSj2+6c9P5yhxjRX8Yx4moKoSzCoFCTgns+m91IknlcXl9SLBo1CfCDalriP+arvEcbug1IMkCoIeYW1vWEDDuasMg30AvDBV6sEOGABmSD/OoJCT4wy2XpNLn5JuPfC/H8g/iaxsxpGtYXBX+9I3zZoEIq/DOxciWucw1OMxr/eJFAWP/x6ukmVse0SQhf7vFq4j1xbB68lpOZw832aUOxl/gHIqxG9/VOkLj/r3o3UFmAAzsJv3/ySPiLfWmmZ9tIQeTqCx8ARrgLJ7rOrXuswg==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by DM6PR12MB4433.namprd12.prod.outlook.com (2603:10b6:5:2a1::20) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6222.35; Wed, 29 Mar
+ 2023 15:50:21 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::ef6d:fdf6:352f:efd1]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::ef6d:fdf6:352f:efd1%3]) with mapi id 15.20.6178.037; Wed, 29 Mar 2023
+ 15:50:21 +0000
+Date:   Wed, 29 Mar 2023 12:50:17 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     "Tian, Kevin" <kevin.tian@intel.com>
+Cc:     "Liu, Yi L" <yi.l.liu@intel.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        "joro@8bytes.org" <joro@8bytes.org>,
+        "robin.murphy@arm.com" <robin.murphy@arm.com>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "eric.auger@redhat.com" <eric.auger@redhat.com>,
+        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
+        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
+        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
+        "peterx@redhat.com" <peterx@redhat.com>,
+        "jasowang@redhat.com" <jasowang@redhat.com>,
+        "shameerali.kolothum.thodi@huawei.com" 
+        <shameerali.kolothum.thodi@huawei.com>,
+        "lulu@redhat.com" <lulu@redhat.com>,
+        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
+        "intel-gvt-dev@lists.freedesktop.org" 
+        <intel-gvt-dev@lists.freedesktop.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "Hao, Xudong" <xudong.hao@intel.com>,
+        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
+        "Xu, Terrence" <terrence.xu@intel.com>,
+        "Jiang, Yanting" <yanting.jiang@intel.com>
+Subject: Re: [PATCH v2 10/10] vfio/pci: Add
+ VFIO_DEVICE_GET_PCI_HOT_RESET_GROUP_INFO
+Message-ID: <ZCReOXsLsuS/J8TC@nvidia.com>
+References: <BL1PR11MB52717FB9E6D5C10BF4B7DA0A8C889@BL1PR11MB5271.namprd11.prod.outlook.com>
+ <20230328082536.5400da67.alex.williamson@redhat.com>
+ <DS0PR11MB7529B6782565BE8489D922F9C3889@DS0PR11MB7529.namprd11.prod.outlook.com>
+ <20230328084616.3361a293.alex.williamson@redhat.com>
+ <DS0PR11MB75290B84D334FC726A8BBA95C3889@DS0PR11MB7529.namprd11.prod.outlook.com>
+ <20230328091801.13de042a.alex.williamson@redhat.com>
+ <DS0PR11MB752903CE3D5906FE21146364C3889@DS0PR11MB7529.namprd11.prod.outlook.com>
+ <20230328100027.3b843b91.alex.williamson@redhat.com>
+ <DS0PR11MB7529C12E086DAB619FF9AFF0C3899@DS0PR11MB7529.namprd11.prod.outlook.com>
+ <BN9PR11MB52762E789B9C1D8021F54ECC8C899@BN9PR11MB5276.namprd11.prod.outlook.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <BN9PR11MB52762E789B9C1D8021F54ECC8C899@BN9PR11MB5276.namprd11.prod.outlook.com>
+X-ClientProxiedBy: SJ0P220CA0017.NAMP220.PROD.OUTLOOK.COM
+ (2603:10b6:a03:41b::27) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20230329150032.7093e25b@p-imbrenda>
-References: <20230327082118.2177-1-nrb@linux.ibm.com> <20230327082118.2177-2-nrb@linux.ibm.com> <afcf5186-c3f2-d777-be5f-408318039f2d@linux.ibm.com> <168009425098.295696.4253423899606982653@t14-nrb> <20230329150032.7093e25b@p-imbrenda>
-Cc:     Janosch Frank <frankja@linux.ibm.com>, thuth@redhat.com,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [kvm-unit-tests PATCH v1 1/4] s390x: sie: switch to home space mode before entering SIE
-From:   Nico Boehr <nrb@linux.ibm.com>
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
-Message-ID: <168010193252.295696.17762897869912282460@t14-nrb>
-User-Agent: alot/0.8.1
-Date:   Wed, 29 Mar 2023 16:58:52 +0200
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: dVMQ4NuvmbhZ4HjltXjmsYCzbX1ICYyD
-X-Proofpoint-GUID: Q92Wlg2a3KrjHAXkkt5D5EnieAYM0EYI
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-03-29_08,2023-03-28_02,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 spamscore=0
- priorityscore=1501 phishscore=0 lowpriorityscore=0 adultscore=0
- suspectscore=0 impostorscore=0 mlxlogscore=999 bulkscore=0 malwarescore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2303200000 definitions=main-2303290116
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|DM6PR12MB4433:EE_
+X-MS-Office365-Filtering-Correlation-Id: a5e294c9-7686-45e6-6f5b-08db306d4d1b
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: Alv3mWsTeVDK/GwdsQQKl+/lDloat07TWcp5obHTOdmb9ixefXvTXZQ73ew7av1sJUNtCalmAUzVDd2XyFOoExXx4xa4yqs6HUCcxhXQFt6dURIEb7MFsHEqlNFYEvtYRJQaelbiDWkm6Xi5xbQk92Ginbqhq4C1Jcar0AciodK98ODkkf9CFj5qdct4HAET6wYo6ZcxvgBwbjK0aJILyjIgHuN5pNpr0ylMmFSdeqZIxwOSYg5dlaGdDGY+RJiq7xwhk0mXUhT5cZi8ke81/90/kIprtd+IE0cahCiW6xHfvERA2zyObUkVB/yv9deXuNNIeml8pco8miVda2BzZNR7+Mpw+QbMz1HRBs5WudmGiAiAuV3uFQQatr6MOQbDE20m2uHWQqvqpv0GFFpWzuKFjHHEP4Cb0gd04b4rDiNDYCgR5ttLw/eb1SUJE+L+G5Yiz5/SM3LdYgLDfY2QbFKlBb9lfQIxmFeKUT1nQaT0rTrq2R7SQVLSLkpbDKZmm0qxaQq4VpPFehqpgDtVgznbVqfQui2VYlbtNkpBv6Y7PDg31rJrKVnBwhvOwfpI
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(136003)(39860400002)(366004)(346002)(376002)(396003)(451199021)(26005)(6666004)(38100700002)(6486002)(478600001)(2616005)(186003)(4744005)(8936002)(2906002)(5660300002)(6506007)(7416002)(36756003)(54906003)(316002)(41300700001)(6512007)(4326008)(6916009)(86362001)(66476007)(66946007)(8676002)(66556008);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?hgJLnwuCi3cbm9qf4Tif6dMaC/YcW5NdVfUdi28vQBw+tSRPwUzmPwOaIU8E?=
+ =?us-ascii?Q?NZnVfJXZjYKd+MWqvMhleUkDa7nCgHVtw3pIzlvWDPeytxK1QLMKRveK5DYi?=
+ =?us-ascii?Q?Qz2NxGkXgarfLtWyt7U9gc+d+oYOh+qw7TjXj6JpZVqX86YRvbNEIYQP4raq?=
+ =?us-ascii?Q?x/0OIHCLTMw7LwChjQ6qIsTKea74rt/CbiClzF38XqHRIwYfmNR7m3QUDwFw?=
+ =?us-ascii?Q?R5onLZbmGYQGgBpW46PzJfJt4zdIQb9UYv7LA9AqwUE7CxbRlKE/zcze/RLF?=
+ =?us-ascii?Q?FPHmcYyncnooHtd794pqRw/VCjeWQ+OQwAUe1EWzQvFb/vM/uGZv75w2St0W?=
+ =?us-ascii?Q?Xy3sjmXIQWY+jzKxRKLStPkGnEYBnN+J3lnr7blOU+WYy0PXBe94TgKVVC4z?=
+ =?us-ascii?Q?k0KMTluflQccH5j4a1MMsMY85fNgoMuH2Tmiv6F3DQCTVo6T8UtWlqMBtOgL?=
+ =?us-ascii?Q?mM7ias9blYYl99YcDpRdZLlHs0DZtl0jeX+6I9bnVqXMPajm5OTp41/cK0+2?=
+ =?us-ascii?Q?kP9Mtp7fni8LFpI2LbMZtxOUMyzneLBUWkunXae+IiaJew5jj8V1z3LyaqS/?=
+ =?us-ascii?Q?u8ub//LY/GBaFPaSjMhuu9anCtHOdHYIC7pO9JwutnL5mspf3qNGtfzOcS66?=
+ =?us-ascii?Q?788gdirGKotB3q1/C19l028sYzR4MYQgo6Eznj3ULeAzoUEKEGlkjCjcX7E2?=
+ =?us-ascii?Q?M2pZKGlZ0SX/nwPR30QKZSBo5zJEn5jyJIOtXo/hm5EFZHnxirctRRc1ai6P?=
+ =?us-ascii?Q?94F70XjtZzJXsZkR5oWT5j+iORYR1cFs9nhoo928hL4KSg9ksvUA8WzZwev1?=
+ =?us-ascii?Q?Ay1xraGAbXdUL65GubwLVJ1cWfawWCw8bFdxnYnowbbj6USFd9NSSe/B/YT4?=
+ =?us-ascii?Q?9U7YOLL71C+kzlNy5V9j82God496bTIWLu4A1h8Ec+cDruBIu1KqNyYjZDMx?=
+ =?us-ascii?Q?EG6q+PUDtyrQSq65uTzDjBZH3Zkyh9fr5ktnu+bAbKtb9MvxSr7Xi+sd7dKA?=
+ =?us-ascii?Q?XKjrC1ljAbACRoKq4aeOgHCpwLtZadyotMGxAi0nLRQYmIKagyS9A0XiDmPR?=
+ =?us-ascii?Q?b4ugL64A3EKuK7rfyv7ViKEQXTtlv/QZ8oUPImCV90sJiyKuWYMjowHIWCN2?=
+ =?us-ascii?Q?yWV8mhAlVe4EEz3t0PFVGlWTACuH5q1PpJG+IOAxFrjk6iQqXxpVpNzbBnyp?=
+ =?us-ascii?Q?kfneiWWlUdfIoQwTPV8cntMKABdTc1lpq3zrkkJbX7jQlCLmNzd8E1RwwCQB?=
+ =?us-ascii?Q?Ihx/UmhJAODoXW/tdPiBIiAf0IbLIdmAGMN5YwdGd+w8cGdqYzKYTNnfvDpW?=
+ =?us-ascii?Q?zdU0jWpATCV4WmzMH9YPxAc5Dcza/qm129o/9nidFgZW7Uc7pm0tsDpl0Ptm?=
+ =?us-ascii?Q?ZW/YLIuPSGEvQzm33Fz1pVyMqslafvLTGT0mzL5AE8LoAMqsw4eD2+dpFRoA?=
+ =?us-ascii?Q?h9dXDFZg37O2RWJoC9d+Yjy7Q/90jBhqvDW+FrwTrVTzsDtvFaXcFiEYlBN5?=
+ =?us-ascii?Q?Dc/t3s2jg/mlqC2G2n9UZc70WjNXxPjLVzH392y1FB3Vcyd+B69s0KNKcEWV?=
+ =?us-ascii?Q?4dPLH8LcW7eWf35L/urUDpR82LYnKhm90vofyTcW?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: a5e294c9-7686-45e6-6f5b-08db306d4d1b
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Mar 2023 15:50:20.8456
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: QUuPcfGBZlU9Fl+m3m7rrDK6r1hu05chkj7O3jMHKIhp3smm4Fna8b94Um/27Jpv
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4433
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Quoting Claudio Imbrenda (2023-03-29 15:00:32)
-> On Wed, 29 Mar 2023 14:50:50 +0200
-> Nico Boehr <nrb@linux.ibm.com> wrote:
->=20
-> > Quoting Janosch Frank (2023-03-28 16:13:04)
-> > > On 3/27/23 10:21, Nico Boehr wrote: =20
-> > > > This is to prepare for running guests without MSO/MSL, which is
-> > > > currently not possible.
-> > > >=20
-> > > > We already have code in sie64a to setup a guest primary ASCE before
-> > > > entering SIE, so we can in theory switch to the page tables which
-> > > > translate gpa to hpa.
-> > > >=20
-> > > > But the host is running in primary space mode already, so changing =
-the
-> > > > primary ASCE before entering SIE will also affect the host's code a=
-nd
-> > > > data.
-> > > >=20
-> > > > To make this switch useful, the host should run in a different addr=
-ess
-> > > > space mode. Hence, set up and change to home address space mode bef=
-ore
-> > > > installing the guest ASCE.
-> > > >=20
-> > > > The home space ASCE is just copied over from the primary space ASCE=
-, so
-> > > > no functional change is intended, also for tests that want to use
-> > > > MSO/MSL. If a test intends to use a different primary space ASCE, i=
-t can
-> > > > now just set the guest.asce in the save_area.
-> > > >  =20
-> > > [...] =20
-> > > > +     /* set up home address space to match primary space */
-> > > > +     old_cr13 =3D stctg(13);
-> > > > +     lctlg(13, stctg(1));
-> > > > +
-> > > > +     /* switch to home space so guest tables can be different from=
- host */
-> > > > +     psw_mask_set_bits(PSW_MASK_HOME);
-> > > > +
-> > > > +     /* also handle all interruptions in home space while in SIE */
-> > > > +     lowcore.pgm_new_psw.mask |=3D PSW_MASK_DAT_HOME; =20
-> > >  =20
-> > > > +     lowcore.ext_new_psw.mask |=3D PSW_MASK_DAT_HOME;
-> > > > +     lowcore.io_new_psw.mask |=3D PSW_MASK_DAT_HOME; =20
-> > > We didn't enable DAT in these two cases as far as I can see so this i=
-s=20
-> > > superfluous or we should change the mmu code. Also it's missing the s=
-vc=20
-> > > and machine check. =20
-> >=20
-> > Right. Is there a particular reason why we only run DAT on for PGM ints?
->=20
-> a fixup handler for PGM it might need to run with DAT on (e.g. to
-> access data that is not identity mapped), whereas for other interrupts
-> it's not needed (at least not yet ;) )
+On Wed, Mar 29, 2023 at 09:41:26AM +0000, Tian, Kevin wrote:
 
-Makes sense.
+> We could extend bind_iommufd to return the group id or introduce a
+> new ioctl to query it per dev_id.
 
-Since one can register a cleanup for io and ext, too, I think we need to fi=
-x the
-mmu init for these cases while at it.
+> Once that is in place looks we don't need a new _INFO ioctl?
 
-Will do that in v2.
+The iommu_group and the reset group are different things
+
+The issue is processing the BDF strings, not the group ID.
+
+Probably we should have some way for iommufd to report the group_id
+from the dev_id?
+
+Jason
