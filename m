@@ -2,155 +2,123 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D4E60C6FD1D
-	for <linux-s390@archiver.kernel.org>; Thu, 30 Mar 2023 17:48:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CC716C761A6
+	for <linux-s390@archiver.kernel.org>; Thu, 30 Mar 2023 19:22:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232101AbjC3RsV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 30 Mar 2023 13:48:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54316 "EHLO
+        id S229902AbjC3TWu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 30 Mar 2023 15:22:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232624AbjC3RsN (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 30 Mar 2023 13:48:13 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46F9DCDDB;
-        Thu, 30 Mar 2023 10:48:11 -0700 (PDT)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32UGvRH7019394;
-        Thu, 30 Mar 2023 17:48:09 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=O3nu5QSqaF77wKli6710sNiy2Y35JQlExuqZ0f1uD+Q=;
- b=ojL6RorF2qWFcYPzAQWYMjKBsYakR6SGMaMFRPVfe4+jYhTp9+hKk0yIFNrEfa8HAJ1C
- yewzpb8wiWds4YqlhHZafU4Rr/DYdfMLWaY1rSAcoO2dQ9psEVr4d2tq+4jpK1XV3jA0
- 9DjteRx9LwxHv/qw/OOXY9jI6VugGZhsZ2g2xbA31rWnH+/7NiY67OI2MYNOfKK8Gquc
- 0I9l3G2KWhIoYJwf63rPn56YRTKTh4ie+f96Co8yi/r/dSAJ0pXDg4e6UeSxai7M3jAL
- roJoCW+tz3YBbF/24MyK0cuID4XyyBiQ+aSIAbxCUrjThyRTwqyU5iuQyTzQopCYSq0k sw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pnb4qfu16-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 30 Mar 2023 17:48:08 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32UHm8XQ024827;
-        Thu, 30 Mar 2023 17:48:08 GMT
-Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pnb4qfu0t-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 30 Mar 2023 17:48:08 +0000
-Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
-        by ppma04dal.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32UHVFn4019636;
-        Thu, 30 Mar 2023 17:48:07 GMT
-Received: from smtprelay07.dal12v.mail.ibm.com ([9.208.130.99])
-        by ppma04dal.us.ibm.com (PPS) with ESMTPS id 3phrk848t7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 30 Mar 2023 17:48:07 +0000
-Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
-        by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32UHm6bd37617992
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 30 Mar 2023 17:48:06 GMT
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DC3A258045;
-        Thu, 30 Mar 2023 17:48:05 +0000 (GMT)
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9E45958054;
-        Thu, 30 Mar 2023 17:48:04 +0000 (GMT)
-Received: from li-479af74c-31f9-11b2-a85c-e4ddee11713b.ibm.com (unknown [9.160.65.50])
-        by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Thu, 30 Mar 2023 17:48:04 +0000 (GMT)
-Message-ID: <9dea1ac2f7624b74050b125bcab01272ea7bbd4e.camel@linux.ibm.com>
-Subject: Re: [PATCH v4] virtio: add VIRTIO_F_NOTIFICATION_DATA feature
- support
-From:   Eric Farman <farman@linux.ibm.com>
-To:     Cornelia Huck <cohuck@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Viktor Prutyanov <viktor@daynix.com>
-Cc:     jasowang@redhat.com, pasic@linux.ibm.com,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        linux-kernel@vger.kernel.org, yan@daynix.com
-Date:   Thu, 30 Mar 2023 13:48:04 -0400
-In-Reply-To: <87mt44hh5f.fsf@redhat.com>
-References: <20230322141031.2211141-1-viktor@daynix.com>
-         <20230322123121-mutt-send-email-mst@kernel.org> <87mt44hh5f.fsf@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.46.4 (3.46.4-1.fc37) 
+        with ESMTP id S230385AbjC3TWm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 30 Mar 2023 15:22:42 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AEFCE1A4
+        for <linux-s390@vger.kernel.org>; Thu, 30 Mar 2023 12:21:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1680204110;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=sqnQEZxaWao68chgcCo4orFozBmRoRDCr3XacwFOlaI=;
+        b=XIbS3wOVZ67d6OiZdskTHt6GgJAFaErM9YBFoYy4R2AovHqCGorTznOL8cBTFDm9l9KK5T
+        OcLMLudyrFyOKIjUhAu+9Jj4FECfESSPYi26yvGq+DiU9vf1k9+O9jdimsse+zS+YCqbQ3
+        dIEkEKSiUd1bARK5NjO/jb4N8nJHKvI=
+Received: from mail-io1-f70.google.com (mail-io1-f70.google.com
+ [209.85.166.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-80-QIlnw_oENrC8OhvA3yvx4g-1; Thu, 30 Mar 2023 15:21:46 -0400
+X-MC-Unique: QIlnw_oENrC8OhvA3yvx4g-1
+Received: by mail-io1-f70.google.com with SMTP id j4-20020a6b5504000000b00758646159fbso12198591iob.20
+        for <linux-s390@vger.kernel.org>; Thu, 30 Mar 2023 12:21:46 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1680204106;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=sqnQEZxaWao68chgcCo4orFozBmRoRDCr3XacwFOlaI=;
+        b=wX9GmmuTVJG6VjqavUU2Xm/XJ2smjkPw5QiiLH5ChDJdtBtBZ1l41nyoqXqi1wNLxw
+         DbCp39NAIYV0ObE/7+dIXDuG7p5tuYNCV7wOzkXpAX8pkJSjGuAAmjOmNpjdCYTbEWgM
+         jCNDOWZKBdkx9dJXUPguptrElGvw1JlSeuOGn8EgIOY/mZ6lKx2EgSgN5G8EsI6vvQP5
+         uTv2L8Mr+R8uGuJyhOZmKHpGLX/Pm7jbpNTGDnZNYChnDOooyJd3y88vQtO/u8voTamk
+         6tbenzCHleyPmW3zXRYa2IQ0PQquIrf1ml2FNiMN3yYL1tcet01cFK7f/VOEdeTFDDvX
+         7cEg==
+X-Gm-Message-State: AO0yUKXpe2vShF2u/b85Zo4Jl5e3yuZwzFfUcnwmjOc53akVcwylwPOZ
+        R95qgQvUCyBEOSXB9dSPWx6NmZMJ0a1MjVSy2hxCu5jwZTMOnvN/H4g6kXwIuc2/SdlChuyk0dV
+        l/KgwMvE+Dt5MIsToITZEeQ==
+X-Received: by 2002:a05:6602:20da:b0:74c:aa1d:c1a1 with SMTP id 26-20020a05660220da00b0074caa1dc1a1mr17687523ioz.3.1680204105938;
+        Thu, 30 Mar 2023 12:21:45 -0700 (PDT)
+X-Google-Smtp-Source: AK7set+mNeudR7e8tOPV/GXrIldwy7od5clU9Br4psJl/Z0Ulm5W6yZvi903JIlNz219vg0XihaniQ==
+X-Received: by 2002:a05:6602:20da:b0:74c:aa1d:c1a1 with SMTP id 26-20020a05660220da00b0074caa1dc1a1mr17687509ioz.3.1680204105715;
+        Thu, 30 Mar 2023 12:21:45 -0700 (PDT)
+Received: from redhat.com ([38.15.36.239])
+        by smtp.gmail.com with ESMTPSA id cp7-20020a056638480700b00403089c2a1dsm104349jab.108.2023.03.30.12.21.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 30 Mar 2023 12:21:45 -0700 (PDT)
+Date:   Thu, 30 Mar 2023 13:21:43 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Yi Liu <yi.l.liu@intel.com>, kevin.tian@intel.com, joro@8bytes.org,
+        robin.murphy@arm.com, cohuck@redhat.com, eric.auger@redhat.com,
+        nicolinc@nvidia.com, kvm@vger.kernel.org, mjrosato@linux.ibm.com,
+        chao.p.peng@linux.intel.com, yi.y.sun@linux.intel.com,
+        peterx@redhat.com, jasowang@redhat.com,
+        shameerali.kolothum.thodi@huawei.com, lulu@redhat.com,
+        suravee.suthikulpanit@amd.com, intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, linux-s390@vger.kernel.org,
+        xudong.hao@intel.com, yan.y.zhao@intel.com, terrence.xu@intel.com,
+        yanting.jiang@intel.com
+Subject: Re: [PATCH v3 0/6] vfio: Make emulated devices prepared for vfio
+ device cdev
+Message-ID: <20230330132143.0c33f4d3.alex.williamson@redhat.com>
+In-Reply-To: <ZCSV2+LbgeWD2bPa@nvidia.com>
+References: <20230327093351.44505-1-yi.l.liu@intel.com>
+        <ZCSV2+LbgeWD2bPa@nvidia.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: SeKp13MPISU9O7gIcb_u4yNu6n-p_0z3
-X-Proofpoint-ORIG-GUID: Jf2vnugQu5MVEljoStyH1BbNW2cdg9KH
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-03-30_10,2023-03-30_03,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
- lowpriorityscore=0 bulkscore=0 mlxlogscore=999 adultscore=0 malwarescore=0
- suspectscore=0 priorityscore=1501 clxscore=1011 mlxscore=0 spamscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2303200000 definitions=main-2303300139
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 2023-03-22 at 17:42 +0100, Cornelia Huck wrote:
-> On Wed, Mar 22 2023, "Michael S. Tsirkin" <mst@redhat.com> wrote:
->=20
-> > On Wed, Mar 22, 2023 at 05:10:31PM +0300, Viktor Prutyanov wrote:
-> > > According to VirtIO spec v1.2, VIRTIO_F_NOTIFICATION_DATA feature
-> > > indicates that the driver passes extra data along with the queue
-> > > notifications.
-> > >=20
-> > > In a split queue case, the extra data is 16-bit available index.
-> > > In a
-> > > packed queue case, the extra data is 1-bit wrap counter and 15-
-> > > bit
-> > > available index.
-> > >=20
-> > > Add support for this feature for MMIO, channel I/O and modern PCI
-> > > transports.
-> > >=20
-> > > Signed-off-by: Viktor Prutyanov <viktor@daynix.com>
-> > > ---
-> > > =C2=A0v4: remove VP_NOTIFY macro and legacy PCI support, add
-> > > =C2=A0=C2=A0=C2=A0 virtio_ccw_kvm_notify_with_data to virtio_ccw
-> > > =C2=A0v3: support feature in virtio_ccw, remove VM_NOTIFY, use
-> > > avail_idx_shadow,
-> > > =C2=A0=C2=A0=C2=A0 remove byte swap, rename to vring_notification_dat=
-a
-> > > =C2=A0v2: reject the feature in virtio_ccw, replace __le32 with u32
-> > >=20
-> > > =C2=A0Tested with disabled VIRTIO_F_NOTIFICATION_DATA on qemu-system-
-> > > s390x
-> > > =C2=A0(virtio-blk-ccw), qemu-system-riscv64 (virtio-blk-device,
-> > > =C2=A0virtio-rng-device), qemu-system-x86_64 (virtio-blk-pci, virtio-
-> > > net-pci)
-> > > =C2=A0to make sure nothing is broken.
-> > > =C2=A0Tested with enabled VIRTIO_F_NOTIFICATION_DATA on 64-bit RISC-V
-> > > Linux
-> > > =C2=A0and my hardware implementation of virtio-rng.
-> >=20
-> > what did you test? virtio pci? mmio? guessing not ccw...
-> >=20
-> > Cornelia could you hack up something to quickly test ccw?
->=20
-> Hm, I'm not entirely sure how notification data is supposed to be
-> used
-> in real life -- Viktor, what is your virtio-rng implementation doing;
-> can this be hacked into all transports?
->=20
-> (Also, if the other ccw folks have something handy, please speak up
-> :)
->=20
+On Wed, 29 Mar 2023 16:47:39 -0300
+Jason Gunthorpe <jgg@nvidia.com> wrote:
 
-(Sorry for delay, caught the illness going through our house before I
-had a chance to look at this.)
+> On Mon, Mar 27, 2023 at 02:33:45AM -0700, Yi Liu wrote:
+> > Nicolin Chen (1):
+> >   iommufd: Create access in vfio_iommufd_emulated_bind()
+> > 
+> > Yi Liu (5):
+> >   iommu/iommufd: Pass iommufd_ctx pointer in iommufd_get_ioas()
+> >   vfio-iommufd: No need to record iommufd_ctx in vfio_device
+> >   vfio-iommufd: Make vfio_iommufd_emulated_bind() return iommufd_access
+> >     ID
+> >   vfio/mdev: Uses the vfio emulated iommufd ops set in the mdev sample
+> >     drivers
+> >   vfio: Check the presence for iommufd callbacks in
+> >     __vfio_register_dev()
+> > 
+> >  drivers/iommu/iommufd/device.c          | 55 +++++++++++++++----------
+> >  drivers/iommu/iommufd/ioas.c            | 14 +++----
+> >  drivers/iommu/iommufd/iommufd_private.h |  4 +-
+> >  drivers/iommu/iommufd/selftest.c        | 14 ++++---
+> >  drivers/iommu/iommufd/vfio_compat.c     |  2 +-
+> >  drivers/vfio/iommufd.c                  | 37 ++++++++---------
+> >  drivers/vfio/vfio_main.c                |  5 ++-
+> >  include/linux/iommufd.h                 |  5 ++-
+> >  include/linux/vfio.h                    |  1 -
+> >  samples/vfio-mdev/mbochs.c              |  3 ++
+> >  samples/vfio-mdev/mdpy.c                |  3 ++
+> >  samples/vfio-mdev/mtty.c                |  3 ++
+> >  12 files changed, 85 insertions(+), 61 deletions(-)  
+> 
+> It looks like most of this is iommufd so I will take it - Ok Alex?
+> 
+> The following cdev patch needs it so I'll stick it on its own branch
+> and we can sort it out after the reset series is done
 
-I applied v6 of this patch and hacked to QEMU to enable
-VIRTIO_F_NOTIFICATION_DATA for virtio-blk, and have the -ccw code
-ignore the additional data that then comes along the way. Not
-surprisingly, things behave fine once I accommodate the new payload.
+Ok
 
-To Cornelia's point of how it should be used in real life... I didn't
-go beyond using this info as a "debugging aid" here, based on time
-constraints. But at least it looks reasonable.
+Acked-by: Alex Williamson <alex.williamson@redhat.com>
 
-Eric
