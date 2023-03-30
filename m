@@ -2,290 +2,223 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F181EC77B60
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6370AC761AF
 	for <linux-s390@archiver.kernel.org>; Thu, 30 Mar 2023 11:45:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231718AbjC3LpK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        id S231650AbjC3LpK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
         Thu, 30 Mar 2023 07:45:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56874 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231963AbjC3Lov (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 30 Mar 2023 07:44:51 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2017A83C8;
-        Thu, 30 Mar 2023 04:44:24 -0700 (PDT)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32UBb8lj027643;
-        Thu, 30 Mar 2023 11:43:46 GMT
+        with ESMTP id S231959AbjC3Lou (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 30 Mar 2023 07:44:50 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 830BCBDE1;
+        Thu, 30 Mar 2023 04:44:23 -0700 (PDT)
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32UB867T001481;
+        Thu, 30 Mar 2023 11:43:48 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=4JDk3ncKZXU86FTMRQRNJwRzhvtHRmjgsixB4IkaKEg=;
- b=J2qt50Ejf4y/XBJf0B24OG7yLdfbiXISFlcK8uzfMn27gn4LaLwHOUUUv8+Phh2J/zjQ
- 9n/2KVZfBiDt/r/cUv160It6map74Y0ZMN/kbuMt2aFOSvjLDdc9sk0na/kJZocJT8ZB
- Oa/0AVy0WKP4Y6/nJietMRWyBLEUt1HvbHt4aD7fQ2jsR7e5I/6CoBCOQ6J7A8v48L4T
- 4hFJnOWKt+ofM88muLfQ84MuBiMWqsP9AzXAKvtbNB/OJ3lHG6XbpoYw2KceI4LKuMKJ
- JmGHH1bs44hZ8d/iOBwIlnrG5mOBM0KEWtb84zaUz0CLR0WgC0SLaQYlNVItlFtBGdZV aQ== 
+ bh=LLbnhRp6F0hHo/KnvBFzbY8SbWa+zOojgltwe8idKQY=;
+ b=BrjfYi74JQ/v3o2i15sIU6pt3NoPZw1u/XgnTfUVGr3YjWbP7h/v9nqT0/NyONndufai
+ nevfYGJSYg8o4xx2kz3C+YTLu0JVMQveKqO3bGp6+AJki4IAP4n1slDNrvd05TwiUYxw
+ clQkOSIaQDfm/wLpmZF9k6j5jKksJRJ0g0uDiz7PpAIMpsnanRRKAt99fgyTQWe5qEdO
+ L+9Ln35O9LAWlwRYAu97AQwVm3djZC74jLwiwh/cq1uMHccsvqrAHfi/qDrg1KRY6gJs
+ DpTQGID6oP6V8eawQRHnNtLu1knWvhNqCHNMYqUHDP7xEj4Cacx0kYMuioGFkmgL8YFl 6g== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3pmp335vtx-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pmp7jwufg-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 30 Mar 2023 11:43:46 +0000
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32UBhj0U025966;
+        Thu, 30 Mar 2023 11:43:48 +0000
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32UBAeVR010402;
+        Thu, 30 Mar 2023 11:43:47 GMT
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pmp7jwuew-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 30 Mar 2023 11:43:47 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32TMgwt1015876;
         Thu, 30 Mar 2023 11:43:45 GMT
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3pmp335vtg-1
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma06fra.de.ibm.com (PPS) with ESMTPS id 3phr7fvtqy-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Thu, 30 Mar 2023 11:43:45 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32U3IgrT011237;
-        Thu, 30 Mar 2023 11:43:43 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma01fra.de.ibm.com (PPS) with ESMTPS id 3phrk6mt8u-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 30 Mar 2023 11:43:43 +0000
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32UBheBL25821544
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32UBhfZ722807060
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 30 Mar 2023 11:43:40 GMT
+        Thu, 30 Mar 2023 11:43:41 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F2EBB20040;
-        Thu, 30 Mar 2023 11:43:39 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id B4A2420043;
+        Thu, 30 Mar 2023 11:43:41 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4B01920043;
-        Thu, 30 Mar 2023 11:43:39 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 0C7F020040;
+        Thu, 30 Mar 2023 11:43:41 +0000 (GMT)
 Received: from linux6.. (unknown [9.114.12.104])
         by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Thu, 30 Mar 2023 11:43:39 +0000 (GMT)
+        Thu, 30 Mar 2023 11:43:40 +0000 (GMT)
 From:   Janosch Frank <frankja@linux.ibm.com>
 To:     kvm@vger.kernel.org
 Cc:     thuth@redhat.com, imbrenda@linux.ibm.com, nrb@linux.ibm.com,
         linux-s390@vger.kernel.org
-Subject: [kvm-unit-tests PATCH 1/5] lib: s390x: Add ap library
-Date:   Thu, 30 Mar 2023 11:42:40 +0000
-Message-Id: <20230330114244.35559-2-frankja@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH 3/5] lib: s390x: ap: Add ap_setup
+Date:   Thu, 30 Mar 2023 11:42:42 +0000
+Message-Id: <20230330114244.35559-4-frankja@linux.ibm.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20230330114244.35559-1-frankja@linux.ibm.com>
 References: <20230330114244.35559-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: e9bGNx0CCYFo3ip1Mxx1NbQaJPa9XhyN
-X-Proofpoint-ORIG-GUID: MUFAudQSslP7b_C1sKSyZ5MXfK72C5wa
+X-Proofpoint-ORIG-GUID: QytCP7Yc3urW1ldyhx2XZZexcBfMSk6Z
+X-Proofpoint-GUID: Zx_-YMuKWiaho-HaFavPdbtXVFaMT9Rv
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
  definitions=2023-03-30_07,2023-03-30_02,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 clxscore=1015
- adultscore=0 lowpriorityscore=0 impostorscore=0 mlxscore=0 malwarescore=0
- bulkscore=0 suspectscore=0 phishscore=0 priorityscore=1501 mlxlogscore=999
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2303200000
- definitions=main-2303300095
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 spamscore=0
+ priorityscore=1501 phishscore=0 lowpriorityscore=0 adultscore=0
+ suspectscore=0 impostorscore=0 mlxlogscore=899 bulkscore=0 malwarescore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2303200000 definitions=main-2303300095
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Add functions and definitions needed to test the Adjunct
-Processor (AP) crypto interface.
+For the next tests we need a valid queue which means we need to grab
+the qci info and search the first set bit in the ap and aq masks.
+
+Let's move from the ap_check function to a proper setup function that
+also returns the first usable APQN. Later we can extend the setup to
+build a list of all available APQNs but right now one APQN is plenty.
 
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- lib/s390x/ap.c | 93 ++++++++++++++++++++++++++++++++++++++++++++++++++
- lib/s390x/ap.h | 86 ++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 179 insertions(+)
- create mode 100644 lib/s390x/ap.c
- create mode 100644 lib/s390x/ap.h
+ lib/s390x/ap.c | 54 +++++++++++++++++++++++++++++++++++++++++++++++++-
+ lib/s390x/ap.h |  5 ++++-
+ s390x/ap.c     |  7 ++++++-
+ 3 files changed, 63 insertions(+), 3 deletions(-)
 
 diff --git a/lib/s390x/ap.c b/lib/s390x/ap.c
-new file mode 100644
-index 00000000..374fa210
---- /dev/null
+index 374fa210..8d7f2992 100644
+--- a/lib/s390x/ap.c
 +++ b/lib/s390x/ap.c
-@@ -0,0 +1,93 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * AP crypto functions
-+ *
-+ * Some parts taken from the Linux AP driver.
-+ *
-+ * Copyright IBM Corp. 2023
-+ * Author: Janosch Frank <frankja@linux.ibm.com>
-+ *	   Tony Krowiak <akrowia@linux.ibm.com>
-+ *	   Martin Schwidefsky <schwidefsky@de.ibm.com>
-+ *	   Harald Freudenberger <freude@de.ibm.com>
-+ */
+@@ -13,9 +13,12 @@
+ 
+ #include <libcflat.h>
+ #include <interrupt.h>
++#include <bitops.h>
+ #include <ap.h>
+ #include <asm/time.h>
+ 
++static struct ap_config_info qci;
 +
-+#include <libcflat.h>
-+#include <interrupt.h>
-+#include <ap.h>
-+#include <asm/time.h>
-+
-+int ap_pqap_tapq(uint8_t ap, uint8_t qn, struct ap_queue_status *apqsw,
-+		 struct pqap_r2 *r2)
+ int ap_pqap_tapq(uint8_t ap, uint8_t qn, struct ap_queue_status *apqsw,
+ 		 struct pqap_r2 *r2)
+ {
+@@ -77,7 +80,44 @@ int ap_pqap_qci(struct ap_config_info *info)
+ 	return cc;
+ }
+ 
+-bool ap_check(void)
++static int ap_get_apqn(uint8_t *ap, uint8_t *qn)
 +{
-+	struct pqap_r0 r0 = {};
-+	int cc;
++	unsigned long *ptr;
++	uint8_t bit;
++	int i;
 +
-+	/*
-+	 * Test AP Queue
-+	 *
-+	 * Writes AP configuration information to the memory pointed
-+	 * at by GR2.
-+	 *
-+	 * Inputs: 0
-+	 * Outputs: 1 (APQSW), 2 (tapq data)
-+	 * Synchronous
-+	 */
-+	r0.ap = ap;
-+	r0.qn = qn;
-+	r0.fc = PQAP_TEST_APQ;
-+	asm volatile(
-+		"	lgr	0,%[r0]\n"
-+		"	.insn	rre,0xb2af0000,0,0\n" /* PQAP */
-+		"	stg	1, %[apqsw]\n"
-+		"	ipm	%[cc]\n"
-+		"	srl	%[cc],28\n"
-+		: [apqsw] "=&T" (*apqsw), [r2] "+&d" (r2), [cc] "=&d" (cc)
-+		: [r0] "d" (r0)
-+		: "memory");
++	ap_pqap_qci(&qci);
++	*ap = 0;
++	*qn = 0;
 +
-+	return cc;
++	ptr = (unsigned long *)qci.apm;
++	for (i = 0; i < 4; i++) {
++		bit = fls(*ptr);
++		if (bit) {
++			*ap = i * 64 + 64 - bit;
++			break;
++		}
++	}
++	ptr = (unsigned long *)qci.aqm;
++	for (i = 0; i < 4; i++) {
++		bit = fls(*ptr);
++		if (bit) {
++			*qn = i * 64 + 64 - bit;
++			break;
++		}
++	}
++
++	if (!*ap || !*qn)
++		return -1;
++
++	/* fls returns 1 + bit number, so we need to remove 1 here */
++	*ap -= 1;
++	*qn -= 1;
++
++	return 0;
 +}
 +
-+int ap_pqap_qci(struct ap_config_info *info)
++static bool ap_check(void)
+ {
+ 	struct ap_queue_status r1 = {};
+ 	struct pqap_r2 r2 = {};
+@@ -91,3 +131,15 @@ bool ap_check(void)
+ 
+ 	return true;
+ }
++
++int ap_setup(uint8_t *ap, uint8_t *qn)
 +{
-+	struct pqap_r0 r0 = { .fc = PQAP_QUERY_AP_CONF_INFO };
-+	unsigned long r1 = 0;
-+	int cc;
++	if (!ap_check())
++		return AP_SETUP_NOINSTR;
 +
-+	/*
-+	 * Query AP Configuration Information
-+	 *
-+	 * Writes AP configuration information to the memory pointed
-+	 * at by GR2.
-+	 *
-+	 * Inputs: 0,2
-+	 * Outputs: memory at r2 address
-+	 * Synchronous
-+	 */
-+	asm volatile(
-+		"	lgr	0,%[r0]\n"
-+		"	lgr	2,%[info]\n"
-+		"	.insn	rre,0xb2af0000,0,0\n" /* PQAP */
-+		"	ipm	%[cc]\n"
-+		"	srl	%[cc],28\n"
-+		: [r1] "+&d" (r1), [cc] "=&d" (cc)
-+		: [r0] "d" (r0), [info] "d" (info)
-+		: "cc", "memory", "0", "2");
++	/* Instructions available but no APQNs */
++	if (ap_get_apqn(ap, qn))
++		return AP_SETUP_NOAPQN;
 +
-+	return cc;
-+}
-+
-+bool ap_check(void)
-+{
-+	struct ap_queue_status r1 = {};
-+	struct pqap_r2 r2 = {};
-+
-+	/* Base AP support has no STFLE or SCLP feature bit */
-+	expect_pgm_int();
-+	ap_pqap_tapq(0, 0, &r1, &r2);
-+
-+	if (clear_pgm_int() == PGM_INT_CODE_OPERATION)
-+		return false;
-+
-+	return true;
++	return 0;
 +}
 diff --git a/lib/s390x/ap.h b/lib/s390x/ap.h
-new file mode 100644
-index 00000000..79fe6eb0
---- /dev/null
+index 79fe6eb0..59595eba 100644
+--- a/lib/s390x/ap.h
 +++ b/lib/s390x/ap.h
-@@ -0,0 +1,86 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * AP definitions
-+ *
-+ * Copyright IBM Corp. 2023
-+ * Author: Janosch Frank <frankja@linux.ibm.com>
-+ *	   Tony Krowiak <akrowia@linux.ibm.com>
-+ *	   Martin Schwidefsky <schwidefsky@de.ibm.com>
-+ *	   Harald Freudenberger <freude@de.ibm.com>
-+ */
+@@ -79,7 +79,10 @@ struct pqap_r2 {
+ } __attribute__((packed))  __attribute__((aligned(8)));
+ _Static_assert(sizeof(struct pqap_r2) == sizeof(uint64_t), "pqap_r2 size");
+ 
+-bool ap_check(void);
++#define AP_SETUP_NOINSTR	-1
++#define AP_SETUP_NOAPQN		1
 +
-+#ifndef _S390X_AP_H_
-+#define _S390X_AP_H_
++int ap_setup(uint8_t *ap, uint8_t *qn);
+ int ap_pqap_tapq(uint8_t ap, uint8_t qn, struct ap_queue_status *apqsw,
+ 		 struct pqap_r2 *r2);
+ int ap_pqap_qci(struct ap_config_info *info);
+diff --git a/s390x/ap.c b/s390x/ap.c
+index 82ddb6d2..20b4e76e 100644
+--- a/s390x/ap.c
++++ b/s390x/ap.c
+@@ -16,6 +16,9 @@
+ #include <asm/time.h>
+ #include <ap.h>
+ 
++static uint8_t apn;
++static uint8_t qn;
 +
-+enum PQAP_FC {
-+	PQAP_TEST_APQ,
-+	PQAP_RESET_APQ,
-+	PQAP_ZEROIZE_APQ,
-+	PQAP_QUEUE_INT_CONTRL,
-+	PQAP_QUERY_AP_CONF_INFO,
-+	PQAP_QUERY_AP_COMP_TYPE,
-+	PQAP_BEST_AP,
-+};
+ /* For PQAP PGM checks where we need full control over the input */
+ static void pqap(unsigned long grs[3])
+ {
+@@ -291,8 +294,10 @@ static void test_priv(void)
+ 
+ int main(void)
+ {
++	int setup_rc = ap_setup(&apn, &qn);
 +
-+struct ap_queue_status {
-+	uint32_t pad0;			/* Ignored padding for zArch  */
-+	uint32_t empty		: 1;
-+	uint32_t replies_waiting: 1;
-+	uint32_t full		: 1;
-+	uint32_t pad1		: 4;
-+	uint32_t irq_enabled	: 1;
-+	uint32_t rc		: 8;
-+	uint32_t pad2		: 16;
-+} __attribute__((packed))  __attribute__((aligned(8)));
-+_Static_assert(sizeof(struct ap_queue_status) == sizeof(uint64_t), "APQSW size");
-+
-+struct ap_config_info {
-+	uint8_t apsc	 : 1;	/* S bit */
-+	uint8_t apxa	 : 1;	/* N bit */
-+	uint8_t qact	 : 1;	/* C bit */
-+	uint8_t rc8a	 : 1;	/* R bit */
-+	uint8_t l	 : 1;	/* L bit */
-+	uint8_t lext	 : 3;	/* Lext bits */
-+	uint8_t reserved2[3];
-+	uint8_t Na;		/* max # of APs - 1 */
-+	uint8_t Nd;		/* max # of Domains - 1 */
-+	uint8_t reserved6[10];
-+	uint32_t apm[8];	/* AP ID mask */
-+	uint32_t aqm[8];	/* AP (usage) queue mask */
-+	uint32_t adm[8];	/* AP (control) domain mask */
-+	uint8_t _reserved4[16];
-+} __attribute__((aligned(8))) __attribute__ ((__packed__));
-+_Static_assert(sizeof(struct ap_config_info) == 128, "PQAP QCI size");
-+
-+struct pqap_r0 {
-+	uint32_t pad0;
-+	uint8_t fc;
-+	uint8_t t : 1;		/* Test facilities (TAPQ)*/
-+	uint8_t pad1 : 7;
-+	uint8_t ap;
-+	uint8_t qn;
-+} __attribute__((packed))  __attribute__((aligned(8)));
-+
-+struct pqap_r2 {
-+	uint8_t s : 1;		/* Special Command facility */
-+	uint8_t m : 1;		/* AP4KM */
-+	uint8_t c : 1;		/* AP4KC */
-+	uint8_t cop : 1;	/* AP is in coprocessor mode */
-+	uint8_t acc : 1;	/* AP is in accelerator mode */
-+	uint8_t xcp : 1;	/* AP is in XCP-mode */
-+	uint8_t n : 1;		/* AP extended addressing facility */
-+	uint8_t pad_0 : 1;
-+	uint8_t pad_1[3];
-+	uint8_t at;
-+	uint8_t nd;
-+	uint8_t pad_6;
-+	uint8_t pad_7 : 4;
-+	uint8_t qd : 4;
-+} __attribute__((packed))  __attribute__((aligned(8)));
-+_Static_assert(sizeof(struct pqap_r2) == sizeof(uint64_t), "pqap_r2 size");
-+
-+bool ap_check(void);
-+int ap_pqap_tapq(uint8_t ap, uint8_t qn, struct ap_queue_status *apqsw,
-+		 struct pqap_r2 *r2);
-+int ap_pqap_qci(struct ap_config_info *info);
-+#endif
+ 	report_prefix_push("ap");
+-	if (!ap_check()) {
++	if (setup_rc == AP_SETUP_NOINSTR) {
+ 		report_skip("AP instructions not available");
+ 		goto done;
+ 	}
 -- 
 2.34.1
 
