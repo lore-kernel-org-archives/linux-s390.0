@@ -2,245 +2,178 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72C42C761A6
-	for <linux-s390@archiver.kernel.org>; Thu, 30 Mar 2023 13:45:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DEE58C77B60
+	for <linux-s390@archiver.kernel.org>; Thu, 30 Mar 2023 16:50:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232130AbjC3Npz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 30 Mar 2023 09:45:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34158 "EHLO
+        id S231452AbjC3Qt6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 30 Mar 2023 12:49:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232115AbjC3Npy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 30 Mar 2023 09:45:54 -0400
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6B6740EC;
-        Thu, 30 Mar 2023 06:45:48 -0700 (PDT)
-Received: from canpemm500009.china.huawei.com (unknown [172.30.72.54])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4PnPky3hmRzKwFr;
-        Thu, 30 Mar 2023 21:43:22 +0800 (CST)
-Received: from [10.67.102.169] (10.67.102.169) by
- canpemm500009.china.huawei.com (7.192.105.203) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.21; Thu, 30 Mar 2023 21:45:46 +0800
-CC:     <yangyicong@hisilicon.com>, <akpm@linux-foundation.org>,
-        <linux-mm@kvack.org>, <linux-arm-kernel@lists.infradead.org>,
-        <x86@kernel.org>, <catalin.marinas@arm.com>, <will@kernel.org>,
-        <anshuman.khandual@arm.com>, <linux-doc@vger.kernel.org>,
-        <corbet@lwn.net>, <peterz@infradead.org>, <arnd@arndb.de>,
-        <linux-kernel@vger.kernel.org>, <darren@os.amperecomputing.com>,
-        <huzhanyuan@oppo.com>, <lipeifeng@oppo.com>,
-        <zhangshiming@oppo.com>, <guojian@oppo.com>, <realmz6@gmail.com>,
-        <linux-mips@vger.kernel.org>, <openrisc@lists.librecores.org>,
-        <linuxppc-dev@lists.ozlabs.org>, <linux-riscv@lists.infradead.org>,
-        <linux-s390@vger.kernel.org>, Barry Song <21cnbao@gmail.com>,
-        <wangkefeng.wang@huawei.com>, <xhao@linux.alibaba.com>,
-        <prime.zeng@hisilicon.com>, <Jonathan.Cameron@Huawei.com>,
-        Barry Song <v-songbaohua@oppo.com>,
-        Nadav Amit <namit@vmware.com>, Mel Gorman <mgorman@suse.de>
-Subject: Re: [PATCH v8 2/2] arm64: support batched/deferred tlb shootdown
- during page reclamation
-To:     Punit Agrawal <punit.agrawal@bytedance.com>
-References: <20230329035512.57392-1-yangyicong@huawei.com>
- <20230329035512.57392-3-yangyicong@huawei.com> <87cz4qwfbt.fsf_-_@stealth>
-From:   Yicong Yang <yangyicong@huawei.com>
-Message-ID: <2687a998-6dbe-de8f-2f62-1456d2de7940@huawei.com>
-Date:   Thu, 30 Mar 2023 21:45:46 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.5.1
+        with ESMTP id S232243AbjC3Qtd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 30 Mar 2023 12:49:33 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 221E710259;
+        Thu, 30 Mar 2023 09:48:42 -0700 (PDT)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32UFO4KU030836;
+        Thu, 30 Mar 2023 16:48:23 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=Ybj/9QsIxhW0TRpEjVAODEQ3DdftEBDWyDhWW/e/etc=;
+ b=XoVHnXK8xaGqxZ4727hFyJ8M03W7gTSoWbHzyKSOYVMFjDdztIn2wz33hAxKxHbiZhAj
+ 365rZhN52i2eDBIP7Sbxa43hIy8BEs/T9/PYTfqPlBB1rjUeROyQ7yj5DXhzQZrej/yy
+ 0YAKEXI44F2t8KK2JXF/72EMAG9uNWrU0XNnGJER0tLzUOtOy/mm0Pw2wfd+nAKMoCfV
+ 5kSSi3PDxQsDmfsYCKBoaDDqOLKrZJsa/3FKl8izC5qcMO7m2yifdfM80/pUhE9/omvK
+ cCN9n5rnSeAnrvVZwQrLU8n4PO+GAeCxm2/h6+1wIYHaidogwslGV68MJ0pNAy9xyekF YQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pmph9pj9e-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 30 Mar 2023 16:48:22 +0000
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32UGS0vo039209;
+        Thu, 30 Mar 2023 16:48:22 GMT
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pmph9pj8n-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 30 Mar 2023 16:48:22 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32UADGfT024399;
+        Thu, 30 Mar 2023 16:48:19 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma06fra.de.ibm.com (PPS) with ESMTPS id 3phr7fw04b-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 30 Mar 2023 16:48:19 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32UGmGGC15860118
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 30 Mar 2023 16:48:16 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0916F2004B;
+        Thu, 30 Mar 2023 16:48:16 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C3A7D20040;
+        Thu, 30 Mar 2023 16:48:15 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.152.224.56])
+        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Thu, 30 Mar 2023 16:48:15 +0000 (GMT)
+Date:   Thu, 30 Mar 2023 18:09:00 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Janosch Frank <frankja@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, thuth@redhat.com, nrb@linux.ibm.com,
+        linux-s390@vger.kernel.org
+Subject: Re: [kvm-unit-tests PATCH 1/5] lib: s390x: Add ap library
+Message-ID: <20230330180900.723c060d@p-imbrenda>
+In-Reply-To: <20230330114244.35559-2-frankja@linux.ibm.com>
+References: <20230330114244.35559-1-frankja@linux.ibm.com>
+        <20230330114244.35559-2-frankja@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-In-Reply-To: <87cz4qwfbt.fsf_-_@stealth>
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.67.102.169]
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
- canpemm500009.china.huawei.com (7.192.105.203)
-X-CFilter-Loop: Reflected
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: uOLzcUn-4fgAd8Vc1e6gl3kgEwaR1arO
+X-Proofpoint-ORIG-GUID: CUNYECk8dA6FgQoP1xVrEkgE_4yGZAV-
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-03-30_09,2023-03-30_03,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 suspectscore=0
+ malwarescore=0 spamscore=0 mlxscore=0 priorityscore=1501 clxscore=1015
+ impostorscore=0 lowpriorityscore=0 mlxlogscore=999 adultscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2303200000 definitions=main-2303300130
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Punit,
+On Thu, 30 Mar 2023 11:42:40 +0000
+Janosch Frank <frankja@linux.ibm.com> wrote:
 
-On 2023/3/30 21:15, Punit Agrawal wrote:
-> Hi Yicong,
+> Add functions and definitions needed to test the Adjunct
+> Processor (AP) crypto interface.
 > 
-> Yicong Yang <yangyicong@huawei.com> writes:
-> 
->> From: Barry Song <v-songbaohua@oppo.com>
->>
->> on x86, batched and deferred tlb shootdown has lead to 90%
->> performance increase on tlb shootdown. on arm64, HW can do
->> tlb shootdown without software IPI. But sync tlbi is still
->> quite expensive.
->>
->> Even running a simplest program which requires swapout can
->> prove this is true,
->>  #include <sys/types.h>
->>  #include <unistd.h>
->>  #include <sys/mman.h>
->>  #include <string.h>
->>
->>  int main()
->>  {
->>  #define SIZE (1 * 1024 * 1024)
->>          volatile unsigned char *p = mmap(NULL, SIZE, PROT_READ | PROT_WRITE,
->>                                           MAP_SHARED | MAP_ANONYMOUS, -1, 0);
->>
->>          memset(p, 0x88, SIZE);
->>
->>          for (int k = 0; k < 10000; k++) {
->>                  /* swap in */
->>                  for (int i = 0; i < SIZE; i += 4096) {
->>                          (void)p[i];
->>                  }
->>
->>                  /* swap out */
->>                  madvise(p, SIZE, MADV_PAGEOUT);
->>          }
->>  }
->>
->> Perf result on snapdragon 888 with 8 cores by using zRAM
->> as the swap block device.
->>
->>  ~ # perf record taskset -c 4 ./a.out
->>  [ perf record: Woken up 10 times to write data ]
->>  [ perf record: Captured and wrote 2.297 MB perf.data (60084 samples) ]
->>  ~ # perf report
->>  # To display the perf.data header info, please use --header/--header-only options.
->>  # To display the perf.data header info, please use --header/--header-only options.
->>  #
->>  #
->>  # Total Lost Samples: 0
->>  #
->>  # Samples: 60K of event 'cycles'
->>  # Event count (approx.): 35706225414
->>  #
->>  # Overhead  Command  Shared Object      Symbol
->>  # ........  .......  .................  .............................................................................
->>  #
->>     21.07%  a.out    [kernel.kallsyms]  [k] _raw_spin_unlock_irq
->>      8.23%  a.out    [kernel.kallsyms]  [k] _raw_spin_unlock_irqrestore
->>      6.67%  a.out    [kernel.kallsyms]  [k] filemap_map_pages
->>      6.16%  a.out    [kernel.kallsyms]  [k] __zram_bvec_write
->>      5.36%  a.out    [kernel.kallsyms]  [k] ptep_clear_flush
->>      3.71%  a.out    [kernel.kallsyms]  [k] _raw_spin_lock
->>      3.49%  a.out    [kernel.kallsyms]  [k] memset64
->>      1.63%  a.out    [kernel.kallsyms]  [k] clear_page
->>      1.42%  a.out    [kernel.kallsyms]  [k] _raw_spin_unlock
->>      1.26%  a.out    [kernel.kallsyms]  [k] mod_zone_state.llvm.8525150236079521930
->>      1.23%  a.out    [kernel.kallsyms]  [k] xas_load
->>      1.15%  a.out    [kernel.kallsyms]  [k] zram_slot_lock
->>
->> ptep_clear_flush() takes 5.36% CPU in the micro-benchmark
->> swapping in/out a page mapped by only one process. If the
->> page is mapped by multiple processes, typically, like more
->> than 100 on a phone, the overhead would be much higher as
->> we have to run tlb flush 100 times for one single page.
->> Plus, tlb flush overhead will increase with the number
->> of CPU cores due to the bad scalability of tlb shootdown
->> in HW, so those ARM64 servers should expect much higher
->> overhead.
->>
->> Further perf annonate shows 95% cpu time of ptep_clear_flush
->> is actually used by the final dsb() to wait for the completion
->> of tlb flush. This provides us a very good chance to leverage
->> the existing batched tlb in kernel. The minimum modification
->> is that we only send async tlbi in the first stage and we send
->> dsb while we have to sync in the second stage.
->>
->> With the above simplest micro benchmark, collapsed time to
->> finish the program decreases around 5%.
->>
->> Typical collapsed time w/o patch:
->>  ~ # time taskset -c 4 ./a.out
->>  0.21user 14.34system 0:14.69elapsed
->> w/ patch:
->>  ~ # time taskset -c 4 ./a.out
->>  0.22user 13.45system 0:13.80elapsed
->>
->> Also, Yicong Yang added the following observation.
->> 	Tested with benchmark in the commit on Kunpeng920 arm64 server,
->> 	observed an improvement around 12.5% with command
->> 	`time ./swap_bench`.
->> 		w/o		w/
->> 	real	0m13.460s	0m11.771s
->> 	user	0m0.248s	0m0.279s
->> 	sys	0m12.039s	0m11.458s
->>
->> 	Originally it's noticed a 16.99% overhead of ptep_clear_flush()
->> 	which has been eliminated by this patch:
->>
->> 	[root@localhost yang]# perf record -- ./swap_bench && perf report
->> 	[...]
->> 	16.99%  swap_bench  [kernel.kallsyms]  [k] ptep_clear_flush
->>
->> It is tested on 4,8,128 CPU platforms and shows to be beneficial on
->> large systems but may not have improvement on small systems like on
->> a 4 CPU platform. So make ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH depends
->> on CONFIG_EXPERT for this stage and make this disabled on systems
->> with less than 8 CPUs. User can modify this threshold according to
->> their own platforms by CONFIG_NR_CPUS_FOR_BATCHED_TLB.
-> 
-> The commit log and the patch disagree on the name of the config option
-> (CONFIG_NR_CPUS_FOR_BATCHED_TLB vs CONFIG_ARM64_NR_CPUS_FOR_BATCHED_TLB).
-> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>
 
-ah yes, it's a typo and I'll fix it.
+[...]
 
-> But more importantly, I was wondering why this posting doesn't address
-> Catalin's feedback [a] about using a runtime tunable. Maybe I missed the
-> follow-up discussion.
-> 
+> +bool ap_check(void)
+> +{
+> +	struct ap_queue_status r1 = {};
+> +	struct pqap_r2 r2 = {};
+> +
+> +	/* Base AP support has no STFLE or SCLP feature bit */
 
-I must have missed that, terribly sorry for it... Thanks for pointing it out!
-Let me try to implement a version using a runtime tunable and get back with
-some test results.
+this is true, but you are also indiscriminately using a feature for
+which there is a STFLE feature. since it seems you depend on that, you
+might as well just check bit for STFLE.12 and assume the base support
+is there if it's set
 
-Thanks,
-Yicong
+> +	expect_pgm_int();
+> +	ap_pqap_tapq(0, 0, &r1, &r2);
+> +
+> +	if (clear_pgm_int() == PGM_INT_CODE_OPERATION)
+> +		return false;
+> +
+> +	return true;
+> +}
 
-> Thanks,
-> Punit
-> 
-> [a] https://lore.kernel.org/linux-mm/Y7xMhPTAwcUT4O6b@arm.com/
-> 
->> Also this patch improve the performance of page migration. Using pmbench
->> and tries to migrate the pages of pmbench between node 0 and node 1 for
->> 20 times, this patch decrease the time used more than 50% and saved the
->> time used by ptep_clear_flush().
->>
->> This patch extends arch_tlbbatch_add_mm() to take an address of the
->> target page to support the feature on arm64. Also rename it to
->> arch_tlbbatch_add_pending() to better match its function since we
->> don't need to handle the mm on arm64 and add_mm is not proper.
->> add_pending will make sense to both as on x86 we're pending the
->> TLB flush operations while on arm64 we're pending the synchronize
->> operations.
->>
->> Cc: Anshuman Khandual <anshuman.khandual@arm.com>
->> Cc: Jonathan Corbet <corbet@lwn.net>
->> Cc: Nadav Amit <namit@vmware.com>
->> Cc: Mel Gorman <mgorman@suse.de>
->> Tested-by: Yicong Yang <yangyicong@hisilicon.com>
->> Tested-by: Xin Hao <xhao@linux.alibaba.com>
->> Tested-by: Punit Agrawal <punit.agrawal@bytedance.com>
->> Signed-off-by: Barry Song <v-songbaohua@oppo.com>
->> Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
->> Reviewed-by: Kefeng Wang <wangkefeng.wang@huawei.com>
->> Reviewed-by: Xin Hao <xhao@linux.alibaba.com>
->> Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
->> ---
->>  .../features/vm/TLB/arch-support.txt          |  2 +-
->>  arch/arm64/Kconfig                            |  6 +++
->>  arch/arm64/include/asm/tlbbatch.h             | 12 +++++
->>  arch/arm64/include/asm/tlbflush.h             | 52 ++++++++++++++++++-
->>  arch/x86/include/asm/tlbflush.h               |  5 +-
->>  include/linux/mm_types_task.h                 |  4 +-
->>  mm/rmap.c                                     | 12 +++--
->>  7 files changed, 81 insertions(+), 12 deletions(-)
->>  create mode 100644 arch/arm64/include/asm/tlbbatch.h
-> 
-> 
-> [...]
-> 
-> .
-> 
+[...]
+
+> +struct ap_config_info {
+> +	uint8_t apsc	 : 1;	/* S bit */
+> +	uint8_t apxa	 : 1;	/* N bit */
+> +	uint8_t qact	 : 1;	/* C bit */
+> +	uint8_t rc8a	 : 1;	/* R bit */
+> +	uint8_t l	 : 1;	/* L bit */
+> +	uint8_t lext	 : 3;	/* Lext bits */
+> +	uint8_t reserved2[3];
+> +	uint8_t Na;		/* max # of APs - 1 */
+> +	uint8_t Nd;		/* max # of Domains - 1 */
+> +	uint8_t reserved6[10];
+> +	uint32_t apm[8];	/* AP ID mask */
+
+is there a specific reason why these are uint32_t?
+uint64_t would maybe make your life easier in subsequent patches (see my
+comments there)
+
+> +	uint32_t aqm[8];	/* AP (usage) queue mask */
+> +	uint32_t adm[8];	/* AP (control) domain mask */
+> +	uint8_t _reserved4[16];
+> +} __attribute__((aligned(8))) __attribute__ ((__packed__));
+> +_Static_assert(sizeof(struct ap_config_info) == 128, "PQAP QCI size");
+> +
+> +struct pqap_r0 {
+> +	uint32_t pad0;
+> +	uint8_t fc;
+> +	uint8_t t : 1;		/* Test facilities (TAPQ)*/
+> +	uint8_t pad1 : 7;
+> +	uint8_t ap;
+> +	uint8_t qn;
+> +} __attribute__((packed))  __attribute__((aligned(8)));
+> +
+> +struct pqap_r2 {
+> +	uint8_t s : 1;		/* Special Command facility */
+> +	uint8_t m : 1;		/* AP4KM */
+> +	uint8_t c : 1;		/* AP4KC */
+> +	uint8_t cop : 1;	/* AP is in coprocessor mode */
+> +	uint8_t acc : 1;	/* AP is in accelerator mode */
+> +	uint8_t xcp : 1;	/* AP is in XCP-mode */
+> +	uint8_t n : 1;		/* AP extended addressing facility */
+> +	uint8_t pad_0 : 1;
+> +	uint8_t pad_1[3];
+> +	uint8_t at;
+> +	uint8_t nd;
+> +	uint8_t pad_6;
+> +	uint8_t pad_7 : 4;
+> +	uint8_t qd : 4;
+> +} __attribute__((packed))  __attribute__((aligned(8)));
+> +_Static_assert(sizeof(struct pqap_r2) == sizeof(uint64_t), "pqap_r2 size");
+> +
+> +bool ap_check(void);
+> +int ap_pqap_tapq(uint8_t ap, uint8_t qn, struct ap_queue_status *apqsw,
+> +		 struct pqap_r2 *r2);
+> +int ap_pqap_qci(struct ap_config_info *info);
+> +#endif
+
