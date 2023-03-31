@@ -2,175 +2,135 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 30BF0C77B6E
-	for <linux-s390@archiver.kernel.org>; Fri, 31 Mar 2023 08:52:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DB29AC6FD18
+	for <linux-s390@archiver.kernel.org>; Fri, 31 Mar 2023 13:25:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231336AbjCaIwn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 31 Mar 2023 04:52:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60354 "EHLO
+        id S231311AbjCaNZa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 31 Mar 2023 09:25:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229629AbjCaIwl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 31 Mar 2023 04:52:41 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BFF5D50E;
-        Fri, 31 Mar 2023 01:52:40 -0700 (PDT)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32V87uow009609;
-        Fri, 31 Mar 2023 08:52:40 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : to : cc : references : from : subject : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=cZEUURmtTVuUK0MDRwsX/TKBZK1xujBKBauZKi96U7Y=;
- b=HRPT+O3IhznKGHV4tBtGYPc+9P5LZ/I3/4Kee5bX1QxcHKJ170S4P9836vN7wRvRTzXl
- 2otHLf/jqrsfNiYWB648R6e9k01WjMm2GuBO3njqNihP8uXe8IiZIzw+5dJ2OqoIsVm9
- sR06Q8WyEQnYU5gHZPwyLn7cJnTaR10vBr/PfWvKKUn2qSd5glhc1ym2/7np2UxC3XOC
- vLj+r7MGcl5Lirt0w7wLgpPa4xlWZvNwN5XRG1A5i01Q7lQSsWe/fk+rFWOc9hnE9xuJ
- nyiy678Hy3s/kAc4o3rYQ5tU8nEbnG9Z1pJRA94rPJQ/mQ0fOnfcL8o5qRs13UiGFk7O vg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pnrf7n922-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 31 Mar 2023 08:52:40 +0000
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32V8KLYg024335;
-        Fri, 31 Mar 2023 08:52:39 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pnrf7n91k-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 31 Mar 2023 08:52:39 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32V1I3NL013053;
-        Fri, 31 Mar 2023 08:52:37 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3phr7fpkq1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 31 Mar 2023 08:52:37 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32V8qXVM8520266
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 31 Mar 2023 08:52:33 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9561E2004B;
-        Fri, 31 Mar 2023 08:52:33 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4232C20043;
-        Fri, 31 Mar 2023 08:52:33 +0000 (GMT)
-Received: from [9.171.33.158] (unknown [9.171.33.158])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Fri, 31 Mar 2023 08:52:33 +0000 (GMT)
-Message-ID: <5a768b62-0552-1174-2040-a9ee04fbc49a@linux.ibm.com>
-Date:   Fri, 31 Mar 2023 10:52:32 +0200
+        with ESMTP id S229792AbjCaNZ3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 31 Mar 2023 09:25:29 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38B301D2C6
+        for <linux-s390@vger.kernel.org>; Fri, 31 Mar 2023 06:24:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1680269084;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=+8R/ww5NOtTKrVVMJPiSWlsWr2SqxpSfsL4A0mGzuN8=;
+        b=f3TOej65joYJnKO8kvSN83V4kQXyTw9O0kzc0Y23gonUHXICeH080TWqYGCo87er2BupM7
+        uVfX9Yha2DgkexqBKW4rSs/XiojvOdIiwe5eIl2V8CY1h/PZVOzXZmWYUsNRbLVCKacXe/
+        GoDm4nrJj5sYY8zkUAuB9b7Jg+t683Y=
+Received: from mail-il1-f200.google.com (mail-il1-f200.google.com
+ [209.85.166.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-631-W3-zIPjaPKqWqGqS-w_gTA-1; Fri, 31 Mar 2023 09:24:43 -0400
+X-MC-Unique: W3-zIPjaPKqWqGqS-w_gTA-1
+Received: by mail-il1-f200.google.com with SMTP id n9-20020a056e02148900b003263d81730aso3101873ilk.0
+        for <linux-s390@vger.kernel.org>; Fri, 31 Mar 2023 06:24:42 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1680269082;
+        h=content-transfer-encoding:mime-version:organization:references
+         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=+8R/ww5NOtTKrVVMJPiSWlsWr2SqxpSfsL4A0mGzuN8=;
+        b=oD/3npe8RQ6zsP6Xv3bZu1/SrAnzV+fryTQ8UPP+VDAyH/urOGB20YKvR4Z6BLswB4
+         ZFjFfhDrJ5CnhzbJ7ehP/Q86LBPj2snJoB7iEO3CvoUJGto7gj/mIISvDLJCTgxy1Yua
+         6tyiVoF0kDZc0iQmt/eSPc1FjEEtwk5Kc/v+bji1m3x1MvBqOREUTS8fjS698cZUnC1I
+         A//vsQW5laZCfb47qCw8DOpj+i420PXbQQEpm9gcjcsO3SMERgPhdC+xejhRHduIAq6z
+         q4QS39ELzhPj67pyTvSga4gyga0A01q4X+AqQedN4Ujlq9QC46DPnrzBmRKWV171tzyk
+         aInA==
+X-Gm-Message-State: AAQBX9cuNFVciYmizyehkNe99au6jTwGQOHhqIP0YMHkR47SYHDlx0fN
+        7DZ3jvsdBi4mEmv41KDO3XT/PZIpuCcMgxcvX8HRGkJAmKUeqSeDD7eeY/uE/mcA2+CT9JDELiL
+        g1dfz0y5sirZ8JBr+H7K1/w==
+X-Received: by 2002:a92:d991:0:b0:316:e39f:1212 with SMTP id r17-20020a92d991000000b00316e39f1212mr19103841iln.4.1680269082223;
+        Fri, 31 Mar 2023 06:24:42 -0700 (PDT)
+X-Google-Smtp-Source: AKy350ZYiLus2ZjBk8rYsb82E2FTq2uUos7BcYFTyirHTyJsodUs0w1TIkUKf/w5l3uKHhzr7I1mnQ==
+X-Received: by 2002:a92:d991:0:b0:316:e39f:1212 with SMTP id r17-20020a92d991000000b00316e39f1212mr19103815iln.4.1680269081970;
+        Fri, 31 Mar 2023 06:24:41 -0700 (PDT)
+Received: from redhat.com ([38.15.36.239])
+        by smtp.gmail.com with ESMTPSA id x11-20020a92300b000000b00325daf836fdsm617030ile.17.2023.03.31.06.24.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 31 Mar 2023 06:24:41 -0700 (PDT)
+Date:   Fri, 31 Mar 2023 07:24:38 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     "Jiang, Yanting" <yanting.jiang@intel.com>
+Cc:     "Liu, Yi L" <yi.l.liu@intel.com>,
+        "jgg@nvidia.com" <jgg@nvidia.com>,
+        "Tian, Kevin" <kevin.tian@intel.com>,
+        "joro@8bytes.org" <joro@8bytes.org>,
+        "robin.murphy@arm.com" <robin.murphy@arm.com>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "eric.auger@redhat.com" <eric.auger@redhat.com>,
+        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
+        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
+        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
+        "peterx@redhat.com" <peterx@redhat.com>,
+        "jasowang@redhat.com" <jasowang@redhat.com>,
+        "shameerali.kolothum.thodi@huawei.com" 
+        <shameerali.kolothum.thodi@huawei.com>,
+        "lulu@redhat.com" <lulu@redhat.com>,
+        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
+        "intel-gvt-dev@lists.freedesktop.org" 
+        <intel-gvt-dev@lists.freedesktop.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "Hao, Xudong" <xudong.hao@intel.com>,
+        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
+        "Xu, Terrence" <terrence.xu@intel.com>
+Subject: Re: [PATCH v2 00/10] Introduce new methods for verifying ownership
+ in vfio PCI hot reset
+Message-ID: <20230331072438.21c9243b.alex.williamson@redhat.com>
+In-Reply-To: <MW4PR11MB6763D4F64127A5205D3B6567E88F9@MW4PR11MB6763.namprd11.prod.outlook.com>
+References: <20230327093458.44939-1-yi.l.liu@intel.com>
+        <MW4PR11MB6763D4F64127A5205D3B6567E88F9@MW4PR11MB6763.namprd11.prod.outlook.com>
+Organization: Red Hat
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.9.0
-Content-Language: en-US
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, thuth@redhat.com, nrb@linux.ibm.com,
-        linux-s390@vger.kernel.org
-References: <20230330114244.35559-1-frankja@linux.ibm.com>
- <20230330114244.35559-3-frankja@linux.ibm.com>
- <20230330183431.3003b391@p-imbrenda>
-From:   Janosch Frank <frankja@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH 2/5] s390x: Add guest 2 AP test
-In-Reply-To: <20230330183431.3003b391@p-imbrenda>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 4oXW-bWzKutIZJKrKPeEkUUM9gmxREW_
-X-Proofpoint-GUID: FkojFadE93KE8wp8aVc_thEPtlwwWh-I
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-03-31_04,2023-03-30_04,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 phishscore=0
- spamscore=0 priorityscore=1501 adultscore=0 lowpriorityscore=0
- mlxlogscore=999 impostorscore=0 clxscore=1015 mlxscore=0 suspectscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2303200000 definitions=main-2303310070
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 3/30/23 18:34, Claudio Imbrenda wrote:
-> On Thu, 30 Mar 2023 11:42:41 +0000
-> Janosch Frank <frankja@linux.ibm.com> wrote:
-> 
->> Add a test that checks the exceptions for the PQAP, NQAP and DQAP
->> adjunct processor (AP) crypto instructions.
->>
->> Since triggering the exceptions doesn't require actual AP hardware,
->> this test can run without complicated setup.
->>
->> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
->> ---
-> 
-> [...]
-> 
->> +
->> +static void test_pgms_pqap(void)
->> +{
->> +	unsigned long grs[3] = {};
->> +	struct pqap_r0 *r0 = (struct pqap_r0 *)grs;
->> +	uint8_t *data = alloc_page();
->> +	uint16_t pgm;
->> +	int fails = 0;
->> +	int i;
->> +
->> +	report_prefix_push("pqap");
->> +
->> +	/* Wrong FC code */
->> +	report_prefix_push("invalid fc");
->> +	r0->fc = 42;
-> 
-> maybe make a macro out of it, both to avoid magic numbers and to change
-> it easily if code 42 will ever become defined in the future.
+On Fri, 31 Mar 2023 03:14:23 +0000
+"Jiang, Yanting" <yanting.jiang@intel.com> wrote:
 
-I don't really see a benefit to that.
+> > 
+> > VFIO_DEVICE_PCI_HOT_RESET requires user to pass an array of group fds to
+> > prove that it owns all devices affected by resetting the calling device. This series
+> > introduces several extensions to allow the ownership check better aligned with
+> > iommufd and coming vfio device cdev support.
+> > 
+> > First, resetting an unopened device is always safe given nobody is using it. So
+> > relax the check to allow such devices not covered by group fd array. [1]
+> > 
+> > When iommufd is used we can simply verify that all affected devices are bound
+> > to a same iommufd then no need for the user to provide extra fd information.
+> > This is enabled by the user passing a zero-length fd array and moving forward
+> > this should be the preferred way for hot reset. [2]
+> > 
+> > However the iommufd method has difficulty working with noiommu devices
+> > since those devices don't have a valid iommufd, unless the noiommu device is in
+> > a singleton dev_set hence no ownership check is required. [3]
+> > 
+> > For noiommu backward compatibility a 3rd method is introduced by allowing the
+> > user to pass an array of device fds to prove ownership. [4]
+> > 
+> > As suggested by Jason [5], we have this series to introduce the above stuffs to
+> > the vfio PCI hot reset. Per the dicussion in [6], this series also adds a new _INFO
+> > ioctl to get hot reset scope for given device.
+> >   
+> Tested NIC passthrough on Intel platform.
+> Result looks good hence, 
+> Tested by: Jiang, Yanting <yanting.jiang@intel.com>
 
-> 
->> +	expect_pgm_int();
->> +	pqap(grs);
->> +	check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
->> +	memset(grs, 0, sizeof(grs));
->> +	report_prefix_pop();
->> +
->> +	report_prefix_push("invalid gr0 bits");
->> +	for (i = 42; i < 6; i++) {
-> 
-> 42 is not < 6, this whole thing will be skipped?
+I'm not aware of any userspace that exercises this reset ioctl in cdev
+mode.  Is this regression testing only?  Thanks,
 
-Right, I've fixed this.
+Alex
 
-[...]
->> +
->> +static void test_pgms_nqap(void)
->> +{
->> +	uint8_t gr0_zeroes_bits[] = {
->> +		32, 34, 35, 40
->> +	};
->> +	uint64_t gr0;
->> +	bool fail;
->> +	int i;
->> +
->> +	report_prefix_push("nqap");
->> +
->> +	/* Registers 0 and 1 are always used, the others are
->> even/odd pairs */
->> +	report_prefix_push("spec");
->> +	report_prefix_push("r1");
->> +	expect_pgm_int();
->> +	asm volatile (
->> +		".insn	rre,0xb2ad0000,3,6\n"
->> +		: : : "cc", "memory", "0", "1", "2", "3");
-> 
-> I would say
-> "0", "1", "2", "3", "4", "6", "7"
-> 
-> since there are two ways of doing it wrong when it comes to even-odd
-> register pairs (r and r+1, r&~1 and r&~1+1)
-
-R1 & R1 + 1 should never change, same goes for R2.
-GR0, GR1, R2 + 1 could potentially change.
-
-But the more interesting question is: Does it make sense to clobber 
-anything other than cc (if at all) for the PGM checks? If the PGM fails 
-we're in uncharted territory. Seems like I need to look up what the 
-other tests do.
