@@ -2,294 +2,153 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 932DFC761AF
-	for <linux-s390@archiver.kernel.org>; Sat,  1 Apr 2023 12:13:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C41E6C6FD1D
+	for <linux-s390@archiver.kernel.org>; Sat,  1 Apr 2023 14:44:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229560AbjDAMN0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 1 Apr 2023 08:13:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38946 "EHLO
+        id S229787AbjDAOoc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 1 Apr 2023 10:44:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229437AbjDAMNZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 1 Apr 2023 08:13:25 -0400
-Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2DE37EE6;
-        Sat,  1 Apr 2023 05:13:23 -0700 (PDT)
-Received: from canpemm500009.china.huawei.com (unknown [172.30.72.53])
-        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4PpbZH6cNNz17LnP;
-        Sat,  1 Apr 2023 20:09:59 +0800 (CST)
-Received: from [10.67.102.169] (10.67.102.169) by
- canpemm500009.china.huawei.com (7.192.105.203) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.23; Sat, 1 Apr 2023 20:12:30 +0800
-CC:     <yangyicong@hisilicon.com>, <akpm@linux-foundation.org>,
-        <linux-mm@kvack.org>, <linux-arm-kernel@lists.infradead.org>,
-        <x86@kernel.org>, <will@kernel.org>, <anshuman.khandual@arm.com>,
-        <linux-doc@vger.kernel.org>, <corbet@lwn.net>,
-        <peterz@infradead.org>, <arnd@arndb.de>,
-        <linux-kernel@vger.kernel.org>, <darren@os.amperecomputing.com>,
-        <huzhanyuan@oppo.com>, <lipeifeng@oppo.com>,
-        <zhangshiming@oppo.com>, <guojian@oppo.com>, <realmz6@gmail.com>,
-        <linux-mips@vger.kernel.org>, <openrisc@lists.librecores.org>,
-        <linuxppc-dev@lists.ozlabs.org>, <linux-riscv@lists.infradead.org>,
-        <linux-s390@vger.kernel.org>, Barry Song <21cnbao@gmail.com>,
-        <wangkefeng.wang@huawei.com>, <xhao@linux.alibaba.com>,
-        <prime.zeng@hisilicon.com>, <Jonathan.Cameron@Huawei.com>,
-        Barry Song <v-songbaohua@oppo.com>,
-        Nadav Amit <namit@vmware.com>, Mel Gorman <mgorman@suse.de>
-Subject: Re: [PATCH v8 2/2] arm64: support batched/deferred tlb shootdown
- during page reclamation
-From:   Yicong Yang <yangyicong@huawei.com>
-To:     Punit Agrawal <punit.agrawal@bytedance.com>,
-        <catalin.marinas@arm.com>
-References: <20230329035512.57392-1-yangyicong@huawei.com>
- <20230329035512.57392-3-yangyicong@huawei.com> <87cz4qwfbt.fsf_-_@stealth>
- <2687a998-6dbe-de8f-2f62-1456d2de7940@huawei.com>
-Message-ID: <241c3a4c-642e-e871-72ae-e3098a967b69@huawei.com>
-Date:   Sat, 1 Apr 2023 20:12:30 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.5.1
+        with ESMTP id S229458AbjDAOoc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 1 Apr 2023 10:44:32 -0400
+Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 321E41A95E;
+        Sat,  1 Apr 2023 07:44:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1680360271; x=1711896271;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=5F7P7Jg2V0ZDZMnrZa1Gd5CHrngSw5dblTzPduvISBM=;
+  b=UtfLaOpq63socgFOQAdikwmdv+cr6l0Leh8Yossz3Z+4g7K0Qut/FebR
+   Z8Wgt74krQaw7xoRw82XmRTOs4d5gGMcTCMec7xx5eGHYFFO1/24TL9WH
+   DpsV2FWMbAKPIYug9hS61l30yhFag8mCIT5DC0a8qfxQrZj1BPBAlQ+oG
+   qKytjbDqdDmWUmYaGzYiQ7KYArwZ/aZ693s+fEOrj5zmGWMTT5m4DYv9h
+   fuImOBY7J65lYKpKSPT5TDlmrppu8HLkilhrGs0ajBNfPL7I8uGlpAO1s
+   BfMNR82NSv8fkZl6TvFT0V8GaxF3aMvDccWmC+I4B9N2CgVXEOfl34YXC
+   A==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10667"; a="340385065"
+X-IronPort-AV: E=Sophos;i="5.98,310,1673942400"; 
+   d="scan'208";a="340385065"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Apr 2023 07:44:30 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10667"; a="662705799"
+X-IronPort-AV: E=Sophos;i="5.98,310,1673942400"; 
+   d="scan'208";a="662705799"
+Received: from 984fee00a4c6.jf.intel.com ([10.165.58.231])
+  by orsmga006.jf.intel.com with ESMTP; 01 Apr 2023 07:44:30 -0700
+From:   Yi Liu <yi.l.liu@intel.com>
+To:     alex.williamson@redhat.com, jgg@nvidia.com, kevin.tian@intel.com
+Cc:     joro@8bytes.org, robin.murphy@arm.com, cohuck@redhat.com,
+        eric.auger@redhat.com, nicolinc@nvidia.com, kvm@vger.kernel.org,
+        mjrosato@linux.ibm.com, chao.p.peng@linux.intel.com,
+        yi.l.liu@intel.com, yi.y.sun@linux.intel.com, peterx@redhat.com,
+        jasowang@redhat.com, shameerali.kolothum.thodi@huawei.com,
+        lulu@redhat.com, suravee.suthikulpanit@amd.com,
+        intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, linux-s390@vger.kernel.org,
+        xudong.hao@intel.com, yan.y.zhao@intel.com, terrence.xu@intel.com,
+        yanting.jiang@intel.com
+Subject: [PATCH v3 00/12] Introduce new methods for verifying ownership in vfio PCI hot reset
+Date:   Sat,  1 Apr 2023 07:44:17 -0700
+Message-Id: <20230401144429.88673-1-yi.l.liu@intel.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-In-Reply-To: <2687a998-6dbe-de8f-2f62-1456d2de7940@huawei.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.67.102.169]
-X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
- canpemm500009.china.huawei.com (7.192.105.203)
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2023/3/30 21:45, Yicong Yang wrote:
-> Hi Punit,
-> 
-> On 2023/3/30 21:15, Punit Agrawal wrote:
->> Hi Yicong,
->>
->> Yicong Yang <yangyicong@huawei.com> writes:
->>
->>> From: Barry Song <v-songbaohua@oppo.com>
->>>
->>> on x86, batched and deferred tlb shootdown has lead to 90%
->>> performance increase on tlb shootdown. on arm64, HW can do
->>> tlb shootdown without software IPI. But sync tlbi is still
->>> quite expensive.
->>>
->>> Even running a simplest program which requires swapout can
->>> prove this is true,
->>>  #include <sys/types.h>
->>>  #include <unistd.h>
->>>  #include <sys/mman.h>
->>>  #include <string.h>
->>>
->>>  int main()
->>>  {
->>>  #define SIZE (1 * 1024 * 1024)
->>>          volatile unsigned char *p = mmap(NULL, SIZE, PROT_READ | PROT_WRITE,
->>>                                           MAP_SHARED | MAP_ANONYMOUS, -1, 0);
->>>
->>>          memset(p, 0x88, SIZE);
->>>
->>>          for (int k = 0; k < 10000; k++) {
->>>                  /* swap in */
->>>                  for (int i = 0; i < SIZE; i += 4096) {
->>>                          (void)p[i];
->>>                  }
->>>
->>>                  /* swap out */
->>>                  madvise(p, SIZE, MADV_PAGEOUT);
->>>          }
->>>  }
->>>
->>> Perf result on snapdragon 888 with 8 cores by using zRAM
->>> as the swap block device.
->>>
->>>  ~ # perf record taskset -c 4 ./a.out
->>>  [ perf record: Woken up 10 times to write data ]
->>>  [ perf record: Captured and wrote 2.297 MB perf.data (60084 samples) ]
->>>  ~ # perf report
->>>  # To display the perf.data header info, please use --header/--header-only options.
->>>  # To display the perf.data header info, please use --header/--header-only options.
->>>  #
->>>  #
->>>  # Total Lost Samples: 0
->>>  #
->>>  # Samples: 60K of event 'cycles'
->>>  # Event count (approx.): 35706225414
->>>  #
->>>  # Overhead  Command  Shared Object      Symbol
->>>  # ........  .......  .................  .............................................................................
->>>  #
->>>     21.07%  a.out    [kernel.kallsyms]  [k] _raw_spin_unlock_irq
->>>      8.23%  a.out    [kernel.kallsyms]  [k] _raw_spin_unlock_irqrestore
->>>      6.67%  a.out    [kernel.kallsyms]  [k] filemap_map_pages
->>>      6.16%  a.out    [kernel.kallsyms]  [k] __zram_bvec_write
->>>      5.36%  a.out    [kernel.kallsyms]  [k] ptep_clear_flush
->>>      3.71%  a.out    [kernel.kallsyms]  [k] _raw_spin_lock
->>>      3.49%  a.out    [kernel.kallsyms]  [k] memset64
->>>      1.63%  a.out    [kernel.kallsyms]  [k] clear_page
->>>      1.42%  a.out    [kernel.kallsyms]  [k] _raw_spin_unlock
->>>      1.26%  a.out    [kernel.kallsyms]  [k] mod_zone_state.llvm.8525150236079521930
->>>      1.23%  a.out    [kernel.kallsyms]  [k] xas_load
->>>      1.15%  a.out    [kernel.kallsyms]  [k] zram_slot_lock
->>>
->>> ptep_clear_flush() takes 5.36% CPU in the micro-benchmark
->>> swapping in/out a page mapped by only one process. If the
->>> page is mapped by multiple processes, typically, like more
->>> than 100 on a phone, the overhead would be much higher as
->>> we have to run tlb flush 100 times for one single page.
->>> Plus, tlb flush overhead will increase with the number
->>> of CPU cores due to the bad scalability of tlb shootdown
->>> in HW, so those ARM64 servers should expect much higher
->>> overhead.
->>>
->>> Further perf annonate shows 95% cpu time of ptep_clear_flush
->>> is actually used by the final dsb() to wait for the completion
->>> of tlb flush. This provides us a very good chance to leverage
->>> the existing batched tlb in kernel. The minimum modification
->>> is that we only send async tlbi in the first stage and we send
->>> dsb while we have to sync in the second stage.
->>>
->>> With the above simplest micro benchmark, collapsed time to
->>> finish the program decreases around 5%.
->>>
->>> Typical collapsed time w/o patch:
->>>  ~ # time taskset -c 4 ./a.out
->>>  0.21user 14.34system 0:14.69elapsed
->>> w/ patch:
->>>  ~ # time taskset -c 4 ./a.out
->>>  0.22user 13.45system 0:13.80elapsed
->>>
->>> Also, Yicong Yang added the following observation.
->>> 	Tested with benchmark in the commit on Kunpeng920 arm64 server,
->>> 	observed an improvement around 12.5% with command
->>> 	`time ./swap_bench`.
->>> 		w/o		w/
->>> 	real	0m13.460s	0m11.771s
->>> 	user	0m0.248s	0m0.279s
->>> 	sys	0m12.039s	0m11.458s
->>>
->>> 	Originally it's noticed a 16.99% overhead of ptep_clear_flush()
->>> 	which has been eliminated by this patch:
->>>
->>> 	[root@localhost yang]# perf record -- ./swap_bench && perf report
->>> 	[...]
->>> 	16.99%  swap_bench  [kernel.kallsyms]  [k] ptep_clear_flush
->>>
->>> It is tested on 4,8,128 CPU platforms and shows to be beneficial on
->>> large systems but may not have improvement on small systems like on
->>> a 4 CPU platform. So make ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH depends
->>> on CONFIG_EXPERT for this stage and make this disabled on systems
->>> with less than 8 CPUs. User can modify this threshold according to
->>> their own platforms by CONFIG_NR_CPUS_FOR_BATCHED_TLB.
->>
->> The commit log and the patch disagree on the name of the config option
->> (CONFIG_NR_CPUS_FOR_BATCHED_TLB vs CONFIG_ARM64_NR_CPUS_FOR_BATCHED_TLB).
->>
-> 
-> ah yes, it's a typo and I'll fix it.
-> 
->> But more importantly, I was wondering why this posting doesn't address
->> Catalin's feedback [a] about using a runtime tunable. Maybe I missed the
->> follow-up discussion.
->>
-> 
+VFIO_DEVICE_PCI_HOT_RESET requires user to pass an array of group fds
+to prove that it owns all devices affected by resetting the calling
+device. This series introduces several extensions to allow the ownership
+check better aligned with iommufd and coming vfio device cdev support.
 
-So I used below patch based on this to provide a knob /proc/sys/vm/batched_tlb_enabled
-for turning on/off the batched TLB. But wondering flush.c is the best place for putting
-this, any comments?
+First, resetting an unopened device is always safe given nobody is using
+it. So relax the check to allow such devices not covered by group fd
+array. [1]
 
-Thanks.
+When iommufd is used we can simply verify that all affected devices are
+bound to a same iommufd then no need for the user to provide extra fd
+information. This is enabled by the user passing a zero-length fd array
+and moving forward this should be the preferred way for hot reset. [2]
 
-diff --git a/arch/arm64/include/asm/tlbflush.h b/arch/arm64/include/asm/tlbflush.h
-index 41a763cf8c1b..2b2c69c23b47 100644
---- a/arch/arm64/include/asm/tlbflush.h
-+++ b/arch/arm64/include/asm/tlbflush.h
-@@ -280,6 +280,8 @@ static inline void flush_tlb_page(struct vm_area_struct *vma,
+However the iommufd method has difficulty working with noiommu devices
+since those devices don't have a valid iommufd, unless the noiommu device
+is in a singleton dev_set hence no ownership check is required. [3]
 
- #ifdef CONFIG_ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH
+For noiommu backward compatibility a 3rd method is introduced by allowing
+the user to pass an array of device fds to prove ownership. [4]
 
-+extern struct static_key_false batched_tlb_enabled;
-+
- static inline bool arch_tlbbatch_should_defer(struct mm_struct *mm)
- {
-        /*
-@@ -289,7 +291,7 @@ static inline bool arch_tlbbatch_should_defer(struct mm_struct *mm)
-         * a threshold for enabling this to avoid potential side effects on
-         * these platforms.
-         */
--       if (num_online_cpus() < CONFIG_ARM64_NR_CPUS_FOR_BATCHED_TLB)
-+       if (!static_branch_unlikely(&batched_tlb_enabled))
-                return false;
+As suggested by Jason [5], we have this series to introduce the above
+stuffs to the vfio PCI hot reset. Per the dicussion in [6] [7], in the
+end of this series, the VFIO_DEVICE_GET_PCI_HOT_RESET_INFO is extended
+to report devid for the devices opened as cdev. This is goging to support
+the device fd passing usage.
 
-        /*
-diff --git a/arch/arm64/mm/flush.c b/arch/arm64/mm/flush.c
-index 5f9379b3c8c8..ce3bc32523f7 100644
---- a/arch/arm64/mm/flush.c
-+++ b/arch/arm64/mm/flush.c
-@@ -7,8 +7,10 @@
-  */
+The new hot reset method and updated _INFO ioctl are tested with two
+test commits in below qemu:
 
- #include <linux/export.h>
-+#include <linux/jump_label.h>
- #include <linux/mm.h>
- #include <linux/pagemap.h>
-+#include <linux/sysctl.h>
+https://github.com/yiliu1765/qemu/commits/iommufd_rfcv3
+(requires to test with cdev kernel)
 
- #include <asm/cacheflush.h>
- #include <asm/cache.h>
-@@ -107,3 +109,53 @@ void arch_invalidate_pmem(void *addr, size_t size)
- }
- EXPORT_SYMBOL_GPL(arch_invalidate_pmem);
- #endif
-+
-+#ifdef CONFIG_ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH
-+
-+DEFINE_STATIC_KEY_FALSE(batched_tlb_enabled);
-+
-+int batched_tlb_enabled_handler(struct ctl_table *table, int write,
-+                                     void *buffer, size_t *lenp, loff_t *ppos)
-+{
-+       unsigned int enabled = static_branch_unlikely(&batched_tlb_enabled);
-+       struct ctl_table t;
-+       int err;
-+
-+       if (write && !capable(CAP_SYS_ADMIN))
-+               return -EPERM;
-+
-+       t = *table;
-+       t.data = &enabled;
-+       err = proc_dointvec_minmax(&t, write, buffer, lenp, ppos);
-+       if (!err && write) {
-+               if (enabled)
-+                       static_branch_enable(&batched_tlb_enabled);
-+               else
-+                       static_branch_disable(&batched_tlb_enabled);
-+       }
-+
-+       return err;
-+}
-+
-+static struct ctl_table batched_tlb_sysctls[] = {
-+       {
-+               .procname       = "batched_tlb_enabled",
-+               .data           = NULL,
-+               .maxlen         = sizeof(unsigned int),
-+               .mode           = 0644,
-+               .proc_handler   = batched_tlb_enabled_handler,
-+               .extra1         = SYSCTL_ZERO,
-+               .extra2         = SYSCTL_ONE,
-+       },
-+       {}
-+};
-+
-+static int __init batched_tlb_sysctls_init(void)
-+{
-+       register_sysctl_init("vm", batched_tlb_sysctls);
-+
-+       return 0;
-+}
-+late_initcall(batched_tlb_sysctls_init);
-+
-+#endif
+[1] https://lore.kernel.org/kvm/Y%2FdobS6gdSkxnPH7@nvidia.com/
+[2] https://lore.kernel.org/kvm/Y%2FZOOClu8nXy2toX@nvidia.com/#t
+[3] https://lore.kernel.org/kvm/ZACX+Np%2FIY7ygqL5@nvidia.com/
+[4] https://lore.kernel.org/kvm/DS0PR11MB7529BE88460582BD599DC1F7C3B19@DS0PR11MB7529.namprd11.prod.outlook.com/#t
+[5] https://lore.kernel.org/kvm/ZAcvzvhkt9QhCmdi@nvidia.com/
+[6] https://lore.kernel.org/kvm/ZBoYgNq60eDpV9Un@nvidia.com/
+[7] https://lore.kernel.org/kvm/20230327132619.5ab15440.alex.williamson@redhat.com/
+
+Change log:
+
+v3:
+ - Remove the new _INFO ioctl of v2, extend the existing _INFO ioctl to
+   report devid (Alex)
+ - Add r-b from Jason
+ - Add t-b from Terrence Xu and Yanting Jiang (mainly regression test)
+
+v2: https://lore.kernel.org/kvm/20230327093458.44939-1-yi.l.liu@intel.com/
+ - Split the patch 03 of v1 to be 03, 04 and 05 of v2 (Jaon)
+ - Add r-b from Kevin and Jason
+ - Add patch 10 to introduce a new _INFO ioctl for the usage of device
+   fd passing usage in cdev path (Jason, Alex)
+
+v1: https://lore.kernel.org/kvm/20230316124156.12064-1-yi.l.liu@intel.com/
+
+Regards,
+	Yi Liu
+
+Yi Liu (12):
+  vfio/pci: Update comment around group_fd get in
+    vfio_pci_ioctl_pci_hot_reset()
+  vfio/pci: Only check ownership of opened devices in hot reset
+  vfio/pci: Move the existing hot reset logic to be a helper
+  vfio-iommufd: Add helper to retrieve iommufd_ctx and devid for
+    vfio_device
+  vfio/pci: Allow passing zero-length fd array in
+    VFIO_DEVICE_PCI_HOT_RESET
+  vfio: Refine vfio file kAPIs for vfio PCI hot reset
+  vfio: Accpet device file from vfio PCI hot reset path
+  vfio/pci: Renaming for accepting device fd in hot reset path
+  vfio/pci: Accept device fd in VFIO_DEVICE_PCI_HOT_RESET ioctl
+  vfio: Mark cdev usage in vfio_device
+  iommufd: Define IOMMUFD_INVALID_ID in uapi
+  vfio/pci: Report dev_id in VFIO_DEVICE_GET_PCI_HOT_RESET_INFO
+
+ drivers/iommu/iommufd/device.c   |  12 ++
+ drivers/vfio/group.c             |  32 +++--
+ drivers/vfio/iommufd.c           |  14 +++
+ drivers/vfio/pci/vfio_pci_core.c | 204 ++++++++++++++++++++++---------
+ drivers/vfio/vfio.h              |   2 +
+ drivers/vfio/vfio_main.c         |  44 +++++++
+ include/linux/iommufd.h          |   3 +
+ include/linux/vfio.h             |  21 ++++
+ include/uapi/linux/iommufd.h     |   3 +
+ include/uapi/linux/vfio.h        |  42 ++++++-
+ 10 files changed, 301 insertions(+), 76 deletions(-)
+
+-- 
+2.34.1
 
