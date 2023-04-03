@@ -2,296 +2,136 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D636FC76188
-	for <linux-s390@archiver.kernel.org>; Mon,  3 Apr 2023 14:57:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B8E1BC76196
+	for <linux-s390@archiver.kernel.org>; Mon,  3 Apr 2023 15:02:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232917AbjDCO5e (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 3 Apr 2023 10:57:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59510 "EHLO
+        id S232580AbjDCPCv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 3 Apr 2023 11:02:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232351AbjDCO5b (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 3 Apr 2023 10:57:31 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67A1316954;
-        Mon,  3 Apr 2023 07:57:26 -0700 (PDT)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 333EFEBI016202;
-        Mon, 3 Apr 2023 14:57:26 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=94Qu7r1VQUH1WSULXUjMxRMmlpbvgxAC9U1zvon15wc=;
- b=D9LA+i/JWmo3lOHHMOOOSN5GKDx7OBBs0I2EDo5xzYSWZ/Uu6JWkpQVwjwCjj9CU6TQ2
- PJLkNmB1pJxPl+iICmeXd9vmydy/wNkqeqJ0F+iiW+15y+ux7qNfjolRxLhQuAkgukTO
- 2hSUw7IsphnW160lDvowQaddRDD08aTTnJpeAmxrDR24kpVYte9DQ0Il1+GbdJKBBYnQ
- kW7znP8+K+79wtsVR4qJCFBmGXwBKuWsLP1btD/Ru2pRISYdbhVdu0KxQ8U34b5468TS
- sQhlouZeKIN7nPlArrrKy9w2kbJo7H86TQvsKO9uCNrz0YZrp0UmQ026zlXOWW3VPoEE Qw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pqv579yds-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 03 Apr 2023 14:57:25 +0000
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 333EFGWG024196;
-        Mon, 3 Apr 2023 14:57:25 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pqv579ycn-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 03 Apr 2023 14:57:25 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 332MY5RP010775;
-        Mon, 3 Apr 2023 14:57:23 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3ppbvg1t9u-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 03 Apr 2023 14:57:22 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 333EvJfv12321282
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 3 Apr 2023 14:57:19 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 337D12004D;
-        Mon,  3 Apr 2023 14:57:19 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BBCBD2004B;
-        Mon,  3 Apr 2023 14:57:18 +0000 (GMT)
-Received: from [9.179.22.128] (unknown [9.179.22.128])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Mon,  3 Apr 2023 14:57:18 +0000 (GMT)
-Message-ID: <25d92c71-b495-9c0a-790d-d310710060d9@linux.ibm.com>
-Date:   Mon, 3 Apr 2023 16:57:18 +0200
+        with ESMTP id S232537AbjDCPCu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 3 Apr 2023 11:02:50 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33DEEF76E
+        for <linux-s390@vger.kernel.org>; Mon,  3 Apr 2023 08:01:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1680534116;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=LDT5Lf+qM0AXT+Qr2m1vjFVPSH4VkpP6LN6DDAc5Ys4=;
+        b=cPdhHpDtKZ4UPsPdXz/WVSWYZpTVeNx3t2sefMGfnpFc1kyD4HiZgwxZM2/Z4f2gPzE9w+
+        WvMfU86ekfF0TsNUVsED+kFZfsVrFudfbyGPAZ8B+66euaUGzbgrsDf72EIJI2/+wLQb0B
+        Eh54As+dbKFL+Chy03J0U1Gn7v/qqhY=
+Received: from mail-il1-f199.google.com (mail-il1-f199.google.com
+ [209.85.166.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-197-aLTKqIcdMlCbaLhsGY_Esw-1; Mon, 03 Apr 2023 11:01:55 -0400
+X-MC-Unique: aLTKqIcdMlCbaLhsGY_Esw-1
+Received: by mail-il1-f199.google.com with SMTP id d11-20020a056e020c0b00b00326156e3a8bso13753694ile.3
+        for <linux-s390@vger.kernel.org>; Mon, 03 Apr 2023 08:01:54 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1680534114;
+        h=content-transfer-encoding:mime-version:organization:references
+         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=LDT5Lf+qM0AXT+Qr2m1vjFVPSH4VkpP6LN6DDAc5Ys4=;
+        b=sFZzepqHyhvEQytkzxlG9mTiUSb6iRMuxKnGM/o7ECWORzyQdRSenkLaCoZCVDNSPn
+         EXTqgKKfyMTC27bOUJCwJgCoyjSClMFaqfmeSsNX+Xja1R+gQMLZzpa/m2020uodccKh
+         n4UJY6E0NPDynOo2x76g3+1qIIwPL/H67ReRg3GJq16GkCZLt29Rh4kWDOUemegdv5UO
+         1HFahk1MrbZZlKs3fUPOHO+ih1q4GIohKhbMGrKig3AGqb3YFdIv8GoR0xQPRoNukd3p
+         G/toTTg2jgPgNblMARCqBQX2ZWu0q95sb/yGxhY9cfSNdFTvN+WoBI+Vga+tyTxIzC06
+         EHuQ==
+X-Gm-Message-State: AO0yUKWrsK7KDr5TZUwYS5fs55Wl1wfZTzNkAnvk2A0bsxTXGcxUnBYb
+        exNF8i+JPRODizAfZANWK9mi+2cLowb5Y4G9+0LMKIRIiQccEeHZ6NBBj9GQ93SsBLagWN/6/o6
+        V4Phlbf/buUBPkYxjeqQAbQ==
+X-Received: by 2002:a5d:8142:0:b0:74c:e456:629d with SMTP id f2-20020a5d8142000000b0074ce456629dmr25003483ioo.7.1680534114161;
+        Mon, 03 Apr 2023 08:01:54 -0700 (PDT)
+X-Google-Smtp-Source: AK7set+kaGi07I/wH0q13cJZHTVv8M0jb8SFu1aYqy0WHHoYlpxzwPnYGZcVa2Sxzy5OzWM2Y+hdQQ==
+X-Received: by 2002:a5d:8142:0:b0:74c:e456:629d with SMTP id f2-20020a5d8142000000b0074ce456629dmr25003444ioo.7.1680534113860;
+        Mon, 03 Apr 2023 08:01:53 -0700 (PDT)
+Received: from redhat.com ([38.15.36.239])
+        by smtp.gmail.com with ESMTPSA id q49-20020a056638347100b00408b3bc8061sm2735465jav.43.2023.04.03.08.01.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 03 Apr 2023 08:01:53 -0700 (PDT)
+Date:   Mon, 3 Apr 2023 09:01:51 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     "Liu, Yi L" <yi.l.liu@intel.com>
+Cc:     "jgg@nvidia.com" <jgg@nvidia.com>,
+        "Tian, Kevin" <kevin.tian@intel.com>,
+        "joro@8bytes.org" <joro@8bytes.org>,
+        "robin.murphy@arm.com" <robin.murphy@arm.com>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "eric.auger@redhat.com" <eric.auger@redhat.com>,
+        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
+        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
+        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
+        "peterx@redhat.com" <peterx@redhat.com>,
+        "jasowang@redhat.com" <jasowang@redhat.com>,
+        "shameerali.kolothum.thodi@huawei.com" 
+        <shameerali.kolothum.thodi@huawei.com>,
+        "lulu@redhat.com" <lulu@redhat.com>,
+        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
+        "intel-gvt-dev@lists.freedesktop.org" 
+        <intel-gvt-dev@lists.freedesktop.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "Hao, Xudong" <xudong.hao@intel.com>,
+        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
+        "Xu, Terrence" <terrence.xu@intel.com>,
+        "Jiang, Yanting" <yanting.jiang@intel.com>
+Subject: Re: [PATCH v3 12/12] vfio/pci: Report dev_id in
+ VFIO_DEVICE_GET_PCI_HOT_RESET_INFO
+Message-ID: <20230403090151.4cb2158c.alex.williamson@redhat.com>
+In-Reply-To: <DS0PR11MB752996A6E6B3263BAD01DAC2C3929@DS0PR11MB7529.namprd11.prod.outlook.com>
+References: <20230401144429.88673-1-yi.l.liu@intel.com>
+        <20230401144429.88673-13-yi.l.liu@intel.com>
+        <DS0PR11MB752996A6E6B3263BAD01DAC2C3929@DS0PR11MB7529.namprd11.prod.outlook.com>
+Organization: Red Hat
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.8.0
-Subject: Re: [kvm-unit-tests PATCH 5/5] s390x: ap: Add reset tests
-To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc:     thuth@redhat.com, imbrenda@linux.ibm.com, nrb@linux.ibm.com,
-        linux-s390@vger.kernel.org
-References: <20230330114244.35559-1-frankja@linux.ibm.com>
- <20230330114244.35559-6-frankja@linux.ibm.com>
-Content-Language: en-US
-From:   Pierre Morel <pmorel@linux.ibm.com>
-In-Reply-To: <20230330114244.35559-6-frankja@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: N7sMy_dj_zI5HUf9VWQBAICuyiMGy7Ee
-X-Proofpoint-GUID: LVITq-NQMWd89DHCDOX5cCXH3Bvw-HYM
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-04-03_11,2023-04-03_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- malwarescore=0 priorityscore=1501 bulkscore=0 spamscore=0 impostorscore=0
- phishscore=0 adultscore=0 suspectscore=0 mlxlogscore=999 clxscore=1015
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2303200000 definitions=main-2304030105
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Mon, 3 Apr 2023 09:25:06 +0000
+"Liu, Yi L" <yi.l.liu@intel.com> wrote:
 
-On 3/30/23 13:42, Janosch Frank wrote:
-> Test if the IRQ enablement is turned off on a reset or zeroize PQAP.
->
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> ---
->   lib/s390x/ap.c | 68 ++++++++++++++++++++++++++++++++++++++++++++++++++
->   lib/s390x/ap.h |  4 +++
->   s390x/ap.c     | 52 ++++++++++++++++++++++++++++++++++++++
->   3 files changed, 124 insertions(+)
->
-> diff --git a/lib/s390x/ap.c b/lib/s390x/ap.c
-> index aaf5b4b9..d969b2a5 100644
-> --- a/lib/s390x/ap.c
-> +++ b/lib/s390x/ap.c
-> @@ -113,6 +113,74 @@ int ap_pqap_qci(struct ap_config_info *info)
->   	return cc;
->   }
->   
-> +static int pqap_reset(uint8_t ap, uint8_t qn, struct ap_queue_status *r1,
-> +		      bool zeroize)
+> > From: Liu, Yi L <yi.l.liu@intel.com>
+> > Sent: Saturday, April 1, 2023 10:44 PM  
+> 
+> > @@ -791,7 +813,21 @@ static int vfio_pci_fill_devs(struct pci_dev *pdev, void *data)
+> >  	if (!iommu_group)
+> >  		return -EPERM; /* Cannot reset non-isolated devices */  
+> 
+> Hi Alex,
+> 
+> Is disabling iommu a sane way to test vfio noiommu mode?
 
+Yes
 
-NIT. Personal opinion, I find using this bool a little obfuscating and I 
-would have prefer 2 different functions.
+> I added intel_iommu=off to disable intel iommu and bind a device to vfio-pci.
+> I can see the /dev/vfio/noiommu-0 and /dev/vfio/devices/noiommu-vfio0. Bind
+> iommufd==-1 can succeed, but failed to get hot reset info due to the above
+> group check. Reason is that this happens to have some affected devices, and
+> these devices have no valid iommu_group (because they are not bound to vfio-pci
+> hence nobody allocates noiommu group for them). So when hot reset info loops
+> such devices, it failed with -EPERM. Is this expected?
 
-I see you added a ap_pqap_reset() and ap_pqap_zeroize() next in the code.
+Hmm, I didn't recall that we put in such a limitation, but given the
+minimally intrusive approach to no-iommu and the fact that we never
+defined an invalid group ID to return to the user, it makes sense that
+we just blocked the ioctl for no-iommu use.  I guess we can do the same
+for no-iommu cdev.
 
-Why this intermediate level?
+BTW, what does this series apply on?  I'm assuming[1], but I don't see
+a branch from Jason yet.  Thanks,
 
+Alex
 
-> +{
-> +	struct pqap_r0 r0 = {};
-> +	int cc;
-> +
-> +	/*
-> +	 * Reset/zeroize AP Queue
-> +	 *
-> +	 * Resets/zeroizes a queue and disables IRQs
-> +	 *
-> +	 * Inputs: 0
-> +	 * Outputs: 1
-> +	 * Asynchronous
-> +	 */
-> +	r0.ap = ap;
-> +	r0.qn = qn;
-> +	r0.fc = zeroize ? PQAP_ZEROIZE_APQ : PQAP_RESET_APQ;
-> +	asm volatile(
-> +		"	lgr	0,%[r0]\n"
-> +		"	lgr	1,%[r1]\n"
-> +		"	.insn	rre,0xb2af0000,0,0\n" /* PQAP */
-> +		"	ipm	%[cc]\n"
-> +		"	srl	%[cc],28\n"
-> +		: [r1] "+&d" (r1), [cc] "=&d" (cc)
-> +		: [r0] "d" (r0)
-> +		: "memory");
-> +
-> +	return cc;
-> +}
-> +
-> +static int pqap_reset_wait(uint8_t ap, uint8_t qn, struct ap_queue_status *apqsw,
-> +			   bool zeroize)
-> +{
-> +	struct pqap_r2 r2 = {};
-> +	int cc;
-> +
-> +	cc = pqap_reset(ap, qn, apqsw, zeroize);
-> +	/* On a cc == 3 / error we don't need to wait */
-> +	if (cc)
-> +		return cc;
-> +
-> +	/*
-> +	 * TAPQ returns AP_RC_RESET_IN_PROGRESS if a reset is being
-> +	 * processed
-> +	 */
-> +	do {
-> +		cc = ap_pqap_tapq(ap, qn, apqsw, &r2);
-> +		/* Give it some time to process before the retry */
-> +		mdelay(20);
-> +	} while (apqsw->rc == AP_RC_RESET_IN_PROGRESS);
-> +
-> +	if (apqsw->rc)
-> +		printf("Wait for reset failed on ap %d queue %d with tapq rc %d.",
-> +			ap, qn, apqsw->rc);
-> +	return cc;
-> +}
-> +
-> +int ap_pqap_reset(uint8_t ap, uint8_t qn, struct ap_queue_status *apqsw)
-> +{
-> +	return pqap_reset_wait(ap, qn, apqsw, false);
-> +}
-> +
-> +int ap_pqap_reset_zeroize(uint8_t ap, uint8_t qn, struct ap_queue_status *apqsw)
-> +{
-> +	return pqap_reset_wait(ap, qn, apqsw, true);
-> +}
-> +
->   static int ap_get_apqn(uint8_t *ap, uint8_t *qn)
->   {
->   	unsigned long *ptr;
-> diff --git a/lib/s390x/ap.h b/lib/s390x/ap.h
-> index 3f9e2eb6..f9343b5f 100644
-> --- a/lib/s390x/ap.h
-> +++ b/lib/s390x/ap.h
-> @@ -12,6 +12,8 @@
->   #ifndef _S390X_AP_H_
->   #define _S390X_AP_H_
->   
-> +#define AP_RC_RESET_IN_PROGRESS	0x02
-> +
->   enum PQAP_FC {
->   	PQAP_TEST_APQ,
->   	PQAP_RESET_APQ,
-> @@ -94,6 +96,8 @@ _Static_assert(sizeof(struct ap_qirq_ctrl) == sizeof(uint64_t),
->   int ap_setup(uint8_t *ap, uint8_t *qn);
->   int ap_pqap_tapq(uint8_t ap, uint8_t qn, struct ap_queue_status *apqsw,
->   		 struct pqap_r2 *r2);
-> +int ap_pqap_reset(uint8_t ap, uint8_t qn, struct ap_queue_status *apqsw);
-> +int ap_pqap_reset_zeroize(uint8_t ap, uint8_t qn, struct ap_queue_status *apqsw);
->   int ap_pqap_qci(struct ap_config_info *info);
->   int ap_pqap_aqic(uint8_t ap, uint8_t qn, struct ap_queue_status *apqsw,
->   		 struct ap_qirq_ctrl aqic, unsigned long addr);
-> diff --git a/s390x/ap.c b/s390x/ap.c
-> index 31dcfe29..47b4f832 100644
-> --- a/s390x/ap.c
-> +++ b/s390x/ap.c
-> @@ -341,6 +341,57 @@ static void test_pqap_aqic(void)
->   	report_prefix_pop();
->   }
->   
-> +static void test_pqap_resets(void)
-> +{
-> +	struct ap_queue_status apqsw = {};
-> +	static uint8_t not_ind_byte;
-> +	struct ap_qirq_ctrl aqic = {};
-> +	struct pqap_r2 r2 = {};
-> +
-> +	int cc;
-> +
-> +	report_prefix_push("pqap");
-> +	report_prefix_push("rapq");
-> +
-> +	/* Enable IRQs which the resets will disable */
-> +	aqic.ir = 1;
-> +	cc = ap_pqap_aqic(apn, qn, &apqsw, aqic, (uintptr_t)&not_ind_byte);
-> +	report(cc == 0 && apqsw.rc == 0, "enable");
+[1]https://lore.kernel.org/all/20230327093351.44505-1-yi.l.liu@intel.com/
 
-Depending on history I think we could have apqsw == 07 here.
-
-(interrupt already set as requested)
-
-
-> +
-> +	do {
-> +		cc = ap_pqap_tapq(apn, qn, &apqsw, &r2);
-
-
-may be a little delay before retry as you do above for ap_reset_wait()?
-
-
-> +	} while (cc == 0 && apqsw.irq_enabled == 0);
-> +	report(apqsw.irq_enabled == 1, "IRQs enabled");
-> +
-> +	ap_pqap_reset(apn, qn, &apqsw);
-> +	cc = ap_pqap_tapq(apn, qn, &apqsw, &r2);
-> +	assert(!cc);
-> +	report(apqsw.irq_enabled == 0, "IRQs have been disabled");
-
-shouldn't we check that the APQ is fine apqsw.rc == 0 ?
-
-
-> +
-> +	report_prefix_pop();
-> +
-> +	report_prefix_push("zapq");
-> +
-> +	/* Enable IRQs which the resets will disable */
-> +	aqic.ir = 1;
-> +	cc = ap_pqap_aqic(apn, qn, &apqsw, aqic, (uintptr_t)&not_ind_byte);
-> +	report(cc == 0 && apqsw.rc == 0, "enable");
-> +
-> +	do {
-> +		cc = ap_pqap_tapq(apn, qn, &apqsw, &r2);
-> +	} while (cc == 0 && apqsw.irq_enabled == 0);
-> +	report(apqsw.irq_enabled == 1, "IRQs enabled");
-> +
-> +	ap_pqap_reset_zeroize(apn, qn, &apqsw);
-> +	cc = ap_pqap_tapq(apn, qn, &apqsw, &r2);
-> +	assert(!cc);
-> +	report(apqsw.irq_enabled == 0, "IRQs have been disabled");
-> +
-> +	report_prefix_pop();
-> +
-> +	report_prefix_pop();
-> +}
-> +
->   int main(void)
->   {
->   	int setup_rc = ap_setup(&apn, &qn);
-> @@ -362,6 +413,7 @@ int main(void)
->   		goto done;
->   	}
->   	test_pqap_aqic();
-> +	test_pqap_resets();
->   
->   done:
->   	report_prefix_pop();
