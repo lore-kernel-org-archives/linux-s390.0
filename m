@@ -2,32 +2,32 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BBA4AC76188
-	for <linux-s390@archiver.kernel.org>; Mon,  3 Apr 2023 14:41:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3976AC761AF
+	for <linux-s390@archiver.kernel.org>; Mon,  3 Apr 2023 14:51:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233810AbjDCOlo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 3 Apr 2023 10:41:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55272 "EHLO
+        id S234181AbjDCOvK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 3 Apr 2023 10:51:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233807AbjDCOln (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 3 Apr 2023 10:41:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 263F017AF3;
-        Mon,  3 Apr 2023 07:41:42 -0700 (PDT)
+        with ESMTP id S234223AbjDCOux (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 3 Apr 2023 10:50:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADCF829BC3;
+        Mon,  3 Apr 2023 07:50:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C8C96B81CF8;
-        Mon,  3 Apr 2023 14:41:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E4AEC433D2;
-        Mon,  3 Apr 2023 14:41:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 93A2BB81D74;
+        Mon,  3 Apr 2023 14:49:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA317C433EF;
+        Mon,  3 Apr 2023 14:49:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532899;
+        s=korg; t=1680533391;
         bh=BML+I3nOveJkWdAOgxel/c36NkkJSeTGD2sjU0O6seI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I+fErZZ23f8tqnbjboJ5YuShgfLZrXkHzcw2sZc3zYV6czCSXohEwEWaaDm4nQZ9J
-         6o2HHdcfKcOdsNenPM4Cqewc9lIMMb4Zv/bXlwZBWD6Go8SDZMPpPvKazJNsc8lChS
-         VusFSseWW6qVGnRBn6/a56O3OxDGxD1qi+WdVDt4=
+        b=bZZ1QscW7nLinnjG+kyMT6pj+VjLzR+DhF/MfeUoRlzepuoZLkqOEr9uO0XVvTEWq
+         RNigG77PclPm1l0a9ZCJHHvwef6iASqLW3+qhdWEf0Qe/4XD1ysH+GNjlAlwkutDsF
+         vgRHUPRqtMQyAz93w+kVcokZHpMG41QfwqtuB7N4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -39,12 +39,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sven Schnelle <svens@linux.ibm.com>,
         linux-s390@vger.kernel.org,
         "Jiri Slaby (SUSE)" <jirislaby@kernel.org>
-Subject: [PATCH 6.1 160/181] s390: reintroduce expoline dependence to scripts
-Date:   Mon,  3 Apr 2023 16:09:55 +0200
-Message-Id: <20230403140420.294144536@linuxfoundation.org>
+Subject: [PATCH 6.2 166/187] s390: reintroduce expoline dependence to scripts
+Date:   Mon,  3 Apr 2023 16:10:11 +0200
+Message-Id: <20230403140421.642822033@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
