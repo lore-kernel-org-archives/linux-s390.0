@@ -2,91 +2,99 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CB555C77B62
-	for <linux-s390@archiver.kernel.org>; Mon,  3 Apr 2023 10:19:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BBA4AC76188
+	for <linux-s390@archiver.kernel.org>; Mon,  3 Apr 2023 14:41:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232255AbjDCKTd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 3 Apr 2023 06:19:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37834 "EHLO
+        id S233810AbjDCOlo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 3 Apr 2023 10:41:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232351AbjDCKTL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 3 Apr 2023 06:19:11 -0400
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA7AD12BD2;
-        Mon,  3 Apr 2023 03:18:58 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R211e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=kaishen@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VfHQgtD_1680517135;
-Received: from 30.221.116.42(mailfrom:KaiShen@linux.alibaba.com fp:SMTPD_---0VfHQgtD_1680517135)
-          by smtp.aliyun-inc.com;
-          Mon, 03 Apr 2023 18:18:56 +0800
-Message-ID: <a32eff21-fe49-5284-2485-25b4f14a7239@linux.alibaba.com>
-Date:   Mon, 3 Apr 2023 18:18:54 +0800
+        with ESMTP id S233807AbjDCOln (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 3 Apr 2023 10:41:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 263F017AF3;
+        Mon,  3 Apr 2023 07:41:42 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C8C96B81CF8;
+        Mon,  3 Apr 2023 14:41:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E4AEC433D2;
+        Mon,  3 Apr 2023 14:41:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1680532899;
+        bh=BML+I3nOveJkWdAOgxel/c36NkkJSeTGD2sjU0O6seI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=I+fErZZ23f8tqnbjboJ5YuShgfLZrXkHzcw2sZc3zYV6czCSXohEwEWaaDm4nQZ9J
+         6o2HHdcfKcOdsNenPM4Cqewc9lIMMb4Zv/bXlwZBWD6Go8SDZMPpPvKazJNsc8lChS
+         VusFSseWW6qVGnRBn6/a56O3OxDGxD1qi+WdVDt4=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     stable@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        patches@lists.linux.dev, Joe Lawrence <joe.lawrence@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        linux-s390@vger.kernel.org,
+        "Jiri Slaby (SUSE)" <jirislaby@kernel.org>
+Subject: [PATCH 6.1 160/181] s390: reintroduce expoline dependence to scripts
+Date:   Mon,  3 Apr 2023 16:09:55 +0200
+Message-Id: <20230403140420.294144536@linuxfoundation.org>
+X-Mailer: git-send-email 2.40.0
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
+User-Agent: quilt/0.67
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.9.1
-From:   Kai <KaiShen@linux.alibaba.com>
-Subject: Re: [PATCH net-next] net/smc: introduce shadow sockets for fallback
- connections
-To:     Wenjia Zhang <wenjia@linux.ibm.com>, kgraul@linux.ibm.com,
-        jaka@linux.ibm.com, kuba@kernel.org, davem@davemloft.net,
-        dsahern@kernel.org
-Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-rdma@vger.kernel.org
-References: <20230321071959.87786-1-KaiShen@linux.alibaba.com>
- <170b35d9-2071-caf3-094e-6abfb7cefa75@linux.ibm.com>
- <7fa69883-9af5-4b2a-7853-9697ff30beba@linux.alibaba.com>
- <df825d71-eb6d-ac73-7f7f-33277fde6b12@linux.ibm.com>
-Content-Language: en-US
-In-Reply-To: <df825d71-eb6d-ac73-7f7f-33277fde6b12@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+From: Jiri Slaby (SUSE) <jirislaby@kernel.org>
+
+commit 7bb2107e63d8a4a13bbb6fe0e1cbd68784a2e9ac upstream.
+
+Expolines depend on scripts/basic/fixdep. And build of expolines can now
+race with the fixdep build:
+
+ make[1]: *** Deleting file 'arch/s390/lib/expoline/expoline.o'
+ /bin/sh: line 1: scripts/basic/fixdep: Permission denied
+ make[1]: *** [../scripts/Makefile.build:385: arch/s390/lib/expoline/expoline.o] Error 126
+ make: *** [../arch/s390/Makefile:166: expoline_prepare] Error 2
+
+The dependence was removed in the below Fixes: commit. So reintroduce
+the dependence on scripts.
+
+Fixes: a0b0987a7811 ("s390/nospec: remove unneeded header includes")
+Cc: Joe Lawrence <joe.lawrence@redhat.com>
+Cc: stable@vger.kernel.org
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org
+Signed-off-by: Jiri Slaby (SUSE) <jirislaby@kernel.org>
+Link: https://lore.kernel.org/r/20230316112809.7903-1-jirislaby@kernel.org
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ arch/s390/Makefile |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/arch/s390/Makefile
++++ b/arch/s390/Makefile
+@@ -162,7 +162,7 @@ vdso_prepare: prepare0
+ 
+ ifdef CONFIG_EXPOLINE_EXTERN
+ modules_prepare: expoline_prepare
+-expoline_prepare:
++expoline_prepare: scripts
+ 	$(Q)$(MAKE) $(build)=arch/s390/lib/expoline arch/s390/lib/expoline/expoline.o
+ endif
+ endif
 
 
-On 3/29/23 5:41 PM, Wenjia Zhang wrote:
-> 
-> 
-> 
-> On 24.03.23 08:26, Kai wrote:
->>
->>
->> On 3/23/23 1:09 AM, Wenjia Zhang wrote:
->>>
->>>
->>> On 21.03.23 08:19, Kai Shen wrote:
->>>> SMC-R performs not so well on fallback situations right now,
->>>> especially on short link server fallback occasions. We are planning
->>>> to make SMC-R widely used and handling this fallback performance
->>>> issue is really crucial to us. Here we introduce a shadow socket
->>>> method to try to relief this problem.
->>>>
->>> Could you please elaborate the problem?
->>
->> Here is the background. We are using SMC-R to accelerate server-client 
->> applications by using SMC-R on server side, but not all clients use 
->> SMC-R. So in these occasions we hope that the clients using SMC-R get 
->> acceleration while the clients that fallback to TCP will get the 
->> performance no worse than TCP.
-> 
-> I'm wondering how the usecase works? How are the server-client 
-> applications get accelerated by using SMC-R? If your case rely on the 
-> fallback, why don't use TCP/IP directly?
-> 
-
-Our goal is to replace TCP with SMC-R on Cloud as much as possible.
-Many applications will use SMC-R by default but not all(like they are
-not using then latest OS). So a SMC-R using server must be ready to
-serve SMC-R clients and TCP clients in the mean time. As a result
-fallback will happend.
-
-In these cases we hope clients using SMC-R get accelerated and clients
-using TCP get no performance loss. The server using SMC-R can't tell if
-the next client use SMC-R or TCP util their TCP SYN comes and this lead
-to fallback when a client use TCP. But the current SMC-R server fallback
-path which handles incoming TCP connection requests will compromise the
-performance of TCP clients. So we want to optimize SMC-R server fallback
-path.
-
-Thanks.
