@@ -2,163 +2,87 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 945B8C76188
-	for <linux-s390@archiver.kernel.org>; Mon,  3 Apr 2023 16:12:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DDBD6C6FD1D
+	for <linux-s390@archiver.kernel.org>; Tue,  4 Apr 2023 06:39:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232011AbjDCQMp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 3 Apr 2023 12:12:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43242 "EHLO
+        id S233352AbjDDGj1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 4 Apr 2023 02:39:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232299AbjDCQMn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 3 Apr 2023 12:12:43 -0400
-Received: from NAM02-BN1-obe.outbound.protection.outlook.com (mail-bn1nam02on2061.outbound.protection.outlook.com [40.107.212.61])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D58BE6;
-        Mon,  3 Apr 2023 09:12:42 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=GwouQLCCwWSt5I1aRNIigtAuqG6q1qumaJ+Vtyk//2+OXs02bRWKitVmdCdHKFJp2NlEVWbubvFBLjtw+5rDwm2w4roclcFKhCwsG0YtKddur97Ajou61c90pJS6Zw8xtDFJWX31Cj8GcpHv+b61tYUZ/mkkFvbTLb9BRLWFnrjYiHk8XshrV9F08VFINF5bVRHlyLRwk87rxfKvBnQxpDwkidGfHxjw0GjTUz8mgbqN+z+/CjibPpXYn93uddpUMtArfezfJmHd8MPtG6dGGZxmEvJ/kQ8Jh3DCxsr3Vl68b+xWbU2paY3Co1P6mV8p/JMrrr33pj5Z0nhL6i9k+Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=tMdHQu+68+AGzyqov7eWBPcUXZQGM/PD2j0MB5+OC+8=;
- b=Y6pjQpDN2mKsf1Q4oTX8UIps5xIg2SQN7rURwUVbRHs52SF3uf3V7WqJPr4FW0uNJAsA32gA1GjZw2rrYfAw0s1xQngyARWTXeU98xItDyEm1np/byjTePE3zVbKDlsE/FyiZSD86Y3CnzjYH8wq6cG5pJ6Y72lmaeYP35AtEi+he7z7mlecc7L3YxfryhGh0DIFAwlULA6qe0pVphfjCdXFGKnzH1JqPisOu5BBj451FBfaZ1hQp8UkiU5T25iEnbAkR1UTeSLMe7fdR0YWq/LCiJk+XCQ1tr/HKGPclLnHklh5Dvjt1qfi+xjm/2+bFgGVjIOTpiQ8rXtpkxhMUQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=tMdHQu+68+AGzyqov7eWBPcUXZQGM/PD2j0MB5+OC+8=;
- b=uhwx/2+McmFDYvbM1PQm4JuU2BOaIIIE9da5n6IzjTy74TSiNoTFKXKiL4GiaQ3rBw2RJ5IFt3HcOlkPy8C047QBTGAS+6dqXjv/eZommxIwuX7pujCnOLNgTYdDdE2eucsMcoiSJZuU7fpfjbM1ygD6Wr1Vqj2LW7jxe9NkECnEITotJ/Q0Pat768PKarNNFOYX1oihetlb9s1QbkKgMh462gayCZRYOHvc73g/9JPoUHP5cijwlIhXQfX2u2AbHMBscN+OfOuJV54Uc0y1FfJ18T7SndaA3Jy3o4tcLBi8NxcmGmSJiEX/aDxDSeA+Qv3bdZ3VJUeVNt09kFcIsQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
- by SN7PR12MB6689.namprd12.prod.outlook.com (2603:10b6:806:273::17) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6254.33; Mon, 3 Apr
- 2023 16:12:39 +0000
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::ef6d:fdf6:352f:efd1]) by LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::ef6d:fdf6:352f:efd1%3]) with mapi id 15.20.6178.037; Mon, 3 Apr 2023
- 16:12:39 +0000
-Date:   Mon, 3 Apr 2023 13:12:37 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Alex Williamson <alex.williamson@redhat.com>
-Cc:     "Liu, Yi L" <yi.l.liu@intel.com>,
-        "Tian, Kevin" <kevin.tian@intel.com>,
-        "joro@8bytes.org" <joro@8bytes.org>,
-        "robin.murphy@arm.com" <robin.murphy@arm.com>,
-        "cohuck@redhat.com" <cohuck@redhat.com>,
-        "eric.auger@redhat.com" <eric.auger@redhat.com>,
-        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
-        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
-        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
-        "peterx@redhat.com" <peterx@redhat.com>,
-        "jasowang@redhat.com" <jasowang@redhat.com>,
-        "shameerali.kolothum.thodi@huawei.com" 
-        <shameerali.kolothum.thodi@huawei.com>,
-        "lulu@redhat.com" <lulu@redhat.com>,
-        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "Hao, Xudong" <xudong.hao@intel.com>,
-        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
-        "Xu, Terrence" <terrence.xu@intel.com>,
-        "Jiang, Yanting" <yanting.jiang@intel.com>
-Subject: Re: [PATCH v3 12/12] vfio/pci: Report dev_id in
- VFIO_DEVICE_GET_PCI_HOT_RESET_INFO
-Message-ID: <ZCr69WIdIW6Ai+L8@nvidia.com>
-References: <20230401144429.88673-1-yi.l.liu@intel.com>
- <20230401144429.88673-13-yi.l.liu@intel.com>
- <DS0PR11MB752996A6E6B3263BAD01DAC2C3929@DS0PR11MB7529.namprd11.prod.outlook.com>
- <20230403090151.4cb2158c.alex.williamson@redhat.com>
- <DS0PR11MB7529A380EF7E3F33C5DCEE3EC3929@DS0PR11MB7529.namprd11.prod.outlook.com>
- <20230403093218.04e79d32.alex.williamson@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20230403093218.04e79d32.alex.williamson@redhat.com>
-X-ClientProxiedBy: BL1P222CA0030.NAMP222.PROD.OUTLOOK.COM
- (2603:10b6:208:2c7::35) To LV2PR12MB5869.namprd12.prod.outlook.com
- (2603:10b6:408:176::16)
+        with ESMTP id S232971AbjDDGjZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Apr 2023 02:39:25 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2D851BE1
+        for <linux-s390@vger.kernel.org>; Mon,  3 Apr 2023 23:39:22 -0700 (PDT)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3346aEOJ006001
+        for <linux-s390@vger.kernel.org>; Tue, 4 Apr 2023 06:39:22 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=g2z0o6A9XIARI6PwBxL7jddQu8xpNWypLqrqGMDXF/0=;
+ b=EbAXL/eKN6hqqDdp3D8+/+g24Vt1fBN282T4+I7WLzZ8EweCHuiaVxXvdirpLmvSszXE
+ BZBjxmPHf3saUJ93bpVZNzNuFhQJgh01NVo1eS3YJd1Ph55v/GzDXJwjF4DZMw61EKWC
+ iKkDeGVoGM/jKjiYdA4e4ndiC94n3rLCQrsNkufQI5PLbe8Dfp+VThN0/hJ9FDTSFz0V
+ C5vyUn5sXRq+5mi3bI9q4Z3DSUdjDIWLfj5Nnq769k/QDQyvEDM6oDm6MuXbrBreOXwU
+ 1ZcEo/CqAr1LtUnCqk70PK/nVc6YV3Oy82UN11kCKJYhu9EX+jM77WICvvN0LPfLTR41 fw== 
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pqygxfgj3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 04 Apr 2023 06:39:22 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3342ZYo0019405
+        for <linux-s390@vger.kernel.org>; Tue, 4 Apr 2023 06:39:18 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+        by ppma02fra.de.ibm.com (PPS) with ESMTPS id 3ppc86sqd9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 04 Apr 2023 06:39:17 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3346dEHT26083912
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 4 Apr 2023 06:39:14 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5600C2004D;
+        Tue,  4 Apr 2023 06:39:14 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A537C20040;
+        Tue,  4 Apr 2023 06:39:13 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.171.23.84])
+        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Tue,  4 Apr 2023 06:39:13 +0000 (GMT)
+Date:   Tue, 4 Apr 2023 08:39:12 +0200
+From:   Alexander Gordeev <agordeev@linux.ibm.com>
+To:     Nico Boehr <nrb@linux.ibm.com>
+Cc:     hca@linux.ibm.com, gor@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, linux-s390@vger.kernel.org,
+        mhartmay@linux.ibm.com
+Subject: Re: [PATCH v3 1/1] s390: ipl: fix physical-virtual confusion for
+ diag308
+Message-ID: <ZCvGEEyQZ7JTsEcc@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <20230310133411.139275-1-nrb@linux.ibm.com>
+ <20230310133411.139275-2-nrb@linux.ibm.com>
+ <ZCaCRTNEJKDMfhQo@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+ <168024697476.295696.16876742423274337392@t14-nrb>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|SN7PR12MB6689:EE_
-X-MS-Office365-Filtering-Correlation-Id: 65ead01d-4724-44da-bef1-08db345e3ede
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: vFvbAjdpOs4aDz0aePpMej9OStseV7xWoEMaVx1aBWPHL5rHHJZqUgiTrGgeYXlzQmX3maU6plSZlZXjiBN6blx+PP7kcDoJnt22hNAFB8vfoGXiI9j56d1XOWUCzZOo217YLI8BuMvXnXNzuzWBEfQQgkahh9JQiAQgZxWR4LEn1UIUGRceUYScEXgzTg9p5kz+a+t8Rw+d2t7kiBxse/Z+zz+KtiZikoJSsBkC1eo0CNEaI3IYAs1XdPyMr2BgHi+2bKlApkWmi//t1jDPc6P5wfXzxxZASwctfpytyQMnEGBA0MQ+dfsdNuWGPgG34/LJ5fP+A+L14bqUNbwHSU5bebrxp0Uc0khz3JE4hyVIpbJDQzpv9t2dezup0tVfahu9CIihZVF3XH19PZ7z1eBXlmCiG241YlLmvAhGZS63PKuyvmM4OY2rA0XI7fNZoPFZdu4h0NGGAfgm2Qw2NEMGx9z2b0bxXmm/T5XNFVMvrFGyq2kCSnqBX1XJn5bsAH5xKYn1Me32/cEvldrX6abLG36W3Y9N+CdUhQYfBQiQooGuo4+VvSTnM/7rgKSwkv+ze/ITJtmZmsEyN3OU4HCdOa/1o8Hcsdf7aEbKc3IyKiEnN4t0QsnI+Pzp1pJ8SUPWsop5oQD+YoB5K6PVh7JdZS4nwU7m1QRLGQePnUDgmLjLu+HXo0HvNqgCIHU2
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(376002)(366004)(136003)(39860400002)(346002)(396003)(451199021)(36756003)(86362001)(316002)(66556008)(66946007)(66476007)(41300700001)(966005)(6486002)(6916009)(4326008)(54906003)(7416002)(8676002)(4744005)(2906002)(8936002)(478600001)(5660300002)(38100700002)(186003)(6512007)(6506007)(26005)(2616005)(67856001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?MVZTcE5JN2IxWjA2b1o1Y2dKczMxOWcxZ3VYaWlpZ1dwWmFxdG4ybjNWUWhW?=
- =?utf-8?B?UnZ0b25NRGJGeTJvRTUwVDFGeEQzcDRCRlVQUXZhc05ZRTNvaUlNaUhkbzFl?=
- =?utf-8?B?ZXh6QmtGV3ZwSllWemJnQ3hqRkdSZVE5RkFZR3V4bXc3UXpMUEd5YTBTQitQ?=
- =?utf-8?B?S3dkeWRJdmtydkQzeHNYSDFGY25kN25DN0dySXRxOGJJUmVOQnZOMHJoZ1Fw?=
- =?utf-8?B?Uit3dzBkVmJRSkNOSlpkOEdadjJrdkFCRHY4UGJ0NnJnU2JmMkNnRjl6UXcv?=
- =?utf-8?B?NG1rREFyTTdGMjUySkx5ME9UaGtWaFU2NWpid3l0Y09pN1JLbThMY0xqYWp3?=
- =?utf-8?B?cnBScDZTbFVWd0srUU5HNjlBZjRNc2JJWGFkOHBqL29WekNWNVJqVE9xVjY2?=
- =?utf-8?B?ZElYM21XamFUN1pXZldUMEdUYTJjOHVFS0ZCb1h3aHlvTEhaUGNSODIxV0kr?=
- =?utf-8?B?RXZVYW5PVHhudVR3TkQ4ZXVlWllnV0YydXlpVkJ4UEhMMWVHUGk3M3I3dWJB?=
- =?utf-8?B?cVU5Z0xZd1hUNVpNOXFLMGpGcFlwUEVjUytpd2JJa09kZkpqeGlwQjVwVU40?=
- =?utf-8?B?RmdzbitDOXljYThxMzBnT0tHWmxydnhHMWZ4WjB5RXBKYWx6ekRUdFNCb3pK?=
- =?utf-8?B?NXB5UnNscGIxQkI2RXVUWDVMUzZXdG01N3VpS20rWDZHYzNTd21vcU5JOGxt?=
- =?utf-8?B?RGVpUjA5eEIrVEFVa1ZFSW5aWkxSZU9KU2haNUsvS0xaNnVIMGJldUtSL3NF?=
- =?utf-8?B?ejgyd1dtdHYxK3YySCtpWE9nVDB2K2xpNmhMSTZEZEx3UCs0Z0I3N1h4VEpU?=
- =?utf-8?B?NVViTTB1bjVwODJ2Z3BOS2VaZVlkUjUrNkR4dmtuMktFRjdPclAwZk8reHUy?=
- =?utf-8?B?eWJsVHQ2R1lnL2NUTTlmNytyVzBUWWxlNWhMbWlDWTlwbFJ4S2FSbkI2Mktq?=
- =?utf-8?B?VkV3RGR4NURTTzRwY3N0c1RaWkpIK0lQdzZyeTE1eG1Jd2lZSFU5cVJucU4v?=
- =?utf-8?B?ZEVMWi9NMmgyZDYzeDROdjB5U3RjL1JNTUtDYlk4eGt0b3ZiU3hqV2EyZUor?=
- =?utf-8?B?Y1BOSnN3bGFEVHd4c1NaTm5qMTg2Q08zbW1lY2pmWnlCbjd1R3RFK05sdE96?=
- =?utf-8?B?OUNNWll6Y0IxVHVaUHl0NUV0WXAxUUZRd2Eyc2Y4LytEMWdqWjBMQWY2WEdX?=
- =?utf-8?B?WndxaHQwb2dSQ3Zpd3ZoMW9hY3V1bS9JVU9DVWVqTi9ZcUtVWGtPM0dQT1BJ?=
- =?utf-8?B?dkFtTXoyVVlNbllMMk51ZTB2VVoyRFRWQk9LbUUxL25RTTFudzJnOXZLTE8x?=
- =?utf-8?B?TExtYTd1Mi9uNzdEVjlJVklIaEFkcFNlOEZMVmU1RnlZUlF0VGtkSVMwMXMv?=
- =?utf-8?B?WHJNTmd5blRlWVlYZ2tFUXFhMmRHQUJMbTVTTWlGU05IcnovWm5qVEhZK3pZ?=
- =?utf-8?B?R2FPUHRUN2NFZjFEY3JycGlVOFpIUVV5a2xpSUZuZXJvNytmU2tUM0VoY3g4?=
- =?utf-8?B?YkhFSnYzRkJTWnk1RWh4SEhEdjRmSHA4Z25iZlAvYUhweVFEM04waGF5Q05y?=
- =?utf-8?B?aURneE0rQzVqQno3a1BQNmlXZUFsTlFlQU82YmZFREsvb0JuUWZPNDF2UVFD?=
- =?utf-8?B?RGVnb050Y2c2MmdycytlblZTUlVQd2FJaXBpR0xWNTk0bkE5MVpGd1dVZUhi?=
- =?utf-8?B?R051Z2pmWlBZUjc0MnZkNG1GWkp2eUYzTk4zcE54WE5XczVXQVNZNDBSTklh?=
- =?utf-8?B?RjAzc1hpck5pQ05qcWpldFJwZHAwcDFWdWxaWUUzQVRYK1VTZ3BteHkyM08y?=
- =?utf-8?B?TUJMVzdXSWhGSVd6cFVMcFJBK0U5T3RzZnNrdHlkOURva3QwYll4NnR4L2Vm?=
- =?utf-8?B?RndORlZQaEUvZGV0SUlYRi9RdXFaaWxPY0p0SS9VSEFyUjdYVHp2RUwxUDdu?=
- =?utf-8?B?MSszdWhJZjUvTm5Cd09HSzNNZHBmeEJ6NlJ0cTZ6TjlZSEp3M0FnYzVYVlRy?=
- =?utf-8?B?Q0FsRURXVkRCRjlYTVZZOFZ6NE5BMnlwRFlFd3pRVnNiVFp2SUZ6QVFGQlFI?=
- =?utf-8?B?UWZRMXdwTGxRUEdudHRxc1JwNW1jY0RwOG9HQ1p0VXMwcGR4TStCWTF3aGVO?=
- =?utf-8?Q?Fn1E=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 65ead01d-4724-44da-bef1-08db345e3ede
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Apr 2023 16:12:39.1912
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: E7mKoOEABkx8y5xi7lxuSFHA49n5/lN8hPTuYNXt7SZRkoISCvh72zfr6K3miN4S
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR12MB6689
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <168024697476.295696.16876742423274337392@t14-nrb>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: LcZs9SRJogitKri-bWESLSQ9KCyIFOe7
+X-Proofpoint-GUID: LcZs9SRJogitKri-bWESLSQ9KCyIFOe7
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-04-03_19,2023-04-03_03,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ priorityscore=1501 phishscore=0 clxscore=1015 mlxlogscore=527
+ malwarescore=0 suspectscore=0 bulkscore=0 adultscore=0 spamscore=0
+ lowpriorityscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2303200000 definitions=main-2304040060
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Apr 03, 2023 at 09:32:18AM -0600, Alex Williamson wrote:
-> > yes, this series is applied on [1]. I put the [1], this series and cdev series
-> > in https://github.com/yiliu1765/iommufd/commits/vfio_device_cdev_v9.
-> > 
-> > Jason has taken [1] in the below branch. It is based on rc1. So I hesitated
-> > to apply this series and cdev series on top of it. Maybe I should have done
-> > it to make life easier. 😊
-> > 
-> > https://git.kernel.org/pub/scm/linux/kernel/git/jgg/iommufd.git/log/?h=for-next
-> 
-> Seems like it must be in the vfio_mdev_ops branch which has not been
-> pushed aside from the merge back to for-next.  Jason?  Thanks,
+On Fri, Mar 31, 2023 at 09:16:14AM +0200, Nico Boehr wrote:
+> > Anything prevents this one from pushing?
+> No, can be pushed.
 
-Yeah, I didn't think we'd need it until we got to the cdev series, let
-me do the steps..
-
-Jason
+Could you push it then, please?
