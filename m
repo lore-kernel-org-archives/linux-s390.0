@@ -2,205 +2,216 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 96F20C6FD1D
-	for <linux-s390@archiver.kernel.org>; Tue,  4 Apr 2023 15:30:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 904E9C77B60
+	for <linux-s390@archiver.kernel.org>; Tue,  4 Apr 2023 16:00:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235556AbjDDPaI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 4 Apr 2023 11:30:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46632 "EHLO
+        id S234856AbjDDQAB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 4 Apr 2023 12:00:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235109AbjDDPaF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Apr 2023 11:30:05 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2738510CF
-        for <linux-s390@vger.kernel.org>; Tue,  4 Apr 2023 08:29:17 -0700 (PDT)
+        with ESMTP id S234318AbjDDP77 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Apr 2023 11:59:59 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E050C1995
+        for <linux-s390@vger.kernel.org>; Tue,  4 Apr 2023 08:59:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1680622156;
+        s=mimecast20190719; t=1680623951;
         h=from:from:reply-to:reply-to:subject:subject:date:date:
          message-id:message-id:to:to:cc:cc:mime-version:mime-version:
          content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=2+Wv7W8fsHHIewyLSZIiChbsaRykHPVOAna76qbG3Ps=;
-        b=IRjqOxiwx58pQDKCpzN6GpNrKuYiJFdGhMCIwtv26eS7OSRKGVYd29vi6v8dz4AHqwfLt7
-        J4kfasn8cNTGLQHfvVGB6CR/iBxPk11lqnCG1Jn5zgwHvyNv3RQYyVCrHXiLifvLv/ZtkK
-        9e+WkQnRGWnvEnajnY81zcN73HH+w4M=
-Received: from mail-qv1-f71.google.com (mail-qv1-f71.google.com
- [209.85.219.71]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=OeMolX1SxNFCB7moKC067zOF/AMbVP1lQf1Wv5j6Xz8=;
+        b=FgUqs3JpuHwFpHjVxqrNQGb/9yUkRk9TnxeNqGxMpoTv/7ORgFs0KQc2GoDDb0ttTpgBZS
+        LM4YVs0uaEQIbA6+xMhmjiFkQxkfJ27pi5x9fKckeClSc9rxehZdGSdVHGpGwIg7W+3B/u
+        JlAmrDoNtYw2HTctY4Fhc13DDsqVrcY=
+Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
+ [209.85.160.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-214-y_nuV8N1Myq7OyqPsOuNtg-1; Tue, 04 Apr 2023 11:29:14 -0400
-X-MC-Unique: y_nuV8N1Myq7OyqPsOuNtg-1
-Received: by mail-qv1-f71.google.com with SMTP id pe26-20020a056214495a00b005df3eac4c0bso11671667qvb.1
-        for <linux-s390@vger.kernel.org>; Tue, 04 Apr 2023 08:29:13 -0700 (PDT)
+ us-mta-179-SZosEr0GPR2JBeRAkIkc8Q-1; Tue, 04 Apr 2023 11:59:08 -0400
+X-MC-Unique: SZosEr0GPR2JBeRAkIkc8Q-1
+Received: by mail-qt1-f197.google.com with SMTP id a19-20020a05622a02d300b003e4ecb5f613so16938325qtx.21
+        for <linux-s390@vger.kernel.org>; Tue, 04 Apr 2023 08:59:08 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680622149;
+        d=1e100.net; s=20210112; t=1680623948;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:reply-to:user-agent:mime-version:date
          :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=2+Wv7W8fsHHIewyLSZIiChbsaRykHPVOAna76qbG3Ps=;
-        b=RO/Wzacaqwfz/YZ3FU2AC7E0iJkiRCT0HMiXhQHOhCXid9rzdjDACyhViLBHXpWLl1
-         vmR38HqkLSBj5JCEdbgGPPZ8F0CFkdAjOvBWzERg5pY0Ogh2VH5SuIRZekY0Tjz4FJdJ
-         ax4bzUMK20bXIC0ArgVQiAyT84Oeu64KMCUJGC1EzwnEI8ZFNmMDkMusHUzXOfpZWllV
-         qji9qMmQs7LPu09/A2pzK+kXYXQHp+wtXCRvJB0BuddV53auC0I9xGWrhbQs7TJ8Tze2
-         XlJgesc8vP5RQoc+I+FEXSPal30b1ukQ/k2FifN/svd4n4ybL8opqCZJTjizth8gSIlE
-         MEvw==
-X-Gm-Message-State: AAQBX9eOQGIXeg+1FRn9s9TLManfuLqvKq3f2alPAInLi0byO/+9okgX
-        txX5X0Ve5mZXFELjg+W1Rw4Gvinn+y+DOZseihJUtRl6hvjh/NivFcYfjeQi9ZyU8w1mBiZ4kOC
-        FO/mcegR9B8wYm9QrA36LPQ==
-X-Received: by 2002:ad4:5d68:0:b0:5d1:acb8:f126 with SMTP id fn8-20020ad45d68000000b005d1acb8f126mr4995802qvb.38.1680622149457;
-        Tue, 04 Apr 2023 08:29:09 -0700 (PDT)
-X-Google-Smtp-Source: AKy350YML0mMqHUHs1k3HMJkmmzOZKlEQzKI6fPsfnsSdnmZ4ori6n+2YUk0zwT+gzhWL3EpVBiXSg==
-X-Received: by 2002:ad4:5d68:0:b0:5d1:acb8:f126 with SMTP id fn8-20020ad45d68000000b005d1acb8f126mr4995753qvb.38.1680622149123;
-        Tue, 04 Apr 2023 08:29:09 -0700 (PDT)
+        bh=OeMolX1SxNFCB7moKC067zOF/AMbVP1lQf1Wv5j6Xz8=;
+        b=pPmN0fSdzQFVzUGkWOhQyu6FFh6MSc95OnboCMZsoUHidRB0UN/HKwrl9Sqc6JW1FW
+         YfBEjq5dPhJYgO3NFU2VHvPryR2KAxgVUtl2iChLUnw55SEo5WqOYxzIxSNRIGqmPBqj
+         R/kJI5N6eWKMsNbAxQ2QU/LVZ7lkeJzuNNuhjd046qd+W583ydaZtOfAAYcvgkcLUrmL
+         7exiF5sufv/r2WF2vKaJWTyS8CUoG0hfDT5vPnJ//8c0jNTsSTfMjt2xy3YoJnaU/8yq
+         FenX+mJRdTGLFUz4DeObY1vqVebxIjHBIUJlbfkuqFPquEBdJlHTlBDjsuzbcrMGUfTO
+         SPDA==
+X-Gm-Message-State: AAQBX9cogBGgE4I62owCuzRCM3sPjo1o+Jb5fvj3P/bY5NX6KeSVSyYc
+        yQ7CCwNRNzJ6d7obJxM8frTEhDZlo3Q6nB+TDRv7z8aGaBYgdwLmj+EShFd5bxbwddfxfYeaNex
+        L6kKQt/F8tvOdRJ5Iu7oNXg==
+X-Received: by 2002:a05:6214:21ef:b0:56b:eef6:6937 with SMTP id p15-20020a05621421ef00b0056beef66937mr3307101qvj.50.1680623948310;
+        Tue, 04 Apr 2023 08:59:08 -0700 (PDT)
+X-Google-Smtp-Source: AKy350aE1kGETxiNn50t4CqJlkXH0s7kjlbQYgSms4cC9aLymjvrSVD/JeKgl7CVmeUlUbuRytDGDg==
+X-Received: by 2002:a05:6214:21ef:b0:56b:eef6:6937 with SMTP id p15-20020a05621421ef00b0056beef66937mr3307074qvj.50.1680623948031;
+        Tue, 04 Apr 2023 08:59:08 -0700 (PDT)
 Received: from ?IPV6:2a01:e0a:59e:9d80:527b:9dff:feef:3874? ([2a01:e0a:59e:9d80:527b:9dff:feef:3874])
-        by smtp.gmail.com with ESMTPSA id cv2-20020ad44d82000000b005dd8b9345f3sm3450439qvb.139.2023.04.04.08.28.42
+        by smtp.gmail.com with ESMTPSA id bz16-20020ad44c10000000b005dd8b9345c0sm2073361qvb.88.2023.04.04.08.59.02
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 04 Apr 2023 08:29:00 -0700 (PDT)
-Message-ID: <702c2883-1d51-b609-1e99-337295e6e307@redhat.com>
-Date:   Tue, 4 Apr 2023 17:28:40 +0200
+        Tue, 04 Apr 2023 08:59:06 -0700 (PDT)
+Message-ID: <5781064c-8742-d37d-57dc-7a7238e948d5@redhat.com>
+Date:   Tue, 4 Apr 2023 17:59:01 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
  Thunderbird/102.5.0
 Reply-To: eric.auger@redhat.com
-Subject: Re: [PATCH v3 04/12] vfio-iommufd: Add helper to retrieve iommufd_ctx
- and devid for vfio_device
+Subject: Re: [PATCH v3 02/12] vfio/pci: Only check ownership of opened devices
+ in hot reset
 Content-Language: en-US
-To:     Yi Liu <yi.l.liu@intel.com>, alex.williamson@redhat.com,
-        jgg@nvidia.com, kevin.tian@intel.com
-Cc:     joro@8bytes.org, robin.murphy@arm.com, cohuck@redhat.com,
-        nicolinc@nvidia.com, kvm@vger.kernel.org, mjrosato@linux.ibm.com,
-        chao.p.peng@linux.intel.com, yi.y.sun@linux.intel.com,
-        peterx@redhat.com, jasowang@redhat.com,
-        shameerali.kolothum.thodi@huawei.com, lulu@redhat.com,
-        suravee.suthikulpanit@amd.com, intel-gvt-dev@lists.freedesktop.org,
-        intel-gfx@lists.freedesktop.org, linux-s390@vger.kernel.org,
-        xudong.hao@intel.com, yan.y.zhao@intel.com, terrence.xu@intel.com,
-        yanting.jiang@intel.com
+To:     "Liu, Yi L" <yi.l.liu@intel.com>,
+        "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
+        "jgg@nvidia.com" <jgg@nvidia.com>,
+        "Tian, Kevin" <kevin.tian@intel.com>
+Cc:     "joro@8bytes.org" <joro@8bytes.org>,
+        "robin.murphy@arm.com" <robin.murphy@arm.com>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
+        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
+        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
+        "peterx@redhat.com" <peterx@redhat.com>,
+        "jasowang@redhat.com" <jasowang@redhat.com>,
+        "shameerali.kolothum.thodi@huawei.com" 
+        <shameerali.kolothum.thodi@huawei.com>,
+        "lulu@redhat.com" <lulu@redhat.com>,
+        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
+        "intel-gvt-dev@lists.freedesktop.org" 
+        <intel-gvt-dev@lists.freedesktop.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "Hao, Xudong" <xudong.hao@intel.com>,
+        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
+        "Xu, Terrence" <terrence.xu@intel.com>,
+        "Jiang, Yanting" <yanting.jiang@intel.com>
 References: <20230401144429.88673-1-yi.l.liu@intel.com>
- <20230401144429.88673-5-yi.l.liu@intel.com>
+ <20230401144429.88673-3-yi.l.liu@intel.com>
+ <844faa5c-2968-2a4f-8a70-900f359be1a0@redhat.com>
+ <DS0PR11MB75290339DD0FD467146D4655C3939@DS0PR11MB7529.namprd11.prod.outlook.com>
+ <fc87191d-2e79-83c3-b5ba-7f8b1083988a@redhat.com>
+ <DS0PR11MB7529441450FE32DC9578C6B8C3939@DS0PR11MB7529.namprd11.prod.outlook.com>
 From:   Eric Auger <eric.auger@redhat.com>
-In-Reply-To: <20230401144429.88673-5-yi.l.liu@intel.com>
+In-Reply-To: <DS0PR11MB7529441450FE32DC9578C6B8C3939@DS0PR11MB7529.namprd11.prod.outlook.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi,
 
-On 4/1/23 16:44, Yi Liu wrote:
-> This is needed by the vfio-pci driver to report affected devices in the
-> hot reset for a given device.
+
+On 4/4/23 17:29, Liu, Yi L wrote:
+>> From: Eric Auger <eric.auger@redhat.com>
+>> Sent: Tuesday, April 4, 2023 11:19 PM
+>>
+>> Hi Yi,
+>>
+>> On 4/4/23 16:37, Liu, Yi L wrote:
+>>> Hi Eric,
+>>>
+>>>> From: Eric Auger <eric.auger@redhat.com>
+>>>> Sent: Tuesday, April 4, 2023 10:00 PM
+>>>>
+>>>> Hi YI,
+>>>>
+>>>> On 4/1/23 16:44, Yi Liu wrote:
+>>>>> If the affected device is not opened by any user, it's safe to reset it
+>>>>> given it's not in use.
+>>>>>
+>>>>> Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+>>>>> Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+>>>>> Tested-by: Yanting Jiang <yanting.jiang@intel.com>
+>>>>> Signed-off-by: Yi Liu <yi.l.liu@intel.com>
+>>>>> ---
+>>>>>  drivers/vfio/pci/vfio_pci_core.c | 14 +++++++++++---
+>>>>>  include/uapi/linux/vfio.h        |  8 ++++++++
+>>>>>  2 files changed, 19 insertions(+), 3 deletions(-)
+>>>>>
+>>>>> diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
+>>>>> index 65bbef562268..5d745c9abf05 100644
+>>>>> --- a/drivers/vfio/pci/vfio_pci_core.c
+>>>>> +++ b/drivers/vfio/pci/vfio_pci_core.c
+>>>>> @@ -2429,10 +2429,18 @@ static int vfio_pci_dev_set_hot_reset(struct
+>>>> vfio_device_set *dev_set,
+>>>>>  	list_for_each_entry(cur_vma, &dev_set->device_list, vdev.dev_set_list) {
+>>>>>  		/*
+>>>>> -		 * Test whether all the affected devices are contained by the
+>>>>> -		 * set of groups provided by the user.
+>>>>> +		 * Test whether all the affected devices can be reset by the
+>>>>> +		 * user.
+>>>>> +		 *
+>>>>> +		 * Resetting an unused device (not opened) is safe, because
+>>>>> +		 * dev_set->lock is held in hot reset path so this device
+>>>>> +		 * cannot race being opened by another user simultaneously.
+>>>>> +		 *
+>>>>> +		 * Otherwise all opened devices in the dev_set must be
+>>>>> +		 * contained by the set of groups provided by the user.
+>>>>>  		 */
+>>>>> -		if (!vfio_dev_in_groups(cur_vma, groups)) {
+>>>>> +		if (cur_vma->vdev.open_count &&
+>>>>> +		    !vfio_dev_in_groups(cur_vma, groups)) {
+>>>>>  			ret = -EINVAL;
+>>>>>  			goto err_undo;
+>>>>>  		}
+>>>>> diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
+>>>>> index 0552e8dcf0cb..f96e5689cffc 100644
+>>>>> --- a/include/uapi/linux/vfio.h
+>>>>> +++ b/include/uapi/linux/vfio.h
+>>>>> @@ -673,6 +673,14 @@ struct vfio_pci_hot_reset_info {
+>>>>>   * VFIO_DEVICE_PCI_HOT_RESET - _IOW(VFIO_TYPE, VFIO_BASE + 13,
+>>>>>   *				    struct vfio_pci_hot_reset)
+>>>>>   *
+>>>>> + * Userspace requests hot reset for the devices it uses.  Due to the
+>>>>> + * underlying topology, multiple devices can be affected in the reset
+>>>> by the reset
+>>>>> + * while some might be opened by another user.  To avoid interference
+>>>> s/interference/hot reset failure?
+>>> I don’t think user can really avoid hot reset failure since there may
+>>> be new devices plugged into the affected slot. Even user has opened
+>> I don't know the legacy wrt that issue but this sounds a serious issue,
+>> meaning the reset of an assigned device could impact another device
+>> belonging to another group not not owned by the user?
+> but the hot reset shall fail as the group is not owned by the user.
+
+sure it shall but I fail to understand if the reset fails or the device
+plug is somehow delayed until the reset completes.
 >
-> Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-> Tested-by: Yanting Jiang <yanting.jiang@intel.com>
-> Signed-off-by: Yi Liu <yi.l.liu@intel.com>
-> ---
->  drivers/iommu/iommufd/device.c | 12 ++++++++++++
->  drivers/vfio/iommufd.c         | 14 ++++++++++++++
->  include/linux/iommufd.h        |  3 +++
->  include/linux/vfio.h           | 13 +++++++++++++
->  4 files changed, 42 insertions(+)
+>>> all the groups/devices reported by VFIO_DEVICE_GET_PCI_HOT_RESET_INFO,
+>>> the hot reset can fail if new device is plugged in and has not been
+>>> bound to vfio or opened by another user during the window of
+>>> _INFO and HOT_RESET.
+>> with respect to the latter isn't the dev_set lock held during the hot
+>> reset and sufficient to prevent any new opening to occur?
+> yes. new open needs to acquire the dev_set lock. So when hot reset
+> acquires the dev_set lock, then no new open can occur. 
 >
-> diff --git a/drivers/iommu/iommufd/device.c b/drivers/iommu/iommufd/device.c
-> index 25115d401d8f..04a57aa1ae2c 100644
-> --- a/drivers/iommu/iommufd/device.c
-> +++ b/drivers/iommu/iommufd/device.c
-> @@ -131,6 +131,18 @@ void iommufd_device_unbind(struct iommufd_device *idev)
->  }
->  EXPORT_SYMBOL_NS_GPL(iommufd_device_unbind, IOMMUFD);
->  
-> +struct iommufd_ctx *iommufd_device_to_ictx(struct iommufd_device *idev)
-> +{
-> +	return idev->ictx;
-> +}
-> +EXPORT_SYMBOL_NS_GPL(iommufd_device_to_ictx, IOMMUFD);
-> +
-> +u32 iommufd_device_to_id(struct iommufd_device *idev)
-> +{
-> +	return idev->obj.id;
-> +}
-> +EXPORT_SYMBOL_NS_GPL(iommufd_device_to_id, IOMMUFD);
-> +
->  static int iommufd_device_setup_msi(struct iommufd_device *idev,
->  				    struct iommufd_hw_pagetable *hwpt,
->  				    phys_addr_t sw_msi_start)
-> diff --git a/drivers/vfio/iommufd.c b/drivers/vfio/iommufd.c
-> index 88b00c501015..809f2dd73b9e 100644
-> --- a/drivers/vfio/iommufd.c
-> +++ b/drivers/vfio/iommufd.c
-> @@ -66,6 +66,20 @@ void vfio_iommufd_unbind(struct vfio_device *vdev)
->  		vdev->ops->unbind_iommufd(vdev);
->  }
->  
-> +struct iommufd_ctx *vfio_iommufd_physical_ictx(struct vfio_device *vdev)
-> +{
-> +	if (!vdev->iommufd_device)
-> +		return NULL;
-> +	return iommufd_device_to_ictx(vdev->iommufd_device);
-> +}
-> +EXPORT_SYMBOL_GPL(vfio_iommufd_physical_ictx);
-> +
-> +void vfio_iommufd_physical_devid(struct vfio_device *vdev, u32 *id)
-> +{
-> +	if (vdev->iommufd_device)
-> +		*id = iommufd_device_to_id(vdev->iommufd_device);
-since there is no return value, may be worth to add at least a WARN_ON
-in case of !vdev->iommufd_device
-> +}
-> +EXPORT_SYMBOL_GPL(vfio_iommufd_physical_devid);
->  /*
->   * The physical standard ops mean that the iommufd_device is bound to the
->   * physical device vdev->dev that was provided to vfio_init_group_dev(). Drivers
-> diff --git a/include/linux/iommufd.h b/include/linux/iommufd.h
-> index 1129a36a74c4..ac96df406833 100644
-> --- a/include/linux/iommufd.h
-> +++ b/include/linux/iommufd.h
-> @@ -24,6 +24,9 @@ void iommufd_device_unbind(struct iommufd_device *idev);
->  int iommufd_device_attach(struct iommufd_device *idev, u32 *pt_id);
->  void iommufd_device_detach(struct iommufd_device *idev);
->  
-> +struct iommufd_ctx *iommufd_device_to_ictx(struct iommufd_device *idev);
-> +u32 iommufd_device_to_id(struct iommufd_device *idev);
-> +
->  struct iommufd_access_ops {
->  	u8 needs_pin_pages : 1;
->  	void (*unmap)(void *data, unsigned long iova, unsigned long length);
-> diff --git a/include/linux/vfio.h b/include/linux/vfio.h
-> index 3188d8a374bd..97a1174b922f 100644
-> --- a/include/linux/vfio.h
-> +++ b/include/linux/vfio.h
-> @@ -113,6 +113,8 @@ struct vfio_device_ops {
->  };
->  
->  #if IS_ENABLED(CONFIG_IOMMUFD)
-> +struct iommufd_ctx *vfio_iommufd_physical_ictx(struct vfio_device *vdev);
-> +void vfio_iommufd_physical_devid(struct vfio_device *vdev, u32 *id);
->  int vfio_iommufd_physical_bind(struct vfio_device *vdev,
->  			       struct iommufd_ctx *ictx, u32 *out_device_id);
->  void vfio_iommufd_physical_unbind(struct vfio_device *vdev);
-> @@ -122,6 +124,17 @@ int vfio_iommufd_emulated_bind(struct vfio_device *vdev,
->  void vfio_iommufd_emulated_unbind(struct vfio_device *vdev);
->  int vfio_iommufd_emulated_attach_ioas(struct vfio_device *vdev, u32 *pt_id);
->  #else
-> +static inline struct iommufd_ctx *
-> +vfio_iommufd_physical_ictx(struct vfio_device *vdev)
-> +{
-> +	return NULL;
-> +}
-> +
-> +static inline void
-> +vfio_iommufd_physical_devid(struct vfio_device *vdev, u32 *id)
-> +{
-> +}
-> +
->  #define vfio_iommufd_physical_bind                                      \
->  	((int (*)(struct vfio_device *vdev, struct iommufd_ctx *ictx,   \
->  		  u32 *out_device_id)) NULL)
-besides
-
-Reviewed-by: Eric Auger <eric.auger@redhat.com>
-
-Eric
+> Regards,
+> Yi Liu
+>
+>>> maybe the whole statement should be as below:
+>>>
+>>> To avoid interference, the hot reset can only be conducted when all
+>>> the affected devices are either opened by the calling user or not
+>>> opened yet at the moment of the hot reset attempt.
+>> OK
+>>
+>> Eric
+>>>>> + * the calling user must ensure all affected devices, if opened, are
+>>>>> + * owned by itself.
+>>>>> + *
+>>>>> + * The ownership is proved by an array of group fds.
+>>>>> + *
+>>>>>   * Return: 0 on success, -errno on failure.
+>>>>>   */
+>>>>>  struct vfio_pci_hot_reset {
+>>> Regards,
+>>> Yi Liu
 
