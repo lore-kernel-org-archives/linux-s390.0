@@ -2,145 +2,195 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D55DBC77B62
-	for <linux-s390@archiver.kernel.org>; Tue,  4 Apr 2023 10:32:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6CC75C761A6
+	for <linux-s390@archiver.kernel.org>; Tue,  4 Apr 2023 10:45:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233954AbjDDKcF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 4 Apr 2023 06:32:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43562 "EHLO
+        id S234340AbjDDKpg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 4 Apr 2023 06:45:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234042AbjDDKcE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Apr 2023 06:32:04 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1E9A1984;
-        Tue,  4 Apr 2023 03:32:03 -0700 (PDT)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3349oxfi015614;
-        Tue, 4 Apr 2023 10:32:03 GMT
+        with ESMTP id S233989AbjDDKpf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Apr 2023 06:45:35 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B3681FC8;
+        Tue,  4 Apr 2023 03:45:31 -0700 (PDT)
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 334AJH79012405;
+        Tue, 4 Apr 2023 10:45:31 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
  subject : message-id : in-reply-to : references : mime-version :
  content-type : content-transfer-encoding; s=pp1;
- bh=9DFbhkapjA9bvgrmGMTch97+0SsTLUUyhHhKBi84NrU=;
- b=kAJKKpORtIopkl2koBRxJett0RG6+o94tJi6WemBVC0z7G/BLjxFXPJbuA5NCLj432m8
- L8sEXXCKoAaWDLpDVsT9g1Ffu3X1p0sZW3LYJSJ5Fth3ciQH88OdUYJRHOgRzFQXlhZy
- Tsa2C2apFBkczocA4BWYGXTj18FFo16Pq3kFpDW6dAAo2/+6Ml+OWKKcY3CnAq9Fw6Cz
- IXBkI4XgA14w3fdUa/oS4aN30ZD6cc5KgKBhEl5Yhnd5c6GuB0QmW8ZGf9NXahOFBXkv
- uMkF5mtd5JgQngCLgmdx+8cEATpbUiy3HaTKM5cr3DeZ2TXKlckbWhUIQL/0OxVNHVBc 4w== 
+ bh=Akhko0nt0u0dEUUYPSe1+bUWxwqoYqNpuwSr8RegF/c=;
+ b=L/OpdZHj7ugOmk9WcmuWy6mTouwmgpNBhFnkoHKFGOOc0Mn4yWY9ad5U8yHF9PYdXLbn
+ Re1j3yEF1HOx1A5Zp1IE+rk8+MWlTyhUyW9LWSxkrKL6cRO3AGFSf5CUJ30wgwOReNSl
+ wllBg51WXQsUyw2icSLLc+YMtr54c5LUVke24j7AVn/DVg7n5uoIsCtuGXOOOeBp4Jwq
+ eNn1rfOi2DQD5cIsU/kdIK+WzTYB5qWKp2tJE6TX78COvLCz9DMpW1GFpod3OzTiAzLB
+ xdkR6nDPp7ClWRPe5MSWqBFm5sk4GcmzuQ3g0s3xrPGNqpRWwbvhxAqr4l5ibk57HjmO UQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3prhmg0yex-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3prj1q8hv4-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 04 Apr 2023 10:32:02 +0000
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3349qRPf020278;
-        Tue, 4 Apr 2023 10:32:02 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3prhmg0ye7-1
+        Tue, 04 Apr 2023 10:45:30 +0000
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 334AJsFL013915;
+        Tue, 4 Apr 2023 10:45:30 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3prj1q8htt-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 04 Apr 2023 10:32:02 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 333NG4Bl008843;
-        Tue, 4 Apr 2023 10:32:00 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3ppc872e8p-1
+        Tue, 04 Apr 2023 10:45:30 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3344jDbn030602;
+        Tue, 4 Apr 2023 10:45:27 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma02fra.de.ibm.com (PPS) with ESMTPS id 3ppc86su4t-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 04 Apr 2023 10:32:00 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 334AVuZG28574420
+        Tue, 04 Apr 2023 10:45:26 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 334AjLQ852691452
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 4 Apr 2023 10:31:56 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C544D2004B;
-        Tue,  4 Apr 2023 10:31:56 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8B35A20043;
-        Tue,  4 Apr 2023 10:31:56 +0000 (GMT)
+        Tue, 4 Apr 2023 10:45:21 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2B78620040;
+        Tue,  4 Apr 2023 10:45:21 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E0FBB20043;
+        Tue,  4 Apr 2023 10:45:20 +0000 (GMT)
 Received: from p-imbrenda (unknown [9.152.224.56])
-        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue,  4 Apr 2023 10:31:56 +0000 (GMT)
-Date:   Tue, 4 Apr 2023 12:31:55 +0200
+        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Tue,  4 Apr 2023 10:45:20 +0000 (GMT)
+Date:   Tue, 4 Apr 2023 12:45:19 +0200
 From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
 To:     Thomas Huth <thuth@redhat.com>
-Cc:     kvm@vger.kernel.org, Janosch Frank <frankja@linux.ibm.com>,
-        linux-s390@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        Nico Boehr <nrb@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH] s390x/snippets: Fix compilation with
- Clang 15
-Message-ID: <20230404123155.728e3f2e@p-imbrenda>
-In-Reply-To: <20230404101434.172721-1-thuth@redhat.com>
-References: <20230404101434.172721-1-thuth@redhat.com>
+Cc:     kvm@vger.kernel.org, Nico Boehr <nrb@linux.ibm.com>,
+        linux-s390@vger.kernel.org, Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>
+Subject: Re: [kvm-unit-tests PATCH] s390x: Use the right constraints in
+ intercept.c
+Message-ID: <20230404124519.7e542cb6@p-imbrenda>
+In-Reply-To: <20230404102437.174404-1-thuth@redhat.com>
+References: <20230404102437.174404-1-thuth@redhat.com>
 Organization: IBM
 X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: y1Z9QpJz5eDuR0cPFlQ1slBkwQUkocZR
-X-Proofpoint-GUID: K0Lil9t03cfqMJK30cRsmi7kWim-VNAA
+X-Proofpoint-GUID: ky_bO4p4Cma7cs9E_lk9bHYYckBPymLM
+X-Proofpoint-ORIG-GUID: 4PYgeQXBv4dKE9-L4AGORrqYI_zFs0GO
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-04-04_03,2023-04-03_03,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 bulkscore=0
- priorityscore=1501 clxscore=1015 suspectscore=0 impostorscore=0
- lowpriorityscore=0 phishscore=0 spamscore=0 adultscore=0 mlxscore=0
- mlxlogscore=963 classifier=spam adjust=0 reason=mlx scancount=1
+ definitions=2023-04-04_02,2023-04-03_03,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ mlxlogscore=999 mlxscore=0 phishscore=0 malwarescore=0 bulkscore=0
+ priorityscore=1501 suspectscore=0 clxscore=1015 spamscore=0 adultscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2303200000 definitions=main-2304040093
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue,  4 Apr 2023 12:14:34 +0200
+On Tue,  4 Apr 2023 12:24:37 +0200
 Thomas Huth <thuth@redhat.com> wrote:
 
-> Clang complains:
-> 
->  s390x/snippets/c/cstart.S:22:13: error: invalid operand for instruction
->   lghi %r15, stackptr
->              ^
-> Let's load the address with "larl" instead, like we already do
-> it in s390x/cstart64.S. For this we should also switch to 64-bit
-> mode first, then we also don't have to clear r15 right in front
-> of this anymore.
-> 
-> Changing the code here triggered another problem: initial_cr0
-> must be aligned on a double-word boundary, otherwise the lctlg
-> instruction will fail with an specification exception. This was
-> just working by accident so far - add an ".align 8" now to avoid
-> the problem.
+> stpx, spx, stap and stidp use addressing via "base register", i.e.
+> if register 0 is used, the base address will be 0, independent from
+> the value of the register. Thus we must not use the "r" constraint
+> here to avoid register 0. This fixes test failures when compiling
+> with Clang instead of GCC, since Clang apparently prefers to use
+> register 0 in some cases where GCC never uses register 0.
 > 
 > Signed-off-by: Thomas Huth <thuth@redhat.com>
+
+maybe you can also add a couple of Fixes tags:
+
+Fixes: 2667b05e ("s390x: Interception tests")
+Fixes: 484a3a57 ("s390x: add stidp interception test")
+
+in any case:
 
 Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
 > ---
->  s390x/snippets/c/cstart.S | 7 ++++---
->  1 file changed, 4 insertions(+), 3 deletions(-)
+>  s390x/intercept.c | 22 +++++++++++-----------
+>  1 file changed, 11 insertions(+), 11 deletions(-)
 > 
-> diff --git a/s390x/snippets/c/cstart.S b/s390x/snippets/c/cstart.S
-> index a7d4cd42..c80ccfed 100644
-> --- a/s390x/snippets/c/cstart.S
-> +++ b/s390x/snippets/c/cstart.S
-> @@ -15,12 +15,12 @@ start:
->  	larl	%r1, initial_cr0
->  	lctlg	%c0, %c0, 0(%r1)
->  	/* XOR all registers with themselves to clear them fully. */
-> -	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
-> +	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14
->  	xgr \i,\i
->  	.endr
-> -	/* 0x3000 is the stack page for now */
-> -	lghi	%r15, stackptr
->  	sam64
-> +	/* 0x3000 is the stack page for now */
-> +	larl	%r15, stackptr
->  	brasl	%r14, main
->  	/*
->  	 * If main() returns, we stop the CPU with the code below. We also
-> @@ -37,6 +37,7 @@ exit:
->  	xgr	%r0, %r0
->  	sigp    %r2, %r0, SIGP_STOP
+> diff --git a/s390x/intercept.c b/s390x/intercept.c
+> index 9e826b6c..faa74bbb 100644
+> --- a/s390x/intercept.c
+> +++ b/s390x/intercept.c
+> @@ -36,16 +36,16 @@ static void test_stpx(void)
 >  
-> +	.align 8
->  initial_cr0:
->  	/* enable AFP-register control, so FP regs (+BFP instr) can be used */
->  	.quad	0x0000000000040000
+>  	expect_pgm_int();
+>  	low_prot_enable();
+> -	asm volatile(" stpx 0(%0) " : : "r"(8));
+> +	asm volatile(" stpx 0(%0) " : : "a"(8));
+>  	low_prot_disable();
+>  	check_pgm_int_code(PGM_INT_CODE_PROTECTION);
+>  
+>  	expect_pgm_int();
+> -	asm volatile(" stpx 0(%0) " : : "r"(1));
+> +	asm volatile(" stpx 0(%0) " : : "a"(1));
+>  	check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
+>  
+>  	expect_pgm_int();
+> -	asm volatile(" stpx 0(%0) " : : "r"(-8L));
+> +	asm volatile(" stpx 0(%0) " : : "a"(-8L));
+>  	check_pgm_int_code(PGM_INT_CODE_ADDRESSING);
+>  }
+>  
+> @@ -70,13 +70,13 @@ static void test_spx(void)
+>  
+>  	report_prefix_push("operand not word aligned");
+>  	expect_pgm_int();
+> -	asm volatile(" spx 0(%0) " : : "r"(1));
+> +	asm volatile(" spx 0(%0) " : : "a"(1));
+>  	check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
+>  	report_prefix_pop();
+>  
+>  	report_prefix_push("operand outside memory");
+>  	expect_pgm_int();
+> -	asm volatile(" spx 0(%0) " : : "r"(-8L));
+> +	asm volatile(" spx 0(%0) " : : "a"(-8L));
+>  	check_pgm_int_code(PGM_INT_CODE_ADDRESSING);
+>  	report_prefix_pop();
+>  
+> @@ -113,16 +113,16 @@ static void test_stap(void)
+>  
+>  	expect_pgm_int();
+>  	low_prot_enable();
+> -	asm volatile ("stap 0(%0)\n" : : "r"(8));
+> +	asm volatile ("stap 0(%0)\n" : : "a"(8));
+>  	low_prot_disable();
+>  	check_pgm_int_code(PGM_INT_CODE_PROTECTION);
+>  
+>  	expect_pgm_int();
+> -	asm volatile ("stap 0(%0)\n" : : "r"(1));
+> +	asm volatile ("stap 0(%0)\n" : : "a"(1));
+>  	check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
+>  
+>  	expect_pgm_int();
+> -	asm volatile ("stap 0(%0)\n" : : "r"(-8L));
+> +	asm volatile ("stap 0(%0)\n" : : "a"(-8L));
+>  	check_pgm_int_code(PGM_INT_CODE_ADDRESSING);
+>  }
+>  
+> @@ -138,16 +138,16 @@ static void test_stidp(void)
+>  
+>  	expect_pgm_int();
+>  	low_prot_enable();
+> -	asm volatile ("stidp 0(%0)\n" : : "r"(8));
+> +	asm volatile ("stidp 0(%0)\n" : : "a"(8));
+>  	low_prot_disable();
+>  	check_pgm_int_code(PGM_INT_CODE_PROTECTION);
+>  
+>  	expect_pgm_int();
+> -	asm volatile ("stidp 0(%0)\n" : : "r"(1));
+> +	asm volatile ("stidp 0(%0)\n" : : "a"(1));
+>  	check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
+>  
+>  	expect_pgm_int();
+> -	asm volatile ("stidp 0(%0)\n" : : "r"(-8L));
+> +	asm volatile ("stidp 0(%0)\n" : : "a"(-8L));
+>  	check_pgm_int_code(PGM_INT_CODE_ADDRESSING);
+>  }
+>  
 
