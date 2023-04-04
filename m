@@ -2,227 +2,127 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1CEBCC6FD1D
-	for <linux-s390@archiver.kernel.org>; Tue,  4 Apr 2023 14:05:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D0B1AC6FD1D
+	for <linux-s390@archiver.kernel.org>; Tue,  4 Apr 2023 14:07:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235486AbjDDOF2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 4 Apr 2023 10:05:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48440 "EHLO
+        id S234379AbjDDOHY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 4 Apr 2023 10:07:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235422AbjDDOF0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Apr 2023 10:05:26 -0400
+        with ESMTP id S230364AbjDDOHX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Apr 2023 10:07:23 -0400
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E9EA44AE
-        for <linux-s390@vger.kernel.org>; Tue,  4 Apr 2023 07:04:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F36D755B2
+        for <linux-s390@vger.kernel.org>; Tue,  4 Apr 2023 07:06:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1680617024;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+        s=mimecast20190719; t=1680617170;
+        h=from:from:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=+eiQuy0297qofRfcSxKqcQyipv7GSPC3sFo1rtx/hWs=;
-        b=bFJ8H6/2ElGnpLA7BT1DTYSZpCzME5fZi7jiNp2YXgsY+a0oam6d8MIxrmUKUUXAXHlqtK
-        O9F1giHa1y5VTHccLbB2A7CLlb2O66HgzJLflCNlxbhhHIWPQUfWMssQ0o8bOqWu9o5eBe
-        hwYwyzV9n2Jl11TA5VxIAlKApPk33VQ=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=ykhmPw67VbhDtXPSpfVmWbPSuu2IMuu2dxGXXWfzz7E=;
+        b=RnoHLL4klP/tiVEk23JUOrJQZINHL+lC0w+SEygWdK7zceJSmR+HsFBxUIB/lOpyja4ify
+        1aCcYCMZbBtoB+ijVZQI+1p85Ll6UzcYu8mecX9gFpHSbhiWWOODWTS83HNmr9xfyoKavP
+        mf3RkWsrKuLqGsYO1RCYtKubKTW21xs=
+Received: from mail-qv1-f71.google.com (mail-qv1-f71.google.com
+ [209.85.219.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-1-llS9dXdMMbG7pYUZLt7WAQ-1; Tue, 04 Apr 2023 10:03:43 -0400
-X-MC-Unique: llS9dXdMMbG7pYUZLt7WAQ-1
-Received: by mail-wm1-f70.google.com with SMTP id o28-20020a05600c511c00b003ef69894934so13915119wms.6
-        for <linux-s390@vger.kernel.org>; Tue, 04 Apr 2023 07:03:43 -0700 (PDT)
+ us-mta-195-iQcAmChzPDu3BKLvf2OJcQ-1; Tue, 04 Apr 2023 10:00:03 -0400
+X-MC-Unique: iQcAmChzPDu3BKLvf2OJcQ-1
+Received: by mail-qv1-f71.google.com with SMTP id p14-20020a0cc3ce000000b005e14204a86bso6565016qvi.10
+        for <linux-s390@vger.kernel.org>; Tue, 04 Apr 2023 07:00:02 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680617022;
-        h=content-transfer-encoding:in-reply-to:organization:from:references
-         :cc:to:content-language:subject:user-agent:mime-version:date
+        d=1e100.net; s=20210112; t=1680616802;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:reply-to:user-agent:mime-version:date
          :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=+eiQuy0297qofRfcSxKqcQyipv7GSPC3sFo1rtx/hWs=;
-        b=ZzoJmPMCWQuHRa4z92aOzRxHQzOfXj7kK5e7B7MNCieor4YDBGGzTbB519890HbV+Z
-         4rLdTy2ZLkarPNV/+BxJz4WKk8mJeWkQXcKUtbcpHlruo8INLbCwJdOV6JpqygyfpaGn
-         7XezGyWZML0/AyrwHztZ5I33pgC265451GrCbuTb+1eVC6tUhl+nQ9uc07S3e8O6Gfhm
-         QhtQXQqD1IaSlf86GQMFHJksFfFVONmWjehbYYvvxxAETfzxVHVzhLLz17XQaQJlZCwD
-         A3C3aV68SBrGU0Zvn11dEzKL/GUD+HMiZB+rZvfK5f33sGnqv2IPEjEY9A2q1ZtcP9Al
-         yOog==
-X-Gm-Message-State: AAQBX9ceYbKNPPahclNqXVNclkjKRj5YD2FmM39acSxOkxuwXVHhrW5p
-        iLGEF3yT1wDJimk9DlkKNF1InTPRDrXprlmHOATZkxctisRR0cRmK7XuyaqBN6oqeCc0N2zl7Ns
-        cQLUYHIdTK3JDXtTWtHD7qA==
-X-Received: by 2002:a5d:6291:0:b0:2d6:5afe:7b99 with SMTP id k17-20020a5d6291000000b002d65afe7b99mr1501637wru.10.1680617021994;
-        Tue, 04 Apr 2023 07:03:41 -0700 (PDT)
-X-Google-Smtp-Source: AKy350ZgF89ZubYczhCwXf0n6e5MiZ9Gbs+vNGbCQed6l+DJFU8EvLia/3dXAX7rxTgsIMUPc3yreQ==
-X-Received: by 2002:a5d:6291:0:b0:2d6:5afe:7b99 with SMTP id k17-20020a5d6291000000b002d65afe7b99mr1501576wru.10.1680617021501;
-        Tue, 04 Apr 2023 07:03:41 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c709:b600:e63:6c3b:7b5d:f439? (p200300cbc709b6000e636c3b7b5df439.dip0.t-ipconnect.de. [2003:cb:c709:b600:e63:6c3b:7b5d:f439])
-        by smtp.gmail.com with ESMTPSA id i17-20020a5d5591000000b002eaac3a9beesm2694936wrv.8.2023.04.04.07.03.39
+        bh=ykhmPw67VbhDtXPSpfVmWbPSuu2IMuu2dxGXXWfzz7E=;
+        b=JdUVgIEk9PoTcWWJgn8vEACBh+FBT1Yuhzbin23BDKcQuolM7DuTvBg5iR6lWf9lob
+         KS71vD4i4scfsC+Loy3evFNbU1jPFq+wViZJzP2Q1a+ZtRqTVgaFXc/0OTw+laZWP6q6
+         Ox4SJxdWBT31htO3yLvxHNBTeomuRExThmZHEt8EPtCb4JiHnm9Bziv6L9Xdcfh4QLa1
+         RRoEtgAUMew2vrSf6AqwX4Ffwx5C81Gv+hHAMGkR22G6nCmQ/rEmzuynm5eWanutgu1F
+         TH1SdZ80k+pfgsbWEhx0/s/I93CEmMx6idMU2V0MsKuPwpfFWLbDXfjDyGzE09Rkm8Z7
+         tInQ==
+X-Gm-Message-State: AAQBX9fPvgmikKmHiNKDoZy0jBHdo+wKXM+0c/w2VJmn/+n/6F0mjBxn
+        VuuUT0+VYUEddF50iZm2Z5tAu3RIrYWXaLpdndh00HOAWGYYSrEM6PtxDHiN3sv6sqbdbEuep8Y
+        feb6u71MHrFjE/0PsipAXWA==
+X-Received: by 2002:ad4:5b87:0:b0:5e2:1381:6105 with SMTP id 7-20020ad45b87000000b005e213816105mr3459187qvp.18.1680616802057;
+        Tue, 04 Apr 2023 07:00:02 -0700 (PDT)
+X-Google-Smtp-Source: AKy350bJCynXCOrEKhxb44G8d+k4Dr+19c9yImUsR/GZAakKp2zi913dOKWU2dCtLWnBy7YVL0UkpQ==
+X-Received: by 2002:ad4:5b87:0:b0:5e2:1381:6105 with SMTP id 7-20020ad45b87000000b005e213816105mr3459060qvp.18.1680616801354;
+        Tue, 04 Apr 2023 07:00:01 -0700 (PDT)
+Received: from ?IPV6:2a01:e0a:59e:9d80:527b:9dff:feef:3874? ([2a01:e0a:59e:9d80:527b:9dff:feef:3874])
+        by smtp.gmail.com with ESMTPSA id jy1-20020a0562142b4100b005dd8b9345ebsm3412112qvb.131.2023.04.04.06.59.53
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 04 Apr 2023 07:03:40 -0700 (PDT)
-Message-ID: <d21bfe1d-46e6-5547-cdcb-0d851bf0834a@redhat.com>
-Date:   Tue, 4 Apr 2023 16:03:38 +0200
+        Tue, 04 Apr 2023 07:00:00 -0700 (PDT)
+Message-ID: <1f8ddafd-6fad-aff6-5dc7-9d67f89eea73@redhat.com>
+Date:   Tue, 4 Apr 2023 15:59:52 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.9.1
-Subject: Re: [PATCH 3/3] mm/mmu_gather: send tlb_remove_table_smp_sync IPI
- only to CPUs in kernel mode
+ Thunderbird/102.5.0
+Reply-To: eric.auger@redhat.com
+Subject: Re: [PATCH v3 01/12] vfio/pci: Update comment around group_fd get in
+ vfio_pci_ioctl_pci_hot_reset()
 Content-Language: en-US
-To:     Yair Podemsky <ypodemsk@redhat.com>, linux@armlinux.org.uk,
-        mpe@ellerman.id.au, npiggin@gmail.com, christophe.leroy@csgroup.eu,
-        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        davem@davemloft.net, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
-        hpa@zytor.com, will@kernel.org, aneesh.kumar@linux.ibm.com,
-        akpm@linux-foundation.org, peterz@infradead.org, arnd@arndb.de,
-        keescook@chromium.org, paulmck@kernel.org, jpoimboe@kernel.org,
-        samitolvanen@google.com, frederic@kernel.org, ardb@kernel.org,
-        juerg.haefliger@canonical.com, rmk+kernel@armlinux.org.uk,
-        geert+renesas@glider.be, tony@atomide.com,
-        linus.walleij@linaro.org, sebastian.reichel@collabora.com,
-        nick.hawkins@hpe.com, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-arch@vger.kernel.org,
-        linux-mm@kvack.org, mtosatti@redhat.com, vschneid@redhat.com,
-        dhildenb@redhat.com
-Cc:     alougovs@redhat.com
-References: <20230404134224.137038-1-ypodemsk@redhat.com>
- <20230404134224.137038-4-ypodemsk@redhat.com>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-In-Reply-To: <20230404134224.137038-4-ypodemsk@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To:     Yi Liu <yi.l.liu@intel.com>, alex.williamson@redhat.com,
+        jgg@nvidia.com, kevin.tian@intel.com
+Cc:     joro@8bytes.org, robin.murphy@arm.com, cohuck@redhat.com,
+        nicolinc@nvidia.com, kvm@vger.kernel.org, mjrosato@linux.ibm.com,
+        chao.p.peng@linux.intel.com, yi.y.sun@linux.intel.com,
+        peterx@redhat.com, jasowang@redhat.com,
+        shameerali.kolothum.thodi@huawei.com, lulu@redhat.com,
+        suravee.suthikulpanit@amd.com, intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, linux-s390@vger.kernel.org,
+        xudong.hao@intel.com, yan.y.zhao@intel.com, terrence.xu@intel.com,
+        yanting.jiang@intel.com
+References: <20230401144429.88673-1-yi.l.liu@intel.com>
+ <20230401144429.88673-2-yi.l.liu@intel.com>
+From:   Eric Auger <eric.auger@redhat.com>
+In-Reply-To: <20230401144429.88673-2-yi.l.liu@intel.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 04.04.23 15:42, Yair Podemsky wrote:
-> The tlb_remove_table_smp_sync IPI is used to ensure the outdated tlb page
-> is not currently being accessed and can be cleared.
-> This occurs once all CPUs have left the lockless gup code section.
-> If they reenter the page table walk, the pointers will be to the new
-> pages.
-> Therefore the IPI is only needed for CPUs in kernel mode.
-> By preventing the IPI from being sent to CPUs not in kernel mode,
-> Latencies are reduced.
-> 
-> Race conditions considerations:
-> The context state check is vulnerable to race conditions between the
-> moment the context state is read to when the IPI is sent (or not).
-> 
-> Here are these scenarios.
-> case 1:
-> CPU-A                                             CPU-B
-> 
->                                                    state == CONTEXT_KERNEL
-> int state = atomic_read(&ct->state);
->                                                    Kernel-exit:
->                                                    state == CONTEXT_USER
-> if (state & CT_STATE_MASK == CONTEXT_KERNEL)
-> 
-> In this case, the IPI will be sent to CPU-B despite it is no longer in
-> the kernel. The consequence of which would be an unnecessary IPI being
-> handled by CPU-B, causing a reduction in latency.
-> This would have been the case every time without this patch.
-> 
-> case 2:
-> CPU-A                                             CPU-B
-> 
-> modify pagetables
-> tlb_flush (memory barrier)
->                                                    state == CONTEXT_USER
-> int state = atomic_read(&ct->state);
->                                                    Kernel-enter:
->                                                    state == CONTEXT_KERNEL
->                                                    READ(pagetable values)
-> if (state & CT_STATE_MASK == CONTEXT_USER)
-> 
-> In this case, the IPI will not be sent to CPU-B despite it returning to
-> the kernel and even reading the pagetable.
-> However since this CPU-B has entered the pagetable after the
-> modification it is reading the new, safe values.
-> 
-> The only case when this IPI is truly necessary is when CPU-B has entered
-> the lockless gup code section before the pagetable modifications and
-> has yet to exit them, in which case it is still in the kernel.
-> 
-> Signed-off-by: Yair Podemsky <ypodemsk@redhat.com>
+Hi Yi,
+
+On 4/1/23 16:44, Yi Liu wrote:
+> this suits more on what the code does.
+>
+> Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+> Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+> Tested-by: Yanting Jiang <yanting.jiang@intel.com>
+> Signed-off-by: Yi Liu <yi.l.liu@intel.com>
 > ---
->   mm/mmu_gather.c | 19 +++++++++++++++++--
->   1 file changed, 17 insertions(+), 2 deletions(-)
-> 
-> diff --git a/mm/mmu_gather.c b/mm/mmu_gather.c
-> index 5ea9be6fb87c..731d955e152d 100644
-> --- a/mm/mmu_gather.c
-> +++ b/mm/mmu_gather.c
-> @@ -9,6 +9,7 @@
->   #include <linux/smp.h>
->   #include <linux/swap.h>
->   #include <linux/rmap.h>
-> +#include <linux/context_tracking_state.h>
->   
->   #include <asm/pgalloc.h>
->   #include <asm/tlb.h>
-> @@ -191,6 +192,20 @@ static void tlb_remove_table_smp_sync(void *arg)
->   	/* Simply deliver the interrupt */
->   }
->   
-> +
-> +#ifdef CONFIG_CONTEXT_TRACKING
-> +static bool cpu_in_kernel(int cpu, void *info)
-> +{
-> +	struct context_tracking *ct = per_cpu_ptr(&context_tracking, cpu);
-> +	int state = atomic_read(&ct->state);
-> +	/* will return true only for cpus in kernel space */
-> +	return state & CT_STATE_MASK == CONTEXT_KERNEL;
-> +}
-> +#define CONTEXT_PREDICATE cpu_in_kernel
-> +#else
-> +#define CONTEXT_PREDICATE NULL
-> +#endif /* CONFIG_CONTEXT_TRACKING */
-> +
->   #ifdef CONFIG_ARCH_HAS_CPUMASK_BITS
->   #define REMOVE_TABLE_IPI_MASK mm_cpumask(mm)
->   #else
-> @@ -206,8 +221,8 @@ void tlb_remove_table_sync_one(struct mm_struct *mm)
->   	 * It is however sufficient for software page-table walkers that rely on
->   	 * IRQ disabling.
->   	 */
-> -	on_each_cpu_mask(REMOVE_TABLE_IPI_MASK, tlb_remove_table_smp_sync,
-> -			NULL, true);
-> +	on_each_cpu_cond_mask(CONTEXT_PREDICATE, tlb_remove_table_smp_sync,
-> +			NULL, true, REMOVE_TABLE_IPI_MASK);
->   }
->   
->   static void tlb_remove_table_rcu(struct rcu_head *head)
+>  drivers/vfio/pci/vfio_pci_core.c | 5 ++---
+>  1 file changed, 2 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
+> index a5ab416cf476..65bbef562268 100644
+> --- a/drivers/vfio/pci/vfio_pci_core.c
+> +++ b/drivers/vfio/pci/vfio_pci_core.c
+> @@ -1308,9 +1308,8 @@ static int vfio_pci_ioctl_pci_hot_reset(struct vfio_pci_core_device *vdev,
+>  	}
+>  
+>  	/*
+> -	 * For each group_fd, get the group through the vfio external user
+> -	 * interface and store the group and iommu ID.  This ensures the group
+> -	 * is held across the reset.
+> +	 * Get the group file for each fd to ensure the group held across
+to ensure the group is held
+
+Besides
+
+Reviewed-by: Eric Auger <eric.auger@redhat.com>
+
+Eric
 
 
-Maybe a bit cleaner by avoiding CONTEXT_PREDICATE, still not completely nice
-(an empty dummy function "cpu_maybe_in_kernel" might be cleanest but would
-be slightly slower for !CONFIG_CONTEXT_TRACKING):
-
-#ifdef CONFIG_CONTEXT_TRACKING
-static bool cpu_in_kernel(int cpu, void *info)
-{
-	struct context_tracking *ct = per_cpu_ptr(&context_tracking, cpu);
-	int state = atomic_read(&ct->state);
-	/* will return true only for cpus in kernel space */
-	return state & CT_STATE_MASK == CONTEXT_KERNEL;
-}
-#endif /* CONFIG_CONTEXT_TRACKING */
-
-
-...
-#ifdef CONFIG_CONTEXT_TRACKING
-	on_each_cpu_mask(REMOVE_TABLE_IPI_MASK, tlb_remove_table_smp_sync,
-			 NULL, true);
-#else /* CONFIG_CONTEXT_TRACKING */
-	on_each_cpu_cond_mask(cpu_in_kernel, tlb_remove_table_smp_sync,
-			      NULL, true, REMOVE_TABLE_IPI_MASK);
-#endif /* CONFIG_CONTEXT_TRACKING */
-
-
--- 
-Thanks,
-
-David / dhildenb
+> +	 * the reset
+>  	 */
+>  	for (file_idx = 0; file_idx < hdr.count; file_idx++) {
+>  		struct file *file = fget(group_fds[file_idx]);
 
