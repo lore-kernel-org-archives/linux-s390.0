@@ -2,160 +2,99 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 93A30C761A6
-	for <linux-s390@archiver.kernel.org>; Tue,  4 Apr 2023 08:58:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F308C6FD1D
+	for <linux-s390@archiver.kernel.org>; Tue,  4 Apr 2023 09:38:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234106AbjDDI6K (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 4 Apr 2023 04:58:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35610 "EHLO
+        id S234263AbjDDJiW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 4 Apr 2023 05:38:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234037AbjDDI6I (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Apr 2023 04:58:08 -0400
+        with ESMTP id S234191AbjDDJiV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Apr 2023 05:38:21 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3449510DE;
-        Tue,  4 Apr 2023 01:58:07 -0700 (PDT)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3347uNG4030072;
-        Tue, 4 Apr 2023 08:58:07 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=hUjvb0t7n1d8RFRlvc24uul0qGXRpG2QvzWDM708R3A=;
- b=stcIHghzxa2kkEH14x5U5rJBddZKkfD6V81IrbO+kUxoc1cF95PNjivDnxeSl57CbVri
- fFSrwczs69JLWv7t566TcIUBfL/Pr49JndajA+8GyD81IaF2dg1+HFA0lVqb+r868DeE
- PmmtSd4ptw+qt/ZJwR+B12YsZmZJ6QOy2M+P7tQqGcFY57y3E4OEl1Ztde4JbOvDIttR
- jTJZf1LGQ1BipYMyD2nb0MlXwffHVGiPl5moq2Va6VJfm2QjQwWIcC/lTDXaOxzRzifi
- vx2LO54/FVYrOZzRSCFPiKtW2CXm97Civ4urQULdp4A/gc2S3TH+/7Xb3GX8vJO05/Yk Vg== 
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3900519B4;
+        Tue,  4 Apr 2023 02:38:21 -0700 (PDT)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3349YFRx009231;
+        Tue, 4 Apr 2023 09:38:21 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
+ mime-version : content-transfer-encoding : in-reply-to : references : cc :
+ from : subject : to : message-id : date; s=pp1;
+ bh=cAwaYRp2qEOB0301yJRxF9mFIGhPAEKQfuhA3o2gO/M=;
+ b=VGMYV5SQwLLei6qUTgwzuRNpwVsY2iEEj/gf4fVtRwNmImeLmiy27AIPLF/YRzycdkD3
+ O8gbAfSIdGLQL5yup6oCLgWy3HeDgXz6LBm/7+STIbipqaOjPoQAe/adNr3FdqubGIqM
+ Mawb3ooMEtPIDDO9Oyulp7BGZvPcmxxqYRoCB7bqXNZjukERCgTfoSgU3mh8zNKVwnh8
+ yWukk3UjLyt0WzXgoC0osPkucBcbFDlAEI17dyBXGhXTh19Je/9k3FHRbOKovTDVQo0W
+ iodTBvvlMSTtNnMWNvW96C+SIs3eUXvtkIT8LYmKrgc+5WGK27vIMwVGfI52MiA2C98I mQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3prfbytcb5-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3prgf0sj9w-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 04 Apr 2023 08:58:06 +0000
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3347uXdI031704;
-        Tue, 4 Apr 2023 08:58:06 GMT
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3prfbytcae-1
+        Tue, 04 Apr 2023 09:38:20 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3349Q47c012580;
+        Tue, 4 Apr 2023 09:38:20 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3prgf0sj8t-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 04 Apr 2023 08:58:06 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3342pLYu025987;
-        Tue, 4 Apr 2023 08:58:03 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma01fra.de.ibm.com (PPS) with ESMTPS id 3ppc86ssat-1
+        Tue, 04 Apr 2023 09:38:20 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 33431A1T030727;
+        Tue, 4 Apr 2023 09:38:18 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3ppc872d94-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 04 Apr 2023 08:58:03 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3348w0K419202676
+        Tue, 04 Apr 2023 09:38:18 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3349cETc25494074
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 4 Apr 2023 08:58:00 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F2A9720040;
-        Tue,  4 Apr 2023 08:57:59 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C7B9C2004D;
-        Tue,  4 Apr 2023 08:57:59 +0000 (GMT)
-Received: from li-7e0de7cc-2d9d-11b2-a85c-de26c016e5ad.ibm.com (unknown [9.171.213.1])
-        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue,  4 Apr 2023 08:57:59 +0000 (GMT)
-Message-ID: <94dcda382e095bb562e1e552c7bf44ed22949972.camel@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v4 3/3] s390x/spec_ex: Add test of
- EXECUTE with odd target address
-From:   Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-To:     Thomas Huth <thuth@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Date:   Tue, 04 Apr 2023 10:57:59 +0200
-In-Reply-To: <2e22a705-47c1-53e2-c539-63db5b92f44a@redhat.com>
-References: <20230317133253.965010-1-nsg@linux.ibm.com>
-         <20230317133253.965010-4-nsg@linux.ibm.com>
-         <2e22a705-47c1-53e2-c539-63db5b92f44a@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.46.4 (3.46.4-1.fc37) 
+        Tue, 4 Apr 2023 09:38:14 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6958F20043;
+        Tue,  4 Apr 2023 09:38:14 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4A97320040;
+        Tue,  4 Apr 2023 09:38:14 +0000 (GMT)
+Received: from t14-nrb (unknown [9.171.55.238])
+        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Tue,  4 Apr 2023 09:38:14 +0000 (GMT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20230404085454.2709061-2-nsg@linux.ibm.com>
+References: <20230404085454.2709061-1-nsg@linux.ibm.com> <20230404085454.2709061-2-nsg@linux.ibm.com>
+Cc:     Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+From:   Nico Boehr <nrb@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v5 1/3] s390x/spec_ex: Use PSW macro
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
+        Thomas Huth <thuth@redhat.com>
+Message-ID: <168060109401.9920.11276012177072861564@t14-nrb>
+User-Agent: alot/0.8.1
+Date:   Tue, 04 Apr 2023 11:38:14 +0200
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: va8mHPbupkMoD6YkrjfNaxIJqZISWNxA
-X-Proofpoint-ORIG-GUID: hQzUQC_DyBDEBwN1tLF4bXJubUxXBdMk
+X-Proofpoint-GUID: fMMDmBNdjfwr3EmP4LYTLeiUQAfZ3G45
+X-Proofpoint-ORIG-GUID: SqTfUUv7C9xAAcTNGKSDvnj-_OTORtpW
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
  definitions=2023-04-04_02,2023-04-03_03,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- impostorscore=0 spamscore=0 bulkscore=0 lowpriorityscore=0 suspectscore=0
- clxscore=1015 malwarescore=0 adultscore=0 phishscore=0 mlxscore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2303200000 definitions=main-2304040079
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ adultscore=0 clxscore=1015 mlxscore=0 mlxlogscore=927 priorityscore=1501
+ impostorscore=0 suspectscore=0 bulkscore=0 malwarescore=0 spamscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2303200000 definitions=main-2304040088
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 2023-04-03 at 17:38 +0200, Thomas Huth wrote:
-> On 17/03/2023 14.32, Nina Schoetterl-Glausch wrote:
-> > The EXECUTE instruction executes the instruction at the given target
-> > address. This address must be halfword aligned, otherwise a
-> > specification exception occurs.
-> > Add a test for this.
-> >=20
-> > Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-> > Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-> > ---
-> >   s390x/spec_ex.c | 25 +++++++++++++++++++++++++
-> >   1 file changed, 25 insertions(+)
-> >=20
-> > diff --git a/s390x/spec_ex.c b/s390x/spec_ex.c
-> > index ab023347..b4b9095f 100644
-> > --- a/s390x/spec_ex.c
-> > +++ b/s390x/spec_ex.c
-> > @@ -177,6 +177,30 @@ static int short_psw_bit_12_is_0(void)
-> >   	return 0;
-> >   }
-> >  =20
-> > +static int odd_ex_target(void)
-> > +{
-> > +	uint64_t pre_target_addr;
-> > +	int to =3D 0, from =3D 0x0dd;
-> > +
-> > +	asm volatile ( ".pushsection .text.ex_odd\n"
-> > +		"	.balign	2\n"
-> > +		"pre_odd_ex_target:\n"
-> > +		"	. =3D . + 1\n"
-> > +		"	lr	%[to],%[from]\n"
-> > +		"	.popsection\n"
-> > +
-> > +		"	larl	%[pre_target_addr],pre_odd_ex_target\n"
-> > +		"	ex	0,1(%[pre_target_addr])\n"
-> > +		: [pre_target_addr] "=3D&a" (pre_target_addr),
-> > +		  [to] "+d" (to)
-> > +		: [from] "d" (from)
-> > +	);
-> > +
-> > +	assert((pre_target_addr + 1) & 1);
-> > +	report(to !=3D from, "did not perform ex with odd target");
-> > +	return 0;
-> > +}
+Quoting Nina Schoetterl-Glausch (2023-04-04 10:54:51)
+> Replace explicit psw definition by PSW macro.
+> No functional change intended.
 >=20
->   Hi Nina,
->=20
-> FWIW, this fails to compile with Clang v15 here:
->=20
-> s390x/spec_ex.c:187:4: error: symbol 'pre_odd_ex_target' is already defin=
-ed
->                  "pre_odd_ex_target:\n"
->                   ^
-> <inline asm>:3:1: note: instantiated into assembly here
-> pre_odd_ex_target:
->=20
-> No clue yet why that happens ... but compiling with Clang seems to be bro=
-ken=20
-> on some other spots, too, so this is not really critical right now ;-)
+> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
 
-Thanks, I guess it inlines the function and emits the asm twice.
-Interestingly clang cannot load the address of the misaligned_code symbol i=
-n C code due to alignement,
-so I had to work around that, too.
-
->=20
->   Thomas
->=20
-
+Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
