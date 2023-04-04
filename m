@@ -2,200 +2,177 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 232DCC6FD1D
-	for <linux-s390@archiver.kernel.org>; Tue,  4 Apr 2023 15:20:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1265BC77B60
+	for <linux-s390@archiver.kernel.org>; Tue,  4 Apr 2023 15:23:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234616AbjDDPUC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 4 Apr 2023 11:20:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36340 "EHLO
+        id S235386AbjDDPXK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 4 Apr 2023 11:23:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230491AbjDDPUB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Apr 2023 11:20:01 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 548AC1991
-        for <linux-s390@vger.kernel.org>; Tue,  4 Apr 2023 08:19:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1680621555;
-        h=from:from:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=9h0qe2de4wpUWOB28748KnL4bo+TUsPB4FwOqLcCkxY=;
-        b=c3Xe4fqhHGSkOVm9o/+83nlTAUhXr6hp2KHTa7mHVh6Q+wOUt0WerNd4BoWU0lkQ9G6AaR
-        YASNxBjd6thKXsuuGIaFM02TrK/aZCV0n9vnFE1ml+D4lD0WwzgTHPM1RRrJL0nPBVw5xT
-        /MfierSw0uen6ewyPynhwu13bO74oCg=
-Received: from mail-qv1-f69.google.com (mail-qv1-f69.google.com
- [209.85.219.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-391-OMC8ZfrdOZOUkuzAhYVJAw-1; Tue, 04 Apr 2023 11:19:01 -0400
-X-MC-Unique: OMC8ZfrdOZOUkuzAhYVJAw-1
-Received: by mail-qv1-f69.google.com with SMTP id q1-20020ad44341000000b005a676b725a2so14734952qvs.18
-        for <linux-s390@vger.kernel.org>; Tue, 04 Apr 2023 08:19:00 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680621540;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:reply-to:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=9h0qe2de4wpUWOB28748KnL4bo+TUsPB4FwOqLcCkxY=;
-        b=vb5ffxVGu+MbEFamE7mQHLuYCyWU+8L2Qa1bxvbcWvQcrUyzGI6b8m2yhb7nRnhW7Q
-         1CPJeHbvb0w61ymUGmJhCDhVL22kv7oCqaaitbq8HlqGi/lKugDoelp98Dv5amTLSrGA
-         FbIuDF1i4m5cdBWvZrIh1WGQ5JJ983vw3jigParmSVl1kkQ/cewSi2/9dYOBYnnamRN3
-         wUZMsXpDXK83FvBEvcrfdBJSHDiPl7WHzD6mz/lovRn4teJGNVwqz/+Rx8ZGa+uzMtxw
-         bGCwkBXI+CTwRhwC0QyjJu4Iemt1VrMos542vZJTJVDhteuCScMwbGqzlfFo2L3e5Hea
-         fSNw==
-X-Gm-Message-State: AAQBX9f3zV8/HYTN45KtiOBsua1d0GXsfRX2MdsT5v09isCpS9padZsG
-        CR8wiQFPkXzknkGAwXArXXc+E9zlrGkdYwXOHP21P9tJ51Vr0rsnRKAhQBQZ5g6L/OhnTmcBJq5
-        rVHQWkXx1ULfPmOc6QouN8A==
-X-Received: by 2002:a05:6214:c6b:b0:5d5:11b4:ad6 with SMTP id t11-20020a0562140c6b00b005d511b40ad6mr4092522qvj.5.1680621539818;
-        Tue, 04 Apr 2023 08:18:59 -0700 (PDT)
-X-Google-Smtp-Source: AKy350b/pUGHnnzAa/Is2PTZjxccUTN1xIqWGh6dFWoPmFhMxxL0nmFn4Q7QHgQ+QfiC+fi7gOde3g==
-X-Received: by 2002:a05:6214:c6b:b0:5d5:11b4:ad6 with SMTP id t11-20020a0562140c6b00b005d511b40ad6mr4092477qvj.5.1680621539415;
-        Tue, 04 Apr 2023 08:18:59 -0700 (PDT)
-Received: from ?IPV6:2a01:e0a:59e:9d80:527b:9dff:feef:3874? ([2a01:e0a:59e:9d80:527b:9dff:feef:3874])
-        by smtp.gmail.com with ESMTPSA id ea7-20020ad458a7000000b005dd8b9345a7sm3427407qvb.63.2023.04.04.08.18.54
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 04 Apr 2023 08:18:57 -0700 (PDT)
-Message-ID: <fc87191d-2e79-83c3-b5ba-7f8b1083988a@redhat.com>
-Date:   Tue, 4 Apr 2023 17:18:52 +0200
+        with ESMTP id S234936AbjDDPXJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Apr 2023 11:23:09 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 348AF3C15;
+        Tue,  4 Apr 2023 08:23:08 -0700 (PDT)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 334Enil9007888;
+        Tue, 4 Apr 2023 15:23:07 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=auDp6nZ/2bWY6W6kMlKoA6hUq3gGrq7LIuFCPYZSSbU=;
+ b=jShV80Ob6Q1f5k2ItXhjsHI7ETEEqFFX4kNLrqlsxiE4Py+3rgiWhDWiu+ZBN9zTUHoi
+ zppjKBpGpEgYjjap2ldC4VK9Umz2gTBHU+nNsZWEv1AYF8XgNiUaDZib1FuNqQFwZLqS
+ Dwmk/Z34ggzMPQajGTkypczNNUCtHODDUvb6r37/wY7GNIpvazLtugaRbeTkeqfOieTA
+ k8j46h9vYPu9nvysyFekbisDhUiIKABM/PYMV0P9/g0UfPrnefs+CNi17oRhE6PVeqA1
+ pZtneyNjtIqsbgmMhA44jio4O9My/O+hojtYOPyigABVEE6fwp8RptHC619c2yUW4cgZ iA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3prp0cs7wm-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 04 Apr 2023 15:23:07 +0000
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 334F04kn011738;
+        Tue, 4 Apr 2023 15:23:06 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3prp0cs7w3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 04 Apr 2023 15:23:06 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3342xntS015581;
+        Tue, 4 Apr 2023 15:23:05 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3ppc87amkb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 04 Apr 2023 15:23:04 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 334FN10R29295312
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 4 Apr 2023 15:23:01 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 627A220043;
+        Tue,  4 Apr 2023 15:23:01 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 34A7F20040;
+        Tue,  4 Apr 2023 15:23:01 +0000 (GMT)
+Received: from [9.152.222.242] (unknown [9.152.222.242])
+        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Tue,  4 Apr 2023 15:23:01 +0000 (GMT)
+Message-ID: <c6fa68e4-74ed-62a6-ce81-299d39475c64@linux.ibm.com>
+Date:   Tue, 4 Apr 2023 17:23:00 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.5.0
-Reply-To: eric.auger@redhat.com
-Subject: Re: [PATCH v3 02/12] vfio/pci: Only check ownership of opened devices
- in hot reset
+ Thunderbird/102.8.0
+Subject: Re: [kvm-unit-tests PATCH 5/5] s390x: ap: Add reset tests
 Content-Language: en-US
-To:     "Liu, Yi L" <yi.l.liu@intel.com>,
-        "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
-        "jgg@nvidia.com" <jgg@nvidia.com>,
-        "Tian, Kevin" <kevin.tian@intel.com>
-Cc:     "joro@8bytes.org" <joro@8bytes.org>,
-        "robin.murphy@arm.com" <robin.murphy@arm.com>,
-        "cohuck@redhat.com" <cohuck@redhat.com>,
-        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
-        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
-        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
-        "peterx@redhat.com" <peterx@redhat.com>,
-        "jasowang@redhat.com" <jasowang@redhat.com>,
-        "shameerali.kolothum.thodi@huawei.com" 
-        <shameerali.kolothum.thodi@huawei.com>,
-        "lulu@redhat.com" <lulu@redhat.com>,
-        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "Hao, Xudong" <xudong.hao@intel.com>,
-        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
-        "Xu, Terrence" <terrence.xu@intel.com>,
-        "Jiang, Yanting" <yanting.jiang@intel.com>
-References: <20230401144429.88673-1-yi.l.liu@intel.com>
- <20230401144429.88673-3-yi.l.liu@intel.com>
- <844faa5c-2968-2a4f-8a70-900f359be1a0@redhat.com>
- <DS0PR11MB75290339DD0FD467146D4655C3939@DS0PR11MB7529.namprd11.prod.outlook.com>
-From:   Eric Auger <eric.auger@redhat.com>
-In-Reply-To: <DS0PR11MB75290339DD0FD467146D4655C3939@DS0PR11MB7529.namprd11.prod.outlook.com>
-Content-Type: text/plain; charset=UTF-8
+To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     thuth@redhat.com, imbrenda@linux.ibm.com, nrb@linux.ibm.com,
+        linux-s390@vger.kernel.org
+References: <20230330114244.35559-1-frankja@linux.ibm.com>
+ <20230330114244.35559-6-frankja@linux.ibm.com>
+ <25d92c71-b495-9c0a-790d-d310710060d9@linux.ibm.com>
+ <65b71334-3f8f-d750-d5be-4d4860af8398@linux.ibm.com>
+From:   Pierre Morel <pmorel@linux.ibm.com>
+In-Reply-To: <65b71334-3f8f-d750-d5be-4d4860af8398@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: vspNqGgnRqGGMgOc41I8Il46lypEoF-O
+X-Proofpoint-ORIG-GUID: MPhIx4DjsgetpICsCdfCmmbT3g3jBI3x
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-04-04_06,2023-04-04_04,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxscore=0
+ bulkscore=0 priorityscore=1501 suspectscore=0 spamscore=0 malwarescore=0
+ lowpriorityscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2303200000 definitions=main-2304040139
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Yi,
 
-On 4/4/23 16:37, Liu, Yi L wrote:
-> Hi Eric,
->
->> From: Eric Auger <eric.auger@redhat.com>
->> Sent: Tuesday, April 4, 2023 10:00 PM
+On 4/4/23 13:40, Janosch Frank wrote:
+> On 4/3/23 16:57, Pierre Morel wrote:
 >>
->> Hi YI,
->>
->> On 4/1/23 16:44, Yi Liu wrote:
->>> If the affected device is not opened by any user, it's safe to reset it
->>> given it's not in use.
+>> On 3/30/23 13:42, Janosch Frank wrote:
+>>> Test if the IRQ enablement is turned off on a reset or zeroize PQAP.
 >>>
->>> Reviewed-by: Kevin Tian <kevin.tian@intel.com>
->>> Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
->>> Tested-by: Yanting Jiang <yanting.jiang@intel.com>
->>> Signed-off-by: Yi Liu <yi.l.liu@intel.com>
+>>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 >>> ---
->>>  drivers/vfio/pci/vfio_pci_core.c | 14 +++++++++++---
->>>  include/uapi/linux/vfio.h        |  8 ++++++++
->>>  2 files changed, 19 insertions(+), 3 deletions(-)
+>>>    lib/s390x/ap.c | 68 
+>>> ++++++++++++++++++++++++++++++++++++++++++++++++++
+>>>    lib/s390x/ap.h |  4 +++
+>>>    s390x/ap.c     | 52 ++++++++++++++++++++++++++++++++++++++
+>>>    3 files changed, 124 insertions(+)
 >>>
->>> diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
->>> index 65bbef562268..5d745c9abf05 100644
->>> --- a/drivers/vfio/pci/vfio_pci_core.c
->>> +++ b/drivers/vfio/pci/vfio_pci_core.c
->>> @@ -2429,10 +2429,18 @@ static int vfio_pci_dev_set_hot_reset(struct
->> vfio_device_set *dev_set,
->>>  	list_for_each_entry(cur_vma, &dev_set->device_list, vdev.dev_set_list) {
->>>  		/*
->>> -		 * Test whether all the affected devices are contained by the
->>> -		 * set of groups provided by the user.
->>> +		 * Test whether all the affected devices can be reset by the
->>> +		 * user.
->>> +		 *
->>> +		 * Resetting an unused device (not opened) is safe, because
->>> +		 * dev_set->lock is held in hot reset path so this device
->>> +		 * cannot race being opened by another user simultaneously.
->>> +		 *
->>> +		 * Otherwise all opened devices in the dev_set must be
->>> +		 * contained by the set of groups provided by the user.
->>>  		 */
->>> -		if (!vfio_dev_in_groups(cur_vma, groups)) {
->>> +		if (cur_vma->vdev.open_count &&
->>> +		    !vfio_dev_in_groups(cur_vma, groups)) {
->>>  			ret = -EINVAL;
->>>  			goto err_undo;
->>>  		}
->>> diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
->>> index 0552e8dcf0cb..f96e5689cffc 100644
->>> --- a/include/uapi/linux/vfio.h
->>> +++ b/include/uapi/linux/vfio.h
->>> @@ -673,6 +673,14 @@ struct vfio_pci_hot_reset_info {
->>>   * VFIO_DEVICE_PCI_HOT_RESET - _IOW(VFIO_TYPE, VFIO_BASE + 13,
->>>   *				    struct vfio_pci_hot_reset)
->>>   *
->>> + * Userspace requests hot reset for the devices it uses.  Due to the
->>> + * underlying topology, multiple devices can be affected in the reset
->> by the reset
->>> + * while some might be opened by another user.  To avoid interference
->> s/interference/hot reset failure?
-> I don’t think user can really avoid hot reset failure since there may
-> be new devices plugged into the affected slot. Even user has opened
-I don't know the legacy wrt that issue but this sounds a serious issue,
-meaning the reset of an assigned device could impact another device
-belonging to another group not not owned by the user?
-> all the groups/devices reported by VFIO_DEVICE_GET_PCI_HOT_RESET_INFO,
-> the hot reset can fail if new device is plugged in and has not been
-> bound to vfio or opened by another user during the window of
-> _INFO and HOT_RESET.
-with respect to the latter isn't the dev_set lock held during the hot
-reset and sufficient to prevent any new opening to occur?
+>>> diff --git a/lib/s390x/ap.c b/lib/s390x/ap.c
+>>> index aaf5b4b9..d969b2a5 100644
+>>> --- a/lib/s390x/ap.c
+>>> +++ b/lib/s390x/ap.c
+>>> @@ -113,6 +113,74 @@ int ap_pqap_qci(struct ap_config_info *info)
+>>>        return cc;
+>>>    }
+>>>    +static int pqap_reset(uint8_t ap, uint8_t qn, struct 
+>>> ap_queue_status *r1,
+>>> +              bool zeroize)
+>>
+>>
+>> NIT. Personal opinion, I find using this bool a little obfuscating and I
+>> would have prefer 2 different functions.
+>>
+>> I see you added a ap_pqap_reset() and ap_pqap_zeroize() next in the 
+>> code.
 >
-> maybe the whole statement should be as below:
+> Yes, because the names of the functions include the zeroize parts 
+> which makes it easier for developers to understand how they work 
+> instead of having a bool argument where they need to look up at which 
+> argument position it is.
 >
-> To avoid interference, the hot reset can only be conducted when all
-> the affected devices are either opened by the calling user or not
-> opened yet at the moment of the hot reset attempt.
+>>
+>> Why this intermediate level?
+>
+> So I don't need to repeat the function below for a different r0.fc, no?
 
-OK
 
-Eric
+question of taste anyway.
+
+
+[...]
+
+
+>>
+>>
+>>> +    } while (cc == 0 && apqsw.irq_enabled == 0);
+>>> +    report(apqsw.irq_enabled == 1, "IRQs enabled");
+>>> +
+>>> +    ap_pqap_reset(apn, qn, &apqsw);
+>>> +    cc = ap_pqap_tapq(apn, qn, &apqsw, &r2);
+>>> +    assert(!cc);
+>>> +    report(apqsw.irq_enabled == 0, "IRQs have been disabled");
+>>
+>> shouldn't we check that the APQ is fine apqsw.rc == 0 ?
 >
->>> + * the calling user must ensure all affected devices, if opened, are
->>> + * owned by itself.
->>> + *
->>> + * The ownership is proved by an array of group fds.
->>> + *
->>>   * Return: 0 on success, -errno on failure.
->>>   */
->>>  struct vfio_pci_hot_reset {
-> Regards,
-> Yi Liu
+> Isn't that covered by the assert above?
+
+May be.
+
+This is the kind of thing where I find the implementation and 
+documentation not very logical.
+
+- CC = 0 means that the instruction was processed correctly.
+
+- APQSW reports the status of the AP queue
+
+For any operation but TAPQ I understand that CC=3 if APQSW is != 0
+
+but for TAPQ, if it is processed correctly it should give back the 
+APQSW. Isn't it exactly what we ask the TAPQ to do?
+
+I am probably not the only one to think that CC for TAPQ is at least not 
+useful, the Linux implementation ignores it.
+
+You are probably right but in doubt I would do as in Linux 
+implementation and ignore CC,
+
+
 
