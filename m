@@ -2,101 +2,105 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 22B86C6FD1D
-	for <linux-s390@archiver.kernel.org>; Tue,  4 Apr 2023 10:00:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 843A5C761A6
+	for <linux-s390@archiver.kernel.org>; Tue,  4 Apr 2023 10:15:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233917AbjDDKAt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 4 Apr 2023 06:00:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58420 "EHLO
+        id S233904AbjDDKPZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 4 Apr 2023 06:15:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233890AbjDDKAs (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Apr 2023 06:00:48 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2634519AE;
-        Tue,  4 Apr 2023 03:00:48 -0700 (PDT)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3347uQAU030435;
-        Tue, 4 Apr 2023 10:00:48 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
- mime-version : content-transfer-encoding : in-reply-to : references : cc :
- from : subject : to : message-id : date; s=pp1;
- bh=bRDfHeH6biUiqRSqB/8INxa1VLMfQf2+0ZpxzSEpOIg=;
- b=QiRKrMDncF417+KD4Hydt82zj2prhPndbWGYXF7623rf9S7XRDIVjCBea9hKWaTYmJED
- 6Pw75fYfq+QcRQwPYYQXJpQ4kkqfYaOwHHbJiTv1vE433nQ4u4bIdBD+O9C0GCnfYQam
- oW7Cf4A1Sjr4GapeZwn8Joup6+QwtZRFTf/JnyNYc4ok11f4yd/hSNJPkxvipvdMFOwR
- m7acPasOPQie1hi+DWieeBzpvrg4WZ1AtgjZmu7Iy6QYDa6i4BrLmibKQlVmndL8RmoN
- Frkb4lYPqfQTuv3T+kDNxbBwSwYWTjrOKbw0+IX88XGqRRqeXZ8WbZTYwE1Sc+IBB7JH HA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3prfbyv40e-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 04 Apr 2023 10:00:47 +0000
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3348tGPq032242;
-        Tue, 4 Apr 2023 10:00:47 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3prfbyv3xx-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 04 Apr 2023 10:00:46 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3341wqNB005306;
-        Tue, 4 Apr 2023 10:00:44 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3ppc872dpm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 04 Apr 2023 10:00:44 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 334A0fEg23724616
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 4 Apr 2023 10:00:41 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 27D8620043;
-        Tue,  4 Apr 2023 10:00:41 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0969920040;
-        Tue,  4 Apr 2023 10:00:41 +0000 (GMT)
-Received: from t14-nrb (unknown [9.171.55.238])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue,  4 Apr 2023 10:00:40 +0000 (GMT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S233732AbjDDKPY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Apr 2023 06:15:24 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3546D1BE6
+        for <linux-s390@vger.kernel.org>; Tue,  4 Apr 2023 03:14:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1680603279;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=qoVCcbQNYY3FcSB9Lyr/ZnchZS/D69fQl5IFH8J4fgo=;
+        b=Pc/fsRRxIogwVRKzSJzC7HVTLqZg7v5t4nHcg1F5afZsqV2INRgd5uW9oLrXMZaenttJ0q
+        2zXn6RpD5fhljIwimaBt6YtETvwnUHNQX3Pm1/gnIZJPWnemFSlL8WGpYyWdhLdfpS4blA
+        V17zuRbZJNxtYW5uMYKSmqs85t3nv5E=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-600-CKbJ4-y0PK6cBpeA8vUwaw-1; Tue, 04 Apr 2023 06:14:38 -0400
+X-MC-Unique: CKbJ4-y0PK6cBpeA8vUwaw-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id BD329101A553;
+        Tue,  4 Apr 2023 10:14:37 +0000 (UTC)
+Received: from thuth.com (unknown [10.39.193.33])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 948D940C6EC4;
+        Tue,  4 Apr 2023 10:14:36 +0000 (UTC)
+From:   Thomas Huth <thuth@redhat.com>
+To:     kvm@vger.kernel.org, Janosch Frank <frankja@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Nico Boehr <nrb@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH] s390x/snippets: Fix compilation with Clang 15
+Date:   Tue,  4 Apr 2023 12:14:34 +0200
+Message-Id: <20230404101434.172721-1-thuth@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20230404085454.2709061-4-nsg@linux.ibm.com>
-References: <20230404085454.2709061-1-nsg@linux.ibm.com> <20230404085454.2709061-4-nsg@linux.ibm.com>
-Cc:     Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-From:   Nico Boehr <nrb@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v5 3/3] s390x/spec_ex: Add test of EXECUTE with odd target address
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>
-Message-ID: <168060244077.9920.5308723452632105701@t14-nrb>
-User-Agent: alot/0.8.1
-Date:   Tue, 04 Apr 2023 12:00:40 +0200
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 4xXXOslLHKv8Rqa4iCtYuAEbjMRokPKF
-X-Proofpoint-ORIG-GUID: WzgJepjyHYeUuzcJ41wmv_5H16dSe_dU
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-04-04_02,2023-04-03_03,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- impostorscore=0 spamscore=0 bulkscore=0 lowpriorityscore=0 suspectscore=0
- clxscore=1015 malwarescore=0 adultscore=0 phishscore=0 mlxscore=0
- mlxlogscore=899 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2303200000 definitions=main-2304040088
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.2
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Quoting Nina Schoetterl-Glausch (2023-04-04 10:54:53)
-> The EXECUTE instruction executes the instruction at the given target
-> address. This address must be halfword aligned, otherwise a
-> specification exception occurs.
-> Add a test for this.
->=20
-> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+Clang complains:
 
-Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
+ s390x/snippets/c/cstart.S:22:13: error: invalid operand for instruction
+  lghi %r15, stackptr
+             ^
+Let's load the address with "larl" instead, like we already do
+it in s390x/cstart64.S. For this we should also switch to 64-bit
+mode first, then we also don't have to clear r15 right in front
+of this anymore.
+
+Changing the code here triggered another problem: initial_cr0
+must be aligned on a double-word boundary, otherwise the lctlg
+instruction will fail with an specification exception. This was
+just working by accident so far - add an ".align 8" now to avoid
+the problem.
+
+Signed-off-by: Thomas Huth <thuth@redhat.com>
+---
+ s390x/snippets/c/cstart.S | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/s390x/snippets/c/cstart.S b/s390x/snippets/c/cstart.S
+index a7d4cd42..c80ccfed 100644
+--- a/s390x/snippets/c/cstart.S
++++ b/s390x/snippets/c/cstart.S
+@@ -15,12 +15,12 @@ start:
+ 	larl	%r1, initial_cr0
+ 	lctlg	%c0, %c0, 0(%r1)
+ 	/* XOR all registers with themselves to clear them fully. */
+-	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
++	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14
+ 	xgr \i,\i
+ 	.endr
+-	/* 0x3000 is the stack page for now */
+-	lghi	%r15, stackptr
+ 	sam64
++	/* 0x3000 is the stack page for now */
++	larl	%r15, stackptr
+ 	brasl	%r14, main
+ 	/*
+ 	 * If main() returns, we stop the CPU with the code below. We also
+@@ -37,6 +37,7 @@ exit:
+ 	xgr	%r0, %r0
+ 	sigp    %r2, %r0, SIGP_STOP
+ 
++	.align 8
+ initial_cr0:
+ 	/* enable AFP-register control, so FP regs (+BFP instr) can be used */
+ 	.quad	0x0000000000040000
+-- 
+2.31.1
+
