@@ -2,191 +2,129 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0502AC76188
-	for <linux-s390@archiver.kernel.org>; Wed,  5 Apr 2023 12:35:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C7CFC761A6
+	for <linux-s390@archiver.kernel.org>; Wed,  5 Apr 2023 12:46:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238013AbjDEMfT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 5 Apr 2023 08:35:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46676 "EHLO
+        id S238032AbjDEMqF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 5 Apr 2023 08:46:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237079AbjDEMfS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 5 Apr 2023 08:35:18 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65B011BD0;
-        Wed,  5 Apr 2023 05:35:17 -0700 (PDT)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 335AwRGE011355;
-        Wed, 5 Apr 2023 12:35:17 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=NpidT9U3QfRUXL0IvUatJaeWukJJg8CKx/psZwauPGs=;
- b=BLWf1puQeJq4rErb1tU5YH82ylhv5CvA+6yACoufSuovbLlhgxJueAG5YZFtX05IsIeN
- FIgfo/Oa1mwcbnKKIiOKCH5uBirw81p8OpAZpPT+kGIsDlzfMkj1FfzJRarsgxHx7aI6
- 5nM0C/9Kv0MQrP/3I6ZUFYw5GEeo0GVFyHkcuGOkOcIJNn5LpMojHrAGQqnOnYsz22BM
- AICnd3kpu16hxoTjkJB6VHUvcOScLne9+XTLuhJ1oI7OXzynaNytoQ3CXQs5eAE9mX/g
- sOHXck4gBXvHximjy7uPl04MRWaOejTknYGUNGrR1Yw+lfEtbRgNwbpvK2EFJHLL8sIb Zw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ps7pt2cft-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 05 Apr 2023 12:35:16 +0000
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 335BfpTh005013;
-        Wed, 5 Apr 2023 12:35:16 GMT
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ps7pt2cea-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 05 Apr 2023 12:35:16 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3350esU6009693;
-        Wed, 5 Apr 2023 12:35:13 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-        by ppma04fra.de.ibm.com (PPS) with ESMTPS id 3ppc86tgyh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 05 Apr 2023 12:35:13 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 335CZAUD17695426
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 5 Apr 2023 12:35:10 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id ECCFB20043;
-        Wed,  5 Apr 2023 12:35:09 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9C8FA20040;
-        Wed,  5 Apr 2023 12:35:09 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed,  5 Apr 2023 12:35:09 +0000 (GMT)
-From:   Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-To:     Nico Boehr <nrb@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: [kvm-unit-tests PATCH v1] s390x: Improve stack traces that contain an interrupt frame
-Date:   Wed,  5 Apr 2023 14:35:08 +0200
-Message-Id: <20230405123508.854034-1-nsg@linux.ibm.com>
-X-Mailer: git-send-email 2.37.2
+        with ESMTP id S237282AbjDEMqB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 5 Apr 2023 08:46:01 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87DA330D4
+        for <linux-s390@vger.kernel.org>; Wed,  5 Apr 2023 05:45:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1680698711;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=rJlvbrDO3MZW25EtVUfp0HoO311UYJgGKtfX/KEqF/k=;
+        b=GER116tgb+iYLrIT7d4YCy70CvkCC3ZTYBKLxajJxbZgXuyKM2JcZML6stGxqYHRr9T3HP
+        v8nxW5K3mkeZs7BYaINTyAH6JCw+5alZIbchu93T79G7V2a+W0U8fV0muR1w1xJg8nfw83
+        Gk8E7tl2N3FaU5OmliSluZx/6RQwOf8=
+Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com
+ [209.85.222.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-32-lZ6lnQF-Ol2J4xeXWKMLBQ-1; Wed, 05 Apr 2023 08:45:10 -0400
+X-MC-Unique: lZ6lnQF-Ol2J4xeXWKMLBQ-1
+Received: by mail-qk1-f198.google.com with SMTP id x80-20020a376353000000b0074681bc7f42so16134963qkb.8
+        for <linux-s390@vger.kernel.org>; Wed, 05 Apr 2023 05:45:10 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1680698709;
+        h=mime-version:message-id:date:references:in-reply-to:subject:cc:to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=rJlvbrDO3MZW25EtVUfp0HoO311UYJgGKtfX/KEqF/k=;
+        b=LxSI29E0pzNP06mTM3hRze47mt6tr6rHivfLxiC/VpUWW4SUjJ6AekAqYpeKeH9u6t
+         wucwvIHuOcZaUfjts/kLrfCvKD+acxUeNNG/JmYdeYQLOck+/55rkYE2RNNVo6CwFI1H
+         2BLTYpX+VbvbfEXq5vQCpyRBhLI+oz/pQDLCR39MoxlGhB6AjFwCsxgoyc6IAZA8nGyd
+         2H5nwmC1KIg/t4wM2ZevqZ/xDdhzh5v7W7tBgVSeRAxNAV6HPbHBxnycq1TlzHkgc88z
+         82Ua/cn+aLKTP3+Y3T/VLGs8CqjI768G9JLi4qIK6XDSP31iPdvCre9kJ94Kv9c3b1pz
+         M56A==
+X-Gm-Message-State: AAQBX9c52PW4g3Wn9qnWT17jDtIIMC/qqR708wNxze3J9/UchiAW5+15
+        gPSvP7pT/+4BZiypPZeUNaV3wfC4A7uru5Rh9Pwu084og6HFf9/eqKuO6Se2f1IUKitmR+PiStT
+        tiWFGUqXLkZHl+8Us6unRKQ==
+X-Received: by 2002:a05:622a:1716:b0:3e4:eb03:687d with SMTP id h22-20020a05622a171600b003e4eb03687dmr4303547qtk.44.1680698709736;
+        Wed, 05 Apr 2023 05:45:09 -0700 (PDT)
+X-Google-Smtp-Source: AKy350YM3193lIgKl2aWj9mqpkVtYuh0l9dX5dcxwgxaNjVBgfvhxy0L8/57jtC9NbW/iCG3sMx10Q==
+X-Received: by 2002:a05:622a:1716:b0:3e4:eb03:687d with SMTP id h22-20020a05622a171600b003e4eb03687dmr4303502qtk.44.1680698709447;
+        Wed, 05 Apr 2023 05:45:09 -0700 (PDT)
+Received: from vschneid.remote.csb ([154.57.232.159])
+        by smtp.gmail.com with ESMTPSA id t186-20020a37aac3000000b00746b7372d62sm4415939qke.27.2023.04.05.05.45.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 05 Apr 2023 05:45:08 -0700 (PDT)
+From:   Valentin Schneider <vschneid@redhat.com>
+To:     Frederic Weisbecker <frederic@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>
+Cc:     Yair Podemsky <ypodemsk@redhat.com>, linux@armlinux.org.uk,
+        mpe@ellerman.id.au, npiggin@gmail.com, christophe.leroy@csgroup.eu,
+        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        davem@davemloft.net, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+        hpa@zytor.com, will@kernel.org, aneesh.kumar@linux.ibm.com,
+        akpm@linux-foundation.org, arnd@arndb.de, keescook@chromium.org,
+        paulmck@kernel.org, jpoimboe@kernel.org, samitolvanen@google.com,
+        ardb@kernel.org, juerg.haefliger@canonical.com,
+        rmk+kernel@armlinux.org.uk, geert+renesas@glider.be,
+        tony@atomide.com, linus.walleij@linaro.org,
+        sebastian.reichel@collabora.com, nick.hawkins@hpe.com,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-arch@vger.kernel.org,
+        linux-mm@kvack.org, mtosatti@redhat.com, dhildenb@redhat.com,
+        alougovs@redhat.com
+Subject: Re: [PATCH 3/3] mm/mmu_gather: send tlb_remove_table_smp_sync IPI
+ only to CPUs in kernel mode
+In-Reply-To: <ZC1j8ivE/kK7+Gd5@lothringen>
+References: <20230404134224.137038-1-ypodemsk@redhat.com>
+ <20230404134224.137038-4-ypodemsk@redhat.com>
+ <ZC1Q7uX4rNLg3vEg@lothringen> <ZC1XD/sEJY+zRujE@lothringen>
+ <20230405114148.GA351571@hirez.programming.kicks-ass.net>
+ <ZC1j8ivE/kK7+Gd5@lothringen>
+Date:   Wed, 05 Apr 2023 13:45:02 +0100
+Message-ID: <xhsmhpm8ia46p.mognet@vschneid.remote.csb>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: FfYLv27Y2zutJJfnGZhyVEFRn3ViKU06
-X-Proofpoint-ORIG-GUID: sVbOpcwKRGNChpmPoPPOuEwu3KT7Bfoi
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-04-05_07,2023-04-05_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 suspectscore=0
- mlxlogscore=576 impostorscore=0 phishscore=0 bulkscore=0 spamscore=0
- mlxscore=0 lowpriorityscore=0 priorityscore=1501 malwarescore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2303200000 definitions=main-2304050113
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-When we encounter an unexpected interrupt we print a stack trace.
-While we can identify the interrupting instruction via the old psw,
-we don't really have a way to identify callers further up the stack,
-since we rely on the s390x elf abi calling convention to perform the
-backtrace. An interrupt is not a call, so there are no guarantees about
-the contents of the stack and return address registers.
-If we get lucky their content is as we need it or valid for a previous
-callee in which case we print one wrong caller and then proceed with the
-correct ones.
+On 05/04/23 14:05, Frederic Weisbecker wrote:
+>  static void smp_call_function_many_cond(const struct cpumask *mask,
+>                                       smp_call_func_t func, void *info,
+> @@ -946,10 +948,13 @@ static void smp_call_function_many_cond(const struct cpumask *mask,
+>  #endif
+>                       cfd_seq_store(pcpu->seq_queue, this_cpu, cpu, CFD_SEQ_QUEUE);
+>                       if (llist_add(&csd->node.llist, &per_cpu(call_single_queue, cpu))) {
+> -				__cpumask_set_cpu(cpu, cfd->cpumask_ipi);
+> -				nr_cpus++;
+> -				last_cpu = cpu;
+> -
+> +				if (!(scf_flags & SCF_NO_USER) ||
+> +				    !IS_ENABLED(CONFIG_GENERIC_ENTRY) ||
+> +				     ct_state_cpu(cpu) != CONTEXT_USER) {
+> +					__cpumask_set_cpu(cpu, cfd->cpumask_ipi);
+> +					nr_cpus++;
+> +					last_cpu = cpu;
+> +				}
 
-Warn about the stack trace above the interrupting instruction possibly
-not being correct by inserting a new stack frame with a warning symbol.
-Also identify the interrupted instruction.
+I've been hacking on something like this (CSD deferral for NOHZ-full),
+and unfortunately this uses the CPU-local cfd_data storage thing, which
+means any further smp_call_function() from the same CPU to the same
+destination will spin on csd_lock_wait(), waiting for the target CPU to
+come out of userspace and flush the queue - and we've just spent extra
+effort into *not* disturbing it, so that'll take a while :(
 
-For example:
+I don't have much that is in a shareable state yet (though I'm supposed to
+talk some more about it at OSPM in <2 weeks, so I'll have to get there),
+but ATM I'm playing with
+o a bitmask (like in [1]) for coalescable stuff such as do_sync_core() for
+  x86 instruction patching
+o a CSD-like queue for things that need to pass data around, using
+  statically-allocated storage (so with a limit on how much it can be used) - the
+  alternative being allocating a struct on sending, since you don't have a
+  bound on how much crap you can queue on an undisturbed NOHZ-full CPU...
 
-0x00000000000150f1: print_pgm_info at lib/s390x/interrupt.c:255
- (inlined by) handle_pgm_int at lib/s390x/interrupt.c:274
-0x0000000000011099: pgm_int at s390x/cstart64.S:97
-0x0000000000014523: sclp_service_call at lib/s390x/sclp.c:185
-0x0000000000000000: lowcore at lib/s390x/asm/arch_def.h:172
-0x0000000000014b8b: console_refill_read_buffer at lib/s390x/sclp-console.c:259
- (inlined by) __getchar at lib/s390x/sclp-console.c:290
-0x00000000000188ef: getchar at lib/getchar.c:8
-
-becomes:
-
-0x00000000000151f9: print_pgm_info at lib/s390x/interrupt.c:255
- (inlined by) handle_pgm_int at lib/s390x/interrupt.c:274
-0x00000000000110c1: pgm_int at s390x/cstart64.S:98
-0x000000000001462f: servc at lib/s390x/asm/arch_def.h:459
- (inlined by) sclp_service_call at lib/s390x/sclp.c:186
-0x0000000000019150: WARNING_THE_FOLLOWING_CALLERS_MIGHT_BE_CORRECT_BY_ACCIDENT_ONLY at s390x/cstart64.S:?
-0x0000000000000000: lowcore at lib/s390x/asm/arch_def.h:172
-0x0000000000014c93: console_refill_read_buffer at lib/s390x/sclp-console.c:259
- (inlined by) __getchar at lib/s390x/sclp-console.c:290
-
-Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
----
- s390x/cstart64.S |  1 +
- s390x/macros.S   | 21 +++++++++++++++++++++
- 2 files changed, 22 insertions(+)
-
-diff --git a/s390x/cstart64.S b/s390x/cstart64.S
-index 468ace3e..3cd0e3f3 100644
---- a/s390x/cstart64.S
-+++ b/s390x/cstart64.S
-@@ -13,6 +13,7 @@
- #include <asm/asm-offsets.h>
- #include <asm/sigp.h>
- 
-+.file __FILE__
- #include "macros.S"
- .section .init
- 
-diff --git a/s390x/macros.S b/s390x/macros.S
-index e2a56a36..ebbb5fac 100644
---- a/s390x/macros.S
-+++ b/s390x/macros.S
-@@ -17,6 +17,20 @@
-  * we re-load the registers and load the old PSW.
-  */
- 	.macro CALL_INT_HANDLER c_func, old_psw
-+	/* Allocate new stack frame for warning symbol that shows up in the stack trace */
-+	stg	%r15, -STACK_FRAME_SIZE + STACK_FRAME_INT_BACKCHAIN(%r15)
-+	lay	%r15, -STACK_FRAME_SIZE(%r15)
-+	/*
-+	 * The handler must return with the original registers -> save r14
-+	 * so it can be used to point to the interrupting instruction
-+	 */
-+	stg	%r14, STACK_FRAME_INT_GRS0(%r15)
-+	larl	%r14, WARNING_THE_FOLLOWING_CALLERS_MIGHT_BE_CORRECT_BY_ACCIDENT_ONLY
-+	/* Pretend we are returning to an instruction after the warning symbol */
-+	la	%r14,1(%r14)
-+	stg	%r14, 12 * 8 + STACK_FRAME_INT_GRS0(%r15)
-+	/* Pretend we made a call with the old psw address as return address */
-+	lg	%r14, 8 + \old_psw
- 	SAVE_REGS_STACK
- 	/* Save the stack address in GR2 which is the first function argument */
- 	lgr     %r2, %r15
-@@ -30,7 +44,14 @@
- 	brasl	%r14, \c_func
- 	algfi   %r15, STACK_FRAME_SIZE
- 	RESTORE_REGS_STACK
-+	lg	%r14, STACK_FRAME_INT_GRS0(%r15)
-+	lg	%r15, STACK_FRAME_INT_BACKCHAIN(%r15)
- 	lpswe	\old_psw
-+	.ifndef WARNING_THE_FOLLOWING_CALLERS_MIGHT_BE_CORRECT_BY_ACCIDENT_ONLY
-+	.pushsection .rodata
-+	.set	WARNING_THE_FOLLOWING_CALLERS_MIGHT_BE_CORRECT_BY_ACCIDENT_ONLY, .
-+	.popsection
-+	.endif
- 	.endm
- 
- /* Save registers on the stack (r15), so we can have stacked interrupts. */
-
-base-commit: 5b5d27da2973b20ec29b18df4d749fb2190458af
-prerequisite-patch-id: 619d9dfe41a0509d1f123849d696af3109e534ce
-prerequisite-patch-id: b5b4345ef04be0c4c4c70903e343783a9ebec0ce
-prerequisite-patch-id: 8b1ee5a4dd43bd7f70a69e0ffe1dfea0cfe2be91
-prerequisite-patch-id: dc72bb12a0ee455bc607b69f9b644075338a15d0
-prerequisite-patch-id: e394d9d3d4c0df3c9788c06e7e940a5abf645318
-prerequisite-patch-id: efb98123d132fa4b0bf198dd2718966beea4fbd8
--- 
-2.37.2
+[1]: https://lore.kernel.org/all/20210929152429.067060646@infradead.org/
 
