@@ -2,226 +2,101 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8029CC7619A
-	for <linux-s390@archiver.kernel.org>; Wed,  5 Apr 2023 19:51:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C73D6C7619A
+	for <linux-s390@archiver.kernel.org>; Wed,  5 Apr 2023 19:53:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233912AbjDETvf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 5 Apr 2023 15:51:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50442 "EHLO
+        id S229707AbjDETxx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 5 Apr 2023 15:53:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230080AbjDETvR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 5 Apr 2023 15:51:17 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 654076A4C
-        for <linux-s390@vger.kernel.org>; Wed,  5 Apr 2023 12:50:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1680724190;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=5VV/1+tZjcISuBy4Cr1ZNzpFLuXRsQrIQ62y/gstXpI=;
-        b=QxuN++igsvhzbGo71Uz3jk20+RURCrF4tZu4Ae6f1LmtXPnRok3I3u+0DUPXZwI31roSBR
-        1RRButgSfjBxvXsXpba3ZkLHQsSd1q0zTh6U2fHTKoYKlQMzEu7uGJp8GbzjHlWjpP03UH
-        ZLnX1YrNBXDdKWyA1iaMo4smZzFMgyY=
-Received: from mail-io1-f71.google.com (mail-io1-f71.google.com
- [209.85.166.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-310-iCi7M8J0NGqrOaxa9rm2rA-1; Wed, 05 Apr 2023 15:49:48 -0400
-X-MC-Unique: iCi7M8J0NGqrOaxa9rm2rA-1
-Received: by mail-io1-f71.google.com with SMTP id d204-20020a6bb4d5000000b00758cfdd36c3so22745380iof.0
-        for <linux-s390@vger.kernel.org>; Wed, 05 Apr 2023 12:49:48 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680724188;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=5VV/1+tZjcISuBy4Cr1ZNzpFLuXRsQrIQ62y/gstXpI=;
-        b=TsfMSBOQMcYm0N56+Pxx6ikyidUJLir21f7uRiNtRXFw+sXlfnLa0qB6If3ZR5QTH+
-         fcWGxekxG3D/ha9bzSRWyEJ0jIQhMHDzGzeZNdSjpecxm94iDr1q9cOLMDFKL5y6Kwky
-         H5afM5aqHXkDBkD+HMy4nbkSY5tncwA5axWdS2LZ4Arpu6WprIUm+qWq/mOIMNUHo0v/
-         PgKwgDk+FfGgBg8QqtiBG4gYvzemtASW3fC/vyDo0iq4DsrThjYhcQ2H699hwp0TAmBX
-         TPniM0hfhRxFERYvDBqO0fE306BKEnKlkPxJTUWhIAcdLPvdAMeKZ8OZ7jLuqQw8YRw5
-         QMXQ==
-X-Gm-Message-State: AAQBX9diHxnBNTpRKwVHyqqS3lbUePKptsR7/nzN6kpSuYN3HOU8tkY0
-        FaWenDEO4YEKDlMM2onXMk6J9N4HHyJdJlLjKMta4iYkjlmGUPssm9SCvEa4Dt2D4dPvC8QaIpn
-        XMXKc90veSIvDtLbp+ZHP9A==
-X-Received: by 2002:a92:d282:0:b0:326:45af:ac3a with SMTP id p2-20020a92d282000000b0032645afac3amr4110805ilp.6.1680724187931;
-        Wed, 05 Apr 2023 12:49:47 -0700 (PDT)
-X-Google-Smtp-Source: AKy350aOs7AtJ3q6RxmL38alxILOxSsLWA2V9ndGqPOcLj391pPzzJ6A38c2cfdJ1QeIVh53KAfw7Q==
-X-Received: by 2002:a92:d282:0:b0:326:45af:ac3a with SMTP id p2-20020a92d282000000b0032645afac3amr4110780ilp.6.1680724187623;
-        Wed, 05 Apr 2023 12:49:47 -0700 (PDT)
-Received: from redhat.com ([38.15.36.239])
-        by smtp.gmail.com with ESMTPSA id x11-20020a92300b000000b00325daf836fdsm4046680ile.17.2023.04.05.12.49.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 05 Apr 2023 12:49:47 -0700 (PDT)
-Date:   Wed, 5 Apr 2023 13:49:45 -0600
-From:   Alex Williamson <alex.williamson@redhat.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     "Liu, Yi L" <yi.l.liu@intel.com>,
-        "eric.auger@redhat.com" <eric.auger@redhat.com>,
-        "Tian, Kevin" <kevin.tian@intel.com>,
-        "joro@8bytes.org" <joro@8bytes.org>,
-        "robin.murphy@arm.com" <robin.murphy@arm.com>,
-        "cohuck@redhat.com" <cohuck@redhat.com>,
-        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
-        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
-        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
-        "peterx@redhat.com" <peterx@redhat.com>,
-        "jasowang@redhat.com" <jasowang@redhat.com>,
-        "shameerali.kolothum.thodi@huawei.com" 
-        <shameerali.kolothum.thodi@huawei.com>,
-        "lulu@redhat.com" <lulu@redhat.com>,
-        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "Hao, Xudong" <xudong.hao@intel.com>,
-        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
-        "Xu, Terrence" <terrence.xu@intel.com>,
-        "Jiang, Yanting" <yanting.jiang@intel.com>
-Subject: Re: [PATCH v3 12/12] vfio/pci: Report dev_id in
- VFIO_DEVICE_GET_PCI_HOT_RESET_INFO
-Message-ID: <20230405134945.29e967be.alex.williamson@redhat.com>
-In-Reply-To: <ZC3KJUxJa0O0M+9O@nvidia.com>
-References: <20230401144429.88673-1-yi.l.liu@intel.com>
-        <20230401144429.88673-13-yi.l.liu@intel.com>
-        <a937e622-ce32-6dda-d77c-7d8d76474ee0@redhat.com>
-        <DS0PR11MB7529D4E354C3B85D7698017DC3909@DS0PR11MB7529.namprd11.prod.outlook.com>
-        <20230405102545.41a61424.alex.williamson@redhat.com>
-        <ZC2jsQuWiMYM6JZb@nvidia.com>
-        <20230405105215.428fa9f5.alex.williamson@redhat.com>
-        <ZC2un1LaTUR1OrrJ@nvidia.com>
-        <20230405125621.4627ca19.alex.williamson@redhat.com>
-        <ZC3KJUxJa0O0M+9O@nvidia.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
+        with ESMTP id S229492AbjDETxw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 5 Apr 2023 15:53:52 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC10C18F;
+        Wed,  5 Apr 2023 12:53:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=xfugB8gwxIrdC2R107Iwf3RGbPJjSDOcowvFi/5tZ98=; b=RQLyy2B2a56aLhk92w1zockLYu
+        GyxtlcJv3uVkzVuUAbS+vCfQAByO61u7M3A1OPrBog1K7cUo2unN2+IR18kVFW97eBVtrxu6XXJX/
+        wafQIo6qPTFiithrwoY3bfzt/wxMPxkLE+Mo9B/tHJ/QuLXN9WsqxXQU94wawQvs2+OmKXFu0eSg8
+        tdTc+xbXAue/v07k/Ctw5B3ctOuWZ7G+pkHjz/FpgoMyVKuL/951PBtsipQ+36I0uMAUwH0IYKihE
+        PBio4xNYHmMDQPU7AiJUKS1W/VYoSP2mqzTOp+RckMuOuXKpd+tSf9MLnaF6hFLQ8Vhb2wwZu77pq
+        +ZM5SYhg==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1pk9BM-00Ghqu-7z; Wed, 05 Apr 2023 19:52:36 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id A2292300194;
+        Wed,  5 Apr 2023 21:52:26 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 886E2200B42A8; Wed,  5 Apr 2023 21:52:26 +0200 (CEST)
+Date:   Wed, 5 Apr 2023 21:52:26 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Marcelo Tosatti <mtosatti@redhat.com>
+Cc:     Frederic Weisbecker <frederic@kernel.org>,
+        Yair Podemsky <ypodemsk@redhat.com>, linux@armlinux.org.uk,
+        mpe@ellerman.id.au, npiggin@gmail.com, christophe.leroy@csgroup.eu,
+        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        davem@davemloft.net, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+        hpa@zytor.com, will@kernel.org, aneesh.kumar@linux.ibm.com,
+        akpm@linux-foundation.org, arnd@arndb.de, keescook@chromium.org,
+        paulmck@kernel.org, jpoimboe@kernel.org, samitolvanen@google.com,
+        ardb@kernel.org, juerg.haefliger@canonical.com,
+        rmk+kernel@armlinux.org.uk, geert+renesas@glider.be,
+        tony@atomide.com, linus.walleij@linaro.org,
+        sebastian.reichel@collabora.com, nick.hawkins@hpe.com,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-arch@vger.kernel.org,
+        linux-mm@kvack.org, vschneid@redhat.com, dhildenb@redhat.com,
+        alougovs@redhat.com
+Subject: Re: [PATCH 3/3] mm/mmu_gather: send tlb_remove_table_smp_sync IPI
+ only to CPUs in kernel mode
+Message-ID: <20230405195226.GB365912@hirez.programming.kicks-ass.net>
+References: <20230404134224.137038-1-ypodemsk@redhat.com>
+ <20230404134224.137038-4-ypodemsk@redhat.com>
+ <ZC1Q7uX4rNLg3vEg@lothringen>
+ <ZC1XD/sEJY+zRujE@lothringen>
+ <ZC3P3Ds/BIcpRNGr@tpad>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZC3P3Ds/BIcpRNGr@tpad>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 5 Apr 2023 16:21:09 -0300
-Jason Gunthorpe <jgg@nvidia.com> wrote:
-
-> On Wed, Apr 05, 2023 at 12:56:21PM -0600, Alex Williamson wrote:
-> > Usability needs to be a consideration as well.  An interface where the
-> > result is effectively arbitrary from a user perspective because the
-> > kernel is solely focused on whether the operation is allowed,
-> > evaluating constraints that the user is unaware of and cannot control,
-> > is unusable.  
-> 
-> Considering this API is only invoked by qemu we might be overdoing
-> this usability and 'no shoot in foot' view.
-
-Ok, I'm not sure why we're diminishing the de facto vfio userspace...
-
-> > > This is a good point that qemu needs to make a policy decision if it
-> > > is happy about the VFIO configuration - but that is a policy decision
-> > > that should not become entangled with the kernel's security checks.
+On Wed, Apr 05, 2023 at 04:45:32PM -0300, Marcelo Tosatti wrote:
+> On Wed, Apr 05, 2023 at 01:10:07PM +0200, Frederic Weisbecker wrote:
+> > On Wed, Apr 05, 2023 at 12:44:04PM +0200, Frederic Weisbecker wrote:
+> > > On Tue, Apr 04, 2023 at 04:42:24PM +0300, Yair Podemsky wrote:
+> > > > +	int state = atomic_read(&ct->state);
+> > > > +	/* will return true only for cpus in kernel space */
+> > > > +	return state & CT_STATE_MASK == CONTEXT_KERNEL;
+> > > > +}
 > > > 
-> > > Today qemu can make this policy choice the same way it does right now
-> > > - call _INFO and check the group_ids. It gets the exact same outcome
-> > > as today. We already discussed that we need to expose the group ID
-> > > through an ioctl someplace.  
+> > > Also note that this doesn't stricly prevent userspace from being interrupted.
+> > > You may well observe the CPU in kernel but it may receive the IPI later after
+> > > switching to userspace.
+> > > 
+> > > We could arrange for avoiding that with marking ct->state with a pending work bit
+> > > to flush upon user entry/exit but that's a bit more overhead so I first need to
+> > > know about your expectations here, ie: can you tolerate such an occasional
+> > > interruption or not?
 > > 
-> > QEMU can make a policy decision today because the kernel provides a
-> > sufficiently reliable interface, ie. based on the set of owned groups, a
-> > hot-reset is all but guaranteed to work.    
+> > Bah, actually what can we do to prevent from that racy IPI? Not much I fear...
 > 
-> And we don't change that with cdev. If qemu wants to make the policy
-> decision it keeps using the exact same _INFO interface to make that
-> decision same it has always made.
+> Use a different mechanism other than an IPI to ensure in progress
+> __get_free_pages_fast() has finished execution.
 > 
-> We weaken the actual reset action to only consider the security side.
-> 
-> Applications that want this exclusive reset group policy simply must
-> check it on their own. It is a reasonable API design.
+> Isnt this codepath slow path enough that it can use
+> synchronize_rcu_expedited?
 
-I disagree, as I've argued before, the info ioctl becomes so weak and
-effectively arbitrary from a user perspective at being able to predict
-whether the hot-reset ioctl works that it becomes useless, diminishing
-the entire hot-reset info/execute API.
-
-> > > If this is too awkward we could add a query to the kernel if the cdev
-> > > is "reset exclusive" - eg the iommufd covers all the groups that span
-> > > the reset set.  
-> > 
-> > That's essentially what we have if there are valid dev-ids for each
-> > affected device in the info ioctl.  
-> 
-> If you have dev-ids for everything, yes. If you don't, then you can't
-> make the same policy choice using a dev-id interface.
-
-Exactly, you can't make any policy choice because the success or
-failure of the hot-reset ioctl can't be known.
-
-> > I don't think it helps the user experience to create loopholes where
-> > the hot-reset ioctl can still work in spite of those missing
-> > devices.  
-> 
-> I disagree. The easy straightforward design is that the reset ioctl
-> works if the process has security permissions. Mixing a policy check
-> into the kernel on this path is creating complexity we don't really
-> need.
-> 
-> I don't view it as a loophole, it is flexability to use the API in a
-> way that is different from what qemu wants - eg an app like dpdk may
-> be willing to tolerate a reset group that becomes unavailable after
-> startup. Who knows, why should we force this in the kernel?
-
-Because look at all the problems it's causing to try to introduce these
-loopholes without also introducing subtle bugs.  There's an argument
-that we're overly strict, which is better than the alternative, which
-seems to be what we're dabbling with.  It is a straightforward
-interface for the hot-reset ioctl to mirror the information provided
-via the hot-reset info ioctl.
-
-> > For example, we have a VFIO_DEVICE_GET_INFO ioctl that supports
-> > capability chains, we could add a capability that reports the group ID
-> > for the device.    
-> 
-> I was going to put that in an iommufd ioctl so it works with VDPA too,
-> but sure, lets assume we can get the group ID from a cdev fd.
-> 
-> > The hot-reset info ioctl remains as it is today, reporting group-ids
-> > and bdfs.  
-> 
-> Sure, but userspace still needs to know how to map the reset sets into
-> dev-ids.
-
-No, it doesn't. 
-
-> Remember the reason we started doing this is because we don't
-> have easy access to the BDF anymore.
-
-We don't need it, the info ioctl provides the groups, the group
-association can be learned from the DEVICE_GET_INFO ioctl, the
-hot-reset ioctl only requires a single representative fd per affected
-group.  dev-ids not required.
-
-> I like leaving this ioctl alone, lets go back to a dedicated ioctl to
-> return the dev_ids.
-
-I don't see any justification for this.  We could add another PCI
-specific DEVICE_GET_INFO capability to report the bdf if we really need
-it, but reporting the group seems sufficient for this use case.
-
-> > The hot-reset ioctl itself is modified to transparently
-> > support either group fds or device fds.  The user can now map cdevs
-> > to group-ids and therefore follow the same rules as groups,
-> > providing at least one representative device fd for each group.  
-> 
-> This looks like a very complex uapi compared to the empty list option,
-> but it seems like it would work.
-
-It's the same API that we have now.  What's complex is trying to figure
-out all the subtle side-effects from the loopholes that are being
-proposed in this series.  Thanks,
-
-Alex
-
+To actually hit this path you're doing something really dodgy.
