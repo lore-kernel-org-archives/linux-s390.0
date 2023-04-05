@@ -2,129 +2,254 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C7CFC761A6
-	for <linux-s390@archiver.kernel.org>; Wed,  5 Apr 2023 12:46:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 059BBC76188
+	for <linux-s390@archiver.kernel.org>; Wed,  5 Apr 2023 13:46:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238032AbjDEMqF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 5 Apr 2023 08:46:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54050 "EHLO
+        id S237867AbjDENqZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 5 Apr 2023 09:46:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237282AbjDEMqB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 5 Apr 2023 08:46:01 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87DA330D4
-        for <linux-s390@vger.kernel.org>; Wed,  5 Apr 2023 05:45:12 -0700 (PDT)
+        with ESMTP id S237705AbjDENqY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 5 Apr 2023 09:46:24 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A90155266
+        for <linux-s390@vger.kernel.org>; Wed,  5 Apr 2023 06:45:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1680698711;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+        s=mimecast20190719; t=1680702340;
+        h=from:from:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=rJlvbrDO3MZW25EtVUfp0HoO311UYJgGKtfX/KEqF/k=;
-        b=GER116tgb+iYLrIT7d4YCy70CvkCC3ZTYBKLxajJxbZgXuyKM2JcZML6stGxqYHRr9T3HP
-        v8nxW5K3mkeZs7BYaINTyAH6JCw+5alZIbchu93T79G7V2a+W0U8fV0muR1w1xJg8nfw83
-        Gk8E7tl2N3FaU5OmliSluZx/6RQwOf8=
+        bh=UJbIjNLXOucJBHy8O9LklHe7fXgIGsveKPjLMEj3izE=;
+        b=VgFdM0jP5GTyn7mQ/d+dJ72aABzglCfShJxjgkVP4rAapUq65sHETWQ0ZMwKY4JlmXD9lr
+        Kpi9stIwlUEAl/HHRVliK+vd046VxnNgm4uXaSOP6Ff68vUUT2Vr7H7LnCP/j5kB3Z1Xpa
+        xo98seRgOkXmSKnsBeqLlIWAoHGIkwI=
 Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com
  [209.85.222.198]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-32-lZ6lnQF-Ol2J4xeXWKMLBQ-1; Wed, 05 Apr 2023 08:45:10 -0400
-X-MC-Unique: lZ6lnQF-Ol2J4xeXWKMLBQ-1
-Received: by mail-qk1-f198.google.com with SMTP id x80-20020a376353000000b0074681bc7f42so16134963qkb.8
-        for <linux-s390@vger.kernel.org>; Wed, 05 Apr 2023 05:45:10 -0700 (PDT)
+ us-mta-73-LzO3hCSZPFK0hMaKOVA3-Q-1; Wed, 05 Apr 2023 09:45:39 -0400
+X-MC-Unique: LzO3hCSZPFK0hMaKOVA3-Q-1
+Received: by mail-qk1-f198.google.com with SMTP id c80-20020ae9ed53000000b007468c560e1bso16355710qkg.2
+        for <linux-s390@vger.kernel.org>; Wed, 05 Apr 2023 06:45:39 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680698709;
-        h=mime-version:message-id:date:references:in-reply-to:subject:cc:to
-         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=rJlvbrDO3MZW25EtVUfp0HoO311UYJgGKtfX/KEqF/k=;
-        b=LxSI29E0pzNP06mTM3hRze47mt6tr6rHivfLxiC/VpUWW4SUjJ6AekAqYpeKeH9u6t
-         wucwvIHuOcZaUfjts/kLrfCvKD+acxUeNNG/JmYdeYQLOck+/55rkYE2RNNVo6CwFI1H
-         2BLTYpX+VbvbfEXq5vQCpyRBhLI+oz/pQDLCR39MoxlGhB6AjFwCsxgoyc6IAZA8nGyd
-         2H5nwmC1KIg/t4wM2ZevqZ/xDdhzh5v7W7tBgVSeRAxNAV6HPbHBxnycq1TlzHkgc88z
-         82Ua/cn+aLKTP3+Y3T/VLGs8CqjI768G9JLi4qIK6XDSP31iPdvCre9kJ94Kv9c3b1pz
-         M56A==
-X-Gm-Message-State: AAQBX9c52PW4g3Wn9qnWT17jDtIIMC/qqR708wNxze3J9/UchiAW5+15
-        gPSvP7pT/+4BZiypPZeUNaV3wfC4A7uru5Rh9Pwu084og6HFf9/eqKuO6Se2f1IUKitmR+PiStT
-        tiWFGUqXLkZHl+8Us6unRKQ==
-X-Received: by 2002:a05:622a:1716:b0:3e4:eb03:687d with SMTP id h22-20020a05622a171600b003e4eb03687dmr4303547qtk.44.1680698709736;
-        Wed, 05 Apr 2023 05:45:09 -0700 (PDT)
-X-Google-Smtp-Source: AKy350YM3193lIgKl2aWj9mqpkVtYuh0l9dX5dcxwgxaNjVBgfvhxy0L8/57jtC9NbW/iCG3sMx10Q==
-X-Received: by 2002:a05:622a:1716:b0:3e4:eb03:687d with SMTP id h22-20020a05622a171600b003e4eb03687dmr4303502qtk.44.1680698709447;
-        Wed, 05 Apr 2023 05:45:09 -0700 (PDT)
-Received: from vschneid.remote.csb ([154.57.232.159])
-        by smtp.gmail.com with ESMTPSA id t186-20020a37aac3000000b00746b7372d62sm4415939qke.27.2023.04.05.05.45.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 05 Apr 2023 05:45:08 -0700 (PDT)
-From:   Valentin Schneider <vschneid@redhat.com>
-To:     Frederic Weisbecker <frederic@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>
-Cc:     Yair Podemsky <ypodemsk@redhat.com>, linux@armlinux.org.uk,
-        mpe@ellerman.id.au, npiggin@gmail.com, christophe.leroy@csgroup.eu,
-        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        davem@davemloft.net, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
-        hpa@zytor.com, will@kernel.org, aneesh.kumar@linux.ibm.com,
-        akpm@linux-foundation.org, arnd@arndb.de, keescook@chromium.org,
-        paulmck@kernel.org, jpoimboe@kernel.org, samitolvanen@google.com,
-        ardb@kernel.org, juerg.haefliger@canonical.com,
-        rmk+kernel@armlinux.org.uk, geert+renesas@glider.be,
-        tony@atomide.com, linus.walleij@linaro.org,
-        sebastian.reichel@collabora.com, nick.hawkins@hpe.com,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-arch@vger.kernel.org,
-        linux-mm@kvack.org, mtosatti@redhat.com, dhildenb@redhat.com,
-        alougovs@redhat.com
-Subject: Re: [PATCH 3/3] mm/mmu_gather: send tlb_remove_table_smp_sync IPI
- only to CPUs in kernel mode
-In-Reply-To: <ZC1j8ivE/kK7+Gd5@lothringen>
-References: <20230404134224.137038-1-ypodemsk@redhat.com>
- <20230404134224.137038-4-ypodemsk@redhat.com>
- <ZC1Q7uX4rNLg3vEg@lothringen> <ZC1XD/sEJY+zRujE@lothringen>
- <20230405114148.GA351571@hirez.programming.kicks-ass.net>
- <ZC1j8ivE/kK7+Gd5@lothringen>
-Date:   Wed, 05 Apr 2023 13:45:02 +0100
-Message-ID: <xhsmhpm8ia46p.mognet@vschneid.remote.csb>
+        d=1e100.net; s=20210112; t=1680702339;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:reply-to:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=UJbIjNLXOucJBHy8O9LklHe7fXgIGsveKPjLMEj3izE=;
+        b=aUvQcd11Gvw1hHfGyEBGwF8+OpapnHXfZzUAv+JWN9SXhTlo+ELNW5nvp3RO0YXw8l
+         rZ6avakRb5gTnai3ZJtwFICsuzU07d5vlv9gDYyQTmuPvemvBDDMV/V1YFKpXYe2ravO
+         Hsggktswbl2abqz1o8yVgJuS3aUS4T1gEdwkkQ/E0mq2yIe1TmkjmtulM1HJNTyh4E4C
+         dYommcxjbQzONefh6ATNawKNOH6/hpk8ofdxQGofOx/kff0G7CuZnWTkqkhLMoY+LIyx
+         JJWVexdFbDfv0IvoI5tWC89C4I+mjz/6JFG0ltMbDjy7cevzQANKSZ80+ua0hXSsunXA
+         mEjw==
+X-Gm-Message-State: AAQBX9ddMLH5LQfBZjQwdxtX/o+31A7oGxvsA+sU+bpwGso5Scsw7C33
+        TGivMeFbv/AK7gLzclJHihjsD3/8ATCS8+kpFfsW5a8KHwMrLpZAZLeeSf+k1oH/FHtPZG+CCTS
+        lYM0jWnXcYsRG5QH/OgdR/A==
+X-Received: by 2002:a05:622a:5d2:b0:3dc:a4e5:aef0 with SMTP id d18-20020a05622a05d200b003dca4e5aef0mr4956651qtb.9.1680702338960;
+        Wed, 05 Apr 2023 06:45:38 -0700 (PDT)
+X-Google-Smtp-Source: AKy350aMTGMNXRIFwqBsXvWp9jP9kjnDI3+mmPafsP9ntb/LA+LjDTGP5cIPhRwpuPvwZvjnbuojHA==
+X-Received: by 2002:a05:622a:5d2:b0:3dc:a4e5:aef0 with SMTP id d18-20020a05622a05d200b003dca4e5aef0mr4956595qtb.9.1680702338584;
+        Wed, 05 Apr 2023 06:45:38 -0700 (PDT)
+Received: from ?IPV6:2a01:e0a:59e:9d80:527b:9dff:feef:3874? ([2a01:e0a:59e:9d80:527b:9dff:feef:3874])
+        by smtp.gmail.com with ESMTPSA id t12-20020a37460c000000b0074a0a6ce71csm4455221qka.61.2023.04.05.06.45.32
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 05 Apr 2023 06:45:37 -0700 (PDT)
+Message-ID: <cc500fe5-1fdf-1b71-a5b4-f9f917b1abf2@redhat.com>
+Date:   Wed, 5 Apr 2023 15:45:31 +0200
 MIME-Version: 1.0
-Content-Type: text/plain
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.5.0
+Reply-To: eric.auger@redhat.com
+Subject: Re: [PATCH v9 25/25] docs: vfio: Add vfio device cdev description
+Content-Language: en-US
+To:     Yi Liu <yi.l.liu@intel.com>, alex.williamson@redhat.com,
+        jgg@nvidia.com, kevin.tian@intel.com
+Cc:     joro@8bytes.org, robin.murphy@arm.com, cohuck@redhat.com,
+        nicolinc@nvidia.com, kvm@vger.kernel.org, mjrosato@linux.ibm.com,
+        chao.p.peng@linux.intel.com, yi.y.sun@linux.intel.com,
+        peterx@redhat.com, jasowang@redhat.com,
+        shameerali.kolothum.thodi@huawei.com, lulu@redhat.com,
+        suravee.suthikulpanit@amd.com, intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, linux-s390@vger.kernel.org,
+        xudong.hao@intel.com, yan.y.zhao@intel.com, terrence.xu@intel.com,
+        yanting.jiang@intel.com
+References: <20230401151833.124749-1-yi.l.liu@intel.com>
+ <20230401151833.124749-26-yi.l.liu@intel.com>
+From:   Eric Auger <eric.auger@redhat.com>
+In-Reply-To: <20230401151833.124749-26-yi.l.liu@intel.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 05/04/23 14:05, Frederic Weisbecker wrote:
->  static void smp_call_function_many_cond(const struct cpumask *mask,
->                                       smp_call_func_t func, void *info,
-> @@ -946,10 +948,13 @@ static void smp_call_function_many_cond(const struct cpumask *mask,
->  #endif
->                       cfd_seq_store(pcpu->seq_queue, this_cpu, cpu, CFD_SEQ_QUEUE);
->                       if (llist_add(&csd->node.llist, &per_cpu(call_single_queue, cpu))) {
-> -				__cpumask_set_cpu(cpu, cfd->cpumask_ipi);
-> -				nr_cpus++;
-> -				last_cpu = cpu;
-> -
-> +				if (!(scf_flags & SCF_NO_USER) ||
-> +				    !IS_ENABLED(CONFIG_GENERIC_ENTRY) ||
-> +				     ct_state_cpu(cpu) != CONTEXT_USER) {
-> +					__cpumask_set_cpu(cpu, cfd->cpumask_ipi);
-> +					nr_cpus++;
-> +					last_cpu = cpu;
-> +				}
+Hi Yi,
 
-I've been hacking on something like this (CSD deferral for NOHZ-full),
-and unfortunately this uses the CPU-local cfd_data storage thing, which
-means any further smp_call_function() from the same CPU to the same
-destination will spin on csd_lock_wait(), waiting for the target CPU to
-come out of userspace and flush the queue - and we've just spent extra
-effort into *not* disturbing it, so that'll take a while :(
+On 4/1/23 17:18, Yi Liu wrote:
+> This gives notes for userspace applications on device cdev usage.
+>
+> Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+> Signed-off-by: Yi Liu <yi.l.liu@intel.com>
+> ---
+>  Documentation/driver-api/vfio.rst | 132 ++++++++++++++++++++++++++++++
+>  1 file changed, 132 insertions(+)
+>
+> diff --git a/Documentation/driver-api/vfio.rst b/Documentation/driver-api/vfio.rst
+> index 363e12c90b87..4f21be7bda8a 100644
+> --- a/Documentation/driver-api/vfio.rst
+> +++ b/Documentation/driver-api/vfio.rst
+> @@ -239,6 +239,130 @@ group and can access them as follows::
+>  	/* Gratuitous device reset and go... */
+>  	ioctl(device, VFIO_DEVICE_RESET);
+>  
+> +IOMMUFD and vfio_iommu_type1
+> +----------------------------
+> +
+> +IOMMUFD is the new user API to manage I/O page tables from userspace.
+> +It intends to be the portal of delivering advanced userspace DMA
+> +features (nested translation [5], PASID [6], etc.) while also providing
+> +a backwards compatibility interface for existing VFIO_TYPE1v2_IOMMU use
+> +cases.  Eventually the vfio_iommu_type1 driver, as well as the legacy
+> +vfio container and group model is intended to be deprecated.
+> +
+> +The IOMMUFD backwards compatibility interface can be enabled two ways.
+> +In the first method, the kernel can be configured with
+> +CONFIG_IOMMUFD_VFIO_CONTAINER, in which case the IOMMUFD subsystem
+> +transparently provides the entire infrastructure for the VFIO
+> +container and IOMMU backend interfaces.  The compatibility mode can
+> +also be accessed if the VFIO container interface, ie. /dev/vfio/vfio is
+> +simply symlink'd to /dev/iommu.  Note that at the time of writing, the
+> +compatibility mode is not entirely feature complete relative to
+> +VFIO_TYPE1v2_IOMMU (ex. DMA mapping MMIO) and does not attempt to
+> +provide compatibility to the VFIO_SPAPR_TCE_IOMMU interface.  Therefore
+> +it is not generally advisable at this time to switch from native VFIO
+> +implementations to the IOMMUFD compatibility interfaces.
+> +
+> +Long term, VFIO users should migrate to device access through the cdev
+> +interface described below, and native access through the IOMMUFD
+> +provided interfaces.
+> +
+> +VFIO Device cdev
+> +----------------
+> +
+> +Traditionally user acquires a device fd via VFIO_GROUP_GET_DEVICE_FD
+> +in a VFIO group.
+> +
+> +With CONFIG_VFIO_DEVICE_CDEV=y the user can now acquire a device fd
+> +by directly opening a character device /dev/vfio/devices/vfioX where
+> +"X" is the number allocated uniquely by VFIO for registered devices.
+> +For noiommu devices, the character device would be named with "noiommu-"
+> +prefix. e.g. /dev/vfio/devices/noiommu-vfioX.
+> +
+> +The cdev only works with IOMMUFD.  Both VFIO drivers and applications
+> +must adapt to the new cdev security model which requires using
+> +VFIO_DEVICE_BIND_IOMMUFD to claim DMA ownership before starting to
+> +actually use the device.  Once BIND succeeds then a VFIO device can
+> +be fully accessed by the user.
+> +
+> +VFIO device cdev doesn't rely on VFIO group/container/iommu drivers.
+> +Hence those modules can be fully compiled out in an environment
+> +where no legacy VFIO application exists.
+> +
+> +So far SPAPR does not support IOMMUFD yet.  So it cannot support device
+> +cdev neither.
+> +
+> +Device cdev Example
+> +-------------------
+> +
+> +Assume user wants to access PCI device 0000:6a:01.0::
+> +
+> +	$ ls /sys/bus/pci/devices/0000:6a:01.0/vfio-dev/
+> +	vfio0
+> +
+> +This device is therefore represented as vfio0.  The user can verify
+> +its existence::
+> +
+> +	$ ls -l /dev/vfio/devices/vfio0
+> +	crw------- 1 root root 511, 0 Feb 16 01:22 /dev/vfio/devices/vfio0
+> +	$ cat /sys/bus/pci/devices/0000:6a:01.0/vfio-dev/vfio0/dev
+you mentionned in the pci hot reset series that the BDF couldn't be used
+if cdev is being used. According to the above, it could, no?
+> +	511:0
+> +	$ ls -l /dev/char/511\:0
+> +	lrwxrwxrwx 1 root root 21 Feb 16 01:22 /dev/char/511:0 -> ../vfio/devices/vfio0
+> +
+> +Then provide the user with access to the device if unprivileged
+> +operation is desired::
+> +
+> +	$ chown user:user /dev/vfio/devices/vfio0
+> +
+> +Finally the user could get cdev fd by::
+> +
+> +	cdev_fd = open("/dev/vfio/devices/vfio0", O_RDWR);
+> +
+> +An opened cdev_fd doesn't give the user any permission of accessing
+> +the device except binding the cdev_fd to an iommufd.  After that point
+> +then the device is fully accessible including attaching it to an
+> +IOMMUFD IOAS/HWPT to enable userspace DMA::
+> +
+> +	struct vfio_device_bind_iommufd bind = {
+> +		.argsz = sizeof(bind),
+> +		.flags = 0,
+> +	};
+> +	struct iommu_ioas_alloc alloc_data  = {
+> +		.size = sizeof(alloc_data),
+> +		.flags = 0,
+> +	};
+> +	struct vfio_device_attach_iommufd_pt attach_data = {
+> +		.argsz = sizeof(attach_data),
+> +		.flags = 0,
+> +	};
+> +	struct iommu_ioas_map map = {
+> +		.size = sizeof(map),
+> +		.flags = IOMMU_IOAS_MAP_READABLE |
+> +			 IOMMU_IOAS_MAP_WRITEABLE |
+> +			 IOMMU_IOAS_MAP_FIXED_IOVA,
+> +		.__reserved = 0,
+> +	};
+> +
+> +	iommufd = open("/dev/iommu", O_RDWR);
+> +
+> +	bind.iommufd = iommufd; // negative value means vfio-noiommu mode
+> +	ioctl(cdev_fd, VFIO_DEVICE_BIND_IOMMUFD, &bind);
+> +
+> +	ioctl(iommufd, IOMMU_IOAS_ALLOC, &alloc_data);
+> +	attach_data.pt_id = alloc_data.out_ioas_id;
+> +	ioctl(cdev_fd, VFIO_DEVICE_ATTACH_IOMMUFD_PT, &attach_data);
+> +
+> +	/* Allocate some space and setup a DMA mapping */
+> +	map.user_va = (int64_t)mmap(0, 1024 * 1024, PROT_READ | PROT_WRITE,
+> +				    MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+> +	map.iova = 0; /* 1MB starting at 0x0 from device view */
+> +	map.length = 1024 * 1024;
+> +	map.ioas_id = alloc_data.out_ioas_id;;
+> +
+> +	ioctl(iommufd, IOMMU_IOAS_MAP, &map);
+> +
+> +	/* Other device operations as stated in "VFIO Usage Example" */
+dev_id is not mentioned anywhere whereas it is used in the reset get
+info. Worth to be mentioned?
 
-I don't have much that is in a shareable state yet (though I'm supposed to
-talk some more about it at OSPM in <2 weeks, so I'll have to get there),
-but ATM I'm playing with
-o a bitmask (like in [1]) for coalescable stuff such as do_sync_core() for
-  x86 instruction patching
-o a CSD-like queue for things that need to pass data around, using
-  statically-allocated storage (so with a limit on how much it can be used) - the
-  alternative being allocating a struct on sending, since you don't have a
-  bound on how much crap you can queue on an undisturbed NOHZ-full CPU...
+Otherwise looks good to me
 
-[1]: https://lore.kernel.org/all/20210929152429.067060646@infradead.org/
+Eric
+> +
+>  VFIO User API
+>  -------------------------------------------------------------------------------
+>  
+> @@ -566,3 +690,11 @@ This implementation has some specifics:
+>  				\-0d.1
+>  
+>  	00:1e.0 PCI bridge: Intel Corporation 82801 PCI Bridge (rev 90)
+> +
+> +.. [5] Nested translation is an IOMMU feature which supports two stage
+> +   address translations.  This improves the address translation efficiency
+> +   in IOMMU virtualization.
+> +
+> +.. [6] PASID stands for Process Address Space ID, introduced by PCI
+> +   Express.  It is a prerequisite for Shared Virtual Addressing (SVA)
+> +   and Scalable I/O Virtualization (Scalable IOV).
 
