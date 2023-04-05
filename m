@@ -2,75 +2,74 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5CC5FC76188
-	for <linux-s390@archiver.kernel.org>; Wed,  5 Apr 2023 08:03:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7DC57C761AF
+	for <linux-s390@archiver.kernel.org>; Wed,  5 Apr 2023 08:09:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237238AbjDEIDJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 5 Apr 2023 04:03:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41122 "EHLO
+        id S237433AbjDEIJM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 5 Apr 2023 04:09:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51216 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237321AbjDEIDG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 5 Apr 2023 04:03:06 -0400
+        with ESMTP id S237387AbjDEIIz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 5 Apr 2023 04:08:55 -0400
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA0794C27
-        for <linux-s390@vger.kernel.org>; Wed,  5 Apr 2023 01:02:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E63E35269
+        for <linux-s390@vger.kernel.org>; Wed,  5 Apr 2023 01:08:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1680681741;
+        s=mimecast20190719; t=1680682079;
         h=from:from:reply-to:reply-to:subject:subject:date:date:
          message-id:message-id:to:to:cc:cc:mime-version:mime-version:
          content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=TRLMleKr92gPF/OPLJspv7HTkQcd5+Jcm7+F2NR7Y4I=;
-        b=aA2T0tQlFUe3VDyjoEELtijlU5tybICJoOIznaOlEkQVg5BuzSbzJfbWnTdXfWbOzJwvfr
-        xSYq2iOLBRDjqQ9mkWU35fo338L24OsxNeet5vwQEVKwOGXkL4DKhnO8jQL/9quVESQ9/Z
-        kjqZQjrOd68M+IBzrDpMIpWnOrYrk+E=
-Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
- [209.85.222.199]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=8U/LZFacKxvEJhXlhZDIRP53Ufg1yjOKWtnSX+iUULI=;
+        b=f3NzmqA4Z00Bq3B5A8OeKCu7iNGhXFfxDF6Z5InfRWviQHIp2qHZWoqaoRAmagQxDYnX/s
+        lIZPsOnyvJni5cIk0TvBeq/Xrk7g88yq2NkGEpkWA0yv9yyggDOof2z4pxRf/VcClUOB1h
+        UcjGT/pEd0oFXa4mJd0CvSyEGCKe/1I=
+Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com
+ [209.85.222.198]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-133-YSTeZvioPh6e-z_0BUUcYA-1; Wed, 05 Apr 2023 04:02:20 -0400
-X-MC-Unique: YSTeZvioPh6e-z_0BUUcYA-1
-Received: by mail-qk1-f199.google.com with SMTP id 66-20020a370345000000b00746886b1593so15811324qkd.14
-        for <linux-s390@vger.kernel.org>; Wed, 05 Apr 2023 01:02:20 -0700 (PDT)
+ us-mta-365-gwuwqSikMQqP-hnX4f3CKQ-1; Wed, 05 Apr 2023 04:07:58 -0400
+X-MC-Unique: gwuwqSikMQqP-hnX4f3CKQ-1
+Received: by mail-qk1-f198.google.com with SMTP id 187-20020a3707c4000000b007468d9a30faso15884906qkh.23
+        for <linux-s390@vger.kernel.org>; Wed, 05 Apr 2023 01:07:58 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680681740;
+        d=1e100.net; s=20210112; t=1680682078;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:reply-to:user-agent:mime-version:date
          :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=TRLMleKr92gPF/OPLJspv7HTkQcd5+Jcm7+F2NR7Y4I=;
-        b=vxBRJPpNZoM8FogFDKC6Sv9GA8QtGXy6xRO9AoV2NOjg4HF+yegYng7U/Y0vksjeQS
-         VRsmLhrbFmvKbOe3mS0D00iGIe1Ui2z3F6W9p8IaAcc+sSneIbBXyq121DLMHhCiJejJ
-         v1elyHofAbNt16diQ3LM54CKyLzDD79B4shehKhAeISUmkLAM4M5p+JIiINY/UJY10kK
-         M8vNPYCkTnjr4VWJGqETnnLRvct8g4Sldj8T/k0BjRu9gnU/Avl3Bkknl53w+RhOroc2
-         hpc2hUFHMPCDmg7Ca55qiYV5sWlLAtjz7KrCw+S/idHy2FZ74GLh2XST5xdxy8GjIVyM
-         fdtA==
-X-Gm-Message-State: AAQBX9eohwRL+cFV8rL7E22trY6EL9UfLngqR0k++Kpim6qgbpW03ETB
-        tYTSeO6uNUdKxw7FxOJ7BNNum3S9Q5BjpbvIKox/gO2jHrlKX29/4cIOp2qo1dP0tNfU7eBaC9l
-        wz3nSXX9irG4YvTVai4Lttg==
-X-Received: by 2002:a05:6214:1306:b0:5e0:5ea6:69d4 with SMTP id pn6-20020a056214130600b005e05ea669d4mr9959264qvb.0.1680681739883;
-        Wed, 05 Apr 2023 01:02:19 -0700 (PDT)
-X-Google-Smtp-Source: AKy350ZwLQoaiQae9ynKnc/QIgep6uH7H7TZvVmPWfF0Cgi43N5Q5z40m8ET3V2OgNBJYgZ18KYSSw==
-X-Received: by 2002:a05:6214:1306:b0:5e0:5ea6:69d4 with SMTP id pn6-20020a056214130600b005e05ea669d4mr9959227qvb.0.1680681739573;
-        Wed, 05 Apr 2023 01:02:19 -0700 (PDT)
+        bh=8U/LZFacKxvEJhXlhZDIRP53Ufg1yjOKWtnSX+iUULI=;
+        b=P72B4Ft8TRH4CCm7N6fL9r6pDrTN27zy48WVTJmeVh4BoPbaHdt91wtXrWF/Z+ziNo
+         NWi3hTCpKFl4p4+YkNku75O/e6EPfa977yKCyYQaTxWujZ/zwUe+2jWprRqNp2oR8wJb
+         kYR2qbvtI99Np+a9imd8A+JMvDGg8G0zbQSp5Mcf9Mblu8y1wCnHjlSYds5Uozgkg6Rc
+         sr0F1ZkA429r0+NpElLIJJvopUEzrRjshsgaqeMoGceudJNJQxxt2Ldpd6eEPvdLtQa9
+         V4ENIyG+wRUiAAPoF3E7FJ9IlKtB6OqtDFO2iSH2HCkVm+c9VFBiHGMfJBw9kHnWSUUj
+         9Row==
+X-Gm-Message-State: AAQBX9cRKxT68ZpJAOD+Otuawsa2Ex32kBlSBSnZ0qazrtOmvdD92DSx
+        36PRH/ZR4TuYJ5SPM4LRSql1hIfLYUDmmqRQMCsbpp9DzK5jCzzXdP/JWOem2ZXqTdFeIQ9Ti7M
+        94h4j4PbtGLi26T+ncmM03Q==
+X-Received: by 2002:a05:6214:27e8:b0:5a9:2bc0:ea8b with SMTP id jt8-20020a05621427e800b005a92bc0ea8bmr8017258qvb.47.1680682077927;
+        Wed, 05 Apr 2023 01:07:57 -0700 (PDT)
+X-Google-Smtp-Source: AKy350ZgI1tC1SFeJbsYcH6xJzpDHdFw2Hx/LUgx1rr9zrgKewKcPFylgHGZySRoD8+iCQ6DLLI0oA==
+X-Received: by 2002:a05:6214:27e8:b0:5a9:2bc0:ea8b with SMTP id jt8-20020a05621427e800b005a92bc0ea8bmr8017242qvb.47.1680682077580;
+        Wed, 05 Apr 2023 01:07:57 -0700 (PDT)
 Received: from ?IPV6:2a01:e0a:59e:9d80:527b:9dff:feef:3874? ([2a01:e0a:59e:9d80:527b:9dff:feef:3874])
-        by smtp.gmail.com with ESMTPSA id s4-20020a372c04000000b007456c75edbbsm4223342qkh.129.2023.04.05.01.02.14
+        by smtp.gmail.com with ESMTPSA id mz6-20020a0562142d0600b005dd8b9345e9sm4012411qvb.129.2023.04.05.01.07.52
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 05 Apr 2023 01:02:18 -0700 (PDT)
-Message-ID: <ee82cf0c-d208-ddac-5e00-ab34ca840c49@redhat.com>
-Date:   Wed, 5 Apr 2023 10:02:13 +0200
+        Wed, 05 Apr 2023 01:07:56 -0700 (PDT)
+Message-ID: <f92c5f99-f519-e67c-71a9-476f08e4117c@redhat.com>
+Date:   Wed, 5 Apr 2023 10:07:50 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
  Thunderbird/102.5.0
 Reply-To: eric.auger@redhat.com
-Subject: Re: [PATCH v3 05/12] vfio/pci: Allow passing zero-length fd array in
- VFIO_DEVICE_PCI_HOT_RESET
+Subject: Re: [PATCH v3 07/12] vfio: Accpet device file from vfio PCI hot reset
+ path
 Content-Language: en-US
-To:     Alex Williamson <alex.williamson@redhat.com>,
-        Yi Liu <yi.l.liu@intel.com>
-Cc:     jgg@nvidia.com, kevin.tian@intel.com, joro@8bytes.org,
-        robin.murphy@arm.com, cohuck@redhat.com, nicolinc@nvidia.com,
-        kvm@vger.kernel.org, mjrosato@linux.ibm.com,
+To:     Yi Liu <yi.l.liu@intel.com>, alex.williamson@redhat.com,
+        jgg@nvidia.com, kevin.tian@intel.com
+Cc:     joro@8bytes.org, robin.murphy@arm.com, cohuck@redhat.com,
+        nicolinc@nvidia.com, kvm@vger.kernel.org, mjrosato@linux.ibm.com,
         chao.p.peng@linux.intel.com, yi.y.sun@linux.intel.com,
         peterx@redhat.com, jasowang@redhat.com,
         shameerali.kolothum.thodi@huawei.com, lulu@redhat.com,
@@ -79,221 +78,82 @@ Cc:     jgg@nvidia.com, kevin.tian@intel.com, joro@8bytes.org,
         xudong.hao@intel.com, yan.y.zhao@intel.com, terrence.xu@intel.com,
         yanting.jiang@intel.com
 References: <20230401144429.88673-1-yi.l.liu@intel.com>
- <20230401144429.88673-6-yi.l.liu@intel.com>
- <20230404141838.6a4efdd4.alex.williamson@redhat.com>
+ <20230401144429.88673-8-yi.l.liu@intel.com>
 From:   Eric Auger <eric.auger@redhat.com>
-In-Reply-To: <20230404141838.6a4efdd4.alex.williamson@redhat.com>
+In-Reply-To: <20230401144429.88673-8-yi.l.liu@intel.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Hi Yi,
 
-
-On 4/4/23 22:18, Alex Williamson wrote:
-> On Sat,  1 Apr 2023 07:44:22 -0700
-> Yi Liu <yi.l.liu@intel.com> wrote:
+On 4/1/23 16:44, Yi Liu wrote:
+> This extends both vfio_file_is_valid() and vfio_file_has_dev() to accept
+> device file from the vfio PCI hot reset.
+typo in the title s/Accpet/Accept
 >
->> as an alternative method for ownership check when iommufd is used. In
->> this case all opened devices in the affected dev_set are verified to
->> be bound to a same valid iommufd value to allow reset. It's simpler
->> and faster as user does not need to pass a set of fds and kernel no
->> need to search the device within the given fds.
->>
->> a device in noiommu mode doesn't have a valid iommufd, so this method
->> should not be used in a dev_set which contains multiple devices and one
->> of them is in noiommu. The only allowed noiommu scenario is that the
->> calling device is noiommu and it's in a singleton dev_set.
->>
->> Suggested-by: Jason Gunthorpe <jgg@nvidia.com>
->> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
->> Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
->> Tested-by: Yanting Jiang <yanting.jiang@intel.com>
->> Signed-off-by: Yi Liu <yi.l.liu@intel.com>
->> ---
->>  drivers/vfio/pci/vfio_pci_core.c | 42 +++++++++++++++++++++++++++-----
->>  include/uapi/linux/vfio.h        |  9 ++++++-
->>  2 files changed, 44 insertions(+), 7 deletions(-)
->>
->> diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
->> index 3696b8e58445..b68fcba67a4b 100644
->> --- a/drivers/vfio/pci/vfio_pci_core.c
->> +++ b/drivers/vfio/pci/vfio_pci_core.c
->> @@ -180,7 +180,8 @@ static void vfio_pci_probe_mmaps(struct vfio_pci_core_device *vdev)
->>  struct vfio_pci_group_info;
->>  static void vfio_pci_dev_set_try_reset(struct vfio_device_set *dev_set);
->>  static int vfio_pci_dev_set_hot_reset(struct vfio_device_set *dev_set,
->> -				      struct vfio_pci_group_info *groups);
->> +				      struct vfio_pci_group_info *groups,
->> +				      struct iommufd_ctx *iommufd_ctx);
->>  
->>  /*
->>   * INTx masking requires the ability to disable INTx signaling via PCI_COMMAND
->> @@ -1277,7 +1278,7 @@ vfio_pci_ioctl_pci_hot_reset_groups(struct vfio_pci_core_device *vdev,
->>  		return ret;
->>  
->>  	/* Somewhere between 1 and count is OK */
->> -	if (!hdr->count || hdr->count > count)
->> +	if (hdr->count > count)
->>  		return -EINVAL;
->>  
->>  	group_fds = kcalloc(hdr->count, sizeof(*group_fds), GFP_KERNEL);
->> @@ -1326,7 +1327,7 @@ vfio_pci_ioctl_pci_hot_reset_groups(struct vfio_pci_core_device *vdev,
->>  	info.count = hdr->count;
->>  	info.files = files;
->>  
->> -	ret = vfio_pci_dev_set_hot_reset(vdev->vdev.dev_set, &info);
->> +	ret = vfio_pci_dev_set_hot_reset(vdev->vdev.dev_set, &info, NULL);
->>  
->>  hot_reset_release:
->>  	for (file_idx--; file_idx >= 0; file_idx--)
->> @@ -1341,6 +1342,7 @@ static int vfio_pci_ioctl_pci_hot_reset(struct vfio_pci_core_device *vdev,
->>  {
->>  	unsigned long minsz = offsetofend(struct vfio_pci_hot_reset, count);
->>  	struct vfio_pci_hot_reset hdr;
->> +	struct iommufd_ctx *iommufd;
->>  	bool slot = false;
->>  
->>  	if (copy_from_user(&hdr, arg, minsz))
->> @@ -1355,7 +1357,12 @@ static int vfio_pci_ioctl_pci_hot_reset(struct vfio_pci_core_device *vdev,
->>  	else if (pci_probe_reset_bus(vdev->pdev->bus))
->>  		return -ENODEV;
->>  
->> -	return vfio_pci_ioctl_pci_hot_reset_groups(vdev, &hdr, slot, arg);
->> +	if (hdr.count)
->> +		return vfio_pci_ioctl_pci_hot_reset_groups(vdev, &hdr, slot, arg);
->> +
->> +	iommufd = vfio_iommufd_physical_ictx(&vdev->vdev);
->> +
->> +	return vfio_pci_dev_set_hot_reset(vdev->vdev.dev_set, NULL, iommufd);
->>  }
->>  
->>  static int vfio_pci_ioctl_ioeventfd(struct vfio_pci_core_device *vdev,
->> @@ -2327,6 +2334,9 @@ static bool vfio_dev_in_groups(struct vfio_pci_core_device *vdev,
->>  {
->>  	unsigned int i;
->>  
->> +	if (!groups)
->> +		return false;
->> +
->>  	for (i = 0; i < groups->count; i++)
->>  		if (vfio_file_has_dev(groups->files[i], &vdev->vdev))
->>  			return true;
->> @@ -2402,13 +2412,25 @@ static int vfio_pci_dev_set_pm_runtime_get(struct vfio_device_set *dev_set)
->>  	return ret;
->>  }
->>  
->> +static bool vfio_dev_in_iommufd_ctx(struct vfio_pci_core_device *vdev,
->> +				    struct iommufd_ctx *iommufd_ctx)
->> +{
->> +	struct iommufd_ctx *iommufd = vfio_iommufd_physical_ictx(&vdev->vdev);
->> +
->> +	if (!iommufd)
->> +		return false;
->> +
->> +	return iommufd == iommufd_ctx;
->> +}
->> +
->>  /*
->>   * We need to get memory_lock for each device, but devices can share mmap_lock,
->>   * therefore we need to zap and hold the vma_lock for each device, and only then
->>   * get each memory_lock.
->>   */
->>  static int vfio_pci_dev_set_hot_reset(struct vfio_device_set *dev_set,
->> -				      struct vfio_pci_group_info *groups)
->> +				      struct vfio_pci_group_info *groups,
->> +				      struct iommufd_ctx *iommufd_ctx)
->>  {
->>  	struct vfio_pci_core_device *cur_mem;
->>  	struct vfio_pci_core_device *cur_vma;
->> @@ -2448,9 +2470,17 @@ static int vfio_pci_dev_set_hot_reset(struct vfio_device_set *dev_set,
->>  		 *
->>  		 * Otherwise all opened devices in the dev_set must be
->>  		 * contained by the set of groups provided by the user.
->> +		 *
->> +		 * If user provides a zero-length array, then all the
->> +		 * opened devices must be bound to a same iommufd_ctx.
->> +		 *
->> +		 * If all above checks are failed, reset is allowed only if
->> +		 * the calling device is in a singleton dev_set.
->>  		 */
->>  		if (cur_vma->vdev.open_count &&
->> -		    !vfio_dev_in_groups(cur_vma, groups)) {
->> +		    !vfio_dev_in_groups(cur_vma, groups) &&
->> +		    !vfio_dev_in_iommufd_ctx(cur_vma, iommufd_ctx) &&
->> +		    (dev_set->device_count > 1)) {
-> This last condition looks buggy to me, we need all conditions to be
-> true to generate an error here, which means that for a singleton
-> dev_set, it doesn't matter what group fds are passed, if any, or whether
-> the iommufd context matches.  I think in fact this means that the empty
-> array path is equally available for group use cases with a singleton
-> dev_set, but we don't enable it for multiple device dev_sets like we do
-> iommufd.
+> Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+> Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+> Tested-by: Yanting Jiang <yanting.jiang@intel.com>
+> Signed-off-by: Yi Liu <yi.l.liu@intel.com>
+> ---
+>  drivers/vfio/vfio_main.c | 23 +++++++++++++++++++----
+>  1 file changed, 19 insertions(+), 4 deletions(-)
 >
-> You pointed out a previous issue with hot-reset info and no-iommu where
-> if other affected devices are not bound to vfio-pci the info ioctl
-> returns error.  That's handled in the hot-reset ioctl by the fact that
-> all affected devices must be in the dev_set and therefore bound to
-> vfio-pci drivers.  So it seems to me that aside from the spurious error
-> because we can't report an iommu group when none exists, and didn't
-> spot it to invent an invalid group for debugging, hot-reset otherwise
-> works with no-iommu just like it does for iommu backed devices.  We
-> don't currently require singleton no-iommu dev_sets afaict.
->
-> I'll also note that if the dev_set is singleton, this suggests that
-> pci_reset_function() can make use of bus reset, so a hot-reset is
-> accessible via VFIO_DEVICE_RESET if the appropriate reset method is
-> selected.
->
-> Therefore, I think as written, the singleton dev_set hot-reset is
-> enabled for iommufd and (unintentionally?) for the group path, while
-> also negating a requirement for a group fd or that a provided group fd
-> actually matches the device in this latter case.  The null-array
-> approach is not however extended to groups for more general use.
-> Additionally, limiting no-iommu hot-reset to singleton dev_sets
-> provides only a marginal functional difference vs VFIO_DEVICE_RESET.
-> Thanks,
->
-> Alex
-What bout introducing a helper
-static bool is_reset_ok(pdev, groups, ctx) {
-    if (!pdev->vdev.open_count)
-        return true;
-    if (groups && vfio_dev_in_groups(pdev, groups))
-        return true;
-    if (ctx && vfio_dev_in_iommufd_ctx(pdev, ctx)
-        return true;
-    return false;
-}
-
-Assuming the above logic is correct I think this would make the code
-more readable
-
-Thanks
+> diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
+> index fe7446805afd..ebbb6b91a498 100644
+> --- a/drivers/vfio/vfio_main.c
+> +++ b/drivers/vfio/vfio_main.c
+> @@ -1154,13 +1154,23 @@ const struct file_operations vfio_device_fops = {
+>  	.mmap		= vfio_device_fops_mmap,
+>  };
+>  
+> +static struct vfio_device *vfio_device_from_file(struct file *file)
+> +{
+> +	struct vfio_device *device = file->private_data;
+> +
+> +	if (file->f_op != &vfio_device_fops)
+> +		return NULL;
+> +	return device;
+> +}
+> +
+>  /**
+>   * vfio_file_is_valid - True if the file is valid vfio file
+>   * @file: VFIO group file or VFIO device file
+>   */
+>  bool vfio_file_is_valid(struct file *file)
+>  {
+> -	return vfio_group_from_file(file);
+> +	return vfio_group_from_file(file) ||
+> +	       vfio_device_from_file(file);
+>  }
+>  EXPORT_SYMBOL_GPL(vfio_file_is_valid);
+>  
+> @@ -1174,12 +1184,17 @@ EXPORT_SYMBOL_GPL(vfio_file_is_valid);
+>  bool vfio_file_has_dev(struct file *file, struct vfio_device *device)
+>  {
+>  	struct vfio_group *group;
+> +	struct vfio_device *vdev;
+>  
+>  	group = vfio_group_from_file(file);
+> -	if (!group)
+> -		return false;
+> +	if (group)
+> +		return vfio_group_has_dev(group, device);
+> +
+> +	vdev = vfio_device_from_file(file);
+> +	if (vdev)
+> +		return vdev == device;
+>  
+> -	return vfio_group_has_dev(group, device);
+> +	return false;
+>  }
+>  EXPORT_SYMBOL_GPL(vfio_file_has_dev);
+>  
+With Alex' suggestion
+Reviewed-by: Eric Auger <eric.auger@redhat.com>
 
 Eric
->>  			ret = -EINVAL;
->>  			goto err_undo;
->>  		}
->> diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
->> index f96e5689cffc..17aa5d09db41 100644
->> --- a/include/uapi/linux/vfio.h
->> +++ b/include/uapi/linux/vfio.h
->> @@ -679,7 +679,14 @@ struct vfio_pci_hot_reset_info {
->>   * the calling user must ensure all affected devices, if opened, are
->>   * owned by itself.
->>   *
->> - * The ownership is proved by an array of group fds.
->> + * The ownership can be proved by:
->> + *   - An array of group fds
->> + *   - A zero-length array
->> + *
->> + * In the last case all affected devices which are opened by this user
->> + * must have been bound to a same iommufd. If the calling device is in
->> + * noiommu mode (no valid iommufd) then it can be reset only if the reset
->> + * doesn't affect other devices.
->>   *
->>   * Return: 0 on success, -errno on failure.
->>   */
 
