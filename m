@@ -2,141 +2,80 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C3FBBC7619A
-	for <linux-s390@archiver.kernel.org>; Wed,  5 Apr 2023 12:21:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9532BC761A6
+	for <linux-s390@archiver.kernel.org>; Wed,  5 Apr 2023 12:31:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237704AbjDEMVN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 5 Apr 2023 08:21:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56496 "EHLO
+        id S237787AbjDEMbh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 5 Apr 2023 08:31:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230012AbjDEMVM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 5 Apr 2023 08:21:12 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03C2F40D3
-        for <linux-s390@vger.kernel.org>; Wed,  5 Apr 2023 05:20:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1680697226;
-        h=from:from:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=erf4UNO3fNS9mv22A+JjIcgyW6S0YpQ5DUbNcYGvtZ0=;
-        b=d4yA661qnRn2LGS7FAqq7W6eZB6ZsKg11JAitg/jr+pWs1d9mO2SQ1BMDNXnvPSF+64R/P
-        8gK1XSvxFhJ0PPQD1wXzn7X+0CfqtcHAnJhdiMSqHU6oMf/BqFCwxV4uyWDKlAYwYVNEf2
-        sHKZgyv/qI7HpUjbc7X2etqkAGnGVSs=
-Received: from mail-qt1-f198.google.com (mail-qt1-f198.google.com
- [209.85.160.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-55-4DJcRtIBMOCghguY6J686A-1; Wed, 05 Apr 2023 08:20:14 -0400
-X-MC-Unique: 4DJcRtIBMOCghguY6J686A-1
-Received: by mail-qt1-f198.google.com with SMTP id a11-20020ac85b8b000000b003e3979be6abso24044892qta.12
-        for <linux-s390@vger.kernel.org>; Wed, 05 Apr 2023 05:20:14 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680697213;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:reply-to:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=erf4UNO3fNS9mv22A+JjIcgyW6S0YpQ5DUbNcYGvtZ0=;
-        b=61JUKaKXnKc3yXw5IMwMXYvXaK0lvVvGzNCHbt1cTq+0E5HhYicHW6/XWy8nwfMD/b
-         KfGFDN59VDIBkay8UhOEeDtUHgYqGYJyEr/LETG6nXAri5kz6fu4qzxq1FqssSpOUfCw
-         zYLTASmzvOYX3B1ncPxOgxCZwexWXWwxrvs2MjvhGdUkyAK5GUs9DetfsHTs2PU37jj9
-         c8eqPIZwlOkAAh7yxJsB3wFCenwqJhYMRG02StcomxnQA1iHNoPAk/nyRquzE71S5jP6
-         qYIQfysCJgTa/ucmFWbUSE1QnM84otf1v5n1eUw4Awce1nJpFydDLToTUqSj5LA8GmzV
-         qWvQ==
-X-Gm-Message-State: AAQBX9d18vOmJ7vN7e21+HNqv6GdmGzJMtsdSvGVFuXuVwy+ekgpLTfI
-        UM9Gm8oQu0lXx2J7ONZKD4KDXPQRN+eWS44lVVzm88yW6JEdxf1cWpcjHITdbAxXISUhcMxPgrl
-        tZj1pMsQKIXy16EF6FASJxA==
-X-Received: by 2002:a05:6214:e6e:b0:56e:f9a2:1aff with SMTP id jz14-20020a0562140e6e00b0056ef9a21affmr7785861qvb.35.1680697213737;
-        Wed, 05 Apr 2023 05:20:13 -0700 (PDT)
-X-Google-Smtp-Source: AKy350YufqLIW4kTurRmpoStx2boSEtRlVeqT/uSnU6kdOvvAZfwzmAklgvT9NeSB7a7bO7FCPIIzA==
-X-Received: by 2002:a05:6214:e6e:b0:56e:f9a2:1aff with SMTP id jz14-20020a0562140e6e00b0056ef9a21affmr7785819qvb.35.1680697213472;
-        Wed, 05 Apr 2023 05:20:13 -0700 (PDT)
-Received: from ?IPV6:2a01:e0a:59e:9d80:527b:9dff:feef:3874? ([2a01:e0a:59e:9d80:527b:9dff:feef:3874])
-        by smtp.gmail.com with ESMTPSA id l8-20020a0cc208000000b005dd8b9345a2sm4164191qvh.58.2023.04.05.05.20.08
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 05 Apr 2023 05:20:12 -0700 (PDT)
-Message-ID: <f90410e0-96f1-9719-9d83-f7caa5992d6d@redhat.com>
-Date:   Wed, 5 Apr 2023 14:20:07 +0200
+        with ESMTP id S237788AbjDEMbg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 5 Apr 2023 08:31:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 037EB1BE9;
+        Wed,  5 Apr 2023 05:31:35 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A0DD627D5;
+        Wed,  5 Apr 2023 12:31:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CD75C433EF;
+        Wed,  5 Apr 2023 12:31:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1680697893;
+        bh=KFVTrjAz+H5bySuyR2Bq1Khen5yOd1Qtme1Bb1mppYI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=AG+EZgJ3qAQfgY0+ZZZgyJXsxmcSCxUGOlyF3yG6GA/pNNdu3cJbKH2/4xeHtapHU
+         8KITD4pBhsc5TvHW50iExblXmcjY2LFFYtY2vLuaXrD78Xnny8GPdwCBy3/l3GEDA2
+         0PcemdB5uk8CF+tIK2n9GOoxJ4g0SiK4BeLKqvDqZngUI+LayhU+0ydmUGOrgi4PTg
+         g7V2GuESOAJHvh1fLlqU24sPxnckxmjiUEpUAkqPBtJKKYTc+VIwvkkgr4DiAlOo/x
+         wtvmjO3VUP13kxL3k0XI7AZyB4y5ZlMS6zceunb6lXJLe9kn6iYpT27bIMlvkR+NyU
+         VDRnFwdwjQlcA==
+Date:   Wed, 5 Apr 2023 14:31:30 +0200
+From:   Frederic Weisbecker <frederic@kernel.org>
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     Yair Podemsky <ypodemsk@redhat.com>, linux@armlinux.org.uk,
+        mpe@ellerman.id.au, npiggin@gmail.com, christophe.leroy@csgroup.eu,
+        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        davem@davemloft.net, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+        hpa@zytor.com, will@kernel.org, aneesh.kumar@linux.ibm.com,
+        akpm@linux-foundation.org, arnd@arndb.de, keescook@chromium.org,
+        paulmck@kernel.org, jpoimboe@kernel.org, samitolvanen@google.com,
+        ardb@kernel.org, juerg.haefliger@canonical.com,
+        rmk+kernel@armlinux.org.uk, geert+renesas@glider.be,
+        tony@atomide.com, linus.walleij@linaro.org,
+        sebastian.reichel@collabora.com, nick.hawkins@hpe.com,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-arch@vger.kernel.org,
+        linux-mm@kvack.org, mtosatti@redhat.com, vschneid@redhat.com,
+        dhildenb@redhat.com, alougovs@redhat.com
+Subject: Re: [PATCH 3/3] mm/mmu_gather: send tlb_remove_table_smp_sync IPI
+ only to CPUs in kernel mode
+Message-ID: <ZC1qInkK7jt/YJXc@lothringen>
+References: <20230404134224.137038-1-ypodemsk@redhat.com>
+ <20230404134224.137038-4-ypodemsk@redhat.com>
+ <ZC1Q7uX4rNLg3vEg@lothringen>
+ <ZC1XD/sEJY+zRujE@lothringen>
+ <20230405114148.GA351571@hirez.programming.kicks-ass.net>
+ <ZC1j8ivE/kK7+Gd5@lothringen>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.5.0
-Reply-To: eric.auger@redhat.com
-Subject: Re: [PATCH v9 03/25] vfio: Remove vfio_file_is_group()
-Content-Language: en-US
-To:     Yi Liu <yi.l.liu@intel.com>, alex.williamson@redhat.com,
-        jgg@nvidia.com, kevin.tian@intel.com
-Cc:     joro@8bytes.org, robin.murphy@arm.com, cohuck@redhat.com,
-        nicolinc@nvidia.com, kvm@vger.kernel.org, mjrosato@linux.ibm.com,
-        chao.p.peng@linux.intel.com, yi.y.sun@linux.intel.com,
-        peterx@redhat.com, jasowang@redhat.com,
-        shameerali.kolothum.thodi@huawei.com, lulu@redhat.com,
-        suravee.suthikulpanit@amd.com, intel-gvt-dev@lists.freedesktop.org,
-        intel-gfx@lists.freedesktop.org, linux-s390@vger.kernel.org,
-        xudong.hao@intel.com, yan.y.zhao@intel.com, terrence.xu@intel.com,
-        yanting.jiang@intel.com
-References: <20230401151833.124749-1-yi.l.liu@intel.com>
- <20230401151833.124749-4-yi.l.liu@intel.com>
-From:   Eric Auger <eric.auger@redhat.com>
-In-Reply-To: <20230401151833.124749-4-yi.l.liu@intel.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZC1j8ivE/kK7+Gd5@lothringen>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Yi,
+On Wed, Apr 05, 2023 at 02:05:13PM +0200, Frederic Weisbecker wrote:
+> On Wed, Apr 05, 2023 at 01:41:48PM +0200, Peter Zijlstra wrote:
+> 1) It has the advantage to check context tracking _after_ the llist_add(), so
+>    it really can't be misused ordering-wise.
+> 
+> 2) The IPI callback is always enqueued and then executed upon return
+>    from userland. The ordering makes sure it will either IPI or execute
+>    upon return to userspace.
 
-On 4/1/23 17:18, Yi Liu wrote:
-> since no user of vfio_file_is_group() now.
->
-> Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-> Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-> Tested-by: Terrence Xu <terrence.xu@intel.com>
-> Tested-by: Nicolin Chen <nicolinc@nvidia.com>
-> Tested-by: Yanting Jiang <yanting.jiang@intel.com>
-> Signed-off-by: Yi Liu <yi.l.liu@intel.com>
-
-Reviewed-by: Eric Auger <eric.auger@redhat.com>
-
-Eric
-> ---
->  drivers/vfio/group.c | 10 ----------
->  include/linux/vfio.h |  1 -
->  2 files changed, 11 deletions(-)
->
-> diff --git a/drivers/vfio/group.c b/drivers/vfio/group.c
-> index ede4723c5f72..4f937ebaf6f7 100644
-> --- a/drivers/vfio/group.c
-> +++ b/drivers/vfio/group.c
-> @@ -792,16 +792,6 @@ struct iommu_group *vfio_file_iommu_group(struct file *file)
->  }
->  EXPORT_SYMBOL_GPL(vfio_file_iommu_group);
->  
-> -/**
-> - * vfio_file_is_group - True if the file is a vfio group file
-> - * @file: VFIO group file
-> - */
-> -bool vfio_file_is_group(struct file *file)
-> -{
-> -	return vfio_group_from_file(file);
-> -}
-> -EXPORT_SYMBOL_GPL(vfio_file_is_group);
-> -
->  bool vfio_group_enforced_coherent(struct vfio_group *group)
->  {
->  	struct vfio_device *device;
-> diff --git a/include/linux/vfio.h b/include/linux/vfio.h
-> index d9a0770e5fc1..7519ae89fcd6 100644
-> --- a/include/linux/vfio.h
-> +++ b/include/linux/vfio.h
-> @@ -264,7 +264,6 @@ int vfio_mig_get_next_state(struct vfio_device *device,
->   * External user API
->   */
->  struct iommu_group *vfio_file_iommu_group(struct file *file);
-> -bool vfio_file_is_group(struct file *file);
->  bool vfio_file_is_valid(struct file *file);
->  bool vfio_file_enforced_coherent(struct file *file);
->  void vfio_file_set_kvm(struct file *file, struct kvm *kvm);
-
+*from userspace
