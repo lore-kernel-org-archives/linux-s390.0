@@ -2,42 +2,43 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BE0EDC77B71
-	for <linux-s390@archiver.kernel.org>; Thu,  6 Apr 2023 13:38:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EA6FDC761A6
+	for <linux-s390@archiver.kernel.org>; Thu,  6 Apr 2023 14:05:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238657AbjDFNit (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 6 Apr 2023 09:38:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41536 "EHLO
+        id S238929AbjDFOFH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 6 Apr 2023 10:05:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238249AbjDFNip (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 Apr 2023 09:38:45 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D70C6EB6;
-        Thu,  6 Apr 2023 06:38:39 -0700 (PDT)
+        with ESMTP id S238926AbjDFOFG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 Apr 2023 10:05:06 -0400
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0A9F86AC;
+        Thu,  6 Apr 2023 07:05:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
         References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
         Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=rsfbSrxkyNUKnA+3L2zt42sf6Zqq9lCcgt0uWjy7k60=; b=Ayo4gvUWmcUkBURpVFBSM+eYhV
-        l7P2VtXOZBB6jb1wtuH+SdKdAItVAe+kMpSzp3YHtSIOle0g7qoCA/xj5KLlB2TlzHd4JmzQKG0FG
-        ctlJPIo/yJy3hcmtZqn4NrRTzxtN/fnZe8ae5QDZOAmpGmMl3PtsYG2hCbTsLjgSNkrwGT4IOrh74
-        AX3ervbDbcchBnb5NvAJ5/MXEGpH67rwaQ648BB6lvgDw2ZlLdz6jKQfgBg5U/zbLSkUQry3H0GEj
-        zy0FeIX/yV9L32RTQOxJW9GjquZ0APcE4Plys2ZHWAXHTK7OJBep9Io61I07aKVmKD7SgpcMnYUx2
-        9zUW7zgw==;
+        bh=92YHTTMfDlN4SnJGHYPEf7ALbRz1gExsNSlQbfCkiJE=; b=VD9zdoH+cdV2/P8HJ83hRBLEjI
+        JpdueSAzOmoj5lCh7T87b9I6gbGuMKT0JVGD26qs0FHKIB3yJoXQe+Y4WcX1wGtdc5Gf3D5swAlSD
+        EXr1mZc5rPBC5shJ4xrHAyWqSOcNkw5tuIyHXQO1g47XKYVj5hQlqd5LcUwNCCAn1cGW9SS3G7uax
+        zmp5ipQM/zPtv02Uri8vdyNZuZVVZGKIWz2E7oa+uuBEOkZHVNccAKz2SL3V1kMqabFQew4XDjGMP
+        UDtpCwd9Y5Asm9kd3xNpC2rhBHIMzw4QpCAoQ3vLq5u1SjJpvC/3lviLAn7JaG9fKetrRHP2MOqLI
+        rQxkw6jQ==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1pkPoU-00HSLt-Th; Thu, 06 Apr 2023 13:38:07 +0000
+        by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
+        id 1pkQDx-00AXes-0w;
+        Thu, 06 Apr 2023 14:04:25 +0000
 Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits))
         (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 690B43000DC;
-        Thu,  6 Apr 2023 15:38:05 +0200 (CEST)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 94388300194;
+        Thu,  6 Apr 2023 16:04:23 +0200 (CEST)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 4F208212E36AE; Thu,  6 Apr 2023 15:38:05 +0200 (CEST)
-Date:   Thu, 6 Apr 2023 15:38:05 +0200
+        id 7CEE5212E36AC; Thu,  6 Apr 2023 16:04:23 +0200 (CEST)
+Date:   Thu, 6 Apr 2023 16:04:23 +0200
 From:   Peter Zijlstra <peterz@infradead.org>
-To:     Valentin Schneider <vschneid@redhat.com>
+To:     Marcelo Tosatti <mtosatti@redhat.com>
 Cc:     Frederic Weisbecker <frederic@kernel.org>,
         Yair Podemsky <ypodemsk@redhat.com>, linux@armlinux.org.uk,
         mpe@ellerman.id.au, npiggin@gmail.com, christophe.leroy@csgroup.eu,
@@ -55,52 +56,45 @@ Cc:     Frederic Weisbecker <frederic@kernel.org>,
         linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
         sparclinux@vger.kernel.org, linux-arch@vger.kernel.org,
-        linux-mm@kvack.org, mtosatti@redhat.com, dhildenb@redhat.com,
-        alougovs@redhat.com
+        linux-mm@kvack.org, vschneid@redhat.com, dhildenb@redhat.com,
+        alougovs@redhat.com, jannh@google.com
 Subject: Re: [PATCH 3/3] mm/mmu_gather: send tlb_remove_table_smp_sync IPI
  only to CPUs in kernel mode
-Message-ID: <20230406133805.GO386572@hirez.programming.kicks-ass.net>
+Message-ID: <20230406140423.GA386634@hirez.programming.kicks-ass.net>
 References: <20230404134224.137038-1-ypodemsk@redhat.com>
  <20230404134224.137038-4-ypodemsk@redhat.com>
  <ZC1Q7uX4rNLg3vEg@lothringen>
  <ZC1XD/sEJY+zRujE@lothringen>
- <20230405114148.GA351571@hirez.programming.kicks-ass.net>
- <ZC1j8ivE/kK7+Gd5@lothringen>
- <xhsmhpm8ia46p.mognet@vschneid.remote.csb>
+ <ZC3P3Ds/BIcpRNGr@tpad>
+ <20230405195226.GB365912@hirez.programming.kicks-ass.net>
+ <ZC69Wmqjdwk+I8kn@tpad>
+ <20230406132928.GM386572@hirez.programming.kicks-ass.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <xhsmhpm8ia46p.mognet@vschneid.remote.csb>
+In-Reply-To: <20230406132928.GM386572@hirez.programming.kicks-ass.net>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Apr 05, 2023 at 01:45:02PM +0100, Valentin Schneider wrote:
-> On 05/04/23 14:05, Frederic Weisbecker wrote:
-> >  static void smp_call_function_many_cond(const struct cpumask *mask,
-> >                                       smp_call_func_t func, void *info,
-> > @@ -946,10 +948,13 @@ static void smp_call_function_many_cond(const struct cpumask *mask,
-> >  #endif
-> >                       cfd_seq_store(pcpu->seq_queue, this_cpu, cpu, CFD_SEQ_QUEUE);
-> >                       if (llist_add(&csd->node.llist, &per_cpu(call_single_queue, cpu))) {
-> > -				__cpumask_set_cpu(cpu, cfd->cpumask_ipi);
-> > -				nr_cpus++;
-> > -				last_cpu = cpu;
-> > -
-> > +				if (!(scf_flags & SCF_NO_USER) ||
-> > +				    !IS_ENABLED(CONFIG_GENERIC_ENTRY) ||
-> > +				     ct_state_cpu(cpu) != CONTEXT_USER) {
-> > +					__cpumask_set_cpu(cpu, cfd->cpumask_ipi);
-> > +					nr_cpus++;
-> > +					last_cpu = cpu;
-> > +				}
+On Thu, Apr 06, 2023 at 03:29:28PM +0200, Peter Zijlstra wrote:
+> On Thu, Apr 06, 2023 at 09:38:50AM -0300, Marcelo Tosatti wrote:
 > 
-> I've been hacking on something like this (CSD deferral for NOHZ-full),
-> and unfortunately this uses the CPU-local cfd_data storage thing, which
-> means any further smp_call_function() from the same CPU to the same
-> destination will spin on csd_lock_wait(), waiting for the target CPU to
-> come out of userspace and flush the queue - and we've just spent extra
-> effort into *not* disturbing it, so that'll take a while :(
+> > > To actually hit this path you're doing something really dodgy.
+> > 
+> > Apparently khugepaged is using the same infrastructure:
+> > 
+> > $ grep tlb_remove_table khugepaged.c 
+> > 	tlb_remove_table_sync_one();
+> > 	tlb_remove_table_sync_one();
+> > 
+> > So just enabling khugepaged will hit that path.
+> 
+> Urgh, WTF..
+> 
+> Let me go read that stuff :/
 
-I'm not sure I buy into deferring stuff.. a NOHZ_FULL cpu might 'never'
-come back. Queueing data just in case it does seems wasteful.
+At the very least the one on collapse_and_free_pmd() could easily become
+a call_rcu() based free.
+
+I'm not sure I'm following what collapse_huge_page() does just yet.
