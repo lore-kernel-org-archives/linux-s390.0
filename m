@@ -2,35 +2,35 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4739AC77B75
-	for <linux-s390@archiver.kernel.org>; Thu,  6 Apr 2023 11:33:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A3D7C77B72
+	for <linux-s390@archiver.kernel.org>; Thu,  6 Apr 2023 11:34:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237181AbjDFLda (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 6 Apr 2023 07:33:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34180 "EHLO
+        id S238069AbjDFLe5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 6 Apr 2023 07:34:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237581AbjDFLdA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 Apr 2023 07:33:00 -0400
+        with ESMTP id S237915AbjDFLeL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 Apr 2023 07:34:11 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC750901C;
-        Thu,  6 Apr 2023 04:32:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 229C7903A;
+        Thu,  6 Apr 2023 04:33:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CACC264673;
-        Thu,  6 Apr 2023 11:32:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6181AC433EF;
-        Thu,  6 Apr 2023 11:32:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 02D046446F;
+        Thu,  6 Apr 2023 11:33:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 929E9C4339E;
+        Thu,  6 Apr 2023 11:33:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1680780751;
-        bh=sbvEeEAH1fOXzYJuYw5C2KbyDNDubiZlIU+RDaCnxW8=;
+        s=k20201202; t=1680780790;
+        bh=YXS4sk4xQSPlBlwT/UJczjasBY/YFGv4zvJqq5XP4OY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dzbQb447S83YOtOQpKOwyoODx8V3vR9OQu8FxISugZI87hXXnWOFkA/wjlp7JZ18F
-         bny9PGFWMzegDnuxDFs8v9UQkRvvAZwKpkOz02/MyPplbG/opetJQ3mqYGiaa5mlUX
-         CeyCggcZ/JGnC3egXezrA47+8qvEegHYvI27UVMLaOzE++LXri6JSmLdYHaZANrpOV
-         JOBmBzlzYgOzsrJdZrWGNzls+ub0LBmgfg3JoqInYbYdOxYpv/hy5Ws1T+4q1cU4ar
-         vL5+Q7SXUfhhFAkNA9lP1tAMsiaQyGhWPUtaojSqdu+3eD0rzCIknGVPXCGocA+flf
-         QBcLkno5WYAyg==
+        b=Chy+Rt3MXVMPfDfOqKE/U9aoNi8faeuN97E+y4XmgaxGQPBQIdrCIQ4mtF4jgj8t1
+         d2/o390tseWSy1JZ7rW49OKJecAX1qgPvg3qhIs/wORxNMn3wn8LLX8xcrOVttdb2f
+         BGwy5NzPSZEyAcxiljwdLjK76APzUZbW7s8MkQdh2grLxYYvbQp6HAA2kHP6sM9G5s
+         BIP04L56xkYzb+FpHeLTG2qOM0l37hu5dIi5/Cc62qmILvF0LpX8h3wEwQWm8Y/RTT
+         +r7TOxdnlMxtteKLekL4ubwOeFLpXWMbVUx7CevGJ71ksuHggYFzBk78mVLWg4tvBU
+         bW/FT+whHNT4w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Heiko Carstens <hca@linux.ibm.com>,
@@ -38,12 +38,12 @@ Cc:     Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>, oleg@redhat.com,
         agordeev@linux.ibm.com, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 09/17] s390/ptrace: fix PTRACE_GET_LAST_BREAK error handling
-Date:   Thu,  6 Apr 2023 07:32:03 -0400
-Message-Id: <20230406113211.648424-9-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 08/11] s390/ptrace: fix PTRACE_GET_LAST_BREAK error handling
+Date:   Thu,  6 Apr 2023 07:32:47 -0400
+Message-Id: <20230406113250.648634-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230406113211.648424-1-sashal@kernel.org>
-References: <20230406113211.648424-1-sashal@kernel.org>
+In-Reply-To: <20230406113250.648634-1-sashal@kernel.org>
+References: <20230406113250.648634-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -68,10 +68,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 6 deletions(-)
 
 diff --git a/arch/s390/kernel/ptrace.c b/arch/s390/kernel/ptrace.c
-index 53e0209229f87..092b16b4dd4f6 100644
+index 0ea3d02b378de..516c21baf3ad3 100644
 --- a/arch/s390/kernel/ptrace.c
 +++ b/arch/s390/kernel/ptrace.c
-@@ -474,9 +474,7 @@ long arch_ptrace(struct task_struct *child, long request,
+@@ -481,9 +481,7 @@ long arch_ptrace(struct task_struct *child, long request,
  		}
  		return 0;
  	case PTRACE_GET_LAST_BREAK:
@@ -82,7 +82,7 @@ index 53e0209229f87..092b16b4dd4f6 100644
  	case PTRACE_ENABLE_TE:
  		if (!MACHINE_HAS_TE)
  			return -EIO;
-@@ -824,9 +822,7 @@ long compat_arch_ptrace(struct task_struct *child, compat_long_t request,
+@@ -837,9 +835,7 @@ long compat_arch_ptrace(struct task_struct *child, compat_long_t request,
  		}
  		return 0;
  	case PTRACE_GET_LAST_BREAK:
