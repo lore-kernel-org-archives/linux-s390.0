@@ -2,291 +2,125 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BD5DCC761A6
-	for <linux-s390@archiver.kernel.org>; Thu,  6 Apr 2023 12:44:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B0924C76196
+	for <linux-s390@archiver.kernel.org>; Thu,  6 Apr 2023 13:17:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236840AbjDFMow (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 6 Apr 2023 08:44:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42680 "EHLO
+        id S237424AbjDFNR4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 6 Apr 2023 09:17:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237335AbjDFMoZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 Apr 2023 08:44:25 -0400
+        with ESMTP id S237504AbjDFNRt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 Apr 2023 09:17:49 -0400
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63BE0526C
-        for <linux-s390@vger.kernel.org>; Thu,  6 Apr 2023 05:43:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4571C5B81
+        for <linux-s390@vger.kernel.org>; Thu,  6 Apr 2023 06:17:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1680785016;
-        h=from:from:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
+        s=mimecast20190719; t=1680787020;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=zVBvata7Mm/MkYzuOlGNnL4nXILAvoWW7w+2UKjzgAI=;
-        b=as7DtqJSbwrYnazkv9oFXlFVszXSu+4IJl59yPnOnbtFec1fK97yaie7TzvCVQD+v2dwwb
-        BwppL8Hw8sJ4G80SeEXE3OAzCXfk2rwMO4eFVyoBep0V6XYO/40iJ0Jdo1o44g4JLZG6BL
-        WCDmoRFK5D/dXGoWr/uw8eMJDo5khbY=
-Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
- [209.85.222.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-495-fRfdgKMqPAGTl_8oqIq8CA-1; Thu, 06 Apr 2023 08:43:28 -0400
-X-MC-Unique: fRfdgKMqPAGTl_8oqIq8CA-1
-Received: by mail-qk1-f199.google.com with SMTP id r197-20020a37a8ce000000b0074a59c12b10so3695277qke.5
-        for <linux-s390@vger.kernel.org>; Thu, 06 Apr 2023 05:43:28 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680785007;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:reply-to:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=zVBvata7Mm/MkYzuOlGNnL4nXILAvoWW7w+2UKjzgAI=;
-        b=yvtfOoxl21rYXzJJQ8O+O8jQ74I/u9BuDtnr5Nkbto26fUyh10GD6LZ+u7ACHVq2Hu
-         UPuLo3V+xuz6IxOmuv2pIfRBzDk8NwucaDJmQRXazQTX6PpGDjjOBVUjbfKWNXI0oef/
-         tIojEaviNgkdENG1WwxQ9PYoT5YBPlw7TLPWnHvJHzyLqRLUbm3j2b/7uVfeu5xlztt7
-         xvT8jGqRShxjPaInmynjYexveDfk6msH2MuYOr7mNrFwQ1vgf+8MnhfPnI6uedJq4BD9
-         DYaVLnbhq3JNts1/8yE8I8zMjmgszBh+J9ZU4xg88yU9aeTAckeDgkjPDkLoATwibcsY
-         JFhA==
-X-Gm-Message-State: AAQBX9evUAkQTPFOYLiLuOAp8CGH1uZsbsVrtDq+gXIhqHLai3YXzpn3
-        HKPkMr36OGaIl6IC+dwKr/0pDQ9YnCTnIhVJBAV0/BBWTexcm+c/J7dfcnW8om2Zkxw7DXaceSF
-        YCEjPWU4VqxgVz271bODyYQ==
-X-Received: by 2002:ad4:5bc8:0:b0:5e0:47aa:40a6 with SMTP id t8-20020ad45bc8000000b005e047aa40a6mr4199233qvt.16.1680785007403;
-        Thu, 06 Apr 2023 05:43:27 -0700 (PDT)
-X-Google-Smtp-Source: AKy350ZZZBqkuCClmoQgew7Ga8w32aTpkf+0gTr7Gw2GardEq9kUBzOQNp2reLEna5OkSDHXP104GA==
-X-Received: by 2002:ad4:5bc8:0:b0:5e0:47aa:40a6 with SMTP id t8-20020ad45bc8000000b005e047aa40a6mr4199207qvt.16.1680785007046;
-        Thu, 06 Apr 2023 05:43:27 -0700 (PDT)
-Received: from ?IPV6:2a01:e0a:59e:9d80:527b:9dff:feef:3874? ([2a01:e0a:59e:9d80:527b:9dff:feef:3874])
-        by smtp.gmail.com with ESMTPSA id j5-20020a056214022500b005dd8b93459esm488119qvt.54.2023.04.06.05.43.22
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 06 Apr 2023 05:43:25 -0700 (PDT)
-Message-ID: <1520dad3-6858-28c4-08d0-503905a9933e@redhat.com>
-Date:   Thu, 6 Apr 2023 14:43:18 +0200
+        bh=rEZb6SaUsngmnCMPg4YGowc9TbgaZEBXr+mRqfM4dbw=;
+        b=L9bvvX0HUgj5Ia4Sdazsh7hYJdQ7NjenSVL2IEAavelW4pO6fF8Bapm3+mqjmPKExqhCOS
+        1PMoofur1pZCogD3rEJUr9OCLY465Xx2RejyHj6TruoXRsCtsS3Zq74abVpau5BqYSjf4a
+        Fut0ai/sTJeD8VnDz9aA9b8QxVq7ca0=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-643-10l_5oWZPX2YbGgfWqkGXw-1; Thu, 06 Apr 2023 09:16:57 -0400
+X-MC-Unique: 10l_5oWZPX2YbGgfWqkGXw-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 2B0A9884EC0;
+        Thu,  6 Apr 2023 13:16:55 +0000 (UTC)
+Received: from tpad.localdomain (ovpn-112-2.gru2.redhat.com [10.97.112.2])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 82F2D2166B26;
+        Thu,  6 Apr 2023 13:16:54 +0000 (UTC)
+Received: by tpad.localdomain (Postfix, from userid 1000)
+        id A64FC40EB07D7; Thu,  6 Apr 2023 09:49:22 -0300 (-03)
+Date:   Thu, 6 Apr 2023 09:49:22 -0300
+From:   Marcelo Tosatti <mtosatti@redhat.com>
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     Frederic Weisbecker <frederic@kernel.org>,
+        Yair Podemsky <ypodemsk@redhat.com>, linux@armlinux.org.uk,
+        mpe@ellerman.id.au, npiggin@gmail.com, christophe.leroy@csgroup.eu,
+        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        davem@davemloft.net, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+        hpa@zytor.com, will@kernel.org, aneesh.kumar@linux.ibm.com,
+        akpm@linux-foundation.org, arnd@arndb.de, keescook@chromium.org,
+        paulmck@kernel.org, jpoimboe@kernel.org, samitolvanen@google.com,
+        ardb@kernel.org, juerg.haefliger@canonical.com,
+        rmk+kernel@armlinux.org.uk, geert+renesas@glider.be,
+        tony@atomide.com, linus.walleij@linaro.org,
+        sebastian.reichel@collabora.com, nick.hawkins@hpe.com,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-arch@vger.kernel.org,
+        linux-mm@kvack.org, vschneid@redhat.com, dhildenb@redhat.com,
+        alougovs@redhat.com
+Subject: Re: [PATCH 3/3] mm/mmu_gather: send tlb_remove_table_smp_sync IPI
+ only to CPUs in kernel mode
+Message-ID: <ZC6/0hRXztNwqXg0@tpad>
+References: <20230404134224.137038-1-ypodemsk@redhat.com>
+ <20230404134224.137038-4-ypodemsk@redhat.com>
+ <ZC1Q7uX4rNLg3vEg@lothringen>
+ <ZC3PUkI7N2uEKy6v@tpad>
+ <20230405195457.GC365912@hirez.programming.kicks-ass.net>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.5.0
-Reply-To: eric.auger@redhat.com
-Subject: Re: [PATCH v9 07/25] vfio: Pass struct vfio_device_file * to
- vfio_device_open/close()
-Content-Language: en-US
-To:     Yi Liu <yi.l.liu@intel.com>, alex.williamson@redhat.com,
-        jgg@nvidia.com, kevin.tian@intel.com
-Cc:     joro@8bytes.org, robin.murphy@arm.com, cohuck@redhat.com,
-        nicolinc@nvidia.com, kvm@vger.kernel.org, mjrosato@linux.ibm.com,
-        chao.p.peng@linux.intel.com, yi.y.sun@linux.intel.com,
-        peterx@redhat.com, jasowang@redhat.com,
-        shameerali.kolothum.thodi@huawei.com, lulu@redhat.com,
-        suravee.suthikulpanit@amd.com, intel-gvt-dev@lists.freedesktop.org,
-        intel-gfx@lists.freedesktop.org, linux-s390@vger.kernel.org,
-        xudong.hao@intel.com, yan.y.zhao@intel.com, terrence.xu@intel.com,
-        yanting.jiang@intel.com
-References: <20230401151833.124749-1-yi.l.liu@intel.com>
- <20230401151833.124749-8-yi.l.liu@intel.com>
-From:   Eric Auger <eric.auger@redhat.com>
-In-Reply-To: <20230401151833.124749-8-yi.l.liu@intel.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230405195457.GC365912@hirez.programming.kicks-ass.net>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.6
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Yi,
+On Wed, Apr 05, 2023 at 09:54:57PM +0200, Peter Zijlstra wrote:
+> On Wed, Apr 05, 2023 at 04:43:14PM -0300, Marcelo Tosatti wrote:
+> 
+> > Two points:
+> > 
+> > 1) For a virtualized system, the overhead is not only of executing the
+> > IPI but:
+> > 
+> > 	VM-exit
+> > 	run VM-exit code in host
+> > 	handle IPI
+> > 	run VM-entry code in host
+> > 	VM-entry
+> 
+> I thought we could do IPIs without VMexit these days? 
 
-On 4/1/23 17:18, Yi Liu wrote:
-> This avoids passing too much parameters in multiple functions.
-> Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-> Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-> Tested-by: Terrence Xu <terrence.xu@intel.com>
-> Tested-by: Nicolin Chen <nicolinc@nvidia.com>
-> Tested-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> Tested-by: Yanting Jiang <yanting.jiang@intel.com>
-> Signed-off-by: Yi Liu <yi.l.liu@intel.com>
-> ---
->  drivers/vfio/group.c     | 20 ++++++++++++++------
->  drivers/vfio/vfio.h      |  8 ++++----
->  drivers/vfio/vfio_main.c | 25 +++++++++++++++----------
->  3 files changed, 33 insertions(+), 20 deletions(-)
->
-> diff --git a/drivers/vfio/group.c b/drivers/vfio/group.c
-> index 4f937ebaf6f7..9a7b2765eef6 100644
-> --- a/drivers/vfio/group.c
-> +++ b/drivers/vfio/group.c
-> @@ -169,8 +169,9 @@ static void vfio_device_group_get_kvm_safe(struct vfio_device *device)
->  	spin_unlock(&device->group->kvm_ref_lock);
->  }
->  
-> -static int vfio_device_group_open(struct vfio_device *device)
-> +static int vfio_device_group_open(struct vfio_device_file *df)
->  {
-> +	struct vfio_device *device = df->device;
->  	int ret;
->  
->  	mutex_lock(&device->group->group_lock);
-> @@ -190,7 +191,11 @@ static int vfio_device_group_open(struct vfio_device *device)
->  	if (device->open_count == 0)
->  		vfio_device_group_get_kvm_safe(device);
->  
-> -	ret = vfio_device_open(device, device->group->iommufd);
-> +	df->iommufd = device->group->iommufd;
-> +
-> +	ret = vfio_device_open(df);
-> +	if (ret)
-> +		df->iommufd = NULL;
->  
->  	if (device->open_count == 0)
->  		vfio_device_put_kvm(device);
-> @@ -202,12 +207,15 @@ static int vfio_device_group_open(struct vfio_device *device)
->  	return ret;
->  }
->  
-> -void vfio_device_group_close(struct vfio_device *device)
-> +void vfio_device_group_close(struct vfio_device_file *df)
->  {
-> +	struct vfio_device *device = df->device;
-> +
->  	mutex_lock(&device->group->group_lock);
->  	mutex_lock(&device->dev_set->lock);
->  
-> -	vfio_device_close(device, device->group->iommufd);
-> +	vfio_device_close(df);
-> +	df->iommufd = NULL; 
->  	if (device->open_count == 0)
->  		vfio_device_put_kvm(device);
-> @@ -228,7 +236,7 @@ static struct file *vfio_device_open_file(struct vfio_device *device)
->  		goto err_out;
->  	}
->  
-> -	ret = vfio_device_group_open(device);
-> +	ret = vfio_device_group_open(df);
->  	if (ret)
->  		goto err_free;
->  
-> @@ -260,7 +268,7 @@ static struct file *vfio_device_open_file(struct vfio_device *device)
->  	return filep;
->  
->  err_close_device:
-> -	vfio_device_group_close(device);
-> +	vfio_device_group_close(df);
->  err_free:
->  	kfree(df);
->  err_out:
-> diff --git a/drivers/vfio/vfio.h b/drivers/vfio/vfio.h
-> index e4672d91a6f7..cffc08f5a6f1 100644
-> --- a/drivers/vfio/vfio.h
-> +++ b/drivers/vfio/vfio.h
-> @@ -20,13 +20,13 @@ struct vfio_device_file {
->  	struct vfio_device *device;
->  	spinlock_t kvm_ref_lock; /* protect kvm field */
->  	struct kvm *kvm;
-> +	struct iommufd_ctx *iommufd; /* protected by struct vfio_device_set::lock */
->  };
->  
->  void vfio_device_put_registration(struct vfio_device *device);
->  bool vfio_device_try_get_registration(struct vfio_device *device);
-> -int vfio_device_open(struct vfio_device *device, struct iommufd_ctx *iommufd);
-> -void vfio_device_close(struct vfio_device *device,
-> -		       struct iommufd_ctx *iommufd);
-> +int vfio_device_open(struct vfio_device_file *df);
-> +void vfio_device_close(struct vfio_device_file *df);
->  struct vfio_device_file *
->  vfio_allocate_device_file(struct vfio_device *device);
->  
-> @@ -91,7 +91,7 @@ void vfio_device_group_register(struct vfio_device *device);
->  void vfio_device_group_unregister(struct vfio_device *device);
->  int vfio_device_group_use_iommu(struct vfio_device *device);
->  void vfio_device_group_unuse_iommu(struct vfio_device *device);
-> -void vfio_device_group_close(struct vfio_device *device);
-> +void vfio_device_group_close(struct vfio_device_file *df);
->  struct vfio_group *vfio_group_from_file(struct file *file);
->  bool vfio_group_has_dev(struct vfio_group *group, struct vfio_device *device);
->  bool vfio_group_enforced_coherent(struct vfio_group *group);
-> diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
-> index cb543791b28b..2ea6cb6d03c7 100644
-> --- a/drivers/vfio/vfio_main.c
-> +++ b/drivers/vfio/vfio_main.c
-> @@ -419,9 +419,10 @@ vfio_allocate_device_file(struct vfio_device *device)
->  	return df;
->  }
->  
-> -static int vfio_device_first_open(struct vfio_device *device,
-> -				  struct iommufd_ctx *iommufd)
-> +static int vfio_device_first_open(struct vfio_device_file *df)
->  {
-> +	struct vfio_device *device = df->device;
-> +	struct iommufd_ctx *iommufd = df->iommufd;
->  	int ret;
->  
->  	lockdep_assert_held(&device->dev_set->lock);
-> @@ -453,9 +454,11 @@ static int vfio_device_first_open(struct vfio_device *device,
->  	return ret;
->  }
->  
-> -static void vfio_device_last_close(struct vfio_device *device,
-> -				   struct iommufd_ctx *iommufd)
-> +static void vfio_device_last_close(struct vfio_device_file *df)
->  {
-> +	struct vfio_device *device = df->device;
-> +	struct iommufd_ctx *iommufd = df->iommufd;
-> +
->  	lockdep_assert_held(&device->dev_set->lock);
->  
->  	if (device->ops->close_device)
-> @@ -467,15 +470,16 @@ static void vfio_device_last_close(struct vfio_device *device,
->  	module_put(device->dev->driver->owner);
->  }
->  
-> -int vfio_device_open(struct vfio_device *device, struct iommufd_ctx *iommufd)
-> +int vfio_device_open(struct vfio_device_file *df)
->  {
-> +	struct vfio_device *device = df->device;
->  	int ret = 0;
->  
->  	lockdep_assert_held(&device->dev_set->lock);
->  
->  	device->open_count++;
->  	if (device->open_count == 1) {
-> -		ret = vfio_device_first_open(device, iommufd);
-> +		ret = vfio_device_first_open(df);
->  		if (ret)
->  			device->open_count--;
->  	}
-> @@ -483,14 +487,15 @@ int vfio_device_open(struct vfio_device *device, struct iommufd_ctx *iommufd)
->  	return ret;
->  }
->  
-> -void vfio_device_close(struct vfio_device *device,
-> -		       struct iommufd_ctx *iommufd)
-> +void vfio_device_close(struct vfio_device_file *df)
->  {
-> +	struct vfio_device *device = df->device;
-> +
->  	lockdep_assert_held(&device->dev_set->lock);
->  
->  	vfio_assert_device_open(device);
->  	if (device->open_count == 1)
-> -		vfio_device_last_close(device, iommufd);
-> +		vfio_device_last_close(df);
->  	device->open_count--;
->  }
->  
-> @@ -535,7 +540,7 @@ static int vfio_device_fops_release(struct inode *inode, struct file *filep)
->  	struct vfio_device_file *df = filep->private_data;
->  	struct vfio_device *device = df->device;
->  
-> -	vfio_device_group_close(device);
-> +	vfio_device_group_close(df);
->  
->  	vfio_device_put_registration(device);
->  
+Yes, IPIs to vCPU (guest context). In this case we can consider
+an IPI to the host pCPU (which requires VM-exit from guest context).
 
+> Also virt... /me walks away.
+> 
+> > 2) Depends on the application and the definition of "occasional".
+> > 
+> > For certain types of applications (for example PLC software or
+> > RAN processing), upon occurrence of an event, it is necessary to
+> > complete a certain task in a maximum amount of time (deadline).
+> 
+> If the application is properly NOHZ_FULL and never does a kernel entry,
+> it will never get that IPI. If it is a pile of shit and does kernel
+> entries while it pretends to be NOHZ_FULL it gets to keep the pieces and
+> no amount of crying will get me to care.
 
-Maybe it reduces the number of parameters but the diffstat shows it does
-not really simplify the code overall. I am not really sure it was worth
-and the df->iommufd pre and post-setting is not really nice looking to me.
+I suppose its common practice to use certain system calls in latency
+sensitive applications, for example nanosleep. Some examples:
 
-But well it others are OK ...
+1) cyclictest		(nanosleep)
+2) PLC programs		(nanosleep)
 
-Reviewed-by: Eric Auger <eric.auger@redhat.com>
+A system call does not necessarily have to take locks, does it ?
 
-Thanks
+Or even if application does system calls, but runs under a VM,
+then you are requiring it to never VM-exit.
 
-Eric
+This reduces the flexibility of developing such applications.
+
 
 
