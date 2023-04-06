@@ -2,97 +2,291 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 719E2C76196
-	for <linux-s390@archiver.kernel.org>; Thu,  6 Apr 2023 11:37:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BD5DCC761A6
+	for <linux-s390@archiver.kernel.org>; Thu,  6 Apr 2023 12:44:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229784AbjDFLh6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 6 Apr 2023 07:37:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35052 "EHLO
+        id S236840AbjDFMow (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 6 Apr 2023 08:44:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238507AbjDFLhZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 Apr 2023 07:37:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D77C3A5F5;
-        Thu,  6 Apr 2023 04:34:43 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D10D6468E;
-        Thu,  6 Apr 2023 11:34:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33110C433EF;
-        Thu,  6 Apr 2023 11:34:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1680780877;
-        bh=xgr17dnXP2bP9LZwc8V5hVCpG2/EpjRC5X6T29T4Hm0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nlb39mxt6C1itqtEgJqHgPjB0MrZad4l1rFI47w+vseoS3kZ9I9VOxNMzBUZMsDtR
-         5M74EJkaVtJH63ktFDZepPOdmCncHdbVz/EYtW03kn61ojFrbswpgeWavCJ8An5GCc
-         /9lWWcDB0rtXLy6F9OgNFHEFNsZgJu0RD0o1baveqzUTbN9RBywj7bqxzwnb4XNAMO
-         dxCjlfdetl2ex3ATnxxbBQnPm+0egA21OJj/S/MrMmuMn9GwZ4ZMZp6XsFeDrrXzf2
-         f0SzyX8udN0I8SX4t+EKukGHV9AwZXt0AvSHnMlRKxMymrcfYs3zn5KJmZ/0to/GgZ
-         eQSqTvVEF1CFQ==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, oleg@redhat.com,
-        agordeev@linux.ibm.com, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 6/7] s390/ptrace: fix PTRACE_GET_LAST_BREAK error handling
-Date:   Thu,  6 Apr 2023 07:34:20 -0400
-Message-Id: <20230406113421.649149-6-sashal@kernel.org>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230406113421.649149-1-sashal@kernel.org>
-References: <20230406113421.649149-1-sashal@kernel.org>
+        with ESMTP id S237335AbjDFMoZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 Apr 2023 08:44:25 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63BE0526C
+        for <linux-s390@vger.kernel.org>; Thu,  6 Apr 2023 05:43:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1680785016;
+        h=from:from:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=zVBvata7Mm/MkYzuOlGNnL4nXILAvoWW7w+2UKjzgAI=;
+        b=as7DtqJSbwrYnazkv9oFXlFVszXSu+4IJl59yPnOnbtFec1fK97yaie7TzvCVQD+v2dwwb
+        BwppL8Hw8sJ4G80SeEXE3OAzCXfk2rwMO4eFVyoBep0V6XYO/40iJ0Jdo1o44g4JLZG6BL
+        WCDmoRFK5D/dXGoWr/uw8eMJDo5khbY=
+Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
+ [209.85.222.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-495-fRfdgKMqPAGTl_8oqIq8CA-1; Thu, 06 Apr 2023 08:43:28 -0400
+X-MC-Unique: fRfdgKMqPAGTl_8oqIq8CA-1
+Received: by mail-qk1-f199.google.com with SMTP id r197-20020a37a8ce000000b0074a59c12b10so3695277qke.5
+        for <linux-s390@vger.kernel.org>; Thu, 06 Apr 2023 05:43:28 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1680785007;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:reply-to:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=zVBvata7Mm/MkYzuOlGNnL4nXILAvoWW7w+2UKjzgAI=;
+        b=yvtfOoxl21rYXzJJQ8O+O8jQ74I/u9BuDtnr5Nkbto26fUyh10GD6LZ+u7ACHVq2Hu
+         UPuLo3V+xuz6IxOmuv2pIfRBzDk8NwucaDJmQRXazQTX6PpGDjjOBVUjbfKWNXI0oef/
+         tIojEaviNgkdENG1WwxQ9PYoT5YBPlw7TLPWnHvJHzyLqRLUbm3j2b/7uVfeu5xlztt7
+         xvT8jGqRShxjPaInmynjYexveDfk6msH2MuYOr7mNrFwQ1vgf+8MnhfPnI6uedJq4BD9
+         DYaVLnbhq3JNts1/8yE8I8zMjmgszBh+J9ZU4xg88yU9aeTAckeDgkjPDkLoATwibcsY
+         JFhA==
+X-Gm-Message-State: AAQBX9evUAkQTPFOYLiLuOAp8CGH1uZsbsVrtDq+gXIhqHLai3YXzpn3
+        HKPkMr36OGaIl6IC+dwKr/0pDQ9YnCTnIhVJBAV0/BBWTexcm+c/J7dfcnW8om2Zkxw7DXaceSF
+        YCEjPWU4VqxgVz271bODyYQ==
+X-Received: by 2002:ad4:5bc8:0:b0:5e0:47aa:40a6 with SMTP id t8-20020ad45bc8000000b005e047aa40a6mr4199233qvt.16.1680785007403;
+        Thu, 06 Apr 2023 05:43:27 -0700 (PDT)
+X-Google-Smtp-Source: AKy350ZZZBqkuCClmoQgew7Ga8w32aTpkf+0gTr7Gw2GardEq9kUBzOQNp2reLEna5OkSDHXP104GA==
+X-Received: by 2002:ad4:5bc8:0:b0:5e0:47aa:40a6 with SMTP id t8-20020ad45bc8000000b005e047aa40a6mr4199207qvt.16.1680785007046;
+        Thu, 06 Apr 2023 05:43:27 -0700 (PDT)
+Received: from ?IPV6:2a01:e0a:59e:9d80:527b:9dff:feef:3874? ([2a01:e0a:59e:9d80:527b:9dff:feef:3874])
+        by smtp.gmail.com with ESMTPSA id j5-20020a056214022500b005dd8b93459esm488119qvt.54.2023.04.06.05.43.22
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 06 Apr 2023 05:43:25 -0700 (PDT)
+Message-ID: <1520dad3-6858-28c4-08d0-503905a9933e@redhat.com>
+Date:   Thu, 6 Apr 2023 14:43:18 +0200
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.5.0
+Reply-To: eric.auger@redhat.com
+Subject: Re: [PATCH v9 07/25] vfio: Pass struct vfio_device_file * to
+ vfio_device_open/close()
+Content-Language: en-US
+To:     Yi Liu <yi.l.liu@intel.com>, alex.williamson@redhat.com,
+        jgg@nvidia.com, kevin.tian@intel.com
+Cc:     joro@8bytes.org, robin.murphy@arm.com, cohuck@redhat.com,
+        nicolinc@nvidia.com, kvm@vger.kernel.org, mjrosato@linux.ibm.com,
+        chao.p.peng@linux.intel.com, yi.y.sun@linux.intel.com,
+        peterx@redhat.com, jasowang@redhat.com,
+        shameerali.kolothum.thodi@huawei.com, lulu@redhat.com,
+        suravee.suthikulpanit@amd.com, intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, linux-s390@vger.kernel.org,
+        xudong.hao@intel.com, yan.y.zhao@intel.com, terrence.xu@intel.com,
+        yanting.jiang@intel.com
+References: <20230401151833.124749-1-yi.l.liu@intel.com>
+ <20230401151833.124749-8-yi.l.liu@intel.com>
+From:   Eric Auger <eric.auger@redhat.com>
+In-Reply-To: <20230401151833.124749-8-yi.l.liu@intel.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+Hi Yi,
 
-[ Upstream commit f9bbf25e7b2b74b52b2f269216a92657774f239c ]
+On 4/1/23 17:18, Yi Liu wrote:
+> This avoids passing too much parameters in multiple functions.
+> Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+> Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+> Tested-by: Terrence Xu <terrence.xu@intel.com>
+> Tested-by: Nicolin Chen <nicolinc@nvidia.com>
+> Tested-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> Tested-by: Yanting Jiang <yanting.jiang@intel.com>
+> Signed-off-by: Yi Liu <yi.l.liu@intel.com>
+> ---
+>  drivers/vfio/group.c     | 20 ++++++++++++++------
+>  drivers/vfio/vfio.h      |  8 ++++----
+>  drivers/vfio/vfio_main.c | 25 +++++++++++++++----------
+>  3 files changed, 33 insertions(+), 20 deletions(-)
+>
+> diff --git a/drivers/vfio/group.c b/drivers/vfio/group.c
+> index 4f937ebaf6f7..9a7b2765eef6 100644
+> --- a/drivers/vfio/group.c
+> +++ b/drivers/vfio/group.c
+> @@ -169,8 +169,9 @@ static void vfio_device_group_get_kvm_safe(struct vfio_device *device)
+>  	spin_unlock(&device->group->kvm_ref_lock);
+>  }
+>  
+> -static int vfio_device_group_open(struct vfio_device *device)
+> +static int vfio_device_group_open(struct vfio_device_file *df)
+>  {
+> +	struct vfio_device *device = df->device;
+>  	int ret;
+>  
+>  	mutex_lock(&device->group->group_lock);
+> @@ -190,7 +191,11 @@ static int vfio_device_group_open(struct vfio_device *device)
+>  	if (device->open_count == 0)
+>  		vfio_device_group_get_kvm_safe(device);
+>  
+> -	ret = vfio_device_open(device, device->group->iommufd);
+> +	df->iommufd = device->group->iommufd;
+> +
+> +	ret = vfio_device_open(df);
+> +	if (ret)
+> +		df->iommufd = NULL;
+>  
+>  	if (device->open_count == 0)
+>  		vfio_device_put_kvm(device);
+> @@ -202,12 +207,15 @@ static int vfio_device_group_open(struct vfio_device *device)
+>  	return ret;
+>  }
+>  
+> -void vfio_device_group_close(struct vfio_device *device)
+> +void vfio_device_group_close(struct vfio_device_file *df)
+>  {
+> +	struct vfio_device *device = df->device;
+> +
+>  	mutex_lock(&device->group->group_lock);
+>  	mutex_lock(&device->dev_set->lock);
+>  
+> -	vfio_device_close(device, device->group->iommufd);
+> +	vfio_device_close(df);
+> +	df->iommufd = NULL; 
+>  	if (device->open_count == 0)
+>  		vfio_device_put_kvm(device);
+> @@ -228,7 +236,7 @@ static struct file *vfio_device_open_file(struct vfio_device *device)
+>  		goto err_out;
+>  	}
+>  
+> -	ret = vfio_device_group_open(device);
+> +	ret = vfio_device_group_open(df);
+>  	if (ret)
+>  		goto err_free;
+>  
+> @@ -260,7 +268,7 @@ static struct file *vfio_device_open_file(struct vfio_device *device)
+>  	return filep;
+>  
+>  err_close_device:
+> -	vfio_device_group_close(device);
+> +	vfio_device_group_close(df);
+>  err_free:
+>  	kfree(df);
+>  err_out:
+> diff --git a/drivers/vfio/vfio.h b/drivers/vfio/vfio.h
+> index e4672d91a6f7..cffc08f5a6f1 100644
+> --- a/drivers/vfio/vfio.h
+> +++ b/drivers/vfio/vfio.h
+> @@ -20,13 +20,13 @@ struct vfio_device_file {
+>  	struct vfio_device *device;
+>  	spinlock_t kvm_ref_lock; /* protect kvm field */
+>  	struct kvm *kvm;
+> +	struct iommufd_ctx *iommufd; /* protected by struct vfio_device_set::lock */
+>  };
+>  
+>  void vfio_device_put_registration(struct vfio_device *device);
+>  bool vfio_device_try_get_registration(struct vfio_device *device);
+> -int vfio_device_open(struct vfio_device *device, struct iommufd_ctx *iommufd);
+> -void vfio_device_close(struct vfio_device *device,
+> -		       struct iommufd_ctx *iommufd);
+> +int vfio_device_open(struct vfio_device_file *df);
+> +void vfio_device_close(struct vfio_device_file *df);
+>  struct vfio_device_file *
+>  vfio_allocate_device_file(struct vfio_device *device);
+>  
+> @@ -91,7 +91,7 @@ void vfio_device_group_register(struct vfio_device *device);
+>  void vfio_device_group_unregister(struct vfio_device *device);
+>  int vfio_device_group_use_iommu(struct vfio_device *device);
+>  void vfio_device_group_unuse_iommu(struct vfio_device *device);
+> -void vfio_device_group_close(struct vfio_device *device);
+> +void vfio_device_group_close(struct vfio_device_file *df);
+>  struct vfio_group *vfio_group_from_file(struct file *file);
+>  bool vfio_group_has_dev(struct vfio_group *group, struct vfio_device *device);
+>  bool vfio_group_enforced_coherent(struct vfio_group *group);
+> diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
+> index cb543791b28b..2ea6cb6d03c7 100644
+> --- a/drivers/vfio/vfio_main.c
+> +++ b/drivers/vfio/vfio_main.c
+> @@ -419,9 +419,10 @@ vfio_allocate_device_file(struct vfio_device *device)
+>  	return df;
+>  }
+>  
+> -static int vfio_device_first_open(struct vfio_device *device,
+> -				  struct iommufd_ctx *iommufd)
+> +static int vfio_device_first_open(struct vfio_device_file *df)
+>  {
+> +	struct vfio_device *device = df->device;
+> +	struct iommufd_ctx *iommufd = df->iommufd;
+>  	int ret;
+>  
+>  	lockdep_assert_held(&device->dev_set->lock);
+> @@ -453,9 +454,11 @@ static int vfio_device_first_open(struct vfio_device *device,
+>  	return ret;
+>  }
+>  
+> -static void vfio_device_last_close(struct vfio_device *device,
+> -				   struct iommufd_ctx *iommufd)
+> +static void vfio_device_last_close(struct vfio_device_file *df)
+>  {
+> +	struct vfio_device *device = df->device;
+> +	struct iommufd_ctx *iommufd = df->iommufd;
+> +
+>  	lockdep_assert_held(&device->dev_set->lock);
+>  
+>  	if (device->ops->close_device)
+> @@ -467,15 +470,16 @@ static void vfio_device_last_close(struct vfio_device *device,
+>  	module_put(device->dev->driver->owner);
+>  }
+>  
+> -int vfio_device_open(struct vfio_device *device, struct iommufd_ctx *iommufd)
+> +int vfio_device_open(struct vfio_device_file *df)
+>  {
+> +	struct vfio_device *device = df->device;
+>  	int ret = 0;
+>  
+>  	lockdep_assert_held(&device->dev_set->lock);
+>  
+>  	device->open_count++;
+>  	if (device->open_count == 1) {
+> -		ret = vfio_device_first_open(device, iommufd);
+> +		ret = vfio_device_first_open(df);
+>  		if (ret)
+>  			device->open_count--;
+>  	}
+> @@ -483,14 +487,15 @@ int vfio_device_open(struct vfio_device *device, struct iommufd_ctx *iommufd)
+>  	return ret;
+>  }
+>  
+> -void vfio_device_close(struct vfio_device *device,
+> -		       struct iommufd_ctx *iommufd)
+> +void vfio_device_close(struct vfio_device_file *df)
+>  {
+> +	struct vfio_device *device = df->device;
+> +
+>  	lockdep_assert_held(&device->dev_set->lock);
+>  
+>  	vfio_assert_device_open(device);
+>  	if (device->open_count == 1)
+> -		vfio_device_last_close(device, iommufd);
+> +		vfio_device_last_close(df);
+>  	device->open_count--;
+>  }
+>  
+> @@ -535,7 +540,7 @@ static int vfio_device_fops_release(struct inode *inode, struct file *filep)
+>  	struct vfio_device_file *df = filep->private_data;
+>  	struct vfio_device *device = df->device;
+>  
+> -	vfio_device_group_close(device);
+> +	vfio_device_group_close(df);
+>  
+>  	vfio_device_put_registration(device);
+>  
 
-Return -EFAULT if put_user() for the PTRACE_GET_LAST_BREAK
-request fails, instead of silently ignoring it.
 
-Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/kernel/ptrace.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+Maybe it reduces the number of parameters but the diffstat shows it does
+not really simplify the code overall. I am not really sure it was worth
+and the df->iommufd pre and post-setting is not really nice looking to me.
 
-diff --git a/arch/s390/kernel/ptrace.c b/arch/s390/kernel/ptrace.c
-index 42e4cd20fbbed..7c635e4328b87 100644
---- a/arch/s390/kernel/ptrace.c
-+++ b/arch/s390/kernel/ptrace.c
-@@ -500,9 +500,7 @@ long arch_ptrace(struct task_struct *child, long request,
- 		}
- 		return 0;
- 	case PTRACE_GET_LAST_BREAK:
--		put_user(child->thread.last_break,
--			 (unsigned long __user *) data);
--		return 0;
-+		return put_user(child->thread.last_break, (unsigned long __user *)data);
- 	case PTRACE_ENABLE_TE:
- 		if (!MACHINE_HAS_TE)
- 			return -EIO;
-@@ -854,9 +852,7 @@ long compat_arch_ptrace(struct task_struct *child, compat_long_t request,
- 		}
- 		return 0;
- 	case PTRACE_GET_LAST_BREAK:
--		put_user(child->thread.last_break,
--			 (unsigned int __user *) data);
--		return 0;
-+		return put_user(child->thread.last_break, (unsigned int __user *)data);
- 	}
- 	return compat_ptrace_request(child, request, addr, data);
- }
--- 
-2.39.2
+But well it others are OK ...
+
+Reviewed-by: Eric Auger <eric.auger@redhat.com>
+
+Thanks
+
+Eric
+
 
