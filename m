@@ -2,60 +2,60 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F350C7618D
-	for <linux-s390@archiver.kernel.org>; Thu,  6 Apr 2023 17:08:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C2FB0C76196
+	for <linux-s390@archiver.kernel.org>; Thu,  6 Apr 2023 17:54:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236270AbjDFRI2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 6 Apr 2023 13:08:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48094 "EHLO
+        id S239471AbjDFRyg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 6 Apr 2023 13:54:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239917AbjDFRI1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 Apr 2023 13:08:27 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24DFE86AD
-        for <linux-s390@vger.kernel.org>; Thu,  6 Apr 2023 10:07:42 -0700 (PDT)
+        with ESMTP id S239513AbjDFRyf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 Apr 2023 13:54:35 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D9BE49CA
+        for <linux-s390@vger.kernel.org>; Thu,  6 Apr 2023 10:53:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1680800861;
+        s=mimecast20190719; t=1680803633;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=CYs/YTBPAeoCCyWf8iNbjYyQ4fg6NFRZSOGDs3dDQx0=;
-        b=D84xwKyAx9EoiGU87w24Bwp3CojSfjCqWOHa1ADfjQPYszUtl/ZAVVuoMyETr/uSLCYSRL
-        WrkGoymCn22Fu/1yE7mf8xIkDg0oWXl70zd5FefViPb7ef+964CCbxWu02F1yOLToF46Ao
-        khrxj/+zXVk0Txyx0qq99zrvcC94pmM=
-Received: from mail-il1-f197.google.com (mail-il1-f197.google.com
- [209.85.166.197]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=7432+6OEWamz5qY/mgHPY11Z1KTJKe8+IEhwreLZ3sM=;
+        b=ZbLemHJ8cs5J1PqoLotGILxqKyf4b3jShOSJad7a523y09is50QDHtzL2lTuHFPjqD5qf5
+        z/9gaO/FL8H3LKrgEu+YRmHk/B8y2xpJec4UzDRrvaCxpHRoDqmGKWMGLUOBmQABmJhsSV
+        XnKa11fQN/z1O1YvUucZiTBWWGHRjG4=
+Received: from mail-io1-f71.google.com (mail-io1-f71.google.com
+ [209.85.166.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-399-yVABJigvP7m2YKp61je4rw-1; Thu, 06 Apr 2023 13:07:40 -0400
-X-MC-Unique: yVABJigvP7m2YKp61je4rw-1
-Received: by mail-il1-f197.google.com with SMTP id z7-20020a921a47000000b0032600db79f7so22701748ill.18
-        for <linux-s390@vger.kernel.org>; Thu, 06 Apr 2023 10:07:40 -0700 (PDT)
+ us-mta-286-b1ykikOrPHOS0mHrMNKhxw-1; Thu, 06 Apr 2023 13:53:50 -0400
+X-MC-Unique: b1ykikOrPHOS0mHrMNKhxw-1
+Received: by mail-io1-f71.google.com with SMTP id i4-20020a6b5404000000b0075ff3fb6f4cso9267937iob.9
+        for <linux-s390@vger.kernel.org>; Thu, 06 Apr 2023 10:53:50 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680800859; x=1683392859;
+        d=1e100.net; s=20210112; t=1680803630; x=1683395630;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=CYs/YTBPAeoCCyWf8iNbjYyQ4fg6NFRZSOGDs3dDQx0=;
-        b=baEvHccFH88a+qXNpdAEkFQRXStyC2+sWFqXEuS3ndbi4vuJY1xIZn3fVhxfVHHiVJ
-         3UMUob4Hw3pRThCnxE89yN2hKZbRi9tqC+UXMU590j69CI0hY+K599H+agaGnmhc1OE4
-         ew0WImdzgG9ybP33QO/GNTwsnlQScOurn5Ng8vnDUi3JTAV+qPUP4bv0+Ojzc7iqcSw6
-         inmFRdIsKstVuTDt3x10FXOzttC7q5ipbEBh0mMVfohjTfBSKEUIJUuBYqWeRlb9gsql
-         MnvKXEpKnBODj5vgYFzWjw/dOCSxNDpJUK7m7Fv8ZoaFzzuBkVa0o+6hzbbKhLOmuDFi
-         wV5Q==
-X-Gm-Message-State: AAQBX9eAGUVd1OPGUaA1H3fdJjqw2zVDE2NiXW93Ca+y4LPkp7mTYDYe
-        rYEpW9v0Rt3amtqCCPEAiLTKzvKSktDtS4yshfHUpPohL2c+3yfvwJfiQjzdhROV+OjeYmlLCIS
-        u8RbZ/UnjJELBUR89YohOkg==
-X-Received: by 2002:a6b:dc12:0:b0:760:932:6540 with SMTP id s18-20020a6bdc12000000b0076009326540mr199361ioc.5.1680800859193;
-        Thu, 06 Apr 2023 10:07:39 -0700 (PDT)
-X-Google-Smtp-Source: AKy350bgCWzDSICKLPrjf6kX9FAgkvxckObpMsDIUL+65Km3Qn1IhEw3KlB4zvoWm6GDUacxz8McNg==
-X-Received: by 2002:a6b:dc12:0:b0:760:932:6540 with SMTP id s18-20020a6bdc12000000b0076009326540mr199331ioc.5.1680800858848;
-        Thu, 06 Apr 2023 10:07:38 -0700 (PDT)
+        bh=7432+6OEWamz5qY/mgHPY11Z1KTJKe8+IEhwreLZ3sM=;
+        b=RY7jBGrUQyuEApxjfpbmIq6SHaNmJDaRxrkMT3KuVbCHpeTJlqghWA2FI6Gi0UHer4
+         X44h3QUgdVymj7h4sw6M/slQAoPP4npJmakg234EMNI6F2T8bo0UEE/S0UasO+UmgrrQ
+         BiuDxOyMOsz9pXyC4Pu5aFLIfgAC9YgDDfauTIf1SdBGtke/KifDvrIa3jcTV7UA6O3j
+         NOg2hSa2jS0kanWovj4vA/sExiP7dbAAHRK/uFZuyzcTGhdYdzLohT8gWr5bzICVrC9r
+         jZID5+IyLEuFMX5B3vmvIC80mgM7EEJWuBgtck3Ol7EXOlTxW34MLe2VFm7WZRP2DQOH
+         VzTw==
+X-Gm-Message-State: AAQBX9ePAHUpwvavjjl7ccelFxDWyL+R4F6AD9Dv2tz3PhgTgVrOEfwM
+        wTULDo0FQ5PICPkRvPJt1uCiThH6SvjoU+wodw0TytmGbNCJeiPeb2EG/YvFCQFxKi7frTe6L15
+        j1Go7F9O+dDP2n3904NUKAA==
+X-Received: by 2002:a05:6e02:1449:b0:325:ede7:b166 with SMTP id p9-20020a056e02144900b00325ede7b166mr4688216ilo.3.1680803629714;
+        Thu, 06 Apr 2023 10:53:49 -0700 (PDT)
+X-Google-Smtp-Source: AKy350a4MFsLMs30oCa+LYnnAaACb5bDlBMgSky/nYRVNUtYLOEQcrEn7bi092ewGn4aMFuU6a9oqg==
+X-Received: by 2002:a05:6e02:1449:b0:325:ede7:b166 with SMTP id p9-20020a056e02144900b00325ede7b166mr4688190ilo.3.1680803629360;
+        Thu, 06 Apr 2023 10:53:49 -0700 (PDT)
 Received: from redhat.com ([38.15.36.239])
-        by smtp.gmail.com with ESMTPSA id p16-20020a056638191000b003b015157f47sm514912jal.9.2023.04.06.10.07.37
+        by smtp.gmail.com with ESMTPSA id cd9-20020a0566381a0900b00408c3aa8f4dsm528131jab.63.2023.04.06.10.53.48
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 06 Apr 2023 10:07:38 -0700 (PDT)
-Date:   Thu, 6 Apr 2023 11:07:36 -0600
+        Thu, 06 Apr 2023 10:53:48 -0700 (PDT)
+Date:   Thu, 6 Apr 2023 11:53:47 -0600
 From:   Alex Williamson <alex.williamson@redhat.com>
 To:     "Liu, Yi L" <yi.l.liu@intel.com>
 Cc:     Jason Gunthorpe <jgg@nvidia.com>,
@@ -82,13 +82,13 @@ Cc:     Jason Gunthorpe <jgg@nvidia.com>,
         "Hao, Xudong" <xudong.hao@intel.com>,
         "Zhao, Yan Y" <yan.y.zhao@intel.com>,
         "Xu, Terrence" <terrence.xu@intel.com>,
-        "Jiang, Yanting" <yanting.jiang@intel.com>
+        "Jiang, Yanting" <yanting.jiang@intel.com>,
+        "Duan, Zhenzhong" <zhenzhong.duan@intel.com>
 Subject: Re: [PATCH v3 12/12] vfio/pci: Report dev_id in
  VFIO_DEVICE_GET_PCI_HOT_RESET_INFO
-Message-ID: <20230406110736.335ad2e8.alex.williamson@redhat.com>
-In-Reply-To: <DS0PR11MB752987A5B996D93582F8A8BCC3919@DS0PR11MB7529.namprd11.prod.outlook.com>
-References: <20230401144429.88673-1-yi.l.liu@intel.com>
-        <20230401144429.88673-13-yi.l.liu@intel.com>
+Message-ID: <20230406115347.7af28448.alex.williamson@redhat.com>
+In-Reply-To: <DS0PR11MB75292DA91ED15AE94A85EB3DC3919@DS0PR11MB7529.namprd11.prod.outlook.com>
+References: <20230401144429.88673-13-yi.l.liu@intel.com>
         <a937e622-ce32-6dda-d77c-7d8d76474ee0@redhat.com>
         <DS0PR11MB7529D4E354C3B85D7698017DC3909@DS0PR11MB7529.namprd11.prod.outlook.com>
         <20230405102545.41a61424.alex.williamson@redhat.com>
@@ -98,7 +98,8 @@ References: <20230401144429.88673-1-yi.l.liu@intel.com>
         <20230405125621.4627ca19.alex.williamson@redhat.com>
         <ZC3KJUxJa0O0M+9O@nvidia.com>
         <20230405134945.29e967be.alex.williamson@redhat.com>
-        <DS0PR11MB752987A5B996D93582F8A8BCC3919@DS0PR11MB7529.namprd11.prod.outlook.com>
+        <ZC4CwH2ouTfZ9DNN@nvidia.com>
+        <DS0PR11MB75292DA91ED15AE94A85EB3DC3919@DS0PR11MB7529.namprd11.prod.outlook.com>
 X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -107,157 +108,198 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 6 Apr 2023 06:34:08 +0000
+On Thu, 6 Apr 2023 10:02:10 +0000
 "Liu, Yi L" <yi.l.liu@intel.com> wrote:
 
-> Hi Alex,
-> 
-> > From: Alex Williamson <alex.williamson@redhat.com>
-> > Sent: Thursday, April 6, 2023 3:50 AM
+> > From: Jason Gunthorpe <jgg@nvidia.com>
+> > Sent: Thursday, April 6, 2023 7:23 AM
 > > 
-> > On Wed, 5 Apr 2023 16:21:09 -0300
-> > Jason Gunthorpe <jgg@nvidia.com> wrote:
+> > On Wed, Apr 05, 2023 at 01:49:45PM -0600, Alex Williamson wrote:
 > >   
-> > > On Wed, Apr 05, 2023 at 12:56:21PM -0600, Alex Williamson wrote:  
-> > > > Usability needs to be a consideration as well.  An interface where the
-> > > > result is effectively arbitrary from a user perspective because the
-> > > > kernel is solely focused on whether the operation is allowed,
-> > > > evaluating constraints that the user is unaware of and cannot control,
-> > > > is unusable.  
-> > >
-> > > Considering this API is only invoked by qemu we might be overdoing
-> > > this usability and 'no shoot in foot' view.  
-> > 
-> > Ok, I'm not sure why we're diminishing the de facto vfio userspace...
-> >   
-> > > > > This is a good point that qemu needs to make a policy decision if it
-> > > > > is happy about the VFIO configuration - but that is a policy decision
-> > > > > that should not become entangled with the kernel's security checks.
-> > > > >
-> > > > > Today qemu can make this policy choice the same way it does right now
-> > > > > - call _INFO and check the group_ids. It gets the exact same outcome
-> > > > > as today. We already discussed that we need to expose the group ID
-> > > > > through an ioctl someplace.  
+> > > > > QEMU can make a policy decision today because the kernel provides a
+> > > > > sufficiently reliable interface, ie. based on the set of owned groups, a
+> > > > > hot-reset is all but guaranteed to work.  
 > > > >
-> > > > QEMU can make a policy decision today because the kernel provides a
-> > > > sufficiently reliable interface, ie. based on the set of owned groups, a
-> > > > hot-reset is all but guaranteed to work.  
-> > >
-> > > And we don't change that with cdev. If qemu wants to make the policy
-> > > decision it keeps using the exact same _INFO interface to make that
-> > > decision same it has always made.
-> > >
-> > > We weaken the actual reset action to only consider the security side.
-> > >
-> > > Applications that want this exclusive reset group policy simply must
-> > > check it on their own. It is a reasonable API design.  
-> > 
-> > I disagree, as I've argued before, the info ioctl becomes so weak and
-> > effectively arbitrary from a user perspective at being able to predict
-> > whether the hot-reset ioctl works that it becomes useless, diminishing
-> > the entire hot-reset info/execute API.
-> >   
-> > > > > If this is too awkward we could add a query to the kernel if the cdev
-> > > > > is "reset exclusive" - eg the iommufd covers all the groups that span
-> > > > > the reset set.  
+> > > > And we don't change that with cdev. If qemu wants to make the policy
+> > > > decision it keeps using the exact same _INFO interface to make that
+> > > > decision same it has always made.
 > > > >
-> > > > That's essentially what we have if there are valid dev-ids for each
-> > > > affected device in the info ioctl.  
+> > > > We weaken the actual reset action to only consider the security side.
+> > > >
+> > > > Applications that want this exclusive reset group policy simply must
+> > > > check it on their own. It is a reasonable API design.  
 > > >
-> > > If you have dev-ids for everything, yes. If you don't, then you can't
-> > > make the same policy choice using a dev-id interface.  
+> > > I disagree, as I've argued before, the info ioctl becomes so weak and
+> > > effectively arbitrary from a user perspective at being able to predict
+> > > whether the hot-reset ioctl works that it becomes useless, diminishing
+> > > the entire hot-reset info/execute API.  
 > > 
-> > Exactly, you can't make any policy choice because the success or
-> > failure of the hot-reset ioctl can't be known.  
+> > reset should be strictly more permissive than INFO. If INFO predicts
+> > reset is permitted then reset should succeed.
+> > 
+> > We don't change INFO so it cannot "becomes so weak"  ??
+> > 
+> > We don't care about the cases where INFO says it will not succeed but
+> > reset does (temporarily) succeed.
+> > 
+> > I don't get what argument you are trying to make or what you think is
+> > diminished..
+> > 
+> > Again, userspace calls INFO, if info says yes then reset *always
+> > works*, exactly just like today.
+> >
+> > Userspace will call reset with a 0 length FD list and it uses a
+> > security only check that is strictly more permissive than what
+> > get_info will return. So the new check is simple in the kernel and
+> > always works in the cases we need it to work.
+> > 
+> > What is getting things into trouble is insisting that RESET have
+> > additional restrictions beyond the minimum checks required for
+> > security.
+> >   
+> > > > I don't view it as a loophole, it is flexability to use the API in a
+> > > > way that is different from what qemu wants - eg an app like dpdk may
+> > > > be willing to tolerate a reset group that becomes unavailable after
+> > > > startup. Who knows, why should we force this in the kernel?  
+> > >
+> > > Because look at all the problems it's causing to try to introduce these
+> > > loopholes without also introducing subtle bugs.  
+> > 
+> > These problems are coming from tring to do this integrated version,
+> > not from my approach!
+> > 
+> > AFAICT there was nothing wrong with my original plan of using the
+> > empty fd list for reset. What Yi has here is some mashup of what you
+> > and I both suggested.  
 > 
-> could you elaborate a bit about what the policy is here. As far as I know,
-> QEMU makes use of the information reported by _INFO to check:
-> - if all the affected groups are owned by the current QEMU[1]
-> - if the affected devices are opened by the current QEMU, if yes, QEMU
->   needs to use vfio_pci_pre_reset() to do preparation before issuing
->   hot rest[1]
+> Hi Alex, Jason,
 > 
-> [1] vfio_pci_hot_reset() in https://github.com/qemu/qemu/blob/master/hw/vfio/pci.c
+> could be this reason. So let me try to gather the changes of this series
+> does and the impact as far as I know.
+> 
+> 1) only check the ownership of opened devices in the dev_set
+>      in HOT_RESET ioctl.
+>      - Impact: it changes the relationship between _INFO  and HOT_RESET.
+>        As " Each group must have IOMMU protection established for the
+>        ioctl to succeed." in [1], existing design actually means userspace
+>        should own all the affected groups before heading to do HOT_RESET.
+>        With the change here, the user does not need to ensure all affected
+>        groups are opened and it can do hot-reset successfully as long as the
+>        devices in the affected group are just un-opened and can be reset.
+>     
+>        [1] https://patchwork.kernel.org/project/linux-pci/patch/20130814200845.21923.64284.stgit@bling.home/
 
-Regarding the policy decisions, look for instance at the distinction
-between vfio_pci_hot_reset_one() vs vfio_pci_hot_reset_multi(), or the
-way QEMU will opt for a bus reset if it believes only a PM reset is
-available.
-
-In my proposal, I did miss that if _INFO reports the group and bdf that
-allows QEMU to associate fd passed devices to a group affected by the
-reset, but not specifically whether the device is affected by the
-reset.  I think that would be justification for capabilities on the
-DEVICE_GET_INFO ioctl to report both the group and PCI address as
-separate capabilities.
+Where whether a device is opened is subject to change outside of the
+user's control.  This essentially allows the user to perform hot-resets
+of devices outside of their ownership so long as the device is not
+used elsewhere, versus the current requirement that the user own all the
+affected groups, which implies device ownership.  It's not been
+justified why this feature needs to exist, imo.
  
-> > > > I don't think it helps the user experience to create loopholes where
-> > > > the hot-reset ioctl can still work in spite of those missing
-> > > > devices.  
-> > >
-> > > I disagree. The easy straightforward design is that the reset ioctl
-> > > works if the process has security permissions. Mixing a policy check
-> > > into the kernel on this path is creating complexity we don't really
-> > > need.
-> > >
-> > > I don't view it as a loophole, it is flexability to use the API in a
-> > > way that is different from what qemu wants - eg an app like dpdk may
-> > > be willing to tolerate a reset group that becomes unavailable after
-> > > startup. Who knows, why should we force this in the kernel?  
-> > 
-> > Because look at all the problems it's causing to try to introduce these
-> > loopholes without also introducing subtle bugs.  There's an argument
-> > that we're overly strict, which is better than the alternative, which
-> > seems to be what we're dabbling with.  It is a straightforward
-> > interface for the hot-reset ioctl to mirror the information provided
-> > via the hot-reset info ioctl.
-> >   
-> > > > For example, we have a VFIO_DEVICE_GET_INFO ioctl that supports
-> > > > capability chains, we could add a capability that reports the group ID
-> > > > for the device.  
-> > >
-> > > I was going to put that in an iommufd ioctl so it works with VDPA too,
-> > > but sure, lets assume we can get the group ID from a cdev fd.
-> > >  
-> > > > The hot-reset info ioctl remains as it is today, reporting group-ids
-> > > > and bdfs.  
-> > >
-> > > Sure, but userspace still needs to know how to map the reset sets into
-> > > dev-ids.  
-> > 
-> > No, it doesn't.
-> >   
-> > > Remember the reason we started doing this is because we don't
-> > > have easy access to the BDF anymore.  
-> > 
-> > We don't need it, the info ioctl provides the groups, the group
-> > association can be learned from the DEVICE_GET_INFO ioctl, the
-> > hot-reset ioctl only requires a single representative fd per affected
-> > group.  dev-ids not required.
-> >   
-> > > I like leaving this ioctl alone, lets go back to a dedicated ioctl to
-> > > return the dev_ids.  
-> > 
-> > I don't see any justification for this.  We could add another PCI
-> > specific DEVICE_GET_INFO capability to report the bdf if we really need
-> > it, but reporting the group seems sufficient for this use case.  
-> 
-> IMHO, the knowledge of group may be not enough. Take QEMU as an example.
-> QEMU not only needs to ensure the group is owned by it, it also needs to
-> do preparation on the devices that are already in use and affected by
-> the hot reset on a new opened device. If there is only group knowledge,
-> QEMU may blindly prepares all the devices that are already opened and
-> belong to the same iommu group. But as I got in the discussion iommu
-> group is not equal to hot reset scope (a.k.a. dev_set). is it? It is
-> possible that devices in an iommu_group may span into multiple hot
-> reset scope. For such case, get bdf info from cdev fd is necessary.
+> 2) Allow passing zero-length fd array to do hot reset
+>     - Impact: this uses the iommufd as ownership check in the kernel side.
+>       It is only supposed to be used by the users that open cdev instead of
+>       users that open group. The drawback is that it cannot cover the noiommu
+>       devices as noiommu does not use iommufd at all. But it works well for
+>       most cases.
 
-Yes, you're correct, group and reset scope are not equivalent, so we'd
-require a means to get both the group and the bdf for the device.
-Knowing the bdf allows the user to know which opened devices are
-directly affected by the reset, knowing the group allows the user to
-know if ancillary affected devices are within the set of groups the
-user owns and therefore effectively under their purview.  Thanks,
+The "only supposed to be used" is problematic here, we're extending all
+the interfaces to transparently accept group and device fds, but here
+we need to make a distinction because the ioctl needs to perform one
+way for groups and another way for devices, which it currently doesn't
+do.  As above, I've not seen sufficient justification for this other
+than references to reducing complexity, but the only userspace expected
+to make use of this interface already has equivalent complexity.
+ 
+> 3) Allow hot reset be successful when the dev_set is singleton
+>      - Impact: this makes sense but it seems to mess up the boundary between
+>      the group path and cdev path w.r.t. the usage of zero-length fd approach.
+>      The group path can succeed to do hot reset even if it is passing an empty
+>      fd array if the dev_set happens to be singleton.
+
+Again, what is the justification for requiring this, it seems to be
+only a hack towards no-iommu support with cdev, which we can achieve by
+other means.  Why have we not needed this in the group model?  It
+introduces subtle loopholes, so while maybe we could, I don't see why we
+should, therefore I cannot agree with "this makes sense".
+
+> 4) Allow passing device fd to do hot reset
+>     - Impact: this is a new way for hot reset. should have no impact.
+> 
+> 5) Extend the _INFO to report devid
+>     - Impact: this changes the way user to decode the info reported back.
+>     devid and groupid are returned per the way the queried device is opened.
+>     Since it was suggested to support the scenario in which some devices
+>     are opened via cdev while some devices are opened via group. This makes
+>     us to return invalid_devid for the device that is opened via group if
+>     it is affected by the hot reset of a device that is opened via cdev.
+>     
+>     This was proposed to support the future device fd passing usage which is
+>     only available in cdev path.
+
+I think this is fundamentally flawed because of the scope of the
+dev-id.  We can only provide dev-ids for devices which belong to the
+same iommufd of the calling device, thus there are multiple instances
+where no dev-id can be provided.  The group-id and bdf are static
+properties of the devices, regardless of their ownership.  The bdf
+provides the specific device level association while the group-id
+indicates implied, static ownership.
+
+> To me the major confusion is from 1) and 3). 1) changes the meaning of
+> _INFO and HOT_RESET, while 3) messes up the boundary.
+
+As above, I think 2) is also an issue.
+
+> Here is my thought:
+> 
+> For 1), it was proposed due to below reason[2]. We'd like to make a scenario
+> that works in the group path be workable in cdev path as well. But IMHO, we
+> may just accept that cdev path cannot work for such scenario to avoid sublte
+> change to uapi. Otherwise, we need to have another HOT_RESET ioctl or a
+> hint in HOT_RESET ioctl to tell the kernel  whether relaxed ownership check
+> is expected. Maybe this is awkward. But if we want to keep it, we'd do it
+> with the awareness by user.
+> 
+> [2] https://lore.kernel.org/kvm/Y%2FdobS6gdSkxnPH7@nvidia.com/
+
+The group association is that relaxed ownership test.  Yes, there are
+corner cases where we have a dual function card with separate IOMMU
+groups, where a user owning function 0 could do a bus reset because
+function 1 is temporarily unused, but so what, what good is that, have
+we ever had an issue raised because of this?  The user can't rely on
+the unopened state of the other function.  It's an entirely
+opportunistic optimization.
+
+The much more typical scenario is that a multi-function device does not
+provide isolation, all the functions are in the same group and because
+of the association of the group the user has implied ownership of the
+other devices for the purpose of a reset.
+
+> For 3), it was proposed when discussing the hot reset for noiommu[3]. But
+> it does not make hot reset always workable for noiommu in cdev, just in
+> case dev_set is singleton. So it is more of a general optimization that can
+> make the kernel skip the ownership check. But to make use of it, we may
+> need to test it before sanitizing the group fds from user or the iommufd
+> check. Maybe the dev_set singleton test in this series is not well placed.
+> If so, I can further modify it.
+> 
+> [3] https://lore.kernel.org/kvm/ZACX+Np%2FIY7ygqL5@nvidia.com/
+
+As above, this seems to be some optimization related to no-iommu for
+cdev because we don't have an iommufd association for the device in
+no-iommu mode.  Note however that the current group interface doesn't
+care about the IOMMU context of the devices.  We only need proof that
+the user owns the affected groups.  So why are we bringing iommufd
+context anywhere into this interface, here or the null-array interface?
+
+It seems like the minor difference with cdev is that a) we're passing
+device fds rather than group fds, and b) those device fds need to be
+validated as having device access to complete the proof of ownership
+relative to the group.  Otherwise we add capabilities to
+DEVICE_GET_INFO to support the device fd passing model where the user
+doesn't know the device group or bdf and allow the reset ioctl itself
+to accept device fds (extracting the group relationship for those which
+the user has configured for access).  Thanks,
 
 Alex
 
