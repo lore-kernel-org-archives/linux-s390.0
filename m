@@ -2,188 +2,141 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 15960C76196
-	for <linux-s390@archiver.kernel.org>; Thu,  6 Apr 2023 14:14:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A5E1FC7618D
+	for <linux-s390@archiver.kernel.org>; Thu,  6 Apr 2023 14:27:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238356AbjDFOO1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 6 Apr 2023 10:14:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34464 "EHLO
+        id S238714AbjDFO1m (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 6 Apr 2023 10:27:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237769AbjDFOO0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 Apr 2023 10:14:26 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE3617DBF
-        for <linux-s390@vger.kernel.org>; Thu,  6 Apr 2023 07:13:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1680790420;
-        h=from:from:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=4ZqDQDqjyds8VPlocoEi3C0IrbNugg8tUJmM/qJ6sTM=;
-        b=S5Kfq8NeSog+d2TVKLXTitAhYu5QW//Je7mJe03PTvtWEd4hoKbhyjQLCAuf27LrJCNTQO
-        o3Mk9RG0w77voM8q2q5EUGzNaM0YNNw6Px7Msl2ccKXE4UaSHdmd3ojStn4kCObGv0bn07
-        SsMh3qo+r1OLOoQbAbrKQn1wAF4FDMA=
-Received: from mail-qv1-f69.google.com (mail-qv1-f69.google.com
- [209.85.219.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-468-vXt60PhANBii6Z8x3qCFZg-1; Thu, 06 Apr 2023 10:13:39 -0400
-X-MC-Unique: vXt60PhANBii6Z8x3qCFZg-1
-Received: by mail-qv1-f69.google.com with SMTP id l15-20020a0cd6cf000000b005df451a51ddso13759614qvi.9
-        for <linux-s390@vger.kernel.org>; Thu, 06 Apr 2023 07:13:39 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680790419;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:reply-to:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=4ZqDQDqjyds8VPlocoEi3C0IrbNugg8tUJmM/qJ6sTM=;
-        b=69ni5/OQ/Lh8S6P39dFbSMhoagv74a6KUu4nUrV1td5KKmQv1cTbkzFpGVPyaQlgTE
-         mYfJFrmrrEbkzoj6J7+cbE5j2ow+iLNeYs46RJk/RriLPOn/YOBMdg/spFHS+Jj0y0jT
-         R8FSBlfMeBU5+b19PDvFXL8RsmrShikDj9kyOm7d83hu+tb3GwSsH6l1ZSlzhpczB20a
-         jbTcqc2mjwUrapyQ4oYJtgg9ndNTLd2x6tCN3s8qjZjct5hlZkdlIlorZpwKokMwBgOu
-         4pERTPWruvPwhb0Vl9b5xyIUtLmgelvBmxdqzom168wKqh2hsDyp5UVNd5w8nZiWj1Bu
-         OLoQ==
-X-Gm-Message-State: AAQBX9fCdemnC1ly9jTb2M5YunqkyymkRU7MzJYfPWbnOBG/mxWiIEVG
-        m5kmJo1gHrUNc05UT2ldA3YvXcPDW8l0EO6erMXfJ7xQZldyIw0PkRCoZShSelm3vLBU79xOFGt
-        hoVi8TgmKo0ASWQ7YUCThyg==
-X-Received: by 2002:a05:6214:2aab:b0:5ce:7b40:89bd with SMTP id js11-20020a0562142aab00b005ce7b4089bdmr4087287qvb.18.1680790418948;
-        Thu, 06 Apr 2023 07:13:38 -0700 (PDT)
-X-Google-Smtp-Source: AKy350bO91aKaALXlf/32wwODUUkbjJFfCvulNU+0tH+77KwqRdD7uBXiKVvaUVXOK53XyO/yxSRcA==
-X-Received: by 2002:a05:6214:2aab:b0:5ce:7b40:89bd with SMTP id js11-20020a0562142aab00b005ce7b4089bdmr4087239qvb.18.1680790418519;
-        Thu, 06 Apr 2023 07:13:38 -0700 (PDT)
-Received: from ?IPV6:2a01:e0a:59e:9d80:527b:9dff:feef:3874? ([2a01:e0a:59e:9d80:527b:9dff:feef:3874])
-        by smtp.gmail.com with ESMTPSA id lv6-20020a056214578600b005dd8b9345cbsm534712qvb.99.2023.04.06.07.13.32
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 06 Apr 2023 07:13:37 -0700 (PDT)
-Message-ID: <0c51b289-4393-46d5-fb05-a4fc6de92e7b@redhat.com>
-Date:   Thu, 6 Apr 2023 16:13:31 +0200
+        with ESMTP id S235933AbjDFO1l (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 Apr 2023 10:27:41 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D91278A51;
+        Thu,  6 Apr 2023 07:27:40 -0700 (PDT)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 336ENmVI020995;
+        Thu, 6 Apr 2023 14:27:38 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=saoNYOqPt6VsUojW/8hu5QJoZP9SkAgaLjDxZIVXA+s=;
+ b=XXaq3+fNlFJuvL0GVb0lcWcV6rghnUHD9X2A3E0kfQa1VwsyDBe7UOHP9bEmcJpn/zyD
+ b6LdzvO6IS8GNtNw+tpkTkphgaV38L+wgResC4AfglHKMd8gErZOL5YGPDdZO25A81L0
+ HQDlF0NkYjZl26SDGW3EDs55w/dKyHyPB/fZnXwnrfHJf7mN/GF4043vvfeYA11zHAXb
+ N30Z0MHJgsjEfH6rW41rJGRHTuj1gW34ue3FVqdHaM/X93711zCeOiUQDQ+wJNgTuJZQ
+ Q18bzACPCVQbQ36eKZxYud0s79XD1c/FZN3/encUGJHQjghA7Aao0+WOExqlabvvWZ2p eA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3psyt4g33g-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 06 Apr 2023 14:27:37 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 336EOvcN027398;
+        Thu, 6 Apr 2023 14:27:37 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3psyt4g328-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 06 Apr 2023 14:27:37 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3365Oipk011741;
+        Thu, 6 Apr 2023 14:27:34 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3ppbvg4crk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 06 Apr 2023 14:27:34 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 336ERUNs46203558
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 6 Apr 2023 14:27:30 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 51BD920043;
+        Thu,  6 Apr 2023 14:27:30 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6E66720040;
+        Thu,  6 Apr 2023 14:27:29 +0000 (GMT)
+Received: from [9.171.94.198] (unknown [9.171.94.198])
+        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Thu,  6 Apr 2023 14:27:29 +0000 (GMT)
+Message-ID: <5a678df91455e29f296de25ef4aee25cae0e23d6.camel@linux.ibm.com>
+Subject: Re: [RFC PATCH net-next v4 0/9] net/smc: Introduce SMC-D-based OS
+ internal communication acceleration
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Alexandra Winter <wintera@linux.ibm.com>,
+        Wen Gu <guwen@linux.alibaba.com>, kgraul@linux.ibm.com,
+        wenjia@linux.ibm.com, jaka@linux.ibm.com, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Date:   Thu, 06 Apr 2023 16:27:29 +0200
+In-Reply-To: <33ab688e-88c9-d950-be66-f0f79774ff6c@linux.ibm.com>
+References: <1679887699-54797-1-git-send-email-guwen@linux.alibaba.com>
+         <6156aaad710bc7350cbae6cb821289c8a37f44bb.camel@linux.ibm.com>
+         <33ab688e-88c9-d950-be66-f0f79774ff6c@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.46.4 (3.46.4-1.fc37) 
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.5.0
-Reply-To: eric.auger@redhat.com
-Subject: Re: [PATCH v9 09/25] vfio: Add cdev_device_open_cnt to vfio_group
-Content-Language: en-US
-To:     Yi Liu <yi.l.liu@intel.com>, alex.williamson@redhat.com,
-        jgg@nvidia.com, kevin.tian@intel.com
-Cc:     joro@8bytes.org, robin.murphy@arm.com, cohuck@redhat.com,
-        nicolinc@nvidia.com, kvm@vger.kernel.org, mjrosato@linux.ibm.com,
-        chao.p.peng@linux.intel.com, yi.y.sun@linux.intel.com,
-        peterx@redhat.com, jasowang@redhat.com,
-        shameerali.kolothum.thodi@huawei.com, lulu@redhat.com,
-        suravee.suthikulpanit@amd.com, intel-gvt-dev@lists.freedesktop.org,
-        intel-gfx@lists.freedesktop.org, linux-s390@vger.kernel.org,
-        xudong.hao@intel.com, yan.y.zhao@intel.com, terrence.xu@intel.com,
-        yanting.jiang@intel.com
-References: <20230401151833.124749-1-yi.l.liu@intel.com>
- <20230401151833.124749-10-yi.l.liu@intel.com>
-From:   Eric Auger <eric.auger@redhat.com>
-In-Reply-To: <20230401151833.124749-10-yi.l.liu@intel.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: RP2eKKtkhRnK8pgor1LkMEOxnoyGgopa
+X-Proofpoint-ORIG-GUID: 8domNh6sBjZaYrrIUoGXlsF_8qSI8bE5
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-04-06_07,2023-04-06_03,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 priorityscore=1501
+ adultscore=0 malwarescore=0 suspectscore=0 mlxlogscore=890 spamscore=0
+ lowpriorityscore=0 impostorscore=0 clxscore=1015 phishscore=0 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2303200000
+ definitions=main-2304060124
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Yi,
+On Thu, 2023-04-06 at 13:14 +0200, Alexandra Winter wrote:
+>=20
+> On 05.04.23 19:04, Niklas Schnelle wrote:
+> > One more question though, what about the SEID why does that have to be
+> > fixed and at least partially match what ISM devices use? I think I'm
+> > missing some SMC protocol/design detail here. I'm guessing this would
+> > require a protocol change?
+> >=20
+> > Thanks,
+> > Niklas
+>=20
+> Niklas,
+> in the initial SMC CLC handshake the client and server exchange the SEID =
+(one per peer system)
+> and up to 8 proposals for SMC-D interfaces.
+> Wen's current proposal assumes that smc-d loopback can be one of these 8 =
+proposed interfaces,
+> iiuc. So on s390 the proposal can contain ISM devices and a smc-d loopbac=
+k device at the same time.
+> If one of the peers is e.g. an older Linux version, it will just ignore t=
+he loopback-device
+> in the list (Don't find a match for CHID 0xFFFF) and use an ISM interface=
+ for SMC-D if possible.
+> Therefor it is important that the SEID is used in the same way as it is t=
+oday in the handshake.
+>=20
+> If we decide for some reason (virtio-ism open issues?) that a protocol ch=
+ange/extension is
+> required/wanted, then it is a new game and we can come up with new identi=
+fiers, but we may
+> lose compatibility to backlevel systems.
+>=20
+> Alexandra
 
-On 4/1/23 17:18, Yi Liu wrote:
-> for counting the devices that are opened via the cdev path. This count
-> is increased and decreased by the cdev path. The group path checks it
-> to achieve exclusion with the cdev path. With this, only one path (group
-> path or cdev path) will claim DMA ownership. This avoids scenarios in
-> which devices within the same group may be opened via different paths.
->
-> Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-> Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-> Tested-by: Terrence Xu <terrence.xu@intel.com>
-> Tested-by: Nicolin Chen <nicolinc@nvidia.com>
-> Tested-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> Tested-by: Yanting Jiang <yanting.jiang@intel.com>
-> Signed-off-by: Yi Liu <yi.l.liu@intel.com>
-Reviewed-by: Eric Auger <eric.auger@redhat.com>
+Ok that makes sense to me. I was looking at the code in patch 4 of this
+series and there it looks to me like SMC-D loopback as implemented
+would always use the newly added SMCD_DEFAULT_V2_SEID might have
+misread it though. From your description I think that would be wrong,
+if a SEID is defined as on s390 it should use that SEID in the CLC for
+all SMC variants. Similarly on other architectures it should use the
+same SEID for SMC-D as for SMC-R, right? Also with partially match I
+was actually wrong the SMCD_DEFAULT_V2_SEID.seid_string starts with
+"IBM-DEF-ISMSEID=E2=80=A6" while on s390's existing ISM we use "IBM-SYSZ-
+ISMSEID=E2=80=A6" so if SMC-D loopback correctly uses the shared SEID on s3=
+90
+we can already only get GID.DMB collisions only on the same mainframe.
 
-Thanks
-
-Eric
-> ---
->  drivers/vfio/group.c | 33 +++++++++++++++++++++++++++++++++
->  drivers/vfio/vfio.h  |  3 +++
->  2 files changed, 36 insertions(+)
->
-> diff --git a/drivers/vfio/group.c b/drivers/vfio/group.c
-> index 71f0a9a4016e..d55ce3ca44b7 100644
-> --- a/drivers/vfio/group.c
-> +++ b/drivers/vfio/group.c
-> @@ -383,6 +383,33 @@ static long vfio_group_fops_unl_ioctl(struct file *filep,
->  	}
->  }
->  
-> +int vfio_device_block_group(struct vfio_device *device)
-> +{
-> +	struct vfio_group *group = device->group;
-> +	int ret = 0;
-> +
-> +	mutex_lock(&group->group_lock);
-> +	if (group->opened_file) {
-> +		ret = -EBUSY;
-> +		goto out_unlock;
-> +	}
-> +
-> +	group->cdev_device_open_cnt++;
-> +
-> +out_unlock:
-> +	mutex_unlock(&group->group_lock);
-> +	return ret;
-> +}
-> +
-> +void vfio_device_unblock_group(struct vfio_device *device)
-> +{
-> +	struct vfio_group *group = device->group;
-> +
-> +	mutex_lock(&group->group_lock);
-> +	group->cdev_device_open_cnt--;
-> +	mutex_unlock(&group->group_lock);
-> +}
-> +
->  static int vfio_group_fops_open(struct inode *inode, struct file *filep)
->  {
->  	struct vfio_group *group =
-> @@ -405,6 +432,11 @@ static int vfio_group_fops_open(struct inode *inode, struct file *filep)
->  		goto out_unlock;
->  	}
->  
-> +	if (group->cdev_device_open_cnt) {
-> +		ret = -EBUSY;
-> +		goto out_unlock;
-> +	}
-> +
->  	/*
->  	 * Do we need multiple instances of the group open?  Seems not.
->  	 */
-> @@ -479,6 +511,7 @@ static void vfio_group_release(struct device *dev)
->  	mutex_destroy(&group->device_lock);
->  	mutex_destroy(&group->group_lock);
->  	WARN_ON(group->iommu_group);
-> +	WARN_ON(group->cdev_device_open_cnt);
->  	ida_free(&vfio.group_ida, MINOR(group->dev.devt));
->  	kfree(group);
->  }
-> diff --git a/drivers/vfio/vfio.h b/drivers/vfio/vfio.h
-> index 854f2c97cb9a..b2f20b78a707 100644
-> --- a/drivers/vfio/vfio.h
-> +++ b/drivers/vfio/vfio.h
-> @@ -83,8 +83,11 @@ struct vfio_group {
->  	struct blocking_notifier_head	notifier;
->  	struct iommufd_ctx		*iommufd;
->  	spinlock_t			kvm_ref_lock;
-> +	unsigned int			cdev_device_open_cnt;
->  };
->  
-> +int vfio_device_block_group(struct vfio_device *device);
-> +void vfio_device_unblock_group(struct vfio_device *device);
->  int vfio_device_set_group(struct vfio_device *device,
->  			  enum vfio_group_type type);
->  void vfio_device_remove_group(struct vfio_device *device);
-
+Thanks,
+Niklas
