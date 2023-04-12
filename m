@@ -2,108 +2,103 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 78F75C76196
-	for <linux-s390@archiver.kernel.org>; Wed, 12 Apr 2023 01:35:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CEAE1C76196
+	for <linux-s390@archiver.kernel.org>; Wed, 12 Apr 2023 01:53:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229486AbjDLBfi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 11 Apr 2023 21:35:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48600 "EHLO
+        id S229483AbjDLBxx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 11 Apr 2023 21:53:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229616AbjDLBfi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 11 Apr 2023 21:35:38 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AF44448A;
-        Tue, 11 Apr 2023 18:35:37 -0700 (PDT)
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 33BN280h035898;
-        Wed, 12 Apr 2023 01:35:36 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=gNlgKv0nxDs1RQjxJStOW6+SvxUTTCRHuvDMFxaLSxw=;
- b=CmdEbkhC604HoeOIcJE0U9uMr5muSK+R59oLSPXcMKYKVjpcSZucps+jm6i7anYegwd+
- vFSmE6ftAgLtCC51i0zJEqZ7rzoT+/5ym5u82SvPhUUD+QrMeKd4xhJsdlURwG7Zsw7O
- aj7ecVuZK8jT4K4QszfRXnvdBtPHSDcacY7fF87UE6XHJQkrfij/qr5///9M4Actzsz5
- emqIITCfVwFDjdvynrYTNT/GEyocQWpuNlUQC33Uut/VVSRSV9hOwDST/fGniTpVcBir
- j1muydePPv4wM+GePMoyi7UITEMI8ICavjNoIOr5qb5heqHXHb9eimCEXhZQ3buuFfJD HQ== 
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pwgv246m0-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 12 Apr 2023 01:35:35 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 33BMw15A030088;
-        Wed, 12 Apr 2023 01:33:18 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3pu0m1a1qb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 12 Apr 2023 01:33:17 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 33C1XEDY43450886
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 12 Apr 2023 01:33:14 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 62D0120043;
-        Wed, 12 Apr 2023 01:33:14 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id AE0D320040;
-        Wed, 12 Apr 2023 01:33:13 +0000 (GMT)
-Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.171.53.228])
-        by smtpav05.fra02v.mail.ibm.com (Postfix) with SMTP;
-        Wed, 12 Apr 2023 01:33:13 +0000 (GMT)
-Date:   Wed, 12 Apr 2023 03:33:12 +0200
-From:   Halil Pasic <pasic@linux.ibm.com>
+        with ESMTP id S229559AbjDLBxw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 11 Apr 2023 21:53:52 -0400
+Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 772E5469D
+        for <linux-s390@vger.kernel.org>; Tue, 11 Apr 2023 18:53:45 -0700 (PDT)
+Received: by mail-pf1-x42b.google.com with SMTP id d2e1a72fcca58-632400531a0so90307b3a.1
+        for <linux-s390@vger.kernel.org>; Tue, 11 Apr 2023 18:53:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112; t=1681264425; x=1683856425;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ecco41ToXIzKwlBu01cW19u/XikU3NQL+Oz5QDFXdAA=;
+        b=fu2lv108LU2uSwdxJz3IDoiJ1ZVrmR4oiRivtcHSU/D4sHvxgl6VCq6y3xsZbsWfl7
+         Law1wVBC61WANmWjyWJdtkRAdWabBYHB6dk5UHXuC1fxNUI9aG0gAxy3TeRVOcnOJi6N
+         WnFmxozAIte7tRl+LN52cOii/AgA1+2ETBZBAjWbtXn8niMeci4IQgtY1/PlylZk2yFn
+         3Idx3k8UY31ooedcUrhzIshudLeGfaL6jn/A5/au7dtBwlLsoOSDs54TlXavNCxstRnA
+         DY2S9ldjy/Ix0fxiAWjRpSIpghkSfF2e01bMloZIQ0QvSVVPDNuvgG85He4lSkcLTkI0
+         Ge3w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1681264425; x=1683856425;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ecco41ToXIzKwlBu01cW19u/XikU3NQL+Oz5QDFXdAA=;
+        b=nFVD7b3ikUVeZ+lrF61VDP8m9LKKHQqqWBf7OuO2QB0gGMzT00vL2UXa01zdaT0sX0
+         FIW/K5UjcitVkVMoO6ACSOyxr18G66x6orFL7JcB9vm0I7qnZhqH3UQEFD1TKhAyrXu3
+         H2mFAPJ9qfq/URYIro5OKoSONMYIh00ALEa16YJwoyZu+Ga+5yKHUGIihIymJ66di1bh
+         XE6Sw4wHQY9mfU8uuDJjBS4yiWVfN1ksFK9NXJk5WVtY4PSUgJ+naagIgtFhFMteSXTo
+         HqRStA/rb1YxwU9QpYnWplSPm5pEWWb+UF43CPZ4Qmla8GgdK6fTWO4SzDPLHtGnOdpI
+         QLUg==
+X-Gm-Message-State: AAQBX9eQV769qo1RTy7FyC5/v6SlYIs5JSZZXE1k/+9HpSKOMJF1PnJs
+        J2X4Ep6NBOL0wCfAwaxsgTIyGQ==
+X-Google-Smtp-Source: AKy350aqbfGVLk1UqCZY3h9mD+nlXLt1Uiv4F307dIPI7p4WMTpvm6cntlIUyceTppGKPFr9VSIz2Q==
+X-Received: by 2002:a17:90a:af89:b0:242:d8e6:7b68 with SMTP id w9-20020a17090aaf8900b00242d8e67b68mr16112712pjq.1.1681264424786;
+        Tue, 11 Apr 2023 18:53:44 -0700 (PDT)
+Received: from [127.0.0.1] ([198.8.77.157])
+        by smtp.gmail.com with ESMTPSA id t21-20020a17090aae1500b00246952877d8sm241061pjq.34.2023.04.11.18.53.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 11 Apr 2023 18:53:44 -0700 (PDT)
+From:   Jens Axboe <axboe@kernel.dk>
 To:     Stefan Haberland <sth@linux.ibm.com>
-Cc:     Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
+Cc:     linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>,
         linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH 2/7] s390/dasd: add autoquiesce feature
-Message-ID: <20230412033312.71e414b4.pasic@linux.ibm.com>
-In-Reply-To: <20230405142017.2446986-3-sth@linux.ibm.com>
+        Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <20230405142017.2446986-1-sth@linux.ibm.com>
 References: <20230405142017.2446986-1-sth@linux.ibm.com>
-        <20230405142017.2446986-3-sth@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+Subject: Re: [PATCH 0/7] s390/dasd: add dasd autoquiesce feature
+Message-Id: <168126442400.57655.14741497300535913471.b4-ty@kernel.dk>
+Date:   Tue, 11 Apr 2023 19:53:44 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: iLSuUrm7YHsjgNjviMaUL9FvdO2QjljG
-X-Proofpoint-GUID: iLSuUrm7YHsjgNjviMaUL9FvdO2QjljG
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-04-11_16,2023-04-11_02,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=828 spamscore=0
- priorityscore=1501 adultscore=0 mlxscore=0 bulkscore=0 phishscore=0
- impostorscore=0 clxscore=1015 lowpriorityscore=0 suspectscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2303200000 definitions=main-2304120011
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Mailer: b4 0.13-dev-00303
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed,  5 Apr 2023 16:20:12 +0200
-Stefan Haberland <sth@linux.ibm.com> wrote:
 
-> Add the internal logic to check for autoquiesce triggers and handle
-> them.
+On Wed, 05 Apr 2023 16:20:10 +0200, Stefan Haberland wrote:
+> please apply the following patchset that introduces an
+> autoquiesce feature for DASD devices.
 > 
 > Quiesce and resume are functions that tell Linux to stop/resume
 > issuing I/Os to a specific DASD.
 > The DASD driver allows a manual quiesce/resume via ioctl.
 > 
-> Autoquiesce will define an amount of triggers that will lead to
-> an automatic quiesce if a certain event occurs.
-> There is no automatic resume.
-> 
-> All events will be reported via DASD Extended Error Reporting (EER)
-> if configured.
-> 
-> Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
-> Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
+> [...]
 
-Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+Applied, thanks!
 
-[..]
+[1/7] s390/dasd: remove unused DASD EER defines
+      commit: 861d53dbed4cad8cf1bbef692111f2215e02c38e
+[2/7] s390/dasd: add autoquiesce feature
+      commit: 1cee2975bbabd89df1097c354867192106b058ea
+[3/7] s390/dasd: add aq_mask sysfs attribute
+      commit: 9558a8e9d4a681e67b3abe9cabf3e3d8825af57e
+[4/7] s390/dasd: add aq_requeue sysfs attribute
+      commit: bdac94e29564bab9f24c2700f16ff11f31af7c11
+[5/7] s390/dasd: add aq_timeouts autoquiesce trigger
+      commit: 0c1a14748133024a33aa8ffd763ca7f5c03bb27e
+[6/7] s390/dasd: add autoquiesce event for start IO error
+      commit: d9ee2bee4a63844cd9d1e0d00b1e3c49eacd1c2f
+[7/7] s390/dasd: fix hanging blockdevice after request requeue
+      commit: d8898ee50edecacdf0141f26fd90acf43d7e9cd7
+
+Best regards,
+-- 
+Jens Axboe
+
+
+
