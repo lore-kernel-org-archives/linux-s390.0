@@ -2,179 +2,182 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74A4CC77B6E
-	for <linux-s390@archiver.kernel.org>; Wed, 12 Apr 2023 13:30:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D53A2C7619A
+	for <linux-s390@archiver.kernel.org>; Wed, 12 Apr 2023 15:06:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229630AbjDLNa3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 12 Apr 2023 09:30:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60600 "EHLO
+        id S231390AbjDLPGF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 12 Apr 2023 11:06:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229802AbjDLNa1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 12 Apr 2023 09:30:27 -0400
-Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com [IPv6:2a00:1450:4864:20::32e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D4BB8A71
-        for <linux-s390@vger.kernel.org>; Wed, 12 Apr 2023 06:29:59 -0700 (PDT)
-Received: by mail-wm1-x32e.google.com with SMTP id l10-20020a05600c1d0a00b003f04bd3691eso17157813wms.5
-        for <linux-s390@vger.kernel.org>; Wed, 12 Apr 2023 06:29:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=isovalent.com; s=google; t=1681306197; x=1683898197;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=3RLH3cNNkgWH+LFhzC/1IC1LxduOToc5Jr5Y7ubniO8=;
-        b=ZUrcHn5MVn4SkZsdduPKHzdhBR2CyCpmJbBBzf7ziFg2joAPVET6lPUYfvSfAddSmi
-         F8MjJZ9OD1SV1fB2FUMzx0jUNBMPKAF+gsz4PJ3CWO55eECJR5j2rNg49jZhhwPO2E3D
-         ifZD9y/+vyJ5WaQ3Y9PycYB0xwCFp6fZTYBo2GBKYDEfP8ZtMHhX4CKGN5K7/tQgrHS0
-         0P+tacH7ZIkTgC7DG8clkoQ0GzfGwb/F4cDsYDNQxejrUJCPCEtNGiDw2JuO609CO/ea
-         z/ce/pSpZu4jH9iMpr/RQgCO9HO2S9N8sEN1OfrFBKdru+Xqoy3SjOXZahzYs8mI0rO4
-         us8w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1681306197; x=1683898197;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=3RLH3cNNkgWH+LFhzC/1IC1LxduOToc5Jr5Y7ubniO8=;
-        b=IuVlTPPu5yuDuzb63r+Xkf6NUHiveqBXm4xL29A9Mh7TkXijnnwi2QFf5s9tYIOXx+
-         /i5Vy/cqe5gKtRGyiSUu+NjKu028MOwm9nchBquPSpGWwPub34aDZkY/DEws/5DS0/1n
-         wmnf+RYvMhwCfgW98FuFFJ0FqIiFXVPSSKds87mnJUYxWb6HUIS/So8kA5Xe1DaSqmM+
-         FgQu4UaDxfhad9SPVLjMmRr1Z1CaYu7bKiDZBSOuE0+d+ImtIp5+NL2h4yRd3qy9dXvO
-         LJJCjKw3TjaZRaUUXotGpr8NgZfDIPzo1rpSiE5W1AqYxXW0vj0gCfpPRnmU8k1RDsJW
-         UAsA==
-X-Gm-Message-State: AAQBX9em+sfRvxhphR1hF8aM2WEkrYW/lgCD1wdH1/NeFiEOMaBZSLaS
-        6LByY2PwpirET2tUBWpRS3/i2Q==
-X-Google-Smtp-Source: AKy350YyP5/puNSrFijXT8q/UFD1BUDayswgpA13La5ADlCI+vRXWiFttTIg2nF9406VSK5lNscn9A==
-X-Received: by 2002:a05:600c:c4:b0:3ed:f5d4:3bff with SMTP id u4-20020a05600c00c400b003edf5d43bffmr12634760wmm.38.1681306197675;
-        Wed, 12 Apr 2023 06:29:57 -0700 (PDT)
-Received: from ?IPV6:2a02:8011:e80c:0:53b:acfc:bce0:dc7d? ([2a02:8011:e80c:0:53b:acfc:bce0:dc7d])
-        by smtp.gmail.com with ESMTPSA id o9-20020a05600c510900b003ef67848a21sm2516085wms.13.2023.04.12.06.29.56
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 12 Apr 2023 06:29:56 -0700 (PDT)
-Message-ID: <ce290fa8-9ff3-e53c-85ad-a742ca76e677@isovalent.com>
-Date:   Wed, 12 Apr 2023 14:29:55 +0100
+        with ESMTP id S230305AbjDLPGC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 12 Apr 2023 11:06:02 -0400
+Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on2077.outbound.protection.outlook.com [40.107.244.77])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E2964489;
+        Wed, 12 Apr 2023 08:05:58 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=WKinpsziUVRY+U/5V4N59MIR32fTjD+Cvm55B1W3xFAySb3hOlxyHvZlMxYJBlWObXH7HK+peY2poDIzxQx6gBmFdzVMTxFp69Ho3jO913NuRQBi/pdk5qBHhluw4vHhUFNfe2fiOvjeZkXMx66KXrqRIJg5AjEasmx/UsgDvTq8eApiWvsTTXPH5E2pn+MfmRyYilvCrWdqTn69RC7P+6cZ5RLdINOfS91+FDfYdkpSdTB9Vfsktad86JGVUHLGM9Faqx8ZpzXgJ5xrWWRKFRTuYB3WD/PvsA+yK9AUcFQPJ2/U0wk4mOV91XfsonY6/kbv93cJ+8PXz9wsDi5iMA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=nFu8eKSey1iJesURmKz/gOSKp9xCKAGK+u/PyDYLSYo=;
+ b=hfkDU9SqsAjQprUK/Q3a3DqBrcqPdoB/ZpNiZjlp/CMy8/hx77LsLpoYXCWrkMfwnJPEWBhCznatDf3WSdU5DJjKnOn4vBc9vLpNr+Ke4SqzDC74tBK6Tnbv4rKP56btiFvpNCprvoxPYesqmZsW+gvMwru/pLvwWBh2my8QnawetvqPR31pl446NZ6Yqg/ds5v+OZNlm3qjzpFtN9xFO5iflF45gxgyvwAgILdk5VFTN2w8Vxs/4Wso8zKjA6xQqqWKBB+FK44plXDnLZ2btkhC9NqkuGONT+2PREX/7TxQOkw7b8pzK3YyLTHU89BE+DuJ73Z2DyLaTNFvKgacRg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=nFu8eKSey1iJesURmKz/gOSKp9xCKAGK+u/PyDYLSYo=;
+ b=RPs107V8yzG653oPSD9A98wY9tQgqospAVQL6rJQ/wZ+43XRduFMihg+wa8e87GzSYPEcjOnHcA1YfokJZ4MAeH37b3zAWb0VmahcWi/i4htfbhlZX6C7judwc+51WITAcQgJ78uIwV4jooLW6ttoAfO36kS7K+sTGzDAdr+4CeM6/0fvAaoyXT5hYFMyWW/nuRatbqnY3XK7WMAUExPhUjn/EdP+eFmx3dPd5fQp+/E+bpeHdxLF/iGD/G/2RBbqTeuQFOxF3CzPF0j7VSehnIB9nOa6PhLAZ4fNbWE2fHPPGUQ7QvL6yfuNpcNfS9BOlSrttADMLg6UVmYjfIAkA==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by MW4PR12MB7031.namprd12.prod.outlook.com (2603:10b6:303:1ef::6) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6277.38; Wed, 12 Apr
+ 2023 15:05:55 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::6045:ad97:10b7:62a2]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::6045:ad97:10b7:62a2%9]) with mapi id 15.20.6277.038; Wed, 12 Apr 2023
+ 15:05:54 +0000
+Date:   Wed, 12 Apr 2023 12:05:50 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     "Tian, Kevin" <kevin.tian@intel.com>
+Cc:     Alex Williamson <alex.williamson@redhat.com>,
+        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
+        "jasowang@redhat.com" <jasowang@redhat.com>,
+        "Hao, Xudong" <xudong.hao@intel.com>,
+        "Duan, Zhenzhong" <zhenzhong.duan@intel.com>,
+        "peterx@redhat.com" <peterx@redhat.com>,
+        "Xu, Terrence" <terrence.xu@intel.com>,
+        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "Liu, Yi L" <yi.l.liu@intel.com>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "lulu@redhat.com" <lulu@redhat.com>,
+        "Jiang, Yanting" <yanting.jiang@intel.com>,
+        "joro@8bytes.org" <joro@8bytes.org>,
+        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
+        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "eric.auger@redhat.com" <eric.auger@redhat.com>,
+        "intel-gvt-dev@lists.freedesktop.org" 
+        <intel-gvt-dev@lists.freedesktop.org>,
+        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "shameerali.kolothum.thodi@huawei.com" 
+        <shameerali.kolothum.thodi@huawei.com>,
+        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
+        "robin.murphy@arm.com" <robin.murphy@arm.com>
+Subject: Re: [PATCH v3 12/12] vfio/pci: Report dev_id in
+ VFIO_DEVICE_GET_PCI_HOT_RESET_INFO
+Message-ID: <ZDbIzvawep4Sk+0M@nvidia.com>
+References: <ZC4CwH2ouTfZ9DNN@nvidia.com>
+ <DS0PR11MB75292DA91ED15AE94A85EB3DC3919@DS0PR11MB7529.namprd11.prod.outlook.com>
+ <20230406115347.7af28448.alex.williamson@redhat.com>
+ <ZDVfqpOCnImKr//m@nvidia.com>
+ <20230411095417.240bac39.alex.williamson@redhat.com>
+ <20230411111117.0766ad52.alex.williamson@redhat.com>
+ <ZDWph7g0hcbJHU1B@nvidia.com>
+ <20230411155827.3489400a.alex.williamson@redhat.com>
+ <ZDX0wtcvZuS4uxmG@nvidia.com>
+ <BN9PR11MB52761A24E435E9EF910766E28C9B9@BN9PR11MB5276.namprd11.prod.outlook.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <BN9PR11MB52761A24E435E9EF910766E28C9B9@BN9PR11MB5276.namprd11.prod.outlook.com>
+X-ClientProxiedBy: SJ0PR03CA0039.namprd03.prod.outlook.com
+ (2603:10b6:a03:33e::14) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.9.1
-Subject: Re: [PATCH bpf-next v3 3/7] bpftool: Support inline annotations when
- dumping the CFG of a program
-Content-Language: en-GB
-To:     Sven Schnelle <svens@linux.ibm.com>
-Cc:     Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>,
-        Stanislav Fomichev <sdf@google.com>,
-        Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
-        bpf@vger.kernel.org, Eduard Zingerman <eddyz87@gmail.com>,
-        linux-s390@vger.kernel.org
-References: <20230405132120.59886-1-quentin@isovalent.com>
- <20230405132120.59886-4-quentin@isovalent.com>
- <yt9d8rexy6uj.fsf@linux.ibm.com>
- <15cd553a-a6c1-19c7-bab1-0212a856056f@isovalent.com>
- <yt9dttxlwal7.fsf@linux.ibm.com>
-From:   Quentin Monnet <quentin@isovalent.com>
-In-Reply-To: <yt9dttxlwal7.fsf@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|MW4PR12MB7031:EE_
+X-MS-Office365-Filtering-Correlation-Id: 3b03c8c9-e6c9-4ebe-7537-08db3b676956
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: lodt+8ONK6htVPm05/Pmi/xNnoEiDWjQDhOTxAkGDyvaavqi9jgK0o7lXvzaaM5zwnBszRliVI+bU6qmxIylbGDS95AfbbkNe8OvXK2Yjf94PnvvrgfoaDLa9GuwiXe/D0ORB2sTvJhFoVdV9Ph/v5dR67OfRaYH7R81+xnqmVmtXK9q03EnYx9d2aL8oy9312POBsefbEyU6RizDI27J2gI8bAMh99L4U1byth58C6070a1nlkNXA+R+vLTBKXhiJmnQDVKiOIeK6DN9hxAxLDqXjgCv3RFPQ6SKrgqBN7FIKCBdDAv0+4urplAbzo8ZA3Fy6/cfPfOgiPsvA/mjU6w4qEvfv+KEH2UuNrkG3+GwBdMpve3Bv+UVQmYWn+5qYZPfsKZWHz22w+unomVCAtEx3QuQgdXNSWeAT0fRFXbRJkE8I9APBcBX+kdFzSeBRdZ51WGYp49EnTE6aKpRWDmOVqKyTZClPzuVcBd9ayCSKDl8OxdfoJeyMs24PuWzfjzBrCB1/3PH0XaHZTBwATL30tmACwgrIB7Gu4ACqasCsRBlwo/Ft8p3qgmHVbcqxBI6XsLedZDHUPtpKLEmaPSoYhy9GwBPwJkypeFhWA=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(346002)(376002)(366004)(39860400002)(396003)(136003)(451199021)(5660300002)(7416002)(41300700001)(8936002)(8676002)(2906002)(38100700002)(6486002)(6666004)(478600001)(186003)(2616005)(36756003)(6506007)(26005)(6512007)(4326008)(86362001)(6916009)(66476007)(66946007)(66556008)(54906003)(316002)(67856001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?E/2jFLFISBSy8eiZM64OSF/3y1KjtSl+DIYAFUKzePjRw6ZMK7cTihwvzEMc?=
+ =?us-ascii?Q?FWfd2FKLqZ3Nxb81kDXqGAJEeDbS/Pe4veLLnwU3s3LYShQVgG1RkNsz0xPZ?=
+ =?us-ascii?Q?pgWdSGPlWfIiGx8NBTXk88DsyTHxIFlclu+VnKwE6h2gn9SfSIBBEegK5w+a?=
+ =?us-ascii?Q?0cQcJjtnteva94DevGxhGBxLDFD5zI0Bbddh5QTF0QU41KG1IuRfEBnYszNM?=
+ =?us-ascii?Q?iW0jDf6ON3qlfIcv8fPLqW9gFIzQN9KOIHLJiUKI7YOhen1C4J7OlT5t3oWj?=
+ =?us-ascii?Q?jb2yjUfp1rBZHnV4KwkED4UPgbuMLIi3vRp3hW9z38ghRr32H1Ew0RScN04Q?=
+ =?us-ascii?Q?l6IWkr8fKY55aQaXLHNdSoF3/pghoKlgIKS34bMb6RGO8RyLbKOH9gltNKa/?=
+ =?us-ascii?Q?O6DVG8u0GIcwrmyVYI7bgV7qxXDP4xwDFLzNRzELGkNtQ3F4b4mD5aYkguAc?=
+ =?us-ascii?Q?r/VX0OicSxc2Wfe3QOu+pIbep/l+Djzg5VmBOYbT12y8yUq0vi/Chk2wnT8A?=
+ =?us-ascii?Q?DX1qJDoK34NRhKOrRqZqbBdLkcBSHh162yl4/PimbmHq5BcpRMw1VXP5kJ8i?=
+ =?us-ascii?Q?KcMGZWqso+GMjhM+rm403kA/LdeQR6ed6O2Bczq470CpXDqbqVPN1BRHyY0m?=
+ =?us-ascii?Q?ahO7mic4Hdr+IGLu8TDUZyEg5kh2cM3QG350PERDGYI9kNEpetVKpDqy45J8?=
+ =?us-ascii?Q?1k4jvi9zkwPUCldsURnWeZHQ0cX0XbqGAw3PIQohEaY7ihxk9Zqb9e6F/wrz?=
+ =?us-ascii?Q?rovw615idesP771H+nzojK5P4jmGEG45JiUVyPimZoHeZudhbCD5jfjCvnZf?=
+ =?us-ascii?Q?zG5ekBvP4h9MjIfG7/h62mOx2TcZNIzvJ9L24cpx0h1ysW01bom+X8+GuC55?=
+ =?us-ascii?Q?EsaHwJf9tV1jXqsK3kMOEj8hcsqw+BHZB6CLSNSpByTMxmHkaj+B2H6GezKn?=
+ =?us-ascii?Q?nN+sauhOZ3Lx5Zcbn4SrKbOJElkMhA/UqZV056hTb8dtI1BrwNF4sFoNcj4T?=
+ =?us-ascii?Q?5THXErGqkWQNTyrGTATfT4HmY4XW9il2S2fRakhG2M8cLI2E9uJ9rs9KiFzL?=
+ =?us-ascii?Q?SPo98zf/rGj4Aiuvko2/zLStTSoetGqiMkgB3a+6Ahbs+h64rnL/mssSIJH2?=
+ =?us-ascii?Q?Z849Z3VHyaw7W9krVwgadv/OX/9A4F8HDdor+X2Hp4sYyhjvJfRy6EKCX4Md?=
+ =?us-ascii?Q?/xUmvmaeLgGrMhMhqz+Lxl+jb5QMSWSPphNd5TeOHZjD8ZGii6KpoFzNI4DZ?=
+ =?us-ascii?Q?o44zhk7rFuMRJA2IdPBokOFn7ZXIyvfwd/3KL3th9jjEz2I4CHRKBVfEOaSz?=
+ =?us-ascii?Q?5vy9IougUarNuDNWTorZgJYNRoItks1osjTmUW42Nh7ptm7MPiVUupi+eLBT?=
+ =?us-ascii?Q?brUsHuv9UwTJv4NHl+5vZXeuvvycWFIEg+HDhWaHmWb240xaKFcyzJ62Qq+i?=
+ =?us-ascii?Q?Vix1skn4C7FxloAXHH4jrg0bjRYK/Tjtpj4Go+/EsKqjjTehPLr9r17ub9cg?=
+ =?us-ascii?Q?bbMxjqkQTmDEImksmvt21xurf2zzhTf6oLuLqMaEVdk53ZEvZyKXSuJJvIjE?=
+ =?us-ascii?Q?UslaSy4PDvR0M3lX6i0wgkNSsZPVC7KLP02eQfy6?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 3b03c8c9-e6c9-4ebe-7537-08db3b676956
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Apr 2023 15:05:54.1362
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: oIxz2DTrXron4Y9JRLy86tVGJ9rOCvqF+0n+Ig/1hlhiVWT0lTCVMFTZ+SdkH0/L
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW4PR12MB7031
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-2023-04-12 14:26 UTC+0200 ~ Sven Schnelle <svens@linux.ibm.com>
-> Quentin Monnet <quentin@isovalent.com> writes:
+On Wed, Apr 12, 2023 at 07:27:43AM +0000, Tian, Kevin wrote:
+> > From: Jason Gunthorpe
+> > Sent: Wednesday, April 12, 2023 8:01 AM
+> > 
+> > I see this problem as a few basic requirements from a qemu-like
+> > application:
+> > 
+> >  1) Does the configuration I was given support reset right now?
+> >  2) Will the configuration I was given support reset for the duration
+> >     of my execution?
+> >  3) What groups of the devices I already have open does the reset
+> >     effect?
+> >  4) For debugging, report to the user the full list of devices in the
+> >     reset group, in a way that relates back to sysfs.
+> >  5) Away to trigger a reset on a group of devices
+> > 
+> > #1/#2 is the API I suggested here. Ask the kernel if the current
+> > configuration works, and ask it to keep it working.
+> > 
+> > #3 is either INFO and a CAP for BDF or INFO2 reporting dev_id
+> > 
+> > #4 is either INFO and print the BDFs or INFO2 reporting the struct
+> > vfio_device IDR # (eg /sys/class/vfio/vfioXXX/).
 > 
->> 2023-04-12 08:04 UTC+0200 ~ Sven Schnelle <svens@linux.ibm.com>
->>> Quentin Monnet <quentin@isovalent.com> writes:
->>>
->>>> diff --git a/tools/bpf/bpftool/btf_dumper.c b/tools/bpf/bpftool/btf_dumper.c
->>>> index e7f6ec3a8f35..583aa843df92 100644
->>>> --- a/tools/bpf/bpftool/btf_dumper.c
->>>> +++ b/tools/bpf/bpftool/btf_dumper.c
->>>> @@ -821,3 +821,37 @@ void btf_dump_linfo_json(const struct btf *btf,
->>>>  					BPF_LINE_INFO_LINE_COL(linfo->line_col));
->>>>  	}
->>>>  }
->>>> +
->>>> +static void dotlabel_puts(const char *s)
->>>> +{
->>>> +	for (; *s; ++s) {
->>>> +		switch (*s) {
->>>> +		case '\\':
->>>> +		case '"':
->>>> +		case '{':
->>>> +		case '}':
->>>> +		case '<':
->>>> +		case '>':
->>>> +		case '|':
->>>> +		case ' ':
->>>> +			putchar('\\');
->>>> +			__fallthrough;
->>>
->>> Is __fallthrough correct? I see the following compile error on s390 in
->>> linux-next (20230412):
->>>
->>>   CC      btf_dumper.o
->>> btf_dumper.c: In function ‘dotlabel_puts’:
->>> btf_dumper.c:838:25: error: ‘__fallthrough’ undeclared (first use in this function); did you mean ‘fallthrough’?
->>>   838 |                         __fallthrough;
->>>       |                         ^~~~~~~~~~~~~
->>>
->>> removing the two underscores fixes this.
->>
->> I thought so? Perf seems to use the double underscores as well. Just
->> "fallthrough" does not seem to be the right fix anyway, it gives me an
->> error similar to yours on x86_64 with "fallthrough" undeclared.
->>
->> The definition should be pulled from tools/include/linux/compiler.h (and
->> .../compiler-gcc.h). I thought this file would be at least included from
->> bpftool's main.h, in turn included in btf_dumper.c. Looking at the chain
->> of inclusions, on my system I get the following path:
->>
->>     $ CFLAGS=-H make btf_dumper.o
->>     [...]
->>     . /root/dev/linux/tools/include/linux/bitops.h
->>     [...]
->>     .. /root/dev/linux/tools/include/linux/bits.h
->>     [...]
->>     ... /root/dev/linux/tools/include/linux/build_bug.h
->>     .... /root/dev/linux/tools/include/linux/compiler.h
->>     ..... /root/dev/linux/tools/include/linux/compiler_types.h
->>     ...... /root/dev/linux/tools/include/linux/compiler-gcc.h
->>     [...]
->>
->> What do you get on your side?
->>
->> If you add "#include <linux/compiler.h>" to btf_dumper.c directly, does
->> it fix the issue?
-> 
-> This seems to clash with:
-> 
-> commit f7a858bffcddaaf70c71b6b656e7cc21b6107cec
-> Author: Liam Howlett <liam.howlett@oracle.com>
-> Date:   Fri Nov 25 15:50:16 2022 +0000
-> 
->     tools: Rename __fallthrough to fallthrough
-> 
->     Rename the fallthrough attribute to better align with the kernel
->     version.  Copy the definition from include/linux/compiler_attributes.h
->     including the #else clause.  Adding the #else clause allows the tools
->     compiler.h header to drop the check for a definition entirely and keeps
->     both definitions together.
-> 
->     Change any __fallthrough statements to fallthrough anywhere it was used
->     within perf.
-> 
->     This allows other tools to use the same key word as the kernel.
-> 
-> Which was also merged in linux-next.
+> mdev doesn't have BDF. Of course it doesn't support hot_reset either.
 
-Right, I was not aware of this commit. In that case, replacing with
-"fallthrough" in linux-next makes sense indeed.
+It should support a reset.. Maybe idxd doesn't, but it should be part
+of the SIOV model. Our SIOV devices would need it for instance.
 
-Thomas Richter just submitted that fix at
-https://lore.kernel.org/all/20230412123636.2358949-1-tmricht@linux.ibm.com/.
+> but it's presented to userspace as a pci device. Is it weird for a pci
+> device which doesn't provide a BDF cap?
 
-Thanks!
-Quentin
+It is weird for a PCI device, but it is not weird for a VFIO
+device. Leaking the physical labels out of the uAPI is not clean,
+IMHO.
+
+> from this point the vfio_device IDR# sounds more generic.
+
+Yes, I was thinking about this for the SIOV model.
+
+Jason
