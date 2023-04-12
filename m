@@ -2,103 +2,145 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CEAE1C76196
-	for <linux-s390@archiver.kernel.org>; Wed, 12 Apr 2023 01:53:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C054C7619A
+	for <linux-s390@archiver.kernel.org>; Wed, 12 Apr 2023 06:04:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229483AbjDLBxx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 11 Apr 2023 21:53:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56088 "EHLO
+        id S229477AbjDLGEb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 12 Apr 2023 02:04:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229559AbjDLBxw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 11 Apr 2023 21:53:52 -0400
-Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 772E5469D
-        for <linux-s390@vger.kernel.org>; Tue, 11 Apr 2023 18:53:45 -0700 (PDT)
-Received: by mail-pf1-x42b.google.com with SMTP id d2e1a72fcca58-632400531a0so90307b3a.1
-        for <linux-s390@vger.kernel.org>; Tue, 11 Apr 2023 18:53:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20210112.gappssmtp.com; s=20210112; t=1681264425; x=1683856425;
-        h=content-transfer-encoding:mime-version:date:message-id:subject
-         :references:in-reply-to:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ecco41ToXIzKwlBu01cW19u/XikU3NQL+Oz5QDFXdAA=;
-        b=fu2lv108LU2uSwdxJz3IDoiJ1ZVrmR4oiRivtcHSU/D4sHvxgl6VCq6y3xsZbsWfl7
-         Law1wVBC61WANmWjyWJdtkRAdWabBYHB6dk5UHXuC1fxNUI9aG0gAxy3TeRVOcnOJi6N
-         WnFmxozAIte7tRl+LN52cOii/AgA1+2ETBZBAjWbtXn8niMeci4IQgtY1/PlylZk2yFn
-         3Idx3k8UY31ooedcUrhzIshudLeGfaL6jn/A5/au7dtBwlLsoOSDs54TlXavNCxstRnA
-         DY2S9ldjy/Ix0fxiAWjRpSIpghkSfF2e01bMloZIQ0QvSVVPDNuvgG85He4lSkcLTkI0
-         Ge3w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1681264425; x=1683856425;
-        h=content-transfer-encoding:mime-version:date:message-id:subject
-         :references:in-reply-to:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ecco41ToXIzKwlBu01cW19u/XikU3NQL+Oz5QDFXdAA=;
-        b=nFVD7b3ikUVeZ+lrF61VDP8m9LKKHQqqWBf7OuO2QB0gGMzT00vL2UXa01zdaT0sX0
-         FIW/K5UjcitVkVMoO6ACSOyxr18G66x6orFL7JcB9vm0I7qnZhqH3UQEFD1TKhAyrXu3
-         H2mFAPJ9qfq/URYIro5OKoSONMYIh00ALEa16YJwoyZu+Ga+5yKHUGIihIymJ66di1bh
-         XE6Sw4wHQY9mfU8uuDJjBS4yiWVfN1ksFK9NXJk5WVtY4PSUgJ+naagIgtFhFMteSXTo
-         HqRStA/rb1YxwU9QpYnWplSPm5pEWWb+UF43CPZ4Qmla8GgdK6fTWO4SzDPLHtGnOdpI
-         QLUg==
-X-Gm-Message-State: AAQBX9eQV769qo1RTy7FyC5/v6SlYIs5JSZZXE1k/+9HpSKOMJF1PnJs
-        J2X4Ep6NBOL0wCfAwaxsgTIyGQ==
-X-Google-Smtp-Source: AKy350aqbfGVLk1UqCZY3h9mD+nlXLt1Uiv4F307dIPI7p4WMTpvm6cntlIUyceTppGKPFr9VSIz2Q==
-X-Received: by 2002:a17:90a:af89:b0:242:d8e6:7b68 with SMTP id w9-20020a17090aaf8900b00242d8e67b68mr16112712pjq.1.1681264424786;
-        Tue, 11 Apr 2023 18:53:44 -0700 (PDT)
-Received: from [127.0.0.1] ([198.8.77.157])
-        by smtp.gmail.com with ESMTPSA id t21-20020a17090aae1500b00246952877d8sm241061pjq.34.2023.04.11.18.53.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 11 Apr 2023 18:53:44 -0700 (PDT)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     Stefan Haberland <sth@linux.ibm.com>
-Cc:     linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20230405142017.2446986-1-sth@linux.ibm.com>
-References: <20230405142017.2446986-1-sth@linux.ibm.com>
-Subject: Re: [PATCH 0/7] s390/dasd: add dasd autoquiesce feature
-Message-Id: <168126442400.57655.14741497300535913471.b4-ty@kernel.dk>
-Date:   Tue, 11 Apr 2023 19:53:44 -0600
+        with ESMTP id S229555AbjDLGEa (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 12 Apr 2023 02:04:30 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 359DEF7;
+        Tue, 11 Apr 2023 23:04:29 -0700 (PDT)
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 33C5tMQ5023544;
+        Wed, 12 Apr 2023 06:04:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : references : date : in-reply-to : message-id : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=nhscJsslmlKYVcGYTBp8JzDV6+njDKE79AOyU0p7Zss=;
+ b=SjgxhJQPVGK5mF/6MZXVn7slvk2mnbpJaVeBdlUZ0SuLPbhUa6WQ8RmNnKc5BwUraFiP
+ HXSOs9x5CfUTTReVUNv4tA4qzOjd9IO+o0S2NEsXaiT2inWW0p8t2tuLILphzsnRBHY7
+ Q1jVZTuMYsx1PbAbluR8NOva9PRAviqTI1GoFH3lNpPe7Rf/W7Ae14WwEqf+jVyXSDUr
+ dnsMxbLnQP86jDRsDArNMEvoaklq5zcTQUES8lu9VHe1k1paNY++bCmXe4xhTky4iLML
+ eMfZtO20qbYIuPOpp/YFYBq087jGnOMPc947Ms/OMzVxib6Zb4N5QYLLe49XP1D7EOuO ig== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pwpwqr9wk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 12 Apr 2023 06:04:11 +0000
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 33C5wS0C031385;
+        Wed, 12 Apr 2023 06:04:10 GMT
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pwpwqr9t0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 12 Apr 2023 06:04:10 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 33C4Coib012368;
+        Wed, 12 Apr 2023 06:04:08 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+        by ppma06fra.de.ibm.com (PPS) with ESMTPS id 3pu0hq1tkw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 12 Apr 2023 06:04:07 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 33C645iH16974374
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 12 Apr 2023 06:04:05 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8108020043;
+        Wed, 12 Apr 2023 06:04:05 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 29E2520040;
+        Wed, 12 Apr 2023 06:04:05 +0000 (GMT)
+Received: from tuxmaker.linux.ibm.com (unknown [9.152.85.9])
+        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Wed, 12 Apr 2023 06:04:05 +0000 (GMT)
+From:   Sven Schnelle <svens@linux.ibm.com>
+To:     Quentin Monnet <quentin@isovalent.com>
+Cc:     Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>,
+        Stanislav Fomichev <sdf@google.com>,
+        Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
+        bpf@vger.kernel.org, Eduard Zingerman <eddyz87@gmail.com>,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH bpf-next v3 3/7] bpftool: Support inline annotations
+ when dumping the CFG of a program
+References: <20230405132120.59886-1-quentin@isovalent.com>
+        <20230405132120.59886-4-quentin@isovalent.com>
+Date:   Wed, 12 Apr 2023 08:04:04 +0200
+In-Reply-To: <20230405132120.59886-4-quentin@isovalent.com> (Quentin Monnet's
+        message of "Wed, 5 Apr 2023 14:21:16 +0100")
+Message-ID: <yt9d8rexy6uj.fsf@linux.ibm.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.0.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.13-dev-00303
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: uxpDhElEdIp8Tp4uP4bAiiZjnrtXpw3B
+X-Proofpoint-GUID: 1_OgglVB3CC42JzZqwqVZC-rujYoy46N
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-04-11_16,2023-04-11_02,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 lowpriorityscore=0
+ suspectscore=0 phishscore=0 impostorscore=0 spamscore=0 bulkscore=0
+ adultscore=0 priorityscore=1501 clxscore=1011 mlxlogscore=999
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2303200000 definitions=main-2304120054
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Quentin Monnet <quentin@isovalent.com> writes:
 
-On Wed, 05 Apr 2023 16:20:10 +0200, Stefan Haberland wrote:
-> please apply the following patchset that introduces an
-> autoquiesce feature for DASD devices.
-> 
-> Quiesce and resume are functions that tell Linux to stop/resume
-> issuing I/Os to a specific DASD.
-> The DASD driver allows a manual quiesce/resume via ioctl.
-> 
-> [...]
+> diff --git a/tools/bpf/bpftool/btf_dumper.c b/tools/bpf/bpftool/btf_dumpe=
+r.c
+> index e7f6ec3a8f35..583aa843df92 100644
+> --- a/tools/bpf/bpftool/btf_dumper.c
+> +++ b/tools/bpf/bpftool/btf_dumper.c
+> @@ -821,3 +821,37 @@ void btf_dump_linfo_json(const struct btf *btf,
+>  					BPF_LINE_INFO_LINE_COL(linfo->line_col));
+>  	}
+>  }
+> +
+> +static void dotlabel_puts(const char *s)
+> +{
+> +	for (; *s; ++s) {
+> +		switch (*s) {
+> +		case '\\':
+> +		case '"':
+> +		case '{':
+> +		case '}':
+> +		case '<':
+> +		case '>':
+> +		case '|':
+> +		case ' ':
+> +			putchar('\\');
+> +			__fallthrough;
 
-Applied, thanks!
+Is __fallthrough correct? I see the following compile error on s390 in
+linux-next (20230412):
 
-[1/7] s390/dasd: remove unused DASD EER defines
-      commit: 861d53dbed4cad8cf1bbef692111f2215e02c38e
-[2/7] s390/dasd: add autoquiesce feature
-      commit: 1cee2975bbabd89df1097c354867192106b058ea
-[3/7] s390/dasd: add aq_mask sysfs attribute
-      commit: 9558a8e9d4a681e67b3abe9cabf3e3d8825af57e
-[4/7] s390/dasd: add aq_requeue sysfs attribute
-      commit: bdac94e29564bab9f24c2700f16ff11f31af7c11
-[5/7] s390/dasd: add aq_timeouts autoquiesce trigger
-      commit: 0c1a14748133024a33aa8ffd763ca7f5c03bb27e
-[6/7] s390/dasd: add autoquiesce event for start IO error
-      commit: d9ee2bee4a63844cd9d1e0d00b1e3c49eacd1c2f
-[7/7] s390/dasd: fix hanging blockdevice after request requeue
-      commit: d8898ee50edecacdf0141f26fd90acf43d7e9cd7
+  CC      btf_dumper.o
+btf_dumper.c: In function =E2=80=98dotlabel_puts=E2=80=99:
+btf_dumper.c:838:25: error: =E2=80=98__fallthrough=E2=80=99 undeclared (fir=
+st use in this function); did you mean =E2=80=98fallthrough=E2=80=99?
+  838 |                         __fallthrough;
+      |                         ^~~~~~~~~~~~~
 
-Best regards,
--- 
-Jens Axboe
+removing the two underscores fixes this.
 
+> +		default:
+> +			putchar(*s);
+> +		}
+> +	}
+> +}
 
-
+Thanks,
+Sven
