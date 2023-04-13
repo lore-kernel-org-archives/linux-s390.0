@@ -2,166 +2,201 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DAA66C77B61
-	for <linux-s390@archiver.kernel.org>; Thu, 13 Apr 2023 16:34:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7BCF2C77B6E
+	for <linux-s390@archiver.kernel.org>; Thu, 13 Apr 2023 18:08:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229484AbjDMQeC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 13 Apr 2023 12:34:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40782 "EHLO
+        id S229894AbjDMSIA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 13 Apr 2023 14:08:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229560AbjDMQeB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 13 Apr 2023 12:34:01 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 948D74697;
-        Thu, 13 Apr 2023 09:33:57 -0700 (PDT)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 33DFR0LM008668;
-        Thu, 13 Apr 2023 16:33:57 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=8UvURWjIbi3vPUJoXCnoH6bT6eHTB470TjnIbB3Us9w=;
- b=kesBamIPiXOQYd4J3Flg8QXjVPmNC9Vh8rOU1Z5Nf7oV2hiwQSkUb24b7eas/o7jbh/R
- j99TQxrQGsvhWGvLrpzkgaJ/XTDv7bG17j2o36MKJJ7Q/CkeIbGOXaIYAAGBQLs7mN69
- gWrIg4PM+2qghuKYHWaVdkBrVuc1z8pz2yxxwdP8jY/Ncxk6HRkyazj8MKg0WysfaS4C
- AVLFu3j3g+BnZhykfZTErLWy0rraX6h9GgYq4fAcPD8MdXBJeLWoshkNINlcpbobwxc4
- 9RzVv4cvcdy6SNkFrqF2r29gl8eGaIdIE85nHyL1XIvScljBeBnmuq4ZS1yqMqQUBqGl Kw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pxmd02sqp-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 13 Apr 2023 16:33:57 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 33DGSxtd030658;
-        Thu, 13 Apr 2023 16:33:56 GMT
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pxmd02sp4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 13 Apr 2023 16:33:56 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 33D3xELG026645;
-        Thu, 13 Apr 2023 16:33:54 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma05fra.de.ibm.com (PPS) with ESMTPS id 3pu0fvtncw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 13 Apr 2023 16:33:54 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 33DGXoLD27525448
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 13 Apr 2023 16:33:50 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8851A2004E;
-        Thu, 13 Apr 2023 16:33:50 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5E2142004B;
-        Thu, 13 Apr 2023 16:33:50 +0000 (GMT)
-Received: from li-7e0de7cc-2d9d-11b2-a85c-de26c016e5ad.ibm.com (unknown [9.152.224.238])
-        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Thu, 13 Apr 2023 16:33:50 +0000 (GMT)
-Message-ID: <5b2e0a52c79122038cda60661c225e9d108e60ef.camel@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v1 4/4] s390x: add a test for SIE without
- MSO/MSL
-From:   Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-To:     Nico Boehr <nrb@linux.ibm.com>, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, thuth@redhat.com
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Date:   Thu, 13 Apr 2023 18:33:50 +0200
-In-Reply-To: <168137900094.42330.6464555141616427645@t14-nrb>
-References: <20230327082118.2177-1-nrb@linux.ibm.com>
-         <20230327082118.2177-5-nrb@linux.ibm.com>
-         <cfd83c1d7a74e969e6e3c922bbe5650f8e9adadd.camel@linux.ibm.com>
-         <168137900094.42330.6464555141616427645@t14-nrb>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.46.4 (3.46.4-1.fc37) 
+        with ESMTP id S229498AbjDMSIA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 13 Apr 2023 14:08:00 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1B5A55B2
+        for <linux-s390@vger.kernel.org>; Thu, 13 Apr 2023 11:07:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1681409236;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=IOA7GIourt4XlsCYYtkutlqTOJFvaYitvC0BAJCLNRU=;
+        b=drfNGvhltoahp4QwRlGrchPlaRguOsJ3jQwNTWz4oj/RDtoDL8UMXcrStFlug4GrYom/t8
+        PlSRn1VRaFrFjg9BZ8iIsYOiFMpaRGUAKy75q2xk4YcH0D1C8Xa0q2jISEFI73UxpwA9qF
+        XSRaQXih+WvVdqcMa9BH+eSsViERdmw=
+Received: from mail-il1-f198.google.com (mail-il1-f198.google.com
+ [209.85.166.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-647-HTGs6pF1MT-ikmtE1-wgJw-1; Thu, 13 Apr 2023 14:07:15 -0400
+X-MC-Unique: HTGs6pF1MT-ikmtE1-wgJw-1
+Received: by mail-il1-f198.google.com with SMTP id e2-20020a056e0204a200b0032a995cacf5so1283ils.21
+        for <linux-s390@vger.kernel.org>; Thu, 13 Apr 2023 11:07:15 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1681409235; x=1684001235;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=IOA7GIourt4XlsCYYtkutlqTOJFvaYitvC0BAJCLNRU=;
+        b=X+LvUYpmLCmegKO6B0+O6sQfaOHg3oJC7s2a9xGrKr6HBWRbfeuyWG9fy3XhGolqQ6
+         rUy9JQxt74vGo4LXWOskJf6XI4BkOEIUEYzPd+FFOY39PR7YyxczC5FjflJ5qgGhVJQ1
+         lvyz/s+w7fvtBs/8LUeibynqnTGgZgOTzwfsHx3Z7XpBdYIPF+rZ6TRu0z5cdmEXrxC5
+         lb6TwyJmz/DAHTSNscVFwVVOobVe/4aJL/tqP73CKSl+FwBdjY5g1aBT22rG9WjwAoF+
+         Hh9G6WycaSwWamZGPcpEHaP9rEpEk6ArciRWnntZYOAgBoQ3gP4CVDfWopPzhiV9FC/N
+         72DQ==
+X-Gm-Message-State: AAQBX9dwzO4dOxPb3VYBc/Eoho28FVYK79GIwxsOSXl//TpwQvhAdvkD
+        uGw+c+2Gjz1R52fqzxfnaABLKvflssIj9edwS3xSqH8LeTG1uZF7fdJTHQzp6ktYKp3k9p1F8ud
+        VW73SoOLsSAfwAbvNDvTSIQ==
+X-Received: by 2002:a5e:a80b:0:b0:74d:1318:618c with SMTP id c11-20020a5ea80b000000b0074d1318618cmr2016110ioa.10.1681409234949;
+        Thu, 13 Apr 2023 11:07:14 -0700 (PDT)
+X-Google-Smtp-Source: AKy350aNIxbTK4D/1WKJFyoeXfJddaFP2YjlcKRNN7MPTcaqR3ipJt2l6zNqwAhtPjb9PRhgDB1hHQ==
+X-Received: by 2002:a5e:a80b:0:b0:74d:1318:618c with SMTP id c11-20020a5ea80b000000b0074d1318618cmr2016087ioa.10.1681409234657;
+        Thu, 13 Apr 2023 11:07:14 -0700 (PDT)
+Received: from redhat.com ([38.15.36.239])
+        by smtp.gmail.com with ESMTPSA id g7-20020a5ec747000000b00746cb6d90c0sm618854iop.14.2023.04.13.11.07.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 13 Apr 2023 11:07:14 -0700 (PDT)
+Date:   Thu, 13 Apr 2023 12:07:12 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     "Tian, Kevin" <kevin.tian@intel.com>,
+        "Liu, Yi L" <yi.l.liu@intel.com>,
+        "eric.auger@redhat.com" <eric.auger@redhat.com>,
+        "joro@8bytes.org" <joro@8bytes.org>,
+        "robin.murphy@arm.com" <robin.murphy@arm.com>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
+        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
+        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
+        "peterx@redhat.com" <peterx@redhat.com>,
+        "jasowang@redhat.com" <jasowang@redhat.com>,
+        "shameerali.kolothum.thodi@huawei.com" 
+        <shameerali.kolothum.thodi@huawei.com>,
+        "lulu@redhat.com" <lulu@redhat.com>,
+        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
+        "intel-gvt-dev@lists.freedesktop.org" 
+        <intel-gvt-dev@lists.freedesktop.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "Hao, Xudong" <xudong.hao@intel.com>,
+        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
+        "Xu, Terrence" <terrence.xu@intel.com>,
+        "Jiang, Yanting" <yanting.jiang@intel.com>,
+        "Duan, Zhenzhong" <zhenzhong.duan@intel.com>
+Subject: Re: [PATCH v3 12/12] vfio/pci: Report dev_id in
+ VFIO_DEVICE_GET_PCI_HOT_RESET_INFO
+Message-ID: <20230413120712.3b9bf42d.alex.williamson@redhat.com>
+In-Reply-To: <ZDfslVwqk6JtPpyD@nvidia.com>
+References: <20230406115347.7af28448.alex.williamson@redhat.com>
+        <ZDVfqpOCnImKr//m@nvidia.com>
+        <20230411095417.240bac39.alex.williamson@redhat.com>
+        <20230411111117.0766ad52.alex.williamson@redhat.com>
+        <ZDWph7g0hcbJHU1B@nvidia.com>
+        <20230411155827.3489400a.alex.williamson@redhat.com>
+        <ZDX0wtcvZuS4uxmG@nvidia.com>
+        <20230412105045.79adc83d.alex.williamson@redhat.com>
+        <ZDcPTTPlni/Mi6p3@nvidia.com>
+        <BN9PR11MB5276782DA56670C8209470828C989@BN9PR11MB5276.namprd11.prod.outlook.com>
+        <ZDfslVwqk6JtPpyD@nvidia.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: vcn2Twta8rFE3I-KioUGbWEnA-JqAdWE
-X-Proofpoint-ORIG-GUID: E5JQEAUTaJ5oGNTiNcihTzX245c9lCDN
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-04-13_11,2023-04-13_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 bulkscore=0
- phishscore=0 spamscore=0 priorityscore=1501 impostorscore=0 mlxscore=0
- lowpriorityscore=0 clxscore=1015 suspectscore=0 malwarescore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2303200000 definitions=main-2304130147
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 2023-04-13 at 11:43 +0200, Nico Boehr wrote:
-> Quoting Nina Schoetterl-Glausch (2023-04-05 21:55:01)
-> > On Mon, 2023-03-27 at 10:21 +0200, Nico Boehr wrote:
-> > > Since we now have the ability to run guests without MSO/MSL, add a te=
-st
-> > > to make sure this doesn't break.
-> > >=20
-> > > Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
-> > > ---
-> > >  s390x/Makefile             |   2 +
-> > >  s390x/sie-dat.c            | 121 +++++++++++++++++++++++++++++++++++=
-++
-> > >  s390x/snippets/c/sie-dat.c |  58 ++++++++++++++++++
-> > >  s390x/unittests.cfg        |   3 +
-> > >  4 files changed, 184 insertions(+)
-> > >  create mode 100644 s390x/sie-dat.c
-> > >  create mode 100644 s390x/snippets/c/sie-dat.c
-> > >=20
-> >=20
-> > Test looks good to me. Some comments below.
-> > [...]
-> >=20
-> > > diff --git a/s390x/sie-dat.c b/s390x/sie-dat.c
-> > > new file mode 100644
-> > > index 000000000000..37e46386181c
-> > > --- /dev/null
-> > > +++ b/s390x/sie-dat.c
-> > > @@ -0,0 +1,121 @@
-> > >=20
-> > [...]
-> > > +
-> > > +/* keep in sync with TOTAL_PAGE_COUNT in s390x/snippets/c/sie-dat.c =
-*/
-> > > +#define GUEST_TOTAL_PAGE_COUNT 256
-> >=20
-> > This (1M) is the maximum snippet size (see snippet_setup_guest), is thi=
-s intentional?
->=20
-> It is by accident the maximum snippet size. It is completely fine to stay=
- at 256 pages when we increase the maximum snippet size.
->=20
-> > In that case the comment is inaccurate, since you'd want to sync it wit=
-h the maximum snippet size.
-> > You also know the actual snippet size SNIPPET_LEN(c, sie_dat) so I don'=
-t see why you'd need a define
-> > at all.
->=20
-> The snippet size is not the same as the number of mapped pages in the gue=
-st, no?
+On Thu, 13 Apr 2023 08:50:45 -0300
+Jason Gunthorpe <jgg@nvidia.com> wrote:
 
-No, but one probably wouldn't want to map less that the snippet size.
-And there probably isn't a reason to map more either.
+> On Thu, Apr 13, 2023 at 08:25:52AM +0000, Tian, Kevin wrote:
+> > > From: Jason Gunthorpe <jgg@nvidia.com>
+> > > Sent: Thursday, April 13, 2023 4:07 AM
+> > > 
+> > >   
+> > > > in which case we need c) a way to
+> > > > report the overall set of affected devices regardless of ownership in
+> > > > support of 4), BDF?  
+> > > 
+> > > Yes, continue to use INFO unmodified.
+> > >   
+> > > > Are we back to replacing group-ids with dev-ids in the INFO structure,
+> > > > where an invalid dev-id either indicates an affected device with
+> > > > implied ownership (ok) or a gap in ownership (bad) and a flag somewhere
+> > > > is meant to indicate the overall disposition based on the availability
+> > > > of reset?  
+> > > 
+> > > As you explore in the following this gets ugly. I prefer to keep INFO
+> > > unchanged and add INFO2.
+> > >   
+> > 
+> > INFO needs a change when VFIO_GROUP is disabled. Now it assumes
+> > a valid iommu group always exists:
+> > 
+> > vfio_pci_fill_devs()
+> > {
+> > 	...
+> > 	iommu_group = iommu_group_get(&pdev->dev);
+> > 	if (!iommu_group)
+> > 		return -EPERM; /* Cannot reset non-isolated devices */
+> > 	...
+> > }  
+> 
+> This can still work in a ugly way. With a INFO2 the only purpose of
+> INFO would be debugging, so if someone uses no-iommu, with hotreset
+> and misconfigures it then the only downside is they don't get the
+> debugging print. But we know of nothing that uses this combination
+> anyhow..
+> 
+> > with that plus BDF cap, I'm curious what is the actual purpose of
+> > INFO2 or why cannot requirement#3 reuse the information collected
+> > via existing INFO?  
+> 
+> It can - it is just more complicated for userspace to do it, it has to
+> extract and match the BDFs and then run some algorithm to determine if
+> the opened devices cover the right set of devices in the reset group,
+> and it has to have some special code for no-iommu.
+> 
+> VS info2 would return the dev_id's and a single yes/no if the right
+> set is present. Kernel runs the algorithm instead of userspace, it
+> seems more abstract this way.
+> 
+> Also, if we make iommufd return a 'ioas dev_id group' as well it
+> composes nicely that userspace just needs one translation from dev_id.
 
-[...]
 
->=20
-> > > +     /* the first unmapped address */
-> > > +     invalid_ptr =3D (uint8_t *)(TOTAL_PAGE_COUNT * PAGE_SIZE);
-> >=20
-> > Why not just use an address high enough you know it will not be mapped?
-> > -1 should do just fine.
->=20
-> I wanted to make sure exactly the right amount of pages is mapped and no =
-more.
->=20
-> -1 would defeat that purpose.
+IIUC, the semantics we're proposing is that an INFO2 ioctl would return
+success or failure indicating whether the user has sufficient ownership
+of the affected devices, and in the success case returns an array of
+affected dev-ids within the user's iommufd_ctx.  Unopened, affected
+devices, are not reported via INFO2, and unopened, affected devices
+outside the user's scope of ownership (ie. outside the owned IOMMU
+group) will generate a failure condition.
 
-You want to touch the first page that isn't mapped?
-Do you also want to map a certain number of pages?
-I.e fill an entire page table and have the invalid pointer be mapped by ano=
-ther segment table entry?
+As for the INFO ioctl, it's described as unchanged, which does raise
+the question of what is reported for IOMMU groups and how does the
+value there coherently relate to anything else in the cdev-exclusive
+vfio API...
 
-With a small linker script change the snippet could know it's own length.
-Then you could map just the required number of pages and don't need to keep=
- those numbers in sync.
+We had already iterated a proposal where the group-id is replaced with
+a dev-id in the existing ioctl and a flag indicates when the return
+value is a dev-id vs group-id.  This had a gap that userspace cannot
+determine if a reset is available given this information since un-owned
+devices report an invalid dev-id and userspace can't know if it has
+implicit ownership.
+
+It seems cleaner to me though that we would could still re-use INFO in
+a similar way, simply defining a new flag bit which is valid only in
+the case of returning dev-ids and indicates if the reset is available.
+Therefore in one ioctl, userspace knows if hot-reset is available
+(based on a kernel determination) and can pull valid dev-ids from the
+array to associate affected, owned devices, and still has the
+equivalent information to know that one or more of the devices listed
+with an invalid dev-id are preventing the hot-reset from being
+available.
+
+Is that an option?  Thanks,
+
+Alex
 
