@@ -2,53 +2,53 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 76B0CC77B78
-	for <linux-s390@archiver.kernel.org>; Sat, 15 Apr 2023 09:08:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EE9D0C77B77
+	for <linux-s390@archiver.kernel.org>; Sat, 15 Apr 2023 12:09:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229948AbjDOJIr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 15 Apr 2023 05:08:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37188 "EHLO
+        id S230108AbjDOMJh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 15 Apr 2023 08:09:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229907AbjDOJIn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 15 Apr 2023 05:08:43 -0400
-Received: from mail-wr1-x432.google.com (mail-wr1-x432.google.com [IPv6:2a00:1450:4864:20::432])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F50E6EA1;
-        Sat, 15 Apr 2023 02:08:41 -0700 (PDT)
-Received: by mail-wr1-x432.google.com with SMTP id ffacd0b85a97d-2f7a7f9667bso169420f8f.1;
-        Sat, 15 Apr 2023 02:08:41 -0700 (PDT)
+        with ESMTP id S230044AbjDOMJe (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 15 Apr 2023 08:09:34 -0400
+Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4497059FE;
+        Sat, 15 Apr 2023 05:09:29 -0700 (PDT)
+Received: by mail-wm1-x32c.google.com with SMTP id n42-20020a05600c3baa00b003f0b12814aaso2287249wms.0;
+        Sat, 15 Apr 2023 05:09:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1681549719; x=1684141719;
+        d=gmail.com; s=20221208; t=1681560567; x=1684152567;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=YU5XBdBhZNlo0+3G/D0/kUTKBCmlg8gN20o0h9fnHXU=;
-        b=ku3pBj0LZFTzpWzE2T7M2Fle9zjSMkPWeX/32sk89A1RSbYjMPlEGhQxMICGWk5SQi
-         nR+g2yRd3vpG2cOlbvKce7ZJ9tsgUHh2mV5kwjfqUoQ6x65Obima1ac4D/nRUUH7uy8s
-         oLZrAxikJ+/VvRJnKyhqRoDFfJoPW2HUPxoI1qXYSrkyDsj+j6xQExzqXZ6bSeS4bkyH
-         yTGp6ILrhnzoJM5CtX6vjYxLGUM/4X/qQJG8Juh8sLhxyW/EgdztysGkRcAcG+Ouh8Ky
-         +Izr89EdK5ZVRg+7vEtR6Od4LFaRAEWH0TD6HTTthlMqQZAo/Rpl9t5Cmnu1yrbpXR6b
-         bSaQ==
+        bh=W0l2+WhOTuhsjrgo5218GoveeiorDwRw7Vzzp86RCdQ=;
+        b=ldmw31RqwDsq19kNUyAGwCe6feARcBsKOWHer9UDyhHpXBW86bINZ4rpI99CYQXM3+
+         JERVDUA0BVrG5md+jDxa0acQWcQavONMHScc6SB/3xaQzbenQK0QpbQbIkLpaLP9jAfG
+         e/8lzW37JCyFs7Z17XxvJnEXXn7RIxRDv594gU7u7JgSZMJp9Uy9WDSppvCABKPg9q6P
+         6lgN2qvP2iE7QGZPWYRob5VjTGLMpqT1ukkX4auc09mbz9UYoKDOMgZczOt3ZuXY57kC
+         GvCT2JFtQmnaasrqUJ6+X5DcdjMmScBCDHnK/ROGEGVUOw13vr7fvIAtwDo3nrFrASqg
+         40qw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1681549719; x=1684141719;
+        d=1e100.net; s=20221208; t=1681560567; x=1684152567;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=YU5XBdBhZNlo0+3G/D0/kUTKBCmlg8gN20o0h9fnHXU=;
-        b=LmlnQdgg4hEdo3FcTrExfCq9oLcpgX0iiOhr/AJej9mwA0aLmY3tbLZwtM5C61G/ZY
-         dvMyserl8VgW1iyI96o7nSlU6OoZM3mpbEywAAGvTtHdTaShZGPXtEGD9bIcXsRLeCeg
-         Dp5UQPkeYyBIlspSKVqpguWvzaMsDFKYtxs7xLjszMED1EjkbjoR7tPMRwEGqzN3v1dA
-         amZTxbLXxUV3fK5mwOR8fUJPLMTJOpnN4BNC6czrg8YntcOyW2yWBJmWI0Q0spDTODXo
-         fHTiqVh/4dPPKRiyBunj6S7mtZB5MhRui6XverY9CP1oXT+s+myCHuMFSur/IVxqyYJM
-         By8w==
-X-Gm-Message-State: AAQBX9dX7dI/HyBodNSWZFVqAorX9nkSD1NqtC3U88qfPmODesaSTR1y
-        hsBWticxpnSsh//Hv0RUImA=
-X-Google-Smtp-Source: AKy350YqhaHjGrrIWI6HtvoUC4q0CJmNJshJ4HMSKWRqtZHzRcru1rPhk/NMIu6RYyif+yR/1zyrVA==
-X-Received: by 2002:adf:e0c3:0:b0:2cf:e747:b0d4 with SMTP id m3-20020adfe0c3000000b002cfe747b0d4mr1119861wri.40.1681549719045;
-        Sat, 15 Apr 2023 02:08:39 -0700 (PDT)
+        bh=W0l2+WhOTuhsjrgo5218GoveeiorDwRw7Vzzp86RCdQ=;
+        b=BKWXoOEa9ndBXj8HrZT0P7lohYLgeCH+08eLYPjmTh8aSZ/5DvVhdnwKZzBIwq65CB
+         86H0JF3M6psVMRAE0WjA6Mzy1nvjcL33hqHr4ndXXS9x65ekWxNj+DQlDMoWFV3KI1oU
+         Ef9LLY/ig7gjQbsrng/1fAZ7EMTE9hx7PihchW6TKsf294MBAFasPcVzJGsXxyRFewGW
+         SRdVUorLIR80lzryLHO+3lvRilFWhCRNjYEG6Jh/7JuZ6G7/YWeThIxFQC7jBldEKaME
+         ZmysX2ROmWl7lqGa079dt8dlen4lTmsf6NFJabMj4eSGO1pbSDd+dpsq/dE73GPbFnJx
+         K65Q==
+X-Gm-Message-State: AAQBX9fz64U5JLNkZxvZGYRz/5DfslXIsKhQ+atT5VbWQ5aEOamHY3sI
+        7dGr9srfg66t4P/kAjnAEMw=
+X-Google-Smtp-Source: AKy350a3KTToXZy6mk4WHVMLQX+oM6Sg5f2Asfiie67hTn0jXqMQSjIUSB1JD5MwmpH2ws8BySgnig==
+X-Received: by 2002:a7b:c7c9:0:b0:3f1:6ecf:537 with SMTP id z9-20020a7bc7c9000000b003f16ecf0537mr672424wmk.33.1681560567358;
+        Sat, 15 Apr 2023 05:09:27 -0700 (PDT)
 Received: from lucifer.home ([2a00:23c5:dc8c:8701:1663:9a35:5a7b:1d76])
-        by smtp.googlemail.com with ESMTPSA id v3-20020adfe4c3000000b002f459afc809sm5325162wrm.72.2023.04.15.02.08.37
+        by smtp.googlemail.com with ESMTPSA id q21-20020a05600c46d500b003f03d483966sm10428181wmo.44.2023.04.15.05.09.25
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 15 Apr 2023 02:08:38 -0700 (PDT)
+        Sat, 15 Apr 2023 05:09:26 -0700 (PDT)
 From:   Lorenzo Stoakes <lstoakes@gmail.com>
 To:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
         Andrew Morton <akpm@linux-foundation.org>
@@ -87,12 +87,12 @@ Cc:     Matthew Wilcox <willy@infradead.org>,
         "Serge E . Hallyn" <serge@hallyn.com>,
         Paolo Bonzini <pbonzini@redhat.com>,
         Lorenzo Stoakes <lstoakes@gmail.com>
-Subject: [PATCH v2 3/7] mm/gup: remove vmas parameter from get_user_pages_remote()
-Date:   Sat, 15 Apr 2023 10:08:34 +0100
-Message-Id: <631001ecc556c5e348ff4f47719334c31f7bd592.1681547405.git.lstoakes@gmail.com>
+Subject: [PATCH v3 3/7] mm/gup: remove vmas parameter from get_user_pages_remote()
+Date:   Sat, 15 Apr 2023 13:09:24 +0100
+Message-Id: <523f0764f4979276a6d4b89cbad9af9124e4bf0a.1681558407.git.lstoakes@gmail.com>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <cover.1681547405.git.lstoakes@gmail.com>
-References: <cover.1681547405.git.lstoakes@gmail.com>
+In-Reply-To: <cover.1681558407.git.lstoakes@gmail.com>
+References: <cover.1681558407.git.lstoakes@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -119,16 +119,16 @@ Signed-off-by: Lorenzo Stoakes <lstoakes@gmail.com>
  arch/s390/kvm/interrupt.c |  2 +-
  fs/exec.c                 |  2 +-
  include/linux/mm.h        |  2 +-
- kernel/events/uprobes.c   | 12 +++++++-----
+ kernel/events/uprobes.c   | 14 +++++++++-----
  mm/gup.c                  | 12 ++++--------
- mm/memory.c               |  9 +++++----
+ mm/memory.c               |  8 ++++++--
  mm/rmap.c                 |  2 +-
  security/tomoyo/domain.c  |  2 +-
  virt/kvm/async_pf.c       |  3 +--
- 10 files changed, 26 insertions(+), 27 deletions(-)
+ 10 files changed, 29 insertions(+), 25 deletions(-)
 
 diff --git a/arch/arm64/kernel/mte.c b/arch/arm64/kernel/mte.c
-index f5bcb0dc6267..d43a744d7919 100644
+index f5bcb0dc6267..904785697e91 100644
 --- a/arch/arm64/kernel/mte.c
 +++ b/arch/arm64/kernel/mte.c
 @@ -419,7 +419,6 @@ long get_mte_ctrl(struct task_struct *task)
@@ -160,7 +160,7 @@ index f5bcb0dc6267..d43a744d7919 100644
  		 */
 -		if (!(vma->vm_flags & VM_MTE)) {
 +		vma = vma_lookup(mm, addr);
-+		if (!vma || !(vma->vm_flags & VM_MTE)) {
++		if (WARN_ON_ONCE(!vma) || !(vma->vm_flags & VM_MTE)) {
  			ret = -EOPNOTSUPP;
  			put_page(page);
  			break;
@@ -204,7 +204,7 @@ index ec9875c59f6d..1bfe73a2b6d3 100644
  			   unsigned long start, unsigned long nr_pages,
  			   unsigned int gup_flags, struct page **pages,
 diff --git a/kernel/events/uprobes.c b/kernel/events/uprobes.c
-index 59887c69d54c..b21993cd2dcc 100644
+index 59887c69d54c..c5ed6bb340f7 100644
 --- a/kernel/events/uprobes.c
 +++ b/kernel/events/uprobes.c
 @@ -365,7 +365,6 @@ __update_ref_ctr(struct mm_struct *mm, unsigned long vaddr, short d)
@@ -224,7 +224,7 @@ index 59887c69d54c..b21993cd2dcc 100644
  	if (unlikely(ret <= 0)) {
  		/*
  		 * We are asking for 1 page. If get_user_pages_remote() fails,
-@@ -475,10 +474,14 @@ int uprobe_write_opcode(struct arch_uprobe *auprobe, struct mm_struct *mm,
+@@ -475,10 +474,16 @@ int uprobe_write_opcode(struct arch_uprobe *auprobe, struct mm_struct *mm,
  		gup_flags |= FOLL_SPLIT_PMD;
  	/* Read the page with vaddr into memory */
  	ret = get_user_pages_remote(mm, vaddr, 1, gup_flags,
@@ -234,13 +234,15 @@ index 59887c69d54c..b21993cd2dcc 100644
  		return ret;
  
 +	vma = vma_lookup(mm, vaddr);
-+	if (!vma)
++	if (WARN_ON_ONCE(!vma)) {
++		ret = -EINVAL;
 +		goto put_old;
++	}
 +
  	ret = verify_opcode(old_page, vaddr, &opcode);
  	if (ret <= 0)
  		goto put_old;
-@@ -2027,8 +2030,7 @@ static int is_trap_at_addr(struct mm_struct *mm, unsigned long vaddr)
+@@ -2027,8 +2032,7 @@ static int is_trap_at_addr(struct mm_struct *mm, unsigned long vaddr)
  	 * but we treat this as a 'remote' access since it is
  	 * essentially a kernel access to the memory.
  	 */
@@ -301,7 +303,7 @@ index 931c805bc32b..9440aa54c741 100644
  	return 0;
  }
 diff --git a/mm/memory.c b/mm/memory.c
-index 8ddb10199e8d..913e693322f2 100644
+index 8ddb10199e8d..310bfb910378 100644
 --- a/mm/memory.c
 +++ b/mm/memory.c
 @@ -5591,7 +5591,9 @@ int __access_remote_vm(struct mm_struct *mm, unsigned long addr, void *buf,
@@ -323,20 +325,16 @@ index 8ddb10199e8d..913e693322f2 100644
  			if (!vma)
  				break;
  			if (vma->vm_ops && vma->vm_ops->access)
-@@ -5617,11 +5618,11 @@ int __access_remote_vm(struct mm_struct *mm, unsigned long addr, void *buf,
- 				bytes = PAGE_SIZE-offset;
- 
- 			maddr = kmap(page);
--			if (write) {
-+			if (write && vma) {
- 				copy_to_user_page(vma, page, addr,
- 						  maddr + offset, buf, bytes);
- 				set_page_dirty_lock(page);
--			} else {
-+			} else if (vma) {
- 				copy_from_user_page(vma, page, addr,
- 						    buf, maddr + offset, bytes);
- 			}
+@@ -5610,6 +5611,9 @@ int __access_remote_vm(struct mm_struct *mm, unsigned long addr, void *buf,
+ 				break;
+ 			bytes = ret;
+ #endif
++		} else if (unlikely(!vma)) {
++			VM_WARN_ON_ONCE(1);
++			break;
+ 		} else {
+ 			bytes = len;
+ 			offset = addr & (PAGE_SIZE-1);
 diff --git a/mm/rmap.c b/mm/rmap.c
 index ba901c416785..756ea8a9bb90 100644
 --- a/mm/rmap.c
