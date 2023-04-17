@@ -2,194 +2,224 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CCE72C77B70
-	for <linux-s390@archiver.kernel.org>; Mon, 17 Apr 2023 14:06:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D5AD4C77B70
+	for <linux-s390@archiver.kernel.org>; Mon, 17 Apr 2023 15:14:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230419AbjDQOGL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 17 Apr 2023 10:06:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58362 "EHLO
+        id S229892AbjDQPOw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 17 Apr 2023 11:14:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230229AbjDQOGI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 17 Apr 2023 10:06:08 -0400
-Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on2048.outbound.protection.outlook.com [40.107.94.48])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91E5576A3;
-        Mon, 17 Apr 2023 07:05:31 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=E3OSdnYycFvlkjlrGikfIQ407CH/4eROyN85itALEJOVSk2EuSyZfgbhypDoxyGfoEiugSTRsiDaFm5vrKkeprFfCsaOu2BSAtFd0bQNYzU7GW7Bgmew56wqiDjSRTQbK2zToa9AuYEiq8n6/20L++TdJvGlfdKYWRQXwlrDwl1/+D6gkqAzfZQRgCgf4gqtkAAyW1Fxu5H1y0hQkUgMG/OmDdjdMFsrboRxbFYIXFikj6yD4bZjYQQBR997GR4bQ5GY2eWwkWx+ivWC3xjJa83wYH9EE9rGNRTmNVr1fdA4qdgLwnPd4GwL6wVVfjRJcmhexZX5in1c4Th9sT+Oeg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=eaOujoy9GiOjbGc4gNIvB35Mqs0EHO8/SlZkUunU2TY=;
- b=e1jldd3c8wEwt+bSzvRHEA27s792RsWGCvnkHMknzH02hifSJB+/npXmmULONqXc4PJrA3y/hR5kyqMz3iVmXf8I91WqrwfAD0GB+JmokYkdnlkoSD7H0CcSBnouryhj0+7pnp4QddYs/M8g0AD4yfiFyIn3ZkTCkcHHnzny9ooLlIWxgOANQvmRqgAPQT9mNygqlR45eEJdZuIWt4nd7Fsg+LPl6+Z26QrUIJxjyRIInDyayXCF3iJGKX2AuuC0knnBF9q+OXpEh1+fzeHd5XOrsNxFrOJ5fDI3WRSrN1kz3YKCQED/dmn2M1yRNuCeyN73LC64cY3FE+Dt8iEVqg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=eaOujoy9GiOjbGc4gNIvB35Mqs0EHO8/SlZkUunU2TY=;
- b=kCSvqdyTTuuDYQKs+JBAbLJS73Tw9Ruyh7+5Zeg00bhnj/yDFARPAGBAp28nlf5ESrt7dfxOB6xRpCYwp+P7AZrYb72mPqtz2mm72zhbZp30ybdZlbp3wlhV1xxNVcpfDxN28S9kIKIcQWwkQ0EL8KiBiM3nNi8E8VQRL5o8yyqGIAs+dwS52XO2BweScV6aAaMJO5CqTs/e3cyxX0pRthCs0Uq06eYucE/madbd7B3UG50rB6d7p6uF3xO7L/vKP7QPzaG0RuzNLCT3STtNJB1VCgQv73cfHY3iDDMZiSoVkouCu2isrtuotsIoVdR5xCNC9o9Bnaa3mTn/yA2xfA==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
- by MW4PR12MB6708.namprd12.prod.outlook.com (2603:10b6:303:1ed::5) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6298.45; Mon, 17 Apr
- 2023 14:05:23 +0000
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::6045:ad97:10b7:62a2]) by LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::6045:ad97:10b7:62a2%9]) with mapi id 15.20.6298.030; Mon, 17 Apr 2023
- 14:05:23 +0000
-Date:   Mon, 17 Apr 2023 11:05:19 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Alex Williamson <alex.williamson@redhat.com>
-Cc:     "Tian, Kevin" <kevin.tian@intel.com>,
-        "Liu, Yi L" <yi.l.liu@intel.com>,
-        "eric.auger@redhat.com" <eric.auger@redhat.com>,
-        "joro@8bytes.org" <joro@8bytes.org>,
-        "robin.murphy@arm.com" <robin.murphy@arm.com>,
-        "cohuck@redhat.com" <cohuck@redhat.com>,
-        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
-        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
-        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
-        "peterx@redhat.com" <peterx@redhat.com>,
-        "jasowang@redhat.com" <jasowang@redhat.com>,
-        "shameerali.kolothum.thodi@huawei.com" 
-        <shameerali.kolothum.thodi@huawei.com>,
-        "lulu@redhat.com" <lulu@redhat.com>,
-        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "Hao, Xudong" <xudong.hao@intel.com>,
-        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
-        "Xu, Terrence" <terrence.xu@intel.com>,
-        "Jiang, Yanting" <yanting.jiang@intel.com>,
-        "Duan, Zhenzhong" <zhenzhong.duan@intel.com>
-Subject: Re: [PATCH v3 12/12] vfio/pci: Report dev_id in
- VFIO_DEVICE_GET_PCI_HOT_RESET_INFO
-Message-ID: <ZD1SH8/bpcytlp+E@nvidia.com>
-References: <20230411095417.240bac39.alex.williamson@redhat.com>
- <20230411111117.0766ad52.alex.williamson@redhat.com>
- <ZDWph7g0hcbJHU1B@nvidia.com>
- <20230411155827.3489400a.alex.williamson@redhat.com>
- <ZDX0wtcvZuS4uxmG@nvidia.com>
- <20230412105045.79adc83d.alex.williamson@redhat.com>
- <ZDcPTTPlni/Mi6p3@nvidia.com>
- <BN9PR11MB5276782DA56670C8209470828C989@BN9PR11MB5276.namprd11.prod.outlook.com>
- <ZDfslVwqk6JtPpyD@nvidia.com>
- <20230413120712.3b9bf42d.alex.williamson@redhat.com>
+        with ESMTP id S230052AbjDQPOu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 17 Apr 2023 11:14:50 -0400
+Received: from mail-wm1-x32f.google.com (mail-wm1-x32f.google.com [IPv6:2a00:1450:4864:20::32f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EA40FB;
+        Mon, 17 Apr 2023 08:14:37 -0700 (PDT)
+Received: by mail-wm1-x32f.google.com with SMTP id 5b1f17b1804b1-3f09b9ac51dso44003695e9.0;
+        Mon, 17 Apr 2023 08:14:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1681744475; x=1684336475;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=e047zcn20dpW+BVxg6WrLYEA74ZTRhvYR9ivWfzVffI=;
+        b=J6mNTdjJXRwthJ2zCT9NEY6Z9hezMuH8x4BK/1R4BCVgk7Ci/HPN+jrcwQsKcCuTkI
+         I1UPqwJz5ABCTk7X5opTEZxdgNLtiV+gU4ZZA1u010mlWUCYGH/bChtn7BAwLYDZ3JHk
+         RTI8uWQsSY0HbGSVWTcygeXA3TlQzhMwGYmt3V1Id6ozIaB9PWoHyCMpAq+wrBMf57z1
+         SGYdFjrENk4shHH5MXl7JnDBNcBGd0m9BV/6PlyFsgA6iVj6APNfSGWyjUQ/JZLa59nc
+         mSzqI9Ijxbahm/QxlPpW5/WVK0DYMNibbaiJENbR3l7PJJ/9luB7VdSEH8WgJVZjnIyE
+         roWw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1681744475; x=1684336475;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=e047zcn20dpW+BVxg6WrLYEA74ZTRhvYR9ivWfzVffI=;
+        b=WBcBkbbaQqQNO2EzqeDrWHWVJ212chCFO1VLfgN9SH6RSufnjrVHf6kiHrFPn0rV9K
+         +tRHipe2oMx8fjZlW8fxbMn/dR5vEgfXYdHLbikX1/aYwG46hCF7I2qSQgbm+3qU4HyM
+         2E9v5S7P/aMWBUGsJQJBE2ZzaOKO41pxOf37dAeVcIU9G4tsiMpHPNVhEZcFkEcMl6BW
+         n70KqLWMoiq96NDGFZKo6ERrX0Ii8wyckT1OEIiDZoWYaBgEHc8kHgGc4i57suqip30T
+         YMhzvnES5C+KEMpHZS3qI0fjRFVeQ3G+PxjiQQXD5JQJJWjR6f051VB+PCh5wc2hA9GB
+         SF7A==
+X-Gm-Message-State: AAQBX9ecJRV9oOfUDy+O+OB3DaT5DTrt2iQDK3qlyQMXCWlGHAyywTHR
+        uLaJ/LOAR4cN9pQdIo0C+nE=
+X-Google-Smtp-Source: AKy350YbK9Uk+W2I0O+WB4raZRtNy4HfgrcXDXV+XwhnLO6MAXE8TxKBQdwImQWHd3Rphf8UasdaGw==
+X-Received: by 2002:adf:cf01:0:b0:2fa:abcd:59a2 with SMTP id o1-20020adfcf01000000b002faabcd59a2mr2273209wrj.30.1681744475252;
+        Mon, 17 Apr 2023 08:14:35 -0700 (PDT)
+Received: from localhost (host86-156-84-164.range86-156.btcentralplus.com. [86.156.84.164])
+        by smtp.gmail.com with ESMTPSA id i4-20020a5d55c4000000b002f74578f494sm8341442wrw.41.2023.04.17.08.14.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 17 Apr 2023 08:14:34 -0700 (PDT)
+Date:   Mon, 17 Apr 2023 16:14:33 +0100
+From:   Lorenzo Stoakes <lstoakes@gmail.com>
+To:     "Eric W. Biederman" <ebiederm@xmission.com>
+Cc:     Jason Gunthorpe <jgg@nvidia.com>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Matthew Wilcox <willy@infradead.org>,
+        David Hildenbrand <david@redhat.com>,
+        linux-arm-kernel@lists.infradead.org, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-perf-users@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Kees Cook <keescook@chromium.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Christian Brauner <brauner@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Ian Rogers <irogers@google.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Kentaro Takeda <takedakn@nttdata.co.jp>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Paul Moore <paul@paul-moore.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E . Hallyn" <serge@hallyn.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH 3/7] mm/gup: remove vmas parameter from
+ get_user_pages_remote()
+Message-ID: <d663673d-f9f7-444a-9cf8-b33d450e356a@lucifer.local>
+References: <cover.1681508038.git.lstoakes@gmail.com>
+ <5a4cf1ebf1c6cdfabbf2f5209facb0180dd20006.1681508038.git.lstoakes@gmail.com>
+ <ZD1FECftWekha6Do@nvidia.com>
+ <9be77e7e-4531-4e1c-9e0d-4edbb5ad3bd5@lucifer.local>
+ <ZD1GrBezHrJTo6x2@nvidia.com>
+ <241f0c22-f3d6-436e-a0d8-be04e281ed2f@lucifer.local>
+ <87cz427diu.fsf@email.froward.int.ebiederm.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230413120712.3b9bf42d.alex.williamson@redhat.com>
-X-ClientProxiedBy: BYAPR05CA0107.namprd05.prod.outlook.com
- (2603:10b6:a03:e0::48) To LV2PR12MB5869.namprd12.prod.outlook.com
- (2603:10b6:408:176::16)
-MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|MW4PR12MB6708:EE_
-X-MS-Office365-Filtering-Correlation-Id: 414b1ed4-af11-47dd-f8af-08db3f4cc8cd
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: n4ObFVROTlUhXtkcky32cgS9a6BL1ENhzzveLXu/sKxWdzHGtmBsuNdF+7XyGNBjl9tc0ruE4wkrnaFAzZSlOK81MpL00TlDREMarDd37HiTwaJ4dJV2kK0389j3u2WnfgAXedmmf9opjZKT5iWxQw6+O9cYM4KxYtwmqsKofRbc+g8bbvjkSfS5yzs7KSjQI2qatAEI1tPNFhb1Ix3X5VTazH1JtY8tydiox9Z3GCVcyU57LQeatczxF4DczOOQ2mcrXUOa8HlkmXqsWs6oC2RAYCz1zG6faWaVzg4H2F8ivl0ymLh+D2DYjkZmwvy5CEIHlfiCBUL0HXxJIXiLMrEbfes+4WKra+0LHz+bPCsIWkiIhJ7bKoSwj5ZZYIWfzLi9/sA1gthXIRZ9KWw0EuJiMaQL9cHIiA2UqqHDGxQUDAHYVWz4DR0RwcglfyJG4sXcICJ15JeeWt3+PxFmyZ8sf28VfpIEXWbAIfx9Tbv+FmOj5kcTHK13bJc8ZIwNqoQCUaPvzpcqHmHvSlAr45ljdN2qJFJAqJke7AtI0mEnGjHYbBqAMdlMXqge1sVZ
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(396003)(376002)(366004)(39860400002)(136003)(346002)(451199021)(36756003)(6916009)(54906003)(4326008)(316002)(66556008)(66946007)(66476007)(6486002)(478600001)(6666004)(5660300002)(8936002)(8676002)(41300700001)(7416002)(2906002)(86362001)(38100700002)(2616005)(26005)(6512007)(6506007)(186003)(83380400001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?8Wiplzo2qJTqs11FXYkVsX4TDIsSH2SGHpmtG40f5bbmLx1tEDt3YWShwQCu?=
- =?us-ascii?Q?bpowlONaRg8XvqDHpgEmgPOhRalmwJhOYCCdf4deQRbgnG0DP+yDbBGAGMDA?=
- =?us-ascii?Q?YEC2Lq89G3IIf48oS/46YUjHTY/rp0f1FUIusP3T4hfJfsPL7fE6Jh11zqAK?=
- =?us-ascii?Q?6q4LYMZU43LfPC7U3jzU6DqFGsHRzMbLtwire7hvG8TxoLOj5LmOIUe/aas1?=
- =?us-ascii?Q?iue2FeZdikDRb2dfjwici9L64uNtOJ8tQP3NmCN8aBnaJmjhTC0w1FMo/BS3?=
- =?us-ascii?Q?ZsgZ2YrzA9RDacbwzoK/dtd1VxJL8SlGmiHPo2uvcFPAOKbHhyL8uE7sClIg?=
- =?us-ascii?Q?6t64L9Vaunhoa7GjSfsjgvXhR3C+YOctzIaoIYySR31m1YNeFqy7GKhSDYJN?=
- =?us-ascii?Q?3USrIL8pHuLDAy7JfVUTdgoBo9V0jWVB32Re/zRiemzBSkIB1vKp1PKIoZeR?=
- =?us-ascii?Q?2IT3qNG+E8uFoIfQU+Tvbbljs5sM/61Z+yNg7MCoPqqj7nkP0RWH1GTCmCl+?=
- =?us-ascii?Q?Iir23IXPW1T7b1J5jL+eqrKUnxYQoTmvLOKSRWMQsa/OLwi0X74hGuGyjb9D?=
- =?us-ascii?Q?5e21GTUb8Fa0o7f6BDpAJMk5sZPmXoL/SmaQ5R0uug/1x7aPsbl2Z2MrPvXJ?=
- =?us-ascii?Q?es5Qvw4NoHMSeC2KuwnEyA71gpeldlsSgs4a3DyHT4ukStym7oNSzcEZWjix?=
- =?us-ascii?Q?X6MKp6cza4T95vZJx3TrjpJ6Himn1LnD/N9j8TM8aC10TijGbuQtWxd8Ut2X?=
- =?us-ascii?Q?Y6+U4EFOfUA5hlMyyWKTG/gza+WziiP/bDd+1G9fcqr+bCEis4UXe6H76ZLA?=
- =?us-ascii?Q?JZYazBJ+I4saoQEXC3Bov/gXZwxHEjZbotrh5QJl3p9WkGMwX6SP7KK0EkEn?=
- =?us-ascii?Q?WZTLVOgTcML8IE9WTXZ47CLdBKkfgp4hBiYv54pCERD/0klje8ECi24qa8up?=
- =?us-ascii?Q?jCk5jcI6HMlETtqvLeVzNJ7xU5l1w2tVGm4kNs+8Wp5IWv3370koKzlUUUVx?=
- =?us-ascii?Q?msBJrDuOv+RZ/GWtcaJV24erccg3bnNZANerc+a2RSmddA0Qspx3I0CqpXF/?=
- =?us-ascii?Q?0lpmznkr8NU1rGzICz35+FTWudF9l/5in1N2pVnYqielY/Vqv6U6ZUZtXKxm?=
- =?us-ascii?Q?rkvSNztBq7hwDfJ2CO3pSdl3viub4NFHHjdodMzbV8bezBAVOi3Nl4iWC4+Q?=
- =?us-ascii?Q?VZ0Z0uu00UHNmWfw0/5w7GYu2Nd+FlGVFi5z/WTL7aBxMMB2YwT08hQHWXaJ?=
- =?us-ascii?Q?1/2/MJsEVl4RdUD25TfM5od4Q3GhAazhQx/K2H+LNl5M2O2MvrUqkkxWRbKy?=
- =?us-ascii?Q?TDlPs3Jn1srCUqnjt20M/Jz6kwbe+rpN3VDnEjA1XAu9QmJtRmOxXqLSNy7F?=
- =?us-ascii?Q?2ztCr8yHV/vLmeLVx9V+t6q9GrOM2TBYZlh93/YWAtaT6caOPonT4EdRIEhm?=
- =?us-ascii?Q?7OT/rOEfsOjDvVMVKUOO5gJyHLMi8lNvNMYwHL7W2FgOoB4fVI7xIboAgHCD?=
- =?us-ascii?Q?yQ6BCEo+JxKTT9b8ell+pk3wW9C0HQsXrG/mW2FNorKsUlCN7wkvUAn6AOnY?=
- =?us-ascii?Q?VgvB0HMr4hhIddas3D8Ep98X09DZAixDFFjled9M?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 414b1ed4-af11-47dd-f8af-08db3f4cc8cd
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Apr 2023 14:05:23.3120
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: ZtLoIT3c2IVS8RVzP0m0yG+T1HMNNFOwHptGV4XH61wN1eytzH/Vk47Y9RGci5vI
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW4PR12MB6708
+In-Reply-To: <87cz427diu.fsf@email.froward.int.ebiederm.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Apr 13, 2023 at 12:07:12PM -0600, Alex Williamson wrote:
+On Mon, Apr 17, 2023 at 10:07:53AM -0500, Eric W. Biederman wrote:
+> Lorenzo Stoakes <lstoakes@gmail.com> writes:
+>
+> > On Mon, Apr 17, 2023 at 10:16:28AM -0300, Jason Gunthorpe wrote:
+> >> On Mon, Apr 17, 2023 at 02:13:39PM +0100, Lorenzo Stoakes wrote:
+> >> > On Mon, Apr 17, 2023 at 10:09:36AM -0300, Jason Gunthorpe wrote:
+> >> > > On Sat, Apr 15, 2023 at 12:27:31AM +0100, Lorenzo Stoakes wrote:
+> >> > > > The only instances of get_user_pages_remote() invocations which used the
+> >> > > > vmas parameter were for a single page which can instead simply look up the
+> >> > > > VMA directly. In particular:-
+> >> > > >
+> >> > > > - __update_ref_ctr() looked up the VMA but did nothing with it so we simply
+> >> > > >   remove it.
+> >> > > >
+> >> > > > - __access_remote_vm() was already using vma_lookup() when the original
+> >> > > >   lookup failed so by doing the lookup directly this also de-duplicates the
+> >> > > >   code.
+> >> > > >
+> >> > > > This forms part of a broader set of patches intended to eliminate the vmas
+> >> > > > parameter altogether.
+> >> > > >
+> >> > > > Signed-off-by: Lorenzo Stoakes <lstoakes@gmail.com>
+> >> > > > ---
+> >> > > >  arch/arm64/kernel/mte.c   |  5 +++--
+> >> > > >  arch/s390/kvm/interrupt.c |  2 +-
+> >> > > >  fs/exec.c                 |  2 +-
+> >> > > >  include/linux/mm.h        |  2 +-
+> >> > > >  kernel/events/uprobes.c   | 10 +++++-----
+> >> > > >  mm/gup.c                  | 12 ++++--------
+> >> > > >  mm/memory.c               |  9 +++++----
+> >> > > >  mm/rmap.c                 |  2 +-
+> >> > > >  security/tomoyo/domain.c  |  2 +-
+> >> > > >  virt/kvm/async_pf.c       |  3 +--
+> >> > > >  10 files changed, 23 insertions(+), 26 deletions(-)
+> >> > > >
+> >> > > > diff --git a/arch/arm64/kernel/mte.c b/arch/arm64/kernel/mte.c
+> >> > > > index f5bcb0dc6267..74d8d4007dec 100644
+> >> > > > --- a/arch/arm64/kernel/mte.c
+> >> > > > +++ b/arch/arm64/kernel/mte.c
+> >> > > > @@ -437,8 +437,9 @@ static int __access_remote_tags(struct mm_struct *mm, unsigned long addr,
+> >> > > >  		struct page *page = NULL;
+> >> > > >
+> >> > > >  		ret = get_user_pages_remote(mm, addr, 1, gup_flags, &page,
+> >> > > > -					    &vma, NULL);
+> >> > > > -		if (ret <= 0)
+> >> > > > +					    NULL);
+> >> > > > +		vma = vma_lookup(mm, addr);
+> >> > > > +		if (ret <= 0 || !vma)
+> >> > > >  			break;
+> >> > >
+> >> > > Given the slightly tricky error handling, it would make sense to turn
+> >> > > this pattern into a helper function:
+> >> > >
+> >> > > page = get_single_user_page_locked(mm, addr, gup_flags, &vma);
+> >> > > if (IS_ERR(page))
+> >> > >   [..]
+> >> > >
+> >> > > static inline struct page *get_single_user_page_locked(struct mm_struct *mm,
+> >> > >    unsigned long addr, int gup_flags, struct vm_area_struct **vma)
+> >> > > {
+> >> > > 	struct page *page;
+> >> > > 	int ret;
+> >> > >
+> >> > > 	ret = get_user_pages_remote(*mm, addr, 1, gup_flags, &page, NULL, NULL);
+> >> > > 	if (ret < 0)
+> >> > > 	   return ERR_PTR(ret);
+> >> > > 	if (WARN_ON(ret == 0))
+> >> > > 	   return ERR_PTR(-EINVAL);
+> >> > >         *vma = vma_lookup(mm, addr);
+> >> > > 	if (WARN_ON(!*vma) {
+> >> > > 	   put_user_page(page);
+> >> > > 	   return ERR_PTR(-EINVAL);
+> >> > >         }
+> >> > > 	return page;
+> >> > > }
+> >> > >
+> >> > > It could be its own patch so this change was just a mechanical removal
+> >> > > of NULL
+> >> > >
+> >> > > Jason
+> >> > >
+> >> >
+> >> > Agreed, I think this would work better as a follow up patch however so as
+> >> > not to distract too much from the core change.
+> >>
+> >> I don't think you should open code sketchy error handling in several
+> >> places and then clean it up later. Just do it right from the start.
+> >>
+> >
+> > Intent was to do smallest change possible (though through review that grew
+> > of course), but I see your point, in this instance this is fiddly stuff and
+> > probably better to abstract it to enforce correct handling.
+> >
+> > I'll respin + add something like this.
+>
+> Could you include in your description why looking up the vma after
+> getting the page does not introduce a race?
+>
+> I am probably silly and just looking at this quickly but it does not
+> seem immediately obvious why the vma and the page should match.
+>
+> I would not be surprised if you hold the appropriate mutex over the
+> entire operation but it just isn't apparent from the diff.
+>
+> I am concerned because it is an easy mistake to refactor something into
+> two steps and then discover you have introduced a race.
+>
+> Eric
+>
 
-> IIUC, the semantics we're proposing is that an INFO2 ioctl would return
-> success or failure indicating whether the user has sufficient ownership
-> of the affected devices, 
+The mmap_lock is held so VMAs cannot be altered and no such race can
+occur. get_user_pages_remote() requires that the user calls it under the
+lock so it is implicitly assured that this cannot happen.
 
-Or a flag, but yes
+I'll update the description to make this clear on the next spin!
 
-> and in the success case returns an array of
-> affected dev-ids within the user's iommufd_ctx.  Unopened, affected
-> devices, are not reported via INFO2, and unopened, affected devices
-> outside the user's scope of ownership (ie. outside the owned IOMMU
-> group) will generate a failure condition.
-
-Yes
-
-> As for the INFO ioctl, it's described as unchanged, which does raise
-> the question of what is reported for IOMMU groups and how does the
-> value there coherently relate to anything else in the cdev-exclusive
-> vfio API...
-
-For cdev mode the value of the group_id has no functional
-purpose. INFO has no functional purpose beyond debugging. The cdev
-enabled userspace should print the BDFs from the INFO in a debug
-message and ignore the group_id.
-
-Kernel will still fill the group_id using the iommu_get_group() stuff,
-and set -1 for no-iommu.
-
-> We had already iterated a proposal where the group-id is replaced with
-> a dev-id in the existing ioctl and a flag indicates when the return
-> value is a dev-id vs group-id.  This had a gap that userspace cannot
-> determine if a reset is available given this information since un-owned
-> devices report an invalid dev-id and userspace can't know if it has
-> implicit ownership.
-
-IIRC, yes.
-
-> It seems cleaner to me though that we would could still re-use INFO in
-> a similar way, simply defining a new flag bit which is valid only in
-> the case of returning dev-ids and indicates if the reset is
-> available.
-
-Yes, it could be done like this as well. INFO2 is more a discussion
-object, how we encode it in the uAPI matters a lot less. The point is
-that INFO2, as an idea, returns information that no other existing API
-returns: the "ownership passed flag" and "dev_id list"
-
-Then as I said in the other mail we roll no-iommu into an iommufd_ctx
-object and just follow the design that userspace must have a single
-iommufd_ctx containing all the devices to use the hot reset feature.
-
-Jason
+(side-note: here is another irritating issue with GUP, we don't suffix with
+_locked() consistently)
