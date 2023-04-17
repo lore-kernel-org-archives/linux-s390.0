@@ -2,196 +2,421 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E90D6C77B76
-	for <linux-s390@archiver.kernel.org>; Mon, 17 Apr 2023 18:33:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 69D5DC77B76
+	for <linux-s390@archiver.kernel.org>; Mon, 17 Apr 2023 19:02:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230271AbjDQSdk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 17 Apr 2023 14:33:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46050 "EHLO
+        id S230003AbjDQTCd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 17 Apr 2023 15:02:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230146AbjDQSdj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 17 Apr 2023 14:33:39 -0400
-X-Greylist: delayed 1484 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 17 Apr 2023 11:33:33 PDT
-Received: from out02.mta.xmission.com (out02.mta.xmission.com [166.70.13.232])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1B7A10DD;
-        Mon, 17 Apr 2023 11:33:32 -0700 (PDT)
-Received: from in02.mta.xmission.com ([166.70.13.52]:41666)
-        by out02.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1poQSt-00AYUx-8R; Mon, 17 Apr 2023 09:08:23 -0600
-Received: from ip68-110-29-46.om.om.cox.net ([68.110.29.46]:35070 helo=email.froward.int.ebiederm.org.xmission.com)
-        by in02.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1poQSs-004oqS-3G; Mon, 17 Apr 2023 09:08:22 -0600
-From:   "Eric W. Biederman" <ebiederm@xmission.com>
-To:     Lorenzo Stoakes <lstoakes@gmail.com>
-Cc:     Jason Gunthorpe <jgg@nvidia.com>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        David Hildenbrand <david@redhat.com>,
-        linux-arm-kernel@lists.infradead.org, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-perf-users@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Kees Cook <keescook@chromium.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Christian Brauner <brauner@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Ian Rogers <irogers@google.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Kentaro Takeda <takedakn@nttdata.co.jp>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Paul Moore <paul@paul-moore.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E . Hallyn" <serge@hallyn.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-References: <cover.1681508038.git.lstoakes@gmail.com>
-        <5a4cf1ebf1c6cdfabbf2f5209facb0180dd20006.1681508038.git.lstoakes@gmail.com>
-        <ZD1FECftWekha6Do@nvidia.com>
-        <9be77e7e-4531-4e1c-9e0d-4edbb5ad3bd5@lucifer.local>
-        <ZD1GrBezHrJTo6x2@nvidia.com>
-        <241f0c22-f3d6-436e-a0d8-be04e281ed2f@lucifer.local>
-Date:   Mon, 17 Apr 2023 10:07:53 -0500
-In-Reply-To: <241f0c22-f3d6-436e-a0d8-be04e281ed2f@lucifer.local> (Lorenzo
-        Stoakes's message of "Mon, 17 Apr 2023 14:23:52 +0100")
-Message-ID: <87cz427diu.fsf@email.froward.int.ebiederm.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
+        with ESMTP id S229930AbjDQTCc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 17 Apr 2023 15:02:32 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 389A535BF
+        for <linux-s390@vger.kernel.org>; Mon, 17 Apr 2023 12:01:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1681758105;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=5Bvi+Bflt88Ev//sRfi1fS/kQHXju8BfZmtW+TpqD+M=;
+        b=JlPeo+NX7NDap7cBUKw6NxqkhFXr+9XQHnPLVV1Np/Z0BmVrSJm7i6mIDEEB+tVa3/OK3A
+        PtwXB0+lvzauyNzeOEfTvT4k2/Xc2Vi/fExWcmJwGSVBprpFS1vQTVR3f6kfgGvntpq5Nv
+        sSZqGGBrWa966PbmQiluyz8EIZBvBEI=
+Received: from mail-il1-f197.google.com (mail-il1-f197.google.com
+ [209.85.166.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-665-INPlvluDO_uq5JduQP3E_A-1; Mon, 17 Apr 2023 15:01:44 -0400
+X-MC-Unique: INPlvluDO_uq5JduQP3E_A-1
+Received: by mail-il1-f197.google.com with SMTP id e9e14a558f8ab-328f6562564so38425755ab.1
+        for <linux-s390@vger.kernel.org>; Mon, 17 Apr 2023 12:01:44 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1681758103; x=1684350103;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=5Bvi+Bflt88Ev//sRfi1fS/kQHXju8BfZmtW+TpqD+M=;
+        b=Ytxhc2Iy3NJ4yUbtqFNY+SQdsth2Q84pa/52Ja2KXdYHJ6bzsKD0ID5XD7TyGCSDwL
+         nTi19PGILWcFj4zxZx/eRM1C48f6u5DaLH2oISUkuh02JEvInIqjEK1jHW2zO6U0DIjs
+         GnZeM2FjLuNzty5f7HtqCCRRJ99dDhGZDSfKMH0eFjvZCt3QitKJ2QR/z+mbXqy86Zzd
+         ggKDJfky3Ua88JDdndPU/BxfAGQzC5vFeASEchO9cKSIe/HxRoiNR+2L1iIIigEJi4iW
+         BdYW/6XynyA+pj7rJ4zLMvzkGFEnwJQULVU3pkOwTnXP2CwgAna5osv9jYsHu9O0MXAS
+         5Sfg==
+X-Gm-Message-State: AAQBX9fvssl+Y3aj06s/X5EzDOBtE8Xh/ipwf55olmrceGO6so53bwgR
+        nIdeGOivpHKaT1emZdFeJlLmuKqFnkWzlkRzcvMlhuKqqXHzJ8NGABcFtkj6RlaQHqqPvJVrtuL
+        FoimEJ5ti/zDGn2Udr9N3oA==
+X-Received: by 2002:a92:da4f:0:b0:329:43f0:1570 with SMTP id p15-20020a92da4f000000b0032943f01570mr11901408ilq.23.1681758103322;
+        Mon, 17 Apr 2023 12:01:43 -0700 (PDT)
+X-Google-Smtp-Source: AKy350Yc9MHqAd/FKqlu7BJXqDJc1DteytbzaOAPM3AcUnUMNFM/sAGolFFsk6RSPFhmSGf9KsRJww==
+X-Received: by 2002:a92:da4f:0:b0:329:43f0:1570 with SMTP id p15-20020a92da4f000000b0032943f01570mr11901377ilq.23.1681758103035;
+        Mon, 17 Apr 2023 12:01:43 -0700 (PDT)
+Received: from redhat.com ([38.15.36.239])
+        by smtp.gmail.com with ESMTPSA id q1-20020a056e020c2100b0031595ea003asm3310707ilg.85.2023.04.17.12.01.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 17 Apr 2023 12:01:42 -0700 (PDT)
+Date:   Mon, 17 Apr 2023 13:01:40 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     "Liu, Yi L" <yi.l.liu@intel.com>
+Cc:     "Tian, Kevin" <kevin.tian@intel.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        "eric.auger@redhat.com" <eric.auger@redhat.com>,
+        "joro@8bytes.org" <joro@8bytes.org>,
+        "robin.murphy@arm.com" <robin.murphy@arm.com>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
+        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
+        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
+        "peterx@redhat.com" <peterx@redhat.com>,
+        "jasowang@redhat.com" <jasowang@redhat.com>,
+        "shameerali.kolothum.thodi@huawei.com" 
+        <shameerali.kolothum.thodi@huawei.com>,
+        "lulu@redhat.com" <lulu@redhat.com>,
+        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
+        "intel-gvt-dev@lists.freedesktop.org" 
+        <intel-gvt-dev@lists.freedesktop.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "Hao, Xudong" <xudong.hao@intel.com>,
+        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
+        "Xu, Terrence" <terrence.xu@intel.com>,
+        "Jiang, Yanting" <yanting.jiang@intel.com>,
+        "Duan, Zhenzhong" <zhenzhong.duan@intel.com>
+Subject: Re: [PATCH v3 12/12] vfio/pci: Report dev_id in
+ VFIO_DEVICE_GET_PCI_HOT_RESET_INFO
+Message-ID: <20230417130140.1b68082e.alex.williamson@redhat.com>
+In-Reply-To: <DS0PR11MB75290A78D6879EC2E31E21AEC39C9@DS0PR11MB7529.namprd11.prod.outlook.com>
+References: <20230406115347.7af28448.alex.williamson@redhat.com>
+        <ZDVfqpOCnImKr//m@nvidia.com>
+        <20230411095417.240bac39.alex.williamson@redhat.com>
+        <20230411111117.0766ad52.alex.williamson@redhat.com>
+        <ZDWph7g0hcbJHU1B@nvidia.com>
+        <20230411155827.3489400a.alex.williamson@redhat.com>
+        <ZDX0wtcvZuS4uxmG@nvidia.com>
+        <20230412105045.79adc83d.alex.williamson@redhat.com>
+        <ZDcPTTPlni/Mi6p3@nvidia.com>
+        <BN9PR11MB5276782DA56670C8209470828C989@BN9PR11MB5276.namprd11.prod.outlook.com>
+        <ZDfslVwqk6JtPpyD@nvidia.com>
+        <20230413120712.3b9bf42d.alex.williamson@redhat.com>
+        <BN9PR11MB5276A160CA699933B897C8C18C999@BN9PR11MB5276.namprd11.prod.outlook.com>
+        <DS0PR11MB7529B7481AC97261E12AA116C3999@DS0PR11MB7529.namprd11.prod.outlook.com>
+        <20230414111043.40c15dde.alex.williamson@redhat.com>
+        <DS0PR11MB75290A78D6879EC2E31E21AEC39C9@DS0PR11MB7529.namprd11.prod.outlook.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-XM-SPF: eid=1poQSs-004oqS-3G;;;mid=<87cz427diu.fsf@email.froward.int.ebiederm.org>;;;hst=in02.mta.xmission.com;;;ip=68.110.29.46;;;frm=ebiederm@xmission.com;;;spf=pass
-X-XM-AID: U2FsdGVkX1/hlfhbMYdh8TSwqCEEto245myqDJhBbl8=
-X-SA-Exim-Connect-IP: 68.110.29.46
-X-SA-Exim-Mail-From: ebiederm@xmission.com
-Subject: Re: [PATCH 3/7] mm/gup: remove vmas parameter from
- get_user_pages_remote()
-X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
-X-SA-Exim-Scanned: Yes (on in02.mta.xmission.com)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Lorenzo Stoakes <lstoakes@gmail.com> writes:
+On Mon, 17 Apr 2023 04:20:27 +0000
+"Liu, Yi L" <yi.l.liu@intel.com> wrote:
 
-> On Mon, Apr 17, 2023 at 10:16:28AM -0300, Jason Gunthorpe wrote:
->> On Mon, Apr 17, 2023 at 02:13:39PM +0100, Lorenzo Stoakes wrote:
->> > On Mon, Apr 17, 2023 at 10:09:36AM -0300, Jason Gunthorpe wrote:
->> > > On Sat, Apr 15, 2023 at 12:27:31AM +0100, Lorenzo Stoakes wrote:
->> > > > The only instances of get_user_pages_remote() invocations which used the
->> > > > vmas parameter were for a single page which can instead simply look up the
->> > > > VMA directly. In particular:-
->> > > >
->> > > > - __update_ref_ctr() looked up the VMA but did nothing with it so we simply
->> > > >   remove it.
->> > > >
->> > > > - __access_remote_vm() was already using vma_lookup() when the original
->> > > >   lookup failed so by doing the lookup directly this also de-duplicates the
->> > > >   code.
->> > > >
->> > > > This forms part of a broader set of patches intended to eliminate the vmas
->> > > > parameter altogether.
->> > > >
->> > > > Signed-off-by: Lorenzo Stoakes <lstoakes@gmail.com>
->> > > > ---
->> > > >  arch/arm64/kernel/mte.c   |  5 +++--
->> > > >  arch/s390/kvm/interrupt.c |  2 +-
->> > > >  fs/exec.c                 |  2 +-
->> > > >  include/linux/mm.h        |  2 +-
->> > > >  kernel/events/uprobes.c   | 10 +++++-----
->> > > >  mm/gup.c                  | 12 ++++--------
->> > > >  mm/memory.c               |  9 +++++----
->> > > >  mm/rmap.c                 |  2 +-
->> > > >  security/tomoyo/domain.c  |  2 +-
->> > > >  virt/kvm/async_pf.c       |  3 +--
->> > > >  10 files changed, 23 insertions(+), 26 deletions(-)
->> > > >
->> > > > diff --git a/arch/arm64/kernel/mte.c b/arch/arm64/kernel/mte.c
->> > > > index f5bcb0dc6267..74d8d4007dec 100644
->> > > > --- a/arch/arm64/kernel/mte.c
->> > > > +++ b/arch/arm64/kernel/mte.c
->> > > > @@ -437,8 +437,9 @@ static int __access_remote_tags(struct mm_struct *mm, unsigned long addr,
->> > > >  		struct page *page = NULL;
->> > > >
->> > > >  		ret = get_user_pages_remote(mm, addr, 1, gup_flags, &page,
->> > > > -					    &vma, NULL);
->> > > > -		if (ret <= 0)
->> > > > +					    NULL);
->> > > > +		vma = vma_lookup(mm, addr);
->> > > > +		if (ret <= 0 || !vma)
->> > > >  			break;
->> > >
->> > > Given the slightly tricky error handling, it would make sense to turn
->> > > this pattern into a helper function:
->> > >
->> > > page = get_single_user_page_locked(mm, addr, gup_flags, &vma);
->> > > if (IS_ERR(page))
->> > >   [..]
->> > >
->> > > static inline struct page *get_single_user_page_locked(struct mm_struct *mm,
->> > >    unsigned long addr, int gup_flags, struct vm_area_struct **vma)
->> > > {
->> > > 	struct page *page;
->> > > 	int ret;
->> > >
->> > > 	ret = get_user_pages_remote(*mm, addr, 1, gup_flags, &page, NULL, NULL);
->> > > 	if (ret < 0)
->> > > 	   return ERR_PTR(ret);
->> > > 	if (WARN_ON(ret == 0))
->> > > 	   return ERR_PTR(-EINVAL);
->> > >         *vma = vma_lookup(mm, addr);
->> > > 	if (WARN_ON(!*vma) {
->> > > 	   put_user_page(page);
->> > > 	   return ERR_PTR(-EINVAL);
->> > >         }
->> > > 	return page;
->> > > }
->> > >
->> > > It could be its own patch so this change was just a mechanical removal
->> > > of NULL
->> > >
->> > > Jason
->> > >
->> >
->> > Agreed, I think this would work better as a follow up patch however so as
->> > not to distract too much from the core change.
->>
->> I don't think you should open code sketchy error handling in several
->> places and then clean it up later. Just do it right from the start.
->>
->
-> Intent was to do smallest change possible (though through review that grew
-> of course), but I see your point, in this instance this is fiddly stuff and
-> probably better to abstract it to enforce correct handling.
->
-> I'll respin + add something like this.
+> > From: Alex Williamson <alex.williamson@redhat.com>
+> > Sent: Saturday, April 15, 2023 1:11 AM
+> > 
+> > On Fri, 14 Apr 2023 11:38:24 +0000
+> > "Liu, Yi L" <yi.l.liu@intel.com> wrote:
+> >   
+> > > > From: Tian, Kevin <kevin.tian@intel.com>
+> > > > Sent: Friday, April 14, 2023 5:12 PM
+> > > >  
+> > > > > From: Alex Williamson <alex.williamson@redhat.com>
+> > > > > Sent: Friday, April 14, 2023 2:07 AM
+> > > > >
+> > > > > We had already iterated a proposal where the group-id is replaced with
+> > > > > a dev-id in the existing ioctl and a flag indicates when the return
+> > > > > value is a dev-id vs group-id.  This had a gap that userspace cannot
+> > > > > determine if a reset is available given this information since un-owned
+> > > > > devices report an invalid dev-id and userspace can't know if it has
+> > > > > implicit ownership.  
+> > > >  
+> > > > >
+> > > > > It seems cleaner to me though that we would could still re-use INFO in
+> > > > > a similar way, simply defining a new flag bit which is valid only in
+> > > > > the case of returning dev-ids and indicates if the reset is available.
+> > > > > Therefore in one ioctl, userspace knows if hot-reset is available
+> > > > > (based on a kernel determination) and can pull valid dev-ids from the  
+> > >
+> > > Need to confirm the meaning of hot-reset available flag. I think it
+> > > should at least meet below two conditions to set this flag. Although
+> > > it may not mean hot-reset is for sure to succeed. (but should be
+> > > a high chance).
+> > >
+> > > 1) dev_set is resettable (all affected device are in dev_set)
+> > > 2) affected device are owned by the current user  
+> > 
+> > Per thread with Kevin, ownership can't always be known by the kernel.
+> > Beyond the group vs cdev discussion there, isn't it also possible
+> > (though perhaps not recommended) that a user can have multiple iommufd
+> > ctxs?  So I think 2) becomes "ownership of the affected dev-set can be
+> > inferred from the iommufd_ctx of the calling device", iow, the
+> > null-array calling model is available and the flag is redefined to
+> > match.  Reset may still be available via the proof-of-ownership model.  
+> 
+> Yes, if there are multiple iommufd ctxs, this shall fall back to use
+> the proof-of-ownership model.
+> 
+> >   
+> > > Also, we need to has assumption that below two cases are rare
+> > > if user encounters it, it just bad luck for them. I think the existing
+> > > _INFO and hot-reset already has such assumption. So cdev mode
+> > > can adopt it as well.
+> > >
+> > > a) physical topology change (e.g. new devices plugged to affected slot)
+> > > b) an affected device is unbound from vfio  
+> > 
+> > Yes, these are sufficiently rare that we can't do much about them.
+> >   
+> > > > So the kernel needs to compare the group id between devices with
+> > > > valid dev-ids and devices with invalid dev-ids to decide the implicit
+> > > > ownership. For noiommu device which has no group_id when
+> > > > VFIO_GROUP is off then it's resettable only if having a valid dev_id.  
+> > >
+> > > In cdev mode, noiommu device doesn't have dev_id as it is not
+> > > bound to valid iommufd. So if VFIO_GROUP is off, we may never
+> > > allow hot-reset for noiommu devices. But we don't want to have
+> > > regression with noiommu devices. Perhaps we may define the usage
+> > > of the resettable flag like this:
+> > > 1) if it is set, user does not need to own all the affected devices as
+> > >     some of them may have been owned implicitly. Kernel should have
+> > >     checked it.
+> > > 2) if the flag is not set, that means user needs to check ownership
+> > >     by itself. It needs to own all the affected devices. If not, don't
+> > >    do hot-reset.  
+> > 
+> > Exactly, the flag essentially indicates that the null-array approach is
+> > available, lack of the flag indicates proof-of-ownership is required.
+> >   
+> > > This way we can still make noiommu devices support hot-reset
+> > > just like VFIO_GROUP is on. Because noiommu devices have fake
+> > > groups, such groups are all singleton. So checking all affected
+> > > devices are opened by user is just same as check all affected
+> > > groups.  
+> > 
+> > Yep.
+> >   
+> > > > The only corner case with this option is when a user mixes group
+> > > > and cdev usages. iirc you mentioned it's a valid usage to be supported.
+> > > > In that case the kernel doesn't have sufficient knowledge to judge
+> > > > 'resettable' as it doesn't know which groups are opened by this user.
+> > > >
+> > > > Not sure whether we can leave it in a ugly way so INFO may not tell
+> > > > 'resettable' accurately in that weird scenario.  
+> > >
+> > > This seems not easy to support. If above scenario is allowed there can be
+> > > three cases that returns invalid dev_id.
+> > > 1) devices not opened by user but owned implicitly  
+> > 
+> > The cdev approach has a hard time with this in general, it has no way to
+> > represent unopened devices. so any case where the nature of an unopened
+> > device block reset on the dev-set is rather opaque to the user.
+> >   
+> > > 2) devices not owned by user  
+> > 
+> > (and presumable not owned)  We still provide BDF.  Not much difference
+> > from the group case here, being able to point to a BDF or group is
+> > about all we can do.
+> >   
+> > > 3) devices opened via group but owned by user  
+> > 
+> > I think this still works in the proof-of-ownership, passing fds to
+> > hot-reset model.  
+> 
+> Ok. let's see below scenario and user's processing makes sense.
+> 
+> Say there are five devices (devA, devB, devC, devD, devE) in the same reset
+> group. devA and devB are in the same iommu group. devC, devD, and devE have
+> separate iommu groups. Say devA is opened via cdev, devB is not opened, devC
+> is opened via group, devD is opened cdev but bound to another iommufdctx that
+> is different with devA. devE is not opened by any user
+> 
+> If this INFO is called on devA, user should get a valid dev_id for devA, but
+> four invalid dev_ids. The resettable flag should be clear. Below is how user
+> to handle the info returned.
 
-Could you include in your description why looking up the vma after
-getting the page does not introduce a race?
+INFO from devA returns:
 
-I am probably silly and just looking at this quickly but it does not
-seem immediately obvious why the vma and the page should match.
+flags: NOT_RESETABLE | DEV_ID
+{
+  { valid devA-id,  devA-BDF },
+  { invalid dev-id, devB-BDF },
+  { invalid dev-id, devC-BDF },
+  { invalid dev-id, devD-BDF },
+  { invalid dev-id, devE-BDF },
+}
 
-I would not be surprised if you hold the appropriate mutex over the
-entire operation but it just isn't apparent from the diff.
+User knows devA-id, learns devA-BDF
 
-I am concerned because it is an easy mistake to refactor something into
-two steps and then discover you have introduced a race.
+from devC:
+{
+  { devA/B-group-id, devA-BDF },
+  { devA/B-group-id, devB-BDF },
+  { devC-group-id,   devC-BDF },
+  { devD-group-id,   devD-BDF },
+  { devE-group-id,   devE-BDF },
+}
 
-Eric
+User is assumed to know devC group-id + BDF given group semantics,
+knows devA ownership, infers devB ownership.
+
+from devD:
+flags: NOT_RESETABLE | DEV_ID
+{
+  { invalid dev-id, devA-BDF },
+  { invalid dev-id, devB-BDF },
+  { invalid dev-id, devC-BDF },
+  { valid devD-id,  devD-BDF },
+  { invalid dev-id, devE-BDF },
+}
+
+User knows devD-id, learns devD-bdf, knows devA and devC ownership, and
+inferred devB ownership
+
+> - For devB, user shall get the group_id for devA, and also get group_id for
+>   devB, hence able to check ownership of devB by checking the group
+
+Per above, groups are only available through the group devices,
+therefore inferred ownership of devB can only be learned from devC.
+
+> - For devC, user can check ownership by the group_id and bdf returned
+
+Yes, the INFO ioctl on devC can confirm devC is affected, but more
+importantly this is the bridge to learn BDF of other affected devices
+and their groups.
+
+> - For devD, if it is opened by the user, should be able to find it by bdf
+
+I think the reverse, the user presumably already knows the dev-id for
+devD and knows that a hot-reset of the calling device necessarily
+affects the device, but it learns the BDF, which helps it connect 4 of
+the 5 device affected by the reset.
+
+> - For devE, user shall fail to find it hence consider no ownership on it.
+
+Yes, which is correct.
+
+> To finish the above check, user needs to get group_id via devid an also needs
+> to get group_id via device fd. Is it?
+
+Not absolutely required, but the user needs to do a lot of inferring via
+BDF.
+
+> The above example may be the most tricky scenario. Is it? user shall not do
+> hot-reset as not all affected devices are owned by user. But if devE is also
+> opened by user, it could do hot-reset.
+
+Yes, it's not trivial, but Jason is now proposing that we consider
+mixing groups, cdevs, and multiple iommufd_ctxs as invalid.  I think
+this means that regardless of which device calls INFO, there's only one
+answer (assuming same set of devices opened, all cdev, all within same
+iommufd_ctx).  Based on what I explained about my understanding of INFO2
+and Jason agreed to, I think the output would be:
+
+flags: NOT_RESETABLE | DEV_ID
+{
+  { valid devA-id,  devA-BDF },
+  { valid devC-id,  devC-BDF },
+  { valid devD-id,  devD-BDF },
+  { invalid dev-id, devE-BDF },
+}
+
+Here devB gets dropped because the kernel understands that devB is
+unopened, affected, and owned.  It's therefore not a blocker for
+hot-reset.  OTOH, devE is unopened, affected, and un-owned, and we
+previously agreed against the opportunistic un-opened/un-owned loophole.
+
+If devA and devD were separate iommufd_ctxs, with devC in the same
+ctx as devA, I think this becomes:
+
+INFO on devA:
+flags: NOT_RESETABLE | DEV_ID
+{
+  { valid devA-id,  devA-BDF },
+  { valid devC-id,  devC-BDF },
+  { invalid dev-id, devD-BDF },
+  { invalid dev-id, devE-BDF },
+}
+
+INFO on devD:
+flags: NOT_RESETABLE | DEV_ID
+{
+  { invalid dev-id, devA-BDF },
+  { invalid dev-id, devB-BDF },
+  { invalid dev-id, devC-BDF },
+  { valid devD-id, devD-BDF },
+  { invalid dev-id, devE-BDF },
+}
+
+I think this illustrates that it makes sense for unopened affected
+devices with implicit ownership to always be hidden, but otherwise are
+fully enumerated.
+
+> > > User would require more info to tell the above cases from each other.  
+> > 
+> > Obviously we could be equivalent to the group model if IOMMU groups
+> > were exposed for a device and all devices had IOMMU groups, but
+> > reasons...
+> >   
+> > > > > array to associate affected, owned devices, and still has the
+> > > > > equivalent information to know that one or more of the devices listed
+> > > > > with an invalid dev-id are preventing the hot-reset from being
+> > > > > available.
+> > > > >
+> > > > > Is that an option?  Thanks,
+> > > > >  
+> > > >
+> > > > This works for me if above corner case can be waived.  
+> > >
+> > > One side check, perhaps already confirmed in prior email. @Alex, So
+> > > the reason for the prediction of hot-reset is to avoid the possible
+> > > vfio_pci_pre_reset() which does heavy operations like stop DMA and
+> > > copy config space. Is it? Any other special reason? Anyhow, this reason
+> > > is enough for this prediction per my understanding.  
+> > 
+> > It's not clear to me what "prediction" is referring to.  
+> 
+> It is predicting whether hot-reset ioctl can work or not as you mentioned
+> in prior discussion.[1].
+> 
+> "I disagree, as I've argued before, the info ioctl becomes so weak and
+> effectively arbitrary from a user perspective at being able to predict
+> whether the hot-reset ioctl works that it becomes useless, diminishing
+> the entire hot-reset info/execute API."
+> 
+> [1] https://lore.kernel.org/kvm/20230405134945.29e967be.alex.williamson@redhat.com/
+
+I think we're narrowing in on an interface that isn't as arbitrary.  If
+we assume the restrictions that Jason proposes, then cdev is exclusively
+a kernel determined reset availability model, where I'd agree that
+passing device-fds as a proof of ownership is pointless.  The group
+interface would therefore remain exclusively a proof-of-ownership
+model since we have no incentive to extend it to kernel-determined
+given the limited use case of all affected devices managed by the same
+vfio container.
+
+> > As above, I
+> > think we can redefine the reset-available flag I proposed to more
+> > restrictively indicate that the null-array approach is available based
+> > on the dev-set group in relation to the iommufd_ctx of the calling
+> > device.  Prediction of the affected devices seems like basic
+> > functionality to me, we can't assume the user's usage model, they must
+> > be able to make a well informed decision regarding affected devices.
+> > Thanks,  
+> 
+> As my above reply with the five-device scenario. It still needs to get
+> group_id to check implicit ownership in the case of sharing the same
+> iommu_group.
+
+Moot, but there's actually enough information there to infer IOMMU
+groups for each device, but we probably can't prove that would always
+be the case.  If we adopt Jason's proposal though, I don't see that we
+need either a group-id or BDF capability, the BDF is only for debug
+reporting.  However, there is a new burden on the kernel to identify
+the affected, un-owned devices for that report.  Thanks,
+
+Alex
+
