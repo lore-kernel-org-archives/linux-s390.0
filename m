@@ -2,122 +2,116 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E1141C77B70
-	for <linux-s390@archiver.kernel.org>; Mon, 17 Apr 2023 09:07:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9DCA7C77B70
+	for <linux-s390@archiver.kernel.org>; Mon, 17 Apr 2023 10:11:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230094AbjDQJH1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 17 Apr 2023 05:07:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37758 "EHLO
+        id S230319AbjDQKLW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 17 Apr 2023 06:11:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230181AbjDQJHZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 17 Apr 2023 05:07:25 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 082074EDE;
-        Mon, 17 Apr 2023 02:07:05 -0700 (PDT)
-Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 33H8cEBW023826;
-        Mon, 17 Apr 2023 09:07:01 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=XVnJ7cMxpaLuIIrKdWZwV4tyoYGz5nYFcMU9B7y59eo=;
- b=tJtS1cOoFfBrh76ctfnsFJkTyp8nj3BRLrg8Ngf4++thokg54neqIHHmItxiO8OqFjfc
- 0CmRIYoF4r3a3nPMZmX5nuHGWc9+BQU19xiWJLDYYCCQmYL4qKHIOifYKX3ea/LOMX42
- 0izkeRI3gPLAnxJwjgPaj9i23TDc9aJwq+cqgD/kObNu5AReEJ8V6FLcZQSyT7bGFXxE
- L2Ba2iDoVXdHtugrgVggUSAuuDTN9qu4cMJowLEtpFnU5ijO/PF+ZcjNLvhFFIWZ/Cd1
- 6bkBd+pycVeeshIzSjWpTYm1qziatLvAWj9gaixCLwPzgdfTvKGKILJzArUBg9RPKM2L CA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3q12s5rkhf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 17 Apr 2023 09:07:00 +0000
-Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 33H8cVU6025072;
-        Mon, 17 Apr 2023 09:07:00 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3q12s5rkgr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 17 Apr 2023 09:07:00 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 33H2kYSt014903;
-        Mon, 17 Apr 2023 09:06:58 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma03fra.de.ibm.com (PPS) with ESMTPS id 3pykj68yuu-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 17 Apr 2023 09:06:57 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 33H96qwI12124854
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 17 Apr 2023 09:06:53 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2BF8020049;
-        Mon, 17 Apr 2023 09:06:52 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EA9EE20043;
-        Mon, 17 Apr 2023 09:06:51 +0000 (GMT)
-Received: from li-7e0de7cc-2d9d-11b2-a85c-de26c016e5ad.ibm.com (unknown [9.171.177.111])
-        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon, 17 Apr 2023 09:06:51 +0000 (GMT)
-Message-ID: <ea529fc34e7b4b3b28097fb53e65928c249f6a88.camel@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v1] s390x: Improve stack traces that
- contain an interrupt frame
-From:   Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-To:     Nico Boehr <nrb@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>
-Cc:     David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Date:   Mon, 17 Apr 2023 11:06:51 +0200
-In-Reply-To: <168171822413.10491.11548053616048775653@t14-nrb>
-References: <20230405123508.854034-1-nsg@linux.ibm.com>
-         <168171822413.10491.11548053616048775653@t14-nrb>
+        with ESMTP id S230306AbjDQKLU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 17 Apr 2023 06:11:20 -0400
+Received: from mail-qt1-x82c.google.com (mail-qt1-x82c.google.com [IPv6:2607:f8b0:4864:20::82c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFD146A72;
+        Mon, 17 Apr 2023 03:10:34 -0700 (PDT)
+Received: by mail-qt1-x82c.google.com with SMTP id m21so13920519qtg.0;
+        Mon, 17 Apr 2023 03:10:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1681726114; x=1684318114;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=uYIIRjxNda/ziUqkZhz2I8xvie0gsHo4ftMvTuqFRis=;
+        b=NYIkajAArbsLM49c5Zzj36P+HXW/I+UYGch2JB2/+dWKLpa+omDZITXvq2zJDI+rFx
+         QwInVjvGeD7a+UHoHAGb3CV8OruU7FcrkrPxgX0f8RW4vPY+R9KSNSCYNvOFaGEtig3P
+         wwNi2xjv7qo9AUKJ/CE9fUM++ZbkYNf86vg+kG29TJHaXQuSyreEmQpJK/P8ZgK4tnQw
+         +O9ol1qAi0zFipZB0TN4itsulLZv8lgQkMnxQjwA4jzTkH9YF/Ql7PEtFazJQB8GeuFW
+         oOygwws8GrT7nYvy5qWqgHLJTHcMeZpkfqI5g07FLB4zq4HYrKRSvU/kfwFQpdKf5/4v
+         CXhg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1681726114; x=1684318114;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=uYIIRjxNda/ziUqkZhz2I8xvie0gsHo4ftMvTuqFRis=;
+        b=iRRi9Ch9GNnK0OAQzxPrpk6oboeWxUPKrVU/rLXaLIJzMphCLj5EPyhp0tobVvZlhY
+         eAN1AJ0lI0Us9zH/FxFMPvZU2GhMJXkXt/GegDi3csx89PN09LKILK0udGgYoXDB/9a8
+         6JXlXfR6eIuifh2uyhUs9laWncOAbZ1HdoGN6S82+966eMgD2FIAAxfK5LUK0Tc/Pi+/
+         bZ6O+5VOkbRxfjQdD8hUFdd9eQxmRAhmkzyVH9isULPAfW1hE+xm3WvohBk8k2IV9Znu
+         A+UE/werQ8v0J84BQj+19rXOy1pn5zxK36KY4xu1hs3MwFtqnX2g/NTT3YuETSnhS6Lk
+         zokg==
+X-Gm-Message-State: AAQBX9dfT0+9c56vk8MUDZHd8LKbdF/ok3mc0tQCkxdVztQQmyGv9kTK
+        rIhHBM6r9ufv25TenjTLMY20iQTPSNYO+XPsyU4=
+X-Google-Smtp-Source: AKy350aidr5mhwJmg0IddRiawwv35eduv7ffrQvf/kXLi/fnL1/dp4WvuTBRpSzBs+d5c4LHVDXqto/0bvBg2KzOWxE=
+X-Received: by 2002:ac8:5902:0:b0:3de:d15a:847f with SMTP id
+ 2-20020ac85902000000b003ded15a847fmr4470777qty.0.1681726113789; Mon, 17 Apr
+ 2023 03:08:33 -0700 (PDT)
+MIME-Version: 1.0
+References: <20230306151014.60913-1-schnelle@linux.ibm.com>
+ <20230306151014.60913-2-schnelle@linux.ibm.com> <20230417074633.GA12881@wunner.de>
+In-Reply-To: <20230417074633.GA12881@wunner.de>
+From:   Andy Shevchenko <andy.shevchenko@gmail.com>
+Date:   Mon, 17 Apr 2023 13:07:57 +0300
+Message-ID: <CAHp75VfuBTR6gO4SSZUZodWnBH7UfTS859PLCQy+qM+ABSkKdQ@mail.gmail.com>
+Subject: Re: [PATCH v2 1/4] PCI: s390: Fix use-after-free of PCI resources
+ with per-function hotplug
+To:     Lukas Wunner <lukas@wunner.de>
+Cc:     Niklas Schnelle <schnelle@linux.ibm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Gerd Bayer <gbayer@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-pci@vger.kernel.org, Andy Shevchenko <andy@kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.46.4 (3.46.4-1.fc37) 
-MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 7lsubMXY8e6RUtsfKIR8MeXt3NME3ysm
-X-Proofpoint-GUID: 5Naw9RMl9h_VWGXSSy2Z52cSwlq1R_ML
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-04-17_04,2023-04-14_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
- lowpriorityscore=0 mlxlogscore=835 adultscore=0 suspectscore=0
- impostorscore=0 bulkscore=0 spamscore=0 phishscore=0 malwarescore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2303200000 definitions=main-2304170073
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 2023-04-17 at 09:57 +0200, Nico Boehr wrote:
-> Quoting Nina Schoetterl-Glausch (2023-04-05 14:35:08)
-> > When we encounter an unexpected interrupt we print a stack trace.
-> > While we can identify the interrupting instruction via the old psw,
-> > we don't really have a way to identify callers further up the stack,
-> > since we rely on the s390x elf abi calling convention to perform the
-> > backtrace. An interrupt is not a call, so there are no guarantees about
-> > the contents of the stack and return address registers.
-> > If we get lucky their content is as we need it or valid for a previous
-> > callee in which case we print one wrong caller and then proceed with th=
-e
-> > correct ones.
->=20
-> I did not think too much about it, so it might not work, but how about a
-> seperate interrupt stack?
->=20
-> Then, we could print the interrupt stack trace (which should be correct) =
-and -
-> with a warning as you suggest - the maybe incorrect regular stack trace.
+On Mon, Apr 17, 2023 at 10:46=E2=80=AFAM Lukas Wunner <lukas@wunner.de> wro=
+te:
+> On Mon, Mar 06, 2023 at 04:10:11PM +0100, Niklas Schnelle wrote:
 
-Not sure I'm getting the point. Do you want an implementation that doesn't =
-have
-the weirdness of using a frame with a special symbol to warn?
-We only output a bunch of caller addresses and pretty_print_stacks.py forma=
-ts that
-into a readable stack trace. So by having the special symbol frame there ar=
-e no
-changes needed to that script, but it certainly would be possible do it dif=
-ferently,
-e.g. output "STACK: dead beef WARN 0 ffff" and have the script
-print the warning if it sees a WARN.
+...
+
+> > +void pci_bus_remove_resource(struct pci_bus *bus, struct resource *res=
+)
+> > +{
+> > +     struct pci_bus_resource *bus_res, *tmp;
+> > +     int i;
+> > +
+> > +     for (i =3D 0; i < PCI_BRIDGE_RESOURCE_NUM; i++) {
+> > +             if (bus->resource[i] =3D=3D res) {
+> > +                     bus->resource[i] =3D NULL;
+> > +                     return;
+> > +             }
+> > +     }
+> > +
+> > +     list_for_each_entry_safe(bus_res, tmp, &bus->resources, list) {
+> > +             if (bus_res->res =3D=3D res) {
+> > +                     list_del(&bus_res->list);
+> > +                     kfree(bus_res);
+> > +                     return;
+> > +             }
+> > +     }
+> > +}
+>
+> I realize this has already been applied so s390.git/master,
+> but nevertheless would like to point out there's a handy
+> pci_bus_for_each_resource() helper which could have been
+> used here instead of the for-loop.
+
+Actually in this case it's not possible. The above code nullifies the
+matched resource or removes it from the list. We don't have any good
+iterator inside pci_bus_for_each_resource() to do the latter.
+
+There might be other places in the kernel code where something like
+above is used and we can split a separate helper exactly for matching
+cases, but with the above context I dunno we need to do anything right
+now.
+
+P.S. Thanks for Cc'ing me.
+
+--=20
+With Best Regards,
+Andy Shevchenko
