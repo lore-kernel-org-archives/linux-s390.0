@@ -2,379 +2,387 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EE9D0C77B77
-	for <linux-s390@archiver.kernel.org>; Sat, 15 Apr 2023 12:09:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 891FFC77B61
+	for <linux-s390@archiver.kernel.org>; Mon, 17 Apr 2023 04:20:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230108AbjDOMJh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 15 Apr 2023 08:09:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43568 "EHLO
+        id S229756AbjDQEUl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 17 Apr 2023 00:20:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230044AbjDOMJe (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 15 Apr 2023 08:09:34 -0400
-Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4497059FE;
-        Sat, 15 Apr 2023 05:09:29 -0700 (PDT)
-Received: by mail-wm1-x32c.google.com with SMTP id n42-20020a05600c3baa00b003f0b12814aaso2287249wms.0;
-        Sat, 15 Apr 2023 05:09:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1681560567; x=1684152567;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=W0l2+WhOTuhsjrgo5218GoveeiorDwRw7Vzzp86RCdQ=;
-        b=ldmw31RqwDsq19kNUyAGwCe6feARcBsKOWHer9UDyhHpXBW86bINZ4rpI99CYQXM3+
-         JERVDUA0BVrG5md+jDxa0acQWcQavONMHScc6SB/3xaQzbenQK0QpbQbIkLpaLP9jAfG
-         e/8lzW37JCyFs7Z17XxvJnEXXn7RIxRDv594gU7u7JgSZMJp9Uy9WDSppvCABKPg9q6P
-         6lgN2qvP2iE7QGZPWYRob5VjTGLMpqT1ukkX4auc09mbz9UYoKDOMgZczOt3ZuXY57kC
-         GvCT2JFtQmnaasrqUJ6+X5DcdjMmScBCDHnK/ROGEGVUOw13vr7fvIAtwDo3nrFrASqg
-         40qw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1681560567; x=1684152567;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=W0l2+WhOTuhsjrgo5218GoveeiorDwRw7Vzzp86RCdQ=;
-        b=BKWXoOEa9ndBXj8HrZT0P7lohYLgeCH+08eLYPjmTh8aSZ/5DvVhdnwKZzBIwq65CB
-         86H0JF3M6psVMRAE0WjA6Mzy1nvjcL33hqHr4ndXXS9x65ekWxNj+DQlDMoWFV3KI1oU
-         Ef9LLY/ig7gjQbsrng/1fAZ7EMTE9hx7PihchW6TKsf294MBAFasPcVzJGsXxyRFewGW
-         SRdVUorLIR80lzryLHO+3lvRilFWhCRNjYEG6Jh/7JuZ6G7/YWeThIxFQC7jBldEKaME
-         ZmysX2ROmWl7lqGa079dt8dlen4lTmsf6NFJabMj4eSGO1pbSDd+dpsq/dE73GPbFnJx
-         K65Q==
-X-Gm-Message-State: AAQBX9fz64U5JLNkZxvZGYRz/5DfslXIsKhQ+atT5VbWQ5aEOamHY3sI
-        7dGr9srfg66t4P/kAjnAEMw=
-X-Google-Smtp-Source: AKy350a3KTToXZy6mk4WHVMLQX+oM6Sg5f2Asfiie67hTn0jXqMQSjIUSB1JD5MwmpH2ws8BySgnig==
-X-Received: by 2002:a7b:c7c9:0:b0:3f1:6ecf:537 with SMTP id z9-20020a7bc7c9000000b003f16ecf0537mr672424wmk.33.1681560567358;
-        Sat, 15 Apr 2023 05:09:27 -0700 (PDT)
-Received: from lucifer.home ([2a00:23c5:dc8c:8701:1663:9a35:5a7b:1d76])
-        by smtp.googlemail.com with ESMTPSA id q21-20020a05600c46d500b003f03d483966sm10428181wmo.44.2023.04.15.05.09.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 15 Apr 2023 05:09:26 -0700 (PDT)
-From:   Lorenzo Stoakes <lstoakes@gmail.com>
-To:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>
-Cc:     Matthew Wilcox <willy@infradead.org>,
-        David Hildenbrand <david@redhat.com>,
-        linux-arm-kernel@lists.infradead.org, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-perf-users@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Kees Cook <keescook@chromium.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Christian Brauner <brauner@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Ian Rogers <irogers@google.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Kentaro Takeda <takedakn@nttdata.co.jp>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Paul Moore <paul@paul-moore.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E . Hallyn" <serge@hallyn.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Lorenzo Stoakes <lstoakes@gmail.com>
-Subject: [PATCH v3 3/7] mm/gup: remove vmas parameter from get_user_pages_remote()
-Date:   Sat, 15 Apr 2023 13:09:24 +0100
-Message-Id: <523f0764f4979276a6d4b89cbad9af9124e4bf0a.1681558407.git.lstoakes@gmail.com>
-X-Mailer: git-send-email 2.40.0
-In-Reply-To: <cover.1681558407.git.lstoakes@gmail.com>
-References: <cover.1681558407.git.lstoakes@gmail.com>
+        with ESMTP id S229640AbjDQEUk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 17 Apr 2023 00:20:40 -0400
+Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF96326BB;
+        Sun, 16 Apr 2023 21:20:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1681705239; x=1713241239;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=tVZHBasgHeum7ljNip8MOSwxpKZXnxDZ3FnxAqfVHEM=;
+  b=Zt4WjNYnz1GKtzHWFF+mzeTmQHjmFzYMkVbaQ+VxvRRtVhkNnxsWq3zo
+   aLRsjanc326vZfIjGfOdbGWfYEv1eQwXaGmLhg4uVfIEXYFX04WWPmHKG
+   HzDdZV+6FBXEeATotJN3BhOZ/HtojEr9rEXlDiQAyEwiJNh2LVYfFxyFX
+   hBSERWLibR8WNiBDEFXk9bdZgh5S4sDBMKMWr3UhFQE90RcoHgBgCjnTW
+   njXQl4HbXmC5+g9j+P6Q/ojCYyC5wm8NazhF4SleBm/qalbeAM3Gd2qjF
+   ir5FOlzOkYbaTK9B1diqXSU8FuYMSCZL1zHQ0tiHxnLltq/VHI7LZFqxb
+   A==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10682"; a="343555378"
+X-IronPort-AV: E=Sophos;i="5.99,203,1677571200"; 
+   d="scan'208";a="343555378"
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Apr 2023 21:20:37 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10682"; a="864864548"
+X-IronPort-AV: E=Sophos;i="5.99,203,1677571200"; 
+   d="scan'208";a="864864548"
+Received: from orsmsx602.amr.corp.intel.com ([10.22.229.15])
+  by orsmga005.jf.intel.com with ESMTP; 16 Apr 2023 21:20:36 -0700
+Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
+ ORSMSX602.amr.corp.intel.com (10.22.229.15) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.23; Sun, 16 Apr 2023 21:20:36 -0700
+Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
+ ORSMSX610.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.23; Sun, 16 Apr 2023 21:20:36 -0700
+Received: from ORSEDG602.ED.cps.intel.com (10.7.248.7) by
+ orsmsx610.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.23 via Frontend Transport; Sun, 16 Apr 2023 21:20:36 -0700
+Received: from NAM10-BN7-obe.outbound.protection.outlook.com (104.47.70.109)
+ by edgegateway.intel.com (134.134.137.103) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.23; Sun, 16 Apr 2023 21:20:35 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=fe896OBCcaCQS9ui6qQh+qcxG3T4XwKXZusMphPIi9ysav76MaTh/N7ZtjeFsNGOdIGMiE13FV69BB7jijLmtttlCADiFjB8ApM3oh7F7/erM3vodZmIacVa88WYPOPoyeinn3Hz5wUt8bYKfgQc0QdoqgskQ0l01vfx14oZjKdPo15kfaDnFvW4BuBLRRzUlwk3cJhjUlvw1CbHLfKqZySiLDOFm9rmFZ0NrMN1OxOCuKSTwOtIo09tI1vEFw9j7/9RrNanyxTVTaaJy/fCi9HIHdsWaYzcL/gRUr0HYAi7ec5vQg9TMEdhW8Z5A8uxBSIw5ffOKPgwucu3hbEHIQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=x3JZYl5qPtuFjG14P5bP9U11kmCmIxzTRMHOSpPuF/Q=;
+ b=ebnMHBMIcWOwdfQtn4tSqIujOBFySCQlIapA03fpSEAXgcTFNBw8MLiMKEiqS9k5tiRtadnkCHDNnzsYv16LLKbifsw0plQfUrsNdjPxAp/r57j6515zyp+vCJEtjMpyPdccqdyMW7yN8FzBhchF28j8DWXQbC+5bkfRfmD/7UwsXz19I4sJhh3dL0Arn79wJnqpZz0EfIzKoIKTyYAehnNkhIseUHSUksCe+sDdYyWPcLE9JshKkRTaznmwPx8thpgJbms0lACpffOwdt5JzR65zaYZUVfh+qlDE6UNi+fkY/N1qlPf0JLgs6jGInXLbSNl49OA9DijBLeAUF5FRA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from DS0PR11MB7529.namprd11.prod.outlook.com (2603:10b6:8:141::20)
+ by SN7PR11MB6875.namprd11.prod.outlook.com (2603:10b6:806:2a6::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6277.38; Mon, 17 Apr
+ 2023 04:20:28 +0000
+Received: from DS0PR11MB7529.namprd11.prod.outlook.com
+ ([fe80::5b44:8f52:dbeb:18e5]) by DS0PR11MB7529.namprd11.prod.outlook.com
+ ([fe80::5b44:8f52:dbeb:18e5%4]) with mapi id 15.20.6298.030; Mon, 17 Apr 2023
+ 04:20:28 +0000
+From:   "Liu, Yi L" <yi.l.liu@intel.com>
+To:     Alex Williamson <alex.williamson@redhat.com>
+CC:     "Tian, Kevin" <kevin.tian@intel.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        "eric.auger@redhat.com" <eric.auger@redhat.com>,
+        "joro@8bytes.org" <joro@8bytes.org>,
+        "robin.murphy@arm.com" <robin.murphy@arm.com>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
+        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
+        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
+        "peterx@redhat.com" <peterx@redhat.com>,
+        "jasowang@redhat.com" <jasowang@redhat.com>,
+        "shameerali.kolothum.thodi@huawei.com" 
+        <shameerali.kolothum.thodi@huawei.com>,
+        "lulu@redhat.com" <lulu@redhat.com>,
+        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
+        "intel-gvt-dev@lists.freedesktop.org" 
+        <intel-gvt-dev@lists.freedesktop.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "Hao, Xudong" <xudong.hao@intel.com>,
+        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
+        "Xu, Terrence" <terrence.xu@intel.com>,
+        "Jiang, Yanting" <yanting.jiang@intel.com>,
+        "Duan, Zhenzhong" <zhenzhong.duan@intel.com>
+Subject: RE: [PATCH v3 12/12] vfio/pci: Report dev_id in
+ VFIO_DEVICE_GET_PCI_HOT_RESET_INFO
+Thread-Topic: [PATCH v3 12/12] vfio/pci: Report dev_id in
+ VFIO_DEVICE_GET_PCI_HOT_RESET_INFO
+Thread-Index: AQHZZKiCMJJkpNrujkKpjX0h05Zqwa8cqG8AgAAcMGCAACibgIAAAyuAgAAEPICAAAjLgIAAGeKAgAAG7oCAAAf9gIAAO30AgACaIeCAAJxQgIAHkI0AgAApuICAABWEgIAAGNKAgAA3aoCAACJEAIABGhiAgAA2uYCAAM6MAIAAOT6AgABpLgCAAPyoAIAAA7kQgACCLICAA9TGQA==
+Date:   Mon, 17 Apr 2023 04:20:27 +0000
+Message-ID: <DS0PR11MB75290A78D6879EC2E31E21AEC39C9@DS0PR11MB7529.namprd11.prod.outlook.com>
+References: <20230406115347.7af28448.alex.williamson@redhat.com>
+        <ZDVfqpOCnImKr//m@nvidia.com>
+        <20230411095417.240bac39.alex.williamson@redhat.com>
+        <20230411111117.0766ad52.alex.williamson@redhat.com>
+        <ZDWph7g0hcbJHU1B@nvidia.com>
+        <20230411155827.3489400a.alex.williamson@redhat.com>
+        <ZDX0wtcvZuS4uxmG@nvidia.com>
+        <20230412105045.79adc83d.alex.williamson@redhat.com>
+        <ZDcPTTPlni/Mi6p3@nvidia.com>
+        <BN9PR11MB5276782DA56670C8209470828C989@BN9PR11MB5276.namprd11.prod.outlook.com>
+        <ZDfslVwqk6JtPpyD@nvidia.com>
+        <20230413120712.3b9bf42d.alex.williamson@redhat.com>
+        <BN9PR11MB5276A160CA699933B897C8C18C999@BN9PR11MB5276.namprd11.prod.outlook.com>
+        <DS0PR11MB7529B7481AC97261E12AA116C3999@DS0PR11MB7529.namprd11.prod.outlook.com>
+ <20230414111043.40c15dde.alex.williamson@redhat.com>
+In-Reply-To: <20230414111043.40c15dde.alex.williamson@redhat.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: DS0PR11MB7529:EE_|SN7PR11MB6875:EE_
+x-ms-office365-filtering-correlation-id: b823feb7-84a1-49ae-e2bc-08db3efb129e
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: aGAAMl3DrIdp8bdzmBlIQUfRJ+M++0GUse1jkTckhToKl2g/KEoTn/S4wCwXGInaLHU1djLRM5j63YhswGJPvHm2N0SQ7dScmV8VEKVlHMGPJVpGroUQThkI7moUM4usdd4jzDiMDg6qWN0qwiwTzW1FvwWz+w4/jVnqAfphTQWoKa5/Y0IbtgXUWa2n3iuyKykDovwRv1aGwBjoYV7V7AuD2kO2fkbx5mRtyUGO1kCfvbaVtJpxwKOCkD+vQQCgqL7RdO1iLIEBiK2+/QryQ5veXAtohzcXHmFyDEIVxIU/KkPUWtml8wkpgB/NIVWrCMrnRfRNFCUNgQdCX+MRVwXJ1DMyKqpZsA+gJ3V0/brw/cRkS9E1z/kGjjDqTmm+yGG3i3UqmqQSzSn5YfKdzmXxyEzETwcNxyYHl9SlytiXkEKDaJMhHLi7eCFOx0jN41TYeq0LEqWn3TOJqIYKa61aAL5EqSUcOxF6cOi8I3IMPlYeH9lgMcflRwuCuMUab9p36wK3bhmYHgqzEfLcrld1XR07lRfVf2pvNimK+JYghfXQ6Nct19pBYyK5VY+cTLbufm9jojs9BwPu0yL+pQ/JJOf9+fR8OAjhdgg7wq9U+1c9Kf4kk6rlJdBS+UqL
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR11MB7529.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(366004)(39860400002)(396003)(136003)(376002)(346002)(451199021)(7696005)(41300700001)(64756008)(66476007)(54906003)(66446008)(4326008)(6916009)(966005)(66556008)(71200400001)(76116006)(316002)(8676002)(478600001)(66946007)(33656002)(86362001)(9686003)(6506007)(83380400001)(26005)(7416002)(82960400001)(2906002)(38100700002)(5660300002)(55016003)(38070700005)(8936002)(52536014)(186003)(122000001)(13296009);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?sOn3ydglWKUPFbeXWqqRqPuxWl/cEvhs6sMS861xo4LhMJcYrzfKH1xuRBxJ?=
+ =?us-ascii?Q?k1DoAaDPefyDugBzaZkbtgM4TOcNmhihNE5/DM4WHDcx8tARXkIuqEYy/c6I?=
+ =?us-ascii?Q?tgUxAenOwbtiYAk8Ac1zIx0HXfbfB4UPOpVGpdNDA5NfU/DIWwr1wRJ/3naI?=
+ =?us-ascii?Q?tXx9aBSV1ykX4c9TLNCVurm8gF5B5LZxXWeeOvXhVSf1dxIwPupSbWg3++sP?=
+ =?us-ascii?Q?yPR4oU+tiF+U4746L3d7qpZjtEgO3WHGmJdPDF9qlxsDnsl07hFjC2jDBOaU?=
+ =?us-ascii?Q?s7JvAONrxtM1+gWkhg9jrYlqlrqF+urgc5a0jpR4DenjlQOF6QACrVCM0Msu?=
+ =?us-ascii?Q?Ch9g/GqTZQld2RtkWD5KbotpCTrh7koi6TlxzRNi29q0oKXSrDa+GWIxsj3T?=
+ =?us-ascii?Q?3D8gG5i/SplecC89zRnVJ1lU+8eFew/8NjHxtmqJe9hac3qaZFeIWkaEjW8U?=
+ =?us-ascii?Q?j/wMKUKyWP9o5/W/YFjhvgVivzukCxHqo4Jo091zk+VNk017txF21AsXx4YY?=
+ =?us-ascii?Q?jAsCnTlJOqJpTCBu53O7eHAmtBQqJovF09TWCoQ/GkjRhS25UZaPoyLd6cz3?=
+ =?us-ascii?Q?XkdvkNzpCcNjC0iGK758CIiD+QKrf6lX+hsU6KP3c6uXfu/AyGQCN+IuK1uX?=
+ =?us-ascii?Q?Dw0THcoPMxY/n9EL/2dqNRgtlD7Es9oFegDerH6g3IjRvXHUaeK7Z/sgeBVW?=
+ =?us-ascii?Q?PG+JXNhoZRvB8Iq4ElVXuIWnIhFaCkuWa6T+JBqMGuFKsmNFbKQrpzzCz7P9?=
+ =?us-ascii?Q?CIcMOO6mDb9pMx7Pa57xYNxJcWG3wM6aXIQ28woebqN4SqHi5ux+8ywGgllm?=
+ =?us-ascii?Q?LCVk942L05pkSiSVU/ej/0gySMstab1Tgo45RBztXoJKPRPHorwipDgW4g6k?=
+ =?us-ascii?Q?t/jLjoEo/GQSLb2DFey06GPTVpfqcs4DlZthBlDMChflekH7HA/Av/UUFtaa?=
+ =?us-ascii?Q?zO9iQca+QVVLZgyW6sLgMA9wSdlgX/pc0yhNWj2zySwzFlAIFREZPsNdF00A?=
+ =?us-ascii?Q?ZJu8QUq2I9pE1sWkO5WnzbYfXj157GOwEHHYouDwh01SzYClk0kkQhIcqgE+?=
+ =?us-ascii?Q?M0UwK0DIx4VhjrbXsg7fYvkpCkrXyUS7G8t+kJ4bUkCFaYQ17TA0z3U3sLmM?=
+ =?us-ascii?Q?jD+JvRLVyImyfDlNKyK8AI6i2zuD6mm6AZ8TTyjXHK56MVHMe/4j4+qDJ2q7?=
+ =?us-ascii?Q?cnn4IyevxYhEbogmoMQhpU/JNIrJzmRHqj8pzdQTRn0MPCh2BO7yjDBVz797?=
+ =?us-ascii?Q?VNSW1OqirztYBA9y7s6ZY0HRt898gdfGKPzIlMy3wVseCyq2qojgNNEzsZ4T?=
+ =?us-ascii?Q?3SiGuWFW/IvKmtK1wcnYcpA1lLmjqW6b0r5rNcryTsLASIM49ly+HHNeSdwG?=
+ =?us-ascii?Q?Dc4QwRsd1+Aa3HDnVGSg9o/tv9E6WEMCq8cgQVDIGsh7WbppYhqdCNIWg5na?=
+ =?us-ascii?Q?Irbg4cLB8rC3xISWuyW65m8HlHyUnED3yNJKf+cbM3tiF+EII2Xn9KWUvwym?=
+ =?us-ascii?Q?sN9p1Vlu7DuXDHtC9eN+D9MdEibihLsNiyB1OWQRW9kbQyWpznbXkYHPze4f?=
+ =?us-ascii?Q?wXTqHcMX3Uez90v2Fzg=3D?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: DS0PR11MB7529.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: b823feb7-84a1-49ae-e2bc-08db3efb129e
+X-MS-Exchange-CrossTenant-originalarrivaltime: 17 Apr 2023 04:20:27.2802
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: MBSaKuz8Kivba/NOrHx9yRZ5YgzuUh0WdYY/XLr+nhJtL8XiLVWVnws+SaeQNsg2WGFEAht3Dd5rysZ9+Bht8g==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR11MB6875
+X-OriginatorOrg: intel.com
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The only instances of get_user_pages_remote() invocations which used the
-vmas parameter were for a single page which can instead simply look up the
-VMA directly. In particular:-
+> From: Alex Williamson <alex.williamson@redhat.com>
+> Sent: Saturday, April 15, 2023 1:11 AM
+>=20
+> On Fri, 14 Apr 2023 11:38:24 +0000
+> "Liu, Yi L" <yi.l.liu@intel.com> wrote:
+>=20
+> > > From: Tian, Kevin <kevin.tian@intel.com>
+> > > Sent: Friday, April 14, 2023 5:12 PM
+> > >
+> > > > From: Alex Williamson <alex.williamson@redhat.com>
+> > > > Sent: Friday, April 14, 2023 2:07 AM
+> > > >
+> > > > We had already iterated a proposal where the group-id is replaced w=
+ith
+> > > > a dev-id in the existing ioctl and a flag indicates when the return
+> > > > value is a dev-id vs group-id.  This had a gap that userspace canno=
+t
+> > > > determine if a reset is available given this information since un-o=
+wned
+> > > > devices report an invalid dev-id and userspace can't know if it has
+> > > > implicit ownership.
+> > >
+> > > >
+> > > > It seems cleaner to me though that we would could still re-use INFO=
+ in
+> > > > a similar way, simply defining a new flag bit which is valid only i=
+n
+> > > > the case of returning dev-ids and indicates if the reset is availab=
+le.
+> > > > Therefore in one ioctl, userspace knows if hot-reset is available
+> > > > (based on a kernel determination) and can pull valid dev-ids from t=
+he
+> >
+> > Need to confirm the meaning of hot-reset available flag. I think it
+> > should at least meet below two conditions to set this flag. Although
+> > it may not mean hot-reset is for sure to succeed. (but should be
+> > a high chance).
+> >
+> > 1) dev_set is resettable (all affected device are in dev_set)
+> > 2) affected device are owned by the current user
+>=20
+> Per thread with Kevin, ownership can't always be known by the kernel.
+> Beyond the group vs cdev discussion there, isn't it also possible
+> (though perhaps not recommended) that a user can have multiple iommufd
+> ctxs?  So I think 2) becomes "ownership of the affected dev-set can be
+> inferred from the iommufd_ctx of the calling device", iow, the
+> null-array calling model is available and the flag is redefined to
+> match.  Reset may still be available via the proof-of-ownership model.
 
-- __update_ref_ctr() looked up the VMA but did nothing with it so we simply
-  remove it.
+Yes, if there are multiple iommufd ctxs, this shall fall back to use
+the proof-of-ownership model.
 
-- __access_remote_vm() was already using vma_lookup() when the original
-  lookup failed so by doing the lookup directly this also de-duplicates the
-  code.
+>=20
+> > Also, we need to has assumption that below two cases are rare
+> > if user encounters it, it just bad luck for them. I think the existing
+> > _INFO and hot-reset already has such assumption. So cdev mode
+> > can adopt it as well.
+> >
+> > a) physical topology change (e.g. new devices plugged to affected slot)
+> > b) an affected device is unbound from vfio
+>=20
+> Yes, these are sufficiently rare that we can't do much about them.
+>=20
+> > > So the kernel needs to compare the group id between devices with
+> > > valid dev-ids and devices with invalid dev-ids to decide the implicit
+> > > ownership. For noiommu device which has no group_id when
+> > > VFIO_GROUP is off then it's resettable only if having a valid dev_id.
+> >
+> > In cdev mode, noiommu device doesn't have dev_id as it is not
+> > bound to valid iommufd. So if VFIO_GROUP is off, we may never
+> > allow hot-reset for noiommu devices. But we don't want to have
+> > regression with noiommu devices. Perhaps we may define the usage
+> > of the resettable flag like this:
+> > 1) if it is set, user does not need to own all the affected devices as
+> >     some of them may have been owned implicitly. Kernel should have
+> >     checked it.
+> > 2) if the flag is not set, that means user needs to check ownership
+> >     by itself. It needs to own all the affected devices. If not, don't
+> >    do hot-reset.
+>=20
+> Exactly, the flag essentially indicates that the null-array approach is
+> available, lack of the flag indicates proof-of-ownership is required.
+>=20
+> > This way we can still make noiommu devices support hot-reset
+> > just like VFIO_GROUP is on. Because noiommu devices have fake
+> > groups, such groups are all singleton. So checking all affected
+> > devices are opened by user is just same as check all affected
+> > groups.
+>=20
+> Yep.
+>=20
+> > > The only corner case with this option is when a user mixes group
+> > > and cdev usages. iirc you mentioned it's a valid usage to be supporte=
+d.
+> > > In that case the kernel doesn't have sufficient knowledge to judge
+> > > 'resettable' as it doesn't know which groups are opened by this user.
+> > >
+> > > Not sure whether we can leave it in a ugly way so INFO may not tell
+> > > 'resettable' accurately in that weird scenario.
+> >
+> > This seems not easy to support. If above scenario is allowed there can =
+be
+> > three cases that returns invalid dev_id.
+> > 1) devices not opened by user but owned implicitly
+>=20
+> The cdev approach has a hard time with this in general, it has no way to
+> represent unopened devices. so any case where the nature of an unopened
+> device block reset on the dev-set is rather opaque to the user.
+>=20
+> > 2) devices not owned by user
+>=20
+> (and presumable not owned)  We still provide BDF.  Not much difference
+> from the group case here, being able to point to a BDF or group is
+> about all we can do.
+>=20
+> > 3) devices opened via group but owned by user
+>=20
+> I think this still works in the proof-of-ownership, passing fds to
+> hot-reset model.
 
-This forms part of a broader set of patches intended to eliminate the vmas
-parameter altogether.
+Ok. let's see below scenario and user's processing makes sense.
 
-Signed-off-by: Lorenzo Stoakes <lstoakes@gmail.com>
----
- arch/arm64/kernel/mte.c   |  7 ++++---
- arch/s390/kvm/interrupt.c |  2 +-
- fs/exec.c                 |  2 +-
- include/linux/mm.h        |  2 +-
- kernel/events/uprobes.c   | 14 +++++++++-----
- mm/gup.c                  | 12 ++++--------
- mm/memory.c               |  8 ++++++--
- mm/rmap.c                 |  2 +-
- security/tomoyo/domain.c  |  2 +-
- virt/kvm/async_pf.c       |  3 +--
- 10 files changed, 29 insertions(+), 25 deletions(-)
+Say there are five devices (devA, devB, devC, devD, devE) in the same reset
+group. devA and devB are in the same iommu group. devC, devD, and devE have
+separate iommu groups. Say devA is opened via cdev, devB is not opened, dev=
+C
+is opened via group, devD is opened cdev but bound to another iommufdctx th=
+at
+is different with devA. devE is not opened by any user
 
-diff --git a/arch/arm64/kernel/mte.c b/arch/arm64/kernel/mte.c
-index f5bcb0dc6267..904785697e91 100644
---- a/arch/arm64/kernel/mte.c
-+++ b/arch/arm64/kernel/mte.c
-@@ -419,7 +419,6 @@ long get_mte_ctrl(struct task_struct *task)
- static int __access_remote_tags(struct mm_struct *mm, unsigned long addr,
- 				struct iovec *kiov, unsigned int gup_flags)
- {
--	struct vm_area_struct *vma;
- 	void __user *buf = kiov->iov_base;
- 	size_t len = kiov->iov_len;
- 	int ret;
-@@ -432,12 +431,13 @@ static int __access_remote_tags(struct mm_struct *mm, unsigned long addr,
- 		return -EIO;
- 
- 	while (len) {
-+		struct vm_area_struct *vma;
- 		unsigned long tags, offset;
- 		void *maddr;
- 		struct page *page = NULL;
- 
- 		ret = get_user_pages_remote(mm, addr, 1, gup_flags, &page,
--					    &vma, NULL);
-+					    NULL);
- 		if (ret <= 0)
- 			break;
- 
-@@ -448,7 +448,8 @@ static int __access_remote_tags(struct mm_struct *mm, unsigned long addr,
- 		 * would cause the existing tags to be cleared if the page
- 		 * was never mapped with PROT_MTE.
- 		 */
--		if (!(vma->vm_flags & VM_MTE)) {
-+		vma = vma_lookup(mm, addr);
-+		if (WARN_ON_ONCE(!vma) || !(vma->vm_flags & VM_MTE)) {
- 			ret = -EOPNOTSUPP;
- 			put_page(page);
- 			break;
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 9250fde1f97d..c19d0cb7d2f2 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -2777,7 +2777,7 @@ static struct page *get_map_page(struct kvm *kvm, u64 uaddr)
- 
- 	mmap_read_lock(kvm->mm);
- 	get_user_pages_remote(kvm->mm, uaddr, 1, FOLL_WRITE,
--			      &page, NULL, NULL);
-+			      &page, NULL);
- 	mmap_read_unlock(kvm->mm);
- 	return page;
- }
-diff --git a/fs/exec.c b/fs/exec.c
-index 87cf3a2f0e9a..d8d48ee15aac 100644
---- a/fs/exec.c
-+++ b/fs/exec.c
-@@ -219,7 +219,7 @@ static struct page *get_arg_page(struct linux_binprm *bprm, unsigned long pos,
- 	 */
- 	mmap_read_lock(bprm->mm);
- 	ret = get_user_pages_remote(bprm->mm, pos, 1, gup_flags,
--			&page, NULL, NULL);
-+			&page, NULL);
- 	mmap_read_unlock(bprm->mm);
- 	if (ret <= 0)
- 		return NULL;
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index ec9875c59f6d..1bfe73a2b6d3 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -2374,7 +2374,7 @@ extern int __access_remote_vm(struct mm_struct *mm, unsigned long addr,
- long get_user_pages_remote(struct mm_struct *mm,
- 			    unsigned long start, unsigned long nr_pages,
- 			    unsigned int gup_flags, struct page **pages,
--			    struct vm_area_struct **vmas, int *locked);
-+			    int *locked);
- long pin_user_pages_remote(struct mm_struct *mm,
- 			   unsigned long start, unsigned long nr_pages,
- 			   unsigned int gup_flags, struct page **pages,
-diff --git a/kernel/events/uprobes.c b/kernel/events/uprobes.c
-index 59887c69d54c..c5ed6bb340f7 100644
---- a/kernel/events/uprobes.c
-+++ b/kernel/events/uprobes.c
-@@ -365,7 +365,6 @@ __update_ref_ctr(struct mm_struct *mm, unsigned long vaddr, short d)
- {
- 	void *kaddr;
- 	struct page *page;
--	struct vm_area_struct *vma;
- 	int ret;
- 	short *ptr;
- 
-@@ -373,7 +372,7 @@ __update_ref_ctr(struct mm_struct *mm, unsigned long vaddr, short d)
- 		return -EINVAL;
- 
- 	ret = get_user_pages_remote(mm, vaddr, 1,
--			FOLL_WRITE, &page, &vma, NULL);
-+				    FOLL_WRITE, &page, NULL);
- 	if (unlikely(ret <= 0)) {
- 		/*
- 		 * We are asking for 1 page. If get_user_pages_remote() fails,
-@@ -475,10 +474,16 @@ int uprobe_write_opcode(struct arch_uprobe *auprobe, struct mm_struct *mm,
- 		gup_flags |= FOLL_SPLIT_PMD;
- 	/* Read the page with vaddr into memory */
- 	ret = get_user_pages_remote(mm, vaddr, 1, gup_flags,
--				    &old_page, &vma, NULL);
-+				    &old_page, NULL);
- 	if (ret <= 0)
- 		return ret;
- 
-+	vma = vma_lookup(mm, vaddr);
-+	if (WARN_ON_ONCE(!vma)) {
-+		ret = -EINVAL;
-+		goto put_old;
-+	}
-+
- 	ret = verify_opcode(old_page, vaddr, &opcode);
- 	if (ret <= 0)
- 		goto put_old;
-@@ -2027,8 +2032,7 @@ static int is_trap_at_addr(struct mm_struct *mm, unsigned long vaddr)
- 	 * but we treat this as a 'remote' access since it is
- 	 * essentially a kernel access to the memory.
- 	 */
--	result = get_user_pages_remote(mm, vaddr, 1, FOLL_FORCE, &page,
--			NULL, NULL);
-+	result = get_user_pages_remote(mm, vaddr, 1, FOLL_FORCE, &page, NULL);
- 	if (result < 0)
- 		return result;
- 
-diff --git a/mm/gup.c b/mm/gup.c
-index 931c805bc32b..9440aa54c741 100644
---- a/mm/gup.c
-+++ b/mm/gup.c
-@@ -2165,8 +2165,6 @@ static bool is_valid_gup_args(struct page **pages, struct vm_area_struct **vmas,
-  * @pages:	array that receives pointers to the pages pinned.
-  *		Should be at least nr_pages long. Or NULL, if caller
-  *		only intends to ensure the pages are faulted in.
-- * @vmas:	array of pointers to vmas corresponding to each page.
-- *		Or NULL if the caller does not require them.
-  * @locked:	pointer to lock flag indicating whether lock is held and
-  *		subsequently whether VM_FAULT_RETRY functionality can be
-  *		utilised. Lock must initially be held.
-@@ -2181,8 +2179,6 @@ static bool is_valid_gup_args(struct page **pages, struct vm_area_struct **vmas,
-  *
-  * The caller is responsible for releasing returned @pages, via put_page().
-  *
-- * @vmas are valid only as long as mmap_lock is held.
-- *
-  * Must be called with mmap_lock held for read or write.
-  *
-  * get_user_pages_remote walks a process's page tables and takes a reference
-@@ -2219,15 +2215,15 @@ static bool is_valid_gup_args(struct page **pages, struct vm_area_struct **vmas,
- long get_user_pages_remote(struct mm_struct *mm,
- 		unsigned long start, unsigned long nr_pages,
- 		unsigned int gup_flags, struct page **pages,
--		struct vm_area_struct **vmas, int *locked)
-+		int *locked)
- {
- 	int local_locked = 1;
- 
--	if (!is_valid_gup_args(pages, vmas, locked, &gup_flags,
-+	if (!is_valid_gup_args(pages, NULL, locked, &gup_flags,
- 			       FOLL_TOUCH | FOLL_REMOTE))
- 		return -EINVAL;
- 
--	return __get_user_pages_locked(mm, start, nr_pages, pages, vmas,
-+	return __get_user_pages_locked(mm, start, nr_pages, pages, NULL,
- 				       locked ? locked : &local_locked,
- 				       gup_flags);
- }
-@@ -2237,7 +2233,7 @@ EXPORT_SYMBOL(get_user_pages_remote);
- long get_user_pages_remote(struct mm_struct *mm,
- 			   unsigned long start, unsigned long nr_pages,
- 			   unsigned int gup_flags, struct page **pages,
--			   struct vm_area_struct **vmas, int *locked)
-+			   int *locked)
- {
- 	return 0;
- }
-diff --git a/mm/memory.c b/mm/memory.c
-index 8ddb10199e8d..310bfb910378 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -5591,7 +5591,9 @@ int __access_remote_vm(struct mm_struct *mm, unsigned long addr, void *buf,
- 		struct page *page = NULL;
- 
- 		ret = get_user_pages_remote(mm, addr, 1,
--				gup_flags, &page, &vma, NULL);
-+				gup_flags, &page, NULL);
-+		vma = vma_lookup(mm, addr);
-+
- 		if (ret <= 0) {
- #ifndef CONFIG_HAVE_IOREMAP_PROT
- 			break;
-@@ -5600,7 +5602,6 @@ int __access_remote_vm(struct mm_struct *mm, unsigned long addr, void *buf,
- 			 * Check if this is a VM_IO | VM_PFNMAP VMA, which
- 			 * we can access using slightly different code.
- 			 */
--			vma = vma_lookup(mm, addr);
- 			if (!vma)
- 				break;
- 			if (vma->vm_ops && vma->vm_ops->access)
-@@ -5610,6 +5611,9 @@ int __access_remote_vm(struct mm_struct *mm, unsigned long addr, void *buf,
- 				break;
- 			bytes = ret;
- #endif
-+		} else if (unlikely(!vma)) {
-+			VM_WARN_ON_ONCE(1);
-+			break;
- 		} else {
- 			bytes = len;
- 			offset = addr & (PAGE_SIZE-1);
-diff --git a/mm/rmap.c b/mm/rmap.c
-index ba901c416785..756ea8a9bb90 100644
---- a/mm/rmap.c
-+++ b/mm/rmap.c
-@@ -2324,7 +2324,7 @@ int make_device_exclusive_range(struct mm_struct *mm, unsigned long start,
- 
- 	npages = get_user_pages_remote(mm, start, npages,
- 				       FOLL_GET | FOLL_WRITE | FOLL_SPLIT_PMD,
--				       pages, NULL, NULL);
-+				       pages, NULL);
- 	if (npages < 0)
- 		return npages;
- 
-diff --git a/security/tomoyo/domain.c b/security/tomoyo/domain.c
-index 31af29f669d2..ac20c0bdff9d 100644
---- a/security/tomoyo/domain.c
-+++ b/security/tomoyo/domain.c
-@@ -916,7 +916,7 @@ bool tomoyo_dump_page(struct linux_binprm *bprm, unsigned long pos,
- 	 */
- 	mmap_read_lock(bprm->mm);
- 	ret = get_user_pages_remote(bprm->mm, pos, 1,
--				    FOLL_FORCE, &page, NULL, NULL);
-+				    FOLL_FORCE, &page, NULL);
- 	mmap_read_unlock(bprm->mm);
- 	if (ret <= 0)
- 		return false;
-diff --git a/virt/kvm/async_pf.c b/virt/kvm/async_pf.c
-index 9bfe1d6f6529..e033c79d528e 100644
---- a/virt/kvm/async_pf.c
-+++ b/virt/kvm/async_pf.c
-@@ -61,8 +61,7 @@ static void async_pf_execute(struct work_struct *work)
- 	 * access remotely.
- 	 */
- 	mmap_read_lock(mm);
--	get_user_pages_remote(mm, addr, 1, FOLL_WRITE, NULL, NULL,
--			&locked);
-+	get_user_pages_remote(mm, addr, 1, FOLL_WRITE, NULL, &locked);
- 	if (locked)
- 		mmap_read_unlock(mm);
- 
--- 
-2.40.0
+If this INFO is called on devA, user should get a valid dev_id for devA, bu=
+t
+four invalid dev_ids. The resettable flag should be clear. Below is how use=
+r
+to handle the info returned.
 
+- For devB, user shall get the group_id for devA, and also get group_id for
+  devB, hence able to check ownership of devB by checking the group
+- For devC, user can check ownership by the group_id and bdf returned
+- For devD, if it is opened by the user, should be able to find it by bdf
+- For devE, user shall fail to find it hence consider no ownership on it.
+
+To finish the above check, user needs to get group_id via devid an also nee=
+ds
+to get group_id via device fd. Is it?
+
+The above example may be the most tricky scenario. Is it? user shall not do
+hot-reset as not all affected devices are owned by user. But if devE is als=
+o
+opened by user, it could do hot-reset.
+
+> > User would require more info to tell the above cases from each other.
+>=20
+> Obviously we could be equivalent to the group model if IOMMU groups
+> were exposed for a device and all devices had IOMMU groups, but
+> reasons...
+>=20
+> > > > array to associate affected, owned devices, and still has the
+> > > > equivalent information to know that one or more of the devices list=
+ed
+> > > > with an invalid dev-id are preventing the hot-reset from being
+> > > > available.
+> > > >
+> > > > Is that an option?  Thanks,
+> > > >
+> > >
+> > > This works for me if above corner case can be waived.
+> >
+> > One side check, perhaps already confirmed in prior email. @Alex, So
+> > the reason for the prediction of hot-reset is to avoid the possible
+> > vfio_pci_pre_reset() which does heavy operations like stop DMA and
+> > copy config space. Is it? Any other special reason? Anyhow, this reason
+> > is enough for this prediction per my understanding.
+>=20
+> It's not clear to me what "prediction" is referring to.
+
+It is predicting whether hot-reset ioctl can work or not as you mentioned
+in prior discussion.[1].
+
+"I disagree, as I've argued before, the info ioctl becomes so weak and
+effectively arbitrary from a user perspective at being able to predict
+whether the hot-reset ioctl works that it becomes useless, diminishing
+the entire hot-reset info/execute API."
+
+[1] https://lore.kernel.org/kvm/20230405134945.29e967be.alex.williamson@red=
+hat.com/
+
+> As above, I
+> think we can redefine the reset-available flag I proposed to more
+> restrictively indicate that the null-array approach is available based
+> on the dev-set group in relation to the iommufd_ctx of the calling
+> device.  Prediction of the affected devices seems like basic
+> functionality to me, we can't assume the user's usage model, they must
+> be able to make a well informed decision regarding affected devices.
+> Thanks,
+
+As my above reply with the five-device scenario. It still needs to get
+group_id to check implicit ownership in the case of sharing the same
+iommu_group.
+
+Regards,
+Yi Liu
