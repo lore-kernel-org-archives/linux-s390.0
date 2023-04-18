@@ -2,453 +2,283 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 242DFC77B75
-	for <linux-s390@archiver.kernel.org>; Tue, 18 Apr 2023 15:49:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A234C77B7D
+	for <linux-s390@archiver.kernel.org>; Tue, 18 Apr 2023 16:45:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232406AbjDRPt1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 18 Apr 2023 11:49:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33928 "EHLO
+        id S230514AbjDRQpT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 18 Apr 2023 12:45:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232356AbjDRPtR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 18 Apr 2023 11:49:17 -0400
-Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90A1812CB4;
-        Tue, 18 Apr 2023 08:49:13 -0700 (PDT)
-Received: by mail-wm1-x332.google.com with SMTP id 5b1f17b1804b1-3f16fd9bc0dso21468825e9.2;
-        Tue, 18 Apr 2023 08:49:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1681832952; x=1684424952;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=UpDTnbIF542CSHK255t29C0dsriOPjDrlIOTnq6VGhg=;
-        b=dQ/UuKqsfe7uYvWeE5Pns5rtVd/0AdPad8c6UcyQo+zRskVc5bILEFh+J+6CCSO2kB
-         EQFeaaF6avE2fcC6GNrRKY+SbeSrwYTTV+HgN1j0eSYVYP8/UkNn49BMZvplcC8SFFiJ
-         kT68gM1qGUkiZoWqhPxmjveTuQXDah1AOW2VZX/EN4P9WCTE1SPbZtTO43LrVfB12rJf
-         HyAHHKgmiIS9VMKrGTV3L5McvFJAzvLANCZzingrQGv819mJXKz10LaT85JPYPpzyFE4
-         8YTBz1NpC4zpqv0L+IeiVh6WgfmFVhz+XnMhKpUP1RVuAoO9uQO+k8AEsFVgT0uaZXKy
-         4lYQ==
+        with ESMTP id S232672AbjDRQpI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 18 Apr 2023 12:45:08 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE1E47EEF
+        for <linux-s390@vger.kernel.org>; Tue, 18 Apr 2023 09:44:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1681836259;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=nHWVPIc4x5U/mlAf83FqLeQfAoumlxuLoM0oc93GYKc=;
+        b=PxdPDWh/ZcpBg4ulMOkoEEMa7Qhki0o7kJHVAL9rDrNw1qViqN2ytB7Y+W3kcwXy19QMBn
+        Mer+eHhIzhCH5g23ylllqmNay2LNPS5Sstwo0gyZHZOcVNbrFJIpvCKEWrwdxFzHqXSxYt
+        UI0urWJJBpuB0tHK4Igi/CHF7HQ7HLw=
+Received: from mail-io1-f72.google.com (mail-io1-f72.google.com
+ [209.85.166.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-442-3g_nmesqNYSjZCvETclf1Q-1; Tue, 18 Apr 2023 12:44:18 -0400
+X-MC-Unique: 3g_nmesqNYSjZCvETclf1Q-1
+Received: by mail-io1-f72.google.com with SMTP id ca18e2360f4ac-760da06b86aso164430239f.0
+        for <linux-s390@vger.kernel.org>; Tue, 18 Apr 2023 09:44:18 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1681832952; x=1684424952;
+        d=1e100.net; s=20221208; t=1681836257; x=1684428257;
         h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=UpDTnbIF542CSHK255t29C0dsriOPjDrlIOTnq6VGhg=;
-        b=TxOKB62d6qgfzEsZ2dwFqOnyKBFE40DkpYTXSBJjWdKnQOPRLFO/EuXCLdZ6XOfnRk
-         f+bhPcJkLupTCYk1dRDl1pfbO2/Px0xIps97mlkDZ3SayLdtgShzhe1U27BVyLd2VDrF
-         1cHkzIi7D0XYPa+snaIqNQsaquCpyeBlUCOULIwUezvlvOKyWnWN1bQ7og4u+pJxwGML
-         n+CCOcEJw1j8btMFLYAtYFBfHwjEOw0QuSvZ7VbeRFy4aVhjGKqDfmY+l7nDYf35DVLv
-         OAOxa1wRqRHi4Z+IZ7vf1IQEpyj744eRG/CU3I2VMA62+CdzxRQbpVu/rqGS0/6gGafm
-         L6+Q==
-X-Gm-Message-State: AAQBX9ewLSRf8b3hqTJO0gXfz4xNUxbVcN9dieHB1Z0CDXWDnYcpw+Bv
-        OkeFBy4Gjo25ZVsdRVtNmQk=
-X-Google-Smtp-Source: AKy350bVV4uQ8lR+SE5X/kHt9mn8be5pAW7rko/h8BvM6/W0i2CW942gZ/uHrHsWr5XB841GP2+ddg==
-X-Received: by 2002:adf:f8d1:0:b0:2e6:3804:5be with SMTP id f17-20020adff8d1000000b002e6380405bemr2239587wrq.59.1681832951798;
-        Tue, 18 Apr 2023 08:49:11 -0700 (PDT)
-Received: from lucifer.home (host86-156-84-164.range86-156.btcentralplus.com. [86.156.84.164])
-        by smtp.googlemail.com with ESMTPSA id l12-20020a1c790c000000b003f179fc6d8esm2254274wme.44.2023.04.18.08.49.10
+        bh=nHWVPIc4x5U/mlAf83FqLeQfAoumlxuLoM0oc93GYKc=;
+        b=kGr5JSwTpp5PLmSbZZL0xMUPch9WhQvr49DOatUZlmFA8PI+IMKIj+u7IYwUj7AO/n
+         ofWJeaByj0/831f9NKDCtNecUhXuwnaguJjB+JM0dXQ4/+wErMiiNDgwt1H+quZ26YFz
+         5JC+V81s5t96v6HHLHr69tJE8Ul0BmCq4Hs1bpVHJ+chl/y+m3oDQ+zkao3O21HtApGk
+         13DeEp2vv/1lqSE7H+zpaDScGO6uwOlo3B6ede0T5Dk5z/WxXzD8ySxSKp2Rm7zb+tXP
+         8Phz4VZVJYH9fqxYDh3sNQJWVRzM8czVbpmb00pMR/R/L/P/r1IWIIDGTY6e8qrpnEb1
+         aFMA==
+X-Gm-Message-State: AAQBX9dOKjOSZBkyOInbPyRLQul51NCZNQOqAXpSi1aZ4Tts9TrO7zNd
+        iCdNRR80dYmWCsiqU8wfRjEEW0Aq26Ilnk/qxFPvggk+TXCG3VV0fAk+IN8NOnnjdcePZZt6dvr
+        rjhkcxsM5IV+ZnYlDUttwlg==
+X-Received: by 2002:a05:6602:228e:b0:763:5ab7:a8ec with SMTP id d14-20020a056602228e00b007635ab7a8ecmr2330274iod.12.1681836257617;
+        Tue, 18 Apr 2023 09:44:17 -0700 (PDT)
+X-Google-Smtp-Source: AKy350YitzyKqrsLa63dC12LmXhePfvCEuOzHSgyVKtNmIoubcbobEdIKF/6U2yIwGxHSAEsU59enQ==
+X-Received: by 2002:a05:6602:228e:b0:763:5ab7:a8ec with SMTP id d14-20020a056602228e00b007635ab7a8ecmr2330244iod.12.1681836257256;
+        Tue, 18 Apr 2023 09:44:17 -0700 (PDT)
+Received: from redhat.com ([38.15.36.239])
+        by smtp.gmail.com with ESMTPSA id ch5-20020a0566383e8500b0040bd1d947bfsm4241002jab.158.2023.04.18.09.44.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Apr 2023 08:49:11 -0700 (PDT)
-From:   Lorenzo Stoakes <lstoakes@gmail.com>
-To:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>
-Cc:     Matthew Wilcox <willy@infradead.org>,
-        David Hildenbrand <david@redhat.com>,
-        linux-arm-kernel@lists.infradead.org, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-perf-users@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Kees Cook <keescook@chromium.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Christian Brauner <brauner@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Ian Rogers <irogers@google.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Kentaro Takeda <takedakn@nttdata.co.jp>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Paul Moore <paul@paul-moore.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E . Hallyn" <serge@hallyn.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Lorenzo Stoakes <lstoakes@gmail.com>
-Subject: [PATCH v4 3/6] mm/gup: remove vmas parameter from get_user_pages_remote()
-Date:   Tue, 18 Apr 2023 16:49:08 +0100
-Message-Id: <7c6f1ae88320bf11d2f583178a3d9e653e06ac63.1681831798.git.lstoakes@gmail.com>
-X-Mailer: git-send-email 2.40.0
-In-Reply-To: <cover.1681831798.git.lstoakes@gmail.com>
-References: <cover.1681831798.git.lstoakes@gmail.com>
+        Tue, 18 Apr 2023 09:44:16 -0700 (PDT)
+Date:   Tue, 18 Apr 2023 10:44:15 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     "Tian, Kevin" <kevin.tian@intel.com>
+Cc:     Jason Gunthorpe <jgg@nvidia.com>, "Liu, Yi L" <yi.l.liu@intel.com>,
+        "eric.auger@redhat.com" <eric.auger@redhat.com>,
+        "joro@8bytes.org" <joro@8bytes.org>,
+        "robin.murphy@arm.com" <robin.murphy@arm.com>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
+        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
+        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
+        "peterx@redhat.com" <peterx@redhat.com>,
+        "jasowang@redhat.com" <jasowang@redhat.com>,
+        "shameerali.kolothum.thodi@huawei.com" 
+        <shameerali.kolothum.thodi@huawei.com>,
+        "lulu@redhat.com" <lulu@redhat.com>,
+        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
+        "intel-gvt-dev@lists.freedesktop.org" 
+        <intel-gvt-dev@lists.freedesktop.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "Hao, Xudong" <xudong.hao@intel.com>,
+        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
+        "Xu, Terrence" <terrence.xu@intel.com>,
+        "Jiang, Yanting" <yanting.jiang@intel.com>,
+        "Duan, Zhenzhong" <zhenzhong.duan@intel.com>
+Subject: Re: [PATCH v3 12/12] vfio/pci: Report dev_id in
+ VFIO_DEVICE_GET_PCI_HOT_RESET_INFO
+Message-ID: <20230418104415.5cdecb5e.alex.williamson@redhat.com>
+In-Reply-To: <BN9PR11MB52764F6F00EFCD6EF9ACC71D8C9D9@BN9PR11MB5276.namprd11.prod.outlook.com>
+References: <20230412105045.79adc83d.alex.williamson@redhat.com>
+        <ZDcPTTPlni/Mi6p3@nvidia.com>
+        <BN9PR11MB5276782DA56670C8209470828C989@BN9PR11MB5276.namprd11.prod.outlook.com>
+        <ZDfslVwqk6JtPpyD@nvidia.com>
+        <20230413120712.3b9bf42d.alex.williamson@redhat.com>
+        <BN9PR11MB5276A160CA699933B897C8C18C999@BN9PR11MB5276.namprd11.prod.outlook.com>
+        <DS0PR11MB7529B7481AC97261E12AA116C3999@DS0PR11MB7529.namprd11.prod.outlook.com>
+        <20230414111043.40c15dde.alex.williamson@redhat.com>
+        <DS0PR11MB75290A78D6879EC2E31E21AEC39C9@DS0PR11MB7529.namprd11.prod.outlook.com>
+        <20230417130140.1b68082e.alex.williamson@redhat.com>
+        <ZD2erN3nKbnyqei9@nvidia.com>
+        <20230417140642.650fc165.alex.williamson@redhat.com>
+        <BN9PR11MB5276D93DDFE3ED97CD1B923B8C9D9@BN9PR11MB5276.namprd11.prod.outlook.com>
+        <20230417221033.778c00c9.alex.williamson@redhat.com>
+        <BN9PR11MB52764F6F00EFCD6EF9ACC71D8C9D9@BN9PR11MB5276.namprd11.prod.outlook.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The only instances of get_user_pages_remote() invocations which used the
-vmas parameter were for a single page which can instead simply look up the
-VMA directly. In particular:-
+On Tue, 18 Apr 2023 05:02:44 +0000
+"Tian, Kevin" <kevin.tian@intel.com> wrote:
 
-- __update_ref_ctr() looked up the VMA but did nothing with it so we simply
-  remove it.
+> > From: Alex Williamson <alex.williamson@redhat.com>
+> > Sent: Tuesday, April 18, 2023 12:11 PM
+> > 
+> > On Tue, 18 Apr 2023 03:24:46 +0000
+> > "Tian, Kevin" <kevin.tian@intel.com> wrote:
+> >   
+> > > > From: Alex Williamson <alex.williamson@redhat.com>
+> > > > Sent: Tuesday, April 18, 2023 4:07 AM
+> > > >
+> > > > On Mon, 17 Apr 2023 16:31:56 -0300
+> > > > Jason Gunthorpe <jgg@nvidia.com> wrote:
+> > > >  
+> > > > > On Mon, Apr 17, 2023 at 01:01:40PM -0600, Alex Williamson wrote:  
+> > > > > > Yes, it's not trivial, but Jason is now proposing that we consider
+> > > > > > mixing groups, cdevs, and multiple iommufd_ctxs as invalid.  I think
+> > > > > > this means that regardless of which device calls INFO, there's only one
+> > > > > > answer (assuming same set of devices opened, all cdev, all within  
+> > same  
+> > > > > > iommufd_ctx).  Based on what I explained about my understanding of  
+> > > > INFO2  
+> > > > > > and Jason agreed to, I think the output would be:
+> > > > > >
+> > > > > > flags: NOT_RESETABLE | DEV_ID
+> > > > > > {
+> > > > > >   { valid devA-id,  devA-BDF },
+> > > > > >   { valid devC-id,  devC-BDF },
+> > > > > >   { valid devD-id,  devD-BDF },
+> > > > > >   { invalid dev-id, devE-BDF },
+> > > > > > }
+> > > > > >
+> > > > > > Here devB gets dropped because the kernel understands that devB is
+> > > > > > unopened, affected, and owned.  It's therefore not a blocker for
+> > > > > > hot-reset.  
+> > > > >
+> > > > > I don't think we want to drop anything because it makes the API
+> > > > > ill suited for the debugging purpose.
+> > > > >
+> > > > > devb should be returned with an invalid dev_id if I understand your
+> > > > > example. Maybe it should return with -1 as the dev_id instead of 0, to
+> > > > > make the debugging a bit better.
+> > > > >
+> > > > > Userspace should look at only NOT_RESETTABLE to determine if it
+> > > > > proceeds or not, and it should use the valid dev_id list to iterate
+> > > > > over the devices it has open to do the config stuff.  
+> > > >
+> > > > If an affected device is owned, not opened, and not interfering with
+> > > > the reset, what is it adding to the API to report it for debugging
+> > > > purposes?  I'm afraid this leads into expanding "invalid dev-id" into an  
+> > >
+> > > consistent output before and after devB is opened.  
+> > 
+> > In the case where devB is not opened including it only provides
+> > useless information.  In the case where devB is opened it's necessary
+> > to be reported as an opened, affected device.
+> >   
+> > > > errno or bitmap of error conditions that the user needs to parse.
+> > > >  
+> > >
+> > > Not exactly.
+> > >
+> > > If RESETABLE invalid dev_id doesn't matter. The user only use the
+> > > valid dev_id list to iterate as Jason pointed out.  
+> > 
+> > Yes, but...
+> >   
+> > > If NOT_RESETTABLE due to devE not assigned to the VM one can
+> > > easily figure out the fact by simply looking at the list of affected BDFs
+> > > and the configuration of assigned devices of the VM. Then invalid
+> > > dev_id also doesn't matter.  
+> > 
+> > Huh?
+> > 
+> > Given:
+> > 
+> > flags: NOT_RESETABLE | DEV_ID
+> > {
+> >   { valid devA-id,  devA-BDF },
+> >   { invalid dev-id, devB-BDF },
+> >   { valid devC-id,  devC-BDF },
+> >   { valid devD-id,  devD-BDF },
+> >   { invalid dev-id, devE-BDF },
+> > }
+> > 
+> > How does the user determine that devE is to blame and not devB based on
+> > BDF?  The user cannot rely on sysfs for help, they don't know the IOMMU
+> > grouping, nor do they know the BDF except as inferred by matching valid
+> > dev-ids in the above output.  
+> 
+> emmm aren't we talking about the 'person' who does diagnostic? This guy
+> will look at the VM configuration file to know that devA/B/C/D have been
+> assigned to the VM but not devE.
 
-- __access_remote_vm() was already using vma_lookup() when the original
-  lookup failed so by doing the lookup directly this also de-duplicates the
-  code.
+Actually the scenario is that devA/C/D are assigned, devB is implicitly
+owned, and it's devE that blocks the reset.  If you've followed any of
+the community forums for vfio over the years, it should be readily
+apparent that placing the burden solely on the end user to perform such
+a diagnosis is an unreasonable expectation.
 
-We are able to perform these VMA operations as we already hold the
-mmap_lock in order to be able to call get_user_pages_remote().
+> > > If NOT_RESETTABLE while devE is already assigned to the VM then it's
+> > > indication of mixing groups, cdevs or multiple iommufd_ctxs. Then
+> > > people should debug with other means/hints to dig out the exact
+> > > culprit.  
+> > 
+> > I don't know what situation you're trying to explain here.  If devE
+> > were opened within the same iommufd_ctx, this becomes:  
+> 
+> It's about a scenario where the mgmt.. stack has assigned all affected
+> devices to Qemu but Qemu itself messed it up with mixed group/cdev
+> or multiple iommufd_ctx so hitting the NON_RESETTABLE situation.
 
-As part of this work we add get_user_page_vma_remote() which abstracts the
-VMA lookup, error handling and decrementing the page reference count should
-the VMA lookup fail.
+Is this a reasonable scenario?  I expect the QEMU support to favor cdev
+access where available and fd passing methods will only use cdev, so
+QEMU should never mess up to create such an environment.  There should
+never be a case where a device is exclusively available via group
+rather than cdev.
 
-This forms part of a broader set of patches intended to eliminate the vmas
-parameter altogether.
+> > flags: RESETABLE | DEV_ID
+> > {
+> >   { valid devA-id,  devA-BDF },
+> >   { invalid dev-id, devB-BDF },
+> >   { valid devC-id,  devC-BDF },
+> >   { valid devD-id,  devD-BDF },
+> >   { valid devE-id,  devE-BDF },
+> > }
+> > 
+> > Yes, the user should only be looking at the flag to determine the
+> > availability of hot-reset, (here's the but) but how is it consistent to
+> > indicate both that hot-reset is available and include an invalid
+> > dev-id?  The consistency as I propose is that an invalid dev-id is only
+> > presented with NOT_RESETTABLE for the device blocking hot-reset.  In
+> > the previous case, devB is not blocking reset and reporting an invalid
+> > dev-id only serves to obfuscate determining the blocking device.
+> > 
+> > For the cases of affected group-opened devices or separate
+> > iommufd_ctxs, the user gets invalid dev-ids for anything outside of
+> > the calling device's iommufd_ctx.
+> > 
+> > We haven't discussed how it fails when called on a group-opened device
+> > in a mixed environment.  I'd propose that the INFO ioctl behaves
+> > exactly as it does today, reporting group-id and BDF for each affected
+> > device.  However, the hot-reset ioctl itself is not extended to accept
+> > devicefd because there is no proof-of-ownership model for cdevs.
+> > Therefore even if the user could map group-id to devicefd, they get
+> > -EINVAL calling HOT_RESET with a devicefd when the ioctl is called from
+> > a group-opened device.  Thanks,
+> >   
+> 
+> Yes I chatted with Yi about it.
+> 
+> If the calling device of the INFO ioctl is opened by group then behave
+> as it does today.
+> 
+> If the calling device is opened via cdev then use dev_id scheme as
+> discussed above.
+> 
+> in hot_reset ioctl the fd array only accepts group fd's.
+> 
+> cdev can be reset only via null fd array.
+> 
+> It remains a small open that null fd array could potentially work for
+> group-opened device too if vfio-compat is used. In that case devices
+> are in same iommufd ctx with valid dev_id even though they are opened 
+> via group. But probably it's not worthy blocking it?
 
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com> (for arm64)
-Acked-by: David Hildenbrand <david@redhat.com>
-Signed-off-by: Lorenzo Stoakes <lstoakes@gmail.com>
----
- arch/arm64/kernel/mte.c   | 17 +++++++++--------
- arch/s390/kvm/interrupt.c |  2 +-
- fs/exec.c                 |  2 +-
- include/linux/mm.h        | 34 +++++++++++++++++++++++++++++++---
- kernel/events/uprobes.c   | 13 +++++--------
- mm/gup.c                  | 12 ++++--------
- mm/memory.c               | 14 +++++++-------
- mm/rmap.c                 |  2 +-
- security/tomoyo/domain.c  |  2 +-
- virt/kvm/async_pf.c       |  3 +--
- 10 files changed, 61 insertions(+), 40 deletions(-)
+Yes, let's not create new models for the compatibility interface, stick
+with group-opened = group-id = proof-of-ownership.  Thanks,
 
-diff --git a/arch/arm64/kernel/mte.c b/arch/arm64/kernel/mte.c
-index f5bcb0dc6267..cc793c246653 100644
---- a/arch/arm64/kernel/mte.c
-+++ b/arch/arm64/kernel/mte.c
-@@ -419,10 +419,9 @@ long get_mte_ctrl(struct task_struct *task)
- static int __access_remote_tags(struct mm_struct *mm, unsigned long addr,
- 				struct iovec *kiov, unsigned int gup_flags)
- {
--	struct vm_area_struct *vma;
- 	void __user *buf = kiov->iov_base;
- 	size_t len = kiov->iov_len;
--	int ret;
-+	int err = 0;
- 	int write = gup_flags & FOLL_WRITE;
- 
- 	if (!access_ok(buf, len))
-@@ -432,14 +431,16 @@ static int __access_remote_tags(struct mm_struct *mm, unsigned long addr,
- 		return -EIO;
- 
- 	while (len) {
-+		struct vm_area_struct *vma;
- 		unsigned long tags, offset;
- 		void *maddr;
--		struct page *page = NULL;
-+		struct page *page = get_user_page_vma_remote(mm, addr,
-+							     gup_flags, &vma);
- 
--		ret = get_user_pages_remote(mm, addr, 1, gup_flags, &page,
--					    &vma, NULL);
--		if (ret <= 0)
-+		if (IS_ERR_OR_NULL(page)) {
-+			err = page == NULL ? -EIO : PTR_ERR(page);
- 			break;
-+		}
- 
- 		/*
- 		 * Only copy tags if the page has been mapped as PROT_MTE
-@@ -449,7 +450,7 @@ static int __access_remote_tags(struct mm_struct *mm, unsigned long addr,
- 		 * was never mapped with PROT_MTE.
- 		 */
- 		if (!(vma->vm_flags & VM_MTE)) {
--			ret = -EOPNOTSUPP;
-+			err = -EOPNOTSUPP;
- 			put_page(page);
- 			break;
- 		}
-@@ -482,7 +483,7 @@ static int __access_remote_tags(struct mm_struct *mm, unsigned long addr,
- 	kiov->iov_len = buf - kiov->iov_base;
- 	if (!kiov->iov_len) {
- 		/* check for error accessing the tracee's address space */
--		if (ret <= 0)
-+		if (err)
- 			return -EIO;
- 		else
- 			return -EFAULT;
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 9250fde1f97d..c19d0cb7d2f2 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -2777,7 +2777,7 @@ static struct page *get_map_page(struct kvm *kvm, u64 uaddr)
- 
- 	mmap_read_lock(kvm->mm);
- 	get_user_pages_remote(kvm->mm, uaddr, 1, FOLL_WRITE,
--			      &page, NULL, NULL);
-+			      &page, NULL);
- 	mmap_read_unlock(kvm->mm);
- 	return page;
- }
-diff --git a/fs/exec.c b/fs/exec.c
-index 87cf3a2f0e9a..d8d48ee15aac 100644
---- a/fs/exec.c
-+++ b/fs/exec.c
-@@ -219,7 +219,7 @@ static struct page *get_arg_page(struct linux_binprm *bprm, unsigned long pos,
- 	 */
- 	mmap_read_lock(bprm->mm);
- 	ret = get_user_pages_remote(bprm->mm, pos, 1, gup_flags,
--			&page, NULL, NULL);
-+			&page, NULL);
- 	mmap_read_unlock(bprm->mm);
- 	if (ret <= 0)
- 		return NULL;
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index ec9875c59f6d..0c236e2f25e2 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -2364,6 +2364,9 @@ static inline void unmap_shared_mapping_range(struct address_space *mapping,
- 	unmap_mapping_range(mapping, holebegin, holelen, 0);
- }
- 
-+static inline struct vm_area_struct *vma_lookup(struct mm_struct *mm,
-+						unsigned long addr);
-+
- extern int access_process_vm(struct task_struct *tsk, unsigned long addr,
- 		void *buf, int len, unsigned int gup_flags);
- extern int access_remote_vm(struct mm_struct *mm, unsigned long addr,
-@@ -2372,13 +2375,38 @@ extern int __access_remote_vm(struct mm_struct *mm, unsigned long addr,
- 			      void *buf, int len, unsigned int gup_flags);
- 
- long get_user_pages_remote(struct mm_struct *mm,
--			    unsigned long start, unsigned long nr_pages,
--			    unsigned int gup_flags, struct page **pages,
--			    struct vm_area_struct **vmas, int *locked);
-+			   unsigned long start, unsigned long nr_pages,
-+			   unsigned int gup_flags, struct page **pages,
-+			   int *locked);
- long pin_user_pages_remote(struct mm_struct *mm,
- 			   unsigned long start, unsigned long nr_pages,
- 			   unsigned int gup_flags, struct page **pages,
- 			   int *locked);
-+
-+static inline struct page *get_user_page_vma_remote(struct mm_struct *mm,
-+						    unsigned long addr,
-+						    int gup_flags,
-+						    struct vm_area_struct **vmap)
-+{
-+	struct page *page;
-+	struct vm_area_struct *vma;
-+	int got = get_user_pages_remote(mm, addr, 1, gup_flags, &page, NULL);
-+
-+	if (got < 0)
-+		return ERR_PTR(got);
-+	if (got == 0)
-+		return NULL;
-+
-+	vma = vma_lookup(mm, addr);
-+	if (WARN_ON_ONCE(!vma)) {
-+		put_page(page);
-+		return ERR_PTR(-EINVAL);
-+	}
-+
-+	*vmap = vma;
-+	return page;
-+}
-+
- long get_user_pages(unsigned long start, unsigned long nr_pages,
- 		    unsigned int gup_flags, struct page **pages);
- long pin_user_pages(unsigned long start, unsigned long nr_pages,
-diff --git a/kernel/events/uprobes.c b/kernel/events/uprobes.c
-index 59887c69d54c..cac3aef7c6f7 100644
---- a/kernel/events/uprobes.c
-+++ b/kernel/events/uprobes.c
-@@ -365,7 +365,6 @@ __update_ref_ctr(struct mm_struct *mm, unsigned long vaddr, short d)
- {
- 	void *kaddr;
- 	struct page *page;
--	struct vm_area_struct *vma;
- 	int ret;
- 	short *ptr;
- 
-@@ -373,7 +372,7 @@ __update_ref_ctr(struct mm_struct *mm, unsigned long vaddr, short d)
- 		return -EINVAL;
- 
- 	ret = get_user_pages_remote(mm, vaddr, 1,
--			FOLL_WRITE, &page, &vma, NULL);
-+				    FOLL_WRITE, &page, NULL);
- 	if (unlikely(ret <= 0)) {
- 		/*
- 		 * We are asking for 1 page. If get_user_pages_remote() fails,
-@@ -474,10 +473,9 @@ int uprobe_write_opcode(struct arch_uprobe *auprobe, struct mm_struct *mm,
- 	if (is_register)
- 		gup_flags |= FOLL_SPLIT_PMD;
- 	/* Read the page with vaddr into memory */
--	ret = get_user_pages_remote(mm, vaddr, 1, gup_flags,
--				    &old_page, &vma, NULL);
--	if (ret <= 0)
--		return ret;
-+	old_page = get_user_page_vma_remote(mm, vaddr, gup_flags, &vma);
-+	if (IS_ERR_OR_NULL(old_page))
-+		return PTR_ERR(old_page);
- 
- 	ret = verify_opcode(old_page, vaddr, &opcode);
- 	if (ret <= 0)
-@@ -2027,8 +2025,7 @@ static int is_trap_at_addr(struct mm_struct *mm, unsigned long vaddr)
- 	 * but we treat this as a 'remote' access since it is
- 	 * essentially a kernel access to the memory.
- 	 */
--	result = get_user_pages_remote(mm, vaddr, 1, FOLL_FORCE, &page,
--			NULL, NULL);
-+	result = get_user_pages_remote(mm, vaddr, 1, FOLL_FORCE, &page, NULL);
- 	if (result < 0)
- 		return result;
- 
-diff --git a/mm/gup.c b/mm/gup.c
-index 931c805bc32b..9440aa54c741 100644
---- a/mm/gup.c
-+++ b/mm/gup.c
-@@ -2165,8 +2165,6 @@ static bool is_valid_gup_args(struct page **pages, struct vm_area_struct **vmas,
-  * @pages:	array that receives pointers to the pages pinned.
-  *		Should be at least nr_pages long. Or NULL, if caller
-  *		only intends to ensure the pages are faulted in.
-- * @vmas:	array of pointers to vmas corresponding to each page.
-- *		Or NULL if the caller does not require them.
-  * @locked:	pointer to lock flag indicating whether lock is held and
-  *		subsequently whether VM_FAULT_RETRY functionality can be
-  *		utilised. Lock must initially be held.
-@@ -2181,8 +2179,6 @@ static bool is_valid_gup_args(struct page **pages, struct vm_area_struct **vmas,
-  *
-  * The caller is responsible for releasing returned @pages, via put_page().
-  *
-- * @vmas are valid only as long as mmap_lock is held.
-- *
-  * Must be called with mmap_lock held for read or write.
-  *
-  * get_user_pages_remote walks a process's page tables and takes a reference
-@@ -2219,15 +2215,15 @@ static bool is_valid_gup_args(struct page **pages, struct vm_area_struct **vmas,
- long get_user_pages_remote(struct mm_struct *mm,
- 		unsigned long start, unsigned long nr_pages,
- 		unsigned int gup_flags, struct page **pages,
--		struct vm_area_struct **vmas, int *locked)
-+		int *locked)
- {
- 	int local_locked = 1;
- 
--	if (!is_valid_gup_args(pages, vmas, locked, &gup_flags,
-+	if (!is_valid_gup_args(pages, NULL, locked, &gup_flags,
- 			       FOLL_TOUCH | FOLL_REMOTE))
- 		return -EINVAL;
- 
--	return __get_user_pages_locked(mm, start, nr_pages, pages, vmas,
-+	return __get_user_pages_locked(mm, start, nr_pages, pages, NULL,
- 				       locked ? locked : &local_locked,
- 				       gup_flags);
- }
-@@ -2237,7 +2233,7 @@ EXPORT_SYMBOL(get_user_pages_remote);
- long get_user_pages_remote(struct mm_struct *mm,
- 			   unsigned long start, unsigned long nr_pages,
- 			   unsigned int gup_flags, struct page **pages,
--			   struct vm_area_struct **vmas, int *locked)
-+			   int *locked)
- {
- 	return 0;
- }
-diff --git a/mm/memory.c b/mm/memory.c
-index 8ddb10199e8d..61b7192acf98 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -5577,7 +5577,6 @@ EXPORT_SYMBOL_GPL(generic_access_phys);
- int __access_remote_vm(struct mm_struct *mm, unsigned long addr, void *buf,
- 		       int len, unsigned int gup_flags)
- {
--	struct vm_area_struct *vma;
- 	void *old_buf = buf;
- 	int write = gup_flags & FOLL_WRITE;
- 
-@@ -5586,13 +5585,15 @@ int __access_remote_vm(struct mm_struct *mm, unsigned long addr, void *buf,
- 
- 	/* ignore errors, just check how much was successfully transferred */
- 	while (len) {
--		int bytes, ret, offset;
-+		int bytes, offset;
- 		void *maddr;
--		struct page *page = NULL;
-+		struct vm_area_struct *vma;
-+		struct page *page = get_user_page_vma_remote(mm, addr,
-+							     gup_flags, &vma);
-+
-+		if (IS_ERR_OR_NULL(page)) {
-+			int ret = 0;
- 
--		ret = get_user_pages_remote(mm, addr, 1,
--				gup_flags, &page, &vma, NULL);
--		if (ret <= 0) {
- #ifndef CONFIG_HAVE_IOREMAP_PROT
- 			break;
- #else
-@@ -5600,7 +5601,6 @@ int __access_remote_vm(struct mm_struct *mm, unsigned long addr, void *buf,
- 			 * Check if this is a VM_IO | VM_PFNMAP VMA, which
- 			 * we can access using slightly different code.
- 			 */
--			vma = vma_lookup(mm, addr);
- 			if (!vma)
- 				break;
- 			if (vma->vm_ops && vma->vm_ops->access)
-diff --git a/mm/rmap.c b/mm/rmap.c
-index ba901c416785..756ea8a9bb90 100644
---- a/mm/rmap.c
-+++ b/mm/rmap.c
-@@ -2324,7 +2324,7 @@ int make_device_exclusive_range(struct mm_struct *mm, unsigned long start,
- 
- 	npages = get_user_pages_remote(mm, start, npages,
- 				       FOLL_GET | FOLL_WRITE | FOLL_SPLIT_PMD,
--				       pages, NULL, NULL);
-+				       pages, NULL);
- 	if (npages < 0)
- 		return npages;
- 
-diff --git a/security/tomoyo/domain.c b/security/tomoyo/domain.c
-index 31af29f669d2..ac20c0bdff9d 100644
---- a/security/tomoyo/domain.c
-+++ b/security/tomoyo/domain.c
-@@ -916,7 +916,7 @@ bool tomoyo_dump_page(struct linux_binprm *bprm, unsigned long pos,
- 	 */
- 	mmap_read_lock(bprm->mm);
- 	ret = get_user_pages_remote(bprm->mm, pos, 1,
--				    FOLL_FORCE, &page, NULL, NULL);
-+				    FOLL_FORCE, &page, NULL);
- 	mmap_read_unlock(bprm->mm);
- 	if (ret <= 0)
- 		return false;
-diff --git a/virt/kvm/async_pf.c b/virt/kvm/async_pf.c
-index 9bfe1d6f6529..e033c79d528e 100644
---- a/virt/kvm/async_pf.c
-+++ b/virt/kvm/async_pf.c
-@@ -61,8 +61,7 @@ static void async_pf_execute(struct work_struct *work)
- 	 * access remotely.
- 	 */
- 	mmap_read_lock(mm);
--	get_user_pages_remote(mm, addr, 1, FOLL_WRITE, NULL, NULL,
--			&locked);
-+	get_user_pages_remote(mm, addr, 1, FOLL_WRITE, NULL, &locked);
- 	if (locked)
- 		mmap_read_unlock(mm);
- 
--- 
-2.40.0
+Alex
 
