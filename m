@@ -2,64 +2,64 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 09D16C77B78
-	for <linux-s390@archiver.kernel.org>; Tue, 18 Apr 2023 16:50:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 95B87C77B75
+	for <linux-s390@archiver.kernel.org>; Tue, 18 Apr 2023 18:40:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231296AbjDRQun (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 18 Apr 2023 12:50:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34948 "EHLO
+        id S232081AbjDRSkG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 18 Apr 2023 14:40:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229813AbjDRQum (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 18 Apr 2023 12:50:42 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30FE7DC
-        for <linux-s390@vger.kernel.org>; Tue, 18 Apr 2023 09:49:58 -0700 (PDT)
+        with ESMTP id S230435AbjDRSkF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 18 Apr 2023 14:40:05 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E05D9031
+        for <linux-s390@vger.kernel.org>; Tue, 18 Apr 2023 11:39:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1681836597;
+        s=mimecast20190719; t=1681843165;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=QW4OejsqAutNiGQJiYZJkfIFG7vwNJbOHeoSgw01y+o=;
-        b=fGTF8JJCwXReaYEtOX9mTBoMQKRroGh4FHXoL2s0r4S2DbZOr5lWQgB22uZZqbTkhcuPMi
-        fPOa6MB2Sm/j+fwZqWrCCN+A4HY79KcU/I0jvg+ofM5DJ0ij22Rd5x+HER2MDg8U6RVkwM
-        idNfMZo3pII0uPKGmdYUy437usU5Kw4=
-Received: from mail-il1-f200.google.com (mail-il1-f200.google.com
- [209.85.166.200]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=RlhdInMDglDOKE7GpswpOzxWQD/BSn3H/Bb/VhIcGlQ=;
+        b=ULqQ3clwDqe8jmnrs3eY5pRZnN36ucu0e5RGHGF6h6Mi2Aasurt5usT+0qdHK1ByrkoOGB
+        ePzS87+GWBwyRKhcZJG2S75+QGerI8BXBdqC+8pDp2XRTzj/tiua68ViEVlOUZD31mmAaS
+        QUwh4XCvfQ/MrjHth6bnTq3NS7LHpDI=
+Received: from mail-io1-f70.google.com (mail-io1-f70.google.com
+ [209.85.166.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-321-ZjZYa9AfNQiTfw7SCuYf9A-1; Tue, 18 Apr 2023 12:49:56 -0400
-X-MC-Unique: ZjZYa9AfNQiTfw7SCuYf9A-1
-Received: by mail-il1-f200.google.com with SMTP id e9e14a558f8ab-32addcf3a73so95183065ab.0
-        for <linux-s390@vger.kernel.org>; Tue, 18 Apr 2023 09:49:55 -0700 (PDT)
+ us-mta-100-BU80BZ8zMpSno9uMIInZ0w-1; Tue, 18 Apr 2023 14:39:24 -0400
+X-MC-Unique: BU80BZ8zMpSno9uMIInZ0w-1
+Received: by mail-io1-f70.google.com with SMTP id ca18e2360f4ac-760718e6816so239323239f.2
+        for <linux-s390@vger.kernel.org>; Tue, 18 Apr 2023 11:39:23 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1681836595; x=1684428595;
+        d=1e100.net; s=20221208; t=1681843163; x=1684435163;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=QW4OejsqAutNiGQJiYZJkfIFG7vwNJbOHeoSgw01y+o=;
-        b=Ju0u2UjNv8UuJ6tF16OWyu/+GdF3/usZ8/QwdLHf90+4/qHB3VrePzIDSDQ4QWn6La
-         jfA8+z0iAlcAVveRoCR3ZJ0gkRa1iRhAqksp/Awj9PIfK8mXlYAIaDArLHmTQsJdZ37+
-         SWUQToF64tG1gE9wlSzW15EzscyaYwHLj/RAJRtMun2oN+eiB0kojHwMX+fFLb0SdCg4
-         TpkTZsvHxqOZdeUASbLv+0vFH6KeN88frFnrUS6EgHVY8tiJha+86fsp1X2uO4BrK+WE
-         fZxvXnaaeQ9iH7Izkb3T4VAb2SadpwsTf7lSK92xcP9lIq13/HIfDScvljVO5irugUgB
-         n3bA==
-X-Gm-Message-State: AAQBX9fG/lI3oOqedoG+kiCGMpBplZERWoUsTRWQtiQlxoeiaXxdhodv
-        nswcE70+arHmBofABQmQTNE1NQIYnof+P4yu4dkUjNk6jB5h6ogxIJB1eWI6qdirZFg0E9aWwmv
-        srFeAdFgUaEsOKkTngvpQUg==
-X-Received: by 2002:a6b:1452:0:b0:760:e776:18c0 with SMTP id 79-20020a6b1452000000b00760e77618c0mr2235544iou.9.1681836595276;
-        Tue, 18 Apr 2023 09:49:55 -0700 (PDT)
-X-Google-Smtp-Source: AKy350ZVsgHFq5DkfTVjZLoX8ZDscMPn0l0IcDwaF7P4VYcMS0dy9AZqf3xGlcdGUdzNLu695Of27Q==
-X-Received: by 2002:a6b:1452:0:b0:760:e776:18c0 with SMTP id 79-20020a6b1452000000b00760e77618c0mr2235519iou.9.1681836594980;
-        Tue, 18 Apr 2023 09:49:54 -0700 (PDT)
+        bh=RlhdInMDglDOKE7GpswpOzxWQD/BSn3H/Bb/VhIcGlQ=;
+        b=gH7htqGdhckL2PmKwgSy768TsAAaoLfqnPX+nDxugZyCL/5NtLRksa0sKF/fdUIKB+
+         YpBxjiaf3MNtq2C6AqM+TsGw8jHJ7Oj1NfUffBj6ca9WBT9LotV3GhLnyFsdFlxqjZa2
+         emSZyvih7MRvLrnAR88jKFPdG4aAMuY/wcywjKKhUV4uoMopFFPQ6LkgRnMuqCbTZpdj
+         f0kZmvmtjXJHqoBBhNPUIa1urHOUJDhpnEz2w+NnWIH4vhAKcWQ8Kl9vP0KMug+ntow0
+         NutkJtscivVCHqjesRKAHiTBrlLva0cz1IUyaVm/SmQPmtkyVHZMdYEdtiCyjIeNtVj5
+         UcSw==
+X-Gm-Message-State: AAQBX9edO2r+aKr3CFJACnGWtfLbEx1IrDnkVYnnpn9rH5U3ysaHktw1
+        NNqAI8VKYI+mKKh5JA2+1LbmWwAS3TrpcNzKdRSSopuW4+VsfBMxWMkuUr3Oz9W3D4K4ZxfN/ip
+        4G9/JPsZS/lQZK1LEvKqjlQ==
+X-Received: by 2002:a6b:ee0f:0:b0:760:eabc:e709 with SMTP id i15-20020a6bee0f000000b00760eabce709mr2809061ioh.5.1681843163016;
+        Tue, 18 Apr 2023 11:39:23 -0700 (PDT)
+X-Google-Smtp-Source: AKy350ZBMu2Ku+EgL+xrfqBT3olO/h3dlhwVXO3eygNQx8PsQ3dE3awxUujY3TvdRou00sMSiGZD3A==
+X-Received: by 2002:a6b:ee0f:0:b0:760:eabc:e709 with SMTP id i15-20020a6bee0f000000b00760eabce709mr2809046ioh.5.1681843162606;
+        Tue, 18 Apr 2023 11:39:22 -0700 (PDT)
 Received: from redhat.com ([38.15.36.239])
-        by smtp.gmail.com with ESMTPSA id ay29-20020a056638411d00b003c5170ddcedsm4254803jab.110.2023.04.18.09.49.53
+        by smtp.gmail.com with ESMTPSA id c12-20020a6bfd0c000000b00763601c4bfesm618585ioi.55.2023.04.18.11.39.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Apr 2023 09:49:54 -0700 (PDT)
-Date:   Tue, 18 Apr 2023 10:49:53 -0600
+        Tue, 18 Apr 2023 11:39:22 -0700 (PDT)
+Date:   Tue, 18 Apr 2023 12:39:20 -0600
 From:   Alex Williamson <alex.williamson@redhat.com>
-To:     "Liu, Yi L" <yi.l.liu@intel.com>
-Cc:     "Tian, Kevin" <kevin.tian@intel.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     "Liu, Yi L" <yi.l.liu@intel.com>,
+        "Tian, Kevin" <kevin.tian@intel.com>,
         "eric.auger@redhat.com" <eric.auger@redhat.com>,
         "joro@8bytes.org" <joro@8bytes.org>,
         "robin.murphy@arm.com" <robin.murphy@arm.com>,
@@ -86,11 +86,9 @@ Cc:     "Tian, Kevin" <kevin.tian@intel.com>,
         "Duan, Zhenzhong" <zhenzhong.duan@intel.com>
 Subject: Re: [PATCH v3 12/12] vfio/pci: Report dev_id in
  VFIO_DEVICE_GET_PCI_HOT_RESET_INFO
-Message-ID: <20230418104953.28cfe9cb.alex.williamson@redhat.com>
-In-Reply-To: <DS0PR11MB7529F0992BD2C5CAC1BEA088C39D9@DS0PR11MB7529.namprd11.prod.outlook.com>
-References: <20230412105045.79adc83d.alex.williamson@redhat.com>
-        <ZDcPTTPlni/Mi6p3@nvidia.com>
-        <BN9PR11MB5276782DA56670C8209470828C989@BN9PR11MB5276.namprd11.prod.outlook.com>
+Message-ID: <20230418123920.5d92f402.alex.williamson@redhat.com>
+In-Reply-To: <ZD6TvA+9oI0v4vC2@nvidia.com>
+References: <BN9PR11MB5276782DA56670C8209470828C989@BN9PR11MB5276.namprd11.prod.outlook.com>
         <ZDfslVwqk6JtPpyD@nvidia.com>
         <20230413120712.3b9bf42d.alex.williamson@redhat.com>
         <BN9PR11MB5276A160CA699933B897C8C18C999@BN9PR11MB5276.namprd11.prod.outlook.com>
@@ -100,9 +98,7 @@ References: <20230412105045.79adc83d.alex.williamson@redhat.com>
         <20230417130140.1b68082e.alex.williamson@redhat.com>
         <ZD2erN3nKbnyqei9@nvidia.com>
         <20230417140642.650fc165.alex.williamson@redhat.com>
-        <BN9PR11MB5276D93DDFE3ED97CD1B923B8C9D9@BN9PR11MB5276.namprd11.prod.outlook.com>
-        <20230417221033.778c00c9.alex.williamson@redhat.com>
-        <DS0PR11MB7529F0992BD2C5CAC1BEA088C39D9@DS0PR11MB7529.namprd11.prod.outlook.com>
+        <ZD6TvA+9oI0v4vC2@nvidia.com>
 X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -111,38 +107,65 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 18 Apr 2023 10:34:45 +0000
-"Liu, Yi L" <yi.l.liu@intel.com> wrote:
+On Tue, 18 Apr 2023 09:57:32 -0300
+Jason Gunthorpe <jgg@nvidia.com> wrote:
 
-> > From: Alex Williamson <alex.williamson@redhat.com>
-> > Sent: Tuesday, April 18, 2023 12:11 PM
+> On Mon, Apr 17, 2023 at 02:06:42PM -0600, Alex Williamson wrote:
+> > On Mon, 17 Apr 2023 16:31:56 -0300
+> > Jason Gunthorpe <jgg@nvidia.com> wrote:
 > >   
-> [...]
-> >
-> > We haven't discussed how it fails when called on a group-opened device
-> > in a mixed environment.  I'd propose that the INFO ioctl behaves
-> > exactly as it does today, reporting group-id and BDF for each affected
-> > device.  However, the hot-reset ioctl itself is not extended to accept
-> > devicefd because there is no proof-of-ownership model for cdevs.
-> > Therefore even if the user could map group-id to devicefd, they get
-> > -EINVAL calling HOT_RESET with a devicefd when the ioctl is called from
-> > a group-opened device.  Thanks,  
+> > > On Mon, Apr 17, 2023 at 01:01:40PM -0600, Alex Williamson wrote:  
+> > > > Yes, it's not trivial, but Jason is now proposing that we consider
+> > > > mixing groups, cdevs, and multiple iommufd_ctxs as invalid.  I think
+> > > > this means that regardless of which device calls INFO, there's only one
+> > > > answer (assuming same set of devices opened, all cdev, all within same
+> > > > iommufd_ctx).  Based on what I explained about my understanding of INFO2
+> > > > and Jason agreed to, I think the output would be:
+> > > > 
+> > > > flags: NOT_RESETABLE | DEV_ID
+> > > > {
+> > > >   { valid devA-id,  devA-BDF },
+> > > >   { valid devC-id,  devC-BDF },
+> > > >   { valid devD-id,  devD-BDF },
+> > > >   { invalid dev-id, devE-BDF },
+> > > > }
+> > > > 
+> > > > Here devB gets dropped because the kernel understands that devB is
+> > > > unopened, affected, and owned.  It's therefore not a blocker for
+> > > > hot-reset.    
+> > > 
+> > > I don't think we want to drop anything because it makes the API
+> > > ill suited for the debugging purpose.
+> > > 
+> > > devb should be returned with an invalid dev_id if I understand your
+> > > example. Maybe it should return with -1 as the dev_id instead of 0, to
+> > > make the debugging a bit better.
+> > > 
+> > > Userspace should look at only NOT_RESETTABLE to determine if it
+> > > proceeds or not, and it should use the valid dev_id list to iterate
+> > > over the devices it has open to do the config stuff.  
+> > 
+> > If an affected device is owned, not opened, and not interfering with
+> > the reset, what is it adding to the API to report it for debugging
+> > purposes?  
 > 
-> Will it be better to let userspace know it shall fail if invoking hot
-> reset due to no proof-of-ownership as it also has cdev devices? Maybe
-> the RESETTABLE flag should always be meaningful. Even if the calling
-> device of _INFO is group-opened device. Old user applications does not
-> need to check it as it will never have such mixed environment. But for
-> new applications or the applications that have been updated per latest
-> vfio uapi, it should strictly check this flag before going ahead to do
-> hot-reset.
+> It lets it print the entire group of devices, this is the only way
+> something can learn the actual list of all BDFs affected.
 
-The group-opened model cannot consistently predict whether the user can
-provide proof-of-ownership.  I don't think we should define a flag
-simply because there's a case that we can predict, the definition of
-that flag becomes problematic.  Let's not complicate the interface by
-trying to optimize a case that will likely never exist in practice and
-can be handled via the existing legacy API.  Thanks,
+If we do so, userspace must be able to differentiate which devices are
+blocking, which necessitates at least a bi-modal invalid dev-id.
+
+> dev_id can just return 0, we don't need a complex bitmap. Userspace
+> looks at the flag, if !NOT_RESETABLE then it ignores dev_id=0.
+
+I'm having trouble with a succinct definition of dev-id == 0, is it "A
+device affected by the hot-reset reset, which does not directly
+contribute to the availability of the hot-reset, ex. an unopened device
+within the same IOMMU group as an opened device (ie. this is not the
+device responsible if hot-reset is unavailable).  Whereas dev-id < 0
+(== -1) is an affected device which prevents hot-reset, ex. an un-owned
+device, device configured within a different iommufd_ctx, or device
+opened outside of the vfio cdev API."  Is that about right?  Thanks,
 
 Alex
 
