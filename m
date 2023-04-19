@@ -2,151 +2,153 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 38380C77B73
-	for <linux-s390@archiver.kernel.org>; Wed, 19 Apr 2023 11:43:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A5E6C6FD18
+	for <linux-s390@archiver.kernel.org>; Wed, 19 Apr 2023 12:06:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232240AbjDSLm7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 19 Apr 2023 07:42:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37914 "EHLO
+        id S232957AbjDSMGX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 19 Apr 2023 08:06:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231208AbjDSLm6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 19 Apr 2023 07:42:58 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D9BA13FA3
-        for <linux-s390@vger.kernel.org>; Wed, 19 Apr 2023 04:41:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1681904504;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=i+ljsW3KAuErNDeeE9uh+f3S5vccVtwLnf4UBEcIcgs=;
-        b=Br7Nc47dTIHiqbZ8U79FX1Y30vI4NCSivVIIzJLMZyeGJUJ7csovXNpbSCHpBb+4e5gfrD
-        txCOwnij55yTtRfmrlp0+2x9lpbG7k27KnhOP/iXauE7DO6kUqDOck/2lj3D9bqE1akBwA
-        rAqflEQRZjDZYmBTEwgbK17rAyOBDdg=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-342-WCYnVo6lNP6ZqvgcTniNgw-1; Wed, 19 Apr 2023 07:41:43 -0400
-X-MC-Unique: WCYnVo6lNP6ZqvgcTniNgw-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id E9F1A810BD4;
-        Wed, 19 Apr 2023 11:41:40 +0000 (UTC)
-Received: from tpad.localdomain (ovpn-112-2.gru2.redhat.com [10.97.112.2])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 48B721121315;
-        Wed, 19 Apr 2023 11:41:40 +0000 (UTC)
-Received: by tpad.localdomain (Postfix, from userid 1000)
-        id 7E64240512CCB; Wed, 19 Apr 2023 08:39:48 -0300 (-03)
-Date:   Wed, 19 Apr 2023 08:39:48 -0300
-From:   Marcelo Tosatti <mtosatti@redhat.com>
-To:     David Hildenbrand <david@redhat.com>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Yair Podemsky <ypodemsk@redhat.com>, linux@armlinux.org.uk,
-        mpe@ellerman.id.au, npiggin@gmail.com, christophe.leroy@csgroup.eu,
-        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        davem@davemloft.net, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
-        hpa@zytor.com, will@kernel.org, aneesh.kumar@linux.ibm.com,
-        akpm@linux-foundation.org, arnd@arndb.de, keescook@chromium.org,
-        paulmck@kernel.org, jpoimboe@kernel.org, samitolvanen@google.com,
-        ardb@kernel.org, juerg.haefliger@canonical.com,
-        rmk+kernel@armlinux.org.uk, geert+renesas@glider.be,
-        tony@atomide.com, linus.walleij@linaro.org,
-        sebastian.reichel@collabora.com, nick.hawkins@hpe.com,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-arch@vger.kernel.org,
-        linux-mm@kvack.org, vschneid@redhat.com, dhildenb@redhat.com,
-        alougovs@redhat.com, jannh@google.com,
-        Yang Shi <shy828301@gmail.com>
-Subject: Re: [PATCH 3/3] mm/mmu_gather: send tlb_remove_table_smp_sync IPI
- only to CPUs in kernel mode
-Message-ID: <ZD/TBN5doEex3iag@tpad>
-References: <ZC1XD/sEJY+zRujE@lothringen>
- <ZC3P3Ds/BIcpRNGr@tpad>
- <20230405195226.GB365912@hirez.programming.kicks-ass.net>
- <ZC69Wmqjdwk+I8kn@tpad>
- <20230406132928.GM386572@hirez.programming.kicks-ass.net>
- <20230406140423.GA386634@hirez.programming.kicks-ass.net>
- <20230406150213.GQ386572@hirez.programming.kicks-ass.net>
- <248392c0-52d1-d09d-75ec-9e930435c053@redhat.com>
- <20230406182749.GA405948@hirez.programming.kicks-ass.net>
- <914e826e-3fab-4540-d3a1-24ca39b1cf0a@redhat.com>
+        with ESMTP id S230141AbjDSMGW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 19 Apr 2023 08:06:22 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 583F21991;
+        Wed, 19 Apr 2023 05:06:21 -0700 (PDT)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 33JBmiVs034942;
+        Wed, 19 Apr 2023 12:05:38 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=XxQyWGNU20y3Wnv7oBYdxQVoyeJRqhv7cvwcPncLqqk=;
+ b=MaUkKBXx8iVhZnQfi2RDt8faEETMnMKAbEzNZO+lpYZA4Qzm/42cfcABcujSIwghRV0X
+ 3PeqNDRd4IaTppWUkLe9WhVR7DHaK67napzSWb0/fyAY5su8TJWCvhMrkWNBKYnZzWpL
+ nrZow2Y7r/vmn90Ku0+11UMeCHt4krQqymOUrwysBfKhQ3gB8XVNTfmR2AisCvruWOoC
+ HGrgnECisFQCMRlF+rKjlvt0AJiiXkbKhxoPOW9SAl/j9H94nYFHqgnk9sLjyUqIjTb9
+ M4kh5I4Iraa1TWc6fPCqKtgixwG8fAM688OISqzSFuM22pbbenILF8ksGHq+DRGoNVxP lg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3q2apmt6hp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 19 Apr 2023 12:05:38 +0000
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 33JBoDWh003607;
+        Wed, 19 Apr 2023 12:05:37 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3q2apmt6g9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 19 Apr 2023 12:05:37 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 33J0WAFx000870;
+        Wed, 19 Apr 2023 12:05:34 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3pykj6jqcr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 19 Apr 2023 12:05:34 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 33JC5V2D45941078
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 19 Apr 2023 12:05:31 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4647620040;
+        Wed, 19 Apr 2023 12:05:31 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 91F6F20043;
+        Wed, 19 Apr 2023 12:05:27 +0000 (GMT)
+Received: from [9.171.27.132] (unknown [9.171.27.132])
+        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 19 Apr 2023 12:05:27 +0000 (GMT)
+Message-ID: <ab586b59-7d62-2ea1-a617-ffbcf91f4037@linux.ibm.com>
+Date:   Wed, 19 Apr 2023 14:05:26 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <914e826e-3fab-4540-d3a1-24ca39b1cf0a@redhat.com>
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.3
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.10.0
+Subject: Re: [PATCH v4 3/6] mm/gup: remove vmas parameter from
+ get_user_pages_remote()
+Content-Language: en-US
+To:     Lorenzo Stoakes <lstoakes@gmail.com>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>
+Cc:     Matthew Wilcox <willy@infradead.org>,
+        David Hildenbrand <david@redhat.com>,
+        linux-arm-kernel@lists.infradead.org, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-perf-users@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Kees Cook <keescook@chromium.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Christian Brauner <brauner@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Ian Rogers <irogers@google.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Kentaro Takeda <takedakn@nttdata.co.jp>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Paul Moore <paul@paul-moore.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E . Hallyn" <serge@hallyn.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+References: <cover.1681831798.git.lstoakes@gmail.com>
+ <7c6f1ae88320bf11d2f583178a3d9e653e06ac63.1681831798.git.lstoakes@gmail.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+In-Reply-To: <7c6f1ae88320bf11d2f583178a3d9e653e06ac63.1681831798.git.lstoakes@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: YoUBdd5kWLHDb-6WjYvIk2NpjLH1WX8c
+X-Proofpoint-GUID: aezbm9zbIzDKmcuHzP9oULlrIcksYyaJ
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-04-19_06,2023-04-18_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 phishscore=0
+ suspectscore=0 priorityscore=1501 mlxlogscore=566 adultscore=0
+ lowpriorityscore=0 mlxscore=0 impostorscore=0 bulkscore=0 malwarescore=0
+ clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2303200000 definitions=main-2304190108
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Apr 19, 2023 at 01:30:57PM +0200, David Hildenbrand wrote:
-> On 06.04.23 20:27, Peter Zijlstra wrote:
-> > On Thu, Apr 06, 2023 at 05:51:52PM +0200, David Hildenbrand wrote:
-> > > On 06.04.23 17:02, Peter Zijlstra wrote:
-> > 
-> > > > DavidH, what do you thikn about reviving Jann's patches here:
-> > > > 
-> > > >     https://bugs.chromium.org/p/project-zero/issues/detail?id=2365#c1
-> > > > 
-> > > > Those are far more invasive, but afaict they seem to do the right thing.
-> > > > 
-> > > 
-> > > I recall seeing those while discussed on security@kernel.org. What we
-> > > currently have was (IMHO for good reasons) deemed better to fix the issue,
-> > > especially when caring about backports and getting it right.
-> > 
-> > Yes, and I think that was the right call. However, we can now revisit
-> > without having the pressure of a known defect and backport
-> > considerations.
-> > 
-> > > The alternative that was discussed in that context IIRC was to simply
-> > > allocate a fresh page table, place the fresh page table into the list
-> > > instead, and simply free the old page table (then using common machinery).
-> > > 
-> > > TBH, I'd wish (and recently raised) that we could just stop wasting memory
-> > > on page tables for THPs that are maybe never going to get PTE-mapped ... and
-> > > eventually just allocate on demand (with some caching?) and handle the
-> > > places where we're OOM and cannot PTE-map a THP in some descend way.
-> > > 
-> > > ... instead of trying to figure out how to deal with these page tables we
-> > > cannot free but have to special-case simply because of GUP-fast.
-> > 
-> > Not keeping them around sounds good to me, but I'm not *that* familiar
-> > with the THP code, most of that happened after I stopped tracking mm. So
-> > I'm not sure how feasible is it.
-> > 
-> > But it does look entirely feasible to rework this page-table freeing
-> > along the lines Jann did.
+On 4/18/23 17:49, Lorenzo Stoakes wrote:
+> The only instances of get_user_pages_remote() invocations which used the
+> vmas parameter were for a single page which can instead simply look up the
+> VMA directly. In particular:-
 > 
-> It's most probably more feasible, although the easiest would be to just
-> allocate a fresh page table to deposit and free the old one using the mmu
-> gatherer.
+> - __update_ref_ctr() looked up the VMA but did nothing with it so we simply
+>    remove it.
 > 
-> This way we can avoid the khugepaged of tlb_remove_table_smp_sync(), but not
-> the tlb_remove_table_one() usage. I suspect khugepaged isn't really relevant
-> in RT kernels (IIRC, most of RT setups disable THP completely).
-
-People will disable khugepaged because it causes IPIs (and the fact one
-has to disable khugepaged is a configuration overhead, and a source of
-headache for configuring the realtime system, since one can forget of
-doing that, etc).
-
-But people do want to run non-RT applications along with RT applications
-(in case you have a single box on a priviledged location, for example).
-
+> - __access_remote_vm() was already using vma_lookup() when the original
+>    lookup failed so by doing the lookup directly this also de-duplicates the
+>    code.
 > 
-> tlb_remove_table_one() only triggers if __get_free_page(GFP_NOWAIT |
-> __GFP_NOWARN); fails. IIUC, that can happen easily under memory pressure
-> because it doesn't wait for direct reclaim.
+> We are able to perform these VMA operations as we already hold the
+> mmap_lock in order to be able to call get_user_pages_remote().
 > 
-> I don't know much about RT workloads (so I'd appreciate some feedback), but
-> I guess we can run int memory pressure as well due to some !rt housekeeping
-> task on the system?
+> As part of this work we add get_user_page_vma_remote() which abstracts the
+> VMA lookup, error handling and decrementing the page reference count should
+> the VMA lookup fail.
+> 
+> This forms part of a broader set of patches intended to eliminate the vmas
+> parameter altogether.
+> 
+> Reviewed-by: Catalin Marinas <catalin.marinas@arm.com> (for arm64)
+> Acked-by: David Hildenbrand <david@redhat.com>
+> Signed-off-by: Lorenzo Stoakes <lstoakes@gmail.com>
+> ---
 
-Yes, exactly (memory for -RT app will be mlocked).
+For the s390 part:
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 
