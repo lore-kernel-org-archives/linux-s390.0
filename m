@@ -2,36 +2,37 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 119A0C77B73
-	for <linux-s390@archiver.kernel.org>; Thu, 20 Apr 2023 07:42:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF2EEC77B73
+	for <linux-s390@archiver.kernel.org>; Thu, 20 Apr 2023 08:06:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233888AbjDTHmh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 20 Apr 2023 03:42:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50688 "EHLO
+        id S234003AbjDTIGf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 20 Apr 2023 04:06:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229749AbjDTHmg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 20 Apr 2023 03:42:36 -0400
-Received: from mail.arnisdale.pl (mail.arnisdale.pl [151.80.133.87])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0025E40EE
-        for <linux-s390@vger.kernel.org>; Thu, 20 Apr 2023 00:42:35 -0700 (PDT)
-Received: by mail.arnisdale.pl (Postfix, from userid 1002)
-        id 0B2CA27682; Thu, 20 Apr 2023 07:41:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=arnisdale.pl; s=mail;
-        t=1681976526; bh=6DhEsVYOGxxfetVY3oiVeew+7Cm34ArcvgDq2WQYIRw=;
+        with ESMTP id S233969AbjDTIGe (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 20 Apr 2023 04:06:34 -0400
+Received: from mail.craftsplex.pl (mail.craftsplex.pl [162.19.155.126])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78FF32D78
+        for <linux-s390@vger.kernel.org>; Thu, 20 Apr 2023 01:06:25 -0700 (PDT)
+Received: by mail.craftsplex.pl (Postfix, from userid 1002)
+        id 33367241CC; Thu, 20 Apr 2023 08:06:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=craftsplex.pl;
+        s=mail; t=1681977984;
+        bh=PcMncQpBfIZCnTOfZJY5G1G+gaLn4c9QPfFvoXrE4rA=;
         h=Date:From:To:Subject:From;
-        b=dYvxroKQyO9/7+CRwyHNJ5E6FnGge65B0T08NQv0k0CqZKid8CGpzwdTAddItMQ8Z
-         e5rN0gr6Sd4ge9CboWpLooh0gfl4pH3sRHFYIa62hBElXrAa4ccO0vVlR4Hdleigbo
-         qtVDE5VvI2UmSe3p5vHBGuwPJ9EOG9VkTKHhn9v2hW1CDJip2DlwA2C+j4RYC0xhVe
-         0HtbeffukjJUrbTJpsBt4ZU7BRRPOveEa0h4KypeDaFMvKE6iOHth5Te+adwoWGSVR
-         h1NckxJdgNGJa0oNowZ7Ld92qqFBB5h1Qqn1OdSZ4dsd1XWmWTEFxUTAvTp9IL2teW
-         B7CI9Gdr5px0A==
-Received: by mail.arnisdale.pl for <linux-s390@vger.kernel.org>; Thu, 20 Apr 2023 07:40:54 GMT
-Message-ID: <20230420064500-0.1.41.1gkvi.0.1sklo6we2i@arnisdale.pl>
-Date:   Thu, 20 Apr 2023 07:40:54 GMT
-From:   "Maciej Telka" <maciej.telka@arnisdale.pl>
+        b=cRpE2xZZZxII7iZIGdxVwvFd+p9dwnRTDjMBbdyOWYAYvgAQVtjPnIh6i3BNKw3Nq
+         2eQseSNo6noSYilPXT4SNnAZIBLXa3Mmu17WtzlJo7d2cHgWapHpBLfvkT9j2uX5le
+         R4EajFwQJ6+SUWcOasv8DLpIygR76Uz/559M9ZGQRzi+xePjjgbetgR3M8HPhZ6Kbo
+         V3OM27/R2UeOIf8DKMOc6DUaKrRds5WnPLxzbpY0iaXXTmrsIkgIIyMtST1m+xIu1o
+         dCxQ/7IquKh1FMgVbmu6c644Ve0TWyNnTCvP1ft1iUwamLlqUmVq/EdJT06SOZ3KNN
+         NWj4+31m4/TJg==
+Received: by mail.craftsplex.pl for <linux-s390@vger.kernel.org>; Thu, 20 Apr 2023 08:05:42 GMT
+Message-ID: <20230420064500-0.1.5o.q9q1.0.lo37kml3bo@craftsplex.pl>
+Date:   Thu, 20 Apr 2023 08:05:42 GMT
+From:   "Kamil Tralewski" <kamil.tralewski@craftsplex.pl>
 To:     <linux-s390@vger.kernel.org>
-Subject: =?UTF-8?Q?Nawi=C4=85zanie_wsp=C3=B3=C5=82pracy?=
-X-Mailer: mail.arnisdale.pl
+Subject: =?UTF-8?Q?S=C5=82owa_kluczowe_do_wypozycjonowania?=
+X-Mailer: mail.craftsplex.pl
 MIME-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
@@ -41,16 +42,16 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 Dzie=C5=84 dobry,
 
-Czy jest mo=C5=BCliwo=C5=9B=C4=87 nawi=C4=85zania wsp=C3=B3=C5=82pracy z =
-Pa=C5=84stwem?
+zapozna=C5=82em si=C4=99 z Pa=C5=84stwa ofert=C4=85 i z przyjemno=C5=9Bci=
+=C4=85 przyznaj=C4=99, =C5=BCe przyci=C4=85ga uwag=C4=99 i zach=C4=99ca d=
+o dalszych rozm=C3=B3w.=20
 
-Z ch=C4=99ci=C4=85 porozmawiam z osob=C4=85 zajmuj=C4=85c=C4=85 si=C4=99 =
-dzia=C5=82aniami zwi=C4=85zanymi ze sprzeda=C5=BC=C4=85.
+Pomy=C5=9Bla=C5=82em, =C5=BCe mo=C5=BCe m=C3=B3g=C5=82bym mie=C4=87 sw=C3=
+=B3j wk=C5=82ad w Pa=C5=84stwa rozw=C3=B3j i pom=C3=B3c dotrze=C4=87 z t=C4=
+=85 ofert=C4=85 do wi=C4=99kszego grona odbiorc=C3=B3w. Pozycjonuj=C4=99 =
+strony www, dzi=C4=99ki czemu generuj=C4=85 =C5=9Bwietny ruch w sieci.
 
-Pomagamy skutecznie pozyskiwa=C4=87 nowych klient=C3=B3w.
+Mo=C5=BCemy porozmawia=C4=87 w najbli=C5=BCszym czasie?
 
-Zapraszam do kontaktu.
-
-
-Pozdrawiam serdecznie
-Maciej Telka
+Pozdrawiam
+Kamil Tralewski
