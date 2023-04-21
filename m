@@ -2,70 +2,73 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 163ADC77B76
-	for <linux-s390@archiver.kernel.org>; Fri, 21 Apr 2023 17:22:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1A65C7618E
+	for <linux-s390@archiver.kernel.org>; Fri, 21 Apr 2023 18:28:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229996AbjDURWk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 21 Apr 2023 13:22:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60934 "EHLO
+        id S233006AbjDUS2D (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 21 Apr 2023 14:28:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233043AbjDURWj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 Apr 2023 13:22:39 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1376610F
-        for <linux-s390@vger.kernel.org>; Fri, 21 Apr 2023 10:21:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1682097711;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=F5BUIZCZG7tWuEnNiXnezg1wpCr6XGmaYZLZ1JJftNg=;
-        b=f2/2kk20U+Iop9wYx6XlW3+Hi3HdXMPy05QDDkDItx2RXUacaBuAWcCO1C/DCmhXh9Mwbo
-        s0TjnDOAJMeXS6r2F38YtIvft4Zk9Sj1hG2QYoFkN7xzK83u1ZctC8NX4wtUIPbFwrAQRI
-        ygHuCUEmgc4yMJBbfJ6t5Jz8aiy3WA8=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-621-7n6wWY4cMnmu2j4vN2EMvA-1; Fri, 21 Apr 2023 13:21:41 -0400
-X-MC-Unique: 7n6wWY4cMnmu2j4vN2EMvA-1
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-3f17b8d24bbso13059825e9.2
-        for <linux-s390@vger.kernel.org>; Fri, 21 Apr 2023 10:21:40 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1682097699; x=1684689699;
-        h=content-transfer-encoding:in-reply-to:organization:references:cc:to
-         :from:content-language:subject:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=F5BUIZCZG7tWuEnNiXnezg1wpCr6XGmaYZLZ1JJftNg=;
-        b=jLDqzZw/3VeRZHP6lDehOXHeZqWNw9Xtp0lIjhfu/+b7HdPEh26FZdcr+gs+xYC5Cf
-         yuDzzRQa36Pm18BpuUNp4WuURywmJr6Sw1nVPbXOPin3zZyvHNC5AUPyRB4OcnwdE9Vi
-         WrnrYtwLhMG4gaNPIEVXF6pExWYyYUcWitLZZ05Ws7amJgKOaLM5Ye8xbtjP8g1Q3cTo
-         MRiNkAwka+grG9XQTTo/xvr+xyNWI3xX4LoTB0l11lwwQTgDDXNfkZGI4uBP7GwDksM7
-         2MAIFrLZDeuMhJAG3ix/eHSjfvf/NWqBPDTzD2EGig+3I8nIeWrF3B004iw9L2H9DF9d
-         kv7w==
-X-Gm-Message-State: AAQBX9fguRIsqY+/eDlNeRfsKqlR0WA+CENU0GT9cL7nCI5QESljru+Q
-        0ej3XB2EXyxAoJE9bryXRGa+wRQWsDQuBb0Pg/yBGVfXWLL8g7Okr94+48suSgHaR0L9y8/TjOZ
-        SXz3rSKPqQEAxO0OUr3LxVQ==
-X-Received: by 2002:a05:600c:2306:b0:3f1:72ec:4016 with SMTP id 6-20020a05600c230600b003f172ec4016mr2580972wmo.0.1682097699584;
-        Fri, 21 Apr 2023 10:21:39 -0700 (PDT)
-X-Google-Smtp-Source: AKy350aFn+YAjtfSjCVKeXGhCWAiZWMdwsuDncB3Nwm1fVnTmqMnOAjnMKFGp80Ll5DTm/pP7pP0nA==
-X-Received: by 2002:a05:600c:2306:b0:3f1:72ec:4016 with SMTP id 6-20020a05600c230600b003f172ec4016mr2580947wmo.0.1682097699200;
-        Fri, 21 Apr 2023 10:21:39 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c717:6a00:e38f:c852:dc11:9146? (p200300cbc7176a00e38fc852dc119146.dip0.t-ipconnect.de. [2003:cb:c717:6a00:e38f:c852:dc11:9146])
-        by smtp.gmail.com with ESMTPSA id g10-20020a7bc4ca000000b003f171234a08sm5302275wmk.20.2023.04.21.10.21.37
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 21 Apr 2023 10:21:38 -0700 (PDT)
-Message-ID: <f809162e-4adc-cf9b-35f4-0f1b098ad283@redhat.com>
-Date:   Fri, 21 Apr 2023 19:21:36 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.10.0
-Subject: Re: [PATCH v1 1/3] mm/ksm: unmerge and clear VM_MERGEABLE when
- setting PR_SET_MEMORY_MERGE=0
-Content-Language: en-US
-From:   David Hildenbrand <david@redhat.com>
-To:     Stefan Roesch <shr@devkernel.io>
+        with ESMTP id S232989AbjDUS2C (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 Apr 2023 14:28:02 -0400
+Received: from out2-smtp.messagingengine.com (out2-smtp.messagingengine.com [66.111.4.26])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A0C519A1;
+        Fri, 21 Apr 2023 11:28:00 -0700 (PDT)
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailout.nyi.internal (Postfix) with ESMTP id A18465C00CA;
+        Fri, 21 Apr 2023 14:27:56 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute3.internal (MEProxy); Fri, 21 Apr 2023 14:27:56 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=devkernel.io; h=
+        cc:cc:content-type:content-type:date:date:from:from:in-reply-to
+        :in-reply-to:message-id:mime-version:references:reply-to:sender
+        :subject:subject:to:to; s=fm1; t=1682101676; x=1682188076; bh=1x
+        lLdlOEPewjSa9H68FV8Q5PO9B90Oygi7b4UAbYuQc=; b=P0wYN+pJ1GfvlJDlIK
+        3HaP8g8yxh54ko7FtDNoDaJ2UbAHZEH6f/Q++W6+apsYdWGtFEWE+VFQXClEsVG0
+        cNC/sNVd7/oMjY/xFtIAWOJvmZ7uXQ3mbJVWBHrrjEx3NEiwyXlrYfFrx4cv6pDx
+        VHBa48YtKHzwfxpnI4JwohAAQtDQDSVVXx3QUmBAY7B+68+wZhG/dLvNn0OnsREa
+        qjko2RCCZp7nO9MKyb0UCfHlnuT0PwJTFQfwhCSCs45y7Jxi3w6bnMbx8tbwVJ+3
+        //HYMjrxXN9VmmIBgsf8diCnZkCyjN3KiEiba50EMyFCX6mLalVggfzcTxbFQiYz
+        Lytw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:content-type:date:date
+        :feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm3; t=1682101676; x=1682188076; bh=1xlLdlOEPewjS
+        a9H68FV8Q5PO9B90Oygi7b4UAbYuQc=; b=YTbnAZJ3qUMiRj76RGU6xiJMr7F8Z
+        AkF4d4qdl55apNKQF1ibg7v+FTxNs6LEJ9T/CbhXqMm/CMr0JUPsGdGAWF/cq1n4
+        hdoa6M0lt7boS8FLRptsOOIxImYCjFW8X9zq0pzlUlPuvbO8jWhlu7IAumUoDL66
+        qPBnyF2O0qu3+eKvQDofPbKIcJxXx7Vd0ivDUBvs9vBJAhlWOK1cWnup0gDjoYZS
+        h8IXrSxl6vOW0PEIz+/bZERGinxio39/2lX8YmfR8N9mQat+4+V3G24GUH/f4JCM
+        ZhJu46SbqRu3jmGtCF3l1bDmHnLHOFm9RUaS0AiHZtwdl0+ofXuNUEK5A==
+X-ME-Sender: <xms:q9VCZCFDX2nqX67ccz6mq1jOzR_AMacb5lcdq5NNHqkuLc3FbSfYSw>
+    <xme:q9VCZDVXQTxIZCG0loGHeTRP5Q4y_FCfIYkj1kRq-oMsIjPR5cLqZLWopyE52ma_Y
+    RAwezAEAyhyTkOKUxo>
+X-ME-Received: <xmr:q9VCZMIXaK428S5JbttqSvA3CLOiVtzsGyu9Uq5cGBDezl-8UN-jCAiqdY1pNdbsbZ8Qw0SvXWigkQe0O6tdGCfnSg9YPtHNSQ61RVgkTrQ0>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrfedtgedguddvfecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+    enucfjughrpehffgfhvfevufffjgfkgggtsehttdertddtredtnecuhfhrohhmpefuthgv
+    fhgrnhcutfhovghstghhuceoshhhrhesuggvvhhkvghrnhgvlhdrihhoqeenucggtffrrg
+    htthgvrhhnpeevlefggffhheduiedtheejveehtdfhtedvhfeludetvdegieekgeeggfdu
+    geeutdenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
+    hshhhrseguvghvkhgvrhhnvghlrdhioh
+X-ME-Proxy: <xmx:rNVCZMHVZS-4pncHd9-02mz0hAwf0CGUjbWL3hNW6AshGaj9kybLCg>
+    <xmx:rNVCZIUtl1QWh3zeGrKmIctWOfETI1j93FF58B4EwRfQ2D1V_xxXcA>
+    <xmx:rNVCZPN7xqRHXuvJcK01DNR4CQUHk5_viNRdAndV--AkHsVzceDCkw>
+    <xmx:rNVCZJuMXQ7scwPUwjssuOK1J9USlnK-U41WGOH4io698Rs2VCTkrQ>
+Feedback-ID: i84614614:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
+ 21 Apr 2023 14:27:54 -0400 (EDT)
+References: <20230418051342.1919757-1-shr@devkernel.io>
+ <20230418152849.505124-1-david@redhat.com>
+ <20230418152849.505124-4-david@redhat.com>
+ <qvqwildqi62z.fsf@devbig1114.prn1.facebook.com>
+ <14d89518-0c11-7bfb-0c72-329a834ba1a1@redhat.com>
+User-agent: mu4e 1.10.1; emacs 28.2.50
+From:   Stefan Roesch <shr@devkernel.io>
+To:     David Hildenbrand <david@redhat.com>
 Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
         linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org,
         Andrew Morton <akpm@linux-foundation.org>,
@@ -79,55 +82,78 @@ Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
         Vasily Gorbik <gor@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
         Shuah Khan <shuah@kernel.org>
-References: <20230418051342.1919757-1-shr@devkernel.io>
- <20230418152849.505124-1-david@redhat.com>
- <20230418152849.505124-2-david@redhat.com>
- <qvqwr0sei6sl.fsf@devbig1114.prn1.facebook.com>
- <d476d75d-74a8-9cad-a60e-4b5ecb149719@redhat.com>
-Organization: Red Hat
-In-Reply-To: <d476d75d-74a8-9cad-a60e-4b5ecb149719@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH v1 3/3] mm/ksm: move disabling KSM from s390/gmap code
+ to KSM code
+Date:   Fri, 21 Apr 2023 11:27:23 -0700
+In-reply-to: <14d89518-0c11-7bfb-0c72-329a834ba1a1@redhat.com>
+Message-ID: <qvqw1qkdt7iw.fsf@devbig1114.prn1.facebook.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
->> I understand we want to keep the name "symmetric" with
->> ksm_enable_merge_any, but it also unmerges the ksm pages. Do we want to
->> reflect that in the function name?
-> 
-> ksm_disable_merge_any_umerge() is suboptimal.
-> 
-> As ksm_disable_merge_any() now reverts what ksm_enable_merge_any() ended
-> up doing, I think it's just fine.
-> 
-> (it would be a different story if we'd be using "set" / "clear"
-> terminology instead of "enable" / "disable").
-> 
-> We can describe that in the comment.
-> 
+
+David Hildenbrand <david@redhat.com> writes:
+
+> [...]
+>
+>>> diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+>>> index 0949811761e6..dfe905c7bd8e 100644
+>>> --- a/arch/s390/mm/gmap.c
+>>> +++ b/arch/s390/mm/gmap.c
+>>> @@ -2585,30 +2585,12 @@ EXPORT_SYMBOL_GPL(s390_enable_sie);
+>>>
+>>>   int gmap_mark_unmergeable(void)
+>>>   {
+>>> -	struct mm_struct *mm = current->mm;
+>>> -	struct vm_area_struct *vma;
+>>> -	unsigned long vm_flags;
+>>> -	int ret;
+>>> -	VMA_ITERATOR(vmi, mm, 0);
+>>> -
+>>>   	/*
+>>>   	 * Make sure to disable KSM (if enabled for the whole process or
+>>>   	 * individual VMAs). Note that nothing currently hinders user space
+>>>   	 * from re-enabling it.
+>>>   	 */
+>>> -	clear_bit(MMF_VM_MERGE_ANY, &mm->flags);
+>>> -
+>>> -	for_each_vma(vmi, vma) {
+>>> -		/* Copy vm_flags to avoid partial modifications in ksm_madvise */
+>>> -		vm_flags = vma->vm_flags;
+>>> -		ret = ksm_madvise(vma, vma->vm_start, vma->vm_end,
+>>> -				  MADV_UNMERGEABLE, &vm_flags);
+>>> -		if (ret)
+>>> -			return ret;
+>>> -		vm_flags_reset(vma, vm_flags);
+>>> -	}
+>>> -	mm->def_flags &= ~VM_MERGEABLE;
+>>>
 >>
->> Can we add a comment for the function?
-> 
-> Can do for symmetry with ksm_enable_merge_any().
-> 
+>
+> Hi Stefan,
+>
+>> This clears the def_flags struct member, however, in ksm_disable() we
+>> clear the __flags struct member. Is this a problem?
+>
+> The patch description contains a comment regarding def_flags: "The existing
+> "mm->def_flags &= ~VM_MERGEABLE;" was essentially a NOP and can be dropped,
+> because def_flags should never include VM_MERGEABLE."
+>
+> We keep clearing the MADV_UNMERGEABLE flag from MADV_UNMERGEABLE. In the old
+> code, ksm_madvise() would have cleared it from local vm_flags and
+> vm_flags_reset() would have modified vma->vm_flags. Now we clear it directly via
+> vm_flags_clear(vma, VM_MERGEABLE);
+>
+>
+> Long story short, the mm->def_flags code as wrong and most probably copied from
+> thp_split_mm() where we do:
+> 	mm->def_flags |= VM_NOHUGEPAGE;
+> Which makes more sense.
+>
+> Thanks!
 
-+/**
-+ * ksm_disable_merge_any - Disable merging on all compatible VMA's of the mm,
-+ *                        previously enabled via ksm_enable_merge_any().
-+ *
-+ * Disabling merging implies unmerging any merged pages, like setting
-+ * MADV_UNMERGEABLE would. If unmerging fails, the whole operation fails and
-+ * merging on all compatible VMA's remains enabled.
-+ *
-+ * @mm: Pointer to mm
-+ *
-+ * Returns 0 on success, otherwise error code
-+ */
+Thanks for the explanation.
 
-
--- 
-Thanks,
-
-David / dhildenb
-
+Acked-by: Stefan Roesch <shr@devkernel.io>
