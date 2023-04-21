@@ -2,192 +2,118 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7DD6DC7EE20
-	for <linux-s390@archiver.kernel.org>; Fri, 21 Apr 2023 11:39:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3CC44C77B7F
+	for <linux-s390@archiver.kernel.org>; Fri, 21 Apr 2023 11:39:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231451AbjDULjS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 21 Apr 2023 07:39:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34368 "EHLO
+        id S231689AbjDULjU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 21 Apr 2023 07:39:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231766AbjDULjR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 Apr 2023 07:39:17 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 759A11998;
+        with ESMTP id S231799AbjDULjS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 Apr 2023 07:39:18 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84753C141;
         Fri, 21 Apr 2023 04:38:35 -0700 (PDT)
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 33LBXEcW028181;
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 33LBZJ0o013457;
         Fri, 21 Apr 2023 11:37:27 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=zLgSyE+CTqUXbXEYYQDj+oecn0igaVoyRz9/okrYn4s=;
- b=CRF8DCICxxk1bdv05jz8FDny6mIqQ4uyZOsuyCvwW2qa7VVrkZtvd2LQVy1ju/d2AjcM
- 9c6t3+OI3HtBDuxvOSqRJU5zOatLdgsHtTumfRyK5hxH2s3omhS5jkH7hiErKRNgWamJ
- vuqi6P8qDAi3XfPjIX4ELMJeUQmxY7nBb9bvo9kjjeHUcrcPBmJr/2rKsXqTDTDCEFBB
- Pt0ulhDobLN+g65DwIuWWpKz9++DBHnT25+TwpV6qrGmenNvNkSM15tuKckTvojYhpMD
- 2S8xfrZQLnztda7c0IzsVPajbzFsRfR+UGpYJJpGzBpPkGmNyZSWz7AlXBiJipqtq588 UQ== 
+ bh=J8MXHooEbZxLg10nF8GMHYpehdtFuKcjNFlsO2dpEmU=;
+ b=IS64x1PyXYZrpI5kpm0VghFAFp9oecpvzRDsChc1XRXeGHOm2ilQPPKSmlVSbn1+yn71
+ XZ+xGoqK3CmwUsOqSPpGr/esnUsSdmh+RXEZrVzaPPzwjGRsMdhzpac6U6A/Uk8RBS/L
+ PySzTldjMX1pUed9VKutG79N/k0fhjCd8nTKZk0p/AO5culZNEUcIAVRRee6lWa322f9
+ i2PPYGfP2I6MLNaXCpgGhDTYkJEraJqL6QPC5bjm/ckSzTaJ7nzANgjMO7fUQJ8gQu7A
+ pcIhV/Rp2ltL/8vz8ilJkChcKDk1j/WWPPTrTaqCmLVF81ACh54CrMTDD5e7VJ4iABQC PA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3q3s0nsm35-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3q3rhc2qhy-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Fri, 21 Apr 2023 11:37:26 +0000
-Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 33LBY52D002303;
-        Fri, 21 Apr 2023 11:37:26 GMT
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3q3s0nsm0j-1
+Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 33LBZpsN017309;
+        Fri, 21 Apr 2023 11:37:25 GMT
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3q3rhc2qbp-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 21 Apr 2023 11:37:26 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 33L8bLjS017177;
-        Fri, 21 Apr 2023 11:37:24 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-        by ppma01fra.de.ibm.com (PPS) with ESMTPS id 3pykj6kaks-1
+        Fri, 21 Apr 2023 11:37:25 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 33L5KFrO015894;
+        Fri, 21 Apr 2023 11:37:21 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma06fra.de.ibm.com (PPS) with ESMTPS id 3pyk6fkanr-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 21 Apr 2023 11:37:24 +0000
+        Fri, 21 Apr 2023 11:37:21 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 33LBbK9f10486352
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 33LBbH4S54722950
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 21 Apr 2023 11:37:20 GMT
+        Fri, 21 Apr 2023 11:37:17 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B56642004D;
-        Fri, 21 Apr 2023 11:37:20 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id C2D8D20040;
+        Fri, 21 Apr 2023 11:37:17 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E7ACC20040;
-        Fri, 21 Apr 2023 11:37:19 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id EB38D20043;
+        Fri, 21 Apr 2023 11:37:16 +0000 (GMT)
 Received: from linux6.. (unknown [9.114.12.104])
         by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Fri, 21 Apr 2023 11:37:19 +0000 (GMT)
+        Fri, 21 Apr 2023 11:37:16 +0000 (GMT)
 From:   Janosch Frank <frankja@linux.ibm.com>
 To:     kvm@vger.kernel.org
 Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
         thuth@redhat.com, nrb@linux.ibm.com, david@redhat.com
-Subject: [kvm-unit-tests PATCH v3 4/7] lib: s390x: uv: Add pv guest requirement check function
-Date:   Fri, 21 Apr 2023 11:36:44 +0000
-Message-Id: <20230421113647.134536-5-frankja@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v3 1/7] lib: s390x: uv: Introduce UV validity function
+Date:   Fri, 21 Apr 2023 11:36:41 +0000
+Message-Id: <20230421113647.134536-2-frankja@linux.ibm.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20230421113647.134536-1-frankja@linux.ibm.com>
 References: <20230421113647.134536-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: w3Ddxe2BXmKgmBQuTDQcjzNm-BLTa53k
-X-Proofpoint-GUID: hGCzUuhJVRwO0RdWJotB9is7sYtOxjWq
+X-Proofpoint-GUID: 0dtU0NfLJaGp-spZDAVG8NocDfz3D_Qr
+X-Proofpoint-ORIG-GUID: 6tghTix5-5-8Uy2Rdl2uZHGHKEURROXr
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-04-21_04,2023-04-21_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- phishscore=0 impostorscore=0 lowpriorityscore=0 mlxscore=0 adultscore=0
- clxscore=1015 mlxlogscore=999 malwarescore=0 spamscore=0 suspectscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2303200000 definitions=main-2304210095
+ definitions=2023-04-21_05,2023-04-21_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
+ priorityscore=1501 phishscore=0 lowpriorityscore=0 suspectscore=0
+ bulkscore=0 mlxscore=0 clxscore=1015 impostorscore=0 adultscore=0
+ malwarescore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2303200000 definitions=main-2304210100
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-When running PV guests some of the UV memory needs to be allocated
-with > 31 bit addresses which means tests with PV guests will always
-need a lot more memory than other tests.
-Additionally facilities nr 158 and sclp.sief2 need to be available.
+PV related validities are in the 0x20** range but the last byte might
+be implementation specific, so everytime we check for a UV validity we
+need to mask the last byte.
 
-Let's add a function that checks for these requirements and prints a
-helpful skip message.
+Let's add a function that checks for a UV validity and returns a
+boolean.
 
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
 ---
- lib/s390x/snippet.h |  7 +++++++
- lib/s390x/uv.c      | 20 ++++++++++++++++++++
- lib/s390x/uv.h      |  1 +
- s390x/pv-diags.c    |  8 +-------
- 4 files changed, 29 insertions(+), 7 deletions(-)
+ lib/s390x/uv.h | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/lib/s390x/snippet.h b/lib/s390x/snippet.h
-index 57045994..11ec54c3 100644
---- a/lib/s390x/snippet.h
-+++ b/lib/s390x/snippet.h
-@@ -30,6 +30,13 @@
- #define SNIPPET_HDR_LEN(type, file) \
- 	((uintptr_t)SNIPPET_HDR_END(type, file) - (uintptr_t)SNIPPET_HDR_START(type, file))
- 
-+/*
-+ * Some of the UV memory needs to be allocated with >31 bit
-+ * addresses which means we need a lot more memory than other
-+ * tests.
-+ */
-+#define SNIPPET_PV_MIN_MEM_SIZE	(SZ_1M * 2200UL)
-+
- #define SNIPPET_PV_TWEAK0	0x42UL
- #define SNIPPET_PV_TWEAK1	0UL
- #define SNIPPET_UNPACK_OFF	0
-diff --git a/lib/s390x/uv.c b/lib/s390x/uv.c
-index 383271a5..db47536c 100644
---- a/lib/s390x/uv.c
-+++ b/lib/s390x/uv.c
-@@ -18,6 +18,7 @@
- #include <asm/uv.h>
- #include <uv.h>
- #include <sie.h>
-+#include <snippet.h>
- 
- static struct uv_cb_qui uvcb_qui = {
- 	.header.cmd = UVC_CMD_QUI,
-@@ -38,6 +39,25 @@ bool uv_os_is_host(void)
- 	return test_facility(158) && uv_query_test_call(BIT_UVC_CMD_INIT_UV);
- }
- 
-+bool uv_guest_requirement_checks(void)
-+{
-+	if (!test_facility(158)) {
-+		report_skip("UV Call facility unavailable");
-+		return false;
-+	}
-+	if (!sclp_facilities.has_sief2) {
-+		report_skip("SIEF2 facility unavailable");
-+		return false;
-+	}
-+	if (get_ram_size() < SNIPPET_PV_MIN_MEM_SIZE) {
-+		report_skip("Not enough memory. This test needs about %ld MB of memory",
-+			    SNIPPET_PV_MIN_MEM_SIZE / 1024 / 1024);
-+		return false;
-+	}
-+
-+	return true;
-+}
-+
- bool uv_query_test_call(unsigned int nr)
- {
- 	/* Query needs to be called first */
 diff --git a/lib/s390x/uv.h b/lib/s390x/uv.h
-index 78b979b7..d9af691a 100644
+index 5fe29bda..78b979b7 100644
 --- a/lib/s390x/uv.h
 +++ b/lib/s390x/uv.h
-@@ -7,6 +7,7 @@
+@@ -35,4 +35,11 @@ static inline void uv_setup_asces(void)
+ 	lctlg(13, asce);
+ }
  
- bool uv_os_is_guest(void);
- bool uv_os_is_host(void);
-+bool uv_guest_requirement_checks(void);
- bool uv_query_test_call(unsigned int nr);
- const struct uv_cb_qui *uv_get_query_data(void);
- void uv_init(void);
-diff --git a/s390x/pv-diags.c b/s390x/pv-diags.c
-index fa4e5532..1289a571 100644
---- a/s390x/pv-diags.c
-+++ b/s390x/pv-diags.c
-@@ -149,14 +149,8 @@ static void test_diag_yield(void)
- int main(void)
- {
- 	report_prefix_push("pv-diags");
--	if (!test_facility(158)) {
--		report_skip("UV Call facility unavailable");
-+	if (!uv_guest_requirement_checks())
- 		goto done;
--	}
--	if (!sclp_facilities.has_sief2) {
--		report_skip("SIEF2 facility unavailable");
--		goto done;
--	}
- 
- 	uv_setup_asces();
- 	snippet_setup_guest(&vm, true);
++static inline bool uv_validity_check(struct vm *vm)
++{
++	uint16_t vir = sie_get_validity(vm);
++
++	return vm->sblk->icptcode == ICPT_VALIDITY && (vir & 0xff00) == 0x2000;
++}
++
+ #endif /* UV_H */
 -- 
 2.34.1
 
