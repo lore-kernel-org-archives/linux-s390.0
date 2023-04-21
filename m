@@ -2,295 +2,155 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B2E48C77B71
-	for <linux-s390@archiver.kernel.org>; Fri, 21 Apr 2023 15:51:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55389C7618E
+	for <linux-s390@archiver.kernel.org>; Fri, 21 Apr 2023 17:08:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231923AbjDUPva (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 21 Apr 2023 11:51:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44968 "EHLO
+        id S232921AbjDURIC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 21 Apr 2023 13:08:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232577AbjDUPv2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 Apr 2023 11:51:28 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F576B47D;
-        Fri, 21 Apr 2023 08:51:23 -0700 (PDT)
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 33LFgH7L010342;
-        Fri, 21 Apr 2023 15:51:23 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=3p7TEn3zigq4RakUYbIPjib7jXKU4vfNdcj6eshVgGY=;
- b=tdJEWkD7ALOt7C5UHLagukOk34i6K+GQU+WYsdVEGZAtOgdj0b+HFgmrmVZtYemYiOT5
- JND9WsC280bUOfL5wz2PXzo/uWMc6h97oLtnzcsLNKLUC3bVvZacqznPwM12gKgpllwB
- JIVErTbrHGsV/WHN8wSNTLgO9a+mlDRDquKlEaxzvMPy3OEOzMEbaW3u+meaLLxEvMYy
- 7OHXjO8YwEgfK9kC8LV1QjZxToytzkO0UocIPoNjgUso5kAaE7sCogpFggso0LPv9WrP
- lQ7EIgeaK/INpP+6drXgz5fO4zEo6LSdHUZsEmNE1Jgbg9uYcMJrWg/4fRmW5jRaTKNL 2g== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3q3wc1g996-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 21 Apr 2023 15:51:22 +0000
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 33LFj5qe024247;
-        Fri, 21 Apr 2023 15:51:22 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3q3wc1g980-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 21 Apr 2023 15:51:22 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 33LAHA3V029653;
-        Fri, 21 Apr 2023 15:32:31 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3pykj6c4m7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 21 Apr 2023 15:32:31 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 33LFWRJU20710006
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 21 Apr 2023 15:32:27 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A78DB20049;
-        Fri, 21 Apr 2023 15:32:27 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3AEAE20043;
-        Fri, 21 Apr 2023 15:32:27 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.171.17.52])
-        by smtpav05.fra02v.mail.ibm.com (Postfix) with SMTP;
-        Fri, 21 Apr 2023 15:32:27 +0000 (GMT)
-Date:   Fri, 21 Apr 2023 17:32:11 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Janosch Frank <frankja@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org, thuth@redhat.com,
-        nrb@linux.ibm.com, david@redhat.com
-Subject: Re: [kvm-unit-tests PATCH v3 6/7] s390x: pv: Add IPL reset tests
-Message-ID: <20230421173211.0a47e1dc@p-imbrenda>
-In-Reply-To: <20230421113647.134536-7-frankja@linux.ibm.com>
-References: <20230421113647.134536-1-frankja@linux.ibm.com>
-        <20230421113647.134536-7-frankja@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
+        with ESMTP id S229641AbjDURH7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 Apr 2023 13:07:59 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EC16146F9
+        for <linux-s390@vger.kernel.org>; Fri, 21 Apr 2023 10:07:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1682096821;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=g7lG6rnmj15jmZA/ctqiBLvmqWQqJhRL1h9zNRtPjNc=;
+        b=gFzh9RAc/MQGsmqu5leBq8PrETrWyL/I7ZTEiViN0IgeUxFZBoXPt6iabMz3fOxI+rbyJy
+        Bc2eKFME+yD/JMM4Ah47YVqSMrCqgml35dzCI7+GrzUZFC6E2Ne9MnvIMhI3PeigtZEmRz
+        q5J9cNvKmBx14jmL9ERb1QKHBNyZuic=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-644-7P4nHI8JNtmhSmlZsqRfAg-1; Fri, 21 Apr 2023 12:52:17 -0400
+X-MC-Unique: 7P4nHI8JNtmhSmlZsqRfAg-1
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-3f1757ebb1eso7000065e9.2
+        for <linux-s390@vger.kernel.org>; Fri, 21 Apr 2023 09:52:17 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1682095936; x=1684687936;
+        h=content-transfer-encoding:in-reply-to:subject:organization:from
+         :content-language:references:cc:to:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=g7lG6rnmj15jmZA/ctqiBLvmqWQqJhRL1h9zNRtPjNc=;
+        b=QVxma3WGUbRYK6posZg6VGPR+v1BIyl1o6Awlyy3EI7JFObXMDvKrOnSV6oy5Jy9W2
+         HZZ0x9nqLtRDUBz7S65r4wwirKEh432GS05JHMPsBr3oKV3waw+1M3ueZEQDoCCcm8uf
+         jitdEdXb6FGKX7xGnPCTJ7i6TWWLhGZLS3mJnUq8nYQ/I59SraXCbS3mZm8LpxOhMEwD
+         R2D6KxP21iXrwKD1vId+hDspjxVs9vSQwjUYOB7oDd5b+X2NjBsMb7Wte2AdImzYOoIf
+         2oSYK5crQc/4ql8TuuEiZrdMmF1NWebUHu3te6hhQiZM1W+nU3Uj3WY3ewdeAZSzfwix
+         fC3w==
+X-Gm-Message-State: AAQBX9dhIK2XuFhJrLit6dMv+V/B06dEUKoyIzK//wLGTe7qN5OqrOLC
+        2WX/eHhonG2sYFfsW+JCBmTS/ffIrGPeByOHtc282gHzTnDO3p2mSDawdBU/o2Na3DB6Risp0ab
+        jE6Xw6KtbSX65KPz6T2O0oA==
+X-Received: by 2002:a1c:7c12:0:b0:3ed:b048:73f4 with SMTP id x18-20020a1c7c12000000b003edb04873f4mr2736907wmc.5.1682095936531;
+        Fri, 21 Apr 2023 09:52:16 -0700 (PDT)
+X-Google-Smtp-Source: AKy350bSHPKE6vIxCUj+TpuUuTs1BivJ3Z9mU324hkuK5BcAE6z0tQXv0+PyZQ0F1Y1047SGWTZwnw==
+X-Received: by 2002:a1c:7c12:0:b0:3ed:b048:73f4 with SMTP id x18-20020a1c7c12000000b003edb04873f4mr2736885wmc.5.1682095936116;
+        Fri, 21 Apr 2023 09:52:16 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c717:6a00:e38f:c852:dc11:9146? (p200300cbc7176a00e38fc852dc119146.dip0.t-ipconnect.de. [2003:cb:c717:6a00:e38f:c852:dc11:9146])
+        by smtp.gmail.com with ESMTPSA id w9-20020a05600c474900b003f17e37ce60sm8676540wmo.47.2023.04.21.09.52.14
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 21 Apr 2023 09:52:15 -0700 (PDT)
+Message-ID: <14d89518-0c11-7bfb-0c72-329a834ba1a1@redhat.com>
+Date:   Fri, 21 Apr 2023 18:52:14 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.10.0
+To:     Stefan Roesch <shr@devkernel.io>
+Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Rik van Riel <riel@surriel.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Michal Hocko <mhocko@suse.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Shuah Khan <shuah@kernel.org>
+References: <20230418051342.1919757-1-shr@devkernel.io>
+ <20230418152849.505124-1-david@redhat.com>
+ <20230418152849.505124-4-david@redhat.com>
+ <qvqwildqi62z.fsf@devbig1114.prn1.facebook.com>
+Content-Language: en-US
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+Subject: Re: [PATCH v1 3/3] mm/ksm: move disabling KSM from s390/gmap code to
+ KSM code
+In-Reply-To: <qvqwildqi62z.fsf@devbig1114.prn1.facebook.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Ngz261cuxxatjJfUpx-KhVeqsmGsoNZz
-X-Proofpoint-GUID: qc14AWi0eria-kmeNxthYxxnXpcfRSAk
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-04-21_08,2023-04-21_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
- priorityscore=1501 suspectscore=0 mlxscore=0 lowpriorityscore=0
- mlxlogscore=999 phishscore=0 malwarescore=0 impostorscore=0 spamscore=0
- adultscore=0 clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2303200000 definitions=main-2304210137
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 21 Apr 2023 11:36:46 +0000
-Janosch Frank <frankja@linux.ibm.com> wrote:
+[...]
 
-> The diag308 requires extensive cooperation between the hypervisor and
-> the Ultravisor so the Ultravisor can make sure all necessary reset
-> steps have been done.
+>> diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+>> index 0949811761e6..dfe905c7bd8e 100644
+>> --- a/arch/s390/mm/gmap.c
+>> +++ b/arch/s390/mm/gmap.c
+>> @@ -2585,30 +2585,12 @@ EXPORT_SYMBOL_GPL(s390_enable_sie);
+>>
+>>   int gmap_mark_unmergeable(void)
+>>   {
+>> -	struct mm_struct *mm = current->mm;
+>> -	struct vm_area_struct *vma;
+>> -	unsigned long vm_flags;
+>> -	int ret;
+>> -	VMA_ITERATOR(vmi, mm, 0);
+>> -
+>>   	/*
+>>   	 * Make sure to disable KSM (if enabled for the whole process or
+>>   	 * individual VMAs). Note that nothing currently hinders user space
+>>   	 * from re-enabling it.
+>>   	 */
+>> -	clear_bit(MMF_VM_MERGE_ANY, &mm->flags);
+>> -
+>> -	for_each_vma(vmi, vma) {
+>> -		/* Copy vm_flags to avoid partial modifications in ksm_madvise */
+>> -		vm_flags = vma->vm_flags;
+>> -		ret = ksm_madvise(vma, vma->vm_start, vma->vm_end,
+>> -				  MADV_UNMERGEABLE, &vm_flags);
+>> -		if (ret)
+>> -			return ret;
+>> -		vm_flags_reset(vma, vm_flags);
+>> -	}
+>> -	mm->def_flags &= ~VM_MERGEABLE;
+>>
 > 
-> Let's check if we get the correct validity errors.
-> 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> ---
->  s390x/Makefile      |   2 +
->  s390x/pv-ipl.c      | 145 ++++++++++++++++++++++++++++++++++++++++++++
->  s390x/unittests.cfg |   4 ++
->  3 files changed, 151 insertions(+)
->  create mode 100644 s390x/pv-ipl.c
-> 
-> diff --git a/s390x/Makefile b/s390x/Makefile
-> index 67be5360..b5b94810 100644
-> --- a/s390x/Makefile
-> +++ b/s390x/Makefile
-> @@ -43,6 +43,7 @@ tests += $(TEST_DIR)/ex.elf
->  
->  pv-tests += $(TEST_DIR)/pv-diags.elf
->  pv-tests += $(TEST_DIR)/pv-icptcode.elf
-> +pv-tests += $(TEST_DIR)/pv-ipl.elf
->  
->  ifneq ($(HOST_KEY_DOCUMENT),)
->  ifneq ($(GEN_SE_HEADER),)
-> @@ -130,6 +131,7 @@ $(TEST_DIR)/pv-icptcode.elf: pv-snippets += $(SNIPPET_DIR)/asm/pv-icpt-112.gbin
->  $(TEST_DIR)/pv-icptcode.elf: pv-snippets += $(SNIPPET_DIR)/asm/icpt-loop.gbin
->  $(TEST_DIR)/pv-icptcode.elf: pv-snippets += $(SNIPPET_DIR)/asm/loop.gbin
->  $(TEST_DIR)/pv-icptcode.elf: pv-snippets += $(SNIPPET_DIR)/asm/pv-icpt-vir-timing.gbin
-> +$(TEST_DIR)/pv-ipl.elf: pv-snippets += $(SNIPPET_DIR)/asm/pv-diag-308.gbin
->  
->  ifneq ($(GEN_SE_HEADER),)
->  snippets += $(pv-snippets)
-> diff --git a/s390x/pv-ipl.c b/s390x/pv-ipl.c
-> new file mode 100644
-> index 00000000..aad1275e
-> --- /dev/null
-> +++ b/s390x/pv-ipl.c
-> @@ -0,0 +1,145 @@
-> +/* SPDX-License-Identifier: GPL-2.0-only */
-> +/*
-> + * PV diagnose 308 (IPL) tests
-> + *
-> + * Copyright (c) 2023 IBM Corp
-> + *
-> + * Authors:
-> + *  Janosch Frank <frankja@linux.ibm.com>
-> + */
-> +#include <libcflat.h>
-> +#include <sie.h>
-> +#include <sclp.h>
-> +#include <snippet.h>
-> +#include <pv_icptdata.h>
-> +#include <asm/facility.h>
-> +#include <asm/uv.h>
-> +
-> +static struct vm vm;
-> +
-> +static void test_diag_308(int subcode)
-> +{
-> +	extern const char SNIPPET_NAME_START(asm, pv_diag_308)[];
-> +	extern const char SNIPPET_NAME_END(asm, pv_diag_308)[];
-> +	extern const char SNIPPET_HDR_START(asm, pv_diag_308)[];
-> +	extern const char SNIPPET_HDR_END(asm, pv_diag_308)[];
-> +	int size_hdr = SNIPPET_HDR_LEN(asm, pv_diag_308);
-> +	int size_gbin = SNIPPET_LEN(asm, pv_diag_308);
-> +	uint16_t rc, rrc;
-> +	char prefix[10];
-> +	int cc;
-> +
-> +	snprintf(prefix, sizeof(prefix), "subcode %d", subcode);
-> +
-> +	report_prefix_push(prefix);
 
-report_prefix_pushf
+Hi Stefan,
 
-> +	snippet_pv_init(&vm, SNIPPET_NAME_START(asm, pv_diag_308),
-> +			SNIPPET_HDR_START(asm, pv_diag_308),
-> +			size_gbin, size_hdr, SNIPPET_UNPACK_OFF);
-> +
-> +	/* First exit is a diag 0x500 */
-> +	sie(&vm);
-> +	assert(pv_icptdata_check_diag(&vm, 0x500));
-> +
-> +	/*
-> +	 * The snippet asked us for the subcode and we answer with 0 in gr2
+> This clears the def_flags struct member, however, in ksm_disable() we
+> clear the __flags struct member. Is this a problem?
 
-not always 0 I guess?
+The patch description contains a comment regarding def_flags: "The 
+existing "mm->def_flags &= ~VM_MERGEABLE;" was essentially a NOP and can 
+be dropped, because def_flags should never include VM_MERGEABLE."
 
-> +	 * SIE will copy gr2 to the guest
-> +	 */
-> +	vm.save_area.guest.grs[2] = subcode;
-> +
-> +	/* Continue after diag 0x500, next icpt should be the 0x308 */
-> +	sie(&vm);
-> +	assert(pv_icptdata_check_diag(&vm, 0x308));
-> +	assert(vm.save_area.guest.grs[2] == subcode);
-> +
-> +	/*
-> +	 * We need to perform several UV calls to emulate the subcode
-> +	 * 0/1. Failing to do that should result in a validity.
-> +	 *
-> +	 * - Mark all cpus as stopped
-> +	 * - Unshare all memory
-> +	 * - Prepare the reset
-> +	 * - Reset the cpus
-> +	 * - Load the reset PSW
-> +	 */
-> +	sie_expect_validity(&vm);
-> +	sie(&vm);
-> +	report(uv_validity_check(&vm), "validity, no action");
-> +
-> +	/* Mark the CPU as stopped so we can unshare and reset */
-> +	cc = uv_set_cpu_state(vm.sblk->pv_handle_cpu, PV_CPU_STATE_STP);
-> +	report(!cc, "Set cpu stopped");
-> +
-> +	sie_expect_validity(&vm);
-> +	sie(&vm);
-> +	report(uv_validity_check(&vm), "validity, stopped");
-> +
-> +	/* Unshare all memory */
-> +	cc = uv_cmd_nodata(vm.sblk->pv_handle_config,
-> +			   UVC_CMD_SET_UNSHARED_ALL, &rc, &rrc);
-> +	report(cc == 0 && rc == 1, "Unshare all");
-> +
-> +	sie_expect_validity(&vm);
-> +	sie(&vm);
-> +	report(uv_validity_check(&vm), "validity, stopped, unshared");
-> +
-> +	/* Prepare the CPU reset */
-> +	cc = uv_cmd_nodata(vm.sblk->pv_handle_config,
-> +			   UVC_CMD_PREPARE_RESET, &rc, &rrc);
-> +	report(cc == 0 && rc == 1, "Prepare reset call");
-> +
-> +	sie_expect_validity(&vm);
-> +	sie(&vm);
-> +	report(uv_validity_check(&vm), "validity, stopped, unshared, prep reset");
-> +
-> +	/*
-> +	 * Do the reset on the initiating cpu
-> +	 *
-> +	 * Reset clear for subcode 0
-> +	 * Reset initial for subcode 1
-> +	 */
-> +	if (subcode == 0) {
-> +		cc = uv_cmd_nodata(vm.sblk->pv_handle_cpu,
-> +				   UVC_CMD_CPU_RESET_CLEAR, &rc, &rrc);
-> +		report(cc == 0 && rc == 1, "Clear reset cpu");
-> +	} else {
-> +		cc = uv_cmd_nodata(vm.sblk->pv_handle_cpu,
-> +				   UVC_CMD_CPU_RESET_INITIAL, &rc, &rrc);
-> +		report(cc == 0 && rc == 1, "Initial reset cpu");
-> +	}
-> +
-> +	sie_expect_validity(&vm);
-> +	sie(&vm);
-> +	report(uv_validity_check(&vm), "validity, stopped, unshared, prep reset, cpu reset");
-> +
-> +	/* Load the PSW from 0x0 */
-> +	cc = uv_set_cpu_state(vm.sblk->pv_handle_cpu, PV_CPU_STATE_OPR_LOAD);
-> +	report(!cc, "Set cpu load");
-> +
-> +	/*
-> +	 * Check if we executed the iaddr of the reset PSW, we should
-> +	 * see a diagnose 0x9c PV instruction notification.
-> +	 */
-> +	sie(&vm);
-> +	report(pv_icptdata_check_diag(&vm, 0x9c) &&
-> +	       vm.save_area.guest.grs[0] == 42,
-> +	       "continue after load");
-> +
-> +	uv_destroy_guest(&vm);
-> +	report_prefix_pop();
-> +}
-> +
-> +int main(void)
-> +{
-> +	report_prefix_push("uv-sie");
-> +	if (!uv_guest_requirement_checks())
-> +		goto done;
-> +
-> +	snippet_setup_guest(&vm, true);
-> +	test_diag_308(0);
-> +	test_diag_308(1);
-> +	sie_guest_destroy(&vm);
-> +
-> +done:
-> +	report_prefix_pop();
-> +	return report_summary();
-> +}
-> diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
-> index e2d3478e..e08e5c84 100644
-> --- a/s390x/unittests.cfg
-> +++ b/s390x/unittests.cfg
-> @@ -223,3 +223,7 @@ file = ex.elf
->  file = pv-icptcode.elf
->  smp = 3
->  extra_params = -m 2200
-> +
-> +[pv-ipl]
-> +file = pv-ipl.elf
-> +extra_params = -m 2200
+We keep clearing the MADV_UNMERGEABLE flag from MADV_UNMERGEABLE. In the 
+old code, ksm_madvise() would have cleared it from local vm_flags and 
+vm_flags_reset() would have modified vma->vm_flags. Now we clear it 
+directly via vm_flags_clear(vma, VM_MERGEABLE);
+
+
+Long story short, the mm->def_flags code as wrong and most probably 
+copied from thp_split_mm() where we do:
+	mm->def_flags |= VM_NOHUGEPAGE;
+Which makes more sense.
+
+Thanks!
+
+-- 
+Thanks,
+
+David / dhildenb
 
