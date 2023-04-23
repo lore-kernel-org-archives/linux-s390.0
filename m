@@ -2,31 +2,31 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F15D9C77B73
-	for <linux-s390@archiver.kernel.org>; Sun, 23 Apr 2023 12:19:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BB906C77B76
+	for <linux-s390@archiver.kernel.org>; Sun, 23 Apr 2023 12:19:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230045AbjDWMTL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 23 Apr 2023 08:19:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47960 "EHLO
+        id S230205AbjDWMTW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 23 Apr 2023 08:19:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230149AbjDWMSg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 23 Apr 2023 08:18:36 -0400
-Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A3852D7F;
-        Sun, 23 Apr 2023 05:18:09 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0VgjzSS8_1682252284;
-Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VgjzSS8_1682252284)
+        with ESMTP id S230070AbjDWMSy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 23 Apr 2023 08:18:54 -0400
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6C3E3A95;
+        Sun, 23 Apr 2023 05:18:14 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R881e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0Vgjt3Kt_1682252288;
+Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0Vgjt3Kt_1682252288)
           by smtp.aliyun-inc.com;
-          Sun, 23 Apr 2023 20:18:05 +0800
+          Sun, 23 Apr 2023 20:18:10 +0800
 From:   Wen Gu <guwen@linux.alibaba.com>
 To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
         davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
         pabeni@redhat.com
 Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [RFC PATCH net-next v5 6/9] net/smc: Introudce interfaces for DMB attach and detach
-Date:   Sun, 23 Apr 2023 20:17:48 +0800
-Message-Id: <1682252271-2544-7-git-send-email-guwen@linux.alibaba.com>
+Subject: [RFC PATCH net-next v5 8/9] net/smc: Modify cursor update logic when using mappable DMB
+Date:   Sun, 23 Apr 2023 20:17:50 +0800
+Message-Id: <1682252271-2544-9-git-send-email-guwen@linux.alibaba.com>
 X-Mailer: git-send-email 1.8.3.1
 In-Reply-To: <1682252271-2544-1-git-send-email-guwen@linux.alibaba.com>
 References: <1682252271-2544-1-git-send-email-guwen@linux.alibaba.com>
@@ -34,94 +34,106 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This patch extends smcd_ops, adding two more semantic for SMC-D DMB:
+Since local sndbuf shares the same physical memory region with peer
+RMB when using mappable DMBs, the cursor update logic needs to be
+adapted.
 
-- attach_dmb:
-  Attach an already registered DMB to a specific buf_desc, so that we
-  can refer to the DMB through this buf_desc.
+The main concern is to ensure that the data written by local to this
+memory region won't overwrite the data that has not been consumed by
+the peer.
 
-- detach_dmb:
-  Reverse operation of attach_dmb. detach the DMB from the buf_desc.
-
-This interface extension is to prepare for the avoidance of memory
-copy from sndbuf to RMB with SMC-D device whose DMBs has ISM_DMB_MAPPABLE
-attribute.
+So in this scene, the fin_curs and sndbuf_space that were originally
+updated when sending out CDC message are not updated until the cons_curs
+update from the peer is received.
 
 Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
 ---
- include/net/smc.h |  2 ++
- net/smc/smc_ism.c | 31 +++++++++++++++++++++++++++++++
- net/smc/smc_ism.h |  2 ++
- 3 files changed, 35 insertions(+)
+ net/smc/smc_cdc.c | 50 +++++++++++++++++++++++++++++++++++++++-----------
+ 1 file changed, 39 insertions(+), 11 deletions(-)
 
-diff --git a/include/net/smc.h b/include/net/smc.h
-index e39ac41..0132522 100644
---- a/include/net/smc.h
-+++ b/include/net/smc.h
-@@ -67,6 +67,8 @@ struct smcd_ops {
- 	int (*register_dmb)(struct smcd_dev *dev, struct smcd_dmb *dmb,
- 			    void *client_priv);
- 	int (*unregister_dmb)(struct smcd_dev *dev, struct smcd_dmb *dmb);
-+	int (*attach_dmb)(struct smcd_dev *dev, struct smcd_dmb *dmb);
-+	int (*detach_dmb)(struct smcd_dev *dev, u64 token);
- 	int (*add_vlan_id)(struct smcd_dev *dev, u64 vlan_id);
- 	int (*del_vlan_id)(struct smcd_dev *dev, u64 vlan_id);
- 	int (*set_vlan_required)(struct smcd_dev *dev);
-diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
-index 1d97e77..925af13 100644
---- a/net/smc/smc_ism.c
-+++ b/net/smc/smc_ism.c
-@@ -243,6 +243,37 @@ int smc_ism_register_dmb(struct smc_link_group *lgr, int dmb_len,
+diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
+index 2f79bac..915b8e7 100644
+--- a/net/smc/smc_cdc.c
++++ b/net/smc/smc_cdc.c
+@@ -18,6 +18,7 @@
+ #include "smc_tx.h"
+ #include "smc_rx.h"
+ #include "smc_close.h"
++#include "smc_ism.h"
+ 
+ /********************************** send *************************************/
+ 
+@@ -256,17 +257,24 @@ int smcd_cdc_msg_send(struct smc_connection *conn)
+ 		return rc;
+ 	smc_curs_copy(&conn->rx_curs_confirmed, &curs, conn);
+ 	conn->local_rx_ctrl.prod_flags.cons_curs_upd_req = 0;
+-	/* Calculate transmitted data and increment free send buffer space */
+-	diff = smc_curs_diff(conn->sndbuf_desc->len, &conn->tx_curs_fin,
+-			     &conn->tx_curs_sent);
+-	/* increased by confirmed number of bytes */
+-	smp_mb__before_atomic();
+-	atomic_add(diff, &conn->sndbuf_space);
+-	/* guarantee 0 <= sndbuf_space <= sndbuf_desc->len */
+-	smp_mb__after_atomic();
+-	smc_curs_copy(&conn->tx_curs_fin, &conn->tx_curs_sent, conn);
++	if (!smc_ism_dmb_mappable(conn->lgr->smcd)) {
++		/* If local sndbuf has been mapped to peer RMB, then
++		 * don't update the tx_curs_fin and sndbuf_space until
++		 * peer has consumed the data in RMB.
++		 */
+ 
+-	smc_tx_sndbuf_nonfull(smc);
++		/* Calculate transmitted data and increment free send buffer space */
++		diff = smc_curs_diff(conn->sndbuf_desc->len, &conn->tx_curs_fin,
++				     &conn->tx_curs_sent);
++		/* increased by confirmed number of bytes */
++		smp_mb__before_atomic();
++		atomic_add(diff, &conn->sndbuf_space);
++		/* guarantee 0 <= sndbuf_space <= sndbuf_desc->len */
++		smp_mb__after_atomic();
++		smc_curs_copy(&conn->tx_curs_fin, &conn->tx_curs_sent, conn);
++
++		smc_tx_sndbuf_nonfull(smc);
++	}
  	return rc;
  }
  
-+int smc_ism_attach_dmb(struct smcd_dev *dev, u64 token,
-+		       struct smc_buf_desc *dmb_desc)
-+{
-+	struct smcd_dmb dmb;
-+	int rc = 0;
+@@ -324,7 +332,7 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
+ {
+ 	union smc_host_cursor cons_old, prod_old;
+ 	struct smc_connection *conn = &smc->conn;
+-	int diff_cons, diff_prod;
++	int diff_cons, diff_prod, diff_tx;
+ 
+ 	smc_curs_copy(&prod_old, &conn->local_rx_ctrl.prod, conn);
+ 	smc_curs_copy(&cons_old, &conn->local_rx_ctrl.cons, conn);
+@@ -340,6 +348,26 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
+ 		atomic_add(diff_cons, &conn->peer_rmbe_space);
+ 		/* guarantee 0 <= peer_rmbe_space <= peer_rmbe_size */
+ 		smp_mb__after_atomic();
 +
-+	memset(&dmb, 0, sizeof(dmb));
-+	dmb.dmb_tok = token;
++		if (conn->lgr->is_smcd &&
++		    smc_ism_dmb_mappable(conn->lgr->smcd)) {
++			/* If local sndbuf has been mapped to peer RMB, then
++			 * update tx_curs_fin and sndbuf_space when peer has
++			 * consumed the data in it's RMB.
++			 */
 +
-+	if (!dev->ops->attach_dmb)
-+		return -EINVAL;
++			/* calculate peer rmb consumed data */
++			diff_tx = smc_curs_diff(conn->sndbuf_desc->len, &conn->tx_curs_fin,
++						&conn->local_rx_ctrl.cons);
++			/* increase local sndbuf space and fin_curs */
++			smp_mb__before_atomic();
++			atomic_add(diff_tx, &conn->sndbuf_space);
++			/* guarantee 0 <= sndbuf_space <= sndbuf_desc->len */
++			smp_mb__after_atomic();
++			smc_curs_copy(&conn->tx_curs_fin, &conn->local_rx_ctrl.cons, conn);
 +
-+	rc = dev->ops->attach_dmb(dev, &dmb);
-+	if (!rc) {
-+		dmb_desc->sba_idx = dmb.sba_idx;
-+		dmb_desc->token = dmb.dmb_tok;
-+		dmb_desc->cpu_addr = dmb.cpu_addr;
-+		dmb_desc->dma_addr = dmb.dma_addr;
-+		dmb_desc->len = dmb.dmb_len;
-+	}
-+	return rc;
-+}
-+
-+int smc_ism_detach_dmb(struct smcd_dev *dev, u64 token)
-+{
-+	if (!dev->ops->detach_dmb)
-+		return -EINVAL;
-+
-+	return dev->ops->detach_dmb(dev, token);
-+}
-+
- static int smc_nl_handle_smcd_dev(struct smcd_dev *smcd,
- 				  struct sk_buff *skb,
- 				  struct netlink_callback *cb)
-diff --git a/net/smc/smc_ism.h b/net/smc/smc_ism.h
-index 0b1913a..31eb010 100644
---- a/net/smc/smc_ism.h
-+++ b/net/smc/smc_ism.h
-@@ -41,6 +41,8 @@ int smc_ism_register_dmb(struct smc_link_group *lgr, int buf_size,
- 			 struct smc_buf_desc *dmb_desc);
- int smc_ism_unregister_dmb(struct smcd_dev *dev, struct smc_buf_desc *dmb_desc);
- bool smc_ism_dmb_mappable(struct smcd_dev *smcd);
-+int smc_ism_attach_dmb(struct smcd_dev *dev, u64 token, struct smc_buf_desc *dmb_desc);
-+int smc_ism_detach_dmb(struct smcd_dev *dev, u64 token);
- int smc_ism_signal_shutdown(struct smc_link_group *lgr);
- void smc_ism_get_system_eid(u8 **eid);
- u16 smc_ism_get_chid(struct smcd_dev *dev);
++			smc_tx_sndbuf_nonfull(smc);
++		}
+ 	}
+ 
+ 	diff_prod = smc_curs_diff(conn->rmb_desc->len, &prod_old,
 -- 
 1.8.3.1
 
