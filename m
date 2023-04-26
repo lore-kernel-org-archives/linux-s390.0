@@ -2,147 +2,134 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CAA4AC77B60
-	for <linux-s390@archiver.kernel.org>; Wed, 26 Apr 2023 13:48:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E029FC7618E
+	for <linux-s390@archiver.kernel.org>; Wed, 26 Apr 2023 14:54:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241216AbjDZNsv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 26 Apr 2023 09:48:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41544 "EHLO
+        id S241125AbjDZOy1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 26 Apr 2023 10:54:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241084AbjDZNst (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 26 Apr 2023 09:48:49 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7A765586;
-        Wed, 26 Apr 2023 06:48:45 -0700 (PDT)
-Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 33QDb5aS006964;
-        Wed, 26 Apr 2023 13:48:44 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=haMxrfNCcZsNWCFNARsj7f0YXA0WezkWwKNzmYY7JKA=;
- b=ocEB6I71njLSFw4H8v4riWhXayMCnmBjL+kHG2cu3Y+m+UvT0Ok5gjyR6O5PioTWB6i9
- JO2L6X+/yVyh00bmFXjVNFGRrCJRr3ZYLVo3vYTkebeDtIkupi1uk3vFrtiG/UQ9AFR1
- cK6NTWQCsxWT0lKUE6WxX8pJeqGsp9Z00tw6MnZPpND6lFN0iE118s26a/1OSVGmS7AX
- 9kCy/F9x73P8YnQCO6hBgpYkM8qmIkRXxsUdd/QEkZ/NxWBrYgopvOH+pI2OullRMjMh
- RzRrz/L60XoKXsSX4ZR+Nyht6CK615YAuw8s5xzdPxxyjniDkkcXGuX1ra0OSBpv8hfZ Rg== 
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3q74usgkf6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 26 Apr 2023 13:48:43 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 33QCTjnn017020;
-        Wed, 26 Apr 2023 13:48:40 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma01fra.de.ibm.com (PPS) with ESMTPS id 3q47771yum-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 26 Apr 2023 13:48:40 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 33QDmYoY46072202
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 26 Apr 2023 13:48:35 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DC2E920040;
-        Wed, 26 Apr 2023 13:48:34 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 97A452004B;
-        Wed, 26 Apr 2023 13:48:34 +0000 (GMT)
-Received: from p-imbrenda.boeblingen.de.ibm.com (unknown [9.152.224.56])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 26 Apr 2023 13:48:34 +0000 (GMT)
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     kvm@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        frankja@linux.ibm.com, borntraeger@de.ibm.com, nrb@linux.ibm.com,
-        nsg@linux.ibm.com, seiden@linux.ibm.com, jgg@nvidia.com
-Subject: [PATCH v2 1/1] KVM: s390: fix race in gmap_make_secure
-Date:   Wed, 26 Apr 2023 15:48:34 +0200
-Message-Id: <20230426134834.35199-2-imbrenda@linux.ibm.com>
-X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230426134834.35199-1-imbrenda@linux.ibm.com>
-References: <20230426134834.35199-1-imbrenda@linux.ibm.com>
+        with ESMTP id S240623AbjDZOy0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 26 Apr 2023 10:54:26 -0400
+Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 034906E91;
+        Wed, 26 Apr 2023 07:54:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1682520864; x=1714056864;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=4m9wk/nfUu+Ko6ZOipEux5/ofaGiWcx58iIPXEvzblM=;
+  b=WiLWAfFkIQtiyZ+muKWk/fKmYW4sDI4OHNVcUtW97+R3c1JqYFQoUhMV
+   FJZ0kcqjIR+2nyfB+RcsHyrkzJX4tcqNWirSmm5+jo8ojQ8O1YSxiEVDc
+   GF8Nf5hGiRU4WHadT2ysLJYgJ1YoZ4FWb9NiabuzS0dyznpWTZk+fqh6U
+   UvSQ7fIgbCuzRV/MzBvCgaPsVUSPtJ+lTOxCk2GJEs6q8DB0kQCjoF84v
+   EEqYDC4t8pThmK0Qpz1UW6IK0Uhd6rqX5iqFtOSFvDoT3KRJXjqCf2miW
+   KunAhB/HlwxNLtYIxolXs/LcP/HpZ947yuTAtvSpRJ9RIGaGpaRZLucFh
+   w==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10692"; a="433410206"
+X-IronPort-AV: E=Sophos;i="5.99,228,1677571200"; 
+   d="scan'208";a="433410206"
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Apr 2023 07:54:23 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10692"; a="758643974"
+X-IronPort-AV: E=Sophos;i="5.99,228,1677571200"; 
+   d="scan'208";a="758643974"
+Received: from 984fee00a4c6.jf.intel.com ([10.165.58.231])
+  by fmsmga008.fm.intel.com with ESMTP; 26 Apr 2023 07:54:21 -0700
+From:   Yi Liu <yi.l.liu@intel.com>
+To:     alex.williamson@redhat.com, jgg@nvidia.com, kevin.tian@intel.com
+Cc:     joro@8bytes.org, robin.murphy@arm.com, cohuck@redhat.com,
+        eric.auger@redhat.com, nicolinc@nvidia.com, kvm@vger.kernel.org,
+        mjrosato@linux.ibm.com, chao.p.peng@linux.intel.com,
+        yi.l.liu@intel.com, yi.y.sun@linux.intel.com, peterx@redhat.com,
+        jasowang@redhat.com, shameerali.kolothum.thodi@huawei.com,
+        lulu@redhat.com, suravee.suthikulpanit@amd.com,
+        intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, linux-s390@vger.kernel.org,
+        xudong.hao@intel.com, yan.y.zhao@intel.com, terrence.xu@intel.com,
+        yanting.jiang@intel.com, zhenzhong.duan@intel.com
+Subject: [PATCH v4 0/9] Enhance vfio PCI hot reset for vfio cdev device
+Date:   Wed, 26 Apr 2023 07:54:10 -0700
+Message-Id: <20230426145419.450922-1-yi.l.liu@intel.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: H5ChbVY5Mlg6xUB7uQRnAt0mWqOJEbU7
-X-Proofpoint-ORIG-GUID: H5ChbVY5Mlg6xUB7uQRnAt0mWqOJEbU7
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-04-26_06,2023-04-26_03,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 phishscore=0
- impostorscore=0 malwarescore=0 suspectscore=0 adultscore=0 spamscore=0
- bulkscore=0 lowpriorityscore=0 mlxlogscore=787 clxscore=1015
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2303200000 definitions=main-2304260121
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This patch fixes a potential race in gmap_make_secure and removes the
-last user of follow_page without FOLL_GET.
+VFIO_DEVICE_PCI_HOT_RESET requires user to pass an array of group fds
+to prove that it owns all devices affected by resetting the calling
+device. While for cdev devices, user can use an iommufd-based ownership
+checking model and invoke VFIO_DEVICE_PCI_HOT_RESET with a zero-length
+fd array.
 
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Suggested-by: Jason Gunthorpe <jgg@nvidia.com>
-Fixes: 214d9bbcd3a6 ("s390/mm: provide memory management functions for protected KVM guests")
----
- arch/s390/kernel/uv.c | 32 +++++++++++---------------------
- 1 file changed, 11 insertions(+), 21 deletions(-)
+This series first creates iommufd_access for noiommu devices to fill the
+gap for adding iommufd-based ownership checking model, then extends
+VFIO_DEVICE_GET_PCI_HOT_RESET_INFO to check ownership and return the
+check result and the devid of affected devices to user. In the end, extends
+the VFIO_DEVICE_PCI_HOT_RESET to accept zero-length fd array for hot-reset
+with cdev devices.
 
-diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
-index 9f18a4af9c13..cb2ee06df286 100644
---- a/arch/s390/kernel/uv.c
-+++ b/arch/s390/kernel/uv.c
-@@ -192,21 +192,10 @@ static int expected_page_refs(struct page *page)
- 	return res;
- }
- 
--static int make_secure_pte(pte_t *ptep, unsigned long addr,
--			   struct page *exp_page, struct uv_cb_header *uvcb)
-+static int make_page_secure(struct page *page, struct uv_cb_header *uvcb)
- {
--	pte_t entry = READ_ONCE(*ptep);
--	struct page *page;
- 	int expected, cc = 0;
- 
--	if (!pte_present(entry))
--		return -ENXIO;
--	if (pte_val(entry) & _PAGE_INVALID)
--		return -ENXIO;
--
--	page = pte_page(entry);
--	if (page != exp_page)
--		return -ENXIO;
- 	if (PageWriteback(page))
- 		return -EAGAIN;
- 	expected = expected_page_refs(page);
-@@ -304,17 +293,18 @@ int gmap_make_secure(struct gmap *gmap, unsigned long gaddr, void *uvcb)
- 		goto out;
- 
- 	rc = -ENXIO;
--	page = follow_page(vma, uaddr, FOLL_WRITE);
--	if (IS_ERR_OR_NULL(page))
--		goto out;
--
--	lock_page(page);
- 	ptep = get_locked_pte(gmap->mm, uaddr, &ptelock);
--	if (should_export_before_import(uvcb, gmap->mm))
--		uv_convert_from_secure(page_to_phys(page));
--	rc = make_secure_pte(ptep, uaddr, page, uvcb);
-+	if (pte_present(*ptep) && !(pte_val(*ptep) & _PAGE_INVALID) && pte_write(*ptep)) {
-+		page = pte_page(*ptep);
-+		rc = -EAGAIN;
-+		if (trylock_page(page)) {
-+			if (should_export_before_import(uvcb, gmap->mm))
-+				uv_convert_from_secure(page_to_phys(page));
-+			rc = make_page_secure(page, uvcb);
-+			unlock_page(page);
-+		}
-+	}
- 	pte_unmap_unlock(ptep, ptelock);
--	unlock_page(page);
- out:
- 	mmap_read_unlock(gmap->mm);
- 
+The new hot reset method and updated _INFO ioctl are tested with the
+below qemu:
+
+https://github.com/yiliu1765/qemu/tree/iommufd_rfcv4.mig.reset.v4_var3
+(requires to test with the cdev kernel)
+
+Change log:
+
+v4:
+ - Rename the patch series subject
+ - Patch 01 is moved from the cdev series
+ - Patch 02, 06 are new per review comments in v3
+ - Patch 03/04/05/07/08/09 are from v3 with updates
+
+v3: https://lore.kernel.org/kvm/20230401144429.88673-1-yi.l.liu@intel.com/
+ - Remove the new _INFO ioctl of v2, extend the existing _INFO ioctl to
+   report devid (Alex)
+ - Add r-b from Jason
+ - Add t-b from Terrence Xu and Yanting Jiang (mainly regression test)
+
+v2: https://lore.kernel.org/kvm/20230327093458.44939-1-yi.l.liu@intel.com/
+ - Split the patch 03 of v1 to be 03, 04 and 05 of v2 (Jaon)
+ - Add r-b from Kevin and Jason
+ - Add patch 10 to introduce a new _INFO ioctl for the usage of device
+   fd passing usage in cdev path (Jason, Alex)
+
+v1: https://lore.kernel.org/kvm/20230316124156.12064-1-yi.l.liu@intel.com/
+
+Regards,
+	Yi Liu
+
+Yi Liu (9):
+  vfio: Determine noiommu in vfio_device registration
+  vfio-iommufd: Create iommufd_access for noiommu devices
+  vfio/pci: Update comment around group_fd get in
+    vfio_pci_ioctl_pci_hot_reset()
+  vfio/pci: Move the existing hot reset logic to be a helper
+  vfio: Mark cdev usage in vfio_device
+  iommufd: Reserved -1 in the iommufd xarray
+  vfio-iommufd: Add helper to retrieve iommufd_ctx and devid for
+    vfio_device
+  vfio/pci: Extend VFIO_DEVICE_GET_PCI_HOT_RESET_INFO for vfio device
+    cdev
+  vfio/pci: Allow passing zero-length fd array in
+    VFIO_DEVICE_PCI_HOT_RESET
+
+ drivers/iommu/iommufd/device.c   |  24 ++++
+ drivers/iommu/iommufd/main.c     |   5 +-
+ drivers/vfio/iommufd.c           |  48 +++++--
+ drivers/vfio/pci/vfio_pci_core.c | 223 +++++++++++++++++++++++++------
+ drivers/vfio/vfio.h              |   7 +-
+ drivers/vfio/vfio_main.c         |   4 +
+ include/linux/iommufd.h          |   6 +
+ include/linux/vfio.h             |  22 +++
+ include/uapi/linux/vfio.h        |  61 ++++++++-
+ 9 files changed, 347 insertions(+), 53 deletions(-)
+
 -- 
-2.40.0
+2.34.1
 
