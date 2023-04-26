@@ -2,250 +2,206 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BBFDEC7EE23
-	for <linux-s390@archiver.kernel.org>; Wed, 26 Apr 2023 12:52:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1509DC77B60
+	for <linux-s390@archiver.kernel.org>; Wed, 26 Apr 2023 13:08:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240889AbjDZMwt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 26 Apr 2023 08:52:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32816 "EHLO
+        id S241029AbjDZNIK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 26 Apr 2023 09:08:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240929AbjDZMwq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 26 Apr 2023 08:52:46 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7177C359E;
-        Wed, 26 Apr 2023 05:52:38 -0700 (PDT)
-Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 33QCVXBb008891;
-        Wed, 26 Apr 2023 12:52:37 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=qu7FA3s44B3/zqMfTelpRqTXazoscEo1xo9TkjcxFF0=;
- b=UDK0ebwnvmo1/dGM2RlSiz81WnyJOhgWrw2eiF9MgolOPTjYEhIU+RKSf1jojfBVFw+T
- vxMNmPQW1IQmyB864KNrofjyMdupZkAvP4F6ima9sWbXx3hl3Vxea2SZjOHLms2iRDLp
- KRGhH6JwoGR637Isk+/drTUOYotDLk225/A2WaNgTXTLzhBYkqMa4VZg3Z1Iq4sMzdCj
- 1/pFYX9+P+u7iqe/4NypmcZwp15tfSbL9xDy6Zj/JfPOgQ0QDrQOnnnN7hXJsWp/ydyM
- bpmxbv/+scyAErbriqkcVi/1BJTJd8kkTPqiWjgSsJ1o/4DFQrQPbh8KIQyQOXwHnJQI cg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3q73sus47q-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 26 Apr 2023 12:52:37 +0000
-Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 33QCpUNs031081;
-        Wed, 26 Apr 2023 12:52:36 GMT
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3q73sus461-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 26 Apr 2023 12:52:36 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 33QCTK4d015115;
-        Wed, 26 Apr 2023 12:52:34 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma02fra.de.ibm.com (PPS) with ESMTPS id 3q47771xur-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 26 Apr 2023 12:52:33 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 33QCqUVu47972654
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 26 Apr 2023 12:52:30 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7C1FB20049;
-        Wed, 26 Apr 2023 12:52:30 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DDEEB20040;
-        Wed, 26 Apr 2023 12:52:29 +0000 (GMT)
-Received: from li-9fd7f64c-3205-11b2-a85c-df942b00d78d.ibm.com.com (unknown [9.171.39.26])
-        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 26 Apr 2023 12:52:29 +0000 (GMT)
-From:   Janosch Frank <frankja@linux.ibm.com>
-To:     pbonzini@redhat.com
-Cc:     kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com,
-        borntraeger@linux.ibm.com, cohuck@redhat.com,
-        linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        Pierre Morel <pmorel@linux.ibm.com>
-Subject: [GIT PULL 2/3] KVM: s390: vsie: clarifications on setting the APCB
-Date:   Wed, 26 Apr 2023 14:51:18 +0200
-Message-Id: <20230426125119.11472-3-frankja@linux.ibm.com>
-X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230426125119.11472-1-frankja@linux.ibm.com>
-References: <20230426125119.11472-1-frankja@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: o-LBliDWtRcD7d8R2obYtlP94ANNU696
-X-Proofpoint-GUID: 9MKNmmSsFJ60A1z-doIuHbMmxZilcUBS
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        with ESMTP id S241032AbjDZNII (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 26 Apr 2023 09:08:08 -0400
+Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27487449D;
+        Wed, 26 Apr 2023 06:08:04 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R461e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=21;SR=0;TI=SMTPD_---0Vh3QWc2_1682514478;
+Received: from 30.221.144.140(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0Vh3QWc2_1682514478)
+          by smtp.aliyun-inc.com;
+          Wed, 26 Apr 2023 21:08:00 +0800
+Message-ID: <4253f27c-2c5e-3033-14b3-6e31ee344e8b@linux.alibaba.com>
+Date:   Wed, 26 Apr 2023 21:07:58 +0800
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-04-26_05,2023-04-26_03,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 malwarescore=0
- phishscore=0 suspectscore=0 spamscore=0 impostorscore=0 clxscore=1015
- bulkscore=0 lowpriorityscore=0 priorityscore=1501 mlxlogscore=999
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2303200000 definitions=main-2304260112
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.10.0
+Subject: Re: [PATCH v3 51/55] smc: Drop smc_sendpage() in favour of
+ smc_sendmsg() + MSG_SPLICE_PAGES
+Content-Language: en-US
+To:     David Howells <dhowells@redhat.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>
+Cc:     Al Viro <viro@zeniv.linux.org.uk>,
+        Christoph Hellwig <hch@infradead.org>,
+        Jens Axboe <axboe@kernel.dk>, Jeff Layton <jlayton@kernel.org>,
+        Christian Brauner <brauner@kernel.org>,
+        Chuck Lever III <chuck.lever@oracle.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        netdev@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Jan Karcher <jaka@linux.ibm.com>, linux-s390@vger.kernel.org
+References: <20230331160914.1608208-1-dhowells@redhat.com>
+ <20230331160914.1608208-52-dhowells@redhat.com>
+From:   "D. Wythe" <alibuda@linux.alibaba.com>
+In-Reply-To: <20230331160914.1608208-52-dhowells@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Pierre Morel <pmorel@linux.ibm.com>
 
-The APCB is part of the CRYCB.
-The calculation of the APCB origin can be done by adding
-the APCB offset to the CRYCB origin.
+Hi David,
 
-Current code makes confusing transformations, converting
-the CRYCB origin to a pointer to calculate the APCB origin.
+Fallback is one of the most important features of SMC, which 
+automatically downgrades to TCP
+when SMC discovers that the peer does not support SMC. After fallback, 
+SMC hopes the the ability can be
+consistent with that of TCP sock. If you delete the smc_sendpage, when 
+fallback occurs, it means that the sock after the fallback
+loses the ability of  sendpage( tcp_sendpage).
 
-Let's make things simpler and keep the CRYCB origin to make
-these calculations.
+Thanks
+D. Wythe
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Acked-by: Janosch Frank <frankja@linux.ibm.com>
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Link: https://lore.kernel.org/r/20230214122841.13066-2-pmorel@linux.ibm.com
-Message-Id: <20230214122841.13066-2-pmorel@linux.ibm.com>
----
- arch/s390/kvm/vsie.c | 50 +++++++++++++++++++++++++-------------------
- 1 file changed, 29 insertions(+), 21 deletions(-)
-
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index b6a0219e470a..8d6b765abf29 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -138,11 +138,15 @@ static int prepare_cpuflags(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- }
- /* Copy to APCB FORMAT1 from APCB FORMAT0 */
- static int setup_apcb10(struct kvm_vcpu *vcpu, struct kvm_s390_apcb1 *apcb_s,
--			unsigned long apcb_o, struct kvm_s390_apcb1 *apcb_h)
-+			unsigned long crycb_gpa, struct kvm_s390_apcb1 *apcb_h)
- {
- 	struct kvm_s390_apcb0 tmp;
-+	unsigned long apcb_gpa;
- 
--	if (read_guest_real(vcpu, apcb_o, &tmp, sizeof(struct kvm_s390_apcb0)))
-+	apcb_gpa = crycb_gpa + offsetof(struct kvm_s390_crypto_cb, apcb0);
-+
-+	if (read_guest_real(vcpu, apcb_gpa, &tmp,
-+			    sizeof(struct kvm_s390_apcb0)))
- 		return -EFAULT;
- 
- 	apcb_s->apm[0] = apcb_h->apm[0] & tmp.apm[0];
-@@ -157,15 +161,19 @@ static int setup_apcb10(struct kvm_vcpu *vcpu, struct kvm_s390_apcb1 *apcb_s,
-  * setup_apcb00 - Copy to APCB FORMAT0 from APCB FORMAT0
-  * @vcpu: pointer to the virtual CPU
-  * @apcb_s: pointer to start of apcb in the shadow crycb
-- * @apcb_o: pointer to start of original apcb in the guest2
-+ * @crycb_gpa: guest physical address to start of original guest crycb
-  * @apcb_h: pointer to start of apcb in the guest1
-  *
-  * Returns 0 and -EFAULT on error reading guest apcb
-  */
- static int setup_apcb00(struct kvm_vcpu *vcpu, unsigned long *apcb_s,
--			unsigned long apcb_o, unsigned long *apcb_h)
-+			unsigned long crycb_gpa, unsigned long *apcb_h)
- {
--	if (read_guest_real(vcpu, apcb_o, apcb_s,
-+	unsigned long apcb_gpa;
-+
-+	apcb_gpa = crycb_gpa + offsetof(struct kvm_s390_crypto_cb, apcb0);
-+
-+	if (read_guest_real(vcpu, apcb_gpa, apcb_s,
- 			    sizeof(struct kvm_s390_apcb0)))
- 		return -EFAULT;
- 
-@@ -178,16 +186,20 @@ static int setup_apcb00(struct kvm_vcpu *vcpu, unsigned long *apcb_s,
-  * setup_apcb11 - Copy the FORMAT1 APCB from the guest to the shadow CRYCB
-  * @vcpu: pointer to the virtual CPU
-  * @apcb_s: pointer to start of apcb in the shadow crycb
-- * @apcb_o: pointer to start of original guest apcb
-+ * @crycb_gpa: guest physical address to start of original guest crycb
-  * @apcb_h: pointer to start of apcb in the host
-  *
-  * Returns 0 and -EFAULT on error reading guest apcb
-  */
- static int setup_apcb11(struct kvm_vcpu *vcpu, unsigned long *apcb_s,
--			unsigned long apcb_o,
-+			unsigned long crycb_gpa,
- 			unsigned long *apcb_h)
- {
--	if (read_guest_real(vcpu, apcb_o, apcb_s,
-+	unsigned long apcb_gpa;
-+
-+	apcb_gpa = crycb_gpa + offsetof(struct kvm_s390_crypto_cb, apcb1);
-+
-+	if (read_guest_real(vcpu, apcb_gpa, apcb_s,
- 			    sizeof(struct kvm_s390_apcb1)))
- 		return -EFAULT;
- 
-@@ -200,7 +212,7 @@ static int setup_apcb11(struct kvm_vcpu *vcpu, unsigned long *apcb_s,
-  * setup_apcb - Create a shadow copy of the apcb.
-  * @vcpu: pointer to the virtual CPU
-  * @crycb_s: pointer to shadow crycb
-- * @crycb_o: pointer to original guest crycb
-+ * @crycb_gpa: guest physical address of original guest crycb
-  * @crycb_h: pointer to the host crycb
-  * @fmt_o: format of the original guest crycb.
-  * @fmt_h: format of the host crycb.
-@@ -211,50 +223,46 @@ static int setup_apcb11(struct kvm_vcpu *vcpu, unsigned long *apcb_s,
-  * Return 0 or an error number if the guest and host crycb are incompatible.
-  */
- static int setup_apcb(struct kvm_vcpu *vcpu, struct kvm_s390_crypto_cb *crycb_s,
--	       const u32 crycb_o,
-+	       const u32 crycb_gpa,
- 	       struct kvm_s390_crypto_cb *crycb_h,
- 	       int fmt_o, int fmt_h)
- {
--	struct kvm_s390_crypto_cb *crycb;
--
--	crycb = (struct kvm_s390_crypto_cb *) (unsigned long)crycb_o;
--
- 	switch (fmt_o) {
- 	case CRYCB_FORMAT2:
--		if ((crycb_o & PAGE_MASK) != ((crycb_o + 256) & PAGE_MASK))
-+		if ((crycb_gpa & PAGE_MASK) != ((crycb_gpa + 256) & PAGE_MASK))
- 			return -EACCES;
- 		if (fmt_h != CRYCB_FORMAT2)
- 			return -EINVAL;
- 		return setup_apcb11(vcpu, (unsigned long *)&crycb_s->apcb1,
--				    (unsigned long) &crycb->apcb1,
-+				    crycb_gpa,
- 				    (unsigned long *)&crycb_h->apcb1);
- 	case CRYCB_FORMAT1:
- 		switch (fmt_h) {
- 		case CRYCB_FORMAT2:
- 			return setup_apcb10(vcpu, &crycb_s->apcb1,
--					    (unsigned long) &crycb->apcb0,
-+					    crycb_gpa,
- 					    &crycb_h->apcb1);
- 		case CRYCB_FORMAT1:
- 			return setup_apcb00(vcpu,
- 					    (unsigned long *) &crycb_s->apcb0,
--					    (unsigned long) &crycb->apcb0,
-+					    crycb_gpa,
- 					    (unsigned long *) &crycb_h->apcb0);
- 		}
- 		break;
- 	case CRYCB_FORMAT0:
--		if ((crycb_o & PAGE_MASK) != ((crycb_o + 32) & PAGE_MASK))
-+		if ((crycb_gpa & PAGE_MASK) != ((crycb_gpa + 32) & PAGE_MASK))
- 			return -EACCES;
- 
- 		switch (fmt_h) {
- 		case CRYCB_FORMAT2:
- 			return setup_apcb10(vcpu, &crycb_s->apcb1,
--					    (unsigned long) &crycb->apcb0,
-+					    crycb_gpa,
- 					    &crycb_h->apcb1);
- 		case CRYCB_FORMAT1:
- 		case CRYCB_FORMAT0:
- 			return setup_apcb00(vcpu,
- 					    (unsigned long *) &crycb_s->apcb0,
--					    (unsigned long) &crycb->apcb0,
-+					    crycb_gpa,
- 					    (unsigned long *) &crycb_h->apcb0);
- 		}
- 	}
--- 
-2.40.0
+On 4/1/23 12:09 AM, David Howells wrote:
+> Drop the smc_sendpage() code as smc_sendmsg() just passes the call down to
+> the underlying TCP socket and smc_tx_sendpage() is just a wrapper around
+> its sendmsg implementation.
+>
+> Signed-off-by: David Howells <dhowells@redhat.com>
+> cc: Karsten Graul <kgraul@linux.ibm.com>
+> cc: Wenjia Zhang <wenjia@linux.ibm.com>
+> cc: Jan Karcher <jaka@linux.ibm.com>
+> cc: "David S. Miller" <davem@davemloft.net>
+> cc: Eric Dumazet <edumazet@google.com>
+> cc: Jakub Kicinski <kuba@kernel.org>
+> cc: Paolo Abeni <pabeni@redhat.com>
+> cc: Jens Axboe <axboe@kernel.dk>
+> cc: Matthew Wilcox <willy@infradead.org>
+> cc: linux-s390@vger.kernel.org
+> cc: netdev@vger.kernel.org
+> ---
+>   net/smc/af_smc.c    | 29 -----------------------------
+>   net/smc/smc_stats.c |  2 +-
+>   net/smc/smc_stats.h |  1 -
+>   net/smc/smc_tx.c    | 16 ----------------
+>   net/smc/smc_tx.h    |  2 --
+>   5 files changed, 1 insertion(+), 49 deletions(-)
+>
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> index a4cccdfdc00a..d4113c8a7cda 100644
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -3125,34 +3125,6 @@ static int smc_ioctl(struct socket *sock, unsigned int cmd,
+>   	return put_user(answ, (int __user *)arg);
+>   }
+>   
+> -static ssize_t smc_sendpage(struct socket *sock, struct page *page,
+> -			    int offset, size_t size, int flags)
+> -{
+> -	struct sock *sk = sock->sk;
+> -	struct smc_sock *smc;
+> -	int rc = -EPIPE;
+> -
+> -	smc = smc_sk(sk);
+> -	lock_sock(sk);
+> -	if (sk->sk_state != SMC_ACTIVE) {
+> -		release_sock(sk);
+> -		goto out;
+> -	}
+> -	release_sock(sk);
+> -	if (smc->use_fallback) {
+> -		rc = kernel_sendpage(smc->clcsock, page, offset,
+> -				     size, flags);
+> -	} else {
+> -		lock_sock(sk);
+> -		rc = smc_tx_sendpage(smc, page, offset, size, flags);
+> -		release_sock(sk);
+> -		SMC_STAT_INC(smc, sendpage_cnt);
+> -	}
+> -
+> -out:
+> -	return rc;
+> -}
+> -
+>   /* Map the affected portions of the rmbe into an spd, note the number of bytes
+>    * to splice in conn->splice_pending, and press 'go'. Delays consumer cursor
+>    * updates till whenever a respective page has been fully processed.
+> @@ -3224,7 +3196,6 @@ static const struct proto_ops smc_sock_ops = {
+>   	.sendmsg	= smc_sendmsg,
+>   	.recvmsg	= smc_recvmsg,
+>   	.mmap		= sock_no_mmap,
+> -	.sendpage	= smc_sendpage,
+>   	.splice_read	= smc_splice_read,
+>   };
+>   
+> diff --git a/net/smc/smc_stats.c b/net/smc/smc_stats.c
+> index e80e34f7ac15..ca14c0f3a07d 100644
+> --- a/net/smc/smc_stats.c
+> +++ b/net/smc/smc_stats.c
+> @@ -227,7 +227,7 @@ static int smc_nl_fill_stats_tech_data(struct sk_buff *skb,
+>   			      SMC_NLA_STATS_PAD))
+>   		goto errattr;
+>   	if (nla_put_u64_64bit(skb, SMC_NLA_STATS_T_SENDPAGE_CNT,
+> -			      smc_tech->sendpage_cnt,
+> +			      0,
+>   			      SMC_NLA_STATS_PAD))
+>   		goto errattr;
+>   	if (nla_put_u64_64bit(skb, SMC_NLA_STATS_T_CORK_CNT,
+> diff --git a/net/smc/smc_stats.h b/net/smc/smc_stats.h
+> index 84b7ecd8c05c..b60fe1eb37ab 100644
+> --- a/net/smc/smc_stats.h
+> +++ b/net/smc/smc_stats.h
+> @@ -71,7 +71,6 @@ struct smc_stats_tech {
+>   	u64			clnt_v2_succ_cnt;
+>   	u64			srv_v1_succ_cnt;
+>   	u64			srv_v2_succ_cnt;
+> -	u64			sendpage_cnt;
+>   	u64			urg_data_cnt;
+>   	u64			splice_cnt;
+>   	u64			cork_cnt;
+> diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
+> index f4b6a71ac488..d31ce8209fa2 100644
+> --- a/net/smc/smc_tx.c
+> +++ b/net/smc/smc_tx.c
+> @@ -298,22 +298,6 @@ int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len)
+>   	return rc;
+>   }
+>   
+> -int smc_tx_sendpage(struct smc_sock *smc, struct page *page, int offset,
+> -		    size_t size, int flags)
+> -{
+> -	struct msghdr msg = {.msg_flags = flags};
+> -	char *kaddr = kmap(page);
+> -	struct kvec iov;
+> -	int rc;
+> -
+> -	iov.iov_base = kaddr + offset;
+> -	iov.iov_len = size;
+> -	iov_iter_kvec(&msg.msg_iter, ITER_SOURCE, &iov, 1, size);
+> -	rc = smc_tx_sendmsg(smc, &msg, size);
+> -	kunmap(page);
+> -	return rc;
+> -}
+> -
+>   /***************************** sndbuf consumer *******************************/
+>   
+>   /* sndbuf consumer: actual data transfer of one target chunk with ISM write */
+> diff --git a/net/smc/smc_tx.h b/net/smc/smc_tx.h
+> index 34b578498b1f..a59f370b8b43 100644
+> --- a/net/smc/smc_tx.h
+> +++ b/net/smc/smc_tx.h
+> @@ -31,8 +31,6 @@ void smc_tx_pending(struct smc_connection *conn);
+>   void smc_tx_work(struct work_struct *work);
+>   void smc_tx_init(struct smc_sock *smc);
+>   int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len);
+> -int smc_tx_sendpage(struct smc_sock *smc, struct page *page, int offset,
+> -		    size_t size, int flags);
+>   int smc_tx_sndbuf_nonempty(struct smc_connection *conn);
+>   void smc_tx_sndbuf_nonfull(struct smc_sock *smc);
+>   void smc_tx_consumer_update(struct smc_connection *conn, bool force);
 
