@@ -2,206 +2,149 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1509DC77B60
-	for <linux-s390@archiver.kernel.org>; Wed, 26 Apr 2023 13:08:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 53A6AC7618E
+	for <linux-s390@archiver.kernel.org>; Wed, 26 Apr 2023 13:21:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241029AbjDZNIK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 26 Apr 2023 09:08:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42454 "EHLO
+        id S240983AbjDZNVN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 26 Apr 2023 09:21:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241032AbjDZNII (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 26 Apr 2023 09:08:08 -0400
-Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27487449D;
-        Wed, 26 Apr 2023 06:08:04 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R461e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=21;SR=0;TI=SMTPD_---0Vh3QWc2_1682514478;
-Received: from 30.221.144.140(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0Vh3QWc2_1682514478)
-          by smtp.aliyun-inc.com;
-          Wed, 26 Apr 2023 21:08:00 +0800
-Message-ID: <4253f27c-2c5e-3033-14b3-6e31ee344e8b@linux.alibaba.com>
-Date:   Wed, 26 Apr 2023 21:07:58 +0800
+        with ESMTP id S240864AbjDZNVM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 26 Apr 2023 09:21:12 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D13AA2
+        for <linux-s390@vger.kernel.org>; Wed, 26 Apr 2023 06:20:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1682515224;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=3tF50+FCEBA470O0m1Pz3/uU72DgfPgXqci+5b6Z6Us=;
+        b=hTUQm9txUiL8QnN3F5ADFPh7bsJqv5X4+cZqB/p5uLZRudJy0+wepI4V+bu7lI3am/TSdJ
+        09Z6a3wH0WRWLYHXH6XxJZhqMqppKgk2pCTANRLCOtr0coPSzLKBY9ukHWuPdx+oiSGqIP
+        cvnmjCko9//OJtZXst07TvrVXj1P1Tw=
+Received: from mail-io1-f69.google.com (mail-io1-f69.google.com
+ [209.85.166.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-646-pjhxSxyfNQCIUKyLxM7PZg-1; Wed, 26 Apr 2023 09:20:23 -0400
+X-MC-Unique: pjhxSxyfNQCIUKyLxM7PZg-1
+Received: by mail-io1-f69.google.com with SMTP id ca18e2360f4ac-760ed929d24so1030974439f.2
+        for <linux-s390@vger.kernel.org>; Wed, 26 Apr 2023 06:20:23 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1682515222; x=1685107222;
+        h=content-transfer-encoding:mime-version:organization:references
+         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=3tF50+FCEBA470O0m1Pz3/uU72DgfPgXqci+5b6Z6Us=;
+        b=Pxa+gvq4EU46AQRmGaMtz05FB4LRGkybn++Q+ds0VkmydfSwA0NHDBDUonGYeJtKOl
+         egwKIn9R/iQMiEKGqRjmVio7KMOZcM2OrBAwEa/bOblYR/NYIVoUXaCn7IRNDRCs6ma8
+         gPgS7RfbQM/b0JqkZifMp1UT2KzowBbW7aEAi1yLTcKrwH4Vrzi8HKMl2aJShzmFU5XE
+         /S+PrLk34YBWV0whJ75KAG7hxQbK5/j4+pcQd8jFitRuOtEapelc3r5lMnDFDmTyHi3O
+         eYRZ/0iUDtaqb/pqQjFx5SpKZvExRBqIspyitC1Etb97P2BTtwzOfr67Ws1XcL0YuC1y
+         meFQ==
+X-Gm-Message-State: AAQBX9d4QydPGgFNUWOHjdQ0LDI3zBTHd6V0GNF2u5wtFqt1cDEppntN
+        azcMugBQKYfsZk+vVcHTvV1CJ4WF/n44I3FyrQG0xQgpGUAM+bum3NgbYFNbeWxbd/RDCFjg8uk
+        sfKNthWxPhlfPbEOnqOSiAw==
+X-Received: by 2002:a5d:96c2:0:b0:763:6b5a:cb1e with SMTP id r2-20020a5d96c2000000b007636b5acb1emr9806279iol.10.1682515222505;
+        Wed, 26 Apr 2023 06:20:22 -0700 (PDT)
+X-Google-Smtp-Source: AKy350bVAxUZl+SaNxB4KtQp9lG5YMqf1m8i1/etdz67vKvzBfIWPiTagkhyoXG3sdYL8vcNxrib3g==
+X-Received: by 2002:a5d:96c2:0:b0:763:6b5a:cb1e with SMTP id r2-20020a5d96c2000000b007636b5acb1emr9806258iol.10.1682515222228;
+        Wed, 26 Apr 2023 06:20:22 -0700 (PDT)
+Received: from redhat.com ([38.15.36.239])
+        by smtp.gmail.com with ESMTPSA id h20-20020a5d9e14000000b0075d23c433efsm4465857ioh.29.2023.04.26.06.20.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 26 Apr 2023 06:20:21 -0700 (PDT)
+Date:   Wed, 26 Apr 2023 07:20:20 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     "Liu, Yi L" <yi.l.liu@intel.com>
+Cc:     Jason Gunthorpe <jgg@nvidia.com>,
+        "Tian, Kevin" <kevin.tian@intel.com>,
+        "eric.auger@redhat.com" <eric.auger@redhat.com>,
+        "joro@8bytes.org" <joro@8bytes.org>,
+        "robin.murphy@arm.com" <robin.murphy@arm.com>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
+        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
+        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
+        "peterx@redhat.com" <peterx@redhat.com>,
+        "jasowang@redhat.com" <jasowang@redhat.com>,
+        "shameerali.kolothum.thodi@huawei.com" 
+        <shameerali.kolothum.thodi@huawei.com>,
+        "lulu@redhat.com" <lulu@redhat.com>,
+        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
+        "intel-gvt-dev@lists.freedesktop.org" 
+        <intel-gvt-dev@lists.freedesktop.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "Hao, Xudong" <xudong.hao@intel.com>,
+        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
+        "Xu, Terrence" <terrence.xu@intel.com>,
+        "Jiang, Yanting" <yanting.jiang@intel.com>,
+        "Duan, Zhenzhong" <zhenzhong.duan@intel.com>
+Subject: Re: [PATCH v3 12/12] vfio/pci: Report dev_id in
+ VFIO_DEVICE_GET_PCI_HOT_RESET_INFO
+Message-ID: <20230426072020.62834ac6.alex.williamson@redhat.com>
+In-Reply-To: <DS0PR11MB75298CDC8108BA213243DBB8C3659@DS0PR11MB7529.namprd11.prod.outlook.com>
+References: <BN9PR11MB5276782DA56670C8209470828C989@BN9PR11MB5276.namprd11.prod.outlook.com>
+        <ZDfslVwqk6JtPpyD@nvidia.com>
+        <20230413120712.3b9bf42d.alex.williamson@redhat.com>
+        <BN9PR11MB5276A160CA699933B897C8C18C999@BN9PR11MB5276.namprd11.prod.outlook.com>
+        <DS0PR11MB7529B7481AC97261E12AA116C3999@DS0PR11MB7529.namprd11.prod.outlook.com>
+        <20230414111043.40c15dde.alex.williamson@redhat.com>
+        <DS0PR11MB75290A78D6879EC2E31E21AEC39C9@DS0PR11MB7529.namprd11.prod.outlook.com>
+        <20230417130140.1b68082e.alex.williamson@redhat.com>
+        <ZD2erN3nKbnyqei9@nvidia.com>
+        <20230417140642.650fc165.alex.williamson@redhat.com>
+        <ZD6TvA+9oI0v4vC2@nvidia.com>
+        <20230418123920.5d92f402.alex.williamson@redhat.com>
+        <DS0PR11MB7529C11E11F187D7BD88C18AC3639@DS0PR11MB7529.namprd11.prod.outlook.com>
+        <20230420080839.652732dc.alex.williamson@redhat.com>
+        <DS0PR11MB75298CDC8108BA213243DBB8C3659@DS0PR11MB7529.namprd11.prod.outlook.com>
+Organization: Red Hat
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.10.0
-Subject: Re: [PATCH v3 51/55] smc: Drop smc_sendpage() in favour of
- smc_sendmsg() + MSG_SPLICE_PAGES
-Content-Language: en-US
-To:     David Howells <dhowells@redhat.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>
-Cc:     Al Viro <viro@zeniv.linux.org.uk>,
-        Christoph Hellwig <hch@infradead.org>,
-        Jens Axboe <axboe@kernel.dk>, Jeff Layton <jlayton@kernel.org>,
-        Christian Brauner <brauner@kernel.org>,
-        Chuck Lever III <chuck.lever@oracle.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        netdev@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Jan Karcher <jaka@linux.ibm.com>, linux-s390@vger.kernel.org
-References: <20230331160914.1608208-1-dhowells@redhat.com>
- <20230331160914.1608208-52-dhowells@redhat.com>
-From:   "D. Wythe" <alibuda@linux.alibaba.com>
-In-Reply-To: <20230331160914.1608208-52-dhowells@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Wed, 26 Apr 2023 07:22:17 +0000
+"Liu, Yi L" <yi.l.liu@intel.com> wrote:
 
-Hi David,
+> > From: Alex Williamson <alex.williamson@redhat.com>
+> > Sent: Thursday, April 20, 2023 10:09 PM  
+> [...]
+> > > > Whereas dev-id < 0
+> > > > (== -1) is an affected device which prevents hot-reset, ex. an un-owned
+> > > > device, device configured within a different iommufd_ctx, or device
+> > > > opened outside of the vfio cdev API."  Is that about right?  Thanks,  
+> > >
+> > > Do you mean to have separate err-code for the three possibilities? As
+> > > the devid is generated by iommufd and it is u32. I'm not sure if we can
+> > > have such err-code definition without reserving some ids in iommufd.  
+> > 
+> > Yes, if we're going to report the full dev-set, I think we need at
+> > least two unique error codes or else the user has no way to determine
+> > the subset of invalid dev-ids which block the reset.  I think Jason is
+> > proposing the set of valid dev-ids are >0, a dev-id of zero indicates
+> > some form of non-blocking, while <0 (or maybe specifically -1)
+> > indicates a blocking device.  I was trying to get consensus on a formal
+> > definition of each of those error codes in my previous reply.  Thanks,  
+> 
+> Seems like RESETTABLE flag is not needed if we report -1 for the devices
+> that block hotreset. Userspace can deduce if the calling device is resettable
+> or not by checking if there is any -1 in the affected device list.
 
-Fallback is one of the most important features of SMC, which 
-automatically downgrades to TCP
-when SMC discovers that the peer does not support SMC. After fallback, 
-SMC hopes the the ability can be
-consistent with that of TCP sock. If you delete the smc_sendpage, when 
-fallback occurs, it means that the sock after the fallback
-loses the ability of  sendpage( tcp_sendpage).
+There is some redundancy there, yes.  Given the desire for a null array
+on the actual reset ioctl I assumed there would also be a desire to
+streamline the info ioctl such that userspace isn't required to parse
+the return array, for example maybe userspace isn't required to pass a
+full buffer and can get the reset availability status from only the
+header.  Of course it's still the responsibility of userspace to know
+the extent of the reset.  Thanks,
 
-Thanks
-D. Wythe
-
-On 4/1/23 12:09 AM, David Howells wrote:
-> Drop the smc_sendpage() code as smc_sendmsg() just passes the call down to
-> the underlying TCP socket and smc_tx_sendpage() is just a wrapper around
-> its sendmsg implementation.
->
-> Signed-off-by: David Howells <dhowells@redhat.com>
-> cc: Karsten Graul <kgraul@linux.ibm.com>
-> cc: Wenjia Zhang <wenjia@linux.ibm.com>
-> cc: Jan Karcher <jaka@linux.ibm.com>
-> cc: "David S. Miller" <davem@davemloft.net>
-> cc: Eric Dumazet <edumazet@google.com>
-> cc: Jakub Kicinski <kuba@kernel.org>
-> cc: Paolo Abeni <pabeni@redhat.com>
-> cc: Jens Axboe <axboe@kernel.dk>
-> cc: Matthew Wilcox <willy@infradead.org>
-> cc: linux-s390@vger.kernel.org
-> cc: netdev@vger.kernel.org
-> ---
->   net/smc/af_smc.c    | 29 -----------------------------
->   net/smc/smc_stats.c |  2 +-
->   net/smc/smc_stats.h |  1 -
->   net/smc/smc_tx.c    | 16 ----------------
->   net/smc/smc_tx.h    |  2 --
->   5 files changed, 1 insertion(+), 49 deletions(-)
->
-> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> index a4cccdfdc00a..d4113c8a7cda 100644
-> --- a/net/smc/af_smc.c
-> +++ b/net/smc/af_smc.c
-> @@ -3125,34 +3125,6 @@ static int smc_ioctl(struct socket *sock, unsigned int cmd,
->   	return put_user(answ, (int __user *)arg);
->   }
->   
-> -static ssize_t smc_sendpage(struct socket *sock, struct page *page,
-> -			    int offset, size_t size, int flags)
-> -{
-> -	struct sock *sk = sock->sk;
-> -	struct smc_sock *smc;
-> -	int rc = -EPIPE;
-> -
-> -	smc = smc_sk(sk);
-> -	lock_sock(sk);
-> -	if (sk->sk_state != SMC_ACTIVE) {
-> -		release_sock(sk);
-> -		goto out;
-> -	}
-> -	release_sock(sk);
-> -	if (smc->use_fallback) {
-> -		rc = kernel_sendpage(smc->clcsock, page, offset,
-> -				     size, flags);
-> -	} else {
-> -		lock_sock(sk);
-> -		rc = smc_tx_sendpage(smc, page, offset, size, flags);
-> -		release_sock(sk);
-> -		SMC_STAT_INC(smc, sendpage_cnt);
-> -	}
-> -
-> -out:
-> -	return rc;
-> -}
-> -
->   /* Map the affected portions of the rmbe into an spd, note the number of bytes
->    * to splice in conn->splice_pending, and press 'go'. Delays consumer cursor
->    * updates till whenever a respective page has been fully processed.
-> @@ -3224,7 +3196,6 @@ static const struct proto_ops smc_sock_ops = {
->   	.sendmsg	= smc_sendmsg,
->   	.recvmsg	= smc_recvmsg,
->   	.mmap		= sock_no_mmap,
-> -	.sendpage	= smc_sendpage,
->   	.splice_read	= smc_splice_read,
->   };
->   
-> diff --git a/net/smc/smc_stats.c b/net/smc/smc_stats.c
-> index e80e34f7ac15..ca14c0f3a07d 100644
-> --- a/net/smc/smc_stats.c
-> +++ b/net/smc/smc_stats.c
-> @@ -227,7 +227,7 @@ static int smc_nl_fill_stats_tech_data(struct sk_buff *skb,
->   			      SMC_NLA_STATS_PAD))
->   		goto errattr;
->   	if (nla_put_u64_64bit(skb, SMC_NLA_STATS_T_SENDPAGE_CNT,
-> -			      smc_tech->sendpage_cnt,
-> +			      0,
->   			      SMC_NLA_STATS_PAD))
->   		goto errattr;
->   	if (nla_put_u64_64bit(skb, SMC_NLA_STATS_T_CORK_CNT,
-> diff --git a/net/smc/smc_stats.h b/net/smc/smc_stats.h
-> index 84b7ecd8c05c..b60fe1eb37ab 100644
-> --- a/net/smc/smc_stats.h
-> +++ b/net/smc/smc_stats.h
-> @@ -71,7 +71,6 @@ struct smc_stats_tech {
->   	u64			clnt_v2_succ_cnt;
->   	u64			srv_v1_succ_cnt;
->   	u64			srv_v2_succ_cnt;
-> -	u64			sendpage_cnt;
->   	u64			urg_data_cnt;
->   	u64			splice_cnt;
->   	u64			cork_cnt;
-> diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
-> index f4b6a71ac488..d31ce8209fa2 100644
-> --- a/net/smc/smc_tx.c
-> +++ b/net/smc/smc_tx.c
-> @@ -298,22 +298,6 @@ int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len)
->   	return rc;
->   }
->   
-> -int smc_tx_sendpage(struct smc_sock *smc, struct page *page, int offset,
-> -		    size_t size, int flags)
-> -{
-> -	struct msghdr msg = {.msg_flags = flags};
-> -	char *kaddr = kmap(page);
-> -	struct kvec iov;
-> -	int rc;
-> -
-> -	iov.iov_base = kaddr + offset;
-> -	iov.iov_len = size;
-> -	iov_iter_kvec(&msg.msg_iter, ITER_SOURCE, &iov, 1, size);
-> -	rc = smc_tx_sendmsg(smc, &msg, size);
-> -	kunmap(page);
-> -	return rc;
-> -}
-> -
->   /***************************** sndbuf consumer *******************************/
->   
->   /* sndbuf consumer: actual data transfer of one target chunk with ISM write */
-> diff --git a/net/smc/smc_tx.h b/net/smc/smc_tx.h
-> index 34b578498b1f..a59f370b8b43 100644
-> --- a/net/smc/smc_tx.h
-> +++ b/net/smc/smc_tx.h
-> @@ -31,8 +31,6 @@ void smc_tx_pending(struct smc_connection *conn);
->   void smc_tx_work(struct work_struct *work);
->   void smc_tx_init(struct smc_sock *smc);
->   int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len);
-> -int smc_tx_sendpage(struct smc_sock *smc, struct page *page, int offset,
-> -		    size_t size, int flags);
->   int smc_tx_sndbuf_nonempty(struct smc_connection *conn);
->   void smc_tx_sndbuf_nonfull(struct smc_sock *smc);
->   void smc_tx_consumer_update(struct smc_connection *conn, bool force);
+Alex
 
