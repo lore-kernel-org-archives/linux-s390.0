@@ -2,189 +2,144 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0771DC77B61
-	for <linux-s390@archiver.kernel.org>; Thu, 27 Apr 2023 08:47:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6AC75C77B61
+	for <linux-s390@archiver.kernel.org>; Thu, 27 Apr 2023 09:44:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242986AbjD0Irg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 27 Apr 2023 04:47:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53048 "EHLO
+        id S242980AbjD0Joa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 27 Apr 2023 05:44:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242131AbjD0Irf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 27 Apr 2023 04:47:35 -0400
+        with ESMTP id S243285AbjD0Jo2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 27 Apr 2023 05:44:28 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5FF0213A;
-        Thu, 27 Apr 2023 01:47:34 -0700 (PDT)
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 33R8bEMD007154;
-        Thu, 27 Apr 2023 08:47:34 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
- mime-version : content-transfer-encoding : in-reply-to : references :
- subject : from : to : cc : message-id : date; s=pp1;
- bh=SDI/VWEp6PjcC/VhRBvBfSEW9oMqyP/o6Aah3BFcxzA=;
- b=TOdO7tJWMmnO+uG6ICLPvVFH89dZZ1JfNa/sMBRFIpw/WZCOIF4Vz7m9dT809ndnIISl
- JMMXWk78s79KpP5XRyYNF9ekDf2fmiRsImNiQO9dPcatLDbdxa+s2Wf98HmmezLxGxfK
- 50pxR+tzgG73XuhDZXZCkx/LWrz9Skg/VpWs86lZopRJHB/Vkj5f4FSXsU9W28y01bnN
- 2Zvlplf7u2pr3J+++5V9CuW/gMbnLJHaq37jhsGJuB9kkj9j7yuWhoXjruOODEifybL4
- 8ZBpGLdRVRz+iJd7TuXCzKE1ltYuZYLTFdH4kt7v9ByI5R8uOV3LCODFQUIrFLge2eyz rQ== 
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CEB94699;
+        Thu, 27 Apr 2023 02:44:24 -0700 (PDT)
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 33R9b2ik022872;
+        Thu, 27 Apr 2023 09:44:20 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : from : to : cc : references : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=NsdeLVPvnuTdBPZv3WD2Vnht6opWJ6idi7ZjkBpR5pc=;
+ b=gcDzmsTyhsMsJDiXanvDKgoVy9G0lgLNG7KINI8NT7oxXPSVZr8Oft4A/Hp9Xf3QHgSN
+ GBcroRKehrnvcqdlaMSw82ngxc0dlbCsHkd0XRvTOaXubB5xuPCZZlfffcB5zJK+aIkp
+ s9BzamajLkQHo61gh8r8fRjXO0rw95miaoIIpMSYbp13m72KLGnb1yf16bYL6BOMsnCj
+ bVh+1uUTIpEpbjEWmLzZl8LtT64tjLxUzWCAJswLzztJ3R/v4NZiJsKsDinD+8Yehy0b
+ L9yH/hWTsXj2VqmfgBJg42usbuemFLJBnz86Dfh7ySq8WLST3uPnZ8Pc6UvTRfsw8bb1 mQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3q7m7ru09u-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3q7mp5c60b-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 27 Apr 2023 08:47:33 +0000
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 33R8bbj8010454;
-        Thu, 27 Apr 2023 08:47:33 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3q7m7ru05f-1
+        Thu, 27 Apr 2023 09:44:19 +0000
+Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 33R9bs3q029470;
+        Thu, 27 Apr 2023 09:44:19 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3q7mp5c5xa-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 27 Apr 2023 08:47:32 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 33R4sxLa031508;
-        Thu, 27 Apr 2023 08:47:27 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3q47772uq9-1
+        Thu, 27 Apr 2023 09:44:19 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 33R36j8n004299;
+        Thu, 27 Apr 2023 09:44:15 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3q46ug2uyw-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 27 Apr 2023 08:47:27 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 33R8lOcp18612804
+        Thu, 27 Apr 2023 09:44:15 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 33R9iC0V2032128
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 27 Apr 2023 08:47:24 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 244F12004E;
-        Thu, 27 Apr 2023 08:47:24 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DD73620040;
-        Thu, 27 Apr 2023 08:47:23 +0000 (GMT)
-Received: from t14-nrb (unknown [9.171.67.236])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Thu, 27 Apr 2023 08:47:23 +0000 (GMT)
-Content-Type: text/plain; charset="utf-8"
+        Thu, 27 Apr 2023 09:44:12 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 14D3B2004E;
+        Thu, 27 Apr 2023 09:44:12 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 33CEA20043;
+        Thu, 27 Apr 2023 09:44:11 +0000 (GMT)
+Received: from [9.179.20.145] (unknown [9.179.20.145])
+        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Thu, 27 Apr 2023 09:44:11 +0000 (GMT)
+Message-ID: <a2f09b8a-add5-6bc4-64d2-6ac67e334fe0@linux.ibm.com>
+Date:   Thu, 27 Apr 2023 11:44:10 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20230426083426.6806-3-pmorel@linux.ibm.com>
-References: <20230426083426.6806-1-pmorel@linux.ibm.com> <20230426083426.6806-3-pmorel@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v8 2/2] s390x: topology: Checking Configuration Topology Information
-From:   Nico Boehr <nrb@linux.ibm.com>
-To:     Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc:     frankja@linux.ibm.com, thuth@redhat.com, kvm@vger.kernel.org,
-        imbrenda@linux.ibm.com, david@redhat.com, nsg@linux.ibm.com
-Message-ID: <168258524358.99032.14388431972069131423@t14-nrb>
-User-Agent: alot/0.8.1
-Date:   Thu, 27 Apr 2023 10:47:23 +0200
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.10.0
+Subject: Re: [RFC net] net/mlx5: Fix performance regression for
+ request-response workloads
+Content-Language: en-US
+From:   Alexandra Winter <wintera@linux.ibm.com>
+To:     Saeed Mahameed <saeedm@nvidia.com>
+Cc:     David Miller <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        netdev <netdev@vger.kernel.org>, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Halil Pasic <pasic@linux.ibm.com>
+References: <20220907122505.26953-1-wintera@linux.ibm.com>
+ <CANn89iLP15xQjmPHxvQBQ=bWbbVk4_41yLC8o5E97TQWFmRioQ@mail.gmail.com>
+ <375efe42-910d-69ae-e48d-cff0298dd104@linux.ibm.com>
+ <CANn89iKjxMMDEcOCKiqWiMybiYVd7ZqspnEkT0-puqxrknLtRA@mail.gmail.com>
+ <886c690b-cc35-39a0-8397-834e70fb329b@linux.ibm.com>
+ <20220930233708.kfxhgn2ytmraqhg7@sfedora>
+ <d58b5b49-aea6-c980-fc4d-6eab596ddc9d@linux.ibm.com>
+In-Reply-To: <d58b5b49-aea6-c980-fc4d-6eab596ddc9d@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: nf5WbcKBTvAZiCFcc72N11yy5ymBLsVL
-X-Proofpoint-GUID: CWfYQeArgp2_9rcKMeJ930vWXMTLLkyt
+X-Proofpoint-GUID: UN6T5kneicLLAwWwZr0DF8NLmh2Z-nvh
+X-Proofpoint-ORIG-GUID: hIZ1xaRUbVAtVg14Pq3BZwpwA3bWrR-3
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-04-27_06,2023-04-26_03,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 adultscore=0
- priorityscore=1501 bulkscore=0 clxscore=1015 mlxscore=0 lowpriorityscore=0
- mlxlogscore=999 phishscore=0 spamscore=0 suspectscore=0 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2303200000
- definitions=main-2304270073
+ definitions=2023-04-27_07,2023-04-26_03,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 impostorscore=0
+ mlxlogscore=999 lowpriorityscore=0 suspectscore=0 priorityscore=1501
+ clxscore=1011 spamscore=0 adultscore=0 phishscore=0 mlxscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2303200000 definitions=main-2304270082
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Quoting Pierre Morel (2023-04-26 10:34:26)
-> diff --git a/s390x/topology.c b/s390x/topology.c
-> index 07f1650..42a9cc9 100644
-> --- a/s390x/topology.c
-> +++ b/s390x/topology.c
-> @@ -17,6 +17,20 @@
-[...]
-> +/**
-> + * check_tle:
-> + * @tc: pointer to first TLE
-> + *
-> + * Recursively check the containers TLEs until we
-> + * find a CPU TLE.
-> + */
-> +static uint8_t *check_tle(void *tc)
-> +{
-[...]
-> +
-> +       report(!cpus->d || (cpus->pp =3D=3D 3 || cpus->pp =3D=3D 0),
-> +              "Dedication versus entitlement");
 
-Again, I would prefer something like this:
+On 29.12.22 09:27, Alexandra Winter wrote:
+> 
+> 
+> On 01.10.22 01:37, Saeed Mahameed wrote:
+>> On 26 Sep 12:06, Alexandra Winter wrote:
+>>
+>> [ ... ]
+>>>
+>>> Saeed,
+>>> As discussed at LPC, could you please consider adding a workaround to the
+>>> Mellanox driver, to use non-SG SKBs for small messages? As mentioned above
+>>> we are seeing 13% throughput degradation, if 2 pages need to be mapped
+>>> instead of 1.
+>>>
+>>> While Eric's ideas sound very promising, just using non-SG in these cases
+>>> should be enough to mitigate the performance regression we see.
+>>
+>> Hi Alexandra, sorry for the late response.
+>>
+>> Yeas linearizing small messages makes sense, but will require some careful
+>> perf testing.
+>>
+>> We will do our best to include this in the next kernel release cycle.
+>> I will take it with the mlx5e team next week, everybody is on vacation this
+>> time of year :).
+>>
+>> Thanks,
+>> Saeed.
+> 
+> Hello Saeed,
+> may I ask whether you had a chance to include such a patch in the 6.2 kernel?
+> Or is this still on your ToDo list?
+> I haven't seen anything like this on the mailing list, but I may have overlooked it.
+> All the best for 2023
+> Alexandra
 
-if (!cpus->d)
-    report_skip("Not dedicated")
-else
-    report(cpus->pp =3D=3D 3 || cpus->pp =3D=3D 0, "Dedicated CPUs are eith=
-er vertically polarized or have high entitlement")
 
-No?
+Hello Saeed,
+any news about linearizing small messages? Is there any way we could be of help?
 
-[...]
-
-> +/**
-> + * check_sysinfo_15_1_x:
-> + * @info: pointer to the STSI info structure
-> + * @sel2: the selector giving the topology level to check
-> + *
-> + * Check if the validity of the STSI instruction and then
-> + * calls specific checks on the information buffer.
-> + */
-> +static void check_sysinfo_15_1_x(struct sysinfo_15_1_x *info, int sel2)
-> +{
-> +       int ret;
-> +       int cc;
-> +       unsigned long rc;
-> +
-> +       report_prefix_pushf("15_1_%d", sel2);
-> +
-> +       ret =3D stsi_get_sysib(info, sel2);
-> +       if (ret) {
-> +               report_skip("Selector 2 not supported by architecture");
-> +               goto end;
-> +       }
-> +
-> +       report_prefix_pushf("H");
-> +       cc =3D ptf(PTF_REQ_HORIZONTAL, &rc);
-> +       if (cc !=3D 0 && rc !=3D PTF_ERR_ALRDY_POLARIZED) {
-> +               report(0, "Unable to set horizontal polarization");
-
-report_fail() please
-
-> +               goto vertical;
-> +       }
-> +
-> +       stsi_check_mag(info);
-> +       stsi_check_tle_coherency(info);
-> +
-> +vertical:
-> +       report_prefix_pop();
-> +       report_prefix_pushf("V");
-> +
-> +       cc =3D ptf(PTF_REQ_VERTICAL, &rc);
-> +       if (cc !=3D 0 && rc !=3D PTF_ERR_ALRDY_POLARIZED) {
-> +               report(0, "Unable to set vertical polarization");
-
-report_fail() please
-
-[...]
-> +static int arch_max_cpus(void)
-
-Does the name arch_max_cpus() make sense? Maybe expected_num_cpus()?
-
-> diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
-> index fc3666b..375e6ce 100644
-> --- a/s390x/unittests.cfg
-> +++ b/s390x/unittests.cfg
-> @@ -221,3 +221,6 @@ file =3D ex.elf
-> =20
->  [topology]
->  file =3D topology.elf
-> +# 3 CPUs on socket 0 with different CPU TLE (standard, dedicated, origin)
-> +# 1 CPU on socket 2
-> +extra_params =3D -smp 1,drawers=3D3,books=3D3,sockets=3D4,cores=3D4,maxc=
-pus=3D144 -cpu z14,ctop=3Don -device z14-s390x-cpu,core-id=3D1,entitlement=
-=3Dlow -device z14-s390x-cpu,core-id=3D2,dedicated=3Don -device z14-s390x-c=
-pu,core-id=3D10 -device z14-s390x-cpu,core-id=3D20 -device z14-s390x-cpu,co=
-re-id=3D130,socket-id=3D0,book-id=3D0,drawer-id=3D0 -append '-drawers 3 -bo=
-oks 3 -sockets 4 -cores 4'
-
-If I got the command line right, all CPUs are on the same drawer with this =
-command line, aren't they? If so, does it make sense to run with different =
-combinations, i.e. CPUs on different drawers, books etc?
+Kind regards
+Alexandra
