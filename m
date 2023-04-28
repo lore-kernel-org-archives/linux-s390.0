@@ -2,320 +2,221 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 69CDAC77B73
-	for <linux-s390@archiver.kernel.org>; Thu, 27 Apr 2023 21:56:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 99BF3C77B61
+	for <linux-s390@archiver.kernel.org>; Fri, 28 Apr 2023 03:12:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343716AbjD0V4U (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 27 Apr 2023 17:56:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36168 "EHLO
+        id S1345286AbjD1DMt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 27 Apr 2023 23:12:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229721AbjD0V4T (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 27 Apr 2023 17:56:19 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C37212737
-        for <linux-s390@vger.kernel.org>; Thu, 27 Apr 2023 14:55:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1682632529;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=I5fzyLq8vaXX2WkxkBurVk4i9r+MSL0BjCV2zrmsNLg=;
-        b=dNzAHXiKHQZfnW7biqm5cafi5TV0RWaZizV50xx1rOlCoSl9AioGSA/Q5SUCasRmsJHQtx
-        Q8Utoprw0QCwmgbdExmEL0l35kAlGZLjctFrpIQenUzfMQMPZgjEQsIgVpM6p41Hcu1rJv
-        1GCqA08saV1VlBE/q8DNGF46d+1aHWE=
-Received: from mail-il1-f200.google.com (mail-il1-f200.google.com
- [209.85.166.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-274-augjVvx2MbCtldHsLPjQHQ-1; Thu, 27 Apr 2023 17:55:27 -0400
-X-MC-Unique: augjVvx2MbCtldHsLPjQHQ-1
-Received: by mail-il1-f200.google.com with SMTP id e9e14a558f8ab-32acaf9eb6dso137744495ab.0
-        for <linux-s390@vger.kernel.org>; Thu, 27 Apr 2023 14:55:27 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1682632527; x=1685224527;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=I5fzyLq8vaXX2WkxkBurVk4i9r+MSL0BjCV2zrmsNLg=;
-        b=gT2oTVyy21dKgHVqbz8K015nRQjqjCz/wNI95okrzIzTgkrLOxuR/vT/QY37rq17+w
-         t3eR6iC9SslsDwdKF+buPQ+p4oHwDUHzL+F3e5EY9C35rLkL7Ab/bjJ32B1jqBy4M/9Q
-         zVVBg8PQQKdCFeXeh7pGYSx8izVBXg3/9RrEWSeF3MpYlv3txLgYlUFT0tvDRrt2iykb
-         Ie1DLw0/CVBmoqTGrFjgzrHFF6CdHnt4CHh+AjzNW1YP2o6+5dK3gB6HilJhhlpXYTEr
-         olV9ljHyWr44ovbfY7FZlqR3xNNyefQH7MrJUH4YoanpukZChtOYOJ1Fgk3doMDSE9iq
-         d2sw==
-X-Gm-Message-State: AC+VfDxNVCNdh50RY/E2wOk372jEUHuqR1Iqa5ljgonoNzH133tFiEeV
-        y2MyhUUf1Kd9q5+kEbXIADQBjRDN0SyYLzB49cr5ACZxa9+rzE7Y1E9EFT94lJaCaicUh0Tx6tn
-        bDuvwmsObpoqPeVo+1kldFA==
-X-Received: by 2002:a92:130a:0:b0:32b:c70b:92af with SMTP id 10-20020a92130a000000b0032bc70b92afmr2068530ilt.16.1682632526827;
-        Thu, 27 Apr 2023 14:55:26 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ4uoLHWlrAANpBduD0DHlq1d1KUlStgxbwMdzX1TBpEVi+MUMWdM8WFF+f3sWR2GcPTn+UIaA==
-X-Received: by 2002:a92:130a:0:b0:32b:c70b:92af with SMTP id 10-20020a92130a000000b0032bc70b92afmr2068509ilt.16.1682632526504;
-        Thu, 27 Apr 2023 14:55:26 -0700 (PDT)
-Received: from redhat.com ([38.15.36.239])
-        by smtp.gmail.com with ESMTPSA id x14-20020a056638248e00b0040fadb4f6d8sm5905986jat.81.2023.04.27.14.55.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 27 Apr 2023 14:55:25 -0700 (PDT)
-Date:   Thu, 27 Apr 2023 15:55:24 -0600
-From:   Alex Williamson <alex.williamson@redhat.com>
-To:     Yi Liu <yi.l.liu@intel.com>
-Cc:     jgg@nvidia.com, kevin.tian@intel.com, joro@8bytes.org,
-        robin.murphy@arm.com, cohuck@redhat.com, eric.auger@redhat.com,
-        nicolinc@nvidia.com, kvm@vger.kernel.org, mjrosato@linux.ibm.com,
-        chao.p.peng@linux.intel.com, yi.y.sun@linux.intel.com,
-        peterx@redhat.com, jasowang@redhat.com,
-        shameerali.kolothum.thodi@huawei.com, lulu@redhat.com,
-        suravee.suthikulpanit@amd.com, intel-gvt-dev@lists.freedesktop.org,
-        intel-gfx@lists.freedesktop.org, linux-s390@vger.kernel.org,
-        xudong.hao@intel.com, yan.y.zhao@intel.com, terrence.xu@intel.com,
-        yanting.jiang@intel.com, zhenzhong.duan@intel.com
-Subject: Re: [PATCH v4 9/9] vfio/pci: Allow passing zero-length fd array in
- VFIO_DEVICE_PCI_HOT_RESET
-Message-ID: <20230427155524.732c878d.alex.williamson@redhat.com>
-In-Reply-To: <20230426145419.450922-10-yi.l.liu@intel.com>
-References: <20230426145419.450922-1-yi.l.liu@intel.com>
-        <20230426145419.450922-10-yi.l.liu@intel.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
+        with ESMTP id S1345321AbjD1DMN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 27 Apr 2023 23:12:13 -0400
+Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C31A3A86;
+        Thu, 27 Apr 2023 20:12:10 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R371e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=21;SR=0;TI=SMTPD_---0Vh9lpN8_1682651524;
+Received: from 30.221.146.237(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0Vh9lpN8_1682651524)
+          by smtp.aliyun-inc.com;
+          Fri, 28 Apr 2023 11:12:05 +0800
+Message-ID: <b9a15afe-c65d-5cf3-e6c7-eaec46cc99c1@linux.alibaba.com>
+Date:   Fri, 28 Apr 2023 11:12:03 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.10.0
+Subject: Re: [PATCH v3 51/55] smc: Drop smc_sendpage() in favour of
+ smc_sendmsg() + MSG_SPLICE_PAGES
+Content-Language: en-US
+From:   "D. Wythe" <alibuda@linux.alibaba.com>
+To:     David Howells <dhowells@redhat.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>
+Cc:     Al Viro <viro@zeniv.linux.org.uk>,
+        Christoph Hellwig <hch@infradead.org>,
+        Jens Axboe <axboe@kernel.dk>, Jeff Layton <jlayton@kernel.org>,
+        Christian Brauner <brauner@kernel.org>,
+        Chuck Lever III <chuck.lever@oracle.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        netdev@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Jan Karcher <jaka@linux.ibm.com>, linux-s390@vger.kernel.org
+References: <20230331160914.1608208-1-dhowells@redhat.com>
+ <20230331160914.1608208-52-dhowells@redhat.com>
+ <4253f27c-2c5e-3033-14b3-6e31ee344e8b@linux.alibaba.com>
+In-Reply-To: <4253f27c-2c5e-3033-14b3-6e31ee344e8b@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 26 Apr 2023 07:54:19 -0700
-Yi Liu <yi.l.liu@intel.com> wrote:
-
-> This is the way user to invoke hot-reset for the devices opened by cdev
-> interface. User should check the flag VFIO_PCI_HOT_RESET_FLAG_RESETTABLE
-> in the output of VFIO_DEVICE_GET_PCI_HOT_RESET_INFO ioctl before doing
-> hot-reset for cdev devices.
-> 
-> Suggested-by: Jason Gunthorpe <jgg@nvidia.com>
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-> Tested-by: Yanting Jiang <yanting.jiang@intel.com>
-> Signed-off-by: Yi Liu <yi.l.liu@intel.com>
-> ---
->  drivers/vfio/pci/vfio_pci_core.c | 66 +++++++++++++++++++++++++++-----
->  include/uapi/linux/vfio.h        | 22 +++++++++++
->  2 files changed, 79 insertions(+), 9 deletions(-)
-> 
-> diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
-> index 43858d471447..f70e3b948b16 100644
-> --- a/drivers/vfio/pci/vfio_pci_core.c
-> +++ b/drivers/vfio/pci/vfio_pci_core.c
-> @@ -180,7 +180,8 @@ static void vfio_pci_probe_mmaps(struct vfio_pci_core_device *vdev)
->  struct vfio_pci_group_info;
->  static void vfio_pci_dev_set_try_reset(struct vfio_device_set *dev_set);
->  static int vfio_pci_dev_set_hot_reset(struct vfio_device_set *dev_set,
-> -				      struct vfio_pci_group_info *groups);
-> +				      struct vfio_pci_group_info *groups,
-> +				      struct iommufd_ctx *iommufd_ctx);
->  
->  /*
->   * INTx masking requires the ability to disable INTx signaling via PCI_COMMAND
-> @@ -1364,8 +1365,7 @@ vfio_pci_ioctl_pci_hot_reset_groups(struct vfio_pci_core_device *vdev,
->  	if (ret)
->  		return ret;
->  
-> -	/* Somewhere between 1 and count is OK */
-> -	if (!array_count || array_count > count)
-> +	if (array_count > count)
->  		return -EINVAL;
-
-Doesn't this need a || vfio_device_cdev_opened(vdev) test as well?
-It's invalid to pass fds for a cdev device.  Presumably it would fail
-later collecting group fds as well, but might as well enforce the
-semantics early.
-
->  
->  	group_fds = kcalloc(array_count, sizeof(*group_fds), GFP_KERNEL);
-> @@ -1414,7 +1414,7 @@ vfio_pci_ioctl_pci_hot_reset_groups(struct vfio_pci_core_device *vdev,
->  	info.count = array_count;
->  	info.files = files;
->  
-> -	ret = vfio_pci_dev_set_hot_reset(vdev->vdev.dev_set, &info);
-> +	ret = vfio_pci_dev_set_hot_reset(vdev->vdev.dev_set, &info, NULL);
->  
->  hot_reset_release:
->  	for (file_idx--; file_idx >= 0; file_idx--)
-> @@ -1429,6 +1429,7 @@ static int vfio_pci_ioctl_pci_hot_reset(struct vfio_pci_core_device *vdev,
->  {
->  	unsigned long minsz = offsetofend(struct vfio_pci_hot_reset, count);
->  	struct vfio_pci_hot_reset hdr;
-> +	struct iommufd_ctx *iommufd;
->  	bool slot = false;
->  
->  	if (copy_from_user(&hdr, arg, minsz))
-> @@ -1443,7 +1444,12 @@ static int vfio_pci_ioctl_pci_hot_reset(struct vfio_pci_core_device *vdev,
->  	else if (pci_probe_reset_bus(vdev->pdev->bus))
->  		return -ENODEV;
->  
-> -	return vfio_pci_ioctl_pci_hot_reset_groups(vdev, hdr.count, slot, arg);
-> +	if (hdr.count)
-> +		return vfio_pci_ioctl_pci_hot_reset_groups(vdev, hdr.count, slot, arg);
-> +
-> +	iommufd = vfio_iommufd_physical_ictx(&vdev->vdev);
-> +
-> +	return vfio_pci_dev_set_hot_reset(vdev->vdev.dev_set, NULL, iommufd);
-
-Why did we need to store iommufd in a variable?
-
->  }
->  
->  static int vfio_pci_ioctl_ioeventfd(struct vfio_pci_core_device *vdev,
-> @@ -2415,6 +2421,9 @@ static bool vfio_dev_in_groups(struct vfio_pci_core_device *vdev,
->  {
->  	unsigned int i;
->  
-> +	if (!groups)
-> +		return false;
-> +
->  	for (i = 0; i < groups->count; i++)
->  		if (vfio_file_has_dev(groups->files[i], &vdev->vdev))
->  			return true;
-> @@ -2488,13 +2497,38 @@ static int vfio_pci_dev_set_pm_runtime_get(struct vfio_device_set *dev_set)
->  	return ret;
->  }
->  
-> +static bool vfio_dev_in_iommufd_ctx(struct vfio_pci_core_device *vdev,
-> +				    struct iommufd_ctx *iommufd_ctx)
-> +{
-> +	struct iommufd_ctx *iommufd = vfio_iommufd_physical_ictx(&vdev->vdev);
-> +	struct iommu_group *iommu_group;
-> +
-> +	if (!iommufd_ctx)
-> +		return false;
-> +
-> +	if (iommufd == iommufd_ctx)
-> +		return true;
-> +
-> +	iommu_group = iommu_group_get(vdev->vdev.dev);
-> +	if (!iommu_group)
-> +		return false;
-> +
-> +	/*
-> +	 * Try to check if any device within iommu_group is bound with
-> +	 * the input iommufd_ctx.
-> +	 */
-> +	return vfio_devset_iommufd_has_group(vdev->vdev.dev_set,
-> +					     iommufd_ctx, iommu_group);
-> +}
-
-This last test makes this not do what the function name suggests it
-does.  If it were true, the device is not in the iommufd_ctx, it simply
-cannot be within another iommu ctx.
-
-> +
->  /*
->   * We need to get memory_lock for each device, but devices can share mmap_lock,
->   * therefore we need to zap and hold the vma_lock for each device, and only then
->   * get each memory_lock.
->   */
->  static int vfio_pci_dev_set_hot_reset(struct vfio_device_set *dev_set,
-> -				      struct vfio_pci_group_info *groups)
-> +				      struct vfio_pci_group_info *groups,
-> +				      struct iommufd_ctx *iommufd_ctx)
->  {
->  	struct vfio_pci_core_device *cur_mem;
->  	struct vfio_pci_core_device *cur_vma;
-> @@ -2525,10 +2559,24 @@ static int vfio_pci_dev_set_hot_reset(struct vfio_device_set *dev_set,
->  
->  	list_for_each_entry(cur_vma, &dev_set->device_list, vdev.dev_set_list) {
->  		/*
-> -		 * Test whether all the affected devices are contained by the
-> -		 * set of groups provided by the user.
-> +		 * Test whether all the affected devices can be reset by the
-> +		 * user.
-> +		 *
-> +		 * If user provides a set of groups, all the opened devices
-> +		 * in the dev_set should be contained by the set of groups
-> +		 * provided by the user.
-> +		 *
-> +		 * If user provides a zero-length group fd array, then all
-> +		 * the affected devices must be bound to same iommufd_ctx as
-> +		 * the input iommufd_ctx.  If there is device that has not
-> +		 * been bound to iommufd_ctx yet, shall check if there is any
-> +		 * device within its iommu_group that has been bound to the
-> +		 * input iommufd_ctx.
-> +		 *
-> +		 * Otherwise, reset is not allowed.
->  		 */
-> -		if (!vfio_dev_in_groups(cur_vma, groups)) {
-> +		if (!vfio_dev_in_groups(cur_vma, groups) &&
-> +		    !vfio_dev_in_iommufd_ctx(cur_vma, iommufd_ctx)) {
 
 
-Rather than mangling vfio_dev_in_groups() and inventing
-vfio_dev_in_iommufd_ctx() that doesn't do what it implies, how about:
+On 4/26/23 9:07 PM, D. Wythe wrote:
+>
+> Hi David,
+>
+> Fallback is one of the most important features of SMC, which 
+> automatically downgrades to TCP
+> when SMC discovers that the peer does not support SMC. After fallback, 
+> SMC hopes the the ability can be
+> consistent with that of TCP sock. If you delete the smc_sendpage, when 
+> fallback occurs, it means that the sock after the fallback
+> loses the ability of  sendpage( tcp_sendpage).
+>
+> Thanks
+> D. Wythe
 
-bool vfio_device_owned(struct vfio_device *vdev,
-		       struct vfio_pci_group_info *groups,
-		       struct iommufd_ctx *iommufd_ctx)
-{
-	struct iommu_group *group;
+Sorry, I missed the key email context. The problem mentioned here does 
+not exist ...
 
-	WARN_ON(!!groups == !!iommufd_ctx);
-
-	if (groups)
-		return vfio_dev_in_groups(vdev, groups));
-
-	if (vfio_iommufd_physical_ictx(vdev) == iommufd_ctx)
-		return true;
-
-	group = iommu_group_get(vdev->dev);
-	if (group)
-		return vfio_devset_iommufd_has_group(vdev->vdev.dev_set,
-						     iommufd_ctx, group);
-	return false;
-}
-
-Seems like such a function would live in vfio_main.c
-
->  			ret = -EINVAL;
->  			goto err_undo;
->  		}
-> diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
-> index 4b4e2c28984b..1241d02d8701 100644
-> --- a/include/uapi/linux/vfio.h
-> +++ b/include/uapi/linux/vfio.h
-> @@ -710,6 +710,28 @@ struct vfio_pci_hot_reset_info {
->   * VFIO_DEVICE_PCI_HOT_RESET - _IOW(VFIO_TYPE, VFIO_BASE + 13,
->   *				    struct vfio_pci_hot_reset)
->   *
-> + * Userspace requests hot reset for the devices it operates.  Due to the
-> + * underlying topology, multiple devices can be affected in the reset
-> + * while some might be opened by another user.  To avoid interference
-> + * the calling user must ensure all affected devices are owned by itself.
-> + * The ownership proof needs to refer the output of
-> + * VFIO_DEVICE_GET_PCI_HOT_RESET_INFO.  Ownership can be proved as:
-> + *
-> + *   1) An array of group fds - This is used for the devices opened via
-> + *				the group/container interface.
-> + *   2) A zero-length array - This is used for the devices opened via
-> + *			      the cdev interface.  User should check the
-> + *			      flag VFIO_PCI_HOT_RESET_FLAG_IOMMUFD_DEV_ID
-> + *			      and flag VFIO_PCI_HOT_RESET_FLAG_RESETTABLE
-> + *			      before using this method.
-> + *
-> + * In case a non void group fd array is passed, the devices affected by
-> + * the reset must belong to those opened VFIO groups.  In case a zero
-> + * length array is passed, the other devices affected by the reset, if
-> + * any, must be either bound to the same iommufd as this VFIO device or
-> + * in the same iommu_group with a device that does.  Either of the two
-> + * methods is applied to check the feasibility of the hot reset.
-
-This should probably just refer to the concept of ownership described
-in the INFO ioctl and clarify that cdev opened device must exclusively
-provide an empty array and group opened devices must exclusively use an
-array of group fds for proof of ownership.  Mixed access to devices
-between cdev and legacy groups are not supported by this interface.
-Thanks,
-
-Alex
-
-> + *
->   * Return: 0 on success, -errno on failure.
->   */
->  struct vfio_pci_hot_reset {
+>
+> On 4/1/23 12:09 AM, David Howells wrote:
+>> Drop the smc_sendpage() code as smc_sendmsg() just passes the call 
+>> down to
+>> the underlying TCP socket and smc_tx_sendpage() is just a wrapper around
+>> its sendmsg implementation.
+>> Signed-off-by: David Howells <dhowells@redhat.com>
+>> cc: Karsten Graul <kgraul@linux.ibm.com>
+>> cc: Wenjia Zhang <wenjia@linux.ibm.com>
+>> cc: Jan Karcher <jaka@linux.ibm.com>
+>> cc: "David S. Miller" <davem@davemloft.net>
+>> cc: Eric Dumazet <edumazet@google.com>
+>> cc: Jakub Kicinski <kuba@kernel.org>
+>> cc: Paolo Abeni <pabeni@redhat.com>
+>> cc: Jens Axboe <axboe@kernel.dk>
+>> cc: Matthew Wilcox <willy@infradead.org>
+>> cc: linux-s390@vger.kernel.org
+>> cc: netdev@vger.kernel.org
+>> ---
+>>   net/smc/af_smc.c    | 29 -----------------------------
+>>   net/smc/smc_stats.c |  2 +-
+>>   net/smc/smc_stats.h |  1 -
+>>   net/smc/smc_tx.c    | 16 ----------------
+>>   net/smc/smc_tx.h    |  2 --
+>>   5 files changed, 1 insertion(+), 49 deletions(-)
+>>
+>> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+>> index a4cccdfdc00a..d4113c8a7cda 100644
+>> --- a/net/smc/af_smc.c
+>> +++ b/net/smc/af_smc.c
+>> @@ -3125,34 +3125,6 @@ static int smc_ioctl(struct socket *sock, 
+>> unsigned int cmd,
+>>       return put_user(answ, (int __user *)arg);
+>>   }
+>>   -static ssize_t smc_sendpage(struct socket *sock, struct page *page,
+>> -                int offset, size_t size, int flags)
+>> -{
+>> -    struct sock *sk = sock->sk;
+>> -    struct smc_sock *smc;
+>> -    int rc = -EPIPE;
+>> -
+>> -    smc = smc_sk(sk);
+>> -    lock_sock(sk);
+>> -    if (sk->sk_state != SMC_ACTIVE) {
+>> -        release_sock(sk);
+>> -        goto out;
+>> -    }
+>> -    release_sock(sk);
+>> -    if (smc->use_fallback) {
+>> -        rc = kernel_sendpage(smc->clcsock, page, offset,
+>> -                     size, flags);
+>> -    } else {
+>> -        lock_sock(sk);
+>> -        rc = smc_tx_sendpage(smc, page, offset, size, flags);
+>> -        release_sock(sk);
+>> -        SMC_STAT_INC(smc, sendpage_cnt);
+>> -    }
+>> -
+>> -out:
+>> -    return rc;
+>> -}
+>> -
+>>   /* Map the affected portions of the rmbe into an spd, note the 
+>> number of bytes
+>>    * to splice in conn->splice_pending, and press 'go'. Delays 
+>> consumer cursor
+>>    * updates till whenever a respective page has been fully processed.
+>> @@ -3224,7 +3196,6 @@ static const struct proto_ops smc_sock_ops = {
+>>       .sendmsg    = smc_sendmsg,
+>>       .recvmsg    = smc_recvmsg,
+>>       .mmap        = sock_no_mmap,
+>> -    .sendpage    = smc_sendpage,
+>>       .splice_read    = smc_splice_read,
+>>   };
+>>   diff --git a/net/smc/smc_stats.c b/net/smc/smc_stats.c
+>> index e80e34f7ac15..ca14c0f3a07d 100644
+>> --- a/net/smc/smc_stats.c
+>> +++ b/net/smc/smc_stats.c
+>> @@ -227,7 +227,7 @@ static int smc_nl_fill_stats_tech_data(struct 
+>> sk_buff *skb,
+>>                     SMC_NLA_STATS_PAD))
+>>           goto errattr;
+>>       if (nla_put_u64_64bit(skb, SMC_NLA_STATS_T_SENDPAGE_CNT,
+>> -                  smc_tech->sendpage_cnt,
+>> +                  0,
+>>                     SMC_NLA_STATS_PAD))
+>>           goto errattr;
+>>       if (nla_put_u64_64bit(skb, SMC_NLA_STATS_T_CORK_CNT,
+>> diff --git a/net/smc/smc_stats.h b/net/smc/smc_stats.h
+>> index 84b7ecd8c05c..b60fe1eb37ab 100644
+>> --- a/net/smc/smc_stats.h
+>> +++ b/net/smc/smc_stats.h
+>> @@ -71,7 +71,6 @@ struct smc_stats_tech {
+>>       u64            clnt_v2_succ_cnt;
+>>       u64            srv_v1_succ_cnt;
+>>       u64            srv_v2_succ_cnt;
+>> -    u64            sendpage_cnt;
+>>       u64            urg_data_cnt;
+>>       u64            splice_cnt;
+>>       u64            cork_cnt;
+>> diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
+>> index f4b6a71ac488..d31ce8209fa2 100644
+>> --- a/net/smc/smc_tx.c
+>> +++ b/net/smc/smc_tx.c
+>> @@ -298,22 +298,6 @@ int smc_tx_sendmsg(struct smc_sock *smc, struct 
+>> msghdr *msg, size_t len)
+>>       return rc;
+>>   }
+>>   -int smc_tx_sendpage(struct smc_sock *smc, struct page *page, int 
+>> offset,
+>> -            size_t size, int flags)
+>> -{
+>> -    struct msghdr msg = {.msg_flags = flags};
+>> -    char *kaddr = kmap(page);
+>> -    struct kvec iov;
+>> -    int rc;
+>> -
+>> -    iov.iov_base = kaddr + offset;
+>> -    iov.iov_len = size;
+>> -    iov_iter_kvec(&msg.msg_iter, ITER_SOURCE, &iov, 1, size);
+>> -    rc = smc_tx_sendmsg(smc, &msg, size);
+>> -    kunmap(page);
+>> -    return rc;
+>> -}
+>> -
+>>   /***************************** sndbuf consumer 
+>> *******************************/
+>>     /* sndbuf consumer: actual data transfer of one target chunk with 
+>> ISM write */
+>> diff --git a/net/smc/smc_tx.h b/net/smc/smc_tx.h
+>> index 34b578498b1f..a59f370b8b43 100644
+>> --- a/net/smc/smc_tx.h
+>> +++ b/net/smc/smc_tx.h
+>> @@ -31,8 +31,6 @@ void smc_tx_pending(struct smc_connection *conn);
+>>   void smc_tx_work(struct work_struct *work);
+>>   void smc_tx_init(struct smc_sock *smc);
+>>   int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t 
+>> len);
+>> -int smc_tx_sendpage(struct smc_sock *smc, struct page *page, int 
+>> offset,
+>> -            size_t size, int flags);
+>>   int smc_tx_sndbuf_nonempty(struct smc_connection *conn);
+>>   void smc_tx_sndbuf_nonfull(struct smc_sock *smc);
+>>   void smc_tx_consumer_update(struct smc_connection *conn, bool force);
+>
 
