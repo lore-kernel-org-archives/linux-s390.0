@@ -2,184 +2,507 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 341EDC77B60
-	for <linux-s390@archiver.kernel.org>; Fri, 28 Apr 2023 19:28:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 226FDC77B60
+	for <linux-s390@archiver.kernel.org>; Sat, 29 Apr 2023 19:17:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346508AbjD1T2q (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 28 Apr 2023 15:28:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53494 "EHLO
+        id S229498AbjD2TRU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 29 Apr 2023 15:17:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346225AbjD1T2p (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 28 Apr 2023 15:28:45 -0400
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2060b.outbound.protection.outlook.com [IPv6:2a01:111:f400:7eaa::60b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13EE74EC7
-        for <linux-s390@vger.kernel.org>; Fri, 28 Apr 2023 12:28:37 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ZKiDjvfiBjckBu5TZo7A5mv2pOd+35OA/+VAuZak3y/TbjfNIfSH3hR08hb7pM3CrjQV3c/RBSf/XKPADhOALHnznOqPxtBp2fqKEIz9lBI4Dqtcez/GgJy44zTrgIGiTBOsSUF09q9k1pegi8Hn0pvFaZ6U8EdLvYhc0OBR4pEEfpIx9zD7+cKlM7c8WNp8z0wp/hxQ9Sq6TomjYIKr652YrBwWYWi1ZuqvtYfsbKS26NwA1I5/9oD5+4SHjL+sdKA3G8KRKbXwYJHvUK5oKBj1a/KEj7UvrudJ6UhzHF9isDLIkgHxS4aNfTJoi/WBEmJ/ohqoWfr/ygKNwYDhOQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=6LDJsjdpw+bo+m7xkj3F74O0/31CNvM1ky7Gl9j1SI8=;
- b=buM0ot0xuENTv78JwB/LGDcAnlN9XcxSODfbn4RaloR72M+nzAmda8hKyBxSbKEGqvMBo3ZUpOMbvnqK809vtTJ2mC8PpVJpLsRB/2csZn7F/dEriIaQ8zFXRyzaY2WTi1gfIlWM2EmdOGOKzrK5RcCePrbrllI+Iv2DYANG5E3nNXGrCOv/xkjJVYPjCbB7LPg9q/toENqn8RRKSuAG3sN9E9MniItmJDEzYLJv49jpeWlbM1jQszzM07SKcYS2EUMJNpmA0IGuPXy6IzSfkgCLGAmbNCg56KhcfraB4B510F5X0MEGoW1cJtn3qd5B0Tw4R06fdwyT/GPXrEZImw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=6LDJsjdpw+bo+m7xkj3F74O0/31CNvM1ky7Gl9j1SI8=;
- b=aX9boPph8nvP95f0FJuW6TLC5i17QI1m0z2+r4v6riKmbEgPVbrh/ELQdrjuiT2o8qjfJa67o46A5DAsri4W/oeKGCqlqE64OvBlSzdUV7BPYQe5wtizd4CJ9HK0QK+1fgMScY9Uejx/ndp3jC3iv84PyyCalkD/5DptYPnu6O7JJre5FI77kOQajtIso21PVqBoSMq3iTqo7ogi5rY7PDcm+/lMMjTrs9ChKri15Z2iUg+Ekfwhy1lQU8ZCJ4dk5afsdqNkoTBUwcSKKKC6gqNtsQ2yuZGhMTIb04yqK2o2UHteZsj37KW4LFl2YIs4VLCYF8NBH7lKG3lCzW+aXw==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
- by BL3PR12MB6596.namprd12.prod.outlook.com (2603:10b6:208:38f::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6340.24; Fri, 28 Apr
- 2023 19:28:34 +0000
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::f7a7:a561:87e9:5fab]) by LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::f7a7:a561:87e9:5fab%6]) with mapi id 15.20.6340.024; Fri, 28 Apr 2023
- 19:28:34 +0000
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, iommu@lists.linux.dev,
-        Joerg Roedel <joro@8bytes.org>, linux-s390@vger.kernel.org,
-        Robin Murphy <robin.murphy@arm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH] iommu/s390: Get rid of S390_CCW_IOMMU
-Date:   Fri, 28 Apr 2023 16:28:32 -0300
-Message-Id: <0-v1-11a50d289ac9+b6-rm_iommu_ccw_jgg@nvidia.com>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: BLAPR03CA0057.namprd03.prod.outlook.com
- (2603:10b6:208:32d::32) To LV2PR12MB5869.namprd12.prod.outlook.com
- (2603:10b6:408:176::16)
+        with ESMTP id S229476AbjD2TRT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 29 Apr 2023 15:17:19 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA06A10C8;
+        Sat, 29 Apr 2023 12:17:15 -0700 (PDT)
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 33TJBrk5006821;
+        Sat, 29 Apr 2023 19:17:10 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : content-type : mime-version; s=pp1;
+ bh=U7cBPtBD74et/mq/30RW2kWeKjHp8DEOTwuK/Zfl808=;
+ b=tXFgbEj+FuEKzERSOmcMwFkKx3x0bMlrRTp1tQBF2GcccE38bWXw/gTc887dG/3XPcd0
+ 8vbO8g/fikoQqUMJ8TJIFY6asu3KND9RCNljK+oiWKH94ExgxLNX9Exkn9fo0JEV6oCS
+ y9Q7Ee6F+WP9qubRr+VTdqbf56uNWBFbqU1u/BzUgCyDlfrYXfGNPk0P0yIrjKfWl6M5
+ KqbPAYJeZ8IgaCrE4ZOJLGtC1wHm2L0aj4LsDCpw491+km0DihwCfFfQzBtH/YXuM43x
+ F7B8zaVROCQcHv6Pr62tyjXngJcyHbaCSXOWGdYY75N86zABOpM9rJWllxfCNYswVo4H Zg== 
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3q98rp0g86-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sat, 29 Apr 2023 19:17:10 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 33TIi3Fc014837;
+        Sat, 29 Apr 2023 19:17:08 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+        by ppma02fra.de.ibm.com (PPS) with ESMTPS id 3q8tv6r89e-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sat, 29 Apr 2023 19:17:07 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 33TJH47H34013848
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sat, 29 Apr 2023 19:17:04 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3C4B020043;
+        Sat, 29 Apr 2023 19:17:04 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A7DB820040;
+        Sat, 29 Apr 2023 19:17:03 +0000 (GMT)
+Received: from localhost (unknown [9.179.20.219])
+        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Sat, 29 Apr 2023 19:17:03 +0000 (GMT)
+Date:   Sat, 29 Apr 2023 21:17:02 +0200
+From:   Vasily Gorbik <gor@linux.ibm.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Kees Cook <keescook@chromium.org>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [GIT PULL] s390 patches for the 6.4 merge window
+Message-ID: <your-ad-here.call-01682795822-ext-1971@work.hours>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: UrzPOFkUgjE_hbBDWafKOIdQfs-EsqpL
+X-Proofpoint-GUID: UrzPOFkUgjE_hbBDWafKOIdQfs-EsqpL
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|BL3PR12MB6596:EE_
-X-MS-Office365-Filtering-Correlation-Id: cec9538d-9786-4f0e-09e0-08db481ec1a6
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 5p7Adu1f9E+46mfAOSrOe8olM1crqpz0ZqAjb7ZoX9QWBgsDZb2gSorSO3NzlfgivUhUJazLDx4nbCxUs5S8JXGsg0KpL3NM9kTkWbr4rbad5/xLIvxD2OSRmhs/gGrywCknhynVQjYqXEOsFFPnVMMJeyGGg9osmEfNIUZsFGTDHEah5g/dNw7uV14RoP31h/tM/zd1/sgQGP+2IupBdtQyD+9sU8ZJDYPEpZjlXSSIbq3jPxC993fd/E37WZpFQTZmRel4xf3AmJ1l9Y6SBlbPsiI408Shv1P2bgpYmqBva2g8+NyS0zTAh9nsZ7hXsepsQvMUwK2OvUsRtfPdJa5h6rh6yzMGd+//QH5uL96cf5DqzoNZO5B260z35c4hDYeKAiGeHfAIZNdE2X6RsEIhyraTyvwLt+HHGeIjqq+KZP5Bua1EdmktFxfpM4/dxERe0Yg3biexncxcWuljZKjlnr1iF65P/DfSUC/MhGwW2IWA15q4SyakosLRiL8Gd4VwjI3a99Rw3e1/TlEuQXHWzsX+dvklRmrQjsPGGCjEHOrMWixTnO4nKxbpsBowb5eRRMAjh7Vbk7g60I4NpCqUyiKe3/Dj5wRJvGXvYtXGqj7yfvdlsWPCBDFxZLKrU/U75dWFd64eqUeCvtPwAw==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(366004)(136003)(396003)(376002)(346002)(39860400002)(451199021)(2616005)(38100700002)(8676002)(8936002)(86362001)(83380400001)(7416002)(36756003)(5660300002)(110136005)(478600001)(316002)(6486002)(66946007)(66476007)(66556008)(41300700001)(186003)(26005)(6506007)(2906002)(921005)(6512007)(26583001)(4216001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?XxCvPBnS2WwyUYTv8APtukWKK6Jq5jNOEizybzOfHPWW+WBFguhDhUnZW7Qr?=
- =?us-ascii?Q?Ck4itz1nkW921qN/KPs20N+nRh73heGNvSxy2bWZ5q77eRiljPjTmS1D6ghQ?=
- =?us-ascii?Q?OtTJOhJ3YDW58WOsAosQJOCTp3CdrjjlJmJ8z86TvkpewdHLrhpKMqE/jICt?=
- =?us-ascii?Q?ROusXOxMFbnQXRkviNv+6C5dFNl+GfDyW45SgpVbe09566+iLtuIo4rhWtHz?=
- =?us-ascii?Q?e0p6goJ9EmUYwRTUCHHOSvR92hBDlx7Zxckg6qbQ9ILE+VsOBxJBlVB1y2C0?=
- =?us-ascii?Q?AyN4Pk5eY4jaT1/3md2Tc43sfzisS+B2jkrymvKUWiQ8/Yj7eHlZIsBnhj4O?=
- =?us-ascii?Q?+A0CUU4RRPQCO7T/sX31bs36k7Z1iHyCo1xvhN6+VlDRaFbQXbpzqkTwI4kK?=
- =?us-ascii?Q?QUayrnSuY3CnQ6Ei11nJH1WxGgFaeGTCoyeJ/8Rfk4DFDVeIRW0WTH22s4zn?=
- =?us-ascii?Q?T74pkPexDnv+SpQ0NPm5XnUQ3DomYum0oATjWRyRVnHyiC5p/xTVghxWrMrr?=
- =?us-ascii?Q?uhmnr3ocX5SpMQp+YNAtlobe0EiQBk25MbROjYfA8MF5MV1bkru0pDHHZwh7?=
- =?us-ascii?Q?W/K6HujY/zei/iF00wXt3NeNUMIVGJ2CCbdm5lAfqdyqXmMBBh6DEPbzSYIk?=
- =?us-ascii?Q?osOrTycmzY2oR1slPDYrglxKzMdpy3MIeEk/tVgp8dHG2WHfuceX8vizIaR1?=
- =?us-ascii?Q?Y8PnmBpeeOz+cpyv5rYqqxtiySxztfytZcYGYYEHoRIsWzpmmA+lpzUbHR9u?=
- =?us-ascii?Q?m+UQr28nUyk69/S7OtXaTs9DojiWT/NyoklBlvrnmCSn3lvwetLJIiktPqI0?=
- =?us-ascii?Q?jzkdP5v4b/ZkoQGEnon0GQHhUSN4Kbu812zamghTLcWbVkzwdZJRUy6EnSEw?=
- =?us-ascii?Q?5QgWQ0U7eH0j6F4jA34exon8c/b+hZMk/YBtH+LvQtXC6Us8oR0y+fFUDEv9?=
- =?us-ascii?Q?mXAfw0Oxi417ekioH/gByBJvBLQn0whvH8Ika/iaBVfXyGMO6PYc5MvjSfUX?=
- =?us-ascii?Q?T66wTekX/cBEM9/0BfGqnlwU0u7Vwd1As2G1Dg5frhCZKDHAkboqDA47wMgG?=
- =?us-ascii?Q?rtFJnUT290VVE2o6PQRaAPbefvZI241UZRKTRGScneR2RMyKQTQT/5iXtimv?=
- =?us-ascii?Q?nv12dMhS2ZBbqdqJzTIa0v4i1KtwZRVxIkfCQukhICxpmU2ukb8+T6sDM6Eg?=
- =?us-ascii?Q?ZnvHaMPWKOoMp7YMAWLQWSr4BoLC5eU8sqyirUGuZOZr6IBuBnjbbXJnJ9XE?=
- =?us-ascii?Q?tNsTt+NkT21gxbWPKRsydCgDMiQtXgkECaBDwh+SmpERO1bynqZ23HU6KGOn?=
- =?us-ascii?Q?zsKhuMZlPXK6mka001589EqvJuiR8CB9UPKzza0oay6UcLVmBRCqtX5yiZtt?=
- =?us-ascii?Q?CFP9HAeT4kpssmZkVpI95BOF1bbdKsy39Q55EpTyPgmkQsr8ZS2KzGEFGL1M?=
- =?us-ascii?Q?S6vDHVgtNHu72/sXyvWDlFM3OHDcts5lRpl/BIl1jY0l+zPTis7P1lQ/vXjP?=
- =?us-ascii?Q?03htKydz9ptkQOmqZOo/Z06jLalxygWzMIYS4JXVJ5RchLnNHkjaV7+c4E1v?=
- =?us-ascii?Q?2yYQbzxwacYPROh6qV0cpEg4LNKvL5ddnYNsMQgW?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: cec9538d-9786-4f0e-09e0-08db481ec1a6
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Apr 2023 19:28:33.9456
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 76ImkOGvjt+grLx0lR0jz3W/O1oknfXLbkI3Q/jmUO01nuR7AtHP/PdybZB6YMHc
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL3PR12MB6596
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-04-29_03,2023-04-27_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 clxscore=1011
+ mlxscore=0 phishscore=0 priorityscore=1501 bulkscore=0 impostorscore=0
+ malwarescore=0 lowpriorityscore=0 spamscore=0 adultscore=0 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2303200000
+ definitions=main-2304290182
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This doesn't do anything anymore, the only user of the symbol was VFIO_CCW
-which already "depends on VFIO" and VFIO selects IOMMU_API.
+Hello Linus,
 
-When this was added VFIO was wrongly doing "depends on IOMMU_API" which
-required some mess like this to ensure IOMMU_API was turned on.
+please pull s390 changes for 6.4. There is a stackleak common code change
+which allow specifying architecture-specific stackleak poison function
+to enable faster implementation. This change has been acked-by Mark Rutland.
+https://lore.kernel.org/all/ZDZz8QvPdpGJqMd6@FVFF77S0Q05N/
 
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
----
- arch/s390/Kconfig                 | 1 -
- arch/s390/configs/debug_defconfig | 1 -
- arch/s390/configs/defconfig       | 1 -
- drivers/iommu/Kconfig             | 8 --------
- 4 files changed, 11 deletions(-)
+There are a few small merge conflicts, notably with driver-core and tip
+trees. Both have already been pulled, and here are the manual conflict
+resolutions:
 
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 9809c74e124060..9334500078f978 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -714,7 +714,6 @@ config EADM_SCH
- config VFIO_CCW
- 	def_tristate n
- 	prompt "Support for VFIO-CCW subchannels"
--	depends on S390_CCW_IOMMU
- 	depends on VFIO
- 	select VFIO_MDEV
- 	help
-diff --git a/arch/s390/configs/debug_defconfig b/arch/s390/configs/debug_defconfig
-index 4ccf66d29fc24b..77b886e1b867d4 100644
---- a/arch/s390/configs/debug_defconfig
-+++ b/arch/s390/configs/debug_defconfig
-@@ -591,7 +591,6 @@ CONFIG_VIRTIO_BALLOON=m
- CONFIG_VIRTIO_INPUT=y
- CONFIG_VHOST_NET=m
- CONFIG_VHOST_VSOCK=m
--CONFIG_S390_CCW_IOMMU=y
- CONFIG_S390_AP_IOMMU=y
- CONFIG_EXT4_FS=y
- CONFIG_EXT4_FS_POSIX_ACL=y
-diff --git a/arch/s390/configs/defconfig b/arch/s390/configs/defconfig
-index 693297a2e89733..36ab9b1956245c 100644
---- a/arch/s390/configs/defconfig
-+++ b/arch/s390/configs/defconfig
-@@ -580,7 +580,6 @@ CONFIG_VIRTIO_BALLOON=m
- CONFIG_VIRTIO_INPUT=y
- CONFIG_VHOST_NET=m
- CONFIG_VHOST_VSOCK=m
--CONFIG_S390_CCW_IOMMU=y
- CONFIG_S390_AP_IOMMU=y
- CONFIG_EXT4_FS=y
- CONFIG_EXT4_FS_POSIX_ACL=y
-diff --git a/drivers/iommu/Kconfig b/drivers/iommu/Kconfig
-index db98c3f86e8c8b..b1f9d82b4ec9ae 100644
---- a/drivers/iommu/Kconfig
-+++ b/drivers/iommu/Kconfig
-@@ -417,14 +417,6 @@ config S390_IOMMU
- 	help
- 	  Support for the IOMMU API for s390 PCI devices.
+diff --cc arch/s390/kernel/setup.c
+index 4259b6c50516,0903fe356634..fe10da1a271e
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@@ -385,18 -381,13 +381,13 @@@ void stack_free(unsigned long stack
+  #endif
+  }
+  
+- int __init arch_early_irq_init(void)
+ -void __init arch_call_rest_init(void)
+++void __init __noreturn arch_call_rest_init(void)
+  {
+- 	unsigned long stack;
+- 
+- 	stack = __get_free_pages(GFP_KERNEL, THREAD_SIZE_ORDER);
+- 	if (!stack)
+- 		panic("Couldn't allocate async stack");
+- 	S390_lowcore.async_stack = stack + STACK_INIT_OFFSET;
+- 	return 0;
++ 	smp_reinit_ipl_cpu();
++ 	rest_init();
+  }
+  
+- void __init __noreturn arch_call_rest_init(void)
++ static unsigned long __init stack_alloc_early(void)
+  {
+  	unsigned long stack;
+  
+diff --cc arch/s390/kernel/topology.c
+index 72af753d1bba,e5d6a1c25d13..9fd19530c9a5
+--- a/arch/s390/kernel/topology.c
++++ b/arch/s390/kernel/topology.c
+@@@ -637,33 -637,14 +637,23 @@@ static struct ctl_table topology_ctl_ta
+  	{ },
+  };
+  
+- static struct ctl_table topology_dir_table[] = {
+- 	{
+- 		.procname	= "s390",
+- 		.maxlen		= 0,
+- 		.mode		= 0555,
+- 		.child		= topology_ctl_table,
+- 	},
+- 	{ },
+- };
+- 
+  static int __init topology_init(void)
+  {
+ +	struct device *dev_root;
+ +	int rc = 0;
+ +
+  	timer_setup(&topology_timer, topology_timer_fn, TIMER_DEFERRABLE);
+  	if (MACHINE_HAS_TOPOLOGY)
+  		set_topology_timer();
+  	else
+  		topology_update_polarization_simple();
+- 	register_sysctl_table(topology_dir_table);
++ 	register_sysctl("s390", topology_ctl_table);
+ -	return device_create_file(cpu_subsys.dev_root, &dev_attr_dispatching);
+ +
+ +	dev_root = bus_get_dev_root(&cpu_subsys);
+ +	if (dev_root) {
+ +		rc = device_create_file(dev_root, &dev_attr_dispatching);
+ +		put_device(dev_root);
+ +	}
+ +	return rc;
+  }
+  device_initcall(topology_init);
+--
+
+Also, a fixup is required for the drivers/s390/crypto/ap_bus.c:
+
+diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
+index 85bb0de15e76..8d6b9a52bf3c 100644
+--- a/drivers/s390/crypto/ap_bus.c
++++ b/drivers/s390/crypto/ap_bus.c
+@@ -1570,7 +1570,7 @@ static ssize_t bindings_show(const struct bus_type *bus, char *buf)
  
--config S390_CCW_IOMMU
--	bool "S390 CCW IOMMU Support"
--	depends on S390 && CCW || COMPILE_TEST
--	select IOMMU_API
--	help
--	  Enables bits of IOMMU API required by VFIO. The iommu_ops
--	  is not implemented as it is not necessary for VFIO.
--
- config S390_AP_IOMMU
- 	bool "S390 AP IOMMU Support"
- 	depends on S390 && ZCRYPT || COMPILE_TEST
+ static BUS_ATTR_RO(bindings);
+ 
+-static ssize_t features_show(struct bus_type *bus, char *buf)
++static ssize_t features_show(const struct bus_type *bus, char *buf)
+ {
+        int n = 0;
+ 
+--
+Besides that auto-merging does well.
 
-base-commit: 57d60ea1868f36586c85f6f6692cf4bc49affecd
--- 
-2.40.0
+Thank you,
+Vasily
 
+The following changes since commit eeac8ede17557680855031c6f305ece2378af326:
+
+  Linux 6.3-rc2 (2023-03-12 16:36:44 -0700)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.4-1
+
+for you to fetch changes up to 2a405f6bb3a5b2baaa74dfc5aaa0e1b99145bd1b:
+
+  s390/stackleak: provide fast __stackleak_poison() implementation (2023-04-20 11:36:35 +0200)
+
+----------------------------------------------------------------
+s390 updates for the 6.4 merge window
+
+- Add support for stackleak feature. Also allow specifying
+  architecture-specific stackleak poison function to enable faster
+  implementation. On s390, the mvc-based implementation helps decrease
+  typical overhead from a factor of 3 to just 25%
+
+- Convert all assembler files to use SYM* style macros, deprecating the
+  ENTRY() macro and other annotations. Select ARCH_USE_SYM_ANNOTATIONS
+
+- Improve KASLR to also randomize module and special amode31 code
+  base load addresses
+
+- Rework decompressor memory tracking to support memory holes and improve
+  error handling
+
+- Add support for protected virtualization AP binding
+
+- Add support for set_direct_map() calls
+
+- Implement set_memory_rox() and noexec module_alloc()
+
+- Remove obsolete overriding of mem*() functions for KASAN
+
+- Rework kexec/kdump to avoid using nodat_stack to call purgatory
+
+- Convert the rest of the s390 code to use flexible-array member instead
+  of a zero-length array
+
+- Clean up uaccess inline asm
+
+- Enable ARCH_HAS_MEMBARRIER_SYNC_CORE
+
+- Convert to using CONFIG_FUNCTION_ALIGNMENT and enable
+  DEBUG_FORCE_FUNCTION_ALIGN_64B
+
+- Resolve last_break in userspace fault reports
+
+- Simplify one-level sysctl registration
+
+- Clean up branch prediction handling
+
+- Rework CPU counter facility to retrieve available counter sets just
+  once
+
+- Other various small fixes and improvements all over the code
+
+----------------------------------------------------------------
+Al Viro (1):
+      s390: trim ancient junk from copy_thread()
+
+Alexander Gordeev (5):
+      s390/kexec: turn DAT mode off immediately before purgatory
+      s390/kdump: cleanup do_start_kdump() prototype and usage
+      s390/kdump: fix virtual vs physical address confusion
+      s390/kdump: rework invocation of DAT-off code
+      s390/kdump: remove nodat stack restriction for calling nodat functions
+
+Gustavo A. R. Silva (2):
+      s390/diag: replace zero-length array with flexible-array member
+      s390/fcx: replace zero-length array with flexible-array member
+
+Harald Freudenberger (15):
+      s390/zcrypt: make psmid unsigned long instead of long long
+      s390/zcrypt: rework length information for dqap
+      s390/zcrypt: replace scnprintf with sysfs_emit
+      s390/ap: exploit new B bit from QCI config info
+      s390/ap: introduce new AP bus sysfs attribute features
+      s390/ap: make tapq gr2 response a struct
+      s390/ap: filter ap card functions, new queue functions attribute
+      s390/ap: provide F bit parameter for ap_rapq() and ap_zapq()
+      s390/ap: new low level inline functions ap_bapq() and ap_aapq()
+      s390/ap: introduce low frequency polling possibility
+      s390/ap: implement SE AP bind, unbind and associate
+      s390/ap: add ap status asynch error support
+      s390/zcrypt: remove unused ancient padding code
+      s390/zcrypt: simplify prep of CCA key token
+      s390/zcrypt: rework arrays with length zero occurrences
+
+Heiko Carstens (66):
+      s390: update defconfigs
+      s390/bp: add missing BPENTER to program check handler
+      s390/bp: remove TIF_ISOLATE_BP
+      s390/bp: remove s390_isolate_bp_guest()
+      s390/bp: remove __bpon()
+      s390/setup: always inline gen_lpswe()
+      Merge branch 'decompressor-memory-tracking' into features
+      s390: make use of CONFIG_FUNCTION_ALIGNMENT
+      s390/ftrace: move hotpatch trampolines to mcount.S
+      s390/expoline: use __ALIGN instead of open coded .align
+      s390/vdso: use __ALIGN instead of open coded .align
+      s390: enable DEBUG_FORCE_FUNCTION_ALIGN_64B
+      s390/mm: make use of atomic_fetch_xor()
+      s390: enable ARCH_HAS_MEMBARRIER_SYNC_CORE
+      s390/uaccess: add missing earlyclobber annotations to __clear_user()
+      s390/uaccess: use symbolic names for inline assembly operands
+      s390/uaccess: remove unused label in inline assemblies
+      s390/uaccess: rename/sort labels in inline assemblies
+      s390/uaccess: sort EX_TABLE list for inline assemblies
+      s390/uaccess: rename tmp1 and tmp2 variables
+      s390/uaccess: get rid of not needed local variable
+      s390/uaccess: remove extra blank line
+      s390/dumpstack: simplify in stack logic code
+      s390/stack: use STACK_INIT_OFFSET where possible
+      s390/stack: set lowcore kernel stack pointer early
+      s390: use init_thread_union aka initial stack for the first process
+      s390/stacktrace: remove call_on_stack_noreturn()
+      s390: remove arch_early_irq_init()
+      s390: move on_thread_stack() to processor.h
+      s390: enable HAVE_ARCH_STACKLEAK
+      s390/checksum: always use cksm instruction
+      s390/checksum: remove not needed uaccess.h include
+      s390/kaslr: provide kaslr_enabled() function
+      s390/kaslr: randomize module base load address
+      s390/mm: implement set_memory_rox()
+      s390/mm: implement set_memory_rwnx()
+      s390/mm: use set_memory_*() helpers instead of open coding
+      s390/ftrace: do not assume module_alloc() returns executable memory
+      s390/module: create module allocations without exec permissions
+      s390/mm: rename POPULATE_ONE2ONE to POPULATE_DIRECT
+      s390/mm: fix direct map accounting
+      s390/debug: replace zero-length array with flexible-array member
+      s390/sclp: replace zero-length array with flexible-array member
+      s390/cio: replace zero-length array with flexible-array member
+      s390/kasan: remove override of mem*() functions
+      s390/lib: use SYM* macros instead of ENTRY(), etc.
+      s390/amode31: use SYM* macros instead of ENTRY(), etc.
+      s390/crypto,chacha: use SYM* macros instead of ENTRY(), etc.
+      s390/crc32be: use SYM* macros instead of ENTRY(), etc.
+      s390/crc32le: use SYM* macros instead of ENTRY(), etc.
+      s390/mcount: use SYM* macros instead of ENTRY(), etc.
+      s390/earlypgm: use SYM* macros instead of ENTRY(), etc.
+      s390/head64: use SYM* macros instead of ENTRY(), etc.
+      s390/reipl: use SYM* macros instead of ENTRY(), etc.
+      s390/kprobes: use SYM* macros instead of ENTRY(), etc.
+      s390/purgatory: use SYM* macros instead of ENTRY(), etc.
+      s390/entry: use SYM* macros instead of ENTRY(), etc.
+      s390/relocate_kernel: use SYM* macros instead of ENTRY(), etc.
+      s390/relocate_kernel: adjust indentation
+      s390/mm: use BIT macro to generate SET_MEMORY bit masks
+      s390/mm: enable ARCH_HAS_SET_DIRECT_MAP
+      s390: wire up memfd_secret system call
+      s390/mm: use VM_FLUSH_RESET_PERMS in module_alloc()
+      s390: select ARCH_USE_SYM_ANNOTATIONS
+      stackleak: allow to specify arch specific stackleak poison function
+      s390/stackleak: provide fast __stackleak_poison() implementation
+
+Ilya Leoshkevich (1):
+      s390/dumpstack: resolve userspace last_break
+
+Lizhe (1):
+      s390/vfio-ap: remove redundant driver match function
+
+Luis Chamberlain (6):
+      s390: simplify one-level sysctl registration for topology_ctl_table
+      s390: simplify one-level syctl registration for s390dbf_table
+      s390: simplify one-level sysctl registration for appldata_table
+      s390: simplify one level sysctl registration for cmm_table
+      s390: simplify one-level sysctl registration for page_table_sysctl
+      s390: simplify dynamic sysctl registration for appldata_register_ops
+
+Marc Hartmayer (1):
+      s390/boot: improve install.sh script
+
+Nico Boehr (1):
+      s390/ipl: fix physical-virtual confusion for diag308
+
+Niklas Schnelle (4):
+      PCI: s390: Fix use-after-free of PCI resources with per-function hotplug
+      s390/pci: only add specific device in zpci_bus_scan_device()
+      s390/pci: remove redundant pci_bus_add_devices() on new bus
+      s390/pci: clean up left over special treatment for function zero
+
+Sven Schnelle (1):
+      s390/ipl: add missing intersection check to ipl_report handling
+
+Thomas Richter (7):
+      s390/cpum_sf: remove flag PERF_CPUM_SF_FULL_BLOCKS
+      s390/cpum_cf: log bad return code of function cfset_all_copy
+      s390/cpum_cf: remove unnecessary copy_from_user call
+      s390/cpum_cf: simplify pr_err() statement in cpumf_pmu_enable/disable
+      s390/cpum_cf: introduce static CPU counter facility information
+      s390/cpum_cf: provide counter number to validate_ctr_version()
+      s390/cpum_cf: remove function validate_ctr_auth() by inline code
+
+Vasily Gorbik (12):
+      s390/boot: remove non-functioning image bootable check
+      s390/boot: rename mem_detect to physmem_info
+      s390/boot: rework decompressor reserved tracking
+      s390/mm,pageattr: allow KASAN shadow memory
+      s390/kasan: move shadow mapping to decompressor
+      Merge branch 'uaccess-inline-asm-cleanup' into features
+      s390/entry: rely on long-displacement facility
+      s390: make extables read-only
+      s390/boot: do not change default_lma
+      s390/boot: pin amode31 default lma
+      s390/kaslr: generalize and improve random base distribution
+      s390/kaslr: randomize amode31 base address
+
+Yu Zhe (1):
+      s390/zcrypt: remove unnecessary (void *) conversions
+
+ .../sched/membarrier-sync-core/arch-support.txt    |   4 +-
+ arch/s390/Kconfig                                  |  10 +-
+ arch/s390/appldata/appldata_base.c                 |  32 +-
+ arch/s390/boot/Makefile                            |   2 +-
+ arch/s390/boot/boot.h                              |  42 ++-
+ arch/s390/boot/install.sh                          |   8 +-
+ arch/s390/boot/ipl_parm.c                          |   6 +-
+ arch/s390/boot/ipl_report.c                        | 100 ++---
+ arch/s390/boot/kaslr.c                             | 171 +++++----
+ arch/s390/boot/mem_detect.c                        | 191 ----------
+ arch/s390/boot/pgm_check_info.c                    |   7 +-
+ arch/s390/boot/physmem_info.c                      | 328 +++++++++++++++++
+ arch/s390/boot/startup.c                           | 129 ++++---
+ arch/s390/boot/vmem.c                              | 284 +++++++++++---
+ arch/s390/boot/vmlinux.lds.S                       |   2 +
+ arch/s390/configs/debug_defconfig                  |  13 +-
+ arch/s390/configs/defconfig                        |  12 +-
+ arch/s390/configs/zfcpdump_defconfig               |   2 +-
+ arch/s390/crypto/chacha-s390.S                     |  47 +--
+ arch/s390/crypto/crc32be-vx.S                      |  17 +-
+ arch/s390/crypto/crc32le-vx.S                      |  30 +-
+ arch/s390/include/asm/ap.h                         | 152 ++++++--
+ arch/s390/include/asm/checksum.h                   |  10 +-
+ arch/s390/include/asm/diag.h                       |   2 +-
+ arch/s390/include/asm/entry-common.h               |   5 -
+ arch/s390/include/asm/fcx.h                        |   2 +-
+ arch/s390/include/asm/kasan.h                      |  31 +-
+ arch/s390/include/asm/linkage.h                    |   2 +-
+ arch/s390/include/asm/mem_detect.h                 | 117 ------
+ arch/s390/include/asm/nospec-insn.h                |   3 +-
+ arch/s390/include/asm/perf_event.h                 |   2 -
+ arch/s390/include/asm/pgtable.h                    |   2 +-
+ arch/s390/include/asm/physmem_info.h               | 171 +++++++++
+ arch/s390/include/asm/processor.h                  |  46 ++-
+ arch/s390/include/asm/set_memory.h                 |  36 +-
+ arch/s390/include/asm/setup.h                      |  20 +-
+ arch/s390/include/asm/stacktrace.h                 |  52 ++-
+ arch/s390/include/asm/string.h                     |  15 +-
+ arch/s390/include/asm/thread_info.h                |  10 +-
+ arch/s390/kernel/debug.c                           |  14 +-
+ arch/s390/kernel/dumpstack.c                       |  46 ++-
+ arch/s390/kernel/early.c                           |  23 +-
+ arch/s390/kernel/earlypgm.S                        |   4 +-
+ arch/s390/kernel/entry.S                           | 152 ++++----
+ arch/s390/kernel/ftrace.c                          |  22 +-
+ arch/s390/kernel/head64.S                          |  14 +-
+ arch/s390/kernel/ipl.c                             |   7 +-
+ arch/s390/kernel/kprobes.c                         |   2 +-
+ arch/s390/kernel/kprobes_insn_page.S               |   4 +-
+ arch/s390/kernel/machine_kexec.c                   |  56 ++-
+ arch/s390/kernel/mcount.S                          |  26 +-
+ arch/s390/kernel/module.c                          |  29 +-
+ arch/s390/kernel/perf_cpum_cf.c                    | 206 +++++------
+ arch/s390/kernel/perf_cpum_sf.c                    |  14 +-
+ arch/s390/kernel/process.c                         |  10 +-
+ arch/s390/kernel/processor.c                       |  18 -
+ arch/s390/kernel/reipl.S                           |  10 +-
+ arch/s390/kernel/relocate_kernel.S                 |  96 +++--
+ arch/s390/kernel/setup.c                           | 152 +++-----
+ arch/s390/kernel/smp.c                             |  11 +-
+ arch/s390/kernel/syscalls/syscall.tbl              |   2 +-
+ arch/s390/kernel/text_amode31.S                    |  75 ++--
+ arch/s390/kernel/topology.c                        |  12 +-
+ arch/s390/kernel/vdso32/vdso_user_wrapper.S        |   3 +-
+ arch/s390/kernel/vdso64/vdso_user_wrapper.S        |   5 +-
+ arch/s390/kernel/vmlinux.lds.S                     |  10 +-
+ arch/s390/lib/mem.S                                |  28 +-
+ arch/s390/lib/uaccess.c                            | 137 +++----
+ arch/s390/mm/Makefile                              |   3 -
+ arch/s390/mm/cmm.c                                 |  12 +-
+ arch/s390/mm/init.c                                |   5 +-
+ arch/s390/mm/kasan_init.c                          | 301 ---------------
+ arch/s390/mm/pageattr.c                            |  94 ++++-
+ arch/s390/mm/pgalloc.c                             |  20 +-
+ arch/s390/mm/vmem.c                                |  35 +-
+ arch/s390/pci/pci.c                                |  39 +-
+ arch/s390/pci/pci_bus.c                            |  23 +-
+ arch/s390/pci/pci_bus.h                            |   3 +-
+ arch/s390/purgatory/head.S                         |  62 +---
+ arch/s390/purgatory/kexec-purgatory.S              |  14 +-
+ drivers/pci/bus.c                                  |  21 ++
+ drivers/s390/char/sclp.h                           |   2 +-
+ drivers/s390/char/sclp_cmd.c                       |   2 +-
+ drivers/s390/char/sclp_early_core.c                |   8 +-
+ drivers/s390/cio/chsc.c                            |   2 +-
+ drivers/s390/cio/chsc.h                            |   2 +-
+ drivers/s390/crypto/ap_bus.c                       | 254 +++++++------
+ drivers/s390/crypto/ap_bus.h                       |  70 ++--
+ drivers/s390/crypto/ap_card.c                      |  23 +-
+ drivers/s390/crypto/ap_queue.c                     | 410 +++++++++++++++++----
+ drivers/s390/crypto/vfio_ap_drv.c                  |   6 -
+ drivers/s390/crypto/vfio_ap_ops.c                  |  16 +-
+ drivers/s390/crypto/zcrypt_api.c                   |  60 +--
+ drivers/s390/crypto/zcrypt_card.c                  |   6 +-
+ drivers/s390/crypto/zcrypt_cca_key.h               |  37 +-
+ drivers/s390/crypto/zcrypt_ccamisc.c               |  74 ++--
+ drivers/s390/crypto/zcrypt_cex2c.c                 |  66 ++--
+ drivers/s390/crypto/zcrypt_cex4.c                  | 141 ++++---
+ drivers/s390/crypto/zcrypt_ep11misc.c              |   2 +-
+ drivers/s390/crypto/zcrypt_msgtype50.c             |  15 +-
+ drivers/s390/crypto/zcrypt_msgtype6.c              | 139 +++----
+ drivers/s390/crypto/zcrypt_queue.c                 |   4 +-
+ include/linux/pci.h                                |   1 +
+ kernel/stackleak.c                                 |  17 +-
+ lib/Kconfig.debug                                  |   2 +-
+ 105 files changed, 2831 insertions(+), 2463 deletions(-)
+ delete mode 100644 arch/s390/boot/mem_detect.c
+ create mode 100644 arch/s390/boot/physmem_info.c
+ delete mode 100644 arch/s390/include/asm/mem_detect.h
+ create mode 100644 arch/s390/include/asm/physmem_info.h
+ delete mode 100644 arch/s390/mm/kasan_init.c
