@@ -2,507 +2,174 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 226FDC77B60
-	for <linux-s390@archiver.kernel.org>; Sat, 29 Apr 2023 19:17:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 70E78C77B60
+	for <linux-s390@archiver.kernel.org>; Sun, 30 Apr 2023 13:35:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229498AbjD2TRU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 29 Apr 2023 15:17:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59500 "EHLO
+        id S229725AbjD3NfG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 30 Apr 2023 09:35:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229476AbjD2TRT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 29 Apr 2023 15:17:19 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA06A10C8;
-        Sat, 29 Apr 2023 12:17:15 -0700 (PDT)
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 33TJBrk5006821;
-        Sat, 29 Apr 2023 19:17:10 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : content-type : mime-version; s=pp1;
- bh=U7cBPtBD74et/mq/30RW2kWeKjHp8DEOTwuK/Zfl808=;
- b=tXFgbEj+FuEKzERSOmcMwFkKx3x0bMlrRTp1tQBF2GcccE38bWXw/gTc887dG/3XPcd0
- 8vbO8g/fikoQqUMJ8TJIFY6asu3KND9RCNljK+oiWKH94ExgxLNX9Exkn9fo0JEV6oCS
- y9Q7Ee6F+WP9qubRr+VTdqbf56uNWBFbqU1u/BzUgCyDlfrYXfGNPk0P0yIrjKfWl6M5
- KqbPAYJeZ8IgaCrE4ZOJLGtC1wHm2L0aj4LsDCpw491+km0DihwCfFfQzBtH/YXuM43x
- F7B8zaVROCQcHv6Pr62tyjXngJcyHbaCSXOWGdYY75N86zABOpM9rJWllxfCNYswVo4H Zg== 
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3q98rp0g86-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sat, 29 Apr 2023 19:17:10 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 33TIi3Fc014837;
-        Sat, 29 Apr 2023 19:17:08 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma02fra.de.ibm.com (PPS) with ESMTPS id 3q8tv6r89e-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sat, 29 Apr 2023 19:17:07 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 33TJH47H34013848
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sat, 29 Apr 2023 19:17:04 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3C4B020043;
-        Sat, 29 Apr 2023 19:17:04 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A7DB820040;
-        Sat, 29 Apr 2023 19:17:03 +0000 (GMT)
-Received: from localhost (unknown [9.179.20.219])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Sat, 29 Apr 2023 19:17:03 +0000 (GMT)
-Date:   Sat, 29 Apr 2023 21:17:02 +0200
-From:   Vasily Gorbik <gor@linux.ibm.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Kees Cook <keescook@chromium.org>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [GIT PULL] s390 patches for the 6.4 merge window
-Message-ID: <your-ad-here.call-01682795822-ext-1971@work.hours>
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: UrzPOFkUgjE_hbBDWafKOIdQfs-EsqpL
-X-Proofpoint-GUID: UrzPOFkUgjE_hbBDWafKOIdQfs-EsqpL
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        with ESMTP id S229452AbjD3NfF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 30 Apr 2023 09:35:05 -0400
+Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 292612D73;
+        Sun, 30 Apr 2023 06:35:04 -0700 (PDT)
+Received: by mail-wm1-x334.google.com with SMTP id 5b1f17b1804b1-3f178da21b2so17009465e9.1;
+        Sun, 30 Apr 2023 06:35:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1682861702; x=1685453702;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=Q66B2VAsNUEUORNlqd/SH3lXkCF0Wmvm/NkUzg1deG4=;
+        b=BmCyo1xoZ+cVDt6YzcEtIIxzt546M6p04my6rYSGd+KiYf6AriqYLQlNarK0WY0LxS
+         pQoLafhW2AYJ3lPZTZEIwCVNrV6o0pGcJf5dPZ6XcpHsKIjxQZcOextuqkwLkiVm6jK4
+         00ydwThgdRiEh2NLwea1qsbBbvAKBsm8DN5tTj8tTfYrSOxj5TtqXBJiIExbwH5miNW8
+         MuXMpVS4GNFC2ik192kiP8SGLTOWS3ZMKqPP20tmXQ13vtj7voQnYOoSm/XN+t4n/H1i
+         vkFwd2YghAErCKWm9fagZd7XLG2u7UAqcJRQQ7IAk87/4OCG3G7zk9U/c1QrWPipXZSF
+         vQ6g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1682861702; x=1685453702;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Q66B2VAsNUEUORNlqd/SH3lXkCF0Wmvm/NkUzg1deG4=;
+        b=Q+CLmntVLjErm/9Yh7lA7u5Bpvpzdp+U5K+dSb8vq/6BiNeKUXNeHUYV1KvX6YF+BN
+         0rUGVgzboNe8cN1MrrfEqnNIhaqaYv0KXnokWt3YO5OtJQDdVHU+8xtVnXT1+VVy9jzj
+         RYsOxBceBHBe7R4nbA/qa2VPn5ta5fTWGfMPfKB0f+8t9fJmufAc8ycyFnINEDtpk97Y
+         /VL83VCZxZiSruXpJW6xO3ffFr7UkHYWWkng+YZZadd+JMKnwacKArlxHfcQhZNoOS2f
+         g3njdvl2GDXC8sk+d23xhxlDtzYhdHIEMlO8x6EgUuI8W+Pt52CADPI39/k1ao47A2DY
+         HRLw==
+X-Gm-Message-State: AC+VfDxvDdaw5VcXsSsemFXdfn8dZjVMC87fadsLyPwR4gOP8y3q8tkO
+        9L/ODH8CrLJlJbS5LcOGGqO8AVrjssljpQ==
+X-Google-Smtp-Source: ACHHUZ6f/Of5in+f+7rmLzDThrDRTY8P7ry/dx2mW37IvLwVIFHa0pZqc55OHMKJnZv46o13k/JELw==
+X-Received: by 2002:a05:600c:22d0:b0:3f0:7e15:f8fc with SMTP id 16-20020a05600c22d000b003f07e15f8fcmr8505350wmg.14.1682861702347;
+        Sun, 30 Apr 2023 06:35:02 -0700 (PDT)
+Received: from localhost ([2a00:23c5:dc8c:8701:1663:9a35:5a7b:1d76])
+        by smtp.gmail.com with ESMTPSA id t24-20020a1c7718000000b003f3195be0a0sm10174326wmi.31.2023.04.30.06.35.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 30 Apr 2023 06:35:01 -0700 (PDT)
+Date:   Sun, 30 Apr 2023 14:35:00 +0100
+From:   Lorenzo Stoakes <lstoakes@gmail.com>
+To:     "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+        Sven Schnelle <svens@linux.ibm.com>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        syzbot+a7c1ec5b1d71ceaa5186@syzkaller.appspotmail.com,
+        stable@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH] mm/mempolicy: Fix use-after-free of VMA iterator
+Message-ID: <5066f333-5021-451d-abdd-07a027d98820@lucifer.local>
+References: <20230410152205.2294819-1-Liam.Howlett@oracle.com>
+ <yt9dildhke9l.fsf@linux.ibm.com>
+ <20230427173247.s5rn6nujoxiatviu@revolver>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-04-29_03,2023-04-27_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 clxscore=1011
- mlxscore=0 phishscore=0 priorityscore=1501 bulkscore=0 impostorscore=0
- malwarescore=0 lowpriorityscore=0 spamscore=0 adultscore=0 suspectscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2303200000
- definitions=main-2304290182
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230427173247.s5rn6nujoxiatviu@revolver>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello Linus,
+On Thu, Apr 27, 2023 at 01:32:47PM -0400, Liam R. Howlett wrote:
+> * Sven Schnelle <svens@linux.ibm.com> [230427 02:53]:
+> > "Liam R. Howlett" <Liam.Howlett@oracle.com> writes:
+> >
+> > > set_mempolicy_home_node() iterates over a list of VMAs and calls
+> > > mbind_range() on each VMA, which also iterates over the singular list of
+> > > the VMA passed in and potentially splits the VMA.  Since the VMA
+> > > iterator is not passed through, set_mempolicy_home_node() may now point
+> > > to a stale node in the VMA tree.  This can result in a UAF as reported
+> > > by syzbot.
+> > >
+> > > Avoid the stale maple tree node by passing the VMA iterator through to
+> > > the underlying call to split_vma().
+> > >
+> > > mbind_range() is also overly complicated, since there are two calling
+> > > functions and one already handles iterating over the VMAs.  Simplify
+> > > mbind_range() to only handle merging and splitting of the VMAs.
+> > >
+> > > Align the new loop in do_mbind() and existing loop in
+> > > set_mempolicy_home_node() to use the reduced mbind_range() function.
+> > > This allows for a single location of the range calculation and avoids
+> > > constantly looking up the previous VMA (since this is a loop over the
+> > > VMAs).
+> > >
+> > > Link: https://lore.kernel.org/linux-mm/000000000000c93feb05f87e24ad@google.com/
+> > > Reported-and-tested-by: syzbot+a7c1ec5b1d71ceaa5186@syzkaller.appspotmail.com
+> > > Fixes: 66850be55e8e ("mm/mempolicy: use vma iterator & maple state instead of vma linked list")
+> > > Cc: <stable@vger.kernel.org>
+> > > Signed-off-by: Liam R. Howlett <Liam.Howlett@oracle.com>
+> > > ---
+> >
+> > This breaks the vma02 testcase from ltp on s390:
+> >
+> >  ~ # ./vma02
+> > vma02       0  TINFO  :  pid = 617 addr = 0x3ff8f673000
+> > vma02       0  TINFO  :  start = 0x3ff8f673000, end = 0x3ff8f674000
+> > vma02       0  TINFO  :  start = 0x3ff8f674000, end = 0x3ff8f675000
+> > vma02       0  TINFO  :  start = 0x3ff8f675000, end = 0x3ff8f676000
+> > vma02       1  TFAIL  :  vma02.c:144: >1 unmerged VMAs.
+> >
+> > When this happens the following VM_WARN_ON() is triggered:
+> >
+> > [   25.628747] ------------[ cut here ]------------
+> > [   25.628821] WARNING: CPU: 0 PID: 617 at mm/mmap.c:922 vma_merge+0x7ca/0x970
+> > [   25.628834] Modules linked in:
+> > [   25.628841] CPU: 0 PID: 617 Comm: vma02 Not tainted 6.3.0-09574-g285e1dccc348 #108
+> > [   25.628846] Hardware name: IBM 3906 M04 704 (z/VM 7.1.0)
+> > [   25.628850] Krnl PSW : 0704e00180000000 00000000004317b6 (vma_merge+0x7ce/0x970)
+> > [   25.628859]            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:2 PM:0 RI:0 EA:3
+> > [   25.628866] Krnl GPRS: 000003ff8f62d000 000003ff8f674000 000000008e7cb908 000000000131f0f4
+> > [   25.628871]            0000000000000001 0000038000bdba1c 000003ff8f675000 000000008e7cb908
+> > [   25.628876]            000000008e7cb908 000003ff8f674000 000003ff8f675000 000000008e7ca308
+> > [   25.628881]            0000000000000001 000000003ff8f674 0000000000431048 0000038000bdbb08
+> > [   25.628891] Krnl Code: 00000000004317aa: a7f4fcea            brc     15,000000000043117e
+> > [   25.628891]            00000000004317ae: b9040087            lgr     %r8,%r7
+> > [   25.628891]           #00000000004317b2: af000000            mc      0,0
+> > [   25.628891]           >00000000004317b6: a7f4fc5f            brc     15,0000000000431074
+> > [   25.628891]            00000000004317ba: ec38fd30007c        cgij    %r3,0,8,000000000043121a
+> > [   25.628891]            00000000004317c0: e31031d80004        lg      %r1,472(%r3)
+> > [   25.628891]            00000000004317c6: e310f0f80024        stg     %r1,248(%r15)
+> > [   25.628891]            00000000004317cc: a7f4fd27            brc     15,000000000043121a
+> > [   25.628970] Call Trace:
+> > [   25.628974]  [<00000000004317b6>] vma_merge+0x7ce/0x970
+> > [   25.628979] ([<0000000000431048>] vma_merge+0x60/0x970)
+> > [   25.628985]  [<0000000000482e5a>] mbind_range+0x13a/0x1c8
+> > [   25.628990]  [<0000000000483448>] do_mbind+0x2c8/0x448
+> > [   25.629013]  [<0000000000483662>] kernel_mbind+0x9a/0xb8
+> > [   25.629018]  [<0000000000483724>] __s390x_sys_mbind+0x4c/0x58
+> > [   25.629023]  [<0000000000f38c3a>] __do_syscall+0x1da/0x208
+> > [   25.629030]  [<0000000000f4ed40>] system_call+0x70/0x98
+> > [   25.629037] 1 lock held by vma02/617:
+> > [   25.629042]  #0: 000000008c570ca8 (&mm->mmap_lock){++++}-{3:3}, at: do_mbind+0x102/0x448
+> > [   25.629055] Last Breaking-Event-Address:
+> > [   25.629058]  [<0000000000431070>] vma_merge+0x88/0x970
+> > [   25.629066] irq event stamp: 12559
+> > [   25.629070] hardirqs last  enabled at (12567): [<00000000001fcc6c>] __up_console_sem+0x8c/0xc0
+> > [   25.629080] hardirqs last disabled at (12574): [<00000000001fcc4e>] __up_console_sem+0x6e/0xc0
+> > [   25.629086] softirqs last  enabled at (10076): [<0000000000f516e2>] __do_softirq+0x512/0x618
+> > [   25.629123] softirqs last disabled at (10053): [<0000000000162bbe>] __irq_exit_rcu+0x13e/0x170
+> > [   25.629132] ---[ end trace 0000000000000000 ]---
+> >
+> > which is:
+> >
+> >        /* verify some invariant that must be enforced by the caller */
+> >        VM_WARN_ON(prev && addr <= prev->vm_start);
+> > -->    VM_WARN_ON(mid && end > mid->vm_end);
+> >        VM_WARN_ON(addr >= end);
+> >
+> > Any thoughts?
+>
+> No thoughts that I should share.
+>
+> I will have to boot my s390 (vm) and have a look.
+>
+> Thanks for letting me know.
+>
+> Regards,
+> Liam
 
-please pull s390 changes for 6.4. There is a stackleak common code change
-which allow specifying architecture-specific stackleak poison function
-to enable faster implementation. This change has been acked-by Mark Rutland.
-https://lore.kernel.org/all/ZDZz8QvPdpGJqMd6@FVFF77S0Q05N/
+I tracked down what this (almost certainly) was + added fix in [1] as it
+popped up as a 6.2.y stable bug. It doesn't seem arch-specific so you can
+put that s390 down :)
 
-There are a few small merge conflicts, notably with driver-core and tip
-trees. Both have already been pulled, and here are the manual conflict
-resolutions:
-
-diff --cc arch/s390/kernel/setup.c
-index 4259b6c50516,0903fe356634..fe10da1a271e
---- a/arch/s390/kernel/setup.c
-+++ b/arch/s390/kernel/setup.c
-@@@ -385,18 -381,13 +381,13 @@@ void stack_free(unsigned long stack
-  #endif
-  }
-  
-- int __init arch_early_irq_init(void)
- -void __init arch_call_rest_init(void)
-++void __init __noreturn arch_call_rest_init(void)
-  {
-- 	unsigned long stack;
-- 
-- 	stack = __get_free_pages(GFP_KERNEL, THREAD_SIZE_ORDER);
-- 	if (!stack)
-- 		panic("Couldn't allocate async stack");
-- 	S390_lowcore.async_stack = stack + STACK_INIT_OFFSET;
-- 	return 0;
-+ 	smp_reinit_ipl_cpu();
-+ 	rest_init();
-  }
-  
-- void __init __noreturn arch_call_rest_init(void)
-+ static unsigned long __init stack_alloc_early(void)
-  {
-  	unsigned long stack;
-  
-diff --cc arch/s390/kernel/topology.c
-index 72af753d1bba,e5d6a1c25d13..9fd19530c9a5
---- a/arch/s390/kernel/topology.c
-+++ b/arch/s390/kernel/topology.c
-@@@ -637,33 -637,14 +637,23 @@@ static struct ctl_table topology_ctl_ta
-  	{ },
-  };
-  
-- static struct ctl_table topology_dir_table[] = {
-- 	{
-- 		.procname	= "s390",
-- 		.maxlen		= 0,
-- 		.mode		= 0555,
-- 		.child		= topology_ctl_table,
-- 	},
-- 	{ },
-- };
-- 
-  static int __init topology_init(void)
-  {
- +	struct device *dev_root;
- +	int rc = 0;
- +
-  	timer_setup(&topology_timer, topology_timer_fn, TIMER_DEFERRABLE);
-  	if (MACHINE_HAS_TOPOLOGY)
-  		set_topology_timer();
-  	else
-  		topology_update_polarization_simple();
-- 	register_sysctl_table(topology_dir_table);
-+ 	register_sysctl("s390", topology_ctl_table);
- -	return device_create_file(cpu_subsys.dev_root, &dev_attr_dispatching);
- +
- +	dev_root = bus_get_dev_root(&cpu_subsys);
- +	if (dev_root) {
- +		rc = device_create_file(dev_root, &dev_attr_dispatching);
- +		put_device(dev_root);
- +	}
- +	return rc;
-  }
-  device_initcall(topology_init);
---
-
-Also, a fixup is required for the drivers/s390/crypto/ap_bus.c:
-
-diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
-index 85bb0de15e76..8d6b9a52bf3c 100644
---- a/drivers/s390/crypto/ap_bus.c
-+++ b/drivers/s390/crypto/ap_bus.c
-@@ -1570,7 +1570,7 @@ static ssize_t bindings_show(const struct bus_type *bus, char *buf)
- 
- static BUS_ATTR_RO(bindings);
- 
--static ssize_t features_show(struct bus_type *bus, char *buf)
-+static ssize_t features_show(const struct bus_type *bus, char *buf)
- {
-        int n = 0;
- 
---
-Besides that auto-merging does well.
-
-Thank you,
-Vasily
-
-The following changes since commit eeac8ede17557680855031c6f305ece2378af326:
-
-  Linux 6.3-rc2 (2023-03-12 16:36:44 -0700)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.4-1
-
-for you to fetch changes up to 2a405f6bb3a5b2baaa74dfc5aaa0e1b99145bd1b:
-
-  s390/stackleak: provide fast __stackleak_poison() implementation (2023-04-20 11:36:35 +0200)
-
-----------------------------------------------------------------
-s390 updates for the 6.4 merge window
-
-- Add support for stackleak feature. Also allow specifying
-  architecture-specific stackleak poison function to enable faster
-  implementation. On s390, the mvc-based implementation helps decrease
-  typical overhead from a factor of 3 to just 25%
-
-- Convert all assembler files to use SYM* style macros, deprecating the
-  ENTRY() macro and other annotations. Select ARCH_USE_SYM_ANNOTATIONS
-
-- Improve KASLR to also randomize module and special amode31 code
-  base load addresses
-
-- Rework decompressor memory tracking to support memory holes and improve
-  error handling
-
-- Add support for protected virtualization AP binding
-
-- Add support for set_direct_map() calls
-
-- Implement set_memory_rox() and noexec module_alloc()
-
-- Remove obsolete overriding of mem*() functions for KASAN
-
-- Rework kexec/kdump to avoid using nodat_stack to call purgatory
-
-- Convert the rest of the s390 code to use flexible-array member instead
-  of a zero-length array
-
-- Clean up uaccess inline asm
-
-- Enable ARCH_HAS_MEMBARRIER_SYNC_CORE
-
-- Convert to using CONFIG_FUNCTION_ALIGNMENT and enable
-  DEBUG_FORCE_FUNCTION_ALIGN_64B
-
-- Resolve last_break in userspace fault reports
-
-- Simplify one-level sysctl registration
-
-- Clean up branch prediction handling
-
-- Rework CPU counter facility to retrieve available counter sets just
-  once
-
-- Other various small fixes and improvements all over the code
-
-----------------------------------------------------------------
-Al Viro (1):
-      s390: trim ancient junk from copy_thread()
-
-Alexander Gordeev (5):
-      s390/kexec: turn DAT mode off immediately before purgatory
-      s390/kdump: cleanup do_start_kdump() prototype and usage
-      s390/kdump: fix virtual vs physical address confusion
-      s390/kdump: rework invocation of DAT-off code
-      s390/kdump: remove nodat stack restriction for calling nodat functions
-
-Gustavo A. R. Silva (2):
-      s390/diag: replace zero-length array with flexible-array member
-      s390/fcx: replace zero-length array with flexible-array member
-
-Harald Freudenberger (15):
-      s390/zcrypt: make psmid unsigned long instead of long long
-      s390/zcrypt: rework length information for dqap
-      s390/zcrypt: replace scnprintf with sysfs_emit
-      s390/ap: exploit new B bit from QCI config info
-      s390/ap: introduce new AP bus sysfs attribute features
-      s390/ap: make tapq gr2 response a struct
-      s390/ap: filter ap card functions, new queue functions attribute
-      s390/ap: provide F bit parameter for ap_rapq() and ap_zapq()
-      s390/ap: new low level inline functions ap_bapq() and ap_aapq()
-      s390/ap: introduce low frequency polling possibility
-      s390/ap: implement SE AP bind, unbind and associate
-      s390/ap: add ap status asynch error support
-      s390/zcrypt: remove unused ancient padding code
-      s390/zcrypt: simplify prep of CCA key token
-      s390/zcrypt: rework arrays with length zero occurrences
-
-Heiko Carstens (66):
-      s390: update defconfigs
-      s390/bp: add missing BPENTER to program check handler
-      s390/bp: remove TIF_ISOLATE_BP
-      s390/bp: remove s390_isolate_bp_guest()
-      s390/bp: remove __bpon()
-      s390/setup: always inline gen_lpswe()
-      Merge branch 'decompressor-memory-tracking' into features
-      s390: make use of CONFIG_FUNCTION_ALIGNMENT
-      s390/ftrace: move hotpatch trampolines to mcount.S
-      s390/expoline: use __ALIGN instead of open coded .align
-      s390/vdso: use __ALIGN instead of open coded .align
-      s390: enable DEBUG_FORCE_FUNCTION_ALIGN_64B
-      s390/mm: make use of atomic_fetch_xor()
-      s390: enable ARCH_HAS_MEMBARRIER_SYNC_CORE
-      s390/uaccess: add missing earlyclobber annotations to __clear_user()
-      s390/uaccess: use symbolic names for inline assembly operands
-      s390/uaccess: remove unused label in inline assemblies
-      s390/uaccess: rename/sort labels in inline assemblies
-      s390/uaccess: sort EX_TABLE list for inline assemblies
-      s390/uaccess: rename tmp1 and tmp2 variables
-      s390/uaccess: get rid of not needed local variable
-      s390/uaccess: remove extra blank line
-      s390/dumpstack: simplify in stack logic code
-      s390/stack: use STACK_INIT_OFFSET where possible
-      s390/stack: set lowcore kernel stack pointer early
-      s390: use init_thread_union aka initial stack for the first process
-      s390/stacktrace: remove call_on_stack_noreturn()
-      s390: remove arch_early_irq_init()
-      s390: move on_thread_stack() to processor.h
-      s390: enable HAVE_ARCH_STACKLEAK
-      s390/checksum: always use cksm instruction
-      s390/checksum: remove not needed uaccess.h include
-      s390/kaslr: provide kaslr_enabled() function
-      s390/kaslr: randomize module base load address
-      s390/mm: implement set_memory_rox()
-      s390/mm: implement set_memory_rwnx()
-      s390/mm: use set_memory_*() helpers instead of open coding
-      s390/ftrace: do not assume module_alloc() returns executable memory
-      s390/module: create module allocations without exec permissions
-      s390/mm: rename POPULATE_ONE2ONE to POPULATE_DIRECT
-      s390/mm: fix direct map accounting
-      s390/debug: replace zero-length array with flexible-array member
-      s390/sclp: replace zero-length array with flexible-array member
-      s390/cio: replace zero-length array with flexible-array member
-      s390/kasan: remove override of mem*() functions
-      s390/lib: use SYM* macros instead of ENTRY(), etc.
-      s390/amode31: use SYM* macros instead of ENTRY(), etc.
-      s390/crypto,chacha: use SYM* macros instead of ENTRY(), etc.
-      s390/crc32be: use SYM* macros instead of ENTRY(), etc.
-      s390/crc32le: use SYM* macros instead of ENTRY(), etc.
-      s390/mcount: use SYM* macros instead of ENTRY(), etc.
-      s390/earlypgm: use SYM* macros instead of ENTRY(), etc.
-      s390/head64: use SYM* macros instead of ENTRY(), etc.
-      s390/reipl: use SYM* macros instead of ENTRY(), etc.
-      s390/kprobes: use SYM* macros instead of ENTRY(), etc.
-      s390/purgatory: use SYM* macros instead of ENTRY(), etc.
-      s390/entry: use SYM* macros instead of ENTRY(), etc.
-      s390/relocate_kernel: use SYM* macros instead of ENTRY(), etc.
-      s390/relocate_kernel: adjust indentation
-      s390/mm: use BIT macro to generate SET_MEMORY bit masks
-      s390/mm: enable ARCH_HAS_SET_DIRECT_MAP
-      s390: wire up memfd_secret system call
-      s390/mm: use VM_FLUSH_RESET_PERMS in module_alloc()
-      s390: select ARCH_USE_SYM_ANNOTATIONS
-      stackleak: allow to specify arch specific stackleak poison function
-      s390/stackleak: provide fast __stackleak_poison() implementation
-
-Ilya Leoshkevich (1):
-      s390/dumpstack: resolve userspace last_break
-
-Lizhe (1):
-      s390/vfio-ap: remove redundant driver match function
-
-Luis Chamberlain (6):
-      s390: simplify one-level sysctl registration for topology_ctl_table
-      s390: simplify one-level syctl registration for s390dbf_table
-      s390: simplify one-level sysctl registration for appldata_table
-      s390: simplify one level sysctl registration for cmm_table
-      s390: simplify one-level sysctl registration for page_table_sysctl
-      s390: simplify dynamic sysctl registration for appldata_register_ops
-
-Marc Hartmayer (1):
-      s390/boot: improve install.sh script
-
-Nico Boehr (1):
-      s390/ipl: fix physical-virtual confusion for diag308
-
-Niklas Schnelle (4):
-      PCI: s390: Fix use-after-free of PCI resources with per-function hotplug
-      s390/pci: only add specific device in zpci_bus_scan_device()
-      s390/pci: remove redundant pci_bus_add_devices() on new bus
-      s390/pci: clean up left over special treatment for function zero
-
-Sven Schnelle (1):
-      s390/ipl: add missing intersection check to ipl_report handling
-
-Thomas Richter (7):
-      s390/cpum_sf: remove flag PERF_CPUM_SF_FULL_BLOCKS
-      s390/cpum_cf: log bad return code of function cfset_all_copy
-      s390/cpum_cf: remove unnecessary copy_from_user call
-      s390/cpum_cf: simplify pr_err() statement in cpumf_pmu_enable/disable
-      s390/cpum_cf: introduce static CPU counter facility information
-      s390/cpum_cf: provide counter number to validate_ctr_version()
-      s390/cpum_cf: remove function validate_ctr_auth() by inline code
-
-Vasily Gorbik (12):
-      s390/boot: remove non-functioning image bootable check
-      s390/boot: rename mem_detect to physmem_info
-      s390/boot: rework decompressor reserved tracking
-      s390/mm,pageattr: allow KASAN shadow memory
-      s390/kasan: move shadow mapping to decompressor
-      Merge branch 'uaccess-inline-asm-cleanup' into features
-      s390/entry: rely on long-displacement facility
-      s390: make extables read-only
-      s390/boot: do not change default_lma
-      s390/boot: pin amode31 default lma
-      s390/kaslr: generalize and improve random base distribution
-      s390/kaslr: randomize amode31 base address
-
-Yu Zhe (1):
-      s390/zcrypt: remove unnecessary (void *) conversions
-
- .../sched/membarrier-sync-core/arch-support.txt    |   4 +-
- arch/s390/Kconfig                                  |  10 +-
- arch/s390/appldata/appldata_base.c                 |  32 +-
- arch/s390/boot/Makefile                            |   2 +-
- arch/s390/boot/boot.h                              |  42 ++-
- arch/s390/boot/install.sh                          |   8 +-
- arch/s390/boot/ipl_parm.c                          |   6 +-
- arch/s390/boot/ipl_report.c                        | 100 ++---
- arch/s390/boot/kaslr.c                             | 171 +++++----
- arch/s390/boot/mem_detect.c                        | 191 ----------
- arch/s390/boot/pgm_check_info.c                    |   7 +-
- arch/s390/boot/physmem_info.c                      | 328 +++++++++++++++++
- arch/s390/boot/startup.c                           | 129 ++++---
- arch/s390/boot/vmem.c                              | 284 +++++++++++---
- arch/s390/boot/vmlinux.lds.S                       |   2 +
- arch/s390/configs/debug_defconfig                  |  13 +-
- arch/s390/configs/defconfig                        |  12 +-
- arch/s390/configs/zfcpdump_defconfig               |   2 +-
- arch/s390/crypto/chacha-s390.S                     |  47 +--
- arch/s390/crypto/crc32be-vx.S                      |  17 +-
- arch/s390/crypto/crc32le-vx.S                      |  30 +-
- arch/s390/include/asm/ap.h                         | 152 ++++++--
- arch/s390/include/asm/checksum.h                   |  10 +-
- arch/s390/include/asm/diag.h                       |   2 +-
- arch/s390/include/asm/entry-common.h               |   5 -
- arch/s390/include/asm/fcx.h                        |   2 +-
- arch/s390/include/asm/kasan.h                      |  31 +-
- arch/s390/include/asm/linkage.h                    |   2 +-
- arch/s390/include/asm/mem_detect.h                 | 117 ------
- arch/s390/include/asm/nospec-insn.h                |   3 +-
- arch/s390/include/asm/perf_event.h                 |   2 -
- arch/s390/include/asm/pgtable.h                    |   2 +-
- arch/s390/include/asm/physmem_info.h               | 171 +++++++++
- arch/s390/include/asm/processor.h                  |  46 ++-
- arch/s390/include/asm/set_memory.h                 |  36 +-
- arch/s390/include/asm/setup.h                      |  20 +-
- arch/s390/include/asm/stacktrace.h                 |  52 ++-
- arch/s390/include/asm/string.h                     |  15 +-
- arch/s390/include/asm/thread_info.h                |  10 +-
- arch/s390/kernel/debug.c                           |  14 +-
- arch/s390/kernel/dumpstack.c                       |  46 ++-
- arch/s390/kernel/early.c                           |  23 +-
- arch/s390/kernel/earlypgm.S                        |   4 +-
- arch/s390/kernel/entry.S                           | 152 ++++----
- arch/s390/kernel/ftrace.c                          |  22 +-
- arch/s390/kernel/head64.S                          |  14 +-
- arch/s390/kernel/ipl.c                             |   7 +-
- arch/s390/kernel/kprobes.c                         |   2 +-
- arch/s390/kernel/kprobes_insn_page.S               |   4 +-
- arch/s390/kernel/machine_kexec.c                   |  56 ++-
- arch/s390/kernel/mcount.S                          |  26 +-
- arch/s390/kernel/module.c                          |  29 +-
- arch/s390/kernel/perf_cpum_cf.c                    | 206 +++++------
- arch/s390/kernel/perf_cpum_sf.c                    |  14 +-
- arch/s390/kernel/process.c                         |  10 +-
- arch/s390/kernel/processor.c                       |  18 -
- arch/s390/kernel/reipl.S                           |  10 +-
- arch/s390/kernel/relocate_kernel.S                 |  96 +++--
- arch/s390/kernel/setup.c                           | 152 +++-----
- arch/s390/kernel/smp.c                             |  11 +-
- arch/s390/kernel/syscalls/syscall.tbl              |   2 +-
- arch/s390/kernel/text_amode31.S                    |  75 ++--
- arch/s390/kernel/topology.c                        |  12 +-
- arch/s390/kernel/vdso32/vdso_user_wrapper.S        |   3 +-
- arch/s390/kernel/vdso64/vdso_user_wrapper.S        |   5 +-
- arch/s390/kernel/vmlinux.lds.S                     |  10 +-
- arch/s390/lib/mem.S                                |  28 +-
- arch/s390/lib/uaccess.c                            | 137 +++----
- arch/s390/mm/Makefile                              |   3 -
- arch/s390/mm/cmm.c                                 |  12 +-
- arch/s390/mm/init.c                                |   5 +-
- arch/s390/mm/kasan_init.c                          | 301 ---------------
- arch/s390/mm/pageattr.c                            |  94 ++++-
- arch/s390/mm/pgalloc.c                             |  20 +-
- arch/s390/mm/vmem.c                                |  35 +-
- arch/s390/pci/pci.c                                |  39 +-
- arch/s390/pci/pci_bus.c                            |  23 +-
- arch/s390/pci/pci_bus.h                            |   3 +-
- arch/s390/purgatory/head.S                         |  62 +---
- arch/s390/purgatory/kexec-purgatory.S              |  14 +-
- drivers/pci/bus.c                                  |  21 ++
- drivers/s390/char/sclp.h                           |   2 +-
- drivers/s390/char/sclp_cmd.c                       |   2 +-
- drivers/s390/char/sclp_early_core.c                |   8 +-
- drivers/s390/cio/chsc.c                            |   2 +-
- drivers/s390/cio/chsc.h                            |   2 +-
- drivers/s390/crypto/ap_bus.c                       | 254 +++++++------
- drivers/s390/crypto/ap_bus.h                       |  70 ++--
- drivers/s390/crypto/ap_card.c                      |  23 +-
- drivers/s390/crypto/ap_queue.c                     | 410 +++++++++++++++++----
- drivers/s390/crypto/vfio_ap_drv.c                  |   6 -
- drivers/s390/crypto/vfio_ap_ops.c                  |  16 +-
- drivers/s390/crypto/zcrypt_api.c                   |  60 +--
- drivers/s390/crypto/zcrypt_card.c                  |   6 +-
- drivers/s390/crypto/zcrypt_cca_key.h               |  37 +-
- drivers/s390/crypto/zcrypt_ccamisc.c               |  74 ++--
- drivers/s390/crypto/zcrypt_cex2c.c                 |  66 ++--
- drivers/s390/crypto/zcrypt_cex4.c                  | 141 ++++---
- drivers/s390/crypto/zcrypt_ep11misc.c              |   2 +-
- drivers/s390/crypto/zcrypt_msgtype50.c             |  15 +-
- drivers/s390/crypto/zcrypt_msgtype6.c              | 139 +++----
- drivers/s390/crypto/zcrypt_queue.c                 |   4 +-
- include/linux/pci.h                                |   1 +
- kernel/stackleak.c                                 |  17 +-
- lib/Kconfig.debug                                  |   2 +-
- 105 files changed, 2831 insertions(+), 2463 deletions(-)
- delete mode 100644 arch/s390/boot/mem_detect.c
- create mode 100644 arch/s390/boot/physmem_info.c
- delete mode 100644 arch/s390/include/asm/mem_detect.h
- create mode 100644 arch/s390/include/asm/physmem_info.h
- delete mode 100644 arch/s390/mm/kasan_init.c
+[1]:https://lore.kernel.org/all/db42467a692d78c654ec5c1953329401bd8a9c34.1682859234.git.lstoakes@gmail.com/
