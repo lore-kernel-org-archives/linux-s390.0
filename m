@@ -2,53 +2,53 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 26181C7EE2E
-	for <linux-s390@archiver.kernel.org>; Mon,  1 May 2023 19:29:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 47B6EC7EE2A
+	for <linux-s390@archiver.kernel.org>; Mon,  1 May 2023 19:29:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233616AbjEAT3t (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 1 May 2023 15:29:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56424 "EHLO
+        id S233630AbjEAT3u (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 1 May 2023 15:29:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233274AbjEAT3W (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 1 May 2023 15:29:22 -0400
+        with ESMTP id S233230AbjEAT3V (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 1 May 2023 15:29:21 -0400
 Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F24B62D48;
-        Mon,  1 May 2023 12:28:52 -0700 (PDT)
-Received: by mail-pl1-x62d.google.com with SMTP id d9443c01a7336-1aaf91ae451so11829935ad.1;
-        Mon, 01 May 2023 12:28:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA2062D66;
+        Mon,  1 May 2023 12:28:50 -0700 (PDT)
+Received: by mail-pl1-x62d.google.com with SMTP id d9443c01a7336-1aaf21bb42bso11005715ad.2;
+        Mon, 01 May 2023 12:28:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1682969323; x=1685561323;
+        d=gmail.com; s=20221208; t=1682969320; x=1685561320;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=0Ii9PvRdhTMRqBop+JFdKAWa6G/XpZkmB9p8iHmrwUc=;
-        b=lFLswDg0HvrPkF+dtbJhg/asaCBgi3e00w4opfv2mri4GHWG5ahGHxm9sLAnqC4qbq
-         cQ+9MPTjwHhlk51h4w8lOE5zFHDICMVPmNnmwWW2l0krumAZ2PDeWC1WEjJOX3LShLcV
-         g0uvqMJBbig8RslrcZc6EAJCiGxazADIIfKt9bAt8yGDMo+5nIH4mdhXs+LaHQV1OVik
-         U1EjmbMLOLA/7Pwt5TKTUK+w95+W73jVDYdL+HuxsLXipLy8KET4HB50FeUWTlZzXbc3
-         qFSctTNSvV8Q7v0NapgoBkUZ/cCAkZoFPz8ver9uL6iYj4+bfmoOnnABcA11qHjnQcrq
-         /yHA==
+        bh=B0Od9Inc5y6h3dSbsHmdGR20xSLs7HxIKZ/fFcl7OHg=;
+        b=BSfSX498+nRsOwkOZCv/c3TfiIzHvFrBHqOPXzZnUzdOTpraA1SFYJQ7S9OlNSy+oo
+         SgKJwDZ3qC6C//XEAcYljRcEjgHnyeaNoyhEAyOx7Ys6/3k09Ik8CgCQWIiXukHyuWI8
+         JqooqMgdLQ1gpcR/L/mcYK+KZEjEg+InGInQqZs8g+xQwi3fiMtnPj+o8uf54dHCG0nD
+         x8PpX8tpE3nfYMsr6vBPGSrBk7IqcdW9rAQJxVfKMF33+mjDorfNig4J/P1XioZbWwxD
+         uXByeI5tsaD8qrYP2W7mncKrp6aQydR1tjw1T6sz0jLjo8cvDXE3/58iahOtRXOU+sGT
+         jXsQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1682969323; x=1685561323;
+        d=1e100.net; s=20221208; t=1682969320; x=1685561320;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=0Ii9PvRdhTMRqBop+JFdKAWa6G/XpZkmB9p8iHmrwUc=;
-        b=VD6VsC8zrUXmnTbpsta4vwsVUi53+L8++HrRx1S9hGoVHMuMqwfNvs8sTJDqqa0UGM
-         OETqkCFH2PCV+wdafmXylL5R2yQTayfM41TLHx0rg+LAtBYRUmbxlXYaX8GKJukcXMqW
-         lGnSuS3aBFt5EY1W9FTjcnew6ZPgXywiLcU8Y77qe8Ox8LuJYvwX3gSoc/Y5TxAmllXA
-         37LRjAYMl0OCiAFfPuRXuNyoxbNoaOgOCyyAeF5AL7hMoxDSc2cJN+IwbHSNW5dkehcH
-         XIRsJi0IuXEtwqzae8pM2AlVzskmzFx3LxidIw6DirkiowBfo2G/u/rhwdZ8G7Orz6/J
-         /pZQ==
-X-Gm-Message-State: AC+VfDyqqUMckXdHqnGAF+0WTwFFdX7isBc9A6cY+EE9Tnuw8rgtlWmB
-        4zQ2Wszhu8iriJsK6pyE0dM=
-X-Google-Smtp-Source: ACHHUZ4gWlsAH/48zhDdvicQeallszzZORdrHEFL4BiABQ6zj3x4/LHvqIQGrX0uRjqorCk+ulIxBg==
-X-Received: by 2002:a17:902:e805:b0:1aa:f6c3:ba24 with SMTP id u5-20020a170902e80500b001aaf6c3ba24mr5259994plg.4.1682969322807;
-        Mon, 01 May 2023 12:28:42 -0700 (PDT)
+        bh=B0Od9Inc5y6h3dSbsHmdGR20xSLs7HxIKZ/fFcl7OHg=;
+        b=QFcsgk46/VstwdeApgLEfJd2t3Z+Y6sQxKg+61pPjBsvX5uctfzpmMxzkI4ZQZ5zVT
+         2MkWIGKxAIPDMngCDBl1eIM3vQ8OaB7yJOw2cnhxBZfToy+/Opf4ZyR6aMbBF1fBApym
+         olNhobqzoCbln8a9j5X5HAezN+0tSrgqq5ojVBDqRwwAsDUNWvpePULjqepcbNqMIkcR
+         u28OwHt+k/DK59EtnFoDXh/1vlZBPaaR5RWfmdkpHStf4zFRBbgfwV9Rw1Mdu1oh2ULi
+         HHRcNYaMC7pfUNQOuNB+u1gm+08swiwU0IL5aUmQZCp+xSAvdLU1K5i86s08p5yNngVs
+         XLlg==
+X-Gm-Message-State: AC+VfDy45ac5T7kNelg1PkQZWCTUTIdnNUMFL2gJLdTM8+5J4FKvH+1p
+        rfKEtgPT27druUxsCYkuK18=
+X-Google-Smtp-Source: ACHHUZ5c/2Ko6MMnlJILdIHFSiqsi7woH2pp9LXJUwyBETBH//ZWHg6e+tUlm1aX3nzTckKQE2QL/Q==
+X-Received: by 2002:a17:902:d2cf:b0:1aa:ffe1:de13 with SMTP id n15-20020a170902d2cf00b001aaffe1de13mr2810716plc.5.1682969320162;
+        Mon, 01 May 2023 12:28:40 -0700 (PDT)
 Received: from fedora.hsd1.ca.comcast.net ([2601:644:937f:7f20::9a2c])
-        by smtp.googlemail.com with ESMTPSA id u8-20020a170902bf4800b0019c13d032d8sm18175622pls.253.2023.05.01.12.28.41
+        by smtp.googlemail.com with ESMTPSA id u8-20020a170902bf4800b0019c13d032d8sm18175622pls.253.2023.05.01.12.28.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 01 May 2023 12:28:42 -0700 (PDT)
+        Mon, 01 May 2023 12:28:39 -0700 (PDT)
 From:   "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
 To:     Andrew Morton <akpm@linux-foundation.org>,
         Matthew Wilcox <willy@infradead.org>
@@ -62,9 +62,9 @@ Cc:     linux-mm@kvack.org, linux-arch@vger.kernel.org,
         linux-um@lists.infradead.org, xen-devel@lists.xenproject.org,
         kvm@vger.kernel.org,
         "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
-Subject: [PATCH v2 06/34] mm: Convert pmd_pgtable_page() to pmd_ptdesc()
-Date:   Mon,  1 May 2023 12:28:01 -0700
-Message-Id: <20230501192829.17086-7-vishal.moola@gmail.com>
+Subject: [PATCH v2 04/34] pgtable: Create struct ptdesc
+Date:   Mon,  1 May 2023 12:27:59 -0700
+Message-Id: <20230501192829.17086-5-vishal.moola@gmail.com>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230501192829.17086-1-vishal.moola@gmail.com>
 References: <20230501192829.17086-1-vishal.moola@gmail.com>
@@ -74,47 +74,78 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Converts pmd_pgtable_page() to pmd_ptdesc() and all its callers. This
-removes some direct accesses to struct page, working towards splitting
-out struct ptdesc from struct page.
+Currently, page table information is stored within struct page. As part
+of simplifying struct page, create struct ptdesc for page table
+information.
 
 Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
 ---
- include/linux/mm.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ include/linux/pgtable.h | 52 +++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 52 insertions(+)
 
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 258f3b730359..62c1635a9d44 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -2892,15 +2892,15 @@ static inline void pgtable_pte_page_dtor(struct page *page)
+diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
+index 023918666dd4..5e0f51308724 100644
+--- a/include/linux/pgtable.h
++++ b/include/linux/pgtable.h
+@@ -989,6 +989,58 @@ static inline void ptep_modify_prot_commit(struct vm_area_struct *vma,
+ #endif /* __HAVE_ARCH_PTEP_MODIFY_PROT_TRANSACTION */
+ #endif /* CONFIG_MMU */
  
- #if USE_SPLIT_PMD_PTLOCKS
- 
--static inline struct page *pmd_pgtable_page(pmd_t *pmd)
-+static inline struct ptdesc *pmd_ptdesc(pmd_t *pmd)
- {
- 	unsigned long mask = ~(PTRS_PER_PMD * sizeof(pmd_t) - 1);
--	return virt_to_page((void *)((unsigned long) pmd & mask));
-+	return virt_to_ptdesc((void *)((unsigned long) pmd & mask));
- }
- 
- static inline spinlock_t *pmd_lockptr(struct mm_struct *mm, pmd_t *pmd)
- {
--	return ptlock_ptr(pmd_pgtable_page(pmd));
-+	return ptlock_ptr(ptdesc_page(pmd_ptdesc(pmd)));
- }
- 
- static inline bool pmd_ptlock_init(struct page *page)
-@@ -2919,7 +2919,7 @@ static inline void pmd_ptlock_free(struct page *page)
- 	ptlock_free(page);
- }
- 
--#define pmd_huge_pte(mm, pmd) (pmd_pgtable_page(pmd)->pmd_huge_pte)
-+#define pmd_huge_pte(mm, pmd) (pmd_ptdesc(pmd)->pmd_huge_pte)
- 
- #else
- 
++
++/**
++ * struct ptdesc - Memory descriptor for page tables.
++ * @__page_flags: Same as page flags. Unused for page tables.
++ * @pt_list: List of used page tables. Used for s390 and x86.
++ * @_pt_pad_1: Padding that aliases with page's compound head.
++ * @pmd_huge_pte: Protected by ptdesc->ptl, used for THPs.
++ * @_pt_s390_gaddr: Aliases with page's mapping. Used for s390 gmap only.
++ * @pt_mm: Used for x86 pgds.
++ * @pt_frag_refcount: For fragmented page table tracking. Powerpc and s390 only.
++ * @ptl: Lock for the page table.
++ *
++ * This struct overlays struct page for now. Do not modify without a good
++ * understanding of the issues.
++ */
++struct ptdesc {
++	unsigned long __page_flags;
++
++	union {
++		struct list_head pt_list;
++		struct {
++			unsigned long _pt_pad_1;
++			pgtable_t pmd_huge_pte;
++		};
++	};
++	unsigned long _pt_s390_gaddr;
++
++	union {
++		struct mm_struct *pt_mm;
++		atomic_t pt_frag_refcount;
++		unsigned long index;
++	};
++
++#if ALLOC_SPLIT_PTLOCKS
++	spinlock_t *ptl;
++#else
++	spinlock_t ptl;
++#endif
++};
++
++#define TABLE_MATCH(pg, pt)						\
++	static_assert(offsetof(struct page, pg) == offsetof(struct ptdesc, pt))
++TABLE_MATCH(flags, __page_flags);
++TABLE_MATCH(compound_head, pt_list);
++TABLE_MATCH(compound_head, _pt_pad_1);
++TABLE_MATCH(pmd_huge_pte, pmd_huge_pte);
++TABLE_MATCH(mapping, _pt_s390_gaddr);
++TABLE_MATCH(pt_mm, pt_mm);
++TABLE_MATCH(ptl, ptl);
++#undef TABLE_MATCH
++static_assert(sizeof(struct ptdesc) <= sizeof(struct page));
++
+ /*
+  * No-op macros that just return the current protection value. Defined here
+  * because these macros can be used even if CONFIG_MMU is not defined.
 -- 
 2.39.2
 
