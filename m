@@ -2,241 +2,151 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DD326C7EE3A
-	for <linux-s390@archiver.kernel.org>; Mon,  1 May 2023 18:03:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DDF3DC77B7C
+	for <linux-s390@archiver.kernel.org>; Mon,  1 May 2023 18:25:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232771AbjEASDd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 1 May 2023 14:03:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45122 "EHLO
+        id S230337AbjEASZh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 1 May 2023 14:25:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232727AbjEASD1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 1 May 2023 14:03:27 -0400
-Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on2050.outbound.protection.outlook.com [40.107.94.50])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 821981FC3;
-        Mon,  1 May 2023 11:03:25 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=iFUSWoiBRsX6qgrwibuqU9Ndoj73o5nM8Sfi7pT8THexwg1uiNW0TEtalHw/62m6VoNKOFKTdwOVg+YBjdC/oWd69rvspLtF40GhFw3b1Mp0pntakahIz11cl68y19+pl0rCdLmfFrDNRftkrr3sNi8AHIIqPg+EblW/zs1iZkUTRqIXZBCHZMd7Uj7Uk/t9J9qna8wzQk9qeUZ8Z3pN3Pg9EER2jHboalnm/2ngoepOhG47CDpH3MYOknv1lH5xHkzYWm9W10PrujUIyl/ZOcUqdtnp449ljo/4lgt4fQ15Rv17Vg+S1wefFjFZygAnxp0g7ZkTUYmJtpbAs6418w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=pcP8DQHgXbM6a7LL08KrIsleN5gYDTh0k9ASZVl/rnE=;
- b=Zt2j9AhlwE08BJImQ+fyt7r0ZRdQ8jBz79/YAhAA6Hzr832Evj4BjuN550Bj1fSfwta/0Y5KBk14RrsqT4RrYjp685ptdhrG6XhQ/JTqi9HnpPsWv/aqANaRjghzrOlYOLYOfNI5fnR9ZC36bSTBdoy+vwCtTbtkRUwmPMeZMQbxqcpmTIQh4aeww2n/83aZKRTyl/NpFHND6rniyIiCx5PqgWP3xnoLE380fT04JcwpkzFP+AHBb5UAhXbDbtUmKEyzYEQtss77ve6u8Ps1/0HzdAz3LIsfCd88NX1j8PTkw5nAbRRkUe4JiTUE/eCTzD+KjvDjs/8JaGHWHB7uNw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=pcP8DQHgXbM6a7LL08KrIsleN5gYDTh0k9ASZVl/rnE=;
- b=pDXB6/RiqgPu43/3gQybNOwshw6VN1vCykATUwyMazXNftnvvRSyoS5WtdW+fOxN6NRkk1xIgZzjbwDsrl3r0s/cIZJ1oiBXK1GWmmeGiBjNIkvgEMHo+8g+w89FudBdefx02NlaMdyqqPkLdbiHixnPDAFr0hG0bxyMbNuwixSw15mCKC0+qSDQLX2HC7pcKt3p/KAS2p6noBeKAV6KauLN05IoBsDUKioEdPh52UPA5obqRMlcB+xQnb9Q4uxZ4Cr5wEBFJC9FxHwnhQt13qfbihFEwIFPRTgw1qaPWrdjLqWmXY/1yYWnH4UYT6PS8Kfqb8ipAfpaMDX0nDzIIQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
- by IA1PR12MB6457.namprd12.prod.outlook.com (2603:10b6:208:3ab::17) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6340.30; Mon, 1 May
- 2023 18:03:15 +0000
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::f7a7:a561:87e9:5fab]) by LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::f7a7:a561:87e9:5fab%6]) with mapi id 15.20.6340.030; Mon, 1 May 2023
- 18:03:15 +0000
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Andy Gross <agross@kernel.org>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        Bjorn Andersson <andersson@kernel.org>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
-        linux-tegra@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Orson Zhai <orsonzhai@gmail.com>,
-        Rob Clark <robdclark@gmail.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Krishna Reddy <vdumpa@nvidia.com>,
-        Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>,
-        Yong Wu <yong.wu@mediatek.com>,
-        Chunyan Zhang <zhang.lyra@gmail.com>
-Cc:     Lu Baolu <baolu.lu@linux.intel.com>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Nicolin Chen <nicolinc@nvidia.com>,
-        Steven Price <steven.price@arm.com>
-Subject: [PATCH 01/20] iommu: Add IOMMU_DOMAIN_PLATFORM
-Date:   Mon,  1 May 2023 15:02:45 -0300
-Message-Id: <1-v1-21cc72fcfb22+a7a-iommu_all_defdom_jgg@nvidia.com>
-In-Reply-To: <0-v1-21cc72fcfb22+a7a-iommu_all_defdom_jgg@nvidia.com>
-References: 
-Content-Transfer-Encoding: 8bit
+        with ESMTP id S229688AbjEASZg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 1 May 2023 14:25:36 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A1E413A;
+        Mon,  1 May 2023 11:25:35 -0700 (PDT)
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 341IMVxm007847;
+        Mon, 1 May 2023 18:24:55 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : references : date : in-reply-to : message-id : content-type :
+ mime-version; s=pp1; bh=xx/3hJ+CZLlHDK4Ntj3hDqtJoR/nQrjMLEvEL6by9H4=;
+ b=F+F8+DQR5I0Lm1ickWftFgEacrG1b/Ob/c5wd/dzo7OBlR9FvuNaVEzqvffXWqFDjhtG
+ zVYDBoqxEZF8rO81m6gXAxiFSDatiUG01Gcg4rCudQrF2pbK6t+7opVOCl6APEzXigMJ
+ LOXlCg30KOj9Tjwhe4fvnT9lj9it9jnHAkCxhHq1SuhkK7zjLsLfFiSTGpEKYhKZnOzn
+ qdz0kVXBQ+WBxGmOSZ2osQhypxmohknKJPKXravQ54DtrVj5XLU1N5fZ1zZNpRx3/6Eg
+ nWi14x+ViFrkp9Zp09ct3bjbJeepDyCdIXbIjP2tajfFfZzsogSa0UwAZO4poHoRPK8l 0Q== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qafew5m7r-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 01 May 2023 18:24:54 +0000
+Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 341IKHb6001603;
+        Mon, 1 May 2023 18:24:54 GMT
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qafew5m6t-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 01 May 2023 18:24:54 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 341IOpDa023238;
+        Mon, 1 May 2023 18:24:51 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+        by ppma01fra.de.ibm.com (PPS) with ESMTPS id 3q8tv6ry5t-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 01 May 2023 18:24:51 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 341IOn3H13632224
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 1 May 2023 18:24:49 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 237752004B;
+        Mon,  1 May 2023 18:24:49 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C6B2E20043;
+        Mon,  1 May 2023 18:24:48 +0000 (GMT)
+Received: from tuxmaker.linux.ibm.com (unknown [9.152.85.9])
+        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Mon,  1 May 2023 18:24:48 +0000 (GMT)
+From:   Sven Schnelle <svens@linux.ibm.com>
+To:     Lorenzo Stoakes <lstoakes@gmail.com>
+Cc:     "Liam R. Howlett" <Liam.Howlett@oracle.com>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        syzbot+a7c1ec5b1d71ceaa5186@syzkaller.appspotmail.com,
+        stable@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH] mm/mempolicy: Fix use-after-free of VMA iterator
+References: <20230410152205.2294819-1-Liam.Howlett@oracle.com>
+        <yt9dildhke9l.fsf@linux.ibm.com>
+        <20230427173247.s5rn6nujoxiatviu@revolver>
+        <5066f333-5021-451d-abdd-07a027d98820@lucifer.local>
+Date:   Mon, 01 May 2023 20:24:48 +0200
+In-Reply-To: <5066f333-5021-451d-abdd-07a027d98820@lucifer.local> (Lorenzo
+        Stoakes's message of "Sun, 30 Apr 2023 14:35:00 +0100")
+Message-ID: <yt9da5yn7vv3.fsf@linux.ibm.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.0.50 (gnu/linux)
 Content-Type: text/plain
-X-ClientProxiedBy: BL0PR03CA0011.namprd03.prod.outlook.com
- (2603:10b6:208:2d::24) To LV2PR12MB5869.namprd12.prod.outlook.com
- (2603:10b6:408:176::16)
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: VBYajAsBVtX0SqlJLITO9ZYUcqVVGhgr
+X-Proofpoint-ORIG-GUID: PIwNWU_xoEM_aeOrGETdiN8XcYyNn6Jb
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|IA1PR12MB6457:EE_
-X-MS-Office365-Filtering-Correlation-Id: 2deba80c-bad4-427c-8e08-08db4a6e51d4
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 5j2riQiTaNUM3UlGHzviShO8D/ol6n+R3xtLRbKq3tJRUbSSeU3JAThwKseho64r8sKY6Cg8hWYFS7aby/g7H/UVv6ivQjh1eikK4R4Qi2kLMKRxY4dQR2I+ZSN8TepegGPNZJIGgj4MMAhCOvc8UuMDeeNboO/5fOEK0k0hNOd650E8O3hOKh+gytLLFi8G2yGCfR4xQ3dSm+Ev57X1rY9P8WO+ZvNiBvPt/OyVynr0NcBVnyJkIvGTEwQoa0nlDrxTA5a5cgKQA99lcxUyl2nkX4PX/BUYn+aOXhF8+sCLv01OBftY7GWrAek9Kn1CZxmFSNT+YQBZJLEYEWlgnfl4HcJFCC+A5xc5eYBc3TgGVhuYEp1pGK0mabRYDY7/df4WcCrez6UfxCbVba/+03CiZo8NN7tSWVDyMW/RcTXs2gtV+QKfToyyCAn04lIhOqNe8E4WxU1xBTBn16PQg/WDpw8Og6H6bkP0X9g9izeSJ+cs329Wieinm7bP6u61bhuqh5ps6OMY9OTMoP/P58D4OJIVTHNGDN/nJcGMKQZY09oECw8VZVJPHBBek0yHArFO+MjK0qBB6S4eGfx9fhSEeDe2tSyNy+SFZ4f7XzlIN9Foqnni0Uu7OdVzr4kw
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(396003)(39860400002)(366004)(346002)(136003)(376002)(451199021)(6506007)(186003)(6486002)(26005)(83380400001)(2616005)(4326008)(5660300002)(316002)(66476007)(66556008)(66946007)(6512007)(41300700001)(8676002)(8936002)(7406005)(54906003)(478600001)(6666004)(2906002)(110136005)(36756003)(7416002)(86362001)(38100700002)(921005)(4216001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?hsRvXcj2FmGpHgEod8sLHwd7evkuKvn1U/BjFBJGkE8iuokcpTNJZ2D3c7eb?=
- =?us-ascii?Q?POAFgNJWCO0VN7j92/PVuoLnd8mjzhkLrBak9f0PYde+h9C/dfU/PsdGtCLf?=
- =?us-ascii?Q?N8ydBRhnUyYG4lxbn4IijVodxxjfE4lT5Mav8YlpffL9arkkrXYAWU4aVl2o?=
- =?us-ascii?Q?TCV2NX6dNfDTP2Wlt/WJDxNDvCLhe83KcuhScO+DZFjARv4L1c7tDLAIsWOR?=
- =?us-ascii?Q?KeUajhpx+oM11CUb2pgUUin6XPRDKxa6ezwrISl6lwXjtLl7tfUPB/9HEXEc?=
- =?us-ascii?Q?lJePtZLh3RP012n6IEX1suU/7tscwPUWKXMkCDnROIwDProm1MdGZBB88e9h?=
- =?us-ascii?Q?gAwTR/NgXP+pKW2ZkLNs28MuMRvgd9NJmgeBxzeZsf2iC5XhNhzCTKHbclW5?=
- =?us-ascii?Q?LYb9W8YjjXHwKEIrO7lDB3s81cXnhZy/c72bl2W+KjYsQn2tQmA6mHRu4vFP?=
- =?us-ascii?Q?1hBj4ctrjOBSc65PdNGexCG92M6MQZPdo3Luoq83g0bmR3mYbU/6A/+KwVgI?=
- =?us-ascii?Q?c+MwebHMHtkyjGfx6WirMhCTmzozIppEIoKmyRe2iYAUhlCpj7YqqINOsA/9?=
- =?us-ascii?Q?MrYioI+YiNOi6dvZFZS4Y8/dc+/doQ7uYKyFOiF7mfQJWOY5KUYHXrakdO6q?=
- =?us-ascii?Q?oEjtIfqSwLjtMTZQgfkieUL00iwEfMLZ46Cbx8UypsZjrlMR4GBY8QpCgyCx?=
- =?us-ascii?Q?SopBUcLN6i06oYOvZE3gevyRHW3c3gtKkEigstBj62imezvA/T1KOfTD8jRO?=
- =?us-ascii?Q?wreBy/H3x5E8eHcvKrdvM1Z+phzlqTP5rRmCIhvNv16VHPNbP7Qm3XR82xfL?=
- =?us-ascii?Q?LL+2QSegf03LRyyu7qioRvnvtEBlBto4f8vrE4fpa8peOpYCioja/PsiYCwc?=
- =?us-ascii?Q?1IHfakH1E5AEvyN5oyoF8LNTpCcXrIx+kp29jU58e0xHepg9pWmGOR79Bwga?=
- =?us-ascii?Q?IOMajySylsZ76sjiwbiwK76ZrIRBfu60F8sQYqeDmPynOY166Tgq3VsAw2GP?=
- =?us-ascii?Q?MdcmalQQq+2WqumTC/LapRUpdIGmU+peZoHbmO0HT1ZOgXzVXw5OYxvs+BP7?=
- =?us-ascii?Q?Uw9VBsIcTi856Uhyr3NbfwKLBlK+XEsDl3/ngKczx7mXJHqJ+OZbPsBFtBT5?=
- =?us-ascii?Q?sQeEoqeo8CbRc7Uw2kuiDrseqoOLQwyr6m5FrC1Capa7ZGVE3GYWgNI3rXTO?=
- =?us-ascii?Q?e5UYFXl/V3TZmVXiO2S0Cak6sDHgFecvzUmZJD/iM3tzXYOLW4PlOo3DkHK4?=
- =?us-ascii?Q?dD4lYvO6uCecXRsu8ZSfwcWfE4Zqjy385JrvQnYdezckNun3si1fevYj8FI7?=
- =?us-ascii?Q?yR/hwnYJxR+DM5TMA4ULO6KwlH+8T7KuQHVc2eLSbJSh9XC0VCWd5iAiLQ51?=
- =?us-ascii?Q?6TQHjyn4OYUdt4Tx66JTfoRc5Jo6tcqXZ3H5T8duIVbg+jg/GbxTigtQB+vy?=
- =?us-ascii?Q?PMAPqkZiROtA5Ev39Sj/nDvJzKLNJI3Nu1Xoh7QdIyzs2bkpJ5rQPssu7SEQ?=
- =?us-ascii?Q?SVESKRon8ZV/TZw6k/4Ui4qMpJ75h9kKsvtqN1OL7VZdO6rauN7fDhgkeDKw?=
- =?us-ascii?Q?XkW/vpx6OK9/3Dt/C1fHPO1JD710dSl0G8BuqsIr?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 2deba80c-bad4-427c-8e08-08db4a6e51d4
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 May 2023 18:03:08.4638
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: IGj5Vuy26RiGIwYPEL0vSW0MBrawwOVgheyvBr2aPrzTpqZRUXB6tdM5G/9BwLFc
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR12MB6457
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-05-01_10,2023-04-27_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 phishscore=0
+ mlxlogscore=783 suspectscore=0 adultscore=0 lowpriorityscore=0 mlxscore=0
+ clxscore=1015 priorityscore=1501 spamscore=0 bulkscore=0 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2303200000
+ definitions=main-2305010148
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This is an opaque domain type that is an escape hatch for tegra-gart and
-fsl_pamu that we can't figure out how to convert into actual BLOCKING or
-IDENTITY domains. It is designed to preserve the original
-ops->detach_dev() semantic that these drivers were built around.
+Lorenzo Stoakes <lstoakes@gmail.com> writes:
 
-The PLATFORM domain will be set as the default domain and attached as
-normal during probe. The drivers will ignore the initial attach from a
-NULL domain to the PLATFORM domain.
+> On Thu, Apr 27, 2023 at 01:32:47PM -0400, Liam R. Howlett wrote:
+>> * Sven Schnelle <svens@linux.ibm.com> [230427 02:53]:
+>> > "Liam R. Howlett" <Liam.Howlett@oracle.com> writes:
+>> >
+>> > > set_mempolicy_home_node() iterates over a list of VMAs and calls
+>> > > mbind_range() on each VMA, which also iterates over the singular list of
+>> > > the VMA passed in and potentially splits the VMA.  Since the VMA
+>> > > iterator is not passed through, set_mempolicy_home_node() may now point
+>> > > to a stale node in the VMA tree.  This can result in a UAF as reported
+>> > > by syzbot.
+>> > >
+>> > > Avoid the stale maple tree node by passing the VMA iterator through to
+>> > > the underlying call to split_vma().
+>> > >
+>> > > mbind_range() is also overly complicated, since there are two calling
+>> > > functions and one already handles iterating over the VMAs.  Simplify
+>> > > mbind_range() to only handle merging and splitting of the VMAs.
+>> > >
+>> > > Align the new loop in do_mbind() and existing loop in
+>> > > set_mempolicy_home_node() to use the reduced mbind_range() function.
+>> > > This allows for a single location of the range calculation and avoids
+>> > > constantly looking up the previous VMA (since this is a loop over the
+>> > > VMAs).
+>> > >
+>> > > Link: https://lore.kernel.org/linux-mm/000000000000c93feb05f87e24ad@google.com/
+>> > > Reported-and-tested-by: syzbot+a7c1ec5b1d71ceaa5186@syzkaller.appspotmail.com
+>> > > Fixes: 66850be55e8e ("mm/mempolicy: use vma iterator & maple state instead of vma linked list")
+>> > > Cc: <stable@vger.kernel.org>
+>> > > Signed-off-by: Liam R. Howlett <Liam.Howlett@oracle.com>
+>> > > ---
+>> >
+>> > This breaks the vma02 testcase from ltp on s390:
+>> >
+>> >  ~ # ./vma02
+>> > vma02       0  TINFO  :  pid = 617 addr = 0x3ff8f673000
+>> > vma02       0  TINFO  :  start = 0x3ff8f673000, end = 0x3ff8f674000
+>> > vma02       0  TINFO  :  start = 0x3ff8f674000, end = 0x3ff8f675000
+>> > vma02       0  TINFO  :  start = 0x3ff8f675000, end = 0x3ff8f676000
+>> > vma02       1  TFAIL  :  vma02.c:144: >1 unmerged VMAs.
+>> > Any thoughts?
+>>
+>> No thoughts that I should share.
+>>
+>> I will have to boot my s390 (vm) and have a look.
+>>
+>> Thanks for letting me know.
+>>
+>> Regards,
+>> Liam
+>
+> I tracked down what this (almost certainly) was + added fix in [1] as it
+> popped up as a 6.2.y stable bug. It doesn't seem arch-specific so you can
+> put that s390 down :)
+>
+> [1]:https://lore.kernel.org/all/db42467a692d78c654ec5c1953329401bd8a9c34.1682859234.git.lstoakes@gmail.com/
 
-After this, the PLATFORM domain's attach_dev will be called whenever we
-detach from an UNMANAGED domain (eg for VFIO). This is the same time the
-original design would have called op->detach_dev().
-
-Add an ops->default_domain member so drivers can trivially opt into this
-mode.
-
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
----
- drivers/iommu/iommu.c | 14 +++++++++++++-
- include/linux/iommu.h |  6 ++++++
- 2 files changed, 19 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index 532383e4e90f05..ba7f38630665b5 100644
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -1640,6 +1640,17 @@ iommu_group_alloc_default_domain(struct iommu_group *group, int req_type)
- 
- 	lockdep_assert_held(&group->mutex);
- 
-+	/*
-+	 * Allow legacy drivers to specify the domain that will be the default
-+	 * domain. This should always be either an IDENTITY or PLATFORM domain.
-+	 * Do not use in new drivers.
-+	 */
-+	if (bus->iommu_ops->default_domain) {
-+		if (req_type)
-+			return ERR_PTR(-EINVAL);
-+		return bus->iommu_ops->default_domain;
-+	}
-+
- 	if (req_type)
- 		return __iommu_group_alloc_default_domain(bus, group, req_type);
- 
-@@ -1945,7 +1956,8 @@ void iommu_domain_free(struct iommu_domain *domain)
- 	if (domain->type == IOMMU_DOMAIN_SVA)
- 		mmdrop(domain->mm);
- 	iommu_put_dma_cookie(domain);
--	domain->ops->free(domain);
-+	if (domain->ops->free)
-+		domain->ops->free(domain);
- }
- EXPORT_SYMBOL_GPL(iommu_domain_free);
- 
-diff --git a/include/linux/iommu.h b/include/linux/iommu.h
-index 7dbdd13d7ce046..ddcad3597c177b 100644
---- a/include/linux/iommu.h
-+++ b/include/linux/iommu.h
-@@ -64,6 +64,7 @@ struct iommu_domain_geometry {
- #define __IOMMU_DOMAIN_DMA_FQ	(1U << 3)  /* DMA-API uses flush queue    */
- 
- #define __IOMMU_DOMAIN_SVA	(1U << 4)  /* Shared process address space */
-+#define __IOMMU_DOMAIN_PLATFORM	(1U << 5)
- 
- /*
-  * This are the possible domain-types
-@@ -80,6 +81,8 @@ struct iommu_domain_geometry {
-  *				  invalidation.
-  *	IOMMU_DOMAIN_SVA	- DMA addresses are shared process addresses
-  *				  represented by mm_struct's.
-+ *	IOMMU_DOMAIN_PLATFORM	- Legacy domain for drivers that do their own
-+ *				  dma_api stuff. Do not use in new drivers.
-  */
- #define IOMMU_DOMAIN_BLOCKED	(0U)
- #define IOMMU_DOMAIN_IDENTITY	(__IOMMU_DOMAIN_PT)
-@@ -90,6 +93,7 @@ struct iommu_domain_geometry {
- 				 __IOMMU_DOMAIN_DMA_API |	\
- 				 __IOMMU_DOMAIN_DMA_FQ)
- #define IOMMU_DOMAIN_SVA	(__IOMMU_DOMAIN_SVA)
-+#define IOMMU_DOMAIN_PLATFORM	(__IOMMU_DOMAIN_PLATFORM)
- 
- struct iommu_domain {
- 	unsigned type;
-@@ -248,6 +252,7 @@ struct iommu_iotlb_gather {
-  *                    will be blocked by the hardware.
-  * @pgsize_bitmap: bitmap of all possible supported page sizes
-  * @owner: Driver module providing these ops
-+ * @default_domain: If not NULL this will always be set as the default domain.
-  */
- struct iommu_ops {
- 	bool (*capable)(struct device *dev, enum iommu_cap);
-@@ -281,6 +286,7 @@ struct iommu_ops {
- 	const struct iommu_domain_ops *default_domain_ops;
- 	unsigned long pgsize_bitmap;
- 	struct module *owner;
-+	struct iommu_domain *default_domain;
- };
- 
- /**
--- 
-2.40.0
-
+Thanks, just tested, and it solves the issue for me.
