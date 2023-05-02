@@ -2,214 +2,118 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C67AAC77B7E
-	for <linux-s390@archiver.kernel.org>; Tue,  2 May 2023 12:21:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 61DCEC77B73
+	for <linux-s390@archiver.kernel.org>; Tue,  2 May 2023 12:21:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234037AbjEBMVU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 2 May 2023 08:21:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45842 "EHLO
+        id S233749AbjEBMVb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 2 May 2023 08:21:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233749AbjEBMVS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 2 May 2023 08:21:18 -0400
+        with ESMTP id S234198AbjEBMV3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 2 May 2023 08:21:29 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A30C51A1;
-        Tue,  2 May 2023 05:21:17 -0700 (PDT)
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 342C8Sjh010797;
-        Tue, 2 May 2023 12:21:17 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1814B5B85;
+        Tue,  2 May 2023 05:21:27 -0700 (PDT)
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 342CD3m1019980;
+        Tue, 2 May 2023 12:21:26 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=/BRh1u6/GaF8L8ezrQU6sTdUbX4gJzT5JnjDSjNP+kI=;
- b=fRXVA30e7EXLaMOugdh6O/hx5TVBEbVAQESI54fyiym+Mx7EEtvZ2c/SamI1ZIgoUgWC
- /hBCevMqVRi4lLvPC8hBxcdPn+BGnarlhZ5f9D9zycYzjM6P8z6jTpp+rTAq+bI2l/Wq
- UE2Z7f+SOlOTv967uHeCY/V1kbnhIkbx7zSkcztYiJKN3YIOy4uyQnpsZ4rHJuUEXC/8
- 9mUAPGANxvriBLCgHHbD7Mt2tk6KTdpQqm53cYAwm0WD3q0gTOoeVKBmGg9xrD6Ev5Z9
- GT7itZayUoNvH/fKV9Racqwf0VWcvsCU3Zk5j0AqSB7kXVzBi7dLU6znCckf4Jz96ZSq SA== 
+ bh=J8MXHooEbZxLg10nF8GMHYpehdtFuKcjNFlsO2dpEmU=;
+ b=kxhlj3dowFUEHsEgtUfL20S6NmkspYZtlbfykCDxKY5KzolVEyDc9eQ+ea27shZ3IR31
+ 9aXLVZqS6ihm9JrEZkKt1Q/6OzkWIl2sKQlOquTXImdl1p4s2VQ45x1vvN4eiHUnacEj
+ AnTTb44P1ohQoYgRCdul8GM3RA/TKGOwBUb9ye40UZhm4M5AZJIo9WVFdLpnEwnF6YAb
+ jbNqetevlJFdFxoi1LNF6lTDCq24STjkS8COTwDtaUgVYmWUbo1SZsX1eicQy2mEzBVi
+ PZ/WvZD+aDGbHZ4VTpdHu/lyPQ/lPB4MTMYU1kIaT7Txwo/SpSTh0nx2awSGqUUylzuZ Tw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qb22jgv12-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qb23g8u4j-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 02 May 2023 12:21:17 +0000
-Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 342C9EtZ014631;
-        Tue, 2 May 2023 12:21:16 GMT
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qb22jguyn-1
+        Tue, 02 May 2023 12:21:25 +0000
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 342C6tsU012048;
+        Tue, 2 May 2023 12:21:25 GMT
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qb23g8u15-3
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 02 May 2023 12:21:16 +0000
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3423uU3T032223;
-        Tue, 2 May 2023 12:00:49 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-        by ppma06fra.de.ibm.com (PPS) with ESMTPS id 3q8tgfs9w8-1
+        Tue, 02 May 2023 12:21:25 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3427agCg003648;
+        Tue, 2 May 2023 12:00:46 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+        by ppma05fra.de.ibm.com (PPS) with ESMTPS id 3q8tv6h9sq-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 02 May 2023 12:00:48 +0000
+        Tue, 02 May 2023 12:00:46 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 342C0j5q3670584
+        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 342C0hbl26214944
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 2 May 2023 12:00:45 GMT
+        Tue, 2 May 2023 12:00:43 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4E19220043;
-        Tue,  2 May 2023 12:00:45 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 499EB2004E;
+        Tue,  2 May 2023 12:00:43 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7F8BA2004B;
-        Tue,  2 May 2023 12:00:44 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 7A1BF2006A;
+        Tue,  2 May 2023 12:00:42 +0000 (GMT)
 Received: from linux6.. (unknown [9.114.12.104])
         by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue,  2 May 2023 12:00:44 +0000 (GMT)
+        Tue,  2 May 2023 12:00:42 +0000 (GMT)
 From:   Janosch Frank <frankja@linux.ibm.com>
 To:     kvm@vger.kernel.org
 Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
         thuth@redhat.com, nrb@linux.ibm.com, david@redhat.com
-Subject: [kvm-unit-tests PATCH v4 3/7] s390x: pv-diags: Drop snippet from snippet names
-Date:   Tue,  2 May 2023 11:59:27 +0000
-Message-Id: <20230502115931.86280-4-frankja@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v4 1/7] lib: s390x: uv: Introduce UV validity function
+Date:   Tue,  2 May 2023 11:59:25 +0000
+Message-Id: <20230502115931.86280-2-frankja@linux.ibm.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20230502115931.86280-1-frankja@linux.ibm.com>
 References: <20230502115931.86280-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: lylmSEywnXiIDP9Yty8DUM534H-1hqtA
-X-Proofpoint-ORIG-GUID: rKVKGfq3X1gJ4Jk6Fq5tszFmeU6f5qOb
+X-Proofpoint-GUID: XMkEINLlg207XiHvpcZb4k_103GI72j1
+X-Proofpoint-ORIG-GUID: Da8dizL5dexNTtgc1CujG13zvEHi0JUH
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
  definitions=2023-05-02_05,2023-04-27_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- mlxlogscore=999 malwarescore=0 phishscore=0 spamscore=0 mlxscore=0
- suspectscore=0 adultscore=0 bulkscore=0 priorityscore=1501 clxscore=1015
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ mlxlogscore=999 priorityscore=1501 spamscore=0 bulkscore=0 clxscore=1015
+ impostorscore=0 phishscore=0 adultscore=0 lowpriorityscore=0
+ suspectscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2303200000 definitions=main-2305020103
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-It's a bit redundant.
+PV related validities are in the 0x20** range but the last byte might
+be implementation specific, so everytime we check for a UV validity we
+need to mask the last byte.
+
+Let's add a function that checks for a UV validity and returns a
+boolean.
 
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
 ---
- s390x/Makefile                                |  6 +--
- s390x/pv-diags.c                              | 48 +++++++++----------
- .../{snippet-pv-diag-288.S => pv-diag-288.S}  |  0
- .../{snippet-pv-diag-500.S => pv-diag-500.S}  |  0
- ...nippet-pv-diag-yield.S => pv-diag-yield.S} |  0
- 5 files changed, 27 insertions(+), 27 deletions(-)
- rename s390x/snippets/asm/{snippet-pv-diag-288.S => pv-diag-288.S} (100%)
- rename s390x/snippets/asm/{snippet-pv-diag-500.S => pv-diag-500.S} (100%)
- rename s390x/snippets/asm/{snippet-pv-diag-yield.S => pv-diag-yield.S} (100%)
+ lib/s390x/uv.h | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/s390x/Makefile b/s390x/Makefile
-index a80db538..8d1cfc7c 100644
---- a/s390x/Makefile
-+++ b/s390x/Makefile
-@@ -122,9 +122,9 @@ snippet_lib = $(snippet_asmlib) lib/auxinfo.o
- $(TEST_DIR)/mvpg-sie.elf: snippets = $(SNIPPET_DIR)/c/mvpg-snippet.gbin
- $(TEST_DIR)/spec_ex-sie.elf: snippets = $(SNIPPET_DIR)/c/spec_ex.gbin
+diff --git a/lib/s390x/uv.h b/lib/s390x/uv.h
+index 5fe29bda..78b979b7 100644
+--- a/lib/s390x/uv.h
++++ b/lib/s390x/uv.h
+@@ -35,4 +35,11 @@ static inline void uv_setup_asces(void)
+ 	lctlg(13, asce);
+ }
  
--$(TEST_DIR)/pv-diags.elf: pv-snippets += $(SNIPPET_DIR)/asm/snippet-pv-diag-yield.gbin
--$(TEST_DIR)/pv-diags.elf: pv-snippets += $(SNIPPET_DIR)/asm/snippet-pv-diag-288.gbin
--$(TEST_DIR)/pv-diags.elf: pv-snippets += $(SNIPPET_DIR)/asm/snippet-pv-diag-500.gbin
-+$(TEST_DIR)/pv-diags.elf: pv-snippets += $(SNIPPET_DIR)/asm/pv-diag-yield.gbin
-+$(TEST_DIR)/pv-diags.elf: pv-snippets += $(SNIPPET_DIR)/asm/pv-diag-288.gbin
-+$(TEST_DIR)/pv-diags.elf: pv-snippets += $(SNIPPET_DIR)/asm/pv-diag-500.gbin
- 
- ifneq ($(GEN_SE_HEADER),)
- snippets += $(pv-snippets)
-diff --git a/s390x/pv-diags.c b/s390x/pv-diags.c
-index 096ac61f..fa4e5532 100644
---- a/s390x/pv-diags.c
-+++ b/s390x/pv-diags.c
-@@ -18,17 +18,17 @@ static struct vm vm;
- 
- static void test_diag_500(void)
- {
--	extern const char SNIPPET_NAME_START(asm, snippet_pv_diag_500)[];
--	extern const char SNIPPET_NAME_END(asm, snippet_pv_diag_500)[];
--	extern const char SNIPPET_HDR_START(asm, snippet_pv_diag_500)[];
--	extern const char SNIPPET_HDR_END(asm, snippet_pv_diag_500)[];
--	int size_hdr = SNIPPET_HDR_LEN(asm, snippet_pv_diag_500);
--	int size_gbin = SNIPPET_LEN(asm, snippet_pv_diag_500);
-+	extern const char SNIPPET_NAME_START(asm, pv_diag_500)[];
-+	extern const char SNIPPET_NAME_END(asm, pv_diag_500)[];
-+	extern const char SNIPPET_HDR_START(asm, pv_diag_500)[];
-+	extern const char SNIPPET_HDR_END(asm, pv_diag_500)[];
-+	int size_hdr = SNIPPET_HDR_LEN(asm, pv_diag_500);
-+	int size_gbin = SNIPPET_LEN(asm, pv_diag_500);
- 
- 	report_prefix_push("diag 0x500");
- 
--	snippet_pv_init(&vm, SNIPPET_NAME_START(asm, snippet_pv_diag_500),
--			SNIPPET_HDR_START(asm, snippet_pv_diag_500),
-+	snippet_pv_init(&vm, SNIPPET_NAME_START(asm, pv_diag_500),
-+			SNIPPET_HDR_START(asm, pv_diag_500),
- 			size_gbin, size_hdr, SNIPPET_UNPACK_OFF);
- 
- 	sie(&vm);
-@@ -70,17 +70,17 @@ static void test_diag_500(void)
- 
- static void test_diag_288(void)
- {
--	extern const char SNIPPET_NAME_START(asm, snippet_pv_diag_288)[];
--	extern const char SNIPPET_NAME_END(asm, snippet_pv_diag_288)[];
--	extern const char SNIPPET_HDR_START(asm, snippet_pv_diag_288)[];
--	extern const char SNIPPET_HDR_END(asm, snippet_pv_diag_288)[];
--	int size_hdr = SNIPPET_HDR_LEN(asm, snippet_pv_diag_288);
--	int size_gbin = SNIPPET_LEN(asm, snippet_pv_diag_288);
-+	extern const char SNIPPET_NAME_START(asm, pv_diag_288)[];
-+	extern const char SNIPPET_NAME_END(asm, pv_diag_288)[];
-+	extern const char SNIPPET_HDR_START(asm, pv_diag_288)[];
-+	extern const char SNIPPET_HDR_END(asm, pv_diag_288)[];
-+	int size_hdr = SNIPPET_HDR_LEN(asm, pv_diag_288);
-+	int size_gbin = SNIPPET_LEN(asm, pv_diag_288);
- 
- 	report_prefix_push("diag 0x288");
- 
--	snippet_pv_init(&vm, SNIPPET_NAME_START(asm, snippet_pv_diag_288),
--			SNIPPET_HDR_START(asm, snippet_pv_diag_288),
-+	snippet_pv_init(&vm, SNIPPET_NAME_START(asm, pv_diag_288),
-+			SNIPPET_HDR_START(asm, pv_diag_288),
- 			size_gbin, size_hdr, SNIPPET_UNPACK_OFF);
- 
- 	sie(&vm);
-@@ -111,17 +111,17 @@ static void test_diag_288(void)
- 
- static void test_diag_yield(void)
- {
--	extern const char SNIPPET_NAME_START(asm, snippet_pv_diag_yield)[];
--	extern const char SNIPPET_NAME_END(asm, snippet_pv_diag_yield)[];
--	extern const char SNIPPET_HDR_START(asm, snippet_pv_diag_yield)[];
--	extern const char SNIPPET_HDR_END(asm, snippet_pv_diag_yield)[];
--	int size_hdr = SNIPPET_HDR_LEN(asm, snippet_pv_diag_yield);
--	int size_gbin = SNIPPET_LEN(asm, snippet_pv_diag_yield);
-+	extern const char SNIPPET_NAME_START(asm, pv_diag_yield)[];
-+	extern const char SNIPPET_NAME_END(asm, pv_diag_yield)[];
-+	extern const char SNIPPET_HDR_START(asm, pv_diag_yield)[];
-+	extern const char SNIPPET_HDR_END(asm, pv_diag_yield)[];
-+	int size_hdr = SNIPPET_HDR_LEN(asm, pv_diag_yield);
-+	int size_gbin = SNIPPET_LEN(asm, pv_diag_yield);
- 
- 	report_prefix_push("diag yield");
- 
--	snippet_pv_init(&vm, SNIPPET_NAME_START(asm, snippet_pv_diag_yield),
--			SNIPPET_HDR_START(asm, snippet_pv_diag_yield),
-+	snippet_pv_init(&vm, SNIPPET_NAME_START(asm, pv_diag_yield),
-+			SNIPPET_HDR_START(asm, pv_diag_yield),
- 			size_gbin, size_hdr, SNIPPET_UNPACK_OFF);
- 
- 	/* 0x44 */
-diff --git a/s390x/snippets/asm/snippet-pv-diag-288.S b/s390x/snippets/asm/pv-diag-288.S
-similarity index 100%
-rename from s390x/snippets/asm/snippet-pv-diag-288.S
-rename to s390x/snippets/asm/pv-diag-288.S
-diff --git a/s390x/snippets/asm/snippet-pv-diag-500.S b/s390x/snippets/asm/pv-diag-500.S
-similarity index 100%
-rename from s390x/snippets/asm/snippet-pv-diag-500.S
-rename to s390x/snippets/asm/pv-diag-500.S
-diff --git a/s390x/snippets/asm/snippet-pv-diag-yield.S b/s390x/snippets/asm/pv-diag-yield.S
-similarity index 100%
-rename from s390x/snippets/asm/snippet-pv-diag-yield.S
-rename to s390x/snippets/asm/pv-diag-yield.S
++static inline bool uv_validity_check(struct vm *vm)
++{
++	uint16_t vir = sie_get_validity(vm);
++
++	return vm->sblk->icptcode == ICPT_VALIDITY && (vir & 0xff00) == 0x2000;
++}
++
+ #endif /* UV_H */
 -- 
 2.34.1
 
