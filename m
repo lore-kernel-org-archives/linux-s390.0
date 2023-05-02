@@ -2,149 +2,187 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BE39C7EE23
-	for <linux-s390@archiver.kernel.org>; Tue,  2 May 2023 18:17:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 26619C77B73
+	for <linux-s390@archiver.kernel.org>; Tue,  2 May 2023 18:22:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234188AbjEBSRQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 2 May 2023 14:17:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54498 "EHLO
+        id S232117AbjEBSWL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 2 May 2023 14:22:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234109AbjEBSRO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 2 May 2023 14:17:14 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF5B01FD7;
-        Tue,  2 May 2023 11:17:01 -0700 (PDT)
-Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 342IEdEv012302;
-        Tue, 2 May 2023 18:16:13 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=+n8liBN5L0dwaVKtdnjrH6nlYtbK4M0ezTsHBz+OcQw=;
- b=sn4AceGT3vDGiHGn22xFeXMbzYcsOPv9cXhDyTYrfiwFszyCB3H+AB8wQVpH485ZZ/Uj
- dJ2cvznYQ7mAdQCdz9fuR0ODuAdr2LWcbSv6EGUgiKX3FNMtg8vllKBBTPBeG+1dUkHz
- cP4HGKL5XB2JOyfZtaIn/+S1h4fgRJ7YdJy2hzV5PjFNYgNcYRgwKVf27tgVI+fdhRH9
- Ifqv4TWQEPfQq1DWsnQZ3ozYodu/xjf0Tymgasn4aIdQ3H+2nLMOkFtoO4bmDudVi+/0
- CFivFI+0Hf5eAfLPNvqgKj4nvGd4W+SxayXz7Bht2trqFeqehwoI+6Xj10/GLnaeSm+N qA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qb7mb01r7-17
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 02 May 2023 18:16:13 +0000
-Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 342I2dPJ019051;
-        Tue, 2 May 2023 18:03:11 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qb6qv1frk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 02 May 2023 18:03:11 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34246qx7021338;
-        Tue, 2 May 2023 18:02:41 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3q8tv6sr6y-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 02 May 2023 18:02:41 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 342I2cI939715088
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 2 May 2023 18:02:38 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 12A6920043;
-        Tue,  2 May 2023 18:02:38 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2341420040;
-        Tue,  2 May 2023 18:02:36 +0000 (GMT)
-Received: from [9.171.18.35] (unknown [9.171.18.35])
-        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue,  2 May 2023 18:02:36 +0000 (GMT)
-Message-ID: <aec2895379f426ac7c01c6d5952666975b8e1710.camel@linux.ibm.com>
-Subject: Re: [PATCH 20/20] iommu: Convert remaining simple drivers to
- domain_alloc_paging()
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     Andy Gross <agross@kernel.org>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        Bjorn Andersson <andersson@kernel.org>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
-        linux-tegra@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Orson Zhai <orsonzhai@gmail.com>,
-        Rob Clark <robdclark@gmail.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Krishna Reddy <vdumpa@nvidia.com>,
-        Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>,
-        Yong Wu <yong.wu@mediatek.com>,
-        Chunyan Zhang <zhang.lyra@gmail.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Nicolin Chen <nicolinc@nvidia.com>,
-        Steven Price <steven.price@arm.com>
-Date:   Tue, 02 May 2023 20:02:35 +0200
-In-Reply-To: <ZFErVOr8RDoeZ2tq@nvidia.com>
-References: <20-v1-21cc72fcfb22+a7a-iommu_all_defdom_jgg@nvidia.com>
-         <b9b6a50724b4f1ac2b98e518a8b9a820a912850f.camel@linux.ibm.com>
-         <ZFErVOr8RDoeZ2tq@nvidia.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.48.1 (3.48.1-1.fc38) 
+        with ESMTP id S229586AbjEBSWK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 2 May 2023 14:22:10 -0400
+Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2075.outbound.protection.outlook.com [40.107.92.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAD9F129;
+        Tue,  2 May 2023 11:22:07 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=k+vNyNjIbs2mfKLss3+oDrKyBZ/Hj4AWmF8WdM6BIP7lpFa6h7QzHDIHMFftWZAZqr0jD+dJw2BXDFnPbvrrqtfISWr4hafy8MaffFri0blEF8fonok1PFvHvlDMx/durjtXFtjTwhLo13YbHR0CXz5YDaxiXcXjc4nQ4jRHY98UcdD0BcpO6rS4I9xxJBROLWrpLYdhp7vQ5n9sBLtCbnN7CMAKITwMT8THXwlIkjax78oatzBwmdCtoMIqbqpp3o63t2XW4I3AAOax9W8vimo39VL5iGjs6mE4IotymPYQFeH/dMyPlHidw5RuU7Bgf7tJ1u7hoE7J0qCFM1dYKA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=7bAwkeqVJWmMdHCilcQtUPKdVLV/3t1pv9kHNji3qvg=;
+ b=cQ1cCWc5agJm/Cl3e/7ngz45psVcM3YkJDAu0Y4nD84W/5aLcAYmEk/PPJuLU+YgzgvOWdV/CaQcgnXLuXG/a097ShCNFpW2HEyGZ4JsneOfHuhtRGOR0fBBok+FcWaI7QFgaWZ9LS1tcy7AMURrZl3am+qSTLa03UMOFJA0uHCfU8vCvX2ciqmIsA9a/CGPHoO5xd9meEx370iyTtwjwJA3g22uYd/dcQGLYwu0oo2tInV3Yy7yeKpyK2xMDE+cwUWbgSRu8tarBY3EZX9Fc1aOEVXsU8V0lsMMYAkqizu/1FQ7b5gRICouLbnzk9n8X82br+s2PvX/lNE60M6ztQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=7bAwkeqVJWmMdHCilcQtUPKdVLV/3t1pv9kHNji3qvg=;
+ b=g0aYZlTtOWTuLG8+XRpVNVnU28e09NCNdy7/9n9L1qiYyWfNFtCR1ocTuEFC/VgPYtHjSAGlXzE7kLefRUVIS4KKeGEMLGtaSdxBAWgnCXnaHDL72nOoXsLhZmmKJ5gom5dCRxIS2fqOEPDQ4QKPDKhxLqUGhIRj7ei8loubCQIshvoX8vp11TKeXeXpX9vwsmQngxQ6ke9Izn8rTSRY+qKihMixint5A9lbSQ/qAXTcOXNUu023LDSgpmcEXKLbxqatrknQev+CEk6ep7nR8LMU0ad/GPqajgCn/QNlyJ21O51WqWTJzNWWaN+hHJs5Qi7Mx5jb0rkEFbW590yEjQ==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by DM4PR12MB5391.namprd12.prod.outlook.com (2603:10b6:5:39a::14) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6340.30; Tue, 2 May
+ 2023 18:22:04 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::f7a7:a561:87e9:5fab]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::f7a7:a561:87e9:5fab%6]) with mapi id 15.20.6340.030; Tue, 2 May 2023
+ 18:22:04 +0000
+Date:   Tue, 2 May 2023 15:22:02 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Yi Liu <yi.l.liu@intel.com>
+Cc:     Alex Williamson <alex.williamson@redhat.com>,
+        "Tian, Kevin" <kevin.tian@intel.com>,
+        "joro@8bytes.org" <joro@8bytes.org>,
+        "robin.murphy@arm.com" <robin.murphy@arm.com>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "eric.auger@redhat.com" <eric.auger@redhat.com>,
+        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
+        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
+        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
+        "peterx@redhat.com" <peterx@redhat.com>,
+        "jasowang@redhat.com" <jasowang@redhat.com>,
+        "shameerali.kolothum.thodi@huawei.com" 
+        <shameerali.kolothum.thodi@huawei.com>,
+        "lulu@redhat.com" <lulu@redhat.com>,
+        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
+        "intel-gvt-dev@lists.freedesktop.org" 
+        <intel-gvt-dev@lists.freedesktop.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "Hao, Xudong" <xudong.hao@intel.com>,
+        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
+        "Xu, Terrence" <terrence.xu@intel.com>,
+        "Jiang, Yanting" <yanting.jiang@intel.com>,
+        "Duan, Zhenzhong" <zhenzhong.duan@intel.com>
+Subject: Re: [PATCH v4 2/9] vfio-iommufd: Create iommufd_access for noiommu
+ devices
+Message-ID: <ZFFUyhqID+LtUB/D@nvidia.com>
+References: <20230426145419.450922-1-yi.l.liu@intel.com>
+ <20230426145419.450922-3-yi.l.liu@intel.com>
+ <BN9PR11MB52768AF474FAB2AF36AC00508C6A9@BN9PR11MB5276.namprd11.prod.outlook.com>
+ <DS0PR11MB752972AC1A6030CB442ACF3FC36A9@DS0PR11MB7529.namprd11.prod.outlook.com>
+ <20230427123203.22307c4f.alex.williamson@redhat.com>
+ <c203f11f-4d9f-cf43-03ab-e41a858bdd92@intel.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <c203f11f-4d9f-cf43-03ab-e41a858bdd92@intel.com>
+X-ClientProxiedBy: MN2PR16CA0063.namprd16.prod.outlook.com
+ (2603:10b6:208:234::32) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: slkEV7990viVZeo3EoiAzvk_x4KeFq9l
-X-Proofpoint-ORIG-GUID: cZ5QXiUnqxQL3lGAYvCQF1nCj-zW_0d9
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-05-02_10,2023-04-27_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 malwarescore=0
- adultscore=0 spamscore=0 bulkscore=0 mlxscore=0 priorityscore=1501
- phishscore=0 mlxlogscore=527 impostorscore=0 suspectscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2303200000 definitions=main-2305020156
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|DM4PR12MB5391:EE_
+X-MS-Office365-Filtering-Correlation-Id: c07b167c-c1a0-43da-dadb-08db4b3a2151
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: reKGePkC37v3AB4G/WFcg18oQf9gMxt3D3PeeJ284eAaLke32PU9NdDgn890ezC9ejmTZ471FKVYJ5YHjzMK+sazlEriWw0GJdfiNiGYYifPxOBTTRY0yLBl8+EopmQKZR3hItkA1zHpfnJyPjCkxDEBNWm13vm1DYzR2qiptqL07E3MEPs3LnC+saday+95Z/EzJJ6vihwlOltY2okNl/E3iLSMA/+afE18LA1mlfhrQAZVsSUwgicSeLgd+cGHPQgSAtcS7bkXd7QKF8IM5TrMNHBltwNNPmoajErtSmK4KwaxTa80SSCRqOLQnGXEEiUaE20gIUKz6JmjIs/kSXaJD3US0HO44C11edwv0eX0OsKJYCHF0TNLXNcn6QtPT0CF0eR1N5PSV9XVyrt8KNBRX9+PWbPk7Qd33G2MNujHHs9PR/8PgdmJ7znCst+EWbO8tKuVLE5rrq2UA1TOOJmTZlsM2KU45tv9tefiGc1aZ8s99MPz5aGQt3fvk32x32y+g3gkD8h928inMRfSl4z57g6eXCOvDLsU+2WFkgst/nZvfwH4JEVNajJExGl/9eZgQ9ME8Tamg9tIA3sOg61T5rfO/yYfOpg75PLqaKyMicAxxIUFNGkt6UqkFm8MPZEYl3utqqj0jJtDk7WPww==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(39860400002)(366004)(346002)(396003)(376002)(136003)(451199021)(8676002)(8936002)(26005)(2616005)(38100700002)(6506007)(6512007)(478600001)(5660300002)(7416002)(36756003)(316002)(2906002)(54906003)(186003)(86362001)(6486002)(83380400001)(66556008)(66476007)(6916009)(4326008)(66946007)(41300700001)(966005);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?JCc3NtZVoIu8DTlQ3PT02227w0+mdbC4vLzmDmnXDym3s/QXE5dzbNz4J3rp?=
+ =?us-ascii?Q?wcOMYaKmNp3G08cea0sM6WzMgeh8gcUdhKsJpFzy4/BvZE2q0xP+/I/3xSRe?=
+ =?us-ascii?Q?AF6LJwvTUAIoD9yWOGQdNDlzDvIEe6PYeCi7WBCIsjxc4J0L2x54b4GdDsZJ?=
+ =?us-ascii?Q?4X7p7NuM/tKmh5duRjGuyBF5cVducbUUwjFiu8uiiXUkRSGU8WG2U8MnjY53?=
+ =?us-ascii?Q?6FNYdhld9yPFNDF+6Pw+9TZNjc8hEw4cAPabNvDn3iLivox2Q3rNvCY7MmT3?=
+ =?us-ascii?Q?Injlu+hYUew8/MdkPyHlVOqPrszED0RyMQOMKrd70+WpCaQhcavy3r9YpvOM?=
+ =?us-ascii?Q?KXfMzHrzjHcMs6fMeEtVefKyz0E2zyhQcWPGnVx2hqTOh19U6R4hRLRi4KRB?=
+ =?us-ascii?Q?vAAyV8RL6UclosdwYt1cAO2Nq/BKRZbOB5QlOqoDj/Ck0DR0hYSn9Khg/0FL?=
+ =?us-ascii?Q?jLpqTVNWq+IJ05Jz2Z4CGtulZJYim0h2ipOsg5TcNS+ll1JihyxZS3PbLoO2?=
+ =?us-ascii?Q?MeVcQQBBjgA9Xvize5vxvmf/ewzOLFIQXxwOt7UEccrFiGyIdoX3wNvkjVfs?=
+ =?us-ascii?Q?dGBLEcEpEPvgrl6gOYKRyoEGD6rGjtaYOKjy3Nq2g/JexXqIsz037hiNUSmO?=
+ =?us-ascii?Q?t0itkHky2GDQAMJvvMyqZK45SZcP4DfbfikEh8+IcNX5Geu0LTvwIOBBvu71?=
+ =?us-ascii?Q?6a541uy8gCKKz63T+cdlQuuhk7r1VHZ0NpNuqsTr/uBXL6fcvFOnnDZSKlzG?=
+ =?us-ascii?Q?BWJ4278RJp/Kz6o5TPL2RCo+J/3MfnyKV5IZy5HAaig0odY0rTp17SWNWUbX?=
+ =?us-ascii?Q?TUgC7L43fkNDBfCgoFHH3Q/zLcEpizT9sMQCsjBBhPuLTHm0moFCkXSRV8Dg?=
+ =?us-ascii?Q?2j+3QF590+7y/MB8r9X7rUeYOr2kgQ3mrNQeztdrbyF50xZZFPJTey2lsjx6?=
+ =?us-ascii?Q?+go+R/vd6Jghl5kp1h7stp3Eb8STOmyLDEYmlc3ESO7126ZWWiCpvnt9/TFq?=
+ =?us-ascii?Q?q1k+gNOuMY+b/d756j/+YYTCy9MNGdhhqehYOLlxtj2KzW7F4nZcxhqlnSon?=
+ =?us-ascii?Q?Y+Na6G9wzWggAo2yCkFUpYgBhHqnpJwWaCfGCi5YxzWRJEv787GMYmfe4nvo?=
+ =?us-ascii?Q?YCa20HwwrevcnVZyB4hRfptqsCWFKZfQQ6BF45ULGxm/Bu2hXmvwfBpGV8F+?=
+ =?us-ascii?Q?TokM3VxRCHnoukL0JT9pkk+funh1P1bJhujXMNK+Ti67djHS19LBb4bJPkMp?=
+ =?us-ascii?Q?dIhux+nRXTO19pt61N/UHEhG1jyHX62AHzODfoFd4gH6TpcAiPVqX3FUec4y?=
+ =?us-ascii?Q?uI4hDXBAWVWmLHTcbeApc7lHd4ybRXi+PhZvJaQ94zCB2G1ONes2RfFfO2rJ?=
+ =?us-ascii?Q?61iE0h5KdBVb0pItnITircRGssjXzayUkHSmQ/sN8IzoqJBwfA95nHKddxcS?=
+ =?us-ascii?Q?QVrDYwp1MhyXqgn2LBteLbCNh0XSBc8ThVx9OLJUKINNYBEYR9rjSC+S/uKv?=
+ =?us-ascii?Q?4z+5kO3O192hPKcvLGCzjyuK/DsDSyZNwxXa6beDJ9AIG5rYjYsb6gjH475h?=
+ =?us-ascii?Q?Tit2hzpr1NHKCxQ7nKUooSlLyTwCuWPcLcZvhFRz?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: c07b167c-c1a0-43da-dadb-08db4b3a2151
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 May 2023 18:22:04.4512
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: Xu6tnyuKl+TSiVVMQNgH+eLYvROvut9vFBpAk7NAg4r/Tu56xWmCCnzSHUTe0/vM
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB5391
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 2023-05-02 at 12:25 -0300, Jason Gunthorpe wrote:
-> On Tue, May 02, 2023 at 04:52:32PM +0200, Niklas Schnelle wrote:
-> > @@ -1947,7 +1948,7 @@ static struct iommu_domain *__iommu_domain_alloc(=
-struct bus_type *bus,
-> >         if ((type =3D=3D IOMMU_DOMAIN_UNMANAGED || type =3D=3D IOMMU_DO=
-MAIN_DMA) &&
-> >             bus->iommu_ops->domain_alloc_paging)
-> >                 domain =3D bus->iommu_ops->domain_alloc_paging(dev);
-> > -       else
-> > +       else if (bus->iommu_ops->domain_alloc)
-> >                 domain =3D bus->iommu_ops->domain_alloc(type);
-> >         if (!domain)
-> >                 return NULL;
->=20
-> Agh, yes, it should fail, this is right, I'll fold it in, thanks
->=20
-> > This then uses the fallback of an empty IOMMU_DOMAIN_UNMANAGED and I
-> > get a working device in the guest. Also tried hot unplug where the
-> > device is taken over by the host again.
->=20
-> Great, thanks, I'll add your tested-by for the s390 drivers.
+On Sat, Apr 29, 2023 at 12:13:39AM +0800, Yi Liu wrote:
 
-Yes and with the above change feel free to add my for this patch and
-see my other reply for the s390 specific change.
+> > Whoa, noiommu is inherently unsafe an only meant to expose the vfio
+> > device interface for userspace drivers that are going to do unsafe
+> > things regardless.  Enabling noiommu to work with mdev, pin pages, or
+> > anything else should not be on our agenda.  Userspaces relying on niommu
+> > get the minimum viable interface and must impose a minuscule
+> > incremental maintenance burden.  The only reason we're spending so much
+> > effort on it here is to make iommufd noiommu support equivalent to
+> > group/container noiommu support.  We should stop at that.  Thanks,
+> 
+> btw. I asked a question in [1] to check if we should allow attach/detach
+> on noiommu devices. Jason has replied it. If in future noiommu userspace
+> can pin page, then such userspace will need to attach/detach ioas. So I
+> made cdev series[2] to allow attach ioas on noiommu devices. Supporting
+> it from cdev day-1 may avoid probing if attach/detach is supported or
+> not for specific devices when adding pin page for noiommu userspace.
+> 
+> But now, I think such a support will not in plan, is it? If so, will it
+> be better to disallow attach/detach on noiommu devices in patch [2]?
+> 
+> [1] https://lore.kernel.org/kvm/ZEa+khH0tUFStRMW@nvidia.com/
+> [2] https://lore.kernel.org/kvm/20230426150321.454465-21-yi.l.liu@intel.com/
 
-Acked-by: Niklas Schnelle <schnelle@linux.ibm.com> # s390
+If we block it then userspace has to act quite differently, I think we
+should keep it.
 
-(I've recently been added as additional S390 IOMMU (PCI) maintainer)
+My general idea to complete the no-iommu feature is to add a new IOCTL
+to VFIO that is 'pin iova and return dma addr' that no-iommu userspace
+would call instead of trying to abuse mlock and /proc/ to do it. That
+ioctl would use the IOAS attached to the access just like a mdev would
+do, so it has a real IOVA, but it is not a mdev.
+
+unmap callback just does nothing, as Alex says it is all still totally
+unsafe.
+
+This just allows it use the mm a little more properly and safely (eg
+mlock() doesn't set things like page_maybe_dma_pinned(), proc doesn't
+reject things like DAX and it currently doesn't make an adjustment for
+the PCI offset stuff..) So it would make DPDK a little more robust,
+portable and make the whole VFIO no-iommu feature much easier to use.
+
+To do that we need an iommufd access, an access ID and we need to link
+the current IOAS to the special access, like mdev, but in any mdev
+code paths.
+
+That creating the access ID solves the reset problem as well is a nice
+side effect and is the only part of this you should focus on for now..
+
+Jason
