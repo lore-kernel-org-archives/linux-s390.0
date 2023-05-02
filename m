@@ -2,195 +2,163 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 48421C7EE22
-	for <linux-s390@archiver.kernel.org>; Tue,  2 May 2023 17:59:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F283EC77B73
+	for <linux-s390@archiver.kernel.org>; Tue,  2 May 2023 18:12:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233585AbjEBR7C (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 2 May 2023 13:59:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45432 "EHLO
+        id S233934AbjEBSMT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 2 May 2023 14:12:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233943AbjEBR6s (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 2 May 2023 13:58:48 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7774511D;
-        Tue,  2 May 2023 10:58:46 -0700 (PDT)
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 342Hp0jb024052;
-        Tue, 2 May 2023 17:58:02 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=621oHKV9Q4q3NojmG6Twv6Ayhy6gzgsdLbpEBdHVwnE=;
- b=RGpeH+7Spx3pccPx3n9bfSCmCQ+mcHv5kqAStsFG5zdqKnoxzqdfzAYTXWtk7be8McxO
- UQZuX9SdrxLl4NUmNPHgm2ATGbTPfhEeyO8DKSUDZGo4EImBN22KsuO0WHFJ46vyRokR
- bbTDbNhF/pUUMxSGHgNw44E0ePh1akr2G+6uuv1pCAda2hsSJ4YXw6Xd78xwcodys9fZ
- cOZOMmIm/8Or3YW9LyCcwLkMBEIYOtUKXeQSO95k4p/+1LlweFTK7vOpCGGfKV7Y6z1O
- UWy0X6TlofXlAYbHPAVuNxcyR4OlOppaJW1xxxrHkNLWvUdNl+4KcVNxf0ngQkigltly 6Q== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qb79g85he-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 02 May 2023 17:58:01 +0000
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 342Hs8Hv032494;
-        Tue, 2 May 2023 17:58:00 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qb79g85g0-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 02 May 2023 17:57:59 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 341LC9Kf005173;
-        Tue, 2 May 2023 17:57:56 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3q8tv6sr55-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 02 May 2023 17:57:56 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 342HvqTe6816504
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 2 May 2023 17:57:52 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id AC9B320043;
-        Tue,  2 May 2023 17:57:52 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E163420040;
-        Tue,  2 May 2023 17:57:50 +0000 (GMT)
-Received: from [9.171.18.35] (unknown [9.171.18.35])
-        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue,  2 May 2023 17:57:50 +0000 (GMT)
-Message-ID: <619e2ae66038da313b68c0f5d16e97984aebe5e6.camel@linux.ibm.com>
-Subject: Re: [PATCH 03/20] iommu/s390: Replace set_platform_dma_ops() with
- IOMMU_DOMAIN_PLATFORM
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>, Andy Gross <agross@kernel.org>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        Bjorn Andersson <andersson@kernel.org>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
-        linux-tegra@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Orson Zhai <orsonzhai@gmail.com>,
-        Rob Clark <robdclark@gmail.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Krishna Reddy <vdumpa@nvidia.com>,
-        Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>,
-        Yong Wu <yong.wu@mediatek.com>,
-        Chunyan Zhang <zhang.lyra@gmail.com>
-Cc:     Lu Baolu <baolu.lu@linux.intel.com>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Nicolin Chen <nicolinc@nvidia.com>,
-        Steven Price <steven.price@arm.com>
-Date:   Tue, 02 May 2023 19:57:50 +0200
-In-Reply-To: <3-v1-21cc72fcfb22+a7a-iommu_all_defdom_jgg@nvidia.com>
-References: <3-v1-21cc72fcfb22+a7a-iommu_all_defdom_jgg@nvidia.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.48.1 (3.48.1-1.fc38) 
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: _cF4FTDgqHBuVmSLzSX027-cXWersI4c
-X-Proofpoint-ORIG-GUID: 9v3VgFcH_fMov5DWIp_KQp1O0YfHLmEi
-Content-Transfer-Encoding: quoted-printable
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        with ESMTP id S233923AbjEBSMS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 2 May 2023 14:12:18 -0400
+Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on2047.outbound.protection.outlook.com [40.107.94.47])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A5E2197;
+        Tue,  2 May 2023 11:12:17 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=cRxjeuyj5y/y2w3/Azrcs0e55zxTaeYPhP6uQDdv4vxjgVtIBO7aDOuF+tnjQQJnPIRn254PP3abLlNft76RUi/8sbsLCyrbN5Dwxbw3lfeZHlZW5hrkZjxt3vb83B3TtWaMFjysH7zENX0fBhTbsEW9rDAPJ6TZR7sfHobHC9t8ah1icKz18zo+6nuCB1m3yvGYCK5f3ojDOh1CO/hLkDZgB2VOEzqftaDNgiXDkSdIV+oQ28TivqZWPSWPHw3yGqNmv3ka0QUImd8/5x385SyTbUMG+/eU+fiA4kjBpqsMxAmb1OW7IAXBiBD4I+y9743vcvCEaB51foAJ/W2SAA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=gAOQcUsey8oFEZQH2ZjwJpAXK6Xtjeue4VwkMqJv2+Q=;
+ b=B05qqDE0noioSuKzwnus45D0G3BfWrkm/nBxl3leoNBQJZw/57jYFgf+8AyYDogl6koGMfIBckp8o3U4WDulq+ll7150fUZGIw3HVtWIUkqYpmWjUgUez6OCzIdNMXTxnPYcuph+vJTCLZAcdWNJXyyHNA+btX0b6+TMI3qE4G6KRd5l2xdi5HS12xEfDSf+1iGPdl8GMrkZRK5QO/Qh8HBApnK20GdaH9m7lbOJKLclXCnbcLXNcWvmKgggCQsJKFz7gr8AsFre71POBm0BeulMe+nymi9BHRWA/qlXpIhyAFBDbaqV/0VZIisMHU9j09J6XSGyphxb4gl1ZzJDaw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=gAOQcUsey8oFEZQH2ZjwJpAXK6Xtjeue4VwkMqJv2+Q=;
+ b=qAZvhYm4RQxHIEDfG5fcGs2BSVzdcSuwfQQbEbLc9O4ZVjP+5pgNBNmwbJcln9R/y4nAEtxTDqxLug3iaG41oLVJz87rMdTxYmLSuZCSpFwJsSj4pyjSwSuymd1c88nvAJm+k4H2oXTMhowd8j61UbtboXhigg2oJ4wNcDtlYeJDFrtNq+oYBmno3HS1Wgv11z9t5zlim95XeZRbzOweWjpZ5MdgpS76zknxydCmVCbHUq5si/iGqg8TIGV8haPYn18dtXvqympS4wOt0sR5btCHMihM0OZ2x37ZzNVSDaVDfwOJbOxOJWX8tb1l2V0U7/9rQ/D9+RnstX7He1NuEA==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by SJ1PR12MB6241.namprd12.prod.outlook.com (2603:10b6:a03:458::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6340.27; Tue, 2 May
+ 2023 18:12:15 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::f7a7:a561:87e9:5fab]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::f7a7:a561:87e9:5fab%6]) with mapi id 15.20.6340.030; Tue, 2 May 2023
+ 18:12:14 +0000
+Date:   Tue, 2 May 2023 15:12:13 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Yi Liu <yi.l.liu@intel.com>
+Cc:     Alex Williamson <alex.williamson@redhat.com>,
+        "Tian, Kevin" <kevin.tian@intel.com>,
+        "joro@8bytes.org" <joro@8bytes.org>,
+        "robin.murphy@arm.com" <robin.murphy@arm.com>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "eric.auger@redhat.com" <eric.auger@redhat.com>,
+        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
+        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
+        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
+        "peterx@redhat.com" <peterx@redhat.com>,
+        "jasowang@redhat.com" <jasowang@redhat.com>,
+        "shameerali.kolothum.thodi@huawei.com" 
+        <shameerali.kolothum.thodi@huawei.com>,
+        "lulu@redhat.com" <lulu@redhat.com>,
+        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
+        "intel-gvt-dev@lists.freedesktop.org" 
+        <intel-gvt-dev@lists.freedesktop.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "Hao, Xudong" <xudong.hao@intel.com>,
+        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
+        "Xu, Terrence" <terrence.xu@intel.com>,
+        "Jiang, Yanting" <yanting.jiang@intel.com>,
+        "Duan, Zhenzhong" <zhenzhong.duan@intel.com>
+Subject: Re: [PATCH v4 2/9] vfio-iommufd: Create iommufd_access for noiommu
+ devices
+Message-ID: <ZFFSff0cV/eC7IZ2@nvidia.com>
+References: <20230426145419.450922-1-yi.l.liu@intel.com>
+ <20230426145419.450922-3-yi.l.liu@intel.com>
+ <BN9PR11MB52768AF474FAB2AF36AC00508C6A9@BN9PR11MB5276.namprd11.prod.outlook.com>
+ <DS0PR11MB752972AC1A6030CB442ACF3FC36A9@DS0PR11MB7529.namprd11.prod.outlook.com>
+ <20230427123203.22307c4f.alex.williamson@redhat.com>
+ <a6b77884-1678-b17c-f6a4-28d56e6c366b@intel.com>
+ <ZEu3Ga9cIQAykBGf@nvidia.com>
+ <3b83d829-048b-174f-a21d-b28ad0b7b49e@intel.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3b83d829-048b-174f-a21d-b28ad0b7b49e@intel.com>
+X-ClientProxiedBy: BLAPR03CA0119.namprd03.prod.outlook.com
+ (2603:10b6:208:32a::34) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-05-02_10,2023-04-27_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 malwarescore=0
- clxscore=1015 mlxlogscore=999 impostorscore=0 spamscore=0 mlxscore=0
- bulkscore=0 lowpriorityscore=0 adultscore=0 phishscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2303200000 definitions=main-2305020151
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|SJ1PR12MB6241:EE_
+X-MS-Office365-Filtering-Correlation-Id: 1b02debd-a601-4922-4bd0-08db4b38c1b8
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: G92Vt7lKBRB+wzgPPbADJLonMW2EwEujnBAvXzSmGWfMKefBF/VDjXk87Xi/ZL06Vte7qdVz4eC8hM3E8EpfyfNEp+ZzWob42cL4qGm0oUAKAZURdsAQC3+AZbWq4++pNQ5rpn0hUaNPmf6jV+QWviLv0lrQWL4pd8HjLPYsL7AF3WiAk8oGkEVxgoYNgYmsVhUPz7qnQQT3rFxe2+WhUDMluEhEXrXWAySZg5DgUwlcsVqz7iv5Jxt1k8w0tQNP5jvhfELqVJMDmAxr82vmK8x6PKReG5xdIRyeVgWx3KH6HlyIWIg4VXSabiSFYhBcqO695wJp3XVpOSqfY7b4j8d9z470I9spRcAiVO25QAL5LJVDCqjIsCEuZXVQOtGq0hhoqWqYYXH6l+zb/4fAmD5cgch8JB07Ruc1tWHv333jE6w+XmAKxZI/LjHemrLT24nwhbD11yINraQDd+I2nnwjI3YMy10vhZbuOQ6eqf3JcwDtI+ZaYqMtMBMpOzzm/LM5EQpPNqtQFOYXBXcfpIMC/FGfpmTwbIdmnek6cRvpLKvymYdzuzaJEFldn9UP
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(366004)(39860400002)(376002)(346002)(396003)(136003)(451199021)(86362001)(36756003)(54906003)(6486002)(478600001)(8676002)(8936002)(38100700002)(66946007)(66556008)(316002)(66476007)(41300700001)(6916009)(2616005)(83380400001)(4326008)(6512007)(6506007)(186003)(26005)(4744005)(7416002)(5660300002)(2906002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?MmQI5ZF4CcVzHb1uYIudgT04zYKnLzrKJCgK9nA93kFqIV0PPInLDxAV3kDs?=
+ =?us-ascii?Q?wqA6S6Achzh+VkoAS5ZlBCDjY/F6RZ8ihhRBezekB47oTLx2jeanXCWIF91F?=
+ =?us-ascii?Q?VojQB2IEuq+6ql6kWaql7cjJ53COOhManFFsvqM5tcd+H192+lJFhpQr5D2d?=
+ =?us-ascii?Q?rBHZF16xK+zBO7bmlWzuRg08Dy9iBLfZIEH65aKDjX0L48e/5bVwAJCNPEKp?=
+ =?us-ascii?Q?JggFS2qZzOHddfs2nkCWSu/oBEZ7h/XTImEU7dL4tU4jzbTXhD5kXu6/AR/4?=
+ =?us-ascii?Q?vbZ9rYHSAMX68SGJ12GZvTl53sx36Bh8pRNVfPvOwABND7kPcSXkKAXFT19t?=
+ =?us-ascii?Q?bpuuz8CLF6YxlFbuWOGJBUPoM2VrlDZFBnr+fKmYKMowFNDoldWYLg1Q51tq?=
+ =?us-ascii?Q?BCPV/UygtoUXC8tCcemgaxQaKiKQjTghpwLqciHrEFocEfyV5avcmP9+bZEM?=
+ =?us-ascii?Q?+nKYsSX9Y1fYCK0O7DFYihAMmPbZFsUQyRvgUtiLSUB+xYRbOtYte3EklAk0?=
+ =?us-ascii?Q?XZcEv7AwPINCueKUfWL5jIATazUsxkctf0Wjdv1eam/J5c2L6nuVSrdKOTNx?=
+ =?us-ascii?Q?ZtQ80n2bcisdFUGYBcfel7teu5sMTQbv1rrhucKEYepqPYeuoomMC/zE9uw5?=
+ =?us-ascii?Q?n+rTYbCV4nYFBTJNIf8uAsE+3yg8zGhCovHJGjEv/QQjaJZRNut5q3WN2EiI?=
+ =?us-ascii?Q?PvM3yzHZrJWicmnvrwbcXovroWAV0bP1A7A4zMjOe+IaQ1b1+QbTnS+zpNEb?=
+ =?us-ascii?Q?Bqu4pw7xcG3AlbBTVSDoA1cCJazLTcTCzjDWE55j6QCJfex2FjbrQYkXBmue?=
+ =?us-ascii?Q?kbMD1qlVSImiqKPQqNPxb6WQeENXBY3bmcxNq06XQaa9wU5UI/g8kL9baPHK?=
+ =?us-ascii?Q?m7XBn7TxphItz6VC1RYoo3R98fcDQkUkJoQwSH+HhnZKDkPcVs7DvTHuLVKn?=
+ =?us-ascii?Q?t/Q+FxMGF6bu1fM/HCNwHGzY+18TECXQJcDBXMJUf4M5/jCuminqCx9Yi60g?=
+ =?us-ascii?Q?VfyluoVT98+ZrNOXK7t6J8PejuHEw5gseMi/6be5LRHH8ISlxrs40ByaeQ4A?=
+ =?us-ascii?Q?SKuhsuB8NwJno+SDrn1Q2BS49Y0lrcK4Jf5MPONq4yX3m5pohaf+UtTD6qE+?=
+ =?us-ascii?Q?/XFYBQ9lByqsHND6ojcH5sVoYMtfPwKoW4vomsDJcWDAKN/vF5QERDjTrJ13?=
+ =?us-ascii?Q?c/LQl4jRQJxLJXaI1KoKYlTm7IJ5R2sc9tuFC8cP8dBIEyNfezOj00sxhgVM?=
+ =?us-ascii?Q?Pay/J1FulFL0/JAh76oUkeLUlVQkzdEEeh1333HZtWzNMbYrcOFQx1pFEGZs?=
+ =?us-ascii?Q?AK9bFtFRBYwTDKCxdnsbwXQYeoD5aY272Ae9gQMX5j7NA4I33Q3jl4At1emN?=
+ =?us-ascii?Q?QMSykTNub0/SSTHgp8kA1EtPWk+DFRexg5JTMGvKonTrlfYW1SHwlAKd6X7/?=
+ =?us-ascii?Q?iDVL0fyQhJU+dEB4LoTIc08nUpcGKqlZzpBCf/R/VrYYlhcMRfnIazmF5qZA?=
+ =?us-ascii?Q?4FBwEPsQTFKI8OXghgRyKmV7xE/VgXgoSqL916/x3c+cyfGMIl3qM6TDj00E?=
+ =?us-ascii?Q?V+guFBdxg7mHDLlxxYls+yOc65yGXtJTuU6aSotq?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1b02debd-a601-4922-4bd0-08db4b38c1b8
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 May 2023 18:12:14.9392
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: F2ReOCfsp/GdU0EDAWP9fqgC46c6UE/TSwyGxjHBYOLiB3KDRMZtrIb3pb+XLXxB
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ1PR12MB6241
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 2023-05-01 at 15:02 -0300, Jason Gunthorpe wrote:
-> This is temporary until the S390 dma-iommu.c conversion is merged.
+On Sat, Apr 29, 2023 at 12:07:24AM +0800, Yi Liu wrote:
+> > The emulated stuff is for mdev only, it should not be confused with
+> > no-iommu
+> 
+> hmmm. I guess the confusion is due to the reuse of
+> vfio_iommufd_emulated_bind().
 
-For anyone wanting to accelerate the conversion. Comments, testing and
-reviews for the current version of my dma-iommu.c conversion patches is
-welcome and the single flush queue thing might even give others
-(virtio-iommu?) performance benefits:
-https://lore.kernel.org/linux-iommu/20230310-dma_iommu-v8-0-2347dfbed7af@li=
-nux.ibm.com/
+This is probabl y not a good direction
 
->=20
-> s390 is actually moving the dma_ops over to platform control.
->=20
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> ---
->  drivers/iommu/s390-iommu.c | 21 +++++++++++++++++++--
->  1 file changed, 19 insertions(+), 2 deletions(-)
->=20
-> diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
-> index fbf59a8db29b11..f0c867c57a5b9b 100644
-> --- a/drivers/iommu/s390-iommu.c
-> +++ b/drivers/iommu/s390-iommu.c
-> @@ -142,14 +142,31 @@ static int s390_iommu_attach_device(struct iommu_do=
-main *domain,
->  	return 0;
->  }
->=20=20
-> -static void s390_iommu_set_platform_dma(struct device *dev)
-> +/*
-> + * Switch control over the IOMMU to S390's internal dma_api ops
-> + */
-> +static int s390_iommu_platform_attach(struct iommu_domain *platform_doma=
-in,
-> +				      struct device *dev)
->  {
->  	struct zpci_dev *zdev =3D to_zpci_dev(dev);
->=20=20
-> +	if (!zdev->s390_domain)
-> +		return 0;
-> +
->  	__s390_iommu_detach_device(zdev);
->  	zpci_dma_init_device(zdev);
-> +	return 0;
->  }
->=20=20
-> +static struct iommu_domain_ops s390_iommu_platform_ops =3D {
-> +	.attach_dev =3D s390_iommu_platform_attach,
-> +};
-> +
-> +static struct iommu_domain s390_iommu_platform_domain =3D {
-> +	.type =3D IOMMU_DOMAIN_PLATFORM,
-> +	.ops =3D &s390_iommu_platform_ops,
-> +};
-> +
->  static void s390_iommu_get_resv_regions(struct device *dev,
->  					struct list_head *list)
->  {
-> @@ -428,12 +445,12 @@ void zpci_destroy_iommu(struct zpci_dev *zdev)
->  }
->=20=20
->  static const struct iommu_ops s390_iommu_ops =3D {
-> +	.default_domain =3D &s390_iommu_platform_domain,
->  	.capable =3D s390_iommu_capable,
->  	.domain_alloc =3D s390_domain_alloc,
->  	.probe_device =3D s390_iommu_probe_device,
->  	.release_device =3D s390_iommu_release_device,
->  	.device_group =3D generic_device_group,
-> -	.set_platform_dma_ops =3D s390_iommu_set_platform_dma,
->  	.pgsize_bitmap =3D SZ_4K,
->  	.get_resv_regions =3D s390_iommu_get_resv_regions,
->  	.default_domain_ops =3D &(const struct iommu_domain_ops) {
+> > Eg if you had a no_iommu_access value to store the access it would be
+> > fine and could serve as the 'this is no_iommu' flag
+> 
+> So this no_iommu_access shall be created per iommufd bind, and call the
+> iommufd_access_create() with iommufd_access_ops. is it? If so, this is
+> not 100% the same with no_iommu flag as this flag is static after device
+> registration.
 
-Looks good to me and I think semantically this is a good use of an
-IOMMU domain type.
+Something like that, yes
 
-Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+I don't think it is any real difference with the current flag, both
+are determined at the first ioctl when the iommufd is presented and
+both would state permanently until the fd close
+
+Jason
