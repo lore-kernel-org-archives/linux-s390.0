@@ -2,170 +2,239 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C934C77B75
-	for <linux-s390@archiver.kernel.org>; Wed,  3 May 2023 12:54:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 06A6FC77B78
+	for <linux-s390@archiver.kernel.org>; Wed,  3 May 2023 13:45:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230048AbjECMyj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 3 May 2023 08:54:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54716 "EHLO
+        id S230201AbjECNpU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 3 May 2023 09:45:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229953AbjECMy0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 3 May 2023 08:54:26 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA5E85FC6;
-        Wed,  3 May 2023 05:54:17 -0700 (PDT)
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 343CsAxw032116;
-        Wed, 3 May 2023 12:54:17 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=OdSBNL0rhlJgQI1Pz50BBgSkLWOJFO6nfzapJux5ses=;
- b=ZHun1Z/9gby50irMk4jF/AGrFVdvvzDoRDmNF14wBMp0UNqv7ZRaJMGZlCphm/lEyPZk
- CYi/WUXhR2aVpzKezAi7T6heNcuYbNXje4YKie+fguAPdSUlJHqdeA7UIk4LiNit4JFY
- yTGOAmP1ZR56SKcJ5/SRJGT2enbf8uFwBtjMNrWUXqCnUS80rbasO7ymk7sSFkH4i1rG
- E45Q9c+bx0Fe/AUmDYA3z8nhVn2JaNZ2nRZ3BGWj2RtmQNQqn/z/yY8XrpjfMBuNhOLU
- vtqmhptVfIaIWZcCiePQseSNbIQ0Ss9+KP5haCz+LXTunLHtofhONYXvpe2EvQnzKSMb 3w== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qbqmwgwv2-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 03 May 2023 12:54:16 +0000
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 343CrL6g029005;
-        Wed, 3 May 2023 12:53:26 GMT
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qbqmwgw0x-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 03 May 2023 12:53:25 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3434TI1l014099;
-        Wed, 3 May 2023 12:52:24 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma02fra.de.ibm.com (PPS) with ESMTPS id 3q8tv6sue3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 03 May 2023 12:52:24 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 343CqKct15139226
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 3 May 2023 12:52:20 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CFAB92004B;
-        Wed,  3 May 2023 12:52:20 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7AD7820040;
-        Wed,  3 May 2023 12:52:20 +0000 (GMT)
-Received: from [9.152.222.242] (unknown [9.152.222.242])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Wed,  3 May 2023 12:52:20 +0000 (GMT)
-Message-ID: <af6e9b44-ac14-904e-6d37-043a5c8a9357@linux.ibm.com>
-Date:   Wed, 3 May 2023 14:52:20 +0200
+        with ESMTP id S230116AbjECNpT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 3 May 2023 09:45:19 -0400
+Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on2041.outbound.protection.outlook.com [40.107.236.41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C5395BBA;
+        Wed,  3 May 2023 06:45:15 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=RWDsw3lis60pOxJsCxeTf3CrVlDbR5ofJqcsHCHVpDSfwgxoABcHH8bUbNfhrIj9LboBYPH3dEfrQi514jbwCtz2Z97pDn0yim/CkVn0juEd4sv5UZDq1w5VbnMtRAJFVGRpPBj8/ClQwYlwoASZoOv0zrHfMgQ3BEVSG14Mxn1XffzBRPfXOEIEK092uSzvrZPKE03jzYmf38mfqqlRtKVCv1W6XVCO9QzZo0nCkZPEfofmT8WeipMhd541722UdCpBroBaQq0+gfklTERJqN5jA5R/tUcVAO7CdNaRWtPkdAbyO5TizX01RCrQe8OXYKiVdOjUyo8wRpi7TDeqnA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=mWBH+FPAJeIOXoNU65jrAuk/Q3lzFQ9sLtzi5QbmxSw=;
+ b=MH9Ww/eGlUR3DkPMVQ7Pf1M9i5SdnUG1+QM5ZvFE7enSkWNfvoN40XKJ2NnPmCpp2JXkjgsqVqFR2HPbCr68b+uj6jSkxaUIrflCnc5qxl9XDtcLtN1xu1cafGxIoQNKkeJaLQ5JZ2V1R4GDsVAZIf2vIGxk4A9VBN6gYjLrb95XjfJQKsaNQ4qOTmU4jlicxHxofCRit2LqdfVUbAwyERA+epIDo0GbapqIluNPZoNkyti+moKaR8oE0KqnF5uieVmyDeulmORvksrq+sKKAXVa7HPmWv1uTwWsoutJF9bkmHHtQwOXDf7dsCZ3xOJIFxiY67g0df9XpAJBDNgHOg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=mWBH+FPAJeIOXoNU65jrAuk/Q3lzFQ9sLtzi5QbmxSw=;
+ b=jRv7EuJcul/DT+BcWM6CFgu8wgg2of2pMksdgAJypjksX5gIuKz+Hh32Is9q1v1HtQ5NA6Rz8mTyilJ80K4Rl4KsVFC4S65Gr01+ZIVzSXi13+8P9alQUGYY/cii7WqXxSLMz4/X2BmC2a50ReBrgydDEATHQFW6G4KCpSqXWolsiGeGvczhBMIDeetwLLZ07WVJ5C2Kf0XVv0o8Gqg5eI9AlZnOBY7QoD0ulrIvLW+ukZqNT9cNpexR47wPw02ZaC370WQqcV4xLPGLM7PQrih+aIvn5o1IB6LSrz8err/dEtrUiEhBe/K4vR4J3S79P9SOxj9cnexsO2lCyzX3lg==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by BL0PR12MB4852.namprd12.prod.outlook.com (2603:10b6:208:1ce::16) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6363.22; Wed, 3 May
+ 2023 13:45:13 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::f7a7:a561:87e9:5fab]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::f7a7:a561:87e9:5fab%6]) with mapi id 15.20.6363.022; Wed, 3 May 2023
+ 13:45:13 +0000
+Date:   Wed, 3 May 2023 10:45:11 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Robin Murphy <robin.murphy@arm.com>
+Cc:     Andy Gross <agross@kernel.org>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Bjorn Andersson <andersson@kernel.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Baolin Wang <baolin.wang@linux.alibaba.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
+        linux-tegra@vger.kernel.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Orson Zhai <orsonzhai@gmail.com>,
+        Rob Clark <robdclark@gmail.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Krishna Reddy <vdumpa@nvidia.com>,
+        Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>,
+        Yong Wu <yong.wu@mediatek.com>,
+        Chunyan Zhang <zhang.lyra@gmail.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Nicolin Chen <nicolinc@nvidia.com>,
+        Steven Price <steven.price@arm.com>
+Subject: Re: [PATCH 02/20] iommu/terga-gart: Replace set_platform_dma_ops()
+ with IOMMU_DOMAIN_PLATFORM
+Message-ID: <ZFJlZ03lswl9uHD0@nvidia.com>
+References: <2-v1-21cc72fcfb22+a7a-iommu_all_defdom_jgg@nvidia.com>
+ <1db712d2-9e33-4183-2766-34e32f170507@arm.com>
+ <ZFI/D6mnLKYpdIqx@nvidia.com>
+ <1a995f30-31fe-354f-ddfe-e944fa36e7a0@arm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1a995f30-31fe-354f-ddfe-e944fa36e7a0@arm.com>
+X-ClientProxiedBy: YQZPR01CA0021.CANPRD01.PROD.OUTLOOK.COM
+ (2603:10b6:c01:85::8) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.8.0
-Subject: Re: [kvm-unit-tests PATCH v8 2/2] s390x: topology: Checking
- Configuration Topology Information
-Content-Language: en-US
-To:     Nico Boehr <nrb@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc:     frankja@linux.ibm.com, thuth@redhat.com, kvm@vger.kernel.org,
-        imbrenda@linux.ibm.com, david@redhat.com, nsg@linux.ibm.com
-References: <20230426083426.6806-1-pmorel@linux.ibm.com>
- <20230426083426.6806-3-pmorel@linux.ibm.com>
- <168258524358.99032.14388431972069131423@t14-nrb>
- <25a9c3d6-43be-6a08-a32e-5abc520e8c62@linux.ibm.com>
- <168266833708.15302.621201335459420614@t14-nrb>
- <8122e0de-7cbb-83f2-4c3a-7a50f0d5b205@linux.ibm.com>
- <168311498507.14421.10981394117035080962@t14-nrb>
-From:   Pierre Morel <pmorel@linux.ibm.com>
-In-Reply-To: <168311498507.14421.10981394117035080962@t14-nrb>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: H7nqEhuvLLrAa-QgSU0zky6FAZOWS_L-
-X-Proofpoint-ORIG-GUID: nZ9UcLINrI82faCR9rB_Kmd7oFr8xirg
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-05-03_08,2023-05-03_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 mlxlogscore=999
- lowpriorityscore=0 bulkscore=0 clxscore=1015 impostorscore=0
- suspectscore=0 phishscore=0 malwarescore=0 priorityscore=1501 spamscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2303200000 definitions=main-2305030106
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|BL0PR12MB4852:EE_
+X-MS-Office365-Filtering-Correlation-Id: c4a5a12b-9440-473b-7541-08db4bdc9e96
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: AuyOdXMi+eNNJ22TfDgWcuBGYy1xWpsCUNkOyKkPWY7ZHR71ENGJDJ2BswxsfQUrEKVpBKGhCzamhmvKZLOJLH41JhtWD35iJmoF7Z9QDwVh2Q7oaGTOrP1Yw1fLaUNQCvK2m2qmQecB0aN+6LBzvljAo53d7k9KUeWfZ6kVCLXCtr31dVjzgQQ5b02bZou2ceQM0A7Hbd0EP5jTiaoWXV2k+UDxj0U4/GV0MFCFGm0T92Q7BR6Y8+Y4sd9J6hWxFhNfBs310uAayVfQmya4mj1eW+naMVD8DCgrtwfCBd8j/1BwPdSP//9NqK2oy+6E0DplauZMrT8L3p5t6bQaolbSsRKmgXqrWWwq+/JpbO1nDnOc+LJ2Rj6XIrzXIFgwDbtvlPaEAqY87A15xIZwAW+UNTyoLWsICGpCH0lrqP+Mw6w8ggtuq4FaK01ElrUnKDVgG1JFuI21NcDreqLuyi0Lgch9RLjVLQHxFd3OqOfxJP0MbFDzWzHRQaarnCdsxPP82MDQUmK5MVkjY4dKSHFmoHzRc1s1vI6gYL6nPGJ21dQyo/ShsK+DGyY1Yowt
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(376002)(136003)(39860400002)(366004)(346002)(396003)(451199021)(2906002)(5660300002)(7406005)(7416002)(36756003)(8676002)(8936002)(66476007)(41300700001)(66556008)(66946007)(478600001)(86362001)(316002)(4326008)(6916009)(54906003)(6486002)(38100700002)(186003)(53546011)(2616005)(83380400001)(26005)(6512007)(6506007);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?PubmFGjujBwCu3hKoFxzUQDSI9RmReowcfQlN1q0LqjIXN79sjbd9HT4gMOI?=
+ =?us-ascii?Q?rm9xWVsPEYSUvcngrduwq0UBwndBWbLBn7Z06v7mb2zVErkwq0kE3YjwAwdL?=
+ =?us-ascii?Q?BjvsxRpH9bB9irJSuKd6KGzs9PsMTTtR0+I8wjFGbdSWJai4ANPR4Rj2YfA9?=
+ =?us-ascii?Q?XbqlhQ5fGK8B3CgxwdE2xwKglZL3Ta6XbNQ36llzKn+r2eloQCbpZzFmzJPG?=
+ =?us-ascii?Q?kLaN41kDH80MBhsnZemsT72ssLWHQPYb9XmE3pszWOpB60fg6VIcjiHDTqxR?=
+ =?us-ascii?Q?m8EE6Xx31agJw1mVYsUb2Me5PU0Gx6ChKEJNkgBDpJBd8SU2LKoHjdsbtNTe?=
+ =?us-ascii?Q?Xf/c/2gzymtiubeaRQtiX7Uah9sogfBuOOu5FNfLEQ3y8A33moQ2tDhBUNPw?=
+ =?us-ascii?Q?fGG89FhcY92Ger0ADzbUrS/VhJv0xC6V9vzJ1kTAoOaAAxxN77NibM90dSFE?=
+ =?us-ascii?Q?IY1+pm6CSwfm+IwPPhrRGtyXioV+oQ1QlNSjGXIQW/2d1T3kAwKsJXnNfggE?=
+ =?us-ascii?Q?yhql64WUm6F+UsebAxTia8+obfiF6sWJgAR68FdQdCLsGiQ8Vnwl3RRfsKko?=
+ =?us-ascii?Q?uutylkt5WI2GJGH3UKabPervj9ywu5j00m3K0hrrAdr7GlviuypUbFJe64Pi?=
+ =?us-ascii?Q?JMdGqkG3cz2EmosGjWV82yFqmMctllbZbTUvXu+kSCdfLjNCGS4zfQaI5a0w?=
+ =?us-ascii?Q?45zyua/7xQwe2U85B9Qu5pO8pSBzABvF1fx9Jfyf2D4wP5FVXHgFySGwbtMJ?=
+ =?us-ascii?Q?iJMN5fLxcM9yN8P5fszrVNlL9ZSFm/E8mvOceXEljVxM7UKlKz06CA4xCk5X?=
+ =?us-ascii?Q?RIJg6aLlSD1d8Pfq800CxtFc919EGYnXrFrA8mCfYBzr7RpvRDLshGzVypKs?=
+ =?us-ascii?Q?QN9UW5ErpK/xfnXrTYhVmy+7BECvo/tpdlkmeemEHfzbxfw/4/AMvHn7NNPj?=
+ =?us-ascii?Q?rmpo4a1IGjXvPHHA1YNlecEQuzqnyHeDDf7jTsp6ZhdqnT6OR+5HtB/E1ThN?=
+ =?us-ascii?Q?F9KF1PdmmqnzLlsipPb3EZYJwOPXqXRId6UVTkdsWZBu9N7U4eaRKvOzq5ES?=
+ =?us-ascii?Q?yMo1kqlMR1363Dk4P4W3lYFEW44fZvNmCtTIfVJ+Kp6BTWElhgP9bXjGhhze?=
+ =?us-ascii?Q?2VWhyT/IA+LrJqfVsBaAbRyVp5V0AIRC/nLWeix0Q/uZJJnIt7ofrnYu2nAK?=
+ =?us-ascii?Q?cskrJbHuQTK+buY/eTcWRAiHoVjj2B+d+a3Q3UXFTk5Racg85XaefD05N0yj?=
+ =?us-ascii?Q?PUR7XY9pYCEaXnGVMLbGytmHKHIg5d4gUw4WKR4Vk0DaGnVqbNj8ZA1obm12?=
+ =?us-ascii?Q?wd8QT4CTNGtDFCbPu40V1s7IQhn8hBpTnIo8jfE/4Ng44VS5DvJjBHljvQMF?=
+ =?us-ascii?Q?JHId2o8gO8l2yq2QfhW53mBFj+BCspKV3uXIU2hq0jiuQJRTCdQsAiDnwxnE?=
+ =?us-ascii?Q?FCEbkN9sC27j47+H+nvBmQR90vZ4sidq3BdOuyZyeRsrS39JU6DApBlwDUEz?=
+ =?us-ascii?Q?vShF5S3ArZ9TRTLKmfqJhsWoiQfK0NyS5mIh/hNG0EjWgOvfD9kLM+emG1ar?=
+ =?us-ascii?Q?+WEDloIFaFdiXykFvmM=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: c4a5a12b-9440-473b-7541-08db4bdc9e96
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 May 2023 13:45:13.1336
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: gdRu2TDS84EjqRKVk0VNNnmT81UQjgj6g7OYrULP8LVBL68Zy0e2RPQADEF7UR1p
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL0PR12MB4852
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Wed, May 03, 2023 at 01:01:34PM +0100, Robin Murphy wrote:
+> On 2023-05-03 12:01, Jason Gunthorpe wrote:
+> > On Wed, May 03, 2023 at 10:17:29AM +0100, Robin Murphy wrote:
+> > > On 2023-05-01 19:02, Jason Gunthorpe wrote:
+> > > > tegra-gart seems to be kind of wonky since from the start its 'detach_dev'
+> > > > op doesn't actually touch hardware. It is supposed to empty the GART of
+> > > > all translations loaded into it.
+> > > 
+> > > No, detach should never tear down translations - what if other devices are
+> > > still using the domain?
+> > 
+> > ?? All other drivers do this.
+> 
+> The only driver I'm aware of which effectively tore down mappings by freeing
+> its pagetable on detach was sprd-iommu, and that was recently fixed on
+> account of it being clearly wrong.
 
-On 5/3/23 13:56, Nico Boehr wrote:
-> Quoting Pierre Morel (2023-04-28 15:10:07)
->> On 4/28/23 09:52, Nico Boehr wrote:
->>> Quoting Pierre Morel (2023-04-27 16:50:16)
->>> [...]
->>>>>> diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
->>>>>> index fc3666b..375e6ce 100644
->>>>>> --- a/s390x/unittests.cfg
->>>>>> +++ b/s390x/unittests.cfg
->>>>>> @@ -221,3 +221,6 @@ file = ex.elf
->>>>>>     
->>>>>>     [topology]
->>>>>>     file = topology.elf
->>>>>> +# 3 CPUs on socket 0 with different CPU TLE (standard, dedicated, origin)
->>>>>> +# 1 CPU on socket 2
->>>>>> +extra_params = -smp 1,drawers=3,books=3,sockets=4,cores=4,maxcpus=144 -cpu z14,ctop=on -device z14-s390x-cpu,core-id=1,entitlement=low -device z14-s390x-cpu,core-id=2,dedicated=on -device z14-s390x-cpu,core-id=10 -device z14-s390x-cpu,core-id=20 -device z14-s390x-cpu,core-id=130,socket-id=0,book-id=0,drawer-id=0 -append '-drawers 3 -books 3 -sockets 4 -cores 4'
->>>>> If I got the command line right, all CPUs are on the same drawer with this command line, aren't they? If so, does it make sense to run with different combinations, i.e. CPUs on different drawers, books etc?
->>>> OK, I will add some CPU on different drawers and books.
->>> just to clarify: What I meant is adding an *additional* entry to unittests.cfg. Does it make sense in your opinion? I just want more coverage for different scenarios we may have.
->> Ah OK, yes even better.
->>
->> In this test I chose the values randomly, I can add 2 other tests like
->>
->> - once with the maximum of CPUs like:
->>
->> [topology-2]
->> file = topology.elf
->> extra_params = -smp drawers=3,books=4,sockets=5,cores=4,maxcpus=240
->> -append '-drawers 3 -books 4 -sockets 5 -cores 4'
->>
->>
->> or having 8 different TLE on the same socket
->>
->> [topology-2]
->>
->> file = topology.elf
->> extra_params = -smp 1,drawers=2,books=2,sockets=2,cores=30,maxcpus=240
->> -append '-drawers 2 -books 2 -sockets 2 -cores 30' -cpu z14,ctop=on
->> -device
->> z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=2,entitlement=low
->> -device
->> z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=3,entitlement=medium
->> -device
->> z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=4,entitlement=high
->> -device
->> z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=5,entitlement=high,dedicated=on
->> -device
->> z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=65,entitlement=low
->> -device
->> z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=66,entitlement=medium
->> -device
->> z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=67,entitlement=high
->> -device
->> z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=68,entitlement=high,dedicated=on
->>
->>
->> What do you think is the best ?
-> I think both do make sense, since they cover differenct scenarios, don't they?
+By "Teardown" I mean deconfigure the HW.
 
+This driver is odd because it doesn't store a page table in the
+iommu_domain, it keeps it in the GART registers so it can't actually
+detach/attach fully correctly. :(
 
-Yes,
+> Yes, I'm not disputing that we expect detach to remove that device's
+> *access* to the IOVA (which is what GART can't do...), but it should
+> absolutely not destroy the IOVA mapping itself. Follow that sequence with
+> iommu_attach_device(dom, dev) again and the caller can expect to be able to
+> continue using the same translation.
 
-also
+Yes
+ 
+> > If the HW is multi-device then it is supposed to have groups.
+> 
+> Groups are in fact the most practical example: set up a VFIO domain, attach
+> two groups to it, map some IOVAs, detach one of the groups, keep using the
+> other. If the detach carried an implicit iommu_unmap() there would be
+> fireworks.
 
-[topology-2]
-file = topology.elf
-extra_params = -smp books=2,sockets=31,cores=4,maxcpus=248
--append '-drawers 1 -books 2 -sockets 31 -cores 4'
+Yes, I'm not saying an unmap, I used the word teardown to mean remove
+the HW parts. This gart function doesn't touch the HW at all, that
+cannot be correct.
 
-Could make sense too, it is the way I found the sclp problem, but it will fail until sclp is fixed using facility 140.
+It should have an xarray in the iommu_domain and on detach it should
+purge the GART registers and on attach it should load the xarray into
+the GART registers. We are also technically expecting drivers to
+support map prior to attach, eg for the direct map reserved region
+setup.
 
+> > Oh yuk, that is not an UNMANAGED domain either as we now assume empty
+> > UNMANAGED domains are blocking in the core...
+> 
+> They are, in the sense that accesses within the aperture won't go
+> anywhere.
 
+That is not the definition of BLOCKING we came up with.. It is every
+IOVA is blocked and the device is safe to hand to VFIO. It can't be just
+blocking a subset of the IOVA.
 
+> It might help if domain->geometry.force_aperture was meaningful, because
+> it's never been clear whether it was supposed to reflect a hardware
+> capability (in which case it should be false for GART) or be an instruction
+> to the user of the domain (wherein it's a bit pointless that everyone always
+> sets it).
 
+force_aperture looks pointless now. Only two drivers don't set it -
+mtk_v1 and sprd.
+
+The only real reader is dma-iommu.c and mtk_v1 doesn't use that.
+
+So the only possible user is sprd.
+
+The only thing it does is cause dma-iommu.c in ARM64 to use the
+dma-ranges from OF instead of the domain aperture. sprd has no
+dma-ranges in arch/arm64/boot/dts/sprd.
+
+Further, sprd hard fails any map attempt outside the aperture, so it
+looks like a bug if the OF somehow chooses a wider aperture as
+dma-iommu.c will start failing maps.
+
+Thus, I propose we just remove the whole thing. All drivers must set
+an aperture and the aperture is the pure HW capability to map an
+IOPTE at that address. ie it reflects the design of the page table
+itself and nothing else.
+
+Probably OF dma-ranges should be reflected in the pre-device reserved
+ranges?
+
+This is great, I was starting to look at this part wishing the OF path
+wasn't different, and this is a clear way forward :)
+
+For GART, I'm tempted to give GART a blocking domain and just have its
+attach always fail - this is enough to block VFIO. Keep the weirdness
+in one place.. Or ignore it since I doubt anyone is actually using
+this now.
+
+Jason
