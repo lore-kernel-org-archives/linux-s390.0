@@ -2,171 +2,117 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 09129C77B78
-	for <linux-s390@archiver.kernel.org>; Thu,  4 May 2023 17:16:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B0165C77B7C
+	for <linux-s390@archiver.kernel.org>; Fri,  5 May 2023 10:14:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229944AbjEDRQ0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 4 May 2023 13:16:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48936 "EHLO
+        id S231752AbjEEKOc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 5 May 2023 06:14:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229524AbjEDRQY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 4 May 2023 13:16:24 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5ED491722;
-        Thu,  4 May 2023 10:16:20 -0700 (PDT)
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 344H3Frr003980;
-        Thu, 4 May 2023 17:16:19 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=Weim4K1qAi2gFEeahU0800tJPcGwDPeC/I8GxwWY/1c=;
- b=c5n7LX8JHZYeNPaeb0mBhGQD9Ri7R67YlxvR3F6fojPt99lwWhCwhYFRlXYr2fini5am
- dmb4HgMp1CHypW6mC39jDU6fKZQez5ZJAh0ty0e+702KATd3ReSXtadPF1fBKlZsJDFE
- FlBMkLMpVvo3B6ZOPQJHY2U0FY7RcP2AFF8qpgQdnrh8UwjejGdkx9iVoN5yFAzbs5l7
- TI9aOTXMtTANST4jdSMet8rP8S7fILe10eWlwqF5eOSlB19074WwIMmIxGu3id+7HGGm
- 2bTX2rYyO4/r25hNq5B7vviSqQyFzbDQdaQv4w+IZTZHGAh/G21Bww1OlCNWniAtI5Fk MQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qcgs00sqw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 04 May 2023 17:16:18 +0000
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 344H3H70004193;
-        Thu, 4 May 2023 17:16:18 GMT
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qcgs00spn-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 04 May 2023 17:16:18 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 344H7uut009335;
-        Thu, 4 May 2023 17:16:16 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma05fra.de.ibm.com (PPS) with ESMTPS id 3q8tv6jg0e-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 04 May 2023 17:16:15 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 344HGCC540305092
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 4 May 2023 17:16:12 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 337732004B;
-        Thu,  4 May 2023 17:16:12 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0E9E42004F;
-        Thu,  4 May 2023 17:16:12 +0000 (GMT)
-Received: from p-imbrenda.boeblingen.de.ibm.com (unknown [9.152.224.56])
-        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Thu,  4 May 2023 17:16:12 +0000 (GMT)
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     pbonzini@redhat.com
+        with ESMTP id S231704AbjEEKOb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 5 May 2023 06:14:31 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F0EA1161C
+        for <linux-s390@vger.kernel.org>; Fri,  5 May 2023 03:13:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1683281622;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=oZ+W0+aJdMtjJzmRiw6PVDgzOh3temaFbWrH/wCIxiU=;
+        b=H0qt/oRmfeFEm9QhCCcynQeKgfKRdHdkZZ1gddw8TQ3y5Ei5JNL+7gWFOcBupVw3OkDdxt
+        vWQB9xoJJcTWe2wHvBwNLMOMZttuSjbAk0enD1RI6JMTpxPqDGW9XHH7izX6N2p80DTez0
+        rY7zGWiqPGmGKliY31rXm7DaAjaMigY=
+Received: from mail-vs1-f70.google.com (mail-vs1-f70.google.com
+ [209.85.217.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-284-uXPBQ_WuPPK7GEG1l7sKFg-1; Fri, 05 May 2023 06:13:41 -0400
+X-MC-Unique: uXPBQ_WuPPK7GEG1l7sKFg-1
+Received: by mail-vs1-f70.google.com with SMTP id ada2fe7eead31-42dfffccac8so299248137.1
+        for <linux-s390@vger.kernel.org>; Fri, 05 May 2023 03:13:41 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1683281621; x=1685873621;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=oZ+W0+aJdMtjJzmRiw6PVDgzOh3temaFbWrH/wCIxiU=;
+        b=Z660Ruwh5/qsVtE47rlzur1Jw79D/R5aW9BLysU6zHL8ZXP6KXmtdMmaIoreNj0l7/
+         j/RYddZlIFX1RBGA1fnu3QDQLlND0pGoE6z4LAEmtpcSiFcP76xs9H8HMqzR7Ns+HpE3
+         0y8P8DRw+wVp5Yewx378/tIqBb4cWqTiZrL7qjtbNTnVhgPZkC6WwkUsZi5aLXUdWWEH
+         ly+VKrwkW2wTuGF+xNrdXi12li+PQ50msDL4kuqJpUCaFm2vSNrRVi4XYQJd4pDK/pdO
+         4w2Wz59UtDqjlHy8jqLY9PbsM5o2WFGhnRFkbg9g+R0SSOy8di1dIcXG7E+7bjdEvZDc
+         9tow==
+X-Gm-Message-State: AC+VfDw/sZf8Z28S0SydhVxPr/vKTl9Y+ES9gMdb+hGQRRtUCho7fnMg
+        fh+mew8ehE+rcuZHyE/wINcGtoBGcf8L2G7b0ZalNagsaMSH1wzhzhndIMMA4s8N3PR9uXg5TeF
+        uW/GsBQot2T4961NuOsPv8P3rhEnpfDYntxRN/zwaUiCXXQ==
+X-Received: by 2002:a05:6102:3cd:b0:430:ce0:ae90 with SMTP id n13-20020a05610203cd00b004300ce0ae90mr264082vsq.14.1683281620932;
+        Fri, 05 May 2023 03:13:40 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ6OtXedp3osVnwEX33Yc8OMv+0d9M5ynEvZuqvO8k8HixdHSob0k1+rsHIZA+Ep6fL44O5RFoq3hvilcahA2KI=
+X-Received: by 2002:a05:6102:3cd:b0:430:ce0:ae90 with SMTP id
+ n13-20020a05610203cd00b004300ce0ae90mr264077vsq.14.1683281620688; Fri, 05 May
+ 2023 03:13:40 -0700 (PDT)
+MIME-Version: 1.0
+References: <20230504171611.54844-1-imbrenda@linux.ibm.com>
+In-Reply-To: <20230504171611.54844-1-imbrenda@linux.ibm.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Date:   Fri, 5 May 2023 12:13:29 +0200
+Message-ID: <CABgObfZdsv3BBTOsPCf=YYOuDifGamLivEjiMfvZ7df+Yt208A@mail.gmail.com>
+Subject: Re: [GIT PULL 0/2] KVM: s390: Some fixes for 6.4
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
 Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
         frankja@linux.ibm.com, borntraeger@linux.ibm.com,
-        hca@linux.ibm.com, david@redhat.com,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [GIT PULL 2/2] KVM: s390: fix race in gmap_make_secure()
-Date:   Thu,  4 May 2023 19:16:11 +0200
-Message-Id: <20230504171611.54844-3-imbrenda@linux.ibm.com>
-X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20230504171611.54844-1-imbrenda@linux.ibm.com>
-References: <20230504171611.54844-1-imbrenda@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: OlW6XJ_X3AdFiS-YJBBFQRMIRfMhJuTs
-X-Proofpoint-ORIG-GUID: flXtqTNvEIa-SvNF74GFIvmfQaCB_i4D
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
-MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-05-04_10,2023-05-04_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
- adultscore=0 mlxlogscore=983 spamscore=0 bulkscore=0 phishscore=0
- clxscore=1015 impostorscore=0 suspectscore=0 lowpriorityscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2303200000 definitions=main-2305040139
+        hca@linux.ibm.com, david@redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Fix a potential race in gmap_make_secure() and remove the last user of
-follow_page() without FOLL_GET.
+On Thu, May 4, 2023 at 7:16=E2=80=AFPM Claudio Imbrenda <imbrenda@linux.ibm=
+.com> wrote:
+>
+> Hi Paolo,
+>
+> just a couple of bugfixes, nothing too exceptional here.
+>
+>
+> please pull, thanks!
+>
+> Claudio
 
-The old code is locking something it doesn't have a reference to, and
-as explained by Jason and David in this discussion:
-https://lore.kernel.org/linux-mm/Y9J4P%2FRNvY1Ztn0Q@nvidia.com/
-it can lead to all kind of bad things, including the page getting
-unmapped (MADV_DONTNEED), freed, reallocated as a larger folio and the
-unlock_page() would target the wrong bit.
-There is also another race with the FOLL_WRITE, which could race
-between the follow_page() and the get_locked_pte().
+Done, thank you.
 
-The main point is to remove the last use of follow_page() without
-FOLL_GET or FOLL_PIN, removing the races can be considered a nice
-bonus.
+Paolo
 
-Link: https://lore.kernel.org/linux-mm/Y9J4P%2FRNvY1Ztn0Q@nvidia.com/
-Suggested-by: Jason Gunthorpe <jgg@nvidia.com>
-Fixes: 214d9bbcd3a6 ("s390/mm: provide memory management functions for protected KVM guests")
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Message-Id: <20230428092753.27913-2-imbrenda@linux.ibm.com>
----
- arch/s390/kernel/uv.c | 32 +++++++++++---------------------
- 1 file changed, 11 insertions(+), 21 deletions(-)
-
-diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
-index 9f18a4af9c13..cb2ee06df286 100644
---- a/arch/s390/kernel/uv.c
-+++ b/arch/s390/kernel/uv.c
-@@ -192,21 +192,10 @@ static int expected_page_refs(struct page *page)
- 	return res;
- }
- 
--static int make_secure_pte(pte_t *ptep, unsigned long addr,
--			   struct page *exp_page, struct uv_cb_header *uvcb)
-+static int make_page_secure(struct page *page, struct uv_cb_header *uvcb)
- {
--	pte_t entry = READ_ONCE(*ptep);
--	struct page *page;
- 	int expected, cc = 0;
- 
--	if (!pte_present(entry))
--		return -ENXIO;
--	if (pte_val(entry) & _PAGE_INVALID)
--		return -ENXIO;
--
--	page = pte_page(entry);
--	if (page != exp_page)
--		return -ENXIO;
- 	if (PageWriteback(page))
- 		return -EAGAIN;
- 	expected = expected_page_refs(page);
-@@ -304,17 +293,18 @@ int gmap_make_secure(struct gmap *gmap, unsigned long gaddr, void *uvcb)
- 		goto out;
- 
- 	rc = -ENXIO;
--	page = follow_page(vma, uaddr, FOLL_WRITE);
--	if (IS_ERR_OR_NULL(page))
--		goto out;
--
--	lock_page(page);
- 	ptep = get_locked_pte(gmap->mm, uaddr, &ptelock);
--	if (should_export_before_import(uvcb, gmap->mm))
--		uv_convert_from_secure(page_to_phys(page));
--	rc = make_secure_pte(ptep, uaddr, page, uvcb);
-+	if (pte_present(*ptep) && !(pte_val(*ptep) & _PAGE_INVALID) && pte_write(*ptep)) {
-+		page = pte_page(*ptep);
-+		rc = -EAGAIN;
-+		if (trylock_page(page)) {
-+			if (should_export_before_import(uvcb, gmap->mm))
-+				uv_convert_from_secure(page_to_phys(page));
-+			rc = make_page_secure(page, uvcb);
-+			unlock_page(page);
-+		}
-+	}
- 	pte_unmap_unlock(ptep, ptelock);
--	unlock_page(page);
- out:
- 	mmap_read_unlock(gmap->mm);
- 
--- 
-2.40.1
+>
+>
+> The following changes since commit 8a46df7cd135fe576c18efa418cd1549e51f27=
+32:
+>
+>   KVM: s390: pci: fix virtual-physical confusion on module unload/load (2=
+023-04-20 16:30:35 +0200)
+>
+> are available in the Git repository at:
+>
+>   ssh://git@gitolite.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.gi=
+t tags/kvm-s390-next-6.4-2
+>
+> for you to fetch changes up to c148dc8e2fa403be501612ee409db866eeed35c0:
+>
+>   KVM: s390: fix race in gmap_make_secure() (2023-05-04 18:26:27 +0200)
+>
+> ----------------------------------------------------------------
+> For 6.4
+>
+> ----------------------------------------------------------------
+> Claudio Imbrenda (2):
+>       KVM: s390: pv: fix asynchronous teardown for small VMs
+>       KVM: s390: fix race in gmap_make_secure()
+>
+>  arch/s390/kernel/uv.c | 32 +++++++++++---------------------
+>  arch/s390/kvm/pv.c    |  5 +++++
+>  arch/s390/mm/gmap.c   |  7 +++++++
+>  3 files changed, 23 insertions(+), 21 deletions(-)
+>
 
