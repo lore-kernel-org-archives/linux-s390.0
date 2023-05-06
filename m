@@ -2,114 +2,101 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D3FEFC7EE2C
-	for <linux-s390@archiver.kernel.org>; Sat,  6 May 2023 11:35:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 972A4C7EE2D
+	for <linux-s390@archiver.kernel.org>; Sat,  6 May 2023 11:50:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232295AbjEFLf6 convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 6 May 2023 07:35:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56012 "EHLO
+        id S232305AbjEFLuJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 6 May 2023 07:50:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231855AbjEFLf4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 6 May 2023 07:35:56 -0400
-Received: from outpost1.zedat.fu-berlin.de (outpost1.zedat.fu-berlin.de [130.133.4.66])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F3837681;
-        Sat,  6 May 2023 04:35:55 -0700 (PDT)
-Received: from inpost2.zedat.fu-berlin.de ([130.133.4.69])
-          by outpost.zedat.fu-berlin.de (Exim 4.95)
-          with esmtps (TLS1.3)
-          tls TLS_AES_256_GCM_SHA384
-          (envelope-from <glaubitz@zedat.fu-berlin.de>)
-          id 1pvGCa-002hVY-AY; Sat, 06 May 2023 13:35:48 +0200
-Received: from p57bd9cee.dip0.t-ipconnect.de ([87.189.156.238] helo=suse-laptop.fritz.box)
-          by inpost2.zedat.fu-berlin.de (Exim 4.95)
-          with esmtpsa (TLS1.3)
-          tls TLS_AES_256_GCM_SHA384
-          (envelope-from <glaubitz@physik.fu-berlin.de>)
-          id 1pvGCZ-000Sf9-Vs; Sat, 06 May 2023 13:35:48 +0200
-Message-ID: <c0677d21a4b6caa2e5018af000294a974121d9e8.camel@physik.fu-berlin.de>
-Subject: Re: [PATCH v2 30/34] sh: Convert pte_free_tlb() to use ptdescs
-From:   John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-To:     "Vishal Moola (Oracle)" <vishal.moola@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Matthew Wilcox <willy@infradead.org>
-Cc:     linux-mm@kvack.org, linux-arch@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
-        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-        linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-um@lists.infradead.org, xen-devel@lists.xenproject.org,
-        kvm@vger.kernel.org, Yoshinori Sato <ysato@users.sourceforge.jp>
-Date:   Sat, 06 May 2023 13:35:46 +0200
-In-Reply-To: <20230501192829.17086-31-vishal.moola@gmail.com>
-References: <20230501192829.17086-1-vishal.moola@gmail.com>
-         <20230501192829.17086-31-vishal.moola@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-User-Agent: Evolution 3.48.1 
+        with ESMTP id S232391AbjEFLuH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 6 May 2023 07:50:07 -0400
+Received: from mail-yb1-xb32.google.com (mail-yb1-xb32.google.com [IPv6:2607:f8b0:4864:20::b32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E945293CD
+        for <linux-s390@vger.kernel.org>; Sat,  6 May 2023 04:50:04 -0700 (PDT)
+Received: by mail-yb1-xb32.google.com with SMTP id 3f1490d57ef6-ba1cde4ee59so1523357276.1
+        for <linux-s390@vger.kernel.org>; Sat, 06 May 2023 04:50:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1683373804; x=1685965804;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=W0CQW1o+U6+NILna+LXJ6vdvZ0BkUTno5y+llmnMQyo=;
+        b=dPe2CSLoV7+FcVOrSoBizhbLXI/ZLBJ7RTaokfwOtGBTZeSTeYLGxR5uo9fELcry5s
+         LjhkhKLm24iZteGxoktGLRgmELDQgh5dNlcPeyGuk5sDq1G+uRRCrDjHus72ClJr/jlN
+         Ygj8wwQxJkpI0NiUvyWR8zSEsmn7rI8HLRq7PX54EoRwn1p+A3gFgHEi+yB4uztdr1JV
+         /96WWH4Ph/4/DsPGZSncbenn9NXikntnF6iXN69jEyqz0Zn+JG/vxusicCalOspcWmzA
+         pyHRt+NJNNIdW6RHALL/qgR/rI2RWyrjE1x52v0lj5qHj31p4GSzyvfrDe74ngZyKJ/8
+         RRdg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1683373804; x=1685965804;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=W0CQW1o+U6+NILna+LXJ6vdvZ0BkUTno5y+llmnMQyo=;
+        b=I8Lljt8cakk1XFjVKWGImG0crVKj58o6GQWDDMlznsz3s3WcVdTuKIFuz1T7/9uiF2
+         R7pjFLXIzxEHvjMIDvrNC9hsvfWybgt8aQdIKv/9T0wIF8ucayRLDFnb1LZnOySXFkb2
+         wqFokKjxdvTwkUlGG6soo433fypkwiVv7wfrpHD/JTWsvMrGPdkCuMPaimfx4Kiu2op/
+         oIb8Gra1//g3iR52T3Ml2PttOzDgYD4mzjzHOLQZT8I6gs7PUVeWN3ycq9zfPgjpWIiT
+         0d1h2cVNxPGDuJou/25VKOzuFMPNKrVQKXPaphpQkJUcoKeLLSwMhjIubKreQo+cgbtK
+         Y2FA==
+X-Gm-Message-State: AC+VfDwVtx82un7DlbM4YlUQCEUzajYtmBOXPBcYS8yi+4FIwanpIM5X
+        le9getnLPYDoTm7xTmBGwwlqZDAI1hV9FWfNtWQ+KyOm0cdZQUereog=
+X-Google-Smtp-Source: ACHHUZ4FLSZFOD5iz4AdA7hPnjx4FpdcbO5UyUNag9PEgw0B19CDn88OXA+iOtElC4PtdoFYeYS+cG2LAV28KYiPCHE=
+X-Received: by 2002:a81:6d04:0:b0:55a:abf7:636e with SMTP id
+ i4-20020a816d04000000b0055aabf7636emr4510017ywc.24.1683373804150; Sat, 06 May
+ 2023 04:50:04 -0700 (PDT)
 MIME-Version: 1.0
-X-Original-Sender: glaubitz@physik.fu-berlin.de
-X-Originating-IP: 87.189.156.238
-X-ZEDAT-Hint: PO
+References: <20230506111628.712316-1-bhe@redhat.com> <20230506111628.712316-3-bhe@redhat.com>
+In-Reply-To: <20230506111628.712316-3-bhe@redhat.com>
+From:   Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Date:   Sat, 6 May 2023 14:49:53 +0300
+Message-ID: <CAA8EJppqxN6WktBJYou+xCbb4HOy7=yre5DXkLy9F5AA5_UQzg@mail.gmail.com>
+Subject: Re: [PATCH RESEND 2/2] dmaengine: make QCOM_HIDMA depend on HAS_IOMEM
+To:     Baoquan He <bhe@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        schnelle@linux.ibm.com, linux-s390@vger.kernel.org,
+        Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>, linux-arm-msm@vger.kernel.org,
+        dmaengine@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Vishal!
-
-On Mon, 2023-05-01 at 12:28 -0700, Vishal Moola (Oracle) wrote:
-> Part of the conversions to replace pgtable constructor/destructors with
-> ptdesc equivalents. Also cleans up some spacing issues.
-> 
-> Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
+On Sat, 6 May 2023 at 14:17, Baoquan He <bhe@redhat.com> wrote:
+>
+> On s390 systems (aka mainframes), it has classic channel devices for
+> networking and permanent storage that are currently even more common
+> than PCI devices. Hence it could have a fully functional s390 kernel
+> with CONFIG_PCI=n, then the relevant iomem mapping functions
+> [including ioremap(), devm_ioremap(), etc.] are not available.
+>
+> Here let QCOM_HIDMA depend on HAS_IOMEM so that it won't be built to
+> cause below compiling error if PCI is unset.
+>
+> --------------------------------------------------------
+> ld: drivers/dma/qcom/hidma.o: in function `hidma_probe':
+> hidma.c:(.text+0x4b46): undefined reference to `devm_ioremap_resource'
+> ld: hidma.c:(.text+0x4b9e): undefined reference to `devm_ioremap_resource'
+> make[1]: *** [scripts/Makefile.vmlinux:35: vmlinux] Error 1
+> make: *** [Makefile:1264: vmlinux] Error 2
+>
+> Signed-off-by: Baoquan He <bhe@redhat.com>
+> Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> Cc: Andy Gross <agross@kernel.org>
+> Cc: Bjorn Andersson <andersson@kernel.org>
+> Cc: Konrad Dybcio <konrad.dybcio@linaro.org>
+> Cc: Vinod Koul <vkoul@kernel.org>
+> Cc: linux-arm-msm@vger.kernel.org
+> Cc: dmaengine@vger.kernel.org
 > ---
->  arch/sh/include/asm/pgalloc.h | 9 +++++----
->  1 file changed, 5 insertions(+), 4 deletions(-)
-> 
-> diff --git a/arch/sh/include/asm/pgalloc.h b/arch/sh/include/asm/pgalloc.h
-> index a9e98233c4d4..ce2ba99dbd84 100644
-> --- a/arch/sh/include/asm/pgalloc.h
-> +++ b/arch/sh/include/asm/pgalloc.h
-> @@ -2,6 +2,7 @@
->  #ifndef __ASM_SH_PGALLOC_H
->  #define __ASM_SH_PGALLOC_H
->  
-> +#include <linux/mm.h>
->  #include <asm/page.h>
->  
->  #define __HAVE_ARCH_PMD_ALLOC_ONE
-> @@ -31,10 +32,10 @@ static inline void pmd_populate(struct mm_struct *mm, pmd_t *pmd,
->  	set_pmd(pmd, __pmd((unsigned long)page_address(pte)));
->  }
->  
-> -#define __pte_free_tlb(tlb,pte,addr)			\
-> -do {							\
-> -	pgtable_pte_page_dtor(pte);			\
-> -	tlb_remove_page((tlb), (pte));			\
-> +#define __pte_free_tlb(tlb, pte, addr)				\
-> +do {								\
-> +	ptdesc_pte_dtor(page_ptdesc(pte));			\
-> +	tlb_remove_page_ptdesc((tlb), (page_ptdesc(pte)));	\
->  } while (0)
->  
->  #endif /* __ASM_SH_PGALLOC_H */
+>  drivers/dma/qcom/Kconfig | 1 +
+>  1 file changed, 1 insertion(+)
 
-Looking at the patch which introduces tlb_remove_page_ptdesc() [1], it seems that
-tlb_remove_page_ptdesc() already calls tlb_remove_page() with ptdesc_page(pt), so
-I'm not sure whether the above tlb_remove_page_ptdesc((tlb), (page_ptdesc(pte)))
-is correct.
-
-Shouldn't it just be tlb_remove_page_ptdesc((tlb), (pte))?
-
-Thanks,
-Adrian
-
-> [1] https://lore.kernel.org/linux-mm/20230417205048.15870-5-vishal.moola@gmail.com/
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@gmail.com>
 
 -- 
- .''`.  John Paul Adrian Glaubitz
-: :' :  Debian Developer
-`. `'   Physicist
-  `-    GPG: 62FF 8A75 84E0 2956 9546  0006 7426 3B37 F5B5 F913
+With best wishes
+Dmitry
