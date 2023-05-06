@@ -2,103 +2,114 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1BC56C7EE2A
-	for <linux-s390@archiver.kernel.org>; Sat,  6 May 2023 11:17:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D3FEFC7EE2C
+	for <linux-s390@archiver.kernel.org>; Sat,  6 May 2023 11:35:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232319AbjEFLRq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 6 May 2023 07:17:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50884 "EHLO
+        id S232295AbjEFLf6 convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 6 May 2023 07:35:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232209AbjEFLRk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 6 May 2023 07:17:40 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08C5419B0
-        for <linux-s390@vger.kernel.org>; Sat,  6 May 2023 04:16:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1683371813;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Qy7lDPZv9XVIVeoAE9BllecWVloA7NmDgrIr51rk+t0=;
-        b=N2QlYYzDOld/XWiqQByhjOw+MZrnj6MnVexMXjwxNGclAVFJ8ijLGRZQrSuK/oeymmea8o
-        CitTvFHxb7+BldcsL0pvaaS3fXByCA7XUBFKQ93HKQZBy7nmArN4pPSFGf9O9EymCmGaCE
-        aUnQfoTOhgp0q6wCQHKbdpACJLwMxNA=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-155-ju83Lpg3MyaunKYUwqTUig-1; Sat, 06 May 2023 07:16:47 -0400
-X-MC-Unique: ju83Lpg3MyaunKYUwqTUig-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 161E4380664E;
-        Sat,  6 May 2023 11:16:47 +0000 (UTC)
-Received: from MiWiFi-R3L-srv.redhat.com (ovpn-12-46.pek2.redhat.com [10.72.12.46])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id B51692166B31;
-        Sat,  6 May 2023 11:16:41 +0000 (UTC)
-From:   Baoquan He <bhe@redhat.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     linux-mm@kvack.org, schnelle@linux.ibm.com,
-        linux-s390@vger.kernel.org, Baoquan He <bhe@redhat.com>,
-        Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>, linux-arm-msm@vger.kernel.org,
-        dmaengine@vger.kernel.org
-Subject: [PATCH RESEND 2/2] dmaengine: make QCOM_HIDMA depend on HAS_IOMEM
-Date:   Sat,  6 May 2023 19:16:28 +0800
-Message-Id: <20230506111628.712316-3-bhe@redhat.com>
-In-Reply-To: <20230506111628.712316-1-bhe@redhat.com>
-References: <20230506111628.712316-1-bhe@redhat.com>
+        with ESMTP id S231855AbjEFLf4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 6 May 2023 07:35:56 -0400
+Received: from outpost1.zedat.fu-berlin.de (outpost1.zedat.fu-berlin.de [130.133.4.66])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F3837681;
+        Sat,  6 May 2023 04:35:55 -0700 (PDT)
+Received: from inpost2.zedat.fu-berlin.de ([130.133.4.69])
+          by outpost.zedat.fu-berlin.de (Exim 4.95)
+          with esmtps (TLS1.3)
+          tls TLS_AES_256_GCM_SHA384
+          (envelope-from <glaubitz@zedat.fu-berlin.de>)
+          id 1pvGCa-002hVY-AY; Sat, 06 May 2023 13:35:48 +0200
+Received: from p57bd9cee.dip0.t-ipconnect.de ([87.189.156.238] helo=suse-laptop.fritz.box)
+          by inpost2.zedat.fu-berlin.de (Exim 4.95)
+          with esmtpsa (TLS1.3)
+          tls TLS_AES_256_GCM_SHA384
+          (envelope-from <glaubitz@physik.fu-berlin.de>)
+          id 1pvGCZ-000Sf9-Vs; Sat, 06 May 2023 13:35:48 +0200
+Message-ID: <c0677d21a4b6caa2e5018af000294a974121d9e8.camel@physik.fu-berlin.de>
+Subject: Re: [PATCH v2 30/34] sh: Convert pte_free_tlb() to use ptdescs
+From:   John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+To:     "Vishal Moola (Oracle)" <vishal.moola@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Matthew Wilcox <willy@infradead.org>
+Cc:     linux-mm@kvack.org, linux-arch@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        linux-um@lists.infradead.org, xen-devel@lists.xenproject.org,
+        kvm@vger.kernel.org, Yoshinori Sato <ysato@users.sourceforge.jp>
+Date:   Sat, 06 May 2023 13:35:46 +0200
+In-Reply-To: <20230501192829.17086-31-vishal.moola@gmail.com>
+References: <20230501192829.17086-1-vishal.moola@gmail.com>
+         <20230501192829.17086-31-vishal.moola@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+User-Agent: Evolution 3.48.1 
 MIME-Version: 1.0
-Content-type: text/plain
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.6
+X-Original-Sender: glaubitz@physik.fu-berlin.de
+X-Originating-IP: 87.189.156.238
+X-ZEDAT-Hint: PO
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On s390 systems (aka mainframes), it has classic channel devices for
-networking and permanent storage that are currently even more common
-than PCI devices. Hence it could have a fully functional s390 kernel
-with CONFIG_PCI=n, then the relevant iomem mapping functions
-[including ioremap(), devm_ioremap(), etc.] are not available.
+Hi Vishal!
 
-Here let QCOM_HIDMA depend on HAS_IOMEM so that it won't be built to
-cause below compiling error if PCI is unset.
+On Mon, 2023-05-01 at 12:28 -0700, Vishal Moola (Oracle) wrote:
+> Part of the conversions to replace pgtable constructor/destructors with
+> ptdesc equivalents. Also cleans up some spacing issues.
+> 
+> Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
+> ---
+>  arch/sh/include/asm/pgalloc.h | 9 +++++----
+>  1 file changed, 5 insertions(+), 4 deletions(-)
+> 
+> diff --git a/arch/sh/include/asm/pgalloc.h b/arch/sh/include/asm/pgalloc.h
+> index a9e98233c4d4..ce2ba99dbd84 100644
+> --- a/arch/sh/include/asm/pgalloc.h
+> +++ b/arch/sh/include/asm/pgalloc.h
+> @@ -2,6 +2,7 @@
+>  #ifndef __ASM_SH_PGALLOC_H
+>  #define __ASM_SH_PGALLOC_H
+>  
+> +#include <linux/mm.h>
+>  #include <asm/page.h>
+>  
+>  #define __HAVE_ARCH_PMD_ALLOC_ONE
+> @@ -31,10 +32,10 @@ static inline void pmd_populate(struct mm_struct *mm, pmd_t *pmd,
+>  	set_pmd(pmd, __pmd((unsigned long)page_address(pte)));
+>  }
+>  
+> -#define __pte_free_tlb(tlb,pte,addr)			\
+> -do {							\
+> -	pgtable_pte_page_dtor(pte);			\
+> -	tlb_remove_page((tlb), (pte));			\
+> +#define __pte_free_tlb(tlb, pte, addr)				\
+> +do {								\
+> +	ptdesc_pte_dtor(page_ptdesc(pte));			\
+> +	tlb_remove_page_ptdesc((tlb), (page_ptdesc(pte)));	\
+>  } while (0)
+>  
+>  #endif /* __ASM_SH_PGALLOC_H */
 
---------------------------------------------------------
-ld: drivers/dma/qcom/hidma.o: in function `hidma_probe':
-hidma.c:(.text+0x4b46): undefined reference to `devm_ioremap_resource'
-ld: hidma.c:(.text+0x4b9e): undefined reference to `devm_ioremap_resource'
-make[1]: *** [scripts/Makefile.vmlinux:35: vmlinux] Error 1
-make: *** [Makefile:1264: vmlinux] Error 2
+Looking at the patch which introduces tlb_remove_page_ptdesc() [1], it seems that
+tlb_remove_page_ptdesc() already calls tlb_remove_page() with ptdesc_page(pt), so
+I'm not sure whether the above tlb_remove_page_ptdesc((tlb), (page_ptdesc(pte)))
+is correct.
 
-Signed-off-by: Baoquan He <bhe@redhat.com>
-Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Cc: Andy Gross <agross@kernel.org>
-Cc: Bjorn Andersson <andersson@kernel.org>
-Cc: Konrad Dybcio <konrad.dybcio@linaro.org>
-Cc: Vinod Koul <vkoul@kernel.org>
-Cc: linux-arm-msm@vger.kernel.org
-Cc: dmaengine@vger.kernel.org
----
- drivers/dma/qcom/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+Shouldn't it just be tlb_remove_page_ptdesc((tlb), (pte))?
 
-diff --git a/drivers/dma/qcom/Kconfig b/drivers/dma/qcom/Kconfig
-index 3f926a653bd8..ace75d7b835a 100644
---- a/drivers/dma/qcom/Kconfig
-+++ b/drivers/dma/qcom/Kconfig
-@@ -45,6 +45,7 @@ config QCOM_HIDMA_MGMT
- 
- config QCOM_HIDMA
- 	tristate "Qualcomm Technologies HIDMA Channel support"
-+	depends on HAS_IOMEM
- 	select DMA_ENGINE
- 	help
- 	  Enable support for the Qualcomm Technologies HIDMA controller.
+Thanks,
+Adrian
+
+> [1] https://lore.kernel.org/linux-mm/20230417205048.15870-5-vishal.moola@gmail.com/
+
 -- 
-2.34.1
-
+ .''`.  John Paul Adrian Glaubitz
+: :' :  Debian Developer
+`. `'   Physicist
+  `-    GPG: 62FF 8A75 84E0 2956 9546  0006 7426 3B37 F5B5 F913
