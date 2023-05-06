@@ -2,100 +2,85 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 45C26C77B7C
-	for <linux-s390@archiver.kernel.org>; Fri,  5 May 2023 22:39:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 103B0C77B75
+	for <linux-s390@archiver.kernel.org>; Sat,  6 May 2023 01:57:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233466AbjEEWje (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 5 May 2023 18:39:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49570 "EHLO
+        id S232920AbjEFB5a (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 5 May 2023 21:57:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233501AbjEEWjX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 5 May 2023 18:39:23 -0400
-Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 125835FE4;
-        Fri,  5 May 2023 15:39:22 -0700 (PDT)
-Received: by mail-ej1-x62a.google.com with SMTP id a640c23a62f3a-965c3f9af2aso317952766b.0;
-        Fri, 05 May 2023 15:39:21 -0700 (PDT)
+        with ESMTP id S232904AbjEFB53 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 5 May 2023 21:57:29 -0400
+Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0EB54C10
+        for <linux-s390@vger.kernel.org>; Fri,  5 May 2023 18:57:25 -0700 (PDT)
+Received: by mail-ed1-x535.google.com with SMTP id 4fb4d7f45d1cf-50bc394919cso3702228a12.2
+        for <linux-s390@vger.kernel.org>; Fri, 05 May 2023 18:57:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1683326360; x=1685918360;
-        h=message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=linux-foundation.org; s=google; t=1683338244; x=1685930244;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Jt099z2QMJcxc7Q+biY7Y79PMQomakQC7INI8LnvLJ8=;
-        b=NYiYTCRU3YD6QhKlE6q0yojg8/gSj0qhx6mrN5Ad4oFYRFoVYTk/Lbk+lMysGbXMm7
-         NO0NqEKLrM33ZHgprpUVLjWD0MoEe9UWkyuB/wNRdHluXgcWBmX4iUZSqWaDP/E5vXZq
-         sXOK5a+L9J1FXZoMLkuiQC2IyUbkIffNQvvK8pUbY4bDsyi9HKefbpUHBFECVZ6XO5Z5
-         z4u6iNyzbns+diH9/0+8tORNBAA+SEjvDc+WoomRy/VwSh8HfSy896QPcdPSvKL755fy
-         x6MqE8YM2bCIVqJbxyZuyOCRVf8gGFWJViqMYD4nvlkZzTwPhH7CJezMUIUtEVe2NqS0
-         tNDg==
+        bh=NEWaeK4UyXB7rn8ZKDm/RsGKdWKXNNR3xA3d9AaLO1U=;
+        b=hfkmoCh9+s9eKjC4ySe+4Oi67C/X5glrG1WMZThklykBNLtF6xkISkUYXQdjRy3kqk
+         YMVi+1x+ugZ7n95TeLfloGPhgP4fjXsBUAHE8HfVZlY233wq2xiIZV4axu7COJa4bdfI
+         xslVOq3uM1pBH3AyUAVnmTSDlY0O9O4qouG9c=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1683326360; x=1685918360;
-        h=message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20221208; t=1683338244; x=1685930244;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Jt099z2QMJcxc7Q+biY7Y79PMQomakQC7INI8LnvLJ8=;
-        b=E6pKG0AHn8/rvv0NabVzMcDOLMBgZJaLLov3ze+c7SkCXVtsOvCP9borKvJFQP/qo5
-         efHzPlKJ+XlY8qsw3PmSyGzbYkPDFQuMoKya9jkoyaOUtcW8e4fxOyQGMtoedmgpIUGA
-         RAlnWTzhz3qkfwu5pug3meeTgjPUkLpCVx7lXGFSpZg40RKGpppjXa/z08DtZxk4R6AV
-         9zqGhs6hAPJteTrSg0Byfzwqtp87qJpqAtFcpjLSJWEdtjY8SL6vt6UcWh2aiJsfkS71
-         /EKZI99XRN45zEFS1iD5N8VwW81YWFfB1AGUzLgBt0yWjDJG/fQIgvxOGItvfA0ULQRV
-         w1YQ==
-X-Gm-Message-State: AC+VfDzouivhIU8b7KZ2cIUY6H8RxCXJ3dJ2b37bw5VaThxa15Fvi2iD
-        4OKChAbovUnaQeOuKKMuHKU=
-X-Google-Smtp-Source: ACHHUZ6E32pgWuQFXc0VVJd+m1ZUe7uD3fHBny+wFxkhGjxN3a64ihm7hkYU2AtQlCC1JEzh3zLpSQ==
-X-Received: by 2002:a17:907:2d12:b0:965:cf39:ed87 with SMTP id gs18-20020a1709072d1200b00965cf39ed87mr2910650ejc.6.1683326360134;
-        Fri, 05 May 2023 15:39:20 -0700 (PDT)
-Received: from felia.fritz.box ([2a02:810d:7e40:14b0:cc49:1b8b:99c2:aef7])
-        by smtp.gmail.com with ESMTPSA id hf27-20020a1709072c5b00b00965ddf2e221sm1411650ejc.93.2023.05.05.15.39.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 05 May 2023 15:39:19 -0700 (PDT)
-From:   Lukas Bulwahn <lukas.bulwahn@gmail.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        bh=NEWaeK4UyXB7rn8ZKDm/RsGKdWKXNNR3xA3d9AaLO1U=;
+        b=HU7HNsmSHZZ38NJKi2ArCb6szKBtP4k+IGLUJw1ics+dwwdPRlk+8YGc4gNr3O+HI0
+         lFob5sd6AgGrChDFLMuRTRKjhnCEX9bxhSCwRP4T5I9sQsjaLEVoI8ignfTj3BkJsugx
+         UZOR+Ojj1mOsTQB6soOIcpDSXrKFpNCsQbELGxJ9WR8120j5DBimEk3GBORu+hOyhkLz
+         vWq9GybdL2AlLYPBYaOeDCoXX5uofY9V7ypV6TwIG+E769/efrFE1CslKk6l/ANFVcSl
+         f0MpQ0niy2+rT3i+Our1hoZAXOtoOEWuyvqrFavcoPAnkk0DD8WzFF40Y+JzXpkY5XjC
+         L9kA==
+X-Gm-Message-State: AC+VfDxiWcYWCFsfFj7PwR8ZaTjwKsEKOuAQcBqCP9g0ylQDX9lljajZ
+        dEYJmq0u5+lfZQ8B/A9P06kG5cJtN2/PI+4WbEtb5A==
+X-Google-Smtp-Source: ACHHUZ6LDKgstRv8L3SvJVsve00Y2WIsXh9xVh+JIKQL3gBfMq03HRjlI4iQMtZEO+QjK/ThzdkpQw==
+X-Received: by 2002:aa7:ca46:0:b0:50d:8991:d1b9 with SMTP id j6-20020aa7ca46000000b0050d8991d1b9mr1108869edt.8.1683338244048;
+        Fri, 05 May 2023 18:57:24 -0700 (PDT)
+Received: from mail-ej1-f46.google.com (mail-ej1-f46.google.com. [209.85.218.46])
+        by smtp.gmail.com with ESMTPSA id h7-20020a1709060f4700b0096347ef816dsm1641006ejj.64.2023.05.05.18.57.22
+        for <linux-s390@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 05 May 2023 18:57:22 -0700 (PDT)
+Received: by mail-ej1-f46.google.com with SMTP id a640c23a62f3a-965ab8ed1c0so399574066b.2
+        for <linux-s390@vger.kernel.org>; Fri, 05 May 2023 18:57:22 -0700 (PDT)
+X-Received: by 2002:a17:907:6eaa:b0:94a:9ae2:1642 with SMTP id
+ sh42-20020a1709076eaa00b0094a9ae21642mr3442159ejc.46.1683338242456; Fri, 05
+ May 2023 18:57:22 -0700 (PDT)
+MIME-Version: 1.0
+References: <20230505223909.29150-1-lukas.bulwahn@gmail.com>
+In-Reply-To: <20230505223909.29150-1-lukas.bulwahn@gmail.com>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Fri, 5 May 2023 18:57:05 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wiX6xj9ck9u7_iN6HRFbLtpXSGfHtidUZSHfddx87FLdg@mail.gmail.com>
+Message-ID: <CAHk-=wiX6xj9ck9u7_iN6HRFbLtpXSGfHtidUZSHfddx87FLdg@mail.gmail.com>
+Subject: Re: [PATCH] s390: remove the unneeded select GCC12_NO_ARRAY_BOUNDS
+To:     Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc:     kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Lukas Bulwahn <lukas.bulwahn@gmail.com>
-Subject: [PATCH] s390: remove the unneeded select GCC12_NO_ARRAY_BOUNDS
-Date:   Sat,  6 May 2023 00:39:09 +0200
-Message-Id: <20230505223909.29150-1-lukas.bulwahn@gmail.com>
-X-Mailer: git-send-email 2.17.1
+        Sven Schnelle <svens@linux.ibm.com>,
+        linux-s390@vger.kernel.org, kernel-janitors@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Commit 0da6e5fd6c37 ("gcc: disable '-Warray-bounds' for gcc-13 too") makes
-config GCC11_NO_ARRAY_BOUNDS to be for disabling -Warray-bounds in any gcc
-version 11 and upwards, and with that, removes the GCC12_NO_ARRAY_BOUNDS
-config as it is now covered by the semantics of GCC11_NO_ARRAY_BOUNDS.
+On Fri, May 5, 2023 at 3:39=E2=80=AFPM Lukas Bulwahn <lukas.bulwahn@gmail.c=
+om> wrote:
+>
+> Linus, as this is just a quick clean-up improvement to your commit
+> "gcc: disable '-Warray-bounds' for gcc-13 too", this can probably just
+> go directly to your tree.
 
-As GCC11_NO_ARRAY_BOUNDS is yes by default, there is no need for the s390
-architecture to explicitly select GCC11_NO_ARRAY_BOUNDS. Hence, the select
-GCC12_NO_ARRAY_BOUNDS in arch/s390/Kconfig can simply be dropped.
+Done.
 
-Remove the unneeded "select GCC12_NO_ARRAY_BOUNDS".
-
-Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
----
-Linus, as this is just a quick clean-up improvement to your commit
-"gcc: disable '-Warray-bounds' for gcc-13 too", this can probably just
-go directly to your tree.
-
- arch/s390/Kconfig | 1 -
- 1 file changed, 1 deletion(-)
-
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index beb62f744c61..db20c1589a98 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -133,7 +133,6 @@ config S390
- 	select DYNAMIC_FTRACE if FUNCTION_TRACER
- 	select FUNCTION_ALIGNMENT_8B if CC_IS_GCC
- 	select FUNCTION_ALIGNMENT_16B if !CC_IS_GCC
--	select GCC12_NO_ARRAY_BOUNDS
- 	select GENERIC_ALLOCATOR
- 	select GENERIC_CPU_AUTOPROBE
- 	select GENERIC_CPU_VULNERABILITIES
--- 
-2.17.1
-
+               Linus
