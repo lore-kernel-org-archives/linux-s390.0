@@ -2,42 +2,42 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6943CC7EE26
-	for <linux-s390@archiver.kernel.org>; Mon,  8 May 2023 21:35:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 41D98C7EE26
+	for <linux-s390@archiver.kernel.org>; Mon,  8 May 2023 21:36:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233952AbjEHVfz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 8 May 2023 17:35:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45836 "EHLO
+        id S234078AbjEHVgC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 8 May 2023 17:36:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233883AbjEHVfx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 8 May 2023 17:35:53 -0400
+        with ESMTP id S233588AbjEHVfy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 8 May 2023 17:35:54 -0400
 Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42E5E9ECD;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 738AD9ED1;
         Mon,  8 May 2023 14:35:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
         Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
         Content-ID:Content-Description:In-Reply-To;
-        bh=F/mEORQVn/+4FFZhPg8/YI2Izvfuw/wjd2XHaIHu63c=; b=Pa03uAZPkgmVJ1RZq0PF/mn8c1
-        HPEOlUYH9qYdyoyKnkKFpNHIQxWCxbxmPqtEcXtMCyC5MDbaWkfX0UrH0hkIb9CV8qOjWm6rgdprk
-        niysJMBzcsXHUnMTk9nSR3egA9I3LQ1USG94wywxRwRJvHwmPKF6ayuB3A4oFDSj12zDQZmmUKHsH
-        ttMq2ONLodkV45d9K7qsEUKCFt/NdTZ9JhtPbBg7T11iaTSKaVYre+oFuJfDMVLCbg7BB3nFk8wX6
-        hwrKf3Mf+048gPWaw5o1Eei5BCLQv2fvJHqreq6r/unM6mdvy4/TToL4svY6eeQDB7ymYDjRLs04F
-        VZBXFB4g==;
+        bh=vb5RHA5WAD/i+pcNIxyZaXw8sGymL5Wslp2oL9HHf5o=; b=tCSw7wyzM5jCUBmoiGImrzrVMf
+        H/ZkDYGbPCkHyTxMrtpf+U6dHzUyVsPW7AEfG0XssOJSV4kg3e8pz7ZJKIt2zgel1Tg3scu0q87KX
+        XOGfQLNrVl701X/bZl65glhBPOZfF/4zUxmiv7nVkkSPkyGMxinwX/GHPApF9GoBvs9bYw6r7ewxn
+        X4tTNuQUxRZNTcX8fh50RBEUA8q/DMH4OvtBRsskPQPXuLsLNENKNssUXCF141sZwuMRTOp+ricCh
+        X8jdVIBKJsrzV1GFPWKS5U8xiSZcmMDh8vZXIac4hlaS2z4/Hlb/evVbvzVzGW+FVjdzYIKs0Vb/s
+        ffwGxzrA==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
         by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1pw8UY-00EW3b-6j; Mon, 08 May 2023 21:33:58 +0000
+        id 1pw8UZ-00EW3n-C8; Mon, 08 May 2023 21:33:59 +0000
 Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (4096 bits))
         (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 9F96C30613D;
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id CA95230614B;
         Mon,  8 May 2023 23:33:48 +0200 (CEST)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
-        id 38F4D2482941E; Mon,  8 May 2023 23:33:48 +0200 (CEST)
-Message-ID: <20230508213147.650971590@infradead.org>
+        id 52A012482942D; Mon,  8 May 2023 23:33:48 +0200 (CEST)
+Message-ID: <20230508213147.990013706@infradead.org>
 User-Agent: quilt/0.66
-Date:   Mon, 08 May 2023 23:19:55 +0200
+Date:   Mon, 08 May 2023 23:20:00 +0200
 From:   Peter Zijlstra <peterz@infradead.org>
 To:     bigeasy@linutronix.de
 Cc:     mark.rutland@arm.com, maz@kernel.org, catalin.marinas@arm.com,
@@ -60,7 +60,7 @@ Cc:     mark.rutland@arm.com, maz@kernel.org, catalin.marinas@arm.com,
         loongarch@lists.linux.dev, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org, linux-hyperv@vger.kernel.org,
         linux-pm@vger.kernel.org
-Subject: [RFC][PATCH 4/9] arm64/arch_timer: Provide noinstr sched_clock_read() functions
+Subject: [RFC][PATCH 9/9] cpuidle: Use local_clock_noinstr()
 References: <20230508211951.901961964@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -68,167 +68,72 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-With the intent to provide local_clock_noinstr(), a variant of
-local_clock() that's safe to be called from noinstr code (with the
-assumption that any such code will already be non-preemptible),
-prepare for things by providing a noinstr sched_clock_read() function.
-
-Specifically, preempt_enable_*() calls out to schedule(), which upsets
-noinstr validation efforts.
+With the introduction of local_clock_noinstr(), local_clock() itself
+is no longer marked noinstr, use the correct function.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 ---
- arch/arm64/include/asm/arch_timer.h  |    8 ----
- drivers/clocksource/arm_arch_timer.c |   60 ++++++++++++++++++++++++++---------
- 2 files changed, 47 insertions(+), 21 deletions(-)
+ drivers/cpuidle/cpuidle.c    |    8 ++++----
+ drivers/cpuidle/poll_state.c |    4 ++--
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
---- a/arch/arm64/include/asm/arch_timer.h
-+++ b/arch/arm64/include/asm/arch_timer.h
-@@ -88,13 +88,7 @@ static inline notrace u64 arch_timer_rea
+--- a/drivers/cpuidle/cpuidle.c
++++ b/drivers/cpuidle/cpuidle.c
+@@ -145,7 +145,7 @@ static noinstr void enter_s2idle_proper(
  
- #define arch_timer_reg_read_stable(reg)					\
- 	({								\
--		u64 _val;						\
--									\
--		preempt_disable_notrace();				\
--		_val = erratum_handler(read_ ## reg)();			\
--		preempt_enable_notrace();				\
--									\
--		_val;							\
-+		erratum_handler(read_ ## reg)();			\
- 	})
+ 	instrumentation_begin();
  
- /*
---- a/drivers/clocksource/arm_arch_timer.c
-+++ b/drivers/clocksource/arm_arch_timer.c
-@@ -191,22 +191,40 @@ u32 arch_timer_reg_read(int access, enum
- 	return val;
- }
+-	time_start = ns_to_ktime(local_clock());
++	time_start = ns_to_ktime(local_clock_noinstr());
  
--static notrace u64 arch_counter_get_cntpct_stable(void)
-+static noinstr u64 _arch_counter_get_cntpct_stable(void)
+ 	tick_freeze();
+ 	/*
+@@ -169,7 +169,7 @@ static noinstr void enter_s2idle_proper(
+ 	tick_unfreeze();
+ 	start_critical_timings();
+ 
+-	time_end = ns_to_ktime(local_clock());
++	time_end = ns_to_ktime(local_clock_noinstr());
+ 
+ 	dev->states_usage[index].s2idle_time += ktime_us_delta(time_end, time_start);
+ 	dev->states_usage[index].s2idle_usage++;
+@@ -243,7 +243,7 @@ noinstr int cpuidle_enter_state(struct c
+ 	sched_idle_set_state(target_state);
+ 
+ 	trace_cpu_idle(index, dev->cpu);
+-	time_start = ns_to_ktime(local_clock());
++	time_start = ns_to_ktime(local_clock_noinstr());
+ 
+ 	stop_critical_timings();
+ 	if (!(target_state->flags & CPUIDLE_FLAG_RCU_IDLE)) {
+@@ -276,7 +276,7 @@ noinstr int cpuidle_enter_state(struct c
+ 	start_critical_timings();
+ 
+ 	sched_clock_idle_wakeup_event();
+-	time_end = ns_to_ktime(local_clock());
++	time_end = ns_to_ktime(local_clock_noinstr());
+ 	trace_cpu_idle(PWR_EVENT_EXIT, dev->cpu);
+ 
+ 	/* The cpu is no longer idle or about to enter idle. */
+--- a/drivers/cpuidle/poll_state.c
++++ b/drivers/cpuidle/poll_state.c
+@@ -15,7 +15,7 @@ static int __cpuidle poll_idle(struct cp
  {
- 	return __arch_counter_get_cntpct_stable();
- }
+ 	u64 time_start;
  
--static notrace u64 arch_counter_get_cntpct(void)
-+static notrace u64 arch_counter_get_cntpct_stable(void)
-+{
-+	u64 val;
-+	preempt_disable_notrace();
-+	val = __arch_counter_get_cntpct_stable();
-+	preempt_enable_notrace();
-+	return val;
-+}
-+
-+static noinstr u64 arch_counter_get_cntpct(void)
- {
- 	return __arch_counter_get_cntpct();
- }
+-	time_start = local_clock();
++	time_start = local_clock_noinstr();
  
--static notrace u64 arch_counter_get_cntvct_stable(void)
-+static noinstr u64 _arch_counter_get_cntvct_stable(void)
- {
- 	return __arch_counter_get_cntvct_stable();
- }
+ 	dev->poll_time_limit = false;
  
--static notrace u64 arch_counter_get_cntvct(void)
-+static notrace u64 arch_counter_get_cntvct_stable(void)
-+{
-+	u64 val;
-+	preempt_disable_notrace();
-+	val = __arch_counter_get_cntvct_stable();
-+	preempt_enable_notrace();
-+	return val;
-+}
-+
-+static noinstr u64 arch_counter_get_cntvct(void)
- {
- 	return __arch_counter_get_cntvct();
- }
-@@ -753,14 +771,14 @@ static int arch_timer_set_next_event_phy
- 	return 0;
- }
+@@ -32,7 +32,7 @@ static int __cpuidle poll_idle(struct cp
+ 				continue;
  
--static u64 arch_counter_get_cnt_mem(struct arch_timer *t, int offset_lo)
-+static noinstr u64 arch_counter_get_cnt_mem(struct arch_timer *t, int offset_lo)
- {
- 	u32 cnt_lo, cnt_hi, tmp_hi;
- 
- 	do {
--		cnt_hi = readl_relaxed(t->base + offset_lo + 4);
--		cnt_lo = readl_relaxed(t->base + offset_lo);
--		tmp_hi = readl_relaxed(t->base + offset_lo + 4);
-+		cnt_hi = __raw_readl(t->base + offset_lo + 4);
-+		cnt_lo = __raw_readl(t->base + offset_lo);
-+		tmp_hi = __raw_readl(t->base + offset_lo + 4);
- 	} while (cnt_hi != tmp_hi);
- 
- 	return ((u64) cnt_hi << 32) | cnt_lo;
-@@ -1060,7 +1078,7 @@ bool arch_timer_evtstrm_available(void)
- 	return cpumask_test_cpu(raw_smp_processor_id(), &evtstrm_available);
- }
- 
--static u64 arch_counter_get_cntvct_mem(void)
-+static noinstr u64 arch_counter_get_cntvct_mem(void)
- {
- 	return arch_counter_get_cnt_mem(arch_timer_mem, CNTVCT_LO);
- }
-@@ -1074,6 +1092,13 @@ struct arch_timer_kvm_info *arch_timer_g
- 
- static void __init arch_counter_register(unsigned type)
- {
-+	/*
-+	 * Default to cp15 based access because arm64 uses this function for
-+	 * sched_clock() before DT is probed and the cp15 method is guaranteed
-+	 * to exist on arm64. arm doesn't use this before DT is probed so even
-+	 * if we don't have the cp15 accessors we won't have a problem.
-+	 */
-+	u64 (*scr)(void) = arch_counter_get_cntvct;
- 	u64 start_count;
- 	int width;
- 
-@@ -1083,21 +1108,28 @@ static void __init arch_counter_register
- 
- 		if ((IS_ENABLED(CONFIG_ARM64) && !is_hyp_mode_available()) ||
- 		    arch_timer_uses_ppi == ARCH_TIMER_VIRT_PPI) {
--			if (arch_timer_counter_has_wa())
-+			if (arch_timer_counter_has_wa()) {
- 				rd = arch_counter_get_cntvct_stable;
--			else
-+				scr = _arch_counter_get_cntvct_stable;
-+			} else {
- 				rd = arch_counter_get_cntvct;
-+				scr = arch_counter_get_cntvct;
-+			}
- 		} else {
--			if (arch_timer_counter_has_wa())
-+			if (arch_timer_counter_has_wa()) {
- 				rd = arch_counter_get_cntpct_stable;
--			else
-+				scr = _arch_counter_get_cntpct_stable;
-+			} else {
- 				rd = arch_counter_get_cntpct;
-+				scr = arch_counter_get_cntpct;
-+			}
- 		}
- 
- 		arch_timer_read_counter = rd;
- 		clocksource_counter.vdso_clock_mode = vdso_default;
- 	} else {
- 		arch_timer_read_counter = arch_counter_get_cntvct_mem;
-+		scr = arch_counter_get_cntvct_mem;
- 	}
- 
- 	width = arch_counter_get_width();
-@@ -1113,7 +1145,7 @@ static void __init arch_counter_register
- 	timecounter_init(&arch_timer_kvm_info.timecounter,
- 			 &cyclecounter, start_count);
- 
--	sched_clock_register(arch_timer_read_counter, width, arch_timer_rate);
-+	sched_clock_register(scr, width, arch_timer_rate);
- }
- 
- static void arch_timer_stop(struct clock_event_device *clk)
+ 			loop_count = 0;
+-			if (local_clock() - time_start > limit) {
++			if (local_clock_noinstr() - time_start > limit) {
+ 				dev->poll_time_limit = true;
+ 				break;
+ 			}
 
 
