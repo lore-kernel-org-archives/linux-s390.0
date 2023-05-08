@@ -2,42 +2,42 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 41D98C7EE26
-	for <linux-s390@archiver.kernel.org>; Mon,  8 May 2023 21:36:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2517EC77B75
+	for <linux-s390@archiver.kernel.org>; Mon,  8 May 2023 21:36:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234078AbjEHVgC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 8 May 2023 17:36:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45760 "EHLO
+        id S234143AbjEHVgN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 8 May 2023 17:36:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233588AbjEHVfy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 8 May 2023 17:35:54 -0400
+        with ESMTP id S234126AbjEHVgH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 8 May 2023 17:36:07 -0400
 Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 738AD9ED1;
-        Mon,  8 May 2023 14:35:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9C4793CF;
+        Mon,  8 May 2023 14:35:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
         Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
         Content-ID:Content-Description:In-Reply-To;
-        bh=vb5RHA5WAD/i+pcNIxyZaXw8sGymL5Wslp2oL9HHf5o=; b=tCSw7wyzM5jCUBmoiGImrzrVMf
-        H/ZkDYGbPCkHyTxMrtpf+U6dHzUyVsPW7AEfG0XssOJSV4kg3e8pz7ZJKIt2zgel1Tg3scu0q87KX
-        XOGfQLNrVl701X/bZl65glhBPOZfF/4zUxmiv7nVkkSPkyGMxinwX/GHPApF9GoBvs9bYw6r7ewxn
-        X4tTNuQUxRZNTcX8fh50RBEUA8q/DMH4OvtBRsskPQPXuLsLNENKNssUXCF141sZwuMRTOp+ricCh
-        X8jdVIBKJsrzV1GFPWKS5U8xiSZcmMDh8vZXIac4hlaS2z4/Hlb/evVbvzVzGW+FVjdzYIKs0Vb/s
-        ffwGxzrA==;
+        bh=qJ542JOkywuQy44rpDjAFBKOiAWpMNGNJLpO6nBwf7o=; b=GCaGOZktpNu5GOB/jf0mGRtijV
+        mJjATlNWDd6SpBMT0GoDulcBW1hcIzOdTn5XhuUoWUS40W40EmvP/Ba+1cC5BlIeEHDbZMyU7r+Ts
+        q4lxWlfhSq+/6Z4ZoBLEH5z07leAlubUAa6eCSlgEFGy+M1QlR4+cSigU7UpnV8K/b6pl5VZKiVcC
+        PYdNZ+HURFsuY6dSKxl/mzaTAdmZKJRz4xV+ABE+v6sxMLoiA0OOsJd+/0ejC7U2Xpe+lqdLnjIrc
+        MXNeUu36aaxP3qYNZLefq7wou8XtduYSxulv3eAYJqZMDaxELMQh+wpZ+hl5oh5atAB2nLfocRqRE
+        iWjSG27A==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
         by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1pw8UZ-00EW3n-C8; Mon, 08 May 2023 21:33:59 +0000
+        id 1pw8UY-00EW3c-6r; Mon, 08 May 2023 21:33:58 +0000
 Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits))
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
         (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id CA95230614B;
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 6903330612F;
         Mon,  8 May 2023 23:33:48 +0200 (CEST)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
-        id 52A012482942D; Mon,  8 May 2023 23:33:48 +0200 (CEST)
-Message-ID: <20230508213147.990013706@infradead.org>
+        id 2E3152482941A; Mon,  8 May 2023 23:33:48 +0200 (CEST)
+Message-ID: <20230508213147.448097252@infradead.org>
 User-Agent: quilt/0.66
-Date:   Mon, 08 May 2023 23:20:00 +0200
+Date:   Mon, 08 May 2023 23:19:52 +0200
 From:   Peter Zijlstra <peterz@infradead.org>
 To:     bigeasy@linutronix.de
 Cc:     mark.rutland@arm.com, maz@kernel.org, catalin.marinas@arm.com,
@@ -60,7 +60,7 @@ Cc:     mark.rutland@arm.com, maz@kernel.org, catalin.marinas@arm.com,
         loongarch@lists.linux.dev, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org, linux-hyperv@vger.kernel.org,
         linux-pm@vger.kernel.org
-Subject: [RFC][PATCH 9/9] cpuidle: Use local_clock_noinstr()
+Subject: [RFC][PATCH 1/9] seqlock/latch: Provide raw_read_seqcount_latch_retry()
 References: <20230508211951.901961964@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -68,72 +68,132 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-With the introduction of local_clock_noinstr(), local_clock() itself
-is no longer marked noinstr, use the correct function.
+The read side of seqcount_latch consists of:
+
+  do {
+    seq = raw_read_seqcount_latch(&latch->seq);
+    ...
+  } while (read_seqcount_latch_retry(&latch->seq, seq));
+
+which is asymmetric in the raw_ department, and sure enough,
+read_seqcount_latch_retry() includes (explicit) instrumentation where
+raw_read_seqcount_latch() does not.
+
+This inconsistency becomes a problem when trying to use it from
+noinstr code. As such, fix it by renaming and re-implementing
+raw_read_seqcount_latch_retry() without the instrumentation.
+
+Specifically the instrumentation in question is kcsan_atomic_next(0)
+in do___read_seqcount_retry(). Loosing this annotation is not a
+problem because raw_read_seqcount_latch() does not pass through
+kcsan_atomic_next(KCSAN_SEQLOCK_REGION_MAX).
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 ---
- drivers/cpuidle/cpuidle.c    |    8 ++++----
- drivers/cpuidle/poll_state.c |    4 ++--
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ include/linux/rbtree_latch.h |    2 +-
+ include/linux/seqlock.h      |   15 ++++++++-------
+ kernel/printk/printk.c       |    2 +-
+ kernel/time/sched_clock.c    |    2 +-
+ kernel/time/timekeeping.c    |    4 ++--
+ 5 files changed, 13 insertions(+), 12 deletions(-)
 
---- a/drivers/cpuidle/cpuidle.c
-+++ b/drivers/cpuidle/cpuidle.c
-@@ -145,7 +145,7 @@ static noinstr void enter_s2idle_proper(
+--- a/include/linux/rbtree_latch.h
++++ b/include/linux/rbtree_latch.h
+@@ -206,7 +206,7 @@ latch_tree_find(void *key, struct latch_
+ 	do {
+ 		seq = raw_read_seqcount_latch(&root->seq);
+ 		node = __lt_find(key, root, seq & 1, ops->comp);
+-	} while (read_seqcount_latch_retry(&root->seq, seq));
++	} while (raw_read_seqcount_latch_retry(&root->seq, seq));
  
- 	instrumentation_begin();
- 
--	time_start = ns_to_ktime(local_clock());
-+	time_start = ns_to_ktime(local_clock_noinstr());
- 
- 	tick_freeze();
- 	/*
-@@ -169,7 +169,7 @@ static noinstr void enter_s2idle_proper(
- 	tick_unfreeze();
- 	start_critical_timings();
- 
--	time_end = ns_to_ktime(local_clock());
-+	time_end = ns_to_ktime(local_clock_noinstr());
- 
- 	dev->states_usage[index].s2idle_time += ktime_us_delta(time_end, time_start);
- 	dev->states_usage[index].s2idle_usage++;
-@@ -243,7 +243,7 @@ noinstr int cpuidle_enter_state(struct c
- 	sched_idle_set_state(target_state);
- 
- 	trace_cpu_idle(index, dev->cpu);
--	time_start = ns_to_ktime(local_clock());
-+	time_start = ns_to_ktime(local_clock_noinstr());
- 
- 	stop_critical_timings();
- 	if (!(target_state->flags & CPUIDLE_FLAG_RCU_IDLE)) {
-@@ -276,7 +276,7 @@ noinstr int cpuidle_enter_state(struct c
- 	start_critical_timings();
- 
- 	sched_clock_idle_wakeup_event();
--	time_end = ns_to_ktime(local_clock());
-+	time_end = ns_to_ktime(local_clock_noinstr());
- 	trace_cpu_idle(PWR_EVENT_EXIT, dev->cpu);
- 
- 	/* The cpu is no longer idle or about to enter idle. */
---- a/drivers/cpuidle/poll_state.c
-+++ b/drivers/cpuidle/poll_state.c
-@@ -15,7 +15,7 @@ static int __cpuidle poll_idle(struct cp
+ 	return node;
+ }
+--- a/include/linux/seqlock.h
++++ b/include/linux/seqlock.h
+@@ -671,9 +671,9 @@ typedef struct {
+  *
+  * Return: sequence counter raw value. Use the lowest bit as an index for
+  * picking which data copy to read. The full counter must then be checked
+- * with read_seqcount_latch_retry().
++ * with raw_read_seqcount_latch_retry().
+  */
+-static inline unsigned raw_read_seqcount_latch(const seqcount_latch_t *s)
++static __always_inline unsigned raw_read_seqcount_latch(const seqcount_latch_t *s)
  {
- 	u64 time_start;
+ 	/*
+ 	 * Pairs with the first smp_wmb() in raw_write_seqcount_latch().
+@@ -683,16 +683,17 @@ static inline unsigned raw_read_seqcount
+ }
  
--	time_start = local_clock();
-+	time_start = local_clock_noinstr();
+ /**
+- * read_seqcount_latch_retry() - end a seqcount_latch_t read section
++ * raw_read_seqcount_latch_retry() - end a seqcount_latch_t read section
+  * @s:		Pointer to seqcount_latch_t
+  * @start:	count, from raw_read_seqcount_latch()
+  *
+  * Return: true if a read section retry is required, else false
+  */
+-static inline int
+-read_seqcount_latch_retry(const seqcount_latch_t *s, unsigned start)
++static __always_inline int
++raw_read_seqcount_latch_retry(const seqcount_latch_t *s, unsigned start)
+ {
+-	return read_seqcount_retry(&s->seqcount, start);
++	smp_rmb();
++	return unlikely(READ_ONCE(s->seqcount.sequence) != start);
+ }
  
- 	dev->poll_time_limit = false;
+ /**
+@@ -752,7 +753,7 @@ read_seqcount_latch_retry(const seqcount
+  *			entry = data_query(latch->data[idx], ...);
+  *
+  *		// This includes needed smp_rmb()
+- *		} while (read_seqcount_latch_retry(&latch->seq, seq));
++ *		} while (raw_read_seqcount_latch_retry(&latch->seq, seq));
+  *
+  *		return entry;
+  *	}
+--- a/kernel/printk/printk.c
++++ b/kernel/printk/printk.c
+@@ -597,7 +597,7 @@ static u64 latched_seq_read_nolock(struc
+ 		seq = raw_read_seqcount_latch(&ls->latch);
+ 		idx = seq & 0x1;
+ 		val = ls->val[idx];
+-	} while (read_seqcount_latch_retry(&ls->latch, seq));
++	} while (raw_read_seqcount_latch_retry(&ls->latch, seq));
  
-@@ -32,7 +32,7 @@ static int __cpuidle poll_idle(struct cp
- 				continue;
+ 	return val;
+ }
+--- a/kernel/time/sched_clock.c
++++ b/kernel/time/sched_clock.c
+@@ -77,7 +77,7 @@ notrace struct clock_read_data *sched_cl
  
- 			loop_count = 0;
--			if (local_clock() - time_start > limit) {
-+			if (local_clock_noinstr() - time_start > limit) {
- 				dev->poll_time_limit = true;
- 				break;
- 			}
+ notrace int sched_clock_read_retry(unsigned int seq)
+ {
+-	return read_seqcount_latch_retry(&cd.seq, seq);
++	return raw_read_seqcount_latch_retry(&cd.seq, seq);
+ }
+ 
+ unsigned long long notrace sched_clock(void)
+--- a/kernel/time/timekeeping.c
++++ b/kernel/time/timekeeping.c
+@@ -450,7 +450,7 @@ static __always_inline u64 __ktime_get_f
+ 		tkr = tkf->base + (seq & 0x01);
+ 		now = ktime_to_ns(tkr->base);
+ 		now += fast_tk_get_delta_ns(tkr);
+-	} while (read_seqcount_latch_retry(&tkf->seq, seq));
++	} while (raw_read_seqcount_latch_retry(&tkf->seq, seq));
+ 
+ 	return now;
+ }
+@@ -566,7 +566,7 @@ static __always_inline u64 __ktime_get_r
+ 		basem = ktime_to_ns(tkr->base);
+ 		baser = ktime_to_ns(tkr->base_real);
+ 		delta = fast_tk_get_delta_ns(tkr);
+-	} while (read_seqcount_latch_retry(&tkf->seq, seq));
++	} while (raw_read_seqcount_latch_retry(&tkf->seq, seq));
+ 
+ 	if (mono)
+ 		*mono = basem + delta;
 
 
