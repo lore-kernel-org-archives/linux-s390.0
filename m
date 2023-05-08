@@ -2,100 +2,104 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 30C31C77B75
-	for <linux-s390@archiver.kernel.org>; Sat,  6 May 2023 15:00:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 651D9C77B73
+	for <linux-s390@archiver.kernel.org>; Mon,  8 May 2023 04:09:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232526AbjEFPAT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 6 May 2023 11:00:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44714 "EHLO
+        id S232161AbjEHEJb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 8 May 2023 00:09:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232441AbjEFPAS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 6 May 2023 11:00:18 -0400
-Received: from mail-yb1-xb31.google.com (mail-yb1-xb31.google.com [IPv6:2607:f8b0:4864:20::b31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 499991F491
-        for <linux-s390@vger.kernel.org>; Sat,  6 May 2023 08:00:14 -0700 (PDT)
-Received: by mail-yb1-xb31.google.com with SMTP id 3f1490d57ef6-b9e2f227640so3801688276.3
-        for <linux-s390@vger.kernel.org>; Sat, 06 May 2023 08:00:14 -0700 (PDT)
+        with ESMTP id S229448AbjEHEJ3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 8 May 2023 00:09:29 -0400
+Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB2526EB5;
+        Sun,  7 May 2023 21:09:28 -0700 (PDT)
+Received: by mail-ej1-x62d.google.com with SMTP id a640c23a62f3a-965ac4dd11bso814618466b.2;
+        Sun, 07 May 2023 21:09:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1683385213; x=1685977213;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
+        d=gmail.com; s=20221208; t=1683518967; x=1686110967;
+        h=message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ZNkRsBy8jmIVOhIRX+lWXHSIur+vpg4Wn3ELaF1i2/0=;
-        b=ZmdzqLS7xSvYD2Tbhfh/xD6/b0N0VaYrB7D3bpjpM36biGof/ncmLOhzLWoIRM4cxF
-         rMZuyK/868Q8/3/uztmdNnPJk14WbMEzNvGdrov5+03ZViNqoXppPMxy9vrvL9j84D7g
-         GSuNPVcmceAtcQ9+Uzt80t8DcXKwULrXUvm48lNt3y8Yhi8l2Zhx+QwAMG5ni2+AlBiJ
-         8hz3UAsQRprdGU/DBRYQE+5axbtEwRQoIz9QJ9KDBWWuU6JvPsIvZxjBedCh6FVtzjaJ
-         vFtbxStWRajPCnXrtPlPHoocAmC6K5oWlSKo82gT/zfZCUHufdmxCEtmM7/o8TDNNtM9
-         sMmw==
+        bh=/stI2xLuu/+Bk6mWcj3fMw5988PC9cZKxhWWqcngefs=;
+        b=mndtmghHF96zxCkNPDH6VwIjXKnoqgwMjPfLFKD/dUxB0glA3xAfF2p1khIxjmE8qr
+         BdrL2dWgtian5sbp8iFlVxtrWB7so2gIYt/3RZVhCYJO+fJGHy39GgrkBpBpkslLtuAL
+         giVbUmj9KM2X795y53Neve9sU2sqy8z9CMgtsDOOWxUwBItQyzG7bw2rDZQ0UfTLw/XK
+         XMvu5QcyN815kquC13wN/TpcWvizsuVdV31Wev9nU12dFPSc4QtvBjo+IdyLL43H4g39
+         LKfaqd5OBbO/8lR17GyXSV+WvDEztieHhgwIdzPxCkI3Stxl+htge11G6Y45Mop5K+/f
+         bDVg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1683385213; x=1685977213;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20221208; t=1683518967; x=1686110967;
+        h=message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ZNkRsBy8jmIVOhIRX+lWXHSIur+vpg4Wn3ELaF1i2/0=;
-        b=Oyz+pvc6nJqTXJOMHAskC21Bmf/Jf2NBPbb9yvZiYODUDRXyjZX2JljShXsURjoMgf
-         sawZrGI8tq0zb5N5RUXrb26YSE4M/lOBEJ9pJaWhqGqcJMjumgZgPxeaBEL1BIfTBsCK
-         Q0cdI/gvUwPwjLG8HkQdcKwr0Z9i+lFldyMQzV/7lYnaP8PDwHrVRp4fjhqD+5Oj/L1N
-         RInL6StL6YXKAJIMQ21zHW5CbiTAjvkM+azgORsoXva5tzC14zV+n0mCffq9TIHNsemx
-         ho5hbK+iTruV9N7CGSjGLdNVVY0GfI0a+U2H0jfvCf48dkrrs86lhRgYHvA3vCfIvTD9
-         PISA==
-X-Gm-Message-State: AC+VfDyA9M9JW9M8cQmPMsgEqyWY7pj9CjuZp1sdjO4VyDPxhwEh7gu7
-        xH/OUabp3b3PCwbadb3IMIXkuFlQxZ1LD/WuB+ScNw==
-X-Google-Smtp-Source: ACHHUZ5ED6NTeLKj6ZlWakj64JmtHbV7+2WxtnKr2jb5gYyUufWJOGNRCQ+8FBR8LT9KgvEWrmKoBkfq7E5K8qY84V8=
-X-Received: by 2002:a25:abec:0:b0:b9e:7ec8:5d41 with SMTP id
- v99-20020a25abec000000b00b9e7ec85d41mr4713885ybi.55.1683385213473; Sat, 06
- May 2023 08:00:13 -0700 (PDT)
-MIME-Version: 1.0
-References: <20230506111628.712316-1-bhe@redhat.com> <20230506111628.712316-2-bhe@redhat.com>
-In-Reply-To: <20230506111628.712316-2-bhe@redhat.com>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Sat, 6 May 2023 17:00:02 +0200
-Message-ID: <CACRpkdYo+NPtqjbUCrohE8yhyvc3vuqycP6RctY5rsiZXiiQWw@mail.gmail.com>
-Subject: Re: [PATCH RESEND 1/2] pcmcia : make PCMCIA depend on HAS_IOMEM
-To:     Baoquan He <bhe@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        schnelle@linux.ibm.com, linux-s390@vger.kernel.org,
-        Arnd Bergmann <arnd@arndb.de>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        bh=/stI2xLuu/+Bk6mWcj3fMw5988PC9cZKxhWWqcngefs=;
+        b=KjMJGAEqgqVdKsGxBx04XXfJPdqdrZzOyL1YOaeyukARs8oNS8nZsPu7F7Tr8YbNJB
+         PF/uD7rDe1khYBuWsyQ0uC8Q9t4RhojohFrHP9zpdc7Jgmqy631x8Ff3Dze3GIM/Vp19
+         iHUfWjhYhxdCBFpnQOHIhlS/wz/pWzGjnxH9ViR/aewl6G53/AMFIM12xph8OnzK9DBm
+         0x/Ph9veNKPfkq8YXgZdNg+7rR2j5xjKBSiSR6u9LJBX/Q7mIPYCpp3vmRtHS/Tlg+St
+         GenRyAuo5oxhA7fuazz0FhvFCAEedJMIzWfrdcmxsOwdz6QXgqN3Y4RLgmoiIhzRK2xB
+         boUA==
+X-Gm-Message-State: AC+VfDydpb2rbJELGlyimqHCnfnN/c0RsL6YV3WVKI7cMNUJnj6qwkCe
+        uQNswcXBpZdrn3WIU5Wvqio=
+X-Google-Smtp-Source: ACHHUZ5Dr2OhNvFUs+sEGJt4AGYVYn1QPnGShhbOuQHlv02lNyCrmoMRYODTfIKd9tYYio1GPProyA==
+X-Received: by 2002:a17:907:a41e:b0:94a:4b7a:9886 with SMTP id sg30-20020a170907a41e00b0094a4b7a9886mr8664774ejc.12.1683518967237;
+        Sun, 07 May 2023 21:09:27 -0700 (PDT)
+Received: from felia.fritz.box ([2a02:810d:7e40:14b0:8906:f99a:ce33:2033])
+        by smtp.gmail.com with ESMTPSA id h23-20020a17090619d700b008cecb8f374asm4372475ejd.0.2023.05.07.21.09.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 07 May 2023 21:09:26 -0700 (PDT)
+From:   Lukas Bulwahn <lukas.bulwahn@gmail.com>
+To:     Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc:     kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Subject: [PATCH] s390/Kconfig: remove obsolete configs SCHED_{BOOK,DRAWER}
+Date:   Mon,  8 May 2023 06:09:16 +0200
+Message-Id: <20230508040916.16733-1-lukas.bulwahn@gmail.com>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sat, May 6, 2023 at 1:16=E2=80=AFPM Baoquan He <bhe@redhat.com> wrote:
+Commit f1045056c726 ("topology/sysfs: rework book and drawer topology
+ifdefery") activates the book and drawer topology, previously activated by
+CONFIG_SCHED_{BOOK,DRAWER}, dependent on the existence of certain macro
+definitions. Hence, since then, CONFIG_SCHED_{BOOK,DRAWER} have no effect
+and any further purpose.
 
-> On s390 systems (aka mainframes), it has classic channel devices for
-> networking and permanent storage that are currently even more common
-> than PCI devices. Hence it could have a fully functional s390 kernel
-> with CONFIG_PCI=3Dn, then the relevant iomem mapping functions
-> [including ioremap(), devm_ioremap(), etc.] are not available.
->
-> Here let depend PCMCIA on HAS_IOMEM so that it won't be built to
-> cause below compiling error if PCI is unset.
->
-> -------------------------------------------------------
-> ld: drivers/pcmcia/cistpl.o: in function `set_cis_map':
-> cistpl.c:(.text+0x1202): undefined reference to `ioremap'
-> ld: cistpl.c:(.text+0x13b0): undefined reference to `iounmap'
-> ld: cistpl.c:(.text+0x14a6): undefined reference to `iounmap'
-> ld: cistpl.c:(.text+0x1544): undefined reference to `ioremap'
-> ld: drivers/pcmcia/cistpl.o: in function `release_cis_mem':
-> cistpl.c:(.text+0x3f14): undefined reference to `iounmap'
->
-> Signed-off-by: Baoquan He <bhe@redhat.com>
-> Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> Acked-by: Arnd Bergmann <arnd@arndb.de>
-> Cc: Dominik Brodowski <linux@dominikbrodowski.net>
-> Cc: Arnd Bergmann <arnd@arndb.de>
-> Cc: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-> Cc: Linus Walleij <linus.walleij@linaro.org>
-> Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Remove the obsolete configs SCHED_{BOOK,DRAWER}.
 
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+---
+ arch/s390/Kconfig | 8 --------
+ 1 file changed, 8 deletions(-)
 
-Yours,
-Linus Walleij
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 548b5b587003..1627c7f841d3 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -468,19 +468,11 @@ config SCHED_SMT
+ config SCHED_MC
+ 	def_bool n
+ 
+-config SCHED_BOOK
+-	def_bool n
+-
+-config SCHED_DRAWER
+-	def_bool n
+-
+ config SCHED_TOPOLOGY
+ 	def_bool y
+ 	prompt "Topology scheduler support"
+ 	select SCHED_SMT
+ 	select SCHED_MC
+-	select SCHED_BOOK
+-	select SCHED_DRAWER
+ 	help
+ 	  Topology scheduler support improves the CPU scheduler's decision
+ 	  making when dealing with machines that have multi-threading,
+-- 
+2.17.1
+
