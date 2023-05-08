@@ -2,137 +2,121 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D1BF3C7EE22
-	for <linux-s390@archiver.kernel.org>; Mon,  8 May 2023 20:30:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 125ACC77B75
+	for <linux-s390@archiver.kernel.org>; Mon,  8 May 2023 21:35:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232953AbjEHUat (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 8 May 2023 16:30:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35604 "EHLO
+        id S232966AbjEHVe7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 8 May 2023 17:34:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229690AbjEHUar (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 8 May 2023 16:30:47 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 656BC49C0
-        for <linux-s390@vger.kernel.org>; Mon,  8 May 2023 13:30:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1683577800;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=DVSAqbGo/SYymxziE0Ynvj5CJeQ8fOYfiV63Ae36Jlg=;
-        b=bM5H0eGR46f0jKa43Nz2pTJkQF977G7kuTlbrXX2uuB+iWLfGJkhAFy53lg4ds2Qo8iZST
-        eCLRuH6TupFa8UqC0VNrSR5rVnQH9/sTEAHsSdargY6K0z0qFm/0GJEhsRshJDsF8TFkzE
-        rYX4WYxxKhzLuPKJLjxVEO721D88to8=
-Received: from mail-il1-f199.google.com (mail-il1-f199.google.com
- [209.85.166.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-379-wT-sJhz_OzqxiCFS4NQaUQ-1; Mon, 08 May 2023 16:29:59 -0400
-X-MC-Unique: wT-sJhz_OzqxiCFS4NQaUQ-1
-Received: by mail-il1-f199.google.com with SMTP id e9e14a558f8ab-333d90b1a43so51949815ab.1
-        for <linux-s390@vger.kernel.org>; Mon, 08 May 2023 13:29:59 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1683577798; x=1686169798;
-        h=content-transfer-encoding:mime-version:organization:references
-         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=DVSAqbGo/SYymxziE0Ynvj5CJeQ8fOYfiV63Ae36Jlg=;
-        b=fttxe9G+G0OHi2c71p4+9nHBGCWZ5mhzcB3JZWkqiE5CasZ0prx4y0ZL+0nC7LSTfg
-         JSwAOv9NEV/jAXiIxdSTMf1XBWhetGDLeL2l1CnR4qxw8xDM2RsJvTEZJjqR68GbH4Eh
-         L+2xQ8XhoCcYfm3jU41jn2OYwRgQeHy8HAzNVZDLu+6UIInqRPgINtC1XoYN0786dPO7
-         Cm+v1oVeKJW44XNEQbwtxWcqScDZ+EPlCYrjGmJDbU81woBXkhMW5jWSL9bxLAq3iK1+
-         YWR5aWT8s4T576Q2gdS6rjAM5pJqmb00qZIOw2F8ivfrqVDDN9RcOlAmD782YLC5loeh
-         wrbA==
-X-Gm-Message-State: AC+VfDwah1BzgkZJ02y7lYLFcNlTOkTU/+Ar+Hd2OwDnZGwi710P32Vk
-        fmTvH6dMWdIgw4JTng6mt/vZHXkZrL4TpwK2QetMa8GesmkETmArByDNsMF4BzwtR8fsAR61MD0
-        BJ5CBMEP4I7SNiRSiXAc6/Q==
-X-Received: by 2002:a92:d403:0:b0:326:3a39:89d0 with SMTP id q3-20020a92d403000000b003263a3989d0mr8107218ilm.1.1683577798625;
-        Mon, 08 May 2023 13:29:58 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ7DrZnriZETaQ/90S6mqc6FkPi+6no4KK3rwJGM0g691+Xcp+XCrkWFWkbvezVgZkHdFJFtOw==
-X-Received: by 2002:a92:d403:0:b0:326:3a39:89d0 with SMTP id q3-20020a92d403000000b003263a3989d0mr8107209ilm.1.1683577798310;
-        Mon, 08 May 2023 13:29:58 -0700 (PDT)
-Received: from redhat.com ([38.15.36.239])
-        by smtp.gmail.com with ESMTPSA id l2-20020a056e0205c200b00334faa50484sm1915883ils.54.2023.05.08.13.29.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 May 2023 13:29:57 -0700 (PDT)
-Date:   Mon, 8 May 2023 14:29:55 -0600
-From:   Alex Williamson <alex.williamson@redhat.com>
-To:     "Liu, Yi L" <yi.l.liu@intel.com>
-Cc:     "jgg@nvidia.com" <jgg@nvidia.com>,
-        "Tian, Kevin" <kevin.tian@intel.com>,
-        "joro@8bytes.org" <joro@8bytes.org>,
-        "robin.murphy@arm.com" <robin.murphy@arm.com>,
-        "cohuck@redhat.com" <cohuck@redhat.com>,
-        "eric.auger@redhat.com" <eric.auger@redhat.com>,
-        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
-        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
-        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
-        "peterx@redhat.com" <peterx@redhat.com>,
-        "jasowang@redhat.com" <jasowang@redhat.com>,
-        "shameerali.kolothum.thodi@huawei.com" 
-        <shameerali.kolothum.thodi@huawei.com>,
-        "lulu@redhat.com" <lulu@redhat.com>,
-        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "Hao, Xudong" <xudong.hao@intel.com>,
-        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
-        "Xu, Terrence" <terrence.xu@intel.com>,
-        "Jiang, Yanting" <yanting.jiang@intel.com>,
-        "Duan, Zhenzhong" <zhenzhong.duan@intel.com>
-Subject: Re: [PATCH v4 8/9] vfio/pci: Extend
- VFIO_DEVICE_GET_PCI_HOT_RESET_INFO for vfio device cdev
-Message-ID: <20230508142955.44566026.alex.williamson@redhat.com>
-In-Reply-To: <DS0PR11MB75295210DA7C4C2896D1FB6DC3719@DS0PR11MB7529.namprd11.prod.outlook.com>
-References: <20230426145419.450922-1-yi.l.liu@intel.com>
-        <20230426145419.450922-9-yi.l.liu@intel.com>
-        <20230427140405.2afe27d4.alex.williamson@redhat.com>
-        <20230427141533.7d8861ed.alex.williamson@redhat.com>
-        <DS0PR11MB75295210DA7C4C2896D1FB6DC3719@DS0PR11MB7529.namprd11.prod.outlook.com>
-Organization: Red Hat
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+        with ESMTP id S232428AbjEHVe5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 8 May 2023 17:34:57 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D705CC;
+        Mon,  8 May 2023 14:34:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=Subject:Cc:To:From:Date:Message-ID:
+        Sender:Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:
+        Content-ID:Content-Description:In-Reply-To:References;
+        bh=2UuvzVvkJajpSRztAlbWQE/ujN4VBnGx7txBk9UwFEs=; b=KneIF4sIX1hMULcaWZ2QHQseOH
+        2g0MVeiYasQ3hb/DQWVc4LIuYtwArZXQukDYTNn/60vn84poNQxzfX6ZYJLkO4eWYGtQRAq2h2if7
+        1894SeywnNYoNqO1A9CSpliV+NkbiPjv6Rom4KvFbtpdGVg/i2TvfxseNX1MI0sW5lLGPu6uib8QL
+        0wwd0wZNbkIK7JYS+DMjGeOheRRV+VgJ5lNgvkRCjwiFQnXIXuWyrJt8l9ZDM5i2yvADD/aH9eTE0
+        i815ZD49VHy76hKDbEfOVg6wb4QNuyqYz7jN8xcax6kBKY+xyMIOjjXvRDB2G5XrKbcmHnQ1gWnOA
+        wgjAfVxQ==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1pw8UY-00EW3h-Pu; Mon, 08 May 2023 21:33:58 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 64B4130026A;
+        Mon,  8 May 2023 23:33:48 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
+        id 273602482941B; Mon,  8 May 2023 23:33:48 +0200 (CEST)
+Message-ID: <20230508211951.901961964@infradead.org>
+User-Agent: quilt/0.66
+Date:   Mon, 08 May 2023 23:19:51 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     bigeasy@linutronix.de
+Cc:     mark.rutland@arm.com, maz@kernel.org, catalin.marinas@arm.com,
+        will@kernel.org, chenhuacai@kernel.org, kernel@xen0n.name,
+        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        pbonzini@redhat.com, wanpengli@tencent.com, vkuznets@redhat.com,
+        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
+        jgross@suse.com, boris.ostrovsky@oracle.com,
+        daniel.lezcano@linaro.org, kys@microsoft.com,
+        haiyangz@microsoft.com, wei.liu@kernel.org, decui@microsoft.com,
+        rafael@kernel.org, peterz@infradead.org, longman@redhat.com,
+        boqun.feng@gmail.com, pmladek@suse.com, senozhatsky@chromium.org,
+        rostedt@goodmis.org, john.ogness@linutronix.de,
+        juri.lelli@redhat.com, vincent.guittot@linaro.org,
+        dietmar.eggemann@arm.com, bsegall@google.com, mgorman@suse.de,
+        bristot@redhat.com, vschneid@redhat.com, jstultz@google.com,
+        sboyd@kernel.org, linux-kernel@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, linux-hyperv@vger.kernel.org,
+        linux-pm@vger.kernel.org
+Subject: [RFC][PATCH 0/9] local_clock() vs noinstr
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 8 May 2023 15:32:44 +0000
-"Liu, Yi L" <yi.l.liu@intel.com> wrote:
+Hi all!
 
-> > From: Alex Williamson <alex.williamson@redhat.com>
-> > Sent: Friday, April 28, 2023 4:16 AM
-> >  
-> > > > + *
-> > > >   * Return: 0 on success, -errno on failure:
-> > > >   *	-enospc = insufficient buffer, -enodev = unsupported for device.
-> > > >   */
-> > > >  struct vfio_pci_dependent_device {
-> > > > -	__u32	group_id;
-> > > > +	union {
-> > > > +		__u32   group_id;
-> > > > +		__u32	dev_id;
-> > > > +#define VFIO_PCI_DEVID_NONBLOCKING	0
-> > > > +#define VFIO_PCI_DEVID_BLOCKING	-1  
-> > >
-> > > The above description seems like it's leaning towards OWNED rather than
-> > > BLOCKING.  
-> > 
-> > Also these should be defined relative to something defined in IOMMUFD
-> > rather than inventing values here.  We can't have the valid devid
-> > number space owned by IOMMUFD conflict with these definitions.  Thanks,  
-> 
-> Jason has proposed to reserve all negative IDs and 0 in iommufd. In that case,
-> can vfio define the numbers now?
+A recent commit of mine marked local_clock() as noinstr.
 
-Ok, as long as it's guaranteed that we're overlapping invalid dev-ids,
-as specified by IOMMUFD, then the mapping of specific invalid dev-ids
-to error values here is interface specific and can be defined here.
-Thanks,
+  776f22913b8e ("sched/clock: Make local_clock() noinstr")
 
-Alex
+Sadly both me and objtool missed the fact that this is subly broken; but
+Sebastian tripped over it [*]:
+
+| vmlinux.o: warning: objtool: native_sched_clock+0x97: call to preempt_schedule_notrace_thunk() leaves .noinstr.text section
+| vmlinux.o: warning: objtool: kvm_clock_read+0x22: call to preempt_schedule_notrace_thunk() leaves .noinstr.text section
+| vmlinux.o: warning: objtool: local_clock+0xb4: call to preempt_schedule_notrace_thunk() leaves .noinstr.text section
+
+Specifically, local_clock() (and many of the sched_clock() implementation is
+relies upon) use preempt_{dis,en}able_notrace() which obviously calls out to
+schedule().
+
+Now, noinstr code *should* never trigger this and already run in
+non-preemptible code. Specifically entry code should have IRQs disabled while
+__cpuidle code should have preemption disabled.
+
+So while it is mostly harmless, I figured it wouldn't be too hard to clean this
+up a little -- but that was ~10 patches. Anyway, here goes...
+
+Compile tested only on x86_64/s390/arm64 -- I've just fed it to the
+robots.
+
+---
+ arch/arm64/include/asm/arch_timer.h    |  8 +----
+ arch/arm64/include/asm/io.h            | 12 +++----
+ arch/loongarch/include/asm/loongarch.h |  2 +-
+ arch/loongarch/kernel/time.c           |  6 ++--
+ arch/s390/include/asm/timex.h          | 13 +++++---
+ arch/s390/kernel/time.c                | 11 ++++++-
+ arch/x86/kernel/kvmclock.c             |  4 +--
+ arch/x86/kernel/tsc.c                  | 38 ++++++++++++++++-----
+ arch/x86/xen/time.c                    |  3 +-
+ drivers/clocksource/arm_arch_timer.c   | 60 ++++++++++++++++++++++++++--------
+ drivers/clocksource/hyperv_timer.c     |  4 +--
+ drivers/cpuidle/cpuidle.c              |  8 ++---
+ drivers/cpuidle/poll_state.c           |  4 +--
+ include/clocksource/hyperv_timer.h     |  4 +--
+ include/linux/rbtree_latch.h           |  2 +-
+ include/linux/sched/clock.h            | 17 +++++++++-
+ include/linux/seqlock.h                | 15 +++++----
+ kernel/printk/printk.c                 |  2 +-
+ kernel/sched/clock.c                   | 19 +++++++----
+ kernel/time/sched_clock.c              | 24 ++++++++++----
+ kernel/time/timekeeping.c              |  4 +--
+ 21 files changed, 176 insertions(+), 84 deletions(-)
+
+
+* https://lkml.kernel.org/r/20230309072724.3F6zRkvw@linutronix.de
+  TL;DR: PREEMPT_DYNAMIC=n PREEMPT=y DEBUG_ENTRY=y
 
