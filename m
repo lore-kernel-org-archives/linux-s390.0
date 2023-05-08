@@ -2,100 +2,137 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CA5FEC7EE24
-	for <linux-s390@archiver.kernel.org>; Mon,  8 May 2023 17:26:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D1BF3C7EE22
+	for <linux-s390@archiver.kernel.org>; Mon,  8 May 2023 20:30:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233179AbjEHR0R (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 8 May 2023 13:26:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40000 "EHLO
+        id S232953AbjEHUat (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 8 May 2023 16:30:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233267AbjEHR0Q (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 8 May 2023 13:26:16 -0400
-Received: from mail-qk1-x734.google.com (mail-qk1-x734.google.com [IPv6:2607:f8b0:4864:20::734])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C15C59D0
-        for <linux-s390@vger.kernel.org>; Mon,  8 May 2023 10:26:14 -0700 (PDT)
-Received: by mail-qk1-x734.google.com with SMTP id af79cd13be357-7576eb88a46so183749185a.3
-        for <linux-s390@vger.kernel.org>; Mon, 08 May 2023 10:26:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1683566773; x=1686158773;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=NdTG6ohHjTz/AJd0T3pLa5J84Bi4YtOOy88Rg5Wrl88=;
-        b=sZKcQvQ8ss2FfAs3cWAq70XoPSdDmF46CT2ZeYJcMXw2/RV1OLb1qBWC+tMubE/Eft
-         dCWb8dhIMam2oBdieGewF20DcJkTMZU09dqeH6cq1ro1raSC5d0xeUwhwxhxI66ZDKlM
-         cDZnbQBm4TQobVlcjzklowrhJyM8AMRLK+3h2+toO/jBzZaxk+EedwydP98RlLv37Yl+
-         A1ydfsEdIfqI5x5SGRTMJOBkyJMOXInTuqDWaLSYZTMgq+fGsLNeQq6sER9YQ/OQo/An
-         Js35GKOUX6+5hU+GcNn6CdnXf4F4ffC3BZAmtKE7fzhFGLN7vj4LJxyts3uHVbhL4xMD
-         8/TA==
+        with ESMTP id S229690AbjEHUar (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 8 May 2023 16:30:47 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 656BC49C0
+        for <linux-s390@vger.kernel.org>; Mon,  8 May 2023 13:30:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1683577800;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=DVSAqbGo/SYymxziE0Ynvj5CJeQ8fOYfiV63Ae36Jlg=;
+        b=bM5H0eGR46f0jKa43Nz2pTJkQF977G7kuTlbrXX2uuB+iWLfGJkhAFy53lg4ds2Qo8iZST
+        eCLRuH6TupFa8UqC0VNrSR5rVnQH9/sTEAHsSdargY6K0z0qFm/0GJEhsRshJDsF8TFkzE
+        rYX4WYxxKhzLuPKJLjxVEO721D88to8=
+Received: from mail-il1-f199.google.com (mail-il1-f199.google.com
+ [209.85.166.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-379-wT-sJhz_OzqxiCFS4NQaUQ-1; Mon, 08 May 2023 16:29:59 -0400
+X-MC-Unique: wT-sJhz_OzqxiCFS4NQaUQ-1
+Received: by mail-il1-f199.google.com with SMTP id e9e14a558f8ab-333d90b1a43so51949815ab.1
+        for <linux-s390@vger.kernel.org>; Mon, 08 May 2023 13:29:59 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1683566773; x=1686158773;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=NdTG6ohHjTz/AJd0T3pLa5J84Bi4YtOOy88Rg5Wrl88=;
-        b=ThwvDtjF4bMS5YPDRagZdtOavWEG92U2OttnO+a60NHtKwsuA94OxNsibYqUGnNmqu
-         TD0ItdsFTvIYv0xzu7vXWL2yvkifBTpuFlxhf7KUmurJ/W3l09TW9rDAGD19j7svzC+b
-         yLogLjZ+DMInLdGbmBBVN+vqn+pAODpSFeiHyG4gssDNqF4FZbBYKjaSFSzCX1kNGeZO
-         FPrBiDUQBCZGYYU4S9gpXeN49t8RLDF+zLZRT+yrNKCcMDIgG8812zF1ofb4jJJnsMo7
-         A3/DAdlQWZwBu2gaVkOPAROfbRDzMPbjmh0B0dZzaYuNqMhUXtRuLP15w45PFgCBhi2q
-         9Vgw==
-X-Gm-Message-State: AC+VfDx+PVvPgIlPDw4GmPNl/autGxsUqESHbTeh489bJfQU1TDTrG0V
-        /NV5+FgsuDewcgDL1ZONqDkiICup6SCeUkXxhT8=
-X-Google-Smtp-Source: ACHHUZ7oAEM+KBY9fBtUy4rvw55f2AWZiE1lM90iPY5z0ly8O9pDj3kxdVxcFGr9YTOMr2VeJpgxndQnN15ryBEb5xY=
-X-Received: by 2002:a05:6214:2409:b0:61b:5b4b:2a4 with SMTP id
- fv9-20020a056214240900b0061b5b4b02a4mr18194563qvb.29.1683566773494; Mon, 08
- May 2023 10:26:13 -0700 (PDT)
+        d=1e100.net; s=20221208; t=1683577798; x=1686169798;
+        h=content-transfer-encoding:mime-version:organization:references
+         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=DVSAqbGo/SYymxziE0Ynvj5CJeQ8fOYfiV63Ae36Jlg=;
+        b=fttxe9G+G0OHi2c71p4+9nHBGCWZ5mhzcB3JZWkqiE5CasZ0prx4y0ZL+0nC7LSTfg
+         JSwAOv9NEV/jAXiIxdSTMf1XBWhetGDLeL2l1CnR4qxw8xDM2RsJvTEZJjqR68GbH4Eh
+         L+2xQ8XhoCcYfm3jU41jn2OYwRgQeHy8HAzNVZDLu+6UIInqRPgINtC1XoYN0786dPO7
+         Cm+v1oVeKJW44XNEQbwtxWcqScDZ+EPlCYrjGmJDbU81woBXkhMW5jWSL9bxLAq3iK1+
+         YWR5aWT8s4T576Q2gdS6rjAM5pJqmb00qZIOw2F8ivfrqVDDN9RcOlAmD782YLC5loeh
+         wrbA==
+X-Gm-Message-State: AC+VfDwah1BzgkZJ02y7lYLFcNlTOkTU/+Ar+Hd2OwDnZGwi710P32Vk
+        fmTvH6dMWdIgw4JTng6mt/vZHXkZrL4TpwK2QetMa8GesmkETmArByDNsMF4BzwtR8fsAR61MD0
+        BJ5CBMEP4I7SNiRSiXAc6/Q==
+X-Received: by 2002:a92:d403:0:b0:326:3a39:89d0 with SMTP id q3-20020a92d403000000b003263a3989d0mr8107218ilm.1.1683577798625;
+        Mon, 08 May 2023 13:29:58 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ7DrZnriZETaQ/90S6mqc6FkPi+6no4KK3rwJGM0g691+Xcp+XCrkWFWkbvezVgZkHdFJFtOw==
+X-Received: by 2002:a92:d403:0:b0:326:3a39:89d0 with SMTP id q3-20020a92d403000000b003263a3989d0mr8107209ilm.1.1683577798310;
+        Mon, 08 May 2023 13:29:58 -0700 (PDT)
+Received: from redhat.com ([38.15.36.239])
+        by smtp.gmail.com with ESMTPSA id l2-20020a056e0205c200b00334faa50484sm1915883ils.54.2023.05.08.13.29.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 08 May 2023 13:29:57 -0700 (PDT)
+Date:   Mon, 8 May 2023 14:29:55 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     "Liu, Yi L" <yi.l.liu@intel.com>
+Cc:     "jgg@nvidia.com" <jgg@nvidia.com>,
+        "Tian, Kevin" <kevin.tian@intel.com>,
+        "joro@8bytes.org" <joro@8bytes.org>,
+        "robin.murphy@arm.com" <robin.murphy@arm.com>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "eric.auger@redhat.com" <eric.auger@redhat.com>,
+        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
+        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
+        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
+        "peterx@redhat.com" <peterx@redhat.com>,
+        "jasowang@redhat.com" <jasowang@redhat.com>,
+        "shameerali.kolothum.thodi@huawei.com" 
+        <shameerali.kolothum.thodi@huawei.com>,
+        "lulu@redhat.com" <lulu@redhat.com>,
+        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
+        "intel-gvt-dev@lists.freedesktop.org" 
+        <intel-gvt-dev@lists.freedesktop.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "Hao, Xudong" <xudong.hao@intel.com>,
+        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
+        "Xu, Terrence" <terrence.xu@intel.com>,
+        "Jiang, Yanting" <yanting.jiang@intel.com>,
+        "Duan, Zhenzhong" <zhenzhong.duan@intel.com>
+Subject: Re: [PATCH v4 8/9] vfio/pci: Extend
+ VFIO_DEVICE_GET_PCI_HOT_RESET_INFO for vfio device cdev
+Message-ID: <20230508142955.44566026.alex.williamson@redhat.com>
+In-Reply-To: <DS0PR11MB75295210DA7C4C2896D1FB6DC3719@DS0PR11MB7529.namprd11.prod.outlook.com>
+References: <20230426145419.450922-1-yi.l.liu@intel.com>
+        <20230426145419.450922-9-yi.l.liu@intel.com>
+        <20230427140405.2afe27d4.alex.williamson@redhat.com>
+        <20230427141533.7d8861ed.alex.williamson@redhat.com>
+        <DS0PR11MB75295210DA7C4C2896D1FB6DC3719@DS0PR11MB7529.namprd11.prod.outlook.com>
+Organization: Red Hat
 MIME-Version: 1.0
-References: <202305070840.X0G3ofjl-lkp@intel.com> <CAKEwX=MrPCPKF7Yxfjc-uOR2P-+Ee8+RV_B_u1f7iqC0L=_yew@mail.gmail.com>
- <ZFkqBteEnMxRjUfj@osiris>
-In-Reply-To: <ZFkqBteEnMxRjUfj@osiris>
-From:   Nhat Pham <nphamcs@gmail.com>
-Date:   Mon, 8 May 2023 10:26:02 -0700
-Message-ID: <CAKEwX=NrYdaGOvzh41LNfMfWuzM+Yc1GP4V3ybj8tqiKPLFKxQ@mail.gmail.com>
-Subject: Re: [linux-next:master 14680/14811] mm/filemap.c:4250:1: sparse:
- sparse: Using plain integer as NULL pointer
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     kernel test robot <lkp@intel.com>, oe-kbuild-all@lists.linux.dev,
-        Linux Memory Management List <linux-mm@kvack.org>,
-        Andrew Morton <akpm@linux-foundation.org>, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, linux-s390@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, May 8, 2023 at 9:57=E2=80=AFAM Heiko Carstens <hca@linux.ibm.com> w=
-rote:
->
-> On Mon, May 08, 2023 at 09:45:56AM -0700, Nhat Pham wrote:
-> > On Sat, May 6, 2023 at 5:28=E2=80=AFPM kernel test robot <lkp@intel.com=
-> wrote:
-> > > sparse warnings: (new ones prefixed by >>)
-> > >    mm/filemap.c:1416:17: sparse: sparse: context imbalance in 'migrat=
-ion_entry_wait_on_locked' - unexpected unlock
-> > > >> mm/filemap.c:4250:1: sparse: sparse: Using plain integer as NULL p=
-ointer
-> > > >> mm/filemap.c:4250:1: sparse: sparse: Using plain integer as NULL p=
-ointer
-> > > >> mm/filemap.c:4250:1: sparse: sparse: Using plain integer as NULL p=
-ointer
-> ...
-> > > > 4250  SYSCALL_DEFINE4(cachestat, unsigned int, fd,
-> >
-> > Hmm I couldn't see where I used 0 as the null pointer. Maybe
-> > this is a false positive or a result of not wiring up the syscall
-> > for s390? Especially since this is pointed toward the macro
-> > line (SYSCALL_DEFINE).
-> >
-> > cc-ing this to s390 maintainers and the s390 mailing list...
-> > Could you help me debug this? Thanks!
->
-> Just ignore, this is a known false positive with s390's SYSCALL_DEFINE()
-> implementation vs sparse. I looked into it once, but couldn't figure out
-> how to silence sparse.
-> IIRC, the __TYPE_IS_PTR() macro causes this.
+On Mon, 8 May 2023 15:32:44 +0000
+"Liu, Yi L" <yi.l.liu@intel.com> wrote:
 
-Thanks for the prompt response and support, Heiko!
+> > From: Alex Williamson <alex.williamson@redhat.com>
+> > Sent: Friday, April 28, 2023 4:16 AM
+> >  
+> > > > + *
+> > > >   * Return: 0 on success, -errno on failure:
+> > > >   *	-enospc = insufficient buffer, -enodev = unsupported for device.
+> > > >   */
+> > > >  struct vfio_pci_dependent_device {
+> > > > -	__u32	group_id;
+> > > > +	union {
+> > > > +		__u32   group_id;
+> > > > +		__u32	dev_id;
+> > > > +#define VFIO_PCI_DEVID_NONBLOCKING	0
+> > > > +#define VFIO_PCI_DEVID_BLOCKING	-1  
+> > >
+> > > The above description seems like it's leaning towards OWNED rather than
+> > > BLOCKING.  
+> > 
+> > Also these should be defined relative to something defined in IOMMUFD
+> > rather than inventing values here.  We can't have the valid devid
+> > number space owned by IOMMUFD conflict with these definitions.  Thanks,  
+> 
+> Jason has proposed to reserve all negative IDs and 0 in iommufd. In that case,
+> can vfio define the numbers now?
+
+Ok, as long as it's guaranteed that we're overlapping invalid dev-ids,
+as specified by IOMMUFD, then the mapping of specific invalid dev-ids
+to error values here is interface specific and can be defined here.
+Thanks,
+
+Alex
+
