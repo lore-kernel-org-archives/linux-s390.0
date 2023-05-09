@@ -2,232 +2,139 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 82C5EC77B7C
-	for <linux-s390@archiver.kernel.org>; Tue,  9 May 2023 11:59:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 95833C7EE24
+	for <linux-s390@archiver.kernel.org>; Tue,  9 May 2023 14:52:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230029AbjEIL74 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 9 May 2023 07:59:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45976 "EHLO
+        id S235263AbjEIOwC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 9 May 2023 10:52:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234783AbjEIL7z (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 9 May 2023 07:59:55 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79344FA;
-        Tue,  9 May 2023 04:59:54 -0700 (PDT)
-Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 349BRo2n011242;
-        Tue, 9 May 2023 11:59:54 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : to : cc : references : from : subject : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=o0qyN5dTTBE89PMggpKSegxyyCQ4S7DBukr1wkMx5Io=;
- b=BzIEGEgS8QWc+TBjN92NgaAUExtehh+jOKOoZP/dfDDwfIN+RTsVJPrDtTvCEn2UiPlV
- mhRp0GIHauwjqo9O2CHGfeFdvjtu4rijWtPlqFJhXVqx1LhOtlVh3HjI9d805bKS9kc4
- K763TqsHDEwm3Jy1fpatFCdz1oe1HtQIb1Pz9Zpn/opFB9D9LNkCK2P+LauOsEFApMkA
- 8PMZpPQ6/ugEe6/c1L9XRml9I503uxQx4QgciPx3sM1JDTpyDwrK4pwOB/QzD3dJvXt8
- F9jY1JYLQWyBqAv3eaglhRnnoatJ8Pe8WC9stlaNcqKDiGlr0puAnq0/n84earPMzQt5 fg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qfmb32dvd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 09 May 2023 11:59:53 +0000
-Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 349BnVFb026790;
-        Tue, 9 May 2023 11:59:53 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qfmb32du8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 09 May 2023 11:59:53 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3492mfmm022263;
-        Tue, 9 May 2023 11:59:50 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3qf896rdh8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 09 May 2023 11:59:50 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 349Bxlao40174000
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 9 May 2023 11:59:47 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3F33B2004D;
-        Tue,  9 May 2023 11:59:47 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CB5F32004E;
-        Tue,  9 May 2023 11:59:46 +0000 (GMT)
-Received: from [9.171.74.57] (unknown [9.171.74.57])
-        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue,  9 May 2023 11:59:46 +0000 (GMT)
-Message-ID: <c762bd30-9753-7b3e-3f46-b15ba575ee7c@linux.ibm.com>
-Date:   Tue, 9 May 2023 13:59:46 +0200
+        with ESMTP id S235257AbjEIOwC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 9 May 2023 10:52:02 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 6162B30FE;
+        Tue,  9 May 2023 07:52:00 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 73AD3FEC;
+        Tue,  9 May 2023 07:52:44 -0700 (PDT)
+Received: from FVFF77S0Q05N.cambridge.arm.com (FVFF77S0Q05N.cambridge.arm.com [10.1.34.150])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 026403F663;
+        Tue,  9 May 2023 07:51:53 -0700 (PDT)
+Date:   Tue, 9 May 2023 15:51:51 +0100
+From:   Mark Rutland <mark.rutland@arm.com>
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     bigeasy@linutronix.de, maz@kernel.org, catalin.marinas@arm.com,
+        will@kernel.org, chenhuacai@kernel.org, kernel@xen0n.name,
+        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        pbonzini@redhat.com, wanpengli@tencent.com, vkuznets@redhat.com,
+        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
+        jgross@suse.com, boris.ostrovsky@oracle.com,
+        daniel.lezcano@linaro.org, kys@microsoft.com,
+        haiyangz@microsoft.com, wei.liu@kernel.org, decui@microsoft.com,
+        rafael@kernel.org, longman@redhat.com, boqun.feng@gmail.com,
+        pmladek@suse.com, senozhatsky@chromium.org, rostedt@goodmis.org,
+        john.ogness@linutronix.de, juri.lelli@redhat.com,
+        vincent.guittot@linaro.org, dietmar.eggemann@arm.com,
+        bsegall@google.com, mgorman@suse.de, bristot@redhat.com,
+        vschneid@redhat.com, jstultz@google.com, sboyd@kernel.org,
+        linux-kernel@vger.kernel.org, loongarch@lists.linux.dev,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        linux-hyperv@vger.kernel.org, linux-pm@vger.kernel.org
+Subject: Re: [RFC][PATCH 3/9] arm64/io: Always inline all of
+ __raw_{read,write}[bwlq]()
+Message-ID: <ZFpeBzFD4N5Cuwcb@FVFF77S0Q05N.cambridge.arm.com>
+References: <20230508211951.901961964@infradead.org>
+ <20230508213147.583344579@infradead.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.10.0
-To:     Nico Boehr <nrb@linux.ibm.com>, borntraeger@linux.ibm.com,
-        imbrenda@linux.ibm.com, david@redhat.com
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20230509111202.333714-1-nrb@linux.ibm.com>
- <20230509111202.333714-3-nrb@linux.ibm.com>
-Content-Language: en-US
-From:   Janosch Frank <frankja@linux.ibm.com>
-Subject: Re: [PATCH v1 2/3] KVM: s390: add stat counter for shadow gmap events
-In-Reply-To: <20230509111202.333714-3-nrb@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: omvTEdiiMHIAl_w4jdzO-3K8Uffq4YFc
-X-Proofpoint-GUID: q7nn9e5KdceUtwNuAvKthT5NaTwKluFS
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-05-09_07,2023-05-05_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0 mlxscore=0
- priorityscore=1501 phishscore=0 suspectscore=0 bulkscore=0 adultscore=0
- mlxlogscore=999 clxscore=1015 spamscore=0 malwarescore=0 impostorscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2304280000
- definitions=main-2305090092
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230508213147.583344579@infradead.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 5/9/23 13:12, Nico Boehr wrote:
-> The shadow gmap tracks memory of nested guests (guest-3). In certain
-> scenarios, the shadow gmap needs to be rebuilt, which is a costly operation
-> since it involves a SIE exit into guest-1 for every entry in the respective
-> shadow level.
+On Mon, May 08, 2023 at 11:19:54PM +0200, Peter Zijlstra wrote:
+> The next patch will want to use __raw_readl() from a noinstr section
+> and as such that needs to be marked __always_inline to avoid the
+> compiler being a silly bugger.
 > 
-> Add kvm stat counters when new shadow structures are created at various
-> levels. Also add a counter gmap_shadow_acquire when a completely fresh
-> shadow gmap is created.
+> Turns out it already is, but its siblings are not.
 > 
-> Note that there is no counter for the region first level. This is because
-> the region first level is the highest level and hence is never referenced
-> by another table. Creating a new region first table is therefore always
-> equivalent to a new shadow gmap and hence is counted as
-> gmap_shadow_acquire.
-> 
-> Also note that not all page table levels need to be present and a ASCE
-> can directly point to e.g. a segment table. In this case, a new segment
-> table will always be equivalent to a new shadow gmap and hence will be
-> counted as gmap_shadow_acquire and not as gmap_shadow_segment.
-> 
-> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+
+FWIW, on arm64 we shouldn't ever end up with the MMIO counter being our
+{sched,local}_clock() -- several things blow up if we don't have the "CP15"
+version, and if we do have the CP15 version we'll use that as our preferred
+clocksource (and yes, the code is a mess).
+
+Regardless, for consistency I agree we should mark these all as __always_inline.
+
+It looks like we marked __raw_{readl,writel}() as noinstr in commit:
+
+  e43f1331e2ef913b ("arm64: Ask the compiler to __always_inline functions used by KVM at HYP")
+
+... and it'd be nice to mention that in the commit message.
+
+Thanks,
+Mark.
+
 > ---
->   arch/s390/include/asm/kvm_host.h | 5 +++++
->   arch/s390/kvm/gaccess.c          | 6 ++++++
->   arch/s390/kvm/kvm-s390.c         | 7 ++++++-
->   arch/s390/kvm/vsie.c             | 1 +
->   4 files changed, 18 insertions(+), 1 deletion(-)
+>  arch/arm64/include/asm/io.h |   12 ++++++------
+>  1 file changed, 6 insertions(+), 6 deletions(-)
 > 
-> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-> index 3c3fe45085ec..7f70e3bbb44c 100644
-> --- a/arch/s390/include/asm/kvm_host.h
-> +++ b/arch/s390/include/asm/kvm_host.h
-> @@ -777,6 +777,11 @@ struct kvm_vm_stat {
->   	u64 inject_service_signal;
->   	u64 inject_virtio;
->   	u64 aen_forward;
-> +	u64 gmap_shadow_acquire;
-> +	u64 gmap_shadow_r2;
-> +	u64 gmap_shadow_r3;
-> +	u64 gmap_shadow_segment;
-> +	u64 gmap_shadow_page;
-
-This needs to be gmap_shadow_pgt and then we need a separate shadow page 
-counter that's beeing incremented in kvm_s390_shadow_fault().
-
-
-I'm wondering if we should name them after the entries to reduce 
-confusion especially when we get huge pages in the future.
-
-gmap_shadow_acquire
-gmap_shadow_r1_te (ptr to r2 table)
-gmap_shadow_r2_te (ptr to r3 table)
-gmap_shadow_r3_te (ptr to segment table)
-gmap_shadow_sg_te (ptr to page table)
-gmap_shadow_pg_te (single page table entry)
-
->   };
->   
->   struct kvm_arch_memory_slot {
-> diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
-> index 3eb85f254881..8348a0095f3a 100644
-> --- a/arch/s390/kvm/gaccess.c
-> +++ b/arch/s390/kvm/gaccess.c
-> @@ -1382,6 +1382,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
->   				  unsigned long *pgt, int *dat_protection,
->   				  int *fake)
->   {
-> +	struct kvm *kvm;
->   	struct gmap *parent;
->   	union asce asce;
->   	union vaddress vaddr;
-> @@ -1390,6 +1391,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
->   
->   	*fake = 0;
->   	*dat_protection = 0;
-> +	kvm = sg->private;
->   	parent = sg->parent;
->   	vaddr.addr = saddr;
->   	asce.val = sg->orig_asce;
-> @@ -1450,6 +1452,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
->   		rc = gmap_shadow_r2t(sg, saddr, rfte.val, *fake);
->   		if (rc)
->   			return rc;
-> +		kvm->stat.gmap_shadow_r2++;
->   	}
->   		fallthrough;
->   	case ASCE_TYPE_REGION2: {
-> @@ -1478,6 +1481,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
->   		rc = gmap_shadow_r3t(sg, saddr, rste.val, *fake);
->   		if (rc)
->   			return rc;
-> +		kvm->stat.gmap_shadow_r3++;
->   	}
->   		fallthrough;
->   	case ASCE_TYPE_REGION3: {
-> @@ -1515,6 +1519,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
->   		rc = gmap_shadow_sgt(sg, saddr, rtte.val, *fake);
->   		if (rc)
->   			return rc;
-> +		kvm->stat.gmap_shadow_segment++;
->   	}
->   		fallthrough;
->   	case ASCE_TYPE_SEGMENT: {
-> @@ -1548,6 +1553,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
->   		rc = gmap_shadow_pgt(sg, saddr, ste.val, *fake);
->   		if (rc)
->   			return rc;
-> +		kvm->stat.gmap_shadow_page++;
->   	}
->   	}
->   	/* Return the parent address of the page table */
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 17b81659cdb2..b012645a5a7c 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -66,7 +66,12 @@ const struct _kvm_stats_desc kvm_vm_stats_desc[] = {
->   	STATS_DESC_COUNTER(VM, inject_pfault_done),
->   	STATS_DESC_COUNTER(VM, inject_service_signal),
->   	STATS_DESC_COUNTER(VM, inject_virtio),
-> -	STATS_DESC_COUNTER(VM, aen_forward)
-> +	STATS_DESC_COUNTER(VM, aen_forward),
-> +	STATS_DESC_COUNTER(VM, gmap_shadow_acquire),
-> +	STATS_DESC_COUNTER(VM, gmap_shadow_r2),
-> +	STATS_DESC_COUNTER(VM, gmap_shadow_r3),
-> +	STATS_DESC_COUNTER(VM, gmap_shadow_segment),
-> +	STATS_DESC_COUNTER(VM, gmap_shadow_page),
->   };
->   
->   const struct kvm_stats_header kvm_vm_stats_header = {
-> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-> index 8d6b765abf29..beb3be037722 100644
-> --- a/arch/s390/kvm/vsie.c
-> +++ b/arch/s390/kvm/vsie.c
-> @@ -1221,6 +1221,7 @@ static int acquire_gmap_shadow(struct kvm_vcpu *vcpu,
->   	if (IS_ERR(gmap))
->   		return PTR_ERR(gmap);
->   	gmap->private = vcpu->kvm;
-> +	vcpu->kvm->stat.gmap_shadow_acquire++;
->   	WRITE_ONCE(vsie_page->gmap, gmap);
->   	return 0;
->   }
-
+> --- a/arch/arm64/include/asm/io.h
+> +++ b/arch/arm64/include/asm/io.h
+> @@ -22,13 +22,13 @@
+>   * Generic IO read/write.  These perform native-endian accesses.
+>   */
+>  #define __raw_writeb __raw_writeb
+> -static inline void __raw_writeb(u8 val, volatile void __iomem *addr)
+> +static __always_inline void __raw_writeb(u8 val, volatile void __iomem *addr)
+>  {
+>  	asm volatile("strb %w0, [%1]" : : "rZ" (val), "r" (addr));
+>  }
+>  
+>  #define __raw_writew __raw_writew
+> -static inline void __raw_writew(u16 val, volatile void __iomem *addr)
+> +static __always_inline void __raw_writew(u16 val, volatile void __iomem *addr)
+>  {
+>  	asm volatile("strh %w0, [%1]" : : "rZ" (val), "r" (addr));
+>  }
+> @@ -40,13 +40,13 @@ static __always_inline void __raw_writel
+>  }
+>  
+>  #define __raw_writeq __raw_writeq
+> -static inline void __raw_writeq(u64 val, volatile void __iomem *addr)
+> +static __always_inline void __raw_writeq(u64 val, volatile void __iomem *addr)
+>  {
+>  	asm volatile("str %x0, [%1]" : : "rZ" (val), "r" (addr));
+>  }
+>  
+>  #define __raw_readb __raw_readb
+> -static inline u8 __raw_readb(const volatile void __iomem *addr)
+> +static __always_inline u8 __raw_readb(const volatile void __iomem *addr)
+>  {
+>  	u8 val;
+>  	asm volatile(ALTERNATIVE("ldrb %w0, [%1]",
+> @@ -57,7 +57,7 @@ static inline u8 __raw_readb(const volat
+>  }
+>  
+>  #define __raw_readw __raw_readw
+> -static inline u16 __raw_readw(const volatile void __iomem *addr)
+> +static __always_inline u16 __raw_readw(const volatile void __iomem *addr)
+>  {
+>  	u16 val;
+>  
+> @@ -80,7 +80,7 @@ static __always_inline u32 __raw_readl(c
+>  }
+>  
+>  #define __raw_readq __raw_readq
+> -static inline u64 __raw_readq(const volatile void __iomem *addr)
+> +static __always_inline u64 __raw_readq(const volatile void __iomem *addr)
+>  {
+>  	u64 val;
+>  	asm volatile(ALTERNATIVE("ldr %0, [%1]",
+> 
+> 
