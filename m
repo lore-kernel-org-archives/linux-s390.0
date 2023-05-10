@@ -2,156 +2,140 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D2A2C7EE2F
-	for <linux-s390@archiver.kernel.org>; Wed, 10 May 2023 07:14:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 68B3DC77B7D
+	for <linux-s390@archiver.kernel.org>; Wed, 10 May 2023 07:28:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236475AbjEJHO3 convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 10 May 2023 03:14:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44508 "EHLO
+        id S235709AbjEJH2r (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 10 May 2023 03:28:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236456AbjEJHO0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 10 May 2023 03:14:26 -0400
-Received: from mail-vk1-f174.google.com (mail-vk1-f174.google.com [209.85.221.174])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AACC240EB;
-        Wed, 10 May 2023 00:14:24 -0700 (PDT)
-Received: by mail-vk1-f174.google.com with SMTP id 71dfb90a1353d-44fc0b53a8aso4356461e0c.0;
-        Wed, 10 May 2023 00:14:24 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1683702863; x=1686294863;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=bvYmUAzo0cwOybz0hjxV39+5gh/FQ5/NU0n3aFKpLiE=;
-        b=Xk8jO34Hm7UQ0bioDM/IACHOs6jnBoIM/S6IW1QFpG+Jgug1rDItKgpWRy2YiVG+y5
-         cctnO6ZdInRr+C3aC3BMG4XLQq5eLZMiq6LE4dHhN71Ff8Lb7C2Ac1mxxSdTsAO93HIh
-         f4II7oyySHXHCr/roUDaZ2cBXdVKtcU576BiqT49ciYRxqX84zaAZ6ReMmN2onWcFn2d
-         yW6S9GyYDK2P1vYmrh+HtC3bQfVQoQGiuhGl/RjPqmLgniokFq1zxPJ1sOq7kHdEKDEu
-         moS1ifJHLtf0Agr8UteIhcpXHuAmhN1KpsQeURE/XgTLwe49aYFjm3KRWrrIJK4MZZAU
-         5sQA==
-X-Gm-Message-State: AC+VfDzF/uStQqhdP7m4bwTFdJyxsf2/++bc5x9vMo1gUwsZQEyy1dUh
-        b841MSC+3tAmibdzMopdubGxzHJkizOCug==
-X-Google-Smtp-Source: ACHHUZ76i3iJ2yQvmDOGVbIUJ6R5ob8AqV0wkJ+3LtkcTzktoEx836K/ncP1SMIT90Qre5P7gG52Qg==
-X-Received: by 2002:a1f:bfc4:0:b0:440:7261:c77e with SMTP id p187-20020a1fbfc4000000b004407261c77emr5260479vkf.1.1683702863444;
-        Wed, 10 May 2023 00:14:23 -0700 (PDT)
-Received: from mail-vk1-f177.google.com (mail-vk1-f177.google.com. [209.85.221.177])
-        by smtp.gmail.com with ESMTPSA id b137-20020a1fb28f000000b00443bcc4131dsm1898612vkf.13.2023.05.10.00.14.22
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 10 May 2023 00:14:23 -0700 (PDT)
-Received: by mail-vk1-f177.google.com with SMTP id 71dfb90a1353d-44ffef66dabso3763567e0c.2;
-        Wed, 10 May 2023 00:14:22 -0700 (PDT)
-X-Received: by 2002:a05:6902:1147:b0:b99:4ac6:3c75 with SMTP id
- p7-20020a056902114700b00b994ac63c75mr18672301ybu.10.1683702842290; Wed, 10
- May 2023 00:14:02 -0700 (PDT)
+        with ESMTP id S235895AbjEJH2p (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 10 May 2023 03:28:45 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29FFA7A9F;
+        Wed, 10 May 2023 00:28:23 -0700 (PDT)
+Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34A7R1Th009075;
+        Wed, 10 May 2023 07:28:22 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
+ mime-version : content-transfer-encoding : in-reply-to : references : to :
+ subject : from : cc : message-id : date; s=pp1;
+ bh=vUs6GH35kOTGMUVNWUotMvkghE0PAl+iGLd+6B1X0S0=;
+ b=dLuezzGg6n8ISQFWMH+E+ucTY3H03+qPeGlKspNpYTSzZd1EpjVtl1oG8hioHv61Rlno
+ Ouq1TFwuVtt19LTdPz4s03qN+I6eAznLrKHEC0a2pekAwaUCBthGibbyDPdfkVgVgYEY
+ zuiOiAPK+7Pr2RGS+RAtJBz90v7W88mbHjCapWdUz06zZ2Zm623mtDa7YaW7HRSGLrh2
+ 6Ge+QYooJSJzllgYddK09SU4m1s22vL8VwfYGbdBJ/0KAhx99T46iPW28w4fLp9MUPtP
+ PcHmH+mQxjFxKdZNAZOfixlXroh1skbE1XEYaCNpWrKTFdbV8wJC7wV5U51pyeO5P5BT ew== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qg5693037-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 10 May 2023 07:28:22 +0000
+Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34A7DEmP016735;
+        Wed, 10 May 2023 07:28:21 GMT
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qg569302e-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 10 May 2023 07:28:21 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34A3xxLV002095;
+        Wed, 10 May 2023 07:28:19 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+        by ppma05fra.de.ibm.com (PPS) with ESMTPS id 3qf7mhgqq3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 10 May 2023 07:28:19 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34A7SFoh33489270
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 10 May 2023 07:28:15 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 135D82004D;
+        Wed, 10 May 2023 07:28:15 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CC2172004E;
+        Wed, 10 May 2023 07:28:14 +0000 (GMT)
+Received: from t14-nrb (unknown [9.171.76.41])
+        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 10 May 2023 07:28:14 +0000 (GMT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <77a5d8c-406b-7068-4f17-23b7ac53bc83@google.com> <237c8410-ce61-94c-4260-7318ad6a4f3@google.com>
-In-Reply-To: <237c8410-ce61-94c-4260-7318ad6a4f3@google.com>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Wed, 10 May 2023 09:13:50 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdWb0SrEs=cDzKW1Ai2UywnnpZip4pk9mOkiVGivPpj8sg@mail.gmail.com>
-Message-ID: <CAMuHMdWb0SrEs=cDzKW1Ai2UywnnpZip4pk9mOkiVGivPpj8sg@mail.gmail.com>
-Subject: Re: [PATCH 05/23] m68k: allow pte_offset_map[_lock]() to fail
-To:     Hugh Dickins <hughd@google.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        David Hildenbrand <david@redhat.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Qi Zheng <zhengqi.arch@bytedance.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Greg Ungerer <gerg@linux-m68k.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Helge Deller <deller@gmx.de>,
-        John David Anglin <dave.anglin@bell.net>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Alexandre Ghiti <alexghiti@rivosinc.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Chris Zankel <chris@zankel.net>,
-        Max Filippov <jcmvbkbc@gmail.com>, x86@kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
-        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20230502115931.86280-6-frankja@linux.ibm.com>
+References: <20230502115931.86280-1-frankja@linux.ibm.com> <20230502115931.86280-6-frankja@linux.ibm.com>
+To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Subject: Re: [kvm-unit-tests PATCH v4 5/7] s390x: pv: Add sie entry intercept and validity test
+From:   Nico Boehr <nrb@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        thuth@redhat.com, david@redhat.com
+Message-ID: <168370369446.357872.12935361214141873283@t14-nrb>
+User-Agent: alot/0.8.1
+Date:   Wed, 10 May 2023 09:28:14 +0200
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: YUYRo6gGD1eUQXgLwxcmxl8cgwjaFqwc
+X-Proofpoint-GUID: TH7aZ63r-u66cLB-MSTM1tTo7AOQT8N6
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-05-10_04,2023-05-05_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ priorityscore=1501 spamscore=0 bulkscore=0 malwarescore=0 impostorscore=0
+ lowpriorityscore=0 mlxscore=0 clxscore=1015 phishscore=0 adultscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2304280000 definitions=main-2305100056
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Hugh,
+Quoting Janosch Frank (2023-05-02 13:59:29)
+[...]
+> diff --git a/s390x/pv-icptcode.c b/s390x/pv-icptcode.c
+> new file mode 100644
+> index 00000000..f8e9d137
+> --- /dev/null
+> +++ b/s390x/pv-icptcode.c
+[...]
+> +static void test_validity_timing(void)
+> +{
+> +       extern const char SNIPPET_NAME_START(asm, pv_icpt_vir_timing)[];
+> +       extern const char SNIPPET_NAME_END(asm, pv_icpt_vir_timing)[];
+> +       extern const char SNIPPET_HDR_START(asm, pv_icpt_vir_timing)[];
+> +       extern const char SNIPPET_HDR_END(asm, pv_icpt_vir_timing)[];
+> +       int size_hdr =3D SNIPPET_HDR_LEN(asm, pv_icpt_vir_timing);
+> +       int size_gbin =3D SNIPPET_LEN(asm, pv_icpt_vir_timing);
+> +       uint64_t time_exit, time_entry;
+> +
+> +       report_prefix_push("manipulated cpu time");
+> +       snippet_pv_init(&vm, SNIPPET_NAME_START(asm, pv_icpt_vir_timing),
+> +                       SNIPPET_HDR_START(asm, pv_icpt_vir_timing),
+> +                       size_gbin, size_hdr, SNIPPET_UNPACK_OFF);
+> +
+> +       sie(&vm);
+> +       report(pv_icptdata_check_diag(&vm, 0x44), "stp done");
 
-Thanks for your patch!
+s/stp/spt/
 
-On Wed, May 10, 2023 at 6:48 AM Hugh Dickins <hughd@google.com> wrote:
-> In rare transient cases, not yet made possible, pte_offset_map() and
-> pte_offset_map_lock() may not find a page table: handle appropriately.
->
-> Restructure cf_tlb_miss() with a pte_unmap() (previously omitted)
-> at label out, followed by one local_irq_restore() for all.
+> +       stck(&time_exit);
+> +       mb();
+> +
+> +       /* Cpu timer counts down so adding a ms should lead to a validity=
+ */
+> +       vm.sblk->cputm +=3D S390_CLOCK_SHIFT_US * 1000;
+> +       sie_expect_validity(&vm);
+> +       sie(&vm);
+> +       report(uv_validity_check(&vm), "validity entry cput > exit cput");
+> +       vm.sblk->cputm -=3D S390_CLOCK_SHIFT_US;
 
-That's a bug fix, which should be a separate patch?
+Did you mean S390_CLOCK_SHIFT_US * 1000 here? if so, maybe you want to back=
+up cputm and restore it here so your intention is clear.
 
->
-> Signed-off-by: Hugh Dickins <hughd@google.com>
+[...]
+> +static void run_icpt_122_tests(unsigned long lc_off)
+> +{
+> +       uv_export(vm.sblk->mso + lc_off);
+> +       sie(&vm);
+> +       report(vm.sblk->icptcode =3D=3D ICPT_PV_PREF, "Intercept 112 for =
+page 0");
+> +       uv_import(vm.uv.vm_handle, vm.sblk->mso + lc_off);
+> +
+> +       uv_export(vm.sblk->mso + lc_off + PAGE_SIZE);
 
-
-> --- a/arch/m68k/include/asm/mmu_context.h
-> +++ b/arch/m68k/include/asm/mmu_context.h
-> @@ -99,7 +99,7 @@ static inline void load_ksp_mmu(struct task_struct *task)
->         p4d_t *p4d;
->         pud_t *pud;
->         pmd_t *pmd;
-> -       pte_t *pte;
-> +       pte_t *pte = NULL;
->         unsigned long mmuar;
->
->         local_irq_save(flags);
-> @@ -139,7 +139,7 @@ static inline void load_ksp_mmu(struct task_struct *task)
->
->         pte = (mmuar >= PAGE_OFFSET) ? pte_offset_kernel(pmd, mmuar)
->                                      : pte_offset_map(pmd, mmuar);
-> -       if (pte_none(*pte) || !pte_present(*pte))
-> +       if (!pte || pte_none(*pte) || !pte_present(*pte))
->                 goto bug;
-
-If the absence of a pte is to become a non-abnormal case, it should
-probably jump to "end" instead, to avoid spamming the kernel log.
-
->
->         set_pte(pte, pte_mkyoung(*pte));
-> @@ -161,6 +161,8 @@ static inline void load_ksp_mmu(struct task_struct *task)
->  bug:
->         pr_info("ksp load failed: mm=0x%p ksp=0x08%lx\n", mm, mmuar);
->  end:
-> +       if (pte && mmuar < PAGE_OFFSET)
-> +               pte_unmap(pte);
-
-Is this also a bugfix, not mentioned in the patch description?
-
->         local_irq_restore(flags);
->  }
->
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+You are likely missing a sie(&vm) here.
