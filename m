@@ -2,52 +2,52 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EF41DC7EE24
-	for <linux-s390@archiver.kernel.org>; Wed, 10 May 2023 05:07:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C9F5DC7EE2E
+	for <linux-s390@archiver.kernel.org>; Wed, 10 May 2023 05:08:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235905AbjEJFHU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 10 May 2023 01:07:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58352 "EHLO
+        id S235925AbjEJFIt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 10 May 2023 01:08:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235502AbjEJFHT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 10 May 2023 01:07:19 -0400
-Received: from mail-yb1-xb34.google.com (mail-yb1-xb34.google.com [IPv6:2607:f8b0:4864:20::b34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C4D14EEE
-        for <linux-s390@vger.kernel.org>; Tue,  9 May 2023 22:07:16 -0700 (PDT)
-Received: by mail-yb1-xb34.google.com with SMTP id 3f1490d57ef6-ba1815e12efso5848680276.3
-        for <linux-s390@vger.kernel.org>; Tue, 09 May 2023 22:07:16 -0700 (PDT)
+        with ESMTP id S235927AbjEJFIp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 10 May 2023 01:08:45 -0400
+Received: from mail-yb1-xb33.google.com (mail-yb1-xb33.google.com [IPv6:2607:f8b0:4864:20::b33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C2A45276
+        for <linux-s390@vger.kernel.org>; Tue,  9 May 2023 22:08:42 -0700 (PDT)
+Received: by mail-yb1-xb33.google.com with SMTP id 3f1490d57ef6-ba65a4f502fso180330276.0
+        for <linux-s390@vger.kernel.org>; Tue, 09 May 2023 22:08:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1683695235; x=1686287235;
+        d=google.com; s=20221208; t=1683695321; x=1686287321;
         h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=Tza8VZpBdDATlz3Dj70XvbHnC1ZhEpBq1MlG3gUrqGw=;
-        b=S6w9KIHhVJNT1kfpH+CUQlKS0lqLbNW2sjOBWirezocHkXz48EoJrIXM28PJV5vm9/
-         2IKW7KEx40R4sNFdhRCA79Q4DhbKDdFLB3FgyR3tFeJ93PW/6Nj70i7kVvMQyXQV/Eg6
-         g+52YfmHhke7+sazfpIRwUSNXlxrgB0TXY5awNjnSJrSmQkBkwlsZpKuYTtxmU5X5rbM
-         qMqKwQoK0rcCOG5LK7I/q4x4RfW+gqW8hxUEuUs6WrZ6huYWyzA0eBrWurtLVkyq8+rs
-         BH6Tq3wNedbL7gmT0QCOruJR/a85R9e5ddGQi0eR0moWYsK+a+xYsl7ixIrgRtJQdod3
-         eejw==
+        bh=OTtpK1Un44XLqqGJYzxkLaX59Gadt3u8x45iMKydYoY=;
+        b=xhQbPYpkUzDX8XU9iKlY3Y4428jn5y6GTm9xV45/y6OmNC04/3wNqkNgSXK3AJIxCv
+         nf/3Kcyf7jXHraRNp8V/ThTGssm80Jrj1vFIVRl/eHnHIKGHX0llNwJFmswFPBKeszPS
+         4ERvsVZvFaG63Gj8ZvkLnyoFsbatfd0tOGpnHcmb7QKy8F/PI1niiK9/bIJQ3clEICAC
+         OKKiuKdx+Nga+KesCEIBcMETZuPReDAYyeYXYun87fEO018ylr/CbkSFeoHJtNA1RKEB
+         SehH79xiSdMYH54KoBHTNvBbumLZBWgNKrjc9IJ4jvy2Xlbglq/VfxJ2yKtHyPoLu9Db
+         naUg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1683695235; x=1686287235;
+        d=1e100.net; s=20221208; t=1683695321; x=1686287321;
         h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Tza8VZpBdDATlz3Dj70XvbHnC1ZhEpBq1MlG3gUrqGw=;
-        b=UVDXmwHnTjuskI3tnjR1W8Z0aHt7M/14tYzVxw+MWFB19zPKiZHK9PuZUlYLdXAWBJ
-         t+wFPPyh/IcWwNt04mqoKGYJuFTNaGpH5Ud94DKz8gwhi75L01eBwZj2dx5A3Gb8PIGW
-         svsBQdmLE7opaTLhQj7UcA0Jmk2+0cQONVQRbd4rTBjaRaKLDs1+ns9fBtsI594CtKbF
-         LJtX2w4fJFw2WSqWgcA1Ko6uQ+JRaPdxZVbp7dKA+N66wLym7AXmK3EcOzam6R12v91A
-         J60Bn+fH0oElncqyfhT26GPPNaiOINsv2Cl7pmA/IlUZdfDTBD99fKgziuuG/R59SdeR
-         Lxug==
-X-Gm-Message-State: AC+VfDyoJXIyHcSb5lsIfjjwJDt+YomAqMTyWpMID2i8g1n/gGqAIIFN
-        8Y+uLYNFJbeko3U69Yhlsya7hA==
-X-Google-Smtp-Source: ACHHUZ7O+RQwO6EUyGZuwP0aiZ///c7pXxA4KLKL9a6yKbaYGakuuwEnBLT515Jc9UpNtzb0LrlfGg==
-X-Received: by 2002:a25:6c4:0:b0:ba2:6aea:2ba with SMTP id 187-20020a2506c4000000b00ba26aea02bamr10201500ybg.23.1683695235431;
-        Tue, 09 May 2023 22:07:15 -0700 (PDT)
+        bh=OTtpK1Un44XLqqGJYzxkLaX59Gadt3u8x45iMKydYoY=;
+        b=lyMBELcO5/mVJx1aiXN+ERGDYCvkdinr+hjcAB8WNg/ZEwYI2P9uJKLUUiB2ifIS54
+         0d1LOSb2edDsUXZjsEQy8ULEBAmq4r7c7Iy75epbMFAxzz8+kwA2/l8dANSxXmlNWbz9
+         I4Z6Tofpx7jnAZ1PQ5uqYZirWKigydiS21inFEHzGZhAKzN40Wk3NxbizWoO6TyC32W/
+         s/3Y6aU8DaHpL/3MXJLBpBYcp1uThHzkmM5xIHwkOVSPqJGY6CkPOswOKEkqQo8kE4Tn
+         2mtXavqDkFfcPMixABQj1jJotQolC0b5mh38PGBBQTkuhF1jPlZ7+uqL70hFbloBwvbs
+         ivIw==
+X-Gm-Message-State: AC+VfDwPebr6JQqWhIQB+qz/8XtfxWfOHhXwr0wF7aVMKggpGB+YqXE6
+        p+z6VZQrG2h+62UptHJbKl/1Ig==
+X-Google-Smtp-Source: ACHHUZ4Nr7JCTjKD9JrQLs38TYvzUeemCSYHOU0HaXL9Z0TKs+cs2kkX5Dm1CGmBCetCdz6AhjKuwg==
+X-Received: by 2002:a25:b228:0:b0:b92:2e22:aba5 with SMTP id i40-20020a25b228000000b00b922e22aba5mr17628224ybj.11.1683695321141;
+        Tue, 09 May 2023 22:08:41 -0700 (PDT)
 Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id k142-20020a252494000000b00b8bcaf1e660sm3553476ybk.4.2023.05.09.22.07.12
+        by smtp.gmail.com with ESMTPSA id 7-20020a250a07000000b00b9dcd17cc2dsm3512897ybk.46.2023.05.09.22.08.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 09 May 2023 22:07:15 -0700 (PDT)
-Date:   Tue, 9 May 2023 22:07:11 -0700 (PDT)
+        Tue, 09 May 2023 22:08:40 -0700 (PDT)
+Date:   Tue, 9 May 2023 22:08:37 -0700 (PDT)
 From:   Hugh Dickins <hughd@google.com>
 X-X-Sender: hugh@ripple.attlocal.net
 To:     Andrew Morton <akpm@linux-foundation.org>
@@ -84,9 +84,9 @@ cc:     Mike Kravetz <mike.kravetz@oracle.com>,
         linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
         linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: [PATCH 20/23] sparc: iounit and iommu use pte_offset_kernel()
+Subject: [PATCH 21/23] x86: Allow get_locked_pte() to fail
 In-Reply-To: <77a5d8c-406b-7068-4f17-23b7ac53bc83@google.com>
-Message-ID: <43c7b4b1-3719-93de-dc3e-33625fa2ad@google.com>
+Message-ID: <eba2b72f-2180-498b-c8bd-ce8f717fc78a@google.com>
 References: <77a5d8c-406b-7068-4f17-23b7ac53bc83@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -94,42 +94,31 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-iounit_alloc() and sbus_iommu_alloc() are working from pmd_off_k(),
-so should use pte_offset_kernel() instead of pte_offset_map(), to avoid
-the question of whether a pte_unmap() will be needed to balance.
+In rare transient cases, not yet made possible, pte_offset_map() and
+pte_offset_map_lock() may not find a page table: handle appropriately.
 
 Signed-off-by: Hugh Dickins <hughd@google.com>
 ---
- arch/sparc/mm/io-unit.c | 2 +-
- arch/sparc/mm/iommu.c   | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/kernel/ldt.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/sparc/mm/io-unit.c b/arch/sparc/mm/io-unit.c
-index bf3e6d2fe5d9..133dd42570d6 100644
---- a/arch/sparc/mm/io-unit.c
-+++ b/arch/sparc/mm/io-unit.c
-@@ -244,7 +244,7 @@ static void *iounit_alloc(struct device *dev, size_t len,
- 			long i;
+diff --git a/arch/x86/kernel/ldt.c b/arch/x86/kernel/ldt.c
+index 525876e7b9f4..eb844549cd83 100644
+--- a/arch/x86/kernel/ldt.c
++++ b/arch/x86/kernel/ldt.c
+@@ -367,8 +367,10 @@ static void unmap_ldt_struct(struct mm_struct *mm, struct ldt_struct *ldt)
  
- 			pmdp = pmd_off_k(addr);
--			ptep = pte_offset_map(pmdp, addr);
-+			ptep = pte_offset_kernel(pmdp, addr);
+ 		va = (unsigned long)ldt_slot_va(ldt->slot) + offset;
+ 		ptep = get_locked_pte(mm, va, &ptl);
+-		pte_clear(mm, va, ptep);
+-		pte_unmap_unlock(ptep, ptl);
++		if (ptep) {
++			pte_clear(mm, va, ptep);
++			pte_unmap_unlock(ptep, ptl);
++		}
+ 	}
  
- 			set_pte(ptep, mk_pte(virt_to_page(page), dvma_prot));
- 
-diff --git a/arch/sparc/mm/iommu.c b/arch/sparc/mm/iommu.c
-index 9e3f6933ca13..3a6caef68348 100644
---- a/arch/sparc/mm/iommu.c
-+++ b/arch/sparc/mm/iommu.c
-@@ -358,7 +358,7 @@ static void *sbus_iommu_alloc(struct device *dev, size_t len,
- 				__flush_page_to_ram(page);
- 
- 			pmdp = pmd_off_k(addr);
--			ptep = pte_offset_map(pmdp, addr);
-+			ptep = pte_offset_kernel(pmdp, addr);
- 
- 			set_pte(ptep, mk_pte(virt_to_page(page), dvma_prot));
- 		}
+ 	va = (unsigned long)ldt_slot_va(ldt->slot);
 -- 
 2.35.3
 
