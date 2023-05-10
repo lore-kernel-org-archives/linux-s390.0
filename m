@@ -2,94 +2,74 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B3DAC7EE22
-	for <linux-s390@archiver.kernel.org>; Wed, 10 May 2023 11:26:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 72FCAC77B7D
+	for <linux-s390@archiver.kernel.org>; Wed, 10 May 2023 11:59:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236562AbjEJL0M (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 10 May 2023 07:26:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50782 "EHLO
+        id S231355AbjEJL7u (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 10 May 2023 07:59:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236593AbjEJL0L (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 10 May 2023 07:26:11 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 396002106;
-        Wed, 10 May 2023 04:25:46 -0700 (PDT)
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34AAk2PU001549;
-        Wed, 10 May 2023 11:25:29 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
- mime-version : content-transfer-encoding : in-reply-to : references :
- subject : cc : from : to : message-id : date; s=pp1;
- bh=q1R4mEtQeMDGLr2aLQfFePWMwckIQGipG8ez7ud6qSE=;
- b=Efcj5/+/hXvONFRjya7+8Pi5gDblVX8uHua8zeQpJeZ0fylPHUqztkCOI+HnTgzsvUkc
- OwROllzPEz0DXNiVDclCuPcC1nfjSjkW9y3ewH79JU4lp5xGdLIUmDNrfVvRP1lVQoOz
- SsNvPls89uCxXNSv8M5e1V1ErFK0fj1uPtTWcpBLiY7PdQ4tmui3cnoB3NdzR0uUDPfg
- TSpTX9r8VOf2JTolmU/TyrIEiAOMZ2SJDHacwlpbpH3Yy27Yq7WnBUlJgVMsbhOKVVHF
- rzbFRPNsSnQ3vuxelsf221l7jKfKiF8xhuXLKS3DIFM8+eMl13s/mImmn2qkU1KRizvu MQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qg8h0ufcw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 10 May 2023 11:25:28 +0000
-Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34ABKgTu009053;
-        Wed, 10 May 2023 11:25:28 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qg8h0ufc1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 10 May 2023 11:25:27 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34A22T0w018146;
-        Wed, 10 May 2023 11:25:25 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma03fra.de.ibm.com (PPS) with ESMTPS id 3qf7s8gtvc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 10 May 2023 11:25:25 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34ABPMiR28639898
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 10 May 2023 11:25:22 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E8B782005A;
-        Wed, 10 May 2023 11:25:21 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C42FE2004F;
-        Wed, 10 May 2023 11:25:21 +0000 (GMT)
-Received: from t14-nrb (unknown [9.179.13.202])
-        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 10 May 2023 11:25:21 +0000 (GMT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S236713AbjEJL7t (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 10 May 2023 07:59:49 -0400
+Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32D0135AE;
+        Wed, 10 May 2023 04:59:47 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R581e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0ViFwRe._1683719981;
+Received: from 30.221.130.59(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0ViFwRe._1683719981)
+          by smtp.aliyun-inc.com;
+          Wed, 10 May 2023 19:59:43 +0800
+Message-ID: <663cccbd-e757-1156-4ee9-9f9c45a61005@linux.alibaba.com>
+Date:   Wed, 10 May 2023 19:59:41 +0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20230502130732.147210-10-frankja@linux.ibm.com>
-References: <20230502130732.147210-1-frankja@linux.ibm.com> <20230502130732.147210-10-frankja@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v3 9/9] s390x: uv-host: Add the test to unittests.conf
-Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        thuth@redhat.com, david@redhat.com
-From:   Nico Boehr <nrb@linux.ibm.com>
-To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Message-ID: <168371792147.331309.16041554277606266474@t14-nrb>
-User-Agent: alot/0.8.1
-Date:   Wed, 10 May 2023 13:25:21 +0200
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: djONNIzdvYXAQ2TMkCtmgbUhk58tz3Do
-X-Proofpoint-GUID: VwZrhVUC6W6QSZ0tNbDgmiMLrmkFiPDx
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-05-10_04,2023-05-05_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 clxscore=1015
- malwarescore=0 phishscore=0 adultscore=0 mlxlogscore=999 impostorscore=0
- lowpriorityscore=0 priorityscore=1501 bulkscore=0 suspectscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2304280000 definitions=main-2305100088
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.8.0
+Subject: Re: [RFC PATCH net-next v5 0/9] net/smc: Introduce SMC-D-based OS
+ internal communication acceleration
+To:     Jan Karcher <jaka@linux.ibm.com>, kgraul@linux.ibm.com,
+        wenjia@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Alexandra Winter <wintera@linux.ibm.com>
+References: <1682252271-2544-1-git-send-email-guwen@linux.alibaba.com>
+ <1297b2c6-00c2-adc9-3abe-af12471e2838@linux.alibaba.com>
+ <347c15c2-c18d-4823-3177-abaeb394c772@linux.ibm.com>
+From:   Wen Gu <guwen@linux.alibaba.com>
+In-Reply-To: <347c15c2-c18d-4823-3177-abaeb394c772@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Quoting Janosch Frank (2023-05-02 15:07:32)
-> Better to skip than to not run it at all.
->=20
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 
-Yes, that's a good idea.
 
-Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
+On 2023/5/10 17:56, Jan Karcher wrote:
+
+> On 10/05/2023 04:02, Wen Gu wrote:
+>> Hi Wenjia & Jan:
+>>
+>> Does this version work fine on your platform?
+>>
+>> And any comments on this version? :)
+> 
+> Hi Wen Gu,
+> 
+> as background for the others: IBM & Alibaba are having calls regarding SMC since Alibaba shows a lot of interest and 
+> there is a lot to discuss (as you may have noticed).
+> 
+> As we have agreed in our calls, the information shared about SMC-D in specific doesn't make it easy to understand the 
+> underlying concepts (e.g. role of GID, EIDs, DMB tokens, etc.).
+> That's why one of the next calls is dedicated to explain some of the concepts in depth to you and see where we can 
+> improve our flow of information to the community in the future.
+> After that we can go over this RFC with a shared understanding of the concepts.
+> 
+> Thank you
+> - Jan
+> 
+
+OK, Jan, Let's follow this plan and thank you for organizing this.
+
+Thanks,
+Wen Gu
+
