@@ -2,130 +2,119 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C2C6C7EE2D
-	for <linux-s390@archiver.kernel.org>; Wed, 10 May 2023 08:21:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 940D8C77B7C
+	for <linux-s390@archiver.kernel.org>; Wed, 10 May 2023 08:52:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236273AbjEJIV4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 10 May 2023 04:21:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37348 "EHLO
+        id S236882AbjEJIwt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 10 May 2023 04:52:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229893AbjEJIVz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 10 May 2023 04:21:55 -0400
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B8DB171B;
-        Wed, 10 May 2023 01:21:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=1WZCLagr9yk4Cbp+6qSxxsSMmqvOctxqT3bVkNGFhnY=; b=CzmDvf3rqlZoWLTgd3FVOKNA13
-        am3KRsvw5dx0zZtORpSkeQixmHm2I0T/j68VXo57hz3B2sKfsZlkzT6mcIfsGM8QExy3tEBmFQg15
-        5knvERiYGPZKMBkmsOAK/iQ/5rtOFvAqMTYH7nFMXqdqWWfvmHjqNDYraw79BjtqAXxEKvC5IXPLi
-        v4WkUXSf6SdYO2DxNqGoNj/9jzwXI/RVqLwvIK8H89K9xhFYfEkKkPofOod7rLsPcDYQd4FB4I+bb
-        ncPfZdYjPCu8FZ1ut2ZqCkZjLMrUhqEHRkvEROX3xUgFItRMwb3mnY6amim7reKFoxZZ2cjlGh5hD
-        cm+pskqQ==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
-        by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
-        id 1pwf2E-007PM8-2r;
-        Wed, 10 May 2023 08:20:55 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits))
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 4DA20300338;
-        Wed, 10 May 2023 10:18:48 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 2369E20B04BA2; Wed, 10 May 2023 10:18:48 +0200 (CEST)
-Date:   Wed, 10 May 2023 10:18:48 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Hugh Dickins <hughd@google.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        David Hildenbrand <david@redhat.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Qi Zheng <zhengqi.arch@bytedance.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Greg Ungerer <gerg@linux-m68k.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Helge Deller <deller@gmx.de>,
-        John David Anglin <dave.anglin@bell.net>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Alexandre Ghiti <alexghiti@rivosinc.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Chris Zankel <chris@zankel.net>,
-        Max Filippov <jcmvbkbc@gmail.com>, x86@kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
-        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH 21/23] x86: Allow get_locked_pte() to fail
-Message-ID: <20230510081848.GD83892@hirez.programming.kicks-ass.net>
-References: <77a5d8c-406b-7068-4f17-23b7ac53bc83@google.com>
- <eba2b72f-2180-498b-c8bd-ce8f717fc78a@google.com>
+        with ESMTP id S236831AbjEJIwa (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 10 May 2023 04:52:30 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 549FA44A7;
+        Wed, 10 May 2023 01:52:00 -0700 (PDT)
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34A8lvnx009562;
+        Wed, 10 May 2023 08:52:00 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
+ mime-version : content-transfer-encoding : in-reply-to : references :
+ subject : cc : from : to : message-id : date; s=pp1;
+ bh=1TZ3Wlt8MKcNfVfjPSiMXTrV57SRF9nR/yTXY7RFihE=;
+ b=ANpYY2/bD5NBCOLYErICaXRw9PAxhsYGRHA6xgeJTsO9KMRgqHUWEgIx2nNp52bgFgif
+ L6I70FYG6doY/NiH3yD5LvGtZOmZEiM8elQWpJcDHS+iGOi4Ff+xqIqmXWaCEwMMfgKY
+ mfldrsbkAeIPl2a6CT7gk5e3OgdoQusYVefJoD1+sdPc1vPm+QuB9iiaviJpuh7IgBRP
+ HN/dBEZAeNrj4uR6hW51l6bxwpiLI3jWLW8z8l5S1bp01bmKDuvfgq54gAooNGiim+qq
+ A9aPXeJKp44kcEDNi9SzXW1bBiQlQy17LqwKNKva5vBR0AURb/xCNTnUyWI3/7KO7o0M QA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qg82v01ww-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 10 May 2023 08:51:59 +0000
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34A8pI2V017916;
+        Wed, 10 May 2023 08:51:59 GMT
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qg82v01vs-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 10 May 2023 08:51:59 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34A7oNR1021796;
+        Wed, 10 May 2023 08:51:56 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma05fra.de.ibm.com (PPS) with ESMTPS id 3qf7mhgru7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 10 May 2023 08:51:56 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34A8priF28377754
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 10 May 2023 08:51:53 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 142C820043;
+        Wed, 10 May 2023 08:51:53 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DFDF420040;
+        Wed, 10 May 2023 08:51:52 +0000 (GMT)
+Received: from t14-nrb (unknown [9.179.13.202])
+        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 10 May 2023 08:51:52 +0000 (GMT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <eba2b72f-2180-498b-c8bd-ce8f717fc78a@google.com>
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20230502130732.147210-2-frankja@linux.ibm.com>
+References: <20230502130732.147210-1-frankja@linux.ibm.com> <20230502130732.147210-2-frankja@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v3 1/9] s390x: uv-host: Fix UV init test memory allocation
+Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        thuth@redhat.com, david@redhat.com
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Message-ID: <168370871258.331309.6187452257634029708@t14-nrb>
+User-Agent: alot/0.8.1
+Date:   Wed, 10 May 2023 10:51:52 +0200
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: rY5d2WemKCMXqOoPsjAbwBg8JVvuHPFf
+X-Proofpoint-GUID: Qqjqcvikz9lOHwqB-DhXjFfc8IA3ABAH
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-05-10_04,2023-05-05_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 malwarescore=0
+ spamscore=0 suspectscore=0 mlxlogscore=999 phishscore=0 impostorscore=0
+ mlxscore=0 clxscore=1015 lowpriorityscore=0 adultscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2304280000 definitions=main-2305100065
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, May 09, 2023 at 10:08:37PM -0700, Hugh Dickins wrote:
-> In rare transient cases, not yet made possible, pte_offset_map() and
-> pte_offset_map_lock() may not find a page table: handle appropriately.
-> 
-> Signed-off-by: Hugh Dickins <hughd@google.com>
-> ---
->  arch/x86/kernel/ldt.c | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
-> 
-> diff --git a/arch/x86/kernel/ldt.c b/arch/x86/kernel/ldt.c
-> index 525876e7b9f4..eb844549cd83 100644
-> --- a/arch/x86/kernel/ldt.c
-> +++ b/arch/x86/kernel/ldt.c
-> @@ -367,8 +367,10 @@ static void unmap_ldt_struct(struct mm_struct *mm, struct ldt_struct *ldt)
->  
->  		va = (unsigned long)ldt_slot_va(ldt->slot) + offset;
->  		ptep = get_locked_pte(mm, va, &ptl);
-> -		pte_clear(mm, va, ptep);
-> -		pte_unmap_unlock(ptep, ptl);
-> +		if (ptep) {
-> +			pte_clear(mm, va, ptep);
-> +			pte_unmap_unlock(ptep, ptl);
-> +		}
->  	}
+Quoting Janosch Frank (2023-05-02 15:07:24)
+> The init memory has to be above 2G and 1M aligned but we're currently
+> aligning on 2G which means the allocations need a lot of unused
+> memory.
 
-Ow geez, now I have to go remember how the whole PTI/LDT crud worked :/
+I know I already gave my R-b here, but...
 
-At first glance this seems wrong; we can't just not unmap the LDT if we
-can't find it in a hurry. Also, IIRC this isn't in fact a regular user
-mapping, so it should not be subject to THP induced seizures.
+> diff --git a/s390x/uv-host.c b/s390x/uv-host.c
+> index 33e6eec6..9dfaebd7 100644
+> --- a/s390x/uv-host.c
+> +++ b/s390x/uv-host.c
+> @@ -500,14 +500,17 @@ static void test_config_create(void)
+>  static void test_init(void)
+>  {
+>         int rc;
+> -       uint64_t mem;
+> +       uint64_t tmp;
+> =20
+> -       /* Donated storage needs to be over 2GB */
+> -       mem =3D (uint64_t)memalign_pages_flags(SZ_1M, uvcb_qui.uv_base_st=
+or_len, AREA_NORMAL);
 
-... memory bubbles back ... for PTI kernels we need to map this in the
-user and kernel page-tables because obviously userspace needs to be able
-to have access to the LDT. But it is not directly acessible by
-userspace. It lives in the cpu_entry_area as a virtual map of the real
-kernel allocation, and this virtual address is used for LLDT.
-Modification is done through sys_modify_ldt().
+...maybe out of coffee, but can you point me to the place where we're align=
+ing
+to 2G here? I only see alignment to 1M and your change only seems to rename
+mem to tmp:
 
-I think I would feel much better if this were something like:
-
-	if (!WARN_ON_ONCE(!ptep))
-
-This really shouldn't fail and if it does, simply skipping it isn't the
-right thing either.
+> +       /*
+> +        * Donated storage needs to be over 2GB, AREA_NORMAL does that
+> +        * on s390x.
+> +        */
+> +       tmp =3D (uint64_t)memalign_pages_flags(SZ_1M, uvcb_qui.uv_base_st=
+or_len, AREA_NORMAL);
