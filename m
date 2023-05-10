@@ -2,96 +2,95 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 90E5CC77B7D
-	for <linux-s390@archiver.kernel.org>; Wed, 10 May 2023 07:37:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 357F3C77B7D
+	for <linux-s390@archiver.kernel.org>; Wed, 10 May 2023 07:59:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229571AbjEJHhJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 10 May 2023 03:37:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34310 "EHLO
+        id S236461AbjEJH66 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 10 May 2023 03:58:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235765AbjEJHhH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 10 May 2023 03:37:07 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 578E110D;
-        Wed, 10 May 2023 00:37:05 -0700 (PDT)
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34A7b4gV010729;
-        Wed, 10 May 2023 07:37:04 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
- mime-version : content-transfer-encoding : in-reply-to : references : to :
- subject : from : cc : message-id : date; s=pp1;
- bh=VinL25yhB+0mcUxzrX4pOewXvielqH2Fz0eWxx+Mq5c=;
- b=b4ejDkA4VxK0jgNzHTzJp6NHBo/h4K1fNO57BfbyMRBnoKK91CMiatt+bQUD+Qz9DCma
- pErsI2UZHABa02LTUK/5DmbYg3lDxkSX4+ZIF//VuizBwZwhpxv05R2qhoa8G/6VOYJx
- m3Mj/AQ36lG6bFc+fGw1fgcsuBAhGJGdgpFMLTPuBXa+ggenRbWuRLf5q7xH9sd4Atln
- il9pxptf4HjB+4JzBJUMdkDUF9ZJwRjO4RQnYqHRC9dJsx9GVkqLjuQ1r3ePeTtjelDJ
- Qgxt9sSTFJ6nXqCEkbgofuiXWYFRZsQ0uN60VFuJsbaiiGRwaAQzzUrzopmvUAwK8PPX Ug== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qg6s8rdej-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 10 May 2023 07:37:04 +0000
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34A7K4VC014664;
-        Wed, 10 May 2023 07:37:03 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qg6s8rc3q-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 10 May 2023 07:37:03 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34A3GxRV017028;
-        Wed, 10 May 2023 07:32:36 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3qf896rvw2-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 10 May 2023 07:32:36 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34A7WXlf65012102
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 10 May 2023 07:32:33 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4360520040;
-        Wed, 10 May 2023 07:32:33 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 26B6220043;
-        Wed, 10 May 2023 07:32:33 +0000 (GMT)
-Received: from t14-nrb (unknown [9.171.76.41])
-        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 10 May 2023 07:32:33 +0000 (GMT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S236207AbjEJH64 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 10 May 2023 03:58:56 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F87DDE;
+        Wed, 10 May 2023 00:58:55 -0700 (PDT)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out2.suse.de (Postfix) with ESMTP id 1EBAC1F388;
+        Wed, 10 May 2023 07:58:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1683705534; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=T06RMDj39gQfDe4f9XSCb72BIGFfA58STfsWWVeFeM4=;
+        b=ak3e9SQEJZT4WXcnpGYykh1nJYqRLsEh+4hNqfrnDxepqVa/CR2FQtu93O78KfbpHPEmhp
+        TUmRaEakKEBTGTfvnfrB9vK51JPWEmivQzLwhcleN93l74RD53mmo4HPSr3BolZqlwtrid
+        pvDMEVTJxq2JgsHk5NcaoaDGgPCjhiw=
+Received: from suse.cz (dhcp129.suse.cz [10.100.51.129])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id BEA4F2C141;
+        Wed, 10 May 2023 07:58:51 +0000 (UTC)
+Date:   Wed, 10 May 2023 09:58:51 +0200
+From:   Petr Mladek <pmladek@suse.com>
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     bigeasy@linutronix.de, mark.rutland@arm.com, maz@kernel.org,
+        catalin.marinas@arm.com, will@kernel.org, chenhuacai@kernel.org,
+        kernel@xen0n.name, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, pbonzini@redhat.com, wanpengli@tencent.com,
+        vkuznets@redhat.com, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+        hpa@zytor.com, jgross@suse.com, boris.ostrovsky@oracle.com,
+        daniel.lezcano@linaro.org, kys@microsoft.com,
+        haiyangz@microsoft.com, wei.liu@kernel.org, decui@microsoft.com,
+        rafael@kernel.org, longman@redhat.com, boqun.feng@gmail.com,
+        senozhatsky@chromium.org, rostedt@goodmis.org,
+        john.ogness@linutronix.de, juri.lelli@redhat.com,
+        vincent.guittot@linaro.org, dietmar.eggemann@arm.com,
+        bsegall@google.com, mgorman@suse.de, bristot@redhat.com,
+        vschneid@redhat.com, jstultz@google.com, sboyd@kernel.org,
+        linux-kernel@vger.kernel.org, loongarch@lists.linux.dev,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        linux-hyperv@vger.kernel.org, linux-pm@vger.kernel.org
+Subject: Re: [RFC][PATCH 1/9] seqlock/latch: Provide
+ raw_read_seqcount_latch_retry()
+Message-ID: <ZFtOu5dypMeWW9ax@alley>
+References: <20230508211951.901961964@infradead.org>
+ <20230508213147.448097252@infradead.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20230502115931.86280-7-frankja@linux.ibm.com>
-References: <20230502115931.86280-1-frankja@linux.ibm.com> <20230502115931.86280-7-frankja@linux.ibm.com>
-To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Subject: Re: [kvm-unit-tests PATCH v4 6/7] s390x: pv: Add IPL reset tests
-From:   Nico Boehr <nrb@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        thuth@redhat.com, david@redhat.com
-Message-ID: <168370395264.357872.2965402314069250128@t14-nrb>
-User-Agent: alot/0.8.1
-Date:   Wed, 10 May 2023 09:32:32 +0200
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: snsgWStzZO9vyi35Q0metlEq69evc-OO
-X-Proofpoint-ORIG-GUID: V6x9_h08JKxn3o9pGV7vAGbShxotcOWJ
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-05-10_04,2023-05-05_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- lowpriorityscore=0 suspectscore=0 bulkscore=0 phishscore=0 mlxscore=0
- spamscore=0 priorityscore=1501 clxscore=1015 mlxlogscore=999
- malwarescore=0 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2304280000 definitions=main-2305100059
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230508213147.448097252@infradead.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Quoting Janosch Frank (2023-05-02 13:59:30)
-> The diag308 requires extensive cooperation between the hypervisor and
-> the Ultravisor so the Ultravisor can make sure all necessary reset
-> steps have been done.
->=20
-> Let's check if we get the correct validity errors.
->=20
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+On Mon 2023-05-08 23:19:52, Peter Zijlstra wrote:
+> The read side of seqcount_latch consists of:
+> 
+>   do {
+>     seq = raw_read_seqcount_latch(&latch->seq);
+>     ...
+>   } while (read_seqcount_latch_retry(&latch->seq, seq));
+> 
+> which is asymmetric in the raw_ department, and sure enough,
+> read_seqcount_latch_retry() includes (explicit) instrumentation where
+> raw_read_seqcount_latch() does not.
+> 
+> This inconsistency becomes a problem when trying to use it from
+> noinstr code. As such, fix it by renaming and re-implementing
+> raw_read_seqcount_latch_retry() without the instrumentation.
+> 
+> Specifically the instrumentation in question is kcsan_atomic_next(0)
+> in do___read_seqcount_retry(). Loosing this annotation is not a
+> problem because raw_read_seqcount_latch() does not pass through
+> kcsan_atomic_next(KCSAN_SEQLOCK_REGION_MAX).
+> 
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 
-Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
+Makes sense:
+
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+
+Best Regards,
+Petr
