@@ -2,225 +2,215 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D5133C7EE22
-	for <linux-s390@archiver.kernel.org>; Wed, 10 May 2023 02:02:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 20299C7EE2D
+	for <linux-s390@archiver.kernel.org>; Wed, 10 May 2023 04:39:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230119AbjEJCCf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 9 May 2023 22:02:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36444 "EHLO
+        id S235006AbjEJEjc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 10 May 2023 00:39:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229734AbjEJCCd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 9 May 2023 22:02:33 -0400
-Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12CE63ABA;
-        Tue,  9 May 2023 19:02:30 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R891e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0ViDXbKF_1683684146;
-Received: from 30.221.130.59(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0ViDXbKF_1683684146)
-          by smtp.aliyun-inc.com;
-          Wed, 10 May 2023 10:02:27 +0800
-Message-ID: <1297b2c6-00c2-adc9-3abe-af12471e2838@linux.alibaba.com>
-Date:   Wed, 10 May 2023 10:02:26 +0800
+        with ESMTP id S235356AbjEJEja (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 10 May 2023 00:39:30 -0400
+Received: from mail-yw1-x1132.google.com (mail-yw1-x1132.google.com [IPv6:2607:f8b0:4864:20::1132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F270C4230
+        for <linux-s390@vger.kernel.org>; Tue,  9 May 2023 21:39:26 -0700 (PDT)
+Received: by mail-yw1-x1132.google.com with SMTP id 00721157ae682-55d2e87048cso100411737b3.1
+        for <linux-s390@vger.kernel.org>; Tue, 09 May 2023 21:39:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20221208; t=1683693566; x=1686285566;
+        h=mime-version:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=pNtnMqwecxgAyJiNrU/av2u9SKsTTnkqGeLPsFfUGRY=;
+        b=cNF0lopRgs5z+paNDd47dgtG8TBjwZyJSBqFjK6ksHmrX2HqmLMYrrKsDdWDE4galp
+         I1RIa58CxJ4eWJPHfaXHtCDPLpNhfN/aCMBSDVyVUdoFoZEKW8H5uRAddSBQuOjqxl6G
+         cijgVp5qOvAn/BuT5Kj3i7X1ZHy6xq4kMM1JJiMLi60Voi2WzpeuiP4d77oQFZQJJTpA
+         DHkrQmjDtXwQxtNqUbLbFtn/koUU8sha9n5T/jPfXiKq7pKvhvnWuqWej7kSJ3OgTY5v
+         znwXH+YUrN8s6GiaQCUoDOK5c9Mq29M3c3H1/3qfehC4bHIrJ+vibMAeHVK8iG01ICVy
+         zeRA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1683693566; x=1686285566;
+        h=mime-version:message-id:subject:cc:to:from:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=pNtnMqwecxgAyJiNrU/av2u9SKsTTnkqGeLPsFfUGRY=;
+        b=AaGzl2YG0+xC1lB98LOd3pFx/COAMwQrRH0uyI/m9NETwtBmoLAUdv4lqvecNBeJmQ
+         WVMkm7rkC6eJmv8vlsudNA9Av4huMNJEM7bZWVw5nZ8h1ujmmFtS45/CEIo6qhmnxT9z
+         JXBBJu2STVnwq0H1GC4ij+tFi4nYNIpcmU5y1imzv15A/dA/L7nZhzVwZc4YUmjKg38b
+         j0yBIJhBhOo6FuoY/Nm1gsU7x4EYlpbTsvLop/TgWjhm9rJD5U7CwqEGFngrhOzqSsof
+         bYYQAZ2P0q1c5hs93NuUL0lwZQoPHUOXEaD7k+aZOfuEiuMKIxvt7s6isHtH1XYk4iLf
+         Ft/g==
+X-Gm-Message-State: AC+VfDyK+fASxda7YoRzCOf02G1f5aZH1fKoPEu+wTaZVtQXEqUwvYLb
+        SXSrUbUldvlGcjT6ZrDL6/ftXA==
+X-Google-Smtp-Source: ACHHUZ4tMEgG7AqlQIxMPNzAEIonGfK8+PPQUmJOyuPgdF6IMlPRJRM0QpGl7CYyO+0nNXPmO2L3jg==
+X-Received: by 2002:a0d:cc0b:0:b0:55a:9b56:acee with SMTP id o11-20020a0dcc0b000000b0055a9b56aceemr18605566ywd.38.1683693565918;
+        Tue, 09 May 2023 21:39:25 -0700 (PDT)
+Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
+        by smtp.gmail.com with ESMTPSA id i185-20020a816dc2000000b0055d5c626be5sm3775822ywc.26.2023.05.09.21.39.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 09 May 2023 21:39:25 -0700 (PDT)
+Date:   Tue, 9 May 2023 21:39:13 -0700 (PDT)
+From:   Hugh Dickins <hughd@google.com>
+X-X-Sender: hugh@ripple.attlocal.net
+To:     Andrew Morton <akpm@linux-foundation.org>
+cc:     Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        David Hildenbrand <david@redhat.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Qi Zheng <zhengqi.arch@bytedance.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Greg Ungerer <gerg@linux-m68k.org>,
+        Michal Simek <monstr@monstr.eu>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Helge Deller <deller@gmx.de>,
+        John David Anglin <dave.anglin@bell.net>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Alexandre Ghiti <alexghiti@rivosinc.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        Chris Zankel <chris@zankel.net>,
+        Max Filippov <jcmvbkbc@gmail.com>, x86@kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: [PATCH 00/23] arch: allow pte_offset_map[_lock]() to fail
+Message-ID: <77a5d8c-406b-7068-4f17-23b7ac53bc83@google.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.8.0
-Subject: Re: [RFC PATCH net-next v5 0/9] net/smc: Introduce SMC-D-based OS
- internal communication acceleration
-From:   Wen Gu <guwen@linux.alibaba.com>
-To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Alexandra Winter <wintera@linux.ibm.com>
-References: <1682252271-2544-1-git-send-email-guwen@linux.alibaba.com>
-In-Reply-To: <1682252271-2544-1-git-send-email-guwen@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Wenjia & Jan:
+Here is a series of patches to various architectures, based on v6.4-rc1:
+preparing for changes expected to follow in mm, affecting pte_offset_map()
+and pte_offset_map_lock().
 
-Does this version work fine on your platform?
+In a week or two, I intend to post a separate series, of equivalent
+preparations in mm.  These two series are "independent": neither depends
+for build or correctness on the other, and the arch patches can be merged
+separately via arch trees (stragglers picked up by akpm?); but both series
+have to be in before a third series is added to make the effective changes
+(and that will add a just a little more in powerpc, s390 and sparc).
 
-And any comments on this version? :)
+What is it all about?  Some mmap_lock avoidance i.e. latency reduction.
+Initially just for the case of collapsing shmem or file pages to THPs;
+but likely to be relied upon later in other contexts e.g. freeing of
+empty page tables (but that's not work I'm doing).  mmap_write_lock
+avoidance when collapsing to anon THPs?  Perhaps, but again that's not
+work I've done: a quick and easy attempt looked like it was going to
+shift the load from mmap rwsem to pmd spinlock - not an improvement.
 
+I would much prefer not to have to make these small but wide-ranging
+changes for such a niche case; but failed to find another way, and
+have heard that shmem MADV_COLLAPSE's usefulness is being limited by
+that mmap_write_lock it currently requires.
 
-Best regards,
-Wen Gu
+These changes (though of course not these exact patches, and not all
+of these architectures!) have been in Google's data centre kernel for
+three years now: we do rely upon them.
 
+What are the per-arch changes about?  Generally, two things.
 
-On 2023/4/23 20:17, Wen Gu wrote:
+One: the current mmap locking may not be enough to guard against that
+tricky transition between pmd entry pointing to page table, and empty
+pmd entry, and pmd entry pointing to huge page: pte_offset_map() will
+have to validate the pmd entry for itself, returning NULL if no page
+table is there.  What to do about that varies: often the nearby error
+handling indicates just to skip it; but in some cases a "goto again"
+looks appropriate (and if that risks an infinite loop, then there
+must have been an oops, or pfn 0 mistaken for page table, before).
 
-> Hi, all
-> 
-> # Background
-> 
-> The background and previous discussion can be referred from [1]~[3].
-> 
-> We found SMC-D can be used to accelerate OS internal communication, such as
-> loopback or between two containers within the same OS instance. So this patch
-> set provides a kind of SMC-D dummy device (we call it the SMC-D loopback device)
-> to emulate an ISM device, so that SMC-D can also be used on architectures
-> other than s390. The SMC-D loopback device are designed as a system global
-> device, visible to all containers.
-> 
-> # Design
-> 
-> This patch set basically follows the design of the previous version.
-> 
-> Patch #1/9 ~ #3/9 attempt to decouple ISM-related structures from the SMC-D
-> generalized code and extract some helpers to make SMC-D protocol compatible
-> with devices other than s390 ISM device.
-> 
-> Patch #4/9 introduces a kind of loopback device, which is defined as SMC-Dv2
-> device and designed to provide communication between SMC sockets on the same
-> OS instance.
-> 
->   +-------------------------------------------+
->   |  +--------------+       +--------------+  |
->   |  | SMC socket A |       | SMC socket B |  |
->   |  +--------------+       +--------------+  |
->   |       ^                         ^         |
->   |       |    +----------------+   |         |
->   |       |    |   SMC stack    |   |         |
->   |       +--->| +------------+ |<--|         |
->   |            | |   dummy    | |             |
->   |            | |   device   | |             |
->   |            +-+------------+-+             |
->   |                   OS                      |
->   +-------------------------------------------+
-> 
-> Patch #5/9 ~ #8/9 expand SMC-D protocol interface (smcd_ops) for scenarios where
-> SMC-D is used to communicate within VM (loopback here) or between VMs on the same
-> host (based on virtio-ism device, see [4]). What these scenarios have in common
-> is that the local sndbuf and peer RMB can be mapped to same physical memory region,
-> so the data copy between the local sndbuf and peer RMB can be omitted. Performance
-> improvement brought by this extension can be found in # Benchmark Test.
-> 
->   +----------+                     +----------+
->   | socket A |                     | socket B |
->   +----------+                     +----------+
->         |                               ^
->         |         +---------+           |
->    regard as      |         | ----------|
->    local sndbuf   |  B's    |     regard as
->         |         |  RMB    |     local RMB
->         |-------> |         |
->                   +---------+
-> 
-> Patch #9/9 realizes the support of loopback device for the above-mentioned expanded
-> SMC-D protocol interface.
-> 
-> # Benchmark Test
-> 
->   * Test environments:
->        - VM with Intel Xeon Platinum 8 core 2.50GHz, 16 GiB mem.
->        - SMC sndbuf/RMB size 1MB.
-> 
->   * Test object:
->        - TCP lo: run on TCP loopback.
->        - domain: run on UNIX domain.
->        - SMC lo: run on SMC loopback device with patch #1/9 ~ #4/9.
->        - SMC lo-nocpy: run on SMC loopback device with patch #1/9 ~ #9/9.
-> 
-> 1. ipc-benchmark (see [5])
-> 
->   - ./<foo> -c 1000000 -s 100
-> 
->                      TCP-lo              domain              SMC-lo          SMC-lo-nocpy
-> Message
-> rate (msg/s)         79025      115736(+46.45%)    146760(+85.71%)       149800(+89.56%)
-> 
-> 2. sockperf
-> 
->   - serv: <smc_run> taskset -c <cpu> sockperf sr --tcp
->   - clnt: <smc_run> taskset -c <cpu> sockperf { tp | pp } --tcp --msg-size={ 64000 for tp | 14 for pp } -i 127.0.0.1 -t 30
-> 
->                      TCP-lo                  SMC-lo             SMC-lo-nocpy
-> Bandwidth(MBps)   4822.388        4940.918(+2.56%)         8086.67(+67.69%)
-> Latency(us)          6.298          3.352(-46.78%)            3.35(-46.81%)
-> 
-> 3. iperf3
-> 
->   - serv: <smc_run> taskset -c <cpu> iperf3 -s
->   - clnt: <smc_run> taskset -c <cpu> iperf3 -c 127.0.0.1 -t 15
-> 
->                      TCP-lo                  SMC-lo             SMC-lo-nocpy
-> Bitrate(Gb/s)         40.7            40.5(-0.49%)            72.4(+77.89%)
-> 
-> 4. nginx/wrk
-> 
->   - serv: <smc_run> nginx
->   - clnt: <smc_run> wrk -t 8 -c 500 -d 30 http://127.0.0.1:80
-> 
->                      TCP-lo                  SMC-lo             SMC-lo-nocpy
-> Requests/s       155994.57      214544.79(+37.53%)       215538.55(+38.17%)
-> 
-> 
-> v5->v4
->   1. The loopback device generates SEID in the same way as the ISM devices when coexisting
->      with ISM devices and uses a default fixed SEID in other cases.
->   2. Ensure each DMB token of the same loopback device is unique.
->   3. Fixe a crash caused by setting smcd_ops->signal_event interface to NULL.
->   4. Fixe a compilation warning complained by kernel test rebot.
-> 
-> v4->v3
->   1. Rebase to the latest net-next;
->   2. Introduce SEID helper. SMC-D loopback will return SMCD_DEFAULT_V2_SEID. And if it
->      coexist with ISM device, the SEID of ISM device will overwrite SMCD_DEFAULT_V2_SEID
->      as smc_ism_v2_system_eid.
->   3. Won't remove dmb_node from hashtable until no sndbuf attaching to it.
-> 
->   Something postponed in this version
->   1. Hierarchy perference of SMC-D devices when loopback and ISM devices coexist, which
->      will be determinated after comparing the performance of loopback and ISM.
-> 
-> v3->v2
->   1. Adapt new generalized interface provided by [2];
->   2. Select loopback device through SMC-D v2 protocol;
->   3. Split the loopback-related implementation and generic implementation into different
->      patches more reasonably.
-> 
-> v1->v2
->   1. Fix some build WARNINGs complained by kernel test rebot
->      Reported-by: kernel test robot <lkp@intel.com>
->   2. Add iperf3 test data.
-> 
-> 
-> [1] https://lore.kernel.org/netdev/1671506505-104676-1-git-send-email-guwen@linux.alibaba.com/
-> [2] https://lore.kernel.org/netdev/1676477905-88043-1-git-send-email-guwen@linux.alibaba.com/
-> [3] https://lore.kernel.org/netdev/1679887699-54797-1-git-send-email-guwen@linux.alibaba.com/
-> [4] https://lore.kernel.org/all/20230209033056.96657-1-xuanzhuo@linux.alibaba.com/
-> [5] https://github.com/goldsborough/ipc-bench
-> 
-> 
-> 
-> Wen Gu (9):
->    net/smc: Decouple ism_dev from SMC-D device dump
->    net/smc: Decouple ism_dev from SMC-D DMB registration
->    net/smc: Extract v2 check helper from SMC-D device registration
->    net/smc: Introduce SMC-D loopback device
->    net/smc: Introduce an interface for getting DMB attribute
->    net/smc: Introudce interfaces for DMB attach and detach
->    net/smc: Avoid data copy from sndbuf to peer RMB in SMC-D
->    net/smc: Modify cursor update logic when using mappable DMB
->    net/smc: Add interface implementation of loopback device
-> 
->   drivers/s390/net/ism_drv.c |   5 +-
->   include/net/smc.h          |  18 +-
->   net/smc/Makefile           |   2 +-
->   net/smc/af_smc.c           |  26 ++-
->   net/smc/smc_cdc.c          |  59 ++++--
->   net/smc/smc_cdc.h          |   1 +
->   net/smc/smc_core.c         |  70 ++++++-
->   net/smc/smc_core.h         |   1 +
->   net/smc/smc_ism.c          |  79 ++++++--
->   net/smc/smc_ism.h          |   6 +
->   net/smc/smc_loopback.c     | 491 +++++++++++++++++++++++++++++++++++++++++++++
->   net/smc/smc_loopback.h     |  56 ++++++
->   12 files changed, 777 insertions(+), 37 deletions(-)
->   create mode 100644 net/smc/smc_loopback.c
->   create mode 100644 net/smc/smc_loopback.h
-> 
+Deeper study of each site might show that 90% of them here in arch
+code could only fail if there's corruption e.g. a transition to THP
+would be surprising on an arch without HAVE_ARCH_TRANSPARENT_HUGEPAGE.
+But given the likely extension to freeing empty page tables, I have
+not limited this set of changes to THP; and it has been easier, and
+sets a better example, if each site is given appropriate handling.
+
+Two: pte_offset_map() will need to do an rcu_read_lock(), with the
+corresponding rcu_read_unlock() in pte_unmap().  But most architectures
+never supported CONFIG_HIGHPTE, so some don't always call pte_unmap()
+after pte_offset_map(), or have used userspace pte_offset_map() where
+pte_offset_kernel() is more correct.  No problem in the current tree,
+but a problem once an rcu_read_unlock() will be needed to keep balance.
+
+A common special case of that comes in arch/*/mm/hugetlbpage.c, if
+the architecture supports hugetlb pages down at the lowest PTE level.
+huge_pte_alloc() uses pte_alloc_map(), but generic hugetlb code does
+no corresponding pte_unmap(); similarly for huge_pte_offset().
+Thanks to Mike Kravetz and Andrew Morton, v6.4-rc1 already provides
+pte_alloc_huge() and pte_offset_huge() to help fix up those cases.
+
+01/23 arm: allow pte_offset_map[_lock]() to fail
+02/23 arm64: allow pte_offset_map() to fail
+03/23 arm64/hugetlb: pte_alloc_huge() pte_offset_huge()
+04/23 ia64/hugetlb: pte_alloc_huge() pte_offset_huge()
+05/23 m68k: allow pte_offset_map[_lock]() to fail
+06/23 microblaze: allow pte_offset_map() to fail
+07/23 mips: update_mmu_cache() can replace __update_tlb()
+08/23 parisc: add pte_unmap() to balance get_ptep()
+09/23 parisc: unmap_uncached_pte() use pte_offset_kernel()
+10/23 parisc/hugetlb: pte_alloc_huge() pte_offset_huge()
+11/23 powerpc: kvmppc_unmap_free_pmd() pte_offset_kernel()
+12/23 powerpc: allow pte_offset_map[_lock]() to fail
+13/23 powerpc/hugetlb: pte_alloc_huge()
+14/23 riscv/hugetlb: pte_alloc_huge() pte_offset_huge()
+15/23 s390: allow pte_offset_map_lock() to fail
+16/23 s390: gmap use pte_unmap_unlock() not spin_unlock()
+17/23 sh/hugetlb: pte_alloc_huge() pte_offset_huge()
+18/23 sparc/hugetlb: pte_alloc_huge() pte_offset_huge()
+19/23 sparc: allow pte_offset_map() to fail
+20/23 sparc: iounit and iommu use pte_offset_kernel()
+21/23 x86: Allow get_locked_pte() to fail
+22/23 x86: sme_populate_pgd() use pte_offset_kernel()
+23/23 xtensa: add pte_unmap() to balance pte_offset_map()
+
+ arch/arm/lib/uaccess_with_memcpy.c      |  3 ++
+ arch/arm/mm/fault-armv.c                |  5 ++-
+ arch/arm/mm/fault.c                     |  3 ++
+ arch/arm64/mm/fault.c                   |  3 ++
+ arch/arm64/mm/hugetlbpage.c             | 11 ++----
+ arch/ia64/mm/hugetlbpage.c              |  4 +--
+ arch/m68k/include/asm/mmu_context.h     |  6 ++--
+ arch/m68k/kernel/sys_m68k.c             |  2 ++
+ arch/m68k/mm/mcfmmu.c                   | 52 +++++++++++----------------
+ arch/microblaze/kernel/signal.c         |  5 +--
+ arch/mips/include/asm/pgtable.h         | 15 ++------
+ arch/mips/mm/tlb-r3k.c                  |  5 +--
+ arch/mips/mm/tlb-r4k.c                  |  9 ++---
+ arch/parisc/kernel/cache.c              | 26 +++++++++++---
+ arch/parisc/kernel/pci-dma.c            |  2 +-
+ arch/parisc/mm/hugetlbpage.c            |  4 +--
+ arch/powerpc/kvm/book3s_64_mmu_radix.c  |  2 +-
+ arch/powerpc/mm/book3s64/hash_tlb.c     |  4 +++
+ arch/powerpc/mm/book3s64/subpage_prot.c |  2 ++
+ arch/powerpc/mm/hugetlbpage.c           |  2 +-
+ arch/powerpc/xmon/xmon.c                |  5 ++-
+ arch/riscv/mm/hugetlbpage.c             |  4 +--
+ arch/s390/kernel/uv.c                   |  2 ++
+ arch/s390/mm/gmap.c                     | 24 +++++++------
+ arch/s390/mm/pgtable.c                  | 12 +++++--
+ arch/sh/mm/hugetlbpage.c                |  4 +--
+ arch/sparc/kernel/signal32.c            |  2 ++
+ arch/sparc/mm/fault_64.c                |  3 ++
+ arch/sparc/mm/hugetlbpage.c             |  4 +--
+ arch/sparc/mm/io-unit.c                 |  2 +-
+ arch/sparc/mm/iommu.c                   |  2 +-
+ arch/sparc/mm/tlb.c                     |  2 ++
+ arch/x86/kernel/ldt.c                   |  6 ++--
+ arch/x86/mm/mem_encrypt_identity.c      |  2 +-
+ arch/xtensa/mm/tlb.c                    |  5 ++-
+ 35 files changed, 140 insertions(+), 104 deletions(-)
+
+Hugh
