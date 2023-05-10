@@ -2,135 +2,156 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 19C53C77B7C
-	for <linux-s390@archiver.kernel.org>; Wed, 10 May 2023 06:45:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D2A2C7EE2F
+	for <linux-s390@archiver.kernel.org>; Wed, 10 May 2023 07:14:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235962AbjEJGpY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 10 May 2023 02:45:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46908 "EHLO
+        id S236475AbjEJHO3 convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 10 May 2023 03:14:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235717AbjEJGpX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 10 May 2023 02:45:23 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FBAEB1;
-        Tue,  9 May 2023 23:45:22 -0700 (PDT)
-Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34A6iASl027579;
-        Wed, 10 May 2023 06:45:22 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=qF3xzVb5ASb+uwQUcMMXlDDAtZUl6pJqfD7W3a1diDk=;
- b=AnjIpXEdIJAio3WtIwHbsyw8A5YdLOSA3DYQBo0l+OaNOKEOq06lNtlFzI4byYoMkpSl
- Ht8VZqR89hXP9mpGX971PReuBgItXU5+dv/Q18OAoU1BuoWByBGtWEUngffI9eXrl60S
- WUvTLNJj1RcX+Jsu2YseEBxwmOAPHBHewyI7x7WKHZQB/C8CRQ3v3Wqg6WBEyagsAq8H
- vo8CBrnxfHirDzEt3FEqHbtEHyBGfFoov6N2g5E3gH3zXlLG92gl5wWGi4WuHK5v+3sT
- dXN+tV2jd9R0uDgrk6YJsTjgiFHIMAUe/9xOhuKddB2FAIqa7Q0EZw7Sg98K1gMgcuXf 6w== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qg5jts2yf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 10 May 2023 06:45:21 +0000
-Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34A6dLDv010269;
-        Wed, 10 May 2023 06:45:21 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qg5jts2x9-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 10 May 2023 06:45:21 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34A3oopm017262;
-        Wed, 10 May 2023 06:45:18 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3qf896rv35-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 10 May 2023 06:45:18 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34A6jF3K27525852
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 10 May 2023 06:45:15 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 35FC92004B;
-        Wed, 10 May 2023 06:45:15 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C65FF20040;
-        Wed, 10 May 2023 06:45:14 +0000 (GMT)
-Received: from [9.171.18.209] (unknown [9.171.18.209])
-        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 10 May 2023 06:45:14 +0000 (GMT)
-Message-ID: <8b2eafb8-8ac9-be39-3c81-9f59fd3e9147@linux.ibm.com>
-Date:   Wed, 10 May 2023 08:45:14 +0200
+        with ESMTP id S236456AbjEJHO0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 10 May 2023 03:14:26 -0400
+Received: from mail-vk1-f174.google.com (mail-vk1-f174.google.com [209.85.221.174])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AACC240EB;
+        Wed, 10 May 2023 00:14:24 -0700 (PDT)
+Received: by mail-vk1-f174.google.com with SMTP id 71dfb90a1353d-44fc0b53a8aso4356461e0c.0;
+        Wed, 10 May 2023 00:14:24 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1683702863; x=1686294863;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=bvYmUAzo0cwOybz0hjxV39+5gh/FQ5/NU0n3aFKpLiE=;
+        b=Xk8jO34Hm7UQ0bioDM/IACHOs6jnBoIM/S6IW1QFpG+Jgug1rDItKgpWRy2YiVG+y5
+         cctnO6ZdInRr+C3aC3BMG4XLQq5eLZMiq6LE4dHhN71Ff8Lb7C2Ac1mxxSdTsAO93HIh
+         f4II7oyySHXHCr/roUDaZ2cBXdVKtcU576BiqT49ciYRxqX84zaAZ6ReMmN2onWcFn2d
+         yW6S9GyYDK2P1vYmrh+HtC3bQfVQoQGiuhGl/RjPqmLgniokFq1zxPJ1sOq7kHdEKDEu
+         moS1ifJHLtf0Agr8UteIhcpXHuAmhN1KpsQeURE/XgTLwe49aYFjm3KRWrrIJK4MZZAU
+         5sQA==
+X-Gm-Message-State: AC+VfDzF/uStQqhdP7m4bwTFdJyxsf2/++bc5x9vMo1gUwsZQEyy1dUh
+        b841MSC+3tAmibdzMopdubGxzHJkizOCug==
+X-Google-Smtp-Source: ACHHUZ76i3iJ2yQvmDOGVbIUJ6R5ob8AqV0wkJ+3LtkcTzktoEx836K/ncP1SMIT90Qre5P7gG52Qg==
+X-Received: by 2002:a1f:bfc4:0:b0:440:7261:c77e with SMTP id p187-20020a1fbfc4000000b004407261c77emr5260479vkf.1.1683702863444;
+        Wed, 10 May 2023 00:14:23 -0700 (PDT)
+Received: from mail-vk1-f177.google.com (mail-vk1-f177.google.com. [209.85.221.177])
+        by smtp.gmail.com with ESMTPSA id b137-20020a1fb28f000000b00443bcc4131dsm1898612vkf.13.2023.05.10.00.14.22
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 10 May 2023 00:14:23 -0700 (PDT)
+Received: by mail-vk1-f177.google.com with SMTP id 71dfb90a1353d-44ffef66dabso3763567e0c.2;
+        Wed, 10 May 2023 00:14:22 -0700 (PDT)
+X-Received: by 2002:a05:6902:1147:b0:b99:4ac6:3c75 with SMTP id
+ p7-20020a056902114700b00b994ac63c75mr18672301ybu.10.1683702842290; Wed, 10
+ May 2023 00:14:02 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.10.0
-Subject: Re: [PATCH v1 2/3] KVM: s390: add stat counter for shadow gmap events
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Nico Boehr <nrb@linux.ibm.com>
-Cc:     borntraeger@linux.ibm.com, david@redhat.com, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-References: <20230509111202.333714-1-nrb@linux.ibm.com>
- <20230509111202.333714-3-nrb@linux.ibm.com>
- <c762bd30-9753-7b3e-3f46-b15ba575ee7c@linux.ibm.com>
- <168364406109.331309.632943177292737298@t14-nrb>
- <20230509171404.1495e864@p-imbrenda>
-Content-Language: en-US
-From:   Janosch Frank <frankja@linux.ibm.com>
-In-Reply-To: <20230509171404.1495e864@p-imbrenda>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: og5L45m1KvUNkQb55sBamn9B-jzFh4JE
-X-Proofpoint-GUID: EcL72GNZPHYpdf1wSRyCvds78ImJW0TB
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-05-10_03,2023-05-05_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- priorityscore=1501 suspectscore=0 clxscore=1015 mlxscore=0 adultscore=0
- bulkscore=0 phishscore=0 malwarescore=0 spamscore=0 mlxlogscore=999
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2304280000 definitions=main-2305100051
+References: <77a5d8c-406b-7068-4f17-23b7ac53bc83@google.com> <237c8410-ce61-94c-4260-7318ad6a4f3@google.com>
+In-Reply-To: <237c8410-ce61-94c-4260-7318ad6a4f3@google.com>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Wed, 10 May 2023 09:13:50 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdWb0SrEs=cDzKW1Ai2UywnnpZip4pk9mOkiVGivPpj8sg@mail.gmail.com>
+Message-ID: <CAMuHMdWb0SrEs=cDzKW1Ai2UywnnpZip4pk9mOkiVGivPpj8sg@mail.gmail.com>
+Subject: Re: [PATCH 05/23] m68k: allow pte_offset_map[_lock]() to fail
+To:     Hugh Dickins <hughd@google.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        David Hildenbrand <david@redhat.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Qi Zheng <zhengqi.arch@bytedance.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Greg Ungerer <gerg@linux-m68k.org>,
+        Michal Simek <monstr@monstr.eu>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Helge Deller <deller@gmx.de>,
+        John David Anglin <dave.anglin@bell.net>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Alexandre Ghiti <alexghiti@rivosinc.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        Chris Zankel <chris@zankel.net>,
+        Max Filippov <jcmvbkbc@gmail.com>, x86@kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 5/9/23 17:14, Claudio Imbrenda wrote:
-> On Tue, 09 May 2023 16:54:21 +0200
-> Nico Boehr <nrb@linux.ibm.com> wrote:
-> 
->> Quoting Janosch Frank (2023-05-09 13:59:46)
->> [...]
->>>> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
->>>> index 3c3fe45085ec..7f70e3bbb44c 100644
->>>> --- a/arch/s390/include/asm/kvm_host.h
->>>> +++ b/arch/s390/include/asm/kvm_host.h
->>>> @@ -777,6 +777,11 @@ struct kvm_vm_stat {
->>>>        u64 inject_service_signal;
->>>>        u64 inject_virtio;
->>>>        u64 aen_forward;
->>>> +     u64 gmap_shadow_acquire;
->>>> +     u64 gmap_shadow_r2;
->>>> +     u64 gmap_shadow_r3;
->>>> +     u64 gmap_shadow_segment;
->>>> +     u64 gmap_shadow_page;
->>>
->>> This needs to be gmap_shadow_pgt and then we need a separate shadow page
->>> counter that's beeing incremented in kvm_s390_shadow_fault().
->>>
->>>
->>> I'm wondering if we should name them after the entries to reduce
->>> confusion especially when we get huge pages in the future.
->>>
->>> gmap_shadow_acquire
->>> gmap_shadow_r1_te (ptr to r2 table)
->>> gmap_shadow_r2_te (ptr to r3 table)
->>> gmap_shadow_r3_te (ptr to segment table)
->>> gmap_shadow_sg_te (ptr to page table)
->>> gmap_shadow_pg_te (single page table entry)
-> 
-> but then why not calling them gmap_shadow_{pte,pmd,pud,p4d,pgd} ?
-> 
+Hi Hugh,
 
-Because I'll need to look up the order of the names after the pmd :)
-The gmap mostly works with s390 names.
+Thanks for your patch!
 
-I'm not totally opposed to that but I also don't see a clear benefit.
+On Wed, May 10, 2023 at 6:48 AM Hugh Dickins <hughd@google.com> wrote:
+> In rare transient cases, not yet made possible, pte_offset_map() and
+> pte_offset_map_lock() may not find a page table: handle appropriately.
+>
+> Restructure cf_tlb_miss() with a pte_unmap() (previously omitted)
+> at label out, followed by one local_irq_restore() for all.
 
+That's a bug fix, which should be a separate patch?
+
+>
+> Signed-off-by: Hugh Dickins <hughd@google.com>
+
+
+> --- a/arch/m68k/include/asm/mmu_context.h
+> +++ b/arch/m68k/include/asm/mmu_context.h
+> @@ -99,7 +99,7 @@ static inline void load_ksp_mmu(struct task_struct *task)
+>         p4d_t *p4d;
+>         pud_t *pud;
+>         pmd_t *pmd;
+> -       pte_t *pte;
+> +       pte_t *pte = NULL;
+>         unsigned long mmuar;
+>
+>         local_irq_save(flags);
+> @@ -139,7 +139,7 @@ static inline void load_ksp_mmu(struct task_struct *task)
+>
+>         pte = (mmuar >= PAGE_OFFSET) ? pte_offset_kernel(pmd, mmuar)
+>                                      : pte_offset_map(pmd, mmuar);
+> -       if (pte_none(*pte) || !pte_present(*pte))
+> +       if (!pte || pte_none(*pte) || !pte_present(*pte))
+>                 goto bug;
+
+If the absence of a pte is to become a non-abnormal case, it should
+probably jump to "end" instead, to avoid spamming the kernel log.
+
+>
+>         set_pte(pte, pte_mkyoung(*pte));
+> @@ -161,6 +161,8 @@ static inline void load_ksp_mmu(struct task_struct *task)
+>  bug:
+>         pr_info("ksp load failed: mm=0x%p ksp=0x08%lx\n", mm, mmuar);
+>  end:
+> +       if (pte && mmuar < PAGE_OFFSET)
+> +               pte_unmap(pte);
+
+Is this also a bugfix, not mentioned in the patch description?
+
+>         local_irq_restore(flags);
+>  }
+>
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
