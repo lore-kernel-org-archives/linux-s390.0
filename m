@@ -2,96 +2,129 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 759C1C77B7C
-	for <linux-s390@archiver.kernel.org>; Wed, 10 May 2023 08:54:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 01046C77B7C
+	for <linux-s390@archiver.kernel.org>; Wed, 10 May 2023 09:06:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236016AbjEJIyI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 10 May 2023 04:54:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43164 "EHLO
+        id S236405AbjEJJGF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 10 May 2023 05:06:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236830AbjEJIx6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 10 May 2023 04:53:58 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8BE36E87;
-        Wed, 10 May 2023 01:53:37 -0700 (PDT)
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34A8kY4l032318;
-        Wed, 10 May 2023 08:53:34 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
- mime-version : content-transfer-encoding : in-reply-to : references :
- subject : cc : from : to : message-id : date; s=pp1;
- bh=fjnoUBc6ub9IcHFbVwkILQF6pXC34u+n2kyx0JSb3Sc=;
- b=nA78l77ewSQL7SPYOqXOH44rF/6SW003weRIIseBSCCxNvgjs8oWkYu1j/HKMHWjbs6w
- 7bUFy147H9ksejH2u0zPC/ukE2dwwdtG+KyqHVyznUiYwG9nHebzij3gbpYkRI3N7wkG
- 5Lp2VNubli07yysNOtphmBOA99rmQk1bWsqZKCDMUYwwwrfhsSmKEhmxPWKMipE7pKLx
- Bi1lNHkGX6UbY9cI7PXUD7k4E6jQwrA9l7nb3VzVfhLSnCVGlu8pT4Q4edbwP6IUDNDS
- gMurI1BIF6eJlQHOqkVK+eXXGDTitlDtNwwDkYjfWwLuFwBgGT70xrhwT7XnomxIJ2pd tQ== 
+        with ESMTP id S236952AbjEJJFr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 10 May 2023 05:05:47 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 002CC3C11;
+        Wed, 10 May 2023 02:05:30 -0700 (PDT)
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34A8m1Wa009673;
+        Wed, 10 May 2023 09:05:30 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=UWWruU5P3pJ9qk3SguX7rH7dczyZ8QQS5Qe2ItUDfhc=;
+ b=bWa6LRzUH3lg4WEQhKOlrkTQbRsqtmwr3QHkrMX/6vfrjU5Iva00cWws+q9fO9bCh9Mh
+ BzsqGuvNG2mN9c8D+r42tD0cby64kQwBYBVViduJ9wwaFSa5nrZWGOlMEVp8yexlnmQn
+ IiSPY300rP9bKkoBOKTRd7xJXPmIe6DIl1A4zqc4fmZZH2DtNnp3ofy0LsVzUbS/1HoE
+ w2tWfRZ+sHdZg6rQP/Nw8wqQ5NZsASwuUS/PwZ6+7ssC2QHe7UY9qzISmu3w+zNXt5PV
+ ShmElvd/Ut7OiBiCvJGLIl7rdPqiycotp8G++azaosuTLDcO90kn/1yihC8X5/s1EsOv jA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qg6s8tdbs-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qg82v0jkc-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 10 May 2023 08:53:34 +0000
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34A8lggm004626;
-        Wed, 10 May 2023 08:53:33 GMT
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qg6s8tdb3-1
+        Wed, 10 May 2023 09:05:30 +0000
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34A8nILC013000;
+        Wed, 10 May 2023 09:04:54 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qg82v0h61-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 10 May 2023 08:53:33 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34A2k83Y008994;
-        Wed, 10 May 2023 08:53:31 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-        by ppma04fra.de.ibm.com (PPS) with ESMTPS id 3qf7d1rrry-1
+        Wed, 10 May 2023 09:04:53 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34A7Nj1E028260;
+        Wed, 10 May 2023 09:03:58 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3qf896rxhn-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 10 May 2023 08:53:31 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34A8rR2w18678470
+        Wed, 10 May 2023 09:03:58 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34A93trk21561926
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 10 May 2023 08:53:27 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C566320049;
-        Wed, 10 May 2023 08:53:27 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A2BF420040;
-        Wed, 10 May 2023 08:53:27 +0000 (GMT)
-Received: from t14-nrb (unknown [9.179.13.202])
-        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 10 May 2023 08:53:27 +0000 (GMT)
-Content-Type: text/plain; charset="utf-8"
+        Wed, 10 May 2023 09:03:55 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 40F2D20043;
+        Wed, 10 May 2023 09:03:55 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D545220040;
+        Wed, 10 May 2023 09:03:54 +0000 (GMT)
+Received: from [9.171.18.209] (unknown [9.171.18.209])
+        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 10 May 2023 09:03:54 +0000 (GMT)
+Message-ID: <3b5cce0a-b344-be8a-7432-704fe9e84d8f@linux.ibm.com>
+Date:   Wed, 10 May 2023 11:03:54 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20230502130732.147210-7-frankja@linux.ibm.com>
-References: <20230502130732.147210-1-frankja@linux.ibm.com> <20230502130732.147210-7-frankja@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v3 6/9] s390x: uv-host: Switch to smp_sigp
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.10.0
+Subject: Re: [kvm-unit-tests PATCH v3 1/9] s390x: uv-host: Fix UV init test
+ memory allocation
+Content-Language: en-US
+To:     Nico Boehr <nrb@linux.ibm.com>, kvm@vger.kernel.org
 Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
         thuth@redhat.com, david@redhat.com
-From:   Nico Boehr <nrb@linux.ibm.com>
-To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Message-ID: <168370880738.331309.12574702517268774387@t14-nrb>
-User-Agent: alot/0.8.1
-Date:   Wed, 10 May 2023 10:53:27 +0200
+References: <20230502130732.147210-1-frankja@linux.ibm.com>
+ <20230502130732.147210-2-frankja@linux.ibm.com>
+ <168370871258.331309.6187452257634029708@t14-nrb>
+From:   Janosch Frank <frankja@linux.ibm.com>
+In-Reply-To: <168370871258.331309.6187452257634029708@t14-nrb>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: c1blziQiSeUWc-ePNKmrErIGReaxaUtx
-X-Proofpoint-ORIG-GUID: 3l_w4j7PSGW6PJwuEgn52jWOu0tXDG8A
+X-Proofpoint-ORIG-GUID: dNnRhQoK6fCfHugFSCj9aBpXfK3pgJP7
+X-Proofpoint-GUID: X-xNwndfI6zcOnSMh7mkxTnM2YLGd1dp
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
  definitions=2023-05-10_04,2023-05-05_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- lowpriorityscore=0 suspectscore=0 bulkscore=0 phishscore=0 mlxscore=0
- spamscore=0 priorityscore=1501 clxscore=1015 mlxlogscore=930
- malwarescore=0 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2304280000 definitions=main-2305100065
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 malwarescore=0
+ spamscore=0 suspectscore=0 mlxlogscore=999 phishscore=0 impostorscore=0
+ mlxscore=0 clxscore=1015 lowpriorityscore=0 adultscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2304280000 definitions=main-2305100070
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Quoting Janosch Frank (2023-05-02 15:07:29)
-> Let's move to the new smp_sigp() interface which abstracts cpu
-> numbers.
->=20
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+On 5/10/23 10:51, Nico Boehr wrote:
+> Quoting Janosch Frank (2023-05-02 15:07:24)
+>> The init memory has to be above 2G and 1M aligned but we're currently
+>> aligning on 2G which means the allocations need a lot of unused
+>> memory.
+> 
+> I know I already gave my R-b here, but...
+> 
+>> diff --git a/s390x/uv-host.c b/s390x/uv-host.c
+>> index 33e6eec6..9dfaebd7 100644
+>> --- a/s390x/uv-host.c
+>> +++ b/s390x/uv-host.c
+>> @@ -500,14 +500,17 @@ static void test_config_create(void)
+>>   static void test_init(void)
+>>   {
+>>          int rc;
+>> -       uint64_t mem;
+>> +       uint64_t tmp;
+>>   
+>> -       /* Donated storage needs to be over 2GB */
+>> -       mem = (uint64_t)memalign_pages_flags(SZ_1M, uvcb_qui.uv_base_stor_len, AREA_NORMAL);
+> 
+> ...maybe out of coffee, but can you point me to the place where we're aligning
+> to 2G here? I only see alignment to 1M and your change only seems to rename
+> mem to tmp:
+> 
+>> +       /*
+>> +        * Donated storage needs to be over 2GB, AREA_NORMAL does that
+>> +        * on s390x.
+>> +        */
 
-Did you intentionally drop my R-b?
+This comment explains it :)
+Its a re-name of mem to tmp and an extension of this comment so it makes 
+more sense.
 
-anyways:
-Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
+>> +       tmp = (uint64_t)memalign_pages_flags(SZ_1M, uvcb_qui.uv_base_stor_len, AREA_NORMAL);
+
+
