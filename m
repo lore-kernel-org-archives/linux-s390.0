@@ -2,30 +2,45 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D60D2C7EE24
-	for <linux-s390@archiver.kernel.org>; Wed, 10 May 2023 08:01:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C2C6C7EE2D
+	for <linux-s390@archiver.kernel.org>; Wed, 10 May 2023 08:21:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236295AbjEJIBb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 10 May 2023 04:01:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52424 "EHLO
+        id S236273AbjEJIV4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 10 May 2023 04:21:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235798AbjEJIBa (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 10 May 2023 04:01:30 -0400
-Received: from relay4-d.mail.gandi.net (relay4-d.mail.gandi.net [217.70.183.196])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4028DF0;
-        Wed, 10 May 2023 01:01:28 -0700 (PDT)
-Received: (Authenticated sender: alex@ghiti.fr)
-        by mail.gandi.net (Postfix) with ESMTPSA id 90583E000A;
-        Wed, 10 May 2023 08:01:13 +0000 (UTC)
-Message-ID: <6ad10e79-74e5-7c48-d10c-78229187da32@ghiti.fr>
-Date:   Wed, 10 May 2023 10:01:13 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.10.0
-Subject: Re: [PATCH 14/23] riscv/hugetlb: pte_alloc_huge() pte_offset_huge()
-To:     Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Cc:     Mike Kravetz <mike.kravetz@oracle.com>,
+        with ESMTP id S229893AbjEJIVz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 10 May 2023 04:21:55 -0400
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B8DB171B;
+        Wed, 10 May 2023 01:21:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=1WZCLagr9yk4Cbp+6qSxxsSMmqvOctxqT3bVkNGFhnY=; b=CzmDvf3rqlZoWLTgd3FVOKNA13
+        am3KRsvw5dx0zZtORpSkeQixmHm2I0T/j68VXo57hz3B2sKfsZlkzT6mcIfsGM8QExy3tEBmFQg15
+        5knvERiYGPZKMBkmsOAK/iQ/5rtOFvAqMTYH7nFMXqdqWWfvmHjqNDYraw79BjtqAXxEKvC5IXPLi
+        v4WkUXSf6SdYO2DxNqGoNj/9jzwXI/RVqLwvIK8H89K9xhFYfEkKkPofOod7rLsPcDYQd4FB4I+bb
+        ncPfZdYjPCu8FZ1ut2ZqCkZjLMrUhqEHRkvEROX3xUgFItRMwb3mnY6amim7reKFoxZZ2cjlGh5hD
+        cm+pskqQ==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
+        by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
+        id 1pwf2E-007PM8-2r;
+        Wed, 10 May 2023 08:20:55 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits))
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 4DA20300338;
+        Wed, 10 May 2023 10:18:48 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 2369E20B04BA2; Wed, 10 May 2023 10:18:48 +0200 (CEST)
+Date:   Wed, 10 May 2023 10:18:48 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Hugh Dickins <hughd@google.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
         Mike Rapoport <rppt@kernel.org>,
         "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
         Matthew Wilcox <willy@infradead.org>,
@@ -58,56 +73,59 @@ Cc:     Mike Kravetz <mike.kravetz@oracle.com>,
         linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
         linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH 21/23] x86: Allow get_locked_pte() to fail
+Message-ID: <20230510081848.GD83892@hirez.programming.kicks-ass.net>
 References: <77a5d8c-406b-7068-4f17-23b7ac53bc83@google.com>
- <d1e54510-9ea2-edf-3851-fa7635ce1e5e@google.com>
-Content-Language: en-US
-From:   Alexandre Ghiti <alex@ghiti.fr>
-In-Reply-To: <d1e54510-9ea2-edf-3851-fa7635ce1e5e@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+ <eba2b72f-2180-498b-c8bd-ce8f717fc78a@google.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <eba2b72f-2180-498b-c8bd-ce8f717fc78a@google.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Hugh,
-
-On 5/10/23 06:59, Hugh Dickins wrote:
-> pte_alloc_map() expects to be followed by pte_unmap(), but hugetlb omits
-> that: to keep balance in future, use the recently added pte_alloc_huge()
-> instead; with pte_offset_huge() a better name for pte_offset_kernel().
->
+On Tue, May 09, 2023 at 10:08:37PM -0700, Hugh Dickins wrote:
+> In rare transient cases, not yet made possible, pte_offset_map() and
+> pte_offset_map_lock() may not find a page table: handle appropriately.
+> 
 > Signed-off-by: Hugh Dickins <hughd@google.com>
 > ---
->   arch/riscv/mm/hugetlbpage.c | 4 ++--
->   1 file changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/arch/riscv/mm/hugetlbpage.c b/arch/riscv/mm/hugetlbpage.c
-> index a163a3e0f0d4..80926946759f 100644
-> --- a/arch/riscv/mm/hugetlbpage.c
-> +++ b/arch/riscv/mm/hugetlbpage.c
-> @@ -43,7 +43,7 @@ pte_t *huge_pte_alloc(struct mm_struct *mm,
->   
->   	for_each_napot_order(order) {
->   		if (napot_cont_size(order) == sz) {
-> -			pte = pte_alloc_map(mm, pmd, addr & napot_cont_mask(order));
-> +			pte = pte_alloc_huge(mm, pmd, addr & napot_cont_mask(order));
->   			break;
->   		}
->   	}
-> @@ -90,7 +90,7 @@ pte_t *huge_pte_offset(struct mm_struct *mm,
->   
->   	for_each_napot_order(order) {
->   		if (napot_cont_size(order) == sz) {
-> -			pte = pte_offset_kernel(pmd, addr & napot_cont_mask(order));
-> +			pte = pte_offset_huge(pmd, addr & napot_cont_mask(order));
->   			break;
->   		}
->   	}
+>  arch/x86/kernel/ldt.c | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/x86/kernel/ldt.c b/arch/x86/kernel/ldt.c
+> index 525876e7b9f4..eb844549cd83 100644
+> --- a/arch/x86/kernel/ldt.c
+> +++ b/arch/x86/kernel/ldt.c
+> @@ -367,8 +367,10 @@ static void unmap_ldt_struct(struct mm_struct *mm, struct ldt_struct *ldt)
+>  
+>  		va = (unsigned long)ldt_slot_va(ldt->slot) + offset;
+>  		ptep = get_locked_pte(mm, va, &ptl);
+> -		pte_clear(mm, va, ptep);
+> -		pte_unmap_unlock(ptep, ptl);
+> +		if (ptep) {
+> +			pte_clear(mm, va, ptep);
+> +			pte_unmap_unlock(ptep, ptl);
+> +		}
+>  	}
 
+Ow geez, now I have to go remember how the whole PTI/LDT crud worked :/
 
-Reviewed-by: Alexandre Ghiti <alexghiti@rivosinc.com>
+At first glance this seems wrong; we can't just not unmap the LDT if we
+can't find it in a hurry. Also, IIRC this isn't in fact a regular user
+mapping, so it should not be subject to THP induced seizures.
 
-Thanks,
+... memory bubbles back ... for PTI kernels we need to map this in the
+user and kernel page-tables because obviously userspace needs to be able
+to have access to the LDT. But it is not directly acessible by
+userspace. It lives in the cpu_entry_area as a virtual map of the real
+kernel allocation, and this virtual address is used for LLDT.
+Modification is done through sys_modify_ldt().
 
-Alex
+I think I would feel much better if this were something like:
 
+	if (!WARN_ON_ONCE(!ptep))
+
+This really shouldn't fail and if it does, simply skipping it isn't the
+right thing either.
