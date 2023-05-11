@@ -2,115 +2,153 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C1B0C7EE2A
-	for <linux-s390@archiver.kernel.org>; Thu, 11 May 2023 19:34:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D3FEC77B7C
+	for <linux-s390@archiver.kernel.org>; Thu, 11 May 2023 20:24:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239166AbjEKTeh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 11 May 2023 15:34:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53072 "EHLO
+        id S239236AbjEKUYz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 11 May 2023 16:24:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232629AbjEKTef (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 11 May 2023 15:34:35 -0400
-Received: from mail-qv1-xf31.google.com (mail-qv1-xf31.google.com [IPv6:2607:f8b0:4864:20::f31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2C1F59D0;
-        Thu, 11 May 2023 12:34:34 -0700 (PDT)
-Received: by mail-qv1-xf31.google.com with SMTP id 6a1803df08f44-619be7d7211so42158626d6.3;
-        Thu, 11 May 2023 12:34:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1683833674; x=1686425674;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=OkRg4aBIGd+Ujeyjhqn0VJEzJVlq0iY77Z11k0mAFFM=;
-        b=D8VOr21Fczrl0K1COf0x4Ck7WHMsRogiYEEbrY2VpNny+n3MR+tJuDH09I9YAsS652
-         swT6GvFknXTnMBZPWlOxHk2u05+SeKUhRFMH/ZtDMNfuFTmqhV28jtrPoFuIwQ/bqAzu
-         JEHJCZ22+ejNPu9sQ5B4mFAObz8laeWoYTSRIa0MiOnPq0OszLg5zmMrWPnpqMS2qlwN
-         5gjqnyxgdjPUMVEd0f/03my+5DYNfTma/sJ3vnrs+cTqKEwezFl9LOtEmPAD5vfhXfNX
-         JrpZrTJ+uj1uIfEyrp6lAwR5J8sidiziH5Wld/lDfUFxzbjgvyiL15VatExShfnoJdEm
-         /ImQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1683833674; x=1686425674;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=OkRg4aBIGd+Ujeyjhqn0VJEzJVlq0iY77Z11k0mAFFM=;
-        b=I+e0iSK5LM2XRHfR9+c8Jb9mN0NXDz/nBDRNymh9Jue2t28UrKxRqYi2LAE/un8HXU
-         l/OOq8L0LY8OQVbmwAoWH/BaM0Ae7AY9L0YOjjmHDWt730qnBQmLmnym9oZ0iBbXqNd4
-         gVWJ/+zsy+LxKr+tRpoHswUe1SZbbfIEoedYAQpdDDuJhDQ9bPUD+tQZOHpUrKSAnejI
-         9u0b9DBVMJn0eyhNC8EAk9eFmoxMjQNvibNIGd9h2L1Z5YH86xENlUi8nWwFAHrkiOJK
-         PSsMWFQ6fFXlQaVDIh+PXUezizXqkF3zz0KM+XkAcsoqlQlFCMJuRs4XbetYVKblN/5h
-         jOmQ==
-X-Gm-Message-State: AC+VfDzTm74CQfiyLWsMkFQ3vTps7tfH1fUU0rEwsZ8jQoJJSlcyDrj/
-        Q3nS9z5o1ebkDUsZdHKTVKEx7Y1ZNHkeOKrul8Y=
-X-Google-Smtp-Source: ACHHUZ6FKXu0op+KxzAVHeFuNCXe2D1xFAp09jFVR7D1aeGdyycJWyp3G5ZLoEExaajX1pb4elh/5/+JF1DIDbKGBFc=
-X-Received: by 2002:ad4:5dec:0:b0:5a1:6212:93be with SMTP id
- jn12-20020ad45dec000000b005a1621293bemr33993641qvb.29.1683833673901; Thu, 11
- May 2023 12:34:33 -0700 (PDT)
+        with ESMTP id S238381AbjEKUYy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 11 May 2023 16:24:54 -0400
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E889270D;
+        Thu, 11 May 2023 13:24:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=E5l2shnH01QrTljpAFFGCJicO6JUqqgyxvzlIMkP6A0=; b=eszcc0bs0lf/dqVDO8eQ4oUVkU
+        cMqG0k06X+5D5Liq1lzWonVEHUZhG+C4fHoBAx0b2kIHABcyMm6+cnaOofe8PHLUvnloriwFbxFoV
+        Yqem1gFhi9OYmna/FWqs44k/rS2+x6h8vxkpOaqvEyZ6z9ng2JWTiy+HodorH5wmvv7WM0YTRAVUy
+        qPTYmsTBy69OorstP119zRNMNMdRXh9iAua0LPGy+eE2xLKjO0XL4HM5sgiM3D/O7OzRWPVxpdQKv
+        x6jrzvogksLb37T9oN2EKWjffwa5kV/zWypFMtC+VxyMR+i4uabOkU0shVvaJEjBXed5+1s03gDUT
+        qFxpBLLQ==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
+        by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
+        id 1pxCpO-008NaG-2j;
+        Thu, 11 May 2023 20:23:55 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits))
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id B76C1300244;
+        Thu, 11 May 2023 22:23:51 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 9F2A32C7C5BE0; Thu, 11 May 2023 22:23:51 +0200 (CEST)
+Date:   Thu, 11 May 2023 22:23:51 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Wei Liu <wei.liu@kernel.org>
+Cc:     Michael Kelley <mikelley@microsoft.com>, ltykernel@gmail.com,
+        bigeasy@linutronix.de, mark.rutland@arm.com, maz@kernel.org,
+        catalin.marinas@arm.com, will@kernel.org, chenhuacai@kernel.org,
+        kernel@xen0n.name, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, pbonzini@redhat.com, wanpengli@tencent.com,
+        vkuznets@redhat.com, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+        hpa@zytor.com, jgross@suse.com, boris.ostrovsky@oracle.com,
+        daniel.lezcano@linaro.org, kys@microsoft.com,
+        haiyangz@microsoft.com, decui@microsoft.com, rafael@kernel.org,
+        longman@redhat.com, boqun.feng@gmail.com, pmladek@suse.com,
+        senozhatsky@chromium.org, rostedt@goodmis.org,
+        john.ogness@linutronix.de, juri.lelli@redhat.com,
+        vincent.guittot@linaro.org, dietmar.eggemann@arm.com,
+        bsegall@google.com, mgorman@suse.de, bristot@redhat.com,
+        vschneid@redhat.com, jstultz@google.com, sboyd@kernel.org,
+        linux-kernel@vger.kernel.org, loongarch@lists.linux.dev,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        linux-hyperv@vger.kernel.org, linux-pm@vger.kernel.org
+Subject: Re: [RFC][PATCH 7/9] x86/tsc: Provide sched_clock_noinstr()
+Message-ID: <20230511202351.GE2296992@hirez.programming.kicks-ass.net>
+References: <20230508211951.901961964@infradead.org>
+ <20230508213147.853677542@infradead.org>
+ <20230508214419.GA2053935@hirez.programming.kicks-ass.net>
+ <ZFmGI1EN24xroPHa@liuwe-devbox-debian-v2>
 MIME-Version: 1.0
-References: <20230510195806.2902878-1-nphamcs@gmail.com> <874joja6vz.fsf@mail.lhotse>
-In-Reply-To: <874joja6vz.fsf@mail.lhotse>
-From:   Nhat Pham <nphamcs@gmail.com>
-Date:   Thu, 11 May 2023 12:34:23 -0700
-Message-ID: <CAKEwX=OHMaUzEG9hoMz20m9DnyFD4xC78KiNV1Qu0bUhkrYhAA@mail.gmail.com>
-Subject: Re: [PATCH] cachestat: wire up cachestat for other architectures
-To:     Michael Ellerman <mpe@ellerman.id.au>
-Cc:     akpm@linux-foundation.org, linux-mm@kvack.org,
-        linux-api@vger.kernel.org, kernel-team@meta.com,
-        linux-arch@vger.kernel.org, hannes@cmpxchg.org,
-        richard.henderson@linaro.org, ink@jurassic.park.msu.ru,
-        mattst88@gmail.com, linux@armlinux.org.uk, geert@linux-m68k.org,
-        monstr@monstr.eu, tsbogend@alpha.franken.de,
-        James.Bottomley@hansenpartnership.com, deller@gmx.de,
-        npiggin@gmail.com, christophe.leroy@csgroup.eu, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        ysato@users.sourceforge.jp, dalias@libc.org,
-        glaubitz@physik.fu-berlin.de, davem@davemloft.net,
-        chris@zankel.net, jcmvbkbc@gmail.com, linux-alpha@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZFmGI1EN24xroPHa@liuwe-devbox-debian-v2>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, May 10, 2023 at 8:23=E2=80=AFPM Michael Ellerman <mpe@ellerman.id.a=
-u> wrote:
->
-> Nhat Pham <nphamcs@gmail.com> writes:
-> > cachestat is previously only wired in for x86 (and architectures using
-> > the generic unistd.h table):
-> >
-> > https://lore.kernel.org/lkml/20230503013608.2431726-1-nphamcs@gmail.com=
-/
-> >
-> > This patch wires cachestat in for all the other architectures.
-> >
-> > Signed-off-by: Nhat Pham <nphamcs@gmail.com>
-> > ---
-> >  arch/alpha/kernel/syscalls/syscall.tbl      | 1 +
-> >  arch/arm/tools/syscall.tbl                  | 1 +
-> >  arch/ia64/kernel/syscalls/syscall.tbl       | 1 +
-> >  arch/m68k/kernel/syscalls/syscall.tbl       | 1 +
-> >  arch/microblaze/kernel/syscalls/syscall.tbl | 1 +
-> >  arch/mips/kernel/syscalls/syscall_n32.tbl   | 1 +
-> >  arch/mips/kernel/syscalls/syscall_n64.tbl   | 1 +
-> >  arch/mips/kernel/syscalls/syscall_o32.tbl   | 1 +
-> >  arch/parisc/kernel/syscalls/syscall.tbl     | 1 +
-> >  arch/powerpc/kernel/syscalls/syscall.tbl    | 1 +
->
-> With the change to the selftest (see my other mail), I tested this on
-> powerpc and all tests pass.
+On Mon, May 08, 2023 at 11:30:43PM +0000, Wei Liu wrote:
+> On Mon, May 08, 2023 at 11:44:19PM +0200, Peter Zijlstra wrote:
+> > On Mon, May 08, 2023 at 11:19:58PM +0200, Peter Zijlstra wrote:
+> > 
+> > > --- a/drivers/clocksource/hyperv_timer.c
+> > > +++ b/drivers/clocksource/hyperv_timer.c
+> > > @@ -408,9 +408,9 @@ static u64 notrace read_hv_clock_tsc_cs(
+> > >  	return read_hv_clock_tsc();
+> > >  }
+> > >  
+> > > -static u64 notrace read_hv_sched_clock_tsc(void)
+> > > +static u64 noinstr read_hv_sched_clock_tsc(void)
+> > >  {
+> > > -	return (read_hv_clock_tsc() - hv_sched_clock_offset) *
+> > > +	return (hv_read_tsc_page(hv_get_tsc_page()) - hv_sched_clock_offset) *
+> > >  		(NSEC_PER_SEC / HV_CLOCK_HZ);
+> > >  }
+> > >  
+> > > --- a/include/clocksource/hyperv_timer.h
+> > > +++ b/include/clocksource/hyperv_timer.h
+> > > @@ -38,7 +38,7 @@ extern void hv_remap_tsc_clocksource(voi
+> > >  extern unsigned long hv_get_tsc_pfn(void);
+> > >  extern struct ms_hyperv_tsc_page *hv_get_tsc_page(void);
+> > >  
+> > > -static inline notrace u64
+> > > +static __always_inline notrace u64
+> > >  hv_read_tsc_page_tsc(const struct ms_hyperv_tsc_page *tsc_pg, u64 *cur_tsc)
+> > >  {
+> > >  	u64 scale, offset;
+> > > @@ -85,7 +85,7 @@ hv_read_tsc_page_tsc(const struct ms_hyp
+> > >  	return mul_u64_u64_shr(*cur_tsc, scale, 64) + offset;
+> > >  }
+> > >  
+> > > -static inline notrace u64
+> > > +static __always_inline notrace u64
+> > >  hv_read_tsc_page(const struct ms_hyperv_tsc_page *tsc_pg)
+> > >  {
+> > >  	u64 cur_tsc;
+> > 
+> > Hyper-V folks!
+> > 
+> > While reviewing all this I found the following 'gem':
+> > 
+> > hv_init_clocksource()
+> >   hv_setup_sched_clock()
+> >     paravirt_set_sched_clock(read_hv_sched_clock_msr)
+> > 
+> > read_hv_sched_clock_msr() [notrace]
+> >   read_hv_clock_msr()     [notrace]
+> >     hv_get_register()      *traced*
+> >       hv_get_non_nested_register() ...
+> >         hv_ghcb_msr_read()
+> > 	  WARN_ON(in_nmi())
+> > 	  ...
+> > 	  local_irq_save()
+> > 
+> > 
+> > Note that:
+> > 
+> >  a) sched_clock() is used in NMI context a *LOT*
+> >  b) sched_clock() is notrace (or even noinstr with these patches)
+> >     and local_irq_save() implies tracing
+> > 
+> 
+> Tianyu and Michael, what's your thought on this?
+> 
+> Is the MSR-based GHCB usable at this point?
+> 
+> What other clock source can be used?
 
-Saw the change you proposed, Michael! It looks good to me.
-Thanks for helping me make the selftest suite more robust :)
+You do have TSC support -- which is what I fixed for you. It's just the
+whole MSR thing that is comically broken.
 
->
-> Tested-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
->
->
-> cheers
+You could do a read_hv_clock_msr() implementation using
+__rdmsr() and add some sanity checking that anything GHCB using (SEV?)
+*will* use TSC.
+
+Anyway, will you guys do that, or should I pull out the chainsaw and fix
+it for you?
