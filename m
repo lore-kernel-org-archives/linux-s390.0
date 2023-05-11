@@ -2,150 +2,145 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DC88EC7EE2D
-	for <linux-s390@archiver.kernel.org>; Thu, 11 May 2023 14:04:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 72107C7EE26
+	for <linux-s390@archiver.kernel.org>; Thu, 11 May 2023 14:27:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238265AbjEKOEY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 11 May 2023 10:04:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51214 "EHLO
+        id S237928AbjEKO10 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 11 May 2023 10:27:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238236AbjEKOEW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 11 May 2023 10:04:22 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A353F10FF;
-        Thu, 11 May 2023 07:04:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=agTIVDV40QlNuRDmtaMpYQzLmx8ylyt8K8o0YwfCE44=; b=lL2e25Q7Ym9Z2f1ilo2kWwHtLS
-        4LEtDqoDAi/1aC4kjoeLMlHtLt+a+FS4EW3ttxbaQDhTXZfyi02WOEzNc3/vCsr0owbyF5PEsIwHc
-        4EGA9zShanxJYpMWANvO4AfYvUXSJigLrvPdNGyjPeVrrNrqH+tCpFoKNI6P6bYEGIKsYYtBzAtzu
-        8Ajl8g5ng54yFG0pf0AiaE1GeB3gEJ+vkOMxu+NkdXV1EBgexS5qxecZBXe6DpvnyQd7D8QuN/WHz
-        qIZBX6djd2pg1T+ptsLEa/faZBnf92py7b8vnk1aHVuruD1rplz5XIZSxcsHdZBQZO/oPVfH/8958
-        /oI/ASsA==;
-Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1px6sh-00HGyK-LW; Thu, 11 May 2023 14:02:55 +0000
-Date:   Thu, 11 May 2023 15:02:55 +0100
-From:   Matthew Wilcox <willy@infradead.org>
-To:     Hugh Dickins <hughd@google.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        David Hildenbrand <david@redhat.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Qi Zheng <zhengqi.arch@bytedance.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Greg Ungerer <gerg@linux-m68k.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Helge Deller <deller@gmx.de>,
-        John David Anglin <dave.anglin@bell.net>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Alexandre Ghiti <alexghiti@rivosinc.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        with ESMTP id S238200AbjEKO0w (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 11 May 2023 10:26:52 -0400
+Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0768D100D9;
+        Thu, 11 May 2023 07:26:38 -0700 (PDT)
+Received: by mail-ed1-x535.google.com with SMTP id 4fb4d7f45d1cf-50bdd7b229cso15780021a12.0;
+        Thu, 11 May 2023 07:26:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20221208; t=1683815197; x=1686407197;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=NuRohinkfnfKmQ5A0D+/nPSG9lRUGHQe+yhHKcHJQxc=;
+        b=LtK1dCAhlTv//hzdt2MS3tcXcqmmZZ8Uq+ljdJNnuuCglgmhmm9NuHsu73nfpcQlSJ
+         Oe1i6sin4+SziCfaxmajG9Mop1DS3VAV89W3M9GwqfL2NqFBqcZRlnBK7rAoWVLECKju
+         QGLD6uMlpZNvfWHqc4hYTnnbHRI14zXMNpVgR3YjZSl8eED7DDP48pupvBdwHhlEzDjG
+         dGIUFk34vfcb+AN0naBTlDjc46KrhjdmBFRxdbe2hO6F0EgKmzkvTETHjHMcwwMCMk2q
+         R7pJ+d5SeSJeDn75IkxGfZ4fKQP589sMALN7ukmg6zahdU4e3DmKP7/1Or8+YvChH745
+         uW7Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1683815197; x=1686407197;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=NuRohinkfnfKmQ5A0D+/nPSG9lRUGHQe+yhHKcHJQxc=;
+        b=ZyupoRAqPzCmJQjElv2ieiEOaTbdrRzbMk+F/TtU2muO3o84z9INJj6megvVlltFZD
+         QKtuwNjDrCSn80fRTmvBdwwPsQX8BG5bJhlGjbiemBdy9S9Moj0VW/qDbxzXBOVHdmjV
+         c1z5sgBXqDUDsnscosMDHT1dOCn7jeMQTZgkYQ51oDCtnzzxLFzAfRGnnomwIbXP1cum
+         +zeQ1YeXY7bctEU93s2Qkjwo1BKwZi2MDVSmWjridNHqeKxgjU4vP2sRMKUnMqlT0Udg
+         lAx1iCzUXGFCpDOAeNPqle/Dk1dje98fHycA/Xw802tIUkV1vv85A+MEC2shbPTioX5g
+         NyRQ==
+X-Gm-Message-State: AC+VfDx6IK6xrg5gjRgM1PApJ+70ZCFwIyy8biQPZxtE2p26RfBFzFCi
+        9nkktWXHdaPxZRyYQIF+iaSejuxFv5nYag==
+X-Google-Smtp-Source: ACHHUZ5GOLDQBV2a4yxrRPw74HHNTnjeXEf7+OrzQ2aRfK6fL6kLzU37PHBUAbvQ3LzW53EJgy3gcg==
+X-Received: by 2002:a17:907:720e:b0:966:5a6c:752d with SMTP id dr14-20020a170907720e00b009665a6c752dmr13444473ejc.20.1683815197050;
+        Thu, 11 May 2023 07:26:37 -0700 (PDT)
+Received: from debianHome.localdomain (dynamic-077-008-180-228.77.8.pool.telefonica.de. [77.8.180.228])
+        by smtp.gmail.com with ESMTPSA id hf15-20020a1709072c4f00b0094f58a85bc5sm4056647ejc.180.2023.05.11.07.26.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 11 May 2023 07:26:35 -0700 (PDT)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To:     selinux@vger.kernel.org
+Cc:     Felix Kuehling <Felix.Kuehling@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        "Pan, Xinhui" <Xinhui.Pan@amd.com>,
+        David Airlie <airlied@gmail.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
         "David S. Miller" <davem@davemloft.net>,
-        Chris Zankel <chris@zankel.net>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Peter Zijlstra <peterz@infradead.org>, x86@kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
-        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        Michel Lespinasse <michel@lespinasse.org>
-Subject: Re: [PATCH 00/23] arch: allow pte_offset_map[_lock]() to fail
-Message-ID: <ZFz1j1slZHCQmwMJ@casper.infradead.org>
-References: <77a5d8c-406b-7068-4f17-23b7ac53bc83@google.com>
- <ZFs0k2rrLPH9A/UU@casper.infradead.org>
- <d7f3c7b2-25b8-ef66-98a8-43d68f4499f@google.com>
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Stefan Haberland <sth@linux.ibm.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, bpf@vger.kernel.org
+Subject: [PATCH v4 5/9] drivers: use new capable_any functionality
+Date:   Thu, 11 May 2023 16:25:28 +0200
+Message-Id: <20230511142535.732324-5-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.40.1
+In-Reply-To: <20230511142535.732324-1-cgzones@googlemail.com>
+References: <20230511142535.732324-1-cgzones@googlemail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d7f3c7b2-25b8-ef66-98a8-43d68f4499f@google.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, May 10, 2023 at 09:35:44PM -0700, Hugh Dickins wrote:
-> On Wed, 10 May 2023, Matthew Wilcox wrote:
-> > On Tue, May 09, 2023 at 09:39:13PM -0700, Hugh Dickins wrote:
-> > > Two: pte_offset_map() will need to do an rcu_read_lock(), with the
-> > > corresponding rcu_read_unlock() in pte_unmap().  But most architectures
-> > > never supported CONFIG_HIGHPTE, so some don't always call pte_unmap()
-> > > after pte_offset_map(), or have used userspace pte_offset_map() where
-> > > pte_offset_kernel() is more correct.  No problem in the current tree,
-> > > but a problem once an rcu_read_unlock() will be needed to keep balance.
-> > 
-> > Hi Hugh,
-> > 
-> > I shall have to spend some time looking at these patches, but at LSFMM
-> > just a few hours ago, I proposed and nobody objected to removing
-> > CONFIG_HIGHPTE.  I don't intend to take action on that consensus
-> > immediately, so I can certainly wait until your patches are applied, but
-> > if this information simplifies what you're doing, feel free to act on it.
-> 
-> Thanks a lot, Matthew: very considerate, as usual.
-> 
-> Yes, I did see your "Whither Highmem?" (wither highmem!) proposal on the
+Use the new added capable_any function in appropriate cases, where a
+task is required to have any of two capabilities.
 
-I'm glad somebody noticed the pun ;-)
+Reorder CAP_SYS_ADMIN last.
 
-> list, and it did make me think, better get these patches and preview out
-> soon, before you get to vanish pte_unmap() altogether.  HIGHMEM or not,
-> HIGHPTE or not, I think pte_offset_map() and pte_unmap() still have an
-> important role to play.
-> 
-> I don't really understand why you're going down a remove-CONFIG_HIGHPTE
-> route: I thought you were motivated by the awkardness of kmap on large
-> folios; but I don't see how removing HIGHPTE helps with that at all
-> (unless you have a "large page tables" effort in mind, but I doubt it).
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+v4:
+   Additional usage in kfd_ioctl()
+v3:
+   rename to capable_any()
+---
+ drivers/gpu/drm/amd/amdkfd/kfd_chardev.c | 3 +--
+ drivers/net/caif/caif_serial.c           | 2 +-
+ drivers/s390/block/dasd_eckd.c           | 2 +-
+ 3 files changed, 3 insertions(+), 4 deletions(-)
 
-Quite right, my primary concern is filesystem metadata; primarily
-directories as I don't think anybody has ever supported symlinks or
-superblocks larger than 4kB.
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c b/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
+index 1b54a9aaae70..d21fb9d1556b 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
+@@ -2896,8 +2896,7 @@ static long kfd_ioctl(struct file *filep, unsigned int cmd, unsigned long arg)
+ 	 * more priviledged access.
+ 	 */
+ 	if (unlikely(ioctl->flags & KFD_IOC_FLAG_CHECKPOINT_RESTORE)) {
+-		if (!capable(CAP_CHECKPOINT_RESTORE) &&
+-						!capable(CAP_SYS_ADMIN)) {
++		if (!capable_any(CAP_CHECKPOINT_RESTORE, CAP_SYS_ADMIN)) {
+ 			retcode = -EACCES;
+ 			goto err_i1;
+ 		}
+diff --git a/drivers/net/caif/caif_serial.c b/drivers/net/caif/caif_serial.c
+index 688075859ae4..ca3f82a0e3a6 100644
+--- a/drivers/net/caif/caif_serial.c
++++ b/drivers/net/caif/caif_serial.c
+@@ -326,7 +326,7 @@ static int ldisc_open(struct tty_struct *tty)
+ 	/* No write no play */
+ 	if (tty->ops->write == NULL)
+ 		return -EOPNOTSUPP;
+-	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_TTY_CONFIG))
++	if (!capable_any(CAP_SYS_TTY_CONFIG, CAP_SYS_ADMIN))
+ 		return -EPERM;
+ 
+ 	/* release devices to avoid name collision */
+diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
+index ade1369fe5ed..67d1058bce1b 100644
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -5370,7 +5370,7 @@ static int dasd_symm_io(struct dasd_device *device, void __user *argp)
+ 	char psf0, psf1;
+ 	int rc;
+ 
+-	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RAWIO))
++	if (!capable_any(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
+ 		return -EACCES;
+ 	psf0 = psf1 = 0;
+ 
+-- 
+2.40.1
 
-I was thinking that removing CONFIG_HIGHPTE might simplify the page
-fault handling path a little, but now I've looked at it some more, and
-I'm not sure there's any simplification to be had.  It should probably
-use kmap_local instead of kmap_atomic(), though.
-
-> But I've no investment in CONFIG_HIGHPTE if people think now is the
-> time to remove it: I disagree, but wouldn't miss it myself - so long
-> as you leave pte_offset_map() and pte_unmap() (under whatever names).
-> 
-> I don't think removing CONFIG_HIGHPTE will simplify what I'm doing.
-> For a moment it looked like it would: the PAE case is nasty (and our
-> data centres have not been on PAE for a long time, so it wasn't a
-> problem I had to face before); and knowing pmd_high must be 0 for a
-> page table looked like it would help, but now I'm not so sure of that
-> (hmm, I'm changing my mind again as I write).
-> 
-> Peter's pmdp_get_lockless() does rely for complete correctness on
-> interrupts being disabled, and I suspect that I may be forced in the
-> PAE case to do so briefly; but detest that notion.  For now I'm just
-> deferring it, hoping for a better idea before third series finalized.
-> 
-> I mention this (and Cc Peter) in passing: don't want this arch thread
-> to go down into that rabbit hole: we can start a fresh thread on it if
-> you wish, but right now my priority is commit messages for the second
-> series, rather than solving (or even detailing) the PAE problem.
-
-I infer that what you need is a pte_access_start() and a
-pte_access_end() which look like they can be plausibly rcu_read_lock()
-and rcu_read_unlock(), but might need to be local_irq_save() and
-local_irq_restore() in some configurations?
-
-We also talked about moving x86 to always RCU-free page tables in
-order to make accessing /proc/$pid/smaps lockless.  I believe Michel
-is going to take a swing at this project.
