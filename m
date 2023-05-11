@@ -2,70 +2,82 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F2088C7EE2D
-	for <linux-s390@archiver.kernel.org>; Thu, 11 May 2023 09:01:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B5AD5C7EE2D
+	for <linux-s390@archiver.kernel.org>; Thu, 11 May 2023 09:31:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236753AbjEKJBw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 11 May 2023 05:01:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57928 "EHLO
+        id S237130AbjEKJbJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 11 May 2023 05:31:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235696AbjEKJBv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 11 May 2023 05:01:51 -0400
-Received: from mail-qv1-xf2c.google.com (mail-qv1-xf2c.google.com [IPv6:2607:f8b0:4864:20::f2c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFA6E270E;
-        Thu, 11 May 2023 02:01:49 -0700 (PDT)
-Received: by mail-qv1-xf2c.google.com with SMTP id 6a1803df08f44-61cd6191a62so37795906d6.3;
-        Thu, 11 May 2023 02:01:49 -0700 (PDT)
+        with ESMTP id S236592AbjEKJbH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 11 May 2023 05:31:07 -0400
+Received: from mail-qk1-x732.google.com (mail-qk1-x732.google.com [IPv6:2607:f8b0:4864:20::732])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F4884EEC;
+        Thu, 11 May 2023 02:31:06 -0700 (PDT)
+Received: by mail-qk1-x732.google.com with SMTP id af79cd13be357-757741ca000so500431385a.2;
+        Thu, 11 May 2023 02:31:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1683795709; x=1686387709;
+        d=gmail.com; s=20221208; t=1683797466; x=1686389466;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=KATKL5c9hHw7borFknSpolyvbkYiWwqKIKb81BIcugs=;
-        b=LiA5aCThzGnNp7E+Ta+DAvVEwiclZpF791zLAUwx+Als8erWN8Yl7PpwtloKY7vfA7
-         +VTsnl2KSlBmbyAImxRU3lG+IUT2Wqb5hUFCcAsZyEs/D1k9iAGqD79kt7aecJ/Cxj9r
-         eR6nzEnIzjucsN/6A+1hNPz8FvRo+Kuj2ketbPBiwSj1JqzajAiKbzNVkW/c2RJBCR3k
-         MZC8rrsOEhbdZrX91ntkakGdeHJHeYwEVqGe6cUOqDaw42N8TysvScbiMKu+APTP9eCY
-         3fchxaSfDDqrX5GvKxMc/O6qbvizbF/orFqeAlT1EFH85PiOL82QGmIN8EQXMGf+kfzf
-         4sBA==
+        bh=44LgLHJDIULJkMBem069KICIq3uxO214CaUgM8dXQT8=;
+        b=BDA3XAW6HVHBBCTylbjq0CrSvwep3z/RKHIin6eHkOxIgxSvF9oCpp4JdMxjhKCg8a
+         t6De61RAZB8nwhqVhhnd+GwGOl5A9f6x8ta1mhnXQNHIA8XVVWTsZ3z2sLNVKJGzzpnv
+         pVJ84YIgNXNe3zzg0Bt2DTwq5JDGQGStI/fGod4pqnCGfyQ7QKofa8hYUqI7j01kYIh5
+         pdBpovGUxFwqp+4kZG7VlWddqhNwbB9KXu5x5m7XiaxjuDvLIgeFm1gLHxbutaTsEe0t
+         4R0BYZnEDMzRXc8veBcbo5PxiVrNC+0sZriJIWCU7Z1JN7IWfsEaHn66MIjE5tmEuP4w
+         GExw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1683795709; x=1686387709;
+        d=1e100.net; s=20221208; t=1683797466; x=1686389466;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=KATKL5c9hHw7borFknSpolyvbkYiWwqKIKb81BIcugs=;
-        b=Jm/KMUODbh3xfPvkr3EYAuyjraxkpSRfZkRQWRGd5Ni7IbcADn0Gmc1VLLk98s3z9m
-         EJiGkpqjUQ0tC5HxHf5YZV60s6UtPPlkQVdvm1h5pJJfRPKiEimnTlRB++OjkWSIbF1u
-         Otn7mvfa886ruINYOtyRdbugYpAEWTVDfBlwLVsI/hr6ywsN1DPKMkLXjOMOAxk0bjQI
-         BReSDiab4UPJnzoyBDJF/InErcCr4JvBpVbZtqVsXUCilmTZdMG/tIE+WNT/sUn3melK
-         AwkghZc3Z2AqjhrL9anBDdH2kmoFl5puCzyT3onzJXq4BvaJliEsaRKyGpK3Vl9CYXB2
-         A1bg==
-X-Gm-Message-State: AC+VfDyzC7lf57fXKzBy/EGTdDQtdzE/qz8MHkRSvRizewlVNRHhKu+W
-        W+53RpRqW6fi3BHHecNDevm8P/xI+BC0LyHZF2Q=
-X-Google-Smtp-Source: ACHHUZ5zRYnTHqc+5jEp+WommdN4iUlzGKKD+R//mFSlux2Z635gESR+gw4QOQ+7Eia9GPcOqFZAyzIfjtGm1Vv4yks=
-X-Received: by 2002:a05:6214:4018:b0:5ef:3b9a:b01d with SMTP id
- kd24-20020a056214401800b005ef3b9ab01dmr25843220qvb.1.1683795708608; Thu, 11
- May 2023 02:01:48 -0700 (PDT)
+        bh=44LgLHJDIULJkMBem069KICIq3uxO214CaUgM8dXQT8=;
+        b=dOB9EqJRKU9yOdD/XZ2T/hNNSCFQtAGKxLUU16T6mVKz6TCWCNalINroxiiD+sbp+Q
+         N406tuWlnXrlHLE2XghdpM1R3uUH36/6YyhUpY3pcf530A7VBgwc1oc16edXX3Ev6GXs
+         LBNQKqX1qhl2XbgpqAYRY9CZ87xGR7xBkKEcvVQw3uWauWfGtzjMRZV4IMh71TRci4jH
+         SFrooGCERFq2zkzbvwiIg/zPCHBSsLTZ1IZ/vFfLCZyAEVJcl917xswax7omKu2TB8gr
+         Eh7yq94a71+WRcFrOC+k7GuokGZbJbvPS8EGTWotP4K3o7XyytgSr1KhNmmjNqyFGvI7
+         Wfrg==
+X-Gm-Message-State: AC+VfDzWHForSBQse/Glxvyj0A7Qwsifs7e0vqzajeOPLXEXBtCnBeU2
+        uMOe012FZ5yNduh3m9Uq3zTkdCRCOOUnWZCK5tk=
+X-Google-Smtp-Source: ACHHUZ4gCIyUNhd/+bbAhcP9wNcKpLhKmfok0Ws6ilq/cfwGVAdfDhZw6m7PSHSI2kufFJi8oJq2AHQm2PPca7W1ngo=
+X-Received: by 2002:ad4:5961:0:b0:621:4551:c6dc with SMTP id
+ eq1-20020ad45961000000b006214551c6dcmr7378789qvb.39.1683797465598; Thu, 11
+ May 2023 02:31:05 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230510195806.2902878-1-nphamcs@gmail.com> <CAMuHMdV=PNCb1VYfUkEb9rPwGVB=1tkwvm-XBqECyhHR4SNGKg@mail.gmail.com>
-In-Reply-To: <CAMuHMdV=PNCb1VYfUkEb9rPwGVB=1tkwvm-XBqECyhHR4SNGKg@mail.gmail.com>
+References: <20230510195806.2902878-1-nphamcs@gmail.com> <0d8e2503-5d4f-4b60-84ff-01a23bcf557f@app.fastmail.com>
+In-Reply-To: <0d8e2503-5d4f-4b60-84ff-01a23bcf557f@app.fastmail.com>
 From:   Nhat Pham <nphamcs@gmail.com>
-Date:   Thu, 11 May 2023 02:01:37 -0700
-Message-ID: <CAKEwX=Pty0V0m+_00F1uWR1EXt8Gt35PYh-yUZEd-LQRSKgfGQ@mail.gmail.com>
+Date:   Thu, 11 May 2023 02:30:54 -0700
+Message-ID: <CAKEwX=OFVkc2GL3jmoC-qAuwZvzxfs7v__aWY=8bLY3MeMq9hA@mail.gmail.com>
 Subject: Re: [PATCH] cachestat: wire up cachestat for other architectures
-To:     Geert Uytterhoeven <geert@linux-m68k.org>
-Cc:     akpm@linux-foundation.org, linux-mm@kvack.org,
+To:     Arnd Bergmann <arnd@arndb.de>
+Cc:     Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
         linux-api@vger.kernel.org, kernel-team@meta.com,
-        linux-arch@vger.kernel.org, hannes@cmpxchg.org,
-        richard.henderson@linaro.org, ink@jurassic.park.msu.ru,
-        mattst88@gmail.com, linux@armlinux.org.uk, monstr@monstr.eu,
-        tsbogend@alpha.franken.de, James.Bottomley@hansenpartnership.com,
-        deller@gmx.de, mpe@ellerman.id.au, npiggin@gmail.com,
-        christophe.leroy@csgroup.eu, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, ysato@users.sourceforge.jp, dalias@libc.org,
-        glaubitz@physik.fu-berlin.de, davem@davemloft.net,
-        chris@zankel.net, jcmvbkbc@gmail.com, linux-alpha@vger.kernel.org,
+        Linux-Arch <linux-arch@vger.kernel.org>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Richard Henderson <richard.henderson@linaro.org>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Matt Turner <mattst88@gmail.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Michal Simek <monstr@monstr.eu>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Heiko Carstens <hca@linux.ibm.com>, gor@linux.ibm.com,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        borntraeger@linux.ibm.com, Sven Schnelle <svens@linux.ibm.com>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        "David S . Miller" <davem@davemloft.net>, chris@zankel.net,
+        Max Filippov <jcmvbkbc@gmail.com>, linux-alpha@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
         linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
@@ -77,13 +89,10 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, May 11, 2023 at 12:01=E2=80=AFAM Geert Uytterhoeven
-<geert@linux-m68k.org> wrote:
+On Thu, May 11, 2023 at 12:05=E2=80=AFAM Arnd Bergmann <arnd@arndb.de> wrot=
+e:
 >
-> Hi Nat,
->
-> On Wed, May 10, 2023 at 9:58=E2=80=AFPM Nhat Pham <nphamcs@gmail.com> wro=
-te:
+> On Wed, May 10, 2023, at 21:58, Nhat Pham wrote:
 > > cachestat is previously only wired in for x86 (and architectures using
 > > the generic unistd.h table):
 > >
@@ -93,50 +102,18 @@ te:
 > > This patch wires cachestat in for all the other architectures.
 > >
 > > Signed-off-by: Nhat Pham <nphamcs@gmail.com>
-> > ---
-> >  arch/alpha/kernel/syscalls/syscall.tbl      | 1 +
-> >  arch/arm/tools/syscall.tbl                  | 1 +
 >
-> Looking at the last addition of a syscall (commit 21b084fdf2a49ca1
-> ("mm/mempolicy: wire up syscall set_mempolicy_home_node"), it looks
-> like you forgot to update arm64 in compat mode? Or is that not needed?
+> The changes you did here look good, but you missed one
+> file that has never been converted to the syscall.tbl format:
+> arch/arm64/include/asm/unistd32.h along with the __NR_compat_syscalls
+> definition in arch/arm64/include/asm/unistd.h, please add those
+> as well, and then
+>
+> Reviewed-by: Arnd Bergmann <arnd@arndb.de>
 
-It does look like I missed that! Thanks for the reminder. I'll send a fixle=
-t
-shortly...
+Just sent a follow-up fixlet for this:
 
-Best,
-Nhat
+https://lore.kernel.org/linux-mm/20230511092843.3896327-1-nphamcs@gmail.com=
+/T/#u
 
->
-> >  arch/ia64/kernel/syscalls/syscall.tbl       | 1 +
-> >  arch/m68k/kernel/syscalls/syscall.tbl       | 1 +
->
-> For m68k:
-> Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
->
-> >  arch/microblaze/kernel/syscalls/syscall.tbl | 1 +
-> >  arch/mips/kernel/syscalls/syscall_n32.tbl   | 1 +
-> >  arch/mips/kernel/syscalls/syscall_n64.tbl   | 1 +
-> >  arch/mips/kernel/syscalls/syscall_o32.tbl   | 1 +
-> >  arch/parisc/kernel/syscalls/syscall.tbl     | 1 +
-> >  arch/powerpc/kernel/syscalls/syscall.tbl    | 1 +
-> >  arch/s390/kernel/syscalls/syscall.tbl       | 1 +
-> >  arch/sh/kernel/syscalls/syscall.tbl         | 1 +
-> >  arch/sparc/kernel/syscalls/syscall.tbl      | 1 +
-> >  arch/xtensa/kernel/syscalls/syscall.tbl     | 1 +
-> >  14 files changed, 14 insertions(+)
->
-> Gr{oetje,eeting}s,
->
->                         Geert
->
-> --
-> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m6=
-8k.org
->
-> In personal conversations with technical people, I call myself a hacker. =
-But
-> when I'm talking to journalists I just say "programmer" or something like=
- that.
->                                 -- Linus Torvalds
+Thanks for the suggestion!
