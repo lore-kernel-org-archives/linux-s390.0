@@ -2,118 +2,105 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B5AD5C7EE2D
-	for <linux-s390@archiver.kernel.org>; Thu, 11 May 2023 09:31:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BF55CC77B7F
+	for <linux-s390@archiver.kernel.org>; Thu, 11 May 2023 09:42:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237130AbjEKJbJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 11 May 2023 05:31:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52514 "EHLO
+        id S235182AbjEKJmD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 11 May 2023 05:42:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236592AbjEKJbH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 11 May 2023 05:31:07 -0400
-Received: from mail-qk1-x732.google.com (mail-qk1-x732.google.com [IPv6:2607:f8b0:4864:20::732])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F4884EEC;
-        Thu, 11 May 2023 02:31:06 -0700 (PDT)
-Received: by mail-qk1-x732.google.com with SMTP id af79cd13be357-757741ca000so500431385a.2;
-        Thu, 11 May 2023 02:31:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1683797466; x=1686389466;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=44LgLHJDIULJkMBem069KICIq3uxO214CaUgM8dXQT8=;
-        b=BDA3XAW6HVHBBCTylbjq0CrSvwep3z/RKHIin6eHkOxIgxSvF9oCpp4JdMxjhKCg8a
-         t6De61RAZB8nwhqVhhnd+GwGOl5A9f6x8ta1mhnXQNHIA8XVVWTsZ3z2sLNVKJGzzpnv
-         pVJ84YIgNXNe3zzg0Bt2DTwq5JDGQGStI/fGod4pqnCGfyQ7QKofa8hYUqI7j01kYIh5
-         pdBpovGUxFwqp+4kZG7VlWddqhNwbB9KXu5x5m7XiaxjuDvLIgeFm1gLHxbutaTsEe0t
-         4R0BYZnEDMzRXc8veBcbo5PxiVrNC+0sZriJIWCU7Z1JN7IWfsEaHn66MIjE5tmEuP4w
-         GExw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1683797466; x=1686389466;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=44LgLHJDIULJkMBem069KICIq3uxO214CaUgM8dXQT8=;
-        b=dOB9EqJRKU9yOdD/XZ2T/hNNSCFQtAGKxLUU16T6mVKz6TCWCNalINroxiiD+sbp+Q
-         N406tuWlnXrlHLE2XghdpM1R3uUH36/6YyhUpY3pcf530A7VBgwc1oc16edXX3Ev6GXs
-         LBNQKqX1qhl2XbgpqAYRY9CZ87xGR7xBkKEcvVQw3uWauWfGtzjMRZV4IMh71TRci4jH
-         SFrooGCERFq2zkzbvwiIg/zPCHBSsLTZ1IZ/vFfLCZyAEVJcl917xswax7omKu2TB8gr
-         Eh7yq94a71+WRcFrOC+k7GuokGZbJbvPS8EGTWotP4K3o7XyytgSr1KhNmmjNqyFGvI7
-         Wfrg==
-X-Gm-Message-State: AC+VfDzWHForSBQse/Glxvyj0A7Qwsifs7e0vqzajeOPLXEXBtCnBeU2
-        uMOe012FZ5yNduh3m9Uq3zTkdCRCOOUnWZCK5tk=
-X-Google-Smtp-Source: ACHHUZ4gCIyUNhd/+bbAhcP9wNcKpLhKmfok0Ws6ilq/cfwGVAdfDhZw6m7PSHSI2kufFJi8oJq2AHQm2PPca7W1ngo=
-X-Received: by 2002:ad4:5961:0:b0:621:4551:c6dc with SMTP id
- eq1-20020ad45961000000b006214551c6dcmr7378789qvb.39.1683797465598; Thu, 11
- May 2023 02:31:05 -0700 (PDT)
+        with ESMTP id S230466AbjEKJmC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 11 May 2023 05:42:02 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9ED02D57;
+        Thu, 11 May 2023 02:42:00 -0700 (PDT)
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34B9bYOu017280;
+        Thu, 11 May 2023 09:41:57 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
+ mime-version : content-transfer-encoding : in-reply-to : references : to :
+ cc : from : subject : message-id : date; s=pp1;
+ bh=zYNF1JsoxhfGG6A2/C8/R1+ymZFuPzeOg247+mvxvPg=;
+ b=XON/fDQGWEtePusWKWnOsJ+nh/JaJZiKy9cAOJPjrP9oZR0a6ldyTBv5s4ja76NJd3+t
+ KSG6F33CYqk69fZiMo08cfzIVJid8cI4csq90mk8eYLgw3Me9feLgClaKjIhokgwqHKg
+ nGrNLcBX0oqDujT6u7rDUWnSixI67nAEYOPi782Vt7ogvRaXMuHl0Fu/R/eLcylMwyFf
+ XkIu8Znhh/bQsbpLIyAEn3nBVbAmEfkTSVKq2TelMCMB3AuzqFIkfg6RjLKUdmEL833V
+ uplIX4ZLusGkmpoqb49l+AIYlajvjRc5VztXD/G+KfIiqLy9X7rrv1O7Zpv3pyIKR2sQ uQ== 
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qgbxn1epe-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 11 May 2023 09:41:57 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34B5Gf3x025825;
+        Thu, 11 May 2023 09:41:55 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3qf896sk3a-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 11 May 2023 09:41:55 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34B9fpF517105376
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 11 May 2023 09:41:51 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6768620040;
+        Thu, 11 May 2023 09:41:51 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2A3C02004B;
+        Thu, 11 May 2023 09:41:51 +0000 (GMT)
+Received: from t14-nrb (unknown [9.179.31.89])
+        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Thu, 11 May 2023 09:41:50 +0000 (GMT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20230510195806.2902878-1-nphamcs@gmail.com> <0d8e2503-5d4f-4b60-84ff-01a23bcf557f@app.fastmail.com>
-In-Reply-To: <0d8e2503-5d4f-4b60-84ff-01a23bcf557f@app.fastmail.com>
-From:   Nhat Pham <nphamcs@gmail.com>
-Date:   Thu, 11 May 2023 02:30:54 -0700
-Message-ID: <CAKEwX=OFVkc2GL3jmoC-qAuwZvzxfs7v__aWY=8bLY3MeMq9hA@mail.gmail.com>
-Subject: Re: [PATCH] cachestat: wire up cachestat for other architectures
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
-        linux-api@vger.kernel.org, kernel-team@meta.com,
-        Linux-Arch <linux-arch@vger.kernel.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Richard Henderson <richard.henderson@linaro.org>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Matt Turner <mattst88@gmail.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Heiko Carstens <hca@linux.ibm.com>, gor@linux.ibm.com,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        borntraeger@linux.ibm.com, Sven Schnelle <svens@linux.ibm.com>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        "David S . Miller" <davem@davemloft.net>, chris@zankel.net,
-        Max Filippov <jcmvbkbc@gmail.com>, linux-alpha@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20230324145424.293889-1-nrb@linux.ibm.com>
+References: <20230324145424.293889-1-nrb@linux.ibm.com>
+To:     borntraeger@linux.ibm.com, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com, shuah@kernel.org
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kselftest@vger.kernel.org
+From:   Nico Boehr <nrb@linux.ibm.com>
+Subject: Re: [PATCH v2 0/2] KVM: s390: CMMA migration selftest and small bugfix
+Message-ID: <168379811019.9368.1588862499018469612@t14-nrb>
+User-Agent: alot/0.8.1
+Date:   Thu, 11 May 2023 11:41:50 +0200
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: _H5XDelMlZe13zcYwmXe22bEYRe1F5lC
+X-Proofpoint-GUID: _H5XDelMlZe13zcYwmXe22bEYRe1F5lC
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-05-11_06,2023-05-05_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 mlxscore=0
+ suspectscore=0 bulkscore=0 adultscore=0 impostorscore=0 lowpriorityscore=0
+ mlxlogscore=882 priorityscore=1501 clxscore=1011 malwarescore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2304280000 definitions=main-2305110081
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, May 11, 2023 at 12:05=E2=80=AFAM Arnd Bergmann <arnd@arndb.de> wrot=
-e:
->
-> On Wed, May 10, 2023, at 21:58, Nhat Pham wrote:
-> > cachestat is previously only wired in for x86 (and architectures using
-> > the generic unistd.h table):
-> >
-> > https://lore.kernel.org/lkml/20230503013608.2431726-1-nphamcs@gmail.com=
-/
-> >
-> > This patch wires cachestat in for all the other architectures.
-> >
-> > Signed-off-by: Nhat Pham <nphamcs@gmail.com>
->
-> The changes you did here look good, but you missed one
-> file that has never been converted to the syscall.tbl format:
-> arch/arm64/include/asm/unistd32.h along with the __NR_compat_syscalls
-> definition in arch/arm64/include/asm/unistd.h, please add those
-> as well, and then
->
-> Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Quoting Nico Boehr (2023-03-24 15:54:22)
+> v2:
+> ---
+> * swap order of patches (thanks Claudio)
+> * add r-b
+> * add comment why memslots are zeroed
+>=20
+> Add a new selftest for CMMA migration. Also fix a small issue found during
+> development of the test.
+>=20
+> Nico Boehr (2):
+>   KVM: s390: fix KVM_S390_GET_CMMA_BITS for GFNs in memslot holes
+>   KVM: s390: selftests: add selftest for CMMA migration
+>=20
+>  arch/s390/kvm/kvm-s390.c                      |   4 +
+>  tools/testing/selftests/kvm/Makefile          |   1 +
+>  tools/testing/selftests/kvm/s390x/cmma_test.c | 680 ++++++++++++++++++
+>  3 files changed, 685 insertions(+)
+>  create mode 100644 tools/testing/selftests/kvm/s390x/cmma_test.c
+>=20
+> --=20
+> 2.39.1
+>=20
 
-Just sent a follow-up fixlet for this:
-
-https://lore.kernel.org/linux-mm/20230511092843.3896327-1-nphamcs@gmail.com=
-/T/#u
-
-Thanks for the suggestion!
+Polite ping.
