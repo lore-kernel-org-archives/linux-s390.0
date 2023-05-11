@@ -2,118 +2,115 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C50FDC7EE2E
-	for <linux-s390@archiver.kernel.org>; Thu, 11 May 2023 15:17:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C1B0C7EE2A
+	for <linux-s390@archiver.kernel.org>; Thu, 11 May 2023 19:34:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238498AbjEKPR4 convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 11 May 2023 11:17:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41856 "EHLO
+        id S239166AbjEKTeh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 11 May 2023 15:34:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237687AbjEKPRy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 11 May 2023 11:17:54 -0400
-Received: from mail-lf1-f52.google.com (mail-lf1-f52.google.com [209.85.167.52])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 280D81BE9;
-        Thu, 11 May 2023 08:17:53 -0700 (PDT)
-Received: by mail-lf1-f52.google.com with SMTP id 2adb3069b0e04-4f13bfe257aso9857608e87.3;
-        Thu, 11 May 2023 08:17:53 -0700 (PDT)
+        with ESMTP id S232629AbjEKTef (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 11 May 2023 15:34:35 -0400
+Received: from mail-qv1-xf31.google.com (mail-qv1-xf31.google.com [IPv6:2607:f8b0:4864:20::f31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2C1F59D0;
+        Thu, 11 May 2023 12:34:34 -0700 (PDT)
+Received: by mail-qv1-xf31.google.com with SMTP id 6a1803df08f44-619be7d7211so42158626d6.3;
+        Thu, 11 May 2023 12:34:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1683833674; x=1686425674;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=OkRg4aBIGd+Ujeyjhqn0VJEzJVlq0iY77Z11k0mAFFM=;
+        b=D8VOr21Fczrl0K1COf0x4Ck7WHMsRogiYEEbrY2VpNny+n3MR+tJuDH09I9YAsS652
+         swT6GvFknXTnMBZPWlOxHk2u05+SeKUhRFMH/ZtDMNfuFTmqhV28jtrPoFuIwQ/bqAzu
+         JEHJCZ22+ejNPu9sQ5B4mFAObz8laeWoYTSRIa0MiOnPq0OszLg5zmMrWPnpqMS2qlwN
+         5gjqnyxgdjPUMVEd0f/03my+5DYNfTma/sJ3vnrs+cTqKEwezFl9LOtEmPAD5vfhXfNX
+         JrpZrTJ+uj1uIfEyrp6lAwR5J8sidiziH5Wld/lDfUFxzbjgvyiL15VatExShfnoJdEm
+         /ImQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1683818269; x=1686410269;
+        d=1e100.net; s=20221208; t=1683833674; x=1686425674;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=LeLJUnaY4RpSv7Fr2RyuafyTEGCbWOy7/KdXYyNynDE=;
-        b=ge1gtwjXlKoKZXr/qIp5om/sZLzkRVaPZoKEd+n/64npGC8ZAgJXmeZVOU9dCKyBrL
-         qRdx47yk2qLkmuRxh7eGifrT9eaVecmor5q11BXhaJ2bvcs2dcUrTtB9J2UrAnUaSrfr
-         YbUKSyF/XomYjC09/9GV50LGxkwISrvHUx6/n18DsSSDmqjum5v0TifpJ89ok5HERmi/
-         5VCFJLvV/eF7sI3GJkM3A9B+TgJyqP23zpjIZ3VTvmZ83MlALpNi2IbddO5v7j0sbKYM
-         kx6ftYs353keXixBF8zPyAKnbpK9wYbU/CCJqYSUuLCJ5Nfo/fOSGrm2u/PAwjoHCy7t
-         14EQ==
-X-Gm-Message-State: AC+VfDw3E+dBcf13s+NtbICSOnmyeQnwg/5pHUe0fxHRj9igKjkPYGNK
-        Usk7crOITmi4b4Fvx/ms8naUz7SDKeB2elkP
-X-Google-Smtp-Source: ACHHUZ7AtAYYjTZZBBifPPhnRdvlQJmGftR5qufjOvI46W5MJZJ2S/CxxxUalX7TfpD2oh6B80cmDg==
-X-Received: by 2002:ac2:5930:0:b0:4e9:74a8:134c with SMTP id v16-20020ac25930000000b004e974a8134cmr2779767lfi.43.1683818268565;
-        Thu, 11 May 2023 08:17:48 -0700 (PDT)
-Received: from mail-lf1-f51.google.com (mail-lf1-f51.google.com. [209.85.167.51])
-        by smtp.gmail.com with ESMTPSA id o21-20020ac24355000000b004dda87ecae3sm1125543lfl.246.2023.05.11.08.17.46
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 11 May 2023 08:17:47 -0700 (PDT)
-Received: by mail-lf1-f51.google.com with SMTP id 2adb3069b0e04-4f2676d62a2so1729691e87.0;
-        Thu, 11 May 2023 08:17:46 -0700 (PDT)
-X-Received: by 2002:ac2:4c13:0:b0:4f2:22bf:fe98 with SMTP id
- t19-20020ac24c13000000b004f222bffe98mr2776652lfq.37.1683818265953; Thu, 11
- May 2023 08:17:45 -0700 (PDT)
+        bh=OkRg4aBIGd+Ujeyjhqn0VJEzJVlq0iY77Z11k0mAFFM=;
+        b=I+e0iSK5LM2XRHfR9+c8Jb9mN0NXDz/nBDRNymh9Jue2t28UrKxRqYi2LAE/un8HXU
+         l/OOq8L0LY8OQVbmwAoWH/BaM0Ae7AY9L0YOjjmHDWt730qnBQmLmnym9oZ0iBbXqNd4
+         gVWJ/+zsy+LxKr+tRpoHswUe1SZbbfIEoedYAQpdDDuJhDQ9bPUD+tQZOHpUrKSAnejI
+         9u0b9DBVMJn0eyhNC8EAk9eFmoxMjQNvibNIGd9h2L1Z5YH86xENlUi8nWwFAHrkiOJK
+         PSsMWFQ6fFXlQaVDIh+PXUezizXqkF3zz0KM+XkAcsoqlQlFCMJuRs4XbetYVKblN/5h
+         jOmQ==
+X-Gm-Message-State: AC+VfDzTm74CQfiyLWsMkFQ3vTps7tfH1fUU0rEwsZ8jQoJJSlcyDrj/
+        Q3nS9z5o1ebkDUsZdHKTVKEx7Y1ZNHkeOKrul8Y=
+X-Google-Smtp-Source: ACHHUZ6FKXu0op+KxzAVHeFuNCXe2D1xFAp09jFVR7D1aeGdyycJWyp3G5ZLoEExaajX1pb4elh/5/+JF1DIDbKGBFc=
+X-Received: by 2002:ad4:5dec:0:b0:5a1:6212:93be with SMTP id
+ jn12-20020ad45dec000000b005a1621293bemr33993641qvb.29.1683833673901; Thu, 11
+ May 2023 12:34:33 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230511150802.737477-1-cgzones@googlemail.com>
-In-Reply-To: <20230511150802.737477-1-cgzones@googlemail.com>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Thu, 11 May 2023 17:17:29 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdVa69s3g0z6qgayzNx=jT6Ko2RNeZehru0SbzYH8VwkfQ@mail.gmail.com>
-Message-ID: <CAMuHMdVa69s3g0z6qgayzNx=jT6Ko2RNeZehru0SbzYH8VwkfQ@mail.gmail.com>
-Subject: Re: [RFC PATCH v2] fs/xattr: add *at family syscalls
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     x86@kernel.org, linux-alpha@vger.kernel.org,
+References: <20230510195806.2902878-1-nphamcs@gmail.com> <874joja6vz.fsf@mail.lhotse>
+In-Reply-To: <874joja6vz.fsf@mail.lhotse>
+From:   Nhat Pham <nphamcs@gmail.com>
+Date:   Thu, 11 May 2023 12:34:23 -0700
+Message-ID: <CAKEwX=OHMaUzEG9hoMz20m9DnyFD4xC78KiNV1Qu0bUhkrYhAA@mail.gmail.com>
+Subject: Re: [PATCH] cachestat: wire up cachestat for other architectures
+To:     Michael Ellerman <mpe@ellerman.id.au>
+Cc:     akpm@linux-foundation.org, linux-mm@kvack.org,
+        linux-api@vger.kernel.org, kernel-team@meta.com,
+        linux-arch@vger.kernel.org, hannes@cmpxchg.org,
+        richard.henderson@linaro.org, ink@jurassic.park.msu.ru,
+        mattst88@gmail.com, linux@armlinux.org.uk, geert@linux-m68k.org,
+        monstr@monstr.eu, tsbogend@alpha.franken.de,
+        James.Bottomley@hansenpartnership.com, deller@gmx.de,
+        npiggin@gmail.com, christophe.leroy@csgroup.eu, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        ysato@users.sourceforge.jp, dalias@libc.org,
+        glaubitz@physik.fu-berlin.de, davem@davemloft.net,
+        chris@zankel.net, jcmvbkbc@gmail.com, linux-alpha@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
         linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
         linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, audit@vger.kernel.org,
-        linux-arch@vger.kernel.org, linux-api@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        Nhat Pham <nphamcs@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Christian,
-
-On Thu, May 11, 2023 at 5:10 PM Christian Göttsche
-<cgzones@googlemail.com> wrote:
-> Add the four syscalls setxattrat(), getxattrat(), listxattrat() and
-> removexattrat().  Those can be used to operate on extended attributes,
-> especially security related ones, either relative to a pinned directory
-> or on a file descriptor without read access, avoiding a
-> /proc/<pid>/fd/<fd> detour, requiring a mounted procfs.
+On Wed, May 10, 2023 at 8:23=E2=80=AFPM Michael Ellerman <mpe@ellerman.id.a=
+u> wrote:
 >
-> One use case will be setfiles(8) setting SELinux file contexts
-> ("security.selinux") without race conditions.
+> Nhat Pham <nphamcs@gmail.com> writes:
+> > cachestat is previously only wired in for x86 (and architectures using
+> > the generic unistd.h table):
+> >
+> > https://lore.kernel.org/lkml/20230503013608.2431726-1-nphamcs@gmail.com=
+/
+> >
+> > This patch wires cachestat in for all the other architectures.
+> >
+> > Signed-off-by: Nhat Pham <nphamcs@gmail.com>
+> > ---
+> >  arch/alpha/kernel/syscalls/syscall.tbl      | 1 +
+> >  arch/arm/tools/syscall.tbl                  | 1 +
+> >  arch/ia64/kernel/syscalls/syscall.tbl       | 1 +
+> >  arch/m68k/kernel/syscalls/syscall.tbl       | 1 +
+> >  arch/microblaze/kernel/syscalls/syscall.tbl | 1 +
+> >  arch/mips/kernel/syscalls/syscall_n32.tbl   | 1 +
+> >  arch/mips/kernel/syscalls/syscall_n64.tbl   | 1 +
+> >  arch/mips/kernel/syscalls/syscall_o32.tbl   | 1 +
+> >  arch/parisc/kernel/syscalls/syscall.tbl     | 1 +
+> >  arch/powerpc/kernel/syscalls/syscall.tbl    | 1 +
 >
-> Add XATTR flags to the private namespace of AT_* flags.
+> With the change to the selftest (see my other mail), I tested this on
+> powerpc and all tests pass.
+
+Saw the change you proposed, Michael! It looks good to me.
+Thanks for helping me make the selftest suite more robust :)
+
 >
-> Use the do_{name}at() pattern from fs/open.c.
+> Tested-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
 >
-> Use a single flag parameter for extended attribute flags (currently
-> XATTR_CREATE and XATTR_REPLACE) and *at() flags to not exceed six
-> syscall arguments in setxattrat().
 >
-> Previous approach ("f*xattr: allow O_PATH descriptors"): https://lore.kernel.org/all/20220607153139.35588-1-cgzones@googlemail.com/
-> v1 discussion: https://lore.kernel.org/all/20220830152858.14866-2-cgzones@googlemail.com/
->
-> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
-
-Thanks for your patch!
-
-The syscall numbers conflict with those used in "[PATCH] cachestat:
-wire up cachestat for other architectures", so this needs some
-synchronization.
-https://lore.kernel.org/linux-sh/20230510195806.2902878-1-nphamcs@gmail.com
-
->  arch/m68k/kernel/syscalls/syscall.tbl       |   4 +
-
-For m68k:
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+> cheers
