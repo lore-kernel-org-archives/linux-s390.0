@@ -2,127 +2,150 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DBE5DC7EE24
-	for <linux-s390@archiver.kernel.org>; Thu, 11 May 2023 09:47:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DC88EC7EE2D
+	for <linux-s390@archiver.kernel.org>; Thu, 11 May 2023 14:04:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237720AbjEKJrf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 11 May 2023 05:47:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33994 "EHLO
+        id S238265AbjEKOEY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 11 May 2023 10:04:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237710AbjEKJre (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 11 May 2023 05:47:34 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E87F81711;
-        Thu, 11 May 2023 02:47:31 -0700 (PDT)
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34B9d1wK001125;
-        Thu, 11 May 2023 09:47:31 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=qUBlMSQJXzGbCC1vtGh+tTHCrsxJkkRrnCTJgmpwwBw=;
- b=T8D705MIl6SjDvR0W9ap/6cjg13LvFPzGtSA0y+l85MbLWFVskMTvSR4nSuR7N54Nqxs
- o1J5jWSfNA03PVzdSBcHE7EjB7l5x/eVCWXNl70BQ/B6cPrNYta8nFCGCZ/YYMi5Bj3z
- EYfnVhfSEQqEtTU0TILhhMThzcO0IPtCOADHYTkGYpQQoTls6ViFs/vSX9UnDG/CUYIV
- lrrOe2kxE4EnuiCeHLgFf0YTGBfxZ/HczwSJbPU1b+gowh++rjkx9iQgK6jz1GjeNVF1
- 0JcYjSP0Ax368zEcnu4qx7Z0QJimGVRmldvoVzj35eeZMgzoAj12VztFavgAEWl2r2Nq 1A== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qgva0u6b7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 11 May 2023 09:47:31 +0000
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34B9dINX004483;
-        Thu, 11 May 2023 09:47:31 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qgva0u6aa-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 11 May 2023 09:47:31 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34B4CoIE023348;
-        Thu, 11 May 2023 09:47:28 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-        by ppma03fra.de.ibm.com (PPS) with ESMTPS id 3qf7s8h9ck-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 11 May 2023 09:47:28 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34B9lMhQ65863996
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 11 May 2023 09:47:22 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2EDD52004E;
-        Thu, 11 May 2023 09:47:22 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 43BB92005A;
-        Thu, 11 May 2023 09:47:21 +0000 (GMT)
-Received: from li-c6ac47cc-293c-11b2-a85c-d421c8e4747b.ibm.com.com (unknown [9.171.23.165])
-        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Thu, 11 May 2023 09:47:21 +0000 (GMT)
-From:   Pierre Morel <pmorel@linux.ibm.com>
-To:     david@redhat.com
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, borntraeger@de.ibm.com,
-        frankja@linux.ibm.com, cohuck@redhat.com, thuth@redhat.com,
-        imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        svens@linux.ibm.com
-Subject: [PATCH 1/1] KVM: s390: vsie: fix the length of APCB bitmap
-Date:   Thu, 11 May 2023 11:47:19 +0200
-Message-Id: <20230511094719.9691-2-pmorel@linux.ibm.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20230511094719.9691-1-pmorel@linux.ibm.com>
-References: <20230511094719.9691-1-pmorel@linux.ibm.com>
+        with ESMTP id S238236AbjEKOEW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 11 May 2023 10:04:22 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A353F10FF;
+        Thu, 11 May 2023 07:04:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=agTIVDV40QlNuRDmtaMpYQzLmx8ylyt8K8o0YwfCE44=; b=lL2e25Q7Ym9Z2f1ilo2kWwHtLS
+        4LEtDqoDAi/1aC4kjoeLMlHtLt+a+FS4EW3ttxbaQDhTXZfyi02WOEzNc3/vCsr0owbyF5PEsIwHc
+        4EGA9zShanxJYpMWANvO4AfYvUXSJigLrvPdNGyjPeVrrNrqH+tCpFoKNI6P6bYEGIKsYYtBzAtzu
+        8Ajl8g5ng54yFG0pf0AiaE1GeB3gEJ+vkOMxu+NkdXV1EBgexS5qxecZBXe6DpvnyQd7D8QuN/WHz
+        qIZBX6djd2pg1T+ptsLEa/faZBnf92py7b8vnk1aHVuruD1rplz5XIZSxcsHdZBQZO/oPVfH/8958
+        /oI/ASsA==;
+Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1px6sh-00HGyK-LW; Thu, 11 May 2023 14:02:55 +0000
+Date:   Thu, 11 May 2023 15:02:55 +0100
+From:   Matthew Wilcox <willy@infradead.org>
+To:     Hugh Dickins <hughd@google.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        David Hildenbrand <david@redhat.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Qi Zheng <zhengqi.arch@bytedance.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Greg Ungerer <gerg@linux-m68k.org>,
+        Michal Simek <monstr@monstr.eu>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Helge Deller <deller@gmx.de>,
+        John David Anglin <dave.anglin@bell.net>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Alexandre Ghiti <alexghiti@rivosinc.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        Chris Zankel <chris@zankel.net>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Peter Zijlstra <peterz@infradead.org>, x86@kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        Michel Lespinasse <michel@lespinasse.org>
+Subject: Re: [PATCH 00/23] arch: allow pte_offset_map[_lock]() to fail
+Message-ID: <ZFz1j1slZHCQmwMJ@casper.infradead.org>
+References: <77a5d8c-406b-7068-4f17-23b7ac53bc83@google.com>
+ <ZFs0k2rrLPH9A/UU@casper.infradead.org>
+ <d7f3c7b2-25b8-ef66-98a8-43d68f4499f@google.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: in2b5GtM0qivbJKUTB6hodpw-yHwduZj
-X-Proofpoint-ORIG-GUID: jqu9oZizXA6Od4ozCeLCz1g5_1jEUc9v
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-05-11_06,2023-05-05_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- malwarescore=0 mlxlogscore=749 mlxscore=0 clxscore=1015 impostorscore=0
- bulkscore=0 adultscore=0 spamscore=0 suspectscore=0 lowpriorityscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2304280000 definitions=main-2305110081
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d7f3c7b2-25b8-ef66-98a8-43d68f4499f@google.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-bit_and() uses the count of bits as the woking length.
-Fix the previous implementation and effectively use
-the right bitmap size.
+On Wed, May 10, 2023 at 09:35:44PM -0700, Hugh Dickins wrote:
+> On Wed, 10 May 2023, Matthew Wilcox wrote:
+> > On Tue, May 09, 2023 at 09:39:13PM -0700, Hugh Dickins wrote:
+> > > Two: pte_offset_map() will need to do an rcu_read_lock(), with the
+> > > corresponding rcu_read_unlock() in pte_unmap().  But most architectures
+> > > never supported CONFIG_HIGHPTE, so some don't always call pte_unmap()
+> > > after pte_offset_map(), or have used userspace pte_offset_map() where
+> > > pte_offset_kernel() is more correct.  No problem in the current tree,
+> > > but a problem once an rcu_read_unlock() will be needed to keep balance.
+> > 
+> > Hi Hugh,
+> > 
+> > I shall have to spend some time looking at these patches, but at LSFMM
+> > just a few hours ago, I proposed and nobody objected to removing
+> > CONFIG_HIGHPTE.  I don't intend to take action on that consensus
+> > immediately, so I can certainly wait until your patches are applied, but
+> > if this information simplifies what you're doing, feel free to act on it.
+> 
+> Thanks a lot, Matthew: very considerate, as usual.
+> 
+> Yes, I did see your "Whither Highmem?" (wither highmem!) proposal on the
 
-Fixes: 19fd83a64718 ("KVM: s390: vsie: allow CRYCB FORMAT-1")
-Fixes: 56019f9aca22 ("KVM: s390: vsie: Allow CRYCB FORMAT-2")
+I'm glad somebody noticed the pun ;-)
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
----
- arch/s390/kvm/vsie.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+> list, and it did make me think, better get these patches and preview out
+> soon, before you get to vanish pte_unmap() altogether.  HIGHMEM or not,
+> HIGHPTE or not, I think pte_offset_map() and pte_unmap() still have an
+> important role to play.
+> 
+> I don't really understand why you're going down a remove-CONFIG_HIGHPTE
+> route: I thought you were motivated by the awkardness of kmap on large
+> folios; but I don't see how removing HIGHPTE helps with that at all
+> (unless you have a "large page tables" effort in mind, but I doubt it).
 
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index 8d6b765abf29..0333ee482eb8 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -177,7 +177,8 @@ static int setup_apcb00(struct kvm_vcpu *vcpu, unsigned long *apcb_s,
- 			    sizeof(struct kvm_s390_apcb0)))
- 		return -EFAULT;
- 
--	bitmap_and(apcb_s, apcb_s, apcb_h, sizeof(struct kvm_s390_apcb0));
-+	bitmap_and(apcb_s, apcb_s, apcb_h,
-+		   BITS_PER_BYTE * sizeof(struct kvm_s390_apcb0));
- 
- 	return 0;
- }
-@@ -203,7 +204,8 @@ static int setup_apcb11(struct kvm_vcpu *vcpu, unsigned long *apcb_s,
- 			    sizeof(struct kvm_s390_apcb1)))
- 		return -EFAULT;
- 
--	bitmap_and(apcb_s, apcb_s, apcb_h, sizeof(struct kvm_s390_apcb1));
-+	bitmap_and(apcb_s, apcb_s, apcb_h,
-+		   BITS_PER_BYTE * sizeof(struct kvm_s390_apcb1));
- 
- 	return 0;
- }
--- 
-2.31.1
+Quite right, my primary concern is filesystem metadata; primarily
+directories as I don't think anybody has ever supported symlinks or
+superblocks larger than 4kB.
 
+I was thinking that removing CONFIG_HIGHPTE might simplify the page
+fault handling path a little, but now I've looked at it some more, and
+I'm not sure there's any simplification to be had.  It should probably
+use kmap_local instead of kmap_atomic(), though.
+
+> But I've no investment in CONFIG_HIGHPTE if people think now is the
+> time to remove it: I disagree, but wouldn't miss it myself - so long
+> as you leave pte_offset_map() and pte_unmap() (under whatever names).
+> 
+> I don't think removing CONFIG_HIGHPTE will simplify what I'm doing.
+> For a moment it looked like it would: the PAE case is nasty (and our
+> data centres have not been on PAE for a long time, so it wasn't a
+> problem I had to face before); and knowing pmd_high must be 0 for a
+> page table looked like it would help, but now I'm not so sure of that
+> (hmm, I'm changing my mind again as I write).
+> 
+> Peter's pmdp_get_lockless() does rely for complete correctness on
+> interrupts being disabled, and I suspect that I may be forced in the
+> PAE case to do so briefly; but detest that notion.  For now I'm just
+> deferring it, hoping for a better idea before third series finalized.
+> 
+> I mention this (and Cc Peter) in passing: don't want this arch thread
+> to go down into that rabbit hole: we can start a fresh thread on it if
+> you wish, but right now my priority is commit messages for the second
+> series, rather than solving (or even detailing) the PAE problem.
+
+I infer that what you need is a pte_access_start() and a
+pte_access_end() which look like they can be plausibly rcu_read_lock()
+and rcu_read_unlock(), but might need to be local_irq_save() and
+local_irq_restore() in some configurations?
+
+We also talked about moving x86 to always RCU-free page tables in
+order to make accessing /proc/$pid/smaps lockless.  I believe Michel
+is going to take a swing at this project.
