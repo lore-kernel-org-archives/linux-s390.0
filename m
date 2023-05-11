@@ -2,55 +2,55 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B954C7EE2D
-	for <linux-s390@archiver.kernel.org>; Thu, 11 May 2023 02:58:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 719C8C77B7C
+	for <linux-s390@archiver.kernel.org>; Thu, 11 May 2023 03:16:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235731AbjEKC6D (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 10 May 2023 22:58:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57634 "EHLO
+        id S236357AbjEKDQx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 10 May 2023 23:16:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236036AbjEKC6B (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 10 May 2023 22:58:01 -0400
-Received: from mail-yb1-xb35.google.com (mail-yb1-xb35.google.com [IPv6:2607:f8b0:4864:20::b35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41ED15255
-        for <linux-s390@vger.kernel.org>; Wed, 10 May 2023 19:57:59 -0700 (PDT)
-Received: by mail-yb1-xb35.google.com with SMTP id 3f1490d57ef6-b9e2b65d006so11900925276.3
-        for <linux-s390@vger.kernel.org>; Wed, 10 May 2023 19:57:58 -0700 (PDT)
+        with ESMTP id S235731AbjEKDQo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 10 May 2023 23:16:44 -0400
+Received: from mail-yw1-x112e.google.com (mail-yw1-x112e.google.com [IPv6:2607:f8b0:4864:20::112e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 828A926A2
+        for <linux-s390@vger.kernel.org>; Wed, 10 May 2023 20:16:40 -0700 (PDT)
+Received: by mail-yw1-x112e.google.com with SMTP id 00721157ae682-559f1819c5dso121473077b3.0
+        for <linux-s390@vger.kernel.org>; Wed, 10 May 2023 20:16:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1683773878; x=1686365878;
+        d=google.com; s=20221208; t=1683774999; x=1686366999;
         h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=VKY0MPg+ixVSR7jOZPK9uKssH+HTM4GRvqWKWUn/BFA=;
-        b=A/8Yl5mLDDyzpMzxH/65tVA6ZiqBtbA3d9RA8fCNCX4cspZ3FSeBdW0oUC/QrOwu05
-         JoxxoIZTWWZvG9sUA5Kt4j/mCk5PbrWXYCjVoAOE6DA24+iPz85mkYE73LNDr0oFWCdT
-         rH/bRk56/wMHo6z0qHtG+YSqxp4dd4t3ZJ8DxDyJqTsMSx9i6fBtQEQ4PO2NHpeCsaUL
-         CWzLaMlncwyqAXylxS2D1Zyo1qpYkgLrxXJlwsKj/b67fZ4WppqlP9S5HEb7GRAykDlw
-         k/Vb5i8FWzhnGt6pe/zFYyUpDBBrPTmJLrRKIFY1WW7hoXogJGukSIZoffaAETEPY/4t
-         xZVA==
+        bh=hRBzifhysJxaavDAsJ+Sa+/VyNhQzLXJPjsoUGcNRd4=;
+        b=JDYjlZO6u5Rd6QYeBUTXCp/kgqPCJk7kIYj5131tW+Oftjr3CeY+3TrtF265PwQLsY
+         CzyhzuHdTlVexa4Irr81wJWJONYV4WJYb+Qmn3xCOOTrZII3mN3FIl3WlUa9ZzRwMyft
+         TbG+lOOAm/FlIwiaNhNLr42JUk/Xp0bH2c5++eORJ8zXY8TzfBVIgW201ldf27i4oXvO
+         WYco0w5tL3fNC1aMrOMXgic+X453i3JN5jojWOgIXdVajjoFoae+wDli+04h87K4PSDU
+         PrZHQkqAQy9rNdfpBcTkPkLhTcEgcEAEnkRKNVLkHXWaXGdspdGha99g/0X8mBFfM1nS
+         C7lQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1683773878; x=1686365878;
+        d=1e100.net; s=20221208; t=1683774999; x=1686366999;
         h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=VKY0MPg+ixVSR7jOZPK9uKssH+HTM4GRvqWKWUn/BFA=;
-        b=PLp5YVKhIcYAZKDFm3KGL5tKDJOk0zYqNq4bLyPTA9rQVEwcdx+AG8OimSseQ23tVj
-         NIK6RaQobzpGLfDWu/EtTO01nKZp0xldQvzzbgAHvEaGyXQVIwXG8EGybcj6eLCJ2EC5
-         q54ybzUaxkGaoL/xuRpRSHWDTC+KC+gjV42xpubXTm+QhXA4DTNXET/D8blYwkkMHhXU
-         QvxW9TDNTaqtMZDvvXst0MP9+Ma7XQNCeCiEPr6FnDVDeb7vCcXtg7iTb93IldFK72em
-         MRAzbVgb2VocWfOx7lSlTUosMrcob8sQH/UsCazbqzN1uPIZvTOEOTg3oU8dRbDbZQG2
-         tIfg==
-X-Gm-Message-State: AC+VfDz1nOEZcAfs2NZkuAjgohKH7E8TiOvK4akNYE68PlIIcsu3OV3I
-        +rbta5VhrnibloS1pwfM8y8pvQ==
-X-Google-Smtp-Source: ACHHUZ6C0n0sBeLY7gcn1OD5R2jloe8ods8pFVDt6dBMBTUUJpoOKztQObF61f5mEv/MRTTUjmAJWA==
-X-Received: by 2002:a81:d54b:0:b0:55a:2102:1699 with SMTP id l11-20020a81d54b000000b0055a21021699mr20828006ywj.11.1683773877637;
-        Wed, 10 May 2023 19:57:57 -0700 (PDT)
+        bh=hRBzifhysJxaavDAsJ+Sa+/VyNhQzLXJPjsoUGcNRd4=;
+        b=ZN+88JBv6LKRL9h2YkvqlW2lbaCCEbAMmezxsZCk+N14IjVZ2O0sGloamPAddiO61V
+         E5BbdY0HaHdupDWyJY3Y3WNyzNZpjuHT2zvBXKM9jRTVvOk+F8x84Nn7LK7yhFv1S7o1
+         AW6JOFP++8WFFtnRhtq7G98SuWKJ2Fovf2F+5GbuutjpLoSoghcY9tZcYLG80E5txn4R
+         UskI8LxCzA+QzOneMFIRSm4SG60P0oUGU9yyhWkEK8hYU85ZMJeLw5OR2YW/S/QAqnVS
+         tC8xGCdADrxn0JdBY/KzSnJSxknzAtfSRboWfWuNkg/Fzzqlp7fFsrLCBW/2a9lc2biF
+         EyHw==
+X-Gm-Message-State: AC+VfDyD4TkzxetbMHBS6Jlp7E8LJws+s5MVsoy3yoEZNvBRWIXLtx4n
+        /K6rph+J6wiBA7ogyWeE9O96ow==
+X-Google-Smtp-Source: ACHHUZ7/wlg4bppDf9uBVNG9J9Qk7aL+NA0hCKaxoiuDXlSicnUNf7o6tqD4YBoUi/tdOZkorZkwaA==
+X-Received: by 2002:a25:4087:0:b0:b9e:5006:42af with SMTP id n129-20020a254087000000b00b9e500642afmr19049386yba.58.1683774998976;
+        Wed, 10 May 2023 20:16:38 -0700 (PDT)
 Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id q6-20020a0de706000000b0055a07e36659sm4496591ywe.145.2023.05.10.19.57.54
+        by smtp.gmail.com with ESMTPSA id j128-20020a255586000000b00b923b2935d9sm4144529ybb.20.2023.05.10.20.16.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 May 2023 19:57:57 -0700 (PDT)
-Date:   Wed, 10 May 2023 19:57:46 -0700 (PDT)
+        Wed, 10 May 2023 20:16:38 -0700 (PDT)
+Date:   Wed, 10 May 2023 20:16:34 -0700 (PDT)
 From:   Hugh Dickins <hughd@google.com>
 X-X-Sender: hugh@ripple.attlocal.net
-To:     Geert Uytterhoeven <geert@linux-m68k.org>
+To:     Peter Zijlstra <peterz@infradead.org>
 cc:     Hugh Dickins <hughd@google.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Mike Kravetz <mike.kravetz@oracle.com>,
@@ -63,6 +63,7 @@ cc:     Hugh Dickins <hughd@google.com>,
         Russell King <linux@armlinux.org.uk>,
         Catalin Marinas <catalin.marinas@arm.com>,
         Will Deacon <will@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
         Greg Ungerer <gerg@linux-m68k.org>,
         Michal Simek <monstr@monstr.eu>,
         Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
@@ -85,137 +86,77 @@ cc:     Hugh Dickins <hughd@google.com>,
         linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
         linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH 05/23] m68k: allow pte_offset_map[_lock]() to fail
-In-Reply-To: <CAMuHMdWb0SrEs=cDzKW1Ai2UywnnpZip4pk9mOkiVGivPpj8sg@mail.gmail.com>
-Message-ID: <b4a5f11-68ee-7bba-b362-10ef7c9b956@google.com>
-References: <77a5d8c-406b-7068-4f17-23b7ac53bc83@google.com> <237c8410-ce61-94c-4260-7318ad6a4f3@google.com> <CAMuHMdWb0SrEs=cDzKW1Ai2UywnnpZip4pk9mOkiVGivPpj8sg@mail.gmail.com>
+Subject: Re: [PATCH 21/23] x86: Allow get_locked_pte() to fail
+In-Reply-To: <20230510081848.GD83892@hirez.programming.kicks-ass.net>
+Message-ID: <e5554cd1-417a-aa6a-5e5e-f4f5f773dda@google.com>
+References: <77a5d8c-406b-7068-4f17-23b7ac53bc83@google.com> <eba2b72f-2180-498b-c8bd-ce8f717fc78a@google.com> <20230510081848.GD83892@hirez.programming.kicks-ass.net>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="-1463760895-840625160-1683773877=:9548"
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Wed, 10 May 2023, Peter Zijlstra wrote:
 
----1463760895-840625160-1683773877=:9548
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-
-On Wed, 10 May 2023, Geert Uytterhoeven wrote:
-
-> Hi Hugh,
->=20
-> Thanks for your patch!
-
-And thank you for looking so quickly, Geert.
-
->=20
-> On Wed, May 10, 2023 at 6:48=E2=80=AFAM Hugh Dickins <hughd@google.com> w=
-rote:
+> On Tue, May 09, 2023 at 10:08:37PM -0700, Hugh Dickins wrote:
 > > In rare transient cases, not yet made possible, pte_offset_map() and
 > > pte_offset_map_lock() may not find a page table: handle appropriately.
-> >
-> > Restructure cf_tlb_miss() with a pte_unmap() (previously omitted)
-> > at label out, followed by one local_irq_restore() for all.
->=20
-> That's a bug fix, which should be a separate patch?
-
-No, that's not a bug fix for the current tree, since m68k does not
-offer CONFIG_HIGHPTE, so pte_unmap() is never anything but a no-op
-for m68k (see include/linux/pgtable.h).
-
-But I want to change pte_unmap() to do something even without
-CONFIG_HIGHPTE, so have to fix up any such previously harmless
-omissions in this series first.
-
->=20
-> >
+> > 
 > > Signed-off-by: Hugh Dickins <hughd@google.com>
->=20
->=20
-> > --- a/arch/m68k/include/asm/mmu_context.h
-> > +++ b/arch/m68k/include/asm/mmu_context.h
-> > @@ -99,7 +99,7 @@ static inline void load_ksp_mmu(struct task_struct *t=
-ask)
-> >         p4d_t *p4d;
-> >         pud_t *pud;
-> >         pmd_t *pmd;
-> > -       pte_t *pte;
-> > +       pte_t *pte =3D NULL;
-> >         unsigned long mmuar;
-> >
-> >         local_irq_save(flags);
-> > @@ -139,7 +139,7 @@ static inline void load_ksp_mmu(struct task_struct =
-*task)
-> >
-> >         pte =3D (mmuar >=3D PAGE_OFFSET) ? pte_offset_kernel(pmd, mmuar=
-)
-> >                                      : pte_offset_map(pmd, mmuar);
-> > -       if (pte_none(*pte) || !pte_present(*pte))
-> > +       if (!pte || pte_none(*pte) || !pte_present(*pte))
-> >                 goto bug;
->=20
-> If the absence of a pte is to become a non-abnormal case, it should
-> probably jump to "end" instead, to avoid spamming the kernel log.
+> > ---
+> >  arch/x86/kernel/ldt.c | 6 ++++--
+> >  1 file changed, 4 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/arch/x86/kernel/ldt.c b/arch/x86/kernel/ldt.c
+> > index 525876e7b9f4..eb844549cd83 100644
+> > --- a/arch/x86/kernel/ldt.c
+> > +++ b/arch/x86/kernel/ldt.c
+> > @@ -367,8 +367,10 @@ static void unmap_ldt_struct(struct mm_struct *mm, struct ldt_struct *ldt)
+> >  
+> >  		va = (unsigned long)ldt_slot_va(ldt->slot) + offset;
+> >  		ptep = get_locked_pte(mm, va, &ptl);
+> > -		pte_clear(mm, va, ptep);
+> > -		pte_unmap_unlock(ptep, ptl);
+> > +		if (ptep) {
+> > +			pte_clear(mm, va, ptep);
+> > +			pte_unmap_unlock(ptep, ptl);
+> > +		}
+> >  	}
+> 
+> Ow geez, now I have to go remember how the whole PTI/LDT crud worked :/
 
-I don't think so (but of course it's hard for you to tell, without
-seeing all completed series of series).  If pmd_none(*pmd) can safely
-goto bug just above, and pte_none(*pte) goto bug here, well, the !pte
-case is going to be stranger than either of those.
+I apologize for sending you back there!
 
-My understanding of this function, load_ksp_mmu(), is that it's dealing
-at context switch with a part of userspace which very much needs to be
-present: whatever keeps that from being swapped out or migrated at
-present, will be sure to keep the !pte case away - we cannot steal its
-page table just at random (and a THP on m68k would be surprising too).
+> 
+> At first glance this seems wrong; we can't just not unmap the LDT if we
+> can't find it in a hurry. Also, IIRC this isn't in fact a regular user
+> mapping, so it should not be subject to THP induced seizures.
+> 
+> ... memory bubbles back ... for PTI kernels we need to map this in the
+> user and kernel page-tables because obviously userspace needs to be able
+> to have access to the LDT. But it is not directly acessible by
+> userspace. It lives in the cpu_entry_area as a virtual map of the real
+> kernel allocation, and this virtual address is used for LLDT.
+> Modification is done through sys_modify_ldt().
 
-Though there is one case I can think of which will cause !pte here,
-and so goto bug: if the pmd entry has got corrupted, and counts as
-pmd_bad(), which will be tested (and cleared) in pte_offset_map().
-But it is okay to report a bug in that case.
+And there must be a user-style page table backing that cpu_entry_area,
+because the use of get_locked_pte() and pte_unmap_unlock() implies
+that there's a user page table (struct page containing spinlock if
+config says so) rather than just a kernel page table mapping it.
 
-I can certainly change this to goto end instead if you still prefer,
-no problem; but I'd rather keep it as is, if only for me to be proved
-wrong by you actually seeing spam there.
+> 
+> I think I would feel much better if this were something like:
+> 
+> 	if (!WARN_ON_ONCE(!ptep))
+> 
+> This really shouldn't fail and if it does, simply skipping it isn't the
+> right thing either.
 
->=20
-> >
-> >         set_pte(pte, pte_mkyoung(*pte));
-> > @@ -161,6 +161,8 @@ static inline void load_ksp_mmu(struct task_struct =
-*task)
-> >  bug:
-> >         pr_info("ksp load failed: mm=3D0x%p ksp=3D0x08%lx\n", mm, mmuar=
-);
-> >  end:
-> > +       if (pte && mmuar < PAGE_OFFSET)
-> > +               pte_unmap(pte);
->=20
-> Is this also a bugfix, not mentioned in the patch description?
+Sure, I'll gladly make that change when I respin - not immediately, let's
+get more feedback on this arch series first, but maybe in a week's time.
 
-I'm not sure whether you're referring to the pte_unmap() which we
-already discussed above, or you're seeing something else in addition;
-but I don't think there's a bugfix here, just a rearrangement because
-we now want lots of cases to do the pte_unmap() and local_irq_restore().
+Thanks for looking so quickly, Peter: I didn't Cc you on this particular
+series, but shall certainly be doing so on the ones that follow, because
+a few of those patches go into interesting pmdp_get_lockless() territory.
 
 Hugh
-
->=20
-> >         local_irq_restore(flags);
-> >  }
-> >
->=20
-> Gr{oetje,eeting}s,
->=20
->                         Geert
->=20
-> --=20
-> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m6=
-8k.org
->=20
-> In personal conversations with technical people, I call myself a hacker. =
-But
-> when I'm talking to journalists I just say "programmer" or something like=
- that.
->                                 -- Linus Torvalds
----1463760895-840625160-1683773877=:9548--
