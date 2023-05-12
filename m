@@ -2,128 +2,98 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 29E77C7EE26
-	for <linux-s390@archiver.kernel.org>; Fri, 12 May 2023 06:01:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 53771C77B7C
+	for <linux-s390@archiver.kernel.org>; Fri, 12 May 2023 06:24:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239886AbjELGBr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 12 May 2023 02:01:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39978 "EHLO
+        id S231393AbjELGY5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 12 May 2023 02:24:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230490AbjELGBp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 12 May 2023 02:01:45 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 103B0449A;
-        Thu, 11 May 2023 23:01:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=JgTBFDjjwSw1zqVfagUl7AKzd0vmwdZDo99pKCmQQP0=; b=eDdL5ePvbY/jB1rcT9W4xmiaH/
-        5m/v/TWCs08Qq8j4qKMc2vGMvLL5roJ3tIsKMaZQp2BX9VRHZfQWdfUwabjxBqW4Gn7SkBvwKP3ek
-        hUsEpADpLyHP4WYDo9ohbtNjzgyWj2N6lntMZ81jWY93R8LmicuYVMlBrzPNMnOQfvTzz18Vgc0t4
-        YqLaDv86aJFPGJaZXoaeUGbN4o5aQ25kK75TN2AVlkFlZ4fxuPUlMdnZeXqkbUvLVQ8HYrYY+YipA
-        jXwS+C4JUjbL4UND999W65sHHNBuZFwvPuCnGaugL8m/VLeHbPDw1MALFGqukWBIaNcHwHWrKFGbg
-        NW2Um0lA==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1pxLpq-000QcQ-7n; Fri, 12 May 2023 06:00:58 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 87025300338;
-        Fri, 12 May 2023 08:00:54 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 6D0322C7DB768; Fri, 12 May 2023 08:00:54 +0200 (CEST)
-Date:   Fri, 12 May 2023 08:00:54 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     "Michael Kelley (LINUX)" <mikelley@microsoft.com>
-Cc:     Wei Liu <wei.liu@kernel.org>,
-        "ltykernel@gmail.com" <ltykernel@gmail.com>,
-        "bigeasy@linutronix.de" <bigeasy@linutronix.de>,
-        Mark Rutland <Mark.Rutland@arm.com>,
-        "maz@kernel.org" <maz@kernel.org>,
-        "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
-        "will@kernel.org" <will@kernel.org>,
-        "chenhuacai@kernel.org" <chenhuacai@kernel.org>,
-        "kernel@xen0n.name" <kernel@xen0n.name>,
-        "hca@linux.ibm.com" <hca@linux.ibm.com>,
-        "gor@linux.ibm.com" <gor@linux.ibm.com>,
-        "agordeev@linux.ibm.com" <agordeev@linux.ibm.com>,
-        "borntraeger@linux.ibm.com" <borntraeger@linux.ibm.com>,
-        "svens@linux.ibm.com" <svens@linux.ibm.com>,
-        "pbonzini@redhat.com" <pbonzini@redhat.com>,
-        "wanpengli@tencent.com" <wanpengli@tencent.com>,
-        "vkuznets@redhat.com" <vkuznets@redhat.com>,
-        "tglx@linutronix.de" <tglx@linutronix.de>,
-        "mingo@redhat.com" <mingo@redhat.com>,
-        "bp@alien8.de" <bp@alien8.de>,
-        "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
-        "x86@kernel.org" <x86@kernel.org>, "hpa@zytor.com" <hpa@zytor.com>,
-        "jgross@suse.com" <jgross@suse.com>,
-        "boris.ostrovsky@oracle.com" <boris.ostrovsky@oracle.com>,
-        "daniel.lezcano@linaro.org" <daniel.lezcano@linaro.org>,
-        KY Srinivasan <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Dexuan Cui <decui@microsoft.com>,
-        "rafael@kernel.org" <rafael@kernel.org>,
-        "longman@redhat.com" <longman@redhat.com>,
-        "boqun.feng@gmail.com" <boqun.feng@gmail.com>,
-        "pmladek@suse.com" <pmladek@suse.com>,
-        "senozhatsky@chromium.org" <senozhatsky@chromium.org>,
-        "rostedt@goodmis.org" <rostedt@goodmis.org>,
-        "john.ogness@linutronix.de" <john.ogness@linutronix.de>,
-        "juri.lelli@redhat.com" <juri.lelli@redhat.com>,
-        "vincent.guittot@linaro.org" <vincent.guittot@linaro.org>,
-        "dietmar.eggemann@arm.com" <dietmar.eggemann@arm.com>,
-        "bsegall@google.com" <bsegall@google.com>,
-        "mgorman@suse.de" <mgorman@suse.de>,
-        "bristot@redhat.com" <bristot@redhat.com>,
-        "vschneid@redhat.com" <vschneid@redhat.com>,
-        "jstultz@google.com" <jstultz@google.com>,
-        "sboyd@kernel.org" <sboyd@kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "loongarch@lists.linux.dev" <loongarch@lists.linux.dev>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
-        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>
-Subject: Re: [RFC][PATCH 7/9] x86/tsc: Provide sched_clock_noinstr()
-Message-ID: <20230512060054.GA2313201@hirez.programming.kicks-ass.net>
-References: <20230508211951.901961964@infradead.org>
- <20230508213147.853677542@infradead.org>
- <20230508214419.GA2053935@hirez.programming.kicks-ass.net>
- <ZFmGI1EN24xroPHa@liuwe-devbox-debian-v2>
- <20230511202351.GE2296992@hirez.programming.kicks-ass.net>
- <BYAPR21MB16883A65BBCFA19A30BADA4CD7749@BYAPR21MB1688.namprd21.prod.outlook.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <BYAPR21MB16883A65BBCFA19A30BADA4CD7749@BYAPR21MB1688.namprd21.prod.outlook.com>
+        with ESMTP id S239740AbjELGY4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 12 May 2023 02:24:56 -0400
+Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FE3C40DD;
+        Thu, 11 May 2023 23:24:54 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=23;SR=0;TI=SMTPD_---0ViNyZFl_1683872684;
+Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0ViNyZFl_1683872684)
+          by smtp.aliyun-inc.com;
+          Fri, 12 May 2023 14:24:49 +0800
+From:   "D. Wythe" <alibuda@linux.alibaba.com>
+To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
+        ast@kernel.org, daniel@iogearbox.net, andrii@kernel.org,
+        martin.lau@linux.dev, pabeni@redhat.com, song@kernel.org,
+        sdf@google.com, haoluo@google.com, yhs@fb.com, edumazet@google.com,
+        john.fastabend@gmail.com, kpsingh@kernel.org, jolsa@kernel.org,
+        guwen@linux.alibaba.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH bpf-next v1 0/5] net/smc: Introduce BPF injection capability
+Date:   Fri, 12 May 2023 14:24:39 +0800
+Message-Id: <1683872684-64872-1-git-send-email-alibuda@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, May 11, 2023 at 11:11:07PM +0000, Michael Kelley (LINUX) wrote:
-> From: Peter Zijlstra <peterz@infradead.org> Sent: Thursday, May 11, 2023 1:24 PM
+From: "D. Wythe" <alibuda@linux.alibaba.com>
 
-> > > Tianyu and Michael, what's your thought on this?
-> > >
-> > > Is the MSR-based GHCB usable at this point?
-> > >
-> > > What other clock source can be used?
-> > 
-> > You do have TSC support -- which is what I fixed for you. It's just the
-> > whole MSR thing that is comically broken.
-> > 
-> > You could do a read_hv_clock_msr() implementation using
-> > __rdmsr() and add some sanity checking that anything GHCB using (SEV?)
-> > *will* use TSC.
-> > 
-> > Anyway, will you guys do that, or should I pull out the chainsaw and fix
-> > it for you?
-> 
-> Peter -- I'll work on a fix.  But it will be the first half of next week before
-> I can do it.
+This patches attempt to introduce BPF injection capability for SMC,
+and add selftest to ensure code stability.
 
-OK, Thanks!
+As we all know that the SMC protocol is not suitable for all scenarios,
+especially for short-lived. However, for most applications, they cannot
+guarantee that there are no such scenarios at all. Therefore, apps
+may need some specific strategies to decide shall we need to use SMC
+or not, for example, apps can limit the scope of the SMC to a specific
+IP address or port.
+
+Based on the consideration of transparent replacement, we hope that apps
+can remain transparent even if they need to formulate some specific
+strategies for SMC using. That is, do not need to recompile their code.
+
+On the other hand, we need to ensure the scalability of strategies
+implementation. Although it is simple to use socket options or sysctl,
+it will bring more complexity to subsequent expansion.
+
+Fortunately, BPF can solve these concerns very well, users can write
+thire own strategies in eBPF to choose whether to use SMC or not.
+And it's quite easy for them to modify their strategies in the future.
+
+This patches implement injection capability for SMC via struct_ops.
+In that way, we can add new injection scenarios in the future.
+
+v1:
+
+1. split bpf_smc.c 
+2. remove unnecessary symbol exports
+
+D. Wythe (5):
+  net/smc: move smc_sock related structure definition
+  net/smc: allow smc to negotiate protocols on policies
+  net/smc: allow set or get smc negotiator by sockopt
+  bpf: add smc negotiator support in BPF struct_ops
+  bpf/selftests: add selftest for SMC bpf capability
+
+ include/net/smc.h                                | 257 ++++++++++++++++++++++
+ include/uapi/linux/smc.h                         |   1 +
+ kernel/bpf/bpf_struct_ops_types.h                |   4 +
+ net/Makefile                                     |   1 +
+ net/smc/Kconfig                                  |  11 +
+ net/smc/af_smc.c                                 | 265 ++++++++++++++++++++---
+ net/smc/bpf_smc.c                                | 171 +++++++++++++++
+ net/smc/smc.h                                    | 224 -------------------
+ net/smc/smc_negotiator.c                         | 119 ++++++++++
+ net/smc/smc_negotiator.h                         | 116 ++++++++++
+ tools/testing/selftests/bpf/prog_tests/bpf_smc.c | 107 +++++++++
+ tools/testing/selftests/bpf/progs/bpf_smc.c      | 265 +++++++++++++++++++++++
+ 12 files changed, 1282 insertions(+), 259 deletions(-)
+ create mode 100644 net/smc/bpf_smc.c
+ create mode 100644 net/smc/smc_negotiator.c
+ create mode 100644 net/smc/smc_negotiator.h
+ create mode 100644 tools/testing/selftests/bpf/prog_tests/bpf_smc.c
+ create mode 100644 tools/testing/selftests/bpf/progs/bpf_smc.c
+
+-- 
+1.8.3.1
+
