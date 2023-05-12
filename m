@@ -2,103 +2,128 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 02447C7EE2A
-	for <linux-s390@archiver.kernel.org>; Fri, 12 May 2023 14:30:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E196FC77B75
+	for <linux-s390@archiver.kernel.org>; Fri, 12 May 2023 15:13:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241516AbjELO37 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 12 May 2023 10:29:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56144 "EHLO
+        id S241537AbjELPNS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 12 May 2023 11:13:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241162AbjELO36 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 12 May 2023 10:29:58 -0400
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A241011579;
-        Fri, 12 May 2023 07:29:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
-        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=UJ5M4FuUsPXGf9jn2+wgLDeUAy88NE08OYzpAkSXrBo=; b=VJA9B3BdVCi/hNaPl05E0LAq70
-        54nBDz8d1HjxMbQS2kwOl1M27HQznnsUoSe9fcx3GI/0tuCahZ/RuJwVBr8DxcFcTceuWLL3Ky5c2
-        xuUt46um71u1RBdva6H6syFtKQkfMKTGFMoRkjjlaGB6CmDxktHnkG2e+fW4YQCoYa5EBPVGQ7Sk4
-        dXskkSpRU8R9OmjBv21gxUH2W+af6HkIA/7eMVuUbhUDmmBAkbckKphjdc4ryit0CNSE/yzlfZUUB
-        X9OHecZRqejU02mlJWIbo8/ZdDtdlPKdEIku1F8n0jEqa8+EetzoUfkS3+rCEtyyL277r1MnvwNBV
-        Ms/Uiodw==;
-Received: from hch by bombadil.infradead.org with local (Exim 4.96 #2 (Red Hat Linux))
-        id 1pxTlu-00CB7h-0p;
-        Fri, 12 May 2023 14:29:26 +0000
-Date:   Fri, 12 May 2023 07:29:26 -0700
-From:   Christoph Hellwig <hch@infradead.org>
-To:     Niklas Schnelle <schnelle@linux.ibm.com>
-Cc:     Joerg Roedel <joro@8bytes.org>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Will Deacon <will@kernel.org>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        Gerd Bayer <gbayer@linux.ibm.com>,
-        Julian Ruess <julianr@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        Alexandra Winter <wintera@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        with ESMTP id S232739AbjELPNS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 12 May 2023 11:13:18 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BC8E49DB;
+        Fri, 12 May 2023 08:13:16 -0700 (PDT)
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34CFClVd018626;
+        Fri, 12 May 2023 15:13:16 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=jYjLHOyidruJVPLBKCVwpVwwJfRW6Zshw0l/IrFdXdA=;
+ b=l4vxTEV1pzEAm6Z5rs8CMEKQIzqvYvL18NyfGrL6VbAuIUBZSlCYo0p/IqVE23lCyRAn
+ HpMogTq/9DP+E5C2NXGjvLAQG9Bel4glTScZ9LnOfK+YOloiX5ZUkc/a74a36FFDpGeU
+ Oe0ZtBlWeioIoE4EumPTH9pHkS8HoNB+D5HNnvZryXQ3jB45V/ZFgq1mUFMsQ9xYHxtv
+ ZE69J2od5sYK54vBMDlACpf2Q6Ec3SqsAreC+518gzQf11+SAvoJYAh+KFwfLE+CM5KS
+ WLqgO6yl+ZflEB/g3hf5a/UXGdEwq36aKg8UnZH0NwJjEdkk2jNoSfgQfEgCUqmBbcxV Ng== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qhqnsrj6b-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 12 May 2023 15:13:15 +0000
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34CFD906019723;
+        Fri, 12 May 2023 15:13:09 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qhqnsrhfp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 12 May 2023 15:13:09 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34C6cZkm026743;
+        Fri, 12 May 2023 15:08:23 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+        by ppma02fra.de.ibm.com (PPS) with ESMTPS id 3qf7dg20rf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 12 May 2023 15:08:23 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34CF8Jxj10945236
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 12 May 2023 15:08:19 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A45F720043;
+        Fri, 12 May 2023 15:08:19 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6EC5D20049;
+        Fri, 12 May 2023 15:08:19 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.155.204.135])
+        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Fri, 12 May 2023 15:08:19 +0000 (GMT)
+Date:   Fri, 12 May 2023 17:08:18 +0200
+From:   Alexander Gordeev <agordeev@linux.ibm.com>
+To:     Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
-        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-        Hector Martin <marcan@marcan.st>,
-        Sven Peter <sven@svenpeter.dev>,
-        Alyssa Rosenzweig <alyssa@rosenzweig.io>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Yong Wu <yong.wu@mediatek.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Orson Zhai <orsonzhai@gmail.com>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Chunyan Zhang <zhang.lyra@gmail.com>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Krishna Reddy <vdumpa@nvidia.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Jonathan Corbet <corbet@lwn.net>, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        iommu@lists.linux.dev, asahi@lists.linux.dev,
-        linux-arm-kernel@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
-        linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org,
-        linux-doc@vger.kernel.org
-Subject: Re: [PATCH v8 0/6] iommu/dma: s390 DMA API conversion and optimized
- IOTLB flushing
-Message-ID: <ZF5NRls92rhmzV7B@infradead.org>
-References: <20230310-dma_iommu-v8-0-2347dfbed7af@linux.ibm.com>
+        linux-s390@vger.kernel.org, kernel-janitors@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] s390/Kconfig: remove obsolete configs SCHED_{BOOK,DRAWER}
+Message-ID: <ZF5WYk/21SXbBHkw@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <20230508040916.16733-1-lukas.bulwahn@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230310-dma_iommu-v8-0-2347dfbed7af@linux.ibm.com>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+In-Reply-To: <20230508040916.16733-1-lukas.bulwahn@gmail.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: woZXe1Iz4fGaQsvFZIsEYccUoTz8Uv06
+X-Proofpoint-GUID: JWGkyKryfcliegf-1lVOHLWtmNAjM0OO
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-05-12_09,2023-05-05_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 clxscore=1011
+ mlxscore=0 mlxlogscore=999 impostorscore=0 spamscore=0 malwarescore=0
+ bulkscore=0 lowpriorityscore=0 priorityscore=1501 suspectscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2304280000 definitions=main-2305120125
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Mar 10, 2023 at 05:07:45PM +0100, Niklas Schnelle wrote:
-> Hi All,
+On Mon, May 08, 2023 at 06:09:16AM +0200, Lukas Bulwahn wrote:
+> Commit f1045056c726 ("topology/sysfs: rework book and drawer topology
+> ifdefery") activates the book and drawer topology, previously activated by
+> CONFIG_SCHED_{BOOK,DRAWER}, dependent on the existence of certain macro
+> definitions. Hence, since then, CONFIG_SCHED_{BOOK,DRAWER} have no effect
+> and any further purpose.
 > 
-> This patch series converts s390's PCI support from its platform specific DMA
-> API implementation in arch/s390/pci/pci_dma.c to the common DMA IOMMU layer.
-> The conversion itself is done in patches 3-4 with patch 2 providing the final
-> necessary IOMMU driver improvement to handle s390's special IOTLB flush
-> out-of-resource indication in virtualized environments. Patches 1-2 may be
-> applied independently. The conversion itself only touches the s390 IOMMU driver
-> and s390 arch code moving over remaining functions from the s390 DMA API
-> implementation. No changes to common code are necessary.
+> Remove the obsolete configs SCHED_{BOOK,DRAWER}.
+> 
+> Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+> ---
+>  arch/s390/Kconfig | 8 --------
+>  1 file changed, 8 deletions(-)
+> 
+> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+> index 548b5b587003..1627c7f841d3 100644
+> --- a/arch/s390/Kconfig
+> +++ b/arch/s390/Kconfig
+> @@ -468,19 +468,11 @@ config SCHED_SMT
+>  config SCHED_MC
+>  	def_bool n
+>  
+> -config SCHED_BOOK
+> -	def_bool n
+> -
+> -config SCHED_DRAWER
+> -	def_bool n
+> -
+>  config SCHED_TOPOLOGY
+>  	def_bool y
+>  	prompt "Topology scheduler support"
+>  	select SCHED_SMT
+>  	select SCHED_MC
+> -	select SCHED_BOOK
+> -	select SCHED_DRAWER
+>  	help
+>  	  Topology scheduler support improves the CPU scheduler's decision
+>  	  making when dealing with machines that have multi-threading,
 
-It looks like this still hasn't made it upstream as of 6.4-rc1.  What's
-holding this series up?
+Applied, thanks!
