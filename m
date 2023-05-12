@@ -2,104 +2,111 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A162C77B75
-	for <linux-s390@archiver.kernel.org>; Fri, 12 May 2023 13:17:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5412FC77B7F
+	for <linux-s390@archiver.kernel.org>; Fri, 12 May 2023 13:28:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240561AbjELNRt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 12 May 2023 09:17:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39826 "EHLO
+        id S241246AbjELN2F (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 12 May 2023 09:28:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240972AbjELNRs (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 12 May 2023 09:17:48 -0400
-Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B1192689;
-        Fri, 12 May 2023 06:17:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1683897459; x=1715433459;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=v3ur4im9RMBVOzsWz/PbY2NOqCZy1ova0YsE+zQNmWo=;
-  b=OId8rLo3ygd0DARO4RUCtgZNdIlJma94kTihxye1zJCe4dMN2BV12Luq
-   gxSixrl2S2VAqnaV8wnLbGszs6inMzYLhYULDZCa5JiZENJTXEusAvmT1
-   gUSxm9otk5KQvnIeDe0Zx6Ul6Ww+MXHondx8pSfMusRSkrWa6oJJwOELl
-   68N/bO6awE2NoafruZ2+b0KE77JkIB96VNyC3MyEZsc2hOOU0gM9RUNww
-   vgxLFvS80XpZjHSo9b7a0t3x9Y49/0J2hUuYeDuECXJiizQR1u6F3Ol+9
-   QsM9I9HMcjF1zfnyhoLimrJHIfTj2deM5DhyG1+hU29ySJ0tAkiUnAYG4
-   g==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10708"; a="414155598"
-X-IronPort-AV: E=Sophos;i="5.99,269,1677571200"; 
-   d="scan'208";a="414155598"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 May 2023 06:13:53 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10708"; a="730817781"
-X-IronPort-AV: E=Sophos;i="5.99,269,1677571200"; 
-   d="scan'208";a="730817781"
-Received: from lkp-server01.sh.intel.com (HELO dea6d5a4f140) ([10.239.97.150])
-  by orsmga008.jf.intel.com with ESMTP; 12 May 2023 06:13:48 -0700
-Received: from kbuild by dea6d5a4f140 with local (Exim 4.96)
-        (envelope-from <lkp@intel.com>)
-        id 1pxSah-0004sP-1q;
-        Fri, 12 May 2023 13:13:47 +0000
-Date:   Fri, 12 May 2023 21:13:32 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
-        wenjia@linux.ibm.com, jaka@linux.ibm.com, ast@kernel.org,
-        daniel@iogearbox.net, andrii@kernel.org, martin.lau@linux.dev,
-        pabeni@redhat.com, song@kernel.org, sdf@google.com,
-        haoluo@google.com, yhs@fb.com, edumazet@google.com,
-        john.fastabend@gmail.com, kpsingh@kernel.org, jolsa@kernel.org,
-        guwen@linux.alibaba.com
-Cc:     oe-kbuild-all@lists.linux.dev, kuba@kernel.org,
-        davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: Re: [PATCH bpf-next v1 2/5] net/smc: allow smc to negotiate
- protocols on policies
-Message-ID: <202305122104.msaKEOV1-lkp@intel.com>
-References: <1683872684-64872-3-git-send-email-alibuda@linux.alibaba.com>
+        with ESMTP id S241149AbjELN2E (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 12 May 2023 09:28:04 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A1A31387E;
+        Fri, 12 May 2023 06:28:00 -0700 (PDT)
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34CD9sRu006338;
+        Fri, 12 May 2023 13:27:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=bkryibU9zOqZEmiw40OWQrAxJtHVlpWmHH5z453JU6Y=;
+ b=IWXCbxRo+DS70Aj/ml08/r05MqikpOGeiR5LzC11WO70Zh6jcdSTVX8VRH3b3BJGTgT1
+ nCKcuk53ivQB/ahdeVhtPCLXndMnP/Q59e/P3TEKnl2S2clbBNo3XH9aLiGuUkuo4gNg
+ eL0hI01/gd5wXyI9Vy7x+6L+f+rSBP2aEx9eCku7ouIYgpedHOJODj12knTzuz+qBooI
+ vT9WBr+pztolV3/kc8Cva5YPV0/SWXNOflr0IDU7Kfaadcck14el9l1P+FUNdI4+vhE4
+ HuZMrw5fY0EIALAhVqZ8Ge9CY4O6e9Wh85ccCylIfHo8tc+zjMuLdfK0NlLEgXJOis1q ZQ== 
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qhnfgj07f-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 12 May 2023 13:27:59 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34C1JBth011539;
+        Fri, 12 May 2023 13:27:57 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3qf896tceg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 12 May 2023 13:27:57 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34CDRrh942402074
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 12 May 2023 13:27:53 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8F70D20043;
+        Fri, 12 May 2023 13:27:53 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0981A2004D;
+        Fri, 12 May 2023 13:27:53 +0000 (GMT)
+Received: from [9.171.70.92] (unknown [9.171.70.92])
+        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Fri, 12 May 2023 13:27:52 +0000 (GMT)
+Message-ID: <b826b914-a3dc-488d-b4d8-23dbfee29e58@linux.ibm.com>
+Date:   Fri, 12 May 2023 15:27:52 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1683872684-64872-3-git-send-email-alibuda@linux.alibaba.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.10.0
+Subject: Re: [PATCH 5/5] s390/uv: Update query for secret-UVCs
+Content-Language: en-US
+To:     Heiko Carstens <hca@linux.ibm.com>,
+        Steffen Eiden <seiden@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Viktor Mihajlovski <mihajlov@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Nico Boehr <nrb@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Hendrik Brueckner <brueckner@linux.ibm.com>
+References: <20230512093153.206378-1-seiden@linux.ibm.com>
+ <20230512093153.206378-6-seiden@linux.ibm.com> <ZF42vescJsAtK9pL@osiris>
+From:   Janosch Frank <frankja@linux.ibm.com>
+In-Reply-To: <ZF42vescJsAtK9pL@osiris>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: ysA6ko0okp0BJ4KNBbO4BcyJZVVL1nDy
+X-Proofpoint-ORIG-GUID: ysA6ko0okp0BJ4KNBbO4BcyJZVVL1nDy
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-05-12_08,2023-05-05_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
+ priorityscore=1501 clxscore=1015 suspectscore=0 bulkscore=0 spamscore=0
+ malwarescore=0 impostorscore=0 lowpriorityscore=0 adultscore=0 mlxscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2304280000 definitions=main-2305120109
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Wythe,
+On 5/12/23 14:53, Heiko Carstens wrote:
+> On Fri, May 12, 2023 at 11:31:53AM +0200, Steffen Eiden wrote:
+>> Update the query struct such that secret-UVC related
+>> information can be parsed.
+>> Add sysfs files for these new values.
+>>
+>> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+>> ---
+>>   arch/s390/boot/uv.c        |  4 ++++
+>>   arch/s390/include/asm/uv.h | 11 ++++++++++-
+>>   arch/s390/kernel/uv.c      | 40 ++++++++++++++++++++++++++++++++++++++
+>>   3 files changed, 54 insertions(+), 1 deletion(-)
+> ...
+>> +static ssize_t uv_query_supp_add_secret_req_ver(struct kobject *kobj,
+>> +						struct kobj_attribute *attr, char *page)
+>> +{
+>> +	return scnprintf(page, PAGE_SIZE, "%lx\n", uv_info.supp_add_secret_req_ver);
+>> +}
+> 
+> FWIW, another minor thing: all of these should be sysfs_emit() instead.
 
-kernel test robot noticed the following build errors:
-
-[auto build test ERROR on bpf-next/master]
-
-url:    https://github.com/intel-lab-lkp/linux/commits/D-Wythe/net-smc-move-smc_sock-related-structure-definition/20230512-142700
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/bpf/bpf-next.git master
-patch link:    https://lore.kernel.org/r/1683872684-64872-3-git-send-email-alibuda%40linux.alibaba.com
-patch subject: [PATCH bpf-next v1 2/5] net/smc: allow smc to negotiate protocols on policies
-config: mips-allmodconfig (https://download.01.org/0day-ci/archive/20230512/202305122104.msaKEOV1-lkp@intel.com/config)
-compiler: mips-linux-gcc (GCC) 12.1.0
-reproduce (this is a W=1 build):
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # https://github.com/intel-lab-lkp/linux/commit/db8daea84b78121c3612ad5e5ba1d1eaac2f4171
-        git remote add linux-review https://github.com/intel-lab-lkp/linux
-        git fetch --no-tags linux-review D-Wythe/net-smc-move-smc_sock-related-structure-definition/20230512-142700
-        git checkout db8daea84b78121c3612ad5e5ba1d1eaac2f4171
-        # save the config file
-        mkdir build_dir && cp config build_dir/.config
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=mips olddefconfig
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=mips SHELL=/bin/bash
-
-If you fix the issue, kindly add following tag where applicable
-| Reported-by: kernel test robot <lkp@intel.com>
-| Link: https://lore.kernel.org/oe-kbuild-all/202305122104.msaKEOV1-lkp@intel.com/
-
-All errors (new ones prefixed by >>, old ones prefixed by <<):
-
->> ERROR: modpost: "bpf_struct_ops_get" [net/smc/smc.ko] undefined!
->> ERROR: modpost: "bpf_struct_ops_put" [net/smc/smc.ko] undefined!
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests
+Do you want us to move all of them to sysfs_emit() eventually or should 
+we keep the scnprintfs() which are already in uv.c ?
