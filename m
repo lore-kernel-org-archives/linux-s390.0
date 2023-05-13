@@ -2,42 +2,42 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D7B41C7EE24
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EEE35C7EE23
 	for <linux-s390@archiver.kernel.org>; Sat, 13 May 2023 13:21:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238375AbjEMNVu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 13 May 2023 09:21:50 -0400
+        id S232079AbjEMNVv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 13 May 2023 09:21:51 -0400
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54210 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238125AbjEMNVs (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 13 May 2023 09:21:48 -0400
+        with ESMTP id S238057AbjEMNVt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 13 May 2023 09:21:49 -0400
 Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6C0A19BC;
-        Sat, 13 May 2023 06:21:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9524C46A5;
+        Sat, 13 May 2023 06:21:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1683984106; x=1715520106;
+  t=1683984108; x=1715520108;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=ughe9Kcl9gMYisiLlx4VKGCel5QfZCognMPvf6ESs4U=;
-  b=QiG1ojnlelEoi1DT9SgZKler+JrT7qDvSeugHKjiPmv+pfeOb0bCZi9E
-   kSGz8M58fBd5+9hZjqGAtgzn5pL8TlCGTduzae3B7gKES0xrnwUuSyGiL
-   jbck/2U1ZESAHcWqXtMbZIy0X/PWngIxpGZfUAxVj9PjVxhLemkqif/Pa
-   NEciBKk1GXrz7+5AzqQaCHdVryLB8VmkM0IWGm9u5fRw2lTvgVS2kpMRC
-   jGN5Ojz3erRi7Okam/qS9dTPtrmyyIQYLNqQx3Ik4vuqbu0sqIIHRKPSD
-   eyHizVfxL3jRDiFuOmZNP1qzExHV5VJ7OE0Pesj+MzQPoTOh9Q2Ehech+
-   w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10708"; a="416598995"
+  bh=L55vNyYMzhjBc2zuKvYV+2YX4T9Wqnkq3Ay94cJtU4M=;
+  b=BeQ4IMvzm3we4aim/+O3K+EhOlazvP5Plx3qYFc+g7JfuRgQwaBKXSLH
+   OnKPuoQODwCemV5UsGQhWL/uVHZ92GqmhHZbyfsO0xXE3mGD6CDZrmSUO
+   QEugGvJn0VPqNVP14eEIY2h5i0F4UDFsU4/DxT55cjzywGqxVtmaubXTe
+   ToAv4sCbFX6XZyiOvKsGLcgkIu5ZkKXGPzK6JNOUMSWu5DDUjDflfoaZy
+   PBzu6LO/b/cj2OljmlewxiwessUywI5g0P33ouRLqn2ljunl+2ADvPIge
+   P2kGiDgHYocTMDWPkFQQd4dvuXBaLfXbMhegVXWL+p3ApuyLrRkNouQRy
+   g==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10708"; a="416599019"
 X-IronPort-AV: E=Sophos;i="5.99,272,1677571200"; 
-   d="scan'208";a="416598995"
+   d="scan'208";a="416599019"
 Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 May 2023 06:21:45 -0700
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 May 2023 06:21:48 -0700
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10708"; a="790126455"
+X-IronPort-AV: E=McAfee;i="6600,9927,10708"; a="790126464"
 X-IronPort-AV: E=Sophos;i="5.99,272,1677571200"; 
-   d="scan'208";a="790126455"
+   d="scan'208";a="790126464"
 Received: from 984fee00a4c6.jf.intel.com ([10.165.58.231])
-  by FMSMGA003.fm.intel.com with ESMTP; 13 May 2023 06:21:45 -0700
+  by FMSMGA003.fm.intel.com with ESMTP; 13 May 2023 06:21:47 -0700
 From:   Yi Liu <yi.l.liu@intel.com>
 To:     alex.williamson@redhat.com, jgg@nvidia.com, kevin.tian@intel.com
 Cc:     joro@8bytes.org, robin.murphy@arm.com, cohuck@redhat.com,
@@ -51,9 +51,9 @@ Cc:     joro@8bytes.org, robin.murphy@arm.com, cohuck@redhat.com,
         xudong.hao@intel.com, yan.y.zhao@intel.com, terrence.xu@intel.com,
         yanting.jiang@intel.com, zhenzhong.duan@intel.com,
         clegoate@redhat.com
-Subject: [PATCH v5 05/10] iommufd: Reserve all negative IDs in the iommufd xarray
-Date:   Sat, 13 May 2023 06:21:31 -0700
-Message-Id: <20230513132136.15021-6-yi.l.liu@intel.com>
+Subject: [PATCH v5 07/10] vfio: Add helper to search vfio_device in a dev_set
+Date:   Sat, 13 May 2023 06:21:33 -0700
+Message-Id: <20230513132136.15021-8-yi.l.liu@intel.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20230513132136.15021-1-yi.l.liu@intel.com>
 References: <20230513132136.15021-1-yi.l.liu@intel.com>
@@ -63,28 +63,76 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hence IOMMUFD users can encode the negative IDs for specific purposes.
-e.g. VFIO needs two reserved values to tell userspace the ID returned
-is not valid but has other meaning.
+There are drivers that need to search vfio_device within a given dev_set.
+e.g. vfio-pci. So add a helper.
 
 Signed-off-by: Yi Liu <yi.l.liu@intel.com>
 ---
- drivers/iommu/iommufd/main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/vfio/pci/vfio_pci_core.c |  8 +++-----
+ drivers/vfio/vfio_main.c         | 15 +++++++++++++++
+ include/linux/vfio.h             |  3 +++
+ 3 files changed, 21 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/iommu/iommufd/main.c b/drivers/iommu/iommufd/main.c
-index 3fbe636c3d8a..32ce7befc8dd 100644
---- a/drivers/iommu/iommufd/main.c
-+++ b/drivers/iommu/iommufd/main.c
-@@ -50,7 +50,7 @@ struct iommufd_object *_iommufd_object_alloc(struct iommufd_ctx *ictx,
- 	 * before calling iommufd_object_finalize().
- 	 */
- 	rc = xa_alloc(&ictx->objects, &obj->id, XA_ZERO_ENTRY,
--		      xa_limit_32b, GFP_KERNEL_ACCOUNT);
-+		      xa_limit_31b, GFP_KERNEL_ACCOUNT);
- 	if (rc)
- 		goto out_free;
- 	return obj;
+diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
+index 39e7823088e7..4df2def35bdd 100644
+--- a/drivers/vfio/pci/vfio_pci_core.c
++++ b/drivers/vfio/pci/vfio_pci_core.c
+@@ -2335,12 +2335,10 @@ static bool vfio_dev_in_groups(struct vfio_pci_core_device *vdev,
+ static int vfio_pci_is_device_in_set(struct pci_dev *pdev, void *data)
+ {
+ 	struct vfio_device_set *dev_set = data;
+-	struct vfio_device *cur;
+ 
+-	list_for_each_entry(cur, &dev_set->device_list, dev_set_list)
+-		if (cur->dev == &pdev->dev)
+-			return 0;
+-	return -EBUSY;
++	lockdep_assert_held(&dev_set->lock);
++
++	return vfio_find_device_in_devset(dev_set, &pdev->dev) ? 0 : -EBUSY;
+ }
+ 
+ /*
+diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
+index f0ca33b2e1df..ab4f3a794f78 100644
+--- a/drivers/vfio/vfio_main.c
++++ b/drivers/vfio/vfio_main.c
+@@ -141,6 +141,21 @@ unsigned int vfio_device_set_open_count(struct vfio_device_set *dev_set)
+ }
+ EXPORT_SYMBOL_GPL(vfio_device_set_open_count);
+ 
++struct vfio_device *
++vfio_find_device_in_devset(struct vfio_device_set *dev_set,
++			   struct device *dev)
++{
++	struct vfio_device *cur;
++
++	lockdep_assert_held(&dev_set->lock);
++
++	list_for_each_entry(cur, &dev_set->device_list, dev_set_list)
++		if (cur->dev == dev)
++			return cur;
++	return NULL;
++}
++EXPORT_SYMBOL_GPL(vfio_find_device_in_devset);
++
+ /*
+  * Device objects - create, release, get, put, search
+  */
+diff --git a/include/linux/vfio.h b/include/linux/vfio.h
+index fcbe084b18c8..4c17395ed4d2 100644
+--- a/include/linux/vfio.h
++++ b/include/linux/vfio.h
+@@ -259,6 +259,9 @@ void vfio_unregister_group_dev(struct vfio_device *device);
+ 
+ int vfio_assign_device_set(struct vfio_device *device, void *set_id);
+ unsigned int vfio_device_set_open_count(struct vfio_device_set *dev_set);
++struct vfio_device *
++vfio_find_device_in_devset(struct vfio_device_set *dev_set,
++			   struct device *dev);
+ 
+ int vfio_mig_get_next_state(struct vfio_device *device,
+ 			    enum vfio_device_mig_state cur_fsm,
 -- 
 2.34.1
 
