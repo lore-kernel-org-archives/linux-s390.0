@@ -2,221 +2,340 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2DC12C77B7D
-	for <linux-s390@archiver.kernel.org>; Mon, 15 May 2023 03:27:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FB67C77B7F
+	for <linux-s390@archiver.kernel.org>; Mon, 15 May 2023 03:39:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238101AbjEOD11 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 14 May 2023 23:27:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37030 "EHLO
+        id S239468AbjEODjg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 14 May 2023 23:39:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237723AbjEOD1X (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 14 May 2023 23:27:23 -0400
-Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF96019B2;
-        Sun, 14 May 2023 20:27:15 -0700 (PDT)
-Received: by mail-pf1-x431.google.com with SMTP id d2e1a72fcca58-64ab2a37812so16612128b3a.1;
-        Sun, 14 May 2023 20:27:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1684121235; x=1686713235;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Misk8RzcAuhujPj5CN4/zB0H7gvh8yXqb60mLrr5oOQ=;
-        b=SUTYpi9m7sfB03krQSEVvZC8BAKoBAFKxMDYCydpITO/I8zUiiyk5Kzo+jNSg95b6v
-         RhIw64DX8qMnXWvKy9BNDKbpwJyFCs1eZwm3295yCaUvKJgzf+2aYHJ8skA18ZY7Y9NG
-         mvxd5TH9uewZGkdyp6C+yQy21hckWwkYwB+4u3eU94xPVquK6qutXALcwB/fmAZ6sIPJ
-         KecxVHrKXwVRQjtpPenLWz035ZHCciWD97jD3PVH2NdwOESiJDOUOtONJGRC4osglUR1
-         0+ZJgF8NZxTf74J2fP3+p4HBsS5RTDF7qMqjhz6gE6p19cjT7K+BAyvT1rMEnas+TqeB
-         bdQw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1684121235; x=1686713235;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Misk8RzcAuhujPj5CN4/zB0H7gvh8yXqb60mLrr5oOQ=;
-        b=Erv9su7KgkzKQuU2TRIUd4vCrq/geQ9fqcCuFamqtBwnAYwbiN81pdaKfL4TE4D02X
-         i8ekJLo/qIiawkGTr6RbwsQZPVHJmrk3gfP4wt0hr+Df8hQOkhs3DqPsi9bxmvkG4PxV
-         WAezEXcZm3Oj+eYhLbM/Y9jGzrCCSfJo+Or8LtR1AtuaqMp0pSjIvximZZMYDZ01zd0Y
-         YDinLX51kOY/O+tECwVoDYU/WeVMMYTXjh1ZiZV08FWx+heFEODeCFdRe3dby615Uso6
-         FnXycTBspsO0Tw6RZYBI/dhrjJMc7Ov6kMnSVxVKCXrgvqtooXGBk8uzsSdijwkcFCLE
-         lGQA==
-X-Gm-Message-State: AC+VfDxtypHArS/ttUgNDzfXMVE1qJnlrc/cNsx58uQdjNFFAmfwU86S
-        0oN+/ZI6EydgIu+NzWpmBW0=
-X-Google-Smtp-Source: ACHHUZ6Cgz27fn+/f04F6U/99cc0elHZFIBQRg512B0TLAkvbrJvxvIfy4wf8ER547TSO8rTWSCjpA==
-X-Received: by 2002:a17:90a:ad09:b0:244:d441:8f68 with SMTP id r9-20020a17090aad0900b00244d4418f68mr44442897pjq.16.1684121235252;
-        Sun, 14 May 2023 20:27:15 -0700 (PDT)
-Received: from localhost.localdomain ([43.132.98.42])
-        by smtp.googlemail.com with ESMTPSA id s6-20020a632146000000b0051416609fb7sm10363825pgm.61.2023.05.14.20.27.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 14 May 2023 20:27:14 -0700 (PDT)
-From:   Ze Gao <zegao2021@gmail.com>
-X-Google-Original-From: Ze Gao <zegao@tencent.com>
-To:     Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>
-Cc:     Ze Gao <zegao@tencent.com>, linux-riscv@lists.infradead.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-trace-kernel@vger.kernel.org
-Subject: [PATCH 4/4] rehook, fprobe: mark rethook related functions notrace
-Date:   Mon, 15 May 2023 11:26:41 +0800
-Message-Id: <238bad4335d029072ca6000fb404f47376197f39.1684120990.git.zegao@tencent.com>
-X-Mailer: git-send-email 2.40.1
-In-Reply-To: <cover.1684120990.git.zegao@tencent.com>
-References: <cover.1684120990.git.zegao@tencent.com>
+        with ESMTP id S239675AbjEODjG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 14 May 2023 23:39:06 -0400
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 884FF49D2;
+        Sun, 14 May 2023 20:35:37 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=24;SR=0;TI=SMTPD_---0ViZIbSw_1684121681;
+Received: from 30.221.149.181(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0ViZIbSw_1684121681)
+          by smtp.aliyun-inc.com;
+          Mon, 15 May 2023 11:34:42 +0800
+Message-ID: <37b8b016-ab4b-74b7-1cf6-1b3138485347@linux.alibaba.com>
+Date:   Mon, 15 May 2023 11:34:40 +0800
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.10.1
+Subject: Re: [PATCH bpf-next v1 4/5] bpf: add smc negotiator support in BPF
+ struct_ops
+Content-Language: en-US
+To:     Yonghong Song <yhs@meta.com>, kgraul@linux.ibm.com,
+        wenjia@linux.ibm.com, jaka@linux.ibm.com, ast@kernel.org,
+        daniel@iogearbox.net, andrii@kernel.org, martin.lau@linux.dev,
+        pabeni@redhat.com, song@kernel.org, sdf@google.com,
+        haoluo@google.com, yhs@fb.com, edumazet@google.com,
+        john.fastabend@gmail.com, kpsingh@kernel.org, jolsa@kernel.org,
+        guwen@linux.alibaba.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+        bpf@vger.kernel.org
+References: <1683872684-64872-1-git-send-email-alibuda@linux.alibaba.com>
+ <1683872684-64872-5-git-send-email-alibuda@linux.alibaba.com>
+ <a6c18615-7c48-2dc8-baff-9e64f64e2f18@meta.com>
+From:   "D. Wythe" <alibuda@linux.alibaba.com>
+In-Reply-To: <a6c18615-7c48-2dc8-baff-9e64f64e2f18@meta.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-These functions are already marked as NOKPROBE to prevent recusion and
-we have the same reason to blacklist them if rethook is used with fprobe,
-since they are beyond the recursion-free region ftrace can guard.
 
-Signed-off-by: Ze Gao <zegao@tencent.com>
----
- arch/riscv/kernel/probes/rethook.c | 4 ++--
- arch/s390/kernel/rethook.c         | 6 +++---
- arch/x86/kernel/rethook.c          | 8 +++++---
- kernel/trace/rethook.c             | 8 ++++----
- 4 files changed, 14 insertions(+), 12 deletions(-)
 
-diff --git a/arch/riscv/kernel/probes/rethook.c b/arch/riscv/kernel/probes/rethook.c
-index 5c27c1f50989..803c412a1bea 100644
---- a/arch/riscv/kernel/probes/rethook.c
-+++ b/arch/riscv/kernel/probes/rethook.c
-@@ -8,14 +8,14 @@
- #include "rethook.h"
- 
- /* This is called from arch_rethook_trampoline() */
--unsigned long __used arch_rethook_trampoline_callback(struct pt_regs *regs)
-+unsigned long __used notrace arch_rethook_trampoline_callback(struct pt_regs *regs)
- {
- 	return rethook_trampoline_handler(regs, regs->s0);
- }
- 
- NOKPROBE_SYMBOL(arch_rethook_trampoline_callback);
- 
--void arch_rethook_prepare(struct rethook_node *rhn, struct pt_regs *regs, bool mcount)
-+void notrace arch_rethook_prepare(struct rethook_node *rhn, struct pt_regs *regs, bool mcount)
- {
- 	rhn->ret_addr = regs->ra;
- 	rhn->frame = regs->s0;
-diff --git a/arch/s390/kernel/rethook.c b/arch/s390/kernel/rethook.c
-index af10e6bdd34e..ad52119826c1 100644
---- a/arch/s390/kernel/rethook.c
-+++ b/arch/s390/kernel/rethook.c
-@@ -3,7 +3,7 @@
- #include <linux/kprobes.h>
- #include "rethook.h"
- 
--void arch_rethook_prepare(struct rethook_node *rh, struct pt_regs *regs, bool mcount)
-+void notrace arch_rethook_prepare(struct rethook_node *rh, struct pt_regs *regs, bool mcount)
- {
- 	rh->ret_addr = regs->gprs[14];
- 	rh->frame = regs->gprs[15];
-@@ -13,7 +13,7 @@ void arch_rethook_prepare(struct rethook_node *rh, struct pt_regs *regs, bool mc
- }
- NOKPROBE_SYMBOL(arch_rethook_prepare);
- 
--void arch_rethook_fixup_return(struct pt_regs *regs,
-+void notrace arch_rethook_fixup_return(struct pt_regs *regs,
- 			       unsigned long correct_ret_addr)
- {
- 	/* Replace fake return address with real one. */
-@@ -24,7 +24,7 @@ NOKPROBE_SYMBOL(arch_rethook_fixup_return);
- /*
-  * Called from arch_rethook_trampoline
-  */
--unsigned long arch_rethook_trampoline_callback(struct pt_regs *regs)
-+unsigned long notrace arch_rethook_trampoline_callback(struct pt_regs *regs)
- {
- 	return rethook_trampoline_handler(regs, regs->gprs[15]);
- }
-diff --git a/arch/x86/kernel/rethook.c b/arch/x86/kernel/rethook.c
-index 8a1c0111ae79..1f7cef86f73d 100644
---- a/arch/x86/kernel/rethook.c
-+++ b/arch/x86/kernel/rethook.c
-@@ -64,7 +64,8 @@ NOKPROBE_SYMBOL(arch_rethook_trampoline);
- /*
-  * Called from arch_rethook_trampoline
-  */
--__used __visible void arch_rethook_trampoline_callback(struct pt_regs *regs)
-+__used __visible void notrace arch_rethook_trampoline_callback(struct pt_regs
-+		*regs)
- {
- 	unsigned long *frame_pointer;
- 
-@@ -104,7 +105,7 @@ NOKPROBE_SYMBOL(arch_rethook_trampoline_callback);
- STACK_FRAME_NON_STANDARD_FP(arch_rethook_trampoline);
- 
- /* This is called from rethook_trampoline_handler(). */
--void arch_rethook_fixup_return(struct pt_regs *regs,
-+void notrace arch_rethook_fixup_return(struct pt_regs *regs,
- 			       unsigned long correct_ret_addr)
- {
- 	unsigned long *frame_pointer = (void *)(regs + 1);
-@@ -114,7 +115,8 @@ void arch_rethook_fixup_return(struct pt_regs *regs,
- }
- NOKPROBE_SYMBOL(arch_rethook_fixup_return);
- 
--void arch_rethook_prepare(struct rethook_node *rh, struct pt_regs *regs, bool mcount)
-+void notrace arch_rethook_prepare(struct rethook_node *rh, struct pt_regs
-+		*regs, bool mcount)
- {
- 	unsigned long *stack = (unsigned long *)regs->sp;
- 
-diff --git a/kernel/trace/rethook.c b/kernel/trace/rethook.c
-index 60f6cb2b486b..e551e86d3927 100644
---- a/kernel/trace/rethook.c
-+++ b/kernel/trace/rethook.c
-@@ -127,7 +127,7 @@ static void free_rethook_node_rcu(struct rcu_head *head)
-  * Return back the @node to @node::rethook. If the @node::rethook is already
-  * marked as freed, this will free the @node.
-  */
--void rethook_recycle(struct rethook_node *node)
-+void notrace rethook_recycle(struct rethook_node *node)
- {
- 	lockdep_assert_preemption_disabled();
- 
-@@ -194,7 +194,7 @@ void rethook_hook(struct rethook_node *node, struct pt_regs *regs, bool mcount)
- NOKPROBE_SYMBOL(rethook_hook);
- 
- /* This assumes the 'tsk' is the current task or is not running. */
--static unsigned long __rethook_find_ret_addr(struct task_struct *tsk,
-+static unsigned long notrace __rethook_find_ret_addr(struct task_struct *tsk,
- 					     struct llist_node **cur)
- {
- 	struct rethook_node *rh = NULL;
-@@ -256,7 +256,7 @@ unsigned long rethook_find_ret_addr(struct task_struct *tsk, unsigned long frame
- }
- NOKPROBE_SYMBOL(rethook_find_ret_addr);
- 
--void __weak arch_rethook_fixup_return(struct pt_regs *regs,
-+void __weak notrace arch_rethook_fixup_return(struct pt_regs *regs,
- 				      unsigned long correct_ret_addr)
- {
- 	/*
-@@ -268,7 +268,7 @@ void __weak arch_rethook_fixup_return(struct pt_regs *regs,
- }
- 
- /* This function will be called from each arch-defined trampoline. */
--unsigned long rethook_trampoline_handler(struct pt_regs *regs,
-+unsigned long notrace rethook_trampoline_handler(struct pt_regs *regs,
- 					 unsigned long frame)
- {
- 	struct llist_node *first, *node = NULL;
--- 
-2.40.1
+On 5/13/23 10:36 AM, Yonghong Song wrote:
+>
+>
+> On 5/11/23 11:24 PM, D. Wythe wrote:
+>> From: "D. Wythe" <alibuda@linux.alibaba.com>
+>>
+>> This PATCH attempts to introduce BPF injection capability for SMC.
+>> Considering that the SMC protocol is not suitable for all scenarios,
+>> especially for short-lived. However, for most applications, they cannot
+>> guarantee that there are no such scenarios at all. Therefore, apps
+>> may need some specific strategies to decide shall we need to use SMC
+>> or not, for example, apps can limit the scope of the SMC to a specific
+>> IP address or port.
+>>
+>> Based on the consideration of transparent replacement, we hope that apps
+>> can remain transparent even if they need to formulate some specific
+>> strategies for SMC using. That is, do not need to recompile their code.
+>>
+>> On the other hand, we need to ensure the scalability of strategies
+>> implementation. Although it is simple to use socket options or sysctl,
+>> it will bring more complexity to subsequent expansion.
+>>
+>> Fortunately, BPF can solve these concerns very well, users can write
+>> thire own strategies in eBPF to choose whether to use SMC or not.
+>> And it's quite easy for them to modify their strategies in the future.
+>>
+>> This PATCH implement injection capability for SMC via struct_ops.
+>> In that way, we can add new injection scenarios in the future.
+>>
+>> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+>> ---
+>>   kernel/bpf/bpf_struct_ops_types.h |   4 +
+>>   net/Makefile                      |   2 +-
+>>   net/smc/bpf_smc.c                 | 171 
+>> ++++++++++++++++++++++++++++++++++++++
+>>   3 files changed, 176 insertions(+), 1 deletion(-)
+>>   create mode 100644 net/smc/bpf_smc.c
+>>
+>> diff --git a/kernel/bpf/bpf_struct_ops_types.h 
+>> b/kernel/bpf/bpf_struct_ops_types.h
+>> index 5678a9d..d952b85 100644
+>> --- a/kernel/bpf/bpf_struct_ops_types.h
+>> +++ b/kernel/bpf/bpf_struct_ops_types.h
+>> @@ -9,4 +9,8 @@
+>>   #include <net/tcp.h>
+>>   BPF_STRUCT_OPS_TYPE(tcp_congestion_ops)
+>>   #endif
+>> +#if IS_ENABLED(CONFIG_SMC_BPF)
+>> +#include <net/smc.h>
+>> +BPF_STRUCT_OPS_TYPE(smc_sock_negotiator_ops)
+>> +#endif
+>>   #endif
+>> diff --git a/net/Makefile b/net/Makefile
+>> index 222916a..2139fa4 100644
+>> --- a/net/Makefile
+>> +++ b/net/Makefile
+>> @@ -52,7 +52,7 @@ obj-$(CONFIG_TIPC)        += tipc/
+>>   obj-$(CONFIG_NETLABEL)        += netlabel/
+>>   obj-$(CONFIG_IUCV)        += iucv/
+>>   obj-$(CONFIG_SMC)        += smc/
+>> -obj-$(CONFIG_SMC_BPF)        += smc/smc_negotiator.o
+>> +obj-$(CONFIG_SMC_BPF)        += smc/smc_negotiator.o smc/bpf_smc.o
+>>   obj-$(CONFIG_RFKILL)        += rfkill/
+>>   obj-$(CONFIG_NET_9P)        += 9p/
+>>   obj-$(CONFIG_CAIF)        += caif/
+>> diff --git a/net/smc/bpf_smc.c b/net/smc/bpf_smc.c
+>> new file mode 100644
+>> index 0000000..ac9a9ae91
+>> --- /dev/null
+>> +++ b/net/smc/bpf_smc.c
+>> @@ -0,0 +1,171 @@
+>> +// SPDX-License-Identifier: GPL-2.0-only
+>> +/*
+>> + *  Support eBPF for Shared Memory Communications over RDMA (SMC-R) 
+>> and RoCE
+>> + *
+>> + *  Copyright IBM Corp. 2016, 2018
+>
+> The above description and copyright sound very wierd.
+
+Received, let me see how to modify it.
+
+>
+>> + *
+>> + *  Author(s):  D. Wythe <alibuda@linux.alibaba.com>
+>
+> One author, so just "Author: ...".
+
+Got it. I will fix that.
+
+>> + */
+>> +
+>> +#include <linux/bpf_verifier.h>
+>> +#include <linux/btf_ids.h>
+>> +#include <linux/kernel.h>
+>> +#include <linux/bpf.h>
+>> +#include <linux/btf.h>
+>> +#include "smc_negotiator.h"
+>> +
+>> +extern struct bpf_struct_ops bpf_smc_sock_negotiator_ops;
+>> +static u32 smc_sock_id, sock_id;
+>> +
+>> +static int bpf_smc_negotiator_init(struct btf *btf)
+>> +{
+>> +    s32 type_id;
+>> +
+>> +    type_id = btf_find_by_name_kind(btf, "sock", BTF_KIND_STRUCT);
+>> +    if (type_id < 0)
+>> +        return -EINVAL;
+>> +    sock_id = type_id;
+>> +
+>> +    type_id = btf_find_by_name_kind(btf, "smc_sock", BTF_KIND_STRUCT);
+>> +    if (type_id < 0)
+>> +        return -EINVAL;
+>> +    smc_sock_id = type_id;
+>> +
+>> +    return 0;
+>> +}
+>> +
+>> +/* register ops */
+>> +static int bpf_smc_negotiator_reg(void *kdata)
+>> +{
+>> +    return smc_sock_register_negotiator_ops(kdata);
+>> +}
+>> +
+>> +/* unregister ops */
+>> +static void bpf_smc_negotiator_unreg(void *kdata)
+>> +{
+>> +    smc_sock_unregister_negotiator_ops(kdata);
+>> +}
+>> +
+>> +/* unregister ops */
+>
+> update ops?
+> Also I think the above comments like
+> 'register ops', 'unregister ops' and 'update ops' are not
+> necessary. The code itself is self-explanary.
+My mistake, thank you very much for your suggestion. The annotations here
+are unnecessary indeed.
+>
+>> +static int bpf_smc_negotiator_update(void *kdata, void *old_kdata)
+>> +{
+>> +    return smc_sock_update_negotiator_ops(kdata, old_kdata);
+>> +}
+>> +
+>> +static int bpf_smc_negotiator_validate(void *kdata)
+>> +{
+>> +    return smc_sock_validate_negotiator_ops(kdata);
+>> +}
+>> +
+>> +static int bpf_smc_negotiator_check_member(const struct btf_type *t,
+>> +                       const struct btf_member *member,
+>> +                       const struct bpf_prog *prog)
+>> +{
+>> +    return 0;
+>> +}
+>> +
+>> +static int bpf_smc_negotiator_init_member(const struct btf_type *t,
+>> +                      const struct btf_member *member,
+>> +                      void *kdata, const void *udata)
+>> +{
+>> +    const struct smc_sock_negotiator_ops *uops;
+>> +    struct smc_sock_negotiator_ops *ops;
+>> +    u32 moff;
+>> +
+>> +    uops = (const struct smc_sock_negotiator_ops *)udata;
+>> +    ops = (struct smc_sock_negotiator_ops *)kdata;
+>> +
+>> +    moff = __btf_member_bit_offset(t, member) / 8;
+>> +
+>> +    /* init name */
+>> +    if (moff ==  offsetof(struct smc_sock_negotiator_ops, name)) {
+>> +        if (bpf_obj_name_cpy(ops->name, uops->name,
+>> +                     sizeof(uops->name)) <= 0)
+>> +            return -EINVAL;
+>> +        return 1;
+>> +    }
+>> +
+>> +    return 0;
+>> +}
+>> +
+>> +BPF_CALL_1(bpf_smc_skc_to_tcp_sock, struct sock *, sk)
+>> +{
+>> +    if (sk && sk_fullsock(sk) && sk->sk_family == AF_SMC)
+>> +        return (unsigned long)((struct smc_sock *)(sk))->clcsock->sk;
+>> +
+>> +    return (unsigned long)NULL;
+>> +}
+>> +
+>> +static const struct bpf_func_proto bpf_smc_skc_to_tcp_sock_proto = {
+>> +    .func            = bpf_smc_skc_to_tcp_sock,
+>> +    .gpl_only        = false,
+>> +    .ret_type        = RET_PTR_TO_BTF_ID_OR_NULL,
+>> +    .arg1_type        = ARG_PTR_TO_BTF_ID_SOCK_COMMON,
+>> +    .ret_btf_id        = &btf_sock_ids[BTF_SOCK_TYPE_TCP],
+>> +};
+>> +
+>> +static const struct bpf_func_proto *
+>> +smc_negotiator_prog_func_proto(enum bpf_func_id func_id, const 
+>> struct bpf_prog *prog)
+>> +{
+>> +    const struct btf_member *m;
+>> +    const struct btf_type *t;
+>> +    u32 midx, moff;
+>> +
+>> +    midx = prog->expected_attach_type;
+>> +    t = bpf_smc_sock_negotiator_ops.type;
+>> +    m = &btf_type_member(t)[midx];
+>> +
+>> +    moff = __btf_member_bit_offset(t, m) / 8;
+>> +
+>> +    switch (func_id) {
+>> +    case BPF_FUNC_setsockopt:
+>> +        switch (moff) {
+>> +        /* Avoid potential deadloop risk */
+>> +        case offsetof(struct smc_sock_negotiator_ops, init):
+>> +            fallthrough;
+>
+> I am not sure whether a 'fallthrough' is needed here or since the case
+> itself does not have any code. Any warning will show up if
+> 'fallthrough;' is removed?
+
+Yes, if there is no code, fallthrough is unnecessary, I will fix it in 
+the next version.
+
+>
+>> +        /* Avoid potential leak risk */
+>
+> I think more detailed explanation about 'deadloop risk' and 'leak risk'
+> is necessary.
+
+Got it, i will add more detailed explanation.
+>
+>> +        case offsetof(struct smc_sock_negotiator_ops, release):
+>> +            return NULL;
+>> +        }
+>> +        return &bpf_sk_setsockopt_proto;
+>> +    case BPF_FUNC_getsockopt:
+>> +        return &bpf_sk_getsockopt_proto;
+>> +    case BPF_FUNC_skc_to_tcp_sock:
+>> +        return &bpf_smc_skc_to_tcp_sock_proto;
+>> +    default:
+>> +        return bpf_base_func_proto(func_id);
+>> +    }
+>> +}
+>> +
+>> +static bool smc_negotiator_prog_is_valid_access(int off, int size, 
+>> enum bpf_access_type type,
+>> +                        const struct bpf_prog *prog,
+>> +                        struct bpf_insn_access_aux *info)
+>> +{
+>> +    if (!bpf_tracing_btf_ctx_access(off, size, type, prog, info))
+>> +        return false;
+>> +
+>> +    /* promote it to smc_sock */
+>> +    if (base_type(info->reg_type) == PTR_TO_BTF_ID &&
+>> +        !bpf_type_has_unsafe_modifiers(info->reg_type) &&
+>> +        info->btf_id == sock_id)
+>> +        info->btf_id = smc_sock_id;
+>> +
+>> +    return true;
+>> +}
+>> +
+>> +static const struct bpf_verifier_ops bpf_smc_negotiator_verifier_ops 
+>> = {
+>> +    .get_func_proto  = smc_negotiator_prog_func_proto,
+>> +    .is_valid_access = smc_negotiator_prog_is_valid_access,
+>> +};
+>> +
+>> +struct bpf_struct_ops bpf_smc_sock_negotiator_ops = {
+>> +    .verifier_ops = &bpf_smc_negotiator_verifier_ops,
+>> +    .init = bpf_smc_negotiator_init,
+>> +    .check_member = bpf_smc_negotiator_check_member,
+>> +    .init_member = bpf_smc_negotiator_init_member,
+>> +    .reg = bpf_smc_negotiator_reg,
+>> +    .update = bpf_smc_negotiator_update,
+>> +    .unreg = bpf_smc_negotiator_unreg,
+>> +    .validate = bpf_smc_negotiator_validate,
+>> +    .name = "smc_sock_negotiator_ops",
+>> +};
+>> \ No newline at end of file
+>
+> Empty line at the end?
+
+Will fix that, thanks.
+
+
+
+
 
