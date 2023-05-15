@@ -2,108 +2,131 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DC5A1C7EE23
-	for <linux-s390@archiver.kernel.org>; Mon, 15 May 2023 15:28:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4CFC9C7EE2F
+	for <linux-s390@archiver.kernel.org>; Mon, 15 May 2023 19:12:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242136AbjEOP2J (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 15 May 2023 11:28:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40842 "EHLO
+        id S244363AbjEOTMB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 15 May 2023 15:12:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240538AbjEOP2H (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 15 May 2023 11:28:07 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD11319B1;
-        Mon, 15 May 2023 08:28:06 -0700 (PDT)
-Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34FFKII1023178;
-        Mon, 15 May 2023 15:27:35 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=Oi7XnXA/+8zSbP8GqBgxZS3Z7rIe3p25MKB4URhZEp0=;
- b=goalteNz3B0aW5iGn/VlxvSylgUdmR69WlkUj9gK98PGMLRNoPvcDSu3ADKpUHh4WCsZ
- +H1hCf0p3V7k87pF1zdT2jogWgzPy2qJqUUIuO5ttyibxRa561VHvT3cimNJCkyQnv22
- 3Z8QmHa+sAqMxqyvPCtqg4qGRny+aztEMe1hq7qHexgBycW8sjfII6RQgx1SBImFhLjp
- yretAs9MEMx5mI+yfqb5G+OhyjEZWGr8siO9FQJp9RTYsTeAqNNwBdL16yu8H5Ayt3z/
- 6rYHkKTnprvH4Gunvf7+GrOvMhDfEPnieP3Z/zBrEb2CrjCArrCXWMGrImmlyjLYrimY Tg== 
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qkpes2dnn-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 15 May 2023 15:27:35 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34ENb3Bd006230;
-        Mon, 15 May 2023 15:27:28 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3qj264s55j-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 15 May 2023 15:27:28 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34FFROZJ10552014
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 15 May 2023 15:27:24 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C8B8F20043;
-        Mon, 15 May 2023 15:27:24 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 71EB320040;
-        Mon, 15 May 2023 15:27:24 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.155.204.135])
-        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Mon, 15 May 2023 15:27:24 +0000 (GMT)
-Date:   Mon, 15 May 2023 17:27:23 +0200
-From:   Alexander Gordeev <agordeev@linux.ibm.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     Tony Krowiak <akrowiak@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, iommu@lists.linux.dev,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Joerg Roedel <joro@8bytes.org>, linux-doc@vger.kernel.org,
-        linux-s390@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Will Deacon <will@kernel.org>,
-        Eric Farman <farman@linux.ibm.com>
-Subject: Re: [PATCH v2] iommu/s390: Get rid of S390_CCW_IOMMU and
- S390_AP_IOMMU
-Message-ID: <ZGJPW5KO+c0HqmcS@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-References: <0-v2-eb322ce2e547+188f-rm_iommu_ccw_jgg@nvidia.com>
+        with ESMTP id S243021AbjEOTL7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 15 May 2023 15:11:59 -0400
+Received: from mail-yb1-xb2c.google.com (mail-yb1-xb2c.google.com [IPv6:2607:f8b0:4864:20::b2c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09B7711DAA;
+        Mon, 15 May 2023 12:11:58 -0700 (PDT)
+Received: by mail-yb1-xb2c.google.com with SMTP id 3f1490d57ef6-ba7ed900ac4so910945276.0;
+        Mon, 15 May 2023 12:11:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1684177917; x=1686769917;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=lEdsDznoeQ0wGPMJWBs10mMvCj7VphDqPqR+uizklHY=;
+        b=W/Z9qzmBUq3bCVhP8uewmPEIaZEVYfzpzeh9YTeAKrK3sWIwtOfql71JlvN0P+P5pK
+         YKy9cml02fk4SnFQ2DdWQ6w4JijHunpNA4zsiud1GYDMnfuy8RTxF/bEehOFA+aPeByE
+         DTSRG2bdMMqymbgvM1f+cbSlSYq+sQANl8uMoYLlmajJ3SyWJdGVyTNcYD0Ioakieviy
+         BESs3L0iPHTKfiNNq75aO8FTJdn/BYay+E8sIKUXSqB49RgAR5VB2xxzW+nwEEKofO5F
+         26ssX78nNr5JZdvfN8wyMBJyb6MRO06YlrKHWh/GpY8CaWKtewkcbGK5ZJkz6FL2Wiq9
+         dAhA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1684177917; x=1686769917;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=lEdsDznoeQ0wGPMJWBs10mMvCj7VphDqPqR+uizklHY=;
+        b=GdVmGDBqf1Okap0EgXTiq5zpUXGJFx60SXvf+EgZ9tnWHJNy5Dfr9OnympFg/VBLw3
+         tpYgnBjpVnXfqvMY0ct7w9/tu1srp5GeJ7wGOqslE1zoSMXR36kHtdmc8L1kpXSScTp2
+         X+9w8BXeuwB4zXNfcihpSNxFwtU53zmGpEFoKipr8iyqJrugWdZlwO+uGp4dgGjA4J6y
+         FadULZs+fkOJpF9zkdKNruSHsOrBwAV/e0fJoaHz1utDTRP3T2zCUMiaj1YaMICt9mpH
+         QTDPLhxHCNPne124nCyEm/Wsg7RBLC03rRuIH+mGHl4lqy49H/lBiKF7zXck8BtbpgwZ
+         rPdw==
+X-Gm-Message-State: AC+VfDxFpUgJpr/zFAsZiBPVkjJxVF/Dm/cl5vYUFuSK+vV3yIFOqme6
+        mYYZJ055EkswRM9Yqj7CTQhUK7hinAPHjugKsrQ=
+X-Google-Smtp-Source: ACHHUZ5oDsw20tcH12/01C4i2nT6w5iAb2H6/okJg55EYYpqTgJ8h9iiRdXz2tD9egoOuSwMxk4Rmyquuvv7u/aep3U=
+X-Received: by 2002:a25:2586:0:b0:ba7:809c:50de with SMTP id
+ l128-20020a252586000000b00ba7809c50demr6158133ybl.38.1684177917068; Mon, 15
+ May 2023 12:11:57 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0-v2-eb322ce2e547+188f-rm_iommu_ccw_jgg@nvidia.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: JZEpDfyMTfqjFuo1KoSQDnKsjLqciCSF
-X-Proofpoint-ORIG-GUID: JZEpDfyMTfqjFuo1KoSQDnKsjLqciCSF
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-05-15_11,2023-05-05_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- clxscore=1011 phishscore=0 spamscore=0 mlxscore=0 suspectscore=0
- mlxlogscore=660 bulkscore=0 impostorscore=0 lowpriorityscore=0
- malwarescore=0 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2304280000 definitions=main-2305150124
+References: <20230501192829.17086-1-vishal.moola@gmail.com>
+ <20230501192829.17086-31-vishal.moola@gmail.com> <c0677d21a4b6caa2e5018af000294a974121d9e8.camel@physik.fu-berlin.de>
+In-Reply-To: <c0677d21a4b6caa2e5018af000294a974121d9e8.camel@physik.fu-berlin.de>
+From:   Vishal Moola <vishal.moola@gmail.com>
+Date:   Mon, 15 May 2023 12:11:46 -0700
+Message-ID: <CAOzc2pz6y=gRcdfkQVgwRuzWeWf2Nx-UBtKnZBTs2qKJ+r7R0Q@mail.gmail.com>
+Subject: Re: [PATCH v2 30/34] sh: Convert pte_free_tlb() to use ptdescs
+To:     John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org,
+        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+        xen-devel@lists.xenproject.org, kvm@vger.kernel.org,
+        Yoshinori Sato <ysato@users.sourceforge.jp>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, May 01, 2023 at 02:11:28PM -0300, Jason Gunthorpe wrote:
-> These don't do anything anymore, the only user of the symbol was
-> VFIO_CCW/AP which already "depends on VFIO" and VFIO itself selects
-> IOMMU_API.
-> 
-> When this was added VFIO was wrongly doing "depends on IOMMU_API" which
-> required some contortions like this to ensure IOMMU_API was turned on.
-> 
-> Reviewed-by: Eric Farman <farman@linux.ibm.com>
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> ---
->  Documentation/s390/vfio-ap.rst    |  1 -
->  arch/s390/Kconfig                 |  3 +--
->  arch/s390/configs/debug_defconfig |  2 --
->  arch/s390/configs/defconfig       |  2 --
->  drivers/iommu/Kconfig             | 16 ----------------
->  5 files changed, 1 insertion(+), 23 deletions(-)
+On Sat, May 6, 2023 at 4:35=E2=80=AFAM John Paul Adrian Glaubitz
+<glaubitz@physik.fu-berlin.de> wrote:
+>
+> Hi Vishal!
+>
+> On Mon, 2023-05-01 at 12:28 -0700, Vishal Moola (Oracle) wrote:
+> > Part of the conversions to replace pgtable constructor/destructors with
+> > ptdesc equivalents. Also cleans up some spacing issues.
+> >
+> > Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
+> > ---
+> >  arch/sh/include/asm/pgalloc.h | 9 +++++----
+> >  1 file changed, 5 insertions(+), 4 deletions(-)
+> >
+> > diff --git a/arch/sh/include/asm/pgalloc.h b/arch/sh/include/asm/pgallo=
+c.h
+> > index a9e98233c4d4..ce2ba99dbd84 100644
+> > --- a/arch/sh/include/asm/pgalloc.h
+> > +++ b/arch/sh/include/asm/pgalloc.h
+> > @@ -2,6 +2,7 @@
+> >  #ifndef __ASM_SH_PGALLOC_H
+> >  #define __ASM_SH_PGALLOC_H
+> >
+> > +#include <linux/mm.h>
+> >  #include <asm/page.h>
+> >
+> >  #define __HAVE_ARCH_PMD_ALLOC_ONE
+> > @@ -31,10 +32,10 @@ static inline void pmd_populate(struct mm_struct *m=
+m, pmd_t *pmd,
+> >       set_pmd(pmd, __pmd((unsigned long)page_address(pte)));
+> >  }
+> >
+> > -#define __pte_free_tlb(tlb,pte,addr)                 \
+> > -do {                                                 \
+> > -     pgtable_pte_page_dtor(pte);                     \
+> > -     tlb_remove_page((tlb), (pte));                  \
+> > +#define __pte_free_tlb(tlb, pte, addr)                               \
+> > +do {                                                         \
+> > +     ptdesc_pte_dtor(page_ptdesc(pte));                      \
+> > +     tlb_remove_page_ptdesc((tlb), (page_ptdesc(pte)));      \
+> >  } while (0)
+> >
+> >  #endif /* __ASM_SH_PGALLOC_H */
+>
+> Looking at the patch which introduces tlb_remove_page_ptdesc() [1], it se=
+ems that
+> tlb_remove_page_ptdesc() already calls tlb_remove_page() with ptdesc_page=
+(pt), so
+> I'm not sure whether the above tlb_remove_page_ptdesc((tlb), (page_ptdesc=
+(pte)))
+> is correct.
+>
+> Shouldn't it just be tlb_remove_page_ptdesc((tlb), (pte))?
 
-Applied,
-Thanks you!
+As of this patchset all implementations of __pte_free_tlb() take in a
+struct page. Eventually we'll want it to be tlb_remove_page_ptdesc(tlb, pte=
+),
+but for now the cast is necessary here.
