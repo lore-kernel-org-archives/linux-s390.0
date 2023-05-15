@@ -2,217 +2,111 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CE650C7EE2D
-	for <linux-s390@archiver.kernel.org>; Mon, 15 May 2023 13:52:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 34218C7EE26
+	for <linux-s390@archiver.kernel.org>; Mon, 15 May 2023 14:00:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236048AbjEONwh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 15 May 2023 09:52:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58830 "EHLO
+        id S238764AbjEOOAn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 15 May 2023 10:00:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234266AbjEONwf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 15 May 2023 09:52:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 760C21FE2;
-        Mon, 15 May 2023 06:52:30 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ED4CF61E94;
-        Mon, 15 May 2023 13:52:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5863C433EF;
-        Mon, 15 May 2023 13:52:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1684158749;
-        bh=yLHcOQuMOwKl/TYFo2kdsc0eAYysG+im84RLRDZNBd0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=OD90Fnua0tBl6Y7Xa5VYKmP56D3PTecnBZKxd6t/NzIbjyvtkj0FCYMKwSiEtCItm
-         FOJxfFG6M+SqBZePsKLSIR0ZPW4mgn7rQihMwZEGM1Y0LT8x8v3xuCpPtttmUVHYd9
-         Rw0sOkNWawXMm1K7SVGmjFitrrb6QBegfPwUWfECuki7kMZqeg4mKRp/qc7KqWwwCz
-         tjZUf8ReIHUIAhWBk8AC1N5GSMad/pfCSv9nZBGYnK5ilmGWyJV349wbDLPVZPNCE5
-         n1/RcwvhrCrwDX9yTR70NM50k1yHTBCmbwBHvPjfwOPT9Bw5JJoWXNoTDwaV2AHJpO
-         WnSHT0ak+v8pA==
-Date:   Mon, 15 May 2023 15:52:20 +0200
-From:   Christian Brauner <brauner@kernel.org>
-To:     Amir Goldstein <amir73il@gmail.com>
-Cc:     Christian =?utf-8?B?R8O2dHRzY2hl?= <cgzones@googlemail.com>,
-        x86@kernel.org, linux-alpha@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, audit@vger.kernel.org,
-        linux-arch@vger.kernel.org, linux-api@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        Jan Kara <jack@suse.cz>, jlayton@kernel.org, cyphar@cyphar.com,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [RFC PATCH v2] fs/xattr: add *at family syscalls
-Message-ID: <20230515-banal-vergab-a7abb53169b5@brauner>
-References: <20230511150802.737477-1-cgzones@googlemail.com>
- <20230515-kopfgeld-umkurven-f27be4b68a26@brauner>
- <CAOQ4uxgtxLLfBuVUAT7+N7cox+03wJA3ACGEu76dZd5RqGWXTQ@mail.gmail.com>
+        with ESMTP id S238603AbjEOOAl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 15 May 2023 10:00:41 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06D8E171F;
+        Mon, 15 May 2023 07:00:39 -0700 (PDT)
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34FDeeoX008152;
+        Mon, 15 May 2023 14:00:39 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
+ mime-version : content-transfer-encoding : in-reply-to : references : cc :
+ to : subject : from : message-id : date; s=pp1;
+ bh=rcplVe4CUdr40r8BcWqxao8gDcFXnBHZJ3jHKLeGToY=;
+ b=hjZyMg4RDW6lMPlDvsAyKqGr3kgmQfUZe/0MnXks8LB076k6w4gf2ZrPNFQTCAShhOHr
+ CAEr9G+2HkyF0IfcZprIr8sccTYNr+mcjGnFCAauysOH8oa43iH5sKcnenE0Dx7KuPuC
+ NGD6KXr4kF3D9rr7RsEWrWuX6p5TqfiA14EmbE3fD7KErZ4/KGcTck2WysnIvP4jthge
+ Kk6LsIM7i3mmC9KUX3vYODModdqeq3ANgI3erEVjBXwOFRP0QrTOgQCP0QJNV/fWfA0k
+ hlSy4MBHN+HdEc8HPjtG4fgNQ1HXwLp4xHQJb56/yYBlv9fKjJu7orQfav9CwCP0nZLV ag== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qknhgs4yn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 15 May 2023 14:00:38 +0000
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34FDwrVw028156;
+        Mon, 15 May 2023 14:00:38 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qknhgs4p5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 15 May 2023 14:00:37 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34F3I7xe015522;
+        Mon, 15 May 2023 14:00:28 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3qj264s3vn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 15 May 2023 14:00:28 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34FE0O7250725146
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 15 May 2023 14:00:24 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 753B720083;
+        Mon, 15 May 2023 14:00:24 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5FA8420063;
+        Mon, 15 May 2023 14:00:24 +0000 (GMT)
+Received: from t14-nrb (unknown [9.171.73.31])
+        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Mon, 15 May 2023 14:00:24 +0000 (GMT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAOQ4uxgtxLLfBuVUAT7+N7cox+03wJA3ACGEu76dZd5RqGWXTQ@mail.gmail.com>
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20230515115311.1970-1-frankja@linux.ibm.com>
+References: <168370369446.357872.12935361214141873283@t14-nrb> <20230515115311.1970-1-frankja@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        thuth@redhat.com, david@redhat.com
+To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Subject: Re: [kvm-unit-tests PATCH v5] s390x: pv: Add sie entry intercept and validity test
+From:   Nico Boehr <nrb@linux.ibm.com>
+Message-ID: <168415922405.12463.14160729135637986664@t14-nrb>
+User-Agent: alot/0.8.1
+Date:   Mon, 15 May 2023 16:00:24 +0200
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 3WxRS9waegPapbP3j3cgQ7vHJGXoFEKY
+X-Proofpoint-GUID: vVPzi4yafu96l5wjtXCJpGu5MSYWrG-2
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-05-15_10,2023-05-05_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ spamscore=0 bulkscore=0 impostorscore=0 phishscore=0 suspectscore=0
+ mlxscore=0 adultscore=0 mlxlogscore=999 malwarescore=0 priorityscore=1501
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2304280000 definitions=main-2305150117
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, May 15, 2023 at 04:04:21PM +0300, Amir Goldstein wrote:
-> On Mon, May 15, 2023 at 1:33 PM Christian Brauner <brauner@kernel.org> wrote:
-> >
-> > On Thu, May 11, 2023 at 05:08:02PM +0200, Christian Göttsche wrote:
-> > > Add the four syscalls setxattrat(), getxattrat(), listxattrat() and
-> > > removexattrat().  Those can be used to operate on extended attributes,
-> > > especially security related ones, either relative to a pinned directory
-> > > or on a file descriptor without read access, avoiding a
-> > > /proc/<pid>/fd/<fd> detour, requiring a mounted procfs.
-> > >
-> > > One use case will be setfiles(8) setting SELinux file contexts
-> > > ("security.selinux") without race conditions.
-> > >
-> > > Add XATTR flags to the private namespace of AT_* flags.
-> > >
-> > > Use the do_{name}at() pattern from fs/open.c.
-> > >
-> > > Use a single flag parameter for extended attribute flags (currently
-> > > XATTR_CREATE and XATTR_REPLACE) and *at() flags to not exceed six
-> > > syscall arguments in setxattrat().
-> > >
-> > > Previous approach ("f*xattr: allow O_PATH descriptors"): https://lore.kernel.org/all/20220607153139.35588-1-cgzones@googlemail.com/
-> > > v1 discussion: https://lore.kernel.org/all/20220830152858.14866-2-cgzones@googlemail.com/
-> > >
-> > > Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
-> > > CC: x86@kernel.org
-> > > CC: linux-alpha@vger.kernel.org
-> > > CC: linux-kernel@vger.kernel.org
-> > > CC: linux-arm-kernel@lists.infradead.org
-> > > CC: linux-ia64@vger.kernel.org
-> > > CC: linux-m68k@lists.linux-m68k.org
-> > > CC: linux-mips@vger.kernel.org
-> > > CC: linux-parisc@vger.kernel.org
-> > > CC: linuxppc-dev@lists.ozlabs.org
-> > > CC: linux-s390@vger.kernel.org
-> > > CC: linux-sh@vger.kernel.org
-> > > CC: sparclinux@vger.kernel.org
-> > > CC: linux-fsdevel@vger.kernel.org
-> > > CC: audit@vger.kernel.org
-> > > CC: linux-arch@vger.kernel.org
-> > > CC: linux-api@vger.kernel.org
-> > > CC: linux-security-module@vger.kernel.org
-> > > CC: selinux@vger.kernel.org
-> > > ---
-> >
-> > Fwiw, your header doesn't let me see who the mail was directly sent to
-> > so I'm only able to reply to lists which is a bit pointless...
-> >
-> > > v2:
-> > >   - squash syscall introduction and wire up commits
-> > >   - add AT_XATTR_CREATE and AT_XATTR_REPLACE constants
-> >
-> > > +#define AT_XATTR_CREATE              0x1     /* setxattrat(2): set value, fail if attr already exists */
-> > > +#define AT_XATTR_REPLACE     0x2     /* setxattrat(2): set value, fail if attr does not exist */
-> >
-> > We really shouldn't waste any AT_* flags for this. Otherwise we'll run
-> > out of them rather quickly. Two weeks ago we added another AT_* flag
-> > which is up for merging for v6.5 iirc and I've glimpsed another AT_*
-> > flag proposal in one of the talks at last weeks Vancouver conference
-> > extravaganza.
-> >
-> > Even if we reuse 0x200 for AT_XATTR_CREATE (like we did for AT_EACCESS
-> > and AT_REMOVEDIR) we still need another bit for AT_XATTR_REPLACE.
-> >
-> > Plus, this is really ugly since AT_XATTR_{CREATE,REPLACE} really isn't
-> > in any way related to lookup and we're mixing it in with lookup
-> > modifying flags.
-> >
-> > So my proposal for {g,s}etxattrat() would be:
-> >
-> > struct xattr_args {
-> >         __aligned_u64 value;
-> >         __u32 size;
-> >         __u32 cmd;
-> > };
-> >
-> > So everything's nicely 64bit aligned in the struct. Use the @cmd member
-> > to set either XATTR_REPLACE or XATTR_CREATE and treat it as a proper
-> > enum and not as a flag argument like the old calls did.
-> >
-> > So then we'd have:
-> >
-> > setxattrat(int dfd, const char *path, const char __user *name,
-> >            struct xattr_args __user *args, size_t size, unsigned int flags)
-> > getxattrat(int dfd, const char *path, const char __user *name,
-> >            struct xattr_args __user *args, size_t size, unsigned int flags)
-> >
-> > The current in-kernel struct xattr_ctx would be renamed to struct
-> > kernel_xattr_args and then we do the usual copy_struct_from_user()
-> > dance:
-> >
-> > struct xattr_args args;
-> > err = copy_struct_from_user(&args, sizeof(args), uargs, usize);
-> >
-> > and then go on to handle value/size for setxattrat()/getxattrat()
-> > accordingly.
-> >
-> > getxattr()/setxattr() aren't meaningfully filterable by seccomp already
-> > so there's not point in not using a struct.
-> >
-> > If that isn't very appealing then another option is to add a new flag
-> > namespace just for setxattrat() similar to fspick() and move_mount()
-> > duplicating the needed lookup modifying flags.
-> > Thoughts?
-> 
-> Here is a thought: I am not sure if I am sorry we did not discuss this API
-> issue in LSFMM or happy that we did not waste our time on this... :-/
-> 
-> I must say that I dislike redefined flag namespace like FSPICK_*
-> just as much as I dislike overloading the AT_* namespace and TBH,
-> I am not crazy about avoiding this problem with xattr_args either.
-> 
-> A more sane solution IMO could have been:
-> - Use lower word of flags for generic AT_ flags
-> - Use the upper word of flags for syscall specific flags
+Quoting Janosch Frank (2023-05-15 13:53:11)
+> The lowcore is an important part of any s390 cpu so we need to make
+> sure it's always available when we virtualize one. For non-PV guests
+> that would mean ensuring that the lowcore page is read and writable by
+> the guest.
+>=20
+> For PV guests we additionally need to make sure that the page is owned
+> by the guest as it is only allowed to access them if that's the
+> case. The code 112 SIE intercept tells us if the lowcore pages aren't
+> secure anymore.
+>=20
+> Let's check if that intercept is reported by SIE if we export the
+> lowcore pages. Additionally check if that's also the case if the guest
+> shares the lowcore which will make it readable to the host but
+> ownership of the page should not change.
+>=20
+> Also we check for validities in these conditions:
+>      * Manipulated cpu timer
+>      * Double SIE for same vcpu
+>      * Re-use of VCPU handle from another secure configuration
+>      * ASCE re-use
+>=20
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 
-We'd have 16 lower bits for AT_* flags and upper 16 bits for non-AT_*
-flags. That might be ok but it isn't great because if we ever extend
-AT_* flags into the upper 16 bits that are generally useful for all
-AT_* flag taking system calls we'd not be able to use them. And at the
-rate people keep suggesting new AT_* flags that issue might arise
-quicker than we might think.
-
-And we really don't want 64 bit flag arguments because of 32 bit
-architectures as that gets really ugly to handle cleanly (Arnd has
-talked a lot about issues in this area before).
-
-> 
-> So if it were up to me, I would vote starting this practice:
-> 
-> + /* Start of syscall specific range */
-> + #define AT_XATTR_CREATE       0x10000     /* setxattrat(2): set
-> value, fail if attr already exists */
-> + #define AT_XATTR_REPLACE     0x20000     /* setxattrat(2): set
-> value, fail if attr does not exist */
-> 
-> Which coincidentally happens to be inline with my AT_HANDLE_FID patch...
-
-This is different though. The reason AT_HANDLE_FID is acceptable is
-because we need the ability to extend an existing system call and we're
-reusing a bit that is already used in two other system calls. So we
-avoid adding a new system call just to add another flag argument and
-we're also not using up an additional AT_* bit. This makes it bearable
-imho. But here we're talking about new system calls where we can avoid
-this problem arising in the first place.
-
-> 
-> Sure, we will have some special cases like MOVE_MOUNT_* and
-> legacy pollution to the lower AT_ flags word, but as a generic solution
-> for syscalls that need the common AT_ lookup flags and just a few
-> private flags, that seems like the lesser evil to me.
-
-It is fine to do this in some cases but we shouldn't encourage mixing
-distinct flag namespaces let alone advertising this as a generic
-solution imho. The AT_XATTR_* flags aren't even flags they behave like
-an enum.
+Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
