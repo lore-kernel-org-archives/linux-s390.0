@@ -2,53 +2,53 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C8CEEC7EE25
-	for <linux-s390@archiver.kernel.org>; Mon, 15 May 2023 03:14:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2DC12C77B7D
+	for <linux-s390@archiver.kernel.org>; Mon, 15 May 2023 03:27:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238343AbjEODOV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 14 May 2023 23:14:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58966 "EHLO
+        id S238101AbjEOD11 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 14 May 2023 23:27:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238361AbjEODOM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 14 May 2023 23:14:12 -0400
-Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C85EF19AD;
-        Sun, 14 May 2023 20:14:01 -0700 (PDT)
-Received: by mail-pj1-x102b.google.com with SMTP id 98e67ed59e1d1-24dec03ad8fso8716354a91.1;
-        Sun, 14 May 2023 20:14:01 -0700 (PDT)
+        with ESMTP id S237723AbjEOD1X (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 14 May 2023 23:27:23 -0400
+Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF96019B2;
+        Sun, 14 May 2023 20:27:15 -0700 (PDT)
+Received: by mail-pf1-x431.google.com with SMTP id d2e1a72fcca58-64ab2a37812so16612128b3a.1;
+        Sun, 14 May 2023 20:27:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1684120441; x=1686712441;
+        d=gmail.com; s=20221208; t=1684121235; x=1686713235;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
         bh=Misk8RzcAuhujPj5CN4/zB0H7gvh8yXqb60mLrr5oOQ=;
-        b=mxRmqh7RrZKI4U323j4QPj9REZOu20NRL2ypQKyhgtAio9Dgz6PqIAtGGj+I/S8d9D
-         JcFiLL86AFLBMrrEBHaYu+c9PBRjeT8ZWxVH7oreEdaW4DovxDL4y/mvq8U3TAp5nHCH
-         SIQhw3ZhUh+IOveWMBg7nw/IhDKU35QJhZLqglLbqU4vxdnznenShULKTrw1SEFnkBEN
-         Q3ZDXR6cmTt4/+py+wnXuC0illIP/GUnZfy/Yt2ef6O5LVrZ+KEcfYOyRvpeSemZA6pQ
-         EmGuZmoAuNIC2ysE9lW8qMU1QpQraTgl16W0ygFIQcEFvIIeLx9HAwNIrWZAs4E20LSx
-         e1vA==
+        b=SUTYpi9m7sfB03krQSEVvZC8BAKoBAFKxMDYCydpITO/I8zUiiyk5Kzo+jNSg95b6v
+         RhIw64DX8qMnXWvKy9BNDKbpwJyFCs1eZwm3295yCaUvKJgzf+2aYHJ8skA18ZY7Y9NG
+         mvxd5TH9uewZGkdyp6C+yQy21hckWwkYwB+4u3eU94xPVquK6qutXALcwB/fmAZ6sIPJ
+         KecxVHrKXwVRQjtpPenLWz035ZHCciWD97jD3PVH2NdwOESiJDOUOtONJGRC4osglUR1
+         0+ZJgF8NZxTf74J2fP3+p4HBsS5RTDF7qMqjhz6gE6p19cjT7K+BAyvT1rMEnas+TqeB
+         bdQw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1684120441; x=1686712441;
+        d=1e100.net; s=20221208; t=1684121235; x=1686713235;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
         bh=Misk8RzcAuhujPj5CN4/zB0H7gvh8yXqb60mLrr5oOQ=;
-        b=JVjrt342shrV30xUK75ut1phkdRcTB6rQ7CNHFDySFDaM52jdogJijlfBpvRKMV0gp
-         DVqoiShXb5w+SpoGnOrgjtY4JlR2y/8dtDXj6ee4flsyjrlC9xFTpQ/JAoHfRqJGcnC9
-         ASAb6vZo6Mi02TAGDMwmgt/9lLX5skURdWtWUJPsRmt1tL+oZgEUyuF2KP8p8P2I06Ca
-         95Eu4W9ct3OcZQAl/zsKXSpjpemSacsxZZgswmYnqumS4FzILBGu9qHwEmRjLB9AiWjX
-         9eaek5Hn1UhjSuWCDYD95zTTj6TW6ba9b5OWrpIjZa9xdbi05Q6yNOO9KA+/IKorvhB4
-         3Azg==
-X-Gm-Message-State: AC+VfDza2G+6VevKEBgMiOeXZpIYbGa0DsQXkM4fJV3juCyDRSvVRQu1
-        FGDssciIVRgmmnx7YjGqAZg=
-X-Google-Smtp-Source: ACHHUZ7e39ooAoq6J7/mpAO93KBoLWfGhslTSW0wjXD07bX284VzdylHfe6bOl+kRYpTUX1uQwcmhA==
-X-Received: by 2002:a17:90b:3881:b0:246:c097:6a17 with SMTP id mu1-20020a17090b388100b00246c0976a17mr33470341pjb.24.1684120440707;
-        Sun, 14 May 2023 20:14:00 -0700 (PDT)
+        b=Erv9su7KgkzKQuU2TRIUd4vCrq/geQ9fqcCuFamqtBwnAYwbiN81pdaKfL4TE4D02X
+         i8ekJLo/qIiawkGTr6RbwsQZPVHJmrk3gfP4wt0hr+Df8hQOkhs3DqPsi9bxmvkG4PxV
+         WAezEXcZm3Oj+eYhLbM/Y9jGzrCCSfJo+Or8LtR1AtuaqMp0pSjIvximZZMYDZ01zd0Y
+         YDinLX51kOY/O+tECwVoDYU/WeVMMYTXjh1ZiZV08FWx+heFEODeCFdRe3dby615Uso6
+         FnXycTBspsO0Tw6RZYBI/dhrjJMc7Ov6kMnSVxVKCXrgvqtooXGBk8uzsSdijwkcFCLE
+         lGQA==
+X-Gm-Message-State: AC+VfDxtypHArS/ttUgNDzfXMVE1qJnlrc/cNsx58uQdjNFFAmfwU86S
+        0oN+/ZI6EydgIu+NzWpmBW0=
+X-Google-Smtp-Source: ACHHUZ6Cgz27fn+/f04F6U/99cc0elHZFIBQRg512B0TLAkvbrJvxvIfy4wf8ER547TSO8rTWSCjpA==
+X-Received: by 2002:a17:90a:ad09:b0:244:d441:8f68 with SMTP id r9-20020a17090aad0900b00244d4418f68mr44442897pjq.16.1684121235252;
+        Sun, 14 May 2023 20:27:15 -0700 (PDT)
 Received: from localhost.localdomain ([43.132.98.42])
-        by smtp.googlemail.com with ESMTPSA id o4-20020a17090a744400b00252b3328ad8sm4943577pjk.0.2023.05.14.20.13.55
+        by smtp.googlemail.com with ESMTPSA id s6-20020a632146000000b0051416609fb7sm10363825pgm.61.2023.05.14.20.27.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 14 May 2023 20:14:00 -0700 (PDT)
+        Sun, 14 May 2023 20:27:14 -0700 (PDT)
 From:   Ze Gao <zegao2021@gmail.com>
 X-Google-Original-From: Ze Gao <zegao@tencent.com>
 To:     Paul Walmsley <paul.walmsley@sifive.com>,
@@ -69,11 +69,11 @@ Cc:     Ze Gao <zegao@tencent.com>, linux-riscv@lists.infradead.org,
         linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
         linux-trace-kernel@vger.kernel.org
 Subject: [PATCH 4/4] rehook, fprobe: mark rethook related functions notrace
-Date:   Mon, 15 May 2023 11:13:13 +0800
-Message-Id: <20230515031314.7836-5-zegao@tencent.com>
+Date:   Mon, 15 May 2023 11:26:41 +0800
+Message-Id: <238bad4335d029072ca6000fb404f47376197f39.1684120990.git.zegao@tencent.com>
 X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20230515031314.7836-1-zegao@tencent.com>
-References: <20230515031314.7836-1-zegao@tencent.com>
+In-Reply-To: <cover.1684120990.git.zegao@tencent.com>
+References: <cover.1684120990.git.zegao@tencent.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
