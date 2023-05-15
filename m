@@ -2,340 +2,165 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FB67C77B7F
-	for <linux-s390@archiver.kernel.org>; Mon, 15 May 2023 03:39:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BF8C0C7EE22
+	for <linux-s390@archiver.kernel.org>; Mon, 15 May 2023 07:12:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239468AbjEODjg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 14 May 2023 23:39:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47874 "EHLO
+        id S238725AbjEOHMT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 15 May 2023 03:12:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239675AbjEODjG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 14 May 2023 23:39:06 -0400
-Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 884FF49D2;
-        Sun, 14 May 2023 20:35:37 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=24;SR=0;TI=SMTPD_---0ViZIbSw_1684121681;
-Received: from 30.221.149.181(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0ViZIbSw_1684121681)
-          by smtp.aliyun-inc.com;
-          Mon, 15 May 2023 11:34:42 +0800
-Message-ID: <37b8b016-ab4b-74b7-1cf6-1b3138485347@linux.alibaba.com>
-Date:   Mon, 15 May 2023 11:34:40 +0800
+        with ESMTP id S236289AbjEOHMS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 15 May 2023 03:12:18 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74CFE10CA
+        for <linux-s390@vger.kernel.org>; Mon, 15 May 2023 00:11:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1684134689;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=PrvftN8LTvjLNSmV4hczj5SgdxauygqUnnKWnbj/64w=;
+        b=BI1pdbCpE/M6/yEjAHMJjCgGzVYJmwMFOjAvIeYlZca/W0jh7LNoowatoYJnY3GnRvgTO1
+        3idgtObRnZSd8jbpD5OE9VNd5FSXtQjv65RvtRdqzHFbH4jrXSgJIkURicG7Wt+Fl5usv9
+        28AFvwtAnbLqpBjtEWU0tMX6BasdpWw=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-205-pDWiYkz_NUymr7emg8oz4g-1; Mon, 15 May 2023 03:11:28 -0400
+X-MC-Unique: pDWiYkz_NUymr7emg8oz4g-1
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-3f420742d40so32242695e9.2
+        for <linux-s390@vger.kernel.org>; Mon, 15 May 2023 00:11:28 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1684134687; x=1686726687;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=PrvftN8LTvjLNSmV4hczj5SgdxauygqUnnKWnbj/64w=;
+        b=POusgfHFxXicYAI8ybelxzJU69rA43bgxrRV/arQMkkgzKoDRIKsFJal7e8RogyBZv
+         RXgg+p641SQ8G2qFiP6j2q+R3ggPxEHYjUklxR66PVnhyk+MW2/7yhEOKEifc219L+Nz
+         F/AfSDbZrx+2yVFex3SDl5CmQS90eEbB45dK3U7DsoiTbmcHXI388Ggbe8hsZ/1o3za1
+         E49ZNBmU+pU5izTITHag9t2iYgwFefABv7oZuFGuWBB3JsVPLinYCuz+i1httkxkh+0i
+         FDUm3AjFZkaQ2Rl3+nsL+vdHw886Lg9NXl2DCK+eDBs3jwWwAIctpiTEDZAY63x6OL16
+         UXRA==
+X-Gm-Message-State: AC+VfDxev4dGiW4yaebtzugsavSBb/AUXDAUSc4XYGv3M/DvXqEWc0bW
+        +enNCN3UgdDt25sbavefcYXszgY/EyGY1SY1Y1vMdsQm729oZED7t8IeJBjJotlkUfwLT4vo/5N
+        rtmjRA3pTzt1rRNMdwHWKMg==
+X-Received: by 2002:a1c:f711:0:b0:3f5:1a4:a08d with SMTP id v17-20020a1cf711000000b003f501a4a08dmr3278817wmh.7.1684134687147;
+        Mon, 15 May 2023 00:11:27 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ5qYm9mJZDymacavx2WUVx58H8QOzio8ACR10nRBchBc8miC//kNxyu+5sGW2UPuK2Nxwn/oQ==
+X-Received: by 2002:a1c:f711:0:b0:3f5:1a4:a08d with SMTP id v17-20020a1cf711000000b003f501a4a08dmr3278789wmh.7.1684134686765;
+        Mon, 15 May 2023 00:11:26 -0700 (PDT)
+Received: from ?IPV6:2a01:e0a:280:24f0:9db0:474c:ff43:9f5c? ([2a01:e0a:280:24f0:9db0:474c:ff43:9f5c])
+        by smtp.gmail.com with ESMTPSA id i7-20020a05600c290700b003f4ecf1fcbcsm11706405wmd.22.2023.05.15.00.11.25
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 15 May 2023 00:11:26 -0700 (PDT)
+Message-ID: <6f958b0b-64bd-147d-98d5-a2158b34247d@redhat.com>
+Date:   Mon, 15 May 2023 09:11:24 +0200
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.10.1
-Subject: Re: [PATCH bpf-next v1 4/5] bpf: add smc negotiator support in BPF
- struct_ops
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.10.0
+Subject: Re: [PATCH v5 07/10] vfio: Add helper to search vfio_device in a
+ dev_set
 Content-Language: en-US
-To:     Yonghong Song <yhs@meta.com>, kgraul@linux.ibm.com,
-        wenjia@linux.ibm.com, jaka@linux.ibm.com, ast@kernel.org,
-        daniel@iogearbox.net, andrii@kernel.org, martin.lau@linux.dev,
-        pabeni@redhat.com, song@kernel.org, sdf@google.com,
-        haoluo@google.com, yhs@fb.com, edumazet@google.com,
-        john.fastabend@gmail.com, kpsingh@kernel.org, jolsa@kernel.org,
-        guwen@linux.alibaba.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-        bpf@vger.kernel.org
-References: <1683872684-64872-1-git-send-email-alibuda@linux.alibaba.com>
- <1683872684-64872-5-git-send-email-alibuda@linux.alibaba.com>
- <a6c18615-7c48-2dc8-baff-9e64f64e2f18@meta.com>
-From:   "D. Wythe" <alibuda@linux.alibaba.com>
-In-Reply-To: <a6c18615-7c48-2dc8-baff-9e64f64e2f18@meta.com>
+To:     Yi Liu <yi.l.liu@intel.com>, alex.williamson@redhat.com,
+        jgg@nvidia.com, kevin.tian@intel.com
+Cc:     joro@8bytes.org, robin.murphy@arm.com, cohuck@redhat.com,
+        eric.auger@redhat.com, nicolinc@nvidia.com, kvm@vger.kernel.org,
+        mjrosato@linux.ibm.com, chao.p.peng@linux.intel.com,
+        yi.y.sun@linux.intel.com, peterx@redhat.com, jasowang@redhat.com,
+        shameerali.kolothum.thodi@huawei.com, lulu@redhat.com,
+        suravee.suthikulpanit@amd.com, intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, linux-s390@vger.kernel.org,
+        xudong.hao@intel.com, yan.y.zhao@intel.com, terrence.xu@intel.com,
+        yanting.jiang@intel.com, zhenzhong.duan@intel.com
+References: <20230513132136.15021-1-yi.l.liu@intel.com>
+ <20230513132136.15021-8-yi.l.liu@intel.com>
+From:   =?UTF-8?Q?C=c3=a9dric_Le_Goater?= <clegoate@redhat.com>
+In-Reply-To: <20230513132136.15021-8-yi.l.liu@intel.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On 5/13/23 15:21, Yi Liu wrote:
+> There are drivers that need to search vfio_device within a given dev_set.
+> e.g. vfio-pci. So add a helper.
+> 
+> Signed-off-by: Yi Liu <yi.l.liu@intel.com>
+> ---
+>   drivers/vfio/pci/vfio_pci_core.c |  8 +++-----
+>   drivers/vfio/vfio_main.c         | 15 +++++++++++++++
+>   include/linux/vfio.h             |  3 +++
+>   3 files changed, 21 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
+> index 39e7823088e7..4df2def35bdd 100644
+> --- a/drivers/vfio/pci/vfio_pci_core.c
+> +++ b/drivers/vfio/pci/vfio_pci_core.c
+> @@ -2335,12 +2335,10 @@ static bool vfio_dev_in_groups(struct vfio_pci_core_device *vdev,
+>   static int vfio_pci_is_device_in_set(struct pci_dev *pdev, void *data)
+>   {
+>   	struct vfio_device_set *dev_set = data;
+> -	struct vfio_device *cur;
+>   
+> -	list_for_each_entry(cur, &dev_set->device_list, dev_set_list)
+> -		if (cur->dev == &pdev->dev)
+> -			return 0;
+> -	return -EBUSY;
+> +	lockdep_assert_held(&dev_set->lock);
 
+May be drop the lockdep_assert_held() above since there is one in
+vfio_find_device_in_devset().
 
-On 5/13/23 10:36 AM, Yonghong Song wrote:
->
->
-> On 5/11/23 11:24 PM, D. Wythe wrote:
->> From: "D. Wythe" <alibuda@linux.alibaba.com>
->>
->> This PATCH attempts to introduce BPF injection capability for SMC.
->> Considering that the SMC protocol is not suitable for all scenarios,
->> especially for short-lived. However, for most applications, they cannot
->> guarantee that there are no such scenarios at all. Therefore, apps
->> may need some specific strategies to decide shall we need to use SMC
->> or not, for example, apps can limit the scope of the SMC to a specific
->> IP address or port.
->>
->> Based on the consideration of transparent replacement, we hope that apps
->> can remain transparent even if they need to formulate some specific
->> strategies for SMC using. That is, do not need to recompile their code.
->>
->> On the other hand, we need to ensure the scalability of strategies
->> implementation. Although it is simple to use socket options or sysctl,
->> it will bring more complexity to subsequent expansion.
->>
->> Fortunately, BPF can solve these concerns very well, users can write
->> thire own strategies in eBPF to choose whether to use SMC or not.
->> And it's quite easy for them to modify their strategies in the future.
->>
->> This PATCH implement injection capability for SMC via struct_ops.
->> In that way, we can add new injection scenarios in the future.
->>
->> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
->> ---
->>   kernel/bpf/bpf_struct_ops_types.h |   4 +
->>   net/Makefile                      |   2 +-
->>   net/smc/bpf_smc.c                 | 171 
->> ++++++++++++++++++++++++++++++++++++++
->>   3 files changed, 176 insertions(+), 1 deletion(-)
->>   create mode 100644 net/smc/bpf_smc.c
->>
->> diff --git a/kernel/bpf/bpf_struct_ops_types.h 
->> b/kernel/bpf/bpf_struct_ops_types.h
->> index 5678a9d..d952b85 100644
->> --- a/kernel/bpf/bpf_struct_ops_types.h
->> +++ b/kernel/bpf/bpf_struct_ops_types.h
->> @@ -9,4 +9,8 @@
->>   #include <net/tcp.h>
->>   BPF_STRUCT_OPS_TYPE(tcp_congestion_ops)
->>   #endif
->> +#if IS_ENABLED(CONFIG_SMC_BPF)
->> +#include <net/smc.h>
->> +BPF_STRUCT_OPS_TYPE(smc_sock_negotiator_ops)
->> +#endif
->>   #endif
->> diff --git a/net/Makefile b/net/Makefile
->> index 222916a..2139fa4 100644
->> --- a/net/Makefile
->> +++ b/net/Makefile
->> @@ -52,7 +52,7 @@ obj-$(CONFIG_TIPC)        += tipc/
->>   obj-$(CONFIG_NETLABEL)        += netlabel/
->>   obj-$(CONFIG_IUCV)        += iucv/
->>   obj-$(CONFIG_SMC)        += smc/
->> -obj-$(CONFIG_SMC_BPF)        += smc/smc_negotiator.o
->> +obj-$(CONFIG_SMC_BPF)        += smc/smc_negotiator.o smc/bpf_smc.o
->>   obj-$(CONFIG_RFKILL)        += rfkill/
->>   obj-$(CONFIG_NET_9P)        += 9p/
->>   obj-$(CONFIG_CAIF)        += caif/
->> diff --git a/net/smc/bpf_smc.c b/net/smc/bpf_smc.c
->> new file mode 100644
->> index 0000000..ac9a9ae91
->> --- /dev/null
->> +++ b/net/smc/bpf_smc.c
->> @@ -0,0 +1,171 @@
->> +// SPDX-License-Identifier: GPL-2.0-only
->> +/*
->> + *  Support eBPF for Shared Memory Communications over RDMA (SMC-R) 
->> and RoCE
->> + *
->> + *  Copyright IBM Corp. 2016, 2018
->
-> The above description and copyright sound very wierd.
+Thanks,
 
-Received, let me see how to modify it.
+C.
 
->
->> + *
->> + *  Author(s):  D. Wythe <alibuda@linux.alibaba.com>
->
-> One author, so just "Author: ...".
-
-Got it. I will fix that.
-
->> + */
->> +
->> +#include <linux/bpf_verifier.h>
->> +#include <linux/btf_ids.h>
->> +#include <linux/kernel.h>
->> +#include <linux/bpf.h>
->> +#include <linux/btf.h>
->> +#include "smc_negotiator.h"
->> +
->> +extern struct bpf_struct_ops bpf_smc_sock_negotiator_ops;
->> +static u32 smc_sock_id, sock_id;
->> +
->> +static int bpf_smc_negotiator_init(struct btf *btf)
->> +{
->> +    s32 type_id;
->> +
->> +    type_id = btf_find_by_name_kind(btf, "sock", BTF_KIND_STRUCT);
->> +    if (type_id < 0)
->> +        return -EINVAL;
->> +    sock_id = type_id;
->> +
->> +    type_id = btf_find_by_name_kind(btf, "smc_sock", BTF_KIND_STRUCT);
->> +    if (type_id < 0)
->> +        return -EINVAL;
->> +    smc_sock_id = type_id;
->> +
->> +    return 0;
->> +}
->> +
->> +/* register ops */
->> +static int bpf_smc_negotiator_reg(void *kdata)
->> +{
->> +    return smc_sock_register_negotiator_ops(kdata);
->> +}
->> +
->> +/* unregister ops */
->> +static void bpf_smc_negotiator_unreg(void *kdata)
->> +{
->> +    smc_sock_unregister_negotiator_ops(kdata);
->> +}
->> +
->> +/* unregister ops */
->
-> update ops?
-> Also I think the above comments like
-> 'register ops', 'unregister ops' and 'update ops' are not
-> necessary. The code itself is self-explanary.
-My mistake, thank you very much for your suggestion. The annotations here
-are unnecessary indeed.
->
->> +static int bpf_smc_negotiator_update(void *kdata, void *old_kdata)
->> +{
->> +    return smc_sock_update_negotiator_ops(kdata, old_kdata);
->> +}
->> +
->> +static int bpf_smc_negotiator_validate(void *kdata)
->> +{
->> +    return smc_sock_validate_negotiator_ops(kdata);
->> +}
->> +
->> +static int bpf_smc_negotiator_check_member(const struct btf_type *t,
->> +                       const struct btf_member *member,
->> +                       const struct bpf_prog *prog)
->> +{
->> +    return 0;
->> +}
->> +
->> +static int bpf_smc_negotiator_init_member(const struct btf_type *t,
->> +                      const struct btf_member *member,
->> +                      void *kdata, const void *udata)
->> +{
->> +    const struct smc_sock_negotiator_ops *uops;
->> +    struct smc_sock_negotiator_ops *ops;
->> +    u32 moff;
->> +
->> +    uops = (const struct smc_sock_negotiator_ops *)udata;
->> +    ops = (struct smc_sock_negotiator_ops *)kdata;
->> +
->> +    moff = __btf_member_bit_offset(t, member) / 8;
->> +
->> +    /* init name */
->> +    if (moff ==  offsetof(struct smc_sock_negotiator_ops, name)) {
->> +        if (bpf_obj_name_cpy(ops->name, uops->name,
->> +                     sizeof(uops->name)) <= 0)
->> +            return -EINVAL;
->> +        return 1;
->> +    }
->> +
->> +    return 0;
->> +}
->> +
->> +BPF_CALL_1(bpf_smc_skc_to_tcp_sock, struct sock *, sk)
->> +{
->> +    if (sk && sk_fullsock(sk) && sk->sk_family == AF_SMC)
->> +        return (unsigned long)((struct smc_sock *)(sk))->clcsock->sk;
->> +
->> +    return (unsigned long)NULL;
->> +}
->> +
->> +static const struct bpf_func_proto bpf_smc_skc_to_tcp_sock_proto = {
->> +    .func            = bpf_smc_skc_to_tcp_sock,
->> +    .gpl_only        = false,
->> +    .ret_type        = RET_PTR_TO_BTF_ID_OR_NULL,
->> +    .arg1_type        = ARG_PTR_TO_BTF_ID_SOCK_COMMON,
->> +    .ret_btf_id        = &btf_sock_ids[BTF_SOCK_TYPE_TCP],
->> +};
->> +
->> +static const struct bpf_func_proto *
->> +smc_negotiator_prog_func_proto(enum bpf_func_id func_id, const 
->> struct bpf_prog *prog)
->> +{
->> +    const struct btf_member *m;
->> +    const struct btf_type *t;
->> +    u32 midx, moff;
->> +
->> +    midx = prog->expected_attach_type;
->> +    t = bpf_smc_sock_negotiator_ops.type;
->> +    m = &btf_type_member(t)[midx];
->> +
->> +    moff = __btf_member_bit_offset(t, m) / 8;
->> +
->> +    switch (func_id) {
->> +    case BPF_FUNC_setsockopt:
->> +        switch (moff) {
->> +        /* Avoid potential deadloop risk */
->> +        case offsetof(struct smc_sock_negotiator_ops, init):
->> +            fallthrough;
->
-> I am not sure whether a 'fallthrough' is needed here or since the case
-> itself does not have any code. Any warning will show up if
-> 'fallthrough;' is removed?
-
-Yes, if there is no code, fallthrough is unnecessary, I will fix it in 
-the next version.
-
->
->> +        /* Avoid potential leak risk */
->
-> I think more detailed explanation about 'deadloop risk' and 'leak risk'
-> is necessary.
-
-Got it, i will add more detailed explanation.
->
->> +        case offsetof(struct smc_sock_negotiator_ops, release):
->> +            return NULL;
->> +        }
->> +        return &bpf_sk_setsockopt_proto;
->> +    case BPF_FUNC_getsockopt:
->> +        return &bpf_sk_getsockopt_proto;
->> +    case BPF_FUNC_skc_to_tcp_sock:
->> +        return &bpf_smc_skc_to_tcp_sock_proto;
->> +    default:
->> +        return bpf_base_func_proto(func_id);
->> +    }
->> +}
->> +
->> +static bool smc_negotiator_prog_is_valid_access(int off, int size, 
->> enum bpf_access_type type,
->> +                        const struct bpf_prog *prog,
->> +                        struct bpf_insn_access_aux *info)
->> +{
->> +    if (!bpf_tracing_btf_ctx_access(off, size, type, prog, info))
->> +        return false;
->> +
->> +    /* promote it to smc_sock */
->> +    if (base_type(info->reg_type) == PTR_TO_BTF_ID &&
->> +        !bpf_type_has_unsafe_modifiers(info->reg_type) &&
->> +        info->btf_id == sock_id)
->> +        info->btf_id = smc_sock_id;
->> +
->> +    return true;
->> +}
->> +
->> +static const struct bpf_verifier_ops bpf_smc_negotiator_verifier_ops 
->> = {
->> +    .get_func_proto  = smc_negotiator_prog_func_proto,
->> +    .is_valid_access = smc_negotiator_prog_is_valid_access,
->> +};
->> +
->> +struct bpf_struct_ops bpf_smc_sock_negotiator_ops = {
->> +    .verifier_ops = &bpf_smc_negotiator_verifier_ops,
->> +    .init = bpf_smc_negotiator_init,
->> +    .check_member = bpf_smc_negotiator_check_member,
->> +    .init_member = bpf_smc_negotiator_init_member,
->> +    .reg = bpf_smc_negotiator_reg,
->> +    .update = bpf_smc_negotiator_update,
->> +    .unreg = bpf_smc_negotiator_unreg,
->> +    .validate = bpf_smc_negotiator_validate,
->> +    .name = "smc_sock_negotiator_ops",
->> +};
->> \ No newline at end of file
->
-> Empty line at the end?
-
-Will fix that, thanks.
-
-
-
-
+> +
+> +	return vfio_find_device_in_devset(dev_set, &pdev->dev) ? 0 : -EBUSY;
+>   }
+>   
+>   /*
+> diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
+> index f0ca33b2e1df..ab4f3a794f78 100644
+> --- a/drivers/vfio/vfio_main.c
+> +++ b/drivers/vfio/vfio_main.c
+> @@ -141,6 +141,21 @@ unsigned int vfio_device_set_open_count(struct vfio_device_set *dev_set)
+>   }
+>   EXPORT_SYMBOL_GPL(vfio_device_set_open_count);
+>   
+> +struct vfio_device *
+> +vfio_find_device_in_devset(struct vfio_device_set *dev_set,
+> +			   struct device *dev)
+> +{
+> +	struct vfio_device *cur;
+> +
+> +	lockdep_assert_held(&dev_set->lock);
+> +
+> +	list_for_each_entry(cur, &dev_set->device_list, dev_set_list)
+> +		if (cur->dev == dev)
+> +			return cur;
+> +	return NULL;
+> +}
+> +EXPORT_SYMBOL_GPL(vfio_find_device_in_devset);
+> +
+>   /*
+>    * Device objects - create, release, get, put, search
+>    */
+> diff --git a/include/linux/vfio.h b/include/linux/vfio.h
+> index fcbe084b18c8..4c17395ed4d2 100644
+> --- a/include/linux/vfio.h
+> +++ b/include/linux/vfio.h
+> @@ -259,6 +259,9 @@ void vfio_unregister_group_dev(struct vfio_device *device);
+>   
+>   int vfio_assign_device_set(struct vfio_device *device, void *set_id);
+>   unsigned int vfio_device_set_open_count(struct vfio_device_set *dev_set);
+> +struct vfio_device *
+> +vfio_find_device_in_devset(struct vfio_device_set *dev_set,
+> +			   struct device *dev);
+>   
+>   int vfio_mig_get_next_state(struct vfio_device *device,
+>   			    enum vfio_device_mig_state cur_fsm,
 
