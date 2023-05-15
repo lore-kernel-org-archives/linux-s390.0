@@ -2,131 +2,367 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4CFC9C7EE2F
-	for <linux-s390@archiver.kernel.org>; Mon, 15 May 2023 19:12:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 48B1EC77B75
+	for <linux-s390@archiver.kernel.org>; Mon, 15 May 2023 23:02:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244363AbjEOTMB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 15 May 2023 15:12:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56434 "EHLO
+        id S245476AbjEOXC0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 15 May 2023 19:02:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243021AbjEOTL7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 15 May 2023 15:11:59 -0400
-Received: from mail-yb1-xb2c.google.com (mail-yb1-xb2c.google.com [IPv6:2607:f8b0:4864:20::b2c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09B7711DAA;
-        Mon, 15 May 2023 12:11:58 -0700 (PDT)
-Received: by mail-yb1-xb2c.google.com with SMTP id 3f1490d57ef6-ba7ed900ac4so910945276.0;
-        Mon, 15 May 2023 12:11:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1684177917; x=1686769917;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=lEdsDznoeQ0wGPMJWBs10mMvCj7VphDqPqR+uizklHY=;
-        b=W/Z9qzmBUq3bCVhP8uewmPEIaZEVYfzpzeh9YTeAKrK3sWIwtOfql71JlvN0P+P5pK
-         YKy9cml02fk4SnFQ2DdWQ6w4JijHunpNA4zsiud1GYDMnfuy8RTxF/bEehOFA+aPeByE
-         DTSRG2bdMMqymbgvM1f+cbSlSYq+sQANl8uMoYLlmajJ3SyWJdGVyTNcYD0Ioakieviy
-         BESs3L0iPHTKfiNNq75aO8FTJdn/BYay+E8sIKUXSqB49RgAR5VB2xxzW+nwEEKofO5F
-         26ssX78nNr5JZdvfN8wyMBJyb6MRO06YlrKHWh/GpY8CaWKtewkcbGK5ZJkz6FL2Wiq9
-         dAhA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1684177917; x=1686769917;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=lEdsDznoeQ0wGPMJWBs10mMvCj7VphDqPqR+uizklHY=;
-        b=GdVmGDBqf1Okap0EgXTiq5zpUXGJFx60SXvf+EgZ9tnWHJNy5Dfr9OnympFg/VBLw3
-         tpYgnBjpVnXfqvMY0ct7w9/tu1srp5GeJ7wGOqslE1zoSMXR36kHtdmc8L1kpXSScTp2
-         X+9w8BXeuwB4zXNfcihpSNxFwtU53zmGpEFoKipr8iyqJrugWdZlwO+uGp4dgGjA4J6y
-         FadULZs+fkOJpF9zkdKNruSHsOrBwAV/e0fJoaHz1utDTRP3T2zCUMiaj1YaMICt9mpH
-         QTDPLhxHCNPne124nCyEm/Wsg7RBLC03rRuIH+mGHl4lqy49H/lBiKF7zXck8BtbpgwZ
-         rPdw==
-X-Gm-Message-State: AC+VfDxFpUgJpr/zFAsZiBPVkjJxVF/Dm/cl5vYUFuSK+vV3yIFOqme6
-        mYYZJ055EkswRM9Yqj7CTQhUK7hinAPHjugKsrQ=
-X-Google-Smtp-Source: ACHHUZ5oDsw20tcH12/01C4i2nT6w5iAb2H6/okJg55EYYpqTgJ8h9iiRdXz2tD9egoOuSwMxk4Rmyquuvv7u/aep3U=
-X-Received: by 2002:a25:2586:0:b0:ba7:809c:50de with SMTP id
- l128-20020a252586000000b00ba7809c50demr6158133ybl.38.1684177917068; Mon, 15
- May 2023 12:11:57 -0700 (PDT)
+        with ESMTP id S244981AbjEOXCZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 15 May 2023 19:02:25 -0400
+X-Greylist: delayed 565 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 15 May 2023 16:02:20 PDT
+Received: from out-45.mta0.migadu.com (out-45.mta0.migadu.com [IPv6:2001:41d0:1004:224b::2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF3BBA5D7
+        for <linux-s390@vger.kernel.org>; Mon, 15 May 2023 16:02:19 -0700 (PDT)
+Message-ID: <0e1656dc-b67c-ec65-83a4-6709fb186061@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+        t=1684191171;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=zLnDERJHjug7dAd+MXkM+9OUfYWGgTvS8O/k3Ot60w0=;
+        b=c2duEDoDOpFX+h6ODvobu6/kHvGSZpLC5E+/ZRYDkZOHnmw/vtYn+t0Q/5jJDOg1CE1bLZ
+        VY60LVjZ4glLAQ2YBoIiOYzCM63HyFOchysxBfZiREgwnxEAuGt0LPy2VyBJ4F8yfA95fn
+        qhmMlbfRCgnWosBFZJTP/Z+MU85xWZM=
+Date:   Mon, 15 May 2023 15:52:42 -0700
 MIME-Version: 1.0
-References: <20230501192829.17086-1-vishal.moola@gmail.com>
- <20230501192829.17086-31-vishal.moola@gmail.com> <c0677d21a4b6caa2e5018af000294a974121d9e8.camel@physik.fu-berlin.de>
-In-Reply-To: <c0677d21a4b6caa2e5018af000294a974121d9e8.camel@physik.fu-berlin.de>
-From:   Vishal Moola <vishal.moola@gmail.com>
-Date:   Mon, 15 May 2023 12:11:46 -0700
-Message-ID: <CAOzc2pz6y=gRcdfkQVgwRuzWeWf2Nx-UBtKnZBTs2qKJ+r7R0Q@mail.gmail.com>
-Subject: Re: [PATCH v2 30/34] sh: Convert pte_free_tlb() to use ptdescs
-To:     John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org,
-        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-        xen-devel@lists.xenproject.org, kvm@vger.kernel.org,
-        Yoshinori Sato <ysato@users.sourceforge.jp>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH bpf-next v1 2/5] net/smc: allow smc to negotiate protocols
+ on policies
+Content-Language: en-US
+To:     "D. Wythe" <alibuda@linux.alibaba.com>
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+        bpf@vger.kernel.org, kgraul@linux.ibm.com, wenjia@linux.ibm.com,
+        jaka@linux.ibm.com, ast@kernel.org, daniel@iogearbox.net,
+        andrii@kernel.org, pabeni@redhat.com, song@kernel.org,
+        sdf@google.com, haoluo@google.com, yhs@fb.com, edumazet@google.com,
+        john.fastabend@gmail.com, kpsingh@kernel.org, jolsa@kernel.org,
+        guwen@linux.alibaba.com
+References: <1683872684-64872-1-git-send-email-alibuda@linux.alibaba.com>
+ <1683872684-64872-3-git-send-email-alibuda@linux.alibaba.com>
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From:   Martin KaFai Lau <martin.lau@linux.dev>
+In-Reply-To: <1683872684-64872-3-git-send-email-alibuda@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Migadu-Flow: FLOW_OUT
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sat, May 6, 2023 at 4:35=E2=80=AFAM John Paul Adrian Glaubitz
-<glaubitz@physik.fu-berlin.de> wrote:
->
-> Hi Vishal!
->
-> On Mon, 2023-05-01 at 12:28 -0700, Vishal Moola (Oracle) wrote:
-> > Part of the conversions to replace pgtable constructor/destructors with
-> > ptdesc equivalents. Also cleans up some spacing issues.
-> >
-> > Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
-> > ---
-> >  arch/sh/include/asm/pgalloc.h | 9 +++++----
-> >  1 file changed, 5 insertions(+), 4 deletions(-)
-> >
-> > diff --git a/arch/sh/include/asm/pgalloc.h b/arch/sh/include/asm/pgallo=
-c.h
-> > index a9e98233c4d4..ce2ba99dbd84 100644
-> > --- a/arch/sh/include/asm/pgalloc.h
-> > +++ b/arch/sh/include/asm/pgalloc.h
-> > @@ -2,6 +2,7 @@
-> >  #ifndef __ASM_SH_PGALLOC_H
-> >  #define __ASM_SH_PGALLOC_H
-> >
-> > +#include <linux/mm.h>
-> >  #include <asm/page.h>
-> >
-> >  #define __HAVE_ARCH_PMD_ALLOC_ONE
-> > @@ -31,10 +32,10 @@ static inline void pmd_populate(struct mm_struct *m=
-m, pmd_t *pmd,
-> >       set_pmd(pmd, __pmd((unsigned long)page_address(pte)));
-> >  }
-> >
-> > -#define __pte_free_tlb(tlb,pte,addr)                 \
-> > -do {                                                 \
-> > -     pgtable_pte_page_dtor(pte);                     \
-> > -     tlb_remove_page((tlb), (pte));                  \
-> > +#define __pte_free_tlb(tlb, pte, addr)                               \
-> > +do {                                                         \
-> > +     ptdesc_pte_dtor(page_ptdesc(pte));                      \
-> > +     tlb_remove_page_ptdesc((tlb), (page_ptdesc(pte)));      \
-> >  } while (0)
-> >
-> >  #endif /* __ASM_SH_PGALLOC_H */
->
-> Looking at the patch which introduces tlb_remove_page_ptdesc() [1], it se=
-ems that
-> tlb_remove_page_ptdesc() already calls tlb_remove_page() with ptdesc_page=
-(pt), so
-> I'm not sure whether the above tlb_remove_page_ptdesc((tlb), (page_ptdesc=
-(pte)))
-> is correct.
->
-> Shouldn't it just be tlb_remove_page_ptdesc((tlb), (pte))?
+On 5/11/23 11:24 PM, D. Wythe wrote:
+> From: "D. Wythe" <alibuda@linux.alibaba.com>
+> 
+> As we all know, the SMC protocol is not suitable for all scenarios,
+> especially for short-lived. However, for most applications, they cannot
+> guarantee that there are no such scenarios at all. Therefore, apps
+> may need some specific strategies to decide shall we need to use SMC
+> or not.
+> 
+> Just like the congestion control implementation in TCP, this patch
+> provides a generic negotiator implementation. If necessary,
+> we can provide different protocol negotiation strategies for
+> apps based on this implementation.
+> 
+> But most importantly, this patch provides the possibility of
+> eBPF injection, allowing users to implement their own protocol
+> negotiation policy in userspace.
+> 
+> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+> ---
+>   include/net/smc.h        |  32 +++++++++++
+>   net/Makefile             |   1 +
+>   net/smc/Kconfig          |  11 ++++
+>   net/smc/af_smc.c         | 134 ++++++++++++++++++++++++++++++++++++++++++++++-
+>   net/smc/smc_negotiator.c | 119 +++++++++++++++++++++++++++++++++++++++++
+>   net/smc/smc_negotiator.h | 116 ++++++++++++++++++++++++++++++++++++++++
+>   6 files changed, 412 insertions(+), 1 deletion(-)
+>   create mode 100644 net/smc/smc_negotiator.c
+>   create mode 100644 net/smc/smc_negotiator.h
+> 
+> diff --git a/include/net/smc.h b/include/net/smc.h
+> index 6d076f5..191061c 100644
+> --- a/include/net/smc.h
+> +++ b/include/net/smc.h
+> @@ -296,6 +296,8 @@ struct smc_sock {				/* smc sock container */
+>   	atomic_t                queued_smc_hs;  /* queued smc handshakes */
+>   	struct inet_connection_sock_af_ops		af_ops;
+>   	const struct inet_connection_sock_af_ops	*ori_af_ops;
+> +	/* protocol negotiator ops */
+> +	const struct smc_sock_negotiator_ops *negotiator_ops;
+>   						/* original af ops */
+>   	int			sockopt_defer_accept;
+>   						/* sockopt TCP_DEFER_ACCEPT
+> @@ -316,4 +318,34 @@ struct smc_sock {				/* smc sock container */
+>   						 */
+>   };
+>   
+> +#ifdef CONFIG_SMC_BPF
+> +/* BPF struct ops for smc protocol negotiator */
+> +struct smc_sock_negotiator_ops {
+> +
+> +	struct list_head	list;
+> +
+> +	/* ops name */
+> +	char		name[16];
+> +	/* key for name */
+> +	u32			key;
+> +
+> +	/* init with sk */
+> +	void (*init)(struct sock *sk);
+> +
+> +	/* release with sk */
+> +	void (*release)(struct sock *sk);
+> +
+> +	/* advice for negotiate */
+> +	int (*negotiate)(struct sock *sk);
+> +
+> +	/* info gathering timing */
+> +	void (*collect_info)(struct sock *sk, int timing);
+> +
+> +	/* module owner */
+> +	struct module *owner;
+> +};
+> +#else
+> +struct smc_sock_negotiator_ops {};
+> +#endif
+> +
+>   #endif	/* _SMC_H */
+> diff --git a/net/Makefile b/net/Makefile
+> index 4c4dc53..222916a 100644
+> --- a/net/Makefile
+> +++ b/net/Makefile
+> @@ -52,6 +52,7 @@ obj-$(CONFIG_TIPC)		+= tipc/
+>   obj-$(CONFIG_NETLABEL)		+= netlabel/
+>   obj-$(CONFIG_IUCV)		+= iucv/
+>   obj-$(CONFIG_SMC)		+= smc/
+> +obj-$(CONFIG_SMC_BPF)		+= smc/smc_negotiator.o >   obj-$(CONFIG_RFKILL)		+= rfkill/
+>   obj-$(CONFIG_NET_9P)		+= 9p/
+>   obj-$(CONFIG_CAIF)		+= caif/
+> diff --git a/net/smc/Kconfig b/net/smc/Kconfig
+> index 1ab3c5a..bdcc9f1 100644
+> --- a/net/smc/Kconfig
+> +++ b/net/smc/Kconfig
+> @@ -19,3 +19,14 @@ config SMC_DIAG
+>   	  smcss.
+>   
+>   	  if unsure, say Y.
+> +
+> +config SMC_BPF
+> +	bool "SMC: support eBPF" if SMC
 
-As of this patchset all implementations of __pte_free_tlb() take in a
-struct page. Eventually we'll want it to be tlb_remove_page_ptdesc(tlb, pte=
-),
-but for now the cast is necessary here.
+
+so smc_negotiator will always be in the kernel image even af_smc is compiled as 
+a module? If the SMC_BPF needs to support af_smc as a module, proper 
+implementation needs to be added to bpf_struct_ops to support module first. It 
+is work-in-progress.
+
+> +	depends on BPF_SYSCALL
+> +	default n
+> +	help
+> +	  Supports eBPF to allows user mode participation in SMC's protocol process
+> +	  via ebpf programs. Alternatively, obtain information about the SMC socks
+> +	  through the ebpf program.
+> +
+> +	  If unsure, say N.
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> index 50c38b6..7406fd4 100644
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -52,6 +52,7 @@
+>   #include "smc_close.h"
+>   #include "smc_stats.h"
+>   #include "smc_tracepoint.h"
+> +#include "smc_negotiator.h"
+>   #include "smc_sysctl.h"
+>   
+>   static DEFINE_MUTEX(smc_server_lgr_pending);	/* serialize link group
+> @@ -68,6 +69,119 @@
+>   static void smc_tcp_listen_work(struct work_struct *);
+>   static void smc_connect_work(struct work_struct *);
+>   
+> +#ifdef CONFIG_SMC_BPF
+> +
+> +/* Check if sock should use smc */
+> +int smc_sock_should_select_smc(const struct smc_sock *smc)
+> +{
+> +	const struct smc_sock_negotiator_ops *ops;
+> +	int ret;
+> +
+> +	rcu_read_lock();
+> +	ops = READ_ONCE(smc->negotiator_ops);
+> +
+> +	/* No negotiator_ops supply or no negotiate func set,
+> +	 * always pass it.
+> +	 */
+> +	if (!ops || !ops->negotiate) {
+
+A smc_sock_negotiator_ops without ->negotiate? Is it useful at all to allow the 
+register in the first place?
+
+> +		rcu_read_unlock();
+> +		return SK_PASS;
+> +	}
+> +
+> +	ret = ops->negotiate((struct sock *)&smc->sk);
+> +	rcu_read_unlock();
+> +	return ret;
+> +}
+> +
+> +void smc_sock_perform_collecting_info(const struct smc_sock *smc, int timing)
+> +{
+> +	const struct smc_sock_negotiator_ops *ops;
+> +
+> +	rcu_read_lock();
+> +	ops = READ_ONCE(smc->negotiator_ops);
+> +
+> +	if (!ops || !ops->collect_info) {
+> +		rcu_read_unlock();
+> +		return;
+> +	}
+> +
+> +	ops->collect_info((struct sock *)&smc->sk, timing);
+> +	rcu_read_unlock();
+> +}
+> +
+> +int smc_sock_assign_negotiator_ops(struct smc_sock *smc, const char *name)
+> +{
+> +	struct smc_sock_negotiator_ops *ops;
+> +	int ret = -EINVAL;
+> +
+> +	/* already set */
+> +	if (READ_ONCE(smc->negotiator_ops))
+> +		smc_sock_cleanup_negotiator_ops(smc, /* might be still referenced */ false);
+> +
+> +	/* Just for clear negotiator_ops */
+> +	if (!name || !strlen(name))
+> +		return 0;
+> +
+> +	rcu_read_lock();
+> +	ops = smc_negotiator_ops_get_by_name(name);
+> +	if (likely(ops)) {
+> +		if (unlikely(!bpf_try_module_get(ops, ops->owner))) {
+> +			ret = -EACCES;
+> +		} else {
+> +			WRITE_ONCE(smc->negotiator_ops, ops);
+> +			/* make sure ops can be seen */
+> +			smp_wmb();
+
+This rcu_read_lock(), WRITE_ONCE, and smp_wmb() combo looks very suspicious. 
+smc->negotiator_ops is protected by rcu (+refcnt) or lock_sock()?
+
+I am going to stop reviewing here.
+
+> +			if (ops->init)
+> +				ops->init(&smc->sk);
+> +			ret = 0;
+> +		}
+> +	}
+> +	rcu_read_unlock();
+> +	return ret;
+> +}
+> +
+> +void smc_sock_cleanup_negotiator_ops(struct smc_sock *smc, bool no_more)
+> +{
+> +	const struct smc_sock_negotiator_ops *ops;
+> +
+> +	ops = READ_ONCE(smc->negotiator_ops);
+> +
+> +	/* not all smc sock has negotiator_ops */
+> +	if (!ops)
+> +		return;
+> +
+> +	might_sleep();
+> +
+> +	/* Just ensure data integrity */
+> +	WRITE_ONCE(smc->negotiator_ops, NULL);
+> +	/* make sure NULL can be seen */
+> +	smp_wmb();
+> +	/* if the socks may have references to the negotiator ops to be removed.
+> +	 * it means that we might need to wait for the readers of ops
+> +	 * to complete. It's slow though.
+> +	 */
+> +	if (unlikely(!no_more))
+> +		synchronize_rcu();
+> +	if (ops->release)
+> +		ops->release(&smc->sk);
+> +	bpf_module_put(ops, ops->owner);
+> +}
+> +
+> +void smc_sock_clone_negotiator_ops(struct sock *parent, struct sock *child)
+> +{
+> +	const struct smc_sock_negotiator_ops *ops;
+> +
+> +	rcu_read_lock();
+> +	ops = READ_ONCE(smc_sk(parent)->negotiator_ops);
+> +	if (ops && bpf_try_module_get(ops, ops->owner)) {
+> +		smc_sk(child)->negotiator_ops = ops;
+> +		if (ops->init)
+> +			ops->init(child);
+> +	}
+> +	rcu_read_unlock();
+> +}
+> +#endif
+> +
+>   int smc_nl_dump_hs_limitation(struct sk_buff *skb, struct netlink_callback *cb)
+>   {
+>   	struct smc_nl_dmp_ctx *cb_ctx = smc_nl_dmp_ctx(cb);
+> @@ -166,6 +280,9 @@ static bool smc_hs_congested(const struct sock *sk)
+>   	if (workqueue_congested(WORK_CPU_UNBOUND, smc_hs_wq))
+>   		return true;
+>   
+> +	if (!smc_sock_should_select_smc(smc))
+> +		return true;
+> +
+>   	return false;
+>   }
+>   
+> @@ -320,6 +437,9 @@ static int smc_release(struct socket *sock)
+>   	sock_hold(sk); /* sock_put below */
+>   	smc = smc_sk(sk);
+>   
+> +	/* trigger info gathering if needed.*/
+> +	smc_sock_perform_collecting_info(smc, SMC_SOCK_CLOSED_TIMING);
+> +
+>   	old_state = sk->sk_state;
+>   
+>   	/* cleanup for a dangling non-blocking connect */
+> @@ -356,6 +476,9 @@ static int smc_release(struct socket *sock)
+>   
+>   static void smc_destruct(struct sock *sk)
+>   {
+> +	/* cleanup negotiator_ops if set */
+> +	smc_sock_cleanup_negotiator_ops(smc_sk(sk), /* no longer used */ true);
+> +
+>   	if (sk->sk_state != SMC_CLOSED)
+>   		return;
+>   	if (!sock_flag(sk, SOCK_DEAD))
+> @@ -1627,7 +1750,14 @@ static int smc_connect(struct socket *sock, struct sockaddr *addr,
+>   	}
+>   
+>   	smc_copy_sock_settings_to_clc(smc);
+> -	tcp_sk(smc->clcsock->sk)->syn_smc = 1;
+> +	/* accept out connection as SMC connection */
+> +	if (smc_sock_should_select_smc(smc) == SK_PASS) {
+> +		tcp_sk(smc->clcsock->sk)->syn_smc = 1;
+> +	} else {
+> +		tcp_sk(smc->clcsock->sk)->syn_smc = 0;
+> +		smc_switch_to_fallback(smc, /* active fallback */ 0);
+> +	}
+> +
+>   	if (smc->connect_nonblock) {
+>   		rc = -EALREADY;
+>   		goto out;
+> @@ -1679,6 +1809,8 @@ static int smc_clcsock_accept(struct smc_sock *lsmc, struct smc_sock **new_smc)
+>   	}
+>   	*new_smc = smc_sk(new_sk);
+>   
+> +	smc_sock_clone_negotiator_ops(lsk, new_sk);
+> +
+>   	mutex_lock(&lsmc->clcsock_release_lock);
+>   	if (lsmc->clcsock)
+>   		rc = kernel_accept(lsmc->clcsock, &new_clcsock, SOCK_NONBLOCK);
+
+
