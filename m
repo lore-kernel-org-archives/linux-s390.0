@@ -2,270 +2,171 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 85839C77B7F
-	for <linux-s390@archiver.kernel.org>; Tue, 16 May 2023 07:27:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E717AC77B75
+	for <linux-s390@archiver.kernel.org>; Tue, 16 May 2023 07:40:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231297AbjEPH1A (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 16 May 2023 03:27:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60248 "EHLO
+        id S231283AbjEPHkR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 16 May 2023 03:40:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230018AbjEPH07 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 16 May 2023 03:26:59 -0400
-Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1220011C;
-        Tue, 16 May 2023 00:26:56 -0700 (PDT)
-Received: by mail-ed1-x530.google.com with SMTP id 4fb4d7f45d1cf-50b9ef67f35so24256520a12.2;
-        Tue, 16 May 2023 00:26:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1684222014; x=1686814014;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=TKdo4MaiBN2b3CtstowQ7vu81lZz1hw49Wy9fx/PYjY=;
-        b=j9Ha4Y6EMSL50wdL/5kaGEolLVmaZCdgVYeuY75TwVBqwny4PaWLeu4iziex01xYf4
-         Nd62f0WXrdDoTlj5JBCXLYyyrmgbXE66FWPB0O0u9OnNFwXevyohn9n3fMMtc3jP999N
-         was38FffkERSxyFljF+u6HI1cxaw8uKsGeQ6mUWrr2ho5APSH75aR9vAo+IndNVkFz7T
-         wl580kRtlbhu3NTMQcXGiAt2rKLIURp2xuYZrCWaUgaXIWoKdiebz66Xc7qinK5JUyID
-         t5NltsKDGLrpvlEUXY3FgroVJPigwvisLfGWGIj/Nk1CwVufjsLbe1SeH8+2zVVtiinl
-         qWDA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1684222014; x=1686814014;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=TKdo4MaiBN2b3CtstowQ7vu81lZz1hw49Wy9fx/PYjY=;
-        b=hYlACAcvAFWjIv9XouHzZnyaaWPV9zmTD9y37cs+7j9cRNzbcemkLRuDeXMGNSY3Em
-         gVEzOWsBKAMAoGRMGchztzb1sMzF6rShndyH5p2d0Mdho9bkJNWcN30IGAFXRAUbco58
-         Vo1CzIaiLILQQs6pv0ktXH8jdBrVZPv+8Nm8nisQXWN2mKfgeeDYMcShctJw8KVBdZuM
-         VvJozFpYIE9i7L9nBRW2F0jO68Kea33UYYa3QerEaPAi4/XE1uoyD+0+YQzYrONjd2ih
-         jSiWMx4xGILnm4AkbUZeMUvIottVGjUfIYgKlJgVHr9HNfUWbwGg+VAk98+SDp9UsFvm
-         8zjQ==
-X-Gm-Message-State: AC+VfDzYV8btyUerqKyprxSgx4dNiyYUPuYORax2+Jayre7CaZwMiz5e
-        ArCbuCOfqhY4ugzImseFQeZysIzD/jh01yv6OfpoqdZE89dXAA==
-X-Google-Smtp-Source: ACHHUZ4lWZ9gH1gHWnnNjHviGAG3lgUn3oeL1L+7+6iobLu34Q93nj/lrZRX41u3rdIuWHYjad5Vo4xDTyFd71EA1sA=
-X-Received: by 2002:aa7:df11:0:b0:505:4f7:8a50 with SMTP id
- c17-20020aa7df11000000b0050504f78a50mr27120560edy.5.1684222014179; Tue, 16
- May 2023 00:26:54 -0700 (PDT)
+        with ESMTP id S229761AbjEPHkR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 16 May 2023 03:40:17 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F2E71737;
+        Tue, 16 May 2023 00:40:16 -0700 (PDT)
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34G7aShZ005037;
+        Tue, 16 May 2023 07:39:32 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=oyXmAuPB2QwCsFmA09TyMaE9r5Wsa42TS9CvhNr4Xxo=;
+ b=jQyJnX2IE0Q9/uHuiK+tFFDM2ICZfdAS10yyEEvjakfFqK1quX2CS8p56sTYXWMVS9QP
+ hlMhqOQ+mI2WQwYJsEhn/wIKZL3WkKjRMXk6BZ5K5F/WPJmxqsampKPSkDiJmsAwxLPd
+ QY59SXf1QlQ2ey9cq+26TAma4O3D76d5TXhUj46eB6o4zAbnPGEbluM8Lr7Wt3ylPD0b
+ TxIDWKMJtEgDfyXMimQ6TXr011dMhE4PtQ4wOjElsEyFil+mkDcEqxqAJcWoxs0Fmgce
+ X8T8mgU2Vps3ESnTmGZo3FC5OP5dsorRnLIdraV+j9qiSgyKFAl3jwTnHpk6XFcyzama 7Q== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qm4y8hh1p-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 16 May 2023 07:39:32 +0000
+Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34G7amRA007488;
+        Tue, 16 May 2023 07:39:31 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qm4y8hgpq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 16 May 2023 07:39:31 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34G3qs8k006665;
+        Tue, 16 May 2023 07:39:23 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3qj264sfp5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 16 May 2023 07:39:23 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34G7dKNV41615626
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 16 May 2023 07:39:20 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3C0C320043;
+        Tue, 16 May 2023 07:39:20 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7498920040;
+        Tue, 16 May 2023 07:39:18 +0000 (GMT)
+Received: from [9.152.222.242] (unknown [9.152.222.242])
+        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Tue, 16 May 2023 07:39:18 +0000 (GMT)
+Message-ID: <168d8026-207a-e7ee-21b3-4a02ed00f0ce@linux.ibm.com>
+Date:   Tue, 16 May 2023 09:39:17 +0200
 MIME-Version: 1.0
-References: <cover.1684120990.git.zegao@tencent.com> <238bad4335d029072ca6000fb404f47376197f39.1684120990.git.zegao@tencent.com>
- <20230516132806.886543f000d93e0c2b26a2f3@kernel.org>
-In-Reply-To: <20230516132806.886543f000d93e0c2b26a2f3@kernel.org>
-From:   Ze Gao <zegao2021@gmail.com>
-Date:   Tue, 16 May 2023 15:26:42 +0800
-Message-ID: <CAD8CoPBzvFxmRaiXZ=WrvYUaz78NY=1z_dZ03EAJUw9wPrkSoA@mail.gmail.com>
-Subject: Re: [PATCH 4/4] rehook, fprobe: mark rethook related functions notrace
-To:     Masami Hiramatsu <mhiramat@kernel.org>
-Cc:     Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.8.0
+Subject: Re: [PATCH v9 1/6] s390/ism: Set DMA coherent mask
+Content-Language: en-US
+To:     Niklas Schnelle <schnelle@linux.ibm.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Will Deacon <will@kernel.org>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>
+Cc:     Gerd Bayer <gbayer@linux.ibm.com>,
+        Julian Ruess <julianr@linux.ibm.com>,
+        Alexandra Winter <wintera@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ze Gao <zegao@tencent.com>, linux-riscv@lists.infradead.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-trace-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        Hector Martin <marcan@marcan.st>,
+        Sven Peter <sven@svenpeter.dev>,
+        Alyssa Rosenzweig <alyssa@rosenzweig.io>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Yong Wu <yong.wu@mediatek.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Orson Zhai <orsonzhai@gmail.com>,
+        Baolin Wang <baolin.wang@linux.alibaba.com>,
+        Chunyan Zhang <zhang.lyra@gmail.com>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Krishna Reddy <vdumpa@nvidia.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Jonathan Corbet <corbet@lwn.net>, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        iommu@lists.linux.dev, asahi@lists.linux.dev,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
+        linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org,
+        linux-doc@vger.kernel.org
+References: <20230310-dma_iommu-v9-0-65bb8edd2beb@linux.ibm.com>
+ <20230310-dma_iommu-v9-1-65bb8edd2beb@linux.ibm.com>
+From:   Pierre Morel <pmorel@linux.ibm.com>
+In-Reply-To: <20230310-dma_iommu-v9-1-65bb8edd2beb@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: J4ionigi6aUPze2O9mlNApMYAufA_hrk
+X-Proofpoint-GUID: i4d6Dd2ZX11emMnTTTHfoZmJwBDtd8nN
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-05-16_02,2023-05-05_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxlogscore=999
+ clxscore=1011 spamscore=0 priorityscore=1501 malwarescore=0 adultscore=0
+ mlxscore=0 impostorscore=0 bulkscore=0 suspectscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2304280000
+ definitions=main-2305160065
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Masami,
 
-Thanks for your review. I've applied the makefile trick to arch files
-specific to rethook just as
-mentioned by Steven. And here is the link:
+On 5/15/23 11:15, Niklas Schnelle wrote:
+> A future change will convert the DMA API implementation from the
+> architecture specific arch/s390/pci/pci_dma.c to using the common code
+> drivers/iommu/dma-iommu.c which the utilizes the same IOMMU hardware
+> through the s390-iommu driver. Unlike the s390 specific DMA API this
+> requires devices to correctly call set the coherent mask to be allowed
 
-https://lore.kernel.org/linux-trace-kernel/20230516071830.8190-2-zegao@tenc=
-ent.com/T/#m503e513071e82d5234d80a1b9e15eb126e334608
 
-Unnecessary notrace annotations have been dropped in this new series.
+s/call//
 
-Thank you,
-Ze
 
-On Tue, May 16, 2023 at 12:28=E2=80=AFPM Masami Hiramatsu <mhiramat@kernel.=
-org> wrote:
+> to use IOVAs >2^32 in dma_alloc_coherent(). This was however not done
+> for ISM devices. ISM requires such addresses since currently the DMA
+> aperture for PCI devices starts at 2^32 and all calls to
+> dma_alloc_coherent() would thus fail.
 >
-> On Mon, 15 May 2023 11:26:41 +0800
-> Ze Gao <zegao2021@gmail.com> wrote:
+> Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
+> Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> ---
+>   drivers/s390/net/ism_drv.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
 >
-> > These functions are already marked as NOKPROBE to prevent recusion and
-> > we have the same reason to blacklist them if rethook is used with fprob=
-e,
-> > since they are beyond the recursion-free region ftrace can guard.
-> >
-> > Signed-off-by: Ze Gao <zegao@tencent.com>
-> > ---
-> >  arch/riscv/kernel/probes/rethook.c | 4 ++--
-> >  arch/s390/kernel/rethook.c         | 6 +++---
-> >  arch/x86/kernel/rethook.c          | 8 +++++---
-> >  kernel/trace/rethook.c             | 8 ++++----
+> diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
+> index 8acb9eba691b..1399b5dc646c 100644
+> --- a/drivers/s390/net/ism_drv.c
+> +++ b/drivers/s390/net/ism_drv.c
+> @@ -660,7 +660,7 @@ static int ism_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+>   	if (ret)
+>   		goto err_disable;
+>   
+> -	ret = dma_set_mask(&pdev->dev, DMA_BIT_MASK(64));
+> +	ret = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
+>   	if (ret)
+>   		goto err_resource;
+>   
 >
-> Except for the kernel/trace/rethook.c, those looks good to me.
-> Could you drop notrace from kernel/trace/rethook.c? As Steve mentioned
-> all functions in that file is automatically notraced.
->
-> Thank you,
->
-> >  4 files changed, 14 insertions(+), 12 deletions(-)
-> >
-> > diff --git a/arch/riscv/kernel/probes/rethook.c b/arch/riscv/kernel/pro=
-bes/rethook.c
-> > index 5c27c1f50989..803c412a1bea 100644
-> > --- a/arch/riscv/kernel/probes/rethook.c
-> > +++ b/arch/riscv/kernel/probes/rethook.c
-> > @@ -8,14 +8,14 @@
-> >  #include "rethook.h"
-> >
-> >  /* This is called from arch_rethook_trampoline() */
-> > -unsigned long __used arch_rethook_trampoline_callback(struct pt_regs *=
-regs)
-> > +unsigned long __used notrace arch_rethook_trampoline_callback(struct p=
-t_regs *regs)
-> >  {
-> >       return rethook_trampoline_handler(regs, regs->s0);
-> >  }
-> >
-> >  NOKPROBE_SYMBOL(arch_rethook_trampoline_callback);
-> >
-> > -void arch_rethook_prepare(struct rethook_node *rhn, struct pt_regs *re=
-gs, bool mcount)
-> > +void notrace arch_rethook_prepare(struct rethook_node *rhn, struct pt_=
-regs *regs, bool mcount)
-> >  {
-> >       rhn->ret_addr =3D regs->ra;
-> >       rhn->frame =3D regs->s0;
-> > diff --git a/arch/s390/kernel/rethook.c b/arch/s390/kernel/rethook.c
-> > index af10e6bdd34e..ad52119826c1 100644
-> > --- a/arch/s390/kernel/rethook.c
-> > +++ b/arch/s390/kernel/rethook.c
-> > @@ -3,7 +3,7 @@
-> >  #include <linux/kprobes.h>
-> >  #include "rethook.h"
-> >
-> > -void arch_rethook_prepare(struct rethook_node *rh, struct pt_regs *reg=
-s, bool mcount)
-> > +void notrace arch_rethook_prepare(struct rethook_node *rh, struct pt_r=
-egs *regs, bool mcount)
-> >  {
-> >       rh->ret_addr =3D regs->gprs[14];
-> >       rh->frame =3D regs->gprs[15];
-> > @@ -13,7 +13,7 @@ void arch_rethook_prepare(struct rethook_node *rh, st=
-ruct pt_regs *regs, bool mc
-> >  }
-> >  NOKPROBE_SYMBOL(arch_rethook_prepare);
-> >
-> > -void arch_rethook_fixup_return(struct pt_regs *regs,
-> > +void notrace arch_rethook_fixup_return(struct pt_regs *regs,
-> >                              unsigned long correct_ret_addr)
-> >  {
-> >       /* Replace fake return address with real one. */
-> > @@ -24,7 +24,7 @@ NOKPROBE_SYMBOL(arch_rethook_fixup_return);
-> >  /*
-> >   * Called from arch_rethook_trampoline
-> >   */
-> > -unsigned long arch_rethook_trampoline_callback(struct pt_regs *regs)
-> > +unsigned long notrace arch_rethook_trampoline_callback(struct pt_regs =
-*regs)
-> >  {
-> >       return rethook_trampoline_handler(regs, regs->gprs[15]);
-> >  }
-> > diff --git a/arch/x86/kernel/rethook.c b/arch/x86/kernel/rethook.c
-> > index 8a1c0111ae79..1f7cef86f73d 100644
-> > --- a/arch/x86/kernel/rethook.c
-> > +++ b/arch/x86/kernel/rethook.c
-> > @@ -64,7 +64,8 @@ NOKPROBE_SYMBOL(arch_rethook_trampoline);
-> >  /*
-> >   * Called from arch_rethook_trampoline
-> >   */
-> > -__used __visible void arch_rethook_trampoline_callback(struct pt_regs =
-*regs)
-> > +__used __visible void notrace arch_rethook_trampoline_callback(struct =
-pt_regs
-> > +             *regs)
-> >  {
-> >       unsigned long *frame_pointer;
-> >
-> > @@ -104,7 +105,7 @@ NOKPROBE_SYMBOL(arch_rethook_trampoline_callback);
-> >  STACK_FRAME_NON_STANDARD_FP(arch_rethook_trampoline);
-> >
-> >  /* This is called from rethook_trampoline_handler(). */
-> > -void arch_rethook_fixup_return(struct pt_regs *regs,
-> > +void notrace arch_rethook_fixup_return(struct pt_regs *regs,
-> >                              unsigned long correct_ret_addr)
-> >  {
-> >       unsigned long *frame_pointer =3D (void *)(regs + 1);
-> > @@ -114,7 +115,8 @@ void arch_rethook_fixup_return(struct pt_regs *regs=
-,
-> >  }
-> >  NOKPROBE_SYMBOL(arch_rethook_fixup_return);
-> >
-> > -void arch_rethook_prepare(struct rethook_node *rh, struct pt_regs *reg=
-s, bool mcount)
-> > +void notrace arch_rethook_prepare(struct rethook_node *rh, struct pt_r=
-egs
-> > +             *regs, bool mcount)
-> >  {
-> >       unsigned long *stack =3D (unsigned long *)regs->sp;
-> >
-> > diff --git a/kernel/trace/rethook.c b/kernel/trace/rethook.c
-> > index 60f6cb2b486b..e551e86d3927 100644
-> > --- a/kernel/trace/rethook.c
-> > +++ b/kernel/trace/rethook.c
-> > @@ -127,7 +127,7 @@ static void free_rethook_node_rcu(struct rcu_head *=
-head)
-> >   * Return back the @node to @node::rethook. If the @node::rethook is a=
-lready
-> >   * marked as freed, this will free the @node.
-> >   */
-> > -void rethook_recycle(struct rethook_node *node)
-> > +void notrace rethook_recycle(struct rethook_node *node)
-> >  {
-> >       lockdep_assert_preemption_disabled();
-> >
-> > @@ -194,7 +194,7 @@ void rethook_hook(struct rethook_node *node, struct=
- pt_regs *regs, bool mcount)
-> >  NOKPROBE_SYMBOL(rethook_hook);
-> >
-> >  /* This assumes the 'tsk' is the current task or is not running. */
-> > -static unsigned long __rethook_find_ret_addr(struct task_struct *tsk,
-> > +static unsigned long notrace __rethook_find_ret_addr(struct task_struc=
-t *tsk,
-> >                                            struct llist_node **cur)
-> >  {
-> >       struct rethook_node *rh =3D NULL;
-> > @@ -256,7 +256,7 @@ unsigned long rethook_find_ret_addr(struct task_str=
-uct *tsk, unsigned long frame
-> >  }
-> >  NOKPROBE_SYMBOL(rethook_find_ret_addr);
-> >
-> > -void __weak arch_rethook_fixup_return(struct pt_regs *regs,
-> > +void __weak notrace arch_rethook_fixup_return(struct pt_regs *regs,
-> >                                     unsigned long correct_ret_addr)
-> >  {
-> >       /*
-> > @@ -268,7 +268,7 @@ void __weak arch_rethook_fixup_return(struct pt_reg=
-s *regs,
-> >  }
-> >
-> >  /* This function will be called from each arch-defined trampoline. */
-> > -unsigned long rethook_trampoline_handler(struct pt_regs *regs,
-> > +unsigned long notrace rethook_trampoline_handler(struct pt_regs *regs,
-> >                                        unsigned long frame)
-> >  {
-> >       struct llist_node *first, *node =3D NULL;
-> > --
-> > 2.40.1
-> >
->
->
-> --
-> Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+
