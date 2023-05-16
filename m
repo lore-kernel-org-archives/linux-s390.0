@@ -2,225 +2,108 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ABD5BC77B7A
-	for <linux-s390@archiver.kernel.org>; Tue, 16 May 2023 06:51:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 04F34C77B7F
+	for <linux-s390@archiver.kernel.org>; Tue, 16 May 2023 07:18:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230125AbjEPGve (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 16 May 2023 02:51:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57788 "EHLO
+        id S231218AbjEPHSu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 16 May 2023 03:18:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230117AbjEPGvc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 16 May 2023 02:51:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBCDB469E;
-        Mon, 15 May 2023 23:51:00 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 134A061FC5;
-        Tue, 16 May 2023 06:51:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95EEBC433EF;
-        Tue, 16 May 2023 06:50:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1684219859;
-        bh=6Eaba1tYS8F2upbZM0WOM8A9kKwNYGFfbZSTGo3G8Us=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=mlsIFNrcAThE+0HymG4wSsavx8Mh/N2D5jY0hq3HKRbOWkQchd4y92JRocOqinfwh
-         M/HRBW0dBRf3OR53P8opoVdeEqDqa6gT20rIRgOFmkdQCDbTrNGSm5nPuJHNtsTGPs
-         jkV+ozKwlOJrWhuYQVK2cCNZj3V2pHz/8HS6d5cfN7Je2EeKVwr2X1OUaiNT5xfUnD
-         bz09dpO5blch+nd8XqFWDvKNhuEoNpVoh45k08uXQWYeUKzaniMdOmjdhRHPA72LYn
-         L2M6LzUjhUsv4QT45OAseO63USa1EY+m3u12Met+Twj+ZQB2Ebg9vHl9H5DLSlzc+w
-         yZ2ph5fQQPQaA==
-Date:   Tue, 16 May 2023 09:50:50 +0300
-From:   Mike Rapoport <rppt@kernel.org>
-To:     Baoquan He <bhe@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
-        linux-mm@kvack.org, arnd@arndb.de, christophe.leroy@csgroup.eu,
-        hch@infradead.org, agordeev@linux.ibm.com,
-        wangkefeng.wang@huawei.com, schnelle@linux.ibm.com,
-        David.Laight@aculab.com, shorne@gmail.com, willy@infradead.org,
-        deller@gmx.de, Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        with ESMTP id S231165AbjEPHSt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 16 May 2023 03:18:49 -0400
+Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A6F419A;
+        Tue, 16 May 2023 00:18:48 -0700 (PDT)
+Received: by mail-pg1-x52d.google.com with SMTP id 41be03b00d2f7-51f6461af24so9604156a12.2;
+        Tue, 16 May 2023 00:18:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1684221528; x=1686813528;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=tnAI2sXUbiQvd6mgY7NnxOBWPf3gGQ8XWTI5xmKxwWU=;
+        b=np4y4iLNUIexTfiyIkMxgYRriRCWr8e/v0OflxMm2NmIfb1jr2jheNFm1Ks54g+2f0
+         yCdYdJ105s74b2lGBaMJLO0sY+u2TSGBBk/upTjlyWrV3Rs6gbgs5BY1+Kq8xDzyI+qs
+         or9CRP5q7DogGW9pPPIMj3dhNLzm4sJV0HhgI2UuKgXUPRqEE9qfYM773droKbYS9THF
+         3LheMjghgJSOiC7tR5xsEGfU1ycFZGm9Ifcvu0Sj41VX3pRDwF7ieFsEAz/F0fB8KzhU
+         xZbMj9nEIukEPVK/IjlfIdLQjS86Sr7zMUAEtRTHXSlv6XbORqIwDInXPJvWyHYibCgD
+         yAyg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1684221528; x=1686813528;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=tnAI2sXUbiQvd6mgY7NnxOBWPf3gGQ8XWTI5xmKxwWU=;
+        b=Ll16AUr5XYXwy2QrzQusSZ/TJshAbctUagrMJL54lEjqcMbEl8AY4ItnOgPZBEaJ0n
+         hNli2kmkZYIVePYCMG+TXCsKwUr8B3hdizAv3NWgE3npwvRb5cnuO4MUsqpU8fcrO+Gt
+         UsrPCKK+nwA4plhHURnStwufJDdpy7vRl0xFwuAUmQ/ZjH0Ayhm5JZ0PhDVgbg8Gtj/6
+         2MOYoYNEaT+3gJhSzcnxT6YlIX8SBr4H05fGiGHlHYhM/yuoTYUU2SKexV3kh8Mc7JfV
+         dPH9XsKaTAi8hqnX2zVd8KjqeXufovSMU5tfVns7psM2UkPVBHBvzcDL0Yq4vhnhQUWt
+         RCkw==
+X-Gm-Message-State: AC+VfDzRKkp/W5THEopU52RNPyBD2NsANIJQ06crO7t/LUYD563CYT19
+        wSJtBmKxyUpOruFPE9Jy28E=
+X-Google-Smtp-Source: ACHHUZ6KLgde39yA7rEwU9DsLAFJhMvVZ4vKy7KxmS68J67q5sb74zy1V8UcYpfyCJsfvq+z8inB3Q==
+X-Received: by 2002:a05:6a20:3d82:b0:104:2200:8949 with SMTP id s2-20020a056a203d8200b0010422008949mr21473230pzi.56.1684221527736;
+        Tue, 16 May 2023 00:18:47 -0700 (PDT)
+Received: from localhost.localdomain ([203.205.141.15])
+        by smtp.googlemail.com with ESMTPSA id 17-20020aa79251000000b006468222af91sm12849830pfp.48.2023.05.16.00.18.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 16 May 2023 00:18:47 -0700 (PDT)
+From:   Ze Gao <zegao2021@gmail.com>
+X-Google-Original-From: Ze Gao <zegao@tencent.com>
+To:     Steven Rostedt <rostedt@goodmis.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>
+Cc:     Albert Ou <aou@eecs.berkeley.edu>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v5 RESEND 10/17] s390: mm: Convert to GENERIC_IOREMAP
-Message-ID: <ZGMnyk4l6Id1flpN@kernel.org>
-References: <20230515090848.833045-1-bhe@redhat.com>
- <20230515090848.833045-11-bhe@redhat.com>
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vasily Gorbik <gor@linux.ibm.com>, x86@kernel.org,
+        linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        bpf@vger.kernel.org, Conor Dooley <conor@kernel.org>,
+        Jiri Olsa <jolsa@kernel.org>, Yonghong Song <yhs@fb.com>,
+        Ze Gao <zegao@tencent.com>
+Subject: [PATCH v2 0/4] Make fprobe + rethook immune to recursion
+Date:   Tue, 16 May 2023 15:18:26 +0800
+Message-Id: <20230516071830.8190-1-zegao@tencent.com>
+X-Mailer: git-send-email 2.40.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230515090848.833045-11-bhe@redhat.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, May 15, 2023 at 05:08:41PM +0800, Baoquan He wrote:
-> By taking GENERIC_IOREMAP method, the generic generic_ioremap_prot(),
-> generic_iounmap(), and their generic wrapper ioremap_prot(), ioremap()
-> and iounmap() are all visible and available to arch. Arch needs to
-> provide wrapper functions to override the generic versions if there's
-> arch specific handling in its ioremap_prot(), ioremap() or iounmap().
-> This change will simplify implementation by removing duplicated codes
-> with generic_ioremap_prot() and generic_iounmap(), and has the equivalent
-> functioality as before.
-> 
-> Here, add wrapper functions ioremap_prot() and iounmap() for s390's
-> special operation when ioremap() and iounmap().
-> 
-> Signed-off-by: Baoquan He <bhe@redhat.com>
-> Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> Tested-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-> Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-> Cc: Sven Schnelle <svens@linux.ibm.com>
-> Cc: linux-s390@vger.kernel.org
+Hi all,
 
-Reviewed-by: Mike Rapoport (IBM) <rppt@kernel.org>
+This is the 2nd version of patch series to fix the ftrace rethook recursion problem.
 
-> ---
->  arch/s390/Kconfig          |  1 +
->  arch/s390/include/asm/io.h | 21 ++++++++------
->  arch/s390/pci/pci.c        | 57 +++++++-------------------------------
->  3 files changed, 23 insertions(+), 56 deletions(-)
-> 
-> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-> index db20c1589a98..f33923fa8c99 100644
-> --- a/arch/s390/Kconfig
-> +++ b/arch/s390/Kconfig
-> @@ -142,6 +142,7 @@ config S390
->  	select GENERIC_SMP_IDLE_THREAD
->  	select GENERIC_TIME_VSYSCALL
->  	select GENERIC_VDSO_TIME_NS
-> +	select GENERIC_IOREMAP if PCI
->  	select HAVE_ALIGNED_STRUCT_PAGE if SLUB
->  	select HAVE_ARCH_AUDITSYSCALL
->  	select HAVE_ARCH_JUMP_LABEL
-> diff --git a/arch/s390/include/asm/io.h b/arch/s390/include/asm/io.h
-> index e3882b012bfa..4453ad7c11ac 100644
-> --- a/arch/s390/include/asm/io.h
-> +++ b/arch/s390/include/asm/io.h
-> @@ -22,11 +22,18 @@ void unxlate_dev_mem_ptr(phys_addr_t phys, void *addr);
->  
->  #define IO_SPACE_LIMIT 0
->  
-> -void __iomem *ioremap_prot(phys_addr_t addr, size_t size, unsigned long prot);
-> -void __iomem *ioremap(phys_addr_t addr, size_t size);
-> -void __iomem *ioremap_wc(phys_addr_t addr, size_t size);
-> -void __iomem *ioremap_wt(phys_addr_t addr, size_t size);
-> -void iounmap(volatile void __iomem *addr);
-> +/*
-> + * I/O memory mapping functions.
-> + */
-> +#define ioremap_prot ioremap_prot
-> +#define iounmap iounmap
-> +
-> +#define _PAGE_IOREMAP pgprot_val(PAGE_KERNEL)
-> +
-> +#define ioremap_wc(addr, size)  \
-> +	ioremap_prot((addr), (size), pgprot_val(pgprot_writecombine(PAGE_KERNEL)))
-> +#define ioremap_wt(addr, size)  \
-> +	ioremap_prot((addr), (size), pgprot_val(pgprot_writethrough(PAGE_KERNEL)))
->  
->  static inline void __iomem *ioport_map(unsigned long port, unsigned int nr)
->  {
-> @@ -51,10 +58,6 @@ static inline void ioport_unmap(void __iomem *p)
->  #define pci_iomap_wc pci_iomap_wc
->  #define pci_iomap_wc_range pci_iomap_wc_range
->  
-> -#define ioremap ioremap
-> -#define ioremap_wt ioremap_wt
-> -#define ioremap_wc ioremap_wc
-> -
->  #define memcpy_fromio(dst, src, count)	zpci_memcpy_fromio(dst, src, count)
->  #define memcpy_toio(dst, src, count)	zpci_memcpy_toio(dst, src, count)
->  #define memset_io(dst, val, count)	zpci_memset_io(dst, val, count)
-> diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-> index afc3f33788da..d34d5813d006 100644
-> --- a/arch/s390/pci/pci.c
-> +++ b/arch/s390/pci/pci.c
-> @@ -244,62 +244,25 @@ void __iowrite64_copy(void __iomem *to, const void *from, size_t count)
->         zpci_memcpy_toio(to, from, count);
->  }
->  
-> -static void __iomem *__ioremap(phys_addr_t addr, size_t size, pgprot_t prot)
-> +void __iomem *ioremap_prot(phys_addr_t phys_addr, size_t size,
-> +			   unsigned long prot)
->  {
-> -	unsigned long offset, vaddr;
-> -	struct vm_struct *area;
-> -	phys_addr_t last_addr;
-> -
-> -	last_addr = addr + size - 1;
-> -	if (!size || last_addr < addr)
-> -		return NULL;
-> -
-> +	/*
-> +	 * When PCI MIO instructions are unavailable the "physical" address
-> +	 * encodes a hint for accessing the PCI memory space it represents.
-> +	 * Just pass it unchanged such that ioread/iowrite can decode it.
-> +	 */
->  	if (!static_branch_unlikely(&have_mio))
-> -		return (void __iomem *) addr;
-> +		return (void __iomem *)phys_addr;
->  
-> -	offset = addr & ~PAGE_MASK;
-> -	addr &= PAGE_MASK;
-> -	size = PAGE_ALIGN(size + offset);
-> -	area = get_vm_area(size, VM_IOREMAP);
-> -	if (!area)
-> -		return NULL;
-> -
-> -	vaddr = (unsigned long) area->addr;
-> -	if (ioremap_page_range(vaddr, vaddr + size, addr, prot)) {
-> -		free_vm_area(area);
-> -		return NULL;
-> -	}
-> -	return (void __iomem *) ((unsigned long) area->addr + offset);
-> -}
-> -
-> -void __iomem *ioremap_prot(phys_addr_t addr, size_t size, unsigned long prot)
-> -{
-> -	return __ioremap(addr, size, __pgprot(prot));
-> +	return generic_ioremap_prot(phys_addr, size, __pgprot(prot));
->  }
->  EXPORT_SYMBOL(ioremap_prot);
->  
-> -void __iomem *ioremap(phys_addr_t addr, size_t size)
-> -{
-> -	return __ioremap(addr, size, PAGE_KERNEL);
-> -}
-> -EXPORT_SYMBOL(ioremap);
-> -
-> -void __iomem *ioremap_wc(phys_addr_t addr, size_t size)
-> -{
-> -	return __ioremap(addr, size, pgprot_writecombine(PAGE_KERNEL));
-> -}
-> -EXPORT_SYMBOL(ioremap_wc);
-> -
-> -void __iomem *ioremap_wt(phys_addr_t addr, size_t size)
-> -{
-> -	return __ioremap(addr, size, pgprot_writethrough(PAGE_KERNEL));
-> -}
-> -EXPORT_SYMBOL(ioremap_wt);
-> -
->  void iounmap(volatile void __iomem *addr)
->  {
->  	if (static_branch_likely(&have_mio))
-> -		vunmap((__force void *) ((unsigned long) addr & PAGE_MASK));
-> +		generic_iounmap(addr);
->  }
->  EXPORT_SYMBOL(iounmap);
->  
-> -- 
-> 2.34.1
-> 
-> 
+v1: https://lore.kernel.org/linux-trace-kernel/cover.1684120990.git.zegao@tencent.com/T/                                 +++#md4c0bae6a6cae28dadf2a2c6105ff140b35fddea
+
+As Steven suggested, this version removes unnecessary notrace annotations from fprobe
+and rethook functions from v1 [PATCH 2,3,4/4] and replaces with makefile changes to filter
+out compiler flags which ftrace depends upon for rethook related objects.
+
+Ze Gao (4):
+  rethook: use preempt_{disable, enable}_notrace in
+    rethook_trampoline_handler
+  fprobe: make fprobe_kprobe_handler recursion free
+  fprobe: add recursion detection in fprobe_exit_handler
+  rehook, fprobe: do not trace rethook related functions
+
+ arch/riscv/kernel/probes/Makefile |  2 +
+ arch/s390/kernel/Makefile         |  1 +
+ arch/x86/kernel/Makefile          |  1 +
+ kernel/trace/fprobe.c             | 72 ++++++++++++++++++++++++-------
+ kernel/trace/rethook.c            |  4 +-
+ 5 files changed, 63 insertions(+), 17 deletions(-)
 
 -- 
-Sincerely yours,
-Mike.
+2.40.1
+
