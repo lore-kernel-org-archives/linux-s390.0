@@ -2,141 +2,86 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D621C77B75
-	for <linux-s390@archiver.kernel.org>; Tue, 16 May 2023 13:56:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DAD1EC77B7A
+	for <linux-s390@archiver.kernel.org>; Tue, 16 May 2023 14:20:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232838AbjEPN4M (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 16 May 2023 09:56:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39284 "EHLO
+        id S233901AbjEPOU6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 16 May 2023 10:20:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232404AbjEPN4L (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 16 May 2023 09:56:11 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87BDA12C;
-        Tue, 16 May 2023 06:56:09 -0700 (PDT)
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34GDjPWO000629;
-        Tue, 16 May 2023 13:55:50 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=C2KIS1bKMuu3Vj7hq4K06H6pBbRg+jfCnREru5i6gT8=;
- b=ck6IqIX6LeG0RuX7fGZVu3oJvfy08CrZ3WWfMx+hZeb0XNooP9JZ8OPzIkOAXo/5yiY3
- ldWauI/0zfCIIKFGAcIAMDw/ibSBX2RHSCcuO9VyROOMFcXwlVOHtlNg6OkT/ki/8SHV
- 1KYImnygSig1n+KhUT5nbWsA0a/oETctPpxk29wh9bo1ML652SWGK2ymr7K64sbTYiqD
- xZqoHj0LD9PcaAS3f7g32x1Tlb1E+jZgCjaQGobF5fXnO7N2wqKzK66wj5Tqss46EGlT
- Xr8SaWteAlFJs/NLHFm7WDdZIyM8HVRtrhqJ1qj80K0JS+i8+UYYXYw42D/bc0hkCCNf pw== 
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qmb048cuc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 16 May 2023 13:55:50 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34G4PN8E032129;
-        Tue, 16 May 2023 13:38:21 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma04fra.de.ibm.com (PPS) with ESMTPS id 3qj264scr8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 16 May 2023 13:38:21 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34GDcJFw28770942
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 16 May 2023 13:38:19 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0F9762004D;
-        Tue, 16 May 2023 13:38:19 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F11A820043;
-        Tue, 16 May 2023 13:38:18 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Tue, 16 May 2023 13:38:18 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55390)
-        id AAC4DE05FF; Tue, 16 May 2023 15:38:18 +0200 (CEST)
-From:   Sven Schnelle <svens@linux.ibm.com>
-To:     Thomas Gleixner <tglx@linutronix.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Andy Lutomirski <luto@kernel.org>
-Cc:     linux-s390@vger.kernel.org, hca@linux.ibm.com,
-        linux-kernel@vger.kernel.org
-Subject: [RFC 0/2] allow to inline generic entry
-Date:   Tue, 16 May 2023 15:38:08 +0200
-Message-Id: <20230516133810.171487-1-svens@linux.ibm.com>
-X-Mailer: git-send-email 2.39.2
+        with ESMTP id S233899AbjEPOUe (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 16 May 2023 10:20:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF6E593CC;
+        Tue, 16 May 2023 07:20:20 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D60DB63A9D;
+        Tue, 16 May 2023 14:20:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FB3AC433EF;
+        Tue, 16 May 2023 14:20:07 +0000 (UTC)
+Date:   Tue, 16 May 2023 10:20:06 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     Ze Gao <zegao2021@gmail.com>
+Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vasily Gorbik <gor@linux.ibm.com>, x86@kernel.org,
+        linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        bpf@vger.kernel.org, Conor Dooley <conor@kernel.org>,
+        Jiri Olsa <jolsa@kernel.org>, Yonghong Song <yhs@fb.com>,
+        Ze Gao <zegao@tencent.com>
+Subject: Re: [PATCH v2 4/4] rehook, fprobe: do not trace rethook related
+ functions
+Message-ID: <20230516102006.76dfd68a@gandalf.local.home>
+In-Reply-To: <20230516071830.8190-5-zegao@tencent.com>
+References: <20230516071830.8190-1-zegao@tencent.com>
+        <20230516071830.8190-5-zegao@tencent.com>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: lRdntWzxCMQUurOHBDJZcr9vI6EDZLjN
-X-Proofpoint-GUID: lRdntWzxCMQUurOHBDJZcr9vI6EDZLjN
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-05-16_06,2023-05-16_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
- priorityscore=1501 suspectscore=0 clxscore=1015 lowpriorityscore=0
- impostorscore=0 malwarescore=0 mlxlogscore=999 phishscore=0 adultscore=0
- mlxscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2304280000 definitions=main-2305160114
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi,
+On Tue, 16 May 2023 15:18:30 +0800
+Ze Gao <zegao2021@gmail.com> wrote:
 
-i looked into the syscall performance on s390 with the latest
-kernel. For that reason i wrote a small syscall test program,
-which just calls getpid() in a loop:
+>  CFLAGS_REMOVE_early.o		= $(CC_FLAGS_FTRACE)
+> +CFLAGS_REMOVE_rethook.o		= $(CC_FLAGS_FTRACE)
+>  
+>  endif
+>  
+> diff --git a/arch/x86/kernel/Makefile b/arch/x86/kernel/Makefile
+> index dd61752f4c96..4070a01c11b7 100644
+> --- a/arch/x86/kernel/Makefile
+> +++ b/arch/x86/kernel/Makefile
+> @@ -17,6 +17,7 @@ CFLAGS_REMOVE_ftrace.o = -pg
+>  CFLAGS_REMOVE_early_printk.o = -pg
+>  CFLAGS_REMOVE_head64.o = -pg
+>  CFLAGS_REMOVE_sev.o = -pg
+> +CFLAGS_REMOVE_rethook.o = -pg
 
-#include <stdio.h>
-#include <time.h>
-#include <bsd/sys/time.h>
-#include <unistd.h>
-static const double nsec_per_sec = 1000000000;
+Unrelated to this patch, but someday we need to change the -pg above to
+$(CC_FLAGS_FTRACE).
 
-int main(int argc, char **argv)
-{
-	struct timespec start, end, res;
-	double diff;
-	int i;
-	(void)argc;
-	(void)argv;
+-- Steve
 
-	clock_gettime(CLOCK_REALTIME, &start);
-	for (i = 0; i < 150000000; i++) {
-		volatile int a = getpid();
-		(void)a;
-	}
 
-	clock_gettime(CLOCK_REALTIME, &end);
-	timespecsub(&end, &start, &res);
-	diff = ((double)res.tv_sec * nsec_per_sec + (double)res.tv_nsec) / nsec_per_sec;
-	printf("%f\n", diff);
-	return 0;
-}
-
-Analyzing performance data i see some overhead in the generic entry C
-functions, which are not inlined because they are defined in
-kernel/entry/common.c. Moving them to include/linux/entry-common.h
-gives me the following runtime for the loop above:
-
-with entry common code inlined: 12.8s
-not inlined: 13.8s
-
-While i prefer to have C functions in C files instead of header files,
-7% performance gain is quite a lot, so i wonder what people think about
-moving them to header files. I made this a small patchset for reference,
-if there is interest in merging that i'll clean it up and submit it.
-
-Any thoughts?
-
-Sven Schnelle (2):
-  entry: move the exit path to header files
-  entry: move the enter path to header files
-
- include/linux/entry-common.h | 305 ++++++++++++++++++++++++++++++++++-
- kernel/entry/common.c        | 281 --------------------------------
- 2 files changed, 297 insertions(+), 289 deletions(-)
-
--- 
-2.39.2
-
+>  endif
+>  
+>  KASAN_SANITIZE_head$(BITS).o				:= n
+> -- 
