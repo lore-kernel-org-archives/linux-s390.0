@@ -2,97 +2,130 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C017C7EE2C
-	for <linux-s390@archiver.kernel.org>; Tue, 16 May 2023 10:43:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B4165C77B75
+	for <linux-s390@archiver.kernel.org>; Tue, 16 May 2023 13:05:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232403AbjEPKnh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 16 May 2023 06:43:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40484 "EHLO
+        id S233529AbjEPNFu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 16 May 2023 09:05:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229664AbjEPKng (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 16 May 2023 06:43:36 -0400
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C50C2E8;
-        Tue, 16 May 2023 03:43:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=aFE52arMbeuGVCs81HtFqwlRw7vUUbocXdncBereG0Q=; b=FkkqeXjyINXcZ0dn67fZnclgj5
-        cM/jyQTU2OOfVb/EiYFiDE06liJQP27KDAcpUH/jvL5QV5T8XRtCJzU+4kg1GW4V/NzKuN4GPJCdQ
-        0sqkIOfozkG/6bRoKC331l4E55SrRg5QgVT5Oax7JRzQ8FaceCgUVhX3+9fgImj0uvsScOdj/gykc
-        BiRVVw7g07fwYDhA/dioi9Gx9dHD4NjilKqhgdxQMUfWU0+KUYPlLl+nB8lai821mGMHryLvk+NSQ
-        Eh+gOFJ/bYjCd1MgOmvB2ulDNpaXZcyForWW7zbsHFkP4U9F6xTP8XOIUJ9iT/VeLM4yXgttg5d8o
-        HZ+p+e2A==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
-        by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
-        id 1pys7y-00C5WG-2z;
-        Tue, 16 May 2023 10:41:59 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits))
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id D21DF30008D;
-        Tue, 16 May 2023 12:41:52 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id A9E932013503C; Tue, 16 May 2023 12:41:52 +0200 (CEST)
-Date:   Tue, 16 May 2023 12:41:52 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Matthew Wilcox <willy@infradead.org>
-Cc:     Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        David Hildenbrand <david@redhat.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Qi Zheng <zhengqi.arch@bytedance.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Greg Ungerer <gerg@linux-m68k.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Helge Deller <deller@gmx.de>,
-        John David Anglin <dave.anglin@bell.net>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Alexandre Ghiti <alexghiti@rivosinc.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Chris Zankel <chris@zankel.net>,
-        Max Filippov <jcmvbkbc@gmail.com>, x86@kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
-        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        Michel Lespinasse <michel@lespinasse.org>
-Subject: Re: [PATCH 00/23] arch: allow pte_offset_map[_lock]() to fail
-Message-ID: <20230516104152.GH2587705@hirez.programming.kicks-ass.net>
-References: <77a5d8c-406b-7068-4f17-23b7ac53bc83@google.com>
- <ZFs0k2rrLPH9A/UU@casper.infradead.org>
- <d7f3c7b2-25b8-ef66-98a8-43d68f4499f@google.com>
- <ZFz1j1slZHCQmwMJ@casper.infradead.org>
+        with ESMTP id S233518AbjEPNF2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 16 May 2023 09:05:28 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C8207EE6;
+        Tue, 16 May 2023 06:05:14 -0700 (PDT)
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34GCcecL014930;
+        Tue, 16 May 2023 13:05:12 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-type :
+ content-transfer-encoding; s=pp1;
+ bh=InV0wzE/hmnvNbld4gJlyZ/LP3jJNfjJEPl1q236sx4=;
+ b=QGBKBq0FhaDQnvJTkcIZ9wbHFfcrAtTQL1M6OFTjqekcxk02kBBtW8JyMnRJSL9mXE5w
+ ZnyEevoP7kR6Ki+5tTlbJsrpMjSaZmKOzH52JIsuxpG6g3/PEgssdxDuRc1kjNN0ULzM
+ uyfphXl/4CX7DtfbjyQ/WS3CRDS/LMk81CcrJ9nv0R7Il8tWvSVyaOTbEeskrwywlH8N
+ gTczDY4z3w9vavQw7gUUHA5lh2N4R+NkIA9jf1TtfTGNT5RvXMG7/xMblziM04QpADxb
+ XezRRx6gi63xSBrW2xzqDao6Ec7lru5mpUGG4kjG8gjzUzn//RT5X7x+6+GNzJSqJ8rx hg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qm8h63weh-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 16 May 2023 13:05:10 +0000
+Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34GD4dPR022094;
+        Tue, 16 May 2023 13:05:05 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qm8h63w6s-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 16 May 2023 13:05:05 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34G67uQs005223;
+        Tue, 16 May 2023 13:05:00 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3qj264sn3s-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 16 May 2023 13:04:59 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34GD4uds14418566
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 16 May 2023 13:04:56 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8380D20043;
+        Tue, 16 May 2023 13:04:56 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5C87720040;
+        Tue, 16 May 2023 13:04:56 +0000 (GMT)
+Received: from t35lp63.lnxne.boe (unknown [9.152.108.100])
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Tue, 16 May 2023 13:04:56 +0000 (GMT)
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [kvm-unit-tests PATCH v2 0/6] s390x: Add support for running guests without MSO/MSL
+Date:   Tue, 16 May 2023 15:04:50 +0200
+Message-Id: <20230516130456.256205-1-nrb@linux.ibm.com>
+X-Mailer: git-send-email 2.39.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ZFz1j1slZHCQmwMJ@casper.infradead.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: dKYclYBw29ye41LYAa9p1R-pEaGDVUql
+X-Proofpoint-ORIG-GUID: K0m8TdrN1Hexc-yBktm0T9DW4fFl0h1t
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-05-16_06,2023-05-16_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=538
+ priorityscore=1501 impostorscore=0 mlxscore=0 clxscore=1015 malwarescore=0
+ phishscore=0 suspectscore=0 spamscore=0 lowpriorityscore=0 adultscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2304280000 definitions=main-2305160110
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, May 11, 2023 at 03:02:55PM +0100, Matthew Wilcox wrote:
+v2:
+---
+* add function to change DAT/AS mode for all irq handlers (Janosch, Claudio)
+* instead of a new flag in PROG0C, check the pgm int code in lowcore (Janosch)
+* fix indents, comments (Nina)
 
-> We also talked about moving x86 to always RCU-free page tables in
-> order to make accessing /proc/$pid/smaps lockless.  I believe Michel
-> is going to take a swing at this project.
+Right now, all SIE tests in kvm-unit-tests (i.e. where kvm-unit-test is the
+hypervisor) run using MSO/MSL.
 
-Shouldn't be too controversial I think -- effectively everybody already
-has it enabled because everybody builds with KVM enabled.
+This is convenient, because it's simple. But it also comes with
+disadvantages, for example some features are unavailabe with MSO/MSL.
+
+This series adds support for running guests without MSO/MSL with dedicated
+guest page tables for the GPA->HPA translation.
+
+Since SIE implicitly uses the primary space mode for the guest, the host
+can't run in the primary space mode, too. To avoid moving all tests to the
+home space mode, only switch to home space mode when it is actually needed.
+
+This series also comes with various bugfixes that were caught while
+develoing this.
+
+Nico Boehr (6):
+  s390x: add function to set DAT mode for all interrupts
+  s390x: sie: switch to home space mode before entering SIE
+  s390x: lib: don't forward PSW when handling exception in SIE
+  s390x: fix compile of interrupt.c
+  s390x: lib: sie: don't reenter SIE on pgm int
+  s390x: add a test for SIE without MSO/MSL
+
+ lib/s390x/asm/arch_def.h   |   1 +
+ lib/s390x/asm/interrupt.h  |   5 ++
+ lib/s390x/asm/mem.h        |   1 +
+ lib/s390x/interrupt.c      |  54 +++++++++++++++++
+ lib/s390x/mmu.c            |   5 +-
+ lib/s390x/sie.c            |  22 ++++++-
+ s390x/Makefile             |   2 +
+ s390x/sie-dat.c            | 120 +++++++++++++++++++++++++++++++++++++
+ s390x/snippets/c/sie-dat.c |  58 ++++++++++++++++++
+ s390x/unittests.cfg        |   3 +
+ 10 files changed, 268 insertions(+), 3 deletions(-)
+ create mode 100644 s390x/sie-dat.c
+ create mode 100644 s390x/snippets/c/sie-dat.c
+
+-- 
+2.39.1
+
