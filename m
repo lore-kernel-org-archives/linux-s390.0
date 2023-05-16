@@ -2,244 +2,192 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B4901C77B75
-	for <linux-s390@archiver.kernel.org>; Tue, 16 May 2023 18:37:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 13BBFC7EE23
+	for <linux-s390@archiver.kernel.org>; Tue, 16 May 2023 19:58:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229742AbjEPSha (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 16 May 2023 14:37:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47840 "EHLO
+        id S229669AbjEPT6s (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 16 May 2023 15:58:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229483AbjEPSh2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 16 May 2023 14:37:28 -0400
-Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CAA910FA;
-        Tue, 16 May 2023 11:37:27 -0700 (PDT)
-Received: by mail-wm1-x329.google.com with SMTP id 5b1f17b1804b1-3f4c6c4b51eso73260385e9.2;
-        Tue, 16 May 2023 11:37:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1684262246; x=1686854246;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=yaslgZEeUfyG0dbWvN9RhS0f93vIcfVbTpmBHRl31SQ=;
-        b=ByOFPTS8wX1VocazZm5K+Z/cV+JAF1+/AEe+abUpe++GbuDmB2pEMIzzMc0Yrg+AFo
-         t1/2xGnROfijw9CNIHJfrhJA18laHF/O37aX7TWS9v+ye8bw/8ieT5MZvJk47O1k0LmC
-         xH609mx8Ukcznx13GNlVzb/lPR1B4vT6iO2oGCLO0KwZIPwOfdIgV9f7Zx75dp/vMUiU
-         6Hw7fZokzaskSvKzuW4yn9td7ihuacbj74EfwAguGShiogskn6VrXoSU3Zelpiodam6z
-         xOV/YzPM4V5atP0720m3Ct7bzaJ/CcfJqKIhq5QoFK0DuXoaX9z60S2NujzYokH04xie
-         IKgQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1684262246; x=1686854246;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=yaslgZEeUfyG0dbWvN9RhS0f93vIcfVbTpmBHRl31SQ=;
-        b=ObEA1K6mPD4RvKLoXDV36XS2ppzJJnjUeZHXPWILXUh+XV4M+lLCgeG9TmMvcErPHp
-         xp/loH2LdtAh3CR1dTK5jZ7SeUTiF/t2roogHlcBe1R30nsmPmmXctBSC5RvF6CyjAjo
-         FSfGq4paBB/2HdiZSyh0ueKff/X4ffuKNuq3w9qtzTH3kO61UR/CblIxipqNj/UVIuMz
-         fmhj6djSqX0upMcLKqhHdT+xfsihEx7PNIjn4n466wkxDyxuoKbl6ufMf4e3KfGgTQfr
-         9Kw+otEfE4rjX6fh87QVA79AsbFvH8GVm1ScKz0Rc/lg4OQALl+uRNcXXlE7r7/Qu4pU
-         Gn4Q==
-X-Gm-Message-State: AC+VfDyjFnZuAyvQGkIj5ULIzNMA4K0OPptiUSHjzs11bqhkUfqkXvq5
-        kwqdLjmmklEriPiYEgZMAJs=
-X-Google-Smtp-Source: ACHHUZ5FbzA2y39DLkphw8Nq0JUTk+Jyh31cY6z+5LmeNOVBA5+4d41LJGOyvlXiibxy7NLJ7ZRP9A==
-X-Received: by 2002:a5d:4d44:0:b0:306:484e:e568 with SMTP id a4-20020a5d4d44000000b00306484ee568mr28717336wru.40.1684262245393;
-        Tue, 16 May 2023 11:37:25 -0700 (PDT)
-Received: from localhost (host86-156-84-164.range86-156.btcentralplus.com. [86.156.84.164])
-        by smtp.gmail.com with ESMTPSA id x9-20020a5d6509000000b00304b5b2f5ffsm212309wru.53.2023.05.16.11.37.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 May 2023 11:37:24 -0700 (PDT)
-Date:   Tue, 16 May 2023 19:37:23 +0100
-From:   Lorenzo Stoakes <lstoakes@gmail.com>
-To:     Anders Roxell <anders.roxell@linaro.org>
-Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        David Hildenbrand <david@redhat.com>,
-        linux-arm-kernel@lists.infradead.org, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-perf-users@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        with ESMTP id S229552AbjEPT6s (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 16 May 2023 15:58:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 149B3B9;
+        Tue, 16 May 2023 12:58:47 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A627C6335A;
+        Tue, 16 May 2023 19:58:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AB60C433AA;
+        Tue, 16 May 2023 19:58:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1684267126;
+        bh=xc18BzdyEBvkv9q714vehn9HK+Lcx4FXD845Ti/vhSs=;
+        h=From:To:Cc:Subject:Date:From;
+        b=BOqU+Ti0UooqqPQiNy+cEs7ojWA6srPcBXzScAld2/LM/flNge0wEJQ1IDViuzpk8
+         JFqXrVUteaLPL3MK4aUhli2xC3CY0v65zf/k2y9AB7g3Uui7Ri+9R1k0Y3YSFQbrkY
+         rXn4S2QZwF850darHW8kivTUZPDgtYyYAH2jCchPbbvn5SFWjbMySlgk/ZpkjxLwOT
+         dZRw3AboHiPlHtskv9wpSENZDBYKiq21KCJK1q3VxEVbJ3numV5C0ebXww9nU4qP3O
+         63KmTxzjAarWjUokVC72OOBrS5hxQAcQBUCEk89HPrQZJsIfTywAE+H1VKKSqagjVX
+         smEY2U2R/5+gg==
+From:   Arnd Bergmann <arnd@kernel.org>
+To:     viro@zeniv.linux.org.uk, brauner@kernel.org
+Cc:     linux-fsdevel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Kees Cook <keescook@chromium.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Christian Brauner <brauner@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Ian Rogers <irogers@google.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Kentaro Takeda <takedakn@nttdata.co.jp>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Paul Moore <paul@paul-moore.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E . Hallyn" <serge@hallyn.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        John Hubbard <jhubbard@nvidia.com>
-Subject: Re: [PATCH v5 3/6] mm/gup: remove vmas parameter from
- get_user_pages_remote()
-Message-ID: <0db8b45d-8f7d-46bc-8739-c167c086bcfc@lucifer.local>
-References: <cover.1684097001.git.lstoakes@gmail.com>
- <afe323639b7bda066ee5c7a6cca906f5ad8df940.1684097002.git.lstoakes@gmail.com>
- <20230516094919.GA411@mutt>
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-parisc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org
+Subject: [PATCH] procfs: consolidate arch_report_meminfo declaration
+Date:   Tue, 16 May 2023 21:57:29 +0200
+Message-Id: <20230516195834.551901-1-arnd@kernel.org>
+X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230516094919.GA411@mutt>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, May 16, 2023 at 11:49:19AM +0200, Anders Roxell wrote:
-> On 2023-05-14 22:26, Lorenzo Stoakes wrote:
-> > The only instances of get_user_pages_remote() invocations which used the
-> > vmas parameter were for a single page which can instead simply look up the
-> > VMA directly. In particular:-
-> >
-> > - __update_ref_ctr() looked up the VMA but did nothing with it so we simply
-> >   remove it.
-> >
-> > - __access_remote_vm() was already using vma_lookup() when the original
-> >   lookup failed so by doing the lookup directly this also de-duplicates the
-> >   code.
-> >
-> > We are able to perform these VMA operations as we already hold the
-> > mmap_lock in order to be able to call get_user_pages_remote().
-> >
-> > As part of this work we add get_user_page_vma_remote() which abstracts the
-> > VMA lookup, error handling and decrementing the page reference count should
-> > the VMA lookup fail.
-> >
-> > This forms part of a broader set of patches intended to eliminate the vmas
-> > parameter altogether.
-> >
-> > Reviewed-by: Catalin Marinas <catalin.marinas@arm.com> (for arm64)
-> > Acked-by: David Hildenbrand <david@redhat.com>
-> > Reviewed-by: Janosch Frank <frankja@linux.ibm.com> (for s390)
-> > Signed-off-by: Lorenzo Stoakes <lstoakes@gmail.com>
-> > ---
-> >  arch/arm64/kernel/mte.c   | 17 +++++++++--------
-> >  arch/s390/kvm/interrupt.c |  2 +-
-> >  fs/exec.c                 |  2 +-
-> >  include/linux/mm.h        | 34 +++++++++++++++++++++++++++++++---
-> >  kernel/events/uprobes.c   | 13 +++++--------
-> >  mm/gup.c                  | 12 ++++--------
-> >  mm/memory.c               | 14 +++++++-------
-> >  mm/rmap.c                 |  2 +-
-> >  security/tomoyo/domain.c  |  2 +-
-> >  virt/kvm/async_pf.c       |  3 +--
-> >  10 files changed, 61 insertions(+), 40 deletions(-)
-> >
->
-> [...]
->
-> > diff --git a/mm/memory.c b/mm/memory.c
-> > index 146bb94764f8..63632a5eafc1 100644
-> > --- a/mm/memory.c
-> > +++ b/mm/memory.c
-> > @@ -5590,7 +5590,6 @@ EXPORT_SYMBOL_GPL(generic_access_phys);
-> >  int __access_remote_vm(struct mm_struct *mm, unsigned long addr, void *buf,
-> >  		       int len, unsigned int gup_flags)
-> >  {
-> > -	struct vm_area_struct *vma;
-> >  	void *old_buf = buf;
-> >  	int write = gup_flags & FOLL_WRITE;
-> >
-> > @@ -5599,13 +5598,15 @@ int __access_remote_vm(struct mm_struct *mm, unsigned long addr, void *buf,
-> >
-> >  	/* ignore errors, just check how much was successfully transferred */
-> >  	while (len) {
-> > -		int bytes, ret, offset;
-> > +		int bytes, offset;
-> >  		void *maddr;
-> > -		struct page *page = NULL;
-> > +		struct vm_area_struct *vma;
-> > +		struct page *page = get_user_page_vma_remote(mm, addr,
-> > +							     gup_flags, &vma);
-> > +
-> > +		if (IS_ERR_OR_NULL(page)) {
-> > +			int ret = 0;
->
-> I see the warning below when building without CONFIG_HAVE_IOREMAP_PROT set.
->
-> make --silent --keep-going --jobs=32 \
-> O=/home/anders/.cache/tuxmake/builds/1244/build ARCH=arm \
-> CROSS_COMPILE=arm-linux-gnueabihf- /home/anders/src/kernel/next/mm/memory.c: In function '__access_remote_vm':
-> /home/anders/src/kernel/next/mm/memory.c:5608:29: warning: unused variable 'ret' [-Wunused-variable]
->  5608 |                         int ret = 0;
->       |                             ^~~
->
+From: Arnd Bergmann <arnd@arndb.de>
 
-Ah damn, nice spot thanks!
+The arch_report_meminfo() function is provided by four architectures,
+with a __weak fallback in procfs itself. On architectures that don't
+have a custom version, the __weak version causes a warning because
+of the missing prototype.
 
->
-> >
-> > -		ret = get_user_pages_remote(mm, addr, 1,
-> > -				gup_flags, &page, &vma, NULL);
-> > -		if (ret <= 0) {
-> >  #ifndef CONFIG_HAVE_IOREMAP_PROT
-> >  			break;
-> >  #else
-> > @@ -5613,7 +5614,6 @@ int __access_remote_vm(struct mm_struct *mm, unsigned long addr, void *buf,
-> >  			 * Check if this is a VM_IO | VM_PFNMAP VMA, which
-> >  			 * we can access using slightly different code.
-> >  			 */
-> > -			vma = vma_lookup(mm, addr);
-> >  			if (!vma)
-> >  				break;
-> >  			if (vma->vm_ops && vma->vm_ops->access)
->
-> Cheers,
-> Anders
+Remove the architecture specific prototypes and instead add one
+in linux/proc_fs.h.
 
-I enclose a -fix patch for this below:-
-
-----8<----
-From 6a4bb033a1ec60920e4945e7e063443f91489d06 Mon Sep 17 00:00:00 2001
-From: Lorenzo Stoakes <lstoakes@gmail.com>
-Date: Tue, 16 May 2023 19:16:22 +0100
-Subject: [PATCH] mm/gup: remove vmas parameter from get_user_pages_remote()
-
-Fix unused variable warning as reported by Anders Roxell.
-
-Signed-off-by: Lorenzo Stoakes <lstoakes@gmail.com>
-
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- mm/memory.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/parisc/include/asm/pgtable.h    | 3 ---
+ arch/powerpc/include/asm/pgtable.h   | 3 ---
+ arch/s390/include/asm/pgtable.h      | 3 ---
+ arch/s390/mm/pageattr.c              | 1 +
+ arch/x86/include/asm/pgtable.h       | 1 +
+ arch/x86/include/asm/pgtable_types.h | 3 ---
+ arch/x86/mm/pat/set_memory.c         | 1 +
+ include/linux/proc_fs.h              | 2 ++
+ 8 files changed, 5 insertions(+), 12 deletions(-)
 
-diff --git a/mm/memory.c b/mm/memory.c
-index 63632a5eafc1..b1b25e61294a 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -5605,11 +5605,11 @@ int __access_remote_vm(struct mm_struct *mm, unsigned long addr, void *buf,
- 							     gup_flags, &vma);
-
- 		if (IS_ERR_OR_NULL(page)) {
--			int ret = 0;
+diff --git a/arch/parisc/include/asm/pgtable.h b/arch/parisc/include/asm/pgtable.h
+index e715df5385d6..5656395c95ee 100644
+--- a/arch/parisc/include/asm/pgtable.h
++++ b/arch/parisc/include/asm/pgtable.h
+@@ -472,9 +472,6 @@ static inline void ptep_set_wrprotect(struct mm_struct *mm, unsigned long addr,
+ 
+ #define pte_same(A,B)	(pte_val(A) == pte_val(B))
+ 
+-struct seq_file;
+-extern void arch_report_meminfo(struct seq_file *m);
 -
- #ifndef CONFIG_HAVE_IOREMAP_PROT
- 			break;
- #else
-+			int ret = 0;
+ #endif /* !__ASSEMBLY__ */
+ 
+ 
+diff --git a/arch/powerpc/include/asm/pgtable.h b/arch/powerpc/include/asm/pgtable.h
+index 9972626ddaf6..6a88bfdaa69b 100644
+--- a/arch/powerpc/include/asm/pgtable.h
++++ b/arch/powerpc/include/asm/pgtable.h
+@@ -165,9 +165,6 @@ static inline bool is_ioremap_addr(const void *x)
+ 
+ 	return addr >= IOREMAP_BASE && addr < IOREMAP_END;
+ }
+-
+-struct seq_file;
+-void arch_report_meminfo(struct seq_file *m);
+ #endif /* CONFIG_PPC64 */
+ 
+ #endif /* __ASSEMBLY__ */
+diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
+index 6822a11c2c8a..c55f3c3365af 100644
+--- a/arch/s390/include/asm/pgtable.h
++++ b/arch/s390/include/asm/pgtable.h
+@@ -42,9 +42,6 @@ static inline void update_page_count(int level, long count)
+ 		atomic_long_add(count, &direct_pages_count[level]);
+ }
+ 
+-struct seq_file;
+-void arch_report_meminfo(struct seq_file *m);
+-
+ /*
+  * The S390 doesn't have any external MMU info: the kernel page
+  * tables contain all the necessary information.
+diff --git a/arch/s390/mm/pageattr.c b/arch/s390/mm/pageattr.c
+index 5ba3bd8a7b12..ca5a418c58a8 100644
+--- a/arch/s390/mm/pageattr.c
++++ b/arch/s390/mm/pageattr.c
+@@ -4,6 +4,7 @@
+  * Author(s): Jan Glauber <jang@linux.vnet.ibm.com>
+  */
+ #include <linux/hugetlb.h>
++#include <linux/proc_fs.h>
+ #include <linux/vmalloc.h>
+ #include <linux/mm.h>
+ #include <asm/cacheflush.h>
+diff --git a/arch/x86/include/asm/pgtable.h b/arch/x86/include/asm/pgtable.h
+index 15ae4d6ba476..5700bb337987 100644
+--- a/arch/x86/include/asm/pgtable.h
++++ b/arch/x86/include/asm/pgtable.h
+@@ -27,6 +27,7 @@
+ extern pgd_t early_top_pgt[PTRS_PER_PGD];
+ bool __init __early_make_pgtable(unsigned long address, pmdval_t pmd);
+ 
++struct seq_file;
+ void ptdump_walk_pgd_level(struct seq_file *m, struct mm_struct *mm);
+ void ptdump_walk_pgd_level_debugfs(struct seq_file *m, struct mm_struct *mm,
+ 				   bool user);
+diff --git a/arch/x86/include/asm/pgtable_types.h b/arch/x86/include/asm/pgtable_types.h
+index 447d4bee25c4..ba3e2554799a 100644
+--- a/arch/x86/include/asm/pgtable_types.h
++++ b/arch/x86/include/asm/pgtable_types.h
+@@ -513,9 +513,6 @@ extern void native_pagetable_init(void);
+ #define native_pagetable_init        paging_init
+ #endif
+ 
+-struct seq_file;
+-extern void arch_report_meminfo(struct seq_file *m);
+-
+ enum pg_level {
+ 	PG_LEVEL_NONE,
+ 	PG_LEVEL_4K,
+diff --git a/arch/x86/mm/pat/set_memory.c b/arch/x86/mm/pat/set_memory.c
+index 7159cf787613..d1515756e369 100644
+--- a/arch/x86/mm/pat/set_memory.c
++++ b/arch/x86/mm/pat/set_memory.c
+@@ -9,6 +9,7 @@
+ #include <linux/mm.h>
+ #include <linux/interrupt.h>
+ #include <linux/seq_file.h>
++#include <linux/proc_fs.h>
+ #include <linux/debugfs.h>
+ #include <linux/pfn.h>
+ #include <linux/percpu.h>
+diff --git a/include/linux/proc_fs.h b/include/linux/proc_fs.h
+index 0260f5ea98fe..e981ef830252 100644
+--- a/include/linux/proc_fs.h
++++ b/include/linux/proc_fs.h
+@@ -158,6 +158,8 @@ int proc_pid_arch_status(struct seq_file *m, struct pid_namespace *ns,
+ 			struct pid *pid, struct task_struct *task);
+ #endif /* CONFIG_PROC_PID_ARCH_STATUS */
+ 
++extern void arch_report_meminfo(struct seq_file *m);
 +
- 			/*
- 			 * Check if this is a VM_IO | VM_PFNMAP VMA, which
- 			 * we can access using slightly different code.
---
-2.40.1
+ #else /* CONFIG_PROC_FS */
+ 
+ static inline void proc_root_init(void)
+-- 
+2.39.2
+
