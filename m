@@ -2,57 +2,57 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A82BC77B7F
-	for <linux-s390@archiver.kernel.org>; Tue, 16 May 2023 09:36:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 874FBC7EE24
+	for <linux-s390@archiver.kernel.org>; Tue, 16 May 2023 09:48:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231931AbjEPJgG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 16 May 2023 05:36:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46840 "EHLO
+        id S232056AbjEPJsN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 16 May 2023 05:48:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231947AbjEPJgE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 16 May 2023 05:36:04 -0400
-Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C6B3E52;
-        Tue, 16 May 2023 02:36:03 -0700 (PDT)
-Received: by mail-ed1-x52a.google.com with SMTP id 4fb4d7f45d1cf-50be17a1eceso25581094a12.2;
-        Tue, 16 May 2023 02:36:03 -0700 (PDT)
+        with ESMTP id S231921AbjEPJsJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 16 May 2023 05:48:09 -0400
+Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD1752D62;
+        Tue, 16 May 2023 02:48:05 -0700 (PDT)
+Received: by mail-ed1-x530.google.com with SMTP id 4fb4d7f45d1cf-50bc570b4a3so24971550a12.1;
+        Tue, 16 May 2023 02:48:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1684229762; x=1686821762;
+        d=gmail.com; s=20221208; t=1684230484; x=1686822484;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=MOYuwaGvQzB6W1rRJXfWsnaF3BnBS5m8MDev8mfwpl4=;
-        b=ZaH64FzpUsamyNTy1bzxrK/9Vm1lyGjs2o2RRvLTujZ6vLXLHQIBdR3aev7k/gnamy
-         hGo0+GakQd+1bNYbAo9jCS6xl8Rf68Ba1ZdpN5oXZT8Y6SyXg8Uo/Ez+Cggb6kageRT1
-         tcVMBuulkSRTW1PcKMR1q4EFNILYNPfAyeiMW2rgTj2WkRqLghUiPm+jdUPniKA8LbHQ
-         qTxqOSsVftohC24wAtnZ3ZZ+1GfWs3XyPm2y+VkSZN2h5TVrP5diR5+fa28FetVHL14n
-         4em+bxnRBM9A6yYq1vj0MZ++tJcS0LwiBx2CZhqG6KTyj1i6fOxoSAd/Lg8r+Eh8PZA+
-         s2kw==
+        bh=bvja6u6ZFGfnkLgz3Y8JuncRIU7gT8PI/VykX029Ek8=;
+        b=TC7kZ/eTedXqDpQDxFKtRdYmJcctfLX6NTMRBtAufhESfjfZFEbqTOwHLyakOCtvW0
+         AMBh812gNA/G0aj8rpTd6aE2NMZwOWYIQ+dEhHCfRIT7f+UR/e+BwhnodvdfqbO+wb6U
+         eRsVzFQ9r9dSTvVsd8slJf/AXpUgm3neL8HFRbZ6TvzwrSj9eaa80Kd5Ae0mH3g38KWb
+         0rxQElUd98LPtTocedpBmQtSgxVDb+DXoUfIwerj3++n+SHfyWBHYYoVGZYZH8cc1Rp/
+         iCPK5pJKUn4uSOhWWDOrnur3lpeS2sVYd3XMEmKfCashfPiPR9u8n5okyWqkkRdaFWdM
+         /zpg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1684229762; x=1686821762;
+        d=1e100.net; s=20221208; t=1684230484; x=1686822484;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=MOYuwaGvQzB6W1rRJXfWsnaF3BnBS5m8MDev8mfwpl4=;
-        b=MYsE4wqgoXSuq1q9+BbRDsnTSYIT86q3+PwQcHLIJkbax5t9HMXfFFO8UWYINe/v7q
-         CBxjYimy+G5yUo6jIImx70ZdPtzC+y4Xm264P9Y7k8TXJ5daN0b0Y4TgssDklrOsGIBw
-         stzuRvsYp6Aqz/i0Yfzox7nNuQv8WiPgfgTZAlJ6vR6Yp3/OYRr5nfRldWxdX/Vx3bA0
-         ss4hG10FPdUAgelPlokx2WjllIOItzgBscKEge7IflOg35k9Gu2eR8XRnrNRp9K2JHnk
-         8W5oKmT2Ycj8Bw3WM7cASv4BepOfCgMxIWeUsU33MOa/2lzYXp1cOz28oMs+b5w/yG5R
-         wYUA==
-X-Gm-Message-State: AC+VfDzzYs3kPkflx/SZYKUiw1gA2dDI0wqUVgArbZujqxJgPsl6+hxW
-        218NZVIaAdtd+VvcPdbLk4d2oxRmHLh4Nl4duuU=
-X-Google-Smtp-Source: ACHHUZ4TQCLryFERufS4j2G73LLn7fsBTUzB8Mn6JiQURp0dHneoZNIl/npAe/4hhhahWai8tAT6/j9WCU1Z7fyGQUc=
-X-Received: by 2002:aa7:db90:0:b0:50d:9a30:f305 with SMTP id
- u16-20020aa7db90000000b0050d9a30f305mr21453968edt.24.1684229761619; Tue, 16
- May 2023 02:36:01 -0700 (PDT)
+        bh=bvja6u6ZFGfnkLgz3Y8JuncRIU7gT8PI/VykX029Ek8=;
+        b=hc1+fk5sUeJputphOQr8sq4JyNowBSk4JxBVKqUYZHtuaRmD2ZdFRm1hf7rsB9wAY5
+         N06vP12tIKBvUkRXoE4Pm/8vUIA70wm/Vwzz1+Qm7O1i4oj2QSU1ksUpZDDyAcWaI9A1
+         58wKKrxS9N5aNjPM16lPgWt0ykng/42sF2HTaD5GfSdIc3qUX5/Cmxv4vMF9O+pbNTq+
+         QcZWUAH8Jn7k46s8At7wqpT3MFFRb+PtF9T5wFQTHe23VFn7bxDdGXTvdCP0jqTrNIOE
+         Lpypp0d3uXiG3oI8ukYCt+KLmhaiSPb+M0wroyK1B/Br+k4XYlmQ1oJNTYCew2vWmOFl
+         1t7A==
+X-Gm-Message-State: AC+VfDyAaEnDkaYc3cCo2w+cLpHyOzPH11723jnGw22viL3gc9c7NS+c
+        gCVHw9IAcbk+KSf6DXcqM7V7V8/UVNIsCqtzD/I=
+X-Google-Smtp-Source: ACHHUZ58Xk+LnHJqjDTQuzlbH9AZ2ZBiLiSzhynrpP51aJp6KZ9Hq9kWwdgsjYeQWqA2BDUz86yph1wPMeprS3aKpgQ=
+X-Received: by 2002:aa7:d943:0:b0:510:47a3:e775 with SMTP id
+ l3-20020aa7d943000000b0051047a3e775mr6274132eds.41.1684230483965; Tue, 16 May
+ 2023 02:48:03 -0700 (PDT)
 MIME-Version: 1.0
 References: <20230516071830.8190-1-zegao@tencent.com> <20230516071830.8190-3-zegao@tencent.com>
- <20230516091548.GA2587705@hirez.programming.kicks-ass.net>
-In-Reply-To: <20230516091548.GA2587705@hirez.programming.kicks-ass.net>
+ <20230516091820.GB2587705@hirez.programming.kicks-ass.net>
+In-Reply-To: <20230516091820.GB2587705@hirez.programming.kicks-ass.net>
 From:   Ze Gao <zegao2021@gmail.com>
-Date:   Tue, 16 May 2023 17:35:50 +0800
-Message-ID: <CAD8CoPCen5Vx33Q1hYJ4T7Q9xhZa63OA52B606omkBttRWpkFg@mail.gmail.com>
+Date:   Tue, 16 May 2023 17:47:52 +0800
+Message-ID: <CAD8CoPDFp2_+D6nykj6mu_Pr57iN+8jO-kgA_FRrcxD8C7YU+Q@mail.gmail.com>
 Subject: Re: [PATCH v2 2/4] fprobe: make fprobe_kprobe_handler recursion free
 To:     Peter Zijlstra <peterz@infradead.org>
 Cc:     Steven Rostedt <rostedt@goodmis.org>,
@@ -81,70 +81,25 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Thanks for pointing this out,  I'll get it all fixed ASAP.
+Precisely, these that are called within kprobe_busy_{begin, end},
+which the previous patch does not resolve.
+I will refine the commit message to make it clear.
+
+FYI, details can checked out here:
+    Link: https://lore.kernel.org/linux-trace-kernel/20230516132516.c902edc=
+f21028874a74fb868@kernel.org/
 
 Regards,
 Ze
 
-On Tue, May 16, 2023 at 5:16=E2=80=AFPM Peter Zijlstra <peterz@infradead.or=
+On Tue, May 16, 2023 at 5:18=E2=80=AFPM Peter Zijlstra <peterz@infradead.or=
 g> wrote:
 >
 > On Tue, May 16, 2023 at 03:18:28PM +0800, Ze Gao wrote:
+> > Current implementation calls kprobe related functions before doing
+> > ftrace recursion check in fprobe_kprobe_handler, which opens door
+> > to kernel crash due to stack recursion if preempt_count_{add, sub}
+> > is traceable.
 >
-> > +static void fprobe_handler(unsigned long ip, unsigned long parent_ip,
-> > +             struct ftrace_ops *ops, struct ftrace_regs *fregs)
-> > +{
-> > +     struct fprobe *fp;
-> > +     int bit;
-> > +
-> > +     fp =3D container_of(ops, struct fprobe, ops);
-> > +     if (fprobe_disabled(fp))
-> > +             return;
-> > +
-> > +     /* recursion detection has to go before any traceable function an=
-d
-> > +      * all functions before this point should be marked as notrace
-> > +      */
-> > +     bit =3D ftrace_test_recursion_trylock(ip, parent_ip);
-> > +     if (bit < 0) {
-> > +             fp->nmissed++;
-> > +             return;
-> > +     }
-> > +     __fprobe_handler(ip, parent_ip, ops, fregs);
-> >       ftrace_test_recursion_unlock(bit);
-> > +
-> >  }
-> >  NOKPROBE_SYMBOL(fprobe_handler);
-> >
-> >  static void fprobe_kprobe_handler(unsigned long ip, unsigned long pare=
-nt_ip,
-> >                                 struct ftrace_ops *ops, struct ftrace_r=
-egs *fregs)
-> >  {
-> > -     struct fprobe *fp =3D container_of(ops, struct fprobe, ops);
-> > +     struct fprobe *fp;
-> > +     int bit;
-> > +
-> > +     fp =3D container_of(ops, struct fprobe, ops);
-> > +     if (fprobe_disabled(fp))
-> > +             return;
-> > +
-> > +     /* recursion detection has to go before any traceable function an=
-d
-> > +      * all functions called before this point should be marked as not=
-race
-> > +      */
-> > +     bit =3D ftrace_test_recursion_trylock(ip, parent_ip);
-> > +     if (bit < 0) {
-> > +             fp->nmissed++;
-> > +             return;
-> > +     }
->
-> Please don't use this comment style; multi line comments go like:
->
->         /*
->          * Multi line comment ...
->          *                    ... is symmetric.
->          */
->
-> Same for your next patch.
+> Which preempt_count*() are you referring to? The ones you just made
+> _notrace in the previous patch?
