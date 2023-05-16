@@ -2,367 +2,231 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 48B1EC77B75
-	for <linux-s390@archiver.kernel.org>; Mon, 15 May 2023 23:02:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A88BAC77B75
+	for <linux-s390@archiver.kernel.org>; Tue, 16 May 2023 00:01:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245476AbjEOXC0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 15 May 2023 19:02:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54936 "EHLO
+        id S237395AbjEPABF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 15 May 2023 20:01:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244981AbjEOXCZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 15 May 2023 19:02:25 -0400
-X-Greylist: delayed 565 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 15 May 2023 16:02:20 PDT
-Received: from out-45.mta0.migadu.com (out-45.mta0.migadu.com [IPv6:2001:41d0:1004:224b::2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF3BBA5D7
-        for <linux-s390@vger.kernel.org>; Mon, 15 May 2023 16:02:19 -0700 (PDT)
-Message-ID: <0e1656dc-b67c-ec65-83a4-6709fb186061@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-        t=1684191171;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=zLnDERJHjug7dAd+MXkM+9OUfYWGgTvS8O/k3Ot60w0=;
-        b=c2duEDoDOpFX+h6ODvobu6/kHvGSZpLC5E+/ZRYDkZOHnmw/vtYn+t0Q/5jJDOg1CE1bLZ
-        VY60LVjZ4glLAQ2YBoIiOYzCM63HyFOchysxBfZiREgwnxEAuGt0LPy2VyBJ4F8yfA95fn
-        qhmMlbfRCgnWosBFZJTP/Z+MU85xWZM=
-Date:   Mon, 15 May 2023 15:52:42 -0700
+        with ESMTP id S234038AbjEPABE (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 15 May 2023 20:01:04 -0400
+Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on2041.outbound.protection.outlook.com [40.107.236.41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 920C77294;
+        Mon, 15 May 2023 17:01:03 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=V8ENuULuwAFqnSXK8tqqpOWhr2PVJg3drSSusTewstpmLUuTsCAqywftMxqveT32ctD8WLWflNycOtILF8L6MgU0+V65O/bIKsAZdpbRyp1QdWahiFWv2X36jfc47N3DLbHpV4aeb1RZr6K+awD/xZeiQAs6t5iMn6UCHlKyu3IkaQdBsdM2nITuj3XHad2nn8hlTX/YGnFQMS+yn4J5xEraTgp4trxicF95DIMYRBzlzsa27J1srcheFojrlBHWDbNY4ZDOSuRzvvcG8E5+byrLmTB09wfJOuGIRh3kj9U34Mc5PA3RXo09hohjUYIfYzZdi8e/SPkQMsAJrtZfZw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=fv07ZTI6TWqMM56BZclxgR+qWcyKeH1gSmVtTipkoJE=;
+ b=NoRk2W3OJbpZwM+sxlpFvO/kvbe3hEN2t6DTfEHEzQMaxujLR1wNpHAeRGvSvwVb6bMG9iFQGb213LwC87qfUqDgezu/N0r90uatWSrch9VinyjZwLMGkfq3DVhsYcggiNFqWx+eX07eD1O09YNhGeWv7u0NLn2Hznaf24Ms2a+cPGVlkOBn4DHXnzCqQGe093jk3bTEczwJwLbLIoUcLjAoFeS4NIcYJZrRPiHEJ86Fz5klYPR1ORH20BHkz2ujT6lBUoje8sQl2O/2tNoXKNQ2x30Sk3dqvlWT/7Y99XHsBacxsPHfsps6HJv+AuisSy0SRZba16leX/JlO/pb5w==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=fv07ZTI6TWqMM56BZclxgR+qWcyKeH1gSmVtTipkoJE=;
+ b=GilGkfv2e98bP/r30P27lvROOXaXK5ZC3ZjOpksjCBCu1n7c/rlDLRnX1ZWQVsyDT252PaFu2kbNgoSbi/vs8u4OpgIRbcuAkNQK0GuT+kqfFJhf3akYsBxOtlnlNC1byzhQPAbhhdGu3Mem3iN8M6x5tCEQZ4GiqTwtC5+0K8qwRAnSvQlKdnPZgPXSiPXO96KrxXSQV1IU30SirWf2mb3pD1wsxLjFix9TWZwK1S0atvIWetyMsAubhqFK/MgTRs7bIpd8FxeeQcrXhfnoDvpxXUEk19Oz0Usc6WdEmNskSY0gnLRZhEe28S8R38oYD2Ny719IiFn/in25Q8negQ==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by PH7PR12MB6786.namprd12.prod.outlook.com (2603:10b6:510:1ac::18) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6387.30; Tue, 16 May
+ 2023 00:01:00 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::f7a7:a561:87e9:5fab]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::f7a7:a561:87e9:5fab%6]) with mapi id 15.20.6387.030; Tue, 16 May 2023
+ 00:01:00 +0000
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Andy Gross <agross@kernel.org>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Bjorn Andersson <andersson@kernel.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Baolin Wang <baolin.wang@linux.alibaba.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
+        linux-tegra@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
+        linuxppc-dev@lists.ozlabs.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Orson Zhai <orsonzhai@gmail.com>,
+        Rob Clark <robdclark@gmail.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Krishna Reddy <vdumpa@nvidia.com>,
+        Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>,
+        Yong Wu <yong.wu@mediatek.com>,
+        Chunyan Zhang <zhang.lyra@gmail.com>
+Cc:     Lu Baolu <baolu.lu@linux.intel.com>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Nicolin Chen <nicolinc@nvidia.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Steven Price <steven.price@arm.com>,
+        Thierry Reding <treding@nvidia.com>
+Subject: [PATCH v2 11/25] iommu/tegra-smmu: Implement an IDENTITY domain
+Date:   Mon, 15 May 2023 21:00:44 -0300
+Message-Id: <11-v2-8d1dc464eac9+10f-iommu_all_defdom_jgg@nvidia.com>
+In-Reply-To: <0-v2-8d1dc464eac9+10f-iommu_all_defdom_jgg@nvidia.com>
+References: 
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: BL0PR1501CA0033.namprd15.prod.outlook.com
+ (2603:10b6:207:17::46) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
 MIME-Version: 1.0
-Subject: Re: [PATCH bpf-next v1 2/5] net/smc: allow smc to negotiate protocols
- on policies
-Content-Language: en-US
-To:     "D. Wythe" <alibuda@linux.alibaba.com>
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-        bpf@vger.kernel.org, kgraul@linux.ibm.com, wenjia@linux.ibm.com,
-        jaka@linux.ibm.com, ast@kernel.org, daniel@iogearbox.net,
-        andrii@kernel.org, pabeni@redhat.com, song@kernel.org,
-        sdf@google.com, haoluo@google.com, yhs@fb.com, edumazet@google.com,
-        john.fastabend@gmail.com, kpsingh@kernel.org, jolsa@kernel.org,
-        guwen@linux.alibaba.com
-References: <1683872684-64872-1-git-send-email-alibuda@linux.alibaba.com>
- <1683872684-64872-3-git-send-email-alibuda@linux.alibaba.com>
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From:   Martin KaFai Lau <martin.lau@linux.dev>
-In-Reply-To: <1683872684-64872-3-git-send-email-alibuda@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Migadu-Flow: FLOW_OUT
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|PH7PR12MB6786:EE_
+X-MS-Office365-Filtering-Correlation-Id: 280b1fb8-21c7-4dfe-10f1-08db55a0a1f4
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: Aks1VUuYTYc7AbsvVvn5E491j3YaOt2IsTKlA7P9BkUSdCDj6ZNcyqSixFswVjd2vyA8YE6lvgLgNqvBjSgv65RPQ+XK3pdiMwk/2ajPxGR7JMqRAUCYMwXhcKkBhAg0IqZ+USnxh+ALchlMCntn6Rwpe9rOOmGV4sm7WZlJ2/j38hJvmFzNPKklQ1ngFlY0g5lrIMSv6rXzNICTvUYBGoS9O4lKSla7fIxrXRjN31EZ9bX6LS4kC/DlemuWSJ+97Utcz8C8/E9bR1qQQylOAqNazjCtO2GAnn8MZYtfjxs0Q0aR17kO5+CD5Rfxy6gIxlqDMaApeDeJbs5ZRe9utwU2hTUTG4RT9Mu5C1XgSod4SrsCZSAWntLlikW0KGF8N5NWtw7kxLWJhNmlkbh83VpuqXFX1y1D/SDr1CVwLc9oGTGlkvPv1WYAZYihc5zf82G52MSUIqMS+fXyhVQdm8VV7W2I3Yf1g9HH9xKscblNHwOAjS+E0IiNhanoPdVAw/xEshnZlazSImkf+qi4nZAIW4ph/UTHQPfx2f6/bfbp548fqWYAE6CJ9PF5dAzUMXUAUamAb9+UElhgNZ/xlXQfo39fxbVwRj82lbFLlFk=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(346002)(39860400002)(136003)(396003)(376002)(366004)(451199021)(83380400001)(4326008)(41300700001)(316002)(2906002)(921005)(36756003)(38100700002)(6512007)(6506007)(26005)(6486002)(478600001)(107886003)(66556008)(66946007)(66476007)(2616005)(86362001)(5660300002)(8936002)(8676002)(110136005)(54906003)(7416002)(7406005)(186003)(6666004);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?feFb3zIKR3NUbX5KkNESRYkh7TBFeZ9skPbUFpwYK0Ak4UQO/YD3eJV9Q+Ah?=
+ =?us-ascii?Q?/vI+7+vTYrvIQcfdiYXkF8Gf05vmRPrwsS6mU+qtn+ohATeHtJTO0k1xCbAp?=
+ =?us-ascii?Q?0hi5brwKmRuCUZdp+Xd8SWHIYh424bsQF5uTjK9oTHNxBUTdZLgNceqQku7v?=
+ =?us-ascii?Q?49mwBrcHS3PdwefVU1pbrT8NZt0PMDra6N6WVHUw88zscEEe1XcO7508XzD5?=
+ =?us-ascii?Q?BDI06VQxE+sMCu+jbtk0mJu3sy+s5I02reEq8M4G2SfpYJUcGSsAyK0MiBRZ?=
+ =?us-ascii?Q?BGNR7APpUDovZRXur34UOCJsWi59eqXWnQyz4d6SvRRubygN4GmypsNKLA/h?=
+ =?us-ascii?Q?ECqjpQi6AF2iC2fxHEfwgwzDojRq2ksSItH3G6f0E/bC5QZBY+EPrISBBU7K?=
+ =?us-ascii?Q?b4ca87Z3w0vNV+P1bzSqyCy7B06HSHWOD6qPddLcGwNsB+a/vtQ0XVa4tM1j?=
+ =?us-ascii?Q?t47cLiimyi/rLtLnCoEtzvfR0UqIvqLYHBbi5+qDyt+7RyIj9/qpSOlFDG9K?=
+ =?us-ascii?Q?4v4WWITDebObEtQmS06xHOCD0YlI8+VHrDU0WJ3VwIx+A/uK1eLPsiMGZoAu?=
+ =?us-ascii?Q?Ew+vECbtg2WGPE5cAIwn6OKJ1pnGQBuz3iVis9F7l9bpWqwiWiiBK/bRCe9f?=
+ =?us-ascii?Q?JMImQNDTy9ek6gZmv3378C/s/aQDHq9ULVfTOWuCVTMO4SAXFWYBG2RUZg/j?=
+ =?us-ascii?Q?iigpr8ZJuIQrcwuPNc2kRHsXtLbC9Q2PDNCHEc6LOzJetI2FtiLxGsvhdPW4?=
+ =?us-ascii?Q?9nfCL+YWI0c7VrGGmAyPMIbPsttU1VSjTOXrFuzpvpc++q/o4KgT+fvE/dVy?=
+ =?us-ascii?Q?/6E4SdnoKaid4YoWuuzGLadfc3TGHZWXq6nHDcjpFVmeQNzCD1Jd+fn+ivGW?=
+ =?us-ascii?Q?+L0S6OW5W5qhA55yq1e0nZrHYbF1UAVDiNpftVYSo+es82T7bkKvk8pCF7pK?=
+ =?us-ascii?Q?27kl33gKIiwEfzPHFJt/HOYRoFx2bKXeziZ9iPoTVbJjaRJT8KgxnIHOHGK5?=
+ =?us-ascii?Q?1am1gsnpxHCLqPLTCDOJhhDvKWB06f+YdII/MyHdr0pEM2i2PBLuz5nPMElX?=
+ =?us-ascii?Q?3ygz6UmmDuXce7SkWrhVvcBZt1hTVkPe7gChLZ6HFGumCfNu2Iu7JM3gG+qc?=
+ =?us-ascii?Q?YRyC+Bzwb8IgLIIBYclGX6lW+MLhmaoA61CLpRW/2aoUT1I84vmC6tVkV31T?=
+ =?us-ascii?Q?BvlEBmnpl5MEqWLkk+MlbHQyTH+N/xy+zb9IM1I/+/YPIMpYYd2EcCtntTcy?=
+ =?us-ascii?Q?w4PbCn9Lr30ZQxr8JDC1+1Ys9AmhinNREszUUjR1yTW5YVyvHlUHQJlBNR8G?=
+ =?us-ascii?Q?GroWIt6/7mOssL+AZbK77VcX1FWLk8ldkU9kxyNfitgj5ueAWT8S5BktBkX3?=
+ =?us-ascii?Q?aKh5w1QUne3qROkxuR5/O7uGH1GNHY3BD97Uq8inso970ApwOMUucGcm9QVc?=
+ =?us-ascii?Q?RI84AprSAPzWBV9oeCp1HjbFt4ouKkhkn2qn7LdvhALjhoU6l7eWlHTw9R5w?=
+ =?us-ascii?Q?Ye3sRCzvsWOorYixvQejyJSYU6ZoJWyz16mW7j3uSZloKdBmme+COg1CawzZ?=
+ =?us-ascii?Q?2vRrBnjkb7GocZfHylpguKZWivzEaVXsfx9jJEI/?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 280b1fb8-21c7-4dfe-10f1-08db55a0a1f4
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 May 2023 00:01:00.6151
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: vgnoWp6T63K+3QoRbcEl7R8RKO1QkTi/2VNUdZWRSvKhKEOPm+Wx+W35h9NWzqa4
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB6786
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 5/11/23 11:24 PM, D. Wythe wrote:
-> From: "D. Wythe" <alibuda@linux.alibaba.com>
-> 
-> As we all know, the SMC protocol is not suitable for all scenarios,
-> especially for short-lived. However, for most applications, they cannot
-> guarantee that there are no such scenarios at all. Therefore, apps
-> may need some specific strategies to decide shall we need to use SMC
-> or not.
-> 
-> Just like the congestion control implementation in TCP, this patch
-> provides a generic negotiator implementation. If necessary,
-> we can provide different protocol negotiation strategies for
-> apps based on this implementation.
-> 
-> But most importantly, this patch provides the possibility of
-> eBPF injection, allowing users to implement their own protocol
-> negotiation policy in userspace.
-> 
-> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-> ---
->   include/net/smc.h        |  32 +++++++++++
->   net/Makefile             |   1 +
->   net/smc/Kconfig          |  11 ++++
->   net/smc/af_smc.c         | 134 ++++++++++++++++++++++++++++++++++++++++++++++-
->   net/smc/smc_negotiator.c | 119 +++++++++++++++++++++++++++++++++++++++++
->   net/smc/smc_negotiator.h | 116 ++++++++++++++++++++++++++++++++++++++++
->   6 files changed, 412 insertions(+), 1 deletion(-)
->   create mode 100644 net/smc/smc_negotiator.c
->   create mode 100644 net/smc/smc_negotiator.h
-> 
-> diff --git a/include/net/smc.h b/include/net/smc.h
-> index 6d076f5..191061c 100644
-> --- a/include/net/smc.h
-> +++ b/include/net/smc.h
-> @@ -296,6 +296,8 @@ struct smc_sock {				/* smc sock container */
->   	atomic_t                queued_smc_hs;  /* queued smc handshakes */
->   	struct inet_connection_sock_af_ops		af_ops;
->   	const struct inet_connection_sock_af_ops	*ori_af_ops;
-> +	/* protocol negotiator ops */
-> +	const struct smc_sock_negotiator_ops *negotiator_ops;
->   						/* original af ops */
->   	int			sockopt_defer_accept;
->   						/* sockopt TCP_DEFER_ACCEPT
-> @@ -316,4 +318,34 @@ struct smc_sock {				/* smc sock container */
->   						 */
->   };
->   
-> +#ifdef CONFIG_SMC_BPF
-> +/* BPF struct ops for smc protocol negotiator */
-> +struct smc_sock_negotiator_ops {
-> +
-> +	struct list_head	list;
-> +
-> +	/* ops name */
-> +	char		name[16];
-> +	/* key for name */
-> +	u32			key;
-> +
-> +	/* init with sk */
-> +	void (*init)(struct sock *sk);
-> +
-> +	/* release with sk */
-> +	void (*release)(struct sock *sk);
-> +
-> +	/* advice for negotiate */
-> +	int (*negotiate)(struct sock *sk);
-> +
-> +	/* info gathering timing */
-> +	void (*collect_info)(struct sock *sk, int timing);
-> +
-> +	/* module owner */
-> +	struct module *owner;
-> +};
-> +#else
-> +struct smc_sock_negotiator_ops {};
-> +#endif
-> +
->   #endif	/* _SMC_H */
-> diff --git a/net/Makefile b/net/Makefile
-> index 4c4dc53..222916a 100644
-> --- a/net/Makefile
-> +++ b/net/Makefile
-> @@ -52,6 +52,7 @@ obj-$(CONFIG_TIPC)		+= tipc/
->   obj-$(CONFIG_NETLABEL)		+= netlabel/
->   obj-$(CONFIG_IUCV)		+= iucv/
->   obj-$(CONFIG_SMC)		+= smc/
-> +obj-$(CONFIG_SMC_BPF)		+= smc/smc_negotiator.o >   obj-$(CONFIG_RFKILL)		+= rfkill/
->   obj-$(CONFIG_NET_9P)		+= 9p/
->   obj-$(CONFIG_CAIF)		+= caif/
-> diff --git a/net/smc/Kconfig b/net/smc/Kconfig
-> index 1ab3c5a..bdcc9f1 100644
-> --- a/net/smc/Kconfig
-> +++ b/net/smc/Kconfig
-> @@ -19,3 +19,14 @@ config SMC_DIAG
->   	  smcss.
->   
->   	  if unsure, say Y.
-> +
-> +config SMC_BPF
-> +	bool "SMC: support eBPF" if SMC
+What tegra-smmu does during tegra_smmu_set_platform_dma() is actually
+putting the iommu into identity mode.
 
+Move to the new core support for ARM_DMA_USE_IOMMU by defining
+ops->identity_domain.
 
-so smc_negotiator will always be in the kernel image even af_smc is compiled as 
-a module? If the SMC_BPF needs to support af_smc as a module, proper 
-implementation needs to be added to bpf_struct_ops to support module first. It 
-is work-in-progress.
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+---
+ drivers/iommu/tegra-smmu.c | 37 ++++++++++++++++++++++++++++++++-----
+ 1 file changed, 32 insertions(+), 5 deletions(-)
 
-> +	depends on BPF_SYSCALL
-> +	default n
-> +	help
-> +	  Supports eBPF to allows user mode participation in SMC's protocol process
-> +	  via ebpf programs. Alternatively, obtain information about the SMC socks
-> +	  through the ebpf program.
-> +
-> +	  If unsure, say N.
-> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> index 50c38b6..7406fd4 100644
-> --- a/net/smc/af_smc.c
-> +++ b/net/smc/af_smc.c
-> @@ -52,6 +52,7 @@
->   #include "smc_close.h"
->   #include "smc_stats.h"
->   #include "smc_tracepoint.h"
-> +#include "smc_negotiator.h"
->   #include "smc_sysctl.h"
->   
->   static DEFINE_MUTEX(smc_server_lgr_pending);	/* serialize link group
-> @@ -68,6 +69,119 @@
->   static void smc_tcp_listen_work(struct work_struct *);
->   static void smc_connect_work(struct work_struct *);
->   
-> +#ifdef CONFIG_SMC_BPF
-> +
-> +/* Check if sock should use smc */
-> +int smc_sock_should_select_smc(const struct smc_sock *smc)
-> +{
-> +	const struct smc_sock_negotiator_ops *ops;
-> +	int ret;
-> +
-> +	rcu_read_lock();
-> +	ops = READ_ONCE(smc->negotiator_ops);
-> +
-> +	/* No negotiator_ops supply or no negotiate func set,
-> +	 * always pass it.
-> +	 */
-> +	if (!ops || !ops->negotiate) {
-
-A smc_sock_negotiator_ops without ->negotiate? Is it useful at all to allow the 
-register in the first place?
-
-> +		rcu_read_unlock();
-> +		return SK_PASS;
-> +	}
-> +
-> +	ret = ops->negotiate((struct sock *)&smc->sk);
-> +	rcu_read_unlock();
-> +	return ret;
-> +}
-> +
-> +void smc_sock_perform_collecting_info(const struct smc_sock *smc, int timing)
-> +{
-> +	const struct smc_sock_negotiator_ops *ops;
-> +
-> +	rcu_read_lock();
-> +	ops = READ_ONCE(smc->negotiator_ops);
-> +
-> +	if (!ops || !ops->collect_info) {
-> +		rcu_read_unlock();
-> +		return;
-> +	}
-> +
-> +	ops->collect_info((struct sock *)&smc->sk, timing);
-> +	rcu_read_unlock();
-> +}
-> +
-> +int smc_sock_assign_negotiator_ops(struct smc_sock *smc, const char *name)
-> +{
-> +	struct smc_sock_negotiator_ops *ops;
-> +	int ret = -EINVAL;
-> +
-> +	/* already set */
-> +	if (READ_ONCE(smc->negotiator_ops))
-> +		smc_sock_cleanup_negotiator_ops(smc, /* might be still referenced */ false);
-> +
-> +	/* Just for clear negotiator_ops */
-> +	if (!name || !strlen(name))
-> +		return 0;
-> +
-> +	rcu_read_lock();
-> +	ops = smc_negotiator_ops_get_by_name(name);
-> +	if (likely(ops)) {
-> +		if (unlikely(!bpf_try_module_get(ops, ops->owner))) {
-> +			ret = -EACCES;
-> +		} else {
-> +			WRITE_ONCE(smc->negotiator_ops, ops);
-> +			/* make sure ops can be seen */
-> +			smp_wmb();
-
-This rcu_read_lock(), WRITE_ONCE, and smp_wmb() combo looks very suspicious. 
-smc->negotiator_ops is protected by rcu (+refcnt) or lock_sock()?
-
-I am going to stop reviewing here.
-
-> +			if (ops->init)
-> +				ops->init(&smc->sk);
-> +			ret = 0;
-> +		}
-> +	}
-> +	rcu_read_unlock();
-> +	return ret;
-> +}
-> +
-> +void smc_sock_cleanup_negotiator_ops(struct smc_sock *smc, bool no_more)
-> +{
-> +	const struct smc_sock_negotiator_ops *ops;
-> +
-> +	ops = READ_ONCE(smc->negotiator_ops);
-> +
-> +	/* not all smc sock has negotiator_ops */
-> +	if (!ops)
-> +		return;
-> +
-> +	might_sleep();
-> +
-> +	/* Just ensure data integrity */
-> +	WRITE_ONCE(smc->negotiator_ops, NULL);
-> +	/* make sure NULL can be seen */
-> +	smp_wmb();
-> +	/* if the socks may have references to the negotiator ops to be removed.
-> +	 * it means that we might need to wait for the readers of ops
-> +	 * to complete. It's slow though.
-> +	 */
-> +	if (unlikely(!no_more))
-> +		synchronize_rcu();
-> +	if (ops->release)
-> +		ops->release(&smc->sk);
-> +	bpf_module_put(ops, ops->owner);
-> +}
-> +
-> +void smc_sock_clone_negotiator_ops(struct sock *parent, struct sock *child)
-> +{
-> +	const struct smc_sock_negotiator_ops *ops;
-> +
-> +	rcu_read_lock();
-> +	ops = READ_ONCE(smc_sk(parent)->negotiator_ops);
-> +	if (ops && bpf_try_module_get(ops, ops->owner)) {
-> +		smc_sk(child)->negotiator_ops = ops;
-> +		if (ops->init)
-> +			ops->init(child);
-> +	}
-> +	rcu_read_unlock();
-> +}
-> +#endif
-> +
->   int smc_nl_dump_hs_limitation(struct sk_buff *skb, struct netlink_callback *cb)
->   {
->   	struct smc_nl_dmp_ctx *cb_ctx = smc_nl_dmp_ctx(cb);
-> @@ -166,6 +280,9 @@ static bool smc_hs_congested(const struct sock *sk)
->   	if (workqueue_congested(WORK_CPU_UNBOUND, smc_hs_wq))
->   		return true;
->   
-> +	if (!smc_sock_should_select_smc(smc))
-> +		return true;
-> +
->   	return false;
->   }
->   
-> @@ -320,6 +437,9 @@ static int smc_release(struct socket *sock)
->   	sock_hold(sk); /* sock_put below */
->   	smc = smc_sk(sk);
->   
-> +	/* trigger info gathering if needed.*/
-> +	smc_sock_perform_collecting_info(smc, SMC_SOCK_CLOSED_TIMING);
-> +
->   	old_state = sk->sk_state;
->   
->   	/* cleanup for a dangling non-blocking connect */
-> @@ -356,6 +476,9 @@ static int smc_release(struct socket *sock)
->   
->   static void smc_destruct(struct sock *sk)
->   {
-> +	/* cleanup negotiator_ops if set */
-> +	smc_sock_cleanup_negotiator_ops(smc_sk(sk), /* no longer used */ true);
-> +
->   	if (sk->sk_state != SMC_CLOSED)
->   		return;
->   	if (!sock_flag(sk, SOCK_DEAD))
-> @@ -1627,7 +1750,14 @@ static int smc_connect(struct socket *sock, struct sockaddr *addr,
->   	}
->   
->   	smc_copy_sock_settings_to_clc(smc);
-> -	tcp_sk(smc->clcsock->sk)->syn_smc = 1;
-> +	/* accept out connection as SMC connection */
-> +	if (smc_sock_should_select_smc(smc) == SK_PASS) {
-> +		tcp_sk(smc->clcsock->sk)->syn_smc = 1;
-> +	} else {
-> +		tcp_sk(smc->clcsock->sk)->syn_smc = 0;
-> +		smc_switch_to_fallback(smc, /* active fallback */ 0);
-> +	}
-> +
->   	if (smc->connect_nonblock) {
->   		rc = -EALREADY;
->   		goto out;
-> @@ -1679,6 +1809,8 @@ static int smc_clcsock_accept(struct smc_sock *lsmc, struct smc_sock **new_smc)
->   	}
->   	*new_smc = smc_sk(new_sk);
->   
-> +	smc_sock_clone_negotiator_ops(lsk, new_sk);
-> +
->   	mutex_lock(&lsmc->clcsock_release_lock);
->   	if (lsmc->clcsock)
->   		rc = kernel_accept(lsmc->clcsock, &new_clcsock, SOCK_NONBLOCK);
-
+diff --git a/drivers/iommu/tegra-smmu.c b/drivers/iommu/tegra-smmu.c
+index 1cbf063ccf147a..f63f1d4f0bd10f 100644
+--- a/drivers/iommu/tegra-smmu.c
++++ b/drivers/iommu/tegra-smmu.c
+@@ -511,23 +511,39 @@ static int tegra_smmu_attach_dev(struct iommu_domain *domain,
+ 	return err;
+ }
+ 
+-static void tegra_smmu_set_platform_dma(struct device *dev)
++static int tegra_smmu_identity_attach(struct iommu_domain *identity_domain,
++				      struct device *dev)
+ {
+ 	struct iommu_domain *domain = iommu_get_domain_for_dev(dev);
+ 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
+-	struct tegra_smmu_as *as = to_smmu_as(domain);
+-	struct tegra_smmu *smmu = as->smmu;
++	struct tegra_smmu_as *as;
++	struct tegra_smmu *smmu;
+ 	unsigned int index;
+ 
+ 	if (!fwspec)
+-		return;
++		return -ENODEV;
+ 
++	if (domain == identity_domain || !domain)
++		return 0;
++
++	as = to_smmu_as(domain);
++	smmu = as->smmu;
+ 	for (index = 0; index < fwspec->num_ids; index++) {
+ 		tegra_smmu_disable(smmu, fwspec->ids[index], as->id);
+ 		tegra_smmu_as_unprepare(smmu, as);
+ 	}
++	return 0;
+ }
+ 
++static struct iommu_domain_ops tegra_smmu_identity_ops = {
++	.attach_dev = tegra_smmu_identity_attach,
++};
++
++static struct iommu_domain tegra_smmu_identity_domain = {
++	.type = IOMMU_DOMAIN_IDENTITY,
++	.ops = &tegra_smmu_identity_ops,
++};
++
+ static void tegra_smmu_set_pde(struct tegra_smmu_as *as, unsigned long iova,
+ 			       u32 value)
+ {
+@@ -962,11 +978,22 @@ static int tegra_smmu_of_xlate(struct device *dev,
+ 	return iommu_fwspec_add_ids(dev, &id, 1);
+ }
+ 
++static int tegra_smmu_def_domain_type(struct device *dev)
++{
++	/*
++	 * FIXME: For now we want to run all translation in IDENTITY mode, due
++	 * to some device quirks. Better would be to just quirk the troubled
++	 * devices.
++	 */
++	return IOMMU_DOMAIN_IDENTITY;
++}
++
+ static const struct iommu_ops tegra_smmu_ops = {
++	.identity_domain = &tegra_smmu_identity_domain,
++	.def_domain_type = &tegra_smmu_def_domain_type,
+ 	.domain_alloc = tegra_smmu_domain_alloc,
+ 	.probe_device = tegra_smmu_probe_device,
+ 	.device_group = tegra_smmu_device_group,
+-	.set_platform_dma_ops = tegra_smmu_set_platform_dma,
+ 	.of_xlate = tegra_smmu_of_xlate,
+ 	.pgsize_bitmap = SZ_4K,
+ 	.default_domain_ops = &(const struct iommu_domain_ops) {
+-- 
+2.40.1
 
