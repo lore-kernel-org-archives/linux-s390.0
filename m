@@ -2,137 +2,225 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A65DDC77B75
-	for <linux-s390@archiver.kernel.org>; Tue, 16 May 2023 06:38:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ABD5BC77B7A
+	for <linux-s390@archiver.kernel.org>; Tue, 16 May 2023 06:51:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230104AbjEPGi4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 16 May 2023 02:38:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52138 "EHLO
+        id S230125AbjEPGve (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 16 May 2023 02:51:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230086AbjEPGiz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 16 May 2023 02:38:55 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF9101FD4;
-        Mon, 15 May 2023 23:38:54 -0700 (PDT)
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34G6c1f8024124;
-        Tue, 16 May 2023 06:38:48 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- content-transfer-encoding : in-reply-to; s=pp1;
- bh=9DmXpqDg3O9x9sNFjmzLOnR7Rix1h8qN/8nG3xKpvRY=;
- b=UEsj2VKSJ1H9Xp0n1zHRNCf1ZNlcPgij2sZ94uPNQg1kjt8BJQWspIVdjmiD0L7iGvpJ
- YMilIL/ilwe1K1YSCHZxN6d5Cazwnd5+mzBh/nBAttSs74qTuvo+Qlr6YJBXQcfTiG1K
- Z5HTi3QPkat/739riWjX22ij51vvyUvOqMp1I/a9jlo1tOPQVjP8GUPbxfSKTjnj0uxO
- x1Nd0qf7c3RW4/drx+NMKH2Nvl48Dy/oWHlZCR4L83+D6iruAl2IZIliiMCXCAgygcPA
- T6M8cTEJyFwxOFdmJ+ThK6wfSw3p0KCJ25TyJ1Hz0Q7DvEBGqNM33kVts/tNUI1qyAsb nQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qm3ms1qy9-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 16 May 2023 06:38:47 +0000
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34G6cV4M027450;
-        Tue, 16 May 2023 06:38:46 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qm3ms1qvp-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 16 May 2023 06:38:46 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34G3nLnr002047;
-        Tue, 16 May 2023 06:33:43 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3qj1tdseb6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 16 May 2023 06:33:43 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34G6XdHJ62521808
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 16 May 2023 06:33:39 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9875D20040;
-        Tue, 16 May 2023 06:33:39 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1CF7B20043;
-        Tue, 16 May 2023 06:33:38 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.179.16.42])
-        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Tue, 16 May 2023 06:33:38 +0000 (GMT)
-Date:   Tue, 16 May 2023 08:33:36 +0200
-From:   Alexander Gordeev <agordeev@linux.ibm.com>
-To:     Christian =?iso-8859-1?Q?G=F6ttsche?= <cgzones@googlemail.com>
-Cc:     selinux@vger.kernel.org, Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
-        "Pan, Xinhui" <Xinhui.Pan@amd.com>,
-        David Airlie <airlied@gmail.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Stefan Haberland <sth@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
+        with ESMTP id S230117AbjEPGvc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 16 May 2023 02:51:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBCDB469E;
+        Mon, 15 May 2023 23:51:00 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 134A061FC5;
+        Tue, 16 May 2023 06:51:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95EEBC433EF;
+        Tue, 16 May 2023 06:50:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1684219859;
+        bh=6Eaba1tYS8F2upbZM0WOM8A9kKwNYGFfbZSTGo3G8Us=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=mlsIFNrcAThE+0HymG4wSsavx8Mh/N2D5jY0hq3HKRbOWkQchd4y92JRocOqinfwh
+         M/HRBW0dBRf3OR53P8opoVdeEqDqa6gT20rIRgOFmkdQCDbTrNGSm5nPuJHNtsTGPs
+         jkV+ozKwlOJrWhuYQVK2cCNZj3V2pHz/8HS6d5cfN7Je2EeKVwr2X1OUaiNT5xfUnD
+         bz09dpO5blch+nd8XqFWDvKNhuEoNpVoh45k08uXQWYeUKzaniMdOmjdhRHPA72LYn
+         L2M6LzUjhUsv4QT45OAseO63USa1EY+m3u12Met+Twj+ZQB2Ebg9vHl9H5DLSlzc+w
+         yZ2ph5fQQPQaA==
+Date:   Tue, 16 May 2023 09:50:50 +0300
+From:   Mike Rapoport <rppt@kernel.org>
+To:     Baoquan He <bhe@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
+        linux-mm@kvack.org, arnd@arndb.de, christophe.leroy@csgroup.eu,
+        hch@infradead.org, agordeev@linux.ibm.com,
+        wangkefeng.wang@huawei.com, schnelle@linux.ibm.com,
+        David.Laight@aculab.com, shorne@gmail.com, willy@infradead.org,
+        deller@gmx.de, Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, bpf@vger.kernel.org
-Subject: Re: [PATCH v4 5/9] drivers: use new capable_any functionality
-Message-ID: <ZGMjwGTDgCGrfsC8@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-References: <20230511142535.732324-1-cgzones@googlemail.com>
- <20230511142535.732324-5-cgzones@googlemail.com>
+        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v5 RESEND 10/17] s390: mm: Convert to GENERIC_IOREMAP
+Message-ID: <ZGMnyk4l6Id1flpN@kernel.org>
+References: <20230515090848.833045-1-bhe@redhat.com>
+ <20230515090848.833045-11-bhe@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20230511142535.732324-5-cgzones@googlemail.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: xqf_N-JoXc2UVfYLwyAFExMe35oo7Cp0
-X-Proofpoint-ORIG-GUID: PZdVErVtm-1oMWtVtghhxQof6lFPLe0D
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-05-16_02,2023-05-05_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 suspectscore=0
- priorityscore=1501 mlxlogscore=999 adultscore=0 malwarescore=0
- impostorscore=0 spamscore=0 mlxscore=0 lowpriorityscore=0 phishscore=0
- clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2304280000 definitions=main-2305160056
+In-Reply-To: <20230515090848.833045-11-bhe@redhat.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, May 11, 2023 at 04:25:28PM +0200, Christian Göttsche wrote:
-> Use the new added capable_any function in appropriate cases, where a
-> task is required to have any of two capabilities.
+On Mon, May 15, 2023 at 05:08:41PM +0800, Baoquan He wrote:
+> By taking GENERIC_IOREMAP method, the generic generic_ioremap_prot(),
+> generic_iounmap(), and their generic wrapper ioremap_prot(), ioremap()
+> and iounmap() are all visible and available to arch. Arch needs to
+> provide wrapper functions to override the generic versions if there's
+> arch specific handling in its ioremap_prot(), ioremap() or iounmap().
+> This change will simplify implementation by removing duplicated codes
+> with generic_ioremap_prot() and generic_iounmap(), and has the equivalent
+> functioality as before.
 > 
-> Reorder CAP_SYS_ADMIN last.
+> Here, add wrapper functions ioremap_prot() and iounmap() for s390's
+> special operation when ioremap() and iounmap().
 > 
-> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
-> ---
-> v4:
->    Additional usage in kfd_ioctl()
-> v3:
->    rename to capable_any()
-> ---
->  drivers/gpu/drm/amd/amdkfd/kfd_chardev.c | 3 +--
->  drivers/net/caif/caif_serial.c           | 2 +-
->  drivers/s390/block/dasd_eckd.c           | 2 +-
->  3 files changed, 3 insertions(+), 4 deletions(-)
-...
-> diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-> index ade1369fe5ed..67d1058bce1b 100644
-> --- a/drivers/s390/block/dasd_eckd.c
-> +++ b/drivers/s390/block/dasd_eckd.c
-> @@ -5370,7 +5370,7 @@ static int dasd_symm_io(struct dasd_device *device, void __user *argp)
->  	char psf0, psf1;
->  	int rc;
->  
-> -	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RAWIO))
-> +	if (!capable_any(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
->  		return -EACCES;
->  	psf0 = psf1 = 0;
+> Signed-off-by: Baoquan He <bhe@redhat.com>
+> Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> Tested-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+> Cc: Heiko Carstens <hca@linux.ibm.com>
+> Cc: Vasily Gorbik <gor@linux.ibm.com>
+> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+> Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+> Cc: Sven Schnelle <svens@linux.ibm.com>
+> Cc: linux-s390@vger.kernel.org
 
-For s390 part:
-Acked-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Reviewed-by: Mike Rapoport (IBM) <rppt@kernel.org>
+
+> ---
+>  arch/s390/Kconfig          |  1 +
+>  arch/s390/include/asm/io.h | 21 ++++++++------
+>  arch/s390/pci/pci.c        | 57 +++++++-------------------------------
+>  3 files changed, 23 insertions(+), 56 deletions(-)
+> 
+> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+> index db20c1589a98..f33923fa8c99 100644
+> --- a/arch/s390/Kconfig
+> +++ b/arch/s390/Kconfig
+> @@ -142,6 +142,7 @@ config S390
+>  	select GENERIC_SMP_IDLE_THREAD
+>  	select GENERIC_TIME_VSYSCALL
+>  	select GENERIC_VDSO_TIME_NS
+> +	select GENERIC_IOREMAP if PCI
+>  	select HAVE_ALIGNED_STRUCT_PAGE if SLUB
+>  	select HAVE_ARCH_AUDITSYSCALL
+>  	select HAVE_ARCH_JUMP_LABEL
+> diff --git a/arch/s390/include/asm/io.h b/arch/s390/include/asm/io.h
+> index e3882b012bfa..4453ad7c11ac 100644
+> --- a/arch/s390/include/asm/io.h
+> +++ b/arch/s390/include/asm/io.h
+> @@ -22,11 +22,18 @@ void unxlate_dev_mem_ptr(phys_addr_t phys, void *addr);
+>  
+>  #define IO_SPACE_LIMIT 0
+>  
+> -void __iomem *ioremap_prot(phys_addr_t addr, size_t size, unsigned long prot);
+> -void __iomem *ioremap(phys_addr_t addr, size_t size);
+> -void __iomem *ioremap_wc(phys_addr_t addr, size_t size);
+> -void __iomem *ioremap_wt(phys_addr_t addr, size_t size);
+> -void iounmap(volatile void __iomem *addr);
+> +/*
+> + * I/O memory mapping functions.
+> + */
+> +#define ioremap_prot ioremap_prot
+> +#define iounmap iounmap
+> +
+> +#define _PAGE_IOREMAP pgprot_val(PAGE_KERNEL)
+> +
+> +#define ioremap_wc(addr, size)  \
+> +	ioremap_prot((addr), (size), pgprot_val(pgprot_writecombine(PAGE_KERNEL)))
+> +#define ioremap_wt(addr, size)  \
+> +	ioremap_prot((addr), (size), pgprot_val(pgprot_writethrough(PAGE_KERNEL)))
+>  
+>  static inline void __iomem *ioport_map(unsigned long port, unsigned int nr)
+>  {
+> @@ -51,10 +58,6 @@ static inline void ioport_unmap(void __iomem *p)
+>  #define pci_iomap_wc pci_iomap_wc
+>  #define pci_iomap_wc_range pci_iomap_wc_range
+>  
+> -#define ioremap ioremap
+> -#define ioremap_wt ioremap_wt
+> -#define ioremap_wc ioremap_wc
+> -
+>  #define memcpy_fromio(dst, src, count)	zpci_memcpy_fromio(dst, src, count)
+>  #define memcpy_toio(dst, src, count)	zpci_memcpy_toio(dst, src, count)
+>  #define memset_io(dst, val, count)	zpci_memset_io(dst, val, count)
+> diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+> index afc3f33788da..d34d5813d006 100644
+> --- a/arch/s390/pci/pci.c
+> +++ b/arch/s390/pci/pci.c
+> @@ -244,62 +244,25 @@ void __iowrite64_copy(void __iomem *to, const void *from, size_t count)
+>         zpci_memcpy_toio(to, from, count);
+>  }
+>  
+> -static void __iomem *__ioremap(phys_addr_t addr, size_t size, pgprot_t prot)
+> +void __iomem *ioremap_prot(phys_addr_t phys_addr, size_t size,
+> +			   unsigned long prot)
+>  {
+> -	unsigned long offset, vaddr;
+> -	struct vm_struct *area;
+> -	phys_addr_t last_addr;
+> -
+> -	last_addr = addr + size - 1;
+> -	if (!size || last_addr < addr)
+> -		return NULL;
+> -
+> +	/*
+> +	 * When PCI MIO instructions are unavailable the "physical" address
+> +	 * encodes a hint for accessing the PCI memory space it represents.
+> +	 * Just pass it unchanged such that ioread/iowrite can decode it.
+> +	 */
+>  	if (!static_branch_unlikely(&have_mio))
+> -		return (void __iomem *) addr;
+> +		return (void __iomem *)phys_addr;
+>  
+> -	offset = addr & ~PAGE_MASK;
+> -	addr &= PAGE_MASK;
+> -	size = PAGE_ALIGN(size + offset);
+> -	area = get_vm_area(size, VM_IOREMAP);
+> -	if (!area)
+> -		return NULL;
+> -
+> -	vaddr = (unsigned long) area->addr;
+> -	if (ioremap_page_range(vaddr, vaddr + size, addr, prot)) {
+> -		free_vm_area(area);
+> -		return NULL;
+> -	}
+> -	return (void __iomem *) ((unsigned long) area->addr + offset);
+> -}
+> -
+> -void __iomem *ioremap_prot(phys_addr_t addr, size_t size, unsigned long prot)
+> -{
+> -	return __ioremap(addr, size, __pgprot(prot));
+> +	return generic_ioremap_prot(phys_addr, size, __pgprot(prot));
+>  }
+>  EXPORT_SYMBOL(ioremap_prot);
+>  
+> -void __iomem *ioremap(phys_addr_t addr, size_t size)
+> -{
+> -	return __ioremap(addr, size, PAGE_KERNEL);
+> -}
+> -EXPORT_SYMBOL(ioremap);
+> -
+> -void __iomem *ioremap_wc(phys_addr_t addr, size_t size)
+> -{
+> -	return __ioremap(addr, size, pgprot_writecombine(PAGE_KERNEL));
+> -}
+> -EXPORT_SYMBOL(ioremap_wc);
+> -
+> -void __iomem *ioremap_wt(phys_addr_t addr, size_t size)
+> -{
+> -	return __ioremap(addr, size, pgprot_writethrough(PAGE_KERNEL));
+> -}
+> -EXPORT_SYMBOL(ioremap_wt);
+> -
+>  void iounmap(volatile void __iomem *addr)
+>  {
+>  	if (static_branch_likely(&have_mio))
+> -		vunmap((__force void *) ((unsigned long) addr & PAGE_MASK));
+> +		generic_iounmap(addr);
+>  }
+>  EXPORT_SYMBOL(iounmap);
+>  
+> -- 
+> 2.34.1
+> 
+> 
+
+-- 
+Sincerely yours,
+Mike.
