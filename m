@@ -2,41 +2,39 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 57AADC77B75
-	for <linux-s390@archiver.kernel.org>; Tue, 16 May 2023 16:03:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CFC13C77B7A
+	for <linux-s390@archiver.kernel.org>; Tue, 16 May 2023 16:05:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233314AbjEPQDV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 16 May 2023 12:03:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56154 "EHLO
+        id S234333AbjEPQF0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 16 May 2023 12:05:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232434AbjEPQDT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 16 May 2023 12:03:19 -0400
+        with ESMTP id S234162AbjEPQFZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 16 May 2023 12:05:25 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D35CAC7;
-        Tue, 16 May 2023 09:03:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC8BE130;
+        Tue, 16 May 2023 09:05:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7138B6316B;
-        Tue, 16 May 2023 16:03:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A397C433D2;
-        Tue, 16 May 2023 16:03:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F7ED633B5;
+        Tue, 16 May 2023 16:05:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24D8AC433EF;
+        Tue, 16 May 2023 16:05:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1684252997;
-        bh=helSsO57tH8dHbFRP7TCi/6hSqDAckI7M3dabJ0ZYsA=;
+        s=k20201202; t=1684253123;
+        bh=WyRb0cO3Dcn2zW5KolHtzKC/m3CXEA35/xNovR2+mVs=;
         h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=sRkEXd4R4P1ulUwx8C82RCmJWGwc8Ste6XlVCpWZvC9Qcc2gYmHA1k6dQ21Zf+Tiy
-         qT8FRgwCIYA2117hVruEKq1bbXpARuD7yg9dDIHvUkcjIprxWMEttCswGjfaODMqXc
-         AbXpR7xi/J1hAdmFn+Qh5gjJ9JxKLjCb3Cof3rc+4o65KBLnERtyx/NaKaoY9mPWbF
-         3mHNnv6y/Mb2J/lWb+cFvzU15NB9pXvxhSykI2u2DfhhpK+alFr4cBdVnQ9MCZ4kK7
-         BaZPMq90Cc6L+2Qm7TdMttAPm2F4w1UnWDoohkzsv7EmzaY3M2R0sCCQD8nVffAXI3
-         WooI/NSCY2bRw==
-Date:   Wed, 17 May 2023 01:03:11 +0900
+        b=NCS2Zz8pxqjius3cIeMK7tjhFhsxId3BBRETFZma2dEBbqmn9f6SuTd2lZIRnTt9T
+         hHkK4e+Cx6MPeUDdPZ0fwTAizNgNityDFGD5sy19v/a4jq2GCTg1FF0Jn8rVwnLng9
+         a0vJmEwoIbzmK2DkBlzmLDbPkpl9DpwSFrMwC1h+6eA1tvY8GFLDSAQdH58KYn1FSC
+         ArtXT/RdjGCyQNQ2KAG7y1F3Nvc1Tpc71ewwBpAplzWKPFoKUciNxZBkonWaWUynqa
+         kWUI6Rd0tpwC9UPT9E0yyrPpVvJhSgpIlVKKtgGScC7W1FOAq+1YqbSSZALcG/dzk4
+         W49qIyvsxZq9w==
+Date:   Wed, 17 May 2023 01:05:17 +0900
 From:   Masami Hiramatsu (Google) <mhiramat@kernel.org>
 To:     Ze Gao <zegao2021@gmail.com>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
+Cc:     Steven Rostedt <rostedt@goodmis.org>,
         Albert Ou <aou@eecs.berkeley.edu>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Alexei Starovoitov <ast@kernel.org>,
@@ -55,51 +53,78 @@ Cc:     Peter Zijlstra <peterz@infradead.org>,
         bpf@vger.kernel.org, Conor Dooley <conor@kernel.org>,
         Jiri Olsa <jolsa@kernel.org>, Yonghong Song <yhs@fb.com>,
         Ze Gao <zegao@tencent.com>
-Subject: Re: [PATCH v2 2/4] fprobe: make fprobe_kprobe_handler recursion
- free
-Message-Id: <20230517010311.f46db3f78b11cf9d92193527@kernel.org>
-In-Reply-To: <CAD8CoPDFp2_+D6nykj6mu_Pr57iN+8jO-kgA_FRrcxD8C7YU+Q@mail.gmail.com>
+Subject: Re: [PATCH v2 4/4] rehook, fprobe: do not trace rethook related
+ functions
+Message-Id: <20230517010517.9b7bf28a42067540f7a25638@kernel.org>
+In-Reply-To: <20230516071830.8190-5-zegao@tencent.com>
 References: <20230516071830.8190-1-zegao@tencent.com>
-        <20230516071830.8190-3-zegao@tencent.com>
-        <20230516091820.GB2587705@hirez.programming.kicks-ass.net>
-        <CAD8CoPDFp2_+D6nykj6mu_Pr57iN+8jO-kgA_FRrcxD8C7YU+Q@mail.gmail.com>
+        <20230516071830.8190-5-zegao@tencent.com>
 X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 16 May 2023 17:47:52 +0800
+On Tue, 16 May 2023 15:18:30 +0800
 Ze Gao <zegao2021@gmail.com> wrote:
 
-> Precisely, these that are called within kprobe_busy_{begin, end},
-> which the previous patch does not resolve.
-
-Note that kprobe_busy_{begin,end} don't need to use notrace version
-because kprobe itself prohibits probing on preempt_count_{add,sub}.
-
-Thank you,
-
-> I will refine the commit message to make it clear.
+> These functions are already marked as NOKPROBE to prevent recursion and
+> we have the same reason to blacklist them if rethook is used with fprobe,
+> since they are beyond the recursion-free region ftrace can guard.
 > 
-> FYI, details can checked out here:
->     Link: https://lore.kernel.org/linux-trace-kernel/20230516132516.c902edcf21028874a74fb868@kernel.org/
+> Signed-off-by: Ze Gao <zegao@tencent.com>
+
+Looks good to me.
+
+Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+
+Thank you!
+
+> ---
+>  arch/riscv/kernel/probes/Makefile | 2 ++
+>  arch/s390/kernel/Makefile         | 1 +
+>  arch/x86/kernel/Makefile          | 1 +
+>  3 files changed, 4 insertions(+)
 > 
-> Regards,
-> Ze
+> diff --git a/arch/riscv/kernel/probes/Makefile b/arch/riscv/kernel/probes/Makefile
+> index c40139e9ca47..8265ff497977 100644
+> --- a/arch/riscv/kernel/probes/Makefile
+> +++ b/arch/riscv/kernel/probes/Makefile
+> @@ -4,3 +4,5 @@ obj-$(CONFIG_RETHOOK)		+= rethook.o rethook_trampoline.o
+>  obj-$(CONFIG_KPROBES_ON_FTRACE)	+= ftrace.o
+>  obj-$(CONFIG_UPROBES)		+= uprobes.o decode-insn.o simulate-insn.o
+>  CFLAGS_REMOVE_simulate-insn.o = $(CC_FLAGS_FTRACE)
+> +CFLAGS_REMOVE_rethook.o = $(CC_FLAGS_FTRACE)
+> +CFLAGS_REMOVE_rethook_trampoline.o = $(CC_FLAGS_FTRACE)
+> diff --git a/arch/s390/kernel/Makefile b/arch/s390/kernel/Makefile
+> index 8983837b3565..6b2a051e1f8a 100644
+> --- a/arch/s390/kernel/Makefile
+> +++ b/arch/s390/kernel/Makefile
+> @@ -10,6 +10,7 @@ CFLAGS_REMOVE_ftrace.o		= $(CC_FLAGS_FTRACE)
+>  
+>  # Do not trace early setup code
+>  CFLAGS_REMOVE_early.o		= $(CC_FLAGS_FTRACE)
+> +CFLAGS_REMOVE_rethook.o		= $(CC_FLAGS_FTRACE)
+>  
+>  endif
+>  
+> diff --git a/arch/x86/kernel/Makefile b/arch/x86/kernel/Makefile
+> index dd61752f4c96..4070a01c11b7 100644
+> --- a/arch/x86/kernel/Makefile
+> +++ b/arch/x86/kernel/Makefile
+> @@ -17,6 +17,7 @@ CFLAGS_REMOVE_ftrace.o = -pg
+>  CFLAGS_REMOVE_early_printk.o = -pg
+>  CFLAGS_REMOVE_head64.o = -pg
+>  CFLAGS_REMOVE_sev.o = -pg
+> +CFLAGS_REMOVE_rethook.o = -pg
+>  endif
+>  
+>  KASAN_SANITIZE_head$(BITS).o				:= n
+> -- 
+> 2.40.1
 > 
-> On Tue, May 16, 2023 at 5:18 PM Peter Zijlstra <peterz@infradead.org> wrote:
-> >
-> > On Tue, May 16, 2023 at 03:18:28PM +0800, Ze Gao wrote:
-> > > Current implementation calls kprobe related functions before doing
-> > > ftrace recursion check in fprobe_kprobe_handler, which opens door
-> > > to kernel crash due to stack recursion if preempt_count_{add, sub}
-> > > is traceable.
-> >
-> > Which preempt_count*() are you referring to? The ones you just made
-> > _notrace in the previous patch?
 
 
 -- 
