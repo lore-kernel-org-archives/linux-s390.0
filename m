@@ -2,102 +2,98 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 610F1C77B7F
-	for <linux-s390@archiver.kernel.org>; Tue, 16 May 2023 20:20:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9DD7EC7EE23
+	for <linux-s390@archiver.kernel.org>; Tue, 16 May 2023 20:46:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229491AbjEPUU0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 16 May 2023 16:20:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39826 "EHLO
+        id S229539AbjEPUqd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 16 May 2023 16:46:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229502AbjEPUUZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 16 May 2023 16:20:25 -0400
-Received: from out03.mta.xmission.com (out03.mta.xmission.com [166.70.13.233])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96D021BC;
-        Tue, 16 May 2023 13:20:24 -0700 (PDT)
-Received: from in01.mta.xmission.com ([166.70.13.51]:36164)
-        by out03.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1pz19h-002ZkH-QH; Tue, 16 May 2023 14:20:21 -0600
-Received: from ip68-110-29-46.om.om.cox.net ([68.110.29.46]:56442 helo=email.froward.int.ebiederm.org.xmission.com)
-        by in01.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1pz19g-005u3c-ER; Tue, 16 May 2023 14:20:21 -0600
-From:   "Eric W. Biederman" <ebiederm@xmission.com>
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Andy Lutomirski <luto@kernel.org>, linux-s390@vger.kernel.org,
-        hca@linux.ibm.com, linux-kernel@vger.kernel.org
-References: <20230516133810.171487-1-svens@linux.ibm.com>
-        <20230516133810.171487-2-svens@linux.ibm.com>
-        <20230516164221.GA2602133@hirez.programming.kicks-ass.net>
-Date:   Tue, 16 May 2023 15:20:12 -0500
-In-Reply-To: <20230516164221.GA2602133@hirez.programming.kicks-ass.net> (Peter
-        Zijlstra's message of "Tue, 16 May 2023 18:42:21 +0200")
-Message-ID: <87a5y4owoz.fsf@email.froward.int.ebiederm.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
+        with ESMTP id S229456AbjEPUqb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 16 May 2023 16:46:31 -0400
+Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D87E5196;
+        Tue, 16 May 2023 13:46:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1684269991; x=1715805991;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=Ty6WENYnRqV4osNeJaXPDMsSfcnlueg4+2VirsKRiyc=;
+  b=axif19YAEn890t2nA04e1FB3gE3PkVEwiQPsmDcTB0D9o+vYrSiuaD8E
+   tB521vbEsWr40eB6RBS9uot8aqQStFnycgXldtgbdpSLL3/MHOi6nHy1Y
+   UHkcqP6tWqRV9xnwPf17ErOAgZBkzcrpxZ0lLpYFRLJJAowL48GnkskgA
+   tywjeRN/FgIViYR5tmYgaASRbUO8NO+IaUHfkNRYqBJFo5WXDQskthdHL
+   +0NatLp0RLtyZ9+7zG2L7PHRCmOd488sO1IViIrfnz2eJ7+Csyr6PUxWM
+   YIX1BU6+E+n1i6xKoZLOsYD+yLGZRYNi3Q/Lockbe89z5+y+8unoeWJUr
+   A==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10712"; a="336136887"
+X-IronPort-AV: E=Sophos;i="5.99,278,1677571200"; 
+   d="scan'208";a="336136887"
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 May 2023 13:46:25 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10712"; a="734434783"
+X-IronPort-AV: E=Sophos;i="5.99,278,1677571200"; 
+   d="scan'208";a="734434783"
+Received: from mtpanu-mobl1.amr.corp.intel.com (HELO [10.212.203.6]) ([10.212.203.6])
+  by orsmga001-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 May 2023 13:46:23 -0700
+Message-ID: <5c7e7ebc-7898-0b4e-3c59-e9b8d2b2f197@intel.com>
+Date:   Tue, 16 May 2023 13:46:23 -0700
 MIME-Version: 1.0
-Content-Type: text/plain
-X-XM-SPF: eid=1pz19g-005u3c-ER;;;mid=<87a5y4owoz.fsf@email.froward.int.ebiederm.org>;;;hst=in01.mta.xmission.com;;;ip=68.110.29.46;;;frm=ebiederm@xmission.com;;;spf=pass
-X-XM-AID: U2FsdGVkX1+C6j5vbh8LAKBFQK+BQoVJqExhcgN7PAM=
-X-SA-Exim-Connect-IP: 68.110.29.46
-X-SA-Exim-Mail-From: ebiederm@xmission.com
-Subject: Re: [PATCH 1/2] entry: move the exit path to header files
-X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
-X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.10.0
+Subject: Re: [PATCH] procfs: consolidate arch_report_meminfo declaration
+Content-Language: en-US
+To:     Arnd Bergmann <arnd@kernel.org>, viro@zeniv.linux.org.uk,
+        brauner@kernel.org
+Cc:     linux-fsdevel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-parisc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org
+References: <20230516195834.551901-1-arnd@kernel.org>
+From:   Dave Hansen <dave.hansen@intel.com>
+In-Reply-To: <20230516195834.551901-1-arnd@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Peter Zijlstra <peterz@infradead.org> writes:
+On 5/16/23 12:57, Arnd Bergmann wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
+> 
+> The arch_report_meminfo() function is provided by four architectures,
+> with a __weak fallback in procfs itself. On architectures that don't
+> have a custom version, the __weak version causes a warning because
+> of the missing prototype.
+> 
+> Remove the architecture specific prototypes and instead add one
+> in linux/proc_fs.h.
+> 
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+>  arch/parisc/include/asm/pgtable.h    | 3 ---
+>  arch/powerpc/include/asm/pgtable.h   | 3 ---
+>  arch/s390/include/asm/pgtable.h      | 3 ---
+>  arch/s390/mm/pageattr.c              | 1 +
+>  arch/x86/include/asm/pgtable.h       | 1 +
+>  arch/x86/include/asm/pgtable_types.h | 3 ---
 
-> On Tue, May 16, 2023 at 03:38:09PM +0200, Sven Schnelle wrote:
->> @@ -465,4 +470,175 @@ irqentry_state_t noinstr irqentry_nmi_enter(struct pt_regs *regs);
->>   */
->>  void noinstr irqentry_nmi_exit(struct pt_regs *regs, irqentry_state_t irq_state);
->>  
->> +static unsigned long exit_to_user_mode_loop(struct pt_regs *regs,
->> +					    unsigned long ti_work)
->
-> Should these things not grow __always_inline/inline when moved into a header?
+Looks sane.  Thanks Arnd!
 
-Is that actually what is desired?
-
-This is a header file that should only be included once isn't it?
-
->> +{
->
->> +}
->> +
->> +
->> +static void exit_to_user_mode_prepare(struct pt_regs *regs)
->
-> idem
->
->> +{
->
->> +}
->
->> +static void syscall_exit_work(struct pt_regs *regs, unsigned long work)
->
-> and more..
->
->> +{
->
->> +}
->> +
-
-Perhaps it would make most sense just to change the idiom to include
-the .c file.  That would give the optimizer every opportunity to inline
-static functions, while strongly suggesting this file should be included
-only once.
-
-Is this maybe a s390 specific problem because the s390 has something
-like ancient calling conventions that are not as efficient as they
-should be.
-
-Eric
+Acked-by: Dave Hansen <dave.hansen@linux.intel.com> # for arch/x86
