@@ -2,132 +2,270 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 55B7CC77B7A
-	for <linux-s390@archiver.kernel.org>; Tue, 16 May 2023 07:20:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 85839C77B7F
+	for <linux-s390@archiver.kernel.org>; Tue, 16 May 2023 07:27:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230427AbjEPHUN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 16 May 2023 03:20:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54632 "EHLO
+        id S231297AbjEPH1A (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 16 May 2023 03:27:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231300AbjEPHTn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 16 May 2023 03:19:43 -0400
-Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A85254C0A;
-        Tue, 16 May 2023 00:19:36 -0700 (PDT)
-Received: by mail-pf1-x42a.google.com with SMTP id d2e1a72fcca58-643b7b8f8ceso7937981b3a.1;
-        Tue, 16 May 2023 00:19:36 -0700 (PDT)
+        with ESMTP id S230018AbjEPH07 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 16 May 2023 03:26:59 -0400
+Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1220011C;
+        Tue, 16 May 2023 00:26:56 -0700 (PDT)
+Received: by mail-ed1-x530.google.com with SMTP id 4fb4d7f45d1cf-50b9ef67f35so24256520a12.2;
+        Tue, 16 May 2023 00:26:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1684221576; x=1686813576;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=gmail.com; s=20221208; t=1684222014; x=1686814014;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=6U/vkmAUFZZcdBk+KokFbNf1ZvkKNw6bCUwh7L5Br9E=;
-        b=MFxu44NHbkQCaNnciSPrfna7rqyLC2dxpiPT8iIxN4YMSmvNT5WNxmBHJuu8yUW1J5
-         EynI7VMJwAZLG3DgUCgj7G+xrxpokr5IS3ZRrGAJGBkw+eW2iHCYr1OVfGHC2+2dVCeC
-         7t2aGksNm18G+S2p1Kymzqk15eMpkxaiyb0tE34Y+/zfabMobsqav4iB5A1iXlLrKhDK
-         lEZMaL3xbrp8jePUEgNVtpLBTg/oRqWZojM+xWwnnz4TUFn3Lq/fkYXul2S9MFpzPdEN
-         BPO4ZOcnazHWeen45gEA8Cdk2tUC2dGTEKbnZkzL+XRjjJnaFOo+R/RMKJjlV4ho0L/6
-         Nv4w==
+        bh=TKdo4MaiBN2b3CtstowQ7vu81lZz1hw49Wy9fx/PYjY=;
+        b=j9Ha4Y6EMSL50wdL/5kaGEolLVmaZCdgVYeuY75TwVBqwny4PaWLeu4iziex01xYf4
+         Nd62f0WXrdDoTlj5JBCXLYyyrmgbXE66FWPB0O0u9OnNFwXevyohn9n3fMMtc3jP999N
+         was38FffkERSxyFljF+u6HI1cxaw8uKsGeQ6mUWrr2ho5APSH75aR9vAo+IndNVkFz7T
+         wl580kRtlbhu3NTMQcXGiAt2rKLIURp2xuYZrCWaUgaXIWoKdiebz66Xc7qinK5JUyID
+         t5NltsKDGLrpvlEUXY3FgroVJPigwvisLfGWGIj/Nk1CwVufjsLbe1SeH8+2zVVtiinl
+         qWDA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1684221576; x=1686813576;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20221208; t=1684222014; x=1686814014;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=6U/vkmAUFZZcdBk+KokFbNf1ZvkKNw6bCUwh7L5Br9E=;
-        b=HyIsLtuvUWgtq0+8nHvr71xltk9UpBFwBbCg+KcEMKFMJ+6VmJumYW4ambOnlwOWUm
-         86PljMJjXM5ispv66pdSn9ASMpd+6RtU2K86Cu68HmAOUxQj5FYRdx4TOOTVTGnUbCvM
-         yMiu3Z+V1vIAfI813iLFqiKI+K9UjzFbgnlVZpImIhX3R9FIC7Ebd8K/4IC+o3KQJQds
-         jnPRHBFu6ZyNOVt/bInLA6Hps+mFWMfkD/P3tcFf0jit0jhJzLY4MFqNxm9ghZB2ZyGE
-         B5y0vhu5+fhihcRDTB251fsyzpcKFD3t3iw8aF59LYdOWQSUBC1EkP74jp3ecYPZIa9P
-         UcVQ==
-X-Gm-Message-State: AC+VfDxwi9529cQCRBqw6WEeJSNFidVBigeAd7OdkRu+A0g9XfTBmPeb
-        tAmyE2GSGzjZ8rvjviIELqI=
-X-Google-Smtp-Source: ACHHUZ4nXjQYnByDI6oida9jX5iVkTZZXuNHP++wV9HBdBJ3e54nyEcPN/xLIHFq7HmESmFZpkuHGw==
-X-Received: by 2002:aa7:88c8:0:b0:64a:2dd6:4f18 with SMTP id k8-20020aa788c8000000b0064a2dd64f18mr23142160pff.13.1684221575773;
-        Tue, 16 May 2023 00:19:35 -0700 (PDT)
-Received: from localhost.localdomain ([203.205.141.15])
-        by smtp.googlemail.com with ESMTPSA id 17-20020aa79251000000b006468222af91sm12849830pfp.48.2023.05.16.00.19.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 May 2023 00:19:35 -0700 (PDT)
+        bh=TKdo4MaiBN2b3CtstowQ7vu81lZz1hw49Wy9fx/PYjY=;
+        b=hYlACAcvAFWjIv9XouHzZnyaaWPV9zmTD9y37cs+7j9cRNzbcemkLRuDeXMGNSY3Em
+         gVEzOWsBKAMAoGRMGchztzb1sMzF6rShndyH5p2d0Mdho9bkJNWcN30IGAFXRAUbco58
+         Vo1CzIaiLILQQs6pv0ktXH8jdBrVZPv+8Nm8nisQXWN2mKfgeeDYMcShctJw8KVBdZuM
+         VvJozFpYIE9i7L9nBRW2F0jO68Kea33UYYa3QerEaPAi4/XE1uoyD+0+YQzYrONjd2ih
+         jSiWMx4xGILnm4AkbUZeMUvIottVGjUfIYgKlJgVHr9HNfUWbwGg+VAk98+SDp9UsFvm
+         8zjQ==
+X-Gm-Message-State: AC+VfDzYV8btyUerqKyprxSgx4dNiyYUPuYORax2+Jayre7CaZwMiz5e
+        ArCbuCOfqhY4ugzImseFQeZysIzD/jh01yv6OfpoqdZE89dXAA==
+X-Google-Smtp-Source: ACHHUZ4lWZ9gH1gHWnnNjHviGAG3lgUn3oeL1L+7+6iobLu34Q93nj/lrZRX41u3rdIuWHYjad5Vo4xDTyFd71EA1sA=
+X-Received: by 2002:aa7:df11:0:b0:505:4f7:8a50 with SMTP id
+ c17-20020aa7df11000000b0050504f78a50mr27120560edy.5.1684222014179; Tue, 16
+ May 2023 00:26:54 -0700 (PDT)
+MIME-Version: 1.0
+References: <cover.1684120990.git.zegao@tencent.com> <238bad4335d029072ca6000fb404f47376197f39.1684120990.git.zegao@tencent.com>
+ <20230516132806.886543f000d93e0c2b26a2f3@kernel.org>
+In-Reply-To: <20230516132806.886543f000d93e0c2b26a2f3@kernel.org>
 From:   Ze Gao <zegao2021@gmail.com>
-X-Google-Original-From: Ze Gao <zegao@tencent.com>
-To:     Steven Rostedt <rostedt@goodmis.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>
-Cc:     Albert Ou <aou@eecs.berkeley.edu>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+Date:   Tue, 16 May 2023 15:26:42 +0800
+Message-ID: <CAD8CoPBzvFxmRaiXZ=WrvYUaz78NY=1z_dZ03EAJUw9wPrkSoA@mail.gmail.com>
+Subject: Re: [PATCH 4/4] rehook, fprobe: mark rethook related functions notrace
+To:     Masami Hiramatsu <mhiramat@kernel.org>
+Cc:     Paul Walmsley <paul.walmsley@sifive.com>,
         Palmer Dabbelt <palmer@dabbelt.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Vasily Gorbik <gor@linux.ibm.com>, x86@kernel.org,
-        linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-        bpf@vger.kernel.org, Conor Dooley <conor@kernel.org>,
-        Jiri Olsa <jolsa@kernel.org>, Yonghong Song <yhs@fb.com>,
-        Ze Gao <zegao@tencent.com>
-Subject: [PATCH v2 4/4] rehook, fprobe: do not trace rethook related functions
-Date:   Tue, 16 May 2023 15:18:30 +0800
-Message-Id: <20230516071830.8190-5-zegao@tencent.com>
-X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20230516071830.8190-1-zegao@tencent.com>
-References: <20230516071830.8190-1-zegao@tencent.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ze Gao <zegao@tencent.com>, linux-riscv@lists.infradead.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-trace-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-These functions are already marked as NOKPROBE to prevent recursion and
-we have the same reason to blacklist them if rethook is used with fprobe,
-since they are beyond the recursion-free region ftrace can guard.
+Hi Masami,
 
-Signed-off-by: Ze Gao <zegao@tencent.com>
----
- arch/riscv/kernel/probes/Makefile | 2 ++
- arch/s390/kernel/Makefile         | 1 +
- arch/x86/kernel/Makefile          | 1 +
- 3 files changed, 4 insertions(+)
+Thanks for your review. I've applied the makefile trick to arch files
+specific to rethook just as
+mentioned by Steven. And here is the link:
 
-diff --git a/arch/riscv/kernel/probes/Makefile b/arch/riscv/kernel/probes/Makefile
-index c40139e9ca47..8265ff497977 100644
---- a/arch/riscv/kernel/probes/Makefile
-+++ b/arch/riscv/kernel/probes/Makefile
-@@ -4,3 +4,5 @@ obj-$(CONFIG_RETHOOK)		+= rethook.o rethook_trampoline.o
- obj-$(CONFIG_KPROBES_ON_FTRACE)	+= ftrace.o
- obj-$(CONFIG_UPROBES)		+= uprobes.o decode-insn.o simulate-insn.o
- CFLAGS_REMOVE_simulate-insn.o = $(CC_FLAGS_FTRACE)
-+CFLAGS_REMOVE_rethook.o = $(CC_FLAGS_FTRACE)
-+CFLAGS_REMOVE_rethook_trampoline.o = $(CC_FLAGS_FTRACE)
-diff --git a/arch/s390/kernel/Makefile b/arch/s390/kernel/Makefile
-index 8983837b3565..6b2a051e1f8a 100644
---- a/arch/s390/kernel/Makefile
-+++ b/arch/s390/kernel/Makefile
-@@ -10,6 +10,7 @@ CFLAGS_REMOVE_ftrace.o		= $(CC_FLAGS_FTRACE)
- 
- # Do not trace early setup code
- CFLAGS_REMOVE_early.o		= $(CC_FLAGS_FTRACE)
-+CFLAGS_REMOVE_rethook.o		= $(CC_FLAGS_FTRACE)
- 
- endif
- 
-diff --git a/arch/x86/kernel/Makefile b/arch/x86/kernel/Makefile
-index dd61752f4c96..4070a01c11b7 100644
---- a/arch/x86/kernel/Makefile
-+++ b/arch/x86/kernel/Makefile
-@@ -17,6 +17,7 @@ CFLAGS_REMOVE_ftrace.o = -pg
- CFLAGS_REMOVE_early_printk.o = -pg
- CFLAGS_REMOVE_head64.o = -pg
- CFLAGS_REMOVE_sev.o = -pg
-+CFLAGS_REMOVE_rethook.o = -pg
- endif
- 
- KASAN_SANITIZE_head$(BITS).o				:= n
--- 
-2.40.1
+https://lore.kernel.org/linux-trace-kernel/20230516071830.8190-2-zegao@tenc=
+ent.com/T/#m503e513071e82d5234d80a1b9e15eb126e334608
 
+Unnecessary notrace annotations have been dropped in this new series.
+
+Thank you,
+Ze
+
+On Tue, May 16, 2023 at 12:28=E2=80=AFPM Masami Hiramatsu <mhiramat@kernel.=
+org> wrote:
+>
+> On Mon, 15 May 2023 11:26:41 +0800
+> Ze Gao <zegao2021@gmail.com> wrote:
+>
+> > These functions are already marked as NOKPROBE to prevent recusion and
+> > we have the same reason to blacklist them if rethook is used with fprob=
+e,
+> > since they are beyond the recursion-free region ftrace can guard.
+> >
+> > Signed-off-by: Ze Gao <zegao@tencent.com>
+> > ---
+> >  arch/riscv/kernel/probes/rethook.c | 4 ++--
+> >  arch/s390/kernel/rethook.c         | 6 +++---
+> >  arch/x86/kernel/rethook.c          | 8 +++++---
+> >  kernel/trace/rethook.c             | 8 ++++----
+>
+> Except for the kernel/trace/rethook.c, those looks good to me.
+> Could you drop notrace from kernel/trace/rethook.c? As Steve mentioned
+> all functions in that file is automatically notraced.
+>
+> Thank you,
+>
+> >  4 files changed, 14 insertions(+), 12 deletions(-)
+> >
+> > diff --git a/arch/riscv/kernel/probes/rethook.c b/arch/riscv/kernel/pro=
+bes/rethook.c
+> > index 5c27c1f50989..803c412a1bea 100644
+> > --- a/arch/riscv/kernel/probes/rethook.c
+> > +++ b/arch/riscv/kernel/probes/rethook.c
+> > @@ -8,14 +8,14 @@
+> >  #include "rethook.h"
+> >
+> >  /* This is called from arch_rethook_trampoline() */
+> > -unsigned long __used arch_rethook_trampoline_callback(struct pt_regs *=
+regs)
+> > +unsigned long __used notrace arch_rethook_trampoline_callback(struct p=
+t_regs *regs)
+> >  {
+> >       return rethook_trampoline_handler(regs, regs->s0);
+> >  }
+> >
+> >  NOKPROBE_SYMBOL(arch_rethook_trampoline_callback);
+> >
+> > -void arch_rethook_prepare(struct rethook_node *rhn, struct pt_regs *re=
+gs, bool mcount)
+> > +void notrace arch_rethook_prepare(struct rethook_node *rhn, struct pt_=
+regs *regs, bool mcount)
+> >  {
+> >       rhn->ret_addr =3D regs->ra;
+> >       rhn->frame =3D regs->s0;
+> > diff --git a/arch/s390/kernel/rethook.c b/arch/s390/kernel/rethook.c
+> > index af10e6bdd34e..ad52119826c1 100644
+> > --- a/arch/s390/kernel/rethook.c
+> > +++ b/arch/s390/kernel/rethook.c
+> > @@ -3,7 +3,7 @@
+> >  #include <linux/kprobes.h>
+> >  #include "rethook.h"
+> >
+> > -void arch_rethook_prepare(struct rethook_node *rh, struct pt_regs *reg=
+s, bool mcount)
+> > +void notrace arch_rethook_prepare(struct rethook_node *rh, struct pt_r=
+egs *regs, bool mcount)
+> >  {
+> >       rh->ret_addr =3D regs->gprs[14];
+> >       rh->frame =3D regs->gprs[15];
+> > @@ -13,7 +13,7 @@ void arch_rethook_prepare(struct rethook_node *rh, st=
+ruct pt_regs *regs, bool mc
+> >  }
+> >  NOKPROBE_SYMBOL(arch_rethook_prepare);
+> >
+> > -void arch_rethook_fixup_return(struct pt_regs *regs,
+> > +void notrace arch_rethook_fixup_return(struct pt_regs *regs,
+> >                              unsigned long correct_ret_addr)
+> >  {
+> >       /* Replace fake return address with real one. */
+> > @@ -24,7 +24,7 @@ NOKPROBE_SYMBOL(arch_rethook_fixup_return);
+> >  /*
+> >   * Called from arch_rethook_trampoline
+> >   */
+> > -unsigned long arch_rethook_trampoline_callback(struct pt_regs *regs)
+> > +unsigned long notrace arch_rethook_trampoline_callback(struct pt_regs =
+*regs)
+> >  {
+> >       return rethook_trampoline_handler(regs, regs->gprs[15]);
+> >  }
+> > diff --git a/arch/x86/kernel/rethook.c b/arch/x86/kernel/rethook.c
+> > index 8a1c0111ae79..1f7cef86f73d 100644
+> > --- a/arch/x86/kernel/rethook.c
+> > +++ b/arch/x86/kernel/rethook.c
+> > @@ -64,7 +64,8 @@ NOKPROBE_SYMBOL(arch_rethook_trampoline);
+> >  /*
+> >   * Called from arch_rethook_trampoline
+> >   */
+> > -__used __visible void arch_rethook_trampoline_callback(struct pt_regs =
+*regs)
+> > +__used __visible void notrace arch_rethook_trampoline_callback(struct =
+pt_regs
+> > +             *regs)
+> >  {
+> >       unsigned long *frame_pointer;
+> >
+> > @@ -104,7 +105,7 @@ NOKPROBE_SYMBOL(arch_rethook_trampoline_callback);
+> >  STACK_FRAME_NON_STANDARD_FP(arch_rethook_trampoline);
+> >
+> >  /* This is called from rethook_trampoline_handler(). */
+> > -void arch_rethook_fixup_return(struct pt_regs *regs,
+> > +void notrace arch_rethook_fixup_return(struct pt_regs *regs,
+> >                              unsigned long correct_ret_addr)
+> >  {
+> >       unsigned long *frame_pointer =3D (void *)(regs + 1);
+> > @@ -114,7 +115,8 @@ void arch_rethook_fixup_return(struct pt_regs *regs=
+,
+> >  }
+> >  NOKPROBE_SYMBOL(arch_rethook_fixup_return);
+> >
+> > -void arch_rethook_prepare(struct rethook_node *rh, struct pt_regs *reg=
+s, bool mcount)
+> > +void notrace arch_rethook_prepare(struct rethook_node *rh, struct pt_r=
+egs
+> > +             *regs, bool mcount)
+> >  {
+> >       unsigned long *stack =3D (unsigned long *)regs->sp;
+> >
+> > diff --git a/kernel/trace/rethook.c b/kernel/trace/rethook.c
+> > index 60f6cb2b486b..e551e86d3927 100644
+> > --- a/kernel/trace/rethook.c
+> > +++ b/kernel/trace/rethook.c
+> > @@ -127,7 +127,7 @@ static void free_rethook_node_rcu(struct rcu_head *=
+head)
+> >   * Return back the @node to @node::rethook. If the @node::rethook is a=
+lready
+> >   * marked as freed, this will free the @node.
+> >   */
+> > -void rethook_recycle(struct rethook_node *node)
+> > +void notrace rethook_recycle(struct rethook_node *node)
+> >  {
+> >       lockdep_assert_preemption_disabled();
+> >
+> > @@ -194,7 +194,7 @@ void rethook_hook(struct rethook_node *node, struct=
+ pt_regs *regs, bool mcount)
+> >  NOKPROBE_SYMBOL(rethook_hook);
+> >
+> >  /* This assumes the 'tsk' is the current task or is not running. */
+> > -static unsigned long __rethook_find_ret_addr(struct task_struct *tsk,
+> > +static unsigned long notrace __rethook_find_ret_addr(struct task_struc=
+t *tsk,
+> >                                            struct llist_node **cur)
+> >  {
+> >       struct rethook_node *rh =3D NULL;
+> > @@ -256,7 +256,7 @@ unsigned long rethook_find_ret_addr(struct task_str=
+uct *tsk, unsigned long frame
+> >  }
+> >  NOKPROBE_SYMBOL(rethook_find_ret_addr);
+> >
+> > -void __weak arch_rethook_fixup_return(struct pt_regs *regs,
+> > +void __weak notrace arch_rethook_fixup_return(struct pt_regs *regs,
+> >                                     unsigned long correct_ret_addr)
+> >  {
+> >       /*
+> > @@ -268,7 +268,7 @@ void __weak arch_rethook_fixup_return(struct pt_reg=
+s *regs,
+> >  }
+> >
+> >  /* This function will be called from each arch-defined trampoline. */
+> > -unsigned long rethook_trampoline_handler(struct pt_regs *regs,
+> > +unsigned long notrace rethook_trampoline_handler(struct pt_regs *regs,
+> >                                        unsigned long frame)
+> >  {
+> >       struct llist_node *first, *node =3D NULL;
+> > --
+> > 2.40.1
+> >
+>
+>
+> --
+> Masami Hiramatsu (Google) <mhiramat@kernel.org>
