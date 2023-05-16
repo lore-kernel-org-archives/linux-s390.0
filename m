@@ -2,98 +2,118 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9DD7EC7EE23
-	for <linux-s390@archiver.kernel.org>; Tue, 16 May 2023 20:46:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EB70CC77B7F
+	for <linux-s390@archiver.kernel.org>; Tue, 16 May 2023 21:42:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229539AbjEPUqd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 16 May 2023 16:46:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58382 "EHLO
+        id S229892AbjEPVml (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 16 May 2023 17:42:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229456AbjEPUqb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 16 May 2023 16:46:31 -0400
-Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D87E5196;
-        Tue, 16 May 2023 13:46:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1684269991; x=1715805991;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=Ty6WENYnRqV4osNeJaXPDMsSfcnlueg4+2VirsKRiyc=;
-  b=axif19YAEn890t2nA04e1FB3gE3PkVEwiQPsmDcTB0D9o+vYrSiuaD8E
-   tB521vbEsWr40eB6RBS9uot8aqQStFnycgXldtgbdpSLL3/MHOi6nHy1Y
-   UHkcqP6tWqRV9xnwPf17ErOAgZBkzcrpxZ0lLpYFRLJJAowL48GnkskgA
-   tywjeRN/FgIViYR5tmYgaASRbUO8NO+IaUHfkNRYqBJFo5WXDQskthdHL
-   +0NatLp0RLtyZ9+7zG2L7PHRCmOd488sO1IViIrfnz2eJ7+Csyr6PUxWM
-   YIX1BU6+E+n1i6xKoZLOsYD+yLGZRYNi3Q/Lockbe89z5+y+8unoeWJUr
-   A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10712"; a="336136887"
-X-IronPort-AV: E=Sophos;i="5.99,278,1677571200"; 
-   d="scan'208";a="336136887"
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 May 2023 13:46:25 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10712"; a="734434783"
-X-IronPort-AV: E=Sophos;i="5.99,278,1677571200"; 
-   d="scan'208";a="734434783"
-Received: from mtpanu-mobl1.amr.corp.intel.com (HELO [10.212.203.6]) ([10.212.203.6])
-  by orsmga001-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 May 2023 13:46:23 -0700
-Message-ID: <5c7e7ebc-7898-0b4e-3c59-e9b8d2b2f197@intel.com>
-Date:   Tue, 16 May 2023 13:46:23 -0700
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.10.0
-Subject: Re: [PATCH] procfs: consolidate arch_report_meminfo declaration
-Content-Language: en-US
-To:     Arnd Bergmann <arnd@kernel.org>, viro@zeniv.linux.org.uk,
-        brauner@kernel.org
-Cc:     linux-fsdevel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        with ESMTP id S229565AbjEPVmk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 16 May 2023 17:42:40 -0400
+Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D14C5FD2;
+        Tue, 16 May 2023 14:42:39 -0700 (PDT)
+Received: by mail-ed1-x536.google.com with SMTP id 4fb4d7f45d1cf-50bc040c7b8so25411a12.2;
+        Tue, 16 May 2023 14:42:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1684273357; x=1686865357;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:date:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=ZCrwAPuGKXq93TXqe6WXaYC1Q/y0jn1/n3v/MjlEJns=;
+        b=JR4x/5gSL9UBOTTLzKqCYxTw+bx1mkq+N2tp0cQoZ0Ey0OJRpdCcBjj6W5Ay2ZLVGs
+         EJCBFb1qL76rpzwZC3KVUgqph2VG+pDMZgV2JH8i/qCyi2FFPDZdG7WageP4Jny+zw4B
+         VDZkf2r95FYpsV5Wcr405f9S6PDZqXTUPwUy8LmYZm1aqmFu5gw1g6m5vcnLo8WaflDv
+         PBr4RbftGq3yyvt/8YtmnaqDs4t26I1ShqQ1O4wqaTfXJNwLpYKR9d19X4JRj9OIR2dx
+         XJmjef48zWkGhhTg2pV1cmyTme7GL/9IKf4RJyQTHz3gGE7ucHp0ObCtsVBQulRN1cbp
+         DymA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1684273357; x=1686865357;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:date:from:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ZCrwAPuGKXq93TXqe6WXaYC1Q/y0jn1/n3v/MjlEJns=;
+        b=cEyzoMNY8+VZO6IvmFr49NKQWxZuL0AfwjGOkIYPiCV4FIDFYoiytqNwM/nWhI3XVm
+         JJ4py9yO+4cFO7gqTtXDkwfmZiMlO4R5Xt9HqO0qmC8mwZ7g1f8TbOd6uvUxgjBu6B2/
+         8uQahIMOWBXXRAaoBF0exz4Na5cUg8ccaUV21lwUArKxNWRk4/lPpDCyYWwQWtWocnQr
+         65cRc0dGNR1nYEJniNSC0loHLH15+rVngTOlaqqLojma9mGkWlASNeB3+WzUDNms2VQm
+         oqm3tVQ3Oz6RS4YAM1D8sp58cNtCtL3PpzMoeSHaKTL9uZEVEvFDBvidzSU2NtSK4GkH
+         z56g==
+X-Gm-Message-State: AC+VfDzJbhvhQE+VfGBtdBQffhOV8WSgKDOETFOYv/rz6kIOVks1A7q3
+        nb79wHnsf5HWghmrTRwUKuc=
+X-Google-Smtp-Source: ACHHUZ7d13R/4s3sMrjF0bqn81c2bBX5qIzZ4YPQLulerCv9LdqvYx0QqQG1LEiyAZhhRtZIYeV8ZQ==
+X-Received: by 2002:a17:906:c14f:b0:94d:a2c2:9aeb with SMTP id dp15-20020a170906c14f00b0094da2c29aebmr41629990ejc.49.1684273357168;
+        Tue, 16 May 2023 14:42:37 -0700 (PDT)
+Received: from krava ([83.240.62.62])
+        by smtp.gmail.com with ESMTPSA id ku11-20020a170907788b00b0094f5179540fsm11169179ejc.83.2023.05.16.14.42.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 16 May 2023 14:42:36 -0700 (PDT)
+From:   Jiri Olsa <olsajiri@gmail.com>
+X-Google-Original-From: Jiri Olsa <jolsa@kernel.org>
+Date:   Tue, 16 May 2023 23:42:34 +0200
+To:     Ze Gao <zegao2021@gmail.com>
+Cc:     Steven Rostedt <rostedt@goodmis.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Albert Ou <aou@eecs.berkeley.edu>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
         Sven Schnelle <svens@linux.ibm.com>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>, linux-parisc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org
-References: <20230516195834.551901-1-arnd@kernel.org>
-From:   Dave Hansen <dave.hansen@intel.com>
-In-Reply-To: <20230516195834.551901-1-arnd@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+        Vasily Gorbik <gor@linux.ibm.com>, x86@kernel.org,
+        linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        bpf@vger.kernel.org, Conor Dooley <conor@kernel.org>,
+        Yonghong Song <yhs@fb.com>, Ze Gao <zegao@tencent.com>
+Subject: Re: [PATCH v2 0/4] Make fprobe + rethook immune to recursion
+Message-ID: <ZGP4ypidaxQGdp7Y@krava>
+References: <20230516071830.8190-1-zegao@tencent.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230516071830.8190-1-zegao@tencent.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 5/16/23 12:57, Arnd Bergmann wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
+On Tue, May 16, 2023 at 03:18:26PM +0800, Ze Gao wrote:
+> Hi all,
 > 
-> The arch_report_meminfo() function is provided by four architectures,
-> with a __weak fallback in procfs itself. On architectures that don't
-> have a custom version, the __weak version causes a warning because
-> of the missing prototype.
+> This is the 2nd version of patch series to fix the ftrace rethook recursion problem.
 > 
-> Remove the architecture specific prototypes and instead add one
-> in linux/proc_fs.h.
+> v1: https://lore.kernel.org/linux-trace-kernel/cover.1684120990.git.zegao@tencent.com/T/                                 +++#md4c0bae6a6cae28dadf2a2c6105ff140b35fddea
 > 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> ---
->  arch/parisc/include/asm/pgtable.h    | 3 ---
->  arch/powerpc/include/asm/pgtable.h   | 3 ---
->  arch/s390/include/asm/pgtable.h      | 3 ---
->  arch/s390/mm/pageattr.c              | 1 +
->  arch/x86/include/asm/pgtable.h       | 1 +
->  arch/x86/include/asm/pgtable_types.h | 3 ---
+> As Steven suggested, this version removes unnecessary notrace annotations from fprobe
+> and rethook functions from v1 [PATCH 2,3,4/4] and replaces with makefile changes to filter
+> out compiler flags which ftrace depends upon for rethook related objects.
+> 
+> Ze Gao (4):
+>   rethook: use preempt_{disable, enable}_notrace in
+>     rethook_trampoline_handler
+>   fprobe: make fprobe_kprobe_handler recursion free
+>   fprobe: add recursion detection in fprobe_exit_handler
+>   rehook, fprobe: do not trace rethook related functions
 
-Looks sane.  Thanks Arnd!
+hi,
+what tree is this based on? I have troubles to apply that
 
-Acked-by: Dave Hansen <dave.hansen@linux.intel.com> # for arch/x86
+thanks,
+jirka
+
+> 
+>  arch/riscv/kernel/probes/Makefile |  2 +
+>  arch/s390/kernel/Makefile         |  1 +
+>  arch/x86/kernel/Makefile          |  1 +
+>  kernel/trace/fprobe.c             | 72 ++++++++++++++++++++++++-------
+>  kernel/trace/rethook.c            |  4 +-
+>  5 files changed, 63 insertions(+), 17 deletions(-)
+> 
+> -- 
+> 2.40.1
+> 
