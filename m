@@ -2,123 +2,131 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DB054C77B75
-	for <linux-s390@archiver.kernel.org>; Wed, 17 May 2023 12:00:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B895C7EE23
+	for <linux-s390@archiver.kernel.org>; Wed, 17 May 2023 12:25:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231410AbjEQMAB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 17 May 2023 08:00:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44476 "EHLO
+        id S231631AbjEQMZN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 17 May 2023 08:25:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231423AbjEQL74 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 May 2023 07:59:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30E29421D;
-        Wed, 17 May 2023 04:59:55 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B9D7D638AE;
-        Wed, 17 May 2023 11:59:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E8FEC4339B;
-        Wed, 17 May 2023 11:59:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1684324794;
-        bh=+KJCyW8UcBpWC8n/rNnAChXGAO9waLTlJQG8Dp7ZVa0=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=A3wxgK//Fl+HRbw82WER6yeLjIrBy7NjkG7nKzaC9v+P1fj78NXLtyfTUYg6p8RW3
-         bcAK0NdVb6cmJkcuG45bfXlMqsGuVB3TLoZ9orpTFPY1byepkeSx7xQjtgNU8zrKKD
-         wTdJxIXAMwBx6Iy/a0uF9S1BYxfeG0GyYWMfIWmHRxsQhRcHkH1v9LzjA+kNLKpqv7
-         e8r084YNf5nre8CudRHdqPB1LnJmYIUgarQqld+w/Od+y+7vBvaKV14OCnreYJC/FG
-         6y/C9GMB3OgNGppJUtg0r4xA4tjwSUsps1xz2PWr2TMPKYhtqmtc7D/8CKGwlHTkOb
-         B2qnlglxsW41Q==
-Date:   Wed, 17 May 2023 20:59:47 +0900
-From:   Masami Hiramatsu (Google) <mhiramat@kernel.org>
-To:     Ze Gao <zegao2021@gmail.com>
-Cc:     Steven Rostedt <rostedt@goodmis.org>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vasily Gorbik <gor@linux.ibm.com>, x86@kernel.org,
-        bpf@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-trace-kernel@vger.kernel.org,
-        Conor Dooley <conor@kernel.org>, Jiri Olsa <jolsa@kernel.org>,
-        Yonghong Song <yhs@fb.com>, Ze Gao <zegao@tencent.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v3 1/4] rethook: use preempt_{disable, enable}_notrace
- in rethook_trampoline_handler
-Message-Id: <20230517205947.c1710ed175519b59f56e09b1@kernel.org>
-In-Reply-To: <20230517034510.15639-2-zegao@tencent.com>
-References: <20230517034510.15639-1-zegao@tencent.com>
-        <20230517034510.15639-2-zegao@tencent.com>
-X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+        with ESMTP id S231488AbjEQMZK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 May 2023 08:25:10 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6A86E77;
+        Wed, 17 May 2023 05:25:09 -0700 (PDT)
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34HC4LQJ015776;
+        Wed, 17 May 2023 12:25:09 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
+ mime-version : content-transfer-encoding : in-reply-to : references : cc :
+ to : subject : from : message-id : date; s=pp1;
+ bh=kwuc4xgQ5jbk6jMAaRYYOyaqRWsiUv9dbBR16RVmkkU=;
+ b=Oc8s1aZ/YKLHLk2XDfdNU45tmmwA9+nk/1r6+yuSFAQtrr9ljneK+1AU2eD3wT5BqUwr
+ LLt8mbkue+jLi6cEdY+pF+LeGe0Jxu5eq6iZ87jdlsoo1w+Ip73wHhOGgvJvW81ZbpA2
+ QqssVsgCFhSJOYs4wwMWb8kl22GpNvL3Uo95IS5TPHR3AU8doY8aLCdx2l4BHo0Q81Wk
+ xCBVtRJG91pkTVrNjIN9m4pTwSw0PEkpJ9gpfz7LdGuBIms4ZTOHyR9MvlkNVOJJMAjl
+ NZzACxYmqEeBtcRI0oE1JxoxW6+NJLAJV87m4/cAFtVM9FJsxwKfkvdfWg0+hm40+OQZ pA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qmwyva4bw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 17 May 2023 12:25:09 +0000
+Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34HCEJnj012162;
+        Wed, 17 May 2023 12:25:08 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qmwyva4ag-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 17 May 2023 12:25:08 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34GNOJGM020272;
+        Wed, 17 May 2023 12:25:06 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3qj1tdt5gh-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 17 May 2023 12:25:06 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34HCP2j824969802
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 17 May 2023 12:25:02 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 57D642004D;
+        Wed, 17 May 2023 12:25:02 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 264F720040;
+        Wed, 17 May 2023 12:25:02 +0000 (GMT)
+Received: from t14-nrb (unknown [9.179.7.234])
+        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 17 May 2023 12:25:01 +0000 (GMT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20230516191724.0b9809ac@p-imbrenda>
+References: <20230516130456.256205-1-nrb@linux.ibm.com> <20230516130456.256205-2-nrb@linux.ibm.com> <20230516191724.0b9809ac@p-imbrenda>
+Cc:     frankja@linux.ibm.com, thuth@redhat.com, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v2 1/6] s390x: add function to set DAT mode for all interrupts
+From:   Nico Boehr <nrb@linux.ibm.com>
+Message-ID: <168432630149.12463.14017444493360473166@t14-nrb>
+User-Agent: alot/0.8.1
+Date:   Wed, 17 May 2023 14:25:01 +0200
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: Zbtix77TbGRuiKeWSTz8BNvgkG7Ula2W
+X-Proofpoint-GUID: nisZtMevge1v0yrHC2m_rf81Qov175xx
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-05-17_02,2023-05-17_02,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 clxscore=1015
+ impostorscore=0 spamscore=0 malwarescore=0 bulkscore=0 phishscore=0
+ adultscore=0 mlxlogscore=790 suspectscore=0 priorityscore=1501
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2304280000 definitions=main-2305170098
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Ze Gao,
+Quoting Claudio Imbrenda (2023-05-16 19:17:24)
+[...]
+> > diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
+> > index 3f993a363ae2..1180ec44d72f 100644
+> > --- a/lib/s390x/interrupt.c
+> > +++ b/lib/s390x/interrupt.c
+[...]
+> > +void irq_set_dat_mode(bool dat, uint64_t as)
+> > +{
+[...]
+> > +     for (struct psw *irq_psw =3D irq_psws[0]; irq_psw !=3D NULL; irq_=
+psw++) {
+>=20
+> just call it psw, or cur_psw, it's a little confusing otherwise
 
-On Wed, 17 May 2023 11:45:06 +0800
-Ze Gao <zegao2021@gmail.com> wrote:
+will do.=20
 
-> This patch replaces preempt_{disable, enable} with its corresponding
-> notrace version in rethook_trampoline_handler so no worries about stack
-> recursion or overflow introduced by preempt_count_{add, sub} under
-> fprobe + rethook context.
-> 
-> Fixes: 54ecbe6f1ed5 ("rethook: Add a generic return hook")
-> Signed-off-by: Ze Gao <zegao@tencent.com>
-> Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-> Cc: <stable@vger.kernel.org>
-> Link: https://lore.kernel.org/linux-trace-kernel/20230516071830.8190-2-zegao@tencent.com
+[...]
+> alternatively, you can redefine psw with a bitfield (as you mentioned
+> offline):
+>=20
+> cur_psw->mask.dat =3D dat;
+> if (dat)
+>         cur_psw->mask.as =3D as;
 
-Note that you don't need to add Link tag of the previous version for each patch.
-I'll add it when I pick it :)
+Yep, I'll go with that.
 
-Thank you,
+>=20
+> > +             else
+> > +                     irq_psw->mask |=3D PSW_MASK_DAT | as << (63 - 16);
+>=20
+> otherwise here you're ORing stuff to other stuff, if you had 3 and you
+> OR 0 you get 3, but you actually want 0
 
-> ---
->  kernel/trace/rethook.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/kernel/trace/rethook.c b/kernel/trace/rethook.c
-> index 32c3dfdb4d6a..60f6cb2b486b 100644
-> --- a/kernel/trace/rethook.c
-> +++ b/kernel/trace/rethook.c
-> @@ -288,7 +288,7 @@ unsigned long rethook_trampoline_handler(struct pt_regs *regs,
->  	 * These loops must be protected from rethook_free_rcu() because those
->  	 * are accessing 'rhn->rethook'.
->  	 */
-> -	preempt_disable();
-> +	preempt_disable_notrace();
->  
->  	/*
->  	 * Run the handler on the shadow stack. Do not unlink the list here because
-> @@ -321,7 +321,7 @@ unsigned long rethook_trampoline_handler(struct pt_regs *regs,
->  		first = first->next;
->  		rethook_recycle(rhn);
->  	}
-> -	preempt_enable();
-> +	preempt_enable_notrace();
->  
->  	return correct_ret_addr;
->  }
-> -- 
-> 2.40.1
-> 
+And that's the advantage of the bitfield. :)
 
+>=20
+> > +     }
+> > +
+> > +     mb();
+>=20
+> what's the purpose of this?
 
--- 
-Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Make sure that the lowcore really has been written, but I think it's quite
+useless, since a function is a sequence point, right?
