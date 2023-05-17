@@ -2,60 +2,70 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8ED7FC77B75
-	for <linux-s390@archiver.kernel.org>; Wed, 17 May 2023 22:43:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F1541C77B75
+	for <linux-s390@archiver.kernel.org>; Wed, 17 May 2023 23:32:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229553AbjEQWnB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 17 May 2023 18:43:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38068 "EHLO
+        id S229597AbjEQXcn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 17 May 2023 19:32:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229484AbjEQWnA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 May 2023 18:43:00 -0400
-Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD52140CD;
-        Wed, 17 May 2023 15:42:58 -0700 (PDT)
-Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
-        by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20230517224257euoutp01a6b4694033a0b3119371221b095c0dbf~gD5Fbuhh81658316583euoutp01e;
-        Wed, 17 May 2023 22:42:57 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20230517224257euoutp01a6b4694033a0b3119371221b095c0dbf~gD5Fbuhh81658316583euoutp01e
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1684363377;
-        bh=MM3+qPbAfH/ZKaZBejHniISc0eX5MmJZmSGjD/SXFpU=;
-        h=Date:Subject:To:Cc:From:In-Reply-To:References:From;
-        b=EaO4Kw7y8EDGUGR934cmeVvYPOc9m6NPooOO1Q5op9EOddITBuUMdWWEsm8uN5jK+
-         zM0L672ET0zUAHhIFW7rHuYOTzv9MQiYtE44GhxZPlra5SjlF5r/+eXJw9yh+OuIyR
-         UtUo+jivCQxUTox7rlLBXZNa6N1Z5snUdYQrOtLM=
-Received: from eusmges1new.samsung.com (unknown [203.254.199.242]) by
-        eucas1p1.samsung.com (KnoxPortal) with ESMTP id
-        20230517224257eucas1p1ed1da7df9807315231c345b1ffee3827~gD5FMjpDX0327003270eucas1p1N;
-        Wed, 17 May 2023 22:42:57 +0000 (GMT)
-Received: from eucas1p1.samsung.com ( [182.198.249.206]) by
-        eusmges1new.samsung.com (EUCPMTA) with SMTP id DC.56.42423.17855646; Wed, 17
-        May 2023 23:42:57 +0100 (BST)
-Received: from eusmtrp2.samsung.com (unknown [182.198.249.139]) by
-        eucas1p2.samsung.com (KnoxPortal) with ESMTPA id
-        20230517224256eucas1p25e3b58d492b58b440b1aa0fb467fa7bc~gD5EWfep60455704557eucas1p2V;
-        Wed, 17 May 2023 22:42:56 +0000 (GMT)
-Received: from eusmgms1.samsung.com (unknown [182.198.249.179]) by
-        eusmtrp2.samsung.com (KnoxPortal) with ESMTP id
-        20230517224256eusmtrp2671486061b7284c13c57d0967952a90c~gD5EUhWir3236532365eusmtrp23;
-        Wed, 17 May 2023 22:42:56 +0000 (GMT)
-X-AuditID: cbfec7f2-a51ff7000002a5b7-2c-646558715bcf
-Received: from eusmtip1.samsung.com ( [203.254.199.221]) by
-        eusmgms1.samsung.com (EUCPMTA) with SMTP id 8E.21.10549.07855646; Wed, 17
-        May 2023 23:42:56 +0100 (BST)
-Received: from [106.210.134.192] (unknown [106.210.134.192]) by
-        eusmtip1.samsung.com (KnoxPortal) with ESMTPA id
-        20230517224254eusmtip187f238847c66c6e277e4d3e17211ade8~gD5CWtW0G2837028370eusmtip1Z;
-        Wed, 17 May 2023 22:42:54 +0000 (GMT)
-Message-ID: <584c65a9-305b-3174-a59b-93effc8a4c85@samsung.com>
-Date:   Thu, 18 May 2023 00:42:54 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0)
-        Gecko/20100101 Thunderbird/102.10.1
-Subject: Re: [PATCH v2 00/25] iommu: Make default_domain's mandatory
-Content-Language: en-US
-To:     Jason Gunthorpe <jgg@nvidia.com>, Andy Gross <agross@kernel.org>,
+        with ESMTP id S229468AbjEQXcm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 May 2023 19:32:42 -0400
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2044.outbound.protection.outlook.com [40.107.223.44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6225F40EB;
+        Wed, 17 May 2023 16:32:41 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=g2J+oE80v+B1Kweq6z+STuijyPtEkRwz8pWoXjK5/lQ4oTOz3mj7kQzuMqaizG9F3CDXxn1SPDZ12GUVIrss5lQvnO8AOsROrJUHU08jWds/Xwy2ni4vQ6NT3akOEHyDNXrU0AQf7GG7/ndMSDYssSOJNoOJW7BNYvWmlow4ZTg+0Z1R81JLQTzISBekPtY7ntcWV4mBmsXlEhhFfteRdZHsEOze+edxxSXD+de+gaZsjOsIXvAO6wJx60ga8lV5hSOXUMsHx0ZRZtxb0cbb5t0uynFY9iRHWxsQFsEsfk5XV5EcivwgSrhAade6XQ/BagWzw4JeIkEsqBhvyzz5og==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=SU7+OS0futKjoBt58LQ+nXP395IRweXRjQi4kW6PQLU=;
+ b=Oeo0w4/5iIve7I8iVusfV7B8W3I/Fz6Wxu2h+/W+gJKHNDn5maJ1ZKO016jx3O6IIRHXD4iEAEXDy+N3X3RJw5NDwwpb+S9cIgbKHcAafK0ONde0BZSBLcYpJvbwFpi4010MX9ajBY89qOqYnJMMHu5USl52el4hupiiJNKxyqnfTg8ptZvVkZHk+yTXIMGrvN7eQmUokftc15sZCRDH+bpPurGs1h3H7L43+Xrx5bh4uxSrLpW6Wx3ctNAc5Hx1SOQvtYS+chdssRAE2v0q1N55PQVj4Ay5uC5Nphu8dOe9Zn4ysQpWiHtzSLlqilkyffZxycabLwasEIhuoZaLAA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.118.233) smtp.rcpttodomain=lists.ozlabs.org smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=SU7+OS0futKjoBt58LQ+nXP395IRweXRjQi4kW6PQLU=;
+ b=T9dbxYfi0ePh8X7jY4DWSOh/1wX2Pd3qEz/X3enlbBpLhGYWh+9H9J8rgPwD7yquiJvDAeDLOhOt3pCQFi00U3NOIDUA+dUAlN02tFWC75pOM12ItgpPcDBhHd9ZpcYDl38kmQI1OsTb5REddcPhFx6Xh+wL59OQnHdxP1vmaSbLPy5tbCWpGE5+RUrMnr52BGOg0U50+SzNGm6CizbLS/swXInbWEdZZzWGEbUBf/F2IQJ9XEVzzQSnFTnxUKykC1E4AswHHdnhtQbiN/JngfDwbkNa4gGol5cIZ3UJUOhjcCjjt/pyJm2XsU9g6JPUnJJWxkFTHhHsR7JY/otAnw==
+Received: from MW4PR04CA0257.namprd04.prod.outlook.com (2603:10b6:303:88::22)
+ by SA0PR12MB4542.namprd12.prod.outlook.com (2603:10b6:806:73::21) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6411.17; Wed, 17 May
+ 2023 23:32:39 +0000
+Received: from CO1NAM11FT087.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:303:88:cafe::3c) by MW4PR04CA0257.outlook.office365.com
+ (2603:10b6:303:88::22) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6411.18 via Frontend
+ Transport; Wed, 17 May 2023 23:32:38 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.118.233)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.118.233 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.118.233; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.118.233) by
+ CO1NAM11FT087.mail.protection.outlook.com (10.13.174.68) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.6411.19 via Frontend Transport; Wed, 17 May 2023 23:32:38 +0000
+Received: from drhqmail201.nvidia.com (10.126.190.180) by mail.nvidia.com
+ (10.127.129.6) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.5; Wed, 17 May 2023
+ 16:32:32 -0700
+Received: from drhqmail201.nvidia.com (10.126.190.180) by
+ drhqmail201.nvidia.com (10.126.190.180) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.986.37; Wed, 17 May 2023 16:32:32 -0700
+Received: from Asurada-Nvidia (10.127.8.14) by mail.nvidia.com
+ (10.126.190.180) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.37 via Frontend
+ Transport; Wed, 17 May 2023 16:32:29 -0700
+Date:   Wed, 17 May 2023 16:32:28 -0700
+From:   Nicolin Chen <nicolinc@nvidia.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>
+CC:     Andy Gross <agross@kernel.org>,
         Alim Akhtar <alim.akhtar@samsung.com>,
         Bjorn Andersson <andersson@kernel.org>,
         AngeloGioacchino Del Regno 
@@ -63,19 +73,22 @@ To:     Jason Gunthorpe <jgg@nvidia.com>, Andy Gross <agross@kernel.org>,
         Baolin Wang <baolin.wang@linux.alibaba.com>,
         Christophe Leroy <christophe.leroy@csgroup.eu>,
         Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev,
+        Heiko Stuebner <heiko@sntech.de>, <iommu@lists.linux.dev>,
         Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
+        "Jonathan Hunter" <jonathanh@nvidia.com>,
         Joerg Roedel <joro@8bytes.org>,
         Kevin Tian <kevin.tian@intel.com>,
         Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
-        linux-tegra@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
-        linuxppc-dev@lists.ozlabs.org,
+        "Krzysztof Kozlowski" <krzysztof.kozlowski@linaro.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-arm-msm@vger.kernel.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-rockchip@lists.infradead.org>, <linux-s390@vger.kernel.org>,
+        <linux-samsung-soc@vger.kernel.org>, <linux-sunxi@lists.linux.dev>,
+        <linux-tegra@vger.kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        <linuxppc-dev@lists.ozlabs.org>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
         Matthias Brugger <matthias.bgg@gmail.com>,
         Matthew Rosato <mjrosato@linux.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
@@ -88,238 +101,71 @@ To:     Jason Gunthorpe <jgg@nvidia.com>, Andy Gross <agross@kernel.org>,
         Krishna Reddy <vdumpa@nvidia.com>,
         Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>,
         Yong Wu <yong.wu@mediatek.com>,
-        Chunyan Zhang <zhang.lyra@gmail.com>
-Cc:     Lu Baolu <baolu.lu@linux.intel.com>,
+        Chunyan Zhang <zhang.lyra@gmail.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
         Dmitry Osipenko <digetx@gmail.com>,
-        Nicolin Chen <nicolinc@nvidia.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
+        "Niklas Schnelle" <schnelle@linux.ibm.com>,
         Steven Price <steven.price@arm.com>,
         Thierry Reding <treding@nvidia.com>
-From:   Marek Szyprowski <m.szyprowski@samsung.com>
+Subject: Re: [PATCH v2 00/25] iommu: Make default_domain's mandatory
+Message-ID: <ZGVkDB+MCrx3tQho@Asurada-Nvidia>
+References: <0-v2-8d1dc464eac9+10f-iommu_all_defdom_jgg@nvidia.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
 In-Reply-To: <0-v2-8d1dc464eac9+10f-iommu_all_defdom_jgg@nvidia.com>
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: H4sIAAAAAAAAA02Te0wUVxTGe2dmZxYKOCwgt7Qo2QJqDQhVkmt4xIIJU20CNq1t7csVpkh4
-        78pDY3SRbQsbQwF5DvIQqVgQRZY3CwJayJawFqFE6Cpvl4dEoFYFGrYsgy3//c4538n3nZtc
-        IS76ibIThkaeYqWRknAxaUrUdS5pXWI+Z4PdhrLNkHZ8hUAjhXUkqkv2Qg9+gcjQ0gmQKr2W
-        RLoMPYUqFsYBepb0DTKMzQrQ8nOE9EU3AepfVQOk4EoIlJJfRaGf52oplHypnkAts2tUPT4g
-        QOl3eijUl9QL0OKIAUdpV5JwlHu/FUOZrU0kSnnOkagjqwWglZerAnRBsRdVXc3HUY28g0Qt
-        k+MkWpp6SKCc+XyA9Fde4ah9fkKA9GMpJMq98IREifeerUmaCgn054oFSm35GC113MeQQueB
-        hjNUBCobaaIOuDIT7YUYc6PwBmD6BnpxpuFRKWD+HtRiTNVYhYApmZYTTCP3iGKuqqcxpro8
-        hWR0A2qSaRzdz6SVtAGmUHOEUZWeZ6ZUeSDQ9pipVzAbHhrHSvf4HDc92Z3cTEW3+SZMaDKB
-        HGTuVQITIaT3wVzdDKYEpkIRfR3AvNUGii+eA5icrcb54i8AaxefYq9XqnIrSX5QBmBO/8SG
-        agHAkbKXpFFlTvvAP6b+ERiZoJ3gxWo1xvctoSZvgjCyDc3CclUvbmQr+iDsKXtBGRmnbeHQ
-        RNF6KGtaaQYr713E+ME0gAP5LkYmaXeonFOumQmFJmvLTU/EvGQ7rJ+7vB4I0qVvwvpmHcHH
-        PgjLFM0bbAVnumoont+BhkbeDNI/Ali8MrxRpAEo1w8BXuUJddrldTec3gVvNe3h2x/AqnSl
-        wNiGtAV8OGfJh7CAGXU5ON82h8k/iHi1M+S6bv5n2/77AzwNiLlNz8JtOp/bdA73v28xIMqB
-        LRsriwhhZe6RbLyrTBIhi40McQ2KiqgGa3+me7VrsQEUzCy4dgBMCDoAFOJia/MjqUHBIvNg
-        yekzrDTqW2lsOCvrAG8LCbGt+W5vTZCIDpGcYsNYNpqVvp5iQhM7ORZ6bUeqQrXrcJjXpKMN
-        58TVe/qWOdjn+pyNSxstIrS7+7dvKcGSCqjeu9479RX2Vp/Y6V/ZhNQKAxOKKzQH5EGJpw8N
-        z7g2HOscf1r8ZfaLwJm57HKPsNmqEsfSu+c8Hmca3La2OkltdsQl9bUuB5wwkxgs5/3Lp377
-        vnj564CoE6Ivstomvf1KB7ccHf3KXXMoTS/3jgovUOyfPetsFXXr0zMxH7bbXfbv2efZIxFt
-        07rb+3kWJ163/s5j1tTxuKPJ1se3ox3er8vgxvqDst5KsAnwjv4ofuf5SrN340fdPtPcOfyr
-        uNLhHDcILvm6+B29Vhjbzb7hpvaL0Tl32fjPr267XSMmZCcl7u/hUpnkXyCZbmOiBAAA
-X-Brightmail-Tracker: H4sIAAAAAAAAA02Se0xTdxTH9+u9vS1ksEsp4SdxbqtbZhYsFCg7TGTL5ra7TRMQspHpdC3c
-        AOFpH4szMXZATOkIgsKAYipP3QQnofIQCkKzqawIOhiyCfJo5WV46kQewlpgCf99fr/z/X7P
-        ycnhE4JSyosfl6RiFUmyBBHlTFpWbw3sTolko31NZQLotC6TMGSoo6BOGwx//oJhrfkmAmNO
-        LQX9Z8d4UDlnRTCTdgTWRh5zYekpwNiFXxH0rJoQpOtLScgoquZBxVQtD7Tn6klofmynGmsv
-        F3Ju3OFBd9o9BPNDawRkl6QRUNDVwoHclkYKMp7qKTDnNSNYXljlQmq6P1SXFRFwTWOmoPmR
-        lYLF8T4S8meLEIyVPCegbdbGhbGRDAoKUkcp+OG3Gbuk0UDCg2VXyGo+CIvmLg6k90th8KyR
-        hEtDjbwPxIytzcBhqgxViOnuvUcwDQPliPn3704OUz1SyWVKJzQkc10/wGPKTBMcpuZyBsX0
-        95oo5vpwEJNd2ooYQ3sYYyw/xYwbC1Go59fiYEWyWsW+HpusVO0VHZKAn1gSBGK/gCCxxP/d
-        b97zk4p8QoKj2YS471iFT8i34liLtomX0vrhcVt7LtKgXH8dcuJjOgBXF1yhdMiZL6ArEG7o
-        6KE2Cttx+08a7ga745Ve3aZoBuH0knqOo+BCh+C/xlfWRST9Fs6sMW3+u+H2QhvpYA+axe0V
-        fevsTu/Ddy494zmYoD3xP7YLHEeokD77Mp4v7uI5HgQ9gfDVc2mb7fIRbqp6tG6haAnWTTnm
-        4POd7FGNo6KNpECsq9WhDX4N10+dJ7KRQL9lEP2WhvotFv0WSzEiLyMhq1YmxiQqJWKlLFGp
-        TooRRyUn1iD7sdbdXDQ2IMPknNiMOHxkRphPiIQuYVlR0QKXaNn3J1hF8lGFOoFVmpHUvo0c
-        wssjKtl+7Umqo5JAX6kkIDDIVxoU6C/ydPksRSsT0DEyFRvPsims4n8fh+/kpeF8kXPyZDpv
-        l8nno/iWEw+v7lx5sX3P3cgzth0/c/CPnZFLbdMdU3zZaWv3YM+1cMvd20dc+L+/r9123j31
-        iTq+p0UntLTuOIYtEVIh+wk5ThIHzKF5097y8Olhq9serwO+n1q0DIvnXRczX8odjnxxLGr0
-        0BWJrcPJ++IS5Ro2HTJYvve5fH/r8cp9t5yH6pryTrs1hC8fzsx4oJRUpo58XrjN+czYal6c
-        9/37s5n735BelM+t/KGatPr7ux8UvumhIZp2e76d5Mx75l78pbFvbvKGa37odIHHgFogly2x
-        6gin22rvrxS7FqANnvSkkfqFrIhXJB8f3vlQ/io9fkomk4tIZaxM8g6hUMr+A4UQ+lk1BAAA
-X-CMS-MailID: 20230517224256eucas1p25e3b58d492b58b440b1aa0fb467fa7bc
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-X-RootMTR: 20230516000132eucas1p2d20a1c49d4711fda942a3c3a842384e6
-X-EPHeader: CA
-CMS-TYPE: 201P
-X-CMS-RootMailID: 20230516000132eucas1p2d20a1c49d4711fda942a3c3a842384e6
-References: <CGME20230516000132eucas1p2d20a1c49d4711fda942a3c3a842384e6@eucas1p2.samsung.com>
-        <0-v2-8d1dc464eac9+10f-iommu_all_defdom_jgg@nvidia.com>
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CO1NAM11FT087:EE_|SA0PR12MB4542:EE_
+X-MS-Office365-Filtering-Correlation-Id: 192db192-fae9-42d6-3f47-08db572f0083
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: Xp1ANaCQqDkvQxMkDGNeVnZgg2QHq7mlxtx6A8BUGbMjgoK/P5t4maMzuKixtU7LOp1Uo51Vq1YlcBrFPWS0rnzkEwCuhDzcZeOuHx/19o9krkOp0BlyU+ELCWMUAa2hwCDlxWgHCeqWhgEmE/6HiMNQ3HaErUKoXy1VV+dz5h9TrvywnLzRpJS4c5bx3ly6mA5NODX6vzM91weyCKzGWGqSEKxblrcKPQn6ug8piZ8Bp71af5OIFJd4wIwY6r5tgQhZ/OWx3z6/vImdPUa7OL33h6NUI3X+UUCl3lwWLMfbYcf48h2em+LTnt8k2b/xfZfdLOwqtyB+/vcWiH0tUgSU3UCZFbEQlnWMm2dGI2NsnvZSke9uazUM3qy3KR6LdIVfXbnjrx9xpCEzwl9H0xvpZT7axGCMoG/RBVT/rjx0IO6nfxRmzCFQIRXTm245v+wimriyw7R8Z691v8EpdPwTZ+JsqDOSIdYsWIxL6jK14OaX+JShd8mKAe5d5V918vZ2AcBEpzMLOWu0zl+eOMkD6ihhybqSDfKBlYw5BFA+BxtQo0mXWF+7TCnGhGrvi/rGWPHYrKmd3RPzf0jRIRe1ckw48EBLqTTkA0QPyisnVLFgu2A+82FWUp2LDoyPUY1LjMGD65nnIxPjWZdUVjbHzaY9rvlgmAIWNrawbvWntCrWkGwAGa9aU59g/9Iwyk6RYfuMygImtPEcSX7+iCzGDeF7hBh5dMDabpdtET0nSRboAE8Ym/yNorJPawsljffBQTVY97BVKPn21CS5etWQxehgcoxSHpfuCz7vii6g6rpIQ9uyBl4A9UO5PmM9
+X-Forefront-Antispam-Report: CIP:216.228.118.233;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge2.nvidia.com;CAT:NONE;SFS:(13230028)(4636009)(346002)(396003)(39860400002)(136003)(376002)(451199021)(36840700001)(40470700004)(46966006)(36860700001)(82740400003)(7636003)(356005)(40460700003)(41300700001)(7416002)(7406005)(2906002)(6862004)(8676002)(5660300002)(33716001)(6636002)(8936002)(55016003)(86362001)(316002)(4326008)(70206006)(70586007)(40480700001)(82310400005)(83380400001)(966005)(336012)(186003)(47076005)(107886003)(426003)(9686003)(26005)(478600001)(54906003)(67856001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 May 2023 23:32:38.5800
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 192db192-fae9-42d6-3f47-08db572f0083
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.118.233];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT087.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA0PR12MB4542
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 16.05.2023 02:00, Jason Gunthorpe wrote:
-> [ There was alot of unexpected complication after rc1 with this series,
-> several new patches were needed ]
->
-> It has been a long time coming, this series completes the default_domain
-> transition and makes it so that the core IOMMU code will always have a
-> non-NULL default_domain for every driver on every
-> platform. set_platform_dma_ops() turned out to be a bad idea, and so
-> completely remove it.
->
-> This is achieved by changing each driver to either:
->
-> 1 - Convert the existing (or deleted) ops->detach_dev() into an
->      op->attach_dev() of an IDENTITY domain.
->
->      This is based on the theory that the ARM32 HW is able to function when
->      the iommu is turned off as so the turned off state is an IDENTITY
->      translation.
->
-> 2 - Use a new PLATFORM domain type. This is a hack to accommodate drivers
->      that we don't really know WTF they do. S390 is legitimately using this
->      to switch to it's platform dma_ops implementation, which is where the
->      name comes from.
->
-> 3 - Do #1 and force the default domain to be IDENTITY, this corrects
->      the tegra-smmu case where even an ARM64 system would have a NULL
->      default_domain.
->
-> Using this we can apply the rules:
->
-> a) ARM_DMA_USE_IOMMU mode always uses either the driver's
->     ops->default_domain, ops->def_domain_type(), or an IDENTITY domain.
->     All ARM32 drivers provide one of these three options.
->
-> b) dma-iommu.c mode uses either the driver's ops->default_domain,
->     ops->def_domain_type or the usual DMA API policy logic based on the
->     command line/etc to pick IDENTITY/DMA domain types
->
-> c) All other arch's (PPC/S390) use ops->default_domain always.
->
-> See the patch "Require a default_domain for all iommu drivers" for a
-> per-driver breakdown.
->
-> The conversion broadly teaches a bunch of ARM32 drivers that they can do
-> IDENTITY domains. There is some educated guessing involved that these are
-> actual IDENTITY domains. If this turns out to be wrong the driver can be
-> trivially changed to use a BLOCKING domain type instead. Further, the
-> domain type only matters for drivers using ARM64's dma-iommu.c mode as it
-> will select IDENTITY based on the command line and expect IDENTITY to
-> work. For ARM32 and other arch cases it is purely documentation.
->
-> Finally, based on all the analysis in this series, we can purge
-> IOMMU_DOMAIN_UNMANAGED/DMA constants from most of the drivers. This
-> greatly simplifies understanding the driver contract to the core
-> code. IOMMU drivers should not be involved in policy for how the DMA API
-> works, that should be a core core decision.
->
-> The main gain from this work is to remove alot of ARM_DMA_USE_IOMMU
-> specific code and behaviors from drivers. All that remains in iommu
-> drivers after this series is the calls to arm_iommu_create_mapping().
->
-> This is a step toward removing ARM_DMA_USE_IOMMU.
->
-> The IDENTITY domains added to the ARM64 supporting drivers can be tested
-> by booting in ARM64 mode and enabling CONFIG_IOMMU_DEFAULT_PASSTHROUGH. If
-> the system still boots then most likely the implementation is an IDENTITY
-> domain. If not we can trivially change it to BLOCKING or at worst PLATFORM
-> if there is no detail what is going on in the HW.
->
-> I think this is pretty safe for the ARM32 drivers as they don't really
-> change, the code that was in detach_dev continues to be called in the same
-> places it was called before.
+On Mon, May 15, 2023 at 09:00:33PM -0300, Jason Gunthorpe wrote:
+ 
+> This is on github: https://github.com/jgunthorpe/linux/commits/iommu_all_defdom
 
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Ran some VFIO-passthrough sanity on x86 and ARM64, using this
+branch. It should cover partially this series. So, if I may:
 
-Works fine on ARM 32bit Exynos based boards.
+Tested-by: Nicolin Chen <nicolinc@nvidia.com>
 
-> This follows the prior series:
->
-> https://lore.kernel.org/r/0-v5-1b99ae392328+44574-iommu_err_unwind_jgg@nvidia.com
->
-> This is on github: https://protect2.fireeye.com/v1/url?k=773809ed-1645e36e-773982a2-74fe48600158-bd3a7b89de1f2061&q=1&e=7f176af7-9cf3-429b-a0ce-8812c59dfb5c&u=https%3A%2F%2Fgithub.com%2Fjgunthorpe%2Flinux%2Fcommits%2Fiommu_all_defdom
->
+Thanks
+Nic
+
 > v2:
->   - FSL is an IDENTITY domain
->   - Delete terga-gart instead of trying to carry it
->   - Use the policy determination from iommu_get_default_domain_type() to
->     drive the arm_iommu mode
->   - Reorganize and introduce new patches to do the above:
->      * Split the ops->identity_domain to an independent earlier patch
->      * Remove the UNMANAGED return from def_domain_type in mtk_v1 earlier
->        so the new iommu_get_default_domain_type() can work
->      * Make the driver's def_domain_type have higher policy priority than
->        untrusted
->      * Merge the set_platfom_dma_ops hunk from mtk_v1 along with rockchip
->        into the patch that forced IDENTITY on ARM32
->   - Revise sun50i to be cleaner and have a non-NULL internal domain
->   - Reword logging in exynos
->   - Remove the gdev from the group alloc path, instead add a new
->     function __iommu_group_domain_alloc() that takes in the group
->     and uses the first device. Split this to its own patch
->   - New patch to make iommufd's mock selftest into a real driver
->   - New patch to fix power's partial iommu driver
-> v1: https://lore.kernel.org/r/0-v1-21cc72fcfb22+a7a-iommu_all_defdom_jgg@nvidia.com
->
-> Jason Gunthorpe (25):
->    iommu: Add iommu_ops->identity_domain
->    iommu: Add IOMMU_DOMAIN_PLATFORM
->    powerpc/iommu: Setup a default domain and remove set_platform_dma_ops
->    iommu: Add IOMMU_DOMAIN_PLATFORM for S390
->    iommu/tegra-gart: Remove tegra-gart
->    iommu/mtk_iommu_v1: Implement an IDENTITY domain
->    iommu: Reorganize iommu_get_default_domain_type() to respect
->      def_domain_type()
->    iommu: Allow an IDENTITY domain as the default_domain in ARM32
->    iommu/fsl_pamu: Implement an IDENTITY domain
->    iommu/exynos: Implement an IDENTITY domain
->    iommu/tegra-smmu: Implement an IDENTITY domain
->    iommu/tegra-smmu: Support DMA domains in tegra
->    iommu/omap: Implement an IDENTITY domain
->    iommu/msm: Implement an IDENTITY domain
->    iommufd/selftest: Make the mock iommu driver into a real driver
->    iommu: Remove ops->set_platform_dma_ops()
->    iommu/qcom_iommu: Add an IOMMU_IDENTITIY_DOMAIN
->    iommu/ipmmu: Add an IOMMU_IDENTITIY_DOMAIN
->    iommu/mtk_iommu: Add an IOMMU_IDENTITIY_DOMAIN
->    iommu/sun50i: Add an IOMMU_IDENTITIY_DOMAIN
->    iommu: Require a default_domain for all iommu drivers
->    iommu: Add __iommu_group_domain_alloc()
->    iommu: Add ops->domain_alloc_paging()
->    iommu: Convert simple drivers with DOMAIN_DMA to domain_alloc_paging()
->    iommu: Convert remaining simple drivers to domain_alloc_paging()
->
->   arch/arm/configs/multi_v7_defconfig     |   1 -
->   arch/arm/configs/tegra_defconfig        |   1 -
->   arch/powerpc/kernel/iommu.c             |  38 ++-
->   drivers/iommu/Kconfig                   |  11 -
->   drivers/iommu/Makefile                  |   1 -
->   drivers/iommu/arm/arm-smmu/qcom_iommu.c |  45 ++-
->   drivers/iommu/exynos-iommu.c            |  73 +++--
->   drivers/iommu/fsl_pamu_domain.c         |  39 ++-
->   drivers/iommu/iommu-priv.h              |  16 +
->   drivers/iommu/iommu.c                   | 263 +++++++++++------
->   drivers/iommu/iommufd/iommufd_private.h |   5 +-
->   drivers/iommu/iommufd/main.c            |   8 +-
->   drivers/iommu/iommufd/selftest.c        | 141 ++++-----
->   drivers/iommu/ipmmu-vmsa.c              |  50 +++-
->   drivers/iommu/msm_iommu.c               |  30 +-
->   drivers/iommu/mtk_iommu.c               |  30 +-
->   drivers/iommu/mtk_iommu_v1.c            |  28 +-
->   drivers/iommu/omap-iommu.c              |  28 +-
->   drivers/iommu/rockchip-iommu.c          |  26 +-
->   drivers/iommu/s390-iommu.c              |  28 +-
->   drivers/iommu/sprd-iommu.c              |   7 +-
->   drivers/iommu/sun50i-iommu.c            |  35 ++-
->   drivers/iommu/tegra-gart.c              | 371 ------------------------
->   drivers/iommu/tegra-smmu.c              |  50 +++-
->   drivers/memory/tegra/mc.c               |  34 ---
->   drivers/memory/tegra/tegra20.c          |  28 --
->   include/linux/iommu.h                   |  16 +-
->   include/soc/tegra/mc.h                  |  26 --
->   28 files changed, 622 insertions(+), 807 deletions(-)
->   create mode 100644 drivers/iommu/iommu-priv.h
->   delete mode 100644 drivers/iommu/tegra-gart.c
->
->
-> base-commit: 0b355ade2baf262f213da274411c0e05d8232a21
-
-Best regards
--- 
-Marek Szyprowski, PhD
-Samsung R&D Institute Poland
-
+>  - FSL is an IDENTITY domain
+>  - Delete terga-gart instead of trying to carry it
+>  - Use the policy determination from iommu_get_default_domain_type() to
+>    drive the arm_iommu mode
+>  - Reorganize and introduce new patches to do the above:
+>     * Split the ops->identity_domain to an independent earlier patch
+>     * Remove the UNMANAGED return from def_domain_type in mtk_v1 earlier
+>       so the new iommu_get_default_domain_type() can work
+>     * Make the driver's def_domain_type have higher policy priority than
+>       untrusted
+>     * Merge the set_platfom_dma_ops hunk from mtk_v1 along with rockchip
+>       into the patch that forced IDENTITY on ARM32
+>  - Revise sun50i to be cleaner and have a non-NULL internal domain
+>  - Reword logging in exynos
+>  - Remove the gdev from the group alloc path, instead add a new
+>    function __iommu_group_domain_alloc() that takes in the group
+>    and uses the first device. Split this to its own patch
+>  - New patch to make iommufd's mock selftest into a real driver
+>  - New patch to fix power's partial iommu driver
