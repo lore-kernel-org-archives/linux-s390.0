@@ -2,93 +2,139 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F5B1C77B75
-	for <linux-s390@archiver.kernel.org>; Wed, 17 May 2023 07:26:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4DAE9C77B7F
+	for <linux-s390@archiver.kernel.org>; Wed, 17 May 2023 08:00:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229719AbjEQH0t (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 17 May 2023 03:26:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55808 "EHLO
+        id S229894AbjEQIAD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 17 May 2023 04:00:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229538AbjEQH0s (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 May 2023 03:26:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 356CCC5;
-        Wed, 17 May 2023 00:26:48 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C638A63CE3;
-        Wed, 17 May 2023 07:26:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76501C433EF;
-        Wed, 17 May 2023 07:26:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1684308407;
-        bh=aqNY6qE18SxSweL7OgAJaona5RImY/HQUlycRg3Pwe8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vMZQ+S21a02s+M0+475Ybj94bAl+EIGza5yKMZf1nxPw75qt0KPUnmwy32MhLXjOO
-         V30S95rczEQLaBoZDxVn/hN1+MNhAjIV4s/mH5g9N4m17iN2dXcNeoH8dluj4HPhq3
-         leJQYN5nvozfCzfVoG+EDYN4tjV5ELAPjEbKuZi4/2UmQCF7eGXqSMiIZJ5/bHRXcK
-         0FxmH9rmGPKypK7dzmuXto7Dx61Sb9I3Uhxej/lC0IeCyemSz5NBlKXAju6KY5AIkR
-         9tuUH+lXJHnR/dHviAnkn+xU8iPSnvL8+NaPSmpf3Km1xEzYaegxX7ZGU1hm4FxO0F
-         JopB3QI89srjQ==
-From:   Christian Brauner <brauner@kernel.org>
-To:     Arnd Bergmann <arnd@kernel.org>
-Cc:     Christian Brauner <brauner@kernel.org>,
-        linux-fsdevel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        with ESMTP id S230058AbjEQH7H (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 May 2023 03:59:07 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37A09E0;
+        Wed, 17 May 2023 00:59:05 -0700 (PDT)
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34H7fJEa012013;
+        Wed, 17 May 2023 07:58:34 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=CMFx+/WSbZOvxzWO4+8ED//sUy5xmbKjuvEcGYhHqCI=;
+ b=ZQHZ0+w5kYCbcP21nY+DRFTklLVMi0FRg80N5nlCrRKAo42OmlrJJ2GYZniUYNGeWMyL
+ wRoSiIwJY5WvXvDwEqE7mST7cshDy0CeQl+woB5i6cF/SBDDus84dM18bOHcckI4r1Ht
+ prCdMuBOJvcv0Sj8HnnNYH4nvQ5m7ey8xYMNRLF7nRk39pFsN6ge/MRCzgR2c7oYrj2a
+ hwHPQiaetr8YcjF2aGf2mZUTI7DpY/sWVztopg6N4NsAHW1e0oT4jk9LOddsboM1cn82
+ FQkE4hKKLOAp8xBhW27zTxXNDBHj3klPusggdalySyW3zJqWeBXBMLKnYtA7kflUQa6Z Kw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qmt0msjbk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 17 May 2023 07:58:34 +0000
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34H7updx004012;
+        Wed, 17 May 2023 07:58:33 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qmt0msjan-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 17 May 2023 07:58:33 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34H6c4Zh025285;
+        Wed, 17 May 2023 07:58:31 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma02fra.de.ibm.com (PPS) with ESMTPS id 3qj264spkn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 17 May 2023 07:58:31 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34H7wRRY54919460
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 17 May 2023 07:58:27 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BEA6420040;
+        Wed, 17 May 2023 07:58:27 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B3F8E2004B;
+        Wed, 17 May 2023 07:58:26 +0000 (GMT)
+Received: from [9.179.22.107] (unknown [9.179.22.107])
+        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 17 May 2023 07:58:26 +0000 (GMT)
+Message-ID: <6a6f5552fac1427eafbca1288fe5d5cb0cb6a333.camel@linux.ibm.com>
+Subject: Re: [PATCH v5 RESEND 10/17] s390: mm: Convert to GENERIC_IOREMAP
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Christoph Hellwig <hch@infradead.org>, Baoquan He <bhe@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
+        linux-mm@kvack.org, arnd@arndb.de, christophe.leroy@csgroup.eu,
+        agordeev@linux.ibm.com, wangkefeng.wang@huawei.com,
+        David.Laight@aculab.com, shorne@gmail.com, willy@infradead.org,
+        deller@gmx.de, Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>, linux-parisc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org, viro@zeniv.linux.org.uk
-Subject: Re: [PATCH] procfs: consolidate arch_report_meminfo declaration
-Date:   Wed, 17 May 2023 09:26:21 +0200
-Message-Id: <20230517-bargeld-achthundert-0d56603bda7f@brauner>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20230516195834.551901-1-arnd@kernel.org>
-References: <20230516195834.551901-1-arnd@kernel.org>
+        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
+Date:   Wed, 17 May 2023 09:58:26 +0200
+In-Reply-To: <ZGR15/aAYufCZ9qV@infradead.org>
+References: <20230515090848.833045-1-bhe@redhat.com>
+         <20230515090848.833045-11-bhe@redhat.com> <ZGR15/aAYufCZ9qV@infradead.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.48.1 (3.48.1-1.fc38) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1022; i=brauner@kernel.org; h=from:subject:message-id; bh=aqNY6qE18SxSweL7OgAJaona5RImY/HQUlycRg3Pwe8=; b=owGbwMvMwCU28Zj0gdSKO4sYT6slMaSkNNa1vbRzrT/o77xHepL944QPMhKS2t2+9xZpWcxdIxl1 83FWRykLgxgXg6yYIotDu0m43HKeis1GmRowc1iZQIYwcHEKwET8nzH8lW9/nrtIm21nErejtfePeu GUac5Gq8/q24nk/N5yNr/6MyPDpacPY5c0ByfOf3wutTx4atH5rp+t6y2kIyf96L7cFLueDQA=
-X-Developer-Key: i=brauner@kernel.org; a=openpgp; fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
-Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: yHkOOiLn5K_XXg82H6WtpYBwMUNzSS4k
+X-Proofpoint-GUID: zbqUKTFztHSElm1UI7AZo0AwloZJ5dPG
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-05-16_14,2023-05-16_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ bulkscore=0 clxscore=1011 malwarescore=0 suspectscore=0 lowpriorityscore=0
+ spamscore=0 phishscore=0 mlxscore=0 impostorscore=0 mlxlogscore=729
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2304280000 definitions=main-2305170061
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 16 May 2023 21:57:29 +0200, Arnd Bergmann wrote:
-> The arch_report_meminfo() function is provided by four architectures,
-> with a __weak fallback in procfs itself. On architectures that don't
-> have a custom version, the __weak version causes a warning because
-> of the missing prototype.
-> 
-> Remove the architecture specific prototypes and instead add one
-> in linux/proc_fs.h.
-> 
-> [...]
+On Tue, 2023-05-16 at 23:36 -0700, Christoph Hellwig wrote:
+> On Mon, May 15, 2023 at 05:08:41PM +0800, Baoquan He wrote:
+> > +#define ioremap_wc(addr, size)  \
+> > +	ioremap_prot((addr), (size), pgprot_val(pgprot_writecombine(PAGE_KERN=
+EL)))
+>=20
+> I'd move this out of line and just apply mio_wb_bit_mask directly
+> instead of the unbox/box/unbox/box dance.
+>=20
+> > +#define ioremap_wt(addr, size)  \
+> > +	ioremap_prot((addr), (size), pgprot_val(pgprot_writethrough(PAGE_KERN=
+EL)))
+>=20
+> and just define this to ioremap_wc.  Note that defining _wt to _wc is
+> very odd and seems wrong, but comes from the existing code.  Maybe the
+> s390 maintainers can chime on on the background and we can add a comment
+> while we're at it.
 
-Applied to the vfs.misc branch of the vfs/vfs.git tree.
-Patches in the vfs.misc branch should appear in linux-next soon.
+I'm a bit confused where you see ioremap_wt() defined to ioremap_wc()
+in the existing code? Our current definitions are:
 
-Please report any outstanding bugs that were missed during review in a
-new review to the original patch series allowing us to drop it.
 
-It's encouraged to provide Acked-bys and Reviewed-bys even though the
-patch has now been applied. If possible patch trailers will be updated.
+void __iomem *ioremap_wc(phys_addr_t addr, size_t size)
+{
+	return __ioremap(addr, size,
+pgprot_writecombine(PAGE_KERNEL));
+}
 
-tree:   https://git.kernel.org/pub/scm/linux/kernel/git/vfs/vfs.git
-branch: vfs.misc
+void __iomem *ioremap_wt(phys_addr_t addr, size_t size)
+{
+	return __ioremap(addr, size,
+pgprot_writethrough(PAGE_KERNEL));
+}
 
-[1/1] procfs: consolidate arch_report_meminfo declaration
-      https://git.kernel.org/vfs/vfs/c/edb0469aa6e8
+Now if we don't have support for the enhanced PCI load/store
+instructions (memory I/O aka MIO) then yes this gets ignored and both
+.._wc() and .._wt() act the same but if we do have them
+pgprot_writecombine() / pgprot_writethrough() set respectively clear=20
+the mio_wb bit in the PTE. It's a bit odd here because the exact
+position of the bit is read from a firmware interface and could in
+theory change but other than that it looks fine to me and yes I agree
+that it would be odd and broken to define _wt to _wc.
+
+Thanks,
+Niklas
