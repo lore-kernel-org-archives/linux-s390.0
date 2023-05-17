@@ -2,40 +2,64 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CAE2BC77B7D
-	for <linux-s390@archiver.kernel.org>; Wed, 17 May 2023 03:51:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 87BCDC77B75
+	for <linux-s390@archiver.kernel.org>; Wed, 17 May 2023 04:52:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231565AbjEQDvy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 16 May 2023 23:51:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37950 "EHLO
+        id S231853AbjEQEwI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 17 May 2023 00:52:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229533AbjEQDvx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 16 May 2023 23:51:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31BD919BC;
-        Tue, 16 May 2023 20:51:52 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9055464149;
-        Wed, 17 May 2023 03:51:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EA41C433EF;
-        Wed, 17 May 2023 03:51:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1684295511;
-        bh=ujQm08tAstsBcSTC4djTVJKYZbnMD4JeakcC0SNda2Y=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=TSkAnW3Tw7IFtikLGLu+GPWBvxuXEM5m65QAoEvCrtsO/iSmOETdJEiAUqaMrleII
-         zeTeMmaEQTm6FpcM/KIk9TO4oKxg96lYeHLh/rTFzJCKCtFjXf8P/ve8+aqQcFw0py
-         ZxJnT7Oyek0HGYBY8ZtQYTSc9qzOPYbYtNts8W2SDG9L0QEeOjsPJDT4KRtBegTYNN
-         IAKH0xnEKfpnt0cSPV5GYah+YvOlSxSSPIY0fYMj2Zs7P7v/pdLWr/zyIvf+reeAGH
-         uJ0yTaME660KgFSlPIjx8QlAJbysaP2KvTzEtkhMRuSYEQxxgZfoOsEuXjtxTJu4iT
-         nu6ZMWm+E+gDA==
-Date:   Wed, 17 May 2023 12:51:42 +0900
-From:   Masami Hiramatsu (Google) <mhiramat@kernel.org>
-To:     Steven Rostedt <rostedt@goodmis.org>
-Cc:     Ze Gao <zegao2021@gmail.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
+        with ESMTP id S231694AbjEQEwF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 May 2023 00:52:05 -0400
+Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5357630E6;
+        Tue, 16 May 2023 21:52:03 -0700 (PDT)
+Received: by mail-ed1-x534.google.com with SMTP id 4fb4d7f45d1cf-50bc5197d33so558824a12.1;
+        Tue, 16 May 2023 21:52:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1684299122; x=1686891122;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=+b36/I3Nvxt3FNBxeDqCvzRRZQkiU3g4TwUhxkdFSQg=;
+        b=R1BrJpqiQkawOmNZ2eUhhs5aiZ5nUlvo15AH9j2qbT9j8Jji3gbHGSKO/XVeWn0WI7
+         7A/j/ews7kjTxWKosbUvwcvh95heAYYhRAE/PsY/zkY3qZ1mz0YwED5uYSrTXM4UZWQa
+         kqH1uBT7lySyT8wypk0ybYaVhRJw6ZsfxPx+jokTmGksad1wI6ldET5cs0AvdqrD/fgS
+         OJ4+ODcRq0SEFlJ1mq/LMvStmBnHoGVDOa3+POzUQ/mLynmYYbELVGv5svV8Op/cyVLo
+         vyW7fWuxUJl3/DKfWJ6slDK8by11R9Gk7LJUpHVKrjlD3Uelp4XV4PUOimEYgP2D6Yvf
+         IPrw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1684299122; x=1686891122;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=+b36/I3Nvxt3FNBxeDqCvzRRZQkiU3g4TwUhxkdFSQg=;
+        b=jSrskFz3P925NoluVO8L8sU8GFTPObUbE5nNx5GvlmNrCGUCyChAD2IrjOP9KR86dP
+         y0bCkbhZm37bKxM9ex5721F8EZpcuSevlg4r6rS/ufiyWOQnKSCRD6i/XyDmc8kr1FrX
+         1X/wI2qGBv4o3jNAbRs4Wjarynp7D+bpqqlA8WtjT+cWsYUfQbUpZaMefufcEaNBV5vu
+         0qZOKXujTdVMnCtRAgVNbbS3wvJtr7RZLZ3o9brm0Hnr+9CBN2Hk9AJOseKuYE7BWEQa
+         SUNonFM5lgcxqSNa7LNO/R2/ySXWWDzlK2vI/hUdvpge8PNS6NaRxD0HBg35xuxOQo14
+         fz7Q==
+X-Gm-Message-State: AC+VfDyuidGbQ/e2Od9Hr4vpN6E9+UqT8X0CXaDwtZpHS7ahaho85wFL
+        hO6ukwVnPcqWSwCj6jcKiQFS3GsVLpo/wgw9nTU=
+X-Google-Smtp-Source: ACHHUZ7D+qbISKJO49ArIXkB3GqjJizoUnpsT6EzQe2Ml7LGi01etblSWEuPusR0eE7oY9uRaDlKRHwjCknPU//Wadg=
+X-Received: by 2002:aa7:d94b:0:b0:506:bce0:48d6 with SMTP id
+ l11-20020aa7d94b000000b00506bce048d6mr1186236eds.5.1684299121564; Tue, 16 May
+ 2023 21:52:01 -0700 (PDT)
+MIME-Version: 1.0
+References: <20230516071830.8190-1-zegao@tencent.com> <20230516071830.8190-3-zegao@tencent.com>
+ <20230516091820.GB2587705@hirez.programming.kicks-ass.net>
+ <CAD8CoPDFp2_+D6nykj6mu_Pr57iN+8jO-kgA_FRrcxD8C7YU+Q@mail.gmail.com>
+ <20230517010311.f46db3f78b11cf9d92193527@kernel.org> <CAD8CoPAw_nKsm4vUJ_=aSwzLc5zo8D5pY6A7-grXENxpMYz9og@mail.gmail.com>
+ <20230517115432.94a65364e53cbd5b40c54e82@kernel.org> <CAD8CoPC0BXB2ER_Oaixm5XgMk8TTqKVVF7Po0t4gBPOLhw_xwQ@mail.gmail.com>
+ <20230516232545.4f6c7805@rorschach.local.home>
+In-Reply-To: <20230516232545.4f6c7805@rorschach.local.home>
+From:   Ze Gao <zegao2021@gmail.com>
+Date:   Wed, 17 May 2023 12:51:50 +0800
+Message-ID: <CAD8CoPBcP_T_-pR=szL7Vk0vtK3tzTsM6pPmqFcddcTa_ajrNA@mail.gmail.com>
+Subject: Re: [PATCH v2 2/4] fprobe: make fprobe_kprobe_handler recursion free
+To:     Jiri Olsa <jolsa@kernel.org>
+Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
         Peter Zijlstra <peterz@infradead.org>,
         Albert Ou <aou@eecs.berkeley.edu>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
@@ -53,53 +77,41 @@ Cc:     Ze Gao <zegao2021@gmail.com>,
         linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org,
         linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
         bpf@vger.kernel.org, Conor Dooley <conor@kernel.org>,
-        Jiri Olsa <jolsa@kernel.org>, Yonghong Song <yhs@fb.com>,
-        Ze Gao <zegao@tencent.com>
-Subject: Re: [PATCH v2 2/4] fprobe: make fprobe_kprobe_handler recursion
- free
-Message-Id: <20230517125142.b5fa0d958ccfa5c309c650af@kernel.org>
-In-Reply-To: <20230516232545.4f6c7805@rorschach.local.home>
-References: <20230516071830.8190-1-zegao@tencent.com>
-        <20230516071830.8190-3-zegao@tencent.com>
-        <20230516091820.GB2587705@hirez.programming.kicks-ass.net>
-        <CAD8CoPDFp2_+D6nykj6mu_Pr57iN+8jO-kgA_FRrcxD8C7YU+Q@mail.gmail.com>
-        <20230517010311.f46db3f78b11cf9d92193527@kernel.org>
-        <CAD8CoPAw_nKsm4vUJ_=aSwzLc5zo8D5pY6A7-grXENxpMYz9og@mail.gmail.com>
-        <20230517115432.94a65364e53cbd5b40c54e82@kernel.org>
-        <CAD8CoPC0BXB2ER_Oaixm5XgMk8TTqKVVF7Po0t4gBPOLhw_xwQ@mail.gmail.com>
-        <20230516232545.4f6c7805@rorschach.local.home>
-X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+        Yonghong Song <yhs@fb.com>, Ze Gao <zegao@tencent.com>,
+        Steven Rostedt <rostedt@goodmis.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 16 May 2023 23:25:45 -0400
-Steven Rostedt <rostedt@goodmis.org> wrote:
+Hi Jiri,
+This is the latest version against 6.4-rc1, and you can apply without troub=
+le.
+     https://lore.kernel.org/linux-trace-kernel/20230517034510.15639-1-zega=
+o@tencent.com/T/#t
 
+Regards,
+Ze
+
+On Wed, May 17, 2023 at 11:25=E2=80=AFAM Steven Rostedt <rostedt@goodmis.or=
+g> wrote:
+>
 > On Wed, 17 May 2023 11:10:21 +0800
 > Ze Gao <zegao2021@gmail.com> wrote:
-> 
+>
 > > Got it! :)
-> > 
+> >
 > > I will improve the commit message and send v3 ASAP.
-> > 
+> >
 > > BTW, which tree should I rebase those patches onto? Is that the
 > > for-next branch of
 > > git.kernel.org/pub/scm/linux/kernel/git/trace/linux-trace.git. I saw
 > > Jiri had troubles
 > > applying those since these works are based on v6.4.0.
-> > 
-> 
+> >
+>
 > You can submit against 6.4-rc1. We haven't updated the for-next branch
 > yet. Which will be rebased off of one of the 6.4 rc's.
-
-Yeah, I would like to pick it to probes/fixes for 6.4 and stable branches.
-
-Thank you,
-
-
--- 
-Masami Hiramatsu (Google) <mhiramat@kernel.org>
+>
+> -- Steve
