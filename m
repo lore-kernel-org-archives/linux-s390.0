@@ -2,106 +2,216 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 22C16C77B75
-	for <linux-s390@archiver.kernel.org>; Wed, 17 May 2023 15:52:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7018AC77B75
+	for <linux-s390@archiver.kernel.org>; Wed, 17 May 2023 15:55:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230092AbjEQPwo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 17 May 2023 11:52:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50138 "EHLO
+        id S231475AbjEQPzK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 17 May 2023 11:55:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231543AbjEQPwW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 May 2023 11:52:22 -0400
-Received: from mail-yw1-x1132.google.com (mail-yw1-x1132.google.com [IPv6:2607:f8b0:4864:20::1132])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FE36D874
-        for <linux-s390@vger.kernel.org>; Wed, 17 May 2023 08:51:21 -0700 (PDT)
-Received: by mail-yw1-x1132.google.com with SMTP id 00721157ae682-561ca1918e5so9466607b3.1
-        for <linux-s390@vger.kernel.org>; Wed, 17 May 2023 08:51:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1684338674; x=1686930674;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=f/BiToevvpXZU69/oSETGaqYlCzMkDhIUSch995c2x4=;
-        b=PxKg2pRCl/MeEqp5uvc8FI6+YOF8ZQ0EzboQ7hpfbuFJX3IIqChekL0/PSY6f6ZBkZ
-         urHQTw8B9Qu+ZY/1vJzTnbXCr75YfIhdSyy686/eLISuhgZHB6UQ3EVsl6FD9v625A/w
-         tjxES+HrRzg6bCh5g/2aKxK6aL5WAXk6n5hL6cNQ4DLvHOdkJN6i/f12VZINOcSbVDWY
-         Ht8TqiZDvyXTZ0hs/EBmu3kHn7bK+REyjKbHcdjwjITX645yBU2SclzoGsnZb8Qs2uwx
-         3eg3Vv2wpF9jKUnxeZFE5DWnz2u2DGzEAq8Ck0m/CDBEkeEBn1RCKj2gBMDNc7cK4SzS
-         DFJA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1684338674; x=1686930674;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=f/BiToevvpXZU69/oSETGaqYlCzMkDhIUSch995c2x4=;
-        b=QEFhc4qzbJXXVV6kaNdQV13DIVf6bMYn8ZzmiP4Q5vmIR192BBTDyIQQOAoOWCjlv/
-         J9GnRLd2U60MrigeZlTZruByPk4jEpLNOmQlvl/qbgxo0eSH4N0yYPYnfa/p5fnWJzCE
-         R/hU7/3QlJ3zB8MmNVIQVYuxAzSdhve+fPmd7v7W74fuoaEqMsiSGsdqKS7vCZMtL2oP
-         T1wnyRrBIeIV+BoD6L6G9UapauHhKiZ3BoA/Jk/8S16sh/fV7keFNk41i3x+0IQ7z1Hq
-         f7qFdiakgMEloJOyVNkqW+ha5R+nqhZO2UieuZejOkCfcbACdifI4LwJ7fI5MJv2D/34
-         J75w==
-X-Gm-Message-State: AC+VfDyksDpljZz1g34cVqENd0SJd6ynwMs+yGsV0p5S/JrSeg5q22Lj
-        v7JPEXQssWAmavwxHrzUCYOD+3GUGB5/IMspEJdF
-X-Google-Smtp-Source: ACHHUZ7m7iuWUD5omxnx19xTgvLnN/+5Wgfo2oM56GLLAkTkIZomD+UUzUvvSVfeDFHavflonxguaAqx7fdYrFqY+DA=
-X-Received: by 2002:a81:53c5:0:b0:55d:c2c3:fbb8 with SMTP id
- h188-20020a8153c5000000b0055dc2c3fbb8mr34245755ywb.40.1684338674184; Wed, 17
- May 2023 08:51:14 -0700 (PDT)
-MIME-Version: 1.0
-References: <20230517131102.934196-5-arnd@kernel.org> <e1a07eed22cb33af2733bdffe42b09f0.paul@paul-moore.com>
- <83422cf8-5d77-4e2f-a854-c2b9a9a94d75@app.fastmail.com>
-In-Reply-To: <83422cf8-5d77-4e2f-a854-c2b9a9a94d75@app.fastmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 17 May 2023 11:51:03 -0400
-Message-ID: <CAHC9VhQZyxVhDb0uB-+q7H=e++yq0qEAZGssPjepgnZ3i3_pnA@mail.gmail.com>
-Subject: Re: [PATCH 4/14] audit: avoid missing-prototype warnings
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     Arnd Bergmann <arnd@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
+        with ESMTP id S231604AbjEQPzJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 May 2023 11:55:09 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB21F9EFE;
+        Wed, 17 May 2023 08:54:39 -0700 (PDT)
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34HFbgL6023794;
+        Wed, 17 May 2023 15:54:36 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=quH8VXmd5CeU+FpHTIFuwsvOlHKMULhA66/ocioZmV8=;
+ b=lWzk+IYQnopVLYQIMKqFo27eMhVvuWeEdHn7/vv0C+KFAZcPu0aP9ap9UISZuZ9HAL/1
+ ygV8inde0IqpaGDpmFSM4OJC1w66DnVNxOKGX0RsrXBNxpCIAwsonAkhx2c/nEj/BoEF
+ tZDLImmzFG+5L6mPDtWN5MpKx2/4uza0swcoiGT09PHY2aTZkGl46QMvGgKC3wQiDWgp
+ tRDqB1YMlLNMeE1i9DkdxGZ9DNzi1wvQZERTbAMuQ2sacShR2Qb+E/N2OKArSsHnVtl7
+ 3O4/wzi+ijU3PlM1EHisB+RMwN7kd5+QiXWOYne/s9rpcFe8P2Nhcq6puCsuRUW0H85K FQ== 
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qn0qd2yhs-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 17 May 2023 15:54:36 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34HE8eJX002923;
+        Wed, 17 May 2023 15:54:34 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+        by ppma05fra.de.ibm.com (PPS) with ESMTPS id 3qj264svpw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 17 May 2023 15:54:34 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34HFsV906554204
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 17 May 2023 15:54:31 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1419420043;
+        Wed, 17 May 2023 15:54:31 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A7DBE20040;
+        Wed, 17 May 2023 15:54:30 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.152.224.66])
+        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 17 May 2023 15:54:30 +0000 (GMT)
+Date:   Wed, 17 May 2023 17:54:28 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Steffen Eiden <seiden@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Viktor Mihajlovski <mihajlov@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Nico Boehr <nrb@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, x86@kernel.org,
-        "Rafael J . Wysocki" <rafael@kernel.org>,
-        Eric Paris <eparis@redhat.com>,
-        Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>,
-        Christoph Lameter <cl@linux.com>, Pavel Machek <pavel@ucw.cz>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Waiman Long <longman@redhat.com>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        audit@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, kunit-dev@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        Hendrik Brueckner <brueckner@linux.ibm.com>
+Subject: Re: [PATCH 5/5] s390/uv: Update query for secret-UVCs
+Message-ID: <20230517175428.14489c11@p-imbrenda>
+In-Reply-To: <20230512093153.206378-6-seiden@linux.ibm.com>
+References: <20230512093153.206378-1-seiden@linux.ibm.com>
+        <20230512093153.206378-6-seiden@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.37; x86_64-redhat-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 6OG3YAGErBNJIuQl1xdhfzkIriyhcJ7a
+X-Proofpoint-GUID: 6OG3YAGErBNJIuQl1xdhfzkIriyhcJ7a
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-05-17_02,2023-05-17_02,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
+ clxscore=1015 spamscore=0 adultscore=0 lowpriorityscore=0 mlxlogscore=999
+ impostorscore=0 phishscore=0 malwarescore=0 bulkscore=0 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2304280000
+ definitions=main-2305170126
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, May 17, 2023 at 10:51=E2=80=AFAM Arnd Bergmann <arnd@arndb.de> wrot=
-e:
-> On Wed, May 17, 2023, at 16:33, Paul Moore wrote:
-> > On May 17, 2023 Arnd Bergmann <arnd@kernel.org> wrote:
->
-> > We probably should move the audit_serial() and auditsc_get_stamp()
-> > away from the watch/mark/tree functions, but that isn't your problem.
-> >
-> > Anyway, this looks okay to me; do you have a problem if I merge this
-> > via the audit/next branch or were you hoping to have this go in
-> > through a different tree?
->
-> Merging it through your tree is probably best, Andrew can either
-> pick the ones that nobody else took, or I can resend the rest.
+On Fri, 12 May 2023 11:31:53 +0200
+Steffen Eiden <seiden@linux.ibm.com> wrote:
 
-Easy enough, merged to audit/next, thanks.
+> Update the query struct such that secret-UVC related
+> information can be parsed.
+> Add sysfs files for these new values.
+> 
+> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+> ---
+>  arch/s390/boot/uv.c        |  4 ++++
+>  arch/s390/include/asm/uv.h | 11 ++++++++++-
+>  arch/s390/kernel/uv.c      | 40 ++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 54 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/s390/boot/uv.c b/arch/s390/boot/uv.c
+> index 0a077c0a2056..323b5cae3cf1 100644
+> --- a/arch/s390/boot/uv.c
+> +++ b/arch/s390/boot/uv.c
+> @@ -47,6 +47,10 @@ void uv_query_info(void)
+>  		uv_info.conf_dump_finalize_len = uvcb.conf_dump_finalize_len;
+>  		uv_info.supp_att_req_hdr_ver = uvcb.supp_att_req_hdr_ver;
+>  		uv_info.supp_att_pflags = uvcb.supp_att_pflags;
+> +		uv_info.supp_add_secret_req_ver = uvcb.supp_add_secret_req_ver;
+> +		uv_info.supp_add_secret_pcf = uvcb.supp_add_secret_pcf;
+> +		uv_info.supp_secret_types = uvcb.supp_secret_types;
+> +		uv_info.max_secrets = uvcb.max_num_secrets;
+>  	}
+>  
+>  #ifdef CONFIG_PROTECTED_VIRTUALIZATION_GUEST
+> diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
+> index 6180ac8909d5..eb2e11d8123f 100644
+> --- a/arch/s390/include/asm/uv.h
+> +++ b/arch/s390/include/asm/uv.h
+> @@ -135,7 +135,12 @@ struct uv_cb_qui {
+>  	u64 reservedd8;				/* 0x00d8 */
+>  	u64 supp_att_req_hdr_ver;		/* 0x00e0 */
+>  	u64 supp_att_pflags;			/* 0x00e8 */
+> -	u8 reservedf0[256 - 240];		/* 0x00f0 */
+> +	u64 reservedf0;				/* 0x00f0 */
+> +	u64 supp_add_secret_req_ver;		/* 0x00f8 */
+> +	u64 supp_add_secret_pcf;		/* 0x0100 */
+> +	u64 supp_secret_types;			/* 0x0180 */
+> +	u16 max_num_secrets;			/* 0x0110 */
+> +	u8 reserved112[288 - 274];		/* 0x0112 */
 
---=20
-paul-moore.com
+I think it would be more readable and maintainable if you put the
+offsets in hex (i.e. reserved112[0x120 - 0x112])
+
+otherwise, something like this:
+
+u16 max_num_secrets;
+u16 reserved112[3]
+u64 reserved118;
+
+(I know it was not in hex before, it was not necessarily nice as it was)
+
+>  } __packed __aligned(8);
+>  
+>  /* Initialize Ultravisor */
+> @@ -384,6 +389,10 @@ struct uv_info {
+>  	unsigned long conf_dump_finalize_len;
+>  	unsigned long supp_att_req_hdr_ver;
+>  	unsigned long supp_att_pflags;
+> +	unsigned long supp_add_secret_req_ver;
+> +	unsigned long supp_add_secret_pcf;
+> +	unsigned long supp_secret_types;
+> +	unsigned short max_secrets;
+>  };
+>  
+>  extern struct uv_info uv_info;
+> diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
+> index 9f18a4af9c13..381444511bb7 100644
+> --- a/arch/s390/kernel/uv.c
+> +++ b/arch/s390/kernel/uv.c
+> @@ -587,6 +587,42 @@ static ssize_t uv_query_supp_att_pflags(struct kobject *kobj,
+>  static struct kobj_attribute uv_query_supp_att_pflags_attr =
+>  	__ATTR(supp_att_pflags, 0444, uv_query_supp_att_pflags, NULL);
+>  
+> +static ssize_t uv_query_supp_add_secret_req_ver(struct kobject *kobj,
+> +						struct kobj_attribute *attr, char *page)
+> +{
+> +	return scnprintf(page, PAGE_SIZE, "%lx\n", uv_info.supp_add_secret_req_ver);
+> +}
+> +
+> +static struct kobj_attribute uv_query_supp_add_secret_req_ver_attr =
+> +	__ATTR(supp_add_secret_req_ver, 0444, uv_query_supp_add_secret_req_ver, NULL);
+> +
+> +static ssize_t uv_query_supp_add_secret_pcf(struct kobject *kobj,
+> +					    struct kobj_attribute *attr, char *page)
+> +{
+> +	return scnprintf(page, PAGE_SIZE, "%lx\n", uv_info.supp_add_secret_pcf);
+> +}
+> +
+> +static struct kobj_attribute uv_query_supp_add_secret_pcf_attr =
+> +	__ATTR(supp_add_secret_pcf, 0444, uv_query_supp_add_secret_pcf, NULL);
+> +
+> +static ssize_t uv_query_supp_secret_types(struct kobject *kobj,
+> +					  struct kobj_attribute *attr, char *page)
+> +{
+> +	return scnprintf(page, PAGE_SIZE, "%lx\n", uv_info.supp_secret_types);
+> +}
+> +
+> +static struct kobj_attribute uv_query_supp_secret_types_attr =
+> +	__ATTR(supp_secret_types, 0444, uv_query_supp_secret_types, NULL);
+> +
+> +static ssize_t uv_query_max_secrets(struct kobject *kobj,
+> +				    struct kobj_attribute *attr, char *page)
+> +{
+> +	return scnprintf(page, PAGE_SIZE, "%d\n", uv_info.max_secrets);
+> +}
+> +
+> +static struct kobj_attribute uv_query_max_num_secrets_attr =
+> +	__ATTR(max_secrets, 0444, uv_query_max_secrets, NULL);
+> +
+>  static struct attribute *uv_query_attrs[] = {
+>  	&uv_query_facilities_attr.attr,
+>  	&uv_query_feature_indications_attr.attr,
+> @@ -600,6 +636,10 @@ static struct attribute *uv_query_attrs[] = {
+>  	&uv_query_dump_cpu_len_attr.attr,
+>  	&uv_query_supp_att_req_hdr_ver_attr.attr,
+>  	&uv_query_supp_att_pflags_attr.attr,
+> +	&uv_query_supp_add_secret_req_ver_attr.attr,
+> +	&uv_query_supp_add_secret_pcf_attr.attr,
+> +	&uv_query_supp_secret_types_attr.attr,
+> +	&uv_query_max_num_secrets_attr.attr,
+>  	NULL,
+>  };
+>  
+
