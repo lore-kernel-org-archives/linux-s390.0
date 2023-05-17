@@ -2,115 +2,140 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6ED2CC77B7A
-	for <linux-s390@archiver.kernel.org>; Wed, 17 May 2023 12:52:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 105A2C77B75
+	for <linux-s390@archiver.kernel.org>; Wed, 17 May 2023 13:11:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231732AbjEQMwX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 17 May 2023 08:52:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35006 "EHLO
+        id S231403AbjEQNLb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 17 May 2023 09:11:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231479AbjEQMwW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 May 2023 08:52:22 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9740230C8;
-        Wed, 17 May 2023 05:52:21 -0700 (PDT)
-Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34HCbFud023507;
-        Wed, 17 May 2023 12:52:21 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
- mime-version : content-transfer-encoding : in-reply-to : references : cc :
- to : subject : from : message-id : date; s=pp1;
- bh=0ne0IL/I7EjmSkfXqwjzWAAFGpbiV9GQfqihj2Rc6XU=;
- b=KcDdQDCQGhgR1gTMK20eauUNnbupXb6EVFOx26kXTitmZ53M+FWD7jGBfOSTEPx+4nAl
- utbGC2GMt/eaZHrEAPe5oW2yBTloGKrC6tZ2gOZkZTt+MK+mTJYP8YVok0McO+o4pQHm
- ahwS5dB3N1uY7vKLh4mgtMpPWKOuoLDcE6nT1FKQSDDLPOFXa52ZJpNyRcevzNRf91ac
- kVWhIiRpwhNQwG66EpPd1X6y12CYrmf10J9Wfr7gjsixiJ7B+op9eZ09DOujkSBEMNE6
- wLuULLZDxQncnmE9sl1B1ulHE3bSdAq2hXpocm3ZQvKVVldcRgZdTGgtHvWu/JI6giOl ZQ== 
+        with ESMTP id S229560AbjEQNLa (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 May 2023 09:11:30 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4CCF1BC;
+        Wed, 17 May 2023 06:11:29 -0700 (PDT)
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34HD9EPF026823;
+        Wed, 17 May 2023 13:11:29 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=NkmU0qs0hWZqcsf/4uq6Vfvy/kpFAruMFUGfbC8SrnI=;
+ b=Js0Dm64rPAXLc+f9314uD61D+HKbYf6QSchY+jGaXir+DLQl/z2JgVa7MF9w63FZuq4/
+ INEzt3j9fJsrpKtsnc+IHr2kP9cJBxLNksLfZUYz9cf4pFS3begLDdc+/v+P53KItLuS
+ Hmqx9knNLf1h/WRp49gJGcH/Rtmil7FvRcmia+ARsDT5ani5zy9vo8PRnPnlf4Xddl/Y
+ ktJ1Th5U3hhKChTJ/KWQPPx96nSvNKCmri89r6gYoOpk/Ct5ekKc9m1S8oDposvTQjle
+ TUCaiaxiXjt4wKFOF5TUwu0OSbsgyjlZRYia5Lao5pIinLjVlv/E1GtwTb/yxDnaMZae JA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qmxx310s7-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qmxuthufq-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 17 May 2023 12:52:20 +0000
-Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34HCbgGB026426;
-        Wed, 17 May 2023 12:52:19 GMT
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qmxx310r2-1
+        Wed, 17 May 2023 13:11:27 +0000
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34HDAUkQ005082;
+        Wed, 17 May 2023 13:10:33 GMT
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qmxuthppe-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 17 May 2023 12:52:19 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34H3qfbX024876;
-        Wed, 17 May 2023 12:52:17 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma02fra.de.ibm.com (PPS) with ESMTPS id 3qj264st3p-1
+        Wed, 17 May 2023 13:10:17 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34HC6Ic3029373;
+        Wed, 17 May 2023 13:04:30 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma01fra.de.ibm.com (PPS) with ESMTPS id 3qj264sted-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 17 May 2023 12:52:16 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34HCqDBD14156302
+        Wed, 17 May 2023 13:04:30 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34HD4QTl55509410
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 17 May 2023 12:52:13 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3E0EB20043;
-        Wed, 17 May 2023 12:52:13 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0E96D20040;
-        Wed, 17 May 2023 12:52:13 +0000 (GMT)
-Received: from t14-nrb (unknown [9.179.7.234])
-        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 17 May 2023 12:52:12 +0000 (GMT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20230516193018.2e6cab64@p-imbrenda>
-References: <20230516130456.256205-1-nrb@linux.ibm.com> <20230516130456.256205-6-nrb@linux.ibm.com> <20230516193018.2e6cab64@p-imbrenda>
+        Wed, 17 May 2023 13:04:26 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 81B8D20043;
+        Wed, 17 May 2023 13:04:26 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5858120040;
+        Wed, 17 May 2023 13:04:26 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.152.224.66])
+        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 17 May 2023 13:04:26 +0000 (GMT)
+Date:   Wed, 17 May 2023 15:04:25 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Nico Boehr <nrb@linux.ibm.com>
 Cc:     frankja@linux.ibm.com, thuth@redhat.com, kvm@vger.kernel.org,
         linux-s390@vger.kernel.org
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v2 5/6] s390x: lib: sie: don't reenter SIE on pgm int
-From:   Nico Boehr <nrb@linux.ibm.com>
-Message-ID: <168432793263.12463.18068695121142335984@t14-nrb>
-User-Agent: alot/0.8.1
-Date:   Wed, 17 May 2023 14:52:12 +0200
+Subject: Re: [kvm-unit-tests PATCH v2 1/6] s390x: add function to set DAT
+ mode for all interrupts
+Message-ID: <20230517150425.19c4a7da@p-imbrenda>
+In-Reply-To: <168432630149.12463.14017444493360473166@t14-nrb>
+References: <20230516130456.256205-1-nrb@linux.ibm.com>
+        <20230516130456.256205-2-nrb@linux.ibm.com>
+        <20230516191724.0b9809ac@p-imbrenda>
+        <168432630149.12463.14017444493360473166@t14-nrb>
+Organization: IBM
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.37; x86_64-redhat-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: gDI1fTAoLeJWuVIgPKqc2PFqOYcxEm19
-X-Proofpoint-ORIG-GUID: rkRFkcqcllNpcbMTjFLx5DMi0Gt0GHbk
+X-Proofpoint-GUID: qGYXCPwpaD_OQYqr0R2q791BH0HtzONq
+X-Proofpoint-ORIG-GUID: dowI-1jmd9AEbQk-RMJLWcbtkQzWccT-
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.170.22
  definitions=2023-05-17_02,2023-05-17_02,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- phishscore=0 spamscore=0 impostorscore=0 clxscore=1015 adultscore=0
- priorityscore=1501 bulkscore=0 malwarescore=0 mlxscore=0 suspectscore=0
- mlxlogscore=635 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2304280000 definitions=main-2305170103
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 bulkscore=0
+ lowpriorityscore=0 mlxscore=0 spamscore=0 phishscore=0 impostorscore=0
+ priorityscore=1501 adultscore=0 malwarescore=0 mlxlogscore=921
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2304280000 definitions=main-2305170106
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Quoting Claudio Imbrenda (2023-05-16 19:30:18)
-[...]
-> > diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
-> > index 2e5309cee40f..82b4259d433c 100644
-> > --- a/lib/s390x/interrupt.c
-> > +++ b/lib/s390x/interrupt.c
-[...]
-> > +/**
-> > + * read_pgm_int_code - Get the program interruption code of the last p=
-gm int
-> > + * on the current CPU.
-> > + *
-> > + * This is similar to clear_pgm_int(), except that it doesn't clear the
-> > + * interruption information from lowcore.
-> > + *
-> > + * Returns 0 when none occured.
-> > + */
-> > +uint16_t read_pgm_int_code(void)
->=20
-> could this whole function go in the header as static inline?
+On Wed, 17 May 2023 14:25:01 +0200
+Nico Boehr <nrb@linux.ibm.com> wrote:
 
-Yes, sure, changed.
+> Quoting Claudio Imbrenda (2023-05-16 19:17:24)
+> [...]
+> > > diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
+> > > index 3f993a363ae2..1180ec44d72f 100644
+> > > --- a/lib/s390x/interrupt.c
+> > > +++ b/lib/s390x/interrupt.c  
+> [...]
+> > > +void irq_set_dat_mode(bool dat, uint64_t as)
+> > > +{  
+> [...]
+> > > +     for (struct psw *irq_psw = irq_psws[0]; irq_psw != NULL; irq_psw++) {  
+> > 
+> > just call it psw, or cur_psw, it's a little confusing otherwise  
+> 
+> will do. 
+> 
+> [...]
+> > alternatively, you can redefine psw with a bitfield (as you mentioned
+> > offline):
+> > 
+> > cur_psw->mask.dat = dat;
+> > if (dat)
+> >         cur_psw->mask.as = as;  
+> 
+> Yep, I'll go with that.
+> 
+> >   
+> > > +             else
+> > > +                     irq_psw->mask |= PSW_MASK_DAT | as << (63 - 16);  
+> > 
+> > otherwise here you're ORing stuff to other stuff, if you had 3 and you
+> > OR 0 you get 3, but you actually want 0  
+> 
+> And that's the advantage of the bitfield. :)
+> 
+> >   
+> > > +     }
+> > > +
+> > > +     mb();  
+> > 
+> > what's the purpose of this?  
+> 
+> Make sure that the lowcore really has been written, but I think it's quite
+> useless, since a function is a sequence point, right?
 
-> > +{
-> > +     mb();
->=20
-> is the mb really needed?
-
-No, I don't think so, since this is a function, I'll remove this.
+yes
