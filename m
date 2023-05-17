@@ -2,446 +2,325 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 697C2C77B75
-	for <linux-s390@archiver.kernel.org>; Wed, 17 May 2023 22:03:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A2E43C77B75
+	for <linux-s390@archiver.kernel.org>; Wed, 17 May 2023 22:41:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230058AbjEQWC7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 17 May 2023 18:02:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51634 "EHLO
+        id S229527AbjEQWls (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 17 May 2023 18:41:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229929AbjEQWCe (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 May 2023 18:02:34 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2EB4ED
-        for <linux-s390@vger.kernel.org>; Wed, 17 May 2023 15:01:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1684360904;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=HG/rceSfXoWbIlm6Cl/pPVb/WvTeG1OA3/AKdOuyr2M=;
-        b=b6q5OsLpMEx0QlyWRF+taqSpqdfAKeSnlDBJWFAehLYnpSWoK3Z4LRZZQXiIIJ6Jgk5Swp
-        CilKf8yEU2fGMvvAdzskR40+hS5qcsHdjLchibqzW/qBnqBFFIQ1i6jJEImh3nDTjFhlXn
-        P6E3eVd+jpUKqa41vUS11IkBgL2hdXc=
-Received: from mail-io1-f72.google.com (mail-io1-f72.google.com
- [209.85.166.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-536-X7djssrZPgWQTLnkyzRcTw-1; Wed, 17 May 2023 18:01:35 -0400
-X-MC-Unique: X7djssrZPgWQTLnkyzRcTw-1
-Received: by mail-io1-f72.google.com with SMTP id ca18e2360f4ac-76c71fc7be6so89782439f.2
-        for <linux-s390@vger.kernel.org>; Wed, 17 May 2023 15:01:35 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1684360895; x=1686952895;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=HG/rceSfXoWbIlm6Cl/pPVb/WvTeG1OA3/AKdOuyr2M=;
-        b=M+3qKclnGYIyGX3cYw4rR4gL+zOWxksRAjW45wCbQKhwUGcP0npsr3D7jHv5qG+x95
-         SjHXJKbJBAHHPTPOgVPg5QXmT91bNdnHExHaG46E6Oj7Eu8kJmevSNcMcyNGSBSU2KL2
-         ioOLSLmpHGPWqPhEoRKBqAWEkTTBcRa23L6uYzVD0jknX1/+58qlLg7XxSpPVljq0AOs
-         99XZsHgErQR4Cn7J0kjap9clQ5aFWcl48p81Ohj0cieqbyBJBAMh1ycQGpExZ8b6Az6M
-         bjtCjOJ7+GQuY6sbuFcUpzm2Z/IUOgDp0Gnyn+1eKUvx3k8TU2QsC/ZHOe2nbzptKQY5
-         VlQg==
-X-Gm-Message-State: AC+VfDxmvDFM87pHb1TiUztnkvaOF0ji5owO+64FqTlX6l6XTNZTwa7V
-        AdEZ7+6wUDMLeLN9JKvbNRO7UCnTNF5EEbqHRn3UkXwgmFEeBbGxB0FotuPGbBJ+Oi8p+G8Lzbu
-        VRFN3R3MIaLInY2APnhalHw==
-X-Received: by 2002:a5d:8558:0:b0:763:a8a0:c7c0 with SMTP id b24-20020a5d8558000000b00763a8a0c7c0mr5096031ios.10.1684360894633;
-        Wed, 17 May 2023 15:01:34 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ5VIN7oZu7ufkSHUSKK5ieAsNm16qvFybf0QXWwaZsZClXLWw964O5XEMhRfmlbyIumybiHYA==
-X-Received: by 2002:a5d:8558:0:b0:763:a8a0:c7c0 with SMTP id b24-20020a5d8558000000b00763a8a0c7c0mr5096013ios.10.1684360894200;
-        Wed, 17 May 2023 15:01:34 -0700 (PDT)
-Received: from redhat.com ([38.15.36.239])
-        by smtp.gmail.com with ESMTPSA id dl6-20020a056638278600b004166c24e30dsm27560jab.32.2023.05.17.15.01.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 17 May 2023 15:01:33 -0700 (PDT)
-Date:   Wed, 17 May 2023 16:01:31 -0600
-From:   Alex Williamson <alex.williamson@redhat.com>
-To:     Yi Liu <yi.l.liu@intel.com>
-Cc:     jgg@nvidia.com, kevin.tian@intel.com, joro@8bytes.org,
-        robin.murphy@arm.com, cohuck@redhat.com, eric.auger@redhat.com,
-        nicolinc@nvidia.com, kvm@vger.kernel.org, mjrosato@linux.ibm.com,
-        chao.p.peng@linux.intel.com, yi.y.sun@linux.intel.com,
-        peterx@redhat.com, jasowang@redhat.com,
-        shameerali.kolothum.thodi@huawei.com, lulu@redhat.com,
-        suravee.suthikulpanit@amd.com, intel-gvt-dev@lists.freedesktop.org,
-        intel-gfx@lists.freedesktop.org, linux-s390@vger.kernel.org,
-        xudong.hao@intel.com, yan.y.zhao@intel.com, terrence.xu@intel.com,
-        yanting.jiang@intel.com, zhenzhong.duan@intel.com,
-        clegoate@redhat.com
-Subject: Re: [PATCH v5 09/10] vfio/pci: Extend
- VFIO_DEVICE_GET_PCI_HOT_RESET_INFO for vfio device cdev
-Message-ID: <20230517160131.254be76b.alex.williamson@redhat.com>
-In-Reply-To: <20230513132136.15021-10-yi.l.liu@intel.com>
-References: <20230513132136.15021-1-yi.l.liu@intel.com>
-        <20230513132136.15021-10-yi.l.liu@intel.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
+        with ESMTP id S229484AbjEQWlr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 May 2023 18:41:47 -0400
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64F3CC6;
+        Wed, 17 May 2023 15:41:44 -0700 (PDT)
+Received: from eucas1p1.samsung.com (unknown [182.198.249.206])
+        by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20230517224139euoutp017c2d47e37f1d6482e683800375f99180~gD3806AQW3178231782euoutp01c;
+        Wed, 17 May 2023 22:41:39 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20230517224139euoutp017c2d47e37f1d6482e683800375f99180~gD3806AQW3178231782euoutp01c
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1684363299;
+        bh=NcQzwCvCpxVNULTL4p4tvs+CN1+fBl+7JbHkAnqGlTc=;
+        h=Date:Subject:To:Cc:From:In-Reply-To:References:From;
+        b=RDSSWi2cMlCnOeNEyFtWVBgQA74uILaYctFynXXm8LNuNdsyHqYyqBGBH6OUybVR6
+         2/N0BmpmSu3CT/7c2rBeWsMuXWGsW4+mKhGK3gAyLC6UoFIuQ3zNfLkYEsBMJnnVch
+         Je7+AexzTYHGxEnT+s2X61XNFIpwhXt2CyqK/YIw=
+Received: from eusmges1new.samsung.com (unknown [203.254.199.242]) by
+        eucas1p1.samsung.com (KnoxPortal) with ESMTP id
+        20230517224139eucas1p13e8fac5a51a7c41f26fe5910fe858f04~gD38j9syJ2454424544eucas1p19;
+        Wed, 17 May 2023 22:41:39 +0000 (GMT)
+Received: from eucas1p1.samsung.com ( [182.198.249.206]) by
+        eusmges1new.samsung.com (EUCPMTA) with SMTP id 2C.46.42423.32855646; Wed, 17
+        May 2023 23:41:39 +0100 (BST)
+Received: from eusmtrp1.samsung.com (unknown [182.198.249.138]) by
+        eucas1p2.samsung.com (KnoxPortal) with ESMTPA id
+        20230517224138eucas1p2a52b9287f18e642ab4f497f91c9401c6~gD38AuTqB0316203162eucas1p2B;
+        Wed, 17 May 2023 22:41:38 +0000 (GMT)
+Received: from eusmgms2.samsung.com (unknown [182.198.249.180]) by
+        eusmtrp1.samsung.com (KnoxPortal) with ESMTP id
+        20230517224138eusmtrp1993107c255367809d06826cce0c7d570~gD37-jRKD2285622856eusmtrp1Y;
+        Wed, 17 May 2023 22:41:38 +0000 (GMT)
+X-AuditID: cbfec7f2-a3bff7000002a5b7-cd-64655823fb28
+Received: from eusmtip1.samsung.com ( [203.254.199.221]) by
+        eusmgms2.samsung.com (EUCPMTA) with SMTP id EC.23.14344.22855646; Wed, 17
+        May 2023 23:41:38 +0100 (BST)
+Received: from [106.210.134.192] (unknown [106.210.134.192]) by
+        eusmtip1.samsung.com (KnoxPortal) with ESMTPA id
+        20230517224136eusmtip17c0187406963fb821c57c5b9ba53893b~gD358V0mM1562815628eusmtip1h;
+        Wed, 17 May 2023 22:41:36 +0000 (GMT)
+Message-ID: <692ff1c1-47d2-815d-9e63-05d84eed283e@samsung.com>
+Date:   Thu, 18 May 2023 00:41:36 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0)
+        Gecko/20100101 Thunderbird/102.10.1
+Subject: Re: [PATCH v2 10/25] iommu/exynos: Implement an IDENTITY domain
+Content-Language: en-US
+To:     Jason Gunthorpe <jgg@nvidia.com>, Andy Gross <agross@kernel.org>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Bjorn Andersson <andersson@kernel.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Baolin Wang <baolin.wang@linux.alibaba.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
+        linux-tegra@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
+        linuxppc-dev@lists.ozlabs.org,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Orson Zhai <orsonzhai@gmail.com>,
+        Rob Clark <robdclark@gmail.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Krishna Reddy <vdumpa@nvidia.com>,
+        Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>,
+        Yong Wu <yong.wu@mediatek.com>,
+        Chunyan Zhang <zhang.lyra@gmail.com>
+Cc:     Lu Baolu <baolu.lu@linux.intel.com>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Nicolin Chen <nicolinc@nvidia.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Steven Price <steven.price@arm.com>,
+        Thierry Reding <treding@nvidia.com>
+From:   Marek Szyprowski <m.szyprowski@samsung.com>
+In-Reply-To: <10-v2-8d1dc464eac9+10f-iommu_all_defdom_jgg@nvidia.com>
 Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: H4sIAAAAAAAAA01Ta1BUZRjuO+fs2WVt6bDi8IWVM+ugFOMiZdPXSAw0asdxuoANak7BDpyA
+        uNmuZOVMEJeEzZEFU+BQiwLFTZC7uLML7UYQksvNVoQlNsCWiysgNIBbSyxHi3/P+zzP+z7v
+        +818AlyczfcUxCScZOQJsjgJKSSaO1aMu7YfZSJ3W+8JkXHcTiCLuplEzZn+qL8ColVdB0AN
+        OU0kMuda+ahqfhyg2bQP0OrYDA89XETIWlQD0C2HFqB0tphAWYW1fPS9rYmPMs9fI5BuZg3V
+        j5t4KKftJh8NpPUB9MCyiiPV5TQc5fe0YuibVg2JshZZEhku6ACyLzl4KDX9JVRbUoijxhQD
+        iXR3x0m0MjlIoLy5QoCsl5dxpJ+b4CHrWBaJ8lP/JNGX7bNrFo2aQMN2V3ROF4JWDD0YSje/
+        jEZzGwhUZtHwA6X0hF6N0VfUVwA9YOrD6ZaRUkD/dceI0bVjVTy6eCqFoK+zI3y6RDuF0fWV
+        WSRtNmlJ+vofr9Kq4h8Bre4KphtKk+nJhgLwjsd7Qv9IJi7mE0buGxAujO6tLQcnLko/1c7+
+        gqWAWi8lcBFAag803VDxlUAoEFPlAJo1JXynIKYWAbyf7s4JCwDm3qvgPe741bYMOKEMwArW
+        SHLFPIA9bBPpdImoAFhkmVofRVBecPD3eYLj3WBXwcQ63kIxsLKhD3fizRQNB1fYdR6nPODQ
+        RBHmHOpOKZ+E1e1nMU6YAtBUuMuJScoPKm3K9TAXaj/MNgzwOc82eM32Le5shlTVJni3TcXn
+        9t4Hh64WkBzeDKc7Gx/xz8Du82cJruEMgJfsoxhXqABMsQ4BzrUXmo0P17oFaxHPw6saX44O
+        gjUrHbiThpQrHLS5cUu4wtzmvEe0CGZ+JebcOyDbWfNfrL63H1cBCbvhXdgN97MbzmH/z70E
+        iErgwSQp4qMYhV8Cc0qqkMUrkhKipBGJ8fVg7c90OzoftIDvpuelBoAJgAFAAS5xFwWfi4gU
+        iyJln33OyBPD5ElxjMIAtgoIiYfI57WuCDEVJTvJxDLMCUb+WMUELp4pmCooozGU3foKXPLo
+        tPuOuDV5hR5M/Cjj7cKCN08ne33olqqKkZW84S3UPKGLrf5pZ4dnhvGwaYbyriG2hxPPxQUc
+        k9eZ6UPF2dVHRsJiZwK9fY/+vBpSP5o9d9u4/9h0F8/9uCMosI3tbm059+wo+FimFORk+OQ+
+        nXj7wj6z5PDp1wXNob1/R2vLSwmJa8TymS1Fw9Z3VQ77pOjGtoDhSTlv6cCLs+O17MXE3vCy
+        +7G9NnyP/ouvl+BefX+xf9/72NI/Pgcqg9+S16UqXTLvCOoKina3q0t/8LS3s0cO5Vt2lmL6
+        uZzfNj21I+ympSwv28JYpJap8uSF0FuOUwshx7UDEkIRLfN7AZcrZP8CfV4kW6IEAAA=
+X-Brightmail-Tracker: H4sIAAAAAAAAA02Se0xbdRTH87v39rYlstzxCFfcnNaAj2hpgcIBAeeIepVkOsIfBp2zo9ey
+        DChpwceyKK8lUBkbBTYoWBjQzbEJlQJjrOVRJ4OJg8mssBXGAIHKeC04ViFgC5rw3+c8vud7
+        cnJ4uEc16cs7kpLGKlOkSQLSjfhl/cbIa4IPWZlIU+YPtyZWCRjTtZDQkhsBv12kYcPcjcBY
+        2EyCTTPNhUtLEwgWsj+BjfFZDvyzDDBdWY/gzroJQY62moC8cgMX9HPNXMgtukKAedZJjRNW
+        DhR2/MqFwezbCB6NbeBw+lw2DqX97RgUt7eRkLesJcFSYkawurLOgaycIDDUlOPQlGEhwfzn
+        BAmOmSECzi6WI5g+9wSHrsVJDkyP55FQmjVFQub1BWdLm46Ae6s7oMAcCw5LPwY5Ngnc1xgJ
+        uDDWxt0rZCa7dBhzWXcZMYPW2zjTOlKLmL+Hb2GMYfwSh6m2ZxDMVe0Il6kx2TGmsS6PZGxW
+        E8lcfRDGnK7uRIyu9wBjrP2GmTGWoQ984oURSkV6GvtcokKVFin4SAyBQnEYCAODw4TioNCD
+        4YESQUBUhIxNOvI5qwyI+lSYOGD4HqWeEX5pWujBMpDBT434PJoKpvvmniAXe1B6RBev7djK
+        76J7z2RwttiTXrOqSTVyc/YsIHr2xk3MVXCnoujKMTvXxQTlRw+NLhFb+Z10b9nkJntTLN2r
+        H9pkT4qhhxzaTcYpH/ruZCXmGupFaZ6iH1X1c10BTtkR3VCU/Z9dKaI7Zgo2LUhKTKvnXHvw
+        eXzqLfqUZZC7NSqEVjer0Rbvoa/MVeCnkYd22ybabY7abRLtNkkVIuqQF5uuSpYnqwKFKmmy
+        Kj1FLkxQJDci57O2dDuaWtHFv5aEFoTxkAXRPFzg5X6gIEHm4S6TfnWMVSoOKdOTWJUFSZzn
+        KMR9vRMUzm9PSTskDhFJxMEhYSJJWEiQwMf93dRcqQcll6axR1k2lVX+r8N4fN8MLMbBfeG7
+        IdtMtyDaZypogl+fu3OqqGCgRB75mLbvq1qPON76vGOt9o38xPMDK2PCE/hwys+qe6MsX/9H
+        aFZ8S6Y9Uee9Hx+OUzR1zEc2sxrPhH7T8WulJ+c15frOaDKGiO1cmZf1Le+eajwffnRB/eLd
+        XZLVEa7R+rIdroda0SnRj0JBe2V8uN/+H+pzR0U9++SKBzVZNiWn55l4TcvDikFbAK2RtB+8
+        050eJ/ti8Zh/7HufVSx9u+fZGP/8x1V1ysMnL7wjmvnp9RM3TW8OTF/DG+Tms11sjKHAuKjP
+        f6kk8PDX7yt6zbv3ZhY3uH38dN+rD38vjLbIO5PuVxS8HYeNCwhVolT8Cq5USf8F8R6m+zUE
+        AAA=
+X-CMS-MailID: 20230517224138eucas1p2a52b9287f18e642ab4f497f91c9401c6
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-RootMTR: 20230516000116eucas1p2afa079038cb38a53400b940cf84cd34d
+X-EPHeader: CA
+CMS-TYPE: 201P
+X-CMS-RootMailID: 20230516000116eucas1p2afa079038cb38a53400b940cf84cd34d
+References: <CGME20230516000116eucas1p2afa079038cb38a53400b940cf84cd34d@eucas1p2.samsung.com>
+        <10-v2-8d1dc464eac9+10f-iommu_all_defdom_jgg@nvidia.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sat, 13 May 2023 06:21:35 -0700
-Yi Liu <yi.l.liu@intel.com> wrote:
+On 16.05.2023 02:00, Jason Gunthorpe wrote:
+> What exynos calls exynos_iommu_detach_device is actually putting the iommu
+> into identity mode.
+>
+> Move to the new core support for ARM_DMA_USE_IOMMU by defining
+> ops->identity_domain.
+>
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 
-> This makes VFIO_DEVICE_GET_PCI_HOT_RESET_INFO ioctl to use the iommufd_ctx
+Acked-by: Marek Szyprowski
 
-s/makes/allows/?
-
-s/to//
-
-> of the cdev device to check the ownership of the other affected devices.
-> 
-> This returns devid for each of the affected devices. If it is bound to the
-> iommufd_ctx of the cdev device, _INFO reports a valid devid > 0; If it is
-> not opened by the calling user, but it belongs to the same iommu_group of
-> a device that is bound to the iommufd_ctx of the cdev device, reports devid
-> value of 0; If the device is un-owned device, configured within a different
-> iommufd, or opened outside of the vfio device cdev API, the _INFO ioctl shall
-> report devid value of -1.
-> 
-> devid >=0 doesn't block hot-reset as the affected devices are considered to
-> be owned, while devid == -1 will block the use of VFIO_DEVICE_PCI_HOT_RESET
-> outside of proof-of-ownership calling conventions (ie. via legacy group
-> accessed devices).
-> 
-> This adds flag VFIO_PCI_HOT_RESET_FLAG_DEV_ID to tell the user devid is
-> returned in case of calling user get device fd from other software stack
-
-"other software stack"?  I think this is trying to say something like:
-
-  When VFIO_DEVICE_GET_PCI_HOT_RESET_INFO is called on an IOMMUFD
-  managed device, the new flag VFIO_PCI_HOT_RESET_FLAG_DEV_ID is
-  reported to indicate the values returned are IOMMUFD devids rather
-  than group IDs as used when accessing vfio devices through the
-  conventional vfio group interface.  Additionally the flag
-  VFIO_PCI_HOT_RESET_FLAG_DEV_ID_OWNED will be reported in this mode if
-  all of the devices affected by the hot-reset are owned by either
-  virtue of being directly bound to the same iommufd context as the
-  calling device, or implicitly owned via a shared IOMMU group.
-
-> and adds flag VFIO_PCI_HOT_RESET_FLAG_DEV_ID_OWNED to tell user if all
-> the affected devices are owned, so user can know it without looping all
-> the returned devids.
-> 
-> Suggested-by: Jason Gunthorpe <jgg@nvidia.com>
-> Suggested-by: Alex Williamson <alex.williamson@redhat.com>
-> Signed-off-by: Yi Liu <yi.l.liu@intel.com>
 > ---
->  drivers/vfio/pci/vfio_pci_core.c | 52 ++++++++++++++++++++++++++++++--
->  include/uapi/linux/vfio.h        | 46 +++++++++++++++++++++++++++-
->  2 files changed, 95 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
-> index 4df2def35bdd..57586be770af 100644
-> --- a/drivers/vfio/pci/vfio_pci_core.c
-> +++ b/drivers/vfio/pci/vfio_pci_core.c
-> @@ -27,6 +27,7 @@
->  #include <linux/vgaarb.h>
->  #include <linux/nospec.h>
->  #include <linux/sched/mm.h>
-> +#include <linux/iommufd.h>
->  #if IS_ENABLED(CONFIG_EEH)
->  #include <asm/eeh.h>
->  #endif
-> @@ -36,6 +37,10 @@
->  #define DRIVER_AUTHOR   "Alex Williamson <alex.williamson@redhat.com>"
->  #define DRIVER_DESC "core driver for VFIO based PCI devices"
->  
-> +#ifdef CONFIG_IOMMUFD
-> +MODULE_IMPORT_NS(IOMMUFD);
-> +#endif
+>   drivers/iommu/exynos-iommu.c | 66 +++++++++++++++++-------------------
+>   1 file changed, 32 insertions(+), 34 deletions(-)
+>
+> diff --git a/drivers/iommu/exynos-iommu.c b/drivers/iommu/exynos-iommu.c
+> index c275fe71c4db32..5e12b85dfe8705 100644
+> --- a/drivers/iommu/exynos-iommu.c
+> +++ b/drivers/iommu/exynos-iommu.c
+> @@ -24,6 +24,7 @@
+>   
+>   typedef u32 sysmmu_iova_t;
+>   typedef u32 sysmmu_pte_t;
+> +static struct iommu_domain exynos_identity_domain;
+>   
+>   /* We do not consider super section mapping (16MB) */
+>   #define SECT_ORDER 20
+> @@ -829,7 +830,7 @@ static int __maybe_unused exynos_sysmmu_suspend(struct device *dev)
+>   		struct exynos_iommu_owner *owner = dev_iommu_priv_get(master);
+>   
+>   		mutex_lock(&owner->rpm_lock);
+> -		if (data->domain) {
+> +		if (&data->domain->domain != &exynos_identity_domain) {
+>   			dev_dbg(data->sysmmu, "saving state\n");
+>   			__sysmmu_disable(data);
+>   		}
+> @@ -847,7 +848,7 @@ static int __maybe_unused exynos_sysmmu_resume(struct device *dev)
+>   		struct exynos_iommu_owner *owner = dev_iommu_priv_get(master);
+>   
+>   		mutex_lock(&owner->rpm_lock);
+> -		if (data->domain) {
+> +		if (&data->domain->domain != &exynos_identity_domain) {
+>   			dev_dbg(data->sysmmu, "restoring state\n");
+>   			__sysmmu_enable(data);
+>   		}
+> @@ -980,17 +981,20 @@ static void exynos_iommu_domain_free(struct iommu_domain *iommu_domain)
+>   	kfree(domain);
+>   }
+>   
+> -static void exynos_iommu_detach_device(struct iommu_domain *iommu_domain,
+> -				    struct device *dev)
+> +static int exynos_iommu_identity_attach(struct iommu_domain *identity_domain,
+> +					struct device *dev)
+>   {
+> -	struct exynos_iommu_domain *domain = to_exynos_domain(iommu_domain);
+>   	struct exynos_iommu_owner *owner = dev_iommu_priv_get(dev);
+> -	phys_addr_t pagetable = virt_to_phys(domain->pgtable);
+> +	struct exynos_iommu_domain *domain;
+> +	phys_addr_t pagetable;
+>   	struct sysmmu_drvdata *data, *next;
+>   	unsigned long flags;
+>   
+> -	if (!has_sysmmu(dev) || owner->domain != iommu_domain)
+> -		return;
+> +	if (owner->domain == identity_domain)
+> +		return 0;
 > +
->  static bool nointxmask;
->  static bool disable_vga;
->  static bool disable_idle_d3;
-> @@ -776,6 +781,9 @@ struct vfio_pci_fill_info {
->  	int max;
->  	int cur;
->  	struct vfio_pci_dependent_device *devices;
-> +	struct vfio_device *vdev;
-> +	bool devid:1;
-> +	bool dev_owned:1;
->  };
->  
->  static int vfio_pci_fill_devs(struct pci_dev *pdev, void *data)
-> @@ -790,7 +798,37 @@ static int vfio_pci_fill_devs(struct pci_dev *pdev, void *data)
->  	if (!iommu_group)
->  		return -EPERM; /* Cannot reset non-isolated devices */
->  
-> -	fill->devices[fill->cur].group_id = iommu_group_id(iommu_group);
-> +	if (fill->devid) {
-> +		struct iommufd_ctx *iommufd = vfio_iommufd_physical_ictx(fill->vdev);
-> +		struct vfio_device_set *dev_set = fill->vdev->dev_set;
-> +		struct vfio_device *vdev;
+> +	domain = to_exynos_domain(owner->domain);
+> +	pagetable = virt_to_phys(domain->pgtable);
+>   
+>   	mutex_lock(&owner->rpm_lock);
+>   
+> @@ -1009,15 +1013,25 @@ static void exynos_iommu_detach_device(struct iommu_domain *iommu_domain,
+>   		list_del_init(&data->domain_node);
+>   		spin_unlock(&data->lock);
+>   	}
+> -	owner->domain = NULL;
+> +	owner->domain = identity_domain;
+>   	spin_unlock_irqrestore(&domain->lock, flags);
+>   
+>   	mutex_unlock(&owner->rpm_lock);
+>   
+> -	dev_dbg(dev, "%s: Detached IOMMU with pgtable %pa\n", __func__,
+> -		&pagetable);
+> +	dev_dbg(dev, "%s: Restored IOMMU to IDENTITY from pgtable %pa\n",
+> +		__func__, &pagetable);
+> +	return 0;
+>   }
+>   
+> +static struct iommu_domain_ops exynos_identity_ops = {
+> +	.attach_dev = exynos_iommu_identity_attach,
+> +};
 > +
-> +		/*
-> +		 * Report devid for the affected devices:
-> +		 * - valid devid > 0 for the devices that are bound with
-> +		 *   the iommufd of the calling device.
-> +		 * - devid == 0 for the devices that have not been opened
-> +		 *   but have same group with one of the devices bound to
-> +		 *   the iommufd of the calling device.
-> +		 * - devid == -1 for others, and clear dev_owned flag.
-> +		 */
-> +		vdev = vfio_find_device_in_devset(dev_set, &pdev->dev);
-> +		if (vdev && iommufd == vfio_iommufd_physical_ictx(vdev)) {
-> +			int ret;
+> +static struct iommu_domain exynos_identity_domain = {
+> +	.type = IOMMU_DOMAIN_IDENTITY,
+> +	.ops = &exynos_identity_ops,
+> +};
 > +
-> +			ret = vfio_iommufd_physical_devid(vdev);
-> +			if (WARN_ON(ret < 0))
-> +				return ret;
-> +			fill->devices[fill->cur].devid = ret;
+>   static int exynos_iommu_attach_device(struct iommu_domain *iommu_domain,
+>   				   struct device *dev)
+>   {
+> @@ -1026,12 +1040,11 @@ static int exynos_iommu_attach_device(struct iommu_domain *iommu_domain,
+>   	struct sysmmu_drvdata *data;
+>   	phys_addr_t pagetable = virt_to_phys(domain->pgtable);
+>   	unsigned long flags;
+> +	int err;
+>   
+> -	if (!has_sysmmu(dev))
+> -		return -ENODEV;
+> -
+> -	if (owner->domain)
+> -		exynos_iommu_detach_device(owner->domain, dev);
+> +	err = exynos_iommu_identity_attach(&exynos_identity_domain, dev);
+> +	if (err)
+> +		return err;
+>   
+>   	mutex_lock(&owner->rpm_lock);
+>   
+> @@ -1407,26 +1420,12 @@ static struct iommu_device *exynos_iommu_probe_device(struct device *dev)
+>   	return &data->iommu;
+>   }
+>   
+> -static void exynos_iommu_set_platform_dma(struct device *dev)
+> -{
+> -	struct exynos_iommu_owner *owner = dev_iommu_priv_get(dev);
+> -
+> -	if (owner->domain) {
+> -		struct iommu_group *group = iommu_group_get(dev);
+> -
+> -		if (group) {
+> -			exynos_iommu_detach_device(owner->domain, dev);
+> -			iommu_group_put(group);
+> -		}
+> -	}
+> -}
+> -
+>   static void exynos_iommu_release_device(struct device *dev)
+>   {
+>   	struct exynos_iommu_owner *owner = dev_iommu_priv_get(dev);
+>   	struct sysmmu_drvdata *data;
+>   
+> -	exynos_iommu_set_platform_dma(dev);
+> +	WARN_ON(exynos_iommu_identity_attach(&exynos_identity_domain, dev));
+>   
+>   	list_for_each_entry(data, &owner->controllers, owner_node)
+>   		device_link_del(data->link);
+> @@ -1457,6 +1456,7 @@ static int exynos_iommu_of_xlate(struct device *dev,
+>   
+>   		INIT_LIST_HEAD(&owner->controllers);
+>   		mutex_init(&owner->rpm_lock);
+> +		owner->domain = &exynos_identity_domain;
+>   		dev_iommu_priv_set(dev, owner);
+>   	}
+>   
+> @@ -1471,11 +1471,9 @@ static int exynos_iommu_of_xlate(struct device *dev,
+>   }
+>   
+>   static const struct iommu_ops exynos_iommu_ops = {
+> +	.identity_domain = &exynos_identity_domain,
+>   	.domain_alloc = exynos_iommu_domain_alloc,
+>   	.device_group = generic_device_group,
+> -#ifdef CONFIG_ARM
+> -	.set_platform_dma_ops = exynos_iommu_set_platform_dma,
+> -#endif
+>   	.probe_device = exynos_iommu_probe_device,
+>   	.release_device = exynos_iommu_release_device,
+>   	.pgsize_bitmap = SECT_SIZE | LPAGE_SIZE | SPAGE_SIZE,
 
-Nit, @devid seems like a better variable name here rather than @ret.
-
-> +		} else if (vdev && iommufd_ctx_has_group(iommufd, iommu_group)) {
-> +			fill->devices[fill->cur].devid = VFIO_PCI_DEVID_OWNED;
-> +		} else {
-> +			fill->devices[fill->cur].devid = VFIO_PCI_DEVID_NOT_OWNED;
-> +			fill->dev_owned = false;
-> +		}
-
-I think we're not describing the requirements for this middle test
-correctly.  We're essentially only stating the iommufd_ctx_has_group()
-part of the requirement, but we're also enforcing a
-vfio_find_device_in_devset() requirement, which means the device is not
-just unopened within a group shared by the iommufd context, but it must
-also still be a device registered as a member of the devset, ie. it
-must be bound to a vfio driver.
-
-It's not a new requirement, it's imposed in the hot-reset ioctl itself,
-but it's new for the info ioctl given that it's now trying to report
-that the user can perform the reset for cdev callers.
-
-This also shares too much logic with vfio_device_owned() added in the
-next patch.  I think it might be cleaner to move the iommu_group_get() to
-the group path below and change vfio_device_owned() to something that
-can be used here and in the reset path.  For example, if we had a
-function like:
-
-static int vfio_hot_reset_devid(struct vfio_device *vdev,
-                                struct iommufd_ctx *iommufd_ctx)
-{
-        struct iommu_group *group;
-        int devid;
-
-        if (!vdev)
-                return VFIO_PCI_DEVID_NOT_OWNED;
-
-        if (vfio_iommufd_physical_ictx(vdev) == iommufd_ctx) 
-                return vfio_iommufd_physical_devid(vdev);
-
-        group = iommu_group_get(vdev->dev);
-        if (!group)
-                return VFIO_PCI_DEVID_NOT_OWNED;
-                        
-        if (iommufd_ctx_has_group(iommufd_ctx, group))
-                devid = VFIO_PCI_DEVID_OWNED;
-
-        iommu_group_put(group);
-                                
-        return devid;
-} 
-
-It could be called above as:
-
-	vdev = vfio_find_device_in_devset(dev_set, &pdev->dev);
-	fill->devices[fill->cur].devid =
-			vfio_hot_reset_devid(vdev, iommufd);
-
-
-And from vfio_pci_dev_set_hot_reset() as:
-
-	bool owned;
-
-	if (iommufd_ctx) {
-		int devid = vfio_hot_reset_devid(&cur_vma->vdev,
-						 iommufd_ctx);
-
-		owned = (devid != VFIO_PCI_DEVID_NOT_OWNED);
-	} else
-		owned = vfio_dev_in_groups(&cur_vma->vdev, groups);
-
-Any better?
-
-> +	} else {
-> +		fill->devices[fill->cur].group_id = iommu_group_id(iommu_group);
-> +	}
->  	fill->devices[fill->cur].segment = pci_domain_nr(pdev->bus);
->  	fill->devices[fill->cur].bus = pdev->bus->number;
->  	fill->devices[fill->cur].devfn = pdev->devfn;
-> @@ -1229,17 +1267,27 @@ static int vfio_pci_ioctl_get_pci_hot_reset_info(
->  		return -ENOMEM;
->  
->  	fill.devices = devices;
-> +	fill.vdev = &vdev->vdev;
->  
-> +	mutex_lock(&vdev->vdev.dev_set->lock);
-> +	fill.devid = fill.dev_owned = vfio_device_cdev_opened(&vdev->vdev);
->  	ret = vfio_pci_for_each_slot_or_bus(vdev->pdev, vfio_pci_fill_devs,
->  					    &fill, slot);
-> +	mutex_unlock(&vdev->vdev.dev_set->lock);
->  
->  	/*
->  	 * If a device was removed between counting and filling, we may come up
->  	 * short of fill.max.  If a device was added, we'll have a return of
->  	 * -EAGAIN above.
->  	 */
-> -	if (!ret)
-> +	if (!ret) {
->  		hdr.count = fill.cur;
-> +		if (fill.devid) {
-> +			hdr.flags |= VFIO_PCI_HOT_RESET_FLAG_DEV_ID;
-> +			if (fill.dev_owned)
-> +				hdr.flags |= VFIO_PCI_HOT_RESET_FLAG_DEV_ID_OWNED;
-> +		}
-> +	}
-
-Does this clean up the flag and branching a bit?
-
-diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
-index 737115d16a79..6a2a079e452d 100644
---- a/drivers/vfio/pci/vfio_pci_core.c
-+++ b/drivers/vfio/pci/vfio_pci_core.c
-@@ -786,8 +786,7 @@ struct vfio_pci_fill_info {
- 	int cur;
- 	struct vfio_pci_dependent_device *devices;
- 	struct vfio_device *vdev;
--	bool devid:1;
--	bool dev_owned:1;
-+	u32 flags;
- };
- 
- static int vfio_pci_fill_devs(struct pci_dev *pdev, void *data)
-@@ -802,7 +801,7 @@ static int vfio_pci_fill_devs(struct pci_dev *pdev, void *data)
- 	if (!iommu_group)
- 		return -EPERM; /* Cannot reset non-isolated devices */
- 
--	if (fill->devid) {
-+	if (fill->flags & VFIO_PCI_HOT_RESET_FLAG_DEV_ID) {
- 		struct iommufd_ctx *iommufd = vfio_iommufd_physical_ictx(fill->vdev);
- 		struct vfio_device_set *dev_set = fill->vdev->dev_set;
- 		struct vfio_device *vdev;
-@@ -814,7 +813,7 @@ static int vfio_pci_fill_devs(struct pci_dev *pdev, void *data)
- 		 * - devid == 0 for the devices that have not been opened
- 		 *   but have same group with one of the devices bound to
- 		 *   the iommufd of the calling device.
--		 * - devid == -1 for others, and clear dev_owned flag.
-+		 * - devid == -1 for others, and clear owned flag.
- 		 */
- 		vdev = vfio_find_device_in_devset(dev_set, &pdev->dev);
- 		if (vdev && iommufd == vfio_iommufd_physical_ictx(vdev)) {
-@@ -828,7 +827,7 @@ static int vfio_pci_fill_devs(struct pci_dev *pdev, void *data)
- 			fill->devices[fill->cur].devid = VFIO_PCI_DEVID_OWNED;
- 		} else {
- 			fill->devices[fill->cur].devid = VFIO_PCI_DEVID_NOT_OWNED;
--			fill->dev_owned = false;
-+			fill->flags &= ~VFIO_PCI_HOT_RESET_FLAG_DEV_ID_OWNED;
- 		}
- 	} else {
- 		fill->devices[fill->cur].group_id = iommu_group_id(iommu_group);
-@@ -1273,8 +1272,11 @@ static int vfio_pci_ioctl_get_pci_hot_reset_info(
- 	fill.devices = devices;
- 	fill.vdev = &vdev->vdev;
- 
-+	if (vfio_device_cdev_opened(&vdev->vdev))
-+		fill.flags |= VFIO_PCI_HOT_RESET_FLAG_DEV_ID |
-+			     VFIO_PCI_HOT_RESET_FLAG_DEV_ID_OWNED;
-+
- 	mutex_lock(&vdev->vdev.dev_set->lock);
--	fill.devid = fill.dev_owned = vfio_device_cdev_opened(&vdev->vdev);
- 	ret = vfio_pci_for_each_slot_or_bus(vdev->pdev, vfio_pci_fill_devs,
- 					    &fill, slot);
- 	mutex_unlock(&vdev->vdev.dev_set->lock);
-@@ -1286,11 +1288,7 @@ static int vfio_pci_ioctl_get_pci_hot_reset_info(
- 	 */
- 	if (!ret) {
- 		hdr.count = fill.cur;
--		if (fill.devid) {
--			hdr.flags |= VFIO_PCI_HOT_RESET_FLAG_DEV_ID;
--			if (fill.dev_owned)
--				hdr.flags |= VFIO_PCI_HOT_RESET_FLAG_DEV_ID_OWNED;
--		}
-+		hdr.flags = fill.flags;
- 	}
- 
- reset_info_exit:
-
-Thanks,
-Alex
-
->  
->  reset_info_exit:
->  	if (copy_to_user(arg, &hdr, minsz))
-> diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
-> index 0552e8dcf0cb..01203215251a 100644
-> --- a/include/uapi/linux/vfio.h
-> +++ b/include/uapi/linux/vfio.h
-> @@ -650,11 +650,53 @@ enum {
->   * VFIO_DEVICE_GET_PCI_HOT_RESET_INFO - _IOWR(VFIO_TYPE, VFIO_BASE + 12,
->   *					      struct vfio_pci_hot_reset_info)
->   *
-> + * This command is used to query the affected devices in the hot reset for
-> + * a given device.
-> + *
-> + * This command always reports the segment, bus, and devfn information for
-> + * each affected device, and selectively reports the group_id or devid per
-> + * the way how the calling device is opened.
-> + *
-> + *	- If the calling device is opened via the traditional group/container
-> + *	  API, group_id is reported.  User should check if it has owned all
-> + *	  the affected devices and provides a set of group fds to prove the
-> + *	  ownership in VFIO_DEVICE_PCI_HOT_RESET ioctl.
-> + *
-> + *	- If the calling device is opened as a cdev, devid is reported.
-> + *	  Flag VFIO_PCI_HOT_RESET_FLAG_DEV_ID is set to indicate this
-> + *	  data type.  For a given affected device, it is considered owned by
-> + *	  this interface if it meets the following conditions:
-> + *	  1) Has a valid devid within the iommufd_ctx of the calling device.
-> + *	     Ownership cannot be determined across separate iommufd_ctx and the
-> + *	     cdev calling conventions do not support a proof-of-ownership model
-> + *	     as provided in the legacy group interface.  In this case a valid
-> + *	     devid with value greater than zero is provided in the return
-> + *	     structure.
-> + *	  2) Does not have a valid devid within the iommufd_ctx of the calling
-> + *	     device, but belongs to the same IOMMU group as the calling device
-> + *	     or another opened device that has a valid devid within the
-> + *	     iommufd_ctx of the calling device.  This provides implicit ownership
-> + *	     for devices within the same DMA isolation context.  In this case
-> + *	     the invalid devid value of zero is provided in the return structure.
-> + *
-> + *	  A devid value of -1 is provided in the return structure for devices
-> + *	  where ownership is not available.  Such devices prevent the use of
-> + *	  VFIO_DEVICE_PCI_HOT_RESET outside of proof-of-ownership calling
-> + *	  conventions (ie. via legacy group accessed devices).
-> + *	  Flag VFIO_PCI_HOT_RESET_FLAG_DEV_ID_OWNED would be set when all the
-> + *	  affected devices are owned by the user.  This flag is available only
-> + *	  when VFIO_PCI_HOT_RESET_FLAG_DEV_ID is set, otherwise reserved.
-> + *
->   * Return: 0 on success, -errno on failure:
->   *	-enospc = insufficient buffer, -enodev = unsupported for device.
->   */
->  struct vfio_pci_dependent_device {
-> -	__u32	group_id;
-> +	union {
-> +		__u32   group_id;
-> +		__u32	devid;
-> +#define VFIO_PCI_DEVID_OWNED		0
-> +#define VFIO_PCI_DEVID_NOT_OWNED	-1
-> +	};
->  	__u16	segment;
->  	__u8	bus;
->  	__u8	devfn; /* Use PCI_SLOT/PCI_FUNC */
-> @@ -663,6 +705,8 @@ struct vfio_pci_dependent_device {
->  struct vfio_pci_hot_reset_info {
->  	__u32	argsz;
->  	__u32	flags;
-> +#define VFIO_PCI_HOT_RESET_FLAG_DEV_ID		(1 << 0)
-> +#define VFIO_PCI_HOT_RESET_FLAG_DEV_ID_OWNED	(1 << 1)
->  	__u32	count;
->  	struct vfio_pci_dependent_device	devices[];
->  };
+Best regards
+-- 
+Marek Szyprowski, PhD
+Samsung R&D Institute Poland
 
