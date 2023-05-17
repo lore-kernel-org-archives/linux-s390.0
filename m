@@ -2,180 +2,164 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EA5ECC7EE23
-	for <linux-s390@archiver.kernel.org>; Wed, 17 May 2023 10:41:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 98D73C77B75
+	for <linux-s390@archiver.kernel.org>; Wed, 17 May 2023 10:47:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229782AbjEQKlL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 17 May 2023 06:41:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56524 "EHLO
+        id S229924AbjEQKrt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 17 May 2023 06:47:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229510AbjEQKlK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 May 2023 06:41:10 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A61BC46BC;
-        Wed, 17 May 2023 03:41:02 -0700 (PDT)
-Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34HAWh8p030125;
-        Wed, 17 May 2023 10:39:33 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=6o4UB5d8iRIZZq7T331T96/YmtIoyPZJVO895cK7BU4=;
- b=Qlb1r1C79y4iKHdQAqanT8rbJmqF8hpDVpHADvfmHgcOzINGCqecTLs6lklqCmaeUKZi
- LNo2SCVe642Qo5fhaxr/ou+1QQFdZf6fudSYdsYn1zj0/qda6lUKaL4wNzWc8ZwCpOGB
- u1jr8Jeldv7dhRYFAZce4H8UEXUhr2sOKWsFIUzuyQCAdsrgpetZ/OvfYv7ko7U4WoTl
- WIlXuWOUiMllj0buN4FxHg1xFrqq9szJZkHJpe+PgAPCqpQU+mAWYxRNQNulh9twB9sp
- 7Sk1CAWsYA8brwf7ADoH4AMfmPk6bkEJB+etoy2gytNtvsvI4B1v7NCryfl9JlR+J5XJ Lg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qmvpm9ncq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 17 May 2023 10:39:33 +0000
-Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34HAWq5Q030869;
-        Wed, 17 May 2023 10:37:18 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qmvpm9fk6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 17 May 2023 10:37:18 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34H5hGdl019589;
-        Wed, 17 May 2023 10:35:52 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3qj1tdt3s3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 17 May 2023 10:35:52 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34HAZmug51773938
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 17 May 2023 10:35:48 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B38752004B;
-        Wed, 17 May 2023 10:35:48 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C636820043;
-        Wed, 17 May 2023 10:35:47 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.152.224.66])
-        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 17 May 2023 10:35:47 +0000 (GMT)
-Date:   Wed, 17 May 2023 12:35:46 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Hugh Dickins <hughd@google.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        David Hildenbrand <david@redhat.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Qi Zheng <zhengqi.arch@bytedance.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Greg Ungerer <gerg@linux-m68k.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Helge Deller <deller@gmx.de>,
-        John David Anglin <dave.anglin@bell.net>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Alexandre Ghiti <alexghiti@rivosinc.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        with ESMTP id S229782AbjEQKrs (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 May 2023 06:47:48 -0400
+Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 384D72D49;
+        Wed, 17 May 2023 03:47:47 -0700 (PDT)
+Received: by mail-wr1-x431.google.com with SMTP id ffacd0b85a97d-30786c87cdaso560048f8f.2;
+        Wed, 17 May 2023 03:47:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1684320465; x=1686912465;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:date:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=hqvkmynEV6/dEj1F324kSuUIEax/RriRwvtPl5SBD9Q=;
+        b=DOV6yM9dgDqxu/o3argXq7spycp9mQOqF4YFCCozRgcJGMQsomFhVXykW6RfhwpEiv
+         /a0f2cTkEepZnT5QgNXf6RvLzzvSTWoL3P8Z7Gpx1I/muxcTBMVR7MDYXWnMXnxzmRMe
+         VVg3i4z3QFNpTD2MMb0J7LWn3oHMsgaN+mQIG3cRjsDS48ZqfNyVAv9/qBYvzkYzyZr9
+         dP8SJvZrVYNW0sNEHZpQRnv+MwzSP83lXswk9OCHG95Tw24QwwkZSeYT8hX8qu/CYbaG
+         tgOzYr1po54vgH0Ki+BM7IZ3IeaMHl/yIlAjowj8b7gZ4s1UsQWjCCTW10o3+M2iAfOp
+         oijg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1684320465; x=1686912465;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:date:from:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=hqvkmynEV6/dEj1F324kSuUIEax/RriRwvtPl5SBD9Q=;
+        b=crzLWt+caaxsWNoEDVl/jOmHinEqH7PdxuGrfzn9N8y9/rT1RHC7nfWs1/KHdkVUN/
+         g7PTTM7NHgRp3oKigOvxW5Twd+VkoKGHsO+I3884J/zP+xufwprS5XmgTcIoYpKIvA1f
+         B22qSpnglwBMIkYLZcHz9c1QoXQejKkdmDjiOyVouDxe4c5nbXDFpkp1/OIhdCab/4bf
+         MXWJ2ERm/hExW+7/Bi8prL9ESiaZ7IJqy/UXprJog6RlTVXJ9UaU3IrWMMIoaWNbXCA4
+         Mqjc2YuYdF/HPASbZYIu3R8uLsW5B4UtT+AVb61nfSi8vmhZGjANOXhDfESZ3vOz/EEV
+         w9xA==
+X-Gm-Message-State: AC+VfDxLCAm0z8njI2YYPG+YZ4tfl1b29IgcTQ+iCncIFuGFYmJ8ZCU0
+        d68cZL4dPmLI7M3Fs3kaHHo=
+X-Google-Smtp-Source: ACHHUZ471C3w5wFUGqIt4z27L/T2S6UBevOn16Z1o3xjez4iuEJaWtfcI8ywEBpGacqYJ2cij8Y9bA==
+X-Received: by 2002:adf:f8d1:0:b0:307:8b3e:285a with SMTP id f17-20020adff8d1000000b003078b3e285amr261055wrq.67.1684320465184;
+        Wed, 17 May 2023 03:47:45 -0700 (PDT)
+Received: from krava (2001-1ae9-1c2-4c00-726e-c10f-8833-ff22.ip6.tmcz.cz. [2001:1ae9:1c2:4c00:726e:c10f:8833:ff22])
+        by smtp.gmail.com with ESMTPSA id g3-20020a5d6983000000b002ff2c39d072sm2334322wru.104.2023.05.17.03.47.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 17 May 2023 03:47:44 -0700 (PDT)
+From:   Jiri Olsa <olsajiri@gmail.com>
+X-Google-Original-From: Jiri Olsa <jolsa@kernel.org>
+Date:   Wed, 17 May 2023 12:47:42 +0200
+To:     Ze Gao <zegao2021@gmail.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>
+Cc:     Steven Rostedt <rostedt@goodmis.org>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Chris Zankel <chris@zankel.net>,
-        Max Filippov <jcmvbkbc@gmail.com>, x86@kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
-        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vasily Gorbik <gor@linux.ibm.com>, x86@kernel.org,
+        bpf@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH 15/23] s390: allow pte_offset_map_lock() to fail
-Message-ID: <20230517123546.672fb9b0@p-imbrenda>
-In-Reply-To: <94aec8fe-383f-892-dcbf-d4c14e460a7@google.com>
-References: <77a5d8c-406b-7068-4f17-23b7ac53bc83@google.com>
-        <94aec8fe-383f-892-dcbf-d4c14e460a7@google.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.37; x86_64-redhat-linux-gnu)
+        linux-trace-kernel@vger.kernel.org,
+        Conor Dooley <conor@kernel.org>, Yonghong Song <yhs@fb.com>,
+        Ze Gao <zegao@tencent.com>
+Subject: Re: [PATCH v3 2/4] fprobe: make fprobe_kprobe_handler recursion free
+Message-ID: <ZGSwzuM8oHgKaaga@krava>
+References: <20230517034510.15639-1-zegao@tencent.com>
+ <20230517034510.15639-3-zegao@tencent.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 8y_E68kURQ0ih8Y_-pXj5N6bPDOiuEZv
-X-Proofpoint-ORIG-GUID: ot2a0roI6HKgv_SkGdPLAhcx7gRQDDOX
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-05-17_02,2023-05-16_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 bulkscore=0
- clxscore=1011 mlxscore=0 phishscore=0 spamscore=0 mlxlogscore=972
- malwarescore=0 lowpriorityscore=0 impostorscore=0 priorityscore=1501
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2304280000 definitions=main-2305170081
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230517034510.15639-3-zegao@tencent.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 9 May 2023 22:01:16 -0700 (PDT)
-Hugh Dickins <hughd@google.com> wrote:
-
-> In rare transient cases, not yet made possible, pte_offset_map() and
-> pte_offset_map_lock() may not find a page table: handle appropriately.
+On Wed, May 17, 2023 at 11:45:07AM +0800, Ze Gao wrote:
+> Current implementation calls kprobe related functions before doing
+> ftrace recursion check in fprobe_kprobe_handler, which opens door
+> to kernel crash due to stack recursion if preempt_count_{add, sub}
+> is traceable in kprobe_busy_{begin, end}.
 > 
-> Signed-off-by: Hugh Dickins <hughd@google.com>
+> Things goes like this without this patch quoted from Steven:
+> "
+> fprobe_kprobe_handler() {
+>    kprobe_busy_begin() {
+>       preempt_disable() {
+>          preempt_count_add() {  <-- trace
+>             fprobe_kprobe_handler() {
+> 		[ wash, rinse, repeat, CRASH!!! ]
+> "
+> 
+> By refactoring the common part out of fprobe_kprobe_handler and
+> fprobe_handler and call ftrace recursion detection at the very beginning,
+> the whole fprobe_kprobe_handler is free from recursion.
+> 
+> Signed-off-by: Ze Gao <zegao@tencent.com>
+> Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+> Link: https://lore.kernel.org/linux-trace-kernel/20230516071830.8190-3-zegao@tencent.com
 > ---
->  arch/s390/kernel/uv.c  |  2 ++
->  arch/s390/mm/gmap.c    |  2 ++
->  arch/s390/mm/pgtable.c | 12 +++++++++---
->  3 files changed, 13 insertions(+), 3 deletions(-)
+>  kernel/trace/fprobe.c | 59 ++++++++++++++++++++++++++++++++-----------
+>  1 file changed, 44 insertions(+), 15 deletions(-)
 > 
-> diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
-> index cb2ee06df286..3c62d1b218b1 100644
-> --- a/arch/s390/kernel/uv.c
-> +++ b/arch/s390/kernel/uv.c
-> @@ -294,6 +294,8 @@ int gmap_make_secure(struct gmap *gmap, unsigned long gaddr, void *uvcb)
+> diff --git a/kernel/trace/fprobe.c b/kernel/trace/fprobe.c
+> index 9abb3905bc8e..097c740799ba 100644
+> --- a/kernel/trace/fprobe.c
+> +++ b/kernel/trace/fprobe.c
+> @@ -20,30 +20,22 @@ struct fprobe_rethook_node {
+>  	char data[];
+>  };
 >  
->  	rc = -ENXIO;
->  	ptep = get_locked_pte(gmap->mm, uaddr, &ptelock);
-> +	if (!ptep)
-> +		goto out;
->  	if (pte_present(*ptep) && !(pte_val(*ptep) & _PAGE_INVALID) && pte_write(*ptep)) {
->  		page = pte_page(*ptep);
->  		rc = -EAGAIN;
-> diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-> index dc90d1eb0d55..d198fc9475a2 100644
-> --- a/arch/s390/mm/gmap.c
-> +++ b/arch/s390/mm/gmap.c
-> @@ -2549,6 +2549,8 @@ static int __zap_zero_pages(pmd_t *pmd, unsigned long start,
->  		spinlock_t *ptl;
+> -static void fprobe_handler(unsigned long ip, unsigned long parent_ip,
+> -			   struct ftrace_ops *ops, struct ftrace_regs *fregs)
+> +static inline void __fprobe_handler(unsigned long ip, unsigned long
+> +		parent_ip, struct ftrace_ops *ops, struct ftrace_regs *fregs)
+>  {
+>  	struct fprobe_rethook_node *fpr;
+>  	struct rethook_node *rh = NULL;
+>  	struct fprobe *fp;
+>  	void *entry_data = NULL;
+> -	int bit, ret;
+> +	int ret;
 >  
->  		ptep = pte_offset_map_lock(walk->mm, pmd, addr, &ptl);
-> +		if (!ptep)
-> +			break;
 
-so if pte_offset_map_lock fails, we abort and skip both the failed
-entry and the rest of the entries?
+this change uncovered bug for me introduced by [1]
 
-can pte_offset_map_lock be retried immediately if it fails? (consider
-that we currently don't allow THP with KVM guests)
+the bpf's kprobe multi uses either fprobe's entry_handler or exit_handler,
+so the 'ret' value is undefined for return probe path and occasionally we
+won't setup rethook and miss the return probe
 
-Would something like this:
+we can either squash this change into your patch or I can make separate
+patch for that.. but given that [1] is quite recent we could just silently
+fix that ;-)
 
-do {
-	ptep = pte_offset_map_lock(...);
-	mb();	/* maybe? */
-} while (!ptep);
-
-make sense?
+jirka
 
 
-otherwise maybe it's better to return an error and retry the whole
-walk_page_range() in s390_enable_sie() ? it's a slow path anyway.
+[1] 39d954200bf6 fprobe: Skip exit_handler if entry_handler returns !0
 
->  		if (is_zero_pfn(pte_pfn(*ptep)))
->  			ptep_xchg_direct(walk->mm, addr, ptep, __pte(_PAGE_INVALID));
->  		pte_unmap_unlock(ptep, ptl);
+---
+diff --git a/kernel/trace/fprobe.c b/kernel/trace/fprobe.c
+index 9abb3905bc8e..293184227394 100644
+--- a/kernel/trace/fprobe.c
++++ b/kernel/trace/fprobe.c
+@@ -27,7 +27,7 @@ static void fprobe_handler(unsigned long ip, unsigned long parent_ip,
+ 	struct rethook_node *rh = NULL;
+ 	struct fprobe *fp;
+ 	void *entry_data = NULL;
+-	int bit, ret;
++	int bit, ret = 0;
+ 
+ 	fp = container_of(ops, struct fprobe, ops);
+ 	if (fprobe_disabled(fp))
 
-[...]
+
