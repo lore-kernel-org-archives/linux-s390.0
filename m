@@ -2,120 +2,72 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CB45DC77B7A
-	for <linux-s390@archiver.kernel.org>; Wed, 17 May 2023 05:45:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1AAD8C77B75
+	for <linux-s390@archiver.kernel.org>; Wed, 17 May 2023 06:36:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232068AbjEQFpy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 17 May 2023 01:45:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50840 "EHLO
+        id S229552AbjEQGg2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 17 May 2023 02:36:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229661AbjEQFpx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 May 2023 01:45:53 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 315EC124;
-        Tue, 16 May 2023 22:45:52 -0700 (PDT)
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34H5AYC6025820;
-        Wed, 17 May 2023 05:45:39 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : references : date : in-reply-to : message-id : mime-version :
- content-type; s=pp1; bh=Ch3xh7mGkrtELFwHxM1Vk7sYFwQyV1aLAg/nUzwmb3A=;
- b=bQSz+ZzTg2qhby676iOfrtKsC0QT8KaV/azhnMPRmBjpXKMZzOTKRRfyePxGIaghGIjn
- i/pITx7wYY/n1kDzj8KppUqCFn83GCkEswgLKibPVn+kESuGm7yUVjzRCDf/Jm1Ng/w6
- m/kwIYSkgdgGdmzu0fkXPhxQBOawTVA2z0MyqOf5zAy1XglMPO7SDg5ClxqiesURYih0
- +h9teqPvufD6oKumcedaEGDkq+f/GZQNvj7PuMcUmdxr8gyO40C6+eZ4RnU+W8h3wP/I
- R84Q91uODDCeh9TwCJn10R7r37rGN8zu4lR0tlVzEmwt7fi/aIsZVR8q8zlwruDlo2PJ Nw== 
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qmqpjj1wj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 17 May 2023 05:45:39 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34H4owVp018130;
-        Wed, 17 May 2023 05:45:36 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma05fra.de.ibm.com (PPS) with ESMTPS id 3qj264snjx-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 17 May 2023 05:45:36 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34H5jYHK45351454
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 17 May 2023 05:45:34 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2C2C62004B;
-        Wed, 17 May 2023 05:45:33 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E1DF720043;
-        Wed, 17 May 2023 05:45:32 +0000 (GMT)
-Received: from tuxmaker.linux.ibm.com (unknown [9.152.85.9])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Wed, 17 May 2023 05:45:32 +0000 (GMT)
-From:   Sven Schnelle <svens@linux.ibm.com>
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Andy Lutomirski <luto@kernel.org>, linux-s390@vger.kernel.org,
-        hca@linux.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] entry: move the exit path to header files
-References: <20230516133810.171487-1-svens@linux.ibm.com>
-        <20230516133810.171487-2-svens@linux.ibm.com>
-        <20230516164221.GA2602133@hirez.programming.kicks-ass.net>
-Date:   Wed, 17 May 2023 07:45:32 +0200
-In-Reply-To: <20230516164221.GA2602133@hirez.programming.kicks-ass.net> (Peter
-        Zijlstra's message of "Tue, 16 May 2023 18:42:21 +0200")
-Message-ID: <yt9dmt23lddv.fsf@linux.ibm.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.0.50 (gnu/linux)
+        with ESMTP id S229489AbjEQGg1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 May 2023 02:36:27 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3444A30F7;
+        Tue, 16 May 2023 23:36:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
+        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=LyqwcPubn/JsQWHMskCZBu9QXpuNcB4Hd4xqTmLITsI=; b=eXV2qErwJTXGUoa1Zbhw+gAMw0
+        GNVHvOiLHyJvuf62zEKGLEA9V8ORQo+Sl4BroKuAAfHbtj60Yeb1thb73fA2jXbgVOS2ahCdFJ+mE
+        VBGPhrJlsTqEaUImKwoyge6oq6QxZSdBip10g6F8tqeDJ8i4+J6TKcBSzLDjh/O0ycop+SMQM+F2v
+        ErLvWCCNmc0jDBcTsP3bs2DxNwF3y7u5/NtB9tkK7QEbMxlbzu7B1mE1w0hKm9KQZ8AhgR3r9IIZ6
+        Qq0G6b9ARjq5usIYdVJksLo3TS+jsz7aBPqlrnsXxU/iw0KvWkX9m2CiMY0l9RQBar9wTFPyr8Blg
+        ptop//Zg==;
+Received: from hch by bombadil.infradead.org with local (Exim 4.96 #2 (Red Hat Linux))
+        id 1pzAlr-008UZj-2Q;
+        Wed, 17 May 2023 06:36:23 +0000
+Date:   Tue, 16 May 2023 23:36:23 -0700
+From:   Christoph Hellwig <hch@infradead.org>
+To:     Baoquan He <bhe@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
+        linux-mm@kvack.org, arnd@arndb.de, christophe.leroy@csgroup.eu,
+        hch@infradead.org, agordeev@linux.ibm.com,
+        wangkefeng.wang@huawei.com, schnelle@linux.ibm.com,
+        David.Laight@aculab.com, shorne@gmail.com, willy@infradead.org,
+        deller@gmx.de, Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v5 RESEND 10/17] s390: mm: Convert to GENERIC_IOREMAP
+Message-ID: <ZGR15/aAYufCZ9qV@infradead.org>
+References: <20230515090848.833045-1-bhe@redhat.com>
+ <20230515090848.833045-11-bhe@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: -zfBKaU5eKsFIrY8RXJoZLRVE80iW7fD
-X-Proofpoint-GUID: -zfBKaU5eKsFIrY8RXJoZLRVE80iW7fD
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-05-16_14,2023-05-16_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 adultscore=0
- mlxlogscore=822 priorityscore=1501 lowpriorityscore=0 phishscore=0
- malwarescore=0 suspectscore=0 bulkscore=0 spamscore=0 mlxscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2304280000 definitions=main-2305170046
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230515090848.833045-11-bhe@redhat.com>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Peter Zijlstra <peterz@infradead.org> writes:
+On Mon, May 15, 2023 at 05:08:41PM +0800, Baoquan He wrote:
+> +#define ioremap_wc(addr, size)  \
+> +	ioremap_prot((addr), (size), pgprot_val(pgprot_writecombine(PAGE_KERNEL)))
 
-> On Tue, May 16, 2023 at 03:38:09PM +0200, Sven Schnelle wrote:
->> @@ -465,4 +470,175 @@ irqentry_state_t noinstr irqentry_nmi_enter(struct pt_regs *regs);
->>   */
->>  void noinstr irqentry_nmi_exit(struct pt_regs *regs, irqentry_state_t irq_state);
->>  
->> +static unsigned long exit_to_user_mode_loop(struct pt_regs *regs,
->> +					    unsigned long ti_work)
->
-> Should these things not grow __always_inline/inline when moved into a header?
+I'd move this out of line and just apply mio_wb_bit_mask directly
+instead of the unbox/box/unbox/box dance.
 
-Yes, indeed. I missed that while doing a quick move of the functions for
-testing. I'll fix that when doing a proper patch set for submission.
+> +#define ioremap_wt(addr, size)  \
+> +	ioremap_prot((addr), (size), pgprot_val(pgprot_writethrough(PAGE_KERNEL)))
 
->> +{
->
->> +}
->> +
->> +
->> +static void exit_to_user_mode_prepare(struct pt_regs *regs)
->
-> idem
->
->> +{
->
->> +}
->
->> +static void syscall_exit_work(struct pt_regs *regs, unsigned long work)
->
-> and more..
->
->> +{
->
->> +}
->> +
+and just define this to ioremap_wc.  Note that defining _wt to _wc is
+very odd and seems wrong, but comes from the existing code.  Maybe the
+s390 maintainers can chime on on the background and we can add a comment
+while we're at it.
+
+Otherwise looks good:
+
+Reviewed-by: Christoph Hellwig <hch@lst.de>
