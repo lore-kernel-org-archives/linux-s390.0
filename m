@@ -2,345 +2,180 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A50F8C77B75
-	for <linux-s390@archiver.kernel.org>; Wed, 17 May 2023 09:16:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EA5ECC7EE23
+	for <linux-s390@archiver.kernel.org>; Wed, 17 May 2023 10:41:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229824AbjEQJQe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 17 May 2023 05:16:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58816 "EHLO
+        id S229782AbjEQKlL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 17 May 2023 06:41:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229489AbjEQJQd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 May 2023 05:16:33 -0400
-Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FE7D10E6;
-        Wed, 17 May 2023 02:16:30 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=23;SR=0;TI=SMTPD_---0Vis8QPm_1684314984;
-Received: from 30.221.150.40(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0Vis8QPm_1684314984)
-          by smtp.aliyun-inc.com;
-          Wed, 17 May 2023 17:16:25 +0800
-Message-ID: <cba4cb83-4a6e-00b5-82ed-facb783f4707@linux.alibaba.com>
-Date:   Wed, 17 May 2023 17:16:22 +0800
+        with ESMTP id S229510AbjEQKlK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 May 2023 06:41:10 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A61BC46BC;
+        Wed, 17 May 2023 03:41:02 -0700 (PDT)
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34HAWh8p030125;
+        Wed, 17 May 2023 10:39:33 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=6o4UB5d8iRIZZq7T331T96/YmtIoyPZJVO895cK7BU4=;
+ b=Qlb1r1C79y4iKHdQAqanT8rbJmqF8hpDVpHADvfmHgcOzINGCqecTLs6lklqCmaeUKZi
+ LNo2SCVe642Qo5fhaxr/ou+1QQFdZf6fudSYdsYn1zj0/qda6lUKaL4wNzWc8ZwCpOGB
+ u1jr8Jeldv7dhRYFAZce4H8UEXUhr2sOKWsFIUzuyQCAdsrgpetZ/OvfYv7ko7U4WoTl
+ WIlXuWOUiMllj0buN4FxHg1xFrqq9szJZkHJpe+PgAPCqpQU+mAWYxRNQNulh9twB9sp
+ 7Sk1CAWsYA8brwf7ADoH4AMfmPk6bkEJB+etoy2gytNtvsvI4B1v7NCryfl9JlR+J5XJ Lg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qmvpm9ncq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 17 May 2023 10:39:33 +0000
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34HAWq5Q030869;
+        Wed, 17 May 2023 10:37:18 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qmvpm9fk6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 17 May 2023 10:37:18 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34H5hGdl019589;
+        Wed, 17 May 2023 10:35:52 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3qj1tdt3s3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 17 May 2023 10:35:52 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34HAZmug51773938
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 17 May 2023 10:35:48 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B38752004B;
+        Wed, 17 May 2023 10:35:48 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C636820043;
+        Wed, 17 May 2023 10:35:47 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.152.224.66])
+        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 17 May 2023 10:35:47 +0000 (GMT)
+Date:   Wed, 17 May 2023 12:35:46 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Hugh Dickins <hughd@google.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        David Hildenbrand <david@redhat.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Qi Zheng <zhengqi.arch@bytedance.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Greg Ungerer <gerg@linux-m68k.org>,
+        Michal Simek <monstr@monstr.eu>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Helge Deller <deller@gmx.de>,
+        John David Anglin <dave.anglin@bell.net>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Alexandre Ghiti <alexghiti@rivosinc.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        Chris Zankel <chris@zankel.net>,
+        Max Filippov <jcmvbkbc@gmail.com>, x86@kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH 15/23] s390: allow pte_offset_map_lock() to fail
+Message-ID: <20230517123546.672fb9b0@p-imbrenda>
+In-Reply-To: <94aec8fe-383f-892-dcbf-d4c14e460a7@google.com>
+References: <77a5d8c-406b-7068-4f17-23b7ac53bc83@google.com>
+        <94aec8fe-383f-892-dcbf-d4c14e460a7@google.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.37; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.10.1
-Subject: Re: [PATCH bpf-next v1 2/5] net/smc: allow smc to negotiate protocols
- on policies
-Content-Language: en-US
-To:     Martin KaFai Lau <martin.lau@linux.dev>
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-        bpf@vger.kernel.org, kgraul@linux.ibm.com, wenjia@linux.ibm.com,
-        jaka@linux.ibm.com, ast@kernel.org, daniel@iogearbox.net,
-        andrii@kernel.org, pabeni@redhat.com, song@kernel.org,
-        sdf@google.com, haoluo@google.com, yhs@fb.com, edumazet@google.com,
-        john.fastabend@gmail.com, kpsingh@kernel.org, jolsa@kernel.org,
-        guwen@linux.alibaba.com
-References: <1683872684-64872-1-git-send-email-alibuda@linux.alibaba.com>
- <1683872684-64872-3-git-send-email-alibuda@linux.alibaba.com>
- <0e1656dc-b67c-ec65-83a4-6709fb186061@linux.dev>
- <beed306a-9f5a-c05b-6f0a-ee28e17f8100@linux.alibaba.com>
- <b6b0a3ad-af30-371b-f46f-eb9524c7730d@linux.dev>
-From:   "D. Wythe" <alibuda@linux.alibaba.com>
-In-Reply-To: <b6b0a3ad-af30-371b-f46f-eb9524c7730d@linux.dev>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 8y_E68kURQ0ih8Y_-pXj5N6bPDOiuEZv
+X-Proofpoint-ORIG-GUID: ot2a0roI6HKgv_SkGdPLAhcx7gRQDDOX
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-05-17_02,2023-05-16_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 bulkscore=0
+ clxscore=1011 mlxscore=0 phishscore=0 spamscore=0 mlxlogscore=972
+ malwarescore=0 lowpriorityscore=0 impostorscore=0 priorityscore=1501
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2304280000 definitions=main-2305170081
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Tue, 9 May 2023 22:01:16 -0700 (PDT)
+Hugh Dickins <hughd@google.com> wrote:
+
+> In rare transient cases, not yet made possible, pte_offset_map() and
+> pte_offset_map_lock() may not find a page table: handle appropriately.
+> 
+> Signed-off-by: Hugh Dickins <hughd@google.com>
+> ---
+>  arch/s390/kernel/uv.c  |  2 ++
+>  arch/s390/mm/gmap.c    |  2 ++
+>  arch/s390/mm/pgtable.c | 12 +++++++++---
+>  3 files changed, 13 insertions(+), 3 deletions(-)
+> 
+> diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
+> index cb2ee06df286..3c62d1b218b1 100644
+> --- a/arch/s390/kernel/uv.c
+> +++ b/arch/s390/kernel/uv.c
+> @@ -294,6 +294,8 @@ int gmap_make_secure(struct gmap *gmap, unsigned long gaddr, void *uvcb)
+>  
+>  	rc = -ENXIO;
+>  	ptep = get_locked_pte(gmap->mm, uaddr, &ptelock);
+> +	if (!ptep)
+> +		goto out;
+>  	if (pte_present(*ptep) && !(pte_val(*ptep) & _PAGE_INVALID) && pte_write(*ptep)) {
+>  		page = pte_page(*ptep);
+>  		rc = -EAGAIN;
+> diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+> index dc90d1eb0d55..d198fc9475a2 100644
+> --- a/arch/s390/mm/gmap.c
+> +++ b/arch/s390/mm/gmap.c
+> @@ -2549,6 +2549,8 @@ static int __zap_zero_pages(pmd_t *pmd, unsigned long start,
+>  		spinlock_t *ptl;
+>  
+>  		ptep = pte_offset_map_lock(walk->mm, pmd, addr, &ptl);
+> +		if (!ptep)
+> +			break;
+
+so if pte_offset_map_lock fails, we abort and skip both the failed
+entry and the rest of the entries?
+
+can pte_offset_map_lock be retried immediately if it fails? (consider
+that we currently don't allow THP with KVM guests)
+
+Would something like this:
+
+do {
+	ptep = pte_offset_map_lock(...);
+	mb();	/* maybe? */
+} while (!ptep);
+
+make sense?
 
 
-On 5/17/23 4:14 PM, Martin KaFai Lau wrote:
-> On 5/17/23 12:08 AM, D. Wythe wrote:
->>
->>
->> On 5/16/23 6:52 AM, Martin KaFai Lau wrote:
->>> On 5/11/23 11:24 PM, D. Wythe wrote:
->>>> From: "D. Wythe" <alibuda@linux.alibaba.com>
->>>>
->>>> As we all know, the SMC protocol is not suitable for all scenarios,
->>>> especially for short-lived. However, for most applications, they 
->>>> cannot
->>>> guarantee that there are no such scenarios at all. Therefore, apps
->>>> may need some specific strategies to decide shall we need to use SMC
->>>> or not.
->>>>
->>>> Just like the congestion control implementation in TCP, this patch
->>>> provides a generic negotiator implementation. If necessary,
->>>> we can provide different protocol negotiation strategies for
->>>> apps based on this implementation.
->>>>
->>>> But most importantly, this patch provides the possibility of
->>>> eBPF injection, allowing users to implement their own protocol
->>>> negotiation policy in userspace.
->>>>
->>>> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
->>>> ---
->>>>   include/net/smc.h        |  32 +++++++++++
->>>>   net/Makefile             |   1 +
->>>>   net/smc/Kconfig          |  11 ++++
->>>>   net/smc/af_smc.c         | 134 
->>>> ++++++++++++++++++++++++++++++++++++++++++++++-
->>>>   net/smc/smc_negotiator.c | 119 
->>>> +++++++++++++++++++++++++++++++++++++++++
->>>>   net/smc/smc_negotiator.h | 116 
->>>> ++++++++++++++++++++++++++++++++++++++++
->>>>   6 files changed, 412 insertions(+), 1 deletion(-)
->>>>   create mode 100644 net/smc/smc_negotiator.c
->>>>   create mode 100644 net/smc/smc_negotiator.h
->>>>
->>>> diff --git a/include/net/smc.h b/include/net/smc.h
->>>> index 6d076f5..191061c 100644
->>>> --- a/include/net/smc.h
->>>> +++ b/include/net/smc.h
->>>> @@ -296,6 +296,8 @@ struct smc_sock {                /* smc sock 
->>>> container */
->>>>       atomic_t                queued_smc_hs;  /* queued smc 
->>>> handshakes */
->>>>       struct inet_connection_sock_af_ops        af_ops;
->>>>       const struct inet_connection_sock_af_ops *ori_af_ops;
->>>> +    /* protocol negotiator ops */
->>>> +    const struct smc_sock_negotiator_ops *negotiator_ops;
->>>>                           /* original af ops */
->>>>       int            sockopt_defer_accept;
->>>>                           /* sockopt TCP_DEFER_ACCEPT
->>>> @@ -316,4 +318,34 @@ struct smc_sock {                /* smc sock 
->>>> container */
->>>>                            */
->>>>   };
->>>>   +#ifdef CONFIG_SMC_BPF
->>>> +/* BPF struct ops for smc protocol negotiator */
->>>> +struct smc_sock_negotiator_ops {
->>>> +
->>>> +    struct list_head    list;
->>>> +
->>>> +    /* ops name */
->>>> +    char        name[16];
->>>> +    /* key for name */
->>>> +    u32            key;
->>>> +
->>>> +    /* init with sk */
->>>> +    void (*init)(struct sock *sk);
->>>> +
->>>> +    /* release with sk */
->>>> +    void (*release)(struct sock *sk);
->>>> +
->>>> +    /* advice for negotiate */
->>>> +    int (*negotiate)(struct sock *sk);
->>>> +
->>>> +    /* info gathering timing */
->>>> +    void (*collect_info)(struct sock *sk, int timing);
->>>> +
->>>> +    /* module owner */
->>>> +    struct module *owner;
->>>> +};
->>>> +#else
->>>> +struct smc_sock_negotiator_ops {};
->>>> +#endif
->>>> +
->>>>   #endif    /* _SMC_H */
->>>> diff --git a/net/Makefile b/net/Makefile
->>>> index 4c4dc53..222916a 100644
->>>> --- a/net/Makefile
->>>> +++ b/net/Makefile
->>>> @@ -52,6 +52,7 @@ obj-$(CONFIG_TIPC)        += tipc/
->>>>   obj-$(CONFIG_NETLABEL)        += netlabel/
->>>>   obj-$(CONFIG_IUCV)        += iucv/
->>>>   obj-$(CONFIG_SMC)        += smc/
->>>> +obj-$(CONFIG_SMC_BPF)        += smc/smc_negotiator.o > 
->>>> obj-$(CONFIG_RFKILL)        += rfkill/
->>>>   obj-$(CONFIG_NET_9P)        += 9p/
->>>>   obj-$(CONFIG_CAIF)        += caif/
->>>> diff --git a/net/smc/Kconfig b/net/smc/Kconfig
->>>> index 1ab3c5a..bdcc9f1 100644
->>>> --- a/net/smc/Kconfig
->>>> +++ b/net/smc/Kconfig
->>>> @@ -19,3 +19,14 @@ config SMC_DIAG
->>>>         smcss.
->>>>           if unsure, say Y.
->>>> +
->>>> +config SMC_BPF
->>>> +    bool "SMC: support eBPF" if SMC
->>>
->>>
->>> so smc_negotiator will always be in the kernel image even af_smc is 
->>> compiled as a module? If the SMC_BPF needs to support af_smc as a 
->>> module, proper implementation needs to be added to bpf_struct_ops to 
->>> support module first. It is work-in-progress.
->>>
->>
->> smc_negotiator will not no in the kernel image when af_smc is 
->> compiled as a module,
->> it's requires config SMC_BPF also sets to be Y,  while it's default 
->> to be N. That's is,
->> even if af_smc is compiled as a module but with no SMC_BPF set, 
->> smc_negotiator
->> doesn't exist anywhere.
->
-> CONFIG_SMC_BPF could be "y" while CONFIG_SMC is "m", no?
->
-> Anyway, there is a build error when CONFIG_SMC is "m" :(
->
+otherwise maybe it's better to return an error and retry the whole
+walk_page_range() in s390_enable_sie() ? it's a slow path anyway.
 
-I am curious if users who proactively set CONFIG_SMC_BPF to Y would care 
-about the issue you mentioned, while
-CONFIG_SMC_BPF defaults to N ?
+>  		if (is_zero_pfn(pte_pfn(*ptep)))
+>  			ptep_xchg_direct(walk->mm, addr, ptep, __pte(_PAGE_INVALID));
+>  		pte_unmap_unlock(ptep, ptl);
 
-And I'm really sorry about this compilation error. Last time, I had got 
-some comments about symbol export, so I tried to remove some symbol exports,
-unfortunately, there are compilation issues when BPF_JIT is set 
-(bpf_struct_ops_get is no exported), sorry for my incomplete
-testing. I will fix this issue in the new version.
-
-Anyway, if bpf_struct_ops can support module, that would be better, and 
-can greatly reduce the trade-offs I make between modules and built-in.
-Is there any details can shared on your progress ?
-
->>>> +    depends on BPF_SYSCALL
->>>> +    default n
->>>> +    help
->>>> +      Supports eBPF to allows user mode participation in SMC's 
->>>> protocol process
->>>> +      via ebpf programs. Alternatively, obtain information about 
->>>> the SMC socks
->>>> +      through the ebpf program.
->>>> +
->>>> +      If unsure, say N.
->>>> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
->>>> index 50c38b6..7406fd4 100644
->>>> --- a/net/smc/af_smc.c
->>>> +++ b/net/smc/af_smc.c
->>>> @@ -52,6 +52,7 @@
->>>>   #include "smc_close.h"
->>>>   #include "smc_stats.h"
->>>>   #include "smc_tracepoint.h"
->>>> +#include "smc_negotiator.h"
->>>>   #include "smc_sysctl.h"
->>>>     static DEFINE_MUTEX(smc_server_lgr_pending);    /* serialize 
->>>> link group
->>>> @@ -68,6 +69,119 @@
->>>>   static void smc_tcp_listen_work(struct work_struct *);
->>>>   static void smc_connect_work(struct work_struct *);
->>>>   +#ifdef CONFIG_SMC_BPF
->>>> +
->>>> +/* Check if sock should use smc */
->>>> +int smc_sock_should_select_smc(const struct smc_sock *smc)
->>>> +{
->>>> +    const struct smc_sock_negotiator_ops *ops;
->>>> +    int ret;
->>>> +
->>>> +    rcu_read_lock();
->>>> +    ops = READ_ONCE(smc->negotiator_ops);
->>>> +
->>>> +    /* No negotiator_ops supply or no negotiate func set,
->>>> +     * always pass it.
->>>> +     */
->>>> +    if (!ops || !ops->negotiate) {
->>>
->>> A smc_sock_negotiator_ops without ->negotiate? Is it useful at all 
->>> to allow the register in the first place?
->>>
->>
->> You are right, this can be avoid before registration. I'll fix it.
->>
->>>> +        rcu_read_unlock();
->>>> +        return SK_PASS;
->>>> +    }
->>>> +
->>>> +    ret = ops->negotiate((struct sock *)&smc->sk);
->>>> +    rcu_read_unlock();
->>>> +    return ret;
->>>> +}
->>>> +
->>>> +void smc_sock_perform_collecting_info(const struct smc_sock *smc, 
->>>> int timing)
->>>> +{
->>>> +    const struct smc_sock_negotiator_ops *ops;
->>>> +
->>>> +    rcu_read_lock();
->>>> +    ops = READ_ONCE(smc->negotiator_ops);
->>>> +
->>>> +    if (!ops || !ops->collect_info) {
->>>> +        rcu_read_unlock();
->>>> +        return;
->>>> +    }
->>>> +
->>>> +    ops->collect_info((struct sock *)&smc->sk, timing);
->>>> +    rcu_read_unlock();
->>>> +}
->>>> +
->>>> +int smc_sock_assign_negotiator_ops(struct smc_sock *smc, const 
->>>> char *name)
->>>> +{
->>>> +    struct smc_sock_negotiator_ops *ops;
->>>> +    int ret = -EINVAL;
->>>> +
->>>> +    /* already set */
->>>> +    if (READ_ONCE(smc->negotiator_ops))
->>>> +        smc_sock_cleanup_negotiator_ops(smc, /* might be still 
->>>> referenced */ false);
->>>> +
->>>> +    /* Just for clear negotiator_ops */
->>>> +    if (!name || !strlen(name))
->>>> +        return 0;
->>>> +
->>>> +    rcu_read_lock();
->>>> +    ops = smc_negotiator_ops_get_by_name(name);
->>>> +    if (likely(ops)) {
->>>> +        if (unlikely(!bpf_try_module_get(ops, ops->owner))) {
->>>> +            ret = -EACCES;
->>>> +        } else {
->>>> +            WRITE_ONCE(smc->negotiator_ops, ops);
->>>> +            /* make sure ops can be seen */
->>>> +            smp_wmb();
->>>
->>> This rcu_read_lock(), WRITE_ONCE, and smp_wmb() combo looks very 
->>> suspicious. smc->negotiator_ops is protected by rcu (+refcnt) or 
->>> lock_sock()?
->>>
->>
->> All access to ops is protected by RCU, and there are no lock_sock. 
->> WRITE_ONCE() and smp_wmb() do
->> not participate in any guarantee of the availability of ops, The 
->> purpose to using them is just wish the latest values
->> can be read as soon as possible , In fact, even if old value is read, 
->> there will be no problem in logic because all updates
->> will do synchronize_rcu() and all access to ops is under in 
->> rcu_read_lock().
->
-> The explanation is not encouraging. No clear benefit while having this 
-> kind of complexity here. Switching tcp congestion ops also does not 
-> require this. Some of the new codes is in af_smc but bpf is the 
-> primary user. It is not something that I would like to maintain and 
-> then need to reason about this unusual pattern a year later. Beside, 
-> this negotiator_ops assignment must be done under a lock_sock(). The 
-> same probably is true for calling ops->negotiate() where the bpf prog 
-> may be looking at the sk and calling bpf_setsockopt.
-
-I got you point, If you feel that those code are complexity and 
-unnecessary, I can remove them of course.
-
-Additionally, smc_sock_assign_negotiator_ops is indeed executed under 
-sock lock,  __smc_setsockopt will lock sock
-for it. I misunderstood your meaning before.
-
-As for ops ->negotiate(), thanks for this point, but considering 
-performance,
-I might prohibit calling setsockopt in negotiate().
-
->>
->>> I am going to stop reviewing here.
->>>
->>
->> Hoping my explanation can answer your questions and still looking 
->> forward to
->> your more feedback 😁.
->
-> Sorry, based on the review so far (there was some RFC before), it is 
-> not something that I want to continue to review and maintain a bpf 
-> hook for it. You have to solicit other known community members for 
-> review and sponsor this set from now on.
-
-Okay, thank you very much for pointing out some issues and suggestions.
-
-Thanks.
+[...]
