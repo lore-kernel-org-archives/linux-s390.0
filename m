@@ -2,231 +2,446 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9BA75C77B75
-	for <linux-s390@archiver.kernel.org>; Wed, 17 May 2023 21:50:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 697C2C77B75
+	for <linux-s390@archiver.kernel.org>; Wed, 17 May 2023 22:03:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229665AbjEQVum (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 17 May 2023 17:50:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49232 "EHLO
+        id S230058AbjEQWC7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 17 May 2023 18:02:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229453AbjEQVum (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 May 2023 17:50:42 -0400
-Received: from mail-yw1-x1134.google.com (mail-yw1-x1134.google.com [IPv6:2607:f8b0:4864:20::1134])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06C0A61B5
-        for <linux-s390@vger.kernel.org>; Wed, 17 May 2023 14:50:40 -0700 (PDT)
-Received: by mail-yw1-x1134.google.com with SMTP id 00721157ae682-561d5b34e10so10333357b3.1
-        for <linux-s390@vger.kernel.org>; Wed, 17 May 2023 14:50:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1684360239; x=1686952239;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=CYrqZZXifWUb49UwqN4ktjCYYTpIiyxjiceM91X1owo=;
-        b=PPBehuovPkLBa6/NGbQAXn/eE0OjqEyROrqLX97nN6jBSNnfJoc5x6zVzWooSZlBuR
-         ygh7zMisKFOdApdpWLXdE38Ez48wbdl6bRgelI1M2q7oF1fjbdo+FT/cryTh0RkA2PgM
-         PVNv73NfYOacgZraULasH6MPisPmrZxBB5SdyINIUR+rCWC/xGGFoY/3V4eCh48ezelN
-         vlspmk4A/B3orH5IwCfSCJfMbueYznmKfST0fzCY2VeJqOWgXVBfHyrQGp7gwU4xxk/e
-         4DAXLkf7AssRwZV1LOldxmp7mNGGXTey4IiHanP7lOcu21DjwGEEnizw4Nh4dLrJMR0W
-         24RQ==
+        with ESMTP id S229929AbjEQWCe (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 May 2023 18:02:34 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2EB4ED
+        for <linux-s390@vger.kernel.org>; Wed, 17 May 2023 15:01:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1684360904;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=HG/rceSfXoWbIlm6Cl/pPVb/WvTeG1OA3/AKdOuyr2M=;
+        b=b6q5OsLpMEx0QlyWRF+taqSpqdfAKeSnlDBJWFAehLYnpSWoK3Z4LRZZQXiIIJ6Jgk5Swp
+        CilKf8yEU2fGMvvAdzskR40+hS5qcsHdjLchibqzW/qBnqBFFIQ1i6jJEImh3nDTjFhlXn
+        P6E3eVd+jpUKqa41vUS11IkBgL2hdXc=
+Received: from mail-io1-f72.google.com (mail-io1-f72.google.com
+ [209.85.166.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-536-X7djssrZPgWQTLnkyzRcTw-1; Wed, 17 May 2023 18:01:35 -0400
+X-MC-Unique: X7djssrZPgWQTLnkyzRcTw-1
+Received: by mail-io1-f72.google.com with SMTP id ca18e2360f4ac-76c71fc7be6so89782439f.2
+        for <linux-s390@vger.kernel.org>; Wed, 17 May 2023 15:01:35 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1684360239; x=1686952239;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=CYrqZZXifWUb49UwqN4ktjCYYTpIiyxjiceM91X1owo=;
-        b=h44Qq07dbnA5Zz5A2hQk4yrlZLlqy67pTIDpFXc/OIAoRchqiZ5dyaqQY4JRFBGxKa
-         71p5aPuqDOvzepe9U7L2dXq994rUT5PCUxVD78zWkElLb29chYBid59kbVHvUvENZ3mJ
-         /R2wT4gjJMjvM+BT+c241MsCjsMcuvfz9DkYLmTQN5bNeX0/mZXtTHgSwnQmc7zPMFin
-         h5zQ16/q8hDr3IhYWR3jPSfmOYiJA0JBCFUP58Y9FSEhcjsEV2hMcmBBr5+boKiDFTVW
-         z5dgkHkuXFb3kEkDFy+Tnwir1q9L6Gj0OA+u+7GLD9hMCrOLoW6C/I+os/+rsiwPzg7O
-         3oOg==
-X-Gm-Message-State: AC+VfDzer4ORjTYllY2kMU9OEvmwK+TxRscnUY1xKx1OVCDVI5OWc2mn
-        bjEGvXPOD3CBD73CdH1EBER1tA==
-X-Google-Smtp-Source: ACHHUZ5K1W6BqH54lP1fyWtEUpWwZ0lmy+14bsbtce6I/HyB5LShp2aTZ/lznkrMNM/kuQdbHXvf0A==
-X-Received: by 2002:a81:6744:0:b0:55a:af:2486 with SMTP id b65-20020a816744000000b0055a00af2486mr2691032ywc.18.1684360239031;
-        Wed, 17 May 2023 14:50:39 -0700 (PDT)
-Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id 129-20020a251187000000b00ba6ffc7ef35sm785837ybr.65.2023.05.17.14.50.35
+        d=1e100.net; s=20221208; t=1684360895; x=1686952895;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=HG/rceSfXoWbIlm6Cl/pPVb/WvTeG1OA3/AKdOuyr2M=;
+        b=M+3qKclnGYIyGX3cYw4rR4gL+zOWxksRAjW45wCbQKhwUGcP0npsr3D7jHv5qG+x95
+         SjHXJKbJBAHHPTPOgVPg5QXmT91bNdnHExHaG46E6Oj7Eu8kJmevSNcMcyNGSBSU2KL2
+         ioOLSLmpHGPWqPhEoRKBqAWEkTTBcRa23L6uYzVD0jknX1/+58qlLg7XxSpPVljq0AOs
+         99XZsHgErQR4Cn7J0kjap9clQ5aFWcl48p81Ohj0cieqbyBJBAMh1ycQGpExZ8b6Az6M
+         bjtCjOJ7+GQuY6sbuFcUpzm2Z/IUOgDp0Gnyn+1eKUvx3k8TU2QsC/ZHOe2nbzptKQY5
+         VlQg==
+X-Gm-Message-State: AC+VfDxmvDFM87pHb1TiUztnkvaOF0ji5owO+64FqTlX6l6XTNZTwa7V
+        AdEZ7+6wUDMLeLN9JKvbNRO7UCnTNF5EEbqHRn3UkXwgmFEeBbGxB0FotuPGbBJ+Oi8p+G8Lzbu
+        VRFN3R3MIaLInY2APnhalHw==
+X-Received: by 2002:a5d:8558:0:b0:763:a8a0:c7c0 with SMTP id b24-20020a5d8558000000b00763a8a0c7c0mr5096031ios.10.1684360894633;
+        Wed, 17 May 2023 15:01:34 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ5VIN7oZu7ufkSHUSKK5ieAsNm16qvFybf0QXWwaZsZClXLWw964O5XEMhRfmlbyIumybiHYA==
+X-Received: by 2002:a5d:8558:0:b0:763:a8a0:c7c0 with SMTP id b24-20020a5d8558000000b00763a8a0c7c0mr5096013ios.10.1684360894200;
+        Wed, 17 May 2023 15:01:34 -0700 (PDT)
+Received: from redhat.com ([38.15.36.239])
+        by smtp.gmail.com with ESMTPSA id dl6-20020a056638278600b004166c24e30dsm27560jab.32.2023.05.17.15.01.32
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 17 May 2023 14:50:38 -0700 (PDT)
-Date:   Wed, 17 May 2023 14:50:28 -0700 (PDT)
-From:   Hugh Dickins <hughd@google.com>
-X-X-Sender: hugh@ripple.attlocal.net
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
-cc:     Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        David Hildenbrand <david@redhat.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Qi Zheng <zhengqi.arch@bytedance.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Greg Ungerer <gerg@linux-m68k.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Helge Deller <deller@gmx.de>,
-        John David Anglin <dave.anglin@bell.net>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Alexandre Ghiti <alexghiti@rivosinc.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Chris Zankel <chris@zankel.net>,
-        Max Filippov <jcmvbkbc@gmail.com>, x86@kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
-        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH 15/23] s390: allow pte_offset_map_lock() to fail
-In-Reply-To: <20230517123546.672fb9b0@p-imbrenda>
-Message-ID: <4a15dbaa-1614-ce-ce1f-f73959cef895@google.com>
-References: <77a5d8c-406b-7068-4f17-23b7ac53bc83@google.com> <94aec8fe-383f-892-dcbf-d4c14e460a7@google.com> <20230517123546.672fb9b0@p-imbrenda>
+        Wed, 17 May 2023 15:01:33 -0700 (PDT)
+Date:   Wed, 17 May 2023 16:01:31 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     Yi Liu <yi.l.liu@intel.com>
+Cc:     jgg@nvidia.com, kevin.tian@intel.com, joro@8bytes.org,
+        robin.murphy@arm.com, cohuck@redhat.com, eric.auger@redhat.com,
+        nicolinc@nvidia.com, kvm@vger.kernel.org, mjrosato@linux.ibm.com,
+        chao.p.peng@linux.intel.com, yi.y.sun@linux.intel.com,
+        peterx@redhat.com, jasowang@redhat.com,
+        shameerali.kolothum.thodi@huawei.com, lulu@redhat.com,
+        suravee.suthikulpanit@amd.com, intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, linux-s390@vger.kernel.org,
+        xudong.hao@intel.com, yan.y.zhao@intel.com, terrence.xu@intel.com,
+        yanting.jiang@intel.com, zhenzhong.duan@intel.com,
+        clegoate@redhat.com
+Subject: Re: [PATCH v5 09/10] vfio/pci: Extend
+ VFIO_DEVICE_GET_PCI_HOT_RESET_INFO for vfio device cdev
+Message-ID: <20230517160131.254be76b.alex.williamson@redhat.com>
+In-Reply-To: <20230513132136.15021-10-yi.l.liu@intel.com>
+References: <20230513132136.15021-1-yi.l.liu@intel.com>
+        <20230513132136.15021-10-yi.l.liu@intel.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 17 May 2023, Claudio Imbrenda wrote:
-> On Tue, 9 May 2023 22:01:16 -0700 (PDT)
-> Hugh Dickins <hughd@google.com> wrote:
+On Sat, 13 May 2023 06:21:35 -0700
+Yi Liu <yi.l.liu@intel.com> wrote:
+
+> This makes VFIO_DEVICE_GET_PCI_HOT_RESET_INFO ioctl to use the iommufd_ctx
+
+s/makes/allows/?
+
+s/to//
+
+> of the cdev device to check the ownership of the other affected devices.
 > 
-> > In rare transient cases, not yet made possible, pte_offset_map() and
-> > pte_offset_map_lock() may not find a page table: handle appropriately.
-> > 
-> > Signed-off-by: Hugh Dickins <hughd@google.com>
-> > ---
-> >  arch/s390/kernel/uv.c  |  2 ++
-> >  arch/s390/mm/gmap.c    |  2 ++
-> >  arch/s390/mm/pgtable.c | 12 +++++++++---
-> >  3 files changed, 13 insertions(+), 3 deletions(-)
-> > 
-> > diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
-> > index cb2ee06df286..3c62d1b218b1 100644
-> > --- a/arch/s390/kernel/uv.c
-> > +++ b/arch/s390/kernel/uv.c
-> > @@ -294,6 +294,8 @@ int gmap_make_secure(struct gmap *gmap, unsigned long gaddr, void *uvcb)
-> >  
-> >  	rc = -ENXIO;
-> >  	ptep = get_locked_pte(gmap->mm, uaddr, &ptelock);
-> > +	if (!ptep)
-> > +		goto out;
-
-You may or may not be asking about this instance too.  When I looked at
-how the code lower down handles -ENXIO (promoting it to -EFAULT if an
-access fails, or to -EAGAIN to ask for a retry), this looked just right
-(whereas using -EAGAIN here would be wrong: that expects a "page" which
-has not been initialized at this point).
-
-> >  	if (pte_present(*ptep) && !(pte_val(*ptep) & _PAGE_INVALID) && pte_write(*ptep)) {
-> >  		page = pte_page(*ptep);
-> >  		rc = -EAGAIN;
-> > diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-> > index dc90d1eb0d55..d198fc9475a2 100644
-> > --- a/arch/s390/mm/gmap.c
-> > +++ b/arch/s390/mm/gmap.c
-> > @@ -2549,6 +2549,8 @@ static int __zap_zero_pages(pmd_t *pmd, unsigned long start,
-> >  		spinlock_t *ptl;
-> >  
-> >  		ptep = pte_offset_map_lock(walk->mm, pmd, addr, &ptl);
-> > +		if (!ptep)
-> > +			break;
+> This returns devid for each of the affected devices. If it is bound to the
+> iommufd_ctx of the cdev device, _INFO reports a valid devid > 0; If it is
+> not opened by the calling user, but it belongs to the same iommu_group of
+> a device that is bound to the iommufd_ctx of the cdev device, reports devid
+> value of 0; If the device is un-owned device, configured within a different
+> iommufd, or opened outside of the vfio device cdev API, the _INFO ioctl shall
+> report devid value of -1.
 > 
-> so if pte_offset_map_lock fails, we abort and skip both the failed
-> entry and the rest of the entries?
-
-Yes.
-
+> devid >=0 doesn't block hot-reset as the affected devices are considered to
+> be owned, while devid == -1 will block the use of VFIO_DEVICE_PCI_HOT_RESET
+> outside of proof-of-ownership calling conventions (ie. via legacy group
+> accessed devices).
 > 
-> can pte_offset_map_lock be retried immediately if it fails? (consider
-> that we currently don't allow THP with KVM guests)
+> This adds flag VFIO_PCI_HOT_RESET_FLAG_DEV_ID to tell the user devid is
+> returned in case of calling user get device fd from other software stack
+
+"other software stack"?  I think this is trying to say something like:
+
+  When VFIO_DEVICE_GET_PCI_HOT_RESET_INFO is called on an IOMMUFD
+  managed device, the new flag VFIO_PCI_HOT_RESET_FLAG_DEV_ID is
+  reported to indicate the values returned are IOMMUFD devids rather
+  than group IDs as used when accessing vfio devices through the
+  conventional vfio group interface.  Additionally the flag
+  VFIO_PCI_HOT_RESET_FLAG_DEV_ID_OWNED will be reported in this mode if
+  all of the devices affected by the hot-reset are owned by either
+  virtue of being directly bound to the same iommufd context as the
+  calling device, or implicitly owned via a shared IOMMU group.
+
+> and adds flag VFIO_PCI_HOT_RESET_FLAG_DEV_ID_OWNED to tell user if all
+> the affected devices are owned, so user can know it without looping all
+> the returned devids.
 > 
-> Would something like this:
+> Suggested-by: Jason Gunthorpe <jgg@nvidia.com>
+> Suggested-by: Alex Williamson <alex.williamson@redhat.com>
+> Signed-off-by: Yi Liu <yi.l.liu@intel.com>
+> ---
+>  drivers/vfio/pci/vfio_pci_core.c | 52 ++++++++++++++++++++++++++++++--
+>  include/uapi/linux/vfio.h        | 46 +++++++++++++++++++++++++++-
+>  2 files changed, 95 insertions(+), 3 deletions(-)
 > 
-> do {
-> 	ptep = pte_offset_map_lock(...);
-> 	mb();	/* maybe? */
-> } while (!ptep);
-> 
-> make sense?
+> diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
+> index 4df2def35bdd..57586be770af 100644
+> --- a/drivers/vfio/pci/vfio_pci_core.c
+> +++ b/drivers/vfio/pci/vfio_pci_core.c
+> @@ -27,6 +27,7 @@
+>  #include <linux/vgaarb.h>
+>  #include <linux/nospec.h>
+>  #include <linux/sched/mm.h>
+> +#include <linux/iommufd.h>
+>  #if IS_ENABLED(CONFIG_EEH)
+>  #include <asm/eeh.h>
+>  #endif
+> @@ -36,6 +37,10 @@
+>  #define DRIVER_AUTHOR   "Alex Williamson <alex.williamson@redhat.com>"
+>  #define DRIVER_DESC "core driver for VFIO based PCI devices"
+>  
+> +#ifdef CONFIG_IOMMUFD
+> +MODULE_IMPORT_NS(IOMMUFD);
+> +#endif
+> +
+>  static bool nointxmask;
+>  static bool disable_vga;
+>  static bool disable_idle_d3;
+> @@ -776,6 +781,9 @@ struct vfio_pci_fill_info {
+>  	int max;
+>  	int cur;
+>  	struct vfio_pci_dependent_device *devices;
+> +	struct vfio_device *vdev;
+> +	bool devid:1;
+> +	bool dev_owned:1;
+>  };
+>  
+>  static int vfio_pci_fill_devs(struct pci_dev *pdev, void *data)
+> @@ -790,7 +798,37 @@ static int vfio_pci_fill_devs(struct pci_dev *pdev, void *data)
+>  	if (!iommu_group)
+>  		return -EPERM; /* Cannot reset non-isolated devices */
+>  
+> -	fill->devices[fill->cur].group_id = iommu_group_id(iommu_group);
+> +	if (fill->devid) {
+> +		struct iommufd_ctx *iommufd = vfio_iommufd_physical_ictx(fill->vdev);
+> +		struct vfio_device_set *dev_set = fill->vdev->dev_set;
+> +		struct vfio_device *vdev;
+> +
+> +		/*
+> +		 * Report devid for the affected devices:
+> +		 * - valid devid > 0 for the devices that are bound with
+> +		 *   the iommufd of the calling device.
+> +		 * - devid == 0 for the devices that have not been opened
+> +		 *   but have same group with one of the devices bound to
+> +		 *   the iommufd of the calling device.
+> +		 * - devid == -1 for others, and clear dev_owned flag.
+> +		 */
+> +		vdev = vfio_find_device_in_devset(dev_set, &pdev->dev);
+> +		if (vdev && iommufd == vfio_iommufd_physical_ictx(vdev)) {
+> +			int ret;
+> +
+> +			ret = vfio_iommufd_physical_devid(vdev);
+> +			if (WARN_ON(ret < 0))
+> +				return ret;
+> +			fill->devices[fill->cur].devid = ret;
 
-No.  But you're absolutely right to be asking: thank you for looking
-into it so carefully - and I realize that it's hard at this stage to
-judge what's appropriate, when I've not yet even posted the endpoint
-of these changes, the patches which make it possible not to find a
-page table here.  And I'm intentionally keeping that vague, because
-although I shall only introduce a THP case, I do expect it to be built
-upon later in reclaiming empty page tables: it would be nice not to
-have to change the arch code again when extending further.
+Nit, @devid seems like a better variable name here rather than @ret.
 
-My "rare transient cases" phrase may be somewhat misleading: one thing
-that's wrong with your tight pte_offset_map_lock() loop above is that
-the pmd entry pointing to page table may have been suddenly replaced by
-a pmd_none() entry; and there's nothing in your loop above to break out
-if that is so.
+> +		} else if (vdev && iommufd_ctx_has_group(iommufd, iommu_group)) {
+> +			fill->devices[fill->cur].devid = VFIO_PCI_DEVID_OWNED;
+> +		} else {
+> +			fill->devices[fill->cur].devid = VFIO_PCI_DEVID_NOT_OWNED;
+> +			fill->dev_owned = false;
+> +		}
 
-But if a page table is suddenly removed, that would be because it was
-either empty, or replaced by a THP entry, or easily reconstructable on
-demand (by that, I probably mean it was only mapping shared file pages,
-which can just be refaulted if needed again).
+I think we're not describing the requirements for this middle test
+correctly.  We're essentially only stating the iommufd_ctx_has_group()
+part of the requirement, but we're also enforcing a
+vfio_find_device_in_devset() requirement, which means the device is not
+just unopened within a group shared by the iommufd context, but it must
+also still be a device registered as a member of the devset, ie. it
+must be bound to a vfio driver.
 
-The case you're wary of, is if the page table were removed briefly,
-then put back shortly after: and still contains zero pages further down.
-That's not something mm does now, nor at the end of my several series,
-nor that I imagine us wanting to do in future: but I am struggling to
-find a killer argument to persuade you that it could never be done -
-most pages in a page table do need rmap tracking, which will BUG if
-it's broken, but that argument happens not to apply to the zero page.
+It's not a new requirement, it's imposed in the hot-reset ioctl itself,
+but it's new for the info ioctl given that it's now trying to report
+that the user can perform the reset for cdev callers.
 
-(Hmm, there could be somewhere, where we would find it convenient to
-remove a page table with intent to do ...something, then validation
-of that isolated page table fails, so we just put it back again.)
+This also shares too much logic with vfio_device_owned() added in the
+next patch.  I think it might be cleaner to move the iommu_group_get() to
+the group path below and change vfio_device_owned() to something that
+can be used here and in the reset path.  For example, if we had a
+function like:
 
-Is it good enough for me to promise you that we won't do that?
+static int vfio_hot_reset_devid(struct vfio_device *vdev,
+                                struct iommufd_ctx *iommufd_ctx)
+{
+        struct iommu_group *group;
+        int devid;
 
-There are several ways in which we could change __zap_zero_pages(),
-but I don't see them as actually dealing with the concern at hand.
+        if (!vdev)
+                return VFIO_PCI_DEVID_NOT_OWNED;
 
-One change, I've tended to make at the mm end but did not dare
-to interfere here: it would seem more sensible to do a single
-pte_offset_map_lock() outside the loop, return if that fails,
-increment ptep inside the loop, pte_unmap_unlock() after the loop.
+        if (vfio_iommufd_physical_ictx(vdev) == iommufd_ctx) 
+                return vfio_iommufd_physical_devid(vdev);
 
-But perhaps you have preemption reasons for not wanting that; and
-although it would eliminate the oddity of half-processing a page
-table, it would not really resolve the problem at hand: because,
-what if this page table got removed just before __zap_zero_pages()
-tries to take the lock, then got put back just after?
+        group = iommu_group_get(vdev->dev);
+        if (!group)
+                return VFIO_PCI_DEVID_NOT_OWNED;
+                        
+        if (iommufd_ctx_has_group(iommufd_ctx, group))
+                devid = VFIO_PCI_DEVID_OWNED;
 
-Another change: I see __zap_zero_pages() is driven by walk_page_range(),
-and over at the mm end I'm usually setting walk->action to ACTION_AGAIN
-in these failure cases; but thought that an unnecessary piece of magic
-here, and cannot see how it could actually help.  Your "retry the whole
-walk_page_range()" suggestion below would be a heavier equivalent of
-that: but neither way gives confidence, if a page table could actually
-be removed then reinserted without mmap_write_lock().
+        iommu_group_put(group);
+                                
+        return devid;
+} 
 
-I think I want to keep this s390 __zap_zero_pages() issue in mind, it is
-important and thank you for raising it; but don't see any change to the
-patch as actually needed.
+It could be called above as:
 
-Hugh
+	vdev = vfio_find_device_in_devset(dev_set, &pdev->dev);
+	fill->devices[fill->cur].devid =
+			vfio_hot_reset_devid(vdev, iommufd);
 
-> 
-> 
-> otherwise maybe it's better to return an error and retry the whole
-> walk_page_range() in s390_enable_sie() ? it's a slow path anyway.
-> 
-> >  		if (is_zero_pfn(pte_pfn(*ptep)))
-> >  			ptep_xchg_direct(walk->mm, addr, ptep, __pte(_PAGE_INVALID));
-> >  		pte_unmap_unlock(ptep, ptl);
-> 
-> [...]
+
+And from vfio_pci_dev_set_hot_reset() as:
+
+	bool owned;
+
+	if (iommufd_ctx) {
+		int devid = vfio_hot_reset_devid(&cur_vma->vdev,
+						 iommufd_ctx);
+
+		owned = (devid != VFIO_PCI_DEVID_NOT_OWNED);
+	} else
+		owned = vfio_dev_in_groups(&cur_vma->vdev, groups);
+
+Any better?
+
+> +	} else {
+> +		fill->devices[fill->cur].group_id = iommu_group_id(iommu_group);
+> +	}
+>  	fill->devices[fill->cur].segment = pci_domain_nr(pdev->bus);
+>  	fill->devices[fill->cur].bus = pdev->bus->number;
+>  	fill->devices[fill->cur].devfn = pdev->devfn;
+> @@ -1229,17 +1267,27 @@ static int vfio_pci_ioctl_get_pci_hot_reset_info(
+>  		return -ENOMEM;
+>  
+>  	fill.devices = devices;
+> +	fill.vdev = &vdev->vdev;
+>  
+> +	mutex_lock(&vdev->vdev.dev_set->lock);
+> +	fill.devid = fill.dev_owned = vfio_device_cdev_opened(&vdev->vdev);
+>  	ret = vfio_pci_for_each_slot_or_bus(vdev->pdev, vfio_pci_fill_devs,
+>  					    &fill, slot);
+> +	mutex_unlock(&vdev->vdev.dev_set->lock);
+>  
+>  	/*
+>  	 * If a device was removed between counting and filling, we may come up
+>  	 * short of fill.max.  If a device was added, we'll have a return of
+>  	 * -EAGAIN above.
+>  	 */
+> -	if (!ret)
+> +	if (!ret) {
+>  		hdr.count = fill.cur;
+> +		if (fill.devid) {
+> +			hdr.flags |= VFIO_PCI_HOT_RESET_FLAG_DEV_ID;
+> +			if (fill.dev_owned)
+> +				hdr.flags |= VFIO_PCI_HOT_RESET_FLAG_DEV_ID_OWNED;
+> +		}
+> +	}
+
+Does this clean up the flag and branching a bit?
+
+diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
+index 737115d16a79..6a2a079e452d 100644
+--- a/drivers/vfio/pci/vfio_pci_core.c
++++ b/drivers/vfio/pci/vfio_pci_core.c
+@@ -786,8 +786,7 @@ struct vfio_pci_fill_info {
+ 	int cur;
+ 	struct vfio_pci_dependent_device *devices;
+ 	struct vfio_device *vdev;
+-	bool devid:1;
+-	bool dev_owned:1;
++	u32 flags;
+ };
+ 
+ static int vfio_pci_fill_devs(struct pci_dev *pdev, void *data)
+@@ -802,7 +801,7 @@ static int vfio_pci_fill_devs(struct pci_dev *pdev, void *data)
+ 	if (!iommu_group)
+ 		return -EPERM; /* Cannot reset non-isolated devices */
+ 
+-	if (fill->devid) {
++	if (fill->flags & VFIO_PCI_HOT_RESET_FLAG_DEV_ID) {
+ 		struct iommufd_ctx *iommufd = vfio_iommufd_physical_ictx(fill->vdev);
+ 		struct vfio_device_set *dev_set = fill->vdev->dev_set;
+ 		struct vfio_device *vdev;
+@@ -814,7 +813,7 @@ static int vfio_pci_fill_devs(struct pci_dev *pdev, void *data)
+ 		 * - devid == 0 for the devices that have not been opened
+ 		 *   but have same group with one of the devices bound to
+ 		 *   the iommufd of the calling device.
+-		 * - devid == -1 for others, and clear dev_owned flag.
++		 * - devid == -1 for others, and clear owned flag.
+ 		 */
+ 		vdev = vfio_find_device_in_devset(dev_set, &pdev->dev);
+ 		if (vdev && iommufd == vfio_iommufd_physical_ictx(vdev)) {
+@@ -828,7 +827,7 @@ static int vfio_pci_fill_devs(struct pci_dev *pdev, void *data)
+ 			fill->devices[fill->cur].devid = VFIO_PCI_DEVID_OWNED;
+ 		} else {
+ 			fill->devices[fill->cur].devid = VFIO_PCI_DEVID_NOT_OWNED;
+-			fill->dev_owned = false;
++			fill->flags &= ~VFIO_PCI_HOT_RESET_FLAG_DEV_ID_OWNED;
+ 		}
+ 	} else {
+ 		fill->devices[fill->cur].group_id = iommu_group_id(iommu_group);
+@@ -1273,8 +1272,11 @@ static int vfio_pci_ioctl_get_pci_hot_reset_info(
+ 	fill.devices = devices;
+ 	fill.vdev = &vdev->vdev;
+ 
++	if (vfio_device_cdev_opened(&vdev->vdev))
++		fill.flags |= VFIO_PCI_HOT_RESET_FLAG_DEV_ID |
++			     VFIO_PCI_HOT_RESET_FLAG_DEV_ID_OWNED;
++
+ 	mutex_lock(&vdev->vdev.dev_set->lock);
+-	fill.devid = fill.dev_owned = vfio_device_cdev_opened(&vdev->vdev);
+ 	ret = vfio_pci_for_each_slot_or_bus(vdev->pdev, vfio_pci_fill_devs,
+ 					    &fill, slot);
+ 	mutex_unlock(&vdev->vdev.dev_set->lock);
+@@ -1286,11 +1288,7 @@ static int vfio_pci_ioctl_get_pci_hot_reset_info(
+ 	 */
+ 	if (!ret) {
+ 		hdr.count = fill.cur;
+-		if (fill.devid) {
+-			hdr.flags |= VFIO_PCI_HOT_RESET_FLAG_DEV_ID;
+-			if (fill.dev_owned)
+-				hdr.flags |= VFIO_PCI_HOT_RESET_FLAG_DEV_ID_OWNED;
+-		}
++		hdr.flags = fill.flags;
+ 	}
+ 
+ reset_info_exit:
+
+Thanks,
+Alex
+
+>  
+>  reset_info_exit:
+>  	if (copy_to_user(arg, &hdr, minsz))
+> diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
+> index 0552e8dcf0cb..01203215251a 100644
+> --- a/include/uapi/linux/vfio.h
+> +++ b/include/uapi/linux/vfio.h
+> @@ -650,11 +650,53 @@ enum {
+>   * VFIO_DEVICE_GET_PCI_HOT_RESET_INFO - _IOWR(VFIO_TYPE, VFIO_BASE + 12,
+>   *					      struct vfio_pci_hot_reset_info)
+>   *
+> + * This command is used to query the affected devices in the hot reset for
+> + * a given device.
+> + *
+> + * This command always reports the segment, bus, and devfn information for
+> + * each affected device, and selectively reports the group_id or devid per
+> + * the way how the calling device is opened.
+> + *
+> + *	- If the calling device is opened via the traditional group/container
+> + *	  API, group_id is reported.  User should check if it has owned all
+> + *	  the affected devices and provides a set of group fds to prove the
+> + *	  ownership in VFIO_DEVICE_PCI_HOT_RESET ioctl.
+> + *
+> + *	- If the calling device is opened as a cdev, devid is reported.
+> + *	  Flag VFIO_PCI_HOT_RESET_FLAG_DEV_ID is set to indicate this
+> + *	  data type.  For a given affected device, it is considered owned by
+> + *	  this interface if it meets the following conditions:
+> + *	  1) Has a valid devid within the iommufd_ctx of the calling device.
+> + *	     Ownership cannot be determined across separate iommufd_ctx and the
+> + *	     cdev calling conventions do not support a proof-of-ownership model
+> + *	     as provided in the legacy group interface.  In this case a valid
+> + *	     devid with value greater than zero is provided in the return
+> + *	     structure.
+> + *	  2) Does not have a valid devid within the iommufd_ctx of the calling
+> + *	     device, but belongs to the same IOMMU group as the calling device
+> + *	     or another opened device that has a valid devid within the
+> + *	     iommufd_ctx of the calling device.  This provides implicit ownership
+> + *	     for devices within the same DMA isolation context.  In this case
+> + *	     the invalid devid value of zero is provided in the return structure.
+> + *
+> + *	  A devid value of -1 is provided in the return structure for devices
+> + *	  where ownership is not available.  Such devices prevent the use of
+> + *	  VFIO_DEVICE_PCI_HOT_RESET outside of proof-of-ownership calling
+> + *	  conventions (ie. via legacy group accessed devices).
+> + *	  Flag VFIO_PCI_HOT_RESET_FLAG_DEV_ID_OWNED would be set when all the
+> + *	  affected devices are owned by the user.  This flag is available only
+> + *	  when VFIO_PCI_HOT_RESET_FLAG_DEV_ID is set, otherwise reserved.
+> + *
+>   * Return: 0 on success, -errno on failure:
+>   *	-enospc = insufficient buffer, -enodev = unsupported for device.
+>   */
+>  struct vfio_pci_dependent_device {
+> -	__u32	group_id;
+> +	union {
+> +		__u32   group_id;
+> +		__u32	devid;
+> +#define VFIO_PCI_DEVID_OWNED		0
+> +#define VFIO_PCI_DEVID_NOT_OWNED	-1
+> +	};
+>  	__u16	segment;
+>  	__u8	bus;
+>  	__u8	devfn; /* Use PCI_SLOT/PCI_FUNC */
+> @@ -663,6 +705,8 @@ struct vfio_pci_dependent_device {
+>  struct vfio_pci_hot_reset_info {
+>  	__u32	argsz;
+>  	__u32	flags;
+> +#define VFIO_PCI_HOT_RESET_FLAG_DEV_ID		(1 << 0)
+> +#define VFIO_PCI_HOT_RESET_FLAG_DEV_ID_OWNED	(1 << 1)
+>  	__u32	count;
+>  	struct vfio_pci_dependent_device	devices[];
+>  };
+
