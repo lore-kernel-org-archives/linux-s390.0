@@ -2,168 +2,123 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4452EC77B7F
-	for <linux-s390@archiver.kernel.org>; Tue, 16 May 2023 22:02:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E151EC77B75
+	for <linux-s390@archiver.kernel.org>; Wed, 17 May 2023 00:19:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230086AbjEPWCX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 16 May 2023 18:02:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44036 "EHLO
+        id S231377AbjEQATp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 16 May 2023 20:19:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229578AbjEPWCW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 16 May 2023 18:02:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24A0CB4;
-        Tue, 16 May 2023 15:02:21 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S229601AbjEQATo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 16 May 2023 20:19:44 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30B5A2705
+        for <linux-s390@vger.kernel.org>; Tue, 16 May 2023 17:18:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1684282736;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=fAWA1BLnS6OZoKpUWNVEQYD1QFUo+cJ+dgpIwEFG8vQ=;
+        b=gIlBWrbHybg+YZojbU6z5zz/UHNxbxvbuRRZfnlspBp7aACUa9HDbzFwxNaJDgDouU1wQF
+        kjsjBJap5mct/S/wG4/rr69dU7/RMtSsRiFIh9C8G/4j4FjqK3w7AmUeKYhOCyRIP4eoO2
+        iTARBPWQdc/qXGMy+NU2jIKZ0DXaAGg=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-630-xSYMGA7rM6C5pLqfMBrTEw-1; Tue, 16 May 2023 20:18:51 -0400
+X-MC-Unique: xSYMGA7rM6C5pLqfMBrTEw-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B587363CF5;
-        Tue, 16 May 2023 22:02:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C90F7C433EF;
-        Tue, 16 May 2023 22:02:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1684274540;
-        bh=Xn5gFOegvDQoAs6fV+QPMtWJd/9gIN1gu+8PHj8jATQ=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=I8HmcSl3RSMNgObVi4nyzA8Dn0pIVn3Hyd4M9+6+jiCnOIEHPDAD1katsykkWAiMa
-         gn5fQMZJ0CFmK2NC9H7JKcNfD2tVhwbbUSeGJQe61+ttSYu+uB1762WRf9rvoaH/7u
-         R2FZf07p1aiooDIDhn5t28F6IgINIJ5khA8X4Fo4=
-Date:   Tue, 16 May 2023 15:02:18 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     Anders Roxell <anders.roxell@linaro.org>
-Cc:     Lorenzo Stoakes <lstoakes@gmail.com>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>,
-        David Hildenbrand <david@redhat.com>,
-        linux-arm-kernel@lists.infradead.org, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-perf-users@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Kees Cook <keescook@chromium.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Christian Brauner <brauner@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Ian Rogers <irogers@google.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Kentaro Takeda <takedakn@nttdata.co.jp>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Paul Moore <paul@paul-moore.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E . Hallyn" <serge@hallyn.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        John Hubbard <jhubbard@nvidia.com>
-Subject: Re: [PATCH v5 3/6] mm/gup: remove vmas parameter from
- get_user_pages_remote()
-Message-Id: <20230516150218.477c5e9d0a2d9ef8b057069c@linux-foundation.org>
-In-Reply-To: <20230516094919.GA411@mutt>
-References: <cover.1684097001.git.lstoakes@gmail.com>
-        <afe323639b7bda066ee5c7a6cca906f5ad8df940.1684097002.git.lstoakes@gmail.com>
-        <20230516094919.GA411@mutt>
-X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id B3A533810B05;
+        Wed, 17 May 2023 00:18:50 +0000 (UTC)
+Received: from localhost (ovpn-12-79.pek2.redhat.com [10.72.12.79])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 02B2A1410DD5;
+        Wed, 17 May 2023 00:18:49 +0000 (UTC)
+Date:   Wed, 17 May 2023 08:18:46 +0800
+From:   Baoquan He <bhe@redhat.com>
+To:     Vinod Koul <vkoul@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        schnelle@linux.ibm.com, linux-s390@vger.kernel.org,
+        Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        linux-arm-msm@vger.kernel.org, dmaengine@vger.kernel.org
+Subject: Re: [PATCH RESEND 2/2] dmaengine: make QCOM_HIDMA depend on HAS_IOMEM
+Message-ID: <ZGQdZhutT+lUdily@MiWiFi-R3L-srv>
+References: <20230506111628.712316-1-bhe@redhat.com>
+ <20230506111628.712316-3-bhe@redhat.com>
+ <ZGPD1wELeXafPJ/T@matsya>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZGPD1wELeXafPJ/T@matsya>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.7
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 16 May 2023 11:49:19 +0200 Anders Roxell <anders.roxell@linaro.org> wrote:
-
-> On 2023-05-14 22:26, Lorenzo Stoakes wrote:
-> > The only instances of get_user_pages_remote() invocations which used the
-> > vmas parameter were for a single page which can instead simply look up the
-> > VMA directly. In particular:-
+On 05/16/23 at 11:26pm, Vinod Koul wrote:
+> On 06-05-23, 19:16, Baoquan He wrote:
+> > On s390 systems (aka mainframes), it has classic channel devices for
+> > networking and permanent storage that are currently even more common
+> > than PCI devices. Hence it could have a fully functional s390 kernel
+> > with CONFIG_PCI=n, then the relevant iomem mapping functions
+> > [including ioremap(), devm_ioremap(), etc.] are not available.
 > > 
-> > - __update_ref_ctr() looked up the VMA but did nothing with it so we simply
-> >   remove it.
-> > 
-> > - __access_remote_vm() was already using vma_lookup() when the original
-> >   lookup failed so by doing the lookup directly this also de-duplicates the
-> >   code.
-> > 
-> > We are able to perform these VMA operations as we already hold the
-> > mmap_lock in order to be able to call get_user_pages_remote().
-> > 
-> > As part of this work we add get_user_page_vma_remote() which abstracts the
-> > VMA lookup, error handling and decrementing the page reference count should
-> > the VMA lookup fail.
-> > 
-> > This forms part of a broader set of patches intended to eliminate the vmas
-> > parameter altogether.
-> > 
-> > -		int bytes, ret, offset;
-> > +		int bytes, offset;
-> >  		void *maddr;
-> > -		struct page *page = NULL;
-> > +		struct vm_area_struct *vma;
-> > +		struct page *page = get_user_page_vma_remote(mm, addr,
-> > +							     gup_flags, &vma);
-> > +
-> > +		if (IS_ERR_OR_NULL(page)) {
-> > +			int ret = 0;
+> > Here let QCOM_HIDMA depend on HAS_IOMEM so that it won't be built to
+> > cause below compiling error if PCI is unset.
 > 
-> I see the warning below when building without CONFIG_HAVE_IOREMAP_PROT set.
+> I have 2/2 patch here, where is patch 1 of 2..?
+
+It's here, thanks for check.
+https://lore.kernel.org/all/20230506111628.712316-2-bhe@redhat.com/T/#u
+
+I used get_maintainer to get reivewers list, seems your contact is only
+put in 2/2 patch. I also sent to lkml, linux-mm and s390 mailing list,
+so the whole series can be seen in any of the ML.
+
+Thanks
+Baoquan
+
 > 
-> make --silent --keep-going --jobs=32 \
-> O=/home/anders/.cache/tuxmake/builds/1244/build ARCH=arm \
-> CROSS_COMPILE=arm-linux-gnueabihf- /home/anders/src/kernel/next/mm/memory.c: In function '__access_remote_vm':
-> /home/anders/src/kernel/next/mm/memory.c:5608:29: warning: unused variable 'ret' [-Wunused-variable]
->  5608 |                         int ret = 0;
->       |                             ^~~
-
-Thanks, I did the obvious.
-
-Also s/ret/res/, as `ret' is kinda reserved for "this is what this
-function will return".
-
---- a/mm/memory.c~mm-gup-remove-vmas-parameter-from-get_user_pages_remote-fix
-+++ a/mm/memory.c
-@@ -5605,11 +5605,11 @@ int __access_remote_vm(struct mm_struct
- 							     gup_flags, &vma);
- 
- 		if (IS_ERR_OR_NULL(page)) {
--			int ret = 0;
--
- #ifndef CONFIG_HAVE_IOREMAP_PROT
- 			break;
- #else
-+			int res = 0;
-+
- 			/*
- 			 * Check if this is a VM_IO | VM_PFNMAP VMA, which
- 			 * we can access using slightly different code.
-@@ -5617,11 +5617,11 @@ int __access_remote_vm(struct mm_struct
- 			if (!vma)
- 				break;
- 			if (vma->vm_ops && vma->vm_ops->access)
--				ret = vma->vm_ops->access(vma, addr, buf,
-+				res = vma->vm_ops->access(vma, addr, buf,
- 							  len, write);
--			if (ret <= 0)
-+			if (res <= 0)
- 				break;
--			bytes = ret;
-+			bytes = res;
- #endif
- 		} else {
- 			bytes = len;
-_
+> > 
+> > --------------------------------------------------------
+> > ld: drivers/dma/qcom/hidma.o: in function `hidma_probe':
+> > hidma.c:(.text+0x4b46): undefined reference to `devm_ioremap_resource'
+> > ld: hidma.c:(.text+0x4b9e): undefined reference to `devm_ioremap_resource'
+> > make[1]: *** [scripts/Makefile.vmlinux:35: vmlinux] Error 1
+> > make: *** [Makefile:1264: vmlinux] Error 2
+> > 
+> > Signed-off-by: Baoquan He <bhe@redhat.com>
+> > Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> > Cc: Andy Gross <agross@kernel.org>
+> > Cc: Bjorn Andersson <andersson@kernel.org>
+> > Cc: Konrad Dybcio <konrad.dybcio@linaro.org>
+> > Cc: Vinod Koul <vkoul@kernel.org>
+> > Cc: linux-arm-msm@vger.kernel.org
+> > Cc: dmaengine@vger.kernel.org
+> > ---
+> >  drivers/dma/qcom/Kconfig | 1 +
+> >  1 file changed, 1 insertion(+)
+> > 
+> > diff --git a/drivers/dma/qcom/Kconfig b/drivers/dma/qcom/Kconfig
+> > index 3f926a653bd8..ace75d7b835a 100644
+> > --- a/drivers/dma/qcom/Kconfig
+> > +++ b/drivers/dma/qcom/Kconfig
+> > @@ -45,6 +45,7 @@ config QCOM_HIDMA_MGMT
+> >  
+> >  config QCOM_HIDMA
+> >  	tristate "Qualcomm Technologies HIDMA Channel support"
+> > +	depends on HAS_IOMEM
+> >  	select DMA_ENGINE
+> >  	help
+> >  	  Enable support for the Qualcomm Technologies HIDMA controller.
+> > -- 
+> > 2.34.1
+> 
+> -- 
+> ~Vinod
+> 
 
