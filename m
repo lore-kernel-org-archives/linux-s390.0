@@ -2,113 +2,153 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1885DC7EE23
-	for <linux-s390@archiver.kernel.org>; Wed, 17 May 2023 13:14:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 109A3C77B7F
+	for <linux-s390@archiver.kernel.org>; Wed, 17 May 2023 13:16:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232174AbjEQNOO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 17 May 2023 09:14:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52748 "EHLO
+        id S231638AbjEQNQb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 17 May 2023 09:16:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232105AbjEQNNt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 May 2023 09:13:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F309383EC;
-        Wed, 17 May 2023 06:13:37 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 58182614CC;
-        Wed, 17 May 2023 13:13:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82ACBC433A1;
-        Wed, 17 May 2023 13:13:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1684329190;
-        bh=d19FT2UXzed3oRWIfJJFjSTk/2JiLUfj9No4RlO7/6Q=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D1+6zXZHFnxnG+wOAs+I7Jk3ZmwjP67pJgzP0uRLk1KweQErWDtrD6kcCaiJbOcnT
-         FeyForINJFNNHVR7SlZDLxBqXsy6U1Q8QSU2g7HzT+HDxANY+2tRRB/juS7IWqHnN0
-         R7uJEX9uIR2BJ1iVGwpgqVvJxOimPbuxDH8nVE33oigOLH+a2C6WGLVT5O2FBvlKz1
-         1cchN4Ol9FfjcJdHRvb6NG6ME/EGUJBb5JSRXXIOYIHDL60v7knAjAptFgq2qEdzKr
-         kBNHvdOcis7Z2szvD6pixKpaEvKxiNP2G0OykAdHnW8HCBkYh+jiZUMYx1rLc8DsBc
-         EwxZhq5xDzb7g==
-From:   Arnd Bergmann <arnd@kernel.org>
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     linux-mm@kvack.org, Arnd Bergmann <arnd@arndb.de>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        with ESMTP id S231891AbjEQNQP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 May 2023 09:16:15 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6011F19BD;
+        Wed, 17 May 2023 06:15:57 -0700 (PDT)
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34HD7x74026019;
+        Wed, 17 May 2023 13:15:27 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=71IzhU/suCxEImZQzd6oJwcMiRsUMV86qQoas5G5IMk=;
+ b=eRlTWR9IftmQW4Hg/mYxMGxfpMN0X5J5SR+uNb7uSUNUV7l+L+Z91W5sFRfpj5/iY5px
+ dNPTY4uIvtc/i7UTGBG/M/r1wOCWU2rhWtNVYNdVl1bALfQ3GBushTAPtgLvHyrBjMGa
+ /UvUc7vCni+jLgBGBw2mCxXRIVPm2lvQLVhlm3AlqPWtEz6W4XQo7VUeg7S8JkYxj0z8
+ ZImSPF1PGDGpjO+SRE/mI2VKW4dSH9F0pyhwCso773IlduEmPWctbUN62pUtCzMmW/+j
+ GM5nw6OsWFQKHxceoGiFqBjfoMBtSD66suy6rtoJ526ldiY0dvXf42B9TfuT6mbk/tQ+ 2Q== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qmybp8v21-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 17 May 2023 13:15:27 +0000
+Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34HD9Bfa004295;
+        Wed, 17 May 2023 13:15:26 GMT
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qmybp8uye-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 17 May 2023 13:15:26 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34HB7a8h007890;
+        Wed, 17 May 2023 13:15:23 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+        by ppma06fra.de.ibm.com (PPS) with ESMTPS id 3qj1tdstk0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 17 May 2023 13:15:23 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34HDFJjC24642088
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 17 May 2023 13:15:20 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CB9002004B;
+        Wed, 17 May 2023 13:15:19 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2B6462004E;
+        Wed, 17 May 2023 13:15:19 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.155.204.135])
+        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Wed, 17 May 2023 13:15:19 +0000 (GMT)
+Date:   Wed, 17 May 2023 15:15:17 +0200
+From:   Alexander Gordeev <agordeev@linux.ibm.com>
+To:     Arnd Bergmann <arnd@kernel.org>
+Cc:     viro@zeniv.linux.org.uk, brauner@kernel.org,
+        linux-fsdevel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
         Helge Deller <deller@gmx.de>,
         Michael Ellerman <mpe@ellerman.id.au>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, x86@kernel.org,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Paul Moore <paul@paul-moore.com>,
-        Eric Paris <eparis@redhat.com>,
-        Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>,
-        Christoph Lameter <cl@linux.com>, Pavel Machek <pavel@ucw.cz>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Waiman Long <longman@redhat.com>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        audit@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, kunit-dev@googlegroups.com
-Subject: [PATCH 12/14] init: move cifs_root_data() prototype into linux/mount.h
-Date:   Wed, 17 May 2023 15:11:00 +0200
-Message-Id: <20230517131102.934196-13-arnd@kernel.org>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230517131102.934196-1-arnd@kernel.org>
-References: <20230517131102.934196-1-arnd@kernel.org>
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-parisc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH] procfs: consolidate arch_report_meminfo declaration
+Message-ID: <ZGTTZR3bHUhPCGq0@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <20230516195834.551901-1-arnd@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230516195834.551901-1-arnd@kernel.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Q66ERUsCq6HtIz6K7EGCib7iL32KIdom
+X-Proofpoint-ORIG-GUID: yDb9qc7hnBY0DujT-LhQIqBO5YaGtBo1
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-05-17_02,2023-05-17_02,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011
+ lowpriorityscore=0 mlxlogscore=975 mlxscore=0 spamscore=0 phishscore=0
+ impostorscore=0 malwarescore=0 priorityscore=1501 adultscore=0
+ suspectscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2304280000 definitions=main-2305170106
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+On Tue, May 16, 2023 at 09:57:29PM +0200, Arnd Bergmann wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
+> 
+> The arch_report_meminfo() function is provided by four architectures,
+> with a __weak fallback in procfs itself. On architectures that don't
+> have a custom version, the __weak version causes a warning because
+> of the missing prototype.
+> 
+> Remove the architecture specific prototypes and instead add one
+> in linux/proc_fs.h.
+> 
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+>  arch/parisc/include/asm/pgtable.h    | 3 ---
+>  arch/powerpc/include/asm/pgtable.h   | 3 ---
+>  arch/s390/include/asm/pgtable.h      | 3 ---
+>  arch/s390/mm/pageattr.c              | 1 +
+>  arch/x86/include/asm/pgtable.h       | 1 +
+>  arch/x86/include/asm/pgtable_types.h | 3 ---
+>  arch/x86/mm/pat/set_memory.c         | 1 +
+>  include/linux/proc_fs.h              | 2 ++
+>  8 files changed, 5 insertions(+), 12 deletions(-)
+...
+> diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
+> index 6822a11c2c8a..c55f3c3365af 100644
+> --- a/arch/s390/include/asm/pgtable.h
+> +++ b/arch/s390/include/asm/pgtable.h
+> @@ -42,9 +42,6 @@ static inline void update_page_count(int level, long count)
+>  		atomic_long_add(count, &direct_pages_count[level]);
+>  }
+>  
+> -struct seq_file;
+> -void arch_report_meminfo(struct seq_file *m);
+> -
+>  /*
+>   * The S390 doesn't have any external MMU info: the kernel page
+>   * tables contain all the necessary information.
+> diff --git a/arch/s390/mm/pageattr.c b/arch/s390/mm/pageattr.c
+> index 5ba3bd8a7b12..ca5a418c58a8 100644
+> --- a/arch/s390/mm/pageattr.c
+> +++ b/arch/s390/mm/pageattr.c
+> @@ -4,6 +4,7 @@
+>   * Author(s): Jan Glauber <jang@linux.vnet.ibm.com>
+>   */
+>  #include <linux/hugetlb.h>
+> +#include <linux/proc_fs.h>
+>  #include <linux/vmalloc.h>
+>  #include <linux/mm.h>
+>  #include <asm/cacheflush.h>
 
-cifs_root_data() is defined in cifs and called from early init
-code, but lacks a global prototype:
+For s390:
 
-fs/cifs/cifsroot.c:83:12: error: no previous prototype for 'cifs_root_data'
-
-Move the declaration from do_mounts.c into an appropriate header.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- include/linux/mount.h | 2 ++
- init/do_mounts.c      | 2 --
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/include/linux/mount.h b/include/linux/mount.h
-index 1ea326c368f7..f381eb44b24c 100644
---- a/include/linux/mount.h
-+++ b/include/linux/mount.h
-@@ -124,4 +124,6 @@ extern int iterate_mounts(int (*)(struct vfsmount *, void *), void *,
- 			  struct vfsmount *);
- extern void kern_unmount_array(struct vfsmount *mnt[], unsigned int num);
- 
-+extern int cifs_root_data(char **dev, char **opts);
-+
- #endif /* _LINUX_MOUNT_H */
-diff --git a/init/do_mounts.c b/init/do_mounts.c
-index 811e94daf0a8..83447c46ad6d 100644
---- a/init/do_mounts.c
-+++ b/init/do_mounts.c
-@@ -489,8 +489,6 @@ static int __init mount_nfs_root(void)
- 
- #ifdef CONFIG_CIFS_ROOT
- 
--extern int cifs_root_data(char **dev, char **opts);
--
- #define CIFSROOT_TIMEOUT_MIN	5
- #define CIFSROOT_TIMEOUT_MAX	30
- #define CIFSROOT_RETRY_MAX	5
--- 
-2.39.2
-
+Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com>
