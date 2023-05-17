@@ -2,187 +2,102 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D7E6C77B7A
-	for <linux-s390@archiver.kernel.org>; Wed, 17 May 2023 12:30:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 88764C77B7A
+	for <linux-s390@archiver.kernel.org>; Wed, 17 May 2023 12:44:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231503AbjEQMaK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 17 May 2023 08:30:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44828 "EHLO
+        id S231350AbjEQMoR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 17 May 2023 08:44:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230391AbjEQMaJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 May 2023 08:30:09 -0400
-Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 348B41720;
-        Wed, 17 May 2023 05:30:07 -0700 (PDT)
-Received: by mail-ed1-x533.google.com with SMTP id 4fb4d7f45d1cf-50db91640d3so1066374a12.0;
-        Wed, 17 May 2023 05:30:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1684326605; x=1686918605;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:date:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=zG7OAtWW1ntr+yw/2O/iG28G8+bEDuvHfZ1bydZEJAA=;
-        b=WxpIe5pMxx0VA25leALbaHV7URbrgAZQgUBOO+Dm/oEU4zI7xovBGNR0Fqdj3S0U5D
-         +wX/5bbik+VhVwaVqkhO/m/bAJfyUm6S98KhIjZNjJmORqxyH79So3CJNh8nGmLwlmzz
-         0gEEtIchHsxOUZ+D/QMa8VshbsujBhVWd+NHfczwXI7dwfKp3Ud2ghErffmsQNPHs3QT
-         3SC5awUHHfdaGU5KKUxQh4cPlmsVI8rB9OtER/noYauADAGyKyMVc8GF2mViI2dv+f9X
-         nQofY16nsB6wxSSeolmYXUVITJPW4DgOomnU4IAy50pVTuxZt0MURD8TkOrG9H68lWX2
-         mDig==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1684326605; x=1686918605;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:date:from:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=zG7OAtWW1ntr+yw/2O/iG28G8+bEDuvHfZ1bydZEJAA=;
-        b=G5elhPSq27nzaGlBsTXeBHPHQrxMTdcLAmhRFEvpUfnuB8qS2viFF4wlNT7vJMvN/7
-         ToHzXONZ+gxs9JO/JF0X246L5oYvw4QGOWZynrV48Q4nfwqr75Hi32jhqAEi9oXo/NPj
-         3RfuzSIzkKY/ERmICwTn+N0BQN4IaqRuriDXv/i+khZfdAzifJa9/Ux7WkMetT1KNfry
-         bvWnwLs5hebnK+wXFsBHUgEBUKCC7SyRmPx+7NcOy+cnUEuFC4TYJZM3wouESrYsgoIA
-         7J56jaFnDD9LUMquu/JTUkrEWi4zaQRy6Rxm7zmwZPprtUP3mT77C4F5PMsSf9wyStZq
-         2mOQ==
-X-Gm-Message-State: AC+VfDwScL5eZL9S1th8wE5t9bQvOCIExXlEUWq2+tQ+clKl9jOA/OVr
-        uEqgaYyt9z99aUTlyjrbFoo=
-X-Google-Smtp-Source: ACHHUZ5fZJXdzpqMUilN3IDYmrxIKIW+aD2uyjM+ZYcZgxAxMpplHCS3A36ogwRDUcF+oXUh5RDHSA==
-X-Received: by 2002:aa7:d1c5:0:b0:510:d075:9e13 with SMTP id g5-20020aa7d1c5000000b00510d0759e13mr1374346edp.22.1684326605340;
-        Wed, 17 May 2023 05:30:05 -0700 (PDT)
-Received: from krava (2001-1ae9-1c2-4c00-726e-c10f-8833-ff22.ip6.tmcz.cz. [2001:1ae9:1c2:4c00:726e:c10f:8833:ff22])
-        by smtp.gmail.com with ESMTPSA id u15-20020aa7db8f000000b0050bc863d32asm9472513edt.27.2023.05.17.05.30.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 17 May 2023 05:30:05 -0700 (PDT)
-From:   Jiri Olsa <olsajiri@gmail.com>
-X-Google-Original-From: Jiri Olsa <jolsa@kernel.org>
-Date:   Wed, 17 May 2023 14:30:02 +0200
-To:     Masami Hiramatsu <mhiramat@kernel.org>
-Cc:     Jiri Olsa <olsajiri@gmail.com>, Ze Gao <zegao2021@gmail.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vasily Gorbik <gor@linux.ibm.com>, x86@kernel.org,
-        bpf@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-trace-kernel@vger.kernel.org,
-        Conor Dooley <conor@kernel.org>, Yonghong Song <yhs@fb.com>,
-        Ze Gao <zegao@tencent.com>
-Subject: Re: [PATCH v3 2/4] fprobe: make fprobe_kprobe_handler recursion free
-Message-ID: <ZGTIyrPXkCiwFPBo@krava>
-References: <20230517034510.15639-1-zegao@tencent.com>
- <20230517034510.15639-3-zegao@tencent.com>
- <ZGSwzuM8oHgKaaga@krava>
- <20230517204236.e0f579399e5a69505a4ec7ef@kernel.org>
+        with ESMTP id S231336AbjEQMoO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 May 2023 08:44:14 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65C951FFC;
+        Wed, 17 May 2023 05:44:13 -0700 (PDT)
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34HCfodL025002;
+        Wed, 17 May 2023 12:44:13 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
+ mime-version : content-transfer-encoding : in-reply-to : references : cc :
+ to : subject : from : message-id : date; s=pp1;
+ bh=bk6LeFqmKu3jK5Ome10pI33jMM9lBbDMUp1SWFjjit4=;
+ b=Phz54rexshhaTxfF2AHjmkA7psGg7TpiIidRWs1R7zL+kANZMC1NFKt3EwQCHf1tzeNr
+ RAqv9cMOnxanFlOcvJ9ReP18hNkwb2nvPq/TjejJUghTfzwHDn/8NVh2F0nD66/E/JD4
+ zYVisejCK9iC/Kdpnm9xFD3wyOaoswkiZCw2NTUEXtyGMTINFxaJjx7I3AZOoFPYBogR
+ 5lUj9pDxxbZ72nA/i5pQ8+rjnqzCFOVGZUEDIdYMWuoSmi7TX434/rIPB4+URf5e+1ZR
+ anaa3XKYUk1jI6WbE0K1YYMBXTxaBWeuSrd8KsCrpa/8JDPZqV7J/dyvIMH6ahb1LhGx ZQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qmy5fr332-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 17 May 2023 12:44:12 +0000
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34HCgJfP026848;
+        Wed, 17 May 2023 12:44:12 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qmy5fr31n-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 17 May 2023 12:44:12 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34HCZqSY020190;
+        Wed, 17 May 2023 12:44:09 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3qj264t69v-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 17 May 2023 12:44:09 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34HCi64R22413854
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 17 May 2023 12:44:06 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 464B42004B;
+        Wed, 17 May 2023 12:44:06 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0C7D12006E;
+        Wed, 17 May 2023 12:44:06 +0000 (GMT)
+Received: from t14-nrb (unknown [9.179.7.234])
+        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 17 May 2023 12:44:05 +0000 (GMT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230517204236.e0f579399e5a69505a4ec7ef@kernel.org>
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20230516192225.2b4eea48@p-imbrenda>
+References: <20230516130456.256205-1-nrb@linux.ibm.com> <20230516130456.256205-3-nrb@linux.ibm.com> <20230516192225.2b4eea48@p-imbrenda>
+Cc:     frankja@linux.ibm.com, thuth@redhat.com, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v2 2/6] s390x: sie: switch to home space mode before entering SIE
+From:   Nico Boehr <nrb@linux.ibm.com>
+Message-ID: <168432744557.12463.11781289128593182833@t14-nrb>
+User-Agent: alot/0.8.1
+Date:   Wed, 17 May 2023 14:44:05 +0200
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: oNziwPu6dR-fVvcTcMPKRCnOqcv8TqPl
+X-Proofpoint-ORIG-GUID: RAJs8zTIO4FdZA9jVCxWQa-PnW-kL7Vh
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-05-17_02,2023-05-17_02,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
+ clxscore=1015 lowpriorityscore=0 bulkscore=0 impostorscore=0 spamscore=0
+ mlxlogscore=999 adultscore=0 phishscore=0 suspectscore=0 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2304280000
+ definitions=main-2305170103
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, May 17, 2023 at 08:42:36PM +0900, Masami Hiramatsu wrote:
-> On Wed, 17 May 2023 12:47:42 +0200
-> Jiri Olsa <olsajiri@gmail.com> wrote:
-> 
-> > On Wed, May 17, 2023 at 11:45:07AM +0800, Ze Gao wrote:
-> > > Current implementation calls kprobe related functions before doing
-> > > ftrace recursion check in fprobe_kprobe_handler, which opens door
-> > > to kernel crash due to stack recursion if preempt_count_{add, sub}
-> > > is traceable in kprobe_busy_{begin, end}.
-> > > 
-> > > Things goes like this without this patch quoted from Steven:
-> > > "
-> > > fprobe_kprobe_handler() {
-> > >    kprobe_busy_begin() {
-> > >       preempt_disable() {
-> > >          preempt_count_add() {  <-- trace
-> > >             fprobe_kprobe_handler() {
-> > > 		[ wash, rinse, repeat, CRASH!!! ]
-> > > "
-> > > 
-> > > By refactoring the common part out of fprobe_kprobe_handler and
-> > > fprobe_handler and call ftrace recursion detection at the very beginning,
-> > > the whole fprobe_kprobe_handler is free from recursion.
-> > > 
-> > > Signed-off-by: Ze Gao <zegao@tencent.com>
-> > > Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-> > > Link: https://lore.kernel.org/linux-trace-kernel/20230516071830.8190-3-zegao@tencent.com
-> > > ---
-> > >  kernel/trace/fprobe.c | 59 ++++++++++++++++++++++++++++++++-----------
-> > >  1 file changed, 44 insertions(+), 15 deletions(-)
-> > > 
-> > > diff --git a/kernel/trace/fprobe.c b/kernel/trace/fprobe.c
-> > > index 9abb3905bc8e..097c740799ba 100644
-> > > --- a/kernel/trace/fprobe.c
-> > > +++ b/kernel/trace/fprobe.c
-> > > @@ -20,30 +20,22 @@ struct fprobe_rethook_node {
-> > >  	char data[];
-> > >  };
-> > >  
-> > > -static void fprobe_handler(unsigned long ip, unsigned long parent_ip,
-> > > -			   struct ftrace_ops *ops, struct ftrace_regs *fregs)
-> > > +static inline void __fprobe_handler(unsigned long ip, unsigned long
-> > > +		parent_ip, struct ftrace_ops *ops, struct ftrace_regs *fregs)
-> > >  {
-> > >  	struct fprobe_rethook_node *fpr;
-> > >  	struct rethook_node *rh = NULL;
-> > >  	struct fprobe *fp;
-> > >  	void *entry_data = NULL;
-> > > -	int bit, ret;
-> > > +	int ret;
-> > >  
-> > 
-> > this change uncovered bug for me introduced by [1]
-> > 
-> > the bpf's kprobe multi uses either fprobe's entry_handler or exit_handler,
-> > so the 'ret' value is undefined for return probe path and occasionally we
-> > won't setup rethook and miss the return probe
-> 
-> Oops, I missed to push my fix.
-> 
-> https://lore.kernel.org/all/168100731160.79534.374827110083836722.stgit@devnote2/
-> 
-> > 
-> > we can either squash this change into your patch or I can make separate
-> > patch for that.. but given that [1] is quite recent we could just silently
-> > fix that ;-)
-> 
-> Jiri, I think the above will fix the issue, right?
+Quoting Claudio Imbrenda (2023-05-16 19:22:25)
+[...]
+> > diff --git a/lib/s390x/sie.h b/lib/s390x/sie.h
+> > index 147cb0f2a556..0b00fb709776 100644
+> > --- a/lib/s390x/sie.h
+> > +++ b/lib/s390x/sie.h
+> > @@ -284,5 +284,6 @@ void sie_handle_validity(struct vm *vm);
+> >  void sie_guest_sca_create(struct vm *vm);
+> >  void sie_guest_create(struct vm *vm, uint64_t guest_mem, uint64_t gues=
+t_mem_len);
+> >  void sie_guest_destroy(struct vm *vm);
+> > +bool sie_had_pgm_int(struct vm *vm);
+>=20
+> what's this?
 
-yes, it's the same fix, great, thanks
-
-jirka
-
-> 
-> > 
-> > jirka
-> > 
-> > 
-> > [1] 39d954200bf6 fprobe: Skip exit_handler if entry_handler returns !0
-> > 
-> > ---
-> > diff --git a/kernel/trace/fprobe.c b/kernel/trace/fprobe.c
-> > index 9abb3905bc8e..293184227394 100644
-> > --- a/kernel/trace/fprobe.c
-> > +++ b/kernel/trace/fprobe.c
-> > @@ -27,7 +27,7 @@ static void fprobe_handler(unsigned long ip, unsigned long parent_ip,
-> >  	struct rethook_node *rh = NULL;
-> >  	struct fprobe *fp;
-> >  	void *entry_data = NULL;
-> > -	int bit, ret;
-> > +	int bit, ret = 0;
-> >  
-> >  	fp = container_of(ops, struct fprobe, ops);
-> >  	if (fprobe_disabled(fp))
-> > 
-> > 
-> 
-> 
-> -- 
-> Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Opsie, fixed :)
