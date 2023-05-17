@@ -2,123 +2,132 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E151EC77B75
-	for <linux-s390@archiver.kernel.org>; Wed, 17 May 2023 00:19:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 21180C77B75
+	for <linux-s390@archiver.kernel.org>; Wed, 17 May 2023 01:55:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231377AbjEQATp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 16 May 2023 20:19:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48108 "EHLO
+        id S231678AbjEQBzI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 16 May 2023 21:55:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229601AbjEQATo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 16 May 2023 20:19:44 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30B5A2705
-        for <linux-s390@vger.kernel.org>; Tue, 16 May 2023 17:18:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1684282736;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=fAWA1BLnS6OZoKpUWNVEQYD1QFUo+cJ+dgpIwEFG8vQ=;
-        b=gIlBWrbHybg+YZojbU6z5zz/UHNxbxvbuRRZfnlspBp7aACUa9HDbzFwxNaJDgDouU1wQF
-        kjsjBJap5mct/S/wG4/rr69dU7/RMtSsRiFIh9C8G/4j4FjqK3w7AmUeKYhOCyRIP4eoO2
-        iTARBPWQdc/qXGMy+NU2jIKZ0DXaAGg=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-630-xSYMGA7rM6C5pLqfMBrTEw-1; Tue, 16 May 2023 20:18:51 -0400
-X-MC-Unique: xSYMGA7rM6C5pLqfMBrTEw-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id B3A533810B05;
-        Wed, 17 May 2023 00:18:50 +0000 (UTC)
-Received: from localhost (ovpn-12-79.pek2.redhat.com [10.72.12.79])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 02B2A1410DD5;
-        Wed, 17 May 2023 00:18:49 +0000 (UTC)
-Date:   Wed, 17 May 2023 08:18:46 +0800
-From:   Baoquan He <bhe@redhat.com>
-To:     Vinod Koul <vkoul@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        schnelle@linux.ibm.com, linux-s390@vger.kernel.org,
-        Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        linux-arm-msm@vger.kernel.org, dmaengine@vger.kernel.org
-Subject: Re: [PATCH RESEND 2/2] dmaengine: make QCOM_HIDMA depend on HAS_IOMEM
-Message-ID: <ZGQdZhutT+lUdily@MiWiFi-R3L-srv>
-References: <20230506111628.712316-1-bhe@redhat.com>
- <20230506111628.712316-3-bhe@redhat.com>
- <ZGPD1wELeXafPJ/T@matsya>
+        with ESMTP id S231177AbjEQBzH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 16 May 2023 21:55:07 -0400
+Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36F4D3C33;
+        Tue, 16 May 2023 18:55:06 -0700 (PDT)
+Received: by mail-ed1-x52f.google.com with SMTP id 4fb4d7f45d1cf-51090206721so370982a12.0;
+        Tue, 16 May 2023 18:55:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1684288504; x=1686880504;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=PzZh0bIZSJ+JPhYvLDEGW/XgH4+hk0vQUZAdjfNNsdg=;
+        b=ZbE0g5qJQ2o9t0i1MOgKVdjGyHIxLEcWxeQfDxs9Z/f5sK1/cZh05zbTDuiM0wv3eT
+         ifv1XJk4gYn/uZi7kgIM/IAxyph61Tn2TfJC2F78HRn5M/CORQJx+zPrpnDyhFaEyTDR
+         LzSPODZYS8B+7Piwap7DrMRvMQAhcQq13pxT3TzPd2kQ8VxzzWAOi1GZSKN6HsO2GlT+
+         SURfW30bGy/IxQevnxxYtzfGiQXGQlofTtqcXMTIVTA9YKL4/PiNVhgqTtVcG1dh/Hpx
+         Tp8rlIoSdBsO1ummd85QXj8qkuq0A/hhhdM9X31zqAz0nVvl7IUBn545twb9SIKOLo3D
+         Uj/w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1684288504; x=1686880504;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=PzZh0bIZSJ+JPhYvLDEGW/XgH4+hk0vQUZAdjfNNsdg=;
+        b=ZGox+Cv2C6lTEZJHVDbC1L/w4BDecPcPN4a01RSj8aKwSvCeNpH+wdoZmC/KoNyKN8
+         UP09cBzQWYd/IFlzF14TpH4nQTn4TN037Pl/PJav8mvLEiS0tf3fYTjMPHyYxEVkd3D9
+         ePq0ObgrBBJ7KOUZaP7Qj80o4MQZJ4qgmR+/XjnbKG1sy0UJThHX5iOksu29g755az+I
+         0cSghaW4z2v3RDydx8M947Uw2w/dT2PAkKszo3pPF4GQnp0gwYmPC26WcjOqnFRw7wBM
+         /90clwuWUh+nSgPNMh8hj8haz/m1QnRsqT1i4RBzdbKmXd5NXSejY+js2TfEzbfftkkh
+         QhfQ==
+X-Gm-Message-State: AC+VfDxBhUsAURDFeE7brMwnq1GIieJ2rI1b6I6qpAifO1aYrNrYoC7g
+        xTH/Pvyhw21BiNf1Q1UU49lyWgv/+XAsM0MbTwA=
+X-Google-Smtp-Source: ACHHUZ7NsRASUg7F+CJyPuN2am+wh93OmEnhfAmtdtKJmfYbwMRaHk8oJ5Ft6fHAO6vVt499Vf2lbNpMiyi2+jQzsxE=
+X-Received: by 2002:a50:fb9a:0:b0:506:9805:7b56 with SMTP id
+ e26-20020a50fb9a000000b0050698057b56mr856882edq.32.1684288504486; Tue, 16 May
+ 2023 18:55:04 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ZGPD1wELeXafPJ/T@matsya>
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.7
+References: <20230516071830.8190-1-zegao@tencent.com> <20230516071830.8190-3-zegao@tencent.com>
+ <20230516091820.GB2587705@hirez.programming.kicks-ass.net>
+ <CAD8CoPDFp2_+D6nykj6mu_Pr57iN+8jO-kgA_FRrcxD8C7YU+Q@mail.gmail.com> <20230517010311.f46db3f78b11cf9d92193527@kernel.org>
+In-Reply-To: <20230517010311.f46db3f78b11cf9d92193527@kernel.org>
+From:   Ze Gao <zegao2021@gmail.com>
+Date:   Wed, 17 May 2023 09:54:53 +0800
+Message-ID: <CAD8CoPAw_nKsm4vUJ_=aSwzLc5zo8D5pY6A7-grXENxpMYz9og@mail.gmail.com>
+Subject: Re: [PATCH v2 2/4] fprobe: make fprobe_kprobe_handler recursion free
+To:     Masami Hiramatsu <mhiramat@kernel.org>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vasily Gorbik <gor@linux.ibm.com>, x86@kernel.org,
+        linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        bpf@vger.kernel.org, Conor Dooley <conor@kernel.org>,
+        Jiri Olsa <jolsa@kernel.org>, Yonghong Song <yhs@fb.com>,
+        Ze Gao <zegao@tencent.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 05/16/23 at 11:26pm, Vinod Koul wrote:
-> On 06-05-23, 19:16, Baoquan He wrote:
-> > On s390 systems (aka mainframes), it has classic channel devices for
-> > networking and permanent storage that are currently even more common
-> > than PCI devices. Hence it could have a fully functional s390 kernel
-> > with CONFIG_PCI=n, then the relevant iomem mapping functions
-> > [including ioremap(), devm_ioremap(), etc.] are not available.
-> > 
-> > Here let QCOM_HIDMA depend on HAS_IOMEM so that it won't be built to
-> > cause below compiling error if PCI is unset.
-> 
-> I have 2/2 patch here, where is patch 1 of 2..?
+Oops, I misunderstood your comments before.
 
-It's here, thanks for check.
-https://lore.kernel.org/all/20230506111628.712316-2-bhe@redhat.com/T/#u
+Yes, it's not necessary to do this reordering as regards to kprobe.
 
-I used get_maintainer to get reivewers list, seems your contact is only
-put in 2/2 patch. I also sent to lkml, linux-mm and s390 mailing list,
-so the whole series can be seen in any of the ML.
+Thanks for your review.
 
-Thanks
-Baoquan
+I'll rebase onto the latest tree and send v3 ASAP.
 
-> 
-> > 
-> > --------------------------------------------------------
-> > ld: drivers/dma/qcom/hidma.o: in function `hidma_probe':
-> > hidma.c:(.text+0x4b46): undefined reference to `devm_ioremap_resource'
-> > ld: hidma.c:(.text+0x4b9e): undefined reference to `devm_ioremap_resource'
-> > make[1]: *** [scripts/Makefile.vmlinux:35: vmlinux] Error 1
-> > make: *** [Makefile:1264: vmlinux] Error 2
-> > 
-> > Signed-off-by: Baoquan He <bhe@redhat.com>
-> > Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> > Cc: Andy Gross <agross@kernel.org>
-> > Cc: Bjorn Andersson <andersson@kernel.org>
-> > Cc: Konrad Dybcio <konrad.dybcio@linaro.org>
-> > Cc: Vinod Koul <vkoul@kernel.org>
-> > Cc: linux-arm-msm@vger.kernel.org
-> > Cc: dmaengine@vger.kernel.org
-> > ---
-> >  drivers/dma/qcom/Kconfig | 1 +
-> >  1 file changed, 1 insertion(+)
-> > 
-> > diff --git a/drivers/dma/qcom/Kconfig b/drivers/dma/qcom/Kconfig
-> > index 3f926a653bd8..ace75d7b835a 100644
-> > --- a/drivers/dma/qcom/Kconfig
-> > +++ b/drivers/dma/qcom/Kconfig
-> > @@ -45,6 +45,7 @@ config QCOM_HIDMA_MGMT
-> >  
-> >  config QCOM_HIDMA
-> >  	tristate "Qualcomm Technologies HIDMA Channel support"
-> > +	depends on HAS_IOMEM
-> >  	select DMA_ENGINE
-> >  	help
-> >  	  Enable support for the Qualcomm Technologies HIDMA controller.
-> > -- 
-> > 2.34.1
-> 
-> -- 
-> ~Vinod
-> 
+Regards,
+Ze
 
+On Wed, May 17, 2023 at 12:03=E2=80=AFAM Masami Hiramatsu <mhiramat@kernel.=
+org> wrote:
+>
+> On Tue, 16 May 2023 17:47:52 +0800
+> Ze Gao <zegao2021@gmail.com> wrote:
+>
+> > Precisely, these that are called within kprobe_busy_{begin, end},
+> > which the previous patch does not resolve.
+>
+> Note that kprobe_busy_{begin,end} don't need to use notrace version
+> because kprobe itself prohibits probing on preempt_count_{add,sub}.
+>
+> Thank you,
+>
+> > I will refine the commit message to make it clear.
+> >
+> > FYI, details can checked out here:
+> >     Link: https://lore.kernel.org/linux-trace-kernel/20230516132516.c90=
+2edcf21028874a74fb868@kernel.org/
+> >
+> > Regards,
+> > Ze
+> >
+> > On Tue, May 16, 2023 at 5:18=E2=80=AFPM Peter Zijlstra <peterz@infradea=
+d.org> wrote:
+> > >
+> > > On Tue, May 16, 2023 at 03:18:28PM +0800, Ze Gao wrote:
+> > > > Current implementation calls kprobe related functions before doing
+> > > > ftrace recursion check in fprobe_kprobe_handler, which opens door
+> > > > to kernel crash due to stack recursion if preempt_count_{add, sub}
+> > > > is traceable.
+> > >
+> > > Which preempt_count*() are you referring to? The ones you just made
+> > > _notrace in the previous patch?
+>
+>
+> --
+> Masami Hiramatsu (Google) <mhiramat@kernel.org>
