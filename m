@@ -2,128 +2,106 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0BA7BC7EE23
-	for <linux-s390@archiver.kernel.org>; Wed, 17 May 2023 14:52:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 22C16C77B75
+	for <linux-s390@archiver.kernel.org>; Wed, 17 May 2023 15:52:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232185AbjEQOwa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 17 May 2023 10:52:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44210 "EHLO
+        id S230092AbjEQPwo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 17 May 2023 11:52:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50138 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230092AbjEQOw3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 May 2023 10:52:29 -0400
-Received: from wout3-smtp.messagingengine.com (wout3-smtp.messagingengine.com [64.147.123.19])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1434E19B0;
-        Wed, 17 May 2023 07:52:28 -0700 (PDT)
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.47])
-        by mailout.west.internal (Postfix) with ESMTP id 08E9E3200903;
-        Wed, 17 May 2023 10:52:24 -0400 (EDT)
-Received: from imap51 ([10.202.2.101])
-  by compute6.internal (MEProxy); Wed, 17 May 2023 10:52:27 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-        :cc:content-transfer-encoding:content-type:content-type:date
-        :date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-        :references:reply-to:sender:subject:subject:to:to; s=fm3; t=
-        1684335144; x=1684421544; bh=5mas8wApaiArBzc/k2qYZpcPuHFX2rPvIJz
-        00K7T8oE=; b=PgX23426o57WwtsjjYljjBuol/IGj/CdwDxYdVlzVn9DGm1wDMv
-        2FycDR3if/94TiLb5t1Sgx5wgRwymx1kDyNIwk42/KtXRE8cVroHeWsgAD7udiIQ
-        lgw15YyHjlw6cKboUDmX2B1BGrMyHuKGFtiHdt3MvWYZYTx0y51flCEMGqwb8oOS
-        MDnNcvNC5dTNFZZfjgtys4wAotOWdl5aYw1QNDn9N/EY+a3j4FgO17JnmwNzwyLW
-        +L1RWjgOGzhOPrZbZBhgqgdOKvnd6ooChaSPW1J2BgIsil9IBQl3xkgEMrGVh+g1
-        nSWTQV1EHEbBLvFTg/YnzpTPVw0G7mO1DaQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-transfer-encoding
-        :content-type:content-type:date:date:feedback-id:feedback-id
-        :from:from:in-reply-to:in-reply-to:message-id:mime-version
-        :references:reply-to:sender:subject:subject:to:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=
-        1684335144; x=1684421544; bh=5mas8wApaiArBzc/k2qYZpcPuHFX2rPvIJz
-        00K7T8oE=; b=xFz/jAwV3qJ5yapPW/ZMpohG53y24e2YAUcXPuy6+uQd5ShtE1S
-        nbNkfhIECkF4nDilsZdooexk1mf11q39LZVWpdl6P52J/kzZsoB2N0SFf8gocyGD
-        DMtBEVRH+WgNUlJPkRfXnJGbmi99k5CknZw2t4g1UhJg3NsLgE5zB0Q9C55B/0F4
-        JNDlIYNtMogx+WHJANRHNZRztj1wLJJ2IpebT0ltPcIwhY34S42Pgq6Z5ZbvkDPD
-        WJTl1ujvi6Ata9f6/+6uuox7hxfXhVkCc+wDEet+vGxY07P0aV10Ih5tLNtm0ji8
-        0k7xvpekdrytg0TcK5ykd3p8oZ1pS3qsf8g==
-X-ME-Sender: <xms:JupkZHJXUwAnZPNa3E8RuTbb2CNWsCwq_Z5tikjt7ADc18n-mdUfzQ>
-    <xme:JupkZLLDGsX9lwAFQBl3acQpMglzqnsfJXPOSxDYTRNJifjsUqnnrrooI49gkDc3o
-    kJ1JoyxhrDHMXiN7qU>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrfeeiuddgkedvucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepofgfggfkjghffffhvfevufgtgfesthhqredtreerjeenucfhrhhomhepfdet
-    rhhnugcuuegvrhhgmhgrnhhnfdcuoegrrhhnugesrghrnhgusgdruggvqeenucggtffrrg
-    htthgvrhhnpeegfeejhedvledvffeijeeijeeivddvhfeliedvleevheejleetgedukedt
-    gfejveenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    grrhhnugesrghrnhgusgdruggv
-X-ME-Proxy: <xmx:JupkZPuWr7PbkG8y0OQs8W5jkT7165Fs-hGwQ1dSVjNGZJuoctIlOg>
-    <xmx:JupkZAY3sGGDQXi7i1jIpaf7oriSryY6KsNIDvNuiwje_IZhC_FwBQ>
-    <xmx:JupkZOaVQhNp_7gXeWPUGsIHD_hREdvTHdUUFKKteLVNN_aws7nsAg>
-    <xmx:KOpkZC4wS1szrrY0RrweYZ6FC1I75qf26i68Ll0F1kXm2bXHzRy53Q>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-        id EB947B60086; Wed, 17 May 2023 10:52:21 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.9.0-alpha0-431-g1d6a3ebb56-fm-20230511.001-g1d6a3ebb
-Mime-Version: 1.0
-Message-Id: <6b7f6f66-7890-47a3-a22d-e29f2944823a@app.fastmail.com>
-In-Reply-To: <CAJZ5v0h0spuxK-7LBJSU9BK2TEOUeMjf7hhKScadkxFN_RwStQ@mail.gmail.com>
-References: <20230517131102.934196-1-arnd@kernel.org>
- <20230517131102.934196-11-arnd@kernel.org>
- <CAJZ5v0h0spuxK-7LBJSU9BK2TEOUeMjf7hhKScadkxFN_RwStQ@mail.gmail.com>
-Date:   Wed, 17 May 2023 16:52:01 +0200
-From:   "Arnd Bergmann" <arnd@arndb.de>
-To:     "Rafael J . Wysocki" <rafael@kernel.org>,
-        "Arnd Bergmann" <arnd@kernel.org>
-Cc:     "Andrew Morton" <akpm@linux-foundation.org>, linux-mm@kvack.org,
-        "Russell King" <linux@armlinux.org.uk>,
-        "Catalin Marinas" <catalin.marinas@arm.com>,
-        "Will Deacon" <will@kernel.org>, "Michal Simek" <monstr@monstr.eu>,
-        "Thomas Bogendoerfer" <tsbogend@alpha.franken.de>,
-        "Helge Deller" <deller@gmx.de>,
-        "Michael Ellerman" <mpe@ellerman.id.au>,
-        "Palmer Dabbelt" <palmer@dabbelt.com>,
-        "Heiko Carstens" <hca@linux.ibm.com>,
-        "Thomas Gleixner" <tglx@linutronix.de>,
-        "Ingo Molnar" <mingo@redhat.com>, x86@kernel.org,
-        "Paul Moore" <paul@paul-moore.com>,
-        "Eric Paris" <eparis@redhat.com>,
-        "Dennis Zhou" <dennis@kernel.org>, "Tejun Heo" <tj@kernel.org>,
-        "Christoph Lameter" <cl@linux.com>, "Pavel Machek" <pavel@ucw.cz>,
-        "Peter Zijlstra" <peterz@infradead.org>,
-        "Waiman Long" <longman@redhat.com>,
-        "Boqun Feng" <boqun.feng@gmail.com>,
+        with ESMTP id S231543AbjEQPwW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 May 2023 11:52:22 -0400
+Received: from mail-yw1-x1132.google.com (mail-yw1-x1132.google.com [IPv6:2607:f8b0:4864:20::1132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FE36D874
+        for <linux-s390@vger.kernel.org>; Wed, 17 May 2023 08:51:21 -0700 (PDT)
+Received: by mail-yw1-x1132.google.com with SMTP id 00721157ae682-561ca1918e5so9466607b3.1
+        for <linux-s390@vger.kernel.org>; Wed, 17 May 2023 08:51:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1684338674; x=1686930674;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=f/BiToevvpXZU69/oSETGaqYlCzMkDhIUSch995c2x4=;
+        b=PxKg2pRCl/MeEqp5uvc8FI6+YOF8ZQ0EzboQ7hpfbuFJX3IIqChekL0/PSY6f6ZBkZ
+         urHQTw8B9Qu+ZY/1vJzTnbXCr75YfIhdSyy686/eLISuhgZHB6UQ3EVsl6FD9v625A/w
+         tjxES+HrRzg6bCh5g/2aKxK6aL5WAXk6n5hL6cNQ4DLvHOdkJN6i/f12VZINOcSbVDWY
+         Ht8TqiZDvyXTZ0hs/EBmu3kHn7bK+REyjKbHcdjwjITX645yBU2SclzoGsnZb8Qs2uwx
+         3eg3Vv2wpF9jKUnxeZFE5DWnz2u2DGzEAq8Ck0m/CDBEkeEBn1RCKj2gBMDNc7cK4SzS
+         DFJA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1684338674; x=1686930674;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=f/BiToevvpXZU69/oSETGaqYlCzMkDhIUSch995c2x4=;
+        b=QEFhc4qzbJXXVV6kaNdQV13DIVf6bMYn8ZzmiP4Q5vmIR192BBTDyIQQOAoOWCjlv/
+         J9GnRLd2U60MrigeZlTZruByPk4jEpLNOmQlvl/qbgxo0eSH4N0yYPYnfa/p5fnWJzCE
+         R/hU7/3QlJ3zB8MmNVIQVYuxAzSdhve+fPmd7v7W74fuoaEqMsiSGsdqKS7vCZMtL2oP
+         T1wnyRrBIeIV+BoD6L6G9UapauHhKiZ3BoA/Jk/8S16sh/fV7keFNk41i3x+0IQ7z1Hq
+         f7qFdiakgMEloJOyVNkqW+ha5R+nqhZO2UieuZejOkCfcbACdifI4LwJ7fI5MJv2D/34
+         J75w==
+X-Gm-Message-State: AC+VfDyksDpljZz1g34cVqENd0SJd6ynwMs+yGsV0p5S/JrSeg5q22Lj
+        v7JPEXQssWAmavwxHrzUCYOD+3GUGB5/IMspEJdF
+X-Google-Smtp-Source: ACHHUZ7m7iuWUD5omxnx19xTgvLnN/+5Wgfo2oM56GLLAkTkIZomD+UUzUvvSVfeDFHavflonxguaAqx7fdYrFqY+DA=
+X-Received: by 2002:a81:53c5:0:b0:55d:c2c3:fbb8 with SMTP id
+ h188-20020a8153c5000000b0055dc2c3fbb8mr34245755ywb.40.1684338674184; Wed, 17
+ May 2023 08:51:14 -0700 (PDT)
+MIME-Version: 1.0
+References: <20230517131102.934196-5-arnd@kernel.org> <e1a07eed22cb33af2733bdffe42b09f0.paul@paul-moore.com>
+ <83422cf8-5d77-4e2f-a854-c2b9a9a94d75@app.fastmail.com>
+In-Reply-To: <83422cf8-5d77-4e2f-a854-c2b9a9a94d75@app.fastmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Wed, 17 May 2023 11:51:03 -0400
+Message-ID: <CAHC9VhQZyxVhDb0uB-+q7H=e++yq0qEAZGssPjepgnZ3i3_pnA@mail.gmail.com>
+Subject: Re: [PATCH 4/14] audit: avoid missing-prototype warnings
+To:     Arnd Bergmann <arnd@arndb.de>
+Cc:     Arnd Bergmann <arnd@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Michal Simek <monstr@monstr.eu>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, x86@kernel.org,
+        "Rafael J . Wysocki" <rafael@kernel.org>,
+        Eric Paris <eparis@redhat.com>,
+        Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>,
+        Christoph Lameter <cl@linux.com>, Pavel Machek <pavel@ucw.cz>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Waiman Long <longman@redhat.com>,
+        Boqun Feng <boqun.feng@gmail.com>,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
         linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
         linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
         audit@vger.kernel.org, linux-pm@vger.kernel.org,
         linux-kselftest@vger.kernel.org, kunit-dev@googlegroups.com
-Subject: Re: [PATCH 10/14] suspend: add a arch_resume_nosmt() prototype
-Content-Type: text/plain;charset=utf-8
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, May 17, 2023, at 15:48, Rafael J. Wysocki wrote:
-> On Wed, May 17, 2023 at 3:12=E2=80=AFPM Arnd Bergmann <arnd@kernel.org=
-> wrote:
->>
->> From: Arnd Bergmann <arnd@arndb.de>
->>
->> The arch_resume_nosmt() has a __weak definition, plus an x86
->> specific override, but no prototype that ensures the two have
->> the same arguments. This causes a W=3D1 warning:
->>
->> arch/x86/power/hibernate.c:189:5: error: no previous prototype for 'a=
-rch_resume_nosmt' [-Werror=3Dmissing-prototypes]
->>
->> Add the prototype in linux/suspend.h, which is included in
->> both places.
->>
->> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+On Wed, May 17, 2023 at 10:51=E2=80=AFAM Arnd Bergmann <arnd@arndb.de> wrot=
+e:
+> On Wed, May 17, 2023, at 16:33, Paul Moore wrote:
+> > On May 17, 2023 Arnd Bergmann <arnd@kernel.org> wrote:
 >
-> Do you want me to pick this up?
+> > We probably should move the audit_serial() and auditsc_get_stamp()
+> > away from the watch/mark/tree functions, but that isn't your problem.
+> >
+> > Anyway, this looks okay to me; do you have a problem if I merge this
+> > via the audit/next branch or were you hoping to have this go in
+> > through a different tree?
+>
+> Merging it through your tree is probably best, Andrew can either
+> pick the ones that nobody else took, or I can resend the rest.
 
-Yes, please do. Thanks,
+Easy enough, merged to audit/next, thanks.
 
-     Arnd
+--=20
+paul-moore.com
