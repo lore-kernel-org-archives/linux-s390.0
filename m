@@ -2,213 +2,166 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DF3DAC7EE25
-	for <linux-s390@archiver.kernel.org>; Thu, 18 May 2023 03:55:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3EA7EC77B7D
+	for <linux-s390@archiver.kernel.org>; Thu, 18 May 2023 05:15:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229933AbjERDzC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 17 May 2023 23:55:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56060 "EHLO
+        id S229513AbjERFPU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 18 May 2023 01:15:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229709AbjERDy7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 May 2023 23:54:59 -0400
-Received: from mail-il1-x130.google.com (mail-il1-x130.google.com [IPv6:2607:f8b0:4864:20::130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BA9E173C
-        for <linux-s390@vger.kernel.org>; Wed, 17 May 2023 20:54:57 -0700 (PDT)
-Received: by mail-il1-x130.google.com with SMTP id e9e14a558f8ab-33164ec77ccso89555ab.0
-        for <linux-s390@vger.kernel.org>; Wed, 17 May 2023 20:54:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1684382096; x=1686974096;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=xxW4ZbRWGuwcVt2pwn84zjG7C3v0cTis69F9JQzH3sk=;
-        b=k0CHqq+RYzPkv64KSphAUdQybTSyz2kd7FQ4vgWjmkjZoKWSmA937brGZD4y22wCei
-         H2nFZ02p4znTaoZlzAKUNqlp5dHU7nTsIX/kbo39d10qwpqGG2vAKEP8l1rPw2qOPjPE
-         5G5P+RnCewmtdr2YVuULlv6FrbuPlDmohMeJcc1Vb3uT9pL/nch+NzDvHbUQu9fCnJQR
-         3WjrqO/wZHVAEQC0hXaoJ20QS+hXWBmRqWjMHj4hDdrtmJrcEri/n4GnavVstGleY2G0
-         ad+TizxlEstlKwZZvWH7ogkJEJ3l+hlEjmhJ6jBp3NfNX/+0WR0VBI4c34+08xRNdOvH
-         SQgQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1684382096; x=1686974096;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=xxW4ZbRWGuwcVt2pwn84zjG7C3v0cTis69F9JQzH3sk=;
-        b=i0gOX/oBEn1dXT2rr8FskaDglwNQwZvdbQoLDDpDfVH8sN21AkW48LsCcEC1daXJci
-         l8faLhQ1FkJK7gKpBPfE0NuWSvGkblyWR1Wsf7AdrTLNsfnTCkLgkNSwCg13JD8xr/IR
-         S51n2TNCRdRUqeAsMhCcbLWmUhn4R3cNubhebZwf3V8uMLo1uvP7V3IQVOqcPrXY7nmQ
-         JkN4hbvBPjCzUEoZkrTH2LwceRoBRFrlee/CR4NHGglaHZMdZpMDp4P4nkQPeabMyJP1
-         gljCs0zC6iJt+/5VPS7dD3ZQNycizIN1QVGp9Y0ZvQ3dcDVASh54bKipAixVwza0jNgg
-         scJg==
-X-Gm-Message-State: AC+VfDy6qIe4Co0owIdQTB1LfxWYH2+7+6YZ57Dx+aLaMr+oXDSu4fPM
-        y4HJE25BSAvUxQ8arDhGQsPdwaW6EkEjHEOAqV8Y0A==
-X-Google-Smtp-Source: ACHHUZ717zmrczolPQ87hbWdJhPbrvKwtnmjQulUOZnWQ5Q0uegRkL12ChK1bcl526dLzNN00CxdtF2jaAUwZjfOdVw=
-X-Received: by 2002:a05:6e02:2145:b0:331:4d3c:db55 with SMTP id
- d5-20020a056e02214500b003314d3cdb55mr133492ilv.4.1684382096471; Wed, 17 May
- 2023 20:54:56 -0700 (PDT)
-MIME-Version: 1.0
-References: <20230517131102.934196-1-arnd@kernel.org> <20230517131102.934196-10-arnd@kernel.org>
-In-Reply-To: <20230517131102.934196-10-arnd@kernel.org>
-From:   David Gow <davidgow@google.com>
-Date:   Thu, 18 May 2023 11:54:44 +0800
-Message-ID: <CABVgOSnu4B2O49O012=ywvmskso3cfbYRbdhX2RXA1C1v-ymSw@mail.gmail.com>
-Subject: Re: [PATCH 09/14] kunit: include debugfs header file
-To:     Arnd Bergmann <arnd@kernel.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
-        Arnd Bergmann <arnd@arndb.de>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, x86@kernel.org,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Paul Moore <paul@paul-moore.com>,
-        Eric Paris <eparis@redhat.com>,
-        Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>,
-        Christoph Lameter <cl@linux.com>, Pavel Machek <pavel@ucw.cz>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Waiman Long <longman@redhat.com>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        audit@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, kunit-dev@googlegroups.com
-Content-Type: multipart/signed; protocol="application/pkcs7-signature"; micalg=sha-256;
-        boundary="0000000000008ce76505fbefc486"
+        with ESMTP id S229621AbjERFPT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 18 May 2023 01:15:19 -0400
+Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC5141981;
+        Wed, 17 May 2023 22:15:16 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R691e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0VivOQl2_1684386895;
+Received: from h68b04305.sqa.eu95.tbsite.net(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VivOQl2_1684386895)
+          by smtp.aliyun-inc.com;
+          Thu, 18 May 2023 13:15:11 +0800
+From:   Wen Gu <guwen@linux.alibaba.com>
+To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, liuyacan@corp.netease.com
+Subject: [PATCH net] net/smc: Reset connection when trying to use SMCRv2 fails.
+Date:   Thu, 18 May 2023 13:14:55 +0800
+Message-Id: <1684386895-112162-1-git-send-email-guwen@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
---0000000000008ce76505fbefc486
-Content-Type: text/plain; charset="UTF-8"
+We found a crash when using SMCRv2 with 2 Mellanox ConnectX-4. It
+can be reproduced by:
 
-On Wed, 17 May 2023 at 21:12, Arnd Bergmann <arnd@kernel.org> wrote:
->
-> From: Arnd Bergmann <arnd@arndb.de>
->
-> An extra #include statement is needed to ensure the prototypes
-> for debugfs interfaces are visible, avoiding this warning:
->
-> lib/kunit/debugfs.c:28:6: error: no previous prototype for 'kunit_debugfs_cleanup' [-Werror=missing-prototypes]
-> lib/kunit/debugfs.c:33:6: error: no previous prototype for 'kunit_debugfs_init' [-Werror=missing-prototypes]
-> lib/kunit/debugfs.c:102:6: error: no previous prototype for 'kunit_debugfs_create_suite' [-Werror=missing-prototypes]
-> lib/kunit/debugfs.c:118:6: error: no previous prototype for 'kunit_debugfs_destroy_suite' [-Werror=missing-prototypes]
->
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> ---
+- smc_run nginx
+- smc_run wrk -t 32 -c 500 -d 30 http://<ip>:<port>
 
-Nice catch, thanks. I'm fine with this going in via -mm, but if you'd
-prefer it to go via kselftest/kunit, let me know.
+ BUG: kernel NULL pointer dereference, address: 0000000000000014
+ #PF: supervisor read access in kernel mode
+ #PF: error_code(0x0000) - not-present page
+ PGD 8000000108713067 P4D 8000000108713067 PUD 151127067 PMD 0
+ Oops: 0000 [#1] PREEMPT SMP PTI
+ CPU: 4 PID: 2441 Comm: kworker/4:249 Kdump: loaded Tainted: G        W   E      6.4.0-rc1+ #42
+ Workqueue: smc_hs_wq smc_listen_work [smc]
+ RIP: 0010:smc_clc_send_confirm_accept+0x284/0x580 [smc]
+ RSP: 0018:ffffb8294b2d7c78 EFLAGS: 00010a06
+ RAX: ffff8f1873238880 RBX: ffffb8294b2d7dc8 RCX: 0000000000000000
+ RDX: 00000000000000b4 RSI: 0000000000000001 RDI: 0000000000b40c00
+ RBP: ffffb8294b2d7db8 R08: ffff8f1815c5860c R09: 0000000000000000
+ R10: 0000000000000400 R11: 0000000000000000 R12: ffff8f1846f56180
+ R13: ffff8f1815c5860c R14: 0000000000000001 R15: 0000000000000001
+ FS:  0000000000000000(0000) GS:ffff8f1aefd00000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 0000000000000014 CR3: 00000001027a0001 CR4: 00000000003706e0
+ DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+ DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+ Call Trace:
+  <TASK>
+  ? mlx5_ib_map_mr_sg+0xa1/0xd0 [mlx5_ib]
+  ? smcr_buf_map_link+0x24b/0x290 [smc]
+  ? __smc_buf_create+0x4ee/0x9b0 [smc]
+  smc_clc_send_accept+0x4c/0xb0 [smc]
+  smc_listen_work+0x346/0x650 [smc]
+  ? __schedule+0x279/0x820
+  process_one_work+0x1e5/0x3f0
+  worker_thread+0x4d/0x2f0
+  ? __pfx_worker_thread+0x10/0x10
+  kthread+0xe5/0x120
+  ? __pfx_kthread+0x10/0x10
+  ret_from_fork+0x2c/0x50
+  </TASK>
 
-Reviewed-by: David Gow <davidgow@google.com>
+During the CLC handshake, server sequentially tries available SMCRv2
+and SMCRv1 devices in smc_listen_work().
 
-Cheers,
--- David
+If an SMCRv2 device is found. SMCv2 based link group and link will be
+assigned to the connection. Then assumed that some buffer assignment
+errors happen later in the CLC handshake, such as RMB registration
+failure, server will give up SMCRv2 and try SMCRv1 device instead. But
+the resources assigned to the connection won't be reset.
 
->  lib/kunit/debugfs.c | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/lib/kunit/debugfs.c b/lib/kunit/debugfs.c
-> index b08bb1fba106..22c5c496a68f 100644
-> --- a/lib/kunit/debugfs.c
-> +++ b/lib/kunit/debugfs.c
-> @@ -10,6 +10,7 @@
->  #include <kunit/test.h>
->
->  #include "string-stream.h"
-> +#include "debugfs.h"
->
->  #define KUNIT_DEBUGFS_ROOT             "kunit"
->  #define KUNIT_DEBUGFS_RESULTS          "results"
-> --
-> 2.39.2
->
-> --
-> You received this message because you are subscribed to the Google Groups "KUnit Development" group.
-> To unsubscribe from this group and stop receiving emails from it, send an email to kunit-dev+unsubscribe@googlegroups.com.
-> To view this discussion on the web visit https://groups.google.com/d/msgid/kunit-dev/20230517131102.934196-10-arnd%40kernel.org.
+When server tries SMCRv1 device, the connection creation process will
+be executed again. Since conn->lnk has been assigned when trying SMCRv2,
+it will not be set to the correct SMCRv1 link in
+smcr_lgr_conn_assign_link(). So in such situation, conn->lgr points to
+correct SMCRv1 link group but conn->lnk points to the SMCRv2 link
+mistakenly.
 
---0000000000008ce76505fbefc486
-Content-Type: application/pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
+Then in smc_clc_send_confirm_accept(), conn->rmb_desc->mr[link->link_idx]
+will be accessed. Since the link->link_idx is not correct, the related
+MR may not have been initialized, so crash happens.
 
-MIIPnwYJKoZIhvcNAQcCoIIPkDCCD4wCAQExDzANBglghkgBZQMEAgEFADALBgkqhkiG9w0BBwGg
-ggz5MIIEtjCCA56gAwIBAgIQeAMYYHb81ngUVR0WyMTzqzANBgkqhkiG9w0BAQsFADBMMSAwHgYD
-VQQLExdHbG9iYWxTaWduIFJvb3QgQ0EgLSBSMzETMBEGA1UEChMKR2xvYmFsU2lnbjETMBEGA1UE
-AxMKR2xvYmFsU2lnbjAeFw0yMDA3MjgwMDAwMDBaFw0yOTAzMTgwMDAwMDBaMFQxCzAJBgNVBAYT
-AkJFMRkwFwYDVQQKExBHbG9iYWxTaWduIG52LXNhMSowKAYDVQQDEyFHbG9iYWxTaWduIEF0bGFz
-IFIzIFNNSU1FIENBIDIwMjAwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCvLe9xPU9W
-dpiHLAvX7kFnaFZPuJLey7LYaMO8P/xSngB9IN73mVc7YiLov12Fekdtn5kL8PjmDBEvTYmWsuQS
-6VBo3vdlqqXZ0M9eMkjcKqijrmDRleudEoPDzTumwQ18VB/3I+vbN039HIaRQ5x+NHGiPHVfk6Rx
-c6KAbYceyeqqfuJEcq23vhTdium/Bf5hHqYUhuJwnBQ+dAUcFndUKMJrth6lHeoifkbw2bv81zxJ
-I9cvIy516+oUekqiSFGfzAqByv41OrgLV4fLGCDH3yRh1tj7EtV3l2TngqtrDLUs5R+sWIItPa/4
-AJXB1Q3nGNl2tNjVpcSn0uJ7aFPbAgMBAAGjggGKMIIBhjAOBgNVHQ8BAf8EBAMCAYYwHQYDVR0l
-BBYwFAYIKwYBBQUHAwIGCCsGAQUFBwMEMBIGA1UdEwEB/wQIMAYBAf8CAQAwHQYDVR0OBBYEFHzM
-CmjXouseLHIb0c1dlW+N+/JjMB8GA1UdIwQYMBaAFI/wS3+oLkUkrk1Q+mOai97i3Ru8MHsGCCsG
-AQUFBwEBBG8wbTAuBggrBgEFBQcwAYYiaHR0cDovL29jc3AyLmdsb2JhbHNpZ24uY29tL3Jvb3Ry
-MzA7BggrBgEFBQcwAoYvaHR0cDovL3NlY3VyZS5nbG9iYWxzaWduLmNvbS9jYWNlcnQvcm9vdC1y
-My5jcnQwNgYDVR0fBC8wLTAroCmgJ4YlaHR0cDovL2NybC5nbG9iYWxzaWduLmNvbS9yb290LXIz
-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
-9IGQSBx2i4m+hGXJpET+MEwGA1UdIARFMEMwQQYJKwYBBAGgMgEoMDQwMgYIKwYBBQUHAgEWJmh0
-dHBzOi8vd3d3Lmdsb2JhbHNpZ24uY29tL3JlcG9zaXRvcnkvMAwGA1UdEwEB/wQCMAAwgZoGCCsG
-AQUFBwEBBIGNMIGKMD4GCCsGAQUFBzABhjJodHRwOi8vb2NzcC5nbG9iYWxzaWduLmNvbS9jYS9n
-c2F0bGFzcjNzbWltZWNhMjAyMDBIBggrBgEFBQcwAoY8aHR0cDovL3NlY3VyZS5nbG9iYWxzaWdu
-LmNvbS9jYWNlcnQvZ3NhdGxhc3Izc21pbWVjYTIwMjAuY3J0MB8GA1UdIwQYMBaAFHzMCmjXouse
-LHIb0c1dlW+N+/JjMEYGA1UdHwQ/MD0wO6A5oDeGNWh0dHA6Ly9jcmwuZ2xvYmFsc2lnbi5jb20v
-Y2EvZ3NhdGxhc3Izc21pbWVjYTIwMjAuY3JsMA0GCSqGSIb3DQEBCwUAA4IBAQCRI3Z4cAidgFcv
-Usqdz765x6KMZSfg/WtFrYg8ewsP2NpCxVM2+EhPyyEQ0k0DhtzdtGoI/Ug+jdFDyCKB9P2+EPLh
-iMjMnFILp7Zs4r18ECHlvZuDZfH9m0BchXIxu5jLIuQyKUWrCRDZZEDNr510ZhhVfYSFPA8ms1nk
-jyzYFOHYQyv5IfML/3IBFKlON5OZa+V8EZYULYcNkp03DdWglafj7SXZ1/XgAbVYrC381UvrsYN8
-jndVvoa1GWwe+NVlIIK7Q3uAjV3qLEDQpaNPg1rr0oAn6YmvTccjVMqj2YNwN+RHhKNzgRGxY5ct
-FaN+8fXZhRhpv3bVbAWuPZXoMYICajCCAmYCAQEwaDBUMQswCQYDVQQGEwJCRTEZMBcGA1UEChMQ
-R2xvYmFsU2lnbiBudi1zYTEqMCgGA1UEAxMhR2xvYmFsU2lnbiBBdGxhcyBSMyBTTUlNRSBDQSAy
-MDIwAhABAz5xDls09r2CKyYRqnNbMA0GCWCGSAFlAwQCAQUAoIHUMC8GCSqGSIb3DQEJBDEiBCDy
-NkOhXvFQzVSUzEL0U7yvjVToTpRRBqjD19aTuf2q2DAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcB
-MBwGCSqGSIb3DQEJBTEPFw0yMzA1MTgwMzU0NTZaMGkGCSqGSIb3DQEJDzFcMFowCwYJYIZIAWUD
-BAEqMAsGCWCGSAFlAwQBFjALBglghkgBZQMEAQIwCgYIKoZIhvcNAwcwCwYJKoZIhvcNAQEKMAsG
-CSqGSIb3DQEBBzALBglghkgBZQMEAgEwDQYJKoZIhvcNAQEBBQAEggEASZj0gEQ+5lxvkjrq4q9q
-5mjjTag80+oStNj31xLxqT9znMHS6iSot1ydtlpdvi9KdzvHQkJ5IfDglO7zxa85QP3Lhwohu3HQ
-1cbrnbPsqFIuxwtIedSAC+CdtmId3fIoU+8q92Zza/gTeeyK3s8SRAEIR+zVMTo6nht+KGLmnbjS
-jDw7GiibXzfchEqEe8JdqMANIZ8AcQHWuSZ38ur+pCivS7W1SNK9aGCYOOnal1mK/1wdBSpcih2H
-Vn7dKVT/tdMUCJlrZroJgr8RVfnmuLzPayYKnQyrYyEvM41vYYv6cMaW24VTXfFEaf5srz2yzOhq
-zEItkzXw9MlVZ+tLJA==
---0000000000008ce76505fbefc486--
+ | Try SMCRv2 device first
+ |     |-> conn->lgr:	assign existed SMCRv2 link group;
+ |     |-> conn->link:	assign existed SMCRv2 link (link_idx may be 1 in SMC_LGR_SYMMETRIC);
+ |     |-> sndbuf & RMB creation fails, quit;
+ |
+ | Try SMCRv1 device then
+ |     |-> conn->lgr:	create SMCRv1 link group and assign;
+ |     |-> conn->link:	keep SMCRv2 link mistakenly;
+ |     |-> sndbuf & RMB creation succeed, only RMB->mr[link_idx = 0]
+ |         initialized.
+ |
+ | Then smc_clc_send_confirm_accept() accesses
+ | conn->rmb_desc->mr[conn->link->link_idx, which is 1], then crash.
+ v
+
+This patch tries to fix this by cleaning conn->lnk before assigning
+link. In addition, it is better to reset the connection and clean the
+resources assigned if trying SMCRv2 failed in buffer creation or
+registration.
+
+Fixes: e49300a6bf62 ("net/smc: add listen processing for SMC-Rv2")
+Link: https://lore.kernel.org/r/20220523055056.2078994-1-liuyacan@corp.netease.com/
+Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+---
+ net/smc/af_smc.c   | 9 +++++++--
+ net/smc/smc_core.c | 1 +
+ 2 files changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 50c38b6..538e9c6 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -2000,8 +2000,10 @@ static int smc_listen_rdma_init(struct smc_sock *new_smc,
+ 		return rc;
+ 
+ 	/* create send buffer and rmb */
+-	if (smc_buf_create(new_smc, false))
++	if (smc_buf_create(new_smc, false)) {
++		smc_conn_abort(new_smc, ini->first_contact_local);
+ 		return SMC_CLC_DECL_MEM;
++	}
+ 
+ 	return 0;
+ }
+@@ -2217,8 +2219,11 @@ static void smc_find_rdma_v2_device_serv(struct smc_sock *new_smc,
+ 	smcr_version = ini->smcr_version;
+ 	ini->smcr_version = SMC_V2;
+ 	rc = smc_listen_rdma_init(new_smc, ini);
+-	if (!rc)
++	if (!rc) {
+ 		rc = smc_listen_rdma_reg(new_smc, ini->first_contact_local);
++		if (rc)
++			smc_conn_abort(new_smc, ini->first_contact_local);
++	}
+ 	if (!rc)
+ 		return;
+ 	ini->smcr_version = smcr_version;
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 4543567..3f465fa 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -127,6 +127,7 @@ static int smcr_lgr_conn_assign_link(struct smc_connection *conn, bool first)
+ 	int i, j;
+ 
+ 	/* do link balancing */
++	conn->lnk = NULL;	/* reset conn->lnk first */
+ 	for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
+ 		struct smc_link *lnk = &conn->lgr->lnk[i];
+ 
+-- 
+1.8.3.1
+
