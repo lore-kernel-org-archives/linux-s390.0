@@ -2,88 +2,83 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BF40BC7EE22
-	for <linux-s390@archiver.kernel.org>; Thu, 18 May 2023 10:56:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DCCDAC7EE23
+	for <linux-s390@archiver.kernel.org>; Thu, 18 May 2023 11:32:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230096AbjERK4x (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 18 May 2023 06:56:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36082 "EHLO
+        id S230522AbjERLch (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 18 May 2023 07:32:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229913AbjERK4w (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 18 May 2023 06:56:52 -0400
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0C83BE8;
-        Thu, 18 May 2023 03:56:51 -0700 (PDT)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 7ED4D1FB;
-        Thu, 18 May 2023 03:57:35 -0700 (PDT)
-Received: from [10.1.39.62] (e122027.cambridge.arm.com [10.1.39.62])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id E1B433F793;
-        Thu, 18 May 2023 03:56:43 -0700 (PDT)
-Message-ID: <527c0d87-d727-8b59-e980-0a4a94aa639d@arm.com>
-Date:   Thu, 18 May 2023 11:56:41 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.10.0
-Subject: Re: [PATCH v2 00/25] iommu: Make default_domain's mandatory
-To:     Jason Gunthorpe <jgg@nvidia.com>, Andy Gross <agross@kernel.org>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
+        with ESMTP id S231287AbjERLcd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 18 May 2023 07:32:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9AE519B5;
+        Thu, 18 May 2023 04:32:25 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4357764E74;
+        Thu, 18 May 2023 11:32:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12784C4339C;
+        Thu, 18 May 2023 11:32:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1684409544;
+        bh=tPMpgzLhB4+qp6UqQL+xY8X4kJc3RZ//RIRZC7aBtTg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=abiXFU3kXY3gNtksbgeKZF9niDk+C+FEfaDtZVhv49+jRuTzL+oOWbuJjwgPBTyez
+         T3QZmNgW1Cr/6fppRiRKuz6rGZlBhX8icz3DUF5QXvvcmfB9c7CxFpMNH3AvW6zjS1
+         Ims9EEDnyopqiZUhsvUnfQgrrph5dq4PJY0zJD9IVlcwot80L+V3d489IeCs7SGHCe
+         eguaZ3j10VSgqle5VBR7+TPjIXxiMKx4HqwHDKFEJtwWTluKzbI2W43zPe+1YAAacY
+         AuBfVtjL0+qkGJzgV3XCuUJsBjy2pka1EGxy1+J6QIzGL0Lf2r61fMEOOti/Ht4lI1
+         w1CmjO5tZrgIA==
+Date:   Thu, 18 May 2023 17:02:20 +0530
+From:   Vinod Koul <vkoul@kernel.org>
+To:     Baoquan He <bhe@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        schnelle@linux.ibm.com, linux-s390@vger.kernel.org,
+        Andy Gross <agross@kernel.org>,
         Bjorn Andersson <andersson@kernel.org>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Kevin Tian <kevin.tian@intel.com>,
         Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
-        linux-tegra@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
-        linuxppc-dev@lists.ozlabs.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Orson Zhai <orsonzhai@gmail.com>,
-        Rob Clark <robdclark@gmail.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Krishna Reddy <vdumpa@nvidia.com>,
-        Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>,
-        Yong Wu <yong.wu@mediatek.com>,
-        Chunyan Zhang <zhang.lyra@gmail.com>
-Cc:     Lu Baolu <baolu.lu@linux.intel.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Nicolin Chen <nicolinc@nvidia.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        Thierry Reding <treding@nvidia.com>
-References: <0-v2-8d1dc464eac9+10f-iommu_all_defdom_jgg@nvidia.com>
-Content-Language: en-GB
-From:   Steven Price <steven.price@arm.com>
-In-Reply-To: <0-v2-8d1dc464eac9+10f-iommu_all_defdom_jgg@nvidia.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+        linux-arm-msm@vger.kernel.org, dmaengine@vger.kernel.org
+Subject: Re: [PATCH RESEND 2/2] dmaengine: make QCOM_HIDMA depend on HAS_IOMEM
+Message-ID: <ZGYMxNCpACqT2nZ3@matsya>
+References: <20230506111628.712316-1-bhe@redhat.com>
+ <20230506111628.712316-3-bhe@redhat.com>
+ <ZGPD1wELeXafPJ/T@matsya>
+ <ZGQdZhutT+lUdily@MiWiFi-R3L-srv>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZGQdZhutT+lUdily@MiWiFi-R3L-srv>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 16/05/2023 01:00, Jason Gunthorpe wrote:
-> This is on github: https://github.com/jgunthorpe/linux/commits/iommu_all_defdom
+On 17-05-23, 08:18, Baoquan He wrote:
+> On 05/16/23 at 11:26pm, Vinod Koul wrote:
+> > On 06-05-23, 19:16, Baoquan He wrote:
+> > > On s390 systems (aka mainframes), it has classic channel devices for
+> > > networking and permanent storage that are currently even more common
+> > > than PCI devices. Hence it could have a fully functional s390 kernel
+> > > with CONFIG_PCI=n, then the relevant iomem mapping functions
+> > > [including ioremap(), devm_ioremap(), etc.] are not available.
+> > > 
+> > > Here let QCOM_HIDMA depend on HAS_IOMEM so that it won't be built to
+> > > cause below compiling error if PCI is unset.
+> > 
+> > I have 2/2 patch here, where is patch 1 of 2..?
+> 
+> It's here, thanks for check.
+> https://lore.kernel.org/all/20230506111628.712316-2-bhe@redhat.com/T/#u
+> 
+> I used get_maintainer to get reivewers list, seems your contact is only
+> put in 2/2 patch. I also sent to lkml, linux-mm and s390 mailing list,
+> so the whole series can be seen in any of the ML.
 
-Tested-by: Steven Price <steven.price@arm.com>
+Ideally these two could have been sent separately! If sending together
+add a cover and cc everyone, so that we know..
 
-Works fine on my Firefly-RK3288.
+Applied now
 
-Thanks,
-
-Steve
-
+-- 
+~Vinod
