@@ -2,170 +2,256 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1541C77B75
-	for <linux-s390@archiver.kernel.org>; Wed, 17 May 2023 23:32:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 47B35C77B7A
+	for <linux-s390@archiver.kernel.org>; Thu, 18 May 2023 00:17:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229597AbjEQXcn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 17 May 2023 19:32:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56890 "EHLO
+        id S229453AbjERARD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 17 May 2023 20:17:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229468AbjEQXcm (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 May 2023 19:32:42 -0400
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2044.outbound.protection.outlook.com [40.107.223.44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6225F40EB;
-        Wed, 17 May 2023 16:32:41 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=g2J+oE80v+B1Kweq6z+STuijyPtEkRwz8pWoXjK5/lQ4oTOz3mj7kQzuMqaizG9F3CDXxn1SPDZ12GUVIrss5lQvnO8AOsROrJUHU08jWds/Xwy2ni4vQ6NT3akOEHyDNXrU0AQf7GG7/ndMSDYssSOJNoOJW7BNYvWmlow4ZTg+0Z1R81JLQTzISBekPtY7ntcWV4mBmsXlEhhFfteRdZHsEOze+edxxSXD+de+gaZsjOsIXvAO6wJx60ga8lV5hSOXUMsHx0ZRZtxb0cbb5t0uynFY9iRHWxsQFsEsfk5XV5EcivwgSrhAade6XQ/BagWzw4JeIkEsqBhvyzz5og==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=SU7+OS0futKjoBt58LQ+nXP395IRweXRjQi4kW6PQLU=;
- b=Oeo0w4/5iIve7I8iVusfV7B8W3I/Fz6Wxu2h+/W+gJKHNDn5maJ1ZKO016jx3O6IIRHXD4iEAEXDy+N3X3RJw5NDwwpb+S9cIgbKHcAafK0ONde0BZSBLcYpJvbwFpi4010MX9ajBY89qOqYnJMMHu5USl52el4hupiiJNKxyqnfTg8ptZvVkZHk+yTXIMGrvN7eQmUokftc15sZCRDH+bpPurGs1h3H7L43+Xrx5bh4uxSrLpW6Wx3ctNAc5Hx1SOQvtYS+chdssRAE2v0q1N55PQVj4Ay5uC5Nphu8dOe9Zn4ysQpWiHtzSLlqilkyffZxycabLwasEIhuoZaLAA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.118.233) smtp.rcpttodomain=lists.ozlabs.org smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=SU7+OS0futKjoBt58LQ+nXP395IRweXRjQi4kW6PQLU=;
- b=T9dbxYfi0ePh8X7jY4DWSOh/1wX2Pd3qEz/X3enlbBpLhGYWh+9H9J8rgPwD7yquiJvDAeDLOhOt3pCQFi00U3NOIDUA+dUAlN02tFWC75pOM12ItgpPcDBhHd9ZpcYDl38kmQI1OsTb5REddcPhFx6Xh+wL59OQnHdxP1vmaSbLPy5tbCWpGE5+RUrMnr52BGOg0U50+SzNGm6CizbLS/swXInbWEdZZzWGEbUBf/F2IQJ9XEVzzQSnFTnxUKykC1E4AswHHdnhtQbiN/JngfDwbkNa4gGol5cIZ3UJUOhjcCjjt/pyJm2XsU9g6JPUnJJWxkFTHhHsR7JY/otAnw==
-Received: from MW4PR04CA0257.namprd04.prod.outlook.com (2603:10b6:303:88::22)
- by SA0PR12MB4542.namprd12.prod.outlook.com (2603:10b6:806:73::21) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6411.17; Wed, 17 May
- 2023 23:32:39 +0000
-Received: from CO1NAM11FT087.eop-nam11.prod.protection.outlook.com
- (2603:10b6:303:88:cafe::3c) by MW4PR04CA0257.outlook.office365.com
- (2603:10b6:303:88::22) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6411.18 via Frontend
- Transport; Wed, 17 May 2023 23:32:38 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.118.233)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.118.233 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.118.233; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.118.233) by
- CO1NAM11FT087.mail.protection.outlook.com (10.13.174.68) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.6411.19 via Frontend Transport; Wed, 17 May 2023 23:32:38 +0000
-Received: from drhqmail201.nvidia.com (10.126.190.180) by mail.nvidia.com
- (10.127.129.6) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.5; Wed, 17 May 2023
- 16:32:32 -0700
-Received: from drhqmail201.nvidia.com (10.126.190.180) by
- drhqmail201.nvidia.com (10.126.190.180) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.37; Wed, 17 May 2023 16:32:32 -0700
-Received: from Asurada-Nvidia (10.127.8.14) by mail.nvidia.com
- (10.126.190.180) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.37 via Frontend
- Transport; Wed, 17 May 2023 16:32:29 -0700
-Date:   Wed, 17 May 2023 16:32:28 -0700
-From:   Nicolin Chen <nicolinc@nvidia.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>
-CC:     Andy Gross <agross@kernel.org>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        Bjorn Andersson <andersson@kernel.org>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Stuebner <heiko@sntech.de>, <iommu@lists.linux.dev>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        "Jonathan Hunter" <jonathanh@nvidia.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        "Krzysztof Kozlowski" <krzysztof.kozlowski@linaro.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-arm-msm@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-rockchip@lists.infradead.org>, <linux-s390@vger.kernel.org>,
-        <linux-samsung-soc@vger.kernel.org>, <linux-sunxi@lists.linux.dev>,
-        <linux-tegra@vger.kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        <linuxppc-dev@lists.ozlabs.org>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Orson Zhai <orsonzhai@gmail.com>,
-        Rob Clark <robdclark@gmail.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Krishna Reddy <vdumpa@nvidia.com>,
-        Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>,
-        Yong Wu <yong.wu@mediatek.com>,
-        Chunyan Zhang <zhang.lyra@gmail.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        "Niklas Schnelle" <schnelle@linux.ibm.com>,
-        Steven Price <steven.price@arm.com>,
-        Thierry Reding <treding@nvidia.com>
-Subject: Re: [PATCH v2 00/25] iommu: Make default_domain's mandatory
-Message-ID: <ZGVkDB+MCrx3tQho@Asurada-Nvidia>
-References: <0-v2-8d1dc464eac9+10f-iommu_all_defdom_jgg@nvidia.com>
+        with ESMTP id S229452AbjERARD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 May 2023 20:17:03 -0400
+Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DC87E8;
+        Wed, 17 May 2023 17:17:01 -0700 (PDT)
+Received: by mail-ej1-x634.google.com with SMTP id a640c23a62f3a-96598a7c5e0so227321466b.3;
+        Wed, 17 May 2023 17:17:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1684369020; x=1686961020;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Oh43Wrfv+5aBpD3zk+YIOr3pgIKi6Fm6XvjoyCfmrss=;
+        b=O2q6Qm5/BCw7eL+R4iqW2KRYtOD7PxCsAMTNdmblRTQBQ9SXxj97E+uiLaHvdw+0vH
+         IZAgUyLD9tdpA6WzvAnycAcJlidqsKRKjEyDwYPcgFRoiRvn+aGoAETE0zL7U0uecutc
+         llNmsUorv3L9LvscGZeLrSn73CHxCEwpMLc242B+rU5ye9EYoqGyqECI6UmFyVNI137l
+         BrXk4d74hq54C4WH4aTFrG6aAlMIlKYkIqfTmGGIoIU7n6R2fgdc8MiqqwfXql+JUk9B
+         mbUicBybFzH8SUZx97fcymQ4dD0Koiso43k2URk/mqAAZSJcQr2pCjX4Y8H2fcQR9saN
+         B11g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1684369020; x=1686961020;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Oh43Wrfv+5aBpD3zk+YIOr3pgIKi6Fm6XvjoyCfmrss=;
+        b=hGWaBkA9Nl8f1lfmM8bb2W3g+Rw7y8f1R0wFaQ+vb0ETaUqBomKp2BhZ9XCYeeShmv
+         Jazzn3PejGSIMeDaydMaQ9qm3hGP9BlqWmos1au5TYk+mLopHhSTaIxmUKks0sM0eAp+
+         DR3X8muvNP4YpUuDE3lMMlo+82nbq2uMusUmpDO2ZkNyqKF9cc+z0cWackSUkkbnbuR/
+         0jFOPB3k1PuY6l7f8JMRHLGFA/XGOnU96qid5PCQcrrXFKpEEClz0lHG5b6SsmOMSDPQ
+         1YbNSJK7BTEE9RUsz+f+AZGsWm8PksfzON00kY/WgGKWtGsqr04QfPFnWAJA1PS+RHFv
+         ohwg==
+X-Gm-Message-State: AC+VfDwzpZhuZhgNDG5lhabffeZGEEmWWNpF5YSdiF9Ld5xQXDyjImO5
+        SrTLOL1WF4wAQKCFQchCMvjaKFBykA99Jm1NztQ=
+X-Google-Smtp-Source: ACHHUZ4tffbvWb2kOWbRDAM1NZzsqQL8R1kGzCDWJgVZSv6SDwKWRnc526sFoNefgRlhM2mGaZLNKOiitqvHwbCzGkc=
+X-Received: by 2002:a17:907:7250:b0:966:b4b:eb0 with SMTP id
+ ds16-20020a170907725000b009660b4b0eb0mr42160555ejc.30.1684369019531; Wed, 17
+ May 2023 17:16:59 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <0-v2-8d1dc464eac9+10f-iommu_all_defdom_jgg@nvidia.com>
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CO1NAM11FT087:EE_|SA0PR12MB4542:EE_
-X-MS-Office365-Filtering-Correlation-Id: 192db192-fae9-42d6-3f47-08db572f0083
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: Xp1ANaCQqDkvQxMkDGNeVnZgg2QHq7mlxtx6A8BUGbMjgoK/P5t4maMzuKixtU7LOp1Uo51Vq1YlcBrFPWS0rnzkEwCuhDzcZeOuHx/19o9krkOp0BlyU+ELCWMUAa2hwCDlxWgHCeqWhgEmE/6HiMNQ3HaErUKoXy1VV+dz5h9TrvywnLzRpJS4c5bx3ly6mA5NODX6vzM91weyCKzGWGqSEKxblrcKPQn6ug8piZ8Bp71af5OIFJd4wIwY6r5tgQhZ/OWx3z6/vImdPUa7OL33h6NUI3X+UUCl3lwWLMfbYcf48h2em+LTnt8k2b/xfZfdLOwqtyB+/vcWiH0tUgSU3UCZFbEQlnWMm2dGI2NsnvZSke9uazUM3qy3KR6LdIVfXbnjrx9xpCEzwl9H0xvpZT7axGCMoG/RBVT/rjx0IO6nfxRmzCFQIRXTm245v+wimriyw7R8Z691v8EpdPwTZ+JsqDOSIdYsWIxL6jK14OaX+JShd8mKAe5d5V918vZ2AcBEpzMLOWu0zl+eOMkD6ihhybqSDfKBlYw5BFA+BxtQo0mXWF+7TCnGhGrvi/rGWPHYrKmd3RPzf0jRIRe1ckw48EBLqTTkA0QPyisnVLFgu2A+82FWUp2LDoyPUY1LjMGD65nnIxPjWZdUVjbHzaY9rvlgmAIWNrawbvWntCrWkGwAGa9aU59g/9Iwyk6RYfuMygImtPEcSX7+iCzGDeF7hBh5dMDabpdtET0nSRboAE8Ym/yNorJPawsljffBQTVY97BVKPn21CS5etWQxehgcoxSHpfuCz7vii6g6rpIQ9uyBl4A9UO5PmM9
-X-Forefront-Antispam-Report: CIP:216.228.118.233;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge2.nvidia.com;CAT:NONE;SFS:(13230028)(4636009)(346002)(396003)(39860400002)(136003)(376002)(451199021)(36840700001)(40470700004)(46966006)(36860700001)(82740400003)(7636003)(356005)(40460700003)(41300700001)(7416002)(7406005)(2906002)(6862004)(8676002)(5660300002)(33716001)(6636002)(8936002)(55016003)(86362001)(316002)(4326008)(70206006)(70586007)(40480700001)(82310400005)(83380400001)(966005)(336012)(186003)(47076005)(107886003)(426003)(9686003)(26005)(478600001)(54906003)(67856001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 May 2023 23:32:38.5800
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 192db192-fae9-42d6-3f47-08db572f0083
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.118.233];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT087.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA0PR12MB4542
+References: <20230517034510.15639-1-zegao@tencent.com> <20230517034510.15639-3-zegao@tencent.com>
+ <20230517232751.09126a6cec8786a954e54bcf@kernel.org>
+In-Reply-To: <20230517232751.09126a6cec8786a954e54bcf@kernel.org>
+From:   Andrii Nakryiko <andrii.nakryiko@gmail.com>
+Date:   Wed, 17 May 2023 17:16:47 -0700
+Message-ID: <CAEf4BzbxRXGR8uL=gkU9A=bER-zUbYSKgBhPLju1JZBUn9LrvQ@mail.gmail.com>
+Subject: Re: [PATCH v3 2/4] fprobe: make fprobe_kprobe_handler recursion free
+To:     Masami Hiramatsu <mhiramat@kernel.org>
+Cc:     Ze Gao <zegao2021@gmail.com>, Steven Rostedt <rostedt@goodmis.org>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vasily Gorbik <gor@linux.ibm.com>, x86@kernel.org,
+        bpf@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-trace-kernel@vger.kernel.org,
+        Conor Dooley <conor@kernel.org>, Jiri Olsa <jolsa@kernel.org>,
+        Yonghong Song <yhs@fb.com>, Ze Gao <zegao@tencent.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, May 15, 2023 at 09:00:33PM -0300, Jason Gunthorpe wrote:
- 
-> This is on github: https://github.com/jgunthorpe/linux/commits/iommu_all_defdom
+On Wed, May 17, 2023 at 7:28=E2=80=AFAM Masami Hiramatsu <mhiramat@kernel.o=
+rg> wrote:
+>
+> On Wed, 17 May 2023 11:45:07 +0800
+> Ze Gao <zegao2021@gmail.com> wrote:
+>
+> > Current implementation calls kprobe related functions before doing
+> > ftrace recursion check in fprobe_kprobe_handler, which opens door
+> > to kernel crash due to stack recursion if preempt_count_{add, sub}
+> > is traceable in kprobe_busy_{begin, end}.
+> >
+> > Things goes like this without this patch quoted from Steven:
+> > "
+> > fprobe_kprobe_handler() {
+> >    kprobe_busy_begin() {
+> >       preempt_disable() {
+> >          preempt_count_add() {  <-- trace
+> >             fprobe_kprobe_handler() {
+> >               [ wash, rinse, repeat, CRASH!!! ]
+> > "
+> >
+> > By refactoring the common part out of fprobe_kprobe_handler and
+> > fprobe_handler and call ftrace recursion detection at the very beginnin=
+g,
+> > the whole fprobe_kprobe_handler is free from recursion.
+> >
+> > Signed-off-by: Ze Gao <zegao@tencent.com>
+> > Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+> > Link: https://lore.kernel.org/linux-trace-kernel/20230516071830.8190-3-=
+zegao@tencent.com
+> > ---
+> >  kernel/trace/fprobe.c | 59 ++++++++++++++++++++++++++++++++-----------
+> >  1 file changed, 44 insertions(+), 15 deletions(-)
+> >
+> > diff --git a/kernel/trace/fprobe.c b/kernel/trace/fprobe.c
+> > index 9abb3905bc8e..097c740799ba 100644
+> > --- a/kernel/trace/fprobe.c
+> > +++ b/kernel/trace/fprobe.c
+> > @@ -20,30 +20,22 @@ struct fprobe_rethook_node {
+> >       char data[];
+> >  };
+> >
+> > -static void fprobe_handler(unsigned long ip, unsigned long parent_ip,
+> > -                        struct ftrace_ops *ops, struct ftrace_regs *fr=
+egs)
+> > +static inline void __fprobe_handler(unsigned long ip, unsigned long
+> > +             parent_ip, struct ftrace_ops *ops, struct ftrace_regs *fr=
+egs)
+>
+> OK, I picked up this series to probes/fixes. Note that I fixed this line
+> because the "unsigned long parent_ip" was split into 2 lines.
+>
 
-Ran some VFIO-passthrough sanity on x86 and ARM64, using this
-branch. It should cover partially this series. So, if I may:
+Hey Masami,
 
-Tested-by: Nicolin Chen <nicolinc@nvidia.com>
+Regarding [0], I was bisecting BPF CI failures related to
+multi-kprobes, and it turned out that [0] is the fix we need. It would
+be great if you can make sure this fix gets into Linus' tree ASAP, so
+that we can get it back into bpf/bpf-next trees and fix BPF selftests
+for everyone (we mitigated this for BPF CI as a temporary workaround
+for now). Thanks!
 
-Thanks
-Nic
+  [0] https://lore.kernel.org/all/168100731160.79534.374827110083836722.stg=
+it@devnote2/
 
-> v2:
->  - FSL is an IDENTITY domain
->  - Delete terga-gart instead of trying to carry it
->  - Use the policy determination from iommu_get_default_domain_type() to
->    drive the arm_iommu mode
->  - Reorganize and introduce new patches to do the above:
->     * Split the ops->identity_domain to an independent earlier patch
->     * Remove the UNMANAGED return from def_domain_type in mtk_v1 earlier
->       so the new iommu_get_default_domain_type() can work
->     * Make the driver's def_domain_type have higher policy priority than
->       untrusted
->     * Merge the set_platfom_dma_ops hunk from mtk_v1 along with rockchip
->       into the patch that forced IDENTITY on ARM32
->  - Revise sun50i to be cleaner and have a non-NULL internal domain
->  - Reword logging in exynos
->  - Remove the gdev from the group alloc path, instead add a new
->    function __iommu_group_domain_alloc() that takes in the group
->    and uses the first device. Split this to its own patch
->  - New patch to make iommufd's mock selftest into a real driver
->  - New patch to fix power's partial iommu driver
+
+> Thank you,
+>
+>
+> >  {
+> >       struct fprobe_rethook_node *fpr;
+> >       struct rethook_node *rh =3D NULL;
+> >       struct fprobe *fp;
+> >       void *entry_data =3D NULL;
+> > -     int bit, ret;
+> > +     int ret;
+> >
+> >       fp =3D container_of(ops, struct fprobe, ops);
+> > -     if (fprobe_disabled(fp))
+> > -             return;
+> > -
+> > -     bit =3D ftrace_test_recursion_trylock(ip, parent_ip);
+> > -     if (bit < 0) {
+> > -             fp->nmissed++;
+> > -             return;
+> > -     }
+> >
+> >       if (fp->exit_handler) {
+> >               rh =3D rethook_try_get(fp->rethook);
+> >               if (!rh) {
+> >                       fp->nmissed++;
+> > -                     goto out;
+> > +                     return;
+> >               }
+> >               fpr =3D container_of(rh, struct fprobe_rethook_node, node=
+);
+> >               fpr->entry_ip =3D ip;
+> > @@ -61,23 +53,60 @@ static void fprobe_handler(unsigned long ip, unsign=
+ed long parent_ip,
+> >               else
+> >                       rethook_hook(rh, ftrace_get_regs(fregs), true);
+> >       }
+> > -out:
+> > +}
+> > +
+> > +static void fprobe_handler(unsigned long ip, unsigned long parent_ip,
+> > +             struct ftrace_ops *ops, struct ftrace_regs *fregs)
+> > +{
+> > +     struct fprobe *fp;
+> > +     int bit;
+> > +
+> > +     fp =3D container_of(ops, struct fprobe, ops);
+> > +     if (fprobe_disabled(fp))
+> > +             return;
+> > +
+> > +     /* recursion detection has to go before any traceable function an=
+d
+> > +      * all functions before this point should be marked as notrace
+> > +      */
+> > +     bit =3D ftrace_test_recursion_trylock(ip, parent_ip);
+> > +     if (bit < 0) {
+> > +             fp->nmissed++;
+> > +             return;
+> > +     }
+> > +     __fprobe_handler(ip, parent_ip, ops, fregs);
+> >       ftrace_test_recursion_unlock(bit);
+> > +
+> >  }
+> >  NOKPROBE_SYMBOL(fprobe_handler);
+> >
+> >  static void fprobe_kprobe_handler(unsigned long ip, unsigned long pare=
+nt_ip,
+> >                                 struct ftrace_ops *ops, struct ftrace_r=
+egs *fregs)
+> >  {
+> > -     struct fprobe *fp =3D container_of(ops, struct fprobe, ops);
+> > +     struct fprobe *fp;
+> > +     int bit;
+> > +
+> > +     fp =3D container_of(ops, struct fprobe, ops);
+> > +     if (fprobe_disabled(fp))
+> > +             return;
+> > +
+> > +     /* recursion detection has to go before any traceable function an=
+d
+> > +      * all functions called before this point should be marked as not=
+race
+> > +      */
+> > +     bit =3D ftrace_test_recursion_trylock(ip, parent_ip);
+> > +     if (bit < 0) {
+> > +             fp->nmissed++;
+> > +             return;
+> > +     }
+> >
+> >       if (unlikely(kprobe_running())) {
+> >               fp->nmissed++;
+> >               return;
+> >       }
+> > +
+> >       kprobe_busy_begin();
+> > -     fprobe_handler(ip, parent_ip, ops, fregs);
+> > +     __fprobe_handler(ip, parent_ip, ops, fregs);
+> >       kprobe_busy_end();
+> > +     ftrace_test_recursion_unlock(bit);
+> >  }
+> >
+> >  static void fprobe_exit_handler(struct rethook_node *rh, void *data,
+> > --
+> > 2.40.1
+> >
+>
+>
+> --
+> Masami Hiramatsu (Google) <mhiramat@kernel.org>
+>
