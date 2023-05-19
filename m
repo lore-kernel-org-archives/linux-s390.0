@@ -2,183 +2,143 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9BB01C77B75
-	for <linux-s390@archiver.kernel.org>; Fri, 19 May 2023 13:44:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B9082C7EE23
+	for <linux-s390@archiver.kernel.org>; Fri, 19 May 2023 14:15:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229965AbjESNoT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 19 May 2023 09:44:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58370 "EHLO
+        id S231485AbjESOPO convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 19 May 2023 10:15:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229524AbjESNoS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 19 May 2023 09:44:18 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50644AA;
-        Fri, 19 May 2023 06:44:17 -0700 (PDT)
-Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34JDiG1J026493;
-        Fri, 19 May 2023 13:44:16 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : content-type : mime-version; s=pp1;
- bh=EjAZT4UN24dbbozDuIDqkO2EKI6bcA9TP22AbafGM5o=;
- b=olH8shnzLUD5FRXEI2XDkT+NkWopCL57/Kh3hN9+svYc6samcioVb0bsdVcSRiaMFzj7
- 1PbdD/UZxOOk3c/I4KQf6juu5ebYSF6bHNa9pic7VuFP9A50FO7bL6KRVNr8Cvex0Urm
- kwl6p4ZyXbn9MAu4CRfyFU+b+yE53baVE+K07pdRa/XnOG4ASl+SPpL/hdbUJInePPHY
- gLFULNdAXizPyr/IecyoZL1GBYcRcmNlnmo8Md3oRn6NnJWrNGZ4VRPHTom7xKEAKOzI
- Xcfi0H97ClXUv6tmP7eEVhm3ivm40SBotFR6IQXt9LFc9Nszh1TJlZczwvdVemLFCahq ow== 
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qpa8r800s-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 19 May 2023 13:44:15 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34J3pfDr027478;
-        Fri, 19 May 2023 13:44:13 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3qj264u6ne-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 19 May 2023 13:44:13 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34JDiAbJ39518472
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 19 May 2023 13:44:10 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1588C20040;
-        Fri, 19 May 2023 13:44:10 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E32A120043;
-        Fri, 19 May 2023 13:44:09 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Fri, 19 May 2023 13:44:09 +0000 (GMT)
-Date:   Fri, 19 May 2023 15:44:08 +0200
-From:   Alexander Gordeev <agordeev@linux.ibm.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [GIT PULL] s390 updates for 6.4-rc3
-Message-ID: <ZGd9KHlUSFgg+NHq@tuxmaker.boeblingen.de.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: pZhXANFyfGicmatNSYirib6lgiBsCpyv
-X-Proofpoint-ORIG-GUID: pZhXANFyfGicmatNSYirib6lgiBsCpyv
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        with ESMTP id S231653AbjESOPK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 19 May 2023 10:15:10 -0400
+Received: from mail-ej1-f43.google.com (mail-ej1-f43.google.com [209.85.218.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B719E73;
+        Fri, 19 May 2023 07:14:42 -0700 (PDT)
+Received: by mail-ej1-f43.google.com with SMTP id a640c23a62f3a-96f44435d92so41006066b.0;
+        Fri, 19 May 2023 07:14:42 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1684505634; x=1687097634;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=mtyjmo3U27wuRhuxdBoN4szAZEtqJIsshyVfilBgAD0=;
+        b=C4ucInKXKAyY39AY1irPEpCBVp43HjLOS7XZaLrlqvoU5igMwHa/lQmESfH/lbVzqL
+         hr4QX2dI5/a+KXZITwQj418BdH8tUWUH/F5JARAPxizo6a8P29Iig6d4ziEewjOFtyKx
+         D0YflxZafGjGbffr3X3XQqWUpg8Wflux3xKgYu60wDWx8qIYuoKgM/d8LL4cmFKA+O6s
+         k3NfqZMYdX8Zz8ivSfCCqxN5E7Fsm8X/Cs35SKGQyodk0xIlu3BdtULGdKPIrr/4QX48
+         quqTNDAhI2r8quPODmTsXCMFjxKrGB9oRfGglvGxUzBX0gq9g9AppPw+ZgICYBiSNXh3
+         iibQ==
+X-Gm-Message-State: AC+VfDyvjeRmnh6F+HU6ygfTpk5tvyL+mj4B8iGHatfMTwWbG8Ju4ikg
+        SDKe83tNbkAArusdWKn9dVCug5gW1BXZoaKDQBc=
+X-Google-Smtp-Source: ACHHUZ68+/i2ffEZTXg6tj3QMitnfwpUc6ZolPA0xIlso352d5CtlPMyVKVablcnpHf+LCxLGPtLwAjOXXkDYlCuYhQ=
+X-Received: by 2002:a17:906:729e:b0:96f:6590:cbdb with SMTP id
+ b30-20020a170906729e00b0096f6590cbdbmr1995862ejl.6.1684505634451; Fri, 19 May
+ 2023 07:13:54 -0700 (PDT)
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-05-19_09,2023-05-17_02,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 malwarescore=0
- spamscore=0 mlxlogscore=999 impostorscore=0 suspectscore=0 adultscore=0
- clxscore=1011 priorityscore=1501 bulkscore=0 mlxscore=0 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2304280000
- definitions=main-2305190114
+References: <20230519102058.581557770@infradead.org> <20230519102716.045980863@infradead.org>
+In-Reply-To: <20230519102716.045980863@infradead.org>
+From:   "Rafael J. Wysocki" <rafael@kernel.org>
+Date:   Fri, 19 May 2023 16:13:41 +0200
+Message-ID: <CAJZ5v0hAyF8WK+jbWh6FZvmjfr0nxLg-phYTqFAyaUA5GJU4hQ@mail.gmail.com>
+Subject: Re: [PATCH v2 13/13] cpuidle: Use local_clock_noinstr()
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     bigeasy@linutronix.de, mark.rutland@arm.com, maz@kernel.org,
+        catalin.marinas@arm.com, will@kernel.org, chenhuacai@kernel.org,
+        kernel@xen0n.name, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, pbonzini@redhat.com, wanpengli@tencent.com,
+        vkuznets@redhat.com, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+        hpa@zytor.com, jgross@suse.com, boris.ostrovsky@oracle.com,
+        daniel.lezcano@linaro.org, kys@microsoft.com,
+        haiyangz@microsoft.com, wei.liu@kernel.org, decui@microsoft.com,
+        rafael@kernel.org, longman@redhat.com, boqun.feng@gmail.com,
+        pmladek@suse.com, senozhatsky@chromium.org, rostedt@goodmis.org,
+        john.ogness@linutronix.de, juri.lelli@redhat.com,
+        vincent.guittot@linaro.org, dietmar.eggemann@arm.com,
+        bsegall@google.com, mgorman@suse.de, bristot@redhat.com,
+        vschneid@redhat.com, jstultz@google.com, sboyd@kernel.org,
+        linux-kernel@vger.kernel.org, loongarch@lists.linux.dev,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        linux-hyperv@vger.kernel.org, linux-pm@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello Linus,
+On Fri, May 19, 2023 at 12:33 PM Peter Zijlstra <peterz@infradead.org> wrote:
+>
+> With the introduction of local_clock_noinstr(), local_clock() itself
+> is no longer marked noinstr, use the correct function.
+>
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 
-please pull s390 changes for 6.4-rc3. It contain a fix to statfs code,
-which was acked by Andrew Morton:
-https://lore.kernel.org/all/20230511204513.3d0d60f0315350177a800284@linux-foundation.org/
+Acked-by: Rafael J. Wysocki <rafael@kernel.org>
 
-Thank you,
-Alexander
-
-The following changes since commit f1fcbaa18b28dec10281551dfe6ed3a3ed80e3d6:
-
-  Linux 6.4-rc2 (2023-05-14 12:51:40 -0700)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.4-2
-
-for you to fetch changes up to 0f1cbf941d5949110adf70725a9614e622de8d99:
-
-  s390/iommu: get rid of S390_CCW_IOMMU and S390_AP_IOMMU (2023-05-01 14:11:28 -0300)
-
-----------------------------------------------------------------
-s390 updates for 6.4-rc3
-
-- Add check whether the required facilities are installed
-  before using the s390-specific ChaCha20 implementation.
-
-- Key blobs for s390 protected key interface IOCTLs commands
-  PKEY_VERIFYKEY2 and PKEY_VERIFYKEY3 may contain clear key
-  material. Zeroize copies of these keys in kernel memory
-  after creating protected keys.
-
-- Set CONFIG_INIT_STACK_NONE=y in defconfigs to avoid extra
-  overhead of initializing all stack variables by default.
-
-- Make sure that when a new channel-path is enabled all
-  subchannels are evaluated: with and without any devices
-  connected on it.
-
-- When SMT thread CPUs are added to CPU topology masks the
-  nr_cpu_ids limit is not checked and could be exceeded.
-  Respect the nr_cpu_ids limit and avoid a warning when
-  CONFIG_DEBUG_PER_CPU_MAPS is set.
-
-- The pointer to IPL Parameter Information Block is stored
-  in the absolute lowcore as a virtual address. Save it as
-  the physical address for later use by dump tools.
-
-- Fix a Queued Direct I/O (QDIO) problem on z/VM guests using
-  QIOASSIST with dedicated (pass through) QDIO-based devices
-  such as FCP, real OSA or HiperSockets.
-
-- s390's struct statfs and struct statfs64 contain padding,
-  which field-by-field copying does not set. Initialize the
-  respective structures with zeros before filling them and
-  copying to userspace.
-
-- Grow s390 compat_statfs64, statfs and statfs64 structures
-  f_spare array member to cover padding and simplify things.
-
-- Remove obsolete SCHED_BOOK and SCHED_DRAWER configs.
-
-- Remove unneeded S390_CCW_IOMMU and S390_AP_IOM configs.
-
-----------------------------------------------------------------
-Alexander Gordeev (2):
-  s390/topology: honour nr_cpu_ids when adding CPUs
-  s390/ipl: fix IPIB virtual vs physical address confusion
-
-Heiko Carstens (3):
-  s390/crypto: use vector instructions only if available for ChaCha20
-  s390/defconfigs: set CONFIG_INIT_STACK_NONE=y
-  s390/qdio: fix do_sqbs() inline assembly constraint
-
-Holger Dengler (1):
-  s390/pkey: zeroize key blobs
-
-Ilya Leoshkevich (2):
-  statfs: enforce statfs[64] structure initialization
-  s390/uapi: cover statfs padding by growing f_spare
-
-Jason Gunthorpe (1):
-  s390/iommu: get rid of S390_CCW_IOMMU and S390_AP_IOMMU
-
-Lukas Bulwahn (1):
-  s390/Kconfig: remove obsolete configs SCHED_{BOOK,DRAWER}
-
-Vineeth Vijayan (1):
-  s390/cio: include subchannels without devices also for evaluation
-
- Documentation/s390/vfio-ap.rst       |  1 -
- arch/s390/Kconfig                    | 11 +---------
- arch/s390/configs/debug_defconfig    |  3 +--
- arch/s390/configs/defconfig          |  3 +--
- arch/s390/configs/zfcpdump_defconfig |  1 +
- arch/s390/crypto/chacha-glue.c       |  2 +-
- arch/s390/include/asm/compat.h       |  2 +-
- arch/s390/include/uapi/asm/statfs.h  |  4 ++--
- arch/s390/kernel/ipl.c               |  3 +--
- arch/s390/kernel/topology.c          | 32 +++++++++++++++-------------
- drivers/iommu/Kconfig                | 16 --------------
- drivers/s390/cio/device.c            |  2 ++
- drivers/s390/cio/qdio.h              |  2 +-
- drivers/s390/crypto/pkey_api.c       |  3 +++
- fs/statfs.c                          |  4 ++--
- 15 files changed, 34 insertions(+), 55 deletions(-)
+> ---
+>  drivers/cpuidle/cpuidle.c    |    8 ++++----
+>  drivers/cpuidle/poll_state.c |    4 ++--
+>  2 files changed, 6 insertions(+), 6 deletions(-)
+>
+> --- a/drivers/cpuidle/cpuidle.c
+> +++ b/drivers/cpuidle/cpuidle.c
+> @@ -145,7 +145,7 @@ static noinstr void enter_s2idle_proper(
+>
+>         instrumentation_begin();
+>
+> -       time_start = ns_to_ktime(local_clock());
+> +       time_start = ns_to_ktime(local_clock_noinstr());
+>
+>         tick_freeze();
+>         /*
+> @@ -169,7 +169,7 @@ static noinstr void enter_s2idle_proper(
+>         tick_unfreeze();
+>         start_critical_timings();
+>
+> -       time_end = ns_to_ktime(local_clock());
+> +       time_end = ns_to_ktime(local_clock_noinstr());
+>
+>         dev->states_usage[index].s2idle_time += ktime_us_delta(time_end, time_start);
+>         dev->states_usage[index].s2idle_usage++;
+> @@ -243,7 +243,7 @@ noinstr int cpuidle_enter_state(struct c
+>         sched_idle_set_state(target_state);
+>
+>         trace_cpu_idle(index, dev->cpu);
+> -       time_start = ns_to_ktime(local_clock());
+> +       time_start = ns_to_ktime(local_clock_noinstr());
+>
+>         stop_critical_timings();
+>         if (!(target_state->flags & CPUIDLE_FLAG_RCU_IDLE)) {
+> @@ -276,7 +276,7 @@ noinstr int cpuidle_enter_state(struct c
+>         start_critical_timings();
+>
+>         sched_clock_idle_wakeup_event();
+> -       time_end = ns_to_ktime(local_clock());
+> +       time_end = ns_to_ktime(local_clock_noinstr());
+>         trace_cpu_idle(PWR_EVENT_EXIT, dev->cpu);
+>
+>         /* The cpu is no longer idle or about to enter idle. */
+> --- a/drivers/cpuidle/poll_state.c
+> +++ b/drivers/cpuidle/poll_state.c
+> @@ -15,7 +15,7 @@ static int __cpuidle poll_idle(struct cp
+>  {
+>         u64 time_start;
+>
+> -       time_start = local_clock();
+> +       time_start = local_clock_noinstr();
+>
+>         dev->poll_time_limit = false;
+>
+> @@ -32,7 +32,7 @@ static int __cpuidle poll_idle(struct cp
+>                                 continue;
+>
+>                         loop_count = 0;
+> -                       if (local_clock() - time_start > limit) {
+> +                       if (local_clock_noinstr() - time_start > limit) {
+>                                 dev->poll_time_limit = true;
+>                                 break;
+>                         }
+>
+>
