@@ -2,114 +2,209 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ABF78C7EE26
-	for <linux-s390@archiver.kernel.org>; Fri, 19 May 2023 08:00:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B50F3C77B7F
+	for <linux-s390@archiver.kernel.org>; Fri, 19 May 2023 09:40:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229684AbjESIAZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 19 May 2023 04:00:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43686 "EHLO
+        id S230522AbjESJku (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 19 May 2023 05:40:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229572AbjESIAX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 19 May 2023 04:00:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20E12EC;
-        Fri, 19 May 2023 01:00:22 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9893D654B3;
-        Fri, 19 May 2023 08:00:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id EAAE4C4339E;
-        Fri, 19 May 2023 08:00:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1684483221;
-        bh=sPRtpa2e0A1/1AI5Gdf3fcX269ohaGrXmwq0lvmMkCc=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=OV8c+XnXMvooXSBZzdK68WhqXtlmOrWm2QsYRg13wZxyJUrJ6ASI3Ca5GRVbuKbwN
-         kyc8QTlgITK0eH+DDI5p9HH3JZYFZEmNCYbwa45WXltdPqmY26sgwJyCopaSUwMyFw
-         W8SzoiDQDfRew4l0XXVG4AEVO3dV/qEjt6C3cjLUepBx7CpnEHC/xj0DTCaVvJHuSX
-         wK37lpi8oUUIRyMIwq7qddSzl3knBHDZsO7ucS9opL9EQlKztZy2s5cBXYryOtRU5U
-         /4CyrISWK4h/uMq0gEWQ8Ay9MYsJ34JEL1+SKZUV5dBJA1/QMp1dFgK0DyQc5eRwN8
-         NkePpPzQ82AAg==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id C943CC73FE0;
-        Fri, 19 May 2023 08:00:20 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S232133AbjESJka (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 19 May 2023 05:40:30 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E83222D65;
+        Fri, 19 May 2023 02:39:07 -0700 (PDT)
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34J9axPd011590;
+        Fri, 19 May 2023 09:38:12 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=Z3DHTJ+7ccCZ8u6VBoGzT/0UhbeLb4ZdKwglhpyHwnU=;
+ b=LqJ+XP2Ey/phhALF0/WIG88GhMD4ynUbgCvVFiEKfKZ1+2ePoGRHJZq5f1gPbPortdXb
+ jn2eW2pyPgqTjN/92cDhRphq4nqbSmfk8nyVQnGdbPl/751tiQeO3bfcn+c/lk5s+/Su
+ 5KL0DaNKSPdfwkscHG89b/+bv8uB54UhFBFj7vHSLqamyT9bmiRk7SI+aTBTuHrWIYdr
+ pt6UgbBq8N/t1h7Vo96cxssRUHn1JvtYrpFh8Zc5QNjFILG6NfjCatIu0b+Hp1nztSO/
+ jjpu5Jh8cAo5TuBlGoHwruiteZVk1nuj9/cgkB0Zhqm/CDDGy+tCGJ0uMP8QE1e76kX5 UA== 
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qp5d3jc6x-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 19 May 2023 09:38:11 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34J7aEd4001088;
+        Fri, 19 May 2023 09:37:14 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+        by ppma02fra.de.ibm.com (PPS) with ESMTPS id 3qj264tjhh-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 19 May 2023 09:37:14 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34J9bBvs5505598
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 19 May 2023 09:37:11 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1932320040;
+        Fri, 19 May 2023 09:37:11 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BE93920049;
+        Fri, 19 May 2023 09:37:10 +0000 (GMT)
+Received: from a46lp73.lnxne.boe (unknown [9.152.108.100])
+        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Fri, 19 May 2023 09:37:10 +0000 (GMT)
+From:   Steffen Eiden <seiden@linux.ibm.com>
+To:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Viktor Mihajlovski <mihajlov@linux.ibm.com>
+Cc:     Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Nico Boehr <nrb@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Hendrik Brueckner <brueckner@linux.ibm.com>
+Subject: [PATCH v2 6/6] s390/uv: Update query for secret-UVCs
+Date:   Fri, 19 May 2023 11:37:08 +0200
+Message-Id: <20230519093708.810957-7-seiden@linux.ibm.com>
+X-Mailer: git-send-email 2.40.1
+In-Reply-To: <20230519093708.810957-1-seiden@linux.ibm.com>
+References: <20230519093708.810957-1-seiden@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] net/smc: Reset connection when trying to use SMCRv2
- fails.
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <168448322080.32188.9310241476362959617.git-patchwork-notify@kernel.org>
-Date:   Fri, 19 May 2023 08:00:20 +0000
-References: <1684386895-112162-1-git-send-email-guwen@linux.alibaba.com>
-In-Reply-To: <1684386895-112162-1-git-send-email-guwen@linux.alibaba.com>
-To:     Wen Gu <guwen@linux.alibaba.com>
-Cc:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        liuyacan@corp.netease.com
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: z8WGEaTxaGfB7exZzSJCPbJUaL17POkO
+X-Proofpoint-GUID: z8WGEaTxaGfB7exZzSJCPbJUaL17POkO
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-05-19_06,2023-05-17_02,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 priorityscore=1501
+ bulkscore=0 suspectscore=0 clxscore=1015 malwarescore=0 mlxlogscore=999
+ spamscore=0 impostorscore=0 phishscore=0 lowpriorityscore=0 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2304280000
+ definitions=main-2305190080
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello:
+Update the query struct such that secret-UVC related
+information can be parsed.
+Add sysfs files for these new values.
 
-This patch was applied to netdev/net.git (main)
-by David S. Miller <davem@davemloft.net>:
+Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+---
+ arch/s390/boot/uv.c        |  4 ++++
+ arch/s390/include/asm/uv.h | 13 +++++++++++--
+ arch/s390/kernel/uv.c      | 40 ++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 55 insertions(+), 2 deletions(-)
 
-On Thu, 18 May 2023 13:14:55 +0800 you wrote:
-> We found a crash when using SMCRv2 with 2 Mellanox ConnectX-4. It
-> can be reproduced by:
-> 
-> - smc_run nginx
-> - smc_run wrk -t 32 -c 500 -d 30 http://<ip>:<port>
-> 
->  BUG: kernel NULL pointer dereference, address: 0000000000000014
->  #PF: supervisor read access in kernel mode
->  #PF: error_code(0x0000) - not-present page
->  PGD 8000000108713067 P4D 8000000108713067 PUD 151127067 PMD 0
->  Oops: 0000 [#1] PREEMPT SMP PTI
->  CPU: 4 PID: 2441 Comm: kworker/4:249 Kdump: loaded Tainted: G        W   E      6.4.0-rc1+ #42
->  Workqueue: smc_hs_wq smc_listen_work [smc]
->  RIP: 0010:smc_clc_send_confirm_accept+0x284/0x580 [smc]
->  RSP: 0018:ffffb8294b2d7c78 EFLAGS: 00010a06
->  RAX: ffff8f1873238880 RBX: ffffb8294b2d7dc8 RCX: 0000000000000000
->  RDX: 00000000000000b4 RSI: 0000000000000001 RDI: 0000000000b40c00
->  RBP: ffffb8294b2d7db8 R08: ffff8f1815c5860c R09: 0000000000000000
->  R10: 0000000000000400 R11: 0000000000000000 R12: ffff8f1846f56180
->  R13: ffff8f1815c5860c R14: 0000000000000001 R15: 0000000000000001
->  FS:  0000000000000000(0000) GS:ffff8f1aefd00000(0000) knlGS:0000000000000000
->  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->  CR2: 0000000000000014 CR3: 00000001027a0001 CR4: 00000000003706e0
->  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
->  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
->  Call Trace:
->   <TASK>
->   ? mlx5_ib_map_mr_sg+0xa1/0xd0 [mlx5_ib]
->   ? smcr_buf_map_link+0x24b/0x290 [smc]
->   ? __smc_buf_create+0x4ee/0x9b0 [smc]
->   smc_clc_send_accept+0x4c/0xb0 [smc]
->   smc_listen_work+0x346/0x650 [smc]
->   ? __schedule+0x279/0x820
->   process_one_work+0x1e5/0x3f0
->   worker_thread+0x4d/0x2f0
->   ? __pfx_worker_thread+0x10/0x10
->   kthread+0xe5/0x120
->   ? __pfx_kthread+0x10/0x10
->   ret_from_fork+0x2c/0x50
->   </TASK>
-> 
-> [...]
-
-Here is the summary with links:
-  - [net] net/smc: Reset connection when trying to use SMCRv2 fails.
-    https://git.kernel.org/netdev/net/c/35112271672a
-
-You are awesome, thank you!
+diff --git a/arch/s390/boot/uv.c b/arch/s390/boot/uv.c
+index 0a077c0a2056..323b5cae3cf1 100644
+--- a/arch/s390/boot/uv.c
++++ b/arch/s390/boot/uv.c
+@@ -47,6 +47,10 @@ void uv_query_info(void)
+ 		uv_info.conf_dump_finalize_len = uvcb.conf_dump_finalize_len;
+ 		uv_info.supp_att_req_hdr_ver = uvcb.supp_att_req_hdr_ver;
+ 		uv_info.supp_att_pflags = uvcb.supp_att_pflags;
++		uv_info.supp_add_secret_req_ver = uvcb.supp_add_secret_req_ver;
++		uv_info.supp_add_secret_pcf = uvcb.supp_add_secret_pcf;
++		uv_info.supp_secret_types = uvcb.supp_secret_types;
++		uv_info.max_secrets = uvcb.max_num_secrets;
+ 	}
+ 
+ #ifdef CONFIG_PROTECTED_VIRTUALIZATION_GUEST
+diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
+index 6180ac8909d5..0f3dee3fce71 100644
+--- a/arch/s390/include/asm/uv.h
++++ b/arch/s390/include/asm/uv.h
+@@ -123,7 +123,7 @@ struct uv_cb_qui {
+ 	u32 reserved70[3];			/* 0x0070 */
+ 	u32 max_num_sec_conf;			/* 0x007c */
+ 	u64 max_guest_stor_addr;		/* 0x0080 */
+-	u8  reserved88[158 - 136];		/* 0x0088 */
++	u8  reserved88[0x9e - 0x88];		/* 0x0088 */
+ 	u16 max_guest_cpu_id;			/* 0x009e */
+ 	u64 uv_feature_indications;		/* 0x00a0 */
+ 	u64 reserveda8;				/* 0x00a8 */
+@@ -135,7 +135,12 @@ struct uv_cb_qui {
+ 	u64 reservedd8;				/* 0x00d8 */
+ 	u64 supp_att_req_hdr_ver;		/* 0x00e0 */
+ 	u64 supp_att_pflags;			/* 0x00e8 */
+-	u8 reservedf0[256 - 240];		/* 0x00f0 */
++	u64 reservedf0;				/* 0x00f0 */
++	u64 supp_add_secret_req_ver;		/* 0x00f8 */
++	u64 supp_add_secret_pcf;		/* 0x0100 */
++	u64 supp_secret_types;			/* 0x0180 */
++	u16 max_num_secrets;			/* 0x0110 */
++	u8 reserved112[0x120 - 0x112];		/* 0x0112 */
+ } __packed __aligned(8);
+ 
+ /* Initialize Ultravisor */
+@@ -384,6 +389,10 @@ struct uv_info {
+ 	unsigned long conf_dump_finalize_len;
+ 	unsigned long supp_att_req_hdr_ver;
+ 	unsigned long supp_att_pflags;
++	unsigned long supp_add_secret_req_ver;
++	unsigned long supp_add_secret_pcf;
++	unsigned long supp_secret_types;
++	unsigned short max_secrets;
+ };
+ 
+ extern struct uv_info uv_info;
+diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
+index d5b5d7e83c17..c0a1bfb01135 100644
+--- a/arch/s390/kernel/uv.c
++++ b/arch/s390/kernel/uv.c
+@@ -571,6 +571,42 @@ static ssize_t uv_query_supp_att_pflags(struct kobject *kobj,
+ static struct kobj_attribute uv_query_supp_att_pflags_attr =
+ 	__ATTR(supp_att_pflags, 0444, uv_query_supp_att_pflags, NULL);
+ 
++static ssize_t uv_query_supp_add_secret_req_ver(struct kobject *kobj,
++						struct kobj_attribute *attr, char *page)
++{
++	return sysfs_emit(page, "%lx\n", uv_info.supp_add_secret_req_ver);
++}
++
++static struct kobj_attribute uv_query_supp_add_secret_req_ver_attr =
++	__ATTR(supp_add_secret_req_ver, 0444, uv_query_supp_add_secret_req_ver, NULL);
++
++static ssize_t uv_query_supp_add_secret_pcf(struct kobject *kobj,
++					    struct kobj_attribute *attr, char *page)
++{
++	return sysfs_emit(page, "%lx\n", uv_info.supp_add_secret_pcf);
++}
++
++static struct kobj_attribute uv_query_supp_add_secret_pcf_attr =
++	__ATTR(supp_add_secret_pcf, 0444, uv_query_supp_add_secret_pcf, NULL);
++
++static ssize_t uv_query_supp_secret_types(struct kobject *kobj,
++					  struct kobj_attribute *attr, char *page)
++{
++	return sysfs_emit(page, "%lx\n", uv_info.supp_secret_types);
++}
++
++static struct kobj_attribute uv_query_supp_secret_types_attr =
++	__ATTR(supp_secret_types, 0444, uv_query_supp_secret_types, NULL);
++
++static ssize_t uv_query_max_secrets(struct kobject *kobj,
++				    struct kobj_attribute *attr, char *page)
++{
++	return sysfs_emit(page, "%d\n", uv_info.max_secrets);
++}
++
++static struct kobj_attribute uv_query_max_num_secrets_attr =
++	__ATTR(max_secrets, 0444, uv_query_max_secrets, NULL);
++
+ static struct attribute *uv_query_attrs[] = {
+ 	&uv_query_facilities_attr.attr,
+ 	&uv_query_feature_indications_attr.attr,
+@@ -584,6 +620,10 @@ static struct attribute *uv_query_attrs[] = {
+ 	&uv_query_dump_cpu_len_attr.attr,
+ 	&uv_query_supp_att_req_hdr_ver_attr.attr,
+ 	&uv_query_supp_att_pflags_attr.attr,
++	&uv_query_supp_add_secret_req_ver_attr.attr,
++	&uv_query_supp_add_secret_pcf_attr.attr,
++	&uv_query_supp_secret_types_attr.attr,
++	&uv_query_max_num_secrets_attr.attr,
+ 	NULL,
+ };
+ 
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+2.40.1
 
