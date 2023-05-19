@@ -2,43 +2,42 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0139DC7EE23
-	for <linux-s390@archiver.kernel.org>; Fri, 19 May 2023 10:34:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 19CBCC7EE26
+	for <linux-s390@archiver.kernel.org>; Fri, 19 May 2023 10:34:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231958AbjESKeV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 19 May 2023 06:34:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53760 "EHLO
+        id S231932AbjESKeW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 19 May 2023 06:34:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231920AbjESKeS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 19 May 2023 06:34:18 -0400
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E571610D9;
-        Fri, 19 May 2023 03:34:13 -0700 (PDT)
+        with ESMTP id S231956AbjESKeU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 19 May 2023 06:34:20 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55DB210C3;
+        Fri, 19 May 2023 03:34:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=Content-Type:MIME-Version:References:
-        Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
-        Content-ID:Content-Description:In-Reply-To;
-        bh=q8KX/nmGPO6A9N1mK4qTgAMVm27t7iwShesZJrnat4g=; b=RUkLbIsJVPK/qLcIE1IdakqBHq
-        VlobrljSWru4F3SJO5gMX7c7PZIX1pB8sUkaYe50E7aHq3d+yyKPHzkGio/P8TWpAKfciEdoPxtnc
-        KFZ2sVG/B370biDNoG3HePiHHXT7Yx9Y2B007XJnAEISMPp+Ho6Y2i9489Y6GDqopu057qwAbbAYU
-        WbHY+vozrxyGh6JapKw0khAbEJaQ2oOrvICif05nNEW+CzocVAN9T1Esij5670JeY4Yfnr2fxw/pS
-        oFXMcQ+q42zF3VDJjPv3I1aXwqPimtcc73By5nS8BkQMH4auTMutFdCpmVk3lhJEhlVKu3oKukt5H
-        Y3MGXwAA==;
+        d=infradead.org; s=casper.20170209; h=Subject:Cc:To:From:Date:Message-ID:
+        Sender:Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:
+        Content-ID:Content-Description:In-Reply-To:References;
+        bh=i8/RQiOFGVhuX3oCgXDWVh0oQbt/Cbzp/ltX/NfGGd0=; b=D4LJiuZl6kzCVn4vMC8lP792Br
+        tNAZy6PqDUpZzRoNd/rNPkXt0ciJDb940fpNGE4K76cGofNO5mnpIAUlwWuC98fEtgV4R0PFWFXsi
+        A5ZnNICp6f9Pgplfvg/WInMoh8LDZvMZ25lMirYbqQIulpctckJnfgFkPi8OAoXhi0nC+D3cpL9Y9
+        TxVhDH78itXDcdxGi8hFHZQOQkMDVAFbo0IuljiCHKtXMdUZimM9wkYFvMeREFHHS+U2oJvbhmAdI
+        3EBnyaKZd84pnM1i+2fk1H96xqHHC0Gg70mZloG4ubl14zB4pBKoHhsg8boTCYpAANt4ud26eMJDm
+        o5laKIrw==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
-        by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
-        id 1pzxPv-00FrWV-2D;
-        Fri, 19 May 2023 10:32:59 +0000
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1pzxPw-006Uqb-0r; Fri, 19 May 2023 10:33:00 +0000
 Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits))
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
         (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id F24813033CB;
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id D733530008D;
         Fri, 19 May 2023 12:32:55 +0200 (CEST)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
-        id BADF1235EF095; Fri, 19 May 2023 12:32:55 +0200 (CEST)
-Message-ID: <20230519102715.368919762@infradead.org>
+        id AF4AD235EF085; Fri, 19 May 2023 12:32:55 +0200 (CEST)
+Message-ID: <20230519102058.581557770@infradead.org>
 User-Agent: quilt/0.66
-Date:   Fri, 19 May 2023 12:21:01 +0200
+Date:   Fri, 19 May 2023 12:20:58 +0200
 From:   Peter Zijlstra <peterz@infradead.org>
 To:     bigeasy@linutronix.de
 Cc:     mark.rutland@arm.com, maz@kernel.org, catalin.marinas@arm.com,
@@ -61,78 +60,44 @@ Cc:     mark.rutland@arm.com, maz@kernel.org, catalin.marinas@arm.com,
         loongarch@lists.linux.dev, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org, linux-hyperv@vger.kernel.org,
         linux-pm@vger.kernel.org
-Subject: [PATCH v2 03/13] arm64/io: Always inline all of __raw_{read,write}[bwlq]()
-References: <20230519102058.581557770@infradead.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Subject: [PATCH v2 00/13] local_clock() vs noinstr
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The next patch will want to use __raw_readl() from a noinstr section
-and as such that needs to be marked __always_inline to avoid the
-compiler being a silly bugger.
+Hi All,
 
-Turns out it already is, but its siblings are not. Finish the work
-started in commit e43f1331e2ef913b ("arm64: Ask the compiler to
-__always_inline functions used by KVM at HYP") for consistenies sake.
+latest version of the local_clock_noinstr() patches.
 
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Most of the changes are in Hyper-V and x86/vdso/gettimeofday; Michael has been
+very helpful navigating the Hyper-V spec and fixing their sched_clock
+implementation.
+
 ---
- arch/arm64/include/asm/io.h |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
-
---- a/arch/arm64/include/asm/io.h
-+++ b/arch/arm64/include/asm/io.h
-@@ -22,13 +22,13 @@
-  * Generic IO read/write.  These perform native-endian accesses.
-  */
- #define __raw_writeb __raw_writeb
--static inline void __raw_writeb(u8 val, volatile void __iomem *addr)
-+static __always_inline void __raw_writeb(u8 val, volatile void __iomem *addr)
- {
- 	asm volatile("strb %w0, [%1]" : : "rZ" (val), "r" (addr));
- }
- 
- #define __raw_writew __raw_writew
--static inline void __raw_writew(u16 val, volatile void __iomem *addr)
-+static __always_inline void __raw_writew(u16 val, volatile void __iomem *addr)
- {
- 	asm volatile("strh %w0, [%1]" : : "rZ" (val), "r" (addr));
- }
-@@ -40,13 +40,13 @@ static __always_inline void __raw_writel
- }
- 
- #define __raw_writeq __raw_writeq
--static inline void __raw_writeq(u64 val, volatile void __iomem *addr)
-+static __always_inline void __raw_writeq(u64 val, volatile void __iomem *addr)
- {
- 	asm volatile("str %x0, [%1]" : : "rZ" (val), "r" (addr));
- }
- 
- #define __raw_readb __raw_readb
--static inline u8 __raw_readb(const volatile void __iomem *addr)
-+static __always_inline u8 __raw_readb(const volatile void __iomem *addr)
- {
- 	u8 val;
- 	asm volatile(ALTERNATIVE("ldrb %w0, [%1]",
-@@ -57,7 +57,7 @@ static inline u8 __raw_readb(const volat
- }
- 
- #define __raw_readw __raw_readw
--static inline u16 __raw_readw(const volatile void __iomem *addr)
-+static __always_inline u16 __raw_readw(const volatile void __iomem *addr)
- {
- 	u16 val;
- 
-@@ -80,7 +80,7 @@ static __always_inline u32 __raw_readl(c
- }
- 
- #define __raw_readq __raw_readq
--static inline u64 __raw_readq(const volatile void __iomem *addr)
-+static __always_inline u64 __raw_readq(const volatile void __iomem *addr)
- {
- 	u64 val;
- 	asm volatile(ALTERNATIVE("ldr %0, [%1]",
-
+ arch/arm64/include/asm/arch_timer.h      |  8 +----
+ arch/arm64/include/asm/io.h              | 12 +++----
+ arch/loongarch/include/asm/loongarch.h   |  2 +-
+ arch/loongarch/kernel/time.c             |  6 ++--
+ arch/s390/include/asm/timex.h            | 13 ++++---
+ arch/s390/kernel/time.c                  |  5 +++
+ arch/x86/include/asm/mshyperv.h          |  5 +++
+ arch/x86/include/asm/vdso/gettimeofday.h | 41 ++++++++++++++++------
+ arch/x86/kernel/kvmclock.c               |  4 +--
+ arch/x86/kernel/tsc.c                    | 38 +++++++++++++++-----
+ arch/x86/kvm/x86.c                       |  7 ++--
+ arch/x86/xen/time.c                      |  3 +-
+ drivers/clocksource/arm_arch_timer.c     | 60 ++++++++++++++++++++++++--------
+ drivers/clocksource/hyperv_timer.c       | 44 ++++++++++++++---------
+ drivers/cpuidle/cpuidle.c                |  8 ++---
+ drivers/cpuidle/poll_state.c             |  4 +--
+ include/clocksource/hyperv_timer.h       | 24 +++++--------
+ include/linux/math64.h                   |  2 +-
+ include/linux/rbtree_latch.h             |  2 +-
+ include/linux/sched/clock.h              | 17 ++++++++-
+ include/linux/seqlock.h                  | 15 ++++----
+ kernel/printk/printk.c                   |  2 +-
+ kernel/sched/clock.c                     | 19 ++++++----
+ kernel/time/sched_clock.c                | 24 +++++++++----
+ kernel/time/timekeeping.c                |  4 +--
+ 25 files changed, 242 insertions(+), 127 deletions(-)
 
