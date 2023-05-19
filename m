@@ -2,43 +2,42 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C7494C7EE37
-	for <linux-s390@archiver.kernel.org>; Fri, 19 May 2023 10:34:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BD02DC77B7F
+	for <linux-s390@archiver.kernel.org>; Fri, 19 May 2023 10:36:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231916AbjESKeR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 19 May 2023 06:34:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53616 "EHLO
+        id S232037AbjESKem (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 19 May 2023 06:34:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231934AbjESKeM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 19 May 2023 06:34:12 -0400
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC095E5D;
-        Fri, 19 May 2023 03:34:08 -0700 (PDT)
+        with ESMTP id S231963AbjESKeV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 19 May 2023 06:34:21 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE47B10E9;
+        Fri, 19 May 2023 03:34:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=Content-Type:MIME-Version:References:
+        d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
         Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
         Content-ID:Content-Description:In-Reply-To;
-        bh=F/mEORQVn/+4FFZhPg8/YI2Izvfuw/wjd2XHaIHu63c=; b=RQvJGHl7hs/c26EgGOOxBfA1ZE
-        6+KGuvrUPjs780d7PXxU6bwNrzHVnz9fCXgmM3BpqqzCjVA6jNewNvV6IUd8dJOXkhIfnBouxqDj4
-        uOVNr2JroX1RRyfRLoJPpg9gluHuCVpC0mmAmL7vtY3A+3q6vd+LJES12G1glmDMPGNIppY/2QXRb
-        dqy/+R0WtN/pSGnyiBcsWwdMYoXFpLw1X6+zrR+swdT2c06Hh5c8Q5eqUXJjjaEz5CazxOOVVUGdo
-        3bFbmYg4lY8hq9lnu6KvwljgKfbo7BfLDB6wqkGd7xnnR51imRULkwmSfCl1G8qPAC0efg6wtzMTO
-        An9fkUzQ==;
+        bh=jRlOPCiGZ1QUnD3ip/ciK1dDyTis2uNLJ5A1APQzhgQ=; b=Dzv1GYHGnPXTBnG4o/Xs2ei8aB
+        Q4Q6AnwKkhA4/hEfC+CyMGueM2yEEVQV5k5/e+DpKX7iQH+uIsaifb3r5hun1Lb7Ut3RbjPW/FK3q
+        7GgHVmd0difqEDkcOUBcHAAh5c6uRhVnesPdDrMRNy/o6AnRENKyjOblNglpALQqDQc/2Nn6ie6+b
+        ucFkxiKZvHRfSu80GKiNvsUh8ymS2G3cSlbSyOZ+URcvm9aZHO7ZGRSM/eu5b4omZrZLj+4rqNVY9
+        AKoPw+lovjejVC3kt7P8jMHh8B13s8koFqJH7ULD9r3B+YQXXFeiaQspwGhIId5AKB0TqQ/qGFkBs
+        ApoGTrcA==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
-        by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
-        id 1pzxPw-00FrWa-0B;
-        Fri, 19 May 2023 10:33:00 +0000
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1pzxPv-006UqQ-LP; Fri, 19 May 2023 10:33:00 +0000
 Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (4096 bits))
         (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 06EA230340F;
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 3C81430614C;
         Fri, 19 May 2023 12:32:56 +0200 (CEST)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
-        id BF2F1235EF097; Fri, 19 May 2023 12:32:55 +0200 (CEST)
-Message-ID: <20230519102715.435618812@infradead.org>
+        id E61E9235EF0B3; Fri, 19 May 2023 12:32:55 +0200 (CEST)
+Message-ID: <20230519102715.843039089@infradead.org>
 User-Agent: quilt/0.66
-Date:   Fri, 19 May 2023 12:21:02 +0200
+Date:   Fri, 19 May 2023 12:21:08 +0200
 From:   Peter Zijlstra <peterz@infradead.org>
 To:     bigeasy@linutronix.de
 Cc:     mark.rutland@arm.com, maz@kernel.org, catalin.marinas@arm.com,
@@ -60,8 +59,8 @@ Cc:     mark.rutland@arm.com, maz@kernel.org, catalin.marinas@arm.com,
         sboyd@kernel.org, linux-kernel@vger.kernel.org,
         loongarch@lists.linux.dev, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org, linux-hyperv@vger.kernel.org,
-        linux-pm@vger.kernel.org
-Subject: [PATCH v2 04/13] arm64/arch_timer: Provide noinstr sched_clock_read() functions
+        linux-pm@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>
+Subject: [PATCH v2 10/13] clocksource: hyper-v: Provide noinstr sched_clock()
 References: <20230519102058.581557770@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -72,164 +71,105 @@ X-Mailing-List: linux-s390@vger.kernel.org
 With the intent to provide local_clock_noinstr(), a variant of
 local_clock() that's safe to be called from noinstr code (with the
 assumption that any such code will already be non-preemptible),
-prepare for things by providing a noinstr sched_clock_read() function.
-
-Specifically, preempt_enable_*() calls out to schedule(), which upsets
-noinstr validation efforts.
+prepare for things by making the Hyper-V TSC and MSR sched_clock
+implementations noinstr.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Co-developed-by: Michael Kelley <mikelley@microsoft.com>
+Signed-off-by: Michael Kelley <mikelley@microsoft.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 ---
- arch/arm64/include/asm/arch_timer.h  |    8 ----
- drivers/clocksource/arm_arch_timer.c |   60 ++++++++++++++++++++++++++---------
- 2 files changed, 47 insertions(+), 21 deletions(-)
+ arch/x86/include/asm/mshyperv.h    |    5 +++++
+ drivers/clocksource/hyperv_timer.c |   32 ++++++++++++++++++--------------
+ 2 files changed, 23 insertions(+), 14 deletions(-)
 
---- a/arch/arm64/include/asm/arch_timer.h
-+++ b/arch/arm64/include/asm/arch_timer.h
-@@ -88,13 +88,7 @@ static inline notrace u64 arch_timer_rea
+--- a/arch/x86/include/asm/mshyperv.h
++++ b/arch/x86/include/asm/mshyperv.h
+@@ -257,6 +257,11 @@ void hv_set_register(unsigned int reg, u
+ u64 hv_get_non_nested_register(unsigned int reg);
+ void hv_set_non_nested_register(unsigned int reg, u64 value);
  
- #define arch_timer_reg_read_stable(reg)					\
- 	({								\
--		u64 _val;						\
--									\
--		preempt_disable_notrace();				\
--		_val = erratum_handler(read_ ## reg)();			\
--		preempt_enable_notrace();				\
--									\
--		_val;							\
-+		erratum_handler(read_ ## reg)();			\
- 	})
- 
- /*
---- a/drivers/clocksource/arm_arch_timer.c
-+++ b/drivers/clocksource/arm_arch_timer.c
-@@ -191,22 +191,40 @@ u32 arch_timer_reg_read(int access, enum
- 	return val;
- }
- 
--static notrace u64 arch_counter_get_cntpct_stable(void)
-+static noinstr u64 _arch_counter_get_cntpct_stable(void)
- {
- 	return __arch_counter_get_cntpct_stable();
- }
- 
--static notrace u64 arch_counter_get_cntpct(void)
-+static notrace u64 arch_counter_get_cntpct_stable(void)
++static __always_inline u64 hv_raw_get_register(unsigned int reg)
 +{
-+	u64 val;
-+	preempt_disable_notrace();
-+	val = __arch_counter_get_cntpct_stable();
-+	preempt_enable_notrace();
-+	return val;
++	return __rdmsr(reg);
 +}
 +
-+static noinstr u64 arch_counter_get_cntpct(void)
- {
- 	return __arch_counter_get_cntpct();
+ #else /* CONFIG_HYPERV */
+ static inline void hyperv_init(void) {}
+ static inline void hyperv_setup_mmu_ops(void) {}
+--- a/drivers/clocksource/hyperv_timer.c
++++ b/drivers/clocksource/hyperv_timer.c
+@@ -365,6 +365,20 @@ void hv_stimer_global_cleanup(void)
  }
+ EXPORT_SYMBOL_GPL(hv_stimer_global_cleanup);
  
--static notrace u64 arch_counter_get_cntvct_stable(void)
-+static noinstr u64 _arch_counter_get_cntvct_stable(void)
- {
- 	return __arch_counter_get_cntvct_stable();
- }
- 
--static notrace u64 arch_counter_get_cntvct(void)
-+static notrace u64 arch_counter_get_cntvct_stable(void)
++static __always_inline u64 read_hv_clock_msr(void)
 +{
-+	u64 val;
-+	preempt_disable_notrace();
-+	val = __arch_counter_get_cntvct_stable();
-+	preempt_enable_notrace();
-+	return val;
-+}
-+
-+static noinstr u64 arch_counter_get_cntvct(void)
- {
- 	return __arch_counter_get_cntvct();
- }
-@@ -753,14 +771,14 @@ static int arch_timer_set_next_event_phy
- 	return 0;
- }
- 
--static u64 arch_counter_get_cnt_mem(struct arch_timer *t, int offset_lo)
-+static noinstr u64 arch_counter_get_cnt_mem(struct arch_timer *t, int offset_lo)
- {
- 	u32 cnt_lo, cnt_hi, tmp_hi;
- 
- 	do {
--		cnt_hi = readl_relaxed(t->base + offset_lo + 4);
--		cnt_lo = readl_relaxed(t->base + offset_lo);
--		tmp_hi = readl_relaxed(t->base + offset_lo + 4);
-+		cnt_hi = __raw_readl(t->base + offset_lo + 4);
-+		cnt_lo = __raw_readl(t->base + offset_lo);
-+		tmp_hi = __raw_readl(t->base + offset_lo + 4);
- 	} while (cnt_hi != tmp_hi);
- 
- 	return ((u64) cnt_hi << 32) | cnt_lo;
-@@ -1060,7 +1078,7 @@ bool arch_timer_evtstrm_available(void)
- 	return cpumask_test_cpu(raw_smp_processor_id(), &evtstrm_available);
- }
- 
--static u64 arch_counter_get_cntvct_mem(void)
-+static noinstr u64 arch_counter_get_cntvct_mem(void)
- {
- 	return arch_counter_get_cnt_mem(arch_timer_mem, CNTVCT_LO);
- }
-@@ -1074,6 +1092,13 @@ struct arch_timer_kvm_info *arch_timer_g
- 
- static void __init arch_counter_register(unsigned type)
- {
 +	/*
-+	 * Default to cp15 based access because arm64 uses this function for
-+	 * sched_clock() before DT is probed and the cp15 method is guaranteed
-+	 * to exist on arm64. arm doesn't use this before DT is probed so even
-+	 * if we don't have the cp15 accessors we won't have a problem.
++	 * Read the partition counter to get the current tick count. This count
++	 * is set to 0 when the partition is created and is incremented in 100
++	 * nanosecond units.
++	 *
++	 * Use hv_raw_get_register() because this function is used from
++	 * noinstr. Notable; while HV_REGISTER_TIME_REF_COUNT is a synthetic
++	 * register it doesn't need the GHCB path.
 +	 */
-+	u64 (*scr)(void) = arch_counter_get_cntvct;
- 	u64 start_count;
- 	int width;
++	return hv_raw_get_register(HV_REGISTER_TIME_REF_COUNT);
++}
++
+ /*
+  * Code and definitions for the Hyper-V clocksources.  Two
+  * clocksources are defined: one that reads the Hyper-V defined MSR, and
+@@ -393,7 +407,7 @@ struct ms_hyperv_tsc_page *hv_get_tsc_pa
+ }
+ EXPORT_SYMBOL_GPL(hv_get_tsc_page);
  
-@@ -1083,21 +1108,28 @@ static void __init arch_counter_register
+-static notrace u64 read_hv_clock_tsc(void)
++static __always_inline u64 read_hv_clock_tsc(void)
+ {
+ 	u64 cur_tsc, time;
  
- 		if ((IS_ENABLED(CONFIG_ARM64) && !is_hyp_mode_available()) ||
- 		    arch_timer_uses_ppi == ARCH_TIMER_VIRT_PPI) {
--			if (arch_timer_counter_has_wa())
-+			if (arch_timer_counter_has_wa()) {
- 				rd = arch_counter_get_cntvct_stable;
--			else
-+				scr = _arch_counter_get_cntvct_stable;
-+			} else {
- 				rd = arch_counter_get_cntvct;
-+				scr = arch_counter_get_cntvct;
-+			}
- 		} else {
--			if (arch_timer_counter_has_wa())
-+			if (arch_timer_counter_has_wa()) {
- 				rd = arch_counter_get_cntpct_stable;
--			else
-+				scr = _arch_counter_get_cntpct_stable;
-+			} else {
- 				rd = arch_counter_get_cntpct;
-+				scr = arch_counter_get_cntpct;
-+			}
- 		}
+@@ -404,7 +418,7 @@ static notrace u64 read_hv_clock_tsc(voi
+ 	 * to the MSR in case the TSC page indicates unavailability.
+ 	 */
+ 	if (!hv_read_tsc_page_tsc(tsc_page, &cur_tsc, &time))
+-		time = hv_get_register(HV_REGISTER_TIME_REF_COUNT);
++		time = read_hv_clock_msr();
  
- 		arch_timer_read_counter = rd;
- 		clocksource_counter.vdso_clock_mode = vdso_default;
- 	} else {
- 		arch_timer_read_counter = arch_counter_get_cntvct_mem;
-+		scr = arch_counter_get_cntvct_mem;
- 	}
- 
- 	width = arch_counter_get_width();
-@@ -1113,7 +1145,7 @@ static void __init arch_counter_register
- 	timecounter_init(&arch_timer_kvm_info.timecounter,
- 			 &cyclecounter, start_count);
- 
--	sched_clock_register(arch_timer_read_counter, width, arch_timer_rate);
-+	sched_clock_register(scr, width, arch_timer_rate);
+ 	return time;
+ }
+@@ -414,7 +428,7 @@ static u64 notrace read_hv_clock_tsc_cs(
+ 	return read_hv_clock_tsc();
  }
  
- static void arch_timer_stop(struct clock_event_device *clk)
+-static u64 notrace read_hv_sched_clock_tsc(void)
++static u64 noinstr read_hv_sched_clock_tsc(void)
+ {
+ 	return (read_hv_clock_tsc() - hv_sched_clock_offset) *
+ 		(NSEC_PER_SEC / HV_CLOCK_HZ);
+@@ -466,22 +480,12 @@ static struct clocksource hyperv_cs_tsc
+ #endif
+ };
+ 
+-static u64 notrace read_hv_clock_msr(void)
+-{
+-	/*
+-	 * Read the partition counter to get the current tick count. This count
+-	 * is set to 0 when the partition is created and is incremented in
+-	 * 100 nanosecond units.
+-	 */
+-	return hv_get_register(HV_REGISTER_TIME_REF_COUNT);
+-}
+-
+ static u64 notrace read_hv_clock_msr_cs(struct clocksource *arg)
+ {
+ 	return read_hv_clock_msr();
+ }
+ 
+-static u64 notrace read_hv_sched_clock_msr(void)
++static u64 noinstr read_hv_sched_clock_msr(void)
+ {
+ 	return (read_hv_clock_msr() - hv_sched_clock_offset) *
+ 		(NSEC_PER_SEC / HV_CLOCK_HZ);
 
 
