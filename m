@@ -2,95 +2,210 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AE62FC7EE23
-	for <linux-s390@archiver.kernel.org>; Fri, 19 May 2023 10:23:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A56C7C7EE26
+	for <linux-s390@archiver.kernel.org>; Fri, 19 May 2023 10:34:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230454AbjESKXy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 19 May 2023 06:23:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48762 "EHLO
+        id S231925AbjESKeS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 19 May 2023 06:34:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230470AbjESKXx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 19 May 2023 06:23:53 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C719E6E;
-        Fri, 19 May 2023 03:23:51 -0700 (PDT)
-Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34JA55uQ026480;
-        Fri, 19 May 2023 10:23:50 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=h98+9DFGBoUIDUw6Pxnf2w+K9pL1W1lgtKqJhRHRC+c=;
- b=HtJ8mbWMShNYaY/tai9NU9c8Pyr1bwPRc+bczncSBRyyVX3CfBDwJVZSZjvmOEQa5nTB
- xpteT9MNEQEWihB29WuHYPn/IdfX+Oa0xgPAPTDM0TIGYHdR5Tc3/n88CMKlW+dELkkB
- JHxQVCUEoqMJ3h2E+3J4XTiqGN74H7bixBM00dNtd24ls6KZnJb6PAfhVk2KDHyVILx/
- mccCi9YR+4cE1LwCRFBg9JcwDVe/0icqoyX1CJ2FO5BGfzbe/JTiY+wDZtSLPUZQxKh3
- NmLuttOdr97GozcQdsNn+CBQhXhHebFiq1h9XbYVsius9+Qf9pzewGMnDW/x0BTmKdzy yg== 
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qp4xxbrht-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 19 May 2023 10:23:49 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34J4mert012709;
-        Fri, 19 May 2023 10:23:47 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3qj264u47y-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 19 May 2023 10:23:47 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34JANfjk38404444
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 19 May 2023 10:23:41 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6C8EA2004D;
-        Fri, 19 May 2023 10:23:41 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5B90520040;
-        Fri, 19 May 2023 10:23:41 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Fri, 19 May 2023 10:23:41 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 20191)
-        id 05E5EE02F9; Fri, 19 May 2023 12:23:41 +0200 (CEST)
-From:   Stefan Haberland <sth@linux.ibm.com>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 0/1] s390/dasd: fix command reject error on ESE devices
-Date:   Fri, 19 May 2023 12:23:39 +0200
-Message-Id: <20230519102340.3854819-1-sth@linux.ibm.com>
-X-Mailer: git-send-email 2.39.2
+        with ESMTP id S231928AbjESKeM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 19 May 2023 06:34:12 -0400
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BC23E6E;
+        Fri, 19 May 2023 03:34:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=desiato.20200630; h=Content-Type:MIME-Version:References:
+        Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
+        Content-ID:Content-Description:In-Reply-To;
+        bh=PdkNN+bEFxvrPVsYQm09x9UzPIqGPkz1+SOV54XiNcU=; b=T2SfA/ycuf9iIQR3nhN3Yoezbh
+        Z+GZXjbbtDoSBbbCOqeaqVhsuf4EUgIZccbxHfFCy15IHy8j7dBIZUglCv6S0Zcc0TQAtkSlZ7v29
+        n33ezqIIhYJAcMKsqdJekL8h5dSSKkY5gx+25HMi720JmqMpF6deZDaSpVD19BF0UEmdseoyMOLVe
+        nKxQAk7K7k3pxR87/bEltU4rij6Wx7P5JhQrsvB8RzcEs2tYyN0jlu5F4hMhIO1KzIbY2HnKvoJQ2
+        Tg19FWFf6e/85e9bUCZDNYr9mDz4gPJvj1kP/YSFdXb+kbultWmzECEohGZ4fpNxtxm14QYtNotiv
+        lI8soIEQ==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
+        by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
+        id 1pzxPv-00FrWZ-2x;
+        Fri, 19 May 2023 10:33:00 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits))
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 340BF30614A;
+        Fri, 19 May 2023 12:32:56 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
+        id DE3EC235EF0B2; Fri, 19 May 2023 12:32:55 +0200 (CEST)
+Message-ID: <20230519102715.775630881@infradead.org>
+User-Agent: quilt/0.66
+Date:   Fri, 19 May 2023 12:21:07 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     bigeasy@linutronix.de
+Cc:     mark.rutland@arm.com, maz@kernel.org, catalin.marinas@arm.com,
+        will@kernel.org, chenhuacai@kernel.org, kernel@xen0n.name,
+        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        pbonzini@redhat.com, wanpengli@tencent.com, vkuznets@redhat.com,
+        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
+        jgross@suse.com, boris.ostrovsky@oracle.com,
+        daniel.lezcano@linaro.org, kys@microsoft.com,
+        haiyangz@microsoft.com, wei.liu@kernel.org, decui@microsoft.com,
+        rafael@kernel.org, peterz@infradead.org, longman@redhat.com,
+        boqun.feng@gmail.com, pmladek@suse.com, senozhatsky@chromium.org,
+        rostedt@goodmis.org, john.ogness@linutronix.de,
+        juri.lelli@redhat.com, vincent.guittot@linaro.org,
+        dietmar.eggemann@arm.com, bsegall@google.com, mgorman@suse.de,
+        bristot@redhat.com, vschneid@redhat.com, jstultz@google.com,
+        sboyd@kernel.org, linux-kernel@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, linux-hyperv@vger.kernel.org,
+        linux-pm@vger.kernel.org
+Subject: [PATCH v2 09/13] clocksource: hyper-v: Adjust hv_read_tsc_page_tsc() to avoid special casing U64_MAX
+References: <20230519102058.581557770@infradead.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: U0uZ_t6HlH_C8VgHlyCTYSFFTIKN7xwM
-X-Proofpoint-GUID: U0uZ_t6HlH_C8VgHlyCTYSFFTIKN7xwM
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-05-19_06,2023-05-17_02,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 clxscore=1015
- suspectscore=0 bulkscore=0 adultscore=0 mlxlogscore=999 malwarescore=0
- lowpriorityscore=0 mlxscore=0 phishscore=0 impostorscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2304280000 definitions=main-2305190085
+Content-Type: text/plain; charset=UTF-8
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Jens,
+Currently hv_read_tsc_page_tsc() (ab)uses the (valid) time value of
+U64_MAX as an error return. This breaks the clean wrap-around of the
+clock.
 
-please apply the following patch that fixes formatting a thin provisioned
-device in a copy relation.
+Modify the function signature to return a boolean state and provide
+another u64 pointer to store the actual time on success. This obviates
+the need to steal one time value and restores the full counter width.
 
-Thanks.
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+---
+ arch/x86/include/asm/vdso/gettimeofday.h |   10 ++++++----
+ arch/x86/kvm/x86.c                       |    7 +++----
+ drivers/clocksource/hyperv_timer.c       |   16 +++++++++++-----
+ include/clocksource/hyperv_timer.h       |   24 +++++++++---------------
+ 4 files changed, 29 insertions(+), 28 deletions(-)
 
-Stefan Haberland (1):
-  s390/dasd: fix command reject error on ESE devices
+--- a/arch/x86/include/asm/vdso/gettimeofday.h
++++ b/arch/x86/include/asm/vdso/gettimeofday.h
+@@ -238,10 +238,12 @@ static u64 vread_pvclock(void)
+ #ifdef CONFIG_HYPERV_TIMER
+ static u64 vread_hvclock(void)
+ {
+-	u64 ret = hv_read_tsc_page(&hvclock_page);
+-	if (likely(ret != U64_MAX))
+-		ret &= S64_MAX;
+-	return ret;
++	u64 tsc, time;
++
++	if (hv_read_tsc_page_tsc(&hvclock_page, &tsc, &time))
++		return time & S64_MAX;
++
++	return U64_MAX;
+ }
+ #endif
+ 
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -2799,14 +2799,13 @@ static u64 read_tsc(void)
+ static inline u64 vgettsc(struct pvclock_clock *clock, u64 *tsc_timestamp,
+ 			  int *mode)
+ {
+-	long v;
+ 	u64 tsc_pg_val;
++	long v;
+ 
+ 	switch (clock->vclock_mode) {
+ 	case VDSO_CLOCKMODE_HVCLOCK:
+-		tsc_pg_val = hv_read_tsc_page_tsc(hv_get_tsc_page(),
+-						  tsc_timestamp);
+-		if (tsc_pg_val != U64_MAX) {
++		if (hv_read_tsc_page_tsc(hv_get_tsc_page(),
++					 tsc_timestamp, &tsc_pg_val)) {
+ 			/* TSC page valid */
+ 			*mode = VDSO_CLOCKMODE_HVCLOCK;
+ 			v = (tsc_pg_val - clock->cycle_last) &
+--- a/drivers/clocksource/hyperv_timer.c
++++ b/drivers/clocksource/hyperv_timer.c
+@@ -393,14 +393,20 @@ struct ms_hyperv_tsc_page *hv_get_tsc_pa
+ }
+ EXPORT_SYMBOL_GPL(hv_get_tsc_page);
+ 
+-static u64 notrace read_hv_clock_tsc(void)
++static notrace u64 read_hv_clock_tsc(void)
+ {
+-	u64 current_tick = hv_read_tsc_page(hv_get_tsc_page());
++	u64 cur_tsc, time;
+ 
+-	if (current_tick == U64_MAX)
+-		current_tick = hv_get_register(HV_REGISTER_TIME_REF_COUNT);
++	/*
++	 * The Hyper-V Top-Level Function Spec (TLFS), section Timers,
++	 * subsection Refererence Counter, guarantees that the TSC and MSR
++	 * times are in sync and monotonic. Therefore we can fall back
++	 * to the MSR in case the TSC page indicates unavailability.
++	 */
++	if (!hv_read_tsc_page_tsc(tsc_page, &cur_tsc, &time))
++		time = hv_get_register(HV_REGISTER_TIME_REF_COUNT);
+ 
+-	return current_tick;
++	return time;
+ }
+ 
+ static u64 notrace read_hv_clock_tsc_cs(struct clocksource *arg)
+--- a/include/clocksource/hyperv_timer.h
++++ b/include/clocksource/hyperv_timer.h
+@@ -38,8 +38,9 @@ extern void hv_remap_tsc_clocksource(voi
+ extern unsigned long hv_get_tsc_pfn(void);
+ extern struct ms_hyperv_tsc_page *hv_get_tsc_page(void);
+ 
+-static inline notrace u64
+-hv_read_tsc_page_tsc(const struct ms_hyperv_tsc_page *tsc_pg, u64 *cur_tsc)
++static __always_inline bool
++hv_read_tsc_page_tsc(const struct ms_hyperv_tsc_page *tsc_pg,
++		     u64 *cur_tsc, u64 *time)
+ {
+ 	u64 scale, offset;
+ 	u32 sequence;
+@@ -63,7 +64,7 @@ hv_read_tsc_page_tsc(const struct ms_hyp
+ 	do {
+ 		sequence = READ_ONCE(tsc_pg->tsc_sequence);
+ 		if (!sequence)
+-			return U64_MAX;
++			return false;
+ 		/*
+ 		 * Make sure we read sequence before we read other values from
+ 		 * TSC page.
+@@ -82,15 +83,8 @@ hv_read_tsc_page_tsc(const struct ms_hyp
+ 
+ 	} while (READ_ONCE(tsc_pg->tsc_sequence) != sequence);
+ 
+-	return mul_u64_u64_shr(*cur_tsc, scale, 64) + offset;
+-}
+-
+-static inline notrace u64
+-hv_read_tsc_page(const struct ms_hyperv_tsc_page *tsc_pg)
+-{
+-	u64 cur_tsc;
+-
+-	return hv_read_tsc_page_tsc(tsc_pg, &cur_tsc);
++	*time = mul_u64_u64_shr(*cur_tsc, scale, 64) + offset;
++	return true;
+ }
+ 
+ #else /* CONFIG_HYPERV_TIMER */
+@@ -104,10 +98,10 @@ static inline struct ms_hyperv_tsc_page
+ 	return NULL;
+ }
+ 
+-static inline u64 hv_read_tsc_page_tsc(const struct ms_hyperv_tsc_page *tsc_pg,
+-				       u64 *cur_tsc)
++static __always_inline bool
++hv_read_tsc_page_tsc(const struct ms_hyperv_tsc_page *tsc_pg, u64 *cur_tsc, u64 *time)
+ {
+-	return U64_MAX;
++	return false;
+ }
+ 
+ static inline int hv_stimer_cleanup(unsigned int cpu) { return 0; }
 
- drivers/s390/block/dasd_eckd.c | 33 +++++++++++++++++++++++++++++++--
- 1 file changed, 31 insertions(+), 2 deletions(-)
-
--- 
-2.39.2
 
