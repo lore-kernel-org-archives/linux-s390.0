@@ -2,43 +2,43 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 02E68C7EE2E
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0139DC7EE23
 	for <linux-s390@archiver.kernel.org>; Fri, 19 May 2023 10:34:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231948AbjESKeU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 19 May 2023 06:34:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53640 "EHLO
+        id S231958AbjESKeV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 19 May 2023 06:34:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231932AbjESKeM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 19 May 2023 06:34:12 -0400
+        with ESMTP id S231920AbjESKeS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 19 May 2023 06:34:18 -0400
 Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9358A10F5;
-        Fri, 19 May 2023 03:34:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E571610D9;
+        Fri, 19 May 2023 03:34:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=desiato.20200630; h=Content-Type:MIME-Version:References:
         Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
         Content-ID:Content-Description:In-Reply-To;
-        bh=YKwqF+BUvFX/eM4sVo4oYqYCF/ZGTA0lXMxYZ5TRTwg=; b=nThm858ZrHzNO23eD6wR31ciwE
-        x58F2HwKZ7dRAXG6f+BjqKOAdxpfqCDGfd4O+9QOYCETZe6KwTkDvdcS+urMnFoDb0XAFn5cZf5Jb
-        USmR2+R7fZRNW+sAUJOz8Qr7tfOZwBvKcJplaAvug3uZrKLsOVlJY1RLCfFVvjW022AFyKU60blBK
-        /NYfGaPir9Wm8y6qd2NdN74E7cmTt19yBte5ieU75rebcHtSVqpFrNafD8uMhJKc9OdXa+OtkCRgK
-        H+ZoX5Z72bDBHvE6ZQNpn5rZSXXufP8PR+5eAzIjGIZri6Qcz/K6n6SFWo1Wht92C2G7fBe18aXuB
-        32XxWojg==;
+        bh=q8KX/nmGPO6A9N1mK4qTgAMVm27t7iwShesZJrnat4g=; b=RUkLbIsJVPK/qLcIE1IdakqBHq
+        VlobrljSWru4F3SJO5gMX7c7PZIX1pB8sUkaYe50E7aHq3d+yyKPHzkGio/P8TWpAKfciEdoPxtnc
+        KFZ2sVG/B370biDNoG3HePiHHXT7Yx9Y2B007XJnAEISMPp+Ho6Y2i9489Y6GDqopu057qwAbbAYU
+        WbHY+vozrxyGh6JapKw0khAbEJaQ2oOrvICif05nNEW+CzocVAN9T1Esij5670JeY4Yfnr2fxw/pS
+        oFXMcQ+q42zF3VDJjPv3I1aXwqPimtcc73By5nS8BkQMH4auTMutFdCpmVk3lhJEhlVKu3oKukt5H
+        Y3MGXwAA==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
         by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
-        id 1pzxPv-00FrWQ-07;
+        id 1pzxPv-00FrWV-2D;
         Fri, 19 May 2023 10:32:59 +0000
 Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (4096 bits))
         (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 2B57C306146;
-        Fri, 19 May 2023 12:32:56 +0200 (CEST)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id F24813033CB;
+        Fri, 19 May 2023 12:32:55 +0200 (CEST)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
-        id D8C6A235EF0B1; Fri, 19 May 2023 12:32:55 +0200 (CEST)
-Message-ID: <20230519102715.704767397@infradead.org>
+        id BADF1235EF095; Fri, 19 May 2023 12:32:55 +0200 (CEST)
+Message-ID: <20230519102715.368919762@infradead.org>
 User-Agent: quilt/0.66
-Date:   Fri, 19 May 2023 12:21:06 +0200
+Date:   Fri, 19 May 2023 12:21:01 +0200
 From:   Peter Zijlstra <peterz@infradead.org>
 To:     bigeasy@linutronix.de
 Cc:     mark.rutland@arm.com, maz@kernel.org, catalin.marinas@arm.com,
@@ -61,7 +61,7 @@ Cc:     mark.rutland@arm.com, maz@kernel.org, catalin.marinas@arm.com,
         loongarch@lists.linux.dev, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org, linux-hyperv@vger.kernel.org,
         linux-pm@vger.kernel.org
-Subject: [PATCH v2 08/13] x86/vdso: Fix gettimeofday masking
+Subject: [PATCH v2 03/13] arm64/io: Always inline all of __raw_{read,write}[bwlq]()
 References: <20230519102058.581557770@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -69,109 +69,70 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Because of how the virtual clocks use U64_MAX as an exception value
-instead of a valid time, the clocks can no longer be assumed to wrap
-cleanly. This is then compounded by arch_vdso_cycles_ok() rejecting
-everything with the MSB/Sign-bit set.
+The next patch will want to use __raw_readl() from a noinstr section
+and as such that needs to be marked __always_inline to avoid the
+compiler being a silly bugger.
 
-Therefore, the effective mask becomes S64_MAX, and the comment with
-vdso_calc_delta() that states the mask is U64_MAX and isn't optimized
-out is just plain silly.
-
-Now, the code has a negative filter -- to deal with TSC wobbles:
-
-	if (cycles > last)
-
-which is just plain wrong, because it should've been written as:
-
-	if ((s64)(cycles - last) > 0)
-
-to take wrapping into account, but per all the above, we don't
-actually wrap on u64 anymore.
+Turns out it already is, but its siblings are not. Finish the work
+started in commit e43f1331e2ef913b ("arm64: Ask the compiler to
+__always_inline functions used by KVM at HYP") for consistenies sake.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 ---
- arch/x86/include/asm/vdso/gettimeofday.h |   39 ++++++++++++++++++++++---------
- 1 file changed, 28 insertions(+), 11 deletions(-)
+ arch/arm64/include/asm/io.h |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/arch/x86/include/asm/vdso/gettimeofday.h
-+++ b/arch/x86/include/asm/vdso/gettimeofday.h
-@@ -231,14 +231,17 @@ static u64 vread_pvclock(void)
- 		ret = __pvclock_read_cycles(pvti, rdtsc_ordered());
- 	} while (pvclock_read_retry(pvti, version));
- 
--	return ret;
-+	return ret & S64_MAX;
- }
- #endif
- 
- #ifdef CONFIG_HYPERV_TIMER
- static u64 vread_hvclock(void)
- {
--	return hv_read_tsc_page(&hvclock_page);
-+	u64 ret = hv_read_tsc_page(&hvclock_page);
-+	if (likely(ret != U64_MAX))
-+		ret &= S64_MAX;
-+	return ret;
- }
- #endif
- 
-@@ -246,7 +249,7 @@ static inline u64 __arch_get_hw_counter(
- 					const struct vdso_data *vd)
- {
- 	if (likely(clock_mode == VDSO_CLOCKMODE_TSC))
--		return (u64)rdtsc_ordered();
-+		return (u64)rdtsc_ordered() & S64_MAX;
- 	/*
- 	 * For any memory-mapped vclock type, we need to make sure that gcc
- 	 * doesn't cleverly hoist a load before the mode check.  Otherwise we
-@@ -284,6 +287,9 @@ static inline bool arch_vdso_clocksource
-  * which can be invalidated asynchronously and indicate invalidation by
-  * returning U64_MAX, which can be effectively tested by checking for a
-  * negative value after casting it to s64.
-+ *
-+ * This effectively forces a S64_MAX mask on the calculations, unlike the
-+ * U64_MAX mask normally used by x86 clocksources.
+--- a/arch/arm64/include/asm/io.h
++++ b/arch/arm64/include/asm/io.h
+@@ -22,13 +22,13 @@
+  * Generic IO read/write.  These perform native-endian accesses.
   */
- static inline bool arch_vdso_cycles_ok(u64 cycles)
+ #define __raw_writeb __raw_writeb
+-static inline void __raw_writeb(u8 val, volatile void __iomem *addr)
++static __always_inline void __raw_writeb(u8 val, volatile void __iomem *addr)
  {
-@@ -303,18 +309,29 @@ static inline bool arch_vdso_cycles_ok(u
-  * @last. If not then use @last, which is the base time of the current
-  * conversion period.
-  *
-- * This variant also removes the masking of the subtraction because the
-- * clocksource mask of all VDSO capable clocksources on x86 is U64_MAX
-- * which would result in a pointless operation. The compiler cannot
-- * optimize it away as the mask comes from the vdso data and is not compile
-- * time constant.
-+ * This variant also uses a custom mask because while the clocksource mask of
-+ * all the VDSO capable clocksources on x86 is U64_MAX, the above code uses
-+ * U64_MASK as an exception value, additionally arch_vdso_cycles_ok() above
-+ * declares everything with the MSB/Sign-bit set as invalid. Therefore the
-+ * effective mask is S64_MAX.
-  */
- static __always_inline
- u64 vdso_calc_delta(u64 cycles, u64 last, u64 mask, u32 mult)
- {
--	if (cycles > last)
--		return (cycles - last) * mult;
--	return 0;
-+	/*
-+	 * Due to the MSB/Sign-bit being used as invald marker (see
-+	 * arch_vdso_cycles_valid() above), the effective mask is S64_MAX.
-+	 */
-+	u64 delta = (cycles - last) & S64_MAX;
-+
-+	/*
-+	 * Due to the above mentioned TSC wobbles, filter out negative motion.
-+	 * Per the above masking, the effective sign bit is now bit 62.
-+	 */
-+	if (unlikely(delta & (1ULL << 62)))
-+		return 0;
-+
-+	return delta * mult;
+ 	asm volatile("strb %w0, [%1]" : : "rZ" (val), "r" (addr));
  }
- #define vdso_calc_delta vdso_calc_delta
  
+ #define __raw_writew __raw_writew
+-static inline void __raw_writew(u16 val, volatile void __iomem *addr)
++static __always_inline void __raw_writew(u16 val, volatile void __iomem *addr)
+ {
+ 	asm volatile("strh %w0, [%1]" : : "rZ" (val), "r" (addr));
+ }
+@@ -40,13 +40,13 @@ static __always_inline void __raw_writel
+ }
+ 
+ #define __raw_writeq __raw_writeq
+-static inline void __raw_writeq(u64 val, volatile void __iomem *addr)
++static __always_inline void __raw_writeq(u64 val, volatile void __iomem *addr)
+ {
+ 	asm volatile("str %x0, [%1]" : : "rZ" (val), "r" (addr));
+ }
+ 
+ #define __raw_readb __raw_readb
+-static inline u8 __raw_readb(const volatile void __iomem *addr)
++static __always_inline u8 __raw_readb(const volatile void __iomem *addr)
+ {
+ 	u8 val;
+ 	asm volatile(ALTERNATIVE("ldrb %w0, [%1]",
+@@ -57,7 +57,7 @@ static inline u8 __raw_readb(const volat
+ }
+ 
+ #define __raw_readw __raw_readw
+-static inline u16 __raw_readw(const volatile void __iomem *addr)
++static __always_inline u16 __raw_readw(const volatile void __iomem *addr)
+ {
+ 	u16 val;
+ 
+@@ -80,7 +80,7 @@ static __always_inline u32 __raw_readl(c
+ }
+ 
+ #define __raw_readq __raw_readq
+-static inline u64 __raw_readq(const volatile void __iomem *addr)
++static __always_inline u64 __raw_readq(const volatile void __iomem *addr)
+ {
+ 	u64 val;
+ 	asm volatile(ALTERNATIVE("ldr %0, [%1]",
 
 
