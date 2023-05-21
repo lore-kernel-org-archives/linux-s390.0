@@ -2,92 +2,205 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DBDDBC77B75
-	for <linux-s390@archiver.kernel.org>; Sat, 20 May 2023 02:04:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BC440C7EE2A
+	for <linux-s390@archiver.kernel.org>; Sun, 21 May 2023 15:30:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232079AbjETCEq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 19 May 2023 22:04:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55812 "EHLO
+        id S229957AbjEUPaT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 21 May 2023 11:30:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232116AbjETCEg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 19 May 2023 22:04:36 -0400
-Received: from mail-pf1-x434.google.com (mail-pf1-x434.google.com [IPv6:2607:f8b0:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A19DD19F
-        for <linux-s390@vger.kernel.org>; Fri, 19 May 2023 19:04:35 -0700 (PDT)
-Received: by mail-pf1-x434.google.com with SMTP id d2e1a72fcca58-64d2f3dd990so75458b3a.0
-        for <linux-s390@vger.kernel.org>; Fri, 19 May 2023 19:04:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20221208.gappssmtp.com; s=20221208; t=1684548275; x=1687140275;
-        h=content-transfer-encoding:mime-version:date:message-id:subject
-         :references:in-reply-to:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=gGe9Nc9BeHNizvKK3VU+pxhVmUWR1oWUAke0/9k7WD8=;
-        b=tHEb028/KUxUSaTgpPc/28suUZxYWjjsyaHnRg3w5QMOJ2k1NF9aMJSdHcT66Z8DUa
-         1HPxXliERGuRNqFTtFcPXH776hkBWvo0kSVKh0ByZ1znsQ+njYwluKts5GSIRLqLyNin
-         sXHJBPuO+InJazgz1+6nQrvx+gZ/AdZMwuGA8sRp1GvSDSGUiE1IL0l9hMoQkg06VIR1
-         o9U2IqVW+ynmIP8EeHGqiCoh+R/fx+tL6XjwcV3rBBv2Wupfb+gN1c5FT2Le/xDXunh6
-         wpp3lfZ4fJAr71fXPwJzz+lqMMYFpXlXz5hTs2B1dq5vKA8SPd0aoPD0a1WwYBvZICPO
-         ogmQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1684548275; x=1687140275;
-        h=content-transfer-encoding:mime-version:date:message-id:subject
-         :references:in-reply-to:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=gGe9Nc9BeHNizvKK3VU+pxhVmUWR1oWUAke0/9k7WD8=;
-        b=XjoaVAS7V+rt2SIcVq720nTymkVxtsIf93KcjfYCRciNiGQ/9pYm5kzqJXKKocC03Q
-         PNZiydINQk7uFjbeMa7HQTxhhrUJGDOx+kSskD4udEmE0AHv07qPUjepefEVPRQUGeeE
-         qIt3G9osEr3faNgRSr9xmoQVV34DPSQvVz2jRycKyl8uSMs9WZsvOHM4QcixFXNUXDCk
-         wsS/pJNv9IhZtUlk4GCu2SnIOjrRi7At+DxCvAf7pys3yEAKacFyG1apdsG2IqqVV3QG
-         raw7xjqVasUb/lwTvHjN+H4keTeflxY/YtVC9hUx7v32ptb5oFFztu4KU7d7rrx+VqXB
-         jftg==
-X-Gm-Message-State: AC+VfDw5YDVD5cZvtXN5FvOquWgvYptFu8lhW1seyPZ4HalyPd75UmGL
-        PHbFqVHFxGVxqjhhFKXoOsIYOw==
-X-Google-Smtp-Source: ACHHUZ420I8w5cMEDjcCKCeXDVBNGiVE3EUeucCB9hocGT8LtryZcSkmqV/Sy+qNY042k6HbwpO34A==
-X-Received: by 2002:a17:902:d506:b0:1ae:4a37:d5af with SMTP id b6-20020a170902d50600b001ae4a37d5afmr4903713plg.0.1684548275053;
-        Fri, 19 May 2023 19:04:35 -0700 (PDT)
-Received: from [127.0.0.1] ([198.8.77.157])
-        by smtp.gmail.com with ESMTPSA id l6-20020a170902f68600b001ac706dd98bsm298922plg.35.2023.05.19.19.04.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 19 May 2023 19:04:34 -0700 (PDT)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     Stefan Haberland <sth@linux.ibm.com>
-Cc:     linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20230519102340.3854819-1-sth@linux.ibm.com>
-References: <20230519102340.3854819-1-sth@linux.ibm.com>
-Subject: Re: [PATCH 0/1] s390/dasd: fix command reject error on ESE devices
-Message-Id: <168454827323.386102.15092676317625303889.b4-ty@kernel.dk>
-Date:   Fri, 19 May 2023 20:04:33 -0600
+        with ESMTP id S229497AbjEUPaT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 21 May 2023 11:30:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AB91BD;
+        Sun, 21 May 2023 08:30:18 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A12FE61528;
+        Sun, 21 May 2023 15:30:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 093F3C433B4;
+        Sun, 21 May 2023 15:30:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1684683017;
+        bh=YPMM/8GlJbBOcfom5pOdN7LyjQ75t5SA5nQ04f6GwkY=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=mO11FJAL4r8D0kMZRd46uYx1Xli83ofHh+hlst3r2IWQiSr2efthW0UDDilhWb5J4
+         TBufuNw+KMqv+QWOWzbJ91HqLYirOZNhOeziKTs6mFvsBzbq4/Rh9998v7waFBKXQ/
+         LDbk8HCtZOCsm/0PLSC18CBVktLPbOVh97m5WGcA5U+rrFUILIedpBrHl5BiesvRc4
+         ILxWiKbrjOJ7k8qAHBkc0SyHuC7VcH23et+XIbb64kZ4A7dnDSFTgtwAkYOKmMPhv2
+         QZMGqUwsHNKxGVkiOZnxlSKNECbnQHk1HX/NCka1LKBxNnv49Q4LcGZR5nawIL91Yt
+         /lL358K44LExQ==
+Received: by mail-ed1-f46.google.com with SMTP id 4fb4d7f45d1cf-510ede0f20aso5371329a12.3;
+        Sun, 21 May 2023 08:30:16 -0700 (PDT)
+X-Gm-Message-State: AC+VfDx4R9dgPEceHo7udNLdC4tYnrO+BRH3QCRQfShbs7C70+NF83LX
+        qvz71hw2VS6Vx/9AGxBPdG3oURW8AGMpsPQrPLY=
+X-Google-Smtp-Source: ACHHUZ7fC7VoTCmxVvgnj+XprmdOzTdADfx+p51AfUU2RX+IjuemmurGhjjXvb4ZOHMk5eyEyL8M50rHqnEzEEon25w=
+X-Received: by 2002:a17:907:8a20:b0:96a:861:a2ac with SMTP id
+ sc32-20020a1709078a2000b0096a0861a2acmr8333246ejc.0.1684683014948; Sun, 21
+ May 2023 08:30:14 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.13-dev-00303
+References: <20230516200341.553413-1-arnd@kernel.org>
+In-Reply-To: <20230516200341.553413-1-arnd@kernel.org>
+From:   Guo Ren <guoren@kernel.org>
+Date:   Sun, 21 May 2023 23:30:03 +0800
+X-Gmail-Original-Message-ID: <CAJF2gTTqoE=Hty7q__m_4zvTOpC8cDpnK1ghEuFVZ+KrA7xmfA@mail.gmail.com>
+Message-ID: <CAJF2gTTqoE=Hty7q__m_4zvTOpC8cDpnK1ghEuFVZ+KrA7xmfA@mail.gmail.com>
+Subject: Re: [PATCH] irq_work: consolidate arch_irq_work_raise prototypes
+To:     Arnd Bergmann <arnd@kernel.org>
+Cc:     Ingo Molnar <mingo@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        x86@kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org, linux-csky@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Wed, May 17, 2023 at 4:03=E2=80=AFAM Arnd Bergmann <arnd@kernel.org> wro=
+te:
+>
+> From: Arnd Bergmann <arnd@arndb.de>
+>
+> The prototype was hidden on x86, which causes a warning:
+>
+> kernel/irq_work.c:72:13: error: no previous prototype for 'arch_irq_work_=
+raise' [-Werror=3Dmissing-prototypes]
+>
+> Fix this by providing it in only one place that is always visible.
+>
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+>  arch/arm/include/asm/irq_work.h     | 2 --
+>  arch/arm64/include/asm/irq_work.h   | 2 --
+>  arch/csky/include/asm/irq_work.h    | 2 +-
+>  arch/powerpc/include/asm/irq_work.h | 1 -
+>  arch/riscv/include/asm/irq_work.h   | 2 +-
+>  arch/s390/include/asm/irq_work.h    | 2 --
+>  arch/x86/include/asm/irq_work.h     | 1 -
+>  include/linux/irq_work.h            | 3 +++
+>  8 files changed, 5 insertions(+), 10 deletions(-)
+>
+> diff --git a/arch/arm/include/asm/irq_work.h b/arch/arm/include/asm/irq_w=
+ork.h
+> index 3149e4dc1b54..8895999834cc 100644
+> --- a/arch/arm/include/asm/irq_work.h
+> +++ b/arch/arm/include/asm/irq_work.h
+> @@ -9,6 +9,4 @@ static inline bool arch_irq_work_has_interrupt(void)
+>         return is_smp();
+>  }
+>
+> -extern void arch_irq_work_raise(void);
+> -
+>  #endif /* _ASM_ARM_IRQ_WORK_H */
+> diff --git a/arch/arm64/include/asm/irq_work.h b/arch/arm64/include/asm/i=
+rq_work.h
+> index 81bbfa3a035b..a1020285ea75 100644
+> --- a/arch/arm64/include/asm/irq_work.h
+> +++ b/arch/arm64/include/asm/irq_work.h
+> @@ -2,8 +2,6 @@
+>  #ifndef __ASM_IRQ_WORK_H
+>  #define __ASM_IRQ_WORK_H
+>
+> -extern void arch_irq_work_raise(void);
+> -
+>  static inline bool arch_irq_work_has_interrupt(void)
+>  {
+>         return true;
+> diff --git a/arch/csky/include/asm/irq_work.h b/arch/csky/include/asm/irq=
+_work.h
+> index 33aaf39d6f94..d39fcc1f5395 100644
+> --- a/arch/csky/include/asm/irq_work.h
+> +++ b/arch/csky/include/asm/irq_work.h
+> @@ -7,5 +7,5 @@ static inline bool arch_irq_work_has_interrupt(void)
+>  {
+>         return true;
+>  }
+> -extern void arch_irq_work_raise(void);
+> +
+Acked-by: Guo Ren <guoren@kernel.org>
 
-On Fri, 19 May 2023 12:23:39 +0200, Stefan Haberland wrote:
-> please apply the following patch that fixes formatting a thin provisioned
-> device in a copy relation.
-> 
-> Thanks.
-> 
-> Stefan Haberland (1):
->   s390/dasd: fix command reject error on ESE devices
-> 
-> [...]
+>  #endif /* __ASM_CSKY_IRQ_WORK_H */
+> diff --git a/arch/powerpc/include/asm/irq_work.h b/arch/powerpc/include/a=
+sm/irq_work.h
+> index b8b0be8f1a07..c6d3078bd8c3 100644
+> --- a/arch/powerpc/include/asm/irq_work.h
+> +++ b/arch/powerpc/include/asm/irq_work.h
+> @@ -6,6 +6,5 @@ static inline bool arch_irq_work_has_interrupt(void)
+>  {
+>         return true;
+>  }
+> -extern void arch_irq_work_raise(void);
+>
+>  #endif /* _ASM_POWERPC_IRQ_WORK_H */
+> diff --git a/arch/riscv/include/asm/irq_work.h b/arch/riscv/include/asm/i=
+rq_work.h
+> index b53891964ae0..b27a4d64fc6a 100644
+> --- a/arch/riscv/include/asm/irq_work.h
+> +++ b/arch/riscv/include/asm/irq_work.h
+> @@ -6,5 +6,5 @@ static inline bool arch_irq_work_has_interrupt(void)
+>  {
+>         return IS_ENABLED(CONFIG_SMP);
+>  }
+> -extern void arch_irq_work_raise(void);
+> +
+>  #endif /* _ASM_RISCV_IRQ_WORK_H */
+> diff --git a/arch/s390/include/asm/irq_work.h b/arch/s390/include/asm/irq=
+_work.h
+> index 603783766d0a..f00c9f610d5a 100644
+> --- a/arch/s390/include/asm/irq_work.h
+> +++ b/arch/s390/include/asm/irq_work.h
+> @@ -7,6 +7,4 @@ static inline bool arch_irq_work_has_interrupt(void)
+>         return true;
+>  }
+>
+> -void arch_irq_work_raise(void);
+> -
+>  #endif /* _ASM_S390_IRQ_WORK_H */
+> diff --git a/arch/x86/include/asm/irq_work.h b/arch/x86/include/asm/irq_w=
+ork.h
+> index 800ffce0db29..6b4d36c95165 100644
+> --- a/arch/x86/include/asm/irq_work.h
+> +++ b/arch/x86/include/asm/irq_work.h
+> @@ -9,7 +9,6 @@ static inline bool arch_irq_work_has_interrupt(void)
+>  {
+>         return boot_cpu_has(X86_FEATURE_APIC);
+>  }
+> -extern void arch_irq_work_raise(void);
+>  #else
+>  static inline bool arch_irq_work_has_interrupt(void)
+>  {
+> diff --git a/include/linux/irq_work.h b/include/linux/irq_work.h
+> index 8cd11a223260..136f2980cba3 100644
+> --- a/include/linux/irq_work.h
+> +++ b/include/linux/irq_work.h
+> @@ -66,6 +66,9 @@ void irq_work_sync(struct irq_work *work);
+>  void irq_work_run(void);
+>  bool irq_work_needs_cpu(void);
+>  void irq_work_single(void *arg);
+> +
+> +void arch_irq_work_raise(void);
+> +
+>  #else
+>  static inline bool irq_work_needs_cpu(void) { return false; }
+>  static inline void irq_work_run(void) { }
+> --
+> 2.39.2
+>
 
-Applied, thanks!
 
-[1/1] s390/dasd: fix command reject error on ESE devices
-      commit: c99bff34290f1b994073557b754aff86e4c7b22e
-
-Best regards,
--- 
-Jens Axboe
-
-
-
+--=20
+Best Regards
+ Guo Ren
