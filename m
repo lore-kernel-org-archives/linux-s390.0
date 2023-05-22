@@ -2,205 +2,110 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BC440C7EE2A
-	for <linux-s390@archiver.kernel.org>; Sun, 21 May 2023 15:30:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DA9AC77B73
+	for <linux-s390@archiver.kernel.org>; Mon, 22 May 2023 11:21:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229957AbjEUPaT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 21 May 2023 11:30:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50704 "EHLO
+        id S230284AbjEVLVF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 22 May 2023 07:21:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229497AbjEUPaT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 21 May 2023 11:30:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AB91BD;
-        Sun, 21 May 2023 08:30:18 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A12FE61528;
-        Sun, 21 May 2023 15:30:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 093F3C433B4;
-        Sun, 21 May 2023 15:30:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1684683017;
-        bh=YPMM/8GlJbBOcfom5pOdN7LyjQ75t5SA5nQ04f6GwkY=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=mO11FJAL4r8D0kMZRd46uYx1Xli83ofHh+hlst3r2IWQiSr2efthW0UDDilhWb5J4
-         TBufuNw+KMqv+QWOWzbJ91HqLYirOZNhOeziKTs6mFvsBzbq4/Rh9998v7waFBKXQ/
-         LDbk8HCtZOCsm/0PLSC18CBVktLPbOVh97m5WGcA5U+rrFUILIedpBrHl5BiesvRc4
-         ILxWiKbrjOJ7k8qAHBkc0SyHuC7VcH23et+XIbb64kZ4A7dnDSFTgtwAkYOKmMPhv2
-         QZMGqUwsHNKxGVkiOZnxlSKNECbnQHk1HX/NCka1LKBxNnv49Q4LcGZR5nawIL91Yt
-         /lL358K44LExQ==
-Received: by mail-ed1-f46.google.com with SMTP id 4fb4d7f45d1cf-510ede0f20aso5371329a12.3;
-        Sun, 21 May 2023 08:30:16 -0700 (PDT)
-X-Gm-Message-State: AC+VfDx4R9dgPEceHo7udNLdC4tYnrO+BRH3QCRQfShbs7C70+NF83LX
-        qvz71hw2VS6Vx/9AGxBPdG3oURW8AGMpsPQrPLY=
-X-Google-Smtp-Source: ACHHUZ7fC7VoTCmxVvgnj+XprmdOzTdADfx+p51AfUU2RX+IjuemmurGhjjXvb4ZOHMk5eyEyL8M50rHqnEzEEon25w=
-X-Received: by 2002:a17:907:8a20:b0:96a:861:a2ac with SMTP id
- sc32-20020a1709078a2000b0096a0861a2acmr8333246ejc.0.1684683014948; Sun, 21
- May 2023 08:30:14 -0700 (PDT)
+        with ESMTP id S233366AbjEVLUr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 22 May 2023 07:20:47 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3F761FCC;
+        Mon, 22 May 2023 04:15:33 -0700 (PDT)
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34MBD103025377;
+        Mon, 22 May 2023 11:15:28 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
+ mime-version : content-transfer-encoding : in-reply-to : references : from
+ : cc : to : subject : message-id : date; s=pp1;
+ bh=kMu/7HDiibeWzBdeM+aTotKz1COqRbYEQc0nx3P3CxQ=;
+ b=fetfTBBYiTK1pDgmJCfP6Dfb6ixeDlUBP3U7lmi6U+9DiJTbT25e9sugTU75L4fygMAE
+ xS68+tphRjG7tMEieolPKStH1pUplJgVFe6lzH619048VDt1FYqSUDbhiKwcSZWtSNX7
+ 51V9wrLe9JK97KF0EKjA/FFXNEkU+nGQKOPhOPOrDeAC84x+LG1G9HlJe8ZNqa9tTEdW
+ R7OOFamCh9+Qv2b5bVTsAKpYl31nZl/dWnw+YEY3KDLEPD29vbPfSbQQVsmQrRVv7eQG
+ eEZlYjBjRmSOO3KjG5OzjXx+ZT5JZLLbsGR5+76Oi6hig7iMQ6ULLmooCaAemyoYAhGr xA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qqawepe2y-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 22 May 2023 11:15:27 +0000
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34MB744A001588;
+        Mon, 22 May 2023 11:15:27 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qqawepe2g-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 22 May 2023 11:15:27 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34M3fjvK027623;
+        Mon, 22 May 2023 11:15:25 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3qppcu8wtt-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 22 May 2023 11:15:25 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34MBFMbe35324176
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 22 May 2023 11:15:22 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1DDAE20040;
+        Mon, 22 May 2023 11:15:19 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E8CBE2004B;
+        Mon, 22 May 2023 11:15:18 +0000 (GMT)
+Received: from t14-nrb (unknown [9.179.8.191])
+        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Mon, 22 May 2023 11:15:18 +0000 (GMT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20230516200341.553413-1-arnd@kernel.org>
-In-Reply-To: <20230516200341.553413-1-arnd@kernel.org>
-From:   Guo Ren <guoren@kernel.org>
-Date:   Sun, 21 May 2023 23:30:03 +0800
-X-Gmail-Original-Message-ID: <CAJF2gTTqoE=Hty7q__m_4zvTOpC8cDpnK1ghEuFVZ+KrA7xmfA@mail.gmail.com>
-Message-ID: <CAJF2gTTqoE=Hty7q__m_4zvTOpC8cDpnK1ghEuFVZ+KrA7xmfA@mail.gmail.com>
-Subject: Re: [PATCH] irq_work: consolidate arch_irq_work_raise prototypes
-To:     Arnd Bergmann <arnd@kernel.org>
-Cc:     Ingo Molnar <mingo@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        x86@kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org, linux-csky@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20230519112236.14332-2-pmorel@linux.ibm.com>
+References: <20230519112236.14332-1-pmorel@linux.ibm.com> <20230519112236.14332-2-pmorel@linux.ibm.com>
+From:   Nico Boehr <nrb@linux.ibm.com>
+Cc:     frankja@linux.ibm.com, thuth@redhat.com, kvm@vger.kernel.org,
+        imbrenda@linux.ibm.com, david@redhat.com, nsg@linux.ibm.com
+To:     Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: Re: [kvm-unit-tests PATCH v9 1/2] s390x: topology: Check the Perform Topology Function
+Message-ID: <168475411852.27238.14110102220289082947@t14-nrb>
+User-Agent: alot/0.8.1
+Date:   Mon, 22 May 2023 13:15:18 +0200
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 7JuCXINHHL83iHL5Z5xQ0IOwYlFmNXpe
+X-Proofpoint-GUID: Ll0-Vc3tR6kCX-YG-RUsk-XsM2ItW41O
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-05-22_06,2023-05-22_03,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 adultscore=0
+ clxscore=1015 malwarescore=0 phishscore=0 spamscore=0 mlxscore=0
+ priorityscore=1501 bulkscore=0 suspectscore=0 lowpriorityscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2304280000 definitions=main-2305220094
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, May 17, 2023 at 4:03=E2=80=AFAM Arnd Bergmann <arnd@kernel.org> wro=
-te:
->
-> From: Arnd Bergmann <arnd@arndb.de>
->
-> The prototype was hidden on x86, which causes a warning:
->
-> kernel/irq_work.c:72:13: error: no previous prototype for 'arch_irq_work_=
-raise' [-Werror=3Dmissing-prototypes]
->
-> Fix this by providing it in only one place that is always visible.
->
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> ---
->  arch/arm/include/asm/irq_work.h     | 2 --
->  arch/arm64/include/asm/irq_work.h   | 2 --
->  arch/csky/include/asm/irq_work.h    | 2 +-
->  arch/powerpc/include/asm/irq_work.h | 1 -
->  arch/riscv/include/asm/irq_work.h   | 2 +-
->  arch/s390/include/asm/irq_work.h    | 2 --
->  arch/x86/include/asm/irq_work.h     | 1 -
->  include/linux/irq_work.h            | 3 +++
->  8 files changed, 5 insertions(+), 10 deletions(-)
->
-> diff --git a/arch/arm/include/asm/irq_work.h b/arch/arm/include/asm/irq_w=
-ork.h
-> index 3149e4dc1b54..8895999834cc 100644
-> --- a/arch/arm/include/asm/irq_work.h
-> +++ b/arch/arm/include/asm/irq_work.h
-> @@ -9,6 +9,4 @@ static inline bool arch_irq_work_has_interrupt(void)
->         return is_smp();
->  }
->
-> -extern void arch_irq_work_raise(void);
-> -
->  #endif /* _ASM_ARM_IRQ_WORK_H */
-> diff --git a/arch/arm64/include/asm/irq_work.h b/arch/arm64/include/asm/i=
-rq_work.h
-> index 81bbfa3a035b..a1020285ea75 100644
-> --- a/arch/arm64/include/asm/irq_work.h
-> +++ b/arch/arm64/include/asm/irq_work.h
-> @@ -2,8 +2,6 @@
->  #ifndef __ASM_IRQ_WORK_H
->  #define __ASM_IRQ_WORK_H
->
-> -extern void arch_irq_work_raise(void);
-> -
->  static inline bool arch_irq_work_has_interrupt(void)
->  {
->         return true;
-> diff --git a/arch/csky/include/asm/irq_work.h b/arch/csky/include/asm/irq=
-_work.h
-> index 33aaf39d6f94..d39fcc1f5395 100644
-> --- a/arch/csky/include/asm/irq_work.h
-> +++ b/arch/csky/include/asm/irq_work.h
-> @@ -7,5 +7,5 @@ static inline bool arch_irq_work_has_interrupt(void)
->  {
->         return true;
->  }
-> -extern void arch_irq_work_raise(void);
+Quoting Pierre Morel (2023-05-19 13:22:35)
+[...]
+> diff --git a/s390x/topology.c b/s390x/topology.c
+> new file mode 100644
+> index 0000000..2acede0
+> --- /dev/null
+> +++ b/s390x/topology.c
+[...]
+> +static void check_privilege(int fc)
+> +{
+> +       unsigned long rc;
 > +
-Acked-by: Guo Ren <guoren@kernel.org>
+> +       report_prefix_push("Privilege");
+> +       report_info("function code %d", fc);
 
->  #endif /* __ASM_CSKY_IRQ_WORK_H */
-> diff --git a/arch/powerpc/include/asm/irq_work.h b/arch/powerpc/include/a=
-sm/irq_work.h
-> index b8b0be8f1a07..c6d3078bd8c3 100644
-> --- a/arch/powerpc/include/asm/irq_work.h
-> +++ b/arch/powerpc/include/asm/irq_work.h
-> @@ -6,6 +6,5 @@ static inline bool arch_irq_work_has_interrupt(void)
->  {
->         return true;
->  }
-> -extern void arch_irq_work_raise(void);
->
->  #endif /* _ASM_POWERPC_IRQ_WORK_H */
-> diff --git a/arch/riscv/include/asm/irq_work.h b/arch/riscv/include/asm/i=
-rq_work.h
-> index b53891964ae0..b27a4d64fc6a 100644
-> --- a/arch/riscv/include/asm/irq_work.h
-> +++ b/arch/riscv/include/asm/irq_work.h
-> @@ -6,5 +6,5 @@ static inline bool arch_irq_work_has_interrupt(void)
->  {
->         return IS_ENABLED(CONFIG_SMP);
->  }
-> -extern void arch_irq_work_raise(void);
-> +
->  #endif /* _ASM_RISCV_IRQ_WORK_H */
-> diff --git a/arch/s390/include/asm/irq_work.h b/arch/s390/include/asm/irq=
-_work.h
-> index 603783766d0a..f00c9f610d5a 100644
-> --- a/arch/s390/include/asm/irq_work.h
-> +++ b/arch/s390/include/asm/irq_work.h
-> @@ -7,6 +7,4 @@ static inline bool arch_irq_work_has_interrupt(void)
->         return true;
->  }
->
-> -void arch_irq_work_raise(void);
-> -
->  #endif /* _ASM_S390_IRQ_WORK_H */
-> diff --git a/arch/x86/include/asm/irq_work.h b/arch/x86/include/asm/irq_w=
-ork.h
-> index 800ffce0db29..6b4d36c95165 100644
-> --- a/arch/x86/include/asm/irq_work.h
-> +++ b/arch/x86/include/asm/irq_work.h
-> @@ -9,7 +9,6 @@ static inline bool arch_irq_work_has_interrupt(void)
->  {
->         return boot_cpu_has(X86_FEATURE_APIC);
->  }
-> -extern void arch_irq_work_raise(void);
->  #else
->  static inline bool arch_irq_work_has_interrupt(void)
->  {
-> diff --git a/include/linux/irq_work.h b/include/linux/irq_work.h
-> index 8cd11a223260..136f2980cba3 100644
-> --- a/include/linux/irq_work.h
-> +++ b/include/linux/irq_work.h
-> @@ -66,6 +66,9 @@ void irq_work_sync(struct irq_work *work);
->  void irq_work_run(void);
->  bool irq_work_needs_cpu(void);
->  void irq_work_single(void *arg);
-> +
-> +void arch_irq_work_raise(void);
-> +
->  #else
->  static inline bool irq_work_needs_cpu(void) { return false; }
->  static inline void irq_work_run(void) { }
-> --
-> 2.39.2
->
+report() messages should be unique.
 
+Can you please make this a
+  report_prefix_pushf("Privileged fc %d", fc);
+and get rid of the report_info()?
 
---=20
-Best Regards
- Guo Ren
+With this change:
+
+Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
