@@ -2,72 +2,72 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B3785C7EE2A
-	for <linux-s390@archiver.kernel.org>; Tue, 23 May 2023 12:21:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F173BC7EE23
+	for <linux-s390@archiver.kernel.org>; Tue, 23 May 2023 13:37:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236796AbjEWMVj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 23 May 2023 08:21:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50166 "EHLO
+        id S235984AbjEWNhj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 23 May 2023 09:37:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235518AbjEWMVi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 23 May 2023 08:21:38 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD436119;
-        Tue, 23 May 2023 05:21:37 -0700 (PDT)
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34NC85Cd010591;
-        Tue, 23 May 2023 12:20:35 GMT
+        with ESMTP id S232554AbjEWNhh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 23 May 2023 09:37:37 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93797CA;
+        Tue, 23 May 2023 06:37:36 -0700 (PDT)
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34NDSIMF005983;
+        Tue, 23 May 2023 13:36:44 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
  from : to : cc : date : in-reply-to : references : content-type :
  content-transfer-encoding : mime-version; s=pp1;
- bh=b/N97QNJLbmr+RhSzhUpL7rxH3poMQwYGelaxe/kHjw=;
- b=ikq5fqhiSpAAT0nJmLp0aCj978Av/rRSS20Vc4ULriCHaM0B7e6jTtTZJvoiEszfEp9B
- l7miWEJ49bMuuMf1IpkL0lHjV9aYJAP4k4tugihoSJ+ulamMiXffid3ZMqXCYrOhemca
- b697LrcX3VA2GTXABwyFzt0QEAzH0LWC47K1qa9a190SlVw00sYxpmR3QWCWyn+lMG0w
- O7Vdf1FG9BiZhYoT+2OE9qZxkgvgdDI6gDcQOXIhpLK6HvUP32YP2uq12Ef/ajaAlWoJ
- s1A8hVsg7S/r9zE0ldTpDCJaPMjUrWa79b/rzIwRHbSCz33LjwGjs4zykqMBYji7DN/U 3g== 
+ bh=z7spHrtrmZ67UDugotEBvSpqHnqw9d1kgSzqBqUyyH8=;
+ b=l5uV2H3ANZt7cmqCfqUK5iS9kT0j0cD2CAjfqHTCGgJkRbP3QBIsXTwqRZt2wQX0lI/K
+ uMnNa3cTxU6YXpQlj233RxDVbXdBt6Zte8kNBs8NkH75pYYPLPK24T+jobk4K/3eu+fx
+ 630m5oGuTHAlOtHNoCpIsVOlatZQ1lDpZGDYSZQ21dB0kv2OGYBzIZDznKF3kSlNDvl/
+ AVKMM8aBKX4IVHOwnhXMaY0Eoya6Gtmu+rqNQXi/NZOzk4gTc7Myn/AUWGR2EDDelmaJ
+ y9+s0c6p3YmEAfNC7agEkSinBX8RLB52Tsd+zw/bGkU+klE60Ex065xFYNSLtemrnMkX MA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qrw2n8kac-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qrws21ke0-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 23 May 2023 12:20:34 +0000
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34NC85YP010666;
-        Tue, 23 May 2023 12:20:33 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qrw2n8k8b-1
+        Tue, 23 May 2023 13:36:43 +0000
+Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34NDSYQS009096;
+        Tue, 23 May 2023 13:36:41 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qrws21j46-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 23 May 2023 12:20:33 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34N2FIwg013811;
-        Tue, 23 May 2023 12:20:30 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3qppcu9f06-1
+        Tue, 23 May 2023 13:36:41 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34N8atFS000463;
+        Tue, 23 May 2023 13:36:03 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma03fra.de.ibm.com (PPS) with ESMTPS id 3qppe097k8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 23 May 2023 12:20:30 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34NCKRRA11338474
+        Tue, 23 May 2023 13:36:03 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34NDZxfm14418472
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 23 May 2023 12:20:27 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E82A02004D;
-        Tue, 23 May 2023 12:20:26 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4EA4820040;
-        Tue, 23 May 2023 12:20:24 +0000 (GMT)
+        Tue, 23 May 2023 13:35:59 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AE48220043;
+        Tue, 23 May 2023 13:35:59 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7F73E2004B;
+        Tue, 23 May 2023 13:35:57 +0000 (GMT)
 Received: from [9.171.22.235] (unknown [9.171.22.235])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 23 May 2023 12:20:24 +0000 (GMT)
-Message-ID: <b06a47fecf5eab9440c1c35d9c7b83fe87f918a0.camel@linux.ibm.com>
-Subject: Re: [PATCH v9 6/6] iommu/dma: Make flush queue sizes and timeout
- driver configurable
+        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Tue, 23 May 2023 13:35:57 +0000 (GMT)
+Message-ID: <5935f5ffdead164cfaedd067cd948d7c551a99ac.camel@linux.ibm.com>
+Subject: Re: [PATCH v9 5/6] iommu/dma: Allow a single FQ in addition to
+ per-CPU FQs
 From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Joerg Roedel <joro@8bytes.org>
-Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
+To:     Robin Murphy <robin.murphy@arm.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
         Will Deacon <will@kernel.org>,
         Wenjia Zhang <wenjia@linux.ibm.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        Gerd Bayer <gbayer@linux.ibm.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>
+Cc:     Gerd Bayer <gbayer@linux.ibm.com>,
         Julian Ruess <julianr@linux.ibm.com>,
         Pierre Morel <pmorel@linux.ibm.com>,
         Alexandra Winter <wintera@linux.ibm.com>,
@@ -106,53 +106,113 @@ Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
         linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
         linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org,
         linux-doc@vger.kernel.org
-Date:   Tue, 23 May 2023 14:20:24 +0200
-In-Reply-To: <ZGuT2R42SWFHmklu@8bytes.org>
+Date:   Tue, 23 May 2023 15:35:57 +0200
+In-Reply-To: <b1e53f39-5e0b-a09d-2954-cdc9e8592b67@arm.com>
 References: <20230310-dma_iommu-v9-0-65bb8edd2beb@linux.ibm.com>
-         <20230310-dma_iommu-v9-6-65bb8edd2beb@linux.ibm.com>
-         <ZGuT2R42SWFHmklu@8bytes.org>
+         <20230310-dma_iommu-v9-5-65bb8edd2beb@linux.ibm.com>
+         <b1e53f39-5e0b-a09d-2954-cdc9e8592b67@arm.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 User-Agent: Evolution 3.48.1 (3.48.1-1.fc38) 
-MIME-Version: 1.0
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: SCHk9GNBzwPXZyeAocq9ZCr1U8UNYoFE
-X-Proofpoint-ORIG-GUID: YIMPkAl4-Wv-r6WPNnYiGonT3FNgmVP_
+X-Proofpoint-GUID: 8LV3zvez_FivvhCrjxTltho7FnbQWNLm
+X-Proofpoint-ORIG-GUID: kjDiC2gMyraUPuAC5gMZ4Q10X1c7HWl8
+Content-Transfer-Encoding: quoted-printable
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
- definitions=2023-05-23_08,2023-05-23_02,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
- bulkscore=0 mlxscore=0 priorityscore=1501 adultscore=0 spamscore=0
- mlxlogscore=686 impostorscore=0 clxscore=1015 lowpriorityscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2304280000 definitions=main-2305230095
+ definitions=2023-05-23_09,2023-05-23_02,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 adultscore=0
+ mlxscore=0 suspectscore=0 lowpriorityscore=0 mlxlogscore=999 spamscore=0
+ malwarescore=0 impostorscore=0 priorityscore=1501 bulkscore=0 phishscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2304280000
+ definitions=main-2305230106
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 2023-05-22 at 18:10 +0200, Joerg Roedel wrote:
-> On Mon, May 15, 2023 at 11:15:56AM +0200, Niklas Schnelle wrote:
-> > In the s390 IOMMU driver a large fixed queue size and timeout is then
-> > set together with single queue mode bringing its performance on s390
-> > paged memory guests on par with the previous s390 specific DMA API
-> > implementation.
+On Mon, 2023-05-22 at 17:26 +0100, Robin Murphy wrote:
+> On 2023-05-15 10:15, Niklas Schnelle wrote:
+> > In some virtualized environments, including s390 paged memory guests,
+> > IOTLB flushes are used to update IOMMU shadow tables. Due to this, they
+> > are much more expensive than in typical bare metal environments or
+> > non-paged s390 guests. In addition they may parallelize more poorly in
+> > virtualized environments. This changes the trade off for flushing IOVAs
+> > such that minimizing the number of IOTLB flushes trumps any benefit of
+> > cheaper queuing operations or increased paralellism.
+> >=20
+> > In this scenario per-CPU flush queues pose several problems. Firstly
+> > per-CPU memory is often quite limited prohibiting larger queues.
+> > Secondly collecting IOVAs per-CPU but flushing via a global timeout
+> > reduces the number of IOVAs flushed for each timeout especially on s390
+> > where PCI interrupts may not be bound to a specific CPU.
+> >=20
+> > Let's introduce a single flush queue mode that reuses the same queue
+> > logic but only allocates a single global queue. This mode can be
+> > selected as a flag bit in a new dma_iommu_options struct which can be
+> > modified from its defaults by IOMMU drivers implementing a new
+> > ops.tune_dma_iommu() callback. As a first user the s390 IOMMU driver
+> > selects the single queue mode if IOTLB flushes are needed on map which
+> > indicates shadow table use. With the unchanged small FQ size and
+> > timeouts this setting is worse than per-CPU queues but a follow up patch
+> > will make the FQ size and timeout variable. Together this allows the
+> > common IOVA flushing code to more closely resemble the global flush
+> > behavior used on s390's previous internal DMA API implementation.
+> >=20
+> > Link: https://lore.kernel.org/linux-iommu/3e402947-61f9-b7e8-1414-fde00=
+6257b6f@arm.com/
+> > Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com> #s390
+> > Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> > ---
+> >   drivers/iommu/dma-iommu.c  | 163 ++++++++++++++++++++++++++++++++++--=
+---------
+> >   drivers/iommu/dma-iommu.h  |   4 +-
+> >   drivers/iommu/iommu.c      |  18 +++--
+> >   drivers/iommu/s390-iommu.c |  10 +++
+> >   include/linux/iommu.h      |  21 ++++++
+> >   5 files changed, 169 insertions(+), 47 deletions(-)
+> >=20
+---8<---
+> >=20=20=20
+> > +/**
+> > + * struct dma_iommu_options - Options for dma-iommu
+> > + *
+> > + * @flags: Flag bits for enabling/disabling dma-iommu settings
+> > + *
+> > + * This structure is intended to provide IOMMU drivers a way to influe=
+nce the
+> > + * behavior of the dma-iommu DMA API implementation. This allows optim=
+izing for
+> > + * example for a virtualized environment with slow IOTLB flushes.
+> > + */
+> > +struct dma_iommu_options {
+> > +#define IOMMU_DMA_OPTS_PER_CPU_QUEUE	(0L << 0)
+> > +#define IOMMU_DMA_OPTS_SINGLE_QUEUE	(1L << 0)
+> > +	u64	flags;
+> > +};
 >=20
-> Hmm, the right flush-queue size and timeout settings are more a function
-> of the endpoint device and device driver than of the iommu driver, no? I
-> think something like this could also help solving the recently reported
-> scalability problems in the fq-code, if done right.
+> I think for now this can just use a bit in dev_iommu to indicate that=20
+> the device will prefer a global flush queue; s390 can set that in=20
+> .probe_device, then iommu_dma_init_domain() can propagate it to an=20
+> equivalent flag in the cookie (possibly even a new cookie type?) that=20
+> iommu_dma_init_fq() can then consume. Then just make the s390 parameters=
+=20
+> from patch #6 the standard parameters for a global queue.
 >=20
-> Regards,
->=20
-> 	Joerg
->=20
+> Thanks,
+> Robin.
 
-In our case the large flush queue and timeout is needed because the
-IOTLB flushes of the virtualized s390 IOMMU are used by KVM and z/VM to
-synchronize their IOMMU shadow tables thus making them more expensive.
-This then applies to all pass-through PCI devices without their drivers
-knowing about the IOMMU being virtualized like that. But yes of course
-there could be cases where the device driver knows better.
+Working on this now. How about I move the struct dma_iommu_options
+definition into dma-iommu.c keeping it as part of struct
+iommu_dma_cookie. That way we can still have the flags, timeout and
+queue size organized the same but internal to dma-iommu.c. We then set
+them in iommu_dma_init_domain() triggered by a "shadow_on_flush" flag
+in struct dev_iommu. That way we can keep most of the same code but
+only add a single flag as external interface. The flag would also be an
+explicit fact about a distinctly IOMMU device thing just stating that
+the IOTLB flushes do extra shadowing work. This leaves the decision to
+then use a longer timeout and queue size within the responsibility of
+dma-iommu.c. I think that's overall a better match of responsibilities.
 
 Thanks,
 Niklas
