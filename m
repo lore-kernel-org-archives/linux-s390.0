@@ -2,127 +2,112 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 616E6C7EE2D
-	for <linux-s390@archiver.kernel.org>; Tue, 23 May 2023 17:59:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 68EB3C7EE2D
+	for <linux-s390@archiver.kernel.org>; Tue, 23 May 2023 18:58:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237912AbjEWR7i (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 23 May 2023 13:59:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53842 "EHLO
+        id S237713AbjEWS6l (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 23 May 2023 14:58:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237894AbjEWR7h (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 23 May 2023 13:59:37 -0400
-Received: from smtp.smtpout.orange.fr (smtp-29.smtpout.orange.fr [80.12.242.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 5C30ECA
-        for <linux-s390@vger.kernel.org>; Tue, 23 May 2023 10:59:35 -0700 (PDT)
-Received: from [192.168.1.18] ([86.243.2.178])
-        by smtp.orange.fr with ESMTPA
-        id 1W6BqAVKjamWk1W6BqhlwN; Tue, 23 May 2023 19:47:04 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=wanadoo.fr;
-        s=t20230301; t=1684864024;
-        bh=yZg3vSPw9MSkRNTDiEkp+0nv0E0aqm0TK0XFzp9sGd0=;
-        h=Date:Subject:From:To:Cc:References:In-Reply-To;
-        b=hoD51IRCfXNwOIunLVcGpHx4XMxeGsVYQ6IwFU8kp+JsSbq/+G/8xmkbL9fe2jnkh
-         M9RcacChxTaOVsCCImmNd6bgxcERFMSGsaj0OSvBZiMyLcWDs/E6RYTT2hYMd1wHQF
-         Omy5eUv7x5SJIPazBXOi+u1LLOC7tEREyW9vANQ3g1INzpMeD4kDT1Im6LGDiAmpNi
-         WV+Mm4wn85MXXMc2aG+HOiCaVi2EMfQ5iDjOWf6WFGVPb7QG1aGKQtuZtnFCC/BBRh
-         YqPPSwGdD91WqNfAIAkmebWdMF7kHaaK7NICSx+yUsKZ5Grf7P7THp22X9P8SneQlf
-         4GrI+5CDk3sbw==
-X-ME-Helo: [192.168.1.18]
-X-ME-Auth: Y2hyaXN0b3BoZS5qYWlsbGV0QHdhbmFkb28uZnI=
-X-ME-Date: Tue, 23 May 2023 19:47:04 +0200
-X-ME-IP: 86.243.2.178
-Message-ID: <98460663-eff1-6f42-1371-6c44ec6dc288@wanadoo.fr>
-Date:   Tue, 23 May 2023 19:47:03 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.11.0
-Subject: Re: [PATCH 1/2][next] vfio/ccw: Replace one-element array with
- flexible-array member
-Content-Language: fr
-From:   Marion & Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-To:     "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        Eric Farman <farman@linux.ibm.com>,
+        with ESMTP id S229834AbjEWS6k (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 23 May 2023 14:58:40 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFB4091;
+        Tue, 23 May 2023 11:58:38 -0700 (PDT)
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34NHuHfO011599;
+        Tue, 23 May 2023 18:58:36 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : content-type : in-reply-to :
+ mime-version; s=pp1; bh=5aC+OJOtsi5c4oLl9XNjE+QV12mOzwsZDutiUzFGjXY=;
+ b=mCxP5xMlCrJzGd7lfuwopfp8nSdPrsYPLxbVCWfT1JH6ZTlEW0rEdGmGjcsqPsHG3sxC
+ iO320IvLGYvZao5uSpRmFJOLzZiokCB5vTYF/b8NypKomxs5roIGuDnMUGGHM3HPnp4c
+ f2jPosuGLG13ceIp2HjDjW+YGIEKWqaZFiLGsnlfLEm5oBgvRRreIB/QrqS+dItszYW/
+ YMJ0pAwQQNQ31ERGASAZWQYGft9x+jtXH/bRUtVOYJ6jowGFCPFLKKiZImcGC4GNpprl
+ 8UO70g94gKBX+ciGEFgMpwAWuFGGKpMJw1kKms1ivHYEwReLLO9eiR0mH0mHBsiWhOHy dA== 
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qs2aqhv9s-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 23 May 2023 18:58:36 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34NHVleh017921;
+        Tue, 23 May 2023 18:58:33 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+        by ppma02fra.de.ibm.com (PPS) with ESMTPS id 3qppcs9bqd-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 23 May 2023 18:58:33 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34NIwUfS24117848
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 23 May 2023 18:58:30 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 19B5320043;
+        Tue, 23 May 2023 18:58:30 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AFC7420040;
+        Tue, 23 May 2023 18:58:28 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.171.19.15])
+        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Tue, 23 May 2023 18:58:28 +0000 (GMT)
+Date:   Tue, 23 May 2023 20:58:26 +0200
+From:   Alexander Gordeev <agordeev@linux.ibm.com>
+To:     "Gustavo A. R. Silva" <gustavoars@kernel.org>
+Cc:     Eric Farman <farman@linux.ibm.com>,
         Matthew Rosato <mjrosato@linux.ibm.com>,
         Halil Pasic <pasic@linux.ibm.com>,
         Vineeth Vijayan <vneethv@linux.ibm.com>,
         Peter Oberparleiter <oberpar@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        Sven Schnelle <svens@linux.ibm.com>,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org
+Subject: Re: [PATCH 0/2][next] vfio/ccw: Replace one-element array with
+ flexible-array member
+Message-ID: <ZG0M0kzWHXcBQa0N@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
 References: <cover.1684805398.git.gustavoars@kernel.org>
- <3c10549ebe1564eade68a2515bde233527376971.1684805398.git.gustavoars@kernel.org>
- <c3a473c2-1d4a-1b8a-648f-7f75b800ecd7@wanadoo.fr>
-In-Reply-To: <c3a473c2-1d4a-1b8a-648f-7f75b800ecd7@wanadoo.fr>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cover.1684805398.git.gustavoars@kernel.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: Pp1HkwHa6AYGcy6FLtk71E6kwDCTo8PM
+X-Proofpoint-GUID: Pp1HkwHa6AYGcy6FLtk71E6kwDCTo8PM
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
+ definitions=2023-05-23_12,2023-05-23_02,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 clxscore=1011
+ bulkscore=0 lowpriorityscore=0 phishscore=0 suspectscore=0 malwarescore=0
+ priorityscore=1501 impostorscore=0 spamscore=0 mlxlogscore=753
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2304280000 definitions=main-2305230150
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Mon, May 22, 2023 at 07:34:41PM -0600, Gustavo A. R. Silva wrote:
+> This small series aims to replace a one-element array with a
+> flexible-array member in struct vfio_ccw_parent.
+> 
+> This helps with the ongoing efforts to tighten the FORTIFY_SOURCE
+> routines on memcpy() and help us make progress towards globally
+> enabling -fstrict-flex-arrays=3 [1].
+> 
+> Link: https://github.com/KSPP/linux/issues/79
+> Link: https://github.com/KSPP/linux/issues/160
+> Link: https://github.com/KSPP/linux/issues/297
+> Link: https://gcc.gnu.org/pipermail/gcc-patches/2022-October/602902.html [1]
+> 
+> Gustavo A. R. Silva (2):
+>   vfio/ccw: Replace one-element array with flexible-array member
+>   vfio/ccw: Use struct_size() helper
+> 
+>  drivers/s390/cio/vfio_ccw_drv.c     | 2 +-
+>  drivers/s390/cio/vfio_ccw_private.h | 2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
 
+Fixed duplicate "the the" in patch #1 commit message and applied.
 
-Le 23/05/2023 à 19:45, Christophe JAILLET a écrit :
-> Le 23/05/2023 à 03:35, Gustavo A. R. Silva a écrit :
->> One-element arrays are deprecated, and we are replacing them with 
->> flexible
->> array members instead. So, replace one-element array with flexible-array
->> member in struct vfio_ccw_parent and refactor the the rest of the code
->> accordingly.
->>
->> Link: https://github.com/KSPP/linux/issues/79
->> Link: https://github.com/KSPP/linux/issues/297
->> Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
->> ---
->>   drivers/s390/cio/vfio_ccw_drv.c     | 3 ++-
->>   drivers/s390/cio/vfio_ccw_private.h | 2 +-
->>   2 files changed, 3 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/s390/cio/vfio_ccw_drv.c 
->> b/drivers/s390/cio/vfio_ccw_drv.c
->> index ff538a086fc7..57906a9c6324 100644
->> --- a/drivers/s390/cio/vfio_ccw_drv.c
->> +++ b/drivers/s390/cio/vfio_ccw_drv.c
->> @@ -171,7 +171,8 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
->>           return -ENODEV;
->>       }
->> -    parent = kzalloc(sizeof(*parent), GFP_KERNEL);
->> +    parent = kzalloc(sizeof(*parent) + sizeof(struct mdev_type *),
-> 
-> Hi, wouldn't:
-> 
->     parent = kzalloc(struct_size(parent, mdev_types, 1)),
-> 
-> be more informative and in the spirit of flexible array use?
-
-Ok, patch 2/2.
-
-Sorry for the noise.
-
-CJ
-
-> 
-> Just my 2c,
-> 
-> CJ
-> 
->> +             GFP_KERNEL);
->>       if (!parent)
->>           return -ENOMEM;
->> diff --git a/drivers/s390/cio/vfio_ccw_private.h 
->> b/drivers/s390/cio/vfio_ccw_private.h
->> index b441ae6700fd..b62bbc5c6376 100644
->> --- a/drivers/s390/cio/vfio_ccw_private.h
->> +++ b/drivers/s390/cio/vfio_ccw_private.h
->> @@ -79,7 +79,7 @@ struct vfio_ccw_parent {
->>       struct mdev_parent    parent;
->>       struct mdev_type    mdev_type;
->> -    struct mdev_type    *mdev_types[1];
->> +    struct mdev_type    *mdev_types[];
->>   };
->>   /**
-> 
-> 
+Thanks!
