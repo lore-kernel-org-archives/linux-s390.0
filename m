@@ -2,36 +2,36 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C6D6C77B75
-	for <linux-s390@archiver.kernel.org>; Tue, 23 May 2023 01:33:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9127BC77B75
+	for <linux-s390@archiver.kernel.org>; Tue, 23 May 2023 01:34:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229645AbjEWBdx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 22 May 2023 21:33:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49780 "EHLO
+        id S232331AbjEWBeY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 22 May 2023 21:34:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229555AbjEWBdw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 22 May 2023 21:33:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 649B58E;
-        Mon, 22 May 2023 18:33:51 -0700 (PDT)
+        with ESMTP id S232046AbjEWBeX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 22 May 2023 21:34:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 445868E;
+        Mon, 22 May 2023 18:34:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0154662339;
-        Tue, 23 May 2023 01:33:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A284C433EF;
-        Tue, 23 May 2023 01:33:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 79B4662D89;
+        Tue, 23 May 2023 01:34:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13F37C433EF;
+        Tue, 23 May 2023 01:34:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1684805630;
-        bh=VLQAZ0ni90Kw6iE14tA7Ei4jvKZaqtf32yr37fGDBu4=;
-        h=Date:From:To:Cc:Subject:From;
-        b=psNKhCSf1o9RfAcrMtHIcPoveO8TCKajkd0vKDcMLyD6rQh5PC7oobvqhSyGR0gZ3
-         0xXNkUft/oNmxPALM1nbNaL/j+5nr5G8P+gRm2bbAC475hPgpX0Q5V8zyvOekpvKkJ
-         rN2b69IWsBAKlzrTFVUt8hTcvd26vOYrM2llEnX0egB/Xi+rAxA6SdgxGTYb5+hwS7
-         IgmnpL90KU8te4ur38R0wFHWWtOqAs3Nj9+5JvFwemYEBrvoscmoB6qRtVMB7MTasb
-         Yf0MwlpFaG3TLe6o11vHtW22acjcBZET8JoojGGZuIk+qXUnMgbdXCn+nZKEcrA0Qx
-         URdn/s/tTGpxA==
-Date:   Mon, 22 May 2023 19:34:41 -0600
+        s=k20201202; t=1684805660;
+        bh=BmXuXL/UqVGFg/YhKou0jzuTdayluGE9Gf9Xkd6BVDg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=VfscvJfn2ijg4fxrfryZM+rU1I0wnEP4MwW1JE7SHohU7DE9kVcS4HjalgALAffN7
+         8d3CKw/1b4BibMj/OUI75yQbJGV5kDG8GAs28Y/i/LwoUTP43GmqVQiin9IEBL7JT+
+         Xmz1mTEKTvhmGB7FPfUDnTcYPIfjOHqoBp7H+ZE4I80oyDsXaUFeXuZXZGUVinrSTf
+         SFkCl0DqANpM+H5LZz7G2s0dorWeznI8JXT0BmR3lkJMtRGu7o4ICJLS7QaFsACoR2
+         bDsXg84vGUHdtQZ1C4lvtpAQzHyZZmdApp6/9eVz3rt80/+kYS/y8ZMtoiTbAqsfLr
+         sJD7l6zWlkVNA==
+Date:   Mon, 22 May 2023 19:35:12 -0600
 From:   "Gustavo A. R. Silva" <gustavoars@kernel.org>
 To:     Eric Farman <farman@linux.ibm.com>,
         Matthew Rosato <mjrosato@linux.ibm.com>,
@@ -47,38 +47,58 @@ Cc:     linux-s390@vger.kernel.org, kvm@vger.kernel.org,
         linux-kernel@vger.kernel.org,
         "Gustavo A. R. Silva" <gustavoars@kernel.org>,
         linux-hardening@vger.kernel.org
-Subject: [PATCH 0/2][next] vfio/ccw: Replace one-element array with
+Subject: [PATCH 1/2][next] vfio/ccw: Replace one-element array with
  flexible-array member
-Message-ID: <cover.1684805398.git.gustavoars@kernel.org>
+Message-ID: <3c10549ebe1564eade68a2515bde233527376971.1684805398.git.gustavoars@kernel.org>
+References: <cover.1684805398.git.gustavoars@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <cover.1684805398.git.gustavoars@kernel.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi!
-
-This small series aims to replace a one-element array with a
-flexible-array member in struct vfio_ccw_parent.
-
-This helps with the ongoing efforts to tighten the FORTIFY_SOURCE
-routines on memcpy() and help us make progress towards globally
-enabling -fstrict-flex-arrays=3 [1].
+One-element arrays are deprecated, and we are replacing them with flexible
+array members instead. So, replace one-element array with flexible-array
+member in struct vfio_ccw_parent and refactor the the rest of the code
+accordingly.
 
 Link: https://github.com/KSPP/linux/issues/79
-Link: https://github.com/KSPP/linux/issues/160
 Link: https://github.com/KSPP/linux/issues/297
-Link: https://gcc.gnu.org/pipermail/gcc-patches/2022-October/602902.html [1]
-
-Gustavo A. R. Silva (2):
-  vfio/ccw: Replace one-element array with flexible-array member
-  vfio/ccw: Use struct_size() helper
-
- drivers/s390/cio/vfio_ccw_drv.c     | 2 +-
+Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+---
+ drivers/s390/cio/vfio_ccw_drv.c     | 3 ++-
  drivers/s390/cio/vfio_ccw_private.h | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
+diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+index ff538a086fc7..57906a9c6324 100644
+--- a/drivers/s390/cio/vfio_ccw_drv.c
++++ b/drivers/s390/cio/vfio_ccw_drv.c
+@@ -171,7 +171,8 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
+ 		return -ENODEV;
+ 	}
+ 
+-	parent = kzalloc(sizeof(*parent), GFP_KERNEL);
++	parent = kzalloc(sizeof(*parent) + sizeof(struct mdev_type *),
++			 GFP_KERNEL);
+ 	if (!parent)
+ 		return -ENOMEM;
+ 
+diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
+index b441ae6700fd..b62bbc5c6376 100644
+--- a/drivers/s390/cio/vfio_ccw_private.h
++++ b/drivers/s390/cio/vfio_ccw_private.h
+@@ -79,7 +79,7 @@ struct vfio_ccw_parent {
+ 
+ 	struct mdev_parent	parent;
+ 	struct mdev_type	mdev_type;
+-	struct mdev_type	*mdev_types[1];
++	struct mdev_type	*mdev_types[];
+ };
+ 
+ /**
 -- 
 2.34.1
 
