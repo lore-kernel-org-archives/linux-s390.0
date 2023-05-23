@@ -2,88 +2,99 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6AA64C77B7A
-	for <linux-s390@archiver.kernel.org>; Tue, 23 May 2023 14:13:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CEEEEC77B75
+	for <linux-s390@archiver.kernel.org>; Tue, 23 May 2023 15:10:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237107AbjEWONf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 23 May 2023 10:13:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47498 "EHLO
+        id S237445AbjEWPKQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 23 May 2023 11:10:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237163AbjEWON3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 23 May 2023 10:13:29 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7556E10CB
-        for <linux-s390@vger.kernel.org>; Tue, 23 May 2023 07:12:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1684851149;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=n6ymbsRhedi62yE5ybjLWHl7Je8Q34mz7d4hOSaDDBI=;
-        b=gYDKbDUGu9TBvi1VKLeGoJzAKqn9oF9fNkrhebzr8Z3RVdp8hprc/DI+4C7RSZuFmRwJm+
-        LXEf/ytEmdcVBPUth/Wx0vY5vNIfb2Th+xBaMgIxfssSJ4bXeUpTYg9CSmpX3m/cNBZVns
-        PFVBCO+sld1mj7mumfOapTF8Z5n+b1k=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-484-SCAuIEp3OYmkyrUrsFsPVw-1; Tue, 23 May 2023 10:12:26 -0400
-X-MC-Unique: SCAuIEp3OYmkyrUrsFsPVw-1
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-3f60481749eso12656915e9.1
-        for <linux-s390@vger.kernel.org>; Tue, 23 May 2023 07:12:26 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1684851145; x=1687443145;
-        h=content-transfer-encoding:in-reply-to:organization:from:references
-         :cc:to:content-language:subject:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=n6ymbsRhedi62yE5ybjLWHl7Je8Q34mz7d4hOSaDDBI=;
-        b=dz3s6aqgRc+kgENh+BIumSdLze8AEBU9SdyKGhNPbg25kmyc/W7hDAhAHPHtL137LI
-         Clvz4jTm1pddQOpeshNwnELCBlhjdmC2FbMLA8zjCH9LilHq/wrVKmJSH7D3p8cSNlbM
-         s2aSXq/OIBhjcidDz5Xi63MT65MeV9pptbpig1ORZjHV2bN6eSXqBn7ksLLBdtTttAPM
-         janfvL+HmN48Pc7pB0NwMdpsL6s/39h2+3jaGSZ+NSiCagj3dw/CoOQx3YlunJRni6YJ
-         Jt10glfDuWLjJtktUtfqWdqogIcBoduoZAmtTqVCNkrjRV0IkriZeWa5f18K5+D5ixpG
-         KXQQ==
-X-Gm-Message-State: AC+VfDwz/2JOQdM6ppIJgMDBFApuBSBwaHUDLEMriMfhTMumvXPxMuI0
-        0pMv48GQQ9k3p7YvizMs/2PbvjV9cp2CvY8tMYCtIpcRndv6SWAeSa6VzAfCx9yUz5lLSkmE7ZM
-        C1/C9j9C4b4uBM5CYrhawJX48Xk4g7A==
-X-Received: by 2002:a05:600c:5114:b0:3f1:80d0:906b with SMTP id o20-20020a05600c511400b003f180d0906bmr10660220wms.4.1684851145113;
-        Tue, 23 May 2023 07:12:25 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ4PRyFsUYjQDgdMQ0rwcHbQNxUTO5+6IeDakvZmyqviT+Wu6Oi9fOGHKM1Uo0kcEIQu0ienSA==
-X-Received: by 2002:a05:600c:5114:b0:3f1:80d0:906b with SMTP id o20-20020a05600c511400b003f180d0906bmr10660204wms.4.1684851144639;
-        Tue, 23 May 2023 07:12:24 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c74c:b400:5c8b:a0b2:f57e:e1cd? (p200300cbc74cb4005c8ba0b2f57ee1cd.dip0.t-ipconnect.de. [2003:cb:c74c:b400:5c8b:a0b2:f57e:e1cd])
-        by smtp.gmail.com with ESMTPSA id f4-20020a1c6a04000000b003f1978bbcd6sm3052337wmc.3.2023.05.23.07.12.23
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 23 May 2023 07:12:24 -0700 (PDT)
-Message-ID: <b4b2d652-801f-7d2d-9277-8fd8a69d7307@redhat.com>
-Date:   Tue, 23 May 2023 16:12:23 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.10.0
-Subject: Re: [PATCH] KVM: s390/diag: fix racy access of physical cpu number in
- diag 9c handler
-Content-Language: en-US
-To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
-        KVM <kvm@vger.kernel.org>
-Cc:     Janosch Frank <frankja@linux.ibm.com>,
+        with ESMTP id S237439AbjEWPKP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 23 May 2023 11:10:15 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97CB011A;
+        Tue, 23 May 2023 08:10:13 -0700 (PDT)
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34NF2eIp008443;
+        Tue, 23 May 2023 15:10:13 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=FS0uudSjJ96HuXoHyRk5jgs5LdL69sSYBSOnObqQnwI=;
+ b=jsymdvqqm1FVq+F8sG5/6LNOdkroysFBkgC8m/kOSoyaO026fQVHvQ1R8yaEyobtHizS
+ STzhkkxNoOSn5uvKBumbyPXMkpYvnmhFvW8qqNGU72aD+PiVArssDdfsgd3Suz2ryI2U
+ MI43ahLhjFZTTCDCl6RhiqNRoDcDC5L0pDWAkWfV3Kdu1ud7aIE+7tVRJau4XmRML6HA
+ NEVWG0k7ejT+NK0y0Abc4pr6gcxS0eiV0MPQ/q5y4qOAklL3g/ar0v2IJ2P0uF5k+WlO
+ cQQvc4dXuBFG+WZEAD9gH1FkyJcm3hcrM50Ulf0/AynI1DW1sm0b7nSYR6jhpVQYNx/+ 0Q== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qrx73bhes-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 23 May 2023 15:10:13 +0000
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34NDjvcC019916;
+        Tue, 23 May 2023 15:10:12 GMT
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qrx73bhdg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 23 May 2023 15:10:12 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34N1YCYH007828;
+        Tue, 23 May 2023 15:10:10 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+        by ppma04fra.de.ibm.com (PPS) with ESMTPS id 3qppcf19bv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 23 May 2023 15:10:09 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34NFA68828049922
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 23 May 2023 15:10:06 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8E15620040;
+        Tue, 23 May 2023 15:10:06 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3ECFB20043;
+        Tue, 23 May 2023 15:10:06 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.152.224.66])
+        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Tue, 23 May 2023 15:10:06 +0000 (GMT)
+Date:   Tue, 23 May 2023 17:10:04 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc:     KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
         linux-s390 <linux-s390@vger.kernel.org>,
         Thomas Huth <thuth@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>
-References: <20230523140500.271990-1-borntraeger@linux.ibm.com>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
+Subject: Re: [PATCH] KVM: s390/diag: fix racy access of physical cpu number
+ in diag 9c handler
+Message-ID: <20230523171004.719d9f44@p-imbrenda>
 In-Reply-To: <20230523140500.271990-1-borntraeger@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+References: <20230523140500.271990-1-borntraeger@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.37; x86_64-redhat-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: D3BGqvrnjgvTSDNoPB_f11HpIhn26wyj
+X-Proofpoint-ORIG-GUID: t8gaCv8tXMKbU80Z6Q1399k-_jxXhtdy
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
+ definitions=2023-05-23_10,2023-05-23_02,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ impostorscore=0 mlxlogscore=999 clxscore=1015 phishscore=0 malwarescore=0
+ bulkscore=0 adultscore=0 priorityscore=1501 mlxscore=0 suspectscore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2304280000 definitions=main-2305230118
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 23.05.23 16:05, Christian Borntraeger wrote:
+On Tue, 23 May 2023 16:05:00 +0200
+Christian Borntraeger <borntraeger@linux.ibm.com> wrote:
+
 > We do check for target CPU == -1, but this might change at the time we
 > are going to use it. Hold the physical target CPU in a local variable to
 > avoid out-of-bound accesses to the cpu arrays.
@@ -93,47 +104,43 @@ On 23.05.23 16:05, Christian Borntraeger wrote:
 > Reported-by: Marc Hartmayer <mhartmay@linux.ibm.com>
 > Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
 > Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+
 > Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
 > ---
->   arch/s390/kvm/diag.c | 8 +++++---
->   1 file changed, 5 insertions(+), 3 deletions(-)
+>  arch/s390/kvm/diag.c | 8 +++++---
+>  1 file changed, 5 insertions(+), 3 deletions(-)
 > 
 > diff --git a/arch/s390/kvm/diag.c b/arch/s390/kvm/diag.c
 > index 807fa9da1e72..3c65b8258ae6 100644
 > --- a/arch/s390/kvm/diag.c
 > +++ b/arch/s390/kvm/diag.c
 > @@ -166,6 +166,7 @@ static int diag9c_forwarding_overrun(void)
->   static int __diag_time_slice_end_directed(struct kvm_vcpu *vcpu)
->   {
->   	struct kvm_vcpu *tcpu;
+>  static int __diag_time_slice_end_directed(struct kvm_vcpu *vcpu)
+>  {
+>  	struct kvm_vcpu *tcpu;
 > +	int tcpu_cpu;
->   	int tid;
->   
->   	tid = vcpu->run->s.regs.gprs[(vcpu->arch.sie_block->ipa & 0xf0) >> 4];
+>  	int tid;
+>  
+>  	tid = vcpu->run->s.regs.gprs[(vcpu->arch.sie_block->ipa & 0xf0) >> 4];
 > @@ -181,14 +182,15 @@ static int __diag_time_slice_end_directed(struct kvm_vcpu *vcpu)
->   		goto no_yield;
->   
->   	/* target guest VCPU already running */
+>  		goto no_yield;
+>  
+>  	/* target guest VCPU already running */
 > -	if (READ_ONCE(tcpu->cpu) >= 0) {
 > +	tcpu_cpu = READ_ONCE(tcpu->cpu);
 > +	if (tcpu_cpu >= 0) {
->   		if (!diag9c_forwarding_hz || diag9c_forwarding_overrun())
->   			goto no_yield;
->   
->   		/* target host CPU already running */
+>  		if (!diag9c_forwarding_hz || diag9c_forwarding_overrun())
+>  			goto no_yield;
+>  
+>  		/* target host CPU already running */
 > -		if (!vcpu_is_preempted(tcpu->cpu))
 > +		if (!vcpu_is_preempted(tcpu_cpu))
->   			goto no_yield;
+>  			goto no_yield;
 > -		smp_yield_cpu(tcpu->cpu);
 > +		smp_yield_cpu(tcpu_cpu);
->   		VCPU_EVENT(vcpu, 5,
->   			   "diag time slice end directed to %d: yield forwarded",
->   			   tid);
-
-Reviewed-by: David Hildenbrand <david@redhat.com>
-
--- 
-Thanks,
-
-David / dhildenb
+>  		VCPU_EVENT(vcpu, 5,
+>  			   "diag time slice end directed to %d: yield forwarded",
+>  			   tid);
 
