@@ -2,104 +2,226 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BFEFBC7EE2C
-	for <linux-s390@archiver.kernel.org>; Wed, 24 May 2023 08:38:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D362C77B7A
+	for <linux-s390@archiver.kernel.org>; Wed, 24 May 2023 09:34:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240462AbjEXIi5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 24 May 2023 04:38:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45542 "EHLO
+        id S229491AbjEXJeX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 24 May 2023 05:34:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240444AbjEXIin (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 24 May 2023 04:38:43 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55A762134;
-        Wed, 24 May 2023 01:37:08 -0700 (PDT)
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34O8H9rm030886;
-        Wed, 24 May 2023 08:35:57 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
- mime-version : content-transfer-encoding : in-reply-to : references : from
- : subject : to : cc : message-id : date; s=pp1;
- bh=8dcr2vPwGjXIGCwTwD/EY/C+zJ9tkMtvqUPyrOoUdNM=;
- b=hNTgMhPFTtF9dHqKYNyG6fjRlNiP9sox1WSpFLytPHsaw7iVS0DY5JRzxWPTKS+QER0b
- AgirtSDebUZn0urmoiwNcCewpYuWVYm2Kbk0hgFW9FkrXZu0tH40yEIaQme4O1OhaB5b
- hIXUtyguCUugKsSsmwxJxnZ8TYlDRXiar80V6WG1NvJf66LfkVN/syhM3F0M192Y9yS7
- wKFZLlfv32WVaRc2i4stdkRA0NNZ5nYUmCJTX6sMDPg85mUnW4qZoNiPohgx/w9bD5DQ
- HSEUIxd2tySnSp12Ud+ni8Sv0zPpO2GrHsB9uzgHZYCJSwRrSHRwKlHxZU29wObY9jPG zQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qsdpma7cm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 24 May 2023 08:35:56 +0000
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34O88XwA003734;
-        Wed, 24 May 2023 08:33:59 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qsdpma4x0-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 24 May 2023 08:33:57 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34O4u36D022342;
-        Wed, 24 May 2023 08:33:15 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma03fra.de.ibm.com (PPS) with ESMTPS id 3qppe09h38-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 24 May 2023 08:33:15 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34O8XBjV23528160
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 24 May 2023 08:33:11 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9524720043;
-        Wed, 24 May 2023 08:33:11 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7E0E320040;
-        Wed, 24 May 2023 08:33:11 +0000 (GMT)
-Received: from t14-nrb (unknown [9.155.203.34])
-        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 24 May 2023 08:33:11 +0000 (GMT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229448AbjEXJeW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 24 May 2023 05:34:22 -0400
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68AD9A1;
+        Wed, 24 May 2023 02:34:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=KyV/tS/uN9DzNvQPoG5MMAxe2UuBWYnz6ke7cE6G1wY=; b=nC6jLhXug1y4diFoSQTkvje5KR
+        HSD1QlG8SO3q1T+JDKxXq+IlMfgYJDaQ7i7bHwdSKbxsc1MqD1gJdTeKNsIgFVwLNX6DDBZGjtVRb
+        MKBZeobJWLqGpbaKIFk6uJnVRCudHgK+Wd+ZPSPTt7amEjPI0BIcViP2iXjtCu6wHmug4YS2CEPgk
+        lCvsWBHcU+9gJk2CmiDcf7TpY7jxrns9h9e+tMKuQykDyjuaH++Ji39wKDKsF92bKq7ZYg42fjXCk
+        E6KVc0W5rZXwf/wbFS2AGqxSrHJGD7AwxifD6SNSoJNR7tFU/91uNjvSCFKtjJOLOz+bpX42COu48
+        7ykdSPMg==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
+        by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
+        id 1q1krX-004xKA-0q;
+        Wed, 24 May 2023 09:32:55 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id B87553001AE;
+        Wed, 24 May 2023 11:32:47 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 0CA772435C811; Wed, 24 May 2023 11:32:47 +0200 (CEST)
+Date:   Wed, 24 May 2023 11:32:46 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     torvalds@linux-foundation.org
+Cc:     corbet@lwn.net, will@kernel.org, boqun.feng@gmail.com,
+        mark.rutland@arm.com, catalin.marinas@arm.com, dennis@kernel.org,
+        tj@kernel.org, cl@linux.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+        hpa@zytor.com, joro@8bytes.org, suravee.suthikulpanit@amd.com,
+        robin.murphy@arm.com, dwmw2@infradead.org,
+        baolu.lu@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
+        Herbert Xu <herbert@gondor.apana.org.au>, davem@davemloft.net,
+        penberg@kernel.org, rientjes@google.com, iamjoonsoo.kim@lge.com,
+        Andrew Morton <akpm@linux-foundation.org>, vbabka@suse.cz,
+        roman.gushchin@linux.dev, 42.hyeyoo@gmail.com,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, linux-s390@vger.kernel.org,
+        iommu@lists.linux.dev, linux-arch@vger.kernel.org,
+        linux-crypto@vger.kernel.org, sfr@canb.auug.org.au,
+        mpe@ellerman.id.au
+Subject: Re: [PATCH v3 08/11] slub: Replace cmpxchg_double()
+Message-ID: <20230524093246.GP83892@hirez.programming.kicks-ass.net>
+References: <20230515075659.118447996@infradead.org>
+ <20230515080554.453785148@infradead.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20230427075450.6146-2-pmorel@linux.ibm.com>
-References: <20230427075450.6146-1-pmorel@linux.ibm.com> <20230427075450.6146-2-pmorel@linux.ibm.com>
-From:   Nico Boehr <nrb@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v2 1/1] s390x: sclp: consider monoprocessor on read_info error
-To:     Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc:     frankja@linux.ibm.com, thuth@redhat.com, kvm@vger.kernel.org,
-        imbrenda@linux.ibm.com, david@redhat.com, nsg@linux.ibm.com,
-        cohuck@redhat.com
-Message-ID: <168491719124.11225.12383147851123056702@t14-nrb>
-User-Agent: alot/0.8.1
-Date:   Wed, 24 May 2023 10:33:11 +0200
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: wYpXP7H-9j7foJn53P1W_90iGuQzj8Us
-X-Proofpoint-GUID: 4NPcUe0WnIZfUB-sDzhlRYsRa0rQ2eV2
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
- definitions=2023-05-24_04,2023-05-23_02,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 phishscore=0
- spamscore=0 bulkscore=0 lowpriorityscore=0 priorityscore=1501
- malwarescore=0 adultscore=0 mlxscore=0 impostorscore=0 clxscore=1015
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2304280000 definitions=main-2305240072
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230515080554.453785148@infradead.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Quoting Pierre Morel (2023-04-27 09:54:50)
-[...]
-> diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
-> index 390fde7..07523dc 100644
-> --- a/lib/s390x/sclp.c
-> +++ b/lib/s390x/sclp.c
-> @@ -119,8 +119,9 @@ void sclp_read_info(void)
-> =20
->  int sclp_get_cpu_num(void)
->  {
-> -       assert(read_info);
-> -       return read_info->entries_cpu;
-> +    if (read_info)
-> +           return read_info->entries_cpu;
-> +    return 1;
+On Mon, May 15, 2023 at 09:57:07AM +0200, Peter Zijlstra wrote:
 
-tab/spaces are mixed up here, please fix that.
+> @@ -3008,6 +3029,22 @@ static inline bool pfmemalloc_match(stru
+>  }
+>  
+>  #ifndef CONFIG_SLUB_TINY
+> +static inline bool
+> +__update_cpu_freelist_fast(struct kmem_cache *s,
+> +			   void *freelist_old, void *freelist_new,
+> +			   unsigned long tid)
+> +{
+> +#ifdef system_has_freelist_aba
+> +	freelist_aba_t old = { .freelist = freelist_old, .counter = tid };
+> +	freelist_aba_t new = { .freelist = freelist_new, .counter = next_tid(tid) };
+> +
+> +	return this_cpu_cmpxchg_freelist(s->cpu_slab->freelist_tid.full,
+> +					 old.full, new.full) == old.full;
+> +#else
+> +	return false;
+> +#endif
+> +}
+> +
+>  /*
+>   * Check the slab->freelist and either transfer the freelist to the
+>   * per cpu freelist or deactivate the slab.
+> @@ -3359,11 +3396,7 @@ static __always_inline void *__slab_allo
+>  		 * against code executing on this cpu *not* from access by
+>  		 * other cpus.
+>  		 */
+> -		if (unlikely(!this_cpu_cmpxchg_double(
+> -				s->cpu_slab->freelist, s->cpu_slab->tid,
+> -				object, tid,
+> -				next_object, next_tid(tid)))) {
+> -
+> +		if (unlikely(!__update_cpu_freelist_fast(s, object, next_object, tid))) {
+>  			note_cmpxchg_failure("slab_alloc", s, tid);
+>  			goto redo;
+>  		}
+> @@ -3736,11 +3769,7 @@ static __always_inline void do_slab_free
+>  
+>  		set_freepointer(s, tail_obj, freelist);
+>  
+> -		if (unlikely(!this_cpu_cmpxchg_double(
+> -				s->cpu_slab->freelist, s->cpu_slab->tid,
+> -				freelist, tid,
+> -				head, next_tid(tid)))) {
+> -
+> +		if (unlikely(!__update_cpu_freelist_fast(s, freelist, head, tid))) {
+>  			note_cmpxchg_failure("slab_free", s, tid);
+>  			goto redo;
+>  		}
+
+This isn't right; the this_cpu_cmpxchg_double() was unconditional and
+relied on the local_irq_save() fallback when no native cmpxchg128 is
+present.
+
+The below delta makes things boot again when system_has_cmpxchg128 is
+not defined.
+
+I'm going to zap these patches from tip/locking/core for a few days and
+fold the below back into the series and let it run through the robots
+again.
+
+---
+ mm/slab.h | 20 +++++++++++---------
+ mm/slub.c |  6 +-----
+ 2 files changed, 12 insertions(+), 14 deletions(-)
+
+diff --git a/mm/slab.h b/mm/slab.h
+index 5880c70de3d6..b191bf68e6e0 100644
+--- a/mm/slab.h
++++ b/mm/slab.h
+@@ -6,36 +6,36 @@
+  */
+ void __init kmem_cache_init(void);
+ 
+-#ifdef CONFIG_HAVE_ALIGNED_STRUCT_PAGE
+ #ifdef CONFIG_64BIT
+ # ifdef system_has_cmpxchg128
+ # define system_has_freelist_aba()	system_has_cmpxchg128()
+ # define try_cmpxchg_freelist		try_cmpxchg128
+-# define this_cpu_cmpxchg_freelist	this_cpu_cmpxchg128
+-typedef u128 freelist_full_t;
+ # endif
++#define this_cpu_cmpxchg_freelist	this_cpu_cmpxchg128
++typedef u128 freelist_full_t;
+ #else /* CONFIG_64BIT */
+ # ifdef system_has_cmpxchg64
+ # define system_has_freelist_aba()	system_has_cmpxchg64()
+ # define try_cmpxchg_freelist		try_cmpxchg64
+-# define this_cpu_cmpxchg_freelist	this_cpu_cmpxchg64
+-typedef u64 freelist_full_t;
+ # endif
++#define this_cpu_cmpxchg_freelist	this_cpu_cmpxchg64
++typedef u64 freelist_full_t;
+ #endif /* CONFIG_64BIT */
+-#endif /* CONFIG_HAVE_ALIGNED_STRUCT_PAGE */
++
++#if defined(system_has_freelist_aba) && !defined(CONFIG_HAVE_ALIGNED_STRUCT_PAGE)
++#undef system_has_freelist_aba
++#endif
+ 
+ /*
+  * Freelist pointer and counter to cmpxchg together, avoids the typical ABA
+  * problems with cmpxchg of just a pointer.
+  */
+ typedef union {
+-#ifdef system_has_freelist_aba
+ 	struct {
+ 		void *freelist;
+ 		unsigned long counter;
+ 	};
+ 	freelist_full_t full;
+-#endif
+ } freelist_aba_t;
+ 
+ /* Reuses the bits in struct page */
+@@ -82,7 +82,9 @@ struct slab {
+ 						};
+ 					};
+ 				};
++#ifdef system_has_freelist_aba
+ 				freelist_aba_t freelist_counter;
++#endif
+ 			};
+ 		};
+ 		struct rcu_head rcu_head;
+@@ -110,7 +112,7 @@ SLAB_MATCH(memcg_data, memcg_data);
+ #undef SLAB_MATCH
+ static_assert(sizeof(struct slab) <= sizeof(struct page));
+ #if defined(system_has_freelist_aba) && defined(CONFIG_SLUB)
+-static_assert(IS_ALIGNED(offsetof(struct slab, freelist), 2*sizeof(void *)));
++static_assert(IS_ALIGNED(offsetof(struct slab, freelist), sizeof(freelist_aba_t)));
+ #endif
+ 
+ /**
+diff --git a/mm/slub.c b/mm/slub.c
+index 161b091746b7..af92c770606d 100644
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -3034,15 +3034,11 @@ __update_cpu_freelist_fast(struct kmem_cache *s,
+ 			   void *freelist_old, void *freelist_new,
+ 			   unsigned long tid)
+ {
+-#ifdef system_has_freelist_aba
+ 	freelist_aba_t old = { .freelist = freelist_old, .counter = tid };
+ 	freelist_aba_t new = { .freelist = freelist_new, .counter = next_tid(tid) };
+ 
+ 	return this_cpu_cmpxchg_freelist(s->cpu_slab->freelist_tid.full,
+ 					 old.full, new.full) == old.full;
+-#else
+-	return false;
+-#endif
+ }
+ 
+ /*
