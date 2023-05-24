@@ -2,200 +2,126 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0351CC77B7E
-	for <linux-s390@archiver.kernel.org>; Wed, 24 May 2023 02:40:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 329A4C77B7A
+	for <linux-s390@archiver.kernel.org>; Wed, 24 May 2023 07:54:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233836AbjEXCkh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 23 May 2023 22:40:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60068 "EHLO
+        id S239474AbjEXHyY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 24 May 2023 03:54:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239152AbjEXCkf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 23 May 2023 22:40:35 -0400
-Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31AFC18C;
-        Tue, 23 May 2023 19:40:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1684896034; x=1716432034;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=714PjEPBuHtkF8WESA9llLiU9Jc925oq3PmuReOHxIA=;
-  b=ipgYXBs11iUY/2pYIAciRusYoTgzrv2h2yz78HLnRTu3mbFapmyEYsAP
-   mcppOCXqQqbuHzjROYWQP0pjeC+JaUeqOP5uaW1E1zHMxTrm+pWrAw342
-   5PNiLFuF78TpPOOXvU8ZOkV1RlYH1ATQy0+OYR35z3tC+GVHHUzo10QMM
-   +a7hxAHKF1aMoZr81pG3kwyQV4dKHZb/jHAc6MXbeoTRJK+9MVNmshBAE
-   Q5lE+5p123yUEP3ILTjN9PmPVCFSlhWulcRp+q2O9n4cpo3YWjeAtvobu
-   wznnOmeDhM3hYOuRCaOMachB7JUrHgV+bLP9bpbk6WCogdQmcESO+kX/t
-   w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10719"; a="333794524"
-X-IronPort-AV: E=Sophos;i="6.00,187,1681196400"; 
-   d="scan'208";a="333794524"
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 May 2023 19:40:33 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10719"; a="828371720"
-X-IronPort-AV: E=Sophos;i="6.00,187,1681196400"; 
-   d="scan'208";a="828371720"
-Received: from fmsmsx603.amr.corp.intel.com ([10.18.126.83])
-  by orsmga004.jf.intel.com with ESMTP; 23 May 2023 19:40:33 -0700
-Received: from fmsmsx611.amr.corp.intel.com (10.18.126.91) by
- fmsmsx603.amr.corp.intel.com (10.18.126.83) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.23; Tue, 23 May 2023 19:40:32 -0700
-Received: from FMSEDG603.ED.cps.intel.com (10.1.192.133) by
- fmsmsx611.amr.corp.intel.com (10.18.126.91) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.23 via Frontend Transport; Tue, 23 May 2023 19:40:32 -0700
-Received: from NAM11-CO1-obe.outbound.protection.outlook.com (104.47.56.168)
- by edgegateway.intel.com (192.55.55.68) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.23; Tue, 23 May 2023 19:40:32 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=cdhyF1nCObqyZWLQsJjqErsq6c0SX/j7sD7xqNu4DMG45hnEUnvFs/xwhOXKgiyW/SDaBgZnQttBulMN5b69UjxbAMK0am170X1EnzEFxqRXlW9EJzRC4HLB84xmUB+kvMx3epB+N9MOzHEuvi1encK94wyQSvFeL3aq3fBXnpELSw9pd+d9zLXltzn5oS29E6ELCANRg5Cw24/jEa0fEDziapU2+wpdvXdtTl0OozD6Y8qkbQuNpSznDFtIwn1A6KG1GjZsfoDjpiQy2hO3PqReUkGfYju+jdC/Kn3WwL0KC0GcsxTaVz9ZR270z4r2eJE69MSJHATIJvcdVusmXQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=714PjEPBuHtkF8WESA9llLiU9Jc925oq3PmuReOHxIA=;
- b=g4JkwrXM/P737YMcm/h6SxG5hVgLY/nW7wZQWdANHnSdJMfEB60L9RUIPjsO5wETlIj4VRZYJkoUtZEuyOA1d+Clz3qQnJRlP50O6Io3y+Mam9V9LyVBQtZzQVimPqZYseg9YEViwcVG1kkDsPXUK7LQr/zwzHlq7swqdQ0VlU+bsMy/rannXNHbSqvEEhw+KgOakeFFepmVmEJlMC6sGi2msUYW/WRW8j6xbGYTl+DMmx1swz2lg8ZWVn29CyAR/AnZIqmjbI8MWexQgQ3LAaW9AazZuBlpar9q7yCVO6XbD8PRQdaLQ4gaQJtSm8RA7aIQhqR0r+KoJDCEDP+7Xg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from DS0PR11MB7529.namprd11.prod.outlook.com (2603:10b6:8:141::20)
- by DS0PR11MB6541.namprd11.prod.outlook.com (2603:10b6:8:d3::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6411.28; Wed, 24 May
- 2023 02:40:31 +0000
-Received: from DS0PR11MB7529.namprd11.prod.outlook.com
- ([fe80::5b44:8f52:dbeb:18e5]) by DS0PR11MB7529.namprd11.prod.outlook.com
- ([fe80::5b44:8f52:dbeb:18e5%3]) with mapi id 15.20.6411.028; Wed, 24 May 2023
- 02:40:30 +0000
-From:   "Liu, Yi L" <yi.l.liu@intel.com>
-To:     "Tian, Kevin" <kevin.tian@intel.com>,
-        Alex Williamson <alex.williamson@redhat.com>
-CC:     "jgg@nvidia.com" <jgg@nvidia.com>,
-        "joro@8bytes.org" <joro@8bytes.org>,
-        "robin.murphy@arm.com" <robin.murphy@arm.com>,
-        "cohuck@redhat.com" <cohuck@redhat.com>,
-        "eric.auger@redhat.com" <eric.auger@redhat.com>,
-        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
-        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
-        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
-        "peterx@redhat.com" <peterx@redhat.com>,
-        "jasowang@redhat.com" <jasowang@redhat.com>,
-        "shameerali.kolothum.thodi@huawei.com" 
-        <shameerali.kolothum.thodi@huawei.com>,
-        "lulu@redhat.com" <lulu@redhat.com>,
-        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "Hao, Xudong" <xudong.hao@intel.com>,
-        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
-        "Xu, Terrence" <terrence.xu@intel.com>,
-        "Jiang, Yanting" <yanting.jiang@intel.com>,
-        "Duan, Zhenzhong" <zhenzhong.duan@intel.com>,
-        "clegoate@redhat.com" <clegoate@redhat.com>
-Subject: RE: [PATCH v11 19/23] vfio: Add VFIO_DEVICE_BIND_IOMMUFD
-Thread-Topic: [PATCH v11 19/23] vfio: Add VFIO_DEVICE_BIND_IOMMUFD
-Thread-Index: AQHZhZ7k65TFikm5KUKI3FkaFFDbUK9m5qgAgAA8RCCAAO6sgIAArYHQgAAHgQCAAAA4gA==
-Date:   Wed, 24 May 2023 02:40:30 +0000
-Message-ID: <DS0PR11MB7529F262A9088E582700C3AAC3419@DS0PR11MB7529.namprd11.prod.outlook.com>
-References: <20230513132827.39066-1-yi.l.liu@intel.com>
-        <20230513132827.39066-20-yi.l.liu@intel.com>
-        <20230522160124.768430b4.alex.williamson@redhat.com>
-        <DS0PR11MB752935BF70AC95B564685DC0C3409@DS0PR11MB7529.namprd11.prod.outlook.com>
- <20230523095121.1a7a255d.alex.williamson@redhat.com>
- <DS0PR11MB75292184D6938DF4193C318EC3419@DS0PR11MB7529.namprd11.prod.outlook.com>
- <BN9PR11MB5276415D558B1BBA5C19A2AA8C419@BN9PR11MB5276.namprd11.prod.outlook.com>
-In-Reply-To: <BN9PR11MB5276415D558B1BBA5C19A2AA8C419@BN9PR11MB5276.namprd11.prod.outlook.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: DS0PR11MB7529:EE_|DS0PR11MB6541:EE_
-x-ms-office365-filtering-correlation-id: e1a49a93-334f-4c7b-0510-08db5c003d91
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: QRmvl8HWKBltm8O4ldTib7rAmsIwiMFVLKARn6FxKA3ht5tUozqIyLYd+hPkAK8800R7RsbBnidXjcKww2QklH2prXJwXoBB4RGtPGSDL3OzqPKGKgeJBIx3F+VzRoYlN8+rrZMWjhlWQ5CM2hVzkBUgLw1NWZMez14nCeLp1dQ9O9Hd3QlArqcFKppQBTggc0C//xZkg9XLhbvkFVoppikPvAh28RrWunQg+p5yD7hB/wb8DeSdpKWBh5+CbpGcZAmH5KDxzICq7YmO2OsVsCa16iG8jr/K0pxuiQmqMjDrhQv0n8LK5TFjGBuBBJg29oVeNqQPSlfRc/UjQ8RJLEBtRSQ1MHyMRODeAT21iERveAujTA9z5uMlXvZuHrF69c5jY8rQxzTdD+Tf/TOIyzp1/64hC/pEiU64g1+jOvikrMdrvJqCz00KgRsShC8YhITvzAESIt7JZDKDHOY/L7yvSnfJ0HLN1IVvfSVGOIBlVzsZBf32qq4O5YcEQEfuDQYg+VuYm2rEI4uOeBBmWZ7rCC3G21V+sIi5xQGnvwcXVzPY7CoDSb+6kqwrZYwGd0144mnycaEf5guyP6HHUdCzSxvRTugLD6Js3mv5IOKy9DlP9675kOv8zgFDm6PGvGL/QX7V4CR6wH/5bNiRWQ==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR11MB7529.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(39860400002)(396003)(346002)(136003)(376002)(366004)(451199021)(9686003)(8936002)(8676002)(7416002)(83380400001)(82960400001)(38100700002)(86362001)(38070700005)(122000001)(33656002)(55016003)(6506007)(4744005)(2906002)(41300700001)(71200400001)(66946007)(76116006)(66556008)(66476007)(66446008)(64756008)(4326008)(7696005)(316002)(5660300002)(110136005)(54906003)(186003)(26005)(478600001)(52536014)(13296009);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?utf-8?B?UytaREc5VFpxeDNMeWNxMXZkU2xwL3d0OU12MmRqd0k3SHZLODNWaVJBNVRv?=
- =?utf-8?B?cmphSDZoU2Q5M1RiV2p6L1ZHRzBsd3BVbHJiVXZ2Q1RFeTdnakI2NWN4bkhx?=
- =?utf-8?B?NE44Z0FnSnpNMm5iMitTODQwSlRveE4yREsvRHkyWExJdjh3dnVuM21hYnM4?=
- =?utf-8?B?SnFlaDNPSFNXeGJKcEpnQWJrL1krRTUwZGJOZ2NPSGNDbWFIZDdndy9Ocjg0?=
- =?utf-8?B?NUZnbVIwZTdyNXBpYUlYbEhBUWhiTi9tS29SbEU2U3VMdzVIend4ZGFaYnNM?=
- =?utf-8?B?QWZZRktqQW4xVFNQaW4xYnJDQWVJSG5vVGxncUlqbjFDRlFTZ3RmTW1tY0k2?=
- =?utf-8?B?NHdibU1id1lYcmpVdGNZbDltUDhZYzc2Nkpubmp4ZFJCbDRISS9NK3hXUWVU?=
- =?utf-8?B?UVYzZXJ5SHhDUUQySlh2VmNuaFV5d3BEbTZZLzY4ZkZnVU13RTdVM2NpQ3ln?=
- =?utf-8?B?cUJYRVBOZ25OUk1lSWhCSEl3S3M5eVBWWlNqNnpzUS9wRHJCbmVEblNyM242?=
- =?utf-8?B?K0lFL05FRUR5dWRtV0xybTY2TWlISVNzaDBGVFRndFVZanQrbUc3UWtCYXFX?=
- =?utf-8?B?ZWtqWjhUSnNpWE01TWwrWFZjVW1YWVFzWkY5eG85TlQwNm1BOFI0WndkT1py?=
- =?utf-8?B?emNIZFZNMWQwdS9uSE1aZVo3akd1aFBQbDY5RThNNVJKcGZaVXZQQUczWU12?=
- =?utf-8?B?UUZSV0RSK09TaE1Bb09ERE1lckoxVUJoMVc3bEJtbElOTmxJN09EZExOTVlz?=
- =?utf-8?B?eHQ2aDlCWERhdzRhUlpjZHZRWjJzczV3dFhJTDV6R2t0YmtyQzBJcFdTR0Jl?=
- =?utf-8?B?eGs2UTRWdDFqQXdFZW5ma2lNSzVPNjhxalZKbnJ0emI2MktiY3BlVC83a3FC?=
- =?utf-8?B?cWI4TWpKbkNEa2VOdHJqaFhCaEhDa2NYNGxFMW40dEhrZWxqbzhibk5oN1Zp?=
- =?utf-8?B?bHZWQS9tOVJtdGdsSUtLY05lQURBcmx4ZHo1VlJDRWx5SHRMTGxacHFGVUNZ?=
- =?utf-8?B?SHlDdVdkeDgwaVhaektIbVdkVlh4L1hBcFZUcGE1OHhuTmVxOTZFUWVJRUdz?=
- =?utf-8?B?UzlxYjU4bHpudFdmWHA2RzZZbkh2YnplalViVEZPeHNIMFE1Q1NVcHNUZmFH?=
- =?utf-8?B?Sy9UeTA3NWxSRjg0S2FJNzdSVHBubnp0cDFTcUZDbzJvQ3cxVXQ5Yk1rRDU4?=
- =?utf-8?B?SDZHR1VyOEM1cFp2d0wrOVFGWEsxMDM1aDBuMVlLYmFhczFkVEpKZnNZay9Y?=
- =?utf-8?B?eERWZ3FSdDRTK0JFaXYrWDJ3UkhpeE9wM21EYU8vT0NaSDVCVWMrakEyY2p5?=
- =?utf-8?B?NGpnbUlkc00xY1htczNpQ1RnL0tUOHhKRlh3aHRUeWtvZVBPbjE4Y3IxVUUr?=
- =?utf-8?B?ejBVM0oxaXVLaTFQUTNCWU1XNkRXUmJYVGhGMTV6ZjVybE55NCtyYUtXNWJx?=
- =?utf-8?B?Q3AxeXc2WmJBK1pETVZ3WDZrTGRjSWVqWS9rQnlqVFh4RFZMa0w5RHdXRUNs?=
- =?utf-8?B?OHBWVFJsTmNPbjUxN29WYWhPc3NiS0pqVnZGNHFITjhGTjhzTlhwdGNwYmNV?=
- =?utf-8?B?Q1E5azRLSlZnbC9hS3ZFUWNwVURaTGVScGFpMzZ3b09pV1NZVmVYNTZadmFs?=
- =?utf-8?B?aUdURVd2ajFTdXRINzBKbEdMVHA4RWpMN2MrSXBZbHJySSsvcWM4UThYeGxo?=
- =?utf-8?B?cXBERlpHbndqRnlSS2lONFJCa3N5Rk1RQkhGeGpVZ053SkxXV055d3RYK0JY?=
- =?utf-8?B?Tkt1cmdwSTVJbHh4UCtZTXptNURMN0x2aWpOUFB0MGRPVGlkbnpNenp1dUp2?=
- =?utf-8?B?Rk8zeStoRjBFemt6UnRKWnIwMW9mVU9KMHJ0blpmd204UXhiOTNFeDhMZFgw?=
- =?utf-8?B?MkM0UXVaWG5YTjMrb0JIelZjdnJ0NWR5cHNhcFFiNzZwak5aejBWc3dCNXNY?=
- =?utf-8?B?dHljWXd5Lzh5Q1ZnZ3V6YVYxNUljKytoQW9nSS9LWU0ydGhOTnpHZGR3cFEv?=
- =?utf-8?B?R1lLYTkycHF3bGxLNlFoTHI5dVZGZTI0d3VFT1NYODVxcDJPZW5yWnE3Wkcx?=
- =?utf-8?B?dkFBSXZvSWdnTWpzUWNBbzVRRFc5Q2JJVWxyRDkrSWNCdzV0a3RzcU9nbnVh?=
- =?utf-8?Q?BiIC0ZMxwxa9EreSDcn1EtqvN?=
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+        with ESMTP id S235456AbjEXHyX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 24 May 2023 03:54:23 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 036CB93;
+        Wed, 24 May 2023 00:54:22 -0700 (PDT)
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34O7j72e000529;
+        Wed, 24 May 2023 07:54:18 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : content-transfer-encoding : mime-version; s=pp1;
+ bh=d5QAF16BJKDuMg4CE8wCgJ8dMnnIFqFme5RRke6iDFA=;
+ b=XEyL8zw10tjh/hvNzSk2aRRknxFC/Jzx7CglgwPl+o4F9J6gXLd0FkldvvZ+QF5DBplU
+ MkzdWKohEv94lBW583NzTdIRTXq7dmRJTLbjPf+VlsVF9GKKmW7WY1BBu+BkU+RVie55
+ LiSuJdSFklzWazs1ffSK2IfUFv0bTAxPns0TnQu8MTbaeYuawud/yxbmewcxdKAinfkH
+ z3jRK3Ng8c78ySGIGdPUrIrUHaEZmyotydXsnl437ht/90XmwjCO6IPhSRiWSUAeXoJg
+ r0Xe2RiO/cGsH7RJ2DRnKs00YP7+qDz0MO6nrsOmw8qCaqyk0jQEl/OAndDazXLOTvEf zQ== 
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qse4kgmmv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 24 May 2023 07:54:18 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34O2v3Le000965;
+        Wed, 24 May 2023 07:54:15 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+        by ppma04fra.de.ibm.com (PPS) with ESMTPS id 3qppcf1hc6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 24 May 2023 07:54:15 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34O7sCjo30802350
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 24 May 2023 07:54:12 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E66F020043;
+        Wed, 24 May 2023 07:54:11 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7B53020040;
+        Wed, 24 May 2023 07:54:11 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 24 May 2023 07:54:11 +0000 (GMT)
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Jakub Kicinski <kuba@kernel.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        Alexandra Winter <wintera@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>
+Cc:     netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arch@vger.kernel.org, linux-pci@vger.kernel.org,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: [PATCH net-next] s390/ism: Set DMA coherent mask
+Date:   Wed, 24 May 2023 09:54:10 +0200
+Message-Id: <20230524075411.3734141-1-schnelle@linux.ibm.com>
+X-Mailer: git-send-email 2.39.2
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: IP9jPuNTbIrXKI-7-cVVuXaYW72dL7NF
+X-Proofpoint-ORIG-GUID: IP9jPuNTbIrXKI-7-cVVuXaYW72dL7NF
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: DS0PR11MB7529.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: e1a49a93-334f-4c7b-0510-08db5c003d91
-X-MS-Exchange-CrossTenant-originalarrivaltime: 24 May 2023 02:40:30.5640
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: txHcFsPpqRf0PAitTquYUkN4RS09WI6NhU/vgeHC3udWzy6c87+e8W2SliaYQXad0H8Wkyf371SAlQpIsy/Qng==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR11MB6541
-X-OriginatorOrg: intel.com
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
+ definitions=2023-05-24_03,2023-05-23_02,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=955
+ lowpriorityscore=0 spamscore=0 mlxscore=0 suspectscore=0 bulkscore=0
+ adultscore=0 priorityscore=1501 malwarescore=0 phishscore=0
+ impostorscore=0 clxscore=1015 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2304280000 definitions=main-2305240064
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-PiBGcm9tOiBUaWFuLCBLZXZpbiA8a2V2aW4udGlhbkBpbnRlbC5jb20+DQo+IFNlbnQ6IFdlZG5l
-c2RheSwgTWF5IDI0LCAyMDIzIDEwOjM5IEFNDQo+IA0KPiA+IEZyb206IExpdSwgWWkgTCA8eWku
-bC5saXVAaW50ZWwuY29tPg0KPiA+IFNlbnQ6IFdlZG5lc2RheSwgTWF5IDI0LCAyMDIzIDEwOjIx
-IEFNDQo+ID4NCj4gPiA+ID4NCj4gPiA+ID4gdmZpb19kZXZpY2Vfb3Blbl9maWxlKCkNCj4gPiA+
-ID4gew0KPiA+ID4gPiAJZGV2X3dhcm4oZGV2aWNlLT5kZXYsICJ2ZmlvLW5vaW9tbXUgZGV2aWNl
-IG9wZW5lZCBieSB1c2VyICINCj4gPiA+ID4gCQkgICAiKCVzOiVkKVxuIiwgY3VycmVudC0+Y29t
-bSwgdGFza19waWRfbnIoY3VycmVudCkpOw0KPiA+ID4gPiB9DQo+ID4gPg0KPiA+ID4gVGhlcmUg
-bmVlZHMgdG8gYmUgYSB0YWludCB3aGVuIFZGSU9fR1JPVVAgaXMgZGlzYWJsZWQuICBUaGFua3Ms
-DQo+ID4gSSBzZWUuIEkgbWlzdW5kZXJzdG9vZCB5b3UuIFlvdSBhcmUgYXNraW5nIGZvciBhIHRh
-aW50LiDwn5iKDQo+ID4NCj4gPiBBY3R1YWxseSwgSSd2ZSBjb25zaWRlcmVkIGl0LiBCdXQgaXQg
-YXBwZWFycyB0byBtZSB0aGUgdGFpbnQgaW4NCj4gPiB2ZmlvX2dyb3VwX2ZpbmRfb3JfYWxsb2Mo
-KSBpcyBkdWUgdG8gdmZpbyBhbGxvY2F0ZXMgZmFrZSBpb21tdV9ncm91cC4NCj4gPiBUaGlzIHNl
-ZW1zIHRvIGJlIGEgdGFpbnQgdG8ga2VybmVsLiBCdXQgbm93LCB5b3UgYXJlIHN1Z2dlc3Rpbmcg
-dG8gYWRkDQo+ID4gYSB0YWludCBhcyBsb25nIGFzIG5vaW9tbXUgZGV2aWNlIGlzIHJlZ2lzdGVy
-ZWQgdG8gdmZpby4gSXMgaXQ/IElmIHNvLA0KPiANCj4gdGFpbnQgaXMgcmVxdWlyZWQgYmVjYXVz
-ZSB0aGUga2VybmVsIGlzIGV4cG9zZWQgdG8gdXNlciBETUEgYXR0YWNrDQo+IGR1ZSB0byBsYWNr
-aW5nIG9mIElPTU1VIHByb3RlY3Rpb24uDQo+IA0KPiBmYWtlIGlvbW11X2dyb3VwIGlzIGp1c3Qg
-dG8gbWVldCB2ZmlvX2dyb3VwIHJlcXVpcmVtZW50Lg0KDQpHb3QgaXQuIHRoYW5rcy4NCg0KUmVn
-YXJkcywNCllpIExpdQ0K
+A future change will convert the DMA API implementation from the
+architecture specific arch/s390/pci/pci_dma.c to using the common code
+drivers/iommu/dma-iommu.c which the utilizes the same IOMMU hardware
+through the s390-iommu driver. Unlike the s390 specific DMA API this
+requires devices to correctly set the coherent mask to be allowed to use
+IOVAs >2^32 in dma_alloc_coherent(). This was however not done for ISM
+devices. ISM requires such addresses since currently the DMA aperture
+for PCI devices starts at 2^32 and all calls to dma_alloc_coherent()
+would thus fail.
+
+Link: https://lore.kernel.org/all/20230310-dma_iommu-v9-1-65bb8edd2beb@linux.ibm.com/
+Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
+Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+---
+Note: This was previously sent and reviewed as part of multiple versions of the
+s390 DMA API conversion series which requires this change as a pre-requisite
+with the latest version at the Link. Sending separately to add the net-next
+prefix so this can be integrated.
+
+ drivers/s390/net/ism_drv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
+index 8acb9eba691b..1399b5dc646c 100644
+--- a/drivers/s390/net/ism_drv.c
++++ b/drivers/s390/net/ism_drv.c
+@@ -660,7 +660,7 @@ static int ism_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	if (ret)
+ 		goto err_disable;
+ 
+-	ret = dma_set_mask(&pdev->dev, DMA_BIT_MASK(64));
++	ret = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
+ 	if (ret)
+ 		goto err_resource;
+ 
+-- 
+2.39.2
+
