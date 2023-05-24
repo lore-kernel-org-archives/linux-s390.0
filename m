@@ -2,126 +2,62 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 329A4C77B7A
-	for <linux-s390@archiver.kernel.org>; Wed, 24 May 2023 07:54:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A4DCC77B7C
+	for <linux-s390@archiver.kernel.org>; Wed, 24 May 2023 07:59:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239474AbjEXHyY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 24 May 2023 03:54:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50856 "EHLO
+        id S240112AbjEXH7x (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 24 May 2023 03:59:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235456AbjEXHyX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 24 May 2023 03:54:23 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 036CB93;
-        Wed, 24 May 2023 00:54:22 -0700 (PDT)
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34O7j72e000529;
-        Wed, 24 May 2023 07:54:18 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : content-transfer-encoding : mime-version; s=pp1;
- bh=d5QAF16BJKDuMg4CE8wCgJ8dMnnIFqFme5RRke6iDFA=;
- b=XEyL8zw10tjh/hvNzSk2aRRknxFC/Jzx7CglgwPl+o4F9J6gXLd0FkldvvZ+QF5DBplU
- MkzdWKohEv94lBW583NzTdIRTXq7dmRJTLbjPf+VlsVF9GKKmW7WY1BBu+BkU+RVie55
- LiSuJdSFklzWazs1ffSK2IfUFv0bTAxPns0TnQu8MTbaeYuawud/yxbmewcxdKAinfkH
- z3jRK3Ng8c78ySGIGdPUrIrUHaEZmyotydXsnl437ht/90XmwjCO6IPhSRiWSUAeXoJg
- r0Xe2RiO/cGsH7RJ2DRnKs00YP7+qDz0MO6nrsOmw8qCaqyk0jQEl/OAndDazXLOTvEf zQ== 
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qse4kgmmv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 24 May 2023 07:54:18 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34O2v3Le000965;
-        Wed, 24 May 2023 07:54:15 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma04fra.de.ibm.com (PPS) with ESMTPS id 3qppcf1hc6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 24 May 2023 07:54:15 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34O7sCjo30802350
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 24 May 2023 07:54:12 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E66F020043;
-        Wed, 24 May 2023 07:54:11 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7B53020040;
-        Wed, 24 May 2023 07:54:11 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 24 May 2023 07:54:11 +0000 (GMT)
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Jakub Kicinski <kuba@kernel.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        Alexandra Winter <wintera@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>
-Cc:     netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arch@vger.kernel.org, linux-pci@vger.kernel.org,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: [PATCH net-next] s390/ism: Set DMA coherent mask
-Date:   Wed, 24 May 2023 09:54:10 +0200
-Message-Id: <20230524075411.3734141-1-schnelle@linux.ibm.com>
-X-Mailer: git-send-email 2.39.2
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: IP9jPuNTbIrXKI-7-cVVuXaYW72dL7NF
-X-Proofpoint-ORIG-GUID: IP9jPuNTbIrXKI-7-cVVuXaYW72dL7NF
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        with ESMTP id S239910AbjEXH7t (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 24 May 2023 03:59:49 -0400
+X-Greylist: delayed 533 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 24 May 2023 00:59:46 PDT
+Received: from mail.diwhide.pl (mail.diwhide.pl [217.61.112.185])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE1D791
+        for <linux-s390@vger.kernel.org>; Wed, 24 May 2023 00:59:46 -0700 (PDT)
+Received: by mail.diwhide.pl (Postfix, from userid 1002)
+        id 72E6A82FA1; Wed, 24 May 2023 09:50:41 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=diwhide.pl; s=mail;
+        t=1684914650; bh=INjgM7SITbB4go/F9DclwIxKofyle/AtsZfR3aWEixo=;
+        h=Date:From:To:Subject:From;
+        b=HjJeSdK1yjknIDLWzeSwnxaajmUGMQisu9uZr9wB1c6VFJQgI41tB5GwHal9Pq26U
+         dSmn8I+3CQqhkfccjyZyXQWxSY6/Z3IKPosbo4XQJllEFeYolMavFPZkSV9975T9y+
+         fCPcRkWq5+CMujY5SaTZHRppltB+6SWURxKtTXygIv7Ne37PK5JsNgJxlO/XrFgCGe
+         xEE4snKcEi/moLs9lxLMlBrzEgkx4ZVqDmbCQVdK1196FOpzQjfbAvrwZKXvHryFIY
+         BEPoBNIHgTgkN3rMHOIjuJBq4ikPTGqGtT1dnL7Ol8P1WuLCgzYrzhMe9W7kUY5efO
+         GMr9AAAAiPNVg==
+Received: by mail.diwhide.pl for <linux-s390@vger.kernel.org>; Wed, 24 May 2023 07:50:35 GMT
+Message-ID: <20230524084500-0.1.i.1oo2.0.knjo3bctb2@diwhide.pl>
+Date:   Wed, 24 May 2023 07:50:35 GMT
+From:   "Grzegorz Larek" <grzegorz.larek@diwhide.pl>
+To:     <linux-s390@vger.kernel.org>
+Subject: Centrala- system telefoniczny
+X-Mailer: mail.diwhide.pl
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
- definitions=2023-05-24_03,2023-05-23_02,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=955
- lowpriorityscore=0 spamscore=0 mlxscore=0 suspectscore=0 bulkscore=0
- adultscore=0 priorityscore=1501 malwarescore=0 phishscore=0
- impostorscore=0 clxscore=1015 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2304280000 definitions=main-2305240064
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-A future change will convert the DMA API implementation from the
-architecture specific arch/s390/pci/pci_dma.c to using the common code
-drivers/iommu/dma-iommu.c which the utilizes the same IOMMU hardware
-through the s390-iommu driver. Unlike the s390 specific DMA API this
-requires devices to correctly set the coherent mask to be allowed to use
-IOVAs >2^32 in dma_alloc_coherent(). This was however not done for ISM
-devices. ISM requires such addresses since currently the DMA aperture
-for PCI devices starts at 2^32 and all calls to dma_alloc_coherent()
-would thus fail.
+Dzie=C5=84 dobry,
 
-Link: https://lore.kernel.org/all/20230310-dma_iommu-v9-1-65bb8edd2beb@linux.ibm.com/
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
----
-Note: This was previously sent and reviewed as part of multiple versions of the
-s390 DMA API conversion series which requires this change as a pre-requisite
-with the latest version at the Link. Sending separately to add the net-next
-prefix so this can be integrated.
+chcia=C5=82bym zaproponowa=C4=87 wst=C4=99pn=C4=85 rozmow=C4=99 na temat =
+wsp=C3=B3=C5=82pracy z Pa=C5=84stwem.
 
- drivers/s390/net/ism_drv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Zapewniamy wirtualny system telefoniczny, kt=C3=B3ry usprawnia kontakt z =
+Klientami, jednocze=C5=9Bnie redukuj=C4=85c koszty rozm=C3=B3w telefonicz=
+nych.
 
-diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
-index 8acb9eba691b..1399b5dc646c 100644
---- a/drivers/s390/net/ism_drv.c
-+++ b/drivers/s390/net/ism_drv.c
-@@ -660,7 +660,7 @@ static int ism_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 	if (ret)
- 		goto err_disable;
- 
--	ret = dma_set_mask(&pdev->dev, DMA_BIT_MASK(64));
-+	ret = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
- 	if (ret)
- 		goto err_resource;
- 
--- 
-2.39.2
+Nasza autorska platforma, z kt=C3=B3rej korzysta ju=C5=BC ponad 2500 firm=
+, pozwala przyj=C4=85=C4=87 100% zg=C5=82osze=C5=84 od klient=C3=B3w z ba=
+rdzo wielu kana=C5=82=C3=B3w - telefon, e-mail, sms, czat czy formularzy =
+do zamawiania rozm=C3=B3w telefonicznych bezpo=C5=9Brednio ze strony www.=
+=20
 
+Ch=C4=99tnie zaprezentuj=C4=99 Pa=C5=84stwu rezultaty, jakie mogliby=C5=9B=
+cie osi=C4=85gn=C4=85=C4=87. Mo=C5=BCemy porozmawia=C4=87?
+
+
+Pozdrawiam
+Grzegorz Larek
