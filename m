@@ -2,58 +2,58 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3124EC7EE2C
-	for <linux-s390@archiver.kernel.org>; Wed, 24 May 2023 10:13:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 82160C7EE23
+	for <linux-s390@archiver.kernel.org>; Wed, 24 May 2023 11:58:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232295AbjEXKNR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 24 May 2023 06:13:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42640 "EHLO
+        id S232046AbjEXL6a (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 24 May 2023 07:58:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232245AbjEXKNO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 24 May 2023 06:13:14 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80D478F;
-        Wed, 24 May 2023 03:13:12 -0700 (PDT)
+        with ESMTP id S229630AbjEXL63 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 24 May 2023 07:58:29 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AEB3135;
+        Wed, 24 May 2023 04:58:27 -0700 (PDT)
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 06883223C1;
-        Wed, 24 May 2023 10:13:11 +0000 (UTC)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id 802D622168;
+        Wed, 24 May 2023 11:58:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1684923191; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+        t=1684929505; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=/ve4/TtYTb+xjne8MK5462M47xa5SsY8B2FkwW34+Ec=;
-        b=J854jhGb1iler25PD7IsLRhDY4qoNhjLVAy1/X25dxY5NIvulnv6l5hExoBxGabJwFyDN2
-        NtV6g1YcuEl6ruTvP88ymkpxRTHoCn0BVUvAOTmkCoZ9AwY1e9k1t94YkXMYx9xiS9PUiw
-        Yuh7KrysetiKHjdZq0ICvFqn8qChoMs=
+        bh=rH18iBwWnn9zYEQ2bRQgcgXCwVXM3ls6ER1KLLT/r60=;
+        b=WMTRqdgWgo5Xv1JGWXGXa/4leJ+kA3Fr2EvuxoJ+Aqe6NU5zbCpx8cdBkJRqivz3zlmCI8
+        fYweNr+iUlPQUznzgqAE9D1FG4L+KMokWqHKNGTedF59FJDkPiQa49qcPJoEz7QSNuY/TE
+        11uKzpPFgkG44/ySFC88vJeQKALxzNA=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1684923191;
+        s=susede2_ed25519; t=1684929505;
         h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=/ve4/TtYTb+xjne8MK5462M47xa5SsY8B2FkwW34+Ec=;
-        b=8PPtdtNJ/oSkIBJ1FkAulBoYKRBsmhFmFPjHKM7RavKLfxQz/S+ayzKm2bWdeCdLTnCg1b
-        YjnkN1s0fBFUg5Cw==
+        bh=rH18iBwWnn9zYEQ2bRQgcgXCwVXM3ls6ER1KLLT/r60=;
+        b=5OLIE73rOKr/k1ojPtkzX/HPu5nXWbAb/WgNuvY9KLod1eci7r+KTUnNLWeyZDjI8HJPtV
+        go+jXuaQCYw1m7Dw==
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 45D9B13425;
-        Wed, 24 May 2023 10:13:10 +0000 (UTC)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id F3D0D13425;
+        Wed, 24 May 2023 11:58:24 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([192.168.254.65])
         by imap2.suse-dmz.suse.de with ESMTPSA
-        id OFd2EDbjbWTwGgAAMHmgww
-        (envelope-from <vbabka@suse.cz>); Wed, 24 May 2023 10:13:10 +0000
-Message-ID: <d2e02a4e-2a73-7b07-1bfb-ddf3f2a53ff1@suse.cz>
-Date:   Wed, 24 May 2023 12:13:09 +0200
+        id cu/HOuD7bWSZVgAAMHmgww
+        (envelope-from <vbabka@suse.cz>); Wed, 24 May 2023 11:58:24 +0000
+Message-ID: <18c33bf0-0c7e-7584-5149-33cf77b50b8a@suse.cz>
+Date:   Wed, 24 May 2023 13:58:24 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
  Thunderbird/102.11.0
-Subject: Re: [PATCH v3 08/11] slub: Replace cmpxchg_double()
+Subject: Re: [PATCH v3 09/11] mm/slub: Fold slab_update_freelist()
 Content-Language: en-US
 To:     Peter Zijlstra <peterz@infradead.org>,
         torvalds@linux-foundation.org
@@ -73,87 +73,182 @@ Cc:     corbet@lwn.net, will@kernel.org, boqun.feng@gmail.com,
         linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-mm@kvack.org, linux-s390@vger.kernel.org,
         iommu@lists.linux.dev, linux-arch@vger.kernel.org,
-        linux-crypto@vger.kernel.org, sfr@canb.auug.org.au,
-        mpe@ellerman.id.au
+        linux-crypto@vger.kernel.org
 References: <20230515075659.118447996@infradead.org>
- <20230515080554.453785148@infradead.org>
- <20230524093246.GP83892@hirez.programming.kicks-ass.net>
+ <20230515080554.520976397@infradead.org>
 From:   Vlastimil Babka <vbabka@suse.cz>
-In-Reply-To: <20230524093246.GP83892@hirez.programming.kicks-ass.net>
+In-Reply-To: <20230515080554.520976397@infradead.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 5/24/23 11:32, Peter Zijlstra wrote:
-> On Mon, May 15, 2023 at 09:57:07AM +0200, Peter Zijlstra wrote:
+On 5/15/23 09:57, Peter Zijlstra wrote:
+> The two functions slab_update_freelist() and __slab_update_freelist()
+> are nearly identical, fold and add a boolean argument and rely on
+> constant propagation.
 > 
->> @@ -3008,6 +3029,22 @@ static inline bool pfmemalloc_match(stru
->>  }
->>  
->>  #ifndef CONFIG_SLUB_TINY
->> +static inline bool
->> +__update_cpu_freelist_fast(struct kmem_cache *s,
->> +			   void *freelist_old, void *freelist_new,
->> +			   unsigned long tid)
->> +{
->> +#ifdef system_has_freelist_aba
->> +	freelist_aba_t old = { .freelist = freelist_old, .counter = tid };
->> +	freelist_aba_t new = { .freelist = freelist_new, .counter = next_tid(tid) };
->> +
->> +	return this_cpu_cmpxchg_freelist(s->cpu_slab->freelist_tid.full,
->> +					 old.full, new.full) == old.full;
->> +#else
->> +	return false;
->> +#endif
->> +}
->> +
->>  /*
->>   * Check the slab->freelist and either transfer the freelist to the
->>   * per cpu freelist or deactivate the slab.
->> @@ -3359,11 +3396,7 @@ static __always_inline void *__slab_allo
->>  		 * against code executing on this cpu *not* from access by
->>  		 * other cpus.
->>  		 */
->> -		if (unlikely(!this_cpu_cmpxchg_double(
->> -				s->cpu_slab->freelist, s->cpu_slab->tid,
->> -				object, tid,
->> -				next_object, next_tid(tid)))) {
->> -
->> +		if (unlikely(!__update_cpu_freelist_fast(s, object, next_object, tid))) {
->>  			note_cmpxchg_failure("slab_alloc", s, tid);
->>  			goto redo;
->>  		}
->> @@ -3736,11 +3769,7 @@ static __always_inline void do_slab_free
->>  
->>  		set_freepointer(s, tail_obj, freelist);
->>  
->> -		if (unlikely(!this_cpu_cmpxchg_double(
->> -				s->cpu_slab->freelist, s->cpu_slab->tid,
->> -				freelist, tid,
->> -				head, next_tid(tid)))) {
->> -
->> +		if (unlikely(!__update_cpu_freelist_fast(s, freelist, head, tid))) {
->>  			note_cmpxchg_failure("slab_free", s, tid);
->>  			goto redo;
->>  		}
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+
+Something like that has been tried before and the result:
+https://lore.kernel.org/all/CAHk-=wiJLqL2cUhJbvpyPQpkbVOu1rVSzgO2=S2jC55hneLtfQ@mail.gmail.com/
+
+Your parameter is not called 'locked' but 'irq_save' which is better, but
+that's just one detail.
+
+After your refactoring in 08/11 which puts most of the code into
+__update_freelist_fast() and _slow() I'd say the result is not so bad already.
+
+BTW I have some suspicion that some SLUB code is based on assumptions that
+are no longer true these days. IIRC I've seen some microbenchmark results a
+while ago that showed that disabling/enabling irqs is surprisingly (to me)
+very cheap today, so maybe it's not so useful to keep doing the
+this_cpu_cmpxchg128 for the struct kmem_cache_cpu operations (less so for
+struct slab cmpxchg128 where actually different cpus may be involved). But
+it needs a closer look.
+
+> ---
+>  mm/slub.c |   80 +++++++++++++++++++++-----------------------------------------
+>  1 file changed, 28 insertions(+), 52 deletions(-)
 > 
-> This isn't right; the this_cpu_cmpxchg_double() was unconditional and
-> relied on the local_irq_save() fallback when no native cmpxchg128 is
-> present.
+> --- a/mm/slub.c
+> +++ b/mm/slub.c
+> @@ -559,53 +559,29 @@ __update_freelist_slow(struct slab *slab
+>   * allocation/ free operation in hardirq context. Therefore nothing can
+>   * interrupt the operation.
+>   */
+> -static inline bool __slab_update_freelist(struct kmem_cache *s, struct slab *slab,
+> -		void *freelist_old, unsigned long counters_old,
+> -		void *freelist_new, unsigned long counters_new,
+> -		const char *n)
+> +static __always_inline
+> +bool slab_update_freelist(struct kmem_cache *s, struct slab *slab,
+> +			  void *freelist_old, unsigned long counters_old,
+> +			  void *freelist_new, unsigned long counters_new,
+> +			  bool irq_save, const char *n)
+>  {
+>  	bool ret;
+>  
+> -	if (USE_LOCKLESS_FAST_PATH())
+> +	if (!irq_save && USE_LOCKLESS_FAST_PATH())
+>  		lockdep_assert_irqs_disabled();
+>  
+>  	if (s->flags & __CMPXCHG_DOUBLE) {
+>  		ret = __update_freelist_fast(slab, freelist_old, counters_old,
+>  				            freelist_new, counters_new);
+>  	} else {
+> -		ret = __update_freelist_slow(slab, freelist_old, counters_old,
+> -				            freelist_new, counters_new);
+> -	}
+> -	if (likely(ret))
+> -		return true;
+> -
+> -	cpu_relax();
+> -	stat(s, CMPXCHG_DOUBLE_FAIL);
+> -
+> -#ifdef SLUB_DEBUG_CMPXCHG
+> -	pr_info("%s %s: cmpxchg double redo ", n, s->name);
+> -#endif
+> -
+> -	return false;
+> -}
+> -
+> -static inline bool slab_update_freelist(struct kmem_cache *s, struct slab *slab,
+> -		void *freelist_old, unsigned long counters_old,
+> -		void *freelist_new, unsigned long counters_new,
+> -		const char *n)
+> -{
+> -	bool ret;
+> -
+> -	if (s->flags & __CMPXCHG_DOUBLE) {
+> -		ret = __update_freelist_fast(slab, freelist_old, counters_old,
+> -				            freelist_new, counters_new);
+> -	} else {
+>  		unsigned long flags;
+>  
+> -		local_irq_save(flags);
+> +		if (irq_save)
+> +			local_irq_save(flags);
+>  		ret = __update_freelist_slow(slab, freelist_old, counters_old,
+>  				            freelist_new, counters_new);
+> -		local_irq_restore(flags);
+> +		if (irq_save)
+> +			local_irq_restore(flags);
+>  	}
+>  	if (likely(ret))
+>  		return true;
+> @@ -2250,10 +2226,10 @@ static inline void *acquire_slab(struct
+>  	VM_BUG_ON(new.frozen);
+>  	new.frozen = 1;
+>  
+> -	if (!__slab_update_freelist(s, slab,
+> -			freelist, counters,
+> -			new.freelist, new.counters,
+> -			"acquire_slab"))
+> +	if (!slab_update_freelist(s, slab,
+> +				  freelist, counters,
+> +				  new.freelist, new.counters,
+> +				  false, "acquire_slab"))
+>  		return NULL;
+>  
+>  	remove_partial(n, slab);
+> @@ -2577,9 +2553,9 @@ static void deactivate_slab(struct kmem_
+>  
+>  
+>  	if (!slab_update_freelist(s, slab,
+> -				old.freelist, old.counters,
+> -				new.freelist, new.counters,
+> -				"unfreezing slab")) {
+> +				  old.freelist, old.counters,
+> +				  new.freelist, new.counters,
+> +				  true, "unfreezing slab")) {
+>  		if (mode == M_PARTIAL)
+>  			spin_unlock_irqrestore(&n->list_lock, flags);
+>  		goto redo;
+> @@ -2633,10 +2609,10 @@ static void __unfreeze_partials(struct k
+>  
+>  			new.frozen = 0;
+>  
+> -		} while (!__slab_update_freelist(s, slab,
+> -				old.freelist, old.counters,
+> -				new.freelist, new.counters,
+> -				"unfreezing slab"));
+> +		} while (!slab_update_freelist(s, slab,
+> +					       old.freelist, old.counters,
+> +					       new.freelist, new.counters,
+> +					       false, "unfreezing slab"));
+>  
+>  		if (unlikely(!new.inuse && n->nr_partial >= s->min_partial)) {
+>  			slab->next = slab_to_discard;
+> @@ -3072,10 +3048,10 @@ static inline void *get_freelist(struct
+>  		new.inuse = slab->objects;
+>  		new.frozen = freelist != NULL;
+>  
+> -	} while (!__slab_update_freelist(s, slab,
+> -		freelist, counters,
+> -		NULL, new.counters,
+> -		"get_freelist"));
+> +	} while (!slab_update_freelist(s, slab,
+> +				       freelist, counters,
+> +				       NULL, new.counters,
+> +				       false, "get_freelist"));
+>  
+>  	return freelist;
+>  }
+> @@ -3666,9 +3642,9 @@ static void __slab_free(struct kmem_cach
+>  		}
+>  
+>  	} while (!slab_update_freelist(s, slab,
+> -		prior, counters,
+> -		head, new.counters,
+> -		"__slab_free"));
+> +				       prior, counters,
+> +				       head, new.counters,
+> +				       true, "__slab_free"));
+>  
+>  	if (likely(!n)) {
+>  
 > 
-> The below delta makes things boot again when system_has_cmpxchg128 is
-> not defined.
-
-Right, that should do.
-
-> I'm going to zap these patches from tip/locking/core for a few days and
-> fold the below back into the series and let it run through the robots
-> again.
-
-I noticed some comments in mm/slub.c still mention "cmpxchg_double", dunno
-how much you want to clean it right now or can be postponed. Also some sysfs
-stats files for CONFIG_SLUB_STATS (not widely used) which we probably might
-try renaming without breaking anyone, but it's not guaranteed.
+> 
 
