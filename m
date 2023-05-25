@@ -2,62 +2,90 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 79074C7EE2E
-	for <linux-s390@archiver.kernel.org>; Thu, 25 May 2023 16:44:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A30BC7EE33
+	for <linux-s390@archiver.kernel.org>; Thu, 25 May 2023 17:00:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233488AbjEYQov (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 25 May 2023 12:44:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47864 "EHLO
+        id S240489AbjEYRAi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 25 May 2023 13:00:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240568AbjEYQos (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 25 May 2023 12:44:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 782EE197;
-        Thu, 25 May 2023 09:44:47 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DAB5F64768;
-        Thu, 25 May 2023 16:44:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1954C433EF;
-        Thu, 25 May 2023 16:44:42 +0000 (UTC)
-Date:   Thu, 25 May 2023 17:44:40 +0100
-From:   Catalin Marinas <catalin.marinas@arm.com>
-To:     Arnd Bergmann <arnd@kernel.org>
-Cc:     Ingo Molnar <mingo@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        Russell King <linux@armlinux.org.uk>,
-        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        x86@kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org, linux-csky@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH] irq_work: consolidate arch_irq_work_raise prototypes
-Message-ID: <ZG+QeFcqLNypuMLY@arm.com>
-References: <20230516200341.553413-1-arnd@kernel.org>
+        with ESMTP id S229832AbjEYRAg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 25 May 2023 13:00:36 -0400
+Received: from mail-yb1-xb2e.google.com (mail-yb1-xb2e.google.com [IPv6:2607:f8b0:4864:20::b2e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BE4A194;
+        Thu, 25 May 2023 10:00:35 -0700 (PDT)
+Received: by mail-yb1-xb2e.google.com with SMTP id 3f1490d57ef6-ba86ec8047bso1164565276.3;
+        Thu, 25 May 2023 10:00:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1685034035; x=1687626035;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=JHrTsqL0nqeqxBvVw7n3mE3d9UFJpL2j8If6jZFByTc=;
+        b=VEXX4D+/ehgygAWm5BmRxKMQVayX+huiD86BmHpUJbQZIavyZk8MqgFgBVJCgltW8G
+         DGf1XLm8HhYD7C5Ltu5hncRV4xkFiRLvjnKAKUZAVqhHyZU7uDae6IK3C5qSD3GFgpGy
+         OqLSmV63QlFHc9BLqOH+z3/46t/qsNvryv2gOmzRQJTarAzeFF3wkmaawd/u1vYzudf+
+         2OoFyE7ArYkSpPwfiPG4wUCBT5egkmxxlXwXAVhzZYomT8xAIzGjfTrChNVAlbK2FaKO
+         3t03QrSsNM3MzVGbAgb9jEqdKkZ/GGbY36ZIzPCKupNWpFQuCEQc+t41/FAd5d9jW5uu
+         ry0A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1685034035; x=1687626035;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=JHrTsqL0nqeqxBvVw7n3mE3d9UFJpL2j8If6jZFByTc=;
+        b=RMzZUDsJuZLFwgNW98WpKtE0ELbyAiHu1ZKZKNTR0WmqNKZKoXvuKYpCk0sAd8GvrV
+         tEVjLZNihwtsJ+7ELcn5/Wu7Z/OolSONBQfoJ7u7LFEU/MAHrbWrGxnpSWKDzwGwaHZF
+         xZVQp0L1WW/rhxbN8mihO+t9VO4Sdd5gPaYY3iiy0jsbJc3ODwR1p4qL1+r9DfYE0vDg
+         8JfEqi8GOlgYwmhHlIsEdsi6xnStaVP0X1QLzWNoxTKDiLFav7iIT382D0GIvKY7RwWN
+         JKybNMvOdXyF5xgzbl7nuMqVlgFEe8LZUoz/cgYMYonpSrmYxzynYgCn0ui0ItvfGR05
+         5/IQ==
+X-Gm-Message-State: AC+VfDx8+JIBFKYl9eFzTAc5/+skqsZNO5jo7VisB7gsMRGosQzcvIvb
+        9mgWXarQKat5ShyFN5Qo9hPWbhNEhfOoTFMT05y4MRzA
+X-Google-Smtp-Source: ACHHUZ47ymCJWriUjad8DQ05hIMcCKin/PTMMU7nNv3HHwEyV9e0xB3DhHdcf1Fkkg8cgW7lAUtL7p6ayG4dp+Ur5MI=
+X-Received: by 2002:a25:2487:0:b0:ba8:5ded:13f3 with SMTP id
+ k129-20020a252487000000b00ba85ded13f3mr4152229ybk.17.1685034034679; Thu, 25
+ May 2023 10:00:34 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230516200341.553413-1-arnd@kernel.org>
+References: <20230501192829.17086-1-vishal.moola@gmail.com>
+ <20230501192829.17086-2-vishal.moola@gmail.com> <20230525085555.GV4967@kernel.org>
+In-Reply-To: <20230525085555.GV4967@kernel.org>
+From:   Vishal Moola <vishal.moola@gmail.com>
+Date:   Thu, 25 May 2023 10:00:23 -0700
+Message-ID: <CAOzc2pxx489C26NnS9NHkUQY9PYiagzt-nYK6LnkJ1N3NYQWzg@mail.gmail.com>
+Subject: Re: [PATCH v2 01/34] mm: Add PAGE_TYPE_OP folio functions
+To:     Mike Rapoport <rppt@kernel.org>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org,
+        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+        xen-devel@lists.xenproject.org, kvm@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, May 16, 2023 at 10:02:31PM +0200, Arnd Bergmann wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
-> 
-> The prototype was hidden on x86, which causes a warning:
-> 
-> kernel/irq_work.c:72:13: error: no previous prototype for 'arch_irq_work_raise' [-Werror=missing-prototypes]
-> 
-> Fix this by providing it in only one place that is always visible.
-> 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+On Thu, May 25, 2023 at 1:56=E2=80=AFAM Mike Rapoport <rppt@kernel.org> wro=
+te:
+>
+> Hi,
+>
+> On Mon, May 01, 2023 at 12:27:56PM -0700, Vishal Moola (Oracle) wrote:
+> > No folio equivalents for page type operations have been defined, so
+> > define them for later folio conversions.
+>
+> Can you please elaborate why would we need folios for page table descript=
+ors?
 
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Thanks for the review!
+
+These macros are for callers that care about the page type, i.e. Table and
+Buddy. Aside from accounting for those cases, the page tables don't use fol=
+ios.
+These are more for the cleanliness of those callers.
