@@ -2,189 +2,100 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1851AC7EE37
-	for <linux-s390@archiver.kernel.org>; Thu, 25 May 2023 18:17:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B0136C7EE2C
+	for <linux-s390@archiver.kernel.org>; Thu, 25 May 2023 18:36:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241233AbjEYSR3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 25 May 2023 14:17:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43244 "EHLO
+        id S241888AbjEYSgB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 25 May 2023 14:36:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230474AbjEYSR1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 25 May 2023 14:17:27 -0400
-Received: from mail-yb1-xb35.google.com (mail-yb1-xb35.google.com [IPv6:2607:f8b0:4864:20::b35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13330D9;
-        Thu, 25 May 2023 11:17:26 -0700 (PDT)
-Received: by mail-yb1-xb35.google.com with SMTP id 3f1490d57ef6-b9daef8681fso766668276.1;
-        Thu, 25 May 2023 11:17:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1685038645; x=1687630645;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=vEt/V8+3jpKdaWf/91twz9m1AxbB8mw1sieW7q1FOX4=;
-        b=qpx33W23LxzGgtt7x0f+jHNiqnq/vW7f+lo4R60odkrqHHbvAvDFwCToA7ZeGOtlZu
-         1pix82nq+XRaSlrOoV5XSSn7dUtYbrVRPJSVcc+Y0QUEIud/VeliblGAWTefKuC3uiLW
-         Y767SW9acPu7TamxQ3rDZ7ad1waallUvH2KGWMSoPdMgQ6uqByETyo++E8JgCnYWaIR7
-         T+3+xQi6fbJlgvqxHEFBxTPhg1oh030qaBtpvB360U8uoO6SqTXFxFoolc38s3Jd+HWF
-         qSuZfJvCEliq2Q2QxhelaN+CYntsdlTkVUzhuGY+pHQjjIlm9D34YIwBuMF1/x8S1rOB
-         qR0Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1685038645; x=1687630645;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=vEt/V8+3jpKdaWf/91twz9m1AxbB8mw1sieW7q1FOX4=;
-        b=GYx8Vc6Qyadtv52ZSRC1OpNQJOXQJ3a9QlpsNbv0Wl5bOH3MasYZx+fdpWz6yovU28
-         cK+lZ6pmJj8CR2CsFNMhwvFZvnnsOPUUE8RU3viIfOUieadTSqgkhShmmtQ05hGF9u7m
-         Hycf/ryemTt+RR0i1XrAIsI5x9ZT20r0z94IZaeM6A+saY6xHcepLVZGO4aOKItNWovJ
-         ir982uyT4S7KaKDZYYZsMvzu44Mme52jKcEAsqHKAYyrWM2XVpGGjLBzAxaRlKcZF3l8
-         i3ZEdC1KTlwBKMqnvWxvuTkb6zQzVZKlYs5XOq9NzhwvqtHf6fQKw7l1adPXcw+lbjSk
-         O0oQ==
-X-Gm-Message-State: AC+VfDzS8nTuROnl9ViiaFP8mNzAbhqJO6XLAcEJSgmaE6emoLIjFG0h
-        m+8Lkay510cSCS0esr3uXlkmcXSxvCQirsrSN3k=
-X-Google-Smtp-Source: ACHHUZ4CxdCafEVA2N8+YE3r54vbJuyNv4iSvWQn7ibpFdu7Q8YcRob13nPjv7XKdbKB6AoaGk0hrDu/6J2TDu7u8Qo=
-X-Received: by 2002:a25:ac6:0:b0:ba7:bb4c:7960 with SMTP id
- 189-20020a250ac6000000b00ba7bb4c7960mr4320550ybk.26.1685038645132; Thu, 25
- May 2023 11:17:25 -0700 (PDT)
+        with ESMTP id S241881AbjEYSfc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 25 May 2023 14:35:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E986B1BCB;
+        Thu, 25 May 2023 11:34:18 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 40C21648BB;
+        Thu, 25 May 2023 18:34:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7E54C4339E;
+        Thu, 25 May 2023 18:34:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1685039650;
+        bh=JX+nrVURjyP+KRfBbp1VkQbPd7NZtc4TQcwVsolORiM=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=HmZvD9AG+TlTdprrhrE2Uv+cAgVgTBppTjgMYl/2HviuMoHpoKMxpbverxYzNaXHU
+         rOrw0LRs519gcYUOOjFQm37ckFuffiIwRA5O6plz3zySYAE1wzwXFJX3Su8VcYD+0F
+         K66tkhTFd++lj6wTq8Qwzbbjbq2ovqCAX4SreZH278cJ1y1yX+Njee7QbTYqcWN25b
+         qlSiVDnuPO/Imlp1d2ij6/O1KnpnlrhFJJCY/PwSNfQ+ajkot3RHtKa5ICZK4nroKO
+         2ibwQPaGbevq+5JhB5cj32bx+5Uy0awMYRH4hyPn3VODEAUnr3V2g/0M4hjEgbZFkk
+         Zt1axM7tRGEBQ==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Holger Dengler <dengler@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, hca@linux.ibm.com,
+        gor@linux.ibm.com, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.3 36/67] s390/pkey: zeroize key blobs
+Date:   Thu, 25 May 2023 14:31:13 -0400
+Message-Id: <20230525183144.1717540-36-sashal@kernel.org>
+X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230525183144.1717540-1-sashal@kernel.org>
+References: <20230525183144.1717540-1-sashal@kernel.org>
 MIME-Version: 1.0
-References: <20230501192829.17086-1-vishal.moola@gmail.com>
- <20230501192829.17086-14-vishal.moola@gmail.com> <20230525091900.GY4967@kernel.org>
-In-Reply-To: <20230525091900.GY4967@kernel.org>
-From:   Vishal Moola <vishal.moola@gmail.com>
-Date:   Thu, 25 May 2023 11:17:14 -0700
-Message-ID: <CAOzc2pxNRbohxxNnaKtBNOBgOschHMj278-6hWZK9A1oJOgujA@mail.gmail.com>
-Subject: Re: [PATCH v2 13/34] mm: Create ptdesc equivalents for pgtable_{pte,pmd}_page_{ctor,dtor}
-To:     Mike Rapoport <rppt@kernel.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org,
-        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-        xen-devel@lists.xenproject.org, kvm@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, May 25, 2023 at 2:19=E2=80=AFAM Mike Rapoport <rppt@kernel.org> wro=
-te:
->
-> On Mon, May 01, 2023 at 12:28:08PM -0700, Vishal Moola (Oracle) wrote:
-> > Creates ptdesc_pte_ctor(), ptdesc_pmd_ctor(), ptdesc_pte_dtor(), and
-> > ptdesc_pmd_dtor() and make the original pgtable constructor/destructors
-> > wrappers.
->
-> I think pgtable_pXY_ctor/dtor names would be better.
+From: Holger Dengler <dengler@linux.ibm.com>
 
-I have it as ptdesc to keep it consistent with the rest of the functions. I
-also think it makes more sense as it's initializing stuff tracked by a ptde=
-sc.
+[ Upstream commit 844cf829e5f33e00b279230470c8c93b58b8c16f ]
 
-> > Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
-> > ---
-> >  include/linux/mm.h | 56 ++++++++++++++++++++++++++++++++++------------
-> >  1 file changed, 42 insertions(+), 14 deletions(-)
-> >
-> > diff --git a/include/linux/mm.h b/include/linux/mm.h
-> > index 58c911341a33..dc61aeca9077 100644
-> > --- a/include/linux/mm.h
-> > +++ b/include/linux/mm.h
-> > @@ -2847,20 +2847,34 @@ static inline bool ptlock_init(struct ptdesc *p=
-tdesc) { return true; }
-> >  static inline void ptlock_free(struct ptdesc *ptdesc) {}
-> >  #endif /* USE_SPLIT_PTE_PTLOCKS */
-> >
-> > -static inline bool pgtable_pte_page_ctor(struct page *page)
-> > +static inline bool ptdesc_pte_ctor(struct ptdesc *ptdesc)
-> >  {
-> > -     if (!ptlock_init(page_ptdesc(page)))
-> > +     struct folio *folio =3D ptdesc_folio(ptdesc);
-> > +
-> > +     if (!ptlock_init(ptdesc))
-> >               return false;
-> > -     __SetPageTable(page);
-> > -     inc_lruvec_page_state(page, NR_PAGETABLE);
-> > +     __folio_set_table(folio);
-> > +     lruvec_stat_add_folio(folio, NR_PAGETABLE);
-> >       return true;
-> >  }
-> >
-> > +static inline bool pgtable_pte_page_ctor(struct page *page)
-> > +{
-> > +     return ptdesc_pte_ctor(page_ptdesc(page));
-> > +}
-> > +
-> > +static inline void ptdesc_pte_dtor(struct ptdesc *ptdesc)
-> > +{
-> > +     struct folio *folio =3D ptdesc_folio(ptdesc);
-> > +
-> > +     ptlock_free(ptdesc);
-> > +     __folio_clear_table(folio);
-> > +     lruvec_stat_sub_folio(folio, NR_PAGETABLE);
-> > +}
-> > +
-> >  static inline void pgtable_pte_page_dtor(struct page *page)
-> >  {
-> > -     ptlock_free(page_ptdesc(page));
-> > -     __ClearPageTable(page);
-> > -     dec_lruvec_page_state(page, NR_PAGETABLE);
-> > +     ptdesc_pte_dtor(page_ptdesc(page));
-> >  }
-> >
-> >  #define pte_offset_map_lock(mm, pmd, address, ptlp)  \
-> > @@ -2942,20 +2956,34 @@ static inline spinlock_t *pmd_lock(struct mm_st=
-ruct *mm, pmd_t *pmd)
-> >       return ptl;
-> >  }
-> >
-> > -static inline bool pgtable_pmd_page_ctor(struct page *page)
-> > +static inline bool ptdesc_pmd_ctor(struct ptdesc *ptdesc)
-> >  {
-> > -     if (!pmd_ptlock_init(page_ptdesc(page)))
-> > +     struct folio *folio =3D ptdesc_folio(ptdesc);
-> > +
-> > +     if (!pmd_ptlock_init(ptdesc))
-> >               return false;
-> > -     __SetPageTable(page);
-> > -     inc_lruvec_page_state(page, NR_PAGETABLE);
-> > +     __folio_set_table(folio);
-> > +     lruvec_stat_add_folio(folio, NR_PAGETABLE);
-> >       return true;
-> >  }
-> >
-> > +static inline bool pgtable_pmd_page_ctor(struct page *page)
-> > +{
-> > +     return ptdesc_pmd_ctor(page_ptdesc(page));
-> > +}
-> > +
-> > +static inline void ptdesc_pmd_dtor(struct ptdesc *ptdesc)
-> > +{
-> > +     struct folio *folio =3D ptdesc_folio(ptdesc);
-> > +
-> > +     pmd_ptlock_free(ptdesc);
-> > +     __folio_clear_table(folio);
-> > +     lruvec_stat_sub_folio(folio, NR_PAGETABLE);
-> > +}
-> > +
-> >  static inline void pgtable_pmd_page_dtor(struct page *page)
-> >  {
-> > -     pmd_ptlock_free(page_ptdesc(page));
-> > -     __ClearPageTable(page);
-> > -     dec_lruvec_page_state(page, NR_PAGETABLE);
-> > +     ptdesc_pmd_dtor(page_ptdesc(page));
-> >  }
-> >
-> >  /*
-> > --
-> > 2.39.2
-> >
-> >
->
-> --
-> Sincerely yours,
-> Mike.
+Key blobs for the IOCTLs PKEY_KBLOB2PROTK[23] may contain clear key
+material. Zeroize the copies of these keys in kernel memory after
+creating the protected key.
+
+Reviewed-by: Harald Freudenberger <freude@linux.ibm.com>
+Signed-off-by: Holger Dengler <dengler@linux.ibm.com>
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/s390/crypto/pkey_api.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/s390/crypto/pkey_api.c b/drivers/s390/crypto/pkey_api.c
+index 5a05d1cdfec20..a8def50c149bd 100644
+--- a/drivers/s390/crypto/pkey_api.c
++++ b/drivers/s390/crypto/pkey_api.c
+@@ -1293,6 +1293,7 @@ static long pkey_unlocked_ioctl(struct file *filp, unsigned int cmd,
+ 			return PTR_ERR(kkey);
+ 		rc = pkey_keyblob2pkey(kkey, ktp.keylen, &ktp.protkey);
+ 		DEBUG_DBG("%s pkey_keyblob2pkey()=%d\n", __func__, rc);
++		memzero_explicit(kkey, ktp.keylen);
+ 		kfree(kkey);
+ 		if (rc)
+ 			break;
+@@ -1426,6 +1427,7 @@ static long pkey_unlocked_ioctl(struct file *filp, unsigned int cmd,
+ 					kkey, ktp.keylen, &ktp.protkey);
+ 		DEBUG_DBG("%s pkey_keyblob2pkey2()=%d\n", __func__, rc);
+ 		kfree(apqns);
++		memzero_explicit(kkey, ktp.keylen);
+ 		kfree(kkey);
+ 		if (rc)
+ 			break;
+@@ -1552,6 +1554,7 @@ static long pkey_unlocked_ioctl(struct file *filp, unsigned int cmd,
+ 					protkey, &protkeylen);
+ 		DEBUG_DBG("%s pkey_keyblob2pkey3()=%d\n", __func__, rc);
+ 		kfree(apqns);
++		memzero_explicit(kkey, ktp.keylen);
+ 		kfree(kkey);
+ 		if (rc) {
+ 			kfree(protkey);
+-- 
+2.39.2
+
