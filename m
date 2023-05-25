@@ -2,100 +2,83 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 262C9C7EE31
-	for <linux-s390@archiver.kernel.org>; Thu, 25 May 2023 18:46:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C9E3C7EE37
+	for <linux-s390@archiver.kernel.org>; Thu, 25 May 2023 20:20:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242725AbjEYSqf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 25 May 2023 14:46:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35134 "EHLO
+        id S240865AbjEYUUj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 25 May 2023 16:20:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242988AbjEYSps (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 25 May 2023 14:45:48 -0400
+        with ESMTP id S232445AbjEYUUi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 25 May 2023 16:20:38 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B9D01706;
-        Thu, 25 May 2023 11:42:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A3249B;
+        Thu, 25 May 2023 13:20:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 031966422B;
-        Thu, 25 May 2023 18:42:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87D57C433D2;
-        Thu, 25 May 2023 18:42:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E722C64A74;
+        Thu, 25 May 2023 20:20:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D613BC433D2;
+        Thu, 25 May 2023 20:20:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1685040128;
-        bh=vR3gdLk2lwQFpq5DKF6oeHeq/xHoQob/o2RETl2k0ow=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TMtmGX41SOtjnW4SYD4bVoBcZvd3iE3c/0A4vXKoU7CyuWN99CWBmFTVnv9sDF+ns
-         rZ9p6xZ9jscaZJv/6UTdETDCnbAXIMCGg2OMgrnsjlVtZLwRXTORY/98HAkK69rvM/
-         tihN8KCNUdMQinn/AMIreui6fjKq8Slyv6OBcKckgGh5vb+K4/0JOeqHBfLAQWLQ4B
-         GHJTrB5xsCFuA5xwrrBiefY3hP268Yggyak8HP5usYJ5vRDxyy6lXY9kgJODcKxXNN
-         qgVFnw6XBZEuymUwmTg+LH9AiG/AE1bEEgIjHXNkmXvtHalPbXz5FYpwWpxYBYRDHc
-         pkpvoUh3V2nCQ==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Holger Dengler <dengler@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, hca@linux.ibm.com,
-        gor@linux.ibm.com, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 20/31] s390/pkey: zeroize key blobs
-Date:   Thu, 25 May 2023 14:40:51 -0400
-Message-Id: <20230525184105.1909399-20-sashal@kernel.org>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230525184105.1909399-1-sashal@kernel.org>
-References: <20230525184105.1909399-1-sashal@kernel.org>
+        s=k20201202; t=1685046036;
+        bh=TRdhRXxXUIYfs640uIn+I4Rf6UAXCv8idpkcYdsSebM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=oiC2XGhNWUAmWE7pr8r3QtJ9JQsEo/jXvve3lXs2r5Y+W4R2mTSVXer6rhbIqd0H3
+         uoSQkJ728HLdXkJmf2eWWiJHTRm/fGQOsi2eZMGN8iMwau2U+ioJb0W4RoKYGYtykh
+         z9scTeHJfdOUnqeX313qP2xIMkwidI5DxymtOtruiJkZ/HiGGdvi3+NdefCU8HC/4L
+         yVF6ukcziPPo5ghUZkvreoJAGRzTQdLIctyd1RS1O+YIm3/yAJVKFl1SAT+U6nvVPE
+         TUmcZj1oUZgh7b4Odb9/HzteZyqvh1+JrTl0ADJm08qL98dpyZZ8OeR78PQJMngFPN
+         0x/EvMWBkU0Qw==
+Date:   Thu, 25 May 2023 23:20:11 +0300
+From:   Mike Rapoport <rppt@kernel.org>
+To:     Vishal Moola <vishal.moola@gmail.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org,
+        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+        xen-devel@lists.xenproject.org, kvm@vger.kernel.org
+Subject: Re: [PATCH v2 01/34] mm: Add PAGE_TYPE_OP folio functions
+Message-ID: <20230525202011.GZ4967@kernel.org>
+References: <20230501192829.17086-1-vishal.moola@gmail.com>
+ <20230501192829.17086-2-vishal.moola@gmail.com>
+ <20230525085555.GV4967@kernel.org>
+ <CAOzc2pxx489C26NnS9NHkUQY9PYiagzt-nYK6LnkJ1N3NYQWzg@mail.gmail.com>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAOzc2pxx489C26NnS9NHkUQY9PYiagzt-nYK6LnkJ1N3NYQWzg@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Holger Dengler <dengler@linux.ibm.com>
+On Thu, May 25, 2023 at 10:00:23AM -0700, Vishal Moola wrote:
+> On Thu, May 25, 2023 at 1:56 AM Mike Rapoport <rppt@kernel.org> wrote:
+> >
+> > Hi,
+> >
+> > On Mon, May 01, 2023 at 12:27:56PM -0700, Vishal Moola (Oracle) wrote:
+> > > No folio equivalents for page type operations have been defined, so
+> > > define them for later folio conversions.
+> >
+> > Can you please elaborate why would we need folios for page table descriptors?
+> 
+> Thanks for the review!
+> 
+> These macros are for callers that care about the page type, i.e. Table and
+> Buddy. Aside from accounting for those cases, the page tables don't use folios.
+> These are more for the cleanliness of those callers.
 
-[ Upstream commit 844cf829e5f33e00b279230470c8c93b58b8c16f ]
+But why using folio APIs for PageType will be cleaner than using page APIs?
+Do you have an example?
 
-Key blobs for the IOCTLs PKEY_KBLOB2PROTK[23] may contain clear key
-material. Zeroize the copies of these keys in kernel memory after
-creating the protected key.
-
-Reviewed-by: Harald Freudenberger <freude@linux.ibm.com>
-Signed-off-by: Holger Dengler <dengler@linux.ibm.com>
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/s390/crypto/pkey_api.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/drivers/s390/crypto/pkey_api.c b/drivers/s390/crypto/pkey_api.c
-index dd84995049b91..870e00effe439 100644
---- a/drivers/s390/crypto/pkey_api.c
-+++ b/drivers/s390/crypto/pkey_api.c
-@@ -1271,6 +1271,7 @@ static long pkey_unlocked_ioctl(struct file *filp, unsigned int cmd,
- 			return PTR_ERR(kkey);
- 		rc = pkey_keyblob2pkey(kkey, ktp.keylen, &ktp.protkey);
- 		DEBUG_DBG("%s pkey_keyblob2pkey()=%d\n", __func__, rc);
-+		memzero_explicit(kkey, ktp.keylen);
- 		kfree(kkey);
- 		if (rc)
- 			break;
-@@ -1404,6 +1405,7 @@ static long pkey_unlocked_ioctl(struct file *filp, unsigned int cmd,
- 					kkey, ktp.keylen, &ktp.protkey);
- 		DEBUG_DBG("%s pkey_keyblob2pkey2()=%d\n", __func__, rc);
- 		kfree(apqns);
-+		memzero_explicit(kkey, ktp.keylen);
- 		kfree(kkey);
- 		if (rc)
- 			break;
-@@ -1530,6 +1532,7 @@ static long pkey_unlocked_ioctl(struct file *filp, unsigned int cmd,
- 					protkey, &protkeylen);
- 		DEBUG_DBG("%s pkey_keyblob2pkey3()=%d\n", __func__, rc);
- 		kfree(apqns);
-+		memzero_explicit(kkey, ktp.keylen);
- 		kfree(kkey);
- 		if (rc) {
- 			kfree(protkey);
 -- 
-2.39.2
-
+Sincerely yours,
+Mike.
