@@ -2,48 +2,48 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D6B3C7EE32
-	for <linux-s390@archiver.kernel.org>; Thu, 25 May 2023 18:36:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C035C7EE2C
+	for <linux-s390@archiver.kernel.org>; Thu, 25 May 2023 18:42:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241910AbjEYSgQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 25 May 2023 14:36:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52026 "EHLO
+        id S242254AbjEYSm6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 25 May 2023 14:42:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241815AbjEYSfx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 25 May 2023 14:35:53 -0400
+        with ESMTP id S242209AbjEYSmd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 25 May 2023 14:42:33 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8C0210C7;
-        Thu, 25 May 2023 11:34:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81FAB10EA;
+        Thu, 25 May 2023 11:39:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D518560A47;
-        Thu, 25 May 2023 18:34:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48350C433D2;
-        Thu, 25 May 2023 18:34:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E78BF6491B;
+        Thu, 25 May 2023 18:37:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CB17C4339E;
+        Thu, 25 May 2023 18:37:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1685039660;
-        bh=fpqoULnVRtw5Y0dDZwpIfs4sYiENDoFspuX+MK4wXMo=;
+        s=k20201202; t=1685039870;
+        bh=JX+nrVURjyP+KRfBbp1VkQbPd7NZtc4TQcwVsolORiM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dfJLQNe2BQrjWRUFBMtNkeAasROe8CHI4B6QYB11rBu68MtFIIPPDGUBN3TxEejRV
-         o9ryTeFTsGIG0+OTM8lB4R2KIPfqgF10qHhKM/XG04Ri81B/fPMJqj36PD/VbyudHH
-         DJ2wlZfYeS7vfxdWMoBXhJW6VwlxxXdnbFUfuimucNuiL0Ed7g6D+1P2PtoJ2ml1Sk
-         1PbFYdJdB6+Rrr+WJsCGQjwrV+nS4+FDjsaEtoHEo3Sr2Qltp2bp3PfbDrxNhxshX/
-         htC5mhD4kMqA5S1GfHdR36EHAYZ6gvTEG0J79nWMuIMUV/QUpky6MuMfXXOHGORpHE
-         66Q5jCttt7Aaw==
+        b=UM7cFyADxmikYR3Liwrup7buEGF5nrUfTEPVp5bI96IZrWeAn+xjdCugNgkqtkz+l
+         h+CxcvCyUW+8iG8nPtSbxI3ukzhYf7OtyWFI2GaVd1leWKgn8VQEvr6cpSX/v2Zsnl
+         dR+MISA9wIQjgfMzZSYokORQpYRFuaOmF23RzBNY2lhWpwx7NTsMNytXl2aPR4qZkG
+         OJJlbbqeG/Njgm7hknvJ7ELh5I6FHBkZwNf7MDSqIhMiGpAlTgs+NcDXFJA5hEptmn
+         DwePofU5oYomzR0hxQ8cI/ufQjyESSr4GaDTPQ9NdkJzSiutSewUTP8bHNboyEfeqv
+         hgGsBFVWZrshA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, gor@linux.ibm.com,
-        svens@linux.ibm.com, christophe.jaillet@wanadoo.fr,
-        nrb@linux.ibm.com, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.3 38/67] s390/ipl: fix IPIB virtual vs physical address confusion
-Date:   Thu, 25 May 2023 14:31:15 -0400
-Message-Id: <20230525183144.1717540-38-sashal@kernel.org>
+Cc:     Holger Dengler <dengler@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, hca@linux.ibm.com,
+        gor@linux.ibm.com, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 31/57] s390/pkey: zeroize key blobs
+Date:   Thu, 25 May 2023 14:35:41 -0400
+Message-Id: <20230525183607.1793983-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230525183144.1717540-1-sashal@kernel.org>
-References: <20230525183144.1717540-1-sashal@kernel.org>
+In-Reply-To: <20230525183607.1793983-1-sashal@kernel.org>
+References: <20230525183607.1793983-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -52,46 +52,50 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Alexander Gordeev <agordeev@linux.ibm.com>
+From: Holger Dengler <dengler@linux.ibm.com>
 
-[ Upstream commit 2facd5d3980f3a26c04fe6ec8689a1d019a5812c ]
+[ Upstream commit 844cf829e5f33e00b279230470c8c93b58b8c16f ]
 
-The pointer to IPL Parameter Information Block is stored
-in the absolute lowcore for later use by dump tools. That
-pointer is a virtual address, though it should be physical
-instead.
+Key blobs for the IOCTLs PKEY_KBLOB2PROTK[23] may contain clear key
+material. Zeroize the copies of these keys in kernel memory after
+creating the protected key.
 
-Note, this does not fix a real issue, since virtual and
-physical addresses are currently the same.
-
-Suggested-by: Heiko Carstens <hca@linux.ibm.com>
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Reviewed-by: Harald Freudenberger <freude@linux.ibm.com>
+Signed-off-by: Holger Dengler <dengler@linux.ibm.com>
 Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/ipl.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/s390/crypto/pkey_api.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/s390/kernel/ipl.c b/arch/s390/kernel/ipl.c
-index 5f0f5c86963a9..e43ee9becbbb9 100644
---- a/arch/s390/kernel/ipl.c
-+++ b/arch/s390/kernel/ipl.c
-@@ -1936,14 +1936,13 @@ static struct shutdown_action __refdata dump_action = {
- 
- static void dump_reipl_run(struct shutdown_trigger *trigger)
- {
--	unsigned long ipib = (unsigned long) reipl_block_actual;
- 	struct lowcore *abs_lc;
- 	unsigned int csum;
- 
- 	csum = (__force unsigned int)
- 	       csum_partial(reipl_block_actual, reipl_block_actual->hdr.len, 0);
- 	abs_lc = get_abs_lowcore();
--	abs_lc->ipib = ipib;
-+	abs_lc->ipib = __pa(reipl_block_actual);
- 	abs_lc->ipib_checksum = csum;
- 	put_abs_lowcore(abs_lc);
- 	dump_run(trigger);
+diff --git a/drivers/s390/crypto/pkey_api.c b/drivers/s390/crypto/pkey_api.c
+index 5a05d1cdfec20..a8def50c149bd 100644
+--- a/drivers/s390/crypto/pkey_api.c
++++ b/drivers/s390/crypto/pkey_api.c
+@@ -1293,6 +1293,7 @@ static long pkey_unlocked_ioctl(struct file *filp, unsigned int cmd,
+ 			return PTR_ERR(kkey);
+ 		rc = pkey_keyblob2pkey(kkey, ktp.keylen, &ktp.protkey);
+ 		DEBUG_DBG("%s pkey_keyblob2pkey()=%d\n", __func__, rc);
++		memzero_explicit(kkey, ktp.keylen);
+ 		kfree(kkey);
+ 		if (rc)
+ 			break;
+@@ -1426,6 +1427,7 @@ static long pkey_unlocked_ioctl(struct file *filp, unsigned int cmd,
+ 					kkey, ktp.keylen, &ktp.protkey);
+ 		DEBUG_DBG("%s pkey_keyblob2pkey2()=%d\n", __func__, rc);
+ 		kfree(apqns);
++		memzero_explicit(kkey, ktp.keylen);
+ 		kfree(kkey);
+ 		if (rc)
+ 			break;
+@@ -1552,6 +1554,7 @@ static long pkey_unlocked_ioctl(struct file *filp, unsigned int cmd,
+ 					protkey, &protkeylen);
+ 		DEBUG_DBG("%s pkey_keyblob2pkey3()=%d\n", __func__, rc);
+ 		kfree(apqns);
++		memzero_explicit(kkey, ktp.keylen);
+ 		kfree(kkey);
+ 		if (rc) {
+ 			kfree(protkey);
 -- 
 2.39.2
 
