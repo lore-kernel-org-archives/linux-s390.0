@@ -2,26 +2,26 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B0E9C7EE32
-	for <linux-s390@archiver.kernel.org>; Thu, 25 May 2023 16:37:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 61C95C77B7A
+	for <linux-s390@archiver.kernel.org>; Thu, 25 May 2023 16:38:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234112AbjEYQh3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 25 May 2023 12:37:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43598 "EHLO
+        id S234349AbjEYQh7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 25 May 2023 12:37:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233178AbjEYQh2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 25 May 2023 12:37:28 -0400
+        with ESMTP id S233178AbjEYQh6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 25 May 2023 12:37:58 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A514F97;
-        Thu, 25 May 2023 09:37:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E976195;
+        Thu, 25 May 2023 09:37:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3297D61A2F;
-        Thu, 25 May 2023 16:37:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD8E9C433EF;
-        Thu, 25 May 2023 16:37:19 +0000 (UTC)
-Date:   Thu, 25 May 2023 17:37:16 +0100
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A25361423;
+        Thu, 25 May 2023 16:37:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A40FC433EF;
+        Thu, 25 May 2023 16:37:50 +0000 (UTC)
+Date:   Thu, 25 May 2023 17:37:47 +0100
 From:   Catalin Marinas <catalin.marinas@arm.com>
 To:     Hugh Dickins <hughd@google.com>
 Cc:     Andrew Morton <akpm@linux-foundation.org>,
@@ -57,21 +57,22 @@ Cc:     Andrew Morton <akpm@linux-foundation.org>,
         linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
         linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH 02/23] arm64: allow pte_offset_map() to fail
-Message-ID: <ZG+OvPjlKPPvtm8r@arm.com>
+Subject: Re: [PATCH 03/23] arm64/hugetlb: pte_alloc_huge() pte_offset_huge()
+Message-ID: <ZG+O2yE8fWxSy4Va@arm.com>
 References: <77a5d8c-406b-7068-4f17-23b7ac53bc83@google.com>
- <e72f6f3e-a8d4-3ed-2b4-5d3ced41484@google.com>
+ <dda2885-929b-c278-14e-5f447e9eec52@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <e72f6f3e-a8d4-3ed-2b4-5d3ced41484@google.com>
+In-Reply-To: <dda2885-929b-c278-14e-5f447e9eec52@google.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, May 09, 2023 at 09:43:47PM -0700, Hugh Dickins wrote:
-> In rare transient cases, not yet made possible, pte_offset_map() and
-> pte_offset_map_lock() may not find a page table: handle appropriately.
+On Tue, May 09, 2023 at 09:45:57PM -0700, Hugh Dickins wrote:
+> pte_alloc_map() expects to be followed by pte_unmap(), but hugetlb omits
+> that: to keep balance in future, use the recently added pte_alloc_huge()
+> instead; with pte_offset_huge() a better name for pte_offset_kernel().
 > 
 > Signed-off-by: Hugh Dickins <hughd@google.com>
 
