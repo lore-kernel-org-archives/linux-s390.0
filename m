@@ -2,35 +2,35 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DEB2BC7EE33
-	for <linux-s390@archiver.kernel.org>; Thu, 25 May 2023 18:46:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 262C9C7EE31
+	for <linux-s390@archiver.kernel.org>; Thu, 25 May 2023 18:46:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242495AbjEYSqA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 25 May 2023 14:46:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33692 "EHLO
+        id S242725AbjEYSqf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 25 May 2023 14:46:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242643AbjEYSo6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 25 May 2023 14:44:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B6F6270E;
-        Thu, 25 May 2023 11:41:13 -0700 (PDT)
+        with ESMTP id S242988AbjEYSps (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 25 May 2023 14:45:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B9D01706;
+        Thu, 25 May 2023 11:42:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9236660F1A;
-        Thu, 25 May 2023 18:40:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC1FBC433EF;
-        Thu, 25 May 2023 18:40:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 031966422B;
+        Thu, 25 May 2023 18:42:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87D57C433D2;
+        Thu, 25 May 2023 18:42:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1685040019;
-        bh=UIgfD+CJU2peIF3JGv8Dm1hCT7GtVyCODo4EZkcaUMo=;
+        s=k20201202; t=1685040128;
+        bh=vR3gdLk2lwQFpq5DKF6oeHeq/xHoQob/o2RETl2k0ow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iqnH6nq6332FouwObYbndphqs1Br79qU0QJoTPgdiO2krvCHC52NrXYW7DrG/XcqI
-         9/AOhM5VS0EK8PuqILMKNjavKZ8L05azFkYG71t0ChOQvacXmygU8PZTpUskBkDss0
-         hXfa7YJYJunQpWMClj/RkAeXg3ouwfbSIA+xts1kD/15o12Xy+t12H7Fld8EXhdPS9
-         BpvrelQFISBNUQVKzFmY8e/c0PcUv33VPt07PYjg0zZQBMyso3LE08WQDLFjpNguPO
-         S78C/aTporaIkbyFrwpfLQ6Meqkc5OaEoG2qjPUfKUCoKPQ2JVCEzHdW8EPbivwIfR
-         TBpF150rdxiUw==
+        b=TMtmGX41SOtjnW4SYD4bVoBcZvd3iE3c/0A4vXKoU7CyuWN99CWBmFTVnv9sDF+ns
+         rZ9p6xZ9jscaZJv/6UTdETDCnbAXIMCGg2OMgrnsjlVtZLwRXTORY/98HAkK69rvM/
+         tihN8KCNUdMQinn/AMIreui6fjKq8Slyv6OBcKckgGh5vb+K4/0JOeqHBfLAQWLQ4B
+         GHJTrB5xsCFuA5xwrrBiefY3hP268Yggyak8HP5usYJ5vRDxyy6lXY9kgJODcKxXNN
+         qgVFnw6XBZEuymUwmTg+LH9AiG/AE1bEEgIjHXNkmXvtHalPbXz5FYpwWpxYBYRDHc
+         pkpvoUh3V2nCQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Holger Dengler <dengler@linux.ibm.com>,
@@ -38,12 +38,12 @@ Cc:     Holger Dengler <dengler@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>, hca@linux.ibm.com,
         gor@linux.ibm.com, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 25/43] s390/pkey: zeroize key blobs
-Date:   Thu, 25 May 2023 14:38:36 -0400
-Message-Id: <20230525183854.1855431-25-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 20/31] s390/pkey: zeroize key blobs
+Date:   Thu, 25 May 2023 14:40:51 -0400
+Message-Id: <20230525184105.1909399-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230525183854.1855431-1-sashal@kernel.org>
-References: <20230525183854.1855431-1-sashal@kernel.org>
+In-Reply-To: <20230525184105.1909399-1-sashal@kernel.org>
+References: <20230525184105.1909399-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -69,10 +69,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+)
 
 diff --git a/drivers/s390/crypto/pkey_api.c b/drivers/s390/crypto/pkey_api.c
-index cf23ce1b11465..83b335f962c89 100644
+index dd84995049b91..870e00effe439 100644
 --- a/drivers/s390/crypto/pkey_api.c
 +++ b/drivers/s390/crypto/pkey_api.c
-@@ -1286,6 +1286,7 @@ static long pkey_unlocked_ioctl(struct file *filp, unsigned int cmd,
+@@ -1271,6 +1271,7 @@ static long pkey_unlocked_ioctl(struct file *filp, unsigned int cmd,
  			return PTR_ERR(kkey);
  		rc = pkey_keyblob2pkey(kkey, ktp.keylen, &ktp.protkey);
  		DEBUG_DBG("%s pkey_keyblob2pkey()=%d\n", __func__, rc);
@@ -80,7 +80,7 @@ index cf23ce1b11465..83b335f962c89 100644
  		kfree(kkey);
  		if (rc)
  			break;
-@@ -1419,6 +1420,7 @@ static long pkey_unlocked_ioctl(struct file *filp, unsigned int cmd,
+@@ -1404,6 +1405,7 @@ static long pkey_unlocked_ioctl(struct file *filp, unsigned int cmd,
  					kkey, ktp.keylen, &ktp.protkey);
  		DEBUG_DBG("%s pkey_keyblob2pkey2()=%d\n", __func__, rc);
  		kfree(apqns);
@@ -88,7 +88,7 @@ index cf23ce1b11465..83b335f962c89 100644
  		kfree(kkey);
  		if (rc)
  			break;
-@@ -1545,6 +1547,7 @@ static long pkey_unlocked_ioctl(struct file *filp, unsigned int cmd,
+@@ -1530,6 +1532,7 @@ static long pkey_unlocked_ioctl(struct file *filp, unsigned int cmd,
  					protkey, &protkeylen);
  		DEBUG_DBG("%s pkey_keyblob2pkey3()=%d\n", __func__, rc);
  		kfree(apqns);
