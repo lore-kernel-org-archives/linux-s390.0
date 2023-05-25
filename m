@@ -2,84 +2,244 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 10A05C7EE29
-	for <linux-s390@archiver.kernel.org>; Thu, 25 May 2023 14:00:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AAE3FC77B7E
+	for <linux-s390@archiver.kernel.org>; Thu, 25 May 2023 16:00:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241440AbjEYOAg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 25 May 2023 10:00:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40206 "EHLO
+        id S241876AbjEYQAd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 25 May 2023 12:00:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241445AbjEYOAf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 25 May 2023 10:00:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94F531A8;
-        Thu, 25 May 2023 07:00:22 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 11766645FF;
-        Thu, 25 May 2023 14:00:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 6CD96C4339E;
-        Thu, 25 May 2023 14:00:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1685023221;
-        bh=gfRrbhhyEcqbLyZDyAZGcAkDAS8G/fyE/7edxRHWzWA=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=tFs1hrqMAOfe3D+3+g6imFRefaUOB1J+FtU3P2LhkbSR/PiRkavm8sFdT1CPgKbs1
-         K1JcAF61qCTDSr/Gi37M29/vn98Lt9AN0oWH1P2T49BKd5WKwyVqAxFPo0mc4v9Zhc
-         m42SMhyZvafGwLSTma8taYbhqev06FL8JwUWc/w/vDt2D/+auWB1Y5FvlifLV+9ccS
-         gsEtFkOKNz/mjjV6UpIrFqa7sdXgSmZv5l7OfrtwM/fHDptFuGboQw9Gdabhkovjro
-         ZAsIYaSO+nS9Idjqlrj0erH32LUcxiaoyiDufXA/nyw+5USvbph0wbDN10IRPdrENg
-         q5NjHmg2C5w9A==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 4695CC395DF;
-        Thu, 25 May 2023 14:00:21 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S241521AbjEYQAb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 25 May 2023 12:00:31 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A7C61A4
+        for <linux-s390@vger.kernel.org>; Thu, 25 May 2023 08:59:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1685030384;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=TsUdauS8oAnL4ydDKikkdnZdQQ7qgtOSloz4PnB1yMk=;
+        b=EszAT47EupcrnD8rD6SOM4GupC4nCVKGjci5nocS4J79AF2LL/yLCKSICIerCgLz9MVva3
+        8QYYuJs50Q5ZkTYVjXRrraTPS9scVE7Jw2dnCE7/l3My/Lgk97mpidz2GTZ21ZN0M69B4s
+        4EJM52+iNw2TXaZNlOpEk0L6QJGQyR0=
+Received: from mail-io1-f72.google.com (mail-io1-f72.google.com
+ [209.85.166.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-623-Ipl-lMA6OGujrBFrnEcwFg-1; Thu, 25 May 2023 11:59:42 -0400
+X-MC-Unique: Ipl-lMA6OGujrBFrnEcwFg-1
+Received: by mail-io1-f72.google.com with SMTP id ca18e2360f4ac-76c7d59e5deso448255339f.1
+        for <linux-s390@vger.kernel.org>; Thu, 25 May 2023 08:59:42 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1685030382; x=1687622382;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=TsUdauS8oAnL4ydDKikkdnZdQQ7qgtOSloz4PnB1yMk=;
+        b=jkLE6Iq5rAzXQE0uQtfZ9lbaKNhyown/Fln9VmYqWkOCN7BlNuXVh/TQ66m53B0f6H
+         fatzGj3F+Bh7hY0Vkr3DDp1gzn+w45pLsfm+JJDAhHevD3wFcFoYaRxrfqRoa/HkLeSC
+         N1R8NHNvKb7z6ArMHJ89S75Ve3KedvEnxrz5QLsszpzQbc+eTVyT1RDBHsfBrMaKAdGY
+         FJxTzS4NMa9W+SNgrjntvQvTtxIeeKVSDPyOtep4pERELLyvBmOveeq2IsHSIrvTuIeC
+         mws/aXu0FhVtBh82pG0w/DAa0NxKw4jiox/R1pHyqNYgGJ3bWeWvEBsleFIYhSpWAsnc
+         +0TA==
+X-Gm-Message-State: AC+VfDx7RGar8t7GQmj064umHWvBnZU6XNdCbVEQ8yfn5gnzBkolLCaR
+        5dvmB6fFZ1FpENRzHHpRY860LvLwsyBfLat9uKeywdKcIwW5jWTAcI3OG7kCARYyaMVV6z2N04h
+        eh3xq/N5f2nhiD2uk0j0Asw==
+X-Received: by 2002:a5e:cb0c:0:b0:774:8aee:7e5c with SMTP id p12-20020a5ecb0c000000b007748aee7e5cmr5771340iom.16.1685030381822;
+        Thu, 25 May 2023 08:59:41 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ6RmBKbvUUCpZ8rftXOee/+HrBYFX5cHIc3BcBvhdGn7Kpa+mHXP8Mk5ojhtIHMhIYkHJsEZA==
+X-Received: by 2002:a5e:cb0c:0:b0:774:8aee:7e5c with SMTP id p12-20020a5ecb0c000000b007748aee7e5cmr5771328iom.16.1685030381540;
+        Thu, 25 May 2023 08:59:41 -0700 (PDT)
+Received: from redhat.com ([38.15.36.239])
+        by smtp.gmail.com with ESMTPSA id p4-20020a5d9844000000b00774861745efsm51591ios.49.2023.05.25.08.59.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 25 May 2023 08:59:40 -0700 (PDT)
+Date:   Thu, 25 May 2023 09:59:39 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     "Liu, Yi L" <yi.l.liu@intel.com>
+Cc:     "jgg@nvidia.com" <jgg@nvidia.com>,
+        "Tian, Kevin" <kevin.tian@intel.com>,
+        "joro@8bytes.org" <joro@8bytes.org>,
+        "robin.murphy@arm.com" <robin.murphy@arm.com>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "eric.auger@redhat.com" <eric.auger@redhat.com>,
+        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
+        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
+        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
+        "peterx@redhat.com" <peterx@redhat.com>,
+        "jasowang@redhat.com" <jasowang@redhat.com>,
+        "shameerali.kolothum.thodi@huawei.com" 
+        <shameerali.kolothum.thodi@huawei.com>,
+        "lulu@redhat.com" <lulu@redhat.com>,
+        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
+        "intel-gvt-dev@lists.freedesktop.org" 
+        <intel-gvt-dev@lists.freedesktop.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "Hao, Xudong" <xudong.hao@intel.com>,
+        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
+        "Xu, Terrence" <terrence.xu@intel.com>,
+        "Jiang, Yanting" <yanting.jiang@intel.com>,
+        "Duan, Zhenzhong" <zhenzhong.duan@intel.com>,
+        "clegoate@redhat.com" <clegoate@redhat.com>
+Subject: Re: [PATCH v11 20/23] vfio: Add VFIO_DEVICE_[AT|DE]TACH_IOMMUFD_PT
+Message-ID: <20230525095939.37ddb8ce.alex.williamson@redhat.com>
+In-Reply-To: <DS0PR11MB7529407F01EE55AE4A0A9F1FC3469@DS0PR11MB7529.namprd11.prod.outlook.com>
+References: <20230513132827.39066-1-yi.l.liu@intel.com>
+        <20230513132827.39066-21-yi.l.liu@intel.com>
+        <20230522161534.32f3bf8e.alex.williamson@redhat.com>
+        <DS0PR11MB7529096D1BE1D337BA50884BC3409@DS0PR11MB7529.namprd11.prod.outlook.com>
+        <20230523095025.1898297c.alex.williamson@redhat.com>
+        <DS0PR11MB75292161F081F27C0650EFB3C3419@DS0PR11MB7529.namprd11.prod.outlook.com>
+        <20230524093142.3cac798e.alex.williamson@redhat.com>
+        <DS0PR11MB7529407F01EE55AE4A0A9F1FC3469@DS0PR11MB7529.namprd11.prod.outlook.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next] s390/ism: Set DMA coherent mask
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <168502322128.12931.12742922917026189347.git-patchwork-notify@kernel.org>
-Date:   Thu, 25 May 2023 14:00:21 +0000
-References: <20230524075411.3734141-1-schnelle@linux.ibm.com>
-In-Reply-To: <20230524075411.3734141-1-schnelle@linux.ibm.com>
-To:     Niklas Schnelle <schnelle@linux.ibm.com>
-Cc:     kuba@kernel.org, davem@davemloft.net, wintera@linux.ibm.com,
-        wenjia@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
-        linux-pci@vger.kernel.org, mjrosato@linux.ibm.com,
-        pmorel@linux.ibm.com, linux-s390@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello:
+On Thu, 25 May 2023 03:03:54 +0000
+"Liu, Yi L" <yi.l.liu@intel.com> wrote:
 
-This patch was applied to netdev/net-next.git (main)
-by Paolo Abeni <pabeni@redhat.com>:
-
-On Wed, 24 May 2023 09:54:10 +0200 you wrote:
-> A future change will convert the DMA API implementation from the
-> architecture specific arch/s390/pci/pci_dma.c to using the common code
-> drivers/iommu/dma-iommu.c which the utilizes the same IOMMU hardware
-> through the s390-iommu driver. Unlike the s390 specific DMA API this
-> requires devices to correctly set the coherent mask to be allowed to use
-> IOVAs >2^32 in dma_alloc_coherent(). This was however not done for ISM
-> devices. ISM requires such addresses since currently the DMA aperture
-> for PCI devices starts at 2^32 and all calls to dma_alloc_coherent()
-> would thus fail.
+> > From: Alex Williamson <alex.williamson@redhat.com>
+> > Sent: Wednesday, May 24, 2023 11:32 PM
+> > 
+> > On Wed, 24 May 2023 02:12:14 +0000
+> > "Liu, Yi L" <yi.l.liu@intel.com> wrote:
+> >   
+> > > > From: Alex Williamson <alex.williamson@redhat.com>
+> > > > Sent: Tuesday, May 23, 2023 11:50 PM
+> > > >
+> > > > On Tue, 23 May 2023 01:20:17 +0000
+> > > > "Liu, Yi L" <yi.l.liu@intel.com> wrote:
+> > > >  
+> > > > > > From: Alex Williamson <alex.williamson@redhat.com>
+> > > > > > Sent: Tuesday, May 23, 2023 6:16 AM
+> > > > > >
+> > > > > > On Sat, 13 May 2023 06:28:24 -0700
+> > > > > > Yi Liu <yi.l.liu@intel.com> wrote:
+> > > > > >  
+> > > > > > >  	return kasprintf(GFP_KERNEL, "vfio/devices/%s", dev_name(dev));
+> > > > > > > diff --git a/drivers/vfio/iommufd.c b/drivers/vfio/iommufd.c
+> > > > > > > index 83575b65ea01..799ea322a7d4 100644
+> > > > > > > --- a/drivers/vfio/iommufd.c
+> > > > > > > +++ b/drivers/vfio/iommufd.c
+> > > > > > > @@ -112,6 +112,24 @@ void vfio_iommufd_unbind(struct vfio_device_file *df)
+> > > > > > >  		vdev->ops->unbind_iommufd(vdev);
+> > > > > > >  }
+> > > > > > >
+> > > > > > > +int vfio_iommufd_attach(struct vfio_device *vdev, u32 *pt_id)
+> > > > > > > +{
+> > > > > > > +	lockdep_assert_held(&vdev->dev_set->lock);
+> > > > > > > +
+> > > > > > > +	if (vfio_device_is_noiommu(vdev))
+> > > > > > > +		return 0;  
+> > > > > >
+> > > > > > Isn't this an invalid operation for a noiommu cdev, ie. -EINVAL?  We
+> > > > > > return success and copy back the provided pt_id, why would a user not
+> > > > > > consider it a bug that they can't use whatever value was there with
+> > > > > > iommufd?  
+> > > > >
+> > > > > Yes, this is the question I asked in [1]. At that time, it appears to me
+> > > > > that better to allow it [2]. Maybe it's more suitable to ask it here.  
+> > > >
+> > > > From an API perspective it seems wrong.  We return success without
+> > > > doing anything.  A user would be right to consider it a bug that the
+> > > > attach operation works but there's not actually any association to the
+> > > > IOAS.  Thanks,  
+> > >
+> > > The current version is kind of tradeoff based on prior remarks when
+> > > I asked the question. As prior comment[2], it appears to me the attach
+> > > shall success for noiommu devices as well, but per your remark it seems
+> > > not in plan. So anyway, we may just fail the attach/detach for noiommu
+> > > devices. Is it?  
+> > 
+> > If a user creates an ioas within an iommufd, attaches a device to that
+> > ioas and populates it with mappings, wouldn't the user expect the
+> > device to have access to and honor those mappings?  I think that's the
+> > path we're headed down if we report a successful attach of a noiommu
+> > device to an ioas.  
 > 
-> [...]
+> makes sense. Let's just fail attach/detach for noiommu devices.
+> 
+> > 
+> > We need to keep in mind that noiommu was meant to be a minimally
+> > intrusive mechanism to provide a dummy vfio IOMMU backend and satisfy
+> > the group requirements, solely for the purpose of making use of the
+> > vfio device interface and without providing any DMA mapping services or
+> > expectations.  IMO, an argument that we need the attach op to succeed in
+> > order to avoid too much disruption in userspace code is nonsense.  On
+> > the contrary, userspace needs to be very aware of this difference and
+> > we shouldn't invest effort trying to make noiommu more convenient to
+> > use.  It's inherently unsafe.
+> > 
+> > I'm not fond of what a mess noiommu has become with cdev, we're well
+> > beyond the minimal code trickery of the legacy implementation.  I hate
+> > to ask, but could we reiterate our requirements for noiommu as a part of
+> > the native iommufd interface for vfio?  The nested userspace requirement
+> > is gone now that hypervisors have vIOMMU support, so my assumption is
+> > that this is only for bare metal systems without an IOMMU, which
+> > ideally are less and less prevalent.  Are there any noiommu userspaces
+> > that are actually going to adopt the noiommu cdev interface?  What
+> > terrible things happen if noiommu only exists in the vfio group compat
+> > interface to iommufd and at some distant point in the future dies when
+> > that gets disabled?  
+> 
+> vIOMMU may introduce some performance deduction if there
+> are frequent map/unmap.
 
-Here is the summary with links:
-  - [net-next] s390/ism: Set DMA coherent mask
-    https://git.kernel.org/netdev/net-next/c/657d42cf5df6
+We use passthrough mode of the vIOMMU to negate that overhead for guest
+drivers and vfio drivers have typically learned by now that dynamic
+mappings using the vfio type1 mapping API are a bad idea.
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+> As far as I know, some cloud service
+> providers are more willing to use noiommu mode within VM.
 
+Sure, the VM itself is still isolated by the host IOMMU, but it's
+clearly an extra maintenance and development burden when we should
+instead be encouraging those use cases to use vIOMMU rather than
+porting to a different noiommu uAPI.  Even if the host is not exposed,
+any sort of security and support best practices in the guest should
+favor a vIOMMU solution.
+
+> Besides the performance consideration, using a booting a VM
+> without vIOMMU is supposed to be more robust. But I'm not
+
+What claims do you have to support lack of robustness in vIOMMU?  Can
+they be fixed?
+
+> sure if the noiommu userspace will adapt to cdev noiommu.
+> Perhaps yes if group may be deprecated in future.
+
+Deprecation is going to take a long time.  IMO, the VM use cases should
+all be encouraged to adopt a vIOMMU solution rather than port to a new
+cdev noiommu interface.  The question then is whether there are ongoing
+bare metal noiommu use cases and how long those will drag out the vfio
+group deprecation.  We could always add noiommu to the native vfio cdev
+interface later if there's still demand.
+
+> > > btw. Should we document it somewhere as well? E.g. noiommu userspace
+> > > does not support attach/detach? Userspace should know it is opening
+> > > noiommu devices.  
+> > 
+> > Documentation never hurts.  This is such a specialized use case I'm not
+> > sure we've bothered to do much documentation for noiommu previously.  
+> 
+> Seems no, I didn't find special documentation for noiommu. Perhaps
+> a comment in the source code is enough. Depends on your taste.
+
+If we're only continuing the group compat noiommu support, I can't very
+well require new documentation.  We have a simple model there, noiommu
+devices only support the noiommu container type and provide no mapping
+interfaces.  The iommufd interface relative to noiommu seems more
+nuanced and probably needs to documentation should we decide to pursue
+it. Thanks,
+
+Alex
 
