@@ -2,20 +2,20 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 22E84C77B7A
-	for <linux-s390@archiver.kernel.org>; Fri, 26 May 2023 11:49:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 058A2C7EE23
+	for <linux-s390@archiver.kernel.org>; Fri, 26 May 2023 11:49:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243398AbjEZLtT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        id S243379AbjEZLtT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
         Fri, 26 May 2023 07:49:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40328 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242638AbjEZLtK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 26 May 2023 07:49:10 -0400
-Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7ED9E116;
-        Fri, 26 May 2023 04:49:07 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R271e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0VjWOl6G_1685101741;
-Received: from h68b04305.sqa.eu95.tbsite.net(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VjWOl6G_1685101741)
+        with ESMTP id S243374AbjEZLtL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 26 May 2023 07:49:11 -0400
+Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91AA919A;
+        Fri, 26 May 2023 04:49:08 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R791e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0VjWOl8M_1685101744;
+Received: from h68b04305.sqa.eu95.tbsite.net(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VjWOl8M_1685101744)
           by smtp.aliyun-inc.com;
           Fri, 26 May 2023 19:49:04 +0800
 From:   Wen Gu <guwen@linux.alibaba.com>
@@ -24,23 +24,41 @@ To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
         pabeni@redhat.com
 Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH net 0/2] Two fixes for SMCRv2
-Date:   Fri, 26 May 2023 19:48:59 +0800
-Message-Id: <1685101741-74826-1-git-send-email-guwen@linux.alibaba.com>
+Subject: [PATCH net 1/2] net/smc: Scan from current RMB list when no position specified
+Date:   Fri, 26 May 2023 19:49:00 +0800
+Message-Id: <1685101741-74826-2-git-send-email-guwen@linux.alibaba.com>
 X-Mailer: git-send-email 1.8.3.1
+In-Reply-To: <1685101741-74826-1-git-send-email-guwen@linux.alibaba.com>
+References: <1685101741-74826-1-git-send-email-guwen@linux.alibaba.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This patch set includes two bugfix for SMCRv2.
+When finding the first RMB of link group, it should start from the
+current RMB list whose index is 0. So fix it.
 
-Wen Gu (2):
-  net/smc: Scan from current RMB list when no position specified
-  net/smc: Don't use RMBs not mapped to new link in SMCRv2 ADD LINK
+Fixes: b4ba4652b3f8 ("net/smc: extend LLC layer for SMC-Rv2")
+Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+---
+ net/smc/smc_llc.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
- net/smc/smc_llc.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
-
+diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+index a0840b8..8423e8e 100644
+--- a/net/smc/smc_llc.c
++++ b/net/smc/smc_llc.c
+@@ -578,7 +578,10 @@ static struct smc_buf_desc *smc_llc_get_next_rmb(struct smc_link_group *lgr,
+ {
+ 	struct smc_buf_desc *buf_next;
+ 
+-	if (!buf_pos || list_is_last(&buf_pos->list, &lgr->rmbs[*buf_lst])) {
++	if (!buf_pos)
++		return _smc_llc_get_next_rmb(lgr, buf_lst);
++
++	if (list_is_last(&buf_pos->list, &lgr->rmbs[*buf_lst])) {
+ 		(*buf_lst)++;
+ 		return _smc_llc_get_next_rmb(lgr, buf_lst);
+ 	}
 -- 
 1.8.3.1
 
