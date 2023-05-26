@@ -2,79 +2,155 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A033DC77B7E
-	for <linux-s390@archiver.kernel.org>; Thu, 25 May 2023 22:59:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 81DDAC7EE2E
+	for <linux-s390@archiver.kernel.org>; Fri, 26 May 2023 02:05:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234550AbjEYW70 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 25 May 2023 18:59:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46164 "EHLO
+        id S240106AbjEZCFY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 25 May 2023 22:05:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229583AbjEYW7Z (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 25 May 2023 18:59:25 -0400
-Received: from bee.tesarici.cz (bee.tesarici.cz [IPv6:2a03:3b40:fe:2d4::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FAB910F;
-        Thu, 25 May 2023 15:59:20 -0700 (PDT)
-Received: from meshulam (unknown [185.176.138.243])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by bee.tesarici.cz (Postfix) with ESMTPSA id 7DC8E14BB92;
-        Fri, 26 May 2023 00:59:16 +0200 (CEST)
-Authentication-Results: mail.tesarici.cz; dmarc=fail (p=none dis=none) header.from=tesarici.cz
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tesarici.cz; s=mail;
-        t=1685055556; bh=kog4dbXqqG9kBj5lHS7A5wxZKGwA1hEOps5hdfkNd4c=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=voT0v/B4F4JCfSsevmi6sqEuIDTsZ9KB77LA6dNgKfvOZhHuIDxAEh4n2LC4Uc7k4
-         VVo8BcsMS9B9BNRHjrenOpJhF9TBR2ZIcxRFOa1nvlHHRxo78PV4dhwXs5B7UAVGUm
-         pAVAcE0ORVA6ze+B6vZaKlAXxD0epe8rA2KbPC0sPz0QzyZj+5HqUGzGHuereD+RsG
-         PSx+LZFy7rW+0h0BKVh3BJTJViIUBS20Ei7GgN3yBG00V4KqhDAk0RLhUvp+doe3l7
-         Zoo1fZjVbwNa/vt3qdeBQxLpo+e4eOll1OWad+iKvnwCt1Ax6q5HU3wpOdd05BP/hl
-         R8A6qlWxHd/IA==
-Date:   Fri, 26 May 2023 00:59:15 +0200
-From:   Petr =?UTF-8?B?VGVzYcWZw61r?= <petr@tesarici.cz>
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     torvalds@linux-foundation.org, corbet@lwn.net, will@kernel.org,
-        boqun.feng@gmail.com, mark.rutland@arm.com,
-        catalin.marinas@arm.com, dennis@kernel.org, tj@kernel.org,
-        cl@linux.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
-        hpa@zytor.com, joro@8bytes.org, suravee.suthikulpanit@amd.com,
-        robin.murphy@arm.com, dwmw2@infradead.org,
-        baolu.lu@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
-        Herbert Xu <herbert@gondor.apana.org.au>, davem@davemloft.net,
-        penberg@kernel.org, rientjes@google.com, iamjoonsoo.kim@lge.com,
-        Andrew Morton <akpm@linux-foundation.org>, vbabka@suse.cz,
-        roman.gushchin@linux.dev, 42.hyeyoo@gmail.com,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, linux-s390@vger.kernel.org,
-        iommu@lists.linux.dev, linux-arch@vger.kernel.org,
-        linux-crypto@vger.kernel.org
-Subject: Re: [PATCH v3 05/11] percpu: Wire up cmpxchg128
-Message-ID: <20230526005915.01a35500@meshulam>
-In-Reply-To: <20230525124955.GS83892@hirez.programming.kicks-ass.net>
-References: <20230515075659.118447996@infradead.org>
-        <20230515080554.248739380@infradead.org>
-        <20230525124955.GS83892@hirez.programming.kicks-ass.net>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-suse-linux-gnu)
+        with ESMTP id S235135AbjEZCFX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 25 May 2023 22:05:23 -0400
+Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDC28194;
+        Thu, 25 May 2023 19:05:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1685066721; x=1716602721;
+  h=message-id:date:mime-version:cc:subject:to:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=3FRtV+V0lyCeW1Ovj8JS9xrSCJC7ltM313nVTl9jV+0=;
+  b=UqHv8BIsP+L7/7/5CCL+got7RmAJd7NMlf1zJgYW1dDd7MqsIQSttk2j
+   fRZIqglrtLYlwF1+oDMIaKo2G6Ni/Qr/OuB1CCtJ6JJsCeQ4IXCdfUs91
+   yPOjwy9GvFaM/HqWqp6rwB4NaaQkqzQbSa8TiMC8VUZ/D5LR9Thvtgi+T
+   WMH0VND2xJN1ENilSmjwlcr2d87dYV3ehB5Fk8XP8VZoPQFtYg+PtUV0v
+   7gextqFyHEeCyUYm80+kQOYjJCgqa3EcQ8g8YRe80V4di25VUNVysRGrD
+   QVRB0fjUEWlQ8Q4y6gvMAkP1A1s2sDfAmoELuFVG3tqfHZGV0Bj+FwMi9
+   Q==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10721"; a="440442231"
+X-IronPort-AV: E=Sophos;i="6.00,192,1681196400"; 
+   d="scan'208";a="440442231"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 May 2023 19:05:21 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10721"; a="735804563"
+X-IronPort-AV: E=Sophos;i="6.00,192,1681196400"; 
+   d="scan'208";a="735804563"
+Received: from allen-box.sh.intel.com (HELO [10.239.159.127]) ([10.239.159.127])
+  by orsmga008.jf.intel.com with ESMTP; 25 May 2023 19:05:14 -0700
+Message-ID: <355a9f1e-64e6-d785-5a22-027b708b4935@linux.intel.com>
+Date:   Fri, 26 May 2023 10:04:27 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.11.0
+Cc:     baolu.lu@linux.intel.com, "jgg@nvidia.com" <jgg@nvidia.com>,
+        "Tian, Kevin" <kevin.tian@intel.com>,
+        "joro@8bytes.org" <joro@8bytes.org>,
+        "robin.murphy@arm.com" <robin.murphy@arm.com>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "eric.auger@redhat.com" <eric.auger@redhat.com>,
+        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
+        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
+        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
+        "peterx@redhat.com" <peterx@redhat.com>,
+        "jasowang@redhat.com" <jasowang@redhat.com>,
+        "shameerali.kolothum.thodi@huawei.com" 
+        <shameerali.kolothum.thodi@huawei.com>,
+        "lulu@redhat.com" <lulu@redhat.com>,
+        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
+        "intel-gvt-dev@lists.freedesktop.org" 
+        <intel-gvt-dev@lists.freedesktop.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "Hao, Xudong" <xudong.hao@intel.com>,
+        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
+        "Xu, Terrence" <terrence.xu@intel.com>,
+        "Jiang, Yanting" <yanting.jiang@intel.com>,
+        "Duan, Zhenzhong" <zhenzhong.duan@intel.com>,
+        "clegoate@redhat.com" <clegoate@redhat.com>
+Subject: Re: [PATCH v6 09/10] vfio/pci: Extend
+ VFIO_DEVICE_GET_PCI_HOT_RESET_INFO for vfio device cdev
+Content-Language: en-US
+To:     "Liu, Yi L" <yi.l.liu@intel.com>,
+        Alex Williamson <alex.williamson@redhat.com>
+References: <20230522115751.326947-1-yi.l.liu@intel.com>
+ <20230522115751.326947-10-yi.l.liu@intel.com>
+ <20230524135603.33ee3d91.alex.williamson@redhat.com>
+ <DS0PR11MB752935203F87D69D4468B890C3469@DS0PR11MB7529.namprd11.prod.outlook.com>
+From:   Baolu Lu <baolu.lu@linux.intel.com>
+In-Reply-To: <DS0PR11MB752935203F87D69D4468B890C3469@DS0PR11MB7529.namprd11.prod.outlook.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 25 May 2023 14:49:55 +0200
-Peter Zijlstra <peterz@infradead.org> wrote:
-
->[...]
-> Build tested i386-defconfig.
+On 5/25/23 9:02 PM, Liu, Yi L wrote:
+>>   It's possible that requirement
+>> might be relaxed in the new DMA ownership model, but as it is right
+>> now, the code enforces that requirement and any new discussion about
+>> what makes hot-reset available should note both the ownership and
+>> dev_set requirement.  Thanks,
+> I think your point is that if an iommufd_ctx has acquired DMA ownerhisp
+> of an iommu_group, it means the device is owned. And it should not
+> matter whether all the devices in the iommu_group is present in the
+> dev_set. It is allowed that some devices are bound to pci-stub or
+> pcieport driver. Is it?
 > 
-> (the things we do for museum pieces :/)
+> Actually I have a doubt on it. IIUC, the above requirement on dev_set
+> is to ensure the reset to the devices are protected by the dev_set->lock.
+> So that either the reset issued by driver itself or a hot reset request
+> from user, there is no race. But if a device is not in the dev_set, then
+> hot reset request from user might race with the bound driver. DMA ownership
+> only guarantees the drivers won't handle DMA via DMA API which would have
+> conflict with DMA mappings from user. I'm not sure if it is able to
+> guarantee reset is exclusive as well. I see pci-stub and pcieport driver
+> are the only two drivers that set the driver_managed_dma flag besides the
+> vfio drivers. pci-stub may be fine. not sure about pcieport driver.
 
-I have always thought it's not done for museum pieces but rather for
-dumb emulators. I can vaguely recall a reverse-engineered MIPS firmware
-which was able to run i386 binaries, but not i586...
+commit c7d469849747 ("PCI: portdrv: Set driver_managed_dma") described
+the criteria of adding driver_managed_dma to the pcieport driver.
 
-Petr T
+"
+We achieve this by setting ".driver_managed_dma = true" in pci_driver
+structure. It is safe because the portdrv driver meets below criteria:
+
+- This driver doesn't use DMA, as you can't find any related calls like
+   pci_set_master() or any kernel DMA API (dma_map_*() and etc.).
+- It doesn't use MMIO as you can't find ioremap() or similar calls. It's
+   tolerant to userspace possibly also touching the same MMIO registers
+   via P2P DMA access.
+"
+
+pci_rest_device() definitely shouldn't be done by the kernel drivers
+that have driver_managed_dma set.
+
+> 
+>     #   line  filename / context / line
+>     1     39  drivers/pci/pci-stub.c <<GLOBAL>>
+>               .driver_managed_dma = true,
+>     2    796  drivers/pci/pcie/portdrv.c <<GLOBAL>>
+>               .driver_managed_dma = true,
+>     3    607  drivers/vfio/fsl-mc/vfio_fsl_mc.c <<GLOBAL>>
+>               .driver_managed_dma = true,
+>     4   1459  drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c <<GLOBAL>>
+>               .driver_managed_dma = true,
+>     5   1374  drivers/vfio/pci/mlx5/main.c <<GLOBAL>>
+>               .driver_managed_dma = true,
+>     6    203  drivers/vfio/pci/vfio_pci.c <<GLOBAL>>
+>               .driver_managed_dma = true,
+>     7    139  drivers/vfio/platform/vfio_amba.c <<GLOBAL>>
+>               .driver_managed_dma = true,
+>     8    120  drivers/vfio/platform/vfio_platform.c <<GLOBAL>>
+>               .driver_managed_dma = true,
+> 
+> Anyhow, I think this is not a must so far. is it? Even doable, it shall
+> be done in the future. 😄
+
+Perhaps we can take it in this way: it's a bug if any driver sets its
+driver_managed_dma but still resets the hardware during it's life cycle?
+
+Best regards,
+baolu
