@@ -2,52 +2,52 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A67B0C7EE23
-	for <linux-s390@archiver.kernel.org>; Mon, 29 May 2023 06:20:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D9B03C7EE23
+	for <linux-s390@archiver.kernel.org>; Mon, 29 May 2023 06:21:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231434AbjE2GUb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 29 May 2023 02:20:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48092 "EHLO
+        id S229453AbjE2GVn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 29 May 2023 02:21:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229961AbjE2GU2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 29 May 2023 02:20:28 -0400
-Received: from mail-yb1-xb34.google.com (mail-yb1-xb34.google.com [IPv6:2607:f8b0:4864:20::b34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E313B1
-        for <linux-s390@vger.kernel.org>; Sun, 28 May 2023 23:20:27 -0700 (PDT)
-Received: by mail-yb1-xb34.google.com with SMTP id 3f1490d57ef6-bad041bf313so4417907276.0
-        for <linux-s390@vger.kernel.org>; Sun, 28 May 2023 23:20:27 -0700 (PDT)
+        with ESMTP id S231514AbjE2GVi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 29 May 2023 02:21:38 -0400
+Received: from mail-yb1-xb2e.google.com (mail-yb1-xb2e.google.com [IPv6:2607:f8b0:4864:20::b2e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04B91C9
+        for <linux-s390@vger.kernel.org>; Sun, 28 May 2023 23:21:33 -0700 (PDT)
+Received: by mail-yb1-xb2e.google.com with SMTP id 3f1490d57ef6-ba86ec8047bso4309358276.3
+        for <linux-s390@vger.kernel.org>; Sun, 28 May 2023 23:21:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1685341226; x=1687933226;
+        d=google.com; s=20221208; t=1685341293; x=1687933293;
         h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=osELeF1qrpmk7tMBwVJZ0+Hn0dD614B/zeb//sVH2O8=;
-        b=lDd5t1DNHYrERHggJZt1tFe/2MuojYDB8DYuX4saUcSsWZjN9TJvB4D3jOc40ZJzuw
-         KXTyU64u/loqgfjTny6vyEEHc7I3ap+5KBFfNEbc+et5E0P2BRIz5MO59vg+RyUV5HGF
-         LQIvE8HoWeX7dfHrfHrThINSr2Jkgw1dNwKUT5ElKyxmqFpo9JxBWX275kcmdKdX3BCO
-         TKmGDZP/FC8QUdgVXd4u26ydd2mkiG9rdEZxkd6dJlJez+Ye+8eFZqq1OHv/Cc+ig/ka
-         6L20gyN+7z7wp1ikvxHZmZH1RAvGKKb0++xvnFOn6a1yNDE6E2enDzRJirlL0XfSo/Zh
-         2JMQ==
+        bh=kjV6xBD8+Z39YuH4hgrLfpItULNEjB3if/M/mkAbsVQ=;
+        b=rWUgEbcRxN+0lh7aV7n4UOuWoW/akkZOM/gqoHjVcxn/6hheszcuPJOLVJ4sguWyP8
+         nkQlUMJmy6e/Jx9YVzvAF7u4UBrtQ7Gt8z6ETj5pN1DYiBGqn6irZMUv2C9TbfCBC78I
+         xaCU0qKIPP/XwpIBhRQPgPdjxQJW6d4VJskC/kyJTtslu2euOqK8ik9oIKBYFLT0OWAQ
+         hthSfePHY1Fj36lFOt87PpfGm9V25DdJkUjrx5h6k5n/1x83JounXfxF7b0VnDNmT3pg
+         /B3jbAdtHb1fjyAf9CqPVGMMMvFfo7sNqLyn5ELpZamilbHqPMk5v4bK33lqW9qB8lmS
+         adrg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1685341226; x=1687933226;
+        d=1e100.net; s=20221208; t=1685341293; x=1687933293;
         h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=osELeF1qrpmk7tMBwVJZ0+Hn0dD614B/zeb//sVH2O8=;
-        b=h7VFsDYtjpVPPrDoL/kojKyHemCdWVhgs+MoYsQYKr8k1sPkFCYuWKSIQMsuXd8vx3
-         KSy05fB1n/t4QixbsV3v8Wjh6HprvG7yGJGhcqubPlMZH4FVbO/kM37jKHza5zTs8j+e
-         Xz5OB7aHrmHgQazYtezrWGvj3ofcIv7bYqdqOMtYceTUDe+YzvndjfpLTe8GumTAm1Y3
-         /HN0QpoWrB3o4Yv5OGgvuthWpOG5qH58nbXBchvf27C20ExsSIAaqqGxdHCcOXCLR78f
-         3Uft8VgIMuRm8DfH15dlsdV8fOphRSMYsgmDiRAEif4o1yYutA9AhEixSroVYyNXgH3R
-         8mfA==
-X-Gm-Message-State: AC+VfDxJEA2UqWJee6ztbEzSWJSc9rHJ425LxhVGTnTdnutF8Ns3F7+K
-        Gs65GCoHARJslyBt49lQNkx0Og==
-X-Google-Smtp-Source: ACHHUZ5aMde8BUNH3d96u3IOrLaqOFrYAlrmuVUlWt4ugn0e7ueCBkueldmdmxLB7UIM6n20FuWD7w==
-X-Received: by 2002:a81:8304:0:b0:565:c888:1d09 with SMTP id t4-20020a818304000000b00565c8881d09mr8471629ywf.30.1685341226458;
-        Sun, 28 May 2023 23:20:26 -0700 (PDT)
+        bh=kjV6xBD8+Z39YuH4hgrLfpItULNEjB3if/M/mkAbsVQ=;
+        b=GZUmmNdRsIsTmCHygfdmB1dAWdg7Yal4ntqqQDNXE3dxIW/deq59hc/bwPL2Z9l2Jn
+         +v7UtPrdMFgZmHjY6lhG9JkDG85s4xkXf0rS5Vb3gkeHSowk4Lo2RCmb3ZSW57OwNci7
+         jUd+fxDJjm+bErZyLcCAE8pzD+MHzsSHelHs50zP4fWcXlun23f7xBMXcQFmRQavs/Z/
+         1hzSdauB+qN4hGG9HR4HhOK4ry68/bZdkxKakevKdxRwJU3F5mgmKNQby410OIGSI8Cl
+         p8eKZpAHmnKsYz3lnQSS1w6P3pLlO37g1f0PGGB5rBVMjB93fsqUXpQH19WtzeQ1Led1
+         kAKg==
+X-Gm-Message-State: AC+VfDxCMEGSSLUomVLGUA7p3Vvd4+97ISzv0T6lXxQ04yszerWm4IpD
+        +UlBe9MdhIaKfz4oZRHfJp5O1w==
+X-Google-Smtp-Source: ACHHUZ6EPD4pm5LL+EWBEb/p2RZtAUzDMPbUfE7F4FXgHJQ8XYwzEv8l0puT9pEGX6+B6Mzd+dzTzw==
+X-Received: by 2002:a25:d796:0:b0:ba8:3e89:bd69 with SMTP id o144-20020a25d796000000b00ba83e89bd69mr9536233ybg.12.1685341292952;
+        Sun, 28 May 2023 23:21:32 -0700 (PDT)
 Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id y184-20020a0dd6c1000000b00565e57e6662sm1530559ywd.55.2023.05.28.23.20.22
+        by smtp.gmail.com with ESMTPSA id m205-20020a2571d6000000b00ba87bc06fe5sm2712527ybc.52.2023.05.28.23.21.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 28 May 2023 23:20:25 -0700 (PDT)
-Date:   Sun, 28 May 2023 23:20:21 -0700 (PDT)
+        Sun, 28 May 2023 23:21:32 -0700 (PDT)
+Date:   Sun, 28 May 2023 23:21:27 -0700 (PDT)
 From:   Hugh Dickins <hughd@google.com>
 X-X-Sender: hugh@ripple.attlocal.net
 To:     Andrew Morton <akpm@linux-foundation.org>
@@ -91,10 +91,10 @@ cc:     Mike Kravetz <mike.kravetz@oracle.com>,
         linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
         linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: [PATCH 05/12] powerpc: add pte_free_defer() for pgtables sharing
+Subject: [PATCH 06/12] sparc: add pte_free_defer() for pgtables sharing
  page
 In-Reply-To: <35e983f5-7ed3-b310-d949-9ae8b130cdab@google.com>
-Message-ID: <28eb289f-ea2c-8eb9-63bb-9f7d7b9ccc11@google.com>
+Message-ID: <f8d84fb8-eb9-6649-7137-715c6010468c@google.com>
 References: <35e983f5-7ed3-b310-d949-9ae8b130cdab@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -102,48 +102,46 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Add powerpc-specific pte_free_defer(), to call pte_free() via call_rcu().
+Add sparc-specific pte_free_defer(), to call pte_free() via call_rcu().
 pte_free_defer() will be called inside khugepaged's retract_page_tables()
 loop, where allocating extra memory cannot be relied upon.  This precedes
 the generic version to avoid build breakage from incompatible pgtable_t.
 
 Signed-off-by: Hugh Dickins <hughd@google.com>
 ---
- arch/powerpc/include/asm/pgalloc.h |  4 ++++
- arch/powerpc/mm/pgtable-frag.c     | 18 ++++++++++++++++++
- 2 files changed, 22 insertions(+)
+ arch/sparc/include/asm/pgalloc_64.h |  4 ++++
+ arch/sparc/mm/init_64.c             | 16 ++++++++++++++++
+ 2 files changed, 20 insertions(+)
 
-diff --git a/arch/powerpc/include/asm/pgalloc.h b/arch/powerpc/include/asm/pgalloc.h
-index 3360cad78ace..3a971e2a8c73 100644
---- a/arch/powerpc/include/asm/pgalloc.h
-+++ b/arch/powerpc/include/asm/pgalloc.h
-@@ -45,6 +45,10 @@ static inline void pte_free(struct mm_struct *mm, pgtable_t ptepage)
- 	pte_fragment_free((unsigned long *)ptepage, 0);
- }
+diff --git a/arch/sparc/include/asm/pgalloc_64.h b/arch/sparc/include/asm/pgalloc_64.h
+index 7b5561d17ab1..caa7632be4c2 100644
+--- a/arch/sparc/include/asm/pgalloc_64.h
++++ b/arch/sparc/include/asm/pgalloc_64.h
+@@ -65,6 +65,10 @@ pgtable_t pte_alloc_one(struct mm_struct *mm);
+ void pte_free_kernel(struct mm_struct *mm, pte_t *pte);
+ void pte_free(struct mm_struct *mm, pgtable_t ptepage);
  
-+/* arch use pte_free_defer() implementation in arch/powerpc/mm/pgtable-frag.c */
++/* arch use pte_free_defer() implementation in arch/sparc/mm/init_64.c */
 +#define pte_free_defer pte_free_defer
 +void pte_free_defer(struct mm_struct *mm, pgtable_t pgtable);
 +
- /*
-  * Functions that deal with pagetables that could be at any level of
-  * the table need to be passed an "index_size" so they know how to
-diff --git a/arch/powerpc/mm/pgtable-frag.c b/arch/powerpc/mm/pgtable-frag.c
-index 20652daa1d7e..3a3dac77faf2 100644
---- a/arch/powerpc/mm/pgtable-frag.c
-+++ b/arch/powerpc/mm/pgtable-frag.c
-@@ -120,3 +120,21 @@ void pte_fragment_free(unsigned long *table, int kernel)
- 		__free_page(page);
- 	}
+ #define pmd_populate_kernel(MM, PMD, PTE)	pmd_set(MM, PMD, PTE)
+ #define pmd_populate(MM, PMD, PTE)		pmd_set(MM, PMD, PTE)
+ 
+diff --git a/arch/sparc/mm/init_64.c b/arch/sparc/mm/init_64.c
+index 04f9db0c3111..b7c6aa085ef6 100644
+--- a/arch/sparc/mm/init_64.c
++++ b/arch/sparc/mm/init_64.c
+@@ -2930,6 +2930,22 @@ void pgtable_free(void *table, bool is_page)
  }
-+
-+#ifdef CONFIG_TRANSPARENT_HUGEPAGE
+ 
+ #ifdef CONFIG_TRANSPARENT_HUGEPAGE
 +static void pte_free_now(struct rcu_head *head)
 +{
 +	struct page *page;
 +
 +	page = container_of(head, struct page, rcu_head);
-+	pte_fragment_free((unsigned long *)page_to_virt(page), 0);
++	__pte_free((pgtable_t)page_to_virt(page));
 +}
 +
 +void pte_free_defer(struct mm_struct *mm, pgtable_t pgtable)
@@ -153,7 +151,10 @@ index 20652daa1d7e..3a3dac77faf2 100644
 +	page = virt_to_page(pgtable);
 +	call_rcu(&page->rcu_head, pte_free_now);
 +}
-+#endif /* CONFIG_TRANSPARENT_HUGEPAGE */
++
+ void update_mmu_cache_pmd(struct vm_area_struct *vma, unsigned long addr,
+ 			  pmd_t *pmd)
+ {
 -- 
 2.35.3
 
