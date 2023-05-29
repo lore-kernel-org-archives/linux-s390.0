@@ -2,52 +2,52 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 43B99C7EE2F
-	for <linux-s390@archiver.kernel.org>; Mon, 29 May 2023 06:30:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 44D18C77B7A
+	for <linux-s390@archiver.kernel.org>; Mon, 29 May 2023 06:31:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231626AbjE2GaU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 29 May 2023 02:30:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56978 "EHLO
+        id S229615AbjE2Gbe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 29 May 2023 02:31:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231450AbjE2GaT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 29 May 2023 02:30:19 -0400
-Received: from mail-yb1-xb35.google.com (mail-yb1-xb35.google.com [IPv6:2607:f8b0:4864:20::b35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46899DA
-        for <linux-s390@vger.kernel.org>; Sun, 28 May 2023 23:29:52 -0700 (PDT)
-Received: by mail-yb1-xb35.google.com with SMTP id 3f1490d57ef6-bad87129480so917070276.2
-        for <linux-s390@vger.kernel.org>; Sun, 28 May 2023 23:29:52 -0700 (PDT)
+        with ESMTP id S230347AbjE2Gbd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 29 May 2023 02:31:33 -0400
+Received: from mail-yb1-xb31.google.com (mail-yb1-xb31.google.com [IPv6:2607:f8b0:4864:20::b31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2AD11AD
+        for <linux-s390@vger.kernel.org>; Sun, 28 May 2023 23:31:01 -0700 (PDT)
+Received: by mail-yb1-xb31.google.com with SMTP id 3f1490d57ef6-bad1ae90c2eso3893724276.2
+        for <linux-s390@vger.kernel.org>; Sun, 28 May 2023 23:31:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1685341737; x=1687933737;
+        d=google.com; s=20221208; t=1685341829; x=1687933829;
         h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=xT/EEswLF0xV48TACSfwsUMzv4W28WePE24GrL1l/5o=;
-        b=JvvTudiJ2ueEboa73P4a3lGmzg34HxMFolFy18ddYVZR38ryyurom4tpA+pKKdAKm+
-         yYAkrdkmojRae9uCGOc+xBDnB7qvKDF9c9FFPnpSBpjBiwbOJHOHU1+piNik8nuJHIHQ
-         vpxQvD6IDQlSrCbcFB+Lk4wcPVE2ZDCw/XyBpkTiIDI1EAgr2XJxMGctVaCjxy4tlymz
-         LrAusDPYqGDSES0yI8fnkSztcqZEaAtqHPYgPXvbz0LuLLq9bawcEEKWwmIcx4F6CA7T
-         FILNf+ZbNWUKWLzPfTzPIQGR9twFhP7psJ5t7QdrhgKtJ5xSlV25NIlSqIAjV0HdJc5K
-         2WJg==
+        bh=Aa5HWe45UW6rQUJiJNVLC4MPu6AngULI5k321Sbm9Ew=;
+        b=UNKL1Q0Pec+L5oOba/99kxWNjcCwq8SenPXFdijAb/ObswMKjM7OUUmz2ZEICNHgFi
+         Qv4ppRRcA3yebk/gcCjK1B/b31tItw1kcbI5MNnORL3Ys8OpaxJh/WEpZJ/SInbs7OtQ
+         pID86tFe1+AG4qmsZJbOnM+7iKwXNWky09aARIe2tetg2zR8PTrceT/1TSWkarzFIet1
+         8YIKNPCa18G6ke7Me2QA0b5ztYnbCNDIOf/BDmkOzEl5UNMMd2c3BAGItXCN3K8DkXAw
+         E9u7Ntp2cVwujFtJI7hoKruoONwfQaLYMkiR2S/Hp/B93RwLn01nkmija5yTld6gsNK0
+         YpVA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1685341737; x=1687933737;
+        d=1e100.net; s=20221208; t=1685341829; x=1687933829;
         h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=xT/EEswLF0xV48TACSfwsUMzv4W28WePE24GrL1l/5o=;
-        b=foikcQF4Yp5WxmlB7eFdWGRnzqbCA/CwZZOC6vq2CGHmnW2XDcxxV0Hz+pwPzbgptr
-         fk/43TwMyUVEec43aqHdmZdfdcFqrSpYOabIkRUtJBc40l1vf3f5L3POtKeoW0bYQ3fI
-         u76BuwcBwRRTBzhB9pxhU6mFSDvU/dCCCQ/SPtbySEl6mI2cYLiyLaV5t5OSYtmal326
-         W0kZstDP/GimMps//znGjRzq2TR9dVnGPwWD4IGwGwGBjc51d3CAVIjFRxlHbxf4uja9
-         VZxKpOE7W1Beu0V9TazUJoAAp6FmHSwZHgw+1/pPaca9WxOBl069IyXRqloQj7eMsoMg
-         ToCQ==
-X-Gm-Message-State: AC+VfDzc+8PonryiF1rojp2P6KVUWCN6inC8V4zN8YEbmY9SGeT/njfU
-        WpziZyAx44Y6MwKKchSdHQ2WcQ==
-X-Google-Smtp-Source: ACHHUZ7HfnnGjkEX5sGUsgNAdc3kbPNe/FVMe5HYLThd9cglb9ZMTh0FR6+KstwImWlJK0i5/3xaIA==
-X-Received: by 2002:a25:d391:0:b0:bac:f582:eefd with SMTP id e139-20020a25d391000000b00bacf582eefdmr10483734ybf.35.1685341737360;
-        Sun, 28 May 2023 23:28:57 -0700 (PDT)
+        bh=Aa5HWe45UW6rQUJiJNVLC4MPu6AngULI5k321Sbm9Ew=;
+        b=K0yESu+qvqW/HDBG89l1ud1H9lu6HyKYeMgV12Ra6Mm3Rt95FTGjNJYz7R066PDy1T
+         zqRn6qleINJI4vJxT41APKMyxN4Q+EwOsTOv86LETi9naeMLuDp304r3gyK1kbpHvWQ9
+         UMOePzFJ2FZ+CqWLKS+matTGVOwlcRTIYzlD5J1ohQqFCKjK8dtjihjWZBdDIwQFhlUM
+         jYURcax4OWkADpmxsOjnEL3fpCiGQCKZdDIThW/ou2LAACmd3dNsmupw74WQB2rSD89R
+         OtkEp1aCvAsQ37aXtMeKx7gFymCD5fKUli2bOHozfiAJa09gwBEg+HzmEjwRYvh05fR8
+         LxOQ==
+X-Gm-Message-State: AC+VfDyC2Iuvfc3xZals/qWSweb+7ehPIfIHkAPBX5zo4OkW159gmdOW
+        6/D+JRf8treCzcw9mQpAOkdjbw==
+X-Google-Smtp-Source: ACHHUZ6M1tOYR5IzxCkUxy+sUt0Djeqr4hN+mskEbw3iamyUciaGMEXp/45S6Zcf95QTtDJx+FPlXA==
+X-Received: by 2002:a81:b40c:0:b0:544:9180:3104 with SMTP id h12-20020a81b40c000000b0054491803104mr11920044ywi.34.1685341828878;
+        Sun, 28 May 2023 23:30:28 -0700 (PDT)
 Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id 63-20020a251142000000b00ba7cb887380sm2723779ybr.14.2023.05.28.23.28.53
+        by smtp.gmail.com with ESMTPSA id a7-20020a818a07000000b00555c30ec361sm3363238ywg.143.2023.05.28.23.30.25
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 28 May 2023 23:28:57 -0700 (PDT)
-Date:   Sun, 28 May 2023 23:28:52 -0700 (PDT)
+        Sun, 28 May 2023 23:30:28 -0700 (PDT)
+Date:   Sun, 28 May 2023 23:30:24 -0700 (PDT)
 From:   Hugh Dickins <hughd@google.com>
 X-X-Sender: hugh@ripple.attlocal.net
 To:     Andrew Morton <akpm@linux-foundation.org>
@@ -91,10 +91,10 @@ cc:     Mike Kravetz <mike.kravetz@oracle.com>,
         linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
         linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: [PATCH 11/12] mm/khugepaged: delete
- khugepaged_collapse_pte_mapped_thps()
+Subject: [PATCH 12/12] mm: delete mmap_write_trylock() and
+ vma_try_start_write()
 In-Reply-To: <35e983f5-7ed3-b310-d949-9ae8b130cdab@google.com>
-Message-ID: <1bf6f10-1f8d-d410-98b9-66cbf9a45c2@google.com>
+Message-ID: <c1cdf65f-74f5-7a2b-8918-2d48873d6814@google.com>
 References: <35e983f5-7ed3-b310-d949-9ae8b130cdab@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -102,212 +102,71 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Now that retract_page_tables() can retract page tables reliably, without
-depending on trylocks, delete all the apparatus for khugepaged to try
-again later: khugepaged_collapse_pte_mapped_thps() etc; and free up the
-per-mm memory which was set aside for that in the khugepaged_mm_slot.
-
-But one part of that is worth keeping: when hpage_collapse_scan_file()
-found SCAN_PTE_MAPPED_HUGEPAGE, that address was noted in the mm_slot
-to be tried for retraction later - catching, for example, page tables
-where a reversible mprotect() of a portion had required splitting the
-pmd, but now it can be recollapsed.  Call collapse_pte_mapped_thp()
-directly in this case (why was it deferred before?  I assume an issue
-with needing mmap_lock for write, but now it's only needed for read).
+mmap_write_trylock() and vma_try_start_write() were added just for
+khugepaged, but now it has no use for them: delete.
 
 Signed-off-by: Hugh Dickins <hughd@google.com>
 ---
- mm/khugepaged.c | 125 +++++++-----------------------------------------
- 1 file changed, 16 insertions(+), 109 deletions(-)
+ include/linux/mm.h        | 17 -----------------
+ include/linux/mmap_lock.h | 10 ----------
+ 2 files changed, 27 deletions(-)
 
-diff --git a/mm/khugepaged.c b/mm/khugepaged.c
-index 2999500abdd5..301c0e54a2ef 100644
---- a/mm/khugepaged.c
-+++ b/mm/khugepaged.c
-@@ -92,8 +92,6 @@ static __read_mostly DEFINE_HASHTABLE(mm_slots_hash, MM_SLOTS_HASH_BITS);
- 
- static struct kmem_cache *mm_slot_cache __read_mostly;
- 
--#define MAX_PTE_MAPPED_THP 8
--
- struct collapse_control {
- 	bool is_khugepaged;
- 
-@@ -107,15 +105,9 @@ struct collapse_control {
- /**
-  * struct khugepaged_mm_slot - khugepaged information per mm that is being scanned
-  * @slot: hash lookup from mm to mm_slot
-- * @nr_pte_mapped_thp: number of pte mapped THP
-- * @pte_mapped_thp: address array corresponding pte mapped THP
-  */
- struct khugepaged_mm_slot {
- 	struct mm_slot slot;
--
--	/* pte-mapped THP in this mm */
--	int nr_pte_mapped_thp;
--	unsigned long pte_mapped_thp[MAX_PTE_MAPPED_THP];
- };
- 
- /**
-@@ -1441,50 +1433,6 @@ static void collect_mm_slot(struct khugepaged_mm_slot *mm_slot)
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index 3c2e56980853..9b24f8fbf899 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -690,21 +690,6 @@ static inline void vma_start_write(struct vm_area_struct *vma)
+ 	up_write(&vma->vm_lock->lock);
  }
  
- #ifdef CONFIG_SHMEM
--/*
-- * Notify khugepaged that given addr of the mm is pte-mapped THP. Then
-- * khugepaged should try to collapse the page table.
-- *
-- * Note that following race exists:
-- * (1) khugepaged calls khugepaged_collapse_pte_mapped_thps() for mm_struct A,
-- *     emptying the A's ->pte_mapped_thp[] array.
-- * (2) MADV_COLLAPSE collapses some file extent with target mm_struct B, and
-- *     retract_page_tables() finds a VMA in mm_struct A mapping the same extent
-- *     (at virtual address X) and adds an entry (for X) into mm_struct A's
-- *     ->pte-mapped_thp[] array.
-- * (3) khugepaged calls khugepaged_collapse_scan_file() for mm_struct A at X,
-- *     sees a pte-mapped THP (SCAN_PTE_MAPPED_HUGEPAGE) and adds an entry
-- *     (for X) into mm_struct A's ->pte-mapped_thp[] array.
-- * Thus, it's possible the same address is added multiple times for the same
-- * mm_struct.  Should this happen, we'll simply attempt
-- * collapse_pte_mapped_thp() multiple times for the same address, under the same
-- * exclusive mmap_lock, and assuming the first call is successful, subsequent
-- * attempts will return quickly (without grabbing any additional locks) when
-- * a huge pmd is found in find_pmd_or_thp_or_none().  Since this is a cheap
-- * check, and since this is a rare occurrence, the cost of preventing this
-- * "multiple-add" is thought to be more expensive than just handling it, should
-- * it occur.
-- */
--static bool khugepaged_add_pte_mapped_thp(struct mm_struct *mm,
--					  unsigned long addr)
+-static inline bool vma_try_start_write(struct vm_area_struct *vma)
 -{
--	struct khugepaged_mm_slot *mm_slot;
--	struct mm_slot *slot;
--	bool ret = false;
+-	int mm_lock_seq;
 -
--	VM_BUG_ON(addr & ~HPAGE_PMD_MASK);
+-	if (__is_vma_write_locked(vma, &mm_lock_seq))
+-		return true;
 -
--	spin_lock(&khugepaged_mm_lock);
--	slot = mm_slot_lookup(mm_slots_hash, mm);
--	mm_slot = mm_slot_entry(slot, struct khugepaged_mm_slot, slot);
--	if (likely(mm_slot && mm_slot->nr_pte_mapped_thp < MAX_PTE_MAPPED_THP)) {
--		mm_slot->pte_mapped_thp[mm_slot->nr_pte_mapped_thp++] = addr;
--		ret = true;
--	}
--	spin_unlock(&khugepaged_mm_lock);
+-	if (!down_write_trylock(&vma->vm_lock->lock))
+-		return false;
+-
+-	vma->vm_lock_seq = mm_lock_seq;
+-	up_write(&vma->vm_lock->lock);
+-	return true;
+-}
+-
+ static inline void vma_assert_write_locked(struct vm_area_struct *vma)
+ {
+ 	int mm_lock_seq;
+@@ -730,8 +715,6 @@ static inline bool vma_start_read(struct vm_area_struct *vma)
+ 		{ return false; }
+ static inline void vma_end_read(struct vm_area_struct *vma) {}
+ static inline void vma_start_write(struct vm_area_struct *vma) {}
+-static inline bool vma_try_start_write(struct vm_area_struct *vma)
+-		{ return true; }
+ static inline void vma_assert_write_locked(struct vm_area_struct *vma) {}
+ static inline void vma_mark_detached(struct vm_area_struct *vma,
+ 				     bool detached) {}
+diff --git a/include/linux/mmap_lock.h b/include/linux/mmap_lock.h
+index aab8f1b28d26..d1191f02c7fa 100644
+--- a/include/linux/mmap_lock.h
++++ b/include/linux/mmap_lock.h
+@@ -112,16 +112,6 @@ static inline int mmap_write_lock_killable(struct mm_struct *mm)
+ 	return ret;
+ }
+ 
+-static inline bool mmap_write_trylock(struct mm_struct *mm)
+-{
+-	bool ret;
+-
+-	__mmap_lock_trace_start_locking(mm, true);
+-	ret = down_write_trylock(&mm->mmap_lock) != 0;
+-	__mmap_lock_trace_acquire_returned(mm, true, ret);
 -	return ret;
 -}
 -
- /* hpage must be locked, and mmap_lock must be held */
- static int set_huge_pmd(struct vm_area_struct *vma, unsigned long addr,
- 			pmd_t *pmdp, struct page *hpage)
-@@ -1675,29 +1623,6 @@ int collapse_pte_mapped_thp(struct mm_struct *mm, unsigned long addr,
- 	goto drop_hpage;
- }
- 
--static void khugepaged_collapse_pte_mapped_thps(struct khugepaged_mm_slot *mm_slot)
--{
--	struct mm_slot *slot = &mm_slot->slot;
--	struct mm_struct *mm = slot->mm;
--	int i;
--
--	if (likely(mm_slot->nr_pte_mapped_thp == 0))
--		return;
--
--	if (!mmap_write_trylock(mm))
--		return;
--
--	if (unlikely(hpage_collapse_test_exit(mm)))
--		goto out;
--
--	for (i = 0; i < mm_slot->nr_pte_mapped_thp; i++)
--		collapse_pte_mapped_thp(mm, mm_slot->pte_mapped_thp[i], false);
--
--out:
--	mm_slot->nr_pte_mapped_thp = 0;
--	mmap_write_unlock(mm);
--}
--
- static void retract_page_tables(struct address_space *mapping, pgoff_t pgoff)
+ static inline void mmap_write_unlock(struct mm_struct *mm)
  {
- 	struct vm_area_struct *vma;
-@@ -2326,16 +2251,6 @@ static int hpage_collapse_scan_file(struct mm_struct *mm, unsigned long addr,
- {
- 	BUILD_BUG();
- }
--
--static void khugepaged_collapse_pte_mapped_thps(struct khugepaged_mm_slot *mm_slot)
--{
--}
--
--static bool khugepaged_add_pte_mapped_thp(struct mm_struct *mm,
--					  unsigned long addr)
--{
--	return false;
--}
- #endif
- 
- static unsigned int khugepaged_scan_mm_slot(unsigned int pages, int *result,
-@@ -2365,7 +2280,6 @@ static unsigned int khugepaged_scan_mm_slot(unsigned int pages, int *result,
- 		khugepaged_scan.mm_slot = mm_slot;
- 	}
- 	spin_unlock(&khugepaged_mm_lock);
--	khugepaged_collapse_pte_mapped_thps(mm_slot);
- 
- 	mm = slot->mm;
- 	/*
-@@ -2418,36 +2332,29 @@ static unsigned int khugepaged_scan_mm_slot(unsigned int pages, int *result,
- 						khugepaged_scan.address);
- 
- 				mmap_read_unlock(mm);
--				*result = hpage_collapse_scan_file(mm,
--								   khugepaged_scan.address,
--								   file, pgoff, cc);
- 				mmap_locked = false;
-+				*result = hpage_collapse_scan_file(mm,
-+					khugepaged_scan.address, file, pgoff, cc);
-+				if (*result == SCAN_PTE_MAPPED_HUGEPAGE) {
-+					mmap_read_lock(mm);
-+					mmap_locked = true;
-+					if (hpage_collapse_test_exit(mm)) {
-+						fput(file);
-+						goto breakouterloop;
-+					}
-+					*result = collapse_pte_mapped_thp(mm,
-+						khugepaged_scan.address, false);
-+					if (*result == SCAN_PMD_MAPPED)
-+						*result = SCAN_SUCCEED;
-+				}
- 				fput(file);
- 			} else {
- 				*result = hpage_collapse_scan_pmd(mm, vma,
--								  khugepaged_scan.address,
--								  &mmap_locked,
--								  cc);
-+					khugepaged_scan.address, &mmap_locked, cc);
- 			}
--			switch (*result) {
--			case SCAN_PTE_MAPPED_HUGEPAGE: {
--				pmd_t *pmd;
- 
--				*result = find_pmd_or_thp_or_none(mm,
--								  khugepaged_scan.address,
--								  &pmd);
--				if (*result != SCAN_SUCCEED)
--					break;
--				if (!khugepaged_add_pte_mapped_thp(mm,
--								   khugepaged_scan.address))
--					break;
--			} fallthrough;
--			case SCAN_SUCCEED:
-+			if (*result == SCAN_SUCCEED)
- 				++khugepaged_pages_collapsed;
--				break;
--			default:
--				break;
--			}
- 
- 			/* move to next address */
- 			khugepaged_scan.address += HPAGE_PMD_SIZE;
+ 	__mmap_lock_trace_released(mm, true);
 -- 
 2.35.3
 
