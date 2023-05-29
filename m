@@ -2,52 +2,52 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 66243C7EE29
-	for <linux-s390@archiver.kernel.org>; Mon, 29 May 2023 06:19:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A67B0C7EE23
+	for <linux-s390@archiver.kernel.org>; Mon, 29 May 2023 06:20:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231428AbjE2GTY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 29 May 2023 02:19:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47392 "EHLO
+        id S231434AbjE2GUb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 29 May 2023 02:20:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231543AbjE2GTP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 29 May 2023 02:19:15 -0400
-Received: from mail-yw1-x1133.google.com (mail-yw1-x1133.google.com [IPv6:2607:f8b0:4864:20::1133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 304D3E69
-        for <linux-s390@vger.kernel.org>; Sun, 28 May 2023 23:18:49 -0700 (PDT)
-Received: by mail-yw1-x1133.google.com with SMTP id 00721157ae682-565ee3d14c2so13378337b3.2
-        for <linux-s390@vger.kernel.org>; Sun, 28 May 2023 23:18:49 -0700 (PDT)
+        with ESMTP id S229961AbjE2GU2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 29 May 2023 02:20:28 -0400
+Received: from mail-yb1-xb34.google.com (mail-yb1-xb34.google.com [IPv6:2607:f8b0:4864:20::b34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E313B1
+        for <linux-s390@vger.kernel.org>; Sun, 28 May 2023 23:20:27 -0700 (PDT)
+Received: by mail-yb1-xb34.google.com with SMTP id 3f1490d57ef6-bad041bf313so4417907276.0
+        for <linux-s390@vger.kernel.org>; Sun, 28 May 2023 23:20:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1685341128; x=1687933128;
+        d=google.com; s=20221208; t=1685341226; x=1687933226;
         h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=7tbEFbFk5pzLjwVra+37SCseEW8dJexk2Np2YDtZH+c=;
-        b=1iA4YfG+l9uCrVK/VfGes1VI6E6dNElNmfH0Ym6MNMAOfLc3iDqikpG9Fh1kd0GZyN
-         S2vDJSr0c2W4FoH5DTwBlYn9D4ysTNQfO/tuIIGYNqiQ41PKjRspMrJoqD8nN+1AW+Ll
-         ZG2b3ePp7JtiTJ6Eed3Cy8FX00RyB15yPBCU8A7XIPIx+RIeQ7MpGS9HzfE/9OdJpx+S
-         pAKYTbnfjluypjHVFpFATeSkHhnhYcVPl6qM+K8dkTFH6eXbpsYJ5LutgoPOrieOlSV3
-         oZuduBLXP+Ip6U8GW3EdevUfmC5f9cH9uaENaWd8adKsUbZ/byUTAk7/38rOHk1lVCDe
-         TGTw==
+        bh=osELeF1qrpmk7tMBwVJZ0+Hn0dD614B/zeb//sVH2O8=;
+        b=lDd5t1DNHYrERHggJZt1tFe/2MuojYDB8DYuX4saUcSsWZjN9TJvB4D3jOc40ZJzuw
+         KXTyU64u/loqgfjTny6vyEEHc7I3ap+5KBFfNEbc+et5E0P2BRIz5MO59vg+RyUV5HGF
+         LQIvE8HoWeX7dfHrfHrThINSr2Jkgw1dNwKUT5ElKyxmqFpo9JxBWX275kcmdKdX3BCO
+         TKmGDZP/FC8QUdgVXd4u26ydd2mkiG9rdEZxkd6dJlJez+Ye+8eFZqq1OHv/Cc+ig/ka
+         6L20gyN+7z7wp1ikvxHZmZH1RAvGKKb0++xvnFOn6a1yNDE6E2enDzRJirlL0XfSo/Zh
+         2JMQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1685341128; x=1687933128;
+        d=1e100.net; s=20221208; t=1685341226; x=1687933226;
         h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=7tbEFbFk5pzLjwVra+37SCseEW8dJexk2Np2YDtZH+c=;
-        b=X/15AnZ1uuB4lyUMKe6xi0lQXFS3Q704raqLpkp/MWNGF+zc5yFgbmrNReODXFhgu6
-         JZ2LENYcRqhsQbdZf1rvLE10sWuxqxO4N1VLb29TSlp0RjutKQUwElH5odJ4tcErMqDn
-         ajxWXYT4oB+DQzxt+vqD+Oy38rgPC0JF6UFiSF0OF71QHOo1BIYQAK8LY1sIpK832LGw
-         PVDWLMctKh9diUVl4X25nKEnrIUoitw7HjHOQO++dTKtFb18W35aKe5yTCfLYSudZ/gX
-         dLgh5H3RxsSeMHGQimqU2JLu+rbX3GF8BqBnD91REdigJziEZbWTOBuJLFdzj4HbIgPv
-         iOaA==
-X-Gm-Message-State: AC+VfDxMWeWx1BUGIrV2fJSdmQRgApXf5Qf1xAXTlmFh7wCx2V2GfPPg
-        qAma1dOr6FXn4y01/YlHhXq69Q==
-X-Google-Smtp-Source: ACHHUZ5wa1HnlGmpMM6V73fepd9odIlgE0K/gNhr4bUAPSedVjgsksTyRpOUN3YO0dkzYJPD3+qKCw==
-X-Received: by 2002:a81:6b09:0:b0:561:c147:1d46 with SMTP id g9-20020a816b09000000b00561c1471d46mr12682711ywc.9.1685341127900;
-        Sun, 28 May 2023 23:18:47 -0700 (PDT)
+        bh=osELeF1qrpmk7tMBwVJZ0+Hn0dD614B/zeb//sVH2O8=;
+        b=h7VFsDYtjpVPPrDoL/kojKyHemCdWVhgs+MoYsQYKr8k1sPkFCYuWKSIQMsuXd8vx3
+         KSy05fB1n/t4QixbsV3v8Wjh6HprvG7yGJGhcqubPlMZH4FVbO/kM37jKHza5zTs8j+e
+         Xz5OB7aHrmHgQazYtezrWGvj3ofcIv7bYqdqOMtYceTUDe+YzvndjfpLTe8GumTAm1Y3
+         /HN0QpoWrB3o4Yv5OGgvuthWpOG5qH58nbXBchvf27C20ExsSIAaqqGxdHCcOXCLR78f
+         3Uft8VgIMuRm8DfH15dlsdV8fOphRSMYsgmDiRAEif4o1yYutA9AhEixSroVYyNXgH3R
+         8mfA==
+X-Gm-Message-State: AC+VfDxJEA2UqWJee6ztbEzSWJSc9rHJ425LxhVGTnTdnutF8Ns3F7+K
+        Gs65GCoHARJslyBt49lQNkx0Og==
+X-Google-Smtp-Source: ACHHUZ5aMde8BUNH3d96u3IOrLaqOFrYAlrmuVUlWt4ugn0e7ueCBkueldmdmxLB7UIM6n20FuWD7w==
+X-Received: by 2002:a81:8304:0:b0:565:c888:1d09 with SMTP id t4-20020a818304000000b00565c8881d09mr8471629ywf.30.1685341226458;
+        Sun, 28 May 2023 23:20:26 -0700 (PDT)
 Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id m19-20020a819e13000000b00560c648ef1esm3382356ywj.72.2023.05.28.23.18.44
+        by smtp.gmail.com with ESMTPSA id y184-20020a0dd6c1000000b00565e57e6662sm1530559ywd.55.2023.05.28.23.20.22
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 28 May 2023 23:18:47 -0700 (PDT)
-Date:   Sun, 28 May 2023 23:18:43 -0700 (PDT)
+        Sun, 28 May 2023 23:20:25 -0700 (PDT)
+Date:   Sun, 28 May 2023 23:20:21 -0700 (PDT)
 From:   Hugh Dickins <hughd@google.com>
 X-X-Sender: hugh@ripple.attlocal.net
 To:     Andrew Morton <akpm@linux-foundation.org>
@@ -91,10 +91,10 @@ cc:     Mike Kravetz <mike.kravetz@oracle.com>,
         linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
         linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: [PATCH 04/12] powerpc: assert_pte_locked() use
- pte_offset_map_nolock()
+Subject: [PATCH 05/12] powerpc: add pte_free_defer() for pgtables sharing
+ page
 In-Reply-To: <35e983f5-7ed3-b310-d949-9ae8b130cdab@google.com>
-Message-ID: <e51ac0fd-4f96-4728-925-bc54f09ec013@google.com>
+Message-ID: <28eb289f-ea2c-8eb9-63bb-9f7d7b9ccc11@google.com>
 References: <35e983f5-7ed3-b310-d949-9ae8b130cdab@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -102,54 +102,58 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Instead of pte_lockptr(), use the recently added pte_offset_map_nolock()
-in assert_pte_locked().  BUG if pte_offset_map_nolock() fails: this is
-stricter than the previous implementation, which skipped when pmd_none()
-(with a comment on khugepaged collapse transitions): but wouldn't we want
-to know, if an assert_pte_locked() caller can be racing such transitions?
-
-This mod might cause new crashes: which either expose my ignorance, or
-indicate issues to be fixed, or limit the usage of assert_pte_locked().
+Add powerpc-specific pte_free_defer(), to call pte_free() via call_rcu().
+pte_free_defer() will be called inside khugepaged's retract_page_tables()
+loop, where allocating extra memory cannot be relied upon.  This precedes
+the generic version to avoid build breakage from incompatible pgtable_t.
 
 Signed-off-by: Hugh Dickins <hughd@google.com>
 ---
- arch/powerpc/mm/pgtable.c | 16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
+ arch/powerpc/include/asm/pgalloc.h |  4 ++++
+ arch/powerpc/mm/pgtable-frag.c     | 18 ++++++++++++++++++
+ 2 files changed, 22 insertions(+)
 
-diff --git a/arch/powerpc/mm/pgtable.c b/arch/powerpc/mm/pgtable.c
-index cb2dcdb18f8e..16b061af86d7 100644
---- a/arch/powerpc/mm/pgtable.c
-+++ b/arch/powerpc/mm/pgtable.c
-@@ -311,6 +311,8 @@ void assert_pte_locked(struct mm_struct *mm, unsigned long addr)
- 	p4d_t *p4d;
- 	pud_t *pud;
- 	pmd_t *pmd;
-+	pte_t *pte;
-+	spinlock_t *ptl;
- 
- 	if (mm == &init_mm)
- 		return;
-@@ -321,16 +323,10 @@ void assert_pte_locked(struct mm_struct *mm, unsigned long addr)
- 	pud = pud_offset(p4d, addr);
- 	BUG_ON(pud_none(*pud));
- 	pmd = pmd_offset(pud, addr);
--	/*
--	 * khugepaged to collapse normal pages to hugepage, first set
--	 * pmd to none to force page fault/gup to take mmap_lock. After
--	 * pmd is set to none, we do a pte_clear which does this assertion
--	 * so if we find pmd none, return.
--	 */
--	if (pmd_none(*pmd))
--		return;
--	BUG_ON(!pmd_present(*pmd));
--	assert_spin_locked(pte_lockptr(mm, pmd));
-+	pte = pte_offset_map_nolock(mm, pmd, addr, &ptl);
-+	BUG_ON(!pte);
-+	assert_spin_locked(ptl);
-+	pte_unmap(pte);
+diff --git a/arch/powerpc/include/asm/pgalloc.h b/arch/powerpc/include/asm/pgalloc.h
+index 3360cad78ace..3a971e2a8c73 100644
+--- a/arch/powerpc/include/asm/pgalloc.h
++++ b/arch/powerpc/include/asm/pgalloc.h
+@@ -45,6 +45,10 @@ static inline void pte_free(struct mm_struct *mm, pgtable_t ptepage)
+ 	pte_fragment_free((unsigned long *)ptepage, 0);
  }
- #endif /* CONFIG_DEBUG_VM */
  
++/* arch use pte_free_defer() implementation in arch/powerpc/mm/pgtable-frag.c */
++#define pte_free_defer pte_free_defer
++void pte_free_defer(struct mm_struct *mm, pgtable_t pgtable);
++
+ /*
+  * Functions that deal with pagetables that could be at any level of
+  * the table need to be passed an "index_size" so they know how to
+diff --git a/arch/powerpc/mm/pgtable-frag.c b/arch/powerpc/mm/pgtable-frag.c
+index 20652daa1d7e..3a3dac77faf2 100644
+--- a/arch/powerpc/mm/pgtable-frag.c
++++ b/arch/powerpc/mm/pgtable-frag.c
+@@ -120,3 +120,21 @@ void pte_fragment_free(unsigned long *table, int kernel)
+ 		__free_page(page);
+ 	}
+ }
++
++#ifdef CONFIG_TRANSPARENT_HUGEPAGE
++static void pte_free_now(struct rcu_head *head)
++{
++	struct page *page;
++
++	page = container_of(head, struct page, rcu_head);
++	pte_fragment_free((unsigned long *)page_to_virt(page), 0);
++}
++
++void pte_free_defer(struct mm_struct *mm, pgtable_t pgtable)
++{
++	struct page *page;
++
++	page = virt_to_page(pgtable);
++	call_rcu(&page->rcu_head, pte_free_now);
++}
++#endif /* CONFIG_TRANSPARENT_HUGEPAGE */
 -- 
 2.35.3
 
