@@ -2,52 +2,52 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D9B03C7EE23
-	for <linux-s390@archiver.kernel.org>; Mon, 29 May 2023 06:21:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9068AC77B7A
+	for <linux-s390@archiver.kernel.org>; Mon, 29 May 2023 06:22:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229453AbjE2GVn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 29 May 2023 02:21:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48942 "EHLO
+        id S231556AbjE2GW4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 29 May 2023 02:22:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231514AbjE2GVi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 29 May 2023 02:21:38 -0400
-Received: from mail-yb1-xb2e.google.com (mail-yb1-xb2e.google.com [IPv6:2607:f8b0:4864:20::b2e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04B91C9
-        for <linux-s390@vger.kernel.org>; Sun, 28 May 2023 23:21:33 -0700 (PDT)
-Received: by mail-yb1-xb2e.google.com with SMTP id 3f1490d57ef6-ba86ec8047bso4309358276.3
-        for <linux-s390@vger.kernel.org>; Sun, 28 May 2023 23:21:33 -0700 (PDT)
+        with ESMTP id S230388AbjE2GWy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 29 May 2023 02:22:54 -0400
+Received: from mail-yw1-x1129.google.com (mail-yw1-x1129.google.com [IPv6:2607:f8b0:4864:20::1129])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08F46E1
+        for <linux-s390@vger.kernel.org>; Sun, 28 May 2023 23:22:47 -0700 (PDT)
+Received: by mail-yw1-x1129.google.com with SMTP id 00721157ae682-565ba53f434so33707927b3.3
+        for <linux-s390@vger.kernel.org>; Sun, 28 May 2023 23:22:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1685341293; x=1687933293;
+        d=google.com; s=20221208; t=1685341366; x=1687933366;
         h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=kjV6xBD8+Z39YuH4hgrLfpItULNEjB3if/M/mkAbsVQ=;
-        b=rWUgEbcRxN+0lh7aV7n4UOuWoW/akkZOM/gqoHjVcxn/6hheszcuPJOLVJ4sguWyP8
-         nkQlUMJmy6e/Jx9YVzvAF7u4UBrtQ7Gt8z6ETj5pN1DYiBGqn6irZMUv2C9TbfCBC78I
-         xaCU0qKIPP/XwpIBhRQPgPdjxQJW6d4VJskC/kyJTtslu2euOqK8ik9oIKBYFLT0OWAQ
-         hthSfePHY1Fj36lFOt87PpfGm9V25DdJkUjrx5h6k5n/1x83JounXfxF7b0VnDNmT3pg
-         /B3jbAdtHb1fjyAf9CqPVGMMMvFfo7sNqLyn5ELpZamilbHqPMk5v4bK33lqW9qB8lmS
-         adrg==
+        bh=MHjeymamXVEDQ3Kw25JCka7yLmkzZOMAvMVAEydeLzM=;
+        b=JnCv5o3gZCSjIaRpRDj860LJkDOANHqriyLGSv5pPF/RAyg9m3lQdupCXaTyei8DMf
+         e3KqZBCpZIzZeMjk/yaxPctH6c49veiWRbUeGgx17gSNxkwyxqN1QFATHf6q6YutmR3t
+         HvT+zDNBDGXXzqUl/LmcNCNapCFXfgc8yyTJIwdBnMkvFfp9LdRJqcRYSLqq8ynJ3LiF
+         LXxpx3gFYAZnedKKq/SPuYQMj/8ol6u4/3db6BOFo/ME2oJub0w8Z8IEMye4507Zx0Ui
+         smMsg0FV9ON+iRDLGBbSQlzdjRNF2P0/vV32Ee1vXvhsjJhpzkmQMG6hoZRiP5zjDNGY
+         IC9A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1685341293; x=1687933293;
+        d=1e100.net; s=20221208; t=1685341366; x=1687933366;
         h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=kjV6xBD8+Z39YuH4hgrLfpItULNEjB3if/M/mkAbsVQ=;
-        b=GZUmmNdRsIsTmCHygfdmB1dAWdg7Yal4ntqqQDNXE3dxIW/deq59hc/bwPL2Z9l2Jn
-         +v7UtPrdMFgZmHjY6lhG9JkDG85s4xkXf0rS5Vb3gkeHSowk4Lo2RCmb3ZSW57OwNci7
-         jUd+fxDJjm+bErZyLcCAE8pzD+MHzsSHelHs50zP4fWcXlun23f7xBMXcQFmRQavs/Z/
-         1hzSdauB+qN4hGG9HR4HhOK4ry68/bZdkxKakevKdxRwJU3F5mgmKNQby410OIGSI8Cl
-         p8eKZpAHmnKsYz3lnQSS1w6P3pLlO37g1f0PGGB5rBVMjB93fsqUXpQH19WtzeQ1Led1
-         kAKg==
-X-Gm-Message-State: AC+VfDxCMEGSSLUomVLGUA7p3Vvd4+97ISzv0T6lXxQ04yszerWm4IpD
-        +UlBe9MdhIaKfz4oZRHfJp5O1w==
-X-Google-Smtp-Source: ACHHUZ6EPD4pm5LL+EWBEb/p2RZtAUzDMPbUfE7F4FXgHJQ8XYwzEv8l0puT9pEGX6+B6Mzd+dzTzw==
-X-Received: by 2002:a25:d796:0:b0:ba8:3e89:bd69 with SMTP id o144-20020a25d796000000b00ba83e89bd69mr9536233ybg.12.1685341292952;
-        Sun, 28 May 2023 23:21:32 -0700 (PDT)
+        bh=MHjeymamXVEDQ3Kw25JCka7yLmkzZOMAvMVAEydeLzM=;
+        b=Yi9urhbxrcOkiG/0oOxfuQ+pPa+wM8nGQ192fgLqwuGkWdY/hxjek5FQHWwbVNWo8A
+         6zcqRmzPbHd/4MJ7BJMkbK5BtoGHGIqT+G0A/XL2XQVrJaab70wk3zuVr+8mxHOk7APy
+         5K8Hdu03D+BMddBwqkxskQBszMDhgVG1Cezrg/yNDgcbcY3DGqWrbofLqwAJB+hFM4AA
+         2lFz75fpAK+j0AaunOnf8sI7bm9UMOMaWP6u4aGCm98iiTDXVsyVebyBMefSF4cHLzjm
+         m1reOmmf3XOSqSanXmksRARMoDYzo0Cvu8B/7FpAyY4q8jozLPDlGBjsFcV4PDTZxAPB
+         rWXg==
+X-Gm-Message-State: AC+VfDy3D2rxoA+0uy0f4foZjhHWIiXV/guyUTS0FGfRUhSRJuytq/uJ
+        SEOGCU5fZima0/m7cwqZnSpuGg==
+X-Google-Smtp-Source: ACHHUZ4SIMI4er/AF0deXgjHIDsOF79qc5oA7wlkFnZQpWYe4q0dmwzIjbUF/Ql+fhbfUc3dtFgx4A==
+X-Received: by 2002:a81:a043:0:b0:560:beeb:6fc1 with SMTP id x64-20020a81a043000000b00560beeb6fc1mr13114394ywg.16.1685341365991;
+        Sun, 28 May 2023 23:22:45 -0700 (PDT)
 Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id m205-20020a2571d6000000b00ba87bc06fe5sm2712527ybc.52.2023.05.28.23.21.28
+        by smtp.gmail.com with ESMTPSA id t66-20020a818345000000b00568938ca41bsm405426ywf.53.2023.05.28.23.22.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 28 May 2023 23:21:32 -0700 (PDT)
-Date:   Sun, 28 May 2023 23:21:27 -0700 (PDT)
+        Sun, 28 May 2023 23:22:45 -0700 (PDT)
+Date:   Sun, 28 May 2023 23:22:40 -0700 (PDT)
 From:   Hugh Dickins <hughd@google.com>
 X-X-Sender: hugh@ripple.attlocal.net
 To:     Andrew Morton <akpm@linux-foundation.org>
@@ -91,10 +91,10 @@ cc:     Mike Kravetz <mike.kravetz@oracle.com>,
         linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
         linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: [PATCH 06/12] sparc: add pte_free_defer() for pgtables sharing
- page
+Subject: [PATCH 07/12] s390: add pte_free_defer(), with use of
+ mmdrop_async()
 In-Reply-To: <35e983f5-7ed3-b310-d949-9ae8b130cdab@google.com>
-Message-ID: <f8d84fb8-eb9-6649-7137-715c6010468c@google.com>
+Message-ID: <6dd63b39-e71f-2e8b-7e0-83e02f3bcb39@google.com>
 References: <35e983f5-7ed3-b310-d949-9ae8b130cdab@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -102,59 +102,130 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Add sparc-specific pte_free_defer(), to call pte_free() via call_rcu().
+Add s390-specific pte_free_defer(), to call pte_free() via call_rcu().
 pte_free_defer() will be called inside khugepaged's retract_page_tables()
 loop, where allocating extra memory cannot be relied upon.  This precedes
 the generic version to avoid build breakage from incompatible pgtable_t.
 
+This version is more complicated than others: because page_table_free()
+needs to know which fragment is being freed, and which mm to link it to.
+
+page_table_free()'s fragment handling is clever, but I could too easily
+break it: what's done here in pte_free_defer() and pte_free_now() might
+be better integrated with page_table_free()'s cleverness, but not by me!
+
+By the time that page_table_free() gets called via RCU, it's conceivable
+that mm would already have been freed: so mmgrab() in pte_free_defer()
+and mmdrop() in pte_free_now().  No, that is not a good context to call
+mmdrop() from, so make mmdrop_async() public and use that.
+
 Signed-off-by: Hugh Dickins <hughd@google.com>
 ---
- arch/sparc/include/asm/pgalloc_64.h |  4 ++++
- arch/sparc/mm/init_64.c             | 16 ++++++++++++++++
- 2 files changed, 20 insertions(+)
+ arch/s390/include/asm/pgalloc.h |  4 ++++
+ arch/s390/mm/pgalloc.c          | 34 +++++++++++++++++++++++++++++++++
+ include/linux/mm_types.h        |  2 +-
+ include/linux/sched/mm.h        |  1 +
+ kernel/fork.c                   |  2 +-
+ 5 files changed, 41 insertions(+), 2 deletions(-)
 
-diff --git a/arch/sparc/include/asm/pgalloc_64.h b/arch/sparc/include/asm/pgalloc_64.h
-index 7b5561d17ab1..caa7632be4c2 100644
---- a/arch/sparc/include/asm/pgalloc_64.h
-+++ b/arch/sparc/include/asm/pgalloc_64.h
-@@ -65,6 +65,10 @@ pgtable_t pte_alloc_one(struct mm_struct *mm);
- void pte_free_kernel(struct mm_struct *mm, pte_t *pte);
- void pte_free(struct mm_struct *mm, pgtable_t ptepage);
+diff --git a/arch/s390/include/asm/pgalloc.h b/arch/s390/include/asm/pgalloc.h
+index 17eb618f1348..89a9d5ef94f8 100644
+--- a/arch/s390/include/asm/pgalloc.h
++++ b/arch/s390/include/asm/pgalloc.h
+@@ -143,6 +143,10 @@ static inline void pmd_populate(struct mm_struct *mm,
+ #define pte_free_kernel(mm, pte) page_table_free(mm, (unsigned long *) pte)
+ #define pte_free(mm, pte) page_table_free(mm, (unsigned long *) pte)
  
-+/* arch use pte_free_defer() implementation in arch/sparc/mm/init_64.c */
++/* arch use pte_free_defer() implementation in arch/s390/mm/pgalloc.c */
 +#define pte_free_defer pte_free_defer
 +void pte_free_defer(struct mm_struct *mm, pgtable_t pgtable);
 +
- #define pmd_populate_kernel(MM, PMD, PTE)	pmd_set(MM, PMD, PTE)
- #define pmd_populate(MM, PMD, PTE)		pmd_set(MM, PMD, PTE)
- 
-diff --git a/arch/sparc/mm/init_64.c b/arch/sparc/mm/init_64.c
-index 04f9db0c3111..b7c6aa085ef6 100644
---- a/arch/sparc/mm/init_64.c
-+++ b/arch/sparc/mm/init_64.c
-@@ -2930,6 +2930,22 @@ void pgtable_free(void *table, bool is_page)
+ void vmem_map_init(void);
+ void *vmem_crst_alloc(unsigned long val);
+ pte_t *vmem_pte_alloc(void);
+diff --git a/arch/s390/mm/pgalloc.c b/arch/s390/mm/pgalloc.c
+index 66ab68db9842..0129de9addfd 100644
+--- a/arch/s390/mm/pgalloc.c
++++ b/arch/s390/mm/pgalloc.c
+@@ -346,6 +346,40 @@ void page_table_free(struct mm_struct *mm, unsigned long *table)
+ 	__free_page(page);
  }
  
- #ifdef CONFIG_TRANSPARENT_HUGEPAGE
++#ifdef CONFIG_TRANSPARENT_HUGEPAGE
 +static void pte_free_now(struct rcu_head *head)
 +{
 +	struct page *page;
++	unsigned long mm_bit;
++	struct mm_struct *mm;
++	unsigned long *table;
 +
 +	page = container_of(head, struct page, rcu_head);
-+	__pte_free((pgtable_t)page_to_virt(page));
++	table = (unsigned long *)page_to_virt(page);
++	mm_bit = (unsigned long)page->pt_mm;
++	/* 4K page has only two 2K fragments, but alignment allows eight */
++	mm = (struct mm_struct *)(mm_bit & ~7);
++	table += PTRS_PER_PTE * (mm_bit & 7);
++	page_table_free(mm, table);
++	mmdrop_async(mm);
 +}
 +
 +void pte_free_defer(struct mm_struct *mm, pgtable_t pgtable)
 +{
 +	struct page *page;
++	unsigned long mm_bit;
 +
++	mmgrab(mm);
 +	page = virt_to_page(pgtable);
++	/* Which 2K page table fragment of a 4K page? */
++	mm_bit = ((unsigned long)pgtable & ~PAGE_MASK) /
++			(PTRS_PER_PTE * sizeof(pte_t));
++	mm_bit += (unsigned long)mm;
++	page->pt_mm = (struct mm_struct *)mm_bit;
 +	call_rcu(&page->rcu_head, pte_free_now);
 +}
++#endif /* CONFIG_TRANSPARENT_HUGEPAGE */
 +
- void update_mmu_cache_pmd(struct vm_area_struct *vma, unsigned long addr,
- 			  pmd_t *pmd)
+ void page_table_free_rcu(struct mmu_gather *tlb, unsigned long *table,
+ 			 unsigned long vmaddr)
  {
+diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
+index 306a3d1a0fa6..1667a1bdb8a8 100644
+--- a/include/linux/mm_types.h
++++ b/include/linux/mm_types.h
+@@ -146,7 +146,7 @@ struct page {
+ 			pgtable_t pmd_huge_pte; /* protected by page->ptl */
+ 			unsigned long _pt_pad_2;	/* mapping */
+ 			union {
+-				struct mm_struct *pt_mm; /* x86 pgds only */
++				struct mm_struct *pt_mm; /* x86 pgd, s390 */
+ 				atomic_t pt_frag_refcount; /* powerpc */
+ 			};
+ #if ALLOC_SPLIT_PTLOCKS
+diff --git a/include/linux/sched/mm.h b/include/linux/sched/mm.h
+index 8d89c8c4fac1..a9043d1a0d55 100644
+--- a/include/linux/sched/mm.h
++++ b/include/linux/sched/mm.h
+@@ -41,6 +41,7 @@ static inline void smp_mb__after_mmgrab(void)
+ 	smp_mb__after_atomic();
+ }
+ 
++extern void mmdrop_async(struct mm_struct *mm);
+ extern void __mmdrop(struct mm_struct *mm);
+ 
+ static inline void mmdrop(struct mm_struct *mm)
+diff --git a/kernel/fork.c b/kernel/fork.c
+index ed4e01daccaa..fa4486b65c56 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -942,7 +942,7 @@ static void mmdrop_async_fn(struct work_struct *work)
+ 	__mmdrop(mm);
+ }
+ 
+-static void mmdrop_async(struct mm_struct *mm)
++void mmdrop_async(struct mm_struct *mm)
+ {
+ 	if (unlikely(atomic_dec_and_test(&mm->mm_count))) {
+ 		INIT_WORK(&mm->async_put_work, mmdrop_async_fn);
 -- 
 2.35.3
 
