@@ -2,31 +2,31 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D7BC1C77B7A
-	for <linux-s390@archiver.kernel.org>; Mon, 29 May 2023 13:59:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A24DC7EE2E
+	for <linux-s390@archiver.kernel.org>; Mon, 29 May 2023 14:03:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229898AbjE2N7b (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 29 May 2023 09:59:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40862 "EHLO
+        id S230189AbjE2ODY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 29 May 2023 10:03:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229981AbjE2N7R (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 29 May 2023 09:59:17 -0400
+        with ESMTP id S230107AbjE2ODX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 29 May 2023 10:03:23 -0400
 Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DA3BEA;
-        Mon, 29 May 2023 06:58:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8258EC9;
+        Mon, 29 May 2023 07:02:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
         References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
         Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=daJr36z+xkb/H/fiOexwZNK30Bl/V66a5KNArnHZvM8=; b=fuY62XaNQ1pid4PNx3bW9OvYFH
-        W2MZp/QZXjFmThuV9a1DJcWOd+JYQNxPMJygXk9c0KUuaPqy0M9u/r+Vs27UTvHbWDtYVnA+RTTp6
-        jB78eAY5YpAKoIS/61GR1/oSnkSEWJbGBUTSyEmZ9+18f/mzDRAupMRvltvNWDYeS4BcrG9tm2BJf
-        9eiEdU9vtilsjcpBoR5QNebyugV+d/7DnGaOatu9kYBzf4L0AOTycICgaBuWc/MrIP0hG9cSOgII0
-        Ru6GHGxtFSG/YbqlMBCcSBH4IipXcVzJCce6Tp4PdiiqApnnSuEbaBiJJr4ds9zEpfuv9ZaAXKVgR
-        jTQB7oWw==;
+        bh=8n/gSgUfVLp+2xUxKUXJObyidN3fOaenRgCYrh0plbg=; b=lDre3KycVopHJgQtSVi6Ft0h2+
+        /6KcXeh5DDgTYRWUam42o5WNWijcaqCZOd3dx2HAurqm8z1fldvnXLpCnoSy0NLLn08cXknKDuPGQ
+        gYTInVr7Mv6sz5/UedpbbXKAgGCEtbEPUwJS3HU859+6q2mrf+Vst5r6bVYq4QYO4FOSwRHoda1Dn
+        5iV/2BvS3JTHI2796pUfUpALVlmDgyKCBvF/8JWEkyCLv2cJ9H9RqEbD681UXQ5f6iLi2mlHWJs6k
+        +YJbLW+C+/rFR09hhGpAEembhtRGCh+/zp9btJ5yU++252/kk/VTdEAS56sP+b2VQVAXRo/gquNr/
+        Yo5hUC4w==;
 Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1q3dMZ-005SA0-VJ; Mon, 29 May 2023 13:56:44 +0000
-Date:   Mon, 29 May 2023 14:56:43 +0100
+        id 1q3dRi-005SM1-Ch; Mon, 29 May 2023 14:02:02 +0000
+Date:   Mon, 29 May 2023 15:02:02 +0100
 From:   Matthew Wilcox <willy@infradead.org>
 To:     Hugh Dickins <hughd@google.com>
 Cc:     Andrew Morton <akpm@linux-foundation.org>,
@@ -69,34 +69,31 @@ Cc:     Andrew Morton <akpm@linux-foundation.org>,
         linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
         linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH 02/12] mm/pgtable: add PAE safety to __pte_offset_map()
-Message-ID: <ZHSvG8UIaq14I/5p@casper.infradead.org>
+Subject: Re: [PATCH 05/12] powerpc: add pte_free_defer() for pgtables sharing
+ page
+Message-ID: <ZHSwWgLWaEd+zi/g@casper.infradead.org>
 References: <35e983f5-7ed3-b310-d949-9ae8b130cdab@google.com>
- <923480d5-35ab-7cac-79d0-343d16e29318@google.com>
+ <28eb289f-ea2c-8eb9-63bb-9f7d7b9ccc11@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <923480d5-35ab-7cac-79d0-343d16e29318@google.com>
+In-Reply-To: <28eb289f-ea2c-8eb9-63bb-9f7d7b9ccc11@google.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sun, May 28, 2023 at 11:16:16PM -0700, Hugh Dickins wrote:
-> +#if defined(CONFIG_GUP_GET_PXX_LOW_HIGH) && \
-> +	(defined(CONFIG_SMP) || defined(CONFIG_PREEMPT_RCU))
-> +/*
-> + * See the comment above ptep_get_lockless() in include/linux/pgtable.h:
-> + * the barriers in pmdp_get_lockless() cannot guarantee that the value in
-> + * pmd_high actually belongs with the value in pmd_low; but holding interrupts
-> + * off blocks the TLB flush between present updates, which guarantees that a
-> + * successful __pte_offset_map() points to a page from matched halves.
-> + */
-> +#define config_might_irq_save(flags)	local_irq_save(flags)
-> +#define config_might_irq_restore(flags)	local_irq_restore(flags)
-> +#else
-> +#define config_might_irq_save(flags)
-> +#define config_might_irq_restore(flags)
+On Sun, May 28, 2023 at 11:20:21PM -0700, Hugh Dickins wrote:
+> +void pte_free_defer(struct mm_struct *mm, pgtable_t pgtable)
+> +{
+> +	struct page *page;
+> +
+> +	page = virt_to_page(pgtable);
+> +	call_rcu(&page->rcu_head, pte_free_now);
+> +}
 
-I don't like the name.  It should indicate that it's PMD-related, so
-pmd_read_start(flags) / pmd_read_end(flags)?
+This can't be safe (on ppc).  IIRC you might have up to 16x4k page
+tables sharing one 64kB page.  So if you have two page tables from the
+same page being defer-freed simultaneously, you'll reuse the rcu_head
+and I cannot imagine things go well from that point.
 
+I have no idea how to solve this problem.
