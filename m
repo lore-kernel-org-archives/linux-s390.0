@@ -2,298 +2,135 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A0461C7EE2F
-	for <linux-s390@archiver.kernel.org>; Tue, 30 May 2023 19:34:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DC93C7EE23
+	for <linux-s390@archiver.kernel.org>; Tue, 30 May 2023 19:36:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233159AbjE3TeG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 30 May 2023 15:34:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56634 "EHLO
+        id S231364AbjE3TgA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 30 May 2023 15:36:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230433AbjE3TeE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 May 2023 15:34:04 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93CE6BE;
-        Tue, 30 May 2023 12:34:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=4dc8sj3FHzzLhi63BMaL8ARsadXKK6PBMKS8wZ1D+bM=; b=JM7SiKdzfwoBik0AKgxOsdxCpD
-        sDgnOT4X96GVp8CNJPJb+VOQVteRUg7rUp37Z51bccNB5PtdZZdFWuUdw496KccyYIcrBvzDCr6Bv
-        Y9Jko3S3agioN15y2YYHTWvPLYowFj33IOP2SMXTSAX3jmWiVTemAd+VQ5v3vP1z5MSBp1M6+QMNj
-        Yl95WQRRrZI/coCZDx5VKzQpkvp2WzKa6i9icU6WPABaTXb+MamtUc/8gix4iHb9+PGyAKxTFw0YV
-        PhcQmCHWi2/I64g8MCskmYk+R7GDeCcI2mbko//pOUA83Bdwaq1ULOdq+hdnfRe4a1X3c5leImvPG
-        MPvGP5Ww==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1q455b-006ZKF-17; Tue, 30 May 2023 19:33:03 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 9784F300233;
-        Tue, 30 May 2023 21:32:58 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 45294243A9FD8; Tue, 30 May 2023 21:32:58 +0200 (CEST)
-Date:   Tue, 30 May 2023 21:32:58 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     torvalds@linux-foundation.org
-Cc:     corbet@lwn.net, will@kernel.org, boqun.feng@gmail.com,
-        mark.rutland@arm.com, catalin.marinas@arm.com, dennis@kernel.org,
-        tj@kernel.org, cl@linux.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
-        hpa@zytor.com, joro@8bytes.org, suravee.suthikulpanit@amd.com,
-        robin.murphy@arm.com, dwmw2@infradead.org,
-        baolu.lu@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
-        Herbert Xu <herbert@gondor.apana.org.au>, davem@davemloft.net,
-        penberg@kernel.org, rientjes@google.com, iamjoonsoo.kim@lge.com,
-        Andrew Morton <akpm@linux-foundation.org>, vbabka@suse.cz,
-        roman.gushchin@linux.dev, 42.hyeyoo@gmail.com,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, linux-s390@vger.kernel.org,
-        iommu@lists.linux.dev, linux-arch@vger.kernel.org,
-        linux-crypto@vger.kernel.org, sfr@canb.auug.org.au,
-        mpe@ellerman.id.au, James.Bottomley@hansenpartnership.com,
-        deller@gmx.de, linux-parisc@vger.kernel.org
-Subject: Re: [PATCH v3 08/11] slub: Replace cmpxchg_double()
-Message-ID: <20230530193258.GB211927@hirez.programming.kicks-ass.net>
-References: <20230515075659.118447996@infradead.org>
- <20230515080554.453785148@infradead.org>
- <20230524093246.GP83892@hirez.programming.kicks-ass.net>
- <20230530142232.GA200270@hirez.programming.kicks-ass.net>
-MIME-Version: 1.0
+        with ESMTP id S230219AbjE3Tf7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 May 2023 15:35:59 -0400
+Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on2104.outbound.protection.outlook.com [40.107.94.104])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FD7611A;
+        Tue, 30 May 2023 12:35:49 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=FMbHtbq+jVzoZamDzGUoiqgReZXtsvXUftAksKBSO+UmvksJfsRRSMAgFlkKTC7oSHCyWm6smvruqr9t3tVvSEMdnEDDw6FNEZIDeY/kbENG0/lf4cUXCW+qPcV4WCldsGL8MOYggld6WPN5031jCElhKc1rSkRvytQjbvExbmnyfKSo3ZGu5gTq5VqdhCj/FlmsojLDflVzQirzlRLM5exv0mIRsMSTgOj3KZJKeNbFeNj/uYinpFbkoEsYhCIuaHMCGcdVyZ+qLsGnreHIBzNTjW9QkfupsQD4aF1XHFlISTnRcvNQVTRxgCDmXAehbKX1ZPgOUZjV1yZzEKGiYA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=bywrRULDtWMXbD9q8bK7DujeGHhWUdiLd4bVDtxJ7yw=;
+ b=oSxJn1+Q5lJ12BsbNXkh1yjiEBiTYm9mFk+7fp0LJlu4S/r7TmYxtVqPYpn4Gf3357elREnzQrwr1YVzveciC8RULGREOLUga1naqXg/35nkgZlBrvfGGNCYKLkY3D2vIQkt0+1zaHUpC9lwDzSUMCT1fAgzP9BE6Mf16a5Z5gzs4heywKmXWWBGi/r/sjUg2j0k0GFgqNFTrC6IIPMYBHCbhczVKXK5qTEOdcUrHGd2sovBphgeuYETVEsgB30qcHpMo13xs0bEC4vTUFP3tfcfPo489lC+4Au6r5lLnYPh7FRtMVovyM3ne6RWkla2u8U8joXPcK/mKNPc3hOesg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=corigine.com; dmarc=pass action=none header.from=corigine.com;
+ dkim=pass header.d=corigine.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=corigine.onmicrosoft.com; s=selector2-corigine-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=bywrRULDtWMXbD9q8bK7DujeGHhWUdiLd4bVDtxJ7yw=;
+ b=QXKJCOqVH/3PRPOqUQv2Tco+AWyaacwMilxrs2BNDFCIqSYFhxhtxglVL5vSahK0EkN89nAXqhLt+cHnj6TZr0itTJv4wgCnvqAGQXHZa3ro/54mv4aAE7KwzDpifoLBmGw5qcUz9DHYepUVHeTceXBkZ6uc/OZfvaSJEQP06lI=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=corigine.com;
+Received: from PH0PR13MB4842.namprd13.prod.outlook.com (2603:10b6:510:78::6)
+ by LV8PR13MB6352.namprd13.prod.outlook.com (2603:10b6:408:18e::22) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6455.21; Tue, 30 May
+ 2023 19:35:46 +0000
+Received: from PH0PR13MB4842.namprd13.prod.outlook.com
+ ([fe80::5e55:9a39:751f:55f6]) by PH0PR13MB4842.namprd13.prod.outlook.com
+ ([fe80::5e55:9a39:751f:55f6%3]) with mapi id 15.20.6433.022; Tue, 30 May 2023
+ 19:35:46 +0000
+Date:   Tue, 30 May 2023 21:35:39 +0200
+From:   Simon Horman <simon.horman@corigine.com>
+To:     Niklas Schnelle <schnelle@linux.ibm.com>
+Cc:     Shay Drory <shayd@nvidia.com>, Saeed Mahameed <saeedm@nvidia.com>,
+        Eli Cohen <elic@nvidia.com>, Leon Romanovsky <leon@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-rdma@vger.kernel.org
+Subject: Re: [PATCH net] net/mlx5: Fix setting of irq->map.index for static
+ IRQ case
+Message-ID: <ZHZQC99+0ccZPdvF@corigine.com>
+References: <20230530141304.1850195-1-schnelle@linux.ibm.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230530142232.GA200270@hirez.programming.kicks-ass.net>
+In-Reply-To: <20230530141304.1850195-1-schnelle@linux.ibm.com>
+X-ClientProxiedBy: AM0PR08CA0005.eurprd08.prod.outlook.com
+ (2603:10a6:208:d2::18) To PH0PR13MB4842.namprd13.prod.outlook.com
+ (2603:10b6:510:78::6)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: PH0PR13MB4842:EE_|LV8PR13MB6352:EE_
+X-MS-Office365-Filtering-Correlation-Id: b1d38d4d-f3f4-41db-2645-08db614510d4
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 2tPz+IfVRGL6U7ZOw6vLr+9LexUhg7WJbF0AV2k53lvPaeoX9rSixm2sSiiq36YYRHO4CZ5g9qbdrhB3y6hD5UNt7vXpKWgHjoIqhFeru4h8Plo+QFQ8Hrj9hL/cnnMvEAo13eyvNBq4Rpk/9voY2Z3rJzMo+gfvVo8vb/0Jh8xxnrSiwlFBdCl2ro3MZr/0TJVe1YQcD9fGPlVMXkyVruHOLRQB6ZFHPQ4v3Q/uqeEc5CvXM42Boweap5GrOrWRy0vR8drIfmcHi71J1teCvmqkSxiHKJCeBOrjB4lZgdgGHLlwwPno9UHy3XXqLYd7PTWlYD/jtIHnxQBGruUaoCTusRwhm39AsimLM6CerjQuNlk0tq0vmGUY49SWZ1HAYcIleUIoPvSR0lWS9ZDSF0SgFpifFWJDprly2YDRtuDPRquj0HNuh4IwpmGt5ckiZCYRcwWAyP8qs/zc2BxZJ6AI34J8f6ClhZWShKqbMyv7857wnF3neL9MeXnOAfAGv4wGX7+3kKxEOhHZV4mJONzwALbyjtb7hYEfN3VcGr/APp4USPJZDL/l9dBtph4TDe49JTs8j1A2cuw0geXoa+pyo5HgWouFtiSknX2fVBs=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR13MB4842.namprd13.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(346002)(396003)(39840400004)(136003)(376002)(366004)(451199021)(83380400001)(6666004)(66476007)(5660300002)(36756003)(316002)(66946007)(66556008)(7416002)(4326008)(6916009)(38100700002)(41300700001)(8936002)(8676002)(6486002)(86362001)(6506007)(186003)(2616005)(6512007)(54906003)(44832011)(478600001)(66899021)(2906002)(4744005)(67856001);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?XLaOfH1jIsbJI9tdGYIPkbeWhFp9tmrkibMoRypZs8UZIHwhe+w8rDRLuXzm?=
+ =?us-ascii?Q?ISGxRBV3fK1GcORCVDfme4iuC4ICuCOf1uVRfLnJD2xhRJ53GGS4xUugh4Z9?=
+ =?us-ascii?Q?yj1S9V1MmuceLy36MfbpcU22bQb/S5M9AEPv4Bkuy+d4a1f2wrCwFsVVKt6h?=
+ =?us-ascii?Q?Hx0wJ6nTKcu05dDZGQqcxmivmxegINvjF+VZyrdqJ6Hy02iDStDQ2P6+U9up?=
+ =?us-ascii?Q?5AlDrF2JscBd27eRDI4rfWFxyeLW0kId9zrLZSLMiRRElKbPNg5VpFIjr+uZ?=
+ =?us-ascii?Q?ztMC7SLt5nGVp/t2lazVICvcR5627wVUIZuo/DtrduqjwQUHwe6+BtX9eRUD?=
+ =?us-ascii?Q?uiR9OvML+slprQKzIOZ4fAu44t3m+lrKwhcW7XyEOVvaSFl6dpDS09ZB0jt3?=
+ =?us-ascii?Q?ZNQWke+qhqmdxAqZIJ9sZbAUjYGcUbYsS8rPzJMPcP0SCQwKmdW3IQkiQ0EA?=
+ =?us-ascii?Q?s9jL9m1D013FFxiq/P1ILcvrAMyRjH09zuC3YTtQ6dQkHPW5gVYPj3vuoahi?=
+ =?us-ascii?Q?kCLUiWgqXhSxkz0zt0Agz6SaxjtLLNVlQC/j/tQ3K4yJ5WjSOJuUyKTsfpzV?=
+ =?us-ascii?Q?jGuqJIsXITNGLHhVkit3rMddxbvLUOKuGaP92mohh678yDFOOeNW9IMtT2no?=
+ =?us-ascii?Q?cwD51ikoXQblmroQAiG06ab3c+cYBsaF13iah3LCycXkdow2IIx0c7ulsBVh?=
+ =?us-ascii?Q?W1cHGufM7mmdaVyKusUiqqoWmq2UpoM123AJXlPuvHZNFcX/41fu02s6YBSU?=
+ =?us-ascii?Q?/C+HGXvLgflNQpHdHI+CqIBXOkB02iEkPuSIdgH2X/0Th3VClrZaF9QSTP3K?=
+ =?us-ascii?Q?JRo6P2n8fk1KICHDkXYwWjtipBfExL8XJqvlPyHRllZ/vCN5vFFCv90WeI7q?=
+ =?us-ascii?Q?o9Zu3MP3XHWSBccvnRsl6I0rW7obbzPtysVXsFUjb2zBrg+XatGXc7OPbHPb?=
+ =?us-ascii?Q?Ibf0CamgYYY083UdTeu+eH0IwK6Pnc1X62kylXgYObOI4yGDFayazEspp/6/?=
+ =?us-ascii?Q?xkPixBIKBPN3jHv2AnIlOOuiXzCG+MfPdAGl5N4lQM0CBuk1SggdyJ7zSC0c?=
+ =?us-ascii?Q?bTTlcCqI8wSiMLaIUgpR9zWqJcTLcBT//eP2Pt0a6vvIkRTzXhnQqLOJGkIe?=
+ =?us-ascii?Q?AMHgfVJBPAtg/gsOn7upICS43SzoBiYWr3wk86zQ1lv8303hQ/vxqQXFwN6M?=
+ =?us-ascii?Q?XPF4PmWfskwF3VPOJRbs5d70pZjExU4yFjrQ4XLhJXjmTUzNBtTyyIEWhpo8?=
+ =?us-ascii?Q?qUxqSs1U0C5EyFpff0UWZFLLOontSCt0ix8tYR5/Za+UJmixjl20vuXhYex+?=
+ =?us-ascii?Q?10rduoTWtMPxYTtbZJeT9Z+vXvKfftaiAJ5AjdMapY5j6V7kzxIMNdommqJ2?=
+ =?us-ascii?Q?4B1ZQq12ZUJJZtSo4bX+/MZFs6Fiqkrsdfsvz7EXzu6YXSqu3C50O0GOI+MW?=
+ =?us-ascii?Q?t2zqmcfo/iihgDr8+7ZE+6CW2CcrU39QgmqeZgEvEhXy9UJlxQ2CJELdy5p4?=
+ =?us-ascii?Q?ngDG8iV7q8UuRhJm41yATaGcsf84ww/YdBcBWVDVeVeg9FAJNSBnzG5YmX4g?=
+ =?us-ascii?Q?ddxTo68slQyuBI5j5ZFe7uYKbn1lhjmkebY+21UJVvU3iClz8KvkNyTPOb3A?=
+ =?us-ascii?Q?CGoL7/RaDGOb76bWZZZphmuyQeyQxHyZP3o/NADPYaKSBD0JMhaIlU8xVS/8?=
+ =?us-ascii?Q?nzMoYg=3D=3D?=
+X-OriginatorOrg: corigine.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: b1d38d4d-f3f4-41db-2645-08db614510d4
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR13MB4842.namprd13.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 May 2023 19:35:46.7420
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: fe128f2c-073b-4c20-818e-7246a585940c
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: Mgr5AAktap9n3Gb3Uz8jy7CArOnbysXSAcvS+AO5gXpYeGSRyNpI7eje+iveAJPKGiTp02yP2zGh7cLKfBn8uFHsJE/3hI/fcZZ92T042X8=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV8PR13MB6352
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, May 30, 2023 at 04:22:32PM +0200, Peter Zijlstra wrote:
+On Tue, May 30, 2023 at 04:13:04PM +0200, Niklas Schnelle wrote:
+> When dynamic IRQ allocation is not supported all IRQs are allocated up
+> front in mlx5_irq_table_create() instead of dynamically as part of
+> mlx5_irq_alloc(). In the latter dynamic case irq->map.index is set
+> via the mapping returned by pci_msix_alloc_irq_at(). In the static case
+> and prior to commit 1da438c0ae02 ("net/mlx5: Fix indexing of mlx5_irq")
+> irq->map.index was set in mlx4_irq_alloc() twice once initially to 0 and
+> then to the requested index before storing in the xarray. After this
+> commit it is only set to 0 which breaks all other IRQ mappins.
+> 
+> Fix this by setting irq->map.index to the requested index together with
+> irq->map.virq and improve the related comment to make it clearer which
+> cases it deals with.
+> 
+> Fixes: 1da438c0ae02 ("net/mlx5: Fix indexing of mlx5_irq")
+> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
 
-> Yet another alternative is using a struct type and an equality function,
-> just for this.
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
 
-The best I could come up with in the regard is the below. It builds on
-HPPA64 and x86_64, but I've not ran it yet.
-
-(also, the introduction of this_cpu_try_cmpxchg() should probably be
-split out into its own patch)
-
---- a/include/asm-generic/percpu.h
-+++ b/include/asm-generic/percpu.h
-@@ -99,6 +99,15 @@ do {									\
- 	__ret;								\
- })
- 
-+#define raw_cpu_generic_try_cmpxchg(pcp, ovalp, nval)			\
-+({									\
-+	typeof(pcp) __ret, __old = *(ovalp);				\
-+	__ret = raw_cpu_cmpxchg(pcp, __old, nval);			\
-+	if (!likely(__ret == __old))					\
-+		*(ovalp) = __ret;					\
-+	likely(__ret == __old);						\
-+})
-+
- #define __this_cpu_generic_read_nopreempt(pcp)				\
- ({									\
- 	typeof(pcp) ___ret;						\
-@@ -167,6 +176,15 @@ do {									\
- 	__ret;								\
- })
- 
-+#define this_cpu_generic_try_cmpxchg(pcp, ovalp, nval)			\
-+({									\
-+	typeof(pcp) __ret, __old = *(ovalp);				\
-+	__ret = this_cpu_cmpxchg(pcp, __old, nval);			\
-+	if (!likely(__ret == __old))					\
-+		*(ovalp) = __ret;					\
-+	likely(__ret == __old);						\
-+})
-+
- #ifndef raw_cpu_read_1
- #define raw_cpu_read_1(pcp)		raw_cpu_generic_read(pcp)
- #endif
-@@ -258,6 +276,36 @@ do {									\
- #define raw_cpu_xchg_8(pcp, nval)	raw_cpu_generic_xchg(pcp, nval)
- #endif
- 
-+#ifndef __SIZEOF_INT128__
-+#define raw_cpu_generic_try_cmpxchg_memcmp(pcp, ovalp, nval)		\
-+({									\
-+	typeof(pcp) *__p = raw_cpu_ptr(&(pcp));				\
-+	typeof(pcp) __ret, __old = *(ovalp);				\
-+	bool __s;							\
-+	__ret = *__p;							\
-+	if (!__builtin_memcmp(&__ret, &__old, sizeof(pcp))) {		\
-+		*__p = nval;						\
-+		__s = true;						\
-+	} else {							\
-+		*(ovalp) = __ret;					\
-+		__s = false;						\
-+	}								\
-+	__s;								\
-+})
-+
-+#define raw_cpu_generic_cmpxchg_memcmp(pcp, oval, nval)			\
-+({									\
-+	typeof(pcp) __old = (oval);					\
-+	raw_cpu_generic_try_cmpxchg_memcpy(pcp, &__old, nval);		\
-+	__old;								\
-+})
-+
-+#define raw_cpu_cmpxchg128(pcp, oval, nval) \
-+	raw_cpu_generic_cmpxchg_memcmp(pcp, oval, nval)
-+#define raw_cpu_try_cmpxchg128(pcp, ovalp, nval) \
-+	raw_cpu_generic_try_cmpxchg_memcmp(pcp, ovalp, nval)
-+#endif
-+
- #ifndef raw_cpu_cmpxchg_1
- #define raw_cpu_cmpxchg_1(pcp, oval, nval) \
- 	raw_cpu_generic_cmpxchg(pcp, oval, nval)
-@@ -283,6 +331,31 @@ do {									\
- 	raw_cpu_generic_cmpxchg(pcp, oval, nval)
- #endif
- 
-+#ifndef raw_cpu_try_cmpxchg_1
-+#define raw_cpu_try_cmpxchg_1(pcp, ovalp, nval) \
-+	raw_cpu_generic_try_cmpxchg(pcp, ovalp, nval)
-+#endif
-+#ifndef raw_cpu_try_cmpxchg_2
-+#define raw_cpu_try_cmpxchg_2(pcp, ovalp, nval) \
-+	raw_cpu_generic_try_cmpxchg(pcp, ovalp, nval)
-+#endif
-+#ifndef raw_cpu_try_cmpxchg_4
-+#define raw_cpu_try_cmpxchg_4(pcp, ovalp, nval) \
-+	raw_cpu_generic_try_cmpxchg(pcp, ovalp, nval)
-+#endif
-+#ifndef raw_cpu_try_cmpxchg_8
-+#define raw_cpu_try_cmpxchg_8(pcp, ovalp, nval) \
-+	raw_cpu_generic_try_cmpxchg(pcp, ovalp, nval)
-+#endif
-+#ifndef raw_cpu_try_cmpxchg64
-+#define raw_cpu_try_cmpxchg64(pcp, ovalp, nval) \
-+	raw_cpu_generic_try_cmpxchg(pcp, ovalp, nval)
-+#endif
-+#ifndef raw_cpu_try_cmpxchg128
-+#define raw_cpu_try_cmpxchg128(pcp, ovalp, nval) \
-+	raw_cpu_generic_try_cmpxchg(pcp, ovalp, nval)
-+#endif
-+
- #ifndef this_cpu_read_1
- #define this_cpu_read_1(pcp)		this_cpu_generic_read(pcp)
- #endif
-@@ -374,6 +447,33 @@ do {									\
- #define this_cpu_xchg_8(pcp, nval)	this_cpu_generic_xchg(pcp, nval)
- #endif
- 
-+#ifndef __SIZEOF_INT128__
-+#define this_cpu_generic_try_cmpxchg_memcmp(pcp, ovalp, nval)		\
-+({									\
-+ 	bool __ret;							\
-+	unsigned long __flags;						\
-+	raw_local_irq_save(__flags);					\
-+	__ret = raw_cpu_generic_try_cmpxchg_memcmp(pcp, ovalp, nval);	\
-+	raw_local_irq_restore(__flags);					\
-+	__ret;								\
-+})
-+
-+#define this_cpu_generic_cmpxchg_memcmp(pcp, oval, nval)		\
-+({									\
-+	typeof(pcp) __ret;						\
-+	unsigned long __flags;						\
-+	raw_local_irq_save(__flags);					\
-+	__ret = raw_cpu_generic_cmpxchg_memcmp(pcp, oval, nval);	\
-+	raw_local_irq_restore(__flags);					\
-+	__ret;								\
-+})
-+
-+#define this_cpu_cmpxchg128(pcp, oval, nval) \
-+	this_cpu_generic_cmpxchg_memcmp(pcp, oval, nval)
-+#define this_cpu_try_cmpxchg128(pcp, ovalp, nval) \
-+	this_cpu_generic_try_cmpxchg_memcmp(pcp, ovalp, nval)
-+#endif
-+
- #ifndef this_cpu_cmpxchg_1
- #define this_cpu_cmpxchg_1(pcp, oval, nval) \
- 	this_cpu_generic_cmpxchg(pcp, oval, nval)
-@@ -399,4 +499,29 @@ do {									\
- 	this_cpu_generic_cmpxchg(pcp, oval, nval)
- #endif
- 
-+#ifndef this_cpu_try_cmpxchg_1
-+#define this_cpu_try_cmpxchg_1(pcp, ovalp, nval) \
-+	this_cpu_generic_try_cmpxchg(pcp, ovalp, nval)
-+#endif
-+#ifndef this_cpu_try_cmpxchg_2
-+#define this_cpu_try_cmpxchg_2(pcp, ovalp, nval) \
-+	this_cpu_generic_try_cmpxchg(pcp, ovalp, nval)
-+#endif
-+#ifndef this_cpu_try_cmpxchg_4
-+#define this_cpu_try_cmpxchg_4(pcp, ovalp, nval) \
-+	this_cpu_generic_try_cmpxchg(pcp, ovalp, nval)
-+#endif
-+#ifndef this_cpu_try_cmpxchg_8
-+#define this_cpu_try_cmpxchg_8(pcp, ovalp, nval) \
-+	this_cpu_generic_try_cmpxchg(pcp, ovalp, nval)
-+#endif
-+#ifndef this_cpu_try_cmpxchg64
-+#define this_cpu_try_cmpxchg64(pcp, ovalp, nval) \
-+	this_cpu_generic_try_cmpxchg(pcp, ovalp, nval)
-+#endif
-+#ifndef this_cpu_try_cmpxchg128
-+#define this_cpu_try_cmpxchg128(pcp, ovalp, nval) \
-+	this_cpu_generic_try_cmpxchg(pcp, ovalp, nval)
-+#endif
-+
- #endif /* _ASM_GENERIC_PERCPU_H_ */
---- a/include/linux/types.h
-+++ b/include/linux/types.h
-@@ -13,6 +13,13 @@
- #ifdef __SIZEOF_INT128__
- typedef __s128 s128;
- typedef __u128 u128;
-+#else
-+#ifdef CONFIG_64BIT
-+/* hack for this_cpu_cmpxchg128 */
-+typedef struct {
-+	u64 a, b;
-+} u128 __attribute__((aligned(16)));
-+#endif
- #endif
- 
- typedef u32 __kernel_dev_t;
---- a/mm/slab.h
-+++ b/mm/slab.h
-@@ -11,14 +11,14 @@ void __init kmem_cache_init(void);
- # define system_has_freelist_aba()	system_has_cmpxchg128()
- # define try_cmpxchg_freelist		try_cmpxchg128
- # endif
--#define this_cpu_cmpxchg_freelist	this_cpu_cmpxchg128
-+#define this_cpu_try_cmpxchg_freelist	this_cpu_try_cmpxchg128
- typedef u128 freelist_full_t;
- #else /* CONFIG_64BIT */
- # ifdef system_has_cmpxchg64
- # define system_has_freelist_aba()	system_has_cmpxchg64()
- # define try_cmpxchg_freelist		try_cmpxchg64
- # endif
--#define this_cpu_cmpxchg_freelist	this_cpu_cmpxchg64
-+#define this_cpu_try_cmpxchg_freelist	this_cpu_try_cmpxchg64
- typedef u64 freelist_full_t;
- #endif /* CONFIG_64BIT */
- 
---- a/mm/slub.c
-+++ b/mm/slub.c
-@@ -3037,8 +3037,8 @@ __update_cpu_freelist_fast(struct kmem_c
- 	freelist_aba_t old = { .freelist = freelist_old, .counter = tid };
- 	freelist_aba_t new = { .freelist = freelist_new, .counter = next_tid(tid) };
- 
--	return this_cpu_cmpxchg_freelist(s->cpu_slab->freelist_tid.full,
--					 old.full, new.full) == old.full;
-+	return this_cpu_try_cmpxchg_freelist(s->cpu_slab->freelist_tid.full,
-+					     &old.full, new.full);
- }
- 
- /*
