@@ -2,196 +2,131 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 12F54C7EE23
-	for <linux-s390@archiver.kernel.org>; Tue, 30 May 2023 12:53:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 947B7C77B73
+	for <linux-s390@archiver.kernel.org>; Tue, 30 May 2023 14:14:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232380AbjE3Mxe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 30 May 2023 08:53:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51570 "EHLO
+        id S233036AbjE3OOL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 30 May 2023 10:14:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232392AbjE3Mx3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 May 2023 08:53:29 -0400
+        with ESMTP id S233042AbjE3OOJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 May 2023 10:14:09 -0400
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10AA1FC;
-        Tue, 30 May 2023 05:53:05 -0700 (PDT)
-Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34UCOgEL004816;
-        Tue, 30 May 2023 12:52:50 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE1E1118;
+        Tue, 30 May 2023 07:13:37 -0700 (PDT)
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34UCiCoE012781;
+        Tue, 30 May 2023 14:13:11 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=AwsM0KHoRY8ND2CYmfVHWD9IMFqjKUjDnDev17HtS10=;
- b=PCUMGLDngW85WYyeJvXyabC0cgMNC6vuSkvFPDXcOljqAxaVHF8m3tazseTN8gkCqekE
- GStsouXORSgV6PfFxgCLys5K++ylrYuNOR8vhyYElBp4f4GA/qjc7NXB2oVk9Adpjcgz
- tUF+yKlIzmq7+LZ2rytAG3+TQ3q4g9McT8uU9lcm+LbTvYkWWaGDBD4d+UQMROxIviLO
- kRqtd4bA5p/GNmRj+6y7UUsm4wrSJKNp7G8gaR6LgJXPc0Cwo5X72dg4v/P466bszXRy
- 4pLvxICZJVjxTC6r6hOcg8e9CgHmi7ttCR71NaT0UxtE6njRxhjrAGQxhb93DocHBLpT Vw== 
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=AZtoqKgahSWJ6g/3Z96owHtQnsAiBOwZ/kF6K43u7AI=;
+ b=E6hufbc4iRnr/7JobblZyKiuQtEQKYTVmSwqYWL5DPOwm6y4TgOs+2Wlikcu45Fc7cSe
+ y2rJpote6G9Y82wo2jn9Ux20Mzdvl40F6903PFO8x9G7I+mNLip9N+krZVr6jB6PltzF
+ rzqhxdsAbMtfFaFpy7jFMw0PHr9AS917047kBwe3r+ofeWG92X2R4o+wroOQ23YFE7Vb
+ 6dlyCIWP2aZVZkCzQj6iJQG40tdM+bHNrnqDbUW50XNvHvZ1iM73sAdkx5CGs8Cd3hSo
+ pREsDfwEbp8K/2MI+pReW2EUGGQCd0MlbaSwFsb3MuiWuNSDGYC4C+xriu3X4rEdAXCn 4Q== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qwh4g8wmn-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qwhdeanqy-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 30 May 2023 12:52:50 +0000
-Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34UCfZnP021102;
-        Tue, 30 May 2023 12:52:50 GMT
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qwh4g8wkw-1
+        Tue, 30 May 2023 14:13:10 +0000
+Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34UE84oT004235;
+        Tue, 30 May 2023 14:13:09 GMT
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qwhdeanq5-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 30 May 2023 12:52:50 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34UC4m5u008343;
-        Tue, 30 May 2023 12:52:48 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma05fra.de.ibm.com (PPS) with ESMTPS id 3qu9g598fh-1
+        Tue, 30 May 2023 14:13:09 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34U9agtV021188;
+        Tue, 30 May 2023 14:13:07 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+        by ppma04fra.de.ibm.com (PPS) with ESMTPS id 3qu9g519bh-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 30 May 2023 12:52:48 +0000
+        Tue, 30 May 2023 14:13:07 +0000
 Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34UCqivp34013948
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34UED5aP22282948
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 30 May 2023 12:52:44 GMT
+        Tue, 30 May 2023 14:13:05 GMT
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CD8852004B;
-        Tue, 30 May 2023 12:52:44 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 4642820040;
+        Tue, 30 May 2023 14:13:05 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 92C222004F;
-        Tue, 30 May 2023 12:52:44 +0000 (GMT)
-Received: from li-c6ac47cc-293c-11b2-a85c-d421c8e4747b.ibm.com (unknown [9.152.222.242])
+        by IMSVA (Postfix) with ESMTP id F138A2004F;
+        Tue, 30 May 2023 14:13:04 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
         by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 30 May 2023 12:52:44 +0000 (GMT)
-From:   Pierre Morel <pmorel@linux.ibm.com>
-To:     linux-s390@vger.kernel.org
-Cc:     frankja@linux.ibm.com, thuth@redhat.com, kvm@vger.kernel.org,
-        imbrenda@linux.ibm.com, david@redhat.com, nrb@linux.ibm.com,
-        nsg@linux.ibm.com, cohuck@redhat.com
-Subject: [kvm-unit-tests PATCH v4 2/2] s390x: sclp: Implement SCLP_RC_INSUFFICIENT_SCCB_LENGTH
-Date:   Tue, 30 May 2023 14:52:43 +0200
-Message-Id: <20230530125243.18883-3-pmorel@linux.ibm.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20230530125243.18883-1-pmorel@linux.ibm.com>
-References: <20230530125243.18883-1-pmorel@linux.ibm.com>
+        Tue, 30 May 2023 14:13:04 +0000 (GMT)
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Shay Drory <shayd@nvidia.com>, Saeed Mahameed <saeedm@nvidia.com>,
+        Eli Cohen <elic@nvidia.com>, Leon Romanovsky <leon@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>
+Cc:     netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+Subject: [PATCH net] net/mlx5: Fix setting of irq->map.index for static IRQ case
+Date:   Tue, 30 May 2023 16:13:04 +0200
+Message-Id: <20230530141304.1850195-1-schnelle@linux.ibm.com>
+X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Q-x_K94qSmGRRMktU4ap02eezBwXmktv
-X-Proofpoint-GUID: YGyGNFHWSVSBQSm7Sz-k9bSgudyVY4Kd
+X-Proofpoint-ORIG-GUID: PpH9Jwcn3GEH2oLKFKX4J00puGn9yG1P
+X-Proofpoint-GUID: -TmNF_qtAEjvWc7ImQDTjOEO__qkDZai
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
- definitions=2023-05-30_08,2023-05-30_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxlogscore=999
- mlxscore=0 suspectscore=0 clxscore=1015 priorityscore=1501 bulkscore=0
- lowpriorityscore=0 impostorscore=0 spamscore=0 phishscore=0 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2304280000
- definitions=main-2305300103
+ definitions=2023-05-30_10,2023-05-30_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 bulkscore=0
+ spamscore=0 priorityscore=1501 mlxlogscore=999 lowpriorityscore=0
+ malwarescore=0 clxscore=1011 impostorscore=0 phishscore=0 mlxscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2304280000 definitions=main-2305300114
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-If SCLP_CMDW_READ_SCP_INFO fails due to a short buffer, retry
-with a greater buffer.
+When dynamic IRQ allocation is not supported all IRQs are allocated up
+front in mlx5_irq_table_create() instead of dynamically as part of
+mlx5_irq_alloc(). In the latter dynamic case irq->map.index is set
+via the mapping returned by pci_msix_alloc_irq_at(). In the static case
+and prior to commit 1da438c0ae02 ("net/mlx5: Fix indexing of mlx5_irq")
+irq->map.index was set in mlx4_irq_alloc() twice once initially to 0 and
+then to the requested index before storing in the xarray. After this
+commit it is only set to 0 which breaks all other IRQ mappins.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+Fix this by setting irq->map.index to the requested index together with
+irq->map.virq and improve the related comment to make it clearer which
+cases it deals with.
+
+Fixes: 1da438c0ae02 ("net/mlx5: Fix indexing of mlx5_irq")
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
 ---
- lib/s390x/sclp.c | 58 +++++++++++++++++++++++++++++++++++++++++-------
- 1 file changed, 50 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
-index 34a31da..9d51ca4 100644
---- a/lib/s390x/sclp.c
-+++ b/lib/s390x/sclp.c
-@@ -17,13 +17,14 @@
- #include "sclp.h"
- #include <alloc_phys.h>
- #include <alloc_page.h>
-+#include <asm/facility.h>
- 
- extern unsigned long stacktop;
- 
- static uint64_t storage_increment_size;
- static uint64_t max_ram_size;
- static uint64_t ram_size;
--char _read_info[PAGE_SIZE] __attribute__((__aligned__(PAGE_SIZE)));
-+char _read_info[2 * PAGE_SIZE] __attribute__((__aligned__(PAGE_SIZE)));
- static ReadInfo *read_info;
- struct sclp_facilities sclp_facilities;
- 
-@@ -89,10 +90,41 @@ void sclp_clear_busy(void)
- 	spin_unlock(&sclp_lock);
- }
- 
--static void sclp_read_scp_info(ReadInfo *ri, int length)
-+static bool sclp_read_scp_info_extended(unsigned int command, ReadInfo *ri)
-+{
-+	int cc;
-+
-+	if (!test_facility(140)) {
-+		report_abort("S390_FEAT_EXTENDED_LENGTH_SCCB missing");
-+		return false;
-+	}
-+	if (ri->h.length > (2 * PAGE_SIZE)) {
-+		report_abort("SCLP_READ_INFO expected size too big");
-+		return false;
-+	}
-+
-+	sclp_mark_busy();
-+	memset(&ri->h, 0, sizeof(ri->h));
-+	ri->h.length = 2 * PAGE_SIZE;
-+
-+	cc = sclp_service_call(command, ri);
-+	if (cc) {
-+		report_abort("SCLP_READ_INFO error");
-+		return false;
-+	}
-+	if (ri->h.response_code != SCLP_RC_NORMAL_READ_COMPLETION) {
-+		report_abort("SCLP_READ_INFO error %02x", ri->h.response_code);
-+		return false;
-+	}
-+
-+	return true;
-+}
-+
-+static void sclp_read_scp_info(ReadInfo *ri)
- {
- 	unsigned int commands[] = { SCLP_CMDW_READ_SCP_INFO_FORCED,
- 				    SCLP_CMDW_READ_SCP_INFO };
-+	int length = PAGE_SIZE;
- 	int i, cc;
- 
- 	for (i = 0; i < ARRAY_SIZE(commands); i++) {
-@@ -101,19 +133,29 @@ static void sclp_read_scp_info(ReadInfo *ri, int length)
- 		ri->h.length = length;
- 
- 		cc = sclp_service_call(commands[i], ri);
--		if (cc)
--			break;
--		if (ri->h.response_code == SCLP_RC_NORMAL_READ_COMPLETION)
-+		if (cc) {
-+			report_abort("SCLP_READ_INFO error");
- 			return;
--		if (ri->h.response_code != SCLP_RC_INVALID_SCLP_COMMAND)
-+		}
-+
-+		switch (ri->h.response_code) {
-+		case SCLP_RC_NORMAL_READ_COMPLETION:
-+			return;
-+		case SCLP_RC_INVALID_SCLP_COMMAND:
- 			break;
-+		case SCLP_RC_INSUFFICIENT_SCCB_LENGTH:
-+			sclp_read_scp_info_extended(commands[i], ri);
-+			return;
-+		default:
-+			report_abort("READ_SCP_INFO failed");
-+			return;
-+		}
- 	}
--	report_abort("READ_SCP_INFO failed");
- }
- 
- void sclp_read_info(void)
- {
--	sclp_read_scp_info((void *)_read_info, SCCB_SIZE);
-+	sclp_read_scp_info((void *)_read_info);
- 	read_info = (ReadInfo *)_read_info;
- }
- 
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c b/drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c
+index db5687d9fec9..fd5b43e8f3bb 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c
+@@ -232,12 +232,13 @@ struct mlx5_irq *mlx5_irq_alloc(struct mlx5_irq_pool *pool, int i,
+ 	if (!irq)
+ 		return ERR_PTR(-ENOMEM);
+ 	if (!i || !pci_msix_can_alloc_dyn(dev->pdev)) {
+-		/* The vector at index 0 was already allocated.
+-		 * Just get the irq number. If dynamic irq is not supported
+-		 * vectors have also been allocated.
++		/* The vector at index 0 is always statically allocated. If
++		 * dynamic irq is not supported all vectors are statically
++		 * allocated. In both cases just get the irq number and set
++		 * the index.
+ 		 */
+ 		irq->map.virq = pci_irq_vector(dev->pdev, i);
+-		irq->map.index = 0;
++		irq->map.index = i;
+ 	} else {
+ 		irq->map = pci_msix_alloc_irq_at(dev->pdev, MSI_ANY_INDEX, af_desc);
+ 		if (!irq->map.virq) {
 -- 
-2.31.1
+2.39.2
 
