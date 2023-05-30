@@ -2,89 +2,91 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 558EDC77B7A
-	for <linux-s390@archiver.kernel.org>; Tue, 30 May 2023 20:09:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1EB2FC7EE23
+	for <linux-s390@archiver.kernel.org>; Tue, 30 May 2023 20:37:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229540AbjE3UJF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 30 May 2023 16:09:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46154 "EHLO
+        id S233455AbjE3UhE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 30 May 2023 16:37:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231193AbjE3UJE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 May 2023 16:09:04 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA745F3;
-        Tue, 30 May 2023 13:09:03 -0700 (PDT)
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34UIdwJa003875;
-        Tue, 30 May 2023 20:08:59 GMT
+        with ESMTP id S229991AbjE3UhD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 May 2023 16:37:03 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4525319B;
+        Tue, 30 May 2023 13:36:33 -0700 (PDT)
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34UJQmRe017820;
+        Tue, 30 May 2023 20:34:36 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
  mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=5rWZ2/PgxHy/y5NYiyjQh4DXegRR/1Cb3dzKDHLoPGs=;
- b=TKfM+m5O14f2Y25lpdUqyKZaTU0vyltCCMdzdkdr+WLtlrbx3N6/UD0pbNnmI9WKmIlE
- pxLdBjZuGOEG9qqJ/vvnfYYS25qvTmVEKA0nBMvqEv+AwSEoyRsgaXal2Lik1KROK75V
- 3fqcRffZT7k9/A/JlLFc2tfXtOzBeYQDKuCWalJ0DxtQHdA/yCOUOfFeeQhy+tkhKk3u
- aSaSRtEN1RnxhAxFZ1TwJwA9ugjxcbKE+ncYN0o+KejpBDBahueKkpfo7HfYkJe19agV
- I89KD9lcbru5ftcNN2tfwdqFrEUPQuLv6uyNgeJEF9SCXjS8MruMNmFM8STgRRjr2H+4 0Q== 
+ bh=X7HRVosRgmJs5+RFEXM6XSFA8cNWjEsb1oakecBUyJE=;
+ b=oxIcMiPcE5bSc4zXf6h3IroIipLvp3dCDjHBuv96sI7QbySt912o6oj9RtQ52M0S/Lfm
+ ZN6Tw3e/ldJWkta8PQHGLPMNuCqcTLediIigC0JMCz5tgd+wCZiufXXCWlHjw0SkWzBb
+ vI9Ygaou0tABCsqAPTD5MtmHsLhf//cLIP6+1ScdfScsjjz+BkYqF2uNdIVXJCmjM1oE
+ 0lHQ+QegL21JT97klPanz5wy9JX0q/wQIz5fxjMKuIIwf+KLO+EVV1PhjN4npqBfqSYm
+ VDwvq0+n+Zao5jimV2Z0IddbH5elcgsZxcdAPAAbqaJjmQNpFiYNvLtHPEyFxys70YGr lQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qwjvf8huh-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qwmx25qnk-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 30 May 2023 20:08:58 +0000
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34UJ03jZ002236;
-        Tue, 30 May 2023 20:08:58 GMT
-Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qwjvf8htx-1
+        Tue, 30 May 2023 20:34:35 +0000
+Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34UKSaM4004765;
+        Tue, 30 May 2023 20:34:35 GMT
+Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qwmx25qn3-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 30 May 2023 20:08:58 +0000
-Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
-        by ppma03wdc.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34UHWvad003118;
-        Tue, 30 May 2023 20:08:56 GMT
-Received: from smtprelay04.wdc07v.mail.ibm.com ([9.208.129.114])
-        by ppma03wdc.us.ibm.com (PPS) with ESMTPS id 3qu9g5rdq7-1
+        Tue, 30 May 2023 20:34:35 +0000
+Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
+        by ppma02dal.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34UHoGjq016721;
+        Tue, 30 May 2023 20:34:34 GMT
+Received: from smtprelay02.dal12v.mail.ibm.com ([9.208.130.97])
+        by ppma02dal.us.ibm.com (PPS) with ESMTPS id 3qu9g61jb5-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 30 May 2023 20:08:56 +0000
+        Tue, 30 May 2023 20:34:34 +0000
 Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
-        by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34UK8sn634800156
+        by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34UKYWq025166464
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 30 May 2023 20:08:54 GMT
+        Tue, 30 May 2023 20:34:33 GMT
 Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B64A258045;
-        Tue, 30 May 2023 20:08:54 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id BD21758052;
+        Tue, 30 May 2023 20:34:32 +0000 (GMT)
 Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C3F9E58050;
-        Tue, 30 May 2023 20:08:52 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id B59C358050;
+        Tue, 30 May 2023 20:34:30 +0000 (GMT)
 Received: from [9.61.92.222] (unknown [9.61.92.222])
         by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 30 May 2023 20:08:52 +0000 (GMT)
-Message-ID: <4c8f11e5-d97d-5c9a-69b1-ba11c5857799@linux.ibm.com>
-Date:   Tue, 30 May 2023 22:08:51 +0200
+        Tue, 30 May 2023 20:34:30 +0000 (GMT)
+Message-ID: <f309d525-7e12-ee81-8d59-ad07f94f9e9d@linux.ibm.com>
+Date:   Tue, 30 May 2023 22:34:29 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
  Gecko/20100101 Thunderbird/102.11.0
-Subject: Re: [PATCH net 1/2] net/smc: Scan from current RMB list when no
- position specified
+Subject: Re: [PATCH net 2/2] net/smc: Don't use RMBs not mapped to new link in
+ SMCRv2 ADD LINK
 To:     Wen Gu <guwen@linux.alibaba.com>, kgraul@linux.ibm.com,
         jaka@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
         kuba@kernel.org, pabeni@redhat.com
 Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
         linux-kernel@vger.kernel.org
 References: <1685101741-74826-1-git-send-email-guwen@linux.alibaba.com>
- <1685101741-74826-2-git-send-email-guwen@linux.alibaba.com>
+ <1685101741-74826-3-git-send-email-guwen@linux.alibaba.com>
+ <f134294c-2919-6069-d362-87a84c846690@linux.ibm.com>
+ <34e6b564-a658-4461-ebec-f53dd80a9125@linux.alibaba.com>
 From:   Wenjia Zhang <wenjia@linux.ibm.com>
-In-Reply-To: <1685101741-74826-2-git-send-email-guwen@linux.alibaba.com>
+In-Reply-To: <34e6b564-a658-4461-ebec-f53dd80a9125@linux.alibaba.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: NZw55rljhcxjYUq1xtakSkwQSz7DlSI4
-X-Proofpoint-GUID: cmd8PxFCF0pWlGsjsyioEBINrEFIq511
+X-Proofpoint-GUID: 6Gnmr9EKebcZZGXDVLBeslmA6qIBq4SM
+X-Proofpoint-ORIG-GUID: c8ux_XYcnOC3Y0ECBTlF8oOPxa_mbxRh
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
- definitions=2023-05-30_15,2023-05-30_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 suspectscore=0
- mlxlogscore=999 adultscore=0 priorityscore=1501 lowpriorityscore=0
- bulkscore=0 mlxscore=0 impostorscore=0 phishscore=0 spamscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ definitions=2023-05-30_16,2023-05-30_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 suspectscore=0
+ adultscore=0 lowpriorityscore=0 malwarescore=0 clxscore=1015 mlxscore=0
+ priorityscore=1501 bulkscore=0 mlxlogscore=999 phishscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2304280000 definitions=main-2305300163
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
@@ -92,38 +94,130 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 
 
-On 26.05.23 13:49, Wen Gu wrote:
-> When finding the first RMB of link group, it should start from the
-> current RMB list whose index is 0. So fix it.
+On 27.05.23 17:20, Wen Gu wrote:
 > 
-> Fixes: b4ba4652b3f8 ("net/smc: extend LLC layer for SMC-Rv2")
-> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
-> ---
->   net/smc/smc_llc.c | 5 ++++-
->   1 file changed, 4 insertions(+), 1 deletion(-)
 > 
-> diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-> index a0840b8..8423e8e 100644
-> --- a/net/smc/smc_llc.c
-> +++ b/net/smc/smc_llc.c
-> @@ -578,7 +578,10 @@ static struct smc_buf_desc *smc_llc_get_next_rmb(struct smc_link_group *lgr,
->   {
->   	struct smc_buf_desc *buf_next;
->   
-> -	if (!buf_pos || list_is_last(&buf_pos->list, &lgr->rmbs[*buf_lst])) {
-> +	if (!buf_pos)
-> +		return _smc_llc_get_next_rmb(lgr, buf_lst);
-> +
-> +	if (list_is_last(&buf_pos->list, &lgr->rmbs[*buf_lst])) {
->   		(*buf_lst)++;
->   		return _smc_llc_get_next_rmb(lgr, buf_lst);
->   	}
-It seems too late, but still, why not? :
+> On 2023/5/27 18:22, Wenjia Zhang wrote:
+>>
+>> I'm wondering if this crash is introduced by the first fix patch you 
+>> wrote.
+>>
+>> Thanks,
+>> Wenjia
+> 
+> Hi Wenjia,
+> 
+> No, the crash can be reproduced without my two patches by the following 
+> steps:
+> 
+> 1. Each side activates only one RNIC firstly and set the default 
+> sndbuf/RMB sizes to more
+>     than 16KB, such as 64KB, through sysctl net.smc.{wmem | rmem}.
+>     (The reason why initial sndbufs/RMBs size needs to be larger than 
+> 16KB will be explained later)
+> 
+> 2. Use SMCRv2 in any test, just to create a link group that has some 
+> alloced RMBs.
+> 
+>     Example of step #1 #2:
+> 
+>     [server]
+>     smcr ueid add 1234
+>     sysctl net.smc.rmem=65536
+>     sysctl net.smc.wmem=65536
+>     smc_run sockperf sr --tcp
+> 
+>     [client]
+>     smcr ueid add 1234
+>     sysctl net.smc.rmem=65536
+>     sysctl net.smc.wmem=65536
+>     smc_run sockperf pp --tcp -i <server ip> -t <time>
+> 
+> 
+> 3. Change the default sndbuf/RMB sizes, make sure they are larger than 
+> initial size above,
+>     such as 256KB.
+> 
+> 4. Then rerun the test, and there will be some bigger RMBs alloced. And 
+> when the test is
+>     running, activate the second alternate RNIC of each side. It will 
+> trigger to add a new
+>     link and do what I described in the second patch's commit log, that 
+> only map the in-use
+>     256KB RMBs to new link but try to access the unused 64KB RMBs' 
+> invalid mr[new_link->lnk_idx].
+> 
+>     Example of step #3 #4:
+> 
+>     [server]
+>     sysctl net.smc.rmem=262144
+>     sysctl net.smc.wmem=262144
+>     smc_run sockperf sr --tcp
+> 
+>     [client]
+>     sysctl net.smc.rmem=262144
+>     sysctl net.smc.wmem=262144
+>     smc_run sockperf pp --tcp -i <server ip> -t <time>
+> 
+>     When the sockperf is running:
+> 
+>     [server/client]
+>     ip link set dev <2nd RNIC> up    # activate the second alternate 
+> RNIC, then crash occurs.
+> 
+> 
+> At the beginning, I only found the crash in the second patch. But when I 
+> try to fix it,
+> I found the issue descibed in the first patch.
+> 
+> In first patch, if I understand correctly, smc_llc_get_first_rmb() is 
+> aimed to get the first
+> RMB in lgr->rmb[*]. If so, It should start from lgr->rmbs[0] instead of 
+> lgr->rmbs[1], right?
+> 
+> Then back to the reason needs to be explained in step #1. Because of the 
+> issue mentioned
+> above in smc_llc_get_first_rmb(), if we set the initial sndbuf/RMB sizes 
+> to 16KB, these 16KB
+> RMBs (in lgr->rmbs[0]) alloced in step #2 will happen not to be accessed 
+> in step #4, so the
+> potential crash is hided.
+> 
+> So, the crash is not introduced by the first fix. Instead, it is the 
+> first issue that may hide
+> the second issue(crash) in special cases.
+> 
+> I am a little curious why you think the first fix patch caused the 
+> second crash? Is
+> something wrong in the first fix patch?
+> 
+> Thanks for your review!
+> 
+> Regards,
+> Wen Gu
 
--	if (!buf_pos || list_is_last(&buf_pos->list, &lgr->rmbs[*buf_lst])) {
--  		(*buf_lst)++;
-+	if (list_is_last(&buf_pos->list, &lgr->rmbs[(*buf_lst])++)) {
+Hi Wen,
 
+Sorry for the late answer because of the public holiday here!
 
-Thanks,
+I really like the test scenario, thank you for the elaboration and the 
+fixes!
+They look good to me.
+
+Why I asked that was that the first patch looked very reasonable, but I 
+was wondering why I didn't meet any problem with that before ;-) and if 
+it would trigger some problem during processing the SMCRv1 ADD Link 
+Continuation Messages. After checking the code again, I don't think 
+there would be any problem with the patch, because in the case of 
+processing the SMCRv1 ADD Link Continuation Messages, it's about the 
+same RMB.
+
+Hi @Paolo, I would appreciate it if you could give us more time to 
+review and test the patches. Because we have to make sure that they can 
+work on our platform (s390) without problem, not only on x86.
+
+Thanks
 Wenjia
+
+
+
