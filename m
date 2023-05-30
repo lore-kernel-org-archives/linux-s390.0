@@ -2,138 +2,298 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B18AC77B73
-	for <linux-s390@archiver.kernel.org>; Tue, 30 May 2023 15:40:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A0461C7EE2F
+	for <linux-s390@archiver.kernel.org>; Tue, 30 May 2023 19:34:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230178AbjE3Pk6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 30 May 2023 11:40:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32844 "EHLO
+        id S233159AbjE3TeG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 30 May 2023 15:34:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229922AbjE3Pkz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 May 2023 11:40:55 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A841C5;
-        Tue, 30 May 2023 08:40:54 -0700 (PDT)
-Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34UFdPHa018125;
-        Tue, 30 May 2023 15:40:54 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=iCIkmtgM88mWH8lRvjTLr1ymQtyEbbJ3B8adCVY/hEI=;
- b=PuUmIORdTpU6zAMRCOXGItubO9UTrVWLe0FwRsS9F/cJA2nxnrqeSSBKGVWWrSzcAf9w
- w+91QNvn4z/V5auAU+LZBEqts19dul5DDwxISxBcOqbnKwIAebJagPp9jvL6IfHJes7P
- a5RGL77GAyoIugaIptdBD8+ez/Xai8ocpIaIjb5giK8Zq4xGx1G2WnT5Z0kJw6aPb7oi
- mqKEqpdF/UsQk/LLVbP31pl96KU+dTnXdgF75TVONnITQ5vJ1LzDZys/E2gvLloGQCkr
- ionUuxY4tcaJpKKJfQ6dJpfAcC50Teut4fe1PLn5p5xNxuGptD1fu44T8qRcXyYuoHM4 gw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qwbst7g58-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 30 May 2023 15:40:53 +0000
-Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34UFdiKP020651;
-        Tue, 30 May 2023 15:40:52 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qwbst7g3j-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 30 May 2023 15:40:52 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34U9UlCL020426;
-        Tue, 30 May 2023 15:35:50 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma03fra.de.ibm.com (PPS) with ESMTPS id 3qu9g59a37-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 30 May 2023 15:35:50 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34UFZk8f37093900
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 30 May 2023 15:35:46 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 723F720043;
-        Tue, 30 May 2023 15:35:46 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2C0BA20040;
-        Tue, 30 May 2023 15:35:46 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.152.224.66])
-        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 30 May 2023 15:35:46 +0000 (GMT)
-Date:   Tue, 30 May 2023 17:35:44 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Pierre Morel <pmorel@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, frankja@linux.ibm.com,
-        thuth@redhat.com, kvm@vger.kernel.org, david@redhat.com,
-        nrb@linux.ibm.com, nsg@linux.ibm.com, cohuck@redhat.com
-Subject: Re: [kvm-unit-tests PATCH v4 2/2] s390x: sclp: Implement
- SCLP_RC_INSUFFICIENT_SCCB_LENGTH
-Message-ID: <20230530173544.378a63c6@p-imbrenda>
-In-Reply-To: <20230530125243.18883-3-pmorel@linux.ibm.com>
-References: <20230530125243.18883-1-pmorel@linux.ibm.com>
-        <20230530125243.18883-3-pmorel@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
+        with ESMTP id S230433AbjE3TeE (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 May 2023 15:34:04 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93CE6BE;
+        Tue, 30 May 2023 12:34:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=4dc8sj3FHzzLhi63BMaL8ARsadXKK6PBMKS8wZ1D+bM=; b=JM7SiKdzfwoBik0AKgxOsdxCpD
+        sDgnOT4X96GVp8CNJPJb+VOQVteRUg7rUp37Z51bccNB5PtdZZdFWuUdw496KccyYIcrBvzDCr6Bv
+        Y9Jko3S3agioN15y2YYHTWvPLYowFj33IOP2SMXTSAX3jmWiVTemAd+VQ5v3vP1z5MSBp1M6+QMNj
+        Yl95WQRRrZI/coCZDx5VKzQpkvp2WzKa6i9icU6WPABaTXb+MamtUc/8gix4iHb9+PGyAKxTFw0YV
+        PhcQmCHWi2/I64g8MCskmYk+R7GDeCcI2mbko//pOUA83Bdwaq1ULOdq+hdnfRe4a1X3c5leImvPG
+        MPvGP5Ww==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1q455b-006ZKF-17; Tue, 30 May 2023 19:33:03 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 9784F300233;
+        Tue, 30 May 2023 21:32:58 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 45294243A9FD8; Tue, 30 May 2023 21:32:58 +0200 (CEST)
+Date:   Tue, 30 May 2023 21:32:58 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     torvalds@linux-foundation.org
+Cc:     corbet@lwn.net, will@kernel.org, boqun.feng@gmail.com,
+        mark.rutland@arm.com, catalin.marinas@arm.com, dennis@kernel.org,
+        tj@kernel.org, cl@linux.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+        hpa@zytor.com, joro@8bytes.org, suravee.suthikulpanit@amd.com,
+        robin.murphy@arm.com, dwmw2@infradead.org,
+        baolu.lu@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
+        Herbert Xu <herbert@gondor.apana.org.au>, davem@davemloft.net,
+        penberg@kernel.org, rientjes@google.com, iamjoonsoo.kim@lge.com,
+        Andrew Morton <akpm@linux-foundation.org>, vbabka@suse.cz,
+        roman.gushchin@linux.dev, 42.hyeyoo@gmail.com,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, linux-s390@vger.kernel.org,
+        iommu@lists.linux.dev, linux-arch@vger.kernel.org,
+        linux-crypto@vger.kernel.org, sfr@canb.auug.org.au,
+        mpe@ellerman.id.au, James.Bottomley@hansenpartnership.com,
+        deller@gmx.de, linux-parisc@vger.kernel.org
+Subject: Re: [PATCH v3 08/11] slub: Replace cmpxchg_double()
+Message-ID: <20230530193258.GB211927@hirez.programming.kicks-ass.net>
+References: <20230515075659.118447996@infradead.org>
+ <20230515080554.453785148@infradead.org>
+ <20230524093246.GP83892@hirez.programming.kicks-ass.net>
+ <20230530142232.GA200270@hirez.programming.kicks-ass.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: uHXi4Ctt2ZpbbsBJGZ9a4qntP4Xq1iNv
-X-Proofpoint-GUID: egfCoHI-lJWB85cEcEqFdvfBPeZPbMju
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
- definitions=2023-05-30_11,2023-05-30_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 phishscore=0
- bulkscore=0 lowpriorityscore=0 mlxscore=0 clxscore=1015 impostorscore=0
- priorityscore=1501 adultscore=0 suspectscore=0 malwarescore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2304280000 definitions=main-2305300124
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230530142232.GA200270@hirez.programming.kicks-ass.net>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 30 May 2023 14:52:43 +0200
-Pierre Morel <pmorel@linux.ibm.com> wrote:
+On Tue, May 30, 2023 at 04:22:32PM +0200, Peter Zijlstra wrote:
 
-> If SCLP_CMDW_READ_SCP_INFO fails due to a short buffer, retry
-> with a greater buffer.
+> Yet another alternative is using a struct type and an equality function,
+> just for this.
 
-the idea is good, but I wonder if the code can be simplified (see below)
+The best I could come up with in the regard is the below. It builds on
+HPPA64 and x86_64, but I've not ran it yet.
 
-> 
-> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-> ---
->  lib/s390x/sclp.c | 58 +++++++++++++++++++++++++++++++++++++++++-------
->  1 file changed, 50 insertions(+), 8 deletions(-)
-> 
-> diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
-> index 34a31da..9d51ca4 100644
-> --- a/lib/s390x/sclp.c
-> +++ b/lib/s390x/sclp.c
-> @@ -17,13 +17,14 @@
->  #include "sclp.h"
->  #include <alloc_phys.h>
->  #include <alloc_page.h>
-> +#include <asm/facility.h>
->  
->  extern unsigned long stacktop;
->  
->  static uint64_t storage_increment_size;
->  static uint64_t max_ram_size;
->  static uint64_t ram_size;
-> -char _read_info[PAGE_SIZE] __attribute__((__aligned__(PAGE_SIZE)));
-> +char _read_info[2 * PAGE_SIZE] __attribute__((__aligned__(PAGE_SIZE)));
+(also, the introduction of this_cpu_try_cmpxchg() should probably be
+split out into its own patch)
 
-this is ok ^
-
-[skip everything else]
-
->  void sclp_read_info(void)
->  {
-> -	sclp_read_scp_info((void *)_read_info, SCCB_SIZE);
-
-	sclp_read_scp_info((void *)_read_info,
-		test_facility(140) ? sizeof(_read_info) : SCCB_SIZE;
-
-> +	sclp_read_scp_info((void *)_read_info);
->  	read_info = (ReadInfo *)_read_info;
->  }
->  
-
+--- a/include/asm-generic/percpu.h
++++ b/include/asm-generic/percpu.h
+@@ -99,6 +99,15 @@ do {									\
+ 	__ret;								\
+ })
+ 
++#define raw_cpu_generic_try_cmpxchg(pcp, ovalp, nval)			\
++({									\
++	typeof(pcp) __ret, __old = *(ovalp);				\
++	__ret = raw_cpu_cmpxchg(pcp, __old, nval);			\
++	if (!likely(__ret == __old))					\
++		*(ovalp) = __ret;					\
++	likely(__ret == __old);						\
++})
++
+ #define __this_cpu_generic_read_nopreempt(pcp)				\
+ ({									\
+ 	typeof(pcp) ___ret;						\
+@@ -167,6 +176,15 @@ do {									\
+ 	__ret;								\
+ })
+ 
++#define this_cpu_generic_try_cmpxchg(pcp, ovalp, nval)			\
++({									\
++	typeof(pcp) __ret, __old = *(ovalp);				\
++	__ret = this_cpu_cmpxchg(pcp, __old, nval);			\
++	if (!likely(__ret == __old))					\
++		*(ovalp) = __ret;					\
++	likely(__ret == __old);						\
++})
++
+ #ifndef raw_cpu_read_1
+ #define raw_cpu_read_1(pcp)		raw_cpu_generic_read(pcp)
+ #endif
+@@ -258,6 +276,36 @@ do {									\
+ #define raw_cpu_xchg_8(pcp, nval)	raw_cpu_generic_xchg(pcp, nval)
+ #endif
+ 
++#ifndef __SIZEOF_INT128__
++#define raw_cpu_generic_try_cmpxchg_memcmp(pcp, ovalp, nval)		\
++({									\
++	typeof(pcp) *__p = raw_cpu_ptr(&(pcp));				\
++	typeof(pcp) __ret, __old = *(ovalp);				\
++	bool __s;							\
++	__ret = *__p;							\
++	if (!__builtin_memcmp(&__ret, &__old, sizeof(pcp))) {		\
++		*__p = nval;						\
++		__s = true;						\
++	} else {							\
++		*(ovalp) = __ret;					\
++		__s = false;						\
++	}								\
++	__s;								\
++})
++
++#define raw_cpu_generic_cmpxchg_memcmp(pcp, oval, nval)			\
++({									\
++	typeof(pcp) __old = (oval);					\
++	raw_cpu_generic_try_cmpxchg_memcpy(pcp, &__old, nval);		\
++	__old;								\
++})
++
++#define raw_cpu_cmpxchg128(pcp, oval, nval) \
++	raw_cpu_generic_cmpxchg_memcmp(pcp, oval, nval)
++#define raw_cpu_try_cmpxchg128(pcp, ovalp, nval) \
++	raw_cpu_generic_try_cmpxchg_memcmp(pcp, ovalp, nval)
++#endif
++
+ #ifndef raw_cpu_cmpxchg_1
+ #define raw_cpu_cmpxchg_1(pcp, oval, nval) \
+ 	raw_cpu_generic_cmpxchg(pcp, oval, nval)
+@@ -283,6 +331,31 @@ do {									\
+ 	raw_cpu_generic_cmpxchg(pcp, oval, nval)
+ #endif
+ 
++#ifndef raw_cpu_try_cmpxchg_1
++#define raw_cpu_try_cmpxchg_1(pcp, ovalp, nval) \
++	raw_cpu_generic_try_cmpxchg(pcp, ovalp, nval)
++#endif
++#ifndef raw_cpu_try_cmpxchg_2
++#define raw_cpu_try_cmpxchg_2(pcp, ovalp, nval) \
++	raw_cpu_generic_try_cmpxchg(pcp, ovalp, nval)
++#endif
++#ifndef raw_cpu_try_cmpxchg_4
++#define raw_cpu_try_cmpxchg_4(pcp, ovalp, nval) \
++	raw_cpu_generic_try_cmpxchg(pcp, ovalp, nval)
++#endif
++#ifndef raw_cpu_try_cmpxchg_8
++#define raw_cpu_try_cmpxchg_8(pcp, ovalp, nval) \
++	raw_cpu_generic_try_cmpxchg(pcp, ovalp, nval)
++#endif
++#ifndef raw_cpu_try_cmpxchg64
++#define raw_cpu_try_cmpxchg64(pcp, ovalp, nval) \
++	raw_cpu_generic_try_cmpxchg(pcp, ovalp, nval)
++#endif
++#ifndef raw_cpu_try_cmpxchg128
++#define raw_cpu_try_cmpxchg128(pcp, ovalp, nval) \
++	raw_cpu_generic_try_cmpxchg(pcp, ovalp, nval)
++#endif
++
+ #ifndef this_cpu_read_1
+ #define this_cpu_read_1(pcp)		this_cpu_generic_read(pcp)
+ #endif
+@@ -374,6 +447,33 @@ do {									\
+ #define this_cpu_xchg_8(pcp, nval)	this_cpu_generic_xchg(pcp, nval)
+ #endif
+ 
++#ifndef __SIZEOF_INT128__
++#define this_cpu_generic_try_cmpxchg_memcmp(pcp, ovalp, nval)		\
++({									\
++ 	bool __ret;							\
++	unsigned long __flags;						\
++	raw_local_irq_save(__flags);					\
++	__ret = raw_cpu_generic_try_cmpxchg_memcmp(pcp, ovalp, nval);	\
++	raw_local_irq_restore(__flags);					\
++	__ret;								\
++})
++
++#define this_cpu_generic_cmpxchg_memcmp(pcp, oval, nval)		\
++({									\
++	typeof(pcp) __ret;						\
++	unsigned long __flags;						\
++	raw_local_irq_save(__flags);					\
++	__ret = raw_cpu_generic_cmpxchg_memcmp(pcp, oval, nval);	\
++	raw_local_irq_restore(__flags);					\
++	__ret;								\
++})
++
++#define this_cpu_cmpxchg128(pcp, oval, nval) \
++	this_cpu_generic_cmpxchg_memcmp(pcp, oval, nval)
++#define this_cpu_try_cmpxchg128(pcp, ovalp, nval) \
++	this_cpu_generic_try_cmpxchg_memcmp(pcp, ovalp, nval)
++#endif
++
+ #ifndef this_cpu_cmpxchg_1
+ #define this_cpu_cmpxchg_1(pcp, oval, nval) \
+ 	this_cpu_generic_cmpxchg(pcp, oval, nval)
+@@ -399,4 +499,29 @@ do {									\
+ 	this_cpu_generic_cmpxchg(pcp, oval, nval)
+ #endif
+ 
++#ifndef this_cpu_try_cmpxchg_1
++#define this_cpu_try_cmpxchg_1(pcp, ovalp, nval) \
++	this_cpu_generic_try_cmpxchg(pcp, ovalp, nval)
++#endif
++#ifndef this_cpu_try_cmpxchg_2
++#define this_cpu_try_cmpxchg_2(pcp, ovalp, nval) \
++	this_cpu_generic_try_cmpxchg(pcp, ovalp, nval)
++#endif
++#ifndef this_cpu_try_cmpxchg_4
++#define this_cpu_try_cmpxchg_4(pcp, ovalp, nval) \
++	this_cpu_generic_try_cmpxchg(pcp, ovalp, nval)
++#endif
++#ifndef this_cpu_try_cmpxchg_8
++#define this_cpu_try_cmpxchg_8(pcp, ovalp, nval) \
++	this_cpu_generic_try_cmpxchg(pcp, ovalp, nval)
++#endif
++#ifndef this_cpu_try_cmpxchg64
++#define this_cpu_try_cmpxchg64(pcp, ovalp, nval) \
++	this_cpu_generic_try_cmpxchg(pcp, ovalp, nval)
++#endif
++#ifndef this_cpu_try_cmpxchg128
++#define this_cpu_try_cmpxchg128(pcp, ovalp, nval) \
++	this_cpu_generic_try_cmpxchg(pcp, ovalp, nval)
++#endif
++
+ #endif /* _ASM_GENERIC_PERCPU_H_ */
+--- a/include/linux/types.h
++++ b/include/linux/types.h
+@@ -13,6 +13,13 @@
+ #ifdef __SIZEOF_INT128__
+ typedef __s128 s128;
+ typedef __u128 u128;
++#else
++#ifdef CONFIG_64BIT
++/* hack for this_cpu_cmpxchg128 */
++typedef struct {
++	u64 a, b;
++} u128 __attribute__((aligned(16)));
++#endif
+ #endif
+ 
+ typedef u32 __kernel_dev_t;
+--- a/mm/slab.h
++++ b/mm/slab.h
+@@ -11,14 +11,14 @@ void __init kmem_cache_init(void);
+ # define system_has_freelist_aba()	system_has_cmpxchg128()
+ # define try_cmpxchg_freelist		try_cmpxchg128
+ # endif
+-#define this_cpu_cmpxchg_freelist	this_cpu_cmpxchg128
++#define this_cpu_try_cmpxchg_freelist	this_cpu_try_cmpxchg128
+ typedef u128 freelist_full_t;
+ #else /* CONFIG_64BIT */
+ # ifdef system_has_cmpxchg64
+ # define system_has_freelist_aba()	system_has_cmpxchg64()
+ # define try_cmpxchg_freelist		try_cmpxchg64
+ # endif
+-#define this_cpu_cmpxchg_freelist	this_cpu_cmpxchg64
++#define this_cpu_try_cmpxchg_freelist	this_cpu_try_cmpxchg64
+ typedef u64 freelist_full_t;
+ #endif /* CONFIG_64BIT */
+ 
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -3037,8 +3037,8 @@ __update_cpu_freelist_fast(struct kmem_c
+ 	freelist_aba_t old = { .freelist = freelist_old, .counter = tid };
+ 	freelist_aba_t new = { .freelist = freelist_new, .counter = next_tid(tid) };
+ 
+-	return this_cpu_cmpxchg_freelist(s->cpu_slab->freelist_tid.full,
+-					 old.full, new.full) == old.full;
++	return this_cpu_try_cmpxchg_freelist(s->cpu_slab->freelist_tid.full,
++					     &old.full, new.full);
+ }
+ 
+ /*
