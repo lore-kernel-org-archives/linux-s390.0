@@ -2,131 +2,155 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 947B7C77B73
-	for <linux-s390@archiver.kernel.org>; Tue, 30 May 2023 14:14:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 03252C7EE39
+	for <linux-s390@archiver.kernel.org>; Tue, 30 May 2023 14:25:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233036AbjE3OOL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 30 May 2023 10:14:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56104 "EHLO
+        id S231466AbjE3OZf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 30 May 2023 10:25:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233042AbjE3OOJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 May 2023 10:14:09 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE1E1118;
-        Tue, 30 May 2023 07:13:37 -0700 (PDT)
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34UCiCoE012781;
-        Tue, 30 May 2023 14:13:11 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=AZtoqKgahSWJ6g/3Z96owHtQnsAiBOwZ/kF6K43u7AI=;
- b=E6hufbc4iRnr/7JobblZyKiuQtEQKYTVmSwqYWL5DPOwm6y4TgOs+2Wlikcu45Fc7cSe
- y2rJpote6G9Y82wo2jn9Ux20Mzdvl40F6903PFO8x9G7I+mNLip9N+krZVr6jB6PltzF
- rzqhxdsAbMtfFaFpy7jFMw0PHr9AS917047kBwe3r+ofeWG92X2R4o+wroOQ23YFE7Vb
- 6dlyCIWP2aZVZkCzQj6iJQG40tdM+bHNrnqDbUW50XNvHvZ1iM73sAdkx5CGs8Cd3hSo
- pREsDfwEbp8K/2MI+pReW2EUGGQCd0MlbaSwFsb3MuiWuNSDGYC4C+xriu3X4rEdAXCn 4Q== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qwhdeanqy-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 30 May 2023 14:13:10 +0000
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34UE84oT004235;
-        Tue, 30 May 2023 14:13:09 GMT
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qwhdeanq5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 30 May 2023 14:13:09 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34U9agtV021188;
-        Tue, 30 May 2023 14:13:07 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma04fra.de.ibm.com (PPS) with ESMTPS id 3qu9g519bh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 30 May 2023 14:13:07 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34UED5aP22282948
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 30 May 2023 14:13:05 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4642820040;
-        Tue, 30 May 2023 14:13:05 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F138A2004F;
-        Tue, 30 May 2023 14:13:04 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 30 May 2023 14:13:04 +0000 (GMT)
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Shay Drory <shayd@nvidia.com>, Saeed Mahameed <saeedm@nvidia.com>,
-        Eli Cohen <elic@nvidia.com>, Leon Romanovsky <leon@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>
-Cc:     netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-Subject: [PATCH net] net/mlx5: Fix setting of irq->map.index for static IRQ case
-Date:   Tue, 30 May 2023 16:13:04 +0200
-Message-Id: <20230530141304.1850195-1-schnelle@linux.ibm.com>
-X-Mailer: git-send-email 2.39.2
+        with ESMTP id S232341AbjE3OYo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 May 2023 10:24:44 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55B2D1B8;
+        Tue, 30 May 2023 07:23:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=NWEmuGkLTCUa79jBEH3/UxEeJ1XI0nknDfWdtfSsgPs=; b=Ct+KeY0bR7Fd2pFV938dRGSXTb
+        +T51wSDRsfKeMuSei4YQEsU4Xi76eoiaYVk/lttEnZJBJ2NUxa0nAwt21F7XjN8xiXMXaKvYxsPjv
+        1JwrujAB4owDEhg+CCV3cNBdBGPbJO1CWCIJ3zo7ADAp/AyyICHpHTcJDGSsXcUaQJ2nQQY3rFLU9
+        SCt5AhrjoGTUAJR4EssZvVmoJZxXtj67WW2fm46MJfmTOgqrwkt1CaD0nt4+OU3de5LcfLLr02uIQ
+        paqW6ykLF99/+KF3EKEe2ruu40MWJIAj+6KGzGVrsLeK2a2sThWNiV/lisP1NFlavwALCeW8DS4eD
+        ytHa5ABQ==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1q40FD-006M99-Vy; Tue, 30 May 2023 14:22:42 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id E4605300233;
+        Tue, 30 May 2023 16:22:32 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id A11CD2414735F; Tue, 30 May 2023 16:22:32 +0200 (CEST)
+Date:   Tue, 30 May 2023 16:22:32 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     torvalds@linux-foundation.org
+Cc:     corbet@lwn.net, will@kernel.org, boqun.feng@gmail.com,
+        mark.rutland@arm.com, catalin.marinas@arm.com, dennis@kernel.org,
+        tj@kernel.org, cl@linux.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+        hpa@zytor.com, joro@8bytes.org, suravee.suthikulpanit@amd.com,
+        robin.murphy@arm.com, dwmw2@infradead.org,
+        baolu.lu@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
+        Herbert Xu <herbert@gondor.apana.org.au>, davem@davemloft.net,
+        penberg@kernel.org, rientjes@google.com, iamjoonsoo.kim@lge.com,
+        Andrew Morton <akpm@linux-foundation.org>, vbabka@suse.cz,
+        roman.gushchin@linux.dev, 42.hyeyoo@gmail.com,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, linux-s390@vger.kernel.org,
+        iommu@lists.linux.dev, linux-arch@vger.kernel.org,
+        linux-crypto@vger.kernel.org, sfr@canb.auug.org.au,
+        mpe@ellerman.id.au, James.Bottomley@hansenpartnership.com,
+        deller@gmx.de, linux-parisc@vger.kernel.org
+Subject: Re: [PATCH v3 08/11] slub: Replace cmpxchg_double()
+Message-ID: <20230530142232.GA200270@hirez.programming.kicks-ass.net>
+References: <20230515075659.118447996@infradead.org>
+ <20230515080554.453785148@infradead.org>
+ <20230524093246.GP83892@hirez.programming.kicks-ass.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: PpH9Jwcn3GEH2oLKFKX4J00puGn9yG1P
-X-Proofpoint-GUID: -TmNF_qtAEjvWc7ImQDTjOEO__qkDZai
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
- definitions=2023-05-30_10,2023-05-30_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 bulkscore=0
- spamscore=0 priorityscore=1501 mlxlogscore=999 lowpriorityscore=0
- malwarescore=0 clxscore=1011 impostorscore=0 phishscore=0 mlxscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2304280000 definitions=main-2305300114
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230524093246.GP83892@hirez.programming.kicks-ass.net>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-When dynamic IRQ allocation is not supported all IRQs are allocated up
-front in mlx5_irq_table_create() instead of dynamically as part of
-mlx5_irq_alloc(). In the latter dynamic case irq->map.index is set
-via the mapping returned by pci_msix_alloc_irq_at(). In the static case
-and prior to commit 1da438c0ae02 ("net/mlx5: Fix indexing of mlx5_irq")
-irq->map.index was set in mlx4_irq_alloc() twice once initially to 0 and
-then to the requested index before storing in the xarray. After this
-commit it is only set to 0 which breaks all other IRQ mappins.
+On Wed, May 24, 2023 at 11:32:47AM +0200, Peter Zijlstra wrote:
+> On Mon, May 15, 2023 at 09:57:07AM +0200, Peter Zijlstra wrote:
+> 
+> > @@ -3008,6 +3029,22 @@ static inline bool pfmemalloc_match(stru
+> >  }
+> >  
+> >  #ifndef CONFIG_SLUB_TINY
+> > +static inline bool
+> > +__update_cpu_freelist_fast(struct kmem_cache *s,
+> > +			   void *freelist_old, void *freelist_new,
+> > +			   unsigned long tid)
+> > +{
+> > +#ifdef system_has_freelist_aba
+> > +	freelist_aba_t old = { .freelist = freelist_old, .counter = tid };
+> > +	freelist_aba_t new = { .freelist = freelist_new, .counter = next_tid(tid) };
+> > +
+> > +	return this_cpu_cmpxchg_freelist(s->cpu_slab->freelist_tid.full,
+> > +					 old.full, new.full) == old.full;
+> > +#else
+> > +	return false;
+> > +#endif
+> > +}
+> > +
+> >  /*
+> >   * Check the slab->freelist and either transfer the freelist to the
+> >   * per cpu freelist or deactivate the slab.
+> > @@ -3359,11 +3396,7 @@ static __always_inline void *__slab_allo
+> >  		 * against code executing on this cpu *not* from access by
+> >  		 * other cpus.
+> >  		 */
+> > -		if (unlikely(!this_cpu_cmpxchg_double(
+> > -				s->cpu_slab->freelist, s->cpu_slab->tid,
+> > -				object, tid,
+> > -				next_object, next_tid(tid)))) {
+> > -
+> > +		if (unlikely(!__update_cpu_freelist_fast(s, object, next_object, tid))) {
+> >  			note_cmpxchg_failure("slab_alloc", s, tid);
+> >  			goto redo;
+> >  		}
+> > @@ -3736,11 +3769,7 @@ static __always_inline void do_slab_free
+> >  
+> >  		set_freepointer(s, tail_obj, freelist);
+> >  
+> > -		if (unlikely(!this_cpu_cmpxchg_double(
+> > -				s->cpu_slab->freelist, s->cpu_slab->tid,
+> > -				freelist, tid,
+> > -				head, next_tid(tid)))) {
+> > -
+> > +		if (unlikely(!__update_cpu_freelist_fast(s, freelist, head, tid))) {
+> >  			note_cmpxchg_failure("slab_free", s, tid);
+> >  			goto redo;
+> >  		}
+> 
+> This isn't right; the this_cpu_cmpxchg_double() was unconditional and
+> relied on the local_irq_save() fallback when no native cmpxchg128 is
+> present.
 
-Fix this by setting irq->map.index to the requested index together with
-irq->map.virq and improve the related comment to make it clearer which
-cases it deals with.
+This means this_cpu_cmpxchg128 is expected to be present on all 64bit
+archs, except Mark just found out that HPPA doens't support __int128
+until gcc-11.
 
-Fixes: 1da438c0ae02 ("net/mlx5: Fix indexing of mlx5_irq")
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
----
- drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+(I've been building using gcc-12.2)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c b/drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c
-index db5687d9fec9..fd5b43e8f3bb 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c
-@@ -232,12 +232,13 @@ struct mlx5_irq *mlx5_irq_alloc(struct mlx5_irq_pool *pool, int i,
- 	if (!irq)
- 		return ERR_PTR(-ENOMEM);
- 	if (!i || !pci_msix_can_alloc_dyn(dev->pdev)) {
--		/* The vector at index 0 was already allocated.
--		 * Just get the irq number. If dynamic irq is not supported
--		 * vectors have also been allocated.
-+		/* The vector at index 0 is always statically allocated. If
-+		 * dynamic irq is not supported all vectors are statically
-+		 * allocated. In both cases just get the irq number and set
-+		 * the index.
- 		 */
- 		irq->map.virq = pci_irq_vector(dev->pdev, i);
--		irq->map.index = 0;
-+		irq->map.index = i;
- 	} else {
- 		irq->map = pci_msix_alloc_irq_at(dev->pdev, MSI_ANY_INDEX, af_desc);
- 		if (!irq->map.virq) {
--- 
-2.39.2
+And because the cmpxchg128 fallback relies on '==' we can't trivally
+fudge that with a struct type either :/ Now, afaict it all magically
+works if I use:
 
+#ifdef __SIZEOF_INT128__
+typedef __s128 s128
+typedef __u128 u128
+#else
+#if defined(CONFIG_PARISC) && defined(CONFIG_64BIT)
+typedef long double u128;
+#endif
+#endif
+
+but that is *super* gross.
+
+The alternative is raising the minimum GCC for PARISC to gcc-11..
+
+Yet another alternative is using a struct type and an equality function,
+just for this.
+
+Anybody?
