@@ -2,115 +2,108 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 34ECDC7EE23
-	for <linux-s390@archiver.kernel.org>; Wed, 31 May 2023 14:33:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E73D0C77B7A
+	for <linux-s390@archiver.kernel.org>; Wed, 31 May 2023 14:47:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236311AbjEaOds (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 31 May 2023 10:33:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47254 "EHLO
+        id S233160AbjEaOrU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 31 May 2023 10:47:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54268 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231215AbjEaOdr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 31 May 2023 10:33:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9487995;
-        Wed, 31 May 2023 07:33:46 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2863263CCF;
-        Wed, 31 May 2023 14:33:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0A6CC433D2;
-        Wed, 31 May 2023 14:33:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1685543625;
-        bh=L/dTiuT+ktTPMYaEXn8ndEBWIS2gWoNfI9OE21M1RCg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=DAWDh6MT2/MOtKpYopxqF6yhYjN3Qup3Cr0wyjAksB7/WUJjjrXFFe6DjOfpMfBM4
-         QZowXDJ9uBub7Qjj5Vt1XAJTM/HlFOmmg4X09fqxPu164R8LFPiGxGF1yOhpELJ1P9
-         SPBfjOB3mU8YdPM0ZSV0XgBA2bNFvS9E2sjK5KI5GSl5GToBpbbt6q1+bT+xJX1Htr
-         ZkXqctLQYhkudRx5Inv6rqeTVwzKiI6w3ReyywcO/G2KiKFB5hSZ3IjNKosI0kAeoN
-         43otBMx5iqyOI883q+oSEOCBdmreGVQmmSR7FOm0SMAsitUknO+pk8V8xrmBnxnO0v
-         PPH+G4yJm2wCg==
-Date:   Wed, 31 May 2023 07:33:42 -0700
-From:   Nathan Chancellor <nathan@kernel.org>
-To:     Kees Cook <keescook@chromium.org>
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Thorsten Leemhuis <linux@leemhuis.info>,
-        Joan Bruguera =?iso-8859-1?Q?Mic=F3?= <joanbrugueram@gmail.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Linux Kernel Functional Testing <lkft@linaro.org>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-hardening@vger.kernel.org
-Subject: Re: [PATCH] s390/purgatory: Do not use fortified string functions
-Message-ID: <20230531143342.GA2250333@dev-arch.thelio-3990X>
-References: <20230531003414.never.050-kees@kernel.org>
+        with ESMTP id S229709AbjEaOrT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 31 May 2023 10:47:19 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A634C98;
+        Wed, 31 May 2023 07:47:17 -0700 (PDT)
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34VEhk7M030152;
+        Wed, 31 May 2023 14:47:16 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
+ mime-version : content-transfer-encoding : in-reply-to : references :
+ subject : cc : from : to : message-id : date; s=pp1;
+ bh=Hdy44UgzBhHa2jOpW4OPA7LdvnN7ablKMSNfPq4F7zY=;
+ b=jhMsFyJyVrTWpjJCDztQKmrCR+rLy4QrIOer9QRDbay/OJQ3cXolQ8o4enuLhpLkv9ZY
+ WufjnCtSr8vlMP+KLtkle494CcUmqoxsBUZskzyE4wsBM5R6wBNqKIZ4j2A6Nx2gM4gh
+ wCRbKHC+2bAuO7yBhFoWJuVfziqwRzGKRou+5jPSU65T4YH/1dZPcYXXOnA2scfr6FTs
+ ZWrbcREWErm/orbqQLHhZWuC1uptx9hU+J+Al5f2U7dZyxrgwYIE5Rjy4ZMckP7VokpV
+ zU6J4fkAz0JXEnuQPXvKCrJ+GunTyE/23NLVl6a8wePIBXsq0w49nDRUNfVXzCh49CCa Uw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qx88hr3pk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 31 May 2023 14:47:16 +0000
+Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34VEiXbN032120;
+        Wed, 31 May 2023 14:47:16 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qx88hr3nn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 31 May 2023 14:47:16 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34V1bFS0024134;
+        Wed, 31 May 2023 14:47:14 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3qu9g5226d-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 31 May 2023 14:47:13 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34VElAnd53477832
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 31 May 2023 14:47:10 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9C65C2004E;
+        Wed, 31 May 2023 14:47:10 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6CE512004B;
+        Wed, 31 May 2023 14:47:10 +0000 (GMT)
+Received: from t14-nrb (unknown [9.171.88.234])
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 31 May 2023 14:47:10 +0000 (GMT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20230531003414.never.050-kees@kernel.org>
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20230502130732.147210-1-frankja@linux.ibm.com>
+References: <20230502130732.147210-1-frankja@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v3 0/9] s390x: uv-host: Fixups and extensions part 1
+Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        thuth@redhat.com, david@redhat.com
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Message-ID: <168554442988.164254.12199952661638322868@t14-nrb>
+User-Agent: alot/0.8.1
+Date:   Wed, 31 May 2023 16:47:09 +0200
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: jkPCcmftwjTUbVmIXNSHR-NvWETW3ZfL
+X-Proofpoint-GUID: aITdIUHBxEPhVj-XVxzXi57sHOeplboB
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
+ definitions=2023-05-31_08,2023-05-31_03,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ impostorscore=0 suspectscore=0 phishscore=0 mlxscore=0 clxscore=1015
+ adultscore=0 malwarescore=0 spamscore=0 mlxlogscore=999 bulkscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2304280000 definitions=main-2305310124
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, May 30, 2023 at 05:34:15PM -0700, Kees Cook wrote:
-> With the addition of -fstrict-flex-arrays=3, struct sha256_state's
-> trailing array is no longer ignored by CONFIG_FORTIFY_SOURCE:
-> 
-> struct sha256_state {
->         u32 state[SHA256_DIGEST_SIZE / 4];
->         u64 count;
->         u8 buf[SHA256_BLOCK_SIZE];
-> };
-> 
-> This means that the memcpy() calls with "buf" as a destination in
-> sha256.c's code will attempt to perform run-time bounds checking, which
-> could lead to calling missing functions, specifically a potential
-> WARN_ONCE, which isn't callable from purgatory.
-> 
-> Reported-by: Thorsten Leemhuis <linux@leemhuis.info>
-> Closes: https://lore.kernel.org/lkml/175578ec-9dec-7a9c-8d3a-43f24ff86b92@leemhuis.info/
-> Bisected-by: "Joan Bruguera Micó" <joanbrugueram@gmail.com>
-> Fixes: df8fc4e934c1 ("kbuild: Enable -fstrict-flex-arrays=3")
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-> Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-> Cc: Sven Schnelle <svens@linux.ibm.com>
-> Cc: Masahiro Yamada <masahiroy@kernel.org>
-> Cc: Linux Kernel Functional Testing <lkft@linaro.org>
-> Cc: Nathan Chancellor <nathan@kernel.org>
-> Cc: "Gustavo A. R. Silva" <gustavoars@kernel.org>
-> Cc: linux-s390@vger.kernel.org
-> Signed-off-by: Kees Cook <keescook@chromium.org>
+Quoting Janosch Frank (2023-05-02 15:07:23)
+> The uv-host test has a lot of historical growth problems which have
+> largely been overlooked since running it is harder than running a KVM
+> (guest 2) based test.
+>=20
+> This series fixes up smaller problems but still leaves the test with
+> fails when running create config base and variable storage
+> tests. Those problems will either be fixed up with the second series
+> or with a firmware fix since I'm unsure on which side of the os/fw
+> fence the problem exists.
+>=20
+> The series is based on my other series that introduces pv-ipl and
+> pv-icpt. The memory allocation fix will be added to the new version of
+> that series so all G1 tests are fixed.
 
-Reading https://lore.kernel.org/202305301658.BF6ECF65C@keescook/ was
-some good additional context.
+I have also pushed this to our CI, thanks.
 
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-
-> ---
->  arch/s390/purgatory/Makefile | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/arch/s390/purgatory/Makefile b/arch/s390/purgatory/Makefile
-> index 32573b4f9bd2..cf14740abd1c 100644
-> --- a/arch/s390/purgatory/Makefile
-> +++ b/arch/s390/purgatory/Makefile
-> @@ -10,7 +10,7 @@ PURGATORY_OBJS = $(addprefix $(obj)/,$(purgatory-y))
->  $(obj)/sha256.o: $(srctree)/lib/crypto/sha256.c FORCE
->  	$(call if_changed_rule,cc_o_c)
->  
-> -CFLAGS_sha256.o := -D__DISABLE_EXPORTS
-> +CFLAGS_sha256.o := -D__DISABLE_EXPORTS -D__NO_FORTIFY
->  
->  $(obj)/mem.o: $(srctree)/arch/s390/lib/mem.S FORCE
->  	$(call if_changed_rule,as_o_S)
-> -- 
-> 2.34.1
-> 
+Also here, I took the liberty of adding
+groups =3D pv-host
+in the last patch. If you are OK with it, I can carry that when picking for=
+ the
+PR.
