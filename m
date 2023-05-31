@@ -2,154 +2,115 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 66874C7EE31
-	for <linux-s390@archiver.kernel.org>; Wed, 31 May 2023 14:22:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 34ECDC7EE23
+	for <linux-s390@archiver.kernel.org>; Wed, 31 May 2023 14:33:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237446AbjEaOWy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 31 May 2023 10:22:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36804 "EHLO
+        id S236311AbjEaOds (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 31 May 2023 10:33:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237301AbjEaOWc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 31 May 2023 10:22:32 -0400
-Received: from new3-smtp.messagingengine.com (new3-smtp.messagingengine.com [66.111.4.229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FE2EE51;
-        Wed, 31 May 2023 07:21:49 -0700 (PDT)
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.47])
-        by mailnew.nyi.internal (Postfix) with ESMTP id 44D65580177;
-        Wed, 31 May 2023 10:21:45 -0400 (EDT)
-Received: from imap51 ([10.202.2.101])
-  by compute6.internal (MEProxy); Wed, 31 May 2023 10:21:45 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-        :cc:content-type:content-type:date:date:from:from:in-reply-to
-        :in-reply-to:message-id:mime-version:references:reply-to:sender
-        :subject:subject:to:to; s=fm3; t=1685542905; x=1685550105; bh=EB
-        qVSuczL8zsM7Z+quPoEDfVsyxlfcBd6Pp556uYrbw=; b=OzFEpTKSe5S3pZEmFP
-        KK1uM3LsgMCSyqEpKXgp8mQacr9rZEDCmrd2k8BVEDg3tEc7xY/t0qJaQdSDGOT2
-        bU9zqMXGeLUQtd2ZGrrNxWGkpEIaVxk071lBAmfAeMQCHDxFTt1RXc0tTa+8BNvc
-        dHGAYyoqxLWEz0DRWsqrZCl7jyQXG+IYTwZfBGL3jP6UuAq+xC/o+0owjbxmZ2CX
-        jKHn0znJCe5sFHF0XfK674YIkVcUuVTivSqn6lMR/WSjKrRbWWAoJGIngDeXfeY4
-        rj3t8KhnnMw/ULtpMFDj7NVn9Ce9QDTK6Kw9M2KCXxWhhGFtgzM636rI9Ixm3L54
-        I9vA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:content-type:date:date
-        :feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm1; t=1685542905; x=1685550105; bh=EBqVSuczL8zsM
-        7Z+quPoEDfVsyxlfcBd6Pp556uYrbw=; b=oHsmrYj795DmAa232WElXIyigX6QS
-        0lEvQFY80QEb+Xv0tRxVq8oUZFcRlC2iXWMf6A9EQv2H5cUZwOYXI3ksFh0MS95T
-        a/00JTDEw8+IydUghKJpXfKrc3inW8q2ucI7PDOEPvDnPWUUJno8vH4RJtk3SbTY
-        Xo+OOCRlKmOMcOOakCRfPh4R5icttoicQwN5NjWzxihP8oZl/jY89WgumqrZIZXm
-        4AoaMaI7N608rPOsEyznGm2POVWr2Onut7ICia06/ESVNpGopI564yXoSbydFLpg
-        hbe4TBBj3hxrtKP7i4wcLhqKNVYnyN+0hkR0iUv05alMTrQZU5p/u+1Vw==
-X-ME-Sender: <xms:91d3ZBqipQsTqKHY6NRTD4pyQkRXLNRO_yNlvk1OpXfTPQ31eLUkEA>
-    <xme:91d3ZDp9FwkAkFZcsZEtPeT3CVkRHmUMy4T3RxqVKzTCMhojIEgOsZyV2jdVmH5Ey
-    jaX7xNsSz1_QTWZOGA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrfeekledgjeehucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepofgfggfkjghffffhvfevufgtsehttdertderredtnecuhfhrohhmpedftehr
-    nhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrth
-    htvghrnhepffehueegteeihfegtefhjefgtdeugfegjeelheejueethfefgeeghfektdek
-    teffnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprg
-    hrnhgusegrrhhnuggsrdguvg
-X-ME-Proxy: <xmx:91d3ZOPFWq78uKB_gUsNnnF0OeIzGpfUdYgHxMmkoms0hJmzyG_XXA>
-    <xmx:91d3ZM6fl1ZFbJDMuACkoSnRzDO_6enBMAgadt8Tx1-uTxmtBRgJMQ>
-    <xmx:91d3ZA7jTUqIpcQxCcujApE4FZxs0WEfQdlu7IS1-X3dmHdmqcfy7g>
-    <xmx:-Vd3ZFWRn8mhzfxV02UCF_CEnRSQ6iF8oeqZ00eFXYcYhyAZq5xkxQ>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-        id 0E183B60086; Wed, 31 May 2023 10:21:42 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.9.0-alpha0-447-ge2460e13b3-fm-20230525.001-ge2460e13
-Mime-Version: 1.0
-Message-Id: <70a69deb-7ad4-45b2-8e13-34955594a7ce@app.fastmail.com>
-In-Reply-To: <20230531132323.722039569@infradead.org>
-References: <20230531130833.635651916@infradead.org>
- <20230531132323.722039569@infradead.org>
-Date:   Wed, 31 May 2023 16:21:22 +0200
-From:   "Arnd Bergmann" <arnd@arndb.de>
-To:     "Peter Zijlstra" <peterz@infradead.org>,
-        "Linus Torvalds" <torvalds@linux-foundation.org>
-Cc:     "Jonathan Corbet" <corbet@lwn.net>,
-        "Will Deacon" <will@kernel.org>,
-        "Boqun Feng" <boqun.feng@gmail.com>,
-        "Mark Rutland" <mark.rutland@arm.com>,
-        "Catalin Marinas" <catalin.marinas@arm.com>, dennis@kernel.org,
-        "Tejun Heo" <tj@kernel.org>, "Christoph Lameter" <cl@linux.com>,
-        "Heiko Carstens" <hca@linux.ibm.com>, gor@linux.ibm.com,
-        "Alexander Gordeev" <agordeev@linux.ibm.com>,
-        borntraeger@linux.ibm.com, "Sven Schnelle" <svens@linux.ibm.com>,
-        "Thomas Gleixner" <tglx@linutronix.de>,
-        "Ingo Molnar" <mingo@redhat.com>, "Borislav Petkov" <bp@alien8.de>,
-        "Dave Hansen" <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>, "Joerg Roedel" <joro@8bytes.org>,
-        suravee.suthikulpanit@amd.com,
-        "Robin Murphy" <robin.murphy@arm.com>,
-        "David Woodhouse" <dwmw2@infradead.org>,
-        "Baolu Lu" <baolu.lu@linux.intel.com>,
-        "Herbert Xu" <herbert@gondor.apana.org.au>,
-        "David S . Miller" <davem@davemloft.net>,
-        "Pekka Enberg" <penberg@kernel.org>,
-        "David Rientjes" <rientjes@google.com>,
-        "Joonsoo Kim" <iamjoonsoo.kim@lge.com>,
-        "Andrew Morton" <akpm@linux-foundation.org>,
-        "Vlastimil Babka" <vbabka@suse.cz>,
-        "Roman Gushchin" <roman.gushchin@linux.dev>,
-        "Hyeonggon Yoo" <42.hyeyoo@gmail.com>, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        linux-s390@vger.kernel.org, iommu@lists.linux.dev,
-        Linux-Arch <linux-arch@vger.kernel.org>,
-        linux-crypto@vger.kernel.org,
-        "Stephen Rothwell" <sfr@canb.auug.org.au>,
-        "Michael Ellerman" <mpe@ellerman.id.au>,
-        "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
-        "Helge Deller" <deller@gmx.de>, linux-parisc@vger.kernel.org
-Subject: Re: [PATCH 07/12] percpu: #ifndef __SIZEOF_INT128__
-Content-Type: text/plain
+        with ESMTP id S231215AbjEaOdr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 31 May 2023 10:33:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9487995;
+        Wed, 31 May 2023 07:33:46 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2863263CCF;
+        Wed, 31 May 2023 14:33:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0A6CC433D2;
+        Wed, 31 May 2023 14:33:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1685543625;
+        bh=L/dTiuT+ktTPMYaEXn8ndEBWIS2gWoNfI9OE21M1RCg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=DAWDh6MT2/MOtKpYopxqF6yhYjN3Qup3Cr0wyjAksB7/WUJjjrXFFe6DjOfpMfBM4
+         QZowXDJ9uBub7Qjj5Vt1XAJTM/HlFOmmg4X09fqxPu164R8LFPiGxGF1yOhpELJ1P9
+         SPBfjOB3mU8YdPM0ZSV0XgBA2bNFvS9E2sjK5KI5GSl5GToBpbbt6q1+bT+xJX1Htr
+         ZkXqctLQYhkudRx5Inv6rqeTVwzKiI6w3ReyywcO/G2KiKFB5hSZ3IjNKosI0kAeoN
+         43otBMx5iqyOI883q+oSEOCBdmreGVQmmSR7FOm0SMAsitUknO+pk8V8xrmBnxnO0v
+         PPH+G4yJm2wCg==
+Date:   Wed, 31 May 2023 07:33:42 -0700
+From:   Nathan Chancellor <nathan@kernel.org>
+To:     Kees Cook <keescook@chromium.org>
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        Thorsten Leemhuis <linux@leemhuis.info>,
+        Joan Bruguera =?iso-8859-1?Q?Mic=F3?= <joanbrugueram@gmail.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Linux Kernel Functional Testing <lkft@linaro.org>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-hardening@vger.kernel.org
+Subject: Re: [PATCH] s390/purgatory: Do not use fortified string functions
+Message-ID: <20230531143342.GA2250333@dev-arch.thelio-3990X>
+References: <20230531003414.never.050-kees@kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20230531003414.never.050-kees@kernel.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, May 31, 2023, at 15:08, Peter Zijlstra wrote:
-> Some 64bit architectures do not advertise __SIZEOF_INT128__ on all
-> supported compiler versions. Notably the HPPA64 only started doing
-> with GCC-11.
+On Tue, May 30, 2023 at 05:34:15PM -0700, Kees Cook wrote:
+> With the addition of -fstrict-flex-arrays=3, struct sha256_state's
+> trailing array is no longer ignored by CONFIG_FORTIFY_SOURCE:
+> 
+> struct sha256_state {
+>         u32 state[SHA256_DIGEST_SIZE / 4];
+>         u64 count;
+>         u8 buf[SHA256_BLOCK_SIZE];
+> };
+> 
+> This means that the memcpy() calls with "buf" as a destination in
+> sha256.c's code will attempt to perform run-time bounds checking, which
+> could lead to calling missing functions, specifically a potential
+> WARN_ONCE, which isn't callable from purgatory.
+> 
+> Reported-by: Thorsten Leemhuis <linux@leemhuis.info>
+> Closes: https://lore.kernel.org/lkml/175578ec-9dec-7a9c-8d3a-43f24ff86b92@leemhuis.info/
+> Bisected-by: "Joan Bruguera Micó" <joanbrugueram@gmail.com>
+> Fixes: df8fc4e934c1 ("kbuild: Enable -fstrict-flex-arrays=3")
+> Cc: Heiko Carstens <hca@linux.ibm.com>
+> Cc: Vasily Gorbik <gor@linux.ibm.com>
+> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+> Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+> Cc: Sven Schnelle <svens@linux.ibm.com>
+> Cc: Masahiro Yamada <masahiroy@kernel.org>
+> Cc: Linux Kernel Functional Testing <lkft@linaro.org>
+> Cc: Nathan Chancellor <nathan@kernel.org>
+> Cc: "Gustavo A. R. Silva" <gustavoars@kernel.org>
+> Cc: linux-s390@vger.kernel.org
+> Signed-off-by: Kees Cook <keescook@chromium.org>
 
-I checked the other compilers to be sure that anything else
-we support (gcc-5.1 and up) across all 64-bit architectures
-does support int128.
+Reading https://lore.kernel.org/202305301658.BF6ECF65C@keescook/ was
+some good additional context.
 
-It would be nice to have the hack more localized to parisc
-and guarded with a CONFIG_GCC_VERSION check so we can kill
-it off in the future, once we drop either gcc-10 or parisc
-support.
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
 
-> +#ifndef __SIZEOF_INT128__
-> +#define raw_cpu_generic_try_cmpxchg_memcmp(pcp, ovalp, nval)		\
-> +({									\
-> +	typeof(pcp) *__p = raw_cpu_ptr(&(pcp));				\
-> +	typeof(pcp) __val = *__p, __old = *(ovalp);			\
-> +	bool __ret;							\
-> +	if (!__builtin_memcmp(&__val, &__old, sizeof(pcp))) {		\
-> +		*__p = nval;						\
-> +		__ret = true;						\
-> +	} else {							\
-> +		*(ovalp) = __val;					\
-> +		__ret = false;						\
-> +	}								\
-> +	__ret;								\
-> +})
-> +
-> +#define raw_cpu_generic_cmpxchg_memcmp(pcp, oval, nval)			\
-> +({									\
-> +	typeof(pcp) __old = (oval);					\
-> +	raw_cpu_generic_try_cmpxchg_memcpy(pcp, &__old, nval);		\
-> +	__old;								\
-> +})
-
-Instead of having this in include/asm-generic under
-!__SIZEOF_INT128__, could you just move this into the parisc
-files with a compiler version check?
-
-     Arnd
+> ---
+>  arch/s390/purgatory/Makefile | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/arch/s390/purgatory/Makefile b/arch/s390/purgatory/Makefile
+> index 32573b4f9bd2..cf14740abd1c 100644
+> --- a/arch/s390/purgatory/Makefile
+> +++ b/arch/s390/purgatory/Makefile
+> @@ -10,7 +10,7 @@ PURGATORY_OBJS = $(addprefix $(obj)/,$(purgatory-y))
+>  $(obj)/sha256.o: $(srctree)/lib/crypto/sha256.c FORCE
+>  	$(call if_changed_rule,cc_o_c)
+>  
+> -CFLAGS_sha256.o := -D__DISABLE_EXPORTS
+> +CFLAGS_sha256.o := -D__DISABLE_EXPORTS -D__NO_FORTIFY
+>  
+>  $(obj)/mem.o: $(srctree)/arch/s390/lib/mem.S FORCE
+>  	$(call if_changed_rule,as_o_S)
+> -- 
+> 2.34.1
+> 
