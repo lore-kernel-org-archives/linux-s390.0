@@ -2,43 +2,42 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B371EC7EE2E
-	for <linux-s390@archiver.kernel.org>; Wed, 31 May 2023 13:28:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F227DC77B73
+	for <linux-s390@archiver.kernel.org>; Wed, 31 May 2023 13:28:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236533AbjEaN2x (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 31 May 2023 09:28:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47432 "EHLO
+        id S236536AbjEaN2y (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 31 May 2023 09:28:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234861AbjEaN2U (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 31 May 2023 09:28:20 -0400
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69925101;
-        Wed, 31 May 2023 06:28:18 -0700 (PDT)
+        with ESMTP id S236359AbjEaN2W (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 31 May 2023 09:28:22 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5878B129;
+        Wed, 31 May 2023 06:28:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=Content-Type:MIME-Version:References:
+        d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
         Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
         Content-ID:Content-Description:In-Reply-To;
-        bh=EFRjNdGkKmPs8t8EQjORBoOhY59fsy+w5h28GAZsB6Q=; b=UtVwkPrM/XC85pGt7r9J/NNpRu
-        UL+91AuyLHvjrvG49pQLde3FfNNUmo1htXYmBdQi6zGavV3SSWRcdYYRg2pT/RFAN1s0beaKp6uIt
-        qmsCYWl48JdxSnUcl0TZnP/DxO6Las7rvju+4B6BHlugr3GN/O1xwkrFbvEm1TcgBc0nFb02d74Q+
-        FugUvUwlkjaq40KU1RNfTvbPliEJmyGnO7N9Y8FQ1QTQ6NKNxRxIvQbmh4ObO5y3tSWG6QFsZealY
-        U6f5lhw6Luo8Kph7RKkJJmtoJB0hFyStxCRmgm2iCzUziTKBMxS0MFEMxeMLjZEeDlsmuqhPZCMlC
-        fkpnhqUg==;
+        bh=yL1qo/vb48QdPJDHPVkvS1Zq4+B/eXJGNt78k1EwTE8=; b=DW3puokgt2Sigksg/ERQDTbI5F
+        X9p3E/IslASCuC3vUaf+7HAUpBufw+aylakDJDZNkblCqjUoUSTZWxlRcwf5yMkWCMD8tlgdafG0L
+        47hUgse3tDg8ztseLhxGtEY8y1bECyX246uQf/3WZj3YyP2oEpMKWBM1NEOVA8CFpM3l5FCrI6Cdz
+        n9cfpBSSywRhj6cZ5sUK91yTNWQAOutrtz0Ob/tcDLU+XF2taTda7oKkgDE7N4oNlrp15ideTU32m
+        zvLMvVJj1WXNQETpMpEIgBOCL8rD8p7/DMDwGYk2HLj02RY5wKHKFAWoMr7L1y3DrSkoE/x7f5cqR
+        2rDatRCA==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
-        by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
-        id 1q4LrG-00FTCc-1L;
-        Wed, 31 May 2023 13:27:22 +0000
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1q4LrH-007IJX-4Q; Wed, 31 May 2023 13:27:23 +0000
 Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (4096 bits))
         (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 55AC1300C4B;
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 5DBE1300DDC;
         Wed, 31 May 2023 15:27:21 +0200 (CEST)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
-        id 992BE243B8570; Wed, 31 May 2023 15:27:16 +0200 (CEST)
-Message-ID: <20230531132323.788955257@infradead.org>
+        id A1643243B8571; Wed, 31 May 2023 15:27:16 +0200 (CEST)
+Message-ID: <20230531132323.924677086@infradead.org>
 User-Agent: quilt/0.66
-Date:   Wed, 31 May 2023 15:08:41 +0200
+Date:   Wed, 31 May 2023 15:08:43 +0200
 From:   Peter Zijlstra <peterz@infradead.org>
 To:     torvalds@linux-foundation.org
 Cc:     corbet@lwn.net, will@kernel.org, peterz@infradead.org,
@@ -60,9 +59,8 @@ Cc:     corbet@lwn.net, will@kernel.org, peterz@infradead.org,
         iommu@lists.linux.dev, linux-arch@vger.kernel.org,
         linux-crypto@vger.kernel.org, sfr@canb.auug.org.au,
         mpe@ellerman.id.au, James.Bottomley@hansenpartnership.com,
-        deller@gmx.de, linux-parisc@vger.kernel.org,
-        Vasant Hegde <vasant.hegde@amd.com>
-Subject: [PATCH 08/12] x86,amd_iommu: Replace cmpxchg_double()
+        deller@gmx.de, linux-parisc@vger.kernel.org
+Subject: [PATCH 10/12] slub: Replace cmpxchg_double()
 References: <20230531130833.635651916@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -73,63 +71,373 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Tested-by: Vasant Hegde <vasant.hegde@amd.com>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Acked-by: Hyeonggon Yoo <42.hyeyoo@gmail.com>
 ---
- drivers/iommu/amd/amd_iommu_types.h |    9 +++++++--
- drivers/iommu/amd/iommu.c           |   10 ++++------
- 2 files changed, 11 insertions(+), 8 deletions(-)
+ include/linux/slub_def.h |   12 +++-
+ mm/slab.h                |   53 +++++++++++++++--
+ mm/slub.c                |  139 +++++++++++++++++++++++++++--------------------
+ 3 files changed, 137 insertions(+), 67 deletions(-)
 
---- a/drivers/iommu/amd/amd_iommu_types.h
-+++ b/drivers/iommu/amd/amd_iommu_types.h
-@@ -986,8 +986,13 @@ union irte_ga_hi {
- };
+--- a/include/linux/slub_def.h
++++ b/include/linux/slub_def.h
+@@ -39,7 +39,8 @@ enum stat_item {
+ 	CPU_PARTIAL_FREE,	/* Refill cpu partial on free */
+ 	CPU_PARTIAL_NODE,	/* Refill cpu partial from node partial */
+ 	CPU_PARTIAL_DRAIN,	/* Drain cpu partial to node partial */
+-	NR_SLUB_STAT_ITEMS };
++	NR_SLUB_STAT_ITEMS
++};
  
- struct irte_ga {
--	union irte_ga_lo lo;
--	union irte_ga_hi hi;
+ #ifndef CONFIG_SLUB_TINY
+ /*
+@@ -47,8 +48,13 @@ enum stat_item {
+  * with this_cpu_cmpxchg_double() alignment requirements.
+  */
+ struct kmem_cache_cpu {
+-	void **freelist;	/* Pointer to next available object */
+-	unsigned long tid;	/* Globally unique transaction id */
 +	union {
 +		struct {
-+			union irte_ga_lo lo;
-+			union irte_ga_hi hi;
++			void **freelist;	/* Pointer to next available object */
++			unsigned long tid;	/* Globally unique transaction id */
 +		};
-+		u128 irte;
++		freelist_aba_t freelist_tid;
 +	};
- };
+ 	struct slab *slab;	/* The slab from which we are allocating */
+ #ifdef CONFIG_SLUB_CPU_PARTIAL
+ 	struct slab *partial;	/* Partially allocated frozen slabs */
+--- a/mm/slab.h
++++ b/mm/slab.h
+@@ -6,6 +6,38 @@
+  */
+ void __init kmem_cache_init(void);
  
- struct irq_2_irte {
---- a/drivers/iommu/amd/iommu.c
-+++ b/drivers/iommu/amd/iommu.c
-@@ -3003,10 +3003,10 @@ static int alloc_irq_index(struct amd_io
- static int modify_irte_ga(struct amd_iommu *iommu, u16 devid, int index,
- 			  struct irte_ga *irte, struct amd_ir_data *data)
++#ifdef CONFIG_64BIT
++# ifdef system_has_cmpxchg128
++# define system_has_freelist_aba()	system_has_cmpxchg128()
++# define try_cmpxchg_freelist		try_cmpxchg128
++# endif
++#define this_cpu_try_cmpxchg_freelist	this_cpu_try_cmpxchg128
++typedef u128 freelist_full_t;
++#else /* CONFIG_64BIT */
++# ifdef system_has_cmpxchg64
++# define system_has_freelist_aba()	system_has_cmpxchg64()
++# define try_cmpxchg_freelist		try_cmpxchg64
++# endif
++#define this_cpu_try_cmpxchg_freelist	this_cpu_try_cmpxchg64
++typedef u64 freelist_full_t;
++#endif /* CONFIG_64BIT */
++
++#if defined(system_has_freelist_aba) && !defined(CONFIG_HAVE_ALIGNED_STRUCT_PAGE)
++#undef system_has_freelist_aba
++#endif
++
++/*
++ * Freelist pointer and counter to cmpxchg together, avoids the typical ABA
++ * problems with cmpxchg of just a pointer.
++ */
++typedef union {
++	struct {
++		void *freelist;
++		unsigned long counter;
++	};
++	freelist_full_t full;
++} freelist_aba_t;
++
+ /* Reuses the bits in struct page */
+ struct slab {
+ 	unsigned long __page_flags;
+@@ -38,14 +70,21 @@ struct slab {
+ #endif
+ 			};
+ 			/* Double-word boundary */
+-			void *freelist;		/* first free object */
+ 			union {
+-				unsigned long counters;
+ 				struct {
+-					unsigned inuse:16;
+-					unsigned objects:15;
+-					unsigned frozen:1;
++					void *freelist;		/* first free object */
++					union {
++						unsigned long counters;
++						struct {
++							unsigned inuse:16;
++							unsigned objects:15;
++							unsigned frozen:1;
++						};
++					};
+ 				};
++#ifdef system_has_freelist_aba
++				freelist_aba_t freelist_counter;
++#endif
+ 			};
+ 		};
+ 		struct rcu_head rcu_head;
+@@ -72,8 +111,8 @@ SLAB_MATCH(memcg_data, memcg_data);
+ #endif
+ #undef SLAB_MATCH
+ static_assert(sizeof(struct slab) <= sizeof(struct page));
+-#if defined(CONFIG_HAVE_CMPXCHG_DOUBLE) && defined(CONFIG_SLUB)
+-static_assert(IS_ALIGNED(offsetof(struct slab, freelist), 2*sizeof(void *)));
++#if defined(system_has_freelist_aba) && defined(CONFIG_SLUB)
++static_assert(IS_ALIGNED(offsetof(struct slab, freelist), sizeof(freelist_aba_t)));
+ #endif
+ 
+ /**
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -292,7 +292,12 @@ static inline bool kmem_cache_has_cpu_pa
+ /* Poison object */
+ #define __OBJECT_POISON		((slab_flags_t __force)0x80000000U)
+ /* Use cmpxchg_double */
++
++#ifdef system_has_freelist_aba
+ #define __CMPXCHG_DOUBLE	((slab_flags_t __force)0x40000000U)
++#else
++#define __CMPXCHG_DOUBLE	((slab_flags_t __force)0U)
++#endif
+ 
+ /*
+  * Tracking user of a slab.
+@@ -512,6 +517,40 @@ static __always_inline void slab_unlock(
+ 	__bit_spin_unlock(PG_locked, &page->flags);
+ }
+ 
++static inline bool
++__update_freelist_fast(struct slab *slab,
++		      void *freelist_old, unsigned long counters_old,
++		      void *freelist_new, unsigned long counters_new)
++{
++#ifdef system_has_freelist_aba
++	freelist_aba_t old = { .freelist = freelist_old, .counter = counters_old };
++	freelist_aba_t new = { .freelist = freelist_new, .counter = counters_new };
++
++	return try_cmpxchg_freelist(&slab->freelist_counter.full, &old.full, new.full);
++#else
++	return false;
++#endif
++}
++
++static inline bool
++__update_freelist_slow(struct slab *slab,
++		      void *freelist_old, unsigned long counters_old,
++		      void *freelist_new, unsigned long counters_new)
++{
++	bool ret = false;
++
++	slab_lock(slab);
++	if (slab->freelist == freelist_old &&
++	    slab->counters == counters_old) {
++		slab->freelist = freelist_new;
++		slab->counters = counters_new;
++		ret = true;
++	}
++	slab_unlock(slab);
++
++	return ret;
++}
++
+ /*
+  * Interrupts must be disabled (for the fallback code to work right), typically
+  * by an _irqsave() lock variant. On PREEMPT_RT the preempt_disable(), which is
+@@ -519,33 +558,25 @@ static __always_inline void slab_unlock(
+  * allocation/ free operation in hardirq context. Therefore nothing can
+  * interrupt the operation.
+  */
+-static inline bool __cmpxchg_double_slab(struct kmem_cache *s, struct slab *slab,
++static inline bool __slab_update_freelist(struct kmem_cache *s, struct slab *slab,
+ 		void *freelist_old, unsigned long counters_old,
+ 		void *freelist_new, unsigned long counters_new,
+ 		const char *n)
  {
--	bool ret;
- 	struct irq_remap_table *table;
--	unsigned long flags;
- 	struct irte_ga *entry;
-+	unsigned long flags;
-+	u128 old;
++	bool ret;
++
+ 	if (USE_LOCKLESS_FAST_PATH())
+ 		lockdep_assert_irqs_disabled();
+-#if defined(CONFIG_HAVE_CMPXCHG_DOUBLE) && \
+-    defined(CONFIG_HAVE_ALIGNED_STRUCT_PAGE)
++
+ 	if (s->flags & __CMPXCHG_DOUBLE) {
+-		if (cmpxchg_double(&slab->freelist, &slab->counters,
+-				   freelist_old, counters_old,
+-				   freelist_new, counters_new))
+-			return true;
+-	} else
+-#endif
+-	{
+-		slab_lock(slab);
+-		if (slab->freelist == freelist_old &&
+-					slab->counters == counters_old) {
+-			slab->freelist = freelist_new;
+-			slab->counters = counters_new;
+-			slab_unlock(slab);
+-			return true;
+-		}
+-		slab_unlock(slab);
++		ret = __update_freelist_fast(slab, freelist_old, counters_old,
++				            freelist_new, counters_new);
++	} else {
++		ret = __update_freelist_slow(slab, freelist_old, counters_old,
++				            freelist_new, counters_new);
+ 	}
++	if (likely(ret))
++		return true;
  
- 	table = get_irq_table(iommu, devid);
- 	if (!table)
-@@ -3017,16 +3017,14 @@ static int modify_irte_ga(struct amd_iom
- 	entry = (struct irte_ga *)table->table;
- 	entry = &entry[index];
+ 	cpu_relax();
+ 	stat(s, CMPXCHG_DOUBLE_FAIL);
+@@ -557,36 +588,26 @@ static inline bool __cmpxchg_double_slab
+ 	return false;
+ }
  
--	ret = cmpxchg_double(&entry->lo.val, &entry->hi.val,
--			     entry->lo.val, entry->hi.val,
--			     irte->lo.val, irte->hi.val);
+-static inline bool cmpxchg_double_slab(struct kmem_cache *s, struct slab *slab,
++static inline bool slab_update_freelist(struct kmem_cache *s, struct slab *slab,
+ 		void *freelist_old, unsigned long counters_old,
+ 		void *freelist_new, unsigned long counters_new,
+ 		const char *n)
+ {
+-#if defined(CONFIG_HAVE_CMPXCHG_DOUBLE) && \
+-    defined(CONFIG_HAVE_ALIGNED_STRUCT_PAGE)
++	bool ret;
++
+ 	if (s->flags & __CMPXCHG_DOUBLE) {
+-		if (cmpxchg_double(&slab->freelist, &slab->counters,
+-				   freelist_old, counters_old,
+-				   freelist_new, counters_new))
+-			return true;
+-	} else
+-#endif
+-	{
++		ret = __update_freelist_fast(slab, freelist_old, counters_old,
++				            freelist_new, counters_new);
++	} else {
+ 		unsigned long flags;
+ 
+ 		local_irq_save(flags);
+-		slab_lock(slab);
+-		if (slab->freelist == freelist_old &&
+-					slab->counters == counters_old) {
+-			slab->freelist = freelist_new;
+-			slab->counters = counters_new;
+-			slab_unlock(slab);
+-			local_irq_restore(flags);
+-			return true;
+-		}
+-		slab_unlock(slab);
++		ret = __update_freelist_slow(slab, freelist_old, counters_old,
++				            freelist_new, counters_new);
+ 		local_irq_restore(flags);
+ 	}
++	if (likely(ret))
++		return true;
+ 
+ 	cpu_relax();
+ 	stat(s, CMPXCHG_DOUBLE_FAIL);
+@@ -2228,7 +2249,7 @@ static inline void *acquire_slab(struct
+ 	VM_BUG_ON(new.frozen);
+ 	new.frozen = 1;
+ 
+-	if (!__cmpxchg_double_slab(s, slab,
++	if (!__slab_update_freelist(s, slab,
+ 			freelist, counters,
+ 			new.freelist, new.counters,
+ 			"acquire_slab"))
+@@ -2554,7 +2575,7 @@ static void deactivate_slab(struct kmem_
+ 	}
+ 
+ 
+-	if (!cmpxchg_double_slab(s, slab,
++	if (!slab_update_freelist(s, slab,
+ 				old.freelist, old.counters,
+ 				new.freelist, new.counters,
+ 				"unfreezing slab")) {
+@@ -2611,7 +2632,7 @@ static void __unfreeze_partials(struct k
+ 
+ 			new.frozen = 0;
+ 
+-		} while (!__cmpxchg_double_slab(s, slab,
++		} while (!__slab_update_freelist(s, slab,
+ 				old.freelist, old.counters,
+ 				new.freelist, new.counters,
+ 				"unfreezing slab"));
+@@ -3008,6 +3029,18 @@ static inline bool pfmemalloc_match(stru
+ }
+ 
+ #ifndef CONFIG_SLUB_TINY
++static inline bool
++__update_cpu_freelist_fast(struct kmem_cache *s,
++			   void *freelist_old, void *freelist_new,
++			   unsigned long tid)
++{
++	freelist_aba_t old = { .freelist = freelist_old, .counter = tid };
++	freelist_aba_t new = { .freelist = freelist_new, .counter = next_tid(tid) };
++
++	return this_cpu_try_cmpxchg_freelist(s->cpu_slab->freelist_tid.full,
++					     &old.full, new.full);
++}
++
+ /*
+  * Check the slab->freelist and either transfer the freelist to the
+  * per cpu freelist or deactivate the slab.
+@@ -3034,7 +3067,7 @@ static inline void *get_freelist(struct
+ 		new.inuse = slab->objects;
+ 		new.frozen = freelist != NULL;
+ 
+-	} while (!__cmpxchg_double_slab(s, slab,
++	} while (!__slab_update_freelist(s, slab,
+ 		freelist, counters,
+ 		NULL, new.counters,
+ 		"get_freelist"));
+@@ -3359,11 +3392,7 @@ static __always_inline void *__slab_allo
+ 		 * against code executing on this cpu *not* from access by
+ 		 * other cpus.
+ 		 */
+-		if (unlikely(!this_cpu_cmpxchg_double(
+-				s->cpu_slab->freelist, s->cpu_slab->tid,
+-				object, tid,
+-				next_object, next_tid(tid)))) {
+-
++		if (unlikely(!__update_cpu_freelist_fast(s, object, next_object, tid))) {
+ 			note_cmpxchg_failure("slab_alloc", s, tid);
+ 			goto redo;
+ 		}
+@@ -3631,7 +3660,7 @@ static void __slab_free(struct kmem_cach
+ 			}
+ 		}
+ 
+-	} while (!cmpxchg_double_slab(s, slab,
++	} while (!slab_update_freelist(s, slab,
+ 		prior, counters,
+ 		head, new.counters,
+ 		"__slab_free"));
+@@ -3736,11 +3765,7 @@ static __always_inline void do_slab_free
+ 
+ 		set_freepointer(s, tail_obj, freelist);
+ 
+-		if (unlikely(!this_cpu_cmpxchg_double(
+-				s->cpu_slab->freelist, s->cpu_slab->tid,
+-				freelist, tid,
+-				head, next_tid(tid)))) {
+-
++		if (unlikely(!__update_cpu_freelist_fast(s, freelist, head, tid))) {
+ 			note_cmpxchg_failure("slab_free", s, tid);
+ 			goto redo;
+ 		}
+@@ -4505,11 +4530,11 @@ static int kmem_cache_open(struct kmem_c
+ 		}
+ 	}
+ 
+-#if defined(CONFIG_HAVE_CMPXCHG_DOUBLE) && \
+-    defined(CONFIG_HAVE_ALIGNED_STRUCT_PAGE)
+-	if (system_has_cmpxchg_double() && (s->flags & SLAB_NO_CMPXCHG) == 0)
++#ifdef system_has_freelist_aba
++	if (system_has_freelist_aba() && !(s->flags & SLAB_NO_CMPXCHG)) {
+ 		/* Enable fast mode */
+ 		s->flags |= __CMPXCHG_DOUBLE;
++	}
+ #endif
+ 
  	/*
- 	 * We use cmpxchg16 to atomically update the 128-bit IRTE,
- 	 * and it cannot be updated by the hardware or other processors
- 	 * behind us, so the return value of cmpxchg16 should be the
- 	 * same as the old value.
- 	 */
--	WARN_ON(!ret);
-+	old = entry->irte;
-+	WARN_ON(!try_cmpxchg128(&entry->irte, &old, irte->irte));
- 
- 	if (data)
- 		data->ref = entry;
 
 
