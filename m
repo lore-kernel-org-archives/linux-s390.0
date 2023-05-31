@@ -2,139 +2,154 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DAD7C77B73
-	for <linux-s390@archiver.kernel.org>; Wed, 31 May 2023 13:36:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 66874C7EE31
+	for <linux-s390@archiver.kernel.org>; Wed, 31 May 2023 14:22:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233214AbjEaNgv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 31 May 2023 09:36:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52998 "EHLO
+        id S237446AbjEaOWy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 31 May 2023 10:22:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229936AbjEaNgu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 31 May 2023 09:36:50 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE19DC0;
-        Wed, 31 May 2023 06:36:49 -0700 (PDT)
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34VDGd8D027853;
-        Wed, 31 May 2023 13:36:49 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
- mime-version : content-transfer-encoding : in-reply-to : references :
- subject : cc : from : to : message-id : date; s=pp1;
- bh=278oxwc42MF8qvWbiVtT1x5VRhiFGPiUPLXlAgzrKZc=;
- b=egetVAZUdsaRryLRYABCUmNnxNs+HJF8n768iGoqYj07bgwgA4TxZuAurfEqyLX4bhn0
- YUS/UvPjGdkYc88k4GahKUXJxqYLwHDziWXWOuP6Ys0tnBeAb2bYX3rLu/ok3MdtgfN4
- n2fmbQz6W1gJUrKEl+61rETjYhXKiZ0uvw4Kub6CrfCz6km8hq9uDe4kUXv5D8+v2cGN
- rRPC6KzORoXGPhz8O4055QPjTWIefUfy/avVYC+ZALLvXK2p/SDjpXeIuRtVqzjvArwM
- u06ob50Fkk+xI+JIqFWbrH1SAQX2tbSWRv76bn7P75IjUPF4PJGZLorDbGNnZrtC3Cky vA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qx4y3mr0u-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 31 May 2023 13:36:48 +0000
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34VD9Ou0002474;
-        Wed, 31 May 2023 13:36:47 GMT
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qx4y3mqye-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 31 May 2023 13:36:47 +0000
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34VCa1DT022759;
-        Wed, 31 May 2023 13:36:45 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma06fra.de.ibm.com (PPS) with ESMTPS id 3qu94e9pg4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 31 May 2023 13:36:45 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34VDafLr44826996
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 31 May 2023 13:36:41 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9E11720043;
-        Wed, 31 May 2023 13:36:41 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 72E6E20040;
-        Wed, 31 May 2023 13:36:41 +0000 (GMT)
-Received: from t14-nrb (unknown [9.171.88.234])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 31 May 2023 13:36:41 +0000 (GMT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20230421113647.134536-2-frankja@linux.ibm.com>
-References: <20230421113647.134536-1-frankja@linux.ibm.com> <20230421113647.134536-2-frankja@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v3 1/7] lib: s390x: uv: Introduce UV validity function
-Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        thuth@redhat.com, david@redhat.com
-From:   Nico Boehr <nrb@linux.ibm.com>
-To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Message-ID: <168554020111.164254.15682688367711474887@t14-nrb>
-User-Agent: alot/0.8.1
-Date:   Wed, 31 May 2023 15:36:41 +0200
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: tt-dtTb-yfu0E_X8KubpkcbHq-KuNLO2
-X-Proofpoint-ORIG-GUID: 8dodWGppsalfE-y2dms1X2kRB5XwBMdd
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
- definitions=2023-05-31_08,2023-05-31_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxscore=0
- malwarescore=0 adultscore=0 phishscore=0 priorityscore=1501
- mlxlogscore=999 clxscore=1015 spamscore=0 impostorscore=0 suspectscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2304280000 definitions=main-2305310112
+        with ESMTP id S237301AbjEaOWc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 31 May 2023 10:22:32 -0400
+Received: from new3-smtp.messagingengine.com (new3-smtp.messagingengine.com [66.111.4.229])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FE2EE51;
+        Wed, 31 May 2023 07:21:49 -0700 (PDT)
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.47])
+        by mailnew.nyi.internal (Postfix) with ESMTP id 44D65580177;
+        Wed, 31 May 2023 10:21:45 -0400 (EDT)
+Received: from imap51 ([10.202.2.101])
+  by compute6.internal (MEProxy); Wed, 31 May 2023 10:21:45 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+        :cc:content-type:content-type:date:date:from:from:in-reply-to
+        :in-reply-to:message-id:mime-version:references:reply-to:sender
+        :subject:subject:to:to; s=fm3; t=1685542905; x=1685550105; bh=EB
+        qVSuczL8zsM7Z+quPoEDfVsyxlfcBd6Pp556uYrbw=; b=OzFEpTKSe5S3pZEmFP
+        KK1uM3LsgMCSyqEpKXgp8mQacr9rZEDCmrd2k8BVEDg3tEc7xY/t0qJaQdSDGOT2
+        bU9zqMXGeLUQtd2ZGrrNxWGkpEIaVxk071lBAmfAeMQCHDxFTt1RXc0tTa+8BNvc
+        dHGAYyoqxLWEz0DRWsqrZCl7jyQXG+IYTwZfBGL3jP6UuAq+xC/o+0owjbxmZ2CX
+        jKHn0znJCe5sFHF0XfK674YIkVcUuVTivSqn6lMR/WSjKrRbWWAoJGIngDeXfeY4
+        rj3t8KhnnMw/ULtpMFDj7NVn9Ce9QDTK6Kw9M2KCXxWhhGFtgzM636rI9Ixm3L54
+        I9vA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:content-type:date:date
+        :feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm1; t=1685542905; x=1685550105; bh=EBqVSuczL8zsM
+        7Z+quPoEDfVsyxlfcBd6Pp556uYrbw=; b=oHsmrYj795DmAa232WElXIyigX6QS
+        0lEvQFY80QEb+Xv0tRxVq8oUZFcRlC2iXWMf6A9EQv2H5cUZwOYXI3ksFh0MS95T
+        a/00JTDEw8+IydUghKJpXfKrc3inW8q2ucI7PDOEPvDnPWUUJno8vH4RJtk3SbTY
+        Xo+OOCRlKmOMcOOakCRfPh4R5icttoicQwN5NjWzxihP8oZl/jY89WgumqrZIZXm
+        4AoaMaI7N608rPOsEyznGm2POVWr2Onut7ICia06/ESVNpGopI564yXoSbydFLpg
+        hbe4TBBj3hxrtKP7i4wcLhqKNVYnyN+0hkR0iUv05alMTrQZU5p/u+1Vw==
+X-ME-Sender: <xms:91d3ZBqipQsTqKHY6NRTD4pyQkRXLNRO_yNlvk1OpXfTPQ31eLUkEA>
+    <xme:91d3ZDp9FwkAkFZcsZEtPeT3CVkRHmUMy4T3RxqVKzTCMhojIEgOsZyV2jdVmH5Ey
+    jaX7xNsSz1_QTWZOGA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrfeekledgjeehucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepofgfggfkjghffffhvfevufgtsehttdertderredtnecuhfhrohhmpedftehr
+    nhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrth
+    htvghrnhepffehueegteeihfegtefhjefgtdeugfegjeelheejueethfefgeeghfektdek
+    teffnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprg
+    hrnhgusegrrhhnuggsrdguvg
+X-ME-Proxy: <xmx:91d3ZOPFWq78uKB_gUsNnnF0OeIzGpfUdYgHxMmkoms0hJmzyG_XXA>
+    <xmx:91d3ZM6fl1ZFbJDMuACkoSnRzDO_6enBMAgadt8Tx1-uTxmtBRgJMQ>
+    <xmx:91d3ZA7jTUqIpcQxCcujApE4FZxs0WEfQdlu7IS1-X3dmHdmqcfy7g>
+    <xmx:-Vd3ZFWRn8mhzfxV02UCF_CEnRSQ6iF8oeqZ00eFXYcYhyAZq5xkxQ>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.nyi.internal (Postfix, from userid 501)
+        id 0E183B60086; Wed, 31 May 2023 10:21:42 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
+User-Agent: Cyrus-JMAP/3.9.0-alpha0-447-ge2460e13b3-fm-20230525.001-ge2460e13
+Mime-Version: 1.0
+Message-Id: <70a69deb-7ad4-45b2-8e13-34955594a7ce@app.fastmail.com>
+In-Reply-To: <20230531132323.722039569@infradead.org>
+References: <20230531130833.635651916@infradead.org>
+ <20230531132323.722039569@infradead.org>
+Date:   Wed, 31 May 2023 16:21:22 +0200
+From:   "Arnd Bergmann" <arnd@arndb.de>
+To:     "Peter Zijlstra" <peterz@infradead.org>,
+        "Linus Torvalds" <torvalds@linux-foundation.org>
+Cc:     "Jonathan Corbet" <corbet@lwn.net>,
+        "Will Deacon" <will@kernel.org>,
+        "Boqun Feng" <boqun.feng@gmail.com>,
+        "Mark Rutland" <mark.rutland@arm.com>,
+        "Catalin Marinas" <catalin.marinas@arm.com>, dennis@kernel.org,
+        "Tejun Heo" <tj@kernel.org>, "Christoph Lameter" <cl@linux.com>,
+        "Heiko Carstens" <hca@linux.ibm.com>, gor@linux.ibm.com,
+        "Alexander Gordeev" <agordeev@linux.ibm.com>,
+        borntraeger@linux.ibm.com, "Sven Schnelle" <svens@linux.ibm.com>,
+        "Thomas Gleixner" <tglx@linutronix.de>,
+        "Ingo Molnar" <mingo@redhat.com>, "Borislav Petkov" <bp@alien8.de>,
+        "Dave Hansen" <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>, "Joerg Roedel" <joro@8bytes.org>,
+        suravee.suthikulpanit@amd.com,
+        "Robin Murphy" <robin.murphy@arm.com>,
+        "David Woodhouse" <dwmw2@infradead.org>,
+        "Baolu Lu" <baolu.lu@linux.intel.com>,
+        "Herbert Xu" <herbert@gondor.apana.org.au>,
+        "David S . Miller" <davem@davemloft.net>,
+        "Pekka Enberg" <penberg@kernel.org>,
+        "David Rientjes" <rientjes@google.com>,
+        "Joonsoo Kim" <iamjoonsoo.kim@lge.com>,
+        "Andrew Morton" <akpm@linux-foundation.org>,
+        "Vlastimil Babka" <vbabka@suse.cz>,
+        "Roman Gushchin" <roman.gushchin@linux.dev>,
+        "Hyeonggon Yoo" <42.hyeyoo@gmail.com>, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org, iommu@lists.linux.dev,
+        Linux-Arch <linux-arch@vger.kernel.org>,
+        linux-crypto@vger.kernel.org,
+        "Stephen Rothwell" <sfr@canb.auug.org.au>,
+        "Michael Ellerman" <mpe@ellerman.id.au>,
+        "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
+        "Helge Deller" <deller@gmx.de>, linux-parisc@vger.kernel.org
+Subject: Re: [PATCH 07/12] percpu: #ifndef __SIZEOF_INT128__
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Quoting Janosch Frank (2023-04-21 13:36:41)
-> PV related validities are in the 0x20** range but the last byte might
-> be implementation specific, so everytime we check for a UV validity we
-> need to mask the last byte.
->=20
-> Let's add a function that checks for a UV validity and returns a
-> boolean.
->=20
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
-> ---
->  lib/s390x/uv.h | 7 +++++++
->  1 file changed, 7 insertions(+)
->=20
-> diff --git a/lib/s390x/uv.h b/lib/s390x/uv.h
-> index 5fe29bda..78b979b7 100644
-> --- a/lib/s390x/uv.h
-> +++ b/lib/s390x/uv.h
-> @@ -35,4 +35,11 @@ static inline void uv_setup_asces(void)
->         lctlg(13, asce);
->  }
-> =20
-> +static inline bool uv_validity_check(struct vm *vm)
-> +{
-> +       uint16_t vir =3D sie_get_validity(vm);
+On Wed, May 31, 2023, at 15:08, Peter Zijlstra wrote:
+> Some 64bit architectures do not advertise __SIZEOF_INT128__ on all
+> supported compiler versions. Notably the HPPA64 only started doing
+> with GCC-11.
+
+I checked the other compilers to be sure that anything else
+we support (gcc-5.1 and up) across all 64-bit architectures
+does support int128.
+
+It would be nice to have the hack more localized to parisc
+and guarded with a CONFIG_GCC_VERSION check so we can kill
+it off in the future, once we drop either gcc-10 or parisc
+support.
+
+> +#ifndef __SIZEOF_INT128__
+> +#define raw_cpu_generic_try_cmpxchg_memcmp(pcp, ovalp, nval)		\
+> +({									\
+> +	typeof(pcp) *__p = raw_cpu_ptr(&(pcp));				\
+> +	typeof(pcp) __val = *__p, __old = *(ovalp);			\
+> +	bool __ret;							\
+> +	if (!__builtin_memcmp(&__val, &__old, sizeof(pcp))) {		\
+> +		*__p = nval;						\
+> +		__ret = true;						\
+> +	} else {							\
+> +		*(ovalp) = __val;					\
+> +		__ret = false;						\
+> +	}								\
+> +	__ret;								\
+> +})
 > +
-> +       return vm->sblk->icptcode =3D=3D ICPT_VALIDITY && (vir & 0xff00) =
-=3D=3D 0x2000;
-> +}
-> +
+> +#define raw_cpu_generic_cmpxchg_memcmp(pcp, oval, nval)			\
+> +({									\
+> +	typeof(pcp) __old = (oval);					\
+> +	raw_cpu_generic_try_cmpxchg_memcpy(pcp, &__old, nval);		\
+> +	__old;								\
+> +})
 
-I noticed a small issue with this. If no intercept occurs, we sie_get_valid=
-ity()
-will be called which will assert() when there's none.
+Instead of having this in include/asm-generic under
+!__SIZEOF_INT128__, could you just move this into the parisc
+files with a compiler version check?
 
-Please consider the following fixup (broken whitespace ahead):
-
- static inline bool uv_validity_check(struct vm *vm)
- {
--       uint16_t vir =3D sie_get_validity(vm);
-+       uint16_t vir;
-
--       return vm->sblk->icptcode =3D=3D ICPT_VALIDITY && (vir & 0xff00) =
-=3D=3D 0x2000;
-+       /* must not use sie_get_validity() when there's no validity */
-+       if (vm->sblk->icptcode !=3D ICPT_VALIDITY)
-+               return false;
-+       vir =3D sie_get_validity(vm);
-+
-+       return (vir & 0xff00) =3D=3D 0x2000;
- }
-
+     Arnd
