@@ -2,167 +2,123 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F78AC77B7A
-	for <linux-s390@archiver.kernel.org>; Tue, 30 May 2023 22:40:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 20F5BC7EE2E
+	for <linux-s390@archiver.kernel.org>; Wed, 31 May 2023 00:34:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232089AbjE3WkK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 30 May 2023 18:40:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53532 "EHLO
+        id S233854AbjEaAem (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 30 May 2023 20:34:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231796AbjE3WkJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 May 2023 18:40:09 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CDB2F9;
-        Tue, 30 May 2023 15:40:06 -0700 (PDT)
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34ULYYJw032377;
-        Tue, 30 May 2023 22:40:06 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=TPJzW9kl4kqBslNqhKvbULixVDHXrrKhic5x5/KhBUQ=;
- b=A5d/1YJx7YYr7DBKtkuy9z1U28L3u69kygA0F4fRAL6Ehy/vq+jkWrNG6UosRg77oQrY
- ThNs23CzgX07AaNf5nJ0l8kme3VxbSuJu3/zXgspwAntnQZy2rE5hYwOEDJpWWJo7otG
- EXmkEKjKj3F5RZXjmldPrp2cS9jh+49rBk8FjI7hIa98RJe2sTBjhJ32Mnq8ORWXIKch
- 7DYwJV8RiHYXN/gPHAEcGrs7X5jceVOHgUDihH7u3zxNJB76OORESocmg9NEe+Y8TWbR
- L5HG0E3ybYM5Fs1UHbYDrxdbnKmMfrQHV2czl0/0AI7f3P44BSvA9BDLmRr8Anu9G8kC 7g== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qwrpva08f-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 30 May 2023 22:40:05 +0000
-Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34ULt6BX031763;
-        Tue, 30 May 2023 22:40:05 GMT
-Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qwrpva07q-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 30 May 2023 22:40:05 +0000
-Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
-        by ppma03wdc.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34UM4s76003118;
-        Tue, 30 May 2023 22:40:04 GMT
-Received: from smtprelay03.dal12v.mail.ibm.com ([9.208.130.98])
-        by ppma03wdc.us.ibm.com (PPS) with ESMTPS id 3qu9g5ruy6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 30 May 2023 22:40:03 +0000
-Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-        by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34UMe2gQ36045080
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 30 May 2023 22:40:02 GMT
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A8CBE58109;
-        Tue, 30 May 2023 22:35:41 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E58CB58100;
-        Tue, 30 May 2023 22:35:40 +0000 (GMT)
-Received: from li-2c1e724c-2c76-11b2-a85c-ae42eaf3cb3d.ibm.com.com (unknown [9.61.88.233])
-        by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 30 May 2023 22:35:40 +0000 (GMT)
-From:   Tony Krowiak <akrowiak@linux.ibm.com>
-To:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc:     jjherne@linux.ibm.com, pasic@linux.ibm.com, farman@linux.ibm.com,
-        mjrosato@linux.ibm.com, alex.williamson@redhat.com,
-        borntraeger@linux.ibm.com
-Subject: [PATCH 1/3] vfio: ap: realize the VFIO_DEVICE_GET_IRQ_INFO ioctl
-Date:   Tue, 30 May 2023 18:35:36 -0400
-Message-Id: <20230530223538.279198-2-akrowiak@linux.ibm.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20230530223538.279198-1-akrowiak@linux.ibm.com>
-References: <20230530223538.279198-1-akrowiak@linux.ibm.com>
+        with ESMTP id S233634AbjEaAel (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 May 2023 20:34:41 -0400
+Received: from mail-pf1-x42c.google.com (mail-pf1-x42c.google.com [IPv6:2607:f8b0:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6245DC7
+        for <linux-s390@vger.kernel.org>; Tue, 30 May 2023 17:34:18 -0700 (PDT)
+Received: by mail-pf1-x42c.google.com with SMTP id d2e1a72fcca58-64d1e96c082so3761428b3a.1
+        for <linux-s390@vger.kernel.org>; Tue, 30 May 2023 17:34:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1685493257; x=1688085257;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=JjzJiAVnsEiyQDbH42BBgOLAQff4KMyAHDpgZ0nAe7A=;
+        b=Fr1wpaLPOjycQDUz0I9FHQixf/hJgEHVJn5kf6MreLAFhTSbQL71WkdzM+ox20m0tx
+         C9HD+G6BDZUZRour51+FuDaoOjUA+JDaMDVLCuZ/cchVzGaQUwr1O3F3Pnm/3pHE5i9M
+         4pv+/gMbxwXjlbDM+j8gKlrLMcWr+hcNB3Bxk=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1685493257; x=1688085257;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=JjzJiAVnsEiyQDbH42BBgOLAQff4KMyAHDpgZ0nAe7A=;
+        b=P5mQCIkPNXqB94G9T7l2yM2rbAXQL7dm5vGjpdyfANpmHXRoR5opvJlvPy/IUJnjqz
+         Ai4ZVyTNGFnQofUqOcYgbYBiezRvy8KkKeHtxWCiNYCLPQwBJ5dqbeMBpM8ai9NUBIda
+         d67kFXQ/cWyEmkqUpAYZa1GoHCHhLdzGTsN5XwLi+lTX5i9p17VTbYKMgNmn3fXI1KsT
+         MPkNR+r2/wPQK5YTdu971OpKh9P+AYyvuxp1BvMKTEg40kYs1kMsanmQZphDH9OXiAsV
+         Z5NjtaHLb5O1HQPgHrZLs8P6PHpGHvW3UpxOSKRvj9VAy7NELX5YbA37qQ1AuvUt074s
+         2y0A==
+X-Gm-Message-State: AC+VfDwk7oGME+k9ygh77GlKYeJ/QZ065PplP4xUW47rd6ATLvOuyxMR
+        gXyda2AOPGkxzmg6SteSvxTAug==
+X-Google-Smtp-Source: ACHHUZ4X5qDGSuairtVKxDG2yKgUqeM7zao1Gk6IXDkD8LZrD8OgZtIsp8e/0KbWuh7KyootktePNQ==
+X-Received: by 2002:a05:6a20:6f05:b0:10b:a9ca:97bf with SMTP id gt5-20020a056a206f0500b0010ba9ca97bfmr4168184pzb.24.1685493257498;
+        Tue, 30 May 2023 17:34:17 -0700 (PDT)
+Received: from www.outflux.net (198-0-35-241-static.hfc.comcastbusiness.net. [198.0.35.241])
+        by smtp.gmail.com with ESMTPSA id j9-20020aa783c9000000b00640defda6d2sm2122043pfn.207.2023.05.30.17.34.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 30 May 2023 17:34:17 -0700 (PDT)
+From:   Kees Cook <keescook@chromium.org>
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     Kees Cook <keescook@chromium.org>,
+        Thorsten Leemhuis <linux@leemhuis.info>,
+        =?UTF-8?q?Joan=20Bruguera=20Mic=C3=B3?= <joanbrugueram@gmail.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Linux Kernel Functional Testing <lkft@linaro.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-hardening@vger.kernel.org
+Subject: [PATCH] s390/purgatory: Do not use fortified string functions
+Date:   Tue, 30 May 2023 17:34:15 -0700
+Message-Id: <20230531003414.never.050-kees@kernel.org>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1932; h=from:subject:message-id; bh=3fzKBd1zujjv+SG6w7I7Y4v19AUyPzbSQe4ghFml234=; b=owEBbQKS/ZANAwAKAYly9N/cbcAmAcsmYgBkdpYGW+0BpAnJwD3TP9pZ65CDHX9QrJD+lbCVA5TY Tzp9khaJAjMEAAEKAB0WIQSlw/aPIp3WD3I+bhOJcvTf3G3AJgUCZHaWBgAKCRCJcvTf3G3AJs0cEA CiZUiBN0H8c1+y8rgHJICYG74xR2GG2LajP/p9SrpbxhpissdlyzA57ENFt0LF87e87DBVNtNV0Iay E09uGdf/Zb5Dr8ikL26Vyeug7TXOeWjSV9gTC43wG4mg7o4R1G2/SzQ83HJG71ey9w4eyINCv+2Yg4 zDbI6pTvlGUAqkH6bW+lxWZJcIGXHrP4rBB05IAw9lA8KVr+wCznrYPz+tEufVcLywElmC0WqsFHzr rs+VuthL0YG+s97qw3qexp6w4YHh7V1wIls0cHvOto/y3kT5PlyKijuqG+7f6BsHMRH7giF7x5C5un sgOEOY0v3OCHXNIqwm8wwNsWI3JOky0PRo+Sz8Vsh3dDJHk1JZLAj0K5/RWrh47BpmmgjjhI0Uq2zL g/WcmyITo50/UayP+VSE6XtCK8496iNV7lXQ7Xr7AbY6MG+XsILyCKHpv/kyKN8BcKc58UFQGOlq5D pwCuncOlx3OK2bbrCaYZeTAF8cjyJOYRDV4s9cShT/AnE0+dQ3H9krl+o5hjHWk5XTW95ztSVoY92v afgzazipmjg3I+bkS06U/i/J6cwWw6K1TjS+4QUTEYZw2dtPTN3iw9rEtTII+8FFqvVDmsKwE9u75b QO9CYHiDZ+eElpDqrzjXP7bj1IUfjpU1+3FFH2H4o6++IWEeJ31XoEjgzgRQ==
+X-Developer-Key: i=keescook@chromium.org; a=openpgp; fpr=A5C3F68F229DD60F723E6E138972F4DFDC6DC026
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: rIMfy_bbGWeBYY_t41P_H0jvHp--ZmLh
-X-Proofpoint-ORIG-GUID: ecmzekmDYqMNta-qbEwc4nS3joNV4vKt
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
- definitions=2023-05-30_16,2023-05-30_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
- lowpriorityscore=0 suspectscore=0 spamscore=0 mlxscore=0 phishscore=0
- mlxlogscore=999 malwarescore=0 priorityscore=1501 bulkscore=0 adultscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2304280000 definitions=main-2305300184
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Realize the VFIO_DEVICE_GET_IRQ_INFO ioctl to retrieve the information for
-the VFIO device request IRQ.
+With the addition of -fstrict-flex-arrays=3, struct sha256_state's
+trailing array is no longer ignored by CONFIG_FORTIFY_SOURCE:
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+struct sha256_state {
+        u32 state[SHA256_DIGEST_SIZE / 4];
+        u64 count;
+        u8 buf[SHA256_BLOCK_SIZE];
+};
+
+This means that the memcpy() calls with "buf" as a destination in
+sha256.c's code will attempt to perform run-time bounds checking, which
+could lead to calling missing functions, specifically a potential
+WARN_ONCE, which isn't callable from purgatory.
+
+Reported-by: Thorsten Leemhuis <linux@leemhuis.info>
+Closes: https://lore.kernel.org/lkml/175578ec-9dec-7a9c-8d3a-43f24ff86b92@leemhuis.info/
+Bisected-by: "Joan Bruguera Micó" <joanbrugueram@gmail.com>
+Fixes: df8fc4e934c1 ("kbuild: Enable -fstrict-flex-arrays=3")
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>
+Cc: Masahiro Yamada <masahiroy@kernel.org>
+Cc: Linux Kernel Functional Testing <lkft@linaro.org>
+Cc: Nathan Chancellor <nathan@kernel.org>
+Cc: "Gustavo A. R. Silva" <gustavoars@kernel.org>
+Cc: linux-s390@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
 ---
- drivers/s390/crypto/vfio_ap_ops.c | 30 +++++++++++++++++++++++++++++-
- include/uapi/linux/vfio.h         |  9 +++++++++
- 2 files changed, 38 insertions(+), 1 deletion(-)
+ arch/s390/purgatory/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index cfbcb864ab63..35cd90eee937 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -1750,7 +1750,32 @@ static int vfio_ap_mdev_get_device_info(unsigned long arg)
+diff --git a/arch/s390/purgatory/Makefile b/arch/s390/purgatory/Makefile
+index 32573b4f9bd2..cf14740abd1c 100644
+--- a/arch/s390/purgatory/Makefile
++++ b/arch/s390/purgatory/Makefile
+@@ -10,7 +10,7 @@ PURGATORY_OBJS = $(addprefix $(obj)/,$(purgatory-y))
+ $(obj)/sha256.o: $(srctree)/lib/crypto/sha256.c FORCE
+ 	$(call if_changed_rule,cc_o_c)
  
- 	info.flags = VFIO_DEVICE_FLAGS_AP | VFIO_DEVICE_FLAGS_RESET;
- 	info.num_regions = 0;
--	info.num_irqs = 0;
-+	info.num_irqs = VFIO_AP_NUM_IRQS;
-+
-+	return copy_to_user((void __user *)arg, &info, minsz) ? -EFAULT : 0;
-+}
-+
-+static ssize_t vfio_ap_get_irq_info(unsigned long arg)
-+{
-+	unsigned long minsz;
-+	struct vfio_irq_info info;
-+
-+	minsz = offsetofend(struct vfio_irq_info, count);
-+
-+	if (copy_from_user(&info, (void __user *)arg, minsz))
-+		return -EFAULT;
-+
-+	if (info.argsz < minsz || info.index >= VFIO_AP_NUM_IRQS)
-+		return -EINVAL;
-+
-+	switch (info.index) {
-+	case VFIO_AP_REQ_IRQ_INDEX:
-+		info.count = 1;
-+		info.flags = VFIO_IRQ_INFO_EVENTFD;
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
+-CFLAGS_sha256.o := -D__DISABLE_EXPORTS
++CFLAGS_sha256.o := -D__DISABLE_EXPORTS -D__NO_FORTIFY
  
- 	return copy_to_user((void __user *)arg, &info, minsz) ? -EFAULT : 0;
- }
-@@ -1770,6 +1795,9 @@ static ssize_t vfio_ap_mdev_ioctl(struct vfio_device *vdev,
- 	case VFIO_DEVICE_RESET:
- 		ret = vfio_ap_mdev_reset_queues(&matrix_mdev->qtable);
- 		break;
-+	case VFIO_DEVICE_GET_IRQ_INFO:
-+			ret = vfio_ap_get_irq_info(arg);
-+			break;
- 	default:
- 		ret = -EOPNOTSUPP;
- 		break;
-diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
-index 0552e8dcf0cb..b71276bd7f91 100644
---- a/include/uapi/linux/vfio.h
-+++ b/include/uapi/linux/vfio.h
-@@ -646,6 +646,15 @@ enum {
- 	VFIO_CCW_NUM_IRQS
- };
- 
-+/*
-+ * The vfio-ap bus driver makes use of the following IRQ index mapping.
-+ * Unimplemented IRQ types return a count of zero.
-+ */
-+enum {
-+	VFIO_AP_REQ_IRQ_INDEX,
-+	VFIO_AP_NUM_IRQS
-+};
-+
- /**
-  * VFIO_DEVICE_GET_PCI_HOT_RESET_INFO - _IOWR(VFIO_TYPE, VFIO_BASE + 12,
-  *					      struct vfio_pci_hot_reset_info)
+ $(obj)/mem.o: $(srctree)/arch/s390/lib/mem.S FORCE
+ 	$(call if_changed_rule,as_o_S)
 -- 
-2.31.1
+2.34.1
 
