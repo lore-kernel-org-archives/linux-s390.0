@@ -2,42 +2,42 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 07743C7EE33
-	for <linux-s390@archiver.kernel.org>; Wed, 31 May 2023 13:28:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 774F5C7EE33
+	for <linux-s390@archiver.kernel.org>; Wed, 31 May 2023 13:28:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236302AbjEaN2U (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 31 May 2023 09:28:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47404 "EHLO
+        id S236505AbjEaN2j (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 31 May 2023 09:28:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231836AbjEaN2T (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 31 May 2023 09:28:19 -0400
+        with ESMTP id S236347AbjEaN2V (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 31 May 2023 09:28:21 -0400
 Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0145C0;
-        Wed, 31 May 2023 06:28:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26E48123;
+        Wed, 31 May 2023 06:28:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
         Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
         Content-ID:Content-Description:In-Reply-To;
-        bh=YmtjcG8l219y7/fwmL50Z5SyZj2N/Dfw7Oi4KDcDI7Q=; b=EJ3ZB+xFh9CWEpg5yrG6OprVJc
-        4KY9jm91TcbrWOishlejJY5DbVF4mvlHugJmUDSsE/LkTcn4aim13LF+VunBmsPU6byCiTEoAXFtd
-        PMY9zcKVyFfala+gu6tRVAh8pqQ01ufwI6rMYp7FCuX9C5mYnmZzPRiAM2anoIyZGo4A+qMj6+whs
-        fEmcz0eNH94T1AESxYBFQUp4+DmILfWmyLz1Mx+MZvVIgDEzwKNwADbrfOqw3qVGm86SmNMGYmkIt
-        gygTW9IHI214IRvW/eG2FY8W+9D4Iq6PvRg/jFdhrZleggC2VWlbR3HPvZmIIrMcseVeHlANgsyCs
-        01q0OpaA==;
+        bh=OYq3F8aZwPPC/Y8UsexFdal3aiucmNsqQObmCMz9zjE=; b=LIi2st653mrq+qr82jZjSZoSMu
+        b4IdGvoFjlZSfW2/JQDfIQgkhRmizDc+3i69fP7F75A4WAkEYw/JPtYzsJYXvDjOlO3lYqV3CTQG2
+        W5QHSm3lF3LRIXC6DORpHYE0GY/d/aV+oN7w/SrBOka2MUxnFUNUBPn6uIzvLTkgZCknrMs9/URJT
+        jHAuSX05RfqOvsyIyF/kFoW7hbFpLP/c+WXZHzxrpS37v59bTdQPKeQCwIDOzbrtY2xMJrtSDtp8c
+        jQSyhSMxk2M6L9+FSzaQWKUsmX61W6UzXzdaMQ0wKEbO8TRWRg4MO80O6dbE/9Vv3BMgIz9xTSMYB
+        XK7W6Mcg==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
         by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1q4LrG-007IIk-36; Wed, 31 May 2023 13:27:22 +0000
+        id 1q4LrH-007IJW-3w; Wed, 31 May 2023 13:27:23 +0000
 Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (4096 bits))
         (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id F357830068D;
-        Wed, 31 May 2023 15:27:16 +0200 (CEST)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 55A95300C0E;
+        Wed, 31 May 2023 15:27:21 +0200 (CEST)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
-        id 7D554243B69D8; Wed, 31 May 2023 15:27:16 +0200 (CEST)
-Message-ID: <20230531132323.314826687@infradead.org>
+        id 95BD0243B856F; Wed, 31 May 2023 15:27:16 +0200 (CEST)
+Message-ID: <20230531132323.722039569@infradead.org>
 User-Agent: quilt/0.66
-Date:   Wed, 31 May 2023 15:08:34 +0200
+Date:   Wed, 31 May 2023 15:08:40 +0200
 From:   Peter Zijlstra <peterz@infradead.org>
 To:     torvalds@linux-foundation.org
 Cc:     corbet@lwn.net, will@kernel.org, peterz@infradead.org,
@@ -60,7 +60,7 @@ Cc:     corbet@lwn.net, will@kernel.org, peterz@infradead.org,
         linux-crypto@vger.kernel.org, sfr@canb.auug.org.au,
         mpe@ellerman.id.au, James.Bottomley@hansenpartnership.com,
         deller@gmx.de, linux-parisc@vger.kernel.org
-Subject: [PATCH 01/12] cyrpto/b128ops: Remove struct u128
+Subject: [PATCH 07/12] percpu: #ifndef __SIZEOF_INT128__
 References: <20230531130833.635651916@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -68,52 +68,110 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Per git-grep u128_xor() and its related struct u128 are unused except
-to implement {be,le}128_xor(). Remove them to free up the namespace.
+Some 64bit architectures do not advertise __SIZEOF_INT128__ on all
+supported compiler versions. Notably the HPPA64 only started doing
+with GCC-11.
+
+Since the per-cpu ops are universally availably, and
+this_cpu_{,try_}cmpxchg128() is expected to be available on all 64bit
+architectures a wee bodge is in order.
+
+Sadly, while C reverts to memcpy() for assignment of POD types, it does
+not revert to memcmp() for for equality. Therefore frob that manually.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
 ---
- include/crypto/b128ops.h |   14 +++-----------
- 1 file changed, 3 insertions(+), 11 deletions(-)
+ include/asm-generic/percpu.h |   56 +++++++++++++++++++++++++++++++++++++++++++
+ include/linux/types.h        |    7 +++++
+ 2 files changed, 63 insertions(+)
 
---- a/include/crypto/b128ops.h
-+++ b/include/crypto/b128ops.h
-@@ -50,10 +50,6 @@
- #include <linux/types.h>
+--- a/include/asm-generic/percpu.h
++++ b/include/asm-generic/percpu.h
+@@ -313,6 +313,35 @@ do {									\
+ #define raw_cpu_xchg_8(pcp, nval)	raw_cpu_generic_xchg(pcp, nval)
+ #endif
  
- typedef struct {
--	u64 a, b;
--} u128;
--
--typedef struct {
- 	__be64 a, b;
- } be128;
++#ifndef __SIZEOF_INT128__
++#define raw_cpu_generic_try_cmpxchg_memcmp(pcp, ovalp, nval)		\
++({									\
++	typeof(pcp) *__p = raw_cpu_ptr(&(pcp));				\
++	typeof(pcp) __val = *__p, __old = *(ovalp);			\
++	bool __ret;							\
++	if (!__builtin_memcmp(&__val, &__old, sizeof(pcp))) {		\
++		*__p = nval;						\
++		__ret = true;						\
++	} else {							\
++		*(ovalp) = __val;					\
++		__ret = false;						\
++	}								\
++	__ret;								\
++})
++
++#define raw_cpu_generic_cmpxchg_memcmp(pcp, oval, nval)			\
++({									\
++	typeof(pcp) __old = (oval);					\
++	raw_cpu_generic_try_cmpxchg_memcpy(pcp, &__old, nval);		\
++	__old;								\
++})
++
++#define raw_cpu_cmpxchg128(pcp, oval, nval) \
++	raw_cpu_generic_cmpxchg_memcmp(pcp, oval, nval)
++#define raw_cpu_try_cmpxchg128(pcp, ovalp, nval) \
++	raw_cpu_generic_try_cmpxchg_memcmp(pcp, ovalp, nval)
++#endif
++
+ #ifndef raw_cpu_try_cmpxchg_1
+ #ifdef raw_cpu_cmpxchg_1
+ #define raw_cpu_try_cmpxchg_1(pcp, ovalp, nval) \
+@@ -503,6 +532,33 @@ do {									\
+ #define this_cpu_xchg_8(pcp, nval)	this_cpu_generic_xchg(pcp, nval)
+ #endif
  
-@@ -61,20 +57,16 @@ typedef struct {
- 	__le64 b, a;
- } le128;
++#ifndef __SIZEOF_INT128__
++#define this_cpu_generic_try_cmpxchg_memcmp(pcp, ovalp, nval)		\
++({									\
++	bool __ret;							\
++	unsigned long __flags;						\
++	raw_local_irq_save(__flags);					\
++	__ret = raw_cpu_generic_try_cmpxchg_memcmp(pcp, ovalp, nval);	\
++	raw_local_irq_restore(__flags);					\
++	__ret;								\
++})
++
++#define this_cpu_generic_cmpxchg_memcmp(pcp, oval, nval)		\
++({									\
++	typeof(pcp) __ret;						\
++	unsigned long __flags;						\
++	raw_local_irq_save(__flags);					\
++	__ret = raw_cpu_generic_cmpxchg_memcmp(pcp, oval, nval);	\
++	raw_local_irq_restore(__flags);					\
++	__ret;								\
++})
++
++#define this_cpu_cmpxchg128(pcp, oval, nval) \
++	this_cpu_generic_cmpxchg_memcmp(pcp, oval, nval)
++#define this_cpu_try_cmpxchg128(pcp, ovalp, nval) \
++	this_cpu_generic_try_cmpxchg_memcmp(pcp, ovalp, nval)
++#endif
++
+ #ifndef this_cpu_try_cmpxchg_1
+ #ifdef this_cpu_cmpxchg_1
+ #define this_cpu_try_cmpxchg_1(pcp, ovalp, nval) \
+--- a/include/linux/types.h
++++ b/include/linux/types.h
+@@ -13,6 +13,13 @@
+ #ifdef __SIZEOF_INT128__
+ typedef __s128 s128;
+ typedef __u128 u128;
++#else
++#ifdef CONFIG_64BIT
++/* hack for this_cpu_cmpxchg128 */
++typedef struct {
++	u64 a, b;
++} u128 __attribute__((aligned(16)));
++#endif
+ #endif
  
--static inline void u128_xor(u128 *r, const u128 *p, const u128 *q)
-+static inline void be128_xor(be128 *r, const be128 *p, const be128 *q)
- {
- 	r->a = p->a ^ q->a;
- 	r->b = p->b ^ q->b;
- }
- 
--static inline void be128_xor(be128 *r, const be128 *p, const be128 *q)
--{
--	u128_xor((u128 *)r, (u128 *)p, (u128 *)q);
--}
--
- static inline void le128_xor(le128 *r, const le128 *p, const le128 *q)
- {
--	u128_xor((u128 *)r, (u128 *)p, (u128 *)q);
-+	r->a = p->a ^ q->a;
-+	r->b = p->b ^ q->b;
- }
- 
- #endif /* _CRYPTO_B128OPS_H */
+ typedef u32 __kernel_dev_t;
 
 
