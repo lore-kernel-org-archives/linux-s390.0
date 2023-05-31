@@ -2,147 +2,122 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C1FD7C77B73
-	for <linux-s390@archiver.kernel.org>; Wed, 31 May 2023 09:38:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 02EB7C77B7C
+	for <linux-s390@archiver.kernel.org>; Wed, 31 May 2023 10:37:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235585AbjEaJi5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 31 May 2023 05:38:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41852 "EHLO
+        id S232374AbjEaKhX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 31 May 2023 06:37:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235597AbjEaJis (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 31 May 2023 05:38:48 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A6CA113
-        for <linux-s390@vger.kernel.org>; Wed, 31 May 2023 02:38:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1685525887;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=bGxc4eRfK6pbwqqh2NtDpBVJvcM3fuyjggZTA4cPMnI=;
-        b=WG0mMi/DxzWJI2byMwwr7rqtQdX+WnE9CjnuqDVSlpo2Vhpz18rUps7c+b79cbyjqT+cuu
-        6bvYa6ZwprX21RGP3o2h9FKSSIBWddwuGLCHKg5PIP66Dq1VWUUA/s+iDzh73rXY+JGPHP
-        iCziwD+RRQvXgUXpn1jCZ9c7C9d45bc=
-Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
- [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-54-hhSHkykGOh6p-HMayNanQw-1; Wed, 31 May 2023 05:38:05 -0400
-X-MC-Unique: hhSHkykGOh6p-HMayNanQw-1
-Received: by mail-lf1-f72.google.com with SMTP id 2adb3069b0e04-4f517b5309cso874272e87.1
-        for <linux-s390@vger.kernel.org>; Wed, 31 May 2023 02:38:05 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1685525884; x=1688117884;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=bGxc4eRfK6pbwqqh2NtDpBVJvcM3fuyjggZTA4cPMnI=;
-        b=cAlfpF3igR8Z/h1tyBKDbjo6+LBd24VutpQ6ytHYeTdG0BpIlBTAetIupGzPitTXMJ
-         7rV9z9gDX2tUz5bg5+wiBCc2p8EPch25KcDaTXgaGpD7gQRfqG/vt1E/4bzldDLcPpY6
-         I8LG5ZdAqHIwXMAEd/OtV/wReGdOuwa1ElbPnlUeBTNTIopRddoPfI4rcXqhT3IJh+n5
-         3CLIQusQ/LEjEGMpWB6KkhxJHiTdZAN5jFcz14je4gAbezrUFeyy9+YmxgxbJA1M4UaR
-         BVKuNdTOJV3fatfxdlCyU6ZScx8JWMlcJ9v/FuUdulpwcuRiIMDnrrZV64k/tYadleqs
-         BtoA==
-X-Gm-Message-State: AC+VfDySShOXs9GM8+FvEhSnYu6PHGVI2Ts4QC/CSvHSvyKVGUIHXOAa
-        4cGoaBxt4BTq9L/GSYoEw9Cevx/51IdqUNP/h1Xd72L+wLnc1RGX0g1twGSxfgQ6bRaFLnSRii2
-        fRzJXpFTcjJQBHjBUhLRW3A==
-X-Received: by 2002:ac2:43dc:0:b0:4f1:3bd7:e53a with SMTP id u28-20020ac243dc000000b004f13bd7e53amr2255707lfl.49.1685525884432;
-        Wed, 31 May 2023 02:38:04 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ7ZhKAnRMcKLkCdLj+6eqisJiHpOFurOIspfewhQhx3pSYMQ1GSECzcGpZqw6YxX6XDmQp2hQ==
-X-Received: by 2002:ac2:43dc:0:b0:4f1:3bd7:e53a with SMTP id u28-20020ac243dc000000b004f13bd7e53amr2255690lfl.49.1685525884068;
-        Wed, 31 May 2023 02:38:04 -0700 (PDT)
-Received: from ?IPV6:2a01:e0a:280:24f0:eb4a:c9d8:c8bb:c0b0? ([2a01:e0a:280:24f0:eb4a:c9d8:c8bb:c0b0])
-        by smtp.gmail.com with ESMTPSA id x13-20020a5d54cd000000b003063db8f45bsm6157419wrv.23.2023.05.31.02.38.02
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 31 May 2023 02:38:03 -0700 (PDT)
-Message-ID: <cdd8953e-2187-32f7-bb3c-aaf54581775d@redhat.com>
-Date:   Wed, 31 May 2023 11:38:01 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.10.0
-Subject: Re: [PATCH net v2] net/mlx5: Fix setting of irq->map.index for static
- IRQ case
-Content-Language: en-US
-To:     Niklas Schnelle <schnelle@linux.ibm.com>,
-        Shay Drory <shayd@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Eli Cohen <elic@nvidia.com>, Leon Romanovsky <leon@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>
-Cc:     netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Simon Horman <simon.horman@corigine.com>,
-        linux-rdma@vger.kernel.org
-References: <20230531084856.2091666-1-schnelle@linux.ibm.com>
-From:   =?UTF-8?Q?C=c3=a9dric_Le_Goater?= <clegoate@redhat.com>
-In-Reply-To: <20230531084856.2091666-1-schnelle@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+        with ESMTP id S231829AbjEaKhQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 31 May 2023 06:37:16 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF41BB3;
+        Wed, 31 May 2023 03:37:15 -0700 (PDT)
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34V9b6wr028808;
+        Wed, 31 May 2023 10:37:13 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : content-transfer-encoding : mime-version; s=pp1;
+ bh=bKeT5GTqgF+vsiHsWxnmPry5jfAZQAR6idVy2R86zlU=;
+ b=WwytYHzRVWhaj+/5kjkBDHFKNm2hxR9udN8w28dJPReu3dxBvMFFvRrO/BYnzX3833VV
+ Cjyj/o4Va8cp8EKGTkDTBNM/7AWqbvoB/MNu06X2FFafLycrmSbIAnx6EkR4nyz2138r
+ u4j2+G066ytvs96f4acKhbbD/55kwYS3rBJUFg9qlSyG4ev0xZYNTLREh6uLwH1bYG/e
+ 2RsGNI13GnKoH0eIX+TX8SyK2+msJBswv3CbureO6EDT7yu7ehTm6sdtuZqBcbZRC/as
+ v0RFg9VH6yzBnzOMUyh+oa/l6WskPOL41IT582p5fKV7/kMMXBRmVrobWbP75Yfw9IjX GA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qwjvftvta-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 31 May 2023 10:37:12 +0000
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34VAa8EX023460;
+        Wed, 31 May 2023 10:37:12 GMT
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qwjvfttq3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 31 May 2023 10:37:12 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34V48EEL008758;
+        Wed, 31 May 2023 10:32:32 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma06fra.de.ibm.com (PPS) with ESMTPS id 3qu94e9mea-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 31 May 2023 10:32:31 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34VAWSmg46072484
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 31 May 2023 10:32:28 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 644FC2004B;
+        Wed, 31 May 2023 10:32:28 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0D3CB20040;
+        Wed, 31 May 2023 10:32:28 +0000 (GMT)
+Received: from t35lp63.lnxne.boe (unknown [9.152.108.100])
+        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 31 May 2023 10:32:27 +0000 (GMT)
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com,
+        pbonzini@redhat.com, andrew.jones@linux.dev, david@redhat.com
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [kvm-unit-tests PATCH v1] runtime: don't run pv-host tests when gen-se-header is unavailable
+Date:   Wed, 31 May 2023 12:32:27 +0200
+Message-Id: <20230531103227.1385324-1-nrb@linux.ibm.com>
+X-Mailer: git-send-email 2.39.1
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: WUJ_iLDaQOT9q3gQKkHIuEHYtHeaFc0Y
+X-Proofpoint-GUID: GPALIMW6yYBsieCiJHCI1gCGP4gCCz9y
 Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
+ definitions=2023-05-31_06,2023-05-31_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 suspectscore=0
+ mlxlogscore=999 adultscore=0 priorityscore=1501 lowpriorityscore=0
+ bulkscore=0 mlxscore=0 impostorscore=0 phishscore=0 spamscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2304280000 definitions=main-2305310092
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 5/31/23 10:48, Niklas Schnelle wrote:
-> When dynamic IRQ allocation is not supported all IRQs are allocated up
-> front in mlx5_irq_table_create() instead of dynamically as part of
-> mlx5_irq_alloc(). In the latter dynamic case irq->map.index is set
-> via the mapping returned by pci_msix_alloc_irq_at(). In the static case
-> and prior to commit 1da438c0ae02 ("net/mlx5: Fix indexing of mlx5_irq")
-> irq->map.index was set in mlx5_irq_alloc() twice once initially to 0 and
-> then to the requested index before storing in the xarray. After this
-> commit it is only set to 0 which breaks all other IRQ mappings.
-> 
-> Fix this by setting irq->map.index to the requested index together with
-> irq->map.virq and improve the related comment to make it clearer which
-> cases it deals with.
-> 
-> Tested-by: Mark Brown <broonie@kernel.org>
-> Reviewed-by: Mark Brown <broonie@kernel.org>
-> Reviewed-by: Simon Horman <simon.horman@corigine.com>
-> Reviewed-by: Eli Cohen <elic@nvidia.com>
-> Fixes: 1da438c0ae02 ("net/mlx5: Fix indexing of mlx5_irq")
-> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+When the gen-se-header tool is not given as an argument to configure,
+all tests which act as a PV host will not be built by the makefiles.
 
-I was seeing the issue on a zLPAR with a mlx5 VF device. The patch fixes it.
+run_tests.sh will fail when a test binary is missing. This means
+when we add the pv-host tests to unittest.cfg we will have FAILs when
+gen-se-header is missing.
 
-Tested-by: Cédric Le Goater <clg@redhat.com>
+Since it is desirable to have the tests in unittest.cfg, add a new group
+pv-host which designates tests that act as a PV host. These will only
+run if the gen-se-header tool is available.
 
-Thanks,
+The pv-host group is currently not used, but will be with Janoschs
+series "s390x: Add PV SIE intercepts and ipl tests" here:
+https://lore.kernel.org/all/20230502115931.86280-1-frankja@linux.ibm.com/
 
-C.
+Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+---
+ scripts/runtime.bash | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-
-
-> ---
-> v1 -> v2:
-> - Added R-bs/Acks
-> - Fixed typos in commit message
-> 
->   drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c | 9 +++++----
->   1 file changed, 5 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c b/drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c
-> index db5687d9fec9..fd5b43e8f3bb 100644
-> --- a/drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c
-> +++ b/drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c
-> @@ -232,12 +232,13 @@ struct mlx5_irq *mlx5_irq_alloc(struct mlx5_irq_pool *pool, int i,
->   	if (!irq)
->   		return ERR_PTR(-ENOMEM);
->   	if (!i || !pci_msix_can_alloc_dyn(dev->pdev)) {
-> -		/* The vector at index 0 was already allocated.
-> -		 * Just get the irq number. If dynamic irq is not supported
-> -		 * vectors have also been allocated.
-> +		/* The vector at index 0 is always statically allocated. If
-> +		 * dynamic irq is not supported all vectors are statically
-> +		 * allocated. In both cases just get the irq number and set
-> +		 * the index.
->   		 */
->   		irq->map.virq = pci_irq_vector(dev->pdev, i);
-> -		irq->map.index = 0;
-> +		irq->map.index = i;
->   	} else {
->   		irq->map = pci_msix_alloc_irq_at(dev->pdev, MSI_ANY_INDEX, af_desc);
->   		if (!irq->map.virq) {
+diff --git a/scripts/runtime.bash b/scripts/runtime.bash
+index 07b62b0e1fe7..486dbeda8179 100644
+--- a/scripts/runtime.bash
++++ b/scripts/runtime.bash
+@@ -98,6 +98,11 @@ function run()
+         return
+     fi
+ 
++    if [ -z "$GEN_SE_HEADER" ] && find_word "pv-host" "$groups"; then
++        print_result "SKIP" $testname "" "no gen-se-header available for pv-host test"
++        return
++    fi
++
+     if [ -z "$only_group" ] && find_word nodefault "$groups" &&
+             skip_nodefault; then
+         print_result "SKIP" $testname "" "test marked as manual run only"
+-- 
+2.39.1
 
