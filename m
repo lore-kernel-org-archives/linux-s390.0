@@ -2,251 +2,93 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D82FC77B73
-	for <linux-s390@archiver.kernel.org>; Wed, 31 May 2023 22:19:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 95BAEC77B7A
+	for <linux-s390@archiver.kernel.org>; Wed, 31 May 2023 22:46:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229933AbjEaWTX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 31 May 2023 18:19:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41552 "EHLO
+        id S231316AbjEaWqZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 31 May 2023 18:46:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54182 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229648AbjEaWTW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 31 May 2023 18:19:22 -0400
-Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C8A0107
-        for <linux-s390@vger.kernel.org>; Wed, 31 May 2023 15:19:21 -0700 (PDT)
-Received: by mail-pl1-x635.google.com with SMTP id d9443c01a7336-1b025aaeddbso23975ad.1
-        for <linux-s390@vger.kernel.org>; Wed, 31 May 2023 15:19:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1685571561; x=1688163561;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=nRWZmpqRL5XiZgWOPMSUq0KvjrtvR8XR5rQAecF0oZ4=;
-        b=iFly5zo2sy/lAtQ3HhlOMridVqfu6qfPcrLzIVcmWu/D50gTe+1qsog0OpXKba34AM
-         7esxxoXOZgU2b+4rTYCP+2F/ejY/GbJXfa8A0sXnuFj7+DxPAktAXb+wGoZtLoXg5tim
-         8FVVTy8jjyDam8f/fgX6o6yBT5D2Ux5xVafJN8A3GMDq9V/Or1MzonxwP3QsfC+snDRI
-         SG3rH2NlTWHLM+fLjB0A3DIE2aVMGT4l8yR+KOkWkwY4wfKWwzHbJ5Lt9eMn+eI2VQ5P
-         tEC9elQXXr9HqOHN0kX0stjJ0Pj3TwUHQMpx82B74M3E43CdU87AkDrhxLhNvlnutHZ1
-         tGhw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1685571561; x=1688163561;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=nRWZmpqRL5XiZgWOPMSUq0KvjrtvR8XR5rQAecF0oZ4=;
-        b=R0jyx1EXHJCf8n/WKYGsDjdWzbxL3aWYfpxeSxuwE9Nw8upvjMrWRjI26dEMbJu7YP
-         jFLUu3YSf7GhmLzsqmnPhJitCl9nVqT6lxIecwwS2FtiIFkRHYfiMmu7uhWRZ6Kxw0y9
-         uv+R9o+WZW8586I06ElBjPGy4iBCXAr9sQh0cJGYlmCRuhLaxh965WtsYCY4IW0SyJ/3
-         2lQS734RknmfAmzV3oWc/LTvbe+eXRvAt0mVW/5+/quObLGhjlKuqnMcDzRSFT6AydWr
-         WBXWrl3FT9RQJc45skn3z5eJlVEwBplavx2PaWja3KrgjuEYfP+f7zMmFj71jt7pJgtd
-         m1LA==
-X-Gm-Message-State: AC+VfDxa+X0cW51ejv62Fdq61jlsVIXodisMEaa1WqQZT8+Q7hAot7Yd
-        6epltp0ka3sAG5eafQxGlwu/lujgGRsE5EP1Da+F3A==
-X-Google-Smtp-Source: ACHHUZ7bko0KTAnjbjNbOVblk4XWzcVkxerfCOFFo5yNT5TaXIaEurY3iGbtCSYhOAX0x9zwiXMTvT/Osanj9HTXgSc=
-X-Received: by 2002:a17:902:e54e:b0:1b0:4a2:5920 with SMTP id
- n14-20020a170902e54e00b001b004a25920mr13931plf.19.1685571560674; Wed, 31 May
- 2023 15:19:20 -0700 (PDT)
+        with ESMTP id S231183AbjEaWqY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 31 May 2023 18:46:24 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D323107;
+        Wed, 31 May 2023 15:46:24 -0700 (PDT)
+From:   Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1685573181;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=XIzF93UFC/GVQtUvE2kmelWoKlJPXu6KUTtN32GYwuQ=;
+        b=V4DPu0J+97KAWG7BljWcm9M0WHGm0oFGKQ9g9wUUxSN/LO+zWjV49iPI6Hjj/IGOqwKOzL
+        OKMHt/kgS2Fj9wNQS6JZayL1xRB9qL9ZZldaosbz1V1k9FxIHU6k2qLJavO1ixGoKcogJs
+        dfZ7awEDuxELHzHUTjUKYb9MF7auj7T+0Arlp4+wGURQesGYcA+i/Gav86bIj4ZeY7uZ65
+        eyAMN4aSzumzjtyV2OwLrGFWz++MQrew4U7nnl19oUAf7FzSFj19Bm5tsCKpriSHbOQuyL
+        a1u0FiRhzzXZbPsuEmwrEl4gDw/ygdWkCBFUo9xjAi5Hec85szOvFlw1OczFiA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1685573181;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=XIzF93UFC/GVQtUvE2kmelWoKlJPXu6KUTtN32GYwuQ=;
+        b=F+YyJiH1yOM9XIjwob6LO4nIlHL224W6az+hPOCyNCD6y/jiPsX75Y75sIr2xcGCLe3HlM
+        BEwcjfldmbxSEWDg==
+To:     Peter Zijlstra <peterz@infradead.org>, bigeasy@linutronix.de
+Cc:     mark.rutland@arm.com, maz@kernel.org, catalin.marinas@arm.com,
+        will@kernel.org, chenhuacai@kernel.org, kernel@xen0n.name,
+        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        pbonzini@redhat.com, wanpengli@tencent.com, vkuznets@redhat.com,
+        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
+        x86@kernel.org, hpa@zytor.com, jgross@suse.com,
+        boris.ostrovsky@oracle.com, daniel.lezcano@linaro.org,
+        kys@microsoft.com, haiyangz@microsoft.com, wei.liu@kernel.org,
+        decui@microsoft.com, rafael@kernel.org, peterz@infradead.org,
+        longman@redhat.com, boqun.feng@gmail.com, pmladek@suse.com,
+        senozhatsky@chromium.org, rostedt@goodmis.org,
+        john.ogness@linutronix.de, juri.lelli@redhat.com,
+        vincent.guittot@linaro.org, dietmar.eggemann@arm.com,
+        bsegall@google.com, mgorman@suse.de, bristot@redhat.com,
+        vschneid@redhat.com, jstultz@google.com, sboyd@kernel.org,
+        linux-kernel@vger.kernel.org, loongarch@lists.linux.dev,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        linux-hyperv@vger.kernel.org, linux-pm@vger.kernel.org
+Subject: Re: [PATCH v2 08/13] x86/vdso: Fix gettimeofday masking
+In-Reply-To: <87r0qwfrm0.ffs@tglx>
+References: <20230519102058.581557770@infradead.org>
+ <20230519102715.704767397@infradead.org> <87r0qwfrm0.ffs@tglx>
+Date:   Thu, 01 Jun 2023 00:46:20 +0200
+Message-ID: <87y1l4dsqr.ffs@tglx>
 MIME-Version: 1.0
-References: <35e983f5-7ed3-b310-d949-9ae8b130cdab@google.com>
- <2e9996fa-d238-e7c-1194-834a2bd1f60@google.com> <CAG48ez0aF1Rf1apSjn9YcnfyFQ4YqSd4GqB6f2wfhF7jMdi5Hg@mail.gmail.com>
- <ZHe0A079X9B8jWlH@x1n>
-In-Reply-To: <ZHe0A079X9B8jWlH@x1n>
-From:   Jann Horn <jannh@google.com>
-Date:   Thu, 1 Jun 2023 00:18:43 +0200
-Message-ID: <CAG48ez1UNFfpTUph6ZMuN61CoTGne05NLAweL_=ijRfqj5evMg@mail.gmail.com>
-Subject: Re: [PATCH 09/12] mm/khugepaged: retract_page_tables() without mmap
- or vma lock
-To:     Peter Xu <peterx@redhat.com>
-Cc:     Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        David Hildenbrand <david@redhat.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Qi Zheng <zhengqi.arch@bytedance.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        Ralph Campbell <rcampbell@nvidia.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Steven Price <steven.price@arm.com>,
-        SeongJae Park <sj@kernel.org>,
-        Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Zack Rusin <zackr@vmware.com>, Jason Gunthorpe <jgg@ziepe.ca>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Pasha Tatashin <pasha.tatashin@soleen.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        Song Liu <song@kernel.org>,
-        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
-        Russell King <linux@armlinux.org.uk>,
-        "David S. Miller" <davem@davemloft.net>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, May 31, 2023 at 10:54=E2=80=AFPM Peter Xu <peterx@redhat.com> wrote=
-:
-> On Wed, May 31, 2023 at 05:34:58PM +0200, Jann Horn wrote:
-> > On Mon, May 29, 2023 at 8:25=E2=80=AFAM Hugh Dickins <hughd@google.com>=
- wrote:
-> > > -static int retract_page_tables(struct address_space *mapping, pgoff_=
-t pgoff,
-> > > -                              struct mm_struct *target_mm,
-> > > -                              unsigned long target_addr, struct page=
- *hpage,
-> > > -                              struct collapse_control *cc)
-> > > +static void retract_page_tables(struct address_space *mapping, pgoff=
-_t pgoff)
-> > >  {
-> > >         struct vm_area_struct *vma;
-> > > -       int target_result =3D SCAN_FAIL;
-> > >
-> > > -       i_mmap_lock_write(mapping);
-> > > +       i_mmap_lock_read(mapping);
-> > >         vma_interval_tree_foreach(vma, &mapping->i_mmap, pgoff, pgoff=
-) {
-> > > -               int result =3D SCAN_FAIL;
-> > > -               struct mm_struct *mm =3D NULL;
-> > > -               unsigned long addr =3D 0;
-> > > -               pmd_t *pmd;
-> > > -               bool is_target =3D false;
-> > > +               struct mm_struct *mm;
-> > > +               unsigned long addr;
-> > > +               pmd_t *pmd, pgt_pmd;
-> > > +               spinlock_t *pml;
-> > > +               spinlock_t *ptl;
-> > >
-> > >                 /*
-> > >                  * Check vma->anon_vma to exclude MAP_PRIVATE mapping=
-s that
-> > > -                * got written to. These VMAs are likely not worth in=
-vesting
-> > > -                * mmap_write_lock(mm) as PMD-mapping is likely to be=
- split
-> > > -                * later.
-> > > +                * got written to. These VMAs are likely not worth re=
-moving
-> > > +                * page tables from, as PMD-mapping is likely to be s=
-plit later.
-> > >                  *
-> > > -                * Note that vma->anon_vma check is racy: it can be s=
-et up after
-> > > -                * the check but before we took mmap_lock by the faul=
-t path.
-> > > -                * But page lock would prevent establishing any new p=
-tes of the
-> > > -                * page, so we are safe.
-> > > -                *
-> > > -                * An alternative would be drop the check, but check =
-that page
-> > > -                * table is clear before calling pmdp_collapse_flush(=
-) under
-> > > -                * ptl. It has higher chance to recover THP for the V=
-MA, but
-> > > -                * has higher cost too. It would also probably requir=
-e locking
-> > > -                * the anon_vma.
-> > > +                * Note that vma->anon_vma check is racy: it can be s=
-et after
-> > > +                * the check, but page locks (with XA_RETRY_ENTRYs in=
- holes)
-> > > +                * prevented establishing new ptes of the page. So we=
- are safe
-> > > +                * to remove page table below, without even checking =
-it's empty.
-> >
-> > This "we are safe to remove page table below, without even checking
-> > it's empty" assumes that the only way to create new anonymous PTEs is
-> > to use existing file PTEs, right? What about private shmem VMAs that
-> > are registered with userfaultfd as VM_UFFD_MISSING? I think for those,
-> > the UFFDIO_COPY ioctl lets you directly insert anonymous PTEs without
-> > looking at the mapping and its pages (except for checking that the
-> > insertion point is before end-of-file), protected only by mmap_lock
-> > (shared) and pte_offset_map_lock().
+On Wed, May 31 2023 at 17:27, Thomas Gleixner wrote:
+> On Fri, May 19 2023 at 12:21, Peter Zijlstra wrote:
+>> to take wrapping into account, but per all the above, we don't
+>> actually wrap on u64 anymore.
 >
-> Hmm, yes.  We probably need to keep that though, and 5b51072e97 explained
-> the reason (to still respect file permissions).
+> Indeed. The rationale was that you need ~146 years uptime with a 4GHz
+> TSC or ~584 years with 1GHz to actually reach the wrap around point.
 >
-> Maybe the anon_vma check can also be moved into the pgtable lock section,
-> with some comments explaining (but it's getting a bit ugly..)?
-
-Or check that all entries are pte_none() or something like that inside
-the pgtable-locked section?
-
-[...]
-> > The old code called collapse_and_free_pmd(), which involves MMU
-> > notifier invocation...
-[...]
-> > ... while the new code only does pmdp_collapse_flush(), which clears
-> > the pmd entry and does a TLB flush, but AFAICS doesn't use MMU
-> > notifiers. My understanding is that that's problematic - maybe (?) it
-> > is sort of okay with regards to classic MMU notifier users like KVM,
-> > but it's probably wrong for IOMMUv2 users, where an IOMMU directly
-> > consumes the normal page tables?
+> Though I can see your point to make sure that silly BIOSes or VMMs
+> cannot cause havoc by accident or malice.
 >
-> The iommuv2 wasn't "consuming" the pgtables?
-
-My wording was confusing, I meant that as "the iommuv2 hardware
-directly uses/walks the page tables".
-
-> IIUC it relies on that to
-> make sure no secondary (and illegal) tlb exists in the iommu tlbs.
+> Did anyone ever validate that wrap around on TSC including TSC deadline
+> timer works correctly?
 >
-> For this case if the pgtable _must_ be empty when reaching here (we'd
-> better make sure of it..), maybe we're good?  Because we should have just
-> invalidated once when unmap all the pages in the thp range, so no existin=
-g
-> tlb should generate anyway for either cpu or iommu hardwares.
+> I have faint memories of TSC_ADJUST, which I prefer not to bring back to
+> main memory :)
 
-My headcanon is that there are approximately three reasons why we
-normally have to do iommuv2 invalidations and I think one or two of
-them might still apply here, though admittedly I haven't actually dug
-up documentation on how this stuff actually works for IOMMUv2, so
-maybe one of y'all can tell me that my concerns here are unfounded:
+It seems my fears have been unjustified.
 
-1. We have to flush normal TLB entries. This is probably not necessary
-if the page table contains no entries.
-2. We might have to flush "paging-structure caches" / "intermediate
-table walk caches", if the IOMMU caches the physical addresses of page
-tables to skip some levels of page table walk. IDK if IOMMUs do that,
-but normal MMUs definitely do it, so I wouldn't be surprised if the
-IOMMUs did it too (or reserved the right to do it in a future hardware
-generation or whatever).
-3. We have to *serialize* with page table walks performed by the
-IOMMU. We're doing an RCU barrier to synchronize against page table
-walks from the MMU, but without an appropriate mmu_notifier call, we
-have nothing to ensure that we aren't yanking a page table out from
-under an IOMMU page table walker while it's in the middle of its walk.
-Sure, this isn't very likely in practice, the IOMMU page table walker
-is probably pretty fast, but still we need some kind of explicit
-synchronization to make this robust, I think.
+At least a quick test which sets the TSC to ~ -8min @2.1Ghz the machine
+seems to survive without the colourful explosions I expected due to my
+early exposure to TSC_ADJUST and TSC_DEADLINE_TIMER :)
 
-> However OTOH, maybe it'll also be safer to just have the mmu notifiers li=
-ke
-> before (e.g., no idea whether anything can cache invalidate tlb
-> translations from the empty pgtable)? As that doesn't seems to beat the
-> purpose of the patchset as notifiers shouldn't fail.
->
-> >
-> > (FWIW, last I looked, there also seemed to be some other issues with
-> > MMU notifier usage wrt IOMMUv2, see the thread
-> > <https://lore.kernel.org/linux-mm/Yzbaf9HW1%2FreKqR8@nvidia.com/>.)
+Thanks,
+
+        tglx
