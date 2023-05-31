@@ -2,93 +2,92 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D3368C77B73
-	for <linux-s390@archiver.kernel.org>; Wed, 31 May 2023 14:48:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1529EC77B7A
+	for <linux-s390@archiver.kernel.org>; Wed, 31 May 2023 15:05:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231310AbjEaOse (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 31 May 2023 10:48:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55048 "EHLO
+        id S234249AbjEaPF5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 31 May 2023 11:05:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230497AbjEaOsb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 31 May 2023 10:48:31 -0400
+        with ESMTP id S234028AbjEaPFe (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 31 May 2023 11:05:34 -0400
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7AEC98;
-        Wed, 31 May 2023 07:48:29 -0700 (PDT)
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34VEhcBa019044;
-        Wed, 31 May 2023 14:48:29 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39C6C132;
+        Wed, 31 May 2023 08:05:15 -0700 (PDT)
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34VExh8o030623;
+        Wed, 31 May 2023 15:05:09 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=Jf3ESBiV0WYmua8oMWSDBRYW5TNiZaTmcKkan9Ai01Q=;
- b=jJB1OTV8exMXNfX0PfeZbLN1m+wVqLQji+T8a2tkEI6RmZJuIN3TNO8VzHqQAH+DE518
- ttG0sRVOroXshGGXI8IltNTfEiv1qYr4dQWFWB/m/qcD8wrkg2mRth88SmqTeUmSMdDM
- qiWOkuGZqugLsd/ulkg/N9t/49j0H944Oty2BuGxC5jIdqHStdhNlilLhYHtXesYhQ7Z
- aMA5xdinz6V20sTJXoYWS9rWG7xda/N0ZAbFQZdkcQz7p1UJpcbWguFtd6CPTgvqK3m9
- NTImCzWhNTwhZqr4/lKZwTV1whsxw6JMrUco7F/GSemQFDOPCKfyeLDBmm6LpU2NXE/S MA== 
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=OAFzuVl4Gut14uWD2Yrg29PHYgjJzWmlExTNSTZT85A=;
+ b=CHhUirO+VMbOOydiS24nX02mODkxdd2uIMIlrEd9nBax50aXyRJHFNUYgOnjLgEYvSru
+ 8F76RrC6kQXsAUliMGxE0T8nUtIFtHalXenpwAoj0OhHsfzyfWqIFnSaIdTiteNayvws
+ vuedf3YU6NLFPwfhWIFbb8IC68TEeR9jrVXBUDa0Cw43ztByg9AlXCZg+HMeV0hfLCDT
+ qapEVJrGpoooor2I9PGtZGDpAIGaJM/wGZp1sTeCtY7xveLUfuTfCUEQ6OdxUSSx5/oh
+ FhNUIp2baVeXwah6/q2+YaZJbQSMm+r69JAbM7dFMQRcEtkyQoK/cRQ0mq4ykF+kpYgF 1Q== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qx88f05kx-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qx8g4r48m-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 31 May 2023 14:48:28 +0000
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34VEj5oL024343;
-        Wed, 31 May 2023 14:48:27 GMT
+        Wed, 31 May 2023 15:05:08 +0000
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34VF0iXM000431;
+        Wed, 31 May 2023 15:05:06 GMT
 Received: from ppma02wdc.us.ibm.com (aa.5b.37a9.ip4.static.sl-reverse.com [169.55.91.170])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qx88f05kc-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qx8g4r3r2-2
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 31 May 2023 14:48:27 +0000
+        Wed, 31 May 2023 15:05:06 +0000
 Received: from pps.filterd (ppma02wdc.us.ibm.com [127.0.0.1])
-        by ppma02wdc.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34VBLtRY008119;
-        Wed, 31 May 2023 14:48:27 GMT
-Received: from smtprelay03.dal12v.mail.ibm.com ([9.208.130.98])
-        by ppma02wdc.us.ibm.com (PPS) with ESMTPS id 3qu9g8c4u4-1
+        by ppma02wdc.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34VBQCfe008122;
+        Wed, 31 May 2023 14:51:58 GMT
+Received: from smtprelay01.wdc07v.mail.ibm.com ([9.208.129.119])
+        by ppma02wdc.us.ibm.com (PPS) with ESMTPS id 3qu9g8c563-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 31 May 2023 14:48:27 +0000
+        Wed, 31 May 2023 14:51:58 +0000
 Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
-        by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34VEmQCS61866290
+        by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34VEpuMH36241942
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 31 May 2023 14:48:26 GMT
+        Wed, 31 May 2023 14:51:56 GMT
 Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 289AC58060;
-        Wed, 31 May 2023 14:48:26 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 2C3185805E;
+        Wed, 31 May 2023 14:51:56 +0000 (GMT)
 Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4DBAF5805F;
-        Wed, 31 May 2023 14:48:25 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 425725805C;
+        Wed, 31 May 2023 14:51:55 +0000 (GMT)
 Received: from [9.61.34.174] (unknown [9.61.34.174])
         by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 31 May 2023 14:48:25 +0000 (GMT)
-Message-ID: <9837da27-e224-aded-fe3e-4f4db6b1599c@linux.ibm.com>
-Date:   Wed, 31 May 2023 10:48:24 -0400
+        Wed, 31 May 2023 14:51:55 +0000 (GMT)
+Message-ID: <30741787-441a-034f-f8d4-9f1060841051@linux.ibm.com>
+Date:   Wed, 31 May 2023 10:51:54 -0400
+MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
  Thunderbird/102.11.0
 Subject: Re: [PATCH 0/3] s390/vfio-ap: fix hang when mdev attached to guest is
  removed
+Content-Language: en-US
 To:     Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        alex.williamson@redhat.com
-Cc:     jjherne@linux.ibm.com, pasic@linux.ibm.com, farman@linux.ibm.com,
-        borntraeger@linux.ibm.com, Heiko Carstens <hca@linux.ibm.com>,
+        alex.williamson@redhat.com, Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         "agordeev@linux.ibm.com" <agordeev@linux.ibm.com>
+Cc:     jjherne@linux.ibm.com, pasic@linux.ibm.com, farman@linux.ibm.com,
+        borntraeger@linux.ibm.com, Cedric Le Goater <clegoate@redhat.com>
 References: <20230530223538.279198-1-akrowiak@linux.ibm.com>
-Content-Language: en-US
 From:   Matthew Rosato <mjrosato@linux.ibm.com>
 In-Reply-To: <20230530223538.279198-1-akrowiak@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: d4jZX2YW3q2NdfP1uTw-0zf27mojLwKt
-X-Proofpoint-ORIG-GUID: yPzsWQv9FV8o2XPRUDbje4Hnsswno19e
 Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
-MIME-Version: 1.0
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: EmRd0YvUraoZ5bRlti79WC2E21bSGtE1
+X-Proofpoint-ORIG-GUID: W1E9D6ibbAfbdenIxC64kSkaJgZ7fQgd
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
- definitions=2023-05-31_08,2023-05-31_03,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
- lowpriorityscore=0 malwarescore=0 suspectscore=0 mlxlogscore=999
- spamscore=0 impostorscore=0 phishscore=0 adultscore=0 bulkscore=0
- priorityscore=1501 mlxscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2304280000 definitions=main-2305310124
+ definitions=2023-05-31_10,2023-05-31_03,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 phishscore=0
+ adultscore=0 bulkscore=0 priorityscore=1501 lowpriorityscore=0
+ suspectscore=0 mlxlogscore=999 malwarescore=0 clxscore=1015 spamscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2304280000 definitions=main-2305310128
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -111,48 +110,9 @@ On 5/30/23 6:35 PM, Tony Krowiak wrote:
 >    When invoked, the vfio_ap device driver will use the eventfd_ctx set up
 >    in #1 to signal a request to userspace to release the mdev.
 > 
-> 
-> Note:
-> ----
-> If a user subsequently attempts to restart the guest or re-attach the mdev,
-> the operation will fail with a message indicating the domain is already
-> active. This is a libvirt problem resolved with the following commit:
-> 
-> commit ebd004a03dbd ("security: do not remember/recall labels for VFIO 
-> MDEVs") 
 
-For the series: 
+As to how this series eventually reaches master...  It touches both s390 and vfio.  
 
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+@Alex/@s390 maintainers -- I suggest it go through s390 given the diffstat, it's almost completely in s390 drivers code.  However there is a uapi hit to vfio.h (in patch 1) that should get at least an ACK from Alex beforehand.
 
-
-I also did some testing using the companion qemu series at
-https://lore.kernel.org/qemu-devel/20230530225544.280031-1-akrowiak@linux.ibm.com
-
-Before kernel+qemu changes:
-1. mdevctl start -u <uuid>, where <uuid> references a vfio-ap mdev
-2. start a qemu guest with <uuid> attached
-3. mdvectl stop -u <uuid>
-4. -mdevctl will now hang indefinitely; the mdev remains in-use by the guest-
-Note: detaching the device or powering off the guest will allow the mdevctl command to complete.
-
-After kernel+qemu changes:
-1. mdevctl start -u <uuid>, where <uuid> references a vfio-ap mdev
-2. start a qemu guest with <uuid> attached
-3. mdvectl stop -u <uuid>
-4. -device is detached from the guest and stopped-
-5. Using a libvirt that includes ebd004a03dbd I also verified that the mdev can be started again and re-attached to the running guest without error.
-
-
-> 
-> Tony Krowiak (3):
->   vfio: ap: realize the VFIO_DEVICE_GET_IRQ_INFO ioctl
->   vfio: ap: realize the VFIO_DEVICE_SET_IRQS ioctl
->   s390/vfio-ap: Wire in the vfio_device_ops request callback
-> 
->  drivers/s390/crypto/vfio_ap_ops.c     | 134 +++++++++++++++++++++++++-
->  drivers/s390/crypto/vfio_ap_private.h |   3 +
->  include/uapi/linux/vfio.h             |   9 ++
->  3 files changed, 145 insertions(+), 1 deletion(-)
-> 
 
