@@ -2,127 +2,150 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D3133C77B73
-	for <linux-s390@archiver.kernel.org>; Wed, 31 May 2023 18:00:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7445EC7EE2E
+	for <linux-s390@archiver.kernel.org>; Wed, 31 May 2023 21:32:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229480AbjEaSAB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 31 May 2023 14:00:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45940 "EHLO
+        id S230286AbjEaVb1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 31 May 2023 17:31:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229478AbjEaSAA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 31 May 2023 14:00:00 -0400
-Received: from mail-il1-x130.google.com (mail-il1-x130.google.com [IPv6:2607:f8b0:4864:20::130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74332128
-        for <linux-s390@vger.kernel.org>; Wed, 31 May 2023 10:59:57 -0700 (PDT)
-Received: by mail-il1-x130.google.com with SMTP id e9e14a558f8ab-33b7f217dd0so14785ab.0
-        for <linux-s390@vger.kernel.org>; Wed, 31 May 2023 10:59:57 -0700 (PDT)
+        with ESMTP id S230061AbjEaVbZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 31 May 2023 17:31:25 -0400
+Received: from mail-yw1-x1132.google.com (mail-yw1-x1132.google.com [IPv6:2607:f8b0:4864:20::1132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5017D18B;
+        Wed, 31 May 2023 14:31:18 -0700 (PDT)
+Received: by mail-yw1-x1132.google.com with SMTP id 00721157ae682-568ba7abc11so705557b3.3;
+        Wed, 31 May 2023 14:31:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1685555997; x=1688147997;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
+        d=gmail.com; s=20221208; t=1685568677; x=1688160677;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=gB39BX9t2bk69eR34cuPtTrtH3iMrtwgLqGN0anXQzs=;
-        b=sNHcscEzF5oIXlbzrKvF04KLUYw1WT7sMRVqG8QGy8XIgG11atPlAKnpx5jKGtpy6a
-         a+jCVG2eG9BX6mHRsSpbaugSwkATgdYQoWfvZd+ALZ/Jy6Mauf49PzdPffe5WmNZPR4Z
-         WAFrsIXSEXKtDxjryc6yB0Z+hcuRTBy1nOpSqzMGFFGOJoYlv2FFuEbQe/FRb7W1B+KV
-         0tTSBe6RpqLXei52V6g9ZxrdXeXwUXD4CalXMcTtAUE4wynrS414dVRH12lnDs0RZxQf
-         mSOnJt6GA5r/CNqCC7dCE5XlEFmkMml+h5K7Z1ZJnauFHk0x4Zj6P4zxqfq+t5LPRE9b
-         dxAQ==
+        bh=/2bE9CDG9Oxw3pEA2fSuUshC33VMwoQ2Xz6qScjQL3E=;
+        b=iYqqA4KZmoroGYhynV/jiNkWzAMHN4TlFNnsupyXM0HztFgnmGpbYhflGvCI4PnTEH
+         qsb+x4h+Ra/DHJZpmJ+cDpCt0WFO8DN9RsHpGbhgd8UZD1C59aXCIdDYpdL/DDlqjtME
+         QAC1ynKbnXEL2BUoeiDKJEOTEmjHPJwx20Oocm0d9VYWRam4vpslVsanNLIqZtenI7il
+         z8Y4AX5Qo3hIFiKRtt14OfPeMVmgXXgQiLO70vbxlL1MgUQYvu/5R1IEb6sabFTUiQkk
+         WKmmoKw4Cu+qJUco9/5c4L88Blpl8Ohrj5Udd50ZlUMrgKFkg8PwQhuutxVbJdY53ahQ
+         RhOQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1685555997; x=1688147997;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20221208; t=1685568677; x=1688160677;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=gB39BX9t2bk69eR34cuPtTrtH3iMrtwgLqGN0anXQzs=;
-        b=eXLvvSiKvW/XcH9k6Yhi67THLUYK4GVJ8to3R3LnX1hXsFEo4cdde5muUTdkRSFODR
-         qgMjx6P/2s7wBqG5MpQmP4Xi5RbhngFuRwdcBeHZ39CiJNsRmXfooI/iuEnN3G/Di9QI
-         DV0hPQteRD2+hzf1TJfSxauwh2dYbEnNGcpoDTGil3eK61T2QY2kuKiDWv+XamLYNidk
-         2KTQ9Zup3+LUsiGBSY+ETNLnqyFsCt796A4tmYVBlA4MoOuDwUOu/qH+s9QLkuYObyju
-         zSDxNjTkPcpbhuftSQq4TvvURcTaw60w+icaMM+9aC3/Vr/VjxLs5RFu3gRIeLWhCTp4
-         8bbA==
-X-Gm-Message-State: AC+VfDwLtB4kvpC/4PWLNWbehHBRqlYZUCxjKuUT1mSdDUFXBon4ZAuc
-        9/E5HLYaPiHJXnog+PrNFY5w2pStCOwR/H4qfLCjmw==
-X-Google-Smtp-Source: ACHHUZ4G84rWJ4iQu8mReQkW8t0DG4yhWskE8/AflvFlAC8RqDIUu08YD8bIx3gECDchUWXdvk6aMUCK5QJkPh4jMtw=
-X-Received: by 2002:a05:6e02:b2e:b0:33b:5343:c1be with SMTP id
- e14-20020a056e020b2e00b0033b5343c1bemr174970ilu.29.1685555996652; Wed, 31 May
- 2023 10:59:56 -0700 (PDT)
+        bh=/2bE9CDG9Oxw3pEA2fSuUshC33VMwoQ2Xz6qScjQL3E=;
+        b=VyC2vVA9i0/W1KOTBLlTWbwoTRfLbnPFj1R7j9t+ixET+E21EtpII5IsRCAjHSD6aC
+         +qcYmtVXhNu3XuJCSJprz7lZr1DkGHlFoAboorP5cMy+WxojrNEFvvyAHeZwWNj9pcG7
+         Y92O3/6YryTijdYoAHivDC2D8TGraPusRtF6XY5Hyfdu8IMaVF1FY1hNT6Q5r1PphYQU
+         Kgqwbh9OzWgnR+SP4nHfVUPeRT2mzMqO3z4kdT3+ps0PKDb6ERWK2oBuP+aZRT2JNh5S
+         xRGN1U9/xRaHRgFQZOixp6nboZ+a8cM9JmuoqJzk4VzjTVxssJjYQBPAa7riCiTFfYht
+         IDOg==
+X-Gm-Message-State: AC+VfDwPw+mcJAit4hsVQmWXQE2zdpep5THriucgLF4BbqU1A4nyGshP
+        fMqTeDKV8oW4SpzyDOEXoBc=
+X-Google-Smtp-Source: ACHHUZ6pTbgk5oakG8rCTNTHmfkc+dDnZpqxrm9LdrARtP0jWcbiwYUD1VVJhesMtUI+Yz5eprOqiQ==
+X-Received: by 2002:a0d:d816:0:b0:565:bb04:53fa with SMTP id a22-20020a0dd816000000b00565bb0453famr7385514ywe.10.1685568677391;
+        Wed, 31 May 2023 14:31:17 -0700 (PDT)
+Received: from unknowna0e70b2ca394.attlocal.net ([2600:1700:2f7d:1800::46])
+        by smtp.googlemail.com with ESMTPSA id t63-20020a0dd142000000b0055aafcef659sm658905ywd.5.2023.05.31.14.31.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 31 May 2023 14:31:17 -0700 (PDT)
+From:   "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
+To:     Andrew Morton <akpm@linux-foundation.org>,
+        Matthew Wilcox <willy@infradead.org>
+Cc:     linux-mm@kvack.org, linux-arch@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        linux-um@lists.infradead.org, xen-devel@lists.xenproject.org,
+        kvm@vger.kernel.org,
+        "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
+Subject: [PATCH v3 04/34] pgtable: Create struct ptdesc
+Date:   Wed, 31 May 2023 14:30:02 -0700
+Message-Id: <20230531213032.25338-5-vishal.moola@gmail.com>
+X-Mailer: git-send-email 2.40.1
+In-Reply-To: <20230531213032.25338-1-vishal.moola@gmail.com>
+References: <20230531213032.25338-1-vishal.moola@gmail.com>
 MIME-Version: 1.0
-References: <35e983f5-7ed3-b310-d949-9ae8b130cdab@google.com>
-In-Reply-To: <35e983f5-7ed3-b310-d949-9ae8b130cdab@google.com>
-From:   Jann Horn <jannh@google.com>
-Date:   Wed, 31 May 2023 19:59:20 +0200
-Message-ID: <CAG48ez0pCqfRdVSnJz7EKtNvMR65=zJgVB-72nTdrNuhtJNX2Q@mail.gmail.com>
-Subject: Re: [PATCH 00/12] mm: free retracted page table by RCU
-To:     Hugh Dickins <hughd@google.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        David Hildenbrand <david@redhat.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Qi Zheng <zhengqi.arch@bytedance.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Peter Xu <peterx@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        Ralph Campbell <rcampbell@nvidia.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Steven Price <steven.price@arm.com>,
-        SeongJae Park <sj@kernel.org>,
-        Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Zack Rusin <zackr@vmware.com>, Jason Gunthorpe <jgg@ziepe.ca>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Pasha Tatashin <pasha.tatashin@soleen.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        Song Liu <song@kernel.org>,
-        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
-        Russell King <linux@armlinux.org.uk>,
-        "David S. Miller" <davem@davemloft.net>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, May 29, 2023 at 8:11=E2=80=AFAM Hugh Dickins <hughd@google.com> wro=
-te:
-> Here is the third series of patches to mm (and a few architectures), base=
-d
-> on v6.4-rc3 with the preceding two series applied: in which khugepaged
-> takes advantage of pte_offset_map[_lock]() allowing for pmd transitions.
+Currently, page table information is stored within struct page. As part
+of simplifying struct page, create struct ptdesc for page table
+information.
 
-To clarify: Part of the design here is that when you look up a user
-page table with pte_offset_map_nolock() or pte_offset_map() without
-holding mmap_lock in write mode, and you later lock the page table
-yourself, you don't know whether you actually have the real page table
-or a detached table that is currently in its RCU grace period, right?
-And detached tables are supposed to consist of only zeroed entries,
-and we assume that no relevant codepath will do anything bad if one of
-these functions spuriously returns a pointer to a page table full of
-zeroed entries?
+Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
+---
+ include/linux/pgtable.h | 52 +++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 52 insertions(+)
 
-So in particular, in handle_pte_fault() we can reach the "if
-(unlikely(!pte_same(*vmf->pte, entry)))" with vmf->pte pointing to a
-detached zeroed page table, but we're okay with that because in that
-case we know that !pte_none(vmf->orig_pte)&&pte_none(*vmf->pte) ,
-which implies !pte_same(*vmf->pte, entry) , which means we'll bail
-out?
+diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
+index c5a51481bbb9..c997e9878969 100644
+--- a/include/linux/pgtable.h
++++ b/include/linux/pgtable.h
+@@ -975,6 +975,58 @@ static inline void ptep_modify_prot_commit(struct vm_area_struct *vma,
+ #endif /* __HAVE_ARCH_PTEP_MODIFY_PROT_TRANSACTION */
+ #endif /* CONFIG_MMU */
+ 
++
++/**
++ * struct ptdesc - Memory descriptor for page tables.
++ * @__page_flags: Same as page flags. Unused for page tables.
++ * @pt_list: List of used page tables. Used for s390 and x86.
++ * @_pt_pad_1: Padding that aliases with page's compound head.
++ * @pmd_huge_pte: Protected by ptdesc->ptl, used for THPs.
++ * @_pt_s390_gaddr: Aliases with page's mapping. Used for s390 gmap only.
++ * @pt_mm: Used for x86 pgds.
++ * @pt_frag_refcount: For fragmented page table tracking. Powerpc and s390 only.
++ * @ptl: Lock for the page table.
++ *
++ * This struct overlays struct page for now. Do not modify without a good
++ * understanding of the issues.
++ */
++struct ptdesc {
++	unsigned long __page_flags;
++
++	union {
++		struct list_head pt_list;
++		struct {
++			unsigned long _pt_pad_1;
++			pgtable_t pmd_huge_pte;
++		};
++	};
++	unsigned long _pt_s390_gaddr;
++
++	union {
++		struct mm_struct *pt_mm;
++		atomic_t pt_frag_refcount;
++		unsigned long index;
++	};
++
++#if ALLOC_SPLIT_PTLOCKS
++	spinlock_t *ptl;
++#else
++	spinlock_t ptl;
++#endif
++};
++
++#define TABLE_MATCH(pg, pt)						\
++	static_assert(offsetof(struct page, pg) == offsetof(struct ptdesc, pt))
++TABLE_MATCH(flags, __page_flags);
++TABLE_MATCH(compound_head, pt_list);
++TABLE_MATCH(compound_head, _pt_pad_1);
++TABLE_MATCH(pmd_huge_pte, pmd_huge_pte);
++TABLE_MATCH(mapping, _pt_s390_gaddr);
++TABLE_MATCH(pt_mm, pt_mm);
++TABLE_MATCH(ptl, ptl);
++#undef TABLE_MATCH
++static_assert(sizeof(struct ptdesc) <= sizeof(struct page));
++
+ /*
+  * No-op macros that just return the current protection value. Defined here
+  * because these macros can be used even if CONFIG_MMU is not defined.
+-- 
+2.40.1
 
-If that's the intent, it might be good to add some comments, because
-at least to me that's not very obvious.
