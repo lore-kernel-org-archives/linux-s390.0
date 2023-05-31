@@ -2,42 +2,42 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C1754C77B73
-	for <linux-s390@archiver.kernel.org>; Wed, 31 May 2023 13:28:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 03519C7EE31
+	for <linux-s390@archiver.kernel.org>; Wed, 31 May 2023 13:28:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236442AbjEaN2n (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 31 May 2023 09:28:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47438 "EHLO
+        id S236517AbjEaN2q (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 31 May 2023 09:28:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236197AbjEaN2U (ORCPT
+        with ESMTP id S234345AbjEaN2U (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Wed, 31 May 2023 09:28:20 -0400
 Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53082C5;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0DFC126;
         Wed, 31 May 2023 06:28:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
-        Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
-        Content-ID:Content-Description:In-Reply-To;
-        bh=0OKPBc3mt+ezfW70uBbauBPqh/QqcxZBd2GTGmmN3GA=; b=F56ze+VZ1f3mhyQBWTK1kZLCn6
-        DLlgkphQzhgklsVG742VjxiOdPtMB2tFaRRj4ss52ZIzg5HDYYF31EK4DXSi/DBDAeVFHjkmrUm0h
-        ne6G2EAVd73HH115bh0qIhr/f9oQBI9cuDHH7XFY1y/+Q1FpTMH9h1VOfDocjZ5WggkAfzbIC/6lw
-        /R1le7+B6S9xT4fJdC8c/xNvJw5kkcaR6ZulxEdI+j2JZO7YzfdcWmyiXFyEXXqo4vyOHwzhrYeMk
-        0nK10XnwacPBKHLyQBVTSJ62ZjRwUYdyes4r9vMpGHQ0Qmitpgvm5rzNtp4HxY1UbL2ndUxA94pCS
-        aCNZwNaA==;
+        d=infradead.org; s=casper.20170209; h=Subject:Cc:To:From:Date:Message-ID:
+        Sender:Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:
+        Content-ID:Content-Description:In-Reply-To:References;
+        bh=wcJJV24VbYlY1PWzzae048ORvkrTfGMOvTB+4LRdIko=; b=ZCaN9EKWJgEkcuGgxM/ADbx94M
+        G03dV6vMZ01SeuX4XeUD/ST9pnnkWJlhFyUn36PeSTx4HwZLOaV1Un1/UIQdwmGQcFJy5ke1y1ph0
+        4gI+sbIacF5Qi2XhKT65K6WXemSMLSlsiRy1sMyJNOgV1Tn8vRmRMUZmDLnUwZq+cghRKjKS3YSq2
+        nov0q53CxHjOQ380s4gPZqDiXzc10/7e5vnGZl2HdRLxV+I+eL6nN6JB7wWpO5iWlxdh7Qc4sUzGU
+        t/I0z4d02H+1QiGZjucBz1TMMe0a61V9LL4YUcCfUju21PcwS5g76pVkW0OKG7aSE+R6CkRgnDmL/
+        hrab2zKA==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
         by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1q4LrG-007IJ5-DJ; Wed, 31 May 2023 13:27:22 +0000
+        id 1q4LrG-007IIj-33; Wed, 31 May 2023 13:27:22 +0000
 Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (4096 bits))
         (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 55AF2300CB5;
-        Wed, 31 May 2023 15:27:21 +0200 (CEST)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 03CEF30074B;
+        Wed, 31 May 2023 15:27:16 +0200 (CEST)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
-        id 8BB1B243B8560; Wed, 31 May 2023 15:27:16 +0200 (CEST)
-Message-ID: <20230531132323.587480729@infradead.org>
+        id 7798E243B69E6; Wed, 31 May 2023 15:27:16 +0200 (CEST)
+Message-ID: <20230531130833.635651916@infradead.org>
 User-Agent: quilt/0.66
-Date:   Wed, 31 May 2023 15:08:38 +0200
+Date:   Wed, 31 May 2023 15:08:33 +0200
 From:   Peter Zijlstra <peterz@infradead.org>
 To:     torvalds@linux-foundation.org
 Cc:     corbet@lwn.net, will@kernel.org, peterz@infradead.org,
@@ -60,212 +60,76 @@ Cc:     corbet@lwn.net, will@kernel.org, peterz@infradead.org,
         linux-crypto@vger.kernel.org, sfr@canb.auug.org.au,
         mpe@ellerman.id.au, James.Bottomley@hansenpartnership.com,
         deller@gmx.de, linux-parisc@vger.kernel.org
-Subject: [PATCH 05/12] percpu: Add {raw,this}_cpu_try_cmpxchg()
-References: <20230531130833.635651916@infradead.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Subject: [PATCH 00/12] Introduce cmpxchg128() -- aka. the demise of cmpxchg_double()
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Add the try_cmpxchg() form to the per-cpu ops.
+Hi!
 
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+After much breaking of things, find here the improved version.
+
+Since v3:
+
+ - unbreak everything that does *NOT* have cmpxchg128()
+
+   Notably this_cpu_cmpxchg_double() is used unconditionally by SLUB
+   which means that this_cpu_try_cmpxchg128() needs to be unconditionally
+   available on all 64bit architectures.
+
+ - fixed up x86/x86_64 cmpxchg{8,16}b emulation for this_cpu_cmpxchg{64,128}()
+
+ - introduce {raw,this}_cpu_try_cmpxchg*()
+
+ - add fallback for !__SIZEOF_INT128__ 64bit architectures
+
+   Sadly there are supported 64bit architecture/compiler combinations that do
+   not have __SIZEOF_INT128__, specifically it was found that HPPA64 only added
+   this with GCC-11.
+
+   this is yuck, and ideally we'd simply raise compiler requirements, but this
+   'works'.
+
+My plan is to re-add this to tip/locking/core and thus -next later this week.
+
+Also available at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/peterz/queue.git locking/core
+
 ---
- include/asm-generic/percpu.h |  113 +++++++++++++++++++++++++++++++++++++++++--
- include/linux/percpu-defs.h  |   19 +++++++
- 2 files changed, 128 insertions(+), 4 deletions(-)
-
---- a/include/asm-generic/percpu.h
-+++ b/include/asm-generic/percpu.h
-@@ -89,16 +89,37 @@ do {									\
- 	__ret;								\
- })
- 
--#define raw_cpu_generic_cmpxchg(pcp, oval, nval)			\
-+#define __cpu_fallback_try_cmpxchg(pcp, ovalp, nval, _cmpxchg)		\
-+({									\
-+	typeof(pcp) __val, __old = *(ovalp);				\
-+ 	__val = _cmpxchg(pcp, __old, nval);				\
-+	if (__val != __old)						\
-+		*(ovalp) = __val;					\
-+	__val == __old;							\
-+})
-+
-+#define raw_cpu_generic_try_cmpxchg(pcp, ovalp, nval)			\
- ({									\
- 	typeof(pcp) *__p = raw_cpu_ptr(&(pcp));				\
--	typeof(pcp) __ret;						\
--	__ret = *__p;							\
--	if (__ret == (oval))						\
-+	typeof(pcp) __val = *__p, __old = *(ovalp);			\
-+	bool __ret;							\
-+	if (__val == __old) {						\
- 		*__p = nval;						\
-+		__ret = true;						\
-+	} else {							\
-+		*(ovalp) = __val;					\
-+		__ret = false;						\
-+	}								\
- 	__ret;								\
- })
- 
-+#define raw_cpu_generic_cmpxchg(pcp, oval, nval)			\
-+({									\
-+	typeof(pcp) __old = (oval);					\
-+	raw_cpu_generic_try_cmpxchg(pcp, &__old, nval);			\
-+	__old;								\
-+})
-+
- #define raw_cpu_generic_cmpxchg_double(pcp1, pcp2, oval1, oval2, nval1, nval2) \
- ({									\
- 	typeof(pcp1) *__p1 = raw_cpu_ptr(&(pcp1));			\
-@@ -170,6 +191,16 @@ do {									\
- 	__ret;								\
- })
- 
-+#define this_cpu_generic_try_cmpxchg(pcp, ovalp, nval)			\
-+({									\
-+	bool __ret;							\
-+	unsigned long __flags;						\
-+	raw_local_irq_save(__flags);					\
-+	__ret = raw_cpu_generic_try_cmpxchg(pcp, ovalp, nval);		\
-+	raw_local_irq_restore(__flags);					\
-+	__ret;								\
-+})
-+
- #define this_cpu_generic_cmpxchg(pcp, oval, nval)			\
- ({									\
- 	typeof(pcp) __ret;						\
-@@ -282,6 +313,43 @@ do {									\
- #define raw_cpu_xchg_8(pcp, nval)	raw_cpu_generic_xchg(pcp, nval)
- #endif
- 
-+#ifndef raw_cpu_try_cmpxchg_1
-+#ifdef raw_cpu_cmpxchg_1
-+#define raw_cpu_try_cmpxchg_1(pcp, ovalp, nval) \
-+	__cpu_fallback_try_cmpxchg(pcp, ovalp, nval, raw_cpu_cmpxchg_1)
-+#else
-+#define raw_cpu_try_cmpxchg_1(pcp, ovalp, nval) \
-+	raw_cpu_generic_try_cmpxchg(pcp, ovalp, nval)
-+#endif
-+#endif
-+#ifndef raw_cpu_try_cmpxchg_2
-+#ifdef raw_cpu_cmpxchg_2
-+#define raw_cpu_try_cmpxchg_2(pcp, ovalp, nval) \
-+	__cpu_fallback_try_cmpxchg(pcp, ovalp, nval, raw_cpu_cmpxchg_2)
-+#else
-+#define raw_cpu_try_cmpxchg_2(pcp, ovalp, nval) \
-+	raw_cpu_generic_try_cmpxchg(pcp, ovalp, nval)
-+#endif
-+#endif
-+#ifndef raw_cpu_try_cmpxchg_4
-+#ifdef raw_cpu_cmpxchg_4
-+#define raw_cpu_try_cmpxchg_4(pcp, ovalp, nval) \
-+	__cpu_fallback_try_cmpxchg(pcp, ovalp, nval, raw_cpu_cmpxchg_4)
-+#else
-+#define raw_cpu_try_cmpxchg_4(pcp, ovalp, nval) \
-+	raw_cpu_generic_try_cmpxchg(pcp, ovalp, nval)
-+#endif
-+#endif
-+#ifndef raw_cpu_try_cmpxchg_8
-+#ifdef raw_cpu_cmpxchg_8
-+#define raw_cpu_try_cmpxchg_8(pcp, ovalp, nval) \
-+	__cpu_fallback_try_cmpxchg(pcp, ovalp, nval, raw_cpu_cmpxchg_8)
-+#else
-+#define raw_cpu_try_cmpxchg_8(pcp, ovalp, nval) \
-+	raw_cpu_generic_try_cmpxchg(pcp, ovalp, nval)
-+#endif
-+#endif
-+
- #ifndef raw_cpu_cmpxchg_1
- #define raw_cpu_cmpxchg_1(pcp, oval, nval) \
- 	raw_cpu_generic_cmpxchg(pcp, oval, nval)
-@@ -407,6 +475,43 @@ do {									\
- #define this_cpu_xchg_8(pcp, nval)	this_cpu_generic_xchg(pcp, nval)
- #endif
- 
-+#ifndef this_cpu_try_cmpxchg_1
-+#ifdef this_cpu_cmpxchg_1
-+#define this_cpu_try_cmpxchg_1(pcp, ovalp, nval) \
-+	__cpu_fallback_try_cmpxchg(pcp, ovalp, nval, this_cpu_cmpxchg_1)
-+#else
-+#define this_cpu_try_cmpxchg_1(pcp, ovalp, nval) \
-+	this_cpu_generic_try_cmpxchg(pcp, ovalp, nval)
-+#endif
-+#endif
-+#ifndef this_cpu_try_cmpxchg_2
-+#ifdef this_cpu_cmpxchg_2
-+#define this_cpu_try_cmpxchg_2(pcp, ovalp, nval) \
-+	__cpu_fallback_try_cmpxchg(pcp, ovalp, nval, this_cpu_cmpxchg_2)
-+#else
-+#define this_cpu_try_cmpxchg_2(pcp, ovalp, nval) \
-+	this_cpu_generic_try_cmpxchg(pcp, ovalp, nval)
-+#endif
-+#endif
-+#ifndef this_cpu_try_cmpxchg_4
-+#ifdef this_cpu_cmpxchg_4
-+#define this_cpu_try_cmpxchg_4(pcp, ovalp, nval) \
-+	__cpu_fallback_try_cmpxchg(pcp, ovalp, nval, this_cpu_cmpxchg_4)
-+#else
-+#define this_cpu_try_cmpxchg_4(pcp, ovalp, nval) \
-+	this_cpu_generic_try_cmpxchg(pcp, ovalp, nval)
-+#endif
-+#endif
-+#ifndef this_cpu_try_cmpxchg_8
-+#ifdef this_cpu_cmpxchg_8
-+#define this_cpu_try_cmpxchg_8(pcp, ovalp, nval) \
-+	__cpu_fallback_try_cmpxchg(pcp, ovalp, nval, this_cpu_cmpxchg_8)
-+#else
-+#define this_cpu_try_cmpxchg_8(pcp, ovalp, nval) \
-+	this_cpu_generic_try_cmpxchg(pcp, ovalp, nval)
-+#endif
-+#endif
-+
- #ifndef this_cpu_cmpxchg_1
- #define this_cpu_cmpxchg_1(pcp, oval, nval) \
- 	this_cpu_generic_cmpxchg(pcp, oval, nval)
---- a/include/linux/percpu-defs.h
-+++ b/include/linux/percpu-defs.h
-@@ -343,6 +343,21 @@ static __always_inline void __this_cpu_p
- 	pscr2_ret__;							\
- })
- 
-+#define __pcpu_size_call_return2bool(stem, variable, ...)		\
-+({									\
-+	bool pscr2_ret__;						\
-+	__verify_pcpu_ptr(&(variable));					\
-+	switch(sizeof(variable)) {					\
-+	case 1: pscr2_ret__ = stem##1(variable, __VA_ARGS__); break;	\
-+	case 2: pscr2_ret__ = stem##2(variable, __VA_ARGS__); break;	\
-+	case 4: pscr2_ret__ = stem##4(variable, __VA_ARGS__); break;	\
-+	case 8: pscr2_ret__ = stem##8(variable, __VA_ARGS__); break;	\
-+	default:							\
-+		__bad_size_call_parameter(); break;			\
-+	}								\
-+	pscr2_ret__;							\
-+})
-+
- /*
-  * Special handling for cmpxchg_double.  cmpxchg_double is passed two
-  * percpu variables.  The first has to be aligned to a double word
-@@ -426,6 +441,8 @@ do {									\
- #define raw_cpu_xchg(pcp, nval)		__pcpu_size_call_return2(raw_cpu_xchg_, pcp, nval)
- #define raw_cpu_cmpxchg(pcp, oval, nval) \
- 	__pcpu_size_call_return2(raw_cpu_cmpxchg_, pcp, oval, nval)
-+#define raw_cpu_try_cmpxchg(pcp, ovalp, nval) \
-+	__pcpu_size_call_return2bool(raw_cpu_try_cmpxchg_, pcp, ovalp, nval)
- #define raw_cpu_cmpxchg_double(pcp1, pcp2, oval1, oval2, nval1, nval2) \
- 	__pcpu_double_call_return_bool(raw_cpu_cmpxchg_double_, pcp1, pcp2, oval1, oval2, nval1, nval2)
- 
-@@ -513,6 +530,8 @@ do {									\
- #define this_cpu_xchg(pcp, nval)	__pcpu_size_call_return2(this_cpu_xchg_, pcp, nval)
- #define this_cpu_cmpxchg(pcp, oval, nval) \
- 	__pcpu_size_call_return2(this_cpu_cmpxchg_, pcp, oval, nval)
-+#define this_cpu_try_cmpxchg(pcp, ovalp, nval) \
-+	__pcpu_size_call_return2bool(this_cpu_try_cmpxchg_, pcp, ovalp, nval)
- #define this_cpu_cmpxchg_double(pcp1, pcp2, oval1, oval2, nval1, nval2) \
- 	__pcpu_double_call_return_bool(this_cpu_cmpxchg_double_, pcp1, pcp2, oval1, oval2, nval1, nval2)
- 
-
+ Documentation/core-api/this_cpu_ops.rst     |   2 -
+ arch/arm64/include/asm/atomic_ll_sc.h       |  56 +++---
+ arch/arm64/include/asm/atomic_lse.h         |  39 ++---
+ arch/arm64/include/asm/cmpxchg.h            |  48 ++----
+ arch/arm64/include/asm/percpu.h             |  30 ++--
+ arch/s390/include/asm/cmpxchg.h             |  32 +---
+ arch/s390/include/asm/cpu_mf.h              |   2 +-
+ arch/s390/include/asm/percpu.h              |  34 ++--
+ arch/s390/kernel/perf_cpum_sf.c             |  16 +-
+ arch/x86/include/asm/cmpxchg.h              |  25 ---
+ arch/x86/include/asm/cmpxchg_32.h           |   2 +-
+ arch/x86/include/asm/cmpxchg_64.h           |  63 ++++++-
+ arch/x86/include/asm/percpu.h               | 102 ++++++-----
+ arch/x86/lib/Makefile                       |   3 +-
+ arch/x86/lib/cmpxchg16b_emu.S               |  43 +++--
+ arch/x86/lib/cmpxchg8b_emu.S                |  67 ++++++--
+ drivers/iommu/amd/amd_iommu_types.h         |   9 +-
+ drivers/iommu/amd/iommu.c                   |  10 +-
+ drivers/iommu/intel/irq_remapping.c         |   8 +-
+ include/asm-generic/percpu.h                | 257 ++++++++++++++++++++++------
+ include/crypto/b128ops.h                    |  14 +-
+ include/linux/atomic/atomic-arch-fallback.h |  95 +++++++++-
+ include/linux/atomic/atomic-instrumented.h  |  93 ++++++++--
+ include/linux/dmar.h                        | 125 +++++++-------
+ include/linux/percpu-defs.h                 |  45 ++---
+ include/linux/slub_def.h                    |  12 +-
+ include/linux/types.h                       |  12 ++
+ include/uapi/linux/types.h                  |   4 +
+ lib/crypto/curve25519-hacl64.c              |   2 -
+ lib/crypto/poly1305-donna64.c               |   2 -
+ mm/slab.h                                   |  53 +++++-
+ mm/slub.c                                   | 139 +++++++++------
+ scripts/atomic/gen-atomic-fallback.sh       |   4 +-
+ scripts/atomic/gen-atomic-instrumented.sh   |  19 +-
+ 34 files changed, 952 insertions(+), 515 deletions(-)
 
