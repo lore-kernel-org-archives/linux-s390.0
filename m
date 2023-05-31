@@ -2,442 +2,139 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F227DC77B73
-	for <linux-s390@archiver.kernel.org>; Wed, 31 May 2023 13:28:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DAD7C77B73
+	for <linux-s390@archiver.kernel.org>; Wed, 31 May 2023 13:36:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236536AbjEaN2y (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 31 May 2023 09:28:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47446 "EHLO
+        id S233214AbjEaNgv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 31 May 2023 09:36:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236359AbjEaN2W (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 31 May 2023 09:28:22 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5878B129;
-        Wed, 31 May 2023 06:28:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
-        Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
-        Content-ID:Content-Description:In-Reply-To;
-        bh=yL1qo/vb48QdPJDHPVkvS1Zq4+B/eXJGNt78k1EwTE8=; b=DW3puokgt2Sigksg/ERQDTbI5F
-        X9p3E/IslASCuC3vUaf+7HAUpBufw+aylakDJDZNkblCqjUoUSTZWxlRcwf5yMkWCMD8tlgdafG0L
-        47hUgse3tDg8ztseLhxGtEY8y1bECyX246uQf/3WZj3YyP2oEpMKWBM1NEOVA8CFpM3l5FCrI6Cdz
-        n9cfpBSSywRhj6cZ5sUK91yTNWQAOutrtz0Ob/tcDLU+XF2taTda7oKkgDE7N4oNlrp15ideTU32m
-        zvLMvVJj1WXNQETpMpEIgBOCL8rD8p7/DMDwGYk2HLj02RY5wKHKFAWoMr7L1y3DrSkoE/x7f5cqR
-        2rDatRCA==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1q4LrH-007IJX-4Q; Wed, 31 May 2023 13:27:23 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits))
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 5DBE1300DDC;
-        Wed, 31 May 2023 15:27:21 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
-        id A1643243B8571; Wed, 31 May 2023 15:27:16 +0200 (CEST)
-Message-ID: <20230531132323.924677086@infradead.org>
-User-Agent: quilt/0.66
-Date:   Wed, 31 May 2023 15:08:43 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     torvalds@linux-foundation.org
-Cc:     corbet@lwn.net, will@kernel.org, peterz@infradead.org,
-        boqun.feng@gmail.com, mark.rutland@arm.com,
-        catalin.marinas@arm.com, dennis@kernel.org, tj@kernel.org,
-        cl@linux.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
-        hpa@zytor.com, joro@8bytes.org, suravee.suthikulpanit@amd.com,
-        robin.murphy@arm.com, dwmw2@infradead.org,
-        baolu.lu@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
-        Herbert Xu <herbert@gondor.apana.org.au>, davem@davemloft.net,
-        penberg@kernel.org, rientjes@google.com, iamjoonsoo.kim@lge.com,
-        Andrew Morton <akpm@linux-foundation.org>, vbabka@suse.cz,
-        roman.gushchin@linux.dev, 42.hyeyoo@gmail.com,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, linux-s390@vger.kernel.org,
-        iommu@lists.linux.dev, linux-arch@vger.kernel.org,
-        linux-crypto@vger.kernel.org, sfr@canb.auug.org.au,
-        mpe@ellerman.id.au, James.Bottomley@hansenpartnership.com,
-        deller@gmx.de, linux-parisc@vger.kernel.org
-Subject: [PATCH 10/12] slub: Replace cmpxchg_double()
-References: <20230531130833.635651916@infradead.org>
+        with ESMTP id S229936AbjEaNgu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 31 May 2023 09:36:50 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE19DC0;
+        Wed, 31 May 2023 06:36:49 -0700 (PDT)
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34VDGd8D027853;
+        Wed, 31 May 2023 13:36:49 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
+ mime-version : content-transfer-encoding : in-reply-to : references :
+ subject : cc : from : to : message-id : date; s=pp1;
+ bh=278oxwc42MF8qvWbiVtT1x5VRhiFGPiUPLXlAgzrKZc=;
+ b=egetVAZUdsaRryLRYABCUmNnxNs+HJF8n768iGoqYj07bgwgA4TxZuAurfEqyLX4bhn0
+ YUS/UvPjGdkYc88k4GahKUXJxqYLwHDziWXWOuP6Ys0tnBeAb2bYX3rLu/ok3MdtgfN4
+ n2fmbQz6W1gJUrKEl+61rETjYhXKiZ0uvw4Kub6CrfCz6km8hq9uDe4kUXv5D8+v2cGN
+ rRPC6KzORoXGPhz8O4055QPjTWIefUfy/avVYC+ZALLvXK2p/SDjpXeIuRtVqzjvArwM
+ u06ob50Fkk+xI+JIqFWbrH1SAQX2tbSWRv76bn7P75IjUPF4PJGZLorDbGNnZrtC3Cky vA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qx4y3mr0u-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 31 May 2023 13:36:48 +0000
+Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34VD9Ou0002474;
+        Wed, 31 May 2023 13:36:47 GMT
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qx4y3mqye-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 31 May 2023 13:36:47 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34VCa1DT022759;
+        Wed, 31 May 2023 13:36:45 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+        by ppma06fra.de.ibm.com (PPS) with ESMTPS id 3qu94e9pg4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 31 May 2023 13:36:45 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34VDafLr44826996
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 31 May 2023 13:36:41 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9E11720043;
+        Wed, 31 May 2023 13:36:41 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 72E6E20040;
+        Wed, 31 May 2023 13:36:41 +0000 (GMT)
+Received: from t14-nrb (unknown [9.171.88.234])
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 31 May 2023 13:36:41 +0000 (GMT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20230421113647.134536-2-frankja@linux.ibm.com>
+References: <20230421113647.134536-1-frankja@linux.ibm.com> <20230421113647.134536-2-frankja@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v3 1/7] lib: s390x: uv: Introduce UV validity function
+Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        thuth@redhat.com, david@redhat.com
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Message-ID: <168554020111.164254.15682688367711474887@t14-nrb>
+User-Agent: alot/0.8.1
+Date:   Wed, 31 May 2023 15:36:41 +0200
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: tt-dtTb-yfu0E_X8KubpkcbHq-KuNLO2
+X-Proofpoint-ORIG-GUID: 8dodWGppsalfE-y2dms1X2kRB5XwBMdd
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
+ definitions=2023-05-31_08,2023-05-31_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxscore=0
+ malwarescore=0 adultscore=0 phishscore=0 priorityscore=1501
+ mlxlogscore=999 clxscore=1015 spamscore=0 impostorscore=0 suspectscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2304280000 definitions=main-2305310112
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Quoting Janosch Frank (2023-04-21 13:36:41)
+> PV related validities are in the 0x20** range but the last byte might
+> be implementation specific, so everytime we check for a UV validity we
+> need to mask the last byte.
+>=20
+> Let's add a function that checks for a UV validity and returns a
+> boolean.
+>=20
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
+> ---
+>  lib/s390x/uv.h | 7 +++++++
+>  1 file changed, 7 insertions(+)
+>=20
+> diff --git a/lib/s390x/uv.h b/lib/s390x/uv.h
+> index 5fe29bda..78b979b7 100644
+> --- a/lib/s390x/uv.h
+> +++ b/lib/s390x/uv.h
+> @@ -35,4 +35,11 @@ static inline void uv_setup_asces(void)
+>         lctlg(13, asce);
+>  }
+> =20
+> +static inline bool uv_validity_check(struct vm *vm)
+> +{
+> +       uint16_t vir =3D sie_get_validity(vm);
+> +
+> +       return vm->sblk->icptcode =3D=3D ICPT_VALIDITY && (vir & 0xff00) =
+=3D=3D 0x2000;
+> +}
+> +
 
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Acked-by: Hyeonggon Yoo <42.hyeyoo@gmail.com>
----
- include/linux/slub_def.h |   12 +++-
- mm/slab.h                |   53 +++++++++++++++--
- mm/slub.c                |  139 +++++++++++++++++++++++++++--------------------
- 3 files changed, 137 insertions(+), 67 deletions(-)
+I noticed a small issue with this. If no intercept occurs, we sie_get_valid=
+ity()
+will be called which will assert() when there's none.
 
---- a/include/linux/slub_def.h
-+++ b/include/linux/slub_def.h
-@@ -39,7 +39,8 @@ enum stat_item {
- 	CPU_PARTIAL_FREE,	/* Refill cpu partial on free */
- 	CPU_PARTIAL_NODE,	/* Refill cpu partial from node partial */
- 	CPU_PARTIAL_DRAIN,	/* Drain cpu partial to node partial */
--	NR_SLUB_STAT_ITEMS };
-+	NR_SLUB_STAT_ITEMS
-+};
- 
- #ifndef CONFIG_SLUB_TINY
- /*
-@@ -47,8 +48,13 @@ enum stat_item {
-  * with this_cpu_cmpxchg_double() alignment requirements.
-  */
- struct kmem_cache_cpu {
--	void **freelist;	/* Pointer to next available object */
--	unsigned long tid;	/* Globally unique transaction id */
-+	union {
-+		struct {
-+			void **freelist;	/* Pointer to next available object */
-+			unsigned long tid;	/* Globally unique transaction id */
-+		};
-+		freelist_aba_t freelist_tid;
-+	};
- 	struct slab *slab;	/* The slab from which we are allocating */
- #ifdef CONFIG_SLUB_CPU_PARTIAL
- 	struct slab *partial;	/* Partially allocated frozen slabs */
---- a/mm/slab.h
-+++ b/mm/slab.h
-@@ -6,6 +6,38 @@
-  */
- void __init kmem_cache_init(void);
- 
-+#ifdef CONFIG_64BIT
-+# ifdef system_has_cmpxchg128
-+# define system_has_freelist_aba()	system_has_cmpxchg128()
-+# define try_cmpxchg_freelist		try_cmpxchg128
-+# endif
-+#define this_cpu_try_cmpxchg_freelist	this_cpu_try_cmpxchg128
-+typedef u128 freelist_full_t;
-+#else /* CONFIG_64BIT */
-+# ifdef system_has_cmpxchg64
-+# define system_has_freelist_aba()	system_has_cmpxchg64()
-+# define try_cmpxchg_freelist		try_cmpxchg64
-+# endif
-+#define this_cpu_try_cmpxchg_freelist	this_cpu_try_cmpxchg64
-+typedef u64 freelist_full_t;
-+#endif /* CONFIG_64BIT */
-+
-+#if defined(system_has_freelist_aba) && !defined(CONFIG_HAVE_ALIGNED_STRUCT_PAGE)
-+#undef system_has_freelist_aba
-+#endif
-+
-+/*
-+ * Freelist pointer and counter to cmpxchg together, avoids the typical ABA
-+ * problems with cmpxchg of just a pointer.
-+ */
-+typedef union {
-+	struct {
-+		void *freelist;
-+		unsigned long counter;
-+	};
-+	freelist_full_t full;
-+} freelist_aba_t;
-+
- /* Reuses the bits in struct page */
- struct slab {
- 	unsigned long __page_flags;
-@@ -38,14 +70,21 @@ struct slab {
- #endif
- 			};
- 			/* Double-word boundary */
--			void *freelist;		/* first free object */
- 			union {
--				unsigned long counters;
- 				struct {
--					unsigned inuse:16;
--					unsigned objects:15;
--					unsigned frozen:1;
-+					void *freelist;		/* first free object */
-+					union {
-+						unsigned long counters;
-+						struct {
-+							unsigned inuse:16;
-+							unsigned objects:15;
-+							unsigned frozen:1;
-+						};
-+					};
- 				};
-+#ifdef system_has_freelist_aba
-+				freelist_aba_t freelist_counter;
-+#endif
- 			};
- 		};
- 		struct rcu_head rcu_head;
-@@ -72,8 +111,8 @@ SLAB_MATCH(memcg_data, memcg_data);
- #endif
- #undef SLAB_MATCH
- static_assert(sizeof(struct slab) <= sizeof(struct page));
--#if defined(CONFIG_HAVE_CMPXCHG_DOUBLE) && defined(CONFIG_SLUB)
--static_assert(IS_ALIGNED(offsetof(struct slab, freelist), 2*sizeof(void *)));
-+#if defined(system_has_freelist_aba) && defined(CONFIG_SLUB)
-+static_assert(IS_ALIGNED(offsetof(struct slab, freelist), sizeof(freelist_aba_t)));
- #endif
- 
- /**
---- a/mm/slub.c
-+++ b/mm/slub.c
-@@ -292,7 +292,12 @@ static inline bool kmem_cache_has_cpu_pa
- /* Poison object */
- #define __OBJECT_POISON		((slab_flags_t __force)0x80000000U)
- /* Use cmpxchg_double */
-+
-+#ifdef system_has_freelist_aba
- #define __CMPXCHG_DOUBLE	((slab_flags_t __force)0x40000000U)
-+#else
-+#define __CMPXCHG_DOUBLE	((slab_flags_t __force)0U)
-+#endif
- 
- /*
-  * Tracking user of a slab.
-@@ -512,6 +517,40 @@ static __always_inline void slab_unlock(
- 	__bit_spin_unlock(PG_locked, &page->flags);
- }
- 
-+static inline bool
-+__update_freelist_fast(struct slab *slab,
-+		      void *freelist_old, unsigned long counters_old,
-+		      void *freelist_new, unsigned long counters_new)
-+{
-+#ifdef system_has_freelist_aba
-+	freelist_aba_t old = { .freelist = freelist_old, .counter = counters_old };
-+	freelist_aba_t new = { .freelist = freelist_new, .counter = counters_new };
-+
-+	return try_cmpxchg_freelist(&slab->freelist_counter.full, &old.full, new.full);
-+#else
-+	return false;
-+#endif
-+}
-+
-+static inline bool
-+__update_freelist_slow(struct slab *slab,
-+		      void *freelist_old, unsigned long counters_old,
-+		      void *freelist_new, unsigned long counters_new)
-+{
-+	bool ret = false;
-+
-+	slab_lock(slab);
-+	if (slab->freelist == freelist_old &&
-+	    slab->counters == counters_old) {
-+		slab->freelist = freelist_new;
-+		slab->counters = counters_new;
-+		ret = true;
-+	}
-+	slab_unlock(slab);
-+
-+	return ret;
-+}
-+
- /*
-  * Interrupts must be disabled (for the fallback code to work right), typically
-  * by an _irqsave() lock variant. On PREEMPT_RT the preempt_disable(), which is
-@@ -519,33 +558,25 @@ static __always_inline void slab_unlock(
-  * allocation/ free operation in hardirq context. Therefore nothing can
-  * interrupt the operation.
-  */
--static inline bool __cmpxchg_double_slab(struct kmem_cache *s, struct slab *slab,
-+static inline bool __slab_update_freelist(struct kmem_cache *s, struct slab *slab,
- 		void *freelist_old, unsigned long counters_old,
- 		void *freelist_new, unsigned long counters_new,
- 		const char *n)
+Please consider the following fixup (broken whitespace ahead):
+
+ static inline bool uv_validity_check(struct vm *vm)
  {
-+	bool ret;
-+
- 	if (USE_LOCKLESS_FAST_PATH())
- 		lockdep_assert_irqs_disabled();
--#if defined(CONFIG_HAVE_CMPXCHG_DOUBLE) && \
--    defined(CONFIG_HAVE_ALIGNED_STRUCT_PAGE)
-+
- 	if (s->flags & __CMPXCHG_DOUBLE) {
--		if (cmpxchg_double(&slab->freelist, &slab->counters,
--				   freelist_old, counters_old,
--				   freelist_new, counters_new))
--			return true;
--	} else
--#endif
--	{
--		slab_lock(slab);
--		if (slab->freelist == freelist_old &&
--					slab->counters == counters_old) {
--			slab->freelist = freelist_new;
--			slab->counters = counters_new;
--			slab_unlock(slab);
--			return true;
--		}
--		slab_unlock(slab);
-+		ret = __update_freelist_fast(slab, freelist_old, counters_old,
-+				            freelist_new, counters_new);
-+	} else {
-+		ret = __update_freelist_slow(slab, freelist_old, counters_old,
-+				            freelist_new, counters_new);
- 	}
-+	if (likely(ret))
-+		return true;
- 
- 	cpu_relax();
- 	stat(s, CMPXCHG_DOUBLE_FAIL);
-@@ -557,36 +588,26 @@ static inline bool __cmpxchg_double_slab
- 	return false;
- }
- 
--static inline bool cmpxchg_double_slab(struct kmem_cache *s, struct slab *slab,
-+static inline bool slab_update_freelist(struct kmem_cache *s, struct slab *slab,
- 		void *freelist_old, unsigned long counters_old,
- 		void *freelist_new, unsigned long counters_new,
- 		const char *n)
- {
--#if defined(CONFIG_HAVE_CMPXCHG_DOUBLE) && \
--    defined(CONFIG_HAVE_ALIGNED_STRUCT_PAGE)
-+	bool ret;
-+
- 	if (s->flags & __CMPXCHG_DOUBLE) {
--		if (cmpxchg_double(&slab->freelist, &slab->counters,
--				   freelist_old, counters_old,
--				   freelist_new, counters_new))
--			return true;
--	} else
--#endif
--	{
-+		ret = __update_freelist_fast(slab, freelist_old, counters_old,
-+				            freelist_new, counters_new);
-+	} else {
- 		unsigned long flags;
- 
- 		local_irq_save(flags);
--		slab_lock(slab);
--		if (slab->freelist == freelist_old &&
--					slab->counters == counters_old) {
--			slab->freelist = freelist_new;
--			slab->counters = counters_new;
--			slab_unlock(slab);
--			local_irq_restore(flags);
--			return true;
--		}
--		slab_unlock(slab);
-+		ret = __update_freelist_slow(slab, freelist_old, counters_old,
-+				            freelist_new, counters_new);
- 		local_irq_restore(flags);
- 	}
-+	if (likely(ret))
-+		return true;
- 
- 	cpu_relax();
- 	stat(s, CMPXCHG_DOUBLE_FAIL);
-@@ -2228,7 +2249,7 @@ static inline void *acquire_slab(struct
- 	VM_BUG_ON(new.frozen);
- 	new.frozen = 1;
- 
--	if (!__cmpxchg_double_slab(s, slab,
-+	if (!__slab_update_freelist(s, slab,
- 			freelist, counters,
- 			new.freelist, new.counters,
- 			"acquire_slab"))
-@@ -2554,7 +2575,7 @@ static void deactivate_slab(struct kmem_
- 	}
- 
- 
--	if (!cmpxchg_double_slab(s, slab,
-+	if (!slab_update_freelist(s, slab,
- 				old.freelist, old.counters,
- 				new.freelist, new.counters,
- 				"unfreezing slab")) {
-@@ -2611,7 +2632,7 @@ static void __unfreeze_partials(struct k
- 
- 			new.frozen = 0;
- 
--		} while (!__cmpxchg_double_slab(s, slab,
-+		} while (!__slab_update_freelist(s, slab,
- 				old.freelist, old.counters,
- 				new.freelist, new.counters,
- 				"unfreezing slab"));
-@@ -3008,6 +3029,18 @@ static inline bool pfmemalloc_match(stru
- }
- 
- #ifndef CONFIG_SLUB_TINY
-+static inline bool
-+__update_cpu_freelist_fast(struct kmem_cache *s,
-+			   void *freelist_old, void *freelist_new,
-+			   unsigned long tid)
-+{
-+	freelist_aba_t old = { .freelist = freelist_old, .counter = tid };
-+	freelist_aba_t new = { .freelist = freelist_new, .counter = next_tid(tid) };
-+
-+	return this_cpu_try_cmpxchg_freelist(s->cpu_slab->freelist_tid.full,
-+					     &old.full, new.full);
-+}
-+
- /*
-  * Check the slab->freelist and either transfer the freelist to the
-  * per cpu freelist or deactivate the slab.
-@@ -3034,7 +3067,7 @@ static inline void *get_freelist(struct
- 		new.inuse = slab->objects;
- 		new.frozen = freelist != NULL;
- 
--	} while (!__cmpxchg_double_slab(s, slab,
-+	} while (!__slab_update_freelist(s, slab,
- 		freelist, counters,
- 		NULL, new.counters,
- 		"get_freelist"));
-@@ -3359,11 +3392,7 @@ static __always_inline void *__slab_allo
- 		 * against code executing on this cpu *not* from access by
- 		 * other cpus.
- 		 */
--		if (unlikely(!this_cpu_cmpxchg_double(
--				s->cpu_slab->freelist, s->cpu_slab->tid,
--				object, tid,
--				next_object, next_tid(tid)))) {
--
-+		if (unlikely(!__update_cpu_freelist_fast(s, object, next_object, tid))) {
- 			note_cmpxchg_failure("slab_alloc", s, tid);
- 			goto redo;
- 		}
-@@ -3631,7 +3660,7 @@ static void __slab_free(struct kmem_cach
- 			}
- 		}
- 
--	} while (!cmpxchg_double_slab(s, slab,
-+	} while (!slab_update_freelist(s, slab,
- 		prior, counters,
- 		head, new.counters,
- 		"__slab_free"));
-@@ -3736,11 +3765,7 @@ static __always_inline void do_slab_free
- 
- 		set_freepointer(s, tail_obj, freelist);
- 
--		if (unlikely(!this_cpu_cmpxchg_double(
--				s->cpu_slab->freelist, s->cpu_slab->tid,
--				freelist, tid,
--				head, next_tid(tid)))) {
--
-+		if (unlikely(!__update_cpu_freelist_fast(s, freelist, head, tid))) {
- 			note_cmpxchg_failure("slab_free", s, tid);
- 			goto redo;
- 		}
-@@ -4505,11 +4530,11 @@ static int kmem_cache_open(struct kmem_c
- 		}
- 	}
- 
--#if defined(CONFIG_HAVE_CMPXCHG_DOUBLE) && \
--    defined(CONFIG_HAVE_ALIGNED_STRUCT_PAGE)
--	if (system_has_cmpxchg_double() && (s->flags & SLAB_NO_CMPXCHG) == 0)
-+#ifdef system_has_freelist_aba
-+	if (system_has_freelist_aba() && !(s->flags & SLAB_NO_CMPXCHG)) {
- 		/* Enable fast mode */
- 		s->flags |= __CMPXCHG_DOUBLE;
-+	}
- #endif
- 
- 	/*
+-       uint16_t vir =3D sie_get_validity(vm);
++       uint16_t vir;
 
+-       return vm->sblk->icptcode =3D=3D ICPT_VALIDITY && (vir & 0xff00) =
+=3D=3D 0x2000;
++       /* must not use sie_get_validity() when there's no validity */
++       if (vm->sblk->icptcode !=3D ICPT_VALIDITY)
++               return false;
++       vir =3D sie_get_validity(vm);
++
++       return (vir & 0xff00) =3D=3D 0x2000;
+ }
 
