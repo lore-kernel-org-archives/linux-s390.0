@@ -2,103 +2,371 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E53BCC7EE2D
-	for <linux-s390@archiver.kernel.org>; Wed, 31 May 2023 15:28:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A85EC77B7A
+	for <linux-s390@archiver.kernel.org>; Wed, 31 May 2023 15:35:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234584AbjEaP2J (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 31 May 2023 11:28:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52632 "EHLO
+        id S234349AbjEaPfn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 31 May 2023 11:35:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234542AbjEaP2F (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 31 May 2023 11:28:05 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FCE8107;
-        Wed, 31 May 2023 08:27:53 -0700 (PDT)
-From:   Thomas Gleixner <tglx@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1685546872;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=J/AAE9ZGPs36fIX5clcov8ewvgNxaRXgiAw5owj43/k=;
-        b=dgIZbWn0Ffwl39MVqBYxhPk2zpqPDivTmcf41Fwe6BiycAhlt0CQ23s3y9g+opc388aIX1
-        KMxYZ759atp4cXI4qOTYG11J1QP7M4cOEdXucffb0LttwWfoAe0n4Wa7Zd20QcC8oOfxgj
-        96/yB9GLCeaI3pr7pfguXpIhv/df5PM/paQIV4bgjljfkr3mhLev75vrgdvAzRBUk1NLEZ
-        ywkKRdkJ9R7LTx37n2x1qjKWFtrMbxL4AWvlDsLppwCiClDZTRU3KXx1jbWVf908rNmO4K
-        ljHAUO2sUBOI0cgVUtSNDz+PiJ6CkZvm8VEAwx773h+T43k7b9R5cW2Sg+KGmw==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1685546872;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=J/AAE9ZGPs36fIX5clcov8ewvgNxaRXgiAw5owj43/k=;
-        b=siix7a116hO8Xmv/CgUCeR0LA9Ni9RJTtUSvmYgfIbz3coXXR2G04VhnPcGIBu6HbqOjaw
-        b571t2+jaB3FtuDg==
-To:     Peter Zijlstra <peterz@infradead.org>, bigeasy@linutronix.de
-Cc:     mark.rutland@arm.com, maz@kernel.org, catalin.marinas@arm.com,
-        will@kernel.org, chenhuacai@kernel.org, kernel@xen0n.name,
-        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        pbonzini@redhat.com, wanpengli@tencent.com, vkuznets@redhat.com,
-        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
-        x86@kernel.org, hpa@zytor.com, jgross@suse.com,
-        boris.ostrovsky@oracle.com, daniel.lezcano@linaro.org,
-        kys@microsoft.com, haiyangz@microsoft.com, wei.liu@kernel.org,
-        decui@microsoft.com, rafael@kernel.org, peterz@infradead.org,
-        longman@redhat.com, boqun.feng@gmail.com, pmladek@suse.com,
-        senozhatsky@chromium.org, rostedt@goodmis.org,
-        john.ogness@linutronix.de, juri.lelli@redhat.com,
-        vincent.guittot@linaro.org, dietmar.eggemann@arm.com,
-        bsegall@google.com, mgorman@suse.de, bristot@redhat.com,
-        vschneid@redhat.com, jstultz@google.com, sboyd@kernel.org,
-        linux-kernel@vger.kernel.org, loongarch@lists.linux.dev,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        linux-hyperv@vger.kernel.org, linux-pm@vger.kernel.org
-Subject: Re: [PATCH v2 08/13] x86/vdso: Fix gettimeofday masking
-In-Reply-To: <20230519102715.704767397@infradead.org>
-References: <20230519102058.581557770@infradead.org>
- <20230519102715.704767397@infradead.org>
-Date:   Wed, 31 May 2023 17:27:51 +0200
-Message-ID: <87r0qwfrm0.ffs@tglx>
+        with ESMTP id S234762AbjEaPfm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 31 May 2023 11:35:42 -0400
+Received: from mail-il1-x12e.google.com (mail-il1-x12e.google.com [IPv6:2607:f8b0:4864:20::12e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDE06134
+        for <linux-s390@vger.kernel.org>; Wed, 31 May 2023 08:35:35 -0700 (PDT)
+Received: by mail-il1-x12e.google.com with SMTP id e9e14a558f8ab-33b7f217dd0so197345ab.0
+        for <linux-s390@vger.kernel.org>; Wed, 31 May 2023 08:35:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20221208; t=1685547335; x=1688139335;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=dRRkvCZYbSlg4t8xNmIDDwHUKuhLfHD0cIrw3700dVo=;
+        b=F3utUZ5jdPTR1x7kwep/a3O/M1O2FfEohIVXcz/CBMY94I7ghYAdOfOwmEteY9N+pu
+         ArxO1ao1FFcwWZ2Ro9xw80509s0jHrC5OKiBRqA3UuPlOFCiAadD2rF+t7Izm6hDF3yJ
+         EPiTxETDha4DPtB9+aejroYDKEjiCItrVP55/xj7j8umM0YMbdCstRaCk5tY7JllwJ9X
+         P8r6ZqbUG90uBJZcbeKX9hyczmmujIw/7PhyCwbKan8AQ0AN6K8lxHE4PE178uEet/cV
+         XYvgARLy0SyrigU58Rs1QqIihvIgtm0J45cpH119527xv3T4RALnMC4bstaRMr/TCn5P
+         UInw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1685547335; x=1688139335;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=dRRkvCZYbSlg4t8xNmIDDwHUKuhLfHD0cIrw3700dVo=;
+        b=A0H9/QEHbsnmins2+1FluWzi4f2XR6riJdnlSWgAd7QeoBCcBXOyeR828PkMiAXOtE
+         eMwirNVYuSPjkQFskT2CKZBd/EnIPZfAdLAz07NE7yDAMx0Ekndk1GdF43RwHi783Jt/
+         1Uc2cl0GXmmH1xREQhzlk8Oo6zsYce5KZEIeZG8i62rYjIM+e3jSACRJ+xa4JOeF9vZr
+         1P1rxvxGyumyyODh835tU+fwKXZTqP8G+pLJow9eY1UblptCQ/7+toUGRw4bopyOJvWO
+         Nim3lvvdwviI5MjD9OOr9LTyZBmu4Q0DbQRtfQmceL2cXb64xK3Bk6uM85+1RpaZk3e3
+         ngog==
+X-Gm-Message-State: AC+VfDx161BqYlahmmZ2ECC1SyRr/FYhINHvAU8BHt5MVSoTXUH2xPmm
+        vSqZH9AXhfj/cfGVkzAsLmdI00Dbqu9+fJwH1ijkOQ==
+X-Google-Smtp-Source: ACHHUZ4mNqVesHou0LfeMRx7lS528vvvhkrqWTEzo+XSDqTFvF5QDhctZ96+3EobWyEv8r+F1qci8LfCFS6OSAYqXto=
+X-Received: by 2002:a05:6e02:1a26:b0:33b:3bf4:9f42 with SMTP id
+ g6-20020a056e021a2600b0033b3bf49f42mr126993ile.19.1685547334866; Wed, 31 May
+ 2023 08:35:34 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain
+References: <35e983f5-7ed3-b310-d949-9ae8b130cdab@google.com> <2e9996fa-d238-e7c-1194-834a2bd1f60@google.com>
+In-Reply-To: <2e9996fa-d238-e7c-1194-834a2bd1f60@google.com>
+From:   Jann Horn <jannh@google.com>
+Date:   Wed, 31 May 2023 17:34:58 +0200
+Message-ID: <CAG48ez0aF1Rf1apSjn9YcnfyFQ4YqSd4GqB6f2wfhF7jMdi5Hg@mail.gmail.com>
+Subject: Re: [PATCH 09/12] mm/khugepaged: retract_page_tables() without mmap
+ or vma lock
+To:     Hugh Dickins <hughd@google.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        David Hildenbrand <david@redhat.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Qi Zheng <zhengqi.arch@bytedance.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Peter Xu <peterx@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Steven Price <steven.price@arm.com>,
+        SeongJae Park <sj@kernel.org>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Zack Rusin <zackr@vmware.com>, Jason Gunthorpe <jgg@ziepe.ca>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Pasha Tatashin <pasha.tatashin@soleen.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Christoph Hellwig <hch@infradead.org>,
+        Song Liu <song@kernel.org>,
+        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
+        Russell King <linux@armlinux.org.uk>,
+        "David S. Miller" <davem@davemloft.net>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, May 19 2023 at 12:21, Peter Zijlstra wrote:
-> Because of how the virtual clocks use U64_MAX as an exception value
-> instead of a valid time, the clocks can no longer be assumed to wrap
-> cleanly. This is then compounded by arch_vdso_cycles_ok() rejecting
-> everything with the MSB/Sign-bit set.
+On Mon, May 29, 2023 at 8:25=E2=80=AFAM Hugh Dickins <hughd@google.com> wro=
+te:
+> -static int retract_page_tables(struct address_space *mapping, pgoff_t pg=
+off,
+> -                              struct mm_struct *target_mm,
+> -                              unsigned long target_addr, struct page *hp=
+age,
+> -                              struct collapse_control *cc)
+> +static void retract_page_tables(struct address_space *mapping, pgoff_t p=
+goff)
+>  {
+>         struct vm_area_struct *vma;
+> -       int target_result =3D SCAN_FAIL;
 >
-> Therefore, the effective mask becomes S64_MAX, and the comment with
-> vdso_calc_delta() that states the mask is U64_MAX and isn't optimized
-> out is just plain silly.
+> -       i_mmap_lock_write(mapping);
+> +       i_mmap_lock_read(mapping);
+>         vma_interval_tree_foreach(vma, &mapping->i_mmap, pgoff, pgoff) {
+> -               int result =3D SCAN_FAIL;
+> -               struct mm_struct *mm =3D NULL;
+> -               unsigned long addr =3D 0;
+> -               pmd_t *pmd;
+> -               bool is_target =3D false;
+> +               struct mm_struct *mm;
+> +               unsigned long addr;
+> +               pmd_t *pmd, pgt_pmd;
+> +               spinlock_t *pml;
+> +               spinlock_t *ptl;
 >
-> Now, the code has a negative filter -- to deal with TSC wobbles:
+>                 /*
+>                  * Check vma->anon_vma to exclude MAP_PRIVATE mappings th=
+at
+> -                * got written to. These VMAs are likely not worth invest=
+ing
+> -                * mmap_write_lock(mm) as PMD-mapping is likely to be spl=
+it
+> -                * later.
+> +                * got written to. These VMAs are likely not worth removi=
+ng
+> +                * page tables from, as PMD-mapping is likely to be split=
+ later.
+>                  *
+> -                * Note that vma->anon_vma check is racy: it can be set u=
+p after
+> -                * the check but before we took mmap_lock by the fault pa=
+th.
+> -                * But page lock would prevent establishing any new ptes =
+of the
+> -                * page, so we are safe.
+> -                *
+> -                * An alternative would be drop the check, but check that=
+ page
+> -                * table is clear before calling pmdp_collapse_flush() un=
+der
+> -                * ptl. It has higher chance to recover THP for the VMA, =
+but
+> -                * has higher cost too. It would also probably require lo=
+cking
+> -                * the anon_vma.
+> +                * Note that vma->anon_vma check is racy: it can be set a=
+fter
+> +                * the check, but page locks (with XA_RETRY_ENTRYs in hol=
+es)
+> +                * prevented establishing new ptes of the page. So we are=
+ safe
+> +                * to remove page table below, without even checking it's=
+ empty.
+
+This "we are safe to remove page table below, without even checking
+it's empty" assumes that the only way to create new anonymous PTEs is
+to use existing file PTEs, right? What about private shmem VMAs that
+are registered with userfaultfd as VM_UFFD_MISSING? I think for those,
+the UFFDIO_COPY ioctl lets you directly insert anonymous PTEs without
+looking at the mapping and its pages (except for checking that the
+insertion point is before end-of-file), protected only by mmap_lock
+(shared) and pte_offset_map_lock().
+
+
+>                  */
+> -               if (READ_ONCE(vma->anon_vma)) {
+> -                       result =3D SCAN_PAGE_ANON;
+> -                       goto next;
+> -               }
+> +               if (READ_ONCE(vma->anon_vma))
+> +                       continue;
+> +
+>                 addr =3D vma->vm_start + ((pgoff - vma->vm_pgoff) << PAGE=
+_SHIFT);
+>                 if (addr & ~HPAGE_PMD_MASK ||
+> -                   vma->vm_end < addr + HPAGE_PMD_SIZE) {
+> -                       result =3D SCAN_VMA_CHECK;
+> -                       goto next;
+> -               }
+> -               mm =3D vma->vm_mm;
+> -               is_target =3D mm =3D=3D target_mm && addr =3D=3D target_a=
+ddr;
+> -               result =3D find_pmd_or_thp_or_none(mm, addr, &pmd);
+> -               if (result !=3D SCAN_SUCCEED)
+> -                       goto next;
+> -               /*
+> -                * We need exclusive mmap_lock to retract page table.
+> -                *
+> -                * We use trylock due to lock inversion: we need to acqui=
+re
+> -                * mmap_lock while holding page lock. Fault path does it =
+in
+> -                * reverse order. Trylock is a way to avoid deadlock.
+> -                *
+> -                * Also, it's not MADV_COLLAPSE's job to collapse other
+> -                * mappings - let khugepaged take care of them later.
+> -                */
+> -               result =3D SCAN_PTE_MAPPED_HUGEPAGE;
+> -               if ((cc->is_khugepaged || is_target) &&
+> -                   mmap_write_trylock(mm)) {
+> -                       /* trylock for the same lock inversion as above *=
+/
+> -                       if (!vma_try_start_write(vma))
+> -                               goto unlock_next;
+> -
+> -                       /*
+> -                        * Re-check whether we have an ->anon_vma, becaus=
+e
+> -                        * collapse_and_free_pmd() requires that either n=
+o
+> -                        * ->anon_vma exists or the anon_vma is locked.
+> -                        * We already checked ->anon_vma above, but that =
+check
+> -                        * is racy because ->anon_vma can be populated un=
+der the
+> -                        * mmap lock in read mode.
+> -                        */
+> -                       if (vma->anon_vma) {
+> -                               result =3D SCAN_PAGE_ANON;
+> -                               goto unlock_next;
+> -                       }
+> -                       /*
+> -                        * When a vma is registered with uffd-wp, we can'=
+t
+> -                        * recycle the pmd pgtable because there can be p=
+te
+> -                        * markers installed.  Skip it only, so the rest =
+mm/vma
+> -                        * can still have the same file mapped hugely, ho=
+wever
+> -                        * it'll always mapped in small page size for uff=
+d-wp
+> -                        * registered ranges.
+> -                        */
+> -                       if (hpage_collapse_test_exit(mm)) {
+> -                               result =3D SCAN_ANY_PROCESS;
+> -                               goto unlock_next;
+> -                       }
+> -                       if (userfaultfd_wp(vma)) {
+> -                               result =3D SCAN_PTE_UFFD_WP;
+> -                               goto unlock_next;
+> -                       }
+> -                       collapse_and_free_pmd(mm, vma, addr, pmd);
+
+The old code called collapse_and_free_pmd(), which involves MMU
+notifier invocation...
+
+> -                       if (!cc->is_khugepaged && is_target)
+> -                               result =3D set_huge_pmd(vma, addr, pmd, h=
+page);
+> -                       else
+> -                               result =3D SCAN_SUCCEED;
+> -
+> -unlock_next:
+> -                       mmap_write_unlock(mm);
+> -                       goto next;
+> -               }
+> -               /*
+> -                * Calling context will handle target mm/addr. Otherwise,=
+ let
+> -                * khugepaged try again later.
+> -                */
+> -               if (!is_target) {
+> -                       khugepaged_add_pte_mapped_thp(mm, addr);
+> +                   vma->vm_end < addr + HPAGE_PMD_SIZE)
+>                         continue;
+> -               }
+> -next:
+> -               if (is_target)
+> -                       target_result =3D result;
+> +
+> +               mm =3D vma->vm_mm;
+> +               if (find_pmd_or_thp_or_none(mm, addr, &pmd) !=3D SCAN_SUC=
+CEED)
+> +                       continue;
+> +
+> +               if (hpage_collapse_test_exit(mm))
+> +                       continue;
+> +               /*
+> +                * When a vma is registered with uffd-wp, we cannot recyc=
+le
+> +                * the page table because there may be pte markers instal=
+led.
+> +                * Other vmas can still have the same file mapped hugely,=
+ but
+> +                * skip this one: it will always be mapped in small page =
+size
+> +                * for uffd-wp registered ranges.
+> +                *
+> +                * What if VM_UFFD_WP is set a moment after this check?  =
+No
+> +                * problem, huge page lock is still held, stopping new ma=
+ppings
+> +                * of page which might then get replaced by pte markers: =
+only
+> +                * existing markers need to be protected here.  (We could=
+ check
+> +                * after getting ptl below, but this comment distracting =
+there!)
+> +                */
+> +               if (userfaultfd_wp(vma))
+> +                       continue;
+> +
+> +               /* Huge page lock is still held, so page table must be em=
+pty */
+> +               pml =3D pmd_lock(mm, pmd);
+> +               ptl =3D pte_lockptr(mm, pmd);
+> +               if (ptl !=3D pml)
+> +                       spin_lock_nested(ptl, SINGLE_DEPTH_NESTING);
+> +               pgt_pmd =3D pmdp_collapse_flush(vma, addr, pmd);
+
+... while the new code only does pmdp_collapse_flush(), which clears
+the pmd entry and does a TLB flush, but AFAICS doesn't use MMU
+notifiers. My understanding is that that's problematic - maybe (?) it
+is sort of okay with regards to classic MMU notifier users like KVM,
+but it's probably wrong for IOMMUv2 users, where an IOMMU directly
+consumes the normal page tables?
+
+(FWIW, last I looked, there also seemed to be some other issues with
+MMU notifier usage wrt IOMMUv2, see the thread
+<https://lore.kernel.org/linux-mm/Yzbaf9HW1%2FreKqR8@nvidia.com/>.)
+
+
+> +               if (ptl !=3D pml)
+> +                       spin_unlock(ptl);
+> +               spin_unlock(pml);
+> +
+> +               mm_dec_nr_ptes(mm);
+> +               page_table_check_pte_clear_range(mm, addr, pgt_pmd);
+> +               pte_free_defer(mm, pmd_pgtable(pgt_pmd));
+>         }
+> -       i_mmap_unlock_write(mapping);
+> -       return target_result;
+> +       i_mmap_unlock_read(mapping);
+>  }
 >
-> 	if (cycles > last)
+>  /**
+> @@ -2261,9 +2210,11 @@ static int collapse_file(struct mm_struct *mm, uns=
+igned long addr,
 >
-> which is just plain wrong, because it should've been written as:
+>         /*
+>          * Remove pte page tables, so we can re-fault the page as huge.
+> +        * If MADV_COLLAPSE, adjust result to call collapse_pte_mapped_th=
+p().
+>          */
+> -       result =3D retract_page_tables(mapping, start, mm, addr, hpage,
+> -                                    cc);
+> +       retract_page_tables(mapping, start);
+> +       if (cc && !cc->is_khugepaged)
+> +               result =3D SCAN_PTE_MAPPED_HUGEPAGE;
+>         unlock_page(hpage);
 >
-> 	if ((s64)(cycles - last) > 0)
+>         /*
+> --
+> 2.35.3
 >
-> to take wrapping into account, but per all the above, we don't
-> actually wrap on u64 anymore.
-
-Indeed. The rationale was that you need ~146 years uptime with a 4GHz
-TSC or ~584 years with 1GHz to actually reach the wrap around point.
-
-Though I can see your point to make sure that silly BIOSes or VMMs
-cannot cause havoc by accident or malice.
-
-Did anyone ever validate that wrap around on TSC including TSC deadline
-timer works correctly?
-
-I have faint memories of TSC_ADJUST, which I prefer not to bring back to
-main memory :)
-
-Thanks,
-
-        tglx
