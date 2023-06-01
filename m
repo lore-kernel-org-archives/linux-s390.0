@@ -2,75 +2,70 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B883EC77B7E
-	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 13:59:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BA11FC7EE2A
+	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 14:07:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232380AbjFAN7O (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 1 Jun 2023 09:59:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53256 "EHLO
+        id S233602AbjFAOHH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 1 Jun 2023 10:07:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229880AbjFAN7N (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 09:59:13 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55844136;
-        Thu,  1 Jun 2023 06:59:12 -0700 (PDT)
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 351Dm9hh015701;
-        Thu, 1 Jun 2023 13:58:01 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=qT8kRrIQamscJRst5pRHoKfdEH4/busNADa3JrTVC3g=;
- b=EcF02Jqmvf+6HAT9LaMZa+MhPEGs9/+dTMTHpBaDRYrD5RPuGnr/K2/HP64SQalUJkHk
- ZWCjCaw2lONRj2AhM3Crarlu/K6+od0DBexSl1zjUar0MrEQxfRIg/K7oY8QhHG4KQXL
- FdBCF9dVOXSp8UoJLVE/juG1zcIni6dNQ6K9we5th1ge6iX8NT1b3WKIBNGdBdfaq4c2
- CzoTcRaNiE6ez9GoMWOuDymKC2ot745yFN19iHAxlwHlTTDmga8lIyU9/qTJhslkaaLq
- jfZtcwiIOHA/pscR30JBpqbSY7VooS5bEAnLZQmzhsJp9ZR59g9tYAqGE4DeTia9Cf1r Nw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qxvhdg9mn-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 01 Jun 2023 13:58:01 +0000
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 351DmkhY017127;
-        Thu, 1 Jun 2023 13:58:00 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qxvhdg9je-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 01 Jun 2023 13:58:00 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 351119CB028926;
-        Thu, 1 Jun 2023 13:57:57 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3qu9g52jpr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 01 Jun 2023 13:57:57 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 351DvrTb43450766
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 1 Jun 2023 13:57:54 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E094820040;
-        Thu,  1 Jun 2023 13:57:53 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BB4BD20043;
-        Thu,  1 Jun 2023 13:57:52 +0000 (GMT)
-Received: from thinkpad-T15 (unknown [9.152.212.238])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Thu,  1 Jun 2023 13:57:52 +0000 (GMT)
-Date:   Thu, 1 Jun 2023 15:57:51 +0200
-From:   Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-To:     Hugh Dickins <hughd@google.com>
-Cc:     Matthew Wilcox <willy@infradead.org>,
+        with ESMTP id S233018AbjFAOHF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 10:07:05 -0400
+Received: from mail-oo1-xc36.google.com (mail-oo1-xc36.google.com [IPv6:2607:f8b0:4864:20::c36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AD41191
+        for <linux-s390@vger.kernel.org>; Thu,  1 Jun 2023 07:07:00 -0700 (PDT)
+Received: by mail-oo1-xc36.google.com with SMTP id 006d021491bc7-555508fd7f9so297162eaf.3
+        for <linux-s390@vger.kernel.org>; Thu, 01 Jun 2023 07:07:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1685628419; x=1688220419;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=Il8ad/JyLlNtEN0Gv4lgifY2JQdLnMbUxgSHsXnJD/E=;
+        b=Ja7iIoiaBZS06nl+158TUHHbNfEj3dQZ/L62R0DW/ijsVPGlsZ2O32Ba4eQCHX0zAg
+         LfHMRKbOsxI5fTkJegrENtOKGl9zwk0OJLur02SGJ6GIveUDBcVkr+UhIEaFUVcRjrKv
+         I+lxCwssvsZK8CqLx1MBuX6uAdKjNETkdRqy7zXaIaDyhuZ4NBPXIc4oT4Kq9QPYL/wp
+         rQLV8GNPnEEDqd/Ylc/L8oZa2HjL+J1vDLj4QFw7X1INT12js5HjHN0Joz+wUbJ02lUx
+         KBCcn64/pwCReWJpNIW2B8GeaXRlQuUpK9rJC0snd+LGP1JbYm8YgxK8d5hCtKnpZFl1
+         SjSA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1685628419; x=1688220419;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Il8ad/JyLlNtEN0Gv4lgifY2JQdLnMbUxgSHsXnJD/E=;
+        b=MscMplIu8LxmaSW+ba5/8SU12r9PE2lyHgEpKgCvR2uRIwl+/Bad+otLHqG+vW0R7B
+         lgDULq3DK3x8avkiYC+z9Gh2nui+tTxlWur13MHlTNhuhdRryTESVZ17c4NQ53q3Q3yt
+         iygnl/PWBrBzOVcooN7hNMxZ6tBuyi5pDfxWyi++fbUrNFvh6oMBWYBS0PjBbfEJyzT4
+         dyPnwqn/yik4vvEI3jkpeXbSHtVD28MUeU19Ea1G6bxxWz4VxytnFlUApC4ogTaI47rl
+         vgZi5e2j29ulX0kn/n8sZlDNkTKhhxiG1T7RnhLoxGJHtdMMq8u8Gtrg7Y/2ScXcSltn
+         oZRg==
+X-Gm-Message-State: AC+VfDwakhV/dHLBUreq7TcbbVfa9XuS7x5WCTIU3V8MdixN82KcQKA3
+        +hRFYnOCS7GNgkzwHN4KxrV6Xw==
+X-Google-Smtp-Source: ACHHUZ4AEXih+LbcgXQJ3oJivdeKU2TDKI4u9IDJeO3/vV8DGscgFzmcnAdAr6rfYy2wFC0uefsS6g==
+X-Received: by 2002:a05:6808:1494:b0:398:1186:88b9 with SMTP id e20-20020a056808149400b00398118688b9mr5790684oiw.30.1685628419236;
+        Thu, 01 Jun 2023 07:06:59 -0700 (PDT)
+Received: from ziepe.ca ([206.223.160.26])
+        by smtp.gmail.com with ESMTPSA id es1-20020a056214192100b00626195bdbbdsm5454337qvb.132.2023.06.01.07.06.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 01 Jun 2023 07:06:58 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.95)
+        (envelope-from <jgg@ziepe.ca>)
+        id 1q4ix7-001SP8-JZ;
+        Thu, 01 Jun 2023 11:06:57 -0300
+Date:   Thu, 1 Jun 2023 11:06:57 -0300
+From:   Jason Gunthorpe <jgg@ziepe.ca>
+To:     Jann Horn <jannh@google.com>
+Cc:     Peter Xu <peterx@redhat.com>, Hugh Dickins <hughd@google.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Mike Kravetz <mike.kravetz@oracle.com>,
         Mike Rapoport <rppt@kernel.org>,
         "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
         David Hildenbrand <david@redhat.com>,
         Suren Baghdasaryan <surenb@google.com>,
         Qi Zheng <zhengqi.arch@bytedance.com>,
         Yang Shi <shy828301@gmail.com>,
         Mel Gorman <mgorman@techsingularity.net>,
-        Peter Xu <peterx@redhat.com>,
         Peter Zijlstra <peterz@infradead.org>,
         Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
         Alistair Popple <apopple@nvidia.com>,
@@ -80,7 +75,7 @@ Cc:     Matthew Wilcox <willy@infradead.org>,
         SeongJae Park <sj@kernel.org>,
         Naoya Horiguchi <naoya.horiguchi@nec.com>,
         Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Zack Rusin <zackr@vmware.com>, Jason Gunthorpe <jgg@ziepe.ca>,
+        Zack Rusin <zackr@vmware.com>,
         Axel Rasmussen <axelrasmussen@google.com>,
         Anshuman Khandual <anshuman.khandual@arm.com>,
         Pasha Tatashin <pasha.tatashin@soleen.com>,
@@ -97,81 +92,42 @@ Cc:     Matthew Wilcox <willy@infradead.org>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Claudio Imbrenda <imbrenda@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        Jann Horn <jannh@google.com>,
         linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
         linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: Re: [PATCH 05/12] powerpc: add pte_free_defer() for pgtables
- sharing page
-Message-ID: <20230601155751.7c949ca4@thinkpad-T15>
-In-Reply-To: <a8df11d-55ae-64bc-edcb-d383a7a941ea@google.com>
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH 09/12] mm/khugepaged: retract_page_tables() without mmap
+ or vma lock
+Message-ID: <ZHimAWRNDTg1JPOp@ziepe.ca>
 References: <35e983f5-7ed3-b310-d949-9ae8b130cdab@google.com>
-        <28eb289f-ea2c-8eb9-63bb-9f7d7b9ccc11@google.com>
-        <ZHSwWgLWaEd+zi/g@casper.infradead.org>
-        <a8df11d-55ae-64bc-edcb-d383a7a941ea@google.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.37; x86_64-redhat-linux-gnu)
+ <2e9996fa-d238-e7c-1194-834a2bd1f60@google.com>
+ <CAG48ez0aF1Rf1apSjn9YcnfyFQ4YqSd4GqB6f2wfhF7jMdi5Hg@mail.gmail.com>
+ <ZHe0A079X9B8jWlH@x1n>
+ <CAG48ez1UNFfpTUph6ZMuN61CoTGne05NLAweL_=ijRfqj5evMg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: SzHo2UjAE6P2WmSmv78QU1Y8kPZW3VM5
-X-Proofpoint-GUID: 3TDd0Cl2h1aUFcqmXlzGLt1BVByjS4S3
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
- definitions=2023-06-01_08,2023-05-31_03,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
- impostorscore=0 lowpriorityscore=0 adultscore=0 priorityscore=1501
- suspectscore=0 phishscore=0 mlxlogscore=999 malwarescore=0 clxscore=1011
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2304280000 definitions=main-2306010119
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAG48ez1UNFfpTUph6ZMuN61CoTGne05NLAweL_=ijRfqj5evMg@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 29 May 2023 07:36:40 -0700 (PDT)
-Hugh Dickins <hughd@google.com> wrote:
+On Thu, Jun 01, 2023 at 12:18:43AM +0200, Jann Horn wrote:
 
-> On Mon, 29 May 2023, Matthew Wilcox wrote:
-> > On Sun, May 28, 2023 at 11:20:21PM -0700, Hugh Dickins wrote:  
-> > > +void pte_free_defer(struct mm_struct *mm, pgtable_t pgtable)
-> > > +{
-> > > +	struct page *page;
-> > > +
-> > > +	page = virt_to_page(pgtable);
-> > > +	call_rcu(&page->rcu_head, pte_free_now);
-> > > +}  
-> > 
-> > This can't be safe (on ppc).  IIRC you might have up to 16x4k page
-> > tables sharing one 64kB page.  So if you have two page tables from the
-> > same page being defer-freed simultaneously, you'll reuse the rcu_head
-> > and I cannot imagine things go well from that point.  
-> 
-> Oh yes, of course, thanks for catching that so quickly.
-> So my s390 and sparc implementations will be equally broken.
-> 
-> > 
-> > I have no idea how to solve this problem.  
-> 
-> I do: I'll have to go back to the more complicated implementation we
-> actually ran with on powerpc - I was thinking those complications just
-> related to deposit/withdraw matters, forgetting the one-rcu_head issue.
-> 
-> It uses large (0x10000) increments of the page refcount, avoiding
-> call_rcu() when already active.
-> 
-> It's not a complication I had wanted to explain or test for now,
-> but we shall have to.  Should apply equally well to sparc, but s390
-> more of a problem, since s390 already has its own refcount cleverness.
+> 3. We have to *serialize* with page table walks performed by the
+> IOMMU. We're doing an RCU barrier to synchronize against page table
+> walks from the MMU, but without an appropriate mmu_notifier call, we
+> have nothing to ensure that we aren't yanking a page table out from
+> under an IOMMU page table walker while it's in the middle of its walk.
+> Sure, this isn't very likely in practice, the IOMMU page table walker
+> is probably pretty fast, but still we need some kind of explicit
+> synchronization to make this robust, I think.
 
-Yes, we have 2 pagetables in one 4K page, which could result in same
-rcu_head reuse. It might be possible to use the cleverness from our
-page_table_free() function, e.g. to only do the call_rcu() once, for
-the case where both 2K pagetable fragments become unused, similar to
-how we decide when to actually call __free_page().
+There is another thread talking about this..
 
-However, it might be much worse, and page->rcu_head from a pagetable
-page cannot be used at all for s390, because we also use page->lru
-to keep our list of free 2K pagetable fragments. I always get confused
-by struct page unions, so not completely sure, but it seems to me that
-page->rcu_head would overlay with page->lru, right?
+Broadly we are saying that we need to call mmu ops invalidate_range at
+any time the normal CPU TLB would be invalidated.
+
+invalidate_range will not return until the iommu HW is coherent with
+the current state of the page table.
+
+Jason
