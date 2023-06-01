@@ -2,136 +2,165 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 12F94C77B7E
-	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 17:05:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ED7B9C7EE2F
+	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 17:39:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233114AbjFARFQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 1 Jun 2023 13:05:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47030 "EHLO
+        id S232971AbjFARjp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 1 Jun 2023 13:39:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231366AbjFAREp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 13:04:45 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A038E4D;
-        Thu,  1 Jun 2023 10:04:30 -0700 (PDT)
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 351H1n4B006914;
-        Thu, 1 Jun 2023 17:04:30 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : from : to : cc : references : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=KRUz4yKIjA5yeBdIlHhEJwQtE7y0oilBMkxJZeNFrEc=;
- b=qb4CM5nWJ4LXg23LR88ugB62wETbSAosdXptDGkP55bFPjW8YKqXYmWmNeInUg+aKmSG
- pRy5L0SAyaxTC5FD6LPuwWJfaPyrldCpmcoZEco4xusCD8FOfxwQJ+LGDACSgJrZaStj
- 6VNelXmHNZL0YXmSVi3nwo0TkFsMgpI/7CH79lL5lOXvH0CP1taNRL4dolhu3WCdz8DR
- GCtmbJxYiR0Cyyc0/Nasr5ANl++g2AURh8AiEHyUbqQm/+tNSmKs986BpuZposI2oJuW
- EthfUsGriMXFqMqPG2LBDMr0PiPXqx2WNNZlDrATlMkonQKClTo7GiDzIm5+wapnPoNo 5A== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qxy6vgd8s-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 01 Jun 2023 17:04:29 +0000
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 351H1s7j007556;
-        Thu, 1 Jun 2023 17:04:28 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qxy6vgd5v-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 01 Jun 2023 17:04:28 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3513PKCG017606;
-        Thu, 1 Jun 2023 16:58:05 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3qu9g5amy1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 01 Jun 2023 16:58:05 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 351Gw1N539518586
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 1 Jun 2023 16:58:01 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CAFE520049;
-        Thu,  1 Jun 2023 16:58:01 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 43C1620040;
-        Thu,  1 Jun 2023 16:58:01 +0000 (GMT)
-Received: from [9.171.12.131] (unknown [9.171.12.131])
-        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Thu,  1 Jun 2023 16:58:01 +0000 (GMT)
-Message-ID: <269afffb-2d56-3b2f-9d83-485d0d29fab5@linux.ibm.com>
-Date:   Thu, 1 Jun 2023 18:58:00 +0200
+        with ESMTP id S231346AbjFARjn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 13:39:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D304136;
+        Thu,  1 Jun 2023 10:39:42 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EE33E64860;
+        Thu,  1 Jun 2023 17:39:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60D9AC4339E;
+        Thu,  1 Jun 2023 17:39:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1685641181;
+        bh=rOyxKwyKoD8JRFg4gUZg/5MsYAzctjBiJEmXXIw+2Pg=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=o/tcJHGXDGK+Cmz0WPMH9eqt4DXVRB87b+bOc4yCFZZx+pNoEHu0L6Kk/WHl5TZCQ
+         v4wg++ka5L5/koa89l5lEtczt9Lp/CS49/lq9S/D/gsV6IN2cJNGZcqlW9mzDWtgf8
+         kSPa6HE9uQjRqdmZMZGwEA+2H5w1XPFs1bwtf87IXl053GkxGBjbRGWwQEhiSemK34
+         SURRDqI9JYl4AuMZSjsgfbIzfuYI4ScXci6h+5ayJwzrwQeS7v4C8WHfjDAbGm6Wt7
+         HhKwh2oygRzaHVjZAo7rCNsfYsqW/i3EtbygDwQjD02rjzFKXYyUdDoEjObai2iibs
+         UOf6kgrQWTHWg==
+Received: by mail-vk1-f181.google.com with SMTP id 71dfb90a1353d-45c6c6e0ab2so599177e0c.1;
+        Thu, 01 Jun 2023 10:39:41 -0700 (PDT)
+X-Gm-Message-State: AC+VfDzzxOBgQs22Zp+fPZ5LbXE5al098PVjDPukZSVDJiG9ue70wnq0
+        mTIF1LqBegezr4klJ3rP77T6/6P+iMKs1xV/gVo=
+X-Google-Smtp-Source: ACHHUZ7saBfaT5uX7NLiJU4LIkIoXw37eBnBmjdUSiEWtD7RMOu14iPsR47csoQHy7I8rQlHKSda/v96q9Noy2qP/FE=
+X-Received: by 2002:aca:ead6:0:b0:398:2f7f:a5cd with SMTP id
+ i205-20020acaead6000000b003982f7fa5cdmr1228908oih.24.1685641160132; Thu, 01
+ Jun 2023 10:39:20 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.8.0
-Subject: Re: [kvm-unit-tests PATCH v5 2/2] s390x: sclp: Implement
- extended-length-SCCB facility
-Content-Language: en-US
-From:   Pierre Morel <pmorel@linux.ibm.com>
-To:     linux-s390@vger.kernel.org
-Cc:     frankja@linux.ibm.com, thuth@redhat.com, kvm@vger.kernel.org,
-        imbrenda@linux.ibm.com, david@redhat.com, nrb@linux.ibm.com,
-        nsg@linux.ibm.com, cohuck@redhat.com
-References: <20230601164537.31769-1-pmorel@linux.ibm.com>
- <20230601164537.31769-3-pmorel@linux.ibm.com>
-In-Reply-To: <20230601164537.31769-3-pmorel@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 78iKyWeCbniavBDj0uxpKwTSYUGQ2CSm
-X-Proofpoint-GUID: qpr5pGBmg1y7ZLMhYx1U1Z3cQ63CcxXu
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
- definitions=2023-06-01_08,2023-05-31_03,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- malwarescore=0 bulkscore=0 adultscore=0 suspectscore=0 phishscore=0
- spamscore=0 mlxscore=0 mlxlogscore=999 clxscore=1015 impostorscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2304280000 definitions=main-2306010148
+References: <20230531130833.635651916@infradead.org> <20230531132323.722039569@infradead.org>
+ <70a69deb-7ad4-45b2-8e13-34955594a7ce@app.fastmail.com> <20230601101409.GS4253@hirez.programming.kicks-ass.net>
+ <14c50e58-fecc-e96a-ee73-39ef4e4617c7@gmx.de> <CAHk-=whL65CLuy9D9gyO608acM5WLWo_ggAMP1cGu2XvyC0-hA@mail.gmail.com>
+In-Reply-To: <CAHk-=whL65CLuy9D9gyO608acM5WLWo_ggAMP1cGu2XvyC0-hA@mail.gmail.com>
+From:   Masahiro Yamada <masahiroy@kernel.org>
+Date:   Fri, 2 Jun 2023 02:38:43 +0900
+X-Gmail-Original-Message-ID: <CAK7LNATxpUK+w=VAkhLZserLr4cMk2ffSr+qzzZwuZ6DKWA0mw@mail.gmail.com>
+Message-ID: <CAK7LNATxpUK+w=VAkhLZserLr4cMk2ffSr+qzzZwuZ6DKWA0mw@mail.gmail.com>
+Subject: Re: [PATCH v2 07/12] parisc/percpu: Work around the lack of __SIZEOF_INT128__
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Helge Deller <deller@gmx.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Will Deacon <will@kernel.org>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>, dennis@kernel.org,
+        Tejun Heo <tj@kernel.org>, Christoph Lameter <cl@linux.com>,
+        Heiko Carstens <hca@linux.ibm.com>, gor@linux.ibm.com,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        borntraeger@linux.ibm.com, Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>, Joerg Roedel <joro@8bytes.org>,
+        suravee.suthikulpanit@amd.com, Robin Murphy <robin.murphy@arm.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Baolu Lu <baolu.lu@linux.intel.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S . Miller" <davem@davemloft.net>,
+        Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Hyeonggon Yoo <42.hyeyoo@gmail.com>, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org, iommu@lists.linux.dev,
+        Linux-Arch <linux-arch@vger.kernel.org>,
+        linux-crypto@vger.kernel.org,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
+        linux-parisc@vger.kernel.org,
+        John David Anglin <dave.anglin@bell.net>,
+        Sam James <sam@gentoo.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-On 6/1/23 18:45, Pierre Morel wrote:
-> When the extended-length-SCCB facility is present use a big
-> buffer already at first try when calling sclp_read_scp_info()
-> to avoid the SCLP_RC_INSUFFICIENT_SCCB_LENGTH error.
+On Thu, Jun 1, 2023 at 10:29=E2=80=AFPM Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
 >
-> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-> ---
->   lib/s390x/sclp.c | 5 ++++-
->   1 file changed, 4 insertions(+), 1 deletion(-)
+> On Thu, Jun 1, 2023 at 6:32=E2=80=AFAM Helge Deller <deller@gmx.de> wrote=
+:
+> >
+> > I don't think we need to care about gcc-10 on parisc.
+> > Debian and Gentoo are the only supported distributions, while Debian
+> > requires gcc-12 to build > 6.x kernels, and I assume Gentoo uses at lea=
+st
+> > gcc-12 as well.
+> >
+> > So raising the gcc limit for parisc only (at least temporarily for now)
+> > should be fine and your workaround below wouldn't be necessary, right?
 >
-> diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
-> index adf357b..e44d299 100644
-> --- a/lib/s390x/sclp.c
-> +++ b/lib/s390x/sclp.c
-> @@ -17,13 +17,14 @@
->   #include "sclp.h"
->   #include <alloc_phys.h>
->   #include <alloc_page.h>
-> +#include <asm/facility.h>
->   
->   extern unsigned long stacktop;
->   
->   static uint64_t storage_increment_size;
->   static uint64_t max_ram_size;
->   static uint64_t ram_size;
-> -char _read_info[PAGE_SIZE] __attribute__((__aligned__(PAGE_SIZE)));
-> +char _read_info[2 * PAGE_SIZE] __attribute__((__aligned__(PAGE_SIZE)));
->   static ReadInfo *read_info;
->   struct sclp_facilities sclp_facilities;
->   
-> @@ -114,6 +115,8 @@ static void sclp_read_scp_info(ReadInfo *ri, int length)
->   void sclp_read_info(void)
->   {
-This line must go away.....v
->   	sclp_read_scp_info((void *)_read_info, SCCB_SIZE);
+> This absolutely sounds like the right option. Let's simplify the
+> problem space by just saying that parisc needs the newer compiler.
+>
+> Right now we have that "minimum gcc version" in a somewhat annoying
+> place: it's in the ./scripts/min-tool-version.sh file as a shell
+> script.
+>
+> I wonder if we could move the gcc minimum version check into the
+> Kconfig file instead, and make it easier to let architectures override
+> the minimum version.
 
-Sorry for the noise.
+Currently, it is invoked in the Kconfig time,
+but not directly in Kconfig files.
+
+scripts/Kconfig.include
+ -> scripts/cc-version.sh
+    -> scripts/min-tool-version.sh
+
+It would be ugly if we wrote the equivalent code
+directly in Kconfig files.
 
 
-> +	sclp_read_scp_info((void *)_read_info,
-> +		test_facility(140) ? sizeof(_read_info) : SCCB_SIZE);
->   	read_info = (ReadInfo *)_read_info;
->   }
->   
+>
+> I don't quite know how to do that sanely, though. I don't think we
+> have a sane way to error out at Kconfig time (except by forcing some
+> syntax error inside an 'if' statement or something horrendously hacky
+> like that).
+
+The parse stage can fail by $(error-if ) macro, but
+the evaluation stage never fails. I think it is a design.
+
+I think checking the compiler version during the parse stage
+makes sense given the current situation. The compiler version is
+fixed when Kconfig starts. If the compiler is found to be too old,
+there is no meaning to proceed.
+
+
+You suggested to choose a compiler in the Kconfig time:
+https://lore.kernel.org/lkml/CAHk-=3DwhdrvCkSWh=3DBRrwZwNo3=3DyLBXXM88NGx8V=
+EpP1VTgmkyQ@mail.gmail.com/
+
+When we achieve that, moving the min version to Kconfig files will be
+the right thing to do. Then, everything will be evaluated dynamically.
+
+
+>
+> Added Masahiro to the (already overlong) participants list.
+>
+>                    Linus
+
+
+
+--=20
+Best Regards
+Masahiro Yamada
