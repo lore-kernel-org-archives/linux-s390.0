@@ -2,35 +2,35 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ED624C7EE32
-	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 10:18:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6512FC7EE31
+	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 10:18:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232881AbjFAKSN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 1 Jun 2023 06:18:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54662 "EHLO
+        id S233584AbjFAKSU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 1 Jun 2023 06:18:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233424AbjFAKRr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 06:17:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5C3F194;
-        Thu,  1 Jun 2023 03:15:07 -0700 (PDT)
+        with ESMTP id S233530AbjFAKRv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 06:17:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AF25E4C;
+        Thu,  1 Jun 2023 03:15:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 93ED3642EF;
-        Thu,  1 Jun 2023 10:15:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A308C4339C;
-        Thu,  1 Jun 2023 10:14:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 86D6B6431B;
+        Thu,  1 Jun 2023 10:14:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75981C433AA;
+        Thu,  1 Jun 2023 10:14:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1685614505;
-        bh=G2GdJVzAnUKaWnOT1TIoPAOd/IwXlrQ3DAxFtMYvPLk=;
+        s=k20201202; t=1685614468;
+        bh=K7wvO7ElwhoAy7Oh2IpfLgKs2YHT7c7jqjInBLBuDTg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fMc3IUZIjV2o8AMw0NrnjHEPrq9u1V/LyWs/VxXTMokZCibw2xL5wgIFwcIxwuDQL
-         B2hJeVCtM/kQtm/+QoGK7QKLXDyuJzLK8wkNLwGzwXhCkYUqFj+3YM+T+MF0vbXkTO
-         1NCWdM02gpHmOd92bZSpMi5zoJ6gleYJkvsdOTcPs3uDaPyDdFvaf7JgqECftvKkGn
-         V83Lwg2PrWAiihvtavQekannW7SJnVqvEPuzLv4kqyplVFhtbdJOkdjdaHPHHXUQcD
-         KD8EsP14NPiqbvPVQNIIef3mObHow5F5dRYEXgVHenX3cnm55lwWVLdXRgZF4Ig2Oq
-         R+zMGOf1djivg==
+        b=fRH3Dr0wJXXqyiX4DpPIKcmgXGzVC4gxNGWC6LITX/cuu1fgtqI+DGd/9maCsR1YG
+         n02Pkrgsj/Vf+omfNPMLkDIo5AN0DpSJtbXnHd8HZYRidz4tixxp+zVAey7pSOXiL2
+         cko5pQEh79FuGCFjyg1UUYvNTHWmqFfd0GoIcCkM0Zc2qiZnUklG6CFkw/wVmFZbjc
+         SNrDkttPHy4gt7c/8IG464jkTRJMmL6XvHlOQ637slnEy6SnCyf+T1hQ+VMOoEny+t
+         HOm3wN3FqH/AR42jxZ+6LMUF0Xt0ozqmMyjhXT2Z8ufKOXgnAqLmo+fVYAvP698VE6
+         fxfx5BUrh+Gtw==
 From:   Mike Rapoport <rppt@kernel.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Andrew Morton <akpm@linux-foundation.org>,
@@ -59,9 +59,9 @@ Cc:     Andrew Morton <akpm@linux-foundation.org>,
         linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
         linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
         netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
-Subject: [PATCH 12/13] x86/jitalloc: prepare to allocate exectuatble memory as ROX
-Date:   Thu,  1 Jun 2023 13:12:56 +0300
-Message-Id: <20230601101257.530867-13-rppt@kernel.org>
+Subject: [PATCH 08/13] arch: make jitalloc setup available regardless of CONFIG_MODULES
+Date:   Thu,  1 Jun 2023 13:12:52 +0300
+Message-Id: <20230601101257.530867-9-rppt@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20230601101257.530867-1-rppt@kernel.org>
 References: <20230601101257.530867-1-rppt@kernel.org>
@@ -71,492 +71,805 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Song Liu <song@kernel.org>
+From: "Mike Rapoport (IBM)" <rppt@kernel.org>
 
-Replace direct memory writes to memory allocated for code with text poking
-to allow allocation of executable memory as ROX.
+jitalloc does not depend on modules, on the contrary modules use
+jitalloc.
 
-The only exception is arch_prepare_bpf_trampoline() that cannot jit
-directly into module memory yet, so it uses set_memory calls to
-unprotect the memory before writing to it and to protect memory in the
-end.
+To make jitalloc available when CONFIG_MODULES=n, for instance for
+kprobes, split jit_alloc_params initialization out from
+arch/kernel/module.c and compile it when CONFIG_JIT_ALLOC=y
 
-Signed-off-by: Song Liu <song@kernel.org>
-Co-developed-by: Mike Rapoport (IBM) <rppt@kernel.org>
 Signed-off-by: Mike Rapoport (IBM) <rppt@kernel.org>
 ---
- arch/x86/kernel/alternative.c | 43 +++++++++++++++++++++++------------
- arch/x86/kernel/ftrace.c      | 41 +++++++++++++++++++++------------
- arch/x86/kernel/module.c      | 24 +++++--------------
- arch/x86/kernel/static_call.c | 10 ++++----
- arch/x86/kernel/unwind_orc.c  | 13 +++++++----
- arch/x86/net/bpf_jit_comp.c   | 22 +++++++++++++-----
- 6 files changed, 91 insertions(+), 62 deletions(-)
+ arch/arm/kernel/module.c       | 32 --------------------------
+ arch/arm/mm/init.c             | 35 ++++++++++++++++++++++++++++
+ arch/arm64/kernel/module.c     | 40 --------------------------------
+ arch/arm64/mm/init.c           | 42 ++++++++++++++++++++++++++++++++++
+ arch/loongarch/kernel/module.c | 14 ------------
+ arch/loongarch/mm/init.c       | 16 +++++++++++++
+ arch/mips/kernel/module.c      | 17 --------------
+ arch/mips/mm/init.c            | 19 +++++++++++++++
+ arch/parisc/kernel/module.c    | 17 --------------
+ arch/parisc/mm/init.c          | 21 ++++++++++++++++-
+ arch/powerpc/kernel/module.c   | 39 -------------------------------
+ arch/powerpc/mm/mem.c          | 41 +++++++++++++++++++++++++++++++++
+ arch/riscv/kernel/module.c     | 16 -------------
+ arch/riscv/mm/init.c           | 18 +++++++++++++++
+ arch/s390/kernel/module.c      | 32 --------------------------
+ arch/s390/mm/init.c            | 35 ++++++++++++++++++++++++++++
+ arch/sparc/kernel/module.c     | 19 ---------------
+ arch/sparc/mm/Makefile         |  2 ++
+ arch/sparc/mm/jitalloc.c       | 21 +++++++++++++++++
+ 19 files changed, 249 insertions(+), 227 deletions(-)
+ create mode 100644 arch/sparc/mm/jitalloc.c
 
-diff --git a/arch/x86/kernel/alternative.c b/arch/x86/kernel/alternative.c
-index f615e0cb6d93..91057de8e6bc 100644
---- a/arch/x86/kernel/alternative.c
-+++ b/arch/x86/kernel/alternative.c
-@@ -18,6 +18,7 @@
- #include <linux/mmu_context.h>
- #include <linux/bsearch.h>
- #include <linux/sync_core.h>
-+#include <linux/set_memory.h>
- #include <asm/text-patching.h>
- #include <asm/alternative.h>
+diff --git a/arch/arm/kernel/module.c b/arch/arm/kernel/module.c
+index 83ccbf98164f..054e799e7091 100644
+--- a/arch/arm/kernel/module.c
++++ b/arch/arm/kernel/module.c
+@@ -16,44 +16,12 @@
+ #include <linux/fs.h>
+ #include <linux/string.h>
+ #include <linux/gfp.h>
+-#include <linux/jitalloc.h>
+ 
  #include <asm/sections.h>
-@@ -76,6 +77,19 @@ do {									\
- 	}								\
- } while (0)
+ #include <asm/smp_plat.h>
+ #include <asm/unwind.h>
+ #include <asm/opcodes.h>
  
-+void text_poke_early(void *addr, const void *opcode, size_t len);
-+
-+static void __init_or_module do_text_poke(void *addr, const void *opcode, size_t len)
-+{
-+	if (system_state < SYSTEM_RUNNING) {
-+		text_poke_early(addr, opcode, len);
-+	} else {
-+		mutex_lock(&text_mutex);
-+		text_poke(addr, opcode, len);
-+		mutex_unlock(&text_mutex);
-+	}
-+}
-+
- static const unsigned char x86nops[] =
+-#ifdef CONFIG_XIP_KERNEL
+-/*
+- * The XIP kernel text is mapped in the module area for modules and
+- * some other stuff to work without any indirect relocations.
+- * MODULES_VADDR is redefined here and not in asm/memory.h to avoid
+- * recompiling the whole kernel when CONFIG_XIP_KERNEL is turned on/off.
+- */
+-#undef MODULES_VADDR
+-#define MODULES_VADDR	(((unsigned long)_exiprom + ~PMD_MASK) & PMD_MASK)
+-#endif
+-
+-#ifdef CONFIG_MMU
+-static struct jit_alloc_params jit_alloc_params = {
+-	.alignment	= 1,
+-	.text.start	= MODULES_VADDR,
+-	.text.end	= MODULES_END,
+-};
+-
+-struct jit_alloc_params *jit_alloc_arch_params(void)
+-{
+-	jit_alloc_params.text.pgprot = PAGE_KERNEL_EXEC;
+-
+-	if (IS_ENABLED(CONFIG_ARM_MODULE_PLTS)) {
+-		jit_alloc_params.text.fallback_start = VMALLOC_START;
+-		jit_alloc_params.text.fallback_end = VMALLOC_END;
+-	}
+-
+-	return &jit_alloc_params;
+-}
+-#endif
+-
+ bool module_init_section(const char *name)
  {
- 	BYTES_NOP1,
-@@ -108,7 +122,7 @@ static void __init_or_module add_nops(void *insns, unsigned int len)
- 		unsigned int noplen = len;
- 		if (noplen > ASM_NOP_MAX)
- 			noplen = ASM_NOP_MAX;
--		memcpy(insns, x86_nops[noplen], noplen);
-+		do_text_poke(insns, x86_nops[noplen], noplen);
- 		insns += noplen;
- 		len -= noplen;
- 	}
-@@ -120,7 +134,6 @@ extern s32 __cfi_sites[], __cfi_sites_end[];
- extern s32 __ibt_endbr_seal[], __ibt_endbr_seal_end[];
- extern struct alt_instr __alt_instructions[], __alt_instructions_end[];
- extern s32 __smp_locks[], __smp_locks_end[];
--void text_poke_early(void *addr, const void *opcode, size_t len);
+ 	return strstarts(name, ".init") ||
+diff --git a/arch/arm/mm/init.c b/arch/arm/mm/init.c
+index ce64bdb55a16..e492625b7f3d 100644
+--- a/arch/arm/mm/init.c
++++ b/arch/arm/mm/init.c
+@@ -22,6 +22,7 @@
+ #include <linux/sizes.h>
+ #include <linux/stop_machine.h>
+ #include <linux/swiotlb.h>
++#include <linux/jitalloc.h>
  
- /*
-  * Are we looking at a near JMP with a 1 or 4-byte displacement.
-@@ -331,7 +344,7 @@ void __init_or_module noinline apply_alternatives(struct alt_instr *start,
- 
- 		DUMP_BYTES(insn_buff, insn_buff_sz, "%px: final_insn: ", instr);
- 
--		text_poke_early(instr, insn_buff, insn_buff_sz);
-+		do_text_poke(instr, insn_buff, insn_buff_sz);
- 
- next:
- 		optimize_nops(instr, a->instrlen);
-@@ -564,7 +577,7 @@ void __init_or_module noinline apply_retpolines(s32 *start, s32 *end)
- 			optimize_nops(bytes, len);
- 			DUMP_BYTES(((u8*)addr),  len, "%px: orig: ", addr);
- 			DUMP_BYTES(((u8*)bytes), len, "%px: repl: ", addr);
--			text_poke_early(addr, bytes, len);
-+			do_text_poke(addr, bytes, len);
- 		}
- 	}
- }
-@@ -638,7 +651,7 @@ void __init_or_module noinline apply_returns(s32 *start, s32 *end)
- 		if (len == insn.length) {
- 			DUMP_BYTES(((u8*)addr),  len, "%px: orig: ", addr);
- 			DUMP_BYTES(((u8*)bytes), len, "%px: repl: ", addr);
--			text_poke_early(addr, bytes, len);
-+			do_text_poke(addr, bytes, len);
- 		}
- 	}
- }
-@@ -674,7 +687,7 @@ static void poison_endbr(void *addr, bool warn)
- 	 */
- 	DUMP_BYTES(((u8*)addr), 4, "%px: orig: ", addr);
- 	DUMP_BYTES(((u8*)&poison), 4, "%px: repl: ", addr);
--	text_poke_early(addr, &poison, 4);
-+	do_text_poke(addr, &poison, 4);
- }
- 
- /*
-@@ -869,7 +882,7 @@ static int cfi_disable_callers(s32 *start, s32 *end)
- 		if (!hash) /* nocfi callers */
- 			continue;
- 
--		text_poke_early(addr, jmp, 2);
-+		do_text_poke(addr, jmp, 2);
- 	}
- 
- 	return 0;
-@@ -892,7 +905,7 @@ static int cfi_enable_callers(s32 *start, s32 *end)
- 		if (!hash) /* nocfi callers */
- 			continue;
- 
--		text_poke_early(addr, mov, 2);
-+		do_text_poke(addr, mov, 2);
- 	}
- 
- 	return 0;
-@@ -913,7 +926,7 @@ static int cfi_rand_preamble(s32 *start, s32 *end)
- 			return -EINVAL;
- 
- 		hash = cfi_rehash(hash);
--		text_poke_early(addr + 1, &hash, 4);
-+		do_text_poke(addr + 1, &hash, 4);
- 	}
- 
- 	return 0;
-@@ -932,9 +945,9 @@ static int cfi_rewrite_preamble(s32 *start, s32 *end)
- 			 addr, addr, 5, addr))
- 			return -EINVAL;
- 
--		text_poke_early(addr, fineibt_preamble_start, fineibt_preamble_size);
-+		do_text_poke(addr, fineibt_preamble_start, fineibt_preamble_size);
- 		WARN_ON(*(u32 *)(addr + fineibt_preamble_hash) != 0x12345678);
--		text_poke_early(addr + fineibt_preamble_hash, &hash, 4);
-+		do_text_poke(addr + fineibt_preamble_hash, &hash, 4);
- 	}
- 
- 	return 0;
-@@ -953,7 +966,7 @@ static int cfi_rand_callers(s32 *start, s32 *end)
- 		hash = decode_caller_hash(addr);
- 		if (hash) {
- 			hash = -cfi_rehash(hash);
--			text_poke_early(addr + 2, &hash, 4);
-+			do_text_poke(addr + 2, &hash, 4);
- 		}
- 	}
- 
-@@ -971,9 +984,9 @@ static int cfi_rewrite_callers(s32 *start, s32 *end)
- 		addr -= fineibt_caller_size;
- 		hash = decode_caller_hash(addr);
- 		if (hash) {
--			text_poke_early(addr, fineibt_caller_start, fineibt_caller_size);
-+			do_text_poke(addr, fineibt_caller_start, fineibt_caller_size);
- 			WARN_ON(*(u32 *)(addr + fineibt_caller_hash) != 0x12345678);
--			text_poke_early(addr + fineibt_caller_hash, &hash, 4);
-+			do_text_poke(addr + fineibt_caller_hash, &hash, 4);
- 		}
- 		/* rely on apply_retpolines() */
- 	}
-@@ -1243,7 +1256,7 @@ void __init_or_module apply_paravirt(struct paravirt_patch_site *start,
- 
- 		/* Pad the rest with nops */
- 		add_nops(insn_buff + used, p->len - used);
--		text_poke_early(p->instr, insn_buff, p->len);
-+		do_text_poke(p->instr, insn_buff, p->len);
- 	}
- }
- extern struct paravirt_patch_site __start_parainstructions[],
-diff --git a/arch/x86/kernel/ftrace.c b/arch/x86/kernel/ftrace.c
-index aa99536b824c..d50595f2c1a6 100644
---- a/arch/x86/kernel/ftrace.c
-+++ b/arch/x86/kernel/ftrace.c
-@@ -118,10 +118,13 @@ ftrace_modify_code_direct(unsigned long ip, const char *old_code,
- 		return ret;
- 
- 	/* replace the text with the new text */
--	if (ftrace_poke_late)
-+	if (ftrace_poke_late) {
- 		text_poke_queue((void *)ip, new_code, MCOUNT_INSN_SIZE, NULL);
--	else
--		text_poke_early((void *)ip, new_code, MCOUNT_INSN_SIZE);
-+	} else {
-+		mutex_lock(&text_mutex);
-+		text_poke((void *)ip, new_code, MCOUNT_INSN_SIZE);
-+		mutex_unlock(&text_mutex);
-+	}
- 	return 0;
- }
- 
-@@ -319,7 +322,7 @@ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
- 	unsigned const char op_ref[] = { 0x48, 0x8b, 0x15 };
- 	unsigned const char retq[] = { RET_INSN_OPCODE, INT3_INSN_OPCODE };
- 	union ftrace_op_code_union op_ptr;
--	int ret;
-+	void *ret;
- 
- 	if (ops->flags & FTRACE_OPS_FL_SAVE_REGS) {
- 		start_offset = (unsigned long)ftrace_regs_caller;
-@@ -350,15 +353,15 @@ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
- 	npages = DIV_ROUND_UP(*tramp_size, PAGE_SIZE);
- 
- 	/* Copy ftrace_caller onto the trampoline memory */
--	ret = copy_from_kernel_nofault(trampoline, (void *)start_offset, size);
--	if (WARN_ON(ret < 0))
-+	ret = text_poke_copy(trampoline, (void *)start_offset, size);
-+	if (WARN_ON(!ret))
- 		goto fail;
- 
- 	ip = trampoline + size;
- 	if (cpu_feature_enabled(X86_FEATURE_RETHUNK))
- 		__text_gen_insn(ip, JMP32_INSN_OPCODE, ip, x86_return_thunk, JMP32_INSN_SIZE);
- 	else
--		memcpy(ip, retq, sizeof(retq));
-+		text_poke_copy(ip, retq, sizeof(retq));
- 
- 	/* No need to test direct calls on created trampolines */
- 	if (ops->flags & FTRACE_OPS_FL_SAVE_REGS) {
-@@ -366,8 +369,7 @@ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
- 		ip = trampoline + (jmp_offset - start_offset);
- 		if (WARN_ON(*(char *)ip != 0x75))
- 			goto fail;
--		ret = copy_from_kernel_nofault(ip, x86_nops[2], 2);
--		if (ret < 0)
-+		if (!text_poke_copy(ip, x86_nops[2], 2))
- 			goto fail;
- 	}
- 
-@@ -380,7 +382,7 @@ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
- 	 */
- 
- 	ptr = (unsigned long *)(trampoline + size + RET_SIZE);
--	*ptr = (unsigned long)ops;
-+	text_poke_copy(ptr, &ops, sizeof(unsigned long));
- 
- 	op_offset -= start_offset;
- 	memcpy(&op_ptr, trampoline + op_offset, OP_REF_SIZE);
-@@ -396,7 +398,7 @@ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
- 	op_ptr.offset = offset;
- 
- 	/* put in the new offset to the ftrace_ops */
--	memcpy(trampoline + op_offset, &op_ptr, OP_REF_SIZE);
-+	text_poke_copy(trampoline + op_offset, &op_ptr, OP_REF_SIZE);
- 
- 	/* put in the call to the function */
- 	mutex_lock(&text_mutex);
-@@ -406,9 +408,9 @@ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
- 	 * the depth accounting before the call already.
- 	 */
- 	dest = ftrace_ops_get_func(ops);
--	memcpy(trampoline + call_offset,
--	       text_gen_insn(CALL_INSN_OPCODE, trampoline + call_offset, dest),
--	       CALL_INSN_SIZE);
-+	text_poke_copy_locked(trampoline + call_offset,
-+	      text_gen_insn(CALL_INSN_OPCODE, trampoline + call_offset, dest),
-+	      CALL_INSN_SIZE, false);
- 	mutex_unlock(&text_mutex);
- 
- 	/* ALLOC_TRAMP flags lets us know we created it */
-@@ -658,4 +660,15 @@ void ftrace_graph_func(unsigned long ip, unsigned long parent_ip,
+ #include <asm/cp15.h>
+ #include <asm/mach-types.h>
+@@ -486,3 +487,37 @@ void free_initrd_mem(unsigned long start, unsigned long end)
+ 	free_reserved_area((void *)start, (void *)end, -1, "initrd");
  }
  #endif
- 
-+void ftrace_swap_func(void *a, void *b, int n)
++
++#ifdef CONFIG_JIT_ALLOC
++#ifdef CONFIG_XIP_KERNEL
++/*
++ * The XIP kernel text is mapped in the module area for modules and
++ * some other stuff to work without any indirect relocations.
++ * MODULES_VADDR is redefined here and not in asm/memory.h to avoid
++ * recompiling the whole kernel when CONFIG_XIP_KERNEL is turned on/off.
++ */
++#undef MODULES_VADDR
++#define MODULES_VADDR	(((unsigned long)_exiprom + ~PMD_MASK) & PMD_MASK)
++#endif
++
++#ifdef CONFIG_MMU
++static struct jit_alloc_params jit_alloc_params = {
++	.alignment	= 1,
++	.text.start	= MODULES_VADDR,
++	.text.end	= MODULES_END,
++};
++
++struct jit_alloc_params *jit_alloc_arch_params(void)
 +{
-+	unsigned long t;
++	jit_alloc_params.text.pgprot = PAGE_KERNEL_EXEC;
 +
-+	WARN_ON_ONCE(n != sizeof(t));
++	if (IS_ENABLED(CONFIG_ARM_MODULE_PLTS)) {
++		jit_alloc_params.text.fallback_start = VMALLOC_START;
++		jit_alloc_params.text.fallback_end = VMALLOC_END;
++	}
 +
-+	t = *((unsigned long *)a);
-+	text_poke_copy(a, b, sizeof(t));
-+	text_poke_copy(b, &t, sizeof(t));
++	return &jit_alloc_params;
++}
++#endif
++
++#endif /* CONFIG_JIT_ALLOC */
+diff --git a/arch/arm64/kernel/module.c b/arch/arm64/kernel/module.c
+index 91ffcff5a44c..6d09b29fe9db 100644
+--- a/arch/arm64/kernel/module.c
++++ b/arch/arm64/kernel/module.c
+@@ -17,51 +17,11 @@
+ #include <linux/moduleloader.h>
+ #include <linux/scs.h>
+ #include <linux/vmalloc.h>
+-#include <linux/jitalloc.h>
+ #include <asm/alternative.h>
+ #include <asm/insn.h>
+ #include <asm/scs.h>
+ #include <asm/sections.h>
+ 
+-static struct jit_alloc_params jit_alloc_params = {
+-	.alignment	= JIT_ALLOC_ALIGN,
+-	.flags		= JIT_ALLOC_KASAN_SHADOW,
+-};
+-
+-struct jit_alloc_params *jit_alloc_arch_params(void)
+-{
+-	u64 module_alloc_end = module_alloc_base + MODULES_VSIZE;
+-
+-	if (IS_ENABLED(CONFIG_KASAN_GENERIC) ||
+-	    IS_ENABLED(CONFIG_KASAN_SW_TAGS))
+-		/* don't exceed the static module region - see below */
+-		module_alloc_end = MODULES_END;
+-
+-	jit_alloc_params.text.pgprot = PAGE_KERNEL;
+-	jit_alloc_params.text.start = module_alloc_base;
+-	jit_alloc_params.text.end = module_alloc_end;
+-
+-	/*
+-	 * KASAN without KASAN_VMALLOC can only deal with module
+-	 * allocations being served from the reserved module region,
+-	 * since the remainder of the vmalloc region is already
+-	 * backed by zero shadow pages, and punching holes into it
+-	 * is non-trivial. Since the module region is not randomized
+-	 * when KASAN is enabled without KASAN_VMALLOC, it is even
+-	 * less likely that the module region gets exhausted, so we
+-	 * can simply omit this fallback in that case.
+-	 */
+-	if (IS_ENABLED(CONFIG_ARM64_MODULE_PLTS) &&
+-	    (IS_ENABLED(CONFIG_KASAN_VMALLOC) ||
+-	     (!IS_ENABLED(CONFIG_KASAN_GENERIC) &&
+-	      !IS_ENABLED(CONFIG_KASAN_SW_TAGS)))) {
+-		jit_alloc_params.text.fallback_start = module_alloc_base;
+-		jit_alloc_params.text.fallback_end = module_alloc_base + SZ_2G;
+-	}
+-
+-	return &jit_alloc_params;
+-}
+-
+ enum aarch64_reloc_op {
+ 	RELOC_OP_NONE,
+ 	RELOC_OP_ABS,
+diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
+index 66e70ca47680..a4463a35b3c5 100644
+--- a/arch/arm64/mm/init.c
++++ b/arch/arm64/mm/init.c
+@@ -31,6 +31,7 @@
+ #include <linux/hugetlb.h>
+ #include <linux/acpi_iort.h>
+ #include <linux/kmemleak.h>
++#include <linux/jitalloc.h>
+ 
+ #include <asm/boot.h>
+ #include <asm/fixmap.h>
+@@ -493,3 +494,44 @@ void dump_mem_limit(void)
+ 		pr_emerg("Memory Limit: none\n");
+ 	}
+ }
++
++#ifdef CONFIG_JIT_ALLOC
++static struct jit_alloc_params jit_alloc_params = {
++	.alignment	= JIT_ALLOC_ALIGN,
++	.flags		= JIT_ALLOC_KASAN_SHADOW,
++};
++
++struct jit_alloc_params *jit_alloc_arch_params(void)
++{
++	u64 module_alloc_end = module_alloc_base + MODULES_VSIZE;
++
++	if (IS_ENABLED(CONFIG_KASAN_GENERIC) ||
++	    IS_ENABLED(CONFIG_KASAN_SW_TAGS))
++		/* don't exceed the static module region - see below */
++		module_alloc_end = MODULES_END;
++
++	jit_alloc_params.text.pgprot = PAGE_KERNEL;
++	jit_alloc_params.text.start = module_alloc_base;
++	jit_alloc_params.text.end = module_alloc_end;
++
++	/*
++	 * KASAN without KASAN_VMALLOC can only deal with module
++	 * allocations being served from the reserved module region,
++	 * since the remainder of the vmalloc region is already
++	 * backed by zero shadow pages, and punching holes into it
++	 * is non-trivial. Since the module region is not randomized
++	 * when KASAN is enabled without KASAN_VMALLOC, it is even
++	 * less likely that the module region gets exhausted, so we
++	 * can simply omit this fallback in that case.
++	 */
++	if (IS_ENABLED(CONFIG_ARM64_MODULE_PLTS) &&
++	    (IS_ENABLED(CONFIG_KASAN_VMALLOC) ||
++	     (!IS_ENABLED(CONFIG_KASAN_GENERIC) &&
++	      !IS_ENABLED(CONFIG_KASAN_SW_TAGS)))) {
++		jit_alloc_params.text.fallback_start = module_alloc_base;
++		jit_alloc_params.text.fallback_end = module_alloc_base + SZ_2G;
++	}
++
++	return &jit_alloc_params;
++}
++#endif
+diff --git a/arch/loongarch/kernel/module.c b/arch/loongarch/kernel/module.c
+index 1d5e00874ae7..181b5f8b09f1 100644
+--- a/arch/loongarch/kernel/module.c
++++ b/arch/loongarch/kernel/module.c
+@@ -18,7 +18,6 @@
+ #include <linux/ftrace.h>
+ #include <linux/string.h>
+ #include <linux/kernel.h>
+-#include <linux/jitalloc.h>
+ #include <asm/alternative.h>
+ #include <asm/inst.h>
+ 
+@@ -470,19 +469,6 @@ int apply_relocate_add(Elf_Shdr *sechdrs, const char *strtab,
+ 	return 0;
+ }
+ 
+-static struct jit_alloc_params jit_alloc_params = {
+-	.alignment	= 1,
+-	.text.pgprot	= PAGE_KERNEL,
+-};
+-
+-struct jit_alloc_params *jit_alloc_arch_params(void)
+-{
+-	jit_alloc_params.text.start = MODULES_VADDR;
+-	jit_alloc_params.text.end = MODULES_END;
+-
+-	return &jit_alloc_params;
+-}
+-
+ static void module_init_ftrace_plt(const Elf_Ehdr *hdr,
+ 				   const Elf_Shdr *sechdrs, struct module *mod)
+ {
+diff --git a/arch/loongarch/mm/init.c b/arch/loongarch/mm/init.c
+index 3b7d8129570b..30ca8e497377 100644
+--- a/arch/loongarch/mm/init.c
++++ b/arch/loongarch/mm/init.c
+@@ -24,6 +24,7 @@
+ #include <linux/gfp.h>
+ #include <linux/hugetlb.h>
+ #include <linux/mmzone.h>
++#include <linux/jitalloc.h>
+ 
+ #include <asm/asm-offsets.h>
+ #include <asm/bootinfo.h>
+@@ -274,3 +275,18 @@ EXPORT_SYMBOL(invalid_pmd_table);
+ #endif
+ pte_t invalid_pte_table[PTRS_PER_PTE] __page_aligned_bss;
+ EXPORT_SYMBOL(invalid_pte_table);
++
++#ifdef CONFIG_JIT_ALLOC
++static struct jit_alloc_params jit_alloc_params = {
++	.alignment	= 1,
++	.text.pgprot	= PAGE_KERNEL,
++};
++
++struct jit_alloc_params *jit_alloc_arch_params(void)
++{
++	jit_alloc_params.text.start = MODULES_VADDR;
++	jit_alloc_params.text.end = MODULES_END;
++
++	return &jit_alloc_params;
++}
++#endif
+diff --git a/arch/mips/kernel/module.c b/arch/mips/kernel/module.c
+index f762c697ab9c..dba78c7a4a88 100644
+--- a/arch/mips/kernel/module.c
++++ b/arch/mips/kernel/module.c
+@@ -20,7 +20,6 @@
+ #include <linux/kernel.h>
+ #include <linux/spinlock.h>
+ #include <linux/jump_label.h>
+-#include <linux/jitalloc.h>
+ 
+ extern void jump_label_apply_nops(struct module *mod);
+ 
+@@ -33,22 +32,6 @@ struct mips_hi16 {
+ static LIST_HEAD(dbe_list);
+ static DEFINE_SPINLOCK(dbe_lock);
+ 
+-#ifdef MODULE_START
+-
+-static struct jit_alloc_params jit_alloc_params = {
+-	.alignment	= 1,
+-	.text.start	= MODULE_START,
+-	.text.end	= MODULE_END,
+-};
+-
+-struct jit_alloc_params *jit_alloc_arch_params(void)
+-{
+-	jit_alloc_params.text.pgprot = PAGE_KERNEL;
+-
+-	return &jit_alloc_params;
+-}
+-#endif
+-
+ static void apply_r_mips_32(u32 *location, u32 base, Elf_Addr v)
+ {
+ 	*location = base + v;
+diff --git a/arch/mips/mm/init.c b/arch/mips/mm/init.c
+index 5a8002839550..1fd1bea78fdc 100644
+--- a/arch/mips/mm/init.c
++++ b/arch/mips/mm/init.c
+@@ -31,6 +31,7 @@
+ #include <linux/gfp.h>
+ #include <linux/kcore.h>
+ #include <linux/initrd.h>
++#include <linux/jitalloc.h>
+ 
+ #include <asm/bootinfo.h>
+ #include <asm/cachectl.h>
+@@ -568,3 +569,21 @@ EXPORT_SYMBOL_GPL(invalid_pmd_table);
+ #endif
+ pte_t invalid_pte_table[PTRS_PER_PTE] __page_aligned_bss;
+ EXPORT_SYMBOL(invalid_pte_table);
++
++#ifdef CONFIG_JIT_ALLOC
++#ifdef MODULE_START
++
++static struct jit_alloc_params jit_alloc_params = {
++	.alignment	= 1,
++	.text.start	= MODULE_START,
++	.text.end	= MODULE_END,
++};
++
++struct jit_alloc_params *jit_alloc_arch_params(void)
++{
++	jit_alloc_params.text.pgprot = PAGE_KERNEL;
++
++	return &jit_alloc_params;
++}
++#endif
++#endif
+diff --git a/arch/parisc/kernel/module.c b/arch/parisc/kernel/module.c
+index 49fdf741fd24..3cb0b2c72d85 100644
+--- a/arch/parisc/kernel/module.c
++++ b/arch/parisc/kernel/module.c
+@@ -49,7 +49,6 @@
+ #include <linux/bug.h>
+ #include <linux/mm.h>
+ #include <linux/slab.h>
+-#include <linux/jitalloc.h>
+ 
+ #include <asm/unwind.h>
+ #include <asm/sections.h>
+@@ -174,22 +173,6 @@ static inline int reassemble_22(int as22)
+ 		((as22 & 0x0003ff) << 3));
+ }
+ 
+-static struct jit_alloc_params jit_alloc_params = {
+-	.alignment	= 1,
+-	/* using RWX means less protection for modules, but it's
+-	 * easier than trying to map the text, data, init_text and
+-	 * init_data correctly */
+-	.text.pgprot	= PAGE_KERNEL_RWX,
+-	.text.end	= VMALLOC_END,
+-};
+-
+-struct jit_alloc_params *jit_alloc_arch_params(void)
+-{
+-	jit_alloc_params.text.start = VMALLOC_START;
+-
+-	return &jit_alloc_params;
+-}
+-
+ #ifndef CONFIG_64BIT
+ static inline unsigned long count_gots(const Elf_Rela *rela, unsigned long n)
+ {
+diff --git a/arch/parisc/mm/init.c b/arch/parisc/mm/init.c
+index b0c43f3b0a5f..1601519486fa 100644
+--- a/arch/parisc/mm/init.c
++++ b/arch/parisc/mm/init.c
+@@ -24,6 +24,7 @@
+ #include <linux/nodemask.h>	/* for node_online_map */
+ #include <linux/pagemap.h>	/* for release_pages */
+ #include <linux/compat.h>
++#include <linux/jitalloc.h>
+ 
+ #include <asm/pgalloc.h>
+ #include <asm/tlb.h>
+@@ -479,7 +480,7 @@ void free_initmem(void)
+ 	/* finally dump all the instructions which were cached, since the
+ 	 * pages are no-longer executable */
+ 	flush_icache_range(init_begin, init_end);
+-	
++
+ 	free_initmem_default(POISON_FREE_INITMEM);
+ 
+ 	/* set up a new led state on systems shipped LED State panel */
+@@ -891,3 +892,21 @@ static const pgprot_t protection_map[16] = {
+ 	[VM_SHARED | VM_EXEC | VM_WRITE | VM_READ]	= PAGE_RWX
+ };
+ DECLARE_VM_GET_PAGE_PROT
++
++#ifdef CONFIG_JIT_ALLOC
++static struct jit_alloc_params jit_alloc_params = {
++	.alignment	= 1,
++	/* using RWX means less protection for modules, but it's
++	 * easier than trying to map the text, data, init_text and
++	 * init_data correctly */
++	.text.pgprot	= PAGE_KERNEL_RWX,
++	.text.end	= VMALLOC_END,
++};
++
++struct jit_alloc_params *jit_alloc_arch_params(void)
++{
++	jit_alloc_params.text.start = VMALLOC_START;
++
++	return &jit_alloc_params;
++}
++#endif
+diff --git a/arch/powerpc/kernel/module.c b/arch/powerpc/kernel/module.c
+index b58af61e90c0..b30e00964a60 100644
+--- a/arch/powerpc/kernel/module.c
++++ b/arch/powerpc/kernel/module.c
+@@ -12,7 +12,6 @@
+ #include <linux/bug.h>
+ #include <asm/module.h>
+ #include <linux/uaccess.h>
+-#include <linux/jitalloc.h>
+ #include <asm/firmware.h>
+ #include <linux/sort.h>
+ #include <asm/setup.h>
+@@ -89,41 +88,3 @@ int module_finalize(const Elf_Ehdr *hdr,
+ 
+ 	return 0;
+ }
+-
+-static struct jit_alloc_params jit_alloc_params = {
+-	.alignment	= 1,
+-};
+-
+-struct jit_alloc_params *jit_alloc_arch_params(void)
+-{
+-	/*
+-	 * BOOK3S_32 and 8xx define MODULES_VADDR for text allocations and
+-	 * allow allocating data in the entire vmalloc space
+-	 */
+-#ifdef MODULES_VADDR
+-	pgprot_t prot = strict_module_rwx_enabled() ? PAGE_KERNEL : PAGE_KERNEL_EXEC;
+-	unsigned long limit = (unsigned long)_etext - SZ_32M;
+-
+-	jit_alloc_params.text.pgprot = prot;
+-
+-	/* First try within 32M limit from _etext to avoid branch trampolines */
+-	if (MODULES_VADDR < PAGE_OFFSET && MODULES_END > limit) {
+-		jit_alloc_params.text.start = limit;
+-		jit_alloc_params.text.end = MODULES_END;
+-		jit_alloc_params.text.fallback_start = MODULES_VADDR;
+-		jit_alloc_params.text.fallback_end = MODULES_END;
+-	} else {
+-		jit_alloc_params.text.start = MODULES_VADDR;
+-		jit_alloc_params.text.end = MODULES_END;
+-	}
+-
+-	jit_alloc_params.data.pgprot	= PAGE_KERNEL;
+-	jit_alloc_params.data.start	= VMALLOC_START;
+-	jit_alloc_params.data.end	= VMALLOC_END;
+-#else
+-	jit_alloc_params.text.start = VMALLOC_START;
+-	jit_alloc_params.text.end = VMALLOC_END;
+-#endif
+-
+-	return &jit_alloc_params;
+-}
+diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
+index 8b121df7b08f..de970988119f 100644
+--- a/arch/powerpc/mm/mem.c
++++ b/arch/powerpc/mm/mem.c
+@@ -16,6 +16,7 @@
+ #include <linux/highmem.h>
+ #include <linux/suspend.h>
+ #include <linux/dma-direct.h>
++#include <linux/jitalloc.h>
+ 
+ #include <asm/swiotlb.h>
+ #include <asm/machdep.h>
+@@ -406,3 +407,43 @@ int devmem_is_allowed(unsigned long pfn)
+  * the EHEA driver. Drop this when drivers/net/ethernet/ibm/ehea is removed.
+  */
+ EXPORT_SYMBOL_GPL(walk_system_ram_range);
++
++#ifdef CONFIG_JIT_ALLOC
++static struct jit_alloc_params jit_alloc_params = {
++	.alignment	= 1,
++};
++
++struct jit_alloc_params *jit_alloc_arch_params(void)
++{
++	/*
++	 * BOOK3S_32 and 8xx define MODULES_VADDR for text allocations and
++	 * allow allocating data in the entire vmalloc space
++	 */
++#ifdef MODULES_VADDR
++	pgprot_t prot = strict_module_rwx_enabled() ? PAGE_KERNEL : PAGE_KERNEL_EXEC;
++	unsigned long limit = (unsigned long)_etext - SZ_32M;
++
++	jit_alloc_params.text.pgprot = prot;
++
++	/* First try within 32M limit from _etext to avoid branch trampolines */
++	if (MODULES_VADDR < PAGE_OFFSET && MODULES_END > limit) {
++		jit_alloc_params.text.start = limit;
++		jit_alloc_params.text.end = MODULES_END;
++		jit_alloc_params.text.fallback_start = MODULES_VADDR;
++		jit_alloc_params.text.fallback_end = MODULES_END;
++	} else {
++		jit_alloc_params.text.start = MODULES_VADDR;
++		jit_alloc_params.text.end = MODULES_END;
++	}
++
++	jit_alloc_params.data.pgprot	= PAGE_KERNEL;
++	jit_alloc_params.data.start	= VMALLOC_START;
++	jit_alloc_params.data.end	= VMALLOC_END;
++#else
++	jit_alloc_params.text.start = VMALLOC_START;
++	jit_alloc_params.text.end = VMALLOC_END;
++#endif
++
++	return &jit_alloc_params;
++}
++#endif
+diff --git a/arch/riscv/kernel/module.c b/arch/riscv/kernel/module.c
+index 731255654c94..8af08d5449bf 100644
+--- a/arch/riscv/kernel/module.c
++++ b/arch/riscv/kernel/module.c
+@@ -11,7 +11,6 @@
+ #include <linux/vmalloc.h>
+ #include <linux/sizes.h>
+ #include <linux/pgtable.h>
+-#include <linux/jitalloc.h>
+ #include <asm/alternative.h>
+ #include <asm/sections.h>
+ 
+@@ -436,21 +435,6 @@ int apply_relocate_add(Elf_Shdr *sechdrs, const char *strtab,
+ 	return 0;
+ }
+ 
+-#if defined(CONFIG_MMU) && defined(CONFIG_64BIT)
+-static struct jit_alloc_params jit_alloc_params = {
+-	.alignment	= 1,
+-	.text.pgprot	= PAGE_KERNEL,
+-};
+-
+-struct jit_alloc_params *jit_alloc_arch_params(void)
+-{
+-	jit_alloc_params.text.start = MODULES_VADDR;
+-	jit_alloc_params.text.end = MODULES_END;
+-
+-	return &jit_alloc_params;
+-}
+-#endif
+-
+ int module_finalize(const Elf_Ehdr *hdr,
+ 		    const Elf_Shdr *sechdrs,
+ 		    struct module *me)
+diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
+index 747e5b1ef02d..5b87f83ef810 100644
+--- a/arch/riscv/mm/init.c
++++ b/arch/riscv/mm/init.c
+@@ -23,6 +23,7 @@
+ #ifdef CONFIG_RELOCATABLE
+ #include <linux/elf.h>
+ #endif
++#include <linux/jitalloc.h>
+ 
+ #include <asm/fixmap.h>
+ #include <asm/tlbflush.h>
+@@ -1363,3 +1364,20 @@ int __meminit vmemmap_populate(unsigned long start, unsigned long end, int node,
+ 	return vmemmap_populate_basepages(start, end, node, NULL);
+ }
+ #endif
++
++#ifdef CONFIG_JIT_ALLOC
++#if defined(CONFIG_MMU) && defined(CONFIG_64BIT)
++static struct jit_alloc_params jit_alloc_params = {
++	.alignment	= 1,
++	.text.pgprot	= PAGE_KERNEL,
++};
++
++struct jit_alloc_params *jit_alloc_arch_params(void)
++{
++	jit_alloc_params.text.start = MODULES_VADDR;
++	jit_alloc_params.text.end = MODULES_END;
++
++	return &jit_alloc_params;
++}
++#endif
++#endif
+diff --git a/arch/s390/kernel/module.c b/arch/s390/kernel/module.c
+index 3f85cf1e7c4e..0a4f4f32ef49 100644
+--- a/arch/s390/kernel/module.c
++++ b/arch/s390/kernel/module.c
+@@ -37,38 +37,6 @@
+ 
+ #define PLT_ENTRY_SIZE 22
+ 
+-static unsigned long get_module_load_offset(void)
+-{
+-	static DEFINE_MUTEX(module_kaslr_mutex);
+-	static unsigned long module_load_offset;
+-
+-	if (!kaslr_enabled())
+-		return 0;
+-	/*
+-	 * Calculate the module_load_offset the first time this code
+-	 * is called. Once calculated it stays the same until reboot.
+-	 */
+-	mutex_lock(&module_kaslr_mutex);
+-	if (!module_load_offset)
+-		module_load_offset = get_random_u32_inclusive(1, 1024) * PAGE_SIZE;
+-	mutex_unlock(&module_kaslr_mutex);
+-	return module_load_offset;
+-}
+-
+-static struct jit_alloc_params jit_alloc_params = {
+-	.alignment	= JIT_ALLOC_ALIGN,
+-	.flags		= JIT_ALLOC_KASAN_SHADOW,
+-	.text.pgprot	= PAGE_KERNEL,
+-};
+-
+-struct jit_alloc_params *jit_alloc_arch_params(void)
+-{
+-	jit_alloc_params.text.start = MODULES_VADDR + get_module_load_offset();
+-	jit_alloc_params.text.end = MODULES_END;
+-
+-	return &jit_alloc_params;
+-}
+-
+ #ifdef CONFIG_FUNCTION_TRACER
+ void module_arch_cleanup(struct module *mod)
+ {
+diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+index 8d94e29adcdb..6e428e0f3215 100644
+--- a/arch/s390/mm/init.c
++++ b/arch/s390/mm/init.c
+@@ -50,6 +50,7 @@
+ #include <asm/uv.h>
+ #include <linux/virtio_anchor.h>
+ #include <linux/virtio_config.h>
++#include <linux/jitalloc.h>
+ 
+ pgd_t swapper_pg_dir[PTRS_PER_PGD] __section(".bss..swapper_pg_dir");
+ pgd_t invalid_pg_dir[PTRS_PER_PGD] __section(".bss..invalid_pg_dir");
+@@ -311,3 +312,37 @@ void arch_remove_memory(u64 start, u64 size, struct vmem_altmap *altmap)
+ 	vmem_remove_mapping(start, size);
+ }
+ #endif /* CONFIG_MEMORY_HOTPLUG */
++
++#ifdef CONFIG_JIT_ALLOC
++static unsigned long get_module_load_offset(void)
++{
++	static DEFINE_MUTEX(module_kaslr_mutex);
++	static unsigned long module_load_offset;
++
++	if (!kaslr_enabled())
++		return 0;
++	/*
++	 * Calculate the module_load_offset the first time this code
++	 * is called. Once calculated it stays the same until reboot.
++	 */
++	mutex_lock(&module_kaslr_mutex);
++	if (!module_load_offset)
++		module_load_offset = get_random_u32_inclusive(1, 1024) * PAGE_SIZE;
++	mutex_unlock(&module_kaslr_mutex);
++	return module_load_offset;
 +}
 +
- #endif /* CONFIG_FUNCTION_GRAPH_TRACER */
-diff --git a/arch/x86/kernel/module.c b/arch/x86/kernel/module.c
-index 94a00dc103cd..444bc76574b9 100644
---- a/arch/x86/kernel/module.c
-+++ b/arch/x86/kernel/module.c
-@@ -83,7 +83,6 @@ static int __write_relocate_add(Elf64_Shdr *sechdrs,
- 		   unsigned int symindex,
- 		   unsigned int relsec,
- 		   struct module *me,
--		   void *(*write)(void *dest, const void *src, size_t len),
- 		   bool apply)
- {
- 	unsigned int i;
-@@ -151,14 +150,14 @@ static int __write_relocate_add(Elf64_Shdr *sechdrs,
- 				       (int)ELF64_R_TYPE(rel[i].r_info), loc, val);
- 				return -ENOEXEC;
- 			}
--			write(loc, &val, size);
-+			text_poke(loc, &val, size);
- 		} else {
- 			if (memcmp(loc, &val, size)) {
- 				pr_warn("x86/modules: Invalid relocation target, existing value does not match expected value for type %d, loc %p, val %Lx\n",
- 					(int)ELF64_R_TYPE(rel[i].r_info), loc, val);
- 				return -ENOEXEC;
- 			}
--			write(loc, &zero, size);
-+			text_poke(loc, &zero, size);
- 		}
- 	}
- 	return 0;
-@@ -179,22 +178,11 @@ static int write_relocate_add(Elf64_Shdr *sechdrs,
- 			      bool apply)
- {
- 	int ret;
--	bool early = me->state == MODULE_STATE_UNFORMED;
--	void *(*write)(void *, const void *, size_t) = memcpy;
--
--	if (!early) {
--		write = text_poke;
--		mutex_lock(&text_mutex);
--	}
--
--	ret = __write_relocate_add(sechdrs, strtab, symindex, relsec, me,
--				   write, apply);
--
--	if (!early) {
--		text_poke_sync();
--		mutex_unlock(&text_mutex);
--	}
- 
-+	mutex_lock(&text_mutex);
-+	ret = __write_relocate_add(sechdrs, strtab, symindex, relsec, me, apply);
-+	text_poke_sync();
-+	mutex_unlock(&text_mutex);
- 	return ret;
- }
- 
-diff --git a/arch/x86/kernel/static_call.c b/arch/x86/kernel/static_call.c
-index b70670a98597..90aacef21dfa 100644
---- a/arch/x86/kernel/static_call.c
-+++ b/arch/x86/kernel/static_call.c
-@@ -51,7 +51,7 @@ asm (".global __static_call_return\n\t"
-      ".size __static_call_return, . - __static_call_return \n\t");
- 
- static void __ref __static_call_transform(void *insn, enum insn_type type,
--					  void *func, bool modinit)
-+					  void *func)
- {
- 	const void *emulate = NULL;
- 	int size = CALL_INSN_SIZE;
-@@ -105,7 +105,7 @@ static void __ref __static_call_transform(void *insn, enum insn_type type,
- 	if (memcmp(insn, code, size) == 0)
- 		return;
- 
--	if (system_state == SYSTEM_BOOTING || modinit)
-+	if (system_state == SYSTEM_BOOTING)
- 		return text_poke_early(insn, code, size);
- 
- 	text_poke_bp(insn, code, size, emulate);
-@@ -160,12 +160,12 @@ void arch_static_call_transform(void *site, void *tramp, void *func, bool tail)
- 
- 	if (tramp) {
- 		__static_call_validate(tramp, true, true);
--		__static_call_transform(tramp, __sc_insn(!func, true), func, false);
-+		__static_call_transform(tramp, __sc_insn(!func, true), func);
- 	}
- 
- 	if (IS_ENABLED(CONFIG_HAVE_STATIC_CALL_INLINE) && site) {
- 		__static_call_validate(site, tail, false);
--		__static_call_transform(site, __sc_insn(!func, tail), func, false);
-+		__static_call_transform(site, __sc_insn(!func, tail), func);
- 	}
- 
- 	mutex_unlock(&text_mutex);
-@@ -193,7 +193,7 @@ bool __static_call_fixup(void *tramp, u8 op, void *dest)
- 
- 	mutex_lock(&text_mutex);
- 	if (op == RET_INSN_OPCODE || dest == &__x86_return_thunk)
--		__static_call_transform(tramp, RET, NULL, true);
-+		__static_call_transform(tramp, RET, NULL);
- 	mutex_unlock(&text_mutex);
- 
- 	return true;
-diff --git a/arch/x86/kernel/unwind_orc.c b/arch/x86/kernel/unwind_orc.c
-index 3ac50b7298d1..264188ec50c9 100644
---- a/arch/x86/kernel/unwind_orc.c
-+++ b/arch/x86/kernel/unwind_orc.c
-@@ -7,6 +7,7 @@
- #include <asm/unwind.h>
- #include <asm/orc_types.h>
- #include <asm/orc_lookup.h>
-+#include <asm/text-patching.h>
- 
- #define orc_warn(fmt, ...) \
- 	printk_deferred_once(KERN_WARNING "WARNING: " fmt, ##__VA_ARGS__)
-@@ -222,18 +223,22 @@ static void orc_sort_swap(void *_a, void *_b, int size)
- 	struct orc_entry orc_tmp;
- 	int *a = _a, *b = _b, tmp;
- 	int delta = _b - _a;
-+	int val;
- 
- 	/* Swap the .orc_unwind_ip entries: */
- 	tmp = *a;
--	*a = *b + delta;
--	*b = tmp - delta;
-+	val = *b + delta;
-+	text_poke_copy(a, &val, sizeof(val));
-+	val = tmp - delta;
-+	text_poke_copy(b, &val, sizeof(val));
- 
- 	/* Swap the corresponding .orc_unwind entries: */
- 	orc_a = cur_orc_table + (a - cur_orc_ip_table);
- 	orc_b = cur_orc_table + (b - cur_orc_ip_table);
- 	orc_tmp = *orc_a;
--	*orc_a = *orc_b;
--	*orc_b = orc_tmp;
++static struct jit_alloc_params jit_alloc_params = {
++	.alignment	= JIT_ALLOC_ALIGN,
++	.flags		= JIT_ALLOC_KASAN_SHADOW,
++	.text.pgprot	= PAGE_KERNEL,
++};
 +
-+	text_poke_copy(orc_a, orc_b, sizeof(*orc_b));
-+	text_poke_copy(orc_b, &orc_tmp, sizeof(orc_tmp));
- }
- 
- static int orc_sort_cmp(const void *_a, const void *_b)
-diff --git a/arch/x86/net/bpf_jit_comp.c b/arch/x86/net/bpf_jit_comp.c
-index 1056bbf55b17..bae267f0a257 100644
---- a/arch/x86/net/bpf_jit_comp.c
-+++ b/arch/x86/net/bpf_jit_comp.c
-@@ -226,7 +226,7 @@ static u8 simple_alu_opcodes[] = {
- static void jit_fill_hole(void *area, unsigned int size)
- {
- 	/* Fill whole space with INT3 instructions */
--	memset(area, 0xcc, size);
-+	text_poke_set(area, 0xcc, size);
- }
- 
- int bpf_arch_text_invalidate(void *dst, size_t len)
-@@ -2202,6 +2202,9 @@ int arch_prepare_bpf_trampoline(struct bpf_tramp_image *im, void *image, void *i
- 		orig_call += X86_PATCH_SIZE;
- 	}
- 
-+	set_memory_nx((unsigned long)image & PAGE_MASK, 1);
-+	set_memory_rw((unsigned long)image & PAGE_MASK, 1);
++struct jit_alloc_params *jit_alloc_arch_params(void)
++{
++	jit_alloc_params.text.start = MODULES_VADDR + get_module_load_offset();
++	jit_alloc_params.text.end = MODULES_END;
 +
- 	prog = image;
++	return &jit_alloc_params;
++}
++#endif
+diff --git a/arch/sparc/kernel/module.c b/arch/sparc/kernel/module.c
+index 03f0de693b4d..9edbd0372add 100644
+--- a/arch/sparc/kernel/module.c
++++ b/arch/sparc/kernel/module.c
+@@ -14,7 +14,6 @@
+ #include <linux/string.h>
+ #include <linux/ctype.h>
+ #include <linux/mm.h>
+-#include <linux/jitalloc.h>
  
- 	EMIT_ENDBR();
-@@ -2238,20 +2241,24 @@ int arch_prepare_bpf_trampoline(struct bpf_tramp_image *im, void *image, void *i
- 		emit_mov_imm64(&prog, BPF_REG_1, (long) im >> 32, (u32) (long) im);
- 		if (emit_rsb_call(&prog, __bpf_tramp_enter, prog)) {
- 			ret = -EINVAL;
--			goto cleanup;
-+			goto reprotect_memory;
- 		}
- 	}
+ #ifdef CONFIG_SPARC64
+ #include <linux/jump_label.h>
+@@ -26,24 +25,6 @@
  
- 	if (fentry->nr_links)
- 		if (invoke_bpf(m, &prog, fentry, regs_off, run_ctx_off,
--			       flags & BPF_TRAMP_F_RET_FENTRY_RET))
--			return -EINVAL;
-+			       flags & BPF_TRAMP_F_RET_FENTRY_RET)) {
-+			ret = -EINVAL;
-+			goto reprotect_memory;
-+		}
+ #include "entry.h"
  
- 	if (fmod_ret->nr_links) {
- 		branches = kcalloc(fmod_ret->nr_links, sizeof(u8 *),
- 				   GFP_KERNEL);
--		if (!branches)
--			return -ENOMEM;
-+		if (!branches) {
-+			ret =  -ENOMEM;
-+			goto reprotect_memory;
-+		}
+-static struct jit_alloc_params jit_alloc_params = {
+-	.alignment	= 1,
+-#ifdef CONFIG_SPARC64
+-	.text.start	= MODULES_VADDR,
+-	.text.end	= MODULES_END,
+-#else
+-	.text.start	= VMALLOC_START,
+-	.text.end	= VMALLOC_END,
+-#endif
+-};
+-
+-struct jit_alloc_params *jit_alloc_arch_params(void)
+-{
+-	jit_alloc_params.text.pgprot = PAGE_KERNEL;
+-
+-	return &jit_alloc_params;
+-}
+-
+ /* Make generic code ignore STT_REGISTER dummy undefined symbols.  */
+ int module_frob_arch_sections(Elf_Ehdr *hdr,
+ 			      Elf_Shdr *sechdrs,
+diff --git a/arch/sparc/mm/Makefile b/arch/sparc/mm/Makefile
+index 871354aa3c00..95ede0fd851a 100644
+--- a/arch/sparc/mm/Makefile
++++ b/arch/sparc/mm/Makefile
+@@ -15,3 +15,5 @@ obj-$(CONFIG_SPARC32)   += leon_mm.o
  
- 		if (invoke_bpf_mod_ret(m, &prog, fmod_ret, regs_off,
- 				       run_ctx_off, branches)) {
-@@ -2336,6 +2343,9 @@ int arch_prepare_bpf_trampoline(struct bpf_tramp_image *im, void *image, void *i
- 
- cleanup:
- 	kfree(branches);
-+reprotect_memory:
-+	set_memory_rox((unsigned long)image & PAGE_MASK, 1);
+ # Only used by sparc64
+ obj-$(CONFIG_HUGETLB_PAGE) += hugetlbpage.o
 +
- 	return ret;
- }
- 
++obj-$(CONFIG_JIT_ALLOC) += jitalloc.o
+diff --git a/arch/sparc/mm/jitalloc.c b/arch/sparc/mm/jitalloc.c
+new file mode 100644
+index 000000000000..6b407a8e85ef
+--- /dev/null
++++ b/arch/sparc/mm/jitalloc.c
+@@ -0,0 +1,21 @@
++// SPDX-License-Identifier: GPL-2.0
++#include <linux/mm.h>
++#include <linux/jitalloc.h>
++
++static struct jit_alloc_params jit_alloc_params = {
++	.alignment	= 1,
++#ifdef CONFIG_SPARC64
++	.text.start	= MODULES_VADDR,
++	.text.end	= MODULES_END,
++#else
++	.text.start	= VMALLOC_START,
++	.text.end	= VMALLOC_END,
++#endif
++};
++
++struct jit_alloc_params *jit_alloc_arch_params(void)
++{
++	jit_alloc_params.text.pgprot = PAGE_KERNEL;
++
++	return &jit_alloc_params;
++}
 -- 
 2.35.1
 
