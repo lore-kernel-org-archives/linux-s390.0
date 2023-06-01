@@ -2,120 +2,139 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD5C6C7EE2A
-	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 10:51:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24C9DC77B7A
+	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 11:07:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231942AbjFAKvN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 1 Jun 2023 06:51:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49824 "EHLO
+        id S232499AbjFALHz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 1 Jun 2023 07:07:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229589AbjFAKvL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 06:51:11 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62AAD9D;
-        Thu,  1 Jun 2023 03:51:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=sqOkmNSuBD7GBtb46itE8ZDvhkHRWIc2NbvPp9qeOiw=; b=KZkC2WT4XQMr05qEkGpBjCv7TG
-        Ak6b/9n5dS5ZPNEFM10/VvLJvSS1D5ylwPHzd2DaQkM+piIbsvAz/pGM04U57+k94ayIQeNYv/Zpr
-        p75C1W/ZCqWn3ZEDzShydO0ovDBfnP1AqQJwgcDzODs4ufgi5DRaXCvhf1ySS+x4TLywE5eK3nk8v
-        3XQKlVIoFYPn55+2ybBmZuzlaHrG7I/QAPJb5OtatUGXyIlhc26higj14zyA/1vT2iclbpfYPL3TA
-        Nx806QJ6JOI2IEjvEs6POHy4WF448K4MQtyi2wClcFurUdFMq5GGHx9JYbaGa2fFQNILHK/d8n61V
-        wBRZ/4Zw==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1q4fsv-008IFd-Tl; Thu, 01 Jun 2023 10:50:26 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits))
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id E2E913002F0;
-        Thu,  1 Jun 2023 12:50:21 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 96C9A21AA6F9B; Thu,  1 Jun 2023 12:50:21 +0200 (CEST)
-Date:   Thu, 1 Jun 2023 12:50:21 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Helge Deller <deller@gmx.de>
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Will Deacon <will@kernel.org>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>, dennis@kernel.org,
-        Tejun Heo <tj@kernel.org>, Christoph Lameter <cl@linux.com>,
-        Heiko Carstens <hca@linux.ibm.com>, gor@linux.ibm.com,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        borntraeger@linux.ibm.com, Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>, Joerg Roedel <joro@8bytes.org>,
-        suravee.suthikulpanit@amd.com, Robin Murphy <robin.murphy@arm.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Baolu Lu <baolu.lu@linux.intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S . Miller" <davem@davemloft.net>,
-        Pekka Enberg <penberg@kernel.org>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        with ESMTP id S230268AbjFALHw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 07:07:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01D04107;
+        Thu,  1 Jun 2023 04:07:50 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9216B63FCB;
+        Thu,  1 Jun 2023 11:07:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A781FC433D2;
+        Thu,  1 Jun 2023 11:07:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1685617670;
+        bh=+Yjm8puKI4qcOhrAjHQoPXnOlN6+/fj9nQ2KMrVKq+A=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=RhP2k+/FQSvli7tGw2eOKlboTIMhAX1rWIMmQojkSItsf7Pbu27Voz4XKQfKsJMv+
+         yk64a7+GnLa0AXm5NTg7oxgCbiU/vvM5YtvO42iXWm3c1dvWeuqaT9QYECD04AjLI8
+         +kurm3Gcj765DCLAHDCbNzTJmkHWERuX8j+NWUQrH79TGx2XeQSd0dO1NOebia9EMt
+         dJu6ZE7ylH9284d9jqvK6St/2YUkHNw8jD2OIGo2TbwtTLSoShdT9QABDGhevJVWTD
+         pUczYlcvfwWLpOJgcn012xrthp2r+mfy68euX8CFvo6UC393XjO1m9JQnHYF6C6kEn
+         C9f6ivmZ7x+Ew==
+Date:   Thu, 1 Jun 2023 14:07:13 +0300
+From:   Mike Rapoport <rppt@kernel.org>
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     linux-kernel@vger.kernel.org,
         Andrew Morton <akpm@linux-foundation.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Roman Gushchin <roman.gushchin@linux.dev>,
-        Hyeonggon Yoo <42.hyeyoo@gmail.com>, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        linux-s390@vger.kernel.org, iommu@lists.linux.dev,
-        Linux-Arch <linux-arch@vger.kernel.org>,
-        linux-crypto@vger.kernel.org,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Helge Deller <deller@gmx.de>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Kent Overstreet <kent.overstreet@linux.dev>,
+        Luis Chamberlain <mcgrof@kernel.org>,
         Michael Ellerman <mpe@ellerman.id.au>,
-        "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
-        linux-parisc@vger.kernel.org,
-        John David Anglin <dave.anglin@bell.net>,
-        Sam James <sam@gentoo.org>
-Subject: Re: [PATCH v2 07/12] parisc/percpu: Work around the lack of
- __SIZEOF_INT128__
-Message-ID: <20230601105021.GU4253@hirez.programming.kicks-ass.net>
-References: <20230531130833.635651916@infradead.org>
- <20230531132323.722039569@infradead.org>
- <70a69deb-7ad4-45b2-8e13-34955594a7ce@app.fastmail.com>
- <20230601101409.GS4253@hirez.programming.kicks-ass.net>
- <14c50e58-fecc-e96a-ee73-39ef4e4617c7@gmx.de>
+        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Song Liu <song@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will@kernel.org>, bpf@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+        linux-mm@kvack.org, linux-modules@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+        netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
+Subject: Re: [PATCH 12/13] x86/jitalloc: prepare to allocate exectuatble
+ memory as ROX
+Message-ID: <20230601110713.GE395338@kernel.org>
+References: <20230601101257.530867-1-rppt@kernel.org>
+ <20230601101257.530867-13-rppt@kernel.org>
+ <20230601103050.GT4253@hirez.programming.kicks-ass.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <14c50e58-fecc-e96a-ee73-39ef4e4617c7@gmx.de>
+In-Reply-To: <20230601103050.GT4253@hirez.programming.kicks-ass.net>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jun 01, 2023 at 12:32:38PM +0200, Helge Deller wrote:
-> On 6/1/23 12:14, Peter Zijlstra wrote:
-> > On Wed, May 31, 2023 at 04:21:22PM +0200, Arnd Bergmann wrote:
-> > 
-> > > It would be nice to have the hack more localized to parisc
-> > > and guarded with a CONFIG_GCC_VERSION check so we can kill
-> > > it off in the future, once we drop either gcc-10 or parisc
-> > > support.
-> > 
-> > I vote for dropping parisc -- it's the only 64bit arch that doesn't have
-> > sane atomics.
+On Thu, Jun 01, 2023 at 12:30:50PM +0200, Peter Zijlstra wrote:
+> On Thu, Jun 01, 2023 at 01:12:56PM +0300, Mike Rapoport wrote:
 > 
-> Of course I'm against dropping parisc.
-
-:-)
-
-> > Anyway, the below seems to work -- build tested with GCC-10.1
+> > +static void __init_or_module do_text_poke(void *addr, const void *opcode, size_t len)
+> > +{
+> > +	if (system_state < SYSTEM_RUNNING) {
+> > +		text_poke_early(addr, opcode, len);
+> > +	} else {
+> > +		mutex_lock(&text_mutex);
+> > +		text_poke(addr, opcode, len);
+> > +		mutex_unlock(&text_mutex);
+> > +	}
+> > +}
 > 
-> I don't think we need to care about gcc-10 on parisc.
-> Debian and Gentoo are the only supported distributions, while Debian
-> requires gcc-12 to build > 6.x kernels, and I assume Gentoo uses at least
-> gcc-12 as well.
-> 
-> So raising the gcc limit for parisc only (at least temporarily for now)
-> should be fine and your workaround below wouldn't be necessary, right?
+> So I don't much like do_text_poke(); why?
 
-Correct, if you're willing to set minimum GCC version to 11 for parisc
-all is well and this patch can go play in the bit bucket.
+I believe the idea was to keep memcpy for early boot before the kernel
+image is protected without going and adding if (is_module_text_address())
+all over the place.
+
+I think this can be used instead without updating all the call sites of
+text_poke_early():
+
+diff --git a/arch/x86/kernel/alternative.c b/arch/x86/kernel/alternative.c
+index 91057de8e6bc..f994e63e9903 100644
+--- a/arch/x86/kernel/alternative.c
++++ b/arch/x86/kernel/alternative.c
+@@ -1458,7 +1458,7 @@ void __init_or_module text_poke_early(void *addr, const void *opcode,
+ 		 * code cannot be running and speculative code-fetches are
+ 		 * prevented. Just change the code.
+ 		 */
+-		memcpy(addr, opcode, len);
++		text_poke_copy(addr, opcode, len);
+ 	} else {
+ 		local_irq_save(flags);
+ 		memcpy(addr, opcode, len);
+ 
+> > diff --git a/arch/x86/kernel/ftrace.c b/arch/x86/kernel/ftrace.c
+> > index aa99536b824c..d50595f2c1a6 100644
+> > --- a/arch/x86/kernel/ftrace.c
+> > +++ b/arch/x86/kernel/ftrace.c
+> > @@ -118,10 +118,13 @@ ftrace_modify_code_direct(unsigned long ip, const char *old_code,
+> >  		return ret;
+> >  
+> >  	/* replace the text with the new text */
+> > -	if (ftrace_poke_late)
+> > +	if (ftrace_poke_late) {
+> >  		text_poke_queue((void *)ip, new_code, MCOUNT_INSN_SIZE, NULL);
+> > -	else
+> > -		text_poke_early((void *)ip, new_code, MCOUNT_INSN_SIZE);
+> > +	} else {
+> > +		mutex_lock(&text_mutex);
+> > +		text_poke((void *)ip, new_code, MCOUNT_INSN_SIZE);
+> > +		mutex_unlock(&text_mutex);
+> > +	}
+> >  	return 0;
+> >  }
+> 
+> And in the above case it's actively wrong for loosing the _queue()
+> thing.
+
+-- 
+Sincerely yours,
+Mike.
