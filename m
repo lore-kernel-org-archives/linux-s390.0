@@ -2,137 +2,100 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A7AEEC77B7A
-	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 11:52:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ACD29C77B7A
+	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 12:00:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231532AbjFALwp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 1 Jun 2023 07:52:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46368 "EHLO
+        id S233152AbjFAMAM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 1 Jun 2023 08:00:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230222AbjFALwp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 07:52:45 -0400
+        with ESMTP id S233180AbjFAMAA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 08:00:00 -0400
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E09F0129;
-        Thu,  1 Jun 2023 04:52:43 -0700 (PDT)
-Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 351BjOf1015991;
-        Thu, 1 Jun 2023 11:52:43 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D2C21A4;
+        Thu,  1 Jun 2023 04:59:51 -0700 (PDT)
+Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 351Bi43Z000591;
+        Thu, 1 Jun 2023 11:59:50 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
- mime-version : content-transfer-encoding : in-reply-to : references :
- subject : cc : from : to : message-id : date; s=pp1;
- bh=9ZLtXuuUknrTCJ7paV/Y+vccjQL1g7paNWJmH6I8LuA=;
- b=RaoJWWesLwYo8hnV07oFeM1bOH1kaq+SUq7EaUaFALk75my4FJSXCnZVFMdKWk00b5ad
- kZ1hKtljemeiMhGUVa7I2P1Y3i+PGn7ur5fbavrWGSXo+okA7NlJ/06LhLWEO4s5Sdl6
- riqqOtlUHThNa0negHNKLa+OBm3we32wzTMPq3vQ2i0mBIoctdRNgg5vQOmHPM31arn9
- Be/hFBglT7CEJcxA6Bv+9JWTpn+P+mOYFTEQo6smctAXAa94AnPSD02kxbkTR76RirFf
- /AKCCBiwVNe/ZAFYqk9vQCNDzu2E/A7yPR/7oioNz86cS98Q72CePPyipO5kghhpwMPz 9A== 
+ in-reply-to : references : subject : cc : from : to : message-id : date :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=LIFYsAtjXNhbO0Yo1BCt8bKFc14Btz6K4FKgg3HM66Q=;
+ b=aGLa6n6qy/kjzcBdl5OcK1JcOV6nFFxy3LkNI7AhDZv3r/mkeMofo8KeckwLVS6ZKC+L
+ rI7ZO3UNv6Z8lmSTJ4yIBml73cholVyOlhcSJprp4W8MGUnhSU6918Agir9aQ7aXa2PX
+ eGuf/g2pgRlaE9b7aItYhg01s4zXGqPA9DurFT6Lzi2qokHRUa6Jo91Tq85aGAXysXdG
+ reOEIjDJx6U9QS/GoMRkbUM2SrCk6kJpPAqx3NGUpqGXuXMsqH8csBanhutZ51YuKI6w
+ vAiV2QEePIt4VLJI6kA/Ina5e/p4u41iQFItgV1tsKpEnxD/stlPl5NlLlRHqAv+T8F1 0w== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qxtfj8m55-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qxtqeref6-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 01 Jun 2023 11:52:42 +0000
-Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 351Bko56018540;
-        Thu, 1 Jun 2023 11:52:42 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qxtfj8m4f-1
+        Thu, 01 Jun 2023 11:59:49 +0000
+Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 351BtISN005671;
+        Thu, 1 Jun 2023 11:59:49 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qxtqeree9-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 01 Jun 2023 11:52:42 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3511S6c4016865;
-        Thu, 1 Jun 2023 11:52:40 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3qu9g5agfx-1
+        Thu, 01 Jun 2023 11:59:49 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3515w9B2028420;
+        Thu, 1 Jun 2023 11:59:47 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3qu94e2gph-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 01 Jun 2023 11:52:40 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 351Bqap832899432
+        Thu, 01 Jun 2023 11:59:47 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 351Bxhub22872748
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 1 Jun 2023 11:52:36 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C091520043;
-        Thu,  1 Jun 2023 11:52:36 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 98D1E20040;
-        Thu,  1 Jun 2023 11:52:36 +0000 (GMT)
+        Thu, 1 Jun 2023 11:59:44 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E18A120067;
+        Thu,  1 Jun 2023 11:59:43 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B93AA20040;
+        Thu,  1 Jun 2023 11:59:43 +0000 (GMT)
 Received: from t14-nrb (unknown [9.171.95.43])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Thu,  1 Jun 2023 11:52:36 +0000 (GMT)
+        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Thu,  1 Jun 2023 11:59:43 +0000 (GMT)
 Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20230530124056.18332-2-pmorel@linux.ibm.com>
-References: <20230530124056.18332-1-pmorel@linux.ibm.com> <20230530124056.18332-2-pmorel@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v3 1/2] s390x: sclp: consider monoprocessor on read_info error
-Cc:     frankja@linux.ibm.com, thuth@redhat.com, kvm@vger.kernel.org,
-        imbrenda@linux.ibm.com, david@redhat.com, nsg@linux.ibm.com,
-        cohuck@redhat.com
+In-Reply-To: <3dc8e019-a3c1-8446-08ed-f76a9064f954@linux.ibm.com>
+References: <20230530124056.18332-1-pmorel@linux.ibm.com> <20230530124056.18332-3-pmorel@linux.ibm.com> <3dc8e019-a3c1-8446-08ed-f76a9064f954@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v3 2/2] s390x: sclp: Implement SCLP_RC_INSUFFICIENT_SCCB_LENGTH
+Cc:     thuth@redhat.com, kvm@vger.kernel.org, imbrenda@linux.ibm.com,
+        david@redhat.com, nsg@linux.ibm.com, cohuck@redhat.com
 From:   Nico Boehr <nrb@linux.ibm.com>
-To:     Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org
-Message-ID: <168562035629.164254.14237878033396575782@t14-nrb>
+To:     Janosch Frank <frankja@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org
+Message-ID: <168562078341.164254.16306908045401776634@t14-nrb>
 User-Agent: alot/0.8.1
-Date:   Thu, 01 Jun 2023 13:52:36 +0200
+Date:   Thu, 01 Jun 2023 13:59:43 +0200
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Xd0r0KNCsei40o2Wvw_BRfScqHMElFyO
-X-Proofpoint-ORIG-GUID: 6nswMGf4uO6MaHdj_2Y4-EHUWUN1psC6
+X-Proofpoint-GUID: ahVdUWfGUZ2ePkVLJk3AU7cY44jHiC7u
+X-Proofpoint-ORIG-GUID: 6z0sZRHIUgNG_mNWGOritwVMNIvQJZxN
+Content-Transfer-Encoding: quoted-printable
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
  definitions=2023-06-01_08,2023-05-31_03,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
- malwarescore=0 lowpriorityscore=0 suspectscore=0 bulkscore=0
- mlxlogscore=999 spamscore=0 priorityscore=1501 phishscore=0 adultscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 clxscore=1015
+ malwarescore=0 suspectscore=0 bulkscore=0 mlxscore=0 adultscore=0
+ priorityscore=1501 impostorscore=0 lowpriorityscore=0 mlxlogscore=941
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2304280000 definitions=main-2306010102
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Quoting Pierre Morel (2023-05-30 14:40:55)
-> A kvm-unit-test would hang if an abort happens before SCLP Read SCP
-> Information has completed if sclp_get_cpu_num() does not report at
-> least one CPU.
-> Since we obviously have one, report it.
+Quoting Janosch Frank (2023-06-01 10:03:06)
+> On 5/30/23 14:40, Pierre Morel wrote:
+> > If SCLP_CMDW_READ_SCP_INFO fails due to a short buffer, retry
+> > with a greater buffer.
+> >=20
+> > Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
 
-Sorry for complaining again, in a discussion with Janosch we found that the
-description and commit below can be easily misunderstood. I suggest the
-following wording in the commit description:
+Janosch, I think it makes sense if Pierre picks up Claudios suggestion from=
+ here:
+https://lore.kernel.org/all/20230530173544.378a63c6@p-imbrenda/
 
-s390x: sclp: treat system as single processor when read_info is NULL
-
-When a test abort()s before SCLP read info is completed, the assertion on
-read_info in sclp_read_info() will fail. Since abort() eventually calls
-smp_teardown() which in turn calls sclp_get_cpu_num(), this will cause an
-infinite abort() chain, causing the test to hang.
-
-Fix this by considering the system single processor when read_info is missi=
-ng.
-
-[...]
-> diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
-> index 12919ca..34a31da 100644
-> --- a/lib/s390x/sclp.c
-> +++ b/lib/s390x/sclp.c
-> @@ -121,6 +121,12 @@ int sclp_get_cpu_num(void)
->  {
->         if (read_info)
->                 return read_info->entries_cpu;
-> +       /*
-> +        * If we fail here and read_info has not being set,
-> +        * it means we failed early and we try to abort the test.
-> +        * We need to return at least one CPU, and obviously we have
-> +        * at least one, for the smp_teardown to correctly work.
-> +        */
-
-Please make this:
-
-Don't abort here if read_info is NULL since abort() calls smp_teardown() wh=
-ich
-eventually calls this function and thus causes an infinite abort() chain,
-causing the test to hang. Since we obviously have at least one CPU, just re=
-turn
-one.
-
-With these changes:
-
-Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
-
-Sorry for the back and forth.
+Do you agree?
