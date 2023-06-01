@@ -2,200 +2,185 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3489EC7EE31
-	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 10:18:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A60EAC7EE29
+	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 10:19:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233593AbjFAKSf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 1 Jun 2023 06:18:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55578 "EHLO
+        id S233403AbjFAKS7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 1 Jun 2023 06:18:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232499AbjFAKSG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 06:18:06 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF58A1FDB;
-        Thu,  1 Jun 2023 03:15:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=G1trJdY7ybtDfb34YzOEZVtQJ+4O7zYES3kMJ7sRdCU=; b=pytfcabSQbAioNogqcJyIjWxkb
-        I3OIRz0nPyGAHQCouHiezAZ3WYDnbr+0H5ASElPr4+OfQuPcqSEVXUzQNdmNT0vDCq0lYth70hxc+
-        nIxwWeL5rSBkZoelbLSxxySFndCPqg76D3wq86BEGZ1gkD10CrGs9NABCiAJPJkEv81csRGvvoVja
-        EaBwzktB36vi1XtuFtdCEjY2KE+yJjTGMIB4mjx3jEx3iBh0aM1LDhfieu9IZABiemcJgKbkPFNuq
-        /6ksBvE3iaE68Sn2CQ4733UmzPnTQKsAKE8EvFRBt0Ej6Ani+wvx452hsmvy64dZ4tGLH+6z41/Rs
-        43i6i9qw==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1q4fJv-008GIu-Pp; Thu, 01 Jun 2023 10:14:15 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 66A3C3002F0;
-        Thu,  1 Jun 2023 12:14:09 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 374AA21484A8B; Thu,  1 Jun 2023 12:14:09 +0200 (CEST)
-Date:   Thu, 1 Jun 2023 12:14:09 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Will Deacon <will@kernel.org>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>, dennis@kernel.org,
-        Tejun Heo <tj@kernel.org>, Christoph Lameter <cl@linux.com>,
-        Heiko Carstens <hca@linux.ibm.com>, gor@linux.ibm.com,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        borntraeger@linux.ibm.com, Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>, Joerg Roedel <joro@8bytes.org>,
-        suravee.suthikulpanit@amd.com, Robin Murphy <robin.murphy@arm.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Baolu Lu <baolu.lu@linux.intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S . Miller" <davem@davemloft.net>,
-        Pekka Enberg <penberg@kernel.org>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Roman Gushchin <roman.gushchin@linux.dev>,
-        Hyeonggon Yoo <42.hyeyoo@gmail.com>, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        linux-s390@vger.kernel.org, iommu@lists.linux.dev,
-        Linux-Arch <linux-arch@vger.kernel.org>,
-        linux-crypto@vger.kernel.org,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
+        with ESMTP id S233501AbjFAKSK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 06:18:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15100E6B;
+        Thu,  1 Jun 2023 03:15:40 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A08FC6431E;
+        Thu,  1 Jun 2023 10:14:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E2E8C433A0;
+        Thu,  1 Jun 2023 10:14:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1685614487;
+        bh=Hrx9VtVZyq4uWMBfRCekQXUO/IA4A1XOafQormtZTuY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=gpP21c/RwAJYJm+U25a1tWi/38F4mEWtcst293zmlG6D0PKkBX6d3h9ATwIa7uumf
+         xA2hJJdQXNiMtmOQ7k+n+4Eh/tb5q0l+ZhSYKzMYnVQJJBECXK0Boas7FeJCclB+qU
+         YcYICH1vai6DP7rq0TDqg3DTbnaTA2lnglkoOvwlhDm1fQ7nyhjt7rdP88kQv/EuQI
+         aAPjl78FETn69M4Prx6Edwv1H7cz2NpKwM5xe4vWf7aC2SYCcxtbSZA9vK0QR4+ALQ
+         VYyMUVtF0JdrmF3hiV5k4Z6ygm8TjniyOkfbF+4LCBKjd7eHTl1itn2XLvK6KpbTcp
+         yOKt8OfWFYJOQ==
+From:   Mike Rapoport <rppt@kernel.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Helge Deller <deller@gmx.de>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Kent Overstreet <kent.overstreet@linux.dev>,
+        Luis Chamberlain <mcgrof@kernel.org>,
         Michael Ellerman <mpe@ellerman.id.au>,
-        "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
-        Helge Deller <deller@gmx.de>, linux-parisc@vger.kernel.org
-Subject: [PATCH v2 07/12] parisc/percpu: Work around the lack of
- __SIZEOF_INT128__
-Message-ID: <20230601101409.GS4253@hirez.programming.kicks-ass.net>
-References: <20230531130833.635651916@infradead.org>
- <20230531132323.722039569@infradead.org>
- <70a69deb-7ad4-45b2-8e13-34955594a7ce@app.fastmail.com>
+        Mike Rapoport <rppt@kernel.org>,
+        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Song Liu <song@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will@kernel.org>, bpf@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+        linux-mm@kvack.org, linux-modules@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+        netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
+Subject: [PATCH 10/13] modules, jitalloc: prepare to allocate executable memory as ROX
+Date:   Thu,  1 Jun 2023 13:12:54 +0300
+Message-Id: <20230601101257.530867-11-rppt@kernel.org>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20230601101257.530867-1-rppt@kernel.org>
+References: <20230601101257.530867-1-rppt@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <70a69deb-7ad4-45b2-8e13-34955594a7ce@app.fastmail.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, May 31, 2023 at 04:21:22PM +0200, Arnd Bergmann wrote:
+From: "Mike Rapoport (IBM)" <rppt@kernel.org>
 
-> It would be nice to have the hack more localized to parisc
-> and guarded with a CONFIG_GCC_VERSION check so we can kill
-> it off in the future, once we drop either gcc-10 or parisc
-> support.
+When executable memory will be allocated as ROX it won't be possible to
+update it using memset() and memcpy().
 
-I vote for dropping parisc -- it's the only 64bit arch that doesn't have
-sane atomics.
+Introduce jit_update_copy() and jit_update_set() APIs and use them in
+modules loading code instead of memcpy() and memset().
 
-Anyway, the below seems to work -- build tested with GCC-10.1
-
+Signed-off-by: Mike Rapoport (IBM) <rppt@kernel.org>
 ---
-Subject: parisc/percpu: Work around the lack of __SIZEOF_INT128__
-From: Peter Zijlstra <peterz@infradead.org>
-Date: Tue May 30 22:27:40 CEST 2023
+ include/linux/jitalloc.h |  2 ++
+ kernel/module/main.c     | 19 ++++++++++++++-----
+ mm/jitalloc.c            | 20 ++++++++++++++++++++
+ 3 files changed, 36 insertions(+), 5 deletions(-)
 
-HPPA64 is unique in not providing __SIZEOF_INT128__ across all
-supported compilers, specifically it only started doing this with
-GCC-11.
+diff --git a/include/linux/jitalloc.h b/include/linux/jitalloc.h
+index 7f8cafb3cfe9..0ba5ef785a85 100644
+--- a/include/linux/jitalloc.h
++++ b/include/linux/jitalloc.h
+@@ -55,6 +55,8 @@ struct jit_alloc_params *jit_alloc_arch_params(void);
+ void jit_free(void *buf);
+ void *jit_text_alloc(size_t len);
+ void *jit_data_alloc(size_t len);
++void jit_update_copy(void *buf, void *new_buf, size_t len);
++void jit_update_set(void *buf, int c, size_t len);
+ 
+ #ifdef CONFIG_JIT_ALLOC
+ void jit_alloc_init(void);
+diff --git a/kernel/module/main.c b/kernel/module/main.c
+index 91477aa5f671..9f0711c42aa2 100644
+--- a/kernel/module/main.c
++++ b/kernel/module/main.c
+@@ -1197,9 +1197,19 @@ void __weak module_arch_freeing_init(struct module *mod)
+ 
+ static void *module_memory_alloc(unsigned int size, enum mod_mem_type type)
+ {
+-	if (mod_mem_type_is_data(type))
+-		return jit_data_alloc(size);
+-	return jit_text_alloc(size);
++	void *p;
++
++	if (mod_mem_type_is_data(type)) {
++		p = jit_data_alloc(size);
++		if (p)
++			memset(p, 0, size);
++	} else {
++		p = jit_text_alloc(size);
++		if (p)
++			jit_update_set(p, 0, size);
++	}
++
++	return p;
+ }
+ 
+ static void module_memory_free(void *ptr, enum mod_mem_type type)
+@@ -2223,7 +2233,6 @@ static int move_module(struct module *mod, struct load_info *info)
+ 			t = type;
+ 			goto out_enomem;
+ 		}
+-		memset(ptr, 0, mod->mem[type].size);
+ 		mod->mem[type].base = ptr;
+ 	}
+ 
+@@ -2251,7 +2260,7 @@ static int move_module(struct module *mod, struct load_info *info)
+ 				ret = -ENOEXEC;
+ 				goto out_enomem;
+ 			}
+-			memcpy(dest, (void *)shdr->sh_addr, shdr->sh_size);
++			jit_update_copy(dest, (void *)shdr->sh_addr, shdr->sh_size);
+ 		}
+ 		/*
+ 		 * Update the userspace copy's ELF section address to point to
+diff --git a/mm/jitalloc.c b/mm/jitalloc.c
+index 16fd715d501a..a8ae64364d56 100644
+--- a/mm/jitalloc.c
++++ b/mm/jitalloc.c
+@@ -7,6 +7,16 @@
+ 
+ static struct jit_alloc_params jit_alloc_params;
+ 
++static inline void jit_text_poke_copy(void *dst, const void *src, size_t len)
++{
++	memcpy(dst, src, len);
++}
++
++static inline void jit_text_poke_set(void *addr, int c, size_t len)
++{
++	memset(addr, c, len);
++}
++
+ static void *jit_alloc(size_t len, unsigned int alignment, pgprot_t pgprot,
+ 		       unsigned long start, unsigned long end,
+ 		       unsigned long fallback_start, unsigned long fallback_end,
+@@ -86,6 +96,16 @@ void *jit_data_alloc(size_t len)
+ 			 fallback_start, fallback_end, kasan);
+ }
+ 
++void jit_update_copy(void *buf, void *new_buf, size_t len)
++{
++	jit_text_poke_copy(buf, new_buf, len);
++}
++
++void jit_update_set(void *addr, int c, size_t len)
++{
++	jit_text_poke_set(addr, c, len);
++}
++
+ struct jit_alloc_params * __weak jit_alloc_arch_params(void)
+ {
+ 	return NULL;
+-- 
+2.35.1
 
-Since the per-cpu ops are universally availably, and
-this_cpu_{,try_}cmpxchg128() is expected to be available on all 64bit
-architectures a wee bodge is in order.
-
-Sadly, while C reverts to memcpy() for assignment of POD types, it does
-not revert to memcmp() for for equality. Therefore frob that manually.
-
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
----
- arch/parisc/include/asm/percpu.h |   77 +++++++++++++++++++++++++++++++++++++++
- 1 file changed, 77 insertions(+)
-
---- /dev/null
-+++ b/arch/parisc/include/asm/percpu.h
-@@ -0,0 +1,77 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _ASM_PARISC_PERCPU_H
-+#define _ASM_PARISC_PERCPU_H
-+
-+#include <linux/types.h>
-+
-+#if defined(CONFIG_64BIT) && CONFIG_GCC_VERSION < 1100000
-+
-+/*
-+ * GCC prior to 11 does not provide __SIZEOF_INT128__ on HPPA64
-+ * as such we need to provide an alternative implementation of
-+ * {raw,this}_cpu_{,try_}cmpxchg128().
-+ *
-+ * This obviously doesn't function as u128 should, but for the purpose
-+ * of per-cpu cmpxchg128 it might just do.
-+ */
-+typedef struct {
-+	u64 a, b;
-+} u128 __attribute__((aligned(16)));
-+
-+#define raw_cpu_generic_try_cmpxchg_memcmp(pcp, ovalp, nval)		\
-+({									\
-+	typeof(pcp) *__p = raw_cpu_ptr(&(pcp));				\
-+	typeof(pcp) __val = *__p, __old = *(ovalp);			\
-+	bool __ret;							\
-+	if (!__builtin_memcmp(&__val, &__old, sizeof(pcp))) {		\
-+		*__p = nval;						\
-+		__ret = true;						\
-+	} else {							\
-+		*(ovalp) = __val;					\
-+		__ret = false;						\
-+	}								\
-+	__ret;								\
-+})
-+
-+#define raw_cpu_generic_cmpxchg_memcmp(pcp, oval, nval)			\
-+({									\
-+	typeof(pcp) __old = (oval);					\
-+	raw_cpu_generic_try_cmpxchg_memcpy(pcp, &__old, nval);		\
-+	__old;								\
-+})
-+
-+#define raw_cpu_cmpxchg128(pcp, oval, nval) \
-+	raw_cpu_generic_cmpxchg_memcmp(pcp, oval, nval)
-+#define raw_cpu_try_cmpxchg128(pcp, ovalp, nval) \
-+	raw_cpu_generic_try_cmpxchg_memcmp(pcp, ovalp, nval)
-+
-+#define this_cpu_generic_try_cmpxchg_memcmp(pcp, ovalp, nval)		\
-+({									\
-+	bool __ret;							\
-+	unsigned long __flags;						\
-+	raw_local_irq_save(__flags);					\
-+	__ret = raw_cpu_generic_try_cmpxchg_memcmp(pcp, ovalp, nval);	\
-+	raw_local_irq_restore(__flags);					\
-+	__ret;								\
-+})
-+
-+#define this_cpu_generic_cmpxchg_memcmp(pcp, oval, nval)		\
-+({									\
-+	typeof(pcp) __ret;						\
-+	unsigned long __flags;						\
-+	raw_local_irq_save(__flags);					\
-+	__ret = raw_cpu_generic_cmpxchg_memcmp(pcp, oval, nval);	\
-+	raw_local_irq_restore(__flags);					\
-+	__ret;								\
-+})
-+
-+#define this_cpu_cmpxchg128(pcp, oval, nval) \
-+	this_cpu_generic_cmpxchg_memcmp(pcp, oval, nval)
-+#define this_cpu_try_cmpxchg128(pcp, ovalp, nval) \
-+	this_cpu_generic_try_cmpxchg_memcmp(pcp, ovalp, nval)
-+
-+#endif /* !__SIZEOF_INT128__ */
-+
-+#include <asm-generic/percpu.h>
-+
-+#endif /* _ASM_PARISC_PERCPU_H */
