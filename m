@@ -2,35 +2,35 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AE1BEC7EE2F
-	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 10:17:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A5AA7C7EE2F
+	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 10:17:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233489AbjFAKR1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 1 Jun 2023 06:17:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54280 "EHLO
+        id S233507AbjFAKRr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 1 Jun 2023 06:17:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232183AbjFAKQz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 06:16:55 -0400
+        with ESMTP id S233443AbjFAKRM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 06:17:12 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 590691AB;
-        Thu,  1 Jun 2023 03:14:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 189531BE4;
+        Thu,  1 Jun 2023 03:14:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D47964314;
-        Thu,  1 Jun 2023 10:14:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71499C4339B;
-        Thu,  1 Jun 2023 10:14:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A702064315;
+        Thu,  1 Jun 2023 10:14:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C133C433EF;
+        Thu,  1 Jun 2023 10:14:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1685614459;
-        bh=pTt6oea7dl0OK8cq7WwHFZhtWWFAemGTmvVp6aKQFQs=;
+        s=k20201202; t=1685614478;
+        bh=RnI9kyc36R7EEC0EF5Knnbb7J1Oc8vlY/yhY3jroC/s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uD6/N81ikOPiRJAEV5qGhLjfWCawk0yMnp6Xt8fYx/PrTJkuDN66o3QZ5/QyahqEi
-         eEz3p9HhuIbubjxt94fZnmeMfIMlPtSuJAOfKCpVVmKDOUgkw+ZxlAzPGWu9ElDJox
-         8//FTUGz/X60PWEvHsAHESQPPehoEt7bviFexeZ2+2LRDfSYeGeeu1DFsnURPYhCb8
-         VA1UxImPpBwTmBGD+s3/pviyix4aZfXJhpSs4E0hU7dMP1uoMuAjAMHYvMlR6NxLUs
-         Woe4ghZDems2+gtF6bA6JpPo4jOZtr6deA+75+7bfQpGOZ/ORmQU/6FoNPAMN6dlf9
-         dqaesbQEJi8Eg==
+        b=smB0mdPZDNWFwAFsCAwb5DAFagzvRAPK6rkjDKV0KuqusGMOYloR0np4kQBA5fOZE
+         DuF2MiWRS01rW4nbJjsbx3Hc5ocUPSkCJxzaZHKrhr5hT4UiIFg6WhUEKnpjSiOB4C
+         btfMce30g+4cPrkTqHJKVmXzpp6oSY2iG628dFMeRrr7N971OSdNECTmrkyl+GgPfz
+         KJ+yOaQxeEWps9YCXFnSeYww1v2zotAZ/BwweTurhTFjcdSeiSzqPJvki3yRVxglei
+         plYk2kbTT3J971PZwv8JAckptKMEPNNSnOhMyaOYkmZGqnNAusCuxyauY3sDufcq4C
+         3b1Acmo9lEOUA==
 From:   Mike Rapoport <rppt@kernel.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Andrew Morton <akpm@linux-foundation.org>,
@@ -59,9 +59,9 @@ Cc:     Andrew Morton <akpm@linux-foundation.org>,
         linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
         linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
         netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
-Subject: [PATCH 07/13] x86/ftrace: enable dynamic ftrace without CONFIG_MODULES
-Date:   Thu,  1 Jun 2023 13:12:51 +0300
-Message-Id: <20230601101257.530867-8-rppt@kernel.org>
+Subject: [PATCH 09/13] kprobes: remove dependcy on CONFIG_MODULES
+Date:   Thu,  1 Jun 2023 13:12:53 +0300
+Message-Id: <20230601101257.530867-10-rppt@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20230601101257.530867-1-rppt@kernel.org>
 References: <20230601101257.530867-1-rppt@kernel.org>
@@ -73,186 +73,181 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 From: "Mike Rapoport (IBM)" <rppt@kernel.org>
 
-Dynamic ftrace must allocate memory for code and this was impossible
-without CONFIG_MODULES.
+kprobes depended on CONFIG_MODULES because it has to allocate memory for
+code.
 
-With jitalloc separated from the modules code, the jit_text_alloc() is
-available regardless of CONFIG_MODULE.
+Since code allocations are now implemented with jitalloc, kprobes can be
+enabled in non-modular kernels.
 
-Move jitalloc initialization to x86/mm/init.c so that it won't get
-compiled away when CONFIG_MODULE=n and enable dynamic ftrace
-unconditionally.
+Add #ifdef CONFIG_MODULE guars for the code dealing with kprobes inside
+modules, make CONFIG_KPROBES select CONFIG_JIT_ALLOC and drop the
+dependency of CONFIG_KPROBES on CONFIG_MODULES
 
 Signed-off-by: Mike Rapoport (IBM) <rppt@kernel.org>
 ---
- arch/x86/Kconfig         |  1 +
- arch/x86/kernel/ftrace.c |  9 --------
- arch/x86/kernel/module.c | 44 --------------------------------------
- arch/x86/mm/init.c       | 46 ++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 47 insertions(+), 53 deletions(-)
+ arch/Kconfig                |  2 +-
+ kernel/kprobes.c            | 43 +++++++++++++++++++++----------------
+ kernel/trace/trace_kprobe.c | 11 ++++++++++
+ 3 files changed, 37 insertions(+), 19 deletions(-)
 
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index 53bab123a8ee..fac4add6ce16 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -35,6 +35,7 @@ config X86_64
- 	select SWIOTLB
- 	select ARCH_HAS_ELFCORE_COMPAT
- 	select ZONE_DMA32
-+	select JIT_ALLOC if DYNAMIC_FTRACE
+diff --git a/arch/Kconfig b/arch/Kconfig
+index 205fd23e0cad..479a7b8be191 100644
+--- a/arch/Kconfig
++++ b/arch/Kconfig
+@@ -39,9 +39,9 @@ config GENERIC_ENTRY
  
- config FORCE_DYNAMIC_FTRACE
- 	def_bool y
-diff --git a/arch/x86/kernel/ftrace.c b/arch/x86/kernel/ftrace.c
-index 157c8a799704..aa99536b824c 100644
---- a/arch/x86/kernel/ftrace.c
-+++ b/arch/x86/kernel/ftrace.c
-@@ -261,7 +261,6 @@ void arch_ftrace_update_code(int command)
- /* Currently only x86_64 supports dynamic trampolines */
- #ifdef CONFIG_X86_64
+ config KPROBES
+ 	bool "Kprobes"
+-	depends on MODULES
+ 	depends on HAVE_KPROBES
+ 	select KALLSYMS
++	select JIT_ALLOC
+ 	select TASKS_RCU if PREEMPTION
+ 	help
+ 	  Kprobes allows you to trap at almost any kernel address and
+diff --git a/kernel/kprobes.c b/kernel/kprobes.c
+index 3caf3561c048..11c1cfbb11ae 100644
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -1568,6 +1568,7 @@ static int check_kprobe_address_safe(struct kprobe *p,
+ 		goto out;
+ 	}
  
--#ifdef CONFIG_MODULES
- /* Module allocation simplifies allocating memory for code */
- static inline void *alloc_tramp(unsigned long size)
- {
-@@ -271,14 +270,6 @@ static inline void tramp_free(void *tramp)
- {
- 	jit_free(tramp);
- }
--#else
--/* Trampolines can only be created if modules are supported */
--static inline void *alloc_tramp(unsigned long size)
--{
--	return NULL;
--}
--static inline void tramp_free(void *tramp) { }
--#endif
- 
- /* Defined as markers to the end of the ftrace default trampolines */
- extern void ftrace_regs_caller_end(void);
-diff --git a/arch/x86/kernel/module.c b/arch/x86/kernel/module.c
-index cacca613b8bd..94a00dc103cd 100644
---- a/arch/x86/kernel/module.c
-+++ b/arch/x86/kernel/module.c
-@@ -19,7 +19,6 @@
- #include <linux/jump_label.h>
- #include <linux/random.h>
- #include <linux/memory.h>
--#include <linux/jitalloc.h>
- 
- #include <asm/text-patching.h>
- #include <asm/page.h>
-@@ -37,49 +36,6 @@ do {							\
- } while (0)
- #endif
- 
--#ifdef CONFIG_RANDOMIZE_BASE
--static unsigned long module_load_offset;
--
--/* Mutex protects the module_load_offset. */
--static DEFINE_MUTEX(module_kaslr_mutex);
--
--static unsigned long int get_module_load_offset(void)
--{
--	if (kaslr_enabled()) {
--		mutex_lock(&module_kaslr_mutex);
--		/*
--		 * Calculate the module_load_offset the first time this
--		 * code is called. Once calculated it stays the same until
--		 * reboot.
--		 */
--		if (module_load_offset == 0)
--			module_load_offset =
--				get_random_u32_inclusive(1, 1024) * PAGE_SIZE;
--		mutex_unlock(&module_kaslr_mutex);
--	}
--	return module_load_offset;
--}
--#else
--static unsigned long int get_module_load_offset(void)
--{
--	return 0;
--}
--#endif
--
--static struct jit_alloc_params jit_alloc_params = {
--	.alignment	= JIT_ALLOC_ALIGN,
--	.flags		= JIT_ALLOC_KASAN_SHADOW,
--};
--
--struct jit_alloc_params *jit_alloc_arch_params(void)
--{
--	jit_alloc_params.text.pgprot = PAGE_KERNEL;
--	jit_alloc_params.text.start = MODULES_VADDR + get_module_load_offset();
--	jit_alloc_params.text.end = MODULES_END;
--
--	return &jit_alloc_params;
--}
--
- #ifdef CONFIG_X86_32
- int apply_relocate(Elf32_Shdr *sechdrs,
- 		   const char *strtab,
-diff --git a/arch/x86/mm/init.c b/arch/x86/mm/init.c
-index 3cdac0f0055d..ffaf9a3840ce 100644
---- a/arch/x86/mm/init.c
-+++ b/arch/x86/mm/init.c
-@@ -7,6 +7,7 @@
- #include <linux/swapops.h>
- #include <linux/kmemleak.h>
- #include <linux/sched/task.h>
-+#include <linux/jitalloc.h>
- 
- #include <asm/set_memory.h>
- #include <asm/e820/api.h>
-@@ -1084,3 +1085,48 @@ unsigned long arch_max_swapfile_size(void)
- 	return pages;
- }
- #endif
-+
-+#ifdef CONFIG_JIT_ALLOC
-+#ifdef CONFIG_RANDOMIZE_BASE
-+static unsigned long jit_load_offset;
-+
-+/* Mutex protects the jit_load_offset. */
-+static DEFINE_MUTEX(jit_kaslr_mutex);
-+
-+static unsigned long int get_jit_load_offset(void)
-+{
-+	if (kaslr_enabled()) {
-+		mutex_lock(&jit_kaslr_mutex);
-+		/*
-+		 * Calculate the jit_load_offset the first time this
-+		 * code is called. Once calculated it stays the same until
-+		 * reboot.
-+		 */
-+		if (jit_load_offset == 0)
-+			jit_load_offset =
-+				get_random_u32_inclusive(1, 1024) * PAGE_SIZE;
-+		mutex_unlock(&jit_kaslr_mutex);
-+	}
-+	return jit_load_offset;
-+}
-+#else
-+static unsigned long int get_jit_load_offset(void)
-+{
-+	return 0;
-+}
++#ifdef CONFIG_MODULES
+ 	/* Check if 'p' is probing a module. */
+ 	*probed_mod = __module_text_address((unsigned long) p->addr);
+ 	if (*probed_mod) {
+@@ -1591,6 +1592,8 @@ static int check_kprobe_address_safe(struct kprobe *p,
+ 			ret = -ENOENT;
+ 		}
+ 	}
 +#endif
 +
-+static struct jit_alloc_params jit_alloc_params = {
-+	.alignment	= JIT_ALLOC_ALIGN,
-+	.flags		= JIT_ALLOC_KASAN_SHADOW,
-+};
-+
-+struct jit_alloc_params *jit_alloc_arch_params(void)
+ out:
+ 	preempt_enable();
+ 	jump_label_unlock();
+@@ -2484,24 +2487,6 @@ int kprobe_add_area_blacklist(unsigned long start, unsigned long end)
+ 	return 0;
+ }
+ 
+-/* Remove all symbols in given area from kprobe blacklist */
+-static void kprobe_remove_area_blacklist(unsigned long start, unsigned long end)
+-{
+-	struct kprobe_blacklist_entry *ent, *n;
+-
+-	list_for_each_entry_safe(ent, n, &kprobe_blacklist, list) {
+-		if (ent->start_addr < start || ent->start_addr >= end)
+-			continue;
+-		list_del(&ent->list);
+-		kfree(ent);
+-	}
+-}
+-
+-static void kprobe_remove_ksym_blacklist(unsigned long entry)
+-{
+-	kprobe_remove_area_blacklist(entry, entry + 1);
+-}
+-
+ int __weak arch_kprobe_get_kallsym(unsigned int *symnum, unsigned long *value,
+ 				   char *type, char *sym)
+ {
+@@ -2566,6 +2551,25 @@ static int __init populate_kprobe_blacklist(unsigned long *start,
+ 	return ret ? : arch_populate_kprobe_blacklist();
+ }
+ 
++#ifdef CONFIG_MODULES
++/* Remove all symbols in given area from kprobe blacklist */
++static void kprobe_remove_area_blacklist(unsigned long start, unsigned long end)
 +{
-+	jit_alloc_params.text.pgprot = PAGE_KERNEL;
-+	jit_alloc_params.text.start = MODULES_VADDR + get_jit_load_offset();
-+	jit_alloc_params.text.end = MODULES_END;
++	struct kprobe_blacklist_entry *ent, *n;
 +
-+	return &jit_alloc_params;
++	list_for_each_entry_safe(ent, n, &kprobe_blacklist, list) {
++		if (ent->start_addr < start || ent->start_addr >= end)
++			continue;
++		list_del(&ent->list);
++		kfree(ent);
++	}
 +}
-+#endif /* CONFIG_JIT_ALLOC */
++
++static void kprobe_remove_ksym_blacklist(unsigned long entry)
++{
++	kprobe_remove_area_blacklist(entry, entry + 1);
++}
++
+ static void add_module_kprobe_blacklist(struct module *mod)
+ {
+ 	unsigned long start, end;
+@@ -2667,6 +2671,7 @@ static struct notifier_block kprobe_module_nb = {
+ 	.notifier_call = kprobes_module_callback,
+ 	.priority = 0
+ };
++#endif
+ 
+ void kprobe_free_init_mem(void)
+ {
+@@ -2726,8 +2731,10 @@ static int __init init_kprobes(void)
+ 	err = arch_init_kprobes();
+ 	if (!err)
+ 		err = register_die_notifier(&kprobe_exceptions_nb);
++#ifdef CONFIG_MODULES
+ 	if (!err)
+ 		err = register_module_notifier(&kprobe_module_nb);
++#endif
+ 
+ 	kprobes_initialized = (err == 0);
+ 	kprobe_sysctls_init();
+diff --git a/kernel/trace/trace_kprobe.c b/kernel/trace/trace_kprobe.c
+index 59cda19a9033..cf804e372554 100644
+--- a/kernel/trace/trace_kprobe.c
++++ b/kernel/trace/trace_kprobe.c
+@@ -111,6 +111,7 @@ static nokprobe_inline bool trace_kprobe_within_module(struct trace_kprobe *tk,
+ 	return strncmp(module_name(mod), name, len) == 0 && name[len] == ':';
+ }
+ 
++#ifdef CONFIG_MODULES
+ static nokprobe_inline bool trace_kprobe_module_exist(struct trace_kprobe *tk)
+ {
+ 	char *p;
+@@ -129,6 +130,12 @@ static nokprobe_inline bool trace_kprobe_module_exist(struct trace_kprobe *tk)
+ 
+ 	return ret;
+ }
++#else
++static inline bool trace_kprobe_module_exist(struct trace_kprobe *tk)
++{
++	return false;
++}
++#endif
+ 
+ static bool trace_kprobe_is_busy(struct dyn_event *ev)
+ {
+@@ -670,6 +677,7 @@ static int register_trace_kprobe(struct trace_kprobe *tk)
+ 	return ret;
+ }
+ 
++#ifdef CONFIG_MODULES
+ /* Module notifier call back, checking event on the module */
+ static int trace_kprobe_module_callback(struct notifier_block *nb,
+ 				       unsigned long val, void *data)
+@@ -704,6 +712,7 @@ static struct notifier_block trace_kprobe_module_nb = {
+ 	.notifier_call = trace_kprobe_module_callback,
+ 	.priority = 1	/* Invoked after kprobe module callback */
+ };
++#endif
+ 
+ static int __trace_kprobe_create(int argc, const char *argv[])
+ {
+@@ -1797,8 +1806,10 @@ static __init int init_kprobe_trace_early(void)
+ 	if (ret)
+ 		return ret;
+ 
++#ifdef CONFIG_MODULES
+ 	if (register_module_notifier(&trace_kprobe_module_nb))
+ 		return -EINVAL;
++#endif
+ 
+ 	return 0;
+ }
 -- 
 2.35.1
 
