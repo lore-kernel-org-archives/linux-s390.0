@@ -2,173 +2,211 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A8D17C7EE2A
-	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 14:25:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 33F3BC7EE2A
+	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 16:12:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233998AbjFAOZL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 1 Jun 2023 10:25:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44244 "EHLO
+        id S229947AbjFAQMR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 1 Jun 2023 12:12:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234315AbjFAOZG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 10:25:06 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 628F8C0
-        for <linux-s390@vger.kernel.org>; Thu,  1 Jun 2023 07:24:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1685629459;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=1/krOFL7mbU4xxN3nyrKnczfe+skJNyHI4Z3YRHlsPI=;
-        b=T/50TVYFenchm8io+wG2QYPwBvgvpqJtkQlzhEPU3X/pnRiEoPBlCVd4i0oFp7ZVcy1qfc
-        ZnHvd77gBLA3V61HhgQGwyXZ8BBGmMR+XB7nUsDmKNgCOIahKyrQFhgk8DE7FzMDunqSR5
-        /3u2yDlMAABJ/3QssWvfyyDdT5iKMT0=
-Received: from mail-il1-f197.google.com (mail-il1-f197.google.com
- [209.85.166.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-669-liL7N5GwOQ21_p2xGVFyiQ-1; Thu, 01 Jun 2023 10:24:17 -0400
-X-MC-Unique: liL7N5GwOQ21_p2xGVFyiQ-1
-Received: by mail-il1-f197.google.com with SMTP id e9e14a558f8ab-33b45d8c180so6808265ab.1
-        for <linux-s390@vger.kernel.org>; Thu, 01 Jun 2023 07:24:17 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1685629456; x=1688221456;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=1/krOFL7mbU4xxN3nyrKnczfe+skJNyHI4Z3YRHlsPI=;
-        b=AoC0Q0wQAjnHXm0dPV2yuUAEAKDNmkxKENcJJqjGZzlmueKkdQgBRDbvkhW3V4/dOd
-         dKhp72c+sVX424ZUQsOaZxd1SedXV6PmiSliamrOnxOUhhA9exCpDCcDWT0dYa/QbvJj
-         X9AXX+ZUkj2Ak4U2W8+dO7CRZ1jFMYc843jDCEQI06PCyulSWulBgVZWBxlO4c7UGIDf
-         5wcMuPJSiZ4KHimGgqYkzJ7MhLZ0Ui06S1qSTXKmaW/2FaNrj2GVXLIMGybPplS+4RPr
-         je/FGmbEv0AwJThDqJOq9F/umyYJF09dK4OvTzBlYxEsqlNjVodleL3vl/lqA1SsGcnK
-         vKMQ==
-X-Gm-Message-State: AC+VfDwqOqAcAF6qDhC95NRGWRjmxto4gvyNAUA0JDU/fLA65apH4KKC
-        eE040j6kCrBiQpyRvh5W46N2zhm0VWV3iLmUNdXisMYeDAT+nfHgQZRYFt6Zr/plolXLPIUJKz+
-        G6iVcrH7ICA0jHnEvHM/l8A==
-X-Received: by 2002:a92:dc48:0:b0:33b:4518:855b with SMTP id x8-20020a92dc48000000b0033b4518855bmr4310368ilq.31.1685629456500;
-        Thu, 01 Jun 2023 07:24:16 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ49mx0D8pp1sKwN9GDBagNPW0M6MLwlKghfGbFuCVF3pvvmUFEMkFKSw6/5GH2X52ssF8T1Qw==
-X-Received: by 2002:a92:dc48:0:b0:33b:4518:855b with SMTP id x8-20020a92dc48000000b0033b4518855bmr4310346ilq.31.1685629456193;
-        Thu, 01 Jun 2023 07:24:16 -0700 (PDT)
-Received: from redhat.com ([38.15.36.239])
-        by smtp.gmail.com with ESMTPSA id cp12-20020a056638480c00b0040fd44d4011sm2289927jab.125.2023.06.01.07.24.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 01 Jun 2023 07:24:15 -0700 (PDT)
-Date:   Thu, 1 Jun 2023 08:24:13 -0600
-From:   Alex Williamson <alex.williamson@redhat.com>
-To:     "Liu, Yi L" <yi.l.liu@intel.com>
-Cc:     Jason Gunthorpe <jgg@nvidia.com>,
-        Baolu Lu <baolu.lu@linux.intel.com>,
-        "Tian, Kevin" <kevin.tian@intel.com>,
-        "joro@8bytes.org" <joro@8bytes.org>,
-        "robin.murphy@arm.com" <robin.murphy@arm.com>,
-        "cohuck@redhat.com" <cohuck@redhat.com>,
-        "eric.auger@redhat.com" <eric.auger@redhat.com>,
-        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
-        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
-        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
-        "peterx@redhat.com" <peterx@redhat.com>,
-        "jasowang@redhat.com" <jasowang@redhat.com>,
-        "shameerali.kolothum.thodi@huawei.com" 
-        <shameerali.kolothum.thodi@huawei.com>,
-        "lulu@redhat.com" <lulu@redhat.com>,
-        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "Hao, Xudong" <xudong.hao@intel.com>,
-        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
-        "Xu, Terrence" <terrence.xu@intel.com>,
-        "Jiang, Yanting" <yanting.jiang@intel.com>,
-        "Duan, Zhenzhong" <zhenzhong.duan@intel.com>,
-        "clegoate@redhat.com" <clegoate@redhat.com>
-Subject: Re: [PATCH v6 09/10] vfio/pci: Extend
- VFIO_DEVICE_GET_PCI_HOT_RESET_INFO for vfio device cdev
-Message-ID: <20230601082413.22a55ac4.alex.williamson@redhat.com>
-In-Reply-To: <DS0PR11MB7529B223BD86210A21D142B2C3499@DS0PR11MB7529.namprd11.prod.outlook.com>
-References: <20230522115751.326947-1-yi.l.liu@intel.com>
-        <20230522115751.326947-10-yi.l.liu@intel.com>
-        <20230524135603.33ee3d91.alex.williamson@redhat.com>
-        <DS0PR11MB752935203F87D69D4468B890C3469@DS0PR11MB7529.namprd11.prod.outlook.com>
-        <355a9f1e-64e6-d785-5a22-027b708b4935@linux.intel.com>
-        <ZHeZPPo/MWXV1L9Q@nvidia.com>
-        <DS0PR11MB7529B223BD86210A21D142B2C3499@DS0PR11MB7529.namprd11.prod.outlook.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
+        with ESMTP id S229603AbjFAQMQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 12:12:16 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 50B4C18F;
+        Thu,  1 Jun 2023 09:12:13 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 525171063;
+        Thu,  1 Jun 2023 09:12:58 -0700 (PDT)
+Received: from FVFF77S0Q05N.cambridge.arm.com (FVFF77S0Q05N.cambridge.arm.com [10.1.36.140])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id C47623F663;
+        Thu,  1 Jun 2023 09:12:06 -0700 (PDT)
+Date:   Thu, 1 Jun 2023 17:12:03 +0100
+From:   Mark Rutland <mark.rutland@arm.com>
+To:     Mike Rapoport <rppt@kernel.org>
+Cc:     linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Helge Deller <deller@gmx.de>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Kent Overstreet <kent.overstreet@linux.dev>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Song Liu <song@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will@kernel.org>, bpf@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+        linux-mm@kvack.org, linux-modules@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+        netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
+Subject: Re: [PATCH 00/13] mm: jit/text allocator
+Message-ID: <ZHjDU/mxE+cugpLj@FVFF77S0Q05N.cambridge.arm.com>
+References: <20230601101257.530867-1-rppt@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230601101257.530867-1-rppt@kernel.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 1 Jun 2023 06:06:17 +0000
-"Liu, Yi L" <yi.l.liu@intel.com> wrote:
+Hi Mike,
 
-> > From: Jason Gunthorpe <jgg@nvidia.com>
-> > Sent: Thursday, June 1, 2023 3:00 AM
-> > 
-> > On Fri, May 26, 2023 at 10:04:27AM +0800, Baolu Lu wrote:  
-> > > On 5/25/23 9:02 PM, Liu, Yi L wrote:  
-> > > > >   It's possible that requirement
-> > > > > might be relaxed in the new DMA ownership model, but as it is right
-> > > > > now, the code enforces that requirement and any new discussion about
-> > > > > what makes hot-reset available should note both the ownership and
-> > > > > dev_set requirement.  Thanks,  
-> > > > I think your point is that if an iommufd_ctx has acquired DMA ownerhisp
-> > > > of an iommu_group, it means the device is owned. And it should not
-> > > > matter whether all the devices in the iommu_group is present in the
-> > > > dev_set. It is allowed that some devices are bound to pci-stub or
-> > > > pcieport driver. Is it?
-> > > >
-> > > > Actually I have a doubt on it. IIUC, the above requirement on dev_set
-> > > > is to ensure the reset to the devices are protected by the dev_set->lock.
-> > > > So that either the reset issued by driver itself or a hot reset request
-> > > > from user, there is no race. But if a device is not in the dev_set, then
-> > > > hot reset request from user might race with the bound driver. DMA ownership
-> > > > only guarantees the drivers won't handle DMA via DMA API which would have
-> > > > conflict with DMA mappings from user. I'm not sure if it is able to
-> > > > guarantee reset is exclusive as well. I see pci-stub and pcieport driver
-> > > > are the only two drivers that set the driver_managed_dma flag besides the
-> > > > vfio drivers. pci-stub may be fine. not sure about pcieport driver.  
-> > >
-> > > commit c7d469849747 ("PCI: portdrv: Set driver_managed_dma") described
-> > > the criteria of adding driver_managed_dma to the pcieport driver.
-> > >
-> > > "
-> > > We achieve this by setting ".driver_managed_dma = true" in pci_driver
-> > > structure. It is safe because the portdrv driver meets below criteria:
-> > >
-> > > - This driver doesn't use DMA, as you can't find any related calls like
-> > >   pci_set_master() or any kernel DMA API (dma_map_*() and etc.).
-> > > - It doesn't use MMIO as you can't find ioremap() or similar calls. It's
-> > >   tolerant to userspace possibly also touching the same MMIO registers
-> > >   via P2P DMA access.
-> > > "
-> > >
-> > > pci_rest_device() definitely shouldn't be done by the kernel drivers
-> > > that have driver_managed_dma set.  
-> > 
-> > Right
-> > 
-> > The only time it is safe to reset is if you know there is no attached
-> > driver or you know VFIO is the attached driver and the caller owns the
-> > VFIO too.
-> > 
-> > We haven't done a no attached driver test due to races.  
+On Thu, Jun 01, 2023 at 01:12:44PM +0300, Mike Rapoport wrote:
+> From: "Mike Rapoport (IBM)" <rppt@kernel.org>
 > 
-> Ok. @Alex, should we relax the above dev_set requirement now or should
-> be in a separate series?
+> Hi,
+> 
+> module_alloc() is used everywhere as a mean to allocate memory for code.
+> 
+> Beside being semantically wrong, this unnecessarily ties all subsystmes
+> that need to allocate code, such as ftrace, kprobes and BPF to modules
+> and puts the burden of code allocation to the modules code.
 
+I agree this is a problem, and one key issue here is that these can have
+different requirements. For example, on arm64 we need modules to be placed
+within a 128M or 2G window containing the kernel, whereas it would be safe for
+the kprobes XOL area to be placed arbitrarily far from the kernel image (since
+we don't allow PC-relative insns to be stepped out-of-line). Likewise arm64
+doesn't have ftrace trampolines, and DIRECT_CALL trampolines can safely be
+placed arbitarily far from the kernel image.
 
-Sounds like no, you should be rejecting enhancements that increase
-scope at this point and I don't see consensus here.  My concern was
-that we're not correctly describing the dev_set restriction which is
-already in place but needs to be more explicitly described in an
-implied ownership model vs proof of ownership model.  Thanks,
+For a while I have wanted to give kprobes its own allocator so that it can work
+even with CONFIG_MODULES=n, and so that it doesn't have to waste VA space in
+the modules area.
 
-Alex
+Given that, I think these should have their own allocator functions that can be
+provided independently, even if those happen to use common infrastructure.
 
+> Several architectures override module_alloc() because of various
+> constraints where the executable memory can be located and this causes
+> additional obstacles for improvements of code allocation.
+> 
+> This set splits code allocation from modules by introducing
+> jit_text_alloc(), jit_data_alloc() and jit_free() APIs, replaces call
+> sites of module_alloc() and module_memfree() with the new APIs and
+> implements core text and related allocation in a central place.
+> 
+> Instead of architecture specific overrides for module_alloc(), the
+> architectures that require non-default behaviour for text allocation must
+> fill jit_alloc_params structure and implement jit_alloc_arch_params() that
+> returns a pointer to that structure. If an architecture does not implement
+> jit_alloc_arch_params(), the defaults compatible with the current
+> modules::module_alloc() are used.
+
+As above, I suspect that each of the callsites should probably be using common
+infrastructure, but I don't think that a single jit_alloc_arch_params() makes
+sense, since the parameters for each case may need to be distinct.
+
+> The new jitalloc infrastructure allows decoupling of kprobes and ftrace
+> from modules, and most importantly it enables ROX allocations for
+> executable memory.
+> 
+> A centralized infrastructure for code allocation allows future
+> optimizations for allocations of executable memory, caching large pages for
+> better iTLB performance and providing sub-page allocations for users that
+> only need small jit code snippets.
+
+This sounds interesting, but I think this can be achieved without requiring a
+single jit_alloc_arch_params() shared by all users?
+
+Thanks,
+Mark.
+
+> 
+> patches 1-5: split out the code allocation from modules and arch
+> patch 6: add dedicated API for data allocations with constraints similar to
+> code allocations
+> patches 7-9: decouple dynamic ftrace and kprobes form CONFIG_MODULES
+> patches 10-13: enable ROX allocations for executable memory on x86
+> 
+> Mike Rapoport (IBM) (11):
+>   nios2: define virtual address space for modules
+>   mm: introduce jit_text_alloc() and use it instead of module_alloc()
+>   mm/jitalloc, arch: convert simple overrides of module_alloc to jitalloc
+>   mm/jitalloc, arch: convert remaining overrides of module_alloc to jitalloc
+>   module, jitalloc: drop module_alloc
+>   mm/jitalloc: introduce jit_data_alloc()
+>   x86/ftrace: enable dynamic ftrace without CONFIG_MODULES
+>   arch: make jitalloc setup available regardless of CONFIG_MODULES
+>   kprobes: remove dependcy on CONFIG_MODULES
+>   modules, jitalloc: prepare to allocate executable memory as ROX
+>   x86/jitalloc: make memory allocated for code ROX
+> 
+> Song Liu (2):
+>   ftrace: Add swap_func to ftrace_process_locs()
+>   x86/jitalloc: prepare to allocate exectuatble memory as ROX
+> 
+>  arch/Kconfig                     |   5 +-
+>  arch/arm/kernel/module.c         |  32 ------
+>  arch/arm/mm/init.c               |  35 ++++++
+>  arch/arm64/kernel/module.c       |  47 --------
+>  arch/arm64/mm/init.c             |  42 +++++++
+>  arch/loongarch/kernel/module.c   |   6 -
+>  arch/loongarch/mm/init.c         |  16 +++
+>  arch/mips/kernel/module.c        |   9 --
+>  arch/mips/mm/init.c              |  19 ++++
+>  arch/nios2/include/asm/pgtable.h |   5 +-
+>  arch/nios2/kernel/module.c       |  24 ++--
+>  arch/parisc/kernel/module.c      |  11 --
+>  arch/parisc/mm/init.c            |  21 +++-
+>  arch/powerpc/kernel/kprobes.c    |   4 +-
+>  arch/powerpc/kernel/module.c     |  37 -------
+>  arch/powerpc/mm/mem.c            |  41 +++++++
+>  arch/riscv/kernel/module.c       |  10 --
+>  arch/riscv/mm/init.c             |  18 +++
+>  arch/s390/kernel/ftrace.c        |   4 +-
+>  arch/s390/kernel/kprobes.c       |   4 +-
+>  arch/s390/kernel/module.c        |  46 +-------
+>  arch/s390/mm/init.c              |  35 ++++++
+>  arch/sparc/kernel/module.c       |  34 +-----
+>  arch/sparc/mm/Makefile           |   2 +
+>  arch/sparc/mm/jitalloc.c         |  21 ++++
+>  arch/sparc/net/bpf_jit_comp_32.c |   8 +-
+>  arch/x86/Kconfig                 |   2 +
+>  arch/x86/kernel/alternative.c    |  43 ++++---
+>  arch/x86/kernel/ftrace.c         |  59 +++++-----
+>  arch/x86/kernel/kprobes/core.c   |   4 +-
+>  arch/x86/kernel/module.c         |  75 +------------
+>  arch/x86/kernel/static_call.c    |  10 +-
+>  arch/x86/kernel/unwind_orc.c     |  13 ++-
+>  arch/x86/mm/init.c               |  52 +++++++++
+>  arch/x86/net/bpf_jit_comp.c      |  22 +++-
+>  include/linux/ftrace.h           |   2 +
+>  include/linux/jitalloc.h         |  69 ++++++++++++
+>  include/linux/moduleloader.h     |  15 ---
+>  kernel/bpf/core.c                |  14 +--
+>  kernel/kprobes.c                 |  51 +++++----
+>  kernel/module/Kconfig            |   1 +
+>  kernel/module/main.c             |  56 ++++------
+>  kernel/trace/ftrace.c            |  13 ++-
+>  kernel/trace/trace_kprobe.c      |  11 ++
+>  mm/Kconfig                       |   3 +
+>  mm/Makefile                      |   1 +
+>  mm/jitalloc.c                    | 185 +++++++++++++++++++++++++++++++
+>  mm/mm_init.c                     |   2 +
+>  48 files changed, 777 insertions(+), 462 deletions(-)
+>  create mode 100644 arch/sparc/mm/jitalloc.c
+>  create mode 100644 include/linux/jitalloc.h
+>  create mode 100644 mm/jitalloc.c
+> 
+> 
+> base-commit: 44c026a73be8038f03dbdeef028b642880cf1511
+> -- 
+> 2.35.1
+> 
+> 
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
