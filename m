@@ -2,116 +2,119 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A6398C7EE2F
-	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 13:32:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 426F8C77B7E
+	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 13:33:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233926AbjFANcs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 1 Jun 2023 09:32:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41330 "EHLO
+        id S231790AbjFANc5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 1 Jun 2023 09:32:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234303AbjFANcg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 09:32:36 -0400
-Received: from mail-il1-x131.google.com (mail-il1-x131.google.com [IPv6:2607:f8b0:4864:20::131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 643991A1
-        for <linux-s390@vger.kernel.org>; Thu,  1 Jun 2023 06:32:14 -0700 (PDT)
-Received: by mail-il1-x131.google.com with SMTP id e9e14a558f8ab-33bf12b5fb5so107345ab.1
-        for <linux-s390@vger.kernel.org>; Thu, 01 Jun 2023 06:32:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1685626333; x=1688218333;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=p3KtCSrqEVqtyrflNCykZkj5UeocsByaRl8X7IPAFn8=;
-        b=nEb7UmLMNlSokluULHqM3r9qwDnoeTuCxbhZyiHecz0usOSPC/uyqdsHZ7xd6QBUyR
-         idkWN5F64EAtBjPj19+RTFg6iXWGBP25dJZ/WHKJSbI78Nf4B6FKQFfIZx5W/5QST0fZ
-         jSi5W+oz4+pxH8RukzegUQ49sfyvxL8hY8S1I+HgSUT+fLqfWNHs8rfhFuGCycq2YTEj
-         /BaEsJfjqqPeuuslkWBUjfkGO32PnKAsvZU64ZLopJ+ej2ZPg07X13JKU5z1UjszHkqe
-         qWbHkQ3YufXGR4Y0zjyJFUrHwGjq1B+NSYDQtViYyV9Vj3OQjylmZh1M9WPLSLCrP5HB
-         BULg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1685626333; x=1688218333;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=p3KtCSrqEVqtyrflNCykZkj5UeocsByaRl8X7IPAFn8=;
-        b=QJgYJWbhIfcFfgC1VerR3oRTpEVgtVXe73qNkAmr543iIgJ84A3sAfm7s6Axt/sGLG
-         QQeRtDf6due1oNfVW2q+ZbnMFBDQWYvEH0X+TiRU0o7ByyYZEe/Sfy0r+tZoYjKPwf49
-         W7/BgwYikGh7V/+hmwQfpErsLATh0n6eWAhWQ4OIn+iMhwiSVIBX5FbXq+AUgCKegn+l
-         0FCAfJOzjwtW2vPTV7jE9DxbOah0iavHze3215HdaB+9o+D3c0zElN0eSQ2fpzcPySX/
-         eSL5Yw01p/uiumbiSOIWoHTBezYs4gvmduIVl1l3cLcygiXDGZN8P+3f8Z9blljvm5nD
-         CkXw==
-X-Gm-Message-State: AC+VfDyA9d8gAp+YGuYKVnXIxfvkChE+JkXudLGr1w0vtihGYoVbdrGd
-        Vcyouy4S7pGf9LYYLlMQ2CprPYd/evJctVOdnupbJQ==
-X-Google-Smtp-Source: ACHHUZ4V/FtCLljGT1xoWt7C/8p0Y5SAaWQZYLw6rhFmZV3z+bByMi+y3Ckgjp10pBE5s1R58cJTrfBhSTUq11iJoX4=
-X-Received: by 2002:a05:6e02:b2c:b0:32a:642d:2a13 with SMTP id
- e12-20020a056e020b2c00b0032a642d2a13mr216220ilu.6.1685626333553; Thu, 01 Jun
- 2023 06:32:13 -0700 (PDT)
+        with ESMTP id S233408AbjFANcq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 09:32:46 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5472AE5F;
+        Thu,  1 Jun 2023 06:32:37 -0700 (PDT)
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 351DDTk0018611;
+        Thu, 1 Jun 2023 13:32:36 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=vhd9EyMmatL80g2r4UYt6yaIWyyqCq9PEBicq4VSW50=;
+ b=MEHyOEI7GxX8nGxy+vyZQC+WUvtH/1SoBvDibOGj/gqIbOXd5SGeCJ2N/ArqSCc2WQhS
+ GnR9vzcDXBOXn3ECrkeuTZfXVy3N9rSU4U5NM/DviwRwTN9CUkhrhb1yZLoB2vsZ/1hh
+ phe7KwwLWkrCMFw6/oYtTexrbynda0BIMJyca1ScKHMxdCSUwML/QVSWA1MiMmtsI1BT
+ 5Fez3F/hC0Wuo5R34iq+3FL3eSVjS79WTQ6cvWTOYGGv2+T55f5bO9Mm09wSn2uImDU6
+ H+oGeraW39zS9LtuY72Vy8WrlvJYuE9OL4HeZgGk7KtIiWUlV4qJoTjcIkBtFxOa0VSL Jg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qxv1b0sfr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 01 Jun 2023 13:32:36 +0000
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 351DDbab019247;
+        Thu, 1 Jun 2023 13:32:35 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qxv1b0seq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 01 Jun 2023 13:32:35 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3514Pmn5020346;
+        Thu, 1 Jun 2023 13:32:34 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3qu94e2j32-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 01 Jun 2023 13:32:33 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 351DWU1c36176556
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 1 Jun 2023 13:32:30 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 72EAD2004B;
+        Thu,  1 Jun 2023 13:32:30 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 02F4220040;
+        Thu,  1 Jun 2023 13:32:30 +0000 (GMT)
+Received: from [9.171.14.211] (unknown [9.171.14.211])
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Thu,  1 Jun 2023 13:32:29 +0000 (GMT)
+Message-ID: <7da25454-bee4-2d4c-a5c2-ac98a44edff0@linux.ibm.com>
+Date:   Thu, 1 Jun 2023 15:32:29 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.11.0
+Subject: Re: [kvm-unit-tests PATCH v3 2/2] s390x: sclp: Implement
+ SCLP_RC_INSUFFICIENT_SCCB_LENGTH
+Content-Language: en-US
+To:     Pierre Morel <pmorel@linux.ibm.com>,
+        Nico Boehr <nrb@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc:     thuth@redhat.com, kvm@vger.kernel.org, imbrenda@linux.ibm.com,
+        david@redhat.com, nsg@linux.ibm.com, cohuck@redhat.com
+References: <20230530124056.18332-1-pmorel@linux.ibm.com>
+ <20230530124056.18332-3-pmorel@linux.ibm.com>
+ <3dc8e019-a3c1-8446-08ed-f76a9064f954@linux.ibm.com>
+ <168562078341.164254.16306908045401776634@t14-nrb>
+ <5d0ddebd-22ab-f916-2339-5edc880e5001@linux.ibm.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+In-Reply-To: <5d0ddebd-22ab-f916-2339-5edc880e5001@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 4sAd4KisSnhH0AZhQPPKb4tlFufvylCa
+X-Proofpoint-GUID: sx6PmKIIVovFNVeOdVt-byuM7Ogcd-cu
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-References: <35e983f5-7ed3-b310-d949-9ae8b130cdab@google.com> <739964d-c535-4db4-90ec-2166285b4d47@google.com>
-In-Reply-To: <739964d-c535-4db4-90ec-2166285b4d47@google.com>
-From:   Jann Horn <jannh@google.com>
-Date:   Thu, 1 Jun 2023 15:31:37 +0200
-Message-ID: <CAG48ez26qh_ZYuKoOQt-ci6SHt2R=5+bPgHCaZrG_TBfbPHq8g@mail.gmail.com>
-Subject: Re: [PATCH 08/12] mm/pgtable: add pte_free_defer() for pgtable as page
-To:     Hugh Dickins <hughd@google.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        David Hildenbrand <david@redhat.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Qi Zheng <zhengqi.arch@bytedance.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Peter Xu <peterx@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        Ralph Campbell <rcampbell@nvidia.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Steven Price <steven.price@arm.com>,
-        SeongJae Park <sj@kernel.org>,
-        Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Zack Rusin <zackr@vmware.com>, Jason Gunthorpe <jgg@ziepe.ca>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Pasha Tatashin <pasha.tatashin@soleen.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        Song Liu <song@kernel.org>,
-        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
-        Russell King <linux@armlinux.org.uk>,
-        "David S. Miller" <davem@davemloft.net>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
+ definitions=2023-06-01_08,2023-05-31_03,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 spamscore=0
+ adultscore=0 priorityscore=1501 lowpriorityscore=0 suspectscore=0
+ impostorscore=0 bulkscore=0 mlxscore=0 phishscore=0 mlxlogscore=968
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2304280000 definitions=main-2306010115
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, May 29, 2023 at 8:23=E2=80=AFAM Hugh Dickins <hughd@google.com> wro=
-te:
-> Add the generic pte_free_defer(), to call pte_free() via call_rcu().
-> pte_free_defer() will be called inside khugepaged's retract_page_tables()
-> loop, where allocating extra memory cannot be relied upon.  This version
-> suits all those architectures which use an unfragmented page for one page
-> table (none of whose pte_free()s use the mm arg which was passed to it).
+On 6/1/23 14:55, Pierre Morel wrote:
+> 
+> On 6/1/23 13:59, Nico Boehr wrote:
+>> Quoting Janosch Frank (2023-06-01 10:03:06)
+>>> On 5/30/23 14:40, Pierre Morel wrote:
+>>>> If SCLP_CMDW_READ_SCP_INFO fails due to a short buffer, retry
+>>>> with a greater buffer.
+>>>>
+>>>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>> Janosch, I think it makes sense if Pierre picks up Claudios suggestion from here:
+>> https://lore.kernel.org/all/20230530173544.378a63c6@p-imbrenda/
+>>
+>> Do you agree?
+> 
+> from my side:
+> 
+> It simplifies greatly the code and tested without problem.
+> 
+> The documentation says the SCCB length is "at least"... so we can use a
+> greater size from the beginning.
+> 
+> 
 
-Pages that have been scheduled for deferred freeing can still be
-locked, right? So struct page's members "ptl" and "rcu_head" can now
-be in use at the same time? If that's intended, it would probably be a
-good idea to add comments in the "/* Page table pages */" part of
-struct page to point out that the first two members can be used by the
-rcu_head while the page is still used as a page table in some
-contexts, including use of the ptl.
+Sounds good
