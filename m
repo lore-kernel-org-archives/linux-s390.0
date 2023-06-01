@@ -2,137 +2,176 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E6EC4C77B7E
-	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 13:35:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B883EC77B7E
+	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 13:59:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229866AbjFANfV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 1 Jun 2023 09:35:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43428 "EHLO
+        id S232380AbjFAN7O (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 1 Jun 2023 09:59:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233330AbjFANfS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 09:35:18 -0400
-Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E718C13E
-        for <linux-s390@vger.kernel.org>; Thu,  1 Jun 2023 06:35:15 -0700 (PDT)
-Received: by mail-ej1-x62c.google.com with SMTP id a640c23a62f3a-96f50e26b8bso122975966b.2
-        for <linux-s390@vger.kernel.org>; Thu, 01 Jun 2023 06:35:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google; t=1685626514; x=1688218514;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=M0MHDOHZ+ksADoGSH1YMQnsp1jrJ4XOCHJuXFHrOLiU=;
-        b=O/PXGn4IbX7zlX+OA/ZuADBSgNiqDVlZASh1iP6ny1zc9ezfBU29y3fSDYBHBmpfnO
-         mHGES1OhBWq6AcXO7npw2nb2OaZ6bd1WjP3auy6fWL5q+7oftNPzgghwMYTY9wencWtq
-         sQ+/tdJ64e9imgzF0Tu4hpFXDsZzZBGBpxQ0g=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1685626514; x=1688218514;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=M0MHDOHZ+ksADoGSH1YMQnsp1jrJ4XOCHJuXFHrOLiU=;
-        b=L+4XWT+AtQJqc5reJ+lIoze9YaZu4M/QA3BlbrXwpp4GmGk+qLig06sRB5uPd0C291
-         z9hPPEpl9LTgUBV7MFMrKACOvGTq7i97AjF4ZYzxkkMHZUDV3oc3fxvsTLwvE1rBPxEy
-         6lwfTUbEbNyxIKuMSYB95TQNjZCAinQoM9cqzspdZREfNLNDTJuR3TqE4MT2BvPD6FSX
-         SqZQiuCMQsVcpwYMJAagqyVTpw1jClGzc9G4jEA9WdduIo81hGOUybWBW6GnJUBB984g
-         XxDR9rin3UysTVcY2WVf4LPrrUYUYquK4QXrAqY+VC1v9N2I7oKrCLQTYOl6w3AuYqhT
-         co0w==
-X-Gm-Message-State: AC+VfDwpeyV/Rc7AQL3fj5B42EspMBd1dC1/cxTJ4546r3mnckod+6+i
-        Nqv/OTJdWE4jmZYtJdMfueu2bTnsKVoC8j+SeosPHO6J
-X-Google-Smtp-Source: ACHHUZ5od8/m2hW/RuMDKJ5bcmxCTTNtpim4JTCCMQLS0bdopmTvAeS91KHRluMqTsHiuy8bF0dBGw==
-X-Received: by 2002:a17:907:3e26:b0:969:bac4:8e22 with SMTP id hp38-20020a1709073e2600b00969bac48e22mr8137519ejc.26.1685626514301;
-        Thu, 01 Jun 2023 06:35:14 -0700 (PDT)
-Received: from mail-wr1-f48.google.com (mail-wr1-f48.google.com. [209.85.221.48])
-        by smtp.gmail.com with ESMTPSA id si16-20020a170906ced000b0094f1b8901e1sm10523562ejb.68.2023.06.01.06.35.13
-        for <linux-s390@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 01 Jun 2023 06:35:14 -0700 (PDT)
-Received: by mail-wr1-f48.google.com with SMTP id ffacd0b85a97d-307d58b3efbso807342f8f.0
-        for <linux-s390@vger.kernel.org>; Thu, 01 Jun 2023 06:35:13 -0700 (PDT)
-X-Received: by 2002:a17:907:2cc6:b0:973:fe5d:ef71 with SMTP id
- hg6-20020a1709072cc600b00973fe5def71mr4787778ejc.14.1685626175454; Thu, 01
- Jun 2023 06:29:35 -0700 (PDT)
-MIME-Version: 1.0
-References: <20230531130833.635651916@infradead.org> <20230531132323.722039569@infradead.org>
- <70a69deb-7ad4-45b2-8e13-34955594a7ce@app.fastmail.com> <20230601101409.GS4253@hirez.programming.kicks-ass.net>
- <14c50e58-fecc-e96a-ee73-39ef4e4617c7@gmx.de>
-In-Reply-To: <14c50e58-fecc-e96a-ee73-39ef4e4617c7@gmx.de>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Thu, 1 Jun 2023 09:29:18 -0400
-X-Gmail-Original-Message-ID: <CAHk-=whL65CLuy9D9gyO608acM5WLWo_ggAMP1cGu2XvyC0-hA@mail.gmail.com>
-Message-ID: <CAHk-=whL65CLuy9D9gyO608acM5WLWo_ggAMP1cGu2XvyC0-hA@mail.gmail.com>
-Subject: Re: [PATCH v2 07/12] parisc/percpu: Work around the lack of __SIZEOF_INT128__
-To:     Helge Deller <deller@gmx.de>,
-        Masahiro Yamada <masahiroy@kernel.org>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Will Deacon <will@kernel.org>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>, dennis@kernel.org,
-        Tejun Heo <tj@kernel.org>, Christoph Lameter <cl@linux.com>,
-        Heiko Carstens <hca@linux.ibm.com>, gor@linux.ibm.com,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        borntraeger@linux.ibm.com, Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>, Joerg Roedel <joro@8bytes.org>,
-        suravee.suthikulpanit@amd.com, Robin Murphy <robin.murphy@arm.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Baolu Lu <baolu.lu@linux.intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S . Miller" <davem@davemloft.net>,
-        Pekka Enberg <penberg@kernel.org>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        with ESMTP id S229880AbjFAN7N (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 09:59:13 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55844136;
+        Thu,  1 Jun 2023 06:59:12 -0700 (PDT)
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 351Dm9hh015701;
+        Thu, 1 Jun 2023 13:58:01 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=qT8kRrIQamscJRst5pRHoKfdEH4/busNADa3JrTVC3g=;
+ b=EcF02Jqmvf+6HAT9LaMZa+MhPEGs9/+dTMTHpBaDRYrD5RPuGnr/K2/HP64SQalUJkHk
+ ZWCjCaw2lONRj2AhM3Crarlu/K6+od0DBexSl1zjUar0MrEQxfRIg/K7oY8QhHG4KQXL
+ FdBCF9dVOXSp8UoJLVE/juG1zcIni6dNQ6K9we5th1ge6iX8NT1b3WKIBNGdBdfaq4c2
+ CzoTcRaNiE6ez9GoMWOuDymKC2ot745yFN19iHAxlwHlTTDmga8lIyU9/qTJhslkaaLq
+ jfZtcwiIOHA/pscR30JBpqbSY7VooS5bEAnLZQmzhsJp9ZR59g9tYAqGE4DeTia9Cf1r Nw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qxvhdg9mn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 01 Jun 2023 13:58:01 +0000
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 351DmkhY017127;
+        Thu, 1 Jun 2023 13:58:00 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qxvhdg9je-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 01 Jun 2023 13:58:00 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 351119CB028926;
+        Thu, 1 Jun 2023 13:57:57 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3qu9g52jpr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 01 Jun 2023 13:57:57 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 351DvrTb43450766
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 1 Jun 2023 13:57:54 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E094820040;
+        Thu,  1 Jun 2023 13:57:53 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BB4BD20043;
+        Thu,  1 Jun 2023 13:57:52 +0000 (GMT)
+Received: from thinkpad-T15 (unknown [9.152.212.238])
+        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Thu,  1 Jun 2023 13:57:52 +0000 (GMT)
+Date:   Thu, 1 Jun 2023 15:57:51 +0200
+From:   Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+To:     Hugh Dickins <hughd@google.com>
+Cc:     Matthew Wilcox <willy@infradead.org>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Roman Gushchin <roman.gushchin@linux.dev>,
-        Hyeonggon Yoo <42.hyeyoo@gmail.com>, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        linux-s390@vger.kernel.org, iommu@lists.linux.dev,
-        Linux-Arch <linux-arch@vger.kernel.org>,
-        linux-crypto@vger.kernel.org,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        David Hildenbrand <david@redhat.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Qi Zheng <zhengqi.arch@bytedance.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Peter Xu <peterx@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Steven Price <steven.price@arm.com>,
+        SeongJae Park <sj@kernel.org>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Zack Rusin <zackr@vmware.com>, Jason Gunthorpe <jgg@ziepe.ca>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Pasha Tatashin <pasha.tatashin@soleen.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Christoph Hellwig <hch@infradead.org>,
+        Song Liu <song@kernel.org>,
+        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
+        Russell King <linux@armlinux.org.uk>,
+        "David S. Miller" <davem@davemloft.net>,
         Michael Ellerman <mpe@ellerman.id.au>,
-        "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
-        linux-parisc@vger.kernel.org,
-        John David Anglin <dave.anglin@bell.net>,
-        Sam James <sam@gentoo.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Jann Horn <jannh@google.com>,
+        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: Re: [PATCH 05/12] powerpc: add pte_free_defer() for pgtables
+ sharing page
+Message-ID: <20230601155751.7c949ca4@thinkpad-T15>
+In-Reply-To: <a8df11d-55ae-64bc-edcb-d383a7a941ea@google.com>
+References: <35e983f5-7ed3-b310-d949-9ae8b130cdab@google.com>
+        <28eb289f-ea2c-8eb9-63bb-9f7d7b9ccc11@google.com>
+        <ZHSwWgLWaEd+zi/g@casper.infradead.org>
+        <a8df11d-55ae-64bc-edcb-d383a7a941ea@google.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.37; x86_64-redhat-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: SzHo2UjAE6P2WmSmv78QU1Y8kPZW3VM5
+X-Proofpoint-GUID: 3TDd0Cl2h1aUFcqmXlzGLt1BVByjS4S3
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
+ definitions=2023-06-01_08,2023-05-31_03,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
+ impostorscore=0 lowpriorityscore=0 adultscore=0 priorityscore=1501
+ suspectscore=0 phishscore=0 mlxlogscore=999 malwarescore=0 clxscore=1011
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2304280000 definitions=main-2306010119
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jun 1, 2023 at 6:32=E2=80=AFAM Helge Deller <deller@gmx.de> wrote:
->
-> I don't think we need to care about gcc-10 on parisc.
-> Debian and Gentoo are the only supported distributions, while Debian
-> requires gcc-12 to build > 6.x kernels, and I assume Gentoo uses at least
-> gcc-12 as well.
->
-> So raising the gcc limit for parisc only (at least temporarily for now)
-> should be fine and your workaround below wouldn't be necessary, right?
+On Mon, 29 May 2023 07:36:40 -0700 (PDT)
+Hugh Dickins <hughd@google.com> wrote:
 
-This absolutely sounds like the right option. Let's simplify the
-problem space by just saying that parisc needs the newer compiler.
+> On Mon, 29 May 2023, Matthew Wilcox wrote:
+> > On Sun, May 28, 2023 at 11:20:21PM -0700, Hugh Dickins wrote:  
+> > > +void pte_free_defer(struct mm_struct *mm, pgtable_t pgtable)
+> > > +{
+> > > +	struct page *page;
+> > > +
+> > > +	page = virt_to_page(pgtable);
+> > > +	call_rcu(&page->rcu_head, pte_free_now);
+> > > +}  
+> > 
+> > This can't be safe (on ppc).  IIRC you might have up to 16x4k page
+> > tables sharing one 64kB page.  So if you have two page tables from the
+> > same page being defer-freed simultaneously, you'll reuse the rcu_head
+> > and I cannot imagine things go well from that point.  
+> 
+> Oh yes, of course, thanks for catching that so quickly.
+> So my s390 and sparc implementations will be equally broken.
+> 
+> > 
+> > I have no idea how to solve this problem.  
+> 
+> I do: I'll have to go back to the more complicated implementation we
+> actually ran with on powerpc - I was thinking those complications just
+> related to deposit/withdraw matters, forgetting the one-rcu_head issue.
+> 
+> It uses large (0x10000) increments of the page refcount, avoiding
+> call_rcu() when already active.
+> 
+> It's not a complication I had wanted to explain or test for now,
+> but we shall have to.  Should apply equally well to sparc, but s390
+> more of a problem, since s390 already has its own refcount cleverness.
 
-Right now we have that "minimum gcc version" in a somewhat annoying
-place: it's in the ./scripts/min-tool-version.sh file as a shell
-script.
+Yes, we have 2 pagetables in one 4K page, which could result in same
+rcu_head reuse. It might be possible to use the cleverness from our
+page_table_free() function, e.g. to only do the call_rcu() once, for
+the case where both 2K pagetable fragments become unused, similar to
+how we decide when to actually call __free_page().
 
-I wonder if we could move the gcc minimum version check into the
-Kconfig file instead, and make it easier to let architectures override
-the minimum version.
-
-I don't quite know how to do that sanely, though. I don't think we
-have a sane way to error out at Kconfig time (except by forcing some
-syntax error inside an 'if' statement or something horrendously hacky
-like that).
-
-Added Masahiro to the (already overlong) participants list.
-
-                   Linus
+However, it might be much worse, and page->rcu_head from a pagetable
+page cannot be used at all for s390, because we also use page->lru
+to keep our list of free 2K pagetable fragments. I always get confused
+by struct page unions, so not completely sure, but it seems to me that
+page->rcu_head would overlay with page->lru, right?
