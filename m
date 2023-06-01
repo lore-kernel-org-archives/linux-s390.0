@@ -2,139 +2,137 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24C9DC77B7A
-	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 11:07:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A7AEEC77B7A
+	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 11:52:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232499AbjFALHz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 1 Jun 2023 07:07:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57166 "EHLO
+        id S231532AbjFALwp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 1 Jun 2023 07:52:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230268AbjFALHw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 07:07:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01D04107;
-        Thu,  1 Jun 2023 04:07:50 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9216B63FCB;
-        Thu,  1 Jun 2023 11:07:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A781FC433D2;
-        Thu,  1 Jun 2023 11:07:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1685617670;
-        bh=+Yjm8puKI4qcOhrAjHQoPXnOlN6+/fj9nQ2KMrVKq+A=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=RhP2k+/FQSvli7tGw2eOKlboTIMhAX1rWIMmQojkSItsf7Pbu27Voz4XKQfKsJMv+
-         yk64a7+GnLa0AXm5NTg7oxgCbiU/vvM5YtvO42iXWm3c1dvWeuqaT9QYECD04AjLI8
-         +kurm3Gcj765DCLAHDCbNzTJmkHWERuX8j+NWUQrH79TGx2XeQSd0dO1NOebia9EMt
-         dJu6ZE7ylH9284d9jqvK6St/2YUkHNw8jD2OIGo2TbwtTLSoShdT9QABDGhevJVWTD
-         pUczYlcvfwWLpOJgcn012xrthp2r+mfy68euX8CFvo6UC393XjO1m9JQnHYF6C6kEn
-         C9f6ivmZ7x+Ew==
-Date:   Thu, 1 Jun 2023 14:07:13 +0300
-From:   Mike Rapoport <rppt@kernel.org>
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Helge Deller <deller@gmx.de>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Kent Overstreet <kent.overstreet@linux.dev>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Song Liu <song@kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will@kernel.org>, bpf@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-        linux-mm@kvack.org, linux-modules@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
-        netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
-Subject: Re: [PATCH 12/13] x86/jitalloc: prepare to allocate exectuatble
- memory as ROX
-Message-ID: <20230601110713.GE395338@kernel.org>
-References: <20230601101257.530867-1-rppt@kernel.org>
- <20230601101257.530867-13-rppt@kernel.org>
- <20230601103050.GT4253@hirez.programming.kicks-ass.net>
+        with ESMTP id S230222AbjFALwp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 07:52:45 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E09F0129;
+        Thu,  1 Jun 2023 04:52:43 -0700 (PDT)
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 351BjOf1015991;
+        Thu, 1 Jun 2023 11:52:43 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
+ mime-version : content-transfer-encoding : in-reply-to : references :
+ subject : cc : from : to : message-id : date; s=pp1;
+ bh=9ZLtXuuUknrTCJ7paV/Y+vccjQL1g7paNWJmH6I8LuA=;
+ b=RaoJWWesLwYo8hnV07oFeM1bOH1kaq+SUq7EaUaFALk75my4FJSXCnZVFMdKWk00b5ad
+ kZ1hKtljemeiMhGUVa7I2P1Y3i+PGn7ur5fbavrWGSXo+okA7NlJ/06LhLWEO4s5Sdl6
+ riqqOtlUHThNa0negHNKLa+OBm3we32wzTMPq3vQ2i0mBIoctdRNgg5vQOmHPM31arn9
+ Be/hFBglT7CEJcxA6Bv+9JWTpn+P+mOYFTEQo6smctAXAa94AnPSD02kxbkTR76RirFf
+ /AKCCBiwVNe/ZAFYqk9vQCNDzu2E/A7yPR/7oioNz86cS98Q72CePPyipO5kghhpwMPz 9A== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qxtfj8m55-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 01 Jun 2023 11:52:42 +0000
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 351Bko56018540;
+        Thu, 1 Jun 2023 11:52:42 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qxtfj8m4f-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 01 Jun 2023 11:52:42 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3511S6c4016865;
+        Thu, 1 Jun 2023 11:52:40 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3qu9g5agfx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 01 Jun 2023 11:52:40 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 351Bqap832899432
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 1 Jun 2023 11:52:36 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C091520043;
+        Thu,  1 Jun 2023 11:52:36 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 98D1E20040;
+        Thu,  1 Jun 2023 11:52:36 +0000 (GMT)
+Received: from t14-nrb (unknown [9.171.95.43])
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Thu,  1 Jun 2023 11:52:36 +0000 (GMT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230601103050.GT4253@hirez.programming.kicks-ass.net>
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20230530124056.18332-2-pmorel@linux.ibm.com>
+References: <20230530124056.18332-1-pmorel@linux.ibm.com> <20230530124056.18332-2-pmorel@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v3 1/2] s390x: sclp: consider monoprocessor on read_info error
+Cc:     frankja@linux.ibm.com, thuth@redhat.com, kvm@vger.kernel.org,
+        imbrenda@linux.ibm.com, david@redhat.com, nsg@linux.ibm.com,
+        cohuck@redhat.com
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org
+Message-ID: <168562035629.164254.14237878033396575782@t14-nrb>
+User-Agent: alot/0.8.1
+Date:   Thu, 01 Jun 2023 13:52:36 +0200
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Xd0r0KNCsei40o2Wvw_BRfScqHMElFyO
+X-Proofpoint-ORIG-GUID: 6nswMGf4uO6MaHdj_2Y4-EHUWUN1psC6
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
+ definitions=2023-06-01_08,2023-05-31_03,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
+ malwarescore=0 lowpriorityscore=0 suspectscore=0 bulkscore=0
+ mlxlogscore=999 spamscore=0 priorityscore=1501 phishscore=0 adultscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2304280000 definitions=main-2306010102
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jun 01, 2023 at 12:30:50PM +0200, Peter Zijlstra wrote:
-> On Thu, Jun 01, 2023 at 01:12:56PM +0300, Mike Rapoport wrote:
-> 
-> > +static void __init_or_module do_text_poke(void *addr, const void *opcode, size_t len)
-> > +{
-> > +	if (system_state < SYSTEM_RUNNING) {
-> > +		text_poke_early(addr, opcode, len);
-> > +	} else {
-> > +		mutex_lock(&text_mutex);
-> > +		text_poke(addr, opcode, len);
-> > +		mutex_unlock(&text_mutex);
-> > +	}
-> > +}
-> 
-> So I don't much like do_text_poke(); why?
+Quoting Pierre Morel (2023-05-30 14:40:55)
+> A kvm-unit-test would hang if an abort happens before SCLP Read SCP
+> Information has completed if sclp_get_cpu_num() does not report at
+> least one CPU.
+> Since we obviously have one, report it.
 
-I believe the idea was to keep memcpy for early boot before the kernel
-image is protected without going and adding if (is_module_text_address())
-all over the place.
+Sorry for complaining again, in a discussion with Janosch we found that the
+description and commit below can be easily misunderstood. I suggest the
+following wording in the commit description:
 
-I think this can be used instead without updating all the call sites of
-text_poke_early():
+s390x: sclp: treat system as single processor when read_info is NULL
 
-diff --git a/arch/x86/kernel/alternative.c b/arch/x86/kernel/alternative.c
-index 91057de8e6bc..f994e63e9903 100644
---- a/arch/x86/kernel/alternative.c
-+++ b/arch/x86/kernel/alternative.c
-@@ -1458,7 +1458,7 @@ void __init_or_module text_poke_early(void *addr, const void *opcode,
- 		 * code cannot be running and speculative code-fetches are
- 		 * prevented. Just change the code.
- 		 */
--		memcpy(addr, opcode, len);
-+		text_poke_copy(addr, opcode, len);
- 	} else {
- 		local_irq_save(flags);
- 		memcpy(addr, opcode, len);
- 
-> > diff --git a/arch/x86/kernel/ftrace.c b/arch/x86/kernel/ftrace.c
-> > index aa99536b824c..d50595f2c1a6 100644
-> > --- a/arch/x86/kernel/ftrace.c
-> > +++ b/arch/x86/kernel/ftrace.c
-> > @@ -118,10 +118,13 @@ ftrace_modify_code_direct(unsigned long ip, const char *old_code,
-> >  		return ret;
-> >  
-> >  	/* replace the text with the new text */
-> > -	if (ftrace_poke_late)
-> > +	if (ftrace_poke_late) {
-> >  		text_poke_queue((void *)ip, new_code, MCOUNT_INSN_SIZE, NULL);
-> > -	else
-> > -		text_poke_early((void *)ip, new_code, MCOUNT_INSN_SIZE);
-> > +	} else {
-> > +		mutex_lock(&text_mutex);
-> > +		text_poke((void *)ip, new_code, MCOUNT_INSN_SIZE);
-> > +		mutex_unlock(&text_mutex);
-> > +	}
-> >  	return 0;
-> >  }
-> 
-> And in the above case it's actively wrong for loosing the _queue()
-> thing.
+When a test abort()s before SCLP read info is completed, the assertion on
+read_info in sclp_read_info() will fail. Since abort() eventually calls
+smp_teardown() which in turn calls sclp_get_cpu_num(), this will cause an
+infinite abort() chain, causing the test to hang.
 
--- 
-Sincerely yours,
-Mike.
+Fix this by considering the system single processor when read_info is missi=
+ng.
+
+[...]
+> diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
+> index 12919ca..34a31da 100644
+> --- a/lib/s390x/sclp.c
+> +++ b/lib/s390x/sclp.c
+> @@ -121,6 +121,12 @@ int sclp_get_cpu_num(void)
+>  {
+>         if (read_info)
+>                 return read_info->entries_cpu;
+> +       /*
+> +        * If we fail here and read_info has not being set,
+> +        * it means we failed early and we try to abort the test.
+> +        * We need to return at least one CPU, and obviously we have
+> +        * at least one, for the smp_teardown to correctly work.
+> +        */
+
+Please make this:
+
+Don't abort here if read_info is NULL since abort() calls smp_teardown() wh=
+ich
+eventually calls this function and thus causes an infinite abort() chain,
+causing the test to hang. Since we obviously have at least one CPU, just re=
+turn
+one.
+
+With these changes:
+
+Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
+
+Sorry for the back and forth.
