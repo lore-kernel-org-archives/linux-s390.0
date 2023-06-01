@@ -2,119 +2,137 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 426F8C77B7E
-	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 13:33:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E6EC4C77B7E
+	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 13:35:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231790AbjFANc5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 1 Jun 2023 09:32:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41254 "EHLO
+        id S229866AbjFANfV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 1 Jun 2023 09:35:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233408AbjFANcq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 09:32:46 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5472AE5F;
-        Thu,  1 Jun 2023 06:32:37 -0700 (PDT)
-Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 351DDTk0018611;
-        Thu, 1 Jun 2023 13:32:36 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=vhd9EyMmatL80g2r4UYt6yaIWyyqCq9PEBicq4VSW50=;
- b=MEHyOEI7GxX8nGxy+vyZQC+WUvtH/1SoBvDibOGj/gqIbOXd5SGeCJ2N/ArqSCc2WQhS
- GnR9vzcDXBOXn3ECrkeuTZfXVy3N9rSU4U5NM/DviwRwTN9CUkhrhb1yZLoB2vsZ/1hh
- phe7KwwLWkrCMFw6/oYtTexrbynda0BIMJyca1ScKHMxdCSUwML/QVSWA1MiMmtsI1BT
- 5Fez3F/hC0Wuo5R34iq+3FL3eSVjS79WTQ6cvWTOYGGv2+T55f5bO9Mm09wSn2uImDU6
- H+oGeraW39zS9LtuY72Vy8WrlvJYuE9OL4HeZgGk7KtIiWUlV4qJoTjcIkBtFxOa0VSL Jg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qxv1b0sfr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 01 Jun 2023 13:32:36 +0000
-Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 351DDbab019247;
-        Thu, 1 Jun 2023 13:32:35 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qxv1b0seq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 01 Jun 2023 13:32:35 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3514Pmn5020346;
-        Thu, 1 Jun 2023 13:32:34 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3qu94e2j32-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 01 Jun 2023 13:32:33 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 351DWU1c36176556
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 1 Jun 2023 13:32:30 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 72EAD2004B;
-        Thu,  1 Jun 2023 13:32:30 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 02F4220040;
-        Thu,  1 Jun 2023 13:32:30 +0000 (GMT)
-Received: from [9.171.14.211] (unknown [9.171.14.211])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Thu,  1 Jun 2023 13:32:29 +0000 (GMT)
-Message-ID: <7da25454-bee4-2d4c-a5c2-ac98a44edff0@linux.ibm.com>
-Date:   Thu, 1 Jun 2023 15:32:29 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.11.0
-Subject: Re: [kvm-unit-tests PATCH v3 2/2] s390x: sclp: Implement
- SCLP_RC_INSUFFICIENT_SCCB_LENGTH
-Content-Language: en-US
-To:     Pierre Morel <pmorel@linux.ibm.com>,
-        Nico Boehr <nrb@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc:     thuth@redhat.com, kvm@vger.kernel.org, imbrenda@linux.ibm.com,
-        david@redhat.com, nsg@linux.ibm.com, cohuck@redhat.com
-References: <20230530124056.18332-1-pmorel@linux.ibm.com>
- <20230530124056.18332-3-pmorel@linux.ibm.com>
- <3dc8e019-a3c1-8446-08ed-f76a9064f954@linux.ibm.com>
- <168562078341.164254.16306908045401776634@t14-nrb>
- <5d0ddebd-22ab-f916-2339-5edc880e5001@linux.ibm.com>
-From:   Janosch Frank <frankja@linux.ibm.com>
-In-Reply-To: <5d0ddebd-22ab-f916-2339-5edc880e5001@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 4sAd4KisSnhH0AZhQPPKb4tlFufvylCa
-X-Proofpoint-GUID: sx6PmKIIVovFNVeOdVt-byuM7Ogcd-cu
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        with ESMTP id S233330AbjFANfS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 09:35:18 -0400
+Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E718C13E
+        for <linux-s390@vger.kernel.org>; Thu,  1 Jun 2023 06:35:15 -0700 (PDT)
+Received: by mail-ej1-x62c.google.com with SMTP id a640c23a62f3a-96f50e26b8bso122975966b.2
+        for <linux-s390@vger.kernel.org>; Thu, 01 Jun 2023 06:35:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google; t=1685626514; x=1688218514;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=M0MHDOHZ+ksADoGSH1YMQnsp1jrJ4XOCHJuXFHrOLiU=;
+        b=O/PXGn4IbX7zlX+OA/ZuADBSgNiqDVlZASh1iP6ny1zc9ezfBU29y3fSDYBHBmpfnO
+         mHGES1OhBWq6AcXO7npw2nb2OaZ6bd1WjP3auy6fWL5q+7oftNPzgghwMYTY9wencWtq
+         sQ+/tdJ64e9imgzF0Tu4hpFXDsZzZBGBpxQ0g=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1685626514; x=1688218514;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=M0MHDOHZ+ksADoGSH1YMQnsp1jrJ4XOCHJuXFHrOLiU=;
+        b=L+4XWT+AtQJqc5reJ+lIoze9YaZu4M/QA3BlbrXwpp4GmGk+qLig06sRB5uPd0C291
+         z9hPPEpl9LTgUBV7MFMrKACOvGTq7i97AjF4ZYzxkkMHZUDV3oc3fxvsTLwvE1rBPxEy
+         6lwfTUbEbNyxIKuMSYB95TQNjZCAinQoM9cqzspdZREfNLNDTJuR3TqE4MT2BvPD6FSX
+         SqZQiuCMQsVcpwYMJAagqyVTpw1jClGzc9G4jEA9WdduIo81hGOUybWBW6GnJUBB984g
+         XxDR9rin3UysTVcY2WVf4LPrrUYUYquK4QXrAqY+VC1v9N2I7oKrCLQTYOl6w3AuYqhT
+         co0w==
+X-Gm-Message-State: AC+VfDwpeyV/Rc7AQL3fj5B42EspMBd1dC1/cxTJ4546r3mnckod+6+i
+        Nqv/OTJdWE4jmZYtJdMfueu2bTnsKVoC8j+SeosPHO6J
+X-Google-Smtp-Source: ACHHUZ5od8/m2hW/RuMDKJ5bcmxCTTNtpim4JTCCMQLS0bdopmTvAeS91KHRluMqTsHiuy8bF0dBGw==
+X-Received: by 2002:a17:907:3e26:b0:969:bac4:8e22 with SMTP id hp38-20020a1709073e2600b00969bac48e22mr8137519ejc.26.1685626514301;
+        Thu, 01 Jun 2023 06:35:14 -0700 (PDT)
+Received: from mail-wr1-f48.google.com (mail-wr1-f48.google.com. [209.85.221.48])
+        by smtp.gmail.com with ESMTPSA id si16-20020a170906ced000b0094f1b8901e1sm10523562ejb.68.2023.06.01.06.35.13
+        for <linux-s390@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 01 Jun 2023 06:35:14 -0700 (PDT)
+Received: by mail-wr1-f48.google.com with SMTP id ffacd0b85a97d-307d58b3efbso807342f8f.0
+        for <linux-s390@vger.kernel.org>; Thu, 01 Jun 2023 06:35:13 -0700 (PDT)
+X-Received: by 2002:a17:907:2cc6:b0:973:fe5d:ef71 with SMTP id
+ hg6-20020a1709072cc600b00973fe5def71mr4787778ejc.14.1685626175454; Thu, 01
+ Jun 2023 06:29:35 -0700 (PDT)
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
- definitions=2023-06-01_08,2023-05-31_03,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 spamscore=0
- adultscore=0 priorityscore=1501 lowpriorityscore=0 suspectscore=0
- impostorscore=0 bulkscore=0 mlxscore=0 phishscore=0 mlxlogscore=968
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2304280000 definitions=main-2306010115
+References: <20230531130833.635651916@infradead.org> <20230531132323.722039569@infradead.org>
+ <70a69deb-7ad4-45b2-8e13-34955594a7ce@app.fastmail.com> <20230601101409.GS4253@hirez.programming.kicks-ass.net>
+ <14c50e58-fecc-e96a-ee73-39ef4e4617c7@gmx.de>
+In-Reply-To: <14c50e58-fecc-e96a-ee73-39ef4e4617c7@gmx.de>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Thu, 1 Jun 2023 09:29:18 -0400
+X-Gmail-Original-Message-ID: <CAHk-=whL65CLuy9D9gyO608acM5WLWo_ggAMP1cGu2XvyC0-hA@mail.gmail.com>
+Message-ID: <CAHk-=whL65CLuy9D9gyO608acM5WLWo_ggAMP1cGu2XvyC0-hA@mail.gmail.com>
+Subject: Re: [PATCH v2 07/12] parisc/percpu: Work around the lack of __SIZEOF_INT128__
+To:     Helge Deller <deller@gmx.de>,
+        Masahiro Yamada <masahiroy@kernel.org>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Will Deacon <will@kernel.org>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>, dennis@kernel.org,
+        Tejun Heo <tj@kernel.org>, Christoph Lameter <cl@linux.com>,
+        Heiko Carstens <hca@linux.ibm.com>, gor@linux.ibm.com,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        borntraeger@linux.ibm.com, Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>, Joerg Roedel <joro@8bytes.org>,
+        suravee.suthikulpanit@amd.com, Robin Murphy <robin.murphy@arm.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Baolu Lu <baolu.lu@linux.intel.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S . Miller" <davem@davemloft.net>,
+        Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Hyeonggon Yoo <42.hyeyoo@gmail.com>, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org, iommu@lists.linux.dev,
+        Linux-Arch <linux-arch@vger.kernel.org>,
+        linux-crypto@vger.kernel.org,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
+        linux-parisc@vger.kernel.org,
+        John David Anglin <dave.anglin@bell.net>,
+        Sam James <sam@gentoo.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 6/1/23 14:55, Pierre Morel wrote:
-> 
-> On 6/1/23 13:59, Nico Boehr wrote:
->> Quoting Janosch Frank (2023-06-01 10:03:06)
->>> On 5/30/23 14:40, Pierre Morel wrote:
->>>> If SCLP_CMDW_READ_SCP_INFO fails due to a short buffer, retry
->>>> with a greater buffer.
->>>>
->>>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->> Janosch, I think it makes sense if Pierre picks up Claudios suggestion from here:
->> https://lore.kernel.org/all/20230530173544.378a63c6@p-imbrenda/
->>
->> Do you agree?
-> 
-> from my side:
-> 
-> It simplifies greatly the code and tested without problem.
-> 
-> The documentation says the SCCB length is "at least"... so we can use a
-> greater size from the beginning.
-> 
-> 
+On Thu, Jun 1, 2023 at 6:32=E2=80=AFAM Helge Deller <deller@gmx.de> wrote:
+>
+> I don't think we need to care about gcc-10 on parisc.
+> Debian and Gentoo are the only supported distributions, while Debian
+> requires gcc-12 to build > 6.x kernels, and I assume Gentoo uses at least
+> gcc-12 as well.
+>
+> So raising the gcc limit for parisc only (at least temporarily for now)
+> should be fine and your workaround below wouldn't be necessary, right?
 
-Sounds good
+This absolutely sounds like the right option. Let's simplify the
+problem space by just saying that parisc needs the newer compiler.
+
+Right now we have that "minimum gcc version" in a somewhat annoying
+place: it's in the ./scripts/min-tool-version.sh file as a shell
+script.
+
+I wonder if we could move the gcc minimum version check into the
+Kconfig file instead, and make it easier to let architectures override
+the minimum version.
+
+I don't quite know how to do that sanely, though. I don't think we
+have a sane way to error out at Kconfig time (except by forcing some
+syntax error inside an 'if' statement or something horrendously hacky
+like that).
+
+Added Masahiro to the (already overlong) participants list.
+
+                   Linus
