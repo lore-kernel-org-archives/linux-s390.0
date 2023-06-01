@@ -2,227 +2,216 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F0CEEC77B7A
-	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 10:19:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 61EA7C77B7E
+	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 10:20:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233630AbjFAKTq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 1 Jun 2023 06:19:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55702 "EHLO
+        id S233647AbjFAKTr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 1 Jun 2023 06:19:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233449AbjFAKTK (ORCPT
+        with ESMTP id S233454AbjFAKTK (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 06:19:10 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 315FD1726;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F78B171E;
         Thu,  1 Jun 2023 03:16:09 -0700 (PDT)
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 351AEDW3023048;
-        Thu, 1 Jun 2023 10:15:10 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=tC1TqjQNa3WWHX+kKICqF/7enyZGiUtupnpo1NRBVuE=;
- b=MP/w1f4Ey2Ife73Z3rASa2VtJGNSi9EDECN/ihxHCD1CKBalWVWz/qEUeSaijQSW/+9M
- ic52KT8UNkOEzaXxQtCZBYnW7hYJwHa/iV4npW8jodxEhb0WtHc12tY6rWLAWTOuTly9
- Obx1GwecvQ1f8u7nxRuaalJfOeNKEaOinPtIuK2UO2c9RzABrdBRSDWFsF4a/FQ+kLyY
- 33ZMTAh737Dk1bga99/9Xv71g2aN180snWaBseiL3pDsgiwvP2V9shn0nZtTMkbeW7g9
- zrRIuAtHgdj+5qHAQIyBHm9DsAHEuyV8FGfjudRE9uRJgtXj6WCFgsZu4/hieU7VUVnO AQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qxsd50109-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 01 Jun 2023 10:15:09 +0000
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 351AF9Qk027502;
-        Thu, 1 Jun 2023 10:15:09 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qxsd500y6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 01 Jun 2023 10:15:09 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3511luMW031867;
-        Thu, 1 Jun 2023 10:15:07 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3qu9g52fhu-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 01 Jun 2023 10:15:07 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 351AF3T745089096
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 1 Jun 2023 10:15:03 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6CF9D2004B;
-        Thu,  1 Jun 2023 10:15:03 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D0A6120040;
-        Thu,  1 Jun 2023 10:15:02 +0000 (GMT)
-Received: from [9.171.12.131] (unknown [9.171.12.131])
-        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Thu,  1 Jun 2023 10:15:02 +0000 (GMT)
-Message-ID: <1c24e467-3b57-d7a9-be28-fcaf5e265b80@linux.ibm.com>
-Date:   Thu, 1 Jun 2023 12:15:02 +0200
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A2BC76432D;
+        Thu,  1 Jun 2023 10:15:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 881EDC433A8;
+        Thu,  1 Jun 2023 10:15:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1685614514;
+        bh=KP9HX6DBOdeXbh1b+aKLs5zgkX2POLO57m2Kdhv+uBE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=PpK9bveSqvpewvjbyZorKqSi3Q/F2n/LjJbM2xuj27cyV2j16y21onV4vnPjeZgTl
+         zE9e28Ev7BFmducrk1/4dDKq3oOIJdBaX0QRyCLXbMWkq7hyE5K3/dP7zLmKJI/u+J
+         lhU+vPxA/p2Jf8kS/aFYDSo6FeVktlpcm+nCEuVDQIry8EXyK9YUnYblgPqXCgLqeR
+         2j1GLCveGyj3OVEyE2BDq2GHbbfSv+yRuLfu/Nry87svP0BgLxAfXOGT4DOJSO+sz1
+         hW3iK555Pl8OaMr8Z+t77LXxqmLIyxUXr+Y3h+YIQv8TpNf780OllbwDGe20NNxSf6
+         l3zqIrjNIFEhQ==
+From:   Mike Rapoport <rppt@kernel.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Helge Deller <deller@gmx.de>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Kent Overstreet <kent.overstreet@linux.dev>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Mike Rapoport <rppt@kernel.org>,
+        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Song Liu <song@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will@kernel.org>, bpf@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+        linux-mm@kvack.org, linux-modules@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+        netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
+Subject: [PATCH 13/13] x86/jitalloc: make memory allocated for code ROX
+Date:   Thu,  1 Jun 2023 13:12:57 +0300
+Message-Id: <20230601101257.530867-14-rppt@kernel.org>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20230601101257.530867-1-rppt@kernel.org>
+References: <20230601101257.530867-1-rppt@kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.8.0
-Subject: Re: [kvm-unit-tests PATCH v3 2/2] s390x: sclp: Implement
- SCLP_RC_INSUFFICIENT_SCCB_LENGTH
-Content-Language: en-US
-To:     Janosch Frank <frankja@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc:     thuth@redhat.com, kvm@vger.kernel.org, imbrenda@linux.ibm.com,
-        david@redhat.com, nrb@linux.ibm.com, nsg@linux.ibm.com,
-        cohuck@redhat.com
-References: <20230530124056.18332-1-pmorel@linux.ibm.com>
- <20230530124056.18332-3-pmorel@linux.ibm.com>
- <3dc8e019-a3c1-8446-08ed-f76a9064f954@linux.ibm.com>
-From:   Pierre Morel <pmorel@linux.ibm.com>
-In-Reply-To: <3dc8e019-a3c1-8446-08ed-f76a9064f954@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: uXhLKCU-KIV7ci1g5_0Jjy7lZ7Pxqk18
-X-Proofpoint-GUID: q6SANgXBcejNP07lAojLLIKL3nCxr_Qw
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
- definitions=2023-06-01_06,2023-05-31_03,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- lowpriorityscore=0 phishscore=0 mlxscore=0 suspectscore=0 bulkscore=0
- adultscore=0 mlxlogscore=999 priorityscore=1501 spamscore=0 clxscore=1015
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2304280000 definitions=main-2306010090
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+From: "Mike Rapoport (IBM)" <rppt@kernel.org>
 
-On 6/1/23 10:03, Janosch Frank wrote:
-> On 5/30/23 14:40, Pierre Morel wrote:
->> If SCLP_CMDW_READ_SCP_INFO fails due to a short buffer, retry
->> with a greater buffer.
->>
->> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->
-> You've been testing using all possible cpus, haven't you?
+When STRICT_KERNEL_RWX or STRICT_MODULE_RWX is enabled, force text
+allocations to use KERNEL_PAGE_ROX.
 
+Signed-off-by: Mike Rapoport (IBM) <rppt@kernel.org>
+---
+ arch/Kconfig             |  3 +++
+ arch/x86/Kconfig         |  1 +
+ arch/x86/kernel/ftrace.c |  3 ---
+ arch/x86/mm/init.c       |  6 ++++++
+ include/linux/jitalloc.h |  2 ++
+ mm/jitalloc.c            | 21 +++++++++++++++++++++
+ 6 files changed, 33 insertions(+), 3 deletions(-)
 
-yes up to 248
+diff --git a/arch/Kconfig b/arch/Kconfig
+index 479a7b8be191..e7c4b01307d7 100644
+--- a/arch/Kconfig
++++ b/arch/Kconfig
+@@ -1307,6 +1307,9 @@ config STRICT_MODULE_RWX
+ 	  and non-text memory will be made non-executable. This provides
+ 	  protection against certain security exploits (e.g. writing to text)
+ 
++config ARCH_HAS_TEXT_POKE
++	def_bool n
++
+ # select if the architecture provides an asm/dma-direct.h header
+ config ARCH_HAS_PHYS_TO_DMA
+ 	bool
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index fac4add6ce16..e1a512f557de 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -96,6 +96,7 @@ config X86
+ 	select ARCH_HAS_SET_DIRECT_MAP
+ 	select ARCH_HAS_STRICT_KERNEL_RWX
+ 	select ARCH_HAS_STRICT_MODULE_RWX
++	select ARCH_HAS_TEXT_POKE
+ 	select ARCH_HAS_SYNC_CORE_BEFORE_USERMODE
+ 	select ARCH_HAS_SYSCALL_WRAPPER
+ 	select ARCH_HAS_UBSAN_SANITIZE_ALL
+diff --git a/arch/x86/kernel/ftrace.c b/arch/x86/kernel/ftrace.c
+index d50595f2c1a6..bd4dd8974ee6 100644
+--- a/arch/x86/kernel/ftrace.c
++++ b/arch/x86/kernel/ftrace.c
+@@ -313,7 +313,6 @@ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
+ 	unsigned long call_offset;
+ 	unsigned long jmp_offset;
+ 	unsigned long offset;
+-	unsigned long npages;
+ 	unsigned long size;
+ 	unsigned long *ptr;
+ 	void *trampoline;
+@@ -350,7 +349,6 @@ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
+ 		return 0;
+ 
+ 	*tramp_size = size + RET_SIZE + sizeof(void *);
+-	npages = DIV_ROUND_UP(*tramp_size, PAGE_SIZE);
+ 
+ 	/* Copy ftrace_caller onto the trampoline memory */
+ 	ret = text_poke_copy(trampoline, (void *)start_offset, size);
+@@ -416,7 +414,6 @@ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
+ 	/* ALLOC_TRAMP flags lets us know we created it */
+ 	ops->flags |= FTRACE_OPS_FL_ALLOC_TRAMP;
+ 
+-	set_memory_rox((unsigned long)trampoline, npages);
+ 	return (unsigned long)trampoline;
+ fail:
+ 	tramp_free(trampoline);
+diff --git a/arch/x86/mm/init.c b/arch/x86/mm/init.c
+index ffaf9a3840ce..c314738991fa 100644
+--- a/arch/x86/mm/init.c
++++ b/arch/x86/mm/init.c
+@@ -1127,6 +1127,12 @@ struct jit_alloc_params *jit_alloc_arch_params(void)
+ 	jit_alloc_params.text.start = MODULES_VADDR + get_jit_load_offset();
+ 	jit_alloc_params.text.end = MODULES_END;
+ 
++	if (IS_ENABLED(CONFIG_STRICT_KERNEL_RWX) ||
++	    IS_ENABLED(CONFIG_STRICT_MODULE_RWX)) {
++		jit_alloc_params.text.pgprot = PAGE_KERNEL_ROX;
++		jit_alloc_params.flags |= JIT_ALLOC_USE_TEXT_POKE;
++	}
++
+ 	return &jit_alloc_params;
+ }
+ #endif /* CONFIG_JIT_ALLOC */
+diff --git a/include/linux/jitalloc.h b/include/linux/jitalloc.h
+index 0ba5ef785a85..0e29e87acefe 100644
+--- a/include/linux/jitalloc.h
++++ b/include/linux/jitalloc.h
+@@ -15,9 +15,11 @@
+ /**
+  * enum jit_alloc_flags - options for executable memory allocations
+  * @JIT_ALLOC_KASAN_SHADOW:	allocate kasan shadow
++ * @JIT_ALLOC_USE_TEXT_POKE:	use text poking APIs to update memory
+  */
+ enum jit_alloc_flags {
+ 	JIT_ALLOC_KASAN_SHADOW	= (1 << 0),
++	JIT_ALLOC_USE_TEXT_POKE	= (1 << 1),
+ };
+ 
+ /**
+diff --git a/mm/jitalloc.c b/mm/jitalloc.c
+index a8ae64364d56..15d1067faf3f 100644
+--- a/mm/jitalloc.c
++++ b/mm/jitalloc.c
+@@ -7,6 +7,26 @@
+ 
+ static struct jit_alloc_params jit_alloc_params;
+ 
++#ifdef CONFIG_ARCH_HAS_TEXT_POKE
++#include <asm/text-patching.h>
++
++static inline void jit_text_poke_copy(void *dst, const void *src, size_t len)
++{
++	if (jit_alloc_params.flags & JIT_ALLOC_USE_TEXT_POKE)
++		text_poke_copy(dst, src, len);
++	else
++		memcpy(dst, src, len);
++}
++
++static inline void jit_text_poke_set(void *addr, int c, size_t len)
++{
++	if (jit_alloc_params.flags & JIT_ALLOC_USE_TEXT_POKE)
++		text_poke_set(addr, c, len);
++	else
++		memset(addr, c, len);
++}
++
++#else
+ static inline void jit_text_poke_copy(void *dst, const void *src, size_t len)
+ {
+ 	memcpy(dst, src, len);
+@@ -16,6 +36,7 @@ static inline void jit_text_poke_set(void *addr, int c, size_t len)
+ {
+ 	memset(addr, c, len);
+ }
++#endif
+ 
+ static void *jit_alloc(size_t len, unsigned int alignment, pgprot_t pgprot,
+ 		       unsigned long start, unsigned long end,
+-- 
+2.35.1
 
-
->
->>   }
->>   -static void sclp_read_scp_info(ReadInfo *ri, int length)
->> +static bool sclp_read_scp_info_extended(unsigned int command, 
->> ReadInfo *ri)
->> +{
->> +    int cc;
->> +
->> +    if (!test_facility(140)) {
->> +        report_abort("S390_FEAT_EXTENDED_LENGTH_SCCB missing");
->
-> That's the QEMU name for the facility, isn't it?
-> "extended-length-SCCB facility is missing" might be better since 
-> that's the name that the architecture specifies for that feature.
-
-
-yes
-
-
->
->> +        return false;
->> +    }
->> +    if (ri->h.length > (2 * PAGE_SIZE)) {
->
-> sizeof() would reduce the locations that we have to touch if we ever 
-> want to increase the buffer in the future.
-
-
-yes
-
-
->
->> +        report_abort("SCLP_READ_INFO expected size too big");
->> +        return false;
->> +    }
->> +
->> +    sclp_mark_busy();
->> +    memset(&ri->h, 0, sizeof(ri->h));
->> +    ri->h.length = 2 * PAGE_SIZE;
->
-> Same here
-
-
-OK
-
-
->
->> +
->> +    cc = sclp_service_call(command, ri);
->> +    if (cc) {
->> +        report_abort("SCLP_READ_INFO error");
->> +        return false;
->> +    }
->> +    if (ri->h.response_code != SCLP_RC_NORMAL_READ_COMPLETION) {
->> +        report_abort("SCLP_READ_INFO error %02x", ri->h.response_code);
->> +        return false;
->> +    }
->> +
->> +    return true;
->> +}
->> +
->> +static void sclp_read_scp_info(ReadInfo *ri)
->>   {
->>       unsigned int commands[] = { SCLP_CMDW_READ_SCP_INFO_FORCED,
->>                       SCLP_CMDW_READ_SCP_INFO };
->> +    int length = PAGE_SIZE;
->>       int i, cc;
->>         for (i = 0; i < ARRAY_SIZE(commands); i++) {
->> @@ -101,19 +133,29 @@ static void sclp_read_scp_info(ReadInfo *ri, 
->> int length)
->>           ri->h.length = length;
->>             cc = sclp_service_call(commands[i], ri);
->> -        if (cc)
->> -            break;
->> -        if (ri->h.response_code == SCLP_RC_NORMAL_READ_COMPLETION)
->> +        if (cc) {
->> +            report_abort("SCLP_READ_INFO error");
->>               return;
->> -        if (ri->h.response_code != SCLP_RC_INVALID_SCLP_COMMAND)
->> +        }
->> +
->> +        switch (ri->h.response_code) {
->> +        case SCLP_RC_NORMAL_READ_COMPLETION:
->> +            return;
->> +        case SCLP_RC_INVALID_SCLP_COMMAND:
->>               break;
->> +        case SCLP_RC_INSUFFICIENT_SCCB_LENGTH:
->> +            sclp_read_scp_info_extended(commands[i], ri);
->> +            return;
->> +        default:
->> +            report_abort("READ_SCP_INFO failed");
->> +            return;
->> +        }
->>       }
->> -    report_abort("READ_SCP_INFO failed");
->>   }
->>     void sclp_read_info(void)
->>   {
->> -    sclp_read_scp_info((void *)_read_info, SCCB_SIZE);
->
-> Why did you remove that?
-> You could have re-tried with the extended-length in 
-> sclp_read_scp_info(). Or you could return the rc and introduce a tiny 
-> function that tries both lengths depending on the rc.
-
-
-Yes, I can let it here. I found it has little sense to give the length 
-as parameter.
-
-Retrying with extended length in sclp_read_scp_info() is what is done 
-isn'it?
-
-It does not change a lot to let the first used size here so I will let 
-it here.
-
-
->
->> +    sclp_read_scp_info((void *)_read_info);
->>       read_info = (ReadInfo *)_read_info;
->>   }
->
