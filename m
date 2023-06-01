@@ -2,211 +2,125 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 33F3BC7EE2A
-	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 16:12:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 85AEBC77B7A
+	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 16:45:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229947AbjFAQMR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 1 Jun 2023 12:12:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37174 "EHLO
+        id S230215AbjFAQpr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 1 Jun 2023 12:45:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229603AbjFAQMQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 12:12:16 -0400
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 50B4C18F;
-        Thu,  1 Jun 2023 09:12:13 -0700 (PDT)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 525171063;
-        Thu,  1 Jun 2023 09:12:58 -0700 (PDT)
-Received: from FVFF77S0Q05N.cambridge.arm.com (FVFF77S0Q05N.cambridge.arm.com [10.1.36.140])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id C47623F663;
-        Thu,  1 Jun 2023 09:12:06 -0700 (PDT)
-Date:   Thu, 1 Jun 2023 17:12:03 +0100
-From:   Mark Rutland <mark.rutland@arm.com>
-To:     Mike Rapoport <rppt@kernel.org>
-Cc:     linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Helge Deller <deller@gmx.de>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Kent Overstreet <kent.overstreet@linux.dev>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Song Liu <song@kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will@kernel.org>, bpf@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-        linux-mm@kvack.org, linux-modules@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
-        netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
-Subject: Re: [PATCH 00/13] mm: jit/text allocator
-Message-ID: <ZHjDU/mxE+cugpLj@FVFF77S0Q05N.cambridge.arm.com>
-References: <20230601101257.530867-1-rppt@kernel.org>
+        with ESMTP id S229476AbjFAQpr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 12:45:47 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 616F5D1;
+        Thu,  1 Jun 2023 09:45:46 -0700 (PDT)
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 351Gghfc012813;
+        Thu, 1 Jun 2023 16:45:46 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=CocCYhN7bwfs0Dd45RZPjUIVTOg/X+Vcd8WCw5O32EY=;
+ b=nd9kOlT+dZBsKf1zxF3kut98B6LY6GN6zdDihypPwWFzRPfkKhiCisSyaZVfkkuW1KhC
+ FlNPLn/HogMct9hyE4fIUSaWkUxGAX4vDMLWV+uwxQpp0gsxTLGZTQzobUPh3loL6jYK
+ OzSffRn87LUAHMcvxZyq87WtdTJhJKL2DrEcA8KCsguYQ9c4j0Ko+uVbOiWIcfl5Nqxj
+ pQmc84Ns9SDPHS/cj9k9+DaHPOQ7Tmdvo4l7vjSZ2imDuXWCHyasj+61/Q6x/0IpJwxo
+ dVRMScQphK5FE7lQlyvLw6yVCp/x9BiY2EHHOBnDDfhxlP9Rp8NGI8JVQUmEH1qDiTnF yg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qxy36r314-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 01 Jun 2023 16:45:45 +0000
+Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 351GhK9a014781;
+        Thu, 1 Jun 2023 16:45:45 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qxy36r308-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 01 Jun 2023 16:45:45 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3514pP1q022818;
+        Thu, 1 Jun 2023 16:45:43 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3qu9g52n61-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 01 Jun 2023 16:45:43 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 351GjdWk42336732
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 1 Jun 2023 16:45:39 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B6DA920040;
+        Thu,  1 Jun 2023 16:45:39 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0F26820043;
+        Thu,  1 Jun 2023 16:45:39 +0000 (GMT)
+Received: from li-c6ac47cc-293c-11b2-a85c-d421c8e4747b.ibm.com.com (unknown [9.171.12.131])
+        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Thu,  1 Jun 2023 16:45:38 +0000 (GMT)
+From:   Pierre Morel <pmorel@linux.ibm.com>
+To:     linux-s390@vger.kernel.org
+Cc:     frankja@linux.ibm.com, thuth@redhat.com, kvm@vger.kernel.org,
+        imbrenda@linux.ibm.com, david@redhat.com, nrb@linux.ibm.com,
+        nsg@linux.ibm.com, cohuck@redhat.com
+Subject: [kvm-unit-tests PATCH v5 1/2] s390x: sclp: treat system as single processor when read_info is NULL
+Date:   Thu,  1 Jun 2023 18:45:36 +0200
+Message-Id: <20230601164537.31769-2-pmorel@linux.ibm.com>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20230601164537.31769-1-pmorel@linux.ibm.com>
+References: <20230601164537.31769-1-pmorel@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230601101257.530867-1-rppt@kernel.org>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 80BGnOEIfTv0hQR_6GsHHc-LVdQs_mvV
+X-Proofpoint-GUID: 3Rqg12Pvrc0oLgpmzm_hvDegWFIBoPk6
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
+ definitions=2023-06-01_08,2023-05-31_03,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ mlxlogscore=653 phishscore=0 bulkscore=0 suspectscore=0 lowpriorityscore=0
+ priorityscore=1501 adultscore=0 clxscore=1015 mlxscore=0 spamscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2304280000 definitions=main-2306010144
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Mike,
+When a test abort()s before SCLP read info is completed, the assertion
+on read_info in sclp_read_info() will fail. Since abort() eventually
+calls smp_teardown() which in turn calls sclp_get_cpu_num(), this will
+cause an infinite abort() chain, causing the test to hang.
 
-On Thu, Jun 01, 2023 at 01:12:44PM +0300, Mike Rapoport wrote:
-> From: "Mike Rapoport (IBM)" <rppt@kernel.org>
-> 
-> Hi,
-> 
-> module_alloc() is used everywhere as a mean to allocate memory for code.
-> 
-> Beside being semantically wrong, this unnecessarily ties all subsystmes
-> that need to allocate code, such as ftrace, kprobes and BPF to modules
-> and puts the burden of code allocation to the modules code.
+Fix this by considering the system single processor when read_info is
+missing.
 
-I agree this is a problem, and one key issue here is that these can have
-different requirements. For example, on arm64 we need modules to be placed
-within a 128M or 2G window containing the kernel, whereas it would be safe for
-the kprobes XOL area to be placed arbitrarily far from the kernel image (since
-we don't allow PC-relative insns to be stepped out-of-line). Likewise arm64
-doesn't have ftrace trampolines, and DIRECT_CALL trampolines can safely be
-placed arbitarily far from the kernel image.
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
+---
+ lib/s390x/sclp.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-For a while I have wanted to give kprobes its own allocator so that it can work
-even with CONFIG_MODULES=n, and so that it doesn't have to waste VA space in
-the modules area.
+diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
+index acdc8a9..adf357b 100644
+--- a/lib/s390x/sclp.c
++++ b/lib/s390x/sclp.c
+@@ -119,8 +119,15 @@ void sclp_read_info(void)
+ 
+ int sclp_get_cpu_num(void)
+ {
+-	assert(read_info);
+-	return read_info->entries_cpu;
++	if (read_info)
++		return read_info->entries_cpu;
++	/*
++	 * Don't abort here if read_info is NULL since abort() calls
++	 * smp_teardown() which eventually calls this function and thus
++	 * causes an infinite abort() chain, causing the test to hang.
++	 * Since we obviously have at least one CPU, just return one.
++	 */
++	return 1;
+ }
+ 
+ CPUEntry *sclp_get_cpu_entries(void)
+-- 
+2.31.1
 
-Given that, I think these should have their own allocator functions that can be
-provided independently, even if those happen to use common infrastructure.
-
-> Several architectures override module_alloc() because of various
-> constraints where the executable memory can be located and this causes
-> additional obstacles for improvements of code allocation.
-> 
-> This set splits code allocation from modules by introducing
-> jit_text_alloc(), jit_data_alloc() and jit_free() APIs, replaces call
-> sites of module_alloc() and module_memfree() with the new APIs and
-> implements core text and related allocation in a central place.
-> 
-> Instead of architecture specific overrides for module_alloc(), the
-> architectures that require non-default behaviour for text allocation must
-> fill jit_alloc_params structure and implement jit_alloc_arch_params() that
-> returns a pointer to that structure. If an architecture does not implement
-> jit_alloc_arch_params(), the defaults compatible with the current
-> modules::module_alloc() are used.
-
-As above, I suspect that each of the callsites should probably be using common
-infrastructure, but I don't think that a single jit_alloc_arch_params() makes
-sense, since the parameters for each case may need to be distinct.
-
-> The new jitalloc infrastructure allows decoupling of kprobes and ftrace
-> from modules, and most importantly it enables ROX allocations for
-> executable memory.
-> 
-> A centralized infrastructure for code allocation allows future
-> optimizations for allocations of executable memory, caching large pages for
-> better iTLB performance and providing sub-page allocations for users that
-> only need small jit code snippets.
-
-This sounds interesting, but I think this can be achieved without requiring a
-single jit_alloc_arch_params() shared by all users?
-
-Thanks,
-Mark.
-
-> 
-> patches 1-5: split out the code allocation from modules and arch
-> patch 6: add dedicated API for data allocations with constraints similar to
-> code allocations
-> patches 7-9: decouple dynamic ftrace and kprobes form CONFIG_MODULES
-> patches 10-13: enable ROX allocations for executable memory on x86
-> 
-> Mike Rapoport (IBM) (11):
->   nios2: define virtual address space for modules
->   mm: introduce jit_text_alloc() and use it instead of module_alloc()
->   mm/jitalloc, arch: convert simple overrides of module_alloc to jitalloc
->   mm/jitalloc, arch: convert remaining overrides of module_alloc to jitalloc
->   module, jitalloc: drop module_alloc
->   mm/jitalloc: introduce jit_data_alloc()
->   x86/ftrace: enable dynamic ftrace without CONFIG_MODULES
->   arch: make jitalloc setup available regardless of CONFIG_MODULES
->   kprobes: remove dependcy on CONFIG_MODULES
->   modules, jitalloc: prepare to allocate executable memory as ROX
->   x86/jitalloc: make memory allocated for code ROX
-> 
-> Song Liu (2):
->   ftrace: Add swap_func to ftrace_process_locs()
->   x86/jitalloc: prepare to allocate exectuatble memory as ROX
-> 
->  arch/Kconfig                     |   5 +-
->  arch/arm/kernel/module.c         |  32 ------
->  arch/arm/mm/init.c               |  35 ++++++
->  arch/arm64/kernel/module.c       |  47 --------
->  arch/arm64/mm/init.c             |  42 +++++++
->  arch/loongarch/kernel/module.c   |   6 -
->  arch/loongarch/mm/init.c         |  16 +++
->  arch/mips/kernel/module.c        |   9 --
->  arch/mips/mm/init.c              |  19 ++++
->  arch/nios2/include/asm/pgtable.h |   5 +-
->  arch/nios2/kernel/module.c       |  24 ++--
->  arch/parisc/kernel/module.c      |  11 --
->  arch/parisc/mm/init.c            |  21 +++-
->  arch/powerpc/kernel/kprobes.c    |   4 +-
->  arch/powerpc/kernel/module.c     |  37 -------
->  arch/powerpc/mm/mem.c            |  41 +++++++
->  arch/riscv/kernel/module.c       |  10 --
->  arch/riscv/mm/init.c             |  18 +++
->  arch/s390/kernel/ftrace.c        |   4 +-
->  arch/s390/kernel/kprobes.c       |   4 +-
->  arch/s390/kernel/module.c        |  46 +-------
->  arch/s390/mm/init.c              |  35 ++++++
->  arch/sparc/kernel/module.c       |  34 +-----
->  arch/sparc/mm/Makefile           |   2 +
->  arch/sparc/mm/jitalloc.c         |  21 ++++
->  arch/sparc/net/bpf_jit_comp_32.c |   8 +-
->  arch/x86/Kconfig                 |   2 +
->  arch/x86/kernel/alternative.c    |  43 ++++---
->  arch/x86/kernel/ftrace.c         |  59 +++++-----
->  arch/x86/kernel/kprobes/core.c   |   4 +-
->  arch/x86/kernel/module.c         |  75 +------------
->  arch/x86/kernel/static_call.c    |  10 +-
->  arch/x86/kernel/unwind_orc.c     |  13 ++-
->  arch/x86/mm/init.c               |  52 +++++++++
->  arch/x86/net/bpf_jit_comp.c      |  22 +++-
->  include/linux/ftrace.h           |   2 +
->  include/linux/jitalloc.h         |  69 ++++++++++++
->  include/linux/moduleloader.h     |  15 ---
->  kernel/bpf/core.c                |  14 +--
->  kernel/kprobes.c                 |  51 +++++----
->  kernel/module/Kconfig            |   1 +
->  kernel/module/main.c             |  56 ++++------
->  kernel/trace/ftrace.c            |  13 ++-
->  kernel/trace/trace_kprobe.c      |  11 ++
->  mm/Kconfig                       |   3 +
->  mm/Makefile                      |   1 +
->  mm/jitalloc.c                    | 185 +++++++++++++++++++++++++++++++
->  mm/mm_init.c                     |   2 +
->  48 files changed, 777 insertions(+), 462 deletions(-)
->  create mode 100644 arch/sparc/mm/jitalloc.c
->  create mode 100644 include/linux/jitalloc.h
->  create mode 100644 mm/jitalloc.c
-> 
-> 
-> base-commit: 44c026a73be8038f03dbdeef028b642880cf1511
-> -- 
-> 2.35.1
-> 
-> 
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
