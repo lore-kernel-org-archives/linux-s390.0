@@ -2,165 +2,173 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ED7B9C7EE2F
-	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 17:39:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4159CC7EE2A
+	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 17:41:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232971AbjFARjp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 1 Jun 2023 13:39:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36614 "EHLO
+        id S233003AbjFARlO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 1 Jun 2023 13:41:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231346AbjFARjn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 13:39:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D304136;
-        Thu,  1 Jun 2023 10:39:42 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EE33E64860;
-        Thu,  1 Jun 2023 17:39:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60D9AC4339E;
-        Thu,  1 Jun 2023 17:39:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1685641181;
-        bh=rOyxKwyKoD8JRFg4gUZg/5MsYAzctjBiJEmXXIw+2Pg=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=o/tcJHGXDGK+Cmz0WPMH9eqt4DXVRB87b+bOc4yCFZZx+pNoEHu0L6Kk/WHl5TZCQ
-         v4wg++ka5L5/koa89l5lEtczt9Lp/CS49/lq9S/D/gsV6IN2cJNGZcqlW9mzDWtgf8
-         kSPa6HE9uQjRqdmZMZGwEA+2H5w1XPFs1bwtf87IXl053GkxGBjbRGWwQEhiSemK34
-         SURRDqI9JYl4AuMZSjsgfbIzfuYI4ScXci6h+5ayJwzrwQeS7v4C8WHfjDAbGm6Wt7
-         HhKwh2oygRzaHVjZAo7rCNsfYsqW/i3EtbygDwQjD02rjzFKXYyUdDoEjObai2iibs
-         UOf6kgrQWTHWg==
-Received: by mail-vk1-f181.google.com with SMTP id 71dfb90a1353d-45c6c6e0ab2so599177e0c.1;
-        Thu, 01 Jun 2023 10:39:41 -0700 (PDT)
-X-Gm-Message-State: AC+VfDzzxOBgQs22Zp+fPZ5LbXE5al098PVjDPukZSVDJiG9ue70wnq0
-        mTIF1LqBegezr4klJ3rP77T6/6P+iMKs1xV/gVo=
-X-Google-Smtp-Source: ACHHUZ7saBfaT5uX7NLiJU4LIkIoXw37eBnBmjdUSiEWtD7RMOu14iPsR47csoQHy7I8rQlHKSda/v96q9Noy2qP/FE=
-X-Received: by 2002:aca:ead6:0:b0:398:2f7f:a5cd with SMTP id
- i205-20020acaead6000000b003982f7fa5cdmr1228908oih.24.1685641160132; Thu, 01
- Jun 2023 10:39:20 -0700 (PDT)
+        with ESMTP id S232996AbjFARlN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 13:41:13 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D950189;
+        Thu,  1 Jun 2023 10:41:12 -0700 (PDT)
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 351HbgG9011936;
+        Thu, 1 Jun 2023 17:41:12 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=t3gOxhU5E4Vu+BTa81DHHLjlzCZhatqRD++4UZnlGtM=;
+ b=NwBijD+g3h1ppI8LhAfDB2AHHPlWS1UH3vCTQ5zok5i0l0a6Qxdn7OzdViH8idcqqmVK
+ Me1XGWlFJfrzm3MIwpvvio8uQq+ticNCymCvSYFB/PIheEcqQ1aeVJuy/drzYBUoQhC2
+ PAgGNCkC8/7AmcvguDp5r4v55b4Rvu808Tl8+9WW+5dqTE5UxX/EQUr500VRH4Z8s5IR
+ lA6cPpTktLx7yHxFuS0kdHS+O1+7yL5HYuo8TfkTh1OMQD4gWG7KcDSO0B4o1QJRRjOe
+ wHq2lLdNknGzWriLmtaxbVHDp/WFjDfK0V6fiFWCweEIw052Wvu9LotRYhyQX5CeVY6J sw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qxyptrjm2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 01 Jun 2023 17:41:11 +0000
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 351Hc3vZ014967;
+        Thu, 1 Jun 2023 17:41:11 GMT
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qxyptrjh6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 01 Jun 2023 17:41:11 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3514ToB3013017;
+        Thu, 1 Jun 2023 17:41:07 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+        by ppma05fra.de.ibm.com (PPS) with ESMTPS id 3qu9g5a7bt-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 01 Jun 2023 17:41:07 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 351Hf3LS4588170
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 1 Jun 2023 17:41:03 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AED1620043;
+        Thu,  1 Jun 2023 17:41:03 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 336FD20040;
+        Thu,  1 Jun 2023 17:41:03 +0000 (GMT)
+Received: from [9.171.12.131] (unknown [9.171.12.131])
+        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Thu,  1 Jun 2023 17:41:03 +0000 (GMT)
+Message-ID: <5d8f2ecc-0858-4708-a6cd-bf9692218935@linux.ibm.com>
+Date:   Thu, 1 Jun 2023 19:41:02 +0200
 MIME-Version: 1.0
-References: <20230531130833.635651916@infradead.org> <20230531132323.722039569@infradead.org>
- <70a69deb-7ad4-45b2-8e13-34955594a7ce@app.fastmail.com> <20230601101409.GS4253@hirez.programming.kicks-ass.net>
- <14c50e58-fecc-e96a-ee73-39ef4e4617c7@gmx.de> <CAHk-=whL65CLuy9D9gyO608acM5WLWo_ggAMP1cGu2XvyC0-hA@mail.gmail.com>
-In-Reply-To: <CAHk-=whL65CLuy9D9gyO608acM5WLWo_ggAMP1cGu2XvyC0-hA@mail.gmail.com>
-From:   Masahiro Yamada <masahiroy@kernel.org>
-Date:   Fri, 2 Jun 2023 02:38:43 +0900
-X-Gmail-Original-Message-ID: <CAK7LNATxpUK+w=VAkhLZserLr4cMk2ffSr+qzzZwuZ6DKWA0mw@mail.gmail.com>
-Message-ID: <CAK7LNATxpUK+w=VAkhLZserLr4cMk2ffSr+qzzZwuZ6DKWA0mw@mail.gmail.com>
-Subject: Re: [PATCH v2 07/12] parisc/percpu: Work around the lack of __SIZEOF_INT128__
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Helge Deller <deller@gmx.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Will Deacon <will@kernel.org>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>, dennis@kernel.org,
-        Tejun Heo <tj@kernel.org>, Christoph Lameter <cl@linux.com>,
-        Heiko Carstens <hca@linux.ibm.com>, gor@linux.ibm.com,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        borntraeger@linux.ibm.com, Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>, Joerg Roedel <joro@8bytes.org>,
-        suravee.suthikulpanit@amd.com, Robin Murphy <robin.murphy@arm.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Baolu Lu <baolu.lu@linux.intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S . Miller" <davem@davemloft.net>,
-        Pekka Enberg <penberg@kernel.org>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Roman Gushchin <roman.gushchin@linux.dev>,
-        Hyeonggon Yoo <42.hyeyoo@gmail.com>, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        linux-s390@vger.kernel.org, iommu@lists.linux.dev,
-        Linux-Arch <linux-arch@vger.kernel.org>,
-        linux-crypto@vger.kernel.org,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
-        linux-parisc@vger.kernel.org,
-        John David Anglin <dave.anglin@bell.net>,
-        Sam James <sam@gentoo.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.8.0
+Subject: Re: [kvm-unit-tests PATCH v9 2/2] s390x: topology: Checking
+ Configuration Topology Information
+Content-Language: en-US
+To:     Janosch Frank <frankja@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc:     thuth@redhat.com, kvm@vger.kernel.org, imbrenda@linux.ibm.com,
+        david@redhat.com, nrb@linux.ibm.com, nsg@linux.ibm.com
+References: <20230519112236.14332-1-pmorel@linux.ibm.com>
+ <20230519112236.14332-3-pmorel@linux.ibm.com>
+ <fa415627-bfff-cc18-af94-cf55632973d5@linux.ibm.com>
+From:   Pierre Morel <pmorel@linux.ibm.com>
+In-Reply-To: <fa415627-bfff-cc18-af94-cf55632973d5@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: xuf56d59TY4gzYQ8glii08ARNKr4r--J
+X-Proofpoint-GUID: jf44_Rh4im4_XPJdBo5N0wZbnMDrsUkf
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
+ definitions=2023-06-01_08,2023-05-31_03,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ clxscore=1015 suspectscore=0 phishscore=0 adultscore=0 malwarescore=0
+ mlxscore=0 impostorscore=0 mlxlogscore=999 bulkscore=0 spamscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2304280000 definitions=main-2306010151
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jun 1, 2023 at 10:29=E2=80=AFPM Linus Torvalds
-<torvalds@linux-foundation.org> wrote:
+
+On 6/1/23 11:38, Janosch Frank wrote:
+> On 5/19/23 13:22, Pierre Morel wrote:
+>> STSI with function code 15 is used to store the CPU configuration
+>> topology.
+>>
+>> We retrieve the maximum nested level with SCLP and use the
+>> topology tree provided by the drawers, books, sockets, cores
+>> arguments.
+>>
+>> We check :
+>> - if the topology stored is coherent between the QEMU -smp
+>>    parameters and kernel parameters.
+>> - the number of CPUs
+>> - the maximum number of CPUs
+>> - the number of containers of each levels for every STSI(15.1.x)
+>>    instruction allowed by the machine.
 >
-> On Thu, Jun 1, 2023 at 6:32=E2=80=AFAM Helge Deller <deller@gmx.de> wrote=
-:
-> >
-> > I don't think we need to care about gcc-10 on parisc.
-> > Debian and Gentoo are the only supported distributions, while Debian
-> > requires gcc-12 to build > 6.x kernels, and I assume Gentoo uses at lea=
-st
-> > gcc-12 as well.
-> >
-> > So raising the gcc limit for parisc only (at least temporarily for now)
-> > should be fine and your workaround below wouldn't be necessary, right?
+>>   [topology]
+>>   file = topology.elf
+>> +# 3 CPUs on socket 0 with different CPU TLE (standard, dedicated, 
+>> origin)
+>> +# 1 CPU on socket 2
+>> +extra_params = -smp 
+>> 1,drawers=3,books=3,sockets=4,cores=4,maxcpus=144 -cpu z14,ctop=on 
+>> -device z14-s390x-cpu,core-id=1,entitlement=low -device 
+>> z14-s390x-cpu,core-id=2,dedicated=on -device z14-s390x-cpu,core-id=10 
+>> -device z14-s390x-cpu,core-id=20 -device 
+>> z14-s390x-cpu,core-id=130,socket-id=0,book-id=0,drawer-id=0 -append 
+>> '-drawers 3 -books 3 -sockets 4 -cores 4'
+>> +
+>> +[topology-2]
+>> +file = topology.elf
+>> +extra_params = -smp 
+>> 1,drawers=2,books=2,sockets=2,cores=30,maxcpus=240  -append '-drawers 
+>> 2 -books 2 -sockets 2 -cores 30' -cpu z14,ctop=on -device 
+>> z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=2,entitlement=low 
+>> -device 
+>> z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=3,entitlement=medium 
+>> -device 
+>> z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=4,entitlement=high 
+>> -device 
+>> z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=5,entitlement=high,dedicated=on 
+>> -device 
+>> z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=65,entitlement=low 
+>> -device 
+>> z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=66,entitlement=medium 
+>> -device 
+>> z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=67,entitlement=high 
+>> -device 
+>> z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=68,entitlement=high,dedicated=on
 >
-> This absolutely sounds like the right option. Let's simplify the
-> problem space by just saying that parisc needs the newer compiler.
->
-> Right now we have that "minimum gcc version" in a somewhat annoying
-> place: it's in the ./scripts/min-tool-version.sh file as a shell
-> script.
->
-> I wonder if we could move the gcc minimum version check into the
-> Kconfig file instead, and make it easier to let architectures override
-> the minimum version.
+> Pardon my ignorance but I see z14 in there, will this work if we run 
+> on a z13?
 
-Currently, it is invoked in the Kconfig time,
-but not directly in Kconfig files.
+I think it will, we do not use anything specific to the CPU but the 
+Configuration topology facility which start with z10EC
+and AFAIU QEMU will accept a processor newer than the one of the host, 
+at least it does on my LPAR (VM z16b > host z16a)
 
-scripts/Kconfig.include
- -> scripts/cc-version.sh
-    -> scripts/min-tool-version.sh
-
-It would be ugly if we wrote the equivalent code
-directly in Kconfig files.
-
-
->
-> I don't quite know how to do that sanely, though. I don't think we
-> have a sane way to error out at Kconfig time (except by forcing some
-> syntax error inside an 'if' statement or something horrendously hacky
-> like that).
-
-The parse stage can fail by $(error-if ) macro, but
-the evaluation stage never fails. I think it is a design.
-
-I think checking the compiler version during the parse stage
-makes sense given the current situation. The compiler version is
-fixed when Kconfig starts. If the compiler is found to be too old,
-there is no meaning to proceed.
-
-
-You suggested to choose a compiler in the Kconfig time:
-https://lore.kernel.org/lkml/CAHk-=3DwhdrvCkSWh=3DBRrwZwNo3=3DyLBXXM88NGx8V=
-EpP1VTgmkyQ@mail.gmail.com/
-
-When we achieve that, moving the min version to Kconfig files will be
-the right thing to do. Then, everything will be evaluated dynamically.
+But we can use z13 as basis, which also covers the case where I forgot 
+something.
 
 
 >
-> Added Masahiro to the (already overlong) participants list.
->
->                    Linus
+> Also, will this work/fail gracefully if the test is run with a quemu 
+> that doesn't know about topology or will it crash?
+
+It will crash, QEMU will refuse the drawers and book parameters if the 
+QEMU patch for topology has not been applied.
+
+So, I should first propose a simple unittests.cfg working with both, 
+which will SKIP with "Topology facility not present" without the patch.
+
+When the patch is becoming used we can add more testings.
+
+Thanks for the comments.
+
+Pierre
 
 
 
---=20
-Best Regards
-Masahiro Yamada
