@@ -2,122 +2,186 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AD5DAC77B7E
-	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 09:38:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EE6F6C7EE31
+	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 10:16:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232601AbjFAJiy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 1 Jun 2023 05:38:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52496 "EHLO
+        id S233313AbjFAKQU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 1 Jun 2023 06:16:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232893AbjFAJis (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 05:38:48 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FDC2139;
-        Thu,  1 Jun 2023 02:38:45 -0700 (PDT)
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3519DUQm009993;
-        Thu, 1 Jun 2023 09:38:44 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=2h6XdwlF42uVTLMo3fFibWv4lmv2RtHqmk9EUx0o8IM=;
- b=p2/+VCmBOc7K4cclIEEDqk42EPyf9cllSmH+Mxl5rPvZNsGNIhKfU7d9WjNiy9bTTh1Z
- VixmkVWil9QFrvtDNBy0P7cCmXzFx21Er1uBiVIvPxbGhVNSYv874onWjaUfgYlxnGKV
- 2GvG64vrFUG0lIPWkoKsOsKvQflrbz0mUbHFj7RIsYin93j986hu5ycAp9jrfLOYyer4
- /MRHn6Lj0buX4NykMbGCp956xE5Zag0Dv9KU+Ey/EBTfeHyqBV1QrKgnuqACYn00HCc7
- svD+DLUsGUdkELc+U5u2lnlimenUnkIa6rRBrh3eOOdmzo+bFboWo2H3Qk2/u9N3xx3b 3g== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qxrgw0x06-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 01 Jun 2023 09:38:44 +0000
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3519E4TA014850;
-        Thu, 1 Jun 2023 09:38:43 GMT
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qxrgw0wx8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 01 Jun 2023 09:38:43 +0000
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3517SEmK023405;
-        Thu, 1 Jun 2023 09:38:42 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma06fra.de.ibm.com (PPS) with ESMTPS id 3qu94ea1j4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 01 Jun 2023 09:38:41 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3519cc1V13173310
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 1 Jun 2023 09:38:38 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4AA902004D;
-        Thu,  1 Jun 2023 09:38:38 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D999E2004B;
-        Thu,  1 Jun 2023 09:38:37 +0000 (GMT)
-Received: from [9.171.14.211] (unknown [9.171.14.211])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Thu,  1 Jun 2023 09:38:37 +0000 (GMT)
-Message-ID: <fa415627-bfff-cc18-af94-cf55632973d5@linux.ibm.com>
-Date:   Thu, 1 Jun 2023 11:38:37 +0200
+        with ESMTP id S233346AbjFAKPw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 06:15:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C32852111;
+        Thu,  1 Jun 2023 03:13:21 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E691C64300;
+        Thu,  1 Jun 2023 10:13:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BB9EC433EF;
+        Thu,  1 Jun 2023 10:13:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1685614396;
+        bh=AFUoVH57IicSC1SUB3rNbSa55KIIf5fvCH3QgG43svk=;
+        h=From:To:Cc:Subject:Date:From;
+        b=mW6qnl+Iscw1AVEmuh/+zsjQC3Skvf6tgVrd8H0mW7nk/Q4kR8aZiIus1dGIFP0tu
+         g3rQeS6P4z2sg2eRb4NVK2fSVZyk7O67J0bqoAY5zsHBwd4m5pGbhDwVNj62iw489S
+         WwJRyB2rENdRnYC5sKzXzzMfTG9/RUH5Fq0wJ8oT8tMyy9YYy4BnDsnxhAjT9MeepB
+         H1tV4aCIaB0/6raud9FT8L5dMFEDagbhbs3liHazB+zv7gap/xaJMb6C7mJsHMki13
+         b3RfbDTWSX2rQpcBObYqwwehSGuzsUPwmJr6dpDHZ0JMs7xXA+oJ8tyL/OL1vetfWT
+         OQoViqeiM1NHQ==
+From:   Mike Rapoport <rppt@kernel.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Helge Deller <deller@gmx.de>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Kent Overstreet <kent.overstreet@linux.dev>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Mike Rapoport <rppt@kernel.org>,
+        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Song Liu <song@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will@kernel.org>, bpf@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+        linux-mm@kvack.org, linux-modules@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+        netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
+Subject: [PATCH 00/13] mm: jit/text allocator
+Date:   Thu,  1 Jun 2023 13:12:44 +0300
+Message-Id: <20230601101257.530867-1-rppt@kernel.org>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.11.0
-Subject: Re: [kvm-unit-tests PATCH v9 2/2] s390x: topology: Checking
- Configuration Topology Information
-Content-Language: en-US
-To:     Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc:     thuth@redhat.com, kvm@vger.kernel.org, imbrenda@linux.ibm.com,
-        david@redhat.com, nrb@linux.ibm.com, nsg@linux.ibm.com
-References: <20230519112236.14332-1-pmorel@linux.ibm.com>
- <20230519112236.14332-3-pmorel@linux.ibm.com>
-From:   Janosch Frank <frankja@linux.ibm.com>
-In-Reply-To: <20230519112236.14332-3-pmorel@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: YBZfkvzYkaNcYubwRQHBqcC0eVE1niii
-X-Proofpoint-GUID: HgKLQbnNHKyks-q476gNyakkrZ7CLHMH
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
- definitions=2023-06-01_06,2023-05-31_03,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
- lowpriorityscore=0 malwarescore=0 phishscore=0 impostorscore=0
- suspectscore=0 mlxscore=0 priorityscore=1501 clxscore=1015 spamscore=0
- mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2304280000 definitions=main-2306010085
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 5/19/23 13:22, Pierre Morel wrote:
-> STSI with function code 15 is used to store the CPU configuration
-> topology.
-> 
-> We retrieve the maximum nested level with SCLP and use the
-> topology tree provided by the drawers, books, sockets, cores
-> arguments.
-> 
-> We check :
-> - if the topology stored is coherent between the QEMU -smp
->    parameters and kernel parameters.
-> - the number of CPUs
-> - the maximum number of CPUs
-> - the number of containers of each levels for every STSI(15.1.x)
->    instruction allowed by the machine.
+From: "Mike Rapoport (IBM)" <rppt@kernel.org>
 
->   [topology]
->   file = topology.elf
-> +# 3 CPUs on socket 0 with different CPU TLE (standard, dedicated, origin)
-> +# 1 CPU on socket 2
-> +extra_params = -smp 1,drawers=3,books=3,sockets=4,cores=4,maxcpus=144 -cpu z14,ctop=on -device z14-s390x-cpu,core-id=1,entitlement=low -device z14-s390x-cpu,core-id=2,dedicated=on -device z14-s390x-cpu,core-id=10 -device z14-s390x-cpu,core-id=20 -device z14-s390x-cpu,core-id=130,socket-id=0,book-id=0,drawer-id=0 -append '-drawers 3 -books 3 -sockets 4 -cores 4'
-> +
-> +[topology-2]
-> +file = topology.elf
-> +extra_params = -smp 1,drawers=2,books=2,sockets=2,cores=30,maxcpus=240  -append '-drawers 2 -books 2 -sockets 2 -cores 30' -cpu z14,ctop=on -device z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=2,entitlement=low -device z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=3,entitlement=medium -device z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=4,entitlement=high -device z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=5,entitlement=high,dedicated=on -device z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=65,entitlement=low -device z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=66,entitlement=medium -device z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=67,entitlement=high -device z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=68,entitlement=high,dedicated=on
+Hi,
 
-Pardon my ignorance but I see z14 in there, will this work if we run on 
-a z13?
+module_alloc() is used everywhere as a mean to allocate memory for code.
 
-Also, will this work/fail gracefully if the test is run with a quemu 
-that doesn't know about topology or will it crash?
+Beside being semantically wrong, this unnecessarily ties all subsystmes
+that need to allocate code, such as ftrace, kprobes and BPF to modules
+and puts the burden of code allocation to the modules code.
+
+Several architectures override module_alloc() because of various
+constraints where the executable memory can be located and this causes
+additional obstacles for improvements of code allocation.
+
+This set splits code allocation from modules by introducing
+jit_text_alloc(), jit_data_alloc() and jit_free() APIs, replaces call
+sites of module_alloc() and module_memfree() with the new APIs and
+implements core text and related allocation in a central place.
+
+Instead of architecture specific overrides for module_alloc(), the
+architectures that require non-default behaviour for text allocation must
+fill jit_alloc_params structure and implement jit_alloc_arch_params() that
+returns a pointer to that structure. If an architecture does not implement
+jit_alloc_arch_params(), the defaults compatible with the current
+modules::module_alloc() are used.
+
+The new jitalloc infrastructure allows decoupling of kprobes and ftrace
+from modules, and most importantly it enables ROX allocations for
+executable memory.
+
+A centralized infrastructure for code allocation allows future
+optimizations for allocations of executable memory, caching large pages for
+better iTLB performance and providing sub-page allocations for users that
+only need small jit code snippets.
+
+patches 1-5: split out the code allocation from modules and arch
+patch 6: add dedicated API for data allocations with constraints similar to
+code allocations
+patches 7-9: decouple dynamic ftrace and kprobes form CONFIG_MODULES
+patches 10-13: enable ROX allocations for executable memory on x86
+
+Mike Rapoport (IBM) (11):
+  nios2: define virtual address space for modules
+  mm: introduce jit_text_alloc() and use it instead of module_alloc()
+  mm/jitalloc, arch: convert simple overrides of module_alloc to jitalloc
+  mm/jitalloc, arch: convert remaining overrides of module_alloc to jitalloc
+  module, jitalloc: drop module_alloc
+  mm/jitalloc: introduce jit_data_alloc()
+  x86/ftrace: enable dynamic ftrace without CONFIG_MODULES
+  arch: make jitalloc setup available regardless of CONFIG_MODULES
+  kprobes: remove dependcy on CONFIG_MODULES
+  modules, jitalloc: prepare to allocate executable memory as ROX
+  x86/jitalloc: make memory allocated for code ROX
+
+Song Liu (2):
+  ftrace: Add swap_func to ftrace_process_locs()
+  x86/jitalloc: prepare to allocate exectuatble memory as ROX
+
+ arch/Kconfig                     |   5 +-
+ arch/arm/kernel/module.c         |  32 ------
+ arch/arm/mm/init.c               |  35 ++++++
+ arch/arm64/kernel/module.c       |  47 --------
+ arch/arm64/mm/init.c             |  42 +++++++
+ arch/loongarch/kernel/module.c   |   6 -
+ arch/loongarch/mm/init.c         |  16 +++
+ arch/mips/kernel/module.c        |   9 --
+ arch/mips/mm/init.c              |  19 ++++
+ arch/nios2/include/asm/pgtable.h |   5 +-
+ arch/nios2/kernel/module.c       |  24 ++--
+ arch/parisc/kernel/module.c      |  11 --
+ arch/parisc/mm/init.c            |  21 +++-
+ arch/powerpc/kernel/kprobes.c    |   4 +-
+ arch/powerpc/kernel/module.c     |  37 -------
+ arch/powerpc/mm/mem.c            |  41 +++++++
+ arch/riscv/kernel/module.c       |  10 --
+ arch/riscv/mm/init.c             |  18 +++
+ arch/s390/kernel/ftrace.c        |   4 +-
+ arch/s390/kernel/kprobes.c       |   4 +-
+ arch/s390/kernel/module.c        |  46 +-------
+ arch/s390/mm/init.c              |  35 ++++++
+ arch/sparc/kernel/module.c       |  34 +-----
+ arch/sparc/mm/Makefile           |   2 +
+ arch/sparc/mm/jitalloc.c         |  21 ++++
+ arch/sparc/net/bpf_jit_comp_32.c |   8 +-
+ arch/x86/Kconfig                 |   2 +
+ arch/x86/kernel/alternative.c    |  43 ++++---
+ arch/x86/kernel/ftrace.c         |  59 +++++-----
+ arch/x86/kernel/kprobes/core.c   |   4 +-
+ arch/x86/kernel/module.c         |  75 +------------
+ arch/x86/kernel/static_call.c    |  10 +-
+ arch/x86/kernel/unwind_orc.c     |  13 ++-
+ arch/x86/mm/init.c               |  52 +++++++++
+ arch/x86/net/bpf_jit_comp.c      |  22 +++-
+ include/linux/ftrace.h           |   2 +
+ include/linux/jitalloc.h         |  69 ++++++++++++
+ include/linux/moduleloader.h     |  15 ---
+ kernel/bpf/core.c                |  14 +--
+ kernel/kprobes.c                 |  51 +++++----
+ kernel/module/Kconfig            |   1 +
+ kernel/module/main.c             |  56 ++++------
+ kernel/trace/ftrace.c            |  13 ++-
+ kernel/trace/trace_kprobe.c      |  11 ++
+ mm/Kconfig                       |   3 +
+ mm/Makefile                      |   1 +
+ mm/jitalloc.c                    | 185 +++++++++++++++++++++++++++++++
+ mm/mm_init.c                     |   2 +
+ 48 files changed, 777 insertions(+), 462 deletions(-)
+ create mode 100644 arch/sparc/mm/jitalloc.c
+ create mode 100644 include/linux/jitalloc.h
+ create mode 100644 mm/jitalloc.c
+
+
+base-commit: 44c026a73be8038f03dbdeef028b642880cf1511
+-- 
+2.35.1
 
