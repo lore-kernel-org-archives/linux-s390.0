@@ -2,173 +2,89 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4159CC7EE2A
-	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 17:41:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4CBF3C7EE2A
+	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 17:59:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233003AbjFARlO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 1 Jun 2023 13:41:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37516 "EHLO
+        id S231826AbjFAR7W (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 1 Jun 2023 13:59:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232996AbjFARlN (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 13:41:13 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D950189;
-        Thu,  1 Jun 2023 10:41:12 -0700 (PDT)
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 351HbgG9011936;
-        Thu, 1 Jun 2023 17:41:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=t3gOxhU5E4Vu+BTa81DHHLjlzCZhatqRD++4UZnlGtM=;
- b=NwBijD+g3h1ppI8LhAfDB2AHHPlWS1UH3vCTQ5zok5i0l0a6Qxdn7OzdViH8idcqqmVK
- Me1XGWlFJfrzm3MIwpvvio8uQq+ticNCymCvSYFB/PIheEcqQ1aeVJuy/drzYBUoQhC2
- PAgGNCkC8/7AmcvguDp5r4v55b4Rvu808Tl8+9WW+5dqTE5UxX/EQUr500VRH4Z8s5IR
- lA6cPpTktLx7yHxFuS0kdHS+O1+7yL5HYuo8TfkTh1OMQD4gWG7KcDSO0B4o1QJRRjOe
- wHq2lLdNknGzWriLmtaxbVHDp/WFjDfK0V6fiFWCweEIw052Wvu9LotRYhyQX5CeVY6J sw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qxyptrjm2-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 01 Jun 2023 17:41:11 +0000
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 351Hc3vZ014967;
-        Thu, 1 Jun 2023 17:41:11 GMT
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qxyptrjh6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 01 Jun 2023 17:41:11 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3514ToB3013017;
-        Thu, 1 Jun 2023 17:41:07 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-        by ppma05fra.de.ibm.com (PPS) with ESMTPS id 3qu9g5a7bt-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 01 Jun 2023 17:41:07 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 351Hf3LS4588170
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 1 Jun 2023 17:41:03 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id AED1620043;
-        Thu,  1 Jun 2023 17:41:03 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 336FD20040;
-        Thu,  1 Jun 2023 17:41:03 +0000 (GMT)
-Received: from [9.171.12.131] (unknown [9.171.12.131])
-        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Thu,  1 Jun 2023 17:41:03 +0000 (GMT)
-Message-ID: <5d8f2ecc-0858-4708-a6cd-bf9692218935@linux.ibm.com>
-Date:   Thu, 1 Jun 2023 19:41:02 +0200
+        with ESMTP id S232221AbjFAR7U (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 13:59:20 -0400
+X-Greylist: delayed 410 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 01 Jun 2023 10:59:19 PDT
+Received: from out-47.mta1.migadu.com (out-47.mta1.migadu.com [IPv6:2001:41d0:203:375::2f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ABDE199
+        for <linux-s390@vger.kernel.org>; Thu,  1 Jun 2023 10:59:18 -0700 (PDT)
+Date:   Thu, 1 Jun 2023 13:52:16 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+        t=1685641944;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=BvZu7pDDYmXHwMSg7hGT8OPLPljqdX2QIVSOdmRwors=;
+        b=k8LvZJyewntoq7paLcCZpalnhHsRbUTumu8US7zZhvmAtwIA8z8+IsCufYQ/Tfop+aJHfp
+        JDXGWHiSFWvBQlhh+XiaTuIo+kCh2q14Mo2ssoFXXboOjAjKsrwIOIU6mWE0ZqDl9fVgiu
+        BwgDA6fuXqCDnNW3Qwm2url7MLeBoW8=
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From:   Kent Overstreet <kent.overstreet@linux.dev>
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     Mike Rapoport <rppt@kernel.org>, linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Helge Deller <deller@gmx.de>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Song Liu <song@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will@kernel.org>, bpf@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+        linux-mm@kvack.org, linux-modules@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+        netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
+Subject: Re: [PATCH 12/13] x86/jitalloc: prepare to allocate exectuatble
+ memory as ROX
+Message-ID: <ZHja0HOUabUxD5YS@moria.home.lan>
+References: <20230601101257.530867-1-rppt@kernel.org>
+ <20230601101257.530867-13-rppt@kernel.org>
+ <20230601103050.GT4253@hirez.programming.kicks-ass.net>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.8.0
-Subject: Re: [kvm-unit-tests PATCH v9 2/2] s390x: topology: Checking
- Configuration Topology Information
-Content-Language: en-US
-To:     Janosch Frank <frankja@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc:     thuth@redhat.com, kvm@vger.kernel.org, imbrenda@linux.ibm.com,
-        david@redhat.com, nrb@linux.ibm.com, nsg@linux.ibm.com
-References: <20230519112236.14332-1-pmorel@linux.ibm.com>
- <20230519112236.14332-3-pmorel@linux.ibm.com>
- <fa415627-bfff-cc18-af94-cf55632973d5@linux.ibm.com>
-From:   Pierre Morel <pmorel@linux.ibm.com>
-In-Reply-To: <fa415627-bfff-cc18-af94-cf55632973d5@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: xuf56d59TY4gzYQ8glii08ARNKr4r--J
-X-Proofpoint-GUID: jf44_Rh4im4_XPJdBo5N0wZbnMDrsUkf
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
- definitions=2023-06-01_08,2023-05-31_03,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- clxscore=1015 suspectscore=0 phishscore=0 adultscore=0 malwarescore=0
- mlxscore=0 impostorscore=0 mlxlogscore=999 bulkscore=0 spamscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2304280000 definitions=main-2306010151
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230601103050.GT4253@hirez.programming.kicks-ass.net>
+X-Migadu-Flow: FLOW_OUT
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Thu, Jun 01, 2023 at 12:30:50PM +0200, Peter Zijlstra wrote:
+> On Thu, Jun 01, 2023 at 01:12:56PM +0300, Mike Rapoport wrote:
+> 
+> > +static void __init_or_module do_text_poke(void *addr, const void *opcode, size_t len)
+> > +{
+> > +	if (system_state < SYSTEM_RUNNING) {
+> > +		text_poke_early(addr, opcode, len);
+> > +	} else {
+> > +		mutex_lock(&text_mutex);
+> > +		text_poke(addr, opcode, len);
+> > +		mutex_unlock(&text_mutex);
+> > +	}
+> > +}
+> 
+> So I don't much like do_text_poke(); why?
 
-On 6/1/23 11:38, Janosch Frank wrote:
-> On 5/19/23 13:22, Pierre Morel wrote:
->> STSI with function code 15 is used to store the CPU configuration
->> topology.
->>
->> We retrieve the maximum nested level with SCLP and use the
->> topology tree provided by the drawers, books, sockets, cores
->> arguments.
->>
->> We check :
->> - if the topology stored is coherent between the QEMU -smp
->>    parameters and kernel parameters.
->> - the number of CPUs
->> - the maximum number of CPUs
->> - the number of containers of each levels for every STSI(15.1.x)
->>    instruction allowed by the machine.
->
->>   [topology]
->>   file = topology.elf
->> +# 3 CPUs on socket 0 with different CPU TLE (standard, dedicated, 
->> origin)
->> +# 1 CPU on socket 2
->> +extra_params = -smp 
->> 1,drawers=3,books=3,sockets=4,cores=4,maxcpus=144 -cpu z14,ctop=on 
->> -device z14-s390x-cpu,core-id=1,entitlement=low -device 
->> z14-s390x-cpu,core-id=2,dedicated=on -device z14-s390x-cpu,core-id=10 
->> -device z14-s390x-cpu,core-id=20 -device 
->> z14-s390x-cpu,core-id=130,socket-id=0,book-id=0,drawer-id=0 -append 
->> '-drawers 3 -books 3 -sockets 4 -cores 4'
->> +
->> +[topology-2]
->> +file = topology.elf
->> +extra_params = -smp 
->> 1,drawers=2,books=2,sockets=2,cores=30,maxcpus=240  -append '-drawers 
->> 2 -books 2 -sockets 2 -cores 30' -cpu z14,ctop=on -device 
->> z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=2,entitlement=low 
->> -device 
->> z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=3,entitlement=medium 
->> -device 
->> z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=4,entitlement=high 
->> -device 
->> z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=5,entitlement=high,dedicated=on 
->> -device 
->> z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=65,entitlement=low 
->> -device 
->> z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=66,entitlement=medium 
->> -device 
->> z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=67,entitlement=high 
->> -device 
->> z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=68,entitlement=high,dedicated=on
->
-> Pardon my ignorance but I see z14 in there, will this work if we run 
-> on a z13?
+Could you share why?
 
-I think it will, we do not use anything specific to the CPU but the 
-Configuration topology facility which start with z10EC
-and AFAIU QEMU will accept a processor newer than the one of the host, 
-at least it does on my LPAR (VM z16b > host z16a)
-
-But we can use z13 as basis, which also covers the case where I forgot 
-something.
-
-
->
-> Also, will this work/fail gracefully if the test is run with a quemu 
-> that doesn't know about topology or will it crash?
-
-It will crash, QEMU will refuse the drawers and book parameters if the 
-QEMU patch for topology has not been applied.
-
-So, I should first propose a simple unittests.cfg working with both, 
-which will SKIP with "Topology facility not present" without the patch.
-
-When the patch is becoming used we can add more testings.
-
-Thanks for the comments.
-
-Pierre
-
-
-
+I think the impementation sucks but conceptually it's the right idea -
+create a new temporary mapping to avoid the need for RWX mappings.
