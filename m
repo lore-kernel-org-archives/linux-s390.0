@@ -2,124 +2,140 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A207AC7EE2F
-	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 21:09:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E347AC7EE2E
+	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 22:36:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232198AbjFAVJf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 1 Jun 2023 17:09:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40626 "EHLO
+        id S231241AbjFAWgI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 1 Jun 2023 18:36:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229497AbjFAVJe (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 17:09:34 -0400
-Received: from smtp.gentoo.org (woodpecker.gentoo.org [140.211.166.183])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 086FFF2;
-        Thu,  1 Jun 2023 14:09:32 -0700 (PDT)
-References: <20230531130833.635651916@infradead.org>
- <20230531132323.722039569@infradead.org>
- <70a69deb-7ad4-45b2-8e13-34955594a7ce@app.fastmail.com>
- <20230601101409.GS4253@hirez.programming.kicks-ass.net>
- <14c50e58-fecc-e96a-ee73-39ef4e4617c7@gmx.de>
- <20230601105021.GU4253@hirez.programming.kicks-ass.net>
-User-agent: mu4e 1.10.3; emacs 29.0.91
-From:   Sam James <sam@gentoo.org>
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     Helge Deller <deller@gmx.de>, Arnd Bergmann <arnd@arndb.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Will Deacon <will@kernel.org>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>, dennis@kernel.org,
-        Tejun Heo <tj@kernel.org>, Christoph Lameter <cl@linux.com>,
-        Heiko Carstens <hca@linux.ibm.com>, gor@linux.ibm.com,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        borntraeger@linux.ibm.com, Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>, Joerg Roedel <joro@8bytes.org>,
-        suravee.suthikulpanit@amd.com, Robin Murphy <robin.murphy@arm.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Baolu Lu <baolu.lu@linux.intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S . Miller" <davem@davemloft.net>,
-        Pekka Enberg <penberg@kernel.org>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Roman Gushchin <roman.gushchin@linux.dev>,
-        Hyeonggon Yoo <42.hyeyoo@gmail.com>, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        linux-s390@vger.kernel.org, iommu@lists.linux.dev,
-        Linux-Arch <linux-arch@vger.kernel.org>,
-        linux-crypto@vger.kernel.org,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
-        linux-parisc@vger.kernel.org,
-        John David Anglin <dave.anglin@bell.net>
-Subject: Re: [PATCH v2 07/12] parisc/percpu: Work around the lack of
- __SIZEOF_INT128__
-Date:   Thu, 01 Jun 2023 22:08:44 +0100
-In-reply-to: <20230601105021.GU4253@hirez.programming.kicks-ass.net>
-Message-ID: <87jzwmvqin.fsf@gentoo.org>
+        with ESMTP id S229542AbjFAWgH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 18:36:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A623133;
+        Thu,  1 Jun 2023 15:36:03 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 906E364AA7;
+        Thu,  1 Jun 2023 22:36:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED82AC43443;
+        Thu,  1 Jun 2023 22:36:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1685658962;
+        bh=HByQUJENQcDPWiijaDFhYT8jA4bRcfOqcVglu/ddG6U=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=re2I/9LpOnn67cRoh6PMZZOHT8vdfHha/bz6wtCDfOYdb5vZzGUctvTnWl4LYy/9m
+         NwPwQViyZ7XqHLQBspSOOwlfhUwQAtJo+yIL5HnTKCCgUiXqtggXTsskTfnNpG7vN9
+         VK+9AhJpq2nZ3mf3rthk6G8xSKwWwiHUzWquyx91XgpIn8z8MdRB3+bYCub3NDdJsU
+         MBXCxXfkbcJxxlc8t1IXtz79Bkfq9TSzEwYW0lg8eC1Maz9RVf0VpdqrZpUNbjK7/t
+         roE+PBwSYAYsytt+Ua6jTizptS+lu0Z7pWJc7cPm4JVKQxLN5o5FZMLtghbCRvoQ8N
+         h5KrxNOdHSCXg==
+Received: by mail-lf1-f46.google.com with SMTP id 2adb3069b0e04-4f3ba703b67so1883166e87.1;
+        Thu, 01 Jun 2023 15:36:01 -0700 (PDT)
+X-Gm-Message-State: AC+VfDwCfcoWvJSmhQPKGLk4na5gWDVfbKoT0+70BSdxCghnn0LsO9eE
+        mHJX70nFS4hM1gSoxd7YkjITBewiMbLpXXglhsE=
+X-Google-Smtp-Source: ACHHUZ5IpAtCBKLINxhk+Z0SWINwbFkPqmi++HI/k6BNegfGNCzvnzTim5Gy3oJJLp9NHmq3+FFn0pl72eGk9Pzb3ws=
+X-Received: by 2002:ac2:48ba:0:b0:4ec:8816:f4fc with SMTP id
+ u26-20020ac248ba000000b004ec8816f4fcmr792426lfg.6.1685658959623; Thu, 01 Jun
+ 2023 15:35:59 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-        micalg=pgp-sha512; protocol="application/pgp-signature"
+References: <20230601101257.530867-1-rppt@kernel.org> <20230601101257.530867-5-rppt@kernel.org>
+In-Reply-To: <20230601101257.530867-5-rppt@kernel.org>
+From:   Song Liu <song@kernel.org>
+Date:   Thu, 1 Jun 2023 15:35:47 -0700
+X-Gmail-Original-Message-ID: <CAPhsuW70o=8QwcNJPx=qxaKoPkOzwYt8xxzjK38dF2tJB-18jQ@mail.gmail.com>
+Message-ID: <CAPhsuW70o=8QwcNJPx=qxaKoPkOzwYt8xxzjK38dF2tJB-18jQ@mail.gmail.com>
+Subject: Re: [PATCH 04/13] mm/jitalloc, arch: convert remaining overrides of
+ module_alloc to jitalloc
+To:     Mike Rapoport <rppt@kernel.org>
+Cc:     linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Helge Deller <deller@gmx.de>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Kent Overstreet <kent.overstreet@linux.dev>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will@kernel.org>, bpf@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+        linux-mm@kvack.org, linux-modules@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+        netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
---=-=-=
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-
-Peter Zijlstra <peterz@infradead.org> writes:
-
-> On Thu, Jun 01, 2023 at 12:32:38PM +0200, Helge Deller wrote:
->> On 6/1/23 12:14, Peter Zijlstra wrote:
->> > On Wed, May 31, 2023 at 04:21:22PM +0200, Arnd Bergmann wrote:
->> >=20
->> > > It would be nice to have the hack more localized to parisc
->> > > and guarded with a CONFIG_GCC_VERSION check so we can kill
->> > > it off in the future, once we drop either gcc-10 or parisc
->> > > support.
->> >=20
->> > I vote for dropping parisc -- it's the only 64bit arch that doesn't ha=
-ve
->> > sane atomics.
->>=20
->> Of course I'm against dropping parisc.
+On Thu, Jun 1, 2023 at 3:13=E2=80=AFAM Mike Rapoport <rppt@kernel.org> wrot=
+e:
 >
-> :-)
+> From: "Mike Rapoport (IBM)" <rppt@kernel.org>
 >
->> > Anyway, the below seems to work -- build tested with GCC-10.1
->>=20
->> I don't think we need to care about gcc-10 on parisc.
->> Debian and Gentoo are the only supported distributions, while Debian
->> requires gcc-12 to build > 6.x kernels, and I assume Gentoo uses at least
->> gcc-12 as well.
->>=20
->> So raising the gcc limit for parisc only (at least temporarily for now)
->> should be fine and your workaround below wouldn't be necessary, right?
+> Extend jitalloc parameters to accommodate more complex overrides of
+> module_alloc() by architectures.
 >
-> Correct, if you're willing to set minimum GCC version to 11 for parisc
-> all is well and this patch can go play in the bit bucket.
+> This includes specification of a fallback range required by arm, arm64
+> and powerpc and support for allocation of KASAN shadow required by
+> arm64, s390 and x86.
+>
+> The core implementation of jit_alloc() takes care of suppressing warnings
+> when the initial allocation fails but there is a fallback range defined.
+>
+> Signed-off-by: Mike Rapoport (IBM) <rppt@kernel.org>
 
-It's fine for us in Gentoo, thanks!
+[...]
 
---=-=-=
-Content-Type: application/pgp-signature; name="signature.asc"
+>
+> diff --git a/arch/arm64/kernel/module.c b/arch/arm64/kernel/module.c
+> index 5af4975caeb5..ecf1f4030317 100644
+> --- a/arch/arm64/kernel/module.c
+> +++ b/arch/arm64/kernel/module.c
+> @@ -17,56 +17,49 @@
+>  #include <linux/moduleloader.h>
+>  #include <linux/scs.h>
+>  #include <linux/vmalloc.h>
+> +#include <linux/jitalloc.h>
+>  #include <asm/alternative.h>
+>  #include <asm/insn.h>
+>  #include <asm/scs.h>
+>  #include <asm/sections.h>
+>
+> -void *module_alloc(unsigned long size)
+> +static struct jit_alloc_params jit_alloc_params =3D {
+> +       .alignment      =3D MODULE_ALIGN,
+> +       .flags          =3D JIT_ALLOC_KASAN_SHADOW,
+> +};
+> +
+> +struct jit_alloc_params *jit_alloc_arch_params(void)
+>  {
+>         u64 module_alloc_end =3D module_alloc_base + MODULES_VSIZE;
 
------BEGIN PGP SIGNATURE-----
+module_alloc_base() is initialized in kaslr_init(), which is called after
+mm_core_init(). We will need some special logic for this.
 
-iOUEARYKAI0WIQQlpruI3Zt2TGtVQcJzhAn1IN+RkAUCZHkJAF8UgAAAAAAuAChp
-c3N1ZXItZnByQG5vdGF0aW9ucy5vcGVucGdwLmZpZnRoaG9yc2VtYW4ubmV0MjVB
-NkJCODhERDlCNzY0QzZCNTU0MUMyNzM4NDA5RjUyMERGOTE5MA8cc2FtQGdlbnRv
-by5vcmcACgkQc4QJ9SDfkZCxTgD8DvRqnel67WrRU5+HwB76oJ89eB+XZVKI63Ih
-mkFPKKIBAJQcSVIUwNsG7OzOuRH/3R6pDjmn/yKfCEUMjHqK3HEH
-=fJgU
------END PGP SIGNATURE-----
---=-=-=--
+Thanks,
+Song
+
+> -       gfp_t gfp_mask =3D GFP_KERNEL;
+> -       void *p;
+> -
+> -       /* Silence the initial allocation */
+> -       if (IS_ENABLED(CONFIG_ARM64_MODULE_PLTS))
+> -               gfp_mask |=3D __GFP_NOWARN;
+>
+
+[...]
