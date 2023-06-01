@@ -2,246 +2,321 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24AF1C7EE2C
-	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 06:06:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B33EDC7EE2E
+	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 07:02:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231139AbjFAGGZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 1 Jun 2023 02:06:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37534 "EHLO
+        id S231418AbjFAHCe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 1 Jun 2023 03:02:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229476AbjFAGGY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 02:06:24 -0400
-Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B3259F;
-        Wed, 31 May 2023 23:06:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1685599582; x=1717135582;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=+YgtdR2rcJRIkb2eWSggxC2lXyPs1zH90KzhgSRseaU=;
-  b=IxKOMHFSWeAuYw0hFC8GC+40mXC51zPJb8NBBy9vAa5tXgiX2lunO0tv
-   z+UZvnYENaLkKrtkbNq8eswWwI5GKV+vXykr7HfyIX9OLCSAeNRiGAVhc
-   r6OCCvekpXlyUtZVZlckG/S3N4sOPvb5AiPM0K2TrnYwDXVlF2q6agKCA
-   tsVkEB64bSP6FTntEeKW4bV1aFRJocd+R/4DxsL7MPINdNAWuT0lrtozL
-   PNtwymw7YAd4PJwdg2jowh00IhyOWaGarIzTmMHjRfY+IC7vvDlJhAoqD
-   JB0pe3zmbMpsAa53P8HJmQ0Pnwv+rdR5Geu5keVZ+IXSUPgqOiinohkTM
-   A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10727"; a="418964369"
-X-IronPort-AV: E=Sophos;i="6.00,209,1681196400"; 
-   d="scan'208";a="418964369"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 May 2023 23:06:21 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10727"; a="736953256"
-X-IronPort-AV: E=Sophos;i="6.00,209,1681196400"; 
-   d="scan'208";a="736953256"
-Received: from orsmsx602.amr.corp.intel.com ([10.22.229.15])
-  by orsmga008.jf.intel.com with ESMTP; 31 May 2023 23:06:21 -0700
-Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
- ORSMSX602.amr.corp.intel.com (10.22.229.15) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.23; Wed, 31 May 2023 23:06:20 -0700
-Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
- ORSMSX610.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.23; Wed, 31 May 2023 23:06:20 -0700
-Received: from orsedg603.ED.cps.intel.com (10.7.248.4) by
- orsmsx610.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.23 via Frontend Transport; Wed, 31 May 2023 23:06:20 -0700
-Received: from NAM11-BN8-obe.outbound.protection.outlook.com (104.47.58.168)
- by edgegateway.intel.com (134.134.137.100) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.23; Wed, 31 May 2023 23:06:19 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=cFXTMcpqADw0iS3nGozMHf9BXOrAa7QHtZrToVkGvjibySpg5vOspmsFtzYF/PXXXxmek4CucMoeK7CEoxeq2K9jmPlQ5EjlIen3quEkYBLy21l2SdPKrzIPLFHGoxN+dujmE0SUxLXIezT+Fl3uSyv7dR/XmAz657GiCcyNYJat5MmavU6uc0Np/E6+Ap5mF/zqmuDyr5Gu0Dr/Zi2y0vistm3kkLErHqkuuXQ0VlFI+zxMWIy68Vq/hwfPZHBbRrNnc4YYgqy5WPrKOWJkI8hWZM1KnTvAcmzNCUivzzO0PfUUzJ2CecyEwLGe/IjJ9QILb9oYpNZdAOplu/z4fw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=PrNUFJM3kgT97lTdU08L5d+Nr6e4bwcSzEsq20eNl+A=;
- b=eTT+s+cRaocQE1k2MqoG+7QpInVUQaSoGlGcDfVBtBjYb1mYEPBJXqe7PLAJpcHSZOBFxhaeRy42aL1mbZAL+yQbGF0BB2+txpMaZp1cRtZtS2tjdKiYHCP+A0G3C62gUCMJmlIdhfLaCuObzjJowthyY0++PUpMsw3Qh+K9EbqM+2Tnqh31H+mPDtvEOMSuUagRLz+4BpVX8Zx/yR+MFyJU5hQKykiZbQN1aWx2e+0SFIeuvm7JbfNBsaG5MYVZGtPL4n9J479phBfcNC7mqsKqs3wUUJbQLaTPI9OGvgbpbsIQM7UqlNFT6M5QDR2gXMnoIl7LgrroPVzGFgg2AQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from DS0PR11MB7529.namprd11.prod.outlook.com (2603:10b6:8:141::20)
- by SA1PR11MB7112.namprd11.prod.outlook.com (2603:10b6:806:2b7::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6433.24; Thu, 1 Jun
- 2023 06:06:17 +0000
-Received: from DS0PR11MB7529.namprd11.prod.outlook.com
- ([fe80::5b44:8f52:dbeb:18e5]) by DS0PR11MB7529.namprd11.prod.outlook.com
- ([fe80::5b44:8f52:dbeb:18e5%3]) with mapi id 15.20.6433.024; Thu, 1 Jun 2023
- 06:06:17 +0000
-From:   "Liu, Yi L" <yi.l.liu@intel.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>,
-        Baolu Lu <baolu.lu@linux.intel.com>
-CC:     Alex Williamson <alex.williamson@redhat.com>,
-        "Tian, Kevin" <kevin.tian@intel.com>,
-        "joro@8bytes.org" <joro@8bytes.org>,
-        "robin.murphy@arm.com" <robin.murphy@arm.com>,
-        "cohuck@redhat.com" <cohuck@redhat.com>,
-        "eric.auger@redhat.com" <eric.auger@redhat.com>,
-        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
-        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
-        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
-        "peterx@redhat.com" <peterx@redhat.com>,
-        "jasowang@redhat.com" <jasowang@redhat.com>,
-        "shameerali.kolothum.thodi@huawei.com" 
-        <shameerali.kolothum.thodi@huawei.com>,
-        "lulu@redhat.com" <lulu@redhat.com>,
-        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "Hao, Xudong" <xudong.hao@intel.com>,
-        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
-        "Xu, Terrence" <terrence.xu@intel.com>,
-        "Jiang, Yanting" <yanting.jiang@intel.com>,
-        "Duan, Zhenzhong" <zhenzhong.duan@intel.com>,
-        "clegoate@redhat.com" <clegoate@redhat.com>
-Subject: RE: [PATCH v6 09/10] vfio/pci: Extend
- VFIO_DEVICE_GET_PCI_HOT_RESET_INFO for vfio device cdev
-Thread-Topic: [PATCH v6 09/10] vfio/pci: Extend
- VFIO_DEVICE_GET_PCI_HOT_RESET_INFO for vfio device cdev
-Thread-Index: AQHZjKSwmm8rv7BAt0eU9VbGFQ2Xy69p2kCAgAEPLxCAAOoUgIAI93QAgAC4QMA=
-Date:   Thu, 1 Jun 2023 06:06:17 +0000
-Message-ID: <DS0PR11MB7529B223BD86210A21D142B2C3499@DS0PR11MB7529.namprd11.prod.outlook.com>
-References: <20230522115751.326947-1-yi.l.liu@intel.com>
- <20230522115751.326947-10-yi.l.liu@intel.com>
- <20230524135603.33ee3d91.alex.williamson@redhat.com>
- <DS0PR11MB752935203F87D69D4468B890C3469@DS0PR11MB7529.namprd11.prod.outlook.com>
- <355a9f1e-64e6-d785-5a22-027b708b4935@linux.intel.com>
- <ZHeZPPo/MWXV1L9Q@nvidia.com>
-In-Reply-To: <ZHeZPPo/MWXV1L9Q@nvidia.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: DS0PR11MB7529:EE_|SA1PR11MB7112:EE_
-x-ms-office365-filtering-correlation-id: bf83b9a5-af3a-42e4-37a7-08db6266501e
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: BOAZWl4cU5ESnJSnA52w9tvM9scHtlYyqPTYcjH7qTK/AKmBoy1CJNSZ8sRWoJZFyeOGfGs4QHiyyMMBxtQ1J0l19AVduMXhQVuVlnNrJEeAbnsOoD2p6b6/VJm1YKL3Suoe7lXapentpcGd6z9gtC5ShoZ7sYDzzingHNyt96IaYO/ypEv3+6NLSTUdqi8EECUrTw0K0zSJERXiamwfuReoaZRQqOFx9dsCbhXKRwt+2zdZyxO7onTUMKsIz37Xvh1lcTHrIgq19APydUsShaPPDfiiAj+/VUbnSly6QtA232oJ6oQj3wgqgbeKhMiSD3xouSJri1u8wvjhcB4TXOZCF5Lh5r/6NkJc7IgnHeb5pGdF1yNa9b3gPfHE1xQKNQjkn+oX3QDpQZVlDnxTmCqEKODMX6g9JRrYqq8IM9XVLKnbrwNjZ9/PwCHbu6QuReFYqTkSDqGYpLX9fETLxZuPET1ndFwkfG0pYMrO5O6zAcl0YGnkMF83r6CzQd/CLrnrE7Bpz7lCfebD1URmCvVln7+VwRwM6uv6wAdST00h52L6wz+c6NGouGB6yFN5L1nIie7LYGDhMhPUg1pB4qJfCCrHdiXAzcOZXLI8Stv4mLuRon2oIBiOy7CEgzFr
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR11MB7529.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(136003)(376002)(39860400002)(366004)(346002)(396003)(451199021)(71200400001)(478600001)(26005)(33656002)(53546011)(6506007)(83380400001)(186003)(86362001)(9686003)(38070700005)(38100700002)(122000001)(82960400001)(55016003)(7696005)(316002)(41300700001)(4326008)(66446008)(66556008)(76116006)(64756008)(66946007)(66476007)(52536014)(8936002)(7416002)(5660300002)(8676002)(2906002)(110136005)(54906003);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?mvEgRFwwmmTTBXrIP3pLi0G8AcpXFhchB0O9b7pY5hA9/xiPgCr+rGhLc4TX?=
- =?us-ascii?Q?E0Vw9Zu9Lxhx9n7fq9YOMahNlGfyNobG8xFUjmE4PW7aIxc48bXlKmKAGxOG?=
- =?us-ascii?Q?PNBBQX5hmV+AYYpmSAvbpYklUH98jF8GFqthQcq+UyTseN0AWtE6GX8n6yaL?=
- =?us-ascii?Q?chNasPL6jPqDclsYSEp3EfO4ufgpCpjNIA02uXCVvOn/OfcgGLrqxs5zFyJn?=
- =?us-ascii?Q?Oq+OYQOnYTRiyFe5T3MJCTltXueVl9uQWuYSz/mZuFfpN/lNDOb/tN4tyxuE?=
- =?us-ascii?Q?ZzcHGkE+qjb1J7U2b+6Q6i39E4/3Thc961kP8mux8rPw2FAa0PH098JrtJVQ?=
- =?us-ascii?Q?VztYYRCzyZwLQrAYwRoEWrcoaCXzO9CNhZmlyO38iuWrV3WUS+vCjxmxugQq?=
- =?us-ascii?Q?Pv5VuiEYFQXkmu5UQV9ecZCwoV8dJZFbIc+lGGjze5HAzEoHyeNXGDLDDzdi?=
- =?us-ascii?Q?O1rXGVIhC413RIyeyRloZFK7Q3VgeYqWJNn1G1s2QZNm2BJBs9D4VNybCIel?=
- =?us-ascii?Q?B9usbwnSwlCccPozm0A/sDZSXRnZ5EIEWQDgf0RJWz8BYqtIF+VvoZ3pKE/Z?=
- =?us-ascii?Q?DGDUWXGkByhd61zCbFjpiIyOP4gFyrjBiNrPzsyUu4/iWLCVpGVveTgSkVOb?=
- =?us-ascii?Q?f3XKOYeVrF0a+MOp3deBofcsfWRpQZzg+2A4B/ec80oYinuMaYoUeLafg2Iu?=
- =?us-ascii?Q?ll/IsmvMBdJB2osn3KeqjjC3gBxyf7XkDaQAOcaTrywo8kogYBUQvBIn9pdp?=
- =?us-ascii?Q?fQmuwRjttDShJwaxOPTU1/VC283fYMrNNQDjwAQGHSA8g/ho/FdlnCatueYX?=
- =?us-ascii?Q?P2vWc+sbL1eMinBmeDfFT/XLHEU+4m9MsB1PvUwNVE4SOSFQ3wlddpsq6gPq?=
- =?us-ascii?Q?7xrgBajdhvOZb9F3/rvnkpEGuF5B76++/KKzvwljC2sC0Bv/GmUL+iFsyjfF?=
- =?us-ascii?Q?7UkVoSjAmF4XKObqKGAabrLYqw+gTi3RHbYzO/LnU5YiH+pIS0G/Hp+B6ATr?=
- =?us-ascii?Q?hdh2xn7tCAejCdes4wI1usGt0LA2V0qdpcF48Uo9/lwScrpw7/C372B+XGnt?=
- =?us-ascii?Q?xbnJwjGYl5EhlBwd0g41oulMwy5QRWQSnXihzMweo/xqOfnqYKgT/LZgoxSL?=
- =?us-ascii?Q?AQIyYZqO4xVCIpxGJZw278lvwm1qpM1HSXRavIkboKZUCaEC+F4SF7Te06Ry?=
- =?us-ascii?Q?6QM1W8pnP6HBpHjoMRad8ChRjELC+ddaD9qetkdCt616A5qDQYcBGbj90A8Q?=
- =?us-ascii?Q?PLRLrDX0HXisWFeG2OCj5gSkLvRrtA+wUUKHmr1gVbyr4HDtEO52c2uRQiwX?=
- =?us-ascii?Q?HqROXJ78DYrWgn/SyLeTMFSFsExpR6VaHujPVHalsAHrdRaSw2vY9SHe6gUU?=
- =?us-ascii?Q?1GAail5KJyz7wxhFrYtDti6Ly3FmabQNe2qfjr5MUxh9j9oFeb0CSUiL7B0j?=
- =?us-ascii?Q?dveth0HME1haA32GwOJM9FoDo7Mqdg6Vavjwgf2KPgUbNTpaJULRfkVceDrj?=
- =?us-ascii?Q?nh3ibSQKvBkqQcXclZ8DPUoHHDUzJ3TcCDSTN/mPmzhyigS6gFqolq8h0e03?=
- =?us-ascii?Q?cnthDXzsRuvCOSmfUwmgolPWbifkgLN/CvVXujEK?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S231952AbjFAHCP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 03:02:15 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF76E19A;
+        Thu,  1 Jun 2023 00:02:10 -0700 (PDT)
+Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3516lPuk027868;
+        Thu, 1 Jun 2023 07:02:10 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=NmWEYHHJsQt9oR78Y8qU/6tRj+VEuwf6CQyBnV8YYdw=;
+ b=d2GgxfMcE7KqhFKWMx4rOFC53STCrFqY3S+QXTnH6DHb7W/ShQjtWwkVknlJwuYDe2EY
+ VbetUaOL21i2ctMJkHmwHfSTaIqtRdlbexsZYaCAA7fhdJOpF3JjpSg/Kf/eG4MXBgpm
+ O61kPJPTyqy9pe5I7XqplvSpY82shXL1azFsEt4lHde/LlQaKxyaXBzXnH4wzlATNNhk
+ ksfKEWA0hBO8TULRcWHXKIQtdJ5QFjd25nnodQg5IQjMpOJPuaIibu09DL0Q+Zqp7G3+
+ nlIm9aSsys9Dyv4fdb6t0uCW0eLPWiIs9veoShmzEn54M2Y3ZQhO1y6d0n9uyb5Ek3Mn Aw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qxpcagdd3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 01 Jun 2023 07:02:09 +0000
+Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3516sKqR018550;
+        Thu, 1 Jun 2023 07:02:09 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qxpcagdc5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 01 Jun 2023 07:02:09 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3516rXxA000928;
+        Thu, 1 Jun 2023 07:02:07 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+        by ppma02fra.de.ibm.com (PPS) with ESMTPS id 3qu9g52007-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 01 Jun 2023 07:02:07 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 351724IB42730048
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 1 Jun 2023 07:02:04 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 176B920040;
+        Thu,  1 Jun 2023 07:02:04 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E55562004E;
+        Thu,  1 Jun 2023 07:02:03 +0000 (GMT)
+Received: from t35lp63.lnxne.boe (unknown [9.152.108.100])
+        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Thu,  1 Jun 2023 07:02:03 +0000 (GMT)
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [kvm-unit-tests PATCH v3 6/6] s390x: add a test for SIE without MSO/MSL
+Date:   Thu,  1 Jun 2023 09:02:02 +0200
+Message-Id: <20230601070202.152094-7-nrb@linux.ibm.com>
+X-Mailer: git-send-email 2.39.1
+In-Reply-To: <20230601070202.152094-1-nrb@linux.ibm.com>
+References: <20230601070202.152094-1-nrb@linux.ibm.com>
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: DS0PR11MB7529.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: bf83b9a5-af3a-42e4-37a7-08db6266501e
-X-MS-Exchange-CrossTenant-originalarrivaltime: 01 Jun 2023 06:06:17.3381
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 9ln4tBDE7+9X5M358WAIaHcUUmCImr/USo7ijE9x9wgfeQ3DIumT3dTcLW3UkfiqmOLEh0fhia7j3wrBJKPqMA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR11MB7112
-X-OriginatorOrg: intel.com
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: z73e7ST3sXnxpVuYxOKzqsc_ZzcBAYBZ
+X-Proofpoint-ORIG-GUID: IMpybWKz-5n4TeNTNvcd_T7J5FR5IAif
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
+ definitions=2023-06-01_04,2023-05-31_03,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 clxscore=1015
+ mlxlogscore=999 priorityscore=1501 mlxscore=0 bulkscore=0 malwarescore=0
+ spamscore=0 adultscore=0 impostorscore=0 phishscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2304280000
+ definitions=main-2306010057
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-> From: Jason Gunthorpe <jgg@nvidia.com>
-> Sent: Thursday, June 1, 2023 3:00 AM
->=20
-> On Fri, May 26, 2023 at 10:04:27AM +0800, Baolu Lu wrote:
-> > On 5/25/23 9:02 PM, Liu, Yi L wrote:
-> > > >   It's possible that requirement
-> > > > might be relaxed in the new DMA ownership model, but as it is right
-> > > > now, the code enforces that requirement and any new discussion abou=
-t
-> > > > what makes hot-reset available should note both the ownership and
-> > > > dev_set requirement.  Thanks,
-> > > I think your point is that if an iommufd_ctx has acquired DMA ownerhi=
-sp
-> > > of an iommu_group, it means the device is owned. And it should not
-> > > matter whether all the devices in the iommu_group is present in the
-> > > dev_set. It is allowed that some devices are bound to pci-stub or
-> > > pcieport driver. Is it?
-> > >
-> > > Actually I have a doubt on it. IIUC, the above requirement on dev_set
-> > > is to ensure the reset to the devices are protected by the dev_set->l=
-ock.
-> > > So that either the reset issued by driver itself or a hot reset reque=
-st
-> > > from user, there is no race. But if a device is not in the dev_set, t=
-hen
-> > > hot reset request from user might race with the bound driver. DMA own=
-ership
-> > > only guarantees the drivers won't handle DMA via DMA API which would =
-have
-> > > conflict with DMA mappings from user. I'm not sure if it is able to
-> > > guarantee reset is exclusive as well. I see pci-stub and pcieport dri=
-ver
-> > > are the only two drivers that set the driver_managed_dma flag besides=
- the
-> > > vfio drivers. pci-stub may be fine. not sure about pcieport driver.
-> >
-> > commit c7d469849747 ("PCI: portdrv: Set driver_managed_dma") described
-> > the criteria of adding driver_managed_dma to the pcieport driver.
-> >
-> > "
-> > We achieve this by setting ".driver_managed_dma =3D true" in pci_driver
-> > structure. It is safe because the portdrv driver meets below criteria:
-> >
-> > - This driver doesn't use DMA, as you can't find any related calls like
-> >   pci_set_master() or any kernel DMA API (dma_map_*() and etc.).
-> > - It doesn't use MMIO as you can't find ioremap() or similar calls. It'=
-s
-> >   tolerant to userspace possibly also touching the same MMIO registers
-> >   via P2P DMA access.
-> > "
-> >
-> > pci_rest_device() definitely shouldn't be done by the kernel drivers
-> > that have driver_managed_dma set.
->=20
-> Right
->=20
-> The only time it is safe to reset is if you know there is no attached
-> driver or you know VFIO is the attached driver and the caller owns the
-> VFIO too.
->=20
-> We haven't done a no attached driver test due to races.
+Since we now have the ability to run guests without MSO/MSL, add a test
+to make sure this doesn't break.
 
-Ok. @Alex, should we relax the above dev_set requirement now or should
-be in a separate series?
+Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+---
+ s390x/Makefile             |   2 +
+ s390x/sie-dat.c            | 120 +++++++++++++++++++++++++++++++++++++
+ s390x/snippets/c/sie-dat.c |  58 ++++++++++++++++++
+ s390x/unittests.cfg        |   3 +
+ 4 files changed, 183 insertions(+)
+ create mode 100644 s390x/sie-dat.c
+ create mode 100644 s390x/snippets/c/sie-dat.c
 
-Regards,
-Yi Liu
+diff --git a/s390x/Makefile b/s390x/Makefile
+index a80db538810e..4921669ee4c3 100644
+--- a/s390x/Makefile
++++ b/s390x/Makefile
+@@ -40,6 +40,7 @@ tests += $(TEST_DIR)/panic-loop-pgm.elf
+ tests += $(TEST_DIR)/migration-sck.elf
+ tests += $(TEST_DIR)/exittime.elf
+ tests += $(TEST_DIR)/ex.elf
++tests += $(TEST_DIR)/sie-dat.elf
+ 
+ pv-tests += $(TEST_DIR)/pv-diags.elf
+ 
+@@ -120,6 +121,7 @@ snippet_lib = $(snippet_asmlib) lib/auxinfo.o
+ # perquisites (=guests) for the snippet hosts.
+ # $(TEST_DIR)/<snippet-host>.elf: snippets = $(SNIPPET_DIR)/<c/asm>/<snippet>.gbin
+ $(TEST_DIR)/mvpg-sie.elf: snippets = $(SNIPPET_DIR)/c/mvpg-snippet.gbin
++$(TEST_DIR)/sie-dat.elf: snippets = $(SNIPPET_DIR)/c/sie-dat.gbin
+ $(TEST_DIR)/spec_ex-sie.elf: snippets = $(SNIPPET_DIR)/c/spec_ex.gbin
+ 
+ $(TEST_DIR)/pv-diags.elf: pv-snippets += $(SNIPPET_DIR)/asm/snippet-pv-diag-yield.gbin
+diff --git a/s390x/sie-dat.c b/s390x/sie-dat.c
+new file mode 100644
+index 000000000000..c490a2aa825c
+--- /dev/null
++++ b/s390x/sie-dat.c
+@@ -0,0 +1,120 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++/*
++ * Tests SIE with paging.
++ *
++ * Copyright 2023 IBM Corp.
++ *
++ * Authors:
++ *    Nico Boehr <nrb@linux.ibm.com>
++ */
++#include <libcflat.h>
++#include <vmalloc.h>
++#include <asm/asm-offsets.h>
++#include <asm-generic/barrier.h>
++#include <asm/pgtable.h>
++#include <mmu.h>
++#include <asm/page.h>
++#include <asm/facility.h>
++#include <asm/interrupt.h>
++#include <asm/mem.h>
++#include <alloc_page.h>
++#include <sclp.h>
++#include <sie.h>
++#include <snippet.h>
++
++static struct vm vm;
++static pgd_t *guest_root;
++
++/* keep in sync with TEST_PAGE_COUNT in s390x/snippets/c/sie-dat.c */
++#define GUEST_TEST_PAGE_COUNT 10
++
++/* keep in sync with TOTAL_PAGE_COUNT in s390x/snippets/c/sie-dat.c */
++#define GUEST_TOTAL_PAGE_COUNT 256
++
++static void test_sie_dat(void)
++{
++	uint8_t r1;
++	bool contents_match;
++	uint64_t test_page_gpa, test_page_hpa;
++	uint8_t *test_page_hva;
++
++	/* guest will tell us the guest physical address of the test buffer */
++	sie(&vm);
++
++	r1 = (vm.sblk->ipa & 0xf0) >> 4;
++	test_page_gpa = vm.save_area.guest.grs[r1];
++	test_page_hpa = virt_to_pte_phys(guest_root, (void*)test_page_gpa);
++	test_page_hva = __va(test_page_hpa);
++	report(vm.sblk->icptcode == ICPT_INST &&
++	       (vm.sblk->ipa & 0xFF00) == 0x8300 && vm.sblk->ipb == 0x9c0000,
++	       "test buffer gpa=0x%lx hva=%p", test_page_gpa, test_page_hva);
++
++	/* guest will now write to the test buffer and we verify the contents */
++	sie(&vm);
++	report(vm.sblk->icptcode == ICPT_INST &&
++	       vm.sblk->ipa == 0x8300 && vm.sblk->ipb == 0x440000,
++	       "guest wrote to test buffer");
++
++	contents_match = true;
++	for (unsigned int i = 0; i < GUEST_TEST_PAGE_COUNT; i++) {
++		uint8_t expected_val = 42 + i;
++		if (test_page_hva[i * PAGE_SIZE] != expected_val) {
++			report_fail("page %u mismatch actual_val=%x expected_val=%x",
++				    i, test_page_hva[i], expected_val);
++			contents_match = false;
++		}
++	}
++	report(contents_match, "test buffer contents match");
++
++	/* the guest will now write to an unmapped address and we check that this causes a segment translation exception */
++	report_prefix_push("guest write to unmapped");
++	expect_pgm_int();
++	sie(&vm);
++	check_pgm_int_code(PGM_INT_CODE_SEGMENT_TRANSLATION);
++	report_prefix_pop();
++}
++
++static void setup_guest(void)
++{
++	extern const char SNIPPET_NAME_START(c, sie_dat)[];
++	extern const char SNIPPET_NAME_END(c, sie_dat)[];
++	uint64_t guest_max_addr;
++
++	setup_vm();
++	snippet_setup_guest(&vm, false);
++
++	/* allocate a region-1 table */
++	guest_root = pgd_alloc_one();
++
++	/* map guest memory 1:1 */
++	guest_max_addr = GUEST_TOTAL_PAGE_COUNT * PAGE_SIZE;
++	for (uint64_t i = 0; i < guest_max_addr; i += PAGE_SIZE)
++		install_page(guest_root, __pa(vm.guest_mem + i), (void *)i);
++
++	/* set up storage limit supression - leave mso and msl intact they are ignored anyways */
++	vm.sblk->cpuflags |= CPUSTAT_SM;
++
++	/* set up the guest asce */
++	vm.save_area.guest.asce = __pa(guest_root) | ASCE_DT_REGION1 | REGION_TABLE_LENGTH;
++
++	snippet_init(&vm, SNIPPET_NAME_START(c, sie_dat),
++		     SNIPPET_LEN(c, sie_dat), SNIPPET_UNPACK_OFF);
++}
++
++int main(void)
++{
++	report_prefix_push("sie-dat");
++	if (!sclp_facilities.has_sief2) {
++		report_skip("SIEF2 facility unavailable");
++		goto done;
++	}
++
++	setup_guest();
++	test_sie_dat();
++	sie_guest_destroy(&vm);
++
++done:
++	report_prefix_pop();
++	return report_summary();
++
++}
+diff --git a/s390x/snippets/c/sie-dat.c b/s390x/snippets/c/sie-dat.c
+new file mode 100644
+index 000000000000..e156d0c36c4c
+--- /dev/null
++++ b/s390x/snippets/c/sie-dat.c
+@@ -0,0 +1,58 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++/*
++ * Snippet used by the sie-dat.c test to verify paging without MSO/MSL
++ *
++ * Copyright (c) 2023 IBM Corp
++ *
++ * Authors:
++ *  Nico Boehr <nrb@linux.ibm.com>
++ */
++#include <stddef.h>
++#include <inttypes.h>
++#include <string.h>
++#include <asm-generic/page.h>
++
++/* keep in sync with GUEST_TEST_PAGE_COUNT in s390x/sie-dat.c */
++#define TEST_PAGE_COUNT 10
++static uint8_t test_page[TEST_PAGE_COUNT * PAGE_SIZE] __attribute__((__aligned__(PAGE_SIZE)));
++
++/* keep in sync with GUEST_TOTAL_PAGE_COUNT in s390x/sie-dat.c */
++#define TOTAL_PAGE_COUNT 256
++
++static inline void force_exit(void)
++{
++	asm volatile("diag	0,0,0x44\n");
++}
++
++static inline void force_exit_value(uint64_t val)
++{
++	asm volatile(
++		"diag	%[val],0,0x9c\n"
++		: : [val] "d"(val)
++	);
++}
++
++__attribute__((section(".text"))) int main(void)
++{
++	uint8_t *invalid_ptr;
++
++	memset(test_page, 0, sizeof(test_page));
++	/* tell the host the page's physical address (we're running DAT off) */
++	force_exit_value((uint64_t)test_page);
++
++	/* write some value to the page so the host can verify it */
++	for (size_t i = 0; i < TEST_PAGE_COUNT; i++)
++		test_page[i * PAGE_SIZE] = 42 + i;
++
++	/* indicate we've written all pages */
++	force_exit();
++
++	/* the first unmapped address */
++	invalid_ptr = (uint8_t *)(TOTAL_PAGE_COUNT * PAGE_SIZE);
++	*invalid_ptr = 42;
++
++	/* indicate we've written the non-allowed page (should never get here) */
++	force_exit();
++
++	return 0;
++}
+diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
+index b61faf0737c3..24cd27202a08 100644
+--- a/s390x/unittests.cfg
++++ b/s390x/unittests.cfg
+@@ -218,3 +218,6 @@ extra_params = -append '--parallel'
+ 
+ [execute]
+ file = ex.elf
++
++[sie-dat]
++file = sie-dat.elf
+-- 
+2.39.1
 
