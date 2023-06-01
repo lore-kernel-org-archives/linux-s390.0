@@ -2,127 +2,180 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 99945C7EE2F
-	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 16:45:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 57A1CC77B7E
+	for <linux-s390@archiver.kernel.org>; Thu,  1 Jun 2023 16:52:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230399AbjFAQpt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 1 Jun 2023 12:45:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58516 "EHLO
+        id S230419AbjFAQwL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 1 Jun 2023 12:52:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231178AbjFAQps (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 12:45:48 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C6C218D;
-        Thu,  1 Jun 2023 09:45:47 -0700 (PDT)
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 351GbkHb018279;
-        Thu, 1 Jun 2023 16:45:47 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=He4IEzgtg1My38B9Uz4X6kAZ6THbCICFQA40ZWTMYHY=;
- b=eYqrN90OHumxx1pDQLdquu0IZGz6svHUIRj21lvZEbU10TPr7AQvW2tiaFJsnV7XQ4Ae
- duc8+EIP14tMecr4eqn0FILokaR/CsFmGXMOrXXzgT4t9DYAFtZfKDmbRK4rz+wpRARp
- gOlGbWLRg8N6mdnymrvEey1DCEVMvXR+wRgubpO/nvZzGzkE9uoZgXUFQMcVbRYrNIFu
- s95ivUO5gcwVEBYTCLJBlnCGg1+hqk/VqbgPJ2xSq4qJkLpVCBWGPAQcDxDzItvtNdu6
- jO1QxcC5awdDbS/50N5vRCCCZBoympv1NItohTRfn7SCYlmrEJFZLrwEZYWNxJ5X9pCl BA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qxxpc0xp1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 01 Jun 2023 16:45:46 +0000
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 351GcejM027057;
-        Thu, 1 Jun 2023 16:45:46 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qxxpc0xnh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 01 Jun 2023 16:45:46 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3512OpqE030267;
-        Thu, 1 Jun 2023 16:45:44 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3qu9g5amsv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 01 Jun 2023 16:45:43 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 351GjeNc26935992
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 1 Jun 2023 16:45:40 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8447C20040;
-        Thu,  1 Jun 2023 16:45:40 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D1C3C20043;
-        Thu,  1 Jun 2023 16:45:39 +0000 (GMT)
-Received: from li-c6ac47cc-293c-11b2-a85c-d421c8e4747b.ibm.com.com (unknown [9.171.12.131])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Thu,  1 Jun 2023 16:45:39 +0000 (GMT)
-From:   Pierre Morel <pmorel@linux.ibm.com>
-To:     linux-s390@vger.kernel.org
-Cc:     frankja@linux.ibm.com, thuth@redhat.com, kvm@vger.kernel.org,
-        imbrenda@linux.ibm.com, david@redhat.com, nrb@linux.ibm.com,
-        nsg@linux.ibm.com, cohuck@redhat.com
-Subject: [kvm-unit-tests PATCH v5 2/2] s390x: sclp: Implement extended-length-SCCB facility
-Date:   Thu,  1 Jun 2023 18:45:37 +0200
-Message-Id: <20230601164537.31769-3-pmorel@linux.ibm.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20230601164537.31769-1-pmorel@linux.ibm.com>
-References: <20230601164537.31769-1-pmorel@linux.ibm.com>
+        with ESMTP id S230007AbjFAQwI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 12:52:08 -0400
+Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 659541BE;
+        Thu,  1 Jun 2023 09:51:44 -0700 (PDT)
+Received: by mail-ej1-x62f.google.com with SMTP id a640c23a62f3a-96fab30d1e1so252295066b.0;
+        Thu, 01 Jun 2023 09:51:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1685638275; x=1688230275;
+        h=user-agent:in-reply-to:content-disposition:mime-version:references
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=E6aw7YI0APlK+a4Ho7hkA2bZ/IE4Hfe3r+p1hUTo22w=;
+        b=P5K1gIvm5lMpyivClcYlSPpZk74Scq23UC7J49ZKXtd2Ty5NCk14Pzlmiw6G4TAT4e
+         R1SGrpIa7IOeMrrklx7UG2tAsiq9TFD4L8+GH42Zwqhfq/57kAkCKDh9e1B9u0uiq27N
+         Z2+cMvWVhGdpGqS04+8eMH1XROW5TNrSoWp21DvbX4Cljkzg06zAxgkEeZxXqtAHLxHn
+         Ukmg1ow9zsxYl1omDwPfgFBfHdDY/RlrCywsx1cRypvE8ktrFFqeuPghyapZVqcnmPfd
+         pHVao4wq68V+9Udu892pd4CZQNueuUSskC33wv4222J7q5LLmeCFeujIxSJZqtaz7HbM
+         QbBQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1685638275; x=1688230275;
+        h=user-agent:in-reply-to:content-disposition:mime-version:references
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=E6aw7YI0APlK+a4Ho7hkA2bZ/IE4Hfe3r+p1hUTo22w=;
+        b=fKPNEMp/U6snZTRUz+tYWTu2y/IILBAEvWnS1EZL2awC6ErHzXNeTOO0/KhmQx0Ma7
+         knIyfgCSWCD93BRz3q3ptoMBqFNuDJbySn4QZ+FBJVn/cthB6jALOtNY0mnLHUJOfSBm
+         +Zz8MWzYrkMU/MsWXL3Wq6JIAU8WvJB4AQ4Ew4em8XAK40FTXXY/dCbT5Lc45KWs3rcW
+         oJEWyrXVxvaic1vqF6or2tjBy2MIQvTGYYr40WAj/oRf4jPqld33+S/wKcxhtjSrtqtc
+         c9Ic3b++Oh1ZowwzNTBz+V8xhCz4i/6IqMamlvaJ/r5cRtgQz5eqyNs6luerZDajtoOv
+         726Q==
+X-Gm-Message-State: AC+VfDyhTDQPm/1ivpSWRMzwXlmOfrykpIYOpgRudIphc7x6EngO7xSN
+        5HL6ldJJV2L6FTzmaLhAuv4=
+X-Google-Smtp-Source: ACHHUZ6tapSBvaY3YL2Ex5VOuVrYb3aIm5DVnhvBJZ6q0GGzp5g+K/kybtTX/EWGyJOG95QWxE5s1Q==
+X-Received: by 2002:a17:907:7f15:b0:94a:4e86:31bc with SMTP id qf21-20020a1709077f1500b0094a4e8631bcmr2589785ejc.13.1685638274568;
+        Thu, 01 Jun 2023 09:51:14 -0700 (PDT)
+Received: from orome (p200300e41f305300f22f74fffe1f3a53.dip0.t-ipconnect.de. [2003:e4:1f30:5300:f22f:74ff:fe1f:3a53])
+        by smtp.gmail.com with ESMTPSA id s7-20020a170906c30700b0094f410225c7sm10744283ejz.169.2023.06.01.09.51.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 01 Jun 2023 09:51:14 -0700 (PDT)
+Date:   Thu, 1 Jun 2023 18:51:11 +0200
+From:   Thierry Reding <thierry.reding@gmail.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Andy Gross <agross@kernel.org>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Bjorn Andersson <andersson@kernel.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Baolin Wang <baolin.wang@linux.alibaba.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
+        linux-tegra@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
+        linuxppc-dev@lists.ozlabs.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Orson Zhai <orsonzhai@gmail.com>,
+        Rob Clark <robdclark@gmail.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Krishna Reddy <vdumpa@nvidia.com>,
+        Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>,
+        Yong Wu <yong.wu@mediatek.com>,
+        Chunyan Zhang <zhang.lyra@gmail.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Nicolin Chen <nicolinc@nvidia.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Steven Price <steven.price@arm.com>,
+        Thierry Reding <treding@nvidia.com>
+Subject: Re: [PATCH v2 05/25] iommu/tegra-gart: Remove tegra-gart
+Message-ID: <ZHjMf9_uunlvVWtB@orome>
+References: <0-v2-8d1dc464eac9+10f-iommu_all_defdom_jgg@nvidia.com>
+ <5-v2-8d1dc464eac9+10f-iommu_all_defdom_jgg@nvidia.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: fzYZ6cOxKisjI2sZHmMf8LS-fE37MFsB
-X-Proofpoint-GUID: 3GQw4X_o6FfDssN-tesFGXORccTcC29y
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
- definitions=2023-06-01_08,2023-05-31_03,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- phishscore=0 clxscore=1015 mlxlogscore=971 impostorscore=0 spamscore=0
- adultscore=0 mlxscore=0 suspectscore=0 malwarescore=0 bulkscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2304280000 definitions=main-2306010144
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="0JJNQg2cyOE2ETg4"
+Content-Disposition: inline
+In-Reply-To: <5-v2-8d1dc464eac9+10f-iommu_all_defdom_jgg@nvidia.com>
+User-Agent: Mutt/2.2.10 (2023-03-25)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-When the extended-length-SCCB facility is present use a big
-buffer already at first try when calling sclp_read_scp_info()
-to avoid the SCLP_RC_INSUFFICIENT_SCCB_LENGTH error.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
----
- lib/s390x/sclp.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+--0JJNQg2cyOE2ETg4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
-index adf357b..e44d299 100644
---- a/lib/s390x/sclp.c
-+++ b/lib/s390x/sclp.c
-@@ -17,13 +17,14 @@
- #include "sclp.h"
- #include <alloc_phys.h>
- #include <alloc_page.h>
-+#include <asm/facility.h>
- 
- extern unsigned long stacktop;
- 
- static uint64_t storage_increment_size;
- static uint64_t max_ram_size;
- static uint64_t ram_size;
--char _read_info[PAGE_SIZE] __attribute__((__aligned__(PAGE_SIZE)));
-+char _read_info[2 * PAGE_SIZE] __attribute__((__aligned__(PAGE_SIZE)));
- static ReadInfo *read_info;
- struct sclp_facilities sclp_facilities;
- 
-@@ -114,6 +115,8 @@ static void sclp_read_scp_info(ReadInfo *ri, int length)
- void sclp_read_info(void)
- {
- 	sclp_read_scp_info((void *)_read_info, SCCB_SIZE);
-+	sclp_read_scp_info((void *)_read_info,
-+		test_facility(140) ? sizeof(_read_info) : SCCB_SIZE);
- 	read_info = (ReadInfo *)_read_info;
- }
- 
--- 
-2.31.1
+On Mon, May 15, 2023 at 09:00:38PM -0300, Jason Gunthorpe wrote:
+> Thierry says this is not used anymore, and doesn't think it ever will
+> be. The HW it supports is about 10 years old now and newer HW uses
+> different IOMMU drivers.
+>=20
+> As this is the only driver with a GART approach, and it doesn't really
+> meet the driver expectations from the IOMMU core, let's just remove it
+> so we don't have to think about how to make it fit in.
+>=20
+> It has a number of identified problems:
+>  - The assignment of iommu_groups doesn't match the HW behavior
+>=20
+>  - It claims to have an UNMANAGED domain but it is really an IDENTITY
+>    domain with a translation aperture. This is inconsistent with the core
+>    expectation for security sensitive operations
+>=20
+>  - It doesn't implement a SW page table under struct iommu_domain so
+>    * It can't accept a map until the domain is attached
+>    * It forgets about all maps after the domain is detached
+>    * It doesn't clear the HW of maps once the domain is detached
+>      (made worse by having the wrong groups)
+>=20
+> Cc: Thierry Reding <treding@nvidia.com>
+> Cc: Dmitry Osipenko <digetx@gmail.com>
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> ---
+>  arch/arm/configs/multi_v7_defconfig |   1 -
+>  arch/arm/configs/tegra_defconfig    |   1 -
+>  drivers/iommu/Kconfig               |  11 -
+>  drivers/iommu/Makefile              |   1 -
+>  drivers/iommu/tegra-gart.c          | 371 ----------------------------
+>  drivers/memory/tegra/mc.c           |  34 ---
+>  drivers/memory/tegra/tegra20.c      |  28 ---
+>  include/soc/tegra/mc.h              |  26 --
+>  8 files changed, 473 deletions(-)
+>  delete mode 100644 drivers/iommu/tegra-gart.c
 
+To clarify, I think this hardware could very well be used again, but I
+don't think it makes sense to use it in the context of the IOMMU
+subsystem. If anybody wants to make use of this on Tegra20, it probably
+makes more sense to move the GART programming into whatever driver ends
+up using it instead of jumping through all these hoops just to make it
+work like something it isn't.
+
+Acked-by: Thierry Reding <treding@nvidia.com>
+
+--0JJNQg2cyOE2ETg4
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIyBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAmR4zHwACgkQ3SOs138+
+s6EzXg/4sDDYzIY93jnjqgBAzF26DdM9+f9tNLS+tEhgUpn3WoMfZ+2mVBZJ6Qvl
++zK/7cpay72mra2XCdI2nBDl4fc/MivQMZ2uBvnu1mNY4uQypRWZsVlnpKO5nkpf
+55oa0ZvczaCmITixiNpt58qIRcL/+Rwn+kuXCMcfZYr8WXq09eTZJ/E0SndTbgRv
+RNPyDbkY2T939Z3KYEhZH3filqm0ul9asQvbO31FsU+htgOT6XEYwanpd1jZuV+E
+uemlmy/fYzUkBbJoZ1wk9/pbYhZqlvZnOF3XvyJXOfsbrBiP/gkDstxYeMS86AVq
+ITwKKqX80dphMpO6Af5OEpuKjrh6wtzPgdgcKIMIgd6aQADSX5xLsQ/P0kIqI0em
+H679cza6Mm7Nl7NwmAMCiOVL568ME8criReWPK5nEnRg4TLj1AvsKLAubgHxXIP/
+Hzxox5RDNL5ubE2gcko6btoFu+yXxvxGT9nF1YcJxBcWUhHPVqpwg1q403RqF0bE
+Kfcfzs07wR/OM8vsXJxYxZdgE7HdZkh/vZnE0MWmiaGCHDaPZdx8vsMW8g0G1Wn9
+a3GXa18+zdEntyjXiH2QaNuytRlcnTWX6Egc9uLjzjyWgjW8dA2PHN70fli1p+Zf
+wv1qFNssXNER2qzepDmLQj621WybUok9GAhhWu0jfezY8b75zw==
+=Ciid
+-----END PGP SIGNATURE-----
+
+--0JJNQg2cyOE2ETg4--
