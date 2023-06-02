@@ -2,161 +2,327 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0EA09C7EE2E
-	for <linux-s390@archiver.kernel.org>; Fri,  2 Jun 2023 14:51:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9BC97C7EE24
+	for <linux-s390@archiver.kernel.org>; Fri,  2 Jun 2023 15:28:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236247AbjFBOvC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 2 Jun 2023 10:51:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48456 "EHLO
+        id S235502AbjFBP2N (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 2 Jun 2023 11:28:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230430AbjFBOvB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Jun 2023 10:51:01 -0400
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 095F9E40;
-        Fri,  2 Jun 2023 07:50:58 -0700 (PDT)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id C92851063;
-        Fri,  2 Jun 2023 07:51:43 -0700 (PDT)
-Received: from FVFF77S0Q05N.cambridge.arm.com (FVFF77S0Q05N.cambridge.arm.com [10.1.38.135])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 628663F7BD;
-        Fri,  2 Jun 2023 07:50:52 -0700 (PDT)
-Date:   Fri, 2 Jun 2023 15:50:47 +0100
-From:   Mark Rutland <mark.rutland@arm.com>
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Helge Deller <deller@gmx.de>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Will Deacon <will@kernel.org>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Catalin Marinas <catalin.marinas@arm.com>, dennis@kernel.org,
-        Tejun Heo <tj@kernel.org>, Christoph Lameter <cl@linux.com>,
-        Heiko Carstens <hca@linux.ibm.com>, gor@linux.ibm.com,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        borntraeger@linux.ibm.com, Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>, Joerg Roedel <joro@8bytes.org>,
-        suravee.suthikulpanit@amd.com, Robin Murphy <robin.murphy@arm.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Baolu Lu <baolu.lu@linux.intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S . Miller" <davem@davemloft.net>,
-        Pekka Enberg <penberg@kernel.org>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Roman Gushchin <roman.gushchin@linux.dev>,
-        Hyeonggon Yoo <42.hyeyoo@gmail.com>, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        linux-s390@vger.kernel.org, iommu@lists.linux.dev,
-        Linux-Arch <linux-arch@vger.kernel.org>,
-        linux-crypto@vger.kernel.org,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
-        linux-parisc@vger.kernel.org,
-        John David Anglin <dave.anglin@bell.net>,
-        Sam James <sam@gentoo.org>
-Subject: Re: [PATCH v2 07/12] parisc/percpu: Work around the lack of
- __SIZEOF_INT128__
-Message-ID: <ZHoBx7Tk5qK2X+UA@FVFF77S0Q05N.cambridge.arm.com>
-References: <20230531130833.635651916@infradead.org>
- <20230531132323.722039569@infradead.org>
- <70a69deb-7ad4-45b2-8e13-34955594a7ce@app.fastmail.com>
- <20230601101409.GS4253@hirez.programming.kicks-ass.net>
- <14c50e58-fecc-e96a-ee73-39ef4e4617c7@gmx.de>
- <CAHk-=whL65CLuy9D9gyO608acM5WLWo_ggAMP1cGu2XvyC0-hA@mail.gmail.com>
- <20230602143912.GI620383@hirez.programming.kicks-ass.net>
+        with ESMTP id S236751AbjFBP2B (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Jun 2023 11:28:01 -0400
+Received: from mail-il1-x135.google.com (mail-il1-x135.google.com [IPv6:2607:f8b0:4864:20::135])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B71771996
+        for <linux-s390@vger.kernel.org>; Fri,  2 Jun 2023 08:27:34 -0700 (PDT)
+Received: by mail-il1-x135.google.com with SMTP id e9e14a558f8ab-33baee0235cso101595ab.1
+        for <linux-s390@vger.kernel.org>; Fri, 02 Jun 2023 08:27:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20221208; t=1685719644; x=1688311644;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=VGpvRAYJcTbdsEDxK6Clk8jD+jwMUaRTiJd7OGuc/es=;
+        b=dOBUs4e+KgoAyiadv1JJ/f9tRqSN5ukcthj4VsU0D4Qes6hv2PsZpLdOPmqCt2ZbfT
+         CXdj5C1FgEWgPvMeHAQtRU71Y8a9/s5zW+2gD6fL9oiWaz1NTfBA889r+/CeuBNedToQ
+         y9FEwwG2vRh596WD/dNjkYUeIBDO2KkO6LlIO3v8MbmdrEpXss7rB+3TBNMIDEvWgJDY
+         9ImYQMoTxddcF5lsSEnQ/wUTIlB70U4obnNud4RtfmLF6/iSzfNonP9zKKd4j9ClkMH5
+         2I3BQ8ccjCWIk+EQTYses/gpOeyU9yAW+KUgfVQCLR3fRbgLO8XIkze0Iis1VMMNRgL5
+         dd5A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1685719644; x=1688311644;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=VGpvRAYJcTbdsEDxK6Clk8jD+jwMUaRTiJd7OGuc/es=;
+        b=Ru22C6ejDBudz/NNImkXpGv7vh7Jjyd7HmTNkzgW1an44op1zmFoxWFt1oVz3uMUOy
+         wLznadEAiHuFZ4GcKFE1Y7pA1LuVSOPu1dSl3zih5FvtYbkaeURYhaiH5wSmxVZ5RXOg
+         sGKvnNnRhShan2+QA7f78EXbExa+aKsq6bOmYgCFu8LaE41OuDrpd3zgsyQtPYNJVMQI
+         w/ZlKTHOrIwJ8RMDQlC0KH6rmpmzQgVSRcFvXRH+gMssUbmwLbqeKht8ds36942VBX/6
+         zG+xQQZ5SfGE6bWlBNSRyl1gKqir4j1fkzlHMnCyT9lDdRdIhUljXC+T/2Q6/ZauQN+G
+         Rwww==
+X-Gm-Message-State: AC+VfDz1BAtPL/AsRT78LBFHDqX1z7AVSSGYEBLurmZLkOYbc1isU8oX
+        kmcfNLW7knjuh0dUE125DKk73nOytm481NTlBp7CFA==
+X-Google-Smtp-Source: ACHHUZ6wYA9MFcxbCRs4DlQGPF6tbNz6AN15jZgbaKRQbuP7sxKmkHSJQSJyONgVy18SRiB84LFHkHiwlvKWwKGXIik=
+X-Received: by 2002:a05:6e02:164a:b0:33c:c3ed:889c with SMTP id
+ v10-20020a056e02164a00b0033cc3ed889cmr239170ilu.12.1685719644120; Fri, 02 Jun
+ 2023 08:27:24 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230602143912.GI620383@hirez.programming.kicks-ass.net>
+References: <35e983f5-7ed3-b310-d949-9ae8b130cdab@google.com>
+ <CAG48ez0pCqfRdVSnJz7EKtNvMR65=zJgVB-72nTdrNuhtJNX2Q@mail.gmail.com> <3a33b59f-47c1-9dea-209a-9f77eec3cb1@google.com>
+In-Reply-To: <3a33b59f-47c1-9dea-209a-9f77eec3cb1@google.com>
+From:   Jann Horn <jannh@google.com>
+Date:   Fri, 2 Jun 2023 17:26:47 +0200
+Message-ID: <CAG48ez1Yua=6ztK6Urc-BZj9ku14MWbOKP8iBUK6_F5VzRXP-A@mail.gmail.com>
+Subject: Re: [PATCH 00/12] mm: free retracted page table by RCU
+To:     Hugh Dickins <hughd@google.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        David Hildenbrand <david@redhat.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Qi Zheng <zhengqi.arch@bytedance.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Peter Xu <peterx@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Steven Price <steven.price@arm.com>,
+        SeongJae Park <sj@kernel.org>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Zack Rusin <zackr@vmware.com>, Jason Gunthorpe <jgg@ziepe.ca>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Pasha Tatashin <pasha.tatashin@soleen.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Christoph Hellwig <hch@infradead.org>,
+        Song Liu <song@kernel.org>,
+        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
+        Russell King <linux@armlinux.org.uk>,
+        "David S. Miller" <davem@davemloft.net>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Jun 02, 2023 at 04:39:12PM +0200, Peter Zijlstra wrote:
-> On Thu, Jun 01, 2023 at 09:29:18AM -0400, Linus Torvalds wrote:
-> 
-> > Right now we have that "minimum gcc version" in a somewhat annoying
-> > place: it's in the ./scripts/min-tool-version.sh file as a shell
-> > script.
-> 
-> Something like so then?
-> 
-> ---
-> Subject: parisc: Raise minimal GCC version
-> From: Peter Zijlstra <peterz@infradead.org>
-> Date: Fri Jun  2 16:33:54 CEST 2023
-> 
-> With 64bit builds depending on __SIZEOF_INT128__ raise the parisc
-> minimum compiler version to gcc-11.0.0.
-> 
-> All other 64bit architectures provide this from GCC-5.1.0 (and
-> probably before), except hppa64 which only started advertising this
-> with GCC-11.
-> 
-> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> ---
->  scripts/min-tool-version.sh |    6 +++++-
->  1 file changed, 5 insertions(+), 1 deletion(-)
-> 
-> --- a/scripts/min-tool-version.sh
-> +++ b/scripts/min-tool-version.sh
-> @@ -17,7 +17,11 @@ binutils)
->  	echo 2.25.0
->  	;;
->  gcc)
-> -	echo 5.1.0
-> +	if [ "$SRCARCH" = parisc ]; then
-> +		echo 11.0.0
-> +	else
-> +		echo 5.1.0
-> +	fi
->  	;;
->  llvm)
->  	if [ "$SRCARCH" = s390 ]; then
+On Fri, Jun 2, 2023 at 6:37=E2=80=AFAM Hugh Dickins <hughd@google.com> wrot=
+e:
+> On Wed, 31 May 2023, Jann Horn wrote:
+> > On Mon, May 29, 2023 at 8:11=E2=80=AFAM Hugh Dickins <hughd@google.com>=
+ wrote:
+> > > Here is the third series of patches to mm (and a few architectures), =
+based
+> > > on v6.4-rc3 with the preceding two series applied: in which khugepage=
+d
+> > > takes advantage of pte_offset_map[_lock]() allowing for pmd transitio=
+ns.
+> >
+> > To clarify: Part of the design here is that when you look up a user
+> > page table with pte_offset_map_nolock() or pte_offset_map() without
+> > holding mmap_lock in write mode, and you later lock the page table
+> > yourself, you don't know whether you actually have the real page table
+> > or a detached table that is currently in its RCU grace period, right?
+>
+> Right.  (And I'd rather not assume anything of mmap_lock, but there are
+> one or two or three places that may still do so.)
+>
+> > And detached tables are supposed to consist of only zeroed entries,
+> > and we assume that no relevant codepath will do anything bad if one of
+> > these functions spuriously returns a pointer to a page table full of
+> > zeroed entries?
+>
+> (Nit that I expect you're well aware of: IIRC "zeroed" isn't 0 on s390.)
 
-I gave this a spin and it looks good to me:
+I was not aware, thanks. I only knew that on Intel's Knights Landing
+CPUs, the A/D bits are ignored by pte_none() due to some erratum.
 
-[mark@lakrids:~/src/linux]% usekorg 10.3.0 make ARCH=arm64 CROSS_COMPILE=aarch64-linux- defconfig
-  HOSTCC  scripts/basic/fixdep
-  HOSTCC  scripts/kconfig/conf.o
-  HOSTCC  scripts/kconfig/confdata.o
-  HOSTCC  scripts/kconfig/expr.o
-  LEX     scripts/kconfig/lexer.lex.c
-  YACC    scripts/kconfig/parser.tab.[ch]
-  HOSTCC  scripts/kconfig/lexer.lex.o
-  HOSTCC  scripts/kconfig/menu.o
-  HOSTCC  scripts/kconfig/parser.tab.o
-  HOSTCC  scripts/kconfig/preprocess.o
-  HOSTCC  scripts/kconfig/symbol.o
-  HOSTCC  scripts/kconfig/util.o
-  HOSTLD  scripts/kconfig/conf
-*** Default configuration is based on 'defconfig'
-#
-# configuration written to .config
-#
-[mark@lakrids:~/src/linux]% usekorg 10.3.0 make ARCH=parisc CROSS_COMPILE=hppa64-linux- generic-64bit_defconfig
-***
-*** C compiler is too old.
-***   Your GCC version:    10.3.0
-***   Minimum GCC version: 11.0.0
-***
-scripts/Kconfig.include:44: Sorry, this C compiler is not supported.
-make[1]: *** [scripts/kconfig/Makefile:94: generic-64bit_defconfig] Error 1
-make: *** [Makefile:692: generic-64bit_defconfig] Error 2
-[mark@lakrids:~/src/linux]% usekorg 11.3.0 make ARCH=parisc CROSS_COMPILE=hppa64-linux- generic-64bit_defconfig
-#
-# configuration written to .config
-#
+> If someone is using pte_offset_map() without lock, they must be prepared
+> to accept page-table-like changes.  The limits of pte_offset_map_nolock()
+> with later spin_lock(ptl): I'm still exploring: there's certainly an
+> argument that one ought to do a pmd_same() check before proceeding,
+> but I don't think anywhere needs that at present.
+>
+> Whether the page table has to be full of zeroed entries when detached:
+> I believe it is always like that at present (by the end of the series,
+> when the collapse_pte_offset_map() oddity is fixed), but whether it needs
+> to be so I'm not sure.  Quite likely it will need to be; but I'm open to
+> the possibility that all it needs is to be still a page table, with
+> perhaps new entries from a new usage in it.
 
-FWIW:
+My understanding is that at least handle_pte_fault(), the way it is
+currently written, would do bad things in that case:
 
-Tested-by: Mark Rutland <mark.rutland@arm.com>
+// assume we enter with mmap_lock in read mode,
+// for a write fault on a shared writable VMA without a page_mkwrite handle=
+r
+static vm_fault_t handle_pte_fault(struct vm_fault *vmf)
+{
+  pte_t entry;
 
-Mark.
+  if (unlikely(pmd_none(*vmf->pmd))) {
+    [ not executed ]
+  } else {
+    /*
+     * A regular pmd is established and it can't morph into a huge
+     * pmd by anon khugepaged, since that takes mmap_lock in write
+     * mode; but shmem or file collapse to THP could still morph
+     * it into a huge pmd: just retry later if so.
+     */
+    vmf->pte =3D pte_offset_map_nolock(vmf->vma->vm_mm, vmf->pmd,
+             vmf->address, &vmf->ptl);
+    if (unlikely(!vmf->pte))
+      [not executed]
+    [assume that at this point, a concurrent THP collapse operation
+     removes the page table, and the page table has now been reused
+     and contains a read-only PTE]
+    // this reads page table contents protected solely by RCU
+    vmf->orig_pte =3D ptep_get_lockless(vmf->pte);
+    vmf->flags |=3D FAULT_FLAG_ORIG_PTE_VALID;
+
+    if (pte_none(vmf->orig_pte)) {
+      pte_unmap(vmf->pte);
+      vmf->pte =3D NULL;
+    }
+  }
+
+  if (!vmf->pte)
+    [not executed]
+
+  if (!pte_present(vmf->orig_pte))
+    [not executed]
+
+  if (pte_protnone(vmf->orig_pte) && vma_is_accessible(vmf->vma))
+    [not executed]
+
+  spin_lock(vmf->ptl);
+  entry =3D vmf->orig_pte;
+  if (unlikely(!pte_same(*vmf->pte, entry))) {
+    [not executed]
+  }
+  if (vmf->flags & (FAULT_FLAG_WRITE|FAULT_FLAG_UNSHARE)) {
+    if (!pte_write(entry))
+      // This will go into wp_page_shared(),
+      // which will call wp_page_reuse(),
+      // which will upgrade the page to writable
+      return do_wp_page(vmf);
+    [ not executed ]
+  }
+  [ not executed ]
+}
+
+That looks like we could end up racing such that a read-only PTE in
+the reused page table gets upgraded to writable, which would probably
+be a security bug.
+
+But I guess if you added bailout checks to every page table lock
+operation, it'd be a different story, maybe?
+
+> The most obvious vital thing (in the split ptlock case) is that it
+> remains a struct page with a usable ptl spinlock embedded in it.
+>
+> The question becomes more urgent when/if extending to replacing the
+> pagetable pmd by huge pmd in one go, without any mmap_lock: powerpc
+> wants to deposit the page table for later use even in the shmem/file
+> case (and all arches in the anon case): I did work out the details once
+> before, but I'm not sure whether I would still agree with myself; and was
+> glad to leave replacement out of this series, to revisit some time later.
+>
+> >
+> > So in particular, in handle_pte_fault() we can reach the "if
+> > (unlikely(!pte_same(*vmf->pte, entry)))" with vmf->pte pointing to a
+> > detached zeroed page table, but we're okay with that because in that
+> > case we know that !pte_none(vmf->orig_pte)&&pte_none(*vmf->pte) ,
+> > which implies !pte_same(*vmf->pte, entry) , which means we'll bail
+> > out?
+>
+> There is no current (even at end of series) circumstance in which we
+> could be pointing to a detached page table there; but yes, I want to
+> allow for that, and yes I agree with your analysis.
+
+Hmm, what am I missing here?
+
+static vm_fault_t handle_pte_fault(struct vm_fault *vmf)
+{
+  pte_t entry;
+
+  if (unlikely(pmd_none(*vmf->pmd))) {
+    [not executed]
+  } else {
+    /*
+     * A regular pmd is established and it can't morph into a huge
+     * pmd by anon khugepaged, since that takes mmap_lock in write
+     * mode; but shmem or file collapse to THP could still morph
+     * it into a huge pmd: just retry later if so.
+     */
+    vmf->pte =3D pte_offset_map_nolock(vmf->vma->vm_mm, vmf->pmd,
+             vmf->address, &vmf->ptl);
+    if (unlikely(!vmf->pte))
+      [not executed]
+    // this reads a present readonly PTE
+    vmf->orig_pte =3D ptep_get_lockless(vmf->pte);
+    vmf->flags |=3D FAULT_FLAG_ORIG_PTE_VALID;
+
+    if (pte_none(vmf->orig_pte)) {
+      [not executed]
+    }
+  }
+
+  [at this point, a concurrent THP collapse operation detaches the page tab=
+le]
+  // vmf->pte now points into a detached page table
+
+  if (!vmf->pte)
+    [not executed]
+
+  if (!pte_present(vmf->orig_pte))
+    [not executed]
+
+  if (pte_protnone(vmf->orig_pte) && vma_is_accessible(vmf->vma))
+    [not executed]
+
+  spin_lock(vmf->ptl);
+  entry =3D vmf->orig_pte;
+  // vmf->pte still points into a detached page table
+  if (unlikely(!pte_same(*vmf->pte, entry))) {
+    update_mmu_tlb(vmf->vma, vmf->address, vmf->pte);
+    goto unlock;
+  }
+  [...]
+}
+
+> But with the
+> interesting unanswered question for the future, of what if the same
+> value could be found there: would that imply it's safe to proceed,
+> or would some further prevention be needed?
+
+That would then hand the pointer to the detached page table to
+functions like do_wp_page(), which I think will do bad things (see
+above) if they are called on either a page table that has been reused
+in a different VMA with different protection flags (which could, for
+example, lead to pages becoming writable that should not be writable
+or such things) or on a page table that is no longer in use (because
+it would assume that PTEs referencing pages are refcounted when they
+actually aren't).
+
+> > If that's the intent, it might be good to add some comments, because
+> > at least to me that's not very obvious.
+>
+> That's a very fair request; but I shall have difficulty deciding where
+> to place such comments.  I shall have to try, then you redirect me.
+>
+> And I think we approach this in opposite ways: my nature is to put some
+> infrastructure in place, and then look at it to see what we can get away
+> with; whereas your nature is to define upfront what the possibilities are=
+.
+> We can expect some tussles!
+
+Yeah. :P
+One of my strongly-held beliefs is that it's important when making
+changes to code to continuously ask oneself "If I had to explain the
+rules by which this code operates - who has to take which locks, who
+holds references to what and so on -, how complicated would those
+rules be?", and if that turns into a series of exception cases, that
+probably means there will be bugs, because someone will probably lose
+track of one of those exceptions. So I would prefer it if we could
+have some rule like "whenever you lock an L1 page table, you must
+immediately recheck whether the page table is still referenced by the
+L2 page table, unless you know that you have a stable page reference
+for whatever reason", and then any code that operates on a locked page
+table doesn't have to worry about whether the page table might be
+detached.
