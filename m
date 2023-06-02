@@ -2,214 +2,127 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B6CE9C7EE24
-	for <linux-s390@archiver.kernel.org>; Fri,  2 Jun 2023 11:57:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3979CC7EE29
+	for <linux-s390@archiver.kernel.org>; Fri,  2 Jun 2023 12:15:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235314AbjFBL5Q (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 2 Jun 2023 07:57:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45070 "EHLO
+        id S235799AbjFBMPI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 2 Jun 2023 08:15:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234500AbjFBL5P (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Jun 2023 07:57:15 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73F46E57;
-        Fri,  2 Jun 2023 04:56:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=TNU/G9TSMeyQi8I5o1Gz1jaa+8f4RLEdgRB4a+ht+Qw=; b=ND0Cui7lGRCITibE4mA3XHf5OL
-        o9n8Wi78YIiyjLwgjWx2Siqy5aDe5ovwgAhLmEh1yrZsD/+fKvUlmc0hhtA1qWXdTnqR5OGv8lX0q
-        XzwjEbJ5Zbe0gdzoPg6I8ya3Fe51qPKL1tgMzor5Uf16y883dDhXuyyzlBVp7Y+hhpwxBNwqIVHdo
-        h5fOsfrBCZrEO8UtvQXSVhchce5sGM3t7NMU/To+fQ1rEujUCw2WPonTcbn6slckHwmrk+IwJt0tB
-        VKQZkKj0qjxSBMYPYEwWhBrlAlPWc9q9g6FhS4lwisAlETMV3g3azsF0NmqKFaO5vWaSbcM5esA1n
-        4+e3EkWg==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1q53Mt-009BAi-Ri; Fri, 02 Jun 2023 11:54:55 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits))
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id E62313002F0;
-        Fri,  2 Jun 2023 13:54:51 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id CA1C924553E74; Fri,  2 Jun 2023 13:54:51 +0200 (CEST)
-Date:   Fri, 2 Jun 2023 13:54:51 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Valentin Schneider <vschneid@redhat.com>
-Cc:     bigeasy@linutronix.de, mark.rutland@arm.com, maz@kernel.org,
-        catalin.marinas@arm.com, will@kernel.org, chenhuacai@kernel.org,
-        kernel@xen0n.name, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, pbonzini@redhat.com, wanpengli@tencent.com,
-        vkuznets@redhat.com, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
-        hpa@zytor.com, jgross@suse.com, boris.ostrovsky@oracle.com,
-        daniel.lezcano@linaro.org, kys@microsoft.com,
-        haiyangz@microsoft.com, wei.liu@kernel.org, decui@microsoft.com,
-        rafael@kernel.org, longman@redhat.com, boqun.feng@gmail.com,
-        pmladek@suse.com, senozhatsky@chromium.org, rostedt@goodmis.org,
-        john.ogness@linutronix.de, juri.lelli@redhat.com,
-        vincent.guittot@linaro.org, dietmar.eggemann@arm.com,
-        bsegall@google.com, mgorman@suse.de, bristot@redhat.com,
-        jstultz@google.com, sboyd@kernel.org, linux-kernel@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, linux-hyperv@vger.kernel.org,
-        linux-pm@vger.kernel.org
-Subject: Re: [PATCH v2 04/13] arm64/arch_timer: Provide noinstr
- sched_clock_read() functions
-Message-ID: <20230602115451.GG620383@hirez.programming.kicks-ass.net>
-References: <20230519102058.581557770@infradead.org>
- <20230519102715.435618812@infradead.org>
- <xhsmho7m9ptrk.mognet@vschneid.remote.csb>
+        with ESMTP id S235019AbjFBMPG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Jun 2023 08:15:06 -0400
+Received: from mail-qk1-x736.google.com (mail-qk1-x736.google.com [IPv6:2607:f8b0:4864:20::736])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1D2C123
+        for <linux-s390@vger.kernel.org>; Fri,  2 Jun 2023 05:15:05 -0700 (PDT)
+Received: by mail-qk1-x736.google.com with SMTP id af79cd13be357-75affb4d0f9so192113585a.2
+        for <linux-s390@vger.kernel.org>; Fri, 02 Jun 2023 05:15:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1685708105; x=1688300105;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=E6fUqXWlJ7lOi6jGaXDr+3k1lI6v7YmcWJa5TzCsAfQ=;
+        b=djzFovwDfDw/YWbNLlEkijaHy+/emg+qoFOhQt066k8y7eW0hTlMePfrnYmuQ/TT6l
+         d70TUlIzOVtlyaZIA/kRvBZRW52TVi/fieL9Uv4tiaV3F1pWuXYr7FBQh9RfbRxnphIn
+         nIOOpE05COs4CBgwbOrTscQAp+nS6Tk8Iv2UDHWeAHyeCW+fEyc3ctU7cgeLL3sBwLok
+         ifN7Ap+HhdKODLWUosw9jkC+w1v/s/a6CGlG9Me6OF17ZaxzMYB4I1oIF5wWR3fHyTGr
+         08q6Rpe08Gpj6mZ/RNU2DbMTQT+rS4iJPNpmpLyZGzEJB5e0jQtm57AIXlZP3QoFdL6G
+         nNRg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1685708105; x=1688300105;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=E6fUqXWlJ7lOi6jGaXDr+3k1lI6v7YmcWJa5TzCsAfQ=;
+        b=Ar/YxIwFNJlwpqNqpw1lx+3PDeQDoVjsnGe3vDRaqurlbw71kzd+2wGdLgniqMx9X3
+         lVJfosF0jBSckXWpPy3ITGF/m0cYDmlgH9DxvtsqiSW3F4Y2SWcHgG27Oq1FU0NQYKL/
+         zYPzU7f9wkf1z4LorB87TgqsEJpfRa3CG4OfCOWYljML353US9dF5eBkiMRUmyWlhL00
+         Re1l3ee8FoGXEMs2wMviQu1497MoLLlpiDYg8REcR1ZKiNORQGxOslvRbIRnCiNL5ImX
+         +gEFelIClRCg0Br4AR9N/8C/BjIEcVRM7s478ISPqKlWvcaQmwIdvWNmsxIM/xpQ7KPF
+         Db6A==
+X-Gm-Message-State: AC+VfDzPrCjxyop2Q4fxee2MdT9d7kT5RKCg3qGh+/p24uJ3XcV6uqp3
+        N1V7z8S2/WW8WYqIPkP+jXAk2Q==
+X-Google-Smtp-Source: ACHHUZ6mKX5TGzVXplRRXyH/OZZR/wmHkSAtgpVVJf05zVAhB435FtzWVMzs8VPH+7iFQ08B9IrtzA==
+X-Received: by 2002:a05:620a:4481:b0:75b:23a0:e7cc with SMTP id x1-20020a05620a448100b0075b23a0e7ccmr17244216qkp.45.1685708104769;
+        Fri, 02 Jun 2023 05:15:04 -0700 (PDT)
+Received: from ziepe.ca ([206.223.160.26])
+        by smtp.gmail.com with ESMTPSA id p18-20020ae9f312000000b0075cad1e5907sm581918qkg.7.2023.06.02.05.15.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 02 Jun 2023 05:15:04 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.95)
+        (envelope-from <jgg@ziepe.ca>)
+        id 1q53gM-001uE9-W9;
+        Fri, 02 Jun 2023 09:15:03 -0300
+Date:   Fri, 2 Jun 2023 09:15:02 -0300
+From:   Jason Gunthorpe <jgg@ziepe.ca>
+To:     Hugh Dickins <hughd@google.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        David Hildenbrand <david@redhat.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Qi Zheng <zhengqi.arch@bytedance.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Peter Xu <peterx@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Steven Price <steven.price@arm.com>,
+        SeongJae Park <sj@kernel.org>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Zack Rusin <zackr@vmware.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Pasha Tatashin <pasha.tatashin@soleen.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Christoph Hellwig <hch@infradead.org>,
+        Song Liu <song@kernel.org>,
+        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
+        Russell King <linux@armlinux.org.uk>,
+        "David S. Miller" <davem@davemloft.net>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Jann Horn <jannh@google.com>,
+        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH 08/12] mm/pgtable: add pte_free_defer() for pgtable as
+ page
+Message-ID: <ZHndRujtRhT6bhBs@ziepe.ca>
+References: <35e983f5-7ed3-b310-d949-9ae8b130cdab@google.com>
+ <739964d-c535-4db4-90ec-2166285b4d47@google.com>
+ <ZHekpAKJ05cr/GLl@ziepe.ca>
+ <a7f4722-8af2-f7be-eada-ff1e6e918da1@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <xhsmho7m9ptrk.mognet@vschneid.remote.csb>
+In-Reply-To: <a7f4722-8af2-f7be-eada-ff1e6e918da1@google.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, May 24, 2023 at 05:40:47PM +0100, Valentin Schneider wrote:
-> On 19/05/23 12:21, Peter Zijlstra wrote:
-> > With the intent to provide local_clock_noinstr(), a variant of
-> > local_clock() that's safe to be called from noinstr code (with the
-> > assumption that any such code will already be non-preemptible),
-> > prepare for things by providing a noinstr sched_clock_read() function.
-> >
-> > Specifically, preempt_enable_*() calls out to schedule(), which upsets
-> > noinstr validation efforts.
-> >
-> > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> > ---
-> >  arch/arm64/include/asm/arch_timer.h  |    8 ----
-> >  drivers/clocksource/arm_arch_timer.c |   60 ++++++++++++++++++++++++++---------
-> >  2 files changed, 47 insertions(+), 21 deletions(-)
-> >
-> > --- a/arch/arm64/include/asm/arch_timer.h
-> > +++ b/arch/arm64/include/asm/arch_timer.h
-> > @@ -88,13 +88,7 @@ static inline notrace u64 arch_timer_rea
-> >
-> >  #define arch_timer_reg_read_stable(reg)					\
-> >       ({								\
-> > -		u64 _val;						\
-> > -									\
-> > -		preempt_disable_notrace();				\
-> > -		_val = erratum_handler(read_ ## reg)();			\
-> > -		preempt_enable_notrace();				\
-> > -									\
-> > -		_val;							\
-> > +		erratum_handler(read_ ## reg)();			\
-> >       })
-> >
-> >  /*
-> > --- a/drivers/clocksource/arm_arch_timer.c
-> > +++ b/drivers/clocksource/arm_arch_timer.c
-> > @@ -191,22 +191,40 @@ u32 arch_timer_reg_read(int access, enum
-> >       return val;
-> >  }
-> >
-> > -static notrace u64 arch_counter_get_cntpct_stable(void)
-> > +static noinstr u64 _arch_counter_get_cntpct_stable(void)
-> >  {
-> >       return __arch_counter_get_cntpct_stable();
-> >  }
-> >
+On Thu, Jun 01, 2023 at 11:03:11PM -0700, Hugh Dickins wrote:
+> > I was hoping Mathew's folio conversion would help clarify this..
 > 
-> I tripped over the underscores when reviewing this :( This must be
-> getting close to the symbol length limit, but could we give this a helpful
-> prefix or suffix? raw_* or *_noinstr?
-> 
-> > @@ -1074,6 +1092,13 @@ struct arch_timer_kvm_info *arch_timer_g
-> >
-> >  static void __init arch_counter_register(unsigned type)
-> >  {
-> > +	/*
-> > +	 * Default to cp15 based access because arm64 uses this function for
-> > +	 * sched_clock() before DT is probed and the cp15 method is guaranteed
-> > +	 * to exist on arm64. arm doesn't use this before DT is probed so even
-> > +	 * if we don't have the cp15 accessors we won't have a problem.
-> > +	 */
-> > +	u64 (*scr)(void) = arch_counter_get_cntvct;
-> 
-> So this bit sent me on a little spelunking session :-)
-> 
-> From a control flow perspective the initialization isn't required, but then
-> I looked into the comment and found it comes from the
-> arch_timer_read_counter() definition... Which itself doesn't get used by
-> sched_clock() until the sched_clock_register() below!
-> 
-> So AFAICT that comment was true as of
-> 
->   220069945b29 ("clocksource: arch_timer: Add support for memory mapped timers")
-> 
-> but not after a commit that came 2 months later:
-> 
->   65cd4f6c99c1 ("arch_timer: Move to generic sched_clock framework")
-> 
-> which IIUC made arm/arm64 follow the default approach of using the
-> jiffy-based sched_clock() before probing DT/ACPI and registering a "proper"
-> sched_clock.
-> 
-> All of that to say: the comment about arch_timer_read_counter() vs early
-> sched_clock() doesn't apply anymore, but I think we need to keep its
-> initalization around for stuff like get_cycles(). This initialization here
-> should be OK to put to the bin, though.
+> I doubt that: what we have for use today is pages, however they are
+> dressed up.
 
-Something like the below folded in then?
+I mean the part where Matthew is going and splitting the types and
+making it much clearer and type safe how the memory is layed out. eg
+no more guessing if the arch code is overlaying something else onto
+the rcu_head.
 
----
---- a/drivers/clocksource/arm_arch_timer.c
-+++ b/drivers/clocksource/arm_arch_timer.c
-@@ -191,7 +191,7 @@ u32 arch_timer_reg_read(int access, enum
- 	return val;
- }
- 
--static noinstr u64 _arch_counter_get_cntpct_stable(void)
-+static noinstr u64 raw_counter_get_cntpct_stable(void)
- {
- 	return __arch_counter_get_cntpct_stable();
- }
-@@ -210,7 +210,7 @@ static noinstr u64 arch_counter_get_cntp
- 	return __arch_counter_get_cntpct();
- }
- 
--static noinstr u64 _arch_counter_get_cntvct_stable(void)
-+static noinstr u64 raw_counter_get_cntvct_stable(void)
- {
- 	return __arch_counter_get_cntvct_stable();
- }
-@@ -1092,13 +1092,7 @@ struct arch_timer_kvm_info *arch_timer_g
- 
- static void __init arch_counter_register(unsigned type)
- {
--	/*
--	 * Default to cp15 based access because arm64 uses this function for
--	 * sched_clock() before DT is probed and the cp15 method is guaranteed
--	 * to exist on arm64. arm doesn't use this before DT is probed so even
--	 * if we don't have the cp15 accessors we won't have a problem.
--	 */
--	u64 (*scr)(void) = arch_counter_get_cntvct;
-+	u64 (*scr)(void);
- 	u64 start_count;
- 	int width;
- 
-@@ -1110,7 +1104,7 @@ static void __init arch_counter_register
- 		    arch_timer_uses_ppi == ARCH_TIMER_VIRT_PPI) {
- 			if (arch_timer_counter_has_wa()) {
- 				rd = arch_counter_get_cntvct_stable;
--				scr = _arch_counter_get_cntvct_stable;
-+				scr = raw_counter_get_cntvct_stable;
- 			} else {
- 				rd = arch_counter_get_cntvct;
- 				scr = arch_counter_get_cntvct;
-@@ -1118,7 +1112,7 @@ static void __init arch_counter_register
- 		} else {
- 			if (arch_timer_counter_has_wa()) {
- 				rd = arch_counter_get_cntpct_stable;
--				scr = _arch_counter_get_cntpct_stable;
-+				scr = raw_counter_get_cntpct_stable;
- 			} else {
- 				rd = arch_counter_get_cntpct;
- 				scr = arch_counter_get_cntpct;
+Then the hope against hope is that after doing all this we can find
+enough space for everything including the rcu heads..
+
+Jason
