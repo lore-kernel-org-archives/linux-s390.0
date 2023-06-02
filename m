@@ -2,220 +2,135 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F3DF3C7EE24
-	for <linux-s390@archiver.kernel.org>; Fri,  2 Jun 2023 14:22:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 638A6C7EE2D
+	for <linux-s390@archiver.kernel.org>; Fri,  2 Jun 2023 14:40:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235306AbjFBOWP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 2 Jun 2023 10:22:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60768 "EHLO
+        id S236109AbjFBOkn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 2 Jun 2023 10:40:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234339AbjFBOWO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Jun 2023 10:22:14 -0400
-Received: from mail-il1-x131.google.com (mail-il1-x131.google.com [IPv6:2607:f8b0:4864:20::131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 040811A4
-        for <linux-s390@vger.kernel.org>; Fri,  2 Jun 2023 07:22:13 -0700 (PDT)
-Received: by mail-il1-x131.google.com with SMTP id e9e14a558f8ab-33b7f217dd0so124485ab.0
-        for <linux-s390@vger.kernel.org>; Fri, 02 Jun 2023 07:22:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1685715732; x=1688307732;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=H7d8d4MCc4onJq8pBQ681DcsEvxdLqedzghklpUu+XE=;
-        b=L79Re62NKLr7jyTpAhcYr+dj4BGT8jlpsciGJ9UqkUTmF1Fp8HF4f7l7PCMx74wnSp
-         Z4MExZDdVvmGr9HZZTldLvGj6yO4f7fmzOW5XHnYGFsp6aMxTvyGOWMjPJ6ywm+1hCxQ
-         OT6t1BPoULN32Prv5c6c7oEpn7DQQMc7OJntv8coVkeidQLUAxq4YWwjm4UCbhaAUkHY
-         CUlzXPTOm1Z7v2fI3l67bBKLhim0lh6AjxhBFfHcW9dOs+LcV01tauSIex0nknLfh486
-         eezgiwL7ika5ondE8vdXjdjqeaYRbUDxv3VyIaZo6ZQgfWFoet5hN9FlE8YQgtwWZQa+
-         l08w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1685715732; x=1688307732;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=H7d8d4MCc4onJq8pBQ681DcsEvxdLqedzghklpUu+XE=;
-        b=jhqxhNcZBYyUx50iu3ErpiQkfCsvAEV0jpdVjRw3M5NEE6tkI4xz0jkZ3rrT1jnIIf
-         73yfUDOeXJdwRKhT6nWpsYPC9EVSuAzGBHGGLiB3CZ7HzueBOLuSISrzeFPbxvFy2UOh
-         +sXOaHC/vKlLlXbJ3aY6s8rmv0GU0N6/2ivUJaee8iYWlpQB4naGQNMDhIMRrCiF+ZX7
-         Cnee4Kq96woZ9/u27Xsfo5rHx2ASH1apvbqlnqXLjPaTQ+siJhsFhDU1pMvZCT/NA93G
-         K7Xp69Z5ENA+BlDV1WQLCBPFLhU2NmNkLhfe63iJMc6HE2TBufSdBnLlnbIbuyM8qsce
-         fbZA==
-X-Gm-Message-State: AC+VfDzUblc35zrjb1fEnjq6ztu3zR4tNFfAObmlQSHA1/pFIaXOAf2M
-        4I4ZtRVuoFiincRJJmGjCacf7p5EVM1Mi9Dlt0dTgg==
-X-Google-Smtp-Source: ACHHUZ6mi6QZprfgUPbDzcJiLe/rOvQrRI5aX2Gu9fS+O4S7pV5L9VHsi7BsweO4BYXLes4rrZUtI27C/96anNWk39g=
-X-Received: by 2002:a92:c56a:0:b0:338:55b9:f1a3 with SMTP id
- b10-20020a92c56a000000b0033855b9f1a3mr137710ilj.7.1685715732071; Fri, 02 Jun
- 2023 07:22:12 -0700 (PDT)
-MIME-Version: 1.0
-References: <35e983f5-7ed3-b310-d949-9ae8b130cdab@google.com>
- <88c445ae-552-5243-31a4-2674bac62d4d@google.com> <CAG48ez0tnYTVjr7zw3Vp4GTcQ=960EodatjqE5bM9a3EVYM16Q@mail.gmail.com>
- <de1e37c-354c-fb98-1598-7ce6d415f257@google.com>
-In-Reply-To: <de1e37c-354c-fb98-1598-7ce6d415f257@google.com>
-From:   Jann Horn <jannh@google.com>
-Date:   Fri, 2 Jun 2023 16:21:35 +0200
-Message-ID: <CAG48ez3seuiWfiVq0z8weTQV3ZXwo-TXSQWLJ0uxn4eOrq0J0w@mail.gmail.com>
-Subject: Re: [PATCH 01/12] mm/pgtable: add rcu_read_lock() and rcu_read_unlock()s
-To:     Hugh Dickins <hughd@google.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        David Hildenbrand <david@redhat.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Qi Zheng <zhengqi.arch@bytedance.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Peter Xu <peterx@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        Ralph Campbell <rcampbell@nvidia.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Steven Price <steven.price@arm.com>,
-        SeongJae Park <sj@kernel.org>,
-        Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Zack Rusin <zackr@vmware.com>, Jason Gunthorpe <jgg@ziepe.ca>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Pasha Tatashin <pasha.tatashin@soleen.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        Song Liu <song@kernel.org>,
-        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
-        Russell King <linux@armlinux.org.uk>,
-        "David S. Miller" <davem@davemloft.net>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        with ESMTP id S235775AbjFBOkl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Jun 2023 10:40:41 -0400
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C87B51BD;
+        Fri,  2 Jun 2023 07:40:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=csXHyTVxkO+EGfVGUkTCJ6dG3JVY9wkWTgHzblW+1z8=; b=SkQmNVOGlL8AQWBC9GS+DAhOCy
+        pofqCKOFBuExSWYSUk1GOFt2m62JU8NEtYoPUUfMMqQ0Tvi3EJsHfNqSp200ooaTXY3PTzxOlEQx6
+        hi6KhG2M0AEguimnvfwFgRjrDAvrv2QoVKzAWqxP0rpemSCRkLCdxugTW/2YQ1/pytbyyJaEsm9Pe
+        9fF8rqccSYOqcoqSnuyarEBqbcWLdOeZyGMTbYC1Yo4yux9gcXUpErSi7OVplE7ALO5MRwva9+CqF
+        /GgutI8B0hYBrP2dcBrjvb6Ay3CWgXFc24hfBxmA3Q5N4iL4PvgjqQKKMoMxbpDLjeMpfcsPrfrFt
+        gFDjAmFA==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
+        by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
+        id 1q55vz-001Lw5-1U;
+        Fri, 02 Jun 2023 14:39:19 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits))
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id B3BB5300188;
+        Fri,  2 Jun 2023 16:39:12 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 6982E22BA6445; Fri,  2 Jun 2023 16:39:12 +0200 (CEST)
+Date:   Fri, 2 Jun 2023 16:39:12 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Helge Deller <deller@gmx.de>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Will Deacon <will@kernel.org>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>, dennis@kernel.org,
+        Tejun Heo <tj@kernel.org>, Christoph Lameter <cl@linux.com>,
+        Heiko Carstens <hca@linux.ibm.com>, gor@linux.ibm.com,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        borntraeger@linux.ibm.com, Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>, Joerg Roedel <joro@8bytes.org>,
+        suravee.suthikulpanit@amd.com, Robin Murphy <robin.murphy@arm.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Baolu Lu <baolu.lu@linux.intel.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S . Miller" <davem@davemloft.net>,
+        Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Hyeonggon Yoo <42.hyeyoo@gmail.com>, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org, iommu@lists.linux.dev,
+        Linux-Arch <linux-arch@vger.kernel.org>,
+        linux-crypto@vger.kernel.org,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
+        linux-parisc@vger.kernel.org,
+        John David Anglin <dave.anglin@bell.net>,
+        Sam James <sam@gentoo.org>
+Subject: Re: [PATCH v2 07/12] parisc/percpu: Work around the lack of
+ __SIZEOF_INT128__
+Message-ID: <20230602143912.GI620383@hirez.programming.kicks-ass.net>
+References: <20230531130833.635651916@infradead.org>
+ <20230531132323.722039569@infradead.org>
+ <70a69deb-7ad4-45b2-8e13-34955594a7ce@app.fastmail.com>
+ <20230601101409.GS4253@hirez.programming.kicks-ass.net>
+ <14c50e58-fecc-e96a-ee73-39ef4e4617c7@gmx.de>
+ <CAHk-=whL65CLuy9D9gyO608acM5WLWo_ggAMP1cGu2XvyC0-hA@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHk-=whL65CLuy9D9gyO608acM5WLWo_ggAMP1cGu2XvyC0-hA@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Jun 2, 2023 at 4:50=E2=80=AFAM Hugh Dickins <hughd@google.com> wrot=
-e:
-> On Wed, 31 May 2023, Jann Horn wrote:
-> > On Mon, May 29, 2023 at 8:15=E2=80=AFAM Hugh Dickins <hughd@google.com>=
- wrote:
-> > > Before putting them to use (several commits later), add rcu_read_lock=
-()
-> > > to pte_offset_map(), and rcu_read_unlock() to pte_unmap().  Make this=
- a
-> > > separate commit, since it risks exposing imbalances: prior commits ha=
-ve
-> > > fixed all the known imbalances, but we may find some have been missed=
-.
-> > [...]
-> > > diff --git a/mm/pgtable-generic.c b/mm/pgtable-generic.c
-> > > index c7ab18a5fb77..674671835631 100644
-> > > --- a/mm/pgtable-generic.c
-> > > +++ b/mm/pgtable-generic.c
-> > > @@ -236,7 +236,7 @@ pte_t *__pte_offset_map(pmd_t *pmd, unsigned long=
- addr, pmd_t *pmdvalp)
-> > >  {
-> > >         pmd_t pmdval;
-> > >
-> > > -       /* rcu_read_lock() to be added later */
-> > > +       rcu_read_lock();
-> > >         pmdval =3D pmdp_get_lockless(pmd);
-> > >         if (pmdvalp)
-> > >                 *pmdvalp =3D pmdval;
-> >
-> > It might be a good idea to document that this series assumes that the
-> > first argument to __pte_offset_map() is a pointer into a second-level
-> > page table (and not a local copy of the entry) unless the containing
-> > VMA is known to not be THP-eligible or the page table is detached from
-> > the page table hierarchy or something like that. Currently a bunch of
-> > places pass references to local copies of the entry, and while I think
-> > all of these are fine, it would probably be good to at least document
-> > why these are allowed to do it while other places aren't.
->
-> Thanks Jann: but I have to guess that here you are showing awareness of
-> an important issue that I'm simply ignorant of.
->
-> I have been haunted by a dim recollection that there is one architecture
-> (arm-32?) which is fussy about the placement of the pmdval being examined
-> (deduces info missing from the arch-independent interface, by following
-> up the address?), but I couldn't track it down when I tried.
->
-> Please tell me more; or better, don't spend your time explaining to me,
-> but please just send a link to a good reference on the issue.  I'll be
-> unable to document what you ask there, without educating myself first.
+On Thu, Jun 01, 2023 at 09:29:18AM -0400, Linus Torvalds wrote:
 
-Sorry, I think I was somewhat confused about what was going on when I
-wrote that message.
+> Right now we have that "minimum gcc version" in a somewhat annoying
+> place: it's in the ./scripts/min-tool-version.sh file as a shell
+> script.
 
-After this series, __pte_offset_map() looks as follows, with added
-comments describing my understanding of the semantics:
+Something like so then?
 
-// `pmd` points to one of:
-// case 1: a pmd_t stored outside a page table,
-//         referencing a page table detached by the caller
-// case 2: a pmd_t stored outside a page table, which the caller copied
-//         from a page table in an RCU-critical section that extends
-//         until at least the end of this function
-// case 3: a pmd_t stored inside a page table
-pte_t *__pte_offset_map(pmd_t *pmd, unsigned long addr, pmd_t *pmdvalp)
-{
-        unsigned long __maybe_unused flags;
-        pmd_t pmdval;
+---
+Subject: parisc: Raise minimal GCC version
+From: Peter Zijlstra <peterz@infradead.org>
+Date: Fri Jun  2 16:33:54 CEST 2023
 
-        // begin an RCU section; this is needed for case 3
-        rcu_read_lock();
-        config_might_irq_save(flags);
-        // read the pmd_t.
-        // if the pmd_t references a page table, this page table can not
-        // go away because:
-        //  - in case 1, the caller is the main owner of the page table
-        //  - in case 2, because the caller
-        //    started an RCU read-side critical section before the caller
-        //    read the original pmd_t. (This pmdp_get_lockless() is just
-        //    reading a copied pmd_t off the stack.)
-        //  - in case 3, because we started an RCU section above before
-        //    reading the pmd_t out of the page table here
-        pmdval =3D pmdp_get_lockless(pmd);
-        config_might_irq_restore(flags);
+With 64bit builds depending on __SIZEOF_INT128__ raise the parisc
+minimum compiler version to gcc-11.0.0.
 
-        if (pmdvalp)
-                *pmdvalp =3D pmdval;
-        if (unlikely(pmd_none(pmdval) || is_pmd_migration_entry(pmdval)))
-                goto nomap;
-        if (unlikely(pmd_trans_huge(pmdval) || pmd_devmap(pmdval)))
-                goto nomap;
-        if (unlikely(pmd_bad(pmdval))) {
-                pmd_clear_bad(pmd);
-                goto nomap;
-        }
-        return __pte_map(&pmdval, addr);
-nomap:
-        rcu_read_unlock();
-        return NULL;
-}
+All other 64bit architectures provide this from GCC-5.1.0 (and
+probably before), except hppa64 which only started advertising this
+with GCC-11.
 
-case 1 is what happens in __page_table_check_pte_clear_range(),
-__split_huge_zero_page_pmd() and __split_huge_pmd_locked().
-case 2 happens in lockless page table traversal (gup_pte_range() and
-perf_get_pgtable_size()).
-case 3 is normal page table traversal under mmap lock or mapping lock.
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+---
+ scripts/min-tool-version.sh |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-I think having a function like this that can run in three different
-contexts in which it is protected in three different ways is somewhat
-hard to understand without comments. Though maybe I'm thinking about
-it the wrong way?
-
-Basically my point is: __pte_offset_map() normally requires that the
-pmd argument points into a page table so that the rcu_read_lock() can
-provide protection starting from the time the pmd_t is read from a
-page table. The exception are cases where the caller has taken its own
-precautions to ensure that the referenced page table can not have been
-freed.
+--- a/scripts/min-tool-version.sh
++++ b/scripts/min-tool-version.sh
+@@ -17,7 +17,11 @@ binutils)
+ 	echo 2.25.0
+ 	;;
+ gcc)
+-	echo 5.1.0
++	if [ "$SRCARCH" = parisc ]; then
++		echo 11.0.0
++	else
++		echo 5.1.0
++	fi
+ 	;;
+ llvm)
+ 	if [ "$SRCARCH" = s390 ]; then
