@@ -2,161 +2,171 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 492DBC7EE24
-	for <linux-s390@archiver.kernel.org>; Fri,  2 Jun 2023 06:03:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F982C77B7A
+	for <linux-s390@archiver.kernel.org>; Fri,  2 Jun 2023 06:22:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232301AbjFBGDT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 2 Jun 2023 02:03:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60126 "EHLO
+        id S233468AbjFBGWU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 2 Jun 2023 02:22:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229456AbjFBGDS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Jun 2023 02:03:18 -0400
-Received: from mail-yb1-xb29.google.com (mail-yb1-xb29.google.com [IPv6:2607:f8b0:4864:20::b29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E4DD19A
-        for <linux-s390@vger.kernel.org>; Thu,  1 Jun 2023 23:03:17 -0700 (PDT)
-Received: by mail-yb1-xb29.google.com with SMTP id 3f1490d57ef6-bb1f7c5495dso854822276.3
-        for <linux-s390@vger.kernel.org>; Thu, 01 Jun 2023 23:03:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1685685796; x=1688277796;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=7zsFlKAGcv+fQqN1VVT9TBfhOrr8gOpZnbD5J9Rbft4=;
-        b=Y1BisDvMhSzU6oLolCbfFVEgLMBmkQqmlhDVPpW2AJeK8jBOlWFdFzL1tmuKOpvK63
-         GHp/SMU2i1PecHncq+b0lH3okXqlru+09I8QXCT9NALz59R7lsKaFrIT52Hiqg0zxTrC
-         jqOVLA4YrHbMJ8glWqmmX18tl8OerbjfR8d4jWr1vj09V6zTyWVo1xxkRbkx8FKG4Z9E
-         o7UIT7SMKh+6qHbb35DHGZE2LGVQgAMuvaanUZKjDX1mZVWuXTA1af7RiiJxIJKDI/Fw
-         yZw6JHtIxsA5qBBvdFUR4HhBdS3PC2/xGlBXKlhRRsZvH9HBG7Q8HWGC15eDYbLtpv+i
-         H45Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1685685796; x=1688277796;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=7zsFlKAGcv+fQqN1VVT9TBfhOrr8gOpZnbD5J9Rbft4=;
-        b=V9tMpnTIKX8BLvwEOER7431FFOwxgkDDGMKNy5h60eSs2OuaDlLQZdTzvI8qkLOzYX
-         5K3sz8Z1Vi3qhxQ+UVVYoDA6woRzY/6jrj+q/e3A1tmIeMZ/LO6auig9Vpwr8zYZezEe
-         exHbTqxGZ+s90qCDPBYEPGrvRBA63KltW+M+c3blhs9pnipQCaMOOV5SRoq0I6hvlgx/
-         Zcbe8tYwd7DIKByzarFWnqOGAeDi6T0gAekJ0YhKEmW9jvGqqC5HvKCbaz+oxaoE0OVd
-         7f7/xNCvsLw3LjnRpwYNmeBYbnTzjmlaoKWKYFj61VmpAuqwxbe94pAV/ozr36+cvb6O
-         pA6g==
-X-Gm-Message-State: AC+VfDy1q3hHGID25K4+kER5mfCKDhFR5pqze7DiedeyorjEcKX5PQTB
-        mTZa28vadIohRtMV37iTTifKxA==
-X-Google-Smtp-Source: ACHHUZ6eYdbQngpbs2i38U7FBW9tfhwKdbT7ZR71DCB3qxUId8cHs0QRFbdpfBZ1Bt76wUVanJBNhQ==
-X-Received: by 2002:a0d:d447:0:b0:568:bec5:ebaf with SMTP id w68-20020a0dd447000000b00568bec5ebafmr12482758ywd.12.1685685796445;
-        Thu, 01 Jun 2023 23:03:16 -0700 (PDT)
-Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id u17-20020a818411000000b0055d7fc2b704sm184207ywf.16.2023.06.01.23.03.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 01 Jun 2023 23:03:15 -0700 (PDT)
-Date:   Thu, 1 Jun 2023 23:03:11 -0700 (PDT)
-From:   Hugh Dickins <hughd@google.com>
-X-X-Sender: hugh@ripple.attlocal.net
-To:     Jason Gunthorpe <jgg@ziepe.ca>
-cc:     Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        David Hildenbrand <david@redhat.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Qi Zheng <zhengqi.arch@bytedance.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Peter Xu <peterx@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        Ralph Campbell <rcampbell@nvidia.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Steven Price <steven.price@arm.com>,
-        SeongJae Park <sj@kernel.org>,
-        Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Zack Rusin <zackr@vmware.com>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Pasha Tatashin <pasha.tatashin@soleen.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        Song Liu <song@kernel.org>,
-        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
-        Russell King <linux@armlinux.org.uk>,
-        "David S. Miller" <davem@davemloft.net>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Jann Horn <jannh@google.com>,
-        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH 08/12] mm/pgtable: add pte_free_defer() for pgtable as
- page
-In-Reply-To: <ZHekpAKJ05cr/GLl@ziepe.ca>
-Message-ID: <a7f4722-8af2-f7be-eada-ff1e6e918da1@google.com>
-References: <35e983f5-7ed3-b310-d949-9ae8b130cdab@google.com> <739964d-c535-4db4-90ec-2166285b4d47@google.com> <ZHekpAKJ05cr/GLl@ziepe.ca>
+        with ESMTP id S233739AbjFBGWR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Jun 2023 02:22:17 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BA7A195;
+        Thu,  1 Jun 2023 23:22:16 -0700 (PDT)
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3525pDpF013692;
+        Fri, 2 Jun 2023 06:22:12 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=jh/p4dQmUfabXWYxGavPyEaY3XOY8kwt0BdtVT7uXik=;
+ b=iDwb3BqDY+T2o80FU0bhdsOijNWuBGLcNOT8OUNm90EHWQOEvHUa/9jwojkk3zKRtjwT
+ nclB1l7LztxtLNx3pXyh5C7by5VdOfONW+Lz/H5RVdrQP4k3Llv1ui/jeicd+YGTiQb/
+ vjNElJn/lC8yjysmVdQ5vYEnqHaAqbFWbw4JJDlWlJ5GlUMRb6zqMo89+1wIhCMTgBaT
+ CImWEuA0lfMdHOFt36tXqzmBb7TKqXcy6TEOaSFG/LTEyJO/ddQlYuP93sgGgv5ncPSf
+ BS9y/fcvs96zjY0+UJPtD8uvuQAXGDZ80VVerJfMRRK2ys/w8IUvalU9AoGJRmhxSfv+ JA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qyan3gmb2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 02 Jun 2023 06:22:11 +0000
+Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 35268RZh032281;
+        Fri, 2 Jun 2023 06:22:11 GMT
+Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qyan3gmaq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 02 Jun 2023 06:22:11 +0000
+Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
+        by ppma04dal.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3524ijkZ016863;
+        Fri, 2 Jun 2023 06:22:10 GMT
+Received: from smtprelay02.dal12v.mail.ibm.com ([9.208.130.97])
+        by ppma04dal.us.ibm.com (PPS) with ESMTPS id 3qu9g763b6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 02 Jun 2023 06:22:10 +0000
+Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
+        by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3526M8N427001558
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 2 Jun 2023 06:22:08 GMT
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B8ECF58056;
+        Fri,  2 Jun 2023 06:22:08 +0000 (GMT)
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 27E885805D;
+        Fri,  2 Jun 2023 06:22:07 +0000 (GMT)
+Received: from [9.171.8.37] (unknown [9.171.8.37])
+        by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
+        Fri,  2 Jun 2023 06:22:06 +0000 (GMT)
+Message-ID: <4e4f539c-0c74-675c-74fe-52a64e3fb365@linux.ibm.com>
+Date:   Fri, 2 Jun 2023 08:22:06 +0200
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.11.1
+Subject: Re: [PATCH net] net/smc: Avoid to access invalid RMBs' MRs in SMCRv1
+ ADD LINK CONT
+To:     Wen Gu <guwen@linux.alibaba.com>, kgraul@linux.ibm.com,
+        jaka@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <1685608912-124996-1-git-send-email-guwen@linux.alibaba.com>
+From:   Wenjia Zhang <wenjia@linux.ibm.com>
+In-Reply-To: <1685608912-124996-1-git-send-email-guwen@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: Z_iAv_AAS-0_1IxPjPdD1rSDmZ9ng0p2
+X-Proofpoint-GUID: 7N-ofvtFxjONRqBJYyn2LyCAxn3ZU4UC
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
+ definitions=2023-06-02_03,2023-05-31_03,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxscore=0
+ clxscore=1015 suspectscore=0 lowpriorityscore=0 impostorscore=0
+ mlxlogscore=862 spamscore=0 bulkscore=0 malwarescore=0 phishscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2304280000 definitions=main-2306020044
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 31 May 2023, Jason Gunthorpe wrote:
-> On Sun, May 28, 2023 at 11:23:47PM -0700, Hugh Dickins wrote:
-> > Add the generic pte_free_defer(), to call pte_free() via call_rcu().
-> > pte_free_defer() will be called inside khugepaged's retract_page_tables()
-> > loop, where allocating extra memory cannot be relied upon.  This version
-> > suits all those architectures which use an unfragmented page for one page
-> > table (none of whose pte_free()s use the mm arg which was passed to it).
-> > 
-> > Signed-off-by: Hugh Dickins <hughd@google.com>
-> > ---
-> > +	page = pgtable;
-> > +	call_rcu(&page->rcu_head, pte_free_now);
+
+
+On 01.06.23 10:41, Wen Gu wrote:
+> SMCRv1 has a similar issue to SMCRv2 (see link below) that may access
+> invalid MRs of RMBs when construct LLC ADD LINK CONT messages.
 > 
-> People have told me that we can't use the rcu_head on the struct page
-> backing page table blocks. I understood it was because PPC was using
-> that memory for something else.
-
-In the 05/12 thread, Matthew pointed out that powerpc (and a few others)
-use the one struct page for multiple page tables, and the lack of
-multiple rcu_heads means I've got that patch and 06/12 sparc and
-07/12 s390 embarrassingly wrong (whereas this generic 08/12 is okay).
-
-I believe I know the extra grossness needed for powerpc and sparc: I had
-it already for powerpc, but fooled myself into thinking not yet needed.
-
-But (I haven't quite got there yet) it looks like Gerald is pointing
-out that s390 is using lru which coincides with rcu_head: I already knew
-s390 the most difficult, but that will be another layer of difficulty.
-
-I expect it was s390 which people warned you of.
-
+>   BUG: kernel NULL pointer dereference, address: 0000000000000014
+>   #PF: supervisor read access in kernel mode
+>   #PF: error_code(0x0000) - not-present page
+>   PGD 0 P4D 0
+>   Oops: 0000 [#1] PREEMPT SMP PTI
+>   CPU: 5 PID: 48 Comm: kworker/5:0 Kdump: loaded Tainted: G W   E      6.4.0-rc3+ #49
+>   Workqueue: events smc_llc_add_link_work [smc]
+>   RIP: 0010:smc_llc_add_link_cont+0x160/0x270 [smc]
+>   RSP: 0018:ffffa737801d3d50 EFLAGS: 00010286
+>   RAX: ffff964f82144000 RBX: ffffa737801d3dd8 RCX: 0000000000000000
+>   RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffff964f81370c30
+>   RBP: ffffa737801d3dd4 R08: ffff964f81370000 R09: ffffa737801d3db0
+>   R10: 0000000000000001 R11: 0000000000000060 R12: ffff964f82e70000
+>   R13: ffff964f81370c38 R14: ffffa737801d3dd3 R15: 0000000000000001
+>   FS:  0000000000000000(0000) GS:ffff9652bfd40000(0000) knlGS:0000000000000000
+>   CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>   CR2: 0000000000000014 CR3: 000000008fa20004 CR4: 00000000003706e0
+>   DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+>   DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+>   Call Trace:
+>    <TASK>
+>    smc_llc_srv_rkey_exchange+0xa7/0x190 [smc]
+>    smc_llc_srv_add_link+0x3ae/0x5a0 [smc]
+>    smc_llc_add_link_work+0xb8/0x140 [smc]
+>    process_one_work+0x1e5/0x3f0
+>    worker_thread+0x4d/0x2f0
+>    ? __pfx_worker_thread+0x10/0x10
+>    kthread+0xe5/0x120
+>    ? __pfx_kthread+0x10/0x10
+>    ret_from_fork+0x2c/0x50
+>    </TASK>
 > 
-> I was hoping Mathew's folio conversion would help clarify this..
-
-I doubt that: what we have for use today is pages, however they are
-dressed up.
-
+> When an alernate RNIC is available in system, SMC will try to add a new
+> link based on the RNIC for resilience. All the RMBs in use will be mapped
+> to the new link. Then the RMBs' MRs corresponding to the new link will
+> be filled into LLC messages. For SMCRv1, they are ADD LINK CONT messages.
 > 
-> On the flip side, if we are able to use rcu_head here then we should
-> use it everywhere and also use it mmu_gather.c instead of allocating
-> memory and having the smp_call_function() fallback. This would fix it
-> to be actual RCU.
+> However smc_llc_add_link_cont() may mistakenly access to unused RMBs which
+> haven't been mapped to the new link and have no valid MRs, thus causing a
+> crash. So this patch fixes it.
 > 
-> There have been a few talks that it sure would be nice if the page
-> tables were always freed via RCU and every arch just turns on
-> CONFIG_MMU_GATHER_RCU_TABLE_FREE. It seems to me that patch 10 is kind
-> of half doing that by making this one path always use RCU on all
-> arches.
+> Fixes: 87f88cda2128 ("net/smc: rkey processing for a new link as SMC client")
+> Link: https://lore.kernel.org/r/1685101741-74826-3-git-send-email-guwen@linux.alibaba.com
+> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+> ---
+>   net/smc/smc_llc.c | 4 ++--
+>   1 file changed, 2 insertions(+), 2 deletions(-)
 > 
-> AFAIK the main reason it hasn't been done was the lack of a rcu_head..
+> diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+> index 7a8d916..90f0b60 100644
+> --- a/net/smc/smc_llc.c
+> +++ b/net/smc/smc_llc.c
+> @@ -851,6 +851,8 @@ static int smc_llc_add_link_cont(struct smc_link *link,
+>   	addc_llc->num_rkeys = *num_rkeys_todo;
+>   	n = *num_rkeys_todo;
+>   	for (i = 0; i < min_t(u8, n, SMC_LLC_RKEYS_PER_CONT_MSG); i++) {
+> +		while (*buf_pos && !(*buf_pos)->used)
+> +			*buf_pos = smc_llc_get_next_rmb(lgr, buf_lst, *buf_pos);
+>   		if (!*buf_pos) {
+>   			addc_llc->num_rkeys = addc_llc->num_rkeys -
+>   					      *num_rkeys_todo;
+> @@ -867,8 +869,6 @@ static int smc_llc_add_link_cont(struct smc_link *link,
+>   
+>   		(*num_rkeys_todo)--;
+>   		*buf_pos = smc_llc_get_next_rmb(lgr, buf_lst, *buf_pos);
+> -		while (*buf_pos && !(*buf_pos)->used)
+> -			*buf_pos = smc_llc_get_next_rmb(lgr, buf_lst, *buf_pos);
+>   	}
+>   	addc_llc->hd.common.llc_type = SMC_LLC_ADD_LINK_CONT;
+>   	addc_llc->hd.length = sizeof(struct smc_llc_msg_add_link_cont);
 
-I haven't paid attention to that part of the history, and won't be
-competent to propagate this further, into MMU-Gather-World; but agree
-that would be a satisfying conclusion.
+looks good to me! Thank you for fixing that!
 
-Hugh
+Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
