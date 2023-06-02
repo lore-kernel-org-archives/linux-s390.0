@@ -2,107 +2,151 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C71F1C7EE24
-	for <linux-s390@archiver.kernel.org>; Fri,  2 Jun 2023 12:47:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C892C7EE2D
+	for <linux-s390@archiver.kernel.org>; Fri,  2 Jun 2023 14:20:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235863AbjFBMrY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 2 Jun 2023 08:47:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46702 "EHLO
+        id S235517AbjFBOUV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 2 Jun 2023 10:20:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235843AbjFBMrS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Jun 2023 08:47:18 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66EDCE63;
-        Fri,  2 Jun 2023 05:47:05 -0700 (PDT)
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 352CjJJe008788;
-        Fri, 2 Jun 2023 12:47:04 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=r5Vxddmy2HSlIOmeoz4FV7DtWkvwFlQhF6xej4Qy/NQ=;
- b=nm81liY8XzRDYQAMAoWX92O9uNZPjxnc6u1rnpJXwZMlcDY4LgzsIdvNQguG34GqmEDu
- 4D8oV9qgPKoPujGM6yI/5HYgmao3/f20sfx+Lu77il7NcBX9lIi3/k2fBWpD3DeaQHhD
- +khs73lz9UwQeFKVNRNjmaKT1uN6CITFifV9EpU+MDh/JO97aMYNh2zO3EGn33eHxz8V
- V/zbjxnqA/i0H1NU/V/594rFC8mwMCueoaiCPKfnmYFApgeUjRZpgc3aIe4eV0V0pybG
- D2PjXLnVoInUkMORt/xodSWUi7rhZ+owUdO2sFJMHjqsPghQFD5AZDwuFyXr8e+7vbgi AA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qyfdc2954-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 02 Jun 2023 12:47:04 +0000
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 352CjPEk008953;
-        Fri, 2 Jun 2023 12:47:03 GMT
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qyfdc294s-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 02 Jun 2023 12:47:03 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 35271oiq024079;
-        Fri, 2 Jun 2023 12:47:01 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-        by ppma02fra.de.ibm.com (PPS) with ESMTPS id 3qu9g52hn0-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 02 Jun 2023 12:47:01 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 352Ckw3q19399172
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 2 Jun 2023 12:46:58 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 394FE2004E;
-        Fri,  2 Jun 2023 12:46:58 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 632D420043;
-        Fri,  2 Jun 2023 12:46:57 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.171.36.211])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Fri,  2 Jun 2023 12:46:57 +0000 (GMT)
-Date:   Fri, 2 Jun 2023 14:46:55 +0200
-From:   Alexander Gordeev <agordeev@linux.ibm.com>
-To:     Alex Williamson <alex.williamson@redhat.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>
-Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, jjherne@linux.ibm.com,
-        pasic@linux.ibm.com, farman@linux.ibm.com,
-        borntraeger@linux.ibm.com, Cedric Le Goater <clegoate@redhat.com>
-Subject: Re: [PATCH 0/3] s390/vfio-ap: fix hang when mdev attached to guest
- is removed
-Message-ID: <ZHnkvxEonzxrVQdA@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-References: <20230530223538.279198-1-akrowiak@linux.ibm.com>
- <30741787-441a-034f-f8d4-9f1060841051@linux.ibm.com>
- <20230601144722.6eba9c49.alex.williamson@redhat.com>
+        with ESMTP id S235202AbjFBOUT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Jun 2023 10:20:19 -0400
+Received: from mail-oi1-x229.google.com (mail-oi1-x229.google.com [IPv6:2607:f8b0:4864:20::229])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C035319A
+        for <linux-s390@vger.kernel.org>; Fri,  2 Jun 2023 07:20:17 -0700 (PDT)
+Received: by mail-oi1-x229.google.com with SMTP id 5614622812f47-39a55e5cfc0so1812972b6e.3
+        for <linux-s390@vger.kernel.org>; Fri, 02 Jun 2023 07:20:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1685715617; x=1688307617;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=FqaYMxWoeNH3a7vv1yp0mvQMbR3V3EytnPDXxbqJ8VE=;
+        b=YplxNmFBW9ljUSBNluudr9Q6wJ87klI3TZokg2k+vwOdVg3A1AJX0pByRXwDqo5MwQ
+         alW49lR9XyUQRlk8vt7/xFfIsTB0flktCR+vD1xy2IwNrEoErUzHEn55bDAo5dNnYjOO
+         hlmGmFRf+2Fm0iceBj47fAw1vRm2jD5BSmGtugnmJtfDezNH4aKScnhjDxWGb5LL7ypz
+         fJzuxhuft9F1/d0AJw9yoXkpAePkuiZjqAB4ZmRDCE8ZLU0IAXmgmRwVUGE2hoENWDmB
+         8POcecwSo0I1O94ydcJI8eaZYk6Zm4Sxyg2IRRnMyhcC0eiAebPLKM5kmkf/d3iZsQ9c
+         DCqw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1685715617; x=1688307617;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=FqaYMxWoeNH3a7vv1yp0mvQMbR3V3EytnPDXxbqJ8VE=;
+        b=H0tEDAp4y/VbtFrOQWQIXso//Sa7WqaJRu+cRpTJ7bsA4BIu1zbCSqosx/X9YFYK7r
+         heK8czDxlM+afndZPov5ACRiFkKC/q7ASWVs4BoahJFaBVkDmauiBB8fvQNjLxX9dT8m
+         9qIHnKjLK2fqux3Yf2x4lSKtD5yrSl9XwurLgAygOTEITFcE2m4PJqjCF9jQRcnVY4vh
+         Cm0zu7pmZmcXr25c9cKFi9//CzEn4l9BAvX83YlfOHGMltBEH76Gy2EmvHG313SOWwYb
+         iH8jsXW3RsmlYV2a8PLQYyF03QIb42j3dxR5Punx5oHnJj0+fMiav8hTHvnUBWwM8ayA
+         yEHw==
+X-Gm-Message-State: AC+VfDxji8XV6csu0DIRGzKkFBfBle+wHsTGCegIrJ6UPbNfEXG2dnCf
+        Q17OHEtRgfAKZF2v4BPKN8DF2g==
+X-Google-Smtp-Source: ACHHUZ6vbHMkZi+Yoc+B1yGbLmCswR8p6D4EKcqpOa7k2x/EYO9kFPQlCeZsh27NoZY4RaKVPkuoOA==
+X-Received: by 2002:aca:1817:0:b0:398:282e:4c81 with SMTP id h23-20020aca1817000000b00398282e4c81mr140727oih.19.1685715617084;
+        Fri, 02 Jun 2023 07:20:17 -0700 (PDT)
+Received: from ziepe.ca (hlfxns017vw-142-68-25-194.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.25.194])
+        by smtp.gmail.com with ESMTPSA id pz26-20020ad4551a000000b006263735a9adsm847340qvb.112.2023.06.02.07.20.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 02 Jun 2023 07:20:16 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.95)
+        (envelope-from <jgg@ziepe.ca>)
+        id 1q55dX-001vaI-OV;
+        Fri, 02 Jun 2023 11:20:15 -0300
+Date:   Fri, 2 Jun 2023 11:20:15 -0300
+From:   Jason Gunthorpe <jgg@ziepe.ca>
+To:     Matthew Wilcox <willy@infradead.org>
+Cc:     Hugh Dickins <hughd@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        David Hildenbrand <david@redhat.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Qi Zheng <zhengqi.arch@bytedance.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Peter Xu <peterx@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Steven Price <steven.price@arm.com>,
+        SeongJae Park <sj@kernel.org>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Zack Rusin <zackr@vmware.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Pasha Tatashin <pasha.tatashin@soleen.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Christoph Hellwig <hch@infradead.org>,
+        Song Liu <song@kernel.org>,
+        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
+        Russell King <linux@armlinux.org.uk>,
+        "David S. Miller" <davem@davemloft.net>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Jann Horn <jannh@google.com>,
+        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH 05/12] powerpc: add pte_free_defer() for pgtables sharing
+ page
+Message-ID: <ZHn6n5eVTsr4Wl8x@ziepe.ca>
+References: <35e983f5-7ed3-b310-d949-9ae8b130cdab@google.com>
+ <28eb289f-ea2c-8eb9-63bb-9f7d7b9ccc11@google.com>
+ <ZHSwWgLWaEd+zi/g@casper.infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230601144722.6eba9c49.alex.williamson@redhat.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 5iSu3tiOUKN3nWDUYNafwFtdRy7FKsOl
-X-Proofpoint-ORIG-GUID: cLi3oBdIVKxc8Vr9IsdUvCC2_ayYmm1A
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
- definitions=2023-06-02_09,2023-06-02_02,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 spamscore=0
- phishscore=0 priorityscore=1501 lowpriorityscore=0 malwarescore=0
- suspectscore=0 adultscore=0 mlxlogscore=779 bulkscore=0 clxscore=1015
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2304280000 definitions=main-2306020094
+In-Reply-To: <ZHSwWgLWaEd+zi/g@casper.infradead.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jun 01, 2023 at 02:47:22PM -0600, Alex Williamson wrote:
-...
-> > As to how this series eventually reaches master...  It touches both s390 and vfio.  
-> > 
-> > @Alex/@s390 maintainers -- I suggest it go through s390 given the
-> > diffstat, it's almost completely in s390 drivers code.  However there
-> > is a uapi hit to vfio.h (in patch 1) that should get at least an ACK
-> > from Alex beforehand.
+On Mon, May 29, 2023 at 03:02:02PM +0100, Matthew Wilcox wrote:
+> On Sun, May 28, 2023 at 11:20:21PM -0700, Hugh Dickins wrote:
+> > +void pte_free_defer(struct mm_struct *mm, pgtable_t pgtable)
+> > +{
+> > +	struct page *page;
+> > +
+> > +	page = virt_to_page(pgtable);
+> > +	call_rcu(&page->rcu_head, pte_free_now);
+> > +}
 > 
-> Ack'd, I'll expect this to go through the s390 tree.  Thanks,
+> This can't be safe (on ppc).  IIRC you might have up to 16x4k page
+> tables sharing one 64kB page.  So if you have two page tables from the
+> same page being defer-freed simultaneously, you'll reuse the rcu_head
+> and I cannot imagine things go well from that point.
+> 
+> I have no idea how to solve this problem.
 
-Applied, thanks!
+Maybe power and s390 should allocate a side structure, sort of a
+pre-memdesc thing to store enough extra data?
 
-> Alex
+If we can get enough bytes then something like this would let a single
+rcu head be shared to manage the free bits.
 
+struct 64k_page {
+    u8 free_pages;
+    u8 pending_rcu_free_pages;
+    struct rcu_head head;
+}
+
+free_sub_page(sub_id)
+    if (atomic_fetch_or(1 << sub_id, &64k_page->pending_rcu_free_pages))
+         call_rcu(&64k_page->head)
+
+rcu_func()
+   64k_page->free_pages |= atomic_xchg(0, &64k_page->pending_rcu_free_pages)
+
+   if (64k_pages->free_pages == all_ones)
+      free_pgea(64k_page);
+
+Jason
