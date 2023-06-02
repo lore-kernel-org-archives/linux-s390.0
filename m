@@ -2,166 +2,103 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ECE53C7EE2E
-	for <linux-s390@archiver.kernel.org>; Fri,  2 Jun 2023 18:21:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A79B9C7EE2E
+	for <linux-s390@archiver.kernel.org>; Fri,  2 Jun 2023 19:11:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236053AbjFBSVR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 2 Jun 2023 14:21:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40102 "EHLO
+        id S237161AbjFBTLw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 2 Jun 2023 15:11:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235519AbjFBSVQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Jun 2023 14:21:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 253991A1;
-        Fri,  2 Jun 2023 11:21:15 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B4DF36523F;
-        Fri,  2 Jun 2023 18:21:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C87DC433AA;
-        Fri,  2 Jun 2023 18:21:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1685730074;
-        bh=X+6D25ac/ynfkYhL6CVIatM+QSgTz3ZdfLV95/xOw/s=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=m8QqKBlwUZ1OdVsi3iL4i/wpx/dFY6BbtHjhKMAoPALO9d9S1Of5z7SZF4QL6sTbP
-         1AkumCJkUSaKm4k7dCVk+lOGEFZdfq22cqjqj27S/pPlmB3p+6xXv2CNvliSMKoASM
-         /hdXoCMRwv6EJy8J6GYtUkCvLB9u0rcyusLTXlpDOf8Lr4f24TWYjjjFg1gay1e8Ak
-         p/JJ9xBOtMt5dIZYwKQ9oFJD8MWj9f1lt6ZhCj0XTqBGpkRKgNx/tS3niGcx/Matut
-         0hwyzJfj74d+iBjmUiHb0LPXzSLbkWfgBPmkBtc2NCOoUpEnhn1N5112VQidBofQtB
-         l46PC2/nl/Dww==
-Received: by mail-lj1-f182.google.com with SMTP id 38308e7fff4ca-2af189d323fso46352391fa.1;
-        Fri, 02 Jun 2023 11:21:14 -0700 (PDT)
-X-Gm-Message-State: AC+VfDy6tUtSTkY4WimD0ve8ZiSIIh10ZMJfMY+q87EfuCPbr3gZqly6
-        Qk5lO3wACNYGAPPmYAAU39rdvk/Wpx+a3HieDNM=
-X-Google-Smtp-Source: ACHHUZ7u+3QRkPB700ZRWSkZS34WuzRLSBXiPs+mDMX8Rtj0TALCowhBg47HVf6nzRS8a/FS2UP95/Ck0Au4nvQTBcE=
-X-Received: by 2002:a2e:b55a:0:b0:2b0:59c3:29c9 with SMTP id
- a26-20020a2eb55a000000b002b059c329c9mr217540ljn.6.1685730071990; Fri, 02 Jun
- 2023 11:21:11 -0700 (PDT)
-MIME-Version: 1.0
-References: <20230601101257.530867-1-rppt@kernel.org> <ZHjDU/mxE+cugpLj@FVFF77S0Q05N.cambridge.arm.com>
- <ZHjgIH3aX9dCvVZc@moria.home.lan> <ZHm3zUUbwqlsZBBF@FVFF77S0Q05N>
-In-Reply-To: <ZHm3zUUbwqlsZBBF@FVFF77S0Q05N>
-From:   Song Liu <song@kernel.org>
-Date:   Fri, 2 Jun 2023 11:20:58 -0700
-X-Gmail-Original-Message-ID: <CAPhsuW7Euczff_KB70nuH=Hhf2EYHAf=xiQR7mFqVfByhD34XA@mail.gmail.com>
-Message-ID: <CAPhsuW7Euczff_KB70nuH=Hhf2EYHAf=xiQR7mFqVfByhD34XA@mail.gmail.com>
-Subject: Re: [PATCH 00/13] mm: jit/text allocator
-To:     Mark Rutland <mark.rutland@arm.com>
-Cc:     Kent Overstreet <kent.overstreet@linux.dev>,
-        Mike Rapoport <rppt@kernel.org>, linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        with ESMTP id S237157AbjFBTLu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Jun 2023 15:11:50 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09CBC1B8;
+        Fri,  2 Jun 2023 12:11:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=AJABSmQfgLq8Q+2ppxsM6XF5q+Vq5qZe9N94edfIwwY=; b=PU4T7ADc0jcAq3KFGfGex3diK8
+        vuW6kxlnkjA4+MmRJvz0D0+wTteEYEdN0jEKVsMD/rWd4UKxTB9R75WweAYuX8LhbgcrsPvFit3yI
+        lh7intlQyz7vxEAlTtCqyyD8JU13qOTD16vLtKcHmFSXi2Pyo9MrCSkaYoixNrt5uhFV6lzG4WxI4
+        2nLcE6+JFpQ/MhqrGMsVU/cbMmJGBLPLrkolWc5jANycOonOz9+oT0qGgaU6JjJZWKYWvYHTgqSEx
+        acJK6R/uKBhblUAn+hhA5XEIMwsd+asra2KUYSEbBY8+7a7B+ca3G+EnF+XF7HS+DZKZBrmkC0kGI
+        jbJBbSdQ==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1q5AAJ-009SqQ-JN; Fri, 02 Jun 2023 19:10:23 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id EB5333002F0;
+        Fri,  2 Jun 2023 21:10:14 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id B12CE20581278; Fri,  2 Jun 2023 21:10:14 +0200 (CEST)
+Date:   Fri, 2 Jun 2023 21:10:14 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     "H. Peter Anvin" <hpa@zytor.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
         Helge Deller <deller@gmx.de>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Will Deacon <will@kernel.org>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>, dennis@kernel.org,
+        Tejun Heo <tj@kernel.org>, Christoph Lameter <cl@linux.com>,
+        Heiko Carstens <hca@linux.ibm.com>, gor@linux.ibm.com,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        borntraeger@linux.ibm.com, Sven Schnelle <svens@linux.ibm.com>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will@kernel.org>, bpf@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-        linux-mm@kvack.org, linux-modules@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
-        netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org,
-        Puranjay Mohan <puranjay12@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        Joerg Roedel <joro@8bytes.org>, suravee.suthikulpanit@amd.com,
+        Robin Murphy <robin.murphy@arm.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Baolu Lu <baolu.lu@linux.intel.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S . Miller" <davem@davemloft.net>,
+        Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Hyeonggon Yoo <42.hyeyoo@gmail.com>, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org, iommu@lists.linux.dev,
+        Linux-Arch <linux-arch@vger.kernel.org>,
+        linux-crypto@vger.kernel.org,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
+        linux-parisc@vger.kernel.org,
+        John David Anglin <dave.anglin@bell.net>,
+        Sam James <sam@gentoo.org>
+Subject: Re: [PATCH v2 07/12] parisc/percpu: Work around the lack of
+ __SIZEOF_INT128__
+Message-ID: <20230602191014.GA695361@hirez.programming.kicks-ass.net>
+References: <20230531130833.635651916@infradead.org>
+ <20230531132323.722039569@infradead.org>
+ <70a69deb-7ad4-45b2-8e13-34955594a7ce@app.fastmail.com>
+ <20230601101409.GS4253@hirez.programming.kicks-ass.net>
+ <14c50e58-fecc-e96a-ee73-39ef4e4617c7@gmx.de>
+ <CAHk-=whL65CLuy9D9gyO608acM5WLWo_ggAMP1cGu2XvyC0-hA@mail.gmail.com>
+ <20230602143912.GI620383@hirez.programming.kicks-ass.net>
+ <E333E35E-5F9C-441C-B75A-082F19D37978@zytor.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E333E35E-5F9C-441C-B75A-082F19D37978@zytor.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Jun 2, 2023 at 2:35=E2=80=AFAM Mark Rutland <mark.rutland@arm.com> =
-wrote:
->
-> On Thu, Jun 01, 2023 at 02:14:56PM -0400, Kent Overstreet wrote:
-> > On Thu, Jun 01, 2023 at 05:12:03PM +0100, Mark Rutland wrote:
-> > > For a while I have wanted to give kprobes its own allocator so that i=
-t can work
-> > > even with CONFIG_MODULES=3Dn, and so that it doesn't have to waste VA=
- space in
-> > > the modules area.
-> > >
-> > > Given that, I think these should have their own allocator functions t=
-hat can be
-> > > provided independently, even if those happen to use common infrastruc=
-ture.
-> >
-> > How much memory can kprobes conceivably use? I think we also want to tr=
-y
-> > to push back on combinatorial new allocators, if we can.
->
-> That depends on who's using it, and how (e.g. via BPF).
->
-> To be clear, I'm not necessarily asking for entirely different allocators=
-, but
-> I do thinkg that we want wrappers that can at least pass distinct start+e=
-nd
-> parameters to a common allocator, and for arm64's modules code I'd expect=
- that
-> we'd keep the range falblack logic out of the common allcoator, and just =
-call
-> it twice.
->
-> > > > Several architectures override module_alloc() because of various
-> > > > constraints where the executable memory can be located and this cau=
-ses
-> > > > additional obstacles for improvements of code allocation.
-> > > >
-> > > > This set splits code allocation from modules by introducing
-> > > > jit_text_alloc(), jit_data_alloc() and jit_free() APIs, replaces ca=
-ll
-> > > > sites of module_alloc() and module_memfree() with the new APIs and
-> > > > implements core text and related allocation in a central place.
-> > > >
-> > > > Instead of architecture specific overrides for module_alloc(), the
-> > > > architectures that require non-default behaviour for text allocatio=
-n must
-> > > > fill jit_alloc_params structure and implement jit_alloc_arch_params=
-() that
-> > > > returns a pointer to that structure. If an architecture does not im=
-plement
-> > > > jit_alloc_arch_params(), the defaults compatible with the current
-> > > > modules::module_alloc() are used.
-> > >
-> > > As above, I suspect that each of the callsites should probably be usi=
-ng common
-> > > infrastructure, but I don't think that a single jit_alloc_arch_params=
-() makes
-> > > sense, since the parameters for each case may need to be distinct.
-> >
-> > I don't see how that follows. The whole point of function parameters is
-> > that they may be different :)
->
-> What I mean is that jit_alloc_arch_params() tries to aggregate common
-> parameters, but they aren't actually common (e.g. the actual start+end ra=
-nge
-> for allocation).
->
-> > Can you give more detail on what parameters you need? If the only extra
-> > parameter is just "does this allocation need to live close to kernel
-> > text", that's not that big of a deal.
->
-> My thinking was that we at least need the start + end for each caller. Th=
-at
-> might be it, tbh.
+On Fri, Jun 02, 2023 at 10:00:17AM -0700, H. Peter Anvin wrote:
 
-IIUC, arm64 uses VMALLOC address space for BPF programs. The reason
-is each BPF program uses at least 64kB (one page) out of the 128MB
-address space. Puranjay Mohan (CC'ed) is working on enabling
-bpf_prog_pack for arm64. Once this work is done, multiple BPF programs
-will be able to share a page. Will this improvement remove the need to
-specify a different address range for BPF programs?
+> Dumb question: is this only about the cpp macro or is it about __int128 existing at all?
 
-Thanks,
-Song
+It's mostly about __int128 being there, __SIZEOF_INT128__ is just the
+way we go about detecting if it's there or not.
