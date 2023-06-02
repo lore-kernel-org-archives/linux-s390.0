@@ -2,42 +2,42 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 43803C7EE37
-	for <linux-s390@archiver.kernel.org>; Fri,  2 Jun 2023 12:17:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 56AA1C7EE45
+	for <linux-s390@archiver.kernel.org>; Fri,  2 Jun 2023 12:17:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235729AbjFBMRY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 2 Jun 2023 08:17:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57390 "EHLO
+        id S235584AbjFBMRW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 2 Jun 2023 08:17:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234816AbjFBMRQ (ORCPT
+        with ESMTP id S235109AbjFBMRQ (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Jun 2023 08:17:16 -0400
 Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CB321AD;
-        Fri,  2 Jun 2023 05:17:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B98F123;
+        Fri,  2 Jun 2023 05:17:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1685708234; x=1717244234;
+  t=1685708233; x=1717244233;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=2jmIgcG94FlJZ1RGv1VO9N+8kYYenREfZdPLHhTy/ZI=;
-  b=IuccN3jrpHF2jpFzvPh8PWRzfm5NhuTFudyy5XXHeFt0UQn0wz1Kyhba
-   yMImwpFh3qUc0Jxg04MZxtTKy3fdnnCMXk65kOB2CJ45hqGk/4GYlU7X6
-   S6wns247v4jXFjQ5k6ltitxwjmozCPSg8pC20/1zKGBpI7t9T3LYl8Wyj
-   gw4QOCiC7bRjjMTQKiW3cyqlrbrDBadE0tm/TpXVuJ93dHt9l0oXja242
-   ZFXXw1w4I5bmhyCE3OfGTTa5ll9ImFOR4w6i1+jdFRbPfr0jdkCqZimX3
-   /MT48x2eYYEqXbVoEG8lCeu4eEADURkRgMIUS5k4NjNB6vUkNOVoxRXgi
-   Q==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10728"; a="384136576"
+  bh=tk5fZ2GVcpiFgJTushP3BjHyTUKKQJMxnM2QSdRY+4c=;
+  b=D+YHs1MClGxk8UaaRSYR5aaLnc/lQIOZEKjNjE3HY6jmxQMoYR8CACiX
+   OTtNfl9LCZao+oC9OEMt57icm5Of7XdhKjIrRVfW9DDhm+4l2DZPgW+ew
+   mmo2M8g0EHQ863BXuUAQI4OGyLA8iSMeAVwBY1q2+Txu3ZiAjaY2WhMy7
+   M5GmSsr8JhXHAM1xMSo3HwRXutyEH7pj1l7tqZOGo+Odlgt1fpLLJR3GV
+   xavV9d6j199oWKk3VZTKbm7qgYqP0oQ6fQrp58kuZiIoneTGpystatFmm
+   BgCAHFVPVo3r7c3wmnvfpk2TJggiVOsYYFsyUFMhrdV9Dd5twiqyPhyz6
+   g==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10728"; a="384136546"
 X-IronPort-AV: E=Sophos;i="6.00,212,1681196400"; 
-   d="scan'208";a="384136576"
+   d="scan'208";a="384136546"
 Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Jun 2023 05:17:06 -0700
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Jun 2023 05:17:03 -0700
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10728"; a="1037947316"
+X-IronPort-AV: E=McAfee;i="6600,9927,10728"; a="1037947295"
 X-IronPort-AV: E=Sophos;i="6.00,212,1681196400"; 
-   d="scan'208";a="1037947316"
+   d="scan'208";a="1037947295"
 Received: from 984fee00a4c6.jf.intel.com ([10.165.58.231])
-  by fmsmga005.fm.intel.com with ESMTP; 02 Jun 2023 05:17:05 -0700
+  by fmsmga005.fm.intel.com with ESMTP; 02 Jun 2023 05:17:02 -0700
 From:   Yi Liu <yi.l.liu@intel.com>
 To:     alex.williamson@redhat.com, jgg@nvidia.com, kevin.tian@intel.com
 Cc:     joro@8bytes.org, robin.murphy@arm.com, cohuck@redhat.com,
@@ -51,9 +51,9 @@ Cc:     joro@8bytes.org, robin.murphy@arm.com, cohuck@redhat.com,
         xudong.hao@intel.com, yan.y.zhao@intel.com, terrence.xu@intel.com,
         yanting.jiang@intel.com, zhenzhong.duan@intel.com,
         clegoate@redhat.com
-Subject: [PATCH v12 09/24] vfio: Make vfio_df_open() single open for device cdev path
-Date:   Fri,  2 Jun 2023 05:16:38 -0700
-Message-Id: <20230602121653.80017-10-yi.l.liu@intel.com>
+Subject: [PATCH v12 07/24] vfio: Block device access via device fd until device is opened
+Date:   Fri,  2 Jun 2023 05:16:36 -0700
+Message-Id: <20230602121653.80017-8-yi.l.liu@intel.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20230602121653.80017-1-yi.l.liu@intel.com>
 References: <20230602121653.80017-1-yi.l.liu@intel.com>
@@ -63,81 +63,127 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-VFIO group has historically allowed multi-open of the device FD. This
-was made secure because the "open" was executed via an ioctl to the
-group FD which is itself only single open.
+Allow the vfio_device file to be in a state where the device FD is
+opened but the device cannot be used by userspace (i.e. its .open_device()
+hasn't been called). This inbetween state is not used when the device
+FD is spawned from the group FD, however when we create the device FD
+directly by opening a cdev it will be opened in the blocked state.
 
-However, no known use of multiple device FDs today. It is kind of a
-strange thing to do because new device FDs can naturally be created
-via dup().
+The reason for the inbetween state is that userspace only gets a FD but
+doesn't gain access permission until binding the FD to an iommufd. So in
+the blocked state, only the bind operation is allowed. Completing bind
+will allow user to further access the device.
 
-When we implement the new device uAPI (only used in cdev path) there is
-no natural way to allow the device itself from being multi-opened in a
-secure manner. Without the group FD we cannot prove the security context
-of the opener.
+This is implemented by adding a flag in struct vfio_device_file to mark
+the blocked state and using a simple smp_load_acquire() to obtain the
+flag value and serialize all the device setup with the thread accessing
+this device.
 
-Thus, when moving to the new uAPI we block the ability of opening
-a device multiple times. Given old group path still allows it we store
-a vfio_group pointer in struct vfio_device_file to differentiate.
+Following this lockless scheme, it can safely handle the device FD
+unbound->bound but it cannot handle bound->unbound. To allow this we'd
+need to add a lock on all the vfio ioctls which seems costly. So once
+device FD is bound, it remains bound until the FD is closed.
 
+Suggested-by: Jason Gunthorpe <jgg@nvidia.com>
 Reviewed-by: Kevin Tian <kevin.tian@intel.com>
 Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
 Reviewed-by: Eric Auger <eric.auger@redhat.com>
 Tested-by: Terrence Xu <terrence.xu@intel.com>
 Tested-by: Nicolin Chen <nicolinc@nvidia.com>
+Tested-by: Matthew Rosato <mjrosato@linux.ibm.com>
 Tested-by: Yanting Jiang <yanting.jiang@intel.com>
 Tested-by: Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>
 Signed-off-by: Yi Liu <yi.l.liu@intel.com>
 ---
- drivers/vfio/group.c     | 2 ++
- drivers/vfio/vfio.h      | 2 ++
- drivers/vfio/vfio_main.c | 7 +++++++
- 3 files changed, 11 insertions(+)
+ drivers/vfio/group.c     | 11 ++++++++++-
+ drivers/vfio/vfio.h      |  1 +
+ drivers/vfio/vfio_main.c | 16 ++++++++++++++++
+ 3 files changed, 27 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/vfio/group.c b/drivers/vfio/group.c
-index 2751d61689c4..4e6277191eb4 100644
+index caf53716ddb2..088dd34c8931 100644
 --- a/drivers/vfio/group.c
 +++ b/drivers/vfio/group.c
-@@ -245,6 +245,8 @@ static struct file *vfio_device_open_file(struct vfio_device *device)
- 		goto err_out;
- 	}
+@@ -194,9 +194,18 @@ static int vfio_df_group_open(struct vfio_device_file *df)
+ 	df->iommufd = device->group->iommufd;
  
-+	df->group = device->group;
+ 	ret = vfio_df_open(df);
+-	if (ret)
++	if (ret) {
+ 		df->iommufd = NULL;
++		goto out_put_kvm;
++	}
 +
- 	ret = vfio_df_group_open(df);
- 	if (ret)
- 		goto err_free;
++	/*
++	 * Paired with smp_load_acquire() in vfio_device_fops::ioctl/
++	 * read/write/mmap and vfio_file_has_device_access()
++	 */
++	smp_store_release(&df->access_granted, true);
+ 
++out_put_kvm:
+ 	if (device->open_count == 0)
+ 		vfio_device_put_kvm(device);
+ 
 diff --git a/drivers/vfio/vfio.h b/drivers/vfio/vfio.h
-index de17bdd16df5..86e45ba18768 100644
+index f9eb52eb9ed7..fdf2fc73f880 100644
 --- a/drivers/vfio/vfio.h
 +++ b/drivers/vfio/vfio.h
-@@ -18,6 +18,8 @@ struct vfio_container;
+@@ -18,6 +18,7 @@ struct vfio_container;
  
  struct vfio_device_file {
  	struct vfio_device *device;
-+	struct vfio_group *group;
-+
- 	bool access_granted;
++	bool access_granted;
  	spinlock_t kvm_ref_lock; /* protect kvm field */
  	struct kvm *kvm;
+ 	struct iommufd_ctx *iommufd; /* protected by struct vfio_device_set::lock */
 diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
-index 4c8b7713dc3d..01db017a0c3b 100644
+index a3c5817fc545..4c8b7713dc3d 100644
 --- a/drivers/vfio/vfio_main.c
 +++ b/drivers/vfio/vfio_main.c
-@@ -492,6 +492,13 @@ int vfio_df_open(struct vfio_device_file *df)
+@@ -1129,6 +1129,10 @@ static long vfio_device_fops_unl_ioctl(struct file *filep,
+ 	struct vfio_device *device = df->device;
+ 	int ret;
  
- 	lockdep_assert_held(&device->dev_set->lock);
- 
-+	/*
-+	 * Only the group path allows the device to be opened multiple
-+	 * times.  The device cdev path doesn't have a secure way for it.
-+	 */
-+	if (device->open_count != 0 && !df->group)
++	/* Paired with smp_store_release() following vfio_df_open() */
++	if (!smp_load_acquire(&df->access_granted))
 +		return -EINVAL;
 +
- 	device->open_count++;
- 	if (device->open_count == 1) {
- 		ret = vfio_device_first_open(df);
+ 	ret = vfio_device_pm_runtime_get(device);
+ 	if (ret)
+ 		return ret;
+@@ -1156,6 +1160,10 @@ static ssize_t vfio_device_fops_read(struct file *filep, char __user *buf,
+ 	struct vfio_device_file *df = filep->private_data;
+ 	struct vfio_device *device = df->device;
+ 
++	/* Paired with smp_store_release() following vfio_df_open() */
++	if (!smp_load_acquire(&df->access_granted))
++		return -EINVAL;
++
+ 	if (unlikely(!device->ops->read))
+ 		return -EINVAL;
+ 
+@@ -1169,6 +1177,10 @@ static ssize_t vfio_device_fops_write(struct file *filep,
+ 	struct vfio_device_file *df = filep->private_data;
+ 	struct vfio_device *device = df->device;
+ 
++	/* Paired with smp_store_release() following vfio_df_open() */
++	if (!smp_load_acquire(&df->access_granted))
++		return -EINVAL;
++
+ 	if (unlikely(!device->ops->write))
+ 		return -EINVAL;
+ 
+@@ -1180,6 +1192,10 @@ static int vfio_device_fops_mmap(struct file *filep, struct vm_area_struct *vma)
+ 	struct vfio_device_file *df = filep->private_data;
+ 	struct vfio_device *device = df->device;
+ 
++	/* Paired with smp_store_release() following vfio_df_open() */
++	if (!smp_load_acquire(&df->access_granted))
++		return -EINVAL;
++
+ 	if (unlikely(!device->ops->mmap))
+ 		return -EINVAL;
+ 
 -- 
 2.34.1
 
