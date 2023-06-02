@@ -2,125 +2,214 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3081CC77B7A
-	for <linux-s390@archiver.kernel.org>; Fri,  2 Jun 2023 10:07:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B6CE9C7EE24
+	for <linux-s390@archiver.kernel.org>; Fri,  2 Jun 2023 11:57:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234979AbjFBKHt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 2 Jun 2023 06:07:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36074 "EHLO
+        id S235314AbjFBL5Q (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 2 Jun 2023 07:57:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234996AbjFBKHr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Jun 2023 06:07:47 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3718C196;
-        Fri,  2 Jun 2023 03:07:43 -0700 (PDT)
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3529JYIs011682;
-        Fri, 2 Jun 2023 10:07:42 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=PVuKXKThOmGBHaktAqnQ6BKyCjA4TbklPrmIokFCwic=;
- b=T9z4MgJwBSfBSlVvwIqKDW7LxnPJ8sZATWrSazY4why0VTf2xqo1PpYb39EQ/ty3tDgt
- BQAZl7QVal279FnPUBRRz4Z+vR95hJe+em9cnbFwe86maKR+l3MjtZQid+TANk5v1bpI
- 6YBkbYORY0SpDEc0rMdfvy6oG+eDqb753IJbk2fkiv6hJFuUfxwFU9/jmD5neVMFmIzJ
- rvNAuOjV/ZmssV23WF32lfZvpxjlK1TGi2M9XDmJtlc+XKBkjk7sNiAAajhhOl3ChAfC
- OgeZj3M2OcIuKpljR4lG2pgxDgxeiYLCf4dMSJoiG3pMa/frnaKFrs3Tmd3Zd7Gq+KMj yA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qydphs5yj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 02 Jun 2023 10:07:42 +0000
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3529xsNk010260;
-        Fri, 2 Jun 2023 10:07:38 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qydphs4x4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 02 Jun 2023 10:07:37 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3522h0Ek008204;
-        Fri, 2 Jun 2023 10:02:00 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3qu9g5aypr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 02 Jun 2023 10:02:00 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 352A1vC119530276
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 2 Jun 2023 10:01:57 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E59F720065;
-        Fri,  2 Jun 2023 10:01:56 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6D88F20063;
-        Fri,  2 Jun 2023 10:01:56 +0000 (GMT)
-Received: from [9.179.1.27] (unknown [9.179.1.27])
-        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Fri,  2 Jun 2023 10:01:56 +0000 (GMT)
-Message-ID: <c56c04e4-8140-5d5d-6793-8faa63958cc0@linux.ibm.com>
-Date:   Fri, 2 Jun 2023 12:01:55 +0200
+        with ESMTP id S234500AbjFBL5P (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Jun 2023 07:57:15 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73F46E57;
+        Fri,  2 Jun 2023 04:56:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=TNU/G9TSMeyQi8I5o1Gz1jaa+8f4RLEdgRB4a+ht+Qw=; b=ND0Cui7lGRCITibE4mA3XHf5OL
+        o9n8Wi78YIiyjLwgjWx2Siqy5aDe5ovwgAhLmEh1yrZsD/+fKvUlmc0hhtA1qWXdTnqR5OGv8lX0q
+        XzwjEbJ5Zbe0gdzoPg6I8ya3Fe51qPKL1tgMzor5Uf16y883dDhXuyyzlBVp7Y+hhpwxBNwqIVHdo
+        h5fOsfrBCZrEO8UtvQXSVhchce5sGM3t7NMU/To+fQ1rEujUCw2WPonTcbn6slckHwmrk+IwJt0tB
+        VKQZkKj0qjxSBMYPYEwWhBrlAlPWc9q9g6FhS4lwisAlETMV3g3azsF0NmqKFaO5vWaSbcM5esA1n
+        4+e3EkWg==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1q53Mt-009BAi-Ri; Fri, 02 Jun 2023 11:54:55 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits))
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id E62313002F0;
+        Fri,  2 Jun 2023 13:54:51 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id CA1C924553E74; Fri,  2 Jun 2023 13:54:51 +0200 (CEST)
+Date:   Fri, 2 Jun 2023 13:54:51 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Valentin Schneider <vschneid@redhat.com>
+Cc:     bigeasy@linutronix.de, mark.rutland@arm.com, maz@kernel.org,
+        catalin.marinas@arm.com, will@kernel.org, chenhuacai@kernel.org,
+        kernel@xen0n.name, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, pbonzini@redhat.com, wanpengli@tencent.com,
+        vkuznets@redhat.com, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+        hpa@zytor.com, jgross@suse.com, boris.ostrovsky@oracle.com,
+        daniel.lezcano@linaro.org, kys@microsoft.com,
+        haiyangz@microsoft.com, wei.liu@kernel.org, decui@microsoft.com,
+        rafael@kernel.org, longman@redhat.com, boqun.feng@gmail.com,
+        pmladek@suse.com, senozhatsky@chromium.org, rostedt@goodmis.org,
+        john.ogness@linutronix.de, juri.lelli@redhat.com,
+        vincent.guittot@linaro.org, dietmar.eggemann@arm.com,
+        bsegall@google.com, mgorman@suse.de, bristot@redhat.com,
+        jstultz@google.com, sboyd@kernel.org, linux-kernel@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, linux-hyperv@vger.kernel.org,
+        linux-pm@vger.kernel.org
+Subject: Re: [PATCH v2 04/13] arm64/arch_timer: Provide noinstr
+ sched_clock_read() functions
+Message-ID: <20230602115451.GG620383@hirez.programming.kicks-ass.net>
+References: <20230519102058.581557770@infradead.org>
+ <20230519102715.435618812@infradead.org>
+ <xhsmho7m9ptrk.mognet@vschneid.remote.csb>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.8.0
-Subject: Re: [kvm-unit-tests PATCH v9 2/2] s390x: topology: Checking
- Configuration Topology Information
-Content-Language: en-US
-To:     Nico Boehr <nrb@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        linux-s390@vger.kernel.org
-Cc:     thuth@redhat.com, kvm@vger.kernel.org, imbrenda@linux.ibm.com,
-        david@redhat.com, nsg@linux.ibm.com
-References: <20230519112236.14332-1-pmorel@linux.ibm.com>
- <20230519112236.14332-3-pmorel@linux.ibm.com>
- <fa415627-bfff-cc18-af94-cf55632973d5@linux.ibm.com>
- <168569490681.252746.1049350277526238686@t14-nrb>
-From:   Pierre Morel <pmorel@linux.ibm.com>
-In-Reply-To: <168569490681.252746.1049350277526238686@t14-nrb>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: G47afggXF0boc8ZQwJBSk3p3OVdJi1yy
-X-Proofpoint-ORIG-GUID: SvSw6_zy16cetJ1xGoqxthDs_IlJXhOl
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
- definitions=2023-06-02_06,2023-05-31_03,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 phishscore=0
- mlxscore=0 adultscore=0 clxscore=1015 mlxlogscore=999 priorityscore=1501
- suspectscore=0 lowpriorityscore=0 bulkscore=0 spamscore=0 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2304280000
- definitions=main-2306020076
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <xhsmho7m9ptrk.mognet@vschneid.remote.csb>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Wed, May 24, 2023 at 05:40:47PM +0100, Valentin Schneider wrote:
+> On 19/05/23 12:21, Peter Zijlstra wrote:
+> > With the intent to provide local_clock_noinstr(), a variant of
+> > local_clock() that's safe to be called from noinstr code (with the
+> > assumption that any such code will already be non-preemptible),
+> > prepare for things by providing a noinstr sched_clock_read() function.
+> >
+> > Specifically, preempt_enable_*() calls out to schedule(), which upsets
+> > noinstr validation efforts.
+> >
+> > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> > ---
+> >  arch/arm64/include/asm/arch_timer.h  |    8 ----
+> >  drivers/clocksource/arm_arch_timer.c |   60 ++++++++++++++++++++++++++---------
+> >  2 files changed, 47 insertions(+), 21 deletions(-)
+> >
+> > --- a/arch/arm64/include/asm/arch_timer.h
+> > +++ b/arch/arm64/include/asm/arch_timer.h
+> > @@ -88,13 +88,7 @@ static inline notrace u64 arch_timer_rea
+> >
+> >  #define arch_timer_reg_read_stable(reg)					\
+> >       ({								\
+> > -		u64 _val;						\
+> > -									\
+> > -		preempt_disable_notrace();				\
+> > -		_val = erratum_handler(read_ ## reg)();			\
+> > -		preempt_enable_notrace();				\
+> > -									\
+> > -		_val;							\
+> > +		erratum_handler(read_ ## reg)();			\
+> >       })
+> >
+> >  /*
+> > --- a/drivers/clocksource/arm_arch_timer.c
+> > +++ b/drivers/clocksource/arm_arch_timer.c
+> > @@ -191,22 +191,40 @@ u32 arch_timer_reg_read(int access, enum
+> >       return val;
+> >  }
+> >
+> > -static notrace u64 arch_counter_get_cntpct_stable(void)
+> > +static noinstr u64 _arch_counter_get_cntpct_stable(void)
+> >  {
+> >       return __arch_counter_get_cntpct_stable();
+> >  }
+> >
+> 
+> I tripped over the underscores when reviewing this :( This must be
+> getting close to the symbol length limit, but could we give this a helpful
+> prefix or suffix? raw_* or *_noinstr?
+> 
+> > @@ -1074,6 +1092,13 @@ struct arch_timer_kvm_info *arch_timer_g
+> >
+> >  static void __init arch_counter_register(unsigned type)
+> >  {
+> > +	/*
+> > +	 * Default to cp15 based access because arm64 uses this function for
+> > +	 * sched_clock() before DT is probed and the cp15 method is guaranteed
+> > +	 * to exist on arm64. arm doesn't use this before DT is probed so even
+> > +	 * if we don't have the cp15 accessors we won't have a problem.
+> > +	 */
+> > +	u64 (*scr)(void) = arch_counter_get_cntvct;
+> 
+> So this bit sent me on a little spelunking session :-)
+> 
+> From a control flow perspective the initialization isn't required, but then
+> I looked into the comment and found it comes from the
+> arch_timer_read_counter() definition... Which itself doesn't get used by
+> sched_clock() until the sched_clock_register() below!
+> 
+> So AFAICT that comment was true as of
+> 
+>   220069945b29 ("clocksource: arch_timer: Add support for memory mapped timers")
+> 
+> but not after a commit that came 2 months later:
+> 
+>   65cd4f6c99c1 ("arch_timer: Move to generic sched_clock framework")
+> 
+> which IIUC made arm/arm64 follow the default approach of using the
+> jiffy-based sched_clock() before probing DT/ACPI and registering a "proper"
+> sched_clock.
+> 
+> All of that to say: the comment about arch_timer_read_counter() vs early
+> sched_clock() doesn't apply anymore, but I think we need to keep its
+> initalization around for stuff like get_cycles(). This initialization here
+> should be OK to put to the bin, though.
 
-On 6/2/23 10:35, Nico Boehr wrote:
-> Quoting Janosch Frank (2023-06-01 11:38:37)
-> [...]
->>>    [topology]
->>>    file = topology.elf
->>> +# 3 CPUs on socket 0 with different CPU TLE (standard, dedicated, origin)
->>> +# 1 CPU on socket 2
->>> +extra_params = -smp 1,drawers=3,books=3,sockets=4,cores=4,maxcpus=144 -cpu z14,ctop=on -device z14-s390x-cpu,core-id=1,entitlement=low -device z14-s390x-cpu,core-id=2,dedicated=on -device z14-s390x-cpu,core-id=10 -device z14-s390x-cpu,core-id=20 -device z14-s390x-cpu,core-id=130,socket-id=0,book-id=0,drawer-id=0 -append '-drawers 3 -books 3 -sockets 4 -cores 4'
->>> +
->>> +[topology-2]
->>> +file = topology.elf
->>> +extra_params = -smp 1,drawers=2,books=2,sockets=2,cores=30,maxcpus=240  -append '-drawers 2 -books 2 -sockets 2 -cores 30' -cpu z14,ctop=on -device z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=2,entitlement=low -device z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=3,entitlement=medium -device z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=4,entitlement=high -device z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=5,entitlement=high,dedicated=on -device z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=65,entitlement=low -device z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=66,entitlement=medium -device z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=67,entitlement=high -device z14-s390x-cpu,drawer-id=1,book-id=0,socket-id=0,core-id=68,entitlement=high,dedicated=on
->> Pardon my ignorance but I see z14 in there, will this work if we run on
->> a z13?
-> It causes a skip, I reproduced this on a z14 by changing to z15:
-> SKIP topology (qemu-system-s390x: unable to find CPU model 'z15')
->
-> If we can make this more generic so the tests run on older machines it would be
-> good, but if we can't it wouldn't break (i.e. FAIL) on older machines.
->
->> Also, will this work/fail gracefully if the test is run with a quemu
->> that doesn't know about topology or will it crash?
-> Just tried on my box, skips with:
-> SKIP topology (qemu-system-s390x: Parameter 'smp.books' is unexpected)
->
-> So I think we're good here.
+Something like the below folded in then?
 
-
-Right, I answered about QEMU and not for kvm-unit-tests
-
+---
+--- a/drivers/clocksource/arm_arch_timer.c
++++ b/drivers/clocksource/arm_arch_timer.c
+@@ -191,7 +191,7 @@ u32 arch_timer_reg_read(int access, enum
+ 	return val;
+ }
+ 
+-static noinstr u64 _arch_counter_get_cntpct_stable(void)
++static noinstr u64 raw_counter_get_cntpct_stable(void)
+ {
+ 	return __arch_counter_get_cntpct_stable();
+ }
+@@ -210,7 +210,7 @@ static noinstr u64 arch_counter_get_cntp
+ 	return __arch_counter_get_cntpct();
+ }
+ 
+-static noinstr u64 _arch_counter_get_cntvct_stable(void)
++static noinstr u64 raw_counter_get_cntvct_stable(void)
+ {
+ 	return __arch_counter_get_cntvct_stable();
+ }
+@@ -1092,13 +1092,7 @@ struct arch_timer_kvm_info *arch_timer_g
+ 
+ static void __init arch_counter_register(unsigned type)
+ {
+-	/*
+-	 * Default to cp15 based access because arm64 uses this function for
+-	 * sched_clock() before DT is probed and the cp15 method is guaranteed
+-	 * to exist on arm64. arm doesn't use this before DT is probed so even
+-	 * if we don't have the cp15 accessors we won't have a problem.
+-	 */
+-	u64 (*scr)(void) = arch_counter_get_cntvct;
++	u64 (*scr)(void);
+ 	u64 start_count;
+ 	int width;
+ 
+@@ -1110,7 +1104,7 @@ static void __init arch_counter_register
+ 		    arch_timer_uses_ppi == ARCH_TIMER_VIRT_PPI) {
+ 			if (arch_timer_counter_has_wa()) {
+ 				rd = arch_counter_get_cntvct_stable;
+-				scr = _arch_counter_get_cntvct_stable;
++				scr = raw_counter_get_cntvct_stable;
+ 			} else {
+ 				rd = arch_counter_get_cntvct;
+ 				scr = arch_counter_get_cntvct;
+@@ -1118,7 +1112,7 @@ static void __init arch_counter_register
+ 		} else {
+ 			if (arch_timer_counter_has_wa()) {
+ 				rd = arch_counter_get_cntpct_stable;
+-				scr = _arch_counter_get_cntpct_stable;
++				scr = raw_counter_get_cntpct_stable;
+ 			} else {
+ 				rd = arch_counter_get_cntpct;
+ 				scr = arch_counter_get_cntpct;
