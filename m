@@ -2,56 +2,53 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B240DC7EE23
-	for <linux-s390@archiver.kernel.org>; Fri,  2 Jun 2023 00:02:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 289ABC7EE2F
+	for <linux-s390@archiver.kernel.org>; Fri,  2 Jun 2023 00:36:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231279AbjFBACd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 1 Jun 2023 20:02:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49754 "EHLO
+        id S232388AbjFBAgi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 1 Jun 2023 20:36:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229884AbjFBACc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 20:02:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B08F5133;
-        Thu,  1 Jun 2023 17:02:31 -0700 (PDT)
+        with ESMTP id S231241AbjFBAgi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jun 2023 20:36:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16869123;
+        Thu,  1 Jun 2023 17:36:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4726B61938;
-        Fri,  2 Jun 2023 00:02:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A691CC433A8;
-        Fri,  2 Jun 2023 00:02:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AF7C3647BA;
+        Fri,  2 Jun 2023 00:36:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01E5AC433A1;
+        Fri,  2 Jun 2023 00:36:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1685664150;
-        bh=tFm/VXuuVDtTlP6XBCrW6GQLEa1ct+xvVLB1UFiGIT0=;
+        s=k20201202; t=1685666196;
+        bh=8680DMzx0gtVOisbuW5F5FI58VdZiV3S7sDNyC66jIs=;
         h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=Zhe+ii4hjesHDAgMZHuwpUCJJCm75EFKG+5a6EPWjMO0HDHXPyIpavtujtLCURVSG
-         L0tPOTqlQwSkMNiUo14MQBHZXJuJsEZSF14bp35whT7uHVYa6I5+MNTZchaPm9JNIm
-         aVdr8gwENYjQkB3MGIU8IUF/E6pIAulaPIHaGpFoY73x0KGcegDzYIgthrQqKLiK0x
-         E+hZoEG+zWVfdTx59SC4n6eQIxvKqvyqdxNlYb/Bah5jcigAfqfjnA8yubrXktjB4r
-         u9EYw1FVaxQ8EYOZ1NhKvpv2x/t9dFLPXYWavNE0MV8kGpQg8ySGoyFYWjG/4fGguR
-         0BNJi8O6JG65A==
-Received: by mail-lf1-f46.google.com with SMTP id 2adb3069b0e04-4f3edc05aa5so1930227e87.3;
-        Thu, 01 Jun 2023 17:02:30 -0700 (PDT)
-X-Gm-Message-State: AC+VfDx1f2WOHYh7UHw2JHakFpe2ckFEFbZuGB3OYXPFivvE1fP+VU58
-        0jPezDtLPl/YbMsuEvh90TqVFocil64TxgweWLU=
-X-Google-Smtp-Source: ACHHUZ5+AeCGOC7qHIq2jqRCeZpvT4cPqtj6GONlHu3ZGFgMYeuzIcV8ffuR5AKgvu/Von6c/0h12/a6PWP4XU2OyEA=
-X-Received: by 2002:a05:6512:201:b0:4f2:4df1:9718 with SMTP id
- a1-20020a056512020100b004f24df19718mr780946lfo.17.1685664148535; Thu, 01 Jun
- 2023 17:02:28 -0700 (PDT)
+        b=XTmFrz6x8P+uu4p7+8CwwHHAR8ToxETybv3aokjIkUt8au2/bliIWtKwA0GAbEtXU
+         35MXE4ZwOYCOUbquOW3LQoZZDXhPbam+LWuZhJ0mqETvOfa2/rMGWxD+GJruYpNbS6
+         ci30bYJW5Xs8iSRMEPad+knzjZDpipv9dxPxlL70NiYXhKXJnUs1HWnqvirj5dSWAN
+         B2cCO/rarwHERSu66gvzGkFtyDmlSmQAJPI3dJJQqihBq56qTMR5zptT8HtrJ2b10S
+         TMFJdORTSry9D8pvsZGiWSqPLVC1lC/A7oq6hOwBZbEcU0/jUM34HuLUgEBSnU29a0
+         P+mvZ51/iQCoA==
+Received: by mail-lf1-f50.google.com with SMTP id 2adb3069b0e04-4f60bc818d7so1269054e87.1;
+        Thu, 01 Jun 2023 17:36:35 -0700 (PDT)
+X-Gm-Message-State: AC+VfDz01X/xqtBxs2VBC7kbZ7774EbwDGMYrk1Mdk03I6HzRaiW0yxT
+        U5plHKTKxbuE+J/FKIt2iVbdgdr0HQJB0Rp5MwY=
+X-Google-Smtp-Source: ACHHUZ4rAYUoiHYEWWqFuntxOuL06QmDCDII8lO4o2SuljgVgQXswY+xn62uFOnPiNtfcw4WXcIV+P9v/6p/Zkld05w=
+X-Received: by 2002:ac2:44ca:0:b0:4f3:b18a:6497 with SMTP id
+ d10-20020ac244ca000000b004f3b18a6497mr927744lfm.52.1685666193979; Thu, 01 Jun
+ 2023 17:36:33 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230601101257.530867-1-rppt@kernel.org> <20230601101257.530867-13-rppt@kernel.org>
- <20230601103050.GT4253@hirez.programming.kicks-ass.net> <20230601110713.GE395338@kernel.org>
-In-Reply-To: <20230601110713.GE395338@kernel.org>
+References: <20230601101257.530867-1-rppt@kernel.org>
+In-Reply-To: <20230601101257.530867-1-rppt@kernel.org>
 From:   Song Liu <song@kernel.org>
-Date:   Thu, 1 Jun 2023 17:02:16 -0700
-X-Gmail-Original-Message-ID: <CAPhsuW7J=4iMPQQw=V1C4MLFf=cP94gSwVx1g7M4YL0W6OLHRQ@mail.gmail.com>
-Message-ID: <CAPhsuW7J=4iMPQQw=V1C4MLFf=cP94gSwVx1g7M4YL0W6OLHRQ@mail.gmail.com>
-Subject: Re: [PATCH 12/13] x86/jitalloc: prepare to allocate exectuatble
- memory as ROX
+Date:   Thu, 1 Jun 2023 17:36:21 -0700
+X-Gmail-Original-Message-ID: <CAPhsuW5Em5Sj9uCGyfM6BheTuvA4pviavRTUK-3MbGsd9yCRbQ@mail.gmail.com>
+Message-ID: <CAPhsuW5Em5Sj9uCGyfM6BheTuvA4pviavRTUK-3MbGsd9yCRbQ@mail.gmail.com>
+Subject: Re: [PATCH 00/13] mm: jit/text allocator
 To:     Mike Rapoport <rppt@kernel.org>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        linux-kernel@vger.kernel.org,
+Cc:     linux-kernel@vger.kernel.org,
         Andrew Morton <akpm@linux-foundation.org>,
         Catalin Marinas <catalin.marinas@arm.com>,
         Christophe Leroy <christophe.leroy@csgroup.eu>,
@@ -82,54 +79,62 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jun 1, 2023 at 4:07=E2=80=AFAM Mike Rapoport <rppt@kernel.org> wrot=
+On Thu, Jun 1, 2023 at 3:13=E2=80=AFAM Mike Rapoport <rppt@kernel.org> wrot=
 e:
 >
-> On Thu, Jun 01, 2023 at 12:30:50PM +0200, Peter Zijlstra wrote:
-> > On Thu, Jun 01, 2023 at 01:12:56PM +0300, Mike Rapoport wrote:
-> >
-> > > +static void __init_or_module do_text_poke(void *addr, const void *op=
-code, size_t len)
-> > > +{
-> > > +   if (system_state < SYSTEM_RUNNING) {
-> > > +           text_poke_early(addr, opcode, len);
-> > > +   } else {
-> > > +           mutex_lock(&text_mutex);
-> > > +           text_poke(addr, opcode, len);
-> > > +           mutex_unlock(&text_mutex);
-> > > +   }
-> > > +}
-> >
-> > So I don't much like do_text_poke(); why?
+> From: "Mike Rapoport (IBM)" <rppt@kernel.org>
 >
-> I believe the idea was to keep memcpy for early boot before the kernel
-> image is protected without going and adding if (is_module_text_address())
-> all over the place.
+> Hi,
 >
-> I think this can be used instead without updating all the call sites of
-> text_poke_early():
+> module_alloc() is used everywhere as a mean to allocate memory for code.
 >
-> diff --git a/arch/x86/kernel/alternative.c b/arch/x86/kernel/alternative.=
-c
-> index 91057de8e6bc..f994e63e9903 100644
-> --- a/arch/x86/kernel/alternative.c
-> +++ b/arch/x86/kernel/alternative.c
-> @@ -1458,7 +1458,7 @@ void __init_or_module text_poke_early(void *addr, c=
-onst void *opcode,
->                  * code cannot be running and speculative code-fetches ar=
-e
->                  * prevented. Just change the code.
->                  */
-> -               memcpy(addr, opcode, len);
-> +               text_poke_copy(addr, opcode, len);
->         } else {
->                 local_irq_save(flags);
->                 memcpy(addr, opcode, len);
+> Beside being semantically wrong, this unnecessarily ties all subsystmes
+> that need to allocate code, such as ftrace, kprobes and BPF to modules
+> and puts the burden of code allocation to the modules code.
 >
+> Several architectures override module_alloc() because of various
+> constraints where the executable memory can be located and this causes
+> additional obstacles for improvements of code allocation.
+>
+> This set splits code allocation from modules by introducing
+> jit_text_alloc(), jit_data_alloc() and jit_free() APIs, replaces call
+> sites of module_alloc() and module_memfree() with the new APIs and
+> implements core text and related allocation in a central place.
+>
+> Instead of architecture specific overrides for module_alloc(), the
+> architectures that require non-default behaviour for text allocation must
+> fill jit_alloc_params structure and implement jit_alloc_arch_params() tha=
+t
+> returns a pointer to that structure. If an architecture does not implemen=
+t
+> jit_alloc_arch_params(), the defaults compatible with the current
+> modules::module_alloc() are used.
+>
+> The new jitalloc infrastructure allows decoupling of kprobes and ftrace
+> from modules, and most importantly it enables ROX allocations for
+> executable memory.
 
-This alone doesn't work, as text_poke_early() is called
-before addr is added to the list of module texts. So we
-still use memcpy() here.
+This set does look cleaner than my version [1]. However, this is
+partially because this set only separates text and data; while [1]
+also separates rw data, ro data, and ro_after_init data. We need
+such separation to fully cover module usage, and to remove
+VM_FLUSH_RESET_PERMS. Once we add these logic to this
+set, the two versions will look similar.
+
+OTOH, I do like the fact this version enables kprobes (and
+potentially ftrace and bpf) without CONFIG_MODULES. And
+mm/ seems a better home for the logic.
+
+That being said, besides comments in a few patches, this
+version looks good to me. With the fix I suggested for patch
+12/13, it passed my tests on x86_64 with modules, kprobes,
+ftrace, and BPF.
+
+If we decided to ship this version, I would appreciate it if I
+could get more credit for my work in [1] and research work
+before that.
 
 Thanks,
 Song
+
+[1] https://lore.kernel.org/lkml/20230526051529.3387103-1-song@kernel.org/
