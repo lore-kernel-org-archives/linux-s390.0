@@ -2,107 +2,199 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 62F0BC77B7A
-	for <linux-s390@archiver.kernel.org>; Sat,  3 Jun 2023 20:02:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2618AC7EE2C
+	for <linux-s390@archiver.kernel.org>; Sat,  3 Jun 2023 21:12:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229574AbjFCUCa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 3 Jun 2023 16:02:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46144 "EHLO
+        id S229566AbjFCVMG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 3 Jun 2023 17:12:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229451AbjFCUCa (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 3 Jun 2023 16:02:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C58618D;
-        Sat,  3 Jun 2023 13:02:29 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D48E9604EF;
-        Sat,  3 Jun 2023 20:02:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 16E98C433EF;
-        Sat,  3 Jun 2023 20:02:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1685822548;
-        bh=W6Ph1V7NwcCTO1o11ACZOYg3bN9VWa0uLMUPomqMqnA=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=KkH29b6rkyGAJmJHJckzZfOoD20UpfrqiArUK/vKyrIodwNmnLkiATwPc/3y9Mrnp
-         p6JAMSTlAqgMZsoCVm+jE5DNsNl2FZ2qAo4vBZrEXEtmSE1ZtjNd45CphKBRmjXhxx
-         q7BWHJKAKNPyvrQyoZ9gicOKhWi1A+1xbnQ2VB0Hbdb8/dSj8510Y4x1ELAYtPg6CI
-         OBl0Wy+4qtaMe34Ij+iYcLqx3mAO3Kszp49c2Z1i4ieuypcs84T5mTimN5Yj+Wyq6S
-         OLaN6oSBCTK3RlhUQBJfkn6YE/nOCyGSB1xaE9er6Oad+Qy5ByXBdU3tH9THm3fj5V
-         TjxT5VN3QmDEQ==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id DC8D1C395E0;
-        Sat,  3 Jun 2023 20:02:27 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229463AbjFCVMF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 3 Jun 2023 17:12:05 -0400
+Received: from mail-lj1-x22d.google.com (mail-lj1-x22d.google.com [IPv6:2a00:1450:4864:20::22d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DD72BB;
+        Sat,  3 Jun 2023 14:12:04 -0700 (PDT)
+Received: by mail-lj1-x22d.google.com with SMTP id 38308e7fff4ca-2b1adf27823so24651281fa.2;
+        Sat, 03 Jun 2023 14:12:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1685826722; x=1688418722;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ywQUs5Fiz0nF2jpbvNI9hUxAw7fBwSlpxtNbhNWOdKQ=;
+        b=RDS3HF6Dzg4udc+gzR1ge+A8FipEjdhBSdULq7dQD2UyV6dgjBvuZgGerD6vUs2YSm
+         VDnqI9KNtr2Dk7Dcagvb3z7MHB6yFn9dZVHE0avEHhNOnZSxu+haoNYcH+DbvcdZqhp2
+         V/2FcSs+Og/LSo+4chvosoksvs7WCJCCw38bmEWjYWWbCKP1NNCl8K5ura9Sf0w8P5PP
+         7V+264OxyeQzdq0h0Oa1oSNUiGbjJiqkYN3172ascXs+vGBmB8K0oc564ajmaECysFRA
+         O+qDRdpmwpV7013SWgjBPZmxYgAbk4/aYxoKzE2wIVyrPNGanFSOTGWVNORuh+LwDAsi
+         f1HQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1685826722; x=1688418722;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ywQUs5Fiz0nF2jpbvNI9hUxAw7fBwSlpxtNbhNWOdKQ=;
+        b=SZAv6c4aEnU02IE7CLZ8gHKXfgocaKwfYW8xNd2Tg/U1hiMdCbDyTdnyJKJWLdF8ur
+         XOhFxx1ebz7Lr31gpWiQqqRKDaMWm52AIObIoJN6WI1Opuw9KJFVc2+Li0rDlq48b8bj
+         q4NBELVRWYCT1NIASZ5e3PBIM7Rf2BBWdtCUfXfl3okBybupaDrXU6/UwoXgYCIFLW8n
+         c5gBt8WdPpHBwvW0fYwQmpH4BNp4eUDJ9mpGoSC26M+syKgzeu5J3CTrkxbFwK5axm29
+         xLN/1/Zy77TSFQ1jfumRsDF6xf7Ay56Wn3gR09WrHFHVqt/GQfrm/uOUzBdUC3qpDV6p
+         96mg==
+X-Gm-Message-State: AC+VfDyWAOA4NWGVIe6Bpj+KGKL7Pzyu89UrESEMkJhez6irL3NDAsud
+        xfJ/GYLxQIU96go4dlO2vG78Kb1TVV0DCpPgt75j0KwXfjTzXHnjND0=
+X-Google-Smtp-Source: ACHHUZ7QpjsIySl/XiT4DfbanAj3JM5KVAqgA/T1nohoUOzVT96eBA8GwqXTmRgv+kLRpCQJ8cFP5VM7V3QLXDceJ3I=
+X-Received: by 2002:a2e:88d6:0:b0:2a7:b986:3481 with SMTP id
+ a22-20020a2e88d6000000b002a7b9863481mr1909233ljk.41.1685826722179; Sat, 03
+ Jun 2023 14:12:02 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] net/smc: Avoid to access invalid RMBs' MRs in SMCRv1 ADD
- LINK CONT
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <168582254789.6132.5199487430130096814.git-patchwork-notify@kernel.org>
-Date:   Sat, 03 Jun 2023 20:02:27 +0000
-References: <1685608912-124996-1-git-send-email-guwen@linux.alibaba.com>
-In-Reply-To: <1685608912-124996-1-git-send-email-guwen@linux.alibaba.com>
-To:     Wen Gu <guwen@linux.alibaba.com>
-Cc:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20230601101257.530867-1-rppt@kernel.org> <ZHjDU/mxE+cugpLj@FVFF77S0Q05N.cambridge.arm.com>
+ <ZHjgIH3aX9dCvVZc@moria.home.lan> <ZHm3zUUbwqlsZBBF@FVFF77S0Q05N> <CAPhsuW7Euczff_KB70nuH=Hhf2EYHAf=xiQR7mFqVfByhD34XA@mail.gmail.com>
+In-Reply-To: <CAPhsuW7Euczff_KB70nuH=Hhf2EYHAf=xiQR7mFqVfByhD34XA@mail.gmail.com>
+From:   Puranjay Mohan <puranjay12@gmail.com>
+Date:   Sat, 3 Jun 2023 23:11:51 +0200
+Message-ID: <CANk7y0jtFA4sKgh2o2gAydLNzOxfZ0r3LVRuzzTGS8Qv0BuJGg@mail.gmail.com>
+Subject: Re: [PATCH 00/13] mm: jit/text allocator
+To:     Song Liu <song@kernel.org>
+Cc:     Mark Rutland <mark.rutland@arm.com>,
+        Kent Overstreet <kent.overstreet@linux.dev>,
+        Mike Rapoport <rppt@kernel.org>, linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Helge Deller <deller@gmx.de>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will@kernel.org>, bpf@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+        linux-mm@kvack.org, linux-modules@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+        netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello:
+On Fri, Jun 2, 2023 at 8:21=E2=80=AFPM Song Liu <song@kernel.org> wrote:
+>
+> On Fri, Jun 2, 2023 at 2:35=E2=80=AFAM Mark Rutland <mark.rutland@arm.com=
+> wrote:
+> >
+> > On Thu, Jun 01, 2023 at 02:14:56PM -0400, Kent Overstreet wrote:
+> > > On Thu, Jun 01, 2023 at 05:12:03PM +0100, Mark Rutland wrote:
+> > > > For a while I have wanted to give kprobes its own allocator so that=
+ it can work
+> > > > even with CONFIG_MODULES=3Dn, and so that it doesn't have to waste =
+VA space in
+> > > > the modules area.
+> > > >
+> > > > Given that, I think these should have their own allocator functions=
+ that can be
+> > > > provided independently, even if those happen to use common infrastr=
+ucture.
+> > >
+> > > How much memory can kprobes conceivably use? I think we also want to =
+try
+> > > to push back on combinatorial new allocators, if we can.
+> >
+> > That depends on who's using it, and how (e.g. via BPF).
+> >
+> > To be clear, I'm not necessarily asking for entirely different allocato=
+rs, but
+> > I do thinkg that we want wrappers that can at least pass distinct start=
++end
+> > parameters to a common allocator, and for arm64's modules code I'd expe=
+ct that
+> > we'd keep the range falblack logic out of the common allcoator, and jus=
+t call
+> > it twice.
+> >
+> > > > > Several architectures override module_alloc() because of various
+> > > > > constraints where the executable memory can be located and this c=
+auses
+> > > > > additional obstacles for improvements of code allocation.
+> > > > >
+> > > > > This set splits code allocation from modules by introducing
+> > > > > jit_text_alloc(), jit_data_alloc() and jit_free() APIs, replaces =
+call
+> > > > > sites of module_alloc() and module_memfree() with the new APIs an=
+d
+> > > > > implements core text and related allocation in a central place.
+> > > > >
+> > > > > Instead of architecture specific overrides for module_alloc(), th=
+e
+> > > > > architectures that require non-default behaviour for text allocat=
+ion must
+> > > > > fill jit_alloc_params structure and implement jit_alloc_arch_para=
+ms() that
+> > > > > returns a pointer to that structure. If an architecture does not =
+implement
+> > > > > jit_alloc_arch_params(), the defaults compatible with the current
+> > > > > modules::module_alloc() are used.
+> > > >
+> > > > As above, I suspect that each of the callsites should probably be u=
+sing common
+> > > > infrastructure, but I don't think that a single jit_alloc_arch_para=
+ms() makes
+> > > > sense, since the parameters for each case may need to be distinct.
+> > >
+> > > I don't see how that follows. The whole point of function parameters =
+is
+> > > that they may be different :)
+> >
+> > What I mean is that jit_alloc_arch_params() tries to aggregate common
+> > parameters, but they aren't actually common (e.g. the actual start+end =
+range
+> > for allocation).
+> >
+> > > Can you give more detail on what parameters you need? If the only ext=
+ra
+> > > parameter is just "does this allocation need to live close to kernel
+> > > text", that's not that big of a deal.
+> >
+> > My thinking was that we at least need the start + end for each caller. =
+That
+> > might be it, tbh.
+>
+> IIUC, arm64 uses VMALLOC address space for BPF programs. The reason
+> is each BPF program uses at least 64kB (one page) out of the 128MB
+> address space. Puranjay Mohan (CC'ed) is working on enabling
+> bpf_prog_pack for arm64. Once this work is done, multiple BPF programs
+> will be able to share a page. Will this improvement remove the need to
+> specify a different address range for BPF programs?
 
-This patch was applied to netdev/net.git (main)
-by David S. Miller <davem@davemloft.net>:
+Hi,
+Thanks for adding me to the conversation.
 
-On Thu,  1 Jun 2023 16:41:52 +0800 you wrote:
-> SMCRv1 has a similar issue to SMCRv2 (see link below) that may access
-> invalid MRs of RMBs when construct LLC ADD LINK CONT messages.
-> 
->  BUG: kernel NULL pointer dereference, address: 0000000000000014
->  #PF: supervisor read access in kernel mode
->  #PF: error_code(0x0000) - not-present page
->  PGD 0 P4D 0
->  Oops: 0000 [#1] PREEMPT SMP PTI
->  CPU: 5 PID: 48 Comm: kworker/5:0 Kdump: loaded Tainted: G W   E      6.4.0-rc3+ #49
->  Workqueue: events smc_llc_add_link_work [smc]
->  RIP: 0010:smc_llc_add_link_cont+0x160/0x270 [smc]
->  RSP: 0018:ffffa737801d3d50 EFLAGS: 00010286
->  RAX: ffff964f82144000 RBX: ffffa737801d3dd8 RCX: 0000000000000000
->  RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffff964f81370c30
->  RBP: ffffa737801d3dd4 R08: ffff964f81370000 R09: ffffa737801d3db0
->  R10: 0000000000000001 R11: 0000000000000060 R12: ffff964f82e70000
->  R13: ffff964f81370c38 R14: ffffa737801d3dd3 R15: 0000000000000001
->  FS:  0000000000000000(0000) GS:ffff9652bfd40000(0000) knlGS:0000000000000000
->  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->  CR2: 0000000000000014 CR3: 000000008fa20004 CR4: 00000000003706e0
->  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
->  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
->  Call Trace:
->   <TASK>
->   smc_llc_srv_rkey_exchange+0xa7/0x190 [smc]
->   smc_llc_srv_add_link+0x3ae/0x5a0 [smc]
->   smc_llc_add_link_work+0xb8/0x140 [smc]
->   process_one_work+0x1e5/0x3f0
->   worker_thread+0x4d/0x2f0
->   ? __pfx_worker_thread+0x10/0x10
->   kthread+0xe5/0x120
->   ? __pfx_kthread+0x10/0x10
->   ret_from_fork+0x2c/0x50
->   </TASK>
-> 
-> [...]
+The ARM64 BPF JIT used to allocate the memory using module_alloc but it
+was not optimal because BPF programs and modules were sharing the 128 MB
+module region. This was fixed by
+91fc957c9b1d ("arm64/bpf: don't allocate BPF JIT programs in module memory"=
+)
+It created a dedicated 128 MB region set aside for BPF programs.
 
-Here is the summary with links:
-  - [net] net/smc: Avoid to access invalid RMBs' MRs in SMCRv1 ADD LINK CONT
-    https://git.kernel.org/netdev/net/c/c308e9ec0047
+But 128MB could get exhausted especially where PAGE_SIZE is 64KB - one
+page is needed per program. This restriction was removed by
+b89ddf4cca43 ("arm64/bpf: Remove 128MB limit for BPF JIT programs")
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+So, currently BPF programs are using a full page from vmalloc (4 KB,
+16 KB, or 64 KB).
+This wastes memory and also causes iTLB pressure. Enabling bpf_prog_pack
+for ARM64 would fix it. I am doing some final tests and will send the patch=
+es in
+1-2 days.
 
-
+Thanks,
+Puranjay
