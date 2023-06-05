@@ -2,130 +2,163 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A178C77B73
-	for <linux-s390@archiver.kernel.org>; Mon,  5 Jun 2023 10:47:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 913E1C7EE23
+	for <linux-s390@archiver.kernel.org>; Mon,  5 Jun 2023 12:39:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229967AbjFEKrf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 5 Jun 2023 06:47:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57042 "EHLO
+        id S232950AbjFEMjh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 5 Jun 2023 08:39:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230433AbjFEKre (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 5 Jun 2023 06:47:34 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50EE7F1;
-        Mon,  5 Jun 2023 03:47:33 -0700 (PDT)
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 355AStAr010277;
-        Mon, 5 Jun 2023 10:47:32 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
+        with ESMTP id S232924AbjFEMjf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 5 Jun 2023 08:39:35 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BB81A1;
+        Mon,  5 Jun 2023 05:39:34 -0700 (PDT)
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 355CGkXw003839;
+        Mon, 5 Jun 2023 12:39:34 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : to : cc : references : from : subject : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=XWGlW8qgdGJmU8E+7lgLh+iFYLGOxM2q/pVMYNxZkzM=;
- b=Kj5Jz+PSyKTmAxrVOZtUeugNx/cSGOg+wsPIm3530GnMO8z/4nmhSRyVcoylmUA0fFBr
- 0DSfpv1YzXI752dK66PpAEdjJDx9T2XVWJUukInDnNwpnXG0aHTe2kbsRGmf7DqPz9j6
- /x4SILx3yYlu/AlDJ0SMqYbrq2EbsNnLL/n8EnzZABy+28Us3FcChtP7uSVliAYkNMwu
- ZuuBCfrBhd2wHlTD5F6IHAM0TwdgBoU3kpteTk88HtoOMu2ZuCPTu1W84B0iADjcu5ua
- cUPg09BMaLj0eQJN7G1q0wdlI6JVrw+MUlLskPg1E3jNxxhCxajFYfhP4llaou6S3Trn vA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3r1e08gdp9-1
+ bh=E66XeiwmOkh+c6855Qhsf1UQLKfUMHAjv3cY+q0Hu7E=;
+ b=if/rjP84XTqrQZXm8+RJtcJgYsXdki54QVpIKpP9wToFXeNEn6AlxMqPImf4rZ7YNc5q
+ ZPlS6Dp9J2rGHVFijZTqWjezWm6EblF+icn63t27S6NF6bq0xnzU8xpa7l275aQlzp2f
+ PR0RgSTFLZJE0Cs1DO3JY5NQZGpEHS97hXx2WkH7FPfGw1nLSjmQ1eNRkC5uKeo0K24u
+ +MyqZTr/Z4feWYh+M1Jxgr301sqe8doitHixHZQJOq/cZ4T/86WjDr+oXcHBYtZFNCZh
+ Z9cgMKty5Gm5HsjFjuEf4rzL3hlrre/dAW2w1UFhVKZ+XNr0AlUFF7rC4WB6uwW7qrKo nQ== 
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3r1fju0mtm-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 05 Jun 2023 10:47:32 +0000
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 355AUjks016334;
-        Mon, 5 Jun 2023 10:47:31 GMT
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3r1e08gdnw-1
+        Mon, 05 Jun 2023 12:39:33 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3558ZbGN023557;
+        Mon, 5 Jun 2023 12:39:31 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+        by ppma06fra.de.ibm.com (PPS) with ESMTPS id 3qyx5q92mh-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 05 Jun 2023 10:47:31 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3555SdkS014880;
-        Mon, 5 Jun 2023 10:47:30 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-        by ppma04fra.de.ibm.com (PPS) with ESMTPS id 3qyxbu914h-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 05 Jun 2023 10:47:29 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 355AlQKE6030018
+        Mon, 05 Jun 2023 12:39:31 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 355CdRN518809380
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 5 Jun 2023 10:47:26 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 55D3C2004F;
-        Mon,  5 Jun 2023 10:47:26 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2D68820043;
-        Mon,  5 Jun 2023 10:47:26 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.152.224.66])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon,  5 Jun 2023 10:47:26 +0000 (GMT)
-Date:   Mon, 5 Jun 2023 12:42:14 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Nico Boehr <nrb@linux.ibm.com>
-Cc:     frankja@linux.ibm.com, thuth@redhat.com, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [kvm-unit-tests PATCH v3 4/6] s390x: lib: don't forward PSW
- when handling exception in SIE
-Message-ID: <20230605124214.46bc7f94@p-imbrenda>
-In-Reply-To: <20230601070202.152094-5-nrb@linux.ibm.com>
-References: <20230601070202.152094-1-nrb@linux.ibm.com>
-        <20230601070202.152094-5-nrb@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
+        Mon, 5 Jun 2023 12:39:27 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C8AB42004F;
+        Mon,  5 Jun 2023 12:39:27 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 44B7320040;
+        Mon,  5 Jun 2023 12:39:27 +0000 (GMT)
+Received: from [9.171.39.161] (unknown [9.171.39.161])
+        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Mon,  5 Jun 2023 12:39:27 +0000 (GMT)
+Message-ID: <ddb1e8bf-fb4d-0899-3884-15be2d34c852@linux.ibm.com>
+Date:   Mon, 5 Jun 2023 14:39:26 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.11.0
+Content-Language: en-US
+To:     Steffen Eiden <seiden@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Viktor Mihajlovski <mihajlov@linux.ibm.com>
+Cc:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Nico Boehr <nrb@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Hendrik Brueckner <brueckner@linux.ibm.com>
+References: <20230519093708.810957-1-seiden@linux.ibm.com>
+ <20230519093708.810957-2-seiden@linux.ibm.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+Subject: Re: [PATCH v2 1/6] s390/uvdevice: Add info IOCTL
+In-Reply-To: <20230519093708.810957-2-seiden@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 1d446GsDWAK-eW5TVHDIeIWHjZYnh8YB
-X-Proofpoint-ORIG-GUID: 5wfrRndYQxatzTCFlCWNGi6EyuSl3G_B
+X-Proofpoint-GUID: q5TAtzMyJrjH5SN3W9TvahBTJzE979cy
+X-Proofpoint-ORIG-GUID: q5TAtzMyJrjH5SN3W9TvahBTJzE979cy
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
  definitions=2023-06-03_08,2023-06-02_02,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 clxscore=1011
- mlxlogscore=999 malwarescore=0 priorityscore=1501 suspectscore=0
- adultscore=0 bulkscore=0 lowpriorityscore=0 impostorscore=0 phishscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2304280000 definitions=main-2306050094
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 phishscore=0
+ mlxlogscore=999 bulkscore=0 suspectscore=0 priorityscore=1501 spamscore=0
+ impostorscore=0 lowpriorityscore=0 clxscore=1015 adultscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2304280000 definitions=main-2306050110
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu,  1 Jun 2023 09:02:00 +0200
-Nico Boehr <nrb@linux.ibm.com> wrote:
-
-> When we're handling a pgm int in SIE, we want to return to the SIE
-> cleanup after handling the exception. That's why we set pgm_old_psw to
-> the sie_exit label in fixup_pgm_int.
+On 5/19/23 11:37, Steffen Eiden wrote:
+> Add an IOCTL that allows userspace to find out which IOCTLs the uvdevice
+> supports without trial and error.
 > 
-> On nullifing pgm ints, fixup_pgm_int will also forward the old PSW such
-> that we don't cause an pgm int again.
+> Explicitly expose the IOCTL nr for the request types.
 > 
-> However, when we want to return to the sie_exit label, this is not
-> needed (since we've manually set pgm_old_psw). Instead, forwarding the
-> PSW might cause us to skip an instruction or end up in the middle of an
-> instruction.
-> 
-> So, let's just skip the rest of the fixup in case we're inside SIE.
-> 
-> Note that we're intentionally not fixing up the PSW in the guest; that's
-> best left to the test at hand by registering their own psw fixup.
-> 
-> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
-
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-
+> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
 > ---
->  lib/s390x/interrupt.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
-> index d97b5a3a7e97..3f07068877ee 100644
-> --- a/lib/s390x/interrupt.c
-> +++ b/lib/s390x/interrupt.c
-> @@ -145,6 +145,7 @@ static void fixup_pgm_int(struct stack_frame_int *stack)
->  	if (lowcore.pgm_old_psw.addr >= (uint64_t)&sie_entry &&
->  	    lowcore.pgm_old_psw.addr <= (uint64_t)&sie_exit) {
->  		lowcore.pgm_old_psw.addr = (uint64_t)&sie_exit;
-> +		return;
->  	}
->  
->  	switch (lowcore.pgm_int_code) {
+[...]
+>   #endif /* __S390_ASM_UVDEVICE_H */
+> diff --git a/drivers/s390/char/uvdevice.c b/drivers/s390/char/uvdevice.c
+> index 1d40457c7b10..61c7f284c5c5 100644
+> --- a/drivers/s390/char/uvdevice.c
+> +++ b/drivers/s390/char/uvdevice.c
+> @@ -20,6 +20,7 @@
+>    *  channel for userspace to the Ultravisor.
+>    */
+>   
+> +#include "asm-generic/ioctl.h"
+>   #include <linux/module.h>
+>   #include <linux/kernel.h>
+>   #include <linux/miscdevice.h>
+> @@ -32,6 +33,51 @@
+>   #include <asm/uvdevice.h>
+>   #include <asm/uv.h>
+>   
+> +/* Mapping from IOCTL-nr to UVC-bit */
+> +static const u64 ioctl_nr_to_uvc_bit[] __initconst = {
 
+This can be u32 since cmds are u16.
+
+> +	[UVIO_IOCTL_UVDEV_INFO_NR] = -1UL,
+
+#define BIT_UVIO_INTERNAL U32_MAX
+
+> +	[UVIO_IOCTL_ATT_NR] = BIT_UVC_CMD_RETR_ATTEST,
+> +};
+> +
+> +static_assert(ARRAY_SIZE(ioctl_nr_to_uvc_bit) == UVIO_IOCTL_NUM_IOCTLS);
+> +
+> +static struct uvio_uvdev_info uvdev_info = {
+> +	.supp_uvio_cmds = GENMASK_ULL(UVIO_IOCTL_NUM_IOCTLS - 1, 0),
+> +};
+> +
+> +static void __init set_supp_uv_cmds(struct uvio_uvdev_info *info)
+> +{
+> +	int i;
+> +
+> +	for (i = 0; i < UVIO_IOCTL_NUM_IOCTLS; i++) {
+> +		if (ioctl_nr_to_uvc_bit[i] == -1UL)
+
+BIT_UVIO_INTERNAL
+
+> +			continue;
+> +		if (!test_bit_inv(ioctl_nr_to_uvc_bit[i], uv_info.inst_calls_list))
+> +			continue;
+> +		__set_bit(i, (unsigned long *)&info->supp_uv_cmds);
+
+Move the cast to the caller and make this function take a "unsigned long 
+*)" argument.
+
+> +	}
+> +}
+> +
+> +/**
+> + * uvio_uvdev_info() - get information about the uvdevice
+> + *
+> + * @uv_ioctl: ioctl control block
+> + *
+> + * Lists all supported IOCTLs by this uvdevice
+
+Lists all IOCTLs that are supported by this uvdevice
+
+[...]
+
+Rest seems fine to me.
