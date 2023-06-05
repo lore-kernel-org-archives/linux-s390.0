@@ -2,176 +2,121 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD11CC77B73
-	for <linux-s390@archiver.kernel.org>; Mon,  5 Jun 2023 14:10:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 59753C7EE23
+	for <linux-s390@archiver.kernel.org>; Mon,  5 Jun 2023 14:23:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234504AbjFEOK5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 5 Jun 2023 10:10:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36106 "EHLO
+        id S230380AbjFEOXn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 5 Jun 2023 10:23:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234879AbjFEOKW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 5 Jun 2023 10:10:22 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC3AB1991;
-        Mon,  5 Jun 2023 07:09:14 -0700 (PDT)
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 355E8vRH012291;
-        Mon, 5 Jun 2023 14:09:10 GMT
+        with ESMTP id S229815AbjFEOXm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 5 Jun 2023 10:23:42 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2710699;
+        Mon,  5 Jun 2023 07:23:42 -0700 (PDT)
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 355EBx6X021338;
+        Mon, 5 Jun 2023 14:23:42 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
  mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=6u+liUSvDBY+5lMgkcI56mqdM/C6fRklXDnjVEcYhcI=;
- b=JWBx2ih86sIUOCWz9C4WvpntHeQFsTcfsP5lNyyHnxSWaDigWJbH9Jm/9pds0SQfj9xs
- UsM3rK2vh3BK4/iDqWiL1e+bEReFWzDfDSx3zzDXqLhkMVP+wIWH5VuwHrQzvwkgE8AR
- gLj8EMA8Pz50HZMGnd+8czkt17qhcjWPlZXgOnRKdw20E3+q0ZqZ3cKIiKY4jjAUMdDj
- x7PmOaX1U/kMqS4ouN6MhATSzVG4sibVrthVQNV4B6GZCfn0eWToRw7mspnRveDww+d3
- lErgCHFHOd4k3jAOQjXi/P90zsWYUW1x97URPsPKVXrOewVkrT5qTlZssmX0OFkXJJnG dA== 
+ bh=C5qfCaTMHEHO+vDnzV1+E782guMMmTJXdeVnSidYHcU=;
+ b=rQDX6iywt9nTncpiqWq+edfAiZ23wNZYsClS11AgrALw1Wjaqt8+yrzGOmmbD0uAj72z
+ uwxl0PpE633bCM6f8JbPaLEnxUdX/QGBZVc3kJB1I5MS+8V3p6q8I+CK8yu0vn33R4q8
+ 6Wu6NZ+n2u7D4LAotmW6hNu9E0gp1to5TM8qAKHz0mwTAUXdpc+jp8//HdmAVijKK/wd
+ ZCgNKjhtFOqfWfCQMtexoLaWlFJtpS+uTjxQyTRd27SnSbbO4J4V7L+MQUPoQ9gWwUtv
+ HZVmNrV1MA0/UQZPzF/lmvQwfeC0BLdEm/JB2gbsgoq9im9W0AW+korik3KNnUht/cLb VQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3r1h8r8ajc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 05 Jun 2023 14:23:41 +0000
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 355EDas9027412;
+        Mon, 5 Jun 2023 14:23:41 GMT
 Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3r1h0n8973-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3r1h8r8ahn-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 05 Jun 2023 14:09:07 +0000
+        Mon, 05 Jun 2023 14:23:41 +0000
 Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3554gbHi001935;
-        Mon, 5 Jun 2023 14:04:01 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3qyxg2hcx2-1
+        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3553v2Kd031609;
+        Mon, 5 Jun 2023 14:23:39 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3qyxg2hd7j-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 05 Jun 2023 14:04:00 +0000
+        Mon, 05 Jun 2023 14:23:39 +0000
 Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 355E3vui20513534
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 355ENZMB58851790
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 5 Jun 2023 14:03:57 GMT
+        Mon, 5 Jun 2023 14:23:35 GMT
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 76AD12004E;
-        Mon,  5 Jun 2023 14:03:57 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 282CD20043;
+        Mon,  5 Jun 2023 14:23:35 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E847720040;
-        Mon,  5 Jun 2023 14:03:56 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id D196C20040;
+        Mon,  5 Jun 2023 14:23:34 +0000 (GMT)
 Received: from [9.171.39.161] (unknown [9.171.39.161])
         by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon,  5 Jun 2023 14:03:56 +0000 (GMT)
-Message-ID: <3eab8065-41e7-94b8-a6da-18222f711fa0@linux.ibm.com>
-Date:   Mon, 5 Jun 2023 16:03:56 +0200
+        Mon,  5 Jun 2023 14:23:34 +0000 (GMT)
+Message-ID: <d393f6b8-0f29-85f0-5ced-8f0a6ceba214@linux.ibm.com>
+Date:   Mon, 5 Jun 2023 16:23:34 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
  Thunderbird/102.11.0
-Subject: Re: [PATCH v2 6/6] s390/uv: Update query for secret-UVCs
+Subject: Re: [kvm-unit-tests PATCH v3 1/6] lib: s390x: introduce bitfield for
+ PSW mask
 Content-Language: en-US
-To:     Steffen Eiden <seiden@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Viktor Mihajlovski <mihajlov@linux.ibm.com>
-Cc:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Nico Boehr <nrb@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Hendrik Brueckner <brueckner@linux.ibm.com>
-References: <20230519093708.810957-1-seiden@linux.ibm.com>
- <20230519093708.810957-7-seiden@linux.ibm.com>
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     Nico Boehr <nrb@linux.ibm.com>, thuth@redhat.com,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20230601070202.152094-1-nrb@linux.ibm.com>
+ <20230601070202.152094-2-nrb@linux.ibm.com>
+ <3667d7af-f9ba-fbb6-537d-e6143f63ac43@linux.ibm.com>
+ <20230605123555.4f865f2c@p-imbrenda>
 From:   Janosch Frank <frankja@linux.ibm.com>
-In-Reply-To: <20230519093708.810957-7-seiden@linux.ibm.com>
+In-Reply-To: <20230605123555.4f865f2c@p-imbrenda>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: PQHJ-krbWCCqJH5qRE1uL2f82fV0DpjP
-X-Proofpoint-ORIG-GUID: PQHJ-krbWCCqJH5qRE1uL2f82fV0DpjP
+X-Proofpoint-GUID: d_25OPEg7nG_pGAphl69r_e0sQJpN0n-
+X-Proofpoint-ORIG-GUID: IU6siJMa008XQee7M6_cKGEHiHOE-oF5
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
  definitions=2023-06-05_28,2023-06-02_02,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 bulkscore=0
- phishscore=0 mlxscore=0 suspectscore=0 mlxlogscore=999 adultscore=0
- spamscore=0 lowpriorityscore=0 impostorscore=0 priorityscore=1501
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2304280000 definitions=main-2306050123
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 malwarescore=0
+ mlxscore=0 spamscore=0 priorityscore=1501 adultscore=0 lowpriorityscore=0
+ mlxlogscore=841 suspectscore=0 phishscore=0 impostorscore=0 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2304280000
+ definitions=main-2306050123
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 5/19/23 11:37, Steffen Eiden wrote:
-> Update the query struct such that secret-UVC related
-> information can be parsed.
-> Add sysfs files for these new values.
+On 6/5/23 12:35, Claudio Imbrenda wrote:
+> On Thu, 1 Jun 2023 09:42:48 +0200
+> Janosch Frank <frankja@linux.ibm.com> wrote:
 > 
-> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+> [...]
+> 
+>> Hrm, since I already made the mistake of introducing bitfields with and
+>> without spaces between the ":" I'm in no position to complain here.
+>>
+>> I'm also not sure what the consensus is.
+> 
+> tbh I don't really have an opinion, I don't mind either, to the point
+> that I don't even care if we mix them
+> 
+>>
+>>> +		};
+>>> +	};
+>>>    	uint64_t	addr;
+>>>    };
+>>
+>> I've come to like static asserts for huge structs and bitfields since
+>> they can safe you from a *lot* of headaches.
+> 
+> you mean statically asserting that the size is what it should be?
+> in that case fully agree
+> 
 
-You should add a bit of information about the fields.
-Not a large amount but having no info doesn't help anyone without access 
-to our design documents.
-
-> ---
-
-[...]
-
->   extern struct uv_info uv_info;
-> diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
-> index d5b5d7e83c17..c0a1bfb01135 100644
-> --- a/arch/s390/kernel/uv.c
-> +++ b/arch/s390/kernel/uv.c
-> @@ -571,6 +571,42 @@ static ssize_t uv_query_supp_att_pflags(struct kobject *kobj,
->   static struct kobj_attribute uv_query_supp_att_pflags_attr =
->   	__ATTR(supp_att_pflags, 0444, uv_query_supp_att_pflags, NULL);
->   
-> +static ssize_t uv_query_supp_add_secret_req_ver(struct kobject *kobj,
-> +						struct kobj_attribute *attr, char *page)
-
-s/page/buf/ for the whole lot.
-
-> +{
-> +	return sysfs_emit(page, "%lx\n", uv_info.supp_add_secret_req_ver);
-> +}
-> +
-> +static struct kobj_attribute uv_query_supp_add_secret_req_ver_attr =
-> +	__ATTR(supp_add_secret_req_ver, 0444, uv_query_supp_add_secret_req_ver, NULL);
-> +
-> +static ssize_t uv_query_supp_add_secret_pcf(struct kobject *kobj,
-> +					    struct kobj_attribute *attr, char *page)
-> +{
-> +	return sysfs_emit(page, "%lx\n", uv_info.supp_add_secret_pcf);
-> +}
-> +
-> +static struct kobj_attribute uv_query_supp_add_secret_pcf_attr =
-> +	__ATTR(supp_add_secret_pcf, 0444, uv_query_supp_add_secret_pcf, NULL);
-> +
-> +static ssize_t uv_query_supp_secret_types(struct kobject *kobj,
-> +					  struct kobj_attribute *attr, char *page)
-> +{
-> +	return sysfs_emit(page, "%lx\n", uv_info.supp_secret_types);
-> +}
-> +
-> +static struct kobj_attribute uv_query_supp_secret_types_attr =
-> +	__ATTR(supp_secret_types, 0444, uv_query_supp_secret_types, NULL);
-> +
-
-> +static ssize_t uv_query_max_secrets(struct kobject *kobj,
-> +				    struct kobj_attribute *attr, char *page)
-> +{
-> +	return sysfs_emit(page, "%d\n", uv_info.max_secrets);
-> +}
-
-uv_query_max_secrets
-but then
-uv_query_max_num_secrets_attr
-
-To num or not to num. That's the question
-
-> +
-> +static struct kobj_attribute uv_query_max_num_secrets_attr =
-> +	__ATTR(max_secrets, 0444, uv_query_max_secrets, NULL);
-
-And here the num is gone again.
-
-> +
->   static struct attribute *uv_query_attrs[] = {
->   	&uv_query_facilities_attr.attr,
->   	&uv_query_feature_indications_attr.attr,
-> @@ -584,6 +620,10 @@ static struct attribute *uv_query_attrs[] = {
->   	&uv_query_dump_cpu_len_attr.attr,
->   	&uv_query_supp_att_req_hdr_ver_attr.attr,
->   	&uv_query_supp_att_pflags_attr.attr,
-> +	&uv_query_supp_add_secret_req_ver_attr.attr,
-> +	&uv_query_supp_add_secret_pcf_attr.attr,
-> +	&uv_query_supp_secret_types_attr.attr,
-> +	&uv_query_max_num_secrets_attr.attr,
->   	NULL,
->   };
->   
+Yes, asserting the size.
 
