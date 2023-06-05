@@ -2,59 +2,60 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B617DC7EE23
-	for <linux-s390@archiver.kernel.org>; Mon,  5 Jun 2023 13:30:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BDA1C7EE24
+	for <linux-s390@archiver.kernel.org>; Mon,  5 Jun 2023 13:34:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230466AbjFENaE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 5 Jun 2023 09:30:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42204 "EHLO
+        id S232129AbjFENe1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 5 Jun 2023 09:34:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230282AbjFENaD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 5 Jun 2023 09:30:03 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82BFDCD;
-        Mon,  5 Jun 2023 06:30:02 -0700 (PDT)
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 355DKxjd015993;
-        Mon, 5 Jun 2023 13:30:01 GMT
+        with ESMTP id S231285AbjFENe0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 5 Jun 2023 09:34:26 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE796D2;
+        Mon,  5 Jun 2023 06:34:24 -0700 (PDT)
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 355Cl4o4023036;
+        Mon, 5 Jun 2023 13:34:24 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : to : cc : references : from : subject : in-reply-to :
+ mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=h08ZUZge0V2LjuVc7Yhcn6I/LBABMkL/LoHYysfR98c=;
- b=QJoKRDXiDTIaTEUGHszjVWr32R779Pj61+gUD7gq2bx8wVgF/BF1Va1Suon0pS0Xqc/r
- kLs/fmtSWEd7kZ3lPvCdnWJ2qC3JCUaXtBN7JYex7/9F+7cgszyKHIWxLuNIZGXsYBMh
- DAqAzybPgJqHblLLXIwKIw1dstrbi07cDnIbY0egqP6YrtRL72Le2CM9426pr4YFmb/E
- 621rehEu9vAZkoNN9fLth/2xBjWYgB9/um5a/PdYxKwbcpKEPQdpscY/223/DdtVWtFL
- ZY0ttfNvhcbUteUNq5SG6lZXCFnAmu2cksNIaPtO8rXBz+2l4Mnle+i46m7qUK5Lvxm4 NA== 
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3r1ggx075h-1
+ bh=GdT6zfZTiSgNaK6kYoIX3NprH11FZeKSsejoddhPyak=;
+ b=M7Luh6WfcGqCbQ/lNol2QhBCCNw5fNm4VZO6I74ytnCI/1vLJKkthfZNfCnP25X38qto
+ qB0PXk8mLnD4HImd2g09UOgxboesR2HQb8g1Huw1OzhLZDVx9J+j7xM3shTuRRQYwdE4
+ 6czx35UHPyXaLSpR5Ad7a9Qs1cJge9jmKtNuqvgPqiIs1Sh4HAap+6yVlNS2rcWQbqrR
+ V8+D143bHEUY+SmohygYh06OApVgO78Q+ZN1GwLj1bnUo3RUSO9MepfgnzeK0oIXMDAq
+ hM2uqQ7NtCPm4Pbk4QmgSjbU88uXIfr2jped7czOngE4A9MjOPGHQZUJWVGw9z1TOzUu jg== 
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3r1g0v1cbg-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 05 Jun 2023 13:30:01 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 354GnjHr023638;
-        Mon, 5 Jun 2023 13:29:58 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3qyxg2hc8n-1
+        Mon, 05 Jun 2023 13:34:24 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 355AuLnW021629;
+        Mon, 5 Jun 2023 13:34:22 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma03fra.de.ibm.com (PPS) with ESMTPS id 3qyxdfh3fq-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 05 Jun 2023 13:29:58 +0000
+        Mon, 05 Jun 2023 13:34:21 +0000
 Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 355DTtCg51839330
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 355DYI8Z22544964
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 5 Jun 2023 13:29:55 GMT
+        Mon, 5 Jun 2023 13:34:18 GMT
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 363D52004D;
-        Mon,  5 Jun 2023 13:29:55 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 705A920040;
+        Mon,  5 Jun 2023 13:34:18 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A69DD20043;
-        Mon,  5 Jun 2023 13:29:54 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id E32F220043;
+        Mon,  5 Jun 2023 13:34:17 +0000 (GMT)
 Received: from [9.171.39.161] (unknown [9.171.39.161])
         by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon,  5 Jun 2023 13:29:54 +0000 (GMT)
-Message-ID: <c19ee46b-4f89-172e-95d4-093145cff34d@linux.ibm.com>
-Date:   Mon, 5 Jun 2023 15:29:54 +0200
+        Mon,  5 Jun 2023 13:34:17 +0000 (GMT)
+Message-ID: <dc7e7448-eed0-591c-0c64-eba84b5a8e92@linux.ibm.com>
+Date:   Mon, 5 Jun 2023 15:34:17 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
  Thunderbird/102.11.0
+Subject: Re: [PATCH v2 4/6] s390/uvdevice: Add 'Lock Secret Store' UVC
 Content-Language: en-US
 To:     Steffen Eiden <seiden@linux.ibm.com>, kvm@vger.kernel.org,
         linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
@@ -65,113 +66,105 @@ Cc:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Hendrik Brueckner <brueckner@linux.ibm.com>
 References: <20230519093708.810957-1-seiden@linux.ibm.com>
- <20230519093708.810957-4-seiden@linux.ibm.com>
+ <20230519093708.810957-5-seiden@linux.ibm.com>
 From:   Janosch Frank <frankja@linux.ibm.com>
-Subject: Re: [PATCH v2 3/6] s390/uvdevice: Add 'List Secrets' UVC
-In-Reply-To: <20230519093708.810957-4-seiden@linux.ibm.com>
+In-Reply-To: <20230519093708.810957-5-seiden@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: pAs3NGx-YsPr4v4MsFEln9R8pzIRRVpG
-X-Proofpoint-ORIG-GUID: pAs3NGx-YsPr4v4MsFEln9R8pzIRRVpG
+X-Proofpoint-ORIG-GUID: HYtSIl94UfsHtWJgp4cMRw_cjnYWkJ_A
+X-Proofpoint-GUID: HYtSIl94UfsHtWJgp4cMRw_cjnYWkJ_A
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
- definitions=2023-06-03_08,2023-06-02_02,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 phishscore=0
- adultscore=0 suspectscore=0 clxscore=1015 impostorscore=0 mlxscore=0
- malwarescore=0 lowpriorityscore=0 priorityscore=1501 mlxlogscore=982
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2304280000 definitions=main-2306050114
+ definitions=2023-06-05_28,2023-06-02_02,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 adultscore=0
+ suspectscore=0 mlxlogscore=999 malwarescore=0 bulkscore=0
+ priorityscore=1501 lowpriorityscore=0 clxscore=1015 impostorscore=0
+ mlxscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2304280000 definitions=main-2306050118
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 On 5/19/23 11:37, Steffen Eiden wrote:
-> Userspace can call the List Secrets Ultravisor Call
+> Userspace can call the Lock Secret Store Ultravisor Call
 > using IOCTLs on the uvdevice.
 > During the handling of the new IOCTL nr the uvdevice will do some sanity
-> checks first. Then, perform the Ultravisor command, and copy the answer
-> to userspace.
-> If the List Secrets UV facility is not present, UV will return
+> checks first. Then, perform the Ultravisor command, and copy the
+> return codes to userspace.
+> If the Lock Secrets UV facility is not present, UV will return
 > invalid command rc. This won't be fenced in the driver and does not
 > result in a negative return value. This is also true for any other
 > possible error code the UV can return.
 > 
 > Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+
+While the add and list secret calls work on data structures that are 
+opaque to the kernel I'd describe the effects of this call here. Namely 
+that any further add secret calls will fail with return code 0x102 once 
+the store has been locked.
+
 > ---
->[...]
-> +/** uvio_list_secrets() - perform a List Secret UVC
+>   arch/s390/include/asm/uv.h            |  2 ++
+>   arch/s390/include/uapi/asm/uvdevice.h |  3 +++
+>   drivers/s390/char/uvdevice.c          | 39 +++++++++++++++++++++++++++
+>   3 files changed, 44 insertions(+)
+> 
+> diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
+> index 1e4f0f6d4923..6180ac8909d5 100644
+> --- a/arch/s390/include/asm/uv.h
+> +++ b/arch/s390/include/asm/uv.h
+> @@ -60,6 +60,7 @@
+[...]
+>   
+> +/** uvio_lock_secrets() - perform a Lock Secret Store UVC
 > + *
 > + * @uv_ioctl: ioctl control block
 > + *
-> + * uvio_list_secrets() performs the List Secret Ultravisor Call.
-> + * It verifies that the given userspace argument address is valid and its size
-> + * is sane. Every other check is made by the Ultravisor (UV) and won't result
-> + * in a negative return value. It builds the request, performs the UV-call,
-> + * and copies the result to userspace.
+> + * uvio_lock_secrets() performs the Lock Secret Store Ultravisor Call.
+> + * It performs the UV-call and copies the return codes to the
+> + * ioctl control block.
 > + *
-> + * The argument specifies the location for the result of the UV-Call.
+> + * The argument address and size must be 0.
 > + *
 > + * If the List Secrets UV facility is not present,
 > + * UV will return invalid command rc. This won't be fenced in the driver
 > + * and does not result in a negative return value.
+
+This has weird indenting. The others often have it too but this one is 
+especially strange. Did you do that yourself or is that from your editor?
+
 > + *
 > + * Context: might sleep
 > + *
 > + * Return: 0 on success or a negative error code on error.
 > + */
-> +static int uvio_list_secrets(struct uvio_ioctl_cb *uv_ioctl)
+> +static int uvio_lock_secrets(struct uvio_ioctl_cb *ioctl)
 > +{
-> +	void __user *user_buf_arg = (void __user *)uv_ioctl->argument_addr;
-> +	struct uv_cb_guest_addr uvcb = {
+> +	struct uv_cb_nodata uvcb = {
 > +		.header.len = sizeof(uvcb),
-> +		.header.cmd = UVC_CMD_LIST_SECRETS,
+> +		.header.cmd = UVC_CMD_LOCK_SECRETS,
 > +	};
-> +	void *secrets = NULL;
-> +	int ret;
-
-int ret = 0;
-
 > +
-> +	if (uv_ioctl->argument_len != UVIO_LIST_SECRETS_LEN)
+> +	if (ioctl->argument_addr || ioctl->argument_len)
 > +		return -EINVAL;
-
-I'd be less uneasy if you 
-s/uv_ioctl->argument_len/UVIO_LIST_SECRETS_LEN/ below. Yes, you check 
-the length above but it still feels weird to use a variable when we have 
-a perfectly fine constant just waiting to be used.
-
 > +
-> +	secrets = kvzalloc(uv_ioctl->argument_len, GFP_KERNEL);
-> +	if (!secrets)
-> +		return -ENOMEM;
+> +	uv_call(0, (u64)&uvcb);
+> +	ioctl->uv_rc = uvcb.header.rc;
+> +	ioctl->uv_rrc = uvcb.header.rrc;
 > +
-> +	uvcb.addr = (u64)secrets;
-> +	uv_call_sched(0, (u64)&uvcb);
-> +	uv_ioctl->uv_rc = uvcb.header.rc;
-> +	uv_ioctl->uv_rrc = uvcb.header.rrc;
-> +
-> +	if (copy_to_user(user_buf_arg, secrets, uv_ioctl->argument_len))
-> +		ret = -EFAULT;
-
-and remove the else
-
-> +	else
-> +		ret = 0;
-> +
-> +	kvfree(secrets);
-> +	return ret;
+> +	return 0;
 > +}
 > +
 >   static int uvio_copy_and_check_ioctl(struct uvio_ioctl_cb *ioctl, void __user *argp,
 >   				     unsigned long cmd)
 >   {
-> @@ -333,6 +385,9 @@ static long uvio_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
->   	case UVIO_IOCTL_ADD_SECRET_NR:
->   		ret = uvio_add_secret(&uv_ioctl);
+> @@ -388,6 +424,9 @@ static long uvio_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+>   	case UVIO_IOCTL_LIST_SECRETS_NR:
+>   		ret = uvio_list_secrets(&uv_ioctl);
 >   		break;
-> +	case UVIO_IOCTL_LIST_SECRETS_NR:
-> +		ret = uvio_list_secrets(&uv_ioctl);
+> +	case UVIO_IOCTL_LOCK_SECRETS_NR:
+> +		ret = uvio_lock_secrets(&uv_ioctl);
 > +		break;
 >   	default:
 >   		ret = -ENOIOCTLCMD;
