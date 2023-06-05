@@ -2,201 +2,116 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 77ECAC7EE2A
-	for <linux-s390@archiver.kernel.org>; Mon,  5 Jun 2023 10:09:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 80AA8C77B73
+	for <linux-s390@archiver.kernel.org>; Mon,  5 Jun 2023 10:47:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230471AbjFEKJz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 5 Jun 2023 06:09:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40010 "EHLO
+        id S230127AbjFEKrb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 5 Jun 2023 06:47:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231816AbjFEKJs (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 5 Jun 2023 06:09:48 -0400
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id EDA05ED;
-        Mon,  5 Jun 2023 03:09:42 -0700 (PDT)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 2B9CBD75;
-        Mon,  5 Jun 2023 03:10:28 -0700 (PDT)
-Received: from FVFF77S0Q05N (unknown [10.57.24.244])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 8F8793F793;
-        Mon,  5 Jun 2023 03:09:37 -0700 (PDT)
-Date:   Mon, 5 Jun 2023 11:09:34 +0100
-From:   Mark Rutland <mark.rutland@arm.com>
-To:     Mike Rapoport <rppt@kernel.org>
-Cc:     Kent Overstreet <kent.overstreet@linux.dev>,
-        linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Helge Deller <deller@gmx.de>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Song Liu <song@kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will@kernel.org>, bpf@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-        linux-mm@kvack.org, linux-modules@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
-        netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
-Subject: Re: [PATCH 00/13] mm: jit/text allocator
-Message-ID: <ZH20XkD74prrdN4u@FVFF77S0Q05N>
-References: <20230601101257.530867-1-rppt@kernel.org>
- <ZHjDU/mxE+cugpLj@FVFF77S0Q05N.cambridge.arm.com>
- <ZHjgIH3aX9dCvVZc@moria.home.lan>
- <ZHm3zUUbwqlsZBBF@FVFF77S0Q05N>
- <20230605092040.GB3460@kernel.org>
+        with ESMTP id S229967AbjFEKrb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 5 Jun 2023 06:47:31 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34836EA;
+        Mon,  5 Jun 2023 03:47:30 -0700 (PDT)
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 355AL2OP009143;
+        Mon, 5 Jun 2023 10:47:30 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=j5qejy42J0uW3MhDxE4QmFyI3t6cuZ/IarPawSMMZyw=;
+ b=Ec48oqj8hWfXCxyEVaSMtsFDxxcynZng/2Bj2BiEsR75Hbs/ePCw//hQ5vFTpxRcL8by
+ Ndq4SSzAEbOGxfuoaLEhv3avUXeaz72e4AUdSNkqE9uT7JdwFjNpB+1+pn/0Ao9G9TnB
+ aZ4rT3YozJynqJUvFk7U7BZtYubNODqTRkmGa2M6I5PIhlZkcmsBY6lvJBjIMUZ6nKFR
+ AqcI1Q6YjN1ppKXuj7ha1N4cVFATa57kAKlMvcw/SrdFxrMpmqgs3M5V1DMPQQq3Hs1B
+ V+ERCXzq+j+za1gNPWS3XcE8Eg9mHOyRlvzx10JuWfpjXcreqIZobSLrwU3Jk9dKm/Ou fQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3r1dvjrfn2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 05 Jun 2023 10:47:29 +0000
+Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 355AicP3027756;
+        Mon, 5 Jun 2023 10:47:29 GMT
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3r1dvjrfkr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 05 Jun 2023 10:47:29 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 355407GW007430;
+        Mon, 5 Jun 2023 10:47:26 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma05fra.de.ibm.com (PPS) with ESMTPS id 3qyx8xh0ux-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 05 Jun 2023 10:47:26 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 355AlN5J18612864
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 5 Jun 2023 10:47:23 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3081E20040;
+        Mon,  5 Jun 2023 10:47:23 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0756A2004D;
+        Mon,  5 Jun 2023 10:47:23 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.152.224.66])
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Mon,  5 Jun 2023 10:47:22 +0000 (GMT)
+Date:   Mon, 5 Jun 2023 12:35:55 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Janosch Frank <frankja@linux.ibm.com>
+Cc:     Nico Boehr <nrb@linux.ibm.com>, thuth@redhat.com,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [kvm-unit-tests PATCH v3 1/6] lib: s390x: introduce bitfield
+ for PSW mask
+Message-ID: <20230605123555.4f865f2c@p-imbrenda>
+In-Reply-To: <3667d7af-f9ba-fbb6-537d-e6143f63ac43@linux.ibm.com>
+References: <20230601070202.152094-1-nrb@linux.ibm.com>
+        <20230601070202.152094-2-nrb@linux.ibm.com>
+        <3667d7af-f9ba-fbb6-537d-e6143f63ac43@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230605092040.GB3460@kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: A4ep7Yx_Yd8w1vSb9nAT-Sz1mZfYId8R
+X-Proofpoint-GUID: exBYvJaftsKcGvka91wlUwH7Xvtbgmha
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
+ definitions=2023-06-03_08,2023-06-02_02,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 phishscore=0
+ adultscore=0 clxscore=1015 suspectscore=0 spamscore=0 malwarescore=0
+ bulkscore=0 impostorscore=0 mlxlogscore=913 priorityscore=1501
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2304280000 definitions=main-2306050094
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Jun 05, 2023 at 12:20:40PM +0300, Mike Rapoport wrote:
-> On Fri, Jun 02, 2023 at 10:35:09AM +0100, Mark Rutland wrote:
-> > On Thu, Jun 01, 2023 at 02:14:56PM -0400, Kent Overstreet wrote:
-> > > On Thu, Jun 01, 2023 at 05:12:03PM +0100, Mark Rutland wrote:
-> > > > For a while I have wanted to give kprobes its own allocator so that it can work
-> > > > even with CONFIG_MODULES=n, and so that it doesn't have to waste VA space in
-> > > > the modules area.
-> > > > 
-> > > > Given that, I think these should have their own allocator functions that can be
-> > > > provided independently, even if those happen to use common infrastructure.
-> > > 
-> > > How much memory can kprobes conceivably use? I think we also want to try
-> > > to push back on combinatorial new allocators, if we can.
-> > 
-> > That depends on who's using it, and how (e.g. via BPF).
-> > 
-> > To be clear, I'm not necessarily asking for entirely different allocators, but
-> > I do thinkg that we want wrappers that can at least pass distinct start+end
-> > parameters to a common allocator, and for arm64's modules code I'd expect that
-> > we'd keep the range falblack logic out of the common allcoator, and just call
-> > it twice.
-> > 
-> > > > > Several architectures override module_alloc() because of various
-> > > > > constraints where the executable memory can be located and this causes
-> > > > > additional obstacles for improvements of code allocation.
-> > > > > 
-> > > > > This set splits code allocation from modules by introducing
-> > > > > jit_text_alloc(), jit_data_alloc() and jit_free() APIs, replaces call
-> > > > > sites of module_alloc() and module_memfree() with the new APIs and
-> > > > > implements core text and related allocation in a central place.
-> > > > > 
-> > > > > Instead of architecture specific overrides for module_alloc(), the
-> > > > > architectures that require non-default behaviour for text allocation must
-> > > > > fill jit_alloc_params structure and implement jit_alloc_arch_params() that
-> > > > > returns a pointer to that structure. If an architecture does not implement
-> > > > > jit_alloc_arch_params(), the defaults compatible with the current
-> > > > > modules::module_alloc() are used.
-> > > > 
-> > > > As above, I suspect that each of the callsites should probably be using common
-> > > > infrastructure, but I don't think that a single jit_alloc_arch_params() makes
-> > > > sense, since the parameters for each case may need to be distinct.
-> > > 
-> > > I don't see how that follows. The whole point of function parameters is
-> > > that they may be different :)
-> > 
-> > What I mean is that jit_alloc_arch_params() tries to aggregate common
-> > parameters, but they aren't actually common (e.g. the actual start+end range
-> > for allocation).
-> 
-> jit_alloc_arch_params() tries to aggregate architecture constraints and
-> requirements for allocations of executable memory and this exactly what
-> the first 6 patches of this set do.
-> 
-> A while ago Thomas suggested to use a structure that parametrizes
-> architecture constraints by the memory type used in modules [1] and Song
-> implemented the infrastructure for it and x86 part [2].
-> 
-> I liked the idea of defining parameters in a single structure, but I
-> thought that approaching the problem from the arch side rather than from
-> modules perspective will be better starting point, hence these patches.
-> 
-> I don't see a fundamental reason why a single structure cannot describe
-> what is needed for different code allocation cases, be it modules, kprobes
-> or bpf. There is of course an assumption that the core allocations will be
-> the same for all the users, and it seems to me that something like 
-> 
-> * allocate physical memory if allocator caches are empty
-> * map it in vmalloc or modules address space
-> * return memory from the allocator cache to the caller
-> 
-> will work for all usecases.
-> 
-> We might need separate caches for different cases on different
-> architectures, and a way to specify what cache should be used in the
-> allocator API, but that does not contradict a single structure for arch
-> specific parameters, but only makes it more elaborate, e.g. something like
-> 
-> enum jit_type {
-> 	JIT_MODULES_TEXT,
-> 	JIT_MODULES_DATA,
-> 	JIT_KPROBES,
-> 	JIT_FTRACE,
-> 	JIT_BPF,
-> 	JIT_TYPE_MAX,
-> };
-> 
-> struct jit_alloc_params {
-> 	struct jit_range	ranges[JIT_TYPE_MAX];
-> 	/* ... */
-> };
-> 
-> > > Can you give more detail on what parameters you need? If the only extra
-> > > parameter is just "does this allocation need to live close to kernel
-> > > text", that's not that big of a deal.
-> > 
-> > My thinking was that we at least need the start + end for each caller. That
-> > might be it, tbh.
-> 
-> Do you mean that modules will have something like
-> 
-> 	jit_text_alloc(size, MODULES_START, MODULES_END);
-> 
-> and kprobes will have
-> 
-> 	jit_text_alloc(size, KPROBES_START, KPROBES_END);
-> ?
+On Thu, 1 Jun 2023 09:42:48 +0200
+Janosch Frank <frankja@linux.ibm.com> wrote:
 
-Yes.
+[...]
 
-> It sill can be achieved with a single jit_alloc_arch_params(), just by
-> adding enum jit_type parameter to jit_text_alloc().
-
-That feels backwards to me; it centralizes a bunch of information about
-distinct users to be able to shove that into a static array, when the callsites
-can pass that information. 
-
-What's *actually* common after separating out the ranges? Is it just the
-permissions?
-
-If we want this to be able to share allocations and so on, why can't we do this
-like a kmem_cache, and have the callsite pass a pointer to the allocator data?
-That would make it easy for callsites to share an allocator or use a distinct
-one.
-
-Thanks,
-Mark.
-
-> [1] https://lore.kernel.org/linux-mm/87v8mndy3y.ffs@tglx/ 
-> [2] https://lore.kernel.org/all/20230526051529.3387103-1-song@kernel.org
+> Hrm, since I already made the mistake of introducing bitfields with and 
+> without spaces between the ":" I'm in no position to complain here.
 > 
-> > Thanks,
-> > Mark.
+> I'm also not sure what the consensus is.
+
+tbh I don't really have an opinion, I don't mind either, to the point
+that I don't even care if we mix them
+
 > 
-> -- 
-> Sincerely yours,
-> Mike.
+> > +		};
+> > +	};
+> >   	uint64_t	addr;
+> >   };  
+> 
+> I've come to like static asserts for huge structs and bitfields since 
+> they can safe you from a *lot* of headaches.
+
+you mean statically asserting that the size is what it should be?
+in that case fully agree
+
+[...]
