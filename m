@@ -2,193 +2,200 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E3C6BC7EE2A
-	for <linux-s390@archiver.kernel.org>; Mon,  5 Jun 2023 09:22:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B6374C77B73
+	for <linux-s390@archiver.kernel.org>; Mon,  5 Jun 2023 09:30:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230219AbjFEJWD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 5 Jun 2023 05:22:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50744 "EHLO
+        id S229955AbjFEJar (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 5 Jun 2023 05:30:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231283AbjFEJVv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 5 Jun 2023 05:21:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E8511A8;
-        Mon,  5 Jun 2023 02:21:11 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CD97C611C5;
-        Mon,  5 Jun 2023 09:21:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69FBDC433EF;
-        Mon,  5 Jun 2023 09:20:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1685956870;
-        bh=VAQ7yfzQtWyNohR4wxaMprdeMTDlqPdyTw6okH1kHrg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=jK253SR7yhSPqefNFos3ffgdScPlfxLEgS1so3b12kxeFrCMZRgawvFm8WayBcEJg
-         gsJRpMEGttvUT3HVy8GIHc65y0zhLLrBx4d+jkyhsnS/hQIbQr5LWBz2vZgDkJqevO
-         +UIxJzVenJUyw/Uip8ZNP03sQq+Yr8qA1I9bh08IcIOmhh2JIjbopJQQXYTqJDA+gf
-         Ib8fD2IpqNgfgglvW2/JWPvjCy1i6XCYLFHWvOg0HPpz5vZx6UOnmL3FtqiwyAdfsz
-         iIun2EVvr5UICgLU5k5gsCEhuKWjokIA4YcB5nFxBvbjMNYU78+Z9LTAA6e8yLvHwk
-         VVxBZGJqVTgtA==
-Date:   Mon, 5 Jun 2023 12:20:40 +0300
-From:   Mike Rapoport <rppt@kernel.org>
-To:     Mark Rutland <mark.rutland@arm.com>
-Cc:     Kent Overstreet <kent.overstreet@linux.dev>,
-        linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Helge Deller <deller@gmx.de>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Song Liu <song@kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will@kernel.org>, bpf@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-        linux-mm@kvack.org, linux-modules@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
-        netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
-Subject: Re: [PATCH 00/13] mm: jit/text allocator
-Message-ID: <20230605092040.GB3460@kernel.org>
-References: <20230601101257.530867-1-rppt@kernel.org>
- <ZHjDU/mxE+cugpLj@FVFF77S0Q05N.cambridge.arm.com>
- <ZHjgIH3aX9dCvVZc@moria.home.lan>
- <ZHm3zUUbwqlsZBBF@FVFF77S0Q05N>
+        with ESMTP id S229504AbjFEJaq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 5 Jun 2023 05:30:46 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77EFBA7;
+        Mon,  5 Jun 2023 02:30:44 -0700 (PDT)
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3559KwCR029837;
+        Mon, 5 Jun 2023 09:30:44 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : to : cc : references : from : subject : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=nnFmlSPcS+xchhXxCXzdOQtU1A6t1VR9jgnrh4Of91U=;
+ b=KUrruGMzFIGkJASRz9dxGmN+uH5yCbuctIMp6I+pDpR6HF2dunbxPBjiCQEySP1FrpWm
+ mteW2wBKsGvjAue1MtxWFsfdGP7gPqoXlUIdeANHT3pNjkRNW421T2hwz2GmgZxA9i6K
+ E9ksMGWS02CQdTCXG/oVy70VpgeW12AtmEKgUACFG3tGMIP3UYLlaZuOyvvoRo2gpepU
+ x9SQBmyreQg0I7Tcy/xIdieMg8MBPPSwO2bXC4EzMv14H0rchvLB1AdzDInD5+Mf9GZ2
+ h+qqYf7gRTrWdeQo+WBqcW5/nA8Y+ka/uMfAOcMpWHVUZaKXsjQ3Fdr+mm0GuDJ5olMh UA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3r1d0dr721-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 05 Jun 2023 09:30:43 +0000
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3559Lch8001310;
+        Mon, 5 Jun 2023 09:30:43 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3r1d0dr717-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 05 Jun 2023 09:30:43 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3555Wg1t025024;
+        Mon, 5 Jun 2023 09:30:41 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+        by ppma03fra.de.ibm.com (PPS) with ESMTPS id 3qyxdfh08g-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 05 Jun 2023 09:30:40 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3559Ub8R16450064
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 5 Jun 2023 09:30:37 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 51CFD2004F;
+        Mon,  5 Jun 2023 09:30:37 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0621C2004E;
+        Mon,  5 Jun 2023 09:30:37 +0000 (GMT)
+Received: from [9.171.39.161] (unknown [9.171.39.161])
+        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Mon,  5 Jun 2023 09:30:36 +0000 (GMT)
+Message-ID: <baf4bb04-b258-f8b4-e49d-5d400e498bbf@linux.ibm.com>
+Date:   Mon, 5 Jun 2023 11:30:36 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ZHm3zUUbwqlsZBBF@FVFF77S0Q05N>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.11.0
+Content-Language: en-US
+To:     Nico Boehr <nrb@linux.ibm.com>, imbrenda@linux.ibm.com,
+        thuth@redhat.com
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20230601070202.152094-1-nrb@linux.ibm.com>
+ <20230601070202.152094-6-nrb@linux.ibm.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v3 5/6] s390x: lib: sie: don't reenter SIE
+ on pgm int
+In-Reply-To: <20230601070202.152094-6-nrb@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: PrdkkASx7ji4uL5MjpdxhwRm8pTIUsbj
+X-Proofpoint-GUID: zE249KAgQTTRN2Dj5Mm5g0B7LAr4Soqf
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
+ definitions=2023-06-03_08,2023-06-02_02,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ suspectscore=0 lowpriorityscore=0 malwarescore=0 bulkscore=0 adultscore=0
+ phishscore=0 mlxscore=0 mlxlogscore=496 impostorscore=0 clxscore=1015
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2304280000 definitions=main-2306050081
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Jun 02, 2023 at 10:35:09AM +0100, Mark Rutland wrote:
-> On Thu, Jun 01, 2023 at 02:14:56PM -0400, Kent Overstreet wrote:
-> > On Thu, Jun 01, 2023 at 05:12:03PM +0100, Mark Rutland wrote:
-> > > For a while I have wanted to give kprobes its own allocator so that it can work
-> > > even with CONFIG_MODULES=n, and so that it doesn't have to waste VA space in
-> > > the modules area.
-> > > 
-> > > Given that, I think these should have their own allocator functions that can be
-> > > provided independently, even if those happen to use common infrastructure.
-> > 
-> > How much memory can kprobes conceivably use? I think we also want to try
-> > to push back on combinatorial new allocators, if we can.
+On 6/1/23 09:02, Nico Boehr wrote:
+> At the moment, when a PGM int occurs while in SIE, we will just reenter
+> SIE after the interrupt handler was called.
 > 
-> That depends on who's using it, and how (e.g. via BPF).
+> This is because sie() has a loop which checks icptcode and re-enters SIE
+> if it is zero.
 > 
-> To be clear, I'm not necessarily asking for entirely different allocators, but
-> I do thinkg that we want wrappers that can at least pass distinct start+end
-> parameters to a common allocator, and for arm64's modules code I'd expect that
-> we'd keep the range falblack logic out of the common allcoator, and just call
-> it twice.
+> However, this behaviour is quite undesirable for SIE tests, since it
+> doesn't give the host the chance to assert on the PGM int. Instead, we
+> will just re-enter SIE, on nullifing conditions even causing the
+> exception again.
+
+That's the reason why we set an invalid PGM PSW new for the assembly 
+snippets. Seems like I didn't add it for C snippets for some reason -_-
+
+This code is fine but it doesn't fully fix the usability aspect and 
+leaves a few questions open:
+  - Do we want to stick to the code 8 handling?
+  - Do we want to assert like with validities and PGMs outside of SIE?
+  - Should sie() have a int return code like in KVM?
+
 > 
-> > > > Several architectures override module_alloc() because of various
-> > > > constraints where the executable memory can be located and this causes
-> > > > additional obstacles for improvements of code allocation.
-> > > > 
-> > > > This set splits code allocation from modules by introducing
-> > > > jit_text_alloc(), jit_data_alloc() and jit_free() APIs, replaces call
-> > > > sites of module_alloc() and module_memfree() with the new APIs and
-> > > > implements core text and related allocation in a central place.
-> > > > 
-> > > > Instead of architecture specific overrides for module_alloc(), the
-> > > > architectures that require non-default behaviour for text allocation must
-> > > > fill jit_alloc_params structure and implement jit_alloc_arch_params() that
-> > > > returns a pointer to that structure. If an architecture does not implement
-> > > > jit_alloc_arch_params(), the defaults compatible with the current
-> > > > modules::module_alloc() are used.
-> > > 
-> > > As above, I suspect that each of the callsites should probably be using common
-> > > infrastructure, but I don't think that a single jit_alloc_arch_params() makes
-> > > sense, since the parameters for each case may need to be distinct.
-> > 
-> > I don't see how that follows. The whole point of function parameters is
-> > that they may be different :)
+> In sie(), check whether a pgm int code is set in lowcore. If it has,
+> exit the loop so the test can react to the interrupt. Add a new function
+> read_pgm_int_code() to obtain the interrupt code.
 > 
-> What I mean is that jit_alloc_arch_params() tries to aggregate common
-> parameters, but they aren't actually common (e.g. the actual start+end range
-> for allocation).
-
-jit_alloc_arch_params() tries to aggregate architecture constraints and
-requirements for allocations of executable memory and this exactly what
-the first 6 patches of this set do.
-
-A while ago Thomas suggested to use a structure that parametrizes
-architecture constraints by the memory type used in modules [1] and Song
-implemented the infrastructure for it and x86 part [2].
-
-I liked the idea of defining parameters in a single structure, but I
-thought that approaching the problem from the arch side rather than from
-modules perspective will be better starting point, hence these patches.
-
-I don't see a fundamental reason why a single structure cannot describe
-what is needed for different code allocation cases, be it modules, kprobes
-or bpf. There is of course an assumption that the core allocations will be
-the same for all the users, and it seems to me that something like 
-
-* allocate physical memory if allocator caches are empty
-* map it in vmalloc or modules address space
-* return memory from the allocator cache to the caller
-
-will work for all usecases.
-
-We might need separate caches for different cases on different
-architectures, and a way to specify what cache should be used in the
-allocator API, but that does not contradict a single structure for arch
-specific parameters, but only makes it more elaborate, e.g. something like
-
-enum jit_type {
-	JIT_MODULES_TEXT,
-	JIT_MODULES_DATA,
-	JIT_KPROBES,
-	JIT_FTRACE,
-	JIT_BPF,
-	JIT_TYPE_MAX,
-};
-
-struct jit_alloc_params {
-	struct jit_range	ranges[JIT_TYPE_MAX];
-	/* ... */
-};
-
-> > Can you give more detail on what parameters you need? If the only extra
-> > parameter is just "does this allocation need to live close to kernel
-> > text", that's not that big of a deal.
+> Note that this introduces a slight oddity with sie and pgm int in
+> certain cases: If a PGM int occurs between a expect_pgm_int() and sie(),
+> we will now never enter SIE until the pgm_int_code is cleared by e.g.
+> clear_pgm_int().
 > 
-> My thinking was that we at least need the start + end for each caller. That
-> might be it, tbh.
+> Also add missing include of facility.h to mem.h.
 
-Do you mean that modules will have something like
-
-	jit_text_alloc(size, MODULES_START, MODULES_END);
-
-and kprobes will have
-
-	jit_text_alloc(size, KPROBES_START, KPROBES_END);
 ?
 
-It sill can be achieved with a single jit_alloc_arch_params(), just by
-adding enum jit_type parameter to jit_text_alloc().
+> 
+> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+> ---
+>   lib/s390x/asm/interrupt.h | 14 ++++++++++++++
+>   lib/s390x/asm/mem.h       |  1 +
+>   lib/s390x/sie.c           |  4 +++-
+>   3 files changed, 18 insertions(+), 1 deletion(-)
+> 
+> diff --git a/lib/s390x/asm/interrupt.h b/lib/s390x/asm/interrupt.h
+> index 55759002dce2..fb4283a40a1b 100644
+> --- a/lib/s390x/asm/interrupt.h
+> +++ b/lib/s390x/asm/interrupt.h
+> @@ -99,4 +99,18 @@ static inline void low_prot_disable(void)
+>   	ctl_clear_bit(0, CTL0_LOW_ADDR_PROT);
+>   }
+>   
+> +/**
+> + * read_pgm_int_code - Get the program interruption code of the last pgm int
+> + * on the current CPU.
 
-[1] https://lore.kernel.org/linux-mm/87v8mndy3y.ffs@tglx/ 
-[2] https://lore.kernel.org/all/20230526051529.3387103-1-song@kernel.org
+All of the other functions are in the c file.
 
-> Thanks,
-> Mark.
+> + *
+> + * This is similar to clear_pgm_int(), except that it doesn't clear the
+> + * interruption information from lowcore.
+> + *
+> + * Returns 0 when none occured.
 
--- 
-Sincerely yours,
-Mike.
+s/r/rr/
+
+> + */
+> +static inline uint16_t read_pgm_int_code(void)
+> +{
+
+No mb()?
+
+> +	return lowcore.pgm_int_code;
+> +}
+> +
+>   #endif
+> diff --git a/lib/s390x/asm/mem.h b/lib/s390x/asm/mem.h
+> index 64ef59b546a4..94d58c34f53f 100644
+> --- a/lib/s390x/asm/mem.h
+> +++ b/lib/s390x/asm/mem.h
+> @@ -8,6 +8,7 @@
+>   #ifndef _ASMS390X_MEM_H_
+>   #define _ASMS390X_MEM_H_
+>   #include <asm/arch_def.h>
+> +#include <asm/facility.h>
+>   
+>   /* create pointer while avoiding compiler warnings */
+>   #define OPAQUE_PTR(x) ((void *)(((uint64_t)&lowcore) + (x)))
+> diff --git a/lib/s390x/sie.c b/lib/s390x/sie.c
+> index ffa8ec91a423..632740edd431 100644
+> --- a/lib/s390x/sie.c
+> +++ b/lib/s390x/sie.c
+> @@ -13,6 +13,7 @@
+>   #include <libcflat.h>
+>   #include <sie.h>
+>   #include <asm/page.h>
+> +#include <asm/interrupt.h>
+>   #include <libcflat.h>
+>   #include <alloc_page.h>
+>   
+> @@ -65,7 +66,8 @@ void sie(struct vm *vm)
+>   	/* also handle all interruptions in home space while in SIE */
+>   	irq_set_dat_mode(IRQ_DAT_ON, AS_HOME);
+>   
+> -	while (vm->sblk->icptcode == 0) {
+> +	/* leave SIE when we have an intercept or an interrupt so the test can react to it */
+> +	while (vm->sblk->icptcode == 0 && !read_pgm_int_code()) {
+>   		sie64a(vm->sblk, &vm->save_area);
+>   		sie_handle_validity(vm);
+>   	}
+
