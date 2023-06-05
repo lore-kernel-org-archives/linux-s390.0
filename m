@@ -2,60 +2,59 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BDA1C7EE24
-	for <linux-s390@archiver.kernel.org>; Mon,  5 Jun 2023 13:34:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D0F94C7EE2C
+	for <linux-s390@archiver.kernel.org>; Mon,  5 Jun 2023 13:55:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232129AbjFENe1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 5 Jun 2023 09:34:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44846 "EHLO
+        id S231432AbjFENzo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 5 Jun 2023 09:55:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231285AbjFENe0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 5 Jun 2023 09:34:26 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE796D2;
-        Mon,  5 Jun 2023 06:34:24 -0700 (PDT)
-Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 355Cl4o4023036;
-        Mon, 5 Jun 2023 13:34:24 GMT
+        with ESMTP id S231308AbjFENzn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 5 Jun 2023 09:55:43 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F24F0E5;
+        Mon,  5 Jun 2023 06:55:41 -0700 (PDT)
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 355D9SnI025450;
+        Mon, 5 Jun 2023 13:55:41 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
+ mime-version : to : cc : references : from : subject : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=GdT6zfZTiSgNaK6kYoIX3NprH11FZeKSsejoddhPyak=;
- b=M7Luh6WfcGqCbQ/lNol2QhBCCNw5fNm4VZO6I74ytnCI/1vLJKkthfZNfCnP25X38qto
- qB0PXk8mLnD4HImd2g09UOgxboesR2HQb8g1Huw1OzhLZDVx9J+j7xM3shTuRRQYwdE4
- 6czx35UHPyXaLSpR5Ad7a9Qs1cJge9jmKtNuqvgPqiIs1Sh4HAap+6yVlNS2rcWQbqrR
- V8+D143bHEUY+SmohygYh06OApVgO78Q+ZN1GwLj1bnUo3RUSO9MepfgnzeK0oIXMDAq
- hM2uqQ7NtCPm4Pbk4QmgSjbU88uXIfr2jped7czOngE4A9MjOPGHQZUJWVGw9z1TOzUu jg== 
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3r1g0v1cbg-1
+ bh=uk/Ph7nyQQjzXgnz5FCxkok2A043KfR/00Z42hy/kLU=;
+ b=JeRvxbc//zM0YdYkU0ScxMD9Ijnz8Dq9wWRafIEzFy5rsrOlIFUwIRjQL7xW7EujMkPe
+ /P4pDCMXxF2jMXDwrHitLl6fDoJDX4bDFFbsUwU6kKJqaLHKd29a91QekHwA9nPinZUA
+ sUiYaJiS94wYF7cUf8nt+EoXD4fiNZb0aNgAV21yHcqT0cZCQkW4IdwxOaFRySL4QUqb
+ g+VfyTRReqppxa6pO5vjgKABLeZgAGQ6CHGnI1GmEz34Yr1uoTOXqGOaP7hz1gyPmRPl
+ uDhtNW37iNrgbXOujB+HlsZ/81DXKPMqSpXId/V1EMFFScurhRyIBzjDunNFEKnnbKyK Cw== 
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3r1f9vk022-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 05 Jun 2023 13:34:24 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 355AuLnW021629;
-        Mon, 5 Jun 2023 13:34:22 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-        by ppma03fra.de.ibm.com (PPS) with ESMTPS id 3qyxdfh3fq-1
+        Mon, 05 Jun 2023 13:55:40 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3553pLUI000328;
+        Mon, 5 Jun 2023 13:55:39 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3qyxmyhd4r-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 05 Jun 2023 13:34:21 +0000
+        Mon, 05 Jun 2023 13:55:38 +0000
 Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 355DYI8Z22544964
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 355DtZD263832516
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 5 Jun 2023 13:34:18 GMT
+        Mon, 5 Jun 2023 13:55:35 GMT
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 705A920040;
-        Mon,  5 Jun 2023 13:34:18 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 6908720040;
+        Mon,  5 Jun 2023 13:55:35 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E32F220043;
-        Mon,  5 Jun 2023 13:34:17 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id DBA4220043;
+        Mon,  5 Jun 2023 13:55:34 +0000 (GMT)
 Received: from [9.171.39.161] (unknown [9.171.39.161])
         by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon,  5 Jun 2023 13:34:17 +0000 (GMT)
-Message-ID: <dc7e7448-eed0-591c-0c64-eba84b5a8e92@linux.ibm.com>
-Date:   Mon, 5 Jun 2023 15:34:17 +0200
+        Mon,  5 Jun 2023 13:55:34 +0000 (GMT)
+Message-ID: <2fca9573-5989-d61e-52ec-552f4e176971@linux.ibm.com>
+Date:   Mon, 5 Jun 2023 15:55:34 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
  Thunderbird/102.11.0
-Subject: Re: [PATCH v2 4/6] s390/uvdevice: Add 'Lock Secret Store' UVC
 Content-Language: en-US
 To:     Steffen Eiden <seiden@linux.ibm.com>, kvm@vger.kernel.org,
         linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
@@ -66,107 +65,155 @@ Cc:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Hendrik Brueckner <brueckner@linux.ibm.com>
 References: <20230519093708.810957-1-seiden@linux.ibm.com>
- <20230519093708.810957-5-seiden@linux.ibm.com>
+ <20230519093708.810957-6-seiden@linux.ibm.com>
 From:   Janosch Frank <frankja@linux.ibm.com>
-In-Reply-To: <20230519093708.810957-5-seiden@linux.ibm.com>
+Subject: Re: [PATCH v2 5/6] s390/uv: replace scnprintf with sysfs_emit
+In-Reply-To: <20230519093708.810957-6-seiden@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: HYtSIl94UfsHtWJgp4cMRw_cjnYWkJ_A
-X-Proofpoint-GUID: HYtSIl94UfsHtWJgp4cMRw_cjnYWkJ_A
+X-Proofpoint-GUID: i3wboSr1suuijq0IkIwwm39ULCQWE8DZ
+X-Proofpoint-ORIG-GUID: i3wboSr1suuijq0IkIwwm39ULCQWE8DZ
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
  definitions=2023-06-05_28,2023-06-02_02,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 adultscore=0
- suspectscore=0 mlxlogscore=999 malwarescore=0 bulkscore=0
- priorityscore=1501 lowpriorityscore=0 clxscore=1015 impostorscore=0
- mlxscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
+ lowpriorityscore=0 bulkscore=0 mlxlogscore=999 spamscore=0 malwarescore=0
+ phishscore=0 impostorscore=0 mlxscore=0 priorityscore=1501 adultscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2304280000 definitions=main-2306050118
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 On 5/19/23 11:37, Steffen Eiden wrote:
-> Userspace can call the Lock Secret Store Ultravisor Call
-> using IOCTLs on the uvdevice.
-> During the handling of the new IOCTL nr the uvdevice will do some sanity
-> checks first. Then, perform the Ultravisor command, and copy the
-> return codes to userspace.
-> If the Lock Secrets UV facility is not present, UV will return
-> invalid command rc. This won't be fenced in the driver and does not
-> result in a negative return value. This is also true for any other
-> possible error code the UV can return.
+> Replace scnprintf(page, PAGE_SIZE, ...) with the page size aware
+> sysfs_emit(page, ...) which adds some sanity checks.
 > 
 > Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
-
-While the add and list secret calls work on data structures that are 
-opaque to the kernel I'd describe the effects of this call here. Namely 
-that any further add secret calls will fail with return code 0x102 once 
-the store has been locked.
-
 > ---
->   arch/s390/include/asm/uv.h            |  2 ++
->   arch/s390/include/uapi/asm/uvdevice.h |  3 +++
->   drivers/s390/char/uvdevice.c          | 39 +++++++++++++++++++++++++++
->   3 files changed, 44 insertions(+)
+>   arch/s390/kernel/uv.c | 36 +++++++++++++++---------------------
+>   1 file changed, 15 insertions(+), 21 deletions(-)
 > 
-> diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
-> index 1e4f0f6d4923..6180ac8909d5 100644
-> --- a/arch/s390/include/asm/uv.h
-> +++ b/arch/s390/include/asm/uv.h
-> @@ -60,6 +60,7 @@
-[...]
->   
-> +/** uvio_lock_secrets() - perform a Lock Secret Store UVC
-> + *
-> + * @uv_ioctl: ioctl control block
-> + *
-> + * uvio_lock_secrets() performs the Lock Secret Store Ultravisor Call.
-> + * It performs the UV-call and copies the return codes to the
-> + * ioctl control block.
-> + *
-> + * The argument address and size must be 0.
-> + *
-> + * If the List Secrets UV facility is not present,
-> + * UV will return invalid command rc. This won't be fenced in the driver
-> + * and does not result in a negative return value.
+> diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
+> index cb2ee06df286..d5b5d7e83c17 100644
+> --- a/arch/s390/kernel/uv.c
+> +++ b/arch/s390/kernel/uv.c
+> @@ -462,11 +462,11 @@ EXPORT_SYMBOL_GPL(arch_make_page_accessible);
+>   static ssize_t uv_query_facilities(struct kobject *kobj,
+>   				   struct kobj_attribute *attr, char *page)
 
-This has weird indenting. The others often have it too but this one is 
-especially strange. Did you do that yourself or is that from your editor?
+The last argument is called buf so let's also change that over to make 
+all of the functions look the same.
 
-> + *
-> + * Context: might sleep
-> + *
-> + * Return: 0 on success or a negative error code on error.
-> + */
-> +static int uvio_lock_secrets(struct uvio_ioctl_cb *ioctl)
-> +{
-> +	struct uv_cb_nodata uvcb = {
-> +		.header.len = sizeof(uvcb),
-> +		.header.cmd = UVC_CMD_LOCK_SECRETS,
-> +	};
-> +
-> +	if (ioctl->argument_addr || ioctl->argument_len)
-> +		return -EINVAL;
-> +
-> +	uv_call(0, (u64)&uvcb);
-> +	ioctl->uv_rc = uvcb.header.rc;
-> +	ioctl->uv_rrc = uvcb.header.rrc;
-> +
-> +	return 0;
-> +}
-> +
->   static int uvio_copy_and_check_ioctl(struct uvio_ioctl_cb *ioctl, void __user *argp,
->   				     unsigned long cmd)
 >   {
-> @@ -388,6 +424,9 @@ static long uvio_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
->   	case UVIO_IOCTL_LIST_SECRETS_NR:
->   		ret = uvio_list_secrets(&uv_ioctl);
->   		break;
-> +	case UVIO_IOCTL_LOCK_SECRETS_NR:
-> +		ret = uvio_lock_secrets(&uv_ioctl);
-> +		break;
->   	default:
->   		ret = -ENOIOCTLCMD;
->   		break;
+> -	return scnprintf(page, PAGE_SIZE, "%lx\n%lx\n%lx\n%lx\n",
+> -			uv_info.inst_calls_list[0],
+> -			uv_info.inst_calls_list[1],
+> -			uv_info.inst_calls_list[2],
+> -			uv_info.inst_calls_list[3]);
+> +	return sysfs_emit(page, "%lx\n%lx\n%lx\n%lx\n",
+> +			  uv_info.inst_calls_list[0],
+> +			  uv_info.inst_calls_list[1],
+> +			  uv_info.inst_calls_list[2],
+> +			  uv_info.inst_calls_list[3]);
+>   }
+>   
+>   static struct kobj_attribute uv_query_facilities_attr =
+> @@ -493,8 +493,7 @@ static struct kobj_attribute uv_query_supp_se_hdr_pcf_attr =
+>   static ssize_t uv_query_dump_cpu_len(struct kobject *kobj,
+>   				     struct kobj_attribute *attr, char *page)
+>   {
+> -	return scnprintf(page, PAGE_SIZE, "%lx\n",
+> -			uv_info.guest_cpu_stor_len);
+> +	return sysfs_emit(page, "%lx\n", uv_info.guest_cpu_stor_len);
+>   }
+>   
+>   static struct kobj_attribute uv_query_dump_cpu_len_attr =
+> @@ -503,8 +502,7 @@ static struct kobj_attribute uv_query_dump_cpu_len_attr =
+>   static ssize_t uv_query_dump_storage_state_len(struct kobject *kobj,
+>   					       struct kobj_attribute *attr, char *page)
+>   {
+> -	return scnprintf(page, PAGE_SIZE, "%lx\n",
+> -			uv_info.conf_dump_storage_state_len);
+> +	return sysfs_emit(page, "%lx\n", uv_info.conf_dump_storage_state_len);
+>   }
+>   
+>   static struct kobj_attribute uv_query_dump_storage_state_len_attr =
+> @@ -513,8 +511,7 @@ static struct kobj_attribute uv_query_dump_storage_state_len_attr =
+>   static ssize_t uv_query_dump_finalize_len(struct kobject *kobj,
+>   					  struct kobj_attribute *attr, char *page)
+>   {
+> -	return scnprintf(page, PAGE_SIZE, "%lx\n",
+> -			uv_info.conf_dump_finalize_len);
+> +	return sysfs_emit(page, "%lx\n", uv_info.conf_dump_finalize_len);
+>   }
+>   
+>   static struct kobj_attribute uv_query_dump_finalize_len_attr =
+> @@ -532,8 +529,7 @@ static struct kobj_attribute uv_query_feature_indications_attr =
+>   static ssize_t uv_query_max_guest_cpus(struct kobject *kobj,
+>   				       struct kobj_attribute *attr, char *page)
+>   {
+> -	return scnprintf(page, PAGE_SIZE, "%d\n",
+> -			uv_info.max_guest_cpu_id + 1);
+> +	return sysfs_emit(page, "%d\n", uv_info.max_guest_cpu_id + 1);
+>   }
+>   
+>   static struct kobj_attribute uv_query_max_guest_cpus_attr =
+> @@ -542,8 +538,7 @@ static struct kobj_attribute uv_query_max_guest_cpus_attr =
+>   static ssize_t uv_query_max_guest_vms(struct kobject *kobj,
+>   				      struct kobj_attribute *attr, char *page)
+>   {
+> -	return scnprintf(page, PAGE_SIZE, "%d\n",
+> -			uv_info.max_num_sec_conf);
+> +	return sysfs_emit(page, "%d\n", uv_info.max_num_sec_conf);
+>   }
+>   
+>   static struct kobj_attribute uv_query_max_guest_vms_attr =
+> @@ -552,8 +547,7 @@ static struct kobj_attribute uv_query_max_guest_vms_attr =
+>   static ssize_t uv_query_max_guest_addr(struct kobject *kobj,
+>   				       struct kobj_attribute *attr, char *page)
+>   {
+> -	return scnprintf(page, PAGE_SIZE, "%lx\n",
+> -			uv_info.max_sec_stor_addr);
+> +	return sysfs_emit(page, "%lx\n", uv_info.max_sec_stor_addr);
+>   }
+>   
+>   static struct kobj_attribute uv_query_max_guest_addr_attr =
+> @@ -562,7 +556,7 @@ static struct kobj_attribute uv_query_max_guest_addr_attr =
+>   static ssize_t uv_query_supp_att_req_hdr_ver(struct kobject *kobj,
+>   					     struct kobj_attribute *attr, char *page)
+>   {
+> -	return scnprintf(page, PAGE_SIZE, "%lx\n", uv_info.supp_att_req_hdr_ver);
+> +	return sysfs_emit(page, "%lx\n", uv_info.supp_att_req_hdr_ver);
+>   }
+>   
+>   static struct kobj_attribute uv_query_supp_att_req_hdr_ver_attr =
+> @@ -571,7 +565,7 @@ static struct kobj_attribute uv_query_supp_att_req_hdr_ver_attr =
+>   static ssize_t uv_query_supp_att_pflags(struct kobject *kobj,
+>   					struct kobj_attribute *attr, char *page)
+>   {
+> -	return scnprintf(page, PAGE_SIZE, "%lx\n", uv_info.supp_att_pflags);
+> +	return sysfs_emit(page, "%lx\n", uv_info.supp_att_pflags);
+>   }
+>   
+>   static struct kobj_attribute uv_query_supp_att_pflags_attr =
+> @@ -605,7 +599,7 @@ static ssize_t uv_is_prot_virt_guest(struct kobject *kobj,
+>   #ifdef CONFIG_PROTECTED_VIRTUALIZATION_GUEST
+>   	val = prot_virt_guest;
+>   #endif
+> -	return scnprintf(page, PAGE_SIZE, "%d\n", val);
+> +	return sysfs_emit(page, "%d\n", val);
+>   }
+>   
+>   static ssize_t uv_is_prot_virt_host(struct kobject *kobj,
+> @@ -617,7 +611,7 @@ static ssize_t uv_is_prot_virt_host(struct kobject *kobj,
+>   	val = prot_virt_host;
+>   #endif
+>   
+> -	return scnprintf(page, PAGE_SIZE, "%d\n", val);
+> +	return sysfs_emit(page, "%d\n", val);
+>   }
+>   
+>   static struct kobj_attribute uv_prot_virt_guest =
 
