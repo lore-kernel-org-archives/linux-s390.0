@@ -2,56 +2,56 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E6B91C7EE24
-	for <linux-s390@archiver.kernel.org>; Tue,  6 Jun 2023 05:12:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 77230C77B73
+	for <linux-s390@archiver.kernel.org>; Tue,  6 Jun 2023 06:19:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233695AbjFFFMB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 6 Jun 2023 01:12:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41306 "EHLO
+        id S235022AbjFFGT0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 6 Jun 2023 02:19:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229532AbjFFFMA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 6 Jun 2023 01:12:00 -0400
-Received: from mail-yb1-xb2d.google.com (mail-yb1-xb2d.google.com [IPv6:2607:f8b0:4864:20::b2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05289196
-        for <linux-s390@vger.kernel.org>; Mon,  5 Jun 2023 22:11:58 -0700 (PDT)
-Received: by mail-yb1-xb2d.google.com with SMTP id 3f1490d57ef6-b9a6eec8611so10067216276.0
-        for <linux-s390@vger.kernel.org>; Mon, 05 Jun 2023 22:11:57 -0700 (PDT)
+        with ESMTP id S235029AbjFFGTK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 6 Jun 2023 02:19:10 -0400
+Received: from mail-yw1-x1131.google.com (mail-yw1-x1131.google.com [IPv6:2607:f8b0:4864:20::1131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E4C9E52
+        for <linux-s390@vger.kernel.org>; Mon,  5 Jun 2023 23:19:02 -0700 (PDT)
+Received: by mail-yw1-x1131.google.com with SMTP id 00721157ae682-569f25e735fso1034547b3.0
+        for <linux-s390@vger.kernel.org>; Mon, 05 Jun 2023 23:19:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1686028317; x=1688620317;
+        d=google.com; s=20221208; t=1686032342; x=1688624342;
         h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=Yg5QZP2g60my/74v9bFDX0ytuK3YiKYcw7uy2Evxx/w=;
-        b=NhPKZdrYlIvx7iNLVAjsRa8aEHC/++SunSHEGfSq4fN41PBLT9eZcR2/wHJ4nNVR2f
-         5X/0qJZ+DCYCVShcxq8ke6LXK+C9/UShkM7LasBWEgOB2lDScl83QpHIK1gmWA98m/ss
-         SiduR3KyQD6Hrp/mO9LD07U2/2ZllMy8jd1Pih81/9dWMCLo0uyekAd3DX2sEX+Cw5Yx
-         lbDeXr44Hg9suU7r7LOljSJN223vdWS720TPzZ3+aBdeerGpaWsECVKxrVJU3J1sLPwv
-         iHtUGdsItYjQDfhX1peOkao4EoBYflXBBDYRnRhxuQWSnFrY4DMOhUaKCtFH6PjCrdp/
-         Cd8Q==
+        bh=+sTRYTVdx/ux01uBjEjpeUqJbg1WCUQQStTJJJ+iSYQ=;
+        b=YVpcnR57XK58Ak9HJaKiD+AbmN0H/CYge3w1rDZy+kp+ixEQ5UXDhUW9pOYeesSqFj
+         UIRUIc+94+rFepe5SS0IdOo5iztw/rOy6CZpzWrU+IO4mNui1Zkgo9h3jingrr3fdVeR
+         HIuDw7tANLptHE48ffNhMDJFR/2yVZoygTObBxZHLrYwZ5ig0FO5oMVOAbG5JmgJ0UWU
+         6+2GTtgCPvXlaoClixmzd6lsXHoN+YRamBAk/DTYCWg1LdM33PXGWziAwYwNFEbX76sd
+         8nwM0BIPLw8ZG/nUnsDIXqbiioZwSbfpAnbTQqesPpDB88/NKXiVlbDpREXhm6LvGiU9
+         9BzA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1686028317; x=1688620317;
+        d=1e100.net; s=20221208; t=1686032342; x=1688624342;
         h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Yg5QZP2g60my/74v9bFDX0ytuK3YiKYcw7uy2Evxx/w=;
-        b=ezSQY1XuSCotoQziOH6shngxbSeXeCyoAQj0rZEszoj6qp+YCa90fnC2ZENu1fjUks
-         5wIw4KUil9fO20BDT7L3CVxLzvTBIQstGmTLMSbr7YQ1Jz33uhtUYMVvlgkq/aub7qRD
-         8Xx56pTSJRob2TeQnn2rpuHnZR5+jvSgS4Uk9+UMlwWtzPqPJ989u9TAlMxzgvTiD4wY
-         GoB1gaqxhtFqCXc0M6FYl7nxmgK9erV+s8ntNRyaceOe6Q1joBALAw+RfTFn64fxfrQ/
-         rW0lWkaRtnezIrIg1s9GNXlbGu7OjlpiTvy3qT0vlaQPgptwGz2L0h67FMCi8QnoIc/z
-         j47g==
-X-Gm-Message-State: AC+VfDxrQG9qFxJnKYBaGFVteXojc7w6TMXnvpL10/AMgFfauZMU67Xc
-        MCsRkSQdyUQFTtO2RD5lE7s3XQ==
-X-Google-Smtp-Source: ACHHUZ7mNDwt5noCg8dzsm+uwzH2YBNGxVJGpnYLqxOLpDnODKyqQEHd1FpsbgO8FPXNURX25I813Q==
-X-Received: by 2002:a0d:ccca:0:b0:568:b105:751 with SMTP id o193-20020a0dccca000000b00568b1050751mr12281723ywd.2.1686028316993;
-        Mon, 05 Jun 2023 22:11:56 -0700 (PDT)
+        bh=+sTRYTVdx/ux01uBjEjpeUqJbg1WCUQQStTJJJ+iSYQ=;
+        b=lfsXPZ0qWiJrLKRGTEN0UUKL2H8ovwxrW+ioy9EtvRI2vKvNadgmtjJul0xgcSKaEf
+         Zyh0QUcBWuj2IEUSYSClCcQTetcixC1wPcdJhlxt8TcfKmeLAl8WNT63kpOfemDlVyzp
+         swY5pDnn3iUb8LVrOiZ9WDCrfPTkcOIdXh57Ifhmf/wq41LlB7mo+3VBsXmvMDYHVFJe
+         mKeiC8oa5wApxWIHzta40WkWOLYZTuR8IYiOCkbKDYxr6bIiSfAkY2lLLRWZrr8qz+or
+         bdqQqXpWdQyLht2bQxML0fh9Ow1lLWgb4d9Dj0jjtU6ya+JxxixilJ6rVkrZpohfV/5H
+         VBQg==
+X-Gm-Message-State: AC+VfDxBn2ONUB9XzF8Vsf8AS0Ckj1CSLNfnPZRlWnsHTEZB8KtalDFO
+        VpRaneQVZfevALG1veA7S4NgDw==
+X-Google-Smtp-Source: ACHHUZ5WPUWoPm4xuDxQsHa6AYmw1XOJYysfo3qH0lT+OY94v7UN7xIfgoB+mAV06b+Ahd1uLZ7ohg==
+X-Received: by 2002:a81:6d46:0:b0:565:d3f9:209e with SMTP id i67-20020a816d46000000b00565d3f9209emr1132264ywc.34.1686032341554;
+        Mon, 05 Jun 2023 23:19:01 -0700 (PDT)
 Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id t19-20020a81c253000000b0055a7c2375dfsm3718391ywg.101.2023.06.05.22.11.52
+        by smtp.gmail.com with ESMTPSA id i187-20020a816dc4000000b0055d820f11cesm3876070ywc.13.2023.06.05.23.18.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 05 Jun 2023 22:11:56 -0700 (PDT)
-Date:   Mon, 5 Jun 2023 22:11:52 -0700 (PDT)
+        Mon, 05 Jun 2023 23:19:00 -0700 (PDT)
+Date:   Mon, 5 Jun 2023 23:18:50 -0700 (PDT)
 From:   Hugh Dickins <hughd@google.com>
 X-X-Sender: hugh@ripple.attlocal.net
-To:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-cc:     Hugh Dickins <hughd@google.com>, Vasily Gorbik <gor@linux.ibm.com>,
+To:     Jann Horn <jannh@google.com>
+cc:     Hugh Dickins <hughd@google.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Mike Kravetz <mike.kravetz@oracle.com>,
         Mike Rapoport <rppt@kernel.org>,
@@ -89,218 +89,100 @@ cc:     Hugh Dickins <hughd@google.com>, Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Claudio Imbrenda <imbrenda@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        Jann Horn <jannh@google.com>,
         linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
         linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH 07/12] s390: add pte_free_defer(), with use of
- mmdrop_async()
-In-Reply-To: <6dd63b39-e71f-2e8b-7e0-83e02f3bcb39@google.com>
-Message-ID: <175ebec8-761-c3f-2d98-6c3bd87161c8@google.com>
-References: <35e983f5-7ed3-b310-d949-9ae8b130cdab@google.com> <6dd63b39-e71f-2e8b-7e0-83e02f3bcb39@google.com>
+Subject: Re: [PATCH 09/12] mm/khugepaged: retract_page_tables() without mmap
+ or vma lock
+In-Reply-To: <CAG48ez0aF1Rf1apSjn9YcnfyFQ4YqSd4GqB6f2wfhF7jMdi5Hg@mail.gmail.com>
+Message-ID: <c096f6fb-93c4-3f23-7698-8e4c5286c2b2@google.com>
+References: <35e983f5-7ed3-b310-d949-9ae8b130cdab@google.com> <2e9996fa-d238-e7c-1194-834a2bd1f60@google.com> <CAG48ez0aF1Rf1apSjn9YcnfyFQ4YqSd4GqB6f2wfhF7jMdi5Hg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/mixed; boundary="-1463760895-64387534-1686032340=:3708"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sun, 28 May 2023, Hugh Dickins wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-> Add s390-specific pte_free_defer(), to call pte_free() via call_rcu().
-> pte_free_defer() will be called inside khugepaged's retract_page_tables()
-> loop, where allocating extra memory cannot be relied upon.  This precedes
-> the generic version to avoid build breakage from incompatible pgtable_t.
-> 
-> This version is more complicated than others: because page_table_free()
-> needs to know which fragment is being freed, and which mm to link it to.
-> 
-> page_table_free()'s fragment handling is clever, but I could too easily
-> break it: what's done here in pte_free_defer() and pte_free_now() might
-> be better integrated with page_table_free()'s cleverness, but not by me!
-> 
-> By the time that page_table_free() gets called via RCU, it's conceivable
-> that mm would already have been freed: so mmgrab() in pte_free_defer()
-> and mmdrop() in pte_free_now().  No, that is not a good context to call
-> mmdrop() from, so make mmdrop_async() public and use that.
+---1463760895-64387534-1686032340=:3708
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
-But Matthew Wilcox quickly pointed out that sharing one page->rcu_head
-between multiple page tables is tricky: something I knew but had lost
-sight of.  So the powerpc and s390 patches were broken: powerpc fairly
-easily fixed, but s390 more painful.
+On Wed, 31 May 2023, Jann Horn wrote:
+> On Mon, May 29, 2023 at 8:25=E2=80=AFAM Hugh Dickins <hughd@google.com> w=
+rote:
+> > +static void retract_page_tables(struct address_space *mapping, pgoff_t=
+ pgoff)
+=2E..
+> > +                * Note that vma->anon_vma check is racy: it can be set=
+ after
+> > +                * the check, but page locks (with XA_RETRY_ENTRYs in h=
+oles)
+> > +                * prevented establishing new ptes of the page. So we a=
+re safe
+> > +                * to remove page table below, without even checking it=
+'s empty.
+>=20
+> This "we are safe to remove page table below, without even checking
+> it's empty" assumes that the only way to create new anonymous PTEs is
+> to use existing file PTEs, right? What about private shmem VMAs that
+> are registered with userfaultfd as VM_UFFD_MISSING? I think for those,
+> the UFFDIO_COPY ioctl lets you directly insert anonymous PTEs without
+> looking at the mapping and its pages (except for checking that the
+> insertion point is before end-of-file), protected only by mmap_lock
+> (shared) and pte_offset_map_lock().
 
-In https://lore.kernel.org/linux-s390/20230601155751.7c949ca4@thinkpad-T15/
-On Thu, 1 Jun 2023 15:57:51 +0200
-Gerald Schaefer <gerald.schaefer@linux.ibm.com> wrote:
-> 
-> Yes, we have 2 pagetables in one 4K page, which could result in same
-> rcu_head reuse. It might be possible to use the cleverness from our
-> page_table_free() function, e.g. to only do the call_rcu() once, for
-> the case where both 2K pagetable fragments become unused, similar to
-> how we decide when to actually call __free_page().
-> 
-> However, it might be much worse, and page->rcu_head from a pagetable
-> page cannot be used at all for s390, because we also use page->lru
-> to keep our list of free 2K pagetable fragments. I always get confused
-> by struct page unions, so not completely sure, but it seems to me that
-> page->rcu_head would overlay with page->lru, right?
+Right, from your comments and Peter's, thank you both, I can see that
+userfaultfd breaks the usual assumptions here: so I'm putting an
+=09=09if (unlikely(vma->anon_vma || userfaultfd_wp(vma)))
+check in once we've got the ptlock; with a comment above it to point
+the blame at uffd, though I gave up on describing all the detail.
+And deleted this earlier "we are safe" paragraph.
 
-Sigh, yes, page->rcu_head overlays page->lru.  But (please correct me if
-I'm wrong) I think that s390 could use exactly the same technique for
-its list of free 2K pagetable fragments as it uses for its list of THP
-"deposited" pagetable fragments, over in arch/s390/mm/pgtable.c: use
-the first two longs of the page table itself for threading the list.
+You did suggest, in another mail, that perhaps there should be a scan
+checking all pte_none() when we get the ptlock.  I wasn't keen on yet
+another debug scan for bugs and didn't add that, thinking I was going
+to add a patch on the end to do so in page_table_check_pte_clear_range().
 
-And while it could use third and fourth longs instead, I don't see any
-need for that: a deposited pagetable has been allocated, so would not
-be on the list of free fragments.
+But when I came to write that patch, found that I'd been misled by its
+name: it's about checking or adjusting some accounting, not really a
+suitable place to check for pte_none() at all; so just scrapped it.
 
-Below is one of the grossest patches I've ever posted: gross because
-it's a rushed attempt to see whether that is viable, while it would take
-me longer to understand all the s390 cleverness there (even though the
-PP AA commentary above page_table_alloc() is excellent).
+=2E..
+> > -                       collapse_and_free_pmd(mm, vma, addr, pmd);
+>=20
+> The old code called collapse_and_free_pmd(), which involves MMU
+> notifier invocation...
 
-I'm hoping the use of page->lru in arch/s390/mm/gmap.c is disjoint.
-And cmma_init_nodat()? Ah, that's __init so I guess disjoint.
+=2E..
+> > +               pml =3D pmd_lock(mm, pmd);
+> > +               ptl =3D pte_lockptr(mm, pmd);
+> > +               if (ptl !=3D pml)
+> > +                       spin_lock_nested(ptl, SINGLE_DEPTH_NESTING);
+> > +               pgt_pmd =3D pmdp_collapse_flush(vma, addr, pmd);
+>=20
+> ... while the new code only does pmdp_collapse_flush(), which clears
+> the pmd entry and does a TLB flush, but AFAICS doesn't use MMU
+> notifiers. My understanding is that that's problematic - maybe (?) it
+> is sort of okay with regards to classic MMU notifier users like KVM,
+> but it's probably wrong for IOMMUv2 users, where an IOMMU directly
+> consumes the normal page tables?
 
-Gerald, s390 folk: would it be possible for you to give this
-a try, suggest corrections and improvements, and then I can make it
-a separate patch of the series; and work on avoiding concurrent use
-of the rcu_head by pagetable fragment buddies (ideally fit in with
-the scheme already there, maybe DD bits to go along with the PP AA).
+Right, I intentionally left out the MMU notifier invocation, knowing
+that we have already done an MMU notifier invocation when unmapping
+any PTEs which were mapped: it was necessary for collapse_and_free_pmd()
+in the collapse_pte_mapped_thp() case, but there was no notifier in this
+case for many years, and I was glad to be rid of it.
 
-Why am I even asking you to move away from page->lru: why don't I
-thread s390's pte_free_defer() pagetables like THP's deposit does?
-I cannot, because the deferred pagetables have to remain accessible
-as valid pagetables, until the RCU grace period has elapsed - unless
-all the list pointers would appear as pte_none(), which I doubt.
+However, I now see that you were adding it intentionally even for this
+case in your f268f6cf875f; and from later comments in this thread, it
+looks like there is still uncertainty about whether it is needed here,
+but safer to assume that it is needed: I'll add it back.
 
-(That may limit our possibilities with the deposited pagetables in
-future: I can imagine them too wanting to remain accessible as valid
-pagetables.  But that's not needed by this series, and s390 only uses
-deposit/withdraw for anon THP; and some are hoping that we might be
-able to move away from deposit/withdraw altogther - though powerpc's
-special use will make that more difficult.)
-
-Thanks!
-Hugh
-
---- 6.4-rc5/arch/s390/mm/pgalloc.c
-+++ linux/arch/s390/mm/pgalloc.c
-@@ -232,6 +232,7 @@ void page_table_free_pgste(struct page *
-  */
- unsigned long *page_table_alloc(struct mm_struct *mm)
- {
-+	struct list_head *listed;
- 	unsigned long *table;
- 	struct page *page;
- 	unsigned int mask, bit;
-@@ -241,8 +242,8 @@ unsigned long *page_table_alloc(struct m
- 		table = NULL;
- 		spin_lock_bh(&mm->context.lock);
- 		if (!list_empty(&mm->context.pgtable_list)) {
--			page = list_first_entry(&mm->context.pgtable_list,
--						struct page, lru);
-+			listed = mm->context.pgtable_list.next;
-+			page = virt_to_page(listed);
- 			mask = atomic_read(&page->_refcount) >> 24;
- 			/*
- 			 * The pending removal bits must also be checked.
-@@ -259,9 +260,12 @@ unsigned long *page_table_alloc(struct m
- 				bit = mask & 1;		/* =1 -> second 2K */
- 				if (bit)
- 					table += PTRS_PER_PTE;
-+				BUG_ON(table != (unsigned long *)listed);
- 				atomic_xor_bits(&page->_refcount,
- 							0x01U << (bit + 24));
--				list_del(&page->lru);
-+				list_del(listed);
-+				set_pte((pte_t *)&table[0], __pte(_PAGE_INVALID));
-+				set_pte((pte_t *)&table[1], __pte(_PAGE_INVALID));
- 			}
- 		}
- 		spin_unlock_bh(&mm->context.lock);
-@@ -288,8 +292,9 @@ unsigned long *page_table_alloc(struct m
- 		/* Return the first 2K fragment of the page */
- 		atomic_xor_bits(&page->_refcount, 0x01U << 24);
- 		memset64((u64 *)table, _PAGE_INVALID, 2 * PTRS_PER_PTE);
-+		listed = (struct list head *)(table + PTRS_PER_PTE);
- 		spin_lock_bh(&mm->context.lock);
--		list_add(&page->lru, &mm->context.pgtable_list);
-+		list_add(listed, &mm->context.pgtable_list);
- 		spin_unlock_bh(&mm->context.lock);
- 	}
- 	return table;
-@@ -310,6 +315,7 @@ static void page_table_release_check(str
- 
- void page_table_free(struct mm_struct *mm, unsigned long *table)
- {
-+	struct list_head *listed;
- 	unsigned int mask, bit, half;
- 	struct page *page;
- 
-@@ -325,10 +331,24 @@ void page_table_free(struct mm_struct *m
- 		 */
- 		mask = atomic_xor_bits(&page->_refcount, 0x11U << (bit + 24));
- 		mask >>= 24;
--		if (mask & 0x03U)
--			list_add(&page->lru, &mm->context.pgtable_list);
--		else
--			list_del(&page->lru);
-+		if (mask & 0x03U) {
-+			listed = (struct list_head *)table;
-+			list_add(listed, &mm->context.pgtable_list);
-+		} else {
-+			/*
-+			 * Get address of the other page table sharing the page.
-+			 * There are sure to be MUCH better ways to do all this!
-+			 * But I'm rushing, while trying to keep to the obvious.
-+			 */
-+			listed = (struct list_head *)(table + PTRS_PER_PTE);
-+			if (virt_to_page(listed) != page) {
-+				/* sizeof(*listed) is twice sizeof(*table) */
-+				listed -= PTRS_PER_PTE;
-+			}
-+			list_del(listed);
-+			set_pte((pte_t *)&listed->next, __pte(_PAGE_INVALID));
-+			set_pte((pte_t *)&listed->prev, __pte(_PAGE_INVALID));
-+		}
- 		spin_unlock_bh(&mm->context.lock);
- 		mask = atomic_xor_bits(&page->_refcount, 0x10U << (bit + 24));
- 		mask >>= 24;
-@@ -349,6 +369,7 @@ void page_table_free(struct mm_struct *m
- void page_table_free_rcu(struct mmu_gather *tlb, unsigned long *table,
- 			 unsigned long vmaddr)
- {
-+	struct list_head *listed;
- 	struct mm_struct *mm;
- 	struct page *page;
- 	unsigned int bit, mask;
-@@ -370,10 +391,24 @@ void page_table_free_rcu(struct mmu_gath
- 	 */
- 	mask = atomic_xor_bits(&page->_refcount, 0x11U << (bit + 24));
- 	mask >>= 24;
--	if (mask & 0x03U)
--		list_add_tail(&page->lru, &mm->context.pgtable_list);
--	else
--		list_del(&page->lru);
-+	if (mask & 0x03U) {
-+		listed = (struct list_head *)table;
-+		list_add_tail(listed, &mm->context.pgtable_list);
-+	} else {
-+		/*
-+		 * Get address of the other page table sharing the page.
-+		 * There are sure to be MUCH better ways to do all this!
-+		 * But I'm rushing, and trying to keep to the obvious.
-+		 */
-+		listed = (struct list_head *)(table + PTRS_PER_PTE);
-+		if (virt_to_page(listed) != page) {
-+			/* sizeof(*listed) is twice sizeof(*table) */
-+			listed -= PTRS_PER_PTE;
-+		}
-+		list_del(listed);
-+		set_pte((pte_t *)&listed->next, __pte(_PAGE_INVALID));
-+		set_pte((pte_t *)&listed->prev, __pte(_PAGE_INVALID));
-+	}
- 	spin_unlock_bh(&mm->context.lock);
- 	table = (unsigned long *) ((unsigned long) table | (0x01U << bit));
- 	tlb_remove_table(tlb, table);
+>=20
+> (FWIW, last I looked, there also seemed to be some other issues with
+> MMU notifier usage wrt IOMMUv2, see the thread
+> <https://lore.kernel.org/linux-mm/Yzbaf9HW1%2FreKqR8@nvidia.com/>.)
+---1463760895-64387534-1686032340=:3708--
