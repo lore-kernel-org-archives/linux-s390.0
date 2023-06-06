@@ -2,129 +2,128 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 89405C77B73
-	for <linux-s390@archiver.kernel.org>; Tue,  6 Jun 2023 10:16:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EB2B5C7EE29
+	for <linux-s390@archiver.kernel.org>; Tue,  6 Jun 2023 11:37:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234585AbjFFKQo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 6 Jun 2023 06:16:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43176 "EHLO
+        id S236624AbjFFLhp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 6 Jun 2023 07:37:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232817AbjFFKQl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 6 Jun 2023 06:16:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A440E47;
-        Tue,  6 Jun 2023 03:16:40 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 986FB6305D;
-        Tue,  6 Jun 2023 10:16:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16CCDC433EF;
-        Tue,  6 Jun 2023 10:16:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1686046599;
-        bh=K3mQNwoT9j+uKtNH0+N5SGAruipqVMe0nyrOVYu8zmA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Ex2boOSbFX9F8vILoj2ER6OMGqZieI/qXxa+Cl88F6P5WueebucHT8gXYMljU/UwF
-         W4Vwtw16CB66Ckf8CUcEwiMgsp0Rl7Zp+sWmc7WhCTWF54CsHU5is7Yegd2qZ+FcpB
-         7HYr90xDXGc4Q+jlXpM3iwKf1+z1TAE79jym8dBpk7/sIwryEOoaJwZE+mZ+/dgO9Q
-         jbUZZ/yVspF9cToZ4ExktC3lUSHmqXSahqJcQT5b1PfE/IsSC9GrwIVg8JzQsfRBlA
-         +FWytBECVY5td4H8LIUSl6ZWwnci/X0OdWg6sGet7yNw0Tt3OFZ9/6khP83arPzxeP
-         mpCOpEPlPas8A==
-Date:   Tue, 6 Jun 2023 13:16:08 +0300
-From:   Mike Rapoport <rppt@kernel.org>
-To:     Mark Rutland <mark.rutland@arm.com>
-Cc:     Kent Overstreet <kent.overstreet@linux.dev>,
+        with ESMTP id S232921AbjFFLho (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 6 Jun 2023 07:37:44 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0C9AE9;
+        Tue,  6 Jun 2023 04:37:43 -0700 (PDT)
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 356BMipU017525;
+        Tue, 6 Jun 2023 11:37:43 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=hT2L6wqUoRwijI9uennQgGxrS1wlHDxNGpQqXVQ+BSs=;
+ b=edrkFXScUoE3724+bYUb5jpkp6QRgaZk3+6wodmqPOQLBIHqZdJ4YdGFq52dmK58zt8L
+ ohNRBxwRwjjbKpsEdbvwHBcqx7tghqMfGzHWY6mwi/pxxifp7v8u0zDmTUy+dULRopnG
+ SqjeBe2UVE5MOW9e4b2gtmW+8WvHoTGTiXFXLEvXwYdZBuK6dWWdtMpYxSPH3dL0xlfY
+ doFKrXQUVPacma7oYsmkKDNJdnAZIZq/dRPlNwiYJA53NagwkSR9fdPT9D4j2v/gTcDC
+ 97Rs6/YQmEUkuK4MzxsVAJQx7ozwK0RmVDVxjivkjVAR90L9QSqQKwBqlmTDqLcH9dwn Sw== 
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3r23v9rb1v-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 06 Jun 2023 11:37:42 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3562ePnw012571;
+        Tue, 6 Jun 2023 11:37:41 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+        by ppma02fra.de.ibm.com (PPS) with ESMTPS id 3qyxdf9gjv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 06 Jun 2023 11:37:40 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 356BbbaG57147656
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 6 Jun 2023 11:37:37 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1A49120043;
+        Tue,  6 Jun 2023 11:37:37 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CE4B620040;
+        Tue,  6 Jun 2023 11:37:36 +0000 (GMT)
+Received: from a46lp73.lnxne.boe (unknown [9.152.108.100])
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Tue,  6 Jun 2023 11:37:36 +0000 (GMT)
+From:   Steffen Eiden <seiden@linux.ibm.com>
+To:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dinh Nguyen <dinguyen@kernel.org>,
+        Viktor Mihajlovski <mihajlov@linux.ibm.com>
+Cc:     Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Nico Boehr <nrb@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
-        Helge Deller <deller@gmx.de>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Song Liu <song@kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will@kernel.org>, bpf@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-        linux-mm@kvack.org, linux-modules@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
-        netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
-Subject: Re: [PATCH 00/13] mm: jit/text allocator
-Message-ID: <20230606101608.GC52412@kernel.org>
-References: <20230601101257.530867-1-rppt@kernel.org>
- <ZHjDU/mxE+cugpLj@FVFF77S0Q05N.cambridge.arm.com>
- <ZHjgIH3aX9dCvVZc@moria.home.lan>
- <ZHm3zUUbwqlsZBBF@FVFF77S0Q05N>
- <20230605092040.GB3460@kernel.org>
- <ZH20XkD74prrdN4u@FVFF77S0Q05N>
+        Hendrik Brueckner <brueckner@linux.ibm.com>
+Subject: [PATCH v3 0/6] s390/uvdevice: Expose secret UVCs
+Date:   Tue,  6 Jun 2023 13:37:30 +0200
+Message-Id: <20230606113736.2934503-1-seiden@linux.ibm.com>
+X-Mailer: git-send-email 2.40.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ZH20XkD74prrdN4u@FVFF77S0Q05N>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 5ouws-yezvrMu1Tipw997mGhrEqGnioi
+X-Proofpoint-GUID: 5ouws-yezvrMu1Tipw997mGhrEqGnioi
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
+ definitions=2023-06-06_07,2023-06-06_02,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ malwarescore=0 clxscore=1015 mlxscore=0 mlxlogscore=982 lowpriorityscore=0
+ adultscore=0 phishscore=0 suspectscore=0 priorityscore=1501 spamscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2304280000 definitions=main-2306060093
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Jun 05, 2023 at 11:09:34AM +0100, Mark Rutland wrote:
-> On Mon, Jun 05, 2023 at 12:20:40PM +0300, Mike Rapoport wrote:
-> > On Fri, Jun 02, 2023 at 10:35:09AM +0100, Mark Rutland wrote:
-> >
-> > It sill can be achieved with a single jit_alloc_arch_params(), just by
-> > adding enum jit_type parameter to jit_text_alloc().
-> 
-> That feels backwards to me; it centralizes a bunch of information about
-> distinct users to be able to shove that into a static array, when the callsites
-> can pass that information. 
+IBM Secure Execution guests may want to inject secrets into the Ultravisor(UV).
+Also they should be able to know which secrets the UV possesses and prevent the
+further addition of more secrets.
 
-The goal was not to shove everything into an array, but centralize
-architecture requirements for code allocations. The callsites don't have
-that information per se, they get it from the arch code, so having this
-information in a single place per arch is better than spreading
-MODULE_START, KPROBES_START etc all over.
+Therefore, add three new Ultravisor-Calls and expose them via the uvdevice: Add
+Secret, List Secrets, and Lock Secrets.  The uvdevice still acts as the
+messenger only and does not inspect or modify the requests. Only some sanity
+checks are made to prevent the kernel from corruption.
+Also add a new IOCTL to get information about the supported UV-calls of the
+uvdevice.  As userspace wants to know which secrets, types, etc. are supported
+expose the corresponding UV Query info data to userspace via sysfs.
 
-I'd agree though that having types for jit_text_alloc is ugly and this
-should be handled differently.
- 
-> What's *actually* common after separating out the ranges? Is it just the
-> permissions?
+The series contains:
+  * A new info IOCTL, giving information about the capabilities of the uvdevice and UV
+  * 3 patches adding new Ultravisor-Calls and expose them to userspace
+  * A patch replacing scnprintf with sysfs_emit in arch/s390/kernel/uv.c
+  * A patch with an Ultravisor Query Info update for the new secret related information
 
-On x86 everything, on arm64 apparently just the permissions.
+Changes for v3:
+  * misc nits from Janosch
 
-I've started to summarize what are the restrictions for code placement for
-modules, kprobes and bpf on different architectures, that's roughly what
-I've got so far:
+Changes for v2:
+  * use __set_bit instead of the atomic set_bit (Heiko)
+  * add a patch for replacing scnprintf with sysfs_emit in arch/s390/kernel/uv.c (Heiko)
+  * use scnprintf instead of sysfs_emit for the new sysfs entries in the last patch (Heiko)
+  * use hex values in struct definitions (Claudio)
 
-* x86 and s390 need everything within modules address space because of
-PC-relative
-* arm, arm64, loongarch, sparc64, riscv64, some of mips and
-powerpc32 configurations require a dedicated modules address space; the
-rest just use vmalloc address space
-* all architectures that support kprobes except x86 and s390 don't use
-relative jumps, so they don't care where kprobes insn_page will live
-* not sure yet about BPF. Looks like on arm and arm64 it does not use
-relative jumps, so it can be anywhere, didn't dig enough about the others.
+Steffen
 
-> If we want this to be able to share allocations and so on, why can't we do this
-> like a kmem_cache, and have the callsite pass a pointer to the allocator data?
-> That would make it easy for callsites to share an allocator or use a distinct
-> one.
+Steffen Eiden (6):
+  s390/uvdevice: Add info IOCTL
+  s390/uvdevice: Add 'Add Secret' UVC
+  s390/uvdevice: Add 'List Secrets' UVC
+  s390/uvdevice: Add 'Lock Secret Store' UVC
+  s390/uv: replace scnprintf with sysfs_emit
+  s390/uv: Update query for secret-UVCs
 
-This maybe something worth exploring.
- 
-> Thanks,
-> Mark.
+ arch/s390/boot/uv.c                   |   4 +
+ arch/s390/include/asm/uv.h            |  32 +++-
+ arch/s390/include/uapi/asm/uvdevice.h |  53 +++++-
+ arch/s390/kernel/uv.c                 |  94 +++++++----
+ drivers/s390/char/uvdevice.c          | 225 +++++++++++++++++++++++++-
+ 5 files changed, 368 insertions(+), 40 deletions(-)
 
 -- 
-Sincerely yours,
-Mike.
+2.40.1
+
