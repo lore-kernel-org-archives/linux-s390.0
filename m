@@ -2,167 +2,155 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C38DCC77B73
-	for <linux-s390@archiver.kernel.org>; Tue,  6 Jun 2023 18:22:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 82466C7EE24
+	for <linux-s390@archiver.kernel.org>; Tue,  6 Jun 2023 18:24:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238524AbjFFSWT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 6 Jun 2023 14:22:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39200 "EHLO
+        id S238955AbjFFSYV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 6 Jun 2023 14:24:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238431AbjFFSWQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 6 Jun 2023 14:22:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA00F170A;
-        Tue,  6 Jun 2023 11:22:14 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4586963696;
-        Tue,  6 Jun 2023 18:22:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A236EC433A8;
-        Tue,  6 Jun 2023 18:22:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1686075733;
-        bh=08bgDTu6K2r14VqmkEIMfCPJQ/ZZrnAx7Zh60inB9tQ=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=PvVbLJcYr9sEPc4KvXnz7da5hnzjz64447Y1vyViBiCb+fl59qj0pvbLDlkg7Wuob
-         rzrnBjSOFtiQecuq+LZ/SRRxmzgXLdbIbqyyYrcYGhY29RsiV56QlreCUSnVm+stVt
-         UoVEGKhBSdT54YRh1gXdKSmvd62cZB1711kSzDIW8D76YUK3gBLlfz43UtqujOAa4M
-         WNIOBkfcw2WKv0IUzEzdSsuoiqNT0iAk+aytnzF0p5Ex5Qs+2o2gd4vHHiQKTwquZM
-         rFReB/rrpz7owlp/MdxR2Mp3uAIDm8MwdFNdtC8Gq4wlspi7VJYfgsGIf9GhxSZs3/
-         0v9cbIwE3cmiA==
-Received: by mail-lj1-f169.google.com with SMTP id 38308e7fff4ca-2b1a4250b07so75710911fa.3;
-        Tue, 06 Jun 2023 11:22:13 -0700 (PDT)
-X-Gm-Message-State: AC+VfDzCXm5+70Ovpz7W746cGaUigh8vo5Bs482Vva0c0k6BOaC8cWYw
-        xXE/STitpg+B5AXPalqdCtTYAhMWQ+XDi+gPtfw=
-X-Google-Smtp-Source: ACHHUZ5bLSr3tA3IB8xCjeC0rEYdnEDeq7vmc1y/QuS5oHjyhnnuqZDpSw2PwmODz4CMTnRxT8zG59Qp1zLSa+hdG70=
-X-Received: by 2002:a2e:82d0:0:b0:2b0:297c:cbdf with SMTP id
- n16-20020a2e82d0000000b002b0297ccbdfmr1546782ljh.1.1686075731505; Tue, 06 Jun
- 2023 11:22:11 -0700 (PDT)
-MIME-Version: 1.0
-References: <20230601101257.530867-1-rppt@kernel.org> <ZHjDU/mxE+cugpLj@FVFF77S0Q05N.cambridge.arm.com>
- <ZHjgIH3aX9dCvVZc@moria.home.lan> <ZHm3zUUbwqlsZBBF@FVFF77S0Q05N>
- <20230605092040.GB3460@kernel.org> <ZH20XkD74prrdN4u@FVFF77S0Q05N>
-In-Reply-To: <ZH20XkD74prrdN4u@FVFF77S0Q05N>
-From:   Song Liu <song@kernel.org>
-Date:   Tue, 6 Jun 2023 11:21:59 -0700
-X-Gmail-Original-Message-ID: <CAPhsuW7ntn_HpVWdGK_hYVd3zsPEFToBNfmtt0m6K8SwfxJ66Q@mail.gmail.com>
-Message-ID: <CAPhsuW7ntn_HpVWdGK_hYVd3zsPEFToBNfmtt0m6K8SwfxJ66Q@mail.gmail.com>
-Subject: Re: [PATCH 00/13] mm: jit/text allocator
-To:     Mark Rutland <mark.rutland@arm.com>
-Cc:     Mike Rapoport <rppt@kernel.org>,
-        Kent Overstreet <kent.overstreet@linux.dev>,
-        linux-kernel@vger.kernel.org,
+        with ESMTP id S238716AbjFFSYH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 6 Jun 2023 14:24:07 -0400
+Received: from mail-qv1-xf36.google.com (mail-qv1-xf36.google.com [IPv6:2607:f8b0:4864:20::f36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 832131988
+        for <linux-s390@vger.kernel.org>; Tue,  6 Jun 2023 11:23:37 -0700 (PDT)
+Received: by mail-qv1-xf36.google.com with SMTP id 6a1803df08f44-6260b578097so51082596d6.3
+        for <linux-s390@vger.kernel.org>; Tue, 06 Jun 2023 11:23:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1686075812; x=1688667812;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=lRK8iTgMb5TScoKA9P/J+NjKmgAke6TT3GAMczOWAY4=;
+        b=jPTtD7S91r09g5GZ5enOvX5p1h2bE1pdqCLmsV5LGnWj/qXlaFjTKr8u0jEgv/8EJa
+         hY4FdwIqOIk7kTUaBc7VFbHJ+am4ZQIgpqa0l/+TL8DzoNdAIe62OPQVQ4ra11vVpelk
+         DoqXX3ISlkm0edxF8e7WCTJSKm1Ipzzf3dQhhjoYWQ+naJIg49ZDRYNQH9PkIULo4N/q
+         q0XGCvK12HESNzBwtCGHKf5j7mgSphBf2k76g+ZYrWGEJkNVJi15JYjsMZWJ6iplKlfX
+         evTLvuaVNlMPAeqT4m1wTzu2PYZ1Ez+MjP+uRqkV2x2SNfBLoSWj6/MhrLMSfsLM4C27
+         YAzA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1686075812; x=1688667812;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=lRK8iTgMb5TScoKA9P/J+NjKmgAke6TT3GAMczOWAY4=;
+        b=Gs85C3XzMsLxXJKhQCm8wVPcatlyG7ElikEbAi/4BVbq6MK+58UgN+DvLEDdlsxKY5
+         awgoi8IbFQ4h0BDBG/bH3DTiTe9qr+Z1aDes/YUJdcOyFE1QR0k81mE3d3p9wZ1uEE9+
+         6nxXgbrRBHkYye50AFEhGRaN4SZ0J14tZ6JKZkUBzQLR6Sjy+LQxDBJsTBhyy8XpuYwq
+         FK2rLTLuIdrTLSytBLut+whkqvu/XPMXSU1onCSA2lySVFWEbbcZuCGt6+pzQmKZP8Qw
+         yhRKNaFuRabSXPkpRmrOqtX1WO5DEzxoFH73RvqmT46Wp6q31/pH4tY9SYaDjk2D7Bwb
+         eNAQ==
+X-Gm-Message-State: AC+VfDwFDFK8pPwYKwC+MEfHKkexXQXKBMaOWG3JBSPOOeg7ZuxUdCG8
+        1KUQ9M3oF5RKQlp+GXSGvxXp/Q==
+X-Google-Smtp-Source: ACHHUZ5YVdCH5/dS9hodEJr36EZ44XO5GEyKgrVSvJAfG4M8kimdM0r3/RKcMebdOYHUsIqUASQktw==
+X-Received: by 2002:a05:6214:124d:b0:62b:4e7e:8aba with SMTP id r13-20020a056214124d00b0062b4e7e8abamr366606qvv.60.1686075811887;
+        Tue, 06 Jun 2023 11:23:31 -0700 (PDT)
+Received: from ziepe.ca ([206.223.160.26])
+        by smtp.gmail.com with ESMTPSA id ff24-20020a05622a4d9800b003f9baa693c7sm26279qtb.10.2023.06.06.11.23.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 06 Jun 2023 11:23:31 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.95)
+        (envelope-from <jgg@ziepe.ca>)
+        id 1q6bL8-0030Xz-9V;
+        Tue, 06 Jun 2023 15:23:30 -0300
+Date:   Tue, 6 Jun 2023 15:23:30 -0300
+From:   Jason Gunthorpe <jgg@ziepe.ca>
+To:     Hugh Dickins <hughd@google.com>
+Cc:     Matthew Wilcox <willy@infradead.org>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        David Hildenbrand <david@redhat.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Qi Zheng <zhengqi.arch@bytedance.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Peter Xu <peterx@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Steven Price <steven.price@arm.com>,
+        SeongJae Park <sj@kernel.org>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
         Christophe Leroy <christophe.leroy@csgroup.eu>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Helge Deller <deller@gmx.de>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
+        Zack Rusin <zackr@vmware.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Pasha Tatashin <pasha.tatashin@soleen.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Christoph Hellwig <hch@infradead.org>,
+        Song Liu <song@kernel.org>,
+        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
         Russell King <linux@armlinux.org.uk>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will@kernel.org>, bpf@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-        linux-mm@kvack.org, linux-modules@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
-        netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        "David S. Miller" <davem@davemloft.net>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Jann Horn <jannh@google.com>,
+        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH 05/12] powerpc: add pte_free_defer() for pgtables sharing
+ page
+Message-ID: <ZH95oobIqN0WO5MK@ziepe.ca>
+References: <35e983f5-7ed3-b310-d949-9ae8b130cdab@google.com>
+ <28eb289f-ea2c-8eb9-63bb-9f7d7b9ccc11@google.com>
+ <ZHSwWgLWaEd+zi/g@casper.infradead.org>
+ <ZHn6n5eVTsr4Wl8x@ziepe.ca>
+ <4df4909f-f5dd-6f94-9792-8f2949f542b3@google.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4df4909f-f5dd-6f94-9792-8f2949f542b3@google.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Jun 5, 2023 at 3:09=E2=80=AFAM Mark Rutland <mark.rutland@arm.com> =
-wrote:
+On Mon, Jun 05, 2023 at 08:40:01PM -0700, Hugh Dickins wrote:
 
-[...]
+> diff --git a/arch/powerpc/mm/pgtable-frag.c b/arch/powerpc/mm/pgtable-frag.c
+> index 20652daa1d7e..e4f58c5fc2ac 100644
+> --- a/arch/powerpc/mm/pgtable-frag.c
+> +++ b/arch/powerpc/mm/pgtable-frag.c
+> @@ -120,3 +120,54 @@ void pte_fragment_free(unsigned long *table, int kernel)
+>  		__free_page(page);
+>  	}
+>  }
+> +
+> +#ifdef CONFIG_TRANSPARENT_HUGEPAGE
+> +#define PTE_FREE_DEFERRED 0x10000 /* beyond any PTE_FRAG_NR */
+> +
+> +static void pte_free_now(struct rcu_head *head)
+> +{
+> +	struct page *page;
+> +	int refcount;
+> +
+> +	page = container_of(head, struct page, rcu_head);
+> +	refcount = atomic_sub_return(PTE_FREE_DEFERRED - 1,
+> +				     &page->pt_frag_refcount);
+> +	if (refcount < PTE_FREE_DEFERRED) {
+> +		pte_fragment_free((unsigned long *)page_address(page), 0);
+> +		return;
+> +	}
 
-> > > > Can you give more detail on what parameters you need? If the only e=
-xtra
-> > > > parameter is just "does this allocation need to live close to kerne=
-l
-> > > > text", that's not that big of a deal.
-> > >
-> > > My thinking was that we at least need the start + end for each caller=
-. That
-> > > might be it, tbh.
-> >
-> > Do you mean that modules will have something like
-> >
-> >       jit_text_alloc(size, MODULES_START, MODULES_END);
-> >
-> > and kprobes will have
-> >
-> >       jit_text_alloc(size, KPROBES_START, KPROBES_END);
-> > ?
->
-> Yes.
+From what I can tell power doesn't recycle the sub fragment into any
+kind of free list. It just waits for the last fragment to be unused
+and then frees the whole page.
 
-How about we start with two APIs:
-     jit_text_alloc(size);
-     jit_text_alloc_range(size, start, end);
+So why not simply go into pte_fragment_free() and do the call_rcu directly:
 
-AFAICT, arm64 is the only arch that requires the latter API. And TBH, I am
-not quite convinced it is needed.
+	BUG_ON(atomic_read(&page->pt_frag_refcount) <= 0);
+	if (atomic_dec_and_test(&page->pt_frag_refcount)) {
+		if (!kernel)
+			pgtable_pte_page_dtor(page);
+		call_rcu(&page->rcu_head, free_page_rcu)
 
->
-> > It sill can be achieved with a single jit_alloc_arch_params(), just by
-> > adding enum jit_type parameter to jit_text_alloc().
->
-> That feels backwards to me; it centralizes a bunch of information about
-> distinct users to be able to shove that into a static array, when the cal=
-lsites
-> can pass that information.
+?
 
-I think we only two type of users: module and everything else (ftrace, kpro=
-be,
-bpf stuff). The key differences are:
-
-  1. module uses text and data; while everything else only uses text.
-  2. module code is generated by the compiler, and thus has stronger
-  requirements in address ranges; everything else are generated via some
-  JIT or manual written assembly, so they are more flexible with address
-  ranges (in JIT, we can avoid using instructions that requires a specific
-  address range).
-
-The next question is, can we have the two types of users share the same
-address ranges? If not, we can reserve the preferred range for modules,
-and let everything else use the other range. I don't see reasons to further
-separate users in the "everything else" group.
-
->
-> What's *actually* common after separating out the ranges? Is it just the
-> permissions?
-
-I believe permission is the key, as we need the hardware to enforce
-permission.
-
->
-> If we want this to be able to share allocations and so on, why can't we d=
-o this
-> like a kmem_cache, and have the callsite pass a pointer to the allocator =
-data?
-> That would make it easy for callsites to share an allocator or use a dist=
-inct
-> one.
-
-Sharing among different call sites will give us more benefit (in TLB
-misses rate,
-etc.). For example, a 2MB page may host text of two kernel modules, 4 kprob=
-es,
-6 ftrace trampolines, and 10 BPF programs. All of these only require one en=
-try
-in the iTLB.
-
-Thanks,
-Song
+Jason
