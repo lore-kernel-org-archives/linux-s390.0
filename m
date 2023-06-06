@@ -2,52 +2,52 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 77230C77B73
-	for <linux-s390@archiver.kernel.org>; Tue,  6 Jun 2023 06:19:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C407EC77B73
+	for <linux-s390@archiver.kernel.org>; Tue,  6 Jun 2023 06:29:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235022AbjFFGT0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 6 Jun 2023 02:19:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33428 "EHLO
+        id S234509AbjFFG3N (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 6 Jun 2023 02:29:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235029AbjFFGTK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 6 Jun 2023 02:19:10 -0400
-Received: from mail-yw1-x1131.google.com (mail-yw1-x1131.google.com [IPv6:2607:f8b0:4864:20::1131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E4C9E52
-        for <linux-s390@vger.kernel.org>; Mon,  5 Jun 2023 23:19:02 -0700 (PDT)
-Received: by mail-yw1-x1131.google.com with SMTP id 00721157ae682-569f25e735fso1034547b3.0
-        for <linux-s390@vger.kernel.org>; Mon, 05 Jun 2023 23:19:02 -0700 (PDT)
+        with ESMTP id S235038AbjFFG2k (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 6 Jun 2023 02:28:40 -0400
+Received: from mail-yw1-x112a.google.com (mail-yw1-x112a.google.com [IPv6:2607:f8b0:4864:20::112a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE0A9E7A
+        for <linux-s390@vger.kernel.org>; Mon,  5 Jun 2023 23:28:33 -0700 (PDT)
+Received: by mail-yw1-x112a.google.com with SMTP id 00721157ae682-56974f42224so45638857b3.1
+        for <linux-s390@vger.kernel.org>; Mon, 05 Jun 2023 23:28:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1686032342; x=1688624342;
+        d=google.com; s=20221208; t=1686032913; x=1688624913;
         h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=+sTRYTVdx/ux01uBjEjpeUqJbg1WCUQQStTJJJ+iSYQ=;
-        b=YVpcnR57XK58Ak9HJaKiD+AbmN0H/CYge3w1rDZy+kp+ixEQ5UXDhUW9pOYeesSqFj
-         UIRUIc+94+rFepe5SS0IdOo5iztw/rOy6CZpzWrU+IO4mNui1Zkgo9h3jingrr3fdVeR
-         HIuDw7tANLptHE48ffNhMDJFR/2yVZoygTObBxZHLrYwZ5ig0FO5oMVOAbG5JmgJ0UWU
-         6+2GTtgCPvXlaoClixmzd6lsXHoN+YRamBAk/DTYCWg1LdM33PXGWziAwYwNFEbX76sd
-         8nwM0BIPLw8ZG/nUnsDIXqbiioZwSbfpAnbTQqesPpDB88/NKXiVlbDpREXhm6LvGiU9
-         9BzA==
+        bh=lh4nTYVvP2xhbTqzCFThdJwLmWrtDo6cCYu0K1MEaUc=;
+        b=ULW8wPRikckM9LELAx9UpWle2Lb4WwZxPIXEDt1lR9wQIO5cxXakH/8jTLMBuZw8wx
+         Uh47SeunW4Tp+pyb/wTLCC6nZMEC4nTofGf4XUgb3BlgvfEFnDLECsk+JtbDPIEYi26x
+         9vZZ874SZy4X8WigJ/C8mjXXdDbReJrV0R4WIGr0mh0A5ZnrYuJU6h/Cw9u/zsQYaDk7
+         mLxWS2XDJjEOTgncPyb98NRz5neLtObTpcxFngkG2w0fp+AzoZOrYLnFHTWNsS7we8ze
+         5+dQOLu1Iwg73UmL89hyYzq5nExeBAcTkTsnwBDNieMk9P3B3h923KXyo65p9UTdz89t
+         Xo3Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1686032342; x=1688624342;
+        d=1e100.net; s=20221208; t=1686032913; x=1688624913;
         h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=+sTRYTVdx/ux01uBjEjpeUqJbg1WCUQQStTJJJ+iSYQ=;
-        b=lfsXPZ0qWiJrLKRGTEN0UUKL2H8ovwxrW+ioy9EtvRI2vKvNadgmtjJul0xgcSKaEf
-         Zyh0QUcBWuj2IEUSYSClCcQTetcixC1wPcdJhlxt8TcfKmeLAl8WNT63kpOfemDlVyzp
-         swY5pDnn3iUb8LVrOiZ9WDCrfPTkcOIdXh57Ifhmf/wq41LlB7mo+3VBsXmvMDYHVFJe
-         mKeiC8oa5wApxWIHzta40WkWOLYZTuR8IYiOCkbKDYxr6bIiSfAkY2lLLRWZrr8qz+or
-         bdqQqXpWdQyLht2bQxML0fh9Ow1lLWgb4d9Dj0jjtU6ya+JxxixilJ6rVkrZpohfV/5H
-         VBQg==
-X-Gm-Message-State: AC+VfDxBn2ONUB9XzF8Vsf8AS0Ckj1CSLNfnPZRlWnsHTEZB8KtalDFO
-        VpRaneQVZfevALG1veA7S4NgDw==
-X-Google-Smtp-Source: ACHHUZ5WPUWoPm4xuDxQsHa6AYmw1XOJYysfo3qH0lT+OY94v7UN7xIfgoB+mAV06b+Ahd1uLZ7ohg==
-X-Received: by 2002:a81:6d46:0:b0:565:d3f9:209e with SMTP id i67-20020a816d46000000b00565d3f9209emr1132264ywc.34.1686032341554;
-        Mon, 05 Jun 2023 23:19:01 -0700 (PDT)
+        bh=lh4nTYVvP2xhbTqzCFThdJwLmWrtDo6cCYu0K1MEaUc=;
+        b=dviQ3mc97sIGpfg75iq74xMpyKHonYqKnVnPTdljIIZLLTwDxqIBasU75HeSgRQ0P9
+         AFbbwiWgXq9oWWvh7NBWpV0FOmJFst71nXoq9v+n+uARJbBf/K0jHwyNIXAls0Fqyjhs
+         PsRKdSHFviuksoFI/JP+VXcldhROnnoupLyx+DnVA8AiJsZdfFVrF6eNvFcJ1Zz30Dx9
+         X6tvu6/RK+Q7jG/zwvgU9akNL2VjtEkioRPF/W7NDS/QcfDbpaNT4yjVFrPFJs2z2kMs
+         aQCCrYpyD+/X10wnuSke72tgV09jO9um1JcEEg7HsIGuhp4ZebikQf1kStJPO1u8tlju
+         K9Eg==
+X-Gm-Message-State: AC+VfDxPkOQGcqcpklS+m1FXStAYCm7bTNmtDmVZIv58VgUIWNlZ3GWR
+        tjdtWfensKhY/i/N9ZUCBqNLPQ==
+X-Google-Smtp-Source: ACHHUZ7idIXR3XCuKUN9DZBZ124U2LyUkc47jWZoQiMKnSHKdPcQWeTsiAJumin9N7U+fFXlqtOy5g==
+X-Received: by 2002:a0d:dd0f:0:b0:565:a3e6:1b7b with SMTP id g15-20020a0ddd0f000000b00565a3e61b7bmr1184720ywe.18.1686032912712;
+        Mon, 05 Jun 2023 23:28:32 -0700 (PDT)
 Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id i187-20020a816dc4000000b0055d820f11cesm3876070ywc.13.2023.06.05.23.18.57
+        by smtp.gmail.com with ESMTPSA id u127-20020a818485000000b00569e0490babsm626769ywf.16.2023.06.05.23.28.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 05 Jun 2023 23:19:00 -0700 (PDT)
-Date:   Mon, 5 Jun 2023 23:18:50 -0700 (PDT)
+        Mon, 05 Jun 2023 23:28:32 -0700 (PDT)
+Date:   Mon, 5 Jun 2023 23:28:27 -0700 (PDT)
 From:   Hugh Dickins <hughd@google.com>
 X-X-Sender: hugh@ripple.attlocal.net
 To:     Jann Horn <jannh@google.com>
@@ -92,13 +92,12 @@ cc:     Hugh Dickins <hughd@google.com>,
         linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
         linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH 09/12] mm/khugepaged: retract_page_tables() without mmap
- or vma lock
-In-Reply-To: <CAG48ez0aF1Rf1apSjn9YcnfyFQ4YqSd4GqB6f2wfhF7jMdi5Hg@mail.gmail.com>
-Message-ID: <c096f6fb-93c4-3f23-7698-8e4c5286c2b2@google.com>
-References: <35e983f5-7ed3-b310-d949-9ae8b130cdab@google.com> <2e9996fa-d238-e7c-1194-834a2bd1f60@google.com> <CAG48ez0aF1Rf1apSjn9YcnfyFQ4YqSd4GqB6f2wfhF7jMdi5Hg@mail.gmail.com>
+Subject: Re: [PATCH 00/12] mm: free retracted page table by RCU
+In-Reply-To: <CAG48ez1Yua=6ztK6Urc-BZj9ku14MWbOKP8iBUK6_F5VzRXP-A@mail.gmail.com>
+Message-ID: <99fadcf-3979-a493-2664-291c5fbce19e@google.com>
+References: <35e983f5-7ed3-b310-d949-9ae8b130cdab@google.com> <CAG48ez0pCqfRdVSnJz7EKtNvMR65=zJgVB-72nTdrNuhtJNX2Q@mail.gmail.com> <3a33b59f-47c1-9dea-209a-9f77eec3cb1@google.com> <CAG48ez1Yua=6ztK6Urc-BZj9ku14MWbOKP8iBUK6_F5VzRXP-A@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="-1463760895-64387534-1686032340=:3708"
+Content-Type: multipart/mixed; boundary="-1463760895-360064877-1686032912=:3708"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -106,83 +105,97 @@ X-Mailing-List: linux-s390@vger.kernel.org
   This message is in MIME format.  The first part should be readable text,
   while the remaining parts are likely unreadable without MIME-aware tools.
 
----1463760895-64387534-1686032340=:3708
+---1463760895-360064877-1686032912=:3708
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 
-On Wed, 31 May 2023, Jann Horn wrote:
-> On Mon, May 29, 2023 at 8:25=E2=80=AFAM Hugh Dickins <hughd@google.com> w=
-rote:
-> > +static void retract_page_tables(struct address_space *mapping, pgoff_t=
- pgoff)
-=2E..
-> > +                * Note that vma->anon_vma check is racy: it can be set=
- after
-> > +                * the check, but page locks (with XA_RETRY_ENTRYs in h=
-oles)
-> > +                * prevented establishing new ptes of the page. So we a=
-re safe
-> > +                * to remove page table below, without even checking it=
-'s empty.
+On Fri, 2 Jun 2023, Jann Horn wrote:
+> On Fri, Jun 2, 2023 at 6:37=E2=80=AFAM Hugh Dickins <hughd@google.com> wr=
+ote:
 >=20
-> This "we are safe to remove page table below, without even checking
-> it's empty" assumes that the only way to create new anonymous PTEs is
-> to use existing file PTEs, right? What about private shmem VMAs that
-> are registered with userfaultfd as VM_UFFD_MISSING? I think for those,
-> the UFFDIO_COPY ioctl lets you directly insert anonymous PTEs without
-> looking at the mapping and its pages (except for checking that the
-> insertion point is before end-of-file), protected only by mmap_lock
-> (shared) and pte_offset_map_lock().
-
-Right, from your comments and Peter's, thank you both, I can see that
-userfaultfd breaks the usual assumptions here: so I'm putting an
-=09=09if (unlikely(vma->anon_vma || userfaultfd_wp(vma)))
-check in once we've got the ptlock; with a comment above it to point
-the blame at uffd, though I gave up on describing all the detail.
-And deleted this earlier "we are safe" paragraph.
-
-You did suggest, in another mail, that perhaps there should be a scan
-checking all pte_none() when we get the ptlock.  I wasn't keen on yet
-another debug scan for bugs and didn't add that, thinking I was going
-to add a patch on the end to do so in page_table_check_pte_clear_range().
-
-But when I came to write that patch, found that I'd been misled by its
-name: it's about checking or adjusting some accounting, not really a
-suitable place to check for pte_none() at all; so just scrapped it.
-
-=2E..
-> > -                       collapse_and_free_pmd(mm, vma, addr, pmd);
+> > The most obvious vital thing (in the split ptlock case) is that it
+> > remains a struct page with a usable ptl spinlock embedded in it.
+> >
+> > The question becomes more urgent when/if extending to replacing the
+> > pagetable pmd by huge pmd in one go, without any mmap_lock: powerpc
+> > wants to deposit the page table for later use even in the shmem/file
+> > case (and all arches in the anon case): I did work out the details once
+> > before, but I'm not sure whether I would still agree with myself; and w=
+as
+> > glad to leave replacement out of this series, to revisit some time late=
+r.
+> >
+> > >
+> > > So in particular, in handle_pte_fault() we can reach the "if
+> > > (unlikely(!pte_same(*vmf->pte, entry)))" with vmf->pte pointing to a
+> > > detached zeroed page table, but we're okay with that because in that
+> > > case we know that !pte_none(vmf->orig_pte)&&pte_none(*vmf->pte) ,
+> > > which implies !pte_same(*vmf->pte, entry) , which means we'll bail
+> > > out?
+> >
+> > There is no current (even at end of series) circumstance in which we
+> > could be pointing to a detached page table there; but yes, I want to
+> > allow for that, and yes I agree with your analysis.
 >=20
-> The old code called collapse_and_free_pmd(), which involves MMU
-> notifier invocation...
+> Hmm, what am I missing here?
 
-=2E..
-> > +               pml =3D pmd_lock(mm, pmd);
-> > +               ptl =3D pte_lockptr(mm, pmd);
-> > +               if (ptl !=3D pml)
-> > +                       spin_lock_nested(ptl, SINGLE_DEPTH_NESTING);
-> > +               pgt_pmd =3D pmdp_collapse_flush(vma, addr, pmd);
->=20
-> ... while the new code only does pmdp_collapse_flush(), which clears
-> the pmd entry and does a TLB flush, but AFAICS doesn't use MMU
-> notifiers. My understanding is that that's problematic - maybe (?) it
-> is sort of okay with regards to classic MMU notifier users like KVM,
-> but it's probably wrong for IOMMUv2 users, where an IOMMU directly
-> consumes the normal page tables?
+I spent quite a while trying to reconstruct what I had been thinking,
+what meaning of "detached" or "there" I had in mind when I asserted so
+confidently "There is no current (even at end of series) circumstance
+in which we could be pointing to a detached page table there".
 
-Right, I intentionally left out the MMU notifier invocation, knowing
-that we have already done an MMU notifier invocation when unmapping
-any PTEs which were mapped: it was necessary for collapse_and_free_pmd()
-in the collapse_pte_mapped_thp() case, but there was no notifier in this
-case for many years, and I was glad to be rid of it.
+But had to give up and get on with more useful work.
+Of course you are right, and that is what this series is about.
 
-However, I now see that you were adding it intentionally even for this
-case in your f268f6cf875f; and from later comments in this thread, it
-looks like there is still uncertainty about whether it is needed here,
-but safer to assume that it is needed: I'll add it back.
+Hugh
 
 >=20
-> (FWIW, last I looked, there also seemed to be some other issues with
-> MMU notifier usage wrt IOMMUv2, see the thread
-> <https://lore.kernel.org/linux-mm/Yzbaf9HW1%2FreKqR8@nvidia.com/>.)
----1463760895-64387534-1686032340=:3708--
+> static vm_fault_t handle_pte_fault(struct vm_fault *vmf)
+> {
+>   pte_t entry;
+>=20
+>   if (unlikely(pmd_none(*vmf->pmd))) {
+>     [not executed]
+>   } else {
+>     /*
+>      * A regular pmd is established and it can't morph into a huge
+>      * pmd by anon khugepaged, since that takes mmap_lock in write
+>      * mode; but shmem or file collapse to THP could still morph
+>      * it into a huge pmd: just retry later if so.
+>      */
+>     vmf->pte =3D pte_offset_map_nolock(vmf->vma->vm_mm, vmf->pmd,
+>              vmf->address, &vmf->ptl);
+>     if (unlikely(!vmf->pte))
+>       [not executed]
+>     // this reads a present readonly PTE
+>     vmf->orig_pte =3D ptep_get_lockless(vmf->pte);
+>     vmf->flags |=3D FAULT_FLAG_ORIG_PTE_VALID;
+>=20
+>     if (pte_none(vmf->orig_pte)) {
+>       [not executed]
+>     }
+>   }
+>=20
+>   [at this point, a concurrent THP collapse operation detaches the page t=
+able]
+>   // vmf->pte now points into a detached page table
+>=20
+>   if (!vmf->pte)
+>     [not executed]
+>=20
+>   if (!pte_present(vmf->orig_pte))
+>     [not executed]
+>=20
+>   if (pte_protnone(vmf->orig_pte) && vma_is_accessible(vmf->vma))
+>     [not executed]
+>=20
+>   spin_lock(vmf->ptl);
+>   entry =3D vmf->orig_pte;
+>   // vmf->pte still points into a detached page table
+>   if (unlikely(!pte_same(*vmf->pte, entry))) {
+>     update_mmu_tlb(vmf->vma, vmf->address, vmf->pte);
+>     goto unlock;
+>   }
+>   [...]
+> }
+---1463760895-360064877-1686032912=:3708--
