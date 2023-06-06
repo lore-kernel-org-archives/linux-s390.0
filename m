@@ -2,167 +2,253 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 92E7CC7EE2E
-	for <linux-s390@archiver.kernel.org>; Mon,  5 Jun 2023 21:13:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A1E4C7EE24
+	for <linux-s390@archiver.kernel.org>; Tue,  6 Jun 2023 03:40:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229698AbjFEVN4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 5 Jun 2023 17:13:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38826 "EHLO
+        id S231428AbjFFDkT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 5 Jun 2023 23:40:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231495AbjFEVNn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 5 Jun 2023 17:13:43 -0400
-X-Greylist: delayed 84806 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 05 Jun 2023 14:13:40 PDT
-Received: from out-9.mta0.migadu.com (out-9.mta0.migadu.com [91.218.175.9])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD3A6103
-        for <linux-s390@vger.kernel.org>; Mon,  5 Jun 2023 14:13:40 -0700 (PDT)
-Date:   Mon, 5 Jun 2023 17:13:30 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-        t=1685999618;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=oI/D2KsCHwim00FnKX8JEpI3trD4/Ay4oLN6y5jMs+w=;
-        b=Ou0t5k0wdLvYQe4I1KiKwwoZvxsvVwlNJliRyeWssvJBsu1TjLT0R5xnAEF8ghzWl5EIl9
-        wvjRxKwXo9+fHBI+ActLKXfymEdPx4wflBDdlUy8yktx25QJFLEuEOLWYXAN1GppOyjRcm
-        hR70f2tpuOItMjMDbRE2yoaC4QllkuI=
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From:   Kent Overstreet <kent.overstreet@linux.dev>
-To:     Mike Rapoport <rppt@kernel.org>
-Cc:     Mark Rutland <mark.rutland@arm.com>, linux-kernel@vger.kernel.org,
+        with ESMTP id S232344AbjFFDkQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 5 Jun 2023 23:40:16 -0400
+Received: from mail-yb1-xb34.google.com (mail-yb1-xb34.google.com [IPv6:2607:f8b0:4864:20::b34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66A5A1AD
+        for <linux-s390@vger.kernel.org>; Mon,  5 Jun 2023 20:40:14 -0700 (PDT)
+Received: by mail-yb1-xb34.google.com with SMTP id 3f1490d57ef6-ba86ea269e0so6621736276.1
+        for <linux-s390@vger.kernel.org>; Mon, 05 Jun 2023 20:40:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20221208; t=1686022813; x=1688614813;
+        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=ppdA1HOEm1YrutAbUD+A9qZwrkXnWHAEzQEcPuSUQvw=;
+        b=AaSiNAsIPj5e3tOnCQ/aDowLknZMLmU1vqGBzyA4VjJt+CZ0FWqvIx2oN71D86IR0v
+         FLViUws5VQumFsM7KuBRwAT9VyLPyIW6vadfXNFCVtZX1vDhmNuhC/0Zy2It8DAerBJ7
+         8xLEzAq1ZdtK+acCt5qtqT32IDaYRv8zVMNcJrHWVabmhyjuksDG7D9pQLYr3kwY8eb5
+         sFUu+DxLJxSAb/iCrBbAGJGyTG8qDwYsB+chGm1QZBtw3mPwOv5o7/isigAxJcvEVc+8
+         uMzKkJ3fuweEFhICAeW4n1QGGYEv+F56c310I8HaydTlCx1+CH3/oUQ5UXKHP1tzbapc
+         IwxQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1686022813; x=1688614813;
+        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ppdA1HOEm1YrutAbUD+A9qZwrkXnWHAEzQEcPuSUQvw=;
+        b=CG55JLbv8OrTUBJxwupr+L3e7IJusODhRqUkqdqlpPUS+Ef77Hv3A2WsJDOXScMcGB
+         cWpC8bC/isE+HyI2SxxmKFNsF2HO4JaMpmOTTpHzBDsGTpUhaci2znm8U8TMsZbR3Q3D
+         5GBJFTi+BabwMrlF5sbwFnUZ5EbboRMWqc8sMmi1lREV9iA637vlT3MBxDBs8k+TXCq3
+         vSxS1AtJKV7GyEC2WOVXBIyi/ScMzCQ7BrCWvzd6wnD1/EdT5qds6ZvqZqtMjAMNiB3O
+         MZbIsU15ox3raZbxZjUGkN1CBSimhKoELOMnxKGLXpMSb8qVOXuVmzwfVsODTbmzZZDK
+         Ac0g==
+X-Gm-Message-State: AC+VfDzZFHE5FJe+j0p0tPIOqQ7cwMTbLXHgj0glt6u8RIvGwITqwzXz
+        vBKFYfhGiM5aT3FT+/Bq/ie9dA==
+X-Google-Smtp-Source: ACHHUZ5z/giZNmIrlQ3cgoOoM3851R87uLopCghqIrYrEcOCft5W4FkKF+LeL6IbE2hJ4M6UbpPI1w==
+X-Received: by 2002:a81:7d84:0:b0:565:a8dd:c6f4 with SMTP id y126-20020a817d84000000b00565a8ddc6f4mr535188ywc.33.1686022812680;
+        Mon, 05 Jun 2023 20:40:12 -0700 (PDT)
+Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
+        by smtp.gmail.com with ESMTPSA id z128-20020a0dd786000000b00568e5a65698sm3754537ywd.28.2023.06.05.20.40.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 05 Jun 2023 20:40:11 -0700 (PDT)
+Date:   Mon, 5 Jun 2023 20:40:01 -0700 (PDT)
+From:   Hugh Dickins <hughd@google.com>
+X-X-Sender: hugh@ripple.attlocal.net
+To:     Jason Gunthorpe <jgg@ziepe.ca>
+cc:     Matthew Wilcox <willy@infradead.org>,
+        Hugh Dickins <hughd@google.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        David Hildenbrand <david@redhat.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Qi Zheng <zhengqi.arch@bytedance.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Peter Xu <peterx@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Steven Price <steven.price@arm.com>,
+        SeongJae Park <sj@kernel.org>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
         Christophe Leroy <christophe.leroy@csgroup.eu>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Helge Deller <deller@gmx.de>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Russell King <linux@armlinux.org.uk>,
+        Zack Rusin <zackr@vmware.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Pasha Tatashin <pasha.tatashin@soleen.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Christoph Hellwig <hch@infradead.org>,
         Song Liu <song@kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will@kernel.org>, bpf@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-        linux-mm@kvack.org, linux-modules@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
-        netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
-Subject: Re: [PATCH 00/13] mm: jit/text allocator
-Message-ID: <ZH5P+iKOnoqYjbPq@moria.home.lan>
-References: <20230601101257.530867-1-rppt@kernel.org>
- <ZHjDU/mxE+cugpLj@FVFF77S0Q05N.cambridge.arm.com>
- <ZHjgIH3aX9dCvVZc@moria.home.lan>
- <ZHm3zUUbwqlsZBBF@FVFF77S0Q05N>
- <20230605092040.GB3460@kernel.org>
+        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
+        Russell King <linux@armlinux.org.uk>,
+        "David S. Miller" <davem@davemloft.net>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Jann Horn <jannh@google.com>,
+        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH 05/12] powerpc: add pte_free_defer() for pgtables sharing
+ page
+In-Reply-To: <ZHn6n5eVTsr4Wl8x@ziepe.ca>
+Message-ID: <4df4909f-f5dd-6f94-9792-8f2949f542b3@google.com>
+References: <35e983f5-7ed3-b310-d949-9ae8b130cdab@google.com> <28eb289f-ea2c-8eb9-63bb-9f7d7b9ccc11@google.com> <ZHSwWgLWaEd+zi/g@casper.infradead.org> <ZHn6n5eVTsr4Wl8x@ziepe.ca>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230605092040.GB3460@kernel.org>
-X-Migadu-Flow: FLOW_OUT
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Jun 05, 2023 at 12:20:40PM +0300, Mike Rapoport wrote:
-> On Fri, Jun 02, 2023 at 10:35:09AM +0100, Mark Rutland wrote:
-> > On Thu, Jun 01, 2023 at 02:14:56PM -0400, Kent Overstreet wrote:
-> > > On Thu, Jun 01, 2023 at 05:12:03PM +0100, Mark Rutland wrote:
-> > > > For a while I have wanted to give kprobes its own allocator so that it can work
-> > > > even with CONFIG_MODULES=n, and so that it doesn't have to waste VA space in
-> > > > the modules area.
-> > > > 
-> > > > Given that, I think these should have their own allocator functions that can be
-> > > > provided independently, even if those happen to use common infrastructure.
-> > > 
-> > > How much memory can kprobes conceivably use? I think we also want to try
-> > > to push back on combinatorial new allocators, if we can.
+On Fri, 2 Jun 2023, Jason Gunthorpe wrote:
+> On Mon, May 29, 2023 at 03:02:02PM +0100, Matthew Wilcox wrote:
+> > On Sun, May 28, 2023 at 11:20:21PM -0700, Hugh Dickins wrote:
+> > > +void pte_free_defer(struct mm_struct *mm, pgtable_t pgtable)
+> > > +{
+> > > +	struct page *page;
+> > > +
+> > > +	page = virt_to_page(pgtable);
+> > > +	call_rcu(&page->rcu_head, pte_free_now);
+> > > +}
 > > 
-> > That depends on who's using it, and how (e.g. via BPF).
+> > This can't be safe (on ppc).  IIRC you might have up to 16x4k page
+> > tables sharing one 64kB page.  So if you have two page tables from the
+> > same page being defer-freed simultaneously, you'll reuse the rcu_head
+> > and I cannot imagine things go well from that point.
 > > 
-> > To be clear, I'm not necessarily asking for entirely different allocators, but
-> > I do thinkg that we want wrappers that can at least pass distinct start+end
-> > parameters to a common allocator, and for arm64's modules code I'd expect that
-> > we'd keep the range falblack logic out of the common allcoator, and just call
-> > it twice.
-> > 
-> > > > > Several architectures override module_alloc() because of various
-> > > > > constraints where the executable memory can be located and this causes
-> > > > > additional obstacles for improvements of code allocation.
-> > > > > 
-> > > > > This set splits code allocation from modules by introducing
-> > > > > jit_text_alloc(), jit_data_alloc() and jit_free() APIs, replaces call
-> > > > > sites of module_alloc() and module_memfree() with the new APIs and
-> > > > > implements core text and related allocation in a central place.
-> > > > > 
-> > > > > Instead of architecture specific overrides for module_alloc(), the
-> > > > > architectures that require non-default behaviour for text allocation must
-> > > > > fill jit_alloc_params structure and implement jit_alloc_arch_params() that
-> > > > > returns a pointer to that structure. If an architecture does not implement
-> > > > > jit_alloc_arch_params(), the defaults compatible with the current
-> > > > > modules::module_alloc() are used.
-> > > > 
-> > > > As above, I suspect that each of the callsites should probably be using common
-> > > > infrastructure, but I don't think that a single jit_alloc_arch_params() makes
-> > > > sense, since the parameters for each case may need to be distinct.
-> > > 
-> > > I don't see how that follows. The whole point of function parameters is
-> > > that they may be different :)
-> > 
-> > What I mean is that jit_alloc_arch_params() tries to aggregate common
-> > parameters, but they aren't actually common (e.g. the actual start+end range
-> > for allocation).
+> > I have no idea how to solve this problem.
 > 
-> jit_alloc_arch_params() tries to aggregate architecture constraints and
-> requirements for allocations of executable memory and this exactly what
-> the first 6 patches of this set do.
+> Maybe power and s390 should allocate a side structure, sort of a
+> pre-memdesc thing to store enough extra data?
 > 
-> A while ago Thomas suggested to use a structure that parametrizes
-> architecture constraints by the memory type used in modules [1] and Song
-> implemented the infrastructure for it and x86 part [2].
+> If we can get enough bytes then something like this would let a single
+> rcu head be shared to manage the free bits.
 > 
-> I liked the idea of defining parameters in a single structure, but I
-> thought that approaching the problem from the arch side rather than from
-> modules perspective will be better starting point, hence these patches.
+> struct 64k_page {
+>     u8 free_pages;
+>     u8 pending_rcu_free_pages;
+>     struct rcu_head head;
+> }
 > 
-> I don't see a fundamental reason why a single structure cannot describe
-> what is needed for different code allocation cases, be it modules, kprobes
-> or bpf. There is of course an assumption that the core allocations will be
-> the same for all the users, and it seems to me that something like 
+> free_sub_page(sub_id)
+>     if (atomic_fetch_or(1 << sub_id, &64k_page->pending_rcu_free_pages))
+>          call_rcu(&64k_page->head)
 > 
-> * allocate physical memory if allocator caches are empty
-> * map it in vmalloc or modules address space
-> * return memory from the allocator cache to the caller
+> rcu_func()
+>    64k_page->free_pages |= atomic_xchg(0, &64k_page->pending_rcu_free_pages)
 > 
-> will work for all usecases.
-> 
-> We might need separate caches for different cases on different
-> architectures, and a way to specify what cache should be used in the
-> allocator API, but that does not contradict a single structure for arch
-> specific parameters, but only makes it more elaborate, e.g. something like
-> 
-> enum jit_type {
-> 	JIT_MODULES_TEXT,
-> 	JIT_MODULES_DATA,
-> 	JIT_KPROBES,
-> 	JIT_FTRACE,
-> 	JIT_BPF,
-> 	JIT_TYPE_MAX,
-> };
+>    if (64k_pages->free_pages == all_ones)
+>       free_pgea(64k_page);
 
-Why would we actually need different enums for modules_text, kprobes,
-ftrace and bpf? Why can't we treat all text allocations the same?
+Or simply allocate as many rcu_heads as page tables.
 
-The reason we can't do that currently is because modules need to go in a
-128Mb region on some archs, and without sub page allocation
-bpf/kprobes/etc. burn a full page for each allocation. But we're doing
-sub page allocation - right?
+I have not thought through your suggestion above, because I'm against
+asking s390, or any other architecture, to degrade its page table
+implementation by demanding more memory, just for the sake of my patch
+series.  In a future memdesc world it might turn out to be reasonable,
+but not for this (if I can possibly avoid it).
 
-That leaves module data - which really needs to be split out into rw,
-ro, ro_after_init - but I'm not sure we'd even want the same API for
-those, they need fairly different page permissions handling.
+Below is what I believe to be the correct powerpc patch (built but not
+retested).  sparc I thought was going to be an equal problem, but turns
+out not: I'll comment on 06/12.  And let's move s390 discussion to 07/12.
+
+[PATCH 05/12] powerpc: add pte_free_defer() for pgtables sharing page
+
+Add powerpc-specific pte_free_defer(), to call pte_free() via call_rcu().
+pte_free_defer() will be called inside khugepaged's retract_page_tables()
+loop, where allocating extra memory cannot be relied upon.  This precedes
+the generic version to avoid build breakage from incompatible pgtable_t.
+
+This is awkward because the struct page contains only one rcu_head, but
+that page may be shared between PTE_FRAG_NR pagetables, each wanting to
+use the rcu_head at the same time: account concurrent deferrals with a
+heightened refcount, only the first making use of the rcu_head, but
+re-deferring if more deferrals arrived during its grace period.
+
+Signed-off-by: Hugh Dickins <hughd@google.com>
+---
+ arch/powerpc/include/asm/pgalloc.h |  4 +++
+ arch/powerpc/mm/pgtable-frag.c     | 51 ++++++++++++++++++++++++++++++
+ 2 files changed, 55 insertions(+)
+
+diff --git a/arch/powerpc/include/asm/pgalloc.h b/arch/powerpc/include/asm/pgalloc.h
+index 3360cad78ace..3a971e2a8c73 100644
+--- a/arch/powerpc/include/asm/pgalloc.h
++++ b/arch/powerpc/include/asm/pgalloc.h
+@@ -45,6 +45,10 @@ static inline void pte_free(struct mm_struct *mm, pgtable_t ptepage)
+ 	pte_fragment_free((unsigned long *)ptepage, 0);
+ }
+ 
++/* arch use pte_free_defer() implementation in arch/powerpc/mm/pgtable-frag.c */
++#define pte_free_defer pte_free_defer
++void pte_free_defer(struct mm_struct *mm, pgtable_t pgtable);
++
+ /*
+  * Functions that deal with pagetables that could be at any level of
+  * the table need to be passed an "index_size" so they know how to
+diff --git a/arch/powerpc/mm/pgtable-frag.c b/arch/powerpc/mm/pgtable-frag.c
+index 20652daa1d7e..e4f58c5fc2ac 100644
+--- a/arch/powerpc/mm/pgtable-frag.c
++++ b/arch/powerpc/mm/pgtable-frag.c
+@@ -120,3 +120,54 @@ void pte_fragment_free(unsigned long *table, int kernel)
+ 		__free_page(page);
+ 	}
+ }
++
++#ifdef CONFIG_TRANSPARENT_HUGEPAGE
++#define PTE_FREE_DEFERRED 0x10000 /* beyond any PTE_FRAG_NR */
++
++static void pte_free_now(struct rcu_head *head)
++{
++	struct page *page;
++	int refcount;
++
++	page = container_of(head, struct page, rcu_head);
++	refcount = atomic_sub_return(PTE_FREE_DEFERRED - 1,
++				     &page->pt_frag_refcount);
++	if (refcount < PTE_FREE_DEFERRED) {
++		pte_fragment_free((unsigned long *)page_address(page), 0);
++		return;
++	}
++	/*
++	 * One page may be shared between PTE_FRAG_NR pagetables.
++	 * At least one more call to pte_free_defer() came in while we
++	 * were already deferring, so the free must be deferred again;
++	 * but just for one grace period, however many calls came in.
++	 */
++	while (refcount >= PTE_FREE_DEFERRED + PTE_FREE_DEFERRED) {
++		refcount = atomic_sub_return(PTE_FREE_DEFERRED,
++					     &page->pt_frag_refcount);
++	}
++	/* Remove that refcount of 1 left for fragment freeing above */
++	atomic_dec(&page->pt_frag_refcount);
++	call_rcu(&page->rcu_head, pte_free_now);
++}
++
++void pte_free_defer(struct mm_struct *mm, pgtable_t pgtable)
++{
++	struct page *page;
++
++	page = virt_to_page(pgtable);
++	/*
++	 * One page may be shared between PTE_FRAG_NR pagetables: only queue
++	 * it once for freeing, but note whenever the free must be deferred.
++	 *
++	 * (This would be much simpler if the struct page had an rcu_head for
++	 * each fragment, or if we could allocate a separate array for that.)
++	 *
++	 * Convert our refcount of 1 to a refcount of PTE_FREE_DEFERRED, and
++	 * proceed to call_rcu() only when the rcu_head is not already in use.
++	 */
++	if (atomic_add_return(PTE_FREE_DEFERRED - 1, &page->pt_frag_refcount) <
++			      PTE_FREE_DEFERRED + PTE_FREE_DEFERRED)
++		call_rcu(&page->rcu_head, pte_free_now);
++}
++#endif /* CONFIG_TRANSPARENT_HUGEPAGE */
+-- 
+2.35.3
+
