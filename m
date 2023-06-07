@@ -2,99 +2,115 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 289DFC77B7A
-	for <linux-s390@archiver.kernel.org>; Wed,  7 Jun 2023 15:56:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D5B3C7EE23
+	for <linux-s390@archiver.kernel.org>; Wed,  7 Jun 2023 16:19:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241548AbjFGP4o (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 7 Jun 2023 11:56:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57988 "EHLO
+        id S230268AbjFGQTk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 7 Jun 2023 12:19:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241551AbjFGP4a (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 7 Jun 2023 11:56:30 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83AE32698;
-        Wed,  7 Jun 2023 08:56:20 -0700 (PDT)
-Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 357FjTgM014366;
-        Wed, 7 Jun 2023 15:56:19 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
- mime-version : content-transfer-encoding : in-reply-to : references :
- subject : from : cc : to : message-id : date; s=pp1;
- bh=LUPpjfzpO0Rj1zfk7zHetfYZPjxFAKbSfTpnjgMTI1M=;
- b=rCxzsOraKh/CWUAcr3Yvlese3adLUTqmRVkrMYoXGa/05B/v2Hcvf5Qsu8vIr+dmQljP
- IZbcvtNPq28FGf/XdVyLc9nbGO8jX1jPNMHazpmeZRLE2tgSLLxPOjLqOdlASg2UXTnb
- sHBvgbo00sKEoC11wHtV5AB/acDXUykARe6/Z6KHWt2oqZZupq7/+xgobiJlgi75baNs
- DYzBtSap1svoxP3h5m4G14lribR1xloa3oWpHAQpVZie9RLrJC04LRaWdB+QG3LRn06N
- pYDuO10tIweOXb5s2CZI85FfxPo/8E8wlhb7f4MgLkgiyUf8RywX+/WqhZBh6TDSTWyb 9g== 
+        with ESMTP id S230496AbjFGQTj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 7 Jun 2023 12:19:39 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D8251BFE;
+        Wed,  7 Jun 2023 09:19:37 -0700 (PDT)
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 357GHXpZ008720;
+        Wed, 7 Jun 2023 16:19:37 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=CMNTOr6sBD8r6vaC63/KBTECjHasOvKZLafa9AVPN18=;
+ b=e7CMS7YJ1fEMCYxIA8GHPIXRGzYAGac0MQAE5hN9HVKJn8t73CKWPbkKV+E+tTKDwz9P
+ HTmXHuKqX5/TRLAXPKMrxKnOABYi9NRzgakbLuIKqAQe5tZDGkZLRWwkTTwrfP93S21b
+ 9jtgZitPr+rj0C+3v7YVueFMvspiV5rMo6dPZHKMztYsniAd+UnN6P9oF5v5C2AVBefr
+ 83xe6Cm8egcKw0L8WjaXYXqaASnb1UjorQemRlpVlVj0nfHMHLv0RqNS6gD00JHEf7Iy
+ MifUGyDNTSgUsXhfu9j6//Qx3RXG4LFG1Dhvpm3eYK0istyIF7gc4jDWXsQeBTx5czsg cA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3r2v2bsmp3-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3r2w9e00v4-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 07 Jun 2023 15:56:19 +0000
-Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 357FduB5027835;
-        Wed, 7 Jun 2023 15:56:18 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3r2v2bsmnn-1
+        Wed, 07 Jun 2023 16:19:36 +0000
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 357GIYuK014026;
+        Wed, 7 Jun 2023 16:19:36 GMT
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3r2w9e00uq-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 07 Jun 2023 15:56:18 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3575WXsQ030622;
-        Wed, 7 Jun 2023 15:56:17 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3r2a77gjun-1
+        Wed, 07 Jun 2023 16:19:36 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3577s6mj007661;
+        Wed, 7 Jun 2023 16:19:34 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma06fra.de.ibm.com (PPS) with ESMTPS id 3r2a7a0e6y-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 07 Jun 2023 15:56:16 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 357FuDMk6488650
+        Wed, 07 Jun 2023 16:19:33 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 357GJUd950331998
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 7 Jun 2023 15:56:13 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9C2B120043;
-        Wed,  7 Jun 2023 15:56:13 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 868AA2004B;
-        Wed,  7 Jun 2023 15:56:13 +0000 (GMT)
-Received: from t14-nrb (unknown [9.152.224.84])
-        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed,  7 Jun 2023 15:56:13 +0000 (GMT)
-Content-Type: text/plain; charset="utf-8"
+        Wed, 7 Jun 2023 16:19:30 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3277E20043;
+        Wed,  7 Jun 2023 16:19:30 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EAE0320040;
+        Wed,  7 Jun 2023 16:19:29 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.152.224.66])
+        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed,  7 Jun 2023 16:19:29 +0000 (GMT)
+Date:   Wed, 7 Jun 2023 18:19:28 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Nico Boehr <nrb@linux.ibm.com>
+Cc:     Janosch Frank <frankja@linux.ibm.com>, thuth@redhat.com,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [kvm-unit-tests PATCH v3 1/6] lib: s390x: introduce bitfield
+ for PSW mask
+Message-ID: <20230607181928.75d20898@p-imbrenda>
+In-Reply-To: <168615337335.127716.6745745533225595281@t14-nrb>
+References: <20230601070202.152094-1-nrb@linux.ibm.com>
+        <20230601070202.152094-2-nrb@linux.ibm.com>
+        <3667d7af-f9ba-fbb6-537d-e6143f63ac43@linux.ibm.com>
+        <168615337335.127716.6745745533225595281@t14-nrb>
+Organization: IBM
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <3667d7af-f9ba-fbb6-537d-e6143f63ac43@linux.ibm.com>
-References: <20230601070202.152094-1-nrb@linux.ibm.com> <20230601070202.152094-2-nrb@linux.ibm.com> <3667d7af-f9ba-fbb6-537d-e6143f63ac43@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v3 1/6] lib: s390x: introduce bitfield for PSW mask
-From:   Nico Boehr <nrb@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-To:     Janosch Frank <frankja@linux.ibm.com>, imbrenda@linux.ibm.com,
-        thuth@redhat.com
-Message-ID: <168615337335.127716.6745745533225595281@t14-nrb>
-User-Agent: alot/0.8.1
-Date:   Wed, 07 Jun 2023 17:56:13 +0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: y5o-8yo_VJQ8Fc8hKRec4yjVYmux7Dz5
-X-Proofpoint-GUID: IUFe5KEzjdQnCZBVilykEBNZyQSg8QzB
+X-Proofpoint-GUID: FeKWB12d_yMac4a0q6qBZubRk9yz8nF1
+X-Proofpoint-ORIG-GUID: NCh3ZXQjwk_gQYJZbYZRHI2cM3xVJYCB
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
  definitions=2023-06-07_07,2023-06-07_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- clxscore=1015 bulkscore=0 adultscore=0 malwarescore=0 impostorscore=0
- lowpriorityscore=0 mlxlogscore=745 mlxscore=0 spamscore=0 suspectscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2305260000 definitions=main-2306070132
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
+ spamscore=0 lowpriorityscore=0 malwarescore=0 bulkscore=0
+ priorityscore=1501 mlxlogscore=959 phishscore=0 adultscore=0 clxscore=1015
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2305260000 definitions=main-2306070137
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Quoting Janosch Frank (2023-06-01 09:42:48)
-[...]
-> I've come to like static asserts for huge structs and bitfields since=20
-> they can safe you from a *lot* of headaches.
+On Wed, 07 Jun 2023 17:56:13 +0200
+Nico Boehr <nrb@linux.ibm.com> wrote:
 
-I generally agree and I add a _Static_assert but I want to mention the
-usefulness is a bit limited in this case, since we have a bitfield inside a
-union. So it only really helps if you manage to exceed the size of mask.
+> Quoting Janosch Frank (2023-06-01 09:42:48)
+> [...]
+> > I've come to like static asserts for huge structs and bitfields since 
+> > they can safe you from a *lot* of headaches.  
+> 
+> I generally agree and I add a _Static_assert but I want to mention the
+> usefulness is a bit limited in this case, since we have a bitfield inside a
+> union. So it only really helps if you manage to exceed the size of mask.
 
-There really is no way around the stuff I put in the selftests.
+better than nothing :)
 
-I could of course try to make that code _Static_asserts but it will not be
-pretty.
+if the struct becomes too big, the assert will catch it
+
+> 
+> There really is no way around the stuff I put in the selftests.
+> 
+> I could of course try to make that code _Static_asserts but it will not be
+> pretty.
+
+I think just a couple of asserts to make sure things aren't __too__
+crazy would be good enough
