@@ -2,137 +2,180 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72854C7EE25
-	for <linux-s390@archiver.kernel.org>; Thu,  8 Jun 2023 12:57:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5DB97C7EE23
+	for <linux-s390@archiver.kernel.org>; Thu,  8 Jun 2023 13:58:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236231AbjFHM5G (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 8 Jun 2023 08:57:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39656 "EHLO
+        id S236769AbjFHN6l (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 8 Jun 2023 09:58:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233162AbjFHM5E (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 8 Jun 2023 08:57:04 -0400
-Received: from wout4-smtp.messagingengine.com (wout4-smtp.messagingengine.com [64.147.123.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DDC52727;
-        Thu,  8 Jun 2023 05:56:54 -0700 (PDT)
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.47])
-        by mailout.west.internal (Postfix) with ESMTP id 54C02320090B;
-        Thu,  8 Jun 2023 08:56:52 -0400 (EDT)
-Received: from imap51 ([10.202.2.101])
-  by compute6.internal (MEProxy); Thu, 08 Jun 2023 08:56:53 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-        :cc:content-type:content-type:date:date:from:from:in-reply-to
-        :in-reply-to:message-id:mime-version:references:reply-to:sender
-        :subject:subject:to:to; s=fm1; t=1686229011; x=1686315411; bh=87
-        pYxZKtAnGH9oKy6pFHT1xHGz/WCvjygA8bIAeiKlA=; b=ZeX8L7pUZ5UIpOMY9M
-        9g1j8HgG7+kWRpcbfg5uyET+fH7MKKs1mmJd5GiTBtyG3e4Kb2S8oySTp2FMKVD5
-        6cPeO3EdjyqNf0z8ONTk7Y4xvff+IrOd/IEXcnucUJGHtunt79pl/8nMv5FddrAG
-        uQycTyVPowhwXFFmqqICRAUW8Rc8su6sZcA/n9xK4gkWZLq4FLGKG2+b/ofZFCuf
-        AMrvTTYFhxmA+huvu4Cjp75ap2Sf7MJK9JQ3pOVGdml0Q2jBbC5ggWY9QzN5MNkV
-        6Cu7hWpbrBfBHGI32iWeZ+txnWuzY/rdQ0nguYoFIEmTdH+KuW0pvhtt0TNXW/yQ
-        JP2A==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:content-type:date:date
-        :feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm1; t=1686229011; x=1686315411; bh=87pYxZKtAnGH9
-        oKy6pFHT1xHGz/WCvjygA8bIAeiKlA=; b=U6XRVjfP+EHUDQvBv8cPL9pD/KGwo
-        iw0KnKWmDepSUXHsue7XYEEv3jSKmc5VneLRFAnbB7bjvWnjZAFimwr1xI3aZ2r2
-        RdXIfnuvROK2EFMWjCfwC3PBH93ikfGkGtdqsK5mas70L80DoSDFO8TKCaTh4eHz
-        K+ZspG/2pADrn/0PYTVFOIEgwbfucSZzMW91caxx97W+pzHbK9rkgf+0+vkf4oDD
-        jH5hLErq64lWlh17sXL7u3Td79LGnkb4UvXKtQw37hle5MqhD6Sfrp8G6cLyNfqi
-        QTut/2emZSYLnRuBAzk7rDPI0a305yR06UG65WJAnPVfPk2TBPYkBuvMA==
-X-ME-Sender: <xms:EtCBZE-D_kjWYp3ANnherykbAzIjPaixWoyhxXwJLmuQI-kmX5DxFw>
-    <xme:EtCBZMv-IJXp1mQnNzIiUM2AEt48SGWGnXLai4h_XUzypiLIXrG4wXRCGc1U27CR_
-    sWJ2VBCAcRl0hKP7ME>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrgedtiedgheekucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepofgfggfkjghffffhvfevufgtsehttdertderredtnecuhfhrohhmpedftehr
-    nhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrth
-    htvghrnhepkeehtefguddvleejvdeileeifffhueevgedvheeiudfhueevgfehkeeitedu
-    keeknecuffhomhgrihhnpehsohhurhgtvgifrghrvgdrohhrghenucevlhhushhtvghruf
-    hiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpegrrhhnugesrghrnhgusgdruggv
-X-ME-Proxy: <xmx:EtCBZKA2ewgTjhAvvYw7qmycGR9cVe-qDicg_oFDY4J69jtsZIvlug>
-    <xmx:EtCBZEdu7a-GJfOfcHAOiHAuoCAzbOXNlKWUPk55Fe3Mbg8D-CEnpQ>
-    <xmx:EtCBZJOC47AwohdFIRwPvxQhiJzPrz-2u8vWBLIbN9yK_NXQPYV6NQ>
-    <xmx:E9CBZGcuZlRzBuBBOm-YYYm5GycL4W2eCqAow4fI1BtYmFRYOd5HOA>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-        id 9B111B60086; Thu,  8 Jun 2023 08:56:50 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.9.0-alpha0-447-ge2460e13b3-fm-20230525.001-ge2460e13
-Mime-Version: 1.0
-Message-Id: <a3a4f48a-07d4-4ed9-bc53-5d383428bdd2@app.fastmail.com>
-In-Reply-To: <76d3be65-91df-7969-5303-38231a7df926@loongson.cn>
-References: <1683615903-10862-1-git-send-email-yangtiezhu@loongson.cn>
- <b9624545-2c80-49a1-ac3c-39264a591f7b@app.fastmail.com>
- <76d3be65-91df-7969-5303-38231a7df926@loongson.cn>
-Date:   Thu, 08 Jun 2023 14:56:30 +0200
-From:   "Arnd Bergmann" <arnd@arndb.de>
-To:     "Tiezhu Yang" <yangtiezhu@loongson.cn>
-Cc:     Linux-Arch <linux-arch@vger.kernel.org>,
-        linux-s390@vger.kernel.org, llvm@lists.linux.dev,
-        linux-ia64@vger.kernel.org, linux-kselftest@vger.kernel.org,
-        linux-parisc@vger.kernel.org, x86@kernel.org,
-        linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-perf-users@vger.kernel.org, loongarch@lists.linux.dev,
-        linux-alpha@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-riscv@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
-        bpf@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        loongson-kernel@lists.loongnix.cn
-Subject: Re: [RFC PATCH] asm-generic: Unify uapi bitsperlong.h
-Content-Type: text/plain
+        with ESMTP id S236764AbjFHN6j (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 8 Jun 2023 09:58:39 -0400
+Received: from mail-oi1-x230.google.com (mail-oi1-x230.google.com [IPv6:2607:f8b0:4864:20::230])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08730271D
+        for <linux-s390@vger.kernel.org>; Thu,  8 Jun 2023 06:58:38 -0700 (PDT)
+Received: by mail-oi1-x230.google.com with SMTP id 5614622812f47-39c873a5127so276167b6e.1
+        for <linux-s390@vger.kernel.org>; Thu, 08 Jun 2023 06:58:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1686232715; x=1688824715;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=UNu2/S7sKOt+ubQCHoHXnO+tkZORQ3Sbd1tjf3f4Mr4=;
+        b=c3kx8K7tTcukv+anoLR5JE3/ubg8q5CO3nzZOO6SU5CXIix8vczuprLx4rXVDWTdEX
+         hs+E+zzja4ua8gGSjBrbVm6Ep8+L0fOEvdhrqVYJLxFv130wvOZzdjAaB2Flhgb2TRRb
+         uqPK/7XI63a9Wl2IZQN4DEejxckFyPyr0xFuvLWArVQ/+f9ud9V5FeMXJ6bonL6nPSkP
+         ZAWsLq+XfvZHPiGRN/xo7lAPtKsiLx+Q72RSIJ86pzS9EcuyNwtp9F9J96kqArgULjkv
+         3GfO6CrfSEhxuYeCqGRvjyHkvsZI1BdV24dd8bBsMQRPPswYuaCUpkJe5qj8Iwetk/KI
+         UiSg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1686232715; x=1688824715;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=UNu2/S7sKOt+ubQCHoHXnO+tkZORQ3Sbd1tjf3f4Mr4=;
+        b=W5UGMmiRFppgseTuufjCfXjStFreI7OngHjCRdZ5z+QFNbXf+rhxuIM16Dl5mh3Ixb
+         qahviwTCp1bDpOCQ1rtECJkxTYQViW+pVHu/BNTND35gq35/UelmxH4eMLuWKqe94K9K
+         QPIMNPjKyI70qytlRUmQFaHC2iBYq5/1nbhJEJuedIcr7OJ1zKnRQ5tsAxikL3YqW7JG
+         NS7g4TI2B0u+fiNX8Q0lf2LBfA4hCFYrBqx1MAVnBTWB2P0NGiO1R4N4aW6zNpkb7k5B
+         pEINyQKOQuu8ISaz2QK0E82Utmqa/ntQUhCb5KDdGAAeloSu1xJfpQADtFNGWVixack6
+         YiVA==
+X-Gm-Message-State: AC+VfDzorTwV0ff4IW6nGuRhFUUfHwYioHQC8jm+tfna9kjv221f83e/
+        EIovH4FZ5xwLw/lHifGmFulhmQ==
+X-Google-Smtp-Source: ACHHUZ79SDvHlQrsY3n06C+42lQZ8V3VBEDt3rX4FxqxgeXDKorKznGSCHqgRSC89Wx2XwVPR9xrlA==
+X-Received: by 2002:aca:90e:0:b0:397:f9f2:76b with SMTP id 14-20020aca090e000000b00397f9f2076bmr8071851oij.30.1686232715650;
+        Thu, 08 Jun 2023 06:58:35 -0700 (PDT)
+Received: from ziepe.ca (hlfxns017vw-142-68-25-194.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.25.194])
+        by smtp.gmail.com with ESMTPSA id pg4-20020a17090b1e0400b00256a4d59bfasm3119836pjb.23.2023.06.08.06.58.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 08 Jun 2023 06:58:34 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.95)
+        (envelope-from <jgg@ziepe.ca>)
+        id 1q7G9o-003TSq-VU;
+        Thu, 08 Jun 2023 10:58:32 -0300
+Date:   Thu, 8 Jun 2023 10:58:32 -0300
+From:   Jason Gunthorpe <jgg@ziepe.ca>
+To:     Hugh Dickins <hughd@google.com>
+Cc:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        David Hildenbrand <david@redhat.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Qi Zheng <zhengqi.arch@bytedance.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Peter Xu <peterx@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Steven Price <steven.price@arm.com>,
+        SeongJae Park <sj@kernel.org>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Zack Rusin <zackr@vmware.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Pasha Tatashin <pasha.tatashin@soleen.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Christoph Hellwig <hch@infradead.org>,
+        Song Liu <song@kernel.org>,
+        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
+        Russell King <linux@armlinux.org.uk>,
+        "David S. Miller" <davem@davemloft.net>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Jann Horn <jannh@google.com>,
+        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH 07/12] s390: add pte_free_defer(), with use of
+ mmdrop_async()
+Message-ID: <ZIHeiDf9srvRagfr@ziepe.ca>
+References: <35e983f5-7ed3-b310-d949-9ae8b130cdab@google.com>
+ <6dd63b39-e71f-2e8b-7e0-83e02f3bcb39@google.com>
+ <175ebec8-761-c3f-2d98-6c3bd87161c8@google.com>
+ <20230606214037.09c6b280@thinkpad-T15>
+ <dbed4c5-1d-f278-d03a-66f5eff5e48e@google.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <dbed4c5-1d-f278-d03a-66f5eff5e48e@google.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jun 8, 2023, at 09:04, Tiezhu Yang wrote:
-> On 05/09/2023 05:37 PM, Arnd Bergmann wrote:
->> On Tue, May 9, 2023, at 09:05, Tiezhu Yang wrote:
->>
->> I think we are completely safe on the architectures that were
->> added since the linux-3.x days (arm64, riscv, csky, openrisc,
->> loongarch, nios2, and hexagon), but for the older ones there
->> is a regression risk. Especially on targets that are not that
->> actively maintained (sparc, alpha, ia64, sh, ...) there is
->> a good chance that users are stuck on ancient toolchains.
->> It's probably also a safe assumption that anyone with an older
->> libc version won't be using the latest kernel headers, so
->> I think we can still do this across architectures if both
->> glibc and musl already require a compiler that is new enough,
->> or alternatively if we know that the kernel headers require
->> a new compiler for other reasons and nobody has complained.
->>
->> For glibc, it looks the minimum compiler version was raised
->> from gcc-5 to gcc-8 four years ago, so we should be fine.
->>
->> In musl, the documentation states that at least gcc-3.4 or
->> clang-3.2 are required, which probably predate the
->> __SIZEOF_LONG__ macro. On the other hand, musl was only
->> released in 2011, and building musl itself explicitly
->> does not require kernel uapi headers, so this may not
->> be too critical.
->>
->> There is also uClibc, but I could not find any minimum
->> supported compiler version for that. Most commonly, this
->> one is used for cross-build environments, so it's also
->> less likely to have libc/gcc/headers being wildly out of
->> sync. Not sure.
->>
->>       Arnd
->>
->> [1] https://sourceware.org/pipermail/libc-alpha/2019-January/101010.html
->>
->
-> Thanks Arnd for the detailed reply.
-> Any more comments? What should I do in the next step?
+On Wed, Jun 07, 2023 at 08:35:05PM -0700, Hugh Dickins wrote:
 
-I think the summary is "it's probably fine", but I don't know
-for sure, and it may not be worth the benefit.
+> My current thinking (but may be proved wrong) is along the lines of:
+> why does something on its way to being freed need to be on any list
+> than the rcu_head list?  I expect the current answer is, that the
+> other half is allocated, so the page won't be freed; but I hope that
+> we can put it back on that list once we're through with the rcu_head.
 
-Maybe you can prepare a v2 that only does this for the newer
-architectures I mentioned above, with and an explanation and
-link to my above reply in the file comments?
+I was having the same thought. It is pretty tricky, but if this was
+made into some core helper then PPC and S390 could both use it and PPC
+would get a nice upgrade to have the S390 frag re-use instead of
+leaking frags.
 
-      Arnd
+Broadly we have three states:
+
+ all frags free
+ at least one frag free
+ all frags used
+
+'all frags free' should be returned to the allocator
+'at least one frag free' should have the struct page on the mmu_struct's list
+'all frags used' should be on no list.
+
+So if we go from 
+  all frags used -> at least one frag free
+Then we put it on the RCU then the RCU puts it on the mmu_struct list
+
+If we go from 
+   at least one frag free -> all frags free
+Then we take it off the mmu_struct list, put it on the RCU, and RCU
+frees it.
+
+Your trick to put the list_head for the mm_struct list into the frag
+memory looks like the right direction. So 'at least one frag free' has
+a single already RCU free'd frag hold the list head pointer. Thus we
+never use the LRU and the rcu_head is always available.
+
+The struct page itself can contain the actual free frag bitmask.
+
+I think if we split up the memory used for pt_frag_refcount we can get
+enough bits to keep track of everything. With only 2-4 frags we should
+be OK.
+
+So we track this data in the struct page:
+  - Current RCU free TODO bitmask - if non-zero then a RCU is already
+    triggered
+  - Next RCU TODO bitmaks - If an RCU is already triggrered then we
+    accumulate more free'd frags here
+  - Current Free Bits - Only updated by the RCU callback
+
+?
+
+We'd also need to store the mmu_struct pointer in the struct page for
+the RCU to be able to add/remove from the mm_struct list.
+
+I'm not sure how much of the work can be done with atomics and how
+much would need to rely on spinlock inside the mm_struct.
+
+It feels feasible and not so bad. :)
+
+Figure it out and test it on S390 then make power use the same common
+code, and we get full RCU page table freeing using a reliable rcu_head
+on both of these previously troublesome architectures :) Yay
+
+Jason
