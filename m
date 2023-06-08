@@ -2,115 +2,127 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D5B3C7EE23
-	for <linux-s390@archiver.kernel.org>; Wed,  7 Jun 2023 16:19:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C4B6C77B7A
+	for <linux-s390@archiver.kernel.org>; Thu,  8 Jun 2023 02:47:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230268AbjFGQTk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 7 Jun 2023 12:19:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44786 "EHLO
+        id S229991AbjFHCrG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 7 Jun 2023 22:47:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230496AbjFGQTj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 7 Jun 2023 12:19:39 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D8251BFE;
-        Wed,  7 Jun 2023 09:19:37 -0700 (PDT)
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 357GHXpZ008720;
-        Wed, 7 Jun 2023 16:19:37 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=CMNTOr6sBD8r6vaC63/KBTECjHasOvKZLafa9AVPN18=;
- b=e7CMS7YJ1fEMCYxIA8GHPIXRGzYAGac0MQAE5hN9HVKJn8t73CKWPbkKV+E+tTKDwz9P
- HTmXHuKqX5/TRLAXPKMrxKnOABYi9NRzgakbLuIKqAQe5tZDGkZLRWwkTTwrfP93S21b
- 9jtgZitPr+rj0C+3v7YVueFMvspiV5rMo6dPZHKMztYsniAd+UnN6P9oF5v5C2AVBefr
- 83xe6Cm8egcKw0L8WjaXYXqaASnb1UjorQemRlpVlVj0nfHMHLv0RqNS6gD00JHEf7Iy
- MifUGyDNTSgUsXhfu9j6//Qx3RXG4LFG1Dhvpm3eYK0istyIF7gc4jDWXsQeBTx5czsg cA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3r2w9e00v4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 07 Jun 2023 16:19:36 +0000
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 357GIYuK014026;
-        Wed, 7 Jun 2023 16:19:36 GMT
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3r2w9e00uq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 07 Jun 2023 16:19:36 +0000
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3577s6mj007661;
-        Wed, 7 Jun 2023 16:19:34 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma06fra.de.ibm.com (PPS) with ESMTPS id 3r2a7a0e6y-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 07 Jun 2023 16:19:33 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 357GJUd950331998
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 7 Jun 2023 16:19:30 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3277E20043;
-        Wed,  7 Jun 2023 16:19:30 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EAE0320040;
-        Wed,  7 Jun 2023 16:19:29 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.152.224.66])
-        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed,  7 Jun 2023 16:19:29 +0000 (GMT)
-Date:   Wed, 7 Jun 2023 18:19:28 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Nico Boehr <nrb@linux.ibm.com>
-Cc:     Janosch Frank <frankja@linux.ibm.com>, thuth@redhat.com,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [kvm-unit-tests PATCH v3 1/6] lib: s390x: introduce bitfield
- for PSW mask
-Message-ID: <20230607181928.75d20898@p-imbrenda>
-In-Reply-To: <168615337335.127716.6745745533225595281@t14-nrb>
-References: <20230601070202.152094-1-nrb@linux.ibm.com>
-        <20230601070202.152094-2-nrb@linux.ibm.com>
-        <3667d7af-f9ba-fbb6-537d-e6143f63ac43@linux.ibm.com>
-        <168615337335.127716.6745745533225595281@t14-nrb>
-Organization: IBM
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
+        with ESMTP id S229727AbjFHCrF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 7 Jun 2023 22:47:05 -0400
+Received: from mail-yw1-x1134.google.com (mail-yw1-x1134.google.com [IPv6:2607:f8b0:4864:20::1134])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 339892712
+        for <linux-s390@vger.kernel.org>; Wed,  7 Jun 2023 19:46:40 -0700 (PDT)
+Received: by mail-yw1-x1134.google.com with SMTP id 00721157ae682-565de553de1so2902877b3.0
+        for <linux-s390@vger.kernel.org>; Wed, 07 Jun 2023 19:46:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20221208; t=1686192397; x=1688784397;
+        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=3ASVf02IlD8C2FBeHhgGmTxXuzubkx9rvqSR5YGjpQE=;
+        b=da3ktJDtrHlXFJY7fBZV9rF65uZZhghhOV9dnWa/Fsa39j+kMpSSL6DALstHpQz61g
+         K4YVYJos6+GGP6Xf9ot3Uk/1ZbuoyK1eEfBQh/bTNe/mDYJxX8S+fb9se2eckLKEuTOP
+         UD7/4cfGR2T85Ke8Bc4ObLfx9a9FXmomkcXEFQInN+aLXpDDyqofJ4uF60Ko9gzt3x2L
+         MGX9ZxFfnKfNnjs1tFSzEKj5NE78sfc+UDhIQev+RhydadRJR8BTDVk3Lch9IO5KK2Az
+         N/YtKtrcGMeEnF2xteGjLRnISuA5d7eV63yxWyEhWp6zKk6kXjpoiTGJgfB7a9sG5sLf
+         6M9g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1686192397; x=1688784397;
+        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=3ASVf02IlD8C2FBeHhgGmTxXuzubkx9rvqSR5YGjpQE=;
+        b=Xwj8/1U5//6L683UEbkMQYUxjMSnuBlsbDKA+XXUcLq6XcmvZnQi2gJf9oqlGSHQ2S
+         dQzC5YMfqo335gd8LFZW7IYtAdeMFjoRUrFscs3AJF5kbXlsai0mojK2HiQuFoa6COei
+         xQyye9ADnjD/uZzv+4aONivIfuT8tadY5a/F01YhZsgR3K8EW6cxIRMRjbFVjmhzkBzI
+         +jQPX1YaSPBELmxI6reJEAs7kiz1EdtFCj4UMZYx3o1do5hW6zwcH6x5HI+7BCsp8vyM
+         nitusXu2vTmNgdUYxBYTscRlp/4U+P176+P0MnKEJCX1EzFJuFXjNOiSe/GNtUcdV/e+
+         q5lg==
+X-Gm-Message-State: AC+VfDzvB6RZu5wc6qAVX6OclV/GrOHL1QAeGyHiqCBMEseyEsyjI4LS
+        pzUUpa0leSvp/kCzCtJ3NEWhLA==
+X-Google-Smtp-Source: ACHHUZ4dFnfQCU4EFBdNXwNcj7Ir8z8QRqL+UH/A47UqaCSLxCcPaFmZ7Dypt65uEduAukIhZYJfeQ==
+X-Received: by 2002:a81:5f06:0:b0:561:bbb8:2dc3 with SMTP id t6-20020a815f06000000b00561bbb82dc3mr981921ywb.21.1686192396777;
+        Wed, 07 Jun 2023 19:46:36 -0700 (PDT)
+Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
+        by smtp.gmail.com with ESMTPSA id j7-20020a816e07000000b00568e7e21db7sm103768ywc.96.2023.06.07.19.46.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 07 Jun 2023 19:46:36 -0700 (PDT)
+Date:   Wed, 7 Jun 2023 19:46:26 -0700 (PDT)
+From:   Hugh Dickins <hughd@google.com>
+X-X-Sender: hugh@ripple.attlocal.net
+To:     Jason Gunthorpe <jgg@ziepe.ca>
+cc:     Hugh Dickins <hughd@google.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        David Hildenbrand <david@redhat.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Qi Zheng <zhengqi.arch@bytedance.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Peter Xu <peterx@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Steven Price <steven.price@arm.com>,
+        SeongJae Park <sj@kernel.org>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Zack Rusin <zackr@vmware.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Pasha Tatashin <pasha.tatashin@soleen.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Christoph Hellwig <hch@infradead.org>,
+        Song Liu <song@kernel.org>,
+        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
+        Russell King <linux@armlinux.org.uk>,
+        "David S. Miller" <davem@davemloft.net>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Jann Horn <jannh@google.com>,
+        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH 07/12] s390: add pte_free_defer(), with use of
+ mmdrop_async()
+In-Reply-To: <ZH99cLKeALvUCIH8@ziepe.ca>
+Message-ID: <ed24b58f-ef9f-2427-7372-5c77378c5b40@google.com>
+References: <35e983f5-7ed3-b310-d949-9ae8b130cdab@google.com> <6dd63b39-e71f-2e8b-7e0-83e02f3bcb39@google.com> <175ebec8-761-c3f-2d98-6c3bd87161c8@google.com> <ZH99cLKeALvUCIH8@ziepe.ca>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: FeKWB12d_yMac4a0q6qBZubRk9yz8nF1
-X-Proofpoint-ORIG-GUID: NCh3ZXQjwk_gQYJZbYZRHI2cM3xVJYCB
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
- definitions=2023-06-07_07,2023-06-07_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
- spamscore=0 lowpriorityscore=0 malwarescore=0 bulkscore=0
- priorityscore=1501 mlxlogscore=959 phishscore=0 adultscore=0 clxscore=1015
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2305260000 definitions=main-2306070137
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 07 Jun 2023 17:56:13 +0200
-Nico Boehr <nrb@linux.ibm.com> wrote:
-
-> Quoting Janosch Frank (2023-06-01 09:42:48)
-> [...]
-> > I've come to like static asserts for huge structs and bitfields since 
-> > they can safe you from a *lot* of headaches.  
+On Tue, 6 Jun 2023, Jason Gunthorpe wrote:
+> On Mon, Jun 05, 2023 at 10:11:52PM -0700, Hugh Dickins wrote:
 > 
-> I generally agree and I add a _Static_assert but I want to mention the
-> usefulness is a bit limited in this case, since we have a bitfield inside a
-> union. So it only really helps if you manage to exceed the size of mask.
+> > "deposited" pagetable fragments, over in arch/s390/mm/pgtable.c: use
+> > the first two longs of the page table itself for threading the list.
+> 
+> It is not RCU anymore if it writes to the page table itself before the
+> grace period, so this change seems to break the RCU behavior of
+> page_table_free_rcu().. The rcu sync is inside tlb_remove_table()
+> called after the stores.
 
-better than nothing :)
-
-if the struct becomes too big, the assert will catch it
+Yes indeed, thanks for pointing that out.
 
 > 
-> There really is no way around the stuff I put in the selftests.
-> 
-> I could of course try to make that code _Static_asserts but it will not be
-> pretty.
+> Maybe something like an xarray on the mm to hold the frags?
 
-I think just a couple of asserts to make sure things aren't __too__
-crazy would be good enough
+I think we can manage without that:
+I'll say slightly more in reply to Gerald.
+
+Hugh
