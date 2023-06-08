@@ -2,134 +2,179 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BAC4AC7EE2E
-	for <linux-s390@archiver.kernel.org>; Thu,  8 Jun 2023 19:38:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 048F3C7EE29
+	for <linux-s390@archiver.kernel.org>; Thu,  8 Jun 2023 21:41:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232226AbjFHTiA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 8 Jun 2023 15:38:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50276 "EHLO
+        id S234171AbjFHVlo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 8 Jun 2023 17:41:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231308AbjFHTh4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 8 Jun 2023 15:37:56 -0400
-Received: from mail-yw1-x112d.google.com (mail-yw1-x112d.google.com [IPv6:2607:f8b0:4864:20::112d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E5AC2680
-        for <linux-s390@vger.kernel.org>; Thu,  8 Jun 2023 12:37:54 -0700 (PDT)
-Received: by mail-yw1-x112d.google.com with SMTP id 00721157ae682-565ba2c7554so8813527b3.3
-        for <linux-s390@vger.kernel.org>; Thu, 08 Jun 2023 12:37:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1686253073; x=1688845073;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=4B5saBu/vw3gaGnlmIPZ9pQkqfzbj7+JgYM5jpygjcc=;
-        b=wrjU6S4EMiU3Ufcg2KZPT551Y8sNhg4QKjD2hAgSPlGh9yj39Rxf3Ke0FjcZO6VxtG
-         ALh4CVjSqM9GtJPRdIfEgNIlV/EEkptkG6e4IMSsrcpQSqGrj44uojyylNmPW3FhQBzm
-         h+3YVxQpJctPazelaypN7o1DBk1YFmyjCLOyVuE0ZSJNDZN1IWkDf39Bng35IMFfYc2S
-         OuTO6+N3JH4bhYslynL29X9VjGEwK1A0ffza+fgs91l3oerVxPUep2x461PcKgDhp6i7
-         yNPgK4idQjhQRO3vK4IICQL9mYykeSLt5G3Lqvr2ymPPunZsH8KwR6J1BbGlfhLHc47C
-         HKFA==
+        with ESMTP id S229829AbjFHVln (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 8 Jun 2023 17:41:43 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0CCA2D76
+        for <linux-s390@vger.kernel.org>; Thu,  8 Jun 2023 14:40:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1686260455;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=th2bvhX62hzxRrLB1ybsAs0POe7Ojvtoj9i9GhxJpv4=;
+        b=CLpg52IGLXeOnG798Egwxx/hDRnb7DP4KTJ+Zz8kWW95lsIB3OKp4rqNwQMXJEYXONViU0
+        QtI64pGrVECHz6xq/HKviJneVoa0ZHPZY51TDPEP4fH7WvLhn/FlD/2WLqAtNOEen1jryb
+        r/wK+fEuVhFV/MiCmzq0H/2UpMGfqog=
+Received: from mail-io1-f72.google.com (mail-io1-f72.google.com
+ [209.85.166.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-189-DkDgvCoeMIKQFutfU3n-sg-1; Thu, 08 Jun 2023 17:40:54 -0400
+X-MC-Unique: DkDgvCoeMIKQFutfU3n-sg-1
+Received: by mail-io1-f72.google.com with SMTP id ca18e2360f4ac-77ac14e9bc5so95956339f.2
+        for <linux-s390@vger.kernel.org>; Thu, 08 Jun 2023 14:40:54 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1686253073; x=1688845073;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=4B5saBu/vw3gaGnlmIPZ9pQkqfzbj7+JgYM5jpygjcc=;
-        b=Uz+BFpT37JZCmQS1A8bFz6++Aas8JgGf1uOTDAtGtb2ytq4EWvO6laEbj9v+3MSIhu
-         /TKoX4FXKmdpS+tU0+qAi3m19bFOPdY1QRxA9A/6r+XSQroM+PcleRkR5NGzeEG1zkIu
-         xP34zfbrJnyxv9Ff7XBzOYqaTyV9tp5bKHvVsKWw1CNDgRHmkct6YZSLs0ywez246Sww
-         yNdcBAi1bZ2zBOX4pP5lspD9e0Thg0U8RaUxFRRSMOV5rabDCk9MdYxKRwwo+ge9rKZ7
-         KPWnVRwxXuJnbS9ni/q5POBycLvdpvsuksRDwCZ2jLevVpQo219/X/rYgbKdFp353lh9
-         Ebbw==
-X-Gm-Message-State: AC+VfDyT3FweMZBCLMMENCv3qDuci9DLl9jDNcie9HbSPOrAEa6yEuXS
-        3xHmkhwYvX1m1eA1D8ic9UG76g==
-X-Google-Smtp-Source: ACHHUZ7Ebli0p9041CLEfO4CyQQvBmxN41VJwJsuM0MQnf822wu8ZsrJRZ2ru1aILLAWUog5xqYpmw==
-X-Received: by 2002:a81:72d4:0:b0:560:f6ae:a71b with SMTP id n203-20020a8172d4000000b00560f6aea71bmr508956ywc.48.1686253073290;
-        Thu, 08 Jun 2023 12:37:53 -0700 (PDT)
-Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id i133-20020a816d8b000000b0056953ab06c5sm114950ywc.95.2023.06.08.12.37.49
+        d=1e100.net; s=20221208; t=1686260454; x=1688852454;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=th2bvhX62hzxRrLB1ybsAs0POe7Ojvtoj9i9GhxJpv4=;
+        b=Db2sn/I0VELJC3ycly9h20nu5HNhQECnjvQ0iT6dqxEeTum5OOZBbnE1zA0TKvHP2q
+         k8zhXnMe9PjcxS7GQSusIRGZrHazQgeFLhwvBh3hBEgqLIaFLfOcoDExk4wPp6XzpKpK
+         hWNL7tINUMHAq8U1AsN/RS515x7QFATpAAq4jyT5u+xrL1KxMZBHAHoLPhGBlpjGH8Tc
+         DmeolrUIG2gwlX4ppT3r2zBuhA1nBS24OkstRA08yJ+2/H59i9DJEkuMO1cD1ZuJoHPG
+         Thxqk/TfcUZ/3gkmM3oFXC4DbAH/P4FlhVP77uwMrGmFBjsd2KjiBjOmsjVLEaTbXIXp
+         8BRA==
+X-Gm-Message-State: AC+VfDyYTfGduJo3f64epMixOPsxrnOqz1E9UJwkdvXVOt94EGfjj+fL
+        Q2/FtdY68LSc7DHKIZxf18BLK56u01GuJfVUZV3lr0npG6hqEELGXFImXeMFeGMB9zn+Db/tEcU
+        LxL1pNIYJlfeugCZQg80S4w==
+X-Received: by 2002:a5e:8345:0:b0:777:ab8e:7039 with SMTP id y5-20020a5e8345000000b00777ab8e7039mr7756605iom.15.1686260454066;
+        Thu, 08 Jun 2023 14:40:54 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ6UUVLC5rbROJu7mWqoujxWOhqO8BOzy7CP85v3updJvqBKZ/ov8Q2c1LG3o15l/VOOm831qQ==
+X-Received: by 2002:a5e:8345:0:b0:777:ab8e:7039 with SMTP id y5-20020a5e8345000000b00777ab8e7039mr7756585iom.15.1686260453798;
+        Thu, 08 Jun 2023 14:40:53 -0700 (PDT)
+Received: from redhat.com ([38.15.36.239])
+        by smtp.gmail.com with ESMTPSA id h2-20020a02cd22000000b00420cda3fd2esm510972jaq.155.2023.06.08.14.40.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 08 Jun 2023 12:37:52 -0700 (PDT)
-Date:   Thu, 8 Jun 2023 12:37:48 -0700 (PDT)
-From:   Hugh Dickins <hughd@google.com>
-X-X-Sender: hugh@ripple.attlocal.net
-To:     Andrew Morton <akpm@linux-foundation.org>
-cc:     Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        David Hildenbrand <david@redhat.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Qi Zheng <zhengqi.arch@bytedance.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Greg Ungerer <gerg@linux-m68k.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Helge Deller <deller@gmx.de>,
-        John David Anglin <dave.anglin@bell.net>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Alexandre Ghiti <alexghiti@rivosinc.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Chris Zankel <chris@zankel.net>,
-        Max Filippov <jcmvbkbc@gmail.com>, x86@kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
-        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: [PATCH v2 23/23] xtensa: add pte_unmap() to balance
- pte_offset_map()
-In-Reply-To: <a4963be9-7aa6-350-66d0-2ba843e1af44@google.com>
-Message-ID: <ab2581eb-daa6-894e-4aa6-97c81de3b8c@google.com>
-References: <a4963be9-7aa6-350-66d0-2ba843e1af44@google.com>
+        Thu, 08 Jun 2023 14:40:53 -0700 (PDT)
+Date:   Thu, 8 Jun 2023 15:40:51 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     Yi Liu <yi.l.liu@intel.com>
+Cc:     jgg@nvidia.com, kevin.tian@intel.com, joro@8bytes.org,
+        robin.murphy@arm.com, cohuck@redhat.com, eric.auger@redhat.com,
+        nicolinc@nvidia.com, kvm@vger.kernel.org, mjrosato@linux.ibm.com,
+        chao.p.peng@linux.intel.com, yi.y.sun@linux.intel.com,
+        peterx@redhat.com, jasowang@redhat.com,
+        shameerali.kolothum.thodi@huawei.com, lulu@redhat.com,
+        suravee.suthikulpanit@amd.com, intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, linux-s390@vger.kernel.org,
+        xudong.hao@intel.com, yan.y.zhao@intel.com, terrence.xu@intel.com,
+        yanting.jiang@intel.com, zhenzhong.duan@intel.com,
+        clegoate@redhat.com
+Subject: Re: [PATCH v7 4/9] iommufd: Add iommufd_ctx_has_group()
+Message-ID: <20230608154051.0f0e4449.alex.williamson@redhat.com>
+In-Reply-To: <20230602121515.79374-5-yi.l.liu@intel.com>
+References: <20230602121515.79374-1-yi.l.liu@intel.com>
+        <20230602121515.79374-5-yi.l.liu@intel.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-To keep balance in future, remember to pte_unmap() after a successful
-pte_offset_map().  And act as if get_pte_for_vaddr() really needs a map
-there, to read the pteval before "unmapping", to be sure page table is
-not removed.
+On Fri,  2 Jun 2023 05:15:10 -0700
+Yi Liu <yi.l.liu@intel.com> wrote:
 
-Signed-off-by: Hugh Dickins <hughd@google.com>
----
- arch/xtensa/mm/tlb.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+> This adds the helper to check if any device within the given iommu_group
+> has been bound with the iommufd_ctx. This is helpful for the checking on
+> device ownership for the devices which have not been bound but cannot be
+> bound to any other iommufd_ctx as the iommu_group has been bound.
+> 
+> Tested-by: Terrence Xu <terrence.xu@intel.com>
+> Signed-off-by: Yi Liu <yi.l.liu@intel.com>
+> ---
+>  drivers/iommu/iommufd/device.c | 30 ++++++++++++++++++++++++++++++
+>  include/linux/iommufd.h        |  8 ++++++++
+>  2 files changed, 38 insertions(+)
+> 
+> diff --git a/drivers/iommu/iommufd/device.c b/drivers/iommu/iommufd/device.c
+> index 4f9b2142274c..4571344c8508 100644
+> --- a/drivers/iommu/iommufd/device.c
+> +++ b/drivers/iommu/iommufd/device.c
+> @@ -98,6 +98,36 @@ struct iommufd_device *iommufd_device_bind(struct iommufd_ctx *ictx,
+>  }
+>  EXPORT_SYMBOL_NS_GPL(iommufd_device_bind, IOMMUFD);
+>  
+> +/**
+> + * iommufd_ctx_has_group - True if any device within the group is bound
+> + *                         to the ictx
+> + * @ictx: iommufd file descriptor
+> + * @group: Pointer to a physical iommu_group struct
+> + *
+> + * True if any device within the group has been bound to this ictx, ex. via
+> + * iommufd_device_bind(), therefore implying ictx ownership of the group.
+> + */
+> +bool iommufd_ctx_has_group(struct iommufd_ctx *ictx, struct iommu_group *group)
+> +{
+> +	struct iommufd_object *obj;
+> +	unsigned long index;
+> +
+> +	if (!ictx || !group)
+> +		return false;
+> +
+> +	xa_lock(&ictx->objects);
+> +	xa_for_each(&ictx->objects, index, obj) {
+> +		if (obj->type == IOMMUFD_OBJ_DEVICE &&
+> +		    container_of(obj, struct iommufd_device, obj)->group == group) {
+> +			xa_unlock(&ictx->objects);
+> +			return true;
+> +		}
+> +	}
+> +	xa_unlock(&ictx->objects);
+> +	return false;
+> +}
+> +EXPORT_SYMBOL_NS_GPL(iommufd_ctx_has_group, IOMMUFD);
+> +
+>  /**
+>   * iommufd_device_unbind - Undo iommufd_device_bind()
+>   * @idev: Device returned by iommufd_device_bind()
+> diff --git a/include/linux/iommufd.h b/include/linux/iommufd.h
+> index 1129a36a74c4..33fe57e95e42 100644
+> --- a/include/linux/iommufd.h
+> +++ b/include/linux/iommufd.h
+> @@ -16,6 +16,7 @@ struct page;
+>  struct iommufd_ctx;
+>  struct iommufd_access;
+>  struct file;
+> +struct iommu_group;
+>  
+>  struct iommufd_device *iommufd_device_bind(struct iommufd_ctx *ictx,
+>  					   struct device *dev, u32 *id);
+> @@ -50,6 +51,7 @@ void iommufd_ctx_get(struct iommufd_ctx *ictx);
+>  #if IS_ENABLED(CONFIG_IOMMUFD)
+>  struct iommufd_ctx *iommufd_ctx_from_file(struct file *file);
+>  void iommufd_ctx_put(struct iommufd_ctx *ictx);
+> +bool iommufd_ctx_has_group(struct iommufd_ctx *ictx, struct iommu_group *group);
+>  
+>  int iommufd_access_pin_pages(struct iommufd_access *access, unsigned long iova,
+>  			     unsigned long length, struct page **out_pages,
+> @@ -71,6 +73,12 @@ static inline void iommufd_ctx_put(struct iommufd_ctx *ictx)
+>  {
+>  }
+>  
+> +static inline bool iommufd_ctx_has_group(struct iommufd_ctx *ictx,
+> +					 struct iommu_group *group)
+> +{
+> +	return false;
+> +}
+> +
+>  static inline int iommufd_access_pin_pages(struct iommufd_access *access,
+>  					   unsigned long iova,
+>  					   unsigned long length,
 
-diff --git a/arch/xtensa/mm/tlb.c b/arch/xtensa/mm/tlb.c
-index 27a477dae232..0a11fc5f185b 100644
---- a/arch/xtensa/mm/tlb.c
-+++ b/arch/xtensa/mm/tlb.c
-@@ -179,6 +179,7 @@ static unsigned get_pte_for_vaddr(unsigned vaddr)
- 	pud_t *pud;
- 	pmd_t *pmd;
- 	pte_t *pte;
-+	unsigned int pteval;
- 
- 	if (!mm)
- 		mm = task->active_mm;
-@@ -197,7 +198,9 @@ static unsigned get_pte_for_vaddr(unsigned vaddr)
- 	pte = pte_offset_map(pmd, vaddr);
- 	if (!pte)
- 		return 0;
--	return pte_val(*pte);
-+	pteval = pte_val(*pte);
-+	pte_unmap(pte);
-+	return pteval;
- }
- 
- enum {
--- 
-2.35.3
+It looks like the v12 cdev series no longer requires this stub?  We
+haven't used this function except from iommufd specific code since v5.
+Thanks,
+
+Alex
 
