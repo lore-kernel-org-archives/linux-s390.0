@@ -2,231 +2,93 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D285C7EE45
-	for <linux-s390@archiver.kernel.org>; Fri,  9 Jun 2023 17:02:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1DCB9C7EE29
+	for <linux-s390@archiver.kernel.org>; Fri,  9 Jun 2023 17:36:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230061AbjFIRCe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 9 Jun 2023 13:02:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57176 "EHLO
+        id S230470AbjFIRgN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 9 Jun 2023 13:36:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229573AbjFIRCe (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 9 Jun 2023 13:02:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8F601706;
-        Fri,  9 Jun 2023 10:02:32 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 661E165A32;
-        Fri,  9 Jun 2023 17:02:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C774BC433A1;
-        Fri,  9 Jun 2023 17:02:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1686330151;
-        bh=vxAb82+vAl+BH98Z/zX2UFkfYunrykLKznTO4Bf32/o=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=mi+1/ju1etiB6d0wiW4caAjQqZLe00FeV1NkWgT7OHTC7YXhbWrImPhkjcdfLthep
-         R4NctZPvMcT6YU1NN0hlAPJu7mKlMOhF8XW1w/JUcKEX6IymvTValQ7iJLgbthe+rr
-         JB0Y/WdslTbhCTkFmElAt6A2q9AjkZ65JlkLpT6RWSVvoxHuctv3jAm4tkLSY6DnGo
-         sjANix/3DDuGcfUiGq4bVWyWyi4Aib0wLcEVEjV2uGWiQih+ufGfWA3fM021KKgeWY
-         Dt91VQ5xBfF0lTdjr2IkoyUEOPUU+/xMsQaC1Ua+lm/Kg5AHwmxvY3mxjDI1kZZXq8
-         eusqU7U1U5lpg==
-Received: by mail-lf1-f46.google.com with SMTP id 2adb3069b0e04-4f644dffd71so2619959e87.1;
-        Fri, 09 Jun 2023 10:02:31 -0700 (PDT)
-X-Gm-Message-State: AC+VfDx+c0l4S1qiuEKAlyt/LCqcUkiHM3tSjSq0oVFlun3511lj+UTt
-        ZK2TksPRMtOFMcLNOK/fpzzBuN4Bs/Joh/DUnuY=
-X-Google-Smtp-Source: ACHHUZ4u3y79XyQLMHF4er59h6QhhYai8KonYYOOA8YDDos4NgFbnLZdqPfEIRGQCpyydTzD04kcj6u0lkxU6y+OWW4=
-X-Received: by 2002:a2e:9891:0:b0:2b1:e5d8:d008 with SMTP id
- b17-20020a2e9891000000b002b1e5d8d008mr1338098ljj.37.1686330149805; Fri, 09
- Jun 2023 10:02:29 -0700 (PDT)
+        with ESMTP id S229901AbjFIRgL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 9 Jun 2023 13:36:11 -0400
+Received: from mail-il1-x136.google.com (mail-il1-x136.google.com [IPv6:2607:f8b0:4864:20::136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6E383AAD
+        for <linux-s390@vger.kernel.org>; Fri,  9 Jun 2023 10:36:05 -0700 (PDT)
+Received: by mail-il1-x136.google.com with SMTP id e9e14a558f8ab-33bcc8f0d21so863855ab.1
+        for <linux-s390@vger.kernel.org>; Fri, 09 Jun 2023 10:36:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20221208.gappssmtp.com; s=20221208; t=1686332165; x=1688924165;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=elYWTHuitKVMi7wO2Aaxy/qmAgn7vpTmax6bBeAbe2o=;
+        b=XWTLKjV5bT9tIWkvd6UdKXKDdcSNnBsTDWHev9b33oy4rRWOGlTHbtgyc5Jbduvpln
+         Et2+k7hQfZPaP+NxfadmEibLHUqQvWLDvEaVX3ESMOfzarDg0zuN+1jEcmG6Dg/tVZp9
+         g6urAs1kQh5zyqPeUwxZKk0LRd2j+NQQx7tthPq5MfJ14wEySahiAHj4BwUpVdbOJGAA
+         BVywRs48rET3AUPB8/5N08cUyGaBdwasuKynASUXHLAKeOEDNZp7eHA25hqH6MLRwew1
+         DTeUGR2K8C7P3Kpx3r1u0eEOhIsoOt+/JMZSVxCGPHXq8BTnuikWGbISPlarpD8X6W0L
+         pE9A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1686332165; x=1688924165;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=elYWTHuitKVMi7wO2Aaxy/qmAgn7vpTmax6bBeAbe2o=;
+        b=SPxKn08vn8wQ4f1NYMPwO1qSE8JN8OqFhMBhL4WT4xXPicmTQ4vtjkvjQah331E3gg
+         rKIRHJlAvHxLalCdZ0aitI6+uaBFIeE+NZ0/oGQwjP0GVLZNjHTzT5d2qhclsXpzbUaU
+         wBZ3H+pnzziYZd4wKH65zA4RhzxiBXLhDCT0Ey6zVZX3CitVxU31vfK2baz70TDYDU4I
+         mYri10I28wp39BIWmAFe+UfaGjVho7LAppw3FYVjVkEum1n6shFGj2x8EblaJCdwYz6A
+         vjhNpupeQCRIRVzQsdQP/+Z3SLpV8MPiqmFxf08bXB/695PmsTjMRQZd4wG4pvejlNiz
+         57yg==
+X-Gm-Message-State: AC+VfDwwPYRkS3S0v3FXwkMF4PK5W4LRycrSGvSStibmrqWU+Y69sg8H
+        h9luA2X41MLXL5fKmtYzErU97vUXQqMTwfv6UBI=
+X-Google-Smtp-Source: ACHHUZ6TcSVRL7JtrdHOsrKxJOzAySE2XN5tlCVlKsqRqPOwCwtSv7xEojKQHLIeDwp3lPQcQ2r69w==
+X-Received: by 2002:a05:6e02:188a:b0:33b:583d:1273 with SMTP id o10-20020a056e02188a00b0033b583d1273mr1878335ilu.1.1686332165029;
+        Fri, 09 Jun 2023 10:36:05 -0700 (PDT)
+Received: from [127.0.0.1] ([96.43.243.2])
+        by smtp.gmail.com with ESMTPSA id e13-20020a02a50d000000b0040fad7eb910sm1063429jam.176.2023.06.09.10.36.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 09 Jun 2023 10:36:04 -0700 (PDT)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     Stefan Haberland <sth@linux.ibm.com>
+Cc:     linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <20230609153750.1258763-1-sth@linux.ibm.com>
+References: <20230609153750.1258763-1-sth@linux.ibm.com>
+Subject: Re: [PATCH 0/1] s390/dasd: fix locking error
+Message-Id: <168633216394.624591.12554905661891516522.b4-ty@kernel.dk>
+Date:   Fri, 09 Jun 2023 11:36:03 -0600
 MIME-Version: 1.0
-References: <20230601101257.530867-1-rppt@kernel.org> <ZHjDU/mxE+cugpLj@FVFF77S0Q05N.cambridge.arm.com>
- <ZHjgIH3aX9dCvVZc@moria.home.lan> <ZHm3zUUbwqlsZBBF@FVFF77S0Q05N>
- <20230605092040.GB3460@kernel.org> <ZH20XkD74prrdN4u@FVFF77S0Q05N>
- <CAPhsuW7ntn_HpVWdGK_hYVd3zsPEFToBNfmtt0m6K8SwfxJ66Q@mail.gmail.com> <20230608184116.GJ52412@kernel.org>
-In-Reply-To: <20230608184116.GJ52412@kernel.org>
-From:   Song Liu <song@kernel.org>
-Date:   Fri, 9 Jun 2023 10:02:16 -0700
-X-Gmail-Original-Message-ID: <CAPhsuW5YYa6nQhO2=zor75XkdKpFysZD42DgDRkKZvQT6aMqcA@mail.gmail.com>
-Message-ID: <CAPhsuW5YYa6nQhO2=zor75XkdKpFysZD42DgDRkKZvQT6aMqcA@mail.gmail.com>
-Subject: Re: [PATCH 00/13] mm: jit/text allocator
-To:     Mike Rapoport <rppt@kernel.org>
-Cc:     Mark Rutland <mark.rutland@arm.com>,
-        Kent Overstreet <kent.overstreet@linux.dev>,
-        linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Helge Deller <deller@gmx.de>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will@kernel.org>, bpf@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-        linux-mm@kvack.org, linux-modules@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
-        netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-Mailer: b4 0.13-dev-c6835
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jun 8, 2023 at 11:41=E2=80=AFAM Mike Rapoport <rppt@kernel.org> wro=
-te:
->
-> On Tue, Jun 06, 2023 at 11:21:59AM -0700, Song Liu wrote:
-> > On Mon, Jun 5, 2023 at 3:09=E2=80=AFAM Mark Rutland <mark.rutland@arm.c=
-om> wrote:
-> >
-> > [...]
-> >
-> > > > > > Can you give more detail on what parameters you need? If the on=
-ly extra
-> > > > > > parameter is just "does this allocation need to live close to k=
-ernel
-> > > > > > text", that's not that big of a deal.
-> > > > >
-> > > > > My thinking was that we at least need the start + end for each ca=
-ller. That
-> > > > > might be it, tbh.
-> > > >
-> > > > Do you mean that modules will have something like
-> > > >
-> > > >       jit_text_alloc(size, MODULES_START, MODULES_END);
-> > > >
-> > > > and kprobes will have
-> > > >
-> > > >       jit_text_alloc(size, KPROBES_START, KPROBES_END);
-> > > > ?
-> > >
-> > > Yes.
-> >
-> > How about we start with two APIs:
-> >      jit_text_alloc(size);
-> >      jit_text_alloc_range(size, start, end);
-> >
-> > AFAICT, arm64 is the only arch that requires the latter API. And TBH, I=
- am
-> > not quite convinced it is needed.
->
-> Right now arm64 and riscv override bpf and kprobes allocations to use the
-> entire vmalloc address space, but having the ability to allocate generate=
-d
-> code outside of modules area may be useful for other architectures.
->
-> Still the start + end for the callers feels backwards to me because the
-> callers do not define the ranges, but rather the architectures, so we sti=
-ll
-> need a way for architectures to define how they want allocate memory for
-> the generated code.
 
-Yeah, this makes sense.
+On Fri, 09 Jun 2023 17:37:49 +0200, Stefan Haberland wrote:
+> please apply the following patch that fixes a locking error in the DASD
+> driver. Thanks.
+> 
+> Jan Höppner (1):
+>   s390/dasd: Use correct lock while counting channel queue length
+> 
+> drivers/s390/block/dasd_ioctl.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> [...]
 
->
-> > > > It sill can be achieved with a single jit_alloc_arch_params(), just=
- by
-> > > > adding enum jit_type parameter to jit_text_alloc().
-> > >
-> > > That feels backwards to me; it centralizes a bunch of information abo=
-ut
-> > > distinct users to be able to shove that into a static array, when the=
- callsites
-> > > can pass that information.
-> >
-> > I think we only two type of users: module and everything else (ftrace, =
-kprobe,
-> > bpf stuff). The key differences are:
-> >
-> >   1. module uses text and data; while everything else only uses text.
-> >   2. module code is generated by the compiler, and thus has stronger
-> >   requirements in address ranges; everything else are generated via som=
-e
-> >   JIT or manual written assembly, so they are more flexible with addres=
-s
-> >   ranges (in JIT, we can avoid using instructions that requires a speci=
-fic
-> >   address range).
-> >
-> > The next question is, can we have the two types of users share the same
-> > address ranges? If not, we can reserve the preferred range for modules,
-> > and let everything else use the other range. I don't see reasons to fur=
-ther
-> > separate users in the "everything else" group.
->
-> I agree that we can define only two types: modules and everything else an=
-d
-> let the architectures define if they need different ranges for these two
-> types, or want the same range for everything.
->
-> With only two types we can have two API calls for alloc, and a single
-> structure that defines the ranges etc from the architecture side rather
-> than spread all over.
->
-> Like something along these lines:
->
->         struct execmem_range {
->                 unsigned long   start;
->                 unsigned long   end;
->                 unsigned long   fallback_start;
->                 unsigned long   fallback_end;
->                 pgprot_t        pgprot;
->                 unsigned int    alignment;
->         };
->
->         struct execmem_modules_range {
->                 enum execmem_module_flags flags;
->                 struct execmem_range text;
->                 struct execmem_range data;
->         };
->
->         struct execmem_jit_range {
->                 struct execmem_range text;
->         };
->
->         struct execmem_params {
->                 struct execmem_modules_range    modules;
->                 struct execmem_jit_range        jit;
->         };
->
->         struct execmem_params *execmem_arch_params(void);
->
->         void *execmem_text_alloc(size_t size);
->         void *execmem_data_alloc(size_t size);
->         void execmem_free(void *ptr);
+Applied, thanks!
 
-With the jit variation, maybe we can just call these
-module_[text|data]_alloc()?
+[1/1] s390/dasd: Use correct lock while counting channel queue length
+      commit: ccc45cb4e7271c74dbb27776ae8f73d84557f5c6
 
-btw: Depending on the implementation of the allocator, we may also
-need separate free()s for text and data.
+Best regards,
+-- 
+Jens Axboe
 
->
->         void *jit_text_alloc(size_t size);
->         void jit_free(void *ptr);
->
 
-[...]
 
-How should we move ahead from here?
-
-AFAICT, all these changes can be easily extended and refactored
-in the future, so we don't have to make it perfect the first time.
-OTOH, having the interface committed (either this set or my
-module_alloc_type version) can unblock works in the binpack
-allocator and the users side. Therefore, I think we can move
-relatively fast here?
-
-Thanks,
-Song
