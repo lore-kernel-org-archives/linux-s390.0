@@ -2,167 +2,69 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7FF98C7EE2F
-	for <linux-s390@archiver.kernel.org>; Fri,  9 Jun 2023 16:20:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B28BC7EE45
+	for <linux-s390@archiver.kernel.org>; Fri,  9 Jun 2023 16:40:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242158AbjFIQU2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 9 Jun 2023 12:20:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35606 "EHLO
+        id S229530AbjFIQkN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 9 Jun 2023 12:40:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242147AbjFIQUY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 9 Jun 2023 12:20:24 -0400
-Received: from mail-lf1-x131.google.com (mail-lf1-x131.google.com [IPv6:2a00:1450:4864:20::131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65CED3A99
-        for <linux-s390@vger.kernel.org>; Fri,  9 Jun 2023 09:20:14 -0700 (PDT)
-Received: by mail-lf1-x131.google.com with SMTP id 2adb3069b0e04-4f61b45ee0dso2514256e87.0
-        for <linux-s390@vger.kernel.org>; Fri, 09 Jun 2023 09:20:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1686327612; x=1688919612;
-        h=content-transfer-encoding:in-reply-to:subject:from:references:cc:to
-         :content-language:user-agent:mime-version:date:message-id:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=usUa91lFTwm78ZcJqDITECIX6IQZqVVPZb/qreiSqx0=;
-        b=ot7OR9FGvlcYcZD5e+cFOOoEF/WG2TryjkzKF7Y7nyRNcMhYN0MPV79TOo+C+dmXVR
-         lvY31ZIut1OfKvPeIw1e4q0ma1wj7mAjXEFWSFt7BORxCehJmy+esFpQFKx8xRPe5RPa
-         s4oATGJiDMXjJbGLGJxsRdaGE8LN2xwnUjHvb003d2AHf4bECiPk6MM3tIZC1gDgtqIo
-         S8rUIbK2/DPKp88G24eIsWO5PYwE1Plm80C+bNKFkMHjM0r4iYDPMwaUxCptdVMLIqDT
-         NdWzm185jBe4dLSFadFllbTJ1U8CNLjkqheJd96W2zGVd0ou9BREA0NHohLbIw/KL3G4
-         vHgA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1686327612; x=1688919612;
-        h=content-transfer-encoding:in-reply-to:subject:from:references:cc:to
-         :content-language:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=usUa91lFTwm78ZcJqDITECIX6IQZqVVPZb/qreiSqx0=;
-        b=FFn9JuiP3mRt67bpYdXu/qEOuBt6jnRJUcCyMNmDF7mBxS+b2Gj2M0lctCW9JdKtwY
-         igh80W1zeGYpe/IgbhMOC9d/K3d8vk4U0qwyuZ5YamBR07LzSy8OqaToIIOumXOyWl/e
-         H2yA1uKaRkAYc2lj4w6FJV8k1ngsjHc/Q0dsOiYUCMTlQx0AdVqifWzOegzAX649bT+Z
-         SigyqT5LgZmS/GY6++sVrXI3wqj7aHBNGJIuXTqtfvGEDddGyRh8CSaO2luC5BS/+dk7
-         l05Do4VG3j9zZDUz3F9bDKK5TLdaOFVgFAckwlhkpzdvKrHa27r4BmT9IubrLvH0nBt6
-         GdAg==
-X-Gm-Message-State: AC+VfDxrARfstwIPuhrjuzcMA3hbACSmVFXneQ9uZkvgPOTKWXKPqcA6
-        l+Deu2NtGuT3NMCOTEw4x9JIrg==
-X-Google-Smtp-Source: ACHHUZ5JUKhb5xLWhhwfP9hIde5UuYkLpVxnT1k61JKzExG1On60bR+Hs2VUE0a/47NYIgSj/pTTUg==
-X-Received: by 2002:a19:5009:0:b0:4f3:b588:48d0 with SMTP id e9-20020a195009000000b004f3b58848d0mr1249482lfb.14.1686327612574;
-        Fri, 09 Jun 2023 09:20:12 -0700 (PDT)
-Received: from [192.168.1.101] (abyj190.neoplus.adsl.tpnet.pl. [83.9.29.190])
-        by smtp.gmail.com with ESMTPSA id a1-20020a056512020100b004f138c4de81sm594947lfo.149.2023.06.09.09.20.10
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 09 Jun 2023 09:20:12 -0700 (PDT)
-Message-ID: <90b04e1b-8f3b-982e-bab2-36c09cc1d53d@linaro.org>
-Date:   Fri, 9 Jun 2023 18:20:09 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.11.2
-Content-Language: en-US
-To:     Nathan Chancellor <nathan@kernel.org>
-Cc:     Peter Zijlstra <peterz@infradead.org>, corbet@lwn.net,
-        will@kernel.org, boqun.feng@gmail.com, mark.rutland@arm.com,
-        catalin.marinas@arm.com, dennis@kernel.org, tj@kernel.org,
-        cl@linux.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
-        hpa@zytor.com, joro@8bytes.org, suravee.suthikulpanit@amd.com,
-        robin.murphy@arm.com, dwmw2@infradead.org,
-        baolu.lu@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
-        Herbert Xu <herbert@gondor.apana.org.au>, davem@davemloft.net,
-        penberg@kernel.org, rientjes@google.com, iamjoonsoo.kim@lge.com,
-        Andrew Morton <akpm@linux-foundation.org>, vbabka@suse.cz,
-        roman.gushchin@linux.dev, 42.hyeyoo@gmail.com,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, linux-s390@vger.kernel.org,
-        iommu@lists.linux.dev, linux-arch@vger.kernel.org,
-        linux-crypto@vger.kernel.org, sfr@canb.auug.org.au,
-        mpe@ellerman.id.au, James.Bottomley@hansenpartnership.com,
-        deller@gmx.de, linux-parisc@vger.kernel.org, llvm@lists.linux.dev
-References: <20230531132323.587480729@infradead.org>
- <f320f021-88c4-c5c9-0781-c82d0b88f67d@linaro.org>
- <20230609161340.GA4019185@dev-arch.thelio-3990X>
-From:   Konrad Dybcio <konrad.dybcio@linaro.org>
-Subject: Re: [PATCH v2 5/12] percpu: Add {raw,this}_cpu_try_cmpxchg()
-In-Reply-To: <20230609161340.GA4019185@dev-arch.thelio-3990X>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+        with ESMTP id S229655AbjFIQkI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 9 Jun 2023 12:40:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C5CF2D71;
+        Fri,  9 Jun 2023 09:40:08 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D609360B66;
+        Fri,  9 Jun 2023 16:40:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 4A3EAC433EF;
+        Fri,  9 Jun 2023 16:40:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1686328807;
+        bh=HtHcZN3YrHg+wEeXs5oM8Mrhx0mnbJ8x0THDnRqKiQE=;
+        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
+        b=VjEVpkvP2V0eqxuIjnf8IhvSVmqo/4HEWQiZmXQZvU8U1Us1umuFTqsSCLPIpAXS6
+         cRmGSTEbQbUJB302bBg6qkNpOQ7/JmQ7gIbnvBL6lIG1gW2frFUuZqjnom8VrH5bZm
+         Wo/WKn8EsUYZnjZZ0XYfsIpI19NkWSL/fovsuhB024rjK08TbiQ0jjgv5IB+3xydnc
+         iSVIizLCWMmeraNyow3/BI+9ex5bUp5yNncZWtpLwS9PfMvjWoapUlvSUm4OSRAxd4
+         qg0L2FXemHR5h5XWnPuancn3HyT8fFceaEwzPPdPyL7byaVq7IJrq7FMxj5T28J000
+         cNcyNy0JXgrHw==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 32EE3C395EC;
+        Fri,  9 Jun 2023 16:40:07 +0000 (UTC)
+Subject: Re: [GIT PULL] s390 updates for 6.4-rc6
+From:   pr-tracker-bot@kernel.org
+In-Reply-To: <ZIMeobQOfS8XyayA@tuxmaker.boeblingen.de.ibm.com>
+References: <ZIMeobQOfS8XyayA@tuxmaker.boeblingen.de.ibm.com>
+X-PR-Tracked-List-Id: <linux-s390.vger.kernel.org>
+X-PR-Tracked-Message-Id: <ZIMeobQOfS8XyayA@tuxmaker.boeblingen.de.ibm.com>
+X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.4-3
+X-PR-Tracked-Commit-Id: 03c5c83b70dca3729a3eb488e668e5044bd9a5ea
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: 87aceaa7f083cd4e77e28943bc5535ef34ead498
+Message-Id: <168632880720.22626.4892825117257009736.pr-tracker-bot@kernel.org>
+Date:   Fri, 09 Jun 2023 16:40:07 +0000
+To:     Alexander Gordeev <agordeev@linux.ibm.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+The pull request you sent on Fri, 9 Jun 2023 14:44:17 +0200:
 
+> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.4-3
 
-On 9.06.2023 18:13, Nathan Chancellor wrote:
-> Hi Konrad,
-> 
-> On Fri, Jun 09, 2023 at 06:10:38PM +0200, Konrad Dybcio wrote:
->>
->>
->> On 31.05.2023 15:08, Peter Zijlstra wrote:
->>> Add the try_cmpxchg() form to the per-cpu ops.
->>>
->>> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
->>> ---
->> +CC Nathan, llvm list
->>
->> Hi all, this patch seems to break booting on Qualcomm ARM64 platforms
->> when compiled with clang (GCC works fine) for some reason..:
->>
->> next-20230605 - works
->> next-20230606 - doesn't
->>
->> grev -m 1 dc4e51fd9846 on next-20230606 - works again
->> b4 shazam <this_msgid> -P 1-4 - still works
->> b4 shazam <this_msgid> -P 5 - breaks
->>
->> Confirmed on at least Qualcomm QCM2290, SM8250.
->>
->> Checking the serial console, it hits a BUG_ON:
->>
->> [    0.000000] ------------[ cut here ]------------
->> [    0.000000] kernel BUG at mm/vmalloc.c:1638!
->> [    0.000000] Internal error: Oops - BUG: 00000000f2000800 [#1] SMP
->> [    0.000000] Modules linked in:
->> [    0.000000] CPU: 0 PID: 0 Comm: swapper/0 Not tainted [snip]
->> [    0.000000] Hardware name: Qualcomm Technologies, Inc. Robotics RB1 (DT)
->> [    0.000000] pstate: 000000c5 (nzcv daIF -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
->> [    0.000000] pc : alloc_vmap_area+0xafc/0xb08
->> [    0.000000] lr : alloc_vmap_area+0x9e4/0xb08
->> [    0.000000] sp : ffffa50137f53c20
->> [    0.000000] x29: ffffa50137f53c60 x28: ffffa50137f30c18 x27: 0000000000000000
->> [    0.000000] x26: 0000000000007fff x25: ffff800080000000 x24: 000000000000cfff
->> [    0.000000] x23: ffffffffffff8000 x22: ffffa50137fef970 x21: fffffbfff0000000
->> [    0.000000] x20: ffff022982003208 x19: ffff0229820031f8 x18: ffffa50137f64f70
->> [    0.000000] x17: ffffa50137fef980 x16: ffffa501375e6d08 x15: 0000000000000001
->> [    0.000000] x14: ffffa5013831e1a0 x13: ffffa50137f30c18 x12: 0000000000402dc2
->> [    0.000000] x11: 0000000000000000 x10: ffff022982003018 x9 : ffffa5013831e188
->> [    0.000000] x8 : ffffcb55ff003228 x7 : 0000000000000000 x6 : 0000000000000048
->> [    0.000000] x5 : 0000000000000000 x4 : ffffa50137f53bd0 x3 : ffffa50136490000
->> [    0.000000] x2 : 0000000000000001 x1 : ffffa5013831e190 x0 : ffff022982003208
->> [    0.000000] Call trace:
->> [    0.000000]  alloc_vmap_area+0xafc/0xb08
->> [    0.000000]  __get_vm_area_node+0x108/0x1e8
->> [    0.000000]  __vmalloc_node_range+0x1fc/0x728
->> [    0.000000]  __vmalloc_node+0x5c/0x70
->> [    0.000000]  init_IRQ+0x90/0x11c
->> [    0.000000]  start_kernel+0x1ac/0x3bc
->> [    0.000000]  __primary_switched+0xc4/0xcc
->> [    0.000000] Code: f000e300 91062000 943bd9ba 17ffff8f (d4210000)
->> [    0.000000] ---[ end trace 0000000000000000 ]---
->> [    0.000000] Kernel panic - not syncing: Attempted to kill the idle task!
->>
->> Compiled with clang 15.0.7 from Arch repos, with
->> make ARCH=arm64 LLVM=1
-> 
-> Thanks a lot for testing with LLVM, submitting this report, and doing a
-> bisect.
-No, thank *you* for making it even possible ;)
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/87aceaa7f083cd4e77e28943bc5535ef34ead498
 
-I sent a patch to fix this a couple of days ago and Peter pushed
-> it to -tip today, so it should be in the next -next release:
-> 
-> https://git.kernel.org/tip/093d9b240a1fa261ff8aeb7c7cc484dedacfda53
-Amazing, I can boot the most recent next-20230609 with it again!
+Thank you!
 
-Konrad
-> 
-> Cheers,
-> Nathan
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
