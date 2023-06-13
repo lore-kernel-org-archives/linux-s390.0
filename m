@@ -2,63 +2,80 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0BEE8EB64D0
-	for <linux-s390@archiver.kernel.org>; Tue, 13 Jun 2023 14:43:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CD86DEB64D7
+	for <linux-s390@archiver.kernel.org>; Tue, 13 Jun 2023 14:44:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241081AbjFMOnM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 13 Jun 2023 10:43:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55396 "EHLO
+        id S239644AbjFMOog (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 13 Jun 2023 10:44:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240949AbjFMOnL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 13 Jun 2023 10:43:11 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DCC8173E
-        for <linux-s390@vger.kernel.org>; Tue, 13 Jun 2023 07:42:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1686667343;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=MJBdM5iFqkTDpWUz6Au4hD17+lrzXhHFsk4TwJivz9s=;
-        b=KnmSelLR0z0cSHE25ObgmocscIrEzUalKV9q2IKF+1aVZ1ai4mf4+9EMNqacrJM7k0Thyg
-        YBVkXe/Q9nSeD0OQWHMRZjlOrVME8naNn4sAbf0HXIkkfiLCar0a6jfJix3JfZKf8ezqEi
-        VTDLIf/c954h8XlFdBakyPY/tcPrabU=
-Received: from mail-io1-f69.google.com (mail-io1-f69.google.com
- [209.85.166.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-184-H3g5yKrtMaKjUnCIJEcxsw-1; Tue, 13 Jun 2023 10:42:21 -0400
-X-MC-Unique: H3g5yKrtMaKjUnCIJEcxsw-1
-Received: by mail-io1-f69.google.com with SMTP id ca18e2360f4ac-77a0fd9d2eeso649575039f.0
-        for <linux-s390@vger.kernel.org>; Tue, 13 Jun 2023 07:42:21 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1686667340; x=1689259340;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=MJBdM5iFqkTDpWUz6Au4hD17+lrzXhHFsk4TwJivz9s=;
-        b=kRlmc0jap4Cx3o8izHZchyLsYrrkHiqK5HPdS3unxMUV6kdV9HmJcbSQpwlwSgDom+
-         YvDFU4h3xxqexnR882DnPicy7PvFguouc6S+oxXPcCdlczA3nt7/v6pfXxC0SuR0xYZJ
-         jLTga6F2Sbohncpu0GbuxQOxXqpIg7ODX58lYN8haqxZ7s+bi+uLKoJ+pDCk1For/1fD
-         c5DYIjWlLYKjtgFvFak4j5W1IptZry3FRTy8tkIXQwmjaee0aKH7l16ZeRMVCVfqOl3P
-         6Am+7qN0YglOKaQLx7uUcgHxSzhCl4n6NSnMIr4u6PN42Ffc1Kb7A4FUBH3wHnROk2no
-         rJxw==
-X-Gm-Message-State: AC+VfDxbKJ0h1YcD4GtOXAjgSsFr+gtxUTlndRQwjZVA/An1AzmA8e80
-        hB7oNzIIepcZ+rWQjWOLsg6AaAHzdzItGBSRyFckhwrObYjFOY5ojr7MVH7Q+S+TtxVJc2gv9TU
-        m8NKDfmnsjoLMu7MlZ5K3xQ==
-X-Received: by 2002:a6b:7b45:0:b0:77a:ec0c:5907 with SMTP id m5-20020a6b7b45000000b0077aec0c5907mr8777956iop.13.1686667340573;
-        Tue, 13 Jun 2023 07:42:20 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ4rchrvAq7uL6qdxBGPgYc5Il7VncBPd83zFXMFGzPeWvh3heO7+g3e0YZao/Y4oWkkn0QpGA==
-X-Received: by 2002:a6b:7b45:0:b0:77a:ec0c:5907 with SMTP id m5-20020a6b7b45000000b0077aec0c5907mr8777918iop.13.1686667340197;
-        Tue, 13 Jun 2023 07:42:20 -0700 (PDT)
-Received: from redhat.com ([38.15.36.239])
-        by smtp.gmail.com with ESMTPSA id e5-20020a02caa5000000b0040908cbbc5asm3525944jap.68.2023.06.13.07.42.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 13 Jun 2023 07:42:19 -0700 (PDT)
-Date:   Tue, 13 Jun 2023 08:42:18 -0600
-From:   Alex Williamson <alex.williamson@redhat.com>
-To:     "Liu, Yi L" <yi.l.liu@intel.com>
-Cc:     "jgg@nvidia.com" <jgg@nvidia.com>,
+        with ESMTP id S242098AbjFMOoe (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 13 Jun 2023 10:44:34 -0400
+Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A498E53;
+        Tue, 13 Jun 2023 07:44:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1686667473; x=1718203473;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=EAcH2g7hNdMDS60DdzPX7xb6tAkWLhTJjWbOgXDwhsw=;
+  b=PEWBSj5f4nIJJDBpBU5NLOH4onAsYepIoT/LAZPmzs6gF801AqrixBg9
+   OO42vfYA1zefz2f/K2V8ySouuRR4SrBAJ8Q3zjEWPXOvyO+dKnJ+KZFUJ
+   G2Ow8Hmjbhqn93cxjZViqTSI0atUbbq7xPT/jSrKx8YTMgsDVLTuPS8gz
+   TQKbIjYBkO8P6is1ip+nBqeLzSSrFdpFlz9TwQykKJiP7tlGWi8zWE0de
+   +1mf4IVlTnj9jE8O1DyVepNGeA+/ZVaGFyRmeVVI5bYd5TJLZZTqEHVdG
+   62Wi15MGgyH5aCaz0G3Ie5xfKpl8nrehCBLIQLQYZfN3Qve+Luw8M765U
+   A==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10740"; a="357231344"
+X-IronPort-AV: E=Sophos;i="6.00,239,1681196400"; 
+   d="scan'208";a="357231344"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Jun 2023 07:44:10 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10740"; a="856121366"
+X-IronPort-AV: E=Sophos;i="6.00,239,1681196400"; 
+   d="scan'208";a="856121366"
+Received: from fmsmsx603.amr.corp.intel.com ([10.18.126.83])
+  by fmsmga001.fm.intel.com with ESMTP; 13 Jun 2023 07:44:10 -0700
+Received: from fmsmsx610.amr.corp.intel.com (10.18.126.90) by
+ fmsmsx603.amr.corp.intel.com (10.18.126.83) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.23; Tue, 13 Jun 2023 07:44:10 -0700
+Received: from fmsmsx612.amr.corp.intel.com (10.18.126.92) by
+ fmsmsx610.amr.corp.intel.com (10.18.126.90) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.23; Tue, 13 Jun 2023 07:44:09 -0700
+Received: from FMSEDG603.ED.cps.intel.com (10.1.192.133) by
+ fmsmsx612.amr.corp.intel.com (10.18.126.92) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.23 via Frontend Transport; Tue, 13 Jun 2023 07:44:09 -0700
+Received: from NAM10-MW2-obe.outbound.protection.outlook.com (104.47.55.108)
+ by edgegateway.intel.com (192.55.55.68) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.23; Tue, 13 Jun 2023 07:44:09 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=TTA7ebO5672/9caF7JvTJPYNhUH9NwMXS8mZt7IcWMfuZYP3etAz32sXmdBjPFrgbbGIc0mC3I7BKKsI42cwrFi1NAIBCqsMUmIAhOyVyx/pBBxPT/kDiuv5C+ewCurFrObHgpFo8ZY2vMCRlBOBbeJJvmSRdCsFczgXLRIbeb+SkF9MOj6r8X1YOExUzqXIIdw2SpaDCMijO8tdNmNEvcbr9QDJ0nb8IOEzbAhxDGf/GXTsh+S6vd8iXg+iUAja03tc/L0ORQCotMNwF1iJpmwMsppnT3wb6dBwypwqobkVBI4zzPgiodErrJou67hNEUs7SgtEdJMYTRsaimGHWw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=EAcH2g7hNdMDS60DdzPX7xb6tAkWLhTJjWbOgXDwhsw=;
+ b=lZ6Ev88QpQP4k/ypC9REQ+tCsnnlbZ6ZdjGHz4TFcUYghEGgz/m37IuO8K3EDi+CJ6itCuUJbtqfIEGf56ovMsNROdNaYXm+pXwENu05uvnceso2DmgS/nhcNHwNLb6h5B3SGPy3Vy2kD4SDVuDKAJ9Ty1NJMBUWE8a7LrlQJD9zC8v3/8NjKUqGRSZu1y3BaSyB8qC4yTaf0ocWZ6Hb0tVvepolF4/mRv9VKZs1RDK1L8a2XBSjX+jZm/5f+ehYnpGBcIYms0hEHdmcRdfdZf51LRTNqNK/kIhNN6PWdXQAqF4OSEMGGPeuUOoIH+XZA+8thcjAS9mxLJo9RdG5MA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from DS0PR11MB7529.namprd11.prod.outlook.com (2603:10b6:8:141::20)
+ by DS0PR11MB7652.namprd11.prod.outlook.com (2603:10b6:8:14e::18) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6455.44; Tue, 13 Jun
+ 2023 14:44:06 +0000
+Received: from DS0PR11MB7529.namprd11.prod.outlook.com
+ ([fe80::5b44:8f52:dbeb:18e5]) by DS0PR11MB7529.namprd11.prod.outlook.com
+ ([fe80::5b44:8f52:dbeb:18e5%3]) with mapi id 15.20.6455.045; Tue, 13 Jun 2023
+ 14:44:06 +0000
+From:   "Liu, Yi L" <yi.l.liu@intel.com>
+To:     Alex Williamson <alex.williamson@redhat.com>
+CC:     "jgg@nvidia.com" <jgg@nvidia.com>,
         "Tian, Kevin" <kevin.tian@intel.com>,
         "joro@8bytes.org" <joro@8bytes.org>,
         "robin.murphy@arm.com" <robin.murphy@arm.com>,
@@ -85,170 +102,149 @@ Cc:     "jgg@nvidia.com" <jgg@nvidia.com>,
         "Jiang, Yanting" <yanting.jiang@intel.com>,
         "Duan, Zhenzhong" <zhenzhong.duan@intel.com>,
         "clegoate@redhat.com" <clegoate@redhat.com>
-Subject: Re: [PATCH v12 07/24] vfio: Block device access via device fd until
+Subject: RE: [PATCH v12 07/24] vfio: Block device access via device fd until
  device is opened
-Message-ID: <20230613084218.169f1c4c.alex.williamson@redhat.com>
-In-Reply-To: <DS0PR11MB7529B3DB059798EA474ACB3DC355A@DS0PR11MB7529.namprd11.prod.outlook.com>
+Thread-Topic: [PATCH v12 07/24] vfio: Block device access via device fd until
+ device is opened
+Thread-Index: AQHZlUwrPp8CB3o9OkmAJqWvehBIwq+Hxa4AgACAbJCAAJKtgIAABJBwgAACkQCAAAAwUA==
+Date:   Tue, 13 Jun 2023 14:44:06 +0000
+Message-ID: <DS0PR11MB75298B3DB359C7B7D4F3364CC355A@DS0PR11MB7529.namprd11.prod.outlook.com>
 References: <20230602121653.80017-1-yi.l.liu@intel.com>
         <20230602121653.80017-8-yi.l.liu@intel.com>
         <20230612155210.5fd3579f.alex.williamson@redhat.com>
         <DS0PR11MB75293327BDE6D268996FFFCCC355A@DS0PR11MB7529.namprd11.prod.outlook.com>
         <20230613081647.740f5217.alex.williamson@redhat.com>
         <DS0PR11MB7529B3DB059798EA474ACB3DC355A@DS0PR11MB7529.namprd11.prod.outlook.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
+ <20230613084218.169f1c4c.alex.williamson@redhat.com>
+In-Reply-To: <20230613084218.169f1c4c.alex.williamson@redhat.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: DS0PR11MB7529:EE_|DS0PR11MB7652:EE_
+x-ms-office365-filtering-correlation-id: c01e14bc-938d-4f30-99ab-08db6c1ca381
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: Uw0GcaS1UzkL84GAx2zNTUHdzkufHRWn7BNPUfHelutKsmYkbNqbFDb8FsaRhV/Aa/EwvQ7S8rCxAYPvZOX1yoPDKvojixZGWetbYGSA7reFeN75vSmwuMxTgPWuZS6VutesQIW52ZqEfQ/j7XStK9/cJUUwRmPlkwzd92ZVyS19L/fF2SGOxSlaUOck2xUqL+640QGx3cdGNuDOQ/k1gKSy+pbmbFGiS+WKKICnpfGGbVX9RTXskM26JrIJE5IroAGQJWgeNLRoR4mOkDpf1IWeMufcWqa34NYgLfXk8pGuq0ocMw11G+3a31D2N8JUv8INJP316h5HpBwnnicQmFj8knSpUji6FCgrUTUelpiLgthyywhRu3aLKAxPbcD5C1S8oLpYmSf10+0qT8ezmD421AptOoom9HyTyiDsJd1HHhH15s4DE3YQo4nw5rpj7QrNlK3lX3Ft6A1+PHBc2rzhNnox47J6sSmKa7ZSZuQ0Lzym4o9zxaCRj2YTV3AXv0SCeW04ibH8ui2IywXk9v0jSgha+m0BAAFSHeTTv5bGe8b3UE98gNVkYCRpFXvqWex3vYpjTLiYxDbBVgk+dENwKDcSdMOXc6eXU4S9m6g3pCzGTL+OYUpNP3DPWbiT
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR11MB7529.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(39860400002)(136003)(346002)(376002)(366004)(396003)(451199021)(55016003)(54906003)(122000001)(82960400001)(71200400001)(478600001)(5660300002)(8936002)(41300700001)(8676002)(66476007)(4326008)(76116006)(66946007)(66556008)(66446008)(6916009)(64756008)(316002)(38100700002)(83380400001)(7696005)(186003)(9686003)(6506007)(26005)(86362001)(33656002)(7416002)(52536014)(38070700005)(2906002);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?utf-8?B?eGlYdk93b2JsNjliTFltN3FmK3lsRlRkZDJaWjMzdG1Hd1JZNmdhK2h5WDZL?=
+ =?utf-8?B?cDVFYStOUHAvd0RlbEJUVXcyTGhqdWdGaE1MV1hBazVVcEhoNDVpRWR3aHpX?=
+ =?utf-8?B?ZEJIT1dVeERkRFMzNm1uR1EwUnJSYndVUGxEK1RlOUNtZVY3aTY4YWtXNWJE?=
+ =?utf-8?B?UVZmcU9ONVovYlBqQTVHa3NYNU1kQkVjSVU5SnF3UW02MTF2UlJ0VmwwVjFK?=
+ =?utf-8?B?c2d3SlFIQVhtZmJETXJHbVRTSlV6NGJWNEl6dC9Xaks3ZGdHT1FlY0RHM2pR?=
+ =?utf-8?B?eGg5cjhiNUcwbU8xM2FaSndIa3Ayazhab1FOcStrVHNxbzdYb3p0THdTZHl5?=
+ =?utf-8?B?K0h4OWhEZ0dqMk5VMXJNOXZJSG0wZTVSYzUyczRnTUprUFNaK056Tis1c0hB?=
+ =?utf-8?B?aXdTWkVxMGk2L1JybUx6R1lTN25CQUczcmR2VFdOUVphQTM2aGZGc1BJaURJ?=
+ =?utf-8?B?aU9Za056aDVMTkRYNThjSDgyQmZwOEZSTUJWRWFzVkdpMjY3b1NSYnkydzZK?=
+ =?utf-8?B?R3NGRGFhN1paUUZIaUxaWDhoamhLRUdPLzRwMzJXYjAvZFU2dmd6L2NEZDNp?=
+ =?utf-8?B?OHVTVGV5bkViaUtpTjMrUzZZeXVEc3U0RmtLMEZ6T3Ixb2RuQTNlT0E5OGVa?=
+ =?utf-8?B?aEorcHVIQUF5dUNkcXFWbXVMUDROaEVUdDdQQ2JESW5GeVc2QUhSYU9wYjk5?=
+ =?utf-8?B?WXRpRzNETFhYQUhXc3p1Y0wybldPVzBtUTViQVJTSXMwNmxaTG1hRVhqU1FC?=
+ =?utf-8?B?UHJTeXdqWFh1cDBIUzFHNFl1TVVtd2UzaldiMS9ZSW90ZFpTMzh2NEtTbkdR?=
+ =?utf-8?B?c3FJWUtKZGN6Sm1IM1JYZG9KNzJESjY0b1RCbmVtZnlIWjVYWjJCVklVbWdz?=
+ =?utf-8?B?YnVKZ25IdzVRRWUwcXFsOGFYdVdwKzhJVXN3UU9JUmE0MWJEZ0lrYUhyODZa?=
+ =?utf-8?B?M1BPMldnYWZwZUgwUGp3M0RpZ2xxRW5kb05NUmVJTGdpSnQvSDlXWEhqMnVn?=
+ =?utf-8?B?cHJmMzBwQW9lTTBwM2kwaWV3a3ZFOHBCZ1NMVElsZXJEbE5oRUg2b0hLSmxy?=
+ =?utf-8?B?Tm82bFJEcVVhMlJ5Zi80alBZa3pIU20zNGE0dWw4SlJ3eC8yK29OUWJPUlhU?=
+ =?utf-8?B?RXpsdm4rTkU4aFlma0labExlOXN2Q3JqSjJsZ0UzdVNwVXhRemx6c3hsSTRM?=
+ =?utf-8?B?eTVSSThYYTB3TXZtZkE0UUVjODhQdXh0SWpXaE1XWHVJaFZNcmtUaitseXJU?=
+ =?utf-8?B?aHJ0YTRTbG5FQkFmQTBob3o1cVdqYVBmWk5yRGU0YjlyQVNRc1NxZUgwWkhM?=
+ =?utf-8?B?WSt6SXlzMnNtY3JoNjlqMkQxZXh1Q2RybDV4T0U1SVNyY1JjTHNTQXk0ZERr?=
+ =?utf-8?B?OVZyYTVWOEpCbU5SUFdPenFCZ2FlRGxNcVVPZWFjVkQxa3A0dTUvdkh1YWJq?=
+ =?utf-8?B?KzhOZG41UnBORldIRDlUeTR4VnEvalRuTTk4M3NvMmRMaTFWdnBPcUpiaFdR?=
+ =?utf-8?B?dHU2L3dSNVZhL29MTThlTjFQMGxiVU5NRUVQNXE0Uk0zVURHUE42V0VDRWxL?=
+ =?utf-8?B?UHRNUEdIYi80dHZxa0dWcTZoMmNLRC9wYVgrSmc3SjJKL0E1VHRMdUJ4RU5z?=
+ =?utf-8?B?ZkYzZDlXeHdad0RJajNZWXBnNjJyMEIrbE82eU5RQnJCdEVnbTB1R2IyQ0k5?=
+ =?utf-8?B?dHNiblpWTWFrUEpiWHBZNHdFZy9vL3FTdzFmQUxXeTZHSnErYWd1cDgzWm1v?=
+ =?utf-8?B?UVJ0ZkVTeWRoeW9WNnpXczd5cVRYWlRYckhWaTJXRC9xSlFFTnJERlR3VlZt?=
+ =?utf-8?B?dU1zQnBnSE1tUFR5bUxKNWl1THN0ZGhnQnRVL09wbjNHVmpZRTZzSlFzd2V3?=
+ =?utf-8?B?T3dYdllmYllTR2VVTjFvYi9DMkJ1QWRnTnFOTFdETzhKTUlrSDFXVHA1V2to?=
+ =?utf-8?B?RlZLNnREYUVLRHpjMk1yTmx0eHdqRzBnQXV3TTYxSnZPaW9oYkpUaENKTHN5?=
+ =?utf-8?B?QVM2bEx5d0UyVnBpT3EwYkJHRWs0M3VUMDZWZzlUWEM4UWdDaHMzVHJaSXlN?=
+ =?utf-8?B?VG9TOEVUbmNYZVB0YXlwbEFXTCtTM1hoeGF0SGI2bmhxK3RvNzFKdTdFd0o5?=
+ =?utf-8?Q?ZA75vCszQW78ycNVoGM+YgpkE?=
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: DS0PR11MB7529.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: c01e14bc-938d-4f30-99ab-08db6c1ca381
+X-MS-Exchange-CrossTenant-originalarrivaltime: 13 Jun 2023 14:44:06.1099
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 5KAAsj1vBzrkZCi63upaVn1hYgJMsfIlIDZBGudKwN4/pJb+pO0OPwOx7ngMUDSwNGieb0DAyHXAEPpknzO0+g==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR11MB7652
+X-OriginatorOrg: intel.com
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 13 Jun 2023 14:36:14 +0000
-"Liu, Yi L" <yi.l.liu@intel.com> wrote:
-
-> > From: Alex Williamson <alex.williamson@redhat.com>
-> > Sent: Tuesday, June 13, 2023 10:17 PM
-> > 
-> > On Tue, 13 Jun 2023 05:46:32 +0000
-> > "Liu, Yi L" <yi.l.liu@intel.com> wrote:
-> >   
-> > > > From: Alex Williamson <alex.williamson@redhat.com>
-> > > > Sent: Tuesday, June 13, 2023 5:52 AM
-> > > >
-> > > > On Fri,  2 Jun 2023 05:16:36 -0700
-> > > > Yi Liu <yi.l.liu@intel.com> wrote:
-> > > >  
-> > > > > Allow the vfio_device file to be in a state where the device FD is
-> > > > > opened but the device cannot be used by userspace (i.e. its .open_device()
-> > > > > hasn't been called). This inbetween state is not used when the device
-> > > > > FD is spawned from the group FD, however when we create the device FD
-> > > > > directly by opening a cdev it will be opened in the blocked state.
-> > > > >
-> > > > > The reason for the inbetween state is that userspace only gets a FD but
-> > > > > doesn't gain access permission until binding the FD to an iommufd. So in
-> > > > > the blocked state, only the bind operation is allowed. Completing bind
-> > > > > will allow user to further access the device.
-> > > > >
-> > > > > This is implemented by adding a flag in struct vfio_device_file to mark
-> > > > > the blocked state and using a simple smp_load_acquire() to obtain the
-> > > > > flag value and serialize all the device setup with the thread accessing
-> > > > > this device.
-> > > > >
-> > > > > Following this lockless scheme, it can safely handle the device FD
-> > > > > unbound->bound but it cannot handle bound->unbound. To allow this we'd
-> > > > > need to add a lock on all the vfio ioctls which seems costly. So once
-> > > > > device FD is bound, it remains bound until the FD is closed.
-> > > > >
-> > > > > Suggested-by: Jason Gunthorpe <jgg@nvidia.com>
-> > > > > Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-> > > > > Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-> > > > > Reviewed-by: Eric Auger <eric.auger@redhat.com>
-> > > > > Tested-by: Terrence Xu <terrence.xu@intel.com>
-> > > > > Tested-by: Nicolin Chen <nicolinc@nvidia.com>
-> > > > > Tested-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> > > > > Tested-by: Yanting Jiang <yanting.jiang@intel.com>
-> > > > > Tested-by: Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>
-> > > > > Signed-off-by: Yi Liu <yi.l.liu@intel.com>
-> > > > > ---
-> > > > >  drivers/vfio/group.c     | 11 ++++++++++-
-> > > > >  drivers/vfio/vfio.h      |  1 +
-> > > > >  drivers/vfio/vfio_main.c | 16 ++++++++++++++++
-> > > > >  3 files changed, 27 insertions(+), 1 deletion(-)
-> > > > >
-> > > > > diff --git a/drivers/vfio/group.c b/drivers/vfio/group.c
-> > > > > index caf53716ddb2..088dd34c8931 100644
-> > > > > --- a/drivers/vfio/group.c
-> > > > > +++ b/drivers/vfio/group.c
-> > > > > @@ -194,9 +194,18 @@ static int vfio_df_group_open(struct vfio_device_file *df)
-> > > > >  	df->iommufd = device->group->iommufd;
-> > > > >
-> > > > >  	ret = vfio_df_open(df);
-> > > > > -	if (ret)
-> > > > > +	if (ret) {
-> > > > >  		df->iommufd = NULL;
-> > > > > +		goto out_put_kvm;
-> > > > > +	}
-> > > > > +
-> > > > > +	/*
-> > > > > +	 * Paired with smp_load_acquire() in vfio_device_fops::ioctl/
-> > > > > +	 * read/write/mmap and vfio_file_has_device_access()
-> > > > > +	 */
-> > > > > +	smp_store_release(&df->access_granted, true);
-> > > > >
-> > > > > +out_put_kvm:
-> > > > >  	if (device->open_count == 0)
-> > > > >  		vfio_device_put_kvm(device);
-> > > > >
-> > > > > diff --git a/drivers/vfio/vfio.h b/drivers/vfio/vfio.h
-> > > > > index f9eb52eb9ed7..fdf2fc73f880 100644
-> > > > > --- a/drivers/vfio/vfio.h
-> > > > > +++ b/drivers/vfio/vfio.h
-> > > > > @@ -18,6 +18,7 @@ struct vfio_container;
-> > > > >
-> > > > >  struct vfio_device_file {
-> > > > >  	struct vfio_device *device;
-> > > > > +	bool access_granted;  
-> > > >
-> > > > Should we make this a more strongly defined data type and later move
-> > > > devid (u32) here to partially fill the hole created?  
-> > >
-> > > Before your question, let me describe how I place the fields
-> > > of this structure to see if it is common practice. The first two
-> > > fields are static, so they are in the beginning. The access_granted
-> > > is lockless and other fields are protected by locks. So I tried to
-> > > put the lock and the fields it protects closely. So this is why I put
-> > > devid behind iommufd as both are protected by the same lock.  
-> > 
-> > I think the primary considerations are locality and compactness.  Hot
-> > paths data should be within the first cache line of the structure,
-> > related data should share a cache line, and we should use the space
-> > efficiently.  What you describe seems largely an aesthetic concern,
-> > which was not evident to me by the segmentation alone.  
-> 
-> Sure.
-> 
-> >   
-> > > struct vfio_device_file {
-> > >         struct vfio_device *device;
-> > >         struct vfio_group *group;
-> > >
-> > >         bool access_granted;
-> > >         spinlock_t kvm_ref_lock; /* protect kvm field */
-> > >         struct kvm *kvm;
-> > >         struct iommufd_ctx *iommufd; /* protected by struct vfio_device_set::lock */
-> > >         u32 devid; /* only valid when iommufd is valid */
-> > > };
-> > >  
-> > > >
-> > > > I think this is being placed towards the front of the data structure
-> > > > for cache line locality given this is a hot path for file operations.
-> > > > But bool types have an implementation dependent size, making them
-> > > > difficult to pack.  Also there will be a tendency to want to make this
-> > > > a bit field, which is probably not compatible with the smp lockless
-> > > > operations being used here.  We might get in front of these issues if
-> > > > we just define it as a u8 now.  Thanks,  
-> > >
-> > > Not quite get why bit field is going to be incompatible with smp
-> > > lockless operations. Could you elaborate a bit? And should I define
-> > > the access_granted as u8 or "u8:1"?  
-> > 
-> > Perhaps FUD on my part, but load-acquire type operations have specific
-> > semantics and it's not clear to me that they interest with compiler
-> > generated bit operations.  Thanks,  
-> 
-> I see. How about below? 
-> 
-> struct vfio_device_file {
->         struct vfio_device *device;
->         struct vfio_group *group;
->         u8 access_granted;
->         u32 devid; /* only valid when iommufd is valid */
->         spinlock_t kvm_ref_lock; /* protect kvm field */
->         struct kvm *kvm;
->         struct iommufd_ctx *iommufd; /* protected by struct vfio_device_set::lock */
-> };
-
-Yep, that's essentially what I was suggesting.  Thanks,
-
-Alex
-
+PiBGcm9tOiBBbGV4IFdpbGxpYW1zb24gPGFsZXgud2lsbGlhbXNvbkByZWRoYXQuY29tPg0KPiBT
+ZW50OiBUdWVzZGF5LCBKdW5lIDEzLCAyMDIzIDEwOjQyIFBNDQo+IA0KPiBPbiBUdWUsIDEzIEp1
+biAyMDIzIDE0OjM2OjE0ICswMDAwDQo+ICJMaXUsIFlpIEwiIDx5aS5sLmxpdUBpbnRlbC5jb20+
+IHdyb3RlOg0KDQo+ID4gPiA+ID4gPg0KPiA+ID4gPiA+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMv
+dmZpby92ZmlvLmggYi9kcml2ZXJzL3ZmaW8vdmZpby5oDQo+ID4gPiA+ID4gPiBpbmRleCBmOWVi
+NTJlYjllZDcuLmZkZjJmYzczZjg4MCAxMDA2NDQNCj4gPiA+ID4gPiA+IC0tLSBhL2RyaXZlcnMv
+dmZpby92ZmlvLmgNCj4gPiA+ID4gPiA+ICsrKyBiL2RyaXZlcnMvdmZpby92ZmlvLmgNCj4gPiA+
+ID4gPiA+IEBAIC0xOCw2ICsxOCw3IEBAIHN0cnVjdCB2ZmlvX2NvbnRhaW5lcjsNCj4gPiA+ID4g
+PiA+DQo+ID4gPiA+ID4gPiAgc3RydWN0IHZmaW9fZGV2aWNlX2ZpbGUgew0KPiA+ID4gPiA+ID4g
+IAlzdHJ1Y3QgdmZpb19kZXZpY2UgKmRldmljZTsNCj4gPiA+ID4gPiA+ICsJYm9vbCBhY2Nlc3Nf
+Z3JhbnRlZDsNCj4gPiA+ID4gPg0KPiA+ID4gPiA+IFNob3VsZCB3ZSBtYWtlIHRoaXMgYSBtb3Jl
+IHN0cm9uZ2x5IGRlZmluZWQgZGF0YSB0eXBlIGFuZCBsYXRlciBtb3ZlDQo+ID4gPiA+ID4gZGV2
+aWQgKHUzMikgaGVyZSB0byBwYXJ0aWFsbHkgZmlsbCB0aGUgaG9sZSBjcmVhdGVkPw0KPiA+ID4g
+Pg0KPiA+ID4gPiBCZWZvcmUgeW91ciBxdWVzdGlvbiwgbGV0IG1lIGRlc2NyaWJlIGhvdyBJIHBs
+YWNlIHRoZSBmaWVsZHMNCj4gPiA+ID4gb2YgdGhpcyBzdHJ1Y3R1cmUgdG8gc2VlIGlmIGl0IGlz
+IGNvbW1vbiBwcmFjdGljZS4gVGhlIGZpcnN0IHR3bw0KPiA+ID4gPiBmaWVsZHMgYXJlIHN0YXRp
+Yywgc28gdGhleSBhcmUgaW4gdGhlIGJlZ2lubmluZy4gVGhlIGFjY2Vzc19ncmFudGVkDQo+ID4g
+PiA+IGlzIGxvY2tsZXNzIGFuZCBvdGhlciBmaWVsZHMgYXJlIHByb3RlY3RlZCBieSBsb2Nrcy4g
+U28gSSB0cmllZCB0bw0KPiA+ID4gPiBwdXQgdGhlIGxvY2sgYW5kIHRoZSBmaWVsZHMgaXQgcHJv
+dGVjdHMgY2xvc2VseS4gU28gdGhpcyBpcyB3aHkgSSBwdXQNCj4gPiA+ID4gZGV2aWQgYmVoaW5k
+IGlvbW11ZmQgYXMgYm90aCBhcmUgcHJvdGVjdGVkIGJ5IHRoZSBzYW1lIGxvY2suDQo+ID4gPg0K
+PiA+ID4gSSB0aGluayB0aGUgcHJpbWFyeSBjb25zaWRlcmF0aW9ucyBhcmUgbG9jYWxpdHkgYW5k
+IGNvbXBhY3RuZXNzLiAgSG90DQo+ID4gPiBwYXRocyBkYXRhIHNob3VsZCBiZSB3aXRoaW4gdGhl
+IGZpcnN0IGNhY2hlIGxpbmUgb2YgdGhlIHN0cnVjdHVyZSwNCj4gPiA+IHJlbGF0ZWQgZGF0YSBz
+aG91bGQgc2hhcmUgYSBjYWNoZSBsaW5lLCBhbmQgd2Ugc2hvdWxkIHVzZSB0aGUgc3BhY2UNCj4g
+PiA+IGVmZmljaWVudGx5LiAgV2hhdCB5b3UgZGVzY3JpYmUgc2VlbXMgbGFyZ2VseSBhbiBhZXN0
+aGV0aWMgY29uY2VybiwNCj4gPiA+IHdoaWNoIHdhcyBub3QgZXZpZGVudCB0byBtZSBieSB0aGUg
+c2VnbWVudGF0aW9uIGFsb25lLg0KPiA+DQo+ID4gU3VyZS4NCj4gPg0KPiA+ID4NCj4gPiA+ID4g
+c3RydWN0IHZmaW9fZGV2aWNlX2ZpbGUgew0KPiA+ID4gPiAgICAgICAgIHN0cnVjdCB2ZmlvX2Rl
+dmljZSAqZGV2aWNlOw0KPiA+ID4gPiAgICAgICAgIHN0cnVjdCB2ZmlvX2dyb3VwICpncm91cDsN
+Cj4gPiA+ID4NCj4gPiA+ID4gICAgICAgICBib29sIGFjY2Vzc19ncmFudGVkOw0KPiA+ID4gPiAg
+ICAgICAgIHNwaW5sb2NrX3Qga3ZtX3JlZl9sb2NrOyAvKiBwcm90ZWN0IGt2bSBmaWVsZCAqLw0K
+PiA+ID4gPiAgICAgICAgIHN0cnVjdCBrdm0gKmt2bTsNCj4gPiA+ID4gICAgICAgICBzdHJ1Y3Qg
+aW9tbXVmZF9jdHggKmlvbW11ZmQ7IC8qIHByb3RlY3RlZCBieSBzdHJ1Y3QgdmZpb19kZXZpY2Vf
+c2V0Ojpsb2NrICovDQo+ID4gPiA+ICAgICAgICAgdTMyIGRldmlkOyAvKiBvbmx5IHZhbGlkIHdo
+ZW4gaW9tbXVmZCBpcyB2YWxpZCAqLw0KPiA+ID4gPiB9Ow0KPiA+ID4gPg0KPiA+ID4gPiA+DQo+
+ID4gPiA+ID4gSSB0aGluayB0aGlzIGlzIGJlaW5nIHBsYWNlZCB0b3dhcmRzIHRoZSBmcm9udCBv
+ZiB0aGUgZGF0YSBzdHJ1Y3R1cmUNCj4gPiA+ID4gPiBmb3IgY2FjaGUgbGluZSBsb2NhbGl0eSBn
+aXZlbiB0aGlzIGlzIGEgaG90IHBhdGggZm9yIGZpbGUgb3BlcmF0aW9ucy4NCj4gPiA+ID4gPiBC
+dXQgYm9vbCB0eXBlcyBoYXZlIGFuIGltcGxlbWVudGF0aW9uIGRlcGVuZGVudCBzaXplLCBtYWtp
+bmcgdGhlbQ0KPiA+ID4gPiA+IGRpZmZpY3VsdCB0byBwYWNrLiAgQWxzbyB0aGVyZSB3aWxsIGJl
+IGEgdGVuZGVuY3kgdG8gd2FudCB0byBtYWtlIHRoaXMNCj4gPiA+ID4gPiBhIGJpdCBmaWVsZCwg
+d2hpY2ggaXMgcHJvYmFibHkgbm90IGNvbXBhdGlibGUgd2l0aCB0aGUgc21wIGxvY2tsZXNzDQo+
+ID4gPiA+ID4gb3BlcmF0aW9ucyBiZWluZyB1c2VkIGhlcmUuICBXZSBtaWdodCBnZXQgaW4gZnJv
+bnQgb2YgdGhlc2UgaXNzdWVzIGlmDQo+ID4gPiA+ID4gd2UganVzdCBkZWZpbmUgaXQgYXMgYSB1
+OCBub3cuICBUaGFua3MsDQo+ID4gPiA+DQo+ID4gPiA+IE5vdCBxdWl0ZSBnZXQgd2h5IGJpdCBm
+aWVsZCBpcyBnb2luZyB0byBiZSBpbmNvbXBhdGlibGUgd2l0aCBzbXANCj4gPiA+ID4gbG9ja2xl
+c3Mgb3BlcmF0aW9ucy4gQ291bGQgeW91IGVsYWJvcmF0ZSBhIGJpdD8gQW5kIHNob3VsZCBJIGRl
+ZmluZQ0KPiA+ID4gPiB0aGUgYWNjZXNzX2dyYW50ZWQgYXMgdTggb3IgInU4OjEiPw0KPiA+ID4N
+Cj4gPiA+IFBlcmhhcHMgRlVEIG9uIG15IHBhcnQsIGJ1dCBsb2FkLWFjcXVpcmUgdHlwZSBvcGVy
+YXRpb25zIGhhdmUgc3BlY2lmaWMNCj4gPiA+IHNlbWFudGljcyBhbmQgaXQncyBub3QgY2xlYXIg
+dG8gbWUgdGhhdCB0aGV5IGludGVyZXN0IHdpdGggY29tcGlsZXINCj4gPiA+IGdlbmVyYXRlZCBi
+aXQgb3BlcmF0aW9ucy4gIFRoYW5rcywNCj4gPg0KPiA+IEkgc2VlLiBIb3cgYWJvdXQgYmVsb3c/
+DQo+ID4NCj4gPiBzdHJ1Y3QgdmZpb19kZXZpY2VfZmlsZSB7DQo+ID4gICAgICAgICBzdHJ1Y3Qg
+dmZpb19kZXZpY2UgKmRldmljZTsNCj4gPiAgICAgICAgIHN0cnVjdCB2ZmlvX2dyb3VwICpncm91
+cDsNCj4gPiAgICAgICAgIHU4IGFjY2Vzc19ncmFudGVkOw0KPiA+ICAgICAgICAgdTMyIGRldmlk
+OyAvKiBvbmx5IHZhbGlkIHdoZW4gaW9tbXVmZCBpcyB2YWxpZCAqLw0KPiA+ICAgICAgICAgc3Bp
+bmxvY2tfdCBrdm1fcmVmX2xvY2s7IC8qIHByb3RlY3Qga3ZtIGZpZWxkICovDQo+ID4gICAgICAg
+ICBzdHJ1Y3Qga3ZtICprdm07DQo+ID4gICAgICAgICBzdHJ1Y3QgaW9tbXVmZF9jdHggKmlvbW11
+ZmQ7IC8qIHByb3RlY3RlZCBieSBzdHJ1Y3QgdmZpb19kZXZpY2Vfc2V0Ojpsb2NrICovDQo+ID4g
+fTsNCj4gDQo+IFllcCwgdGhhdCdzIGVzc2VudGlhbGx5IHdoYXQgSSB3YXMgc3VnZ2VzdGluZy4g
+IFRoYW5rcywNCg0KR290IGl0LiDwn5iKDQoNClJlZ2FyZHMsDQpZaSBMaXUNCg==
