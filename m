@@ -2,60 +2,60 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 280DAEB64D7
-	for <linux-s390@archiver.kernel.org>; Tue, 13 Jun 2023 14:17:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E855FEB64D0
+	for <linux-s390@archiver.kernel.org>; Tue, 13 Jun 2023 14:20:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240317AbjFMORv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 13 Jun 2023 10:17:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41422 "EHLO
+        id S242512AbjFMOUT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 13 Jun 2023 10:20:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235653AbjFMORu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 13 Jun 2023 10:17:50 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9353FEC
-        for <linux-s390@vger.kernel.org>; Tue, 13 Jun 2023 07:17:05 -0700 (PDT)
+        with ESMTP id S242976AbjFMOUK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 13 Jun 2023 10:20:10 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4176F184
+        for <linux-s390@vger.kernel.org>; Tue, 13 Jun 2023 07:19:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1686665824;
+        s=mimecast20190719; t=1686665963;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=NYatJhHx6nSYO+TZbVqZK7LDirziHUeBGTIfum2S5Mk=;
-        b=G8nJseT2BNHn6d6CuSV7dr8Iqurqb+VWczk6TuTXTfnF+0vBHD11b2jQvq02aHkZv7c+0N
-        rLlbfLc7O1S3wvgxgPf7Hhqp5nwAHY3z+KvkKjIsLt2tvQMDdEdT26N75s7pDFQksfNNbf
-        KO5RW283ENgzQb8Mg86WrxQI8mvBtWw=
+        bh=hh7dDn79BmR3GsS4yLCOwuPTkSZ8D9roEztDs6aeojo=;
+        b=emktZ1Ykh+boj8Ys/gDP3CJ2UNpUNmT/8Rr+Cx+bLprR+IJZvNTPel+3khVrLWl+1GvI7s
+        IHIqJfKTaXQ50gXxS8IkCwc9dklkPrNhR5fiRF9LebL1GZj5XjwjXniv59Ck1mad/lPHrb
+        1IGkj3e+G0mGzk4jv6vXR6eZtHy15Tk=
 Received: from mail-il1-f198.google.com (mail-il1-f198.google.com
  [209.85.166.198]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-551-tyLq1NLdN5S8pb58HI58CA-1; Tue, 13 Jun 2023 10:16:58 -0400
-X-MC-Unique: tyLq1NLdN5S8pb58HI58CA-1
-Received: by mail-il1-f198.google.com with SMTP id e9e14a558f8ab-33bdb682a1fso49707175ab.0
-        for <linux-s390@vger.kernel.org>; Tue, 13 Jun 2023 07:16:50 -0700 (PDT)
+ us-mta-120-5c-Zm10-OWSmMKXf26-lxw-1; Tue, 13 Jun 2023 10:19:16 -0400
+X-MC-Unique: 5c-Zm10-OWSmMKXf26-lxw-1
+Received: by mail-il1-f198.google.com with SMTP id e9e14a558f8ab-33bbffccf69so64602845ab.3
+        for <linux-s390@vger.kernel.org>; Tue, 13 Jun 2023 07:19:16 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1686665810; x=1689257810;
+        d=1e100.net; s=20221208; t=1686665956; x=1689257956;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=NYatJhHx6nSYO+TZbVqZK7LDirziHUeBGTIfum2S5Mk=;
-        b=F1AEIJQRE0gq3+LPmLI6wpJlzZGHbg1pYuxH6Je0M8u1Z9fcx2fmjAGdD6OX4YyeBP
-         T0Yxdv7ekjDbIMuH5q3IkERZWdsNYcTifQQ35444QpTZ7+N9cdGumEpZGwYtXRsPlD97
-         4jlShHQIUn2PvE7nkkL/Muq454/O1oPC0ShMjCF1AKNtvrD7zpul20RYGYUi6C4cweMH
-         1Cz8R/urucuTQ0z2jNIRI4iXyq6ss0X1TIYpg3pBVjaAHR1WnwsTr2cSa/4B2T1PZNM5
-         56n7/XBcoy8Gnu/QOJBg0IQIit0TifIjDOfJZYNNwVwg+x2kqnrwk+dl3aYc9M9ToACp
-         N4KA==
-X-Gm-Message-State: AC+VfDzFVzbmMquNGeBbQAVcsb0sYaezn/bEOYd6t02KXW9JYurLH6yC
-        IxAis6cotZ58gw863D6LaK//53PMy8mLRJRJKm9PBaF0bxWnOVBUTZnR+vyW1sqxGxBJOVejV/x
-        cFEw+Yr0safDs1GbytouI6w==
-X-Received: by 2002:a92:d409:0:b0:338:a648:9c8 with SMTP id q9-20020a92d409000000b00338a64809c8mr9928826ilm.17.1686665809811;
-        Tue, 13 Jun 2023 07:16:49 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ4dvOnTcWtOwv+q2/EoekGwnRzAO73yzLn1NP0J05Lkv0h5eXb2N1tj6bmPqmEs9rHHcJOL2Q==
-X-Received: by 2002:a92:d409:0:b0:338:a648:9c8 with SMTP id q9-20020a92d409000000b00338a64809c8mr9928794ilm.17.1686665809492;
-        Tue, 13 Jun 2023 07:16:49 -0700 (PDT)
+        bh=hh7dDn79BmR3GsS4yLCOwuPTkSZ8D9roEztDs6aeojo=;
+        b=iqDgzCGiRwrNRrFxazjFcDX/eNC4EhQARr1kFQjEmWIGqR8TJr8xPqcQ39GrbHHK0q
+         qDebG/BDwxqIzyP3zn5A/KVe0l3ahBwhx+TC+XM/beAajEymVrSQ9Nk+TF1AOkDREq+V
+         2I7Sy4rX8ijdd85bBIfmK1PWoaFzAX8xc59YU/o7v5wuaO7Hf21sa8eGY2DeCP27oOmn
+         6nHkmmhQs8OrjUFZhkyKeVgEYLPQx2WuCtibl5/28elp44h4uEmiGdxBBvBCzak4TD3x
+         qBCGI6/a4dH2ID3MEM0AtzowU2OY6AfNxnD0sCPqmTleVLDVNq40oWO/o28KTrWslNk9
+         QCHg==
+X-Gm-Message-State: AC+VfDwWcjI1K7+clGZA4UJILerhnI0TavvnJEjAuqEw/F5DacwYNdGO
+        agw3c9+BTs+czuvd5aUkSswGqgRJ9wY8yBFCAMdL3MM5DRyhYyp2l8HvR3QLBw2OqdSc0suzoYG
+        5q93Og/mTSnWFtsTSVsoUWg==
+X-Received: by 2002:a92:d84e:0:b0:340:7ab6:1f49 with SMTP id h14-20020a92d84e000000b003407ab61f49mr1362179ilq.20.1686665955818;
+        Tue, 13 Jun 2023 07:19:15 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ70y+1gcH35hXRid2B015UTZDwXVqcqVbwY3awzvwLMsL0aeKs+cVPwaqIPq185U12jr3QsrQ==
+X-Received: by 2002:a92:d84e:0:b0:340:7ab6:1f49 with SMTP id h14-20020a92d84e000000b003407ab61f49mr1362166ilq.20.1686665955589;
+        Tue, 13 Jun 2023 07:19:15 -0700 (PDT)
 Received: from redhat.com ([38.15.36.239])
-        by smtp.gmail.com with ESMTPSA id g5-20020a92d7c5000000b003383276d260sm3827903ilq.40.2023.06.13.07.16.48
+        by smtp.gmail.com with ESMTPSA id r5-20020a92ce85000000b0032a8e1ba829sm3844570ilo.16.2023.06.13.07.19.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 13 Jun 2023 07:16:48 -0700 (PDT)
-Date:   Tue, 13 Jun 2023 08:16:47 -0600
+        Tue, 13 Jun 2023 07:19:14 -0700 (PDT)
+Date:   Tue, 13 Jun 2023 08:19:13 -0600
 From:   Alex Williamson <alex.williamson@redhat.com>
 To:     "Liu, Yi L" <yi.l.liu@intel.com>
 Cc:     "jgg@nvidia.com" <jgg@nvidia.com>,
@@ -85,14 +85,14 @@ Cc:     "jgg@nvidia.com" <jgg@nvidia.com>,
         "Jiang, Yanting" <yanting.jiang@intel.com>,
         "Duan, Zhenzhong" <zhenzhong.duan@intel.com>,
         "clegoate@redhat.com" <clegoate@redhat.com>
-Subject: Re: [PATCH v12 07/24] vfio: Block device access via device fd until
- device is opened
-Message-ID: <20230613081647.740f5217.alex.williamson@redhat.com>
-In-Reply-To: <DS0PR11MB75293327BDE6D268996FFFCCC355A@DS0PR11MB7529.namprd11.prod.outlook.com>
+Subject: Re: [PATCH v12 21/24] vfio: Determine noiommu device in
+ __vfio_register_dev()
+Message-ID: <20230613081913.279dea9e.alex.williamson@redhat.com>
+In-Reply-To: <DS0PR11MB7529AE3701E154BF4C092E57C355A@DS0PR11MB7529.namprd11.prod.outlook.com>
 References: <20230602121653.80017-1-yi.l.liu@intel.com>
-        <20230602121653.80017-8-yi.l.liu@intel.com>
-        <20230612155210.5fd3579f.alex.williamson@redhat.com>
-        <DS0PR11MB75293327BDE6D268996FFFCCC355A@DS0PR11MB7529.namprd11.prod.outlook.com>
+        <20230602121653.80017-22-yi.l.liu@intel.com>
+        <20230612164228.65b500e0.alex.williamson@redhat.com>
+        <DS0PR11MB7529AE3701E154BF4C092E57C355A@DS0PR11MB7529.namprd11.prod.outlook.com>
 X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -101,184 +101,150 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 13 Jun 2023 05:46:32 +0000
+On Tue, 13 Jun 2023 05:53:42 +0000
 "Liu, Yi L" <yi.l.liu@intel.com> wrote:
 
 > > From: Alex Williamson <alex.williamson@redhat.com>
-> > Sent: Tuesday, June 13, 2023 5:52 AM
+> > Sent: Tuesday, June 13, 2023 6:42 AM
 > > 
-> > On Fri,  2 Jun 2023 05:16:36 -0700
+> > On Fri,  2 Jun 2023 05:16:50 -0700
 > > Yi Liu <yi.l.liu@intel.com> wrote:
 > >   
-> > > Allow the vfio_device file to be in a state where the device FD is
-> > > opened but the device cannot be used by userspace (i.e. its .open_device()
-> > > hasn't been called). This inbetween state is not used when the device
-> > > FD is spawned from the group FD, however when we create the device FD
-> > > directly by opening a cdev it will be opened in the blocked state.
+> > > This moves the noiommu device determination and noiommu taint out of
+> > > vfio_group_find_or_alloc(). noiommu device is determined in
+> > > __vfio_register_dev() and result is stored in flag vfio_device->noiommu,
+> > > the noiommu taint is added in the end of __vfio_register_dev().
 > > >
-> > > The reason for the inbetween state is that userspace only gets a FD but
-> > > doesn't gain access permission until binding the FD to an iommufd. So in
-> > > the blocked state, only the bind operation is allowed. Completing bind
-> > > will allow user to further access the device.
-> > >
-> > > This is implemented by adding a flag in struct vfio_device_file to mark
-> > > the blocked state and using a simple smp_load_acquire() to obtain the
-> > > flag value and serialize all the device setup with the thread accessing
-> > > this device.
-> > >
-> > > Following this lockless scheme, it can safely handle the device FD
-> > > unbound->bound but it cannot handle bound->unbound. To allow this we'd
-> > > need to add a lock on all the vfio ioctls which seems costly. So once
-> > > device FD is bound, it remains bound until the FD is closed.
-> > >
-> > > Suggested-by: Jason Gunthorpe <jgg@nvidia.com>
-> > > Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-> > > Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-> > > Reviewed-by: Eric Auger <eric.auger@redhat.com>
-> > > Tested-by: Terrence Xu <terrence.xu@intel.com>
-> > > Tested-by: Nicolin Chen <nicolinc@nvidia.com>
-> > > Tested-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> > > Tested-by: Yanting Jiang <yanting.jiang@intel.com>
-> > > Tested-by: Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>
-> > > Signed-off-by: Yi Liu <yi.l.liu@intel.com>
-> > > ---
-> > >  drivers/vfio/group.c     | 11 ++++++++++-
-> > >  drivers/vfio/vfio.h      |  1 +
-> > >  drivers/vfio/vfio_main.c | 16 ++++++++++++++++
-> > >  3 files changed, 27 insertions(+), 1 deletion(-)
-> > >
-> > > diff --git a/drivers/vfio/group.c b/drivers/vfio/group.c
-> > > index caf53716ddb2..088dd34c8931 100644
-> > > --- a/drivers/vfio/group.c
-> > > +++ b/drivers/vfio/group.c
-> > > @@ -194,9 +194,18 @@ static int vfio_df_group_open(struct vfio_device_file *df)
-> > >  	df->iommufd = device->group->iommufd;
-> > >
-> > >  	ret = vfio_df_open(df);
-> > > -	if (ret)
-> > > +	if (ret) {
-> > >  		df->iommufd = NULL;
-> > > +		goto out_put_kvm;
-> > > +	}
-> > > +
-> > > +	/*
-> > > +	 * Paired with smp_load_acquire() in vfio_device_fops::ioctl/
-> > > +	 * read/write/mmap and vfio_file_has_device_access()
-> > > +	 */
-> > > +	smp_store_release(&df->access_granted, true);
-> > >
-> > > +out_put_kvm:
-> > >  	if (device->open_count == 0)
-> > >  		vfio_device_put_kvm(device);
-> > >
-> > > diff --git a/drivers/vfio/vfio.h b/drivers/vfio/vfio.h
-> > > index f9eb52eb9ed7..fdf2fc73f880 100644
-> > > --- a/drivers/vfio/vfio.h
-> > > +++ b/drivers/vfio/vfio.h
-> > > @@ -18,6 +18,7 @@ struct vfio_container;
-> > >
-> > >  struct vfio_device_file {
-> > >  	struct vfio_device *device;
-> > > +	bool access_granted;  
+> > > This is also a preparation for compiling out vfio_group infrastructure
+> > > as it makes the noiommu detection and taint common between the cdev path
+> > > and group path though cdev path does not support noiommu.  
 > > 
-> > Should we make this a more strongly defined data type and later move
-> > devid (u32) here to partially fill the hole created?  
+> > Does this really still make sense?  The motivation for the change is
+> > really not clear without cdev support for noiommu.  Thanks,  
 > 
-> Before your question, let me describe how I place the fields
-> of this structure to see if it is common practice. The first two
-> fields are static, so they are in the beginning. The access_granted
-> is lockless and other fields are protected by locks. So I tried to
-> put the lock and the fields it protects closely. So this is why I put
-> devid behind iommufd as both are protected by the same lock.
+> I think it still makes sense. When CONFIG_VFIO_GROUP==n, the kernel
+> only supports cdev interface. If there is noiommu device, vfio should
+> fail the registration. So, the noiommu determination is still needed. But
+> I'd admit the taint might still be in the group code.
 
-I think the primary considerations are locality and compactness.  Hot
-paths data should be within the first cache line of the structure,
-related data should share a cache line, and we should use the space
-efficiently.  What you describe seems largely an aesthetic concern,
-which was not evident to me by the segmentation alone.
- 
-> struct vfio_device_file {
->         struct vfio_device *device;
->         struct vfio_group *group;
-> 
->         bool access_granted;
->         spinlock_t kvm_ref_lock; /* protect kvm field */
->         struct kvm *kvm;
->         struct iommufd_ctx *iommufd; /* protected by struct vfio_device_set::lock */
->         u32 devid; /* only valid when iommufd is valid */
-> };
-> 
-> > 
-> > I think this is being placed towards the front of the data structure
-> > for cache line locality given this is a hot path for file operations.
-> > But bool types have an implementation dependent size, making them
-> > difficult to pack.  Also there will be a tendency to want to make this
-> > a bit field, which is probably not compatible with the smp lockless
-> > operations being used here.  We might get in front of these issues if
-> > we just define it as a u8 now.  Thanks,  
-> 
-> Not quite get why bit field is going to be incompatible with smp
-> lockless operations. Could you elaborate a bit? And should I define
-> the access_granted as u8 or "u8:1"?
-
-Perhaps FUD on my part, but load-acquire type operations have specific
-semantics and it's not clear to me that they interest with compiler
-generated bit operations.  Thanks,
+How is there going to be a noiommu device when VFIO_GROUP is unset?
+Thanks,
 
 Alex
 
-> > >  	spinlock_t kvm_ref_lock; /* protect kvm field */
-> > >  	struct kvm *kvm;
-> > >  	struct iommufd_ctx *iommufd; /* protected by struct vfio_device_set::lock */
+
+> > > Suggested-by: Alex Williamson <alex.williamson@redhat.com>
+> > > Signed-off-by: Yi Liu <yi.l.liu@intel.com>
+> > > ---
+> > >  drivers/vfio/group.c     | 15 ---------------
+> > >  drivers/vfio/vfio_main.c | 31 ++++++++++++++++++++++++++++++-
+> > >  include/linux/vfio.h     |  1 +
+> > >  3 files changed, 31 insertions(+), 16 deletions(-)
+> > >
+> > > diff --git a/drivers/vfio/group.c b/drivers/vfio/group.c
+> > > index 653b62f93474..64cdd0ea8825 100644
+> > > --- a/drivers/vfio/group.c
+> > > +++ b/drivers/vfio/group.c
+> > > @@ -668,21 +668,6 @@ static struct vfio_group *vfio_group_find_or_alloc(struct  
+> > device *dev)  
+> > >  	struct vfio_group *group;
+> > >
+> > >  	iommu_group = iommu_group_get(dev);
+> > > -	if (!iommu_group && vfio_noiommu) {
+> > > -		/*
+> > > -		 * With noiommu enabled, create an IOMMU group for devices that
+> > > -		 * don't already have one, implying no IOMMU hardware/driver
+> > > -		 * exists.  Taint the kernel because we're about to give a DMA
+> > > -		 * capable device to a user without IOMMU protection.
+> > > -		 */
+> > > -		group = vfio_noiommu_group_alloc(dev, VFIO_NO_IOMMU);
+> > > -		if (!IS_ERR(group)) {
+> > > -			add_taint(TAINT_USER, LOCKDEP_STILL_OK);
+> > > -			dev_warn(dev, "Adding kernel taint for vfio-noiommu group on  
+> > device\n");  
+> > > -		}
+> > > -		return group;
+> > > -	}
+> > > -
+> > >  	if (!iommu_group)
+> > >  		return ERR_PTR(-EINVAL);
+> > >
 > > > diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
-> > > index a3c5817fc545..4c8b7713dc3d 100644
+> > > index 6d8f9b0f3637..00a699b9f76b 100644
 > > > --- a/drivers/vfio/vfio_main.c
 > > > +++ b/drivers/vfio/vfio_main.c
-> > > @@ -1129,6 +1129,10 @@ static long vfio_device_fops_unl_ioctl(struct file *filep,
-> > >  	struct vfio_device *device = df->device;
-> > >  	int ret;
+> > > @@ -265,6 +265,18 @@ static int vfio_init_device(struct vfio_device *device, struct  
+> > device *dev,  
+> > >  	return ret;
+> > >  }
 > > >
-> > > +	/* Paired with smp_store_release() following vfio_df_open() */
-> > > +	if (!smp_load_acquire(&df->access_granted))
+> > > +static int vfio_device_set_noiommu(struct vfio_device *device)
+> > > +{
+> > > +	struct iommu_group *iommu_group = iommu_group_get(device->dev);
+> > > +
+> > > +	if (!iommu_group && !vfio_noiommu)
 > > > +		return -EINVAL;
 > > > +
-> > >  	ret = vfio_device_pm_runtime_get(device);
+> > > +	device->noiommu = !iommu_group;
+> > > +	iommu_group_put(iommu_group); /* Accepts NULL */
+> > > +	return 0;
+> > > +}
+> > > +
+> > >  static int __vfio_register_dev(struct vfio_device *device,
+> > >  			       enum vfio_group_type type)
+> > >  {
+> > > @@ -277,6 +289,13 @@ static int __vfio_register_dev(struct vfio_device *device,
+> > >  		     !device->ops->detach_ioas)))
+> > >  		return -EINVAL;
+> > >
+> > > +	/* Only physical devices can be noiommu device */
+> > > +	if (type == VFIO_IOMMU) {
+> > > +		ret = vfio_device_set_noiommu(device);
+> > > +		if (ret)
+> > > +			return ret;
+> > > +	}
+> > > +
+> > >  	/*
+> > >  	 * If the driver doesn't specify a set then the device is added to a
+> > >  	 * singleton set just for itself.
+> > > @@ -288,7 +307,8 @@ static int __vfio_register_dev(struct vfio_device *device,
 > > >  	if (ret)
 > > >  		return ret;
-> > > @@ -1156,6 +1160,10 @@ static ssize_t vfio_device_fops_read(struct file *filep, char  
-> > __user *buf,  
-> > >  	struct vfio_device_file *df = filep->private_data;
-> > >  	struct vfio_device *device = df->device;
 > > >
-> > > +	/* Paired with smp_store_release() following vfio_df_open() */
-> > > +	if (!smp_load_acquire(&df->access_granted))
-> > > +		return -EINVAL;
-> > > +
-> > >  	if (unlikely(!device->ops->read))
-> > >  		return -EINVAL;
+> > > -	ret = vfio_device_set_group(device, type);
+> > > +	ret = vfio_device_set_group(device,
+> > > +				    device->noiommu ? VFIO_NO_IOMMU : type);
+> > >  	if (ret)
+> > >  		return ret;
 > > >
-> > > @@ -1169,6 +1177,10 @@ static ssize_t vfio_device_fops_write(struct file *filep,
-> > >  	struct vfio_device_file *df = filep->private_data;
-> > >  	struct vfio_device *device = df->device;
+> > > @@ -301,6 +321,15 @@ static int __vfio_register_dev(struct vfio_device *device,
 > > >
-> > > +	/* Paired with smp_store_release() following vfio_df_open() */
-> > > +	if (!smp_load_acquire(&df->access_granted))
-> > > +		return -EINVAL;
-> > > +
-> > >  	if (unlikely(!device->ops->write))
-> > >  		return -EINVAL;
+> > >  	vfio_device_group_register(device);
 > > >
-> > > @@ -1180,6 +1192,10 @@ static int vfio_device_fops_mmap(struct file *filep, struct  
-> > vm_area_struct *vma)  
-> > >  	struct vfio_device_file *df = filep->private_data;
-> > >  	struct vfio_device *device = df->device;
+> > > +	if (device->noiommu) {
+> > > +		/*
+> > > +		 * noiommu deivces have no IOMMU hardware/driver.  Taint the
+> > > +		 * kernel because we're about to give a DMA capable device to
+> > > +		 * a user without IOMMU protection.
+> > > +		 */
+> > > +		add_taint(TAINT_USER, LOCKDEP_STILL_OK);
+> > > +		dev_warn(device->dev, "Adding kernel taint for vfio-noiommu on  
+> > device\n");  
+> > > +	}
+> > >  	return 0;
+> > >  err_out:
+> > >  	vfio_device_remove_group(device);
+> > > diff --git a/include/linux/vfio.h b/include/linux/vfio.h
+> > > index e80a8ac86e46..183e620009e7 100644
+> > > --- a/include/linux/vfio.h
+> > > +++ b/include/linux/vfio.h
+> > > @@ -67,6 +67,7 @@ struct vfio_device {
+> > >  	bool iommufd_attached;
+> > >  #endif
+> > >  	bool cdev_opened:1;
+> > > +	bool noiommu:1;
+> > >  };
 > > >
-> > > +	/* Paired with smp_store_release() following vfio_df_open() */
-> > > +	if (!smp_load_acquire(&df->access_granted))
-> > > +		return -EINVAL;
-> > > +
-> > >  	if (unlikely(!device->ops->mmap))
-> > >  		return -EINVAL;
-> > >  
+> > >  /**  
 > 
 
