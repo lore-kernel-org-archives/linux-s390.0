@@ -2,146 +2,210 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9610AC77B7A
-	for <linux-s390@archiver.kernel.org>; Tue, 13 Jun 2023 12:25:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3553AC7EE2E
+	for <linux-s390@archiver.kernel.org>; Tue, 13 Jun 2023 12:27:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240816AbjFMMZr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 13 Jun 2023 08:25:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34548 "EHLO
+        id S242444AbjFMM14 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 13 Jun 2023 08:27:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236188AbjFMMZp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 13 Jun 2023 08:25:45 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFD6010CE;
-        Tue, 13 Jun 2023 05:25:44 -0700 (PDT)
-Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 35DCNfkV006121;
-        Tue, 13 Jun 2023 12:25:44 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : date : subject :
- mime-version : content-type : content-transfer-encoding : message-id : to
- : cc; s=pp1; bh=0QJ5OOSqOBhOpoGHM9mIKfqtD9U6FDSmgII1zFfBG7w=;
- b=STSeSzyvzvJkHYgGju6hWsQcfKBHjy6WBf47K+whSQUV+GYHorIEU91AR+m2gohqu+Am
- PN0a3aZttQlnreCeSxtwd3mT5A6PNY9Vh0P6w5G3ShdkvZsnqIgbPqFZofPukkwWxjx3
- BRVVBSMRdPH/xTQeHvnQOqnISkb4L33h+REHp81fqdtrY2eCW17o1zTjYWyZUhU+jAOm
- v4GB208KCoe2X9e3wEfAK3joq3OnGBGSUo8Yq/EyD6pyQtckFuOWFEanFiTFVwyuPAc5
- IJUTQp3DS+nrRDiJuPvQxVc/yzSyNnUa5IscMQvxvIzE1hux4XMTaJF2Ejs+s7npPiqv vw== 
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3r6re2r1f3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 13 Jun 2023 12:25:43 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 35D4mTIc016530;
-        Tue, 13 Jun 2023 12:25:41 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3r4gee246e-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 13 Jun 2023 12:25:41 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 35DCPcig42467876
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 13 Jun 2023 12:25:38 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 19F1D20040;
-        Tue, 13 Jun 2023 12:25:38 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5ED9720043;
-        Tue, 13 Jun 2023 12:25:37 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 13 Jun 2023 12:25:37 +0000 (GMT)
-From:   Julian Ruess <julianr@linux.ibm.com>
-Date:   Tue, 13 Jun 2023 14:25:37 +0200
-Subject: [PATCH] s390/ism: Fix trying to free already-freed IRQ by repeated
- ism_dev_exit()
+        with ESMTP id S236391AbjFMM1z (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 13 Jun 2023 08:27:55 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2169171F
+        for <linux-s390@vger.kernel.org>; Tue, 13 Jun 2023 05:26:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1686659218;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=x4X42epITHEmHx9Rdq7WZvtJt4reSEJsGpXTx4uakPs=;
+        b=DBb9DPAjcZemA/oa0ZdRVU1XPx5PXg5XlKawdVI87npbdrud8NfmgK9AqGZETqx6C5HU3W
+        AwMljf4JbcQqJv37aJaBEJNWe6++5APY8NN4cJ419pqHjoqh18mMeodMFMgunusO4LgrKf
+        nILp/NuHNg78SF3HUcBHUWQn4Tuurlk=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-662-t4BYnJ-8PJWFtcnG0M5HbA-1; Tue, 13 Jun 2023 08:26:57 -0400
+X-MC-Unique: t4BYnJ-8PJWFtcnG0M5HbA-1
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-30c5d31b567so2128528f8f.2
+        for <linux-s390@vger.kernel.org>; Tue, 13 Jun 2023 05:26:57 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1686659216; x=1689251216;
+        h=content-transfer-encoding:in-reply-to:organization:from:references
+         :cc:to:content-language:subject:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=x4X42epITHEmHx9Rdq7WZvtJt4reSEJsGpXTx4uakPs=;
+        b=f2NLfzSwuo+ZvmwgKa1fGGRoQqkCpc31I0hnmOAqUw0ccBsP6t2B5JtamNrW4V9FYM
+         0rVtHyEsa/ZJTJChKOSlv6kVsXIGNlj+rNGF5vfBq8oliYPFVNoawEm5SRdt4qYiQaTe
+         80XDJeVH6VgVRpVN8S5e+6Us0AIS8uBnmoHLWrUU2mYNvIgzsLkOt16Tbw9xuu0JfktD
+         IrYCzSqNWxfy/my0WODwaN6hxnpoNMWYBIogN40bhNFUJDtZIzN3TZUzppG4J+q+GYo0
+         sZC/FScYqWka45cf/n4a19iOUcHlxCe4f3PXFIxufheSuQcrCkkxm8T/pEOgL7T7+/We
+         c3kA==
+X-Gm-Message-State: AC+VfDx5mtWH06tvTeEB+0KivG6X/uRLRNfHmfJHBGpAg0BbAzgKMLYx
+        lmK+CokV38HVUTtviZjELGV6rmKnqyl7tZsiFNIr8W1I3Dn3PaseZ4PzPg5ZAw4LcsbcJ0sPD8z
+        04u/D91lJPTds1tm1nKPPTg==
+X-Received: by 2002:a5d:6acd:0:b0:30f:b7b4:3e55 with SMTP id u13-20020a5d6acd000000b0030fb7b43e55mr6371739wrw.19.1686659216772;
+        Tue, 13 Jun 2023 05:26:56 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ4yteTIZOrnVCopzRkUBsfyPnfoDVYPpW9xv2sO4EBsmO+rg3naLzU0Pz+CwjSuscU8Zw+bFQ==
+X-Received: by 2002:a5d:6acd:0:b0:30f:b7b4:3e55 with SMTP id u13-20020a5d6acd000000b0030fb7b43e55mr6371694wrw.19.1686659216382;
+        Tue, 13 Jun 2023 05:26:56 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c710:ff00:1a06:80f:733a:e8c6? (p200300cbc710ff001a06080f733ae8c6.dip0.t-ipconnect.de. [2003:cb:c710:ff00:1a06:80f:733a:e8c6])
+        by smtp.gmail.com with ESMTPSA id i1-20020adff301000000b002f28de9f73bsm15275419wro.55.2023.06.13.05.26.53
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 13 Jun 2023 05:26:55 -0700 (PDT)
+Message-ID: <497e571e-e4de-7634-7da6-683599a4bbba@redhat.com>
+Date:   Tue, 13 Jun 2023 14:26:53 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20230613-ism-rmmod-crash-v1-1-359ac51e18c9@linux.ibm.com>
-X-B4-Tracking: v=1; b=H4sIAEBgiGQC/x2NQQqDQAxFryJZN6AzIqVXKUXiGDtZzChJkYJ49
- 6Yu3+c9/gHGKmzwaA5Q3sVkrQ7drYGUqb4ZZXaG0IbYDl1EsYJayjpjUrKMc7/EPoRIwz2CVxM
- Z46RUU/53ro+XPm708cmNTXmR7/X5fJ3nD9slGreDAAAA
-To:     Julian Ruess <julianr@linux.ibm.com>,
-        Alexandra Winter <wintera@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jan Karcher <jaka@linux.ibm.com>,
-        Stefan Raspl <raspl@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Niklas Schnelle <schnelle@linux.ibm.com>
-X-Mailer: b4 0.12.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 1aIL0rMSPM2ipBYuvnwOYpT3DYv2dmrH
-X-Proofpoint-ORIG-GUID: 1aIL0rMSPM2ipBYuvnwOYpT3DYv2dmrH
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
- definitions=2023-06-13_04,2023-06-12_02,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=960 spamscore=0
- lowpriorityscore=0 priorityscore=1501 impostorscore=0 bulkscore=0
- mlxscore=0 adultscore=0 suspectscore=0 phishscore=0 malwarescore=0
- clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2305260000 definitions=main-2306130107
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.12.0
+Subject: Re: [PATCH v9 01/42] mm: Rename arch pte_mkwrite()'s to
+ pte_mkwrite_novma()
+Content-Language: en-US
+To:     Rick Edgecombe <rick.p.edgecombe@intel.com>, x86@kernel.org,
+        "H . Peter Anvin" <hpa@zytor.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-mm@kvack.org,
+        linux-arch@vger.kernel.org, linux-api@vger.kernel.org,
+        Arnd Bergmann <arnd@arndb.de>,
+        Andy Lutomirski <luto@kernel.org>,
+        Balbir Singh <bsingharora@gmail.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Cyrill Gorcunov <gorcunov@gmail.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Eugene Syromiatnikov <esyr@redhat.com>,
+        Florian Weimer <fweimer@redhat.com>,
+        "H . J . Lu" <hjl.tools@gmail.com>, Jann Horn <jannh@google.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Kees Cook <keescook@chromium.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        Oleg Nesterov <oleg@redhat.com>, Pavel Machek <pavel@ucw.cz>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Weijiang Yang <weijiang.yang@intel.com>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+        John Allen <john.allen@amd.com>, kcc@google.com,
+        eranian@google.com, rppt@kernel.org, jamorris@linux.microsoft.com,
+        dethoma@microsoft.com, akpm@linux-foundation.org,
+        Andrew.Cooper3@citrix.com, christina.schimpe@intel.com,
+        debug@rivosinc.com, szabolcs.nagy@arm.com,
+        torvalds@linux-foundation.org, broonie@kernel.org
+Cc:     linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+        Michal Simek <monstr@monstr.eu>,
+        Dinh Nguyen <dinguyen@kernel.org>, linux-mips@vger.kernel.org,
+        openrisc@lists.librecores.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+        Linus Torvalds <torvalds@linuxfoundation.org>
+References: <20230613001108.3040476-1-rick.p.edgecombe@intel.com>
+ <20230613001108.3040476-2-rick.p.edgecombe@intel.com>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+In-Reply-To: <20230613001108.3040476-2-rick.p.edgecombe@intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This patch prevents the system from crashing when unloading the ISM module.
+On 13.06.23 02:10, Rick Edgecombe wrote:
+> The x86 Shadow stack feature includes a new type of memory called shadow
+> stack. This shadow stack memory has some unusual properties, which requires
+> some core mm changes to function properly.
+> 
+> One of these unusual properties is that shadow stack memory is writable,
+> but only in limited ways. These limits are applied via a specific PTE
+> bit combination. Nevertheless, the memory is writable, and core mm code
+> will need to apply the writable permissions in the typical paths that
+> call pte_mkwrite(). Future patches will make pte_mkwrite() take a VMA, so
+> that the x86 implementation of it can know whether to create regular
+> writable memory or shadow stack memory.
+> 
+> But there are a couple of challenges to this. Modifying the signatures of
+> each arch pte_mkwrite() implementation would be error prone because some
+> are generated with macros and would need to be re-implemented. Also, some
+> pte_mkwrite() callers operate on kernel memory without a VMA.
+> 
+> So this can be done in a three step process. First pte_mkwrite() can be
+> renamed to pte_mkwrite_novma() in each arch, with a generic pte_mkwrite()
+> added that just calls pte_mkwrite_novma(). Next callers without a VMA can
+> be moved to pte_mkwrite_novma(). And lastly, pte_mkwrite() and all callers
+> can be changed to take/pass a VMA.
+> 
+> Start the process by renaming pte_mkwrite() to pte_mkwrite_novma() and
+> adding the pte_mkwrite() wrapper in linux/pgtable.h. Apply the same
+> pattern for pmd_mkwrite(). Since not all archs have a pmd_mkwrite_novma(),
+> create a new arch config HAS_HUGE_PAGE that can be used to tell if
+> pmd_mkwrite() should be defined. Otherwise in the !HAS_HUGE_PAGE cases the
+> compiler would not be able to find pmd_mkwrite_novma().
+> 
+> No functional change.
+> 
+> Cc: linux-doc@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> Cc: linux-alpha@vger.kernel.org
+> Cc: linux-snps-arc@lists.infradead.org
+> Cc: linux-arm-kernel@lists.infradead.org
+> Cc: linux-csky@vger.kernel.org
+> Cc: linux-hexagon@vger.kernel.org
+> Cc: linux-ia64@vger.kernel.org
+> Cc: loongarch@lists.linux.dev
+> Cc: linux-m68k@lists.linux-m68k.org
+> Cc: Michal Simek <monstr@monstr.eu>
+> Cc: Dinh Nguyen <dinguyen@kernel.org>
+> Cc: linux-mips@vger.kernel.org
+> Cc: openrisc@lists.librecores.org
+> Cc: linux-parisc@vger.kernel.org
+> Cc: linuxppc-dev@lists.ozlabs.org
+> Cc: linux-riscv@lists.infradead.org
+> Cc: linux-s390@vger.kernel.org
+> Cc: linux-sh@vger.kernel.org
+> Cc: sparclinux@vger.kernel.org
+> Cc: linux-um@lists.infradead.org
+> Cc: linux-arch@vger.kernel.org
+> Cc: linux-mm@kvack.org
+> Suggested-by: Linus Torvalds <torvalds@linuxfoundation.org>
+> Signed-off-by: Rick Edgecombe <rick.p.edgecombe@intel.com>
+> Link: https://lore.kernel.org/lkml/CAHk-=wiZjSu7c9sFYZb3q04108stgHff2wfbokGCCgW7riz+8Q@mail.gmail.com/
+> ---
+> Hi Non-x86 Arch’s,
+> 
+> x86 has a feature that allows for the creation of a special type of
+> writable memory (shadow stack) that is only writable in limited specific
+> ways. Previously, changes were proposed to core MM code to teach it to
+> decide when to create normally writable memory or the special shadow stack
+> writable memory, but David Hildenbrand suggested[0] to change
+> pXX_mkwrite() to take a VMA, so awareness of shadow stack memory can be
+> moved into x86 code. Later Linus suggested a less error-prone way[1] to go
+> about this after the first attempt had a bug.
+> 
+> Since pXX_mkwrite() is defined in every arch, it requires some tree-wide
+> changes. So that is why you are seeing some patches out of a big x86
+> series pop up in your arch mailing list. There is no functional change.
+> After this refactor, the shadow stack series goes on to use the arch
+> helpers to push arch memory details inside arch/x86 and other arch's
+> with upcoming shadow stack features.
+> 
+> Testing was just 0-day build testing.
+> 
+> Hopefully that is enough context. Thanks!
+> 
+> [0] https://lore.kernel.org/lkml/0e29a2d0-08d8-bcd6-ff26-4bea0e4037b0@redhat.com/
+> [1] https://lore.kernel.org/lkml/CAHk-=wiZjSu7c9sFYZb3q04108stgHff2wfbokGCCgW7riz+8Q@mail.gmail.com/
+> ---
 
-How to reproduce: Attach an ISM device and execute 'rmmod ism'.
+Acked-by: David Hildenbrand <david@redhat.com>
 
-Error-Log:
-- Trying to free already-free IRQ 0
-- WARNING: CPU: 1 PID: 966 at kernel/irq/manage.c:1890 free_irq+0x140/0x540
-
-After calling ism_dev_exit() for each ISM device in the exit routine,
-pci_unregister_driver() will execute ism_remove() for each ISM device.
-Because ism_remove() also calls ism_dev_exit(),
-free_irq(pci_irq_vector(pdev, 0), ism) is called twice for each ISM
-device. This results in a crash with the error
-'Trying to free already-free IRQ'.
-
-In the exit routine, it is enough to call pci_unregister_driver()
-because it ensures that ism_dev_exit() is called once per
-ISM device.
-
-Cc: <stable@vger.kernel.org> # 6.3+
-Fixes: 89e7d2ba61b7 ("net/ism: Add new API for client registration")
-Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Signed-off-by: Julian Ruess <julianr@linux.ibm.com>
----
- drivers/s390/net/ism_drv.c | 8 --------
- 1 file changed, 8 deletions(-)
-
-diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
-index 8acb9eba691b..c2096e4bba31 100644
---- a/drivers/s390/net/ism_drv.c
-+++ b/drivers/s390/net/ism_drv.c
-@@ -771,14 +771,6 @@ static int __init ism_init(void)
- 
- static void __exit ism_exit(void)
- {
--	struct ism_dev *ism;
--
--	mutex_lock(&ism_dev_list.mutex);
--	list_for_each_entry(ism, &ism_dev_list.list, list) {
--		ism_dev_exit(ism);
--	}
--	mutex_unlock(&ism_dev_list.mutex);
--
- 	pci_unregister_driver(&ism_driver);
- 	debug_unregister(ism_debug_info);
- }
-
----
-base-commit: 858fd168a95c5b9669aac8db6c14a9aeab446375
-change-id: 20230613-ism-rmmod-crash-d4f34223a683
-
-Best regards,
 -- 
-Julian Ruess <julianr@linux.ibm.com>
+Cheers,
+
+David / dhildenb
 
