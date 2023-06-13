@@ -2,117 +2,156 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EC9E3C3DA41
-	for <linux-s390@archiver.kernel.org>; Tue, 13 Jun 2023 18:56:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 06B4EEB64D7
+	for <linux-s390@archiver.kernel.org>; Tue, 13 Jun 2023 20:12:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239517AbjFMS41 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 13 Jun 2023 14:56:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46178 "EHLO
+        id S234318AbjFMUM2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 13 Jun 2023 16:12:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232969AbjFMS40 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 13 Jun 2023 14:56:26 -0400
-Received: from out-51.mta1.migadu.com (out-51.mta1.migadu.com [95.215.58.51])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D623E4
-        for <linux-s390@vger.kernel.org>; Tue, 13 Jun 2023 11:56:24 -0700 (PDT)
-Date:   Tue, 13 Jun 2023 14:56:14 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-        t=1686682581;
+        with ESMTP id S240499AbjFMUMH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 13 Jun 2023 16:12:07 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC00A268A
+        for <linux-s390@vger.kernel.org>; Tue, 13 Jun 2023 13:10:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1686687054;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=cI/+VKexODe7tgazUH0uBbszHN+Sh5VjQJKMcYicSKU=;
-        b=UteSpuaAfbQ2NCJDHT0DaE6LH+0KCxqxliA1u1CiHpYLEp/BHx0yHT4z2wyOm1k0K155IH
-        1TdtqXMsJtk9bqAzUZ31aQXTksL2s2n1Q4RGfHebraQUDr3MhWO8yy+4wsaox2mGxQ3YRe
-        XgmITo5ci4OCni1zywcC85bIuHv1vdI=
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From:   Kent Overstreet <kent.overstreet@linux.dev>
-To:     Mike Rapoport <rppt@kernel.org>
-Cc:     Song Liu <song@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
-        linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Helge Deller <deller@gmx.de>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will@kernel.org>, bpf@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-        linux-mm@kvack.org, linux-modules@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
-        netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
-Subject: Re: [PATCH 00/13] mm: jit/text allocator
-Message-ID: <ZIi7zmey0w61EG25@moria.home.lan>
-References: <20230601101257.530867-1-rppt@kernel.org>
- <ZHjDU/mxE+cugpLj@FVFF77S0Q05N.cambridge.arm.com>
- <ZHjgIH3aX9dCvVZc@moria.home.lan>
- <ZHm3zUUbwqlsZBBF@FVFF77S0Q05N>
- <20230605092040.GB3460@kernel.org>
- <ZH20XkD74prrdN4u@FVFF77S0Q05N>
- <CAPhsuW7ntn_HpVWdGK_hYVd3zsPEFToBNfmtt0m6K8SwfxJ66Q@mail.gmail.com>
- <20230608184116.GJ52412@kernel.org>
+        bh=sIOI1MZa8Qvt3GA5tgX3/QbGmFAGID2zKyAE50cAXvQ=;
+        b=U4vA+yORQYVRtg4xl0VH6TlsxQeCHG2C7ohtN99hKPGlUdhsRPbp8k/8OrswTHYkermX3Y
+        r/O4rZ7hYnK9H9EzJ+vMvbXtaS3TV0A4i/3XTbZNxWovIDpu7+KXkkeUpjSb9sizTc9fpr
+        FLM+2EH/j24yVr6zpzj0vcjaDTgAbMc=
+Received: from mail-io1-f69.google.com (mail-io1-f69.google.com
+ [209.85.166.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-98-jo_D8VNbOEK6LQYxr62XVg-1; Tue, 13 Jun 2023 16:10:53 -0400
+X-MC-Unique: jo_D8VNbOEK6LQYxr62XVg-1
+Received: by mail-io1-f69.google.com with SMTP id ca18e2360f4ac-77ad94642d4so709730139f.1
+        for <linux-s390@vger.kernel.org>; Tue, 13 Jun 2023 13:10:53 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1686687052; x=1689279052;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=sIOI1MZa8Qvt3GA5tgX3/QbGmFAGID2zKyAE50cAXvQ=;
+        b=OagH2d8tyGpu/cotcQ8+Xfl4zBWBOS/egR3eV1O1m0PcajeOw9YJJ9x7Dhu45Gzcvq
+         ICHHjijxMeDH/XYXA4+DE9RdyTRFGiGFqRKjLqM8zq9ZnnOb+7bCmvl2RbFgtuzob97p
+         RS0ET71v2t5+5snbYPqk3HR7BTJ1EtOxoQBsHZugXJunetm1ey0Zf62Um9eR8YBsyZOz
+         zrx13qbLbSB3kZ9CXIaG5lrG5Ud+pevL/Wfpso22/2q7Aee9WUgcgaGQ7qfLWpN4dj+m
+         J5g0GYtbjE9z0hXtsE7k7UCv2/wDRGvhCzqqUZt/qnanOlYiyJORZeuLYALBZqdiABXj
+         lMOw==
+X-Gm-Message-State: AC+VfDz45DqTfu2wavOs8loOp4YzPFMiychPgCzV/dHXQdqYRAzVwzsk
+        5pyXinkhMbOjfx8KnF8J9Y5HwNVz3bzYYzNKRU7/F+CYCDjUSLwDClXUOHy4S8OUdgBgXa8rmQr
+        oMOo1W85A+Q6V3gf/SOib2A==
+X-Received: by 2002:a5d:9d4e:0:b0:753:ca30:6bb0 with SMTP id k14-20020a5d9d4e000000b00753ca306bb0mr12540447iok.4.1686687052513;
+        Tue, 13 Jun 2023 13:10:52 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ4DNZHxVZbAxwbazA89i6boaoAMcqTbpYJSYBiB4fBVRBnBcDqPvcZYm0qsZ2hQJsBCtxR5uA==
+X-Received: by 2002:a5d:9d4e:0:b0:753:ca30:6bb0 with SMTP id k14-20020a5d9d4e000000b00753ca306bb0mr12540429iok.4.1686687052264;
+        Tue, 13 Jun 2023 13:10:52 -0700 (PDT)
+Received: from redhat.com ([38.15.36.239])
+        by smtp.gmail.com with ESMTPSA id f13-20020a6bdd0d000000b0076c569c7a48sm3955848ioc.39.2023.06.13.13.10.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 13 Jun 2023 13:10:51 -0700 (PDT)
+Date:   Tue, 13 Jun 2023 14:10:50 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     "Liu, Yi L" <yi.l.liu@intel.com>,
+        "Tian, Kevin" <kevin.tian@intel.com>,
+        "joro@8bytes.org" <joro@8bytes.org>,
+        "robin.murphy@arm.com" <robin.murphy@arm.com>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "eric.auger@redhat.com" <eric.auger@redhat.com>,
+        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
+        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
+        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
+        "peterx@redhat.com" <peterx@redhat.com>,
+        "jasowang@redhat.com" <jasowang@redhat.com>,
+        "shameerali.kolothum.thodi@huawei.com" 
+        <shameerali.kolothum.thodi@huawei.com>,
+        "lulu@redhat.com" <lulu@redhat.com>,
+        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
+        "intel-gvt-dev@lists.freedesktop.org" 
+        <intel-gvt-dev@lists.freedesktop.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "Hao, Xudong" <xudong.hao@intel.com>,
+        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
+        "Xu, Terrence" <terrence.xu@intel.com>,
+        "Jiang, Yanting" <yanting.jiang@intel.com>,
+        "Duan, Zhenzhong" <zhenzhong.duan@intel.com>,
+        "clegoate@redhat.com" <clegoate@redhat.com>
+Subject: Re: [PATCH v12 21/24] vfio: Determine noiommu device in
+ __vfio_register_dev()
+Message-ID: <20230613141050.29e7a22b.alex.williamson@redhat.com>
+In-Reply-To: <ZIiozfqet185iLIs@nvidia.com>
+References: <20230602121653.80017-1-yi.l.liu@intel.com>
+        <20230602121653.80017-22-yi.l.liu@intel.com>
+        <20230612164228.65b500e0.alex.williamson@redhat.com>
+        <DS0PR11MB7529AE3701E154BF4C092E57C355A@DS0PR11MB7529.namprd11.prod.outlook.com>
+        <20230613081913.279dea9e.alex.williamson@redhat.com>
+        <DS0PR11MB7529EB2903151B3399F636F5C355A@DS0PR11MB7529.namprd11.prod.outlook.com>
+        <20230613084828.7af51055.alex.williamson@redhat.com>
+        <DS0PR11MB7529E84BCB100DE620FD2468C355A@DS0PR11MB7529.namprd11.prod.outlook.com>
+        <20230613091301.56986440.alex.williamson@redhat.com>
+        <20230613111511.425bdeae.alex.williamson@redhat.com>
+        <ZIiozfqet185iLIs@nvidia.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20230608184116.GJ52412@kernel.org>
-X-Migadu-Flow: FLOW_OUT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jun 08, 2023 at 09:41:16PM +0300, Mike Rapoport wrote:
-> On Tue, Jun 06, 2023 at 11:21:59AM -0700, Song Liu wrote:
-> > On Mon, Jun 5, 2023 at 3:09 AM Mark Rutland <mark.rutland@arm.com> wrote:
-> > 
-> > [...]
-> > 
-> > > > > > Can you give more detail on what parameters you need? If the only extra
-> > > > > > parameter is just "does this allocation need to live close to kernel
-> > > > > > text", that's not that big of a deal.
-> > > > >
-> > > > > My thinking was that we at least need the start + end for each caller. That
-> > > > > might be it, tbh.
-> > > >
-> > > > Do you mean that modules will have something like
-> > > >
-> > > >       jit_text_alloc(size, MODULES_START, MODULES_END);
-> > > >
-> > > > and kprobes will have
-> > > >
-> > > >       jit_text_alloc(size, KPROBES_START, KPROBES_END);
-> > > > ?
-> > >
-> > > Yes.
-> > 
-> > How about we start with two APIs:
-> >      jit_text_alloc(size);
-> >      jit_text_alloc_range(size, start, end);
-> > 
-> > AFAICT, arm64 is the only arch that requires the latter API. And TBH, I am
-> > not quite convinced it is needed.
->  
-> Right now arm64 and riscv override bpf and kprobes allocations to use the
-> entire vmalloc address space, but having the ability to allocate generated
-> code outside of modules area may be useful for other architectures.
-> 
-> Still the start + end for the callers feels backwards to me because the
-> callers do not define the ranges, but rather the architectures, so we still
-> need a way for architectures to define how they want allocate memory for
-> the generated code.
+On Tue, 13 Jun 2023 14:35:09 -0300
+Jason Gunthorpe <jgg@nvidia.com> wrote:
 
-So, the start + end just comes from the need to keep relative pointers
-under a certain size. I think this could be just a flag, I see no reason
-to expose actual addresses here.
+> On Tue, Jun 13, 2023 at 11:15:11AM -0600, Alex Williamson wrote:
+> > [Sorry for breaking threading, replying to my own message id with reply
+> >  content from Yi since the Cc list got broken]  
+> 
+> Yikes it is really busted, I think I fixed it?
+> 
+> > If we renamed your function above to vfio_device_has_iommu_group(),
+> > couldn't we just wrap device_add like below instead to not have cdev
+> > setup for a noiommu device, generate an error for a physical device w/o
+> > IOMMU backing, and otherwise setup the cdev device?
+> > 
+> > static inline int vfio_device_add(struct vfio_device *device, enum vfio_group_type type)
+> > {
+> > #if IS_ENABLED(CONFIG_VFIO_GROUP)
+> > 	if (device->group->type == VFIO_NO_IOMMU)
+> > 		return device_add(&device->device);  
+> 
+> vfio_device_is_noiommu() embeds the IS_ENABLED
+
+But patch 23/ makes the definition of struct vfio_group conditional on
+CONFIG_VFIO_GROUP, so while CONFIG_VFIO_NOIOMMU depends on
+CONFIG_VFIO_GROUP and the result could be determined, I think the
+compiler is still unhappy about the undefined reference.  We'd need a
+!CONFIG_VFIO_GROUP stub for the function.
+
+> > #else
+> > 	if (type == VFIO_IOMMU && !vfio_device_has_iommu_group(device))
+> > 		return -EINVAL;
+> > #endif  
+> 
+> The require test is this from the group code:
+> 
+>  	if (!device_iommu_capable(dev, IOMMU_CAP_CACHE_COHERENCY)) {
+> 
+> We could lift it out of the group code and call it from vfio_main.c like:
+> 
+> if (type == VFIO_IOMMU && !vfio_device_is_noiommu(vdev) && !device_iommu_capable(dev,
+>      IOMMU_CAP_CACHE_COHERENCY))
+>    FAIL
+
+Ack.  Thanks,
+
+Alex
+
