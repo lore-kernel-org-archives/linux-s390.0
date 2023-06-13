@@ -2,90 +2,133 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5BF28EB64D7
-	for <linux-s390@archiver.kernel.org>; Tue, 13 Jun 2023 20:30:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 97A4FEB64DB
+	for <linux-s390@archiver.kernel.org>; Tue, 13 Jun 2023 21:10:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233069AbjFMUag (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 13 Jun 2023 16:30:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39260 "EHLO
+        id S231499AbjFMVKt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 13 Jun 2023 17:10:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231946AbjFMUaf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 13 Jun 2023 16:30:35 -0400
-Received: from smtp.smtpout.orange.fr (smtp-14.smtpout.orange.fr [80.12.242.14])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7DDF92
-        for <linux-s390@vger.kernel.org>; Tue, 13 Jun 2023 13:30:33 -0700 (PDT)
-Received: from pop-os.home ([86.243.2.178])
-        by smtp.orange.fr with ESMTPA
-        id 9AerqraEQonlZ9Aerq7ZeS; Tue, 13 Jun 2023 22:30:31 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=wanadoo.fr;
-        s=t20230301; t=1686688231;
-        bh=gWx9lNWZs+VxigmD+IrP8JxF8ho5EBghnkwdwYGkl54=;
-        h=From:To:Cc:Subject:Date;
-        b=UC+22lxX0DOrviCCQcjxhM7OOu7QPNPXEZWdw363cJ/ooNvnlqq4QRmir2o8DCaM9
-         d1H6AhbBRhZN0inpeqmFy+E8zMrUwDwKm2BagID2B0fTywz9jOlhB0HzJ75RMh6gx2
-         LBs1ezgO25PKQzyo31mtp0wqGdbiaNQxKmwn1A3us4E6ZV2V7B2QiAYkSKyhMpABV6
-         ijQfljeLEOmI7ZM4AGYeeKYN5PD65eLjjY/CAbAuq5Bn/ySPftmZQwjrGDFlS8gFbL
-         Nt/oLacGbpS6l6rNV+mSFV/8q0Y3n37XAd1U04unVn2mul/37yJxjVqF+mpRtF5ezH
-         V140+EjLYbtNg==
-X-ME-Helo: pop-os.home
-X-ME-Auth: Y2hyaXN0b3BoZS5qYWlsbGV0QHdhbmFkb28uZnI=
-X-ME-Date: Tue, 13 Jun 2023 22:30:31 +0200
-X-ME-IP: 86.243.2.178
-From:   Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-To:     Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        Philipp Rudo <prudo@linux.ibm.com>,
-        Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Cc:     linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        linux-s390@vger.kernel.org
-Subject: [PATCH] s390/crash: Use the correct type for memory allocation
-Date:   Tue, 13 Jun 2023 22:30:28 +0200
-Message-Id: <0756118c9058338f3040edb91971d0bfd100027b.1686688212.git.christophe.jaillet@wanadoo.fr>
-X-Mailer: git-send-email 2.34.1
+        with ESMTP id S239627AbjFMVJm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 13 Jun 2023 17:09:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 623131BC6;
+        Tue, 13 Jun 2023 14:09:41 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 42CA961864;
+        Tue, 13 Jun 2023 21:09:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1CA2C433C0;
+        Tue, 13 Jun 2023 21:09:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1686690580;
+        bh=CnDPIeLogwBWCfXwDFCGYSnn6freMhcPiMKmnauZmK8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=ZwHrH/UtQy5gtJuV6CZdRxLuHzTaAkiUGIx/JgEU65AMLsBIKZ0sWdlw1vTEQYgdy
+         gSLYt19YIoeRBe5zYzLlgTuRTMMo3kgRmlRYZUwN9+y0DX2gj67q8Dp8pJtQUo0gHp
+         Oy60KuQPQMSSexOGqUQrMmT3Fgb1GBewXzaMMxDEmcoyUN9bNnKzEk/bEsVagentbs
+         IrjokONRoY0TE+yzqvQqq0avTQyKOfbb7gZycLtP7znx6sVR7tnvKBFHLqFKSVwEs2
+         kIA6GPsL9JTaWmKMWc1Wdyo1oerK/huG9zsVu6RfIYfLEAg8ULTJ9IL3DRtm5ddTXF
+         JrMlJp241w1cA==
+Date:   Wed, 14 Jun 2023 00:09:00 +0300
+From:   Mike Rapoport <rppt@kernel.org>
+To:     Kent Overstreet <kent.overstreet@linux.dev>
+Cc:     Song Liu <song@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+        linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Helge Deller <deller@gmx.de>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will@kernel.org>, bpf@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+        linux-mm@kvack.org, linux-modules@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+        netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
+Subject: Re: [PATCH 00/13] mm: jit/text allocator
+Message-ID: <20230613210900.GV52412@kernel.org>
+References: <20230601101257.530867-1-rppt@kernel.org>
+ <ZHjDU/mxE+cugpLj@FVFF77S0Q05N.cambridge.arm.com>
+ <ZHjgIH3aX9dCvVZc@moria.home.lan>
+ <ZHm3zUUbwqlsZBBF@FVFF77S0Q05N>
+ <20230605092040.GB3460@kernel.org>
+ <ZH20XkD74prrdN4u@FVFF77S0Q05N>
+ <CAPhsuW7ntn_HpVWdGK_hYVd3zsPEFToBNfmtt0m6K8SwfxJ66Q@mail.gmail.com>
+ <20230608184116.GJ52412@kernel.org>
+ <ZIi7zmey0w61EG25@moria.home.lan>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <ZIi7zmey0w61EG25@moria.home.lan>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-get_elfcorehdr_size() returns a size_t, so there is no real point to
-store it in a u32.
+On Tue, Jun 13, 2023 at 02:56:14PM -0400, Kent Overstreet wrote:
+> On Thu, Jun 08, 2023 at 09:41:16PM +0300, Mike Rapoport wrote:
+> > On Tue, Jun 06, 2023 at 11:21:59AM -0700, Song Liu wrote:
+> > > On Mon, Jun 5, 2023 at 3:09 AM Mark Rutland <mark.rutland@arm.com> wrote:
+> > > 
+> > > [...]
+> > > 
+> > > > > > > Can you give more detail on what parameters you need? If the only extra
+> > > > > > > parameter is just "does this allocation need to live close to kernel
+> > > > > > > text", that's not that big of a deal.
+> > > > > >
+> > > > > > My thinking was that we at least need the start + end for each caller. That
+> > > > > > might be it, tbh.
+> > > > >
+> > > > > Do you mean that modules will have something like
+> > > > >
+> > > > >       jit_text_alloc(size, MODULES_START, MODULES_END);
+> > > > >
+> > > > > and kprobes will have
+> > > > >
+> > > > >       jit_text_alloc(size, KPROBES_START, KPROBES_END);
+> > > > > ?
+> > > >
+> > > > Yes.
+> > > 
+> > > How about we start with two APIs:
+> > >      jit_text_alloc(size);
+> > >      jit_text_alloc_range(size, start, end);
+> > > 
+> > > AFAICT, arm64 is the only arch that requires the latter API. And TBH, I am
+> > > not quite convinced it is needed.
+> >  
+> > Right now arm64 and riscv override bpf and kprobes allocations to use the
+> > entire vmalloc address space, but having the ability to allocate generated
+> > code outside of modules area may be useful for other architectures.
+> > 
+> > Still the start + end for the callers feels backwards to me because the
+> > callers do not define the ranges, but rather the architectures, so we still
+> > need a way for architectures to define how they want allocate memory for
+> > the generated code.
+> 
+> So, the start + end just comes from the need to keep relative pointers
+> under a certain size. I think this could be just a flag, I see no reason
+> to expose actual addresses here.
 
-Turn 'alloc_size' into a size_t.
+It's the other way around. The start + end comes from the need to restrict
+allocation to certain range because of the relative addressing. I don't see
+how a flag can help here.
 
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
----
-Not sure if 'alloc_size' can overflow in real life application, but using
-the correct type looks harmless.
-
-Should it be a real fix, either:
-Fixes: 8cce437fbb5c ("s390/kdump: Fix elfcorehdr size calculation")
-or
-Fixes: 60a0c68df263 ("[S390] kdump backend code")
----
- arch/s390/kernel/crash_dump.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/s390/kernel/crash_dump.c b/arch/s390/kernel/crash_dump.c
-index 8a617be28bb4..7af69948b290 100644
---- a/arch/s390/kernel/crash_dump.c
-+++ b/arch/s390/kernel/crash_dump.c
-@@ -568,9 +568,9 @@ static size_t get_elfcorehdr_size(int mem_chunk_cnt)
- int elfcorehdr_alloc(unsigned long long *addr, unsigned long long *size)
- {
- 	Elf64_Phdr *phdr_notes, *phdr_loads;
-+	size_t alloc_size;
- 	int mem_chunk_cnt;
- 	void *ptr, *hdr;
--	u32 alloc_size;
- 	u64 hdr_off;
- 
- 	/* If we are not in kdump or zfcp/nvme dump mode return */
 -- 
-2.34.1
-
+Sincerely yours,
+Mike.
