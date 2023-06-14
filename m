@@ -2,127 +2,182 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EA034EB64D8
-	for <linux-s390@archiver.kernel.org>; Wed, 14 Jun 2023 14:03:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C7C28C001DC
+	for <linux-s390@archiver.kernel.org>; Wed, 14 Jun 2023 14:11:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245327AbjFNODW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 14 Jun 2023 10:03:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35028 "EHLO
+        id S245430AbjFNOLc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 14 Jun 2023 10:11:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236460AbjFNODV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 14 Jun 2023 10:03:21 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1069A11B;
-        Wed, 14 Jun 2023 07:03:19 -0700 (PDT)
-Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 35EDl23P024367;
-        Wed, 14 Jun 2023 14:03:19 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=OnsMMHXkvX8tGPGJ7tBI0Qgi9uEaNmsJ+nUopfNucjs=;
- b=ieRAbxmco0mUYWcwfA8nJqrppnPTPWfJsI1XHQaPFQJpWvlp1JcrqeYuj9M78fngWOGk
- tsTKsDicL55FdG+CYiS60eNYYHhWZPaQI+UF7YKL8DWxpMOp7bpzNncKzA/PzPUnsMFH
- bbRLQYEWhsrBFa9RQYDcCy1xhJ2QJ5CyX2Pa0EwkkjcYbDEC7AqtA8rNgRb4QLjcqrGg
- JjXtV5nGUpInCuMBL9kgDrFmABsSnAOyLxZvFa3C/x4p79y/shv2eJ0me/wPvCONjq8w
- P/clDwSYbBm/bGM5T7kP6rFk+JzEACZM1wGVeFU7DNMNvghRrursIrUc0aHbS0VcUTm4 Ww== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3r7er2rgy7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 14 Jun 2023 14:03:19 +0000
-Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 35EDnDWx000646;
-        Wed, 14 Jun 2023 14:03:18 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3r7er2rgx9-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 14 Jun 2023 14:03:18 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 35E75l3W018586;
-        Wed, 14 Jun 2023 14:03:16 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-        by ppma03fra.de.ibm.com (PPS) with ESMTPS id 3r4gt525re-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 14 Jun 2023 14:03:16 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 35EE3BI215794882
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 14 Jun 2023 14:03:12 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D531720043;
-        Wed, 14 Jun 2023 14:03:11 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 69D9F2004B;
-        Wed, 14 Jun 2023 14:03:11 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.155.204.135])
-        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Wed, 14 Jun 2023 14:03:11 +0000 (GMT)
-Date:   Wed, 14 Jun 2023 16:03:10 +0200
-From:   Alexander Gordeev <agordeev@linux.ibm.com>
-To:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        Philipp Rudo <prudo@linux.ibm.com>,
-        Michael Holzheu <holzheu@linux.vnet.ibm.com>,
-        linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH] s390/crash: Use the correct type for memory allocation
-Message-ID: <ZInInjGr6rufpC7u@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-References: <0756118c9058338f3040edb91971d0bfd100027b.1686688212.git.christophe.jaillet@wanadoo.fr>
+        with ESMTP id S236777AbjFNOLa (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 14 Jun 2023 10:11:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2CD3CD;
+        Wed, 14 Jun 2023 07:11:27 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 775AA642A3;
+        Wed, 14 Jun 2023 14:11:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10F7AC433C0;
+        Wed, 14 Jun 2023 14:11:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1686751886;
+        bh=nq3f91/c6VdnG05wknAO7CzsIzeIwd55LMS9xhs7vLc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=ZhJtlj5I8piICZIev7qvB69N2MRkFrUNmM4AY9KOSxdltgl+qcVmK0w/AhUDKOYUE
+         C0naLvwDyTJX3vMjNC8e9+i7bgqJP3nnR+cfRN/EKtI25YOH2TSwU36LZazWsweF02
+         YGMNzwODmUGT8dkPREzGod/+rUbK65tLM4QfOSq3fgVX2NpImfyc5X1iBcneHw7wgS
+         aWE67OFlHHdjdwxPMfJUf27XkhoC98XnYJ++XQkAMrKDt/blZeMPDlGxeoaoTED8QE
+         EqDj0B92olx0FPba9u2ztMQCZcN18316sOzneqJzKqI8FGzRdybM2tuA29sFD9tYUy
+         7yV6zVzN7CwRA==
+Date:   Wed, 14 Jun 2023 17:10:49 +0300
+From:   Mike Rapoport <rppt@kernel.org>
+To:     "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org,
+        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+        xen-devel@lists.xenproject.org, kvm@vger.kernel.org,
+        Hugh Dickins <hughd@google.com>
+Subject: Re: [PATCH v4 13/34] mm: Create ptdesc equivalents for
+ pgtable_{pte,pmd}_page_{ctor,dtor}
+Message-ID: <20230614141049.GL52412@kernel.org>
+References: <20230612210423.18611-1-vishal.moola@gmail.com>
+ <20230612210423.18611-14-vishal.moola@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <0756118c9058338f3040edb91971d0bfd100027b.1686688212.git.christophe.jaillet@wanadoo.fr>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: q5ZpC26Pi0OavYJIFNQPjMjBps9eyRuQ
-X-Proofpoint-ORIG-GUID: 4GofJmK3YyjIn6Y2zsBtgP0JP9dQgLxA
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
- definitions=2023-06-14_09,2023-06-14_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
- lowpriorityscore=0 malwarescore=0 suspectscore=0 bulkscore=0
- priorityscore=1501 mlxlogscore=999 adultscore=0 phishscore=0 spamscore=0
- clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2305260000 definitions=main-2306140118
+In-Reply-To: <20230612210423.18611-14-vishal.moola@gmail.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jun 13, 2023 at 10:30:28PM +0200, Christophe JAILLET wrote:
-> get_elfcorehdr_size() returns a size_t, so there is no real point to
-> store it in a u32.
-> 
-> Turn 'alloc_size' into a size_t.
-> 
-> Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-> ---
-> Not sure if 'alloc_size' can overflow in real life application, but using
-> the correct type looks harmless.
-> 
-> Should it be a real fix, either:
-> Fixes: 8cce437fbb5c ("s390/kdump: Fix elfcorehdr size calculation")
-> or
-> Fixes: 60a0c68df263 ("[S390] kdump backend code")
-> ---
->  arch/s390/kernel/crash_dump.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/arch/s390/kernel/crash_dump.c b/arch/s390/kernel/crash_dump.c
-> index 8a617be28bb4..7af69948b290 100644
-> --- a/arch/s390/kernel/crash_dump.c
-> +++ b/arch/s390/kernel/crash_dump.c
-> @@ -568,9 +568,9 @@ static size_t get_elfcorehdr_size(int mem_chunk_cnt)
->  int elfcorehdr_alloc(unsigned long long *addr, unsigned long long *size)
->  {
->  	Elf64_Phdr *phdr_notes, *phdr_loads;
-> +	size_t alloc_size;
->  	int mem_chunk_cnt;
->  	void *ptr, *hdr;
-> -	u32 alloc_size;
->  	u64 hdr_off;
->  
->  	/* If we are not in kdump or zfcp/nvme dump mode return */
+On Mon, Jun 12, 2023 at 02:04:02PM -0700, Vishal Moola (Oracle) wrote:
+> Creates pagetable_pte_ctor(), pagetable_pmd_ctor(), pagetable_pte_dtor(),
+> and pagetable_pmd_dtor() and make the original pgtable
+> constructor/destructors wrappers.
 
-Applied, thanks!
+Nit: either "creates ... makes" or "create ... make"
+I like the second form more.
+ 
+> Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
+
+Acked-by: Mike Rapoport (IBM) <rppt@kernel.org>
+
+> ---
+>  include/linux/mm.h | 56 ++++++++++++++++++++++++++++++++++------------
+>  1 file changed, 42 insertions(+), 14 deletions(-)
+> 
+> diff --git a/include/linux/mm.h b/include/linux/mm.h
+> index a1af7983e1bd..dc211c43610b 100644
+> --- a/include/linux/mm.h
+> +++ b/include/linux/mm.h
+> @@ -2886,20 +2886,34 @@ static inline bool ptlock_init(struct ptdesc *ptdesc) { return true; }
+>  static inline void ptlock_free(struct ptdesc *ptdesc) {}
+>  #endif /* USE_SPLIT_PTE_PTLOCKS */
+>  
+> -static inline bool pgtable_pte_page_ctor(struct page *page)
+> +static inline bool pagetable_pte_ctor(struct ptdesc *ptdesc)
+>  {
+> -	if (!ptlock_init(page_ptdesc(page)))
+> +	struct folio *folio = ptdesc_folio(ptdesc);
+> +
+> +	if (!ptlock_init(ptdesc))
+>  		return false;
+> -	__SetPageTable(page);
+> -	inc_lruvec_page_state(page, NR_PAGETABLE);
+> +	__folio_set_table(folio);
+
+This comment is more to patch 1 ("mm: Add PAGE_TYPE_OP folio functions")
+
+It would be better to have _pgtable here, as "table" does not necessary
+mean page table.
+With PageType SetPageTable was fine, but with folio I think it should be
+more explicit.
+
+I'd add a third parameter to PAGE_TYPE_OPS for that.
+
+> +	lruvec_stat_add_folio(folio, NR_PAGETABLE);
+>  	return true;
+>  }
+>  
+> +static inline bool pgtable_pte_page_ctor(struct page *page)
+> +{
+> +	return pagetable_pte_ctor(page_ptdesc(page));
+> +}
+> +
+> +static inline void pagetable_pte_dtor(struct ptdesc *ptdesc)
+> +{
+> +	struct folio *folio = ptdesc_folio(ptdesc);
+> +
+> +	ptlock_free(ptdesc);
+> +	__folio_clear_table(folio);
+> +	lruvec_stat_sub_folio(folio, NR_PAGETABLE);
+> +}
+> +
+>  static inline void pgtable_pte_page_dtor(struct page *page)
+>  {
+> -	ptlock_free(page_ptdesc(page));
+> -	__ClearPageTable(page);
+> -	dec_lruvec_page_state(page, NR_PAGETABLE);
+> +	pagetable_pte_dtor(page_ptdesc(page));
+>  }
+>  
+>  #define pte_offset_map_lock(mm, pmd, address, ptlp)	\
+> @@ -2981,20 +2995,34 @@ static inline spinlock_t *pmd_lock(struct mm_struct *mm, pmd_t *pmd)
+>  	return ptl;
+>  }
+>  
+> -static inline bool pgtable_pmd_page_ctor(struct page *page)
+> +static inline bool pagetable_pmd_ctor(struct ptdesc *ptdesc)
+>  {
+> -	if (!pmd_ptlock_init(page_ptdesc(page)))
+> +	struct folio *folio = ptdesc_folio(ptdesc);
+> +
+> +	if (!pmd_ptlock_init(ptdesc))
+>  		return false;
+> -	__SetPageTable(page);
+> -	inc_lruvec_page_state(page, NR_PAGETABLE);
+> +	__folio_set_table(folio);
+> +	lruvec_stat_add_folio(folio, NR_PAGETABLE);
+>  	return true;
+>  }
+>  
+> +static inline bool pgtable_pmd_page_ctor(struct page *page)
+> +{
+> +	return pagetable_pmd_ctor(page_ptdesc(page));
+> +}
+> +
+> +static inline void pagetable_pmd_dtor(struct ptdesc *ptdesc)
+> +{
+> +	struct folio *folio = ptdesc_folio(ptdesc);
+> +
+> +	pmd_ptlock_free(ptdesc);
+> +	__folio_clear_table(folio);
+> +	lruvec_stat_sub_folio(folio, NR_PAGETABLE);
+> +}
+> +
+>  static inline void pgtable_pmd_page_dtor(struct page *page)
+>  {
+> -	pmd_ptlock_free(page_ptdesc(page));
+> -	__ClearPageTable(page);
+> -	dec_lruvec_page_state(page, NR_PAGETABLE);
+> +	pagetable_pmd_dtor(page_ptdesc(page));
+>  }
+>  
+>  /*
+> -- 
+> 2.40.1
+> 
+> 
+
+-- 
+Sincerely yours,
+Mike.
