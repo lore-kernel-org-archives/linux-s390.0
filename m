@@ -2,86 +2,119 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ED2A4EB64D9
-	for <linux-s390@archiver.kernel.org>; Wed, 14 Jun 2023 08:03:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7EA17C001DC
+	for <linux-s390@archiver.kernel.org>; Wed, 14 Jun 2023 09:30:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243189AbjFNIDQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 14 Jun 2023 04:03:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37038 "EHLO
+        id S244112AbjFNJat convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 14 Jun 2023 05:30:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243245AbjFNICz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 14 Jun 2023 04:02:55 -0400
-Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8806926AE;
-        Wed, 14 Jun 2023 01:02:20 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R341e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=17;SR=0;TI=SMTPD_---0Vl5mv5K_1686729718;
-Received: from 30.221.128.250(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0Vl5mv5K_1686729718)
-          by smtp.aliyun-inc.com;
-          Wed, 14 Jun 2023 16:01:59 +0800
-Message-ID: <09856bfa-516f-c876-b577-21be940f5911@linux.alibaba.com>
-Date:   Wed, 14 Jun 2023 16:01:58 +0800
+        with ESMTP id S240486AbjFNJaU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 14 Jun 2023 05:30:20 -0400
+Received: from mail-yw1-f171.google.com (mail-yw1-f171.google.com [209.85.128.171])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 219711FF0;
+        Wed, 14 Jun 2023 02:30:19 -0700 (PDT)
+Received: by mail-yw1-f171.google.com with SMTP id 00721157ae682-57001c0baddso5177207b3.2;
+        Wed, 14 Jun 2023 02:30:19 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1686735018; x=1689327018;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=sUg4qrNPX3u1L7teHyX+L+B+2nv6pGpY1jj7jQmio6E=;
+        b=HLaZwbSHm2RAUuRjN/mLmJpriec5nmc+q8fBgtHGJ40vcMlDF8+MTWfoIhQhqjnHMO
+         Ckm91+jl1x7OHreSE7ETBeAqZagNZDTg1b3Zgch2N3y2FJcoyKkv0MvJAb+yFsaXw/hB
+         2Fu0w7Vd3uH68ichY92zSNgoi6iS3FHrQOBy6qpDOEtmjvm2DWy2lyAcgS+JPlBcHgvO
+         HUXi8XRtvUfIMDqOYW4gEppz5mrakbAFk6DSk+DDHZbceCO3+hc2gXVwa+SwuS/0AS8z
+         SgfHEIZ6qQOIe4OmKsY5GYMW9YUI59Nwpod/hqOA2JDX0rvWkWqekueBYcLkkKOaNlRl
+         iyww==
+X-Gm-Message-State: AC+VfDwK0yjybGgEgvktGtZXCQlnhPB1kaBKPT9Sx30og7gV/63Lf1jo
+        WmgxqFUZEHBbtVhHpbCpzeelL6Qwv1k42w==
+X-Google-Smtp-Source: ACHHUZ5BS+Ccv/S1DfqmwwsAY9Irz8IspsCd9IYZqxmz3HQslBY2kdJscpPFhVoRxVIQmCSGDkWvCA==
+X-Received: by 2002:a25:9248:0:b0:bb1:5628:59ee with SMTP id e8-20020a259248000000b00bb1562859eemr1357582ybo.28.1686735018147;
+        Wed, 14 Jun 2023 02:30:18 -0700 (PDT)
+Received: from mail-yb1-f179.google.com (mail-yb1-f179.google.com. [209.85.219.179])
+        by smtp.gmail.com with ESMTPSA id u18-20020a5b04d2000000b00bab9a67a4cesm3405967ybp.29.2023.06.14.02.30.17
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 14 Jun 2023 02:30:17 -0700 (PDT)
+Received: by mail-yb1-f179.google.com with SMTP id 3f1490d57ef6-bc4ed01b5d4so407378276.1;
+        Wed, 14 Jun 2023 02:30:17 -0700 (PDT)
+X-Received: by 2002:a25:6b47:0:b0:ba8:2009:ccbb with SMTP id
+ o7-20020a256b47000000b00ba82009ccbbmr1338474ybm.46.1686735017346; Wed, 14 Jun
+ 2023 02:30:17 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.10.0
-Subject: Re: [PATCH] MAINTAINERS: add reviewers for SMC Sockets
-To:     Jan Karcher <jaka@linux.ibm.com>
-Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Alexandra Winter <wintera@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Thorsten Winkler <twinkler@linux.ibm.com>,
-        Stefan Raspl <raspl@linux.ibm.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Nils Hoppmann <niho@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Tony Lu <tonylu@linux.alibaba.com>,
-        "D. Wythe" <alibuda@linux.alibaba.com>,
-        David Miller <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Eric Dumazet <edumazet@google.com>,
-        Paolo Abeni <pabeni@redhat.com>
-References: <20230614065456.2724-1-jaka@linux.ibm.com>
-From:   Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <20230614065456.2724-1-jaka@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <20230612210423.18611-1-vishal.moola@gmail.com>
+ <20230612210423.18611-28-vishal.moola@gmail.com> <e52c7a74-da68-08d2-54e2-f95a8c5b52e7@kernel.org>
+In-Reply-To: <e52c7a74-da68-08d2-54e2-f95a8c5b52e7@kernel.org>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Wed, 14 Jun 2023 11:30:05 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdXPASfLM8St_JZOW3Wke+ickJoo1oDr+orRbTERy=Zgwg@mail.gmail.com>
+Message-ID: <CAMuHMdXPASfLM8St_JZOW3Wke+ickJoo1oDr+orRbTERy=Zgwg@mail.gmail.com>
+Subject: Re: [PATCH v4 27/34] nios2: Convert __pte_free_tlb() to use ptdescs
+To:     Dinh Nguyen <dinguyen@kernel.org>
+Cc:     "Vishal Moola (Oracle)" <vishal.moola@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org,
+        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+        xen-devel@lists.xenproject.org, kvm@vger.kernel.org,
+        Hugh Dickins <hughd@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Hi Dinh,
 
+On Wed, Jun 14, 2023 at 12:17 AM Dinh Nguyen <dinguyen@kernel.org> wrote:
+> On 6/12/23 16:04, Vishal Moola (Oracle) wrote:
+> > Part of the conversions to replace pgtable constructor/destructors with
+> > ptdesc equivalents.
+> >
+> > Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
+> > ---
+> >   arch/nios2/include/asm/pgalloc.h | 8 ++++----
+> >   1 file changed, 4 insertions(+), 4 deletions(-)
+> >
+> > diff --git a/arch/nios2/include/asm/pgalloc.h b/arch/nios2/include/asm/pgalloc.h
+> > index ecd1657bb2ce..ce6bb8e74271 100644
+> > --- a/arch/nios2/include/asm/pgalloc.h
+> > +++ b/arch/nios2/include/asm/pgalloc.h
+> > @@ -28,10 +28,10 @@ static inline void pmd_populate(struct mm_struct *mm, pmd_t *pmd,
+> >
+> >   extern pgd_t *pgd_alloc(struct mm_struct *mm);
+> >
+> > -#define __pte_free_tlb(tlb, pte, addr)                               \
+> > -     do {                                                    \
+> > -             pgtable_pte_page_dtor(pte);                     \
+> > -             tlb_remove_page((tlb), (pte));                  \
+> > +#define __pte_free_tlb(tlb, pte, addr)                                       \
+> > +     do {                                                            \
+> > +             pagetable_pte_dtor(page_ptdesc(pte));                   \
+> > +             tlb_remove_page_ptdesc((tlb), (page_ptdesc(pte)));      \
+> >       } while (0)
+> >
+> >   #endif /* _ASM_NIOS2_PGALLOC_H */
+>
+> Applied!
 
-On 2023/6/14 14:54, Jan Karcher wrote:
+I don't think you can just apply this patch, as the new functions
+were only introduced in [PATCH v4 05/34] of this series.
 
-> adding three people from Alibaba as reviewers for SMC.
-> They are currently working on improving SMC on other architectures than
-> s390 and help with reviewing patches on top.
-> 
-> Thank you D. Wythe, Tony Lu and Wen Gu for your contributions and
-> collaboration and welcome on board as reviewers!
-> 
-> Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
-> Signed-off-by: Jan Karcher <jaka@linux.ibm.com>
-> ---
->   MAINTAINERS | 3 +++
->   1 file changed, 3 insertions(+)
-> 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index f794002a192e..6992b7cc7095 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -19140,6 +19140,9 @@ SHARED MEMORY COMMUNICATIONS (SMC) SOCKETS
->   M:	Karsten Graul <kgraul@linux.ibm.com>
->   M:	Wenjia Zhang <wenjia@linux.ibm.com>
->   M:	Jan Karcher <jaka@linux.ibm.com>
-> +R:	D. Wythe <alibuda@linux.alibaba.com>
-> +R:	Tony Lu <tonylu@linux.alibaba.com>
-> +R:	Wen Gu <guwen@linux.alibaba.com>
->   L:	linux-s390@vger.kernel.org
->   S:	Supported
->   F:	net/smc/
+Gr{oetje,eeting}s,
 
-Thank you Jan. It's an honor to contribute to the community and
-I will do my best.
+                        Geert
 
-Acked-by: Wen Gu <guwen@linux.alibaba.com>
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
