@@ -2,156 +2,172 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0CCD0EB64D9
-	for <linux-s390@archiver.kernel.org>; Thu, 15 Jun 2023 12:34:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0573AEB64D9
+	for <linux-s390@archiver.kernel.org>; Thu, 15 Jun 2023 12:46:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238984AbjFOMeS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 15 Jun 2023 08:34:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42988 "EHLO
+        id S243792AbjFOMqv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 15 Jun 2023 08:46:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229571AbjFOMeR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 15 Jun 2023 08:34:17 -0400
-Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72ECA95
-        for <linux-s390@vger.kernel.org>; Thu, 15 Jun 2023 05:34:16 -0700 (PDT)
-Received: by mail-pf1-x429.google.com with SMTP id d2e1a72fcca58-666a228d244so333954b3a.1
-        for <linux-s390@vger.kernel.org>; Thu, 15 Jun 2023 05:34:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1686832456; x=1689424456;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=ojZ1+ZW9CrIjcSsPUTw6fn+atFqmZfsOZvSUBuZFNfY=;
-        b=R37PGl+oHHfKNACyM1MypigLqzQIHY6Ls/YojmwnAs38cWVAP2Fprzl6cb5JurHpbr
-         Cz3iaJE7JoN834H8o6iioKaJjcwq1ag++LcMcVrMHMzOixCkMAOvv6X7UgWoN8dAI9rb
-         Jk92tNwwYhi6LyuZbbli8xdV9R/oaXiaz9VrnYGbJs6LBQ+nwbxIcT/Ej7fjeDFger+y
-         brN2+djtc6ucbeQXqWyp1xY/MFggFjR4JGwDiWFdqSSuAmS1TlkfATo5PETPhewJo28e
-         d8vCApoY2j0Wd2J820FkLfuQFa2mmVJnSpokwsKC+YCZEoUFKiwsvuSYYu2fxRw3cVbe
-         2Gsw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1686832456; x=1689424456;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ojZ1+ZW9CrIjcSsPUTw6fn+atFqmZfsOZvSUBuZFNfY=;
-        b=PYM1VIENX9+C9uV/bSkVF+o5tf5H4i9sIgNz1JozabDy6mxNoGVdDR/fYPhduOLHxD
-         7YYWqR2ZQ1/JMQN+7IB7EqRIjxKsjG2Pdrh45xymgUDHzp28YKKTcrnUKUIlJHhghQd1
-         Tb24HVIh34SvxLcxMytlykChBonerppbRmf4ZVdhw8Om6U2KHv/bqoF+4pMDr3vak1x1
-         ugT+Zlle39RQkVineh4s2hwKItdJYve+sDOYahDJZwC3lU4VuWMwFnKc2iEHQKSADSNa
-         QCn6zfqweWiEj2/5O3G1rTZ461McLHi86s1KK5iur7/Uj0qBXg5f+Ic67LvP8JYr0tU4
-         7zQw==
-X-Gm-Message-State: AC+VfDy/lYha/0iPp/6kXqPaVrDVYbJDqVgrXfY4x/GS/LzH+8mgrMEU
-        DJmM/oYvFIoLobTFex3jEwApNQ==
-X-Google-Smtp-Source: ACHHUZ5ps+8UJfB8wzyHwFkU4dmNODVaU5/J3EFPY3L9juO7wAHMCn2h51PBolTV5fBO9uvTJqcdxw==
-X-Received: by 2002:a05:6a20:8f1d:b0:11a:3f7:7edb with SMTP id b29-20020a056a208f1d00b0011a03f77edbmr4618030pzk.12.1686832455810;
-        Thu, 15 Jun 2023 05:34:15 -0700 (PDT)
-Received: from ziepe.ca (hlfxns017vw-142-68-25-194.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.25.194])
-        by smtp.gmail.com with ESMTPSA id bi2-20020a170902bf0200b001ac7f583f72sm13931715plb.209.2023.06.15.05.34.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 15 Jun 2023 05:34:13 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.95)
-        (envelope-from <jgg@ziepe.ca>)
-        id 1q9mAz-005UZz-Iq;
-        Thu, 15 Jun 2023 09:34:09 -0300
-Date:   Thu, 15 Jun 2023 09:34:09 -0300
-From:   Jason Gunthorpe <jgg@ziepe.ca>
-To:     Hugh Dickins <hughd@google.com>
-Cc:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH 07/12] s390: add pte_free_defer(), with use of
- mmdrop_async()
-Message-ID: <ZIsFQalF7rwVKXrD@ziepe.ca>
-References: <35e983f5-7ed3-b310-d949-9ae8b130cdab@google.com>
- <6dd63b39-e71f-2e8b-7e0-83e02f3bcb39@google.com>
- <175ebec8-761-c3f-2d98-6c3bd87161c8@google.com>
- <20230606214037.09c6b280@thinkpad-T15>
- <dbed4c5-1d-f278-d03a-66f5eff5e48e@google.com>
- <20230608174756.27cace18@thinkpad-T15>
- <a948f24b-4fe6-8bc0-221a-65e9ccc8371a@google.com>
- <20230614153042.43a52187@thinkpad-T15>
- <fc5cd62e-d85f-36c3-ba37-db87e8b625d@google.com>
+        with ESMTP id S243609AbjFOMqu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 15 Jun 2023 08:46:50 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBA1F2125;
+        Thu, 15 Jun 2023 05:46:49 -0700 (PDT)
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 35FCjj40021900;
+        Thu, 15 Jun 2023 12:46:49 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
+ mime-version : content-transfer-encoding : in-reply-to : references : cc :
+ from : to : subject : message-id : date; s=pp1;
+ bh=Ue23MMS/KLhfTkpn9HlmWTPika0I59eD8vRkzpnGfns=;
+ b=EriS5gAWOQdmSf6EESkwcN8lTUgl5S3VEo4o2eb37WFOLm+oIJJ4hIi/9Nv4hph5FqYd
+ /hZjKyj0is/PoakjKeKZas2g0YvYnlmdns9LfLRjnWAnbHjHQatNeO9NyS/YRLPeA2bQ
+ zux7lGfvd/F44ydyLIi6eL12NfIKcxpyISUn7RoPkCVq06l6B+wKLb2aXfcXY/9JA4EW
+ 43YDRlKpwADnDl15ofZB+I4jY2b/khqFYG6c7LM8cMC1wB+ie9UmtEynS0AdjfBXSKSz
+ yTn12S3+GBMFbMb9c8SEQPlo8+AbuLoVuuPMZSyvw5ZNZpsQMqTd3GZU3sYpnwqv0YQO 1g== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3r828799ca-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 15 Jun 2023 12:46:45 +0000
+Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 35FCjqCM022462;
+        Thu, 15 Jun 2023 12:45:55 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3r828796g3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 15 Jun 2023 12:45:46 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 35F3jd2m020984;
+        Thu, 15 Jun 2023 12:44:44 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3r4gt53kxk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 15 Jun 2023 12:44:44 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 35FCieLA58720684
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 15 Jun 2023 12:44:40 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8EC972004D;
+        Thu, 15 Jun 2023 12:44:40 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5E6352004B;
+        Thu, 15 Jun 2023 12:44:40 +0000 (GMT)
+Received: from t14-nrb (unknown [9.171.73.29])
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Thu, 15 Jun 2023 12:44:40 +0000 (GMT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <fc5cd62e-d85f-36c3-ba37-db87e8b625d@google.com>
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <e9be6bfb-344c-efb5-9019-355ecb54b5aa@linux.ibm.com>
+References: <20230601070202.152094-1-nrb@linux.ibm.com> <20230601070202.152094-3-nrb@linux.ibm.com> <e9be6bfb-344c-efb5-9019-355ecb54b5aa@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     Janosch Frank <frankja@linux.ibm.com>, imbrenda@linux.ibm.com,
+        thuth@redhat.com
+Subject: Re: [kvm-unit-tests PATCH v3 2/6] s390x: add function to set DAT mode for all interrupts
+Message-ID: <168683308001.207611.15662962385387383765@t14-nrb>
+User-Agent: alot/0.8.1
+Date:   Thu, 15 Jun 2023 14:44:40 +0200
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: R56rRYlu5ZnXZ22E4aAA_853qpcGLKAq
+X-Proofpoint-GUID: 4mCdi3GQFJ-NOQzK4t5NQYM2XUBrMhk7
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
+ definitions=2023-06-15_08,2023-06-14_02,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 clxscore=1015
+ suspectscore=0 phishscore=0 mlxlogscore=999 spamscore=0 lowpriorityscore=0
+ priorityscore=1501 impostorscore=0 adultscore=0 mlxscore=0 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2305260000
+ definitions=main-2306150110
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jun 14, 2023 at 02:59:33PM -0700, Hugh Dickins wrote:
+Quoting Janosch Frank (2023-06-05 10:42:40)
+> On 6/1/23 09:01, Nico Boehr wrote:
+> > When toggling DAT or switch address space modes, it is likely that
+>=20
+> s/switch/switching/
 
-> I guess the best thing would be to modify kernel/fork.c to allow the
-> architecture to override free_mm(), and arch/s390 call_rcu to free mm.
-> But as a quick and dirty s390-end workaround, how about:
+Done=20
 
-RCU callbacks are not ordered so that doesn't seem like it helps..
+[...]
+> > diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
+> > index 3f993a363ae2..d97b5a3a7e97 100644
+> > --- a/lib/s390x/interrupt.c
+> > +++ b/lib/s390x/interrupt.c
+> > @@ -9,6 +9,7 @@
+> >    */
+> >   #include <libcflat.h>
+> >   #include <asm/barrier.h>
+> > +#include <asm/mem.h>
+> >   #include <asm/asm-offsets.h>
+> >   #include <sclp.h>
+> >   #include <interrupt.h>
+> > @@ -104,6 +105,40 @@ void register_ext_cleanup_func(void (*f)(struct st=
+ack_frame_int *))
+> >       THIS_CPU->ext_cleanup_func =3D f;
+> >   }
+> >  =20
+> > +/**
+> > + * irq_set_dat_mode - Set the DAT mode of all interrupt handlers, exce=
+pt for
+> > + * restart.
+> > + * This will update the DAT mode and address space mode of all interru=
+pt new
+> > + * PSWs.
+> > + *
+> > + * Since enabling DAT needs initalized CRs and the restart new PSW is =
+often used
+>=20
+> s/initalized/initialized/
 
-synchronize_rcu would do the job since it is ordered, but I think the
-performance cost is too great to just call it from mmdrop
+fixed
 
-rcu_barrier() followed by call_rcu on the mm struct might work, but I
-don't know the cost
+> > +void irq_set_dat_mode(bool dat, uint64_t as)
+> > +{
+> > +     struct psw* irq_psws[] =3D {
+> > +             OPAQUE_PTR(GEN_LC_EXT_NEW_PSW),
+> > +             OPAQUE_PTR(GEN_LC_SVC_NEW_PSW),
+> > +             OPAQUE_PTR(GEN_LC_PGM_NEW_PSW),
+> > +             OPAQUE_PTR(GEN_LC_MCCK_NEW_PSW),
+> > +             OPAQUE_PTR(GEN_LC_IO_NEW_PSW),
+> > +             NULL /* sentinel */
+> > +     };
+> > +
+> > +     assert(as =3D=3D AS_PRIM || as =3D=3D AS_ACCR || as =3D=3D AS_SEC=
+N || as =3D=3D AS_HOME);
+>=20
+> /* There are only 4 spaces */
+> assert(as < 4); ?
 
-A per-cpu refcount scheme might also do the job reasonably
+Well you won't find that when when grepping for any of the AS_*, so no I do=
+n't
+think that's better.
 
-Making the page frag pool global (per-cpu global I guess) would also
-remove the need to reach back to the freeable mm_struct and reduce the
-need for struct page memory. This views it as a special kind of
-kmemcache.
+> > +
+> > +     for (struct psw *psw =3D irq_psws[0]; psw !=3D NULL; psw++) {
+>=20
+> While this is ok in gnu99/c99 I generally prefer declaring the variable=20
+> outside of the loop since it's more readable when using structs and union=
+s.
 
-Another approach is to not use a rcu_head in the ptdesc at all.
+OK.
 
-With a global kmemcache-like-thing we could probably also organize
-something where you don't use a rcu_head in the ptdesc, but instead
-just a naked 'next' pointer. This would give enough space to have two
-next pointers and the next pointers can be re-used for the normal free
-list as well.
+>=20
+> > +             psw->dat =3D dat;
+> > +             if (dat)
+> > +                     psw->as =3D as;
+>=20
+> Does that check even matter?
 
-In this flow you'd thread the free'd frags onto a waterfall of global
-per-cpu lists:
- - RCU free the next cycle
- - RCU free this cycle
- - Actually free
+Well, when DAT is off, AS bacially becomes a don't care. I thought it's a g=
+ood
+idea to preserve the AS in this case, but this can certainly be argued abou=
+t.
 
-Where a single rcu_head and single call_rcu frees the entire 2nd list
-to the 3rd list and then schedules the 1st list to be RCU'd next. This
-eliminates the need to store a function pointer in the ptdesc at
-all.
-
-It requires some global per-cpu lock on the free/alloc paths however,
-but this is basically what every other arch does as it frees the page
-back to the page allocator.
-
-I suspect that two next pointers would also eliminate pt_frag_refcount
-entirely as we can encode that information in the low bits of the next
-pointers.
-
-> (Funnily enough, there's no problem when the stored mm gets re-used for
-> a different mm, once past its spin_lock_init(&mm->context.lock);
-> because
-
-We do that have really weird "type safe by rcu" thing in the
-allocators, but I don't quite know how it works.
-
-> Powerpc is like that.  I have no idea how much gets wasted that way.
-> I was keen not to degrade what s390 does: which is definitely superior,
-> but possibly not worth the effort.
-
-Yeah, it would be good to understand if this is really sufficiently
-beneficial..
-
-> I'll look into it, once I understand c2c224932fd0.  But may have to write
-> to Vishal first, or get the v2 of my series out: if only I could work out
-> a safe and easy way of unbreaking s390...
-
-Can arches opt in to RCU freeing page table support and still keep
-your series sane?
-
-Honestly, I feel like trying to RCU enable page tables should be its
-own series. It is a sufficiently tricky subject on its own right.
-
-Jason
+I updated the comment and clarified that AS is only touched if DAT is on. L=
+et me
+know if you prefer removal of the if.
