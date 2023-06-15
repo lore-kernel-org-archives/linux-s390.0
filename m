@@ -2,239 +2,84 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C6A1DEB64DC
-	for <linux-s390@archiver.kernel.org>; Thu, 15 Jun 2023 06:22:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 22150C001DC
+	for <linux-s390@archiver.kernel.org>; Thu, 15 Jun 2023 07:50:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243528AbjFOGW4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 15 Jun 2023 02:22:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42644 "EHLO
+        id S243453AbjFOHu3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 15 Jun 2023 03:50:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231258AbjFOGWv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 15 Jun 2023 02:22:51 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F234B1FC7
-        for <linux-s390@vger.kernel.org>; Wed, 14 Jun 2023 23:22:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1686810122;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=1Jdp2Dt66ASZ0j6UJlOPexywjJsI21/1kai5Bt5vA3Q=;
-        b=HNv2lkNUouw6TkSxUjzFFYrssUthZ6usZU3seZbqcnTHHW4VA2UBvRdMGcg41NkoS09wkg
-        J+m4MfNM6EoU0rLk8ncjglTKWloQmnNShbmo9XJObISZfXO/2E23M9xKrxlbKteCGkNX9V
-        MZ+7MIlamFhyMplFr6zgWj4wSjQibMA=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-493-0OugQtqSP-aWHUMc0XuZHg-1; Thu, 15 Jun 2023 02:21:58 -0400
-X-MC-Unique: 0OugQtqSP-aWHUMc0XuZHg-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com [10.11.54.4])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        with ESMTP id S245400AbjFOHuV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 15 Jun 2023 03:50:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64CE8C7;
+        Thu, 15 Jun 2023 00:50:20 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 38B3E101A528;
-        Thu, 15 Jun 2023 06:21:58 +0000 (UTC)
-Received: from gshan.redhat.com (vpn2-54-145.bne.redhat.com [10.64.54.145])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 73E5F2026D49;
-        Thu, 15 Jun 2023 06:21:53 +0000 (UTC)
-From:   Gavin Shan <gshan@redhat.com>
-To:     kvmarm@lists.linux.dev
-Cc:     kvm@vger.kernel.org, kvm-ppc@vger.kernel.org,
-        linux-s390@vger.kernel.org, andrew.jones@linux.dev,
-        lvivier@redhat.com, thuth@redhat.com, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, david@redhat.com, pbonzini@redhat.com,
-        nrb@linux.ibm.com, shan.gavin@gmail.com
-Subject: [kvm-unit-tests PATCH v3] runtime: Allow to specify properties for accelerator
-Date:   Thu, 15 Jun 2023 16:21:48 +1000
-Message-Id: <20230615062148.19883-1-gshan@redhat.com>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0091860DFF;
+        Thu, 15 Jun 2023 07:50:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 5D342C433C8;
+        Thu, 15 Jun 2023 07:50:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1686815419;
+        bh=uXXz4yd7ee+6QGrv/NuvRMJeE5gSJfqC9YZGaaJo6WU=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=khPEWZ0o7q7MaBPuSsXiKEQH8CeXfdRoTOLtbN1SWp3dHEOPGoIWCFLydNrd1iiaO
+         gleU9AXCQfBQelJC/Cqu4itv3ZNHzG+CvBC+Spxia8wF6Bz2aKoSlipAbQAb6Uki+G
+         WFXK7/8HE6e67lvyk27q2uuId9Dj9eRgLxLdyHji8veoUF3/9YGJE97q+MengkmFg+
+         +Qu65VFyQfqCCvZrBj1ZpCFkTGhdjuYhwep33QUsuGsRkkYnVxqtkn9/ea9u+D1t23
+         2jxxW/dZ3dY+5rofQM39KUR5A121TkCoAE85ylac7T4MTJl+Cgj9/a58Ev97bseqeI
+         MxoJ2ACnuw3+g==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 33725C3274B;
+        Thu, 15 Jun 2023 07:50:19 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.4
+Subject: Re: [PATCH] s390/ism: Fix trying to free already-freed IRQ by repeated
+ ism_dev_exit()
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <168681541920.22382.10439773407681596212.git-patchwork-notify@kernel.org>
+Date:   Thu, 15 Jun 2023 07:50:19 +0000
+References: <20230613-ism-rmmod-crash-v1-1-359ac51e18c9@linux.ibm.com>
+In-Reply-To: <20230613-ism-rmmod-crash-v1-1-359ac51e18c9@linux.ibm.com>
+To:     Julian Ruess <julianr@linux.ibm.com>
+Cc:     wintera@linux.ibm.com, wenjia@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        davem@davemloft.net, jaka@linux.ibm.com, raspl@linux.ibm.com,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        schnelle@linux.ibm.com
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-There are extra properties for accelerators to enable the specific
-features. For example, the dirty ring for KVM accelerator can be
-enabled by "-accel kvm,dirty-ring-size=65536". Unfortuntely, the
-extra properties for the accelerators aren't supported. It makes
-it's impossible to test the combination of KVM and dirty ring
-as the following error message indicates.
+Hello:
 
-  # cd /home/gavin/sandbox/kvm-unit-tests/tests
-  # QEMU=/home/gavin/sandbox/qemu.main/build/qemu-system-aarch64 \
-    ACCEL=kvm,dirty-ring-size=65536 ./its-migration
-     :
-  BUILD_HEAD=2fffb37e
-  timeout -k 1s --foreground 90s /home/gavin/sandbox/qemu.main/build/qemu-system-aarch64 \
-  -nodefaults -machine virt -accel kvm,dirty-ring-size=65536 -cpu cortex-a57             \
-  -device virtio-serial-device -device virtconsole,chardev=ctd -chardev testdev,id=ctd   \
-  -device pci-testdev -display none -serial stdio -kernel _NO_FILE_4Uhere_ -smp 160      \
-  -machine gic-version=3 -append its-pending-migration # -initrd /tmp/tmp.gfDLa1EtWk
-  qemu-system-aarch64: kvm_init_vcpu: kvm_arch_init_vcpu failed (0): Invalid argument
+This patch was applied to netdev/net.git (main)
+by David S. Miller <davem@davemloft.net>:
 
-Allow to specify extra properties for accelerators. With this, the
-"its-migration" can be tested for the combination of KVM and dirty
-ring.
+On Tue, 13 Jun 2023 14:25:37 +0200 you wrote:
+> This patch prevents the system from crashing when unloading the ISM module.
+> 
+> How to reproduce: Attach an ISM device and execute 'rmmod ism'.
+> 
+> Error-Log:
+> - Trying to free already-free IRQ 0
+> - WARNING: CPU: 1 PID: 966 at kernel/irq/manage.c:1890 free_irq+0x140/0x540
+> 
+> [...]
 
-Signed-off-by: Gavin Shan <gshan@redhat.com>
----
-v3: Split $ACCEL to $ACCEL and $ACCEL_PROPS in get_qemu_accelerator()
-    and don't print them as output, suggested by Drew.
----
- arm/run               | 12 ++++--------
- powerpc/run           |  5 ++---
- s390x/run             |  5 ++---
- scripts/arch-run.bash | 21 +++++++++++++--------
- x86/run               |  5 ++---
- 5 files changed, 23 insertions(+), 25 deletions(-)
+Here is the summary with links:
+  - s390/ism: Fix trying to free already-freed IRQ by repeated ism_dev_exit()
+    https://git.kernel.org/netdev/net/c/78d0f94902af
 
-diff --git a/arm/run b/arm/run
-index c6f25b8..d9ebe59 100755
---- a/arm/run
-+++ b/arm/run
-@@ -10,10 +10,8 @@ if [ -z "$KUT_STANDALONE" ]; then
- fi
- processor="$PROCESSOR"
- 
--accel=$(get_qemu_accelerator) ||
--	exit $?
--
--if [ "$accel" = "kvm" ]; then
-+get_qemu_accelerator || exit $?
-+if [ "$ACCEL" = "kvm" ]; then
- 	QEMU_ARCH=$HOST
- fi
- 
-@@ -23,11 +21,9 @@ qemu=$(search_qemu_binary) ||
- if [ "$QEMU" ] && [ -z "$ACCEL" ] &&
-    [ "$HOST" = "aarch64" ] && [ "$ARCH" = "arm" ] &&
-    [ "$(basename $QEMU)" = "qemu-system-arm" ]; then
--	accel=tcg
-+	ACCEL="tcg"
- fi
- 
--ACCEL=$accel
--
- if ! $qemu -machine '?' | grep -q 'ARM Virtual Machine'; then
- 	echo "$qemu doesn't support mach-virt ('-machine virt'). Exiting."
- 	exit 2
-@@ -72,7 +68,7 @@ if $qemu $M -device '?' | grep -q pci-testdev; then
- 	pci_testdev="-device pci-testdev"
- fi
- 
--A="-accel $ACCEL"
-+A="-accel $ACCEL$ACCEL_PROPS"
- command="$qemu -nodefaults $M $A -cpu $processor $chr_testdev $pci_testdev"
- command+=" -display none -serial stdio -kernel"
- command="$(migration_cmd) $(timeout_cmd) $command"
-diff --git a/powerpc/run b/powerpc/run
-index ee38e07..3988e72 100755
---- a/powerpc/run
-+++ b/powerpc/run
-@@ -9,8 +9,7 @@ if [ -z "$KUT_STANDALONE" ]; then
- 	source scripts/arch-run.bash
- fi
- 
--ACCEL=$(get_qemu_accelerator) ||
--	exit $?
-+get_qemu_accelerator || exit $?
- 
- qemu=$(search_qemu_binary) ||
- 	exit $?
-@@ -21,7 +20,7 @@ if ! $qemu -machine '?' 2>&1 | grep 'pseries' > /dev/null; then
- fi
- 
- M='-machine pseries'
--M+=",accel=$ACCEL"
-+M+=",accel=$ACCEL$ACCEL_PROPS"
- command="$qemu -nodefaults $M -bios $FIRMWARE"
- command+=" -display none -serial stdio -kernel"
- command="$(migration_cmd) $(timeout_cmd) $command"
-diff --git a/s390x/run b/s390x/run
-index f1111db..c57862f 100755
---- a/s390x/run
-+++ b/s390x/run
-@@ -9,8 +9,7 @@ if [ -z "$KUT_STANDALONE" ]; then
- 	source scripts/arch-run.bash
- fi
- 
--ACCEL=$(get_qemu_accelerator) ||
--	exit $?
-+get_qemu_accelerator || exit $?
- 
- qemu=$(search_qemu_binary) ||
- 	exit $?
-@@ -26,7 +25,7 @@ if [ "${1: -7}" = ".pv.bin" ] || [ "${TESTNAME: -3}" = "_PV" ] && [ "$MIGRATION"
- fi
- 
- M='-machine s390-ccw-virtio'
--M+=",accel=$ACCEL"
-+M+=",accel=$ACCEL$ACCEL_PROPS"
- command="$qemu -nodefaults -nographic $M"
- command+=" -chardev stdio,id=con0 -device sclpconsole,chardev=con0"
- command+=" -kernel"
-diff --git a/scripts/arch-run.bash b/scripts/arch-run.bash
-index 51e4b97..19c16c1 100644
---- a/scripts/arch-run.bash
-+++ b/scripts/arch-run.bash
-@@ -412,6 +412,9 @@ hvf_available ()
- 
- get_qemu_accelerator ()
- {
-+	ACCEL_PROPS=${ACCEL#"${ACCEL%%,*}"}
-+	ACCEL=${ACCEL%%,*}
-+
- 	if [ "$ACCEL" = "kvm" ] && ! kvm_available; then
- 		echo "KVM is needed, but not available on this host" >&2
- 		return 2
-@@ -421,13 +424,15 @@ get_qemu_accelerator ()
- 		return 2
- 	fi
- 
--	if [ "$ACCEL" ]; then
--		echo $ACCEL
--	elif kvm_available; then
--		echo kvm
--	elif hvf_available; then
--		echo hvf
--	else
--		echo tcg
-+	if [ -z "$ACCEL" ]; then
-+		if kvm_available; then
-+			ACCEL="kvm"
-+		elif hvf_available; then
-+			ACCEL="hvf"
-+		else
-+			ACCEL="tcg"
-+		fi
- 	fi
-+
-+	return 0
- }
-diff --git a/x86/run b/x86/run
-index 4d53b72..9a10703 100755
---- a/x86/run
-+++ b/x86/run
-@@ -9,8 +9,7 @@ if [ -z "$KUT_STANDALONE" ]; then
- 	source scripts/arch-run.bash
- fi
- 
--ACCEL=$(get_qemu_accelerator) ||
--	exit $?
-+get_qemu_accelerator || exit $?
- 
- qemu=$(search_qemu_binary) ||
- 	exit $?
-@@ -38,7 +37,7 @@ else
- fi
- 
- command="${qemu} --no-reboot -nodefaults $pc_testdev -vnc none -serial stdio $pci_testdev"
--command+=" -machine accel=$ACCEL"
-+command+=" -machine accel=$ACCEL$ACCEL_PROPS"
- if [ "${CONFIG_EFI}" != y ]; then
- 	command+=" -kernel"
- fi
+You are awesome, thank you!
 -- 
-2.40.1
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
