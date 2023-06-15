@@ -2,131 +2,174 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F246EB64D9
-	for <linux-s390@archiver.kernel.org>; Thu, 15 Jun 2023 13:41:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 86C7EEB64DA
+	for <linux-s390@archiver.kernel.org>; Thu, 15 Jun 2023 15:52:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344479AbjFONlV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 15 Jun 2023 09:41:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49656 "EHLO
+        id S1345048AbjFOPwI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 15 Jun 2023 11:52:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344565AbjFONkx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 15 Jun 2023 09:40:53 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60D913AAE;
-        Thu, 15 Jun 2023 06:39:50 -0700 (PDT)
-Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 35FDbGqq007781;
-        Thu, 15 Jun 2023 13:39:44 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
- mime-version : content-transfer-encoding : in-reply-to : references : cc :
- from : to : subject : message-id : date; s=pp1;
- bh=3MPW3l4/WFjhrlzMKhNx7kymAhv4MUN6so9NzDBHQxc=;
- b=F5wliBVO7qh2T0vGBN3Nnm5lwe1KaKzQsdhUfzXuOz8DzKhn/YVSZnr2R2QuFdrZqTeO
- titsSPPmhpkaetZW7q/3zpGe7wNtd0mkpZdJn6UaowlP8R53A7vcj55yWDvdKYiW0eNh
- 1k0NJQ8tk6O1hjgenXuSdVYlCU5FlxZC6Bm3cLhc8+nyjFqtAGkvGV30ul8vQMMvU8N0
- MIScRBlkn4br4W6NwjVqaEt3Pu0wHblsalCVVcvMohK/gcO/IFonkQf4R6fPLtt0gsIn
- v7j/iRcknzRa8L1JhJkHws3k/kL3vLcHuVpdTcW6OcRhUh0YZ0pF8IeoDSNLu6A9BiGi Mg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3r83ex8hmm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 15 Jun 2023 13:39:43 +0000
-Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 35FDbd8i010027;
-        Thu, 15 Jun 2023 13:39:42 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3r83ex8h9r-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 15 Jun 2023 13:39:42 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 35F2xChr008934;
-        Thu, 15 Jun 2023 13:39:33 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3r4gt53m6s-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 15 Jun 2023 13:39:33 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 35FDdU2J58851734
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 15 Jun 2023 13:39:30 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1446720040;
-        Thu, 15 Jun 2023 13:39:30 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6E5E520043;
-        Thu, 15 Jun 2023 13:39:29 +0000 (GMT)
-Received: from t14-nrb (unknown [9.171.73.29])
-        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Thu, 15 Jun 2023 13:39:29 +0000 (GMT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S1345021AbjFOPvr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 15 Jun 2023 11:51:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C02BE30EF;
+        Thu, 15 Jun 2023 08:51:20 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 393AE615D9;
+        Thu, 15 Jun 2023 15:51:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A065C433C0;
+        Thu, 15 Jun 2023 15:51:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1686844263;
+        bh=4vpbcLIWH8N9kUhfy14gCg44JnNZ7tmcDbTQofjr2PY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=HtfzZGG4h7OB0EE/lQpmPVeug5hEItWTKVdQh4sHq5pkRyi+IBc4bQYhPGfLUyXAE
+         O6q85QbbLOckkkq+ZDCntMP7kzjRH0BvUgQTZTsRtxOQVhMz+kPywYdC329KKPHRCd
+         EzHAMzGxIY08qUxBzBs5hhcSI+TdpRxjxhxRYluzPI7qsWgQhBwbTOga8HmP1oqokR
+         Nfn1KKfQ7SfISyWUrNFe+l7vvHqttosQ0oHQWcCUmbPCzjqzV6ZQmJ6Lgxc8I7me24
+         3i0BNy8Yi/K34Ad5bteBhAQILk/jkgdXefVdp3M52mTzK8Ji4AXkYMW3KmuCjB1GQn
+         39zP25YPwdB6Q==
+Date:   Thu, 15 Jun 2023 08:50:59 -0700
+From:   Nathan Chancellor <nathan@kernel.org>
+To:     Hugh Dickins <hughd@google.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        David Hildenbrand <david@redhat.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Qi Zheng <zhengqi.arch@bytedance.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Greg Ungerer <gerg@linux-m68k.org>,
+        Michal Simek <monstr@monstr.eu>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Helge Deller <deller@gmx.de>,
+        John David Anglin <dave.anglin@bell.net>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Alexandre Ghiti <alexghiti@rivosinc.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        Chris Zankel <chris@zankel.net>,
+        Max Filippov <jcmvbkbc@gmail.com>, x86@kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH v2 07/23] mips: update_mmu_cache() can replace
+ __update_tlb()
+Message-ID: <20230615155059.GB3665766@dev-arch.thelio-3990X>
+References: <a4963be9-7aa6-350-66d0-2ba843e1af44@google.com>
+ <178970b0-1539-8aac-76fd-972c6c46ec17@google.com>
+ <20230614231758.GA1503611@dev-arch.thelio-3990X>
+ <f5526f17-9d78-f7ea-427a-7e76bfeb6b8@google.com>
+ <344a4da-3890-45fd-607e-b5f85ca6ad48@google.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20230615062148.19883-1-gshan@redhat.com>
-References: <20230615062148.19883-1-gshan@redhat.com>
-Cc:     kvm@vger.kernel.org, kvm-ppc@vger.kernel.org,
-        linux-s390@vger.kernel.org, andrew.jones@linux.dev,
-        lvivier@redhat.com, thuth@redhat.com, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, david@redhat.com, pbonzini@redhat.com,
-        shan.gavin@gmail.com
-From:   Nico Boehr <nrb@linux.ibm.com>
-To:     Gavin Shan <gshan@redhat.com>, kvmarm@lists.linux.dev
-Subject: Re: [kvm-unit-tests PATCH v3] runtime: Allow to specify properties for accelerator
-Message-ID: <168683636810.207611.6242722390379085462@t14-nrb>
-User-Agent: alot/0.8.1
-Date:   Thu, 15 Jun 2023 15:39:28 +0200
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 1cVP92Ij_fJpEbFMdprEJWeCVFh8b4yH
-X-Proofpoint-ORIG-GUID: VlfDZs5XE3eIcEHztMzmw4tIK1PTH_g6
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
- definitions=2023-06-15_09,2023-06-14_02,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 spamscore=0
- malwarescore=0 bulkscore=0 phishscore=0 lowpriorityscore=0 mlxscore=0
- mlxlogscore=999 clxscore=1011 priorityscore=1501 impostorscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2305260000 definitions=main-2306150119
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <344a4da-3890-45fd-607e-b5f85ca6ad48@google.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Quoting Gavin Shan (2023-06-15 08:21:48)
-> There are extra properties for accelerators to enable the specific
-> features. For example, the dirty ring for KVM accelerator can be
-> enabled by "-accel kvm,dirty-ring-size=3D65536". Unfortuntely, the
-> extra properties for the accelerators aren't supported. It makes
-> it's impossible to test the combination of KVM and dirty ring
-> as the following error message indicates.
->=20
->   # cd /home/gavin/sandbox/kvm-unit-tests/tests
->   # QEMU=3D/home/gavin/sandbox/qemu.main/build/qemu-system-aarch64 \
->     ACCEL=3Dkvm,dirty-ring-size=3D65536 ./its-migration
->      :
->   BUILD_HEAD=3D2fffb37e
->   timeout -k 1s --foreground 90s /home/gavin/sandbox/qemu.main/build/qemu=
--system-aarch64 \
->   -nodefaults -machine virt -accel kvm,dirty-ring-size=3D65536 -cpu corte=
-x-a57             \
->   -device virtio-serial-device -device virtconsole,chardev=3Dctd -chardev=
- testdev,id=3Dctd   \
->   -device pci-testdev -display none -serial stdio -kernel _NO_FILE_4Uhere=
-_ -smp 160      \
->   -machine gic-version=3D3 -append its-pending-migration # -initrd /tmp/t=
-mp.gfDLa1EtWk
->   qemu-system-aarch64: kvm_init_vcpu: kvm_arch_init_vcpu failed (0): Inva=
-lid argument
->=20
-> Allow to specify extra properties for accelerators. With this, the
-> "its-migration" can be tested for the combination of KVM and dirty
-> ring.
->=20
-> Signed-off-by: Gavin Shan <gshan@redhat.com>
+On Wed, Jun 14, 2023 at 10:43:30PM -0700, Hugh Dickins wrote:
+> On Wed, 14 Jun 2023, Hugh Dickins wrote:
+> > On Wed, 14 Jun 2023, Nathan Chancellor wrote:
+> > > 
+> > > I just bisected a crash while powering down a MIPS machine in QEMU to
+> > > this change as commit 8044511d3893 ("mips: update_mmu_cache() can
+> > > replace __update_tlb()") in linux-next.
+> > 
+> > Thank you, Nathan, that's very helpful indeed.  This patch certainly knew
+> > that it wanted testing, and I'm glad to hear that it is now seeing some.
+> > 
+> > While powering down?  The messages below look like it was just coming up,
+> > but no doubt that's because you were bisecting (or because I'm unfamiliar
+> > with what messages to expect there).  It's probably irrelevant information,
+> > but I wonder whether the (V)machine worked well enough for a while before
+> > you first powered down and spotted the problem, or whether it's never got
+> > much further than trying to run init (busybox)?  I'm trying to get a feel
+> > for whether the problem occurs under common or uncommon conditions.
 
-Maybe get_qemu_accelerator could be renamed now, since it doesn't actually =
-"get"
-anything, so maybe check_qemu_accelerator?
+Ugh sorry, I have been looking into too many bugs lately and got my
+wires crossed :) this is indeed a problem when running init (which is
+busybox, this is a simple Buildroot file system).
 
-In any case, I gave it a quick run on s390x with kvm and tcg and nothing se=
-ems
-to break, hence for the changes in s390x:
+> > > Unfortunately, I can still
+> > > reproduce it with the existing fix you have for this change on the
+> > > mailing list, which is present in next-20230614.
+> > 
+> > Right, that later fix was only for a build warning, nothing functional
+> > (or at least I hoped that it wasn't making any functional difference).
+> > 
+> > Thanks a lot for the detailed instructions below: unfortunately, those
+> > would draw me into a realm of testing I've never needed to enter before,
+> > so a lot of time spent on setup and learning.  Usually, I just stare at
+> > the source.
+> > 
+> > What this probably says is that I should revert most my cleanup there,
+> > and keep as close to the existing code as possible.  But some change is
+> > needed, and I may need to understand (or have a good guess at) what was
+> > going wrong, to decide what kind of retreat will be successful.
+> > 
+> > Back to the source for a while: I hope I'll find examples in nearby MIPS
+> > kernel source (and git history), which will hint at the right way forward.
+> > Then send you a patch against next-20230614 to try, when I'm reasonably
+> > confident that it's enough to satisfy my purpose, but likely not to waste
+> > your time.
+> 
+> I'm going to take advantage of your good nature by attaching
+> two alternative patches, either to go on top of next-20230614.
+> 
+> mips1.patch,
+>  arch/mips/mm/tlb-r4k.c |   12 +-----------
+>  1 file changed, 1 insertion(+), 11 deletions(-)
+> 
+> is by far my favourite.  I couldn't see anything wrong with what's
+> already there for mips, but it seems possible that (though I didn't
+> find it) somewhere calls update_mmu_cache_pmd() on a page table.  So
+> mips1.patch restores the pmd_huge() check, and cleans up further by
+> removing the silly pgdp, p4dp, pudp, pmdp stuff: the pointer has now
+> been passed in by the caller, why walk the tree again?  I should have
+> done it this way before.
+> 
+> But if that doesn't work, then I'm afraid it will have to be
+> mips2.patch,
+>  arch/mips/include/asm/pgtable.h |   15 ++++++++++++---
+>  arch/mips/mm/tlb-r3k.c          |    5 ++---
+>  arch/mips/mm/tlb-r4k.c          |   27 ++++++++++++++++++---------
+>  3 files changed, 32 insertions(+), 15 deletions(-)
+> 
+> which reverts all of the original patch and its build warning fix,
+> and does a pte_unmap() to balance the silly pte_offset_map() there;
+> with an apologetic comment for this being about the only place in
+> the tree where I have no idea what to do if ptep were NULL.
+> 
+> I do hope that you find the first fixes the breakage; but if not, then
 
-Tested-by: Nico Boehr <nrb@linux.ibm.com>
-Acked-by: Nico Boehr <nrb@linux.ibm.com>
+I hate to be the bearer of bad news but the first patch did not fix the
+breakage, I see the same issue.
+
+> I even more fervently hope that the second will, despite my hating it.
+> Touch wood for the first, fingers crossed for the second, thanks,
+
+Thankfully, the second one does. Thanks for the quick and thoughtful
+responses!
+
+Cheers,
+Nathan
