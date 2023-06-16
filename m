@@ -2,36 +2,36 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6437DC001B1
-	for <linux-s390@archiver.kernel.org>; Fri, 16 Jun 2023 10:37:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C5FCEB64D7
+	for <linux-s390@archiver.kernel.org>; Fri, 16 Jun 2023 10:42:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345327AbjFPKhc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 16 Jun 2023 06:37:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58162 "EHLO
+        id S1345388AbjFPKmx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 16 Jun 2023 06:42:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345285AbjFPKeV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 16 Jun 2023 06:34:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B3EC5B82;
-        Fri, 16 Jun 2023 03:28:43 -0700 (PDT)
+        with ESMTP id S1345395AbjFPKmi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 16 Jun 2023 06:42:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 280D3AD22;
+        Fri, 16 Jun 2023 03:34:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (2048 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2414F6364D;
-        Fri, 16 Jun 2023 10:27:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81F9FC433CB;
-        Fri, 16 Jun 2023 10:27:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 062DD635D4;
+        Fri, 16 Jun 2023 10:28:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7715FC433C8;
+        Fri, 16 Jun 2023 10:28:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1686911277;
-        bh=v85b04W1DapFfpcx6P71cQD3emM7txMajGmkgOk/9GA=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fMxXm48jHrkkRgIlmxjw2Uj+Y9NGyAzxo48uvM2vVX2e16hXY8BP0/rxnN4LZX6h8
-         2HBlx1rqAivgdX7xYBZwO96VZFas+lH/S/Zwmx/sbTEcKtCMIjX4hFCzbeUhxXq268
-         l/ohwuid5Vr//RRs1mC/PVgA6D6dtsyLdtdG40qrZNfPTlazyImDHCeAHL6VUaiNX9
-         n6/AjspkFbBMtmFkhF5Fg6a5+cjrjzsI4jUKklpKCKebEDuSSlkUNSf9NNHdKWmWC6
-         tk37u5A+5s21gHdPPv2jJ03efTGPzoZRixpcXVyFZC1Nwqv/xbIvq/Cx+iCt8785td
-         902KvH442EPVQ==
+        s=k20201202; t=1686911304;
+        bh=WojL8egNg8VQgEXFo1FB9It8jiQ2ip8ME0OModaYAJo=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ZUwqkM5MswzY6kOvRJf/ZsryFVo7Sy2U81Cp6k8r6+A7z0RVY3v6TE9nxyVEHLaNr
+         MtGkv7CLpBHDqz/M/9m09/8uteB1YSNWvh171pRqbQ4TpKZ11IAcZExPNbMWSe7rho
+         ngw+CdgRVDhh2bDo9jv/9tAAfFCxFkNja1gwCeAC79MrpBZ2TUEZTWUBVhwoESJ6G1
+         envTn66+6niBLwPYjJSgmj/+KTBERPJhHjgeuuA9AcOuKdshGHPJMCLDCbR76NVqfo
+         ENkZGZueYsKibT+33wlC6pvqm6FzJbXY3xPoU30h7cW2Dt0lfkmKtGiFrfobi05lGP
+         4oO0vufvYSbng==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Vineeth Vijayan <vneethv@linux.ibm.com>,
@@ -39,16 +39,14 @@ Cc:     Vineeth Vijayan <vneethv@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>, hca@linux.ibm.com,
         gor@linux.ibm.com, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 02/14] s390/cio: unregister device when the only path is gone
-Date:   Fri, 16 Jun 2023 06:27:39 -0400
-Message-Id: <20230616102753.673975-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 1/8] s390/cio: unregister device when the only path is gone
+Date:   Fri, 16 Jun 2023 06:28:14 -0400
+Message-Id: <20230616102821.674153-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230616102753.673975-1-sashal@kernel.org>
-References: <20230616102753.673975-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 5.10.184
+X-stable-base: Linux 5.4.247
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
@@ -72,7 +70,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
-index 33280ca181e95..6f9c81db6e429 100644
+index 23e9227e60fd7..d7ca75efb49fb 100644
 --- a/drivers/s390/cio/device.c
 +++ b/drivers/s390/cio/device.c
 @@ -1385,6 +1385,7 @@ void ccw_device_set_notoper(struct ccw_device *cdev)
