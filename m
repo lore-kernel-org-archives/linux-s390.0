@@ -2,156 +2,129 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B08EFEB64DC
-	for <linux-s390@archiver.kernel.org>; Thu, 15 Jun 2023 23:03:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 48320EB64DA
+	for <linux-s390@archiver.kernel.org>; Fri, 16 Jun 2023 00:42:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231231AbjFOXC7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 15 Jun 2023 19:02:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39858 "EHLO
+        id S232033AbjFPAm0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 15 Jun 2023 20:42:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229767AbjFOXC6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 15 Jun 2023 19:02:58 -0400
-Received: from mail-yw1-x1130.google.com (mail-yw1-x1130.google.com [IPv6:2607:f8b0:4864:20::1130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71803294C
-        for <linux-s390@vger.kernel.org>; Thu, 15 Jun 2023 16:02:55 -0700 (PDT)
-Received: by mail-yw1-x1130.google.com with SMTP id 00721157ae682-570002c9b38so2024187b3.1
-        for <linux-s390@vger.kernel.org>; Thu, 15 Jun 2023 16:02:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1686870174; x=1689462174;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=rocsqxxn2Z+cT1JHYvXfzCdKlHTpr3EP6mTFGVcBZg0=;
-        b=MJTZvP19w7L3mwEdMeExhSCW1AUDkDcDZIGA09b4Lsgr6AlQ/Jre5s3pQVCVJJ7rQb
-         5+EQMNtJaTaY+aRJKrCSqlImib7KZddKIew66TbvLd683FL9AyfE66fgz1T7BtZHDMm8
-         2jNBCticE3VbvZxgnHDLhllKeMXxMDja6NYMekmWJVMnL0qXYLEhZcbBya6ztZKzets8
-         eOxxHJ/YfIwfRnvaqFcbsGZUKRVZaOyJdqvanJIQ7D74NV/Gvoq+dfmVK1oXzh1JvH5P
-         0RtdON+E/jvZHQ2QI/6IDa9W4KDnatFP6KwfH05hk8Ymf0ujYFguYsacUpxAce6WF76M
-         r8mQ==
+        with ESMTP id S229480AbjFPAmZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 15 Jun 2023 20:42:25 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBDCB296E
+        for <linux-s390@vger.kernel.org>; Thu, 15 Jun 2023 17:41:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1686876100;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=YVi/iSZIypb2rz83jbLdeVn8uEiZiibOapI7DmVf0UU=;
+        b=MQuMfV44KpQWKGA8fVFXq8w0KBgwZj/RJIwYCOplvnUP2kC+ZSn+rMNktTfwfv6e4ICOkX
+        tn++s1G3ND+iaHRLBmctJNx4rq1nOk5vdkxDGVB+jwebnjmxivwereHWSXIC+aGZVrKZ+Y
+        bv2nBAqAz3oCk3s1ZJeQo9cqLUzYbM0=
+Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
+ [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-371-fx00yRaGMVmv4d4Zv6F4Qg-1; Thu, 15 Jun 2023 20:41:38 -0400
+X-MC-Unique: fx00yRaGMVmv4d4Zv6F4Qg-1
+Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-25eb77bcd2fso13428a91.3
+        for <linux-s390@vger.kernel.org>; Thu, 15 Jun 2023 17:41:38 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1686870174; x=1689462174;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=rocsqxxn2Z+cT1JHYvXfzCdKlHTpr3EP6mTFGVcBZg0=;
-        b=jUd0YvDc8VXcRSImc6vMS5IWDDjgBlol1NTx2+zMFgWtoURY6wVmPMf/o2yeThanBr
-         amcbeM8JOZW+xoCrNdLEGyWnQJEPuzAV+D+Rg4Cj/M6uCZNlHCMr/CagoXnHEwljutMA
-         QKVo8x1zjWVay1tYECwFbCdXi69KaIGv2fxzsSaKWcrDaXLsLSdbADq7R8vzIaqHJKYh
-         BcpxhKJRXDrX6v6un8MrQf1dEPqFCHnoYUIXlZaxtsJp3JWKfudQxyhz6gCK3wD6jcoe
-         cYxSWibyjWweEl3fA1jtjqyrHPVD7X17XLmdqy5aB2TTe2iBaHbPZetVYF601wcHfszu
-         6P6g==
-X-Gm-Message-State: AC+VfDzqt/umocVfyRabfv4a+H15w0HpkWHSOZ5lEarQWCwvY6mI+DYB
-        tg/WADUBgCayS0Y5aMfS8QMDtg==
-X-Google-Smtp-Source: ACHHUZ4yNZeWVfFpqfOHWwVeKQ0LO1X5XLl6oMWM14BiamATBX7pt4vwNxCwa9vlqY3LDt6NBppgPg==
-X-Received: by 2002:a81:7bd5:0:b0:56d:2dd6:c5b3 with SMTP id w204-20020a817bd5000000b0056d2dd6c5b3mr138534ywc.31.1686870174477;
-        Thu, 15 Jun 2023 16:02:54 -0700 (PDT)
-Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id w6-20020a0ded06000000b0056d2a19ad91sm2857020ywe.103.2023.06.15.16.02.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 15 Jun 2023 16:02:54 -0700 (PDT)
-Date:   Thu, 15 Jun 2023 16:02:43 -0700 (PDT)
-From:   Hugh Dickins <hughd@google.com>
-X-X-Sender: hugh@ripple.attlocal.net
-To:     Andrew Morton <akpm@linux-foundation.org>
-cc:     Nathan Chancellor <nathan@kernel.org>,
-        Hugh Dickins <hughd@google.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        David Hildenbrand <david@redhat.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Qi Zheng <zhengqi.arch@bytedance.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Greg Ungerer <gerg@linux-m68k.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Helge Deller <deller@gmx.de>,
-        John David Anglin <dave.anglin@bell.net>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Alexandre Ghiti <alexghiti@rivosinc.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Chris Zankel <chris@zankel.net>,
-        Max Filippov <jcmvbkbc@gmail.com>, Yu Zhao <yuzhao@google.com>,
-        x86@kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org
-Subject: [PATCH v2 07/23 replacement] mips: add pte_unmap() to balance
- pte_offset_map()
-In-Reply-To: <76b41825-30fa-b9e8-d043-2affcba24317@google.com>
-Message-ID: <addfcb3-b5f4-976e-e050-a2508e589cfe@google.com>
-References: <a4963be9-7aa6-350-66d0-2ba843e1af44@google.com> <178970b0-1539-8aac-76fd-972c6c46ec17@google.com> <20230614231758.GA1503611@dev-arch.thelio-3990X> <f5526f17-9d78-f7ea-427a-7e76bfeb6b8@google.com> <344a4da-3890-45fd-607e-b5f85ca6ad48@google.com>
- <20230615155059.GB3665766@dev-arch.thelio-3990X> <76b41825-30fa-b9e8-d043-2affcba24317@google.com>
+        d=1e100.net; s=20221208; t=1686876097; x=1689468097;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=YVi/iSZIypb2rz83jbLdeVn8uEiZiibOapI7DmVf0UU=;
+        b=WRIOdbxt7N1m7vfIcKt5Vhfb/7tOzFK5V1vtCKeJ84ih3Wrbrnu7Iao7azdrurc9dP
+         HisJfAP9RAhkwHN0+QdbOhBZGCAjG8kF9bDB7t8T7odYOB7g6ntflmdR0K9qVXkRQ7/8
+         G6fwgxRLUzTYhV9Oz8EnQTDqvaO3/FizdocHRVY8BPC/liyxcm54IckwvYi6xs75yspQ
+         su1A1ZkVjrSYUKUkoe3Qt9hS6tx5BkEV4fQgqgkY1MMFR/sJvnPmNxINEdAUGcf0flvF
+         uKYnc4dVBkTnuPvhmoz/RQIMvOnOszUrSIpaf9I9zeJoTq6l67Q8pTzzAp2H6tgnuCKs
+         tnBg==
+X-Gm-Message-State: AC+VfDz4zlBgsWP2/8epA74KtrMhTT1syd9jBmTtAAdcsC0OMS7S4lbN
+        p+Rt1ZiIogWb/gP9UvKu422uGTT4KE4+zF9p3yDy3kS0wq/1gfXF6EhYmrMQcotRDnm4o4mIFfs
+        hR7ArsD7Fj5+yMFMdV5mnzQ==
+X-Received: by 2002:a17:90a:760c:b0:25b:d67c:6a9e with SMTP id s12-20020a17090a760c00b0025bd67c6a9emr448090pjk.16.1686876097569;
+        Thu, 15 Jun 2023 17:41:37 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ66hZKofOAHTaqAzWgQ8l8u1H1l6VrFDfkHbJEsNGh4kvd3G3XkWzNM86Q73mR6t/1HtbJKpQ==
+X-Received: by 2002:a17:90a:760c:b0:25b:d67c:6a9e with SMTP id s12-20020a17090a760c00b0025bd67c6a9emr448081pjk.16.1686876097216;
+        Thu, 15 Jun 2023 17:41:37 -0700 (PDT)
+Received: from ?IPV6:2001:8003:7475:6e00:1e1e:4135:2440:ee05? ([2001:8003:7475:6e00:1e1e:4135:2440:ee05])
+        by smtp.gmail.com with ESMTPSA id w1-20020a17090ac98100b0025bdc3454c6sm195045pjt.8.2023.06.15.17.41.32
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 15 Jun 2023 17:41:36 -0700 (PDT)
+Message-ID: <2a1b0e2b-a412-143a-9a57-5f2c12e8944c@redhat.com>
+Date:   Fri, 16 Jun 2023 10:41:29 +1000
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.9.1
+Subject: Re: [kvm-unit-tests PATCH v3] runtime: Allow to specify properties
+ for accelerator
+Content-Language: en-US
+To:     Nico Boehr <nrb@linux.ibm.com>, kvmarm@lists.linux.dev
+Cc:     kvm@vger.kernel.org, kvm-ppc@vger.kernel.org,
+        linux-s390@vger.kernel.org, andrew.jones@linux.dev,
+        lvivier@redhat.com, thuth@redhat.com, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com, david@redhat.com, pbonzini@redhat.com,
+        shan.gavin@gmail.com
+References: <20230615062148.19883-1-gshan@redhat.com>
+ <168683636810.207611.6242722390379085462@t14-nrb>
+From:   Gavin Shan <gshan@redhat.com>
+In-Reply-To: <168683636810.207611.6242722390379085462@t14-nrb>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-To keep balance in future, __update_tlb() remember to pte_unmap() after
-pte_offset_map().  This is an odd case, since the caller has already done
-pte_offset_map_lock(), then mips forgets the address and recalculates it;
-but my two naive attempts to clean that up did more harm than good.
+Hi Nico,
 
-Tested-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Hugh Dickins <hughd@google.com>
----
-Andrew, please replace my mips patch, and its build warning fix patch,
-in mm-unstable by this less ambitious but working replacement - thanks.
+On 6/15/23 23:39, Nico Boehr wrote:
+> Quoting Gavin Shan (2023-06-15 08:21:48)
+>> There are extra properties for accelerators to enable the specific
+>> features. For example, the dirty ring for KVM accelerator can be
+>> enabled by "-accel kvm,dirty-ring-size=65536". Unfortuntely, the
+>> extra properties for the accelerators aren't supported. It makes
+>> it's impossible to test the combination of KVM and dirty ring
+>> as the following error message indicates.
+>>
+>>    # cd /home/gavin/sandbox/kvm-unit-tests/tests
+>>    # QEMU=/home/gavin/sandbox/qemu.main/build/qemu-system-aarch64 \
+>>      ACCEL=kvm,dirty-ring-size=65536 ./its-migration
+>>       :
+>>    BUILD_HEAD=2fffb37e
+>>    timeout -k 1s --foreground 90s /home/gavin/sandbox/qemu.main/build/qemu-system-aarch64 \
+>>    -nodefaults -machine virt -accel kvm,dirty-ring-size=65536 -cpu cortex-a57             \
+>>    -device virtio-serial-device -device virtconsole,chardev=ctd -chardev testdev,id=ctd   \
+>>    -device pci-testdev -display none -serial stdio -kernel _NO_FILE_4Uhere_ -smp 160      \
+>>    -machine gic-version=3 -append its-pending-migration # -initrd /tmp/tmp.gfDLa1EtWk
+>>    qemu-system-aarch64: kvm_init_vcpu: kvm_arch_init_vcpu failed (0): Invalid argument
+>>
+>> Allow to specify extra properties for accelerators. With this, the
+>> "its-migration" can be tested for the combination of KVM and dirty
+>> ring.
+>>
+>> Signed-off-by: Gavin Shan <gshan@redhat.com>
+> 
+> Maybe get_qemu_accelerator could be renamed now, since it doesn't actually "get"
+> anything, so maybe check_qemu_accelerator?
+> 
+> In any case, I gave it a quick run on s390x with kvm and tcg and nothing seems
+> to break, hence for the changes in s390x:
+> 
+> Tested-by: Nico Boehr <nrb@linux.ibm.com>
+> Acked-by: Nico Boehr <nrb@linux.ibm.com>
+> 
 
- arch/mips/mm/tlb-r4k.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+Thanks for a quick try and comment for this. I guess it's fine to keep 
+the function name as get_qemu_accelator() because $ACCEL is split into 
+$ACCEL and $ACCEL_PROPS inside it, even it don't print the accelerator 
+name at return. However, I'm also fine with check_qemu_accelerator(). 
+Lets see what's Drew's comment on this and I can post v4 to have the 
+modified function name, or an followup patch to modify the function name.
 
-diff --git a/arch/mips/mm/tlb-r4k.c b/arch/mips/mm/tlb-r4k.c
-index 1b939abbe4ca..93c2d695588a 100644
---- a/arch/mips/mm/tlb-r4k.c
-+++ b/arch/mips/mm/tlb-r4k.c
-@@ -297,7 +297,7 @@ void __update_tlb(struct vm_area_struct * vma, unsigned long address, pte_t pte)
- 	p4d_t *p4dp;
- 	pud_t *pudp;
- 	pmd_t *pmdp;
--	pte_t *ptep;
-+	pte_t *ptep, *ptemap = NULL;
- 	int idx, pid;
- 
- 	/*
-@@ -344,7 +344,12 @@ void __update_tlb(struct vm_area_struct * vma, unsigned long address, pte_t pte)
- 	} else
- #endif
- 	{
--		ptep = pte_offset_map(pmdp, address);
-+		ptemap = ptep = pte_offset_map(pmdp, address);
-+		/*
-+		 * update_mmu_cache() is called between pte_offset_map_lock()
-+		 * and pte_unmap_unlock(), so we can assume that ptep is not
-+		 * NULL here: and what should be done below if it were NULL?
-+		 */
- 
- #if defined(CONFIG_PHYS_ADDR_T_64BIT) && defined(CONFIG_CPU_MIPS32)
- #ifdef CONFIG_XPA
-@@ -373,6 +378,9 @@ void __update_tlb(struct vm_area_struct * vma, unsigned long address, pte_t pte)
- 	tlbw_use_hazard();
- 	htw_start();
- 	flush_micro_tlb_vm(vma);
-+
-+	if (ptemap)
-+		pte_unmap(ptemap);
- 	local_irq_restore(flags);
- }
- 
--- 
-2.35.3
+Thanks,
+Gavin
 
