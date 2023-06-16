@@ -2,217 +2,217 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B407BEB64DD
-	for <linux-s390@archiver.kernel.org>; Fri, 16 Jun 2023 18:56:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EEFDAEB64D8
+	for <linux-s390@archiver.kernel.org>; Fri, 16 Jun 2023 19:03:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230148AbjFPS42 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 16 Jun 2023 14:56:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36550 "EHLO
+        id S235609AbjFPTDJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 16 Jun 2023 15:03:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229939AbjFPS41 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 16 Jun 2023 14:56:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0D332962;
-        Fri, 16 Jun 2023 11:56:25 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A1B79629D4;
-        Fri, 16 Jun 2023 18:56:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0600CC433CA;
-        Fri, 16 Jun 2023 18:56:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1686941784;
-        bh=TiK/t/XTSx2fh8UkKw1baZqCETUm1DZqQZdzQBTpc/g=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=DR8ZwzCHVtydoaaxjVYJNAWu/EazGdygIZ9Srkd4r4zGNu0UV5wrYj4MX5arzEodp
-         UNvhvBrh5U4xGmDl5sewm5lcUokl1lD7VTeAPUPHyzYKCOX5F7Je9AJgJ0HqJqpHT2
-         dLMHymuA0MzirGgPHvlvL6U36HV4H2mHBFM4sA3+uLQ6uro16QwzRETHZvWuu01q0L
-         oEQm2Ghzu8fuJWG7gSLOHi6X72YNM+NGXR0jzbSIhti31b9mqhQFKwVaQG4h1o8jl3
-         sPN9LHTye4cTeZayTOrwNQq2w+QcnqfrU6lZ/h2mtxqSWd8YF98VAdngnnwpTSEIq6
-         2Cv/9seiufkYQ==
-Received: by mail-lj1-f170.google.com with SMTP id 38308e7fff4ca-2b34ac4b6e8so14417851fa.3;
-        Fri, 16 Jun 2023 11:56:23 -0700 (PDT)
-X-Gm-Message-State: AC+VfDzYuAZcLOCMG9gxJLJk5d7+npTPr693R2ZIBJxFSaFSsBVz1CnI
-        48m7nnhCmgGxGu0KlGNg75W592/tozMEEC1sXZc=
-X-Google-Smtp-Source: ACHHUZ5T8e7wpuuhOjnmCbHsB2+OgDZlJJ7sUOEWS0dN9xCa2iZ6+8btSZBMXNDx9vhO1lFKVvsg0dPvz5VmaKvg8Zw=
-X-Received: by 2002:a2e:80c2:0:b0:2b2:f9c8:6ad1 with SMTP id
- r2-20020a2e80c2000000b002b2f9c86ad1mr2553844ljg.42.1686941782011; Fri, 16 Jun
- 2023 11:56:22 -0700 (PDT)
-MIME-Version: 1.0
-References: <20230616085038.4121892-1-rppt@kernel.org> <20230616085038.4121892-6-rppt@kernel.org>
-In-Reply-To: <20230616085038.4121892-6-rppt@kernel.org>
-From:   Song Liu <song@kernel.org>
-Date:   Fri, 16 Jun 2023 11:56:09 -0700
-X-Gmail-Original-Message-ID: <CAPhsuW7qEEbyEBUPETHxMj+Kusow5zTk3Q4cRNo0qV+quUsZNA@mail.gmail.com>
-Message-ID: <CAPhsuW7qEEbyEBUPETHxMj+Kusow5zTk3Q4cRNo0qV+quUsZNA@mail.gmail.com>
-Subject: Re: [PATCH v2 05/12] modules, execmem: drop module_alloc
-To:     Mike Rapoport <rppt@kernel.org>
-Cc:     linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
+        with ESMTP id S1345770AbjFPTDD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 16 Jun 2023 15:03:03 -0400
+Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2058.outbound.protection.outlook.com [40.107.237.58])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 146C03AB5;
+        Fri, 16 Jun 2023 12:02:58 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=JN/v3l4XbnD/HBcSlxckL3cYHxC4uVQKegCxjBiTQNrgSSdXQ2TMkPiMfm5MRi5PQa6k7VAwE2GLsoqvD3ZXnY4OpBsVtFDgAW4WwUuo7mQMrqp5Cl3sVgobGnEBvCVkfbIkm8UZdRe96ujqDdRMBBe5Wsa6ejP5kIay6sZkMYRvOCfrxzvLzVeF91hnDwVpueAMlZEAl5DSMab8byyXWbmbzrMxawsi7oxcubwi3Pe8xXMvmDg1ixFVLZ5lgLx1G2565Ls2aXW3wdr8ilv04WOKKi+S/fI9BAhlGm54rpNw+TPCg21QCqCukztlSeTcf9LqHkeFbLW/Jw95jLWEAQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=oc9+cmsyQ7ClyqBWCUJKmesYXwKbwskFnJn3iebEKMo=;
+ b=ckU45o6hE555WtzAMiaUZgbl9SKagy4MjW6GYJaUCcrC4tPPW88NIOrn4g5ujuSebkQ+nTdnF1MDcKvbmnHcK8okE7cgo55xGxhGit1I/VhYRIDK8I+n34DXdXQEuSglwWumH0YojslByADiJ8/xIXKeLoMoQ9K/syJTuzc5Sn2HEEfcV1gZt/ZKlFsCNHQVhg1WBxq3HeUnZs42+Zfu69B2ne7JSahvQDcs1AOaNR/GJy0SpfjcunZYoDw8dB1dYGVxROsGEZDTcaoH2lEOUimpLl/T20u8Sk94uLn3h3P0Mb6QwGiXCmtQyGbL1JnjD3PlXthQ+L/VGSvd0n6orQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=oc9+cmsyQ7ClyqBWCUJKmesYXwKbwskFnJn3iebEKMo=;
+ b=FaffOsvV8xbHPY5E+gB/87OzK6CWY5NyETL1eT8n/+3R/yt8IRv1bnhESjAAV6fc6/YzHK5TuZDULkAcE3oSbdSXjfbonuxcfH962DyVB30nT80z/RIJBaJyCteqPwL1nnHNhBjDnT/KjN+eWBxkxOAoi/Ljgv+iRV3sKY29lvknaFKLa1C0Z0qc7CbW4XV6GfnoD+2zPkCB6W32AU+tOPA2cKTx/sEIWBTB/nJhWlXyAP82xHgi7/ewkqaybg9XuKEvDTGsaQcZkZiNT064qQuyPyfue8E/RLVz3MdR77svSFLkjMLLqKVHm/8k5vciF8OXsL9/bxuxSxnihIpveQ==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by DS7PR12MB5912.namprd12.prod.outlook.com (2603:10b6:8:7d::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6500.29; Fri, 16 Jun
+ 2023 19:02:55 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::f7a7:a561:87e9:5fab]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::f7a7:a561:87e9:5fab%7]) with mapi id 15.20.6477.037; Fri, 16 Jun 2023
+ 19:02:55 +0000
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Andy Gross <agross@kernel.org>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Bjorn Andersson <andersson@kernel.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Baolin Wang <baolin.wang@linux.alibaba.com>,
         Christophe Leroy <christophe.leroy@csgroup.eu>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Helge Deller <deller@gmx.de>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Kent Overstreet <kent.overstreet@linux.dev>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
+        linux-tegra@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
+        linuxppc-dev@lists.ozlabs.org,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Puranjay Mohan <puranjay12@gmail.com>,
-        Rick Edgecombe <rick.p.edgecombe@intel.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will@kernel.org>, bpf@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-        linux-mm@kvack.org, linux-modules@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
-        netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        Nicholas Piggin <npiggin@gmail.com>,
+        Orson Zhai <orsonzhai@gmail.com>,
+        Rob Clark <robdclark@gmail.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Krishna Reddy <vdumpa@nvidia.com>,
+        Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>,
+        Yong Wu <yong.wu@mediatek.com>,
+        Chunyan Zhang <zhang.lyra@gmail.com>
+Cc:     Lu Baolu <baolu.lu@linux.intel.com>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Nicolin Chen <nicolinc@nvidia.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Steven Price <steven.price@arm.com>,
+        Thierry Reding <treding@nvidia.com>
+Subject: [PATCH v4 07/25] iommu/mtk_iommu_v1: Implement an IDENTITY domain
+Date:   Fri, 16 Jun 2023 16:02:36 -0300
+Message-Id: <7-v4-874277bde66e+1a9f6-iommu_all_defdom_jgg@nvidia.com>
+In-Reply-To: <0-v4-874277bde66e+1a9f6-iommu_all_defdom_jgg@nvidia.com>
+References: 
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: BL1P221CA0028.NAMP221.PROD.OUTLOOK.COM
+ (2603:10b6:208:2c5::18) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|DS7PR12MB5912:EE_
+X-MS-Office365-Filtering-Correlation-Id: ba5fb741-ff9b-4aca-6bdf-08db6e9c4ab8
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: nDZX7Z0IMW7AIx81V45HVuwU/qcLbPpP6tYFrasRli8wZD8rSu39siksaXbtKytY4UZTlgcfGTJNoPWdLLKMaZRcvJzg1yH5M182hfvQ2mrgXn0eUWgqrqJ5jUXALS+Cs5fpEXFrjgScfYErNxJKp0/v4VciLZoTEVKME+7hmIzfDuedbs2Kth4WvkvQRtjZjaEJJ2QtK9VBJfZtzRkX4bPEukDiYBhsXuLBTdDUtESliiBZCEtlTfPXZ5ZihFGJVnP5+7KfHJzIC5+jQdbIXT42Bwr4thz9sml3fqg5NfKaOMQBThZ5q/E7d1+PuJtGmZT/UYsSFf3Siy12NKjFXAkxV7V9fcCCILOLLjmlKOlMeUT95FLrmfzEXZqJ/nYubOnKCFqKv1ydr6z7lUdDhTjNxAhMF3c5nmDBoyvOiCSCYEjzmC5cjQ1Jli99lzigk/MNBpyEEI0JTynWzxs3kDPKQSY/5iFZIMNZdVOkk/sj/o++Mxy2Vs7Q54Fs+X1Zn/nDczbir/veAu0NdoKRG28X93bof0st7WenQ+7xh8EyCI0jgNJzN7XNE0rQ/XZHziz1A8Ed2pfWsKfdg8fpMrK/ZE6RO8oPdxtt9MtLcgzeKs7Z+weiQbclqOk1TFcW
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(39860400002)(376002)(366004)(136003)(396003)(346002)(451199021)(36756003)(86362001)(110136005)(66556008)(66476007)(54906003)(4326008)(316002)(66946007)(107886003)(478600001)(6666004)(6486002)(7416002)(41300700001)(5660300002)(8936002)(8676002)(7406005)(2906002)(38100700002)(921005)(2616005)(83380400001)(6512007)(6506007)(186003)(26005)(4216001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?AS4myCmkuekrawsO3bY9j1M1g53dgMnIP0UQvpuXizhCMlEpp6lk1UF6OfKM?=
+ =?us-ascii?Q?9zrVrnT9WNISSqsISEjJIujeMmNCi+9ptbkZC1J994axUQ66koVkt9rXZiP0?=
+ =?us-ascii?Q?6EUVMK3ppZ/P74xuChGgkHk9+WDAH03kSd5C6YfJVecyMJFU4wO0DbNzCgzF?=
+ =?us-ascii?Q?P1NPUjg9fZe0gYcogFfrrFCtZr7Hp0b/4Yl2tASTByB6Z/il5aTLRzh73IT7?=
+ =?us-ascii?Q?AY+iT2NVfVBbzpoWMCl7phohE/jr7DXYvhjGoDsDM+1BCaBv6Yj5Mdxqrp0Q?=
+ =?us-ascii?Q?Gfk8Snoxi3jPAWpHzRO6zz+OHfS9jQMZo+hbe4Tm7JVmoKF420D3lNUswv5v?=
+ =?us-ascii?Q?PBHTkLjun4DgY5Cv8nfnTD8ccuZ7kh3V7yoUfKSFdPpOrElxl2QgqxAlZ/0W?=
+ =?us-ascii?Q?3adrQB1656CAiM5xoJzAsXQYTpAbgkwN24uUPlfmFca3LZEFv9sk/hCNS5M8?=
+ =?us-ascii?Q?n/VAfh1hBXfvdYPDAj1IazqUTvP7f7Wj/01mpRIfUfZJnw8rwwLb4OHOivMg?=
+ =?us-ascii?Q?XC4ZNFZt6HTynkIEbPekExQKAAUp+pA5jFD/7EE++lsmSOcaj99ouKQY00vG?=
+ =?us-ascii?Q?jEk9xjTBEpytDjzvqF/7t1P+2v9ZDN7x/yLjgBZJ8eQb6YqI6vMGOnPziYCp?=
+ =?us-ascii?Q?AOyfEGx4mRX6gJjlb+ukSu4hNuRarHf2cVJpc8TbE/QWgw025CIOPL2HHLUi?=
+ =?us-ascii?Q?k/Yt1IAdNP733f7wN1UYzVwlENjc1Wkfgh6qzpROHcJ02lBbDEA9sYtZSClt?=
+ =?us-ascii?Q?6678rpjTCfI4R6jAAUOnUOmBvq3JJ9eJdNgqYkIRu2Rxi+tagZYPT5EJu/Ke?=
+ =?us-ascii?Q?ZJ8qPh2+kGObI1TgjzZqHybccUsxHdeGqeFHbQP8nO3rO59p0NBGQOZVAx31?=
+ =?us-ascii?Q?cUZS3ars2597cRBaVvulHjdAk4i6y09vSLwosSpD2CazLP88WmHj3DUEQxlN?=
+ =?us-ascii?Q?7MTL26fKU/2jnSl29b/fhb9vnc7Jz2ZaC7ZXGFrhyutUMIO6H/wRn2XtcrvG?=
+ =?us-ascii?Q?pl09uG2kQbIigmvMAb4R5gtAt1avSEpU+kg5AyHWW0ZYlAuBZJ7y8OWMzoLP?=
+ =?us-ascii?Q?xa+C4x724FWljg7fva1yo6NAnGPREQcoI0AjeB06ymnVfM9+Prs9NRd+x5N8?=
+ =?us-ascii?Q?dN3dgyTZ8MZaBt0gsC6vt/lFm9ckmJHTPmSEHp31O0aT2xQD77SGYOnWyELZ?=
+ =?us-ascii?Q?aW5+15gSoHwizq2glnkpwvDf1R89xltrgJ1xjxyHq1loyKwF1PFrY8PHeUvo?=
+ =?us-ascii?Q?7FU14D7erLMuvnxJzrVEm1TYJbS1tV+yA3kI5C09U8mJP0R2wEELXIrB/w0M?=
+ =?us-ascii?Q?LJI/u3d+uZLcs+QHF0T6hGIEygwR3FI7tVwdVdjKpyZCur00cww/napcY3ew?=
+ =?us-ascii?Q?InIweydrkXiMJeoqdLaQ9Csx+cb7kIjaqdvlnFcp8aBdIRnH5mrfKRYjHout?=
+ =?us-ascii?Q?xSlTtNkTaAO/gtgBeLCccvtO9V8KOlnC05TAmLAw6cHZ17+CN00dAFcezzCZ?=
+ =?us-ascii?Q?DtEK+4I+LC1OjBAFGwvlqOVkoqs9C8799POjlTAc7IwqE4cq+OE5X9JlOZZj?=
+ =?us-ascii?Q?dhcDdAhPB5ayiBeWSe95PWZkgBDaM16A/tdUvvh6?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: ba5fb741-ff9b-4aca-6bdf-08db6e9c4ab8
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Jun 2023 19:02:55.2072
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: UwZo/lNoIHKTt80v3ZaHUrj1Py/BIiENoJXEqIjPRtgbjThprjcO/YGyaa6WOCDo
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS7PR12MB5912
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Jun 16, 2023 at 1:51=E2=80=AFAM Mike Rapoport <rppt@kernel.org> wro=
-te:
->
-> From: "Mike Rapoport (IBM)" <rppt@kernel.org>
->
-> Define default parameters for address range for code allocations using
-> the current values in module_alloc() and make execmem_text_alloc() use
-> these defaults when an architecure does not supply its specific
-> parameters.
->
-> With this, execmem_text_alloc() implements memory allocation in a way
-> compatible with module_alloc() and can be used as a replacement for
-> module_alloc().
->
-> Signed-off-by: Mike Rapoport (IBM) <rppt@kernel.org>
+What mtk does during mtk_iommu_v1_set_platform_dma() is actually putting
+the iommu into identity mode. Make this available as a proper IDENTITY
+domain.
 
-Acked-by: Song Liu <song@kernel.org>
+The mtk_iommu_v1_def_domain_type() from
+commit 8bbe13f52cb7 ("iommu/mediatek-v1: Add def_domain_type") explains
+this was needed to allow probe_finalize() to be called, but now the
+IDENTITY domain will do the same job so change the returned
+def_domain_type.
 
-> ---
->  include/linux/execmem.h      |  8 ++++++++
->  include/linux/moduleloader.h | 12 ------------
->  kernel/module/main.c         |  7 -------
->  mm/execmem.c                 | 12 ++++++++----
->  4 files changed, 16 insertions(+), 23 deletions(-)
->
-> diff --git a/include/linux/execmem.h b/include/linux/execmem.h
-> index 68b2bfc79993..b9a97fcdf3c5 100644
-> --- a/include/linux/execmem.h
-> +++ b/include/linux/execmem.h
-> @@ -4,6 +4,14 @@
->
->  #include <linux/types.h>
->
-> +#if (defined(CONFIG_KASAN_GENERIC) || defined(CONFIG_KASAN_SW_TAGS)) && =
-\
-> +               !defined(CONFIG_KASAN_VMALLOC)
-> +#include <linux/kasan.h>
-> +#define MODULE_ALIGN (PAGE_SIZE << KASAN_SHADOW_SCALE_SHIFT)
-> +#else
-> +#define MODULE_ALIGN PAGE_SIZE
-> +#endif
-> +
->  /**
->   * struct execmem_range - definition of a memory range suitable for code=
- and
->   *                       related data allocations
-> diff --git a/include/linux/moduleloader.h b/include/linux/moduleloader.h
-> index b3374342f7af..4321682fe849 100644
-> --- a/include/linux/moduleloader.h
-> +++ b/include/linux/moduleloader.h
-> @@ -25,10 +25,6 @@ int module_frob_arch_sections(Elf_Ehdr *hdr,
->  /* Additional bytes needed by arch in front of individual sections */
->  unsigned int arch_mod_section_prepend(struct module *mod, unsigned int s=
-ection);
->
-> -/* Allocator used for allocating struct module, core sections and init
-> -   sections.  Returns NULL on failure. */
-> -void *module_alloc(unsigned long size);
-> -
->  /* Determines if the section name is an init section (that is only used =
-during
->   * module loading).
->   */
-> @@ -113,12 +109,4 @@ void module_arch_cleanup(struct module *mod);
->  /* Any cleanup before freeing mod->module_init */
->  void module_arch_freeing_init(struct module *mod);
->
-> -#if (defined(CONFIG_KASAN_GENERIC) || defined(CONFIG_KASAN_SW_TAGS)) && =
-\
-> -               !defined(CONFIG_KASAN_VMALLOC)
-> -#include <linux/kasan.h>
-> -#define MODULE_ALIGN (PAGE_SIZE << KASAN_SHADOW_SCALE_SHIFT)
-> -#else
-> -#define MODULE_ALIGN PAGE_SIZE
-> -#endif
-> -
->  #endif
-> diff --git a/kernel/module/main.c b/kernel/module/main.c
-> index 43810a3bdb81..b445c5ad863a 100644
-> --- a/kernel/module/main.c
-> +++ b/kernel/module/main.c
-> @@ -1600,13 +1600,6 @@ static void free_modinfo(struct module *mod)
->         }
->  }
->
-> -void * __weak module_alloc(unsigned long size)
-> -{
-> -       return __vmalloc_node_range(size, 1, VMALLOC_START, VMALLOC_END,
-> -                       GFP_KERNEL, PAGE_KERNEL_EXEC, VM_FLUSH_RESET_PERM=
-S,
-> -                       NUMA_NO_NODE, __builtin_return_address(0));
-> -}
-> -
->  bool __weak module_init_section(const char *name)
->  {
->         return strstarts(name, ".init");
-> diff --git a/mm/execmem.c b/mm/execmem.c
-> index 2fe36dcc7bdf..a67acd75ffef 100644
-> --- a/mm/execmem.c
-> +++ b/mm/execmem.c
-> @@ -59,9 +59,6 @@ void *execmem_text_alloc(size_t size)
->         unsigned long fallback_end =3D execmem_params.modules.text.fallba=
-ck_end;
->         bool kasan =3D execmem_params.modules.flags & EXECMEM_KASAN_SHADO=
-W;
->
-> -       if (!execmem_params.modules.text.start)
-> -               return module_alloc(size);
-> -
->         return execmem_alloc(size, start, end, align, pgprot,
->                              fallback_start, fallback_end, kasan);
->  }
-> @@ -108,8 +105,15 @@ void __init execmem_init(void)
->  {
->         struct execmem_params *p =3D execmem_arch_params();
->
-> -       if (!p)
-> +       if (!p) {
-> +               p =3D &execmem_params;
-> +               p->modules.text.start =3D VMALLOC_START;
-> +               p->modules.text.end =3D VMALLOC_END;
-> +               p->modules.text.pgprot =3D PAGE_KERNEL_EXEC;
-> +               p->modules.text.alignment =3D 1;
-> +
->                 return;
-> +       }
->
->         if (!execmem_validate_params(p))
->                 return;
-> --
-> 2.35.1
->
+mkt_v1 is the only driver that returns IOMMU_DOMAIN_UNMANAGED from
+def_domain_type().  This allows the next patch to enforce an IDENTITY
+domain policy for this driver.
+
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+---
+ drivers/iommu/mtk_iommu_v1.c | 21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/iommu/mtk_iommu_v1.c b/drivers/iommu/mtk_iommu_v1.c
+index 8a0a5e5d049f4a..cc3e7d53d33ad9 100644
+--- a/drivers/iommu/mtk_iommu_v1.c
++++ b/drivers/iommu/mtk_iommu_v1.c
+@@ -319,11 +319,27 @@ static int mtk_iommu_v1_attach_device(struct iommu_domain *domain, struct device
+ 	return 0;
+ }
+ 
+-static void mtk_iommu_v1_set_platform_dma(struct device *dev)
++static int mtk_iommu_v1_identity_attach(struct iommu_domain *identity_domain,
++					struct device *dev)
+ {
+ 	struct mtk_iommu_v1_data *data = dev_iommu_priv_get(dev);
+ 
+ 	mtk_iommu_v1_config(data, dev, false);
++	return 0;
++}
++
++static struct iommu_domain_ops mtk_iommu_v1_identity_ops = {
++	.attach_dev = mtk_iommu_v1_identity_attach,
++};
++
++static struct iommu_domain mtk_iommu_v1_identity_domain = {
++	.type = IOMMU_DOMAIN_IDENTITY,
++	.ops = &mtk_iommu_v1_identity_ops,
++};
++
++static void mtk_iommu_v1_set_platform_dma(struct device *dev)
++{
++	mtk_iommu_v1_identity_attach(&mtk_iommu_v1_identity_domain, dev);
+ }
+ 
+ static int mtk_iommu_v1_map(struct iommu_domain *domain, unsigned long iova,
+@@ -443,7 +459,7 @@ static int mtk_iommu_v1_create_mapping(struct device *dev, struct of_phandle_arg
+ 
+ static int mtk_iommu_v1_def_domain_type(struct device *dev)
+ {
+-	return IOMMU_DOMAIN_UNMANAGED;
++	return IOMMU_DOMAIN_IDENTITY;
+ }
+ 
+ static struct iommu_device *mtk_iommu_v1_probe_device(struct device *dev)
+@@ -578,6 +594,7 @@ static int mtk_iommu_v1_hw_init(const struct mtk_iommu_v1_data *data)
+ }
+ 
+ static const struct iommu_ops mtk_iommu_v1_ops = {
++	.identity_domain = &mtk_iommu_v1_identity_domain,
+ 	.domain_alloc	= mtk_iommu_v1_domain_alloc,
+ 	.probe_device	= mtk_iommu_v1_probe_device,
+ 	.probe_finalize = mtk_iommu_v1_probe_finalize,
+-- 
+2.40.1
+
