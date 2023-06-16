@@ -2,88 +2,110 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C1B4AEB64DB
-	for <linux-s390@archiver.kernel.org>; Fri, 16 Jun 2023 10:33:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A98D2EB64DD
+	for <linux-s390@archiver.kernel.org>; Fri, 16 Jun 2023 10:37:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345020AbjFPKd0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 16 Jun 2023 06:33:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56032 "EHLO
+        id S1345318AbjFPKh3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 16 Jun 2023 06:37:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345039AbjFPKck (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 16 Jun 2023 06:32:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 957D244A7;
-        Fri, 16 Jun 2023 03:28:10 -0700 (PDT)
+        with ESMTP id S1345566AbjFPKfo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 16 Jun 2023 06:35:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C0165FF9;
+        Fri, 16 Jun 2023 03:29:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (2048 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 63CFE636E9;
-        Fri, 16 Jun 2023 10:28:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48438C433C0;
-        Fri, 16 Jun 2023 10:28:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0FD436371E;
+        Fri, 16 Jun 2023 10:28:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68B85C433C9;
+        Fri, 16 Jun 2023 10:28:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1686911289;
-        bh=CPJtvXq+0UcPj+i21l3YUmyr8tluJ4O7kby0EZfq1Rk=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c1umlr3UJIfQ/sOB5CLMHNf9mXXhhnz3/EZsqrkoRsq+Hwk40atBSh2csgRpObHQ7
-         G6PTDteOtX+/2ZwxcK/Bqmr8A88V6aC3ZnnE9HO/3TnyPtTlV3Ijdc8nNDo4fSc1Iy
-         P1wpo7bFVNIxwYJPHbKOlHI9f9UbAMNK8Pt4r0jfstrOc18Yg0e1gVS0Pw9aK5FY8t
-         4usVTS3VYBxGHZRfPjvmcRVqwq3MrXHEfYiUkFa2HlccD0HZqUK7RnP1UJXRMDYGMw
-         d3uyGRunsV2kmDyztZn71BQg8A9EkgVdbQTxh001BDPohjpUjs9pY6wdobp2xbcXRl
-         EpZ3BI0iKhW2w==
+        s=k20201202; t=1686911322;
+        bh=zLFmXR4yc5DU/V5y29p2DeWsmiV4dH7qGzetBSpoCIg=;
+        h=From:To:Cc:Subject:Date:From;
+        b=VMVmbaKUDh8fX3VSXJ7SRf4UbkWqfwvnVPjxzjEGxfh+M8St4e/fiSAwR/QRivqny
+         O5h2+AeMaXKjesDsl22i7EIEoiqL6BkbKM17P6wxQPyFYDmCF6kYin7ZbC+2jWxBlt
+         nIWSrA1E26vVT54hpXX4rjJ/+Y6tu4X2Xw2nN28VvCL2wSQdrKa33NT/+4QvYrSSxn
+         +BGJJs+TPMtu+jxqTCYZoNITgesdyeIj0KMprJu60oKD30KB50Co+Yus1YlEvAmUYV
+         jdh+3uYMZhUX5rsvx28n9DbUjwf98YRq28+i+g3QpVakNS7l95WXRxfRgEV+7o0XdC
+         FBwxJhWG0RQ1w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+Cc:     Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>, hca@linux.ibm.com,
-        paul.walmsley@sifive.com, palmer@dabbelt.com,
-        aou@eecs.berkeley.edu, masahiroy@kernel.org, svens@linux.ibm.com,
-        nathan@kernel.org, linux-s390@vger.kernel.org,
-        linux-riscv@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 07/14] s390/purgatory: disable branch profiling
-Date:   Fri, 16 Jun 2023 06:27:44 -0400
-Message-Id: <20230616102753.673975-7-sashal@kernel.org>
+        gor@linux.ibm.com, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 1/6] s390/cio: unregister device when the only path is gone
+Date:   Fri, 16 Jun 2023 06:28:34 -0400
+Message-Id: <20230616102839.674283-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230616102753.673975-1-sashal@kernel.org>
-References: <20230616102753.673975-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 5.10.184
+X-stable-base: Linux 4.19.286
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Alexander Gordeev <agordeev@linux.ibm.com>
+From: Vineeth Vijayan <vneethv@linux.ibm.com>
 
-[ Upstream commit 03c5c83b70dca3729a3eb488e668e5044bd9a5ea ]
+[ Upstream commit 89c0c62e947a01e7a36b54582fd9c9e346170255 ]
 
-Avoid linker error for randomly generated config file that
-has CONFIG_BRANCH_PROFILE_NONE enabled and make it similar
-to riscv, x86 and also to commit 4bf3ec384edf ("s390: disable
-branch profiling for vdso").
+Currently, if the device is offline and all the channel paths are
+either configured or varied offline, the associated subchannel gets
+unregistered. Don't unregister the subchannel, instead unregister
+offline device.
 
-Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
+Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
 Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/purgatory/Makefile | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/s390/cio/device.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/purgatory/Makefile b/arch/s390/purgatory/Makefile
-index 21c4ebe29b9a2..a93c9aba834be 100644
---- a/arch/s390/purgatory/Makefile
-+++ b/arch/s390/purgatory/Makefile
-@@ -25,6 +25,7 @@ KBUILD_CFLAGS += -Wno-pointer-sign -Wno-sign-compare
- KBUILD_CFLAGS += -fno-zero-initialized-in-bss -fno-builtin -ffreestanding
- KBUILD_CFLAGS += -c -MD -Os -m64 -msoft-float -fno-common
- KBUILD_CFLAGS += -fno-stack-protector
-+KBUILD_CFLAGS += -DDISABLE_BRANCH_PROFILING
- KBUILD_CFLAGS += $(CLANG_FLAGS)
- KBUILD_CFLAGS += $(call cc-option,-fno-PIE)
- KBUILD_AFLAGS := $(filter-out -DCC_USING_EXPOLINE,$(KBUILD_AFLAGS))
+diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
+index c9bc9a6bd73b7..ee4338158ae2e 100644
+--- a/drivers/s390/cio/device.c
++++ b/drivers/s390/cio/device.c
+@@ -1353,6 +1353,7 @@ void ccw_device_set_notoper(struct ccw_device *cdev)
+ enum io_sch_action {
+ 	IO_SCH_UNREG,
+ 	IO_SCH_ORPH_UNREG,
++	IO_SCH_UNREG_CDEV,
+ 	IO_SCH_ATTACH,
+ 	IO_SCH_UNREG_ATTACH,
+ 	IO_SCH_ORPH_ATTACH,
+@@ -1385,7 +1386,7 @@ static enum io_sch_action sch_get_action(struct subchannel *sch)
+ 	}
+ 	if ((sch->schib.pmcw.pam & sch->opm) == 0) {
+ 		if (ccw_device_notify(cdev, CIO_NO_PATH) != NOTIFY_OK)
+-			return IO_SCH_UNREG;
++			return IO_SCH_UNREG_CDEV;
+ 		return IO_SCH_DISC;
+ 	}
+ 	if (device_is_disconnected(cdev))
+@@ -1447,6 +1448,7 @@ static int io_subchannel_sch_event(struct subchannel *sch, int process)
+ 	case IO_SCH_ORPH_ATTACH:
+ 		ccw_device_set_disconnected(cdev);
+ 		break;
++	case IO_SCH_UNREG_CDEV:
+ 	case IO_SCH_UNREG_ATTACH:
+ 	case IO_SCH_UNREG:
+ 		if (!cdev)
+@@ -1480,6 +1482,7 @@ static int io_subchannel_sch_event(struct subchannel *sch, int process)
+ 		if (rc)
+ 			goto out;
+ 		break;
++	case IO_SCH_UNREG_CDEV:
+ 	case IO_SCH_UNREG_ATTACH:
+ 		spin_lock_irqsave(sch->lock, flags);
+ 		if (cdev->private->flags.resuming) {
 -- 
 2.39.2
 
