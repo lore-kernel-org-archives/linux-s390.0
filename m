@@ -2,42 +2,42 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 66A82C04FE2
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AB836C05053
 	for <linux-s390@archiver.kernel.org>; Fri, 16 Jun 2023 09:41:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344314AbjFPJku (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 16 Jun 2023 05:40:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53404 "EHLO
+        id S1344106AbjFPJkx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 16 Jun 2023 05:40:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344697AbjFPJkb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 16 Jun 2023 05:40:31 -0400
+        with ESMTP id S244585AbjFPJkh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 16 Jun 2023 05:40:37 -0400
 Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3F572726;
-        Fri, 16 Jun 2023 02:40:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6215F2726;
+        Fri, 16 Jun 2023 02:40:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1686908430; x=1718444430;
+  t=1686908436; x=1718444436;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=TsLmVQiuI7X329VTfsjtmJXA6wIkFHNKh0uxmmCdxY8=;
-  b=NABoGrq92vIl9Qrr90ZpiniGorphEjTwIYIxInjp7xIlavrN2wO++klf
-   rzRol5+N+ERTY4uT5FUkku1Ltrqr1ptXpjWaEQjfpbKzkDBxTmB8ACk4U
-   C3u4sZ35bff3w6Y9ZocIxTiJWPVM7Qz46ARUlQ1M1oO+UcbE01bmhkmh1
-   qPT9p3vOHazdM23IT+xqPfiWBfGSVc0DC2S1ZRlR39kgHVNjok+11KynC
-   /0mB2+R8NnXyp1onvwcT6YrFMqRSYZMcSjFRoSJYgUuH39R7CuekmWso6
-   j3l3qd3b/3hiNgi9R1iisEAljqvho5uqtPgpQ6mGfyY9h7DHtXeuLqi5A
-   g==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10742"; a="361700458"
+  bh=6B2ssMaZqxYuqId22oB4ezjv68M759mAB05IH5aiNnY=;
+  b=YLXyx3/JdQtHQj/w+9R5uwbHipCHWk2zMbl1K4RIoAY0ESP+Msze1O/F
+   33GKJhcZyFbBaEfC1SLZMIE5QpwOZFDiX93aRJa5v6G1aPW5j1jiwrsfW
+   IQywXn2JPG2ZJCM2RQcjUy/XaKJMrgrhCTuPMlIRjMr3DHvoUnbCNDZwV
+   32cyEZxyljD66nmAZEU3pwQ+SKfgrAK+bM8E6PTQi1/pZ/S07mvurOC42
+   yPCmqIAYlRLlnAGxW8NyMEIhQByZyrDv2tHKEJpEHshCiJcad6l8wIeax
+   yTyYCDJgfATKJlNf+OVYRG0oU9To57cXwBZsgnz4Z/mECjoE3l+F34VDQ
+   A==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10742"; a="361700495"
 X-IronPort-AV: E=Sophos;i="6.00,247,1681196400"; 
-   d="scan'208";a="361700458"
+   d="scan'208";a="361700495"
 Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Jun 2023 02:40:30 -0700
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Jun 2023 02:40:36 -0700
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10742"; a="715951266"
+X-IronPort-AV: E=McAfee;i="6600,9927,10742"; a="715951299"
 X-IronPort-AV: E=Sophos;i="6.00,247,1681196400"; 
-   d="scan'208";a="715951266"
+   d="scan'208";a="715951299"
 Received: from 984fee00a4c6.jf.intel.com ([10.165.58.231])
-  by fmsmga007.fm.intel.com with ESMTP; 16 Jun 2023 02:40:28 -0700
+  by fmsmga007.fm.intel.com with ESMTP; 16 Jun 2023 02:40:34 -0700
 From:   Yi Liu <yi.l.liu@intel.com>
 To:     alex.williamson@redhat.com, jgg@nvidia.com, kevin.tian@intel.com
 Cc:     joro@8bytes.org, robin.murphy@arm.com, cohuck@redhat.com,
@@ -51,9 +51,9 @@ Cc:     joro@8bytes.org, robin.murphy@arm.com, cohuck@redhat.com,
         xudong.hao@intel.com, yan.y.zhao@intel.com, terrence.xu@intel.com,
         yanting.jiang@intel.com, zhenzhong.duan@intel.com,
         clegoate@redhat.com
-Subject: [PATCH v13 19/22] vfio: Add VFIO_DEVICE_[AT|DE]TACH_IOMMUFD_PT
-Date:   Fri, 16 Jun 2023 02:39:43 -0700
-Message-Id: <20230616093946.68711-20-yi.l.liu@intel.com>
+Subject: [PATCH v13 22/22] docs: vfio: Add vfio device cdev description
+Date:   Fri, 16 Jun 2023 02:39:46 -0700
+Message-Id: <20230616093946.68711-23-yi.l.liu@intel.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20230616093946.68711-1-yi.l.liu@intel.com>
 References: <20230616093946.68711-1-yi.l.liu@intel.com>
@@ -63,217 +63,168 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This adds ioctl for userspace to attach device cdev fd to and detach
-from IOAS/hw_pagetable managed by iommufd.
+This gives notes for userspace applications on device cdev usage.
 
-    VFIO_DEVICE_ATTACH_IOMMUFD_PT: attach vfio device to IOAS, hw_pagetable
-				   managed by iommufd. Attach can be
-				   undo by VFIO_DEVICE_DETACH_IOMMUFD_PT
-				   or device fd close.
-    VFIO_DEVICE_DETACH_IOMMUFD_PT: detach vfio device from the current attached
-				   IOAS or hw_pagetable managed by iommufd.
-
-Only allowed on cdev fds.  cdev does not support noiommu devices, hence
-noiommu devices do not support [AT|DE]TACH.
-
-Tested-by: Nicolin Chen <nicolinc@nvidia.com>
-Tested-by: Matthew Rosato <mjrosato@linux.ibm.com>
-Tested-by: Yanting Jiang <yanting.jiang@intel.com>
-Tested-by: Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>
-Tested-by: Terrence Xu <terrence.xu@intel.com>
+Reviewed-by: Kevin Tian <kevin.tian@intel.com>
 Signed-off-by: Yi Liu <yi.l.liu@intel.com>
 ---
- drivers/vfio/device_cdev.c | 66 ++++++++++++++++++++++++++++++++++++++
- drivers/vfio/vfio.h        | 16 +++++++++
- drivers/vfio/vfio_main.c   |  8 +++++
- include/uapi/linux/vfio.h  | 44 +++++++++++++++++++++++++
- 4 files changed, 134 insertions(+)
+ Documentation/driver-api/vfio.rst | 139 ++++++++++++++++++++++++++++++
+ 1 file changed, 139 insertions(+)
 
-diff --git a/drivers/vfio/device_cdev.c b/drivers/vfio/device_cdev.c
-index a4498ddbe774..6e1d499ee160 100644
---- a/drivers/vfio/device_cdev.c
-+++ b/drivers/vfio/device_cdev.c
-@@ -167,6 +167,72 @@ long vfio_df_ioctl_bind_iommufd(struct vfio_device_file *df,
- 	return ret;
- }
+diff --git a/Documentation/driver-api/vfio.rst b/Documentation/driver-api/vfio.rst
+index 363e12c90b87..633d11c7fa71 100644
+--- a/Documentation/driver-api/vfio.rst
++++ b/Documentation/driver-api/vfio.rst
+@@ -239,6 +239,137 @@ group and can access them as follows::
+ 	/* Gratuitous device reset and go... */
+ 	ioctl(device, VFIO_DEVICE_RESET);
  
-+int vfio_df_ioctl_attach_pt(struct vfio_device_file *df,
-+			    struct vfio_device_attach_iommufd_pt __user *arg)
-+{
-+	struct vfio_device *device = df->device;
-+	struct vfio_device_attach_iommufd_pt attach;
-+	unsigned long minsz;
-+	int ret;
++IOMMUFD and vfio_iommu_type1
++----------------------------
 +
-+	minsz = offsetofend(struct vfio_device_attach_iommufd_pt, pt_id);
++IOMMUFD is the new user API to manage I/O page tables from userspace.
++It intends to be the portal of delivering advanced userspace DMA
++features (nested translation [5]_, PASID [6]_, etc.) while also providing
++a backwards compatibility interface for existing VFIO_TYPE1v2_IOMMU use
++cases.  Eventually the vfio_iommu_type1 driver, as well as the legacy
++vfio container and group model is intended to be deprecated.
 +
-+	if (copy_from_user(&attach, arg, minsz))
-+		return -EFAULT;
++The IOMMUFD backwards compatibility interface can be enabled two ways.
++In the first method, the kernel can be configured with
++CONFIG_IOMMUFD_VFIO_CONTAINER, in which case the IOMMUFD subsystem
++transparently provides the entire infrastructure for the VFIO
++container and IOMMU backend interfaces.  The compatibility mode can
++also be accessed if the VFIO container interface, ie. /dev/vfio/vfio is
++simply symlink'd to /dev/iommu.  Note that at the time of writing, the
++compatibility mode is not entirely feature complete relative to
++VFIO_TYPE1v2_IOMMU (ex. DMA mapping MMIO) and does not attempt to
++provide compatibility to the VFIO_SPAPR_TCE_IOMMU interface.  Therefore
++it is not generally advisable at this time to switch from native VFIO
++implementations to the IOMMUFD compatibility interfaces.
 +
-+	if (attach.argsz < minsz || attach.flags)
-+		return -EINVAL;
++Long term, VFIO users should migrate to device access through the cdev
++interface described below, and native access through the IOMMUFD
++provided interfaces.
 +
-+	/* ATTACH only allowed for cdev fds */
-+	if (df->group)
-+		return -EINVAL;
++VFIO Device cdev
++----------------
 +
-+	mutex_lock(&device->dev_set->lock);
-+	ret = device->ops->attach_ioas(device, &attach.pt_id);
-+	if (ret)
-+		goto out_unlock;
++Traditionally user acquires a device fd via VFIO_GROUP_GET_DEVICE_FD
++in a VFIO group.
 +
-+	ret = copy_to_user(&arg->pt_id, &attach.pt_id,
-+			   sizeof(attach.pt_id)) ? -EFAULT : 0;
-+	if (ret)
-+		goto out_detach;
-+	mutex_unlock(&device->dev_set->lock);
++With CONFIG_VFIO_DEVICE_CDEV=y the user can now acquire a device fd
++by directly opening a character device /dev/vfio/devices/vfioX where
++"X" is the number allocated uniquely by VFIO for registered devices.
++cdev interface does not support noiommu devices, so user should use
++the legacy group interface if noiommu is wanted.
 +
-+	return 0;
++The cdev only works with IOMMUFD.  Both VFIO drivers and applications
++must adapt to the new cdev security model which requires using
++VFIO_DEVICE_BIND_IOMMUFD to claim DMA ownership before starting to
++actually use the device.  Once BIND succeeds then a VFIO device can
++be fully accessed by the user.
 +
-+out_detach:
-+	device->ops->detach_ioas(device);
-+out_unlock:
-+	mutex_unlock(&device->dev_set->lock);
-+	return ret;
-+}
++VFIO device cdev doesn't rely on VFIO group/container/iommu drivers.
++Hence those modules can be fully compiled out in an environment
++where no legacy VFIO application exists.
 +
-+int vfio_df_ioctl_detach_pt(struct vfio_device_file *df,
-+			    struct vfio_device_detach_iommufd_pt __user *arg)
-+{
-+	struct vfio_device *device = df->device;
-+	struct vfio_device_detach_iommufd_pt detach;
-+	unsigned long minsz;
++So far SPAPR does not support IOMMUFD yet.  So it cannot support device
++cdev either.
 +
-+	minsz = offsetofend(struct vfio_device_detach_iommufd_pt, flags);
++vfio device cdev access is still bound by IOMMU group semantics, ie. there
++can be only one DMA owner for the group.  Devices belonging to the same
++group can not be bound to multiple iommufd_ctx or shared between native
++kernel and vfio bus driver or other driver supporting the driver_managed_dma
++flag.  A violation of this ownership requirement will fail at the
++VFIO_DEVICE_BIND_IOMMUFD ioctl, which gates full device access.
 +
-+	if (copy_from_user(&detach, arg, minsz))
-+		return -EFAULT;
++Device cdev Example
++-------------------
 +
-+	if (detach.argsz < minsz || detach.flags)
-+		return -EINVAL;
++Assume user wants to access PCI device 0000:6a:01.0::
 +
-+	/* DETACH only allowed for cdev fds */
-+	if (df->group)
-+		return -EINVAL;
++	$ ls /sys/bus/pci/devices/0000:6a:01.0/vfio-dev/
++	vfio0
 +
-+	mutex_lock(&device->dev_set->lock);
-+	device->ops->detach_ioas(device);
-+	mutex_unlock(&device->dev_set->lock);
++This device is therefore represented as vfio0.  The user can verify
++its existence::
 +
-+	return 0;
-+}
++	$ ls -l /dev/vfio/devices/vfio0
++	crw------- 1 root root 511, 0 Feb 16 01:22 /dev/vfio/devices/vfio0
++	$ cat /sys/bus/pci/devices/0000:6a:01.0/vfio-dev/vfio0/dev
++	511:0
++	$ ls -l /dev/char/511\:0
++	lrwxrwxrwx 1 root root 21 Feb 16 01:22 /dev/char/511:0 -> ../vfio/devices/vfio0
 +
- static char *vfio_device_devnode(const struct device *dev, umode_t *mode)
- {
- 	return kasprintf(GFP_KERNEL, "vfio/devices/%s", dev_name(dev));
-diff --git a/drivers/vfio/vfio.h b/drivers/vfio/vfio.h
-index a6e7cf6793fd..e7a3fe093362 100644
---- a/drivers/vfio/vfio.h
-+++ b/drivers/vfio/vfio.h
-@@ -290,6 +290,10 @@ int vfio_device_fops_cdev_open(struct inode *inode, struct file *filep);
- void vfio_df_cdev_close(struct vfio_device_file *df);
- long vfio_df_ioctl_bind_iommufd(struct vfio_device_file *df,
- 				struct vfio_device_bind_iommufd __user *arg);
-+int vfio_df_ioctl_attach_pt(struct vfio_device_file *df,
-+			    struct vfio_device_attach_iommufd_pt __user *arg);
-+int vfio_df_ioctl_detach_pt(struct vfio_device_file *df,
-+			    struct vfio_device_detach_iommufd_pt __user *arg);
- int vfio_cdev_init(struct class *device_class);
- void vfio_cdev_cleanup(void);
- #else
-@@ -323,6 +327,18 @@ static inline long vfio_df_ioctl_bind_iommufd(struct vfio_device_file *df,
- 	return -EOPNOTSUPP;
- }
++Then provide the user with access to the device if unprivileged
++operation is desired::
++
++	$ chown user:user /dev/vfio/devices/vfio0
++
++Finally the user could get cdev fd by::
++
++	cdev_fd = open("/dev/vfio/devices/vfio0", O_RDWR);
++
++An opened cdev_fd doesn't give the user any permission of accessing
++the device except binding the cdev_fd to an iommufd.  After that point
++then the device is fully accessible including attaching it to an
++IOMMUFD IOAS/HWPT to enable userspace DMA::
++
++	struct vfio_device_bind_iommufd bind = {
++		.argsz = sizeof(bind),
++		.flags = 0,
++	};
++	struct iommu_ioas_alloc alloc_data  = {
++		.size = sizeof(alloc_data),
++		.flags = 0,
++	};
++	struct vfio_device_attach_iommufd_pt attach_data = {
++		.argsz = sizeof(attach_data),
++		.flags = 0,
++	};
++	struct iommu_ioas_map map = {
++		.size = sizeof(map),
++		.flags = IOMMU_IOAS_MAP_READABLE |
++			 IOMMU_IOAS_MAP_WRITEABLE |
++			 IOMMU_IOAS_MAP_FIXED_IOVA,
++		.__reserved = 0,
++	};
++
++	iommufd = open("/dev/iommu", O_RDWR);
++
++	bind.iommufd = iommufd;
++	ioctl(cdev_fd, VFIO_DEVICE_BIND_IOMMUFD, &bind);
++
++	ioctl(iommufd, IOMMU_IOAS_ALLOC, &alloc_data);
++	attach_data.pt_id = alloc_data.out_ioas_id;
++	ioctl(cdev_fd, VFIO_DEVICE_ATTACH_IOMMUFD_PT, &attach_data);
++
++	/* Allocate some space and setup a DMA mapping */
++	map.user_va = (int64_t)mmap(0, 1024 * 1024, PROT_READ | PROT_WRITE,
++				    MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
++	map.iova = 0; /* 1MB starting at 0x0 from device view */
++	map.length = 1024 * 1024;
++	map.ioas_id = alloc_data.out_ioas_id;;
++
++	ioctl(iommufd, IOMMU_IOAS_MAP, &map);
++
++	/* Other device operations as stated in "VFIO Usage Example" */
++
+ VFIO User API
+ -------------------------------------------------------------------------------
  
-+static inline int vfio_df_ioctl_attach_pt(struct vfio_device_file *df,
-+					  struct vfio_device_attach_iommufd_pt __user *arg)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
-+static inline int vfio_df_ioctl_detach_pt(struct vfio_device_file *df,
-+					  struct vfio_device_detach_iommufd_pt __user *arg)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
- static inline int vfio_cdev_init(struct class *device_class)
- {
- 	return 0;
-diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
-index 83ddd9f515ac..51c80eb32af6 100644
---- a/drivers/vfio/vfio_main.c
-+++ b/drivers/vfio/vfio_main.c
-@@ -1163,6 +1163,14 @@ static long vfio_device_fops_unl_ioctl(struct file *filep,
- 		ret = vfio_ioctl_device_feature(device, (void __user *)arg);
- 		break;
+@@ -566,3 +697,11 @@ This implementation has some specifics:
+ 				\-0d.1
  
-+	case VFIO_DEVICE_ATTACH_IOMMUFD_PT:
-+		ret = vfio_df_ioctl_attach_pt(df, (void __user *)arg);
-+		break;
+ 	00:1e.0 PCI bridge: Intel Corporation 82801 PCI Bridge (rev 90)
 +
-+	case VFIO_DEVICE_DETACH_IOMMUFD_PT:
-+		ret = vfio_df_ioctl_detach_pt(df, (void __user *)arg);
-+		break;
++.. [5] Nested translation is an IOMMU feature which supports two stage
++   address translations.  This improves the address translation efficiency
++   in IOMMU virtualization.
 +
- 	default:
- 		if (unlikely(!device->ops->ioctl))
- 			ret = -EINVAL;
-diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
-index f1cad8fb4bab..087d2f847f6e 100644
---- a/include/uapi/linux/vfio.h
-+++ b/include/uapi/linux/vfio.h
-@@ -900,6 +900,50 @@ struct vfio_device_bind_iommufd {
- 
- #define VFIO_DEVICE_BIND_IOMMUFD	_IO(VFIO_TYPE, VFIO_BASE + 18)
- 
-+/*
-+ * VFIO_DEVICE_ATTACH_IOMMUFD_PT - _IOW(VFIO_TYPE, VFIO_BASE + 19,
-+ *					struct vfio_device_attach_iommufd_pt)
-+ * @argsz:	User filled size of this data.
-+ * @flags:	Must be 0.
-+ * @pt_id:	Input the target id which can represent an ioas or a hwpt
-+ *		allocated via iommufd subsystem.
-+ *		Output the input ioas id or the attached hwpt id which could
-+ *		be the specified hwpt itself or a hwpt automatically created
-+ *		for the specified ioas by kernel during the attachment.
-+ *
-+ * Associate the device with an address space within the bound iommufd.
-+ * Undo by VFIO_DEVICE_DETACH_IOMMUFD_PT or device fd close.  This is only
-+ * allowed on cdev fds.
-+ *
-+ * Return: 0 on success, -errno on failure.
-+ */
-+struct vfio_device_attach_iommufd_pt {
-+	__u32	argsz;
-+	__u32	flags;
-+	__u32	pt_id;
-+};
-+
-+#define VFIO_DEVICE_ATTACH_IOMMUFD_PT		_IO(VFIO_TYPE, VFIO_BASE + 19)
-+
-+/*
-+ * VFIO_DEVICE_DETACH_IOMMUFD_PT - _IOW(VFIO_TYPE, VFIO_BASE + 20,
-+ *					struct vfio_device_detach_iommufd_pt)
-+ * @argsz:	User filled size of this data.
-+ * @flags:	Must be 0.
-+ *
-+ * Remove the association of the device and its current associated address
-+ * space.  After it, the device should be in a blocking DMA state.  This is only
-+ * allowed on cdev fds.
-+ *
-+ * Return: 0 on success, -errno on failure.
-+ */
-+struct vfio_device_detach_iommufd_pt {
-+	__u32	argsz;
-+	__u32	flags;
-+};
-+
-+#define VFIO_DEVICE_DETACH_IOMMUFD_PT		_IO(VFIO_TYPE, VFIO_BASE + 20)
-+
- /*
-  * Provide support for setting a PCI VF Token, which is used as a shared
-  * secret between PF and VF drivers.  This feature may only be set on a
++.. [6] PASID stands for Process Address Space ID, introduced by PCI
++   Express.  It is a prerequisite for Shared Virtual Addressing (SVA)
++   and Scalable I/O Virtualization (Scalable IOV).
 -- 
 2.34.1
 
