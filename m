@@ -2,55 +2,55 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C307C001B1
-	for <linux-s390@archiver.kernel.org>; Fri, 16 Jun 2023 10:29:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D611EB64DA
+	for <linux-s390@archiver.kernel.org>; Fri, 16 Jun 2023 10:32:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344779AbjFPK3i (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 16 Jun 2023 06:29:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49708 "EHLO
+        id S1345105AbjFPKcC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 16 Jun 2023 06:32:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344675AbjFPK27 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 16 Jun 2023 06:28:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F2C335BE;
-        Fri, 16 Jun 2023 03:26:55 -0700 (PDT)
+        with ESMTP id S1344543AbjFPKaj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 16 Jun 2023 06:30:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5533A3C23;
+        Fri, 16 Jun 2023 03:27:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (2048 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A6F4635A2;
-        Fri, 16 Jun 2023 10:26:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C034C433C0;
-        Fri, 16 Jun 2023 10:26:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2FD9B635D4;
+        Fri, 16 Jun 2023 10:27:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 230DEC433C9;
+        Fri, 16 Jun 2023 10:27:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1686911214;
-        bh=s91xc+b49aRIeahADLlpFRGHjYPIxXCRT0Db06lUIgI=;
+        s=k20201202; t=1686911258;
+        bh=/2eu/IzHEjIEziEOgpfNknSs8ILwYCCzdmfnALL8w/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RfHOEfdw07EW+/ZlzRuD5PKZyz+5rMR5z4tdoNHaA/JUO+r4/qaAhtwS9grfqrvtU
-         PoJL+IQlpBghJhfwvCWta+qQfSEdngbdB+xCn6grUxXu5dSEsXo+0xyf4qqgtESvD9
-         PdmDzA9fDMRfr7CPwTpv1AUCGB1TyvxfL+IKwmIJadcY+Hx2HiL1DfeotafxkTDdAW
-         4cVK8ooPOwiZMePDwbJ2hxG+LBnsQg6lWiqC9YB8okgJCL1TiLxLf2IuxdlVViU2MF
-         RZfu6FVxNP2+gdIcz+70i/qFaWU60f2K4gYcDtLq42iqKxK5w+GtY7QuBxqqNe3TVk
-         QGQ+rKEYb/HIA==
+        b=TeE4lABO3LhB1axvrQrpi/kO/fLDnn1yXcR4b2o8GWkULyBgSq3uvYQmQ0c1hkLEg
+         D9ALZ1RB81v1XWPJvNz7V6WZ2yZqmY817ky1o4ozXT7AoEWHNmrM/ucFxxMAdNdzNh
+         dM2va06obvqGI4Yj5SYHNwlTV21w42hoA4W/hBPSONVCTlffGK1Vqtz6XVeZ7dTsQL
+         vTECMlGuvqCIxTOg8uy0+LKWG9qMXWvwbe9jLzBp6wOL68Ta15kYsoOBBWc5FH8DIf
+         Sroj1fkOUjdxA4JSLuMYeuF+ugHcVOSMuFr4K+d9EXFo7uDWNBGQ2jE0d2Tj10EvEL
+         S35nVmnOA41tw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>, hca@linux.ibm.com,
         paul.walmsley@sifive.com, palmer@dabbelt.com,
-        aou@eecs.berkeley.edu, masahiroy@kernel.org, nathan@kernel.org,
-        svens@linux.ibm.com, linux-s390@vger.kernel.org,
+        aou@eecs.berkeley.edu, masahiroy@kernel.org, svens@linux.ibm.com,
+        nathan@kernel.org, linux-s390@vger.kernel.org,
         linux-riscv@lists.infradead.org
-Subject: [PATCH AUTOSEL 6.1 14/26] s390/purgatory: disable branch profiling
-Date:   Fri, 16 Jun 2023 06:26:11 -0400
-Message-Id: <20230616102625.673454-14-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 08/16] s390/purgatory: disable branch profiling
+Date:   Fri, 16 Jun 2023 06:27:11 -0400
+Message-Id: <20230616102721.673775-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230616102625.673454-1-sashal@kernel.org>
-References: <20230616102625.673454-1-sashal@kernel.org>
+In-Reply-To: <20230616102721.673775-1-sashal@kernel.org>
+References: <20230616102721.673775-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.1.34
+X-stable-base: Linux 5.15.117
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
@@ -73,7 +73,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+)
 
 diff --git a/arch/s390/purgatory/Makefile b/arch/s390/purgatory/Makefile
-index d237bc6841cb8..4cbf306b8181f 100644
+index 360ada80d20c3..d22ec8acb13c5 100644
 --- a/arch/s390/purgatory/Makefile
 +++ b/arch/s390/purgatory/Makefile
 @@ -26,6 +26,7 @@ KBUILD_CFLAGS += -Wno-pointer-sign -Wno-sign-compare
