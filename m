@@ -2,36 +2,36 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C5FCEB64D7
-	for <linux-s390@archiver.kernel.org>; Fri, 16 Jun 2023 10:42:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0144AEB64D7
+	for <linux-s390@archiver.kernel.org>; Fri, 16 Jun 2023 10:57:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345388AbjFPKmx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 16 Jun 2023 06:42:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39390 "EHLO
+        id S1345543AbjFPK5h (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 16 Jun 2023 06:57:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345395AbjFPKmi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 16 Jun 2023 06:42:38 -0400
+        with ESMTP id S1345541AbjFPK5S (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 16 Jun 2023 06:57:18 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 280D3AD22;
-        Fri, 16 Jun 2023 03:34:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 753DB8682;
+        Fri, 16 Jun 2023 03:49:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (2048 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 062DD635D4;
-        Fri, 16 Jun 2023 10:28:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7715FC433C8;
-        Fri, 16 Jun 2023 10:28:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 62DE0635F3;
+        Fri, 16 Jun 2023 10:28:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2A5EC433C0;
+        Fri, 16 Jun 2023 10:28:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1686911304;
-        bh=WojL8egNg8VQgEXFo1FB9It8jiQ2ip8ME0OModaYAJo=;
+        s=k20201202; t=1686911334;
+        bh=oSMXR/HjDE60lLaUFRyr17SQk8tUZHFVAN/RdtCRu3Q=;
         h=From:To:Cc:Subject:Date:From;
-        b=ZUwqkM5MswzY6kOvRJf/ZsryFVo7Sy2U81Cp6k8r6+A7z0RVY3v6TE9nxyVEHLaNr
-         MtGkv7CLpBHDqz/M/9m09/8uteB1YSNWvh171pRqbQ4TpKZ11IAcZExPNbMWSe7rho
-         ngw+CdgRVDhh2bDo9jv/9tAAfFCxFkNja1gwCeAC79MrpBZ2TUEZTWUBVhwoESJ6G1
-         envTn66+6niBLwPYjJSgmj/+KTBERPJhHjgeuuA9AcOuKdshGHPJMCLDCbR76NVqfo
-         ENkZGZueYsKibT+33wlC6pvqm6FzJbXY3xPoU30h7cW2Dt0lfkmKtGiFrfobi05lGP
-         4oO0vufvYSbng==
+        b=jSCp6azbb59GRuBgttWXaMakWyX8Vx5k4d1xT7s7Ysgz6BWqZ8SC/n7ipfglPf9O1
+         r1v8xYL3MUge44hVseJdrLyGKQ4vvV+/eG4SKFy7CqzjWgciy6GZL22y1hQuOuN4m3
+         7ktrhb8AbBNS7TkRdcMLczg+EpSLeQWMEkrL+Md0xWHX0sjsRGSpsjoZC89+iO0Kv/
+         PaesfgHwpU4xrOTdZZasqfqzzhXN/vXIHJQwIM0AgLPNvmZdc8xOpjkYq1VmxrPF0I
+         mf8HXhB3/aU9SJC306jQ9bVfgStGKDODAzNYXlT3BCYUBymoiVg/tXiPddrM61Q+7g
+         mYLFDAMfD/ylw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Vineeth Vijayan <vneethv@linux.ibm.com>,
@@ -39,14 +39,14 @@ Cc:     Vineeth Vijayan <vneethv@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>, hca@linux.ibm.com,
         gor@linux.ibm.com, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 1/8] s390/cio: unregister device when the only path is gone
-Date:   Fri, 16 Jun 2023 06:28:14 -0400
-Message-Id: <20230616102821.674153-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 1/5] s390/cio: unregister device when the only path is gone
+Date:   Fri, 16 Jun 2023 06:28:47 -0400
+Message-Id: <20230616102852.674366-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 5.4.247
+X-stable-base: Linux 4.14.318
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
@@ -70,10 +70,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
-index 23e9227e60fd7..d7ca75efb49fb 100644
+index d2203cd178138..6721e984782db 100644
 --- a/drivers/s390/cio/device.c
 +++ b/drivers/s390/cio/device.c
-@@ -1385,6 +1385,7 @@ void ccw_device_set_notoper(struct ccw_device *cdev)
+@@ -1357,6 +1357,7 @@ void ccw_device_set_notoper(struct ccw_device *cdev)
  enum io_sch_action {
  	IO_SCH_UNREG,
  	IO_SCH_ORPH_UNREG,
@@ -81,7 +81,7 @@ index 23e9227e60fd7..d7ca75efb49fb 100644
  	IO_SCH_ATTACH,
  	IO_SCH_UNREG_ATTACH,
  	IO_SCH_ORPH_ATTACH,
-@@ -1417,7 +1418,7 @@ static enum io_sch_action sch_get_action(struct subchannel *sch)
+@@ -1389,7 +1390,7 @@ static enum io_sch_action sch_get_action(struct subchannel *sch)
  	}
  	if ((sch->schib.pmcw.pam & sch->opm) == 0) {
  		if (ccw_device_notify(cdev, CIO_NO_PATH) != NOTIFY_OK)
@@ -90,7 +90,7 @@ index 23e9227e60fd7..d7ca75efb49fb 100644
  		return IO_SCH_DISC;
  	}
  	if (device_is_disconnected(cdev))
-@@ -1479,6 +1480,7 @@ static int io_subchannel_sch_event(struct subchannel *sch, int process)
+@@ -1451,6 +1452,7 @@ static int io_subchannel_sch_event(struct subchannel *sch, int process)
  	case IO_SCH_ORPH_ATTACH:
  		ccw_device_set_disconnected(cdev);
  		break;
@@ -98,7 +98,7 @@ index 23e9227e60fd7..d7ca75efb49fb 100644
  	case IO_SCH_UNREG_ATTACH:
  	case IO_SCH_UNREG:
  		if (!cdev)
-@@ -1512,6 +1514,7 @@ static int io_subchannel_sch_event(struct subchannel *sch, int process)
+@@ -1484,6 +1486,7 @@ static int io_subchannel_sch_event(struct subchannel *sch, int process)
  		if (rc)
  			goto out;
  		break;
