@@ -2,110 +2,105 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0144AEB64D7
-	for <linux-s390@archiver.kernel.org>; Fri, 16 Jun 2023 10:57:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 70621EB64DB
+	for <linux-s390@archiver.kernel.org>; Fri, 16 Jun 2023 11:45:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345543AbjFPK5h (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 16 Jun 2023 06:57:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52124 "EHLO
+        id S1345047AbjFPLp2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 16 Jun 2023 07:45:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345541AbjFPK5S (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 16 Jun 2023 06:57:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 753DB8682;
-        Fri, 16 Jun 2023 03:49:38 -0700 (PDT)
+        with ESMTP id S1345052AbjFPLpU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 16 Jun 2023 07:45:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46A8530EC;
+        Fri, 16 Jun 2023 04:45:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 62DE0635F3;
-        Fri, 16 Jun 2023 10:28:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2A5EC433C0;
-        Fri, 16 Jun 2023 10:28:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 899E361CD7;
+        Fri, 16 Jun 2023 11:44:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29582C433C8;
+        Fri, 16 Jun 2023 11:44:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1686911334;
-        bh=oSMXR/HjDE60lLaUFRyr17SQk8tUZHFVAN/RdtCRu3Q=;
-        h=From:To:Cc:Subject:Date:From;
-        b=jSCp6azbb59GRuBgttWXaMakWyX8Vx5k4d1xT7s7Ysgz6BWqZ8SC/n7ipfglPf9O1
-         r1v8xYL3MUge44hVseJdrLyGKQ4vvV+/eG4SKFy7CqzjWgciy6GZL22y1hQuOuN4m3
-         7ktrhb8AbBNS7TkRdcMLczg+EpSLeQWMEkrL+Md0xWHX0sjsRGSpsjoZC89+iO0Kv/
-         PaesfgHwpU4xrOTdZZasqfqzzhXN/vXIHJQwIM0AgLPNvmZdc8xOpjkYq1VmxrPF0I
-         mf8HXhB3/aU9SJC306jQ9bVfgStGKDODAzNYXlT3BCYUBymoiVg/tXiPddrM61Q+7g
-         mYLFDAMfD/ylw==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, hca@linux.ibm.com,
-        gor@linux.ibm.com, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 1/5] s390/cio: unregister device when the only path is gone
-Date:   Fri, 16 Jun 2023 06:28:47 -0400
-Message-Id: <20230616102852.674366-1-sashal@kernel.org>
-X-Mailer: git-send-email 2.39.2
+        s=k20201202; t=1686915898;
+        bh=SBlkM7J7cvJwutjgEGnThrak9ds+eyJewMFlSVnYUvs=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=dr7CzoJHNGeu3w3PgQKLWgVwS9T8cogmFWxroVNKHQZDVRo1UlUd3ic6QqjbwPyzL
+         OrTkekqfG41TcJ3iuPiKUyrB43uuzPMT/0N+uNrFSxpmmBrDSUdTB52vLORYSlSGYC
+         zBPrNwFYpqJ6pHwJkfuoCJg83QW4DoAAZMoW7rg5cWa/X5mOB3ohe76UHlwkbmHF3A
+         /s/K3g9D3SAsQdF/x03HA66saxLvv2vv83w0xLa5tpsgpmppcvsyNqXALWojA66hpv
+         A4m1rairPJ1Asf5I3bxm4yZMgl9hnWw00dt40QPDw754Cvio4MJWVbW7zmCUuCnxMU
+         OmX7v0eMaso5Q==
+From:   =?utf-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>
+To:     Mike Rapoport <rppt@kernel.org>, linux-kernel@vger.kernel.org
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Helge Deller <deller@gmx.de>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Kent Overstreet <kent.overstreet@linux.dev>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Mike Rapoport <rppt@kernel.org>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Puranjay Mohan <puranjay12@gmail.com>,
+        Rick Edgecombe <rick.p.edgecombe@intel.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Song Liu <song@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will@kernel.org>, bpf@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+        linux-mm@kvack.org, linux-modules@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+        netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
+Subject: Re: [PATCH v2 12/12] kprobes: remove dependcy on CONFIG_MODULES
+In-Reply-To: <20230616085038.4121892-13-rppt@kernel.org>
+References: <20230616085038.4121892-1-rppt@kernel.org>
+ <20230616085038.4121892-13-rppt@kernel.org>
+Date:   Fri, 16 Jun 2023 13:44:55 +0200
+Message-ID: <87r0qbmy14.fsf@all.your.base.are.belong.to.us>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-X-stable-base: Linux 4.14.318
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Vineeth Vijayan <vneethv@linux.ibm.com>
+Mike Rapoport <rppt@kernel.org> writes:
 
-[ Upstream commit 89c0c62e947a01e7a36b54582fd9c9e346170255 ]
+> From: "Mike Rapoport (IBM)" <rppt@kernel.org>
+>
+> kprobes depended on CONFIG_MODULES because it has to allocate memory for
+> code.
 
-Currently, if the device is offline and all the channel paths are
-either configured or varied offline, the associated subchannel gets
-unregistered. Don't unregister the subchannel, instead unregister
-offline device.
+I think you can remove the MODULES dependency from BPF_JIT as well:
 
-Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
-Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/s390/cio/device.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+--8<--
+diff --git a/kernel/bpf/Kconfig b/kernel/bpf/Kconfig
+index 2dfe1079f772..fa4587027f8b 100644
+--- a/kernel/bpf/Kconfig
++++ b/kernel/bpf/Kconfig
+@@ -41,7 +41,6 @@ config BPF_JIT
+        bool "Enable BPF Just In Time compiler"
+        depends on BPF
+        depends on HAVE_CBPF_JIT || HAVE_EBPF_JIT
+-       depends on MODULES
+        help
+          BPF programs are normally handled by a BPF interpreter. This opti=
+on
+          allows the kernel to generate native code when a program is loaded
+--8<--
 
-diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
-index d2203cd178138..6721e984782db 100644
---- a/drivers/s390/cio/device.c
-+++ b/drivers/s390/cio/device.c
-@@ -1357,6 +1357,7 @@ void ccw_device_set_notoper(struct ccw_device *cdev)
- enum io_sch_action {
- 	IO_SCH_UNREG,
- 	IO_SCH_ORPH_UNREG,
-+	IO_SCH_UNREG_CDEV,
- 	IO_SCH_ATTACH,
- 	IO_SCH_UNREG_ATTACH,
- 	IO_SCH_ORPH_ATTACH,
-@@ -1389,7 +1390,7 @@ static enum io_sch_action sch_get_action(struct subchannel *sch)
- 	}
- 	if ((sch->schib.pmcw.pam & sch->opm) == 0) {
- 		if (ccw_device_notify(cdev, CIO_NO_PATH) != NOTIFY_OK)
--			return IO_SCH_UNREG;
-+			return IO_SCH_UNREG_CDEV;
- 		return IO_SCH_DISC;
- 	}
- 	if (device_is_disconnected(cdev))
-@@ -1451,6 +1452,7 @@ static int io_subchannel_sch_event(struct subchannel *sch, int process)
- 	case IO_SCH_ORPH_ATTACH:
- 		ccw_device_set_disconnected(cdev);
- 		break;
-+	case IO_SCH_UNREG_CDEV:
- 	case IO_SCH_UNREG_ATTACH:
- 	case IO_SCH_UNREG:
- 		if (!cdev)
-@@ -1484,6 +1486,7 @@ static int io_subchannel_sch_event(struct subchannel *sch, int process)
- 		if (rc)
- 			goto out;
- 		break;
-+	case IO_SCH_UNREG_CDEV:
- 	case IO_SCH_UNREG_ATTACH:
- 		spin_lock_irqsave(sch->lock, flags);
- 		if (cdev->private->flags.resuming) {
--- 
-2.39.2
 
+Bj=C3=B6rn
