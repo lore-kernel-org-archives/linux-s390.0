@@ -2,36 +2,36 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A98D2EB64DD
-	for <linux-s390@archiver.kernel.org>; Fri, 16 Jun 2023 10:37:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6437DC001B1
+	for <linux-s390@archiver.kernel.org>; Fri, 16 Jun 2023 10:37:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345318AbjFPKh3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 16 Jun 2023 06:37:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57018 "EHLO
+        id S1345327AbjFPKhc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 16 Jun 2023 06:37:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345566AbjFPKfo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 16 Jun 2023 06:35:44 -0400
+        with ESMTP id S1345285AbjFPKeV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 16 Jun 2023 06:34:21 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C0165FF9;
-        Fri, 16 Jun 2023 03:29:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B3EC5B82;
+        Fri, 16 Jun 2023 03:28:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (2048 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0FD436371E;
-        Fri, 16 Jun 2023 10:28:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68B85C433C9;
-        Fri, 16 Jun 2023 10:28:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2414F6364D;
+        Fri, 16 Jun 2023 10:27:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81F9FC433CB;
+        Fri, 16 Jun 2023 10:27:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1686911322;
-        bh=zLFmXR4yc5DU/V5y29p2DeWsmiV4dH7qGzetBSpoCIg=;
-        h=From:To:Cc:Subject:Date:From;
-        b=VMVmbaKUDh8fX3VSXJ7SRf4UbkWqfwvnVPjxzjEGxfh+M8St4e/fiSAwR/QRivqny
-         O5h2+AeMaXKjesDsl22i7EIEoiqL6BkbKM17P6wxQPyFYDmCF6kYin7ZbC+2jWxBlt
-         nIWSrA1E26vVT54hpXX4rjJ/+Y6tu4X2Xw2nN28VvCL2wSQdrKa33NT/+4QvYrSSxn
-         +BGJJs+TPMtu+jxqTCYZoNITgesdyeIj0KMprJu60oKD30KB50Co+Yus1YlEvAmUYV
-         jdh+3uYMZhUX5rsvx28n9DbUjwf98YRq28+i+g3QpVakNS7l95WXRxfRgEV+7o0XdC
-         FBwxJhWG0RQ1w==
+        s=k20201202; t=1686911277;
+        bh=v85b04W1DapFfpcx6P71cQD3emM7txMajGmkgOk/9GA=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=fMxXm48jHrkkRgIlmxjw2Uj+Y9NGyAzxo48uvM2vVX2e16hXY8BP0/rxnN4LZX6h8
+         2HBlx1rqAivgdX7xYBZwO96VZFas+lH/S/Zwmx/sbTEcKtCMIjX4hFCzbeUhxXq268
+         l/ohwuid5Vr//RRs1mC/PVgA6D6dtsyLdtdG40qrZNfPTlazyImDHCeAHL6VUaiNX9
+         n6/AjspkFbBMtmFkhF5Fg6a5+cjrjzsI4jUKklpKCKebEDuSSlkUNSf9NNHdKWmWC6
+         tk37u5A+5s21gHdPPv2jJ03efTGPzoZRixpcXVyFZC1Nwqv/xbIvq/Cx+iCt8785td
+         902KvH442EPVQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Vineeth Vijayan <vneethv@linux.ibm.com>,
@@ -39,14 +39,16 @@ Cc:     Vineeth Vijayan <vneethv@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>, hca@linux.ibm.com,
         gor@linux.ibm.com, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 1/6] s390/cio: unregister device when the only path is gone
-Date:   Fri, 16 Jun 2023 06:28:34 -0400
-Message-Id: <20230616102839.674283-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 02/14] s390/cio: unregister device when the only path is gone
+Date:   Fri, 16 Jun 2023 06:27:39 -0400
+Message-Id: <20230616102753.673975-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230616102753.673975-1-sashal@kernel.org>
+References: <20230616102753.673975-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 4.19.286
+X-stable-base: Linux 5.10.184
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
@@ -70,10 +72,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
-index c9bc9a6bd73b7..ee4338158ae2e 100644
+index 33280ca181e95..6f9c81db6e429 100644
 --- a/drivers/s390/cio/device.c
 +++ b/drivers/s390/cio/device.c
-@@ -1353,6 +1353,7 @@ void ccw_device_set_notoper(struct ccw_device *cdev)
+@@ -1385,6 +1385,7 @@ void ccw_device_set_notoper(struct ccw_device *cdev)
  enum io_sch_action {
  	IO_SCH_UNREG,
  	IO_SCH_ORPH_UNREG,
@@ -81,7 +83,7 @@ index c9bc9a6bd73b7..ee4338158ae2e 100644
  	IO_SCH_ATTACH,
  	IO_SCH_UNREG_ATTACH,
  	IO_SCH_ORPH_ATTACH,
-@@ -1385,7 +1386,7 @@ static enum io_sch_action sch_get_action(struct subchannel *sch)
+@@ -1417,7 +1418,7 @@ static enum io_sch_action sch_get_action(struct subchannel *sch)
  	}
  	if ((sch->schib.pmcw.pam & sch->opm) == 0) {
  		if (ccw_device_notify(cdev, CIO_NO_PATH) != NOTIFY_OK)
@@ -90,7 +92,7 @@ index c9bc9a6bd73b7..ee4338158ae2e 100644
  		return IO_SCH_DISC;
  	}
  	if (device_is_disconnected(cdev))
-@@ -1447,6 +1448,7 @@ static int io_subchannel_sch_event(struct subchannel *sch, int process)
+@@ -1479,6 +1480,7 @@ static int io_subchannel_sch_event(struct subchannel *sch, int process)
  	case IO_SCH_ORPH_ATTACH:
  		ccw_device_set_disconnected(cdev);
  		break;
@@ -98,7 +100,7 @@ index c9bc9a6bd73b7..ee4338158ae2e 100644
  	case IO_SCH_UNREG_ATTACH:
  	case IO_SCH_UNREG:
  		if (!cdev)
-@@ -1480,6 +1482,7 @@ static int io_subchannel_sch_event(struct subchannel *sch, int process)
+@@ -1512,6 +1514,7 @@ static int io_subchannel_sch_event(struct subchannel *sch, int process)
  		if (rc)
  			goto out;
  		break;
