@@ -2,138 +2,200 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 51D81C0015E
-	for <linux-s390@archiver.kernel.org>; Sat, 17 Jun 2023 06:58:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 27108EB64DA
+	for <linux-s390@archiver.kernel.org>; Sat, 17 Jun 2023 12:13:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233254AbjFQG6t (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 17 Jun 2023 02:58:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38164 "EHLO
+        id S233241AbjFQMNL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 17 Jun 2023 08:13:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229500AbjFQG6s (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 17 Jun 2023 02:58:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A82871FD3;
-        Fri, 16 Jun 2023 23:58:47 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        with ESMTP id S234747AbjFQMNK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 17 Jun 2023 08:13:10 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B81E19A9
+        for <linux-s390@vger.kernel.org>; Sat, 17 Jun 2023 05:12:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1687003942;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=/uSTCkptTsC4xYTqgPPYvFLo6KQm6ldgKXcPsN3l6RA=;
+        b=Z6Frxe6ximAio09RDRSSYVO4d9uNqsNKg+3CajR+wJqkkHsKyrxyf+A79+v+vtCIol0Dvp
+        tmsqYGlHQ3Yp3fOGw8NePAVsjybMO7/75+sLAbgNggvFa6oJW9R+4OJ3eD51klCFoZDZLO
+        Bd8JHt2T6WJ4v2Kb2L5l97aH2kV5/QE=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-558-nNaYjr9QPY2y9kjWTK_iSQ-1; Sat, 17 Jun 2023 08:12:21 -0400
+X-MC-Unique: nNaYjr9QPY2y9kjWTK_iSQ-1
+Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3686A60B29;
-        Sat, 17 Jun 2023 06:58:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9588BC433C0;
-        Sat, 17 Jun 2023 06:58:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1686985126;
-        bh=9S4P8JW7Aw6+2ZoVDniU5EdIBLc9OdiTvqw3YA9ECf4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=nHkTyW+hctadrgmIg2I6LaptKR6YKkmtmdcOS/HSni9feQ5p1DZtCSX6Dnam1slU3
-         FLDQnf/OEx1d4jSPxMmAwLEhSg3dDkigyXgxGzkX1VJc1UJnkk6n01fCEZ0qwx4ELP
-         r6wbjQNoXnPg5HveUgv1zS7owOZuF5kej34YgRIGZdC2tH3sGX0H+MpQa784HSW6mk
-         qjN9Au7ZhvMEPLupJ+gAv5/GudEwZVVlLyNGJFO9CDGv8qdQ0I+Zmw8CDlXcjxb8w/
-         RZuOMQ5h8Q4Z/8VeTux+zm8PEK9dnLGg98fBUnC+4CbpTq0gKeC8d5BMUXJufl+4IU
-         tPAEuFrGSOYnA==
-Date:   Sat, 17 Jun 2023 09:57:59 +0300
-From:   Mike Rapoport <rppt@kernel.org>
-To:     Song Liu <song@kernel.org>
-Cc:     linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 8037D800962;
+        Sat, 17 Jun 2023 12:12:19 +0000 (UTC)
+Received: from warthog.procyon.org.com (unknown [10.42.28.51])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id E9EAE48FB01;
+        Sat, 17 Jun 2023 12:12:15 +0000 (UTC)
+From:   David Howells <dhowells@redhat.com>
+To:     netdev@vger.kernel.org
+Cc:     David Howells <dhowells@redhat.com>,
+        Alexander Duyck <alexander.duyck@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Helge Deller <deller@gmx.de>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Kent Overstreet <kent.overstreet@linux.dev>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Puranjay Mohan <puranjay12@gmail.com>,
-        Rick Edgecombe <rick.p.edgecombe@intel.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will@kernel.org>, bpf@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-        linux-mm@kvack.org, linux-modules@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
-        netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
-Subject: Re: [PATCH v2 07/12] arm64, execmem: extend execmem_params for
- generated code definitions
-Message-ID: <20230617065759.GT52412@kernel.org>
-References: <20230616085038.4121892-1-rppt@kernel.org>
- <20230616085038.4121892-8-rppt@kernel.org>
- <CAPhsuW6BG2oVrGDOpCKyOEvU9fBOboYYhducv96KUBe276Mvng@mail.gmail.com>
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+        David Ahern <dsahern@kernel.org>,
+        Matthew Wilcox <willy@infradead.org>,
+        Jens Axboe <axboe@kernel.dk>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org,
+        John Fastabend <john.fastabend@gmail.com>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Jan Karcher <jaka@linux.ibm.com>,
+        "D. Wythe" <alibuda@linux.alibaba.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        Wen Gu <guwen@linux.alibaba.com>,
+        Boris Pismenny <borisp@nvidia.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>, bpf@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: [PATCH net-next v2 03/17] tcp_bpf, smc, tls, espintcp: Reduce MSG_SENDPAGE_NOTLAST usage
+Date:   Sat, 17 Jun 2023 13:11:32 +0100
+Message-ID: <20230617121146.716077-4-dhowells@redhat.com>
+In-Reply-To: <20230617121146.716077-1-dhowells@redhat.com>
+References: <20230617121146.716077-1-dhowells@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAPhsuW6BG2oVrGDOpCKyOEvU9fBOboYYhducv96KUBe276Mvng@mail.gmail.com>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.9
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Jun 16, 2023 at 01:05:29PM -0700, Song Liu wrote:
-> On Fri, Jun 16, 2023 at 1:52 AM Mike Rapoport <rppt@kernel.org> wrote:
-> >
-> > From: "Mike Rapoport (IBM)" <rppt@kernel.org>
-> >
-> > The memory allocations for kprobes on arm64 can be placed anywhere in
-> > vmalloc address space and currently this is implemented with an override
-> > of alloc_insn_page() in arm64.
-> >
-> > Extend execmem_params with a range for generated code allocations and
-> > make kprobes on arm64 use this extension rather than override
-> > alloc_insn_page().
-> >
-> > Signed-off-by: Mike Rapoport (IBM) <rppt@kernel.org>
-> > ---
-> >  arch/arm64/kernel/module.c         |  9 +++++++++
-> >  arch/arm64/kernel/probes/kprobes.c |  7 -------
-> >  include/linux/execmem.h            | 11 +++++++++++
-> >  mm/execmem.c                       | 14 +++++++++++++-
-> >  4 files changed, 33 insertions(+), 8 deletions(-)
-> >
-> > diff --git a/arch/arm64/kernel/module.c b/arch/arm64/kernel/module.c
-> > index c3d999f3a3dd..52b09626bc0f 100644
-> > --- a/arch/arm64/kernel/module.c
-> > +++ b/arch/arm64/kernel/module.c
-> > @@ -30,6 +30,13 @@ static struct execmem_params execmem_params = {
-> >                         .alignment = MODULE_ALIGN,
-> >                 },
-> >         },
-> > +       .jit = {
-> > +               .text = {
-> > +                       .start = VMALLOC_START,
-> > +                       .end = VMALLOC_END,
-> > +                       .alignment = 1,
-> > +               },
-> > +       },
-> >  };
-> 
-> This is growing fast. :) We have 3 now: text, data, jit. And it will be
-> 5 when we split data into rw data, ro data, ro after init data. I wonder
-> whether we should still do some type enum here. But we can revisit
-> this topic later.
+As MSG_SENDPAGE_NOTLAST is being phased out along with sendpage(), don't
+use it further in than the sendpage methods, but rather translate it to
+MSG_MORE and use that instead.
 
-I don't think we'd need 5. Four at most :)
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: John Fastabend <john.fastabend@gmail.com>
+cc: Jakub Sitnicki <jakub@cloudflare.com>
+cc: Eric Dumazet <edumazet@google.com>
+cc: "David S. Miller" <davem@davemloft.net>
+cc: David Ahern <dsahern@kernel.org>
+cc: Jakub Kicinski <kuba@kernel.org>
+cc: Paolo Abeni <pabeni@redhat.com>
+cc: Karsten Graul <kgraul@linux.ibm.com>
+cc: Wenjia Zhang <wenjia@linux.ibm.com>
+cc: Jan Karcher <jaka@linux.ibm.com>
+cc: "D. Wythe" <alibuda@linux.alibaba.com>
+cc: Tony Lu <tonylu@linux.alibaba.com>
+cc: Wen Gu <guwen@linux.alibaba.com>
+cc: Boris Pismenny <borisp@nvidia.com>
+cc: Steffen Klassert <steffen.klassert@secunet.com>
+cc: Herbert Xu <herbert@gondor.apana.org.au>
+cc: netdev@vger.kernel.org
+cc: bpf@vger.kernel.org
+cc: linux-s390@vger.kernel.org
+---
+ net/ipv4/tcp_bpf.c   |  3 ---
+ net/smc/smc_tx.c     |  6 ++++--
+ net/tls/tls_device.c |  4 ++--
+ net/xfrm/espintcp.c  | 10 ++++++----
+ 4 files changed, 12 insertions(+), 11 deletions(-)
 
-I don't know yet what would be the best way to differentiate RW and RO
-data, but ro_after_init surely won't need a new type. It either will be
-allocated as RW and then the caller will have to set it RO after
-initialization is done, or it will be allocated as RO and the caller will
-have to do something like text_poke to update it.
+diff --git a/net/ipv4/tcp_bpf.c b/net/ipv4/tcp_bpf.c
+index 5a84053ac62b..adcba77b0c50 100644
+--- a/net/ipv4/tcp_bpf.c
++++ b/net/ipv4/tcp_bpf.c
+@@ -111,9 +111,6 @@ static int tcp_bpf_push(struct sock *sk, struct sk_msg *msg, u32 apply_bytes,
+ 		if (has_tx_ulp)
+ 			msghdr.msg_flags |= MSG_SENDPAGE_NOPOLICY;
  
-> Other than that
-> 
-> Acked-by: Song Liu <song@kernel.org>
+-		if (flags & MSG_SENDPAGE_NOTLAST)
+-			msghdr.msg_flags |= MSG_MORE;
+-
+ 		bvec_set_page(&bvec, page, size, off);
+ 		iov_iter_bvec(&msghdr.msg_iter, ITER_SOURCE, &bvec, 1, size);
+ 		ret = tcp_sendmsg_locked(sk, &msghdr, size);
+diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
+index 45128443f1f1..9b9e0a190734 100644
+--- a/net/smc/smc_tx.c
++++ b/net/smc/smc_tx.c
+@@ -168,8 +168,7 @@ static bool smc_tx_should_cork(struct smc_sock *smc, struct msghdr *msg)
+ 	 * should known how/when to uncork it.
+ 	 */
+ 	if ((msg->msg_flags & MSG_MORE ||
+-	     smc_tx_is_corked(smc) ||
+-	     msg->msg_flags & MSG_SENDPAGE_NOTLAST) &&
++	     smc_tx_is_corked(smc)) &&
+ 	    atomic_read(&conn->sndbuf_space))
+ 		return true;
+ 
+@@ -306,6 +305,9 @@ int smc_tx_sendpage(struct smc_sock *smc, struct page *page, int offset,
+ 	struct kvec iov;
+ 	int rc;
+ 
++	if (flags & MSG_SENDPAGE_NOTLAST)
++		msg.msg_flags |= MSG_MORE;
++
+ 	iov.iov_base = kaddr + offset;
+ 	iov.iov_len = size;
+ 	iov_iter_kvec(&msg.msg_iter, ITER_SOURCE, &iov, 1, size);
+diff --git a/net/tls/tls_device.c b/net/tls/tls_device.c
+index b82770f68807..975299d7213b 100644
+--- a/net/tls/tls_device.c
++++ b/net/tls/tls_device.c
+@@ -449,7 +449,7 @@ static int tls_push_data(struct sock *sk,
+ 		return -sk->sk_err;
+ 
+ 	flags |= MSG_SENDPAGE_DECRYPTED;
+-	tls_push_record_flags = flags | MSG_SENDPAGE_NOTLAST;
++	tls_push_record_flags = flags | MSG_MORE;
+ 
+ 	timeo = sock_sndtimeo(sk, flags & MSG_DONTWAIT);
+ 	if (tls_is_partially_sent_record(tls_ctx)) {
+@@ -532,7 +532,7 @@ static int tls_push_data(struct sock *sk,
+ 		if (!size) {
+ last_record:
+ 			tls_push_record_flags = flags;
+-			if (flags & (MSG_SENDPAGE_NOTLAST | MSG_MORE)) {
++			if (flags & MSG_MORE) {
+ 				more = true;
+ 				break;
+ 			}
+diff --git a/net/xfrm/espintcp.c b/net/xfrm/espintcp.c
+index 3504925babdb..d3b3f9e720b3 100644
+--- a/net/xfrm/espintcp.c
++++ b/net/xfrm/espintcp.c
+@@ -205,13 +205,15 @@ static int espintcp_sendskb_locked(struct sock *sk, struct espintcp_msg *emsg,
+ static int espintcp_sendskmsg_locked(struct sock *sk,
+ 				     struct espintcp_msg *emsg, int flags)
+ {
+-	struct msghdr msghdr = { .msg_flags = flags | MSG_SPLICE_PAGES, };
++	struct msghdr msghdr = {
++		.msg_flags = flags | MSG_SPLICE_PAGES | MSG_MORE,
++	};
+ 	struct sk_msg *skmsg = &emsg->skmsg;
++	bool more = flags & MSG_MORE;
+ 	struct scatterlist *sg;
+ 	int done = 0;
+ 	int ret;
+ 
+-	msghdr.msg_flags |= MSG_SENDPAGE_NOTLAST;
+ 	sg = &skmsg->sg.data[skmsg->sg.start];
+ 	do {
+ 		struct bio_vec bvec;
+@@ -221,8 +223,8 @@ static int espintcp_sendskmsg_locked(struct sock *sk,
+ 
+ 		emsg->offset = 0;
+ 
+-		if (sg_is_last(sg))
+-			msghdr.msg_flags &= ~MSG_SENDPAGE_NOTLAST;
++		if (sg_is_last(sg) && !more)
++			msghdr.msg_flags &= ~MSG_MORE;
+ 
+ 		p = sg_page(sg);
+ retry:
 
--- 
-Sincerely yours,
-Mike.
