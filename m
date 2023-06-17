@@ -2,241 +2,236 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 442C3EB64DB
-	for <linux-s390@archiver.kernel.org>; Fri, 16 Jun 2023 21:29:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EB3C9C001DD
+	for <linux-s390@archiver.kernel.org>; Sat, 17 Jun 2023 03:55:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345726AbjFPV27 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 16 Jun 2023 17:28:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43650 "EHLO
+        id S229500AbjFQDy6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 16 Jun 2023 23:54:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229705AbjFPV25 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 16 Jun 2023 17:28:57 -0400
-Received: from mail-yw1-x112b.google.com (mail-yw1-x112b.google.com [IPv6:2607:f8b0:4864:20::112b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D5F235A5;
-        Fri, 16 Jun 2023 14:28:56 -0700 (PDT)
-Received: by mail-yw1-x112b.google.com with SMTP id 00721157ae682-57012b2973eso14367907b3.2;
-        Fri, 16 Jun 2023 14:28:56 -0700 (PDT)
+        with ESMTP id S234028AbjFQDyz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 16 Jun 2023 23:54:55 -0400
+Received: from mail-il1-x136.google.com (mail-il1-x136.google.com [IPv6:2607:f8b0:4864:20::136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F3042D67
+        for <linux-s390@vger.kernel.org>; Fri, 16 Jun 2023 20:54:53 -0700 (PDT)
+Received: by mail-il1-x136.google.com with SMTP id e9e14a558f8ab-34226590ee3so24935ab.1
+        for <linux-s390@vger.kernel.org>; Fri, 16 Jun 2023 20:54:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1686950935; x=1689542935;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=S8f4Qp7cwj4O2kdf7qLqLnrTRkxhB0m+8FmgrZaxSBc=;
-        b=kDqKbU7P9edSk/BgMH9xSstpKqVCZCkotk48bdhsv9CQedo7tgzNx594G7ZL6GQuxg
-         jA1o2JPcz0QDYMp8Gk7IfVIBu/Qb0pO39azZ5F7HLfZC1IgCGAp3b3idtV3rR/BwTQDN
-         x0xETay6eu3ghZcxBbeBHYOXCm+0UdQ18fM+kmxKxAuiYRqF/zWkw4LlfaXk/Ol9POup
-         f5e5C/WGoi8jmqXjJwP7rx3T/q8TLMKNW53qsepy7E0u9eKRuHWvS7CgQ60QFJLvcMrS
-         P+YDUzuxecN+sqBu1rA+X9cuH9CB9q1H/97ksOSagJnc4ZVXc8JgbNn89oLF/7saT6Tn
-         z99g==
+        d=google.com; s=20221208; t=1686974092; x=1689566092;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=QjPKljmVrq97b/xrgwUpf4fkZeUWNrWjsV3CU9AjkqI=;
+        b=UJDbRMamkrBPVExG/+JpPWPTOqM1QRSzYcymaPP5BGEQsRBouuA13TXnrCLvToP8bV
+         3lKWCVjeaP/fUBGyCPuHbg0CW8MyxuxVz8142sPH/UfHTXnWL/9qnB8dNcL0Beq/TMmQ
+         JqhD594Tk8VivGo6jIoTnf4rOPr1Z+B1guFIC4KvXqrOBNK3dm7Pgfy5L+GI8hJ1stzi
+         pWmq2jqc4gGIjAbzipaWV2tUFC1dw2QMDvPO5CI7Zci41h+2G0iHSy6k3ny0RzPtxj1z
+         M4qdnJcLBAHnbDtPuvuRyfutO5ro8aWEodws/C53fXxgTAicX1IJCrMcK38L5fRgeR6Y
+         ergA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1686950935; x=1689542935;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=S8f4Qp7cwj4O2kdf7qLqLnrTRkxhB0m+8FmgrZaxSBc=;
-        b=ZrXo6OGWoVcQQbpgSbyYmx/wep0NhiK1CbM5FA33HDEZhjFAYw6cpaTSwH2pl4EIZ4
-         uqHvBSbe+yg5iRF4pulMPHrmfDZqn82BubWlNex2re7YRiI8fSyoROaFxuEegUAgLIz5
-         1/zBxI6dFB6mvJR8PSP+kM0XLTJIh8bae3D1kf8uZ0BmPLVWZYISOGk6jEO+5Psy3jDG
-         XAHZosySLp+lcb3KgOOHA/4cP3Jrw6t/W7sYW16eKnJQXS4c6t014uDv3qve/2HHLULL
-         7UX2qrrpfztAc2KkUnBkfSpKyo7ntriTw10HOnd3UKus2hnk0CtDDJjrdk0NxXNxeExU
-         0hEw==
-X-Gm-Message-State: AC+VfDxXqdrtJTkK2x9HIV+45N/Muj9IZabhuAv0GNkviw0qbN2+vX37
-        3pSRG1hCidM3bEqy7HTqAnD5MASoi8d1d9cH3fNMh2CJTIoP+A==
-X-Google-Smtp-Source: ACHHUZ7/iv7DGmrSbI7dWoycmh8dvViREYGBrKV5KnrTS1VkZy/HhcudLLxyAMIf5U1P44XX8eoY39CR0V8jmRNeXMA=
-X-Received: by 2002:a81:6c02:0:b0:56c:f684:b4f0 with SMTP id
- h2-20020a816c02000000b0056cf684b4f0mr2990065ywc.27.1686950935072; Fri, 16 Jun
- 2023 14:28:55 -0700 (PDT)
-MIME-Version: 1.0
-References: <20230612210423.18611-1-vishal.moola@gmail.com>
- <20230612210423.18611-5-vishal.moola@gmail.com> <fd63179-6ad6-fd86-79d6-2833c91111f8@google.com>
-In-Reply-To: <fd63179-6ad6-fd86-79d6-2833c91111f8@google.com>
-From:   Vishal Moola <vishal.moola@gmail.com>
-Date:   Fri, 16 Jun 2023 14:28:44 -0700
-Message-ID: <CAOzc2pwhoF=XNCoe-+w2Z5MRoRJGvTfSr56HV00OGitEBMtPcw@mail.gmail.com>
-Subject: Re: [PATCH v4 04/34] pgtable: Create struct ptdesc
+        d=1e100.net; s=20221208; t=1686974092; x=1689566092;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=QjPKljmVrq97b/xrgwUpf4fkZeUWNrWjsV3CU9AjkqI=;
+        b=KMUeMzhBcfdm56aeQ5rAgB1OB9+lDbWCiQ0szU8VLclLxz1YD8ctfg3tIXqOEUMK+n
+         RHHAUgswTbfEBVU5DNp2KNXUnUfrBX4tgL+haWv0SLDNAoxvifXbLSCMaBFFavsVXPWH
+         atTT2y4gdCZjV/s60xKhjSaJerbBr5QaLljRHGEkppltep0eV1MZ5AWPVB3V0U7P4erR
+         lGtwSx0NblVCWcwoVTvz3uqLIN9R1h9JIdX9yDc/VhBdRTsW48uen4ZHBqMFUizx4g+6
+         V6OaZspVkJ3CkBNrODYShCxC4N0vY2u/w+Lnjo387ykMJD6Fz8litNeY9zoeGr7uiCna
+         5ISw==
+X-Gm-Message-State: AC+VfDxzF7cIzzQYse0SvVwt+ENWCNWkSvBDLa1l7KfQ+Sm15XyFN6GZ
+        32cx2CZ0ctHv64W9zqtzeaY/6g==
+X-Google-Smtp-Source: ACHHUZ52Zzw4gnAVJGh+M+mwB619YPVvWEDyF49a92w1AraAEi5TFjxraa3d5c9DKFNfF5UZkyYmpQ==
+X-Received: by 2002:a05:6e02:1be6:b0:340:57e1:2f76 with SMTP id y6-20020a056e021be600b0034057e12f76mr548195ilv.15.1686974092134;
+        Fri, 16 Jun 2023 20:54:52 -0700 (PDT)
+Received: from google.com ([2620:15c:183:202:bdb2:a15e:7a58:c3a3])
+        by smtp.gmail.com with ESMTPSA id dx7-20020a0566381d0700b0041d759c451asm6634770jab.166.2023.06.16.20.54.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 16 Jun 2023 20:54:51 -0700 (PDT)
+Date:   Fri, 16 Jun 2023 21:54:47 -0600
+From:   Yu Zhao <yuzhao@google.com>
 To:     Hugh Dickins <hughd@google.com>
 Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
         Matthew Wilcox <willy@infradead.org>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
+        David Hildenbrand <david@redhat.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Qi Zheng <zhengqi.arch@bytedance.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Greg Ungerer <gerg@linux-m68k.org>,
+        Michal Simek <monstr@monstr.eu>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Helge Deller <deller@gmx.de>,
+        John David Anglin <dave.anglin@bell.net>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Alexandre Ghiti <alexghiti@rivosinc.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>, linux-mm@kvack.org,
-        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-        xen-devel@lists.xenproject.org, kvm@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        Chris Zankel <chris@zankel.net>,
+        Max Filippov <jcmvbkbc@gmail.com>, x86@kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH v2 07/23 replacement] mips: add pte_unmap() to balance
+ pte_offset_map()
+Message-ID: <ZI0uh8P/akwkGo0D@google.com>
+References: <a4963be9-7aa6-350-66d0-2ba843e1af44@google.com>
+ <178970b0-1539-8aac-76fd-972c6c46ec17@google.com>
+ <20230614231758.GA1503611@dev-arch.thelio-3990X>
+ <f5526f17-9d78-f7ea-427a-7e76bfeb6b8@google.com>
+ <344a4da-3890-45fd-607e-b5f85ca6ad48@google.com>
+ <20230615155059.GB3665766@dev-arch.thelio-3990X>
+ <76b41825-30fa-b9e8-d043-2affcba24317@google.com>
+ <addfcb3-b5f4-976e-e050-a2508e589cfe@google.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <addfcb3-b5f4-976e-e050-a2508e589cfe@google.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jun 15, 2023 at 12:57=E2=80=AFAM Hugh Dickins <hughd@google.com> wr=
-ote:
->
-> On Mon, 12 Jun 2023, Vishal Moola (Oracle) wrote:
->
-> > Currently, page table information is stored within struct page. As part
-> > of simplifying struct page, create struct ptdesc for page table
-> > information.
-> >
-> > Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
->
-> Vishal, as I think you have already guessed, your ptdesc series and
-> my pte_free_defer() "mm: free retracted page table by RCU" series are
-> on a collision course.
->
-> Probably just trivial collisions in most architectures, which either
-> of us can easily adjust to the other; powerpc likely to be more awkward,
-> but fairly easily resolved; s390 quite a problem.
->
-> I've so far been unable to post a v2 of my series (and powerpc and s390
-> were stupidly wrong in the v1), because a good s390 patch is not yet
-> decided - Gerald Schaefer and I are currently working on that, on the
-> s390 list (I took off most Ccs until we are settled and I can post v2).
->
-> As you have no doubt found yourself, s390 has sophisticated handling of
-> free half-pages already, and I need to add rcu_head usage in there too:
-> it's tricky to squeeze it all in, and ptdesc does not appear to help us
-> in any way (though mostly it's just changing some field names, okay).
->
-> If ptdesc were actually allowing a flexible structure which architectures
-> could add into, that would (in some future) be nice; but of course at
-> present it's still fitting it all into one struct page, and mandating
-> new restrictions which just make an architecture's job harder.
+On Thu, Jun 15, 2023 at 04:02:43PM -0700, Hugh Dickins wrote:
+> To keep balance in future, __update_tlb() remember to pte_unmap() after
+> pte_offset_map().  This is an odd case, since the caller has already done
+> pte_offset_map_lock(), then mips forgets the address and recalculates it;
+> but my two naive attempts to clean that up did more harm than good.
+> 
+> Tested-by: Nathan Chancellor <nathan@kernel.org>
+> Signed-off-by: Hugh Dickins <hughd@google.com>
 
-A goal of ptdescs is to make architecture's jobs simpler and standardized.
-Unfortunately, ptdescs are nowhere near isolated from struct page yet.
-This version of struct ptdesc contains the exact number of fields architect=
-ures
-need right now, just reorganized to be located next to each other. It *prob=
-ably*
-shouldn't make an architectures job harder, aside from discouraging their u=
-se
-of yet even more members of struct page.
+FWIW: Tested-by: Yu Zhao <yuzhao@google.com>
 
-> Some notes on problematic fields below FYI.
->
-> > ---
-> >  include/linux/pgtable.h | 51 +++++++++++++++++++++++++++++++++++++++++
-> >  1 file changed, 51 insertions(+)
-> >
-> > diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
-> > index c5a51481bbb9..330de96ebfd6 100644
-> > --- a/include/linux/pgtable.h
-> > +++ b/include/linux/pgtable.h
-> > @@ -975,6 +975,57 @@ static inline void ptep_modify_prot_commit(struct =
-vm_area_struct *vma,
-> >  #endif /* __HAVE_ARCH_PTEP_MODIFY_PROT_TRANSACTION */
-> >  #endif /* CONFIG_MMU */
-> >
-> > +
-> > +/**
-> > + * struct ptdesc - Memory descriptor for page tables.
-> > + * @__page_flags: Same as page flags. Unused for page tables.
-> > + * @pt_list: List of used page tables. Used for s390 and x86.
-> > + * @_pt_pad_1: Padding that aliases with page's compound head.
-> > + * @pmd_huge_pte: Protected by ptdesc->ptl, used for THPs.
-> > + * @_pt_s390_gaddr: Aliases with page's mapping. Used for s390 gmap on=
-ly.
-> > + * @pt_mm: Used for x86 pgds.
-> > + * @pt_frag_refcount: For fragmented page table tracking. Powerpc and =
-s390 only.
-> > + * @ptl: Lock for the page table.
-> > + *
-> > + * This struct overlays struct page for now. Do not modify without a g=
-ood
-> > + * understanding of the issues.
-> > + */
-> > +struct ptdesc {
-> > +     unsigned long __page_flags;
-> > +
-> > +     union {
-> > +             struct list_head pt_list;
->
-> I shall be needing struct rcu_head rcu_head (or pt_rcu_head or whatever,
-> if you prefer) in this union too.  Sharing the lru or pt_list with rcu_he=
-ad
-> is what's difficult to get right and efficient on s390 - and if ptdesc ga=
-ve
-> us an independent rcu_head for each page table, that would be a blessing!
-> but sadly not, it still has to squeeze into a struct page.
+There is another problem, likely caused by khugepaged, happened multiple times. But I don't think it's related to your series, just FYI.
 
-I can add a pt_rcu_head along with a comment to deter aliasing issues :)
-Independent rcu_heads aren't coming any time soon though :(
-
-> > +             struct {
-> > +                     unsigned long _pt_pad_1;
-> > +                     pgtable_t pmd_huge_pte;
-> > +             };
-> > +     };
-> > +     unsigned long _pt_s390_gaddr;
-> > +
-> > +     union {
-> > +             struct mm_struct *pt_mm;
-> > +             atomic_t pt_frag_refcount;
->
-> Whether s390 will want pt_mm is not yet decided: I want to use it,
-> Gerald prefers to go without it; but if we do end up using it,
-> then pt_frag_refcount is a luxury we would have to give up.
-
-I don't like the use of pt_mm for s390 either. s390 uses space equivalent
-to all five words allocated in the page table struct (albeit in various pla=
-ces
-of struct page). Using extra space (especially allocated for unrelated
-reasons) just because it exists makes things more complicated and
-confusing, and s390 is already confusing enough as a result of that.
-
-If having access to pt_mm is necessary I can drop the
-pt_frag_refcount patch, but I'd rather avoid it.
-
-> s390 does very well already with its _refcount tricks, and I'd expect
-> powerpc's simpler but more wasteful implementation to work as well
-> with _refcount too - I know that a few years back, powerpc did misuse
-> _refcount (it did not allow for speculative accesses, thought it had
-> sole ownership of that field); but s390 copes well with that, and I
-> expect powerpc can do so too, without the luxury of pt_frag_refcount.
->
-> But I've no desire to undo powerpc's use of pt_frag_refcount:
-> just warning that we may want to undo any use of it in s390.
->
-> I thought I had more issues to mention, probably Gerald will
-> remind me of a whole new unexplored dimension! gmap perhaps.
->
-> Hugh
->
-> > +     };
-> > +
-> > +#if ALLOC_SPLIT_PTLOCKS
-> > +     spinlock_t *ptl;
-> > +#else
-> > +     spinlock_t ptl;
-> > +#endif
-> > +};
-> > +
-> > +#define TABLE_MATCH(pg, pt)                                          \
-> > +     static_assert(offsetof(struct page, pg) =3D=3D offsetof(struct pt=
-desc, pt))
-> > +TABLE_MATCH(flags, __page_flags);
-> > +TABLE_MATCH(compound_head, pt_list);
-> > +TABLE_MATCH(compound_head, _pt_pad_1);
-> > +TABLE_MATCH(pmd_huge_pte, pmd_huge_pte);
-> > +TABLE_MATCH(mapping, _pt_s390_gaddr);
-> > +TABLE_MATCH(pt_mm, pt_mm);
-> > +TABLE_MATCH(ptl, ptl);
-> > +#undef TABLE_MATCH
-> > +static_assert(sizeof(struct ptdesc) <=3D sizeof(struct page));
-> > +
-> >  /*
-> >   * No-op macros that just return the current protection value. Defined=
- here
-> >   * because these macros can be used even if CONFIG_MMU is not defined.
-> > --
-> > 2.40.1
+  Got mcheck at ffffffff81134ef0
+  CPU: 3 PID: 36 Comm: khugepaged Not tainted 6.4.0-rc6-00049-g62d8779610bb-dirty #1
+  $ 0   : 0000000000000000 0000000000000014 40000000011ac004 4000000000000000
+  $ 4   : c000000000000000 0000000000000045 000000011a80045b 000000011a80045b
+  $ 8   : 8000000080188000 ffffffff81b526c0 0000000000000200 0000000000000000
+  $12   : 0000000000000028 ffffffff81910cb4 0000000000000000 0000000000000207
+  $16   : 000000aaab800000 80000000037ee990 ffffffff81b50200 8000000005066ae0
+  $20   : 0000000000000001 ffffffff80000000 ffffffff81c10000 000000aaab800000
+  $24   : 0000000000000002 ffffffff812b75f8
+  $28   : 8000000002310000 8000000002313b00 ffffffff81b50000 ffffffff81134d88
+  Hi    : 000000000000017a
+  Lo    : 0000000000000000
+  epc   : ffffffff81134ef0 __update_tlb+0x260/0x2a0
+  ra    : ffffffff81134d88 __update_tlb+0xf8/0x2a0
+  Status: 14309ce2	KX SX UX KERNEL EXL
+  Cause : 00800060 (ExcCode 18)
+  PrId  : 000d9602 (Cavium Octeon III)
+  CPU: 3 PID: 36 Comm: khugepaged Not tainted 6.4.0-rc6-00049-g62d8779610bb-dirty #1
+  Stack : 0000000000000001 0000000000000000 0000000000000008 8000000002313768
+          8000000002313768 80000000023138f8 0000000000000000 0000000000000000
+          a6c8cd76e1667e00 8000000001db4f28 0000000000000001 30302d3663722d30
+          643236672d393430 0000000000000010 ffffffff81910cc0 0000000000000000
+          8000000001d96bcc 0000000000000000 0000000000000000 ffffffff81a68ed0
+          ffffffff81b50000 0000000000000001 ffffffff80000000 ffffffff81c10000
+          000000aaab800000 0000000000000002 ffffffff815b78c0 ffffffffa184e710
+          00000000000000c0 8000000002310000 8000000002313760 ffffffff81b50000
+          ffffffff8111c9cc 0000000000000000 0000000000000000 0000000000000000
+          0000000000000000 0000000000000000 ffffffff8111c9ec 0000000000000000
+          ...
+  Call Trace:
+  [<ffffffff8111c9ec>] show_stack+0x64/0x158
+  [<ffffffff81920078>] dump_stack_lvl+0x5c/0x7c
+  [<ffffffff8111e03c>] do_mcheck+0x2c/0x98
+  [<ffffffff81118608>] handle_mcheck_int+0x38/0x50
+  
+  Index    : 80000000
+  PageMask : 1fe000
+  EntryHi  : 000000aaab8000bd
+  EntryLo0 : 40000000011a8004
+  EntryLo1 : 40000000011ac004
+  Wired    : 0
+  PageGrain: e8000000
+  
+  Index:  2 pgmask=4kb va=c00000feffff4000 asid=b9
+  	[ri=0 xi=0 pa=000022a7000 c=0 d=1 v=1 g=1] [ri=0 xi=0 pa=000022af000 c=0 d=1 v=1 g=1]
+  Index:  3 pgmask=4kb va=c00000feffff8000 asid=b9
+  	[ri=0 xi=0 pa=00002380000 c=0 d=1 v=1 g=1] [ri=0 xi=0 pa=00002381000 c=0 d=1 v=1 g=1]
+  Index:  4 pgmask=4kb va=c00000feffffa000 asid=b9
+  	[ri=0 xi=0 pa=000023e9000 c=0 d=1 v=1 g=1] [ri=0 xi=0 pa=000023ea000 c=0 d=1 v=1 g=1]
+  Index:  5 pgmask=4kb va=c00000feffffe000 asid=b9
+  	[ri=0 xi=0 pa=00002881000 c=0 d=1 v=1 g=1] [ri=0 xi=0 pa=00002882000 c=0 d=1 v=1 g=1]
+  Index:  6 pgmask=4kb va=c00000fefffb0000 asid=b9
+  	[ri=0 xi=0 pa=00002cc2000 c=0 d=1 v=1 g=1] [ri=0 xi=0 pa=00002cc3000 c=0 d=1 v=1 g=1]
+  Index:  7 pgmask=4kb va=c00000feffffc000 asid=b9
+  	[ri=0 xi=0 pa=000023eb000 c=0 d=1 v=1 g=1] [ri=0 xi=0 pa=00002880000 c=0 d=1 v=1 g=1]
+  Index:  8 pgmask=4kb va=c00000feffff6000 asid=b9
+  	[ri=0 xi=0 pa=0000237e000 c=0 d=1 v=1 g=1] [ri=0 xi=0 pa=0000237f000 c=0 d=1 v=1 g=1]
+  Index: 14 pgmask=4kb va=c00000fefff62000 asid=8e
+  	[ri=0 xi=0 pa=00007477000 c=0 d=1 v=1 g=1] [ri=0 xi=0 pa=0000745e000 c=0 d=1 v=1 g=1]
+  Index: 15 pgmask=4kb va=c00000fefff52000 asid=8e
+  	[ri=0 xi=0 pa=0000744c000 c=0 d=1 v=1 g=1] [ri=0 xi=0 pa=0000616d000 c=0 d=1 v=1 g=1]
+  Index: 16 pgmask=4kb va=c00000fefff42000 asid=8e
+  	[ri=0 xi=0 pa=00006334000 c=0 d=1 v=1 g=1] [ri=0 xi=0 pa=0000616b000 c=0 d=1 v=1 g=1]
+  Index: 19 pgmask=4kb va=c00000fefffb6000 asid=8e
+  	[ri=0 xi=0 pa=00005050000 c=0 d=1 v=1 g=1] [ri=0 xi=0 pa=00005051000 c=0 d=1 v=1 g=1]
+  Index: 20 pgmask=4kb va=c00000fefff72000 asid=b9
+  	[ri=0 xi=0 pa=00007504000 c=0 d=1 v=1 g=1] [ri=0 xi=0 pa=00007503000 c=0 d=1 v=1 g=1]
+  Index: 58 pgmask=4kb va=c00000fefffaa000 asid=8e
+  	[ri=0 xi=0 pa=00005126000 c=0 d=1 v=1 g=1] [ri=0 xi=0 pa=00005127000 c=0 d=1 v=1 g=1]
+  Index: 59 pgmask=4kb va=c00000fefffba000 asid=8e
+  	[ri=0 xi=0 pa=00005129000 c=0 d=1 v=1 g=1] [ri=0 xi=0 pa=0000512a000 c=0 d=1 v=1 g=1]
+  Index: 79 pgmask=4kb va=c000000000060000 asid=8e
+  	[ri=0 xi=0 pa=0000534b000 c=0 d=1 v=1 g=1] [ri=0 xi=0 pa=000062f9000 c=0 d=1 v=1 g=1]
+  Index: 80 pgmask=4kb va=c00000000005e000 asid=8e
+  	[ri=0 xi=0 pa=00000000000 c=0 d=0 v=0 g=1] [ri=0 xi=0 pa=00004013000 c=0 d=1 v=1 g=1]
+  Index: 81 pgmask=4kb va=c0000000003a0000 asid=8e
+  	[ri=0 xi=0 pa=000060c6000 c=0 d=1 v=1 g=1] [ri=0 xi=0 pa=0000340e000 c=0 d=1 v=1 g=1]
+  Index: 82 pgmask=4kb va=c00000000039e000 asid=8e
+  	[ri=0 xi=0 pa=00000000000 c=0 d=0 v=0 g=1] [ri=0 xi=0 pa=000060c5000 c=0 d=1 v=1 g=1]
+  Index: 83 pgmask=4kb va=c00000000003e000 asid=8e
+  	[ri=0 xi=0 pa=00002bf3000 c=0 d=1 v=1 g=1] [ri=0 xi=0 pa=00002c42000 c=0 d=1 v=1 g=1]
+  Index: 84 pgmask=4kb va=c000000000042000 asid=8e
+  	[ri=0 xi=0 pa=00002c45000 c=0 d=1 v=1 g=1] [ri=0 xi=0 pa=00002c46000 c=0 d=1 v=1 g=1]
+  Index: 85 pgmask=4kb va=0aaab820000 asid=bd
+  	[ri=0 xi=0 pa=00000000000 c=0 d=0 v=0 g=0] [ri=0 xi=0 pa=00000000000 c=0 d=0 v=0 g=0]
+  Index: 86 pgmask=4kb va=0aaab748000 asid=bd
+  	[ri=0 xi=1 pa=0003c959000 c=0 d=1 v=1 g=0] [ri=0 xi=1 pa=0000f7b6000 c=0 d=0 v=1 g=0]
+  Index: 87 pgmask=4kb va=0fff37c4000 asid=bd
+  	[ri=0 xi=0 pa=0000bd23000 c=0 d=0 v=1 g=0] [ri=0 xi=0 pa=0000bd24000 c=0 d=0 v=1 g=0]
+  Index: 88 pgmask=4kb va=0fff3992000 asid=bd
+  	[ri=0 xi=1 pa=0000bfcd000 c=0 d=0 v=1 g=0] [ri=0 xi=1 pa=0002977b000 c=0 d=0 v=1 g=0]
+  Index: 89 pgmask=4kb va=0fff3288000 asid=bd
+  	[ri=0 xi=0 pa=00032b62000 c=0 d=0 v=1 g=0] [ri=0 xi=0 pa=00032b63000 c=0 d=0 v=1 g=0]
+  Index: 90 pgmask=4kb va=0fff3982000 asid=bd
+  	[ri=0 xi=1 pa=0002d6a3000 c=0 d=1 v=1 g=0] [ri=0 xi=1 pa=0002a423000 c=0 d=0 v=1 g=0]
+  Index: 91 pgmask=4kb va=0fffbb5e000 asid=bd
+  	[ri=0 xi=0 pa=00028949000 c=0 d=1 v=1 g=0] [ri=0 xi=0 pa=00035060000 c=0 d=1 v=1 g=0]
+  Index: 92 pgmask=4kb va=c00000fefffe2000 asid=8e
+  	[ri=0 xi=0 pa=000020f0000 c=0 d=1 v=1 g=1] [ri=0 xi=0 pa=000020ff000 c=0 d=1 v=1 g=1]
+  Index: 93 pgmask=4kb va=c00000fefffd2000 asid=8e
+  	[ri=0 xi=0 pa=000020b7000 c=0 d=1 v=1 g=1] [ri=0 xi=0 pa=000020fe000 c=0 d=1 v=1 g=1]
+  Index: 94 pgmask=4kb va=c00000fefffc2000 asid=8e
+  	[ri=0 xi=0 pa=000020b6000 c=0 d=1 v=1 g=1] [ri=0 xi=0 pa=000020fd000 c=0 d=1 v=1 g=1]
+  Index: 110 pgmask=4kb va=c00000feffff2000 asid=bc
+  	[ri=0 xi=0 pa=000020f1000 c=0 d=1 v=1 g=1] [ri=0 xi=0 pa=00002100000 c=0 d=1 v=1 g=1]
+  Index: 125 pgmask=4kb va=c00000fefffbe000 asid=bc
+  	[ri=0 xi=0 pa=00005268000 c=0 d=1 v=1 g=1] [ri=0 xi=0 pa=000053dc000 c=0 d=1 v=1 g=1]
+  Index: 126 pgmask=4kb va=c00000fefffbc000 asid=bc
+  	[ri=0 xi=0 pa=00005266000 c=0 d=1 v=1 g=1] [ri=0 xi=0 pa=00005267000 c=0 d=1 v=1 g=1]
+  Index: 188 pgmask=4kb va=c00000fefff76000 asid=bb
+  	[ri=0 xi=0 pa=00007576000 c=0 d=1 v=1 g=1] [ri=0 xi=0 pa=00007577000 c=0 d=1 v=1 g=1]
+  
+  Code: 1000ff92  00601025  00000000 <42000006> 1000ffb8  00000000  00000000  8f820018  00021238
+  Kernel panic - not syncing: Caught Machine Check exception - caused by multiple matching entries in the TLB.
+  ---[ end Kernel panic - not syncing: Caught Machine Check exception - caused by multiple matching entries in the TLB. ]---
