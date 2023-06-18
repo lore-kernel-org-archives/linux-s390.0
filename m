@@ -2,128 +2,144 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E93B2C3DA40
-	for <linux-s390@archiver.kernel.org>; Sun, 18 Jun 2023 08:01:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F24FEB64DC
+	for <linux-s390@archiver.kernel.org>; Sun, 18 Jun 2023 20:58:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229542AbjFRIBS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 18 Jun 2023 04:01:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58940 "EHLO
+        id S229482AbjFRU6M (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 18 Jun 2023 16:58:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229470AbjFRIBR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 18 Jun 2023 04:01:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FA0D10D7;
-        Sun, 18 Jun 2023 01:01:16 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B17EC60F61;
-        Sun, 18 Jun 2023 08:01:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DA1EC433C0;
-        Sun, 18 Jun 2023 08:01:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1687075275;
-        bh=JOdF7gdXvqBjASqKs6SWBkQKDgB3N69nrNaZPukvaeM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=sRSVsUz+8qwPDTD+DbQ8ZGj3oxWbs6Q2yclpQ5oA01FgfO3x99AMq57vy9vTmKGCz
-         zxsNFAk2tsVXc2/ZMKN5WrqHKwwq7cFYa5f3HPOYIxlAVh8JcIK7E8a/4ukOQRZ4nx
-         MkY7brx+YmsqJJOWjKI+esA6758vzynczNeZM28mb8D2036W2Ac3dVaBq4RYIRm2lO
-         UwBKETxVcKwPW5jcSjXTb+3J9p7JSrJABXAw2lEoobsEXKewtbcSu8Iyl/ROefguVb
-         JB6NowqZPjsvgPvrW3+OErG+qxYX7mjk/nhQmoo1FPg/indEYGUiochf7rWuDn85yN
-         s8jpvUG70jw+A==
-Date:   Sun, 18 Jun 2023 11:00:27 +0300
-From:   Mike Rapoport <rppt@kernel.org>
-To:     Andy Lutomirski <luto@kernel.org>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Helge Deller <deller@gmx.de>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Kent Overstreet <kent.overstreet@linux.dev>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Puranjay Mohan <puranjay12@gmail.com>,
-        Rick P Edgecombe <rick.p.edgecombe@intel.com>,
-        "Russell King (Oracle)" <linux@armlinux.org.uk>,
-        Song Liu <song@kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will@kernel.org>, bpf@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-        linux-mm@kvack.org, linux-modules@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
-        netdev@vger.kernel.org, sparclinux@vger.kernel.org,
-        the arch/x86 maintainers <x86@kernel.org>
-Subject: Re: [PATCH v2 02/12] mm: introduce execmem_text_alloc() and
- jit_text_alloc()
-Message-ID: <20230618080027.GA52412@kernel.org>
-References: <20230616085038.4121892-1-rppt@kernel.org>
- <20230616085038.4121892-3-rppt@kernel.org>
- <f9a7eebe-d36e-4587-b99d-35d4edefdd14@app.fastmail.com>
+        with ESMTP id S229637AbjFRU6L (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 18 Jun 2023 16:58:11 -0400
+Received: from mail-qt1-x830.google.com (mail-qt1-x830.google.com [IPv6:2607:f8b0:4864:20::830])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B932E50
+        for <linux-s390@vger.kernel.org>; Sun, 18 Jun 2023 13:58:09 -0700 (PDT)
+Received: by mail-qt1-x830.google.com with SMTP id d75a77b69052e-3f9a81da5d7so251821cf.0
+        for <linux-s390@vger.kernel.org>; Sun, 18 Jun 2023 13:58:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20221208; t=1687121888; x=1689713888;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=FZtyfCTAVMiPGQWHjgwoE9XDDUe5Zitl3naYIJu5u8M=;
+        b=ZVT9TlvXekbzjsIk4FVN6w5b3V3bL2g07xM58CsOQEKlBliMaOMo4yZji4Q+4M2pTX
+         PwOyYLy6AVqkAYYG8oZQzsoJ5wXO3fYU4dvuBveWcoPn/DBqA76dOm2wErETk5RMX4DF
+         Pdjj7y7tVBfSg3bUPlVpNbbP9RKpJTFpWfMqG6NS8ogCoI9SFLLQjHjuiJCl9wmx/QMI
+         sfudbAhw5Fv3ydEbSaSvd7K7sWgk9eaIp4KEVRbqeVVI+v27ojzRWzN3DHLLYoRPb3Uw
+         6IMcAn+rqIjZUCyYlDlj0BpHHcpwknOPBIBYMxSFkst2yjNHbhKR20MPChNpYuTjpIYD
+         wwUg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1687121888; x=1689713888;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=FZtyfCTAVMiPGQWHjgwoE9XDDUe5Zitl3naYIJu5u8M=;
+        b=BFmMBuNVsf4ELXC57X9puES9/UQNlhF+AiTBjJMRrndoKL/2FLys6/e2PP9eALduRg
+         bFXLRa+M/Fpw9enXpFlyPI8oQL83lFoPra12ljBlhb623AreD9XoZ0MOCOXNo4/1q4Gu
+         DfYpk9hgdtQRgmSyI7QYmBnXiCx0FmebJVqzDgHe2KtW9qqrnMTuSwqDx1oOxWC8ldS5
+         c1+C0ILO+5dkG5LdB6jYkXigWCY+wRLBG6o38S87O3dVKVxHCfggQok+9wBc6nb+m0R5
+         Bc3H7IdmbRQ4gz4CwnCMtT5Rflir3Ad4i1YFJNOd9q70gYh4Jh1e895X+aEyC9DPgsF+
+         s8JA==
+X-Gm-Message-State: AC+VfDyrpbPUn1eXZkkEbpxMsD4io32Qfckq2poU+SA7KClG1AJWm+VC
+        0xF/CMaHseNAWe10aqWJoZV6liRLnQSq2u+5cDPLjw==
+X-Google-Smtp-Source: ACHHUZ6ZDWbPtAWRuLjADFFa6FEUQ3GypTx245KPaUVC0BHZGX9Wd0LOXtVKSGnZtQDaYiPHdDlVEaUz0sYg2vTadSQ=
+X-Received: by 2002:a05:622a:20a:b0:3f9:a78f:c527 with SMTP id
+ b10-20020a05622a020a00b003f9a78fc527mr291449qtx.21.1687121888063; Sun, 18 Jun
+ 2023 13:58:08 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <f9a7eebe-d36e-4587-b99d-35d4edefdd14@app.fastmail.com>
+References: <a4963be9-7aa6-350-66d0-2ba843e1af44@google.com>
+ <178970b0-1539-8aac-76fd-972c6c46ec17@google.com> <20230614231758.GA1503611@dev-arch.thelio-3990X>
+ <f5526f17-9d78-f7ea-427a-7e76bfeb6b8@google.com> <344a4da-3890-45fd-607e-b5f85ca6ad48@google.com>
+ <20230615155059.GB3665766@dev-arch.thelio-3990X> <76b41825-30fa-b9e8-d043-2affcba24317@google.com>
+ <addfcb3-b5f4-976e-e050-a2508e589cfe@google.com> <ZI0uh8P/akwkGo0D@google.com>
+In-Reply-To: <ZI0uh8P/akwkGo0D@google.com>
+From:   Yu Zhao <yuzhao@google.com>
+Date:   Sun, 18 Jun 2023 14:57:31 -0600
+Message-ID: <CAOUHufbAjZd4Mxkio9OGct-TZ=L0QRG+_6Xa7atQVFN_4ez86w@mail.gmail.com>
+Subject: Re: [PATCH v2 07/23 replacement] mips: add pte_unmap() to balance pte_offset_map()
+To:     Hugh Dickins <hughd@google.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        David Hildenbrand <david@redhat.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Qi Zheng <zhengqi.arch@bytedance.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Greg Ungerer <gerg@linux-m68k.org>,
+        Michal Simek <monstr@monstr.eu>, Helge Deller <deller@gmx.de>,
+        John David Anglin <dave.anglin@bell.net>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Alexandre Ghiti <alexghiti@rivosinc.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        Chris Zankel <chris@zankel.net>,
+        Max Filippov <jcmvbkbc@gmail.com>, x86@kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
+        linux-m68k@lists.linux-m68k.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, linux-mips@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sat, Jun 17, 2023 at 01:38:29PM -0700, Andy Lutomirski wrote:
-> On Fri, Jun 16, 2023, at 1:50 AM, Mike Rapoport wrote:
-> > From: "Mike Rapoport (IBM)" <rppt@kernel.org>
+On Fri, Jun 16, 2023 at 9:54=E2=80=AFPM Yu Zhao <yuzhao@google.com> wrote:
+>
+> On Thu, Jun 15, 2023 at 04:02:43PM -0700, Hugh Dickins wrote:
+> > To keep balance in future, __update_tlb() remember to pte_unmap() after
+> > pte_offset_map().  This is an odd case, since the caller has already do=
+ne
+> > pte_offset_map_lock(), then mips forgets the address and recalculates i=
+t;
+> > but my two naive attempts to clean that up did more harm than good.
 > >
-> > module_alloc() is used everywhere as a mean to allocate memory for code.
-> >
-> > Beside being semantically wrong, this unnecessarily ties all subsystems
-> > that need to allocate code, such as ftrace, kprobes and BPF to modules
-> > and puts the burden of code allocation to the modules code.
-> >
-> > Several architectures override module_alloc() because of various
-> > constraints where the executable memory can be located and this causes
-> > additional obstacles for improvements of code allocation.
-> >
-> > Start splitting code allocation from modules by introducing
-> > execmem_text_alloc(), execmem_free(), jit_text_alloc(), jit_free() APIs.
-> >
-> > Initially, execmem_text_alloc() and jit_text_alloc() are wrappers for
-> > module_alloc() and execmem_free() and jit_free() are replacements of
-> > module_memfree() to allow updating all call sites to use the new APIs.
-> >
-> > The intention semantics for new allocation APIs:
-> >
-> > * execmem_text_alloc() should be used to allocate memory that must reside
-> >   close to the kernel image, like loadable kernel modules and generated
-> >   code that is restricted by relative addressing.
-> >
-> > * jit_text_alloc() should be used to allocate memory for generated code
-> >   when there are no restrictions for the code placement. For
-> >   architectures that require that any code is within certain distance
-> >   from the kernel image, jit_text_alloc() will be essentially aliased to
-> >   execmem_text_alloc().
-> >
-> 
-> Is there anything in this series to help users do the appropriate
-> synchronization when the actually populate the allocated memory with
-> code?  See here, for example:
+> > Tested-by: Nathan Chancellor <nathan@kernel.org>
+> > Signed-off-by: Hugh Dickins <hughd@google.com>
+>
+> FWIW: Tested-by: Yu Zhao <yuzhao@google.com>
+>
+> There is another problem, likely caused by khugepaged, happened multiple =
+times. But I don't think it's related to your series, just FYI.
+>
+>   Got mcheck at ffffffff81134ef0
+>   CPU: 3 PID: 36 Comm: khugepaged Not tainted 6.4.0-rc6-00049-g62d8779610=
+bb-dirty #1
 
-This series only factors out the executable allocations from modules and
-puts them in a central place.
-Anything else would go on top after this lands.
- 
-> https://lore.kernel.org/linux-fsdevel/cb6533c6-cea0-4f04-95cf-b8240c6ab405@app.fastmail.com/T/#u
+...
 
--- 
-Sincerely yours,
-Mike.
+>   Kernel panic - not syncing: Caught Machine Check exception - caused by =
+multiple matching entries in the TLB.
+
+In case anyone plans to try to fix this - the problem goes back to at
+least 5.15 stable. My (educated) guess is that nobody complained about
+it because all the testing is done in QEMU, which does NOT detect
+conflicting TLBs. This means the verification of the fix would need to
+be on a real piece of h/w or an updated QEMU.
+
+In target/mips/tcg/sysemu/tlb_helper.c:
+
+static void r4k_fill_tlb(CPUMIPSState *env, int idx)
+{
+    r4k_tlb_t *tlb;
+    uint64_t mask =3D env->CP0_PageMask >> (TARGET_PAGE_BITS + 1);
+
+    /* XXX: detect conflicting TLBs and raise a MCHECK exception when neede=
+d */
+...
