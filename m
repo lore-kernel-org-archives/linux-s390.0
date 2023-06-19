@@ -2,190 +2,153 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9DCA6C001B1
-	for <linux-s390@archiver.kernel.org>; Mon, 19 Jun 2023 03:57:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 718BEEB64D9
+	for <linux-s390@archiver.kernel.org>; Mon, 19 Jun 2023 08:37:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229657AbjFSD5T (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 18 Jun 2023 23:57:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38216 "EHLO
+        id S230513AbjFSIhj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 19 Jun 2023 04:37:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229481AbjFSD5R (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 18 Jun 2023 23:57:17 -0400
-Received: from mout.gmx.net (mout.gmx.net [212.227.17.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF4F5C5;
-        Sun, 18 Jun 2023 20:57:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.de;
- s=s31663417; t=1687146949; x=1687751749; i=deller@gmx.de;
- bh=2fndrLIH+tdYpXaN3a+B2+gpkPc6UJVTkZbYPRfVVB8=;
- h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:In-Reply-To;
- b=tHEzjmtG0VENHAd2DsNX0VdgvhB3svy7eaGOu9NFOvFGhn1vMbEvw1DJ+6Ro8SfR+zYO8Jk
- oQyuTgSliiEbg8vZLpHgVzlyXTGg39KCzCetFU2QY1sIGcgFZePrwHb9ybGVXL+myxIM7zyFW
- vutzWxYp5k3P7CbcRS0bdRBQ3OV2xelDwHz+H2/Evbu2z8c/2sLPc4ox6wVqaIps6PKmnyug3
- Uh162w8Lsy86g+eUKl1+1tWZwxCjWi6j5hYhUWVVAHRKRfHvDjtn4aElpEf0t4RvU0/z6Fz8/
- PwGLztv0XjhmK7HYbqINh4rNCYiEBBtnOqKRgIMD0/NnASTKw8BA==
-X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
-Received: from [192.168.20.60] ([94.134.148.114]) by mail.gmx.net (mrgmx104
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1My36N-1ptYsd3hol-00zXMS; Mon, 19
- Jun 2023 05:55:49 +0200
-Message-ID: <2f5a3805-b7a5-1c45-e5a4-e273ea289ba6@gmx.de>
-Date:   Mon, 19 Jun 2023 05:55:42 +0200
+        with ESMTP id S230514AbjFSIhR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 19 Jun 2023 04:37:17 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EDCD3596;
+        Mon, 19 Jun 2023 01:35:00 -0700 (PDT)
+Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 35J8H67G028996;
+        Mon, 19 Jun 2023 08:33:58 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=5scqh/KxB/bN1xh7IkneaEkRuht+JMxhI6SBB9ApHOY=;
+ b=JGAwsvJzM48g1xFtJ1NaGwgvvhssnYpbPvfimKCfX2Yi/Kl1yA0maOs1R5pZSEzSuDPe
+ 1WCk/KDFNdFpXpMxTH7pWAZJM7lNq5eWRR/exN2SSk6IrqUFT4ZeUa0lu6iBlroO/ACf
+ dSF2ygrKoDMnDrt9FW7OSgUIPls0G702UMz70uh/DdLU8c2YUWz8geyfZK33her6nuEq
+ iLhaJXMcVvI63ClZ7n7S7A4eUXOuKEzY7PUKq0lCJ1effvQqNipJLK+sAw/pZaRNhGpp
+ WYoYtF2+u3tN3UBU+h4rX+wMeciR3vFFjozgQV1nBBolE/E80EzAObwPigDmf8mpZQej Ow== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rakcf8a4a-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 19 Jun 2023 08:33:57 +0000
+Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 35J8Jjrv003441;
+        Mon, 19 Jun 2023 08:33:57 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rakcf8a3a-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 19 Jun 2023 08:33:57 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 35J5BQax025864;
+        Mon, 19 Jun 2023 08:33:55 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3r943e18cb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 19 Jun 2023 08:33:55 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 35J8Xqn017957504
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 19 Jun 2023 08:33:52 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E77D32004D;
+        Mon, 19 Jun 2023 08:33:51 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0E46420043;
+        Mon, 19 Jun 2023 08:33:51 +0000 (GMT)
+Received: from linux6.. (unknown [9.114.12.104])
+        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Mon, 19 Jun 2023 08:33:50 +0000 (GMT)
+From:   Janosch Frank <frankja@linux.ibm.com>
+To:     kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        thuth@redhat.com, david@redhat.com, nsg@linux.ibm.com,
+        nrb@linux.ibm.com
+Subject: [kvm-unit-tests PATCH v5 0/8] s390x: Add PV SIE intercepts and ipl tests
+Date:   Mon, 19 Jun 2023 08:33:21 +0000
+Message-Id: <20230619083329.22680-1-frankja@linux.ibm.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.10.0
-Subject: Re: [PATCH v2 08/23] parisc: add pte_unmap() to balance get_ptep()
-Content-Language: en-US
-To:     Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Cc:     Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        David Hildenbrand <david@redhat.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Qi Zheng <zhengqi.arch@bytedance.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Greg Ungerer <gerg@linux-m68k.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        John David Anglin <dave.anglin@bell.net>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Alexandre Ghiti <alexghiti@rivosinc.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Chris Zankel <chris@zankel.net>,
-        Max Filippov <jcmvbkbc@gmail.com>, x86@kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
-        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <a4963be9-7aa6-350-66d0-2ba843e1af44@google.com>
- <653369-95ef-acd2-d6ea-e95f5a997493@google.com>
-From:   Helge Deller <deller@gmx.de>
-In-Reply-To: <653369-95ef-acd2-d6ea-e95f5a997493@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:E3xdg5CpQcjOoKW8Y56OwqWPK69wZz6OC3pXUq5sC4koD4vx6TE
- 8yx7mlAVEcBGQCbXtdVKp5UUdnr/61/KwgdLsdsCeafoXWrwMUBr6cWiQIGAUgINT3sBkXj
- YUQ+i02IXhG0ZBE1C7Dv9zl3aVQVXzwfFiVekkVC97MGOBsK+OwPv4gKZzvDYcrI9sx6vlb
- RKMhNKB17Raa0wGb+9IJg==
-UI-OutboundReport: notjunk:1;M01:P0:f2v0q5B++HE=;Da2Hd/q80C0hblRDasa115R7ipH
- ITP+kxg7e8qZRipjLb6CGqyHPdG/Zhb8pEJIpXAWFU3ar1yt+BeqPp25z1tD2fgQoomDBafSI
- T2JI0cHyhX9oBPPhCH37HzO5OqjXai1apVVEetq9P184N6g33p3cSDDZYP4I6GoLDN9DvQEFu
- QGd3zrkWkqEmZ6Vad/7T9wzoz6Iy73Cj+YnQUayxP/WmDRLwi5RNxp1O83PFQIH+w3CKE1EWO
- 23kOMxcrgAD7YqjQU4alZc4K1Phuaj4FBExhBg+66ocbKtD9nfb6PZRuchNLX/Q5VmxOlBfea
- +unhX9xz0F4yej82C9a9Ahzf2WFmqaqduJ4GfxBBVMpA2OodPCXovgqDmB1veKiq8vZA6X5yk
- wU+Jcnh+QmfWXd/xL82C8EjAYdwJcDg+eEk6he/T2BpLkdrJqvUsbwmL1s6vm3h2xfZdv9HjP
- HDqKexAwIHyONgbwbztyEJNTMjILHQtvalYaPHd4cLJWdj/f+xdGeWpPd11qIZv0pNRC6RmzG
- BMRyfjmCQkvWDZio/DHwSQ9i0PRIQ+8+VjmSj1b6Y6CsaT5/J9RXXe4kiJxSG4snZdzRGYY2O
- 4McI1b8tXhq5e63I/ekb0ajHKJ5Bor2QBVqDM68FKmYbJv/bR6oV8WIMMsLewJ2LUtXAfXAbu
- x/EEjEq7JGtus66za+aX5Yazu6PYy0EIzEn+QO1Pnloxqaq1TITSpEEXtzuFrLPYbW8qHKqNl
- aMzyEK7bpqATAUqTeGQYGs5kvHwxHgsW47YV5D9G3+QzisWw4SSUG2zUA0IqSI6i/fK/bZUUg
- 9s7lXJW9HE6ObKs8Fk2cZGz0H9VAEPLoLgBcumMBsPE0yNFDqFiHwKmbJ24rQM7wtujiIH8eg
- Du+92nPxZgAKb8/YuRr6Rozc58x213b7vXjIz4uu3TcvqL6TMGK4B5hLfnDu5CfN3qfqxkdKR
- hKk8rTZjPetTc5al7ev4qbwvKGA=
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: rYQF3-89hSb1A4XKx02wF9IE5UQS-bCV
+X-Proofpoint-ORIG-GUID: E_BUtTgkDQzfeWqCtloXJLCzZxUBHpHN
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-06-19_05,2023-06-16_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
+ clxscore=1015 suspectscore=0 bulkscore=0 spamscore=0 impostorscore=0
+ priorityscore=1501 phishscore=0 lowpriorityscore=0 adultscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2305260000 definitions=main-2306190072
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 6/8/23 21:18, Hugh Dickins wrote:
-> To keep balance in future, remember to pte_unmap() after a successful
-> get_ptep().  And act as if flush_cache_pages() really needs a map there,
-> to read the pfn before "unmapping", to be sure page table is not removed=
-.
->
-> Signed-off-by: Hugh Dickins <hughd@google.com>
+Extend the coverage of the UVC interface.
+The patches might be a bit dusty, they've been on a branch for a while.
 
-For the parisc parts:
+v5:
+	- Added "lib: s390x: uv: Introduce UV validity function"
+	- Added "groups = pv-host" to unittests.cfg entries
+	- Added pv-icptcode wrong vm handle test
+	- Smaller fixes due to review
+	- Added revs/acks
+v4:
+	- Renamed uv_guest_requirement_checks() to uv_host_requirement_checks()
+	- Now using report_prefix_pushf()
+	- Smaller fixes due to review
+v3:
+	- Reworked a large portion of the tests
+	- Introduced a new function that checks for required
+          facilities and memory for tests that start PV guests
+	- Shortened snippet file names
+	- Moved checks from report to asserts to decrease test noise
+	- Introduced diag PV intercept data check function
+v2:
+	- Re-worked the cpu timer tests
+	- Testing both pages for 112 intercept
+	- Added skip on insufficient memory
+	- Fixed comments in pv-ipl.c
 
-Acked-by: Helge Deller <deller@gmx.de> # parisc
+Janosch Frank (8):
+  lib: s390x: sie: Fix sie_get_validity() no validity handling
+  lib: s390x: uv: Introduce UV validity function
+  lib: s390x: uv: Add intercept data check library function
+  s390x: pv-diags: Drop snippet from snippet names
+  lib: s390x: uv: Add pv host requirement check function
+  s390x: pv: Add sie entry intercept and validity test
+  s390x: pv: Add IPL reset tests
+  s390x: pv-diags: Add the test to unittests.conf
 
-Helge
+ lib/s390x/pv_icptdata.h                       |  42 ++
+ lib/s390x/sie.c                               |   8 +-
+ lib/s390x/snippet.h                           |   7 +
+ lib/s390x/uv.c                                |  20 +
+ lib/s390x/uv.h                                |   8 +
+ s390x/Makefile                                |  13 +-
+ s390x/pv-diags.c                              |  70 ++--
+ s390x/pv-icptcode.c                           | 376 ++++++++++++++++++
+ s390x/pv-ipl.c                                | 143 +++++++
+ s390x/snippets/asm/icpt-loop.S                |  15 +
+ s390x/snippets/asm/loop.S                     |  13 +
+ .../{snippet-pv-diag-288.S => pv-diag-288.S}  |   0
+ s390x/snippets/asm/pv-diag-308.S              |  51 +++
+ .../{snippet-pv-diag-500.S => pv-diag-500.S}  |   0
+ ...nippet-pv-diag-yield.S => pv-diag-yield.S} |   0
+ s390x/snippets/asm/pv-icpt-112.S              |  81 ++++
+ s390x/snippets/asm/pv-icpt-vir-timing.S       |  21 +
+ s390x/unittests.cfg                           |  16 +
+ 18 files changed, 841 insertions(+), 43 deletions(-)
+ create mode 100644 lib/s390x/pv_icptdata.h
+ create mode 100644 s390x/pv-icptcode.c
+ create mode 100644 s390x/pv-ipl.c
+ create mode 100644 s390x/snippets/asm/icpt-loop.S
+ create mode 100644 s390x/snippets/asm/loop.S
+ rename s390x/snippets/asm/{snippet-pv-diag-288.S => pv-diag-288.S} (100%)
+ create mode 100644 s390x/snippets/asm/pv-diag-308.S
+ rename s390x/snippets/asm/{snippet-pv-diag-500.S => pv-diag-500.S} (100%)
+ rename s390x/snippets/asm/{snippet-pv-diag-yield.S => pv-diag-yield.S} (100%)
+ create mode 100644 s390x/snippets/asm/pv-icpt-112.S
+ create mode 100644 s390x/snippets/asm/pv-icpt-vir-timing.S
 
-
-> ---
->   arch/parisc/kernel/cache.c | 26 +++++++++++++++++++++-----
->   1 file changed, 21 insertions(+), 5 deletions(-)
->
-> diff --git a/arch/parisc/kernel/cache.c b/arch/parisc/kernel/cache.c
-> index ca4a302d4365..501160250bb7 100644
-> --- a/arch/parisc/kernel/cache.c
-> +++ b/arch/parisc/kernel/cache.c
-> @@ -426,10 +426,15 @@ void flush_dcache_page(struct page *page)
->   		offset =3D (pgoff - mpnt->vm_pgoff) << PAGE_SHIFT;
->   		addr =3D mpnt->vm_start + offset;
->   		if (parisc_requires_coherency()) {
-> +			bool needs_flush =3D false;
->   			pte_t *ptep;
->
->   			ptep =3D get_ptep(mpnt->vm_mm, addr);
-> -			if (ptep && pte_needs_flush(*ptep))
-> +			if (ptep) {
-> +				needs_flush =3D pte_needs_flush(*ptep);
-> +				pte_unmap(ptep);
-> +			}
-> +			if (needs_flush)
->   				flush_user_cache_page(mpnt, addr);
->   		} else {
->   			/*
-> @@ -561,14 +566,20 @@ EXPORT_SYMBOL(flush_kernel_dcache_page_addr);
->   static void flush_cache_page_if_present(struct vm_area_struct *vma,
->   	unsigned long vmaddr, unsigned long pfn)
->   {
-> -	pte_t *ptep =3D get_ptep(vma->vm_mm, vmaddr);
-> +	bool needs_flush =3D false;
-> +	pte_t *ptep;
->
->   	/*
->   	 * The pte check is racy and sometimes the flush will trigger
->   	 * a non-access TLB miss. Hopefully, the page has already been
->   	 * flushed.
->   	 */
-> -	if (ptep && pte_needs_flush(*ptep))
-> +	ptep =3D get_ptep(vma->vm_mm, vmaddr);
-> +	if (ptep) {
-> +		needs_flush =3D pte_needs_flush(*ptep);
-> +		pte_unmap(ptep);
-> +	}
-> +	if (needs_flush)
->   		flush_cache_page(vma, vmaddr, pfn);
->   }
->
-> @@ -635,17 +646,22 @@ static void flush_cache_pages(struct vm_area_struc=
-t *vma, unsigned long start, u
->   	pte_t *ptep;
->
->   	for (addr =3D start; addr < end; addr +=3D PAGE_SIZE) {
-> +		bool needs_flush =3D false;
->   		/*
->   		 * The vma can contain pages that aren't present. Although
->   		 * the pte search is expensive, we need the pte to find the
->   		 * page pfn and to check whether the page should be flushed.
->   		 */
->   		ptep =3D get_ptep(vma->vm_mm, addr);
-> -		if (ptep && pte_needs_flush(*ptep)) {
-> +		if (ptep) {
-> +			needs_flush =3D pte_needs_flush(*ptep);
-> +			pfn =3D pte_pfn(*ptep);
-> +			pte_unmap(ptep);
-> +		}
-> +		if (needs_flush) {
->   			if (parisc_requires_coherency()) {
->   				flush_user_cache_page(vma, addr);
->   			} else {
-> -				pfn =3D pte_pfn(*ptep);
->   				if (WARN_ON(!pfn_valid(pfn)))
->   					return;
->   				__flush_cache_page(vma, addr, PFN_PHYS(pfn));
+-- 
+2.34.1
 
