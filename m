@@ -2,116 +2,119 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 10317EB64DB
-	for <linux-s390@archiver.kernel.org>; Mon, 19 Jun 2023 08:52:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D2DA5EB64DA
+	for <linux-s390@archiver.kernel.org>; Mon, 19 Jun 2023 09:36:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230450AbjFSIwz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 19 Jun 2023 04:52:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52090 "EHLO
+        id S229481AbjFSJgN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 19 Jun 2023 05:36:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230453AbjFSIwn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 19 Jun 2023 04:52:43 -0400
-Received: from out-31.mta0.migadu.com (out-31.mta0.migadu.com [91.218.175.31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5DF72720
-        for <linux-s390@vger.kernel.org>; Mon, 19 Jun 2023 01:51:10 -0700 (PDT)
-Date:   Mon, 19 Jun 2023 10:45:06 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-        t=1687164308;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=Yc83PnN5uZDaSvvfMIm5f8nMXBZAL/vBiqKtGXrcu2s=;
-        b=CfUQPDdnj7VPH/HlhJCtHaQbCLZunDWWnluY2fu4aOMO9xhd0MbW8HgI83GCF62v3GeRWs
-        Au6X9+ShrbKou5q0/AuIp7bnfEVpLKX6Pbks/McromH413LDzAT5QUxzUd+C+PAd29Xb0Q
-        Cxeha+0JZ+jkZadDLlDvw2StrjnWYis=
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From:   Andrew Jones <andrew.jones@linux.dev>
-To:     Gavin Shan <gshan@redhat.com>
-Cc:     kvmarm@lists.linux.dev, kvm@vger.kernel.org,
-        kvm-ppc@vger.kernel.org, linux-s390@vger.kernel.org,
-        lvivier@redhat.com, thuth@redhat.com, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, david@redhat.com, pbonzini@redhat.com,
-        nrb@linux.ibm.com, shan.gavin@gmail.com
-Subject: Re: [kvm-unit-tests PATCH v3] runtime: Allow to specify properties
- for accelerator
-Message-ID: <20230619-339675e424da033000049f83@orel>
-References: <20230615062148.19883-1-gshan@redhat.com>
+        with ESMTP id S230374AbjFSJgK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 19 Jun 2023 05:36:10 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93BF1B4;
+        Mon, 19 Jun 2023 02:36:09 -0700 (PDT)
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 35J8PgUf018126;
+        Mon, 19 Jun 2023 08:34:00 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=J8MXHooEbZxLg10nF8GMHYpehdtFuKcjNFlsO2dpEmU=;
+ b=HzU2JX4iXWoEVdQBTl8Y3FNfOti8R0+0Yo0XVFtDFBkNpQRge9lKUev1qW2vVcTdleip
+ /ktFT6IBq23fwPTsrx9aHgeME308lTUtbkbUUrJvUU8gPLsx5to2/sDQovYgn6Y0q07i
+ oBy/VB8rofritRAQAxttAst5dBicLfpwEfDpCtgUDii0DYGqwu3bXLWK5o3sh3/Dmcau
+ yXk/6OV26bkIcarEnjR3wwI2yTrUCr1THwlw45U3GS197NeIpor5Ioriqkjwuz7tmF2f
+ RbaJk+OsrwB6aU8i7GWj6ARbYhKUreRXdcEAQbWVWqPb5oSO+jTguSCwI+BhRwGxNqSX iw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rakgh05t9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 19 Jun 2023 08:34:00 +0000
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 35J8PgJw018113;
+        Mon, 19 Jun 2023 08:34:00 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rakgh05sk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 19 Jun 2023 08:33:59 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 35J5tT4g031967;
+        Mon, 19 Jun 2023 08:33:57 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma03fra.de.ibm.com (PPS) with ESMTPS id 3r94f58xer-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 19 Jun 2023 08:33:57 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 35J8Xso318088532
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 19 Jun 2023 08:33:54 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2B4812004B;
+        Mon, 19 Jun 2023 08:33:54 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3D26420043;
+        Mon, 19 Jun 2023 08:33:53 +0000 (GMT)
+Received: from linux6.. (unknown [9.114.12.104])
+        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Mon, 19 Jun 2023 08:33:53 +0000 (GMT)
+From:   Janosch Frank <frankja@linux.ibm.com>
+To:     kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        thuth@redhat.com, david@redhat.com, nsg@linux.ibm.com,
+        nrb@linux.ibm.com
+Subject: [kvm-unit-tests PATCH v5 2/8] lib: s390x: uv: Introduce UV validity function
+Date:   Mon, 19 Jun 2023 08:33:23 +0000
+Message-Id: <20230619083329.22680-3-frankja@linux.ibm.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20230619083329.22680-1-frankja@linux.ibm.com>
+References: <20230619083329.22680-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230615062148.19883-1-gshan@redhat.com>
-X-Migadu-Flow: FLOW_OUT
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: vz_mNVkLet9UzVARGBCvp_iM691aoAGZ
+X-Proofpoint-GUID: BNF4hfUyp13HeWQebfQKHl9cJ4diPI9a
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-06-19_06,2023-06-16_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 mlxlogscore=999 phishscore=0 bulkscore=0 adultscore=0
+ suspectscore=0 clxscore=1015 lowpriorityscore=0 impostorscore=0 mlxscore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2305260000 definitions=main-2306190077
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jun 15, 2023 at 04:21:48PM +1000, Gavin Shan wrote:
-> There are extra properties for accelerators to enable the specific
-> features. For example, the dirty ring for KVM accelerator can be
-> enabled by "-accel kvm,dirty-ring-size=65536". Unfortuntely, the
-> extra properties for the accelerators aren't supported. It makes
-> it's impossible to test the combination of KVM and dirty ring
-> as the following error message indicates.
-> 
->   # cd /home/gavin/sandbox/kvm-unit-tests/tests
->   # QEMU=/home/gavin/sandbox/qemu.main/build/qemu-system-aarch64 \
->     ACCEL=kvm,dirty-ring-size=65536 ./its-migration
->      :
->   BUILD_HEAD=2fffb37e
->   timeout -k 1s --foreground 90s /home/gavin/sandbox/qemu.main/build/qemu-system-aarch64 \
->   -nodefaults -machine virt -accel kvm,dirty-ring-size=65536 -cpu cortex-a57             \
->   -device virtio-serial-device -device virtconsole,chardev=ctd -chardev testdev,id=ctd   \
->   -device pci-testdev -display none -serial stdio -kernel _NO_FILE_4Uhere_ -smp 160      \
->   -machine gic-version=3 -append its-pending-migration # -initrd /tmp/tmp.gfDLa1EtWk
->   qemu-system-aarch64: kvm_init_vcpu: kvm_arch_init_vcpu failed (0): Invalid argument
-> 
-> Allow to specify extra properties for accelerators. With this, the
-> "its-migration" can be tested for the combination of KVM and dirty
-> ring.
-> 
-> Signed-off-by: Gavin Shan <gshan@redhat.com>
-> ---
-> v3: Split $ACCEL to $ACCEL and $ACCEL_PROPS in get_qemu_accelerator()
->     and don't print them as output, suggested by Drew.
-> ---
->  arm/run               | 12 ++++--------
->  powerpc/run           |  5 ++---
->  s390x/run             |  5 ++---
->  scripts/arch-run.bash | 21 +++++++++++++--------
->  x86/run               |  5 ++---
->  5 files changed, 23 insertions(+), 25 deletions(-)
-> 
-> diff --git a/arm/run b/arm/run
-> index c6f25b8..d9ebe59 100755
-> --- a/arm/run
-> +++ b/arm/run
-> @@ -10,10 +10,8 @@ if [ -z "$KUT_STANDALONE" ]; then
->  fi
->  processor="$PROCESSOR"
->  
-> -accel=$(get_qemu_accelerator) ||
-> -	exit $?
-> -
-> -if [ "$accel" = "kvm" ]; then
-> +get_qemu_accelerator || exit $?
-> +if [ "$ACCEL" = "kvm" ]; then
->  	QEMU_ARCH=$HOST
->  fi
->  
-> @@ -23,11 +21,9 @@ qemu=$(search_qemu_binary) ||
->  if [ "$QEMU" ] && [ -z "$ACCEL" ] &&
->     [ "$HOST" = "aarch64" ] && [ "$ARCH" = "arm" ] &&
->     [ "$(basename $QEMU)" = "qemu-system-arm" ]; then
-> -	accel=tcg
-> +	ACCEL="tcg"
->  fi
->  
+PV related validities are in the 0x20** range but the last byte might
+be implementation specific, so everytime we check for a UV validity we
+need to mask the last byte.
 
-As I pointed out in the v2 review we can't just s/accel/ACCEL/ without
-other changes. Now ACCEL will also be set when the above condition
-is checked, making it useless. Please ensure the test case that commit
-c7d6c7f00e7c ("arm/run: Use TCG with qemu-system-arm on arm64 systems")
-fixed still works with your patch.
+Let's add a function that checks for a UV validity and returns a
+boolean.
 
-Thanks,
-drew
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
+---
+ lib/s390x/uv.h | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/lib/s390x/uv.h b/lib/s390x/uv.h
+index 5fe29bda..78b979b7 100644
+--- a/lib/s390x/uv.h
++++ b/lib/s390x/uv.h
+@@ -35,4 +35,11 @@ static inline void uv_setup_asces(void)
+ 	lctlg(13, asce);
+ }
+ 
++static inline bool uv_validity_check(struct vm *vm)
++{
++	uint16_t vir = sie_get_validity(vm);
++
++	return vm->sblk->icptcode == ICPT_VALIDITY && (vir & 0xff00) == 0x2000;
++}
++
+ #endif /* UV_H */
+-- 
+2.34.1
+
