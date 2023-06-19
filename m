@@ -2,153 +2,134 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6692CC0015E
-	for <linux-s390@archiver.kernel.org>; Mon, 19 Jun 2023 18:22:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 63928EB64D9
+	for <linux-s390@archiver.kernel.org>; Mon, 19 Jun 2023 20:18:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232329AbjFSSWo convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 19 Jun 2023 14:22:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51876 "EHLO
+        id S230151AbjFSUSf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 19 Jun 2023 16:18:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231918AbjFSSWn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 19 Jun 2023 14:22:43 -0400
-Received: from outpost1.zedat.fu-berlin.de (outpost1.zedat.fu-berlin.de [130.133.4.66])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2079118;
-        Mon, 19 Jun 2023 11:22:38 -0700 (PDT)
-Received: from inpost2.zedat.fu-berlin.de ([130.133.4.69])
-          by outpost.zedat.fu-berlin.de (Exim 4.95)
-          with esmtps (TLS1.3)
-          tls TLS_AES_256_GCM_SHA384
-          (envelope-from <glaubitz@zedat.fu-berlin.de>)
-          id 1qBJVV-000Ryh-FD; Mon, 19 Jun 2023 20:21:41 +0200
-Received: from p57bd9486.dip0.t-ipconnect.de ([87.189.148.134] helo=[192.168.178.81])
-          by inpost2.zedat.fu-berlin.de (Exim 4.95)
-          with esmtpsa (TLS1.3)
-          tls TLS_AES_256_GCM_SHA384
-          (envelope-from <glaubitz@physik.fu-berlin.de>)
-          id 1qBJVV-000OlA-36; Mon, 19 Jun 2023 20:21:41 +0200
-Message-ID: <5c66d9a869e24e795ae242598935eddfea095730.camel@physik.fu-berlin.de>
-Subject: Re: [PATCH v2 13/13] sh/kexec: refactor for kernel/Kconfig.kexec
-From:   John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-To:     Eric DeVolder <eric.devolder@oracle.com>, linux@armlinux.org.uk,
-        catalin.marinas@arm.com, will@kernel.org, chenhuacai@kernel.org,
-        geert@linux-m68k.org, tsbogend@alpha.franken.de,
-        James.Bottomley@HansenPartnership.com, deller@gmx.de,
-        ysato@users.sourceforge.jp, dalias@libc.org, tglx@linutronix.de,
-        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
-        x86@kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org
-Cc:     kernel@xen0n.name, mpe@ellerman.id.au, npiggin@gmail.com,
-        christophe.leroy@csgroup.eu, paul.walmsley@sifive.com,
-        palmer@dabbelt.com, aou@eecs.berkeley.edu, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com, hpa@zytor.com,
-        keescook@chromium.org, paulmck@kernel.org, peterz@infradead.org,
-        frederic@kernel.org, akpm@linux-foundation.org, ardb@kernel.org,
-        samitolvanen@google.com, juerg.haefliger@canonical.com,
-        arnd@arndb.de, rmk+kernel@armlinux.org.uk,
-        linus.walleij@linaro.org, sebastian.reichel@collabora.com,
-        rppt@kernel.org, kirill.shutemov@linux.intel.com,
-        anshuman.khandual@arm.com, ziy@nvidia.com, masahiroy@kernel.org,
-        ndesaulniers@google.com, mhiramat@kernel.org, ojeda@kernel.org,
-        thunder.leizhen@huawei.com, xin3.li@intel.com, tj@kernel.org,
-        gregkh@linuxfoundation.org, tsi@tuyoix.net, bhe@redhat.com,
-        hbathini@linux.ibm.com, sourabhjain@linux.ibm.com,
-        boris.ostrovsky@oracle.com, konrad.wilk@oracle.com
-Date:   Mon, 19 Jun 2023 20:21:38 +0200
-In-Reply-To: <20230619145801.1064716-14-eric.devolder@oracle.com>
-References: <20230619145801.1064716-1-eric.devolder@oracle.com>
-         <20230619145801.1064716-14-eric.devolder@oracle.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-User-Agent: Evolution 3.48.3 
-MIME-Version: 1.0
-X-Original-Sender: glaubitz@physik.fu-berlin.de
-X-Originating-IP: 87.189.148.134
-X-ZEDAT-Hint: PO
+        with ESMTP id S230187AbjFSUSc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 19 Jun 2023 16:18:32 -0400
+Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45A8FD3;
+        Mon, 19 Jun 2023 13:18:30 -0700 (PDT)
+Received: by mail-pg1-x52d.google.com with SMTP id 41be03b00d2f7-53fbf2c42bfso3185177a12.3;
+        Mon, 19 Jun 2023 13:18:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1687205909; x=1689797909;
+        h=to:references:message-id:content-transfer-encoding:cc:date
+         :in-reply-to:from:subject:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=UmEEut0OCJI0jheFei8v4KFIgPFEx+9Zr0oYZPTVJvw=;
+        b=ML1POuSF5TNYpNiqkU7Wmm/FZLBDFoP32DY+WPylpmv43DoaA/AoXnTGG2wwzhld3j
+         kjkKToRZCKl1S0ycKV+IUNrHAQ8Dvck3h+D7ZuCxy/PFvkOP44vPViwvWsYYl0BBuNgy
+         b/5HPeUCxmK/jPGro6a0V6gtwlQJxSWG+MjbaRDV7mR48t508gCxLWi7cw8WSlTAdLEO
+         3p+win9LgLE5lOsK+rw7eJ7na0iRAHUh7i2pWPNrn0k/YllS2kfgOgB31VmT4hCseChr
+         k2Wm+WLNvD9nhPcsjkRc0OVcXyGOSUiyWGCOpqitL1ReK2kli6NusXAAxFAtCrHDui7k
+         NzgA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1687205909; x=1689797909;
+        h=to:references:message-id:content-transfer-encoding:cc:date
+         :in-reply-to:from:subject:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=UmEEut0OCJI0jheFei8v4KFIgPFEx+9Zr0oYZPTVJvw=;
+        b=It+aTU9JCM2y7jL4p7lJlCjfG6o20JcbSLehxu66Jm7q+BrmhwyasusDO7rtoEYi0K
+         NQC42j8tDLAiznlhd9DM+8ji0LNBcwmYv4s6Wd5EYYYOgs2BLMp/9JZJf2MEorJpzz15
+         qYBYq6EcyQwBh68GSgejoX8hbxuwkwUmA5iFIiIo+L9ktPqpHDfCefrQVFH4t5HymodN
+         VMMjSjzQrvwLpQnZk3AFvwIDid3Ym95fETh/4F/BAzBwmlRgfZ+IRx6cYR0NX/uJMgC3
+         VRJi8WxiHl5cSH+u4ZFuCqDwUL4XbrpqAshCkqXHXDL3mBanL547g8fkomBST3m8drWn
+         PKRw==
+X-Gm-Message-State: AC+VfDxw8bplcNLipbtq/ZaFPEuPUKARHC4Hn+6fqHRohKEldkAiOKiB
+        LaBTrPeAOLr9MLpyTpcTXXM=
+X-Google-Smtp-Source: ACHHUZ4MAGz/Bbdlo+4DcmVI4O990mBmojRaVLNYuDWhcs7i7MC/1uf1G62Dkn3iaVvHJNN3c8J+8g==
+X-Received: by 2002:a05:6a21:78a9:b0:10a:cb95:5aa3 with SMTP id bf41-20020a056a2178a900b0010acb955aa3mr14231287pzc.7.1687205909086;
+        Mon, 19 Jun 2023 13:18:29 -0700 (PDT)
+Received: from smtpclient.apple ([66.170.99.1])
+        by smtp.gmail.com with ESMTPSA id k18-20020a637b52000000b005538bf7e3d6sm87568pgn.88.2023.06.19.13.18.26
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 19 Jun 2023 13:18:28 -0700 (PDT)
+Content-Type: text/plain;
+        charset=utf-8
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3731.600.7\))
+Subject: Re: [PATCH v2 02/12] mm: introduce execmem_text_alloc() and
+ jit_text_alloc()
+From:   Nadav Amit <nadav.amit@gmail.com>
+In-Reply-To: <a17c65c6-863f-4026-9c6f-a04b659e9ab4@app.fastmail.com>
+Date:   Mon, 19 Jun 2023 13:18:15 -0700
+Cc:     Mike Rapoport <rppt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Kees Cook <keescook@chromium.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Helge Deller <deller@gmx.de>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Kent Overstreet <kent.overstreet@linux.dev>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Puranjay Mohan <puranjay12@gmail.com>,
+        Rick P Edgecombe <rick.p.edgecombe@intel.com>,
+        "Russell King (Oracle)" <linux@armlinux.org.uk>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will@kernel.org>, bpf <bpf@vger.kernel.org>,
+        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+        linux-mm <linux-mm@kvack.org>, linux-modules@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        linux-trace-kernel@vger.kernel.org,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        loongarch@lists.linux.dev, netdev@vger.kernel.org,
+        sparclinux@vger.kernel.org,
+        the arch/x86 maintainers <x86@kernel.org>
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <7F566E60-C371-449B-992B-0C435AD6016B@gmail.com>
+References: <20230616085038.4121892-1-rppt@kernel.org>
+ <20230616085038.4121892-3-rppt@kernel.org>
+ <f9a7eebe-d36e-4587-b99d-35d4edefdd14@app.fastmail.com>
+ <20230618080027.GA52412@kernel.org>
+ <a17c65c6-863f-4026-9c6f-a04b659e9ab4@app.fastmail.com>
+To:     Andy Lutomirski <luto@kernel.org>, Song Liu <song@kernel.org>
+X-Mailer: Apple Mail (2.3731.600.7)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Eric!
 
-On Mon, 2023-06-19 at 10:58 -0400, Eric DeVolder wrote:
-> The kexec and crash kernel options are provided in the common
-> kernel/Kconfig.kexec. Utilize the common options and provide
-> the ARCH_SUPPORTS_ and ARCH_SELECTS_ entries to recreate the
-> equivalent set of KEXEC and CRASH options.
-> 
-> Signed-off-by: Eric DeVolder <eric.devolder@oracle.com>
-> ---
->  arch/sh/Kconfig | 46 ++++++++--------------------------------------
->  1 file changed, 8 insertions(+), 38 deletions(-)
-> 
-> diff --git a/arch/sh/Kconfig b/arch/sh/Kconfig
-> index 9652d367fc37..d52e0beed7e9 100644
-> --- a/arch/sh/Kconfig
-> +++ b/arch/sh/Kconfig
-> @@ -546,44 +546,14 @@ menu "Kernel features"
->  
->  source "kernel/Kconfig.hz"
->  
-> -config KEXEC
-> -	bool "kexec system call (EXPERIMENTAL)"
-> -	depends on MMU
-> -	select KEXEC_CORE
-> -	help
-> -	  kexec is a system call that implements the ability to shutdown your
-> -	  current kernel, and to start another kernel.  It is like a reboot
-> -	  but it is independent of the system firmware.  And like a reboot
-> -	  you can start any kernel with it, not just Linux.
-> -
-> -	  The name comes from the similarity to the exec system call.
-> -
-> -	  It is an ongoing process to be certain the hardware in a machine
-> -	  is properly shutdown, so do not be surprised if this code does not
-> -	  initially work for you.  As of this writing the exact hardware
-> -	  interface is strongly in flux, so no good recommendation can be
-> -	  made.
-> -
-> -config CRASH_DUMP
-> -	bool "kernel crash dumps (EXPERIMENTAL)"
-> -	depends on BROKEN_ON_SMP
-> -	help
-> -	  Generate crash dump after being started by kexec.
-> -	  This should be normally only set in special crash dump kernels
-> -	  which are loaded in the main kernel with kexec-tools into
-> -	  a specially reserved region and then later executed after
-> -	  a crash by kdump/kexec. The crash dump kernel must be compiled
-> -	  to a memory address not used by the main kernel using
-> -	  PHYSICAL_START.
-> -
-> -	  For more details see Documentation/admin-guide/kdump/kdump.rst
-> -
-> -config KEXEC_JUMP
-> -	bool "kexec jump (EXPERIMENTAL)"
-> -	depends on KEXEC && HIBERNATION
-> -	help
-> -	  Jump between original kernel and kexeced kernel and invoke
-> -	  code via KEXEC
-> +config ARCH_SUPPORTS_KEXEC
-> +	def_bool MMU
-> +
-> +config ARCH_SUPPORTS_CRASH_DUMP
-> +	def_bool BROKEN_ON_SMP
-> +
-> +config ARCH_SUPPORTS_KEXEC_JUMP
-> +	def_bool y
->  
->  config PHYSICAL_START
->  	hex "Physical address where the kernel is loaded" if (EXPERT || CRASH_DUMP)
 
-Acked-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+> On Jun 19, 2023, at 10:09 AM, Andy Lutomirski <luto@kernel.org> wrote:
+>=20
+> But jit_text_alloc() can't do this, because the order of operations =
+doesn't match.  With jit_text_alloc(), the executable mapping shows up =
+before the text is populated, so there is no atomic change from =
+not-there to populated-and-executable.  Which means that there is an =
+opportunity for CPUs, speculatively or otherwise, to start filling =
+various caches with intermediate states of the text, which means that =
+various architectures (even x86!) may need serialization.
+>=20
+> For eBPF- and module- like use cases, where JITting/code gen is quite =
+coarse-grained, perhaps something vaguely like:
+>=20
+> jit_text_alloc() -> returns a handle and an executable virtual =
+address, but does *not* map it there
+> jit_text_write() -> write to that handle
+> jit_text_map() -> map it and synchronize if needed (no sync needed on =
+x86, I think)
 
--- 
- .''`.  John Paul Adrian Glaubitz
-: :' :  Debian Developer
-`. `'   Physicist
-  `-    GPG: 62FF 8A75 84E0 2956 9546  0006 7426 3B37 F5B5 F913
+Andy, would you mind explaining why you think a sync is not needed? I =
+mean I have a =E2=80=9Cfeeling=E2=80=9D that perhaps TSO can guarantee =
+something based on the order of write and page-table update. Is that the =
+argument?
+
+On this regard, one thing that I clearly do not understand is why =
+*today* it is ok for users of bpf_arch_text_copy() not to call =
+text_poke_sync(). Am I missing something?
+
