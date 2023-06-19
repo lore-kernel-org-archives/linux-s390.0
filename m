@@ -2,95 +2,138 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6FCADEB64D9
-	for <linux-s390@archiver.kernel.org>; Mon, 19 Jun 2023 15:18:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1139AEB64DA
+	for <linux-s390@archiver.kernel.org>; Mon, 19 Jun 2023 15:24:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229662AbjFSPSb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 19 Jun 2023 11:18:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37592 "EHLO
+        id S231653AbjFSPYU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 19 Jun 2023 11:24:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229711AbjFSPSb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 19 Jun 2023 11:18:31 -0400
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9369B9;
-        Mon, 19 Jun 2023 08:18:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-        Content-Type:In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
-        Message-ID:Sender:Reply-To:Content-ID:Content-Description;
-        bh=fnh6RCNEHzHmS6/XhMUtUgMq0ysRFuFiukVtZgZImCA=; b=yZwwXIIj5HgDds8uv5azf2KFL/
-        2uOyxDsC2zQx94/fuYz/HMXyE8iaMYuq7Pq7xMj1XEJ5+hejE1RPa95u1uWWylGSY/5YnXx9JYyX3
-        SGMuBbGF7xcCb388EMh5vL4UnxNMcKbq+xqjH3mH9qMrNY50KdylIB/2upUvNJzaRXSKhYF9BACD4
-        8VNgCFIG8/QxP4ULg3KhAPOu2qEAY+ZryZrIWPBrpgN/g1jcybCU7SBpwX5oMvJG601MHpDM4ItjB
-        QF5tdzW6P3J3PQhI44QvbuZFczBKdCYVuSyNXLAP38+ZAEWpKO1NBeue+wryY/JADpJ17hBvPTD+j
-        rPNWaCaQ==;
-Received: from [2601:1c2:980:9ec0::2764]
-        by bombadil.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
-        id 1qBGeB-008lL4-01;
-        Mon, 19 Jun 2023 15:18:27 +0000
-Message-ID: <7c7cc6b2-5c63-f893-d4ac-fcea40b2a4b4@infradead.org>
-Date:   Mon, 19 Jun 2023 08:18:25 -0700
+        with ESMTP id S231223AbjFSPYT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 19 Jun 2023 11:24:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74615F9;
+        Mon, 19 Jun 2023 08:24:18 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0793460D33;
+        Mon, 19 Jun 2023 15:24:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AA4DC433C8;
+        Mon, 19 Jun 2023 15:24:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1687188257;
+        bh=N4a6+AKTlpfQu+hNLgDTvYGemlpqgXPewbtXySTT2Wk=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=kRzjt2nDIAl4X26ojRiB8w8CJVn45eTmiPbIYkIvDYRBR/QR7IVpfAXYd9FpfNQDQ
+         OvemWMKmfnlcr5GwcS7TCX2oTJmzf2fUUsDJHf2Oq+4RHGmHWKbk0CASnuDz6Gk1Ld
+         1e26ENdIJqn1qjqL2vy8CRe3zudh+ZqjAZ7btzz+Jja4UEKxYRLaqjs+hNR8TPWi48
+         sYyUqJtdsNHbcbOzxo9zMe/AaYlu9nZhYjfHu5NSh21mKAk+otvslcioi5dkhxeNTF
+         EnxnECqDbcsPkYZvvYUeyjGiH7IzMmaAIOnWvmMc+HuAd2WDWUtK2BFwEfTtd03m+J
+         SY9K1sARFWi7g==
+Date:   Mon, 19 Jun 2023 18:23:34 +0300
+From:   Mike Rapoport <rppt@kernel.org>
+To:     Thomas Gleixner <tglx@linutronix.de>
+Cc:     linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Helge Deller <deller@gmx.de>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Kent Overstreet <kent.overstreet@linux.dev>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Puranjay Mohan <puranjay12@gmail.com>,
+        Rick Edgecombe <rick.p.edgecombe@intel.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Song Liu <song@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Will Deacon <will@kernel.org>, bpf@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+        linux-mm@kvack.org, linux-modules@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+        netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
+Subject: Re: [PATCH v2 06/12] mm/execmem: introduce execmem_data_alloc()
+Message-ID: <20230619152334.GC52412@kernel.org>
+References: <20230616085038.4121892-1-rppt@kernel.org>
+ <20230616085038.4121892-7-rppt@kernel.org>
+ <87jzw0qu3s.ffs@tglx>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.11.2
-Subject: Re: [PATCH] s390/net: lcs: use IS_ENABLED() for kconfig detection
-Content-Language: en-US
-To:     Alexandra Winter <wintera@linux.ibm.com>,
-        patchwork-bot+netdevbpf@kernel.org
-Cc:     linux-kernel@vger.kernel.org, wenjia@linux.ibm.com,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com
-References: <20230615222152.13250-1-rdunlap@infradead.org>
- <168690302072.8823.785077843270614259.git-patchwork-notify@kernel.org>
- <4f2afa34-830a-3c17-99e7-1cb5b874e7ce@linux.ibm.com>
-From:   Randy Dunlap <rdunlap@infradead.org>
-In-Reply-To: <4f2afa34-830a-3c17-99e7-1cb5b874e7ce@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87jzw0qu3s.ffs@tglx>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Mon, Jun 19, 2023 at 12:32:55AM +0200, Thomas Gleixner wrote:
+> Mike!
+> 
+> Sorry for being late on this ...
+> 
+> On Fri, Jun 16 2023 at 11:50, Mike Rapoport wrote:
+> 
+> The fact that my suggestions had a 'mod_' namespace prefix does not make
+> any of my points moot.
 
+The prefix does not matter. What matters is what we are trying to abstract.
+Your suggestion is based of the memory used by modules. I'm abstracting
+address spaces for different types of executable and related memory. They
+are similar, yes, but they are not the same.
 
-On 6/19/23 03:04, Alexandra Winter wrote:
-> 
-> 
-> On 16.06.23 10:10, patchwork-bot+netdevbpf@kernel.org wrote:
->> Hello:
->>
->> This patch was applied to netdev/net-next.git (main)
->> by David S. Miller <davem@davemloft.net>:
->>
->> On Thu, 15 Jun 2023 15:21:52 -0700 you wrote:
->>> When CONFIG_ETHERNET=m or CONFIG_FDDI=m, lcs.s has build errors or
->>> warnings:
->>>
->  
-> IIUC, CONFIG_ETHERNET is bool.
+The TEXT, INIT_TEXT and *_DATA do not match to what we have from arch POV.
+They have modules with text, rw data, ro data and ro after init data and
+the memory for the generated code. The memory for modules and memory for
+other users have different restrictions for their placement, so using a
+single TEXT type for them is semantically wrong. BPF and kprobes do not
+necessarily must be at the same address range as modules and init text does
+not differ from normal text.
 
-duh, yes. Thanks.
+> Song did an extremly good job in abstracting things out, but you decided
+> to ditch his ground work instead of building on it and keeping the good
+> parts. That's beyond sad.
 
-> I reproduced this with CONFIG_ETHERNET=n and CONFIG_FDDI=m,
-> and verified that it does compile with your patch.
+Actually not. The core idea to describe address range suitable for code
+allocations with a structure and have arch code initialize this structure
+at boot and be done with it is the same. But I don't think vmalloc
+parameters belong there, they should be completely encapsulated in the
+allocator. Having fallback range named explicitly is IMO clearer than an
+array of address spaces.
+
+I accept your point that the structures describing ranges for different
+types should be unified and I've got carried away with making the wrappers
+to convert that structure to parameters to the core allocation function.
+
+I've chosen to define ranges as fields in the containing structure rather
+than enum with types and an array because I strongly feel that the callers
+should not care about these parameters. These parameters are defined by
+architecture and the callers should not need to know how each and every
+arch defines restrictions suitable for modules, bpf or kprobes.
+
+That's also the reason to have different names for API calls, exactly to
+avoid having alloc(KPROBES,...), alloc(BPF, ...), alloc(MODULES, ...) an so
+on.
+
+All in all, if I filter all the ranting, this boils down to having a
+unified structure for all the address ranges and passing this structure
+from the wrappers to the core alloc as is rather that translating it to
+separate parameters, with which I agree.
+
+> Thanks,
 > 
-> Thank you Randy for correcting this.
-> 
->>> ../drivers/s390/net/lcs.c:40:2: error: #error Cannot compile lcs.c without some net devices switched on.
->>>    40 | #error Cannot compile lcs.c without some net devices switched on.
->>> ../drivers/s390/net/lcs.c: In function 'lcs_startlan_auto':
->>> ../drivers/s390/net/lcs.c:1601:13: warning: unused variable 'rc' [-Wunused-variable]
->>>  1601 |         int rc;
->>>
->>> [...]
->>
->> Here is the summary with links:
->>   - s390/net: lcs: use IS_ENABLED() for kconfig detection
->>     https://git.kernel.org/netdev/net-next/c/128272336120
->>
->> You are awesome, thank you!
-> 
+>         tglx
 
 -- 
-~Randy
+Sincerely yours,
+Mike.
