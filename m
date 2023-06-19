@@ -2,110 +2,113 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2512EEB64D9
-	for <linux-s390@archiver.kernel.org>; Mon, 19 Jun 2023 10:06:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5119AEB64D9
+	for <linux-s390@archiver.kernel.org>; Mon, 19 Jun 2023 11:34:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230374AbjFSKGn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 19 Jun 2023 06:06:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51516 "EHLO
+        id S231383AbjFSLeh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 19 Jun 2023 07:34:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230444AbjFSKGm (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 19 Jun 2023 06:06:42 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B009CA;
-        Mon, 19 Jun 2023 03:06:41 -0700 (PDT)
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 35J8HNMk029921;
-        Mon, 19 Jun 2023 08:34:07 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=5LShhLbhVao8SLBGioX3j+rejckaVYzT/Y8Ky68v3cY=;
- b=Xpe26JTTAMZpqNxILVxR3CWSNhs1KALwS2ZYe815zAFeZMTlt5dRpud/4OYAUgtVR29W
- c1nctw0knYLu1JUNVAeDgQS2l1KsWPpjwCirZDgxOFr//HwdFH6c2OCagJ1U4rvo+QM0
- dIcUljHlOYEwqUukrM+fK2+DrxmUCIFTYiJL7cFqG4BsJZt+cpvRD3pUQ2UK9WpKtuDg
- PZWxfOxmE/sWn8FhyGpUXDo8q0q7tE22VkjQOuXkH8HzVGUEotgId9Wv9uqnv/fNwUmI
- TG5tK53fjZHCRC9wYOb6jpk1HIXvndZh5OSd/QFz6BdtYO5m1UT3+8LUdijQ/wKhhrHH Zw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rakcagbcb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 19 Jun 2023 08:34:07 +0000
-Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 35J8Y6OQ000626;
-        Mon, 19 Jun 2023 08:34:06 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rakcagbbm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 19 Jun 2023 08:34:06 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 35J10fhx000966;
-        Mon, 19 Jun 2023 08:34:04 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3r94f5980n-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 19 Jun 2023 08:34:04 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 35J8Y01B12059192
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 19 Jun 2023 08:34:00 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id AC3292005A;
-        Mon, 19 Jun 2023 08:34:00 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BE7682004B;
-        Mon, 19 Jun 2023 08:33:59 +0000 (GMT)
-Received: from linux6.. (unknown [9.114.12.104])
-        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon, 19 Jun 2023 08:33:59 +0000 (GMT)
-From:   Janosch Frank <frankja@linux.ibm.com>
-To:     kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        thuth@redhat.com, david@redhat.com, nsg@linux.ibm.com,
-        nrb@linux.ibm.com
-Subject: [kvm-unit-tests PATCH v5 8/8] s390x: pv-diags: Add the test to unittests.conf
-Date:   Mon, 19 Jun 2023 08:33:29 +0000
-Message-Id: <20230619083329.22680-9-frankja@linux.ibm.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20230619083329.22680-1-frankja@linux.ibm.com>
-References: <20230619083329.22680-1-frankja@linux.ibm.com>
+        with ESMTP id S230397AbjFSLeg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 19 Jun 2023 07:34:36 -0400
+Received: from out-57.mta0.migadu.com (out-57.mta0.migadu.com [91.218.175.57])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BD60C9
+        for <linux-s390@vger.kernel.org>; Mon, 19 Jun 2023 04:34:34 -0700 (PDT)
+Date:   Mon, 19 Jun 2023 07:34:26 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+        t=1687174472;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=Tt3RWh8BEKoqLhK86LDh7llJ14l6KCTXk/okAyPXAzA=;
+        b=i+cENnWbA17Y+F/fishc8UmKkX2d11aFrfbkEA/RSeJGs8DaK+pP54Vf1C7aoZ8NsEj74R
+        cXaE50KWXHIuXWZXVuGC783hgIjWLesjrEEDAYhwTaqLKdCoI85w4n4+GuOUgBvzA2QigP
+        oa1A17/zsm0VN2UgH6YNfjC3Cc/g4gI=
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From:   Kent Overstreet <kent.overstreet@linux.dev>
+To:     Andy Lutomirski <luto@kernel.org>
+Cc:     Mike Rapoport <rppt@kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Helge Deller <deller@gmx.de>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Puranjay Mohan <puranjay12@gmail.com>,
+        Rick P Edgecombe <rick.p.edgecombe@intel.com>,
+        "Russell King (Oracle)" <linux@armlinux.org.uk>,
+        Song Liu <song@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will@kernel.org>, bpf@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+        linux-mm@kvack.org, linux-modules@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+        netdev@vger.kernel.org, sparclinux@vger.kernel.org,
+        the arch/x86 maintainers <x86@kernel.org>
+Subject: Re: [PATCH v2 02/12] mm: introduce execmem_text_alloc() and
+ jit_text_alloc()
+Message-ID: <20230619113426.c37bpwvdagbzyevn@moria.home.lan>
+References: <20230616085038.4121892-1-rppt@kernel.org>
+ <20230616085038.4121892-3-rppt@kernel.org>
+ <f9a7eebe-d36e-4587-b99d-35d4edefdd14@app.fastmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: tdyxVFk79R-VaLsQ78FF6WdM4pT-ZXGX
-X-Proofpoint-ORIG-GUID: sCTZqxeMvjppmd_aPhnrwbJVUjqL48Tj
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-06-19_05,2023-06-16_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
- lowpriorityscore=0 malwarescore=0 bulkscore=0 mlxscore=0 suspectscore=0
- priorityscore=1501 phishscore=0 mlxlogscore=999 impostorscore=0
- adultscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2305260000 definitions=main-2306190077
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <f9a7eebe-d36e-4587-b99d-35d4edefdd14@app.fastmail.com>
+X-Migadu-Flow: FLOW_OUT
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Better to have it run into a skip than to not run it at all.
+On Sat, Jun 17, 2023 at 01:38:29PM -0700, Andy Lutomirski wrote:
+> On Fri, Jun 16, 2023, at 1:50 AM, Mike Rapoport wrote:
+> > From: "Mike Rapoport (IBM)" <rppt@kernel.org>
+> >
+> > module_alloc() is used everywhere as a mean to allocate memory for code.
+> >
+> > Beside being semantically wrong, this unnecessarily ties all subsystems
+> > that need to allocate code, such as ftrace, kprobes and BPF to modules
+> > and puts the burden of code allocation to the modules code.
+> >
+> > Several architectures override module_alloc() because of various
+> > constraints where the executable memory can be located and this causes
+> > additional obstacles for improvements of code allocation.
+> >
+> > Start splitting code allocation from modules by introducing
+> > execmem_text_alloc(), execmem_free(), jit_text_alloc(), jit_free() APIs.
+> >
+> > Initially, execmem_text_alloc() and jit_text_alloc() are wrappers for
+> > module_alloc() and execmem_free() and jit_free() are replacements of
+> > module_memfree() to allow updating all call sites to use the new APIs.
+> >
+> > The intention semantics for new allocation APIs:
+> >
+> > * execmem_text_alloc() should be used to allocate memory that must reside
+> >   close to the kernel image, like loadable kernel modules and generated
+> >   code that is restricted by relative addressing.
+> >
+> > * jit_text_alloc() should be used to allocate memory for generated code
+> >   when there are no restrictions for the code placement. For
+> >   architectures that require that any code is within certain distance
+> >   from the kernel image, jit_text_alloc() will be essentially aliased to
+> >   execmem_text_alloc().
+> >
+> 
+> Is there anything in this series to help users do the appropriate synchronization when the actually populate the allocated memory with code?  See here, for example:
+> 
+> https://lore.kernel.org/linux-fsdevel/cb6533c6-cea0-4f04-95cf-b8240c6ab405@app.fastmail.com/T/#u
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
----
- s390x/unittests.cfg | 5 +++++
- 1 file changed, 5 insertions(+)
-
-diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
-index 26bab34a..49b3cee4 100644
---- a/s390x/unittests.cfg
-+++ b/s390x/unittests.cfg
-@@ -229,3 +229,8 @@ extra_params = -m 2200
- file = pv-ipl.elf
- groups = pv-host
- extra_params = -m 2200
-+
-+[pv-diags]
-+file = pv-diags.elf
-+groups = pv-host
-+extra_params = -m 2200
--- 
-2.34.1
-
+We're still in need of an arch independent text_poke() api.
