@@ -2,248 +2,120 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 765A2EB64D8
-	for <linux-s390@archiver.kernel.org>; Tue, 20 Jun 2023 13:18:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 52B1BEB64D7
+	for <linux-s390@archiver.kernel.org>; Tue, 20 Jun 2023 14:13:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231329AbjFTNSO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 20 Jun 2023 09:18:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50248 "EHLO
+        id S231974AbjFTONs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 20 Jun 2023 10:13:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230490AbjFTNSC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Jun 2023 09:18:02 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D8F71BF7
-        for <linux-s390@vger.kernel.org>; Tue, 20 Jun 2023 06:16:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1687266999;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=6JfLBgWKCdyh6wjUYOWVMGPpT4CuCPxtIaQnHkOENe8=;
-        b=Oit32PKU9BbvxmDImd6e/KdS001VNjSBmyrrumNHj6SXonDtOn/aMQPovctYxiiKDUjCdy
-        P0kPVegO07D+ZBLlIDWBJPaaASNZ+MhneM4KUcWLrPPyHmZr876BPA5M5w86Uj67Pzth3S
-        bQTrQ6jpeL7MCZtlxifNCBZBoIELEew=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-597-ext3m0EJMzyEfwIVkycz7Q-1; Tue, 20 Jun 2023 09:16:35 -0400
-X-MC-Unique: ext3m0EJMzyEfwIVkycz7Q-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com [10.11.54.8])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 8E29F185A7A8;
-        Tue, 20 Jun 2023 13:15:44 +0000 (UTC)
-Received: from MiWiFi-R3L-srv.redhat.com (ovpn-12-166.pek2.redhat.com [10.72.12.166])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 690B2C1ED96;
-        Tue, 20 Jun 2023 13:15:34 +0000 (UTC)
-From:   Baoquan He <bhe@redhat.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     linux-arch@vger.kernel.org, linux-mm@kvack.org, arnd@arndb.de,
-        hch@lst.de, christophe.leroy@csgroup.eu, rppt@kernel.org,
-        willy@infradead.org, agordeev@linux.ibm.com,
-        wangkefeng.wang@huawei.com, schnelle@linux.ibm.com,
-        David.Laight@ACULAB.COM, shorne@gmail.com, deller@gmx.de,
-        nathan@kernel.org, glaubitz@physik.fu-berlin.de,
-        Baoquan He <bhe@redhat.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: [PATCH v7 10/19] s390: mm: Convert to GENERIC_IOREMAP
-Date:   Tue, 20 Jun 2023 21:13:47 +0800
-Message-Id: <20230620131356.25440-11-bhe@redhat.com>
-In-Reply-To: <20230620131356.25440-1-bhe@redhat.com>
-References: <20230620131356.25440-1-bhe@redhat.com>
+        with ESMTP id S231938AbjFTONr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Jun 2023 10:13:47 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED691170F;
+        Tue, 20 Jun 2023 07:13:35 -0700 (PDT)
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 35KE9Fl5007801;
+        Tue, 20 Jun 2023 14:13:35 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : from : to : cc : references : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=I6bRu5z9WiXNx/MxkQe6IZqRVFBXuWEUggjvUljHrIM=;
+ b=EnTpzgMvoNBQELyKqWqYPkzbOMgq4edEjjv5peK18oxUs8h+imPrHqLznQ+kCu3ss9+F
+ 9gLiz5Fp+F/baXPeFsfwqlo47fzYQidA6e647VNDGV0Mez8Qiv9vNeFCw00VPbF2FwBt
+ 5Vw0nqyDyXUcLHjQ2UuXSG0CZvScub9QTWbct72HZ9ZfQK8Z0DEZQ9vvMjxU6YXcVQqA
+ cmNK4wmOdG5znH2r9B10Xe6PuTYgTI2PcfIV0TXl91i/KfNT5yTbsxyg4oWjnxEALPhi
+ 1uminvJOPC9eVpNpdmXrRZBfYc2CFuIltBVzfgB7TaBKBuLyZvRAi8jCvJ0v2Cy0P0Mj aQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rbdd38epm-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 20 Jun 2023 14:13:35 +0000
+Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 35KEBY0M022704;
+        Tue, 20 Jun 2023 14:13:34 GMT
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rbdd38enx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 20 Jun 2023 14:13:34 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 35K6YJ0r025824;
+        Tue, 20 Jun 2023 14:13:32 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma04fra.de.ibm.com (PPS) with ESMTPS id 3r94f59kmb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 20 Jun 2023 14:13:32 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 35KEDSfR19661562
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 20 Jun 2023 14:13:28 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CB8DF2004E;
+        Tue, 20 Jun 2023 14:13:28 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 665112004F;
+        Tue, 20 Jun 2023 14:13:28 +0000 (GMT)
+Received: from [9.171.27.251] (unknown [9.171.27.251])
+        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Tue, 20 Jun 2023 14:13:28 +0000 (GMT)
+Message-ID: <9d86e617-4e8f-da3d-0c79-e94df5f3f3a5@linux.ibm.com>
+Date:   Tue, 20 Jun 2023 16:13:28 +0200
 MIME-Version: 1.0
-Content-type: text/plain
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.8
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.12.0
+Subject: Re: [kvm-unit-tests PATCH v5 5/8] lib: s390x: uv: Add pv host
+ requirement check function
+Content-Language: en-US
+From:   Janosch Frank <frankja@linux.ibm.com>
+To:     kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        thuth@redhat.com, david@redhat.com, nsg@linux.ibm.com,
+        nrb@linux.ibm.com
+References: <20230619083329.22680-1-frankja@linux.ibm.com>
+ <20230619083329.22680-6-frankja@linux.ibm.com>
+In-Reply-To: <20230619083329.22680-6-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: KOqK8wFc2slPqFEHA21y858u7zo7xeAh
+X-Proofpoint-ORIG-GUID: vFcwh1ZVbMdVe_uVDZDPMRpA5tM7jCRz
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-06-20_10,2023-06-16_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ lowpriorityscore=0 priorityscore=1501 suspectscore=0 mlxscore=0
+ mlxlogscore=999 bulkscore=0 clxscore=1015 adultscore=0 phishscore=0
+ impostorscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2305260000 definitions=main-2306200127
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-By taking GENERIC_IOREMAP method, the generic generic_ioremap_prot(),
-generic_iounmap(), and their generic wrapper ioremap_prot(), ioremap()
-and iounmap() are all visible and available to arch. Arch needs to
-provide wrapper functions to override the generic versions if there's
-arch specific handling in its ioremap_prot(), ioremap() or iounmap().
-This change will simplify implementation by removing duplicated codes
-with generic_ioremap_prot() and generic_iounmap(), and has the equivalent
-functioality as before.
+On 6/19/23 10:33, Janosch Frank wrote:
+> When running PV guests some of the UV memory needs to be allocated
+> with > 31 bit addresses which means tests with PV guests will always
+> need a lot more memory than other tests.
+> Additionally facilities nr 158 and sclp.sief2 need to be available.
+> 
+> Let's add a function that checks for these requirements and prints a
+> helpful skip message.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
+[...]
+> +bool uv_host_requirement_checks(void)
+> +{
+> +	if (!test_facility(158)) {
+> +		report_skip("UV Call facility unavailable");
+> +		return false;
+> +	}
+> +	if (!sclp_facilities.has_sief2) {
+> +		report_skip("SIEF2 facility unavailable");
+> +		return false;
+> +	}
+> +	if (get_ram_size() < SNIPPET_PV_MIN_MEM_SIZE) {
+> +		report_skip("Not enough memory. This test needs about %ld MB of memory",
+> +			    SNIPPET_PV_MIN_MEM_SIZE / 1024 / 1024);
 
-Here, add wrapper functions ioremap_prot() and iounmap() for s390's
-special operation when ioremap() and iounmap().
-
-And also replace including <asm-generic/io.h> with <asm/io.h> in
-arch/s390/kernel/perf_cpum_sf.c, otherwise building error will be seen
-because macro defined in <asm/io.h> can't be seen in perf_cpum_sf.c.
-
-Signed-off-by: Baoquan He <bhe@redhat.com>
-Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Tested-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Mike Rapoport (IBM) <rppt@kernel.org>
-Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: Sven Schnelle <svens@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org
----
-v6->v7:
-- Fix building error reported by lkp test robot.
-  https://lore.kernel.org/oe-kbuild-all/202306100105.8GHnoMCP-lkp@intel.com/
-
- arch/s390/Kconfig               |  1 +
- arch/s390/include/asm/io.h      | 21 ++++++------
- arch/s390/kernel/perf_cpum_sf.c |  2 +-
- arch/s390/pci/pci.c             | 57 ++++++---------------------------
- 4 files changed, 24 insertions(+), 57 deletions(-)
-
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 6dab9c1be508..e625bb0cc6c7 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -142,6 +142,7 @@ config S390
- 	select GENERIC_SMP_IDLE_THREAD
- 	select GENERIC_TIME_VSYSCALL
- 	select GENERIC_VDSO_TIME_NS
-+	select GENERIC_IOREMAP if PCI
- 	select HAVE_ALIGNED_STRUCT_PAGE if SLUB
- 	select HAVE_ARCH_AUDITSYSCALL
- 	select HAVE_ARCH_JUMP_LABEL
-diff --git a/arch/s390/include/asm/io.h b/arch/s390/include/asm/io.h
-index e3882b012bfa..4453ad7c11ac 100644
---- a/arch/s390/include/asm/io.h
-+++ b/arch/s390/include/asm/io.h
-@@ -22,11 +22,18 @@ void unxlate_dev_mem_ptr(phys_addr_t phys, void *addr);
- 
- #define IO_SPACE_LIMIT 0
- 
--void __iomem *ioremap_prot(phys_addr_t addr, size_t size, unsigned long prot);
--void __iomem *ioremap(phys_addr_t addr, size_t size);
--void __iomem *ioremap_wc(phys_addr_t addr, size_t size);
--void __iomem *ioremap_wt(phys_addr_t addr, size_t size);
--void iounmap(volatile void __iomem *addr);
-+/*
-+ * I/O memory mapping functions.
-+ */
-+#define ioremap_prot ioremap_prot
-+#define iounmap iounmap
-+
-+#define _PAGE_IOREMAP pgprot_val(PAGE_KERNEL)
-+
-+#define ioremap_wc(addr, size)  \
-+	ioremap_prot((addr), (size), pgprot_val(pgprot_writecombine(PAGE_KERNEL)))
-+#define ioremap_wt(addr, size)  \
-+	ioremap_prot((addr), (size), pgprot_val(pgprot_writethrough(PAGE_KERNEL)))
- 
- static inline void __iomem *ioport_map(unsigned long port, unsigned int nr)
- {
-@@ -51,10 +58,6 @@ static inline void ioport_unmap(void __iomem *p)
- #define pci_iomap_wc pci_iomap_wc
- #define pci_iomap_wc_range pci_iomap_wc_range
- 
--#define ioremap ioremap
--#define ioremap_wt ioremap_wt
--#define ioremap_wc ioremap_wc
--
- #define memcpy_fromio(dst, src, count)	zpci_memcpy_fromio(dst, src, count)
- #define memcpy_toio(dst, src, count)	zpci_memcpy_toio(dst, src, count)
- #define memset_io(dst, val, count)	zpci_memset_io(dst, val, count)
-diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index 7ef72f5ff52e..b0269f3881aa 100644
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -22,7 +22,7 @@
- #include <asm/irq.h>
- #include <asm/debug.h>
- #include <asm/timex.h>
--#include <asm-generic/io.h>
-+#include <asm/io.h>
- 
- /* Minimum number of sample-data-block-tables:
-  * At least one table is required for the sampling buffer structure.
-diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-index afc3f33788da..d34d5813d006 100644
---- a/arch/s390/pci/pci.c
-+++ b/arch/s390/pci/pci.c
-@@ -244,62 +244,25 @@ void __iowrite64_copy(void __iomem *to, const void *from, size_t count)
-        zpci_memcpy_toio(to, from, count);
- }
- 
--static void __iomem *__ioremap(phys_addr_t addr, size_t size, pgprot_t prot)
-+void __iomem *ioremap_prot(phys_addr_t phys_addr, size_t size,
-+			   unsigned long prot)
- {
--	unsigned long offset, vaddr;
--	struct vm_struct *area;
--	phys_addr_t last_addr;
--
--	last_addr = addr + size - 1;
--	if (!size || last_addr < addr)
--		return NULL;
--
-+	/*
-+	 * When PCI MIO instructions are unavailable the "physical" address
-+	 * encodes a hint for accessing the PCI memory space it represents.
-+	 * Just pass it unchanged such that ioread/iowrite can decode it.
-+	 */
- 	if (!static_branch_unlikely(&have_mio))
--		return (void __iomem *) addr;
-+		return (void __iomem *)phys_addr;
- 
--	offset = addr & ~PAGE_MASK;
--	addr &= PAGE_MASK;
--	size = PAGE_ALIGN(size + offset);
--	area = get_vm_area(size, VM_IOREMAP);
--	if (!area)
--		return NULL;
--
--	vaddr = (unsigned long) area->addr;
--	if (ioremap_page_range(vaddr, vaddr + size, addr, prot)) {
--		free_vm_area(area);
--		return NULL;
--	}
--	return (void __iomem *) ((unsigned long) area->addr + offset);
--}
--
--void __iomem *ioremap_prot(phys_addr_t addr, size_t size, unsigned long prot)
--{
--	return __ioremap(addr, size, __pgprot(prot));
-+	return generic_ioremap_prot(phys_addr, size, __pgprot(prot));
- }
- EXPORT_SYMBOL(ioremap_prot);
- 
--void __iomem *ioremap(phys_addr_t addr, size_t size)
--{
--	return __ioremap(addr, size, PAGE_KERNEL);
--}
--EXPORT_SYMBOL(ioremap);
--
--void __iomem *ioremap_wc(phys_addr_t addr, size_t size)
--{
--	return __ioremap(addr, size, pgprot_writecombine(PAGE_KERNEL));
--}
--EXPORT_SYMBOL(ioremap_wc);
--
--void __iomem *ioremap_wt(phys_addr_t addr, size_t size)
--{
--	return __ioremap(addr, size, pgprot_writethrough(PAGE_KERNEL));
--}
--EXPORT_SYMBOL(ioremap_wt);
--
- void iounmap(volatile void __iomem *addr)
- {
- 	if (static_branch_likely(&have_mio))
--		vunmap((__force void *) ((unsigned long) addr & PAGE_MASK));
-+		generic_iounmap(addr);
- }
- EXPORT_SYMBOL(iounmap);
- 
--- 
-2.34.1
-
+I've just replaced the 1024 divisions with SZ_1M i nthe second series. 
+Feel free to do that here when picking if I don't need to send a new 
+version.
