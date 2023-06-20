@@ -2,183 +2,228 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D295C001DF
-	for <linux-s390@archiver.kernel.org>; Tue, 20 Jun 2023 15:00:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3228DEB64DB
+	for <linux-s390@archiver.kernel.org>; Tue, 20 Jun 2023 15:10:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233468AbjFTPAT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 20 Jun 2023 11:00:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33650 "EHLO
+        id S233585AbjFTPKh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 20 Jun 2023 11:10:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233557AbjFTO75 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Jun 2023 10:59:57 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFE1419B3
-        for <linux-s390@vger.kernel.org>; Tue, 20 Jun 2023 07:58:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1687273079;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=IMVWP9uUwreYp41lBQlzx9rQqv8YUX+d+4RkZ35R+cQ=;
-        b=L254jKsvrdiwLTzqo0ACZ1dy6ItWkSDogbRO0+A8tyPRZaA/QAuSneIggh3s0TaQBCJAmp
-        6s5F7aQHgKMfw9rlpHdiMxSuSDaznMUqguywyifkh4kwwsumTM0caJ75Q5mDVTZl+rT7+L
-        pdN5yHtpY35gp4Ps7IsOmrbklkE1jpg=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-582-PGZ8P0JHPzaSP3c_R985HA-1; Tue, 20 Jun 2023 10:54:43 -0400
-X-MC-Unique: PGZ8P0JHPzaSP3c_R985HA-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id AFAFA18E0072;
-        Tue, 20 Jun 2023 14:46:51 +0000 (UTC)
-Received: from ypodemsk.tlv.csb (unknown [10.39.195.147])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id E04889E9C;
-        Tue, 20 Jun 2023 14:46:42 +0000 (UTC)
-From:   Yair Podemsky <ypodemsk@redhat.com>
-To:     mtosatti@redhat.com, ppandit@redhat.com, david@redhat.com,
-        linux@armlinux.org.uk, mpe@ellerman.id.au, npiggin@gmail.com,
-        christophe.leroy@csgroup.eu, hca@linux.ibm.com, gor@linux.ibm.com,
+        with ESMTP id S233578AbjFTPKe (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Jun 2023 11:10:34 -0400
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FEA1C4;
+        Tue, 20 Jun 2023 08:10:34 -0700 (PDT)
+Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 35KBP2ov006316;
+        Tue, 20 Jun 2023 15:09:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=corp-2023-03-30;
+ bh=snIq18gzsG0mtmtxG+L9NBapSG7AF9Eu1w16W5QiBrU=;
+ b=XI9sNiR8zUuFJmFZMPKTKV3tKU39FeNa9+t0vNFro7q31Goh/ZrNJGdIWskAMgLHJtnV
+ nRz9fEuajc7+gb10qmBewDv2FzwJUZNRVSFDB2LcVk3UpctesEsjYlflhsPCFJzccJqV
+ Jaop+Rh/8PQEM1Q5k24GWYWClr+LtsH7JtpBFARvekeOFVqX0nK5fVOBDfiYhFGnKEMR
+ L5lL4pC8Lu6NA3k21dqVDnaZcuLM5ubkvrNBuY0eSFhjOE08FJzRjDxTi1ZQ0YLQoZqo
+ bjYVm3nX5xhFjpJG8vaVoLZFfue5mEHnUukb2ImK6CG1v1iClx/5qSRQk7b6k6gkonb9 2w== 
+Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.appoci.oracle.com [147.154.18.20])
+        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3r93m3n30b-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 20 Jun 2023 15:09:58 +0000
+Received: from pps.filterd (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+        by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 35KE914e029722;
+        Tue, 20 Jun 2023 15:09:58 GMT
+Received: from nam11-bn8-obe.outbound.protection.outlook.com (mail-bn8nam11lp2169.outbound.protection.outlook.com [104.47.58.169])
+        by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 3r939aqytu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 20 Jun 2023 15:09:58 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=jML6kTn6XY+wojBzVLBbvQQOD7ph9yqKAug6X8bQe/H80/xrd77bEnJImMSDVTJ+pABGcolbfHDNrb7ohPfS3ZMXEnDB9bBw5fZmH8i/BI45nHz+q7myY7UQWVJF2eyL/9EgWNHNLN8H1pVmee/eqssIUDvBqqOtfE4HibTQtIYeoh9gFu21mnDWriEPnUTEZyKTOlh5SxqAZQmi5Wvi+EWpz34hOycrGdOacdHhxILPtRTaZ+4D8JFjCK28vgh7p3d4Qd64SkhSCGibb7WRc9v0fjMIVvv7L/1hav6ujSGGr49aX79Bp+rYR3bOXDc6lB8zTbqnv8LdinNpfLLDgA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=snIq18gzsG0mtmtxG+L9NBapSG7AF9Eu1w16W5QiBrU=;
+ b=U4io0PNNus7onHntawRS3eAwuEq4FZEKsqUAHmRMyilrVIrjK5G36rBqIoA8AmiELv7CGoyaxSk0Mqixk/tSoKwItuCWJ0CKA0nzSWwJY7OSTjFy9svPlRpXFn/E7GA+92m+6ci3r+WIndzWRsutyTWRoBRGXh/W9VOtr4vNwAlFilfXw6Oqp2TpWXg/ZvsXi0ija3mYzYjDLG+2F2tGoXf5CRVxyukE7ACu/CIUEtEA+kSkQ7mt6eZs1lo0ydUCYOR+vcCV14jyV7GMmHGTPxe0t6bNl1OwKaDsApJ3+wN8f39V621MwjysrcmthYwNw2Z92pPN5YSA5HrGcBCECw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=snIq18gzsG0mtmtxG+L9NBapSG7AF9Eu1w16W5QiBrU=;
+ b=CyHr8KjUMyZlvWOJCJ1dZ0dRd0fxOjEKQQtCc69yWzKXifOan9qFeMQQkE+lwoEnWK8IwR/wKKVOtGTihLUT2MD8wBCnD11liYX0LhhuczGRn2vR1VPChxem21Ldj/z6MZiYZQY68mcLHmTJK11W1S+4eylpnSdp0uyy3mMLH4o=
+Received: from CO1PR10MB4531.namprd10.prod.outlook.com (2603:10b6:303:6c::22)
+ by CH0PR10MB5132.namprd10.prod.outlook.com (2603:10b6:610:c2::22) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6500.37; Tue, 20 Jun
+ 2023 15:09:52 +0000
+Received: from CO1PR10MB4531.namprd10.prod.outlook.com
+ ([fe80::8b8f:b4b1:bb78:b048]) by CO1PR10MB4531.namprd10.prod.outlook.com
+ ([fe80::8b8f:b4b1:bb78:b048%5]) with mapi id 15.20.6500.036; Tue, 20 Jun 2023
+ 15:09:52 +0000
+Message-ID: <2a0e62a4-4edc-d4c9-dac6-1e0bf6a976e0@oracle.com>
+Date:   Tue, 20 Jun 2023 10:09:41 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.10.0
+Subject: Re: [PATCH v2 08/13] mips/kexec: refactor for kernel/Kconfig.kexec
+Content-Language: en-US
+To:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc:     linux@armlinux.org.uk, catalin.marinas@arm.com, will@kernel.org,
+        chenhuacai@kernel.org, geert@linux-m68k.org,
+        James.Bottomley@HansenPartnership.com, deller@gmx.de,
+        ysato@users.sourceforge.jp, dalias@libc.org,
+        glaubitz@physik.fu-berlin.de, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-ia64@vger.kernel.org, loongarch@lists.linux.dev,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, kernel@xen0n.name, mpe@ellerman.id.au,
+        npiggin@gmail.com, christophe.leroy@csgroup.eu,
+        paul.walmsley@sifive.com, palmer@dabbelt.com,
+        aou@eecs.berkeley.edu, hca@linux.ibm.com, gor@linux.ibm.com,
         agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, davem@davemloft.net, tglx@linutronix.de,
-        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
-        hpa@zytor.com, keescook@chromium.org, paulmck@kernel.org,
-        frederic@kernel.org, will@kernel.org, peterz@infradead.org,
-        ardb@kernel.org, samitolvanen@google.com,
-        juerg.haefliger@canonical.com, arnd@arndb.de,
-        rmk+kernel@armlinux.org.uk, geert+renesas@glider.be,
-        linus.walleij@linaro.org, akpm@linux-foundation.org,
-        sebastian.reichel@collabora.com, rppt@kernel.org,
-        aneesh.kumar@linux.ibm.com, x86@kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-arch@vger.kernel.org,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Cc:     ypodemsk@redhat.com
-Subject: [PATCH v2 2/2] mm/mmu_gather: send tlb_remove_table_smp_sync IPI only to MM CPUs
-Date:   Tue, 20 Jun 2023 17:46:18 +0300
-Message-Id: <20230620144618.125703-3-ypodemsk@redhat.com>
-In-Reply-To: <20230620144618.125703-1-ypodemsk@redhat.com>
-References: <20230620144618.125703-1-ypodemsk@redhat.com>
+        svens@linux.ibm.com, hpa@zytor.com, keescook@chromium.org,
+        paulmck@kernel.org, peterz@infradead.org, frederic@kernel.org,
+        akpm@linux-foundation.org, ardb@kernel.org,
+        samitolvanen@google.com, juerg.haefliger@canonical.com,
+        arnd@arndb.de, rmk+kernel@armlinux.org.uk,
+        linus.walleij@linaro.org, sebastian.reichel@collabora.com,
+        rppt@kernel.org, kirill.shutemov@linux.intel.com,
+        anshuman.khandual@arm.com, ziy@nvidia.com, masahiroy@kernel.org,
+        ndesaulniers@google.com, mhiramat@kernel.org, ojeda@kernel.org,
+        thunder.leizhen@huawei.com, xin3.li@intel.com, tj@kernel.org,
+        gregkh@linuxfoundation.org, tsi@tuyoix.net, bhe@redhat.com,
+        hbathini@linux.ibm.com, sourabhjain@linux.ibm.com,
+        boris.ostrovsky@oracle.com, konrad.wilk@oracle.com
+References: <20230619145801.1064716-1-eric.devolder@oracle.com>
+ <20230619145801.1064716-9-eric.devolder@oracle.com>
+ <20230620125236.GF10520@alpha.franken.de>
+From:   Eric DeVolder <eric.devolder@oracle.com>
+In-Reply-To: <20230620125236.GF10520@alpha.franken.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: SN6PR05CA0015.namprd05.prod.outlook.com
+ (2603:10b6:805:de::28) To CO1PR10MB4531.namprd10.prod.outlook.com
+ (2603:10b6:303:6c::22)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.5
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CO1PR10MB4531:EE_|CH0PR10MB5132:EE_
+X-MS-Office365-Filtering-Correlation-Id: 46870580-6c9c-4aa2-7bac-08db71a065b1
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: BDrlupcOiqNbJh5/liRUfewJDNG79eB7nUG8T1pNf9Ou4LoDdQKLTeD2KTvg96IeEbQ/MtkPZWvs8dWQQ6+wLDcxriXVv2S9u1l74NNNoqLCmr/cjrRaHMnIqgvrhv/weRHCKDhXSXK4eLXKlH4iQfTPAWIpWVjM5m/cdcrjzBp3t3fMU07Oek45WuEd8pmfrqK1jBJtfNW8QJC5gHtw1Hl3/RGhQYAJFVCkGZNCvaBvUm+wJlIJf99MRa/zjQkKKL/tTO6WWttDmioKPj0kN9koGeXzAymMX4pFu1y1UeZ9doYMgXbFojRQd9suW85TQ/1kJTwA2C0AryDMelFOnWL53f+FSu3EewghJ9AdmJfUwfjYKoUeK4FjOOcEB9hmC79fwIPCsTEXYC6JdoiqEpAq7tsY1GICTodKVXxH+ozKytmH5ToLbeUX4enM8HTvY9AtLZrknOQvAa5wcB2V2cAStVOR8EQjCH7bRUK6W+6aMoHv7g07VqckY3ZP2odkW2nH8gMIS4CSbgOUlJTw3WOLPSvikZI66urYonx3LT0j4pxuqC3UPQZEwYH0g0aLnAp/mWcT6uzUCHf05XcXOrsI6O0djcRaL1n4QzQ3uokDHeWx6L6Wm0exqWY/IUQ+YM6NqDOBdwE7oKnLN4aQWQ==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CO1PR10MB4531.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(346002)(376002)(366004)(396003)(39860400002)(136003)(451199021)(107886003)(6486002)(478600001)(2616005)(26005)(6666004)(6512007)(6506007)(2906002)(186003)(7416002)(7366002)(7406005)(5660300002)(36756003)(558084003)(38100700002)(4326008)(66946007)(31696002)(316002)(86362001)(8936002)(8676002)(41300700001)(6916009)(66476007)(66556008)(53546011)(31686004)(45980500001)(43740500002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?Y3BHbi81UkdtK0x0VFFPUml5MER5eEgvakZBOFdmZW5MbUVwaURRTnFZMWQr?=
+ =?utf-8?B?NEc0M1ZseXhaSE95SGhneG1wZVhPR2RJK1Y3YnFkRFBqLzhPN1oxZS8vczJZ?=
+ =?utf-8?B?TDZXc1QvTXNHYmlUTy9iQ21VRHhFbVhlV0x2Wm9uUFA3TFVsWFduaFVMUXB3?=
+ =?utf-8?B?RmRxMVM2aUJDUDYzaVdkS214SWc1dnZUdlJUczBhT3NZTkphMGwzL0k2UThr?=
+ =?utf-8?B?RDBRUWFZb1huU2l1TjBMUjdRQTEvNmVMMmwvbWxqd0RZTnd1YzA1c2I3WEYw?=
+ =?utf-8?B?cWhsZGx3ajhRMGMyMXMwd2lWZnVuQnlnNk5URkdlaEV1WTdocHRuR3hyM0Vs?=
+ =?utf-8?B?S1NFcGNZY0ZHb2dkcTJ0dHpXL1NBeEh3MlROa0RZYjQ0UWpUY0IxeUxrYXpT?=
+ =?utf-8?B?Zy9NUkFrWjcvbE5VQ1VaMUVoLzZmUGhlRTE2YUcvWFR6bjNibmY3ZXZaMy93?=
+ =?utf-8?B?MVhmZHZxYW9uYkk0a3lHaURvTE5kM1pVenBzdjB1elF1a1JLVWErVXRIN2tn?=
+ =?utf-8?B?VDVaYWQzUVdLUGFsT2R2WEczYmxEVVcrb0hKUnUyU2F4YUhDdGNoVy82OXhv?=
+ =?utf-8?B?QllkT1lXS25hYTVNZHBNcVg4QjFnS0xRdjFpR0p4cEZCYnlHd3NtYWhWSHZF?=
+ =?utf-8?B?Z3RXVjlnSGlGdDVxREIzbzBDajRzWjBRTzNJRnl4ejdBMy9jRHYzUDViVzdP?=
+ =?utf-8?B?RFA2S28wTUVpdFV0S1JjdTNmQWY4U0N1bjJMZnBKeU5UcU1MYjlFekRUMUYy?=
+ =?utf-8?B?VEtlbUtCdWZtZ0RacVpCMThrem1JdmowTUVkdVNXU3VYbTlURFpqQ1lwd2F5?=
+ =?utf-8?B?bHZ1UzB1dlVycnEyS21qME82aEo3THEwZ1VjT3FQbVR3cUFKTGlYNGx1eHM4?=
+ =?utf-8?B?b1U0eWNKdXZvQ1p5cUdTUVkyZ2ordGg4UjRDbW13ZURsb29PVSttdEdWTVZm?=
+ =?utf-8?B?dnltT2dnZzdUVXdLbUxyVzBCZnRVc0h1bGYvTXU0dEJqdWJxQ3pRQ1R3ZFor?=
+ =?utf-8?B?N1NvOG5WazhBd3JmWVpGRndYYWFRaU9vSzRVaVBLK2p1SWlkeDBsTmFXcEJG?=
+ =?utf-8?B?azl1LzVDT1F3MURnV2xMVkJNbUd0R2I5WnlGbVhySW5LVDNHMmdFdk1xNHE4?=
+ =?utf-8?B?UTI1aEJKK2dNK2FmRzRzMzd0V3dOb3pGSWNzdURGMGthVWZycTgrWjNaWlAr?=
+ =?utf-8?B?UVN4bWZiaDB2VEwxNWNEOHRPTTE3cHdVV0gzcHVRQ1pXdlRQZlRrQ2hOMzBR?=
+ =?utf-8?B?TzdlVEJCTjVJYUF0Zy9sTVRwNVYzMW04QW1zVnV5amQyNzdLV1lhMUpkbGxK?=
+ =?utf-8?B?eTJ5ekc2ejQxdmRXUlpSYTFJVmJacGpzQzArQkU0a2hnaEd4V1VFYXZPMzdo?=
+ =?utf-8?B?RTNUWkNseFF2b0dDdW1yTnQzZTBROHZNSTNnQng3aGg2K2lha1R1a2ZWckxo?=
+ =?utf-8?B?VStVdlI2U1VKTXFGSTlqN0ZNTy9LYStZLzNrOEx1SlQyVmNzTVErUVk2MEZL?=
+ =?utf-8?B?SXZjdHpjdUMyb3FxMTc2blF1cXFSNTRvbmx2Y1BtSzIwblJMb3hoUU1DSzJj?=
+ =?utf-8?B?MHdjV3ZsWlB2SThqVDZ5L3VwOEsvNC84bVNURDBYOXRMakhKWjNYR2dHaUgz?=
+ =?utf-8?B?dmY3aVFiNFd3eFZRcTR5SG1CTzlTZTVwdXdEb0JaNEhCSnVoTGxranRFdFlm?=
+ =?utf-8?B?VVRZeVNHeGVnMFkvdmMvMWhXU0JwMzdoQ0U3MmJxZHZKQ2l4N0hrUHM4bVNX?=
+ =?utf-8?B?MzQrSHlnYmk1QnZFU2UwdEZNand1TjV4eVNjSmZuSnVvUExORmdQb0dVNXho?=
+ =?utf-8?B?c3FQVldVRnl0MTI0U3BLUE5ZcXltZnM2Y2dSK0w0R21qc2JDUVFlRisxQU5w?=
+ =?utf-8?B?SGQ4a1ZiYjV4NWxPNys1enhZc3VOSnpHM1pTUzl1cjJKR3o2VFBwQU1xRzJW?=
+ =?utf-8?B?eW9FcW9vMFJjM0g3b0JCeDE5Nkh5d01UWXFQeVhBbVg5SWNvWWd5OTZyOEpR?=
+ =?utf-8?B?MHc1aURnalNtNVJkcmViSy9WQ2VnMFNiOWxrOGxWUzVhNzBrM0VpTTNNb1lY?=
+ =?utf-8?B?RVNzcm1wWEpJRGlURkNWUEIxT01NeEszaUg4RVBxYktEVGRyamFkZWhET3NC?=
+ =?utf-8?B?R1dwS2M4WllZMnljV0VCek5NWnlwVmYwVlhTRHAxaHR3Z0IySDVreWRYL2dl?=
+ =?utf-8?B?S2c9PQ==?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 2
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: =?utf-8?B?b2NiVHhKY2RPd1oxdnIvUHc5MTI3VS8vOTdSVHVudUVGelhKbmVKbDJscCs4?=
+ =?utf-8?B?NWJXNHQxVU55VkdSeGYzaldsMGgrTFdtc1NoMkNhbFpucFJYSmYwUG13TXlG?=
+ =?utf-8?B?TDJZdFBEVE5rTzdValNGbkY3Y0l6U002bHZBTkZLeTdYL2dOaXVrRUJkZlpY?=
+ =?utf-8?B?U1plZW1vbmVtalE4YVdaeG1JVEs3N0lLWXpMbkxYbXpmcWgyaVBKWWpWRUpy?=
+ =?utf-8?B?cFpWUzJwTFpqZ012Mi95WjFBSkZDSFB4OEpKN095TGNjM3ZFZkdYODkvMWgv?=
+ =?utf-8?B?SHhNTjZvR1FxODNkM3Q4ZG9yMGdiQkdFRlQxNVlZM283VkladGZyWGZWYWls?=
+ =?utf-8?B?ckpGaWRpYkljTUpDWkRkcVBkY3FvSG9EZjRQNWhPaHpmVVNHa2ZpVzU5cWVN?=
+ =?utf-8?B?ZU91WlBsS0RzUlUyTUM3ajljWHYxVlhVTG1jMXBONEIyemc2TkVxc3NWNG1o?=
+ =?utf-8?B?SjRPdGV0ME5RdHRPMmhielR2cFExeUlHMUJIN0VrQmtER2hOaDBlN3VEQlVJ?=
+ =?utf-8?B?cWgvRFh0OHlWdXR3WTdFeS92Tk4yTmIxYStEMWUycFdLV0RMMDhUUWIzVGNV?=
+ =?utf-8?B?MEFabVdVdWk3RnRhTDQ0alBqSXJWa3ZtYmM0K0ZXVnp3M0xRbGNDRXduRUZx?=
+ =?utf-8?B?dUNyQTRld1MxRHZKSHFKeTNrMWRhRXZJcE5FOEx6M0libVhZMWQ1ajBWV1Rk?=
+ =?utf-8?B?dTZJS0VKYWpGK2l5ZlpBbVhZUEFFaHRxWWE3OVpIc0pReFZ3UmdYcUJ4WFJ3?=
+ =?utf-8?B?b3IyVjZVYkR4enZnSUpXdUo0d2Q0anF1akk5U3kxc1JPcDV5am0wbm1sN3li?=
+ =?utf-8?B?aUZEVWJmVWNmTE1uY2Vsc2hvU0NoZTZpLzU2aU5VS3dST2NRSGdnbnExVUpw?=
+ =?utf-8?B?dXBxZzdpcE9XOHNUcmpvWEtCOHVtUUZ6Rk9wV1IyNHRKV2w4NjJ4bzdiWk5Q?=
+ =?utf-8?B?Zm00cmxqdG5RVzhvQXdOOTNlRU5PVGs1a3dDei8zRVFMeWZyK0JCd1VnaGRj?=
+ =?utf-8?B?R2h0YTZrQTlmenFweTJNNnoreFF5WjFSZ05WbzlVKzdsTkZoMmtKbXh5UTBS?=
+ =?utf-8?B?SUE4a3MxRnZiMU95Wmh6a1lKRTlrTytud3RhcXMwZlh0M0dRWlFIT2ZrUXFn?=
+ =?utf-8?B?dDdPUGIyaWNGdXdBSlh6cCtaOGowblEwZ0pjUy8zaVc3T2VaL0lrRldoRWR2?=
+ =?utf-8?B?WHIrNXN0Sk1yWWxIMG5saHFoMys5aHVpWXN6NjZjd21tRjRGaGZVaGRZbjdK?=
+ =?utf-8?B?VlN1ZitrUGh4L3NSUFA4b0FxNHpoekFJK0dSbnVJQVZKYzQ5bEFEcGZxa2Rs?=
+ =?utf-8?B?K2NQdWU5cGxRR01mUUFJUE11eGtmUi9wMnIvUmtPN08wTm1vRVAvWS9YdTM5?=
+ =?utf-8?B?M3VRcjQxaW9sV2ZSYjBwRjVCVmdUUVlFcldpQ3VyTjR3NU9sQ09zMWcrYjhw?=
+ =?utf-8?B?SXN2Z0hzbWFIT3hVZFhXZDBSemRSM1c4WGRhdmtHb1NFdHNlL2VaTExZY1dj?=
+ =?utf-8?B?OHJ4ck92YXVWQXQzUjRTRStUTmtHL3ZEejZIV1lqODJvUkZUaU5HZUhiZTdE?=
+ =?utf-8?B?V3U4Y2txQitIR2dyb1VJbnR1TittS1l2dkZ6blhudzJHZjBZUElEQ2lWQzdB?=
+ =?utf-8?B?dlFzcmYwSHkwcEdiS1VnVmNFWW9nM3VnVElOaUQ4cUNFZmx0NmNubDlubTFo?=
+ =?utf-8?B?SzN3REdkcnJFMjg5ZWN4YWI4Ylp0RlJuRFd2OE9aQWg3bjlPVDNXZzdWRnU5?=
+ =?utf-8?B?dWEzdllDSER0TE1SQjdRMFFlTzBScGZtZUJYZTIwOTJMWVJ2Z1pDLzBINTFB?=
+ =?utf-8?B?Mlk3bzBUWHFVTDQyeGlDVlkrUXUzcGVxTmY1M2U5SUZkRXlzZHA1VTZLakxk?=
+ =?utf-8?B?cmErZnpoNkExd05HME95QTZaUytVeGdCejdjNENrNUlVNUJsczJGUzhHT2tN?=
+ =?utf-8?B?RnJBMnl2L1BQeG1BK2NnNlBOSi9VSGYwc1gwRzhaZXBNbVZ1N0dWenV0cGlu?=
+ =?utf-8?B?a2Jnd2RLRm5CUHBuSGRLUEpTb2xneUxBK0ZKRktFR0kzQklTcFRPZFIzN2R0?=
+ =?utf-8?B?Z2FzamRiWWpsUlZtTG0xUVlkM29CZVNBdEtkU1ZZVm0xTmxiY3d5dlZCZUtn?=
+ =?utf-8?B?cWo4akpWaEpFblFPdUNOWHFUbEtUMVc2ckNhSkZySldEakFhWE5KVDJXcGhC?=
+ =?utf-8?B?d0dvZ2VsZFREcndHM2xCQ2dXN1N3amQ0blpURUF5SldORHphbjBsOFJPd2VV?=
+ =?utf-8?B?b0pnSWVSaDhJNjZ0eFhMdWRsUmxSQng1aHJhZFBERytaRTd2WUJCSG9iQlpj?=
+ =?utf-8?B?VVRWNVFHMitxdmttMm5OMCt2eEc0SE92cUhjS051MTVhVytuaWw1eXZlM0lI?=
+ =?utf-8?Q?kUSuzk8mhmdThR75WP+KfmAkvlCgPE6pmUduQUmBHA525?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-1: nXq56NZKhn9PNR1jUzAU9lvzic2N/sdskHvJ4BlyV3sU/PN7t+V67HFf5clLjccHJtV1Pk2khWJOD+766EUdJodq7nwwzOBkNkF9raDMG8VhiLAqsiWbANOhoNYMXXNuHC0USdYaAPwZvH78Ip5pgOO2mrHDGVZhWRSB6i0CwvBixREpu9jm8ek9j0RaXldrR9yuqFsgfozNjAG/nvE0dSmooBH1TQttDLIf8XAGx3DRAoj/AwRnPEHBVXHcOISCXbOfxFWbtqabbO45/RJ5iABja9vfHVmf/06mX3WtS2dPaTtNWzZPL+AgA6aGxmG3XK9dmjPm7eJGx7SNfMhPLt1Pyok6UPce0jEUiIdakN1YXiV0UyMjO4wb1TZIDR7rgiDoSrCkVbGq3tEz23760vzGQEKp5dqPyzdtRjKGjfOBwoajY6bkP2JDSvAFDgbFGmqCINQlMIIf5g==
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 46870580-6c9c-4aa2-7bac-08db71a065b1
+X-MS-Exchange-CrossTenant-AuthSource: CO1PR10MB4531.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Jun 2023 15:09:51.9509
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: gZzz9fwzXZB57b0YJrUXh0DSztNjd6qnXObD9hUnoDMp3rr8/mJ5HWIiDAPLfezX48oBdtoa5/CXaCsy8ucCEnd/8gza5ls0fzPzHNbZswg=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH0PR10MB5132
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-06-20_10,2023-06-16_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 malwarescore=0
+ mlxlogscore=772 suspectscore=0 spamscore=0 adultscore=0 phishscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2305260000 definitions=main-2306200136
+X-Proofpoint-GUID: k7P_TcaAwqyCd26UUzTzh_YpBDQzB7a1
+X-Proofpoint-ORIG-GUID: k7P_TcaAwqyCd26UUzTzh_YpBDQzB7a1
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Currently the tlb_remove_table_smp_sync IPI is sent to all CPUs
-indiscriminately, this causes unnecessary work and delays notable in
-real-time use-cases and isolated cpus.
-This patch will limit this IPI on systems with ARCH_HAS_CPUMASK_BITS,
-Where the IPI will only be sent to cpus referencing the affected mm.
 
-Signed-off-by: Yair Podemsky <ypodemsk@redhat.com>
-Suggested-by: David Hildenbrand <david@redhat.com>
----
- include/asm-generic/tlb.h |  4 ++--
- mm/khugepaged.c           |  4 ++--
- mm/mmu_gather.c           | 17 ++++++++++++-----
- 3 files changed, 16 insertions(+), 9 deletions(-)
 
-diff --git a/include/asm-generic/tlb.h b/include/asm-generic/tlb.h
-index b46617207c93..0b6ba17cc8d3 100644
---- a/include/asm-generic/tlb.h
-+++ b/include/asm-generic/tlb.h
-@@ -222,7 +222,7 @@ extern void tlb_remove_table(struct mmu_gather *tlb, void *table);
- #define tlb_needs_table_invalidate() (true)
- #endif
- 
--void tlb_remove_table_sync_one(void);
-+void tlb_remove_table_sync_one(struct mm_struct *mm);
- 
- #else
- 
-@@ -230,7 +230,7 @@ void tlb_remove_table_sync_one(void);
- #error tlb_needs_table_invalidate() requires MMU_GATHER_RCU_TABLE_FREE
- #endif
- 
--static inline void tlb_remove_table_sync_one(void) { }
-+static inline void tlb_remove_table_sync_one(struct mm_struct *mm) { }
- 
- #endif /* CONFIG_MMU_GATHER_RCU_TABLE_FREE */
- 
-diff --git a/mm/khugepaged.c b/mm/khugepaged.c
-index 6b9d39d65b73..3e5cb079d268 100644
---- a/mm/khugepaged.c
-+++ b/mm/khugepaged.c
-@@ -1166,7 +1166,7 @@ static int collapse_huge_page(struct mm_struct *mm, unsigned long address,
- 	_pmd = pmdp_collapse_flush(vma, address, pmd);
- 	spin_unlock(pmd_ptl);
- 	mmu_notifier_invalidate_range_end(&range);
--	tlb_remove_table_sync_one();
-+	tlb_remove_table_sync_one(mm);
- 
- 	spin_lock(pte_ptl);
- 	result =  __collapse_huge_page_isolate(vma, address, pte, cc,
-@@ -1525,7 +1525,7 @@ static void collapse_and_free_pmd(struct mm_struct *mm, struct vm_area_struct *v
- 				addr + HPAGE_PMD_SIZE);
- 	mmu_notifier_invalidate_range_start(&range);
- 	pmd = pmdp_collapse_flush(vma, addr, pmdp);
--	tlb_remove_table_sync_one();
-+	tlb_remove_table_sync_one(mm);
- 	mmu_notifier_invalidate_range_end(&range);
- 	mm_dec_nr_ptes(mm);
- 	page_table_check_pte_clear_range(mm, addr, pmd);
-diff --git a/mm/mmu_gather.c b/mm/mmu_gather.c
-index ea9683e12936..692d8175a88e 100644
---- a/mm/mmu_gather.c
-+++ b/mm/mmu_gather.c
-@@ -191,7 +191,13 @@ static void tlb_remove_table_smp_sync(void *arg)
- 	/* Simply deliver the interrupt */
- }
- 
--void tlb_remove_table_sync_one(void)
-+#ifdef CONFIG_ARCH_HAS_CPUMASK_BITS
-+#define REMOVE_TABLE_IPI_MASK mm_cpumask(mm)
-+#else
-+#define REMOVE_TABLE_IPI_MASK cpu_online_mask
-+#endif /* CONFIG_ARCH_HAS_CPUMASK_BITS */
-+
-+void tlb_remove_table_sync_one(struct mm_struct *mm)
- {
- 	/*
- 	 * This isn't an RCU grace period and hence the page-tables cannot be
-@@ -200,7 +206,8 @@ void tlb_remove_table_sync_one(void)
- 	 * It is however sufficient for software page-table walkers that rely on
- 	 * IRQ disabling.
- 	 */
--	smp_call_function(tlb_remove_table_smp_sync, NULL, 1);
-+	on_each_cpu_mask(REMOVE_TABLE_IPI_MASK, tlb_remove_table_smp_sync,
-+			NULL, true);
- }
- 
- static void tlb_remove_table_rcu(struct rcu_head *head)
-@@ -237,9 +244,9 @@ static inline void tlb_table_invalidate(struct mmu_gather *tlb)
- 	}
- }
- 
--static void tlb_remove_table_one(void *table)
-+static void tlb_remove_table_one(struct mm_struct *mm, void *table)
- {
--	tlb_remove_table_sync_one();
-+	tlb_remove_table_sync_one(mm);
- 	__tlb_remove_table(table);
- }
- 
-@@ -262,7 +269,7 @@ void tlb_remove_table(struct mmu_gather *tlb, void *table)
- 		*batch = (struct mmu_table_batch *)__get_free_page(GFP_NOWAIT | __GFP_NOWARN);
- 		if (*batch == NULL) {
- 			tlb_table_invalidate(tlb);
--			tlb_remove_table_one(table);
-+			tlb_remove_table_one(tlb->mm, table);
- 			return;
- 		}
- 		(*batch)->nr = 0;
----
-v2: replaced no REMOVE_TABLE_IPI_MASK REMOVE_TABLE_IPI_MASK to cpu_online_mask
--- 
-2.39.3
+On 6/20/23 07:52, Thomas Bogendoerfer wrote:
+> Acked-by: Thomas Bogendoerfer<tsbogend@alpha.franken.de>
 
+Thank you!
+eric
