@@ -2,142 +2,150 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C2F1EB64D8
-	for <linux-s390@archiver.kernel.org>; Tue, 20 Jun 2023 19:54:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 11E69EB64DB
+	for <linux-s390@archiver.kernel.org>; Tue, 20 Jun 2023 20:01:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229833AbjFTTy6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 20 Jun 2023 15:54:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40468 "EHLO
+        id S229866AbjFTUBy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 20 Jun 2023 16:01:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229809AbjFTTyx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Jun 2023 15:54:53 -0400
-Received: from mail-yw1-x112c.google.com (mail-yw1-x112c.google.com [IPv6:2607:f8b0:4864:20::112c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D52B71984
-        for <linux-s390@vger.kernel.org>; Tue, 20 Jun 2023 12:54:47 -0700 (PDT)
-Received: by mail-yw1-x112c.google.com with SMTP id 00721157ae682-56ffd7d7fedso55387767b3.2
-        for <linux-s390@vger.kernel.org>; Tue, 20 Jun 2023 12:54:47 -0700 (PDT)
+        with ESMTP id S229655AbjFTUBw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Jun 2023 16:01:52 -0400
+Received: from mail-ot1-x32e.google.com (mail-ot1-x32e.google.com [IPv6:2607:f8b0:4864:20::32e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A28F1726;
+        Tue, 20 Jun 2023 13:01:50 -0700 (PDT)
+Received: by mail-ot1-x32e.google.com with SMTP id 46e09a7af769-6b5853a140cso1903733a34.2;
+        Tue, 20 Jun 2023 13:01:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1687290887; x=1689882887;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=IiBraH1gFEtLq0Kn5mTuDR7eletLpb8dAh5y2pzul9A=;
-        b=GnK6zVktB4fTweKikYzUukoKZGCmVusKP/x6uUrsa1IZh7Lcf11VRj9767YwL28zyx
-         J4JKcGvTfTr/LvFgYj5pm1tfEFEJ8PKkMTUvowkeEnkdtgmC9135h58fxQzErHTduUCX
-         +m+UG/mn18iCUxOKOQQ3TboQqPdTC4trrhg3CdFjun1ZClZ8tNP63vy0pMK4T8o5rwHN
-         Ev/CkGwjSSWdgG/b37eVTxoy7CA9K7VH5ECYT9iqlmvWSv+gngjFQijyE1bOMwoZXb/s
-         MCqGmsFWL/xCVoRj8nY9T1uCu7dqqcS1sL95WKPUvtYF9Sc63RHc6WC/aK2yPQNdgDcy
-         QIWA==
+        d=gmail.com; s=20221208; t=1687291309; x=1689883309;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Q4F3qXm8x1AVi+0TrKGx40m/sFxYrt6Lj9IeE/BrpeU=;
+        b=g8Wha6YZBIQ4F35wQ8P6Y0c98+3LfOEjAen8YviDIN/VpMlvLwu/TwEQtEhwi2wLbk
+         4/b97qENpIhbKycIE1G3aUVCeb+vz/rCN/gI0l10ch7iG8C6c3ywB5bQ5tQe6ryGYXul
+         5XkEWnvnLWIaJ1vsJQRh6tPgKWpuL7AyPHBFZQZGhCATWoDKR1D2YRUNFvvEx6dCnM6X
+         zMyQcs2OOhmWkXYBbd2Z3eHBKxjZIMZIeFLBGw0YYdvfY15fMS5Ra2rC/awJj+k/fir6
+         OMXeho7/p64d1/Gcc6dtEtZlx65PVhnR78rxvmM8tH1fn8015FZgY0Ml6WWkfDm6BXzA
+         dR7g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1687290887; x=1689882887;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=IiBraH1gFEtLq0Kn5mTuDR7eletLpb8dAh5y2pzul9A=;
-        b=GKJ6/HUIFXhgwSCnp26Y0URz9BhSpbdPLtS36UGMMaZ4HL7pI7y+HawDXGU0NJscHL
-         nduJpNXVWFGZmdaZbWtnUqb7mJMqKGWN5h2kOmycZK8q4JYU9XEVY6VxaQe9NnuT1ZMN
-         vsv+N/JV1ZT5i2hDyfsgYSoGvKBSrLE2uYNUokJz+OrE09XX8RR/3kQRVKGrjpWRqKKX
-         ZWWcB0KQW3Ical/FDf+Teqxolj9fXz5VddV7HzT651PU/xdSvNgbRbLbFDzaBPmZpnxQ
-         Jk8kIDrEG+zGHGL0ifNoFUB4jP+Hl/z8FOiyX31gcRZdjwt8jOdrSW0b//qEqMHe3s1+
-         /ztg==
-X-Gm-Message-State: AC+VfDzvZFI0r+I9KWVJ72iwyoDFR8t+CpC59gGZtz3am72sAPHuXI22
-        t5mha7Ed45NqtrExvaKq258ngg==
-X-Google-Smtp-Source: ACHHUZ5CjW+DD7ghkPvVJFGUBN1BQG+qQA/ISq9t6lWLEboPHQzho8N1caYYSPmYBruWUqH6Cq9/Mw==
-X-Received: by 2002:a0d:d106:0:b0:56d:45ec:2e64 with SMTP id t6-20020a0dd106000000b0056d45ec2e64mr14660924ywd.43.1687290886830;
-        Tue, 20 Jun 2023 12:54:46 -0700 (PDT)
-Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id n20-20020a819e54000000b005705cbba0bcsm649525ywj.98.2023.06.20.12.54.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 Jun 2023 12:54:45 -0700 (PDT)
-Date:   Tue, 20 Jun 2023 12:54:25 -0700 (PDT)
-From:   Hugh Dickins <hughd@google.com>
-X-X-Sender: hugh@ripple.attlocal.net
-To:     Jason Gunthorpe <jgg@ziepe.ca>
-cc:     Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        David Hildenbrand <david@redhat.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Qi Zheng <zhengqi.arch@bytedance.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Peter Xu <peterx@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        Ralph Campbell <rcampbell@nvidia.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Steven Price <steven.price@arm.com>,
-        SeongJae Park <sj@kernel.org>,
-        Lorenzo Stoakes <lstoakes@gmail.com>,
-        Huang Ying <ying.huang@intel.com>,
-        Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Zack Rusin <zackr@vmware.com>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Pasha Tatashin <pasha.tatashin@soleen.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        Song Liu <song@kernel.org>,
-        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
-        Russell King <linux@armlinux.org.uk>,
-        "David Sc. Miller" <davem@davemloft.net>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Jann Horn <jannh@google.com>,
-        Vishal Moola <vishal.moola@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH v2 05/12] powerpc: add pte_free_defer() for pgtables
- sharing page
-In-Reply-To: <ZJGRa4zvsXfc43vB@ziepe.ca>
-Message-ID: <2ad8b6cf-692a-ff89-ecc-586c20c5e07f@google.com>
-References: <54cb04f-3762-987f-8294-91dafd8ebfb0@google.com> <5cd9f442-61da-4c3d-eca-b7f44d22aa5f@google.com> <ZJGRa4zvsXfc43vB@ziepe.ca>
+        d=1e100.net; s=20221208; t=1687291309; x=1689883309;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Q4F3qXm8x1AVi+0TrKGx40m/sFxYrt6Lj9IeE/BrpeU=;
+        b=JQLKRzwQ7nZhKyR6Ozm4YrJP4sRWt23EaikeHuf4S1Z0Op843eoHbLLGN8Wna9YdTh
+         1lrwwOypHlcPXDzhFblTdVU9ddkbvjV4S5qYufCOlbwZIdTA6v5sbENpdmP8fJ7i1PIu
+         BTFcMdi/5piXgvOaDNlIaVdMZaE5mMJB4Wp0IpGU/LAxHPWhgFCKAQ8GGnQQsv67B6uI
+         5xxxvSQzoFEF24E2HX4BxivM2wuNl+z1wvsSpwxlLmEZuguGrLrZFIzpzTicdvDFvj5A
+         tNT8Rea/ULBdqckZ6kL/0rkCSo7e3bESeM21f4gbxdFzC1J1Gu/R3XAN5hJ+fz8qmCCy
+         h8pg==
+X-Gm-Message-State: AC+VfDxMXl+I7JyUgVRyXYGYsnxIeO9OUuQAsPZTPW5Fi0Fkb5jvVdlt
+        Y24iengrTZF5lNy88ri4sXDe9KcJir/Sg78vvxEpwokn
+X-Google-Smtp-Source: ACHHUZ4Hj3uSYs4sk8lvmBdlBVPXrs6qDttIob0+AqgPuiIWdgPfm9A1hihEUgTK87y6a2gHhIBkt791vtKGzbzprm8=
+X-Received: by 2002:a05:6358:f0e:b0:12b:ed05:18bb with SMTP id
+ b14-20020a0563580f0e00b0012bed0518bbmr8612256rwj.27.1687291309110; Tue, 20
+ Jun 2023 13:01:49 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+References: <20230612210423.18611-1-vishal.moola@gmail.com>
+ <20230612210423.18611-5-vishal.moola@gmail.com> <ZIxXw9ERkYv+ipdd@nvidia.com>
+In-Reply-To: <ZIxXw9ERkYv+ipdd@nvidia.com>
+From:   Vishal Moola <vishal.moola@gmail.com>
+Date:   Tue, 20 Jun 2023 13:01:39 -0700
+Message-ID: <CAOzc2pwMW64O0m4Zu4zVFTY+qCJRK7V+7niN_t1m7pLaJrtb2A@mail.gmail.com>
+Subject: Re: [PATCH v4 04/34] pgtable: Create struct ptdesc
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org,
+        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+        xen-devel@lists.xenproject.org, kvm@vger.kernel.org,
+        Hugh Dickins <hughd@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 20 Jun 2023, Jason Gunthorpe wrote:
-> On Tue, Jun 20, 2023 at 12:47:54AM -0700, Hugh Dickins wrote:
-> > Add powerpc-specific pte_free_defer(), to call pte_free() via call_rcu().
-> > pte_free_defer() will be called inside khugepaged's retract_page_tables()
-> > loop, where allocating extra memory cannot be relied upon.  This precedes
-> > the generic version to avoid build breakage from incompatible pgtable_t.
-> > 
-> > This is awkward because the struct page contains only one rcu_head, but
-> > that page may be shared between PTE_FRAG_NR pagetables, each wanting to
-> > use the rcu_head at the same time: account concurrent deferrals with a
-> > heightened refcount, only the first making use of the rcu_head, but
-> > re-deferring if more deferrals arrived during its grace period.
-> 
-> You didn't answer my question why we can't just move the rcu to the
-> actual free page?
+On Fri, Jun 16, 2023 at 5:38=E2=80=AFAM Jason Gunthorpe <jgg@nvidia.com> wr=
+ote:
+>
+> On Mon, Jun 12, 2023 at 02:03:53PM -0700, Vishal Moola (Oracle) wrote:
+> > Currently, page table information is stored within struct page. As part
+> > of simplifying struct page, create struct ptdesc for page table
+> > information.
+> >
+> > Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
+> > ---
+> >  include/linux/pgtable.h | 51 +++++++++++++++++++++++++++++++++++++++++
+> >  1 file changed, 51 insertions(+)
+> >
+> > diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
+> > index c5a51481bbb9..330de96ebfd6 100644
+> > --- a/include/linux/pgtable.h
+> > +++ b/include/linux/pgtable.h
+> > @@ -975,6 +975,57 @@ static inline void ptep_modify_prot_commit(struct =
+vm_area_struct *vma,
+> >  #endif /* __HAVE_ARCH_PTEP_MODIFY_PROT_TRANSACTION */
+> >  #endif /* CONFIG_MMU */
+> >
+> > +
+> > +/**
+> > + * struct ptdesc - Memory descriptor for page tables.
+> > + * @__page_flags: Same as page flags. Unused for page tables.
+> > + * @pt_list: List of used page tables. Used for s390 and x86.
+> > + * @_pt_pad_1: Padding that aliases with page's compound head.
+> > + * @pmd_huge_pte: Protected by ptdesc->ptl, used for THPs.
+> > + * @_pt_s390_gaddr: Aliases with page's mapping. Used for s390 gmap on=
+ly.
+> > + * @pt_mm: Used for x86 pgds.
+> > + * @pt_frag_refcount: For fragmented page table tracking. Powerpc and =
+s390 only.
+> > + * @ptl: Lock for the page table.
+> > + *
+> > + * This struct overlays struct page for now. Do not modify without a g=
+ood
+> > + * understanding of the issues.
+> > + */
+> > +struct ptdesc {
+> > +     unsigned long __page_flags;
+> > +
+> > +     union {
+> > +             struct list_head pt_list;
+> > +             struct {
+> > +                     unsigned long _pt_pad_1;
+> > +                     pgtable_t pmd_huge_pte;
+> > +             };
+> > +     };
+> > +     unsigned long _pt_s390_gaddr;
+> > +
+> > +     union {
+> > +             struct mm_struct *pt_mm;
+> > +             atomic_t pt_frag_refcount;
+> > +     };
+> > +
+> > +#if ALLOC_SPLIT_PTLOCKS
+> > +     spinlock_t *ptl;
+> > +#else
+> > +     spinlock_t ptl;
+> > +#endif
+> > +};
+>
+> I think you should include the memcg here too? It needs to be valid
+> for a ptdesc, even if we don't currently deref it through the ptdesc
+> type.
 
-I thought that I had answered it, perhaps not to your satisfaction:
+Yes, thanks for catching that! I'll add it to v5.
 
-https://lore.kernel.org/linux-mm/9130acb-193-6fdd-f8df-75766e663978@google.com/
+> Also, do you see a way to someday put a 'struct rcu_head' into here?
 
-My conclusion then was:
-Not very good reasons: good enough, or can you supply a better patch?
+Eventually, when they're being dynamically allocated independent of
+struct page. Although at that point I'm not sure if we'll need one.
 
-Hugh
-
-> 
-> Since PPC doesn't recycle the frags, we don't need to carefully RCU
-> free each frag, we just need to RCU free the entire page when it
-> becomes eventually free?
-> 
+> Thanks,
 > Jason
