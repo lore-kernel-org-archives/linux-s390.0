@@ -2,147 +2,136 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A488CEB64D7
-	for <linux-s390@archiver.kernel.org>; Tue, 20 Jun 2023 09:06:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 664B3EB64DB
+	for <linux-s390@archiver.kernel.org>; Tue, 20 Jun 2023 11:46:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232102AbjFTJGs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 20 Jun 2023 05:06:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60842 "EHLO
+        id S232724AbjFTLqR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 20 Jun 2023 07:46:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231179AbjFTJGp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Jun 2023 05:06:45 -0400
-Received: from out-3.mta0.migadu.com (out-3.mta0.migadu.com [91.218.175.3])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56FCCE6C
-        for <linux-s390@vger.kernel.org>; Tue, 20 Jun 2023 02:06:44 -0700 (PDT)
-Date:   Tue, 20 Jun 2023 11:06:40 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-        t=1687252001;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=/ZhslkC1rQ0aLtForUm8Fg+bP1zBb90Ucb1xGcqnuYk=;
-        b=nbjuc1pix0rXF0fhLAOajGau+7FlP/WVv7MncllKd+TWFOpp26KunhpbEsFUoh483/OOSm
-        y1ZhpvS2cLWFuUEtSf0JOJG/h9PcqrDjYinnO8qDc4JCK13BQWue7HEKfIyWmV2lrNu+Sm
-        x9vZTtEaIO9VAXlwe8ZwJtv4QYka0Sk=
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From:   Andrew Jones <andrew.jones@linux.dev>
-To:     Gavin Shan <gshan@redhat.com>
-Cc:     kvmarm@lists.linux.dev, kvm@vger.kernel.org,
-        kvm-ppc@vger.kernel.org, linux-s390@vger.kernel.org,
-        lvivier@redhat.com, thuth@redhat.com, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, david@redhat.com, pbonzini@redhat.com,
-        nrb@linux.ibm.com, shan.gavin@gmail.com
-Subject: Re: [kvm-unit-tests PATCH v3] runtime: Allow to specify properties
- for accelerator
-Message-ID: <20230620-f496c5f56a78acc5529762a4@orel>
-References: <20230615062148.19883-1-gshan@redhat.com>
- <20230619-339675e424da033000049f83@orel>
- <766a1dc4-a5ad-725a-b25e-438bf1387a4f@redhat.com>
+        with ESMTP id S232797AbjFTLqF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Jun 2023 07:46:05 -0400
+Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0748A1BDF
+        for <linux-s390@vger.kernel.org>; Tue, 20 Jun 2023 04:45:50 -0700 (PDT)
+Received: by mail-pf1-x431.google.com with SMTP id d2e1a72fcca58-668711086f4so1765618b3a.1
+        for <linux-s390@vger.kernel.org>; Tue, 20 Jun 2023 04:45:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1687261549; x=1689853549;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=eWdugmL7jiCCazRwRTiCxhXSGGIdZDMM/iY0UbvTdUM=;
+        b=cnn8IRs9UEV2IyxM2/dyNE8Ybbqmsnj6tLoR8M1bmXQAVunFEwC20TKu6DUOVKG4AB
+         L2Yp6/XPUf6F5Xy+nc7uJZfoC02InmQWSMblYoG/4uAdrA9GIFvL7kwUb/yEeNhYFGr1
+         bkwG9DCJKJm7UPMDVOHOR7oHEfHhzz1mYZlMGy4Z2i7tBudfceWk0OsWq4cf8C2qfKpV
+         w9kz4Q6fy8cbK1P9tLY7jnan9hyd8ZaBomTDWQJ4IaOPbEXOkOCCXRQOiThAn1UjmjTv
+         PMpNa0lpCABevs0dIyQN5iH+zWSS9D1PjlkqlJwomy4rRdkHiQnPe7pPZunP1WQZBtR3
+         zPdQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1687261549; x=1689853549;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=eWdugmL7jiCCazRwRTiCxhXSGGIdZDMM/iY0UbvTdUM=;
+        b=F98gB/uGWY/QAo2hWnNatKrxJ+8wCU55TFbOt88iHebDA0Xmw/3TL6IzMZ0iQIrS3T
+         kikgS4Wf/9Bspnni19O978eGaAdNlCCQ10jS0N0mIiqE14pKVBa8sNfWyfTCozgz2QmA
+         zLlbePLXkJpFITSNJovbhMFAxSMTAFjK8yr/hclIMZpx1SrNhFLRdZ9YH4ToXIHnXZxL
+         otR1udJAjitH+qdQoH7qdhtfxXs5rzYRHeMMDjx8FsN0KNxOeMDAkmwcCFCTyh9v4M6r
+         2NNUl1CLlobGWrKJFtaWXbePwEmyyKROmGsQryc6VYnGqeTJkG+g8GJ39hmv7y3Dti/X
+         stJg==
+X-Gm-Message-State: AC+VfDzJRn8aeT1F/rVKH5hlKSWcMdNNVSu2i9Q0Bnj7fsDNt5fJDUAW
+        p25W9g0IgzKQ/6wlvLR72Q2yaA==
+X-Google-Smtp-Source: ACHHUZ4X6nDwRKfeDuMyEgMyTrD6VgfsYjM5cSKUHYx3cAu4vDqqHRc1ln2Pqg94YC+C6bvDGfs7/g==
+X-Received: by 2002:a05:6a00:1820:b0:668:732d:7d9f with SMTP id y32-20020a056a00182000b00668732d7d9fmr10033336pfa.2.1687261549460;
+        Tue, 20 Jun 2023 04:45:49 -0700 (PDT)
+Received: from ziepe.ca (hlfxns017vw-142-68-25-194.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.25.194])
+        by smtp.gmail.com with ESMTPSA id d17-20020aa78e51000000b0062d859a33d1sm1207199pfr.84.2023.06.20.04.45.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 20 Jun 2023 04:45:48 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.95)
+        (envelope-from <jgg@ziepe.ca>)
+        id 1qBZnv-007KSY-BA;
+        Tue, 20 Jun 2023 08:45:47 -0300
+Date:   Tue, 20 Jun 2023 08:45:47 -0300
+From:   Jason Gunthorpe <jgg@ziepe.ca>
+To:     Hugh Dickins <hughd@google.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        David Hildenbrand <david@redhat.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Qi Zheng <zhengqi.arch@bytedance.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Peter Xu <peterx@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Steven Price <steven.price@arm.com>,
+        SeongJae Park <sj@kernel.org>,
+        Lorenzo Stoakes <lstoakes@gmail.com>,
+        Huang Ying <ying.huang@intel.com>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Zack Rusin <zackr@vmware.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Pasha Tatashin <pasha.tatashin@soleen.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Christoph Hellwig <hch@infradead.org>,
+        Song Liu <song@kernel.org>,
+        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
+        Russell King <linux@armlinux.org.uk>,
+        "David Sc. Miller" <davem@davemloft.net>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Jann Horn <jannh@google.com>,
+        Vishal Moola <vishal.moola@gmail.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH v2 05/12] powerpc: add pte_free_defer() for pgtables
+ sharing page
+Message-ID: <ZJGRa4zvsXfc43vB@ziepe.ca>
+References: <54cb04f-3762-987f-8294-91dafd8ebfb0@google.com>
+ <5cd9f442-61da-4c3d-eca-b7f44d22aa5f@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <766a1dc4-a5ad-725a-b25e-438bf1387a4f@redhat.com>
-X-Migadu-Flow: FLOW_OUT
+In-Reply-To: <5cd9f442-61da-4c3d-eca-b7f44d22aa5f@google.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jun 20, 2023 at 02:13:22PM +1000, Gavin Shan wrote:
-> Hi Drew,
+On Tue, Jun 20, 2023 at 12:47:54AM -0700, Hugh Dickins wrote:
+> Add powerpc-specific pte_free_defer(), to call pte_free() via call_rcu().
+> pte_free_defer() will be called inside khugepaged's retract_page_tables()
+> loop, where allocating extra memory cannot be relied upon.  This precedes
+> the generic version to avoid build breakage from incompatible pgtable_t.
 > 
-> On 6/19/23 18:45, Andrew Jones wrote:
-> > On Thu, Jun 15, 2023 at 04:21:48PM +1000, Gavin Shan wrote:
-> > > There are extra properties for accelerators to enable the specific
-> > > features. For example, the dirty ring for KVM accelerator can be
-> > > enabled by "-accel kvm,dirty-ring-size=65536". Unfortuntely, the
-> > > extra properties for the accelerators aren't supported. It makes
-> > > it's impossible to test the combination of KVM and dirty ring
-> > > as the following error message indicates.
-> > > 
-> > >    # cd /home/gavin/sandbox/kvm-unit-tests/tests
-> > >    # QEMU=/home/gavin/sandbox/qemu.main/build/qemu-system-aarch64 \
-> > >      ACCEL=kvm,dirty-ring-size=65536 ./its-migration
-> > >       :
-> > >    BUILD_HEAD=2fffb37e
-> > >    timeout -k 1s --foreground 90s /home/gavin/sandbox/qemu.main/build/qemu-system-aarch64 \
-> > >    -nodefaults -machine virt -accel kvm,dirty-ring-size=65536 -cpu cortex-a57             \
-> > >    -device virtio-serial-device -device virtconsole,chardev=ctd -chardev testdev,id=ctd   \
-> > >    -device pci-testdev -display none -serial stdio -kernel _NO_FILE_4Uhere_ -smp 160      \
-> > >    -machine gic-version=3 -append its-pending-migration # -initrd /tmp/tmp.gfDLa1EtWk
-> > >    qemu-system-aarch64: kvm_init_vcpu: kvm_arch_init_vcpu failed (0): Invalid argument
-> > > 
-> > > Allow to specify extra properties for accelerators. With this, the
-> > > "its-migration" can be tested for the combination of KVM and dirty
-> > > ring.
-> > > 
-> > > Signed-off-by: Gavin Shan <gshan@redhat.com>
-> > > ---
-> > > v3: Split $ACCEL to $ACCEL and $ACCEL_PROPS in get_qemu_accelerator()
-> > >      and don't print them as output, suggested by Drew.
-> > > ---
-> > >   arm/run               | 12 ++++--------
-> > >   powerpc/run           |  5 ++---
-> > >   s390x/run             |  5 ++---
-> > >   scripts/arch-run.bash | 21 +++++++++++++--------
-> > >   x86/run               |  5 ++---
-> > >   5 files changed, 23 insertions(+), 25 deletions(-)
-> > > 
-> > > diff --git a/arm/run b/arm/run
-> > > index c6f25b8..d9ebe59 100755
-> > > --- a/arm/run
-> > > +++ b/arm/run
-> > > @@ -10,10 +10,8 @@ if [ -z "$KUT_STANDALONE" ]; then
-> > >   fi
-> > >   processor="$PROCESSOR"
-> > > -accel=$(get_qemu_accelerator) ||
-> > > -	exit $?
-> > > -
-> > > -if [ "$accel" = "kvm" ]; then
-> > > +get_qemu_accelerator || exit $?
-> > > +if [ "$ACCEL" = "kvm" ]; then
-> > >   	QEMU_ARCH=$HOST
-> > >   fi
-> > > @@ -23,11 +21,9 @@ qemu=$(search_qemu_binary) ||
-> > >   if [ "$QEMU" ] && [ -z "$ACCEL" ] &&
-> > >      [ "$HOST" = "aarch64" ] && [ "$ARCH" = "arm" ] &&
-> > >      [ "$(basename $QEMU)" = "qemu-system-arm" ]; then
-> > > -	accel=tcg
-> > > +	ACCEL="tcg"
-> > >   fi
-> > 
-> > As I pointed out in the v2 review we can't just s/accel/ACCEL/ without
-> > other changes. Now ACCEL will also be set when the above condition
-> > is checked, making it useless. Please ensure the test case that commit
-> > c7d6c7f00e7c ("arm/run: Use TCG with qemu-system-arm on arm64 systems")
-> > fixed still works with your patch.
-> > 
-> 
-> Sorry that I missed your comments for v2. In order to make the test case
-> in c7d6c7f00e7c working, we just need to call set_qemu_accelerator() after
-> the chunk of code, like below. When $ACCEL is set to "tcg" by the conditional
-> code, it won't be changed in the following set_qemu_accelerator().
-> 
-> Could you Please confirm if it looks good to you so that I can integrate
-> the changes to v4 and post it.
-> 
-> arm/run
-> --------
-> 
-> processor="$PROCESSOR"
-> 
-> if [ "$QEMU" ] && [ -z "$ACCEL" ] &&
->    [ "$HOST" = "aarch64" ] && [ "$ARCH" = "arm" ] &&
->    [ "$(basename $QEMU)" = "qemu-system-arm" ]; then
->         ACCEL="tcg"
-> fi
-> 
-> set_qemu_accelerator || exit $?
-> if [ "$ACCEL" = "kvm" ]; then
->         QEMU_ARCH=$HOST
-> fi
->
+> This is awkward because the struct page contains only one rcu_head, but
+> that page may be shared between PTE_FRAG_NR pagetables, each wanting to
+> use the rcu_head at the same time: account concurrent deferrals with a
+> heightened refcount, only the first making use of the rcu_head, but
+> re-deferring if more deferrals arrived during its grace period.
 
-Looks fine, but please give it a test run.
+You didn't answer my question why we can't just move the rcu to the
+actual free page?
 
-Thanks,
-drew
+Since PPC doesn't recycle the frags, we don't need to carefully RCU
+free each frag, we just need to RCU free the entire page when it
+becomes eventually free?
+
+Jason
