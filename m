@@ -2,114 +2,147 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 326F6EB64D7
-	for <linux-s390@archiver.kernel.org>; Tue, 20 Jun 2023 08:39:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A488CEB64D7
+	for <linux-s390@archiver.kernel.org>; Tue, 20 Jun 2023 09:06:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231978AbjFTIjk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 20 Jun 2023 04:39:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47942 "EHLO
+        id S232102AbjFTJGs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 20 Jun 2023 05:06:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230433AbjFTIjj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Jun 2023 04:39:39 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BC4BA2;
-        Tue, 20 Jun 2023 01:39:39 -0700 (PDT)
-Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 35K8MOnD012640;
-        Tue, 20 Jun 2023 08:39:37 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=4mH7jrvxyEUwm/LQv1jYIsgHBUPPOH87RzgFOklkSmA=;
- b=gIHg8Z50tNecEujI2NAgw4U/FNeNA4ePsnSij2LG5FcmEXBPbu3LPpUPWxtX/g/O+2tu
- aJG/prBwtz9l6IY0PLelWlsaPNXpdwlT5gcp++dNMc+3MYV3qt9SterAdIGfxIAZvdjh
- peB8nLbBiag58b711vrcjSV5EqCb5JpT1o+S0zfoEpG3Yl74FsJRevTOYJMEbr4cv1oj
- /ljRRv1ICv2iSKlqyruT5hNXSFkqgEmVbMF1/wbJwRclkbF7bi1Sh02x/tc8OIzk/2tu
- JumtbFyreeUuKUJ5QD6b8JcRdf6QM9QX8+B4K6vSjoFjjspRfebj6Ir6cPv2YgfNO9MK KQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rb8hq0af3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 20 Jun 2023 08:39:36 +0000
-Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 35K8ZFjb014904;
-        Tue, 20 Jun 2023 08:39:36 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rb8hq0ae1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 20 Jun 2023 08:39:36 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 35K77sIJ000954;
-        Tue, 20 Jun 2023 08:34:33 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-        by ppma03fra.de.ibm.com (PPS) with ESMTPS id 3r94f59fdp-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 20 Jun 2023 08:34:33 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 35K8YUYk393868
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 20 Jun 2023 08:34:30 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 297AF20043;
-        Tue, 20 Jun 2023 08:34:30 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 14DE520040;
-        Tue, 20 Jun 2023 08:34:30 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Tue, 20 Jun 2023 08:34:30 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55271)
-        id 962C4E0652; Tue, 20 Jun 2023 10:34:29 +0200 (CEST)
-From:   Alexandra Winter <wintera@linux.ibm.com>
-To:     David Miller <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Eric Dumazet <edumazet@google.com>
-Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Alexandra Winter <wintera@linux.ibm.com>
-Subject: [PATCH net-next 0/4] s390/net: updates 2023-06-10
-Date:   Tue, 20 Jun 2023 10:34:07 +0200
-Message-Id: <20230620083411.508797-1-wintera@linux.ibm.com>
-X-Mailer: git-send-email 2.39.2
+        with ESMTP id S231179AbjFTJGp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Jun 2023 05:06:45 -0400
+Received: from out-3.mta0.migadu.com (out-3.mta0.migadu.com [91.218.175.3])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56FCCE6C
+        for <linux-s390@vger.kernel.org>; Tue, 20 Jun 2023 02:06:44 -0700 (PDT)
+Date:   Tue, 20 Jun 2023 11:06:40 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+        t=1687252001;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=/ZhslkC1rQ0aLtForUm8Fg+bP1zBb90Ucb1xGcqnuYk=;
+        b=nbjuc1pix0rXF0fhLAOajGau+7FlP/WVv7MncllKd+TWFOpp26KunhpbEsFUoh483/OOSm
+        y1ZhpvS2cLWFuUEtSf0JOJG/h9PcqrDjYinnO8qDc4JCK13BQWue7HEKfIyWmV2lrNu+Sm
+        x9vZTtEaIO9VAXlwe8ZwJtv4QYka0Sk=
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From:   Andrew Jones <andrew.jones@linux.dev>
+To:     Gavin Shan <gshan@redhat.com>
+Cc:     kvmarm@lists.linux.dev, kvm@vger.kernel.org,
+        kvm-ppc@vger.kernel.org, linux-s390@vger.kernel.org,
+        lvivier@redhat.com, thuth@redhat.com, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com, david@redhat.com, pbonzini@redhat.com,
+        nrb@linux.ibm.com, shan.gavin@gmail.com
+Subject: Re: [kvm-unit-tests PATCH v3] runtime: Allow to specify properties
+ for accelerator
+Message-ID: <20230620-f496c5f56a78acc5529762a4@orel>
+References: <20230615062148.19883-1-gshan@redhat.com>
+ <20230619-339675e424da033000049f83@orel>
+ <766a1dc4-a5ad-725a-b25e-438bf1387a4f@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: QAFYVYqDoGPgYYkxFowqHQaX08vYe1CC
-X-Proofpoint-GUID: H59BMjpWLlttp47EwkN9MbN-g2W3sB62
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-06-20_05,2023-06-16_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 bulkscore=0
- spamscore=0 suspectscore=0 mlxlogscore=786 lowpriorityscore=0 phishscore=0
- priorityscore=1501 impostorscore=0 clxscore=1015 mlxscore=0 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2305260000
- definitions=main-2306200076
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <766a1dc4-a5ad-725a-b25e-438bf1387a4f@redhat.com>
+X-Migadu-Flow: FLOW_OUT
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Please apply the following patch series for s390's ctcm and lcs drivers
-to netdev's net-next tree.
+On Tue, Jun 20, 2023 at 02:13:22PM +1000, Gavin Shan wrote:
+> Hi Drew,
+> 
+> On 6/19/23 18:45, Andrew Jones wrote:
+> > On Thu, Jun 15, 2023 at 04:21:48PM +1000, Gavin Shan wrote:
+> > > There are extra properties for accelerators to enable the specific
+> > > features. For example, the dirty ring for KVM accelerator can be
+> > > enabled by "-accel kvm,dirty-ring-size=65536". Unfortuntely, the
+> > > extra properties for the accelerators aren't supported. It makes
+> > > it's impossible to test the combination of KVM and dirty ring
+> > > as the following error message indicates.
+> > > 
+> > >    # cd /home/gavin/sandbox/kvm-unit-tests/tests
+> > >    # QEMU=/home/gavin/sandbox/qemu.main/build/qemu-system-aarch64 \
+> > >      ACCEL=kvm,dirty-ring-size=65536 ./its-migration
+> > >       :
+> > >    BUILD_HEAD=2fffb37e
+> > >    timeout -k 1s --foreground 90s /home/gavin/sandbox/qemu.main/build/qemu-system-aarch64 \
+> > >    -nodefaults -machine virt -accel kvm,dirty-ring-size=65536 -cpu cortex-a57             \
+> > >    -device virtio-serial-device -device virtconsole,chardev=ctd -chardev testdev,id=ctd   \
+> > >    -device pci-testdev -display none -serial stdio -kernel _NO_FILE_4Uhere_ -smp 160      \
+> > >    -machine gic-version=3 -append its-pending-migration # -initrd /tmp/tmp.gfDLa1EtWk
+> > >    qemu-system-aarch64: kvm_init_vcpu: kvm_arch_init_vcpu failed (0): Invalid argument
+> > > 
+> > > Allow to specify extra properties for accelerators. With this, the
+> > > "its-migration" can be tested for the combination of KVM and dirty
+> > > ring.
+> > > 
+> > > Signed-off-by: Gavin Shan <gshan@redhat.com>
+> > > ---
+> > > v3: Split $ACCEL to $ACCEL and $ACCEL_PROPS in get_qemu_accelerator()
+> > >      and don't print them as output, suggested by Drew.
+> > > ---
+> > >   arm/run               | 12 ++++--------
+> > >   powerpc/run           |  5 ++---
+> > >   s390x/run             |  5 ++---
+> > >   scripts/arch-run.bash | 21 +++++++++++++--------
+> > >   x86/run               |  5 ++---
+> > >   5 files changed, 23 insertions(+), 25 deletions(-)
+> > > 
+> > > diff --git a/arm/run b/arm/run
+> > > index c6f25b8..d9ebe59 100755
+> > > --- a/arm/run
+> > > +++ b/arm/run
+> > > @@ -10,10 +10,8 @@ if [ -z "$KUT_STANDALONE" ]; then
+> > >   fi
+> > >   processor="$PROCESSOR"
+> > > -accel=$(get_qemu_accelerator) ||
+> > > -	exit $?
+> > > -
+> > > -if [ "$accel" = "kvm" ]; then
+> > > +get_qemu_accelerator || exit $?
+> > > +if [ "$ACCEL" = "kvm" ]; then
+> > >   	QEMU_ARCH=$HOST
+> > >   fi
+> > > @@ -23,11 +21,9 @@ qemu=$(search_qemu_binary) ||
+> > >   if [ "$QEMU" ] && [ -z "$ACCEL" ] &&
+> > >      [ "$HOST" = "aarch64" ] && [ "$ARCH" = "arm" ] &&
+> > >      [ "$(basename $QEMU)" = "qemu-system-arm" ]; then
+> > > -	accel=tcg
+> > > +	ACCEL="tcg"
+> > >   fi
+> > 
+> > As I pointed out in the v2 review we can't just s/accel/ACCEL/ without
+> > other changes. Now ACCEL will also be set when the above condition
+> > is checked, making it useless. Please ensure the test case that commit
+> > c7d6c7f00e7c ("arm/run: Use TCG with qemu-system-arm on arm64 systems")
+> > fixed still works with your patch.
+> > 
+> 
+> Sorry that I missed your comments for v2. In order to make the test case
+> in c7d6c7f00e7c working, we just need to call set_qemu_accelerator() after
+> the chunk of code, like below. When $ACCEL is set to "tcg" by the conditional
+> code, it won't be changed in the following set_qemu_accelerator().
+> 
+> Could you Please confirm if it looks good to you so that I can integrate
+> the changes to v4 and post it.
+> 
+> arm/run
+> --------
+> 
+> processor="$PROCESSOR"
+> 
+> if [ "$QEMU" ] && [ -z "$ACCEL" ] &&
+>    [ "$HOST" = "aarch64" ] && [ "$ARCH" = "arm" ] &&
+>    [ "$(basename $QEMU)" = "qemu-system-arm" ]; then
+>         ACCEL="tcg"
+> fi
+> 
+> set_qemu_accelerator || exit $?
+> if [ "$ACCEL" = "kvm" ]; then
+>         QEMU_ARCH=$HOST
+> fi
+>
 
-Just maintenance patches, no functional changes.
+Looks fine, but please give it a test run.
 
 Thanks,
-Alexandra
-
-Thorsten Winkler (4):
-  s390/lcs: Convert sysfs sprintf to sysfs_emit
-  s390/lcs: Convert sprintf to scnprintf
-  s390/ctcm: Convert sysfs sprintf to sysfs_emit
-  s390/ctcm: Convert sprintf/snprintf to scnprintf
-
- drivers/s390/net/ctcm_dbug.c  |  2 +-
- drivers/s390/net/ctcm_main.c  |  6 ++---
- drivers/s390/net/ctcm_main.h  |  1 +
- drivers/s390/net/ctcm_mpc.c   | 18 ++++++++------
- drivers/s390/net/ctcm_sysfs.c | 46 +++++++++++++++++------------------
- drivers/s390/net/lcs.c        | 13 +++++-----
- drivers/s390/net/lcs.h        |  2 +-
- 7 files changed, 46 insertions(+), 42 deletions(-)
-
--- 
-2.39.2
-
+drew
