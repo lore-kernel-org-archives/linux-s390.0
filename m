@@ -2,136 +2,80 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 664B3EB64DB
-	for <linux-s390@archiver.kernel.org>; Tue, 20 Jun 2023 11:46:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C9FD4EB64D8
+	for <linux-s390@archiver.kernel.org>; Tue, 20 Jun 2023 12:53:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232724AbjFTLqR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 20 Jun 2023 07:46:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37494 "EHLO
+        id S232279AbjFTMxC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 20 Jun 2023 08:53:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232797AbjFTLqF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Jun 2023 07:46:05 -0400
-Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0748A1BDF
-        for <linux-s390@vger.kernel.org>; Tue, 20 Jun 2023 04:45:50 -0700 (PDT)
-Received: by mail-pf1-x431.google.com with SMTP id d2e1a72fcca58-668711086f4so1765618b3a.1
-        for <linux-s390@vger.kernel.org>; Tue, 20 Jun 2023 04:45:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1687261549; x=1689853549;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=eWdugmL7jiCCazRwRTiCxhXSGGIdZDMM/iY0UbvTdUM=;
-        b=cnn8IRs9UEV2IyxM2/dyNE8Ybbqmsnj6tLoR8M1bmXQAVunFEwC20TKu6DUOVKG4AB
-         L2Yp6/XPUf6F5Xy+nc7uJZfoC02InmQWSMblYoG/4uAdrA9GIFvL7kwUb/yEeNhYFGr1
-         bkwG9DCJKJm7UPMDVOHOR7oHEfHhzz1mYZlMGy4Z2i7tBudfceWk0OsWq4cf8C2qfKpV
-         w9kz4Q6fy8cbK1P9tLY7jnan9hyd8ZaBomTDWQJ4IaOPbEXOkOCCXRQOiThAn1UjmjTv
-         PMpNa0lpCABevs0dIyQN5iH+zWSS9D1PjlkqlJwomy4rRdkHiQnPe7pPZunP1WQZBtR3
-         zPdQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1687261549; x=1689853549;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=eWdugmL7jiCCazRwRTiCxhXSGGIdZDMM/iY0UbvTdUM=;
-        b=F98gB/uGWY/QAo2hWnNatKrxJ+8wCU55TFbOt88iHebDA0Xmw/3TL6IzMZ0iQIrS3T
-         kikgS4Wf/9Bspnni19O978eGaAdNlCCQ10jS0N0mIiqE14pKVBa8sNfWyfTCozgz2QmA
-         zLlbePLXkJpFITSNJovbhMFAxSMTAFjK8yr/hclIMZpx1SrNhFLRdZ9YH4ToXIHnXZxL
-         otR1udJAjitH+qdQoH7qdhtfxXs5rzYRHeMMDjx8FsN0KNxOeMDAkmwcCFCTyh9v4M6r
-         2NNUl1CLlobGWrKJFtaWXbePwEmyyKROmGsQryc6VYnGqeTJkG+g8GJ39hmv7y3Dti/X
-         stJg==
-X-Gm-Message-State: AC+VfDzJRn8aeT1F/rVKH5hlKSWcMdNNVSu2i9Q0Bnj7fsDNt5fJDUAW
-        p25W9g0IgzKQ/6wlvLR72Q2yaA==
-X-Google-Smtp-Source: ACHHUZ4X6nDwRKfeDuMyEgMyTrD6VgfsYjM5cSKUHYx3cAu4vDqqHRc1ln2Pqg94YC+C6bvDGfs7/g==
-X-Received: by 2002:a05:6a00:1820:b0:668:732d:7d9f with SMTP id y32-20020a056a00182000b00668732d7d9fmr10033336pfa.2.1687261549460;
-        Tue, 20 Jun 2023 04:45:49 -0700 (PDT)
-Received: from ziepe.ca (hlfxns017vw-142-68-25-194.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.25.194])
-        by smtp.gmail.com with ESMTPSA id d17-20020aa78e51000000b0062d859a33d1sm1207199pfr.84.2023.06.20.04.45.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 Jun 2023 04:45:48 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.95)
-        (envelope-from <jgg@ziepe.ca>)
-        id 1qBZnv-007KSY-BA;
-        Tue, 20 Jun 2023 08:45:47 -0300
-Date:   Tue, 20 Jun 2023 08:45:47 -0300
-From:   Jason Gunthorpe <jgg@ziepe.ca>
-To:     Hugh Dickins <hughd@google.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        David Hildenbrand <david@redhat.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Qi Zheng <zhengqi.arch@bytedance.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Peter Xu <peterx@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        Ralph Campbell <rcampbell@nvidia.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Steven Price <steven.price@arm.com>,
-        SeongJae Park <sj@kernel.org>,
-        Lorenzo Stoakes <lstoakes@gmail.com>,
-        Huang Ying <ying.huang@intel.com>,
-        Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Zack Rusin <zackr@vmware.com>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Pasha Tatashin <pasha.tatashin@soleen.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        Song Liu <song@kernel.org>,
-        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
-        Russell King <linux@armlinux.org.uk>,
-        "David Sc. Miller" <davem@davemloft.net>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Jann Horn <jannh@google.com>,
-        Vishal Moola <vishal.moola@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH v2 05/12] powerpc: add pte_free_defer() for pgtables
- sharing page
-Message-ID: <ZJGRa4zvsXfc43vB@ziepe.ca>
-References: <54cb04f-3762-987f-8294-91dafd8ebfb0@google.com>
- <5cd9f442-61da-4c3d-eca-b7f44d22aa5f@google.com>
+        with ESMTP id S230253AbjFTMxB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Jun 2023 08:53:01 -0400
+Received: from elvis.franken.de (elvis.franken.de [193.175.24.41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 75AF110F8;
+        Tue, 20 Jun 2023 05:53:00 -0700 (PDT)
+Received: from uucp by elvis.franken.de with local-rmail (Exim 3.36 #1)
+        id 1qBaqt-000889-00; Tue, 20 Jun 2023 14:52:55 +0200
+Received: by alpha.franken.de (Postfix, from userid 1000)
+        id AD602C03C3; Tue, 20 Jun 2023 14:52:36 +0200 (CEST)
+Date:   Tue, 20 Jun 2023 14:52:36 +0200
+From:   Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+To:     Eric DeVolder <eric.devolder@oracle.com>
+Cc:     linux@armlinux.org.uk, catalin.marinas@arm.com, will@kernel.org,
+        chenhuacai@kernel.org, geert@linux-m68k.org,
+        James.Bottomley@HansenPartnership.com, deller@gmx.de,
+        ysato@users.sourceforge.jp, dalias@libc.org,
+        glaubitz@physik.fu-berlin.de, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-ia64@vger.kernel.org, loongarch@lists.linux.dev,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, kernel@xen0n.name, mpe@ellerman.id.au,
+        npiggin@gmail.com, christophe.leroy@csgroup.eu,
+        paul.walmsley@sifive.com, palmer@dabbelt.com,
+        aou@eecs.berkeley.edu, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, hpa@zytor.com, keescook@chromium.org,
+        paulmck@kernel.org, peterz@infradead.org, frederic@kernel.org,
+        akpm@linux-foundation.org, ardb@kernel.org,
+        samitolvanen@google.com, juerg.haefliger@canonical.com,
+        arnd@arndb.de, rmk+kernel@armlinux.org.uk,
+        linus.walleij@linaro.org, sebastian.reichel@collabora.com,
+        rppt@kernel.org, kirill.shutemov@linux.intel.com,
+        anshuman.khandual@arm.com, ziy@nvidia.com, masahiroy@kernel.org,
+        ndesaulniers@google.com, mhiramat@kernel.org, ojeda@kernel.org,
+        thunder.leizhen@huawei.com, xin3.li@intel.com, tj@kernel.org,
+        gregkh@linuxfoundation.org, tsi@tuyoix.net, bhe@redhat.com,
+        hbathini@linux.ibm.com, sourabhjain@linux.ibm.com,
+        boris.ostrovsky@oracle.com, konrad.wilk@oracle.com
+Subject: Re: [PATCH v2 08/13] mips/kexec: refactor for kernel/Kconfig.kexec
+Message-ID: <20230620125236.GF10520@alpha.franken.de>
+References: <20230619145801.1064716-1-eric.devolder@oracle.com>
+ <20230619145801.1064716-9-eric.devolder@oracle.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <5cd9f442-61da-4c3d-eca-b7f44d22aa5f@google.com>
+In-Reply-To: <20230619145801.1064716-9-eric.devolder@oracle.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jun 20, 2023 at 12:47:54AM -0700, Hugh Dickins wrote:
-> Add powerpc-specific pte_free_defer(), to call pte_free() via call_rcu().
-> pte_free_defer() will be called inside khugepaged's retract_page_tables()
-> loop, where allocating extra memory cannot be relied upon.  This precedes
-> the generic version to avoid build breakage from incompatible pgtable_t.
+On Mon, Jun 19, 2023 at 10:57:56AM -0400, Eric DeVolder wrote:
+> The kexec and crash kernel options are provided in the common
+> kernel/Kconfig.kexec. Utilize the common options and provide
+> the ARCH_SUPPORTS_ and ARCH_SELECTS_ entries to recreate the
+> equivalent set of KEXEC and CRASH options.
 > 
-> This is awkward because the struct page contains only one rcu_head, but
-> that page may be shared between PTE_FRAG_NR pagetables, each wanting to
-> use the rcu_head at the same time: account concurrent deferrals with a
-> heightened refcount, only the first making use of the rcu_head, but
-> re-deferring if more deferrals arrived during its grace period.
+> Signed-off-by: Eric DeVolder <eric.devolder@oracle.com>
+> ---
+>  arch/mips/Kconfig | 32 +++++---------------------------
+>  1 file changed, 5 insertions(+), 27 deletions(-)
 
-You didn't answer my question why we can't just move the rcu to the
-actual free page?
+Acked-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 
-Since PPC doesn't recycle the frags, we don't need to carefully RCU
-free each frag, we just need to RCU free the entire page when it
-becomes eventually free?
-
-Jason
+-- 
+Crap can work. Given enough thrust pigs will fly, but it's not necessarily a
+good idea.                                                [ RFC1925, 2.3 ]
