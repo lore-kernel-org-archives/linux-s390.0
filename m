@@ -2,52 +2,52 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D362EEB64D7
-	for <linux-s390@archiver.kernel.org>; Tue, 20 Jun 2023 07:45:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2AFE3EB64D8
+	for <linux-s390@archiver.kernel.org>; Tue, 20 Jun 2023 07:46:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229595AbjFTHpE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 20 Jun 2023 03:45:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43956 "EHLO
+        id S231487AbjFTHqE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 20 Jun 2023 03:46:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230466AbjFTHoO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Jun 2023 03:44:14 -0400
-Received: from mail-yw1-x1134.google.com (mail-yw1-x1134.google.com [IPv6:2607:f8b0:4864:20::1134])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36445172E
-        for <linux-s390@vger.kernel.org>; Tue, 20 Jun 2023 00:43:56 -0700 (PDT)
-Received: by mail-yw1-x1134.google.com with SMTP id 00721157ae682-57012b2973eso51348837b3.2
-        for <linux-s390@vger.kernel.org>; Tue, 20 Jun 2023 00:43:56 -0700 (PDT)
+        with ESMTP id S230465AbjFTHpm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Jun 2023 03:45:42 -0400
+Received: from mail-yw1-x1136.google.com (mail-yw1-x1136.google.com [IPv6:2607:f8b0:4864:20::1136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CEAC10F8
+        for <linux-s390@vger.kernel.org>; Tue, 20 Jun 2023 00:45:32 -0700 (PDT)
+Received: by mail-yw1-x1136.google.com with SMTP id 00721157ae682-57001c0baddso39389967b3.2
+        for <linux-s390@vger.kernel.org>; Tue, 20 Jun 2023 00:45:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1687247035; x=1689839035;
+        d=google.com; s=20221208; t=1687247132; x=1689839132;
         h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=QJ3N9RNUACQk0rp/xTQEOUK2bEy9LceuxJNDbuu7Hdo=;
-        b=qhwhngGUpgrcZDlnvH+b7VWG9WLTHUEVswW9xK/3YCFZXun6Sku2aj+qmeuJtlpDm9
-         NL1p7tRRaSaVuFlEgJZSd1u9Osk9e4zYWPVYSmjFqeH51Two+LdeRyVK6tn3qt9RQ2/C
-         FXROYrneK++r2OPYxjNpEmp15a3hsycB8EeXDTwBWnGuwYFgeqd19dhMRsM+70lw7kZD
-         UxM84oMlRLUMCqnzuOHx9Iap0algo8Gh2vtX9lFjHG25G0LFiMapQLFR33NHeN7LFjU7
-         xqRJD57e/d0/xxEOFNXoz5t1uVw5lEYV2V7WrZMTJMmAFZ9r11+4uO5ZNp31jPHEHE3P
-         8GXg==
+        bh=7tbEFbFk5pzLjwVra+37SCseEW8dJexk2Np2YDtZH+c=;
+        b=jZI7lGkGOA9VplRFSG9/39QEHLqEHFn81AVfRltHoq/8iNx7aAWlNrNyFe+XyF0lml
+         Bnzro2qd7JBTjoGR7k3DplV7l1biYn3/LoxKNyegFiBFIRoYqaL2y+rd8Ux0pQmhTgvs
+         IUPCYgX4z0WdKLSspIafzLUn3c05nMTizwc56jirtYHMfRSc/oqFfK7oTa/fwkNDoThq
+         2HdR/Am0ViDDg3zBY7MZWP/MVjmD1Yx9xMfwqoDnIfAkP9LmxM3rFBDQvW9AFIfnglmj
+         paE2iSuMCCu/tpYLxht5C/v0kudDdPO6A0RSV0ftjBtK/MFrCHoTJHxirOjy2uYrAODS
+         XFsQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1687247035; x=1689839035;
+        d=1e100.net; s=20221208; t=1687247132; x=1689839132;
         h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=QJ3N9RNUACQk0rp/xTQEOUK2bEy9LceuxJNDbuu7Hdo=;
-        b=hSZLLWy1DUqk5cIT3fOZ4G7dCIoCjRUxc4lACjwpwE32k54V2q/+4vts9csyx8nCry
-         0IOVQXbXYQzSyJQnvq2t2u1pFnyM8a7p5+8F6VCzlsYqNlVPBS/Al0eGO3N84OLl9bHG
-         9E5Ehnh6KvVnnD6RVFcni3fPe70ktz5f2+Cb/Hqr3eKSgRJ4PasCic2Vhb6HQjOj3fcz
-         wdhRBVzC0M/IMpI5WCsUJjpmvNSok8LSRf7ucR5fTNUBbJatPnO08+qjgCy99RDoozVU
-         VbDVGrxl5JFPJFfcLlVQeYXWQJnGkxVXlZ9bf4E9A7cZ5/fv5maDwNkJtCQ4HhuuG0/4
-         Enng==
-X-Gm-Message-State: AC+VfDxleMOYj5CmcFyAs9xYSExyRGxggIY14XLLQGf+PiewpvYOiy23
-        /Z19KleCI99GhzkdawIpk+jdkg==
-X-Google-Smtp-Source: ACHHUZ7JD/5gT47oLcluDex4538IBoUvSmCiuwTDk3dXuw6uEp5PSF1HYd+jz7L8cEHWLsd+Ww/fjQ==
-X-Received: by 2002:a0d:cf82:0:b0:56d:2b1e:3d88 with SMTP id r124-20020a0dcf82000000b0056d2b1e3d88mr11408597ywd.24.1687247035289;
-        Tue, 20 Jun 2023 00:43:55 -0700 (PDT)
+        bh=7tbEFbFk5pzLjwVra+37SCseEW8dJexk2Np2YDtZH+c=;
+        b=YFVVxBehkYMpEK9pQTsNMS9UnWhLMLheE92rZjyEJhvWZD2L0UIOGSXO5otBhCzYZB
+         PQmwHsyvjEqXcTKsnjb5Y6/+tUHmwsdP47GbnyfzAYJA59fPv1aNnqczWSUfWW0v8kpv
+         HZ8PfjrAzzD78lHw8KlvquGfaeHO+AnuORVwphrLXhWqezVl5E/DH9lEBznaGLih05C0
+         57a2aA2OJ4YtbtIc5hvXWObzAdtnR4MY+65ey3cC78BZowlJtfK28n6EgEC7ynT0nl5+
+         kokJNJ72tR7fm0ShyvTc110FlWlSSj2e5dXaBbiqCLWs+d2OKPIQjwOVI5E7bdJ8T/g1
+         NjUA==
+X-Gm-Message-State: AC+VfDzXE58Wq9W/9AuHdVRLjI2ie4M3TxrROIx+uNl3sKvMZCaV3bLv
+        dfztE/WLqBh4hWVabTEJul+BLA==
+X-Google-Smtp-Source: ACHHUZ6lVvN31sBriyHtQUo4iIlWjUc8vgsx+qnIrz5Kb8Jhe8UJO9QGV+cM44ErYZUti1LdEdlZpw==
+X-Received: by 2002:a81:7189:0:b0:54f:9cd0:990 with SMTP id m131-20020a817189000000b0054f9cd00990mr2846044ywc.18.1687247131680;
+        Tue, 20 Jun 2023 00:45:31 -0700 (PDT)
 Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id y188-20020a8188c5000000b00545a08184f8sm365085ywf.136.2023.06.20.00.43.51
+        by smtp.gmail.com with ESMTPSA id o9-20020a0dcc09000000b0056d2fce4e09sm379759ywd.42.2023.06.20.00.45.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 Jun 2023 00:43:54 -0700 (PDT)
-Date:   Tue, 20 Jun 2023 00:43:50 -0700 (PDT)
+        Tue, 20 Jun 2023 00:45:31 -0700 (PDT)
+Date:   Tue, 20 Jun 2023 00:45:26 -0700 (PDT)
 From:   Hugh Dickins <hughd@google.com>
 X-X-Sender: hugh@ripple.attlocal.net
 To:     Andrew Morton <akpm@linux-foundation.org>
@@ -97,9 +97,10 @@ cc:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
         linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
         linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: [PATCH v2 03/12] arm: adjust_pte() use pte_offset_map_nolock()
+Subject: [PATCH v2 04/12] powerpc: assert_pte_locked() use
+ pte_offset_map_nolock()
 In-Reply-To: <54cb04f-3762-987f-8294-91dafd8ebfb0@google.com>
-Message-ID: <c959c62f-b186-cb41-55ab-59da79ece688@google.com>
+Message-ID: <7ae6836b-b612-23f1-63e0-babda6e96e2c@google.com>
 References: <54cb04f-3762-987f-8294-91dafd8ebfb0@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -108,32 +109,53 @@ List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 Instead of pte_lockptr(), use the recently added pte_offset_map_nolock()
-in adjust_pte(): because it gives the not-locked ptl for precisely that
-pte, which the caller can then safely lock; whereas pte_lockptr() is not
-so tightly coupled, because it dereferences the pmd pointer again.
+in assert_pte_locked().  BUG if pte_offset_map_nolock() fails: this is
+stricter than the previous implementation, which skipped when pmd_none()
+(with a comment on khugepaged collapse transitions): but wouldn't we want
+to know, if an assert_pte_locked() caller can be racing such transitions?
+
+This mod might cause new crashes: which either expose my ignorance, or
+indicate issues to be fixed, or limit the usage of assert_pte_locked().
 
 Signed-off-by: Hugh Dickins <hughd@google.com>
 ---
- arch/arm/mm/fault-armv.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/powerpc/mm/pgtable.c | 16 ++++++----------
+ 1 file changed, 6 insertions(+), 10 deletions(-)
 
-diff --git a/arch/arm/mm/fault-armv.c b/arch/arm/mm/fault-armv.c
-index ca5302b0b7ee..7cb125497976 100644
---- a/arch/arm/mm/fault-armv.c
-+++ b/arch/arm/mm/fault-armv.c
-@@ -117,11 +117,10 @@ static int adjust_pte(struct vm_area_struct *vma, unsigned long address,
- 	 * must use the nested version.  This also means we need to
- 	 * open-code the spin-locking.
- 	 */
--	pte = pte_offset_map(pmd, address);
-+	pte = pte_offset_map_nolock(vma->vm_mm, pmd, address, &ptl);
- 	if (!pte)
- 		return 0;
+diff --git a/arch/powerpc/mm/pgtable.c b/arch/powerpc/mm/pgtable.c
+index cb2dcdb18f8e..16b061af86d7 100644
+--- a/arch/powerpc/mm/pgtable.c
++++ b/arch/powerpc/mm/pgtable.c
+@@ -311,6 +311,8 @@ void assert_pte_locked(struct mm_struct *mm, unsigned long addr)
+ 	p4d_t *p4d;
+ 	pud_t *pud;
+ 	pmd_t *pmd;
++	pte_t *pte;
++	spinlock_t *ptl;
  
--	ptl = pte_lockptr(vma->vm_mm, pmd);
- 	do_pte_lock(ptl);
+ 	if (mm == &init_mm)
+ 		return;
+@@ -321,16 +323,10 @@ void assert_pte_locked(struct mm_struct *mm, unsigned long addr)
+ 	pud = pud_offset(p4d, addr);
+ 	BUG_ON(pud_none(*pud));
+ 	pmd = pmd_offset(pud, addr);
+-	/*
+-	 * khugepaged to collapse normal pages to hugepage, first set
+-	 * pmd to none to force page fault/gup to take mmap_lock. After
+-	 * pmd is set to none, we do a pte_clear which does this assertion
+-	 * so if we find pmd none, return.
+-	 */
+-	if (pmd_none(*pmd))
+-		return;
+-	BUG_ON(!pmd_present(*pmd));
+-	assert_spin_locked(pte_lockptr(mm, pmd));
++	pte = pte_offset_map_nolock(mm, pmd, addr, &ptl);
++	BUG_ON(!pte);
++	assert_spin_locked(ptl);
++	pte_unmap(pte);
+ }
+ #endif /* CONFIG_DEBUG_VM */
  
- 	ret = do_adjust_pte(vma, address, pfn, pte);
 -- 
 2.35.3
 
