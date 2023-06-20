@@ -2,120 +2,277 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 96799EB64D8
-	for <linux-s390@archiver.kernel.org>; Tue, 20 Jun 2023 08:23:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7FFFBEB64D7
+	for <linux-s390@archiver.kernel.org>; Tue, 20 Jun 2023 08:35:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230482AbjFTIXZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 20 Jun 2023 04:23:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40382 "EHLO
+        id S231948AbjFTIfK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 20 Jun 2023 04:35:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229683AbjFTIXY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Jun 2023 04:23:24 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1A0D132
-        for <linux-s390@vger.kernel.org>; Tue, 20 Jun 2023 01:21:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1687249313;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=5XHdbMNys0EMjfbiSdwj8lWyGP51R68NotGh4ls9XCg=;
-        b=WRVER/k+Ay0bmEnq/lkWxiAFJLyW1BEfvcdA71dyRfjU7RvGJyo9k2JLTOCp0bx4+cE04x
-        XqAKYZPuO+kke/dXM/e39FFYUEqnwHxSaY5PBCSzXKVy2dboyx3VoHOzyvXl1/C6/Xs8Hp
-        q9mlrIqLDXeQiTNr8cIvXBTumAuyLdA=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-653-DHNnL6O0PoOX-_3jeDwo5g-1; Tue, 20 Jun 2023 04:21:49 -0400
-X-MC-Unique: DHNnL6O0PoOX-_3jeDwo5g-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 918E73806739;
-        Tue, 20 Jun 2023 08:21:48 +0000 (UTC)
-Received: from localhost (ovpn-12-166.pek2.redhat.com [10.72.12.166])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 2B95A2166B26;
-        Tue, 20 Jun 2023 08:21:46 +0000 (UTC)
-Date:   Tue, 20 Jun 2023 16:21:42 +0800
-From:   Baoquan He <bhe@redhat.com>
-To:     Eric DeVolder <eric.devolder@oracle.com>
-Cc:     linux@armlinux.org.uk, catalin.marinas@arm.com, will@kernel.org,
-        chenhuacai@kernel.org, geert@linux-m68k.org,
-        tsbogend@alpha.franken.de, James.Bottomley@hansenpartnership.com,
-        deller@gmx.de, ysato@users.sourceforge.jp, dalias@libc.org,
-        glaubitz@physik.fu-berlin.de, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-ia64@vger.kernel.org, loongarch@lists.linux.dev,
-        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, kernel@xen0n.name, mpe@ellerman.id.au,
-        npiggin@gmail.com, christophe.leroy@csgroup.eu,
-        paul.walmsley@sifive.com, palmer@dabbelt.com,
-        aou@eecs.berkeley.edu, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, hpa@zytor.com, keescook@chromium.org,
-        paulmck@kernel.org, peterz@infradead.org, frederic@kernel.org,
-        akpm@linux-foundation.org, ardb@kernel.org,
-        samitolvanen@google.com, juerg.haefliger@canonical.com,
-        arnd@arndb.de, rmk+kernel@armlinux.org.uk,
-        linus.walleij@linaro.org, sebastian.reichel@collabora.com,
-        rppt@kernel.org, kirill.shutemov@linux.intel.com,
-        anshuman.khandual@arm.com, ziy@nvidia.com, masahiroy@kernel.org,
-        ndesaulniers@google.com, mhiramat@kernel.org, ojeda@kernel.org,
-        thunder.leizhen@huawei.com, xin3.li@intel.com, tj@kernel.org,
-        gregkh@linuxfoundation.org, tsi@tuyoix.net, hbathini@linux.ibm.com,
-        sourabhjain@linux.ibm.com, boris.ostrovsky@oracle.com,
-        konrad.wilk@oracle.com
-Subject: Re: [PATCH v2 02/13] x86/kexec: refactor for kernel/Kconfig.kexec
-Message-ID: <ZJFhlsFN6DxnWsQE@MiWiFi-R3L-srv>
-References: <20230619145801.1064716-1-eric.devolder@oracle.com>
- <20230619145801.1064716-3-eric.devolder@oracle.com>
+        with ESMTP id S232030AbjFTIfD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Jun 2023 04:35:03 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3748010D5;
+        Tue, 20 Jun 2023 01:35:00 -0700 (PDT)
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 35K8L6JG003242;
+        Tue, 20 Jun 2023 08:34:52 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=r9k7lQi40ou1RYEywLI3ovULoECVCMnO/PCd772XS7k=;
+ b=nMhmyNiVEF+PjAJTmbpXRTjxFfHXoZ8/4EkJZ1Wyqw6DAqYMq68GJDLAc0BUWE1KvBHK
+ 7HC3BI+h6NAFLS1Wme0LtZSJRfe2bp6JVDr9x7L+YxRPLzGSh9I81QXegDcc0SZTaUgy
+ qn63+ThzikjjaWJNE1z2EQLhesOM+3l0ahSccpZhI0IuP5GDz2+xSwtZKDY9nl0sEtS8
+ AdoFAR6CcEuU8kK3+O+I1175LQN2E6ckXVKixc/tOseqdFjl5Bl4qJY4bKpSGAQAxwW1
+ +Aa7ezSj7uOVvRxYZtnRAEo6ZTVgx2YvHMb/c7zwn156y9/G0u9CS0SlSqxnjydtGZJi cA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rb8hbrdjt-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 20 Jun 2023 08:34:51 +0000
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 35K8LNOS003902;
+        Tue, 20 Jun 2023 08:34:50 GMT
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rb8hbrdfh-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 20 Jun 2023 08:34:50 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 35K3VHQw002721;
+        Tue, 20 Jun 2023 08:34:47 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma04fra.de.ibm.com (PPS) with ESMTPS id 3r94f59f6y-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 20 Jun 2023 08:34:47 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 35K8YiDM60883284
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 20 Jun 2023 08:34:44 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 12AD620040;
+        Tue, 20 Jun 2023 08:34:44 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E6E2320043;
+        Tue, 20 Jun 2023 08:34:43 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Tue, 20 Jun 2023 08:34:43 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55271)
+        id A0E00E0943; Tue, 20 Jun 2023 10:34:43 +0200 (CEST)
+From:   Alexandra Winter <wintera@linux.ibm.com>
+To:     David Miller <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Eric Dumazet <edumazet@google.com>
+Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Thorsten Winkler <twinkler@linux.ibm.com>,
+        Alexandra Winter <wintera@linux.ibm.com>
+Subject: [PATCH net-next 4/4] s390/ctcm: Convert sprintf/snprintf to scnprintf
+Date:   Tue, 20 Jun 2023 10:34:11 +0200
+Message-Id: <20230620083411.508797-5-wintera@linux.ibm.com>
+X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230620083411.508797-1-wintera@linux.ibm.com>
+References: <20230620083411.508797-1-wintera@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230619145801.1064716-3-eric.devolder@oracle.com>
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.6
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: T0k3veFl7649hfTy4viChnCXnBaVtsID
+X-Proofpoint-ORIG-GUID: afCmnWecz482-i6IHhiwdZw0FGylFsqO
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-06-20_05,2023-06-16_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 spamscore=0
+ phishscore=0 suspectscore=0 bulkscore=0 mlxlogscore=999 clxscore=1015
+ priorityscore=1501 impostorscore=0 mlxscore=0 lowpriorityscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2305260000 definitions=main-2306200076
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Eric,
+From: Thorsten Winkler <twinkler@linux.ibm.com>
 
-On 06/19/23 at 10:57am, Eric DeVolder wrote:
-......
-> +config ARCH_SUPPORTS_KEXEC
-> +	def_bool y
->  
-> -config ARCH_HAS_KEXEC_PURGATORY
-> -	def_bool KEXEC_FILE
-> +config ARCH_SUPPORTS_KEXEC_FILE
-> +	def_bool X86_64 && CRYPTO && CRYPTO_SHA256
-......  
-> +config ARCH_SELECTS_KEXEC_FILE
-> +	def_bool y
->  	depends on KEXEC_FILE
-> -	help
+This LWN article explains the rationale for this change
+https: //lwn.net/Articles/69419/
+Ie. snprintf() returns what *would* be the resulting length,
+while scnprintf() returns the actual length.
 
-I am a little confused about this ARCH_SELECTS_XX adding. Wondering what
-limits us defining the ARCH_SUPPORTS_KEXEC_FILE like below? I have limited
-knowledge about Kconfig, please correct me if I am wrong. Thanks in
-advance.
+Note that ctcm_print_statistics() writes the data into the kernel log
+and is therefore not suitable for sysfs_emit(). Observable behavior is
+not changed, as there may be dependencies.
 
- +config ARCH_SUPPORTS_KEXEC_FILE
- +	def_bool y
-  	depends on KEXEC_FILE
-  	depends on X86_64 && CRYPTO && CRYPTO_SHA256
+Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
+Signed-off-by: Thorsten Winkler <twinkler@linux.ibm.com>
+Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
+---
+ drivers/s390/net/ctcm_dbug.c  |  2 +-
+ drivers/s390/net/ctcm_main.c  |  6 +++---
+ drivers/s390/net/ctcm_main.h  |  1 +
+ drivers/s390/net/ctcm_mpc.c   | 18 ++++++++++--------
+ drivers/s390/net/ctcm_sysfs.c | 36 +++++++++++++++++------------------
+ 5 files changed, 33 insertions(+), 30 deletions(-)
 
-> -
-> -	  This option makes the kexec_file_load() syscall check for a valid
-> -	  signature of the kernel image.  The image can still be loaded without
-> -	  a valid signature unless you also enable KEXEC_SIG_FORCE, though if
-> -	  there's a signature that we can check, then it must be valid.
-> -
-> -	  In addition to this option, you need to enable signature
-> -	  verification for the corresponding kernel image type being
-> -	  loaded in order for this to work.
-> -
+diff --git a/drivers/s390/net/ctcm_dbug.c b/drivers/s390/net/ctcm_dbug.c
+index f7ec51db3cd6..b6f0e2f114b4 100644
+--- a/drivers/s390/net/ctcm_dbug.c
++++ b/drivers/s390/net/ctcm_dbug.c
+@@ -70,7 +70,7 @@ void ctcm_dbf_longtext(enum ctcm_dbf_names dbf_nix, int level, char *fmt, ...)
+ 	if (!debug_level_enabled(ctcm_dbf[dbf_nix].id, level))
+ 		return;
+ 	va_start(args, fmt);
+-	vsnprintf(dbf_txt_buf, sizeof(dbf_txt_buf), fmt, args);
++	vscnprintf(dbf_txt_buf, sizeof(dbf_txt_buf), fmt, args);
+ 	va_end(args);
+ 
+ 	debug_text_event(ctcm_dbf[dbf_nix].id, level, dbf_txt_buf);
+diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
+index e0fdd54bfeb7..79fac5314e67 100644
+--- a/drivers/s390/net/ctcm_main.c
++++ b/drivers/s390/net/ctcm_main.c
+@@ -1340,7 +1340,7 @@ static int add_channel(struct ccw_device *cdev, enum ctcm_channel_types type,
+ 					goto nomem_return;
+ 
+ 	ch->cdev = cdev;
+-	snprintf(ch->id, CTCM_ID_SIZE, "ch-%s", dev_name(&cdev->dev));
++	scnprintf(ch->id, CTCM_ID_SIZE, "ch-%s", dev_name(&cdev->dev));
+ 	ch->type = type;
+ 
+ 	/*
+@@ -1505,8 +1505,8 @@ static int ctcm_new_device(struct ccwgroup_device *cgdev)
+ 
+ 	type = get_channel_type(&cdev0->id);
+ 
+-	snprintf(read_id, CTCM_ID_SIZE, "ch-%s", dev_name(&cdev0->dev));
+-	snprintf(write_id, CTCM_ID_SIZE, "ch-%s", dev_name(&cdev1->dev));
++	scnprintf(read_id, CTCM_ID_SIZE, "ch-%s", dev_name(&cdev0->dev));
++	scnprintf(write_id, CTCM_ID_SIZE, "ch-%s", dev_name(&cdev1->dev));
+ 
+ 	ret = add_channel(cdev0, type, priv);
+ 	if (ret) {
+diff --git a/drivers/s390/net/ctcm_main.h b/drivers/s390/net/ctcm_main.h
+index 90bd7b3f80c3..25164e8bf13d 100644
+--- a/drivers/s390/net/ctcm_main.h
++++ b/drivers/s390/net/ctcm_main.h
+@@ -100,6 +100,7 @@ enum ctcm_channel_types {
+ #define CTCM_PROTO_MPC		4
+ #define CTCM_PROTO_MAX		4
+ 
++#define CTCM_STATSIZE_LIMIT	64
+ #define CTCM_BUFSIZE_LIMIT	65535
+ #define CTCM_BUFSIZE_DEFAULT	32768
+ #define MPC_BUFSIZE_DEFAULT	CTCM_BUFSIZE_LIMIT
+diff --git a/drivers/s390/net/ctcm_mpc.c b/drivers/s390/net/ctcm_mpc.c
+index 8ac213a55141..64996c86defc 100644
+--- a/drivers/s390/net/ctcm_mpc.c
++++ b/drivers/s390/net/ctcm_mpc.c
+@@ -144,9 +144,9 @@ void ctcmpc_dumpit(char *buf, int len)
+ 
+ 	for (ct = 0; ct < len; ct++, ptr++, rptr++) {
+ 		if (sw == 0) {
+-			sprintf(addr, "%16.16llx", (__u64)rptr);
++			scnprintf(addr, sizeof(addr), "%16.16llx", (__u64)rptr);
+ 
+-			sprintf(boff, "%4.4X", (__u32)ct);
++			scnprintf(boff, sizeof(boff), "%4.4X", (__u32)ct);
+ 			bhex[0] = '\0';
+ 			basc[0] = '\0';
+ 		}
+@@ -155,7 +155,7 @@ void ctcmpc_dumpit(char *buf, int len)
+ 		if (sw == 8)
+ 			strcat(bhex, "	");
+ 
+-		sprintf(tbuf, "%2.2llX", (__u64)*ptr);
++		scnprintf(tbuf, sizeof(tbuf), "%2.2llX", (__u64)*ptr);
+ 
+ 		tbuf[2] = '\0';
+ 		strcat(bhex, tbuf);
+@@ -171,8 +171,8 @@ void ctcmpc_dumpit(char *buf, int len)
+ 			continue;
+ 		if ((strcmp(duphex, bhex)) != 0) {
+ 			if (dup != 0) {
+-				sprintf(tdup,
+-					"Duplicate as above to %s", addr);
++				scnprintf(tdup, sizeof(tdup),
++					  "Duplicate as above to %s", addr);
+ 				ctcm_pr_debug("		       --- %s ---\n",
+ 						tdup);
+ 			}
+@@ -197,14 +197,16 @@ void ctcmpc_dumpit(char *buf, int len)
+ 			strcat(basc, " ");
+ 		}
+ 		if (dup != 0) {
+-			sprintf(tdup, "Duplicate as above to %s", addr);
++			scnprintf(tdup, sizeof(tdup),
++				  "Duplicate as above to %s", addr);
+ 			ctcm_pr_debug("		       --- %s ---\n", tdup);
+ 		}
+ 		ctcm_pr_debug("   %s (+%s) : %s  [%s]\n",
+ 					addr, boff, bhex, basc);
+ 	} else {
+ 		if (dup >= 1) {
+-			sprintf(tdup, "Duplicate as above to %s", addr);
++			scnprintf(tdup, sizeof(tdup),
++				  "Duplicate as above to %s", addr);
+ 			ctcm_pr_debug("		       --- %s ---\n", tdup);
+ 		}
+ 		if (dup != 0) {
+@@ -291,7 +293,7 @@ static struct net_device *ctcmpc_get_dev(int port_num)
+ 	struct net_device *dev;
+ 	struct ctcm_priv *priv;
+ 
+-	sprintf(device, "%s%i", MPC_DEVICE_NAME, port_num);
++	scnprintf(device, sizeof(device), "%s%i", MPC_DEVICE_NAME, port_num);
+ 
+ 	dev = __dev_get_by_name(&init_net, device);
+ 
+diff --git a/drivers/s390/net/ctcm_sysfs.c b/drivers/s390/net/ctcm_sysfs.c
+index 98680c2cc4e4..0c5d8a3eaa2e 100644
+--- a/drivers/s390/net/ctcm_sysfs.c
++++ b/drivers/s390/net/ctcm_sysfs.c
+@@ -86,24 +86,24 @@ static void ctcm_print_statistics(struct ctcm_priv *priv)
+ 		return;
+ 	p = sbuf;
+ 
+-	p += sprintf(p, "  Device FSM state: %s\n",
+-		     fsm_getstate_str(priv->fsm));
+-	p += sprintf(p, "  RX channel FSM state: %s\n",
+-		     fsm_getstate_str(priv->channel[CTCM_READ]->fsm));
+-	p += sprintf(p, "  TX channel FSM state: %s\n",
+-		     fsm_getstate_str(priv->channel[CTCM_WRITE]->fsm));
+-	p += sprintf(p, "  Max. TX buffer used: %ld\n",
+-		     priv->channel[WRITE]->prof.maxmulti);
+-	p += sprintf(p, "  Max. chained SKBs: %ld\n",
+-		     priv->channel[WRITE]->prof.maxcqueue);
+-	p += sprintf(p, "  TX single write ops: %ld\n",
+-		     priv->channel[WRITE]->prof.doios_single);
+-	p += sprintf(p, "  TX multi write ops: %ld\n",
+-		     priv->channel[WRITE]->prof.doios_multi);
+-	p += sprintf(p, "  Netto bytes written: %ld\n",
+-		     priv->channel[WRITE]->prof.txlen);
+-	p += sprintf(p, "  Max. TX IO-time: %u\n",
+-		     jiffies_to_usecs(priv->channel[WRITE]->prof.tx_time));
++	p += scnprintf(p, CTCM_STATSIZE_LIMIT, "  Device FSM state: %s\n",
++		       fsm_getstate_str(priv->fsm));
++	p += scnprintf(p, CTCM_STATSIZE_LIMIT, "  RX channel FSM state: %s\n",
++		       fsm_getstate_str(priv->channel[CTCM_READ]->fsm));
++	p += scnprintf(p, CTCM_STATSIZE_LIMIT, "  TX channel FSM state: %s\n",
++		       fsm_getstate_str(priv->channel[CTCM_WRITE]->fsm));
++	p += scnprintf(p, CTCM_STATSIZE_LIMIT, "  Max. TX buffer used: %ld\n",
++		       priv->channel[WRITE]->prof.maxmulti);
++	p += scnprintf(p, CTCM_STATSIZE_LIMIT, "  Max. chained SKBs: %ld\n",
++		       priv->channel[WRITE]->prof.maxcqueue);
++	p += scnprintf(p, CTCM_STATSIZE_LIMIT, "  TX single write ops: %ld\n",
++		       priv->channel[WRITE]->prof.doios_single);
++	p += scnprintf(p, CTCM_STATSIZE_LIMIT, "  TX multi write ops: %ld\n",
++		       priv->channel[WRITE]->prof.doios_multi);
++	p += scnprintf(p, CTCM_STATSIZE_LIMIT, "  Netto bytes written: %ld\n",
++		       priv->channel[WRITE]->prof.txlen);
++	p += scnprintf(p, CTCM_STATSIZE_LIMIT, "  Max. TX IO-time: %u\n",
++		       jiffies_to_usecs(priv->channel[WRITE]->prof.tx_time));
+ 
+ 	printk(KERN_INFO "Statistics for %s:\n%s",
+ 				priv->channel[CTCM_WRITE]->netdev->name, sbuf);
+-- 
+2.39.2
 
