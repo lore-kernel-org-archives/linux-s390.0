@@ -2,52 +2,52 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C5964EB64D7
-	for <linux-s390@archiver.kernel.org>; Tue, 20 Jun 2023 07:43:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D362EEB64D7
+	for <linux-s390@archiver.kernel.org>; Tue, 20 Jun 2023 07:45:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231321AbjFTHnG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 20 Jun 2023 03:43:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41618 "EHLO
+        id S229595AbjFTHpE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 20 Jun 2023 03:45:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231602AbjFTHmd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Jun 2023 03:42:33 -0400
-Received: from mail-yb1-xb2f.google.com (mail-yb1-xb2f.google.com [IPv6:2607:f8b0:4864:20::b2f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C41E011D
-        for <linux-s390@vger.kernel.org>; Tue, 20 Jun 2023 00:42:19 -0700 (PDT)
-Received: by mail-yb1-xb2f.google.com with SMTP id 3f1490d57ef6-be3b35ae72dso4470738276.0
-        for <linux-s390@vger.kernel.org>; Tue, 20 Jun 2023 00:42:19 -0700 (PDT)
+        with ESMTP id S230466AbjFTHoO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Jun 2023 03:44:14 -0400
+Received: from mail-yw1-x1134.google.com (mail-yw1-x1134.google.com [IPv6:2607:f8b0:4864:20::1134])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36445172E
+        for <linux-s390@vger.kernel.org>; Tue, 20 Jun 2023 00:43:56 -0700 (PDT)
+Received: by mail-yw1-x1134.google.com with SMTP id 00721157ae682-57012b2973eso51348837b3.2
+        for <linux-s390@vger.kernel.org>; Tue, 20 Jun 2023 00:43:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1687246939; x=1689838939;
+        d=google.com; s=20221208; t=1687247035; x=1689839035;
         h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=4mQCeX//121ajNwvCY66Rysl9c9mZt4CnPkKAdBrlyo=;
-        b=Rk9aZz3lCgWM/wzoeIdA8TQQHo7EP0qUx4FBk6w6vBIv3V9EGmhpCtWeOKkVLalH/B
-         3/IhZXP8pzSAUtUwv1YZ0rZFRUBVXIfjAUyirXzYoBsOop5Z2sZPS+eTpvJIhr7MrLYm
-         LUjzgRD1GyQ/XuvAm8PLozNnLUaUsJj8Srr/G3h67lgjS83i0yMgd02EIVoO5rsRx9kI
-         daqlfGCCUSLKQt7wMh3o0YW7GwW3VGqW8slprzgeDxp+5B0Z6u1+4uuHf8AelDneMwjV
-         DKf7ckeYtLcfEfqu2RjXHw4XHJyjxhdMznrF0GKkr5IkH8s4Le9upNEGz9sVfSI4hq5l
-         39mg==
+        bh=QJ3N9RNUACQk0rp/xTQEOUK2bEy9LceuxJNDbuu7Hdo=;
+        b=qhwhngGUpgrcZDlnvH+b7VWG9WLTHUEVswW9xK/3YCFZXun6Sku2aj+qmeuJtlpDm9
+         NL1p7tRRaSaVuFlEgJZSd1u9Osk9e4zYWPVYSmjFqeH51Two+LdeRyVK6tn3qt9RQ2/C
+         FXROYrneK++r2OPYxjNpEmp15a3hsycB8EeXDTwBWnGuwYFgeqd19dhMRsM+70lw7kZD
+         UxM84oMlRLUMCqnzuOHx9Iap0algo8Gh2vtX9lFjHG25G0LFiMapQLFR33NHeN7LFjU7
+         xqRJD57e/d0/xxEOFNXoz5t1uVw5lEYV2V7WrZMTJMmAFZ9r11+4uO5ZNp31jPHEHE3P
+         8GXg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1687246939; x=1689838939;
+        d=1e100.net; s=20221208; t=1687247035; x=1689839035;
         h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=4mQCeX//121ajNwvCY66Rysl9c9mZt4CnPkKAdBrlyo=;
-        b=JSXpBWZfd9zTwbpfyBj72CVihx0n28HVXxpCSUNFbiSJ3j9ZjO9R1XMK3ZV/EeXULn
-         6q5rLaOn1t1lZIcHuuoLsz9o+LA2R9/mHXHtH8kEEagK3y/YCu7xOKFUK1Ej7FVAr9Q4
-         ySr4lzEFnhS2tuMQHp020DIpc9q0yE4pOutm3wtn9T5gulLGQn8gtUtrrhhVwgA4WyLp
-         VHFgG1X1htMDv4C66xglxFQzhdXF5vuzQ9UF7V4xZ56mdB8GruRxHcae+unSTB4tYTa4
-         63jhQGrLM5hyPG2cLkhuZHWFMUCoOuSVnemI2zPKgrAetrdjOkDeKAaTPQJJ09ANqckB
-         hY5Q==
-X-Gm-Message-State: AC+VfDzM7GYuSBe6jLgy+vSLUc+K9hdBT02pfnOD8Ei1U7jggJEl7PZx
-        fLqt2xg7cfu1z6ec1/vk17dB7Q==
-X-Google-Smtp-Source: ACHHUZ5rgE5ZeLfP+qyjhwCRCkWSPHoZuMre6lfq8YixODGIptTSfSS2sgODZVUUkcQ4STmKqbbGHw==
-X-Received: by 2002:a25:4dc2:0:b0:bac:4dd6:d0d1 with SMTP id a185-20020a254dc2000000b00bac4dd6d0d1mr7498427ybb.19.1687246938747;
-        Tue, 20 Jun 2023 00:42:18 -0700 (PDT)
+        bh=QJ3N9RNUACQk0rp/xTQEOUK2bEy9LceuxJNDbuu7Hdo=;
+        b=hSZLLWy1DUqk5cIT3fOZ4G7dCIoCjRUxc4lACjwpwE32k54V2q/+4vts9csyx8nCry
+         0IOVQXbXYQzSyJQnvq2t2u1pFnyM8a7p5+8F6VCzlsYqNlVPBS/Al0eGO3N84OLl9bHG
+         9E5Ehnh6KvVnnD6RVFcni3fPe70ktz5f2+Cb/Hqr3eKSgRJ4PasCic2Vhb6HQjOj3fcz
+         wdhRBVzC0M/IMpI5WCsUJjpmvNSok8LSRf7ucR5fTNUBbJatPnO08+qjgCy99RDoozVU
+         VbDVGrxl5JFPJFfcLlVQeYXWQJnGkxVXlZ9bf4E9A7cZ5/fv5maDwNkJtCQ4HhuuG0/4
+         Enng==
+X-Gm-Message-State: AC+VfDxleMOYj5CmcFyAs9xYSExyRGxggIY14XLLQGf+PiewpvYOiy23
+        /Z19KleCI99GhzkdawIpk+jdkg==
+X-Google-Smtp-Source: ACHHUZ7JD/5gT47oLcluDex4538IBoUvSmCiuwTDk3dXuw6uEp5PSF1HYd+jz7L8cEHWLsd+Ww/fjQ==
+X-Received: by 2002:a0d:cf82:0:b0:56d:2b1e:3d88 with SMTP id r124-20020a0dcf82000000b0056d2b1e3d88mr11408597ywd.24.1687247035289;
+        Tue, 20 Jun 2023 00:43:55 -0700 (PDT)
 Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id j200-20020a2523d1000000b00be6cf9d2544sm254636ybj.40.2023.06.20.00.42.14
+        by smtp.gmail.com with ESMTPSA id y188-20020a8188c5000000b00545a08184f8sm365085ywf.136.2023.06.20.00.43.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 Jun 2023 00:42:18 -0700 (PDT)
-Date:   Tue, 20 Jun 2023 00:42:13 -0700 (PDT)
+        Tue, 20 Jun 2023 00:43:54 -0700 (PDT)
+Date:   Tue, 20 Jun 2023 00:43:50 -0700 (PDT)
 From:   Hugh Dickins <hughd@google.com>
 X-X-Sender: hugh@ripple.attlocal.net
 To:     Andrew Morton <akpm@linux-foundation.org>
@@ -84,7 +84,7 @@ cc:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
         Song Liu <song@kernel.org>,
         Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
         Russell King <linux@armlinux.org.uk>,
-        "David Sc. Miller" <davem@davemloft.net>,
+        "David S. Miller" <davem@davemloft.net>,
         Michael Ellerman <mpe@ellerman.id.au>,
         "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
@@ -97,9 +97,9 @@ cc:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
         linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
         linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: [PATCH v2 02/12] mm/pgtable: add PAE safety to __pte_offset_map()
+Subject: [PATCH v2 03/12] arm: adjust_pte() use pte_offset_map_nolock()
 In-Reply-To: <54cb04f-3762-987f-8294-91dafd8ebfb0@google.com>
-Message-ID: <df1884ce-93c-efa-2354-4d749eb25f1@google.com>
+Message-ID: <c959c62f-b186-cb41-55ab-59da79ece688@google.com>
 References: <54cb04f-3762-987f-8294-91dafd8ebfb0@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -107,106 +107,33 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-There is a faint risk that __pte_offset_map(), on a 32-bit architecture
-with a 64-bit pmd_t e.g. x86-32 with CONFIG_X86_PAE=y, would succeed on
-a pmdval assembled from a pmd_low and a pmd_high which never belonged
-together: their combination not pointing to a page table at all, perhaps
-not even a valid pfn.  pmdp_get_lockless() is not enough to prevent that.
-
-Guard against that (on such configs) by local_irq_save() blocking TLB
-flush between present updates, as linux/pgtable.h suggests.  It's only
-needed around the pmdp_get_lockless() in __pte_offset_map(): a race when
-__pte_offset_map_lock() repeats the pmdp_get_lockless() after getting the
-lock, would just send it back to __pte_offset_map() again.
-
-Complement this pmdp_get_lockless_start() and pmdp_get_lockless_end(),
-used only locally in __pte_offset_map(), with a pmdp_get_lockless_sync()
-synonym for tlb_remove_table_sync_one(): to send the necessary interrupt
-at the right moment on those configs which do not already send it.
-
-CONFIG_GUP_GET_PXX_LOW_HIGH is enabled when required by mips, sh and x86.
-It is not enabled by arm-32 CONFIG_ARM_LPAE: my understanding is that
-Will Deacon's 2020 enhancements to READ_ONCE() are sufficient for arm.
-It is not enabled by arc, but its pmd_t is 32-bit even when pte_t 64-bit.
-
-Limit the IRQ disablement to CONFIG_HIGHPTE?  Perhaps, but would need a
-little more work, to retry if pmd_low good for page table, but pmd_high
-non-zero from THP (and that might be making x86-specific assumptions).
+Instead of pte_lockptr(), use the recently added pte_offset_map_nolock()
+in adjust_pte(): because it gives the not-locked ptl for precisely that
+pte, which the caller can then safely lock; whereas pte_lockptr() is not
+so tightly coupled, because it dereferences the pmd pointer again.
 
 Signed-off-by: Hugh Dickins <hughd@google.com>
 ---
- include/linux/pgtable.h |  4 ++++
- mm/pgtable-generic.c    | 29 +++++++++++++++++++++++++++++
- 2 files changed, 33 insertions(+)
+ arch/arm/mm/fault-armv.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
-index 8b0fc7fdc46f..525f1782b466 100644
---- a/include/linux/pgtable.h
-+++ b/include/linux/pgtable.h
-@@ -390,6 +390,7 @@ static inline pmd_t pmdp_get_lockless(pmd_t *pmdp)
- 	return pmd;
- }
- #define pmdp_get_lockless pmdp_get_lockless
-+#define pmdp_get_lockless_sync() tlb_remove_table_sync_one()
- #endif /* CONFIG_PGTABLE_LEVELS > 2 */
- #endif /* CONFIG_GUP_GET_PXX_LOW_HIGH */
+diff --git a/arch/arm/mm/fault-armv.c b/arch/arm/mm/fault-armv.c
+index ca5302b0b7ee..7cb125497976 100644
+--- a/arch/arm/mm/fault-armv.c
++++ b/arch/arm/mm/fault-armv.c
+@@ -117,11 +117,10 @@ static int adjust_pte(struct vm_area_struct *vma, unsigned long address,
+ 	 * must use the nested version.  This also means we need to
+ 	 * open-code the spin-locking.
+ 	 */
+-	pte = pte_offset_map(pmd, address);
++	pte = pte_offset_map_nolock(vma->vm_mm, pmd, address, &ptl);
+ 	if (!pte)
+ 		return 0;
  
-@@ -408,6 +409,9 @@ static inline pmd_t pmdp_get_lockless(pmd_t *pmdp)
- {
- 	return pmdp_get(pmdp);
- }
-+static inline void pmdp_get_lockless_sync(void)
-+{
-+}
- #endif
+-	ptl = pte_lockptr(vma->vm_mm, pmd);
+ 	do_pte_lock(ptl);
  
- #ifdef CONFIG_TRANSPARENT_HUGEPAGE
-diff --git a/mm/pgtable-generic.c b/mm/pgtable-generic.c
-index 674671835631..5e85a625ab30 100644
---- a/mm/pgtable-generic.c
-+++ b/mm/pgtable-generic.c
-@@ -232,12 +232,41 @@ pmd_t pmdp_collapse_flush(struct vm_area_struct *vma, unsigned long address,
- #endif
- #endif /* CONFIG_TRANSPARENT_HUGEPAGE */
- 
-+#if defined(CONFIG_GUP_GET_PXX_LOW_HIGH) && \
-+	(defined(CONFIG_SMP) || defined(CONFIG_PREEMPT_RCU))
-+/*
-+ * See the comment above ptep_get_lockless() in include/linux/pgtable.h:
-+ * the barriers in pmdp_get_lockless() cannot guarantee that the value in
-+ * pmd_high actually belongs with the value in pmd_low; but holding interrupts
-+ * off blocks the TLB flush between present updates, which guarantees that a
-+ * successful __pte_offset_map() points to a page from matched halves.
-+ */
-+static unsigned long pmdp_get_lockless_start(void)
-+{
-+	unsigned long irqflags;
-+
-+	local_irq_save(irqflags);
-+	return irqflags;
-+}
-+static void pmdp_get_lockless_end(unsigned long irqflags)
-+{
-+	local_irq_restore(irqflags);
-+}
-+#else
-+static unsigned long pmdp_get_lockless_start(void) { return 0; }
-+static void pmdp_get_lockless_end(unsigned long irqflags) { }
-+#endif
-+
- pte_t *__pte_offset_map(pmd_t *pmd, unsigned long addr, pmd_t *pmdvalp)
- {
-+	unsigned long irqflags;
- 	pmd_t pmdval;
- 
- 	rcu_read_lock();
-+	irqflags = pmdp_get_lockless_start();
- 	pmdval = pmdp_get_lockless(pmd);
-+	pmdp_get_lockless_end(irqflags);
-+
- 	if (pmdvalp)
- 		*pmdvalp = pmdval;
- 	if (unlikely(pmd_none(pmdval) || is_pmd_migration_entry(pmdval)))
+ 	ret = do_adjust_pte(vma, address, pfn, pte);
 -- 
 2.35.3
 
