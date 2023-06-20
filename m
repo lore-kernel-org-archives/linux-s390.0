@@ -2,141 +2,221 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C611BEB64D7
-	for <linux-s390@archiver.kernel.org>; Tue, 20 Jun 2023 14:54:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E59D7EB64D7
+	for <linux-s390@archiver.kernel.org>; Tue, 20 Jun 2023 14:58:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233101AbjFTOyU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 20 Jun 2023 10:54:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57376 "EHLO
+        id S233176AbjFTO6I (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 20 Jun 2023 10:58:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233209AbjFTOyO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Jun 2023 10:54:14 -0400
+        with ESMTP id S233152AbjFTO6H (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Jun 2023 10:58:07 -0400
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A57991709
-        for <linux-s390@vger.kernel.org>; Tue, 20 Jun 2023 07:53:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDFC51BC7
+        for <linux-s390@vger.kernel.org>; Tue, 20 Jun 2023 07:56:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1687272805;
+        s=mimecast20190719; t=1687273014;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=M+loKwD1RCVu8eKK2gw8N4KlZrUem/NzN5IicUf+C0A=;
-        b=GSv/iY2NyAPyDzCTj1n/bRJuHqv7tc6ncVZ2TEXNeHWb2ftyeLAgi3LF5usWyeYWKBkmhN
-        sju394v/cYXO1PeWmqZldEnIWpgSKYTvCMF9YndAv5s1CHYv/ulpkk61O2kSuUAEvMSvDz
-        qrvtdTXKpNtXgzTY9zUzyu6l9GYrIT0=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=iAUCq6AQpwiSNlqp6e2886GYsbEpCz4tvlCIXkUtiq4=;
+        b=KZBoUKxKJzU4gHSNZ0KEHwqAXgbx2YJVHJaNTalFV0M7YuReCRrTtEnRo59CKO56w90BDH
+        B5O6V3n0Er4TJ3IQ/shFGuBqes/sGd0GyZUoIL7UADCvlAyDhnmXZzr+CIscgScKP1/7Xe
+        SN2XpqWOux1+7U2+jJdjD30WpnpnHT8=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-57-xInM5PQYOXiUnqhucMOkTw-1; Tue, 20 Jun 2023 10:53:23 -0400
-X-MC-Unique: xInM5PQYOXiUnqhucMOkTw-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
+ us-mta-269-aatl8iayPtWLIAC2EOAbnw-1; Tue, 20 Jun 2023 10:56:49 -0400
+X-MC-Unique: aatl8iayPtWLIAC2EOAbnw-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com [10.11.54.4])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 344871C2CFEB;
-        Tue, 20 Jun 2023 14:49:56 +0000 (UTC)
-Received: from localhost (ovpn-12-166.pek2.redhat.com [10.72.12.166])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id B5B4014682F7;
-        Tue, 20 Jun 2023 14:49:54 +0000 (UTC)
-Date:   Tue, 20 Jun 2023 22:49:50 +0800
-From:   Baoquan He <bhe@redhat.com>
-To:     Eric DeVolder <eric.devolder@oracle.com>
-Cc:     linux@armlinux.org.uk, catalin.marinas@arm.com, will@kernel.org,
-        chenhuacai@kernel.org, geert@linux-m68k.org,
-        tsbogend@alpha.franken.de, James.Bottomley@hansenpartnership.com,
-        deller@gmx.de, ysato@users.sourceforge.jp, dalias@libc.org,
-        glaubitz@physik.fu-berlin.de, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-ia64@vger.kernel.org, loongarch@lists.linux.dev,
-        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, kernel@xen0n.name, mpe@ellerman.id.au,
-        npiggin@gmail.com, christophe.leroy@csgroup.eu,
-        paul.walmsley@sifive.com, palmer@dabbelt.com,
-        aou@eecs.berkeley.edu, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, hpa@zytor.com, keescook@chromium.org,
-        paulmck@kernel.org, peterz@infradead.org, frederic@kernel.org,
-        akpm@linux-foundation.org, ardb@kernel.org,
-        samitolvanen@google.com, juerg.haefliger@canonical.com,
-        arnd@arndb.de, rmk+kernel@armlinux.org.uk,
-        linus.walleij@linaro.org, sebastian.reichel@collabora.com,
-        rppt@kernel.org, kirill.shutemov@linux.intel.com,
-        anshuman.khandual@arm.com, ziy@nvidia.com, masahiroy@kernel.org,
-        ndesaulniers@google.com, mhiramat@kernel.org, ojeda@kernel.org,
-        thunder.leizhen@huawei.com, xin3.li@intel.com, tj@kernel.org,
-        gregkh@linuxfoundation.org, tsi@tuyoix.net, hbathini@linux.ibm.com,
-        sourabhjain@linux.ibm.com, boris.ostrovsky@oracle.com,
-        konrad.wilk@oracle.com
-Subject: Re: [PATCH v2 02/13] x86/kexec: refactor for kernel/Kconfig.kexec
-Message-ID: <ZJG8jtNUWXxmnfao@MiWiFi-R3L-srv>
-References: <20230619145801.1064716-1-eric.devolder@oracle.com>
- <20230619145801.1064716-3-eric.devolder@oracle.com>
- <ZJFhlsFN6DxnWsQE@MiWiFi-R3L-srv>
- <ac065d02-61a4-3b1f-241d-443ede70d3f2@oracle.com>
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id C3B3A8870EA;
+        Tue, 20 Jun 2023 14:54:30 +0000 (UTC)
+Received: from warthog.procyon.org.com (unknown [10.42.28.4])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id B1AD5200A398;
+        Tue, 20 Jun 2023 14:54:28 +0000 (UTC)
+From:   David Howells <dhowells@redhat.com>
+To:     netdev@vger.kernel.org
+Cc:     David Howells <dhowells@redhat.com>,
+        Alexander Duyck <alexander.duyck@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+        David Ahern <dsahern@kernel.org>,
+        Matthew Wilcox <willy@infradead.org>,
+        Jens Axboe <axboe@kernel.dk>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, Karsten Graul <kgraul@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Jan Karcher <jaka@linux.ibm.com>,
+        "D. Wythe" <alibuda@linux.alibaba.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        Wen Gu <guwen@linux.alibaba.com>, linux-s390@vger.kernel.org
+Subject: [PATCH net-next v3 12/18] smc: Drop smc_sendpage() in favour of smc_sendmsg() + MSG_SPLICE_PAGES
+Date:   Tue, 20 Jun 2023 15:53:31 +0100
+Message-ID: <20230620145338.1300897-13-dhowells@redhat.com>
+In-Reply-To: <20230620145338.1300897-1-dhowells@redhat.com>
+References: <20230620145338.1300897-1-dhowells@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ac065d02-61a4-3b1f-241d-443ede70d3f2@oracle.com>
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.7
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.4
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 06/20/23 at 07:56am, Eric DeVolder wrote:
-> 
-> 
-> On 6/20/23 03:21, Baoquan He wrote:
-> > Hi Eric,
-> > 
-> > On 06/19/23 at 10:57am, Eric DeVolder wrote:
-> > ......
-> > > +config ARCH_SUPPORTS_KEXEC
-> > > +	def_bool y
-> > > -config ARCH_HAS_KEXEC_PURGATORY
-> > > -	def_bool KEXEC_FILE
-> > > +config ARCH_SUPPORTS_KEXEC_FILE
-> > > +	def_bool X86_64 && CRYPTO && CRYPTO_SHA256
-> > ......
-> > > +config ARCH_SELECTS_KEXEC_FILE
-> > > +	def_bool y
-> > >   	depends on KEXEC_FILE
-> > > -	help
-> > 
-> > I am a little confused about this ARCH_SELECTS_XX adding. Wondering what
-> > limits us defining the ARCH_SUPPORTS_KEXEC_FILE like below? I have limited
-> > knowledge about Kconfig, please correct me if I am wrong. Thanks in
-> > advance.
-> > 
-> >   +config ARCH_SUPPORTS_KEXEC_FILE
-> >   +	def_bool y
-> >    	depends on KEXEC_FILE
-> >    	depends on X86_64 && CRYPTO && CRYPTO_SHA256
-> > 
-> 
-> For the ARCH_SUPPORTS_ options, I chose to list the dependencies on the
-> def_bool line to show that it took all those conditions to result in True.
-> However, as you point out, using a def_bool y and then listing them as 'depends on' works as well.
-> Probably would have resulted in fewer changes to the Kconfig file.
-> Either way is ok (the 'depends on KEXEC_FILE' is erroneous in your example).
+Drop the smc_sendpage() code as smc_sendmsg() just passes the call down to
+the underlying TCP socket and smc_tx_sendpage() is just a wrapper around
+its sendmsg implementation.
 
-Got it, thanks. To me, one option with explicit dependencies looks clearer
-and straightforward. I need check and investigage why two options are needed,
-whether two options are unavoidable. Not sure if other people would get
-the same feeling or not. Honestly, it's my first time to see the usage of
-XXX_SELECTS_XXX, it took me a while to dig into.
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Karsten Graul <kgraul@linux.ibm.com>
+cc: Wenjia Zhang <wenjia@linux.ibm.com>
+cc: Jan Karcher <jaka@linux.ibm.com>
+cc: "D. Wythe" <alibuda@linux.alibaba.com>
+cc: Tony Lu <tonylu@linux.alibaba.com>
+cc: Wen Gu <guwen@linux.alibaba.com>
+cc: "David S. Miller" <davem@davemloft.net>
+cc: Eric Dumazet <edumazet@google.com>
+cc: Jakub Kicinski <kuba@kernel.org>
+cc: Paolo Abeni <pabeni@redhat.com>
+cc: Jens Axboe <axboe@kernel.dk>
+cc: Matthew Wilcox <willy@infradead.org>
+cc: linux-s390@vger.kernel.org
+cc: netdev@vger.kernel.org
+---
+ net/smc/af_smc.c    | 29 -----------------------------
+ net/smc/smc_stats.c |  2 +-
+ net/smc/smc_stats.h |  1 -
+ net/smc/smc_tx.c    | 22 +---------------------
+ net/smc/smc_tx.h    |  2 --
+ 5 files changed, 2 insertions(+), 54 deletions(-)
 
-> 
-> > > -
-> > > -	  This option makes the kexec_file_load() syscall check for a valid
-> > > -	  signature of the kernel image.  The image can still be loaded without
-> > > -	  a valid signature unless you also enable KEXEC_SIG_FORCE, though if
-> > > -	  there's a signature that we can check, then it must be valid.
-> > > -
-> > > -	  In addition to this option, you need to enable signature
-> > > -	  verification for the corresponding kernel image type being
-> > > -	  loaded in order for this to work.
-> > > -
-> > 
-> 
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 538e9c6ec8c9..a7f887d91d89 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -3133,34 +3133,6 @@ static int smc_ioctl(struct socket *sock, unsigned int cmd,
+ 	return put_user(answ, (int __user *)arg);
+ }
+ 
+-static ssize_t smc_sendpage(struct socket *sock, struct page *page,
+-			    int offset, size_t size, int flags)
+-{
+-	struct sock *sk = sock->sk;
+-	struct smc_sock *smc;
+-	int rc = -EPIPE;
+-
+-	smc = smc_sk(sk);
+-	lock_sock(sk);
+-	if (sk->sk_state != SMC_ACTIVE) {
+-		release_sock(sk);
+-		goto out;
+-	}
+-	release_sock(sk);
+-	if (smc->use_fallback) {
+-		rc = kernel_sendpage(smc->clcsock, page, offset,
+-				     size, flags);
+-	} else {
+-		lock_sock(sk);
+-		rc = smc_tx_sendpage(smc, page, offset, size, flags);
+-		release_sock(sk);
+-		SMC_STAT_INC(smc, sendpage_cnt);
+-	}
+-
+-out:
+-	return rc;
+-}
+-
+ /* Map the affected portions of the rmbe into an spd, note the number of bytes
+  * to splice in conn->splice_pending, and press 'go'. Delays consumer cursor
+  * updates till whenever a respective page has been fully processed.
+@@ -3232,7 +3204,6 @@ static const struct proto_ops smc_sock_ops = {
+ 	.sendmsg	= smc_sendmsg,
+ 	.recvmsg	= smc_recvmsg,
+ 	.mmap		= sock_no_mmap,
+-	.sendpage	= smc_sendpage,
+ 	.splice_read	= smc_splice_read,
+ };
+ 
+diff --git a/net/smc/smc_stats.c b/net/smc/smc_stats.c
+index e80e34f7ac15..ca14c0f3a07d 100644
+--- a/net/smc/smc_stats.c
++++ b/net/smc/smc_stats.c
+@@ -227,7 +227,7 @@ static int smc_nl_fill_stats_tech_data(struct sk_buff *skb,
+ 			      SMC_NLA_STATS_PAD))
+ 		goto errattr;
+ 	if (nla_put_u64_64bit(skb, SMC_NLA_STATS_T_SENDPAGE_CNT,
+-			      smc_tech->sendpage_cnt,
++			      0,
+ 			      SMC_NLA_STATS_PAD))
+ 		goto errattr;
+ 	if (nla_put_u64_64bit(skb, SMC_NLA_STATS_T_CORK_CNT,
+diff --git a/net/smc/smc_stats.h b/net/smc/smc_stats.h
+index 84b7ecd8c05c..b60fe1eb37ab 100644
+--- a/net/smc/smc_stats.h
++++ b/net/smc/smc_stats.h
+@@ -71,7 +71,6 @@ struct smc_stats_tech {
+ 	u64			clnt_v2_succ_cnt;
+ 	u64			srv_v1_succ_cnt;
+ 	u64			srv_v2_succ_cnt;
+-	u64			sendpage_cnt;
+ 	u64			urg_data_cnt;
+ 	u64			splice_cnt;
+ 	u64			cork_cnt;
+diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
+index 9b9e0a190734..5147207808e5 100644
+--- a/net/smc/smc_tx.c
++++ b/net/smc/smc_tx.c
+@@ -167,8 +167,7 @@ static bool smc_tx_should_cork(struct smc_sock *smc, struct msghdr *msg)
+ 	 * sndbuf_space is still available. The applications
+ 	 * should known how/when to uncork it.
+ 	 */
+-	if ((msg->msg_flags & MSG_MORE ||
+-	     smc_tx_is_corked(smc)) &&
++	if ((msg->msg_flags & MSG_MORE || smc_tx_is_corked(smc)) &&
+ 	    atomic_read(&conn->sndbuf_space))
+ 		return true;
+ 
+@@ -297,25 +296,6 @@ int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len)
+ 	return rc;
+ }
+ 
+-int smc_tx_sendpage(struct smc_sock *smc, struct page *page, int offset,
+-		    size_t size, int flags)
+-{
+-	struct msghdr msg = {.msg_flags = flags};
+-	char *kaddr = kmap(page);
+-	struct kvec iov;
+-	int rc;
+-
+-	if (flags & MSG_SENDPAGE_NOTLAST)
+-		msg.msg_flags |= MSG_MORE;
+-
+-	iov.iov_base = kaddr + offset;
+-	iov.iov_len = size;
+-	iov_iter_kvec(&msg.msg_iter, ITER_SOURCE, &iov, 1, size);
+-	rc = smc_tx_sendmsg(smc, &msg, size);
+-	kunmap(page);
+-	return rc;
+-}
+-
+ /***************************** sndbuf consumer *******************************/
+ 
+ /* sndbuf consumer: actual data transfer of one target chunk with ISM write */
+diff --git a/net/smc/smc_tx.h b/net/smc/smc_tx.h
+index 34b578498b1f..a59f370b8b43 100644
+--- a/net/smc/smc_tx.h
++++ b/net/smc/smc_tx.h
+@@ -31,8 +31,6 @@ void smc_tx_pending(struct smc_connection *conn);
+ void smc_tx_work(struct work_struct *work);
+ void smc_tx_init(struct smc_sock *smc);
+ int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len);
+-int smc_tx_sendpage(struct smc_sock *smc, struct page *page, int offset,
+-		    size_t size, int flags);
+ int smc_tx_sndbuf_nonempty(struct smc_connection *conn);
+ void smc_tx_sndbuf_nonfull(struct smc_sock *smc);
+ void smc_tx_consumer_update(struct smc_connection *conn, bool force);
 
