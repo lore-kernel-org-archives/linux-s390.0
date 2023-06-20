@@ -2,222 +2,183 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ABEA5EB64D7
-	for <linux-s390@archiver.kernel.org>; Tue, 20 Jun 2023 14:58:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D295C001DF
+	for <linux-s390@archiver.kernel.org>; Tue, 20 Jun 2023 15:00:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233294AbjFTO6e (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 20 Jun 2023 10:58:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60480 "EHLO
+        id S233468AbjFTPAT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 20 Jun 2023 11:00:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233455AbjFTO6Y (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Jun 2023 10:58:24 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C506C172B
-        for <linux-s390@vger.kernel.org>; Tue, 20 Jun 2023 07:57:13 -0700 (PDT)
+        with ESMTP id S233557AbjFTO75 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Jun 2023 10:59:57 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFE1419B3
+        for <linux-s390@vger.kernel.org>; Tue, 20 Jun 2023 07:58:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1687273032;
+        s=mimecast20190719; t=1687273079;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=8t7wtWM3aEB5I+3bAZDQAyKBMtXipfmjmHgxZgR4FXg=;
-        b=gfKiCLSmEqk9W5N3iFN/OSrhONTDRBxSLNP9F+1W98WUPdxWSwo2WLeAnseYnBLTwbaCUp
-        KH8oN9cSbXbdQB7S+ITl/fUmTj2qDPP7gudsfE+6HQnxVQwZmkcttLMXR2Vn1MJDrvZ7o0
-        hhMDWkrX0pFLWAohh53AXfpTWl+Qn+c=
+        bh=IMVWP9uUwreYp41lBQlzx9rQqv8YUX+d+4RkZ35R+cQ=;
+        b=L254jKsvrdiwLTzqo0ACZ1dy6ItWkSDogbRO0+A8tyPRZaA/QAuSneIggh3s0TaQBCJAmp
+        6s5F7aQHgKMfw9rlpHdiMxSuSDaznMUqguywyifkh4kwwsumTM0caJ75Q5mDVTZl+rT7+L
+        pdN5yHtpY35gp4Ps7IsOmrbklkE1jpg=
 Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
  [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-189-70MSteDdOnyTFFxz8b5FjQ-1; Tue, 20 Jun 2023 10:57:10 -0400
-X-MC-Unique: 70MSteDdOnyTFFxz8b5FjQ-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
+ us-mta-582-PGZ8P0JHPzaSP3c_R985HA-1; Tue, 20 Jun 2023 10:54:43 -0400
+X-MC-Unique: PGZ8P0JHPzaSP3c_R985HA-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id A140B89CA6F;
-        Tue, 20 Jun 2023 14:53:50 +0000 (UTC)
-Received: from warthog.procyon.org.com (unknown [10.42.28.4])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id D2D2440462B8;
-        Tue, 20 Jun 2023 14:53:47 +0000 (UTC)
-From:   David Howells <dhowells@redhat.com>
-To:     netdev@vger.kernel.org
-Cc:     David Howells <dhowells@redhat.com>,
-        Alexander Duyck <alexander.duyck@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
-        David Ahern <dsahern@kernel.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        Jens Axboe <axboe@kernel.dk>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org,
-        John Fastabend <john.fastabend@gmail.com>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Jan Karcher <jaka@linux.ibm.com>,
-        "D. Wythe" <alibuda@linux.alibaba.com>,
-        Tony Lu <tonylu@linux.alibaba.com>,
-        Wen Gu <guwen@linux.alibaba.com>,
-        Boris Pismenny <borisp@nvidia.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>, bpf@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: [PATCH net-next v3 03/18] tcp_bpf, smc, tls, espintcp: Reduce MSG_SENDPAGE_NOTLAST usage
-Date:   Tue, 20 Jun 2023 15:53:22 +0100
-Message-ID: <20230620145338.1300897-4-dhowells@redhat.com>
-In-Reply-To: <20230620145338.1300897-1-dhowells@redhat.com>
-References: <20230620145338.1300897-1-dhowells@redhat.com>
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id AFAFA18E0072;
+        Tue, 20 Jun 2023 14:46:51 +0000 (UTC)
+Received: from ypodemsk.tlv.csb (unknown [10.39.195.147])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id E04889E9C;
+        Tue, 20 Jun 2023 14:46:42 +0000 (UTC)
+From:   Yair Podemsky <ypodemsk@redhat.com>
+To:     mtosatti@redhat.com, ppandit@redhat.com, david@redhat.com,
+        linux@armlinux.org.uk, mpe@ellerman.id.au, npiggin@gmail.com,
+        christophe.leroy@csgroup.eu, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, davem@davemloft.net, tglx@linutronix.de,
+        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
+        hpa@zytor.com, keescook@chromium.org, paulmck@kernel.org,
+        frederic@kernel.org, will@kernel.org, peterz@infradead.org,
+        ardb@kernel.org, samitolvanen@google.com,
+        juerg.haefliger@canonical.com, arnd@arndb.de,
+        rmk+kernel@armlinux.org.uk, geert+renesas@glider.be,
+        linus.walleij@linaro.org, akpm@linux-foundation.org,
+        sebastian.reichel@collabora.com, rppt@kernel.org,
+        aneesh.kumar@linux.ibm.com, x86@kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-arch@vger.kernel.org,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Cc:     ypodemsk@redhat.com
+Subject: [PATCH v2 2/2] mm/mmu_gather: send tlb_remove_table_smp_sync IPI only to MM CPUs
+Date:   Tue, 20 Jun 2023 17:46:18 +0300
+Message-Id: <20230620144618.125703-3-ypodemsk@redhat.com>
+In-Reply-To: <20230620144618.125703-1-ypodemsk@redhat.com>
+References: <20230620144618.125703-1-ypodemsk@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.2
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.5
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-As MSG_SENDPAGE_NOTLAST is being phased out along with sendpage(), don't
-use it further in than the sendpage methods, but rather translate it to
-MSG_MORE and use that instead.
+Currently the tlb_remove_table_smp_sync IPI is sent to all CPUs
+indiscriminately, this causes unnecessary work and delays notable in
+real-time use-cases and isolated cpus.
+This patch will limit this IPI on systems with ARCH_HAS_CPUMASK_BITS,
+Where the IPI will only be sent to cpus referencing the affected mm.
 
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-cc: John Fastabend <john.fastabend@gmail.com>
-cc: Jakub Sitnicki <jakub@cloudflare.com>
-cc: Eric Dumazet <edumazet@google.com>
-cc: "David S. Miller" <davem@davemloft.net>
-cc: David Ahern <dsahern@kernel.org>
-cc: Jakub Kicinski <kuba@kernel.org>
-cc: Paolo Abeni <pabeni@redhat.com>
-cc: Karsten Graul <kgraul@linux.ibm.com>
-cc: Wenjia Zhang <wenjia@linux.ibm.com>
-cc: Jan Karcher <jaka@linux.ibm.com>
-cc: "D. Wythe" <alibuda@linux.alibaba.com>
-cc: Tony Lu <tonylu@linux.alibaba.com>
-cc: Wen Gu <guwen@linux.alibaba.com>
-cc: Boris Pismenny <borisp@nvidia.com>
-cc: Steffen Klassert <steffen.klassert@secunet.com>
-cc: Herbert Xu <herbert@gondor.apana.org.au>
-cc: netdev@vger.kernel.org
-cc: bpf@vger.kernel.org
-cc: linux-s390@vger.kernel.org
+Signed-off-by: Yair Podemsky <ypodemsk@redhat.com>
+Suggested-by: David Hildenbrand <david@redhat.com>
 ---
+ include/asm-generic/tlb.h |  4 ++--
+ mm/khugepaged.c           |  4 ++--
+ mm/mmu_gather.c           | 17 ++++++++++++-----
+ 3 files changed, 16 insertions(+), 9 deletions(-)
 
-Notes:
-    ver #3)
-     - In tcp_bpf, reset msg_flags on each iteration to clear MSG_MORE.
-     - In tcp_bpf, set MSG_MORE if there's more data in the sk_msg.
-
- net/ipv4/tcp_bpf.c   |  5 +++--
- net/smc/smc_tx.c     |  6 ++++--
- net/tls/tls_device.c |  4 ++--
- net/xfrm/espintcp.c  | 10 ++++++----
- 4 files changed, 15 insertions(+), 10 deletions(-)
-
-diff --git a/net/ipv4/tcp_bpf.c b/net/ipv4/tcp_bpf.c
-index 5a84053ac62b..31d6005cea9b 100644
---- a/net/ipv4/tcp_bpf.c
-+++ b/net/ipv4/tcp_bpf.c
-@@ -88,9 +88,9 @@ static int bpf_tcp_ingress(struct sock *sk, struct sk_psock *psock,
- static int tcp_bpf_push(struct sock *sk, struct sk_msg *msg, u32 apply_bytes,
- 			int flags, bool uncharge)
- {
-+	struct msghdr msghdr = {};
- 	bool apply = apply_bytes;
- 	struct scatterlist *sge;
--	struct msghdr msghdr = { .msg_flags = flags | MSG_SPLICE_PAGES, };
- 	struct page *page;
- 	int size, ret = 0;
- 	u32 off;
-@@ -107,11 +107,12 @@ static int tcp_bpf_push(struct sock *sk, struct sk_msg *msg, u32 apply_bytes,
+diff --git a/include/asm-generic/tlb.h b/include/asm-generic/tlb.h
+index b46617207c93..0b6ba17cc8d3 100644
+--- a/include/asm-generic/tlb.h
++++ b/include/asm-generic/tlb.h
+@@ -222,7 +222,7 @@ extern void tlb_remove_table(struct mmu_gather *tlb, void *table);
+ #define tlb_needs_table_invalidate() (true)
+ #endif
  
- 		tcp_rate_check_app_limited(sk);
- retry:
-+		msghdr.msg_flags = flags | MSG_SPLICE_PAGES;
- 		has_tx_ulp = tls_sw_has_ctx_tx(sk);
- 		if (has_tx_ulp)
- 			msghdr.msg_flags |= MSG_SENDPAGE_NOPOLICY;
+-void tlb_remove_table_sync_one(void);
++void tlb_remove_table_sync_one(struct mm_struct *mm);
  
--		if (flags & MSG_SENDPAGE_NOTLAST)
-+		if (size < sge->length && msg->sg.start != msg->sg.end)
- 			msghdr.msg_flags |= MSG_MORE;
+ #else
  
- 		bvec_set_page(&bvec, page, size, off);
-diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
-index 45128443f1f1..9b9e0a190734 100644
---- a/net/smc/smc_tx.c
-+++ b/net/smc/smc_tx.c
-@@ -168,8 +168,7 @@ static bool smc_tx_should_cork(struct smc_sock *smc, struct msghdr *msg)
- 	 * should known how/when to uncork it.
- 	 */
- 	if ((msg->msg_flags & MSG_MORE ||
--	     smc_tx_is_corked(smc) ||
--	     msg->msg_flags & MSG_SENDPAGE_NOTLAST) &&
-+	     smc_tx_is_corked(smc)) &&
- 	    atomic_read(&conn->sndbuf_space))
- 		return true;
+@@ -230,7 +230,7 @@ void tlb_remove_table_sync_one(void);
+ #error tlb_needs_table_invalidate() requires MMU_GATHER_RCU_TABLE_FREE
+ #endif
  
-@@ -306,6 +305,9 @@ int smc_tx_sendpage(struct smc_sock *smc, struct page *page, int offset,
- 	struct kvec iov;
- 	int rc;
+-static inline void tlb_remove_table_sync_one(void) { }
++static inline void tlb_remove_table_sync_one(struct mm_struct *mm) { }
  
-+	if (flags & MSG_SENDPAGE_NOTLAST)
-+		msg.msg_flags |= MSG_MORE;
+ #endif /* CONFIG_MMU_GATHER_RCU_TABLE_FREE */
+ 
+diff --git a/mm/khugepaged.c b/mm/khugepaged.c
+index 6b9d39d65b73..3e5cb079d268 100644
+--- a/mm/khugepaged.c
++++ b/mm/khugepaged.c
+@@ -1166,7 +1166,7 @@ static int collapse_huge_page(struct mm_struct *mm, unsigned long address,
+ 	_pmd = pmdp_collapse_flush(vma, address, pmd);
+ 	spin_unlock(pmd_ptl);
+ 	mmu_notifier_invalidate_range_end(&range);
+-	tlb_remove_table_sync_one();
++	tlb_remove_table_sync_one(mm);
+ 
+ 	spin_lock(pte_ptl);
+ 	result =  __collapse_huge_page_isolate(vma, address, pte, cc,
+@@ -1525,7 +1525,7 @@ static void collapse_and_free_pmd(struct mm_struct *mm, struct vm_area_struct *v
+ 				addr + HPAGE_PMD_SIZE);
+ 	mmu_notifier_invalidate_range_start(&range);
+ 	pmd = pmdp_collapse_flush(vma, addr, pmdp);
+-	tlb_remove_table_sync_one();
++	tlb_remove_table_sync_one(mm);
+ 	mmu_notifier_invalidate_range_end(&range);
+ 	mm_dec_nr_ptes(mm);
+ 	page_table_check_pte_clear_range(mm, addr, pmd);
+diff --git a/mm/mmu_gather.c b/mm/mmu_gather.c
+index ea9683e12936..692d8175a88e 100644
+--- a/mm/mmu_gather.c
++++ b/mm/mmu_gather.c
+@@ -191,7 +191,13 @@ static void tlb_remove_table_smp_sync(void *arg)
+ 	/* Simply deliver the interrupt */
+ }
+ 
+-void tlb_remove_table_sync_one(void)
++#ifdef CONFIG_ARCH_HAS_CPUMASK_BITS
++#define REMOVE_TABLE_IPI_MASK mm_cpumask(mm)
++#else
++#define REMOVE_TABLE_IPI_MASK cpu_online_mask
++#endif /* CONFIG_ARCH_HAS_CPUMASK_BITS */
 +
- 	iov.iov_base = kaddr + offset;
- 	iov.iov_len = size;
- 	iov_iter_kvec(&msg.msg_iter, ITER_SOURCE, &iov, 1, size);
-diff --git a/net/tls/tls_device.c b/net/tls/tls_device.c
-index b82770f68807..975299d7213b 100644
---- a/net/tls/tls_device.c
-+++ b/net/tls/tls_device.c
-@@ -449,7 +449,7 @@ static int tls_push_data(struct sock *sk,
- 		return -sk->sk_err;
- 
- 	flags |= MSG_SENDPAGE_DECRYPTED;
--	tls_push_record_flags = flags | MSG_SENDPAGE_NOTLAST;
-+	tls_push_record_flags = flags | MSG_MORE;
- 
- 	timeo = sock_sndtimeo(sk, flags & MSG_DONTWAIT);
- 	if (tls_is_partially_sent_record(tls_ctx)) {
-@@ -532,7 +532,7 @@ static int tls_push_data(struct sock *sk,
- 		if (!size) {
- last_record:
- 			tls_push_record_flags = flags;
--			if (flags & (MSG_SENDPAGE_NOTLAST | MSG_MORE)) {
-+			if (flags & MSG_MORE) {
- 				more = true;
- 				break;
- 			}
-diff --git a/net/xfrm/espintcp.c b/net/xfrm/espintcp.c
-index 3504925babdb..d3b3f9e720b3 100644
---- a/net/xfrm/espintcp.c
-+++ b/net/xfrm/espintcp.c
-@@ -205,13 +205,15 @@ static int espintcp_sendskb_locked(struct sock *sk, struct espintcp_msg *emsg,
- static int espintcp_sendskmsg_locked(struct sock *sk,
- 				     struct espintcp_msg *emsg, int flags)
++void tlb_remove_table_sync_one(struct mm_struct *mm)
  {
--	struct msghdr msghdr = { .msg_flags = flags | MSG_SPLICE_PAGES, };
-+	struct msghdr msghdr = {
-+		.msg_flags = flags | MSG_SPLICE_PAGES | MSG_MORE,
-+	};
- 	struct sk_msg *skmsg = &emsg->skmsg;
-+	bool more = flags & MSG_MORE;
- 	struct scatterlist *sg;
- 	int done = 0;
- 	int ret;
+ 	/*
+ 	 * This isn't an RCU grace period and hence the page-tables cannot be
+@@ -200,7 +206,8 @@ void tlb_remove_table_sync_one(void)
+ 	 * It is however sufficient for software page-table walkers that rely on
+ 	 * IRQ disabling.
+ 	 */
+-	smp_call_function(tlb_remove_table_smp_sync, NULL, 1);
++	on_each_cpu_mask(REMOVE_TABLE_IPI_MASK, tlb_remove_table_smp_sync,
++			NULL, true);
+ }
  
--	msghdr.msg_flags |= MSG_SENDPAGE_NOTLAST;
- 	sg = &skmsg->sg.data[skmsg->sg.start];
- 	do {
- 		struct bio_vec bvec;
-@@ -221,8 +223,8 @@ static int espintcp_sendskmsg_locked(struct sock *sk,
+ static void tlb_remove_table_rcu(struct rcu_head *head)
+@@ -237,9 +244,9 @@ static inline void tlb_table_invalidate(struct mmu_gather *tlb)
+ 	}
+ }
  
- 		emsg->offset = 0;
+-static void tlb_remove_table_one(void *table)
++static void tlb_remove_table_one(struct mm_struct *mm, void *table)
+ {
+-	tlb_remove_table_sync_one();
++	tlb_remove_table_sync_one(mm);
+ 	__tlb_remove_table(table);
+ }
  
--		if (sg_is_last(sg))
--			msghdr.msg_flags &= ~MSG_SENDPAGE_NOTLAST;
-+		if (sg_is_last(sg) && !more)
-+			msghdr.msg_flags &= ~MSG_MORE;
- 
- 		p = sg_page(sg);
- retry:
+@@ -262,7 +269,7 @@ void tlb_remove_table(struct mmu_gather *tlb, void *table)
+ 		*batch = (struct mmu_table_batch *)__get_free_page(GFP_NOWAIT | __GFP_NOWARN);
+ 		if (*batch == NULL) {
+ 			tlb_table_invalidate(tlb);
+-			tlb_remove_table_one(table);
++			tlb_remove_table_one(tlb->mm, table);
+ 			return;
+ 		}
+ 		(*batch)->nr = 0;
+---
+v2: replaced no REMOVE_TABLE_IPI_MASK REMOVE_TABLE_IPI_MASK to cpu_online_mask
+-- 
+2.39.3
 
