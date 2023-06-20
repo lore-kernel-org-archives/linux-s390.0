@@ -2,134 +2,142 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E5E9AEB64D7
-	for <linux-s390@archiver.kernel.org>; Tue, 20 Jun 2023 19:17:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C2F1EB64D8
+	for <linux-s390@archiver.kernel.org>; Tue, 20 Jun 2023 19:54:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229729AbjFTTRq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 20 Jun 2023 15:17:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54998 "EHLO
+        id S229833AbjFTTy6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 20 Jun 2023 15:54:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229500AbjFTTRp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Jun 2023 15:17:45 -0400
-Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on2115.outbound.protection.outlook.com [40.107.94.115])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A01B1704;
-        Tue, 20 Jun 2023 12:17:44 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ncSNAiE5CjS2jab0qAmAYn/aGkMaE1zRreogb/4zp2qco2oelmVFJdKRchQix+HPEXEw2PADbqls8c0uH5uefR6HF/U8cxzSBl51w/I60XRnqFssOEtm2gDjzToPM25bZMm+Ze98lmFo6fEdVetcpx9UGOKOqF9x3Mop83yij8EUcD+qDGjmp4eDGqTQsmvPqPZNkNedLFElYVrfNV19yZC6wpgPYoaRgYMIwqASlQ5rbtCok3rKf44e5yNg1L1/RwrubL2sFKMau1ogoXXE7vaW2D321w0LJGKr1zVVpFkqrzNSh2s7W9zFzoVWjjtLSFx/cLcfHO3oCeWcV93DOQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=4IqRb+GvS82FQokEmxNFWXyX5dSRW7OeRiSA+NzYXrM=;
- b=Fnr6UmpnkEx8dxAtBHD9IOyovxcVYkmUi7zD0AkJn06+7emlfLSFEWoENJflk4YOPiOmZ26LzFJoityh8nmV3RLq7ihO4us9WFQsQ10xLEubpWal+HnPg4RHlka0G9lHf3C3a/NGcR5k1vNjDuJR/icEGHoU40hRZBszx0OdKRYeX/cV+7ppTxXikHyRR5ego/pIXjY9W7yAUWYchltqfU5AH3b6z1jM1ZNq4VnAAcyN0NTQQevyBypP+lNWQbOldl50tbj6upG9K0/KZJZo6b7oNpKyygtbzZuoVw4uNnLLigRaimp4dHh0wbidbphE68E3vL1wB4OHLqpL1egdWg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=corigine.com; dmarc=pass action=none header.from=corigine.com;
- dkim=pass header.d=corigine.com; arc=none
+        with ESMTP id S229809AbjFTTyx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Jun 2023 15:54:53 -0400
+Received: from mail-yw1-x112c.google.com (mail-yw1-x112c.google.com [IPv6:2607:f8b0:4864:20::112c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D52B71984
+        for <linux-s390@vger.kernel.org>; Tue, 20 Jun 2023 12:54:47 -0700 (PDT)
+Received: by mail-yw1-x112c.google.com with SMTP id 00721157ae682-56ffd7d7fedso55387767b3.2
+        for <linux-s390@vger.kernel.org>; Tue, 20 Jun 2023 12:54:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=corigine.onmicrosoft.com; s=selector2-corigine-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=4IqRb+GvS82FQokEmxNFWXyX5dSRW7OeRiSA+NzYXrM=;
- b=KC7yFCOQifLKf/w8l77KB/oLpoiDiLdIYVv0b5hcGaSC5QuiwowdSxZAKFqaSqDnqFNW5YX8nRJX8Sz6AX3O9yDNqLbmc761OV6gsgRgPdF5CBMEGKMeZz+C8hZQvD2KJCQ5Duos4CjxIJ3fBK+quYXQZeKgYgErwlKRUaOJo7U=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=corigine.com;
-Received: from PH0PR13MB4842.namprd13.prod.outlook.com (2603:10b6:510:78::6)
- by CH0PR13MB4668.namprd13.prod.outlook.com (2603:10b6:610:ca::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6500.37; Tue, 20 Jun
- 2023 19:17:40 +0000
-Received: from PH0PR13MB4842.namprd13.prod.outlook.com
- ([fe80::eb8f:e482:76e0:fe6e]) by PH0PR13MB4842.namprd13.prod.outlook.com
- ([fe80::eb8f:e482:76e0:fe6e%5]) with mapi id 15.20.6500.036; Tue, 20 Jun 2023
- 19:17:40 +0000
-Date:   Tue, 20 Jun 2023 21:17:33 +0200
-From:   Simon Horman <simon.horman@corigine.com>
-To:     Alexandra Winter <wintera@linux.ibm.com>
-Cc:     David Miller <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Eric Dumazet <edumazet@google.com>, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Thorsten Winkler <twinkler@linux.ibm.com>,
-        Jules Irenge <jbi.octave@gmail.com>,
-        Joe Perches <joe@perches.com>
-Subject: Re: [PATCH net-next 1/4] s390/lcs: Convert sysfs sprintf to
- sysfs_emit
-Message-ID: <ZJH7TY4yROciw7kx@corigine.com>
-References: <20230620083411.508797-1-wintera@linux.ibm.com>
- <20230620083411.508797-2-wintera@linux.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230620083411.508797-2-wintera@linux.ibm.com>
-X-ClientProxiedBy: AM0PR05CA0086.eurprd05.prod.outlook.com
- (2603:10a6:208:136::26) To PH0PR13MB4842.namprd13.prod.outlook.com
- (2603:10b6:510:78::6)
+        d=google.com; s=20221208; t=1687290887; x=1689882887;
+        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=IiBraH1gFEtLq0Kn5mTuDR7eletLpb8dAh5y2pzul9A=;
+        b=GnK6zVktB4fTweKikYzUukoKZGCmVusKP/x6uUrsa1IZh7Lcf11VRj9767YwL28zyx
+         J4JKcGvTfTr/LvFgYj5pm1tfEFEJ8PKkMTUvowkeEnkdtgmC9135h58fxQzErHTduUCX
+         +m+UG/mn18iCUxOKOQQ3TboQqPdTC4trrhg3CdFjun1ZClZ8tNP63vy0pMK4T8o5rwHN
+         Ev/CkGwjSSWdgG/b37eVTxoy7CA9K7VH5ECYT9iqlmvWSv+gngjFQijyE1bOMwoZXb/s
+         MCqGmsFWL/xCVoRj8nY9T1uCu7dqqcS1sL95WKPUvtYF9Sc63RHc6WC/aK2yPQNdgDcy
+         QIWA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1687290887; x=1689882887;
+        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=IiBraH1gFEtLq0Kn5mTuDR7eletLpb8dAh5y2pzul9A=;
+        b=GKJ6/HUIFXhgwSCnp26Y0URz9BhSpbdPLtS36UGMMaZ4HL7pI7y+HawDXGU0NJscHL
+         nduJpNXVWFGZmdaZbWtnUqb7mJMqKGWN5h2kOmycZK8q4JYU9XEVY6VxaQe9NnuT1ZMN
+         vsv+N/JV1ZT5i2hDyfsgYSoGvKBSrLE2uYNUokJz+OrE09XX8RR/3kQRVKGrjpWRqKKX
+         ZWWcB0KQW3Ical/FDf+Teqxolj9fXz5VddV7HzT651PU/xdSvNgbRbLbFDzaBPmZpnxQ
+         Jk8kIDrEG+zGHGL0ifNoFUB4jP+Hl/z8FOiyX31gcRZdjwt8jOdrSW0b//qEqMHe3s1+
+         /ztg==
+X-Gm-Message-State: AC+VfDzvZFI0r+I9KWVJ72iwyoDFR8t+CpC59gGZtz3am72sAPHuXI22
+        t5mha7Ed45NqtrExvaKq258ngg==
+X-Google-Smtp-Source: ACHHUZ5CjW+DD7ghkPvVJFGUBN1BQG+qQA/ISq9t6lWLEboPHQzho8N1caYYSPmYBruWUqH6Cq9/Mw==
+X-Received: by 2002:a0d:d106:0:b0:56d:45ec:2e64 with SMTP id t6-20020a0dd106000000b0056d45ec2e64mr14660924ywd.43.1687290886830;
+        Tue, 20 Jun 2023 12:54:46 -0700 (PDT)
+Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
+        by smtp.gmail.com with ESMTPSA id n20-20020a819e54000000b005705cbba0bcsm649525ywj.98.2023.06.20.12.54.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 20 Jun 2023 12:54:45 -0700 (PDT)
+Date:   Tue, 20 Jun 2023 12:54:25 -0700 (PDT)
+From:   Hugh Dickins <hughd@google.com>
+X-X-Sender: hugh@ripple.attlocal.net
+To:     Jason Gunthorpe <jgg@ziepe.ca>
+cc:     Hugh Dickins <hughd@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        David Hildenbrand <david@redhat.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Qi Zheng <zhengqi.arch@bytedance.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Peter Xu <peterx@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Steven Price <steven.price@arm.com>,
+        SeongJae Park <sj@kernel.org>,
+        Lorenzo Stoakes <lstoakes@gmail.com>,
+        Huang Ying <ying.huang@intel.com>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Zack Rusin <zackr@vmware.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Pasha Tatashin <pasha.tatashin@soleen.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Christoph Hellwig <hch@infradead.org>,
+        Song Liu <song@kernel.org>,
+        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
+        Russell King <linux@armlinux.org.uk>,
+        "David Sc. Miller" <davem@davemloft.net>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Jann Horn <jannh@google.com>,
+        Vishal Moola <vishal.moola@gmail.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH v2 05/12] powerpc: add pte_free_defer() for pgtables
+ sharing page
+In-Reply-To: <ZJGRa4zvsXfc43vB@ziepe.ca>
+Message-ID: <2ad8b6cf-692a-ff89-ecc-586c20c5e07f@google.com>
+References: <54cb04f-3762-987f-8294-91dafd8ebfb0@google.com> <5cd9f442-61da-4c3d-eca-b7f44d22aa5f@google.com> <ZJGRa4zvsXfc43vB@ziepe.ca>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PH0PR13MB4842:EE_|CH0PR13MB4668:EE_
-X-MS-Office365-Filtering-Correlation-Id: 0492d114-84b1-4f6a-3e78-08db71c303d6
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: kzT+UpGk/Ek50vqfdjTF2LESHuzHXAPoC9I+B+xIy2imcWXQeoLKtJTUXcFv2dULtSayd1qjhyvBxExGLvk9+MmZwVPMiqNTsFLcuw7XwQOA78MMisuy3LqMmKSDMRaeQPkInAravFNsHuxlER+qsb1wmaFNaaNKfKyP6dYZxMSFO2nOtaFp73LMwJHVLH/VcE8wDEdRU7FEykop744Db/0AYNvIrbq+o6tCTPIMRLY3APqY2OqGcQS6EvdwSYt/Y2xTNMzw7lKwwPYq9hOtkpr1CbNAu7JDdbYm12vxfyQXO+E1JOBb1DFuhylIRxKttxOismPI9hQR9pCnfuDK54ff51/KrGVEMacGNgIYd5aHcoZdtd2smMBiribfnzAH1QAq9c7cJgtM1iWn10lXhzMIumFHtQd2xj7IvJdC2PsXxqXGVZFGrbCpgCujShk4ivxmSQ9MhPAKskgBQqwHjlGv6t2pok8L0K4NDJQE6GiyGh5BNT6RBU3hgieGku7cskPygZDqIjcF36UQ3z3mwHqh8YFboViu42Zm0Lfenni0CjSdBB8KiLlBZ5Rat5z+ihvJG8w9XvFa+DbaAt5hSSA4BTj4mJZZLXPWSHK4oTw=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR13MB4842.namprd13.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(396003)(39840400004)(366004)(376002)(136003)(346002)(451199021)(41300700001)(5660300002)(6666004)(54906003)(2906002)(4744005)(316002)(7416002)(44832011)(8936002)(8676002)(66556008)(66476007)(6916009)(4326008)(66946007)(36756003)(478600001)(6486002)(38100700002)(86362001)(2616005)(186003)(6506007)(6512007);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?l3Fthkp5+4uJxNMbvwzjwrDtYw0+ODiUwFXSoupfPt22Su2AwzXGkIW3U5NZ?=
- =?us-ascii?Q?HJYhIEXA0/pHfLAjjpujEMTK4L2fkJZKkteweFCh3NePdizgI5+SLBdGz27H?=
- =?us-ascii?Q?PeM6bvjJNF2JB+knQsCxjEBEBJImOYlrfYP2KdS9tjDO+trOc6ueixRn5bYJ?=
- =?us-ascii?Q?aQ+XQvYuS1EUjWpmI5+h0vATBhgKgeFV6g4sj3++Jm6GPSRvyJnfCff/8kw/?=
- =?us-ascii?Q?jyYAHZniBSJhyD7lUOIpKEm0Z4KRnY0QvuRyad1Mw2EiNEalnwFcB6C4YPvf?=
- =?us-ascii?Q?BoAJX0usB1P7z9YyqumlsMhFKGndfO974KMevcbLBBJLHjDyuKxYjEnnTDSn?=
- =?us-ascii?Q?zFw5PCetQf7qc3YHxcBOSCCpnsJD9MpPDsYcZc/wreU0PsUJtug4zULz3rqy?=
- =?us-ascii?Q?3h4ZmL7hM/fbQ4+/exuUOZq50WfBoQS0dBokQxE1w868cMeGZYJgi0EpT/n1?=
- =?us-ascii?Q?SitxHQYxS01ZI8oLu2hQqzFEXtwJ8/0KL94Yw6/3z5UiTuisLlCsZfeMI4W4?=
- =?us-ascii?Q?3IWVuc7qx4TKvXjy+rr3/NNouFmIIjXOm7QBmbNCucXhHqevDwU+krrTUH3e?=
- =?us-ascii?Q?g97YOnrxHtzyGZMQvWJF63hWmNmumAxQVqqO8YFBLr83wa5cnH3LGyx+s1Bs?=
- =?us-ascii?Q?w84+CgedNuncVOkKCD/DUi1l/rtHVQ26Wc5hiP7hXAgclZwv2OUdBiYnz/uR?=
- =?us-ascii?Q?65/2OyD7p9auvr4sWFPVTS0X8vYM7x5AOptmp11MwliFXsVOXbIZS8S7heuj?=
- =?us-ascii?Q?WKLRp1W5/bhxWI3NDoZAUlwKTKu4kKWKiRQjjqRvs+Etgo2pnc96lNs6fYeV?=
- =?us-ascii?Q?juB1zfgS5URnbwmN/DL72J5hwA4vsJMQ5B719suvYV/XMYYEFVToJ1WOuKaY?=
- =?us-ascii?Q?g4FDZk81MRhczzMTeQiJbhVd0hzY2a1is2CegZzrlwUT4T8i0gr19Lf3hTlQ?=
- =?us-ascii?Q?6t9mlgzHdZjtoVQMYK7mNEW1UyQJpN4T7eNqqlaXRhqv1nW3BQvZSJKOEN2l?=
- =?us-ascii?Q?mGsBQoYs8my4OO0+Rg8p2J2a1LYsoIV4rk7u+bUXk3Sc8BJv1ERBSURSTksi?=
- =?us-ascii?Q?+gZGDItTtg9EVeyuI7aauObLVL4P7iOReV5qbndrbHGYaQ4O8rcSRAiJRX7F?=
- =?us-ascii?Q?IWvjPHHIIVzWu+3PrffATKZNwgteRmYonfpbH4+jONLk75/xBZ8k90Ao121B?=
- =?us-ascii?Q?U65ienqi+1Od8BsMscNXj9tjIllAw6eQy7MQeNcEjYF0hGc0IH9dFMSBgUMY?=
- =?us-ascii?Q?Iv2N+rkl8vV+d/+AcmTQreJ5uea+d/Jo6qZPqC1pXsBk3tACvL/KabNJMgIc?=
- =?us-ascii?Q?WqgyoTN20v5AYBwDdh/wnDIZ6PV78e+RoLnyTDnYoppTpWWMb8v2BoPO09ZM?=
- =?us-ascii?Q?9yyE3GMPs6WKjxJWupunQXzuLXGL+7tofQCBvkq5B8beM6SpzOb4dJ5ek0Jn?=
- =?us-ascii?Q?dbkZ10FLT+XjtBAAKexgRTzNnNo6/jBcs+e7X/nXcxGw1dLG/P+QRPLw1b2y?=
- =?us-ascii?Q?Kdym8LmnCLgxCs95bqXnNbkAohSthhbeByrVgNlsgtiEj2j7yyn9gROYqqeD?=
- =?us-ascii?Q?WdzGLdnpqlW6XSjDWz0sdlwWLETlKkC3U0rLRNfRR22wpA0G3lYITtL1yuuS?=
- =?us-ascii?Q?bUGgbgVb2cFFXLQbpoBYHUDjIXJcebHa3h28BxUXd1EB/Nxdwue9B07H8IjG?=
- =?us-ascii?Q?CgE58g=3D=3D?=
-X-OriginatorOrg: corigine.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 0492d114-84b1-4f6a-3e78-08db71c303d6
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR13MB4842.namprd13.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Jun 2023 19:17:40.1255
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: fe128f2c-073b-4c20-818e-7246a585940c
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: ZjPU68oxuPTsr5cQelWqd0CaEzTVB5kIAEFTcJB0NgCcsznEJ6lT4OPTbG9dz9mCd9zp/kTL3tfkW522b1dtmWvVclI8dHgDHdKwgeGkLGE=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH0PR13MB4668
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jun 20, 2023 at 10:34:08AM +0200, Alexandra Winter wrote:
-> From: Thorsten Winkler <twinkler@linux.ibm.com>
+On Tue, 20 Jun 2023, Jason Gunthorpe wrote:
+> On Tue, Jun 20, 2023 at 12:47:54AM -0700, Hugh Dickins wrote:
+> > Add powerpc-specific pte_free_defer(), to call pte_free() via call_rcu().
+> > pte_free_defer() will be called inside khugepaged's retract_page_tables()
+> > loop, where allocating extra memory cannot be relied upon.  This precedes
+> > the generic version to avoid build breakage from incompatible pgtable_t.
+> > 
+> > This is awkward because the struct page contains only one rcu_head, but
+> > that page may be shared between PTE_FRAG_NR pagetables, each wanting to
+> > use the rcu_head at the same time: account concurrent deferrals with a
+> > heightened refcount, only the first making use of the rcu_head, but
+> > re-deferring if more deferrals arrived during its grace period.
 > 
-> Following the advice of the Documentation/filesystems/sysfs.rst.
-> All sysfs related show()-functions should only use sysfs_emit() or
-> sysfs_emit_at() when formatting the value to be returned to user space.
-> 
-> While at it, follow Linux kernel coding style and unify indentation
-> 
-> Reported-by: Jules Irenge <jbi.octave@gmail.com>
-> Reported-by: Joe Perches <joe@perches.com>
-> Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
-> Signed-off-by: Thorsten Winkler <twinkler@linux.ibm.com>
-> Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
+> You didn't answer my question why we can't just move the rcu to the
+> actual free page?
 
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
+I thought that I had answered it, perhaps not to your satisfaction:
 
+https://lore.kernel.org/linux-mm/9130acb-193-6fdd-f8df-75766e663978@google.com/
+
+My conclusion then was:
+Not very good reasons: good enough, or can you supply a better patch?
+
+Hugh
+
+> 
+> Since PPC doesn't recycle the frags, we don't need to carefully RCU
+> free each frag, we just need to RCU free the entire page when it
+> becomes eventually free?
+> 
+> Jason
