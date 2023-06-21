@@ -2,1162 +2,375 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E752FEB64D7
-	for <linux-s390@archiver.kernel.org>; Wed, 21 Jun 2023 09:12:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 104E1EB64D8
+	for <linux-s390@archiver.kernel.org>; Wed, 21 Jun 2023 09:17:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230345AbjFUJLv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 21 Jun 2023 05:11:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48758 "EHLO
+        id S230231AbjFUJRQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 21 Jun 2023 05:17:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231731AbjFUJLO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 21 Jun 2023 05:11:14 -0400
-Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E23AA1FF2;
-        Wed, 21 Jun 2023 02:10:33 -0700 (PDT)
-Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
-        by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20230621091030euoutp014ad40326cb733a0a56272604c4496620~qoYt05suO1148511485euoutp01L;
-        Wed, 21 Jun 2023 09:10:30 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20230621091030euoutp014ad40326cb733a0a56272604c4496620~qoYt05suO1148511485euoutp01L
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1687338630;
-        bh=A9vJqtefMweXRl5hA0piF7XKpY7+Y1RrvCTm+EtEXlQ=;
-        h=From:To:CC:Subject:Date:In-Reply-To:References:From;
-        b=Ka4ZfoeHZ9KJZ0KIhhdzO1ExiUUNFd4pQTnInOxAgqyf0eUSdqf9fGf4ADqTzHos1
-         ywZFhN8UlbjrBOzPZnyD8ZTVyakxnTGgnKeSkWsclDeJldAylGgwILHjQdvJGQ1yCF
-         Ta2ndNd0iIyvJvB9swtxZqirf7z/BsD/JzVDihvI=
-Received: from eusmges3new.samsung.com (unknown [203.254.199.245]) by
-        eucas1p2.samsung.com (KnoxPortal) with ESMTP id
-        20230621091030eucas1p2b9431b5e8ae4acfd91cec8a259953008~qoYtbzuHT2538825388eucas1p2C;
-        Wed, 21 Jun 2023 09:10:30 +0000 (GMT)
-Received: from eucas1p2.samsung.com ( [182.198.249.207]) by
-        eusmges3new.samsung.com (EUCPMTA) with SMTP id 1D.84.37758.58EB2946; Wed, 21
-        Jun 2023 10:10:30 +0100 (BST)
-Received: from eusmtrp2.samsung.com (unknown [182.198.249.139]) by
-        eucas1p2.samsung.com (KnoxPortal) with ESMTPA id
-        20230621091029eucas1p2f9fd694dae3dfbdfffd25dccf4fcb568~qoYsgN9G-1816318163eucas1p2-;
-        Wed, 21 Jun 2023 09:10:29 +0000 (GMT)
-Received: from eusmgms2.samsung.com (unknown [182.198.249.180]) by
-        eusmtrp2.samsung.com (KnoxPortal) with ESMTP id
-        20230621091029eusmtrp2a0edd6b63446d061037baf6b483c48bb~qoYsaZmkS2225722257eusmtrp2B;
-        Wed, 21 Jun 2023 09:10:29 +0000 (GMT)
-X-AuditID: cbfec7f5-815ff7000002937e-7e-6492be85d3cb
-Received: from eusmtip2.samsung.com ( [203.254.199.222]) by
-        eusmgms2.samsung.com (EUCPMTA) with SMTP id D9.E1.14344.48EB2946; Wed, 21
-        Jun 2023 10:10:28 +0100 (BST)
-Received: from CAMSVWEXC02.scsc.local (unknown [106.1.227.72]) by
-        eusmtip2.samsung.com (KnoxPortal) with ESMTPA id
-        20230621091028eusmtip2a2c40ec1c961aabd77e7ae0ea239ab31~qoYr28XcU1980519805eusmtip2i;
-        Wed, 21 Jun 2023 09:10:28 +0000 (GMT)
-Received: from localhost (106.210.248.248) by CAMSVWEXC02.scsc.local
-        (2002:6a01:e348::6a01:e348) with Microsoft SMTP Server (TLS) id 15.0.1497.2;
-        Wed, 21 Jun 2023 10:10:27 +0100
-From:   Joel Granados <j.granados@samsung.com>
-To:     <mcgrof@kernel.org>, Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, <x86@kernel.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Russ Weight <russell.h.weight@intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Phillip Potter <phil@philpotter.co.uk>,
-        Clemens Ladisch <clemens@ladisch.de>,
-        Arnd Bergmann <arnd@arndb.de>, Corey Minyard <minyard@acm.org>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        David Airlie <airlied@gmail.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Song Liu <song@kernel.org>, Robin Holt <robinmholt@gmail.com>,
-        Steve Wahl <steve.wahl@hpe.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Doug Gilbert <dgilbert@interlog.com>,
-        David Howells <dhowells@redhat.com>,
-        Jan Harkes <jaharkes@cs.cmu.edu>, <coda@cs.cmu.edu>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Christian Brauner <brauner@kernel.org>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <anna@kernel.org>, Jan Kara <jack@suse.cz>,
-        Anton Altaparmakov <anton@tuxera.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Kees Cook <keescook@chromium.org>,
-        Iurii Zaikin <yzaikin@google.com>,
-        Eric Biggers <ebiggers@kernel.org>,
-        "Theodore Y. Ts'o" <tytso@mit.edu>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        John Stultz <jstultz@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        John Johansen <john.johansen@canonical.com>,
-        Paul Moore <paul@paul-moore.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>
-CC:     Joel Granados <j.granados@samsung.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Mike Travis <mike.travis@hpe.com>,
-        Amir Goldstein <amir73il@gmail.com>,
-        Matthew Bobrowski <repnop@google.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>,
-        <linuxppc-dev@lists.ozlabs.org>, <linux-s390@vger.kernel.org>,
-        <linux-crypto@vger.kernel.org>,
-        <openipmi-developer@lists.sourceforge.net>,
-        <intel-gfx@lists.freedesktop.org>,
-        <dri-devel@lists.freedesktop.org>, <linux-hyperv@vger.kernel.org>,
-        <linux-raid@vger.kernel.org>, <linux-scsi@vger.kernel.org>,
-        <linux-cachefs@redhat.com>, <codalist@coda.cs.cmu.edu>,
-        <linux-fsdevel@vger.kernel.org>, <linux-nfs@vger.kernel.org>,
-        <linux-ntfs-dev@lists.sourceforge.net>,
-        <ocfs2-devel@oss.oracle.com>, <fsverity@lists.linux.dev>,
-        <linux-xfs@vger.kernel.org>, <netdev@vger.kernel.org>,
-        <apparmor@lists.ubuntu.com>,
-        <linux-security-module@vger.kernel.org>
-Subject: [PATCH 07/11] sysctl: Add size to register_sysctl
-Date:   Wed, 21 Jun 2023 11:09:56 +0200
-Message-ID: <20230621091000.424843-8-j.granados@samsung.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20230621091000.424843-1-j.granados@samsung.com>
+        with ESMTP id S229849AbjFUJRP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 21 Jun 2023 05:17:15 -0400
+Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3493D1B4;
+        Wed, 21 Jun 2023 02:17:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1687339032; x=1718875032;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=stDlj/guGzODGn6lUtp5G+SYxmr+Z2SxM0DZBgRP3Ow=;
+  b=TpP9m2NOYVR8Iw6V8hRMOYjIEn86LALgPfHN3RBScuZ0tfyqy8aWmhqD
+   8aaRW8qXTJXzRel+nD28zmRoSstEIl5X5WdEP79BwLdNqhM659atexC1z
+   p5Ook1drv7NxJi980xjqpvDpr65t77PZZJLq+KB5MZEg9ynyefTmBDZnJ
+   Wi1p6CoGOzhFtkCBUQT4N5Ho2OHEAc9GU3+Kvc2fLJyD3leIquIdj/6pe
+   986wU3EpaZEReI4onG4j6M1RUp/xUT9MmoLQpGsBUFBsqKwzIl+xG/OY1
+   xEf4KuYWQAUNLaHbkzg8UH7mBOy6f27FkPm1537BLv5TdPrqouqI3aB+X
+   g==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10747"; a="357614772"
+X-IronPort-AV: E=Sophos;i="6.00,260,1681196400"; 
+   d="scan'208";a="357614772"
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Jun 2023 02:17:11 -0700
+X-IronPort-AV: E=McAfee;i="6600,9927,10747"; a="748572998"
+X-IronPort-AV: E=Sophos;i="6.00,260,1681196400"; 
+   d="scan'208";a="748572998"
+Received: from fmsmsx603.amr.corp.intel.com ([10.18.126.83])
+  by orsmga001.jf.intel.com with ESMTP; 21 Jun 2023 02:17:10 -0700
+Received: from fmsmsx612.amr.corp.intel.com (10.18.126.92) by
+ fmsmsx603.amr.corp.intel.com (10.18.126.83) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.23; Wed, 21 Jun 2023 02:17:10 -0700
+Received: from fmsmsx610.amr.corp.intel.com (10.18.126.90) by
+ fmsmsx612.amr.corp.intel.com (10.18.126.92) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.23; Wed, 21 Jun 2023 02:17:09 -0700
+Received: from FMSEDG603.ED.cps.intel.com (10.1.192.133) by
+ fmsmsx610.amr.corp.intel.com (10.18.126.90) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.23 via Frontend Transport; Wed, 21 Jun 2023 02:17:09 -0700
+Received: from NAM10-MW2-obe.outbound.protection.outlook.com (104.47.55.103)
+ by edgegateway.intel.com (192.55.55.68) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.23; Wed, 21 Jun 2023 02:17:08 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=hPHHmFhqhExCvYOiGl21FZmaJhw+fz4BqNrfqxuMcdw/+cO9ZJixM2InlVn0h0k+73sB4vb0K1Qke2ccR7f1CSlseUKjk3iG54L1U7cz22cPgb1ITuGjK1KDMjVmUcnxDpV1gohs5s2bM42vz61SjdsKXqP+6+rMZmxW+Oc0x6lzrXGr6cKoM83t7qgU2cy46lCyfr8frRYgYQczdKWdzqTTFGweB5s8rrWigwqXnguzOxVdHGD93bdzT2oFr0b0IXmvoTVLa+jz4AnvhhTWfd6yXtkzm1OgJOJw3olvJu09Dg65/qj5FLVX4XgHNkvoDhe2sZrXh5CIA/JtSeBOYg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=stDlj/guGzODGn6lUtp5G+SYxmr+Z2SxM0DZBgRP3Ow=;
+ b=Tx/OOTwq8NduGcwVT0+5eOxDz6BkxDSljfMXvKOrmHjKS1+os/tthfMyjimBPyAW+lAULS6aoCY5lDtchh1AupEkTUxxgaKVUMUJzeGspli3vpmozU98RssTYS3uIRhp1jx8fBVM+BXnmwtXtWNDsRs1jAE2UBV0GPdKJMYz9x7fOl4oX9K0Xu+TVEyBYlRGQK5Nn3tUGM0o9lcobAzJ8M5T2Qlg6ld0PW/I00A8l0DRPLLYFkdBg5C9jOXIQjvAh42zuU9IweafV+GVf+jEgAR3OCCPuzgNvL0WrjAPZ6zh9ACulswr032yDv5cAaKJj3oq5QGDQuBBcpZWtY23xQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from SJ0PR11MB6744.namprd11.prod.outlook.com (2603:10b6:a03:47d::10)
+ by CY5PR11MB6187.namprd11.prod.outlook.com (2603:10b6:930:25::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6500.37; Wed, 21 Jun
+ 2023 09:17:07 +0000
+Received: from SJ0PR11MB6744.namprd11.prod.outlook.com
+ ([fe80::da0a:8aab:d75b:55f1]) by SJ0PR11MB6744.namprd11.prod.outlook.com
+ ([fe80::da0a:8aab:d75b:55f1%5]) with mapi id 15.20.6500.036; Wed, 21 Jun 2023
+ 09:17:06 +0000
+From:   "Duan, Zhenzhong" <zhenzhong.duan@intel.com>
+To:     "Liu, Yi L" <yi.l.liu@intel.com>,
+        "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
+        "jgg@nvidia.com" <jgg@nvidia.com>,
+        "Tian, Kevin" <kevin.tian@intel.com>
+CC:     "joro@8bytes.org" <joro@8bytes.org>,
+        "robin.murphy@arm.com" <robin.murphy@arm.com>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "eric.auger@redhat.com" <eric.auger@redhat.com>,
+        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
+        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
+        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
+        "peterx@redhat.com" <peterx@redhat.com>,
+        "jasowang@redhat.com" <jasowang@redhat.com>,
+        "shameerali.kolothum.thodi@huawei.com" 
+        <shameerali.kolothum.thodi@huawei.com>,
+        "lulu@redhat.com" <lulu@redhat.com>,
+        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
+        "intel-gvt-dev@lists.freedesktop.org" 
+        <intel-gvt-dev@lists.freedesktop.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "Hao, Xudong" <xudong.hao@intel.com>,
+        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
+        "Xu, Terrence" <terrence.xu@intel.com>,
+        "Jiang, Yanting" <yanting.jiang@intel.com>,
+        "clegoate@redhat.com" <clegoate@redhat.com>
+Subject: RE: [PATCH v13 00/22] Add vfio_device cdev for iommufd support
+Thread-Topic: [PATCH v13 00/22] Add vfio_device cdev for iommufd support
+Thread-Index: AQHZoDaGws5TYuRWIkeI6W8Ea6jooq+U/iPg
+Date:   Wed, 21 Jun 2023 09:17:06 +0000
+Message-ID: <SJ0PR11MB6744A328B95469E66EABE9E1925DA@SJ0PR11MB6744.namprd11.prod.outlook.com>
+References: <20230616093946.68711-1-yi.l.liu@intel.com>
+In-Reply-To: <20230616093946.68711-1-yi.l.liu@intel.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: SJ0PR11MB6744:EE_|CY5PR11MB6187:EE_
+x-ms-office365-filtering-correlation-id: 6af4eda7-5e68-4a58-8074-08db723848b8
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: H+B14TbKjFRwEnrJ0C3MLvMGLXahrRYEd3kw6c+6vQVSzgfKkVLkFDkJ99pDG8JWycYZMMp4oLZL/+z10e8Wd8OKgX4/2Rp7Vz4R6qOYjrjFCwMK3/RvxaDpM95dP6v6UUMCH7MvvRpnrPrRRecIYuTDy9SSek5QDHx66OZByyoyOq+7P5YXx2k3SQKDxJvTLzmHfCj+H6e2UQkcE1biY/c/FdTqVvYWOACOgyfVMMdGgj/HQndJuVadszfwbzmZmUsRcl5J0Wl5ftyIpTjXVy1TNRv493Oen7O5ovGHNVd6hLV2bvsudJqm+W8hssooVP0mCu5CcELEu/4DAm60EKrmCfx9bSraVhfnjWi5TpdG1ZGGuZeHBE+GE3WoB02aDS+GpJ2bYtm8J6CQmWuj3LefCe3DNp/UaE+MP61zwtcSLNcIprKQ2OkwCX2HcmKXgZreEIF1l8o+1fNAWkqIdCn2QOhvwJZzYSVSnoJWGSk8LEEeLq3srsP3jU8268CCEk+q3WwrTy0kQ/v5mWB5drx1l97J1bFiBRSIh+eGtsgHaEDKFwmY1jyiBeWskkKIFLPH/dAjVBdXFeuA0TxhoZUq/tTpobFXyXvPE/QWFhM=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SJ0PR11MB6744.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(396003)(366004)(376002)(39860400002)(136003)(346002)(451199021)(76116006)(7416002)(82960400001)(52536014)(2906002)(83380400001)(86362001)(38070700005)(122000001)(5660300002)(54906003)(110136005)(66556008)(8936002)(66946007)(186003)(8676002)(66446008)(4326008)(66476007)(64756008)(6636002)(38100700002)(26005)(966005)(478600001)(41300700001)(55016003)(6506007)(9686003)(7696005)(316002)(71200400001)(33656002);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?utf-8?B?cS8yNSt5bVVtQ2hST1JnZlBCdlRIb3dTN1h4SlZnbVRvYmNVaVVQR1hrMCtG?=
+ =?utf-8?B?UWN4WU42Rk5ZWVlleDM5bXl3NjBBYkNreGl6NFZCRUlZTmZoVE5wNmVPVyty?=
+ =?utf-8?B?aWZPN2YycEhWTUdpMkhtaS9WQ05TcE1LaVBLQ3hLV0tVa0oyVENGM0FSaFlR?=
+ =?utf-8?B?UjZSWUdOMk5NaTdJRER5VTZNSFRTQkhOU0puODNQc21QWUtEN1VucEdIUEk0?=
+ =?utf-8?B?bWJ5NVptQjlVNHcwbE9hQXV0NGxtYkt0QkVMUUNQM3JOOER4bG5aalQ1YnFo?=
+ =?utf-8?B?eVBxLzRLZXZWNDVrVG1WVmwvU21PNGd0TGt2TDNwdWtsa1JDS2U5WDIvTS9D?=
+ =?utf-8?B?bktpdFhwampRWlNjekU3TUREeVJmMHpPYlVsMEJMSHZ6RHIxZllBa3o5L284?=
+ =?utf-8?B?c3V2Q0pOdDhNR3gyUnVBUVJYQXRzdHowendJaXVOc3J6cGNKb3lNTFlnR3B2?=
+ =?utf-8?B?bmJBOUdwNWg3ZUxLMGRsRlJJZXRUQVBOclkxeTg0RE9KbmFzWmVUWWtuTEdS?=
+ =?utf-8?B?aW5KWUJSK09RUnkvSE1qY2FpZGFDa1BYUFZOUnNPeHhpWElaYU5POFhIS1po?=
+ =?utf-8?B?VzBCdnNXbyttWUFyamRKTGFPcEZMaEhhenlBK2RLSkpHOHJ2bG1GQUMvNlp3?=
+ =?utf-8?B?b2xidG00U1ZVd2krWjc1cHFJUFpmemk2R08zWURNVzcwMTVaN3hJWVpsWENS?=
+ =?utf-8?B?VW1vcWc5MXVYTXNlTWFWcitWUk5teUFvdm9kdTRERjV4ekNta3NGTXdWV0d1?=
+ =?utf-8?B?aUc1Tm1XbEhkaEcrUlNLVUZ0R2F5dlFyRWYwR0xVclFwYnJlbS9kUmpXTE96?=
+ =?utf-8?B?M2svWjNkMllBbzJOV1Z2WUJ6bEJTazI4aWgzY2xtZFZHVklkTG9tcXUrVUVs?=
+ =?utf-8?B?cWpuVXdTazVMOEc0M0oxQVZVb0kyd1p6aVlNQnJBQnVrU2E0VVJLOENQWjFX?=
+ =?utf-8?B?WWFYYnZKQ2hXN3d2aTJleVVyaE5SMXFOaUxna0tBVytMNGpTd2RSMzVRQUxw?=
+ =?utf-8?B?VnU3dFVrMEhOY3BuSDVvWmxib0hJNXpRZ2gvZ29LcE0rcmpHTE1Tb2poNkZY?=
+ =?utf-8?B?Q2VFWnZZU3FmYzJrYkRta0lpUlRSWkhLamJ0bHFhSEtnaWJXV0M0R3hsbG1L?=
+ =?utf-8?B?c3lhZllUcFhzQ0VWOERDV2pVR0hzdVE2NC81RkRFc01LRUVaNkcwN1FJUW1K?=
+ =?utf-8?B?cVVvVS83amp1TkZHZnkyS0ZPTFZEK3YrSnZVdWZmSFUvWEE2WDZpUDJnZ2du?=
+ =?utf-8?B?UGtyczFpNGFQZnBnbzY1d0Z1ZmQvdlBFYVVvWmN4RmpFRlptODJXeFoybENa?=
+ =?utf-8?B?eEM2ZWQyTC9uNWlOT1BJMk5wOUE3SlMxTkkwOG9zRzgyZXMxV3BUTDZJWVZ6?=
+ =?utf-8?B?ZXVrcW5jdmJDNnlGdzk1SDE3cjNqT3E1RHVTbjBFQTJxRmVBalRMaU5tWVB2?=
+ =?utf-8?B?Q0tZQnVzR1dYRUtQbGZISlRnNHBtWDkyTTZwQ3FORlpEN3htR3E4WXErUlM1?=
+ =?utf-8?B?d2gwRG56eW5kRmpiRFhUbm4xVlpHMmlyMnZlS3NDb3Y0WDNBYUlEc0dNaXdu?=
+ =?utf-8?B?UUVHTkd2bkR1MlgrQzZYYjB3b3F4Ty9ubmVkOTZ0NzRZSUxTekFRR3VGMm15?=
+ =?utf-8?B?L21tRzYzeUJnRjZNYzUwNk9EMTNxbkRFMCtJVklWZlpqVGJHcGJVNitDZEx2?=
+ =?utf-8?B?d0ZwOXFMa1pPTzlCTUs1QWFiZ0RDSm9TbjlJMDlxYkMyMU0wTDdIUzMyS0dI?=
+ =?utf-8?B?QWFKU3NQdEV5MkNMSWpTYkNiMC93TG9nVlNOSDZTVC9JdUVCUVVkQ2ZhVVh2?=
+ =?utf-8?B?c1NySzJpaG45WXhWL0FnUGE0a2xRNThVMnNXT252eDdacWhxZjM1L25jN09N?=
+ =?utf-8?B?QmxtWll3K0Y1Tm8zSTQ4dFpLZFBSS3RlMkdSZlVDSWwybnE0QlA2UFhKQmRE?=
+ =?utf-8?B?aG9HTEZXZ1dWNWVCUk1zelVFQUpLblZYVnQ3Sm9MRjJKeWtqTnVXL3VRY1k1?=
+ =?utf-8?B?RFpIVVQ3b0VEeWxNaHRoaG54OVJRcy9KblVWRW1raVM4dVhlUlZKY2ZDU1M3?=
+ =?utf-8?B?WEVabmlZd3dFWWpWalFvVGpZRTFEQk1zSXZzdXhyTFpKMEllSVRzY1V4eW1D?=
+ =?utf-8?Q?ptBbkwX1kW7FO3A2ydkwJOGHJ?=
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [106.210.248.248]
-X-ClientProxiedBy: CAMSVWEXC01.scsc.local (2002:6a01:e347::6a01:e347) To
-        CAMSVWEXC02.scsc.local (2002:6a01:e348::6a01:e348)
-X-Brightmail-Tracker: H4sIAAAAAAAAA01Te0xTdxTe797bewsRdi1m/AJsRBS26ETcWHLcREe26M10zswlW3xtBa5g
-        pOBa1OkyQylvnNE6BgJDEOTRIoWKKAQ6x5CHbLxaqEzU8Iq1CK0iIg9hwmUL/33nfN93ft85
-        yU9MSvoYN/GhiCheHiEN96IdqcqGybZ18QZ1iF+MiYDylkc0NJkvEdBeqkUQVzVHQZW+QgTK
-        hhwRvFQ3MGCPiSNh4GUdDWNlszQM//kUga3gNIJe9UMG5u49JCC/qY+A5yV3CIhWzdBgKUtA
-        kNUWS4EhVo/AkH6FhtGYaQqMg85gGrfRcKVmhoShhn4GkvrnaLCpDkB7xnMRqPJ0NHRf52A4
-        W4MgxeoBv5a7QubZqwRkpqkIuHw3SQSFRh2CyQINA82tzyko1eUR0PQsjobaXAKKC14wMNNU
-        TsNfKTJorzwjgkHtNQb0A90ieJJ/m4EH9ycJqKltpiD1nJ0Ge+KoCIzVWTS032wRQUJiFoKE
-        i9UIzuaqSEgx33glOd1PQ/XMDQbqUmsRTE/Mij4O4Yym7dxE3BmKK8kuQZyxu4PkpqfUiMuI
-        /pnmMqM7KE5bUk9yOfU7uPGeVoKrKO4huEuPoiluqONLTtejprmqjHsMV3nTe9eGPY6bQvjw
-        Q8d4+frN3zmGJXbqyCMdvxE/jA6Pi6KR0YqSkYMYs/64vKiVSUaOYglbhHBL2zlynpCwzxBu
-        N0oEYgzhyuQiOhmJFxy56eFCvxDhqxoj9b/owS+xtFBcQ7hB00XMj6LZd3Hb415ynljB9qzA
-        2Y9tzDxBsjUO2F4QNI9d2A9x8/nLC6Eo1ht3jF9a0Dixm/D9Zh0hhPXE8ea0BY0DG4DbBmyU
-        oFmOmy8MUsJMT6y6lkkKGOM/LBZS8K7CZkMeLeCf8O2Kf4j5QJjVLMOp1VOLD3yK1Vlji5dx
-        wdbGCkbAHniu6uKi4TzCv8/aGaHQIlygHF90f4RjTYOLjkDcWKoXCRdzxndGlguJnLG6Mo0U
-        2k44MV5yFq3OWLJDxpIdMpbskINIDXLljypkobzi/Qj+uK9CKlMcjQj1DY6U6dGrX9gy2zh+
-        AxVZn/jWIUKM6hAWk14rnN7Uq0MkTiHSEyd5eeS38qPhvKIOuYspL1entQHNwRI2VBrFH+b5
-        I7z8P5YQO7hFE/7FiVs+/2J90dpY/7vDriO3cps6TtkOvpG3/+v81ebOiVPKigsDhf3Ht76z
-        j9neuHHHhOmkqcsn823tMn5j/i3vfM8Xfrdd1mYZdMemNfa/PWJ2H4h6r90tOVPu97qhac1l
-        sso2G540InPxsRz+QDm0bqusOrl+MruY89oW9iyoxn8vUbClnNlzOmen7cfXwgJ2f2Wx7ht4
-        emp5drU2zRK036PXuHNXY2Bwf8jBBDbA8cL1vsNsWeSUuQZk3n7uzmbVmLR31d4TnVGp9k92
-        +tlSyjiW9Em35OUOKR8mTFl9rAwRqEw7QV0E2/SB7z97sbnT/Ru9y8qVruu2PfI3tLyV31Xh
-        RSnCpBvWkHKF9F+mKDof9AQAAA==
-X-Brightmail-Tracker: H4sIAAAAAAAAA02Te0xbZRiH851zek5ZhNUO5Ii4YXeJ063j7gsy1On0KMSJMSY6BnRQAW2B
-        9aIDGSkU5CqBLm6zXMelC+M2KiAQIMqQcZmUrhsdk7GMizAgUMZgTm4WGhP+e77f9/zeL98f
-        LxvnZlAO7MgomVASJRDxyB1E3/qNkcPJ7aow5+xMN6jre0RCt7EEg4GaSgQpzRsENGvrWZDY
-        VcyCNVUXBaakFBzG1jpIWLy2TsLM9ccI5jVZCIZVkxRs3J/EoKz7IQbLVXcxUChXSdhozMVh
-        6loqgnxdMgHtyVoE7ZeqSZhLWiHAMG4Dt5fmSahuXcVhomuUgvTRDRLmlUEwoF5mgbK0loTB
-        XxmYKbyKIHPaES7U2UNezi8Y5F1UYlD+VzoLrhhqEZTcbcTgmeYqBT39ywTU1JZi0P0khYS2
-        yxhUaP6hYLW7joSbmWIYaMxmwXhlAwXasUEWLJT1UvBg5BkGrW09BPyUayLBlDbHAkNLPgkD
-        v/WxIDUtH0FqUQuCnMtKHDKNTWYla5SEltUm6u2vGMNtP+ZpSjbBVBVWIcYwqMeZlX9ViFEr
-        fiSZPIWeYCqrOnGmuNOfWRrqx5j6iiGMKXmkIJgJ/adM7ZCKZNqWiwmmWX2f+sT1S76PJFou
-        EzpFREtlR3knXcCV7+IFfFd3L76L2xunvF09eEd8fcKEoshvhZIjviH8iLRbtXiMvgA7Ozez
-        xFIgwzTKQGw2zXGnL18SZaAdbC6nHNFDT2+acytz7kjXPbnDsvAuenUwg7RIC4j+Y6iSshwa
-        EF33uGjLIjmHaN3sML55YcsZsqUL7g1ujcI5rVa0SXN6k3dxvOme8+VbOcHZT+uXSqhNtub4
-        0CM9tZjluT30D8aLW44V5yitG5snNplrdopMBmTxn6d7fh4nLPP30MqGPNzCNP371BRumbOX
-        NraXkhY+Ry+u/Y1ykK16W129ra7eVi9G+FVkK5RLxeFiqStfKhBL5VHh/NBosRaZl6Kx61l9
-        E6qYXuB3IIyNOhDNxnm21i9rVWFc6zBBbJxQEh0skYuE0g7kYf5nLu5gFxpt3qooWbCLp7OH
-        i7unl7OHl6cbz976w5g0AZcTLpAJvxEKY4SS/3sY28pBgcnfkm+UTR8oT9SEiGRWKuriS7Pp
-        Pv666qhTkhbDF012QRfYx9A7nRvvqpvsxHtjnPa//yJbNvJRY2zCZFDn0mcpaTPaEMPuV/tE
-        k9mpB6N4aGXdJsGoe24u5FY9z89HEfhdqLqXazrRuhOdyYyIHS0M5H8e4dXcG7BbVHjAaZTZ
-        pz/xAT8wPvL619x8eUWK8r2d8zX2cUnnhx0Px6HmxVfuGXcey3r95J2YiuGyM/Su5ePSiYMP
-        0kUBuvg3ufisM1/v35hwVlt2pT/Aq26/avZ4U6rH2NrD06HMwrkXnErKbHS5Gg/Nn8GJ8X67
-        Z7sCxN66wBtTlKHAIWZf1se+IqdD3/MIaYTA5TVcIhX8B9lnSFCdBAAA
-X-CMS-MailID: 20230621091029eucas1p2f9fd694dae3dfbdfffd25dccf4fcb568
-X-Msg-Generator: CA
-X-RootMTR: 20230621091029eucas1p2f9fd694dae3dfbdfffd25dccf4fcb568
-X-EPHeader: CA
-CMS-TYPE: 201P
-X-CMS-RootMailID: 20230621091029eucas1p2f9fd694dae3dfbdfffd25dccf4fcb568
-References: <20230621091000.424843-1-j.granados@samsung.com>
-        <CGME20230621091029eucas1p2f9fd694dae3dfbdfffd25dccf4fcb568@eucas1p2.samsung.com>
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: SJ0PR11MB6744.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6af4eda7-5e68-4a58-8074-08db723848b8
+X-MS-Exchange-CrossTenant-originalarrivaltime: 21 Jun 2023 09:17:06.6337
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: Zp0RM9QnTdGM2heps3qKunKZAJoV4lCROrpg46knRUP6k22GaUsqhRsIBNFeaawtoasqeUtPiVx2HL1LC1W5/dU0vI/ZAwPO1uwOBdgZGEs=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY5PR11MB6187
+X-OriginatorOrg: intel.com
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-In order to remove the end element from the ctl_table struct arrays, we
-explicitly define the size when registering the targes.
-We add a size argument to register_sysctl and change all the callers to
-pass the ARRAY_SIZE of their table arg.
-
-Signed-off-by: Joel Granados <j.granados@samsung.com>
----
- arch/arm/kernel/isa.c                         |  2 +-
- arch/arm64/kernel/armv8_deprecated.c          |  2 +-
- arch/arm64/kernel/fpsimd.c                    |  6 +++--
- arch/arm64/kernel/process.c                   |  3 ++-
- arch/ia64/kernel/crash.c                      |  3 ++-
- arch/powerpc/kernel/idle.c                    |  3 ++-
- arch/powerpc/platforms/pseries/mobility.c     |  3 ++-
- arch/s390/appldata/appldata_base.c            |  4 +++-
- arch/s390/kernel/debug.c                      |  3 ++-
- arch/s390/kernel/topology.c                   |  3 ++-
- arch/s390/mm/cmm.c                            |  3 ++-
- arch/s390/mm/pgalloc.c                        |  3 ++-
- arch/x86/entry/vdso/vdso32-setup.c            |  2 +-
- arch/x86/kernel/itmt.c                        |  3 ++-
- crypto/fips.c                                 |  3 ++-
- drivers/base/firmware_loader/fallback_table.c |  6 ++---
- drivers/cdrom/cdrom.c                         |  3 ++-
- drivers/char/hpet.c                           |  3 ++-
- drivers/char/ipmi/ipmi_poweroff.c             |  3 ++-
- drivers/gpu/drm/i915/i915_perf.c              |  3 ++-
- drivers/hv/hv_common.c                        |  3 ++-
- drivers/macintosh/mac_hid.c                   |  3 ++-
- drivers/md/md.c                               |  3 ++-
- drivers/misc/sgi-xp/xpc_main.c                |  6 +++--
- drivers/parport/procfs.c                      | 11 +++++----
- drivers/perf/arm_pmuv3.c                      |  3 ++-
- drivers/scsi/scsi_sysctl.c                    |  3 ++-
- drivers/scsi/sg.c                             |  3 ++-
- fs/cachefiles/error_inject.c                  |  3 ++-
- fs/coda/sysctl.c                              |  3 ++-
- fs/devpts/inode.c                             |  3 ++-
- fs/eventpoll.c                                |  2 +-
- fs/lockd/svc.c                                |  3 ++-
- fs/nfs/nfs4sysctl.c                           |  3 ++-
- fs/nfs/sysctl.c                               |  3 ++-
- fs/notify/fanotify/fanotify_user.c            |  3 ++-
- fs/notify/inotify/inotify_user.c              |  3 ++-
- fs/ntfs/sysctl.c                              |  3 ++-
- fs/ocfs2/stackglue.c                          |  3 ++-
- fs/proc/proc_sysctl.c                         | 23 ++++++++++---------
- fs/verity/signature.c                         |  4 +++-
- fs/xfs/xfs_sysctl.c                           |  3 ++-
- include/linux/sysctl.h                        |  6 +++--
- kernel/pid_sysctl.h                           |  2 +-
- kernel/time/timer.c                           |  2 +-
- kernel/ucount.c                               |  2 +-
- kernel/utsname_sysctl.c                       |  2 +-
- lib/test_sysctl.c                             |  9 +++++---
- net/sunrpc/sysctl.c                           |  3 ++-
- net/sunrpc/xprtrdma/svc_rdma.c                |  3 ++-
- net/sunrpc/xprtrdma/transport.c               |  4 +++-
- net/sunrpc/xprtsock.c                         |  4 +++-
- net/sysctl_net.c                              |  2 +-
- security/apparmor/lsm.c                       |  3 ++-
- security/loadpin/loadpin.c                    |  3 ++-
- security/yama/yama_lsm.c                      |  3 ++-
- 56 files changed, 133 insertions(+), 76 deletions(-)
-
-diff --git a/arch/arm/kernel/isa.c b/arch/arm/kernel/isa.c
-index 20218876bef2..561432e3c55a 100644
---- a/arch/arm/kernel/isa.c
-+++ b/arch/arm/kernel/isa.c
-@@ -46,5 +46,5 @@ register_isa_ports(unsigned int membase, unsigned int portbase, unsigned int por
- 	isa_membase = membase;
- 	isa_portbase = portbase;
- 	isa_portshift = portshift;
--	isa_sysctl_header = register_sysctl("bus/isa", ctl_isa_vars);
-+	isa_sysctl_header = register_sysctl("bus/isa", ctl_isa_vars, ARRAY_SIZE(ctl_isa_vars));
- }
-diff --git a/arch/arm64/kernel/armv8_deprecated.c b/arch/arm64/kernel/armv8_deprecated.c
-index 1febd412b4d2..68ed60a521a6 100644
---- a/arch/arm64/kernel/armv8_deprecated.c
-+++ b/arch/arm64/kernel/armv8_deprecated.c
-@@ -569,7 +569,7 @@ static void __init register_insn_emulation(struct insn_emulation *insn)
- 		sysctl->extra2 = &insn->max;
- 		sysctl->proc_handler = emulation_proc_handler;
- 
--		register_sysctl("abi", sysctl);
-+		register_sysctl("abi", sysctl, 1);
- 	}
- }
- 
-diff --git a/arch/arm64/kernel/fpsimd.c b/arch/arm64/kernel/fpsimd.c
-index 2fbafa5cc7ac..ecfb2ef6a036 100644
---- a/arch/arm64/kernel/fpsimd.c
-+++ b/arch/arm64/kernel/fpsimd.c
-@@ -595,7 +595,8 @@ static struct ctl_table sve_default_vl_table[] = {
- static int __init sve_sysctl_init(void)
- {
- 	if (system_supports_sve())
--		if (!register_sysctl("abi", sve_default_vl_table))
-+		if (!register_sysctl("abi", sve_default_vl_table,
-+				     ARRAY_SIZE(sve_default_vl_table)))
- 			return -EINVAL;
- 
- 	return 0;
-@@ -619,7 +620,8 @@ static struct ctl_table sme_default_vl_table[] = {
- static int __init sme_sysctl_init(void)
- {
- 	if (system_supports_sme())
--		if (!register_sysctl("abi", sme_default_vl_table))
-+		if (!register_sysctl("abi", sme_default_vl_table,
-+				     ARRAY_SIZE(sme_default_vl_table)))
- 			return -EINVAL;
- 
- 	return 0;
-diff --git a/arch/arm64/kernel/process.c b/arch/arm64/kernel/process.c
-index 0fcc4eb1a7ab..cfe232960f2f 100644
---- a/arch/arm64/kernel/process.c
-+++ b/arch/arm64/kernel/process.c
-@@ -729,7 +729,8 @@ static struct ctl_table tagged_addr_sysctl_table[] = {
- 
- static int __init tagged_addr_init(void)
- {
--	if (!register_sysctl("abi", tagged_addr_sysctl_table))
-+	if (!register_sysctl("abi", tagged_addr_sysctl_table,
-+			     ARRAY_SIZE(tagged_addr_sysctl_table)))
- 		return -EINVAL;
- 	return 0;
- }
-diff --git a/arch/ia64/kernel/crash.c b/arch/ia64/kernel/crash.c
-index 88b3ce3e66cd..66917b879b2a 100644
---- a/arch/ia64/kernel/crash.c
-+++ b/arch/ia64/kernel/crash.c
-@@ -248,7 +248,8 @@ machine_crash_setup(void)
- 	if((ret = register_die_notifier(&kdump_init_notifier_nb)) != 0)
- 		return ret;
- #ifdef CONFIG_SYSCTL
--	register_sysctl("kernel", kdump_ctl_table);
-+	register_sysctl("kernel", kdump_ctl_table,
-+			ARRAY_SIZE(kdump_ctl_table));
- #endif
- 	return 0;
- }
-diff --git a/arch/powerpc/kernel/idle.c b/arch/powerpc/kernel/idle.c
-index b1c0418b25c8..3807169fc7e7 100644
---- a/arch/powerpc/kernel/idle.c
-+++ b/arch/powerpc/kernel/idle.c
-@@ -111,7 +111,8 @@ static struct ctl_table powersave_nap_ctl_table[] = {
- static int __init
- register_powersave_nap_sysctl(void)
- {
--	register_sysctl("kernel", powersave_nap_ctl_table);
-+	register_sysctl("kernel", powersave_nap_ctl_table,
-+			ARRAY_SIZE(powersave_nap_ctl_table));
- 
- 	return 0;
- }
-diff --git a/arch/powerpc/platforms/pseries/mobility.c b/arch/powerpc/platforms/pseries/mobility.c
-index 6f30113b5468..9fdbee8ee126 100644
---- a/arch/powerpc/platforms/pseries/mobility.c
-+++ b/arch/powerpc/platforms/pseries/mobility.c
-@@ -65,7 +65,8 @@ static struct ctl_table nmi_wd_lpm_factor_ctl_table[] = {
- 
- static int __init register_nmi_wd_lpm_factor_sysctl(void)
- {
--	register_sysctl("kernel", nmi_wd_lpm_factor_ctl_table);
-+	register_sysctl("kernel", nmi_wd_lpm_factor_ctl_table,
-+			ARRAY_SIZE(nmi_wd_lpm_factor_ctl_table));
- 
- 	return 0;
- }
-diff --git a/arch/s390/appldata/appldata_base.c b/arch/s390/appldata/appldata_base.c
-index b07b0610950e..54d8ed1c4518 100644
---- a/arch/s390/appldata/appldata_base.c
-+++ b/arch/s390/appldata/appldata_base.c
-@@ -408,7 +408,9 @@ static int __init appldata_init(void)
- 	appldata_wq = alloc_ordered_workqueue("appldata", 0);
- 	if (!appldata_wq)
- 		return -ENOMEM;
--	appldata_sysctl_header = register_sysctl(appldata_proc_name, appldata_table);
-+	appldata_sysctl_header = register_sysctl(appldata_proc_name,
-+						 appldata_table,
-+						 ARRAY_SIZE(appldata_table));
- 	return 0;
- }
- 
-diff --git a/arch/s390/kernel/debug.c b/arch/s390/kernel/debug.c
-index a85e0c3e7027..002f843e6523 100644
---- a/arch/s390/kernel/debug.c
-+++ b/arch/s390/kernel/debug.c
-@@ -1564,7 +1564,8 @@ static int debug_sprintf_format_fn(debug_info_t *id, struct debug_view *view,
-  */
- static int __init debug_init(void)
- {
--	s390dbf_sysctl_header = register_sysctl("s390dbf", s390dbf_table);
-+	s390dbf_sysctl_header = register_sysctl("s390dbf", s390dbf_table,
-+						ARRAY_SIZE(s390dbf_table));
- 	mutex_lock(&debug_mutex);
- 	debug_debugfs_root_entry = debugfs_create_dir(DEBUG_DIR_ROOT, NULL);
- 	initialized = 1;
-diff --git a/arch/s390/kernel/topology.c b/arch/s390/kernel/topology.c
-index 9fd19530c9a5..372d2c7c9a8e 100644
---- a/arch/s390/kernel/topology.c
-+++ b/arch/s390/kernel/topology.c
-@@ -647,7 +647,8 @@ static int __init topology_init(void)
- 		set_topology_timer();
- 	else
- 		topology_update_polarization_simple();
--	register_sysctl("s390", topology_ctl_table);
-+	register_sysctl("s390", topology_ctl_table,
-+			ARRAY_SIZE(topology_ctl_table));
- 
- 	dev_root = bus_get_dev_root(&cpu_subsys);
- 	if (dev_root) {
-diff --git a/arch/s390/mm/cmm.c b/arch/s390/mm/cmm.c
-index 5300c6867d5e..918816dcb42a 100644
---- a/arch/s390/mm/cmm.c
-+++ b/arch/s390/mm/cmm.c
-@@ -379,7 +379,8 @@ static int __init cmm_init(void)
- {
- 	int rc = -ENOMEM;
- 
--	cmm_sysctl_header = register_sysctl("vm", cmm_table);
-+	cmm_sysctl_header = register_sysctl("vm", cmm_table,
-+					    ARRAY_SIZE(cmm_table));
- 	if (!cmm_sysctl_header)
- 		goto out_sysctl;
- #ifdef CONFIG_CMM_IUCV
-diff --git a/arch/s390/mm/pgalloc.c b/arch/s390/mm/pgalloc.c
-index 66ab68db9842..a723f1a8236a 100644
---- a/arch/s390/mm/pgalloc.c
-+++ b/arch/s390/mm/pgalloc.c
-@@ -35,7 +35,8 @@ static struct ctl_table page_table_sysctl[] = {
- 
- static int __init page_table_register_sysctl(void)
- {
--	return register_sysctl("vm", page_table_sysctl) ? 0 : -ENOMEM;
-+	return register_sysctl("vm", page_table_sysctl,
-+			       ARRAY_SIZE(page_table_sysctl)) ? 0 : -ENOMEM;
- }
- __initcall(page_table_register_sysctl);
- 
-diff --git a/arch/x86/entry/vdso/vdso32-setup.c b/arch/x86/entry/vdso/vdso32-setup.c
-index f3b3cacbcbb0..e28cdba83e0e 100644
---- a/arch/x86/entry/vdso/vdso32-setup.c
-+++ b/arch/x86/entry/vdso/vdso32-setup.c
-@@ -72,7 +72,7 @@ static struct ctl_table abi_table2[] = {
- 
- static __init int ia32_binfmt_init(void)
- {
--	register_sysctl("abi", abi_table2);
-+	register_sysctl("abi", abi_table2, ARRAY_SIZE(abi_table2));
- 	return 0;
- }
- __initcall(ia32_binfmt_init);
-diff --git a/arch/x86/kernel/itmt.c b/arch/x86/kernel/itmt.c
-index 670eb08b972a..58ec95fce798 100644
---- a/arch/x86/kernel/itmt.c
-+++ b/arch/x86/kernel/itmt.c
-@@ -105,7 +105,8 @@ int sched_set_itmt_support(void)
- 		return 0;
- 	}
- 
--	itmt_sysctl_header = register_sysctl("kernel", itmt_kern_table);
-+	itmt_sysctl_header = register_sysctl("kernel", itmt_kern_table,
-+					     ARRAY_SIZE(itmt_kern_table));
- 	if (!itmt_sysctl_header) {
- 		mutex_unlock(&itmt_update_mutex);
- 		return -ENOMEM;
-diff --git a/crypto/fips.c b/crypto/fips.c
-index 92fd506abb21..05a251680700 100644
---- a/crypto/fips.c
-+++ b/crypto/fips.c
-@@ -70,7 +70,8 @@ static struct ctl_table_header *crypto_sysctls;
- 
- static void crypto_proc_fips_init(void)
- {
--	crypto_sysctls = register_sysctl("crypto", crypto_sysctl_table);
-+	crypto_sysctls = register_sysctl("crypto", crypto_sysctl_table,
-+					 ARRAY_SIZE(crypto_sysctl_table));
- }
- 
- static void crypto_proc_fips_exit(void)
-diff --git a/drivers/base/firmware_loader/fallback_table.c b/drivers/base/firmware_loader/fallback_table.c
-index e5ac098d0742..7a2d584233bb 100644
---- a/drivers/base/firmware_loader/fallback_table.c
-+++ b/drivers/base/firmware_loader/fallback_table.c
-@@ -50,9 +50,9 @@ static struct ctl_table firmware_config_table[] = {
- static struct ctl_table_header *firmware_config_sysct_table_header;
- int register_firmware_config_sysctl(void)
- {
--	firmware_config_sysct_table_header =
--		register_sysctl("kernel/firmware_config",
--				firmware_config_table);
-+	firmware_config_sysct_table_header = register_sysctl("kernel/firmware_config",
-+							     firmware_config_table,
-+							     ARRAY_SIZE(firmware_config_table));
- 	if (!firmware_config_sysct_table_header)
- 		return -ENOMEM;
- 	return 0;
-diff --git a/drivers/cdrom/cdrom.c b/drivers/cdrom/cdrom.c
-index 416f723a2dbb..3855da76a16d 100644
---- a/drivers/cdrom/cdrom.c
-+++ b/drivers/cdrom/cdrom.c
-@@ -3680,7 +3680,8 @@ static void cdrom_sysctl_register(void)
- 	if (!atomic_add_unless(&initialized, 1, 1))
- 		return;
- 
--	cdrom_sysctl_header = register_sysctl("dev/cdrom", cdrom_table);
-+	cdrom_sysctl_header = register_sysctl("dev/cdrom", cdrom_table,
-+					      ARRAY_SIZE(cdrom_table));
- 
- 	/* set the defaults */
- 	cdrom_sysctl_settings.autoclose = autoclose;
-diff --git a/drivers/char/hpet.c b/drivers/char/hpet.c
-index ee71376f174b..bb1eb801b20c 100644
---- a/drivers/char/hpet.c
-+++ b/drivers/char/hpet.c
-@@ -1027,7 +1027,8 @@ static int __init hpet_init(void)
- 	if (result < 0)
- 		return -ENODEV;
- 
--	sysctl_header = register_sysctl("dev/hpet", hpet_table);
-+	sysctl_header = register_sysctl("dev/hpet", hpet_table,
-+					ARRAY_SIZE(hpet_table));
- 
- 	result = acpi_bus_register_driver(&hpet_acpi_driver);
- 	if (result < 0) {
-diff --git a/drivers/char/ipmi/ipmi_poweroff.c b/drivers/char/ipmi/ipmi_poweroff.c
-index 870659d91db2..46b1ea866da9 100644
---- a/drivers/char/ipmi/ipmi_poweroff.c
-+++ b/drivers/char/ipmi/ipmi_poweroff.c
-@@ -675,7 +675,8 @@ static int __init ipmi_poweroff_init(void)
- 		pr_info("Power cycle is enabled\n");
- 
- #ifdef CONFIG_PROC_FS
--	ipmi_table_header = register_sysctl("dev/ipmi", ipmi_table);
-+	ipmi_table_header = register_sysctl("dev/ipmi", ipmi_table,
-+					    ARRAY_SIZE(ipmi_table));
- 	if (!ipmi_table_header) {
- 		pr_err("Unable to register powercycle sysctl\n");
- 		rv = -ENOMEM;
-diff --git a/drivers/gpu/drm/i915/i915_perf.c b/drivers/gpu/drm/i915/i915_perf.c
-index 050b8ae7b8e7..f43950219ffc 100644
---- a/drivers/gpu/drm/i915/i915_perf.c
-+++ b/drivers/gpu/drm/i915/i915_perf.c
-@@ -5266,7 +5266,8 @@ static int destroy_config(int id, void *p, void *data)
- 
- int i915_perf_sysctl_register(void)
- {
--	sysctl_header = register_sysctl("dev/i915", oa_table);
-+	sysctl_header = register_sysctl("dev/i915", oa_table,
-+					ARRAY_SIZE(oa_table));
- 	return 0;
- }
- 
-diff --git a/drivers/hv/hv_common.c b/drivers/hv/hv_common.c
-index 64f9ceca887b..dd751c391cf7 100644
---- a/drivers/hv/hv_common.c
-+++ b/drivers/hv/hv_common.c
-@@ -302,7 +302,8 @@ int __init hv_common_init(void)
- 		 * message recording won't be available in isolated
- 		 * guests should the following registration fail.
- 		 */
--		hv_ctl_table_hdr = register_sysctl("kernel", hv_ctl_table);
-+		hv_ctl_table_hdr = register_sysctl("kernel", hv_ctl_table,
-+						   ARRAY_SIZE(hv_ctl_table));
- 		if (!hv_ctl_table_hdr)
- 			pr_err("Hyper-V: sysctl table register error");
- 
-diff --git a/drivers/macintosh/mac_hid.c b/drivers/macintosh/mac_hid.c
-index d8c4d5664145..5d433ef430fa 100644
---- a/drivers/macintosh/mac_hid.c
-+++ b/drivers/macintosh/mac_hid.c
-@@ -243,7 +243,8 @@ static struct ctl_table_header *mac_hid_sysctl_header;
- 
- static int __init mac_hid_init(void)
- {
--	mac_hid_sysctl_header = register_sysctl("dev/mac_hid", mac_hid_files);
-+	mac_hid_sysctl_header = register_sysctl("dev/mac_hid", mac_hid_files,
-+						ARRAY_SIZE(mac_hid_files));
- 	if (!mac_hid_sysctl_header)
- 		return -ENOMEM;
- 
-diff --git a/drivers/md/md.c b/drivers/md/md.c
-index 8e344b4b3444..c10cc8ddd94d 100644
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -9633,7 +9633,8 @@ static int __init md_init(void)
- 	mdp_major = ret;
- 
- 	register_reboot_notifier(&md_notifier);
--	raid_table_header = register_sysctl("dev/raid", raid_table);
-+	raid_table_header = register_sysctl("dev/raid", raid_table,
-+					    ARRAY_SIZE(raid_table));
- 
- 	md_geninit();
- 	return 0;
-diff --git a/drivers/misc/sgi-xp/xpc_main.c b/drivers/misc/sgi-xp/xpc_main.c
-index 6da509d692bb..264b919d0610 100644
---- a/drivers/misc/sgi-xp/xpc_main.c
-+++ b/drivers/misc/sgi-xp/xpc_main.c
-@@ -1236,8 +1236,10 @@ xpc_init(void)
- 		goto out_1;
- 	}
- 
--	xpc_sysctl = register_sysctl("xpc", xpc_sys_xpc);
--	xpc_sysctl_hb = register_sysctl("xpc/hb", xpc_sys_xpc_hb);
-+	xpc_sysctl = register_sysctl("xpc", xpc_sys_xpc,
-+				     ARRAY_SIZE(xpc_sys_xpc));
-+	xpc_sysctl_hb = register_sysctl("xpc/hb", xpc_sys_xpc_hb,
-+					ARRAY_SIZE(xpc_sys_xpc_hb));
- 
- 	/*
- 	 * Fill the partition reserved page with the information needed by
-diff --git a/drivers/parport/procfs.c b/drivers/parport/procfs.c
-index 4e5b972c3e26..16cee52f035f 100644
---- a/drivers/parport/procfs.c
-+++ b/drivers/parport/procfs.c
-@@ -464,7 +464,8 @@ int parport_proc_register(struct parport *port)
- 		err = -ENOENT;
- 		goto exit_free_tmp_dir_path;
- 	}
--	t->devices_header = register_sysctl(tmp_dir_path, t->device_dir);
-+	t->devices_header = register_sysctl(tmp_dir_path, t->device_dir,
-+					    ARRAY_SIZE(t->device_dir));
- 	if (t->devices_header == NULL) {
- 		err = -ENOENT;
- 		goto  exit_free_tmp_dir_path;
-@@ -478,7 +479,8 @@ int parport_proc_register(struct parport *port)
- 		goto unregister_devices_h;
- 	}
- 
--	t->port_header = register_sysctl(tmp_dir_path, t->vars);
-+	t->port_header = register_sysctl(tmp_dir_path, t->vars,
-+					 ARRAY_SIZE(t->vars));
- 	if (t->port_header == NULL) {
- 		err = -ENOENT;
- 		goto unregister_devices_h;
-@@ -544,7 +546,7 @@ int parport_device_proc_register(struct pardevice *device)
- 
- 	t->vars[0].data = &device->timeslice;
- 
--	t->sysctl_header = register_sysctl(tmp_dir_path, t->vars);
-+	t->sysctl_header = register_sysctl(tmp_dir_path, t->vars, ARRAY_SIZE(t->vars));
- 	if (t->sysctl_header == NULL) {
- 		kfree(t);
- 		t = NULL;
-@@ -579,7 +581,8 @@ static int __init parport_default_proc_register(void)
- 	int ret;
- 
- 	parport_default_sysctl_table.sysctl_header =
--		register_sysctl("dev/parport/default", parport_default_sysctl_table.vars);
-+		register_sysctl("dev/parport/default", parport_default_sysctl_table.vars,
-+				ARRAY_SIZE(parport_default_sysctl_table.vars));
- 	if (!parport_default_sysctl_table.sysctl_header)
- 		return -ENOMEM;
- 	ret = parport_bus_init();
-diff --git a/drivers/perf/arm_pmuv3.c b/drivers/perf/arm_pmuv3.c
-index c98e4039386d..763f9c8acfbf 100644
---- a/drivers/perf/arm_pmuv3.c
-+++ b/drivers/perf/arm_pmuv3.c
-@@ -1188,7 +1188,8 @@ static void armv8_pmu_register_sysctl_table(void)
- 	static u32 tbl_registered = 0;
- 
- 	if (!cmpxchg_relaxed(&tbl_registered, 0, 1))
--		register_sysctl("kernel", armv8_pmu_sysctl_table);
-+		register_sysctl("kernel", armv8_pmu_sysctl_table,
-+				ARRAY_SIZE(armv8_pmu_sysctl_table));
- }
- 
- static int armv8_pmu_init(struct arm_pmu *cpu_pmu, char *name,
-diff --git a/drivers/scsi/scsi_sysctl.c b/drivers/scsi/scsi_sysctl.c
-index 7f0914ea168f..0378bd63fea4 100644
---- a/drivers/scsi/scsi_sysctl.c
-+++ b/drivers/scsi/scsi_sysctl.c
-@@ -25,7 +25,8 @@ static struct ctl_table_header *scsi_table_header;
- 
- int __init scsi_init_sysctl(void)
- {
--	scsi_table_header = register_sysctl("dev/scsi", scsi_table);
-+	scsi_table_header = register_sysctl("dev/scsi", scsi_table,
-+					    ARRAY_SIZE(scsi_table));
- 	if (!scsi_table_header)
- 		return -ENOMEM;
- 	return 0;
-diff --git a/drivers/scsi/sg.c b/drivers/scsi/sg.c
-index 037f8c98a6d3..d12cdf875b50 100644
---- a/drivers/scsi/sg.c
-+++ b/drivers/scsi/sg.c
-@@ -1646,7 +1646,8 @@ static struct ctl_table_header *hdr;
- static void register_sg_sysctls(void)
- {
- 	if (!hdr)
--		hdr = register_sysctl("kernel", sg_sysctls);
-+		hdr = register_sysctl("kernel", sg_sysctls,
-+				      ARRAY_SIZE(sg_sysctls));
- }
- 
- static void unregister_sg_sysctls(void)
-diff --git a/fs/cachefiles/error_inject.c b/fs/cachefiles/error_inject.c
-index 18de8a876b02..ea6bcce4f6f1 100644
---- a/fs/cachefiles/error_inject.c
-+++ b/fs/cachefiles/error_inject.c
-@@ -24,7 +24,8 @@ static struct ctl_table cachefiles_sysctls[] = {
- 
- int __init cachefiles_register_error_injection(void)
- {
--	cachefiles_sysctl = register_sysctl("cachefiles", cachefiles_sysctls);
-+	cachefiles_sysctl = register_sysctl("cachefiles", cachefiles_sysctls,
-+					    ARRAY_SIZE(cachefiles_sysctls));
- 	if (!cachefiles_sysctl)
- 		return -ENOMEM;
- 	return 0;
-diff --git a/fs/coda/sysctl.c b/fs/coda/sysctl.c
-index a247c14aaab7..16224a7c6691 100644
---- a/fs/coda/sysctl.c
-+++ b/fs/coda/sysctl.c
-@@ -42,7 +42,8 @@ static struct ctl_table coda_table[] = {
- void coda_sysctl_init(void)
- {
- 	if ( !fs_table_header )
--		fs_table_header = register_sysctl("coda", coda_table);
-+		fs_table_header = register_sysctl("coda", coda_table,
-+						  ARRAY_SIZE(coda_table));
- }
- 
- void coda_sysctl_clean(void)
-diff --git a/fs/devpts/inode.c b/fs/devpts/inode.c
-index fe3db0eda8e4..c17f971a8c4b 100644
---- a/fs/devpts/inode.c
-+++ b/fs/devpts/inode.c
-@@ -612,7 +612,8 @@ static int __init init_devpts_fs(void)
- {
- 	int err = register_filesystem(&devpts_fs_type);
- 	if (!err) {
--		register_sysctl("kernel/pty", pty_table);
-+		register_sysctl("kernel/pty", pty_table,
-+				ARRAY_SIZE(pty_table));
- 	}
- 	return err;
- }
-diff --git a/fs/eventpoll.c b/fs/eventpoll.c
-index 980483455cc0..e1a0e6a6d3de 100644
---- a/fs/eventpoll.c
-+++ b/fs/eventpoll.c
-@@ -327,7 +327,7 @@ static struct ctl_table epoll_table[] = {
- 
- static void __init epoll_sysctls_init(void)
- {
--	register_sysctl("fs/epoll", epoll_table);
-+	register_sysctl("fs/epoll", epoll_table, ARRAY_SIZE(epoll_table));
- }
- #else
- #define epoll_sysctls_init() do { } while (0)
-diff --git a/fs/lockd/svc.c b/fs/lockd/svc.c
-index bb94949bc223..84736267f4e1 100644
---- a/fs/lockd/svc.c
-+++ b/fs/lockd/svc.c
-@@ -626,7 +626,8 @@ static int __init init_nlm(void)
- 
- #ifdef CONFIG_SYSCTL
- 	err = -ENOMEM;
--	nlm_sysctl_table = register_sysctl("fs/nfs", nlm_sysctls);
-+	nlm_sysctl_table = register_sysctl("fs/nfs", nlm_sysctls,
-+					   ARRAY_SIZE(nlm_sysctls));
- 	if (nlm_sysctl_table == NULL)
- 		goto err_sysctl;
- #endif
-diff --git a/fs/nfs/nfs4sysctl.c b/fs/nfs/nfs4sysctl.c
-index e776200e9a11..4a542ee11e68 100644
---- a/fs/nfs/nfs4sysctl.c
-+++ b/fs/nfs/nfs4sysctl.c
-@@ -40,7 +40,8 @@ static struct ctl_table nfs4_cb_sysctls[] = {
- int nfs4_register_sysctl(void)
- {
- 	nfs4_callback_sysctl_table = register_sysctl("fs/nfs",
--						     nfs4_cb_sysctls);
-+						     nfs4_cb_sysctls,
-+						     ARRAY_SIZE(nfs4_cb_sysctls));
- 	if (nfs4_callback_sysctl_table == NULL)
- 		return -ENOMEM;
- 	return 0;
-diff --git a/fs/nfs/sysctl.c b/fs/nfs/sysctl.c
-index f39e2089bc4c..9dafd44670e4 100644
---- a/fs/nfs/sysctl.c
-+++ b/fs/nfs/sysctl.c
-@@ -34,7 +34,8 @@ static struct ctl_table nfs_cb_sysctls[] = {
- 
- int nfs_register_sysctl(void)
- {
--	nfs_callback_sysctl_table = register_sysctl("fs/nfs", nfs_cb_sysctls);
-+	nfs_callback_sysctl_table = register_sysctl("fs/nfs", nfs_cb_sysctls,
-+						    ARRAY_SIZE(nfs_cb_sysctls));
- 	if (nfs_callback_sysctl_table == NULL)
- 		return -ENOMEM;
- 	return 0;
-diff --git a/fs/notify/fanotify/fanotify_user.c b/fs/notify/fanotify/fanotify_user.c
-index 22fb1cf7e1fc..78d3bf479f59 100644
---- a/fs/notify/fanotify/fanotify_user.c
-+++ b/fs/notify/fanotify/fanotify_user.c
-@@ -91,7 +91,8 @@ static struct ctl_table fanotify_table[] = {
- 
- static void __init fanotify_sysctls_init(void)
- {
--	register_sysctl("fs/fanotify", fanotify_table);
-+	register_sysctl("fs/fanotify", fanotify_table,
-+			ARRAY_SIZE(fanotify_table));
- }
- #else
- #define fanotify_sysctls_init() do { } while (0)
-diff --git a/fs/notify/inotify/inotify_user.c b/fs/notify/inotify/inotify_user.c
-index 1c4bfdab008d..0ce25c4ddfec 100644
---- a/fs/notify/inotify/inotify_user.c
-+++ b/fs/notify/inotify/inotify_user.c
-@@ -90,7 +90,8 @@ static struct ctl_table inotify_table[] = {
- 
- static void __init inotify_sysctls_init(void)
- {
--	register_sysctl("fs/inotify", inotify_table);
-+	register_sysctl("fs/inotify", inotify_table,
-+			ARRAY_SIZE(inotify_table));
- }
- 
- #else
-diff --git a/fs/ntfs/sysctl.c b/fs/ntfs/sysctl.c
-index 174fe536a1c0..2c48f48a0b80 100644
---- a/fs/ntfs/sysctl.c
-+++ b/fs/ntfs/sysctl.c
-@@ -44,7 +44,8 @@ int ntfs_sysctl(int add)
- {
- 	if (add) {
- 		BUG_ON(sysctls_root_table);
--		sysctls_root_table = register_sysctl("fs", ntfs_sysctls);
-+		sysctls_root_table = register_sysctl("fs", ntfs_sysctls,
-+						     ARRAY_SIZE(ntfs_sysctls));
- 		if (!sysctls_root_table)
- 			return -ENOMEM;
- 	} else {
-diff --git a/fs/ocfs2/stackglue.c b/fs/ocfs2/stackglue.c
-index a8d5ca98fa57..9a653875d1c5 100644
---- a/fs/ocfs2/stackglue.c
-+++ b/fs/ocfs2/stackglue.c
-@@ -673,7 +673,8 @@ static int __init ocfs2_stack_glue_init(void)
- 
- 	strcpy(cluster_stack_name, OCFS2_STACK_PLUGIN_O2CB);
- 
--	ocfs2_table_header = register_sysctl("fs/ocfs2/nm", ocfs2_nm_table);
-+	ocfs2_table_header = register_sysctl("fs/ocfs2/nm", ocfs2_nm_table,
-+					     ARRAY_SIZE(ocfs2_nm_table));
- 	if (!ocfs2_table_header) {
- 		printk(KERN_ERR
- 		       "ocfs2 stack glue: unable to register sysctl\n");
-diff --git a/fs/proc/proc_sysctl.c b/fs/proc/proc_sysctl.c
-index 8c415048d540..66c9d7a07d2e 100644
---- a/fs/proc/proc_sysctl.c
-+++ b/fs/proc/proc_sysctl.c
-@@ -43,7 +43,7 @@ struct ctl_table sysctl_mount_point[] = {
-  */
- struct ctl_table_header *register_sysctl_mount_point(const char *path)
- {
--	return register_sysctl(path, sysctl_mount_point);
-+	return register_sysctl(path, sysctl_mount_point, 0);
- }
- EXPORT_SYMBOL(register_sysctl_mount_point);
- 
-@@ -1414,17 +1414,11 @@ struct ctl_table_header *__register_sysctl_table(
-  *
-  * See __register_sysctl_table for more details.
-  */
--struct ctl_table_header *register_sysctl(const char *path, struct ctl_table *table)
-+struct ctl_table_header *register_sysctl(const char *path, struct ctl_table *table,
-+					 size_t table_size)
- {
--	int count = 0;
--	struct ctl_table *entry;
--	struct ctl_table_header t_hdr;
--
--	t_hdr.ctl_table = table;
--	list_for_each_table_entry(entry, (&t_hdr))
--		count++;
- 	return __register_sysctl_table(&sysctl_table_root.default_set,
--					path, table, count);
-+					path, table, table_size);
- }
- EXPORT_SYMBOL(register_sysctl);
- 
-@@ -1451,7 +1445,14 @@ EXPORT_SYMBOL(register_sysctl);
- void __init __register_sysctl_init(const char *path, struct ctl_table *table,
- 				 const char *table_name)
- {
--	struct ctl_table_header *hdr = register_sysctl(path, table);
-+	int count = 0;
-+	struct ctl_table *entry;
-+	struct ctl_table_header t_hdr, *hdr;
-+
-+	t_hdr.ctl_table = table;
-+	list_for_each_table_entry(entry, (&t_hdr))
-+		count++;
-+	hdr = register_sysctl(path, table, count);
- 
- 	if (unlikely(!hdr)) {
- 		pr_err("failed when register_sysctl %s to %s\n", table_name, path);
-diff --git a/fs/verity/signature.c b/fs/verity/signature.c
-index b8c51ad40d3a..f617c6a1f16c 100644
---- a/fs/verity/signature.c
-+++ b/fs/verity/signature.c
-@@ -103,7 +103,9 @@ static struct ctl_table fsverity_sysctl_table[] = {
- 
- static int __init fsverity_sysctl_init(void)
- {
--	fsverity_sysctl_header = register_sysctl("fs/verity", fsverity_sysctl_table);
-+	fsverity_sysctl_header = register_sysctl("fs/verity",
-+						 fsverity_sysctl_table,
-+						 ARRAY_SIZE(fsverity_sysctl_table));
- 	if (!fsverity_sysctl_header) {
- 		pr_err("sysctl registration failed!\n");
- 		return -ENOMEM;
-diff --git a/fs/xfs/xfs_sysctl.c b/fs/xfs/xfs_sysctl.c
-index fade33735393..61075e9c9e37 100644
---- a/fs/xfs/xfs_sysctl.c
-+++ b/fs/xfs/xfs_sysctl.c
-@@ -213,7 +213,8 @@ static struct ctl_table xfs_table[] = {
- int
- xfs_sysctl_register(void)
- {
--	xfs_table_header = register_sysctl("fs/xfs", xfs_table);
-+	xfs_table_header = register_sysctl("fs/xfs", xfs_table,
-+					   ARRAY_SIZE(xfs_table));
- 	if (!xfs_table_header)
- 		return -ENOMEM;
- 	return 0;
-diff --git a/include/linux/sysctl.h b/include/linux/sysctl.h
-index 0495c858989f..71d7935e50f0 100644
---- a/include/linux/sysctl.h
-+++ b/include/linux/sysctl.h
-@@ -227,7 +227,8 @@ extern void retire_sysctl_set(struct ctl_table_set *set);
- struct ctl_table_header *__register_sysctl_table(
- 	struct ctl_table_set *set,
- 	const char *path, struct ctl_table *table, size_t table_size);
--struct ctl_table_header *register_sysctl(const char *path, struct ctl_table *table);
-+struct ctl_table_header *register_sysctl(const char *path, struct ctl_table *table,
-+					 size_t table_size);
- void unregister_sysctl_table(struct ctl_table_header * table);
- 
- extern int sysctl_init_bases(void);
-@@ -262,7 +263,8 @@ static inline struct ctl_table_header *register_sysctl_mount_point(const char *p
- 	return NULL;
- }
- 
--static inline struct ctl_table_header *register_sysctl(const char *path, struct ctl_table *table)
-+static inline struct ctl_table_header *register_sysctl(const char *path, struct ctl_table *table,
-+						       size_t table_size)
- {
- 	return NULL;
- }
-diff --git a/kernel/pid_sysctl.h b/kernel/pid_sysctl.h
-index d67a4d45bb42..8b24744752cb 100644
---- a/kernel/pid_sysctl.h
-+++ b/kernel/pid_sysctl.h
-@@ -48,7 +48,7 @@ static struct ctl_table pid_ns_ctl_table_vm[] = {
- };
- static inline void register_pid_ns_sysctl_table_vm(void)
- {
--	register_sysctl("vm", pid_ns_ctl_table_vm);
-+	register_sysctl("vm", pid_ns_ctl_table_vm, ARRAY_SIZE(pid_ns_ctl_table_vm));
- }
- #else
- static inline void initialize_memfd_noexec_scope(struct pid_namespace *ns) {}
-diff --git a/kernel/time/timer.c b/kernel/time/timer.c
-index 63a8ce7177dd..de385b365a7a 100644
---- a/kernel/time/timer.c
-+++ b/kernel/time/timer.c
-@@ -265,7 +265,7 @@ static struct ctl_table timer_sysctl[] = {
- 
- static int __init timer_sysctl_init(void)
- {
--	register_sysctl("kernel", timer_sysctl);
-+	register_sysctl("kernel", timer_sysctl, ARRAY_SIZE(timer_sysctl));
- 	return 0;
- }
- device_initcall(timer_sysctl_init);
-diff --git a/kernel/ucount.c b/kernel/ucount.c
-index 2b80264bb79f..59bf6983f1cf 100644
---- a/kernel/ucount.c
-+++ b/kernel/ucount.c
-@@ -365,7 +365,7 @@ static __init int user_namespace_sysctl_init(void)
- 	 * default set so that registrations in the child sets work
- 	 * properly.
- 	 */
--	user_header = register_sysctl("user", empty);
-+	user_header = register_sysctl("user", empty, 0);
- 	kmemleak_ignore(user_header);
- 	BUG_ON(!user_header);
- 	BUG_ON(!setup_userns_sysctls(&init_user_ns));
-diff --git a/kernel/utsname_sysctl.c b/kernel/utsname_sysctl.c
-index 019e3a1566cf..24527b155538 100644
---- a/kernel/utsname_sysctl.c
-+++ b/kernel/utsname_sysctl.c
-@@ -138,7 +138,7 @@ void uts_proc_notify(enum uts_proc proc)
- 
- static int __init utsname_sysctl_init(void)
- {
--	register_sysctl("kernel", uts_kern_table);
-+	register_sysctl("kernel", uts_kern_table, ARRAY_SIZE(uts_kern_table));
- 	return 0;
- }
- 
-diff --git a/lib/test_sysctl.c b/lib/test_sysctl.c
-index 8036aa91a1cb..83d37a163836 100644
---- a/lib/test_sysctl.c
-+++ b/lib/test_sysctl.c
-@@ -166,7 +166,8 @@ static int test_sysctl_setup_node_tests(void)
- 	test_data.bitmap_0001 = kzalloc(SYSCTL_TEST_BITMAP_SIZE/8, GFP_KERNEL);
- 	if (!test_data.bitmap_0001)
- 		return -ENOMEM;
--	sysctl_test_headers.test_h_setup_node = register_sysctl("debug/test_sysctl", test_table);
-+	sysctl_test_headers.test_h_setup_node = register_sysctl("debug/test_sysctl", test_table,
-+					     ARRAY_SIZE(test_table));
- 	if (!sysctl_test_headers.test_h_setup_node) {
- 		kfree(test_data.bitmap_0001);
- 		return -ENOMEM;
-@@ -192,7 +193,8 @@ static int test_sysctl_run_unregister_nested(void)
- 	struct ctl_table_header *unregister;
- 
- 	unregister = register_sysctl("debug/test_sysctl/unregister_error",
--				   test_table_unregister);
-+				     test_table_unregister,
-+				     ARRAY_SIZE(test_table_unregister));
- 	if (!unregister)
- 		return -ENOMEM;
- 
-@@ -209,7 +211,8 @@ static int test_sysctl_run_register_mount_point(void)
- 
- 	sysctl_test_headers.test_h_mnterror
- 		= register_sysctl("debug/test_sysctl/mnt/mnt_error",
--				  test_table_unregister);
-+				  test_table_unregister,
-+				  ARRAY_SIZE(test_table_unregister));
- 	/*
- 	 * Don't check the result.:
- 	 * If it fails (expected behavior), return 0.
-diff --git a/net/sunrpc/sysctl.c b/net/sunrpc/sysctl.c
-index 93941ab12549..61222addda7e 100644
---- a/net/sunrpc/sysctl.c
-+++ b/net/sunrpc/sysctl.c
-@@ -167,7 +167,8 @@ void
- rpc_register_sysctl(void)
- {
- 	if (!sunrpc_table_header)
--		sunrpc_table_header = register_sysctl("sunrpc", debug_table);
-+		sunrpc_table_header = register_sysctl("sunrpc", debug_table,
-+						      ARRAY_SIZE(debug_table));
- }
- 
- void
-diff --git a/net/sunrpc/xprtrdma/svc_rdma.c b/net/sunrpc/xprtrdma/svc_rdma.c
-index f0d5eeed4c88..df7fb9c8b785 100644
---- a/net/sunrpc/xprtrdma/svc_rdma.c
-+++ b/net/sunrpc/xprtrdma/svc_rdma.c
-@@ -246,7 +246,8 @@ static int svc_rdma_proc_init(void)
- 		goto out_err;
- 
- 	svcrdma_table_header = register_sysctl("sunrpc/svc_rdma",
--					       svcrdma_parm_table);
-+					       svcrdma_parm_table,
-+					       ARRAY_SIZE(svcrdma_parm_table));
- 	return 0;
- 
- out_err:
-diff --git a/net/sunrpc/xprtrdma/transport.c b/net/sunrpc/xprtrdma/transport.c
-index 29b0562d62e7..bf43e05044a3 100644
---- a/net/sunrpc/xprtrdma/transport.c
-+++ b/net/sunrpc/xprtrdma/transport.c
-@@ -790,7 +790,9 @@ int xprt_rdma_init(void)
- 
- #if IS_ENABLED(CONFIG_SUNRPC_DEBUG)
- 	if (!sunrpc_table_header)
--		sunrpc_table_header = register_sysctl("sunrpc", xr_tunables_table);
-+		sunrpc_table_header = register_sysctl("sunrpc",
-+						      xr_tunables_table,
-+						      ARRAY_SIZE(xr_tunables_table));
- #endif
- 	return 0;
- }
-diff --git a/net/sunrpc/xprtsock.c b/net/sunrpc/xprtsock.c
-index 5f9030b81c9e..7c3d5ed708be 100644
---- a/net/sunrpc/xprtsock.c
-+++ b/net/sunrpc/xprtsock.c
-@@ -3169,7 +3169,9 @@ static struct xprt_class	xs_bc_tcp_transport = {
- int init_socket_xprt(void)
- {
- 	if (!sunrpc_table_header)
--		sunrpc_table_header = register_sysctl("sunrpc", xs_tunables_table);
-+		sunrpc_table_header = register_sysctl("sunrpc",
-+						      xs_tunables_table,
-+						      ARRAY_SIZE(xs_tunables_table));
- 
- 	xprt_register_transport(&xs_local_transport);
- 	xprt_register_transport(&xs_udp_transport);
-diff --git a/net/sysctl_net.c b/net/sysctl_net.c
-index 1757c18ea065..f96e6633fdd3 100644
---- a/net/sysctl_net.c
-+++ b/net/sysctl_net.c
-@@ -101,7 +101,7 @@ __init int net_sysctl_init(void)
- 	 * registering "/proc/sys/net" as an empty directory not in a
- 	 * network namespace.
- 	 */
--	net_header = register_sysctl("net", empty);
-+	net_header = register_sysctl("net", empty, 0);
- 	if (!net_header)
- 		goto out;
- 	ret = register_pernet_subsys(&sysctl_pernet_ops);
-diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
-index f431251ffb91..b77344506cf3 100644
---- a/security/apparmor/lsm.c
-+++ b/security/apparmor/lsm.c
-@@ -1785,7 +1785,8 @@ static struct ctl_table apparmor_sysctl_table[] = {
- 
- static int __init apparmor_init_sysctl(void)
- {
--	return register_sysctl("kernel", apparmor_sysctl_table) ? 0 : -ENOMEM;
-+	return register_sysctl("kernel", apparmor_sysctl_table,
-+			       ARRAY_SIZE(apparmor_sysctl_table)) ? 0 : -ENOMEM;
- }
- #else
- static inline int apparmor_init_sysctl(void)
-diff --git a/security/loadpin/loadpin.c b/security/loadpin/loadpin.c
-index ebae964f7cc9..6f2cc827df41 100644
---- a/security/loadpin/loadpin.c
-+++ b/security/loadpin/loadpin.c
-@@ -256,7 +256,8 @@ static int __init loadpin_init(void)
- 		enforce ? "" : "not ");
- 	parse_exclude();
- #ifdef CONFIG_SYSCTL
--	if (!register_sysctl("kernel/loadpin", loadpin_sysctl_table))
-+	if (!register_sysctl("kernel/loadpin", loadpin_sysctl_table,
-+			     ARRAY_SIZE(loadpin_sysctl_table)))
- 		pr_notice("sysctl registration failed!\n");
- #endif
- 	security_add_hooks(loadpin_hooks, ARRAY_SIZE(loadpin_hooks), "loadpin");
-diff --git a/security/yama/yama_lsm.c b/security/yama/yama_lsm.c
-index 2503cf153d4a..7b8164a4b504 100644
---- a/security/yama/yama_lsm.c
-+++ b/security/yama/yama_lsm.c
-@@ -461,7 +461,8 @@ static struct ctl_table yama_sysctl_table[] = {
- };
- static void __init yama_init_sysctl(void)
- {
--	if (!register_sysctl("kernel/yama", yama_sysctl_table))
-+	if (!register_sysctl("kernel/yama", yama_sysctl_table,
-+			     ARRAY_SIZE(yama_sysctl_table)))
- 		panic("Yama: sysctl registration failed.\n");
- }
- #else
--- 
-2.30.2
-
+Pi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+RnJvbTogTGl1LCBZaSBMIDx5aS5sLmxpdUBp
+bnRlbC5jb20+DQo+U2VudDogRnJpZGF5LCBKdW5lIDE2LCAyMDIzIDU6MzkgUE0gDQo+U3ViamVj
+dDogW1BBVENIIHYxMyAwMC8yMl0gQWRkIHZmaW9fZGV2aWNlIGNkZXYgZm9yIGlvbW11ZmQgc3Vw
+cG9ydA0KPi4uLg0KDQpQZXIgWWkncyBzdWdnZXN0aW9uLCB3cm90ZSBhIHNlbGZ0ZXN0IGFwcCB0
+byB2ZXJpZnkgZnVuY3Rpb25zIG9mIHRoaXMgcGF0Y2hzZXQgYnkgcmVmZXJlbmNpbmcgaHR0cHM6
+Ly9naXRodWIuY29tL2F3aWxsaWFtL3Rlc3RzLw0KDQpUZXN0IHBhc3Mgd2l0aCB0aGlzIGFwcCwg
+c28gVGVzdGVkLWJ5OiBaaGVuemhvbmcgRHVhbiA8emhlbnpob25nLmR1YW5AaW50ZWwuY29tPg0K
+VGVzdCByZXN1bHQ6DQojIC4vaW9tbXVmZC1wY2ktZGV2aWNlLW9wZW4gMCAwMDAwOjgxOjExLjAN
+ClVzaW5nIFBDSSBkZXZpY2UgMDAwMDo4MToxMS4wIHZmaW8gaWQ6ICAwDQpCaW5kIHRvIElPTU1V
+RkQgNCB3aXRoIGRldl9pZCAxDQpEZXZpY2Ugc3VwcG9ydHMgOSByZWdpb25zLCA1IGlycXMNClJl
+Z2lvbiAwOiBzaXplIDB4MjAwMDAsIG9mZnNldCAweDAsIGZsYWdzIDB4Nw0KW+KWkuKWkuKWkuKW
+kuKWkuKWkuKWkuKWkuKWkuKWkuKWkuKWkuKWkuKWkuKWkuKWkl0NClJlZ2lvbiAxOiBzaXplIDB4
+MCwgb2Zmc2V0IDB4MTAwMDAwMDAwMDAsIGZsYWdzIDB4MA0KUmVnaW9uIDI6IHNpemUgMHgwLCBv
+ZmZzZXQgMHgyMDAwMDAwMDAwMCwgZmxhZ3MgMHgwDQpSZWdpb24gMzogc2l6ZSAweDQwMDAsIG9m
+ZnNldCAweDMwMDAwMDAwMDAwLCBmbGFncyAweGYNClvilpLilpLilpLilpLilpLilpLilpLilpLi
+lpLilpLilpLilpLilpLilpLilpLilpJdDQpSZWdpb24gNDogc2l6ZSAweDAsIG9mZnNldCAweDQw
+MDAwMDAwMDAwLCBmbGFncyAweDANClJlZ2lvbiA1OiBzaXplIDB4MCwgb2Zmc2V0IDB4NTAwMDAw
+MDAwMDAsIGZsYWdzIDB4MA0KUmVnaW9uIDY6IHNpemUgMHgwLCBvZmZzZXQgMHg2MDAwMDAwMDAw
+MCwgZmxhZ3MgMHgwDQpSZWdpb24gNzogc2l6ZSAweDEwMDAsIG9mZnNldCAweDcwMDAwMDAwMDAw
+LCBmbGFncyAweDMNClJlZ2lvbiA4OiBGYWlsZWQgdG8gZ2V0IGluZm8NCkF0dGFjaGVkIElPTU1V
+RkQgNCBpb2FzIDIgaHdwdCAzDQpNYXBwZWQgdXNlcl92YSA3ZjQ5NmVkMDAwMDAgc2l6ZSAxMDAw
+MDAgdG8gaW92YSAwIGluIGlvYXMgMg0KSG90IHJlc2V0IGRlcGVuZGVudCBkZXZpY2UgY291bnQ6
+IDQNCjA6IDAwMDA6ODE6MDAuMCBkZXZpZCAtMQ0KMTogMDAwMDo4MTowMC4xIGRldmlkIC0xDQoy
+OiAwMDAwOjgxOjExLjAgZGV2aWQgMQ0KMzogMDAwMDo4MToxMS4xIGRldmlkIC0xDQpDYW5ub3Qg
+cmVzZXQgZGV2aWNlLCBkZXBlbmRzIG9uIGRldmljZSAwMDAwOjgxOjAwLjAgd2hpY2ggaXMgbm90
+IG93bmVkLg0KQ2Fubm90IHJlc2V0IGRldmljZSwgZGVwZW5kcyBvbiBkZXZpY2UgMDAwMDo4MTow
+MC4xIHdoaWNoIGlzIG5vdCBvd25lZC4NCkNhbm5vdCByZXNldCBkZXZpY2UsIGRlcGVuZHMgb24g
+ZGV2aWNlIDAwMDA6ODE6MTEuMSB3aGljaCBpcyBub3Qgb3duZWQuDQoNClNvdXJjZSBjb2RlOg0K
+IyBjYXQgaW9tbXVmZC1wY2ktZGV2aWNlLW9wZW4uYw0KI2luY2x1ZGUgPGVycm5vLmg+DQojaW5j
+bHVkZSA8bGliZ2VuLmg+DQojaW5jbHVkZSA8ZmNudGwuaD4NCiNpbmNsdWRlIDxsaWJnZW4uaD4N
+CiNpbmNsdWRlIDxzdGRpby5oPg0KI2luY2x1ZGUgPHN0ZGxpYi5oPg0KI2luY2x1ZGUgPHN0cmlu
+Zy5oPg0KI2luY2x1ZGUgPHVuaXN0ZC5oPg0KI2luY2x1ZGUgPHN5cy9pb2N0bC5oPg0KI2luY2x1
+ZGUgPHN5cy9tbWFuLmg+DQojaW5jbHVkZSA8c3lzL3BhcmFtLmg+DQojaW5jbHVkZSA8c3lzL3N0
+YXQuaD4NCiNpbmNsdWRlIDxzeXMvdHlwZXMuaD4NCiNpbmNsdWRlIDxzeXMvdmZzLmg+DQoNCiNp
+bmNsdWRlIDxsaW51eC9pb2N0bC5oPg0KI2luY2x1ZGUgImlvbW11ZmQuaCINCiNpbmNsdWRlICJ2
+ZmlvLmgiDQoNCnZvaWQgdXNhZ2UoY2hhciAqbmFtZSkNCnsNCiAgICAgICAgcHJpbnRmKCJ1c2Fn
+ZTogJXMgPHZmaW8gZGV2aWNlIGlkPiA8c3NzczpiYjpkZC5mPlxuIiwgbmFtZSk7DQp9DQoNCmlu
+dCBtYWluKGludCBhcmdjLCBjaGFyICoqYXJndikNCnsNCiAgICAgICAgaW50IGksIHJldCwgY29u
+dGFpbmVyLCBncm91cCwgZGV2aWNlLCB2ZmlvaWQsIGlvbW11ZmQ7DQogICAgICAgIGNoYXIgcGF0
+aFtQQVRIX01BWF07DQogICAgICAgIGludCBzZWcsIGJ1cywgZGV2LCBmdW5jOw0KDQogICAgICAg
+IHN0cnVjdCB2ZmlvX2RldmljZV9pbmZvIGRldmljZV9pbmZvID0gew0KICAgICAgICAgICAgICAg
+IC5hcmdzeiA9IHNpemVvZihkZXZpY2VfaW5mbykNCiAgICAgICAgfTsNCiAgICAgICAgc3RydWN0
+IHZmaW9fcmVnaW9uX2luZm8gcmVnaW9uX2luZm8gPSB7DQogICAgICAgICAgICAgICAgLmFyZ3N6
+ID0gc2l6ZW9mKHJlZ2lvbl9pbmZvKQ0KICAgICAgICB9Ow0KDQogICAgICAgIGlmIChhcmdjIDwg
+Mykgew0KICAgICAgICAgICAgICAgIHVzYWdlKGFyZ3ZbMF0pOw0KICAgICAgICAgICAgICAgIHJl
+dHVybiAtMTsNCiAgICAgICAgfQ0KDQogICAgICAgIHJldCA9IHNzY2FuZihhcmd2WzFdLCAiJWQi
+LCAmdmZpb2lkKTsNCiAgICAgICAgaWYgKHJldCAhPSAxKSB7DQogICAgICAgICAgICAgICAgdXNh
+Z2UoYXJndlswXSk7DQogICAgICAgICAgICAgICAgcmV0dXJuIC0xOw0KICAgICAgICB9DQoNCiAg
+ICAgICAgcmV0ID0gc3NjYW5mKGFyZ3ZbMl0sICIlMDR4OiUwMng6JTAyeC4lZCIsICZzZWcsICZi
+dXMsICZkZXYsICZmdW5jKTsNCiAgICAgICAgaWYgKHJldCAhPSA0KSB7DQogICAgICAgICAgICAg
+ICAgdXNhZ2UoYXJndlswXSk7DQogICAgICAgICAgICAgICAgcmV0dXJuIC0xOw0KICAgICAgICB9
+DQoNCiAgICAgICAgcHJpbnRmKCJVc2luZyBQQ0kgZGV2aWNlICUwNHg6JTAyeDolMDJ4LiVkIHZm
+aW8gaWQ6ICAlZFxuIiwNCiAgICAgICAgICAgICAgIHNlZywgYnVzLCBkZXYsIGZ1bmMsIHZmaW9p
+ZCk7DQoNCiAgICAgICAgc25wcmludGYocGF0aCwgc2l6ZW9mKHBhdGgpLCAiL2Rldi92ZmlvL2Rl
+dmljZXMvdmZpbyVkIiwgdmZpb2lkKTsNCiAgICAgICAgZGV2aWNlID0gb3BlbihwYXRoLCBPX1JE
+V1IpOw0KICAgICAgICBpZiAoZGV2aWNlIDwgMCkgew0KICAgICAgICAgICAgICAgIHByaW50Zigi
+RmFpbGVkIHRvIG9wZW4gJXMsICVkICglcylcbiIsDQogICAgICAgICAgICAgICAgICAgICAgIHBh
+dGgsIGRldmljZSwgc3RyZXJyb3IoZXJybm8pKTsNCiAgICAgICAgICAgICAgICByZXR1cm4gZGV2
+aWNlOw0KICAgICAgICB9DQoNCiAgICAgICAgc3RydWN0IHZmaW9fZGV2aWNlX2JpbmRfaW9tbXVm
+ZCBiaW5kID0gew0KICAgICAgICAgICAgLmFyZ3N6ID0gc2l6ZW9mKGJpbmQpLA0KICAgICAgICAg
+ICAgLmZsYWdzID0gMCwNCiAgICAgICAgfTsNCiAgICAgICAgc3RydWN0IGlvbW11X2lvYXNfYWxs
+b2MgYWxsb2NfZGF0YSAgPSB7DQogICAgICAgICAgICAuc2l6ZSA9IHNpemVvZihhbGxvY19kYXRh
+KSwNCiAgICAgICAgICAgIC5mbGFncyA9IDAsDQogICAgICAgIH07DQogICAgICAgIHN0cnVjdCB2
+ZmlvX2RldmljZV9hdHRhY2hfaW9tbXVmZF9wdCBhdHRhY2hfZGF0YSA9IHsNCiAgICAgICAgICAg
+IC5hcmdzeiA9IHNpemVvZihhdHRhY2hfZGF0YSksDQogICAgICAgICAgICAuZmxhZ3MgPSAwLA0K
+ICAgICAgICB9Ow0KICAgICAgICBzdHJ1Y3QgaW9tbXVfaW9hc19tYXAgbWFwID0gew0KICAgICAg
+ICAgICAgLnNpemUgPSBzaXplb2YobWFwKSwNCiAgICAgICAgICAgIC5mbGFncyA9IElPTU1VX0lP
+QVNfTUFQX1JFQURBQkxFIHwNCiAgICAgICAgICAgICAgICBJT01NVV9JT0FTX01BUF9XUklURUFC
+TEUgfA0KICAgICAgICAgICAgICAgIElPTU1VX0lPQVNfTUFQX0ZJWEVEX0lPVkEsDQogICAgICAg
+ICAgICAuX19yZXNlcnZlZCA9IDAsDQogICAgICAgIH07DQoNCiAgICAgICAgaW9tbXVmZCA9IG9w
+ZW4oIi9kZXYvaW9tbXUiLCBPX1JEV1IpOw0KICAgICAgICBpZiAoaW9tbXVmZCA8IDApIHsNCiAg
+ICAgICAgICAgICAgICBwcmludGYoIkZhaWxlZCB0byBvcGVuIC9kZXYvaW9tbXVmZCwgJWQgKCVz
+KVxuIiwNCiAgICAgICAgICAgICAgICAgICAgICAgaW9tbXVmZCwgc3RyZXJyb3IoZXJybm8pKTsN
+CiAgICAgICAgICAgICAgICByZXR1cm4gaW9tbXVmZDsNCiAgICAgICAgfQ0KDQogICAgICAgIGJp
+bmQuaW9tbXVmZCA9IGlvbW11ZmQ7IC8vIG5lZ2F0aXZlIHZhbHVlIG1lYW5zIHZmaW8tbm9pb21t
+dSBtb2RlDQogICAgICAgIHJldCA9IGlvY3RsKGRldmljZSwgVkZJT19ERVZJQ0VfQklORF9JT01N
+VUZELCAmYmluZCk7DQogICAgICAgIGlmIChyZXQgPCAwKSB7DQogICAgICAgICAgICAgICAgcHJp
+bnRmKCJGYWlsZWQgVkZJT19ERVZJQ0VfQklORF9JT01NVUZEICVkICglcylcbiIsDQogICAgICAg
+ICAgICAgICAgICAgICAgIHJldCwgc3RyZXJyb3IoZXJybm8pKTsNCiAgICAgICAgICAgICAgICBy
+ZXR1cm4gcmV0Ow0KICAgICAgICB9DQoNCiAgICAgICAgcHJpbnRmKCJCaW5kIHRvIElPTU1VRkQg
+JWQgd2l0aCBkZXZfaWQgJWRcbiIsIGlvbW11ZmQsIGJpbmQub3V0X2RldmlkKTsNCg0KICAgICAg
+ICBpZiAoaW9jdGwoZGV2aWNlLCBWRklPX0RFVklDRV9HRVRfSU5GTywgJmRldmljZV9pbmZvKSkg
+ew0KICAgICAgICAgICAgICAgIHByaW50ZigiRmFpbGVkIHRvIGdldCBkZXZpY2UgaW5mb1xuIik7
+DQogICAgICAgICAgICAgICAgcmV0dXJuIC0xOw0KICAgICAgICB9DQoNCiAgICAgICAgcHJpbnRm
+KCJEZXZpY2Ugc3VwcG9ydHMgJWQgcmVnaW9ucywgJWQgaXJxc1xuIiwNCiAgICAgICAgICAgICAg
+IGRldmljZV9pbmZvLm51bV9yZWdpb25zLCBkZXZpY2VfaW5mby5udW1faXJxcyk7DQoNCiAgICAg
+ICAgZm9yIChpID0gMDsgaSA8IGRldmljZV9pbmZvLm51bV9yZWdpb25zOyBpKyspIHsNCiAgICAg
+ICAgICAgICAgICBwcmludGYoIlJlZ2lvbiAlZDogIiwgaSk7DQogICAgICAgICAgICAgICAgcmVn
+aW9uX2luZm8uaW5kZXggPSBpOw0KICAgICAgICAgICAgICAgIGlmIChpb2N0bChkZXZpY2UsIFZG
+SU9fREVWSUNFX0dFVF9SRUdJT05fSU5GTywgJnJlZ2lvbl9pbmZvKSkgew0KICAgICAgICAgICAg
+ICAgICAgICAgICAgcHJpbnRmKCJGYWlsZWQgdG8gZ2V0IGluZm9cbiIpOw0KICAgICAgICAgICAg
+ICAgICAgICAgICAgY29udGludWU7DQogICAgICAgICAgICAgICAgfQ0KDQogICAgICAgICAgICAg
+ICAgcHJpbnRmKCJzaXplIDB4JWx4LCBvZmZzZXQgMHglbHgsIGZsYWdzIDB4JXhcbiIsDQogICAg
+ICAgICAgICAgICAgICAgICAgICh1bnNpZ25lZCBsb25nKXJlZ2lvbl9pbmZvLnNpemUsDQogICAg
+ICAgICAgICAgICAgICAgICAgICh1bnNpZ25lZCBsb25nKXJlZ2lvbl9pbmZvLm9mZnNldCwgcmVn
+aW9uX2luZm8uZmxhZ3MpOw0KICAgICAgICAgICAgICAgIGlmIChyZWdpb25faW5mby5mbGFncyAm
+IFZGSU9fUkVHSU9OX0lORk9fRkxBR19NTUFQKSB7DQogICAgICAgICAgICAgICAgICAgICAgICB2
+b2lkICptYXAgPSBtbWFwKE5VTEwsIChzaXplX3QpcmVnaW9uX2luZm8uc2l6ZSwNCiAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgUFJPVF9SRUFELCBNQVBfU0hBUkVELCBk
+ZXZpY2UsDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIChvZmZfdCly
+ZWdpb25faW5mby5vZmZzZXQpOw0KICAgICAgICAgICAgICAgICAgICAgICAgaWYgKG1hcCA9PSBN
+QVBfRkFJTEVEKSB7DQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHByaW50ZigibW1h
+cCBmYWlsZWRcbiIpOw0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBjb250aW51ZTsN
+CiAgICAgICAgICAgICAgICAgICAgICAgIH0NCg0KICAgICAgICAgICAgICAgICAgICAgICAgcHJp
+bnRmKCJbIik7DQogICAgICAgICAgICAgICAgICAgICAgICBmd3JpdGUobWFwLCAxLCByZWdpb25f
+aW5mby5zaXplID4gMTYgPyAxNiA6DQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICByZWdpb25faW5mby5zaXplLCBzdGRvdXQpOw0KICAgICAgICAgICAgICAg
+ICAgICAgICAgcHJpbnRmKCJdXG4iKTsNCiAgICAgICAgICAgICAgICAgICAgICAgIG11bm1hcCht
+YXAsIChzaXplX3QpcmVnaW9uX2luZm8uc2l6ZSk7DQogICAgICAgICAgICAgICAgfQ0KICAgICAg
+ICB9DQoNCiAgICAgICAgcmV0ID0gaW9jdGwoaW9tbXVmZCwgSU9NTVVfSU9BU19BTExPQywgJmFs
+bG9jX2RhdGEpOw0KICAgICAgICBpZiAocmV0IDwgMCkgew0KICAgICAgICAgICAgICAgIHByaW50
+ZigiRmFpbGVkIElPTU1VX0lPQVNfQUxMT0MgJWQgKCVzKVxuIiwNCiAgICAgICAgICAgICAgICAg
+ICAgICAgcmV0LCBzdHJlcnJvcihlcnJubykpOw0KICAgICAgICAgICAgICAgIHJldHVybiByZXQ7
+DQogICAgICAgIH0NCg0KICAgICAgICBhdHRhY2hfZGF0YS5wdF9pZCA9IGFsbG9jX2RhdGEub3V0
+X2lvYXNfaWQ7DQogICAgICAgIHJldCA9IGlvY3RsKGRldmljZSwgVkZJT19ERVZJQ0VfQVRUQUNI
+X0lPTU1VRkRfUFQsICZhdHRhY2hfZGF0YSk7DQogICAgICAgIGlmIChyZXQgPCAwKSB7DQogICAg
+ICAgICAgICAgICAgcHJpbnRmKCJGYWlsZWQgVkZJT19ERVZJQ0VfQVRUQUNIX0lPTU1VRkRfUFQg
+aW9hc19pZCAlZCAlZCAoJXMpXG4iLA0KICAgICAgICAgICAgICAgICAgICAgICBhdHRhY2hfZGF0
+YS5wdF9pZCwgcmV0LCBzdHJlcnJvcihlcnJubykpOw0KICAgICAgICAgICAgICAgIHJldHVybiBy
+ZXQ7DQogICAgICAgIH0NCg0KICAgICAgICBwcmludGYoIkF0dGFjaGVkIElPTU1VRkQgJWQgaW9h
+cyAlZCBod3B0ICVkXG4iLCBpb21tdWZkLCBhbGxvY19kYXRhLm91dF9pb2FzX2lkLCBhdHRhY2hf
+ZGF0YS5wdF9pZCk7DQoNCiAgICAgICAgLyogQWxsb2NhdGUgc29tZSBzcGFjZSBhbmQgc2V0dXAg
+YSBETUEgbWFwcGluZyAqLw0KICAgICAgICBtYXAudXNlcl92YSA9IChpbnQ2NF90KW1tYXAoMCwg
+MTAyNCAqIDEwMjQsIFBST1RfUkVBRCB8IFBST1RfV1JJVEUsDQogICAgICAgICAgICAgICAgTUFQ
+X1BSSVZBVEUgfCBNQVBfQU5PTllNT1VTLCAwLCAwKTsNCiAgICAgICAgbWFwLmlvdmEgPSAwOyAv
+KiAxTUIgc3RhcnRpbmcgYXQgMHgwIGZyb20gZGV2aWNlIHZpZXcgKi8NCiAgICAgICAgbWFwLmxl
+bmd0aCA9IDEwMjQgKiAxMDI0Ow0KICAgICAgICBtYXAuaW9hc19pZCA9IGFsbG9jX2RhdGEub3V0
+X2lvYXNfaWQ7Ow0KDQogICAgICAgIHJldCA9IGlvY3RsKGlvbW11ZmQsIElPTU1VX0lPQVNfTUFQ
+LCAmbWFwKTsNCiAgICAgICAgaWYgKHJldCA8IDApIHsNCiAgICAgICAgICAgICAgICBwcmludGYo
+IkZhaWxlZCBWRklPX0RFVklDRV9BVFRBQ0hfSU9NTVVGRF9QVCBpb2FzX2lkICVkICVkICglcylc
+biIsDQogICAgICAgICAgICAgICAgICAgICAgIGF0dGFjaF9kYXRhLnB0X2lkLCByZXQsIHN0cmVy
+cm9yKGVycm5vKSk7DQogICAgICAgICAgICAgICAgcmV0dXJuIHJldDsNCiAgICAgICAgfQ0KICAg
+ICAgICBwcmludGYoIk1hcHBlZCB1c2VyX3ZhICVsbHggc2l6ZSAlbGx4IHRvIGlvdmEgJWxseCBp
+biBpb2FzICVkXG4iLCBtYXAudXNlcl92YSwgbWFwLmxlbmd0aCwgbWFwLmlvdmEsIG1hcC5pb2Fz
+X2lkKTsNCg0KICAgICAgICBzdHJ1Y3QgdmZpb19wY2lfaG90X3Jlc2V0X2luZm8gKnJlc2V0X2lu
+Zm87DQogICAgICAgIHN0cnVjdCB2ZmlvX3BjaV9kZXBlbmRlbnRfZGV2aWNlICpkZXZpY2VzOw0K
+ICAgICAgICBzdHJ1Y3QgdmZpb19wY2lfaG90X3Jlc2V0ICpyZXNldDsNCiAgICAgICAgcmVzZXRf
+aW5mbyA9IG1hbGxvYyhzaXplb2YoKnJlc2V0X2luZm8pKTsNCiAgICAgICAgaWYgKCFyZXNldF9p
+bmZvKSB7DQogICAgICAgICAgICAgICAgcHJpbnRmKCJGYWlsZWQgdG8gYWxsb2MgaW5mbyBzdHJ1
+Y3RcbiIpOw0KICAgICAgICAgICAgICAgIHJldHVybiAtRU5PTUVNOw0KICAgICAgICB9DQoNCiAg
+ICAgICAgcmVzZXRfaW5mby0+YXJnc3ogPSBzaXplb2YoKnJlc2V0X2luZm8pOw0KDQogICAgICAg
+IHJldCA9IGlvY3RsKGRldmljZSwgVkZJT19ERVZJQ0VfR0VUX1BDSV9IT1RfUkVTRVRfSU5GTywg
+cmVzZXRfaW5mbyk7DQogICAgICAgIGlmIChyZXQgJiYgZXJybm8gPT0gRU5PREVWKSB7DQogICAg
+ICAgICAgICAgICAgcHJpbnRmKCJEZXZpY2UgZG9lcyBub3Qgc3VwcG9ydCBob3QgcmVzZXRcbiIp
+Ow0KICAgICAgICAgICAgICAgIHJldHVybiAwOw0KICAgICAgICB9DQogICAgICAgIGlmICghcmV0
+IHx8IGVycm5vICE9IEVOT1NQQykgew0KICAgICAgICAgICAgICAgIHByaW50ZigiRXhwZWN0ZWQg
+ZmFpbC8tRU5PU1BDLCBnb3QgJWQvJWRcbiIsIHJldCwgLWVycm5vKTsNCiAgICAgICAgICAgICAg
+ICByZXR1cm4gLTE7DQogICAgICAgIH0NCg0KICAgICAgICBwcmludGYoIkhvdCByZXNldCBkZXBl
+bmRlbnQgZGV2aWNlIGNvdW50OiAlZFxuIiwgcmVzZXRfaW5mby0+Y291bnQpOw0KDQogICAgICAg
+IHJlc2V0X2luZm8gPSByZWFsbG9jKHJlc2V0X2luZm8sIHNpemVvZigqcmVzZXRfaW5mbykgKw0K
+ICAgICAgICAgICAgICAgICAgICAgICAgKHJlc2V0X2luZm8tPmNvdW50ICogc2l6ZW9mKCpkZXZp
+Y2VzKSkpOw0KICAgICAgICBpZiAoIXJlc2V0X2luZm8pIHsNCiAgICAgICAgICAgICAgICBwcmlu
+dGYoIkZhaWxlZCB0byByZS1hbGxvYyBpbmZvIHN0cnVjdFxuIik7DQogICAgICAgICAgICAgICAg
+cmV0dXJuIC1FTk9NRU07DQogICAgICAgIH0NCg0KICAgICAgICByZXNldF9pbmZvLT5hcmdzeiA9
+IHNpemVvZigqcmVzZXRfaW5mbykgKw0KICAgICAgICAgICAgICAgIChyZXNldF9pbmZvLT5jb3Vu
+dCAqIHNpemVvZigqZGV2aWNlcykpOw0KICAgICAgICByZXQgPSBpb2N0bChkZXZpY2UsIFZGSU9f
+REVWSUNFX0dFVF9QQ0lfSE9UX1JFU0VUX0lORk8sIHJlc2V0X2luZm8pOw0KICAgICAgICBpZiAo
+cmV0KSB7DQogICAgICAgICAgICAgICAgcHJpbnRmKCJSZXNldCBJbmZvIGVycm9yXG4iKTsNCiAg
+ICAgICAgICAgICAgICByZXR1cm4gcmV0Ow0KICAgICAgICB9DQoNCiAgICAgICAgZGV2aWNlcyA9
+ICZyZXNldF9pbmZvLT5kZXZpY2VzWzBdOw0KDQogICAgICAgIGZvciAoaSA9IDA7IGkgPCByZXNl
+dF9pbmZvLT5jb3VudDsgaSsrKQ0KICAgICAgICAgICAgICAgIHByaW50ZigiJWQ6ICUwNHg6JTAy
+eDolMDJ4LiVkIGRldmlkICVkXG4iLCBpLA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICBkZXZpY2VzW2ldLnNlZ21lbnQsIGRldmljZXNbaV0uYnVzLA0KICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICBkZXZpY2VzW2ldLmRldmZuID4+IDMsIGRldmljZXNbaV0uZGV2Zm4gJiA3
+LA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBkZXZpY2VzW2ldLmRldmlkKTsNCg0K
+ICAgICAgICBpZiAoIShyZXNldF9pbmZvLT5mbGFncyAmIFZGSU9fUENJX0hPVF9SRVNFVF9GTEFH
+X0RFVl9JRCkpIHsNCiAgICAgICAgICAgICAgICBwcmludGYoIlZGSU9fUENJX0hPVF9SRVNFVF9G
+TEFHX0RFVl9JRCBzaG91bGQgYmUgc2V0IGZvciBJT01NVUZEXG4iKTsNCiAgICAgICAgICAgICAg
+ICByZXR1cm4gLTE7DQogICAgICAgIH0NCg0KICAgICAgICBpbnQgdW5vd25lZF9jbnQgPSAwOw0K
+ICAgICAgICBpZiAoIShyZXNldF9pbmZvLT5mbGFncyAmIFZGSU9fUENJX0hPVF9SRVNFVF9GTEFH
+X0RFVl9JRF9PV05FRCkpIHsNCiAgICAgICAgICAgICAgICBmb3IgKGkgPSAwOyBpIDwgcmVzZXRf
+aW5mby0+Y291bnQ7IGkrKykgew0KICAgICAgICAgICAgICAgICAgICAgICAgaWYgKGRldmljZXNb
+aV0uZGV2aWQgPT0gVkZJT19QQ0lfREVWSURfTk9UX09XTkVEKSB7DQogICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgIHVub3duZWRfY250Kys7DQogICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgIHByaW50ZigiQ2Fubm90IHJlc2V0IGRldmljZSwgIg0KICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICJkZXBlbmRzIG9uIGRldmljZSAlMDR4OiUwMng6JTAyeC4l
+eCAiDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIndoaWNoIGlzIG5v
+dCBvd25lZC5cbiIsDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZGV2
+aWNlc1tpXS5zZWdtZW50LCBkZXZpY2VzW2ldLmJ1cywNCiAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICBkZXZpY2VzW2ldLmRldmZuID4+IDMsIGRldmljZXNbaV0uZGV2Zm4g
+JiA3KTsNCiAgICAgICAgICAgICAgICAgICAgICAgIH0NCiAgICAgICAgICAgICAgICB9DQogICAg
+ICAgICAgICAgICAgaWYgKCF1bm93bmVkX2NudCkgew0KICAgICAgICAgICAgICAgICAgICAgICAg
+cHJpbnRmKCJmbGFncyBtaXNtYXRjaCB3aXRoIGRhdGEgZmllbGQsICINCiAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgIlZGSU9fUENJX0hPVF9SRVNFVF9GTEFHX0RFVl9JRF9PV05FRCBj
+bGFpbWVkIGJ1dCAiDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICJubyBWRklPX1BD
+SV9ERVZJRF9OT1RfT1dORURcbiIpOw0KICAgICAgICAgICAgICAgICAgICAgICAgcmV0dXJuIC0x
+Ow0KICAgICAgICAgICAgICAgIH0NCiAgICAgICAgICAgICAgICByZXR1cm4gMDsNCiAgICAgICAg
+fQ0KDQoNCiAgICAgICAgcHJpbnRmKCJBdHRlbXB0aW5nIHJlc2V0OiAiKTsNCiAgICAgICAgZmZs
+dXNoKHN0ZG91dCk7DQoNCiAgICAgICAgLyogVXNlIHplcm8gbGVuZ3RoIGFycmF5IGZvciBob3Qg
+cmVzZXQgd2l0aCBpb21tdWZkIGJhY2tlbmQgKi8NCiAgICAgICAgcmVzZXQgPSBtYWxsb2Moc2l6
+ZW9mKCpyZXNldCkpOw0KICAgICAgICByZXNldC0+YXJnc3ogPSBzaXplb2YoKnJlc2V0KTsNCg0K
+ICAgICAgICAvKiBCdXMgcmVzZXQhICovDQogICAgICAgIHJldCA9IGlvY3RsKGRldmljZSwgVkZJ
+T19ERVZJQ0VfUENJX0hPVF9SRVNFVCwgcmVzZXQpOw0KDQogICAgICAgIHJldCA9IGlvY3RsKGRl
+dmljZSwgVkZJT19ERVZJQ0VfUENJX0hPVF9SRVNFVCwgcmVzZXQpOw0KICAgICAgICBwcmludGYo
+IkhvdCByZXNldDogJXNcbiIsIHJldCA/ICJGYWlsZWQiIDogIlBhc3MiKTsNCg0KICAgICAgICBw
+cmludGYoIlByZXNzIGFueSBrZXkgdG8gZXhpdFxuIik7DQogICAgICAgIGZnZXRjKHN0ZGluKTsN
+Cg0KICAgICAgICByZXR1cm4gMDsNCn0NCg0KVGhhbmtzDQpaaGVuemhvbmcNCg0KDQo=
