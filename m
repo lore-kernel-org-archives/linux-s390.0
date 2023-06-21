@@ -2,133 +2,137 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A0890EB64DC
-	for <linux-s390@archiver.kernel.org>; Wed, 21 Jun 2023 15:01:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C31C6EB64D7
+	for <linux-s390@archiver.kernel.org>; Wed, 21 Jun 2023 15:35:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230392AbjFUPA7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 21 Jun 2023 11:00:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42160 "EHLO
+        id S233387AbjFUPfO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 21 Jun 2023 11:35:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233192AbjFUPAE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 21 Jun 2023 11:00:04 -0400
+        with ESMTP id S233465AbjFUPeo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 21 Jun 2023 11:34:44 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A71AD5FF0;
-        Wed, 21 Jun 2023 07:54:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F13011FE0;
+        Wed, 21 Jun 2023 08:34:24 -0700 (PDT)
 Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 35LEmqhb023057;
-        Wed, 21 Jun 2023 14:53:11 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : content-type : in-reply-to :
- mime-version; s=pp1; bh=ufplYvlDcXmpwfmv6hySA3mz7btguYibmlfOu+EhMyQ=;
- b=RksFeJCqi8/XEsNsFNNOeDB6kOaDGSwtr/y3SMMlGsZiDdvUE0WTs/Sgq5XJRyXVSmHX
- +br3q8ohmX33mzOyLHHadNhxSQn5zaVrGCvgL/YeBzrHrY+GOut69jqxfe0E3z3I6g+V
- sxgB9PvEgYNW8nqPIgSEy/nLTRuCbIkMH02R5slzI7XTjRV8DIBwkc+o+3TTga/UeRGP
- DQW2O10/YgdwB8ZEf/CpMLQyaBTeFHE46P2ktveNTB3+Mgq3uHMmGqNSp9F5B4vSKty+
- pwUTVv95Ocmw+GHnz1zVWhDIkS2hnHlvLGH9GhSwBocuuVVzgIajx+sSLROTbfrxasxy 4Q== 
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 35LFPXr3010211;
+        Wed, 21 Jun 2023 15:34:24 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=ior3p9PwOvimuqOAF02R59UYURSdnc9HphpU5H5wHCs=;
+ b=UNLUfXO7K8v86UQoEQBMnCASwJter9yYfhQgJs027tdjnpmmCaNbbDjdKH78vufik23O
+ rQL3SQcqAtmzNAUH+Lkq+qG6qWmfhYWCZJrHDLEDJ3SVp70p3r1a1eZhHyP2jHNrvT75
+ NhyL/PFO084m6n/E8JSEsHpi7ybHaK6MLIf4GKpgOU+AXkYqVaJtGhXOE1CvwVPzzu6i
+ NBEbprSXwN/1xUtlzqJ4oyf7HEQ1ITPb6BG1hEyO0AELvD3+frF+K/rzDuFApojb1966
+ VmKSlPjCvi43A92MLxT71Gj5PAXlR0xGZBaeAey6ErSuYvDWhHiQ8slw0sKN/IgnTuor sw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rc3a3g3rb-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rc3u70ahr-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 21 Jun 2023 14:53:10 +0000
+        Wed, 21 Jun 2023 15:34:24 +0000
 Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 35LEmtmJ023155;
-        Wed, 21 Jun 2023 14:53:10 GMT
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rc3a3g3q0-1
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 35LFSnNm020619;
+        Wed, 21 Jun 2023 15:34:23 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rc3u70aex-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 21 Jun 2023 14:53:09 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 35L5ZtLD020901;
-        Wed, 21 Jun 2023 14:53:07 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma05fra.de.ibm.com (PPS) with ESMTPS id 3r94f524m3-1
+        Wed, 21 Jun 2023 15:34:23 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 35L3IF3f011691;
+        Wed, 21 Jun 2023 15:34:21 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3r94f5audy-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 21 Jun 2023 14:53:07 +0000
+        Wed, 21 Jun 2023 15:34:20 +0000
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 35LEr3vZ40960344
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 35LFYHHa23528008
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 21 Jun 2023 14:53:03 GMT
+        Wed, 21 Jun 2023 15:34:17 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B7D1A20043;
-        Wed, 21 Jun 2023 14:53:03 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 91EA820040;
+        Wed, 21 Jun 2023 15:34:17 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 11FD520040;
-        Wed, 21 Jun 2023 14:53:03 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.155.204.135])
-        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Wed, 21 Jun 2023 14:53:03 +0000 (GMT)
-Date:   Wed, 21 Jun 2023 16:53:01 +0200
-From:   Alexander Gordeev <agordeev@linux.ibm.com>
-To:     Baoquan He <bhe@redhat.com>
-Cc:     kernel test robot <lkp@intel.com>, linux-kernel@vger.kernel.org,
-        oe-kbuild-all@lists.linux.dev, linux-arch@vger.kernel.org,
-        linux-mm@kvack.org, arnd@arndb.de, christophe.leroy@csgroup.eu,
-        hch@lst.de, rppt@kernel.org, willy@infradead.org,
-        wangkefeng.wang@huawei.com, schnelle@linux.ibm.com,
-        David.Laight@aculab.com, shorne@gmail.com, deller@gmx.de,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v6 10/19] s390: mm: Convert to GENERIC_IOREMAP
-Message-ID: <ZJMOzbQeVCLJfvXk@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-References: <20230609075528.9390-11-bhe@redhat.com>
- <202306100105.8GHnoMCP-lkp@intel.com>
- <ZIWrtFMUnRfVP5h0@MiWiFi-R3L-srv>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ZIWrtFMUnRfVP5h0@MiWiFi-R3L-srv>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: NsNfLNerAb4XCeCbSoD6l5PpTopTDxHU
-X-Proofpoint-ORIG-GUID: O67ntRKqq7CkkGkM2LAJDtH5Mvg4y18j
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        by IMSVA (Postfix) with ESMTP id 2AFF520043;
+        Wed, 21 Jun 2023 15:34:17 +0000 (GMT)
+Received: from li-9fd7f64c-3205-11b2-a85c-df942b00d78d.ibm.com.com (unknown [9.171.33.34])
+        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 21 Jun 2023 15:34:17 +0000 (GMT)
+From:   Janosch Frank <frankja@linux.ibm.com>
+To:     pbonzini@redhat.com
+Cc:     kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com,
+        borntraeger@linux.ibm.com, linux-s390@vger.kernel.org,
+        imbrenda@linux.ibm.com, nrb@linux.ibm.com, pmorel@linux.ibm.com
+Subject: [GIT PULL 04/11] KVM: s390/diag: fix racy access of physical cpu number in diag 9c handler
+Date:   Wed, 21 Jun 2023 17:29:10 +0200
+Message-ID: <20230621153227.57250-5-frankja@linux.ibm.com>
+X-Mailer: git-send-email 2.41.0
+In-Reply-To: <20230621153227.57250-1-frankja@linux.ibm.com>
+References: <20230621153227.57250-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: J-Qt72TXcM1nsAS-UWapBcjkjhosxfz6
+X-Proofpoint-ORIG-GUID: AvHH4HyVD0REpdDG3Xyl-Ex9r0n14wrR
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
  definitions=2023-06-21_08,2023-06-16_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
- impostorscore=0 mlxscore=0 clxscore=1015 bulkscore=0 adultscore=0
- lowpriorityscore=0 phishscore=0 mlxlogscore=999 priorityscore=1501
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2305260000 definitions=main-2306210123
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 impostorscore=0
+ spamscore=0 lowpriorityscore=0 malwarescore=0 phishscore=0 suspectscore=0
+ clxscore=1015 adultscore=0 mlxscore=0 priorityscore=1501 mlxlogscore=999
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2305260000
+ definitions=main-2306210131
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sun, Jun 11, 2023 at 07:10:44PM +0800, Baoquan He wrote:
+From: Christian Borntraeger <borntraeger@linux.ibm.com>
 
-Hi Baoquan,
+We do check for target CPU == -1, but this might change at the time we
+are going to use it. Hold the physical target CPU in a local variable to
+avoid out-of-bound accesses to the cpu arrays.
 
-> From 26aedf424dac7e58dd1389e554cfe0693e2b371f Mon Sep 17 00:00:00 2001
-> From: Baoquan He <bhe@redhat.com>
-> Date: Sun, 11 Jun 2023 18:37:43 +0800
-> Subject: [PATCH] s390: mm: fix building error when converting to
->  GENERIC_IOREMAP
-> Content-type: text/plain
-> 
-> We should always include <asm/io.h> in ARCH, but not <asm-generic/io.h>
-> directly. Otherwise, macro defined by ARCH won't be seen and could cause
-> building error.
-> 
-> Reported-by: kernel test robot <lkp@intel.com>
-> Closes: https://lore.kernel.org/oe-kbuild-all/202306100105.8GHnoMCP-lkp@intel.com/
-> Signed-off-by: Baoquan He <bhe@redhat.com>
-> ---
->  arch/s390/kernel/perf_cpum_sf.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-> index 7ef72f5ff52e..b0269f3881aa 100644
-> --- a/arch/s390/kernel/perf_cpum_sf.c
-> +++ b/arch/s390/kernel/perf_cpum_sf.c
-> @@ -22,7 +22,7 @@
->  #include <asm/irq.h>
->  #include <asm/debug.h>
->  #include <asm/timex.h>
-> -#include <asm-generic/io.h>
-> +#include <asm/io.h>
->  
->  /* Minimum number of sample-data-block-tables:
->   * At least one table is required for the sampling buffer structure.
+Cc: Pierre Morel <pmorel@linux.ibm.com>
+Fixes: 87e28a15c42c ("KVM: s390: diag9c (directed yield) forwarding")
+Reported-by: Marc Hartmayer <mhartmay@linux.ibm.com>
+Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+---
+ arch/s390/kvm/diag.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-Applied, thanks!
+diff --git a/arch/s390/kvm/diag.c b/arch/s390/kvm/diag.c
+index 807fa9da1e72..3c65b8258ae6 100644
+--- a/arch/s390/kvm/diag.c
++++ b/arch/s390/kvm/diag.c
+@@ -166,6 +166,7 @@ static int diag9c_forwarding_overrun(void)
+ static int __diag_time_slice_end_directed(struct kvm_vcpu *vcpu)
+ {
+ 	struct kvm_vcpu *tcpu;
++	int tcpu_cpu;
+ 	int tid;
+ 
+ 	tid = vcpu->run->s.regs.gprs[(vcpu->arch.sie_block->ipa & 0xf0) >> 4];
+@@ -181,14 +182,15 @@ static int __diag_time_slice_end_directed(struct kvm_vcpu *vcpu)
+ 		goto no_yield;
+ 
+ 	/* target guest VCPU already running */
+-	if (READ_ONCE(tcpu->cpu) >= 0) {
++	tcpu_cpu = READ_ONCE(tcpu->cpu);
++	if (tcpu_cpu >= 0) {
+ 		if (!diag9c_forwarding_hz || diag9c_forwarding_overrun())
+ 			goto no_yield;
+ 
+ 		/* target host CPU already running */
+-		if (!vcpu_is_preempted(tcpu->cpu))
++		if (!vcpu_is_preempted(tcpu_cpu))
+ 			goto no_yield;
+-		smp_yield_cpu(tcpu->cpu);
++		smp_yield_cpu(tcpu_cpu);
+ 		VCPU_EVENT(vcpu, 5,
+ 			   "diag time slice end directed to %d: yield forwarded",
+ 			   tid);
+-- 
+2.41.0
+
