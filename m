@@ -2,248 +2,230 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 680F7C0015E
-	for <linux-s390@archiver.kernel.org>; Wed, 21 Jun 2023 15:35:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A754EB64D7
+	for <linux-s390@archiver.kernel.org>; Wed, 21 Jun 2023 15:35:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233455AbjFUPfQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 21 Jun 2023 11:35:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41816 "EHLO
+        id S233477AbjFUPfS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 21 Jun 2023 11:35:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233475AbjFUPer (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 21 Jun 2023 11:34:47 -0400
+        with ESMTP id S233548AbjFUPey (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 21 Jun 2023 11:34:54 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2EF519A3;
-        Wed, 21 Jun 2023 08:34:26 -0700 (PDT)
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 35LFSOUW019236;
-        Wed, 21 Jun 2023 15:34:26 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 079011FFA;
+        Wed, 21 Jun 2023 08:34:29 -0700 (PDT)
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 35LFPTse009992;
+        Wed, 21 Jun 2023 15:34:29 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=0QevZ86JqtFE7G2HU50yRKwnnPsAxZ2n1pOUwOGq/cU=;
- b=MZ4Bn5IPCC9ZiDXfC5sEiOp649hrP5SkzDQT+y3Sn4OnzF0QRg8fLUEUcv/fewa+5Fny
- hfIKogMLvR8dzt7m13b/tI4uG9SeKntL/l5iZoeenouQwfVpIoOxR4LAkO2Dhtr/EYEw
- RTanXLOlvyrgABlMa4ntx5VRAwSj/+zoAIkidMf7QaVvhV4EPtT+GdUkQLLKMQ2/l5yK
- CcjN7axeb39uXg5naRH0Qo+LrgdKvlTYUGnoQFS35lwsBTeEo6GAzY/zQGxg0i9h5dEz
- RoqDx5JtT0T7b7pAcYOTKYjfObyq6n6Gtd1ANLT2u0xUTNKLtk3lvRg5A1wozmENoWd9 vQ== 
+ : mime-version; s=pp1; bh=6Ow8M76yyb0ETXTWmKD7gTGVplFd/Xm3mz1VcbqGynw=;
+ b=XLao6dBWEg6XbUHCjzjaucunGQZB4l/kGfj+2nIyAZCYggcaKamZ70sIh0YgJ369dQ9T
+ XPpyjjz4Rjw4V+WMWGPxtISCl9B33zjsvtC1CiGc4HB/Vhii06eF2Ra6gkO8KZ43VHvu
+ fh2Mb2neUOIsrlnUY7I0DMtj7am8HvYoMY5Kh9OIksQpUiF3M9KBHhr59vaeYjwLTgZi
+ kHpHwgx2Gjtc+I3F+P44+iCYW7v3UmLcI4NE8mhO+L0KvmBQftNsBYY45FPL8fk4FbPH
+ qppDzAIDmf/de2eZKM39ocsLN3t4kZxCQ4bqXhXwu0X1ZbtnIuf4W2qQ6xUT5Bw31lLw eA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rc3vn07bp-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rc3u70aq4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 21 Jun 2023 15:34:28 +0000
+Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 35LFPoSh010394;
+        Wed, 21 Jun 2023 15:34:27 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rc3u70ak8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Wed, 21 Jun 2023 15:34:26 +0000
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 35LFTJUd021266;
-        Wed, 21 Jun 2023 15:34:25 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rc3vn078r-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 21 Jun 2023 15:34:25 +0000
 Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 35L1iLQf030595;
-        Wed, 21 Jun 2023 15:34:23 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3r94f5aue1-1
+        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 35L3IF3g011691;
+        Wed, 21 Jun 2023 15:34:24 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3r94f5aue3-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 21 Jun 2023 15:34:22 +0000
+        Wed, 21 Jun 2023 15:34:24 +0000
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 35LFYJKO5833384
+        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 35LFYLsH44695824
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 21 Jun 2023 15:34:19 GMT
+        Wed, 21 Jun 2023 15:34:21 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 822C720040;
-        Wed, 21 Jun 2023 15:34:19 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id F163320040;
+        Wed, 21 Jun 2023 15:34:20 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1DCD820043;
-        Wed, 21 Jun 2023 15:34:19 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 8D1E420049;
+        Wed, 21 Jun 2023 15:34:20 +0000 (GMT)
 Received: from li-9fd7f64c-3205-11b2-a85c-df942b00d78d.ibm.com.com (unknown [9.171.33.34])
         by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 21 Jun 2023 15:34:19 +0000 (GMT)
+        Wed, 21 Jun 2023 15:34:20 +0000 (GMT)
 From:   Janosch Frank <frankja@linux.ibm.com>
 To:     pbonzini@redhat.com
 Cc:     kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com,
         borntraeger@linux.ibm.com, linux-s390@vger.kernel.org,
         imbrenda@linux.ibm.com, nrb@linux.ibm.com, pmorel@linux.ibm.com
-Subject: [GIT PULL 08/11] s390/uvdevice: Add 'List Secrets' UVC
-Date:   Wed, 21 Jun 2023 17:29:14 +0200
-Message-ID: <20230621153227.57250-9-frankja@linux.ibm.com>
+Subject: [GIT PULL 11/11] s390/uv: Update query for secret-UVCs
+Date:   Wed, 21 Jun 2023 17:29:17 +0200
+Message-ID: <20230621153227.57250-12-frankja@linux.ibm.com>
 X-Mailer: git-send-email 2.41.0
 In-Reply-To: <20230621153227.57250-1-frankja@linux.ibm.com>
 References: <20230621153227.57250-1-frankja@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 0unV-dYY4ckbGuoIZodmL9Cm8053N3vP
-X-Proofpoint-ORIG-GUID: Bd8rf3yLDAF_qMa15beK7whJuNwfkA2w
+X-Proofpoint-GUID: oPTSMQhJlywPQ72mjM0M0kSgQ-HUlI5A
+X-Proofpoint-ORIG-GUID: x0VA4QBuq-ZcdKiwX0knXSNyGjGhb2-N
 Content-Transfer-Encoding: 8bit
 X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
  definitions=2023-06-21_08,2023-06-16_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 spamscore=0
- priorityscore=1501 impostorscore=0 suspectscore=0 bulkscore=0
- lowpriorityscore=0 mlxlogscore=999 adultscore=0 clxscore=1015 phishscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2305260000 definitions=main-2306210131
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 impostorscore=0
+ spamscore=0 lowpriorityscore=0 malwarescore=0 phishscore=0 suspectscore=0
+ clxscore=1015 adultscore=0 mlxscore=0 priorityscore=1501 mlxlogscore=999
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2305260000
+ definitions=main-2306210131
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 From: Steffen Eiden <seiden@linux.ibm.com>
 
-Userspace can call the List Secrets Ultravisor Call
-using IOCTLs on the uvdevice. The List Secrets UV call lists the
-identifier of the secrets in the UV secret store.
+Update the query struct such that secret-UVC related
+information can be parsed.
+Add sysfs files for these new values.
 
-The uvdevice is merely transporting the request from userspace to
-Ultravisor. It's neither checking nor manipulating the request or
-response data.
+'supp_add_secret_req_ver' notes the supported versions for the
+Add Secret UVC. Bit 0 indicates that version 0x100 is supported,
+bit 1 indicates 0x200, and so on.
+
+'supp_add_secret_pcf' notes the supported plaintext flags for
+the Add Secret UVC.
+
+'supp_secret_types' notes the supported types of secrets.
+Bit 0 indicates secret type 1, bit 1 indicates type 2, and so on.
+
+'max_secrets' notes the maximum amount of secrets the secret store can
+store per pv guest.
 
 Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
 Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Link: https://lore.kernel.org/r/20230615100533.3996107-5-seiden@linux.ibm.com
+Link: https://lore.kernel.org/r/20230615100533.3996107-8-seiden@linux.ibm.com
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Message-Id: <20230615100533.3996107-5-seiden@linux.ibm.com>
+Message-Id: <20230615100533.3996107-8-seiden@linux.ibm.com>
 ---
- arch/s390/include/asm/uv.h            |  3 ++
- arch/s390/include/uapi/asm/uvdevice.h |  4 +++
- drivers/s390/char/uvdevice.c          | 52 +++++++++++++++++++++++++++
- 3 files changed, 59 insertions(+)
+ arch/s390/boot/uv.c        |  4 ++++
+ arch/s390/include/asm/uv.h | 13 +++++++++++--
+ arch/s390/kernel/uv.c      | 40 ++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 55 insertions(+), 2 deletions(-)
 
+diff --git a/arch/s390/boot/uv.c b/arch/s390/boot/uv.c
+index 0a077c0a2056..1e66d2cbb096 100644
+--- a/arch/s390/boot/uv.c
++++ b/arch/s390/boot/uv.c
+@@ -47,6 +47,10 @@ void uv_query_info(void)
+ 		uv_info.conf_dump_finalize_len = uvcb.conf_dump_finalize_len;
+ 		uv_info.supp_att_req_hdr_ver = uvcb.supp_att_req_hdr_ver;
+ 		uv_info.supp_att_pflags = uvcb.supp_att_pflags;
++		uv_info.supp_add_secret_req_ver = uvcb.supp_add_secret_req_ver;
++		uv_info.supp_add_secret_pcf = uvcb.supp_add_secret_pcf;
++		uv_info.supp_secret_types = uvcb.supp_secret_types;
++		uv_info.max_secrets = uvcb.max_secrets;
+ 	}
+ 
+ #ifdef CONFIG_PROTECTED_VIRTUALIZATION_GUEST
 diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
-index 1babc70ea5d4..3739c8f6a129 100644
+index 3203ffbdde6b..d6bb2f4f78d1 100644
 --- a/arch/s390/include/asm/uv.h
 +++ b/arch/s390/include/asm/uv.h
-@@ -59,6 +59,7 @@
- #define UVC_CMD_REMOVE_SHARED_ACCESS	0x1001
- #define UVC_CMD_RETR_ATTEST		0x1020
- #define UVC_CMD_ADD_SECRET		0x1031
-+#define UVC_CMD_LIST_SECRETS		0x1033
+@@ -123,7 +123,7 @@ struct uv_cb_qui {
+ 	u32 reserved70[3];			/* 0x0070 */
+ 	u32 max_num_sec_conf;			/* 0x007c */
+ 	u64 max_guest_stor_addr;		/* 0x0080 */
+-	u8  reserved88[158 - 136];		/* 0x0088 */
++	u8  reserved88[0x9e - 0x88];		/* 0x0088 */
+ 	u16 max_guest_cpu_id;			/* 0x009e */
+ 	u64 uv_feature_indications;		/* 0x00a0 */
+ 	u64 reserveda8;				/* 0x00a8 */
+@@ -135,7 +135,12 @@ struct uv_cb_qui {
+ 	u64 reservedd8;				/* 0x00d8 */
+ 	u64 supp_att_req_hdr_ver;		/* 0x00e0 */
+ 	u64 supp_att_pflags;			/* 0x00e8 */
+-	u8 reservedf0[256 - 240];		/* 0x00f0 */
++	u64 reservedf0;				/* 0x00f0 */
++	u64 supp_add_secret_req_ver;		/* 0x00f8 */
++	u64 supp_add_secret_pcf;		/* 0x0100 */
++	u64 supp_secret_types;			/* 0x0180 */
++	u16 max_secrets;			/* 0x0110 */
++	u8 reserved112[0x120 - 0x112];		/* 0x0112 */
+ } __packed __aligned(8);
  
- /* Bits in installed uv calls */
- enum uv_cmds_inst {
-@@ -90,6 +91,7 @@ enum uv_cmds_inst {
- 	BIT_UVC_CMD_DUMP_COMPLETE = 27,
- 	BIT_UVC_CMD_RETR_ATTEST = 28,
- 	BIT_UVC_CMD_ADD_SECRET = 29,
-+	BIT_UVC_CMD_LIST_SECRETS = 30,
+ /* Initialize Ultravisor */
+@@ -384,6 +389,10 @@ struct uv_info {
+ 	unsigned long conf_dump_finalize_len;
+ 	unsigned long supp_att_req_hdr_ver;
+ 	unsigned long supp_att_pflags;
++	unsigned long supp_add_secret_req_ver;
++	unsigned long supp_add_secret_pcf;
++	unsigned long supp_secret_types;
++	unsigned short max_secrets;
  };
  
- enum uv_feat_ind {
-@@ -298,6 +300,7 @@ struct uv_cb_dump_complete {
-  * A common UV call struct for pv guests that contains a single address
-  * Examples:
-  * Add Secret
-+ * List Secrets
-  */
- struct uv_cb_guest_addr {
- 	struct uv_cb_header header;
-diff --git a/arch/s390/include/uapi/asm/uvdevice.h b/arch/s390/include/uapi/asm/uvdevice.h
-index e77410226598..76045da44868 100644
---- a/arch/s390/include/uapi/asm/uvdevice.h
-+++ b/arch/s390/include/uapi/asm/uvdevice.h
-@@ -70,6 +70,7 @@ struct uvio_uvdev_info {
- #define UVIO_ATT_MEASUREMENT_MAX_LEN	0x8000
- #define UVIO_ATT_ADDITIONAL_MAX_LEN	0x8000
- #define UVIO_ADD_SECRET_MAX_LEN		0x100000
-+#define UVIO_LIST_SECRETS_LEN		0x1000
+ extern struct uv_info uv_info;
+diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
+index 6a23a13d0dfc..273a0281a189 100644
+--- a/arch/s390/kernel/uv.c
++++ b/arch/s390/kernel/uv.c
+@@ -579,6 +579,42 @@ static ssize_t uv_query_supp_att_pflags(struct kobject *kobj,
+ static struct kobj_attribute uv_query_supp_att_pflags_attr =
+ 	__ATTR(supp_att_pflags, 0444, uv_query_supp_att_pflags, NULL);
  
- #define UVIO_DEVICE_NAME "uv"
- #define UVIO_TYPE_UVC 'u'
-@@ -78,6 +79,7 @@ enum UVIO_IOCTL_NR {
- 	UVIO_IOCTL_UVDEV_INFO_NR = 0x00,
- 	UVIO_IOCTL_ATT_NR,
- 	UVIO_IOCTL_ADD_SECRET_NR,
-+	UVIO_IOCTL_LIST_SECRETS_NR,
- 	/* must be the last entry */
- 	UVIO_IOCTL_NUM_IOCTLS
- };
-@@ -86,10 +88,12 @@ enum UVIO_IOCTL_NR {
- #define UVIO_IOCTL_UVDEV_INFO	UVIO_IOCTL(UVIO_IOCTL_UVDEV_INFO_NR)
- #define UVIO_IOCTL_ATT		UVIO_IOCTL(UVIO_IOCTL_ATT_NR)
- #define UVIO_IOCTL_ADD_SECRET	UVIO_IOCTL(UVIO_IOCTL_ADD_SECRET_NR)
-+#define UVIO_IOCTL_LIST_SECRETS	UVIO_IOCTL(UVIO_IOCTL_LIST_SECRETS_NR)
- 
- #define UVIO_SUPP_CALL(nr)	(1ULL << (nr))
- #define UVIO_SUPP_UDEV_INFO	UVIO_SUPP_CALL(UVIO_IOCTL_UDEV_INFO_NR)
- #define UVIO_SUPP_ATT		UVIO_SUPP_CALL(UVIO_IOCTL_ATT_NR)
- #define UVIO_SUPP_ADD_SECRET	UVIO_SUPP_CALL(UVIO_IOCTL_ADD_SECRET_NR)
-+#define UVIO_SUPP_LIST_SECRETS	UVIO_SUPP_CALL(UVIO_IOCTL_LIST_SECRETS_NR)
- 
- #endif /* __S390_ASM_UVDEVICE_H */
-diff --git a/drivers/s390/char/uvdevice.c b/drivers/s390/char/uvdevice.c
-index 7221e987703a..70502c4ec290 100644
---- a/drivers/s390/char/uvdevice.c
-+++ b/drivers/s390/char/uvdevice.c
-@@ -38,6 +38,7 @@ static const u32 ioctl_nr_to_uvc_bit[] __initconst = {
- 	[UVIO_IOCTL_UVDEV_INFO_NR] = BIT_UVIO_INTERNAL,
- 	[UVIO_IOCTL_ATT_NR] = BIT_UVC_CMD_RETR_ATTEST,
- 	[UVIO_IOCTL_ADD_SECRET_NR] = BIT_UVC_CMD_ADD_SECRET,
-+	[UVIO_IOCTL_LIST_SECRETS_NR] = BIT_UVC_CMD_LIST_SECRETS,
- };
- 
- static_assert(ARRAY_SIZE(ioctl_nr_to_uvc_bit) == UVIO_IOCTL_NUM_IOCTLS);
-@@ -291,6 +292,54 @@ static int uvio_add_secret(struct uvio_ioctl_cb *uv_ioctl)
- 	return ret;
- }
- 
-+/** uvio_list_secrets() - perform a List Secret UVC
-+ * @uv_ioctl: ioctl control block
-+ *
-+ * uvio_list_secrets() performs the List Secret Ultravisor Call. It verifies
-+ * that the given userspace argument address is valid and its size is sane.
-+ * Every other check is made by the Ultravisor (UV) and won't result in a
-+ * negative return value. It builds the request, performs the UV-call, and
-+ * copies the result to userspace.
-+ *
-+ * The argument specifies the location for the result of the UV-Call.
-+ *
-+ * If the List Secrets UV facility is not present, UV will return invalid
-+ * command rc. This won't be fenced in the driver and does not result in a
-+ * negative return value.
-+ *
-+ * Context: might sleep
-+ *
-+ * Return: 0 on success or a negative error code on error.
-+ */
-+static int uvio_list_secrets(struct uvio_ioctl_cb *uv_ioctl)
++static ssize_t uv_query_supp_add_secret_req_ver(struct kobject *kobj,
++						struct kobj_attribute *attr, char *buf)
 +{
-+	void __user *user_buf_arg = (void __user *)uv_ioctl->argument_addr;
-+	struct uv_cb_guest_addr uvcb = {
-+		.header.len = sizeof(uvcb),
-+		.header.cmd = UVC_CMD_LIST_SECRETS,
-+	};
-+	void *secrets = NULL;
-+	int ret = 0;
-+
-+	if (uv_ioctl->argument_len != UVIO_LIST_SECRETS_LEN)
-+		return -EINVAL;
-+
-+	secrets = kvzalloc(UVIO_LIST_SECRETS_LEN, GFP_KERNEL);
-+	if (!secrets)
-+		return -ENOMEM;
-+
-+	uvcb.addr = (u64)secrets;
-+	uv_call_sched(0, (u64)&uvcb);
-+	uv_ioctl->uv_rc = uvcb.header.rc;
-+	uv_ioctl->uv_rrc = uvcb.header.rrc;
-+
-+	if (copy_to_user(user_buf_arg, secrets, UVIO_LIST_SECRETS_LEN))
-+		ret = -EFAULT;
-+
-+	kvfree(secrets);
-+	return ret;
++	return sysfs_emit(buf, "%lx\n", uv_info.supp_add_secret_req_ver);
 +}
 +
- static int uvio_copy_and_check_ioctl(struct uvio_ioctl_cb *ioctl, void __user *argp,
- 				     unsigned long cmd)
- {
-@@ -338,6 +387,9 @@ static long uvio_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
- 	case UVIO_IOCTL_ADD_SECRET_NR:
- 		ret = uvio_add_secret(&uv_ioctl);
- 		break;
-+	case UVIO_IOCTL_LIST_SECRETS_NR:
-+		ret = uvio_list_secrets(&uv_ioctl);
-+		break;
- 	default:
- 		ret = -ENOIOCTLCMD;
- 		break;
++static struct kobj_attribute uv_query_supp_add_secret_req_ver_attr =
++	__ATTR(supp_add_secret_req_ver, 0444, uv_query_supp_add_secret_req_ver, NULL);
++
++static ssize_t uv_query_supp_add_secret_pcf(struct kobject *kobj,
++					    struct kobj_attribute *attr, char *buf)
++{
++	return sysfs_emit(buf, "%lx\n", uv_info.supp_add_secret_pcf);
++}
++
++static struct kobj_attribute uv_query_supp_add_secret_pcf_attr =
++	__ATTR(supp_add_secret_pcf, 0444, uv_query_supp_add_secret_pcf, NULL);
++
++static ssize_t uv_query_supp_secret_types(struct kobject *kobj,
++					  struct kobj_attribute *attr, char *buf)
++{
++	return sysfs_emit(buf, "%lx\n", uv_info.supp_secret_types);
++}
++
++static struct kobj_attribute uv_query_supp_secret_types_attr =
++	__ATTR(supp_secret_types, 0444, uv_query_supp_secret_types, NULL);
++
++static ssize_t uv_query_max_secrets(struct kobject *kobj,
++				    struct kobj_attribute *attr, char *buf)
++{
++	return sysfs_emit(buf, "%d\n", uv_info.max_secrets);
++}
++
++static struct kobj_attribute uv_query_max_secrets_attr =
++	__ATTR(max_secrets, 0444, uv_query_max_secrets, NULL);
++
+ static struct attribute *uv_query_attrs[] = {
+ 	&uv_query_facilities_attr.attr,
+ 	&uv_query_feature_indications_attr.attr,
+@@ -592,6 +628,10 @@ static struct attribute *uv_query_attrs[] = {
+ 	&uv_query_dump_cpu_len_attr.attr,
+ 	&uv_query_supp_att_req_hdr_ver_attr.attr,
+ 	&uv_query_supp_att_pflags_attr.attr,
++	&uv_query_supp_add_secret_req_ver_attr.attr,
++	&uv_query_supp_add_secret_pcf_attr.attr,
++	&uv_query_supp_secret_types_attr.attr,
++	&uv_query_max_secrets_attr.attr,
+ 	NULL,
+ };
+ 
 -- 
 2.41.0
 
