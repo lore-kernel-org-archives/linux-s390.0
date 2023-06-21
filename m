@@ -2,74 +2,74 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74895EB64DD
-	for <linux-s390@archiver.kernel.org>; Wed, 21 Jun 2023 15:35:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DA734EB64D8
+	for <linux-s390@archiver.kernel.org>; Wed, 21 Jun 2023 15:36:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233532AbjFUPfW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 21 Jun 2023 11:35:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41250 "EHLO
+        id S233252AbjFUPgo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 21 Jun 2023 11:36:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41522 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233464AbjFUPen (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 21 Jun 2023 11:34:43 -0400
+        with ESMTP id S233434AbjFUPeo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 21 Jun 2023 11:34:44 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 728CC1FDA;
-        Wed, 21 Jun 2023 08:34:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1A481FCF;
+        Wed, 21 Jun 2023 08:34:25 -0700 (PDT)
 Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 35LFPXr2010211;
-        Wed, 21 Jun 2023 15:34:24 GMT
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 35LFPS8k009988;
+        Wed, 21 Jun 2023 15:34:25 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=UOIXxZfKBExIyzb03F2xLMH0PL+Gj+WjHWUvvC/AF0Q=;
- b=NQHptBUW7fZ5SKxHCRSDGkol0U3pAONxsnwhPJpLLyHovc0R/FrTUWFIv6MFL9ch6WjF
- wHpuELGzAgKWAkaIBZnylraDERudnT3ZOr96XeI52UZQrYzvZwgySG6e08y2QL9lNkFN
- 1KCDFGsWnlQNM9uzFI6Xh9QgBQ9CqMwtqeiwXVrc3lnXhYaNRn9gfWgi2LWXNRTVqFni
- AqRyHlXATnH3IlYrWQMDLCu6qbM5VtwxC5d0JMGBaz+p1DHOB6553iZ9HG7apLQQeavE
- AJxYd3YzAF0Jpx4eJT56GckDcj1cTJJOtpyel15pC0btDTmN6E7dUBrpDeQaHeRhxwKJ gQ== 
+ : mime-version; s=pp1; bh=wYVI+zazgRf/RITto1ufSmGWhRHchTtSnFJuftgMiWc=;
+ b=cf6A5JeJWWOXgTe+lG323rMbGRz5qaiWdHgE6uL7qXuo9WO/C9/nCE0DWJkHKn5YHDBM
+ vlZCMUzLeysKsiPVwDFAjWh/X/kUBCPiC2j4tFmFj4YzSxal8XafhlM33yjWhRltpvwo
+ 6IuwzXyXMHDyfZTY0eavYU2Nl0AhtQkUAbv+aP7A4u8uYRScaw/UjDQprqm8uWZHsk6n
+ qJdOTaf2ZHdUuO6dqktyzx/yFdBWPDXjKqZG1upECaZAb3hoeHxTKuzUPZJzsDI906Yt
+ KsfK/Xd341OFzIgzTzjc4NomNElLtVthhezSST5N1qwNz+LltymNZ/0zCLpBUxt0OpJQ 4g== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rc3u70ags-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rc3u70ajc-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 21 Jun 2023 15:34:23 +0000
+        Wed, 21 Jun 2023 15:34:24 +0000
 Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 35LFRJlp015311;
-        Wed, 21 Jun 2023 15:34:23 GMT
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rc3u70aew-1
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 35LFPoSf010394;
+        Wed, 21 Jun 2023 15:34:24 GMT
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rc3u70aff-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 21 Jun 2023 15:34:23 +0000
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 35L876hP032655;
-        Wed, 21 Jun 2023 15:34:20 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma06fra.de.ibm.com (PPS) with ESMTPS id 3r943e25fq-1
+        Wed, 21 Jun 2023 15:34:24 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 35L5H21o006673;
+        Wed, 21 Jun 2023 15:34:21 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma05fra.de.ibm.com (PPS) with ESMTPS id 3r94f5255t-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 21 Jun 2023 15:34:20 +0000
+        Wed, 21 Jun 2023 15:34:21 +0000
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 35LFYHX123528006
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 35LFYIR862062986
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 21 Jun 2023 15:34:17 GMT
+        Wed, 21 Jun 2023 15:34:18 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1A0AB20040;
+        by IMSVA (Postfix) with ESMTP id 14AF020049;
+        Wed, 21 Jun 2023 15:34:18 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A318A20043;
         Wed, 21 Jun 2023 15:34:17 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A82562004D;
-        Wed, 21 Jun 2023 15:34:16 +0000 (GMT)
 Received: from li-9fd7f64c-3205-11b2-a85c-df942b00d78d.ibm.com.com (unknown [9.171.33.34])
         by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 21 Jun 2023 15:34:16 +0000 (GMT)
+        Wed, 21 Jun 2023 15:34:17 +0000 (GMT)
 From:   Janosch Frank <frankja@linux.ibm.com>
 To:     pbonzini@redhat.com
 Cc:     kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com,
         borntraeger@linux.ibm.com, linux-s390@vger.kernel.org,
         imbrenda@linux.ibm.com, nrb@linux.ibm.com, pmorel@linux.ibm.com
-Subject: [GIT PULL 03/11] KVM: s390: vsie: fix the length of APCB bitmap
-Date:   Wed, 21 Jun 2023 17:29:09 +0200
-Message-ID: <20230621153227.57250-4-frankja@linux.ibm.com>
+Subject: [GIT PULL 05/11] s390/uv: Always export uv_info
+Date:   Wed, 21 Jun 2023 17:29:11 +0200
+Message-ID: <20230621153227.57250-6-frankja@linux.ibm.com>
 X-Mailer: git-send-email 2.41.0
 In-Reply-To: <20230621153227.57250-1-frankja@linux.ibm.com>
 References: <20230621153227.57250-1-frankja@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: XFk734Lyp9_a-vzmLYAVeHZVTCpCq8fQ
-X-Proofpoint-ORIG-GUID: vDByV1K63LVoa2Ed5Mm7S1UvOwiF4sBy
+X-Proofpoint-GUID: dy2Gu4GfsuKaeWImE-E2Rd_G-p6WOTCJ
+X-Proofpoint-ORIG-GUID: CZcIpO5iuQRbInDoPxmI_kBuU1mKcXNQ
 Content-Transfer-Encoding: 8bit
 X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
@@ -78,54 +78,60 @@ X-Proofpoint-Virus-Version: vendor=baseguard
  definitions=2023-06-21_08,2023-06-16_01,2023-05-22_02
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 impostorscore=0
  spamscore=0 lowpriorityscore=0 malwarescore=0 phishscore=0 suspectscore=0
- clxscore=1015 adultscore=0 mlxscore=0 priorityscore=1501 mlxlogscore=717
+ clxscore=1015 adultscore=0 mlxscore=0 priorityscore=1501 mlxlogscore=999
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2305260000
  definitions=main-2306210131
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Pierre Morel <pmorel@linux.ibm.com>
+From: Steffen Eiden <seiden@linux.ibm.com>
 
-bit_and() uses the count of bits as the woking length.
-Fix the previous implementation and effectively use
-the right bitmap size.
+KVM needs the struct's values to be able to provide PV support.
 
-Fixes: 19fd83a64718 ("KVM: s390: vsie: allow CRYCB FORMAT-1")
-Fixes: 56019f9aca22 ("KVM: s390: vsie: Allow CRYCB FORMAT-2")
+The uvdevice is currently guest only and will need the struct's values
+for call support checking and potential future expansions.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+As uv.c is only compiled with CONFIG_PGSTE or
+CONFIG_PROTECTED_VIRTUALIZATION_GUEST we don't need a second check in
+the code. Users of uv_info will need to fence for these two config
+options for the time being.
+
+Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
 Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Link: https://lore.kernel.org/kvm/20230511094719.9691-1-pmorel@linux.ibm.com/
+Link: https://lore.kernel.org/r/20230615100533.3996107-2-seiden@linux.ibm.com
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Message-Id: <20230615100533.3996107-2-seiden@linux.ibm.com>
 ---
- arch/s390/kvm/vsie.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/s390/kernel/uv.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index 8d6b765abf29..0333ee482eb8 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -177,7 +177,8 @@ static int setup_apcb00(struct kvm_vcpu *vcpu, unsigned long *apcb_s,
- 			    sizeof(struct kvm_s390_apcb0)))
- 		return -EFAULT;
+diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
+index cb2ee06df286..e320a382fa85 100644
+--- a/arch/s390/kernel/uv.c
++++ b/arch/s390/kernel/uv.c
+@@ -23,12 +23,20 @@
+ int __bootdata_preserved(prot_virt_guest);
+ #endif
  
--	bitmap_and(apcb_s, apcb_s, apcb_h, sizeof(struct kvm_s390_apcb0));
-+	bitmap_and(apcb_s, apcb_s, apcb_h,
-+		   BITS_PER_BYTE * sizeof(struct kvm_s390_apcb0));
++/*
++ * uv_info contains both host and guest information but it's currently only
++ * expected to be used within modules if it's the KVM module or for
++ * any PV guest module.
++ *
++ * The kernel itself will write these values once in uv_query_info()
++ * and then make some of them readable via a sysfs interface.
++ */
+ struct uv_info __bootdata_preserved(uv_info);
++EXPORT_SYMBOL(uv_info);
  
- 	return 0;
- }
-@@ -203,7 +204,8 @@ static int setup_apcb11(struct kvm_vcpu *vcpu, unsigned long *apcb_s,
- 			    sizeof(struct kvm_s390_apcb1)))
- 		return -EFAULT;
+ #if IS_ENABLED(CONFIG_KVM)
+ int __bootdata_preserved(prot_virt_host);
+ EXPORT_SYMBOL(prot_virt_host);
+-EXPORT_SYMBOL(uv_info);
  
--	bitmap_and(apcb_s, apcb_s, apcb_h, sizeof(struct kvm_s390_apcb1));
-+	bitmap_and(apcb_s, apcb_s, apcb_h,
-+		   BITS_PER_BYTE * sizeof(struct kvm_s390_apcb1));
- 
- 	return 0;
- }
+ static int __init uv_init(phys_addr_t stor_base, unsigned long stor_len)
+ {
 -- 
 2.41.0
 
