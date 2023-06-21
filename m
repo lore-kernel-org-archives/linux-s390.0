@@ -2,89 +2,133 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E8646EB64D7
-	for <linux-s390@archiver.kernel.org>; Wed, 21 Jun 2023 14:47:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A0890EB64DC
+	for <linux-s390@archiver.kernel.org>; Wed, 21 Jun 2023 15:01:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231862AbjFUOrr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 21 Jun 2023 10:47:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56518 "EHLO
+        id S230392AbjFUPA7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 21 Jun 2023 11:00:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231959AbjFUOrq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 21 Jun 2023 10:47:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C05051997;
-        Wed, 21 Jun 2023 07:47:40 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 54D236157B;
-        Wed, 21 Jun 2023 14:47:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBE5AC433C0;
-        Wed, 21 Jun 2023 14:47:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1687358859;
-        bh=SerVS37LZ+M9Q1DrVXe11/DarECztwBfuFbsJZAaL/s=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b0fWvZziCaDEPNv8e772X/4hR0ZOvdZvEbjB6p+JeCO+zyl3Iy6ikH62A+bQP/ydN
-         cQaq5bP9anibGG10Aqrfckh6kUGFswV7aHPM/cPOiBKX89C9oUvTA4YvJDulF5h3cb
-         OVap2sebFw8Yly04wHw1ihAaQQcVQwegi11RFHA400KxId71KUhWQhzZPZ/NV+VaS8
-         MmV6ItyfcBfC5wEQqDJJdt8SnF7Ym6jI/6ZzH+Ebt+3JPW1vY505jC90DjKbbiNbkw
-         hoEAoBTSoHXOD+TcvXEp6S8970563oPpdjqLM7HAhbgLR8bwiAOQzZVSo7pbf7GZsE
-         9Us5QMgUSJ8JA==
-From:   Jeff Layton <jlayton@kernel.org>
-To:     Christian Brauner <brauner@kernel.org>,
+        with ESMTP id S233192AbjFUPAE (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 21 Jun 2023 11:00:04 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A71AD5FF0;
+        Wed, 21 Jun 2023 07:54:50 -0700 (PDT)
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 35LEmqhb023057;
+        Wed, 21 Jun 2023 14:53:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : content-type : in-reply-to :
+ mime-version; s=pp1; bh=ufplYvlDcXmpwfmv6hySA3mz7btguYibmlfOu+EhMyQ=;
+ b=RksFeJCqi8/XEsNsFNNOeDB6kOaDGSwtr/y3SMMlGsZiDdvUE0WTs/Sgq5XJRyXVSmHX
+ +br3q8ohmX33mzOyLHHadNhxSQn5zaVrGCvgL/YeBzrHrY+GOut69jqxfe0E3z3I6g+V
+ sxgB9PvEgYNW8nqPIgSEy/nLTRuCbIkMH02R5slzI7XTjRV8DIBwkc+o+3TTga/UeRGP
+ DQW2O10/YgdwB8ZEf/CpMLQyaBTeFHE46P2ktveNTB3+Mgq3uHMmGqNSp9F5B4vSKty+
+ pwUTVv95Ocmw+GHnz1zVWhDIkS2hnHlvLGH9GhSwBocuuVVzgIajx+sSLROTbfrxasxy 4Q== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rc3a3g3rb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 21 Jun 2023 14:53:10 +0000
+Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 35LEmtmJ023155;
+        Wed, 21 Jun 2023 14:53:10 GMT
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rc3a3g3q0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 21 Jun 2023 14:53:09 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 35L5ZtLD020901;
+        Wed, 21 Jun 2023 14:53:07 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+        by ppma05fra.de.ibm.com (PPS) with ESMTPS id 3r94f524m3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 21 Jun 2023 14:53:07 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 35LEr3vZ40960344
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 21 Jun 2023 14:53:03 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B7D1A20043;
+        Wed, 21 Jun 2023 14:53:03 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 11FD520040;
+        Wed, 21 Jun 2023 14:53:03 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.155.204.135])
+        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Wed, 21 Jun 2023 14:53:03 +0000 (GMT)
+Date:   Wed, 21 Jun 2023 16:53:01 +0200
+From:   Alexander Gordeev <agordeev@linux.ibm.com>
+To:     Baoquan He <bhe@redhat.com>
+Cc:     kernel test robot <lkp@intel.com>, linux-kernel@vger.kernel.org,
+        oe-kbuild-all@lists.linux.dev, linux-arch@vger.kernel.org,
+        linux-mm@kvack.org, arnd@arndb.de, christophe.leroy@csgroup.eu,
+        hch@lst.de, rppt@kernel.org, willy@infradead.org,
+        wangkefeng.wang@huawei.com, schnelle@linux.ibm.com,
+        David.Laight@aculab.com, shorne@gmail.com, deller@gmx.de,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>
-Cc:     Al Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 03/79] s390: switch to new ctime accessors
-Date:   Wed, 21 Jun 2023 10:45:16 -0400
-Message-ID: <20230621144735.55953-2-jlayton@kernel.org>
-X-Mailer: git-send-email 2.41.0
-In-Reply-To: <20230621144735.55953-1-jlayton@kernel.org>
-References: <20230621144507.55591-1-jlayton@kernel.org>
- <20230621144735.55953-1-jlayton@kernel.org>
+        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v6 10/19] s390: mm: Convert to GENERIC_IOREMAP
+Message-ID: <ZJMOzbQeVCLJfvXk@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <20230609075528.9390-11-bhe@redhat.com>
+ <202306100105.8GHnoMCP-lkp@intel.com>
+ <ZIWrtFMUnRfVP5h0@MiWiFi-R3L-srv>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZIWrtFMUnRfVP5h0@MiWiFi-R3L-srv>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: NsNfLNerAb4XCeCbSoD6l5PpTopTDxHU
+X-Proofpoint-ORIG-GUID: O67ntRKqq7CkkGkM2LAJDtH5Mvg4y18j
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-06-21_08,2023-06-16_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
+ impostorscore=0 mlxscore=0 clxscore=1015 bulkscore=0 adultscore=0
+ lowpriorityscore=0 phishscore=0 mlxlogscore=999 priorityscore=1501
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2305260000 definitions=main-2306210123
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-In later patches, we're going to change how the ctime.tv_nsec field is
-utilized. Switch to using accessor functions instead of raw accesses of
-inode->i_ctime.
+On Sun, Jun 11, 2023 at 07:10:44PM +0800, Baoquan He wrote:
 
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
----
- arch/s390/hypfs/inode.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Hi Baoquan,
 
-diff --git a/arch/s390/hypfs/inode.c b/arch/s390/hypfs/inode.c
-index ee919bfc8186..30fa336ec63e 100644
---- a/arch/s390/hypfs/inode.c
-+++ b/arch/s390/hypfs/inode.c
-@@ -53,7 +53,7 @@ static void hypfs_update_update(struct super_block *sb)
- 	struct inode *inode = d_inode(sb_info->update_file);
- 
- 	sb_info->last_update = ktime_get_seconds();
--	inode->i_atime = inode->i_mtime = inode->i_ctime = current_time(inode);
-+	inode->i_atime = inode->i_mtime = inode_ctime_set_current(inode);
- }
- 
- /* directory tree removal functions */
-@@ -101,7 +101,7 @@ static struct inode *hypfs_make_inode(struct super_block *sb, umode_t mode)
- 		ret->i_mode = mode;
- 		ret->i_uid = hypfs_info->uid;
- 		ret->i_gid = hypfs_info->gid;
--		ret->i_atime = ret->i_mtime = ret->i_ctime = current_time(ret);
-+		ret->i_atime = ret->i_mtime = inode_ctime_set_current(ret);
- 		if (S_ISDIR(mode))
- 			set_nlink(ret, 2);
- 	}
--- 
-2.41.0
+> From 26aedf424dac7e58dd1389e554cfe0693e2b371f Mon Sep 17 00:00:00 2001
+> From: Baoquan He <bhe@redhat.com>
+> Date: Sun, 11 Jun 2023 18:37:43 +0800
+> Subject: [PATCH] s390: mm: fix building error when converting to
+>  GENERIC_IOREMAP
+> Content-type: text/plain
+> 
+> We should always include <asm/io.h> in ARCH, but not <asm-generic/io.h>
+> directly. Otherwise, macro defined by ARCH won't be seen and could cause
+> building error.
+> 
+> Reported-by: kernel test robot <lkp@intel.com>
+> Closes: https://lore.kernel.org/oe-kbuild-all/202306100105.8GHnoMCP-lkp@intel.com/
+> Signed-off-by: Baoquan He <bhe@redhat.com>
+> ---
+>  arch/s390/kernel/perf_cpum_sf.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
+> index 7ef72f5ff52e..b0269f3881aa 100644
+> --- a/arch/s390/kernel/perf_cpum_sf.c
+> +++ b/arch/s390/kernel/perf_cpum_sf.c
+> @@ -22,7 +22,7 @@
+>  #include <asm/irq.h>
+>  #include <asm/debug.h>
+>  #include <asm/timex.h>
+> -#include <asm-generic/io.h>
+> +#include <asm/io.h>
+>  
+>  /* Minimum number of sample-data-block-tables:
+>   * At least one table is required for the sampling buffer structure.
 
+Applied, thanks!
