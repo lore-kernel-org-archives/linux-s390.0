@@ -2,155 +2,252 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 270A8EB64D7
-	for <linux-s390@archiver.kernel.org>; Wed, 21 Jun 2023 15:37:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C5B6EB64D7
+	for <linux-s390@archiver.kernel.org>; Wed, 21 Jun 2023 15:53:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233607AbjFUPhb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 21 Jun 2023 11:37:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44730 "EHLO
+        id S231991AbjFUPxR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 21 Jun 2023 11:53:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233624AbjFUPhU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 21 Jun 2023 11:37:20 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB84A19B4;
-        Wed, 21 Jun 2023 08:36:56 -0700 (PDT)
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 35LFKKVM011023;
-        Wed, 21 Jun 2023 15:36:13 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : content-transfer-encoding : mime-version; s=pp1;
- bh=G7MEZMdUUsCqQek+MW4ro0zJnjqhW7Db6W7qNyBmTbw=;
- b=J3xeg6CW5nBAJGBZ8uy7+kxAUjBoeixCEIyHV4Ol7ThxyVV2ObyZ66mjThdcxA7vD2s3
- gXkjqK7vKCWfrOpeJSA5aCxfciPVVaYvRpF4+HqJ8jYEqu6ODGHqfVCygVSnkWvENGaW
- ahx7Ms/DsflJzlWAoxDej2Q6AJKYKm0dtqwc5TokQJK/pd+nZjvYk4o68suGohCmxJEt
- Ypks94BjYvrNsb9iqYnnEJ0yj07bj2Brm9KGmj+5UMMlTQ7F/K7nUNbu7dqtZ+Rz6fdZ
- uC6EEbuCNDn2mt9tlV8jAcRrgetQbmnkLF9ej9x3CuCye5/eSBkkwWgJ/llaBQzpwc4l tQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rc3rjgcy0-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 21 Jun 2023 15:36:12 +0000
-Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 35LFLigo014588;
-        Wed, 21 Jun 2023 15:36:10 GMT
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rc3rjgcdm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 21 Jun 2023 15:36:09 +0000
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 35L5r23W023736;
-        Wed, 21 Jun 2023 15:34:19 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-        by ppma06fra.de.ibm.com (PPS) with ESMTPS id 3r943e25fp-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 21 Jun 2023 15:34:19 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 35LFYFpO21365318
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 21 Jun 2023 15:34:15 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8FF8A20043;
-        Wed, 21 Jun 2023 15:34:15 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 288E520040;
-        Wed, 21 Jun 2023 15:34:15 +0000 (GMT)
-Received: from li-9fd7f64c-3205-11b2-a85c-df942b00d78d.ibm.com.com (unknown [9.171.33.34])
-        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 21 Jun 2023 15:34:15 +0000 (GMT)
-From:   Janosch Frank <frankja@linux.ibm.com>
-To:     pbonzini@redhat.com
-Cc:     kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com,
-        borntraeger@linux.ibm.com, linux-s390@vger.kernel.org,
-        imbrenda@linux.ibm.com, nrb@linux.ibm.com, pmorel@linux.ibm.com
-Subject: [GIT PULL 00/11] kvm: s390: Changes for 6.5
-Date:   Wed, 21 Jun 2023 17:29:06 +0200
-Message-ID: <20230621153227.57250-1-frankja@linux.ibm.com>
-X-Mailer: git-send-email 2.41.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 7panbRaGIXS6FVjRZeNt9QnbsKd7dQ4L
-X-Proofpoint-ORIG-GUID: CrtzZ-Qe0qk3iQ4ei_e5PnBdBZgaSjPc
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        with ESMTP id S231624AbjFUPxQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 21 Jun 2023 11:53:16 -0400
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2106.outbound.protection.outlook.com [40.107.223.106])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B49B1BC;
+        Wed, 21 Jun 2023 08:53:14 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Zmnz7/2GwKVrm2V1vbFMgkmQnPfP0kYeZSsnoJxW01AgFubLVcWMS6b3gjoitR6/qjUUdMg2vQG+06yy1YghB0Zqd3/XMftXLqJ+nbee1/8iXl35PV91/GfE7JXknk4JjLVsyjzHcRn+auSat53PtAZJrJKJLNcgPJn9//p8Eif/2/8BTqElZqDfjll2hfOidGQ3W2M7jzQhiFErJeuE1/lYNCvIPzZMA96GaLU6+rbKcu+o/mEqEdJ6o57sxXhKF9TMUUh32cmWVW6s4y60Srz1Tq3NY25UQ/dGMexAZrgG4xP4vIsBqyqRbRCPcJM+QoIzVo/Kvwb1Ai0UyljKJQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=Fm9xfioeGlwueCnr+ZMAhfo1VcCcRfPA75BOmUevJwo=;
+ b=MHFc1EMfSQsh5SrLFzEJ+eheXvynD/yKEjUctNuBY7TOIt1lHabw8fYsPPZ4cBk4wm6oGWL40hMf3tOGhAJd+WPIuRD+lPW43j3MZJu7rz8KNIUh2+sDp0N5n+HZymHioOl0uONY+0ANcPW4ObaZWm+hDX7X3Ulv21FiKPDgNRik5MICGTPKmbEADB8gtHyP1KkLRKCURb7r+fdbu0CLR7Y3MJM1woIJcozV4nR7N1P/t+LJ54VjxbEOmHOU3s/CnGaHqAu97bV3b/lwIH7jpRBhZED0Nu68XW4HRKV/eDsunyM+HDTEzBCeBWWEutp9Giskk+GAypqNWFyCgG6hbA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=corigine.com; dmarc=pass action=none header.from=corigine.com;
+ dkim=pass header.d=corigine.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=corigine.onmicrosoft.com; s=selector2-corigine-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Fm9xfioeGlwueCnr+ZMAhfo1VcCcRfPA75BOmUevJwo=;
+ b=m5lJiPyB8V4pGkk+qaNNNp0RQc895uosDUz7K4KcEo1z8cTKWdVtWeyyJ0E9NunHAzoToo0JREwCB2H/Y1trsNj0ft9S2Hy8d/f/IB1lQEN6fx+5VCNgF9SygsLSmB53hwrAQesxhz3AjUPpxcWVq2WQeJpCVFSEhRaark/B+DQ=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=corigine.com;
+Received: from PH0PR13MB4842.namprd13.prod.outlook.com (2603:10b6:510:78::6)
+ by DM8PR13MB5126.namprd13.prod.outlook.com (2603:10b6:8:31::23) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6521.23; Wed, 21 Jun
+ 2023 15:53:11 +0000
+Received: from PH0PR13MB4842.namprd13.prod.outlook.com
+ ([fe80::eb8f:e482:76e0:fe6e]) by PH0PR13MB4842.namprd13.prod.outlook.com
+ ([fe80::eb8f:e482:76e0:fe6e%5]) with mapi id 15.20.6521.023; Wed, 21 Jun 2023
+ 15:53:11 +0000
+Date:   Wed, 21 Jun 2023 17:53:02 +0200
+From:   Simon Horman <simon.horman@corigine.com>
+To:     Randy Dunlap <rdunlap@infradead.org>
+Cc:     linux-kernel@vger.kernel.org,
+        Alexandra Winter <wintera@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>
+Subject: Re: [PATCH] s390/net: lcs: use IS_ENABLED() for kconfig detection
+Message-ID: <ZJMc3oS2nxORPASN@corigine.com>
+References: <20230615222152.13250-1-rdunlap@infradead.org>
+ <ea55623d-d469-ddaf-92ce-3daf1d2d726f@infradead.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ea55623d-d469-ddaf-92ce-3daf1d2d726f@infradead.org>
+X-ClientProxiedBy: AS4P195CA0042.EURP195.PROD.OUTLOOK.COM
+ (2603:10a6:20b:65a::16) To PH0PR13MB4842.namprd13.prod.outlook.com
+ (2603:10b6:510:78::6)
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-06-21_08,2023-06-16_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
- lowpriorityscore=0 bulkscore=0 suspectscore=0 malwarescore=0 clxscore=1015
- priorityscore=1501 spamscore=0 adultscore=0 phishscore=0 mlxlogscore=798
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2305260000
- definitions=main-2306210131
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: PH0PR13MB4842:EE_|DM8PR13MB5126:EE_
+X-MS-Office365-Filtering-Correlation-Id: 85230c69-293a-47fe-dc14-08db726f9ca0
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: fA1MBK+ZQXzMiTCimHw7JNQUCSL+c6cHLf3mnl9OkIJsCIbwHhMtjp+r7nrtgfYpEdoZVLg/EzifvkaG1PSTcQF7fBoV0RoPzbUgMBYCPwN+rgw4pmXkWzudQMCoVfRYMVSdnhDTjW4AB6mw0E4C++i2o2WSwgrOur8fIwrmo/rg9bgYG6VjjIGxGnCX2HLble16fh2qp2a1mhObXylYq+C961Vu88QH6n7g8GC9eMySF+uHvx646iOVcYFmtdFXhM62+pNhkJIHn57hNLDFaR1lbZDNiZYtcTM76wSThxWmEG3eQrRQnMkUhtZ0+GLAyeuzE8Oi4W+QdbZf4Kd+zRb7vxDN8jciARTZlksuqVTw1MBu1QKbScM5wNScAmSWn5+pKrxSogz0t7c/kshwZXZIhqyV08qMJ14FUj5K3mbyeWwIdMU9Dvxk1J0IWhBvbVnhXuNOtmSM7zrvHBqS4XPMIxnoO5fIf7osm5QmVOzU1K/ECE9EgUocSmhGCOOx2ELaz8s3l4gsgR1dv0OI/le17bM6puidFQYBgPBo5kYi2JLB+VVG9T5twtsy2m1NP68SnRfW73/ddXse337d2wzroCSK7jQSX8E60ecVAOY=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR13MB4842.namprd13.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(39840400004)(376002)(346002)(366004)(136003)(396003)(451199021)(6666004)(478600001)(54906003)(4326008)(83380400001)(2616005)(86362001)(36756003)(38100700002)(2906002)(186003)(53546011)(6506007)(966005)(6512007)(6486002)(316002)(66946007)(6916009)(66556008)(66476007)(8676002)(8936002)(41300700001)(7416002)(5660300002)(44832011);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?MRV0SVfG2aRGaf2AEFFFPG/xzENec/jlhEqUav+hmqYq4ETeceTtkW1f/XS4?=
+ =?us-ascii?Q?DBYmubUcdvIMCiV+aLrLKAeZGiVT/OuYEBikRJi6Kg6Zq/idO7NwizkMh/t2?=
+ =?us-ascii?Q?5jy0kHidyF7CwMRLXOf4s4ami4grmNdBsfCtPSrz9jHf78wSRDVZtpp03e+k?=
+ =?us-ascii?Q?/aMDteupZDIEndBYSA6MdEiLvNfvcZFWe0cX7Zb4VJKh0+v159hV0ZIomzxt?=
+ =?us-ascii?Q?oW2mPEEfIpg95UjtUh441ljb/L5xm3pVoVzMI/Wb5MLMt1OESTJp6JfHIMHu?=
+ =?us-ascii?Q?HIc0S2LemnG9uqkbtyODPrAg9UfitkSz5NASZuuLrzYf74085QY4EMFULmQC?=
+ =?us-ascii?Q?9eQ8lCdDfDkkLxc4O5FdyR5gzr6iMdNxIRqp3aDz5wo6hNVVUn9ib1+Vm3oq?=
+ =?us-ascii?Q?Qs6fHqhm/V6Bs+fzh5o5steBBWZxoZuIHnEYVai/1VSTOsUg3Aa0NU8NdMVy?=
+ =?us-ascii?Q?W6/1lqEcAKfPO4BrUwazS5apPPro9CUZm598ZROLhQQdjMzOzso8j8IPFX6T?=
+ =?us-ascii?Q?+5fs9OxIlm6ObO8H0SA1hEJRXPBWSM4Bb45VJ/a4bFDncmVLf3T5PJeF8kiJ?=
+ =?us-ascii?Q?mrIbdI41tdHyDOMdvwKUX2dlXJ8DzKVY4mEDT9mq1ufMIN6MU12xNlf7S064?=
+ =?us-ascii?Q?v+49iA23uEcbhew+CWBAppYjFwwkIZm5aJcrAYBWWYfMkHqOLPbKg5aEGGwi?=
+ =?us-ascii?Q?2r3NcCWElPIlEO4DHfKDm4C1z94ZQAMxhqX0LUJE0OWufM/urxYSoT4mTMHt?=
+ =?us-ascii?Q?QZLUzFgKf5c38j8KvOjiyNaLjnKumHVWZ4p3XXV36g3xAsQSnz5uBpzgjzv6?=
+ =?us-ascii?Q?WvBoiwFKjBq5K2AQn/hmwDZhH8pF7uazrsGd0I58nY+/DwbgPmneU0NzSHXw?=
+ =?us-ascii?Q?brrWRu/GuMS+qZiYMLBSQGS2npNyWcYSPW2Vk5V04Lyt6N0L7RG2aje1r1z8?=
+ =?us-ascii?Q?CkvSZ9fjzHAN8t1ml2/THfrGvBdFzsuocbEqf4AZqw3coZuaDKcodMmF8yux?=
+ =?us-ascii?Q?eQALBC7n0wGNEJGqqvy7U/yW7TI9Gi8nMmyQ+8rvLT3tZ0ONPBJC5ZUavzzk?=
+ =?us-ascii?Q?FWx6kV2QokdTp8Y+637FDTxuDbSBEbyXyDJK0j9hbl3LYLzD8vVijbE2+ToN?=
+ =?us-ascii?Q?i8REk/Jb0T1FiB9v8K2kHbQ7abFxjZGuAClQvQS8a6Oz82cBpfWVg+ESpG8l?=
+ =?us-ascii?Q?1BIooQceG+f4zITbQ/ltzqXE07VfoE4WweTUc8daV4WV1/SuFQ5pXm+94FhM?=
+ =?us-ascii?Q?4c9P7wh0kYrn8LcsMlcHqLlt8yN7wnCseu5jlQx4R3/RjL1dtMzU7EJO7xQZ?=
+ =?us-ascii?Q?llBA56MIbybKSNThOELOKYmqaU0trWU59yuRqcjqSp6534O1oMRJLVKKg8Ur?=
+ =?us-ascii?Q?NdA5k1Wb64NrS5hE7IwCjKGetwY851EshHXonkeuVtRzU2hXoahO13cZiGPQ?=
+ =?us-ascii?Q?VPQGuwVSb8ATI/QqHewX6hJ310XVMY6tuT6MwaYeaNrRTSNOH4Z3pCMaR8Yw?=
+ =?us-ascii?Q?YcXMlxbLUSMOaWlVMCh+/v2x2+lAUhtQY0FS3uBqheCemy6XqT4pL8ZdU3Ev?=
+ =?us-ascii?Q?fx1/xQIvcblIW6dwWI8hHyQj5ML6qhu/EOTHpQp0iWM7s7ovZK+M0LPV6uTG?=
+ =?us-ascii?Q?ICs678U5IXZ7WjwT9WBTP1iQQ1lMLSVjJplv9SRXEutL5A+8dpLFtjD9EfAg?=
+ =?us-ascii?Q?5fYCcg=3D=3D?=
+X-OriginatorOrg: corigine.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 85230c69-293a-47fe-dc14-08db726f9ca0
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR13MB4842.namprd13.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Jun 2023 15:53:10.7466
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: fe128f2c-073b-4c20-818e-7246a585940c
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: zHX7BUCZqpZf++DJ+QgdAi0eP/gXcweQGz/L0TtW6tGgNe/4aNnjidHyMD3/6gNHGoQl3oy0GRHfriJlHTwNj3S+2e0LsRplyQs4wANS71Q=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM8PR13MB5126
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Dear Paolo,
+On Tue, Jun 20, 2023 at 07:35:17PM -0700, Randy Dunlap wrote:
+> Hi,
+> 
+> On 6/15/23 15:21, Randy Dunlap wrote:
+> > When CONFIG_ETHERNET=m or CONFIG_FDDI=m, lcs.s has build errors or
+> > warnings:
+> > 
+> > ../drivers/s390/net/lcs.c:40:2: error: #error Cannot compile lcs.c without some net devices switched on.
+> >    40 | #error Cannot compile lcs.c without some net devices switched on.
+> > ../drivers/s390/net/lcs.c: In function 'lcs_startlan_auto':
+> > ../drivers/s390/net/lcs.c:1601:13: warning: unused variable 'rc' [-Wunused-variable]
+> >  1601 |         int rc;
+> > 
+> > Solve this by using IS_ENABLED(CONFIG_symbol) instead of ifdef
+> > CONFIG_symbol. The latter only works for builtin (=y) values
+> > while IS_ENABLED() works for builtin or modular values.
+> > 
+> > Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+> > Cc: Alexandra Winter <wintera@linux.ibm.com>
+> > Cc: Wenjia Zhang <wenjia@linux.ibm.com>
+> > Cc: linux-s390@vger.kernel.org
+> > Cc: netdev@vger.kernel.org
+> > Cc: Heiko Carstens <hca@linux.ibm.com>
+> > Cc: Vasily Gorbik <gor@linux.ibm.com>
+> > Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+> > Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+> > Cc: Sven Schnelle <svens@linux.ibm.com>
+> > ---
+> >  drivers/s390/net/lcs.c |   10 +++++-----
+> >  1 file changed, 5 insertions(+), 5 deletions(-)
+> > 
+> > diff -- a/drivers/s390/net/lcs.c b/drivers/s390/net/lcs.c
+> > --- a/drivers/s390/net/lcs.c
+> > +++ b/drivers/s390/net/lcs.c
+> > @@ -36,7 +36,7 @@
+> >  #include "lcs.h"
+> >  
+> >  
+> > -#if !defined(CONFIG_ETHERNET) && !defined(CONFIG_FDDI)
+> > +#if !IS_ENABLED(CONFIG_ETHERNET) && !IS_ENABLED(CONFIG_FDDI)
+> >  #error Cannot compile lcs.c without some net devices switched on.
+> >  #endif
+> >  
+> > @@ -1601,14 +1601,14 @@ lcs_startlan_auto(struct lcs_card *card)
+> >  	int rc;
+> >  
+> >  	LCS_DBF_TEXT(2, trace, "strtauto");
+> > -#ifdef CONFIG_ETHERNET
+> > +#if IS_ENABLED(CONFIG_ETHERNET)
+> >  	card->lan_type = LCS_FRAME_TYPE_ENET;
+> >  	rc = lcs_send_startlan(card, LCS_INITIATOR_TCPIP);
+> >  	if (rc == 0)
+> >  		return 0;
+> >  
+> >  #endif
+> > -#ifdef CONFIG_FDDI
+> > +#if IS_ENABLED(CONFIG_FDDI)
+> >  	card->lan_type = LCS_FRAME_TYPE_FDDI;
+> >  	rc = lcs_send_startlan(card, LCS_INITIATOR_TCPIP);
+> >  	if (rc == 0)
+> > @@ -2139,13 +2139,13 @@ lcs_new_device(struct ccwgroup_device *c
+> >  		goto netdev_out;
+> >  	}
+> >  	switch (card->lan_type) {
+> > -#ifdef CONFIG_ETHERNET
+> > +#if IS_ENABLED(CONFIG_ETHERNET)
+> >  	case LCS_FRAME_TYPE_ENET:
+> >  		card->lan_type_trans = eth_type_trans;
+> >  		dev = alloc_etherdev(0);
+> >  		break;
+> >  #endif
+> > -#ifdef CONFIG_FDDI
+> > +#if IS_ENABLED(CONFIG_FDDI)
+> >  	case LCS_FRAME_TYPE_FDDI:
+> >  		card->lan_type_trans = fddi_type_trans;
+> >  		dev = alloc_fddidev(0);
+> 
+> 
+> kernel test robot reports build errors from this patch when
+> ETHERNET=y, FDDI=m, LCS=y:
+> 
+>   https://lore.kernel.org/all/202306202129.pl0AqK8G-lkp@intel.com/
+> 
+> Since the code before my patch expected (supported) FDDI=y only
+> (by checking for CONFIG_FDDI only and not checking for CONFIG_FDDI_MODULE),
+> the best solution that I can see is to enforce that expectation in
+> drivers/s390/net/Kconfig:
+> 
+> diff -- a/drivers/s390/net/Kconfig b/drivers/s390/net/Kconfig
+> --- a/drivers/s390/net/Kconfig
+> +++ b/drivers/s390/net/Kconfig
+> @@ -5,7 +5,7 @@ menu "S/390 network device drivers"
+>  config LCS
+>  	def_tristate m
+>  	prompt "Lan Channel Station Interface"
+> -	depends on CCW && NETDEVICES && (ETHERNET || FDDI)
+> +	depends on CCW && NETDEVICES && (ETHERNET || FDDI = y)
 
-here are the patches for 6.5 (or later):
-~80% of the code is a new CMM selftest by Nico.
-~19% of the code is Steffen's additions to the uvdevice introducing the UV secret API.
-The rest are a couple of fixes that we picked up along the way.
+Hi Randy,
 
-I plan to remove the ifdefs and the PROTECTED_VIRTUALIZATION_GUEST
-config in the (near) future so we won't run into the linking problems
-that plagued the uvdevice patches anymore.
+Unfortunately I don't think this helps.
+In the config given at the link above, ETHERNET is y.
+And the error regarding fddi_type_trans and alloc_fddidev being undefined
+seems to occur regardless of your change.
 
+I did have better luck with this.
 
-Please pull:
-The following changes since commit f1fcbaa18b28dec10281551dfe6ed3a3ed80e3d6:
+diff --git a/drivers/s390/net/Kconfig b/drivers/s390/net/Kconfig
+index 9c67b97faba2..303220251495 100644
+--- a/drivers/s390/net/Kconfig
++++ b/drivers/s390/net/Kconfig
+@@ -6,6 +6,7 @@ config LCS
+        def_tristate m
+        prompt "Lan Channel Station Interface"
+        depends on CCW && NETDEVICES && (ETHERNET || FDDI)
++       depends on FDDI=y || FDDI=n
+        help
+          Select this option if you want to use LCS networking on IBM System z.
+          This device driver supports FDDI (IEEE 802.7) and Ethernet.
 
-  Linux 6.4-rc2 (2023-05-14 12:51:40 -0700)
+I am assuming that LCS=m and FDDI=m can't work at runtime
+because there is no guarantee that FDDI is loaded before LCS.
+But I could well be wrong here.
 
-are available in the Git repository at:
-
-  https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/kvm-s390-next-6.5-1
-
-for you to fetch changes up to db54dfc9f71cd2df7afd1e88535ef6099cb0333e:
-
-  s390/uv: Update query for secret-UVCs (2023-06-16 11:08:09 +0200)
-
-----------------------------------------------------------------
-* New uvdevice secret API
-* New CMM selftest
-* cmm fix
-* diag 9c racy access of target cpu fix
-* VSIE AP control block fix
-----------------------------------------------------------------
-
-
-Christian Borntraeger (1):
-  KVM: s390/diag: fix racy access of physical cpu number in diag 9c
-    handler
-
-Nico Boehr (2):
-  KVM: s390: fix KVM_S390_GET_CMMA_BITS for GFNs in memslot holes
-  KVM: s390: selftests: add selftest for CMMA migration
-
-Pierre Morel (1):
-  KVM: s390: vsie: fix the length of APCB bitmap
-
-Steffen Eiden (7):
-  s390/uv: Always export uv_info
-  s390/uvdevice: Add info IOCTL
-  s390/uvdevice: Add 'Add Secret' UVC
-  s390/uvdevice: Add 'List Secrets' UVC
-  s390/uvdevice: Add 'Lock Secret Store' UVC
-  s390/uv: replace scnprintf with sysfs_emit
-  s390/uv: Update query for secret-UVCs
-
- arch/s390/boot/uv.c                           |   4 +
- arch/s390/include/asm/uv.h                    |  32 +-
- arch/s390/include/uapi/asm/uvdevice.h         |  53 +-
- arch/s390/kernel/uv.c                         | 108 ++-
- arch/s390/kvm/diag.c                          |   8 +-
- arch/s390/kvm/kvm-s390.c                      |   4 +
- arch/s390/kvm/vsie.c                          |   6 +-
- drivers/s390/char/Kconfig                     |   2 +-
- drivers/s390/char/uvdevice.c                  | 231 +++++-
- tools/testing/selftests/kvm/Makefile          |   1 +
- tools/testing/selftests/kvm/s390x/cmma_test.c | 700 ++++++++++++++++++
- 11 files changed, 1100 insertions(+), 49 deletions(-)
- create mode 100644 tools/testing/selftests/kvm/s390x/cmma_test.c
-
--- 
-2.41.0
-
+>  	help
+>  	  Select this option if you want to use LCS networking on IBM System z.
+>  	  This device driver supports FDDI (IEEE 802.7) and Ethernet.
+> 
+> What do people think of that change?
+> Any other ideas/suggestions?
+> 
+> thanks.
+> -- 
+> ~Randy
+> 
