@@ -2,234 +2,219 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8AB49EB64DD
-	for <linux-s390@archiver.kernel.org>; Wed, 21 Jun 2023 10:24:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A9357C0015E
+	for <linux-s390@archiver.kernel.org>; Wed, 21 Jun 2023 10:45:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231847AbjFUKYU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 21 Jun 2023 06:24:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42574 "EHLO
+        id S231271AbjFUKp1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 21 Jun 2023 06:45:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231215AbjFUKYL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 21 Jun 2023 06:24:11 -0400
-Received: from mail-lj1-x229.google.com (mail-lj1-x229.google.com [IPv6:2a00:1450:4864:20::229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41BE8170F
-        for <linux-s390@vger.kernel.org>; Wed, 21 Jun 2023 03:23:59 -0700 (PDT)
-Received: by mail-lj1-x229.google.com with SMTP id 38308e7fff4ca-2b45e6e1b73so73110391fa.0
-        for <linux-s390@vger.kernel.org>; Wed, 21 Jun 2023 03:23:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1687343037; x=1689935037;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=qIP/RgUHzsZiGVBRB71b7glXbG7VXiyuTjWvBX5krQg=;
-        b=S/CdoZua/1rLl8yRwjaUF9IfJ2JcWeppWIYsAe/kEWbp+VzSobUM4iS9eeLWZHt5FO
-         j/+mECwtEut66NCJpjuzLpLobjA7fzCyDUwpVOGTHl1cVmF3qTtFzfRaBX7G+Tegl8Tm
-         87Q/OZiSy1hpcxgY+MGptzKzvpXBNnTUuiwawnXX2OiPypV+k03lx7aTLBlVlmFPyOCK
-         oOwW0/iZyWnJ4lfaT24bKv+GYWW44GzHrflM4FjMvA3v2Bo8q5EMHhya2b4FnBXvqkic
-         qrcQPaiA4BdDNTsbHtCocDQbJDuuggPiCViWJpmfQFFiYemQpuO3YqlziZ0eyW6vOYiK
-         i8ZA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1687343037; x=1689935037;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=qIP/RgUHzsZiGVBRB71b7glXbG7VXiyuTjWvBX5krQg=;
-        b=ESZ5RuR/WqH1UV/2X7rSNRi+g4qfLH/IuLel3oq9DcOwCjO5pZ3o3YDcaYnOm2Rj6J
-         EUg7q73diA0Mb3N9gqVp8AbgBu096i6TOja1/e9s/nuyUAgacDreFv5CRR5liuGFumS3
-         BeYYP7uGUlquH5x3uXnDsDiVYiV+29Xojf6J+05mGY8tuehVTeJlhRaCNEFkphTx0vSi
-         nJu4g5gdMfVbD0lshFt85xdbxM8OqJeClPKRLWzZB2TcNLUpjooz0eGQKDTSyHdUhTR6
-         rTfLlJjIrG/ph0ySZppROCdTCn09p5M5d1tn2qfUpQjIuFwQZN5sYGZFVQG7IEDtNoAp
-         hPZw==
-X-Gm-Message-State: AC+VfDwxWKbnG9zAS1zP3OFOXv0YZUldwaiUKTp0Uwi3k7sFTCFh0k78
-        JdtcyI/hNc5C2Q51MewTFC1nkA==
-X-Google-Smtp-Source: ACHHUZ47T18xkAbbJT1Ek0oO9Y+tEkoagA5plZsIhQf/ly6xrGEeqlbNRj/M5efxydPdN9Sgu8PD7g==
-X-Received: by 2002:a2e:94c1:0:b0:2b3:4621:b6e3 with SMTP id r1-20020a2e94c1000000b002b34621b6e3mr9804142ljh.34.1687343037327;
-        Wed, 21 Jun 2023 03:23:57 -0700 (PDT)
-Received: from localhost ([102.36.222.112])
-        by smtp.gmail.com with ESMTPSA id d2-20020adff842000000b00312793cc763sm4142979wrq.15.2023.06.21.03.23.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 Jun 2023 03:23:55 -0700 (PDT)
-Date:   Wed, 21 Jun 2023 13:23:52 +0300
-From:   Dan Carpenter <dan.carpenter@linaro.org>
-To:     Joel Granados <j.granados@samsung.com>
-Cc:     mcgrof@kernel.org, Jason Gunthorpe <jgg@ziepe.ca>,
-        Leon Romanovsky <leon@kernel.org>,
-        David Ahern <dsahern@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Joerg Reuter <jreuter@yaina.de>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Jozsef Kadlecsik <kadlec@netfilter.org>,
-        Florian Westphal <fw@strlen.de>,
-        Roopa Prabhu <roopa@nvidia.com>,
-        Nikolay Aleksandrov <razor@blackwall.org>,
-        Alexander Aring <alex.aring@gmail.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
-        Mat Martineau <martineau@kernel.org>,
-        Simon Horman <horms@verge.net.au>,
-        Julian Anastasov <ja@ssi.bg>,
-        Remi Denis-Courmont <courmisch@gmail.com>,
-        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
-        David Howells <dhowells@redhat.com>,
-        Marc Dionne <marc.dionne@auristor.com>,
-        Neil Horman <nhorman@tuxdriver.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Jan Karcher <jaka@linux.ibm.com>,
-        Jon Maloy <jmaloy@redhat.com>,
-        Ying Xue <ying.xue@windriver.com>,
-        Martin Schiller <ms@dev.tdt.de>, linux-rdma@vger.kernel.org,
-        linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-        linux-hams@vger.kernel.org, netfilter-devel@vger.kernel.org,
-        coreteam@netfilter.org, bridge@lists.linux-foundation.org,
-        dccp@vger.kernel.org, linux-wpan@vger.kernel.org,
-        mptcp@lists.linux.dev, lvs-devel@vger.kernel.org,
-        rds-devel@oss.oracle.com, linux-afs@lists.infradead.org,
-        linux-sctp@vger.kernel.org, linux-s390@vger.kernel.org,
-        tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
-Subject: Re: [PATCH 06/11] sysctl: Add size to register_net_sysctl function
-Message-ID: <5aba7eee-7a6e-4f3b-9921-e4220d479346@kadam.mountain>
-References: <20230621091000.424843-1-j.granados@samsung.com>
- <CGME20230621091022eucas1p1c097da50842b23e902e1a674e117e1aa@eucas1p1.samsung.com>
- <20230621091000.424843-7-j.granados@samsung.com>
- <dab06c20-f8b0-4e34-b885-f3537e442d54@kadam.mountain>
+        with ESMTP id S232650AbjFUKo4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 21 Jun 2023 06:44:56 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40DD610FE
+        for <linux-s390@vger.kernel.org>; Wed, 21 Jun 2023 03:41:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1687344081;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=SfWcdf1P06wr9dZtmw5KwqOofKgTdxLYKDeKIiQRFzU=;
+        b=i6d/tXN6y93tVFYYA2lK3MEmZA4fkvVFJcww0PAW3Ym+L+lYdswqW5cY14voRuZ8Eciv6z
+        75OKnrD8Z6p5cnyey5onhECdGL7HdhDTYSE3v2nYvy50/PhoHyfii53wThAXqNZmwBZT2y
+        rSmizgz9c50zJwB7xxldFioIk+tHgKc=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-390-ExH6W32dN0CP7jEMOW8naQ-1; Wed, 21 Jun 2023 06:41:17 -0400
+X-MC-Unique: ExH6W32dN0CP7jEMOW8naQ-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com [10.11.54.8])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 84D3A800CA9;
+        Wed, 21 Jun 2023 10:41:16 +0000 (UTC)
+Received: from localhost (ovpn-12-166.pek2.redhat.com [10.72.12.166])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 3D3D1C1ED97;
+        Wed, 21 Jun 2023 10:41:14 +0000 (UTC)
+Date:   Wed, 21 Jun 2023 18:41:09 +0800
+From:   Baoquan He <bhe@redhat.com>
+To:     kernel test robot <lkp@intel.com>
+Cc:     linux-kernel@vger.kernel.org, oe-kbuild-all@lists.linux.dev,
+        linux-arch@vger.kernel.org, linux-mm@kvack.org, arnd@arndb.de,
+        hch@lst.de, christophe.leroy@csgroup.eu, rppt@kernel.org,
+        willy@infradead.org, agordeev@linux.ibm.com,
+        wangkefeng.wang@huawei.com, schnelle@linux.ibm.com,
+        David.Laight@aculab.com, shorne@gmail.com, deller@gmx.de,
+        nathan@kernel.org, glaubitz@physik.fu-berlin.de,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v7 10/19] s390: mm: Convert to GENERIC_IOREMAP
+Message-ID: <ZJLTxUOCEMh6l/El@MiWiFi-R3L-srv>
+References: <20230620131356.25440-11-bhe@redhat.com>
+ <202306211329.ticOJCSv-lkp@intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <dab06c20-f8b0-4e34-b885-f3537e442d54@kadam.mountain>
+In-Reply-To: <202306211329.ticOJCSv-lkp@intel.com>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.8
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jun 21, 2023 at 12:47:30PM +0300, Dan Carpenter wrote:
-> The patchset doesn't include the actual interesting changes, just a
-> bunch of mechanical prep work.
+Hi,
+
+On 06/21/23 at 01:43pm, kernel test robot wrote:
+> Hi Baoquan,
 > 
-> On Wed, Jun 21, 2023 at 11:09:55AM +0200, Joel Granados wrote:
-> > diff --git a/net/ieee802154/6lowpan/reassembly.c b/net/ieee802154/6lowpan/reassembly.c
-> > index a91283d1e5bf..7b717434368c 100644
-> > --- a/net/ieee802154/6lowpan/reassembly.c
-> > +++ b/net/ieee802154/6lowpan/reassembly.c
-> > @@ -379,7 +379,8 @@ static int __net_init lowpan_frags_ns_sysctl_register(struct net *net)
-> >  	table[1].extra2	= &ieee802154_lowpan->fqdir->high_thresh;
-> >  	table[2].data	= &ieee802154_lowpan->fqdir->timeout;
-> >  
-> > -	hdr = register_net_sysctl(net, "net/ieee802154/6lowpan", table);
-> > +	hdr = register_net_sysctl(net, "net/ieee802154/6lowpan", table,
-> > +				  ARRAY_SIZE(lowpan_frags_ns_ctl_table));
+> kernel test robot noticed the following build errors:
 > 
-> For example, in lowpan_frags_ns_sysctl_register() the sentinel is
-> sometimes element zero if the user doesn't have enough permissions.  I
-> would want to ensure that was handled correctly, but that's going to be
-> done later in a completely different patchset.  I'm definitely not going
-> to remember to check.
+> [auto build test ERROR on akpm-mm/mm-everything]
+> 
+> url:    https://github.com/intel-lab-lkp/linux/commits/Baoquan-He/asm-generic-iomap-h-remove-ARCH_HAS_IOREMAP_xx-macros/20230620-212135
+> base:   https://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm.git mm-everything
+> patch link:    https://lore.kernel.org/r/20230620131356.25440-11-bhe%40redhat.com
+> patch subject: [PATCH v7 10/19] s390: mm: Convert to GENERIC_IOREMAP
+> config: s390-allmodconfig (https://download.01.org/0day-ci/archive/20230621/202306211329.ticOJCSv-lkp@intel.com/config)
+> compiler: s390-linux-gcc (GCC) 12.3.0
+> reproduce: (https://download.01.org/0day-ci/archive/20230621/202306211329.ticOJCSv-lkp@intel.com/reproduce)
 
-On reflecting the patch is obviously wrong.  It should be pass zero as
-table_size in that case.  See diff at the end.
+Thanks for reporting this.
 
-There is a similar bug in neigh_sysctl_register() where we use memset to
-zero out the whole table.  And another in __ip_vs_lblc_init().  I used
-the smatch cross function database
-	`smdb.py where ctl_table procname | grep '(null)' | grep min-max`
-to make a list of functions which set procname to zero.
+I followed steps in above reproduce link, it failed as below. Please
+help check if anything is missing.
 
-Probably we should add a WARN_ON() if procname is zero in the new code
-which doesn't use sentinels.
+[root@intel-knightslanding-lb-02 linux]# COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.3.0 ~/bin/make.cross W=1 O=build_dir ARCH=s390 olddefconfig
+Compiler will be installed in /root/0day
+lftpget -c https://download.01.org/0day-ci/cross-package/./gcc-12.3.0-nolibc/x86_64-gcc-12.3.0-nolibc_s390-linux.tar.xz
+/root/linux                                                                                          
+tar Jxf /root/0day/gcc-12.3.0-nolibc/x86_64-gcc-12.3.0-nolibc_s390-linux.tar.xz -C /root/0day
+Please update: libc6 or glibc
+ldd /root/0day/gcc-12.3.0-nolibc/s390-linux/bin/s390-linux-gcc
+/root/0day/gcc-12.3.0-nolibc/s390-linux/bin/s390-linux-gcc: /lib64/libc.so.6: version `GLIBC_2.36' not found (required by /root/0day/gcc-12.3.0-nolibc/s390-linux/bin/s390-linux-gcc)
+setup_crosstool failed
 
-regards,
-dan carpenter
 
-drivers/char/random.c          | proc_do_uuid                   | (struct ctl_table)->procname | 0
-fs/proc/proc_sysctl.c          | new_dir                        | (struct ctl_table)->procname | 48,3906148897379000352
-fs/proc/proc_sysctl.c          | new_links                      | (struct ctl_table)->procname | 4096-ptr_max
-arch/arm64/kernel/fpsimd.c     | vec_proc_do_default_vl         | (struct ctl_table)->procname | 0
-arch/arm64/kernel/armv8_deprecated.c | register_insn_emulation        | (struct ctl_table)->procname | 0-u64max
-kernel/sysctl-test.c           | sysctl_test_api_dointvec_null_tbl_data | (struct ctl_table)->procname | 7612622206476333056
-kernel/sysctl-test.c           | sysctl_test_api_dointvec_table_maxlen_unset | (struct ctl_table)->procname | 7612622206476333056
-kernel/sysctl-test.c           | sysctl_test_api_dointvec_table_len_is_zero | (struct ctl_table)->procname | 7612622206476333056
-kernel/sysctl-test.c           | sysctl_test_api_dointvec_table_read_but_position_set | (struct ctl_table)->procname | 7612622206476333056
-kernel/sysctl-test.c           | sysctl_test_dointvec_read_happy_single_positive | (struct ctl_table)->procname | 7612622206476333056
-kernel/sysctl-test.c           | sysctl_test_dointvec_read_happy_single_negative | (struct ctl_table)->procname | 7612622206476333056
-kernel/sysctl-test.c           | sysctl_test_dointvec_write_happy_single_positive | (struct ctl_table)->procname | 7612622206476333056
-kernel/sysctl-test.c           | sysctl_test_dointvec_write_happy_single_negative | (struct ctl_table)->procname | 7612622206476333056
-kernel/sysctl-test.c           | sysctl_test_api_dointvec_write_single_less_int_min | (struct ctl_table)->procname | 7612622206476333056
-kernel/sysctl-test.c           | sysctl_test_api_dointvec_write_single_greater_int_max | (struct ctl_table)->procname | 7612622206476333056
-kernel/sysctl.c                | proc_do_static_key             | (struct ctl_table)->procname | 0
-kernel/kexec_core.c            | kexec_limit_handler            | (struct ctl_table)->procname | 0
-kernel/bpf/syscall.c           | bpf_stats_handler              | (struct ctl_table)->procname | 0
-net/core/sysctl_net_core.c     | rps_sock_flow_sysctl           | (struct ctl_table)->procname | 0
-net/core/sysctl_net_core.c     | set_default_qdisc              | (struct ctl_table)->procname | 0
-net/core/neighbour.c           | neigh_sysctl_register          | (struct ctl_table)->procname | 0
-net/netfilter/ipvs/ip_vs_lblc.c | __ip_vs_lblc_init              | (struct ctl_table)->procname | 0-u64max
-net/netfilter/ipvs/ip_vs_lblcr.c | __ip_vs_lblcr_init             | (struct ctl_table)->procname | 0-u64max
-net/netfilter/ipvs/ip_vs_ctl.c | proc_do_defense_mode           | (struct ctl_table)->procname | 0
-net/netfilter/ipvs/ip_vs_ctl.c | proc_do_sync_threshold         | (struct ctl_table)->procname | 0
-net/netfilter/ipvs/ip_vs_ctl.c | proc_do_sync_ports             | (struct ctl_table)->procname | 0
-net/netfilter/ipvs/ip_vs_ctl.c | ipvs_proc_est_nice             | (struct ctl_table)->procname | 0
-net/netfilter/ipvs/ip_vs_ctl.c | ipvs_proc_run_estimation       | (struct ctl_table)->procname | 0
-net/netfilter/ipvs/ip_vs_ctl.c | ip_vs_control_net_init_sysctl  | (struct ctl_table)->procname | 0-u64max
-net/netfilter/nf_log.c         | netfilter_log_sysctl_init      | (struct ctl_table)->procname | 0-u64max
-net/sctp/sysctl.c              | proc_sctp_do_hmac_alg          | (struct ctl_table)->procname | 0
-net/sctp/sysctl.c              | proc_sctp_do_rto_min           | (struct ctl_table)->procname | 0
-net/sctp/sysctl.c              | proc_sctp_do_rto_max           | (struct ctl_table)->procname | 0
-net/sctp/sysctl.c              | proc_sctp_do_auth              | (struct ctl_table)->procname | 0
-net/sctp/sysctl.c              | proc_sctp_do_udp_port          | (struct ctl_table)->procname | 0
-net/sctp/sysctl.c              | proc_sctp_do_probe_interval    | (struct ctl_table)->procname | 0
-net/ipv6/route.c               | ipv6_route_sysctl_init         | (struct ctl_table)->procname | 0-u64max
-net/ipv6/addrconf.c            | addrconf_sysctl_addr_gen_mode  | (struct ctl_table)->procname | 0
-net/ieee802154/6lowpan/reassembly.c | lowpan_frags_ns_sysctl_register | (struct ctl_table)->procname | 0-u64max
-net/xfrm/xfrm_sysctl.c         | xfrm_sysctl_init               | (struct ctl_table)->procname | 0-u64max
-net/phonet/sysctl.c            | proc_local_port_range          | (struct ctl_table)->procname | 0
-net/ipv4/route.c               | sysctl_route_net_init          | (struct ctl_table)->procname | 0-u64max
-net/ipv4/sysctl_net_ipv4.c     | ipv4_local_port_range          | (struct ctl_table)->procname | 0
-net/ipv4/sysctl_net_ipv4.c     | ipv4_privileged_ports          | (struct ctl_table)->procname | 0
-net/ipv4/sysctl_net_ipv4.c     | ipv4_ping_group_range          | (struct ctl_table)->procname | 0
-net/ipv4/sysctl_net_ipv4.c     | proc_tcp_congestion_control    | (struct ctl_table)->procname | 0
-net/ipv4/sysctl_net_ipv4.c     | proc_tcp_available_congestion_control | (struct ctl_table)->procname | 0
-net/ipv4/sysctl_net_ipv4.c     | proc_allowed_congestion_control | (struct ctl_table)->procname | 0
-net/ipv4/sysctl_net_ipv4.c     | proc_tcp_fastopen_key          | (struct ctl_table)->procname | 0
-net/ipv4/sysctl_net_ipv4.c     | proc_tcp_available_ulp         | (struct ctl_table)->procname | 0
-net/ipv4/sysctl_net_ipv4.c     | proc_tcp_ehash_entries         | (struct ctl_table)->procname | 0
-net/ipv4/sysctl_net_ipv4.c     | proc_udp_hash_entries          | (struct ctl_table)->procname | 0
+> 
+> If you fix the issue in a separate patch/commit (i.e. not just a new version of
+> the same patch/commit), kindly add following tags
+> | Reported-by: kernel test robot <lkp@intel.com>
+> | Closes: https://lore.kernel.org/oe-kbuild-all/202306211329.ticOJCSv-lkp@intel.com/
+> 
+> All error/warnings (new ones prefixed by >>):
+> 
+>    drivers/tty/ipwireless/main.c: In function 'ipwireless_probe':
+>    drivers/tty/ipwireless/main.c:115:30: error: implicit declaration of function 'ioremap'; did you mean 'iounmap'? [-Werror=implicit-function-declaration]
+>      115 |         ipw->common_memory = ioremap(p_dev->resource[2]->start,
+>          |                              ^~~~~~~
+>          |                              iounmap
+> >> drivers/tty/ipwireless/main.c:115:28: warning: assignment to 'void *' from 'int' makes pointer from integer without a cast [-Wint-conversion]
+>      115 |         ipw->common_memory = ioremap(p_dev->resource[2]->start,
+>          |                            ^
+>    drivers/tty/ipwireless/main.c:139:26: warning: assignment to 'void *' from 'int' makes pointer from integer without a cast [-Wint-conversion]
+>      139 |         ipw->attr_memory = ioremap(p_dev->resource[3]->start,
+>          |                          ^
+>    In file included from include/linux/io.h:13,
+>                     from drivers/tty/ipwireless/main.c:26:
+>    arch/s390/include/asm/io.h:29:17: error: implicit declaration of function 'iounmap'; did you mean 'vunmap'? [-Werror=implicit-function-declaration]
+>       29 | #define iounmap iounmap
+>          |                 ^~~~~~~
+>    drivers/tty/ipwireless/main.c:155:9: note: in expansion of macro 'iounmap'
+>      155 |         iounmap(ipw->attr_memory);
+>          |         ^~~~~~~
+>    cc1: some warnings being treated as errors
+> --
+>    drivers/net/ethernet/smsc/smc91c92_cs.c: In function 'mhz_mfc_config':
+> >> drivers/net/ethernet/smsc/smc91c92_cs.c:447:17: error: implicit declaration of function 'ioremap'; did you mean 'ifr_map'? [-Werror=implicit-function-declaration]
+>      447 |     smc->base = ioremap(link->resource[2]->start,
+>          |                 ^~~~~~~
+>          |                 ifr_map
+> >> drivers/net/ethernet/smsc/smc91c92_cs.c:447:15: warning: assignment to 'void *' from 'int' makes pointer from integer without a cast [-Wint-conversion]
+>      447 |     smc->base = ioremap(link->resource[2]->start,
+>          |               ^
+>    In file included from include/linux/scatterlist.h:9,
+>                     from include/linux/dma-mapping.h:11,
+>                     from include/linux/skbuff.h:28,
+>                     from include/net/net_namespace.h:43,
+>                     from include/linux/netdevice.h:38,
+>                     from drivers/net/ethernet/smsc/smc91c92_cs.c:38:
+>    drivers/net/ethernet/smsc/smc91c92_cs.c: In function 'smc91c92_release':
+>    arch/s390/include/asm/io.h:29:17: error: implicit declaration of function 'iounmap'; did you mean 'vunmap'? [-Werror=implicit-function-declaration]
+>       29 | #define iounmap iounmap
+>          |                 ^~~~~~~
+>    drivers/net/ethernet/smsc/smc91c92_cs.c:962:17: note: in expansion of macro 'iounmap'
+>      962 |                 iounmap(smc->base);
+>          |                 ^~~~~~~
+>    cc1: some warnings being treated as errors
+> --
+>    drivers/net/ethernet/xircom/xirc2ps_cs.c: In function 'xirc2ps_config':
+>    drivers/net/ethernet/xircom/xirc2ps_cs.c:843:28: error: implicit declaration of function 'ioremap'; did you mean 'iounmap'? [-Werror=implicit-function-declaration]
+>      843 |         local->dingo_ccr = ioremap(link->resource[2]->start, 0x1000) + 0x0800;
+>          |                            ^~~~~~~
+>          |                            iounmap
+> >> drivers/net/ethernet/xircom/xirc2ps_cs.c:843:26: warning: assignment to 'void *' from 'int' makes pointer from integer without a cast [-Wint-conversion]
+>      843 |         local->dingo_ccr = ioremap(link->resource[2]->start, 0x1000) + 0x0800;
+>          |                          ^
+>    In file included from include/linux/scatterlist.h:9,
+>                     from include/linux/dma-mapping.h:11,
+>                     from include/linux/skbuff.h:28,
+>                     from include/linux/if_ether.h:19,
+>                     from include/linux/ethtool.h:18,
+>                     from drivers/net/ethernet/xircom/xirc2ps_cs.c:77:
+>    drivers/net/ethernet/xircom/xirc2ps_cs.c: In function 'xirc2ps_release':
+>    arch/s390/include/asm/io.h:29:17: error: implicit declaration of function 'iounmap'; did you mean 'vunmap'? [-Werror=implicit-function-declaration]
+>       29 | #define iounmap iounmap
+>          |                 ^~~~~~~
+>    drivers/net/ethernet/xircom/xirc2ps_cs.c:934:25: note: in expansion of macro 'iounmap'
+>      934 |                         iounmap(local->dingo_ccr - 0x0800);
+>          |                         ^~~~~~~
+>    cc1: some warnings being treated as errors
+> 
+> 
+> vim +447 drivers/net/ethernet/smsc/smc91c92_cs.c
+> 
+> b54bf94bf91e4c drivers/net/pcmcia/smc91c92_cs.c Dominik Brodowski 2008-08-02  422  
+> fba395eee7d3f3 drivers/net/pcmcia/smc91c92_cs.c Dominik Brodowski 2006-03-31  423  static int mhz_mfc_config(struct pcmcia_device *link)
+> ^1da177e4c3f41 drivers/net/pcmcia/smc91c92_cs.c Linus Torvalds    2005-04-16  424  {
+> ^1da177e4c3f41 drivers/net/pcmcia/smc91c92_cs.c Linus Torvalds    2005-04-16  425      struct net_device *dev = link->priv;
+> ^1da177e4c3f41 drivers/net/pcmcia/smc91c92_cs.c Linus Torvalds    2005-04-16  426      struct smc_private *smc = netdev_priv(dev);
+> b5cb259e7fac55 drivers/net/pcmcia/smc91c92_cs.c Dominik Brodowski 2010-07-24  427      unsigned int offset;
+> b54bf94bf91e4c drivers/net/pcmcia/smc91c92_cs.c Dominik Brodowski 2008-08-02  428      int i;
+> ^1da177e4c3f41 drivers/net/pcmcia/smc91c92_cs.c Linus Torvalds    2005-04-16  429  
+> 00990e7ce0b0e5 drivers/net/pcmcia/smc91c92_cs.c Dominik Brodowski 2010-07-30  430      link->config_flags |= CONF_ENABLE_SPKR | CONF_ENABLE_IRQ |
+> 00990e7ce0b0e5 drivers/net/pcmcia/smc91c92_cs.c Dominik Brodowski 2010-07-30  431  	    CONF_AUTO_SET_IO;
+> ^1da177e4c3f41 drivers/net/pcmcia/smc91c92_cs.c Linus Torvalds    2005-04-16  432  
+> ^1da177e4c3f41 drivers/net/pcmcia/smc91c92_cs.c Linus Torvalds    2005-04-16  433      /* The Megahertz combo cards have modem-like CIS entries, so
+> ^1da177e4c3f41 drivers/net/pcmcia/smc91c92_cs.c Linus Torvalds    2005-04-16  434         we have to explicitly try a bunch of port combinations. */
+> b54bf94bf91e4c drivers/net/pcmcia/smc91c92_cs.c Dominik Brodowski 2008-08-02  435      if (pcmcia_loop_config(link, mhz_mfc_config_check, NULL))
+> dddfbd824b96a2 drivers/net/pcmcia/smc91c92_cs.c Dominik Brodowski 2009-10-18  436  	    return -ENODEV;
+> dddfbd824b96a2 drivers/net/pcmcia/smc91c92_cs.c Dominik Brodowski 2009-10-18  437  
+> 9a017a910346af drivers/net/pcmcia/smc91c92_cs.c Dominik Brodowski 2010-07-24  438      dev->base_addr = link->resource[0]->start;
+> ^1da177e4c3f41 drivers/net/pcmcia/smc91c92_cs.c Linus Torvalds    2005-04-16  439  
+> ^1da177e4c3f41 drivers/net/pcmcia/smc91c92_cs.c Linus Torvalds    2005-04-16  440      /* Allocate a memory window, for accessing the ISR */
+> cdb138080b7814 drivers/net/pcmcia/smc91c92_cs.c Dominik Brodowski 2010-07-28  441      link->resource[2]->flags = WIN_DATA_WIDTH_8|WIN_MEMORY_TYPE_AM|WIN_ENABLE;
+> cdb138080b7814 drivers/net/pcmcia/smc91c92_cs.c Dominik Brodowski 2010-07-28  442      link->resource[2]->start = link->resource[2]->end = 0;
+> cdb138080b7814 drivers/net/pcmcia/smc91c92_cs.c Dominik Brodowski 2010-07-28  443      i = pcmcia_request_window(link, link->resource[2], 0);
+> 4c89e88bfde6a3 drivers/net/pcmcia/smc91c92_cs.c Dominik Brodowski 2008-08-03  444      if (i != 0)
+> dddfbd824b96a2 drivers/net/pcmcia/smc91c92_cs.c Dominik Brodowski 2009-10-18  445  	    return -ENODEV;
+> dddfbd824b96a2 drivers/net/pcmcia/smc91c92_cs.c Dominik Brodowski 2009-10-18  446  
+> cdb138080b7814 drivers/net/pcmcia/smc91c92_cs.c Dominik Brodowski 2010-07-28 @447      smc->base = ioremap(link->resource[2]->start,
+> cdb138080b7814 drivers/net/pcmcia/smc91c92_cs.c Dominik Brodowski 2010-07-28  448  		    resource_size(link->resource[2]));
+> 7feabb6412ea23 drivers/net/pcmcia/smc91c92_cs.c Dominik Brodowski 2010-07-29  449      offset = (smc->manfid == MANFID_MOTOROLA) ? link->config_base : 0;
+> cdb138080b7814 drivers/net/pcmcia/smc91c92_cs.c Dominik Brodowski 2010-07-28  450      i = pcmcia_map_mem_page(link, link->resource[2], offset);
+> 8e95a2026f3b43 drivers/net/pcmcia/smc91c92_cs.c Joe Perches       2009-12-03  451      if ((i == 0) &&
+> 8e95a2026f3b43 drivers/net/pcmcia/smc91c92_cs.c Joe Perches       2009-12-03  452  	(smc->manfid == MANFID_MEGAHERTZ) &&
+> 8e95a2026f3b43 drivers/net/pcmcia/smc91c92_cs.c Joe Perches       2009-12-03  453  	(smc->cardid == PRODID_MEGAHERTZ_EM3288))
+> ^1da177e4c3f41 drivers/net/pcmcia/smc91c92_cs.c Linus Torvalds    2005-04-16  454  	    mhz_3288_power(link);
+> ^1da177e4c3f41 drivers/net/pcmcia/smc91c92_cs.c Linus Torvalds    2005-04-16  455  
+> dddfbd824b96a2 drivers/net/pcmcia/smc91c92_cs.c Dominik Brodowski 2009-10-18  456      return 0;
+> ^1da177e4c3f41 drivers/net/pcmcia/smc91c92_cs.c Linus Torvalds    2005-04-16  457  }
+> ^1da177e4c3f41 drivers/net/pcmcia/smc91c92_cs.c Linus Torvalds    2005-04-16  458  
+> 
+> -- 
+> 0-DAY CI Kernel Test Service
+> https://github.com/intel/lkp-tests/wiki
+> 
 
-diff --git a/net/ieee802154/6lowpan/reassembly.c b/net/ieee802154/6lowpan/reassembly.c
-index a91283d1e5bf..749238d38014 100644
---- a/net/ieee802154/6lowpan/reassembly.c
-+++ b/net/ieee802154/6lowpan/reassembly.c
-@@ -360,6 +360,7 @@ static int __net_init lowpan_frags_ns_sysctl_register(struct net *net)
- 	struct ctl_table_header *hdr;
- 	struct netns_ieee802154_lowpan *ieee802154_lowpan =
- 		net_ieee802154_lowpan(net);
-+	size_t table_size = ARRAY_SIZE(lowpan_frags_ns_ctl_table);
- 
- 	table = lowpan_frags_ns_ctl_table;
- 	if (!net_eq(net, &init_net)) {
-@@ -369,8 +370,10 @@ static int __net_init lowpan_frags_ns_sysctl_register(struct net *net)
- 			goto err_alloc;
- 
- 		/* Don't export sysctls to unprivileged users */
--		if (net->user_ns != &init_user_ns)
-+		if (net->user_ns != &init_user_ns) {
- 			table[0].procname = NULL;
-+			table_size = 0;
-+		}
- 	}
- 
- 	table[0].data	= &ieee802154_lowpan->fqdir->high_thresh;
-@@ -379,7 +382,7 @@ static int __net_init lowpan_frags_ns_sysctl_register(struct net *net)
- 	table[1].extra2	= &ieee802154_lowpan->fqdir->high_thresh;
- 	table[2].data	= &ieee802154_lowpan->fqdir->timeout;
- 
--	hdr = register_net_sysctl(net, "net/ieee802154/6lowpan", table);
-+	hdr = register_net_sysctl(net, "net/ieee802154/6lowpan", table, table_size);
- 	if (hdr == NULL)
- 		goto err_reg;
- 
