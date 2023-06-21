@@ -2,112 +2,120 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4ADCFEB64D7
-	for <linux-s390@archiver.kernel.org>; Wed, 21 Jun 2023 17:43:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 06ECBEB64D7
+	for <linux-s390@archiver.kernel.org>; Wed, 21 Jun 2023 18:02:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231133AbjFURnk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 21 Jun 2023 13:43:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45858 "EHLO
+        id S229809AbjFUSCW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 21 Jun 2023 14:02:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230481AbjFURnb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 21 Jun 2023 13:43:31 -0400
-Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B4912683;
-        Wed, 21 Jun 2023 10:43:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1687369388; x=1718905388;
-  h=message-id:date:mime-version:subject:to:references:from:
-   in-reply-to:content-transfer-encoding;
-  bh=LVptCrukcCrf+ulAXv9iJ2UzZRi1STprNI7mWSySJig=;
-  b=fCEMW8Pv79l+5VjM3UXkHi80A8kTMJtGyELw8Am/KWZ3Dz7X3oeaD+P8
-   RvKHDQIrg2Z8Cao83ZDt9z4r8+k+xIGNSHxrFQgna0m9qFVTFCfdeblKi
-   zTWkwXD+6Y+7ntwZoonr7gDAji2eC1OyNdITkzvtEZFujGIBkB2QhPtJ6
-   u8L2C8p90A69bKzAXXQ5jxejkq4iL6kzzBB/PZK5041o89MrdY2TGZuw/
-   gDYZpQjzt0zLMNqVSiLNl0sQ2HuDbxMcdOuturMqzhEfuDZiUwuh9bjdj
-   QSn0Be9HgXxwizBSxnYn8ZYIVSpwg/Yqc5BEfb+Klv78ObVEo2a/+BQqb
-   w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10748"; a="339870177"
-X-IronPort-AV: E=Sophos;i="6.00,261,1681196400"; 
-   d="scan'208";a="339870177"
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Jun 2023 10:42:19 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10748"; a="1044816796"
-X-IronPort-AV: E=Sophos;i="6.00,261,1681196400"; 
-   d="scan'208";a="1044816796"
-Received: from rmathew-mobl2.amr.corp.intel.com (HELO [10.212.134.235]) ([10.212.134.235])
-  by fmsmga005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Jun 2023 10:42:16 -0700
-Message-ID: <680fadba-9104-3914-5175-e207fd3d9246@intel.com>
-Date:   Wed, 21 Jun 2023 10:42:16 -0700
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.11.0
+        with ESMTP id S229530AbjFUSCU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 21 Jun 2023 14:02:20 -0400
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35A129D;
+        Wed, 21 Jun 2023 11:02:20 -0700 (PDT)
+Received: by mail-pj1-x1036.google.com with SMTP id 98e67ed59e1d1-25e7fe2fbc9so3037079a91.2;
+        Wed, 21 Jun 2023 11:02:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1687370539; x=1689962539;
+        h=to:references:message-id:content-transfer-encoding:cc:date
+         :in-reply-to:from:subject:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ghR3ONQ0xCWF/XsVVqlYhvKkezqnfnGRVsn4IWmNqPA=;
+        b=WlDhY0OAVtt9U/sOOElyyyzC8WQUo6poFN2oaUUbgXb/+d/IcLxLnp/l+UzGUwpnTP
+         qNVRgaSawr/Lks/MVqkXW3vhZ6kxmceUTjHXM6jlyF1GptNr1dqW3DS3mHch/GovOfRj
+         eeIG+2GeD7qLThk604Ls1Dm6ulCuVqsz3HJeNzmw20ui3f1km/wN1Lsn8new91sCB9f4
+         Y/9gdFH2EtmVLBvhgPnz+wuC+/IaW12lqMa1hMv5oCDcKrdyydt7o/GSHiNNyTmCgyjE
+         n6f4GEOsh48n3nZWOX6uYilALlQZViylNfVYvHM7mBlUYr3PiCQJ7ZWpUMc3s5dLxZUE
+         OjEA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1687370539; x=1689962539;
+        h=to:references:message-id:content-transfer-encoding:cc:date
+         :in-reply-to:from:subject:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ghR3ONQ0xCWF/XsVVqlYhvKkezqnfnGRVsn4IWmNqPA=;
+        b=kSlWNIkwNJ5KFt1U5a7Vv6vUphbCVfgkll3XXjmbASforS54EYcu2dO+RtQD1MTAbz
+         IV9JlQoZWOeDPKpCqJ/ssggXgUNpjufXJ1lOx+wQure1Z/qRh4VTncNmqElz0ok6fCyu
+         puI49LTDbVEKaw+uXmC6jIanMi9bV0hKg2znzPSTSssWg1lfdi8lb37TanBkSvCLU5HL
+         hzM2/b/wxN36/GFRiW0gkdq+v/B8meRIv692is0FpZArKWjTWEOWRGsx9u72EEcfSRjy
+         0l/ypA8RfSDQPeN/XD9EVzIoBv0k4fMOSeCi8ryiwl7x+oWVn4KrTKA4ifKV9iT1toZC
+         SpUg==
+X-Gm-Message-State: AC+VfDyJlWGbFxmDiTOlxGEzHOOb4gABL74oNTD39MgKuS/5WNAKdm9Y
+        5ZLphXyB6Nn21HG0dGxn6VI=
+X-Google-Smtp-Source: ACHHUZ6mRoAo2s2oCkgP3Wp2nUTJXsXUGVHNcWUvqJUw9GFNXu1TCgqL3BU4dWywAqRpkfH2O6TdSg==
+X-Received: by 2002:a17:90b:4c8d:b0:25e:a5b2:8463 with SMTP id my13-20020a17090b4c8d00b0025ea5b28463mr11111864pjb.8.1687370539354;
+        Wed, 21 Jun 2023 11:02:19 -0700 (PDT)
+Received: from smtpclient.apple ([66.170.99.1])
+        by smtp.gmail.com with ESMTPSA id r10-20020a638f4a000000b005439aaf0301sm3329045pgn.64.2023.06.21.11.02.16
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 21 Jun 2023 11:02:18 -0700 (PDT)
+Content-Type: text/plain;
+        charset=utf-8
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3731.600.7\))
 Subject: Re: [PATCH v2 2/2] mm/mmu_gather: send tlb_remove_table_smp_sync IPI
  only to MM CPUs
-Content-Language: en-US
-To:     Yair Podemsky <ypodemsk@redhat.com>, mtosatti@redhat.com,
-        ppandit@redhat.com, david@redhat.com, linux@armlinux.org.uk,
-        mpe@ellerman.id.au, npiggin@gmail.com, christophe.leroy@csgroup.eu,
-        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        davem@davemloft.net, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, hpa@zytor.com,
-        keescook@chromium.org, paulmck@kernel.org, frederic@kernel.org,
-        will@kernel.org, peterz@infradead.org, ardb@kernel.org,
+From:   Nadav Amit <nadav.amit@gmail.com>
+In-Reply-To: <20230620144618.125703-3-ypodemsk@redhat.com>
+Date:   Wed, 21 Jun 2023 11:02:05 -0700
+Cc:     mtosatti@redhat.com, ppandit@redhat.com,
+        David Hildenbrand <david@redhat.com>,
+        "Russell King (Oracle)" <linux@armlinux.org.uk>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Heiko Carstens <hca@linux.ibm.com>, gor@linux.ibm.com,
+        agordeev@linux.ibm.com,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        svens@linux.ibm.com, "David S. Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Kees Cook <keescook@chromium.org>,
+        "Paul E. McKenney" <paulmck@kernel.org>, frederic@kernel.org,
+        Will Deacon <will@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>, ardb@kernel.org,
         samitolvanen@google.com, juerg.haefliger@canonical.com,
-        arnd@arndb.de, rmk+kernel@armlinux.org.uk, geert+renesas@glider.be,
-        linus.walleij@linaro.org, akpm@linux-foundation.org,
-        sebastian.reichel@collabora.com, rppt@kernel.org,
-        aneesh.kumar@linux.ibm.com, x86@kernel.org,
+        Arnd Bergmann <arnd@arndb.de>, rmk+kernel@armlinux.org.uk,
+        geert+renesas@glider.be, linus.walleij@linaro.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        sebastian.reichel@collabora.com, Mike Rapoport <rppt@kernel.org>,
+        aneesh.kumar@linux.ibm.com,
+        the arch/x86 maintainers <x86@kernel.org>,
         linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
         sparclinux@vger.kernel.org, linux-arch@vger.kernel.org,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org
+        linux-mm <linux-mm@kvack.org>, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <10050BB1-15A4-4E84-B900-B21500B2079B@gmail.com>
 References: <20230620144618.125703-1-ypodemsk@redhat.com>
  <20230620144618.125703-3-ypodemsk@redhat.com>
-From:   Dave Hansen <dave.hansen@intel.com>
-In-Reply-To: <20230620144618.125703-3-ypodemsk@redhat.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+To:     Yair Podemsky <ypodemsk@redhat.com>
+X-Mailer: Apple Mail (2.3731.600.7)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 6/20/23 07:46, Yair Podemsky wrote:
-> -void tlb_remove_table_sync_one(void)
-> +#ifdef CONFIG_ARCH_HAS_CPUMASK_BITS
-> +#define REMOVE_TABLE_IPI_MASK mm_cpumask(mm)
-> +#else
-> +#define REMOVE_TABLE_IPI_MASK cpu_online_mask
-> +#endif /* CONFIG_ARCH_HAS_CPUMASK_BITS */
-> +
-> +void tlb_remove_table_sync_one(struct mm_struct *mm)
->  {
->  	/*
->  	 * This isn't an RCU grace period and hence the page-tables cannot be
-> @@ -200,7 +206,8 @@ void tlb_remove_table_sync_one(void)
->  	 * It is however sufficient for software page-table walkers that rely on
->  	 * IRQ disabling.
->  	 */
-> -	smp_call_function(tlb_remove_table_smp_sync, NULL, 1);
-> +	on_each_cpu_mask(REMOVE_TABLE_IPI_MASK, tlb_remove_table_smp_sync,
-> +			NULL, true);
->  }
+>=20
+> On Jun 20, 2023, at 7:46 AM, Yair Podemsky <ypodemsk@redhat.com> =
+wrote:
+>=20
+> @@ -1525,7 +1525,7 @@ static void collapse_and_free_pmd(struct =
+mm_struct *mm, struct vm_area_struct *v
+> 				addr + HPAGE_PMD_SIZE);
+> 	mmu_notifier_invalidate_range_start(&range);
+> 	pmd =3D pmdp_collapse_flush(vma, addr, pmdp);
+> -	tlb_remove_table_sync_one();
+> +	tlb_remove_table_sync_one(mm);
 
-That "REMOVE_TABLE_IPI_MASK" thing is pretty confusing.  It *looks* like
-a constant.  It does *NOT* look at all like it consumes 'mm'.  Worst
-case, just create a local variable:
+Can=E2=80=99t pmdp_collapse_flush() have one additional argument =
+=E2=80=9Cfreed_tables=E2=80=9D
+that it would propagate, for instance on x86 to flush_tlb_mm_range() ?
+Then you would not need tlb_remove_table_sync_one() to issue an =
+additional
+IPI, no?
 
-	if (IS_ENABLED(CONFIG_ARCH_HAS_CPUMASK_BITS))
-		ipi_mask = mm_cpumask(mm);
-	else
-		ipi_mask = cpu_online_mask;
+It just seems that you might still have 2 IPIs in many cases instead of
+one, and unless I am missing something, I don=E2=80=99t see why.
 
-	on_each_cpu_mask(ipi_mask, ...);
-
-That's a billion times more clear and it'll compile down to the same thing.
-
-I do think the CONFIG_ARCH_HAS_CPUMASK_BITS naming is also pretty
-confusing, but I don't have any better suggestions.  Maybe something
-with "MM_CPUMASK" in it?
