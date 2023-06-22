@@ -2,110 +2,158 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A6CBEB64D8
-	for <linux-s390@archiver.kernel.org>; Thu, 22 Jun 2023 14:35:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 803C4EB64DD
+	for <linux-s390@archiver.kernel.org>; Thu, 22 Jun 2023 15:02:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230272AbjFVOfn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 22 Jun 2023 10:35:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42876 "EHLO
+        id S232179AbjFVPCv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 22 Jun 2023 11:02:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39464 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229437AbjFVOfn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 22 Jun 2023 10:35:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21F9910F6;
-        Thu, 22 Jun 2023 07:35:42 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A423A6187A;
-        Thu, 22 Jun 2023 14:35:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95A81C433C0;
-        Thu, 22 Jun 2023 14:35:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1687444541;
-        bh=+UaFplHjOb3WkG8MyLgcLtGFC7j3i0iRyQZQw2GHmY0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=YeJ7r9xtDIPpV/mMYrOnbxqqnLoXUqlGoRGjO/ccQYMKaxbfJOjHx4N9VcKigUhP7
-         KXbSYAUAxii873kAMI/XFc2dpkZN07LZes/Ouo/vxk3gHW/ZdZOG4k0QdM5DqDMRXZ
-         wplT/eDl5iZlIditxaZoIY2+GfYYCTdJsOfNkMWxBNv3axh0Gow6x9rQFyfw6oq+vQ
-         34NROuFZLYDffb+Xsqu5t5Cl1iutDsGfWaIztMx/BQGgT5aoSGhSBVzWWANkRwltEV
-         XIjdBmqh/zJV5ss8JnWR9a5ezLdbWjOgUJGJYmk5vQ0KIS9uu3Q/9oFI6Fm0dGQac2
-         9vQNTaJwxO57g==
-Date:   Thu, 22 Jun 2023 14:35:38 +0000
-From:   Nathan Chancellor <nathan@kernel.org>
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] s390/decompresser: fix misaligned symbol build error
-Message-ID: <20230622143538.GA1138962@dev-arch.thelio-3990X>
-References: <20230622125508.1068457-1-hca@linux.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230622125508.1068457-1-hca@linux.ibm.com>
+        with ESMTP id S231422AbjFVPCu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 22 Jun 2023 11:02:50 -0400
+Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com [IPv6:2607:f8b0:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6278C10F2
+        for <linux-s390@vger.kernel.org>; Thu, 22 Jun 2023 08:02:24 -0700 (PDT)
+Received: by mail-pl1-x631.google.com with SMTP id d9443c01a7336-1b5422163f4so48051475ad.2
+        for <linux-s390@vger.kernel.org>; Thu, 22 Jun 2023 08:02:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=dabbelt-com.20221208.gappssmtp.com; s=20221208; t=1687446130; x=1690038130;
+        h=content-transfer-encoding:mime-version:message-id:to:from:cc
+         :in-reply-to:subject:date:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=faWv91VP2z/YbKZA+qDwvC+H5Ebg0LphINaB6C6XGBI=;
+        b=mt+u4MU2N69BdCB48EipZPFZvxxegmfx/OHOcyc/fM4PZHcrYAkSQWkcdFUsmp5rNU
+         a6j2G9cgP05nAPrTpXTrKstR8E5BoO42DmiP6/AZUuIG/6/BBMLFuw5aAo/SAHPeZdEg
+         DNvDehDx9+J7nZG9sBU7G6/wpPi2vu+msKWiZ8QFox3/ruMzFIOZCnfnj843xufxdgu9
+         MeGUmiA7Z/dRVBK3NdT9B4ymhpM9c0qpwKNXpegEvvYhn5T1kxweIZjlNE+fattEVIvn
+         jG1RiXKH3SvzlebwvUPYmft34NdlnUAiikYo4SRSggxh+pPF10pxJtEKozp+lS8TepIG
+         aHrQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1687446130; x=1690038130;
+        h=content-transfer-encoding:mime-version:message-id:to:from:cc
+         :in-reply-to:subject:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=faWv91VP2z/YbKZA+qDwvC+H5Ebg0LphINaB6C6XGBI=;
+        b=UgF2ZvJcxmRiBRWYxGRf+R0e19ssrTno8AgHVG+yOc8mvdjc/mZ8K3q8d904ebD1UG
+         hTJ+gV+nf99XGwgcUV2KyOpu3rpuoNbq0UwUdo0SmkC2FFPBWRaplV9LnsZRvQho1LVy
+         w9g3DXtpwAOVddhFBlcveTSODAOWt9CKWBXfOAY6x1ssWzwRLO3CXc9HJcw5WWJ5p2mS
+         UgBVtW+Jb7IGTSml/CqjeUtL1MDPYzea+2QmRBCQnfI0m1eMkKvjlZr+a3ccS+9nUUxK
+         h6HwIfLMgmHo3EYFaE2VYEOLp/ge/nERg/+1h9LA5j6vsEawrRvMWaiuS6YoVToXk93R
+         c00w==
+X-Gm-Message-State: AC+VfDwXkvfXlQf7DJMT84NudWoTKwdZB+8XKoHiSWrDJjiS4HcBIgD5
+        9uJD3f5Fim3vPN7kFpa8/YP43A==
+X-Google-Smtp-Source: ACHHUZ7sxI2/l9NYWY43UXjLd7//zIrvDML1M6VqO+WFrtnEGO/KRuc42ZZ7KlADjiu835vi4h/IOA==
+X-Received: by 2002:a17:902:f7c6:b0:1ae:14d:8d0a with SMTP id h6-20020a170902f7c600b001ae014d8d0amr15965819plw.29.1687446130063;
+        Thu, 22 Jun 2023 08:02:10 -0700 (PDT)
+Received: from localhost ([50.221.140.188])
+        by smtp.gmail.com with ESMTPSA id z7-20020a170902708700b001b3dada0e78sm5466709plk.258.2023.06.22.08.02.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 22 Jun 2023 08:02:09 -0700 (PDT)
+Date:   Thu, 22 Jun 2023 08:02:09 -0700 (PDT)
+X-Google-Original-Date: Thu, 22 Jun 2023 08:01:29 PDT (-0700)
+Subject:     Re: [PATCH 11/14] init: consolidate prototypes in linux/init.h
+In-Reply-To: <20230517131102.934196-12-arnd@kernel.org>
+CC:     akpm@linux-foundation.org, linux-mm@kvack.org,
+        Arnd Bergmann <arnd@arndb.de>, linux@armlinux.org.uk,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, monstr@monstr.eu,
+        tsbogend@alpha.franken.de, deller@gmx.de, mpe@ellerman.id.au,
+        hca@linux.ibm.com, tglx@linutronix.de, mingo@redhat.com,
+        x86@kernel.org, rafael@kernel.org, paul@paul-moore.com,
+        eparis@redhat.com, dennis@kernel.org, tj@kernel.org, cl@linux.com,
+        pavel@ucw.cz, peterz@infradead.org, longman@redhat.com,
+        boqun.feng@gmail.com, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, audit@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-kselftest@vger.kernel.org,
+        kunit-dev@googlegroups.com
+From:   Palmer Dabbelt <palmer@dabbelt.com>
+To:     arnd@kernel.org
+Message-ID: <mhng-eb6e6d97-fe40-4755-9be5-eb75a690d88c@palmer-ri-x1c9a>
+Mime-Version: 1.0 (MHng)
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jun 22, 2023 at 02:55:08PM +0200, Heiko Carstens wrote:
-> Nathan Chancellor reported a kernel build error on Fedora 39:
-> 
-> $ clang --version | head -1
-> clang version 16.0.5 (Fedora 16.0.5-1.fc39)
-> 
-> $ s390x-linux-gnu-ld --version | head -1
-> GNU ld version 2.40-1.fc39
-> 
-> $ make -skj"$(nproc)" ARCH=s390 CC=clang CROSS_COMPILE=s390x-linux-gnu- olddefconfig all
-> s390x-linux-gnu-ld: arch/s390/boot/startup.o(.text+0x5b4): misaligned symbol `_decompressor_end' (0x35b0f) for relocation R_390_PC32DBL
-> make[3]: *** [.../arch/s390/boot/Makefile:78: arch/s390/boot/vmlinux] Error 1
-> 
-> It turned out that the problem with misaligned symbols on s390 was fixed
-> with commit 80ddf5ce1c92 ("s390: always build relocatable kernel") for the
-> kernel image, but did not take into account that the decompressor uses its
-> own set of CFLAGS, which come without -fPIE.
-> 
-> Add the -fPIE flag also to the decompresser CFLAGS to fix this.
-> 
-
-I think this should also have:
-
-Reported-by: CKI <cki-project@redhat.com>
-Link: https://lore.kernel.org/32935.123062114500601371@us-mta-9.us.mimecast.lan/
-
-I technically just forwarded the report and did a little extra testing.
-
-> Reported-by: Nathan Chancellor <nathan@kernel.org>
-> Suggested-by: Ulrich Weigand <Ulrich.Weigand@de.ibm.com>
-> Link: https://github.com/ClangBuiltLinux/linux/issues/1747
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-
-Thanks for the quick patch, this fixes the error and I did a simple boot
-test in QEMU with the resulting kernel, which showed no issues.
-
-Tested-by: Nathan Chancellor <nathan@kernel.org>
-
+On Wed, 17 May 2023 06:10:59 PDT (-0700), arnd@kernel.org wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
+>
+> The init/main.c file contains some extern declarations for functions
+> defined in architecture code, and it defines some other functions that
+> are called from architecture code with a custom prototype. Both of those
+> result in warnings with 'make W=1':
+>
+> init/calibrate.c:261:37: error: no previous prototype for 'calibrate_delay_is_known' [-Werror=missing-prototypes]
+> init/main.c:790:20: error: no previous prototype for 'mem_encrypt_init' [-Werror=missing-prototypes]
+> init/main.c:792:20: error: no previous prototype for 'poking_init' [-Werror=missing-prototypes]
+> arch/arm64/kernel/irq.c:122:13: error: no previous prototype for 'init_IRQ' [-Werror=missing-prototypes]
+> arch/arm64/kernel/time.c:55:13: error: no previous prototype for 'time_init' [-Werror=missing-prototypes]
+> arch/x86/kernel/process.c:935:13: error: no previous prototype for 'arch_post_acpi_subsys_init' [-Werror=missing-prototypes]
+> init/calibrate.c:261:37: error: no previous prototype for 'calibrate_delay_is_known' [-Werror=missing-prototypes]
+> kernel/fork.c:991:20: error: no previous prototype for 'arch_task_cache_init' [-Werror=missing-prototypes]
+>
+> Add prototypes for all of these in include/linux/init.h or another
+> appropriate header, and remove the duplicate declarations from
+> architecture specific code.
+>
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 > ---
->  arch/s390/Makefile | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/arch/s390/Makefile b/arch/s390/Makefile
-> index ed646c583e4f..5ed242897b0d 100644
-> --- a/arch/s390/Makefile
-> +++ b/arch/s390/Makefile
-> @@ -27,6 +27,7 @@ KBUILD_CFLAGS_DECOMPRESSOR += -fno-delete-null-pointer-checks -msoft-float -mbac
->  KBUILD_CFLAGS_DECOMPRESSOR += -fno-asynchronous-unwind-tables
->  KBUILD_CFLAGS_DECOMPRESSOR += -ffreestanding
->  KBUILD_CFLAGS_DECOMPRESSOR += -fno-stack-protector
-> +KBUILD_CFLAGS_DECOMPRESSOR += -fPIE
->  KBUILD_CFLAGS_DECOMPRESSOR += $(call cc-disable-warning, address-of-packed-member)
->  KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO),-g)
->  KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO_DWARF4), $(call cc-option, -gdwarf-4,))
-> -- 
-> 2.39.2
-> 
+>  arch/arm/include/asm/irq.h          |  1 -
+>  arch/microblaze/include/asm/setup.h |  2 --
+>  arch/mips/include/asm/irq.h         |  1 -
+>  arch/parisc/kernel/smp.c            |  1 -
+>  arch/powerpc/include/asm/irq.h      |  1 -
+>  arch/riscv/include/asm/irq.h        |  2 --
+>  arch/riscv/include/asm/timex.h      |  2 --
+>  arch/s390/kernel/entry.h            |  2 --
+>  arch/sh/include/asm/irq.h           |  1 -
+>  arch/sh/include/asm/rtc.h           |  2 --
+>  arch/sparc/include/asm/irq_32.h     |  1 -
+>  arch/sparc/include/asm/irq_64.h     |  1 -
+>  arch/sparc/include/asm/timer_64.h   |  1 -
+>  arch/sparc/kernel/kernel.h          |  4 ----
+>  arch/x86/include/asm/irq.h          |  2 --
+>  arch/x86/include/asm/mem_encrypt.h  |  3 ---
+>  arch/x86/include/asm/time.h         |  1 -
+>  arch/x86/include/asm/tsc.h          |  1 -
+>  include/linux/acpi.h                |  3 ++-
+>  include/linux/delay.h               |  1 +
+>  include/linux/init.h                | 20 ++++++++++++++++++++
+>  init/main.c                         | 18 ------------------
+>  22 files changed, 23 insertions(+), 48 deletions(-)
+
+...
+
+> diff --git a/arch/riscv/include/asm/irq.h b/arch/riscv/include/asm/irq.h
+> index 43b9ebfbd943..8e10a94430a2 100644
+> --- a/arch/riscv/include/asm/irq.h
+> +++ b/arch/riscv/include/asm/irq.h
+> @@ -16,6 +16,4 @@ void riscv_set_intc_hwnode_fn(struct fwnode_handle *(*fn)(void));
+>
+>  struct fwnode_handle *riscv_get_intc_hwnode(void);
+>
+> -extern void __init init_IRQ(void);
+> -
+>  #endif /* _ASM_RISCV_IRQ_H */
+> diff --git a/arch/riscv/include/asm/timex.h b/arch/riscv/include/asm/timex.h
+> index d6a7428f6248..a06697846e69 100644
+> --- a/arch/riscv/include/asm/timex.h
+> +++ b/arch/riscv/include/asm/timex.h
+> @@ -88,6 +88,4 @@ static inline int read_current_timer(unsigned long *timer_val)
+>  	return 0;
+>  }
+>
+> -extern void time_init(void);
+> -
+>  #endif /* _ASM_RISCV_TIMEX_H */
+
+Reviewed-by: Palmer Dabbelt <palmer@rivosinc.com> # RISC-V
+Acked-by: Palmer Dabbelt <palmer@rivosinc.com> # RISC-V
+
+Thanks!
+
+
