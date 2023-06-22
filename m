@@ -2,251 +2,202 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 174A4EB64D8
-	for <linux-s390@archiver.kernel.org>; Thu, 22 Jun 2023 07:53:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 78A81EB64D8
+	for <linux-s390@archiver.kernel.org>; Thu, 22 Jun 2023 07:53:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230308AbjFVHxQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 22 Jun 2023 03:53:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52430 "EHLO
+        id S229756AbjFVHxs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 22 Jun 2023 03:53:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230154AbjFVHxP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 22 Jun 2023 03:53:15 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8881F1FF2;
-        Thu, 22 Jun 2023 00:53:02 -0700 (PDT)
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 35M7q3nN018335;
-        Thu, 22 Jun 2023 07:52:58 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=B66tDDzDNb9OcKEoWSRqbuFmlYHVf8mKznF156PIW0c=;
- b=sHLYZmzasVZRhvXlEE7Q7pto46BiqJQClxuvuGeGgt7FxJnRQu9BT+MvlTJODAw4usXC
- kJ7DFnM2eTC7ah8dZF9oe5dcVSwtCNlZf/D/NmUbQ2FDckFoFfp5ejUmsq95DxoQ8okM
- pSqEjvGa+cAGVnVF2U/XjFcKps0DFxUk6eHxYzb+jopzYmdQrwrGZBzpb0aZKOrcdRuB
- 3JlxqMZTzzDFs0snWlAzmYWV17UahFBHs8fIlgWykyx1WhmcamvW8B3xEOEhPYcVvUy1
- ntf3U8HDPpxFU+WbOLaSCfKQKpH12ZME1YBdER+bIvd4FfE1ULWmC+BF7C49xg6rXnP0 ZA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rcj9q00dt-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 22 Jun 2023 07:52:58 +0000
-Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 35M7qvTr024366;
-        Thu, 22 Jun 2023 07:52:57 GMT
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rcj9q00d5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 22 Jun 2023 07:52:57 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 35M3OaQo021635;
-        Thu, 22 Jun 2023 07:52:09 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma04fra.de.ibm.com (PPS) with ESMTPS id 3r94f5age4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 22 Jun 2023 07:52:09 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 35M7q5v937814756
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 22 Jun 2023 07:52:05 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A219E2004E;
-        Thu, 22 Jun 2023 07:52:05 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D6A1D20043;
-        Thu, 22 Jun 2023 07:52:04 +0000 (GMT)
-Received: from linux6.. (unknown [9.114.12.104])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Thu, 22 Jun 2023 07:52:04 +0000 (GMT)
-From:   Janosch Frank <frankja@linux.ibm.com>
-To:     kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        thuth@redhat.com, nsg@linux.ibm.com, nrb@linux.ibm.com
-Subject: [kvm-unit-tests PATCH v4 6/8] s390x: uv-host: Properly handle config creation errors
-Date:   Thu, 22 Jun 2023 07:50:52 +0000
-Message-Id: <20230622075054.3190-7-frankja@linux.ibm.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20230622075054.3190-1-frankja@linux.ibm.com>
-References: <20230622075054.3190-1-frankja@linux.ibm.com>
+        with ESMTP id S229593AbjFVHxr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 22 Jun 2023 03:53:47 -0400
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2093.outbound.protection.outlook.com [40.107.223.93])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A33581BF5;
+        Thu, 22 Jun 2023 00:53:37 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=LCgm1A2SqpZaDEWGOFifYmbzQ8pki1vKnrCXXcXP57oGf/+nP7KjkBx1Gj+QEvgWORyz4o9UBBxy5gFxQ/kevnpYS1hK5yqC9a1uSM6wZfQjbxApyRxF1nY3baVRMkaE++7ZNOJpM45y259KVIYt4f1i7VDpIe9LCQd013NqStWCrBy2Xg0DRLBY7sYAboO2xC5o1vgfplbhN0OALQAgT66A16w0iISdwWfddpCDXbacNqn9wc43fuWemReQbuLWQy5edd7So/UEaXIyEwNqD8mnQ3KTByWYozNsYiZpKiIXRhUuOa6LO9+yTn4bAoF2Tzu07Og0tebHOy7NUwxIUQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=PL/DBYEYAc2al9q683ws/N5Mfdn1mq2wCKAUpM7uRG4=;
+ b=En4sSutNXNbuy2NA8L/XXIj05R/yY9NTLnEPOt1wJJhzz+XN/tlcd1xbFAwcCAgpAuT0Y7lJ1szaTt6r/aruTgDOA/Kt3KSliDPnpRKUD2HATCG8nr8XBRs9NNhtZbHdUskGGWyiJKfpsfQUkb9Ho75IHpHa88NWjCFbVTBzDDRm53pVcBHCFW9Av3x8jS8KA3TfKpNIWIkJ1DVvS7mfW9vJhJP+DhE8TPos4U4pBIisNNxpWlzYU7x02V03nNEB8wCDgXolF6m2laxwDlO+asRa4tbA8ocrDrzmGPstKw2RF4fhQKm0vdAfDb9LoVYu/KLe3Pe66a+1W09MOuIbww==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=corigine.com; dmarc=pass action=none header.from=corigine.com;
+ dkim=pass header.d=corigine.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=corigine.onmicrosoft.com; s=selector2-corigine-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=PL/DBYEYAc2al9q683ws/N5Mfdn1mq2wCKAUpM7uRG4=;
+ b=oxXmOFwE1aLoUpUtzQ9eC+gxLilZYZy9RBIJcHzi/JL/nHbLQPiyhTQRTtn5Vrog86GK+4ABPV0MMdQ7sRPu0zVl26ascmrSjAvahom3UtJND54lEvSIVVh9ZEPN63CgHHU8kFnHmEHcih1Hu10Qt1Y+SKH19zh5Z+RO+UNkip0=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=corigine.com;
+Received: from PH0PR13MB4842.namprd13.prod.outlook.com (2603:10b6:510:78::6)
+ by MW3PR13MB4042.namprd13.prod.outlook.com (2603:10b6:303:54::22) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6521.23; Thu, 22 Jun
+ 2023 07:53:33 +0000
+Received: from PH0PR13MB4842.namprd13.prod.outlook.com
+ ([fe80::eb8f:e482:76e0:fe6e]) by PH0PR13MB4842.namprd13.prod.outlook.com
+ ([fe80::eb8f:e482:76e0:fe6e%5]) with mapi id 15.20.6521.023; Thu, 22 Jun 2023
+ 07:53:33 +0000
+Date:   Thu, 22 Jun 2023 09:53:26 +0200
+From:   Simon Horman <simon.horman@corigine.com>
+To:     Alexandra Winter <wintera@linux.ibm.com>
+Cc:     Randy Dunlap <rdunlap@infradead.org>, linux-kernel@vger.kernel.org,
+        kernel test robot <lkp@intel.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>
+Subject: Re: [PATCH] s390/net: lcs: fix build errors when FDDI is a loadable
+ module
+Message-ID: <ZJP99hSRt5MakBXC@corigine.com>
+References: <20230621213742.8245-1-rdunlap@infradead.org>
+ <98375832-3d29-1f03-145f-8d6e763dd2d2@linux.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <98375832-3d29-1f03-145f-8d6e763dd2d2@linux.ibm.com>
+X-ClientProxiedBy: AM9P193CA0007.EURP193.PROD.OUTLOOK.COM
+ (2603:10a6:20b:21e::12) To PH0PR13MB4842.namprd13.prod.outlook.com
+ (2603:10b6:510:78::6)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: _WYPBpRs35QKnqNw992ANiHHvNSBOhF3
-X-Proofpoint-ORIG-GUID: eQHHWuWH_10OAllf8Zhstl8DZc0gMvlG
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-06-22_04,2023-06-16_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 adultscore=0
- lowpriorityscore=0 mlxlogscore=949 suspectscore=0 phishscore=0
- impostorscore=0 spamscore=0 malwarescore=0 priorityscore=1501 bulkscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2305260000 definitions=main-2306220062
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: PH0PR13MB4842:EE_|MW3PR13MB4042:EE_
+X-MS-Office365-Filtering-Correlation-Id: 7187d197-c102-4d82-e73c-08db72f5c729
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: fkK2Ec4gSluXJ6WtBYGgxS7UIxjBcat2BB1gCW43Af9auCSXXzvL09DfhdBcp4MzyOvNJPeNLGEsr6JjGTGAueNQimlZujd2k8mhJA3cxKYIAt54dsPK8hWeSyevoux6D7OJEBXa7T72ZOWXWUcetXvlJ2r5uth6EnJEm+9q0gDUvaFeEtM1iNwOmXRfAYJ7/244T0zi1rkd75NVIwBn1JzfdBPEsDGuYC7vhIoQHdMBViMhP9OQsbhiGvXGlI9O2SVPybKlLvOLqniP2dZIsuazY44aucFLznGkiZcb6hmTxsSZ+NXYIDdnXq7sTFMoChqTYGsaWL1QV50yXlqGBTDBNzdRhU/c/+hZ3Cn0WkhL+9c8nBwNsQTny+/kiZwyONK4oj15Eq4mJdPQ54euM1udQdTDZ3brth9nKGfQCjSw9WJSN9Mi8HPQst0m8cPBLgE2zBI6o4otxS86ghxpobrTGTIOguU4bRzaXXGw9yaD9rqHHuvuq3v6VJ38uaLlV6k+sd2C6W/dayFQzMQ5oIQykczTeq+7H/ag1dKoFWZjn43UcFfS1RtM9eaJXHfmkUTakIG9/kSE/YB4YOHDpt6FSjzpJPouHjyiLlSSijI=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR13MB4842.namprd13.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(346002)(366004)(136003)(376002)(39840400004)(396003)(451199021)(2906002)(8936002)(8676002)(7416002)(86362001)(44832011)(316002)(6916009)(4326008)(66476007)(66946007)(84970400001)(66556008)(478600001)(41300700001)(54906003)(5660300002)(83380400001)(6666004)(38100700002)(6486002)(2616005)(186003)(6512007)(6506007)(36756003)(53546011);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?I9M5UUS5je4wTT7ov5gpRhsjlZkOzu2xMa20oR9gWFCuTrW1uq95R8EKD41n?=
+ =?us-ascii?Q?Sy4+9/yz8P6y8PiBriS9klT9RAyY0XRUCMsrua0u45TC1uhTmlvzpdsn2a3d?=
+ =?us-ascii?Q?9cjVhjtPQhOekscWMGj7P0q50pJgMKSoQqXjG4M9GvxTi3au9EtutgaxDIzy?=
+ =?us-ascii?Q?kbDhu+efaEpjDq2iBR/swFVu52NBmw7PfvH0UynBxx+pr3W+wW4pjhjE8ya6?=
+ =?us-ascii?Q?jXVEvKIyq0olO/DJ7zloBcl3izTjlxWtUXg8XciVuHEPhnb6gojU57aOZSzl?=
+ =?us-ascii?Q?O8YGqM56OoeJD9O5G5zVmfh0WifosEKFDVlbhAIJXLzUCxHi7LKkD4UvN4vN?=
+ =?us-ascii?Q?vCEZThL4KFUKx3k+QItUVBLLAnvuHSiu8RwKh3GzFJnTD4XJKJQ+etulyKr0?=
+ =?us-ascii?Q?mJELVqcfZUJweSsjxX4m6FyJxA7nFCOed8ymjUolofb6UVVbEGWI24xYOi8w?=
+ =?us-ascii?Q?JN/HA5Ji0+zxr4cOWMh2sQJ9jzJzpw5BYq8ExA0jYjOGeuGntdIjAwsKlQS/?=
+ =?us-ascii?Q?bCEgW9I7dozWqdzYbuPToxbKlq4zTBwbLUvak5m+g02HgLxw0r30qHnZIdKE?=
+ =?us-ascii?Q?j/GLQIqF8eMpa83R63gqnYOtj60OUeuw7uMz/ppaVAmcqdbWP8jWYutKwWec?=
+ =?us-ascii?Q?mgz4SQ69gSbKazzfELGU3OLTxpoWpUbsWNanJ/oT+Q1vSjM2gO3Ja0nt+pt5?=
+ =?us-ascii?Q?x8HaZboR3YHhtodaLUPFlDJ3cubJINhKZ2TZe7rmUfq/XU3wey+SzeLd4KHW?=
+ =?us-ascii?Q?nYFkl8NLSGKAeDaKrmz4ghbJCknb8Iq6zrJVMDLG/XYOeUtQBKvk//bfc8zv?=
+ =?us-ascii?Q?sqZwlGnpvmSGWvo638QIBq0zR6wn7L9szYdDEHdFEtsjoIyiNdLX2VTqdsLp?=
+ =?us-ascii?Q?7h8lljN+IIvygrrRCqKJ9nH+0qE+4hmj26w8zi2C5Pxd1zLm9fd4GgQbfnoH?=
+ =?us-ascii?Q?eIifyQGuwHY9Irgsfg+VJzuMjGTku4/90KTwkJ8Yzc1i3fsa5FRpa/lMHUqR?=
+ =?us-ascii?Q?w3XxDzef7aLI7HyOCLOclpnvwYtFza/S5i1b/5rp28rOhSIl41jCsHuvDZgI?=
+ =?us-ascii?Q?JSLomg+Xigtd36x17LIe/Zv5VWdPvg02RbYgyxwW9nD2lwHmIPzy3UE6zKMM?=
+ =?us-ascii?Q?Eh5e/JGIAqebI35uePEn1ZTlHc2knOv45h3xXxYAJKvE8jiWfQqLr/OtXsf5?=
+ =?us-ascii?Q?83DJzLyvEV6ZWj59MtCq4WpYzCILvNiSNQTmjsjeshTO7Cben+n1y1HUBwZs?=
+ =?us-ascii?Q?fHMNbb2Nj/4ig/vbmTt0iGpyGjZTlTccCW9auwlXvmomsHBa1g9m/kOSZYRG?=
+ =?us-ascii?Q?j6AS+nH23L5wiLu39FrYVwvQCuA1CoLaMc2d/zJq0qS3QjBIJ+e3OS9ipIUb?=
+ =?us-ascii?Q?Hx3FU+zGi91Ia8vNv/vWs5+tibabN2HDt75lQrZaEE8kS4ZUbD/5o0m/fhuE?=
+ =?us-ascii?Q?hzMgoskmOhlDAs9mK/7GEej1ojtO0phMfcCHuJq6xTunJnVfOLTwC5UBZOa1?=
+ =?us-ascii?Q?naNYBCMI3QNgm7gRWjvgAld9N0OwFGVch6ODe7V2n1DsxXeMTLy0v090Gy6Z?=
+ =?us-ascii?Q?a/MaRO6ZvbO4th9Du6OtLLnEmpNZM513kWfZHRM1mpa4CduxvDTkHlnfzwcb?=
+ =?us-ascii?Q?8JU9oxOuNkav9I/ThjmdPO0L0zT2myPMm8/bvJCBYEk+ID0LS5Sj6A8b6KtI?=
+ =?us-ascii?Q?23TbWg=3D=3D?=
+X-OriginatorOrg: corigine.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7187d197-c102-4d82-e73c-08db72f5c729
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR13MB4842.namprd13.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 22 Jun 2023 07:53:33.8053
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: fe128f2c-073b-4c20-818e-7246a585940c
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: sfvScSGposxMTonAi9E8ypSnWm4QDE9Ym4wuj8kodUB5tXMromE86pXgflDXokGvSRAB8npVtlCZOMQBgM/GvUehmrrBUMJCeYlK/ABAzco=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW3PR13MB4042
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-If the first bit is set on a error rc, the hypervisor will need to
-destroy the config before trying again. Let's properly handle those
-cases so we're not using stale data.
+On Thu, Jun 22, 2023 at 09:15:24AM +0200, Alexandra Winter wrote:
+> 
+> 
+> On 21.06.23 23:37, Randy Dunlap wrote:
+> > Require FDDI to be built-in if it is used. LCS needs FDDI to be
+> > built-in to build without errors.
+> > 
+> > Prevents these build errors:
+> > s390-linux-ld: drivers/s390/net/lcs.o: in function `lcs_new_device':
+> > drivers/s390/net/lcs.c:2150: undefined reference to `fddi_type_trans'
+> > s390-linux-ld: drivers/s390/net/lcs.c:2151: undefined reference to `alloc_fddidev'
+> > 
+> > This FDDI requirement effectively restores the previous condition
+> > before the blamed patch, when #ifdef CONFIG_FDDI was used, without
+> > testing for CONFIG_FDDI_MODULE.
+> > 
+> > Fixes: 128272336120 ("s390/net: lcs: use IS_ENABLED() for kconfig detection")
+> > Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+> > Reported-by: kernel test robot <lkp@intel.com>
+> > Link: lore.kernel.org/r/202306202129.pl0AqK8G-lkp@intel.com
+> > Suggested-by: Simon Horman <simon.horman@corigine.com>
+> > Cc: Alexandra Winter <wintera@linux.ibm.com>
+> > Cc: Wenjia Zhang <wenjia@linux.ibm.com>
+> > Cc: linux-s390@vger.kernel.org
+> > Cc: netdev@vger.kernel.org
+> > Cc: Heiko Carstens <hca@linux.ibm.com>
+> > Cc: Vasily Gorbik <gor@linux.ibm.com>
+> > Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+> > Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+> > Cc: Sven Schnelle <svens@linux.ibm.com>
+> > Cc: David S. Miller <davem@davemloft.net>
+> > Cc: Eric Dumazet <edumazet@google.com>
+> > Cc: Jakub Kicinski <kuba@kernel.org>
+> > Cc: Paolo Abeni <pabeni@redhat.com>
+> > ---
+> >  drivers/s390/net/Kconfig |    2 ++
+> >  1 file changed, 2 insertions(+)
+> > 
+> > diff -- a/drivers/s390/net/Kconfig b/drivers/s390/net/Kconfig
+> > --- a/drivers/s390/net/Kconfig
+> > +++ b/drivers/s390/net/Kconfig
+> > @@ -6,11 +6,13 @@ config LCS
+> >  	def_tristate m
+> >  	prompt "Lan Channel Station Interface"
+> >  	depends on CCW && NETDEVICES && (ETHERNET || FDDI)
+> > +	depends on FDDI=y || FDDI=n
+> >  	help
+> >  	  Select this option if you want to use LCS networking on IBM System z.
+> >  	  This device driver supports FDDI (IEEE 802.7) and Ethernet.
+> >  	  To compile as a module, choose M. The module name is lcs.
+> >  	  If you do not know what it is, it's safe to choose Y.
+> > +	  If FDDI is used, it must be built-in (=y).
+> >  
+> >  config CTCM
+> >  	def_tristate m
+> > 
+> 
+> 
+> Wow Randy and Simon, you are reacting faster than I was able to evaluate this yesterday.
+> 2 thoughts:
+> 
+> 1) As ETHERNET cannot be a module and this patch prevents FDDI from being a module, then 
+> 128272336120 ("s390/net: lcs: use IS_ENABLED() for kconfig detection")
+> is kind of pointless and can as well be reverted instead of doing this fix.
+> Or am I missing something?
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
----
- lib/s390x/asm/uv.h |  1 +
- s390x/uv-host.c    | 65 +++++++++++++++++++++++++++++++++++++++-------
- 2 files changed, 57 insertions(+), 9 deletions(-)
+I'll leave that one to Randy at this point.
 
-diff --git a/lib/s390x/asm/uv.h b/lib/s390x/asm/uv.h
-index 38920461..e9fb19af 100644
---- a/lib/s390x/asm/uv.h
-+++ b/lib/s390x/asm/uv.h
-@@ -24,6 +24,7 @@
- #define UVC_RC_NO_RESUME	0x0007
- #define UVC_RC_INV_GHANDLE	0x0020
- #define UVC_RC_INV_CHANDLE	0x0021
-+#define UVC_RC_DSTR_NEEDED_FLG	0x8000
- 
- #define UVC_CMD_QUI			0x0001
- #define UVC_CMD_INIT_UV			0x000f
-diff --git a/s390x/uv-host.c b/s390x/uv-host.c
-index 4112b4b6..65a9c6d3 100644
---- a/s390x/uv-host.c
-+++ b/s390x/uv-host.c
-@@ -370,6 +370,42 @@ static void test_cpu_create(void)
- 	report_prefix_pop();
- }
- 
-+/*
-+ * If the first bit of the rc is set we need to destroy the
-+ * configuration before testing other create config errors.
-+ */
-+static void cgc_destroy_if_needed(struct uv_cb_cgc *uvcb)
-+{
-+	uint16_t rc, rrc;
-+
-+	if (uvcb->header.rc != UVC_RC_EXECUTED &&
-+	    !(uvcb->header.rc & UVC_RC_DSTR_NEEDED_FLG))
-+		return;
-+
-+	assert(uvcb->guest_handle);
-+	assert(!uv_cmd_nodata(uvcb->guest_handle, UVC_CMD_DESTROY_SEC_CONF,
-+			      &rc, &rrc));
-+
-+	/* We need to zero it for the next test */
-+	uvcb->guest_handle = 0;
-+}
-+
-+static bool cgc_check_data(struct uv_cb_cgc *uvcb, uint16_t rc_expected)
-+{
-+	/* This function purely checks for error rcs */
-+	if (uvcb->header.rc == UVC_RC_EXECUTED)
-+		return false;
-+
-+	/*
-+	 * We should only receive a handle when the rc is 1 or the
-+	 * first bit is set.
-+	 */
-+	if (!(uvcb->header.rc & UVC_RC_DSTR_NEEDED_FLG) && uvcb->guest_handle)
-+		report_abort("Received a handle when we didn't expect one");
-+
-+	return (uvcb->header.rc & ~UVC_RC_DSTR_NEEDED_FLG) == rc_expected;
-+}
-+
- static void test_config_create(void)
- {
- 	int rc;
-@@ -394,58 +430,67 @@ static void test_config_create(void)
- 	rc = uv_call(0, (uint64_t)&uvcb_cgc);
- 	report(uvcb_cgc.header.rc == UVC_RC_INV_LEN && rc == 1 &&
- 	       !uvcb_cgc.guest_handle, "hdr invalid length");
-+	cgc_destroy_if_needed(&uvcb_cgc);
- 	uvcb_cgc.header.len += 8;
- 
- 	uvcb_cgc.guest_stor_origin = uvcb_qui.max_guest_stor_addr + (1UL << 20) * 2 + 1;
- 	rc = uv_call(0, (uint64_t)&uvcb_cgc);
--	report(uvcb_cgc.header.rc == 0x101 && rc == 1,
-+	report(cgc_check_data(&uvcb_cgc, 0x101) && rc == 1,
- 	       "MSO > max guest addr");
-+	cgc_destroy_if_needed(&uvcb_cgc);
- 	uvcb_cgc.guest_stor_origin = 0;
- 
- 	uvcb_cgc.guest_stor_origin = uvcb_qui.max_guest_stor_addr - (1UL << 20);
- 	rc = uv_call(0, (uint64_t)&uvcb_cgc);
--	report(uvcb_cgc.header.rc == 0x102 && rc == 1,
-+	report(cgc_check_data(&uvcb_cgc, 0x102) && rc == 1,
- 	       "MSO + MSL > max guest addr");
-+	cgc_destroy_if_needed(&uvcb_cgc);
- 	uvcb_cgc.guest_stor_origin = 0;
- 
- 	uvcb_cgc.guest_asce &= ~ASCE_P;
- 	rc = uv_call(0, (uint64_t)&uvcb_cgc);
--	report(uvcb_cgc.header.rc == 0x105 && rc == 1,
-+	report(cgc_check_data(&uvcb_cgc, 0x105) && rc == 1,
- 	       "ASCE private bit missing");
-+	cgc_destroy_if_needed(&uvcb_cgc);
- 	uvcb_cgc.guest_asce |= ASCE_P;
- 
- 	uvcb_cgc.guest_asce |= 0x20;
- 	rc = uv_call(0, (uint64_t)&uvcb_cgc);
--	report(uvcb_cgc.header.rc == 0x105 && rc == 1,
-+	report(cgc_check_data(&uvcb_cgc, 0x105) && rc == 1,
- 	       "ASCE bit 58 set");
-+	cgc_destroy_if_needed(&uvcb_cgc);
- 	uvcb_cgc.guest_asce &= ~0x20;
- 
- 	tmp = uvcb_cgc.conf_base_stor_origin;
- 	uvcb_cgc.conf_base_stor_origin = get_max_ram_size() + 8;
- 	rc = uv_call(0, (uint64_t)&uvcb_cgc);
--	report(uvcb_cgc.header.rc == 0x108 && rc == 1,
-+	report(cgc_check_data(&uvcb_cgc, 0x108) && rc == 1,
- 	       "base storage origin > available memory");
-+	cgc_destroy_if_needed(&uvcb_cgc);
- 	uvcb_cgc.conf_base_stor_origin = tmp;
- 
- 	tmp = uvcb_cgc.conf_base_stor_origin;
- 	uvcb_cgc.conf_base_stor_origin = 0x1000;
- 	rc = uv_call(0, (uint64_t)&uvcb_cgc);
--	report(uvcb_cgc.header.rc == 0x109 && rc == 1,
--	       "base storage origin contains lowcore");
-+	report(cgc_check_data(&uvcb_cgc, 0x109) && rc == 1,
-+	       "base storage origin contains lowcore %x",  uvcb_cgc.header.rc);
-+	cgc_destroy_if_needed(&uvcb_cgc);
- 	uvcb_cgc.conf_base_stor_origin = tmp;
- 
- 	tmp = uvcb_cgc.guest_sca;
- 	uvcb_cgc.guest_sca = 0;
- 	rc = uv_call(0, (uint64_t)&uvcb_cgc);
--	report(uvcb_cgc.header.rc == 0x10c && rc == 1,
-+	report(cgc_check_data(&uvcb_cgc, 0x10c) && rc == 1,
- 	       "sca == 0");
-+	cgc_destroy_if_needed(&uvcb_cgc);
- 	uvcb_cgc.guest_sca = tmp;
- 
- 	tmp = uvcb_cgc.guest_sca;
- 	uvcb_cgc.guest_sca = get_max_ram_size() + PAGE_SIZE * 4;
- 	rc = uv_call(0, (uint64_t)&uvcb_cgc);
--	report(uvcb_cgc.header.rc == 0x10d && rc == 1,
-+	report(cgc_check_data(&uvcb_cgc, 0x10d) && rc == 1,
- 	       "sca inaccessible");
-+	cgc_destroy_if_needed(&uvcb_cgc);
- 	uvcb_cgc.guest_sca = tmp;
- 
- 	rc = uv_call(0, (uint64_t)&uvcb_cgc);
-@@ -464,6 +509,7 @@ static void test_config_create(void)
- 	uvcb_cgc.guest_handle = 0;
- 	rc = uv_call(0, (uint64_t)&uvcb_cgc);
- 	report(uvcb_cgc.header.rc >= 0x100 && rc == 1, "reuse uvcb");
-+	cgc_destroy_if_needed(&uvcb_cgc);
- 	uvcb_cgc.guest_handle = tmp;
- 
- 	/* Copy over most data from uvcb_cgc, so we have the ASCE that was used. */
-@@ -481,6 +527,7 @@ static void test_config_create(void)
- 	rc = uv_call(0, (uint64_t)&uvcb);
- 	report(uvcb.header.rc >= 0x104 && rc == 1 && !uvcb.guest_handle,
- 	       "reuse ASCE");
-+	cgc_destroy_if_needed(&uvcb);
- 	free((void *)uvcb.conf_base_stor_origin);
- 	free((void *)uvcb.conf_var_stor_origin);
- 
--- 
-2.34.1
+> 2) I wonder whether
+> 
+>   	depends on CCW && NETDEVICES && (ETHERNET || FDDI)
+>  +	depends on FDDI || FDDI=n
+> 
+> would do what we want here:
+> When FDDI is a loadable module, LCS mustn't be built-in.
+> 
+> I will do some experiments and let you know.
 
+It does seem to on my side.
+But checking would be much appreciated.
