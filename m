@@ -2,109 +2,137 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B496EB64DA
-	for <linux-s390@archiver.kernel.org>; Thu, 22 Jun 2023 13:43:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 216B3EB64DC
+	for <linux-s390@archiver.kernel.org>; Thu, 22 Jun 2023 13:58:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230203AbjFVNmt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 22 Jun 2023 09:42:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44420 "EHLO
+        id S229995AbjFVN6e (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 22 Jun 2023 09:58:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230201AbjFVNms (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 22 Jun 2023 09:42:48 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18B951BD9
-        for <linux-s390@vger.kernel.org>; Thu, 22 Jun 2023 06:42:00 -0700 (PDT)
+        with ESMTP id S230324AbjFVN6b (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 22 Jun 2023 09:58:31 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D71BCE2
+        for <linux-s390@vger.kernel.org>; Thu, 22 Jun 2023 06:57:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1687441319;
+        s=mimecast20190719; t=1687442266;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=eFmMS1U29te7tFKtgkPWLc+o83wVHmxe900XZpUTdy8=;
-        b=VXSWyha5A0K+hGTtHOfyj1ddSw1Zuf598TweVHP/NDk2iG0t0ieK53CSIJIg/LvLY9ibQF
-        O47IKH+OelrQDZb1IwMshCf1Y8uZTyruzbUT/atQlKTTgk9bL6agLprEF1mehqlfQUsWcX
-        psi4R//+YBixC2ghiVm9n8SNQSK2xmw=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-522-gHPWKO21MFaNd35SQfD9XQ-1; Thu, 22 Jun 2023 09:41:52 -0400
-X-MC-Unique: gHPWKO21MFaNd35SQfD9XQ-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id D2FA8104458A;
-        Thu, 22 Jun 2023 13:41:48 +0000 (UTC)
-Received: from tpad.localdomain (ovpn-112-2.gru2.redhat.com [10.97.112.2])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 9FD83112132C;
-        Thu, 22 Jun 2023 13:41:47 +0000 (UTC)
-Received: by tpad.localdomain (Postfix, from userid 1000)
-        id 7AF94400E05F5; Thu, 22 Jun 2023 09:47:22 -0300 (-03)
-Date:   Thu, 22 Jun 2023 09:47:22 -0300
-From:   Marcelo Tosatti <mtosatti@redhat.com>
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     Yair Podemsky <ypodemsk@redhat.com>, ppandit@redhat.com,
-        david@redhat.com, linux@armlinux.org.uk, mpe@ellerman.id.au,
-        npiggin@gmail.com, christophe.leroy@csgroup.eu, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        davem@davemloft.net, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, hpa@zytor.com,
-        keescook@chromium.org, paulmck@kernel.org, frederic@kernel.org,
-        will@kernel.org, ardb@kernel.org, samitolvanen@google.com,
-        juerg.haefliger@canonical.com, arnd@arndb.de,
-        rmk+kernel@armlinux.org.uk, geert+renesas@glider.be,
-        linus.walleij@linaro.org, akpm@linux-foundation.org,
-        sebastian.reichel@collabora.com, rppt@kernel.org,
-        aneesh.kumar@linux.ibm.com, x86@kernel.org,
+        bh=9GM+KaVBTG0d2ZoawOpQPP3iTozMv6kRahCWZiyW/ao=;
+        b=dE63dA3mj9ln5+tXWsIQXmlaizNsyy0fLjor2NKmEQWZSNTzQP/DpTfWoWKzXEbX3znGt0
+        0iFpj78wJtWj1N/KcuDNjdv2UBTRdbt2UcPte3uvGfsIjxDBFxh3muvqvqPgM4WITdDv52
+        BzJwOiQDPWHS2reYwxJDI9Ti9DAcujQ=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-117-UK12tYEPO2WCGi-Thf9eaw-1; Thu, 22 Jun 2023 09:57:44 -0400
+X-MC-Unique: UK12tYEPO2WCGi-Thf9eaw-1
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-3f9b5cc7298so16306575e9.3
+        for <linux-s390@vger.kernel.org>; Thu, 22 Jun 2023 06:57:44 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1687442263; x=1690034263;
+        h=content-transfer-encoding:mime-version:references:in-reply-to:date
+         :cc:to:from:subject:message-id:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=9GM+KaVBTG0d2ZoawOpQPP3iTozMv6kRahCWZiyW/ao=;
+        b=ICTxuTTFRJaXRwMoIICLNYebJs4g/SZB5phQysnnyx3r6zSRGXuRZqOGsOmwu0hKY9
+         csdYOFz4hqOzrv2CES5dvg7znqM3Lcv18YRqeTZ9ka4GFG4utX3kGadOdgU6AKLmqEY+
+         vYYUrlWIe7cNb9ScZe/3gmx2rEd6SsIzBx9cG1hhOUtmElps0hWfh7epYyUYVKeKRUXF
+         Kxrn+dWl2Y+o5mYj4A8Jz5yGb4v5dLmBOhYomtE5awW8v0R3sdYZ2wL8b6S40B5A00BN
+         zyOA9fDiMQOH6ssuFQQRIzudU8pZTxaKSGdvdwM1/v4W5wBykLxKgfdEY1qRuYEjtSu5
+         90Yg==
+X-Gm-Message-State: AC+VfDxuKww0bE3P9Moel0BIXE/45mKrfe1QYyEjPFy8Wg9C0vCv71YO
+        XCnNtKoAHX24hJPrO/OU/IZDOqsqnaJVgWVBrxqwS66cEsD00RfxWrRsYHARaDG3eXclGSvU+j9
+        FNC98b9leBcdkyiyRkUsPnQ==
+X-Received: by 2002:a05:600c:2942:b0:3f7:5d:4a06 with SMTP id n2-20020a05600c294200b003f7005d4a06mr1531909wmd.1.1687442263389;
+        Thu, 22 Jun 2023 06:57:43 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ5p9/Up90QSZ1DAdrQMEuugJHQR/5D9norGZu6r3B4czFVgo4n6RIoxrIJViM7m10t9Bv6d/Q==
+X-Received: by 2002:a05:600c:2942:b0:3f7:5d:4a06 with SMTP id n2-20020a05600c294200b003f7005d4a06mr1531890wmd.1.1687442263118;
+        Thu, 22 Jun 2023 06:57:43 -0700 (PDT)
+Received: from ypodemsk.tlv.csb (IGLD-84-229-250-192.inter.net.il. [84.229.250.192])
+        by smtp.gmail.com with ESMTPSA id n6-20020a7bcbc6000000b003f7e4d143cfsm7832711wmi.15.2023.06.22.06.57.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 22 Jun 2023 06:57:42 -0700 (PDT)
+Message-ID: <c08d81286b9986c086e9b68e3440f9bf99086d70.camel@redhat.com>
+Subject: Re: [PATCH v2 2/2] mm/mmu_gather: send tlb_remove_table_smp_sync
+ IPI only to MM CPUs
+From:   ypodemsk@redhat.com
+To:     Nadav Amit <nadav.amit@gmail.com>
+Cc:     mtosatti@redhat.com, ppandit@redhat.com,
+        David Hildenbrand <david@redhat.com>,
+        "Russell King (Oracle)" <linux@armlinux.org.uk>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Heiko Carstens <hca@linux.ibm.com>, gor@linux.ibm.com,
+        agordeev@linux.ibm.com,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        svens@linux.ibm.com, "David S. Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Kees Cook <keescook@chromium.org>,
+        "Paul E. McKenney" <paulmck@kernel.org>, frederic@kernel.org,
+        Will Deacon <will@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>, ardb@kernel.org,
+        samitolvanen@google.com, juerg.haefliger@canonical.com,
+        Arnd Bergmann <arnd@arndb.de>, rmk+kernel@armlinux.org.uk,
+        geert+renesas@glider.be, linus.walleij@linaro.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        sebastian.reichel@collabora.com, Mike Rapoport <rppt@kernel.org>,
+        aneesh.kumar@linux.ibm.com,
+        the arch/x86 maintainers <x86@kernel.org>,
         linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
         sparclinux@vger.kernel.org, linux-arch@vger.kernel.org,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 0/2] send tlb_remove_table_smp_sync IPI only to
- necessary CPUs
-Message-ID: <ZJRC2s4sIuJ9V3A0@tpad>
+        linux-mm <linux-mm@kvack.org>, linux-kernel@vger.kernel.org
+Date:   Thu, 22 Jun 2023 16:57:39 +0300
+In-Reply-To: <10050BB1-15A4-4E84-B900-B21500B2079B@gmail.com>
 References: <20230620144618.125703-1-ypodemsk@redhat.com>
- <20230621074337.GF2046280@hirez.programming.kicks-ass.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230621074337.GF2046280@hirez.programming.kicks-ass.net>
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.3
+         <20230620144618.125703-3-ypodemsk@redhat.com>
+         <10050BB1-15A4-4E84-B900-B21500B2079B@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-22.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jun 21, 2023 at 09:43:37AM +0200, Peter Zijlstra wrote:
-> On Tue, Jun 20, 2023 at 05:46:16PM +0300, Yair Podemsky wrote:
-> > Currently the tlb_remove_table_smp_sync IPI is sent to all CPUs
-> > indiscriminately, this causes unnecessary work and delays notable in
-> > real-time use-cases and isolated cpus.
-> > By limiting the IPI to only be sent to cpus referencing the effected
-> > mm.
-> > a config to differentiate architectures that support mm_cpumask from
-> > those that don't will allow safe usage of this feature.
+On Wed, 2023-06-21 at 11:02 -0700, Nadav Amit wrote:
+> > On Jun 20, 2023, at 7:46 AM, Yair Podemsky <ypodemsk@redhat.com>
+> > wrote:
 > > 
-> > changes from -v1:
-> > - Previous version included a patch to only send the IPI to CPU's with
-> > context_tracking in the kernel space, this was removed due to race 
-> > condition concerns.
-> > - for archs that do not maintain mm_cpumask the mask used should be
-> >  cpu_online_mask (Peter Zijlstra).
-> >  
+> > @@ -1525,7 +1525,7 @@ static void collapse_and_free_pmd(struct
+> > mm_struct *mm, struct vm_area_struct *v
+> > 				addr + HPAGE_PMD_SIZE);
+> > 	mmu_notifier_invalidate_range_start(&range);
+> > 	pmd = pmdp_collapse_flush(vma, addr, pmdp);
+> > -	tlb_remove_table_sync_one();
+> > +	tlb_remove_table_sync_one(mm);
 > 
-> Would it not be much better to fix the root cause? As per the last time,
-> there's patches that cure the thp abuse of this.
-
-The other case where the IPI can happen is:
-
-CPU-0                                   CPU-1
-
-tlb_remove_table
-tlb_remove_table_sync_one
-IPI
-                                        local_irq_disable
-                                        gup_fast
-                                        local_irq_enable
-
-
-So its not only the THP case.
+> Can’t pmdp_collapse_flush() have one additional argument
+> “freed_tables”
+> that it would propagate, for instance on x86 to flush_tlb_mm_range()
+> ?
+> Then you would not need tlb_remove_table_sync_one() to issue an
+> additional
+> IPI, no?
+> 
+> It just seems that you might still have 2 IPIs in many cases instead
+> of
+> one, and unless I am missing something, I don’t see why.
+> 
+Hi Nadav,
+Thanks for your comment.
+I think you are right and in some configurations 2 IPIs might occur.
+However I a am not really dealing with the thp code at the moment,
+This patch is about the mmu_gatherer and mostly dealing with IPIs sent
+via the other code path.
+Thanks,
+Yair
 
