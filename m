@@ -2,56 +2,40 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B61E5EB64DA
-	for <linux-s390@archiver.kernel.org>; Thu, 22 Jun 2023 18:23:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CD697EB64D8
+	for <linux-s390@archiver.kernel.org>; Thu, 22 Jun 2023 18:47:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229757AbjFVSXM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 22 Jun 2023 14:23:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54844 "EHLO
+        id S231382AbjFVSrQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 22 Jun 2023 14:47:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229647AbjFVSXL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 22 Jun 2023 14:23:11 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AF94C3;
-        Thu, 22 Jun 2023 11:23:10 -0700 (PDT)
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 35MHmocq015331;
-        Thu, 22 Jun 2023 18:23:04 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : content-type : in-reply-to :
- mime-version; s=pp1; bh=PFus1/D7nFqd7teR8ydCS2/lV/ZUdlOo4df9sJQYlXk=;
- b=buZWV+BV5f6p/LgEacpYKmV9x4JuuCkn8P5muOqSnYG6EU1+wYOt4PCsY3CrJS7efCks
- o79+D6BLXwoFPZBWWpWwdUi6mh552bZKsBTBOSz42H0Gmlgd251tD19LV249MwvLHcKU
- qSNYqbRixKBpMoloemZgv0yoG+/x5rMYA6dhun3PcWKqLMpxOZVEUYdKuM/uQQoaFTE3
- kCNviGcA+vlaY1EisYdLbA+MSqhdJ/wDcjLpYosqNXnzpaSOFSvLNlYWcDdO+McL/e4I
- 7tSY3Bsn5AX693u0cCHD2hk9Od+RD7c9mNBcQBzv7W9sW/gYmZRNJWNBdlebtKWA3QyN Xg== 
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rcsu5ap14-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 22 Jun 2023 18:23:03 +0000
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 35MFn1C3032552;
-        Thu, 22 Jun 2023 18:23:02 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma06fra.de.ibm.com (PPS) with ESMTPS id 3r943e2t2w-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 22 Jun 2023 18:23:01 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 35MIMwjO27263552
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 22 Jun 2023 18:22:58 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6ADCB20043;
-        Thu, 22 Jun 2023 18:22:58 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id AB81C20040;
-        Thu, 22 Jun 2023 18:22:57 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.171.59.34])
-        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Thu, 22 Jun 2023 18:22:57 +0000 (GMT)
-Date:   Thu, 22 Jun 2023 20:22:55 +0200
-From:   Alexander Gordeev <agordeev@linux.ibm.com>
-To:     Jeff Layton <jlayton@kernel.org>
+        with ESMTP id S231506AbjFVSrJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 22 Jun 2023 14:47:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 995902693;
+        Thu, 22 Jun 2023 11:46:57 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 08F76618DB;
+        Thu, 22 Jun 2023 18:46:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 620D5C433C9;
+        Thu, 22 Jun 2023 18:46:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1687459616;
+        bh=aoZEIYZEdwo95vf6kneu0rBSKd4FMAQlbn+BrfpOvy8=;
+        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
+        b=VgVDLBByYxHIs1HHLMNk2QwMx2pjcUv0P7lmmQ8XhYnH7IkHIWjLnPnXviGC/RF3v
+         xWPsghobOJfsv4Y8JEGD7CapSZJXAyCsErof5m+AFlYLbJNqqlrj8eL2eEFyVrEj0B
+         iAWsnZl6JnQvNPXJMhkPtffq2Si9xh/pRXqAw27064stvWZ/1R1iDkWqwhxreI8JGZ
+         81IaBrCt/qXRSwcLM+OCq/pjEhH2U+bDioe6WkTJeXX7jjIIPRb+P/MxaBeBnw+osD
+         LLEYQtajamtnww+9wmY0jQg25p+iYgjbkzwrmJGJzxvyvaE+32LQsHvnZx27cJgbMt
+         cPUKO+EwO2YsQ==
+Message-ID: <a76feaed107e83c2d356438cd04b5c790550c92c.camel@kernel.org>
+Subject: Re: [PATCH 03/79] s390: switch to new ctime accessors
+From:   Jeff Layton <jlayton@kernel.org>
+To:     Alexander Gordeev <agordeev@linux.ibm.com>
 Cc:     Christian Brauner <brauner@kernel.org>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
@@ -59,83 +43,90 @@ Cc:     Christian Brauner <brauner@kernel.org>,
         Sven Schnelle <svens@linux.ibm.com>,
         Al Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>,
         linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 03/79] s390: switch to new ctime accessors
-Message-ID: <ZJSRf9FnEFc+dPO6@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+Date:   Thu, 22 Jun 2023 14:46:54 -0400
+In-Reply-To: <ZJSRf9FnEFc+dPO6@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
 References: <20230621144507.55591-1-jlayton@kernel.org>
- <20230621144735.55953-1-jlayton@kernel.org>
- <20230621144735.55953-2-jlayton@kernel.org>
- <ZJSGVjryWEjbeW1U@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
- <468a895b93b83ed6369ea95519f832998a89d76f.camel@kernel.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <468a895b93b83ed6369ea95519f832998a89d76f.camel@kernel.org>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: x6OV24konuBPCH-MQgSaVifwYtI2h7wt
-X-Proofpoint-ORIG-GUID: x6OV24konuBPCH-MQgSaVifwYtI2h7wt
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+         <20230621144735.55953-1-jlayton@kernel.org>
+         <20230621144735.55953-2-jlayton@kernel.org>
+         <ZJSGVjryWEjbeW1U@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+         <468a895b93b83ed6369ea95519f832998a89d76f.camel@kernel.org>
+         <ZJSRf9FnEFc+dPO6@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.48.3 (3.48.3-1.fc38) 
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-06-22_13,2023-06-22_02,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 suspectscore=0
- mlxscore=0 lowpriorityscore=0 mlxlogscore=570 malwarescore=0
- priorityscore=1501 spamscore=0 adultscore=0 bulkscore=0 impostorscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2305260000 definitions=main-2306220154
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jun 22, 2023 at 01:51:33PM -0400, Jeff Layton wrote:
-> On Thu, 2023-06-22 at 19:35 +0200, Alexander Gordeev wrote:
-> > On Wed, Jun 21, 2023 at 10:45:16AM -0400, Jeff Layton wrote:
-> > 
-> > Hi Jeff,
-> > > In later patches, we're going to change how the ctime.tv_nsec field is
-> > > utilized. Switch to using accessor functions instead of raw accesses of
-> > > inode->i_ctime.
-> > > 
-> > > Signed-off-by: Jeff Layton <jlayton@kernel.org>
-> > > ---
-> > >  arch/s390/hypfs/inode.c | 4 ++--
-> > >  1 file changed, 2 insertions(+), 2 deletions(-)
-> > > 
-> > > diff --git a/arch/s390/hypfs/inode.c b/arch/s390/hypfs/inode.c
-> > > index ee919bfc8186..30fa336ec63e 100644
-> > > --- a/arch/s390/hypfs/inode.c
-> > > +++ b/arch/s390/hypfs/inode.c
-> > > @@ -53,7 +53,7 @@ static void hypfs_update_update(struct super_block *sb)
-> > >  	struct inode *inode = d_inode(sb_info->update_file);
-> > >  
-> > >  	sb_info->last_update = ktime_get_seconds();
-> > > -	inode->i_atime = inode->i_mtime = inode->i_ctime = current_time(inode);
-> > > +	inode->i_atime = inode->i_mtime = inode_ctime_set_current(inode);
-> > >  }
-> > >  
-> > >  /* directory tree removal functions */
-> > > @@ -101,7 +101,7 @@ static struct inode *hypfs_make_inode(struct super_block *sb, umode_t mode)
-> > >  		ret->i_mode = mode;
-> > >  		ret->i_uid = hypfs_info->uid;
-> > >  		ret->i_gid = hypfs_info->gid;
-> > > -		ret->i_atime = ret->i_mtime = ret->i_ctime = current_time(ret);
-> > > +		ret->i_atime = ret->i_mtime = inode_ctime_set_current(ret);
-> > >  		if (S_ISDIR(mode))
-> > >  			set_nlink(ret, 2);
-> > >  	}
-> > 
-> > I guess, inode_set_ctime() called from inode_ctime_set_current()
-> > updates i_ctime and is part of some other series?
-> > 
-> 
-> No, that gets added in patch #1 of this series.
-> 
-> You should have gotten cc'ed on that one, though the postings to vger
-> mailing lists of patches 1, 2, and 79 bounced because the mail header
-> length on those was >8k.
+On Thu, 2023-06-22 at 20:22 +0200, Alexander Gordeev wrote:
+> On Thu, Jun 22, 2023 at 01:51:33PM -0400, Jeff Layton wrote:
+> > On Thu, 2023-06-22 at 19:35 +0200, Alexander Gordeev wrote:
+> > > On Wed, Jun 21, 2023 at 10:45:16AM -0400, Jeff Layton wrote:
+> > >=20
+> > > Hi Jeff,
+> > > > In later patches, we're going to change how the ctime.tv_nsec field=
+ is
+> > > > utilized. Switch to using accessor functions instead of raw accesse=
+s of
+> > > > inode->i_ctime.
+> > > >=20
+> > > > Signed-off-by: Jeff Layton <jlayton@kernel.org>
+> > > > ---
+> > > >  arch/s390/hypfs/inode.c | 4 ++--
+> > > >  1 file changed, 2 insertions(+), 2 deletions(-)
+> > > >=20
+> > > > diff --git a/arch/s390/hypfs/inode.c b/arch/s390/hypfs/inode.c
+> > > > index ee919bfc8186..30fa336ec63e 100644
+> > > > --- a/arch/s390/hypfs/inode.c
+> > > > +++ b/arch/s390/hypfs/inode.c
+> > > > @@ -53,7 +53,7 @@ static void hypfs_update_update(struct super_bloc=
+k *sb)
+> > > >  	struct inode *inode =3D d_inode(sb_info->update_file);
+> > > > =20
+> > > >  	sb_info->last_update =3D ktime_get_seconds();
+> > > > -	inode->i_atime =3D inode->i_mtime =3D inode->i_ctime =3D current_=
+time(inode);
+> > > > +	inode->i_atime =3D inode->i_mtime =3D inode_ctime_set_current(ino=
+de);
+> > > >  }
+> > > > =20
+> > > >  /* directory tree removal functions */
+> > > > @@ -101,7 +101,7 @@ static struct inode *hypfs_make_inode(struct su=
+per_block *sb, umode_t mode)
+> > > >  		ret->i_mode =3D mode;
+> > > >  		ret->i_uid =3D hypfs_info->uid;
+> > > >  		ret->i_gid =3D hypfs_info->gid;
+> > > > -		ret->i_atime =3D ret->i_mtime =3D ret->i_ctime =3D current_time(=
+ret);
+> > > > +		ret->i_atime =3D ret->i_mtime =3D inode_ctime_set_current(ret);
+> > > >  		if (S_ISDIR(mode))
+> > > >  			set_nlink(ret, 2);
+> > > >  	}
+> > >=20
+> > > I guess, inode_set_ctime() called from inode_ctime_set_current()
+> > > updates i_ctime and is part of some other series?
+> > >=20
+> >=20
+> > No, that gets added in patch #1 of this series.
+> >=20
+> > You should have gotten cc'ed on that one, though the postings to vger
+> > mailing lists of patches 1, 2, and 79 bounced because the mail header
+> > length on those was >8k.
+>=20
+> I actually received #1, if we're talking about this one:
+> https://lore.kernel.org/all/20230621144507.55591-2-jlayton@kernel.org/
+>=20
+> I see inode_set_ctime() gets called, but nowere defined.
+>=20
+>=20
 
-I actually received #1, if we're talking about this one:
-https://lore.kernel.org/all/20230621144507.55591-2-jlayton@kernel.org/
+That's a bug -- that should be calling inode_ctime_set() instead. It
+gets fixed up in a later patch in the series, but that should be fixed.
 
-I see inode_set_ctime() gets called, but nowere defined.
+I'm already respinning this now with an updated coccinelle patch. I'll
+make sure that's correct on the next posting.
 
-> Jeff Layton <jlayton@kernel.org>
+Thanks,
+--
+Jeff Layton <jlayton@kernel.org>
