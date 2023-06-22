@@ -2,250 +2,179 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BA06DC001DB
-	for <linux-s390@archiver.kernel.org>; Thu, 22 Jun 2023 02:36:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 09B5CEB64D8
+	for <linux-s390@archiver.kernel.org>; Thu, 22 Jun 2023 07:15:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229839AbjFVCgc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 21 Jun 2023 22:36:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43234 "EHLO
+        id S229854AbjFVHPv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 22 Jun 2023 03:15:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229483AbjFVCgb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 21 Jun 2023 22:36:31 -0400
-Received: from mail-yw1-x112f.google.com (mail-yw1-x112f.google.com [IPv6:2607:f8b0:4864:20::112f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12A321A1
-        for <linux-s390@vger.kernel.org>; Wed, 21 Jun 2023 19:36:30 -0700 (PDT)
-Received: by mail-yw1-x112f.google.com with SMTP id 00721157ae682-570808d8ddeso64914467b3.0
-        for <linux-s390@vger.kernel.org>; Wed, 21 Jun 2023 19:36:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1687401389; x=1689993389;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=v95kJuIKZOvwX2VyzbcG9p4WcOSZqpPbckNEDTbMqbw=;
-        b=O3tP+byBHyqrVuzTTEu8WRLDc/8A9uAf+TdWk4s+4iRKfQ5KOSa7bvLkBzTYKr0W8M
-         j3sRCXur+WjZ9BeHD+FncbDp1prKZ/qXqo9vRO5qA8AQSnrPS9w22qXk+xnyoij9+QY4
-         Acm9ERBt0JMUlTv5p8Jp0yNYMVl5d341AvRtjPFDRxez8WAwHgXzS6SBOEkhSkDpkgzA
-         FicxTEqozjAq1pC+B+ZdlXfR0aFh6Inz+lQvgqOR+F9yGjspH8iPGFbJTwEd3pnnSvO5
-         lsJm1UV477OB7Dih1OhkfIqmAM0XwW9HFmiv+LGL2kzkOO0DnreoAdIjNdFX9CO4XaoS
-         SsqQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1687401389; x=1689993389;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=v95kJuIKZOvwX2VyzbcG9p4WcOSZqpPbckNEDTbMqbw=;
-        b=SYk+0iVW0CnK42QIOwTZpvj539YxD3v60bQALBv1PcvJpmyKxStIQAr6N0C+YsLijf
-         bm0pv/w8p+NOjrgOHc4kJcMLmlpYtGXxcbYD9fzCBB2i4+WgUEtjx3fu3jFhMerpMUfE
-         3jdjJRTw8sENOI1YlhU4m/Z8r32BW9VOmv8QzZYX0Gje1DgrpWyxw3VaABXZcEi2tXQD
-         aK2mvxV0eazbsjsofiJM/2PhOSjAbW3QIxv9ZnQnNQ+Wxsl1BvNt1UrajPyEdWLOXbI+
-         42RCbmYEFT0lgc3esoQkFAdKa6dOypXADSOXuDty/1CQhxoOgNrKLwBatdyTqDfPgNFT
-         4R5A==
-X-Gm-Message-State: AC+VfDwTK4RkTlLvet66WbQNKUkf0KI53nbzgilWrxBBWMxis0seaOmZ
-        H3B9CpK67NNiaEoNtdCGZ07Oyg==
-X-Google-Smtp-Source: ACHHUZ7nNc0KOSzPxWDeH97+s3XtTQiSXAf5QSy+8GGNP+KxVnc2GWHN4WSyWChzR7EoY+E3ZvtVZQ==
-X-Received: by 2002:a0d:e6d3:0:b0:56d:ffa:f3b0 with SMTP id p202-20020a0de6d3000000b0056d0ffaf3b0mr14905560ywe.52.1687401389086;
-        Wed, 21 Jun 2023 19:36:29 -0700 (PDT)
-Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id e65-20020a0dc244000000b0056cffe97a11sm1564690ywd.13.2023.06.21.19.36.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 Jun 2023 19:36:27 -0700 (PDT)
-Date:   Wed, 21 Jun 2023 19:36:11 -0700 (PDT)
-From:   Hugh Dickins <hughd@google.com>
-X-X-Sender: hugh@ripple.attlocal.net
-To:     Jason Gunthorpe <jgg@ziepe.ca>
-cc:     Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        David Hildenbrand <david@redhat.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Qi Zheng <zhengqi.arch@bytedance.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Peter Xu <peterx@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        Ralph Campbell <rcampbell@nvidia.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Steven Price <steven.price@arm.com>,
-        SeongJae Park <sj@kernel.org>,
-        Lorenzo Stoakes <lstoakes@gmail.com>,
-        Huang Ying <ying.huang@intel.com>,
-        Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Zack Rusin <zackr@vmware.com>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Pasha Tatashin <pasha.tatashin@soleen.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        Song Liu <song@kernel.org>,
-        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
-        Russell King <linux@armlinux.org.uk>,
-        "David Sc. Miller" <davem@davemloft.net>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Jann Horn <jannh@google.com>,
-        Vishal Moola <vishal.moola@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH v2 05/12] powerpc: add pte_free_defer() for pgtables
- sharing page
-In-Reply-To: <ZJI7xkXWmjrE1yY3@ziepe.ca>
-Message-ID: <c8284d0-91cb-b65e-4c95-bfeb627234f@google.com>
-References: <54cb04f-3762-987f-8294-91dafd8ebfb0@google.com> <5cd9f442-61da-4c3d-eca-b7f44d22aa5f@google.com> <ZJGRa4zvsXfc43vB@ziepe.ca> <2ad8b6cf-692a-ff89-ecc-586c20c5e07f@google.com> <ZJI7xkXWmjrE1yY3@ziepe.ca>
+        with ESMTP id S229521AbjFVHPu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 22 Jun 2023 03:15:50 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89A84E69;
+        Thu, 22 Jun 2023 00:15:47 -0700 (PDT)
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 35M75nW4022900;
+        Thu, 22 Jun 2023 07:15:31 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=LDHaapSVWvbIG0L5Ay14IB3K+j+a/r4eE/xCCjB5YdU=;
+ b=HA3MVg/sgFNQXA6d15zutPP7LY3BoVrQjoqDkDl3w8e/yhZhjJIZB22/aMeg/nwpzZYM
+ 5fy27OOiRpEeEfhJdlQ7N12+M5B/bgea42niSXFtHu4A4mUFH/dLEP0BFiPikYyFFXY+
+ R3Y0u0OOilRbQk75AbP6nHL0gDjHdaRI6xW0nYT2+mES5b+zV5Qf0vh5Mu+W2Pv/JB5r
+ pmiGQCfCAqxhFULLNST9RL5dsS/hNODo+JL4tgbuectIFU5zQ7WM3z9UXXRgbaMVNI6v
+ tZ4ajrBfV+AD2DJFixgjDfC1SFbirY3rq7cPwTfMbvFNuiBpw/PP5870QQv2R+JYpLqD qQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rchep0ca8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 22 Jun 2023 07:15:31 +0000
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 35M76P2o027008;
+        Thu, 22 Jun 2023 07:15:30 GMT
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rchep0c9g-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 22 Jun 2023 07:15:30 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 35M2t6Du017857;
+        Thu, 22 Jun 2023 07:15:28 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma05fra.de.ibm.com (PPS) with ESMTPS id 3r94f52gcp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 22 Jun 2023 07:15:28 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 35M7FPNd42336864
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 22 Jun 2023 07:15:25 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1578A2004B;
+        Thu, 22 Jun 2023 07:15:25 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C39CE20043;
+        Thu, 22 Jun 2023 07:15:24 +0000 (GMT)
+Received: from [9.152.224.35] (unknown [9.152.224.35])
+        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Thu, 22 Jun 2023 07:15:24 +0000 (GMT)
+Message-ID: <98375832-3d29-1f03-145f-8d6e763dd2d2@linux.ibm.com>
+Date:   Thu, 22 Jun 2023 09:15:24 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.12.0
+Subject: Re: [PATCH] s390/net: lcs: fix build errors when FDDI is a loadable
+ module
+Content-Language: en-US
+To:     Randy Dunlap <rdunlap@infradead.org>, linux-kernel@vger.kernel.org
+Cc:     kernel test robot <lkp@intel.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>
+References: <20230621213742.8245-1-rdunlap@infradead.org>
+From:   Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <20230621213742.8245-1-rdunlap@infradead.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: GOC3sp2yjV-PtfW51iFc-kKLnElSNJ5g
+X-Proofpoint-GUID: Os9Pko7AHpcTwayR_5Q8NJ1gz5T5P4-r
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-06-22_04,2023-06-16_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 spamscore=0
+ clxscore=1011 suspectscore=0 mlxlogscore=999 bulkscore=0 impostorscore=0
+ priorityscore=1501 mlxscore=0 malwarescore=0 lowpriorityscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2305260000 definitions=main-2306220057
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 20 Jun 2023, Jason Gunthorpe wrote:
-> On Tue, Jun 20, 2023 at 12:54:25PM -0700, Hugh Dickins wrote:
-> > On Tue, 20 Jun 2023, Jason Gunthorpe wrote:
-> > > On Tue, Jun 20, 2023 at 12:47:54AM -0700, Hugh Dickins wrote:
-> > > > Add powerpc-specific pte_free_defer(), to call pte_free() via call_rcu().
-> > > > pte_free_defer() will be called inside khugepaged's retract_page_tables()
-> > > > loop, where allocating extra memory cannot be relied upon.  This precedes
-> > > > the generic version to avoid build breakage from incompatible pgtable_t.
-> > > > 
-> > > > This is awkward because the struct page contains only one rcu_head, but
-> > > > that page may be shared between PTE_FRAG_NR pagetables, each wanting to
-> > > > use the rcu_head at the same time: account concurrent deferrals with a
-> > > > heightened refcount, only the first making use of the rcu_head, but
-> > > > re-deferring if more deferrals arrived during its grace period.
-> > > 
-> > > You didn't answer my question why we can't just move the rcu to the
-> > > actual free page?
-> > 
-> > I thought that I had answered it, perhaps not to your satisfaction:
-> > 
-> > https://lore.kernel.org/linux-mm/9130acb-193-6fdd-f8df-75766e663978@google.com/
-> > 
-> > My conclusion then was:
-> > Not very good reasons: good enough, or can you supply a better patch?
+
+
+On 21.06.23 23:37, Randy Dunlap wrote:
+> Require FDDI to be built-in if it is used. LCS needs FDDI to be
+> built-in to build without errors.
 > 
-> Oh, I guess I didn't read that email as answering the question..
+> Prevents these build errors:
+> s390-linux-ld: drivers/s390/net/lcs.o: in function `lcs_new_device':
+> drivers/s390/net/lcs.c:2150: undefined reference to `fddi_type_trans'
+> s390-linux-ld: drivers/s390/net/lcs.c:2151: undefined reference to `alloc_fddidev'
 > 
-> I was saying to make pte_fragment_free() unconditionally do the
-> RCU. It is the only thing that uses the page->rcu_head, and it means
-> PPC would double RCU the final free on the TLB path, but that is
-> probably OK for now. This means pte_free_defer() won't do anything
-> special on PPC as PPC will always RCU free these things, this address
-> the defer concern too, I think. Overall it is easier to reason about.
+> This FDDI requirement effectively restores the previous condition
+> before the blamed patch, when #ifdef CONFIG_FDDI was used, without
+> testing for CONFIG_FDDI_MODULE.
 > 
-> I looked at fixing the TLB stuff to avoid the double rcu but quickly
-> got scared that ppc was using a kmem_cache to allocate other page
-> table sizes so there is not a reliable struct page to get a rcu_head
-> from. This looks like the main challenge for ppc... We'd have to teach
-> the tlb code to not do its own RCU stuff for table levels that the
-> arch is already RCU freeing - and that won't get us to full RCU
-> freeing on PPC.
+> Fixes: 128272336120 ("s390/net: lcs: use IS_ENABLED() for kconfig detection")
+> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+> Reported-by: kernel test robot <lkp@intel.com>
+> Link: lore.kernel.org/r/202306202129.pl0AqK8G-lkp@intel.com
+> Suggested-by: Simon Horman <simon.horman@corigine.com>
+> Cc: Alexandra Winter <wintera@linux.ibm.com>
+> Cc: Wenjia Zhang <wenjia@linux.ibm.com>
+> Cc: linux-s390@vger.kernel.org
+> Cc: netdev@vger.kernel.org
+> Cc: Heiko Carstens <hca@linux.ibm.com>
+> Cc: Vasily Gorbik <gor@linux.ibm.com>
+> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+> Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+> Cc: Sven Schnelle <svens@linux.ibm.com>
+> Cc: David S. Miller <davem@davemloft.net>
+> Cc: Eric Dumazet <edumazet@google.com>
+> Cc: Jakub Kicinski <kuba@kernel.org>
+> Cc: Paolo Abeni <pabeni@redhat.com>
+> ---
+>  drivers/s390/net/Kconfig |    2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff -- a/drivers/s390/net/Kconfig b/drivers/s390/net/Kconfig
+> --- a/drivers/s390/net/Kconfig
+> +++ b/drivers/s390/net/Kconfig
+> @@ -6,11 +6,13 @@ config LCS
+>  	def_tristate m
+>  	prompt "Lan Channel Station Interface"
+>  	depends on CCW && NETDEVICES && (ETHERNET || FDDI)
+> +	depends on FDDI=y || FDDI=n
+>  	help
+>  	  Select this option if you want to use LCS networking on IBM System z.
+>  	  This device driver supports FDDI (IEEE 802.7) and Ethernet.
+>  	  To compile as a module, choose M. The module name is lcs.
+>  	  If you do not know what it is, it's safe to choose Y.
+> +	  If FDDI is used, it must be built-in (=y).
+>  
+>  config CTCM
+>  	def_tristate m
+> 
 
-Sorry for being so dense all along: yes, your way is unquestionably
-much better than mine.  I guess I must have been obsessive about
-keeping pte_free_defer()+pte_free_now() "on the outside", as they
-were on x86, and never perceived how much easier it is with a small
-tweak inside pte_fragment_free(); and never reconsidered it since.
 
-But I'm not so keen on the double-RCU, extending this call_rcu() to
-all the normal cases, while still leaving the TLB batching in place:
-here is the replacement patch I'd prefer us to go forward with now.
+Wow Randy and Simon, you are reacting faster than I was able to evaluate this yesterday.
+2 thoughts:
 
-Many thanks!
+1) As ETHERNET cannot be a module and this patch prevents FDDI from being a module, then 
+128272336120 ("s390/net: lcs: use IS_ENABLED() for kconfig detection")
+is kind of pointless and can as well be reverted instead of doing this fix.
+Or am I missing something?
 
-[PATCH v3 05/12] powerpc: add pte_free_defer() for pgtables sharing page
+2) I wonder whether
 
-Add powerpc-specific pte_free_defer(), to free table page via call_rcu().
-pte_free_defer() will be called inside khugepaged's retract_page_tables()
-loop, where allocating extra memory cannot be relied upon.  This precedes
-the generic version to avoid build breakage from incompatible pgtable_t.
+  	depends on CCW && NETDEVICES && (ETHERNET || FDDI)
+ +	depends on FDDI || FDDI=n
 
-This is awkward because the struct page contains only one rcu_head, but
-that page may be shared between PTE_FRAG_NR pagetables, each wanting to
-use the rcu_head at the same time.  But powerpc never reuses a fragment
-once it has been freed: so mark the page Active in pte_free_defer(),
-before calling pte_fragment_free() directly; and there call_rcu() to
-pte_free_now() when last fragment is freed and the page is PageActive.
+would do what we want here:
+When FDDI is a loadable module, LCS mustn't be built-in.
 
-Suggested-by: Jason Gunthorpe <jgg@ziepe.ca>
-Signed-off-by: Hugh Dickins <hughd@google.com>
----
- arch/powerpc/include/asm/pgalloc.h |  4 ++++
- arch/powerpc/mm/pgtable-frag.c     | 29 ++++++++++++++++++++++++++---
- 2 files changed, 30 insertions(+), 3 deletions(-)
+I will do some experiments and let you know.
 
-diff --git a/arch/powerpc/include/asm/pgalloc.h b/arch/powerpc/include/asm/pgalloc.h
-index 3360cad78ace..3a971e2a8c73 100644
---- a/arch/powerpc/include/asm/pgalloc.h
-+++ b/arch/powerpc/include/asm/pgalloc.h
-@@ -45,6 +45,10 @@ static inline void pte_free(struct mm_struct *mm, pgtable_t ptepage)
- 	pte_fragment_free((unsigned long *)ptepage, 0);
- }
- 
-+/* arch use pte_free_defer() implementation in arch/powerpc/mm/pgtable-frag.c */
-+#define pte_free_defer pte_free_defer
-+void pte_free_defer(struct mm_struct *mm, pgtable_t pgtable);
-+
- /*
-  * Functions that deal with pagetables that could be at any level of
-  * the table need to be passed an "index_size" so they know how to
-diff --git a/arch/powerpc/mm/pgtable-frag.c b/arch/powerpc/mm/pgtable-frag.c
-index 20652daa1d7e..0c6b68130025 100644
---- a/arch/powerpc/mm/pgtable-frag.c
-+++ b/arch/powerpc/mm/pgtable-frag.c
-@@ -106,6 +106,15 @@ pte_t *pte_fragment_alloc(struct mm_struct *mm, int kernel)
- 	return __alloc_for_ptecache(mm, kernel);
- }
- 
-+static void pte_free_now(struct rcu_head *head)
-+{
-+	struct page *page;
-+
-+	page = container_of(head, struct page, rcu_head);
-+	pgtable_pte_page_dtor(page);
-+	__free_page(page);
-+}
-+
- void pte_fragment_free(unsigned long *table, int kernel)
- {
- 	struct page *page = virt_to_page(table);
-@@ -115,8 +124,22 @@ void pte_fragment_free(unsigned long *table, int kernel)
- 
- 	BUG_ON(atomic_read(&page->pt_frag_refcount) <= 0);
- 	if (atomic_dec_and_test(&page->pt_frag_refcount)) {
--		if (!kernel)
--			pgtable_pte_page_dtor(page);
--		__free_page(page);
-+		if (kernel)
-+			__free_page(page);
-+		else if (TestClearPageActive(page))
-+			call_rcu(&page->rcu_head, pte_free_now);
-+		else
-+			pte_free_now(&page->rcu_head);
- 	}
- }
-+
-+#ifdef CONFIG_TRANSPARENT_HUGEPAGE
-+void pte_free_defer(struct mm_struct *mm, pgtable_t pgtable)
-+{
-+	struct page *page;
-+
-+	page = virt_to_page(pgtable);
-+	SetPageActive(page);
-+	pte_fragment_free((unsigned long *)pgtable, 0);
-+}
-+#endif /* CONFIG_TRANSPARENT_HUGEPAGE */
--- 
-2.35.3
+Alexandra
+
+
 
