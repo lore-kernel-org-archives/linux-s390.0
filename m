@@ -2,131 +2,196 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD697EB64D8
-	for <linux-s390@archiver.kernel.org>; Thu, 22 Jun 2023 18:47:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E13C0C001E0
+	for <linux-s390@archiver.kernel.org>; Thu, 22 Jun 2023 20:58:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231382AbjFVSrQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 22 Jun 2023 14:47:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37214 "EHLO
+        id S230503AbjFVU6o (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 22 Jun 2023 16:58:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231506AbjFVSrJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 22 Jun 2023 14:47:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 995902693;
-        Thu, 22 Jun 2023 11:46:57 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 08F76618DB;
-        Thu, 22 Jun 2023 18:46:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 620D5C433C9;
-        Thu, 22 Jun 2023 18:46:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1687459616;
-        bh=aoZEIYZEdwo95vf6kneu0rBSKd4FMAQlbn+BrfpOvy8=;
-        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-        b=VgVDLBByYxHIs1HHLMNk2QwMx2pjcUv0P7lmmQ8XhYnH7IkHIWjLnPnXviGC/RF3v
-         xWPsghobOJfsv4Y8JEGD7CapSZJXAyCsErof5m+AFlYLbJNqqlrj8eL2eEFyVrEj0B
-         iAWsnZl6JnQvNPXJMhkPtffq2Si9xh/pRXqAw27064stvWZ/1R1iDkWqwhxreI8JGZ
-         81IaBrCt/qXRSwcLM+OCq/pjEhH2U+bDioe6WkTJeXX7jjIIPRb+P/MxaBeBnw+osD
-         LLEYQtajamtnww+9wmY0jQg25p+iYgjbkzwrmJGJzxvyvaE+32LQsHvnZx27cJgbMt
-         cPUKO+EwO2YsQ==
-Message-ID: <a76feaed107e83c2d356438cd04b5c790550c92c.camel@kernel.org>
-Subject: Re: [PATCH 03/79] s390: switch to new ctime accessors
-From:   Jeff Layton <jlayton@kernel.org>
-To:     Alexander Gordeev <agordeev@linux.ibm.com>
-Cc:     Christian Brauner <brauner@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Al Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Date:   Thu, 22 Jun 2023 14:46:54 -0400
-In-Reply-To: <ZJSRf9FnEFc+dPO6@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-References: <20230621144507.55591-1-jlayton@kernel.org>
-         <20230621144735.55953-1-jlayton@kernel.org>
-         <20230621144735.55953-2-jlayton@kernel.org>
-         <ZJSGVjryWEjbeW1U@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-         <468a895b93b83ed6369ea95519f832998a89d76f.camel@kernel.org>
-         <ZJSRf9FnEFc+dPO6@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-Content-Type: text/plain; charset="ISO-8859-15"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.48.3 (3.48.3-1.fc38) 
+        with ESMTP id S229832AbjFVU6k (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 22 Jun 2023 16:58:40 -0400
+Received: from mail-yb1-xb2a.google.com (mail-yb1-xb2a.google.com [IPv6:2607:f8b0:4864:20::b2a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D93D52685;
+        Thu, 22 Jun 2023 13:58:01 -0700 (PDT)
+Received: by mail-yb1-xb2a.google.com with SMTP id 3f1490d57ef6-bff0beb2d82so2082570276.2;
+        Thu, 22 Jun 2023 13:58:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1687467476; x=1690059476;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=Q4Ig2n4cGI8BP25CqcNRq43JhOmkIIdJVFlb5elIpOA=;
+        b=mqvv9g7FTX6YZrTAez67m8G0SADgQWX+ct2Q2ktq+TbKMG/cOnFNL1HUEejNSN9nds
+         9vEK9L2HpCPHz3mnLHm7QE7bazoap9KPjRBuUT4kw6MBU7tHylSDou09veevPp+Qm5tI
+         J6+0hmA98DudaYxzAoNczqxDp5g6z2tqapGcR3NSEAPAgqMiM1eNh+iIzBq7ayejKjj9
+         5MP9SwhVaQTCo1G312fdQXe7vTjboPcFBobNzdFt65RtUbRTWvFRUfh7ZZb+Tak5rboQ
+         uGsNAcBwqdQTtsTo7UoikA/hvdu33PxWnma34tmu5wLmqc0vL2bNnLhMWuiaLjOulKtx
+         4JUQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1687467476; x=1690059476;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Q4Ig2n4cGI8BP25CqcNRq43JhOmkIIdJVFlb5elIpOA=;
+        b=T8nREzyu0AIfFz+bk+HY0hPF5qMPGhi9FDohPgTWUfDGef1LEKtVyqXgZZPWTjno/S
+         pS/jUOva9BpdIJnYSrniU5E0wWJK+t3tsNS/qJWTHPprMxLmV0nGLLX95DhINFln19GP
+         gBjDSr5vF5YEuq4pAebIZoudxZepfqB59eb+08+S8ykjdvHIMuNuc2PcJ46tqPIWUir0
+         qf/5/qmTrPvc8ssR8O9x2U25h9sFm5Oxbjo0SrV+Mqis16Iccct90PoG8U00n1uLKsvP
+         dTnFnVKfGV5lpcoNKcQa/s2GSEZRZKkYydbRlfTxAiPrA1pFw2m240TDKGrByWIkBLDR
+         DkCg==
+X-Gm-Message-State: AC+VfDyxX+BxUqykjOGGFvggnQsQ3N6NrZUQvVMBv+6hqRqS9iE6gDnR
+        UcQ/Cc05ZRrrowQD/L/hTfk=
+X-Google-Smtp-Source: ACHHUZ5QdSwF+iokSIDxxYwBaWLG1oGIRpritBhsZ3H79UKVTTkrzsNTtfFGV/ude8v+TVUUcB2uCQ==
+X-Received: by 2002:a05:6902:92:b0:bba:558e:df05 with SMTP id h18-20020a056902009200b00bba558edf05mr14486764ybs.10.1687467476004;
+        Thu, 22 Jun 2023 13:57:56 -0700 (PDT)
+Received: from unknowna0e70b2ca394.attlocal.net ([2600:1700:2f7d:1800::36])
+        by smtp.googlemail.com with ESMTPSA id d18-20020a5b0c52000000b00bc501a1b062sm1684937ybr.42.2023.06.22.13.57.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 22 Jun 2023 13:57:55 -0700 (PDT)
+From:   "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
+To:     Andrew Morton <akpm@linux-foundation.org>,
+        Matthew Wilcox <willy@infradead.org>
+Cc:     linux-mm@kvack.org, linux-arch@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        linux-um@lists.infradead.org, xen-devel@lists.xenproject.org,
+        kvm@vger.kernel.org, Hugh Dickins <hughd@google.com>,
+        "Vishal Moola (Oracle)" <vishal.moola@gmail.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Jonas Bonn <jonas@southpole.se>,
+        David Hildenbrand <david@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Richard Weinberger <richard@nod.at>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>
+Subject: [PATCH v5 00/33] Split ptdesc from struct page
+Date:   Thu, 22 Jun 2023 13:57:12 -0700
+Message-Id: <20230622205745.79707-1-vishal.moola@gmail.com>
+X-Mailer: git-send-email 2.40.1
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 2023-06-22 at 20:22 +0200, Alexander Gordeev wrote:
-> On Thu, Jun 22, 2023 at 01:51:33PM -0400, Jeff Layton wrote:
-> > On Thu, 2023-06-22 at 19:35 +0200, Alexander Gordeev wrote:
-> > > On Wed, Jun 21, 2023 at 10:45:16AM -0400, Jeff Layton wrote:
-> > >=20
-> > > Hi Jeff,
-> > > > In later patches, we're going to change how the ctime.tv_nsec field=
- is
-> > > > utilized. Switch to using accessor functions instead of raw accesse=
-s of
-> > > > inode->i_ctime.
-> > > >=20
-> > > > Signed-off-by: Jeff Layton <jlayton@kernel.org>
-> > > > ---
-> > > >  arch/s390/hypfs/inode.c | 4 ++--
-> > > >  1 file changed, 2 insertions(+), 2 deletions(-)
-> > > >=20
-> > > > diff --git a/arch/s390/hypfs/inode.c b/arch/s390/hypfs/inode.c
-> > > > index ee919bfc8186..30fa336ec63e 100644
-> > > > --- a/arch/s390/hypfs/inode.c
-> > > > +++ b/arch/s390/hypfs/inode.c
-> > > > @@ -53,7 +53,7 @@ static void hypfs_update_update(struct super_bloc=
-k *sb)
-> > > >  	struct inode *inode =3D d_inode(sb_info->update_file);
-> > > > =20
-> > > >  	sb_info->last_update =3D ktime_get_seconds();
-> > > > -	inode->i_atime =3D inode->i_mtime =3D inode->i_ctime =3D current_=
-time(inode);
-> > > > +	inode->i_atime =3D inode->i_mtime =3D inode_ctime_set_current(ino=
-de);
-> > > >  }
-> > > > =20
-> > > >  /* directory tree removal functions */
-> > > > @@ -101,7 +101,7 @@ static struct inode *hypfs_make_inode(struct su=
-per_block *sb, umode_t mode)
-> > > >  		ret->i_mode =3D mode;
-> > > >  		ret->i_uid =3D hypfs_info->uid;
-> > > >  		ret->i_gid =3D hypfs_info->gid;
-> > > > -		ret->i_atime =3D ret->i_mtime =3D ret->i_ctime =3D current_time(=
-ret);
-> > > > +		ret->i_atime =3D ret->i_mtime =3D inode_ctime_set_current(ret);
-> > > >  		if (S_ISDIR(mode))
-> > > >  			set_nlink(ret, 2);
-> > > >  	}
-> > >=20
-> > > I guess, inode_set_ctime() called from inode_ctime_set_current()
-> > > updates i_ctime and is part of some other series?
-> > >=20
-> >=20
-> > No, that gets added in patch #1 of this series.
-> >=20
-> > You should have gotten cc'ed on that one, though the postings to vger
-> > mailing lists of patches 1, 2, and 79 bounced because the mail header
-> > length on those was >8k.
->=20
-> I actually received #1, if we're talking about this one:
-> https://lore.kernel.org/all/20230621144507.55591-2-jlayton@kernel.org/
->=20
-> I see inode_set_ctime() gets called, but nowere defined.
->=20
->=20
+The MM subsystem is trying to shrink struct page. This patchset
+introduces a memory descriptor for page table tracking - struct ptdesc.
 
-That's a bug -- that should be calling inode_ctime_set() instead. It
-gets fixed up in a later patch in the series, but that should be fixed.
+This patchset introduces ptdesc, splits ptdesc from struct page, and
+converts many callers of page table constructor/destructors to use ptdescs.
 
-I'm already respinning this now with an updated coccinelle patch. I'll
-make sure that's correct on the next posting.
+Ptdesc is a foundation to further standardize page tables, and eventually
+allow for dynamic allocation of page tables independent of struct page.
+However, the use of pages for page table tracking is quite deeply
+ingrained and varied across archictectures, so there is still a lot of
+work to be done before that can happen.
 
-Thanks,
---
-Jeff Layton <jlayton@kernel.org>
+This is rebased on next-20230621.
+
+There is a minor conflict with patch 24 and the mm-unstable tree in
+arch/m68k/mm/motorola.c - The end result of applying the patch should
+be the same.
+
+
+v5:
+  More Acked-bys :)
+  Cleanup some documentation wording and formatting
+  Add pt_rcu_head to ptdesc
+  Add memcg to ptdesc (and align it with struct page)
+  Ensure all get_free_page() callers prohibit HIGHMEM for 32 bit support.
+  Renamed folio_{set, clear}_table() to folio_{set, clear}_pgtable()
+  Removed pagetable_clear() as it is not necessary right now
+  pagetable_free() now sets page->mapping = NULL
+  Dropped s390 _refcount to _pt_frag_refcount conversion patch
+
+Vishal Moola (Oracle) (33):
+  mm: Add PAGE_TYPE_OP folio functions
+  s390: Use _pt_s390_gaddr for gmap address tracking
+  pgtable: Create struct ptdesc
+  mm: add utility functions for ptdesc
+  mm: Convert pmd_pgtable_page() to pmd_ptdesc()
+  mm: Convert ptlock_alloc() to use ptdescs
+  mm: Convert ptlock_ptr() to use ptdescs
+  mm: Convert pmd_ptlock_init() to use ptdescs
+  mm: Convert ptlock_init() to use ptdescs
+  mm: Convert pmd_ptlock_free() to use ptdescs
+  mm: Convert ptlock_free() to use ptdescs
+  mm: Create ptdesc equivalents for pgtable_{pte,pmd}_page_{ctor,dtor}
+  powerpc: Convert various functions to use ptdescs
+  x86: Convert various functions to use ptdescs
+  s390: Convert various gmap functions to use ptdescs
+  s390: Convert various pgalloc functions to use ptdescs
+  mm: Remove page table members from struct page
+  pgalloc: Convert various functions to use ptdescs
+  arm: Convert various functions to use ptdescs
+  arm64: Convert various functions to use ptdescs
+  csky: Convert __pte_free_tlb() to use ptdescs
+  hexagon: Convert __pte_free_tlb() to use ptdescs
+  loongarch: Convert various functions to use ptdescs
+  m68k: Convert various functions to use ptdescs
+  mips: Convert various functions to use ptdescs
+  nios2: Convert __pte_free_tlb() to use ptdescs
+  openrisc: Convert __pte_free_tlb() to use ptdescs
+  riscv: Convert alloc_{pmd, pte}_late() to use ptdescs
+  sh: Convert pte_free_tlb() to use ptdescs
+  sparc64: Convert various functions to use ptdescs
+  sparc: Convert pgtable_pte_page_{ctor, dtor}() to ptdesc equivalents
+  um: Convert {pmd, pte}_free_tlb() to use ptdescs
+  mm: Remove pgtable_{pmd, pte}_page_{ctor, dtor}() wrappers
+
+ Documentation/mm/split_page_table_lock.rst    |  12 +-
+ .../zh_CN/mm/split_page_table_lock.rst        |  14 +-
+ arch/arm/include/asm/tlb.h                    |  12 +-
+ arch/arm/mm/mmu.c                             |   7 +-
+ arch/arm64/include/asm/tlb.h                  |  14 +-
+ arch/arm64/mm/mmu.c                           |   7 +-
+ arch/csky/include/asm/pgalloc.h               |   4 +-
+ arch/hexagon/include/asm/pgalloc.h            |   8 +-
+ arch/loongarch/include/asm/pgalloc.h          |  27 ++-
+ arch/loongarch/mm/pgtable.c                   |   7 +-
+ arch/m68k/include/asm/mcf_pgalloc.h           |  43 ++--
+ arch/m68k/include/asm/sun3_pgalloc.h          |   8 +-
+ arch/m68k/mm/motorola.c                       |   4 +-
+ arch/mips/include/asm/pgalloc.h               |  32 +--
+ arch/mips/mm/pgtable.c                        |   8 +-
+ arch/nios2/include/asm/pgalloc.h              |   8 +-
+ arch/openrisc/include/asm/pgalloc.h           |   8 +-
+ arch/powerpc/mm/book3s64/mmu_context.c        |  10 +-
+ arch/powerpc/mm/book3s64/pgtable.c            |  32 +--
+ arch/powerpc/mm/pgtable-frag.c                |  46 ++--
+ arch/riscv/include/asm/pgalloc.h              |   8 +-
+ arch/riscv/mm/init.c                          |  16 +-
+ arch/s390/include/asm/pgalloc.h               |   4 +-
+ arch/s390/include/asm/tlb.h                   |   4 +-
+ arch/s390/mm/gmap.c                           | 207 ++++++++++--------
+ arch/s390/mm/pgalloc.c                        | 108 ++++-----
+ arch/sh/include/asm/pgalloc.h                 |   9 +-
+ arch/sparc/mm/init_64.c                       |  17 +-
+ arch/sparc/mm/srmmu.c                         |   5 +-
+ arch/um/include/asm/pgalloc.h                 |  18 +-
+ arch/x86/mm/pgtable.c                         |  47 ++--
+ arch/x86/xen/mmu_pv.c                         |   2 +-
+ include/asm-generic/pgalloc.h                 |  88 +++++---
+ include/asm-generic/tlb.h                     |  11 +
+ include/linux/mm.h                            | 153 +++++++++----
+ include/linux/mm_types.h                      |  14 --
+ include/linux/page-flags.h                    |  30 ++-
+ include/linux/pgtable.h                       |  77 +++++++
+ mm/memory.c                                   |   8 +-
+ 39 files changed, 684 insertions(+), 453 deletions(-)
+
+-- 
+2.40.1
+
