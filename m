@@ -2,120 +2,123 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DB9A6C001DF
-	for <linux-s390@archiver.kernel.org>; Thu, 22 Jun 2023 16:57:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 66687EB64DA
+	for <linux-s390@archiver.kernel.org>; Thu, 22 Jun 2023 17:35:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229961AbjFVQ5R (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 22 Jun 2023 12:57:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44278 "EHLO
+        id S230229AbjFVRff (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 22 Jun 2023 13:35:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231567AbjFVQ5B (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 22 Jun 2023 12:57:01 -0400
+        with ESMTP id S229691AbjFVRfe (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 22 Jun 2023 13:35:34 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5568E6E;
-        Thu, 22 Jun 2023 09:56:58 -0700 (PDT)
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 35MGrixm020621;
-        Thu, 22 Jun 2023 16:56:55 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9AD0195;
+        Thu, 22 Jun 2023 10:35:33 -0700 (PDT)
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 35MHVNUu011491;
+        Thu, 22 Jun 2023 17:35:28 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : content-type : in-reply-to :
- mime-version; s=pp1; bh=30CuW3ZgEVztMDgij9LMuw3lRA7uKf6/5k59P62PgV4=;
- b=nYrdMh0OeXmAflZmUK+0K2A8hmCcSXBN0CcbYA2/sJnmGUoWqPyUT6jJgqaAdJ81A+bq
- +/stutJ5hx5wWqxrdSYRPSGz/auhz88sqsvVo2jlXpYSLhxC6tWCAOHUm3YRgdwvlego
- +Lg/WrnyRvYaUXReXYpFmTgNq8v9SGl2hXl/oLeIkBp1i7AuEkqqeAc1D0R6xSyCho6l
- LYU16gSGL1/ynKJQv6k8HOedpqN8vf3X5wonb/MhoeQMuO1VlVUNdAD6zlou/H+MGYrC
- YblCK1mxnlxe3qyO4tR8B8eNN0wVTZuyA5lqVQyJEgcdRMMPpIq3//3GVORxt0Yi2Gmi 0g== 
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rct7n82t9-1
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=9tyzelE/CfhxIdLo1UoXcOp66NvdPJuzSlYJUTtmhiA=;
+ b=QFABqxr/nFLm42jXrIFG8Xeiq7rWgNqdpu09LrWwWjOEMoJg4dsmw5Ttr/Zy1vtzibFR
+ EBT1WXwEOw/BiFKBD8fuES15OssfxuwziSATcz8qNy+IxOT1m0RFdRhQQ5dFpYP4Pp40
+ /2yg+ZkSpmxQc0nsOXqbZzfByySZbBNvPHV/CZm98Zxhd1H9MV/zHZQ+R5yPpGZurOgB
+ ZYyCIrkiEJJgp9BdlpU05X5lDXqSJN6rLm9Wc6Sfka9xjSqvz89OaKqURhxoGjXaAgSN
+ qoe/M0Ge5xjr+K4jgANG4zwtxI/L69soFccOVHe4H4gRGyM5N89+G0KrRI7pLkKyxULH AQ== 
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rctsa058y-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 22 Jun 2023 16:56:55 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 35M2S8KE008089;
-        Thu, 22 Jun 2023 16:56:53 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3r94f53mfn-1
+        Thu, 22 Jun 2023 17:35:27 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 35M4Q5je023820;
+        Thu, 22 Jun 2023 17:35:25 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma05fra.de.ibm.com (PPS) with ESMTPS id 3r94f52rx5-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 22 Jun 2023 16:56:53 +0000
+        Thu, 22 Jun 2023 17:35:24 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 35MGumX744499266
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 35MHZL0247841648
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 22 Jun 2023 16:56:48 GMT
+        Thu, 22 Jun 2023 17:35:21 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A8DB22004D;
-        Thu, 22 Jun 2023 16:56:48 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 1081620043;
+        Thu, 22 Jun 2023 17:35:21 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 37E1720040;
-        Thu, 22 Jun 2023 16:56:48 +0000 (GMT)
-Received: from osiris (unknown [9.171.73.252])
+        by IMSVA (Postfix) with ESMTP id 4D3D320040;
+        Thu, 22 Jun 2023 17:35:20 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.171.59.34])
         by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Thu, 22 Jun 2023 16:56:48 +0000 (GMT)
-Date:   Thu, 22 Jun 2023 18:56:46 +0200
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Nathan Chancellor <nathan@kernel.org>
-Cc:     Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Thu, 22 Jun 2023 17:35:20 +0000 (GMT)
+Date:   Thu, 22 Jun 2023 19:35:18 +0200
+From:   Alexander Gordeev <agordeev@linux.ibm.com>
+To:     Jeff Layton <jlayton@kernel.org>
+Cc:     Christian Brauner <brauner@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
-        Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
+        Al Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>,
         linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] s390/decompresser: fix misaligned symbol build error
-Message-ID: <ZJR9Tnmooclgvt6H@osiris>
-References: <20230622125508.1068457-1-hca@linux.ibm.com>
- <20230622143538.GA1138962@dev-arch.thelio-3990X>
+Subject: Re: [PATCH 03/79] s390: switch to new ctime accessors
+Message-ID: <ZJSGVjryWEjbeW1U@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <20230621144507.55591-1-jlayton@kernel.org>
+ <20230621144735.55953-1-jlayton@kernel.org>
+ <20230621144735.55953-2-jlayton@kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230622143538.GA1138962@dev-arch.thelio-3990X>
+In-Reply-To: <20230621144735.55953-2-jlayton@kernel.org>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: NCQB8hQs6WbhLWdaz3oy7VAcmhodLET6
-X-Proofpoint-ORIG-GUID: NCQB8hQs6WbhLWdaz3oy7VAcmhodLET6
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
-MIME-Version: 1.0
+X-Proofpoint-ORIG-GUID: L3e2459YKnOIRaNY1SUuDk5l6OLqSLq-
+X-Proofpoint-GUID: L3e2459YKnOIRaNY1SUuDk5l6OLqSLq-
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
  definitions=2023-06-22_12,2023-06-22_02,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- mlxlogscore=999 spamscore=0 suspectscore=0 priorityscore=1501 adultscore=0
- bulkscore=0 malwarescore=0 mlxscore=0 phishscore=0 clxscore=1015
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2305260000 definitions=main-2306220140
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
+ spamscore=0 priorityscore=1501 suspectscore=0 phishscore=0
+ lowpriorityscore=0 adultscore=0 mlxlogscore=600 bulkscore=0 malwarescore=0
+ clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2305260000 definitions=main-2306220149
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jun 22, 2023 at 02:35:38PM +0000, Nathan Chancellor wrote:
-> On Thu, Jun 22, 2023 at 02:55:08PM +0200, Heiko Carstens wrote:
-> > Nathan Chancellor reported a kernel build error on Fedora 39:
-> > 
-> > $ clang --version | head -1
-> > clang version 16.0.5 (Fedora 16.0.5-1.fc39)
-> > 
-> > $ s390x-linux-gnu-ld --version | head -1
-> > GNU ld version 2.40-1.fc39
-> > 
-> > $ make -skj"$(nproc)" ARCH=s390 CC=clang CROSS_COMPILE=s390x-linux-gnu- olddefconfig all
-> > s390x-linux-gnu-ld: arch/s390/boot/startup.o(.text+0x5b4): misaligned symbol `_decompressor_end' (0x35b0f) for relocation R_390_PC32DBL
-> > make[3]: *** [.../arch/s390/boot/Makefile:78: arch/s390/boot/vmlinux] Error 1
-> > 
-> > It turned out that the problem with misaligned symbols on s390 was fixed
-> > with commit 80ddf5ce1c92 ("s390: always build relocatable kernel") for the
-> > kernel image, but did not take into account that the decompressor uses its
-> > own set of CFLAGS, which come without -fPIE.
-> > 
-> > Add the -fPIE flag also to the decompresser CFLAGS to fix this.
-> > 
-> 
-> I think this should also have:
-> 
-> Reported-by: CKI <cki-project@redhat.com>
-> Link: https://lore.kernel.org/32935.123062114500601371@us-mta-9.us.mimecast.lan/
-> 
-> I technically just forwarded the report and did a little extra testing.
+On Wed, Jun 21, 2023 at 10:45:16AM -0400, Jeff Layton wrote:
 
-Ok, added.
-
-> Thanks for the quick patch, this fixes the error and I did a simple boot
-> test in QEMU with the resulting kernel, which showed no issues.
+Hi Jeff,
+> In later patches, we're going to change how the ctime.tv_nsec field is
+> utilized. Switch to using accessor functions instead of raw accesses of
+> inode->i_ctime.
 > 
-> Tested-by: Nathan Chancellor <nathan@kernel.org>
+> Signed-off-by: Jeff Layton <jlayton@kernel.org>
+> ---
+>  arch/s390/hypfs/inode.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/s390/hypfs/inode.c b/arch/s390/hypfs/inode.c
+> index ee919bfc8186..30fa336ec63e 100644
+> --- a/arch/s390/hypfs/inode.c
+> +++ b/arch/s390/hypfs/inode.c
+> @@ -53,7 +53,7 @@ static void hypfs_update_update(struct super_block *sb)
+>  	struct inode *inode = d_inode(sb_info->update_file);
+>  
+>  	sb_info->last_update = ktime_get_seconds();
+> -	inode->i_atime = inode->i_mtime = inode->i_ctime = current_time(inode);
+> +	inode->i_atime = inode->i_mtime = inode_ctime_set_current(inode);
+>  }
+>  
+>  /* directory tree removal functions */
+> @@ -101,7 +101,7 @@ static struct inode *hypfs_make_inode(struct super_block *sb, umode_t mode)
+>  		ret->i_mode = mode;
+>  		ret->i_uid = hypfs_info->uid;
+>  		ret->i_gid = hypfs_info->gid;
+> -		ret->i_atime = ret->i_mtime = ret->i_ctime = current_time(ret);
+> +		ret->i_atime = ret->i_mtime = inode_ctime_set_current(ret);
+>  		if (S_ISDIR(mode))
+>  			set_nlink(ret, 2);
+>  	}
 
-And this as well. :) Thanks a lot!
+I guess, inode_set_ctime() called from inode_ctime_set_current()
+updates i_ctime and is part of some other series?
+
+Thanks!
