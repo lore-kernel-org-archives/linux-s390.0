@@ -2,130 +2,258 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 204DDC001B0
-	for <linux-s390@archiver.kernel.org>; Fri, 23 Jun 2023 03:39:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9374CEB64DD
+	for <linux-s390@archiver.kernel.org>; Fri, 23 Jun 2023 03:59:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230260AbjFWDjG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 22 Jun 2023 23:39:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34880 "EHLO
+        id S231235AbjFWD7V (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 22 Jun 2023 23:59:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229757AbjFWDjE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 22 Jun 2023 23:39:04 -0400
-Received: from mail-qv1-xf31.google.com (mail-qv1-xf31.google.com [IPv6:2607:f8b0:4864:20::f31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFD2510F4;
-        Thu, 22 Jun 2023 20:39:03 -0700 (PDT)
-Received: by mail-qv1-xf31.google.com with SMTP id 6a1803df08f44-6300f6ab032so2275386d6.2;
-        Thu, 22 Jun 2023 20:39:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1687491543; x=1690083543;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=nQCkd4lI+x6yZWQGbIGjk8nvglDFNi+aN+K8MOcwH6c=;
-        b=obkzvxCGresnf5FRfVrvj4b/znqPUmGMMwKvIvfk8JFNu1deF5iG2IClXFSs/hqBes
-         0DchAnN9jcxuJK+1+ZKd23RORLAtCB1aaCRRAW/OhJcfqCqUQNLBzTBpbxJmpuWbKfjS
-         GHJW8WsTLXwJYS5PMKJOMqwGF/WhlRObHMiD0r0si8DOzKdhQ3DRjzuP54tE28VCyLvh
-         LV9mOcap4BQfgiSa4vCLx3tJr5yWQgnZ2UsTStLz9NxYkxX8IS7oFayaE3MrbO0dEpB/
-         K0gDAaORiA1jbA+zNdWb4SjSRPyF9Y1hEdIFkFam1bjGmw9MYsZEQu4LxQURWeFd5nOn
-         uaSw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1687491543; x=1690083543;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=nQCkd4lI+x6yZWQGbIGjk8nvglDFNi+aN+K8MOcwH6c=;
-        b=ZfJrInugmkS/UKtvFOlT79aPxal+88tkbnvrasUdO+GOBbGPPJJJ2jMdcDXCRbLuBe
-         /xy+dLj90SvvjkBFBhmliS5sjwTd60+3VzF1n2qt9xGpJZp+lfS4zjJ7dzR8WNeq3Xi8
-         p9LcnC1v+HtWvLXjKLqIreDv9YxYSFW5rHqQz2W8ayMR5sP1rN8PE7qBI5zNQGdKV0Ax
-         IQwrNKkdURvrnI6wketgPOucEDQrUHP0dp/MB4KBtpGXoF4BAdRqKy5yakGdPXbDTIVm
-         Q1VTFI/3Kktk/R3MeInRbcQZupZKoFmLvmI2B8S/T6vjz8aTI6asgM/s0/dSS3ikXhy2
-         bZeg==
-X-Gm-Message-State: AC+VfDw2TN1V+6uv5bzAbj+dVg8oKFrfG7i09+o86M08c3V4gG4Jfvye
-        aPnRUfpwyHQnyMw5F3Y/dreR6fsdQ8Ui4yrO3F4=
-X-Google-Smtp-Source: ACHHUZ4TEnCYuyVXkOaJkrxqOvUh5TaEibt2frAQVMu4v4pRBqRYzpLpvZ5Z+pdQLYqT/hxYRfdn3rRiaTS4M+MnTIo=
-X-Received: by 2002:a05:6214:29c8:b0:62d:f35c:a477 with SMTP id
- gh8-20020a05621429c800b0062df35ca477mr28990227qvb.1.1687491542761; Thu, 22
- Jun 2023 20:39:02 -0700 (PDT)
+        with ESMTP id S231135AbjFWD7Q (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 22 Jun 2023 23:59:16 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7890E1FE9
+        for <linux-s390@vger.kernel.org>; Thu, 22 Jun 2023 20:58:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1687492705;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=1Jw0fxPjyDd3EMRjg7zdWLE38Oq7lDTXR6UHZeyuiLE=;
+        b=YyDyh7PpqUfKESLG++PlMa4r7n8ccGz9Qiy15Qfr2ExLryyCSrBrWhPC/04q9cNxvxUlJe
+        K+5me6gWQv2MfBJdS67NGRN9VwWB8YpptQDoG5e2Ufxt/z6ywuY1W7nzp3kRtjJBqNCBoK
+        tDeJGv3o0yRls73w2NcfLULmLzPcNeI=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-360-YqK7BijpPQWfF7Nh8rFzZw-1; Thu, 22 Jun 2023 23:58:23 -0400
+X-MC-Unique: YqK7BijpPQWfF7Nh8rFzZw-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id B68203C025D2;
+        Fri, 23 Jun 2023 03:58:22 +0000 (UTC)
+Received: from gshan.redhat.com (vpn2-54-33.bne.redhat.com [10.64.54.33])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id E2F44440CB;
+        Fri, 23 Jun 2023 03:58:17 +0000 (UTC)
+From:   Gavin Shan <gshan@redhat.com>
+To:     kvmarm@lists.linux.dev
+Cc:     kvm@vger.kernel.org, kvm-ppc@vger.kernel.org,
+        linux-s390@vger.kernel.org, andrew.jones@linux.dev,
+        lvivier@redhat.com, thuth@redhat.com, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com, david@redhat.com, pbonzini@redhat.com,
+        nrb@linux.ibm.com, shan.gavin@gmail.com
+Subject: [kvm-unit-tests PATCH v4] runtime: Allow to specify properties for accelerator
+Date:   Fri, 23 Jun 2023 13:57:50 +1000
+Message-Id: <20230623035750.312679-1-gshan@redhat.com>
 MIME-Version: 1.0
-References: <20230620144618.125703-1-ypodemsk@redhat.com> <20230620144618.125703-3-ypodemsk@redhat.com>
- <10050BB1-15A4-4E84-B900-B21500B2079B@gmail.com>
-In-Reply-To: <10050BB1-15A4-4E84-B900-B21500B2079B@gmail.com>
-From:   Yang Shi <shy828301@gmail.com>
-Date:   Thu, 22 Jun 2023 20:38:51 -0700
-Message-ID: <CAHbLzko2rNj8jdHVUw+kxF8Pz7b3o4im1ndoLbW611e2T3-LzA@mail.gmail.com>
-Subject: Re: [PATCH v2 2/2] mm/mmu_gather: send tlb_remove_table_smp_sync IPI
- only to MM CPUs
-To:     Nadav Amit <nadav.amit@gmail.com>, Jann Horn <jannh@google.com>
-Cc:     Yair Podemsky <ypodemsk@redhat.com>, mtosatti@redhat.com,
-        ppandit@redhat.com, David Hildenbrand <david@redhat.com>,
-        "Russell King (Oracle)" <linux@armlinux.org.uk>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Heiko Carstens <hca@linux.ibm.com>, gor@linux.ibm.com,
-        agordeev@linux.ibm.com,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        svens@linux.ibm.com, "David S. Miller" <davem@davemloft.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Kees Cook <keescook@chromium.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>, frederic@kernel.org,
-        Will Deacon <will@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>, ardb@kernel.org,
-        samitolvanen@google.com, juerg.haefliger@canonical.com,
-        Arnd Bergmann <arnd@arndb.de>, rmk+kernel@armlinux.org.uk,
-        geert+renesas@glider.be, linus.walleij@linaro.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        sebastian.reichel@collabora.com, Mike Rapoport <rppt@kernel.org>,
-        aneesh.kumar@linux.ibm.com,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        sparclinux@vger.kernel.org, linux-arch@vger.kernel.org,
-        linux-mm <linux-mm@kvack.org>, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.5
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jun 21, 2023 at 11:02=E2=80=AFAM Nadav Amit <nadav.amit@gmail.com> =
-wrote:
->
-> >
-> > On Jun 20, 2023, at 7:46 AM, Yair Podemsky <ypodemsk@redhat.com> wrote:
-> >
-> > @@ -1525,7 +1525,7 @@ static void collapse_and_free_pmd(struct mm_struc=
-t *mm, struct vm_area_struct *v
-> >                               addr + HPAGE_PMD_SIZE);
-> >       mmu_notifier_invalidate_range_start(&range);
-> >       pmd =3D pmdp_collapse_flush(vma, addr, pmdp);
-> > -     tlb_remove_table_sync_one();
-> > +     tlb_remove_table_sync_one(mm);
->
-> Can=E2=80=99t pmdp_collapse_flush() have one additional argument =E2=80=
-=9Cfreed_tables=E2=80=9D
-> that it would propagate, for instance on x86 to flush_tlb_mm_range() ?
-> Then you would not need tlb_remove_table_sync_one() to issue an additiona=
-l
-> IPI, no?
->
-> It just seems that you might still have 2 IPIs in many cases instead of
-> one, and unless I am missing something, I don=E2=80=99t see why.
+There are extra properties for accelerators to enable the specific
+features. For example, the dirty ring for KVM accelerator can be
+enabled by "-accel kvm,dirty-ring-size=65536". Unfortuntely, the
+extra properties for the accelerators aren't supported. It makes
+it's impossible to test the combination of KVM and dirty ring
+as the following error message indicates.
 
-The tlb_remove_table_sync_one() is used to serialize against fast GUP
-for the architectures which don't broadcast TLB flush by IPI, for
-example, arm64, etc. It may incur one extra IPI for x86 and some
-others, but x86 virtualization needs this since the guest may not
-flush TLB by sending IPI IIUC. So if the one extra IPI is really a
-problem, we may be able to define an arch-specific function to deal
-with it, for example, a pv ops off the top of my head. But I'm not a
-virtualization expert, I'm not entirely sure whether it is the best
-way or not.  But the complexity seems overkilling TBH since khugepaged
-is usually not called that often.
+  # cd /home/gavin/sandbox/kvm-unit-tests/tests
+  # QEMU=/home/gavin/sandbox/qemu.main/build/qemu-system-aarch64 \
+    ACCEL=kvm,dirty-ring-size=65536 ./its-migration
+     :
+  BUILD_HEAD=2fffb37e
+  timeout -k 1s --foreground 90s                                 \
+  /home/gavin/sandbox/qemu.main/build/qemu-system-aarch64        \
+  -nodefaults -machine virt -accel kvm,dirty-ring-size=65536     \
+  -cpu cortex-a57 -device virtio-serial-device                   \
+  -device virtconsole,chardev=ctd -chardev testdev,id=ctd        \
+  -device pci-testdev -display none -serial stdio                \
+  -kernel _NO_FILE_4Uhere_ -smp 160 -machine gic-version=3       \
+  -append its-pending-migration # -initrd /tmp/tmp.gfDLa1EtWk
+     :
+  qemu-system-aarch64: kvm_init_vcpu: kvm_arch_init_vcpu failed (0):
+  Invalid argument
 
->
->
+Allow to specify extra properties for accelerators. With this, the
+"its-migration" can be tested for the combination of KVM and dirty
+ring. Rename get_qemu_accelerator() to set_qemu_accelerator() since
+no values are returned by printing at return.
+
+Signed-off-by: Gavin Shan <gshan@redhat.com>
+Tested-by: Nico Boehr <nrb@linux.ibm.com>
+Acked-by: Nico Boehr <nrb@linux.ibm.com>
+---
+v4: Rename get_qemu_accelerator() to set_qemu_accelerator() and
+    don't break the fix included in commit c7d6c7f00e7c by setting
+    $ACCEL to "tcg" before set_qemu_accelerator() is called, suggested
+    by Drew.
+---
+ arm/run               | 20 ++++++++------------
+ powerpc/run           |  5 ++---
+ s390x/run             |  5 ++---
+ scripts/arch-run.bash | 23 ++++++++++++++---------
+ x86/run               |  5 ++---
+ 5 files changed, 28 insertions(+), 30 deletions(-)
+
+diff --git a/arm/run b/arm/run
+index c6f25b8..956940f 100755
+--- a/arm/run
++++ b/arm/run
+@@ -10,24 +10,20 @@ if [ -z "$KUT_STANDALONE" ]; then
+ fi
+ processor="$PROCESSOR"
+ 
+-accel=$(get_qemu_accelerator) ||
+-	exit $?
++if [ "$QEMU" ] && [ -z "$ACCEL" ] &&
++   [ "$HOST" = "aarch64" ] && [ "$ARCH" = "arm" ] &&
++   [ "$(basename $QEMU)" = "qemu-system-arm" ]; then
++	ACCEL="tcg"
++fi
+ 
+-if [ "$accel" = "kvm" ]; then
++set_qemu_accelerator || exit $?
++if [ "$ACCEL" = "kvm" ]; then
+ 	QEMU_ARCH=$HOST
+ fi
+ 
+ qemu=$(search_qemu_binary) ||
+ 	exit $?
+ 
+-if [ "$QEMU" ] && [ -z "$ACCEL" ] &&
+-   [ "$HOST" = "aarch64" ] && [ "$ARCH" = "arm" ] &&
+-   [ "$(basename $QEMU)" = "qemu-system-arm" ]; then
+-	accel=tcg
+-fi
+-
+-ACCEL=$accel
+-
+ if ! $qemu -machine '?' | grep -q 'ARM Virtual Machine'; then
+ 	echo "$qemu doesn't support mach-virt ('-machine virt'). Exiting."
+ 	exit 2
+@@ -72,7 +68,7 @@ if $qemu $M -device '?' | grep -q pci-testdev; then
+ 	pci_testdev="-device pci-testdev"
+ fi
+ 
+-A="-accel $ACCEL"
++A="-accel $ACCEL$ACCEL_PROPS"
+ command="$qemu -nodefaults $M $A -cpu $processor $chr_testdev $pci_testdev"
+ command+=" -display none -serial stdio -kernel"
+ command="$(migration_cmd) $(timeout_cmd) $command"
+diff --git a/powerpc/run b/powerpc/run
+index ee38e07..b353169 100755
+--- a/powerpc/run
++++ b/powerpc/run
+@@ -9,8 +9,7 @@ if [ -z "$KUT_STANDALONE" ]; then
+ 	source scripts/arch-run.bash
+ fi
+ 
+-ACCEL=$(get_qemu_accelerator) ||
+-	exit $?
++set_qemu_accelerator || exit $?
+ 
+ qemu=$(search_qemu_binary) ||
+ 	exit $?
+@@ -21,7 +20,7 @@ if ! $qemu -machine '?' 2>&1 | grep 'pseries' > /dev/null; then
+ fi
+ 
+ M='-machine pseries'
+-M+=",accel=$ACCEL"
++M+=",accel=$ACCEL$ACCEL_PROPS"
+ command="$qemu -nodefaults $M -bios $FIRMWARE"
+ command+=" -display none -serial stdio -kernel"
+ command="$(migration_cmd) $(timeout_cmd) $command"
+diff --git a/s390x/run b/s390x/run
+index f1111db..dcbf3f0 100755
+--- a/s390x/run
++++ b/s390x/run
+@@ -9,8 +9,7 @@ if [ -z "$KUT_STANDALONE" ]; then
+ 	source scripts/arch-run.bash
+ fi
+ 
+-ACCEL=$(get_qemu_accelerator) ||
+-	exit $?
++set_qemu_accelerator || exit $?
+ 
+ qemu=$(search_qemu_binary) ||
+ 	exit $?
+@@ -26,7 +25,7 @@ if [ "${1: -7}" = ".pv.bin" ] || [ "${TESTNAME: -3}" = "_PV" ] && [ "$MIGRATION"
+ fi
+ 
+ M='-machine s390-ccw-virtio'
+-M+=",accel=$ACCEL"
++M+=",accel=$ACCEL$ACCEL_PROPS"
+ command="$qemu -nodefaults -nographic $M"
+ command+=" -chardev stdio,id=con0 -device sclpconsole,chardev=con0"
+ command+=" -kernel"
+diff --git a/scripts/arch-run.bash b/scripts/arch-run.bash
+index 51e4b97..2d28e0b 100644
+--- a/scripts/arch-run.bash
++++ b/scripts/arch-run.bash
+@@ -410,8 +410,11 @@ hvf_available ()
+ 		( [ "$HOST" = x86_64 ] && [ "$ARCH" = i386 ] )
+ }
+ 
+-get_qemu_accelerator ()
++set_qemu_accelerator ()
+ {
++	ACCEL_PROPS=${ACCEL#"${ACCEL%%,*}"}
++	ACCEL=${ACCEL%%,*}
++
+ 	if [ "$ACCEL" = "kvm" ] && ! kvm_available; then
+ 		echo "KVM is needed, but not available on this host" >&2
+ 		return 2
+@@ -421,13 +424,15 @@ get_qemu_accelerator ()
+ 		return 2
+ 	fi
+ 
+-	if [ "$ACCEL" ]; then
+-		echo $ACCEL
+-	elif kvm_available; then
+-		echo kvm
+-	elif hvf_available; then
+-		echo hvf
+-	else
+-		echo tcg
++	if [ -z "$ACCEL" ]; then
++		if kvm_available; then
++			ACCEL="kvm"
++		elif hvf_available; then
++			ACCEL="hvf"
++		else
++			ACCEL="tcg"
++		fi
+ 	fi
++
++	return 0
+ }
+diff --git a/x86/run b/x86/run
+index 4d53b72..a3d3e7d 100755
+--- a/x86/run
++++ b/x86/run
+@@ -9,8 +9,7 @@ if [ -z "$KUT_STANDALONE" ]; then
+ 	source scripts/arch-run.bash
+ fi
+ 
+-ACCEL=$(get_qemu_accelerator) ||
+-	exit $?
++set_qemu_accelerator || exit $?
+ 
+ qemu=$(search_qemu_binary) ||
+ 	exit $?
+@@ -38,7 +37,7 @@ else
+ fi
+ 
+ command="${qemu} --no-reboot -nodefaults $pc_testdev -vnc none -serial stdio $pci_testdev"
+-command+=" -machine accel=$ACCEL"
++command+=" -machine accel=$ACCEL$ACCEL_PROPS"
+ if [ "${CONFIG_EFI}" != y ]; then
+ 	command+=" -kernel"
+ fi
+-- 
+2.40.1
+
