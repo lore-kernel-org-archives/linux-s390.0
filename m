@@ -2,174 +2,252 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DB66DEB64D7
-	for <linux-s390@archiver.kernel.org>; Fri, 23 Jun 2023 20:55:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 09B37C001DD
+	for <linux-s390@archiver.kernel.org>; Fri, 23 Jun 2023 22:56:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232198AbjFWUzm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 23 Jun 2023 16:55:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37738 "EHLO
+        id S229905AbjFWW4Q (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 23 Jun 2023 18:56:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232942AbjFWUzK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 23 Jun 2023 16:55:10 -0400
-Received: from mail-yb1-xb35.google.com (mail-yb1-xb35.google.com [IPv6:2607:f8b0:4864:20::b35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2706C1739
-        for <linux-s390@vger.kernel.org>; Fri, 23 Jun 2023 13:53:56 -0700 (PDT)
-Received: by mail-yb1-xb35.google.com with SMTP id 3f1490d57ef6-bd729434fa0so1040003276.1
-        for <linux-s390@vger.kernel.org>; Fri, 23 Jun 2023 13:53:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1687553635; x=1690145635;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=O+Lb4tbjiSa+kuWkus5+uNOtZtK47d1/7X36bo2p7gA=;
-        b=4RCSLl8Y2NF41WdIp75r3joTs4JKmXt96ShX5WeKbiIayJOXjRi3jCwY6UrOSjcABZ
-         k+TSHexRU93yszqh5KtArv3znI1zFQxG4wYM4goRSD8adLmSwj+uCYiMjFg/6JlT10Mg
-         K5tXr5SCHxSdWzEtgbp1QwYY0BK5qjMKZ6JKY5ue6u6OGEVIlXXKnWmOqvpg2us1uyv9
-         ifK37WJd3GceHQOXqFw7ozSrZO2mU8D4k30JpUezZ3Igr0Xiz6+eWLjm6/60oMzR5ZSm
-         Ng+YR12eeqDVA82TQA1zJ84H2jqXumCuTiRe3k956saFDcwEVwpIzb+EnpbC/q1qChXt
-         4yjw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1687553635; x=1690145635;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=O+Lb4tbjiSa+kuWkus5+uNOtZtK47d1/7X36bo2p7gA=;
-        b=FaMC707nL1uYAwjPmeQWy5gxqryCnguoW+QT0W1cAvENKeXl95wPLPaN35dRYLuqA3
-         s9/PJwUAL9quEdYxQqrRSyT0ofTLkkUeqS/brqAcFBxxQHx/DfOxKAWxGDQ5nz53NyS/
-         7huElCDTjbPaLcZYgRCSNTatt8r4VItr6EL9jxgM0H5lxXPeXX6Us1juHSSLHG7xD1XM
-         y2NROYoKzHbdW7BPUWlD69MOHbN1GJ0ZycBv/fX+PsnJjx0jwJWbCxsyUTDDglO16C72
-         GEEj10Fc7LHiULwdj+o9NotAKiZrut/8Y/oEOlWlyZZHDTklPGshbjNczqHpZbQTVrd0
-         4fEw==
-X-Gm-Message-State: AC+VfDzmjvICJpPkf4N+oCl4r/yllSCohldW2sfn4/C42oXUJTEZm3qn
-        I9nYMlqcbV47UXZPhSsHCl2zyA==
-X-Google-Smtp-Source: ACHHUZ45YEjheFSs2jnf04uCGwbusldF+66NzwG1Udu3co/l77v+vwBkpgZSvq3yDyWBVUlkkdYCOg==
-X-Received: by 2002:a81:6cd7:0:b0:56d:9e9:c2a1 with SMTP id h206-20020a816cd7000000b0056d09e9c2a1mr26769379ywc.16.1687553635180;
-        Fri, 23 Jun 2023 13:53:55 -0700 (PDT)
-Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id t191-20020a8183c8000000b0057085b18cddsm2684659ywf.54.2023.06.23.13.53.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 23 Jun 2023 13:53:54 -0700 (PDT)
-Date:   Fri, 23 Jun 2023 13:53:43 -0700 (PDT)
-From:   Hugh Dickins <hughd@google.com>
-X-X-Sender: hugh@ripple.attlocal.net
-To:     Alexander Gordeev <agordeev@linux.ibm.com>
-cc:     Hugh Dickins <hughd@google.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        with ESMTP id S232003AbjFWW4O (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 23 Jun 2023 18:56:14 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1B622710
+        for <linux-s390@vger.kernel.org>; Fri, 23 Jun 2023 15:55:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1687560930;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=+rBMqYSyv/4ZPCkVQAGQaA6Fc9mkJmC9WKrulhUVyYg=;
+        b=OYqBxrVcXd+46JJJo3T1o0CoiTRkcFRblOjX69jHcAs4zXT/4Zq4w1BAM5JN+KKzDtPk2m
+        oEhf+qTPxnOaoopiVrOkxU77T4fneYSlWkPzRRqYdXsbQ20QJlxYYoeh4K764xHVcuEvSt
+        o8MsyCG8EImOUfIvdbGLAAbKvSa4ytY=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-132-XZyhTNHGPUuH2-31Her6VQ-1; Fri, 23 Jun 2023 18:55:24 -0400
+X-MC-Unique: XZyhTNHGPUuH2-31Her6VQ-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id AA74E185A78F;
+        Fri, 23 Jun 2023 22:55:22 +0000 (UTC)
+Received: from warthog.procyon.org.com (unknown [10.42.28.4])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 518A01121314;
+        Fri, 23 Jun 2023 22:55:19 +0000 (UTC)
+From:   David Howells <dhowells@redhat.com>
+To:     netdev@vger.kernel.org
+Cc:     David Howells <dhowells@redhat.com>,
+        Alexander Duyck <alexander.duyck@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+        David Ahern <dsahern@kernel.org>,
+        Matthew Wilcox <willy@infradead.org>,
+        Jens Axboe <axboe@kernel.dk>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, Bernard Metzler <bmt@zurich.ibm.com>,
         Jason Gunthorpe <jgg@ziepe.ca>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        linux-s390@vger.kernel.org
-Subject: Re: prospective 13/12 s390 pgtable_list patch
-In-Reply-To: <ZJVl7ZJiborhmtYh@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-Message-ID: <232e20a5-ef6-41cf-4073-92fcb3a01453@google.com>
-References: <a69a26c0-ec93-3ad-a443-6655b5e49df2@google.com> <ZJVl7ZJiborhmtYh@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+        Leon Romanovsky <leon@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Jan Karcher <jaka@linux.ibm.com>,
+        "D. Wythe" <alibuda@linux.alibaba.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        Wen Gu <guwen@linux.alibaba.com>,
+        Boris Pismenny <borisp@nvidia.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>, bpf@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+Subject: [PATCH net-next v5 01/16] tcp_bpf, smc, tls, espintcp, siw: Reduce MSG_SENDPAGE_NOTLAST usage
+Date:   Fri, 23 Jun 2023 23:54:58 +0100
+Message-ID: <20230623225513.2732256-2-dhowells@redhat.com>
+In-Reply-To: <20230623225513.2732256-1-dhowells@redhat.com>
+References: <20230623225513.2732256-1-dhowells@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.3
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 23 Jun 2023, Alexander Gordeev wrote:
-> On Thu, Jun 22, 2023 at 10:49:43PM -0700, Hugh Dickins wrote:
-> > Hi Gerald,
-> > 
-> > It's that moment you've been dreading: I'm hoping that you can, please,
-> > take a look at the patch below, and try building and running with it,
-> > on top of the v2 series of 12 I sent out on Tuesday.
-> > 
-> > If this seems okay to you, I'll send it properly as 13/12 of that series,
-> > to the full Cc list; but of course you may find I've missed typos and worse
-> > - please don't waste your time on it if it's rubbish, but so far as I can
-> > tell, it is complete and ready now.
-> > 
-> > Thanks!
-> > Hugh
-> 
-> Hi Hugh,
-> 
-> Gerald is off until Monday and I think is not able to answer right now.
+As MSG_SENDPAGE_NOTLAST is being phased out along with sendpage(), don't
+use it further in than the sendpage methods, but rather translate it to
+MSG_MORE and use that instead.
 
-Thanks a lot for stepping in, Alexander.
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+cc: Bernard Metzler <bmt@zurich.ibm.com>
+cc: Jason Gunthorpe <jgg@ziepe.ca>
+cc: Leon Romanovsky <leon@kernel.org>
+cc: John Fastabend <john.fastabend@gmail.com>
+cc: Jakub Sitnicki <jakub@cloudflare.com>
+cc: Eric Dumazet <edumazet@google.com>
+cc: "David S. Miller" <davem@davemloft.net>
+cc: David Ahern <dsahern@kernel.org>
+cc: Jakub Kicinski <kuba@kernel.org>
+cc: Paolo Abeni <pabeni@redhat.com>
+cc: Karsten Graul <kgraul@linux.ibm.com>
+cc: Wenjia Zhang <wenjia@linux.ibm.com>
+cc: Jan Karcher <jaka@linux.ibm.com>
+cc: "D. Wythe" <alibuda@linux.alibaba.com>
+cc: Tony Lu <tonylu@linux.alibaba.com>
+cc: Wen Gu <guwen@linux.alibaba.com>
+cc: Boris Pismenny <borisp@nvidia.com>
+cc: Steffen Klassert <steffen.klassert@secunet.com>
+cc: Herbert Xu <herbert@gondor.apana.org.au>
+cc: netdev@vger.kernel.org
+cc: bpf@vger.kernel.org
+cc: linux-s390@vger.kernel.org
+cc: linux-rdma@vger.kernel.org
+---
 
-> 
-> We had discussions with regard to how to better approach your series and
-> did not come to a conclusion unfortunatelly.
-> 
-> Gerald had several concerns - one of them is global mm_pgtable_list_lock,
-> wich is luckily avoided with this follow-up patch. But there were others,
-> which I am not able to articulate in detail.
-> 
-> While you are doing an outstanding job in trying to adjust our fragmented
-> page tables reuse scheme, one of the ideas emerged was to actually give it
-> up: partially or may be even fully. That is - not to reuse page tables
-> returned via pte_free_defer() or not to reuse them at all. To assess this
-> possible new approaches some statistics is needed and am working on a
-> prototype that would allow collecting it.
-> 
-> Note, our existing code is extremly complicated already and we had hard
-> time fixing (at least one) ugly race related to that. With the changes
-> you suggest that complexity (to me personally) multiplies. But that well
-> could be the other way around and I am just not smart enough to grasp it.
-> At least the claim that page_table_free() no longer needs the two-step
-> release indicates that.
+Notes:
+    ver #3)
+     - In tcp_bpf, reset msg_flags on each iteration to clear MSG_MORE.
+     - In tcp_bpf, set MSG_MORE if there's more data in the sk_msg.
 
-Yes, I had to cool myself down to a low temperature, and think about it
-for several hours before arriving at that conclusion.  It would be nice
-if I could point to one fact which explains it convincingly (something
-along the lines of "look, we already took it off the list in that case");
-but didn't manage to put it into words, and ended up deciding that we
-each have to do our own thinking to convince ourselves on that issue.
+ drivers/infiniband/sw/siw/siw_qp_tx.c |  5 ++---
+ net/ipv4/tcp_bpf.c                    |  5 +++--
+ net/smc/smc_tx.c                      |  6 ++++--
+ net/tls/tls_device.c                  |  4 ++--
+ net/xfrm/espintcp.c                   | 10 ++++++----
+ 5 files changed, 17 insertions(+), 13 deletions(-)
 
-> 
-> I am sorry that it is probably not the status you would like to hear,
+diff --git a/drivers/infiniband/sw/siw/siw_qp_tx.c b/drivers/infiniband/sw/siw/siw_qp_tx.c
+index ffb16beb6c30..7c7a51d36d0c 100644
+--- a/drivers/infiniband/sw/siw/siw_qp_tx.c
++++ b/drivers/infiniband/sw/siw/siw_qp_tx.c
+@@ -325,8 +325,7 @@ static int siw_tcp_sendpages(struct socket *s, struct page **page, int offset,
+ {
+ 	struct bio_vec bvec;
+ 	struct msghdr msg = {
+-		.msg_flags = (MSG_MORE | MSG_DONTWAIT | MSG_SENDPAGE_NOTLAST |
+-			      MSG_SPLICE_PAGES),
++		.msg_flags = (MSG_MORE | MSG_DONTWAIT | MSG_SPLICE_PAGES),
+ 	};
+ 	struct sock *sk = s->sk;
+ 	int i = 0, rv = 0, sent = 0;
+@@ -335,7 +334,7 @@ static int siw_tcp_sendpages(struct socket *s, struct page **page, int offset,
+ 		size_t bytes = min_t(size_t, PAGE_SIZE - offset, size);
+ 
+ 		if (size + offset <= PAGE_SIZE)
+-			msg.msg_flags &= ~MSG_SENDPAGE_NOTLAST;
++			msg.msg_flags &= ~MSG_MORE;
+ 
+ 		tcp_rate_check_app_limited(sk);
+ 		bvec_set_page(&bvec, page[i], bytes, offset);
+diff --git a/net/ipv4/tcp_bpf.c b/net/ipv4/tcp_bpf.c
+index 5a84053ac62b..31d6005cea9b 100644
+--- a/net/ipv4/tcp_bpf.c
++++ b/net/ipv4/tcp_bpf.c
+@@ -88,9 +88,9 @@ static int bpf_tcp_ingress(struct sock *sk, struct sk_psock *psock,
+ static int tcp_bpf_push(struct sock *sk, struct sk_msg *msg, u32 apply_bytes,
+ 			int flags, bool uncharge)
+ {
++	struct msghdr msghdr = {};
+ 	bool apply = apply_bytes;
+ 	struct scatterlist *sge;
+-	struct msghdr msghdr = { .msg_flags = flags | MSG_SPLICE_PAGES, };
+ 	struct page *page;
+ 	int size, ret = 0;
+ 	u32 off;
+@@ -107,11 +107,12 @@ static int tcp_bpf_push(struct sock *sk, struct sk_msg *msg, u32 apply_bytes,
+ 
+ 		tcp_rate_check_app_limited(sk);
+ retry:
++		msghdr.msg_flags = flags | MSG_SPLICE_PAGES;
+ 		has_tx_ulp = tls_sw_has_ctx_tx(sk);
+ 		if (has_tx_ulp)
+ 			msghdr.msg_flags |= MSG_SENDPAGE_NOPOLICY;
+ 
+-		if (flags & MSG_SENDPAGE_NOTLAST)
++		if (size < sge->length && msg->sg.start != msg->sg.end)
+ 			msghdr.msg_flags |= MSG_MORE;
+ 
+ 		bvec_set_page(&bvec, page, size, off);
+diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
+index 45128443f1f1..9b9e0a190734 100644
+--- a/net/smc/smc_tx.c
++++ b/net/smc/smc_tx.c
+@@ -168,8 +168,7 @@ static bool smc_tx_should_cork(struct smc_sock *smc, struct msghdr *msg)
+ 	 * should known how/when to uncork it.
+ 	 */
+ 	if ((msg->msg_flags & MSG_MORE ||
+-	     smc_tx_is_corked(smc) ||
+-	     msg->msg_flags & MSG_SENDPAGE_NOTLAST) &&
++	     smc_tx_is_corked(smc)) &&
+ 	    atomic_read(&conn->sndbuf_space))
+ 		return true;
+ 
+@@ -306,6 +305,9 @@ int smc_tx_sendpage(struct smc_sock *smc, struct page *page, int offset,
+ 	struct kvec iov;
+ 	int rc;
+ 
++	if (flags & MSG_SENDPAGE_NOTLAST)
++		msg.msg_flags |= MSG_MORE;
++
+ 	iov.iov_base = kaddr + offset;
+ 	iov.iov_len = size;
+ 	iov_iter_kvec(&msg.msg_iter, ITER_SOURCE, &iov, 1, size);
+diff --git a/net/tls/tls_device.c b/net/tls/tls_device.c
+index b82770f68807..975299d7213b 100644
+--- a/net/tls/tls_device.c
++++ b/net/tls/tls_device.c
+@@ -449,7 +449,7 @@ static int tls_push_data(struct sock *sk,
+ 		return -sk->sk_err;
+ 
+ 	flags |= MSG_SENDPAGE_DECRYPTED;
+-	tls_push_record_flags = flags | MSG_SENDPAGE_NOTLAST;
++	tls_push_record_flags = flags | MSG_MORE;
+ 
+ 	timeo = sock_sndtimeo(sk, flags & MSG_DONTWAIT);
+ 	if (tls_is_partially_sent_record(tls_ctx)) {
+@@ -532,7 +532,7 @@ static int tls_push_data(struct sock *sk,
+ 		if (!size) {
+ last_record:
+ 			tls_push_record_flags = flags;
+-			if (flags & (MSG_SENDPAGE_NOTLAST | MSG_MORE)) {
++			if (flags & MSG_MORE) {
+ 				more = true;
+ 				break;
+ 			}
+diff --git a/net/xfrm/espintcp.c b/net/xfrm/espintcp.c
+index 3504925babdb..d3b3f9e720b3 100644
+--- a/net/xfrm/espintcp.c
++++ b/net/xfrm/espintcp.c
+@@ -205,13 +205,15 @@ static int espintcp_sendskb_locked(struct sock *sk, struct espintcp_msg *emsg,
+ static int espintcp_sendskmsg_locked(struct sock *sk,
+ 				     struct espintcp_msg *emsg, int flags)
+ {
+-	struct msghdr msghdr = { .msg_flags = flags | MSG_SPLICE_PAGES, };
++	struct msghdr msghdr = {
++		.msg_flags = flags | MSG_SPLICE_PAGES | MSG_MORE,
++	};
+ 	struct sk_msg *skmsg = &emsg->skmsg;
++	bool more = flags & MSG_MORE;
+ 	struct scatterlist *sg;
+ 	int done = 0;
+ 	int ret;
+ 
+-	msghdr.msg_flags |= MSG_SENDPAGE_NOTLAST;
+ 	sg = &skmsg->sg.data[skmsg->sg.start];
+ 	do {
+ 		struct bio_vec bvec;
+@@ -221,8 +223,8 @@ static int espintcp_sendskmsg_locked(struct sock *sk,
+ 
+ 		emsg->offset = 0;
+ 
+-		if (sg_is_last(sg))
+-			msghdr.msg_flags &= ~MSG_SENDPAGE_NOTLAST;
++		if (sg_is_last(sg) && !more)
++			msghdr.msg_flags &= ~MSG_MORE;
+ 
+ 		p = sg_page(sg);
+ retry:
 
-Not a problem for me at all: you're absolutely right to question whether
-the existing, and the added, complexity is worth it - all of us who have
-looked into that code have wondered the same.
-
-Initially I refused to even try to get into it; but in the end was quite
-proud that I had, given time, managed to work with it.  But no problem
-if that work is quickly discarded in favour of simplicity.
-
-> but I still wonder what is your opinion on that do-not-reuse-fragments
-
-I don't want to sway you one way or the other on that: I just want to
-work with whatever you decide.  I know Matthew Wilcox would prefer if
-powerpc and s390 went about things in the same way (but they do have
-different constraints, so I don't necessarily agree); but I did not
-feel able to persuade powerpc to adopt s390's more complex approach,
-nor to persuade s390 to downgrade to powerpc's simpler approach.
-
-> approach? Would it simplify pte_free_defer() or had no effect?
-
-It would certainly simplify it a lot.  Whether it would just be a
-matter of deleting my attempt to list_add() from __tlb_remove_table(),
-so restoring the per-mm lock, and forgetting the SLAB_TYPESAFE_BY_RCU;
-or whether it would go further, and most of the PP-AA bit tracking fall
-away, I cannot predict - depends rather on who does the job, and how
-far they choose to take it.
-
-Two notes I want to throw into the mix:
-
-One, FWIW my guess is that for most mms, the s390 PP-AA tracking adds very
-little value; but without it, perhaps there is some mm, some workload, which
-degrades to the point of using only half of the pgtable memory it allocates.
-
-Two, maybe you'll see this as a further complication, to avoid getting into,
-rather than a simplification: but it occurred to me while working here that
-s390 has no need to keep the pgtable_trans_huge_deposit/withdraw() code in
-mm/pgtable.c separate from the mm/pgalloc.c code.  They can use just the
-one list, and deposit/withdraw simply keep a count of how many immediately
-usable free pgtables must always be kept in reserve on that list.  (But
-this would not be true at all for powerpc.)
-
-> 
-> Anyway, that is just another option and I will try your patch.
-
-Thank you, please do, if you have the time: my series does need some
-kind of s390 solution, depending on whatever s390 has in its tree at
-the time: for now I should at least be showing the 13/12 (preferably
-known to build and appearing to work!), even if all it does is help
-people to say "no, that's too much".
-
-Hugh
