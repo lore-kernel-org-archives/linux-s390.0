@@ -2,92 +2,144 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BCA6AEB64D7
-	for <linux-s390@archiver.kernel.org>; Fri, 23 Jun 2023 12:55:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A2A49EB64DD
+	for <linux-s390@archiver.kernel.org>; Fri, 23 Jun 2023 14:04:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231869AbjFWMzi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 23 Jun 2023 08:55:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42006 "EHLO
+        id S230008AbjFWOEP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 23 Jun 2023 10:04:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231888AbjFWMzh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 23 Jun 2023 08:55:37 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 193651713
-        for <linux-s390@vger.kernel.org>; Fri, 23 Jun 2023 05:54:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1687524889;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=rMJsEqZxFDEiOpUmf5NTUaCgnapiJoAxYbiFoSk82wQ=;
-        b=Qs3ToNGJembbu0DSae6hmCgYUDLXgaFRJ8auP+MPj43M9y2zhfCw4uDoITGBRToInxEuUy
-        OqH74vmcwFqki/TFCUkU1E4wPyQEqL10UAv/n/1/75hUhNQVmtgCvuNU3P/YvJziufGO5i
-        gF4JH64n2lx6cRUk/pG15ry+3FzvvVQ=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-179-UhauKGHCN2CMcbORgDFUJg-1; Fri, 23 Jun 2023 08:54:43 -0400
-X-MC-Unique: UhauKGHCN2CMcbORgDFUJg-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 965728CC200;
-        Fri, 23 Jun 2023 12:54:42 +0000 (UTC)
-Received: from thuth.com (unknown [10.39.192.208])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 2AD80F5AC5;
-        Fri, 23 Jun 2023 12:54:24 +0000 (UTC)
-From:   Thomas Huth <thuth@redhat.com>
-To:     kvm@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
-        =?UTF-8?q?Nico=20B=C3=B6hr?= <nrb@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Andrew Jones <andrew.jones@linux.dev>
-Cc:     kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        Laurent Vivier <lvivier@redhat.com>
-Subject: [kvm-unit-tests PATCH 2/2] Link with "-z noexecstack" to avoid warning from newer versions of ld
-Date:   Fri, 23 Jun 2023 14:54:16 +0200
-Message-Id: <20230623125416.481755-3-thuth@redhat.com>
-In-Reply-To: <20230623125416.481755-1-thuth@redhat.com>
-References: <20230623125416.481755-1-thuth@redhat.com>
+        with ESMTP id S229469AbjFWOEO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 23 Jun 2023 10:04:14 -0400
+Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on2040.outbound.protection.outlook.com [40.107.236.40])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E40532688;
+        Fri, 23 Jun 2023 07:04:12 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=XSuj1EZqFa77QqfZw2R4d5Os9zSAjgKDhI19CqDVGMXCAUuu8ll9JVLs0xNg3s3YRN7n3/9smw+zWoIGr33jkeWRdAVN91P5F7t11T6o5bCGXh159/Mk64GkN43a4V7Ywj65shPWSm7JAFaj/vn30MZfXUvbMIdhMdL8KaJfYtsJ96y0MUSOT8YqaCIZuVwWXGtnLihknop1q4c+8IZhW4ZYBBUVLOpdiT7OPRJK2VVA2YhYZo2yzk34FtoX6x/jL94ZDXlebKrPiQaAyTMF1q7OxeJQM+gkTFVZWmMYQisZzuRHqdexkQ+gL/tGgoiRyKNm0ghUEG5Ol/kfub6HDA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=IaFrqgKS5+sWJCgeYLZ+Q/PIkOJpMIIFxkdCl1+jxzU=;
+ b=QnwZJYCGGHabIjXOe5I4RXzrA+CKZGNR02uVmtq+ifS8bP+qCIWCZq+TNDs/5U6/ZA08A+qclWEUpE5jIPWyWJyy39/Jg5ZFx2oUFlBDfyCH6tg8E/6gGyuAOfGe+YobX4b3IGt24WtpmHon5HK1FWXfmzOPnTLKCgYrSb4qWDyDZOsW69AYUaWPxZa1MAB4CCfll5cq6/U5p6VYuVElrp4qZ6eHxC1LX9gfk4ChiPTQ27bnW2XbO5SIj6MXFqIv10jEcm14ZT57F1YtoxrIbpd/AbokXxeyyVDHulrQuQqV/763xAE935d7vkkjkxv491EGJ47ADTs4qJlvSQ/J8w==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=IaFrqgKS5+sWJCgeYLZ+Q/PIkOJpMIIFxkdCl1+jxzU=;
+ b=ZZCHaljQSlUGQE9ZIza1h90KQ275amM3YP1oZeyHb4EqiuL4Xx2SSPcRu4qBSZKVWLb71dSuYFF6AY16+6bXYE+48Rw2LScdNwk0PhWvuAP7Wli6OxOD/nK6bTqpMUHiHkYL7HH+5c+yWTyaiziuQ/aUXQLcHLoWtDoO6/ZfK74S993tYFbk+/OkSuRYSE2PmyWubYetwv8lzT1XAFl+ZSJT2AAafos1Ei/7No6Vvly7p/hiWEMQsiiIIGjG/OCh8t+viXbmAmd8Kum+zLah/Aul8Gxp4OkbrueGBQpf0P6eF11pwez1iRJKWzMGerVxpGMWvpzeQLlVhaL9Z1b5WA==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by DM6PR12MB4354.namprd12.prod.outlook.com (2603:10b6:5:28f::22) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6521.21; Fri, 23 Jun
+ 2023 14:04:10 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::f7a7:a561:87e9:5fab]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::f7a7:a561:87e9:5fab%7]) with mapi id 15.20.6521.024; Fri, 23 Jun 2023
+ 14:04:10 +0000
+Date:   Fri, 23 Jun 2023 11:04:09 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Yi Liu <yi.l.liu@intel.com>
+Cc:     alex.williamson@redhat.com, kevin.tian@intel.com, joro@8bytes.org,
+        robin.murphy@arm.com, cohuck@redhat.com, eric.auger@redhat.com,
+        nicolinc@nvidia.com, kvm@vger.kernel.org, mjrosato@linux.ibm.com,
+        chao.p.peng@linux.intel.com, yi.y.sun@linux.intel.com,
+        peterx@redhat.com, jasowang@redhat.com,
+        shameerali.kolothum.thodi@huawei.com, lulu@redhat.com,
+        suravee.suthikulpanit@amd.com, intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, linux-s390@vger.kernel.org,
+        xudong.hao@intel.com, yan.y.zhao@intel.com, terrence.xu@intel.com,
+        yanting.jiang@intel.com, zhenzhong.duan@intel.com,
+        clegoate@redhat.com
+Subject: Re: [PATCH v12 13/24] vfio-iommufd: Add detach_ioas support for
+ physical VFIO devices
+Message-ID: <ZJWmWf1R4bnAHGmm@nvidia.com>
+References: <20230602121653.80017-1-yi.l.liu@intel.com>
+ <20230602121653.80017-14-yi.l.liu@intel.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230602121653.80017-14-yi.l.liu@intel.com>
+X-ClientProxiedBy: CH2PR16CA0013.namprd16.prod.outlook.com
+ (2603:10b6:610:50::23) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.5
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|DM6PR12MB4354:EE_
+X-MS-Office365-Filtering-Correlation-Id: 95dfc60a-4a83-4188-f9e3-08db73f2b7aa
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: t6oCnYHvTShyRcqED8Hzo1d+xcuTwkBg15Y5m8h0/WHoY1fi/6HCFSGA2rgl9qxTJa9aik/nvzMen3lgp54mCgIO7HcIrkuJChu3qMlCInEciPdYzDVX90fj3p3ihQx+YNbDeNmjpBsyaRkAQfGqGEVV6jL84I5PiZBxg3S8A2YqMpQrHXxY9RRIN9GlJOhXX6/eHEQMvWjBXaoelzoaXfR7YIoC+HkDhvfq+wSNlJXJtZaZ3Hmvlkzdgcs1wWXWEH72wRQcOJd02hTLp8wyTq84A8PidAlS7CkGRy+FXg6t+dlhWtBg4egHmTJKhopOoBcIGFO2KOV3Js8yGl5XywEKhPAP9N3Gq1LCVQo1Sty8ZEhVkqKTV0rOHjRtQhDinvxhuinCflARQ7dOmNouDEMDZ3Y8czlZJSOdHjDqGpZoI5w13/VDv2psuJzkH0eLF5V4GIfjvTyPf3GEbWk+AL5mqFJ47xgJ/NIeCn/4oC37Q+wCg+S6o9r9EQOCBpSiw8jTqOib1C7dJjl8nzd121XiyxfUy2inHKl5XCCyqiheCIF2IpVlpVgjr4Dn2Dr6
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(39860400002)(376002)(396003)(366004)(346002)(136003)(451199021)(83380400001)(41300700001)(8676002)(8936002)(316002)(2616005)(186003)(38100700002)(6512007)(26005)(6506007)(6486002)(478600001)(36756003)(86362001)(4326008)(66946007)(6916009)(66556008)(66476007)(7416002)(2906002)(5660300002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?TRM6XLawlg2qhhxMxjw/HEaxXBiq18YabQHIQs7mYw8IQcQ25GL4PJcT7Bp7?=
+ =?us-ascii?Q?yljI/yy+ae9lMTarinSTJnfsQuZH0fXFICfkjv4zDMkKeUjj0S4KBULiGO03?=
+ =?us-ascii?Q?JRQgELm4gq0KmJmeC8zGExdtrdj5AAeLQaw+lkdg4/UKdbaYmO7y+ajSRG4Z?=
+ =?us-ascii?Q?pzN7rPEKU2/HIsewDTEmxt9JVtLixOHUqWN8b2jNFL7rnZQwC2F8pgtZmwyI?=
+ =?us-ascii?Q?nwDjxzoheHLendO3wsSD2wrXxMcTWcmHEr4VhvUHvlBXtbzJpxpjvH7DjDgx?=
+ =?us-ascii?Q?ctMljx6phRH6eH4fzfRyEWRM6NTiRdkgGOufdflK4sWWzggaNmc1W1z6Dobo?=
+ =?us-ascii?Q?en+007KjM+tr2BIkahOk9VFMEJdih0rXnqq75Wg/ERz7+YxrvQlhea3SzAWZ?=
+ =?us-ascii?Q?xxUvwnMufZesbCz2cDkAPkI1vqA6/DQuM80PL/dQmNMtw6VNW4zNQ4Xt/ZJc?=
+ =?us-ascii?Q?qodCgI21132gFZJoGozJ3KHBkY/jQ2NMg6ehtztL8GZC4AdVkSjDHdXBfGx/?=
+ =?us-ascii?Q?xboIkV82kQ1GEot0BUUL7f2sO54zDG3rCMFt0USmBCC9Ik8AZp0fNb9V0HcP?=
+ =?us-ascii?Q?pEEW3ElaK2/xelie3rFpSi2atoh7r7xl+TesjlWWBjrlO9ewHTFsectXR8zG?=
+ =?us-ascii?Q?aDrHdMyt2w4TlcSuM6eOthlmCyHSTLN47lkYEhnP9SRoWOGl6pibXmss7N4f?=
+ =?us-ascii?Q?xxACcQGC2Eo5IVtFTeo+oja+HcA2LF536mdiQx5hXcMhCNEBkW3MGoMxaVrM?=
+ =?us-ascii?Q?Knj7EZiYbYu05JCvoSl/PHiwoWArapL3ndUBJ1BmpXxAMEaExJMgJbQmVZFE?=
+ =?us-ascii?Q?L8PgEDlP+qE2h7gT6V3eLa70OV/zaDznIkYyw7gNmqw13c+j/uTlA4hno1kR?=
+ =?us-ascii?Q?QlIe9oAikZJgVZVxcsSTJMU52zF/lDVeLQtm4CSe0dynyWkOrAOXPS2W7USy?=
+ =?us-ascii?Q?siPsYW6iNhuVZUGxhZpkFFUjydkZbviLCwWfHCWsPXAIUqRA6nQC5f0lh2Vm?=
+ =?us-ascii?Q?gYgO3dawXdJG3+8hO4BGNhNLL+XQhkrz84lJx3+mD7OVij9GV+vvwq7QTIUv?=
+ =?us-ascii?Q?tY3dy370DVMFmrcPE69FTJRGNFC2zzVS/i+tjV+D1wY6M3e0OnEm22UDTKvV?=
+ =?us-ascii?Q?MtVD2qnOPEokNp7Ih/QerAvs36jKfANtdaHwlk53zzUZVz1IT4XMscaIn20e?=
+ =?us-ascii?Q?kB32JaBx4932LAXJDGV9AsN3svatwIYcqwlr9dsdH7HIeB2AJqkLGB6m7o4a?=
+ =?us-ascii?Q?Q8oL5V0/+mG0plH7AdJY2P/ffz2Yz3WHF4YTuXZ99dCYAuER4g+NIGaa9y+2?=
+ =?us-ascii?Q?jY526bFLummLEtLVr5HREv9otSqIMx+8bfsejgA3CbZLeKgo1CjbsUODFwH1?=
+ =?us-ascii?Q?TnuQhZ5ZZRpzcbvfrC1JEXffxjDagRo9FOIMBRehIghxrDnXNGt0t2VlB610?=
+ =?us-ascii?Q?Rw+yRzxBiwRKnanQXyMF5cfrSshKNtLdCIoyqEPyxgrO375h+odhRQ1Vp9hv?=
+ =?us-ascii?Q?t6zhE9ZIiIGuamW9ye6Qjr2D5j4o133ZkU+wMkG8zHpA7g6UBRwLxgqcoPVk?=
+ =?us-ascii?Q?LWHVjg1yfMnemlo7OeL/J53SgrWGJoRmAcAYO2h2?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 95dfc60a-4a83-4188-f9e3-08db73f2b7aa
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Jun 2023 14:04:10.5438
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: WE7L6IPSWb/myS4qSuFugT2AD82lgrmLnXsv8wkAZv5/P+5S33AmELywfoa6kxY9
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4354
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Newer versions of ld (from binutils 2.40) complain on s390x and x86:
+On Fri, Jun 02, 2023 at 05:16:42AM -0700, Yi Liu wrote:
+> This prepares for adding DETACH ioctl for physical VFIO devices.
+> 
+> Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+> Tested-by: Terrence Xu <terrence.xu@intel.com>
+> Tested-by: Nicolin Chen <nicolinc@nvidia.com>
+> Tested-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> Tested-by: Yanting Jiang <yanting.jiang@intel.com>
+> Tested-by: Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>
+> Signed-off-by: Yi Liu <yi.l.liu@intel.com>
+> ---
+>  Documentation/driver-api/vfio.rst             |  8 +++++---
+>  drivers/vfio/fsl-mc/vfio_fsl_mc.c             |  1 +
+>  drivers/vfio/iommufd.c                        | 20 +++++++++++++++++++
+>  .../vfio/pci/hisilicon/hisi_acc_vfio_pci.c    |  2 ++
+>  drivers/vfio/pci/mlx5/main.c                  |  1 +
+>  drivers/vfio/pci/vfio_pci.c                   |  1 +
+>  drivers/vfio/platform/vfio_amba.c             |  1 +
+>  drivers/vfio/platform/vfio_platform.c         |  1 +
+>  drivers/vfio/vfio_main.c                      |  3 ++-
+>  include/linux/vfio.h                          |  8 +++++++-
+>  10 files changed, 41 insertions(+), 5 deletions(-)
 
- ld: warning: s390x/cpu.o: missing .note.GNU-stack section implies
-              executable stack
- ld: NOTE: This behaviour is deprecated and will be removed in a
-           future version of the linker
+Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
 
-We can silence these warnings by using "-z noexecstack" for linking
-(which should not have any real influence on the kvm-unit-tests since
-the information from the ELF header is not used here anyway, so it's
-just cosmetics).
-
-Signed-off-by: Thomas Huth <thuth@redhat.com>
----
- Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/Makefile b/Makefile
-index 0e5d85a1..20f7137c 100644
---- a/Makefile
-+++ b/Makefile
-@@ -96,7 +96,7 @@ CFLAGS += -Woverride-init -Wmissing-prototypes -Wstrict-prototypes
- 
- autodepend-flags = -MMD -MF $(dir $*).$(notdir $*).d
- 
--LDFLAGS += -nostdlib
-+LDFLAGS += -nostdlib -z noexecstack
- 
- $(libcflat): $(cflatobjs)
- 	$(AR) rcs $@ $^
--- 
-2.39.3
-
+Jason
