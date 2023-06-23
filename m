@@ -2,41 +2,41 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4DBC6EB64DD
-	for <linux-s390@archiver.kernel.org>; Fri, 23 Jun 2023 11:45:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C2477EB64DD
+	for <linux-s390@archiver.kernel.org>; Fri, 23 Jun 2023 11:46:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231169AbjFWLpX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 23 Jun 2023 07:45:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37588 "EHLO
+        id S231236AbjFWLq0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 23 Jun 2023 07:46:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230330AbjFWLpW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 23 Jun 2023 07:45:22 -0400
+        with ESMTP id S231608AbjFWLqK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 23 Jun 2023 07:46:10 -0400
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C293519BF
-        for <linux-s390@vger.kernel.org>; Fri, 23 Jun 2023 04:44:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E32D2688
+        for <linux-s390@vger.kernel.org>; Fri, 23 Jun 2023 04:44:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1687520678;
+        s=mimecast20190719; t=1687520695;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=ivhWzudgyaDY8ijkLDZpWPEWsQie4rsiJhQ0Ls+XdqI=;
-        b=NTVWizM6bshLTxFljwlaO9qc2y3m/THgEU0QvCoKkNPdZPvD6gtaXq3Sq57Fq9HYEU+sTy
-        csuUpNm5jfWNCuZ02nqMkIC6AiPs/WnJw/ipjxOa+MaUWciLASmhE9/m4nEntZZRT0izR9
-        XZDmW++jp0k0X7Z/NRvE8hGy2gULUgk=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=PSe/ILwvcvKNAe9EBhS3HTJsxWKySCoAZiMEUxcxN8I=;
+        b=UO2c8dr9XKw0YHNr7xVl+i16YOQ8ogxBwn51JQsEJYXb9pUZWhNOpE6JjsRj57uW91GC7b
+        BUKy2jAF9RJNPaLYrSl3kS6QLLelzmtYQwOYgWL2ZoR6k01ynQl3G46sKiOF4bYiDrNobt
+        k0KsIqpbUZtTixGrLXWRrQwr+Jn3FK4=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-644-PFLeHdiDMpWe9Zuq8IfeUA-1; Fri, 23 Jun 2023 07:44:34 -0400
-X-MC-Unique: PFLeHdiDMpWe9Zuq8IfeUA-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
+ us-mta-134-x-hqviP7O_yozn6WZokJng-1; Fri, 23 Jun 2023 07:44:54 -0400
+X-MC-Unique: x-hqviP7O_yozn6WZokJng-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 419AB38149A6;
-        Fri, 23 Jun 2023 11:44:33 +0000 (UTC)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id D7DEB8E44EE;
+        Fri, 23 Jun 2023 11:44:52 +0000 (UTC)
 Received: from warthog.procyon.org.com (unknown [10.42.28.4])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 3C9611400C35;
-        Fri, 23 Jun 2023 11:44:30 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id C1CB740C6CD1;
+        Fri, 23 Jun 2023 11:44:50 +0000 (UTC)
 From:   David Howells <dhowells@redhat.com>
 To:     netdev@vger.kernel.org
 Cc:     David Howells <dhowells@redhat.com>,
@@ -49,199 +49,164 @@ Cc:     David Howells <dhowells@redhat.com>,
         David Ahern <dsahern@kernel.org>,
         Matthew Wilcox <willy@infradead.org>,
         Jens Axboe <axboe@kernel.dk>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org,
-        John Fastabend <john.fastabend@gmail.com>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
+        linux-kernel@vger.kernel.org, Karsten Graul <kgraul@linux.ibm.com>,
         Wenjia Zhang <wenjia@linux.ibm.com>,
         Jan Karcher <jaka@linux.ibm.com>,
         "D. Wythe" <alibuda@linux.alibaba.com>,
         Tony Lu <tonylu@linux.alibaba.com>,
-        Wen Gu <guwen@linux.alibaba.com>,
-        Boris Pismenny <borisp@nvidia.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>, bpf@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: [PATCH net-next v4 01/15] tcp_bpf, smc, tls, espintcp, siw: Reduce MSG_SENDPAGE_NOTLAST usage
-Date:   Fri, 23 Jun 2023 12:44:11 +0100
-Message-ID: <20230623114425.2150536-2-dhowells@redhat.com>
+        Wen Gu <guwen@linux.alibaba.com>, linux-s390@vger.kernel.org
+Subject: [PATCH net-next v4 09/15] smc: Drop smc_sendpage() in favour of smc_sendmsg() + MSG_SPLICE_PAGES
+Date:   Fri, 23 Jun 2023 12:44:19 +0100
+Message-ID: <20230623114425.2150536-10-dhowells@redhat.com>
 In-Reply-To: <20230623114425.2150536-1-dhowells@redhat.com>
 References: <20230623114425.2150536-1-dhowells@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.7
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.2
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-As MSG_SENDPAGE_NOTLAST is being phased out along with sendpage(), don't
-use it further in than the sendpage methods, but rather translate it to
-MSG_MORE and use that instead.
+Drop the smc_sendpage() code as smc_sendmsg() just passes the call down to
+the underlying TCP socket and smc_tx_sendpage() is just a wrapper around
+its sendmsg implementation.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-cc: John Fastabend <john.fastabend@gmail.com>
-cc: Jakub Sitnicki <jakub@cloudflare.com>
-cc: Eric Dumazet <edumazet@google.com>
-cc: "David S. Miller" <davem@davemloft.net>
-cc: David Ahern <dsahern@kernel.org>
-cc: Jakub Kicinski <kuba@kernel.org>
-cc: Paolo Abeni <pabeni@redhat.com>
 cc: Karsten Graul <kgraul@linux.ibm.com>
 cc: Wenjia Zhang <wenjia@linux.ibm.com>
 cc: Jan Karcher <jaka@linux.ibm.com>
 cc: "D. Wythe" <alibuda@linux.alibaba.com>
 cc: Tony Lu <tonylu@linux.alibaba.com>
 cc: Wen Gu <guwen@linux.alibaba.com>
-cc: Boris Pismenny <borisp@nvidia.com>
-cc: Steffen Klassert <steffen.klassert@secunet.com>
-cc: Herbert Xu <herbert@gondor.apana.org.au>
-cc: netdev@vger.kernel.org
-cc: bpf@vger.kernel.org
+cc: "David S. Miller" <davem@davemloft.net>
+cc: Eric Dumazet <edumazet@google.com>
+cc: Jakub Kicinski <kuba@kernel.org>
+cc: Paolo Abeni <pabeni@redhat.com>
+cc: Jens Axboe <axboe@kernel.dk>
+cc: Matthew Wilcox <willy@infradead.org>
 cc: linux-s390@vger.kernel.org
+cc: netdev@vger.kernel.org
 ---
+ net/smc/af_smc.c    | 29 -----------------------------
+ net/smc/smc_stats.c |  2 +-
+ net/smc/smc_stats.h |  1 -
+ net/smc/smc_tx.c    | 19 -------------------
+ net/smc/smc_tx.h    |  2 --
+ 5 files changed, 1 insertion(+), 52 deletions(-)
 
-Notes:
-    ver #3)
-     - In tcp_bpf, reset msg_flags on each iteration to clear MSG_MORE.
-     - In tcp_bpf, set MSG_MORE if there's more data in the sk_msg.
-
- drivers/infiniband/sw/siw/siw_qp_tx.c |  5 ++---
- net/ipv4/tcp_bpf.c                    |  5 +++--
- net/smc/smc_tx.c                      |  6 ++++--
- net/tls/tls_device.c                  |  4 ++--
- net/xfrm/espintcp.c                   | 10 ++++++----
- 5 files changed, 17 insertions(+), 13 deletions(-)
-
-diff --git a/drivers/infiniband/sw/siw/siw_qp_tx.c b/drivers/infiniband/sw/siw/siw_qp_tx.c
-index ffb16beb6c30..7c7a51d36d0c 100644
---- a/drivers/infiniband/sw/siw/siw_qp_tx.c
-+++ b/drivers/infiniband/sw/siw/siw_qp_tx.c
-@@ -325,8 +325,7 @@ static int siw_tcp_sendpages(struct socket *s, struct page **page, int offset,
- {
- 	struct bio_vec bvec;
- 	struct msghdr msg = {
--		.msg_flags = (MSG_MORE | MSG_DONTWAIT | MSG_SENDPAGE_NOTLAST |
--			      MSG_SPLICE_PAGES),
-+		.msg_flags = (MSG_MORE | MSG_DONTWAIT | MSG_SPLICE_PAGES),
- 	};
- 	struct sock *sk = s->sk;
- 	int i = 0, rv = 0, sent = 0;
-@@ -335,7 +334,7 @@ static int siw_tcp_sendpages(struct socket *s, struct page **page, int offset,
- 		size_t bytes = min_t(size_t, PAGE_SIZE - offset, size);
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 538e9c6ec8c9..a7f887d91d89 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -3133,34 +3133,6 @@ static int smc_ioctl(struct socket *sock, unsigned int cmd,
+ 	return put_user(answ, (int __user *)arg);
+ }
  
- 		if (size + offset <= PAGE_SIZE)
--			msg.msg_flags &= ~MSG_SENDPAGE_NOTLAST;
-+			msg.msg_flags &= ~MSG_MORE;
+-static ssize_t smc_sendpage(struct socket *sock, struct page *page,
+-			    int offset, size_t size, int flags)
+-{
+-	struct sock *sk = sock->sk;
+-	struct smc_sock *smc;
+-	int rc = -EPIPE;
+-
+-	smc = smc_sk(sk);
+-	lock_sock(sk);
+-	if (sk->sk_state != SMC_ACTIVE) {
+-		release_sock(sk);
+-		goto out;
+-	}
+-	release_sock(sk);
+-	if (smc->use_fallback) {
+-		rc = kernel_sendpage(smc->clcsock, page, offset,
+-				     size, flags);
+-	} else {
+-		lock_sock(sk);
+-		rc = smc_tx_sendpage(smc, page, offset, size, flags);
+-		release_sock(sk);
+-		SMC_STAT_INC(smc, sendpage_cnt);
+-	}
+-
+-out:
+-	return rc;
+-}
+-
+ /* Map the affected portions of the rmbe into an spd, note the number of bytes
+  * to splice in conn->splice_pending, and press 'go'. Delays consumer cursor
+  * updates till whenever a respective page has been fully processed.
+@@ -3232,7 +3204,6 @@ static const struct proto_ops smc_sock_ops = {
+ 	.sendmsg	= smc_sendmsg,
+ 	.recvmsg	= smc_recvmsg,
+ 	.mmap		= sock_no_mmap,
+-	.sendpage	= smc_sendpage,
+ 	.splice_read	= smc_splice_read,
+ };
  
- 		tcp_rate_check_app_limited(sk);
- 		bvec_set_page(&bvec, page[i], bytes, offset);
-diff --git a/net/ipv4/tcp_bpf.c b/net/ipv4/tcp_bpf.c
-index 5a84053ac62b..31d6005cea9b 100644
---- a/net/ipv4/tcp_bpf.c
-+++ b/net/ipv4/tcp_bpf.c
-@@ -88,9 +88,9 @@ static int bpf_tcp_ingress(struct sock *sk, struct sk_psock *psock,
- static int tcp_bpf_push(struct sock *sk, struct sk_msg *msg, u32 apply_bytes,
- 			int flags, bool uncharge)
- {
-+	struct msghdr msghdr = {};
- 	bool apply = apply_bytes;
- 	struct scatterlist *sge;
--	struct msghdr msghdr = { .msg_flags = flags | MSG_SPLICE_PAGES, };
- 	struct page *page;
- 	int size, ret = 0;
- 	u32 off;
-@@ -107,11 +107,12 @@ static int tcp_bpf_push(struct sock *sk, struct sk_msg *msg, u32 apply_bytes,
- 
- 		tcp_rate_check_app_limited(sk);
- retry:
-+		msghdr.msg_flags = flags | MSG_SPLICE_PAGES;
- 		has_tx_ulp = tls_sw_has_ctx_tx(sk);
- 		if (has_tx_ulp)
- 			msghdr.msg_flags |= MSG_SENDPAGE_NOPOLICY;
- 
--		if (flags & MSG_SENDPAGE_NOTLAST)
-+		if (size < sge->length && msg->sg.start != msg->sg.end)
- 			msghdr.msg_flags |= MSG_MORE;
- 
- 		bvec_set_page(&bvec, page, size, off);
+diff --git a/net/smc/smc_stats.c b/net/smc/smc_stats.c
+index e80e34f7ac15..ca14c0f3a07d 100644
+--- a/net/smc/smc_stats.c
++++ b/net/smc/smc_stats.c
+@@ -227,7 +227,7 @@ static int smc_nl_fill_stats_tech_data(struct sk_buff *skb,
+ 			      SMC_NLA_STATS_PAD))
+ 		goto errattr;
+ 	if (nla_put_u64_64bit(skb, SMC_NLA_STATS_T_SENDPAGE_CNT,
+-			      smc_tech->sendpage_cnt,
++			      0,
+ 			      SMC_NLA_STATS_PAD))
+ 		goto errattr;
+ 	if (nla_put_u64_64bit(skb, SMC_NLA_STATS_T_CORK_CNT,
+diff --git a/net/smc/smc_stats.h b/net/smc/smc_stats.h
+index 84b7ecd8c05c..b60fe1eb37ab 100644
+--- a/net/smc/smc_stats.h
++++ b/net/smc/smc_stats.h
+@@ -71,7 +71,6 @@ struct smc_stats_tech {
+ 	u64			clnt_v2_succ_cnt;
+ 	u64			srv_v1_succ_cnt;
+ 	u64			srv_v2_succ_cnt;
+-	u64			sendpage_cnt;
+ 	u64			urg_data_cnt;
+ 	u64			splice_cnt;
+ 	u64			cork_cnt;
 diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
-index 45128443f1f1..9b9e0a190734 100644
+index 9b9e0a190734..3b0ff3b589c7 100644
 --- a/net/smc/smc_tx.c
 +++ b/net/smc/smc_tx.c
-@@ -168,8 +168,7 @@ static bool smc_tx_should_cork(struct smc_sock *smc, struct msghdr *msg)
- 	 * should known how/when to uncork it.
- 	 */
- 	if ((msg->msg_flags & MSG_MORE ||
--	     smc_tx_is_corked(smc) ||
--	     msg->msg_flags & MSG_SENDPAGE_NOTLAST) &&
-+	     smc_tx_is_corked(smc)) &&
- 	    atomic_read(&conn->sndbuf_space))
- 		return true;
+@@ -297,25 +297,6 @@ int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len)
+ 	return rc;
+ }
  
-@@ -306,6 +305,9 @@ int smc_tx_sendpage(struct smc_sock *smc, struct page *page, int offset,
- 	struct kvec iov;
- 	int rc;
+-int smc_tx_sendpage(struct smc_sock *smc, struct page *page, int offset,
+-		    size_t size, int flags)
+-{
+-	struct msghdr msg = {.msg_flags = flags};
+-	char *kaddr = kmap(page);
+-	struct kvec iov;
+-	int rc;
+-
+-	if (flags & MSG_SENDPAGE_NOTLAST)
+-		msg.msg_flags |= MSG_MORE;
+-
+-	iov.iov_base = kaddr + offset;
+-	iov.iov_len = size;
+-	iov_iter_kvec(&msg.msg_iter, ITER_SOURCE, &iov, 1, size);
+-	rc = smc_tx_sendmsg(smc, &msg, size);
+-	kunmap(page);
+-	return rc;
+-}
+-
+ /***************************** sndbuf consumer *******************************/
  
-+	if (flags & MSG_SENDPAGE_NOTLAST)
-+		msg.msg_flags |= MSG_MORE;
-+
- 	iov.iov_base = kaddr + offset;
- 	iov.iov_len = size;
- 	iov_iter_kvec(&msg.msg_iter, ITER_SOURCE, &iov, 1, size);
-diff --git a/net/tls/tls_device.c b/net/tls/tls_device.c
-index b82770f68807..975299d7213b 100644
---- a/net/tls/tls_device.c
-+++ b/net/tls/tls_device.c
-@@ -449,7 +449,7 @@ static int tls_push_data(struct sock *sk,
- 		return -sk->sk_err;
- 
- 	flags |= MSG_SENDPAGE_DECRYPTED;
--	tls_push_record_flags = flags | MSG_SENDPAGE_NOTLAST;
-+	tls_push_record_flags = flags | MSG_MORE;
- 
- 	timeo = sock_sndtimeo(sk, flags & MSG_DONTWAIT);
- 	if (tls_is_partially_sent_record(tls_ctx)) {
-@@ -532,7 +532,7 @@ static int tls_push_data(struct sock *sk,
- 		if (!size) {
- last_record:
- 			tls_push_record_flags = flags;
--			if (flags & (MSG_SENDPAGE_NOTLAST | MSG_MORE)) {
-+			if (flags & MSG_MORE) {
- 				more = true;
- 				break;
- 			}
-diff --git a/net/xfrm/espintcp.c b/net/xfrm/espintcp.c
-index 3504925babdb..d3b3f9e720b3 100644
---- a/net/xfrm/espintcp.c
-+++ b/net/xfrm/espintcp.c
-@@ -205,13 +205,15 @@ static int espintcp_sendskb_locked(struct sock *sk, struct espintcp_msg *emsg,
- static int espintcp_sendskmsg_locked(struct sock *sk,
- 				     struct espintcp_msg *emsg, int flags)
- {
--	struct msghdr msghdr = { .msg_flags = flags | MSG_SPLICE_PAGES, };
-+	struct msghdr msghdr = {
-+		.msg_flags = flags | MSG_SPLICE_PAGES | MSG_MORE,
-+	};
- 	struct sk_msg *skmsg = &emsg->skmsg;
-+	bool more = flags & MSG_MORE;
- 	struct scatterlist *sg;
- 	int done = 0;
- 	int ret;
- 
--	msghdr.msg_flags |= MSG_SENDPAGE_NOTLAST;
- 	sg = &skmsg->sg.data[skmsg->sg.start];
- 	do {
- 		struct bio_vec bvec;
-@@ -221,8 +223,8 @@ static int espintcp_sendskmsg_locked(struct sock *sk,
- 
- 		emsg->offset = 0;
- 
--		if (sg_is_last(sg))
--			msghdr.msg_flags &= ~MSG_SENDPAGE_NOTLAST;
-+		if (sg_is_last(sg) && !more)
-+			msghdr.msg_flags &= ~MSG_MORE;
- 
- 		p = sg_page(sg);
- retry:
+ /* sndbuf consumer: actual data transfer of one target chunk with ISM write */
+diff --git a/net/smc/smc_tx.h b/net/smc/smc_tx.h
+index 34b578498b1f..a59f370b8b43 100644
+--- a/net/smc/smc_tx.h
++++ b/net/smc/smc_tx.h
+@@ -31,8 +31,6 @@ void smc_tx_pending(struct smc_connection *conn);
+ void smc_tx_work(struct work_struct *work);
+ void smc_tx_init(struct smc_sock *smc);
+ int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len);
+-int smc_tx_sendpage(struct smc_sock *smc, struct page *page, int offset,
+-		    size_t size, int flags);
+ int smc_tx_sndbuf_nonempty(struct smc_connection *conn);
+ void smc_tx_sndbuf_nonfull(struct smc_sock *smc);
+ void smc_tx_consumer_update(struct smc_connection *conn, bool force);
 
