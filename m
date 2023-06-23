@@ -2,85 +2,246 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 015C0EB64D7
-	for <linux-s390@archiver.kernel.org>; Fri, 23 Jun 2023 10:20:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4DBC6EB64DD
+	for <linux-s390@archiver.kernel.org>; Fri, 23 Jun 2023 11:45:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229847AbjFWKU5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 23 Jun 2023 06:20:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57870 "EHLO
+        id S231169AbjFWLpX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 23 Jun 2023 07:45:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231310AbjFWKUd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 23 Jun 2023 06:20:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29D021A3
-        for <linux-s390@vger.kernel.org>; Fri, 23 Jun 2023 03:20:22 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        with ESMTP id S230330AbjFWLpW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 23 Jun 2023 07:45:22 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C293519BF
+        for <linux-s390@vger.kernel.org>; Fri, 23 Jun 2023 04:44:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1687520678;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=ivhWzudgyaDY8ijkLDZpWPEWsQie4rsiJhQ0Ls+XdqI=;
+        b=NTVWizM6bshLTxFljwlaO9qc2y3m/THgEU0QvCoKkNPdZPvD6gtaXq3Sq57Fq9HYEU+sTy
+        csuUpNm5jfWNCuZ02nqMkIC6AiPs/WnJw/ipjxOa+MaUWciLASmhE9/m4nEntZZRT0izR9
+        XZDmW++jp0k0X7Z/NRvE8hGy2gULUgk=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-644-PFLeHdiDMpWe9Zuq8IfeUA-1; Fri, 23 Jun 2023 07:44:34 -0400
+X-MC-Unique: PFLeHdiDMpWe9Zuq8IfeUA-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C4FE61968
-        for <linux-s390@vger.kernel.org>; Fri, 23 Jun 2023 10:20:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 096ABC433C9;
-        Fri, 23 Jun 2023 10:20:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1687515621;
-        bh=0G4VLzTwApRcDkGPRDhlojw0Eo5X0jKO6ZzUVDxIObY=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=m8pI2SWIcB9SbcC3pdSlMHA+8Vff6xrOzA2M7NtUyoJ9JlN4SsU+FiAkqCPUf52FF
-         FiyYZgEV/wuXx6pgQJT+kkG2mKVE0/ZpvK8XEne/M0ko7Xf4viQZnIXDUhlH+hJoQJ
-         aCy/GMvs7XvuwVaANTzvHnULYp0DXa0db4oy15uzEmFtNEWKcxVkabSV/gV2bouXf5
-         5wBwZKyQHJY2PW94Y1+6WWV2zElJ82onnl7fse4V3sNVg3U877RtoKnsB5xD87Plz3
-         LF+9QZbkJPGK34JN06D53l1U/NkCY6wf55e+4VVQMUPvUq/m76h8Yy9AULOpMzWp1t
-         m+fQMXs4bX0Xg==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id DBD8EC43143;
-        Fri, 23 Jun 2023 10:20:20 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 419AB38149A6;
+        Fri, 23 Jun 2023 11:44:33 +0000 (UTC)
+Received: from warthog.procyon.org.com (unknown [10.42.28.4])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 3C9611400C35;
+        Fri, 23 Jun 2023 11:44:30 +0000 (UTC)
+From:   David Howells <dhowells@redhat.com>
+To:     netdev@vger.kernel.org
+Cc:     David Howells <dhowells@redhat.com>,
+        Alexander Duyck <alexander.duyck@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+        David Ahern <dsahern@kernel.org>,
+        Matthew Wilcox <willy@infradead.org>,
+        Jens Axboe <axboe@kernel.dk>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org,
+        John Fastabend <john.fastabend@gmail.com>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Jan Karcher <jaka@linux.ibm.com>,
+        "D. Wythe" <alibuda@linux.alibaba.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        Wen Gu <guwen@linux.alibaba.com>,
+        Boris Pismenny <borisp@nvidia.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>, bpf@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: [PATCH net-next v4 01/15] tcp_bpf, smc, tls, espintcp, siw: Reduce MSG_SENDPAGE_NOTLAST usage
+Date:   Fri, 23 Jun 2023 12:44:11 +0100
+Message-ID: <20230623114425.2150536-2-dhowells@redhat.com>
+In-Reply-To: <20230623114425.2150536-1-dhowells@redhat.com>
+References: <20230623114425.2150536-1-dhowells@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next v2 0/4] s390/net: updates 2023-06-10
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <168751562089.32220.265545719667206181.git-patchwork-notify@kernel.org>
-Date:   Fri, 23 Jun 2023 10:20:20 +0000
-References: <20230621134921.904217-1-wintera@linux.ibm.com>
-In-Reply-To: <20230621134921.904217-1-wintera@linux.ibm.com>
-To:     Alexandra Winter <wintera@linux.ibm.com>
-Cc:     davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
-        edumazet@google.com, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, hca@linux.ibm.com
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.7
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello:
+As MSG_SENDPAGE_NOTLAST is being phased out along with sendpage(), don't
+use it further in than the sendpage methods, but rather translate it to
+MSG_MORE and use that instead.
 
-This series was applied to netdev/net-next.git (main)
-by Paolo Abeni <pabeni@redhat.com>:
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+cc: John Fastabend <john.fastabend@gmail.com>
+cc: Jakub Sitnicki <jakub@cloudflare.com>
+cc: Eric Dumazet <edumazet@google.com>
+cc: "David S. Miller" <davem@davemloft.net>
+cc: David Ahern <dsahern@kernel.org>
+cc: Jakub Kicinski <kuba@kernel.org>
+cc: Paolo Abeni <pabeni@redhat.com>
+cc: Karsten Graul <kgraul@linux.ibm.com>
+cc: Wenjia Zhang <wenjia@linux.ibm.com>
+cc: Jan Karcher <jaka@linux.ibm.com>
+cc: "D. Wythe" <alibuda@linux.alibaba.com>
+cc: Tony Lu <tonylu@linux.alibaba.com>
+cc: Wen Gu <guwen@linux.alibaba.com>
+cc: Boris Pismenny <borisp@nvidia.com>
+cc: Steffen Klassert <steffen.klassert@secunet.com>
+cc: Herbert Xu <herbert@gondor.apana.org.au>
+cc: netdev@vger.kernel.org
+cc: bpf@vger.kernel.org
+cc: linux-s390@vger.kernel.org
+---
 
-On Wed, 21 Jun 2023 15:49:17 +0200 you wrote:
-> Please apply the following patch series for s390's ctcm and lcs drivers
-> to netdev's net-next tree.
-> 
-> Just maintenance patches, no functional changes.
-> 
-> Thanks,
-> Alexandra
-> 
-> [...]
+Notes:
+    ver #3)
+     - In tcp_bpf, reset msg_flags on each iteration to clear MSG_MORE.
+     - In tcp_bpf, set MSG_MORE if there's more data in the sk_msg.
 
-Here is the summary with links:
-  - [net-next,v2,1/4] s390/lcs: Convert sysfs sprintf to sysfs_emit
-    https://git.kernel.org/netdev/net-next/c/d3f0c7fa0993
-  - [net-next,v2,2/4] s390/lcs: Convert sprintf to scnprintf
-    https://git.kernel.org/netdev/net-next/c/1a079f3e9529
-  - [net-next,v2,3/4] s390/ctcm: Convert sysfs sprintf to sysfs_emit
-    https://git.kernel.org/netdev/net-next/c/d585e4b74806
-  - [net-next,v2,4/4] s390/ctcm: Convert sprintf/snprintf to scnprintf
-    https://git.kernel.org/netdev/net-next/c/1471d85ffba7
+ drivers/infiniband/sw/siw/siw_qp_tx.c |  5 ++---
+ net/ipv4/tcp_bpf.c                    |  5 +++--
+ net/smc/smc_tx.c                      |  6 ++++--
+ net/tls/tls_device.c                  |  4 ++--
+ net/xfrm/espintcp.c                   | 10 ++++++----
+ 5 files changed, 17 insertions(+), 13 deletions(-)
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+diff --git a/drivers/infiniband/sw/siw/siw_qp_tx.c b/drivers/infiniband/sw/siw/siw_qp_tx.c
+index ffb16beb6c30..7c7a51d36d0c 100644
+--- a/drivers/infiniband/sw/siw/siw_qp_tx.c
++++ b/drivers/infiniband/sw/siw/siw_qp_tx.c
+@@ -325,8 +325,7 @@ static int siw_tcp_sendpages(struct socket *s, struct page **page, int offset,
+ {
+ 	struct bio_vec bvec;
+ 	struct msghdr msg = {
+-		.msg_flags = (MSG_MORE | MSG_DONTWAIT | MSG_SENDPAGE_NOTLAST |
+-			      MSG_SPLICE_PAGES),
++		.msg_flags = (MSG_MORE | MSG_DONTWAIT | MSG_SPLICE_PAGES),
+ 	};
+ 	struct sock *sk = s->sk;
+ 	int i = 0, rv = 0, sent = 0;
+@@ -335,7 +334,7 @@ static int siw_tcp_sendpages(struct socket *s, struct page **page, int offset,
+ 		size_t bytes = min_t(size_t, PAGE_SIZE - offset, size);
+ 
+ 		if (size + offset <= PAGE_SIZE)
+-			msg.msg_flags &= ~MSG_SENDPAGE_NOTLAST;
++			msg.msg_flags &= ~MSG_MORE;
+ 
+ 		tcp_rate_check_app_limited(sk);
+ 		bvec_set_page(&bvec, page[i], bytes, offset);
+diff --git a/net/ipv4/tcp_bpf.c b/net/ipv4/tcp_bpf.c
+index 5a84053ac62b..31d6005cea9b 100644
+--- a/net/ipv4/tcp_bpf.c
++++ b/net/ipv4/tcp_bpf.c
+@@ -88,9 +88,9 @@ static int bpf_tcp_ingress(struct sock *sk, struct sk_psock *psock,
+ static int tcp_bpf_push(struct sock *sk, struct sk_msg *msg, u32 apply_bytes,
+ 			int flags, bool uncharge)
+ {
++	struct msghdr msghdr = {};
+ 	bool apply = apply_bytes;
+ 	struct scatterlist *sge;
+-	struct msghdr msghdr = { .msg_flags = flags | MSG_SPLICE_PAGES, };
+ 	struct page *page;
+ 	int size, ret = 0;
+ 	u32 off;
+@@ -107,11 +107,12 @@ static int tcp_bpf_push(struct sock *sk, struct sk_msg *msg, u32 apply_bytes,
+ 
+ 		tcp_rate_check_app_limited(sk);
+ retry:
++		msghdr.msg_flags = flags | MSG_SPLICE_PAGES;
+ 		has_tx_ulp = tls_sw_has_ctx_tx(sk);
+ 		if (has_tx_ulp)
+ 			msghdr.msg_flags |= MSG_SENDPAGE_NOPOLICY;
+ 
+-		if (flags & MSG_SENDPAGE_NOTLAST)
++		if (size < sge->length && msg->sg.start != msg->sg.end)
+ 			msghdr.msg_flags |= MSG_MORE;
+ 
+ 		bvec_set_page(&bvec, page, size, off);
+diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
+index 45128443f1f1..9b9e0a190734 100644
+--- a/net/smc/smc_tx.c
++++ b/net/smc/smc_tx.c
+@@ -168,8 +168,7 @@ static bool smc_tx_should_cork(struct smc_sock *smc, struct msghdr *msg)
+ 	 * should known how/when to uncork it.
+ 	 */
+ 	if ((msg->msg_flags & MSG_MORE ||
+-	     smc_tx_is_corked(smc) ||
+-	     msg->msg_flags & MSG_SENDPAGE_NOTLAST) &&
++	     smc_tx_is_corked(smc)) &&
+ 	    atomic_read(&conn->sndbuf_space))
+ 		return true;
+ 
+@@ -306,6 +305,9 @@ int smc_tx_sendpage(struct smc_sock *smc, struct page *page, int offset,
+ 	struct kvec iov;
+ 	int rc;
+ 
++	if (flags & MSG_SENDPAGE_NOTLAST)
++		msg.msg_flags |= MSG_MORE;
++
+ 	iov.iov_base = kaddr + offset;
+ 	iov.iov_len = size;
+ 	iov_iter_kvec(&msg.msg_iter, ITER_SOURCE, &iov, 1, size);
+diff --git a/net/tls/tls_device.c b/net/tls/tls_device.c
+index b82770f68807..975299d7213b 100644
+--- a/net/tls/tls_device.c
++++ b/net/tls/tls_device.c
+@@ -449,7 +449,7 @@ static int tls_push_data(struct sock *sk,
+ 		return -sk->sk_err;
+ 
+ 	flags |= MSG_SENDPAGE_DECRYPTED;
+-	tls_push_record_flags = flags | MSG_SENDPAGE_NOTLAST;
++	tls_push_record_flags = flags | MSG_MORE;
+ 
+ 	timeo = sock_sndtimeo(sk, flags & MSG_DONTWAIT);
+ 	if (tls_is_partially_sent_record(tls_ctx)) {
+@@ -532,7 +532,7 @@ static int tls_push_data(struct sock *sk,
+ 		if (!size) {
+ last_record:
+ 			tls_push_record_flags = flags;
+-			if (flags & (MSG_SENDPAGE_NOTLAST | MSG_MORE)) {
++			if (flags & MSG_MORE) {
+ 				more = true;
+ 				break;
+ 			}
+diff --git a/net/xfrm/espintcp.c b/net/xfrm/espintcp.c
+index 3504925babdb..d3b3f9e720b3 100644
+--- a/net/xfrm/espintcp.c
++++ b/net/xfrm/espintcp.c
+@@ -205,13 +205,15 @@ static int espintcp_sendskb_locked(struct sock *sk, struct espintcp_msg *emsg,
+ static int espintcp_sendskmsg_locked(struct sock *sk,
+ 				     struct espintcp_msg *emsg, int flags)
+ {
+-	struct msghdr msghdr = { .msg_flags = flags | MSG_SPLICE_PAGES, };
++	struct msghdr msghdr = {
++		.msg_flags = flags | MSG_SPLICE_PAGES | MSG_MORE,
++	};
+ 	struct sk_msg *skmsg = &emsg->skmsg;
++	bool more = flags & MSG_MORE;
+ 	struct scatterlist *sg;
+ 	int done = 0;
+ 	int ret;
+ 
+-	msghdr.msg_flags |= MSG_SENDPAGE_NOTLAST;
+ 	sg = &skmsg->sg.data[skmsg->sg.start];
+ 	do {
+ 		struct bio_vec bvec;
+@@ -221,8 +223,8 @@ static int espintcp_sendskmsg_locked(struct sock *sk,
+ 
+ 		emsg->offset = 0;
+ 
+-		if (sg_is_last(sg))
+-			msghdr.msg_flags &= ~MSG_SENDPAGE_NOTLAST;
++		if (sg_is_last(sg) && !more)
++			msghdr.msg_flags &= ~MSG_MORE;
+ 
+ 		p = sg_page(sg);
+ retry:
 
