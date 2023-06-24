@@ -2,211 +2,261 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D61DC001DE
-	for <linux-s390@archiver.kernel.org>; Fri, 23 Jun 2023 22:57:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D7D4EB64DA
+	for <linux-s390@archiver.kernel.org>; Sat, 24 Jun 2023 12:46:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232525AbjFWW5E (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 23 Jun 2023 18:57:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37766 "EHLO
+        id S229704AbjFXMqo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 24 Jun 2023 08:46:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232515AbjFWW5C (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 23 Jun 2023 18:57:02 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CDAA2735
-        for <linux-s390@vger.kernel.org>; Fri, 23 Jun 2023 15:55:45 -0700 (PDT)
+        with ESMTP id S229584AbjFXMqn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 24 Jun 2023 08:46:43 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAA7A1981
+        for <linux-s390@vger.kernel.org>; Sat, 24 Jun 2023 05:45:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1687560945;
+        s=mimecast20190719; t=1687610747;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=PSe/ILwvcvKNAe9EBhS3HTJsxWKySCoAZiMEUxcxN8I=;
-        b=CIyvN4vPDT7XfnBZhLvW9XvwhKh4Use48907KtNc3WX7/1GtTWeb+5x7MjtCkr0L4Q8spv
-        F0fOg6ovoMkjINkJIdnXygJ2OQpK3QsdS+oUWNECKCJJR4905oelk5hWExY21nXbFLRSKw
-        cwOZgRJnFmEEp6BBHTYWedijhS32tgI=
+        bh=U2CS/MHrcK2qAcbibQs0p6Mzwq91ZIK5MauV6h2MC84=;
+        b=QLVP3U04JmpOB3Bf984763XxKmEI8ZDqGwImQE0iwfbOmyad2/mIZGTK5S4927AsBfsSiF
+        tyYPvM5ZAo8224BEZ0qFVJmDpkHpG7aIhRieKgE+GYjf4NRbFG8i5i3jMbPBNyl6IxHBQH
+        bxVo3BnBeoq31r7sK11SIj9WNroFabM=
 Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
  [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-435-6ad3DI-XOqS6VIWlsOJ3Ag-1; Fri, 23 Jun 2023 18:55:43 -0400
-X-MC-Unique: 6ad3DI-XOqS6VIWlsOJ3Ag-1
-Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
+ us-mta-130-SmHjZj3eMLi0FocPi9i6Ag-1; Sat, 24 Jun 2023 08:45:43 -0400
+X-MC-Unique: SmHjZj3eMLi0FocPi9i6Ag-1
+Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com [10.11.54.10])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id A924B3804521;
-        Fri, 23 Jun 2023 22:55:42 +0000 (UTC)
-Received: from warthog.procyon.org.com (unknown [10.42.28.4])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 95903492B01;
-        Fri, 23 Jun 2023 22:55:40 +0000 (UTC)
-From:   David Howells <dhowells@redhat.com>
-To:     netdev@vger.kernel.org
-Cc:     David Howells <dhowells@redhat.com>,
-        Alexander Duyck <alexander.duyck@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
-        David Ahern <dsahern@kernel.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        Jens Axboe <axboe@kernel.dk>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, Karsten Graul <kgraul@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Jan Karcher <jaka@linux.ibm.com>,
-        "D. Wythe" <alibuda@linux.alibaba.com>,
-        Tony Lu <tonylu@linux.alibaba.com>,
-        Wen Gu <guwen@linux.alibaba.com>, linux-s390@vger.kernel.org
-Subject: [PATCH net-next v5 09/16] smc: Drop smc_sendpage() in favour of smc_sendmsg() + MSG_SPLICE_PAGES
-Date:   Fri, 23 Jun 2023 23:55:06 +0100
-Message-ID: <20230623225513.2732256-10-dhowells@redhat.com>
-In-Reply-To: <20230623225513.2732256-1-dhowells@redhat.com>
-References: <20230623225513.2732256-1-dhowells@redhat.com>
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id ABB1F1C05AD4;
+        Sat, 24 Jun 2023 12:45:41 +0000 (UTC)
+Received: from localhost (ovpn-12-72.pek2.redhat.com [10.72.12.72])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 9A54240D1A4;
+        Sat, 24 Jun 2023 12:45:39 +0000 (UTC)
+Date:   Sat, 24 Jun 2023 20:45:35 +0800
+From:   Baoquan He <bhe@redhat.com>
+To:     Nathan Chancellor <nathan@kernel.org>, schnelle@linux.ibm.com
+Cc:     kernel test robot <lkp@intel.com>, linux-kernel@vger.kernel.org,
+        oe-kbuild-all@lists.linux.dev, linux-arch@vger.kernel.org,
+        linux-mm@kvack.org, arnd@arndb.de, hch@lst.de,
+        christophe.leroy@csgroup.eu, rppt@kernel.org, willy@infradead.org,
+        agordeev@linux.ibm.com, wangkefeng.wang@huawei.com,
+        David.Laight@aculab.com, shorne@gmail.com, deller@gmx.de,
+        glaubitz@physik.fu-berlin.de,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v7 10/19] s390: mm: Convert to GENERIC_IOREMAP
+Message-ID: <ZJblb6NeS9GZaHuI@MiWiFi-R3L-srv>
+References: <20230620131356.25440-11-bhe@redhat.com>
+ <202306211329.ticOJCSv-lkp@intel.com>
+ <ZJLTxUOCEMh6l/El@MiWiFi-R3L-srv>
+ <20230621192133.GB842758@dev-arch.thelio-3990X>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230621192133.GB842758@dev-arch.thelio-3990X>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.10
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Drop the smc_sendpage() code as smc_sendmsg() just passes the call down to
-the underlying TCP socket and smc_tx_sendpage() is just a wrapper around
-its sendmsg implementation.
+On 06/21/23 at 07:21pm, Nathan Chancellor wrote:
+> On Wed, Jun 21, 2023 at 06:41:09PM +0800, Baoquan He wrote:
+> > Hi,
+> > 
+> > On 06/21/23 at 01:43pm, kernel test robot wrote:
+> > > Hi Baoquan,
+> > > 
+> > > kernel test robot noticed the following build errors:
+> > > 
+> > > [auto build test ERROR on akpm-mm/mm-everything]
+> > > 
+> > > url:    https://github.com/intel-lab-lkp/linux/commits/Baoquan-He/asm-generic-iomap-h-remove-ARCH_HAS_IOREMAP_xx-macros/20230620-212135
+> > > base:   https://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm.git mm-everything
+> > > patch link:    https://lore.kernel.org/r/20230620131356.25440-11-bhe%40redhat.com
+> > > patch subject: [PATCH v7 10/19] s390: mm: Convert to GENERIC_IOREMAP
+> > > config: s390-allmodconfig (https://download.01.org/0day-ci/archive/20230621/202306211329.ticOJCSv-lkp@intel.com/config)
+> > > compiler: s390-linux-gcc (GCC) 12.3.0
+> > > reproduce: (https://download.01.org/0day-ci/archive/20230621/202306211329.ticOJCSv-lkp@intel.com/reproduce)
+> > 
+> > Thanks for reporting this.
+> > 
+> > I followed steps in above reproduce link, it failed as below. Please
+> > help check if anything is missing.
+> > 
+> > [root@intel-knightslanding-lb-02 linux]# COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.3.0 ~/bin/make.cross W=1 O=build_dir ARCH=s390 olddefconfig
+> > Compiler will be installed in /root/0day
+> > lftpget -c https://download.01.org/0day-ci/cross-package/./gcc-12.3.0-nolibc/x86_64-gcc-12.3.0-nolibc_s390-linux.tar.xz
+> > /root/linux                                                                                          
+> > tar Jxf /root/0day/gcc-12.3.0-nolibc/x86_64-gcc-12.3.0-nolibc_s390-linux.tar.xz -C /root/0day
+> > Please update: libc6 or glibc
+> > ldd /root/0day/gcc-12.3.0-nolibc/s390-linux/bin/s390-linux-gcc
+> > /root/0day/gcc-12.3.0-nolibc/s390-linux/bin/s390-linux-gcc: /lib64/libc.so.6: version `GLIBC_2.36' not found (required by /root/0day/gcc-12.3.0-nolibc/s390-linux/bin/s390-linux-gcc)
+> > setup_crosstool failed
+> 
+> Certain recent versions of the kernel.org crosstool toolchains were
+> built against a pretty recent glibc so attempting to run it on a system
+> with an older glibc will result in the error above:
+> 
+> https://lore.kernel.org/87mt2eoopo.fsf@kernel.org/
+> 
+> Arnd resolved this and reuploaded the binaries, I suspect the Intel
+> folks need to mirror the updated tarballs to 01.org:
+> 
+> https://lore.kernel.org/e9601db2-ff7d-4490-abd5-8d3c5946e108@app.fastmail.com/
+> 
+> According to make.cross, you can override the URL it uses with a
+> variable, you could try removing these files
+> 
+>   /root/0day/gcc-12.3.0-nolibc/s390-linux
+>   /root/0day/gcc-12.3.0-nolibc/x86_64-gcc-12.3.0-nolibc_s390-linux.tar.xz
+> 
+> and running
+> 
+>   $ COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.3.0 URL=https://mirrors.edge.kernel.org/pub/tools/crosstool/files/bin/x86_64 ~/bin/make.cross W=1 O=build_dir ARCH=s390 olddefconfig
+> 
+> to see if that works now.
 
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Karsten Graul <kgraul@linux.ibm.com>
-cc: Wenjia Zhang <wenjia@linux.ibm.com>
-cc: Jan Karcher <jaka@linux.ibm.com>
-cc: "D. Wythe" <alibuda@linux.alibaba.com>
-cc: Tony Lu <tonylu@linux.alibaba.com>
-cc: Wen Gu <guwen@linux.alibaba.com>
-cc: "David S. Miller" <davem@davemloft.net>
-cc: Eric Dumazet <edumazet@google.com>
-cc: Jakub Kicinski <kuba@kernel.org>
-cc: Paolo Abeni <pabeni@redhat.com>
-cc: Jens Axboe <axboe@kernel.dk>
-cc: Matthew Wilcox <willy@infradead.org>
-cc: linux-s390@vger.kernel.org
-cc: netdev@vger.kernel.org
----
- net/smc/af_smc.c    | 29 -----------------------------
- net/smc/smc_stats.c |  2 +-
- net/smc/smc_stats.h |  1 -
- net/smc/smc_tx.c    | 19 -------------------
- net/smc/smc_tx.h    |  2 --
- 5 files changed, 1 insertion(+), 52 deletions(-)
+Thanks a lot for your help, Nathan. Really appreciated.
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 538e9c6ec8c9..a7f887d91d89 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -3133,34 +3133,6 @@ static int smc_ioctl(struct socket *sock, unsigned int cmd,
- 	return put_user(answ, (int __user *)arg);
- }
+Above make olddefconfig command works well, however the building failed
+either becuase of lack of gmp.h. I am not familiar with the manipulation
+of lkp building, so I gave up after attempt.
+
+======
+I finally got a s390x kvm guest from redhat lab, fetched the config file
+lkp provided and build, I can reproduce those errors and more similar
+errors are catched.
+
+CONFIG_MMU=y
+# CONFIG_PCI is not set
+
+From investigation, I see the lkp config enabled MMU, but disabled PCI.
+So those drivers which call ioremap()/iounmap() or their devm_xxxx
+wrappers will fail building because s390's iomem operations rely on
+pci support enabling. So I just change to make these drivers depend on
+HAS_IOMEM so that it won't be built. The draft change is pasted at
+below.
+
+Hi Niklas,
+
+I remember you ever entioned you would work out patches to solve those
+those drivers relying on devm_xxx(), not sure if they are related to the
+compiling error I met here. If I said the right thing, do you have plan
+to post them? If what you ever said is different thing, or do you have
+suggestion for below change, should I post them like this or need some
+adjustment? Look forward to your comments, thanks in advance.
+
+diff --git a/drivers/char/xillybus/Kconfig b/drivers/char/xillybus/Kconfig
+index a8036dad437e..f51d533390a9 100644
+--- a/drivers/char/xillybus/Kconfig
++++ b/drivers/char/xillybus/Kconfig
+@@ -29,7 +29,7 @@ config XILLYBUS_PCIE
  
--static ssize_t smc_sendpage(struct socket *sock, struct page *page,
--			    int offset, size_t size, int flags)
--{
--	struct sock *sk = sock->sk;
--	struct smc_sock *smc;
--	int rc = -EPIPE;
--
--	smc = smc_sk(sk);
--	lock_sock(sk);
--	if (sk->sk_state != SMC_ACTIVE) {
--		release_sock(sk);
--		goto out;
--	}
--	release_sock(sk);
--	if (smc->use_fallback) {
--		rc = kernel_sendpage(smc->clcsock, page, offset,
--				     size, flags);
--	} else {
--		lock_sock(sk);
--		rc = smc_tx_sendpage(smc, page, offset, size, flags);
--		release_sock(sk);
--		SMC_STAT_INC(smc, sendpage_cnt);
--	}
--
--out:
--	return rc;
--}
--
- /* Map the affected portions of the rmbe into an spd, note the number of bytes
-  * to splice in conn->splice_pending, and press 'go'. Delays consumer cursor
-  * updates till whenever a respective page has been fully processed.
-@@ -3232,7 +3204,6 @@ static const struct proto_ops smc_sock_ops = {
- 	.sendmsg	= smc_sendmsg,
- 	.recvmsg	= smc_recvmsg,
- 	.mmap		= sock_no_mmap,
--	.sendpage	= smc_sendpage,
- 	.splice_read	= smc_splice_read,
- };
+ config XILLYBUS_OF
+ 	tristate "Xillybus over Device Tree"
+-	depends on OF && HAS_DMA
++	depends on OF && HAS_DMA && HAS_IOMEM
+ 	help
+ 	  Set to M if you want Xillybus to find its resources from the
+ 	  Open Firmware Flattened Device Tree. If the target is an embedded
+diff --git a/drivers/clk/Kconfig b/drivers/clk/Kconfig
+index 016814e15536..52dfbae4f361 100644
+--- a/drivers/clk/Kconfig
++++ b/drivers/clk/Kconfig
+@@ -444,6 +444,7 @@ config COMMON_CLK_BD718XX
+ config COMMON_CLK_FIXED_MMIO
+ 	bool "Clock driver for Memory Mapped Fixed values"
+ 	depends on COMMON_CLK && OF
++	depends on HAS_IOMEM
+ 	help
+ 	  Support for Memory Mapped IO Fixed clocks
  
-diff --git a/net/smc/smc_stats.c b/net/smc/smc_stats.c
-index e80e34f7ac15..ca14c0f3a07d 100644
---- a/net/smc/smc_stats.c
-+++ b/net/smc/smc_stats.c
-@@ -227,7 +227,7 @@ static int smc_nl_fill_stats_tech_data(struct sk_buff *skb,
- 			      SMC_NLA_STATS_PAD))
- 		goto errattr;
- 	if (nla_put_u64_64bit(skb, SMC_NLA_STATS_T_SENDPAGE_CNT,
--			      smc_tech->sendpage_cnt,
-+			      0,
- 			      SMC_NLA_STATS_PAD))
- 		goto errattr;
- 	if (nla_put_u64_64bit(skb, SMC_NLA_STATS_T_CORK_CNT,
-diff --git a/net/smc/smc_stats.h b/net/smc/smc_stats.h
-index 84b7ecd8c05c..b60fe1eb37ab 100644
---- a/net/smc/smc_stats.h
-+++ b/net/smc/smc_stats.h
-@@ -71,7 +71,6 @@ struct smc_stats_tech {
- 	u64			clnt_v2_succ_cnt;
- 	u64			srv_v1_succ_cnt;
- 	u64			srv_v2_succ_cnt;
--	u64			sendpage_cnt;
- 	u64			urg_data_cnt;
- 	u64			splice_cnt;
- 	u64			cork_cnt;
-diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
-index 9b9e0a190734..3b0ff3b589c7 100644
---- a/net/smc/smc_tx.c
-+++ b/net/smc/smc_tx.c
-@@ -297,25 +297,6 @@ int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len)
- 	return rc;
- }
+diff --git a/drivers/dma/Kconfig b/drivers/dma/Kconfig
+index f5f422f9b850..b6221b4432fd 100644
+--- a/drivers/dma/Kconfig
++++ b/drivers/dma/Kconfig
+@@ -211,6 +211,7 @@ config FSL_DMA
+ config FSL_EDMA
+ 	tristate "Freescale eDMA engine support"
+ 	depends on OF
++	depends on HAS_IOMEM
+ 	select DMA_ENGINE
+ 	select DMA_VIRTUAL_CHANNELS
+ 	help
+@@ -280,6 +281,7 @@ config IMX_SDMA
  
--int smc_tx_sendpage(struct smc_sock *smc, struct page *page, int offset,
--		    size_t size, int flags)
--{
--	struct msghdr msg = {.msg_flags = flags};
--	char *kaddr = kmap(page);
--	struct kvec iov;
--	int rc;
--
--	if (flags & MSG_SENDPAGE_NOTLAST)
--		msg.msg_flags |= MSG_MORE;
--
--	iov.iov_base = kaddr + offset;
--	iov.iov_len = size;
--	iov_iter_kvec(&msg.msg_iter, ITER_SOURCE, &iov, 1, size);
--	rc = smc_tx_sendmsg(smc, &msg, size);
--	kunmap(page);
--	return rc;
--}
--
- /***************************** sndbuf consumer *******************************/
+ config INTEL_IDMA64
+ 	tristate "Intel integrated DMA 64-bit support"
++	depends on HAS_IOMEM
+ 	select DMA_ENGINE
+ 	select DMA_VIRTUAL_CHANNELS
+ 	help
+diff --git a/drivers/dma/qcom/Kconfig b/drivers/dma/qcom/Kconfig
+index 3f926a653bd8..ace75d7b835a 100644
+--- a/drivers/dma/qcom/Kconfig
++++ b/drivers/dma/qcom/Kconfig
+@@ -45,6 +45,7 @@ config QCOM_HIDMA_MGMT
  
- /* sndbuf consumer: actual data transfer of one target chunk with ISM write */
-diff --git a/net/smc/smc_tx.h b/net/smc/smc_tx.h
-index 34b578498b1f..a59f370b8b43 100644
---- a/net/smc/smc_tx.h
-+++ b/net/smc/smc_tx.h
-@@ -31,8 +31,6 @@ void smc_tx_pending(struct smc_connection *conn);
- void smc_tx_work(struct work_struct *work);
- void smc_tx_init(struct smc_sock *smc);
- int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len);
--int smc_tx_sendpage(struct smc_sock *smc, struct page *page, int offset,
--		    size_t size, int flags);
- int smc_tx_sndbuf_nonempty(struct smc_connection *conn);
- void smc_tx_sndbuf_nonfull(struct smc_sock *smc);
- void smc_tx_consumer_update(struct smc_connection *conn, bool force);
+ config QCOM_HIDMA
+ 	tristate "Qualcomm Technologies HIDMA Channel support"
++	depends on HAS_IOMEM
+ 	select DMA_ENGINE
+ 	help
+ 	  Enable support for the Qualcomm Technologies HIDMA controller.
+diff --git a/drivers/irqchip/Kconfig b/drivers/irqchip/Kconfig
+index 09e422da482f..4b9036c6d45b 100644
+--- a/drivers/irqchip/Kconfig
++++ b/drivers/irqchip/Kconfig
+@@ -89,6 +89,7 @@ config ALPINE_MSI
+ config AL_FIC
+ 	bool "Amazon's Annapurna Labs Fabric Interrupt Controller"
+ 	depends on OF
++	depends on HAS_IOMEM
+ 	select GENERIC_IRQ_CHIP
+ 	select IRQ_DOMAIN
+ 	help
+diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
+index 433aa4197785..1d2b176a0594 100644
+--- a/drivers/misc/Kconfig
++++ b/drivers/misc/Kconfig
+@@ -496,6 +496,7 @@ config HISI_HIKEY_USB
+ config OPEN_DICE
+ 	tristate "Open Profile for DICE driver"
+ 	depends on OF_RESERVED_MEM
++	depends on HAS_IOMEM
+ 	help
+ 	  This driver exposes a DICE reserved memory region to userspace via
+ 	  a character device. The memory region contains Compound Device
+diff --git a/drivers/net/ethernet/altera/Kconfig b/drivers/net/ethernet/altera/Kconfig
+index dd7fd41ccde5..33927fdfff28 100644
+--- a/drivers/net/ethernet/altera/Kconfig
++++ b/drivers/net/ethernet/altera/Kconfig
+@@ -2,6 +2,7 @@
+ config ALTERA_TSE
+ 	tristate "Altera Triple-Speed Ethernet MAC support"
+ 	depends on HAS_DMA
++	depends on HAS_IOMEM
+ 	select PHYLIB
+ 	select PHYLINK
+ 	select PCS_ALTERA_TSE
+diff --git a/drivers/of/Kconfig b/drivers/of/Kconfig
+index e40f10bf2ba4..da9826accb1b 100644
+--- a/drivers/of/Kconfig
++++ b/drivers/of/Kconfig
+@@ -55,7 +55,7 @@ config OF_FLATTREE
+ 
+ config OF_EARLY_FLATTREE
+ 	bool
+-	select DMA_DECLARE_COHERENT if HAS_DMA
++	select DMA_DECLARE_COHERENT if HAS_DMA && HAS_IOMEM
+ 	select OF_FLATTREE
+ 
+ config OF_PROMTREE
 
