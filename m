@@ -2,231 +2,210 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 32917EB64D7
-	for <linux-s390@archiver.kernel.org>; Mon, 26 Jun 2023 13:02:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DBB75EB64D7
+	for <linux-s390@archiver.kernel.org>; Mon, 26 Jun 2023 13:35:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231288AbjFZNCN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 26 Jun 2023 09:02:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52304 "EHLO
+        id S230111AbjFZNfb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 26 Jun 2023 09:35:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231263AbjFZNCJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Jun 2023 09:02:09 -0400
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 482ECD2;
-        Mon, 26 Jun 2023 06:02:04 -0700 (PDT)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id CF2D62F4;
-        Mon, 26 Jun 2023 06:02:47 -0700 (PDT)
-Received: from FVFF77S0Q05N (unknown [10.57.23.38])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 14E543F64C;
-        Mon, 26 Jun 2023 06:01:57 -0700 (PDT)
-Date:   Mon, 26 Jun 2023 14:01:55 +0100
-From:   Mark Rutland <mark.rutland@arm.com>
-To:     Andy Lutomirski <luto@kernel.org>
-Cc:     Mike Rapoport <rppt@kernel.org>, Kees Cook <keescook@chromium.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Helge Deller <deller@gmx.de>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Kent Overstreet <kent.overstreet@linux.dev>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Puranjay Mohan <puranjay12@gmail.com>,
-        Rick P Edgecombe <rick.p.edgecombe@intel.com>,
-        "Russell King (Oracle)" <linux@armlinux.org.uk>,
-        Song Liu <song@kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will@kernel.org>, bpf@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-        linux-mm@kvack.org, linux-modules@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
-        netdev@vger.kernel.org, sparclinux@vger.kernel.org,
-        the arch/x86 maintainers <x86@kernel.org>
-Subject: Re: [PATCH v2 02/12] mm: introduce execmem_text_alloc() and
- jit_text_alloc()
-Message-ID: <ZJmMQ62fW7RO5W2O@FVFF77S0Q05N>
-References: <20230616085038.4121892-1-rppt@kernel.org>
- <20230616085038.4121892-3-rppt@kernel.org>
- <f9a7eebe-d36e-4587-b99d-35d4edefdd14@app.fastmail.com>
- <20230618080027.GA52412@kernel.org>
- <a17c65c6-863f-4026-9c6f-a04b659e9ab4@app.fastmail.com>
+        with ESMTP id S230013AbjFZNf2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Jun 2023 09:35:28 -0400
+Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C02441B7;
+        Mon, 26 Jun 2023 06:35:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1687786523; x=1719322523;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=4DH85UHNS/l/RAF9dlScf8SC7+IDSTRC/TPMt6oTZtY=;
+  b=bWOyElsbCCIdXvqk1IayTC7eISKWQW6B3PVB2n2aVE0wB5ENzewKAt/7
+   fnMbhozbJHn9nNJ/FLt4eLT3D5X2/tE4S1Yn4k1eCABc+mNBjohtkxlZY
+   rXO3NDNnCdO9g70RsTmYkQ/hWl8H5lXudpibxHbqR50Wdlw9HPBBVt7x7
+   qmhv/ufrGzp5NU90usADXW9wYApBQsoOLysns6N20Iwxgl/2UWfX21h6i
+   d7J76QBnEzDy2AQAuPcNIGuHfuTG2ZXyWneIUm1DDj2xZ61WYb3xL0zpi
+   8pvnNPwzBWBiUI5jRFZD2Eqx3aZSaAmmI2/kKBzkW7DiMFGY2VSl81qYx
+   g==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10753"; a="391577895"
+X-IronPort-AV: E=Sophos;i="6.01,159,1684825200"; 
+   d="scan'208";a="391577895"
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Jun 2023 06:35:22 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10753"; a="806048842"
+X-IronPort-AV: E=Sophos;i="6.01,159,1684825200"; 
+   d="scan'208";a="806048842"
+Received: from orsmsx602.amr.corp.intel.com ([10.22.229.15])
+  by FMSMGA003.fm.intel.com with ESMTP; 26 Jun 2023 06:35:20 -0700
+Received: from orsmsx611.amr.corp.intel.com (10.22.229.24) by
+ ORSMSX602.amr.corp.intel.com (10.22.229.15) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.27; Mon, 26 Jun 2023 06:35:19 -0700
+Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
+ ORSMSX611.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.27; Mon, 26 Jun 2023 06:35:19 -0700
+Received: from ORSEDG601.ED.cps.intel.com (10.7.248.6) by
+ orsmsx610.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.27 via Frontend Transport; Mon, 26 Jun 2023 06:35:19 -0700
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com (104.47.57.170)
+ by edgegateway.intel.com (134.134.137.102) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.23; Mon, 26 Jun 2023 06:35:18 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Ihvj4y6gy9cO2/zoWpGvWg5TvSECTRlNiP8BrJjxTH78mF/hSMVeplblrpt2kby3RNJbp2FqNemEO1jG9p9WodeFP+JVg/Gn40pobrJCu3bNGKFgVmYcPwy4nUf8zyi9WR1W26FeVUmpA6sbyO3VWh1mn2YpgfmQeSf63RlRfm3U5Gx7Ftq3nAdwFlp5Bju3gh2Gq4Z1lWySrYuJOeJTFy99jLw9UcSlAraf/E7mpxMHdG17DN5r7O+V9fIo7FRwfzniZLTDJYUXDDjjj4/0HnVnxf2QoKl9CYsbrI9w9W/OKaE8CuGe5vyCIzunKmONKF0hKLz/l94VvZ0LHs22PA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=nhdiud/tZp8owJJQ5G8JSNnC4OoBUBDbrilrT0oQUFY=;
+ b=mEVTmNcvzImy8xlP2Jc+7cVCKJ21DWUiKKN6Qece7GBXA2kg47VTw4u2P5vcrSvVfW4Pq/v/5kHPqrW7ukqXSrx6XIze9DQerlT5I/0JcG8xXrLV5fCTBBGFZ4VvdanYNYPYxeKaGAzu8i73LaThNvcW0u2MjhJ/nEOpiGYPI4IHMf1AMjp9UqFNCj3gbeHSnsnIo0bUrzxqub/gx04BWuP4eAeyppsE+hfII/3GSHe7hqbQTvDslVEQBxcK58A5UuHk+2uG90YmjkqQDg1YSBXvQY5Ck1GoSIlmnIxixD05VdAIWZyOq4ejrjRGeErDcmG7SZcTy1EhM77P8GMNow==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from DS0PR11MB7529.namprd11.prod.outlook.com (2603:10b6:8:141::20)
+ by SA2PR11MB4811.namprd11.prod.outlook.com (2603:10b6:806:11d::17) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6521.24; Mon, 26 Jun
+ 2023 13:35:16 +0000
+Received: from DS0PR11MB7529.namprd11.prod.outlook.com
+ ([fe80::e7db:878:dfab:826d]) by DS0PR11MB7529.namprd11.prod.outlook.com
+ ([fe80::e7db:878:dfab:826d%3]) with mapi id 15.20.6521.023; Mon, 26 Jun 2023
+ 13:35:16 +0000
+From:   "Liu, Yi L" <yi.l.liu@intel.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>
+CC:     "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
+        "Tian, Kevin" <kevin.tian@intel.com>,
+        "joro@8bytes.org" <joro@8bytes.org>,
+        "robin.murphy@arm.com" <robin.murphy@arm.com>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "eric.auger@redhat.com" <eric.auger@redhat.com>,
+        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
+        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
+        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
+        "peterx@redhat.com" <peterx@redhat.com>,
+        "jasowang@redhat.com" <jasowang@redhat.com>,
+        "shameerali.kolothum.thodi@huawei.com" 
+        <shameerali.kolothum.thodi@huawei.com>,
+        "lulu@redhat.com" <lulu@redhat.com>,
+        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
+        "intel-gvt-dev@lists.freedesktop.org" 
+        <intel-gvt-dev@lists.freedesktop.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "Hao, Xudong" <xudong.hao@intel.com>,
+        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
+        "Xu, Terrence" <terrence.xu@intel.com>,
+        "Jiang, Yanting" <yanting.jiang@intel.com>,
+        "Duan, Zhenzhong" <zhenzhong.duan@intel.com>,
+        "clegoate@redhat.com" <clegoate@redhat.com>
+Subject: RE: [PATCH v12 18/24] vfio: Add VFIO_DEVICE_BIND_IOMMUFD
+Thread-Topic: [PATCH v12 18/24] vfio: Add VFIO_DEVICE_BIND_IOMMUFD
+Thread-Index: AQHZlUw0PINbjPidUkeXtdGCTAzTl6+YsS6AgAQ157CAAEl6gIAACkuw
+Date:   Mon, 26 Jun 2023 13:35:16 +0000
+Message-ID: <DS0PR11MB75291F4581566C7B78DC110CC326A@DS0PR11MB7529.namprd11.prod.outlook.com>
+References: <20230602121653.80017-1-yi.l.liu@intel.com>
+ <20230602121653.80017-19-yi.l.liu@intel.com> <ZJXFEbmY7BOW6QIe@nvidia.com>
+ <DS0PR11MB752904E31251E05619A442B9C326A@DS0PR11MB7529.namprd11.prod.outlook.com>
+ <ZJmK6ensADJS/kms@nvidia.com>
+In-Reply-To: <ZJmK6ensADJS/kms@nvidia.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: DS0PR11MB7529:EE_|SA2PR11MB4811:EE_
+x-ms-office365-filtering-correlation-id: f8d20670-7112-41ae-d185-08db764a2d99
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: 4cTlNoMXOdcuB4omhQ4SYWWjFbi8DBERw+UI5173o+fJ6gOX4UAFEvzIJJnUCmEftJOnjGLbZksI1oO8n+p+kIl6OcqJi9pt5pt9KIkYU5y/47AQnmbz6KEd35V42AW6o/C3dM6477C6WRB5KXVCwxig+UuGB8x1z84/30pJeDV4TovSk3MRysbzVC2jSXeEwaCopf4MqOa6/c+Gi1LI4RE8sGihq/Zlc3QIxuiMLTZVoQidJ/qP28oUp4AGt0VntFwMyiqi7OP549BpBE/HD1M6L6Kr4mrtRm79qOmoNkO8OLx7VJ44FfXNTcUZ1RpdLvdXLlF93CJVrFSJ/wbFOs2IJD4Ob8m8X1yeyv3LridICJLdB1tH9MKr0xSNaZTT4z0Coij1NUFJ+60tJv3T/hWO5zJ4bi2ucCTMuYzf2KQdMkcVN729N7Z+IYlitFSXyOVWcKSI2Y0IP+UH8f4SQ1Kmh5Of1ZORFCZw/rZTGF0GJ61HmEzjoR7TW/2j6OqkK8+41fGAexvJSvjniIeQoCb6hCxmcehw2mxQ8NRDUGR4P+NS/IpbONl5brkbj6q3PI9R0d4sQdvW7hEZUsBI+wfqz3uWVOlHL2LJZzlyR5Q=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR11MB7529.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(346002)(396003)(376002)(136003)(366004)(39860400002)(451199021)(478600001)(54906003)(7696005)(71200400001)(83380400001)(26005)(186003)(9686003)(6506007)(66446008)(2906002)(5660300002)(7416002)(52536014)(33656002)(38100700002)(122000001)(4326008)(66946007)(55016003)(82960400001)(76116006)(316002)(86362001)(8936002)(8676002)(41300700001)(6916009)(38070700005)(66556008)(64756008)(66476007);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?XF7jJ5/FqS4q2OkcQBohv4pxcXonat6tEo88d/sXFKJa4f4HeY3oQvJdREb6?=
+ =?us-ascii?Q?Fa+gFrrnKN+NgzlPa9rixuUkaYvuVWWoi5qoBJd1v8qZFAn4CApp7V2S6Pcp?=
+ =?us-ascii?Q?+sgeHVloehMp3dS2lrx/5+6hDYWWOThkvejcHt4ONTXetfBMGXlag0Rfc0vP?=
+ =?us-ascii?Q?zdn+AlY8/+CR87cOt9DyB55tZAt0JR8U43i4wKgGpjfLDOHoi7BmfdcbFnEW?=
+ =?us-ascii?Q?n8ezeIZ6OGhl4/CcKquBn787nQ9s6etnQQOb0Ozv0GgS5EM7MgLm92x00GsX?=
+ =?us-ascii?Q?aFiGzH7DNzmBMaQaXq5s5s8WoxAxJaWN/lYEnBRmZoUti/uvPpUsriUjQhJF?=
+ =?us-ascii?Q?Zkg4AbwROOcjIL0mFOQeUXqh4yUscknF856p/adC7E+2dvs0aHmJzMaDXDhZ?=
+ =?us-ascii?Q?9s3IWiK2aG1S2xFCjTcz9NJfjH/kNG/LXtIJPESqFclxAox7i8efiDIJ0Xbj?=
+ =?us-ascii?Q?hlH0JGZbnAXzycv+zwQzuNv7phmUEaz1i+yWxsxWcfThlLjKh3JBGVB8Wyjo?=
+ =?us-ascii?Q?bBYbs6gFwYkaDuWbLnHNAOl0DyMcWL3IHpudWdoAavEnanIY34W22lxa6GSS?=
+ =?us-ascii?Q?qwpDdjTcG5p9JnZzIfKMVlovthhPjXe8HAI4oeS0DJG7g9n4ms0Gb7oNkmNu?=
+ =?us-ascii?Q?EZ20q8nwSU/Go90aaWF5GULERt80nHC3YZBWMmZcLhjRROzxVay4Mz4eQulS?=
+ =?us-ascii?Q?RnAVCO4MgGcgJVD/pm+jwfLIT24F86jJRPPYuqmPBQAfe0b8I3G0xLA3vEjO?=
+ =?us-ascii?Q?LYbK/UoYu/nQ+WIUMjFLETpHn7bXPOL6VQIPzu8THJUfhH97Qo29B5dJo07c?=
+ =?us-ascii?Q?PYRY/3nzmZCH5bvt4t98ZmQ6aw2wTGILI4mIpPGbmz2JzZcG59+ykvTAZtKq?=
+ =?us-ascii?Q?e0hdLz5OBX9w5aOyeuI5JGDDbWc9JiRkYhaW+oPNkJtG6SR7uSsI+AO+Wj5G?=
+ =?us-ascii?Q?0pfeXzJUMFrUtHBJoYV5J8WsX7+mG3a4Pz8ZmAxq+Uk5a/OPjstIeWX/9+In?=
+ =?us-ascii?Q?3dif0WROLEruwvq7HLgl46iFiQg9YoRNs3xG4UpsnAEqNqiGxZM2Oc4veudv?=
+ =?us-ascii?Q?e7IXpNfM6BNk2rfNK7746W6w8sGoOe7Gn0KxBXnEYEtmPpudXv2y+z2warNs?=
+ =?us-ascii?Q?jggqaKJCL2tMPFR/8jt5PMrMhMY32EuUMAEKNGQQrzh5QeVDe+aKowU6GZ1x?=
+ =?us-ascii?Q?7TUIgyehbilSA3bwNSkWd3N7iGVU2PeLp11doJek4P6c4NA3CGamCx/bPqEr?=
+ =?us-ascii?Q?oYdE2Biv36VvtRE++hLxz8pcYq5QC2y544o+Lpz9dCdRjq8BwQf+XMQXR5Dt?=
+ =?us-ascii?Q?rwumEvh3dWFciFD5uiTptPCnN/PZMAuZ4bO1lE41BjhA//PgHu+JyAricc4k?=
+ =?us-ascii?Q?qZUWSZFke7mJ6a28p1OTXzAXU3sN4Qt4SD8RSrrUeX5AFOVHsnnWyrbTWRls?=
+ =?us-ascii?Q?bPVl4fQKKL+UB9f70dZnu21Y4KrLDOZ0BOqYlwgHhwiwkQdXLD8qKFcK1HD9?=
+ =?us-ascii?Q?iLWZZHipd9IqclAAwF9h6B+sl8ZRI/5OQ0N5w1KN9VZtaGsOyj0V5oTK2zW6?=
+ =?us-ascii?Q?K44l8svJszKO9ZTcyAz8IxA4CTaGjocDq1qxfkTG?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a17c65c6-863f-4026-9c6f-a04b659e9ab4@app.fastmail.com>
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: DS0PR11MB7529.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: f8d20670-7112-41ae-d185-08db764a2d99
+X-MS-Exchange-CrossTenant-originalarrivaltime: 26 Jun 2023 13:35:16.7504
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: V1l2p7bcP7qpM3kgqUuWTDbvZPTPjN/SSoo6Qc0H5ZN4+7von36gpcYgmVst37hvwFoonOjzyWu7O5LQZ1Ha3g==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA2PR11MB4811
+X-OriginatorOrg: intel.com
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Jun 19, 2023 at 10:09:02AM -0700, Andy Lutomirski wrote:
-> On Sun, Jun 18, 2023, at 1:00 AM, Mike Rapoport wrote:
-> > On Sat, Jun 17, 2023 at 01:38:29PM -0700, Andy Lutomirski wrote:
-> >> On Fri, Jun 16, 2023, at 1:50 AM, Mike Rapoport wrote:
-> >> > From: "Mike Rapoport (IBM)" <rppt@kernel.org>
-> >> >
-> >> > module_alloc() is used everywhere as a mean to allocate memory for code.
-> >> >
-> >> > Beside being semantically wrong, this unnecessarily ties all subsystems
-> >> > that need to allocate code, such as ftrace, kprobes and BPF to modules
-> >> > and puts the burden of code allocation to the modules code.
-> >> >
-> >> > Several architectures override module_alloc() because of various
-> >> > constraints where the executable memory can be located and this causes
-> >> > additional obstacles for improvements of code allocation.
-> >> >
-> >> > Start splitting code allocation from modules by introducing
-> >> > execmem_text_alloc(), execmem_free(), jit_text_alloc(), jit_free() APIs.
-> >> >
-> >> > Initially, execmem_text_alloc() and jit_text_alloc() are wrappers for
-> >> > module_alloc() and execmem_free() and jit_free() are replacements of
-> >> > module_memfree() to allow updating all call sites to use the new APIs.
-> >> >
-> >> > The intention semantics for new allocation APIs:
-> >> >
-> >> > * execmem_text_alloc() should be used to allocate memory that must reside
-> >> >   close to the kernel image, like loadable kernel modules and generated
-> >> >   code that is restricted by relative addressing.
-> >> >
-> >> > * jit_text_alloc() should be used to allocate memory for generated code
-> >> >   when there are no restrictions for the code placement. For
-> >> >   architectures that require that any code is within certain distance
-> >> >   from the kernel image, jit_text_alloc() will be essentially aliased to
-> >> >   execmem_text_alloc().
-> >> >
-> >> 
-> >> Is there anything in this series to help users do the appropriate
-> >> synchronization when the actually populate the allocated memory with
-> >> code?  See here, for example:
+> From: Jason Gunthorpe <jgg@nvidia.com>
+> Sent: Monday, June 26, 2023 8:56 PM
+>=20
+> On Mon, Jun 26, 2023 at 08:34:26AM +0000, Liu, Yi L wrote:
+> > > From: Jason Gunthorpe <jgg@nvidia.com>
+> > > Sent: Saturday, June 24, 2023 12:15 AM
 > >
-> > This series only factors out the executable allocations from modules and
-> > puts them in a central place.
-> > Anything else would go on top after this lands.
-> 
-> Hmm.
-> 
-> On the one hand, there's nothing wrong with factoring out common code. On the
-> other hand, this is probably the right time to at least start thinking about
-> synchronization, at least to the extent that it might make us want to change
-> this API.  (I'm not at all saying that this series should require changes --
-> I'm just saying that this is a good time to think about how this should
-> work.)
-> 
-> The current APIs, *and* the proposed jit_text_alloc() API, don't actually
-> look like the one think in the Linux ecosystem that actually intelligently
-> and efficiently maps new text into an address space: mmap().
-> 
-> On x86, you can mmap() an existing file full of executable code PROT_EXEC and
-> jump to it with minimal synchronization (just the standard implicit ordering
-> in the kernel that populates the pages before setting up the PTEs and
-> whatever user synchronization is needed to avoid jumping into the mapping
-> before mmap() finishes).  It works across CPUs, and the only possible way
-> userspace can screw it up (for a read-only mapping of read-only text, anyway)
-> is to jump to the mapping too early, in which case userspace gets a page
-> fault.  Incoherence is impossible, and no one needs to "serialize" (in the
-> SDM sense).
-> 
-> I think the same sequence (from userspace's perspective) works on other
-> architectures, too, although I think more cache management is needed on the
-> kernel's end.  As far as I know, no Linux SMP architecture needs an IPI to
-> map executable text into usermode, but I could easily be wrong.  (IIRC RISC-V
-> has very developer-unfriendly icache management, but I don't remember the
-> details.)
+> > > >  }
+> > > >
+> > > > +static void vfio_device_get_kvm_safe(struct vfio_device_file *df)
+> > > > +{
+> > > > +	spin_lock(&df->kvm_ref_lock);
+> > > > +	if (df->kvm)
+> > > > +		_vfio_device_get_kvm_safe(df->device, df->kvm);
+> > > > +	spin_unlock(&df->kvm_ref_lock);
+> > > > +}
+> > >
+> > > I'm surprised symbol_get() can be called from a spinlock, but it sure
+> > > looks like it can..
+> > >
+> > > Also moving the if kvm is null test into _vfio_device_get_kvm_safe()
+> > > will save a few lines.
+> > >
+> > > Also shouldn't be called _vfio_device...
+> >
+> > Ah, any suggestion on the naming? How about vfio_device_get_kvm_safe_lo=
+cked()?
+>=20
+> I thought you were using _df_ now for these functions?
+>=20
 
-That's my understanding too, with a couple of details:
+I see. Your point is passing df to _vfio_device_get_kvm_safe(() and
+test the df->kvm within it.  Hence rename it to be _df_. I think group
+path should be ok with this change as well. Let me make it.
 
-1) After the copy we perform and complete all the data + instruction cache
-   maintenance *before* marking the mapping as executable.
-
-2) Even *after* the mapping is marked executable, a thread could take a
-   spurious fault on an instruction fetch for the new instructions. One way to
-   think about this is that the CPU attempted to speculate the instructions
-   earlier, saw that the mapping was faulting, and placed a "generate a fault
-   here" operation into its pipeline to generate that later.
-
-   The CPU pipeline/OoO-engine/whatever is effectively a transient cache for
-   operations in-flight which is only ever "invalidated" by a
-   context-synchronization-event (akin to an x86 serializing effect).
-
-   We're only guarnateed to have a new instruction fetch (from the I-cache into
-   the CPU pipeline) after the next context synchronization event (akin to an x86
-   serializing effect), and luckily out exception entry/exit is architecturally
-   guarnateed to provide that (unless we explicitly opt out via a control bit).
-
-I know we're a bit lax with that today: I think we omit the
-context-synchronization-event when enabling ftrace callsites, and worse, for
-static keys. Those are both on my TODO list of nasty problems that require
-careful auditing...
-
-> Of course, using ptrace or any other FOLL_FORCE to modify text on x86 is
-> rather fraught, and I bet many things do it wrong when userspace is
-> multithreaded.  But not in production because it's mostly not used in
-> production.)
-
-I suspect uprobes needs a look too...
-
-I'll need to go dig into all that a bit before I have more of an opinion on the
-shape of the API.
-
-Thanks,
-Mark.
-
-> But jit_text_alloc() can't do this, because the order of operations doesn't
-> match.  With jit_text_alloc(), the executable mapping shows up before the
-> text is populated, so there is no atomic change from not-there to
-> populated-and-executable.  Which means that there is an opportunity for CPUs,
-> speculatively or otherwise, to start filling various caches with intermediate
-> states of the text, which means that various architectures (even x86!) may
-> need serialization.
-> 
-> For eBPF- and module- like use cases, where JITting/code gen is quite
-> coarse-grained, perhaps something vaguely like:
-> 
-> jit_text_alloc() -> returns a handle and an executable virtual address, but does *not* map it there
-> jit_text_write() -> write to that handle
-> jit_text_map() -> map it and synchronize if needed (no sync needed on x86, I think)
-> 
-> could be more efficient and/or safer.
-> 
-> (Modules could use this too.  Getting alternatives right might take some
-> fiddling, because off the top of my head, this doesn't match how it works
-> now.)
-> 
-> To make alternatives easier, this could work, maybe (haven't fully thought it through):
-> 
-> jit_text_alloc()
-> jit_text_map_rw_inplace() -> map at the target address, but RW, !X
-> 
-> write the text and apply alternatives
-> 
-> jit_text_finalize() -> change from RW to RX *and synchronize*
-> 
-> jit_text_finalize() would either need to wait for RCU (possibly extra heavy
-> weight RCU to get "serialization") or send an IPI.
-> 
-> This is slower than the alloc, write, map solution, but allows alternatives
-> to be applied at the final address.
-> 
-> 
-> Even fancier variants where the writing is some using something like
-> use_temporary_mm() might even make sense.
-> 
-> 
-> To what extent does performance matter for the various users?  module loading
-> is slow, and I don't think we care that much.  eBPF loaded is not super fast,
-> and we care to a limited extent.  I *think* the bcachefs use case needs to be
-> very fast, but I'm not sure it can be fast and supportable.
-> 
-> Anyway, food for thought.
-> 
+Regards,
+Yi Liu
