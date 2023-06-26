@@ -2,125 +2,122 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5FA33C3DA40
-	for <linux-s390@archiver.kernel.org>; Mon, 26 Jun 2023 15:23:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A420AEB64D7
+	for <linux-s390@archiver.kernel.org>; Mon, 26 Jun 2023 15:34:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230185AbjFZPXt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 26 Jun 2023 11:23:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44330 "EHLO
+        id S229650AbjFZPec (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 26 Jun 2023 11:34:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229714AbjFZPXr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Jun 2023 11:23:47 -0400
-Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59E24C7;
-        Mon, 26 Jun 2023 08:23:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1687793026; x=1719329026;
-  h=message-id:date:mime-version:subject:to:references:from:
-   in-reply-to:content-transfer-encoding;
-  bh=h8sLHtBTnVZJQ+VK9Mju0L08CrA3iMKmjHrpKD0aiOc=;
-  b=ECe5SCNpphI5xmkgzFTz31oj4jHQN0McmeanHyQ0a7Eap74aUONG/xsy
-   XNNinuQBx0LXj2wjlhUo0n1qQyV2qi+oUq1IdJOlnFYt7Sd7M9hYxsmLO
-   kEutjEhUqOwmAmEX2l6ONDIBeX/oz9EUjj1RwDFfCzcsvFA1IFeOoUzRp
-   DgjQDXHUTf0C7zq4CSBJPhlttopMp6KXm7nrXz+ose0MMQyr4cnWoTgqg
-   vLwW4utIZW8XuUUl6rr1BELvF1PvjcEsj/0aA3flf29pB9TWEwSJBsxbF
-   A9K1qH4YJ+2s+Qu8F14UmUzCHFN3izB0+2y/SZCoSyqtx4bCBOcs+OTFM
-   Q==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10753"; a="358796819"
-X-IronPort-AV: E=Sophos;i="6.01,159,1684825200"; 
-   d="scan'208";a="358796819"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Jun 2023 08:23:22 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10753"; a="781476701"
-X-IronPort-AV: E=Sophos;i="6.01,159,1684825200"; 
-   d="scan'208";a="781476701"
-Received: from mshindo-mobl5.amr.corp.intel.com (HELO [10.212.198.145]) ([10.212.198.145])
-  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Jun 2023 08:23:19 -0700
-Message-ID: <14f91337-ac7d-52f7-bc86-4091bec4d099@intel.com>
-Date:   Mon, 26 Jun 2023 08:23:19 -0700
+        with ESMTP id S231158AbjFZPea (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Jun 2023 11:34:30 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 001391700;
+        Mon, 26 Jun 2023 08:34:25 -0700 (PDT)
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 35QFCXkk007336;
+        Mon, 26 Jun 2023 15:34:25 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=V+Y2cq7WfTk5J2Cr2qDvHL53AGxEkQEk2hsvIhE6LrA=;
+ b=iotVi9/vmNIhnsFl0WuawdTF+mP5ixDGZYAGuIgzgd/98YXGR6IpqAi0/9iwCVsF6TcQ
+ tn1SYrYe8LM6UhgW3wurC4zkRk5pnsprz4l0IEWITZ6sV+zVokPmfaZB+TwhpjMlcb3u
+ G8aMrddYmiHTZpYVLrnZBf+panUobC6ijnbxOJwbuFz9VJFtCNGUc52rJIU5/rimMW0k
+ Msxs+ZjfbT1JgE/zPnOZ76dyXEA0o5or6TD3MSUEQXqoDe5QYKQGB408IrmjkqNfeq4i
+ ZRliUZakmCSY0ZnkLTcHJaHbPluu97H4tfV3Svyzx42EMjd1xBxbOs/ZQwb/aABcsPMX 9g== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rfd420nur-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 26 Jun 2023 15:34:25 +0000
+Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 35QFER1j013459;
+        Mon, 26 Jun 2023 15:34:24 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rfd420nsu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 26 Jun 2023 15:34:24 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 35Q6g7ZX030161;
+        Mon, 26 Jun 2023 15:34:22 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3rdr4518vx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 26 Jun 2023 15:34:22 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 35QFYIE245154586
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 26 Jun 2023 15:34:18 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C8C3120049;
+        Mon, 26 Jun 2023 15:34:18 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 91A1A20040;
+        Mon, 26 Jun 2023 15:34:18 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.152.224.66])
+        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Mon, 26 Jun 2023 15:34:18 +0000 (GMT)
+Date:   Mon, 26 Jun 2023 17:34:17 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Thomas Huth <thuth@redhat.com>
+Cc:     Janosch Frank <frankja@linux.ibm.com>,
+        Nico =?UTF-8?B?QsO2aHI=?= <nrb@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Subject: Re: [kvm-unit-tests PATCH] s390x: Align __bss_end to a halfword
+ boundary
+Message-ID: <20230626173417.6b6b70cd@p-imbrenda>
+In-Reply-To: <20230623093941.448147-1-thuth@redhat.com>
+References: <20230623093941.448147-1-thuth@redhat.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.11.0
-Subject: Re: [PATCH v2 2/2] mm/mmu_gather: send tlb_remove_table_smp_sync IPI
- only to MM CPUs
-Content-Language: en-US
-To:     ypodemsk@redhat.com, mtosatti@redhat.com, ppandit@redhat.com,
-        david@redhat.com, linux@armlinux.org.uk, mpe@ellerman.id.au,
-        npiggin@gmail.com, christophe.leroy@csgroup.eu, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        davem@davemloft.net, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, hpa@zytor.com,
-        keescook@chromium.org, paulmck@kernel.org, frederic@kernel.org,
-        will@kernel.org, peterz@infradead.org, ardb@kernel.org,
-        samitolvanen@google.com, juerg.haefliger@canonical.com,
-        arnd@arndb.de, rmk+kernel@armlinux.org.uk, geert+renesas@glider.be,
-        linus.walleij@linaro.org, akpm@linux-foundation.org,
-        sebastian.reichel@collabora.com, rppt@kernel.org,
-        aneesh.kumar@linux.ibm.com, x86@kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-arch@vger.kernel.org,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org
-References: <20230620144618.125703-1-ypodemsk@redhat.com>
- <20230620144618.125703-3-ypodemsk@redhat.com>
- <680fadba-9104-3914-5175-e207fd3d9246@intel.com>
- <79f29f99fa07c46dbaee7b802cdd7b477b2d8dd1.camel@redhat.com>
- <d0ef9148-3c95-87bb-26f9-ea0920a4faa4@intel.com>
- <cccb5351e48b11e6c657bcfa28632f49cb9cc800.camel@redhat.com>
-From:   Dave Hansen <dave.hansen@intel.com>
-In-Reply-To: <cccb5351e48b11e6c657bcfa28632f49cb9cc800.camel@redhat.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: bzMAVwUB_fzMoREDDJNC8RqcVONxtp4-
+X-Proofpoint-GUID: ifvth31eWlVmbBs-dPIGXRSmvOCVN7c_
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-06-26_13,2023-06-26_02,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ phishscore=0 priorityscore=1501 bulkscore=0 impostorscore=0 adultscore=0
+ malwarescore=0 mlxscore=0 clxscore=1015 spamscore=0 mlxlogscore=999
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2305260000 definitions=main-2306260141
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 6/26/23 07:36, ypodemsk@redhat.com wrote:
-> On Thu, 2023-06-22 at 06:37 -0700, Dave Hansen wrote:
->> On 6/22/23 06:14, ypodemsk@redhat.com wrote:
->>> I will send a new version with the local variable as you suggested
->>> soon.
->>> As for the config name, what about CONFIG_ARCH_HAS_MM_CPUMASK?
->>
->> The confusing part about that name is that mm_cpumask() and
->> mm->cpu_bitmap[] are defined unconditionally.  So, they're *around*
->> unconditionally but just aren't updated.
->>
-> I think your right about the config name,
-> How about the
-> CONFIG_ARCH_USE_MM_CPUMASK?
-> This has the right semantic as these archs use the cpumask field of the
-> mm struct.
+On Fri, 23 Jun 2023 11:39:41 +0200
+Thomas Huth <thuth@redhat.com> wrote:
 
-"USE" is still a command.  It should, at worst, be "USES".  But that's
-still kinda generic.  How about:
-
-	CONFIG_ARCH_UPDATES_MM_CPUMASK
-
-?
-
->> BTW, it would also be nice to have _some_ kind of data behind this
->> patch.
->>
->> Fewer IPIs are better I guess, but it would still be nice if you
->> could say:
->>
->> 	Before this patch, /proc/interrupts showed 123 IPIs/hour for an
->> 	isolated CPU.  After the approach here, it was 0.
->>
->> ... or something.
+> We are using the "larl" instruction to load the address of __bss_end,
+> and this instruction can only deal with even addresses, so we have
+> to make sure that this symbol is aligned accordingly. Otherwise this
+> will cause a failure with the new binutils 2.40 and Clang:
 > 
-> This is part of an ongoing effort to remove IPIs and this one was found
-> via code inspection.
+>  /usr/bin/ld: s390x/cstart64.o(.init+0x6a): misaligned symbol `__bss_end'
+>               (0x2c0d1) for relocation R_390_PC32DBL
+> 
+> Signed-off-by: Thomas Huth <thuth@redhat.com>
 
-OK, so it should be something more like:
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-	This was found via code inspection, but fixing it isn't very
-	important so we didn't bother to test it any more than just
-	making sure the thing still boots when it is applied.
-
-Does that cover it?
+> ---
+>  s390x/flat.lds.S | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/s390x/flat.lds.S b/s390x/flat.lds.S
+> index 0cb7e383..5e91ecac 100644
+> --- a/s390x/flat.lds.S
+> +++ b/s390x/flat.lds.S
+> @@ -37,6 +37,7 @@ SECTIONS
+>  	. = ALIGN(16);
+>  	__bss_start = .;
+>  	.bss : { *(.bss) }
+> +	. = ALIGN(2);
+>  	__bss_end = .;
+>  	. = ALIGN(4K);
+>  	edata = .;
 
