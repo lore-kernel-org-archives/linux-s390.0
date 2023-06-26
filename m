@@ -2,193 +2,348 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D9F5EB64D7
-	for <linux-s390@archiver.kernel.org>; Mon, 26 Jun 2023 08:34:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4193AC001B0
+	for <linux-s390@archiver.kernel.org>; Mon, 26 Jun 2023 09:54:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229653AbjFZIeh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 26 Jun 2023 04:34:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35978 "EHLO
+        id S229981AbjFZJyS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 26 Jun 2023 05:54:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229579AbjFZIeg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Jun 2023 04:34:36 -0400
-Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00D05DA;
-        Mon, 26 Jun 2023 01:34:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1687768475; x=1719304475;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=3O389o7/J5Sgkoh+UxJFUyw4Y3s6OJTD9CGqcOrWbGQ=;
-  b=U/Meeabxb/UnT36ULQ6ZWntws35V9HzWwq8wtKSbVNgHWu7HAxgI/vce
-   QtNyvWeo3vJHbwwudgcF5sjGi1G0f2kfKrJwimakNK1EkJXPcsW3TzJ0c
-   JHF9ivO9erNk8npQLmHPiHl1NqulmQqgRD0c1cJqc12U+ojcvz2ajcoiX
-   pjFipQGf1ZebefzADRt3shFS5LW1+i9/OBI0jVRw1vwqHzAfJ1QKwWmpk
-   64JOttWLNRM152qM2y03ARxwnlLEv8/ByrZlYmSKmeV1MsmObkFbjVlb6
-   LmXG26HqYm+XstSGKlCT5RDUBOtnbiWaCXjKXMn4qFd2qe0JBxQZeMkJz
-   A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10752"; a="361253691"
-X-IronPort-AV: E=Sophos;i="6.01,159,1684825200"; 
-   d="scan'208";a="361253691"
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Jun 2023 01:34:33 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10752"; a="962695507"
-X-IronPort-AV: E=Sophos;i="6.01,159,1684825200"; 
-   d="scan'208";a="962695507"
-Received: from fmsmsx601.amr.corp.intel.com ([10.18.126.81])
-  by fmsmga006.fm.intel.com with ESMTP; 26 Jun 2023 01:34:29 -0700
-Received: from fmsmsx602.amr.corp.intel.com (10.18.126.82) by
- fmsmsx601.amr.corp.intel.com (10.18.126.81) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.27; Mon, 26 Jun 2023 01:34:29 -0700
-Received: from fmsedg601.ED.cps.intel.com (10.1.192.135) by
- fmsmsx602.amr.corp.intel.com (10.18.126.82) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.27 via Frontend Transport; Mon, 26 Jun 2023 01:34:29 -0700
-Received: from NAM02-BN1-obe.outbound.protection.outlook.com (104.47.51.44) by
- edgegateway.intel.com (192.55.55.70) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.23; Mon, 26 Jun 2023 01:34:28 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=j5uBvkBPBY6FqMDUmQLJaDtYBfAy0eXk+RVbr5R2IHCQ9OHoid2q6197gY4ksGudIQIt9yLaDiLWAEa1Bu3MVhbWuoeT2Cc0vIWauuZoup41JFGKDtDKMhMOgpnPA8CquQV3QkToq5YEvnQmeEoXU96iPQQ/m5xe6U1ydGZR/uXGe0gFc+7AYPSgUQAA9oyK8sebzFiQyH/dSCraAGGBAtlwKFmS3J7KEakTOEQ1RMBwt17obqjaiQvKRYxUrU602tLTxCeU+TkRCiJYrPIUjL4dcPKPEm3Pk0MKIOMu0eZ5INPF1WtdDX1OC5S5vV3IhlSi88L9Hv2yQA4GrgD6tQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=lZp7JSMdq4gQNv82frn3rHwhYgEhCTs5aSx76mZmgzc=;
- b=A8aBosHvBtwEvjP7hhj8ubw8Ij6Q1JmDxYP0J2cMmjmC+uXmNG9GPtBqO5z7unpfkTl/SWsOd80w46P9fmtKY45CkT+3T44/Uo0qH5XME5DTbAIbC2tN9Zf+gXnLstAaAkVeat9x1TIQMdhc+J51W+i/6iDNcTe8RfThzrBRZBbg33YKLo/fqProahQLdfuEvhiEjIxUmogTZGTkfLbdqLQYba8dn91ddNO+yx/3nlTXA2hV/Yg/nJ07w1hINHp9e6OL1cZm04VFC8Ei52tv/TLkK8D57WIeZec9xmpSsfubzuXpVEXxe97tEjkqd0BJg5wG/L9EqVth37qW4jkX4w==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from DS0PR11MB7529.namprd11.prod.outlook.com (2603:10b6:8:141::20)
- by SJ0PR11MB8294.namprd11.prod.outlook.com (2603:10b6:a03:478::10) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6521.24; Mon, 26 Jun
- 2023 08:34:26 +0000
-Received: from DS0PR11MB7529.namprd11.prod.outlook.com
- ([fe80::e7db:878:dfab:826d]) by DS0PR11MB7529.namprd11.prod.outlook.com
- ([fe80::e7db:878:dfab:826d%3]) with mapi id 15.20.6521.023; Mon, 26 Jun 2023
- 08:34:26 +0000
-From:   "Liu, Yi L" <yi.l.liu@intel.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>
-CC:     "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
-        "Tian, Kevin" <kevin.tian@intel.com>,
-        "joro@8bytes.org" <joro@8bytes.org>,
-        "robin.murphy@arm.com" <robin.murphy@arm.com>,
-        "cohuck@redhat.com" <cohuck@redhat.com>,
-        "eric.auger@redhat.com" <eric.auger@redhat.com>,
-        "nicolinc@nvidia.com" <nicolinc@nvidia.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
-        "chao.p.peng@linux.intel.com" <chao.p.peng@linux.intel.com>,
-        "yi.y.sun@linux.intel.com" <yi.y.sun@linux.intel.com>,
-        "peterx@redhat.com" <peterx@redhat.com>,
-        "jasowang@redhat.com" <jasowang@redhat.com>,
-        "shameerali.kolothum.thodi@huawei.com" 
-        <shameerali.kolothum.thodi@huawei.com>,
-        "lulu@redhat.com" <lulu@redhat.com>,
-        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "Hao, Xudong" <xudong.hao@intel.com>,
-        "Zhao, Yan Y" <yan.y.zhao@intel.com>,
-        "Xu, Terrence" <terrence.xu@intel.com>,
-        "Jiang, Yanting" <yanting.jiang@intel.com>,
-        "Duan, Zhenzhong" <zhenzhong.duan@intel.com>,
-        "clegoate@redhat.com" <clegoate@redhat.com>
-Subject: RE: [PATCH v12 18/24] vfio: Add VFIO_DEVICE_BIND_IOMMUFD
-Thread-Topic: [PATCH v12 18/24] vfio: Add VFIO_DEVICE_BIND_IOMMUFD
-Thread-Index: AQHZlUw0PINbjPidUkeXtdGCTAzTl6+YsS6AgAQ157A=
-Date:   Mon, 26 Jun 2023 08:34:26 +0000
-Message-ID: <DS0PR11MB752904E31251E05619A442B9C326A@DS0PR11MB7529.namprd11.prod.outlook.com>
-References: <20230602121653.80017-1-yi.l.liu@intel.com>
- <20230602121653.80017-19-yi.l.liu@intel.com> <ZJXFEbmY7BOW6QIe@nvidia.com>
-In-Reply-To: <ZJXFEbmY7BOW6QIe@nvidia.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: DS0PR11MB7529:EE_|SJ0PR11MB8294:EE_
-x-ms-office365-filtering-correlation-id: 103afde9-624a-43d7-0cb5-08db762026a1
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: ySN7bf4CpTF9nD65DyXLEYZj9hoVO14yi9S8QRLsRlwjE55Gnpa/dCzR0Qq6Ify+K+Ll/BCQNT9elTlHrQmPyQMS2u0+rPNEW/s33PNzcF+wol4iaBpK/sDBeiX5S0wBcVKt+NOzYWoHV/mWKJ8R2ZLd68V8XO+KLueV+s52L6r1AV64dZij0/EwIcELCuPeXE912HOKk8zupRbJ20QYu7gS/gxbOrKKslLZWiyLDHA5aC7Zrd1mqgoJgx9mz49lS6kRdXnaeRUS5JeucIa0sOFrwBsOtOuriLJzaoza2xBdGaygW+aI5vcwdXUdnZ/+cc62S9CWVtc+Q6QI4SN92TdA6W6X4g0c/HnEnOjU8fWuJ9a+MgOI1VD6ifBgCS00a+uqLoXZC6J2hvtDz8m4GgrBWNGa6S59HD5OV+m6a/bmiQW4mwf54ez5StdaCCPu94oTNorActlnUuzmb0++LFA2uT6lkJtNagkkP/qX9wBQhazsvbkbbYRfjaHF1QXuVwaqs843LnimqAd0mDG5xS1en4x3otFZNaWYw2KMFntDEGH4ELtO6cX4poBIYu2qbPYe1K7FnKInyEIWSBXjWOFA5PUR0mE8+UE1+hY3sag=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR11MB7529.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(346002)(376002)(39860400002)(396003)(136003)(366004)(451199021)(478600001)(54906003)(7696005)(71200400001)(83380400001)(26005)(186003)(9686003)(6506007)(4744005)(66446008)(2906002)(5660300002)(7416002)(52536014)(33656002)(38100700002)(122000001)(76116006)(4326008)(66946007)(55016003)(82960400001)(316002)(86362001)(8936002)(8676002)(41300700001)(6916009)(38070700005)(66476007)(66556008)(64756008);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?2WV+BXyVP8q7rIISTfsvvv9VB/Dk3RfzRflDe2enATG4OmEkpcoFFqAZ9EnR?=
- =?us-ascii?Q?6qJQnSlMqGe6dHeNCWaD3sXqBU9czV6zGWPZiXUNpMhsNuZcENAJHpwOl4gB?=
- =?us-ascii?Q?9ohclPiE8TM7FQgjU8dx54N/Tvtyxn2QS80nBhYcTXb/nK85T7yrfQwirWBp?=
- =?us-ascii?Q?DqVBy+8ByfsUHTtWj19tSbrJMDjmzdaLXFgqt6xpDilSU8mk6vaCeCFxYs5R?=
- =?us-ascii?Q?bX0JYbD285Xw7yflWwsX16StQFOsSFuf0fvDHpr2CNpCqXSJXOBjTK2FebUX?=
- =?us-ascii?Q?DcO4fVU+B4D8Bu7yx1nlhxKQS4ZgKId9mkq7YZ8+/4y6O4tbEeDRNFfjlDaX?=
- =?us-ascii?Q?QSdgSC6uCYmhJmmTtywQsRnEpMmTU7JOqSTTHqJnKMRFjlaIsEBnqVD0Rm5Y?=
- =?us-ascii?Q?HciYZQ42clHs+iy3iQr+61y76JWorHmhPHhIdHh5wAFaLvlOY+ZGiVzqCHGp?=
- =?us-ascii?Q?sQEF2ij8ffQ1BGN8IoWUQDcjw84M5TzBK2uK7Li9eo/Y/CU2EH4EJ77FZZ9y?=
- =?us-ascii?Q?qUEySQCnuBw/I6Z4ipiWULvGYuw00DirLVFGnnUCylr13pXRyagh0Kq7vK1h?=
- =?us-ascii?Q?WKEfIu66cB6JAQxJtdFtYWAdfbAzeUzmbRC7sInisOgDhimE6Uco5cxnl4ji?=
- =?us-ascii?Q?MKrebk8Pf1/p+mHgtJh2QutGdDEztisVBApg1/VUujHm5CiegnHDZym8651s?=
- =?us-ascii?Q?H7xc5rZ3vFe+80Cfu3VOB2Nr08oPhR+diOg75akp3n+T8+hmwOP/spTggHIo?=
- =?us-ascii?Q?gE+xQNLWRA/6/OIGmGMJZagzX9eeIEbcOSRjtzR0RiLhBtM43fAX4BTVmPFY?=
- =?us-ascii?Q?mc2pmUucza20JWAdpySHSJZ1kgWif5vInh64IO8XDgMAefgDY88ozYqiv5QO?=
- =?us-ascii?Q?81HvpVoMjSYK8YuQSTP/tF3aJxZCAjY45+NhTDCMK8GqyU9T8p/iIBS37It6?=
- =?us-ascii?Q?24bsu10DaOf3fPr4SjrF1PN3zR/CbqIxseU9n05rR+HpkYPeUxU6xJ9MiyH1?=
- =?us-ascii?Q?+6WchWCJx9o/q7ZwPjFF+hrrkKnCgTayuqF6tJZ8XFknFl9zeZXti2EZEA+W?=
- =?us-ascii?Q?O3xFLGXFZ0CjGHTL3i2NQ7aL5REsgLPawseie6wXU6pKyRmpJQ5HGoqaZ1Ge?=
- =?us-ascii?Q?48T1at5gIxrkKzStj6br8UE6a1Q2r4l9LmmG8KHc63U+oS8Q7tiDyuGFDFKl?=
- =?us-ascii?Q?KHZCYb0lPeQ+NfnhWAU5zKeKY9cIGIIEzOLVHMgxY9r1uEYRSDmiGk7KJlFZ?=
- =?us-ascii?Q?mP8j+/Hwpqd/aKLedIHys3Jbl+zb/jEPcRbr9l8F8X5qqWg7Yf2KZ4BiSbKa?=
- =?us-ascii?Q?LsSYMF7QrnVPGt/VUWGz8YlNOiFzt8pEg/N9Wo8bpTNkb7Nfl5XhQZ0lQPiD?=
- =?us-ascii?Q?5w1nlc5j3q4xIbWMtPB12YKxk7sh858+yVQCfCjn4V9ms7Y0N3VSD2t/U0I5?=
- =?us-ascii?Q?kGottRrFmqpze3+s1ccEDK7uqiJnTVCS/BtZxCToa/Agn+T+oqkuCBsbz9Fs?=
- =?us-ascii?Q?qLR57qTIY7vSv7gYB43botCFXUwknJMEST0ckTiNo17BdtZHBxfDmCjaLKLA?=
- =?us-ascii?Q?8EOVg0KIcJsu3VfGVblYZU8MGHLrDIKcaB6i2t53?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S229542AbjFZJyR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Jun 2023 05:54:17 -0400
+Received: from mail-lj1-x22a.google.com (mail-lj1-x22a.google.com [IPv6:2a00:1450:4864:20::22a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23CB99B;
+        Mon, 26 Jun 2023 02:54:15 -0700 (PDT)
+Received: by mail-lj1-x22a.google.com with SMTP id 38308e7fff4ca-2b4826ba943so40168211fa.0;
+        Mon, 26 Jun 2023 02:54:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1687773253; x=1690365253;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=BkJiT0hPCVGufk3wfK9OYfFQLFeH4WpXrH92jiyy/So=;
+        b=LI5UZd6nWq3K7Pk9RsvstakVLfRy9rPrPfGF9Jxi7xqsukDqd54gYlmkO8NO2qWlHY
+         laEGLm0NqwaArg2B0U1mb2ZrqnQ9DVwimD6R9fGkz1Yd2PDLrxg65lZLZigg5lTSIx2l
+         56OJh1znTXpgfq6PeFjAtc4vfilcMyYO/Wyxt9uZPzTfS51DnEEvSczgbxwfbCIBHHC0
+         7ypRQx2o2pgmpeEfRoHRRO1a/N4rztkHAi5QRE7HA32OEPIVtwvl4zPvnFeZBbFS9Pc3
+         +XHYPCfQMMO7KjwgAec1IpnT5/TZoHL4STHkcCNJVmExNECcWBSghyv+4KQ48cIUrCZM
+         M6Jg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1687773253; x=1690365253;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=BkJiT0hPCVGufk3wfK9OYfFQLFeH4WpXrH92jiyy/So=;
+        b=h/ytM4r15EXzkLlLP9BWwqS1EzNlZDiH9pFRp4U5/vIFMQse0ELN2FDxdoK7OfmHnZ
+         SLCkAlYve22PQlgbF7cbXzHrQ7Op0n1rbEmGgOtVdACNpUxmU3RDo+dK96eTvOdLjEgP
+         I4P5VNH5R1TvkR+c6vkQEPZ9v4SEM58b+fGRBdE6vuj51CXqtx+zeX49EGoBKxr43vcN
+         2aDGSR6QRAe3D/4r10Fc3DCHitICPWkoUWN6jzeGr9Iejv9bXGXtCzOhGvzVwEsYrLgG
+         vkssWe3DlXo3l67yw9Gq4+VNLvVPL5jhZ+IToqIyyyABW150naACnQMW3qUkA55i+Jcb
+         ktrg==
+X-Gm-Message-State: AC+VfDzuN2YpesW80J6m8oucIyo8m+OVaHJDvfp4fAe6o+a8GlY+zAlV
+        TAKWNeaR+LXz7PMmk+yrNpqbYrjfRE713M/iLh07NeXCn3S/tjDD
+X-Google-Smtp-Source: ACHHUZ67jMr16NDRNLWv9518HCJB3Am5wfZo0UzBIm/hvCg0LmCzdDMhboQHv94rDq5VEGtQPY2hBiRv+xQ6CfYSFdg=
+X-Received: by 2002:a2e:9183:0:b0:2b4:6e21:637e with SMTP id
+ f3-20020a2e9183000000b002b46e21637emr13282046ljg.16.1687773253077; Mon, 26
+ Jun 2023 02:54:13 -0700 (PDT)
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: DS0PR11MB7529.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 103afde9-624a-43d7-0cb5-08db762026a1
-X-MS-Exchange-CrossTenant-originalarrivaltime: 26 Jun 2023 08:34:26.1727
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 8/CqBNoBRCTv8azEv1WbHR6SpN4SjighH0ANEXhGZ/eWbwlWNXu99BZjHihQXbGr4JDopCAq/35Su0DMZ0iyMA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR11MB8294
-X-OriginatorOrg: intel.com
+References: <20230616085038.4121892-1-rppt@kernel.org> <20230616085038.4121892-3-rppt@kernel.org>
+ <f9a7eebe-d36e-4587-b99d-35d4edefdd14@app.fastmail.com> <20230618080027.GA52412@kernel.org>
+ <a17c65c6-863f-4026-9c6f-a04b659e9ab4@app.fastmail.com> <20230625161417.GK52412@kernel.org>
+ <90161ac9-3ca0-4c72-b1c4-ab1293e55445@app.fastmail.com> <20230625174257.GL52412@kernel.org>
+ <20230625180741.jrrtkq55c4jrqh3t@moria.home.lan> <CAPhsuW45gmtCVgA0mg6X87x5EOzSmVqq3SCMSR6agyiukiJvEQ@mail.gmail.com>
+In-Reply-To: <CAPhsuW45gmtCVgA0mg6X87x5EOzSmVqq3SCMSR6agyiukiJvEQ@mail.gmail.com>
+From:   Puranjay Mohan <puranjay12@gmail.com>
+Date:   Mon, 26 Jun 2023 11:54:02 +0200
+Message-ID: <CANk7y0jcakmuF4e9x8z7ZUra=MPx-=xxb0JZ3RrJ+S9Eb9-0_g@mail.gmail.com>
+Subject: Re: [PATCH v2 02/12] mm: introduce execmem_text_alloc() and jit_text_alloc()
+To:     Song Liu <song@kernel.org>
+Cc:     Kent Overstreet <kent.overstreet@linux.dev>,
+        Mike Rapoport <rppt@kernel.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Kees Cook <keescook@chromium.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Helge Deller <deller@gmx.de>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Rick P Edgecombe <rick.p.edgecombe@intel.com>,
+        "Russell King (Oracle)" <linux@armlinux.org.uk>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will@kernel.org>, bpf@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+        linux-mm@kvack.org, linux-modules@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+        netdev@vger.kernel.org, sparclinux@vger.kernel.org,
+        "the arch/x86 maintainers" <x86@kernel.org>, pjt@google.com,
+        torvalds@linux-foundation.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-> From: Jason Gunthorpe <jgg@nvidia.com>
-> Sent: Saturday, June 24, 2023 12:15 AM
-
-> >  }
+On Mon, Jun 26, 2023 at 8:13=E2=80=AFAM Song Liu <song@kernel.org> wrote:
+>
+> On Sun, Jun 25, 2023 at 11:07=E2=80=AFAM Kent Overstreet
+> <kent.overstreet@linux.dev> wrote:
 > >
-> > +static void vfio_device_get_kvm_safe(struct vfio_device_file *df)
-> > +{
-> > +	spin_lock(&df->kvm_ref_lock);
-> > +	if (df->kvm)
-> > +		_vfio_device_get_kvm_safe(df->device, df->kvm);
-> > +	spin_unlock(&df->kvm_ref_lock);
-> > +}
->=20
-> I'm surprised symbol_get() can be called from a spinlock, but it sure
-> looks like it can..
->=20
-> Also moving the if kvm is null test into _vfio_device_get_kvm_safe()
-> will save a few lines.
->=20
-> Also shouldn't be called _vfio_device...
+> > On Sun, Jun 25, 2023 at 08:42:57PM +0300, Mike Rapoport wrote:
+> > > On Sun, Jun 25, 2023 at 09:59:34AM -0700, Andy Lutomirski wrote:
+> > > >
+> > > >
+> > > > On Sun, Jun 25, 2023, at 9:14 AM, Mike Rapoport wrote:
+> > > > > On Mon, Jun 19, 2023 at 10:09:02AM -0700, Andy Lutomirski wrote:
+> > > > >>
+> > > > >> On Sun, Jun 18, 2023, at 1:00 AM, Mike Rapoport wrote:
+> > > > >> > On Sat, Jun 17, 2023 at 01:38:29PM -0700, Andy Lutomirski wrot=
+e:
+> > > > >> >> On Fri, Jun 16, 2023, at 1:50 AM, Mike Rapoport wrote:
+> > > > >> >> > From: "Mike Rapoport (IBM)" <rppt@kernel.org>
+> > > > >> >> >
+> > > > >> >> > module_alloc() is used everywhere as a mean to allocate mem=
+ory for code.
+> > > > >> >> >
+> > > > >> >> > Beside being semantically wrong, this unnecessarily ties al=
+l subsystems
+> > > > >> >> > that need to allocate code, such as ftrace, kprobes and BPF=
+ to modules
+> > > > >> >> > and puts the burden of code allocation to the modules code.
+> > > > >> >> >
+> > > > >> >> > Several architectures override module_alloc() because of va=
+rious
+> > > > >> >> > constraints where the executable memory can be located and =
+this causes
+> > > > >> >> > additional obstacles for improvements of code allocation.
+> > > > >> >> >
+> > > > >> >> > Start splitting code allocation from modules by introducing
+> > > > >> >> > execmem_text_alloc(), execmem_free(), jit_text_alloc(), jit=
+_free() APIs.
+> > > > >> >> >
+> > > > >> >> > Initially, execmem_text_alloc() and jit_text_alloc() are wr=
+appers for
+> > > > >> >> > module_alloc() and execmem_free() and jit_free() are replac=
+ements of
+> > > > >> >> > module_memfree() to allow updating all call sites to use th=
+e new APIs.
+> > > > >> >> >
+> > > > >> >> > The intention semantics for new allocation APIs:
+> > > > >> >> >
+> > > > >> >> > * execmem_text_alloc() should be used to allocate memory th=
+at must reside
+> > > > >> >> >   close to the kernel image, like loadable kernel modules a=
+nd generated
+> > > > >> >> >   code that is restricted by relative addressing.
+> > > > >> >> >
+> > > > >> >> > * jit_text_alloc() should be used to allocate memory for ge=
+nerated code
+> > > > >> >> >   when there are no restrictions for the code placement. Fo=
+r
+> > > > >> >> >   architectures that require that any code is within certai=
+n distance
+> > > > >> >> >   from the kernel image, jit_text_alloc() will be essential=
+ly aliased to
+> > > > >> >> >   execmem_text_alloc().
+> > > > >> >> >
+> > > > >> >>
+> > > > >> >> Is there anything in this series to help users do the appropr=
+iate
+> > > > >> >> synchronization when the actually populate the allocated memo=
+ry with
+> > > > >> >> code?  See here, for example:
+> > > > >> >
+> > > > >> > This series only factors out the executable allocations from m=
+odules and
+> > > > >> > puts them in a central place.
+> > > > >> > Anything else would go on top after this lands.
+> > > > >>
+> > > > >> Hmm.
+> > > > >>
+> > > > >> On the one hand, there's nothing wrong with factoring out common=
+ code. On
+> > > > >> the other hand, this is probably the right time to at least star=
+t
+> > > > >> thinking about synchronization, at least to the extent that it m=
+ight make
+> > > > >> us want to change this API.  (I'm not at all saying that this se=
+ries
+> > > > >> should require changes -- I'm just saying that this is a good ti=
+me to
+> > > > >> think about how this should work.)
+> > > > >>
+> > > > >> The current APIs, *and* the proposed jit_text_alloc() API, don't=
+ actually
+> > > > >> look like the one think in the Linux ecosystem that actually
+> > > > >> intelligently and efficiently maps new text into an address spac=
+e:
+> > > > >> mmap().
+> > > > >>
+> > > > >> On x86, you can mmap() an existing file full of executable code =
+PROT_EXEC
+> > > > >> and jump to it with minimal synchronization (just the standard i=
+mplicit
+> > > > >> ordering in the kernel that populates the pages before setting u=
+p the
+> > > > >> PTEs and whatever user synchronization is needed to avoid jumpin=
+g into
+> > > > >> the mapping before mmap() finishes).  It works across CPUs, and =
+the only
+> > > > >> possible way userspace can screw it up (for a read-only mapping =
+of
+> > > > >> read-only text, anyway) is to jump to the mapping too early, in =
+which
+> > > > >> case userspace gets a page fault.  Incoherence is impossible, an=
+d no one
+> > > > >> needs to "serialize" (in the SDM sense).
+> > > > >>
+> > > > >> I think the same sequence (from userspace's perspective) works o=
+n other
+> > > > >> architectures, too, although I think more cache management is ne=
+eded on
+> > > > >> the kernel's end.  As far as I know, no Linux SMP architecture n=
+eeds an
+> > > > >> IPI to map executable text into usermode, but I could easily be =
+wrong.
+> > > > >> (IIRC RISC-V has very developer-unfriendly icache management, bu=
+t I don't
+> > > > >> remember the details.)
+> > > > >>
+> > > > >> Of course, using ptrace or any other FOLL_FORCE to modify text o=
+n x86 is
+> > > > >> rather fraught, and I bet many things do it wrong when userspace=
+ is
+> > > > >> multithreaded.  But not in production because it's mostly not us=
+ed in
+> > > > >> production.)
+> > > > >>
+> > > > >> But jit_text_alloc() can't do this, because the order of operati=
+ons
+> > > > >> doesn't match.  With jit_text_alloc(), the executable mapping sh=
+ows up
+> > > > >> before the text is populated, so there is no atomic change from =
+not-there
+> > > > >> to populated-and-executable.  Which means that there is an oppor=
+tunity
+> > > > >> for CPUs, speculatively or otherwise, to start filling various c=
+aches
+> > > > >> with intermediate states of the text, which means that various
+> > > > >> architectures (even x86!) may need serialization.
+> > > > >>
+> > > > >> For eBPF- and module- like use cases, where JITting/code gen is =
+quite
+> > > > >> coarse-grained, perhaps something vaguely like:
+> > > > >>
+> > > > >> jit_text_alloc() -> returns a handle and an executable virtual a=
+ddress,
+> > > > >> but does *not* map it there
+> > > > >> jit_text_write() -> write to that handle
+> > > > >> jit_text_map() -> map it and synchronize if needed (no sync need=
+ed on
+> > > > >> x86, I think)
+> > > > >>
+> > > > >> could be more efficient and/or safer.
+> > > > >>
+> > > > >> (Modules could use this too.  Getting alternatives right might t=
+ake some
+> > > > >> fiddling, because off the top of my head, this doesn't match how=
+ it works
+> > > > >> now.)
+> > > > >>
+> > > > >> To make alternatives easier, this could work, maybe (haven't ful=
+ly
+> > > > >> thought it through):
+> > > > >>
+> > > > >> jit_text_alloc()
+> > > > >> jit_text_map_rw_inplace() -> map at the target address, but RW, =
+!X
+> > > > >>
+> > > > >> write the text and apply alternatives
+> > > > >>
+> > > > >> jit_text_finalize() -> change from RW to RX *and synchronize*
+> > > > >>
+> > > > >> jit_text_finalize() would either need to wait for RCU (possibly =
+extra
+> > > > >> heavy weight RCU to get "serialization") or send an IPI.
+> > > > >
+> > > > > This essentially how modules work now. The memory is allocated RW=
+, written
+> > > > > and updated with alternatives and then made ROX in the end with s=
+et_memory
+> > > > > APIs.
+> > > > >
+> > > > > The issue with not having the memory mapped X when it's written i=
+s that we
+> > > > > cannot use large pages to map it. One of the goals is to have exe=
+cutable
+> > > > > memory mapped with large pages and make code allocator able to di=
+vide that
+> > > > > page among several callers.
+> > > > >
+> > > > > So the idea was that jit_text_alloc() will have a cache of large =
+pages
+> > > > > mapped ROX, will allocate memory from those caches and there will=
+ be
+> > > > > jit_update() that uses text poking for writing to that memory.
+> > > > >
+> > > > > Upon allocation of a large page to increase the cache, that large=
+ page will
+> > > > > be "invalidated" by filling it with breakpoint instructions (e.g =
+int3 on
+> > > > > x86)
+> > > >
+> > > > Is this actually valid?  In between int3 and real code, there=E2=80=
+=99s a
+> > > > potential torn read of real code mixed up with 0xcc.
+> > >
+> > > You mean while doing text poking?
+> >
+> > I think we've been getting distracted by text_poke(). text_poke() does
+> > updates via a different virtual address which introduce new
+> > synchroniation wrinkles, but it's not the main issue.
+> >
+> > As _think_ I understand it, the root of the issue is that speculative
+> > execution - and that per Andy, speculative execution doesn't obey memor=
+y
+> > barriers.
+> >
+> > I have _not_ dug into the details of how retpolines work and all the
+> > spectre stuff that was going on, but - retpoline uses lfence, doesn't
+> > it? And if speculative execution is the issue here, isn't retpoline wha=
+t
+> > we need?
+> >
+> > For this particular issue, I'm not sure "invalidate by filling with
+> > illegal instructions" makes sense. For that to work, would the processo=
+r
+> > have to execute a serialize operation and a retry on hitting an illegal
+> > instruction - or perhaps we do in the interrupt handler?
+> >
+> > But if filling with illegal instructions does act as a speculation
+> > barrier, then the issue is that a torn read could generate a legal but
+> > incorrect instruction.
+>
+> What is a "torn read" here? I assume it is an instruction read that
+> goes at the wrong instruction boundary (CISC). If this is correct, do
+> we need to handle torn read caused by software bug, or hardware
+> bit flip, or both?
 
-Ah, any suggestion on the naming? How about vfio_device_get_kvm_safe_locked=
-()?
+On ARM64 (RISC), torn reads can't happen because the instruction fetch
+is word aligned. If we replace the whole instruction atomically then there
+won't be half old - half new instruction fetches.
 
-Regards,
-Yi Liu
+Thanks,
+Puranjay
