@@ -2,197 +2,326 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E4234C001B0
-	for <linux-s390@archiver.kernel.org>; Sun, 25 Jun 2023 18:26:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B138EEB64D7
+	for <linux-s390@archiver.kernel.org>; Mon, 26 Jun 2023 06:13:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229612AbjFYS0w (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 25 Jun 2023 14:26:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34810 "EHLO
+        id S230087AbjFZGNe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 26 Jun 2023 02:13:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229480AbjFYS0v (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 25 Jun 2023 14:26:51 -0400
-Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2055.outbound.protection.outlook.com [40.107.220.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C288138;
-        Sun, 25 Jun 2023 11:26:49 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=HvAroJRlH2oJ88yRH9UwB6mOu+qcRPz3i4/UwxXrtBGFG7ikfbL5MFg/pzaME32VpKashjtmOWQF5wCPc0Ff8WxKXjxuluJmeCr3xBiy4m+RrV4G9WPS6uvm2Wcm6BuGH594KJKlcq1fE2EnOpymiRV6CknZdqNunLaUb1qQAIXQQqgMk9vZojb2aLEUDUSD/KbSbx5g5EyVZrTBoMbh3NFDp2xXM58PPp5IX2xIGrok7VI9wycWGR3EymL0Z0a82W5Y0CJckYqMTUjA6xCZQzYd1KtutL+gJhsC614ViifwA8rUM4wU5/uZD4X8bOmYihe4IaDUmMf7u3OEVY6uSw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Y1t3tA2Yw5+S3c0+J79Vj23MunTI8fZ9uxj7AzecAaY=;
- b=O9h69WynlVu7cNOGE2ZML2rN0WoOkda89zNZmkqwOk1n/g9VFY7BSfPFfv4+fLLaISUPLZb8PsyUA2YcWKbcyqK1BrrR9IgwTAJtCCSunXSs3V8PGhel+Cs5QR+ZumEWdrjAwKO89fsfu0MdmTpH7TUDdgnd6g7LseYQzSYVHrSeGxB+C40mg0AntyWlX9WDo5gaNp7SODEoypg3yaC3nVBeco0QttLvYEx9QlKqjB2XhS3r5LOSLQRAX0YosQ8eXh5NMHYEwz2FxbYMbEAnb0SInBLbru8aTDTF6uA8zp62kYFb9VB3pPm4AVez1cIOYd9T7QuU2f579TxW1HfnDA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.118.232) smtp.rcpttodomain=intel.com smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Y1t3tA2Yw5+S3c0+J79Vj23MunTI8fZ9uxj7AzecAaY=;
- b=aqV5D76QNq8lKNfvxJQDQ8PkIEwcDaYJbJ2AGvK/MjiTbommCWNl7LA5xVMUR8S0i0w1cpAe5fil1CcWBcbl4fVGpaZkW7BPPwPq0p9WaHTPue4xbMMy64M0YjUk89VEotjmqYo4iicSY+vbXgD2bQl7ldQSBs1HKF9stzyS8ZFGJ10XdtX8FoDkdfPYFb0KdkM9uv6+8y5de6YPIugQNQLZikpx96/9eQgWjNgc825SouGp6ua6PUdM49gAOGN4IekENNGx34QUeAKoRLozDjoSeZee7M/NhWSoDFk4hzGYGUtydbxLtZ0vYHAN/p0++rymIEvNB1tVRPaBO8ccxw==
-Received: from MW4PR04CA0234.namprd04.prod.outlook.com (2603:10b6:303:87::29)
- by CYYPR12MB9016.namprd12.prod.outlook.com (2603:10b6:930:c4::17) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6521.24; Sun, 25 Jun
- 2023 18:26:46 +0000
-Received: from CO1NAM11FT014.eop-nam11.prod.protection.outlook.com
- (2603:10b6:303:87:cafe::13) by MW4PR04CA0234.outlook.office365.com
- (2603:10b6:303:87::29) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6521.33 via Frontend
- Transport; Sun, 25 Jun 2023 18:26:46 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.118.232)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.118.232 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.118.232; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.118.232) by
- CO1NAM11FT014.mail.protection.outlook.com (10.13.175.99) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.6500.47 via Frontend Transport; Sun, 25 Jun 2023 18:26:46 +0000
-Received: from drhqmail202.nvidia.com (10.126.190.181) by mail.nvidia.com
- (10.127.129.5) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.5; Sun, 25 Jun 2023
- 11:26:43 -0700
-Received: from drhqmail201.nvidia.com (10.126.190.180) by
- drhqmail202.nvidia.com (10.126.190.181) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.37; Sun, 25 Jun 2023 11:26:43 -0700
-Received: from Asurada-Nvidia (10.127.8.9) by mail.nvidia.com (10.126.190.180)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.37 via Frontend
- Transport; Sun, 25 Jun 2023 11:26:42 -0700
-Date:   Sun, 25 Jun 2023 11:26:35 -0700
-From:   Nicolin Chen <nicolinc@nvidia.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>
-CC:     Yi Liu <yi.l.liu@intel.com>, <alex.williamson@redhat.com>,
-        <kevin.tian@intel.com>, <joro@8bytes.org>, <robin.murphy@arm.com>,
-        <cohuck@redhat.com>, <eric.auger@redhat.com>,
-        <kvm@vger.kernel.org>, <mjrosato@linux.ibm.com>,
-        <chao.p.peng@linux.intel.com>, <yi.y.sun@linux.intel.com>,
-        <peterx@redhat.com>, <jasowang@redhat.com>,
-        <shameerali.kolothum.thodi@huawei.com>, <lulu@redhat.com>,
-        <suravee.suthikulpanit@amd.com>,
-        <intel-gvt-dev@lists.freedesktop.org>,
-        <intel-gfx@lists.freedesktop.org>, <linux-s390@vger.kernel.org>,
-        <xudong.hao@intel.com>, <yan.y.zhao@intel.com>,
-        <terrence.xu@intel.com>, <yanting.jiang@intel.com>,
-        <zhenzhong.duan@intel.com>, <clegoate@redhat.com>
-Subject: Re: [PATCH v12 14/24] iommufd/device: Add iommufd_access_detach() API
-Message-ID: <ZJiE6uvcKNYp2Sl3@Asurada-Nvidia>
-References: <20230602121653.80017-1-yi.l.liu@intel.com>
- <20230602121653.80017-15-yi.l.liu@intel.com>
- <ZJWpDFRuG/HCXjHN@nvidia.com>
+        with ESMTP id S229586AbjFZGNd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Jun 2023 02:13:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19C34EB;
+        Sun, 25 Jun 2023 23:13:32 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D0DD60C8C;
+        Mon, 26 Jun 2023 06:13:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A64A6C433D9;
+        Mon, 26 Jun 2023 06:13:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1687760010;
+        bh=tIDPiX4oZCQnSjoJrRmXYm4/HW+kneyQ9COWSK2/0ZY=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=Kqp3cvsRJ3zrwxvYCz0cNhvxJ+ddOQlZbdAd6MYB7hpQfGaPjaEWx4XRgumHA3asl
+         2pfxaCvJsapTma27TczMyDfkLmZLMX4LxIpbXhwpJJZRXNZyd0yCBPciRDI7IG26pW
+         ZofYK78Vy6+X23yGoPjG4iHaIJX3xZk1Cf5VyXONw4g0+lhwJyZb3QOZc9UC1abgeN
+         JpHRigJrpulMhEXYrJrzp6iqFIELQ33QjiEoR3RKROk8Rgf0ZADCCTCGDDgSsfyqIA
+         PxNsesDEzXoQ4yNdH5/98H+JDv2HJQTHEWa2ob8wVV0DOdBO7Eu/aKKZ0U8efnWun+
+         0ZC+zZqTlmuaA==
+Received: by mail-lf1-f41.google.com with SMTP id 2adb3069b0e04-4f4b2bc1565so3627446e87.2;
+        Sun, 25 Jun 2023 23:13:30 -0700 (PDT)
+X-Gm-Message-State: AC+VfDx3RS1tSDV4GnIXUXfaas/h7pEg6GTeJf56cXwb5ntnihtFlMH2
+        4eNkqPkScdfHuPfCm6ZyZQyYLXmlruTm9AAJST8=
+X-Google-Smtp-Source: ACHHUZ7Z1BsryLRBJgwSdFpXVYEgN5RfTaOqmCtmT2+wVlbf2QTe+Yf05nZb1BtwYAaKvRHJWuEELQy+6WhHrJTYCe0=
+X-Received: by 2002:a05:6512:705:b0:4f9:ec5e:d624 with SMTP id
+ b5-20020a056512070500b004f9ec5ed624mr1614382lfs.38.1687760008514; Sun, 25 Jun
+ 2023 23:13:28 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <ZJWpDFRuG/HCXjHN@nvidia.com>
-X-NV-OnPremToCloud: ExternallySecured
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CO1NAM11FT014:EE_|CYYPR12MB9016:EE_
-X-MS-Office365-Filtering-Correlation-Id: ca4c0a4d-c21a-4290-1c27-08db75a9bbd0
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: XUQVFAY1Hjzh8x/FTEv0kfPViKDT11iA78kWLE6XJ8Z7CnQrxdKxVabr4UJ3yr6FPXmj/C6fTj8UzXd4yK3wrX6bWorrktDoRoxSGp8XcOmsFavLhoRDV27EhKV5/xkDUii3Crkmh25QuRFeWISnc9Qyr37ouHlGmOZFlg5SghPMKNKeGtKdrdbvzt1K0+hWodikmwvSzLd6vwYlaSxBI/MtWGdsgm9H2hC/Ui57/QWj4sPhQagJHM2Zj9fORSyZMBq0iVlYwo1hPysrFv/t8HQpVh4eoaJB1aGN/9GbU8iIBKovabjF/p8dcG/7CTDpN6zilumSBbYhFLtXf9Pw4zh6e54nnTFDNxc8ghGIOY48dBMavPujDAGZtdGYAhfyZcuKw2aHvRU6+AOtzKoPZKkRsCjlyiu9oip1jyDbgvYYJJEtEkg7u2qaap1CBZ9FOguwGpGNPPz5kPt1vybgVP3caQVlobozME3NbNFYE1vGRBMecBqlaz7GKuCh6nw+tE0ss+OCxIevSv7m4RVOXbcpIZ02fa/JCaf/9nlXwscCZIQGlIm6pN2rGr4eUd2iIGKH3qxdjGdXtDFtJY53gXjtQ17AlF6HyBmcNLPORJuVe00wdUrTA0YWG8meH+2UKe56k+0NVa+JsA8QwbUm9xRfu/UHXUNvADbQNcWp+SAsmFuvhxO4Geinin8HOnR7rcn8GkxgEhmaLnEgmoyxbS1jxjcBq+rHmzOguE8zYFI=
-X-Forefront-Antispam-Report: CIP:216.228.118.232;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge1.nvidia.com;CAT:NONE;SFS:(13230028)(4636009)(39860400002)(376002)(136003)(346002)(396003)(451199021)(46966006)(40470700004)(36840700001)(82310400005)(36860700001)(40460700003)(70206006)(356005)(5660300002)(7416002)(6862004)(33716001)(55016003)(8936002)(8676002)(41300700001)(86362001)(6636002)(40480700001)(4326008)(316002)(7636003)(70586007)(82740400003)(47076005)(9686003)(26005)(2906002)(186003)(478600001)(6666004)(83380400001)(336012)(426003)(54906003);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 25 Jun 2023 18:26:46.2864
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: ca4c0a4d-c21a-4290-1c27-08db75a9bbd0
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.118.232];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT014.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CYYPR12MB9016
+References: <20230616085038.4121892-1-rppt@kernel.org> <20230616085038.4121892-3-rppt@kernel.org>
+ <f9a7eebe-d36e-4587-b99d-35d4edefdd14@app.fastmail.com> <20230618080027.GA52412@kernel.org>
+ <a17c65c6-863f-4026-9c6f-a04b659e9ab4@app.fastmail.com> <20230625161417.GK52412@kernel.org>
+ <90161ac9-3ca0-4c72-b1c4-ab1293e55445@app.fastmail.com> <20230625174257.GL52412@kernel.org>
+ <20230625180741.jrrtkq55c4jrqh3t@moria.home.lan>
+In-Reply-To: <20230625180741.jrrtkq55c4jrqh3t@moria.home.lan>
+From:   Song Liu <song@kernel.org>
+Date:   Sun, 25 Jun 2023 23:13:15 -0700
+X-Gmail-Original-Message-ID: <CAPhsuW45gmtCVgA0mg6X87x5EOzSmVqq3SCMSR6agyiukiJvEQ@mail.gmail.com>
+Message-ID: <CAPhsuW45gmtCVgA0mg6X87x5EOzSmVqq3SCMSR6agyiukiJvEQ@mail.gmail.com>
+Subject: Re: [PATCH v2 02/12] mm: introduce execmem_text_alloc() and jit_text_alloc()
+To:     Kent Overstreet <kent.overstreet@linux.dev>
+Cc:     Mike Rapoport <rppt@kernel.org>, Andy Lutomirski <luto@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Kees Cook <keescook@chromium.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Helge Deller <deller@gmx.de>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Puranjay Mohan <puranjay12@gmail.com>,
+        Rick P Edgecombe <rick.p.edgecombe@intel.com>,
+        "Russell King (Oracle)" <linux@armlinux.org.uk>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will@kernel.org>, bpf@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+        linux-mm@kvack.org, linux-modules@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+        netdev@vger.kernel.org, sparclinux@vger.kernel.org,
+        "the arch/x86 maintainers" <x86@kernel.org>, pjt@google.com,
+        torvalds@linux-foundation.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Jun 23, 2023 at 11:15:40AM -0300, Jason Gunthorpe wrote:
+On Sun, Jun 25, 2023 at 11:07=E2=80=AFAM Kent Overstreet
+<kent.overstreet@linux.dev> wrote:
+>
+> On Sun, Jun 25, 2023 at 08:42:57PM +0300, Mike Rapoport wrote:
+> > On Sun, Jun 25, 2023 at 09:59:34AM -0700, Andy Lutomirski wrote:
+> > >
+> > >
+> > > On Sun, Jun 25, 2023, at 9:14 AM, Mike Rapoport wrote:
+> > > > On Mon, Jun 19, 2023 at 10:09:02AM -0700, Andy Lutomirski wrote:
+> > > >>
+> > > >> On Sun, Jun 18, 2023, at 1:00 AM, Mike Rapoport wrote:
+> > > >> > On Sat, Jun 17, 2023 at 01:38:29PM -0700, Andy Lutomirski wrote:
+> > > >> >> On Fri, Jun 16, 2023, at 1:50 AM, Mike Rapoport wrote:
+> > > >> >> > From: "Mike Rapoport (IBM)" <rppt@kernel.org>
+> > > >> >> >
+> > > >> >> > module_alloc() is used everywhere as a mean to allocate memor=
+y for code.
+> > > >> >> >
+> > > >> >> > Beside being semantically wrong, this unnecessarily ties all =
+subsystems
+> > > >> >> > that need to allocate code, such as ftrace, kprobes and BPF t=
+o modules
+> > > >> >> > and puts the burden of code allocation to the modules code.
+> > > >> >> >
+> > > >> >> > Several architectures override module_alloc() because of vari=
+ous
+> > > >> >> > constraints where the executable memory can be located and th=
+is causes
+> > > >> >> > additional obstacles for improvements of code allocation.
+> > > >> >> >
+> > > >> >> > Start splitting code allocation from modules by introducing
+> > > >> >> > execmem_text_alloc(), execmem_free(), jit_text_alloc(), jit_f=
+ree() APIs.
+> > > >> >> >
+> > > >> >> > Initially, execmem_text_alloc() and jit_text_alloc() are wrap=
+pers for
+> > > >> >> > module_alloc() and execmem_free() and jit_free() are replacem=
+ents of
+> > > >> >> > module_memfree() to allow updating all call sites to use the =
+new APIs.
+> > > >> >> >
+> > > >> >> > The intention semantics for new allocation APIs:
+> > > >> >> >
+> > > >> >> > * execmem_text_alloc() should be used to allocate memory that=
+ must reside
+> > > >> >> >   close to the kernel image, like loadable kernel modules and=
+ generated
+> > > >> >> >   code that is restricted by relative addressing.
+> > > >> >> >
+> > > >> >> > * jit_text_alloc() should be used to allocate memory for gene=
+rated code
+> > > >> >> >   when there are no restrictions for the code placement. For
+> > > >> >> >   architectures that require that any code is within certain =
+distance
+> > > >> >> >   from the kernel image, jit_text_alloc() will be essentially=
+ aliased to
+> > > >> >> >   execmem_text_alloc().
+> > > >> >> >
+> > > >> >>
+> > > >> >> Is there anything in this series to help users do the appropria=
+te
+> > > >> >> synchronization when the actually populate the allocated memory=
+ with
+> > > >> >> code?  See here, for example:
+> > > >> >
+> > > >> > This series only factors out the executable allocations from mod=
+ules and
+> > > >> > puts them in a central place.
+> > > >> > Anything else would go on top after this lands.
+> > > >>
+> > > >> Hmm.
+> > > >>
+> > > >> On the one hand, there's nothing wrong with factoring out common c=
+ode. On
+> > > >> the other hand, this is probably the right time to at least start
+> > > >> thinking about synchronization, at least to the extent that it mig=
+ht make
+> > > >> us want to change this API.  (I'm not at all saying that this seri=
+es
+> > > >> should require changes -- I'm just saying that this is a good time=
+ to
+> > > >> think about how this should work.)
+> > > >>
+> > > >> The current APIs, *and* the proposed jit_text_alloc() API, don't a=
+ctually
+> > > >> look like the one think in the Linux ecosystem that actually
+> > > >> intelligently and efficiently maps new text into an address space:
+> > > >> mmap().
+> > > >>
+> > > >> On x86, you can mmap() an existing file full of executable code PR=
+OT_EXEC
+> > > >> and jump to it with minimal synchronization (just the standard imp=
+licit
+> > > >> ordering in the kernel that populates the pages before setting up =
+the
+> > > >> PTEs and whatever user synchronization is needed to avoid jumping =
+into
+> > > >> the mapping before mmap() finishes).  It works across CPUs, and th=
+e only
+> > > >> possible way userspace can screw it up (for a read-only mapping of
+> > > >> read-only text, anyway) is to jump to the mapping too early, in wh=
+ich
+> > > >> case userspace gets a page fault.  Incoherence is impossible, and =
+no one
+> > > >> needs to "serialize" (in the SDM sense).
+> > > >>
+> > > >> I think the same sequence (from userspace's perspective) works on =
+other
+> > > >> architectures, too, although I think more cache management is need=
+ed on
+> > > >> the kernel's end.  As far as I know, no Linux SMP architecture nee=
+ds an
+> > > >> IPI to map executable text into usermode, but I could easily be wr=
+ong.
+> > > >> (IIRC RISC-V has very developer-unfriendly icache management, but =
+I don't
+> > > >> remember the details.)
+> > > >>
+> > > >> Of course, using ptrace or any other FOLL_FORCE to modify text on =
+x86 is
+> > > >> rather fraught, and I bet many things do it wrong when userspace i=
+s
+> > > >> multithreaded.  But not in production because it's mostly not used=
+ in
+> > > >> production.)
+> > > >>
+> > > >> But jit_text_alloc() can't do this, because the order of operation=
+s
+> > > >> doesn't match.  With jit_text_alloc(), the executable mapping show=
+s up
+> > > >> before the text is populated, so there is no atomic change from no=
+t-there
+> > > >> to populated-and-executable.  Which means that there is an opportu=
+nity
+> > > >> for CPUs, speculatively or otherwise, to start filling various cac=
+hes
+> > > >> with intermediate states of the text, which means that various
+> > > >> architectures (even x86!) may need serialization.
+> > > >>
+> > > >> For eBPF- and module- like use cases, where JITting/code gen is qu=
+ite
+> > > >> coarse-grained, perhaps something vaguely like:
+> > > >>
+> > > >> jit_text_alloc() -> returns a handle and an executable virtual add=
+ress,
+> > > >> but does *not* map it there
+> > > >> jit_text_write() -> write to that handle
+> > > >> jit_text_map() -> map it and synchronize if needed (no sync needed=
+ on
+> > > >> x86, I think)
+> > > >>
+> > > >> could be more efficient and/or safer.
+> > > >>
+> > > >> (Modules could use this too.  Getting alternatives right might tak=
+e some
+> > > >> fiddling, because off the top of my head, this doesn't match how i=
+t works
+> > > >> now.)
+> > > >>
+> > > >> To make alternatives easier, this could work, maybe (haven't fully
+> > > >> thought it through):
+> > > >>
+> > > >> jit_text_alloc()
+> > > >> jit_text_map_rw_inplace() -> map at the target address, but RW, !X
+> > > >>
+> > > >> write the text and apply alternatives
+> > > >>
+> > > >> jit_text_finalize() -> change from RW to RX *and synchronize*
+> > > >>
+> > > >> jit_text_finalize() would either need to wait for RCU (possibly ex=
+tra
+> > > >> heavy weight RCU to get "serialization") or send an IPI.
+> > > >
+> > > > This essentially how modules work now. The memory is allocated RW, =
+written
+> > > > and updated with alternatives and then made ROX in the end with set=
+_memory
+> > > > APIs.
+> > > >
+> > > > The issue with not having the memory mapped X when it's written is =
+that we
+> > > > cannot use large pages to map it. One of the goals is to have execu=
+table
+> > > > memory mapped with large pages and make code allocator able to divi=
+de that
+> > > > page among several callers.
+> > > >
+> > > > So the idea was that jit_text_alloc() will have a cache of large pa=
+ges
+> > > > mapped ROX, will allocate memory from those caches and there will b=
+e
+> > > > jit_update() that uses text poking for writing to that memory.
+> > > >
+> > > > Upon allocation of a large page to increase the cache, that large p=
+age will
+> > > > be "invalidated" by filling it with breakpoint instructions (e.g in=
+t3 on
+> > > > x86)
+> > >
+> > > Is this actually valid?  In between int3 and real code, there=E2=80=
+=99s a
+> > > potential torn read of real code mixed up with 0xcc.
+> >
+> > You mean while doing text poking?
+>
+> I think we've been getting distracted by text_poke(). text_poke() does
+> updates via a different virtual address which introduce new
+> synchroniation wrinkles, but it's not the main issue.
+>
+> As _think_ I understand it, the root of the issue is that speculative
+> execution - and that per Andy, speculative execution doesn't obey memory
+> barriers.
+>
+> I have _not_ dug into the details of how retpolines work and all the
+> spectre stuff that was going on, but - retpoline uses lfence, doesn't
+> it? And if speculative execution is the issue here, isn't retpoline what
+> we need?
+>
+> For this particular issue, I'm not sure "invalidate by filling with
+> illegal instructions" makes sense. For that to work, would the processor
+> have to execute a serialize operation and a retry on hitting an illegal
+> instruction - or perhaps we do in the interrupt handler?
+>
+> But if filling with illegal instructions does act as a speculation
+> barrier, then the issue is that a torn read could generate a legal but
+> incorrect instruction.
 
-> > +static void __iommufd_access_detach(struct iommufd_access *access)
-> > +{
-> > +	struct iommufd_ioas *cur_ioas = access->ioas;
-> > +
-> > +	lockdep_assert_held(&access->ioas_lock);
-> > +	/*
-> > +	 * Set ioas to NULL to block any further iommufd_access_pin_pages().
-> > +	 * iommufd_access_unpin_pages() can continue using access->ioas_unpin.
-> > +	 */
-> > +	access->ioas = NULL;
-> > +
-> > +	if (access->ops->unmap) {
-> > +		mutex_unlock(&access->ioas_lock);
-> > +		access->ops->unmap(access->data, 0, ULONG_MAX);
-> > +		mutex_lock(&access->ioas_lock);
-> > +	}
-> > +	iopt_remove_access(&cur_ioas->iopt, access);
-> > +	refcount_dec(&cur_ioas->obj.users);
-> > +}
-> > +
-> > +void iommufd_access_detach(struct iommufd_access *access)
-> > +{
-> > +	mutex_lock(&access->ioas_lock);
-> > +	if (WARN_ON(!access->ioas))
-> > +		goto out;
-> > +	__iommufd_access_detach(access);
-> > +out:
-> > +	access->ioas_unpin = NULL;
-> > +	mutex_unlock(&access->ioas_lock);
-> > +}
-> > +EXPORT_SYMBOL_NS_GPL(iommufd_access_detach, IOMMUFD);
-> 
-> There is not really any benefit to make this two functions
+What is a "torn read" here? I assume it is an instruction read that
+goes at the wrong instruction boundary (CISC). If this is correct, do
+we need to handle torn read caused by software bug, or hardware
+bit flip, or both?
 
-The __iommufd_access_detach() will be used by replace() in the
-following series. Yet, let's merge them here then. And I'll add
-__iommufd_access_detach() back in the replace series.
-
-> > int iommufd_access_attach(struct iommufd_access *access, u32 ioas_id)
-> > {
-> [..]
-> > 	if (access->ioas) {
-> 
-> if (access->ioas || access->ioas_unpin) {
-
-Ack.
-
-> But I wonder if it should be a WARN_ON? Does VFIO protect against
-> the userspace racing detach and attach, or do we expect to do it here?
-
-VFIO has a vdev->iommufd_attached flag to prevent a double call
-of this function. And detach and attach there also have a mutex
-protection. So it should be a WARN_ON here, I think.
-
-> > @@ -579,8 +620,8 @@ void iommufd_access_notify_unmap(struct io_pagetable *iopt, unsigned long iova,
-> >  void iommufd_access_unpin_pages(struct iommufd_access *access,
-> >  				unsigned long iova, unsigned long length)
-> >  {
-> > -	struct io_pagetable *iopt = &access->ioas->iopt;
-> >  	struct iopt_area_contig_iter iter;
-> > +	struct io_pagetable *iopt;
-> >  	unsigned long last_iova;
-> >  	struct iopt_area *area;
-> >  
-> > @@ -588,6 +629,13 @@ void iommufd_access_unpin_pages(struct iommufd_access *access,
-> >  	    WARN_ON(check_add_overflow(iova, length - 1, &last_iova)))
-> >  		return;
-> >  
-> > +	mutex_lock(&access->ioas_lock);
-> > +	if (!access->ioas_unpin) {
-> 
-> This should be WARN_ON(), the driver has done something wrong if we
-> call this after the access has been detached.
-
-Ack. Also adding a line of comments for that:
-+       /*
-+        * The driver must be doing something wrong if it calls this before an
-+        * iommufd_access_attach() or after an iommufd_access_detach().
-+        */
-+       if (WARN_ON(!access->ioas_unpin)) {
-
-Thanks
-Nic
+Thanks,
+Song
