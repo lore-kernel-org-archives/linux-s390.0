@@ -2,126 +2,119 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B13FEB64D7
-	for <linux-s390@archiver.kernel.org>; Mon, 26 Jun 2023 17:49:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E4883EB64D7
+	for <linux-s390@archiver.kernel.org>; Mon, 26 Jun 2023 22:34:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230166AbjFZRtZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 26 Jun 2023 13:49:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46116 "EHLO
+        id S230052AbjFZWeV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 26 Jun 2023 18:34:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230377AbjFZRtK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Jun 2023 13:49:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 942EB26B3;
-        Mon, 26 Jun 2023 10:48:52 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3025360F18;
-        Mon, 26 Jun 2023 17:48:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86401C43397;
-        Mon, 26 Jun 2023 17:48:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1687801731;
-        bh=fFWuzhLLiGkinhaWeToFLkDX/dcx5OWER83aW8VgRow=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=Qn7TSH5fBy879Kn45s8a/YCOEx1oTS+0VCd/Q+kNmCB7uRTTg7TK3CW2K5FgKL5SO
-         RoBVKuhnNkjoWxoU5K2xmCMLOL3TePePVRvun87gj3KrTnQpXgAMXLWOX/L2U+vGMb
-         wy6CqBDWmWhCmphC6Q8EiBNziTaMXriaczMp6DJiN1Ej/WUjTzJ6N+lvXogj4eiJcj
-         PJKRTqLP+Zecd+1KGIrC38/JsFePpZ84jlJVtuUPeUpe+0KdJssjei1KlWQsAb8xqI
-         wX+VWs0F7zWSqHLgR+NZLp09+VOq+k1qPrGR83NuByW+4SQgicdeCKOv73ZNgnYywR
-         IXCdgqJe6fP2Q==
-Received: by mail-lf1-f43.google.com with SMTP id 2adb3069b0e04-4f8689fbf59so5765332e87.0;
-        Mon, 26 Jun 2023 10:48:51 -0700 (PDT)
-X-Gm-Message-State: AC+VfDwHOCXBDBdGd9b4lMdSKT8qVBasv78TzKVknxYGcI7OVT7Ygd8R
-        4MKUxER8LP9Ic52vOMgwJgoERu5KyoiNGxxH/7k=
-X-Google-Smtp-Source: ACHHUZ6w6e1OYy7QM9S+YTdK71Dx4cd9s642AcRaJSfPZb8UXF8n/hvi2zuHhdV8C7DcTgUpaxVtcUwpuH0YchvBFOg=
-X-Received: by 2002:a19:5f5d:0:b0:4f8:5e62:b94b with SMTP id
- a29-20020a195f5d000000b004f85e62b94bmr8655403lfj.9.1687801729333; Mon, 26 Jun
- 2023 10:48:49 -0700 (PDT)
-MIME-Version: 1.0
-References: <20230616085038.4121892-1-rppt@kernel.org> <20230616085038.4121892-3-rppt@kernel.org>
- <f9a7eebe-d36e-4587-b99d-35d4edefdd14@app.fastmail.com> <20230618080027.GA52412@kernel.org>
- <a17c65c6-863f-4026-9c6f-a04b659e9ab4@app.fastmail.com> <20230625161417.GK52412@kernel.org>
- <ZJmFFmexl_1GUhIL@FVFF77S0Q05N>
-In-Reply-To: <ZJmFFmexl_1GUhIL@FVFF77S0Q05N>
-From:   Song Liu <song@kernel.org>
-Date:   Mon, 26 Jun 2023 10:48:37 -0700
-X-Gmail-Original-Message-ID: <CAPhsuW4pDkd7rCWRM6938ve36rfhGxyu=8t1-GjcKnNajofpQA@mail.gmail.com>
-Message-ID: <CAPhsuW4pDkd7rCWRM6938ve36rfhGxyu=8t1-GjcKnNajofpQA@mail.gmail.com>
-Subject: Re: [PATCH v2 02/12] mm: introduce execmem_text_alloc() and jit_text_alloc()
-To:     Mark Rutland <mark.rutland@arm.com>
-Cc:     Mike Rapoport <rppt@kernel.org>, Andy Lutomirski <luto@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Helge Deller <deller@gmx.de>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Kent Overstreet <kent.overstreet@linux.dev>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Puranjay Mohan <puranjay12@gmail.com>,
-        Rick P Edgecombe <rick.p.edgecombe@intel.com>,
-        "Russell King (Oracle)" <linux@armlinux.org.uk>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will@kernel.org>, bpf@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-        linux-mm@kvack.org, linux-modules@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
-        netdev@vger.kernel.org, sparclinux@vger.kernel.org,
-        "the arch/x86 maintainers" <x86@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S229792AbjFZWeN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Jun 2023 18:34:13 -0400
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7408BE6F
+        for <linux-s390@vger.kernel.org>; Mon, 26 Jun 2023 15:34:12 -0700 (PDT)
+Received: by mail-yb1-xb4a.google.com with SMTP id 3f1490d57ef6-c005a8ca4d9so5202378276.3
+        for <linux-s390@vger.kernel.org>; Mon, 26 Jun 2023 15:34:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20221208; t=1687818851; x=1690410851;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=2Vg4hZm9fpFWiBqixG4Q+f/nHkPQNxqem1yZABI6YEs=;
+        b=RIhCNi128w53AsG94gTZ/h7xROjZCN90D5HF+zj6H+mf+tA9uJXzK2gwkVi1+EczUw
+         oUhB8sO1YNtH/9Jeg4uefzw7BlrESpAnfXFuChHqiBmudCaqmKnQGCYz4sF8vwUzj4Du
+         yfiP/vpIVM+R1H5cU9owGm2ns/rcJIl54qr2vnpafOqlUiXF2q+XgNg4sieRH2Gzwk02
+         MSWutXvjPQPJ62sgqKkw621yLOwVbZJtCxCdlkhmQASoOzPzi8FhemFVvuZFJHbsLit/
+         5aJuEJv8CebqDMZ8NZ0c2wiDtLloVCC6mrxMRzU5FEG5O8VfzrWvv/Y++EOt/hcJWP1q
+         BIXw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1687818851; x=1690410851;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=2Vg4hZm9fpFWiBqixG4Q+f/nHkPQNxqem1yZABI6YEs=;
+        b=Ng1qNdyHdRVCfd7yBsQpr8voPHBOmQW0dzfE0IIIhNl9OA/N4fWBvVFh0C0YJHyI/s
+         FABKZ8ao6NVku593x5ogs16zr3rOBYmGv8fqK7VlkRwO5aztjx/vMtWsa150dFEI8I6R
+         i4HZLSCwEbDksVP22y1jX/5GELgLK5DctYDTqBaoVtGR+/50xPqMVge13X/3FCHFY4Cu
+         54c8pkACQZ8SQd2ehzTmPWJnK0rE/50sBpZkiMVIU3S/WbilEynpTs2KGF2w0YKUMwrJ
+         EP4+5SOPjTM9jbYKTLrce8jaf6rs5bMA+PqUkOrq+aLBuWGEX8FtCcOMfEjSnkgxVbqj
+         PP3w==
+X-Gm-Message-State: AC+VfDzU95h6/JOI/YkuOT7bUKzvjDWYHHrsQRvn2+vIdJXvc7A+uY50
+        qx0niKF8H3HRnHaXbftGIaGBM2ZVIuY=
+X-Google-Smtp-Source: ACHHUZ6By2nwy1N4OsGA0iP40C8/7BpgMrb+W8CG/njrH1qS7qUc13yLXXj+AhZqSxHnuO5I0vzWbc1VeaQ=
+X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5c37])
+ (user=seanjc job=sendgmr) by 2002:a25:e701:0:b0:c00:3434:f639 with SMTP id
+ e1-20020a25e701000000b00c003434f639mr4728541ybh.1.1687818851762; Mon, 26 Jun
+ 2023 15:34:11 -0700 (PDT)
+Date:   Mon, 26 Jun 2023 15:34:10 -0700
+In-Reply-To: <fc70263c-b7af-d8e0-14f4-4ffcde67aa3e@redhat.com>
+Mime-Version: 1.0
+References: <20230623125416.481755-1-thuth@redhat.com> <20230623125416.481755-3-thuth@redhat.com>
+ <ZJWrKtnflTrskPkX@google.com> <fc70263c-b7af-d8e0-14f4-4ffcde67aa3e@redhat.com>
+Message-ID: <ZJoSYnZGYrAj11RN@google.com>
+Subject: Re: [kvm-unit-tests PATCH 2/2] Link with "-z noexecstack" to avoid
+ warning from newer versions of ld
+From:   Sean Christopherson <seanjc@google.com>
+To:     Thomas Huth <thuth@redhat.com>
+Cc:     kvm@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
+        "Nico =?iso-8859-1?Q?B=F6hr?=" <nrb@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Andrew Jones <andrew.jones@linux.dev>, kvmarm@lists.linux.dev,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        David Hildenbrand <david@redhat.com>,
+        Laurent Vivier <lvivier@redhat.com>
+Content-Type: text/plain; charset="us-ascii"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Jun 26, 2023 at 5:31=E2=80=AFAM Mark Rutland <mark.rutland@arm.com>=
- wrote:
->
-[...]
-> >
-> > So the idea was that jit_text_alloc() will have a cache of large pages
-> > mapped ROX, will allocate memory from those caches and there will be
-> > jit_update() that uses text poking for writing to that memory.
-> >
-> > Upon allocation of a large page to increase the cache, that large page =
-will
-> > be "invalidated" by filling it with breakpoint instructions (e.g int3 o=
-n
-> > x86)
->
-> Does that work on x86?
->
-> That is in no way gauranteed for other architectures; on arm64 you need
-> explicit cache maintenance (with I-cache maintenance at the VA to be exec=
-uted
-> from) followed by context-synchronization-events (e.g. via ISB instructio=
-ns, or
-> IPIs).
+On Fri, Jun 23, 2023, Thomas Huth wrote:
+> On 23/06/2023 16.24, Sean Christopherson wrote:
+> > On Fri, Jun 23, 2023, Thomas Huth wrote:
+> > > Newer versions of ld (from binutils 2.40) complain on s390x and x86:
+> > > 
+> > >   ld: warning: s390x/cpu.o: missing .note.GNU-stack section implies
+> > >                executable stack
+> > >   ld: NOTE: This behaviour is deprecated and will be removed in a
+> > >             future version of the linker
+> > > 
+> > > We can silence these warnings by using "-z noexecstack" for linking
+> > > (which should not have any real influence on the kvm-unit-tests since
+> > > the information from the ELF header is not used here anyway, so it's
+> > > just cosmetics).
+> > > 
+> > > Signed-off-by: Thomas Huth <thuth@redhat.com>
+> > > ---
+> > >   Makefile | 2 +-
+> > >   1 file changed, 1 insertion(+), 1 deletion(-)
+> > > 
+> > > diff --git a/Makefile b/Makefile
+> > > index 0e5d85a1..20f7137c 100644
+> > > --- a/Makefile
+> > > +++ b/Makefile
+> > > @@ -96,7 +96,7 @@ CFLAGS += -Woverride-init -Wmissing-prototypes -Wstrict-prototypes
+> > >   autodepend-flags = -MMD -MF $(dir $*).$(notdir $*).d
+> > > -LDFLAGS += -nostdlib
+> > > +LDFLAGS += -nostdlib -z noexecstack
+> > 
+> > Drat, the pull request[1] I sent to Paolo yesterday only fixes x86[2].
+> 
+> Oops, sorry, I did not notice that patch in my overcrowded mailboxes (or
+> forgot about it during KVM forum...) :-/
 
-I guess we need:
-1) Invalidate unused part of the huge ROX pages;
-2) Do not put two jit users (including module text, bpf, etc.) in the
-same cache line;
-3) Explicit cache maintenance;
-4) context-synchronization-events.
+Heh, you gave a Reviewed-by[*], so either its the latter, or you've got a clone
+running around :-)
 
-Would these (or a subset of them) be sufficient to protect us from torn rea=
-d?
+[*] https://lore.kernel.org/all/916aac4f-97b8-70c2-de39-87438eb4aea4@redhat.com
 
-Thanks,
-Song
+> > Paolo, want me to redo the pull request to drop the x86-specific patch?
+> 
+> I can also respin my patch on top of your series later ... the problem
+> currently also only seems to happen on x86 and s390x, on ppc64 and aarch64,
+> the linker does not complain ... so maybe it's even better to do it
+> per-architecture only anyway? Opinions?
+
+I don't think it makes sense to do this per-arch, other architectures likely aren't
+problematic purely because of linker specific behavior, e.g. see
+
+https://patches.linaro.org/project/binutils/patch/1506025575-1559-1-git-send-email-jim.wilson@linaro.org
