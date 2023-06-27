@@ -2,107 +2,99 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F8FBEB64DC
-	for <linux-s390@archiver.kernel.org>; Tue, 27 Jun 2023 04:46:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 52FFDEB64D9
+	for <linux-s390@archiver.kernel.org>; Tue, 27 Jun 2023 05:15:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231178AbjF0EqY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 27 Jun 2023 00:46:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38030 "EHLO
+        id S229584AbjF0FPe convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 27 Jun 2023 01:15:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231180AbjF0Eps (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 27 Jun 2023 00:45:48 -0400
-Received: from mail-yw1-x1134.google.com (mail-yw1-x1134.google.com [IPv6:2607:f8b0:4864:20::1134])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1184B1FD7
-        for <linux-s390@vger.kernel.org>; Mon, 26 Jun 2023 21:44:21 -0700 (PDT)
-Received: by mail-yw1-x1134.google.com with SMTP id 00721157ae682-5704fce0f23so42572767b3.3
-        for <linux-s390@vger.kernel.org>; Mon, 26 Jun 2023 21:44:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1687841060; x=1690433060;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=dVtrcXbE5qXWKdJhq2ArhetT4KPRpQBwbjTOuMnTdxE=;
-        b=501HLYHctmk8sIJeTmzxhRx3/mgKpv1jRi1zyxe6IKd5PzvxEUvUlafEKoDqL6yZVr
-         8LPzltfzYfOsnNGE3T6BklB22lAMitCgdhFuhtcXDNR8cn90bt0hxS6/rFyMCnKABSjm
-         /oRswCkgkHFa78/d8yQxqLAP7w+UcywLgaNVEk0kQUj/E5gzTgG4U1Ib/QTJ68K6B1lq
-         DHiArvPKR0yaKTV4AcdaFGyA0a3QVzlRHTqcAyQmjJhyBDsZIisDj9Axezm4VTj3plhb
-         Dus4mDTAcMi1b8nttzH3dDwb6//iZcVcKmqu+MryYnw/GG09jfr1xcEP4Qfwx6utRJkj
-         zVzA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1687841060; x=1690433060;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=dVtrcXbE5qXWKdJhq2ArhetT4KPRpQBwbjTOuMnTdxE=;
-        b=btp3nEitqle1a1cMjjyr3mAArPyvXN4YCCl8NDkEamBM7uofB4zyirWgLBI7LsqZml
-         f3YucKBujQD4UtxWZTnuqTR8GJvtD4U7tR39BZdt4MyRbZ1ITHUpyxOhMkHP/u6VoQUm
-         etkSajR9VC+myUoRGG23p2nLsMTfAiWTTkzPmeQT0QhHJNZLwwkU8dYK9EtczoEMKXCD
-         JZUtJ3ycv/XXPzHb88n5TEdho5iB9CwZcFe1wmQ1EJPrt3rVbEEzyTOFvseU5nFMuepP
-         CNkNtw8Zkn8Smwvz9jjgU/eh110JKnuDA5gmDZqua+00itIJSb6+ARDpDcPuoMCZv1Rc
-         EXHg==
-X-Gm-Message-State: AC+VfDwGkJ4jxKVXF1L61T6b73+S2/leQqAPMPVOqgYmR8HViWGS5OXs
-        LOvXvYEj1zDUJTZkISwSc8mSAA==
-X-Google-Smtp-Source: ACHHUZ4LBcIHJ/ynOcwzWzKYI9Mk2cjEWGfgZGpKdMoBZ7/XKupPMOzNiMbSCmgeKveyN334gs70/g==
-X-Received: by 2002:a81:7bc2:0:b0:56d:43cb:da98 with SMTP id w185-20020a817bc2000000b0056d43cbda98mr29864359ywc.29.1687841059932;
-        Mon, 26 Jun 2023 21:44:19 -0700 (PDT)
-Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id j8-20020a252308000000b00bf44703efd3sm1487805ybj.6.2023.06.26.21.44.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 26 Jun 2023 21:44:19 -0700 (PDT)
-Date:   Mon, 26 Jun 2023 21:44:08 -0700 (PDT)
-From:   Hugh Dickins <hughd@google.com>
-X-X-Sender: hugh@ripple.attlocal.net
-To:     "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
-cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org,
-        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-        xen-devel@lists.xenproject.org, kvm@vger.kernel.org,
-        Hugh Dickins <hughd@google.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Jonas Bonn <jonas@southpole.se>,
-        David Hildenbrand <david@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Richard Weinberger <richard@nod.at>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>
-Subject: Re: [PATCH v6 00/33] Split ptdesc from struct page
-In-Reply-To: <20230627031431.29653-1-vishal.moola@gmail.com>
-Message-ID: <e8992eee-4140-427e-bacb-9449f346318@google.com>
-References: <20230627031431.29653-1-vishal.moola@gmail.com>
+        with ESMTP id S229524AbjF0FPc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 27 Jun 2023 01:15:32 -0400
+X-Greylist: delayed 335 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 26 Jun 2023 22:15:27 PDT
+Received: from relay.hostedemail.com (smtprelay0015.hostedemail.com [216.40.44.15])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D4C31734;
+        Mon, 26 Jun 2023 22:15:27 -0700 (PDT)
+Received: from omf11.hostedemail.com (a10.router.float.18 [10.200.18.1])
+        by unirelay07.hostedemail.com (Postfix) with ESMTP id B349A16081C;
+        Tue, 27 Jun 2023 05:09:50 +0000 (UTC)
+Received: from [HIDDEN] (Authenticated sender: joe@perches.com) by omf11.hostedemail.com (Postfix) with ESMTPA id 846C12002D;
+        Tue, 27 Jun 2023 05:09:47 +0000 (UTC)
+Message-ID: <7c9690c70c89aac590de139766b5be3bc9162725.camel@perches.com>
+Subject: Re: [PATCH net-next v2 1/4] s390/lcs: Convert sysfs sprintf to
+ sysfs_emit
+From:   Joe Perches <joe@perches.com>
+To:     Alexandra Winter <wintera@linux.ibm.com>,
+        David Miller <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Eric Dumazet <edumazet@google.com>
+Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Thorsten Winkler <twinkler@linux.ibm.com>,
+        Jules Irenge <jbi.octave@gmail.com>,
+        Simon Horman <simon.horman@corigine.com>
+Date:   Mon, 26 Jun 2023 22:09:46 -0700
+In-Reply-To: <20230621134921.904217-2-wintera@linux.ibm.com>
+References: <20230621134921.904217-1-wintera@linux.ibm.com>
+         <20230621134921.904217-2-wintera@linux.ibm.com>
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 8BIT
+User-Agent: Evolution 3.48.3 (3.48.3-1.fc38) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Stat-Signature: eirzumqgfygyyrq7tdyz5x8ec17s86x1
+X-Rspamd-Server: rspamout04
+X-Rspamd-Queue-Id: 846C12002D
+X-Session-Marker: 6A6F6540706572636865732E636F6D
+X-Session-ID: U2FsdGVkX1+UlTz8Y1Y/SRQgUNG2scYIhZ3r6zhBXuI=
+X-HE-Tag: 1687842587-193108
+X-HE-Meta: U2FsdGVkX1+XIntmyHlManxmIgRJyEzIipNGHob23LeNoeBwCf86ZTKfA1HdPhLctu1EkGId3ZDBJYiDD1rns9JBc7hBvFePDwQYt2rfk/Q5GSIzdr3KkP157TdjZZhafX3wJ52HOwduiTd5sRV5C4q0CvNMKLxJ9rm2J6IrX4Rf0kPYD+D6bnFZHpFxuIa68J8lyd2ekNdjYYXtt4IPSR9btg2ZgT1ul51ZBQaE79M3psEB0Ae4/o/hTRZ4pNDnju0hL+JoIIenXOW6ykJwwiV60ww770uq4xmtzxCf8BGHAmZxiBc5PoqIkfjlA8GZ0WpkWBMP8ebRBvTzJyb9gy+33pXHye6n
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 26 Jun 2023, Vishal Moola (Oracle) wrote:
+On Wed, 2023-06-21 at 15:49 +0200, Alexandra Winter wrote:
+> From: Thorsten Winkler <twinkler@linux.ibm.com>
+> 
+> Following the advice of the Documentation/filesystems/sysfs.rst.
+> All sysfs related show()-functions should only use sysfs_emit() or
+> sysfs_emit_at() when formatting the value to be returned to user space.
+> 
+> While at it, follow Linux kernel coding style and unify indentation
+[]
+> diff --git a/drivers/s390/net/lcs.c b/drivers/s390/net/lcs.c
+[]
+> @@ -1901,14 +1901,14 @@ lcs_open_device(struct net_device *dev)
+>  static ssize_t
+>  lcs_portno_show (struct device *dev, struct device_attribute *attr, char *buf)
+>  {
+> -        struct lcs_card *card;
+> +	struct lcs_card *card;
+>  
+>  	card = dev_get_drvdata(dev);
+>  
+> -        if (!card)
+> -                return 0;
+> +	if (!card)
+> +		return 0;
+>  
+> -        return sprintf(buf, "%d\n", card->portno);
+> +	return sysfs_emit(buf, "%d\n", card->portno);
+[]
+> @@ -1970,7 +1971,7 @@ lcs_timeout_show(struct device *dev, struct device_attribute *attr, char *buf)
+>  
+>  	card = dev_get_drvdata(dev);
+>  
+> -	return card ? sprintf(buf, "%u\n", card->lancmd_timeout) : 0;
+> +	return card ? sysfs_emit(buf, "%u\n", card->lancmd_timeout) : 0;
 
-> The MM subsystem is trying to shrink struct page. This patchset
-> introduces a memory descriptor for page table tracking - struct ptdesc.
-...
->  39 files changed, 686 insertions(+), 455 deletions(-)
+Like the other show function
+I think it'd be nicer to use:
 
-I don't see the point of this patchset: to me it is just obfuscation of
-the present-day tight relationship between page table and struct page.
+	card = dev_get_drvdata(dev);
+	if (!card)
+		return 0;
 
-Matthew already explained:
+	return sysfs_emit(buf, "%u\n", card->lancmd_timeout);
 
-> The intent is to get ptdescs to be dynamically allocated at some point
-> in the ~2-3 years out future when we have finished the folio project ...
-
-So in a kindly mood, I'd say that this patchset is ahead of its time.
-But I can certainly adapt to it, if everyone else sees some point to it.
-
-Hugh
