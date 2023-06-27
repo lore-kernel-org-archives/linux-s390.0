@@ -2,57 +2,57 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8715CEB64D9
-	for <linux-s390@archiver.kernel.org>; Tue, 27 Jun 2023 01:56:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 17C2AEB64D7
+	for <linux-s390@archiver.kernel.org>; Tue, 27 Jun 2023 02:27:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230076AbjF0B40 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 26 Jun 2023 21:56:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46358 "EHLO
+        id S230145AbjF0C1n (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 26 Jun 2023 22:27:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51180 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230106AbjF0B4Y (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Jun 2023 21:56:24 -0400
-Received: from mail-qt1-x829.google.com (mail-qt1-x829.google.com [IPv6:2607:f8b0:4864:20::829])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 156541716
-        for <linux-s390@vger.kernel.org>; Mon, 26 Jun 2023 18:56:20 -0700 (PDT)
-Received: by mail-qt1-x829.google.com with SMTP id d75a77b69052e-401f4408955so80611cf.1
-        for <linux-s390@vger.kernel.org>; Mon, 26 Jun 2023 18:56:20 -0700 (PDT)
+        with ESMTP id S230082AbjF0C1n (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Jun 2023 22:27:43 -0400
+Received: from mail-qt1-x835.google.com (mail-qt1-x835.google.com [IPv6:2607:f8b0:4864:20::835])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31C941999
+        for <linux-s390@vger.kernel.org>; Mon, 26 Jun 2023 19:27:41 -0700 (PDT)
+Received: by mail-qt1-x835.google.com with SMTP id d75a77b69052e-40079620a83so131291cf.0
+        for <linux-s390@vger.kernel.org>; Mon, 26 Jun 2023 19:27:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1687830979; x=1690422979;
+        d=google.com; s=20221208; t=1687832860; x=1690424860;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=8tQeS+NgvL9gdsqnn0SpOEkHfViOYxTZPaCYpoCkL24=;
-        b=60hic23BjNzvDtmwzOgn1MGUJS385E8qjRXwGDdx5oFNFXl07UFmQ8SM0jme+3UZak
-         8TPvxMoBVd0/boJww6XEce0KK+tadb5kh/xWzpmyMgdh351azpInHaKRbmo4Gar6yfp1
-         LpKcvaGnWt9AwvtTeNfLxJVQ42I9WXAYeV661LQvCSX90DjXZWn22h1TqBjHU1vXR7rm
-         S2VerQn/OQAGb13OsVr68o0IbNssvEcNUN+Sw92W0QMmV67yGkSnOkUgWRUmZEHRdU/m
-         O/fz3eCb4kPhxLrxwc2qGdcN3/Wp1+NoSkn2ZQNKQi+jsatj4YqTaMawlQlow2Gq0a0P
-         NRxg==
+        bh=dOhy3g1phCLJAkpl2TbZcPe+XFOt300zTop8dH8V1+o=;
+        b=SjT+NGU/KYp0j20S0Aem+ucWhH5rMWKMTvqrWJZGHCXKNk/LoqG+k6xJDmv+G7pu6D
+         36lTPzR3ohTT2iCmphZKpBld1mzuq6LD9UPdJrMSOKVZrcoMrbToMUK05vMKSq7Mqco1
+         ngdqtresiHFCt8k60Ed9MKzMJXlF1YO1/KSGjmI4plvCYnWxPaPtbifQP5Dr0f9dUdkE
+         GOFP80hxOfsDuSqNAN8sVcWkRnMvxffTxmCL0n1l8BnOLfZyjhJ7DL36iVd+FjFhPi7M
+         T7Qm+yGTZOGslzbLI83m17T3pWe5b3GUGHWu43CR9f/xk0/lyDWAL09H8sRgioiTAqyD
+         rSyw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1687830979; x=1690422979;
+        d=1e100.net; s=20221208; t=1687832860; x=1690424860;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=8tQeS+NgvL9gdsqnn0SpOEkHfViOYxTZPaCYpoCkL24=;
-        b=jBrj4mohpL0mVpdbgGGHzJMZjgRe0urgawS/JMzJOUr3LnxEAVecV8pAh+Qm3mm1Mp
-         jFH3G5Ja20AaQ14r7eOA41joAIxNRiU4GhQjHihzjA0mFajFJMUrGYNaJivvkTCSyk3g
-         88+LSjyPehMInHup1xYv4Kn28rYCMqeWjzngG0NJ6/Hz5oqEwKKqH/5zsfkSc0VTAL9U
-         P1maS328VMKilTkvfWeVFZkjiH7JLP8INWh2X55xG45UrbbgDW8wun/YcGhI+qUesJbI
-         Cdtedbgw2K41KAiVod/1p4KPpdhFuOK1o7k7Pg0sX5a9gfL4/V/ZP4PAqYwjKBwDx1MJ
-         Witg==
-X-Gm-Message-State: AC+VfDzm4/2YtReBg9VmPDH9ImDgX2EH4NgI2RrHFZ94cfO9nLZSmRA3
-        hjZcO/VBl1VEXnrx9B8SfCD78zajOteyEwOrR2xiBw==
-X-Google-Smtp-Source: ACHHUZ7NGbNaYPgdhd+csLZUAO7vv9iHp/Px2n5rb+BQ+fyLrwu3yOI/1OC27EhOO3O86tRfvjvrFyJ4P7FTZVx/ap0=
-X-Received: by 2002:a05:622a:24a:b0:3f6:97b4:1a4d with SMTP id
- c10-20020a05622a024a00b003f697b41a4dmr380570qtx.23.1687830978959; Mon, 26 Jun
- 2023 18:56:18 -0700 (PDT)
+        bh=dOhy3g1phCLJAkpl2TbZcPe+XFOt300zTop8dH8V1+o=;
+        b=EPg/2VdQWkpmKLqztTdgGyys0rr6fjytN7Hs4lXaO8y1TDULslteQAaA7f4Z8ERbl2
+         +0Hr6/EXMVtvwOFm6RY2IAjm3tELgzXOWpIm/jYr6hdb2pdnfTexBB9N01QTwCKBB2qD
+         N/Tt7qVNmyII/eZD6rHrzy16oLFlYwseG2wbsv92rLWD/CsKyVlKCD2O0QXFN7eaV7dJ
+         nZQnJyVOJIBPwAl9ell3fv427oyQZUNa3aTaEFj5l8OAw2shUkp0iGidvX9Ln6R2FFH9
+         V+FuZ3z4Ld2Ty02orTg0Ik1MeAIC3tJM1OuCkukvT49Mdk5QW6pA4aEECVorBVo6bWo7
+         cWZA==
+X-Gm-Message-State: AC+VfDwUOSStz6ZexhMG0ytpxtcwyRJBSoRJ9Ed6jd94BD4gwhNeVmFo
+        pevMaEW8E1Nzx8YqoIV34F/LT9GcT2Roh9pu0j+Adg==
+X-Google-Smtp-Source: ACHHUZ6l05CmUEMzgTGl8UFFHdDjs7Y9vlJ1taFM6n42hpudP5U+bVa5aa314ArfBd4UutHG2EoqXB2PidC9xtlm7Ag=
+X-Received: by 2002:ac8:5912:0:b0:3f8:1db6:201c with SMTP id
+ 18-20020ac85912000000b003f81db6201cmr581747qty.13.1687832860133; Mon, 26 Jun
+ 2023 19:27:40 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230626171430.3167004-1-ryan.roberts@arm.com> <20230626171430.3167004-2-ryan.roberts@arm.com>
-In-Reply-To: <20230626171430.3167004-2-ryan.roberts@arm.com>
+References: <20230626171430.3167004-1-ryan.roberts@arm.com> <20230626171430.3167004-3-ryan.roberts@arm.com>
+In-Reply-To: <20230626171430.3167004-3-ryan.roberts@arm.com>
 From:   Yu Zhao <yuzhao@google.com>
-Date:   Mon, 26 Jun 2023 19:55:42 -0600
-Message-ID: <CAOUHufacvArJh7NjL_3LT-e3s1X+bazkvbgvEU+KPKGKEoW+dw@mail.gmail.com>
-Subject: Re: [PATCH v1 01/10] mm: Expose clear_huge_page() unconditionally
+Date:   Mon, 26 Jun 2023 20:27:04 -0600
+Message-ID: <CAOUHufYWtsAU4PvKpVhzJUeQb9cd+BifY9KzgceBXHp2F2dDRg@mail.gmail.com>
+Subject: Re: [PATCH v1 02/10] mm: pass gfp flags and order to vma_alloc_zeroed_movable_folio()
 To:     Ryan Roberts <ryan.roberts@arm.com>
 Cc:     Andrew Morton <akpm@linux-foundation.org>,
         "Matthew Wilcox (Oracle)" <willy@infradead.org>,
@@ -80,32 +80,48 @@ X-Mailing-List: linux-s390@vger.kernel.org
 On Mon, Jun 26, 2023 at 11:14=E2=80=AFAM Ryan Roberts <ryan.roberts@arm.com=
 > wrote:
 >
-> In preparation for extending vma_alloc_zeroed_movable_folio() to
-> allocate a arbitrary order folio, expose clear_huge_page()
-> unconditionally, so that it can be used to zero the allocated folio in
-> the generic implementation of vma_alloc_zeroed_movable_folio().
+> Allow allocation of large folios with vma_alloc_zeroed_movable_folio().
+> This prepares the ground for large anonymous folios. The generic
+> implementation of vma_alloc_zeroed_movable_folio() now uses
+> clear_huge_page() to zero the allocated folio since it may now be a
+> non-0 order.
+>
+> Currently the function is always called with order 0 and no extra gfp
+> flags, so no functional change intended. But a subsequent commit will
+> take advantage of the new parameters to allocate large folios. The extra
+> gfp flags will be used to control the reclaim policy.
 >
 > Signed-off-by: Ryan Roberts <ryan.roberts@arm.com>
 > ---
->  include/linux/mm.h | 3 ++-
->  mm/memory.c        | 2 +-
->  2 files changed, 3 insertions(+), 2 deletions(-)
+>  arch/alpha/include/asm/page.h   |  5 +++--
+>  arch/arm64/include/asm/page.h   |  3 ++-
+>  arch/arm64/mm/fault.c           |  7 ++++---
+>  arch/ia64/include/asm/page.h    |  5 +++--
+>  arch/m68k/include/asm/page_no.h |  7 ++++---
+>  arch/s390/include/asm/page.h    |  5 +++--
+>  arch/x86/include/asm/page.h     |  5 +++--
+>  include/linux/highmem.h         | 23 +++++++++++++----------
+>  mm/memory.c                     |  5 +++--
+>  9 files changed, 38 insertions(+), 27 deletions(-)
 >
-> diff --git a/include/linux/mm.h b/include/linux/mm.h
-> index 7f1741bd870a..7e3bf45e6491 100644
-> --- a/include/linux/mm.h
-> +++ b/include/linux/mm.h
-> @@ -3684,10 +3684,11 @@ enum mf_action_page_type {
->   */
->  extern const struct attribute_group memory_failure_attr_group;
+> diff --git a/arch/alpha/include/asm/page.h b/arch/alpha/include/asm/page.=
+h
+> index 4db1ebc0ed99..6fc7fe91b6cb 100644
+> --- a/arch/alpha/include/asm/page.h
+> +++ b/arch/alpha/include/asm/page.h
+> @@ -17,8 +17,9 @@
+>  extern void clear_page(void *page);
+>  #define clear_user_page(page, vaddr, pg)       clear_page(page)
 >
-> -#if defined(CONFIG_TRANSPARENT_HUGEPAGE) || defined(CONFIG_HUGETLBFS)
->  extern void clear_huge_page(struct page *page,
->                             unsigned long addr_hint,
->                             unsigned int pages_per_huge_page);
-> +
-> +#if defined(CONFIG_TRANSPARENT_HUGEPAGE) || defined(CONFIG_HUGETLBFS)
+> -#define vma_alloc_zeroed_movable_folio(vma, vaddr) \
+> -       vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, 0, vma, vaddr,=
+ false)
+> +#define vma_alloc_zeroed_movable_folio(vma, vaddr, gfp, order) \
+> +       vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO | (gfp), \
+> +                       order, vma, vaddr, false)
 
-We might not want to depend on THP eventually. Right now, we still
-have to, unless splitting is optional, which seems to contradict
-06/10. (deferred_split_folio()  is a nop without THP.)
+I don't think we need to worry about gfp if we want to make a minimum
+series. There would be many discussion points around it, e.g., I
+already disagree with what you chose: GFP_TRANSHUGE_LIGHT would be
+more suitable than __GFP_NORETRY, and there are even better options
+than GFP_TRANSHUGE_LIGHT.
