@@ -2,180 +2,185 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B8926EB64DC
-	for <linux-s390@archiver.kernel.org>; Tue, 27 Jun 2023 03:20:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 80214EB64D9
+	for <linux-s390@archiver.kernel.org>; Tue, 27 Jun 2023 03:37:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231289AbjF0DU1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 26 Jun 2023 23:20:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36768 "EHLO
+        id S230156AbjF0DhS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 26 Jun 2023 23:37:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231315AbjF0DSh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Jun 2023 23:18:37 -0400
-Received: from mail-yw1-x112f.google.com (mail-yw1-x112f.google.com [IPv6:2607:f8b0:4864:20::112f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E36AD2D64;
-        Mon, 26 Jun 2023 20:16:05 -0700 (PDT)
-Received: by mail-yw1-x112f.google.com with SMTP id 00721157ae682-57028539aadso44557767b3.2;
-        Mon, 26 Jun 2023 20:16:05 -0700 (PDT)
+        with ESMTP id S230167AbjF0DgV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Jun 2023 23:36:21 -0400
+Received: from mail-qt1-x82e.google.com (mail-qt1-x82e.google.com [IPv6:2607:f8b0:4864:20::82e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8090B4C1A
+        for <linux-s390@vger.kernel.org>; Mon, 26 Jun 2023 20:31:00 -0700 (PDT)
+Received: by mail-qt1-x82e.google.com with SMTP id d75a77b69052e-4007b5bafceso96581cf.1
+        for <linux-s390@vger.kernel.org>; Mon, 26 Jun 2023 20:31:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1687835761; x=1690427761;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=google.com; s=20221208; t=1687836655; x=1690428655;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Z2eVDlXL8alglJUGVXcc8JA7ix0brgT+4DYqdXjkOuM=;
-        b=Rm5e85CxLSywqFxegbM92lF42neHfR0fR+lQK4IGVo6rv84p4nUjka/pX4hUXrlpwO
-         WD89hdl3l7+Q82fCWDirVtfl1UdPVGFAIR8Pji+LBlOshyqJG18LS5xzOpOCQe2DamDu
-         jKvOLad62fOFII4Rcx9NR2LrprdDjwL6rx6EBRmhcfI68ty/WxtUVuYaOl3yyA6VAcm8
-         kllPQdGN+P459ax9lvyxifjF3Qc52jw7EuJ0L5rjpr2rzqsA5k+0IGd/73X59eOaGEjw
-         K+/CutY1Ags92Fdl/Y8Zq5PhNziANc4vxThpN5vTFQCoz8gt8gqyoqM1KvT2g/UvZYfQ
-         zR+w==
+        bh=Dps86R1lndJwF4gJQy/c3O9t7fuW8Q1JEcrGXaT4yyM=;
+        b=DPpXKg59gxCfYZfd9BY428kZ8iu0DYsney6Rdb3rBdwDtXCqI6by6+cpd+iFCxaq79
+         l5qUs+UtG6qNw6vClJxqZ156uilkFr4nqOfpOjwb4sCDK3cewEwBmVMA0EIXWOjk8R9i
+         TVfgsTBk1kHsR06KuWByKOPsHwpa4kfikZiOJBSb1rUERnaQZ2h4T5rsCZtkeArohaZX
+         Mkw8ML+8yLd2TpK+iFeG6sjz2DCcKu+mgd+76Du4ZXe9n58Em657zW5MzIJDxXMzqKBe
+         fEm9np6GD+3Cx5VBNcJHXVbW+BthLgsTGUPU+3D1UFEeHCXje/m+ogWz3nybucVagpcD
+         4StQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1687835761; x=1690427761;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20221208; t=1687836655; x=1690428655;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Z2eVDlXL8alglJUGVXcc8JA7ix0brgT+4DYqdXjkOuM=;
-        b=XeMb7es0dNd0SG6P+JEFDJDa6b+dXe3oGiaNtHIWVFle+b2548b27fQLZng9YjPiR+
-         GZMiZdGfa6PMjgcqHd0v4PgHof1OoRNO517ZDcbVH5I+MbzNKNG6GxDkIo+vBhjp3Bp5
-         98eYS+2g0RR9F4PieUN472VQCM2UO2SNdIrdTLBVJe7JGiN7dsffUjrv2O8148UBYK+y
-         7jYpimlKsoRQgXSUIKDSTziK7wrb7RPmH6z8uKNF35H7ulVmYzOwLqKf/3c9OOyvxpve
-         twyU9DcKl33P/FcSrP5DNblFL8Pvf6uo2RCMUXpkceDiVkuv7ETwetqHZ78TyaPFOhpI
-         vVHw==
-X-Gm-Message-State: AC+VfDwPxOkrxDK7c7fLBGLd9LNJCZdWN53FHQngH1cxusnxDRC2ozAJ
-        I6LE57Ix4oPvGMmJC9kZ5zs=
-X-Google-Smtp-Source: ACHHUZ7ohgVca4eugfFM/saLKJ40V7MYdUNGfKx6MOO12TR+JS8tS/aqfK1zXJTwp/W9GOKug+ymcA==
-X-Received: by 2002:a0d:d8c2:0:b0:565:8c16:a0e1 with SMTP id a185-20020a0dd8c2000000b005658c16a0e1mr39842823ywe.13.1687835760682;
-        Mon, 26 Jun 2023 20:16:00 -0700 (PDT)
-Received: from unknowna0e70b2ca394.attlocal.net ([2600:1700:2f7d:1800::16])
-        by smtp.googlemail.com with ESMTPSA id s4-20020a0dd004000000b0057399b3bd26sm1614798ywd.33.2023.06.26.20.15.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 26 Jun 2023 20:16:00 -0700 (PDT)
-From:   "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
-To:     Andrew Morton <akpm@linux-foundation.org>,
-        Matthew Wilcox <willy@infradead.org>
-Cc:     linux-mm@kvack.org, linux-arch@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
-        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-        linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-um@lists.infradead.org, xen-devel@lists.xenproject.org,
-        kvm@vger.kernel.org, Hugh Dickins <hughd@google.com>,
-        "Vishal Moola (Oracle)" <vishal.moola@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Mike Rapoport <rppt@kernel.org>
-Subject: [PATCH v6 25/33] mips: Convert various functions to use ptdescs
-Date:   Mon, 26 Jun 2023 20:14:23 -0700
-Message-Id: <20230627031431.29653-26-vishal.moola@gmail.com>
-X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20230627031431.29653-1-vishal.moola@gmail.com>
-References: <20230627031431.29653-1-vishal.moola@gmail.com>
+        bh=Dps86R1lndJwF4gJQy/c3O9t7fuW8Q1JEcrGXaT4yyM=;
+        b=EyA+L01kCAe5Lb15TEb2AHqlgPeH+xjtd2+JjoWnHi2v65MRLUQum430k40Q5Y+D0t
+         Cw+QOm0sjzu/pLS+SrntG9eSpe3hh/DJk+ICjUu9HlRdo9sWWCgo5wHyRKvK4iV58Lk3
+         YceYXE5nIBBmiqnXByyg1J5/B2ReIJS3JudPlJxMyRyo/4sDwGi99vtOc/KWjv7XTvRI
+         qt//iufnEuzwGM3gFnzLRjEG3X17zTAm4t2soR/ls1RQuFKY/BQ+IjnRevArNyn+FlUM
+         /s4QjNtVJPNJ4TWQ5xlrnQ+gRmnrCDZFDCrLnQ2zNOjCwkDpI5Gn13AznqAKC1MPxIML
+         2AFQ==
+X-Gm-Message-State: AC+VfDxK7iOSFMmRWWJUn/ImwAfOF5Hbvp+SZFC+kU2SBxZ0qaCROh90
+        bkgZ0CLhXtvAGUmmQBiEEYZZt0wAy8NnCa4oi8q2nA==
+X-Google-Smtp-Source: ACHHUZ4qGh8xmLwSTj4hOczEKK2tKapgoJ7DPtSPYajCf/D7+00nPQt51ielpDPZJ55CqXUcttPpnW7qGjNXY0ewa5Y=
+X-Received: by 2002:ac8:5953:0:b0:3f5:49b6:f18d with SMTP id
+ 19-20020ac85953000000b003f549b6f18dmr57784qtz.11.1687836655385; Mon, 26 Jun
+ 2023 20:30:55 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20230626171430.3167004-1-ryan.roberts@arm.com>
+In-Reply-To: <20230626171430.3167004-1-ryan.roberts@arm.com>
+From:   Yu Zhao <yuzhao@google.com>
+Date:   Mon, 26 Jun 2023 21:30:19 -0600
+Message-ID: <CAOUHufaUTbUw9MTzw8D=sVrEB+RP6LSBQVGn93TWk=ozV8XobA@mail.gmail.com>
+Subject: Re: [PATCH v1 00/10] variable-order, large folios for anonymous memory
+To:     Ryan Roberts <ryan.roberts@arm.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Yin Fengwei <fengwei.yin@intel.com>,
+        David Hildenbrand <david@redhat.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, linux-alpha@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
+        linux-m68k@lists.linux-m68k.org, linux-s390@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-As part of the conversions to replace pgtable constructor/destructors with
-ptdesc equivalents, convert various page table functions to use ptdescs.
+On Mon, Jun 26, 2023 at 11:14=E2=80=AFAM Ryan Roberts <ryan.roberts@arm.com=
+> wrote:
+>
+> Hi All,
+>
+> Following on from the previous RFCv2 [1], this series implements variable=
+ order,
+> large folios for anonymous memory. The objective of this is to improve
+> performance by allocating larger chunks of memory during anonymous page f=
+aults:
+>
+>  - Since SW (the kernel) is dealing with larger chunks of memory than bas=
+e
+>    pages, there are efficiency savings to be had; fewer page faults, batc=
+hed PTE
+>    and RMAP manipulation, fewer items on lists, etc. In short, we reduce =
+kernel
+>    overhead. This should benefit all architectures.
+>  - Since we are now mapping physically contiguous chunks of memory, we ca=
+n take
+>    advantage of HW TLB compression techniques. A reduction in TLB pressur=
+e
+>    speeds up kernel and user space. arm64 systems have 2 mechanisms to co=
+alesce
+>    TLB entries; "the contiguous bit" (architectural) and HPA (uarch).
+>
+> This patch set deals with the SW side of things only and based on feedbac=
+k from
+> the RFC, aims to be the most minimal initial change, upon which future
+> incremental changes can be added. For this reason, the new behaviour is h=
+idden
+> behind a new Kconfig switch, CONFIG_LARGE_ANON_FOLIO, which is disabled b=
+y
+> default. Although the code has been refactored to parameterize the desire=
+d order
+> of the allocation, when the feature is disabled (by forcing the order to =
+be
+> always 0) my performance tests measure no regression. So I'm hoping this =
+will be
+> a suitable mechanism to allow incremental submissions to the kernel witho=
+ut
+> affecting the rest of the world.
+>
+> The patches are based on top of v6.4 plus Matthew Wilcox's set_ptes() ser=
+ies
+> [2], which is a hard dependency. I'm not sure of Matthew's exact plans fo=
+r
+> getting that series into the kernel, but I'm hoping we can start the revi=
+ew
+> process on this patch set independently. I have a branch at [3].
+>
+> I've posted a separate series concerning the HW part (contpte mapping) fo=
+r arm64
+> at [4].
+>
+>
+> Performance
+> -----------
+>
+> Below results show 2 benchmarks; kernel compilation and speedometer 2.0 (=
+a
+> javascript benchmark running in Chromium). Both cases are running on Ampe=
+re
+> Altra with 1 NUMA node enabled, Ubuntu 22.04 and XFS filesystem. Each ben=
+chmark
+> is repeated 15 times over 5 reboots and averaged.
+>
+> All improvements are relative to baseline-4k. 'anonfolio-basic' is this s=
+eries.
+> 'anonfolio' is the full patch set similar to the RFC with the additional =
+changes
+> to the extra 3 fault paths. The rest of the configs are described at [4].
+>
+> Kernel Compilation (smaller is better):
+>
+> | kernel          |   real-time |   kern-time |   user-time |
+> |:----------------|------------:|------------:|------------:|
+> | baseline-4k     |        0.0% |        0.0% |        0.0% |
+> | anonfolio-basic |       -5.3% |      -42.9% |       -0.6% |
+> | anonfolio       |       -5.4% |      -46.0% |       -0.3% |
+> | contpte         |       -6.8% |      -45.7% |       -2.1% |
+> | exefolio        |       -8.4% |      -46.4% |       -3.7% |
+> | baseline-16k    |       -8.7% |      -49.2% |       -3.7% |
+> | baseline-64k    |      -10.5% |      -66.0% |       -3.5% |
+>
+> Speedometer 2.0 (bigger is better):
+>
+> | kernel          |   runs_per_min |
+> |:----------------|---------------:|
+> | baseline-4k     |           0.0% |
+> | anonfolio-basic |           0.7% |
+> | anonfolio       |           1.2% |
+> | contpte         |           3.1% |
+> | exefolio        |           4.2% |
+> | baseline-16k    |           5.3% |
 
-Some of the functions use the *get*page*() helper functions. Convert
-these to use pagetable_alloc() and ptdesc_address() instead to help
-standardize page tables further.
+Thanks for pushing this forward!
 
-Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
-Acked-by: Mike Rapoport (IBM) <rppt@kernel.org>
----
- arch/mips/include/asm/pgalloc.h | 32 ++++++++++++++++++--------------
- arch/mips/mm/pgtable.c          |  8 +++++---
- 2 files changed, 23 insertions(+), 17 deletions(-)
+> Changes since RFCv2
+> -------------------
+>
+>   - Simplified series to bare minimum (on David Hildenbrand's advice)
 
-diff --git a/arch/mips/include/asm/pgalloc.h b/arch/mips/include/asm/pgalloc.h
-index f72e737dda21..40e40a7eb94a 100644
---- a/arch/mips/include/asm/pgalloc.h
-+++ b/arch/mips/include/asm/pgalloc.h
-@@ -51,13 +51,13 @@ extern pgd_t *pgd_alloc(struct mm_struct *mm);
- 
- static inline void pgd_free(struct mm_struct *mm, pgd_t *pgd)
- {
--	free_pages((unsigned long)pgd, PGD_TABLE_ORDER);
-+	pagetable_free(virt_to_ptdesc(pgd));
- }
- 
--#define __pte_free_tlb(tlb,pte,address)			\
--do {							\
--	pgtable_pte_page_dtor(pte);			\
--	tlb_remove_page((tlb), pte);			\
-+#define __pte_free_tlb(tlb, pte, address)			\
-+do {								\
-+	pagetable_pte_dtor(page_ptdesc(pte));			\
-+	tlb_remove_page_ptdesc((tlb), page_ptdesc(pte));	\
- } while (0)
- 
- #ifndef __PAGETABLE_PMD_FOLDED
-@@ -65,18 +65,18 @@ do {							\
- static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long address)
- {
- 	pmd_t *pmd;
--	struct page *pg;
-+	struct ptdesc *ptdesc;
- 
--	pg = alloc_pages(GFP_KERNEL_ACCOUNT, PMD_TABLE_ORDER);
--	if (!pg)
-+	ptdesc = pagetable_alloc(GFP_KERNEL_ACCOUNT, PMD_TABLE_ORDER);
-+	if (!ptdesc)
- 		return NULL;
- 
--	if (!pgtable_pmd_page_ctor(pg)) {
--		__free_pages(pg, PMD_TABLE_ORDER);
-+	if (!pagetable_pmd_ctor(ptdesc)) {
-+		pagetable_free(ptdesc);
- 		return NULL;
- 	}
- 
--	pmd = (pmd_t *)page_address(pg);
-+	pmd = ptdesc_address(ptdesc);
- 	pmd_init(pmd);
- 	return pmd;
- }
-@@ -90,10 +90,14 @@ static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long address)
- static inline pud_t *pud_alloc_one(struct mm_struct *mm, unsigned long address)
- {
- 	pud_t *pud;
-+	struct ptdesc *ptdesc = pagetable_alloc(GFP_KERNEL & ~__GFP_HIGHMEM,
-+			PUD_TABLE_ORDER);
- 
--	pud = (pud_t *) __get_free_pages(GFP_KERNEL, PUD_TABLE_ORDER);
--	if (pud)
--		pud_init(pud);
-+	if (!ptdesc)
-+		return NULL;
-+	pud = ptdesc_address(ptdesc);
-+
-+	pud_init(pud);
- 	return pud;
- }
- 
-diff --git a/arch/mips/mm/pgtable.c b/arch/mips/mm/pgtable.c
-index b13314be5d0e..1506e458040d 100644
---- a/arch/mips/mm/pgtable.c
-+++ b/arch/mips/mm/pgtable.c
-@@ -10,10 +10,12 @@
- 
- pgd_t *pgd_alloc(struct mm_struct *mm)
- {
--	pgd_t *ret, *init;
-+	pgd_t *init, *ret = NULL;
-+	struct ptdesc *ptdesc = pagetable_alloc(GFP_KERNEL & ~__GFP_HIGHMEM,
-+			PGD_TABLE_ORDER);
- 
--	ret = (pgd_t *) __get_free_pages(GFP_KERNEL, PGD_TABLE_ORDER);
--	if (ret) {
-+	if (ptdesc) {
-+		ret = ptdesc_address(ptdesc);
- 		init = pgd_offset(&init_mm, 0UL);
- 		pgd_init(ret);
- 		memcpy(ret + USER_PTRS_PER_PGD, init + USER_PTRS_PER_PGD,
--- 
-2.40.1
+My impression is that this series still includes many pieces that can
+be split out and discussed separately with followup series.
 
+(I skipped 04/10 and will look at it tomorrow.)
