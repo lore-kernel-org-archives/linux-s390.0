@@ -2,132 +2,137 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CE7ACC001B0
-	for <linux-s390@archiver.kernel.org>; Tue, 27 Jun 2023 20:53:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2245CC001DD
+	for <linux-s390@archiver.kernel.org>; Tue, 27 Jun 2023 21:01:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231137AbjF0Uxr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 27 Jun 2023 16:53:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57176 "EHLO
+        id S231233AbjF0VBf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 27 Jun 2023 17:01:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230179AbjF0Uxq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 27 Jun 2023 16:53:46 -0400
-Received: from mail-oi1-x233.google.com (mail-oi1-x233.google.com [IPv6:2607:f8b0:4864:20::233])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC11E30C3
-        for <linux-s390@vger.kernel.org>; Tue, 27 Jun 2023 13:53:23 -0700 (PDT)
-Received: by mail-oi1-x233.google.com with SMTP id 5614622812f47-3a04e5baffcso4444297b6e.3
-        for <linux-s390@vger.kernel.org>; Tue, 27 Jun 2023 13:53:23 -0700 (PDT)
+        with ESMTP id S230002AbjF0VBe (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 27 Jun 2023 17:01:34 -0400
+Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3656A1FFA;
+        Tue, 27 Jun 2023 14:01:33 -0700 (PDT)
+Received: by mail-pf1-x42e.google.com with SMTP id d2e1a72fcca58-6686708c986so4897503b3a.0;
+        Tue, 27 Jun 2023 14:01:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1687899202; x=1690491202;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=XFHD0hnOjuhPYILDUOJLbgwpgA6DIsDBsAhcitDEBFU=;
-        b=AyDbzfEOwQNJQ3Q6vCBJpIzejWz0XI+CwqIDE8UgstFVF4GBN1zCUvimRHgNDXa99Q
-         0A2XitElZYl4vkOr9ytUm0PmYJ5QsEPCI+4zrbGGcbdnAJac6UffXXzvU8rbykoGAN78
-         RiYeGRGQi0rsCCIEmUY28CGLOcGd0QWkwDLQhn+j3WVmaQn0hiL1rrTM2ApFwPn3rmOW
-         aIKz2rrQIuBq1j3yLWNWP1JGfXvLJejgPPRaYR2Sfe6YM1MfNiNFxfm4n9PGXCTAc+Ec
-         tpgYnKyue/RmYU1Emj+1xNmzsPduOW3Zz+V1MnsoHZ24+8K57GccuEEID0ga5vyglJnq
-         m0Uw==
+        d=gmail.com; s=20221208; t=1687899692; x=1690491692;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :sender:from:to:cc:subject:date:message-id:reply-to;
+        bh=P+M7tEnjJDtu150UIK78eMZjmbGUtM7e5Fjt8nWZ0yk=;
+        b=EEAFfmkXxvxLQKSckNGd2ZSV3KFogeID+Fu07F5vObGax9BbbGTHMjNPkWpqJAJVcH
+         pQvHfFi3MuvS2en7hgib7UJpPWUapwBCg8rlberKLmSq3DFWM7/xIZN7INLmmqEHLsUh
+         qitezyDQfhSscafezpHggVgt0WLI8tgIl0uMXCJdPAHvlcj4VIjJKb6j7/ZGCnIDizgv
+         wo2zP75PWYpQesW5XMNkIMNlUWOk9aqZVrMomyrANyuVHFRGKdh0f6XzxRPe0kewrYvm
+         0KzGKCqgMKcTqBBhxX7lyhj56QxI4SK/fKCSdPeLy85gsmtVFv88cBuoZEpsI4YCe97K
+         o/WQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1687899202; x=1690491202;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=XFHD0hnOjuhPYILDUOJLbgwpgA6DIsDBsAhcitDEBFU=;
-        b=gwrVxqPLaj4tjiFyYC6HwYof+9dkHqtHc1eBRItSd3CSlz46OATzxtsTswESJFC4Ju
-         f8j0rPLynLHqDei34DnVmaUd3IaEb+hq7RN4EDpV5Odprb+Qj2h825Hw2SoFjqCrpVGp
-         gLjuIOAvwgQ5PUGciV3t0ZN2+i0U4RxUHvnft8zycPeYIx4njtYp6Lhf1Y2qieioF+1O
-         t9bXQJeuHOKqn3n4eTQO9BC0vPM5MaoPY2+N00vfsDuwfqR4wdeZQx409mfvRWQO6OAy
-         Kc22LpQRkcSF8mHLHJgg/Q2S7Cd7uyefVKdhmvxE1SROWd45es91dS1leFMiStbNpqAG
-         axiw==
-X-Gm-Message-State: AC+VfDwdvfePK9apByWRSQGzQAczzHxz7uyOCFV4x6lE8Gklj/WkEwhz
-        jszBcH8icltB7iR8+mm6qUSXIQ==
-X-Google-Smtp-Source: ACHHUZ4cqZstCs1nyAEh2QwWGawSrsE1fPzwiUYItaOw1DYAGKznreSljpXPuAJlmNc2pAtztzw7zA==
-X-Received: by 2002:a05:6808:2a47:b0:3a1:df16:2e9e with SMTP id fa7-20020a0568082a4700b003a1df162e9emr6357738oib.12.1687899202175;
-        Tue, 27 Jun 2023 13:53:22 -0700 (PDT)
-Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id q131-20020a817589000000b00565eb8af1fesm2009195ywc.132.2023.06.27.13.53.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 27 Jun 2023 13:53:21 -0700 (PDT)
-Date:   Tue, 27 Jun 2023 13:53:17 -0700 (PDT)
-From:   Hugh Dickins <hughd@google.com>
-X-X-Sender: hugh@ripple.attlocal.net
-To:     Jason Gunthorpe <jgg@ziepe.ca>
-cc:     Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        David Hildenbrand <david@redhat.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Qi Zheng <zhengqi.arch@bytedance.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Peter Xu <peterx@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        Ralph Campbell <rcampbell@nvidia.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Steven Price <steven.price@arm.com>,
-        SeongJae Park <sj@kernel.org>,
-        Lorenzo Stoakes <lstoakes@gmail.com>,
-        Huang Ying <ying.huang@intel.com>,
-        Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Zack Rusin <zackr@vmware.com>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Pasha Tatashin <pasha.tatashin@soleen.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        Song Liu <song@kernel.org>,
-        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
-        Russell King <linux@armlinux.org.uk>,
-        "David Sc. Miller" <davem@davemloft.net>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Jann Horn <jannh@google.com>,
-        Vishal Moola <vishal.moola@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH v2 05/12] powerpc: add pte_free_defer() for pgtables
- sharing page
-In-Reply-To: <ZJsV19f41CrfkFYa@ziepe.ca>
-Message-ID: <7b1be7d-9287-cbc6-ef7-55e44625e4e@google.com>
-References: <54cb04f-3762-987f-8294-91dafd8ebfb0@google.com> <5cd9f442-61da-4c3d-eca-b7f44d22aa5f@google.com> <ZJGRa4zvsXfc43vB@ziepe.ca> <2ad8b6cf-692a-ff89-ecc-586c20c5e07f@google.com> <ZJI7xkXWmjrE1yY3@ziepe.ca> <c8284d0-91cb-b65e-4c95-bfeb627234f@google.com>
- <ZJsV19f41CrfkFYa@ziepe.ca>
+        d=1e100.net; s=20221208; t=1687899692; x=1690491692;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :sender:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=P+M7tEnjJDtu150UIK78eMZjmbGUtM7e5Fjt8nWZ0yk=;
+        b=XEcNktcyj6O1zStJG/kLVD/USwEI4r94JhYpeY5heTC8dKqDIsMWlaL4AqIGTUjL6N
+         6p8QxNPd4jOgmO/oXZL0HwtJkfMlCvHeZQLxbPBes42aSblMzDWRu3ANTITpALig2jNQ
+         JZ6Ls0XEOReuXFGciEWqZnmZ+7SKD2a7i1/PxPq0e+LfqSDBn0SID0XiuGKNp5Gy8cD0
+         D3c9s7nJ7iU17s3yQjFlbgeX5PK09jEV+cb8km1JRQ/yE/nZvG9+vCQJ11YyeFb53PnS
+         yAd5CoWTiP52Bxz8OAyqiy7nIMZ6EPNB0LQ2rGYUl3/SHTCX02UyUQiJrEEoj8Th1C0X
+         OsRw==
+X-Gm-Message-State: AC+VfDzB188lDQP6jSR6yvdYWlDnv5M448VsJUObqPGuV/stGJxb6wCi
+        u5j4wjw2XiW+6yctpQewT2Ld3s1LxlE=
+X-Google-Smtp-Source: ACHHUZ5Ms+IS+/rtXxolIJxIsutHi1fnnUiL8cEAZTZ1vZL/Fg4JF6S5Mmuw32zf0DumOU0QNMHuig==
+X-Received: by 2002:a17:902:f542:b0:1b5:91:4693 with SMTP id h2-20020a170902f54200b001b500914693mr14752161plf.1.1687899692466;
+        Tue, 27 Jun 2023 14:01:32 -0700 (PDT)
+Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id jl3-20020a170903134300b001ac6b926621sm6363521plb.292.2023.06.27.14.01.30
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 27 Jun 2023 14:01:31 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Message-ID: <2b7e8b1d-1697-6a25-434d-352f95e6fff2@roeck-us.net>
+Date:   Tue, 27 Jun 2023 14:01:29 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.11.0
+Subject: Re: [PATCH v5 26/33] nios2: Convert __pte_free_tlb() to use ptdescs
+Content-Language: en-US
+To:     Dinh Nguyen <dinguyen@kernel.org>,
+        Vishal Moola <vishal.moola@gmail.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org,
+        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+        xen-devel@lists.xenproject.org, kvm@vger.kernel.org,
+        Hugh Dickins <hughd@google.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        Stephen Rothwell <sfr@canb.auug.org.au>
+References: <20230622205745.79707-1-vishal.moola@gmail.com>
+ <20230622205745.79707-27-vishal.moola@gmail.com>
+ <13bab37c-0f0a-431a-8b67-4379bf4dc541@roeck-us.net>
+ <CAOzc2px6VutRkMUTn+M5LFLf1YbRVZFgJ=q7StaApwYRxUWqQA@mail.gmail.com>
+ <cc954b15-63ab-9d9f-2d37-1aea78b7f65f@roeck-us.net>
+ <b6a5753b-8874-6465-f690-094ee753e038@roeck-us.net>
+ <CAOzc2pxdqeaRjYLfOqvMW-AEobTzD9xOP+MyP9nxgEbi1T2r7Q@mail.gmail.com>
+ <c3751051-7fc7-7129-b9a7-ead71c576ace@kernel.org>
+From:   Guenter Roeck <linux@roeck-us.net>
+In-Reply-To: <c3751051-7fc7-7129-b9a7-ead71c576ace@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 27 Jun 2023, Jason Gunthorpe wrote:
-> On Wed, Jun 21, 2023 at 07:36:11PM -0700, Hugh Dickins wrote:
-> > [PATCH v3 05/12] powerpc: add pte_free_defer() for pgtables sharing page
-...
-> Yes, this makes sense to me, very simple..
+On 6/27/23 13:05, Dinh Nguyen wrote:
 > 
-> I always for get these details but atomic_dec_and_test() is a release?
-> So the SetPageActive is guarenteed to be visible in another thread
-> that reaches 0?
+> 
+> On 6/27/23 14:56, Vishal Moola wrote:
+>> On Tue, Jun 27, 2023 at 12:14 PM Guenter Roeck <linux@roeck-us.net> wrote:
+>>>
+>>> On 6/27/23 12:10, Guenter Roeck wrote:
+>>>> On 6/27/23 10:42, Vishal Moola wrote:
+>>>>> On Mon, Jun 26, 2023 at 10:47 PM Guenter Roeck <linux@roeck-us.net> wrote:
+>>>>>>
+>>>>>> On Thu, Jun 22, 2023 at 01:57:38PM -0700, Vishal Moola (Oracle) wrote:
+>>>>>>> Part of the conversions to replace pgtable constructor/destructors with
+>>>>>>> ptdesc equivalents.
+>>>>>>>
+>>>>>>> Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
+>>>>>>> Acked-by: Mike Rapoport (IBM) <rppt@kernel.org>
+>>>>>>
+>>>>>> This patch causes all nios2 builds to fail.
+>>>>>
+>>>>> It looks like you tried to apply this patch on its own. This patch depends
+>>>>> on patches 01-12 of this patchset to compile properly. I've cross-compiled
+>>>>> this architecture and it worked, but let me know if something fails
+>>>>> when its applied on top of those patches (or the rest of the patchset).
+>>>>
+>>>>
+>>>> No, I did not try to apply this patch on its own. I tried to build yesterday's
+>>>> pending-fixes branch of linux-next.
+>>>>
+>>>
+>>> A quick check shows that the build fails with next-20230627. See log below.
+>>
+>> Ah it looks like this one slipped into -next on its own somehow? Stephen, please
+>> drop this patch from -next; it shouldn't be in without the rest of the
+>> patchset which
+>> I intend to have Andrew take through the mm tree.
+>>
+> 
+> I apologize, but I queue this patch up for Linus and it's been pulled for this merge window. I didn't realize you were going to take this patchset through another tree.
+> 
+> Sorry about that.
+> 
 
-Yes, that's my understanding - so the TestClearPageActive adds more
-to the guarantee than is actually needed.
+Yes, indeed, I just confirmed that all nios2 builds in the mainline kernel
+are now broken.
 
-"release": you speak the modern language, whereas I haven't advanced
-from olden-days barriers: atomic_dec_and_test() meets atomic_t.txt's
- - RMW operations that have a return value are fully ordered;
-which a quick skim of present-day memory-barriers.txt suggests would
-imply both ACQUIRE and RELEASE.  Please correct me if I'm mistaken!
+Guenter
 
-Hugh
