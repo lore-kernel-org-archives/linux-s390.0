@@ -2,185 +2,208 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 80214EB64D9
-	for <linux-s390@archiver.kernel.org>; Tue, 27 Jun 2023 03:37:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F3011EB64D9
+	for <linux-s390@archiver.kernel.org>; Tue, 27 Jun 2023 03:48:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230156AbjF0DhS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 26 Jun 2023 23:37:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45680 "EHLO
+        id S230504AbjF0DsC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 26 Jun 2023 23:48:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230167AbjF0DgV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Jun 2023 23:36:21 -0400
-Received: from mail-qt1-x82e.google.com (mail-qt1-x82e.google.com [IPv6:2607:f8b0:4864:20::82e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8090B4C1A
-        for <linux-s390@vger.kernel.org>; Mon, 26 Jun 2023 20:31:00 -0700 (PDT)
-Received: by mail-qt1-x82e.google.com with SMTP id d75a77b69052e-4007b5bafceso96581cf.1
-        for <linux-s390@vger.kernel.org>; Mon, 26 Jun 2023 20:31:00 -0700 (PDT)
+        with ESMTP id S229808AbjF0DrY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Jun 2023 23:47:24 -0400
+Received: from mail-yb1-xb30.google.com (mail-yb1-xb30.google.com [IPv6:2607:f8b0:4864:20::b30])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC2A12129
+        for <linux-s390@vger.kernel.org>; Mon, 26 Jun 2023 20:45:58 -0700 (PDT)
+Received: by mail-yb1-xb30.google.com with SMTP id 3f1490d57ef6-bff0beb2d82so4042412276.2
+        for <linux-s390@vger.kernel.org>; Mon, 26 Jun 2023 20:45:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1687836655; x=1690428655;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Dps86R1lndJwF4gJQy/c3O9t7fuW8Q1JEcrGXaT4yyM=;
-        b=DPpXKg59gxCfYZfd9BY428kZ8iu0DYsney6Rdb3rBdwDtXCqI6by6+cpd+iFCxaq79
-         l5qUs+UtG6qNw6vClJxqZ156uilkFr4nqOfpOjwb4sCDK3cewEwBmVMA0EIXWOjk8R9i
-         TVfgsTBk1kHsR06KuWByKOPsHwpa4kfikZiOJBSb1rUERnaQZ2h4T5rsCZtkeArohaZX
-         Mkw8ML+8yLd2TpK+iFeG6sjz2DCcKu+mgd+76Du4ZXe9n58Em657zW5MzIJDxXMzqKBe
-         fEm9np6GD+3Cx5VBNcJHXVbW+BthLgsTGUPU+3D1UFEeHCXje/m+ogWz3nybucVagpcD
-         4StQ==
+        d=google.com; s=20221208; t=1687837558; x=1690429558;
+        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=fjlZBX1qjNq+jedwRQxK6KrAOY0dDujar0I40GYxC6M=;
+        b=2JuhGNEigaQm6EX1WfiTfYhdUhBPWzJ9vBrcOcHoTp/n19ffj9N3+WygEtVr5u+MEz
+         QQdvBU4fbaVlF6XHGAbbN/tfQQT0diWv6pZWwJZrRGFoZ96iIsZB8+gV6aSK1Dxo67Mx
+         n/UEnMIgELFsCsjD92duBZrQIAZCDCY6LZLPJk7cC9ULIxFWA2RTz+ztTQzGNJoP3gN2
+         fFG6Fdg0eY/HiR5Ocms+Ek1rqz/iQUJRsj0Sc685XSZZpgly57bBLM+m99ijJH9c5KD3
+         UtzkTWrIhIpWtC0z6Sq/aA2AGN4l0SYlQ1X3FbvES00xQsKSVpz/tr/YADcVhQbGzapK
+         HxDg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1687836655; x=1690428655;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Dps86R1lndJwF4gJQy/c3O9t7fuW8Q1JEcrGXaT4yyM=;
-        b=EyA+L01kCAe5Lb15TEb2AHqlgPeH+xjtd2+JjoWnHi2v65MRLUQum430k40Q5Y+D0t
-         Cw+QOm0sjzu/pLS+SrntG9eSpe3hh/DJk+ICjUu9HlRdo9sWWCgo5wHyRKvK4iV58Lk3
-         YceYXE5nIBBmiqnXByyg1J5/B2ReIJS3JudPlJxMyRyo/4sDwGi99vtOc/KWjv7XTvRI
-         qt//iufnEuzwGM3gFnzLRjEG3X17zTAm4t2soR/ls1RQuFKY/BQ+IjnRevArNyn+FlUM
-         /s4QjNtVJPNJ4TWQ5xlrnQ+gRmnrCDZFDCrLnQ2zNOjCwkDpI5Gn13AznqAKC1MPxIML
-         2AFQ==
-X-Gm-Message-State: AC+VfDxK7iOSFMmRWWJUn/ImwAfOF5Hbvp+SZFC+kU2SBxZ0qaCROh90
-        bkgZ0CLhXtvAGUmmQBiEEYZZt0wAy8NnCa4oi8q2nA==
-X-Google-Smtp-Source: ACHHUZ4qGh8xmLwSTj4hOczEKK2tKapgoJ7DPtSPYajCf/D7+00nPQt51ielpDPZJ55CqXUcttPpnW7qGjNXY0ewa5Y=
-X-Received: by 2002:ac8:5953:0:b0:3f5:49b6:f18d with SMTP id
- 19-20020ac85953000000b003f549b6f18dmr57784qtz.11.1687836655385; Mon, 26 Jun
- 2023 20:30:55 -0700 (PDT)
-MIME-Version: 1.0
-References: <20230626171430.3167004-1-ryan.roberts@arm.com>
-In-Reply-To: <20230626171430.3167004-1-ryan.roberts@arm.com>
-From:   Yu Zhao <yuzhao@google.com>
-Date:   Mon, 26 Jun 2023 21:30:19 -0600
-Message-ID: <CAOUHufaUTbUw9MTzw8D=sVrEB+RP6LSBQVGn93TWk=ozV8XobA@mail.gmail.com>
-Subject: Re: [PATCH v1 00/10] variable-order, large folios for anonymous memory
-To:     Ryan Roberts <ryan.roberts@arm.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Yin Fengwei <fengwei.yin@intel.com>,
-        David Hildenbrand <david@redhat.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
+        d=1e100.net; s=20221208; t=1687837558; x=1690429558;
+        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=fjlZBX1qjNq+jedwRQxK6KrAOY0dDujar0I40GYxC6M=;
+        b=Qg4d67l2KQHOQDuJuhFc2NRy7n+b8DuCyQQFeAO+vpI/E70jFbL4YeSoNcNLAUVJgl
+         oLV3npYBB9E6kH/FWCMlQbiP+PdR0Ncp3MrIUYnM1Rcps1lR0T4I+uc+gDI2mJX0jvCK
+         l1ZkT6+gCv6jg5ApOcw98tmPzPx+kCmTc8m+rYCxg+0b8Q4AqYMiN1sONuY/3W1blpz6
+         HAPGj+Bu3I+SxPm66JRJv2aQpStRBGrvCz69lrgnyp+kq5Xq2SkaQOP+0jJDnW+ZT69u
+         9F+9GQy1AoOimuBfJfCLTyP6rycYA8r3lACpXjH2V3b7IgVFyGmYV1O0oZNBpW8vBn4M
+         zphw==
+X-Gm-Message-State: AC+VfDxfGQzOLUvjuVAqS6aPzyCfAky0EENnJ/lbXFMLT/G3CjkMuLdM
+        G3ssqWQPk55ocUgI/0xS8ijwsg==
+X-Google-Smtp-Source: ACHHUZ5JzT31gqd567F7h8S6QH8fnxlZlLWgCOYb3xkxgFPz3x+ANfgoNsHVzebn6Vqdj0bQfyydHw==
+X-Received: by 2002:a25:8210:0:b0:c13:fdce:7691 with SMTP id q16-20020a258210000000b00c13fdce7691mr7429365ybk.19.1687837557779;
+        Mon, 26 Jun 2023 20:45:57 -0700 (PDT)
+Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
+        by smtp.gmail.com with ESMTPSA id e134-20020a25698c000000b00bb1445a4069sm1468618ybc.24.2023.06.26.20.45.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 26 Jun 2023 20:45:57 -0700 (PDT)
+Date:   Mon, 26 Jun 2023 20:45:49 -0700 (PDT)
+From:   Hugh Dickins <hughd@google.com>
+X-X-Sender: hugh@ripple.attlocal.net
+To:     Alexander Gordeev <agordeev@linux.ibm.com>
+cc:     Hugh Dickins <hughd@google.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, linux-alpha@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
-        linux-m68k@lists.linux-m68k.org, linux-s390@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        linux-s390@vger.kernel.org
+Subject: Re: prospective 13/12 s390 pgtable_list patch
+In-Reply-To: <ZJmtJEj/kgGS7B0E@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+Message-ID: <a97fc4bc-53b7-3c5b-1c5-c19d2869ec4f@google.com>
+References: <a69a26c0-ec93-3ad-a443-6655b5e49df2@google.com> <ZJVl7ZJiborhmtYh@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com> <232e20a5-ef6-41cf-4073-92fcb3a01453@google.com> <ZJmtJEj/kgGS7B0E@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="-1463760895-768662770-1687837557=:2578"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Jun 26, 2023 at 11:14=E2=80=AFAM Ryan Roberts <ryan.roberts@arm.com=
-> wrote:
->
-> Hi All,
->
-> Following on from the previous RFCv2 [1], this series implements variable=
- order,
-> large folios for anonymous memory. The objective of this is to improve
-> performance by allocating larger chunks of memory during anonymous page f=
-aults:
->
->  - Since SW (the kernel) is dealing with larger chunks of memory than bas=
-e
->    pages, there are efficiency savings to be had; fewer page faults, batc=
-hed PTE
->    and RMAP manipulation, fewer items on lists, etc. In short, we reduce =
-kernel
->    overhead. This should benefit all architectures.
->  - Since we are now mapping physically contiguous chunks of memory, we ca=
-n take
->    advantage of HW TLB compression techniques. A reduction in TLB pressur=
-e
->    speeds up kernel and user space. arm64 systems have 2 mechanisms to co=
-alesce
->    TLB entries; "the contiguous bit" (architectural) and HPA (uarch).
->
-> This patch set deals with the SW side of things only and based on feedbac=
-k from
-> the RFC, aims to be the most minimal initial change, upon which future
-> incremental changes can be added. For this reason, the new behaviour is h=
-idden
-> behind a new Kconfig switch, CONFIG_LARGE_ANON_FOLIO, which is disabled b=
-y
-> default. Although the code has been refactored to parameterize the desire=
-d order
-> of the allocation, when the feature is disabled (by forcing the order to =
-be
-> always 0) my performance tests measure no regression. So I'm hoping this =
-will be
-> a suitable mechanism to allow incremental submissions to the kernel witho=
-ut
-> affecting the rest of the world.
->
-> The patches are based on top of v6.4 plus Matthew Wilcox's set_ptes() ser=
-ies
-> [2], which is a hard dependency. I'm not sure of Matthew's exact plans fo=
-r
-> getting that series into the kernel, but I'm hoping we can start the revi=
-ew
-> process on this patch set independently. I have a branch at [3].
->
-> I've posted a separate series concerning the HW part (contpte mapping) fo=
-r arm64
-> at [4].
->
->
-> Performance
-> -----------
->
-> Below results show 2 benchmarks; kernel compilation and speedometer 2.0 (=
-a
-> javascript benchmark running in Chromium). Both cases are running on Ampe=
-re
-> Altra with 1 NUMA node enabled, Ubuntu 22.04 and XFS filesystem. Each ben=
-chmark
-> is repeated 15 times over 5 reboots and averaged.
->
-> All improvements are relative to baseline-4k. 'anonfolio-basic' is this s=
-eries.
-> 'anonfolio' is the full patch set similar to the RFC with the additional =
-changes
-> to the extra 3 fault paths. The rest of the configs are described at [4].
->
-> Kernel Compilation (smaller is better):
->
-> | kernel          |   real-time |   kern-time |   user-time |
-> |:----------------|------------:|------------:|------------:|
-> | baseline-4k     |        0.0% |        0.0% |        0.0% |
-> | anonfolio-basic |       -5.3% |      -42.9% |       -0.6% |
-> | anonfolio       |       -5.4% |      -46.0% |       -0.3% |
-> | contpte         |       -6.8% |      -45.7% |       -2.1% |
-> | exefolio        |       -8.4% |      -46.4% |       -3.7% |
-> | baseline-16k    |       -8.7% |      -49.2% |       -3.7% |
-> | baseline-64k    |      -10.5% |      -66.0% |       -3.5% |
->
-> Speedometer 2.0 (bigger is better):
->
-> | kernel          |   runs_per_min |
-> |:----------------|---------------:|
-> | baseline-4k     |           0.0% |
-> | anonfolio-basic |           0.7% |
-> | anonfolio       |           1.2% |
-> | contpte         |           3.1% |
-> | exefolio        |           4.2% |
-> | baseline-16k    |           5.3% |
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Thanks for pushing this forward!
+---1463760895-768662770-1687837557=:2578
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
-> Changes since RFCv2
-> -------------------
->
->   - Simplified series to bare minimum (on David Hildenbrand's advice)
+On Mon, 26 Jun 2023, Alexander Gordeev wrote:
+> On Fri, Jun 23, 2023 at 01:53:43PM -0700, Hugh Dickins wrote:
+> > > Anyway, that is just another option and I will try your patch.
+> >=20
+> > Thank you, please do, if you have the time: my series does need some
+> > kind of s390 solution, depending on whatever s390 has in its tree at
+> > the time: for now I should at least be showing the 13/12 (preferably
+> > known to build and appearing to work!), even if all it does is help
+> > people to say "no, that's too much".
+>=20
+> Hi Hugh,
+>=20
+> I took a bit different approach to run it: with and withough HH bits
+> in play.
+>=20
+> IOW (if I am not mistaken) without the three patch serieses these two
+> patches on top of v6.4-rc5 alone still should manage page allocation,
+> as if pte_free_defer() does not exist/never get called:
+>=20
+> =09s390: add pte_free_defer() for pgtables sharing page
+> =09prospective 13/12 s390 pgtable_list patch
 
-My impression is that this series still includes many pieces that can
-be split out and discussed separately with followup series.
+That was a good idea, to try the "bare bones" first.  Yes, I think that
+should work okay: with no actual dependence on the preceding patches.
 
-(I skipped 04/10 and will look at it tomorrow.)
+>=20
+> These patches appear to work (aka survive LTP MM tests).
+
+And that is very good news, thank you (I was expecting I'd at least
+have done some silly typo like last time).
+
+>=20
+> The next step would be to try the three serieses on top of v6.4-rc5 plus
+> patch 13/12, as you intended:
+>=20
+> https://lore.kernel.org/linux-mm/77a5d8c-406b-7068-4f17-23b7ac53bc83@goog=
+le.com/
+
+There's maybe no difference that matters, but that was the v1 series: v2 wa=
+s
+https://lore.kernel.org/linux-mm/a4963be9-7aa6-350-66d0-2ba843e1af44@google=
+=2Ecom/
+series of 23 posted on 2023-06-08.
+
+> https://lore.kernel.org/linux-mm/68a97fbe-5c1e-7ac6-72c-7b9c6290b370@goog=
+le.com/
+
+There's maybe no difference that matters, but that was the v1 series: v2 wa=
+s
+https://lore.kernel.org/linux-mm/c1c9a74a-bc5b-15ea-e5d2-8ec34bc921d@google=
+=2Ecom/
+series of 32 posted on 2023-06-08.
+
+> https://lore.kernel.org/linux-mm/54cb04f-3762-987f-8294-91dafd8ebfb0@goog=
+le.com
+
+Right.
+
+> https://lore.kernel.org/r/a69a26c0-ec93-3ad-a443-6655b5e49df2@google.com
+
+Right.
+
+>=20
+> I had to manually tweak this one with a fuzz in order to circumvent 'git =
+am' error:
+> [PATCH v2 28/32] mm/memory: allow pte_offset_map[_lock]() to fail: fix
+>=20
+> But in the end it still does not compile for me:
+
+I think perhaps you missed out the actual
+[PATCH v2 28/32] mm/memory: allow pte_offset_map[_lock]() to fail
+(oh, not exactly, you were working with v1 there) and tried to apply
+[PATCH v2 28/32 fix] mm/memory: allow pte_offset_map[_lock]() to fail: fix
+instead of it; whereas the "fix" patch is a cumulative patch on top of the
+missed one (and the "fix" patch is not at all important for your testing,
+since update_mmu_tlb() is a no-op on s390).
+
+(There was other pfaffing around on PATCH v2 28/32, but that was
+about applying it to akpm's tree at the time: v6.4-rc5 no problem.)
+
+>=20
+> mm/memory.c: In function =E2=80=98zap_pmd_range=E2=80=99:
+> mm/memory.c:1561:21: error: implicit declaration of function =E2=80=98pmd=
+_none_or_trans_huge_or_clear_bad=E2=80=99 [-Werror=3Dimplicit-function-decl=
+aration]
+>  1561 |                 if (pmd_none_or_trans_huge_or_clear_bad(pmd))
+>       |                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+>   CC      fs/btrfs/dev-replace.o
+> In file included from ./include/linux/build_bug.h:5,
+>                  from ./include/linux/container_of.h:5,
+>                  from ./include/linux/list.h:5,
+>                  from ./include/linux/smp.h:12,
+>                  from ./include/linux/kernel_stat.h:5,
+>                  from mm/memory.c:42:
+> mm/memory.c: In function =E2=80=98do_anonymous_page=E2=80=99:
+> mm/memory.c:4058:22: error: implicit declaration of function =E2=80=98pmd=
+_trans_unstable=E2=80=99; did you mean =E2=80=98pud_trans_unstable=E2=80=99=
+? [-Werror=3Dimplicit-function-declaration]
+>  4058 |         if (unlikely(pmd_trans_unstable(vmf->pmd)))
+>       |                      ^~~~~~~~~~~~~~~~~~
+> ./include/linux/compiler.h:77:45: note: in definition of macro =E2=80=98u=
+nlikely=E2=80=99
+>    77 | # define unlikely(x)    __builtin_expect(!!(x), 0)
+>       |                                             ^
+>   CC      fs/xfs/xfs_iops.o
+> mm/memory.c: In function =E2=80=98finish_fault=E2=80=99:
+> mm/memory.c:4388:13: error: implicit declaration of function =E2=80=98pmd=
+_devmap_trans_unstable=E2=80=99; did you mean =E2=80=98pud_trans_unstable=
+=E2=80=99? [-Werror=3Dimplicit-function-declaration]
+>  4388 |         if (pmd_devmap_trans_unstable(vmf->pmd))
+>       |             ^~~~~~~~~~~~~~~~~~~~~~~~~
+>       |             pud_trans_unstable
+>=20
+>=20
+> Could you please let me know if I am missing something?
+
+I think, start again with the v2 of each of the three series on v6.4-rc5,
+including the v2 28/32, and I expect that to work out fine.
+
+What you already tested above has achieved a lot: since my changes left
+pte_free_defer() and page_table_free_rcu() sharing __tlb_remove_table(),
+so page_table_free_rcu() would already be exercising that list_add().
+
+But you may have difficulty actually exercising the pte_free_defer().
+Maybe hack in a counter (I tend to hack on BALLOON events in vmstat,
+since normally those would be 0 for me) to check whether running LTP
+is actually exercising those paths - if not, we'll devise something more.
+
+Thanks,
+Hugh
+---1463760895-768662770-1687837557=:2578--
