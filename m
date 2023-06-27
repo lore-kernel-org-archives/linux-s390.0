@@ -2,114 +2,221 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 806AEC00528
-	for <linux-s390@archiver.kernel.org>; Tue, 27 Jun 2023 17:52:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0308DEB64DD
+	for <linux-s390@archiver.kernel.org>; Tue, 27 Jun 2023 18:27:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231829AbjF0RwR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 27 Jun 2023 13:52:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35400 "EHLO
+        id S230523AbjF0S1F (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 27 Jun 2023 14:27:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230019AbjF0RwM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 27 Jun 2023 13:52:12 -0400
-Received: from mail-ot1-x336.google.com (mail-ot1-x336.google.com [IPv6:2607:f8b0:4864:20::336])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1ECA116;
-        Tue, 27 Jun 2023 10:52:11 -0700 (PDT)
-Received: by mail-ot1-x336.google.com with SMTP id 46e09a7af769-6b73b839025so2711579a34.1;
-        Tue, 27 Jun 2023 10:52:11 -0700 (PDT)
+        with ESMTP id S229886AbjF0S1E (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 27 Jun 2023 14:27:04 -0400
+Received: from mail-qt1-x82c.google.com (mail-qt1-x82c.google.com [IPv6:2607:f8b0:4864:20::82c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BAA5196
+        for <linux-s390@vger.kernel.org>; Tue, 27 Jun 2023 11:27:02 -0700 (PDT)
+Received: by mail-qt1-x82c.google.com with SMTP id d75a77b69052e-401d1d967beso42341cf.0
+        for <linux-s390@vger.kernel.org>; Tue, 27 Jun 2023 11:27:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1687888331; x=1690480331;
+        d=google.com; s=20221208; t=1687890421; x=1690482421;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ya0gjT04wvrkPEwxsIo0SrjOZFrw43ACMJ5aI2sBKGs=;
-        b=jU0XSQm/UgQNqhqQcjqaxOHJKL3Tu8GM/GwEobHZGDkP+x8DVdgSjRkU85h/Lj/+te
-         oZwK4Q1yO37Pzbn1i7oZRsd+yfivOXZX9DLv/iX+OOzSZ/17s4ytR4cUrCKbaq8ScVjb
-         y4NBy98BQyt8WGI73+o5s1aq7cUaSdPW95ULfQ6FlPkdUprfA5PQkMvKjJsZAGVBcKqi
-         qlieckJVpQyRqbWlQMoi71Q4k95ldkAZz69rpAi1h8kLQ3wxt3idqYMSWF1Mqn3mJooy
-         Rs2GGbK0m2G7LUgnIAcus/1X+0dgeX1Usy3dZ/2MF2ihQvsHs5fE8nG3/WrSESAbmo+3
-         LPFw==
+        bh=p3Nmjy2pgfjuqrruYrf3lVaHDsPBe2Ms9OHkO4l14Tc=;
+        b=a5RlIMj6/IRppc+ipWDHPaQTI2NhmfAqOceI7FC6rDBUZ0YdWXpB5zfD+TDmPmokOg
+         jJXKx4J2oRR8E3NnFmWvYg9la8baydeNVr9oJbMJyt50K9AMIZlmte0xfGlr6TV3MML5
+         LrQAUxCQfhlj2l++9GUeDiQl/rQ+QmOHDqrNKf7heXFnN+EDTaAWQdahCnuSKR+hGYi8
+         mEYm2joPAYfJ/fx11Sys9/N3cPzfAaHa0lhslrsT7SZV8q4oWy5oGXQwkxGDn3xrr6JJ
+         AKbfCrZGMBQjGn035U+41RxpE/ToIdBPphfBiTFtcaLZRR63Up3cgl2i04ScxAi1WsUV
+         6uQg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1687888331; x=1690480331;
+        d=1e100.net; s=20221208; t=1687890421; x=1690482421;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ya0gjT04wvrkPEwxsIo0SrjOZFrw43ACMJ5aI2sBKGs=;
-        b=BClq6JrQuM47FlWCzs6sAdrEGWCtgUm+VlHM9T3OnEKRPjE2kmh2hE5KnJcZHweXXr
-         tq4H2UYY2HVKco3Vqop+fYFwxJ86/yuvr6Q54JZnXogQl2DnWkrTWwBvDxhUcJyReYR2
-         pehqYrbFeNBtO7ucehjplZomGvmgBzD3lUmvTgn8Yx3wZ9pXHhJw/AKsncT/RX/oK+Yi
-         VY+2IeZJDh6KupaVgt8GRZsOrndYipxMOMI8J0dFCQ+CZzn7RRNoh0wB3SDezlfvWjOL
-         MDUn+IPWHN/jTvQ3jmSxQkQelP4aEf4RM9ev9BdmTLpfyw0YrHmkEcNOkv5v4eiPNnGN
-         4sOg==
-X-Gm-Message-State: AC+VfDwXerydJMSOvU1bRnm6IqTO1JFH1qEalun7GQmUpBnV4BnOacDH
-        GRMGhxs9+UgL0ev+ucmr8TetFg3Qm940wtZbXyk=
-X-Google-Smtp-Source: ACHHUZ60PXVLGXFjCZbPL4+H89P+QaultgII2fPTXJpRhifF/y6voZRlslPkfFetToA56imkT1WhjHNqMU1RYiBUm6M=
-X-Received: by 2002:a05:6359:d23:b0:133:a55:7e26 with SMTP id
- gp35-20020a0563590d2300b001330a557e26mr5444430rwb.7.1687888330839; Tue, 27
- Jun 2023 10:52:10 -0700 (PDT)
+        bh=p3Nmjy2pgfjuqrruYrf3lVaHDsPBe2Ms9OHkO4l14Tc=;
+        b=PWlWeyVNCSETD3ZTgcaTmr42gibrLL2MbuaSvH6KWNqV7mdvBs4set/qqXIW1OCMCz
+         XkgwmMPDdzK6XmEEFAcB2OGflD5MY77wewH7a074AQLGG8YUC+MGjCvfNtU4moHxp1sq
+         +Pzk0LNaZDiiR+Nzt3N9JKF6yod0XWsKNFYMYHLWeU3etS+BLLlZM62FrBinZ4tTMehm
+         pIiy7EEYQWrAw71W0hNSQjarUp4piQBJDTdNKerJKxl2Qajk/GYbniAQQ8SFLb63i5Jt
+         BYiE0sVNY7J06o+m9xxaLubhMnCrvkvzfiChagrdg55r9XxOKVEI0fuIfWfooYeihIku
+         0MTg==
+X-Gm-Message-State: AC+VfDyFWsB/xEk0wkvFaWKsQ3LSvDm/RzGNpvul5scIs3JXPe+XEBde
+        Gw0in96ZZcEI6D3GWCD19G094HwqSWUSRmgzJhosNw==
+X-Google-Smtp-Source: ACHHUZ7AEqZrzh/K1utyZf5ok0cHqv3xg8Py/k6kKIR4nUU8VzPiHpf2nmqNfAfLWWb4tXJtlvac6dFD7KRPewyjF7A=
+X-Received: by 2002:ac8:57ca:0:b0:3f8:6685:c944 with SMTP id
+ w10-20020ac857ca000000b003f86685c944mr20146qta.14.1687890420797; Tue, 27 Jun
+ 2023 11:27:00 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230627031431.29653-1-vishal.moola@gmail.com>
- <20230627031431.29653-4-vishal.moola@gmail.com> <ZJsJT9dLtxaKlxVb@x1n>
-In-Reply-To: <ZJsJT9dLtxaKlxVb@x1n>
-From:   Vishal Moola <vishal.moola@gmail.com>
-Date:   Tue, 27 Jun 2023 10:51:59 -0700
-Message-ID: <CAOzc2pw2U2XvMcaEdy18UYe=5=PeCBn_qLR_3ns8_nWvgSSDQw@mail.gmail.com>
-Subject: Re: [PATCH v6 03/33] pgtable: Create struct ptdesc
-To:     Peter Xu <peterx@redhat.com>
+References: <20230626171430.3167004-1-ryan.roberts@arm.com>
+ <20230626171430.3167004-2-ryan.roberts@arm.com> <CAOUHufacvArJh7NjL_3LT-e3s1X+bazkvbgvEU+KPKGKEoW+dw@mail.gmail.com>
+ <2ff8ccf6-bf36-48b2-7dc2-e6c0d962f8b7@arm.com> <CAOUHufZoT-maN3kY5eYQmrYV48shmKAAancEvabXzfTDncDa9A@mail.gmail.com>
+ <91e3364f-1d1b-f959-636b-4f60bf5a577b@arm.com>
+In-Reply-To: <91e3364f-1d1b-f959-636b-4f60bf5a577b@arm.com>
+From:   Yu Zhao <yuzhao@google.com>
+Date:   Tue, 27 Jun 2023 12:26:24 -0600
+Message-ID: <CAOUHufaEwY=cm8mBi4HSbxYBvAr_x4_vyZZM2NYHEt-U7KaFhA@mail.gmail.com>
+Subject: Re: [PATCH v1 01/10] mm: Expose clear_huge_page() unconditionally
+To:     Ryan Roberts <ryan.roberts@arm.com>
 Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org,
-        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-        xen-devel@lists.xenproject.org, kvm@vger.kernel.org,
-        Hugh Dickins <hughd@google.com>,
-        Mike Rapoport <rppt@kernel.org>
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Yin Fengwei <fengwei.yin@intel.com>,
+        David Hildenbrand <david@redhat.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, linux-alpha@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
+        linux-m68k@lists.linux-m68k.org, linux-s390@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jun 27, 2023 at 9:07=E2=80=AFAM Peter Xu <peterx@redhat.com> wrote:
+On Tue, Jun 27, 2023 at 3:41=E2=80=AFAM Ryan Roberts <ryan.roberts@arm.com>=
+ wrote:
 >
-> On Mon, Jun 26, 2023 at 08:14:01PM -0700, Vishal Moola (Oracle) wrote:
-> > Currently, page table information is stored within struct page. As part
-> > of simplifying struct page, create struct ptdesc for page table
-> > information.
+> On 27/06/2023 09:29, Yu Zhao wrote:
+> > On Tue, Jun 27, 2023 at 1:21=E2=80=AFAM Ryan Roberts <ryan.roberts@arm.=
+com> wrote:
+> >>
+> >> On 27/06/2023 02:55, Yu Zhao wrote:
+> >>> On Mon, Jun 26, 2023 at 11:14=E2=80=AFAM Ryan Roberts <ryan.roberts@a=
+rm.com> wrote:
+> >>>>
+> >>>> In preparation for extending vma_alloc_zeroed_movable_folio() to
+> >>>> allocate a arbitrary order folio, expose clear_huge_page()
+> >>>> unconditionally, so that it can be used to zero the allocated folio =
+in
+> >>>> the generic implementation of vma_alloc_zeroed_movable_folio().
+> >>>>
+> >>>> Signed-off-by: Ryan Roberts <ryan.roberts@arm.com>
+> >>>> ---
+> >>>>  include/linux/mm.h | 3 ++-
+> >>>>  mm/memory.c        | 2 +-
+> >>>>  2 files changed, 3 insertions(+), 2 deletions(-)
+> >>>>
+> >>>> diff --git a/include/linux/mm.h b/include/linux/mm.h
+> >>>> index 7f1741bd870a..7e3bf45e6491 100644
+> >>>> --- a/include/linux/mm.h
+> >>>> +++ b/include/linux/mm.h
+> >>>> @@ -3684,10 +3684,11 @@ enum mf_action_page_type {
+> >>>>   */
+> >>>>  extern const struct attribute_group memory_failure_attr_group;
+> >>>>
+> >>>> -#if defined(CONFIG_TRANSPARENT_HUGEPAGE) || defined(CONFIG_HUGETLBF=
+S)
+> >>>>  extern void clear_huge_page(struct page *page,
+> >>>>                             unsigned long addr_hint,
+> >>>>                             unsigned int pages_per_huge_page);
+> >>>> +
+> >>>> +#if defined(CONFIG_TRANSPARENT_HUGEPAGE) || defined(CONFIG_HUGETLBF=
+S)
+> >>>
+> >>> We might not want to depend on THP eventually. Right now, we still
+> >>> have to, unless splitting is optional, which seems to contradict
+> >>> 06/10. (deferred_split_folio()  is a nop without THP.)
+> >>
+> >> Yes, I agree - for large anon folios to work, we depend on THP. But I =
+don't
+> >> think that helps us here.
+> >>
+> >> In the next patch, I give vma_alloc_zeroed_movable_folio() an extra `o=
+rder`
+> >> parameter. So the generic/default version of the function now needs a =
+way to
+> >> clear a compound page.
+> >>
+> >> I guess I could do something like:
+> >>
+> >>  static inline
+> >>  struct folio *vma_alloc_zeroed_movable_folio(struct vm_area_struct *v=
+ma,
+> >>                                    unsigned long vaddr, gfp_t gfp, int=
+ order)
+> >>  {
+> >>         struct folio *folio;
+> >>
+> >>         folio =3D vma_alloc_folio(GFP_HIGHUSER_MOVABLE | gfp,
+> >>                                         order, vma, vaddr, false);
+> >>         if (folio) {
+> >> #ifdef CONFIG_LARGE_FOLIO
+> >>                 clear_huge_page(&folio->page, vaddr, 1U << order);
+> >> #else
+> >>                 BUG_ON(order !=3D 0);
+> >>                 clear_user_highpage(&folio->page, vaddr);
+> >> #endif
+> >>         }
+> >>
+> >>         return folio;
+> >>  }
+> >>
+> >> But that's pretty messy and there's no reason why other users might co=
+me along
+> >> that pass order !=3D 0 and will be surprised by the BUG_ON.
 > >
-> > Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
-> > Acked-by: Mike Rapoport (IBM) <rppt@kernel.org>
-> > ---
-> >  include/linux/pgtable.h | 68 +++++++++++++++++++++++++++++++++++++++++
-> >  1 file changed, 68 insertions(+)
-> >
-> > diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
-> > index 5063b482e34f..d46cb709ce08 100644
-> > --- a/include/linux/pgtable.h
-> > +++ b/include/linux/pgtable.h
-> > @@ -987,6 +987,74 @@ static inline void ptep_modify_prot_commit(struct =
-vm_area_struct *vma,
-> >  #endif /* __HAVE_ARCH_PTEP_MODIFY_PROT_TRANSACTION */
-> >  #endif /* CONFIG_MMU */
-> >
-> > +
-> > +/**
-> > + * struct ptdesc -    Memory descriptor for page tables.
-> > + * @__page_flags:     Same as page flags. Unused for page tables.
-> > + * @pt_rcu_head:      For freeing page table pages.
-> > + * @pt_list:          List of used page tables. Used for s390 and x86.
-> > + * @_pt_pad_1:        Padding that aliases with page's compound head.
-> > + * @pmd_huge_pte:     Protected by ptdesc->ptl, used for THPs.
-> > + * @_pt_s390_gaddr:   Aliases with page's mapping. Used for s390 gmap =
-only.
+> > #ifdef CONFIG_LARGE_ANON_FOLIO // depends on CONFIG_TRANSPARENT_HUGE_PA=
+GE
+> > struct folio *alloc_anon_folio(struct vm_area_struct *vma, unsigned
+> > long vaddr, int order)
+> > {
+> >   // how do_huge_pmd_anonymous_page() allocs and clears
+> >   vma_alloc_folio(..., *true*);
 >
-> Should some arch-specific bits (and a few others) always under some
-> #ifdefs, so it shouldn't appear on other archs?
+> This controls the mem allocation policy (see mempolicy.c::vma_alloc_folio=
+()) not
+> clearing. Clearing is done in __do_huge_pmd_anonymous_page():
+>
+>   clear_huge_page(page, vmf->address, HPAGE_PMD_NR);
 
-Right now this struct completely overlays struct page, so the padding as
-well as any arch-specific fields have to stay. Whenever we get ptdescs
-independent of struct page we can cleanup any unnecessary fields, as
-well as omit unnecessary fields from unrelated architectures.
+Sorry for rushing this previously. This is what I meant. The #ifdef
+makes it safe to use clear_huge_page() without 01/10. I highlighted
+the last parameter to vma_alloc_folio() only because it's different
+from what you chose (not implying it clears the folio).
+
+> > }
+> > #else
+> > #define alloc_anon_folio(vma, addr, order)
+> > vma_alloc_zeroed_movable_folio(vma, addr)
+> > #endif
+>
+> Sorry I don't get this at all... If you are suggesting to bypass
+> vma_alloc_zeroed_movable_folio() entirely for the LARGE_ANON_FOLIO case
+
+Correct.
+
+> I don't
+> think that works because the arch code adds its own gfp flags there. For
+> example, arm64 adds __GFP_ZEROTAGS for VM_MTE VMAs.
+
+I think it's the opposite: it should be safer to reuse the THP code because
+1. It's an existing case that has been working for PMD_ORDER folios
+mapped by PTEs, and it's an arch-independent API which would be easier
+to review.
+2. Use vma_alloc_zeroed_movable_folio() for large folios is a *new*
+case. It's an arch-*dependent* API which I have no idea what VM_MTE
+does (should do) to large folios and don't plan to answer that for
+now.
+
+> Perhaps we can do away with an arch-owned vma_alloc_zeroed_movable_folio(=
+) and
+> replace it with a new arch_get_zeroed_movable_gfp_flags() then
+> alloc_anon_folio() add in those flags?
+>
+> But I still think the cleanest, simplest change is just to unconditionall=
+y
+> expose clear_huge_page() as I've done it.
+
+The fundamental choice there as I see it is to whether the first step
+of large anon folios should lean toward the THP code base or the base
+page code base (I'm a big fan of the answer "Neither -- we should
+create something entirely new instead"). My POV is that the THP code
+base would allow us to move faster, since it's proven to work for a
+very similar case (PMD_ORDER folios mapped by PTEs).
