@@ -2,205 +2,237 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6AE3DEB64DA
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Jun 2023 08:25:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 70577EB64D7
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Jun 2023 08:33:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233694AbjF1IYn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 28 Jun 2023 04:24:43 -0400
-Received: from esa.microchip.iphmx.com ([68.232.153.233]:24222 "EHLO
-        esa.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231911AbjF1IV2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 28 Jun 2023 04:21:28 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
-  t=1687940488; x=1719476488;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=UMkXk+bPbzGfZkrBHrsW/8MysrRy74gOjizdruOTAJs=;
-  b=ws+yuToO/QR5a9BxSMvZrJpj/+Ahn2JZotQ33ZP56QH75SWadrTw3wXb
-   BX1fZyRswX1bZYoNSa5a2t5JoojzTzgsvYPFcWXGUZKIpcRb+IhvBxSNv
-   qrwfocm11hAGXKNs8c8oGeGzKHjbNwGDAVQEdMHbq0uPAKCzFY42WHg6h
-   BbPIUC3+5Inqtge+ZBDq9e1xWcZ9EXR947c9zgO+eVJfWgYjUbqQbehGL
-   9DaKyhdRjwz9VjOXnGA4fvGKaufyCJ18SwjUyVXqc96IVwl0uwCzReg3q
-   noPZ0YbIxOi7A6Ptlra0h2l0CVsH0/oTIYciZOXHIAA1zgK8GwNjqX+/X
-   Q==;
-X-IronPort-AV: E=Sophos;i="6.01,165,1684825200"; 
-   d="asc'?scan'208";a="220938489"
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-Received: from unknown (HELO email.microchip.com) ([170.129.1.10])
-  by esa5.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 28 Jun 2023 01:21:26 -0700
-Received: from chn-vm-ex03.mchp-main.com (10.10.85.151) by
- chn-vm-ex04.mchp-main.com (10.10.85.152) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.21; Wed, 28 Jun 2023 01:21:15 -0700
-Received: from wendy (10.10.115.15) by chn-vm-ex03.mchp-main.com
- (10.10.85.151) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.21 via Frontend
- Transport; Wed, 28 Jun 2023 01:21:04 -0700
-Date:   Wed, 28 Jun 2023 09:20:36 +0100
-From:   Conor Dooley <conor.dooley@microchip.com>
-To:     Eric DeVolder <eric.devolder@oracle.com>
-CC:     <linux@armlinux.org.uk>, <catalin.marinas@arm.com>,
-        <will@kernel.org>, <chenhuacai@kernel.org>, <geert@linux-m68k.org>,
-        <tsbogend@alpha.franken.de>,
-        <James.Bottomley@hansenpartnership.com>, <deller@gmx.de>,
-        <ysato@users.sourceforge.jp>, <dalias@libc.org>,
-        <glaubitz@physik.fu-berlin.de>, <tglx@linutronix.de>,
-        <mingo@redhat.com>, <bp@alien8.de>, <dave.hansen@linux.intel.com>,
-        <x86@kernel.org>, <linux-kernel@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-ia64@vger.kernel.org>, <loongarch@lists.linux.dev>,
-        <linux-m68k@lists.linux-m68k.org>, <linux-mips@vger.kernel.org>,
-        <linux-parisc@vger.kernel.org>, <linuxppc-dev@lists.ozlabs.org>,
-        <linux-riscv@lists.infradead.org>, <linux-s390@vger.kernel.org>,
-        <linux-sh@vger.kernel.org>, <kernel@xen0n.name>,
-        <mpe@ellerman.id.au>, <npiggin@gmail.com>,
-        <christophe.leroy@csgroup.eu>, <paul.walmsley@sifive.com>,
-        <palmer@dabbelt.com>, <aou@eecs.berkeley.edu>, <hca@linux.ibm.com>,
-        <gor@linux.ibm.com>, <agordeev@linux.ibm.com>,
-        <borntraeger@linux.ibm.com>, <svens@linux.ibm.com>,
-        <hpa@zytor.com>, <keescook@chromium.org>, <paulmck@kernel.org>,
-        <peterz@infradead.org>, <frederic@kernel.org>,
-        <akpm@linux-foundation.org>, <ardb@kernel.org>,
-        <samitolvanen@google.com>, <juerg.haefliger@canonical.com>,
-        <arnd@arndb.de>, <rmk+kernel@armlinux.org.uk>,
-        <linus.walleij@linaro.org>, <sebastian.reichel@collabora.com>,
-        <rppt@kernel.org>, <kirill.shutemov@linux.intel.com>,
-        <anshuman.khandual@arm.com>, <ziy@nvidia.com>,
-        <masahiroy@kernel.org>, <ndesaulniers@google.com>,
-        <mhiramat@kernel.org>, <ojeda@kernel.org>,
-        <thunder.leizhen@huawei.com>, <xin3.li@intel.com>, <tj@kernel.org>,
-        <gregkh@linuxfoundation.org>, <tsi@tuyoix.net>, <bhe@redhat.com>,
-        <hbathini@linux.ibm.com>, <sourabhjain@linux.ibm.com>,
-        <boris.ostrovsky@oracle.com>, <konrad.wilk@oracle.com>
-Subject: Re: [PATCH v3 11/13] riscv/kexec: refactor for kernel/Kconfig.kexec
-Message-ID: <20230628-urologist-faction-42ebe5372206@wendy>
-References: <20230626161332.183214-1-eric.devolder@oracle.com>
- <20230626161332.183214-12-eric.devolder@oracle.com>
+        id S234410AbjF1Ic5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 28 Jun 2023 04:32:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41386 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235307AbjF1Iat (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 28 Jun 2023 04:30:49 -0400
+Received: from mail-qk1-x732.google.com (mail-qk1-x732.google.com [IPv6:2607:f8b0:4864:20::732])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EB1D2D73;
+        Wed, 28 Jun 2023 01:22:58 -0700 (PDT)
+Received: by mail-qk1-x732.google.com with SMTP id af79cd13be357-7659dc74d91so364735385a.0;
+        Wed, 28 Jun 2023 01:22:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1687940577; x=1690532577;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=OPlJ3d55zkkCE0158NpdPdIacPtyKpxD+77cxWNgQn4=;
+        b=B/FZcfHwfA80FMXQD1r+by4GfJ0G7ym+e7/y8s8Dee0ja1UvDXu8hKfBtvH2b7omy4
+         iT2OS4wkVrFBsCEOfq2lPYFeWGMp25v0lOosQ2FsDX90HXA1RCJikhqpyOYR57VSWCYU
+         HUZkoJEPXkhwug4GOxIrQue/HFohjUSoIXllRFpNNsKQL73oNgrsqCPqjIbezwC8i8cz
+         hwQQYWWOBblL/zFLWntF32HtInNOxKnpqM5HAlqh5Rip8WXlQLddiQTz7HqF03uRQsJz
+         LC0xfiBf+i0vX0VrRdbjeFnHtWDtSe0L1JFNnd9Icg+eOK0964Pc+8KNOR5dv3Pqy1Dc
+         vfew==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1687940577; x=1690532577;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=OPlJ3d55zkkCE0158NpdPdIacPtyKpxD+77cxWNgQn4=;
+        b=MjWxZTrHLVlxW/2+31BV5YYgeh7oVR6QRM/zd/g/bIQ+UfSOIYMTIV39niaVN6XXVe
+         NWGyBT+c62OL+iMLLGWpxdK1hMD8rkvIMtUWCleKBUzpWqHADqgOqsgy8zK6UHTcti8o
+         4d2otioCSEu0g6YPvpl57iOTaFibLciu5nbH55Tvcu9wNdrZkOvxHbdULWO88bt8j3QG
+         xY8ba3h8/Gj694q+7nJm2MC/9ZzB2wDOgn2BqjatdIyLp52qMX7XhGbrvP8sQdflynnR
+         gOHUKsqjkx3CGoLQmY3dvya1h2WAesCM4OR7r2UZzq7E9auLXtyPHNpF2hGXYmMsHmXw
+         7lbA==
+X-Gm-Message-State: AC+VfDxgAqpqcbeVeYXKl8wLVUIXm6ndDily+hDmJyUDfkbRcha7HASc
+        uXMfeUsYiqFEJrWGOzhWWWBv9kcHvUyOCuONdZOcV19vzStasQ==
+X-Google-Smtp-Source: ACHHUZ4SZINxUDCT1VOxGKSGnyrORp5xMAlVWVYZ4VVr9D12NJWQpx1JwNxevKpURs5vLH73EZrUYAMXE2UkZpD5Us8=
+X-Received: by 2002:a05:6214:2524:b0:5f4:5af6:1304 with SMTP id
+ gg4-20020a056214252400b005f45af61304mr36084024qvb.16.1687936643694; Wed, 28
+ Jun 2023 00:17:23 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="dNpbxT7522GzDtJd"
-Content-Disposition: inline
-In-Reply-To: <20230626161332.183214-12-eric.devolder@oracle.com>
+References: <20230517034510.15639-1-zegao@tencent.com> <20230517034510.15639-3-zegao@tencent.com>
+In-Reply-To: <20230517034510.15639-3-zegao@tencent.com>
+From:   Yafang Shao <laoar.shao@gmail.com>
+Date:   Wed, 28 Jun 2023 15:16:47 +0800
+Message-ID: <CALOAHbC6UpfFOOibdDiC7xFc5YFUgZnk3MZ=3Ny6we=AcrNbew@mail.gmail.com>
+Subject: Re: [PATCH v3 2/4] fprobe: make fprobe_kprobe_handler recursion free
+To:     Ze Gao <zegao2021@gmail.com>
+Cc:     Steven Rostedt <rostedt@goodmis.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vasily Gorbik <gor@linux.ibm.com>, x86@kernel.org,
+        bpf@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-trace-kernel@vger.kernel.org,
+        Conor Dooley <conor@kernel.org>, Jiri Olsa <jolsa@kernel.org>,
+        Yonghong Song <yhs@fb.com>, Ze Gao <zegao@tencent.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
---dNpbxT7522GzDtJd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hey Eric,
-
-On Mon, Jun 26, 2023 at 12:13:30PM -0400, Eric DeVolder wrote:
-> The kexec and crash kernel options are provided in the common
-> kernel/Kconfig.kexec. Utilize the common options and provide
-> the ARCH_SUPPORTS_ and ARCH_SELECTS_ entries to recreate the
-
-> equivalent set of KEXEC and CRASH options.
-
-I find this diff a little hard to follow (since the other half off the
-change is in another patch), so it may be me missing something, but are
-you sure?
-
->=20
-> Signed-off-by: Eric DeVolder <eric.devolder@oracle.com>
+On Wed, May 17, 2023 at 11:45=E2=80=AFAM Ze Gao <zegao2021@gmail.com> wrote=
+:
+>
+> Current implementation calls kprobe related functions before doing
+> ftrace recursion check in fprobe_kprobe_handler, which opens door
+> to kernel crash due to stack recursion if preempt_count_{add, sub}
+> is traceable in kprobe_busy_{begin, end}.
+>
+> Things goes like this without this patch quoted from Steven:
+> "
+> fprobe_kprobe_handler() {
+>    kprobe_busy_begin() {
+>       preempt_disable() {
+>          preempt_count_add() {  <-- trace
+>             fprobe_kprobe_handler() {
+>                 [ wash, rinse, repeat, CRASH!!! ]
+> "
+>
+> By refactoring the common part out of fprobe_kprobe_handler and
+> fprobe_handler and call ftrace recursion detection at the very beginning,
+> the whole fprobe_kprobe_handler is free from recursion.
+>
+> Signed-off-by: Ze Gao <zegao@tencent.com>
+> Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+> Link: https://lore.kernel.org/linux-trace-kernel/20230516071830.8190-3-ze=
+gao@tencent.com
 > ---
->  arch/riscv/Kconfig | 48 ++++++++++++++--------------------------------
->  1 file changed, 14 insertions(+), 34 deletions(-)
->=20
-> diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
-> index 5966ad97c30c..c484abd9bbfd 100644
-> --- a/arch/riscv/Kconfig
-> +++ b/arch/riscv/Kconfig
-> @@ -585,48 +585,28 @@ config RISCV_BOOT_SPINWAIT
-> =20
->  	  If unsure what to do here, say N.
-> =20
-> -config KEXEC
-> -	bool "Kexec system call"
-> -	depends on MMU
-> +config ARCH_SUPPORTS_KEXEC
-> +	def_bool MMU
+>  kernel/trace/fprobe.c | 59 ++++++++++++++++++++++++++++++++-----------
+>  1 file changed, 44 insertions(+), 15 deletions(-)
+>
+> diff --git a/kernel/trace/fprobe.c b/kernel/trace/fprobe.c
+> index 9abb3905bc8e..097c740799ba 100644
+> --- a/kernel/trace/fprobe.c
+> +++ b/kernel/trace/fprobe.c
+> @@ -20,30 +20,22 @@ struct fprobe_rethook_node {
+>         char data[];
+>  };
+>
+> -static void fprobe_handler(unsigned long ip, unsigned long parent_ip,
+> -                          struct ftrace_ops *ops, struct ftrace_regs *fr=
+egs)
+> +static inline void __fprobe_handler(unsigned long ip, unsigned long
+> +               parent_ip, struct ftrace_ops *ops, struct ftrace_regs *fr=
+egs)
+>  {
+>         struct fprobe_rethook_node *fpr;
+>         struct rethook_node *rh =3D NULL;
+>         struct fprobe *fp;
+>         void *entry_data =3D NULL;
+> -       int bit, ret;
+> +       int ret;
+>
+>         fp =3D container_of(ops, struct fprobe, ops);
+> -       if (fprobe_disabled(fp))
+> -               return;
+> -
+> -       bit =3D ftrace_test_recursion_trylock(ip, parent_ip);
+> -       if (bit < 0) {
+> -               fp->nmissed++;
+> -               return;
+> -       }
+>
+>         if (fp->exit_handler) {
+>                 rh =3D rethook_try_get(fp->rethook);
+>                 if (!rh) {
+>                         fp->nmissed++;
+> -                       goto out;
+> +                       return;
+>                 }
+>                 fpr =3D container_of(rh, struct fprobe_rethook_node, node=
+);
+>                 fpr->entry_ip =3D ip;
+> @@ -61,23 +53,60 @@ static void fprobe_handler(unsigned long ip, unsigned=
+ long parent_ip,
+>                 else
+>                         rethook_hook(rh, ftrace_get_regs(fregs), true);
+>         }
+> -out:
+> +}
 > +
-> +config ARCH_SELECTS_KEXEC
-> +	def_bool y
-> +	depends on KEXEC
->  	select HOTPLUG_CPU if SMP
-> -	select KEXEC_CORE
-> -	help
-> -	  kexec is a system call that implements the ability to shutdown your
-> -	  current kernel, and to start another kernel. It is like a reboot
-> -	  but it is independent of the system firmware. And like a reboot
-> -	  you can start any kernel with it, not just Linux.
-> =20
-> -	  The name comes from the similarity to the exec system call.
-> +config ARCH_SUPPORTS_KEXEC_FILE
-> +	def_bool 64BIT && MMU && CRYPTO=3Dy && CRYPTO_SHA256=3Dy
+> +static void fprobe_handler(unsigned long ip, unsigned long parent_ip,
+> +               struct ftrace_ops *ops, struct ftrace_regs *fregs)
+> +{
+> +       struct fprobe *fp;
+> +       int bit;
+> +
+> +       fp =3D container_of(ops, struct fprobe, ops);
+> +       if (fprobe_disabled(fp))
+> +               return;
+> +
+> +       /* recursion detection has to go before any traceable function an=
+d
+> +        * all functions before this point should be marked as notrace
+> +        */
+> +       bit =3D ftrace_test_recursion_trylock(ip, parent_ip);
+> +       if (bit < 0) {
+> +               fp->nmissed++;
+> +               return;
+> +       }
+> +       __fprobe_handler(ip, parent_ip, ops, fregs);
+>         ftrace_test_recursion_unlock(bit);
+> +
+>  }
+>  NOKPROBE_SYMBOL(fprobe_handler);
+>
+>  static void fprobe_kprobe_handler(unsigned long ip, unsigned long parent=
+_ip,
+>                                   struct ftrace_ops *ops, struct ftrace_r=
+egs *fregs)
+>  {
+> -       struct fprobe *fp =3D container_of(ops, struct fprobe, ops);
+> +       struct fprobe *fp;
+> +       int bit;
+> +
+> +       fp =3D container_of(ops, struct fprobe, ops);
+> +       if (fprobe_disabled(fp))
+> +               return;
+> +
+> +       /* recursion detection has to go before any traceable function an=
+d
+> +        * all functions called before this point should be marked as not=
+race
+> +        */
+> +       bit =3D ftrace_test_recursion_trylock(ip, parent_ip);
+> +       if (bit < 0) {
+> +               fp->nmissed++;
+> +               return;
+> +       }
+>
+>         if (unlikely(kprobe_running())) {
+>                 fp->nmissed++;
 
-This looks like a change to me. Previously, only KEXEC_PURGATORY
-required these crypto options to be like so, but now KEXEC_FILE needs
-them too.
+I have just looked through this patchset, just out of curiosity,
+shouldn't we call ftrace_test_recursion_unlock(bit) here ?
+We have already locked it successfully, so why should we not unlock it?
 
-What am I missing?
-
-Cheers,
-Conor.
-
-> =20
-> -config KEXEC_FILE
-> -	bool "kexec file based systmem call"
-> -	depends on 64BIT && MMU
-> -	select HAVE_IMA_KEXEC if IMA
-> -	select KEXEC_CORE
-> +config ARCH_SELECTS_KEXEC_FILE
-> +	def_bool y
-> +	depends on KEXEC_FILE
->  	select KEXEC_ELF
-> -	help
-> -	  This is new version of kexec system call. This system call is
-> -	  file based and takes file descriptors as system call argument
-> -	  for kernel and initramfs as opposed to list of segments as
-> -	  accepted by previous system call.
-> -
-> -	  If you don't know what to do here, say Y.
-> +	select HAVE_IMA_KEXEC if IMA
-> =20
->  config ARCH_HAS_KEXEC_PURGATORY
->  	def_bool KEXEC_FILE
-> -	depends on CRYPTO=3Dy
-> -	depends on CRYPTO_SHA256=3Dy
-> =20
-> -config CRASH_DUMP
-> -	bool "Build kdump crash kernel"
-> -	help
-> -	  Generate crash dump after being started by kexec. This should
-> -	  be normally only set in special crash dump kernels which are
-> -	  loaded in the main kernel with kexec-tools into a specially
-> -	  reserved region and then later executed after a crash by
-> -	  kdump/kexec.
-> -
-> -	  For more details see Documentation/admin-guide/kdump/kdump.rst
-> +config ARCH_SUPPORTS_CRASH_DUMP
-> +	def_bool y
-> =20
->  config COMPAT
->  	bool "Kernel support for 32-bit U-mode"
-> --=20
-> 2.31.1
+>                 return;
+>         }
+> +
+>         kprobe_busy_begin();
+> -       fprobe_handler(ip, parent_ip, ops, fregs);
+> +       __fprobe_handler(ip, parent_ip, ops, fregs);
+>         kprobe_busy_end();
+> +       ftrace_test_recursion_unlock(bit);
+>  }
+>
+>  static void fprobe_exit_handler(struct rethook_node *rh, void *data,
+> --
+> 2.40.1
+>
 >
 
---dNpbxT7522GzDtJd
-Content-Type: application/pgp-signature; name="signature.asc"
 
------BEGIN PGP SIGNATURE-----
-
-iHUEABYIAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCZJvtVAAKCRB4tDGHoIJi
-0nmiAQDOO3BHXlme661CQ5d0WA+9UNnblFm/cWV3USIeSzvJAQD9Ev9vbdYVY6Uu
-ypalgd3Ta51Btqo6Gv+Pn5Xaf3a3lg4=
-=9sLY
------END PGP SIGNATURE-----
-
---dNpbxT7522GzDtJd--
+--=20
+Regards
+Yafang
