@@ -2,101 +2,124 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CCA2EC001DF
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Jun 2023 18:51:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D787FEB64D7
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Jun 2023 19:16:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232666AbjF1Svr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 28 Jun 2023 14:51:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52930 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231588AbjF1SvZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 28 Jun 2023 14:51:25 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F6161FF7;
-        Wed, 28 Jun 2023 11:51:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=gzBVL7uWfH/0QncUeiWSVvNT7tu19KKFpZm/SdtHfy0=; b=F0geF1mDFUhFwejscu79P5AerF
-        ChPxlz8AungTNw2nYlH8TmeT0FdBYZ403uLo6dwYbFZivePasVeM2QOKhl+SGZUnj3aelPYXtEfM9
-        SrOHM/3oUTni3eU+S6cGIy3fXu368hUaiU/EA6YN2NOx+dDC0fkki3YX0I7X5QXDEfuDII33co6YT
-        AgpMwEBC4ya/EPvRDl80CtdVgP3e2XagbMLqDsAoh6VP3gh2KZpEwz3m1/E0HTdSv3vSxKIUbldmu
-        z9Fsmk0Dd2L6fefBSyj6JHJ0VqW7vTaNglMS0xkY6KNSksqhU+OkIfDiDfBXKznANmEoK/ikyWU4U
-        7raG+AtA==;
-Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1qEaFx-0047Cx-Rw; Wed, 28 Jun 2023 18:51:09 +0000
-Date:   Wed, 28 Jun 2023 19:51:09 +0100
-From:   Matthew Wilcox <willy@infradead.org>
-To:     David Hildenbrand <david@redhat.com>
-Cc:     Hugh Dickins <hughd@google.com>,
-        "Vishal Moola (Oracle)" <vishal.moola@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
-        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-        xen-devel@lists.xenproject.org, kvm@vger.kernel.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Jonas Bonn <jonas@southpole.se>,
+        id S231509AbjF1TQD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 28 Jun 2023 15:16:03 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:60974 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231462AbjF1TP5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 28 Jun 2023 15:15:57 -0400
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 35SJ1VVV003741;
+        Wed, 28 Jun 2023 19:15:56 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=098SpukzCeWI3mNHgDVbhVRrENMoSXPLuFR6tTaDAws=;
+ b=HJ+dfnA5ZIXz7CA8CqrKTsM/JuDkUtja2PXxLpWkmXAm2LvKPiNi6xkHU8JdQfPc+Nea
+ LPda2UUPpJ2B0uJ2GmHJMam2zjek2JM7xRdldPIsK5o54MFsQudLlf9/N9d9s1CCxQR7
+ GknxxdPm5F/9Jmm2aoCWT7rX8JkrfLejmpP02ZAHs/7DLpNQXSP79tdYfV2xL9a6aHne
+ QVZUuM+njfuE0YqvAy+JmhyAeNL96nYyoIOcqEqAdW38BAdFQtKFmb/nDMDqQCVh6yHH
+ CFQH11dnaHs3Wu9XBjuTvYA4wiGpaz+sDupgw37NI6mgfrbgbMziwSDONqXu4Ba17W6X PA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rgtnhrcrj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 28 Jun 2023 19:15:55 +0000
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 35SJ9EhG019660;
+        Wed, 28 Jun 2023 19:15:54 GMT
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rgtnhrckm-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 28 Jun 2023 19:15:53 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 35SI6nlc007785;
+        Wed, 28 Jun 2023 19:15:46 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+        by ppma01fra.de.ibm.com (PPS) with ESMTPS id 3rdr4525bg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 28 Jun 2023 19:15:46 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 35SJFh8I66715978
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 28 Jun 2023 19:15:43 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 055062004B;
+        Wed, 28 Jun 2023 19:15:43 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5D50620040;
+        Wed, 28 Jun 2023 19:15:42 +0000 (GMT)
+Received: from thinkpad-T15 (unknown [9.179.23.181])
+        by smtpav07.fra02v.mail.ibm.com (Postfix) with SMTP;
+        Wed, 28 Jun 2023 19:15:42 +0000 (GMT)
+Date:   Wed, 28 Jun 2023 21:15:39 +0200
+From:   Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+To:     Hugh Dickins <hughd@google.com>
+Cc:     Jason Gunthorpe <jgg@ziepe.ca>, Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
         Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Richard Weinberger <richard@nod.at>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>
-Subject: Re: [PATCH v6 00/33] Split ptdesc from struct page
-Message-ID: <ZJyBHdcjuaykIRG9@casper.infradead.org>
-References: <20230627031431.29653-1-vishal.moola@gmail.com>
- <e8992eee-4140-427e-bacb-9449f346318@google.com>
- <ac1c162c-07d8-6084-44ca-a2c1a4183df2@redhat.com>
- <90e643ca-de72-2f4c-f4fe-35e06e1a9277@google.com>
- <26282cb8-b6b0-f3a0-e82d-b4fec45c5f72@redhat.com>
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linux-s390@vger.kernel.org
+Subject: Re: prospective 13/12 s390 pgtable_list patch
+Message-ID: <20230628211539.67e25131@thinkpad-T15>
+In-Reply-To: <a69a26c0-ec93-3ad-a443-6655b5e49df2@google.com>
+References: <a69a26c0-ec93-3ad-a443-6655b5e49df2@google.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <26282cb8-b6b0-f3a0-e82d-b4fec45c5f72@redhat.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: o5QlcC83QywJDDYV_WAYfaHdHJXRsZSb
+X-Proofpoint-ORIG-GUID: fprCJS4bL2s1RTmX59191f1EECBmfEtH
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-06-28_14,2023-06-27_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ mlxlogscore=999 spamscore=0 lowpriorityscore=0 clxscore=1011
+ impostorscore=0 phishscore=0 priorityscore=1501 adultscore=0
+ suspectscore=0 bulkscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2305260000 definitions=main-2306280169
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jun 28, 2023 at 09:41:18AM +0200, David Hildenbrand wrote:
-> I'm not a friend of these "overlays"; it all only really makes sense to me
-> once we actually allocate the descriptors dynamically. Maybe some of the
-> existing/ongoing conversions were different (that's why I was asking for the
-> difference, as you said the "struct slab" thing was well received).
+On Thu, 22 Jun 2023 22:49:43 -0700 (PDT)
+Hugh Dickins <hughd@google.com> wrote:
+
+> Hi Gerald,
 > 
-> If they are primarily only unnecessary churn for now (and unclear when/how
-> it will become useful), I share your opinion.
+> It's that moment you've been dreading: I'm hoping that you can, please,
+> take a look at the patch below, and try building and running with it,
+> on top of the v2 series of 12 I sent out on Tuesday.
 
-One of the reasons for doing these conversions "early" is that it helps
-people who work on this code know what fields they can actually use in
-their memory descriptor.  We have a _lot_ of historical baggage with
-people just using random bits in struct page for their own purposes
-without necessarily considering the effects on the rest of the system.
+Wow, not sure if this is now dreadful or awesome, it could be the latter
+since this might actually work. But as Alexander already said, we would
+rather not add more complexity, for an already questionable benefit with
+regard to saving some page table memory.
 
-By creating specific types for each user of struct page, we can see
-what's actually going on.  Before the ptdesc conversion started, I could
-not have told you which bits in struct page were used by the s390 code.
-I knew they were playing some fun games with the refcount (it's even
-documented in the s390 code!) but I didn't know they were using ...
-whetever it is; page->private to point to the kvm private data?
+I have revisited my last approach with not adding back fragments in the
+pte_free_defer() path, and I am rather confident now that there is no
+"list_del() without list_add()" flaw any more. I had to use the
+page->pt_frag_refcount for this, to track list status. So even though we
+do not need page->pt_mm any more, that union is still not free for other
+things. But I guess that is acceptable, and I especially like that the
+patch will almost not change existing code at all, apart from the list
+status tracking.
 
-So maybe it is harder for MM developers right now to see what fields in
-memdesc A overlap with which fields in memdesc B.  That _ought_ not to
-be a concern!  We document which fields are available in each memdesc,
-and have various assertions to trip when people make things not line up
-any more.  There can still be problems, of course; we haven't set the
-assertions quite tightly enough in some cases.
+See my reply to your patch 07/12 in the other thread, for the patch.
+It is tested with LTP and patches from all three series applied, and
+it would allow going further with your work by having some s390 solution,
+that is neither obviously flawed, nor too complex to handle or understand
+also in the future.
 
-People are going to keep adding crap to struct page, and they're going
-to keep misusing the crap that's in struct page.  That has to stop.
+I also left a TODO comment in the patch, with regard to the still open
+question if we need the gmap_unlink(mm, pgtable, addr) also in
+pte_free_defer(), similar to page_table_free_rcu(). If yes, we would need
+some way to pass along the addr, which should be possible. However, IIUC,
+retract_page_tables() is currently ending up in a normal page_table_free(),
+w/o your work. And there we also have no addr available, and do no
+gmap_unlink(), so there might be a good chance that this is not needed here.
