@@ -2,437 +2,146 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 78F2CEB64D7
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Jun 2023 19:18:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CD75BEB64DA
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Jun 2023 20:11:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231185AbjF1TSI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 28 Jun 2023 15:18:08 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:9490 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229622AbjF1TSH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 28 Jun 2023 15:18:07 -0400
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 35SJC11t030309;
-        Wed, 28 Jun 2023 19:16:37 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=+6AeCSUCUv+yG1gm0hgV/y90gX2HiRtJaO0/FqDrUic=;
- b=TuqE7X4K77xnwskOiMiVGE4LsXPkbSP5o0DX84P52/OMQgjLQ9m820ng9X5Cg1zV+900
- mjyEEnpjw3eHhMokrc6Y1/D55aM+uHd0JPzuVxeP77f8afIQ7IcXrsHZbvtdFrXQLjOx
- Ard0Alfu0hOZZTMydza0TcsVkgMIYS1yQAThxOWOpljScb64GJPSgPBmOtBjAbTiTnvF
- PNr/15qR4eSQ5+2rcrkVLy8+9Dh9UMFK+OICfhI16VMQA3zoOyC5/bavagbxR/JbOUDk
- XzIyvoWPXvYzzOFacWuY4Wt72ashvH3w78xIGbCOIfW1EjResi+teHvBO9vyd9T5QGaY zQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rgttc83hh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 28 Jun 2023 19:16:36 +0000
-Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 35SJEJIM005126;
-        Wed, 28 Jun 2023 19:16:35 GMT
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rgttc83gd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 28 Jun 2023 19:16:35 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 35SFxV5e001753;
-        Wed, 28 Jun 2023 19:16:32 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-        by ppma01fra.de.ibm.com (PPS) with ESMTPS id 3rdr4525bm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 28 Jun 2023 19:16:32 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 35SJGT6a16515806
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 28 Jun 2023 19:16:29 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 215B520040;
-        Wed, 28 Jun 2023 19:16:29 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B5F5F20043;
-        Wed, 28 Jun 2023 19:16:26 +0000 (GMT)
-Received: from thinkpad-T15 (unknown [9.179.23.181])
-        by smtpav04.fra02v.mail.ibm.com (Postfix) with SMTP;
-        Wed, 28 Jun 2023 19:16:26 +0000 (GMT)
-Date:   Wed, 28 Jun 2023 21:16:24 +0200
-From:   Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-To:     Hugh Dickins <hughd@google.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        David Hildenbrand <david@redhat.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Qi Zheng <zhengqi.arch@bytedance.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Peter Xu <peterx@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        Ralph Campbell <rcampbell@nvidia.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Steven Price <steven.price@arm.com>,
-        SeongJae Park <sj@kernel.org>,
-        Lorenzo Stoakes <lstoakes@gmail.com>,
-        Huang Ying <ying.huang@intel.com>,
-        Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Zack Rusin <zackr@vmware.com>, Jason Gunthorpe <jgg@ziepe.ca>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Pasha Tatashin <pasha.tatashin@soleen.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        Song Liu <song@kernel.org>,
-        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
-        Russell King <linux@armlinux.org.uk>,
-        "David S. Miller" <davem@davemloft.net>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        id S232129AbjF1ULk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 28 Jun 2023 16:11:40 -0400
+Received: from mail-dm6nam10on2113.outbound.protection.outlook.com ([40.107.93.113]:61793
+        "EHLO NAM10-DM6-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S232141AbjF1ULN (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 28 Jun 2023 16:11:13 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=m9Ei8lhy+Z2lXMwBOOyKJeKsCrLumoEo9FWgiL9lRmJL6ICDoFeLCrfKGLz2n49G6yn38bWd8/L7BTEaRZRYNnVixNNOpBW7G8itTJtsf1ZHYpV5JrXXvnduewFuPj+44csIJmLG77oZ9N5tXhgNF3VEdDBPtgnyYAVt1Rz4yANZMZUXirM6ST7hZfIGS5sM4QB1SnD/T/lRnwvglGwQvJGwKU3N9hPX6R+zGG+plfW1VsrhA/OyBUE/QJXItjpfTKtR1Tj8WQXhoQDg8Tjquj0Gg3zIedkUwrdsJS6t5tB50aNt7DYkxIsnYp7xcnEpGF7BOb8qhkQNuo1LH+0KRQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=WOnJp6Vi8Y7ip+w8yT39mKwhFNh3PPVOfwoX2/4uD1Y=;
+ b=OYKS7iFCcZtO42gw9HI/J7w2ZJI8TpJUVw5V0ZA5WUz6HhPtUyuKODaX23w/ljbkWKC9MYZ9hIy/RMtjPy6XBXAm3L6iRXtEHUrXsvhppRFPN3oXkmOty/1h+n1KQVie0G/mXzfoJXh+SWqx27ByvUL9DP5Ch/n7tSfckZVEa91o10skU9Q88w6TOJXMlnby5TxXDEncWtv3o5P7CFd8BvWVgijWJbd6dWJ9HocvtSDJ7QwSO9C0pLYp2SUCqYF3O3oLo9+RuUeWiJ6scHelFbMHDbBdxkoFFax06P0cw7JzilOd0tx92WE5BKwbAcgJbXkOCubGYHqJ0rUG6HYPgw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=corigine.com; dmarc=pass action=none header.from=corigine.com;
+ dkim=pass header.d=corigine.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=corigine.onmicrosoft.com; s=selector2-corigine-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=WOnJp6Vi8Y7ip+w8yT39mKwhFNh3PPVOfwoX2/4uD1Y=;
+ b=mQ0toctk+6OnFyLiYAZiDC6ALXAErkEDQtOj08RrwdhPxiAVxbA3kqp/XRtWNiZHBQsMg0yNQH/7nknFZ9lWr8lVO919/v7N7lRAVOf2WsyDrOm7I/Q+2fVqqaOzwYQdAtJikEsRttEY5aDhaFw96SC0c2fvZH10DPRmNSpL3jc=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=corigine.com;
+Received: from PH0PR13MB4842.namprd13.prod.outlook.com (2603:10b6:510:78::6)
+ by BN0PR13MB4565.namprd13.prod.outlook.com (2603:10b6:408:117::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6521.26; Wed, 28 Jun
+ 2023 20:11:09 +0000
+Received: from PH0PR13MB4842.namprd13.prod.outlook.com
+ ([fe80::eb8f:e482:76e0:fe6e]) by PH0PR13MB4842.namprd13.prod.outlook.com
+ ([fe80::eb8f:e482:76e0:fe6e%5]) with mapi id 15.20.6521.023; Wed, 28 Jun 2023
+ 20:11:09 +0000
+Date:   Wed, 28 Jun 2023 22:11:01 +0200
+From:   Simon Horman <simon.horman@corigine.com>
+To:     Alexandra Winter <wintera@linux.ibm.com>
+Cc:     David Miller <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Jann Horn <jannh@google.com>,
-        Vishal Moola <vishal.moola@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH v2 07/12] s390: add pte_free_defer() for pgtables
- sharing page
-Message-ID: <20230628211624.531cdc58@thinkpad-T15>
-In-Reply-To: <a722dbec-bd9e-1213-1edd-53cd547aa4f@google.com>
-References: <54cb04f-3762-987f-8294-91dafd8ebfb0@google.com>
-        <a722dbec-bd9e-1213-1edd-53cd547aa4f@google.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
+        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: Re: [PATCH] s390/lcs: Remove FDDI option
+Message-ID: <ZJyT1aWFGqHjxofQ@corigine.com>
+References: <20230628135736.13339-1-wintera@linux.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230628135736.13339-1-wintera@linux.ibm.com>
+X-ClientProxiedBy: AS4P189CA0013.EURP189.PROD.OUTLOOK.COM
+ (2603:10a6:20b:5d7::16) To PH0PR13MB4842.namprd13.prod.outlook.com
+ (2603:10b6:510:78::6)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 86OsqEDFvZG1BCDwjde60XEA7qLVwybC
-X-Proofpoint-GUID: TBMvN-e7yOp90bNZ7UtNMOMiVqg5gMzT
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-06-28_14,2023-06-27_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 impostorscore=0
- malwarescore=0 bulkscore=0 clxscore=1011 mlxscore=0 priorityscore=1501
- phishscore=0 adultscore=0 mlxlogscore=999 lowpriorityscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2305260000 definitions=main-2306280169
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: PH0PR13MB4842:EE_|BN0PR13MB4565:EE_
+X-MS-Office365-Filtering-Correlation-Id: 50dace52-6504-4014-5b99-08db7813cfc2
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: WhjAQUpzuVgxdIadiMT8eumCPZUUc7QSBVr2U1o9p5yqx0Gt2HN39ZSP2Uax24RiWa5/TIby30vtWtYumB48t1CLYtS9ThDOcw3Ldih4s3QcxD9spCks+nRQDjon6f7glttSk0F1wIPKKPK/gjcW8/+1WtWiiuLmbM0tCGcw3+DTwdURnG6Td9GsXgDlhbUarnjbneWN164aCG4hrUdNEy3fcQFN+ZrvooT00R021YdSKfKmgWpGOdCMoGLhAuKGTtWTtQh0/DY8uaI1m9r5iwFB6BU0wrXKRTq+JZSLS5X8Fz+kXft+1FJDM1a17jExBrKLEUQxfy9govyGWYQbbDJ2wCFnpYywWajGjKV0iunmuD1d04HDrbjjhjJUbCgkRD65dWTc+eE7NYNFXvs1evGh5dlLx2GsIdWf+JNnDUQw7+VjGcSXM9rCON9MifYaswcym22CsVQiC9X9Jj3Y/7tKlAv40lMyyCCIeeTWUOlMGUomcNK0zLE/avI6Kzv7JJIsIl4Sx0e2MMDQkcThKNPe+9IhJS6JdW7J+L9+VkwppVuVAlcNcktFZ1kmvrzMfeHIQZVhR6TLzbZMvVob5KjFxOx4CqKeiM8uttCeJ6U=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR13MB4842.namprd13.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(136003)(346002)(39840400004)(396003)(376002)(366004)(451199021)(66556008)(66476007)(6506007)(36756003)(966005)(6666004)(54906003)(478600001)(2616005)(186003)(2906002)(6486002)(83380400001)(5660300002)(44832011)(7416002)(6916009)(66946007)(38100700002)(86362001)(8936002)(316002)(8676002)(41300700001)(4326008)(6512007)(66899021);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?ajzsvzQ+RdEejZCZYh1ZXq3dMcdbn98yDl7rHm6VaxU8k/n/iNzEHtLiV1dc?=
+ =?us-ascii?Q?MAq29iKPzACqn030NlUkT4CJFe3Ah6nh0q9XWfnND+gjvyeue2LkVywMjuGI?=
+ =?us-ascii?Q?bKX+qcCgcFyMxNhP8wUDJvRJ8CWvpdt32drzPLH1WEVd2PA4Md5X7EVfnYTz?=
+ =?us-ascii?Q?LRqbdNkmbFXKNYTObnwpElgddu17BnstZhm2H0XH7lGmc2g+L3YGFFbnJ2Is?=
+ =?us-ascii?Q?cQGztCVMBRu/bI5gfSlxhbwus1keVlt9oGFmKP1KseCuvarQE+yFm8rvihZx?=
+ =?us-ascii?Q?OFzTTwX1CtsCyYj1IwtgvoHEzlyGQ9ypGipqVRkx+9fXY6oA/m7I5nH7jEy5?=
+ =?us-ascii?Q?tKSf0dMcBUGkA5bAr3GF5LQCRNNAlYg9/RK0mqg1QAdt4kd6PsOYO+72eeBF?=
+ =?us-ascii?Q?8q8Plaplm8sUHHLFgk8Iu7U9S3xMEWHHAa7hUkbeUgFj19JFLKz/iMaHHiDO?=
+ =?us-ascii?Q?M1iPypnsDwrCvlylXolEv+2+nj+D/PJY0AD2JdyFpoj1Q4plIYDIsStt1CmY?=
+ =?us-ascii?Q?gi8woqbaVMIoz2ZFmAzwC0KG5cd1Y6AgGqybUCrNHl29i6/N3ZIhObtvMnHG?=
+ =?us-ascii?Q?KdmuBe3P/ZtStxEMvkAWNoFWfUnAs2kZEYA5EJGkH6lJ5QgbJsZ4JhWrcNyL?=
+ =?us-ascii?Q?hviC7lNiAqqt9h3hhNsjtzvxbjA6qVsEAIT3pzYQBcC2ejN+9WuGZo2HH6xm?=
+ =?us-ascii?Q?9dTKg3FssHEGAiu6kOM1YGIbaVsjy9N0OmK7WfzJSNgtxUharu1OghnJU+xm?=
+ =?us-ascii?Q?/iI7jUJxfv4i9yScR9vV/I+MNamfUuZOZdzHbRv4CnpXOsYlgbKal5/0fQKx?=
+ =?us-ascii?Q?KKmO3GUXa0t2k8dQ90xbO20CjCXmBX/0UyQcDKOAjR0jg9Bx6PhO47vJktQA?=
+ =?us-ascii?Q?yXJzueRpt9f6r/U2bq1fbiwCPYHuwr0bDhsGRK01b72r9yo786iSf/+mXEit?=
+ =?us-ascii?Q?HdIAfvXib32C9pdfHEoeNlOpGSx5SSi+lJLOEX+mtvczs26dr6lDdc5pxR8s?=
+ =?us-ascii?Q?rnJjE7Y6t1GFYXuBveCEFcZAJNs+SICVH4SyeH6ljbdGrpExDtQzXbaXkFmT?=
+ =?us-ascii?Q?Jl/dpGjVpDFe4j/iF5O3tRrW5ftHkK2TskVZtDo1XXFrNuh78Ew/f6E5C1Xn?=
+ =?us-ascii?Q?7l+n5GW5VWvWDRCH7w2fLs19wzIaGVFY14KxLwh7X2DNMh8hhOCVetYKBxFH?=
+ =?us-ascii?Q?EuMYT+0+CVlgtQUAw1ZxmMfUoCjmO+Wfn51y8eJ2Qob32JpxYhL8k0+xBtok?=
+ =?us-ascii?Q?dfsJ0gJkn3t7jxdw+35/NdFp8+NktNaklNsTAZdKpNZW8lCCPdvqI3h2kD/P?=
+ =?us-ascii?Q?3kz9wIwMCzlBQSRNtuUU59CucjZ+cBiMNPbPtpBe9BY2oYKLHy7HOMvl7guJ?=
+ =?us-ascii?Q?Q7UF+uB1HExJm4mFMDR3B4r8v8eb1Jn8L/KXTAxCPhlrI3hZqu0ACaruNmH8?=
+ =?us-ascii?Q?n0zQ4Exr5AI84pUWDG2ER/2NUjFglDgOnynrNAIauG9lf0ic3N9oSUvfeWZl?=
+ =?us-ascii?Q?nCcW1wzXxh5MmVzt5IRL5coF4HqX90RjXdEYGdK6KVAmshpl6Zsxsqbf5bdz?=
+ =?us-ascii?Q?8M7IkMHgGGeW878niXv1E4lVIqNEROAXssLeGPIxuXEr3j+PnZBJptMw1VZm?=
+ =?us-ascii?Q?/+ErIgRrW7W4rP/3AJzLwm3N18T8omZUGQ+b72waQUih0cFfL9+WS+0h5qyd?=
+ =?us-ascii?Q?uE2GnQ=3D=3D?=
+X-OriginatorOrg: corigine.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 50dace52-6504-4014-5b99-08db7813cfc2
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR13MB4842.namprd13.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Jun 2023 20:11:08.9477
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: fe128f2c-073b-4c20-818e-7246a585940c
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: M6veViruY8wM+f2nJUERPWHHCD9I2a8aVv9lfF8EQSH89b6BJScMIBU8b3pQ+1671xCbJouoA2HoqtXsHmstdiGtHANjnPqdiGJ7ZAi8Zy0=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN0PR13MB4565
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 20 Jun 2023 00:51:19 -0700 (PDT)
-Hugh Dickins <hughd@google.com> wrote:
-
-> Add s390-specific pte_free_defer(), to call pte_free() via call_rcu().
-> pte_free_defer() will be called inside khugepaged's retract_page_tables()
-> loop, where allocating extra memory cannot be relied upon.  This precedes
-> the generic version to avoid build breakage from incompatible pgtable_t.
+On Wed, Jun 28, 2023 at 03:57:36PM +0200, Alexandra Winter wrote:
+> The last s390 machine that supported FDDI was z900 ('7th generation',
+> released in 2000). The oldest machine generation currently supported by
+> the Linux kernel is MARCH_Z10 (released 2008). If there is still a usecase
+> for connecting a Linux on s390 instance to a LAN Channel Station (LCS), it
+> can only do so via Ethernet.
 > 
-> This version is more complicated than others: because s390 fits two 2K
-> page tables into one 4K page (so page->rcu_head must be shared between
-> both halves), and already uses page->lru (which page->rcu_head overlays)
-> to list any free halves; with clever management by page->_refcount bits.
+> Randy Dunlap[1] found that LCS over FDDI has never worked, when FDDI
+> was compiled as module. Instead of fixing that, remove the FDDI option
+> from the lcs driver.
 > 
-> Build upon the existing management, adjusted to follow a new rule: that
-> a page is not linked to mm_context_t::pgtable_list while either half is
-> pending free, by either tlb_remove_table() or pte_free_defer(); but is
-> afterwards either relinked to the list (if other half is allocated), or
-> freed (if other half is free): by __tlb_remove_table() in both cases.
+> While at it, make the CONFIG_LCS description a bit more helpful.
 > 
-> This rule ensures that page->lru is no longer in use while page->rcu_head
-> may be needed for use by pte_free_defer().  And a fortuitous byproduct of
-> following this rule is that page_table_free() no longer needs its curious
-> two-step manipulation of _refcount - read commit c2c224932fd0 ("s390/mm:
-> fix 2KB pgtable release race") for what to think of there.  But it does
-> not solve the problem that two halves may need rcu_head at the same time.
+> References:
+> [1] https://lore.kernel.org/netdev/20230621213742.8245-1-rdunlap@infradead.org/
 > 
-> For that, add HHead bits between s390's AAllocated and PPending bits in
-> the upper byte of page->_refcount: then the second pte_free_defer() can
-> see that rcu_head is already in use, and the RCU callee pte_free_half()
-> can see that it needs to make a further call_rcu() for that other half.
-> 
-> page_table_alloc() set the page->pt_mm field, so __tlb_remove_table()
-> knows where to link the freed half while its other half is allocated.
-> But linking to the list needs mm->context.lock: and although AA bit set
-> guarantees that pt_mm must still be valid, it does not guarantee that mm
-> is still valid an instant later: so acquiring mm->context.lock would not
-> be safe.  For now, use a static global mm_pgtable_list_lock instead:
-> then a soon-to-follow commit will split it per-mm as before (probably by
-> using a SLAB_TYPESAFE_BY_RCU structure for the list head and its lock);
-> and update the commentary on the pgtable_list.
-> 
-> Signed-off-by: Hugh Dickins <hughd@google.com>
-> ---
->  arch/s390/include/asm/pgalloc.h |   4 +
->  arch/s390/mm/pgalloc.c          | 205 +++++++++++++++++++++++---------
->  include/linux/mm_types.h        |   2 +-
->  3 files changed, 154 insertions(+), 57 deletions(-)
+> Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
 
-As discussed in the other thread, we would rather go with less complexity,
-possibly switching to an approach w/o the list and fragment re-use in the
-future. For now, as a first step in that direction, we can try with not
-adding fragments back only for pte_free_defer(). Here is an adjusted
-version of your patch, copying most of your pte_free_defer() logic and
-also description, tested with LTP and all three of your patch series applied:
+[text from Jakub]
 
-Add s390-specific pte_free_defer(), to call pte_free() via call_rcu().
-pte_free_defer() will be called inside khugepaged's retract_page_tables()
-loop, where allocating extra memory cannot be relied upon.  This precedes
-the generic version to avoid build breakage from incompatible pgtable_t.
+## Form letter - net-next-closed
 
-This version is more complicated than others: because s390 fits two 2K
-page tables into one 4K page (so page->rcu_head must be shared between
-both halves), and already uses page->lru (which page->rcu_head overlays)
-to list any free halves; with clever management by page->_refcount bits.
+The merge window for v6.5 has begun and therefore net-next is closed
+for new drivers, features, code refactoring and optimizations.
+We are currently accepting bug fixes only.
 
-Build upon the existing management, adjusted to follow a new rule: that
-a page is never added back to the list in pte_free_defer(). It is only
-removed from the list, when currently listed because the other fragment
-is not allocated. This introduces some asymmetry compared to the other
-page table freeing paths, and in particular a list_del() for such pages
-must be avoided there. Use page->pt_frag_refcount to keep track of the
-list status, and check that before doing list_del() in any freeing path.
+Please repost when net-next reopens after July 10th.
 
-Other paths would also not add back such pages to the list, if the other
-fragment happens to be freed in such a path at the same time, because
-they would observe cleared AA bits.
+RFC patches sent for review only are obviously welcome at any time.
 
-This rule ensures that page->lru is no longer in use while page->rcu_head
-may be needed for use by pte_free_defer(). But it does not solve the problem
-that two halves may need rcu_head at the same time.
-
-For that, add HHead bits between s390's AAllocated and PPending bits in
-the upper byte of page->_refcount: then the second pte_free_defer() can
-see that rcu_head is already in use, and the RCU callee pte_free_half()
-can see that it needs to make a further call_rcu() for that other half.
-
-Not adding back unallocated fragments to the list in pte_free_defer()
-can result in wasting some amount of memory for pagetables, depending
-on how long the allocated fragment will stay in use. In practice, this
-effect is expected to be insignificant, and not justify a far more
-complex approach, which might allow to add the fragments back later
-in __tlb_remove_table(), where we might not have a stable mm any more.
-
-Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
----
- arch/s390/include/asm/pgalloc.h |    4 +
- arch/s390/mm/pgalloc.c          |  136 +++++++++++++++++++++++++++++++++++++---
- 2 files changed, 132 insertions(+), 8 deletions(-)
-
---- a/arch/s390/include/asm/pgalloc.h
-+++ b/arch/s390/include/asm/pgalloc.h
-@@ -143,6 +143,10 @@ static inline void pmd_populate(struct m
- #define pte_free_kernel(mm, pte) page_table_free(mm, (unsigned long *) pte)
- #define pte_free(mm, pte) page_table_free(mm, (unsigned long *) pte)
- 
-+/* arch use pte_free_defer() implementation in arch/s390/mm/pgalloc.c */
-+#define pte_free_defer pte_free_defer
-+void pte_free_defer(struct mm_struct *mm, pgtable_t pgtable);
-+
- void vmem_map_init(void);
- void *vmem_crst_alloc(unsigned long val);
- pte_t *vmem_pte_alloc(void);
---- a/arch/s390/mm/pgalloc.c
-+++ b/arch/s390/mm/pgalloc.c
-@@ -185,11 +185,13 @@ void page_table_free_pgste(struct page *
-  * The upper byte (bits 24-31) of the parent page _refcount is used
-  * for tracking contained 2KB-pgtables and has the following format:
-  *
-- *   PP  AA
-+ *   PPHHAA
-  * 01234567    upper byte (bits 24-31) of struct page::_refcount
-- *   ||  ||
-- *   ||  |+--- upper 2KB-pgtable is allocated
-- *   ||  +---- lower 2KB-pgtable is allocated
-+ *   ||||||
-+ *   |||||+--- upper 2KB-pgtable is allocated
-+ *   ||||+---- lower 2KB-pgtable is allocated
-+ *   |||+----- upper 2KB-pgtable is pending free by page->rcu_head
-+ *   ||+------ lower 2KB-pgtable is pending free by page->rcu_head
-  *   |+------- upper 2KB-pgtable is pending for removal
-  *   +-------- lower 2KB-pgtable is pending for removal
-  *
-@@ -229,6 +231,17 @@ void page_table_free_pgste(struct page *
-  * logic described above. Both AA bits are set to 1 to denote a 4KB-pgtable
-  * while the PP bits are never used, nor such a page is added to or removed
-  * from mm_context_t::pgtable_list.
-+ *
-+ * The HH bits are used to prevent double use of page->rcu_head in
-+ * pte_free_defer(), when both 2K pagetables inside a page happen to get
-+ * freed by that path at the same time.
-+ *
-+ * pte_free_defer() also cannot add 2K fragments back to the list, because
-+ * page->rcu_head overlays with page->lru. This introduces some asymmetry
-+ * compared to the other pagetable freeing paths, and the missing list_add()
-+ * in pte_free_defer() could result in incorrect list_del(). Therefore, track
-+ * the the list status of a page with page->pt_frag_refcount, and check that
-+ * before doing list_del() in any freeing path.
-  */
- unsigned long *page_table_alloc(struct mm_struct *mm)
- {
-@@ -262,6 +275,7 @@ unsigned long *page_table_alloc(struct m
- 				atomic_xor_bits(&page->_refcount,
- 							0x01U << (bit + 24));
- 				list_del(&page->lru);
-+				atomic_set(&page->pt_frag_refcount, 0);
- 			}
- 		}
- 		spin_unlock_bh(&mm->context.lock);
-@@ -290,6 +304,7 @@ unsigned long *page_table_alloc(struct m
- 		memset64((u64 *)table, _PAGE_INVALID, 2 * PTRS_PER_PTE);
- 		spin_lock_bh(&mm->context.lock);
- 		list_add(&page->lru, &mm->context.pgtable_list);
-+		atomic_set(&page->pt_frag_refcount, 1);
- 		spin_unlock_bh(&mm->context.lock);
- 	}
- 	return table;
-@@ -325,13 +340,24 @@ void page_table_free(struct mm_struct *m
- 		 */
- 		mask = atomic_xor_bits(&page->_refcount, 0x11U << (bit + 24));
- 		mask >>= 24;
--		if (mask & 0x03U)
-+		if (mask & 0x03U) {
-+			/*
-+			 * Other half is allocated, add to list
-+			 */
- 			list_add(&page->lru, &mm->context.pgtable_list);
--		else
-+			atomic_set(&page->pt_frag_refcount, 1);
-+		} else if (atomic_read(&page->pt_frag_refcount)) {
-+			/*
-+			 * Other half is not allocated, and page is on the list,
-+			 * remove from list
-+			 */
- 			list_del(&page->lru);
-+			atomic_set(&page->pt_frag_refcount, 0);
-+		}
- 		spin_unlock_bh(&mm->context.lock);
- 		mask = atomic_xor_bits(&page->_refcount, 0x10U << (bit + 24));
- 		mask >>= 24;
-+		/* Return if other half is allocated, or delayed release pending */
- 		if (mask != 0x00U)
- 			return;
- 		half = 0x01U << bit;
-@@ -370,10 +396,22 @@ void page_table_free_rcu(struct mmu_gath
- 	 */
- 	mask = atomic_xor_bits(&page->_refcount, 0x11U << (bit + 24));
- 	mask >>= 24;
--	if (mask & 0x03U)
-+	if (mask & 0x03U) {
-+		/*
-+		 * Other half is allocated, add to end of list, as this
-+		 * will not immediately be re-usable because it is marked
-+		 * for delayed release
-+		 */
- 		list_add_tail(&page->lru, &mm->context.pgtable_list);
--	else
-+		atomic_set(&page->pt_frag_refcount, 1);
-+	} else if (atomic_read(&page->pt_frag_refcount)) {
-+		/*
-+		 * Other half is not allocated, and page is on the list,
-+		 * remove from list
-+		 */
- 		list_del(&page->lru);
-+		atomic_set(&page->pt_frag_refcount, 0);
-+	}
- 	spin_unlock_bh(&mm->context.lock);
- 	table = (unsigned long *) ((unsigned long) table | (0x01U << bit));
- 	tlb_remove_table(tlb, table);
-@@ -407,6 +445,88 @@ void __tlb_remove_table(void *_table)
- 	__free_page(page);
- }
- 
-+#ifdef CONFIG_TRANSPARENT_HUGEPAGE
-+static void pte_free_now0(struct rcu_head *head);
-+static void pte_free_now1(struct rcu_head *head);
-+
-+static void pte_free_pgste(struct rcu_head *head)
-+{
-+	unsigned long *table;
-+	struct page *page;
-+
-+	page = container_of(head, struct page, rcu_head);
-+	table = (unsigned long *)page_to_virt(page);
-+	table = (unsigned long *)((unsigned long)table | 0x03U);
-+	__tlb_remove_table(table);
-+}
-+
-+static void pte_free_half(struct rcu_head *head, unsigned int bit)
-+{
-+	unsigned long *table;
-+	struct page *page;
-+	unsigned int mask;
-+
-+	page = container_of(head, struct page, rcu_head);
-+	mask = atomic_xor_bits(&page->_refcount, 0x04U << (bit + 24));
-+
-+	table = (unsigned long *)page_to_virt(page);
-+	table += bit * PTRS_PER_PTE;
-+	table = (unsigned long *)((unsigned long)table | (0x01U << bit));
-+	__tlb_remove_table(table);
-+
-+	/* If pte_free_defer() of the other half came in, queue it now */
-+	if (mask & 0x0CU)
-+		call_rcu(&page->rcu_head, bit ? pte_free_now0 : pte_free_now1);
-+}
-+
-+static void pte_free_now0(struct rcu_head *head)
-+{
-+	pte_free_half(head, 0);
-+}
-+
-+static void pte_free_now1(struct rcu_head *head)
-+{
-+	pte_free_half(head, 1);
-+}
-+
-+void pte_free_defer(struct mm_struct *mm, pgtable_t pgtable)
-+{
-+	unsigned int bit, mask;
-+	struct page *page;
-+
-+	page = virt_to_page(pgtable);
-+	if (mm_alloc_pgste(mm)) {
-+		/*
-+		 * TODO: Do we need gmap_unlink(mm, pgtable, addr), like in
-+		 * page_table_free_rcu()?
-+		 * If yes -> need addr parameter here, like in pte_free_tlb().
-+		 */
-+		call_rcu(&page->rcu_head, pte_free_pgste);
-+		return;
-+}
-+	bit = ((unsigned long)pgtable & ~PAGE_MASK) / (PTRS_PER_PTE * sizeof(pte_t));
-+
-+	spin_lock_bh(&mm->context.lock);
-+	mask = atomic_xor_bits(&page->_refcount, 0x15U << (bit + 24));
-+	mask >>= 24;
-+	if ((mask & 0x03U) == 0x00U && atomic_read(&page->pt_frag_refcount)) {
-+		/*
-+		 * Other half is not allocated, page is on the list,
-+		 * remove from list
-+		 */
-+		list_del(&page->lru);
-+		atomic_set(&page->pt_frag_refcount, 0);
-+	}
-+	/* Page must not be on the list, so rcu_head can be used */
-+	BUG_ON(atomic_read(&page->pt_frag_refcount));
-+	spin_unlock_bh(&mm->context.lock);
-+
-+	/* Do not relink on rcu_head if other half already linked on rcu_head */
-+	if ((mask & 0x0CU) != 0x0CU)
-+		call_rcu(&page->rcu_head, bit ? pte_free_now1 : pte_free_now0);
-+}
-+#endif /* CONFIG_TRANSPARENT_HUGEPAGE */
-+
- /*
-  * Base infrastructure required to generate basic asces, region, segment,
-  * and page tables that do not make use of enhanced features like EDAT1.
+See: https://www.kernel.org/doc/html/next/process/maintainer-netdev.html#development-cycle
+--
+pw-bot: defer
