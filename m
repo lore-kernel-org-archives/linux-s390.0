@@ -2,157 +2,205 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B8F0C0015E
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Jun 2023 08:00:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6AE3DEB64DA
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Jun 2023 08:25:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231569AbjF1IAu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 28 Jun 2023 04:00:50 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:33063 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232208AbjF1H54 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 28 Jun 2023 03:57:56 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1687939026;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=SH32jNlN6Jqg7DPKFWcTzn8QudVshhtxY6DizRJx1h4=;
-        b=bghMily1ZUr18Du8X6lc/12R62hBJFLVlvFqOtalzA6DhArtCs1ZmJdodpIvfSUyT6MDIE
-        YglButbvEZ8O182fXbTCqOB+dCJOizeNd2KnDn9kGAUprMwjlUNQ+swzLDtdaqH4fZIFZX
-        qYhiVHbp/5H7dTEnoDo2y739QW8b7YI=
-Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
- [209.85.167.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-646-Xa4wvoIdPwuzSqs4N3xjBw-1; Wed, 28 Jun 2023 03:41:22 -0400
-X-MC-Unique: Xa4wvoIdPwuzSqs4N3xjBw-1
-Received: by mail-lf1-f69.google.com with SMTP id 2adb3069b0e04-4fb76659d44so3295863e87.3
-        for <linux-s390@vger.kernel.org>; Wed, 28 Jun 2023 00:41:22 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1687938081; x=1690530081;
-        h=content-transfer-encoding:in-reply-to:subject:organization:from
-         :content-language:references:cc:to:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=SH32jNlN6Jqg7DPKFWcTzn8QudVshhtxY6DizRJx1h4=;
-        b=RbDGqJ+wbaIxfR+D8uqp6ithpYiL5NMbsM93ZdkXQ/Qgx7EfsX19uynEA1yFI47Wdc
-         RiruVLaWRi54AYUwITGEVwlg6ubnEDEqL1JDN1GfMSD3q61FQvgj/AFas141QeLmnnqS
-         ARvu76wgXRgBlGa+TIb4viWDaadfoxywsp6mCrh4+fOceIBlwRibHDfcadymYyrOHMsI
-         mX7sa6iV4FE1Cgj6H61Ts6fp/WsBHjrr1fPqaI9KMxF10S1YoyxTEy2wEpHD7Oj/1MQ9
-         ivLwofKDdjpzMiT5Nx2VcPx1F2lJL/0rI/iYI0eACZM9tN6mxDviHc8Wk+5wBoSkFxMb
-         rvXQ==
-X-Gm-Message-State: AC+VfDyuNpUVab+VQ5WWIOx/St/z3ckoNW4dMigK/9MdFDA27nsFOEBN
-        +j4A20pnbF6jq6TXjlh695reJcMpXuk24n3zdJ/ZXXYRytqMKVdTUzuaTrlxhZYu+pnM+GQfPVl
-        kpS48nQW5cE0+zgy/+H2Qtw==
-X-Received: by 2002:a05:6512:10cb:b0:4fb:9341:9921 with SMTP id k11-20020a05651210cb00b004fb93419921mr540040lfg.52.1687938081185;
-        Wed, 28 Jun 2023 00:41:21 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ4/LL8Q6ptsPVewMKWY4urM5AzIoWSMnfr2lL0PypvevicnXRpVgfkYzOOBDpLnug9qgwbQPw==
-X-Received: by 2002:a05:6512:10cb:b0:4fb:9341:9921 with SMTP id k11-20020a05651210cb00b004fb93419921mr540021lfg.52.1687938080672;
-        Wed, 28 Jun 2023 00:41:20 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c715:ef00:fa40:f6df:a68d:a0e4? (p200300cbc715ef00fa40f6dfa68da0e4.dip0.t-ipconnect.de. [2003:cb:c715:ef00:fa40:f6df:a68d:a0e4])
-        by smtp.gmail.com with ESMTPSA id hn10-20020a05600ca38a00b003fba586100fsm3970092wmb.6.2023.06.28.00.41.18
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 28 Jun 2023 00:41:20 -0700 (PDT)
-Message-ID: <26282cb8-b6b0-f3a0-e82d-b4fec45c5f72@redhat.com>
-Date:   Wed, 28 Jun 2023 09:41:18 +0200
+        id S233694AbjF1IYn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 28 Jun 2023 04:24:43 -0400
+Received: from esa.microchip.iphmx.com ([68.232.153.233]:24222 "EHLO
+        esa.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231911AbjF1IV2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 28 Jun 2023 04:21:28 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+  t=1687940488; x=1719476488;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=UMkXk+bPbzGfZkrBHrsW/8MysrRy74gOjizdruOTAJs=;
+  b=ws+yuToO/QR5a9BxSMvZrJpj/+Ahn2JZotQ33ZP56QH75SWadrTw3wXb
+   BX1fZyRswX1bZYoNSa5a2t5JoojzTzgsvYPFcWXGUZKIpcRb+IhvBxSNv
+   qrwfocm11hAGXKNs8c8oGeGzKHjbNwGDAVQEdMHbq0uPAKCzFY42WHg6h
+   BbPIUC3+5Inqtge+ZBDq9e1xWcZ9EXR947c9zgO+eVJfWgYjUbqQbehGL
+   9DaKyhdRjwz9VjOXnGA4fvGKaufyCJ18SwjUyVXqc96IVwl0uwCzReg3q
+   noPZ0YbIxOi7A6Ptlra0h2l0CVsH0/oTIYciZOXHIAA1zgK8GwNjqX+/X
+   Q==;
+X-IronPort-AV: E=Sophos;i="6.01,165,1684825200"; 
+   d="asc'?scan'208";a="220938489"
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+Received: from unknown (HELO email.microchip.com) ([170.129.1.10])
+  by esa5.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 28 Jun 2023 01:21:26 -0700
+Received: from chn-vm-ex03.mchp-main.com (10.10.85.151) by
+ chn-vm-ex04.mchp-main.com (10.10.85.152) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.21; Wed, 28 Jun 2023 01:21:15 -0700
+Received: from wendy (10.10.115.15) by chn-vm-ex03.mchp-main.com
+ (10.10.85.151) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.21 via Frontend
+ Transport; Wed, 28 Jun 2023 01:21:04 -0700
+Date:   Wed, 28 Jun 2023 09:20:36 +0100
+From:   Conor Dooley <conor.dooley@microchip.com>
+To:     Eric DeVolder <eric.devolder@oracle.com>
+CC:     <linux@armlinux.org.uk>, <catalin.marinas@arm.com>,
+        <will@kernel.org>, <chenhuacai@kernel.org>, <geert@linux-m68k.org>,
+        <tsbogend@alpha.franken.de>,
+        <James.Bottomley@hansenpartnership.com>, <deller@gmx.de>,
+        <ysato@users.sourceforge.jp>, <dalias@libc.org>,
+        <glaubitz@physik.fu-berlin.de>, <tglx@linutronix.de>,
+        <mingo@redhat.com>, <bp@alien8.de>, <dave.hansen@linux.intel.com>,
+        <x86@kernel.org>, <linux-kernel@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-ia64@vger.kernel.org>, <loongarch@lists.linux.dev>,
+        <linux-m68k@lists.linux-m68k.org>, <linux-mips@vger.kernel.org>,
+        <linux-parisc@vger.kernel.org>, <linuxppc-dev@lists.ozlabs.org>,
+        <linux-riscv@lists.infradead.org>, <linux-s390@vger.kernel.org>,
+        <linux-sh@vger.kernel.org>, <kernel@xen0n.name>,
+        <mpe@ellerman.id.au>, <npiggin@gmail.com>,
+        <christophe.leroy@csgroup.eu>, <paul.walmsley@sifive.com>,
+        <palmer@dabbelt.com>, <aou@eecs.berkeley.edu>, <hca@linux.ibm.com>,
+        <gor@linux.ibm.com>, <agordeev@linux.ibm.com>,
+        <borntraeger@linux.ibm.com>, <svens@linux.ibm.com>,
+        <hpa@zytor.com>, <keescook@chromium.org>, <paulmck@kernel.org>,
+        <peterz@infradead.org>, <frederic@kernel.org>,
+        <akpm@linux-foundation.org>, <ardb@kernel.org>,
+        <samitolvanen@google.com>, <juerg.haefliger@canonical.com>,
+        <arnd@arndb.de>, <rmk+kernel@armlinux.org.uk>,
+        <linus.walleij@linaro.org>, <sebastian.reichel@collabora.com>,
+        <rppt@kernel.org>, <kirill.shutemov@linux.intel.com>,
+        <anshuman.khandual@arm.com>, <ziy@nvidia.com>,
+        <masahiroy@kernel.org>, <ndesaulniers@google.com>,
+        <mhiramat@kernel.org>, <ojeda@kernel.org>,
+        <thunder.leizhen@huawei.com>, <xin3.li@intel.com>, <tj@kernel.org>,
+        <gregkh@linuxfoundation.org>, <tsi@tuyoix.net>, <bhe@redhat.com>,
+        <hbathini@linux.ibm.com>, <sourabhjain@linux.ibm.com>,
+        <boris.ostrovsky@oracle.com>, <konrad.wilk@oracle.com>
+Subject: Re: [PATCH v3 11/13] riscv/kexec: refactor for kernel/Kconfig.kexec
+Message-ID: <20230628-urologist-faction-42ebe5372206@wendy>
+References: <20230626161332.183214-1-eric.devolder@oracle.com>
+ <20230626161332.183214-12-eric.devolder@oracle.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.12.0
-To:     Hugh Dickins <hughd@google.com>
-Cc:     "Vishal Moola (Oracle)" <vishal.moola@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org,
-        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-        xen-devel@lists.xenproject.org, kvm@vger.kernel.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Jonas Bonn <jonas@southpole.se>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Richard Weinberger <richard@nod.at>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>
-References: <20230627031431.29653-1-vishal.moola@gmail.com>
- <e8992eee-4140-427e-bacb-9449f346318@google.com>
- <ac1c162c-07d8-6084-44ca-a2c1a4183df2@redhat.com>
- <90e643ca-de72-2f4c-f4fe-35e06e1a9277@google.com>
-Content-Language: en-US
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-Subject: Re: [PATCH v6 00/33] Split ptdesc from struct page
-In-Reply-To: <90e643ca-de72-2f4c-f4fe-35e06e1a9277@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="dNpbxT7522GzDtJd"
+Content-Disposition: inline
+In-Reply-To: <20230626161332.183214-12-eric.devolder@oracle.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 27.06.23 22:13, Hugh Dickins wrote:
-> On Tue, 27 Jun 2023, David Hildenbrand wrote:
->> On 27.06.23 06:44, Hugh Dickins wrote:
->>> On Mon, 26 Jun 2023, Vishal Moola (Oracle) wrote:
->>>
->>>> The MM subsystem is trying to shrink struct page. This patchset
->>>> introduces a memory descriptor for page table tracking - struct ptdesc.
->>> ...
->>>>    39 files changed, 686 insertions(+), 455 deletions(-)
->>>
->>> I don't see the point of this patchset: to me it is just obfuscation of
->>> the present-day tight relationship between page table and struct page.
->>>
->>> Matthew already explained:
->>>
->>>> The intent is to get ptdescs to be dynamically allocated at some point
->>>> in the ~2-3 years out future when we have finished the folio project ...
->>>
->>> So in a kindly mood, I'd say that this patchset is ahead of its time.
->>> But I can certainly adapt to it, if everyone else sees some point to it.
->>
->> I share your thoughts, that code churn which will help eventually in the far,
->> far future (not wanting to sound too pessimistic, but it's not going to be
->> there tomorrow ;) ).
->>
->> However, if it's just the same as the other conversions we already did (e.g.,
->> struct slab), then I guess there is no reason to stop now -- the obfuscation
->> already happened.
->>
->> ... or is there a difference regarding this conversion and the previous ones?
-> 
-> I was aware of the struct slab thing, didn't see much point there myself
-> either; but it was welcomed by Vlastimil, and barely affected outside of
-> slab allocators, so I had no reason to object.
-> 
-> You think that if a little unnecessary churn (a *lot* of churn if you
-> include folios, which did save some repeated calls to compound_head())
-> has already occurred, that's a good precedent for allowing more and more?
+--dNpbxT7522GzDtJd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Well, if you phrase it like that ... no, I'm not in favor of unnecessary 
-churn at all. Yes, folios were/are a lot of churn (IMHO not unnecessary, 
-though).
+Hey Eric,
 
-I'm not a friend of these "overlays"; it all only really makes sense to 
-me once we actually allocate the descriptors dynamically. Maybe some of 
-the existing/ongoing conversions were different (that's why I was asking 
-for the difference, as you said the "struct slab" thing was well received).
+On Mon, Jun 26, 2023 at 12:13:30PM -0400, Eric DeVolder wrote:
+> The kexec and crash kernel options are provided in the common
+> kernel/Kconfig.kexec. Utilize the common options and provide
+> the ARCH_SUPPORTS_ and ARCH_SELECTS_ entries to recreate the
 
-If they are primarily only unnecessary churn for now (and unclear 
-when/how it will become useful), I share your opinion.
+> equivalent set of KEXEC and CRASH options.
 
--- 
+I find this diff a little hard to follow (since the other half off the
+change is in another patch), so it may be me missing something, but are
+you sure?
+
+>=20
+> Signed-off-by: Eric DeVolder <eric.devolder@oracle.com>
+> ---
+>  arch/riscv/Kconfig | 48 ++++++++++++++--------------------------------
+>  1 file changed, 14 insertions(+), 34 deletions(-)
+>=20
+> diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+> index 5966ad97c30c..c484abd9bbfd 100644
+> --- a/arch/riscv/Kconfig
+> +++ b/arch/riscv/Kconfig
+> @@ -585,48 +585,28 @@ config RISCV_BOOT_SPINWAIT
+> =20
+>  	  If unsure what to do here, say N.
+> =20
+> -config KEXEC
+> -	bool "Kexec system call"
+> -	depends on MMU
+> +config ARCH_SUPPORTS_KEXEC
+> +	def_bool MMU
+> +
+> +config ARCH_SELECTS_KEXEC
+> +	def_bool y
+> +	depends on KEXEC
+>  	select HOTPLUG_CPU if SMP
+> -	select KEXEC_CORE
+> -	help
+> -	  kexec is a system call that implements the ability to shutdown your
+> -	  current kernel, and to start another kernel. It is like a reboot
+> -	  but it is independent of the system firmware. And like a reboot
+> -	  you can start any kernel with it, not just Linux.
+> =20
+> -	  The name comes from the similarity to the exec system call.
+> +config ARCH_SUPPORTS_KEXEC_FILE
+> +	def_bool 64BIT && MMU && CRYPTO=3Dy && CRYPTO_SHA256=3Dy
+
+This looks like a change to me. Previously, only KEXEC_PURGATORY
+required these crypto options to be like so, but now KEXEC_FILE needs
+them too.
+
+What am I missing?
+
 Cheers,
+Conor.
 
-David / dhildenb
+> =20
+> -config KEXEC_FILE
+> -	bool "kexec file based systmem call"
+> -	depends on 64BIT && MMU
+> -	select HAVE_IMA_KEXEC if IMA
+> -	select KEXEC_CORE
+> +config ARCH_SELECTS_KEXEC_FILE
+> +	def_bool y
+> +	depends on KEXEC_FILE
+>  	select KEXEC_ELF
+> -	help
+> -	  This is new version of kexec system call. This system call is
+> -	  file based and takes file descriptors as system call argument
+> -	  for kernel and initramfs as opposed to list of segments as
+> -	  accepted by previous system call.
+> -
+> -	  If you don't know what to do here, say Y.
+> +	select HAVE_IMA_KEXEC if IMA
+> =20
+>  config ARCH_HAS_KEXEC_PURGATORY
+>  	def_bool KEXEC_FILE
+> -	depends on CRYPTO=3Dy
+> -	depends on CRYPTO_SHA256=3Dy
+> =20
+> -config CRASH_DUMP
+> -	bool "Build kdump crash kernel"
+> -	help
+> -	  Generate crash dump after being started by kexec. This should
+> -	  be normally only set in special crash dump kernels which are
+> -	  loaded in the main kernel with kexec-tools into a specially
+> -	  reserved region and then later executed after a crash by
+> -	  kdump/kexec.
+> -
+> -	  For more details see Documentation/admin-guide/kdump/kdump.rst
+> +config ARCH_SUPPORTS_CRASH_DUMP
+> +	def_bool y
+> =20
+>  config COMPAT
+>  	bool "Kernel support for 32-bit U-mode"
+> --=20
+> 2.31.1
+>
 
+--dNpbxT7522GzDtJd
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYIAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCZJvtVAAKCRB4tDGHoIJi
+0nmiAQDOO3BHXlme661CQ5d0WA+9UNnblFm/cWV3USIeSzvJAQD9Ev9vbdYVY6Uu
+ypalgd3Ta51Btqo6Gv+Pn5Xaf3a3lg4=
+=9sLY
+-----END PGP SIGNATURE-----
+
+--dNpbxT7522GzDtJd--
