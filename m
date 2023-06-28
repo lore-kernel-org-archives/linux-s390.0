@@ -2,201 +2,181 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F408EB64DC
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Jun 2023 02:43:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D7346EB64D9
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Jun 2023 02:53:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230121AbjF1Cnh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 27 Jun 2023 22:43:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42942 "EHLO
+        id S230220AbjF1CxN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 27 Jun 2023 22:53:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229651AbjF1Cne (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 27 Jun 2023 22:43:34 -0400
-Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 429882947;
-        Tue, 27 Jun 2023 19:43:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1687920211; x=1719456211;
-  h=message-id:date:subject:to:cc:references:from:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=PV4swNzFCtA2mZ08xknEXIY2+fX13/DpmAzwFLdGrFI=;
-  b=bTjFsc0qeiJ4cU5PeRoEvOoNsPdfx+ljIHPQfOIKYvPK8fr36F2Flj94
-   ygLXNcjxNtJWmwEKzYj2qNDsg56Av5gN4Yn05gfjZeGdqYJNM43FIzndN
-   KWWXueIK0t/mb6wc2ZRA7MxTzKeVcH1QpIK9Ve9LO6Jv45btA9HE9Phrv
-   prVnWJsRWId71vOmXPTDxyPKqJ/ZZYIhQIpBm6ZvtlnKQ6QIn1WzGEWZd
-   Du+iB5rtsid90B/4DjC9gHn+n/fvZsYaGvL68CGKgtFxghfJNWrwtmuPU
-   dotEy5jzB2WfVPAog2NLIpCNk9NaqGgasJ2w9CplET9s+9tolqOf3ChJ3
-   A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10754"; a="425404157"
-X-IronPort-AV: E=Sophos;i="6.01,164,1684825200"; 
-   d="scan'208";a="425404157"
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Jun 2023 19:43:30 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10754"; a="752042806"
-X-IronPort-AV: E=Sophos;i="6.01,164,1684825200"; 
-   d="scan'208";a="752042806"
-Received: from orsmsx601.amr.corp.intel.com ([10.22.229.14])
-  by orsmga001.jf.intel.com with ESMTP; 27 Jun 2023 19:43:30 -0700
-Received: from orsmsx601.amr.corp.intel.com (10.22.229.14) by
- ORSMSX601.amr.corp.intel.com (10.22.229.14) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.27; Tue, 27 Jun 2023 19:43:30 -0700
-Received: from ORSEDG602.ED.cps.intel.com (10.7.248.7) by
- orsmsx601.amr.corp.intel.com (10.22.229.14) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.27 via Frontend Transport; Tue, 27 Jun 2023 19:43:30 -0700
-Received: from NAM04-MW2-obe.outbound.protection.outlook.com (104.47.73.175)
- by edgegateway.intel.com (134.134.137.103) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.23; Tue, 27 Jun 2023 19:43:29 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=B8FT560DaNvquaX7muBLrrdmDuFEQ/3kibNS0OXFxVU6EEXsafSHXScNHtrlGhIOsFRCt2np0OUzB2b6gPyitNDS5uJz0Fscb30NmHPcV0U77y/yBsvOPm0wjeQnEB32UbnK15xo/jEz08Vovo+uAWMGEx9N9LtbYNPWFQP/r4f+LD7QwezAY3Y3UHS+PxC0Gj5J5CKSfwmwhk8g023g0qfOWI7TuFrfVCIJZFOm/Dix8X4vodZHqPaOihSRu+gi28+YGxNh+E4+M0+eQAEfqjX7ohC6JBw36/P2dHJ9Qyx6trb1hti1wVzSm9qbahtC8WbRUcsaZjqVN3F4NjZ5pA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=rGsic+KcL0gqfz7BSzgJm5elWH80iVh7dRhSTVu15BY=;
- b=HPnq2Aw0TsrK+QoT7BfTZXdGELMqnKHVaFaSS8xJLd75eMQFNQ6p1xqbsuZXD/Pn7/EOXQZlRZBRjVdE0M+xk8QcP6Bsx+fZ3vSK/gJoY1ir9M+st/Z8VbKXElZ/HEJZ4h/Olsmtc6NZzeEkFJqTe8zmsY+Qk/8CxsYqVY7cAm2Dks0K7jhuaRzuxRjJ8CaVlDWThUe3gE7Jxxyg6NgPxMMCUDBMKpkNdBkpSd7b2TnhBJNKoJnKnqpEUOpsj4Nb+rQv8zMuo1pcUGD/XbGVKt2laZGCyrb+xWegHg8rxUfF1fA857dFFyHkM779ezAxlZirq2qIEiRJSFXAW7s7AA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-Received: from CO1PR11MB4820.namprd11.prod.outlook.com (2603:10b6:303:6f::8)
- by DM4PR11MB6359.namprd11.prod.outlook.com (2603:10b6:8:b9::17) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6521.21; Wed, 28 Jun
- 2023 02:43:23 +0000
-Received: from CO1PR11MB4820.namprd11.prod.outlook.com
- ([fe80::e6c7:a86d:68d6:f2f3]) by CO1PR11MB4820.namprd11.prod.outlook.com
- ([fe80::e6c7:a86d:68d6:f2f3%5]) with mapi id 15.20.6521.026; Wed, 28 Jun 2023
- 02:43:22 +0000
-Message-ID: <ddcc31b5-0518-e2e3-2887-62a4ccc9e582@intel.com>
-Date:   Wed, 28 Jun 2023 10:43:05 +0800
+        with ESMTP id S229680AbjF1CxM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 27 Jun 2023 22:53:12 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 865B61BD9;
+        Tue, 27 Jun 2023 19:53:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+        Content-Type:In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
+        Message-ID:Sender:Reply-To:Content-ID:Content-Description;
+        bh=dlpR/21Irur/vl2Bba6LPVcNg/tvhnzdXj8x/ntUtHk=; b=h9543rTXTZgDs/8RTl0Bz0B9yE
+        M116oqVCVPUSJCywA3/wGRMWSC5PootiKkuuCIVj4ZLCgyIOapcZqDjfLOWkI/zgqJSN2o+fG3m+5
+        LNi4LObBb3C7+Tstoj9H5/0jL1jcqEwdfXrHwtiJUzjkCxWtGJQUlfpBhl61Jqtop/8glW6Ccw6yE
+        s5dG7olz8uyRhgbdhV7y4VtfVDkINgMoKAG0nYF8+mfcvCHdM63tNzCb0I5PpzLqzy9zDRsZZhIVM
+        hFO0dw/qPTsAF7ZlKIL9PIHWAqdHkD6kuAAWAv5XjnO0XghWj9KoDCmoz5lsjXByoki6omg+BeCHV
+        YW2hbj2A==;
+Received: from [2601:1c2:980:9ec0::2764]
+        by bombadil.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
+        id 1qELIr-00EdQb-1N;
+        Wed, 28 Jun 2023 02:53:09 +0000
+Message-ID: <7f585168-7296-58aa-7fdb-c2aa08f346f4@infradead.org>
+Date:   Tue, 27 Jun 2023 19:53:08 -0700
+MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Firefox/102.0 Thunderbird/102.11.0
-Subject: Re: [PATCH v1 06/10] mm: Allow deferred splitting of arbitrary large
- anon folios
+ Thunderbird/102.11.2
+Subject: Re: [PATCH] s390/net: lcs: fix build errors when FDDI is a loadable
+ module
 Content-Language: en-US
-To:     Ryan Roberts <ryan.roberts@arm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        David Hildenbrand <david@redhat.com>,
-        Yu Zhao <yuzhao@google.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
+To:     Alexandra Winter <wintera@linux.ibm.com>,
+        Simon Horman <simon.horman@corigine.com>
+Cc:     linux-kernel@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>
-CC:     <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
-        <linux-alpha@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-ia64@vger.kernel.org>, <linux-m68k@lists.linux-m68k.org>,
-        <linux-s390@vger.kernel.org>
-References: <20230626171430.3167004-1-ryan.roberts@arm.com>
- <20230626171430.3167004-7-ryan.roberts@arm.com>
-From:   Yin Fengwei <fengwei.yin@intel.com>
-In-Reply-To: <20230626171430.3167004-7-ryan.roberts@arm.com>
-Content-Type: text/plain; charset="UTF-8"
+        "David S . Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>
+References: <20230621213742.8245-1-rdunlap@infradead.org>
+ <98375832-3d29-1f03-145f-8d6e763dd2d2@linux.ibm.com>
+ <ZJP99hSRt5MakBXC@corigine.com>
+ <3da03251-21ac-b41f-593d-cbc9ac9f86f6@linux.ibm.com>
+From:   Randy Dunlap <rdunlap@infradead.org>
+In-Reply-To: <3da03251-21ac-b41f-593d-cbc9ac9f86f6@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: SG2P153CA0040.APCP153.PROD.OUTLOOK.COM (2603:1096:4:c6::9)
- To CO1PR11MB4820.namprd11.prod.outlook.com (2603:10b6:303:6f::8)
-MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CO1PR11MB4820:EE_|DM4PR11MB6359:EE_
-X-MS-Office365-Filtering-Correlation-Id: 22651b35-81f4-49cf-eceb-08db77817085
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: rXzuC11LgE82erJhN9S3YtgmBNRtC8Ry76xc0bE6nlmjb2kyZ5cL/Em1NMXbyYh0jxWPM4a/vSd6cIRaRhx1OzGpa7ZuovKApWbmyDDQGkVtNV3zHKWD3LJRibzy2f+QozftDB2I9fWqK9tQn+bDkO9t2tZYz95KySHnLl+oVW4NZOgr8vYVIm740cwDH3wbfPcpSJ/VkZ0c7WivTrExTOpVX/hHa0S5HTubEsBSlD2sf10hv5D2u7Uaxv19lfs5MPPt90bsPDOOKha9erRJPxs3LqN3ZdPh+0ezaxHNiEwCq50pXKjEMvJh6aXoTxd06hXTyQU2AiVrTo4wCj1hBJ73Sr1Gs5OaSGOuHsgl4YN0QEs2uv2MHyH6WSQe7G/8B40sanR+8eOgG0STtOcAeurknfvulltvpiuU9eebf3c33M3YsQIGjUDmSeIz0lJ5+L4+BDVSKsqbpfWq5/xnk9i0zZ6ElarBjD7pKW8KaFzZQLUaPTMzSBt+45FClCq/XmiXg3RtaKuwHmjEt2J+rQaorXsGzkCSHIdKJ/uJwJMg8Ah29+u89bjnuqe7yN1/YlHKrE3nyKYTeOurwEKs3X92aimmm9mhLKKgdtE3UQp0LSbu4us9Xk84IrwCYhH4ygdXreKJMwrrJAw3aglBsYgm/B0koM48keymSmLY+zI=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CO1PR11MB4820.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(346002)(396003)(39860400002)(376002)(136003)(366004)(451199021)(7416002)(5660300002)(31686004)(66946007)(4326008)(66556008)(66476007)(478600001)(36756003)(316002)(8936002)(8676002)(2906002)(110136005)(31696002)(41300700001)(6486002)(186003)(86362001)(26005)(6506007)(6512007)(53546011)(6666004)(38100700002)(921005)(2616005)(82960400001)(83380400001)(45980500001)(43740500002);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?T2xSbFFuSFV6RVVjZ1lVMWVnVkN0bXFLL1ZlQnc3ME1xdU4vZHRRMXhaSzVT?=
- =?utf-8?B?bDlQQXRlY1VFTnlsZXN1UFBYN2U3cmlCUlJaVVlUQWZXQjhiWmdNSGVQNC9s?=
- =?utf-8?B?UkczSkNodXhXOHF3UlN1eWVGNEVDU09IUndKOEl6a3ZTcExFQW1Relg0YWJa?=
- =?utf-8?B?Nm9JZzBCNWJmRlhqaG1xNGZwV3p5eFE2MnhMVUIxSUJrdjBoZjRMbTdtaFBa?=
- =?utf-8?B?WmdkcEh3UUNZZzBmcFdCU2pPM3ZnaVB0TFAxUGQyQjRhcjQ4USs4U2k4ZTdl?=
- =?utf-8?B?R2g0M0J5Wk0xL3d2VkZaMVAvM0VwK0ZDVXI5aWZsREh0THpzeWlNQmVySXJi?=
- =?utf-8?B?ajFDWGZUM2ozTjV1WjQ1cXM5TENGem9URHZwVWR0ZTVoeHRpYnNya3B0dUJo?=
- =?utf-8?B?MlFpc2RqenY5TGNOei9EUm1kZXVqR2xxM3BMOUpxRWZ0VkpWWWlVK3ZvN2Ja?=
- =?utf-8?B?OE9MRUkrTmR1RnMyMCtDTzBvamRPVkNMdE9ZeDZEaWFkUnh5Z1ZtVkpnRHR0?=
- =?utf-8?B?QXVsdGhlZGpPWnUwZFlBNkhMVmNIbEZjUXlEcTNSSWpuN2wrRU5UWmpSRzN5?=
- =?utf-8?B?eGZxQURJbXhnV0swLytrcXZOeUFkcjNTcFF3cnVwdnBTTG5QdjNGODNQOWxn?=
- =?utf-8?B?TkJDSkJYSkk0ZnZYbUdIZEZGYmJhSWxFZTdoSEhtNmNaTlJZaG0wNzcyMlky?=
- =?utf-8?B?NE84dXVNaTdnL25BclU1SG5maTFydW5hMFJxYTFwUUJpSXMwZE9CNXB1dExD?=
- =?utf-8?B?aUx0dEZyVVZxNTJtNnhqbzI1cWI3UGJGRlFwR2l0R2NOQ1k1ckYwemR3Yk4r?=
- =?utf-8?B?SlQ1TTRtYVdwZXVSRUZjV0E3cWZ5S2lrUFFLMmx1ZHEwRHUvNzdHUWJ0Q0dt?=
- =?utf-8?B?dGRVM3AwaE1OSjJYYk80QWtCVmlVY2lCZXNRT2ZzMmJlUmxPdXNRUFZJUnVa?=
- =?utf-8?B?YzhLUXdXRVcxK3k4ZmNsek1FbHRiMkM5UXdXTlhETTdrMVgrZzBTOVN4UnJC?=
- =?utf-8?B?eFBLOGlwS0UvTlVsWjFzV3p1emNlNzlOb25VKzZmWTNWQ0FjRVF2NklwMUEz?=
- =?utf-8?B?cVRVZ3pkOE41eDV4UzZ6ckhFLy81WGl6ejRhYVN5SmdET0tvQUR6cXp3UHFZ?=
- =?utf-8?B?cnFTZEwzaEh1OGVBQS8vSnhHc1N3SkZhMjFnZ3NWZ0VCNXBsOTIvRzA3Vm4w?=
- =?utf-8?B?dnpyTUJ5RlRTU3kvajdBUEtPMFdFVDhaVTNTVzBjTHliQmxhRWZIdGRBUDNi?=
- =?utf-8?B?ZjM2MkpFRVJIc1hFeUFldnc3aVJBY0Z4TWhibllNQkx2VkNLb0JDUW56NWFi?=
- =?utf-8?B?OWRTMVoyZjB3NjlpSVR4TTYwbVFrOVdhTVBpMjQvbkdSTVhnUlN3R2ZSZjBv?=
- =?utf-8?B?R1ZZOFVNOVdpTUdUVksyQWlIWEhvWElpTVN4SGJEYlRZdHEyL0FlWEoxNkhV?=
- =?utf-8?B?aTFRWTBxQ1ZaQlM1K3NKaThnRTlSdkNOQnBoWmJ5aHNSM200NXJ1WVZhSmFN?=
- =?utf-8?B?TDVGSjBOWUpzdlN6YklXMlRCb0o5ZGwrUXg4NThVSmlsVXkvWVRyam1mOStH?=
- =?utf-8?B?bzhIazFleGFoRnZYT1NyRDRmb05hVDB1Rzd6cTN5VWtxMWJvemdsd3V0Y1Ex?=
- =?utf-8?B?Q1o5Si8zWmVzTU5TQ29nbyt3ZXdZVWxYbDNhakxtRXJtK2pINVNTKytPSzQ3?=
- =?utf-8?B?UWZCd3B4WGZjMHMrdmhNMFU1T2xhUVVPZjkyeEppb3V5eUhSVHMvdWFxbXRv?=
- =?utf-8?B?anJyZFJqUXFiMzl6YjNRbHI3MW9aN05uUThjWlJBOTRrZ3NncmsxRDEwdWhP?=
- =?utf-8?B?c2tsSlFQcENlQndkMVVnSXVaeDJhbFY0UGpvQVcvY2lpN2o5Rm9rSmVSQm9l?=
- =?utf-8?B?N2pJUm1EdEZZS2NyaDc0NTI2Z0lzUVZhZnZWaGxjNy81dTNoaWRiTkI0RXdO?=
- =?utf-8?B?VytSNFZuRTBmMnFHc29CT2FnZ0FLRGdRaGZDenV1TWFFRnZkN0lSWFJXa1RI?=
- =?utf-8?B?WUt3RjJVcnk3NnFBeGxlRzZhbkxWSEIwZytoZU14Y2FqWThicXgxNXAzcmU1?=
- =?utf-8?B?M2V4N1dFcXhnRjZXZU03ZTI1V2RpSzZJMmFXUGlqclpHVUdldkxLMVdmeURr?=
- =?utf-8?Q?51uRhZRsxBtS9+3WB0R7IXNdS?=
-X-MS-Exchange-CrossTenant-Network-Message-Id: 22651b35-81f4-49cf-eceb-08db77817085
-X-MS-Exchange-CrossTenant-AuthSource: CO1PR11MB4820.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Jun 2023 02:43:22.7814
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 5XtWioyfUH7ElG2sw4eeX+1SduxhQWUWVOmf+rAbrXVfaqQnPPyxSg1CfPtDloBIIwBTBm+BzYLQcGcvSnekXw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR11MB6359
-X-OriginatorOrg: intel.com
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Hi,
+Sorry for the delay.
 
-
-On 6/27/23 01:14, Ryan Roberts wrote:
-> With the introduction of large folios for anonymous memory, we would
-> like to be able to split them when they have unmapped subpages, in order
-> to free those unused pages under memory pressure. So remove the
-> artificial requirement that the large folio needed to be at least
-> PMD-sized.
+On 6/22/23 05:16, Alexandra Winter wrote:
 > 
-> Signed-off-by: Ryan Roberts <ryan.roberts@arm.com>
-Reviewed-by: Yin Fengwei <fengwei.yin@intel.com>
-
-
-Regards
-Yin, Fengwei
-
-> ---
->  mm/rmap.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/mm/rmap.c b/mm/rmap.c
-> index ac1d93d43f2b..3d11c5fb6090 100644
-> --- a/mm/rmap.c
-> +++ b/mm/rmap.c
-> @@ -1567,7 +1567,7 @@ void page_remove_rmap(struct page *page, struct vm_area_struct *vma,
->  		 * page of the folio is unmapped and at least one page
->  		 * is still mapped.
->  		 */
-> -		if (folio_test_pmd_mappable(folio) && folio_test_anon(folio))
-> +		if (folio_test_large(folio) && folio_test_anon(folio))
->  			if (!compound || nr < nr_pmdmapped)
->  				deferred_split_folio(folio);
->  	}
+> On 22.06.23 09:53, Simon Horman wrote:
+>> On Thu, Jun 22, 2023 at 09:15:24AM +0200, Alexandra Winter wrote:
+>>>
+>>>
+>>> On 21.06.23 23:37, Randy Dunlap wrote:
+>>>> Require FDDI to be built-in if it is used. LCS needs FDDI to be
+>>>> built-in to build without errors.
+>>>>
+>>>> Prevents these build errors:
+>>>> s390-linux-ld: drivers/s390/net/lcs.o: in function `lcs_new_device':
+>>>> drivers/s390/net/lcs.c:2150: undefined reference to `fddi_type_trans'
+>>>> s390-linux-ld: drivers/s390/net/lcs.c:2151: undefined reference to `alloc_fddidev'
+>>>>
+>>>> This FDDI requirement effectively restores the previous condition
+>>>> before the blamed patch, when #ifdef CONFIG_FDDI was used, without
+>>>> testing for CONFIG_FDDI_MODULE.
+>>>>
+>>>> Fixes: 128272336120 ("s390/net: lcs: use IS_ENABLED() for kconfig detection")
+> [...]
+>>
+>>> 2) I wonder whether
+>>>
+>>>   	depends on CCW && NETDEVICES && (ETHERNET || FDDI)
+>>>  +	depends on FDDI || FDDI=n
+>>>
+>>> would do what we want here:
+>>> When FDDI is a loadable module, LCS mustn't be built-in.
+>>>
+>>> I will do some experiments and let you know.
+>>
+>> It does seem to on my side.
+>> But checking would be much appreciated.
+>  
+> 
+> Here are my experiments:
+> 
+> Current net-next:
+> -----------------
+> if !IS_ENABLED(CONFIG_ETHERNET) && !IS_ENABLED(CONFIG_FDDI)
+> 
+> drivers/s390/net/KConfig:
+> config LCS
+> 	def_tristate m
+> 	depends on CCW && NETDEVICES && (ETHERNET || FDDI)
+> 
+> .config:
+> ETHERNET  |  FDDI | LCS choices | LCS | compile
+> --------------------------------------------------------
+> n		m	m,n	  m	success (failed before Randy's fix)
+> y		m	y,m,n	  m	success (failed before Randy's fix)
+> y		m		  y	fails: undefined reference to `fddi_type_trans'
+> 
+> 
+> Simon's proposal:
+> -----------------
+>         depends on CCW && NETDEVICES && (ETHERNET || FDDI)
+> +       depends on FDDI=y || FDDI=n
+> 
+> ETHERNET  |  FDDI | LCS choices | LCS | compile
+> --------------------------------------------------------
+> n		m	-
+> y		m	-
+> y		m	-
+> y		n	y,m,n	  y	success
+> y		n	y,m,n	  m	success
+> y		y	y,m,n	  m	success
+> 
+> 
+> Alexandra's proposal:
+> ---------------------
+>         depends on CCW && NETDEVICES && (ETHERNET || FDDI)
+> +       depends on FDDI || FDDI=n
+> 
+> ETHERNET  |  FDDI | LCS choices | LCS | compile
+> --------------------------------------------------------
+> n		m	m,n	  m	success
+> y		m	m,n	  m	success
+> y		n	y,m,n	  y	success
+> y		n	y,m,n	  m	success
+> y		y	y,m,n	  m	success
+> 
+> -----------------------------------------------------------
+> 
+> Seems that 
+> 	A[tristate] depends on B[tristate]
+> means that A cannot be 'higher' than B.
+> Meaning, if B=n -> A= must be n
+> 	if B=m -> A can be m or n
+> 	if B=y -> A can be y or m or n
+
+Looks correct.
+
+> Although I did not find documentation confirming that.
+
+I think that it's in Documentation/kbuild/kconfig-language.rst,
+under "Menu dependencies", but not quite in that format. :)
+
+> 
+> @Randy, do you want give a v2 a try with that?
+
+Sure, I'll try that.
+
+> I guess then it is safe to delete from drivers/s390/net/lcs.c
+> -#if !IS_ENABLED(CONFIG_ETHERNET) && !IS_ENABLED(CONFIG_FDDI)
+> -#error Cannot compile lcs.c without some net devices switched on.
+> -#endif
+
+Yes, I was planning to do that as well.
+
+Thanks for the time that you have spent on this.
+-- 
+~Randy
